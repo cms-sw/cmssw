@@ -7,16 +7,16 @@
 //
 /**\class FWItemChangeSignal FWItemChangeSignal.h Fireworks/Core/interface/FWItemChangeSignal.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Jan 21 19:30:17 EST 2008
-// $Id: FWItemChangeSignal.h,v 1.1 2008/01/25 01:52:26 chrjones Exp $
+// $Id: FWItemChangeSignal.h,v 1.2 2008/11/06 22:05:23 amraktad Exp $
 //
 
 // system include files

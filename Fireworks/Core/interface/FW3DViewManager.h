@@ -1,7 +1,7 @@
 #ifndef Fireworks_Core_FW3DViewManager_h
 #define Fireworks_Core_FW3DViewManager_h
 // -*- C++ -*-
-// $Id: FW3DViewManager.h,v 1.4 2008/12/04 20:06:55 chrjones Exp $
+// $Id: FW3DViewManager.h,v 1.5 2008/12/08 18:43:28 chrjones Exp $
 
 // system include files
 #include <string>
@@ -30,48 +30,48 @@ class TEveCaloDataHist;
 class FW3DViewManager : public FWViewManagerBase
 {
 
-   public:
-      FW3DViewManager(FWGUIManager*);
-      virtual ~FW3DViewManager();
+public:
+   FW3DViewManager(FWGUIManager*);
+   virtual ~FW3DViewManager();
 
-      // ---------- const member functions ---------------------
-      FWTypeToRepresentations supportedTypesAndRepresentations() const;
+   // ---------- const member functions ---------------------
+   FWTypeToRepresentations supportedTypesAndRepresentations() const;
 
-      // ---------- static member functions --------------------
+   // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
-      virtual void newItem(const FWEventItem*);
+   // ---------- member functions ---------------------------
+   virtual void newItem(const FWEventItem*);
 
-      FWViewBase* buildView(TGFrame* iParent);
+   FWViewBase* buildView(TGFrame* iParent);
 
-      //connect to ROOT signals
-      void selectionAdded(TEveElement*);
-      void selectionRemoved(TEveElement*);
-      void selectionCleared();
+   //connect to ROOT signals
+   void selectionAdded(TEveElement*);
+   void selectionRemoved(TEveElement*);
+   void selectionCleared();
 
-   protected:
-      virtual void modelChangesComing();
-      virtual void modelChangesDone();
+protected:
+   virtual void modelChangesComing();
+   virtual void modelChangesDone();
 
-   private:
-      FW3DViewManager(const FW3DViewManager&); // stop default
+private:
+   FW3DViewManager(const FW3DViewManager&);    // stop default
 
-      const FW3DViewManager& operator=(const FW3DViewManager&); // stop default
+   const FW3DViewManager& operator=(const FW3DViewManager&);    // stop default
 
-      void makeProxyBuilderFor(const FWEventItem* iItem);
-      void beingDestroyed(const FWViewBase*);
-      
-      // ---------- member data --------------------------------
-      typedef  std::map<std::string,std::vector<std::string> > TypeToBuilders;
-      TypeToBuilders m_typeToBuilders;
-      std::vector<boost::shared_ptr<FW3DDataProxyBuilder> > m_builders;
+   void makeProxyBuilderFor(const FWEventItem* iItem);
+   void beingDestroyed(const FWViewBase*);
 
-      std::vector<boost::shared_ptr<FW3DView> > m_views;
-      FWEvePtr<TEveElementList> m_elements;
-      TEveCaloDataHist* m_caloData;
+   // ---------- member data --------------------------------
+   typedef  std::map<std::string,std::vector<std::string> > TypeToBuilders;
+   TypeToBuilders m_typeToBuilders;
+   std::vector<boost::shared_ptr<FW3DDataProxyBuilder> > m_builders;
 
-      TEveSelection* m_eveSelection;
-      FWSelectionManager* m_selectionManager;
+   std::vector<boost::shared_ptr<FW3DView> > m_views;
+   FWEvePtr<TEveElementList> m_elements;
+   TEveCaloDataHist* m_caloData;
+
+   TEveSelection* m_eveSelection;
+   FWSelectionManager* m_selectionManager;
 };
 
 #endif

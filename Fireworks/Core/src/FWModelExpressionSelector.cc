@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Jan 23 10:37:22 EST 2008
-// $Id: FWModelExpressionSelector.cc,v 1.6 2008/08/22 16:55:58 chrjones Exp $
+// $Id: FWModelExpressionSelector.cc,v 1.7 2008/11/06 22:05:26 amraktad Exp $
 //
 
 // system include files
@@ -40,19 +40,19 @@
 // constructors and destructor
 //
 /*
-FWModelExpressionSelector::FWModelExpressionSelector()
-{
-}
-*/
+   FWModelExpressionSelector::FWModelExpressionSelector()
+   {
+   }
+ */
 // FWModelExpressionSelector::FWModelExpressionSelector(const FWModelExpressionSelector& rhs)
 // {
 //    // do actual copying here;
 // }
 
 /*FWModelExpressionSelector::~FWModelExpressionSelector()
-{
-}
-*/
+   {
+   }
+ */
 //
 // assignment operators
 //
@@ -94,7 +94,7 @@ FWModelExpressionSelector::select(FWEventItem* iItem, const std::string& iExpres
          //std::cout <<"failed to parse "<<iExpression<<" because of syntax error"<<std::endl;
          succeeded=false;
       }
-   }catch(const reco::parser::BaseException& e) {
+   } catch(const reco::parser::BaseException& e) {
       //NOTE: need to calculate actual position before doing the regex
       throw FWExpressionException(reco::parser::baseExceptionWhat(e), indexFromNewFormatToOldFormat(temp,e.where-temp.c_str(),iExpression));
       //std::cout <<"failed to parse "<<iExpression<<" because "<<reco::parser::baseExceptionWhat(e)<<std::endl;

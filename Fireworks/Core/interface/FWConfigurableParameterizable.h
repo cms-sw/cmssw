@@ -7,16 +7,16 @@
 //
 /**\class FWConfigurableParameterizable FWConfigurableParameterizable.h Fireworks/Core/interface/FWConfigurableParameterizable.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Mar 16 12:01:29 EDT 2008
-// $Id: FWConfigurableParameterizable.h,v 1.1 2008/03/16 19:57:38 chrjones Exp $
+// $Id: FWConfigurableParameterizable.h,v 1.2 2008/11/06 22:05:22 amraktad Exp $
 //
 
 // system include files
@@ -31,26 +31,28 @@
 class FWConfigurableParameterizable : public FWParameterizable, public FWConfigurable
 {
 
-   public:
-      FWConfigurableParameterizable(unsigned int iVersion = 1);
-      virtual ~FWConfigurableParameterizable();
+public:
+   FWConfigurableParameterizable(unsigned int iVersion = 1);
+   virtual ~FWConfigurableParameterizable();
 
-      // ---------- const member functions ---------------------
-      virtual void addTo(FWConfiguration&) const;
+   // ---------- const member functions ---------------------
+   virtual void addTo(FWConfiguration&) const;
 
-      unsigned int version() const { return m_version;}
-      // ---------- static member functions --------------------
+   unsigned int version() const {
+      return m_version;
+   }
+   // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
-      virtual void setFrom(const FWConfiguration&);
+   // ---------- member functions ---------------------------
+   virtual void setFrom(const FWConfiguration&);
 
-   private:
-      FWConfigurableParameterizable(const FWConfigurableParameterizable&); // stop default
+private:
+   FWConfigurableParameterizable(const FWConfigurableParameterizable&);    // stop default
 
-      const FWConfigurableParameterizable& operator=(const FWConfigurableParameterizable&); // stop default
+   const FWConfigurableParameterizable& operator=(const FWConfigurableParameterizable&);    // stop default
 
-      // ---------- member data --------------------------------
-      unsigned int m_version;
+   // ---------- member data --------------------------------
+   unsigned int m_version;
 };
 
 

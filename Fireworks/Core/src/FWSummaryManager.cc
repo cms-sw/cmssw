@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar  4 09:35:32 EST 2008
-// $Id: FWSummaryManager.cc,v 1.5 2008/11/06 22:05:26 amraktad Exp $
+// $Id: FWSummaryManager.cc,v 1.6 2008/11/10 18:07:58 amraktad Exp $
 //
 
 // system include files
@@ -38,18 +38,18 @@ FWSummaryManager::FWSummaryManager(TGListTree* iListTree,
                                    FWSelectionManager* sm,
                                    FWEventItemsManager* eim,
                                    FWDetailViewManager* dv,
-                                   FWModelChangeManager* cm):
-m_detailViewManager(dv)
+                                   FWModelChangeManager* cm) :
+   m_detailViewManager(dv)
 {
    sm->selectionChanged_.connect(boost::bind(&FWSummaryManager::selectionChanged,this,_1));
    eim->newItem_.connect(boost::bind(&FWSummaryManager::newItem,
-                                             this, _1) );
+                                     this, _1) );
    eim->goingToClearItems_.connect(boost::bind(&FWSummaryManager::removeAllItems,this));
 
 
    m_listTree = iListTree;
    /*m_eventObjects =  new TEveElementList("Physics Objects");
-   m_listTree->OpenItem(m_eventObjects->AddIntoListTree(m_listTree,
+      m_listTree->OpenItem(m_eventObjects->AddIntoListTree(m_listTree,
                                                         reinterpret_cast<TGListTreeItem*>(0))
                         );*/
    cm->changeSignalsAreDone_.connect(boost::bind(&FWSummaryManager::changesDone,this));
@@ -86,9 +86,9 @@ FWSummaryManager::newItem(const FWEventItem* iItem)
    //lst->SetMainColor(iItem->defaultDisplayProperties().color());
    //NEED TO CHANGE THE SIGNATURE OF THE SIGNAL
    TEveElementList* lst = new FWListEventItem( const_cast<FWEventItem*>(iItem),
-                                              m_detailViewManager);
-  lst->AddIntoListTree(m_listTree,
-                       reinterpret_cast<TGListTreeItem*>(0));
+                                               m_detailViewManager);
+   lst->AddIntoListTree(m_listTree,
+                        reinterpret_cast<TGListTreeItem*>(0));
 
    //lst->AddIntoListTree(m_listTree,m_eventObjects);
    //NOTE: Why didn't I call AddElement of m_eventObjects???  Because it will go in the wrong list tree?

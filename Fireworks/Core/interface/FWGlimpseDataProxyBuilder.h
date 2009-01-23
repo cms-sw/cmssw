@@ -7,16 +7,16 @@
 //
 /**\class FWGlimpseDataProxyBuilder FWGlimpseDataProxyBuilder.h Fireworks/Core/interface/FWGlimpseDataProxyBuilder.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id: FWGlimpseDataProxyBuilder.h,v 1.5 2008/11/14 15:32:32 chrjones Exp $
+// $Id: FWGlimpseDataProxyBuilder.h,v 1.6 2008/12/02 21:15:07 chrjones Exp $
 //
 
 // system include files
@@ -38,68 +38,68 @@ class FWEveValueScaler;
 class FWGlimpseDataProxyBuilder
 {
 
-   public:
-      FWGlimpseDataProxyBuilder();
-      virtual ~FWGlimpseDataProxyBuilder();
+public:
+   FWGlimpseDataProxyBuilder();
+   virtual ~FWGlimpseDataProxyBuilder();
 
-      // ---------- const member functions ---------------------
+   // ---------- const member functions ---------------------
 
-      // ---------- static member functions --------------------
-      ///Used by the plugin system to determine how the proxy uses the data from FWEventItem
-      static std::string typeOfBuilder();
-   
-      // ---------- member functions ---------------------------
-      void setItem(const FWEventItem* iItem);
-      void setHaveAWindow(bool iFlag);
-      void build();
+   // ---------- static member functions --------------------
+   ///Used by the plugin system to determine how the proxy uses the data from FWEventItem
+   static std::string typeOfBuilder();
 
-      void modelChanges(const FWModelIds&);
-      void itemChanged(const FWEventItem*);
+   // ---------- member functions ---------------------------
+   void setItem(const FWEventItem* iItem);
+   void setHaveAWindow(bool iFlag);
+   void build();
 
-      TEveElement* usedInScene();
+   void modelChanges(const FWModelIds&);
+   void itemChanged(const FWEventItem*);
 
-      void setScaler(FWEveValueScaler* iScaler) {
-         m_scaler = iScaler;
-      }
+   TEveElement* usedInScene();
 
-      FWEveValueScaler* scaler() const {
-         return m_scaler;
-      }
-   protected:
-      const FWEventItem* item() const {
-         return m_item;
-      }
+   void setScaler(FWEveValueScaler* iScaler) {
+      m_scaler = iScaler;
+   }
 
-      std::vector<FWModelId>& ids() {
-         return m_ids;
-      }
-   private:
-      virtual void build(const FWEventItem* iItem,
-			 TEveElementList** product) = 0 ;
+   FWEveValueScaler* scaler() const {
+      return m_scaler;
+   }
+protected:
+   const FWEventItem* item() const {
+      return m_item;
+   }
+
+   std::vector<FWModelId>& ids() {
+      return m_ids;
+   }
+private:
+   virtual void build(const FWEventItem* iItem,
+                      TEveElementList** product) = 0 ;
 
 
-      //Override this if you need to special handle selection or other changes
-      virtual void modelChanges(const FWModelIds&, TEveElement*);
-      virtual void applyChangesToAllModels(TEveElement* iElements);
-      virtual void itemChangedImp(const FWEventItem*);
+   //Override this if you need to special handle selection or other changes
+   virtual void modelChanges(const FWModelIds&, TEveElement*);
+   virtual void applyChangesToAllModels(TEveElement* iElements);
+   virtual void itemChangedImp(const FWEventItem*);
 
-      virtual void itemBeingDestroyed(const FWEventItem*);
+   virtual void itemBeingDestroyed(const FWEventItem*);
 
-      void applyChangesToAllModels();
+   void applyChangesToAllModels();
 
    FWGlimpseDataProxyBuilder(const FWGlimpseDataProxyBuilder&); // stop default
 
-      const FWGlimpseDataProxyBuilder& operator=(const FWGlimpseDataProxyBuilder&); // stop default
+   const FWGlimpseDataProxyBuilder& operator=(const FWGlimpseDataProxyBuilder&);    // stop default
 
-      // ---------- member data --------------------------------
-      const FWEventItem* m_item;
-      FWEvePtr<TEveElementList> m_elementHolder;//Used as a smart pointer for the item created by the builder
-      std::vector<FWModelId> m_ids;
+   // ---------- member data --------------------------------
+   const FWEventItem* m_item;
+   FWEvePtr<TEveElementList> m_elementHolder;   //Used as a smart pointer for the item created by the builder
+   std::vector<FWModelId> m_ids;
 
-      bool m_modelsChanged;
-      bool m_haveViews;
-      FWEveValueScaler* m_scaler;
-      bool m_mustBuild;
+   bool m_modelsChanged;
+   bool m_haveViews;
+   FWEveValueScaler* m_scaler;
+   bool m_mustBuild;
 };
 
 

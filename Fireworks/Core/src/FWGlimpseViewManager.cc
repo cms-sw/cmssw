@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWGlimpseViewManager.cc,v 1.13 2008/12/02 21:15:47 chrjones Exp $
+// $Id: FWGlimpseViewManager.cc,v 1.14 2009/01/22 16:05:12 amraktad Exp $
 //
 
 // system include files
@@ -48,12 +48,12 @@
 //
 // constructors and destructor
 //
-FWGlimpseViewManager::FWGlimpseViewManager(FWGUIManager* iGUIMgr):
-FWViewManagerBase(),
-  m_elements("Glimpse"),
-  m_eveSelection(0),
-  m_selectionManager(0),
-  m_scaler(1.0)
+FWGlimpseViewManager::FWGlimpseViewManager(FWGUIManager* iGUIMgr) :
+   FWViewManagerBase(),
+   m_elements("Glimpse"),
+   m_eveSelection(0),
+   m_selectionManager(0),
+   m_scaler(1.0)
 {
    FWGUIManager::ViewBuildFunctor f;
    f=boost::bind(&FWGlimpseViewManager::buildView,
@@ -61,11 +61,11 @@ FWViewManagerBase(),
    iGUIMgr->registerViewBuilder(FWGlimpseView::staticTypeName(), f);
 
    /*
-   m_eveSelection=gEve->GetSelection();
-   m_eveSelection->SetPickToSelect(TEveSelection::kPS_Projectable);
-   m_eveSelection->Connect("SelectionAdded(TEveElement*)","FWGlimpseViewManager",this,"selectionAdded(TEveElement*)");
-   m_eveSelection->Connect("SelectionRemoved(TEveElement*)","FWGlimpseViewManager",this,"selectionRemoved(TEveElement*)");
-   m_eveSelection->Connect("SelectionCleared()","FWGlimpseViewManager",this,"selectionCleared()");
+      m_eveSelection=gEve->GetSelection();
+      m_eveSelection->SetPickToSelect(TEveSelection::kPS_Projectable);
+      m_eveSelection->Connect("SelectionAdded(TEveElement*)","FWGlimpseViewManager",this,"selectionAdded(TEveElement*)");
+      m_eveSelection->Connect("SelectionRemoved(TEveElement*)","FWGlimpseViewManager",this,"selectionRemoved(TEveElement*)");
+      m_eveSelection->Connect("SelectionCleared()","FWGlimpseViewManager",this,"selectionCleared()");
     */
 
    //create a list of the available ViewManager's
@@ -89,7 +89,7 @@ FWViewManagerBase(),
        it!=itEnd;
        ++it) {
       std::string::size_type first = it->find_first_of('@')+1;
-      std::string  purpose = it->substr(first,it->find_last_of('@')-first);
+      std::string purpose = it->substr(first,it->find_last_of('@')-first);
       m_typeToBuilders[purpose].push_back(*it);
    }
 
@@ -111,7 +111,7 @@ FWGlimpseViewManager::buildView(TGFrame* iParent)
    //? pView->resetCamera();
    if(1 == m_views.size()) {
       for(std::vector<boost::shared_ptr<FWGlimpseDataProxyBuilder> >::iterator it
-          =m_builders.begin(), itEnd = m_builders.end();
+             =m_builders.begin(), itEnd = m_builders.end();
           it != itEnd;
           ++it) {
          (*it)->setHaveAWindow(true);
@@ -126,14 +126,14 @@ FWGlimpseViewManager::beingDestroyed(const FWViewBase* iView)
 
    if(1 == m_views.size()) {
       for(std::vector<boost::shared_ptr<FWGlimpseDataProxyBuilder> >::iterator it
-          =m_builders.begin(), itEnd = m_builders.end();
+             =m_builders.begin(), itEnd = m_builders.end();
           it != itEnd;
           ++it) {
          (*it)->setHaveAWindow(false);
       }
    }
    for(std::vector<boost::shared_ptr<FWGlimpseView> >::iterator it=
-       m_views.begin(), itEnd = m_views.end();
+          m_views.begin(), itEnd = m_views.end();
        it != itEnd;
        ++it) {
       if(it->get() == iView) {
@@ -150,22 +150,22 @@ FWGlimpseViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
       //std::cout <<"got selection manager"<<std::endl;
       m_selectionManager = iItem->selectionManager();
    }
-  TypeToBuilders::iterator itFind = m_typeToBuilders.find(iItem->purpose());
-  if(itFind != m_typeToBuilders.end()) {
-     for ( std::vector<std::string>::const_iterator builderName = itFind->second.begin();
-	   builderName != itFind->second.end(); ++builderName )
-       {
-          FWGlimpseDataProxyBuilder* builder = FWGlimpseDataProxyBuilderFactory::get()->create(*builderName);
-	  if(0!=builder) {
-	     boost::shared_ptr<FWGlimpseDataProxyBuilder> pB( builder );
-	     builder->setItem(iItem);
-             builder->setHaveAWindow(!m_views.empty());
-             builder->setScaler(&m_scaler);
-             m_elements.AddElement(builder->usedInScene());
-             m_builders.push_back(pB);
-	  }
-       }
-  }
+   TypeToBuilders::iterator itFind = m_typeToBuilders.find(iItem->purpose());
+   if(itFind != m_typeToBuilders.end()) {
+      for ( std::vector<std::string>::const_iterator builderName = itFind->second.begin();
+            builderName != itFind->second.end(); ++builderName )
+      {
+         FWGlimpseDataProxyBuilder* builder = FWGlimpseDataProxyBuilderFactory::get()->create(*builderName);
+         if(0!=builder) {
+            boost::shared_ptr<FWGlimpseDataProxyBuilder> pB( builder );
+            builder->setItem(iItem);
+            builder->setHaveAWindow(!m_views.empty());
+            builder->setScaler(&m_scaler);
+            m_elements.AddElement(builder->usedInScene());
+            m_builders.push_back(pB);
+         }
+      }
+   }
 }
 
 void
@@ -243,18 +243,18 @@ FWGlimpseViewManager::supportedTypesAndRepresentations() const
        it != itEnd;
        ++it) {
       for ( std::vector<std::string>::const_iterator builderName = it->second.begin();
-	   builderName != it->second.end(); ++builderName )
+            builderName != it->second.end(); ++builderName )
       {
          if(builderName->substr(0,kSimple.size()) == kSimple) {
             returnValue.add(boost::shared_ptr<FWRepresentationCheckerBase>( new FWSimpleRepresentationChecker(
-                                                                                                              builderName->substr(kSimple.size(),
-                                                                                                                                  builderName->find_first_of('@')-kSimple.size()),
-                                                                                                              it->first)));
+                                                                               builderName->substr(kSimple.size(),
+                                                                                                   builderName->find_first_of('@')-kSimple.size()),
+                                                                               it->first)));
          } else {
-            
+
             returnValue.add(boost::shared_ptr<FWRepresentationCheckerBase>( new FWEDProductRepresentationChecker(
-                                                                                                                 builderName->substr(0,builderName->find_first_of('@')),
-                                                                                                                 it->first)));
+                                                                               builderName->substr(0,builderName->find_first_of('@')),
+                                                                               it->first)));
          }
       }
    }

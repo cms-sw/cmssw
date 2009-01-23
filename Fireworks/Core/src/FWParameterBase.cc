@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 23 13:36:24 EST 2008
-// $Id: FWParameterBase.cc,v 1.1 2008/03/11 02:43:55 chrjones Exp $
+// $Id: FWParameterBase.cc,v 1.2 2008/11/06 22:05:26 amraktad Exp $
 //
 
 // system include files
@@ -29,8 +29,8 @@
 //
 // constructors and destructor
 //
-FWParameterBase::FWParameterBase(FWParameterizable* iParent,const std::string& iName):
-m_name(iName)
+FWParameterBase::FWParameterBase(FWParameterizable* iParent,const std::string& iName) :
+   m_name(iName)
 {
    if(0!=iParent) {
       iParent->add(this);

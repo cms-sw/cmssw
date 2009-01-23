@@ -7,16 +7,16 @@
 //
 /**\class FWDoubleParameter FWDoubleParameter.h Fireworks/Core/interface/FWDoubleParameter.h
 
- Description: Provides access to a simple double parameter
+   Description: Provides access to a simple double parameter
 
- Usage:
+   Usage:
     If min and max values are both identical than no restriction is placed on the allowed value
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:36:34 EST 2008
-// $Id: FWDoubleParameter.h,v 1.1 2008/03/11 02:43:57 chrjones Exp $
+// $Id: FWDoubleParameter.h,v 1.2 2008/11/06 22:05:22 amraktad Exp $
 //
 
 // system include files
@@ -30,56 +30,56 @@
 class FWDoubleParameter : public FWParameterBase
 {
 
-   public:
-      FWDoubleParameter(FWParameterizable* iParent,
-                        const std::string& iName,
-                        double iDefault=0,
-                        double iMin=-1.,
-                        double iMax=-1.);
-      //virtual ~FWDoubleParameter();
-      template <class T>
-      FWDoubleParameter(FWParameterizable* iParent,
-                        const std::string& iName,
-                        T iCallback,
-                        double iDefault=0.,
-                        double iMin=-1.,
-                        double iMax=-1.):
+public:
+   FWDoubleParameter(FWParameterizable* iParent,
+                     const std::string& iName,
+                     double iDefault=0,
+                     double iMin=-1.,
+                     double iMax=-1.);
+   //virtual ~FWDoubleParameter();
+   template <class T>
+   FWDoubleParameter(FWParameterizable* iParent,
+                     const std::string& iName,
+                     T iCallback,
+                     double iDefault=0.,
+                     double iMin=-1.,
+                     double iMax=-1.) :
       FWParameterBase(iParent,iName),
       m_value(iDefault),
       m_min(iMin),
       m_max(iMax)
-      {
-         changed_.connect(iCallback);
-      }
-      // ---------- const member functions ---------------------
-      double value() const {
-         return m_value;
-      }
-      double min() const {
-         return m_min;
-      }
-      double max() const {
-         return m_max;
-      }
+   {
+      changed_.connect(iCallback);
+   }
+   // ---------- const member functions ---------------------
+   double value() const {
+      return m_value;
+   }
+   double min() const {
+      return m_min;
+   }
+   double max() const {
+      return m_max;
+   }
 
-      virtual void addTo(FWConfiguration& ) const ;
-      // ---------- static member functions --------------------
+   virtual void addTo(FWConfiguration& ) const ;
+   // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
-      virtual void setFrom(const FWConfiguration&);
-      void set(double);
+   // ---------- member functions ---------------------------
+   virtual void setFrom(const FWConfiguration&);
+   void set(double);
 
-      sigc::signal<void,double> changed_;
+   sigc::signal<void,double> changed_;
 
-   private:
-      FWDoubleParameter(const FWDoubleParameter&); // stop default
+private:
+   FWDoubleParameter(const FWDoubleParameter&);    // stop default
 
-      const FWDoubleParameter& operator=(const FWDoubleParameter&); // stop default
+   const FWDoubleParameter& operator=(const FWDoubleParameter&);    // stop default
 
-      // ---------- member data --------------------------------
-      double m_value;
-      double m_min;
-      double m_max;
+   // ---------- member data --------------------------------
+   double m_value;
+   double m_min;
+   double m_max;
 };
 
 

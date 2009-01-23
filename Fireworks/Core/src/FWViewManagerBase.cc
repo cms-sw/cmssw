@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 10:56:17 EST 2008
-// $Id: FWViewManagerBase.cc,v 1.9 2008/06/09 20:18:22 chrjones Exp $
+// $Id: FWViewManagerBase.cc,v 1.10 2008/11/06 22:05:26 amraktad Exp $
 //
 
 // system include files
@@ -35,9 +35,9 @@
 //
 // constructors and destructor
 //
-FWViewManagerBase::FWViewManagerBase():
-  m_detIdToGeo(0),
-  m_changeManager(0)
+FWViewManagerBase::FWViewManagerBase() :
+   m_detIdToGeo(0),
+   m_changeManager(0)
 {
 }
 
@@ -67,7 +67,7 @@ FWViewManagerBase::~FWViewManagerBase()
 //
 void*
 FWViewManagerBase::createInstanceOf(const TClass* iBaseClass,
-				    const char* iNameOfClass)
+                                    const char* iNameOfClass)
 {
    //create proxy builders
    Int_t error;
@@ -84,14 +84,14 @@ FWViewManagerBase::createInstanceOf(const TClass* iBaseClass,
       gROOT->LoadMacro( (std::string(iNameOfClass)+".C+").c_str(), &error );
       c = TClass::GetClass( iNameOfClass );
       if(0==c ) {
-	 std::cerr <<"failed to find "<< iNameOfClass << std::endl;
-	 return 0;
+         std::cerr <<"failed to find "<< iNameOfClass << std::endl;
+         return 0;
       }
    }
    void* inst = c->New();
    void* baseClassInst = c->DynamicCast(iBaseClass,inst);
    if(0==baseClassInst) {
-     std::cerr<<"conversion to "<<iBaseClass->ClassName() << " for class " << iNameOfClass << " failed"<<std::endl;
+      std::cerr<<"conversion to "<<iBaseClass->ClassName() << " for class " << iNameOfClass << " failed"<<std::endl;
       return 0;
    }
    return baseClassInst;

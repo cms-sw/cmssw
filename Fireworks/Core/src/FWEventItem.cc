@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.30 2008/12/06 02:38:15 chrjones Exp $
+// $Id: FWEventItem.cc,v 1.31 2008/12/09 14:40:21 chrjones Exp $
 //
 
 // system include files
@@ -54,22 +54,22 @@ FWEventItem::FWEventItem(fireworks::Context* iContext,
                          unsigned int iId,
                          boost::shared_ptr<FWItemAccessorBase> iAccessor,
                          const FWPhysicsObjectDesc& iDesc) :
-m_context(iContext),
-m_id(iId),
-m_name(iDesc.name()),
-m_type(iDesc.type()),
-m_purpose(iDesc.purpose()),
-m_accessor(iAccessor),
-m_displayProperties(iDesc.displayProperties()),
-m_layer(iDesc.layer()),
-m_moduleLabel(iDesc.moduleLabel()),
-m_productInstanceLabel(iDesc.productInstanceLabel()),
-m_processName(iDesc.processName()),
-m_event(0),
-m_interestingValueGetter(ROOT::Reflex::Type::ByTypeInfo(*(m_accessor->modelType()->GetTypeInfo())),
-                         defaultMemberFunctionNames()),
-m_filter(iDesc.filterExpression(),""),
-m_printedNoDataError(false)
+   m_context(iContext),
+   m_id(iId),
+   m_name(iDesc.name()),
+   m_type(iDesc.type()),
+   m_purpose(iDesc.purpose()),
+   m_accessor(iAccessor),
+   m_displayProperties(iDesc.displayProperties()),
+   m_layer(iDesc.layer()),
+   m_moduleLabel(iDesc.moduleLabel()),
+   m_productInstanceLabel(iDesc.productInstanceLabel()),
+   m_processName(iDesc.processName()),
+   m_event(0),
+   m_interestingValueGetter(ROOT::Reflex::Type::ByTypeInfo(*(m_accessor->modelType()->GetTypeInfo())),
+                            defaultMemberFunctionNames()),
+   m_filter(iDesc.filterExpression(),""),
+   m_printedNoDataError(false)
 {
    assert(m_type->GetTypeInfo());
    ROOT::Reflex::Type dataType( ROOT::Reflex::Type::ByTypeInfo(*(m_type->GetTypeInfo())));
@@ -94,10 +94,10 @@ m_printedNoDataError(false)
 //    // do actual copying here;
 // }
 /*
-FWEventItem::~FWEventItem()
-{
-}
-*/
+   FWEventItem::~FWEventItem()
+   {
+   }
+ */
 //
 // assignment operators
 //
@@ -128,8 +128,8 @@ FWEventItem::setEvent(const fwlite::Event* iEvent)
 
 void
 FWEventItem::setLabels(const std::string& iModule,
-		       const std::string& iProductInstance,
-		       const std::string& iProcess)
+                       const std::string& iProductInstance,
+                       const std::string& iProcess)
 {
    m_moduleLabel = iModule;
    m_productInstanceLabel = iProductInstance;
@@ -145,7 +145,7 @@ FWEventItem::setLabels(const std::string& iModule,
 void
 FWEventItem::setName(const std::string& iName)
 {
-  m_name = iName;
+   m_name = iName;
 }
 
 void
@@ -250,7 +250,7 @@ FWEventItem::toggleSelect(int iIndex) const
    sel = not sel;
    FWModelId id(this,iIndex);
    if (sel)
-	selectionManager()->select(id);
+      selectionManager()->select(id);
    else selectionManager()->unselect(id);
    changeManager()->changed(id);
 }
@@ -261,7 +261,7 @@ FWEventItem::setDisplayProperties(int iIndex, const FWDisplayProperties& iProps)
    FWDisplayProperties& prop = m_itemInfos.at(iIndex).m_displayProperties;
    if(m_displayProperties.isVisible()) {
       if( prop
-         != iProps ) {
+          != iProps ) {
          prop = iProps;
          FWModelId id(this,iIndex);
          //selectionManager()->select(id);
@@ -289,20 +289,20 @@ FWEventItem::setDisplayProperties(int iIndex, const FWDisplayProperties& iProps)
    }
 }
 
-void 
+void
 FWEventItem::moveToFront()
 {
    assert(0!=m_context->eventItemsManager());
    int largest = layer();
    for(FWEventItemsManager::const_iterator it = m_context->eventItemsManager()->begin(),
-       itEnd = m_context->eventItemsManager()->end();
+                                           itEnd = m_context->eventItemsManager()->end();
        it != itEnd;
        ++it) {
       if( (*it) && (*it)->layer() > largest) {
          largest= (*it)->layer();
       }
    }
-   
+
    if(largest != layer()) {
       m_layer = largest+1;
    }
@@ -314,20 +314,20 @@ FWEventItem::moveToFront()
    m_shouldFilterConnection.block(false);
    changeManager()->changed(this);
 }
-void 
+void
 FWEventItem::moveToBack()
 {
    assert(0!=m_context->eventItemsManager());
    int smallest = layer();
    for(FWEventItemsManager::const_iterator it = m_context->eventItemsManager()->begin(),
-       itEnd = m_context->eventItemsManager()->end();
+                                           itEnd = m_context->eventItemsManager()->end();
        it != itEnd;
        ++it) {
       if( (*it) && (*it)->layer() < smallest) {
          smallest= (*it)->layer();
       }
    }
-   
+
    if(smallest != layer()) {
       m_layer = smallest-1;
    }
@@ -347,72 +347,72 @@ FWEventItem::moveToBack()
 const void*
 FWEventItem::data(const std::type_info& iInfo) const
 {
-  using namespace ROOT::Reflex;
-  //At the moment this is a programming error
-  assert(iInfo == *(m_type->GetTypeInfo()) );
+   using namespace ROOT::Reflex;
+   //At the moment this is a programming error
+   assert(iInfo == *(m_type->GetTypeInfo()) );
 
-  //lookup data if we don't already have it
-  if(0==m_accessor->data()) {
-    void* wrapper=0;
-    void* temp = &wrapper;
-    if(m_event) {
-      try {
-          m_event->getByLabel(m_wrapperType.TypeInfo(),
-                              m_moduleLabel.c_str(),
-                              m_productInstanceLabel.c_str(),
-                              m_processName.size()?m_processName.c_str():0,
-                              temp);
-      } catch (std::exception& iException) {
-         if ( ! m_printedNoDataError ) {
-	    std::cerr << "Failed to get "<<name()<<" because \n" <<iException.what()<<std::endl;
-	    m_printedNoDataError = true;
-	 }
-         return 0;
-      }
-      if(0==wrapper) {
-         if ( ! m_printedNoDataError ) {
-	    std::cerr << "Failed to get "<<name()<<" because branch does not exist in this file"<<std::endl;
-	    m_printedNoDataError = true;
-	 }
-         return 0;
-      }
+   //lookup data if we don't already have it
+   if(0==m_accessor->data()) {
+      void* wrapper=0;
+      void* temp = &wrapper;
+      if(m_event) {
+         try {
+            m_event->getByLabel(m_wrapperType.TypeInfo(),
+                                m_moduleLabel.c_str(),
+                                m_productInstanceLabel.c_str(),
+                                m_processName.size() ? m_processName.c_str() : 0,
+                                temp);
+         } catch (std::exception& iException) {
+            if ( !m_printedNoDataError ) {
+               std::cerr << "Failed to get "<<name()<<" because \n" <<iException.what()<<std::endl;
+               m_printedNoDataError = true;
+            }
+            return 0;
+         }
+         if(0==wrapper) {
+            if ( !m_printedNoDataError ) {
+               std::cerr << "Failed to get "<<name()<<" because branch does not exist in this file"<<std::endl;
+               m_printedNoDataError = true;
+            }
+            return 0;
+         }
 //       printf("%s: wrapper address: 0x%x 0x%x 0x%x\n", name().c_str(), wrapper, &wrapper, *(int *)wrapper);
-      std::string fullbranch_classname = (edm::TypeID(iInfo)).friendlyClassName();
-      std::string fullbranch_module, fullbranch_product, fullbranch_process;
-      for (fwlite::Event::KeyToDataMap::const_iterator i = m_event->data_.begin(); i != m_event->data_.end(); ++i) {
-	   if (i->second->pObj_ != wrapper)
-		continue;
-	   if (i->first.module_ != 0 && strlen(i->first.module_) > 0)
-		fullbranch_module = i->first.module_;
-	   if (i->first.product_ != 0 && strlen(i->first.product_) > 0)
-		fullbranch_product = i->first.product_;
-	   if (i->first.process_ != 0 && strlen(i->first.process_) > 0)
-		fullbranch_process = i->first.process_;
-      }
-      m_fullBranchName  = fullbranch_classname + "_";	// the quoted separator
-      m_fullBranchName += fullbranch_module + "_";	// is required, but
-      m_fullBranchName += fullbranch_product + "_";	// looks so very Japanese
-      m_fullBranchName += fullbranch_process;
+         std::string fullbranch_classname = (edm::TypeID(iInfo)).friendlyClassName();
+         std::string fullbranch_module, fullbranch_product, fullbranch_process;
+         for (fwlite::Event::KeyToDataMap::const_iterator i = m_event->data_.begin(); i != m_event->data_.end(); ++i) {
+            if (i->second->pObj_ != wrapper)
+               continue;
+            if (i->first.module_ != 0 && strlen(i->first.module_) > 0)
+               fullbranch_module = i->first.module_;
+            if (i->first.product_ != 0 && strlen(i->first.product_) > 0)
+               fullbranch_product = i->first.product_;
+            if (i->first.process_ != 0 && strlen(i->first.process_) > 0)
+               fullbranch_process = i->first.process_;
+         }
+         m_fullBranchName  = fullbranch_classname + "_"; // the quoted separator
+         m_fullBranchName += fullbranch_module + "_";   // is required, but
+         m_fullBranchName += fullbranch_product + "_";  // looks so very Japanese
+         m_fullBranchName += fullbranch_process;
 //       printf("full branch name for event item %s is %s\n", name().c_str(), m_fullBranchName.c_str());
 
-      //Get Reflex to do the work
-      Object wrapperObj(m_wrapperType,wrapper);
+         //Get Reflex to do the work
+         Object wrapperObj(m_wrapperType,wrapper);
 
-      //Convert our wrapper to its EDProduct base class
-      static Type s_edproductType(Type::ByTypeInfo(typeid(edm::EDProduct)));
-      Object edproductObj(wrapperObj.CastObject(s_edproductType));
-      const edm::EDProduct* prod = reinterpret_cast<const edm::EDProduct*>(edproductObj.Address());
-      if(not prod->isPresent()) {
-	//not actually in this event
-	std::cerr <<"data unavailable for this event"<<std::endl;
-	return 0;
+         //Convert our wrapper to its EDProduct base class
+         static Type s_edproductType(Type::ByTypeInfo(typeid(edm::EDProduct)));
+         Object edproductObj(wrapperObj.CastObject(s_edproductType));
+         const edm::EDProduct* prod = reinterpret_cast<const edm::EDProduct*>(edproductObj.Address());
+         if(not prod->isPresent()) {
+            //not actually in this event
+            std::cerr <<"data unavailable for this event"<<std::endl;
+            return 0;
+         }
+
+         setData(wrapperObj);
       }
-
-      setData(wrapperObj);
-    }
-  }
-  //return m_data;
-  return m_accessor->data();
+   }
+   //return m_data;
+   return m_accessor->data();
 }
 
 
@@ -440,7 +440,7 @@ FWEventItem::getPrimaryData() const
 const FWDisplayProperties&
 FWEventItem::defaultDisplayProperties() const
 {
-  return m_displayProperties;
+   return m_displayProperties;
 }
 
 int
@@ -449,12 +449,12 @@ FWEventItem::layer() const
    return m_layer;
 }
 
-bool 
+bool
 FWEventItem::isInFront() const
 {
    assert(0!=m_context->eventItemsManager());
    for(FWEventItemsManager::const_iterator it = m_context->eventItemsManager()->begin(),
-       itEnd = m_context->eventItemsManager()->end();
+                                           itEnd = m_context->eventItemsManager()->end();
        it != itEnd;
        ++it) {
       if((*it) && (*it)->layer() > layer()) {
@@ -464,12 +464,12 @@ FWEventItem::isInFront() const
    return true;
 }
 
-bool 
+bool
 FWEventItem::isInBack() const
 {
    assert(0!=m_context->eventItemsManager());
    for(FWEventItemsManager::const_iterator it = m_context->eventItemsManager()->begin(),
-       itEnd = m_context->eventItemsManager()->end();
+                                           itEnd = m_context->eventItemsManager()->end();
        it != itEnd;
        ++it) {
       if((*it) && (*it)->layer() < layer()) {
@@ -489,13 +489,13 @@ FWEventItem::id() const
 const std::string&
 FWEventItem::name() const
 {
-  return m_name;
+   return m_name;
 }
 
 const TClass*
 FWEventItem::type() const
 {
-  return m_type;
+   return m_type;
 }
 
 const std::string&
@@ -507,18 +507,18 @@ FWEventItem::purpose() const
 const std::string&
 FWEventItem::moduleLabel() const
 {
-  return m_moduleLabel;
+   return m_moduleLabel;
 }
 const std::string&
 FWEventItem::productInstanceLabel() const
 {
-  return m_productInstanceLabel;
+   return m_productInstanceLabel;
 }
 
 const std::string&
 FWEventItem::processName() const
 {
-  return m_processName;
+   return m_processName;
 }
 
 FWEventItem::ModelInfo
@@ -573,19 +573,19 @@ FWEventItem::modelName(int iIndex) const
    return s.str();
 }
 
-bool 
+bool
 FWEventItem::haveInterestingValue() const
 {
    return m_interestingValueGetter.isValid();
 }
 
-double 
+double
 FWEventItem::modelInterestingValue(int iIndex) const
 {
    getPrimaryData();
    return m_interestingValueGetter.valueFor(m_accessor->modelData(iIndex));
 }
-std::string 
+std::string
 FWEventItem::modelInterestingValueAsString(int iIndex) const
 {
    getPrimaryData();

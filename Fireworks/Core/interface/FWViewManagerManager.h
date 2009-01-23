@@ -7,16 +7,16 @@
 //
 /**\class FWViewManagerManager FWViewManagerManager.h Fireworks/Core/interface/FWViewManagerManager.h
 
- Description: Manages all the FWViewManagerBase instances
+   Description: Manages all the FWViewManagerBase instances
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jan 15 10:26:23 EST 2008
-// $Id: FWViewManagerManager.h,v 1.8 2008/11/06 22:05:23 amraktad Exp $
+// $Id: FWViewManagerManager.h,v 1.9 2008/11/14 16:41:05 chrjones Exp $
 //
 
 // system include files
@@ -37,29 +37,29 @@ class FWTypeToRepresentations;
 class FWViewManagerManager
 {
 
-   public:
-      FWViewManagerManager(FWModelChangeManager*);
-      virtual ~FWViewManagerManager();
+public:
+   FWViewManagerManager(FWModelChangeManager*);
+   virtual ~FWViewManagerManager();
 
-      // ---------- const member functions ---------------------
-      FWTypeToRepresentations supportedTypesAndRepresentations() const;
+   // ---------- const member functions ---------------------
+   FWTypeToRepresentations supportedTypesAndRepresentations() const;
 
-      // ---------- static member functions --------------------
+   // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
-      void add( boost::shared_ptr<FWViewManagerBase>);
-      void registerEventItem(const FWEventItem*iItem);
-      void removeEventItem(const FWEventItem*iItem);
+   // ---------- member functions ---------------------------
+   void add( boost::shared_ptr<FWViewManagerBase>);
+   void registerEventItem(const FWEventItem*iItem);
+   void removeEventItem(const FWEventItem*iItem);
 
-   private:
-      FWViewManagerManager(const FWViewManagerManager&); // stop default
+private:
+   FWViewManagerManager(const FWViewManagerManager&);    // stop default
 
-      const FWViewManagerManager& operator=(const FWViewManagerManager&); // stop default
+   const FWViewManagerManager& operator=(const FWViewManagerManager&);    // stop default
 
-      // ---------- member data --------------------------------
-      std::vector<boost::shared_ptr<FWViewManagerBase> > m_viewManagers;
-      FWModelChangeManager* m_changeManager;
-      std::map<std::string, const FWEventItem*> m_typeToItems; //use this to tell view managers registered after the item
+   // ---------- member data --------------------------------
+   std::vector<boost::shared_ptr<FWViewManagerBase> > m_viewManagers;
+   FWModelChangeManager* m_changeManager;
+   std::map<std::string, const FWEventItem*> m_typeToItems;    //use this to tell view managers registered after the item
 
 };
 

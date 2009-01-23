@@ -7,16 +7,16 @@
 //
 /**\class FWListModel FWListModel.h Fireworks/Core/interface/FWListModel.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar  3 17:20:20 EST 2008
-// $Id: FWListModel.h,v 1.9 2008/06/08 16:59:01 dmytro Exp $
+// $Id: FWListModel.h,v 1.10 2008/11/06 22:05:26 amraktad Exp $
 //
 
 // system include files
@@ -34,38 +34,38 @@ class FWDetailViewManager;
 class FWListModel : public TEveElement, public TNamed, public FWListItemBase
 {
 
-   public:
-      FWListModel(const FWModelId& iId = FWModelId(),
-                  FWDetailViewManager* iDVM=0,
-                  const std::string& iData = std::string() );
-      virtual ~FWListModel();
+public:
+   FWListModel(const FWModelId& iId = FWModelId(),
+               FWDetailViewManager* iDVM=0,
+               const std::string& iData = std::string() );
+   virtual ~FWListModel();
 
-      // ---------- const member functions ---------------------
+   // ---------- const member functions ---------------------
 
-      // ---------- static member functions --------------------
+   // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
-      virtual void SetMainColor(Color_t);
-      virtual Bool_t SetRnrState(Bool_t rnr);
-      ClassDef(FWListModel,0);
+   // ---------- member functions ---------------------------
+   virtual void SetMainColor(Color_t);
+   virtual Bool_t SetRnrState(Bool_t rnr);
+   ClassDef(FWListModel,0);
 
-      virtual Bool_t CanEditMainColor() const;
-      virtual Bool_t SingleRnrState() const;
+   virtual Bool_t CanEditMainColor() const;
+   virtual Bool_t SingleRnrState() const;
 
-      virtual bool doSelection(bool iToggleSelection);
+   virtual bool doSelection(bool iToggleSelection);
 
-      bool update(const FWDisplayProperties&);
-      void openDetailView() const;
-      bool hasDetailView() const;
-   private:
-      FWListModel(const FWListModel&); // stop default
+   bool update(const FWDisplayProperties&);
+   void openDetailView() const;
+   bool hasDetailView() const;
+private:
+   FWListModel(const FWListModel&);    // stop default
 
-      const FWListModel& operator=(const FWListModel&); // stop default
+   const FWListModel& operator=(const FWListModel&);    // stop default
 
-      // ---------- member data --------------------------------
-      FWModelId m_id;
-      Color_t m_color;
-      FWDetailViewManager* m_detailViewManager;
+   // ---------- member data --------------------------------
+   FWModelId m_id;
+   Color_t m_color;
+   FWDetailViewManager* m_detailViewManager;
 };
 
 

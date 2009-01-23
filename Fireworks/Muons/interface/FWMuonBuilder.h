@@ -4,19 +4,19 @@
 //
 // Package:     Muons
 // Class  :     FWMuonBuilder
-// 
+//
 /**\class FWMuonBuilder FWMuonBuilder.h Fireworks/Muons/interface/FWMuonBuilder.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 19 16:05:28 EST 2008
-// $Id: FWMuonBuilder.h,v 1.1 2008/11/20 01:10:55 chrjones Exp $
+// $Id: FWMuonBuilder.h,v 1.2 2008/12/05 01:50:34 chrjones Exp $
 //
 
 // system include files
@@ -42,35 +42,35 @@ class TEveTrackPropagator;
 class FWMuonBuilder
 {
 
-   public:
-      FWMuonBuilder();
-      virtual ~FWMuonBuilder();
+public:
+   FWMuonBuilder();
+   virtual ~FWMuonBuilder();
 
-      // ---------- const member functions ---------------------
+   // ---------- const member functions ---------------------
 
-      // ---------- static member functions --------------------
+   // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
+   // ---------- member functions ---------------------------
    void buildMuon(const FWEventItem* iItem,
                   const reco::Muon* muon,
                   TEveElement* tList,
                   bool showEndcap,
                   bool onlyTracks = false);
-   
-   
-   private:
-      FWMuonBuilder(const FWMuonBuilder&); // stop default
 
-      const FWMuonBuilder& operator=(const FWMuonBuilder&); // stop default
+
+private:
+   FWMuonBuilder(const FWMuonBuilder&);    // stop default
+
+   const FWMuonBuilder& operator=(const FWMuonBuilder&);    // stop default
 
    void calculateField(const reco::Muon& iData);
 
-      // ---------- member data --------------------------------
+   // ---------- member data --------------------------------
    FWEvePtr<TEveTrackPropagator> m_trackerPropagator;
    FWEvePtr<TEveTrackPropagator> m_innerPropagator;
    FWEvePtr<TEveTrackPropagator> m_outerPropagator;
    double m_magneticField;
-   
+
 };
 
 

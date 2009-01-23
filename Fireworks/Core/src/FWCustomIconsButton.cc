@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Oct 23 13:05:35 EDT 2008
-// $Id: FWCustomIconsButton.cc,v 1.2 2008/11/06 19:01:35 amraktad Exp $
+// $Id: FWCustomIconsButton.cc,v 1.3 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files
@@ -35,11 +35,11 @@ FWCustomIconsButton::FWCustomIconsButton(const TGWindow* iParent,
                                          const TGPicture* iUpIcon,
                                          const TGPicture* iDownIcon,
                                          const TGPicture* iDisabledIcon,
-                                         Int_t id, GContext_t norm, UInt_t option):
-TGButton(iParent,id, norm, option),
-m_upIcon(iUpIcon),
-m_downIcon(iDownIcon),
-m_disabledIcon(iDisabledIcon)
+                                         Int_t id, GContext_t norm, UInt_t option) :
+   TGButton(iParent,id, norm, option),
+   m_upIcon(iUpIcon),
+   m_downIcon(iDownIcon),
+   m_disabledIcon(iDisabledIcon)
 {
    assert(0!=iUpIcon);
    assert(0!=iDownIcon);

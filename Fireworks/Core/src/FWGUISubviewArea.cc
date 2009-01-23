@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:33 EST 2008
-// $Id: FWGUISubviewArea.cc,v 1.13 2008/11/05 09:24:25 chrjones Exp $
+// $Id: FWGUISubviewArea.cc,v 1.14 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files
@@ -38,10 +38,10 @@
 // constructors and destructor
 //
 FWGUISubviewArea::FWGUISubviewArea(unsigned int iIndex, const TGSplitFrame *iParent, TGSplitFrame* iMainSplit)
-: TGVerticalFrame(iParent),
-  m_mainSplit(iMainSplit),
-  m_index(iIndex),
-  m_docked(true)
+   : TGVerticalFrame(iParent),
+     m_mainSplit(iMainSplit),
+     m_index(iIndex),
+     m_docked(true)
 {
    //This doesn't seem to do anything
    //SetCleanup(kNoCleanup);
@@ -141,7 +141,7 @@ FWGUISubviewArea::~FWGUISubviewArea()
 void
 FWGUISubviewArea::selectButtonDown()
 {
-      selected_(index());
+   selected_(index());
 }
 
 void
@@ -254,7 +254,7 @@ FWGUISubviewArea::isSelected() const
 //
 // static member functions
 //
- const TGPicture *
+const TGPicture *
 FWGUISubviewArea::swapIcon()
 {
    static const TGPicture* s_icon = 0;

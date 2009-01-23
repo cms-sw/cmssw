@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 11:00:48 EST 2008
-// $Id: FWModelId.cc,v 1.2 2008/03/11 22:09:17 chrjones Exp $
+// $Id: FWModelId.cc,v 1.3 2008/11/06 22:05:26 amraktad Exp $
 //
 
 // system include files
@@ -30,20 +30,20 @@
 // constructors and destructor
 //
 /*
-FWModelId::FWModelId()
-{
-}
-*/
+   FWModelId::FWModelId()
+   {
+   }
+ */
 // FWModelId::FWModelId(const FWModelId& rhs)
 // {
 //    // do actual copying here;
 // }
 
 /*
-FWModelId::~FWModelId()
-{
-}
-*/
+   FWModelId::~FWModelId()
+   {
+   }
+ */
 
 //
 // assignment operators
@@ -65,12 +65,18 @@ FWModelId::~FWModelId()
 // const member functions
 //
 void
-FWModelId::unselect() const { if(m_item) {m_item->unselect(m_index);}}
+FWModelId::unselect() const {
+   if(m_item) {m_item->unselect(m_index);}
+}
 void
-FWModelId::select() const { if(m_item) {m_item->select(m_index);}}
+FWModelId::select() const {
+   if(m_item) {m_item->select(m_index);}
+}
 
 void
-FWModelId::toggleSelect() const { if(m_item) {m_item->toggleSelect(m_index);}}
+FWModelId::toggleSelect() const {
+   if(m_item) {m_item->toggleSelect(m_index);}
+}
 
 //
 // static member functions

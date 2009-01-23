@@ -7,16 +7,16 @@
 //
 /**\class FWDisplayEvent FWDisplayEvent.h Fireworks/Core/interface/FWDisplayEvent.h
 
- Description: Displays an fwlite::Event in ROOT
+   Description: Displays an fwlite::Event in ROOT
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: FWDisplayEvent.h,v 1.27 2009/01/09 20:58:49 chrjones Exp $
+// $Id: FWDisplayEvent.h,v 1.28 2009/01/12 17:23:49 chrjones Exp $
 //
 
 // system include files
@@ -45,51 +45,61 @@ class FWConfigurationManager;
 class FWTextView;
 
 namespace fwlite {
-  class Event;
+   class Event;
 }
 
 class FWDisplayEvent
 {
 
-   public:
+public:
    FWDisplayEvent(const std::string& iConfigFileName = std::string(),
                   bool iEnableDebug = false, bool iNewLego = true);
-      virtual ~FWDisplayEvent();
+   virtual ~FWDisplayEvent();
 
-      // ---------- const member functions ---------------------
-      int draw(const fwlite::Event& ) const;
+   // ---------- const member functions ---------------------
+   int draw(const fwlite::Event& ) const;
 
-      const DetIdToMatrix& getIdToGeo() const { return m_detIdToGeo; }
+   const DetIdToMatrix& getIdToGeo() const {
+      return m_detIdToGeo;
+   }
 
-      void writeConfigurationFile(const std::string& iFileName) const;
-      // ---------- static member functions --------------------
-      static double getMagneticField() { return m_magneticField; }
-      static void   setMagneticField(double var) { m_magneticField = var; }
-      static double getCaloScale() { return m_caloScale; }
-      static void   setCaloScale(double var) { m_caloScale = var; }
+   void writeConfigurationFile(const std::string& iFileName) const;
+   // ---------- static member functions --------------------
+   static double getMagneticField() {
+      return m_magneticField;
+   }
+   static void   setMagneticField(double var) {
+      m_magneticField = var;
+   }
+   static double getCaloScale() {
+      return m_caloScale;
+   }
+   static void   setCaloScale(double var) {
+      m_caloScale = var;
+   }
 
-      // ---------- member functions ---------------------------
-      int draw(const fwlite::Event& );
+   // ---------- member functions ---------------------------
+   int draw(const fwlite::Event& );
 
-      void registerPhysicsObject(const FWPhysicsObjectDesc&);
-   private:
-      FWDisplayEvent(const FWDisplayEvent&); // stop default
+   void registerPhysicsObject(const FWPhysicsObjectDesc&);
+private:
+   FWDisplayEvent(const FWDisplayEvent&);    // stop default
 
-      const FWDisplayEvent& operator=(const FWDisplayEvent&); // stop default
+   const FWDisplayEvent& operator=(const FWDisplayEvent&);    // stop default
 
-      // ---------- member data --------------------------------
-      std::auto_ptr<FWConfigurationManager> m_configurationManager;
-      std::auto_ptr<FWModelChangeManager> m_changeManager;
-      std::auto_ptr<FWSelectionManager> m_selectionManager;
-      std::auto_ptr<FWEventItemsManager> m_eiManager;
-      std::auto_ptr<FWViewManagerManager> m_viewManager;
-      std::auto_ptr<FWGUIManager> m_guiManager;
-      std::auto_ptr<FWTextView> m_textView;
+   // ---------- member data --------------------------------
+   std::auto_ptr<FWConfigurationManager> m_configurationManager;
+   std::auto_ptr<FWModelChangeManager> m_changeManager;
+   std::auto_ptr<FWSelectionManager> m_selectionManager;
+   std::auto_ptr<FWEventItemsManager> m_eiManager;
+   std::auto_ptr<FWViewManagerManager> m_viewManager;
+   std::auto_ptr<FWGUIManager> m_guiManager;
+   std::auto_ptr<FWTextView> m_textView;
 
-      DetIdToMatrix    m_detIdToGeo;
-      std::string m_configFileName;
-      static double m_magneticField;
-      static double m_caloScale;
+   DetIdToMatrix m_detIdToGeo;
+   std::string m_configFileName;
+   static double m_magneticField;
+   static double m_caloScale;
 };
 
 

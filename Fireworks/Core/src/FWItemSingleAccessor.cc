@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 11:36:44 EDT 2008
-// $Id: FWItemSingleAccessor.cc,v 1.2 2008/11/06 19:01:35 amraktad Exp $
+// $Id: FWItemSingleAccessor.cc,v 1.3 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files
@@ -30,8 +30,8 @@
 //
 // constructors and destructor
 //
-FWItemSingleAccessor::FWItemSingleAccessor(const TClass* iClass):
-m_type(iClass), m_data(0)
+FWItemSingleAccessor::FWItemSingleAccessor(const TClass* iClass) :
+   m_type(iClass), m_data(0)
 {
 }
 
@@ -103,7 +103,7 @@ FWItemSingleAccessor::data() const
 unsigned int
 FWItemSingleAccessor::size() const
 {
-   return 0 == m_data? 0: 1;
+   return 0 == m_data ? 0 : 1;
 }
 
 const TClass*

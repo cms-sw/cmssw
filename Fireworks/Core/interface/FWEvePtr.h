@@ -4,19 +4,19 @@
 //
 // Package:     Core
 // Class  :     FWEvePtr
-// 
+//
 /**\class FWEvePtr FWEvePtr.h Fireworks/Core/interface/FWEvePtr.h
 
- Description: Smart pointer which properly deals with TEveElement reference counting
+   Description: Smart pointer which properly deals with TEveElement reference counting
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 12 11:08:49 EST 2008
-// $Id$
+// $Id: FWEvePtr.h,v 1.1 2008/11/14 15:08:31 chrjones Exp $
 //
 
 // system include files
@@ -29,31 +29,32 @@
 
 template < typename T>
 class FWEvePtr {
-   
+
 public:
-   FWEvePtr() {}
-   explicit FWEvePtr(T* iElement): m_container(new TEveElementList()) {
+   FWEvePtr() {
+   }
+   explicit FWEvePtr(T* iElement) : m_container(new TEveElementList()) {
       m_container->AddElement(iElement);
    }
    // ---------- const member functions ---------------------
    T* operator->() const {
-      return m_container && m_container->HasChildren()? 
-      static_cast<T*>(m_container->FirstChild()):
-      static_cast<T*>(0);
+      return m_container && m_container->HasChildren() ?
+             static_cast<T*>(m_container->FirstChild()) :
+             static_cast<T*>(0);
    }
    T& operator*() const {
       return *(operator->());
    }
-   
+
    T* get() const {
       return (operator->());
    }
-   
+
    operator bool() const {
       return m_container && m_container->HasChildren();
    }
    // ---------- static member functions --------------------
-   
+
    // ---------- member functions ---------------------------
    void reset() {
       m_container.reset();
@@ -72,9 +73,9 @@ public:
    }
 private:
    //FWEvePtr(const FWEvePtr&); // stop default
-   
+
    //const FWEvePtr& operator=(const FWEvePtr&); // stop default
-   
+
    // ---------- member data --------------------------------
    boost::shared_ptr<TEveElement> m_container;
 };

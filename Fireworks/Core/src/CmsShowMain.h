@@ -7,16 +7,16 @@
 //
 /**\class CmsShowMain CmsShowMain.h Fireworks/Core/interface/CmsShowMain.h
 
- Description: Displays an fwlite::Event in ROOT
+   Description: Displays an fwlite::Event in ROOT
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.14 2009/01/09 20:58:50 chrjones Exp $
+// $Id: CmsShowMain.h,v 1.15 2009/01/12 17:23:48 chrjones Exp $
 //
 
 // system include files
@@ -55,45 +55,57 @@ namespace fireworks {
 }
 
 namespace fwlite {
-  class Event;
+   class Event;
 }
 
 class CmsShowMain
 {
 public:
-  CmsShowMain(int argc, char *argv[]);
-  virtual ~CmsShowMain();
-  void resetInitialization();
-  void draw(const fwlite::Event& event);
-  void openData();
-  void quit();
+   CmsShowMain(int argc, char *argv[]);
+   virtual ~CmsShowMain();
+   void resetInitialization();
+   void draw(const fwlite::Event& event);
+   void openData();
+   void quit();
 
-  // ---------- const member functions ---------------------
-  const DetIdToMatrix& getIdToGeo() const { return m_detIdToGeo; }
+   // ---------- const member functions ---------------------
+   const DetIdToMatrix& getIdToGeo() const {
+      return m_detIdToGeo;
+   }
 
-  //  void writeConfigurationFile(const std::string& iFileName) const;
-  // ---------- static member functions --------------------
-  static void   setAutoFieldMode(bool state) { m_autoField = state; }
-  static bool   isAutoField() { return m_autoField; }
-  static double getMagneticField();
-  static void   setMagneticField(double var);
-  static int    getFieldEstimates() { return m_numberOfFieldEstimates; }
-  static void   guessFieldIsOn( bool guess );
-  static void   resetFieldEstimate();
-  static double getCaloScale() { return m_caloScale; }
-  static void   setCaloScale(double var) { m_caloScale = var; }
-  static void setBrightness(unsigned int value);
+   //  void writeConfigurationFile(const std::string& iFileName) const;
+   // ---------- static member functions --------------------
+   static void   setAutoFieldMode(bool state) {
+      m_autoField = state;
+   }
+   static bool   isAutoField() {
+      return m_autoField;
+   }
+   static double getMagneticField();
+   static void   setMagneticField(double var);
+   static int    getFieldEstimates() {
+      return m_numberOfFieldEstimates;
+   }
+   static void   guessFieldIsOn( bool guess );
+   static void   resetFieldEstimate();
+   static double getCaloScale() {
+      return m_caloScale;
+   }
+   static void   setCaloScale(double var) {
+      m_caloScale = var;
+   }
+   static void setBrightness(unsigned int value);
 
-  // ---------- member functions ---------------------------
-  //  int draw(const fwlite::Event& );
+   // ---------- member functions ---------------------------
+   //  int draw(const fwlite::Event& );
 
-  void registerPhysicsObject(const FWPhysicsObjectDesc&);
+   void registerPhysicsObject(const FWPhysicsObjectDesc&);
 
-  void notified(TSocket*);
+   void notified(TSocket*);
 private:
-  CmsShowMain(const CmsShowMain&); // stop default
+   CmsShowMain(const CmsShowMain&); // stop default
 
-  const CmsShowMain& operator=(const CmsShowMain&); // stop default
+   const CmsShowMain& operator=(const CmsShowMain&); // stop default
 
    void loadGeometry();
    void setupViewManagers();
@@ -107,29 +119,29 @@ private:
    void stopPlaying();
    void reachedEnd();
 
-  void setPlayDelay(Float_t);  
+   void setPlayDelay(Float_t);
 
-  // ---------- member data --------------------------------
-  std::auto_ptr<FWConfigurationManager> m_configurationManager;
-  std::auto_ptr<FWModelChangeManager> m_changeManager;
-  std::auto_ptr<FWSelectionManager> m_selectionManager;
-  std::auto_ptr<FWEventItemsManager> m_eiManager;
-  std::auto_ptr<FWViewManagerManager> m_viewManager;
-  std::auto_ptr<FWGUIManager> m_guiManager;
-  std::auto_ptr<FWTextView> m_textView;
-  std::auto_ptr<fireworks::Context> m_context;
+   // ---------- member data --------------------------------
+   std::auto_ptr<FWConfigurationManager> m_configurationManager;
+   std::auto_ptr<FWModelChangeManager> m_changeManager;
+   std::auto_ptr<FWSelectionManager> m_selectionManager;
+   std::auto_ptr<FWEventItemsManager> m_eiManager;
+   std::auto_ptr<FWViewManagerManager> m_viewManager;
+   std::auto_ptr<FWGUIManager> m_guiManager;
+   std::auto_ptr<FWTextView> m_textView;
+   std::auto_ptr<fireworks::Context> m_context;
 
-  CmsShowNavigator* m_navigator;
+   CmsShowNavigator* m_navigator;
 
-  DetIdToMatrix    m_detIdToGeo;
-  std::string m_inputFileName;
-  std::string m_configFileName;
-  std::string m_geomFileName;
-  static bool   m_autoField;                   // data derived magnetif field state
-  static double m_magneticField;
-  static int    m_numberOfFieldEstimates;
-  static int    m_numberOfFieldIsOnEstimates;
-  static double m_caloScale;
+   DetIdToMatrix m_detIdToGeo;
+   std::string m_inputFileName;
+   std::string m_configFileName;
+   std::string m_geomFileName;
+   static bool m_autoField;                    // data derived magnetif field state
+   static double m_magneticField;
+   static int m_numberOfFieldEstimates;
+   static int m_numberOfFieldIsOnEstimates;
+   static double m_caloScale;
 
    std::auto_ptr<CmsShowTaskExecutor> m_startupTasks;
 

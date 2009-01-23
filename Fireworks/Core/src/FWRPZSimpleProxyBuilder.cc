@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWRPZSimpleProxyBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 19 12:39:36 EST 2008
-// $Id: FWRPZSimpleProxyBuilder.cc,v 1.3 2008/12/01 01:00:58 chrjones Exp $
+// $Id: FWRPZSimpleProxyBuilder.cc,v 1.4 2008/12/02 21:17:46 chrjones Exp $
 //
 
 // system include files
@@ -38,10 +38,10 @@
 //
 // constructors and destructor
 //
-FWRPZSimpleProxyBuilder::FWRPZSimpleProxyBuilder(const std::type_info& iType):
-m_containerPtr(new TEveElementList),
-m_helper(iType),
-m_needsUpdate(true)
+FWRPZSimpleProxyBuilder::FWRPZSimpleProxyBuilder(const std::type_info& iType) :
+   m_containerPtr(new TEveElementList),
+   m_helper(iType),
+   m_needsUpdate(true)
 {
 }
 
@@ -70,7 +70,7 @@ FWRPZSimpleProxyBuilder::~FWRPZSimpleProxyBuilder()
 //
 // member functions
 //
-void 
+void
 FWRPZSimpleProxyBuilder::itemChangedImp(const FWEventItem* iItem)
 {
    m_needsUpdate=true;
@@ -78,20 +78,20 @@ FWRPZSimpleProxyBuilder::itemChangedImp(const FWEventItem* iItem)
    m_containerPtr->DestroyElements();
 }
 
-void 
+void
 FWRPZSimpleProxyBuilder::itemBeingDestroyedImp(const FWEventItem*)
 {
    m_needsUpdate=false;
    m_containerPtr->DestroyElements();
 }
 
-void 
+void
 FWRPZSimpleProxyBuilder::modelChangesImp(const FWModelIds& iIds)
 {
    modelChanges(iIds,m_containerPtr.get());
 }
 
-TEveElementList* 
+TEveElementList*
 FWRPZSimpleProxyBuilder::getRhoPhiProduct() const
 {
    if(m_needsUpdate) {
@@ -101,7 +101,7 @@ FWRPZSimpleProxyBuilder::getRhoPhiProduct() const
    return m_containerPtr.get();
 }
 
-TEveElementList* 
+TEveElementList*
 FWRPZSimpleProxyBuilder::getRhoZProduct() const
 {
    if(m_needsUpdate) {
@@ -111,7 +111,7 @@ FWRPZSimpleProxyBuilder::getRhoZProduct() const
    return m_containerPtr.get();
 }
 
-void 
+void
 FWRPZSimpleProxyBuilder::build()
 {
    if(0!=item()) {
@@ -155,7 +155,7 @@ FWRPZSimpleProxyBuilder::build()
 // static member functions
 //
 
-std::string 
+std::string
 FWRPZSimpleProxyBuilder::typeOfBuilder()
 {
    return std::string("simple#");

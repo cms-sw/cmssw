@@ -7,16 +7,16 @@
 //
 /**\class FWRPZDataProxyBuilderBase FWRPZDataProxyBuilderBase.h Fireworks/Core/interface/FWRPZDataProxyBuilderBase.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jun 28 09:51:27 PDT 2008
-// $Id: FWRPZDataProxyBuilderBase.h,v 1.2 2008/11/06 22:05:23 amraktad Exp $
+// $Id: FWRPZDataProxyBuilderBase.h,v 1.3 2008/11/26 01:55:31 chrjones Exp $
 //
 
 // system include files
@@ -57,7 +57,9 @@ public:
    void attachToRhoPhiView(boost::shared_ptr<FWRhoPhiZView>);
    void attachToRhoZView(boost::shared_ptr<FWRhoPhiZView>);
 
-   float layer() const { return m_layer;}
+   float layer() const {
+      return m_layer;
+   }
 
    static
    void setUserData(const FWEventItem* iItem,
@@ -67,10 +69,14 @@ public:
    ///Used by the plugin system to determine how the proxy uses the data from FWEventItem
    static
    std::string typeOfBuilder();
-   
+
 protected:
-   std::vector<FWModelId>& ids() {return m_ids;}
-   const FWEventItem* item() const {return m_item;}
+   std::vector<FWModelId>& ids() {
+      return m_ids;
+   }
+   const FWEventItem* item() const {
+      return m_item;
+   }
 
    //Override these two functions if you need to handle model changes in a unique way
    virtual void modelChanges(const FWModelIds& iIds,

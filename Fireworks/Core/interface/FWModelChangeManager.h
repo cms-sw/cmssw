@@ -7,16 +7,16 @@
 //
 /**\class FWModelChangeManager FWModelChangeManager.h Fireworks/Core/interface/FWModelChangeManager.h
 
- Description: Manages propagating announcements of changes to Models to any interested party
+   Description: Manages propagating announcements of changes to Models to any interested party
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan 17 17:37:49 EST 2008
-// $Id: FWModelChangeManager.h,v 1.3 2008/01/25 01:54:07 chrjones Exp $
+// $Id: FWModelChangeManager.h,v 1.4 2008/11/06 22:05:23 amraktad Exp $
 //
 
 // system include files
@@ -34,45 +34,49 @@ class FWEventItem;
 class FWModelChangeManager
 {
 
-   public:
-      FWModelChangeManager();
-      virtual ~FWModelChangeManager();
+public:
+   FWModelChangeManager();
+   virtual ~FWModelChangeManager();
 
-      // ---------- const member functions ---------------------
+   // ---------- const member functions ---------------------
 
-      // ---------- static member functions --------------------
+   // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
+   // ---------- member functions ---------------------------
 
-      void beginChanges();
-      void changed(const FWModelId&);
-      void changed(const FWEventItem*);
-      void endChanges();
+   void beginChanges();
+   void changed(const FWModelId&);
+   void changed(const FWEventItem*);
+   void endChanges();
 
-      sigc::signal<void> changeSignalsAreComing_;
-      sigc::signal<void> changeSignalsAreDone_;
+   sigc::signal<void> changeSignalsAreComing_;
+   sigc::signal<void> changeSignalsAreDone_;
 
-      void newItemSlot(FWEventItem*);
-   private:
-      FWModelChangeManager(const FWModelChangeManager&); // stop default
+   void newItemSlot(FWEventItem*);
+private:
+   FWModelChangeManager(const FWModelChangeManager&);    // stop default
 
-      const FWModelChangeManager& operator=(const FWModelChangeManager&); // stop default
+   const FWModelChangeManager& operator=(const FWModelChangeManager&);    // stop default
 
-      // ---------- member data --------------------------------
-      unsigned int m_depth;
-      std::vector<FWModelIds> m_changes;
-      std::set<const FWEventItem*> m_itemChanges;
-      std::vector<FWModelChangeSignal> m_changeSignals;
-      std::vector<FWItemChangeSignal> m_itemChangeSignals;
+   // ---------- member data --------------------------------
+   unsigned int m_depth;
+   std::vector<FWModelIds> m_changes;
+   std::set<const FWEventItem*> m_itemChanges;
+   std::vector<FWModelChangeSignal> m_changeSignals;
+   std::vector<FWItemChangeSignal> m_itemChangeSignals;
 };
 
 class FWChangeSentry {
 public:
-   FWChangeSentry(FWModelChangeManager& iM):
-   m_manager(&iM)
-   {m_manager->beginChanges();}
+   FWChangeSentry(FWModelChangeManager& iM) :
+      m_manager(&iM)
+   {
+      m_manager->beginChanges();
+   }
    ~FWChangeSentry()
-   { m_manager->endChanges();}
+   {
+      m_manager->endChanges();
+   }
 private:
    FWModelChangeManager* m_manager;
 };

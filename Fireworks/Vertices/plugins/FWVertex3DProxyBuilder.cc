@@ -2,13 +2,13 @@
 //
 // Package:     Vertexs
 // Class  :     FWVertex3DProxyBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWVertex3DProxyBuilder.cc,v 1.1 2008/12/04 15:26:01 dmytro Exp $
+// $Id: FWVertex3DProxyBuilder.cc,v 1.1 2008/12/09 05:58:10 dmytro Exp $
 //
 
 // system include files
@@ -20,26 +20,26 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "TEvePointSet.h"
 
-class FWVertex3DProxyBuilder: public FW3DSimpleProxyBuilderTemplate<reco::Vertex> {
-      
+class FWVertex3DProxyBuilder : public FW3DSimpleProxyBuilderTemplate<reco::Vertex> {
+
 public:
    FWVertex3DProxyBuilder();
    //virtual ~FWVertex3DProxyBuilder();
-   
+
    // ---------- const member functions ---------------------
-   
+
    // ---------- static member functions --------------------
-   
+
    // ---------- member functions ---------------------------
    REGISTER_PROXYBUILDER_METHODS();
- 
+
 private:
    FWVertex3DProxyBuilder(const FWVertex3DProxyBuilder&); // stop default
-   
+
    const FWVertex3DProxyBuilder& operator=(const FWVertex3DProxyBuilder&); // stop default
-   
+
    virtual void build(const reco::Vertex& iData, unsigned int iIndex,TEveElement& oItemHolder) const;
-   
+
    // ---------- member data --------------------------------
 };
 
@@ -62,7 +62,7 @@ FWVertex3DProxyBuilder::FWVertex3DProxyBuilder()
 //
 // member functions
 //
-void 
+void
 FWVertex3DProxyBuilder::build(const reco::Vertex& iData, unsigned int iIndex,TEveElement& oItemHolder) const
 {
    TEvePointSet* pointSet = new TEvePointSet();

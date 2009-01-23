@@ -7,16 +7,16 @@
 //
 /**\class FWItemTVirtualCollectionProxyAccessor FWItemTVirtualCollectionProxyAccessor.h Fireworks/Core/interface/FWItemTVirtualCollectionProxyAccessor.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 08:43:45 EDT 2008
-// $Id: FWItemTVirtualCollectionProxyAccessor.h,v 1.1 2008/10/21 19:08:23 chrjones Exp $
+// $Id: FWItemTVirtualCollectionProxyAccessor.h,v 1.2 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files

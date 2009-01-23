@@ -7,16 +7,16 @@
 //
 /**\class FWGUIValidatingTextEntry FWGUIValidatingTextEntry.h Fireworks/Core/interface/FWGUIValidatingTextEntry.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug 22 18:13:29 EDT 2008
-// $Id: FWGUIValidatingTextEntry.h,v 1.2 2008/09/09 17:28:27 chrjones Exp $
+// $Id: FWGUIValidatingTextEntry.h,v 1.3 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files

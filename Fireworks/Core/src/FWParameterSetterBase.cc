@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:16:20 EST 2008
-// $Id: FWParameterSetterBase.cc,v 1.4 2008/07/15 02:01:01 chrjones Exp $
+// $Id: FWParameterSetterBase.cc,v 1.5 2008/11/06 22:05:26 amraktad Exp $
 //
 
 // system include files
@@ -38,8 +38,8 @@
 //
 // constructors and destructor
 //
-FWParameterSetterBase::FWParameterSetterBase():
-m_frame(0)
+FWParameterSetterBase::FWParameterSetterBase() :
+   m_frame(0)
 {
 }
 
@@ -82,8 +82,8 @@ FWParameterSetterBase::attach(FWParameterBase* iBase, FWParameterSetterEditorBas
 void
 FWParameterSetterBase::update() const
 {
-  if (m_frame != 0)
-    m_frame->updateEditor();
+   if (m_frame != 0)
+      m_frame->updateEditor();
 }
 
 //

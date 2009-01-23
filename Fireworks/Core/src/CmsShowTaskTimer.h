@@ -7,16 +7,16 @@
 //
 /**\class CmsShowTaskTimer CmsShowTaskTimer.h Fireworks/Core/src/CmsShowTaskTimer.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Joshua Berger
 //         Created:  Fri Jul 25 11:49:18 EDT 2008
-// $Id: CmsShowTaskTimer.h,v 1.1 2008/07/25 23:57:11 chrjones Exp $
+// $Id: CmsShowTaskTimer.h,v 1.2 2008/11/06 22:05:24 amraktad Exp $
 //
 
 // system include files
@@ -30,24 +30,24 @@ class CmsShowTaskExecutorBase;
 class CmsShowTaskTimer : public TTimer
 {
 
-   public:
-      CmsShowTaskTimer(CmsShowTaskExecutorBase* taskExec, Long_t milliSec = 0, Bool_t mode = kTRUE);
-      virtual ~CmsShowTaskTimer();
+public:
+   CmsShowTaskTimer(CmsShowTaskExecutorBase* taskExec, Long_t milliSec = 0, Bool_t mode = kTRUE);
+   virtual ~CmsShowTaskTimer();
 
-      // ---------- const member functions ---------------------
+   // ---------- const member functions ---------------------
 
-      // ---------- static member functions --------------------
+   // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
-      virtual Bool_t Notify();
+   // ---------- member functions ---------------------------
+   virtual Bool_t Notify();
 
-   private:
-      CmsShowTaskTimer(const CmsShowTaskTimer&); // stop default
+private:
+   CmsShowTaskTimer(const CmsShowTaskTimer&);    // stop default
 
-      const CmsShowTaskTimer& operator=(const CmsShowTaskTimer&); // stop default
+   const CmsShowTaskTimer& operator=(const CmsShowTaskTimer&);    // stop default
 
-      // ---------- member data --------------------------------
-      CmsShowTaskExecutorBase* m_taskExec;
+   // ---------- member data --------------------------------
+   CmsShowTaskExecutorBase* m_taskExec;
 
 };
 

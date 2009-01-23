@@ -23,15 +23,15 @@ std::pair<double,double> fw::getPhiRange( const std::vector<double>& phis, doubl
    double max = -100;
 
    for ( std::vector<double>::const_iterator i = phis.begin();
-	 i != phis.end(); ++i )
-     {
-	double aphi = *i;
-	// make phi continuous around jet phi
-	if ( aphi - phi > M_PI ) aphi -= 2*M_PI;
-	if ( phi - aphi > M_PI ) aphi += 2*M_PI;
-	if ( aphi > max ) max = aphi;
-	if ( aphi < min ) min = aphi;
-     }
+         i != phis.end(); ++i )
+   {
+      double aphi = *i;
+      // make phi continuous around jet phi
+      if ( aphi - phi > M_PI ) aphi -= 2*M_PI;
+      if ( phi - aphi > M_PI ) aphi += 2*M_PI;
+      if ( aphi > max ) max = aphi;
+      if ( aphi < min ) min = aphi;
+   }
 
    if ( min > max ) return std::pair<double,double>(0,0);
 
@@ -46,8 +46,8 @@ std::string fw::NamedCounter::str() const
 }
 
 TEveGeoShape* fw::getShape( const char* name,
-			    TGeoBBox* shape,
-			    Color_t color )
+                            TGeoBBox* shape,
+                            Color_t color )
 {
    TEveGeoShape* egs = new TEveGeoShape(name);
    TColor* c = gROOT->GetColor(color);
@@ -63,10 +63,10 @@ TEveGeoShape* fw::getShape( const char* name,
 }
 
 void fw::addRhoZEnergyProjection( TEveElement* container,
-			      double r_ecal, double z_ecal,
-			      double theta_min, double theta_max,
-			      double phi,
-			      Color_t color)
+                                  double r_ecal, double z_ecal,
+                                  double theta_min, double theta_max,
+                                  double phi,
+                                  Color_t color)
 {
    TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
    double z1 = r_ecal/tan(theta_min);
@@ -118,70 +118,70 @@ void fw::addRhoZEnergyProjection( TEveElement* container,
 }
 
 TEveElementList *fw::getEcalCrystals (const EcalRecHitCollection *hits,
-				      const DetIdToMatrix &geo,
-				      double eta, double phi,
-				      int n_eta, int n_phi)
+                                      const DetIdToMatrix &geo,
+                                      double eta, double phi,
+                                      int n_eta, int n_phi)
 {
-     std::vector<DetId> v;
-     int ieta = (int)rint(eta / 1.74e-2);
-     // black magic for phi
-     int iphi = (int)rint(phi / 1.74e-2);
-     if (iphi < 0)
-	  iphi = 360 + iphi;
-     iphi += 10;
-     for (int i = ieta - n_eta; i < ieta + n_eta; ++i) {
-	  for (int j = iphi - n_phi; j < iphi + n_phi; ++j) {
-	       if (EBDetId::validDetId(i, j % 360)) {
-		    v.push_back(EBDetId(i, j % 360));
-// 		    printf("pushing back (%d, %d)\n", i, j % 360);
-	       }
-	  }
-     }
-     return getEcalCrystals(hits, geo, v);
+   std::vector<DetId> v;
+   int ieta = (int)rint(eta / 1.74e-2);
+   // black magic for phi
+   int iphi = (int)rint(phi / 1.74e-2);
+   if (iphi < 0)
+      iphi = 360 + iphi;
+   iphi += 10;
+   for (int i = ieta - n_eta; i < ieta + n_eta; ++i) {
+      for (int j = iphi - n_phi; j < iphi + n_phi; ++j) {
+         if (EBDetId::validDetId(i, j % 360)) {
+            v.push_back(EBDetId(i, j % 360));
+//                  printf("pushing back (%d, %d)\n", i, j % 360);
+         }
+      }
+   }
+   return getEcalCrystals(hits, geo, v);
 }
 
 TEveElementList *fw::getEcalCrystals (const EcalRecHitCollection *hits,
-				      const DetIdToMatrix &geo,
-				      const std::vector<DetId> &detids)
+                                      const DetIdToMatrix &geo,
+                                      const std::vector<DetId> &detids)
 {
-  TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
-  TEveElementList *ret = new TEveElementList("Ecal crystals");
-  for (std::vector<DetId>::const_iterator k = detids.begin();
-       k != detids.end(); ++k) {
-    double size = 0 * 0.001;  // default size
-    if (hits != 0) {
-      EcalRecHitCollection::const_iterator hit = hits->find(*k);
-      if (hit != hits->end())
-	size = hit->energy();
-    }
+   TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
+   TEveElementList *ret = new TEveElementList("Ecal crystals");
+   for (std::vector<DetId>::const_iterator k = detids.begin();
+        k != detids.end(); ++k) {
+      double size = 0 * 0.001; // default size
+      if (hits != 0) {
+         EcalRecHitCollection::const_iterator hit = hits->find(*k);
+         if (hit != hits->end())
+            size = hit->energy();
+      }
 
-    TEveGeoShape* egs = geo.getShape(k->rawId());
-    // printf("1 egs  %d \n", egs->GetShape()->GetUniqueID());
-    assert(egs != 0);
-    TEveTrans &t = egs->RefMainTrans();
-    t.MoveLF(3, - size / 2);
-    TGeoShape* crystal_shape = 0;
-    if ( const TGeoTrap* shape = dynamic_cast<const TGeoTrap*>(egs->GetShape())) {
-      double scale = size*0.5/shape->GetDz();
-      crystal_shape = new TGeoTrap( size/2,
-				    shape->GetTheta(), shape->GetPhi(),
-				    shape->GetH1()*scale + shape->GetH2()*(1-scale),
-				    shape->GetBl1()*scale + shape->GetBl2()*(1-scale),
-				    shape->GetTl1()*scale + shape->GetTl2()*(1-scale),
-				    shape->GetAlpha1(),
-				    shape->GetH2(), shape->GetBl2(), shape->GetTl2(),
-				    shape->GetAlpha2());
-    }
-    if ( ! crystal_shape ) crystal_shape = new TGeoBBox(1.1, 1.1, size / 2, 0);
+      TEveGeoShape* egs = geo.getShape(k->rawId());
+      // printf("1 egs  %d \n", egs->GetShape()->GetUniqueID());
+      assert(egs != 0);
+      TEveTrans &t = egs->RefMainTrans();
+      t.MoveLF(3, -size / 2);
+      TGeoShape* crystal_shape = 0;
+      if ( const TGeoTrap* shape = dynamic_cast<const TGeoTrap*>(egs->GetShape())) {
+         double scale = size*0.5/shape->GetDz();
+         crystal_shape = new TGeoTrap( size/2,
+                                       shape->GetTheta(), shape->GetPhi(),
+                                       shape->GetH1()*scale + shape->GetH2()*(1-scale),
+                                       shape->GetBl1()*scale + shape->GetBl2()*(1-scale),
+                                       shape->GetTl1()*scale + shape->GetTl2()*(1-scale),
+                                       shape->GetAlpha1(),
+                                       shape->GetH2(), shape->GetBl2(), shape->GetTl2(),
+                                       shape->GetAlpha2());
+      }
+      if ( !crystal_shape ) crystal_shape = new TGeoBBox(1.1, 1.1, size / 2, 0);
 
-    egs->SetShape(crystal_shape);
-    Float_t rgba[4] = { 1, 0, 0, 1 };
-    egs->SetMainColorRGB(rgba[0], rgba[1], rgba[2]);
-    egs->SetRnrSelf(true);
-    egs->SetRnrChildren(true);
-    ret->AddElement(egs);
-  }
-  return ret;
+      egs->SetShape(crystal_shape);
+      Float_t rgba[4] = { 1, 0, 0, 1 };
+      egs->SetMainColorRGB(rgba[0], rgba[1], rgba[2]);
+      egs->SetRnrSelf(true);
+      egs->SetRnrChildren(true);
+      ret->AddElement(egs);
+   }
+   return ret;
 }
 
 std::string

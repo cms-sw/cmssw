@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWEDProductRepresentationChecker
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 11 15:20:10 EST 2008
-// $Id$
+// $Id: FWEDProductRepresentationChecker.cc,v 1.1 2008/11/14 16:29:31 chrjones Exp $
 //
 
 // system include files
@@ -29,9 +29,9 @@
 // constructors and destructor
 //
 FWEDProductRepresentationChecker::FWEDProductRepresentationChecker(const std::string& iTypeName,
-                                                                   const std::string& iPurpose):
-FWRepresentationCheckerBase(iPurpose),
-m_typeName(iTypeName)
+                                                                   const std::string& iPurpose) :
+   FWRepresentationCheckerBase(iPurpose),
+   m_typeName(iTypeName)
 {
 }
 
@@ -63,7 +63,7 @@ m_typeName(iTypeName)
 //
 // const member functions
 //
-FWRepresentationInfo 
+FWRepresentationInfo
 FWEDProductRepresentationChecker::infoFor(const std::string& iTypeName) const
 {
    if(iTypeName == m_typeName) {

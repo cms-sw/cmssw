@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jan 15 10:27:12 EST 2008
-// $Id: FWViewManagerManager.cc,v 1.11 2008/11/06 22:05:26 amraktad Exp $
+// $Id: FWViewManagerManager.cc,v 1.12 2008/11/14 16:41:05 chrjones Exp $
 //
 
 // system include files
@@ -34,8 +34,8 @@
 //
 // constructors and destructor
 //
-FWViewManagerManager::FWViewManagerManager(FWModelChangeManager* iCM):
-m_changeManager(iCM)
+FWViewManagerManager::FWViewManagerManager(FWModelChangeManager* iCM) :
+   m_changeManager(iCM)
 {
 }
 
@@ -98,7 +98,7 @@ void
 FWViewManagerManager::removeEventItem(const FWEventItem* iItem)
 {
    std::map<std::string, const FWEventItem*>::iterator itr =
-     	m_typeToItems.find(iItem->name());
+      m_typeToItems.find(iItem->name());
    if ( itr != m_typeToItems.end() ) m_typeToItems.erase( itr );
 }
 

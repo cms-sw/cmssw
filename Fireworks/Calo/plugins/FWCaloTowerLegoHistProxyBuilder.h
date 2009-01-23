@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWCaloTowerProxy3DLegoBuilder.h,v 1.1 2009/01/15 16:28:01 amraktad Exp $
+// $Id: FWCaloTowerLegoHistProxyBuilder.h,v 1.1 2009/01/19 17:59:12 amraktad Exp $
 //
 
 #ifndef Fireworks_Calo_FWCaloTowerLegoHistProxyBuilder_h
@@ -15,15 +15,17 @@ class TH2F;
 class FWCaloTowerLegoHistBuilderBase : public FW3DLegoEveHistProxyBuilder
 {
 public:
-   FWCaloTowerLegoHistBuilderBase(): FW3DLegoEveHistProxyBuilder(), m_towers(0), m_hist(0) {}
-   virtual ~FWCaloTowerLegoHistBuilderBase(){}
+   FWCaloTowerLegoHistBuilderBase() : FW3DLegoEveHistProxyBuilder(), m_towers(0), m_hist(0) {
+   }
+   virtual ~FWCaloTowerLegoHistBuilderBase(){
+   }
 
    // ---------- const member functions ---------------------
    virtual const char* histName() const = 0;
 
 protected:
    virtual void fillHist() = 0;
-  // ---------- member data --------------------------------
+   // ---------- member data --------------------------------
    const CaloTowerCollection* m_towers;
    TH2F* m_hist;
 
@@ -35,7 +37,7 @@ private:
    FWCaloTowerLegoHistBuilderBase(const FWCaloTowerLegoHistBuilderBase&); // stop default
    const FWCaloTowerLegoHistBuilderBase& operator=(const FWCaloTowerLegoHistBuilderBase&); // stop default
 
- 
+
 };
 
 //
@@ -46,8 +48,10 @@ class FWECalCaloTowerLegoHistBuilder : public FWCaloTowerLegoHistBuilderBase
 {
 
 public:
-   FWECalCaloTowerLegoHistBuilder():FWCaloTowerLegoHistBuilderBase(){}
-   virtual ~FWECalCaloTowerLegoHistBuilder(){}
+   FWECalCaloTowerLegoHistBuilder() : FWCaloTowerLegoHistBuilderBase(){
+   }
+   virtual ~FWECalCaloTowerLegoHistBuilder(){
+   }
 
    // ---------- const member functions ---------------------
    virtual const char* histName() const {
@@ -60,7 +64,7 @@ protected:
    virtual void fillHist();
 
 private:
-    FWECalCaloTowerLegoHistBuilder(const FWECalCaloTowerLegoHistBuilder&); // stop default
+   FWECalCaloTowerLegoHistBuilder(const FWECalCaloTowerLegoHistBuilder&);  // stop default
    // const FWECalCaloTowerLegoHistBuilder& operator=(const FWECalCaloTowerLegoHistBuilder&); // stop default
 };
 
@@ -73,8 +77,10 @@ class FWHCalCaloTowerLegoHistBuilder : public FWCaloTowerLegoHistBuilderBase
 {
 
 public:
-   FWHCalCaloTowerLegoHistBuilder():FWCaloTowerLegoHistBuilderBase() {}
-   virtual ~FWHCalCaloTowerLegoHistBuilder(){}
+   FWHCalCaloTowerLegoHistBuilder() : FWCaloTowerLegoHistBuilderBase() {
+   }
+   virtual ~FWHCalCaloTowerLegoHistBuilder(){
+   }
 
    // ---------- const member functions ---------------------
    virtual const char* histName() const {

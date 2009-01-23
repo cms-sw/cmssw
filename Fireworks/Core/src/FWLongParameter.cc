@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:36:41 EST 2008
-// $Id: FWLongParameter.cc,v 1.2 2008/09/27 16:55:02 dmytro Exp $
+// $Id: FWLongParameter.cc,v 1.3 2008/11/06 22:05:26 amraktad Exp $
 //
 
 // system include files
@@ -32,14 +32,14 @@
 // constructors and destructor
 //
 FWLongParameter::FWLongParameter(FWParameterizable* iParent,
-                                     const std::string& iName,
-                                     long iDefault,
-                                     long iMin,
-                                     long iMax):
-FWParameterBase(iParent,iName),
-m_value(iDefault),
-m_min(iMin),
-m_max(iMax)
+                                 const std::string& iName,
+                                 long iDefault,
+                                 long iMin,
+                                 long iMax) :
+   FWParameterBase(iParent,iName),
+   m_value(iDefault),
+   m_min(iMin),
+   m_max(iMax)
 {
 }
 
@@ -48,10 +48,10 @@ m_max(iMax)
 //    // do actual copying here;
 // }
 /*
-FWLongParameter::~FWLongParameter()
-{
-}
-*/
+   FWLongParameter::~FWLongParameter()
+   {
+   }
+ */
 //
 // assignment operators
 //

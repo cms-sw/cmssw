@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 10 09:02:57 CDT 2008
-// $Id: FWListViewObjectEditor.cc,v 1.5 2008/07/15 02:00:13 chrjones Exp $
+// $Id: FWListViewObjectEditor.cc,v 1.6 2008/11/06 22:05:26 amraktad Exp $
 //
 #if defined(THIS_IS_NOT_DEFINED)
 // system include files
@@ -40,9 +40,9 @@ FWListViewObjectEditor::FWListViewObjectEditor(const TGWindow* p,
                                                Int_t width,
                                                Int_t height,
                                                UInt_t options,
-                                               Pixel_t back):
-TGedFrame(p, width, height, options | kVerticalFrame, back),
-m_frame(0)
+                                               Pixel_t back) :
+   TGedFrame(p, width, height, options | kVerticalFrame, back),
+   m_frame(0)
 {
    MakeTitle("FWListModel");
 }
@@ -104,7 +104,7 @@ FWListViewObjectEditor::SetModel(TObject* iView)
 
 void
 FWListViewObjectEditor::updateEditor() {
-  Update();
+   Update();
 }
 //
 // const member functions

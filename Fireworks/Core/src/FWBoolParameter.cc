@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:36:41 EST 2008
-// $Id: FWBoolParameter.cc,v 1.2 2008/09/27 16:55:02 dmytro Exp $
+// $Id: FWBoolParameter.cc,v 1.3 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files
@@ -32,10 +32,10 @@
 // constructors and destructor
 //
 FWBoolParameter::FWBoolParameter(FWParameterizable* iParent,
-				 const std::string& iName,
-				 bool iDefault):
-FWParameterBase(iParent,iName),
-m_value(iDefault)
+                                 const std::string& iName,
+                                 bool iDefault) :
+   FWParameterBase(iParent,iName),
+   m_value(iDefault)
 {
 }
 
@@ -44,10 +44,10 @@ m_value(iDefault)
 //    // do actual copying here;
 // }
 /*
-FWBoolParameter::~FWBoolParameter()
-{
-}
-*/
+   FWBoolParameter::~FWBoolParameter()
+   {
+   }
+ */
 //
 // assignment operators
 //

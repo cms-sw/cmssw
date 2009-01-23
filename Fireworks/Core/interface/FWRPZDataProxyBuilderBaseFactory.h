@@ -7,16 +7,16 @@
 //
 /**\class FWRPZDataProxyBuilderBaseFactory FWRPZDataProxyBuilderBaseFactory.h Fireworks/Core/interface/FWRPZDataProxyBuilderBaseFactory.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jun  5 20:13:37 EDT 2008
-// $Id: FWRPZDataProxyBuilderBaseFactory.h,v 1.2 2008/11/06 22:05:23 amraktad Exp $
+// $Id: FWRPZDataProxyBuilderBaseFactory.h,v 1.1 2008/11/26 01:50:46 chrjones Exp $
 //
 
 // system include files
@@ -31,7 +31,7 @@ class FWRPZDataProxyBuilderBase;
 typedef edmplugin::PluginFactory<FWRPZDataProxyBuilderBase*()> FWRPZDataProxyBuilderBaseFactory;
 
 #define REGISTER_FWRPZDATAPROXYBUILDERBASE(_name_,_type_,_purpose_) \
-DEFINE_PROXYBUILDER_METHODS(_name_,_type_,_purpose_); \
-DEFINE_EDM_PLUGIN(FWRPZDataProxyBuilderBaseFactory,_name_,_name_::typeOfBuilder()+_name_::classTypeName()+"@"+_name_::classPurpose()+"@" #_name_)
+   DEFINE_PROXYBUILDER_METHODS(_name_,_type_,_purpose_); \
+   DEFINE_EDM_PLUGIN(FWRPZDataProxyBuilderBaseFactory,_name_,_name_::typeOfBuilder()+_name_::classTypeName()+"@"+_name_::classPurpose()+"@" # _name_)
 
 #endif

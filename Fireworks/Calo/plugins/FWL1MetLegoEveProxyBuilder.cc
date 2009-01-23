@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Sun Jan  6 23:57:00 EST 2008
 //
-// $Id: FWL1MetLegoEveProxyBuilder.cc,v 1.1 2009/01/13 20:45:11 amraktad Exp $
+// $Id: FWL1MetLegoEveProxyBuilder.cc,v 1.1 2009/01/19 18:40:59 amraktad Exp $
 
 // system include files
 #include "TEveElement.h"
@@ -32,23 +32,23 @@
 
 class FWL1MetLegoEveProxyBuilder : public FW3DLegoEveElementProxyBuilder
 {
-   public:
-      FWL1MetLegoEveProxyBuilder();
-      virtual ~FWL1MetLegoEveProxyBuilder();
+public:
+   FWL1MetLegoEveProxyBuilder();
+   virtual ~FWL1MetLegoEveProxyBuilder();
 
-      // ---------- const member functions ---------------------
-      REGISTER_PROXYBUILDER_METHODS();
+   // ---------- const member functions ---------------------
+   REGISTER_PROXYBUILDER_METHODS();
 
-      // ---------- static member functions --------------------
-   private:
-      virtual void build(const FWEventItem* iItem,
-			 TEveElementList** product);
+   // ---------- static member functions --------------------
+private:
+   virtual void build(const FWEventItem* iItem,
+                      TEveElementList** product);
 
-      FWL1MetLegoEveProxyBuilder(const FWL1MetLegoEveProxyBuilder&); // stop default
+   FWL1MetLegoEveProxyBuilder(const FWL1MetLegoEveProxyBuilder&);    // stop default
 
-      const FWL1MetLegoEveProxyBuilder& operator=(const FWL1MetLegoEveProxyBuilder&); // stop default
+   const FWL1MetLegoEveProxyBuilder& operator=(const FWL1MetLegoEveProxyBuilder&);    // stop default
 
-      // ---------- member data --------------------------------
+   // ---------- member data --------------------------------
 };
 
 FWL1MetLegoEveProxyBuilder::FWL1MetLegoEveProxyBuilder()

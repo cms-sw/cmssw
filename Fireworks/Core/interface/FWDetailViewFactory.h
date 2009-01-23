@@ -4,19 +4,19 @@
 //
 // Package:     Core
 // Class  :     FWDetailViewFactory
-// 
+//
 /**\class FWDetailViewFactory FWDetailViewFactory.h Fireworks/Core/interface/FWDetailViewFactory.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Jan 12 09:48:04 EST 2009
-// $Id$
+// $Id: FWDetailViewFactory.h,v 1.1 2009/01/12 17:21:29 chrjones Exp $
 //
 
 // system include files
@@ -31,7 +31,7 @@ class FWDetailViewBase;
 typedef edmplugin::PluginFactory<FWDetailViewBase*()> FWDetailViewFactory;
 
 #define REGISTER_FWDETAILVIEW(_name_) \
-DEFINE_EDM_PLUGIN(FWDetailViewFactory,_name_,_name_::classTypeName()+"@" #_name_)
+   DEFINE_EDM_PLUGIN(FWDetailViewFactory,_name_,_name_::classTypeName()+"@" # _name_)
 
 
 #endif

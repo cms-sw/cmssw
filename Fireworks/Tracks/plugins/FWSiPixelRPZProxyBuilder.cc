@@ -5,16 +5,16 @@
 //
 /**\class FWSiPixeRPZProxyBuilder FWSiPixeRPZProxyBuilder.h Fireworks/Core/interface/FWSiPixeRPZProxyBuilder.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWSiPixeRPZProxyBuilder.cc,v 1.1 2009/01/16 16:19:13 chrjones Exp $
+// $Id: FWSiPixelRPZProxyBuilder.cc,v 1.1 2009/01/16 20:01:29 amraktad Exp $
 //
 
 // system include files
@@ -33,19 +33,21 @@
 
 class FWSiPixeRPZProxyBuilder : public FWRPZDataProxyBuilder
 {
-   public:
-      FWSiPixeRPZProxyBuilder() {}
-      virtual ~FWSiPixeRPZProxyBuilder() {}
-      REGISTER_PROXYBUILDER_METHODS();
-   private:
-      virtual void build(const FWEventItem* iItem, TEveElementList** product);
+public:
+   FWSiPixeRPZProxyBuilder() {
+   }
+   virtual ~FWSiPixeRPZProxyBuilder() {
+   }
+   REGISTER_PROXYBUILDER_METHODS();
+private:
+   virtual void build(const FWEventItem* iItem, TEveElementList** product);
 
-      FWSiPixeRPZProxyBuilder(const FWSiPixeRPZProxyBuilder&); // stop default
+   FWSiPixeRPZProxyBuilder(const FWSiPixeRPZProxyBuilder&);    // stop default
 
-      const FWSiPixeRPZProxyBuilder& operator=(const FWSiPixeRPZProxyBuilder&); // stop default
+   const FWSiPixeRPZProxyBuilder& operator=(const FWSiPixeRPZProxyBuilder&);    // stop default
 
-      void modelChanges(const FWModelIds& iIds, TEveElement* iElements);
-      void applyChangesToAllModels(TEveElement* iElements);
+   void modelChanges(const FWModelIds& iIds, TEveElement* iElements);
+   void applyChangesToAllModels(TEveElement* iElements);
 };
 
 void FWSiPixeRPZProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
@@ -82,18 +84,18 @@ void FWSiPixeRPZProxyBuilder::build(const FWEventItem* iItem, TEveElementList** 
       list->SetRnrChildren( iItem->defaultDisplayProperties().isVisible() );
 
       if (iItem->getGeom()) {
-	 // const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix( id );
-	 TEveGeoShape* shape = iItem->getGeom()->getShape( id );
-	 if(0!=shape) {
-	    shape->SetMainTransparency(50);
-	    shape->SetMainColor( iItem->defaultDisplayProperties().color() );
-	    shape->SetPickable(true);
-	    list->AddElement(shape);
-	 }
+         // const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix( id );
+         TEveGeoShape* shape = iItem->getGeom()->getShape( id );
+         if(0!=shape) {
+            shape->SetMainTransparency(50);
+            shape->SetMainColor( iItem->defaultDisplayProperties().color() );
+            shape->SetPickable(true);
+            list->AddElement(shape);
+         }
       }
 
       gEve->AddElement(list,tList);
-    }
+   }
 }
 
 void

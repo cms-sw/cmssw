@@ -4,19 +4,19 @@
 //
 // Package:     Core
 // Class  :     FWRPZ2DSimpleProxyBuilder
-// 
+//
 /**\class FWRPZ2DSimpleProxyBuilder FWRPZ2DSimpleProxyBuilder.h Fireworks/Core/interface/FWRPZ2DSimpleProxyBuilder.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 26 11:02:04 EST 2008
-// $Id: FWRPZ2DSimpleProxyBuilder.h,v 1.1 2008/11/27 00:40:30 chrjones Exp $
+// $Id: FWRPZ2DSimpleProxyBuilder.h,v 1.2 2008/12/02 21:17:46 chrjones Exp $
 //
 
 // system include files
@@ -36,36 +36,36 @@ class FWRPZ2DSimpleProxyBuilder : public FWRPZDataProxyBuilderBase {
 public:
    friend class FWRPSimpleCaller;
    friend class FWRZSimpleCaller;
-   
+
    FWRPZ2DSimpleProxyBuilder(const std::type_info&);
    virtual ~FWRPZ2DSimpleProxyBuilder();
-   
+
    // ---------- const member functions ---------------------
-   
+
    // ---------- static member functions --------------------
    ///Used by the plugin system to determine how the proxy uses the data from FWEventItem
    static
    std::string typeOfBuilder();
-   
+
    // ---------- member functions ---------------------------
-   
+
 private:
    FWRPZ2DSimpleProxyBuilder(const FWRPZ2DSimpleProxyBuilder&); // stop default
-   
+
    const FWRPZ2DSimpleProxyBuilder& operator=(const FWRPZ2DSimpleProxyBuilder&); // stop default
 
-   //called once for each item in collection, the void* points to the 
+   //called once for each item in collection, the void* points to the
    // object properly offset in memory
    virtual void buildRhoPhi(const void*, unsigned int iIndex, TEveElement& iItemHolder) const = 0;
    virtual void buildRhoZ(const void*, unsigned int iIndex, TEveElement& iItemHolder) const = 0;
-   
+
    //abstract from parent class
    virtual void itemChangedImp(const FWEventItem*) ;
    virtual void itemBeingDestroyedImp(const FWEventItem*);
    virtual void modelChangesImp(const FWModelIds&);
    virtual TEveElementList* getRhoPhiProduct() const;
    virtual TEveElementList* getRhoZProduct() const;
-   
+
    template<class T>
    void build(TEveElementList* oAddTo, T iCaller);
    // ---------- member data --------------------------------

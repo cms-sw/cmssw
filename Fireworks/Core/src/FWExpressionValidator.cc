@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug 22 20:42:51 EDT 2008
-// $Id: FWExpressionValidator.cc,v 1.2 2008/08/27 13:37:03 chrjones Exp $
+// $Id: FWExpressionValidator.cc,v 1.3 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files
@@ -49,7 +49,7 @@ namespace fireworks {
 
 
    class OptionNode {
-   public:
+public:
       OptionNode(const ROOT::Reflex::Member& );
       OptionNode(const std::string& iDescription,
                  unsigned long iSubstitutionEnd,
@@ -67,8 +67,8 @@ namespace fireworks {
             std::sort(m_subOptions.begin(),m_subOptions.end(),
                       fireworks::OptionNodePtrCompare<boost::shared_ptr<OptionNode> >());
             std::vector<boost::shared_ptr<OptionNode> >::iterator it=
-            std::unique(m_subOptions.begin(),m_subOptions.end(),
-                        fireworks::OptionNodePtrEqual<boost::shared_ptr<OptionNode> >());
+               std::unique(m_subOptions.begin(),m_subOptions.end(),
+                           fireworks::OptionNodePtrEqual<boost::shared_ptr<OptionNode> >());
             m_subOptions.erase(it,  m_subOptions.end());
 
             m_hasSubOptions = !m_subOptions.empty();
@@ -81,8 +81,8 @@ namespace fireworks {
       }
 
       static void fillOptionForType( const ROOT::Reflex::Type&,
-                                    std::vector<boost::shared_ptr<OptionNode> >& );
-   private:
+                                     std::vector<boost::shared_ptr<OptionNode> >& );
+private:
       ROOT::Reflex::Type m_type;
       mutable std::string m_description;
       mutable std::string::size_type m_endOfName;
@@ -93,11 +93,11 @@ namespace fireworks {
 
    OptionNode::OptionNode(const std::string& iDescription,
                           unsigned long iSubstitutionEnd,
-                          const ROOT::Reflex::Type& iType):
-   m_type(iType),
-   m_description(iDescription),
-   m_endOfName(iSubstitutionEnd),
-   m_hasSubOptions(typeHasOptions(iType) )
+                          const ROOT::Reflex::Type& iType) :
+      m_type(iType),
+      m_description(iDescription),
+      m_endOfName(iSubstitutionEnd),
+      m_hasSubOptions(typeHasOptions(iType) )
    {
    }
 
@@ -110,22 +110,22 @@ namespace fireworks {
             return iMember.Name()+":"+typeString;
          } else {
             return iMember.Name()+typeString.substr(index,std::string::npos)+":"+
-            typeString.substr(0,index);
+                   typeString.substr(0,index);
          }
       }
    }
 
-   OptionNode::OptionNode(const ROOT::Reflex::Member& iMember):
-   m_type(reco::returnType(iMember)),
-   m_description(descriptionFromMember(iMember)),
-   m_endOfName(iMember.Name().size()),
-   m_hasSubOptions(typeHasOptions(m_type))
+   OptionNode::OptionNode(const ROOT::Reflex::Member& iMember) :
+      m_type(reco::returnType(iMember)),
+      m_description(descriptionFromMember(iMember)),
+      m_endOfName(iMember.Name().size()),
+      m_hasSubOptions(typeHasOptions(m_type))
    {
    }
 
 
    void OptionNode::fillOptionForType( const ROOT::Reflex::Type& iType,
-                                      std::vector<boost::shared_ptr<OptionNode> >& oOptions)
+                                       std::vector<boost::shared_ptr<OptionNode> >& oOptions)
    {
       ROOT::Reflex::Type type = iType;
       if(type.IsPointer()) {
@@ -143,7 +143,7 @@ namespace fireworks {
          oOptions.push_back(boost::shared_ptr<OptionNode>(new OptionNode(*m)));
       }
 
-      for(ROOT::Reflex::Base_Iterator b = type.Base_Begin(); b != type.Base_End(); ++ b) {
+      for(ROOT::Reflex::Base_Iterator b = type.Base_Begin(); b != type.Base_End(); ++b) {
          fillOptionForType(b->ToType(),oOptions);
       }
    }
@@ -162,10 +162,10 @@ namespace fireworks {
 // constructors and destructor
 //
 #define FUN1(_fun_) \
-m_builtins.push_back(boost::shared_ptr<OptionNode>( new OptionNode( #_fun_ "(float):float", strlen( #_fun_ )+1,s_float)))
+   m_builtins.push_back(boost::shared_ptr<OptionNode>( new OptionNode( # _fun_ "(float):float", strlen( # _fun_ )+1,s_float)))
 
 #define FUN2(_fun_) \
-m_builtins.push_back(boost::shared_ptr<OptionNode>( new OptionNode( #_fun_ "(float,float):float", strlen( #_fun_ )+1,s_float)))
+   m_builtins.push_back(boost::shared_ptr<OptionNode>( new OptionNode( # _fun_ "(float,float):float", strlen( # _fun_ )+1,s_float)))
 
 FWExpressionValidator::FWExpressionValidator()
 {
@@ -230,8 +230,8 @@ FWExpressionValidator::setType(const ROOT::Reflex::Type& iType)
    std::sort(m_options.begin(),m_options.end(),
              fireworks::OptionNodePtrCompare<boost::shared_ptr<OptionNode> >());
    std::vector<boost::shared_ptr<OptionNode> >::iterator it=
-   std::unique(m_options.begin(),m_options.end(),
-               fireworks::OptionNodePtrEqual<boost::shared_ptr<OptionNode> >());
+      std::unique(m_options.begin(),m_options.end(),
+                  fireworks::OptionNodePtrEqual<boost::shared_ptr<OptionNode> >());
    m_options.erase(it,  m_options.end());
 }
 
@@ -239,7 +239,8 @@ FWExpressionValidator::setType(const ROOT::Reflex::Type& iType)
 // const member functions
 //
 namespace {
-   void dummyDelete(void*) {}
+   void dummyDelete(void*) {
+   }
 
    void findTypeDelimiters(const char*& ioBegin,
                            const char* iEnd,
@@ -276,7 +277,7 @@ FWExpressionValidator::fillOptions(const char* iBegin, const char* iEnd,
    std::vector<const char*> delimeters;
    findTypeDelimiters(iBegin, iEnd, delimeters);
    //must find correct OptionNode
-   const Options* nodes = & m_options;
+   const Options* nodes = &m_options;
    const char* begin = iBegin;
    for(std::vector<const char*>::iterator it = delimeters.begin(), itEnd = delimeters.end();
        it != itEnd; ++it) {
@@ -286,9 +287,9 @@ FWExpressionValidator::fillOptions(const char* iBegin, const char* iEnd,
 
       boost::shared_ptr<OptionNode> comp(&temp, dummyDelete);
       Options::const_iterator itFind =std::lower_bound(nodes->begin(),
-                                                         nodes->end(),
-                                                         comp,
-                                                         fireworks::OptionNodePtrCompare<boost::shared_ptr<OptionNode> >());
+                                                       nodes->end(),
+                                                       comp,
+                                                       fireworks::OptionNodePtrCompare<boost::shared_ptr<OptionNode> >());
 
       if(itFind == nodes->end() ||  *comp < *(*itFind) ) {
          //no match so we have an error

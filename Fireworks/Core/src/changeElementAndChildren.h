@@ -7,16 +7,16 @@
 //
 /**\class changeElementAndChildren changeElementAndChildren.h Fireworks/Core/interface/changeElementAndChildren.h
 
- Description: function to change an element and all its children to match the ModelInfo
+   Description: function to change an element and all its children to match the ModelInfo
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 11 21:41:13 CDT 2008
-// $Id: changeElementAndChildren.h,v 1.1 2008/03/12 02:53:25 chrjones Exp $
+// $Id: changeElementAndChildren.h,v 1.2 2008/11/06 22:05:27 amraktad Exp $
 //
 
 // system include files

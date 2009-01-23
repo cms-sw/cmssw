@@ -7,16 +7,16 @@
 //
 /**\class Context Context.h Fireworks/Core/interface/Context.h
 
- Description: Central collection of all framework managers
+   Description: Central collection of all framework managers
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:21:45 EDT 2008
-// $Id: Context.h,v 1.2 2008/11/06 22:05:22 amraktad Exp $
+// $Id: Context.h,v 1.3 2008/12/06 02:36:50 chrjones Exp $
 //
 
 // system include files
@@ -31,7 +31,7 @@ class FWEventItemsManager;
 namespace fireworks {
    class Context {
 
-   public:
+public:
       Context(FWModelChangeManager* iCM,
               FWSelectionManager* iSM,
               FWEventItemsManager* iEM);
@@ -52,7 +52,7 @@ namespace fireworks {
 
       // ---------- member functions ---------------------------
 
-   private:
+private:
       Context(const Context&); // stop default
 
       const Context& operator=(const Context&); // stop default

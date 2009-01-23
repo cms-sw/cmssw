@@ -2,13 +2,13 @@
 //
 // Package:     Calo
 // Class  :     FWCaloTower3DProxyBuilderBase
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:28 EST 2008
-// $Id: FWCaloTower3DProxyBuilder.cc,v 1.1 2009/01/15 16:28:00 amraktad Exp $
+// $Id: FWCaloTower3DProxyBuilder.cc,v 1.1 2009/01/19 17:59:11 amraktad Exp $
 //
 
 #include <math.h>
@@ -25,9 +25,9 @@
 //
 // constructors , dectructors
 //
-FWCaloTower3DProxyBuilderBase::FWCaloTower3DProxyBuilderBase():
-m_caloData(0),
-m_hist(0)
+FWCaloTower3DProxyBuilderBase::FWCaloTower3DProxyBuilderBase() :
+   m_caloData(0),
+   m_hist(0)
 {
 }
 
@@ -38,24 +38,24 @@ FWCaloTower3DProxyBuilderBase::~FWCaloTower3DProxyBuilderBase()
 //
 // member functions
 //
-void 
+void
 FWCaloTower3DProxyBuilderBase::addToScene(TEveElement& iContainer, TEveCaloDataHist** iCaloData)
 {
    if(0==*iCaloData) {
       *iCaloData = new TEveCaloDataHist();
-      
+
       //NOTE: must attach a histogram to TEveCaloDataHist before passing TEveCaloDataHist to TEveCalo3D
       // else we get a segmentation fault.
       Bool_t status = TH1::AddDirectoryStatus();
       TH1::AddDirectory(kFALSE); //Keeps histogram from going into memory
       TH2F* dummy = new TH2F("background",
-                        "background",
-                        82, fw3dlego::xbins,
-                        72, -M_PI, M_PI);
+                             "background",
+                             82, fw3dlego::xbins,
+                             72, -M_PI, M_PI);
       TH1::AddDirectory(status);
       Int_t sliceIndex = (*iCaloData)->AddHistogram(dummy);
       (*iCaloData)->RefSliceInfo(sliceIndex).Setup("background", 0., 0);
-      
+
       TEveCalo3D* calo3d = new TEveCalo3D(*iCaloData);
       calo3d->SetBarrelRadius(129);
       calo3d->SetEndCapPos(310);
@@ -65,7 +65,7 @@ FWCaloTower3DProxyBuilderBase::addToScene(TEveElement& iContainer, TEveCaloDataH
    m_caloData = *iCaloData;
 }
 
-void 
+void
 FWCaloTower3DProxyBuilderBase::build(const FWEventItem* iItem,
                                      TEveElementList** product)
 {
@@ -88,9 +88,9 @@ FWCaloTower3DProxyBuilderBase::build(const FWEventItem* iItem,
       TH1::AddDirectory(status);
       m_sliceIndex = m_caloData->AddHistogram(m_hist);
       m_caloData->RefSliceInfo(m_sliceIndex).Setup(histName().c_str(), 0., iItem->defaultDisplayProperties().color());
-   }   
+   }
    m_hist->Reset();
-   
+
    if(0==*product) {
       //NOTE: the base class requires that something gets attached or else model changes willl not
       // be propagated to the base class
@@ -105,19 +105,19 @@ FWCaloTower3DProxyBuilderBase::build(const FWEventItem* iItem,
    m_caloData->DataChanged();
 }
 
-void 
+void
 FWCaloTower3DProxyBuilderBase::modelChanges(const FWModelIds&, TEveElement* iElements)
 {
    applyChangesToAllModels(iElements);
 }
 
-void 
+void
 FWCaloTower3DProxyBuilderBase::applyChangesToAllModels(TEveElement* iElements)
 {
    if(m_caloData && m_towers && item()) {
       m_hist->Reset();
       if(item()->defaultDisplayProperties().isVisible()) {
-         
+
          assert(item()->size() >= m_towers->size());
          unsigned int index=0;
          for(CaloTowerCollection::const_iterator tower = m_towers->begin(); tower != m_towers->end(); ++tower,++index) {
@@ -131,7 +131,7 @@ FWCaloTower3DProxyBuilderBase::applyChangesToAllModels(TEveElement* iElements)
    }
 }
 
-void 
+void
 FWCaloTower3DProxyBuilderBase::itemBeingDestroyed(const FWEventItem* iItem)
 {
    FW3DDataProxyBuilder::itemBeingDestroyed(iItem);

@@ -1,13 +1,13 @@
-// @(#)root/eve:$Id: FWListWidget.cc,v 1.2 2008/11/10 18:07:57 amraktad Exp $
+// @(#)root/eve:$Id: FWListWidget.cc,v 1.3 2008/11/14 15:36:34 chrjones Exp $
 // Authors: Matevz Tadel & Alja Mrak-Tadel: 2006, 2007
 
 /*************************************************************************
- * Copyright (C) 1995-2007, Rene Brun and Fons Rademakers.               *
- * All rights reserved.                                                  *
- *                                                                       *
- * For the licensing terms see $ROOTSYS/LICENSE.                         *
- * For the list of contributors see $ROOTSYS/README/CREDITS.             *
- *************************************************************************/
+* Copyright (C) 1995-2007, Rene Brun and Fons Rademakers.               *
+* All rights reserved.                                                  *
+*                                                                       *
+* For the licensing terms see $ROOTSYS/LICENSE.                         *
+* For the list of contributors see $ROOTSYS/README/CREDITS.             *
+*************************************************************************/
 
 #include "Fireworks/Core/src/FWListWidget.h"
 
@@ -139,24 +139,24 @@ FWListWidget::FWListWidget(const TGWindow* p, Int_t width, Int_t height) :
    fListTree->SetUserControl(kTRUE);
    fLTCanvas->SetContainer(fListTree);
    fFrame->AddFrame(fLTCanvas, new TGLayoutHints
-                      (kLHintsNormal | kLHintsExpandX | kLHintsExpandY, 1, 1, 1, 1));
+                              (kLHintsNormal | kLHintsExpandX | kLHintsExpandY, 1, 1, 1, 1));
    /*fFrame  ->AddFrame(fLTFrame, new TGLayoutHints
                       (kLHintsNormal | kLHintsExpandX | kLHintsExpandY));*/
 
    /*
-   // Splitter
-   fSplitter = new TGHSplitter(fFrame);
-   fFrame->AddFrame(fSplitter, new TGLayoutHints(kLHintsTop | kLHintsExpandX, 1,1,2,2));
+      // Splitter
+      fSplitter = new TGHSplitter(fFrame);
+      fFrame->AddFrame(fSplitter, new TGLayoutHints(kLHintsTop | kLHintsExpandX, 1,1,2,2));
 
-   // Editor
-   fFrame->SetEditDisabled(kEditEnable);
-   fFrame->SetEditable();
-   fEditor = new TEveGedEditor(0, width, 4*height/7);
-   fEditor->SetGlobal(kFALSE);
-   fEditor->ChangeOptions(fEditor->GetOptions() | kFixedHeight);
-   fFrame->SetEditable(kEditDisable);
-   fFrame->SetEditable(kFALSE);
-   {
+      // Editor
+      fFrame->SetEditDisabled(kEditEnable);
+      fFrame->SetEditable();
+      fEditor = new TEveGedEditor(0, width, 4*height/7);
+      fEditor->SetGlobal(kFALSE);
+      fEditor->ChangeOptions(fEditor->GetOptions() | kFixedHeight);
+      fFrame->SetEditable(kEditDisable);
+      fFrame->SetEditable(kFALSE);
+      {
       TGFrameElement *el = 0;
       TIter next(fFrame->GetList());
       while ((el = (TGFrameElement *) next())) {
@@ -168,9 +168,9 @@ FWListWidget::FWListWidget(const TGWindow* p, Int_t width, Int_t height) :
                break;
             }
       }
-   }
-   fSplitter->SetFrame(fEditor, kFALSE);
-*/
+      }
+      fSplitter->SetFrame(fEditor, kFALSE);
+    */
    AddFrame(fFrame, new TGLayoutHints(kLHintsNormal | kLHintsExpandX | kLHintsExpandY));
 
    fCtxMenu = new TContextMenu("", "");
@@ -222,13 +222,13 @@ void FWListWidget::DisconnectSignals()
    if (!fSignalsConnected) return;
 
    fListTree->Disconnect("MouseOver(TGListTreeItem*, UInt_t)",
-                      this, "ItemBelowMouse(TGListTreeItem*, UInt_t)");
+                         this, "ItemBelowMouse(TGListTreeItem*, UInt_t)");
    fListTree->Disconnect("Clicked(TGListTreeItem*, Int_t, UInt_t, Int_t, Int_t)",
-                      this, "ItemClicked(TGListTreeItem*, Int_t, UInt_t, Int_t, Int_t)");
+                         this, "ItemClicked(TGListTreeItem*, Int_t, UInt_t, Int_t, Int_t)");
    fListTree->Disconnect("DoubleClicked(TGListTreeItem*, Int_t)",
-                      this, "ItemDblClicked(TGListTreeItem*, Int_t)");
+                         this, "ItemDblClicked(TGListTreeItem*, Int_t)");
    fListTree->Disconnect("KeyPressed(TGListTreeItem*, ULong_t, ULong_t)",
-                      this, "ItemKeyPress(TGListTreeItem*, UInt_t, UInt_t)");
+                         this, "ItemKeyPress(TGListTreeItem*, UInt_t, UInt_t)");
 
    fSignalsConnected = kFALSE;
 }
@@ -264,7 +264,7 @@ void FWListWidget::ItemClicked(TGListTreeItem *item, Int_t btn, UInt_t mask, Int
 
    switch (btn)
    {
-      case 1:
+      case 1 :
          gEve->GetSelection()->UserPickedElement(el, mask & kKeyControlMask);
          break;
 
@@ -321,30 +321,30 @@ void FWListWidget::ItemKeyPress(TGListTreeItem *entry, UInt_t keysym, UInt_t mas
 
    switch (keysym)
    {
-         /*
-      case kKey_Delete:
-      {
+      /*
+         case kKey_Delete:
+         {
          if (entry->GetParent())
          {
-               throw(eh + "DestroyDenied set for this item.");
+            throw(eh + "DestroyDenied set for this item.");
 
-            TEveElement* parent = (TEveElement*) entry->GetParent()->GetUserData();
+         TEveElement* parent = (TEveElement*) entry->GetParent()->GetUserData();
 
-            if (parent)
-            {
-               gEve->RemoveElement(el, parent);
-               gEve->Redraw3D();
-            }
+         if (parent)
+         {
+            gEve->RemoveElement(el, parent);
+            gEve->Redraw3D();
+         }
          }
          else
          {
-               throw(eh + "DestroyDenied set for this top-level item.");
-            gEve->RemoveFromListTree(el, fListTree, entry);
-            gEve->Redraw3D();
+            throw(eh + "DestroyDenied set for this top-level item.");
+         gEve->RemoveFromListTree(el, fListTree, entry);
+         gEve->Redraw3D();
          }
          break;
-      }
-          */
+         }
+       */
       case kKey_Enter:
       case kKey_Return:
       {

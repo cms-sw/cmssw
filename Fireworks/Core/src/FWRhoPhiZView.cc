@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.31 2008/12/09 06:00:17 dmytro Exp $
+// $Id: FWRhoPhiZView.cc,v 1.32 2009/01/21 18:42:59 amraktad Exp $
 //
 
 #define private public
@@ -96,33 +96,33 @@ static TEveElement* doReplication(TEveProjectionManager* iMgr, TEveElement* iFro
 // constructors and destructor
 //
 FWRhoPhiZView::FWRhoPhiZView(TGFrame* iParent,const std::string& iName, const TEveProjection::EPType_e& iProjType) :
-m_projType(iProjType),
-m_typeName(iName),
-m_caloScale(1),
-m_axes(),
-m_caloDistortion(this,"Calo compression",1.0,0.01,10.),
-m_muonDistortion(this,"Muon compression",0.2,0.01,10.),
-m_showProjectionAxes(this,"Show projection axes", false),
-m_compressMuon(this,"Compress detectors",false),
-m_caloFixedScale(this,"Calo scale",2.,0.1,100.),
-m_caloAutoScale(this,"Calo auto scale",false),
-m_showHF(0),
-m_showEndcaps(0),
+   m_projType(iProjType),
+   m_typeName(iName),
+   m_caloScale(1),
+   m_axes(),
+   m_caloDistortion(this,"Calo compression",1.0,0.01,10.),
+   m_muonDistortion(this,"Muon compression",0.2,0.01,10.),
+   m_showProjectionAxes(this,"Show projection axes", false),
+   m_compressMuon(this,"Compress detectors",false),
+   m_caloFixedScale(this,"Calo scale",2.,0.1,100.),
+   m_caloAutoScale(this,"Calo auto scale",false),
+   m_showHF(0),
+   m_showEndcaps(0),
 //m_minEcalEnergy(this,"ECAL energy threshold (GeV)",0.,0.,100.),
 //m_minHcalEnergy(this,"HCAL energy threshold (GeV)",0.,0.,100.),
-m_cameraZoom(0),
-m_cameraMatrix(0)
+   m_cameraZoom(0),
+   m_cameraMatrix(0)
 {
    m_projMgr.reset(new TEveProjectionManager);
    m_projMgr->SetProjection(iProjType);
    //m_projMgr->GetProjection()->SetFixedRadius(700);
    /*
-   m_projMgr->GetProjection()->SetDistortion(m_distortion.value()*1e-3);
-   m_projMgr->GetProjection()->SetFixR(200);
-   m_projMgr->GetProjection()->SetFixZ(300);
-   m_projMgr->GetProjection()->SetPastFixRFac(0.0);
-   m_projMgr->GetProjection()->SetPastFixZFac(0.0);
-   */
+      m_projMgr->GetProjection()->SetDistortion(m_distortion.value()*1e-3);
+      m_projMgr->GetProjection()->SetFixR(200);
+      m_projMgr->GetProjection()->SetFixZ(300);
+      m_projMgr->GetProjection()->SetPastFixRFac(0.0);
+      m_projMgr->GetProjection()->SetPastFixZFac(0.0);
+    */
 
    //m_minEcalEnergy.changed_.connect(  boost::bind(&FWRhoPhiZView::updateCaloThresholdParameters, this) );
    //m_minHcalEnergy.changed_.connect(  boost::bind(&FWRhoPhiZView::updateCaloThresholdParameters, this) );
@@ -145,7 +145,7 @@ m_cameraMatrix(0)
    gEve->AddToListTree(m_projMgr.get(),kTRUE);
 
    //m_distortion.changed_.connect(boost::bind(&TEveProjection::SetDistortion, m_projMgr->GetProjection(),
-     //                                        boost::bind(toFloat,_1)));
+   //                                        boost::bind(toFloat,_1)));
    m_caloDistortion.changed_.connect(boost::bind(&FWRhoPhiZView::doDistortion,this));
    m_muonDistortion.changed_.connect(boost::bind(&FWRhoPhiZView::doDistortion,this));
    m_compressMuon.changed_.connect(boost::bind(&FWRhoPhiZView::doCompression,this,_1));
@@ -159,7 +159,7 @@ m_cameraMatrix(0)
    nv->SetGLViewer(ev);
    ev->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
    if ( TGLOrthoCamera* camera = dynamic_cast<TGLOrthoCamera*>( &(ev->CurrentCamera()) ) ) {
-      m_cameraZoom = & (camera->fZoom);
+      m_cameraZoom = &(camera->fZoom);
       m_cameraMatrix = const_cast<TGLMatrix*>(&(camera->GetCamTrans()));
       camera->SetZoomMax(1e6);
    }
@@ -247,16 +247,16 @@ FWRhoPhiZView::doCompression(bool flag)
 }
 
 /*
-void
-FWRhoPhiZView::doZoom(double iValue)
-{
+   void
+   FWRhoPhiZView::doZoom(double iValue)
+   {
    if ( TGLOrthoCamera* camera = dynamic_cast<TGLOrthoCamera*>( & (m_viewer->GetGLViewer()->CurrentCamera()) ) ) {
       // camera->SetZoom( iValue );
       camera->fZoom = iValue;
       m_viewer->GetGLViewer()->RequestDraw();
    }
-}
-*/
+   }
+ */
 
 void
 FWRhoPhiZView::resetCamera()
@@ -308,15 +308,15 @@ void
 FWRhoPhiZView::updateCaloThresholds(TEveElement* iParent)
 {
    /*
-   TEveElementIter child(iParent);
-   while ( TEveElement* element = child.current() )
-     {
-	if ( TEveCalo2D* calo2d = dynamic_cast<TEveCalo2D*>(element) ) {
-	   setMinEnergy(calo2d, m_minEcalEnergy.value(), "ecal");
-	   setMinEnergy(calo2d, m_minHcalEnergy.value(), "hcal");
-	}
-	child.next();
-     }
+      TEveElementIter child(iParent);
+      while ( TEveElement* element = child.current() )
+      {
+        if ( TEveCalo2D* calo2d = dynamic_cast<TEveCalo2D*>(element) ) {
+           setMinEnergy(calo2d, m_minEcalEnergy.value(), "ecal");
+           setMinEnergy(calo2d, m_minHcalEnergy.value(), "hcal");
+        }
+        child.next();
+      }
     */
 }
 
@@ -325,28 +325,28 @@ FWRhoPhiZView::updateCalo(TEveElement* iParent, bool dataChanged)
 {
    TEveElementIter child(iParent);
    while ( TEveElement* element = child.current() )
-     {
-	if ( TEveCalo2D* calo2d = dynamic_cast<TEveCalo2D*>(element) ) {
-	   calo2d->SetValueIsColor(kFALSE);
-	   calo2d->SetMaxTowerH( 150 );
-	   calo2d->SetMaxValAbs( 150/m_caloFixedScale.value() );
-	   calo2d->SetScaleAbs( !m_caloAutoScale.value() );
-	   if ( dataChanged ) calo2d->GetData()->DataChanged();
-	   double eta_range = 5.191;
-	   if ( m_showHF && ! m_showHF->value() ) eta_range = 3.0;
-	   if ( m_showEndcaps && ! m_showEndcaps->value() ) eta_range = 1.479;
-	   calo2d->SetEta(-eta_range,eta_range);
-	   calo2d->ElementChanged();
-	   m_caloScale = calo2d->GetValToHeight();
-	   if ( m_axes ) {
-	      if ( m_showProjectionAxes.value() )
-		m_axes->SetRnrState(kTRUE);
-	      else
-		m_axes->SetRnrState(kFALSE);
-	   }
-	}
-	child.next();
-     }
+   {
+      if ( TEveCalo2D* calo2d = dynamic_cast<TEveCalo2D*>(element) ) {
+         calo2d->SetValueIsColor(kFALSE);
+         calo2d->SetMaxTowerH( 150 );
+         calo2d->SetMaxValAbs( 150/m_caloFixedScale.value() );
+         calo2d->SetScaleAbs( !m_caloAutoScale.value() );
+         if ( dataChanged ) calo2d->GetData()->DataChanged();
+         double eta_range = 5.191;
+         if ( m_showHF && !m_showHF->value() ) eta_range = 3.0;
+         if ( m_showEndcaps && !m_showEndcaps->value() ) eta_range = 1.479;
+         calo2d->SetEta(-eta_range,eta_range);
+         calo2d->ElementChanged();
+         m_caloScale = calo2d->GetValToHeight();
+         if ( m_axes ) {
+            if ( m_showProjectionAxes.value() )
+               m_axes->SetRnrState(kTRUE);
+            else
+               m_axes->SetRnrState(kFALSE);
+         }
+      }
+      child.next();
+   }
 }
 
 void
@@ -354,17 +354,17 @@ FWRhoPhiZView::updateCaloLines(TEveElement* iParent)
 {
    TEveElementIter child(iParent);
    while ( TEveElement* element = child.current() )
-     {
-	if ( TEveStraightLineSetProjected* projected = dynamic_cast<TEveStraightLineSetProjected*>(element) )
-	  if ( TEveScalableStraightLineSet* line = dynamic_cast<TEveScalableStraightLineSet*>(projected->GetProjectable()) )
-	    {
-	       line->SetScale( m_caloScale );
-	       line->ElementChanged();
-	       projected->UpdateProjection();
-	       projected->ElementChanged();
-	    }
-	child.next();
-     }
+   {
+      if ( TEveStraightLineSetProjected* projected = dynamic_cast<TEveStraightLineSetProjected*>(element) )
+         if ( TEveScalableStraightLineSet* line = dynamic_cast<TEveScalableStraightLineSet*>(projected->GetProjectable()) )
+         {
+            line->SetScale( m_caloScale );
+            line->ElementChanged();
+            projected->UpdateProjection();
+            projected->ElementChanged();
+         }
+      child.next();
+   }
 }
 
 
@@ -474,16 +474,16 @@ FWRhoPhiZView::updateCaloThresholdParameters()
 void
 FWRhoPhiZView::setMinEnergy( TEveCalo2D* calo, double value, std::string name )
 {
-   if ( ! calo->GetData() ) return;
+   if ( !calo->GetData() ) return;
    for ( int i = 0; i < calo->GetData()->GetNSlices(); ++i ) {
       std::string histName(calo->GetData()->RefSliceInfo(i).fHist->GetName());
       if ( histName.find(name,0) != std::string::npos  )
-	{
-	   calo->GetData()->RefSliceInfo(i).fThreshold = value;
-	   calo->ElementChanged();
-	   calo->DataChanged();
-	   break;
-	}
+      {
+         calo->GetData()->RefSliceInfo(i).fThreshold = value;
+         calo->ElementChanged();
+         calo->DataChanged();
+         break;
+      }
    }
 }
 
@@ -491,9 +491,9 @@ void FWRhoPhiZView::showProjectionAxes( )
 {
    if ( !m_axes ) return; // just in case
    if ( m_showProjectionAxes.value() )
-     m_axes->SetRnrState(kTRUE);
+      m_axes->SetRnrState(kTRUE);
    else
-     m_axes->SetRnrState(kFALSE);
+      m_axes->SetRnrState(kFALSE);
    gEve->Redraw3D();
 }
 

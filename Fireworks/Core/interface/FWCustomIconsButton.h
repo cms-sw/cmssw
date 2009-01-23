@@ -7,16 +7,16 @@
 //
 /**\class FWCustomIconsButton FWCustomIconsButton.h Fireworks/Core/interface/FWCustomIconsButton.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Oct 23 13:05:30 EDT 2008
-// $Id: FWCustomIconsButton.h,v 1.1 2008/11/05 09:08:25 chrjones Exp $
+// $Id: FWCustomIconsButton.h,v 1.2 2008/11/06 22:05:22 amraktad Exp $
 //
 
 // system include files
@@ -36,7 +36,7 @@ public:
                        const TGPicture* iDownIcon,
                        const TGPicture* iDisabledIcon,
                        Int_t id = -1,
-                       GContext_t norm = TGButton::GetDefaultGC()(),
+                       GContext_t norm = TGButton::GetDefaultGC() (),
                        UInt_t option=0);
    virtual ~FWCustomIconsButton();
 

@@ -7,16 +7,16 @@
 //
 /**\class FWItemAccessorBase FWItemAccessorBase.h Fireworks/Core/interface/FWItemAccessorBase.h
 
- Description: Base class used to access data stored in an edm::EDProduct
+   Description: Base class used to access data stored in an edm::EDProduct
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 08:14:21 EDT 2008
-// $Id: FWItemAccessorBase.h,v 1.1 2008/10/21 19:08:22 chrjones Exp $
+// $Id: FWItemAccessorBase.h,v 1.2 2008/11/06 22:05:23 amraktad Exp $
 //
 
 // system include files

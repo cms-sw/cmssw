@@ -2,13 +2,13 @@
 //
 // Package:     Calo
 // Class  :     thetaBins
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Dec 11 22:59:38 EST 2008
-// $Id: thetaBins.cc,v 1.1 2008/12/12 04:16:10 chrjones Exp $
+// $Id: thetaBins.cc,v 1.2 2009/01/15 19:13:30 amraktad Exp $
 //
 
 // system include files
@@ -45,15 +45,15 @@
 //      iphi 31 -> 35, corresponds to 2.79253 -> -3.14159 transition
 
 namespace fireworks {
-std::vector<std::pair<double,double> >
-thetaBins()
-{
-   std::vector<std::pair<double,double> > thetaBins(82);
-   for ( unsigned int i = 0; i < 82; ++i )
+   std::vector<std::pair<double,double> >
+   thetaBins()
    {
-      thetaBins[i].first  = 2*atan( exp(-fw3dlego::xbins[i]) );
-      thetaBins[i].second = 2*atan( exp(-fw3dlego::xbins[i+1]) );
+      std::vector<std::pair<double,double> > thetaBins(82);
+      for ( unsigned int i = 0; i < 82; ++i )
+      {
+         thetaBins[i].first  = 2*atan( exp(-fw3dlego::xbins[i]) );
+         thetaBins[i].second = 2*atan( exp(-fw3dlego::xbins[i+1]) );
+      }
+      return thetaBins;
    }
-   return thetaBins;
-}
 }

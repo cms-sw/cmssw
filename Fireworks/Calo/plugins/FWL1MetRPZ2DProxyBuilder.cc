@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWL1MetRPZ2DProxyBuilder.cc,v 1.1 2009/01/13 20:45:11 amraktad Exp $
+// $Id: FWL1MetRPZ2DProxyBuilder.cc,v 1.1 2009/01/19 14:40:05 amraktad Exp $
 //
 
 // system include files
@@ -38,31 +38,33 @@
 class FWL1MetRPZ2DProxyBuilder : public FWRPZ2DDataProxyBuilder
 {
 
-   public:
-      FWL1MetRPZ2DProxyBuilder();
-      virtual ~FWL1MetRPZ2DProxyBuilder();
+public:
+   FWL1MetRPZ2DProxyBuilder();
+   virtual ~FWL1MetRPZ2DProxyBuilder();
 
-      // ---------- const member functions ---------------------
-      REGISTER_PROXYBUILDER_METHODS();
+   // ---------- const member functions ---------------------
+   REGISTER_PROXYBUILDER_METHODS();
 
-      // ---------- static member functions --------------------
+   // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
+   // ---------- member functions ---------------------------
 
-   private:
-      virtual void buildRhoPhi(const FWEventItem* iItem,
-                               TEveElementList** product);
+private:
+   virtual void buildRhoPhi(const FWEventItem* iItem,
+                            TEveElementList** product);
 
-      virtual void buildRhoZ(const FWEventItem* iItem,
-                               TEveElementList** product);
+   virtual void buildRhoZ(const FWEventItem* iItem,
+                          TEveElementList** product);
 
-      double getTheta( double eta ) { return 2*atan(exp(-eta)); }
+   double getTheta( double eta ) {
+      return 2*atan(exp(-eta));
+   }
 
-      FWL1MetRPZ2DProxyBuilder(const FWL1MetRPZ2DProxyBuilder&); // stop default
+   FWL1MetRPZ2DProxyBuilder(const FWL1MetRPZ2DProxyBuilder&);    // stop default
 
-      const FWL1MetRPZ2DProxyBuilder& operator=(const FWL1MetRPZ2DProxyBuilder&); // stop default
+   const FWL1MetRPZ2DProxyBuilder& operator=(const FWL1MetRPZ2DProxyBuilder&);    // stop default
 
-      // ---------- member data --------------------------------
+   // ---------- member data --------------------------------
 };
 
 //
@@ -86,7 +88,7 @@ FWL1MetRPZ2DProxyBuilder::~FWL1MetRPZ2DProxyBuilder()
 //
 void
 FWL1MetRPZ2DProxyBuilder::buildRhoPhi(const FWEventItem* iItem,
-					    TEveElementList** product)
+                                      TEveElementList** product)
 {
    TEveElementList* tList = *product;
 
@@ -128,9 +130,9 @@ FWL1MetRPZ2DProxyBuilder::buildRhoPhi(const FWEventItem* iItem,
       marker->SetScaleCenter( r_ecal*cos(phi), r_ecal*sin(phi), 0 );
       marker->AddLine( r_ecal*cos(phi), r_ecal*sin(phi), 0, (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
       marker->AddLine( (r_ecal+size*0.9)*cos(phi+0.01), (r_ecal+size*0.9)*sin(phi+0.01), 0,
-		       (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
+                       (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
       marker->AddLine( (r_ecal+size*0.9)*cos(phi-0.01), (r_ecal+size*0.9)*sin(phi-0.01), 0,
-		       (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
+                       (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
       container->AddElement(marker);
       container->SetRnrSelf(     iItem->defaultDisplayProperties().isVisible() );
       container->SetRnrChildren( iItem->defaultDisplayProperties().isVisible() );
@@ -141,7 +143,7 @@ FWL1MetRPZ2DProxyBuilder::buildRhoPhi(const FWEventItem* iItem,
 
 void
 FWL1MetRPZ2DProxyBuilder::buildRhoZ(const FWEventItem* iItem,
-					    TEveElementList** product)
+                                    TEveElementList** product)
 {
    TEveElementList* tList = *product;
    if(0 == tList) {
@@ -180,11 +182,11 @@ FWL1MetRPZ2DProxyBuilder::buildRhoZ(const FWEventItem* iItem,
       marker->SetLineColor(  iItem->defaultDisplayProperties().color() );
       marker->SetScaleCenter(0., (phi>0 ? r : -r), 0);
       marker->AddLine(0., (phi>0 ? r : -r), 1,
-		      0., (phi>0 ? (r+size) : -(r+size)), 1 );
+                      0., (phi>0 ? (r+size) : -(r+size)), 1 );
       marker->AddLine(0., (phi>0 ? r+size*0.9 : -(r+size*0.9) ), 1+r*0.01,
-		      0., (phi>0 ? (r+size) : -(r+size)), 1 );
+                      0., (phi>0 ? (r+size) : -(r+size)), 1 );
       marker->AddLine(0., (phi>0 ? r+size*0.9 : -(r+size*0.9) ), 1-r*0.01,
-		      0., (phi>0 ? (r+size) : -(r+size)), 1 );
+                      0., (phi>0 ? (r+size) : -(r+size)), 1 );
       container->AddElement( marker );
       container->SetRnrSelf(     iItem->defaultDisplayProperties().isVisible() );
       container->SetRnrChildren( iItem->defaultDisplayProperties().isVisible() );

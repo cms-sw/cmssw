@@ -17,13 +17,15 @@ class TEveElementIter
    TPRegexp regexp;
    std::vector<TEveElement*> elements;
    std::vector<TEveElement*>::iterator iter;
- public:
+public:
    TEveElementIter( TEveElement*, const char* regular_expression = 0 );
    TEveElement* next();
    TEveElement* current();
    TEveElement* reset();
-   unsigned int size() { return elements.size(); }
- private:
+   unsigned int size() {
+      return elements.size();
+   }
+private:
    void addElement( TEveElement* );
 };
 #endif

@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FW3DLegoSimpleProxyBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 16:34:50 EST 2008
-// $Id$
+// $Id: FW3DLegoSimpleProxyBuilder.cc,v 1.1 2008/12/02 23:42:19 chrjones Exp $
 //
 
 // system include files
@@ -34,8 +34,8 @@
 //
 // constructors and destructor
 //
-FW3DLegoSimpleProxyBuilder::FW3DLegoSimpleProxyBuilder(const std::type_info& iType):
-m_helper(iType)
+FW3DLegoSimpleProxyBuilder::FW3DLegoSimpleProxyBuilder(const std::type_info& iType) :
+   m_helper(iType)
 {
 }
 
@@ -63,17 +63,17 @@ m_helper(iType)
 //
 // member functions
 //
-void 
+void
 FW3DLegoSimpleProxyBuilder::itemChangedImp(const FWEventItem* iItem)
 {
    if(0!=iItem) {
       m_helper.itemChanged(iItem);
-   }   
+   }
 }
 
-void 
+void
 FW3DLegoSimpleProxyBuilder::build(const FWEventItem* iItem,
-                                   TEveElementList** product)
+                                  TEveElementList** product)
 {
    if(0==*product) {
       *product = new TEveElementList();
@@ -99,7 +99,7 @@ FW3DLegoSimpleProxyBuilder::build(const FWEventItem* iItem,
       itemHolder->SetRnrChildren(info.displayProperties().isVisible());
       itemHolder->ElementChanged();
       (*product)->AddElement(itemHolder.release());
-   }   
+   }
 }
 
 //
@@ -109,7 +109,7 @@ FW3DLegoSimpleProxyBuilder::build(const FWEventItem* iItem,
 //
 // static member functions
 //
-std::string 
+std::string
 FW3DLegoSimpleProxyBuilder::typeOfBuilder()
 {
    return std::string("simple#");

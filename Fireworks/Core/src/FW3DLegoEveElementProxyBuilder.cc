@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul  5 11:13:22 EDT 2008
-// $Id: FW3DLegoEveElementProxyBuilder.cc,v 1.2 2008/07/12 01:31:09 dmytro Exp $
+// $Id: FW3DLegoEveElementProxyBuilder.cc,v 1.3 2008/11/06 22:05:24 amraktad Exp $
 //
 
 // system include files
@@ -91,7 +91,7 @@ setUserDataElementAndChildren(TEveElement* iElement,
 {
    iElement->SetUserData(iInfo);
    for(TEveElement::List_i itElement = iElement->BeginChildren(),
-       itEnd = iElement->EndChildren();
+                           itEnd = iElement->EndChildren();
        itElement != itEnd;
        ++itElement) {
       setUserDataElementAndChildren(*itElement, iInfo);
@@ -135,7 +135,7 @@ FW3DLegoEveElementProxyBuilder::build()
    }
    setUserData(item(),newElements,ids());
    /*
-   if(newElements &&  static_cast<int>(m_item->size()) == newElements->NumChildren() ) {
+      if(newElements &&  static_cast<int>(m_item->size()) == newElements->NumChildren() ) {
       int index=0;
       int largestIndex = m_ids.size();
       if(m_ids.size()<m_item->size()) {
@@ -145,9 +145,9 @@ FW3DLegoEveElementProxyBuilder::build()
       for(TEveElement::List_i it = newElements->BeginChildren(),
           itEnd = newElements->EndChildren();
           it != itEnd;
-          ++it,++itId,++index) {
+    ++it,++itId,++index) {
          if(largestIndex<=index) {
-            *itId=FWModelId(m_item,index);
+    *itId=FWModelId(m_item,index);
          }
          setUserDataElementAndChildren(*it,&(*itId));
       }
@@ -159,7 +159,7 @@ FW3DLegoEveElementProxyBuilder::modelChanges(const FWModelIds& iIds,
                                              TEveElement* iElements )
 {
    //std::cout <<"modelChanged "<<m_item->size()<<" "<<iElements->GetNChildren()<<std::endl;
-   if (! iElements) return;
+   if (!iElements) return;
    assert(item() && static_cast<int>(item()->size()) == iElements->NumChildren() && "can not use default modelChanges implementation");
    TEveElement::List_i itElement = iElements->BeginChildren();
    int index = 0;

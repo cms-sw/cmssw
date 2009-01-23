@@ -7,16 +7,16 @@
 //
 /**\class FW3DLegoView FW3DLegoView.h Fireworks/Core/interface/FW3DLegoView.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FW3DLegoView.h,v 1.4 2008/06/09 18:40:55 chrjones Exp $
+// $Id: FW3DLegoView.h,v 1.5 2008/11/06 22:05:22 amraktad Exp $
 //
 
 // system include files
@@ -35,33 +35,33 @@ class TObject;
 class FW3DLegoView : public FWViewBase
 {
 
-   public:
-      FW3DLegoView(TGFrame*);
-      virtual ~FW3DLegoView();
+public:
+   FW3DLegoView(TGFrame*);
+   virtual ~FW3DLegoView();
 
-      // ---------- const member functions ---------------------
-      TGFrame* frame() const;
-      const std::string& typeName() const;
+   // ---------- const member functions ---------------------
+   TGFrame* frame() const;
+   const std::string& typeName() const;
 
-      // ---------- static member functions --------------------
-      static const std::string& staticTypeName();
+   // ---------- static member functions --------------------
+   static const std::string& staticTypeName();
 
-      // ---------- member functions ---------------------------
-      void draw(THStack*);
+   // ---------- member functions ---------------------------
+   void draw(THStack*);
 
-      void DynamicCoordinates();
-      void connect(const char* receiver_class, void* receiver, const char* slot);
+   void DynamicCoordinates();
+   void connect(const char* receiver_class, void* receiver, const char* slot);
 
-      virtual void saveImageTo(const std::string& iName) const;
+   virtual void saveImageTo(const std::string& iName) const;
 
-   private:
-      FW3DLegoView(const FW3DLegoView&); // stop default
+private:
+   FW3DLegoView(const FW3DLegoView&);    // stop default
 
-      const FW3DLegoView& operator=(const FW3DLegoView&); // stop default
+   const FW3DLegoView& operator=(const FW3DLegoView&);    // stop default
 
-      // ---------- member data --------------------------------
-      TRootEmbeddedCanvas* m_frame;
-      TCanvas* m_legoCanvas;
+   // ---------- member data --------------------------------
+   TRootEmbeddedCanvas* m_frame;
+   TCanvas* m_legoCanvas;
 };
 
 

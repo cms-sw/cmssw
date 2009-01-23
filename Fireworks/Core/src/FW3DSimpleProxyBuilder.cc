@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWGlimpseSimpleProxyBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 09:46:41 EST 2008
-// $Id: FW3DSimpleProxyBuilder.cc,v 1.2 2008/12/03 01:15:17 chrjones Exp $
+// $Id: FW3DSimpleProxyBuilder.cc,v 1.1 2008/12/04 15:24:37 dmytro Exp $
 //
 
 // system include files
@@ -34,8 +34,8 @@
 //
 // constructors and destructor
 //
-FW3DSimpleProxyBuilder::FW3DSimpleProxyBuilder(const std::type_info& iType):
-m_helper(iType)
+FW3DSimpleProxyBuilder::FW3DSimpleProxyBuilder(const std::type_info& iType) :
+   m_helper(iType)
 {
 }
 
@@ -63,17 +63,17 @@ FW3DSimpleProxyBuilder::~FW3DSimpleProxyBuilder()
 //
 // member functions
 //
-void 
+void
 FW3DSimpleProxyBuilder::itemChangedImp(const FWEventItem* iItem)
 {
    if(0!=iItem) {
       m_helper.itemChanged(iItem);
-   }   
+   }
 }
 
-void 
+void
 FW3DSimpleProxyBuilder::build(const FWEventItem* iItem,
-                                   TEveElementList** product)
+                              TEveElementList** product)
 {
    if(0==*product) {
       *product = new TEveElementList();
@@ -99,7 +99,7 @@ FW3DSimpleProxyBuilder::build(const FWEventItem* iItem,
       itemHolder->SetRnrChildren(info.displayProperties().isVisible());
       itemHolder->ElementChanged();
       (*product)->AddElement(itemHolder.release());
-   }   
+   }
 }
 
 //
@@ -109,7 +109,7 @@ FW3DSimpleProxyBuilder::build(const FWEventItem* iItem,
 //
 // static member functions
 //
-std::string 
+std::string
 FW3DSimpleProxyBuilder::typeOfBuilder()
 {
    return std::string("simple#");

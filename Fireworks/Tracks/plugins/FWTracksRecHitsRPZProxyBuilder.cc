@@ -14,24 +14,26 @@
 
 class FWTracksRecHitsRPZProxyBuilder : public FWRPZDataProxyBuilder
 {
-   public:
-      FWTracksRecHitsRPZProxyBuilder() {}
-      virtual ~FWTracksRecHitsRPZProxyBuilder() {}
+public:
+   FWTracksRecHitsRPZProxyBuilder() {
+   }
+   virtual ~FWTracksRecHitsRPZProxyBuilder() {
+   }
 
-      // ---------- const member functions ---------------------
+   // ---------- const member functions ---------------------
 
-      // ---------- member functions ---------------------------
-      REGISTER_PROXYBUILDER_METHODS();
-   private:
-      virtual void build(const FWEventItem* iItem, TEveElementList** product);
+   // ---------- member functions ---------------------------
+   REGISTER_PROXYBUILDER_METHODS();
+private:
+   virtual void build(const FWEventItem* iItem, TEveElementList** product);
 
-      FWTracksRecHitsRPZProxyBuilder(const FWTracksRecHitsRPZProxyBuilder&); // stop default
+   FWTracksRecHitsRPZProxyBuilder(const FWTracksRecHitsRPZProxyBuilder&);    // stop default
 
-      const FWTracksRecHitsRPZProxyBuilder& operator=(const FWTracksRecHitsRPZProxyBuilder&); // stop default
+   const FWTracksRecHitsRPZProxyBuilder& operator=(const FWTracksRecHitsRPZProxyBuilder&);    // stop default
 
-      void modelChanges(const FWModelIds& iIds, TEveElement* iElements);
-      void applyChangesToAllModels(TEveElement* iElements);
-      // ---------- member data --------------------------------
+   void modelChanges(const FWModelIds& iIds, TEveElement* iElements);
+   void applyChangesToAllModels(TEveElement* iElements);
+   // ---------- member data --------------------------------
 
 };
 

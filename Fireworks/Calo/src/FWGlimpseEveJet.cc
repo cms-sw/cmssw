@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jul  4 10:23:00 EDT 2008
-// $Id: FWGlimpseEveJet.cc,v 1.4 2008/11/06 22:05:21 amraktad Exp $
+// $Id: FWGlimpseEveJet.cc,v 1.5 2008/12/12 06:07:27 dmytro Exp $
 //
 
 // system include files
@@ -26,16 +26,18 @@
 // static data member definitions
 //
 namespace {
-   double getTheta( double eta ) { return 2*atan(exp(-eta)); }
+   double getTheta( double eta ) {
+      return 2*atan(exp(-eta));
+   }
 }
 //
 // constructors and destructor
 //
 FWGlimpseEveJet::FWGlimpseEveJet(const reco::Jet* iJet,
-                                 const Text_t* iName, const Text_t* iTitle):
-TEveBoxSet(iName, iTitle),
-m_jet(iJet),
-m_color(0)
+                                 const Text_t* iName, const Text_t* iTitle) :
+   TEveBoxSet(iName, iTitle),
+   m_jet(iJet),
+   m_color(0)
 {
    SetMainColorPtr(&m_color);
    Reset(TEveBoxSet::kBT_EllipticCone, kTRUE, 64);
@@ -84,10 +86,10 @@ FWGlimpseEveJet::setScale(float iScale)
    reco::Jet::Constituents c = m_jet->getJetConstituents();
    bool haveData = true;
    for ( reco::Jet::Constituents::const_iterator itr = c.begin(); itr != c.end(); ++itr )
-     if ( ! itr->isAvailable() ) {
-	haveData = false;
-	break;
-     }
+      if ( !itr->isAvailable() ) {
+         haveData = false;
+         break;
+      }
    double eta_size = 0.2;
    double phi_size = 0.2;
    if ( haveData ){

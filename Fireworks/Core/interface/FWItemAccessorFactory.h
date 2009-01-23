@@ -7,16 +7,16 @@
 //
 /**\class FWItemAccessorFactory FWItemAccessorFactory.h Fireworks/Core/interface/FWItemAccessorFactory.h
 
- Description: Factory for constructing FWItemAccessorBases appropriate to a certain type
+   Description: Factory for constructing FWItemAccessorBases appropriate to a certain type
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 14:47:03 EDT 2008
-// $Id: FWItemAccessorFactory.h,v 1.1 2008/10/21 19:08:22 chrjones Exp $
+// $Id: FWItemAccessorFactory.h,v 1.2 2008/11/06 22:05:23 amraktad Exp $
 //
 
 // system include files

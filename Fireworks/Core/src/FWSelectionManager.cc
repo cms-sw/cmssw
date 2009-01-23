@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan 18 14:40:51 EST 2008
-// $Id: FWSelectionManager.cc,v 1.7 2008/07/10 21:21:58 dmytro Exp $
+// $Id: FWSelectionManager.cc,v 1.8 2008/11/06 22:05:26 amraktad Exp $
 //
 
 // system include files
@@ -32,9 +32,9 @@
 //
 // constructors and destructor
 //
-FWSelectionManager::FWSelectionManager(FWModelChangeManager* iCM):
-m_changeManager(iCM),
-m_wasChanged(false)
+FWSelectionManager::FWSelectionManager(FWModelChangeManager* iCM) :
+   m_changeManager(iCM),
+   m_wasChanged(false)
 {
    assert(0!=m_changeManager);
    m_changeManager->changeSignalsAreDone_.connect(boost::bind(&FWSelectionManager::finishedAllSelections,this));
@@ -46,8 +46,8 @@ m_wasChanged(false)
 // }
 
 /*FWSelectionManager::~FWSelectionManager()
-{
-}*/
+   {
+   }*/
 
 //
 // assignment operators
@@ -101,7 +101,7 @@ FWSelectionManager::select(const FWModelId& iId)
          // as part of the itemChange message from the ChangeManager
          // This way if more than one Item has changed, we still only send one 'selectionChanged' message
          m_itemConnectionCount[iId.item()->id()].second =
-         iId.item()->preItemChanged_.connect(boost::bind(&FWSelectionManager::itemChanged,this,_1));
+            iId.item()->preItemChanged_.connect(boost::bind(&FWSelectionManager::itemChanged,this,_1));
       }
    }
 }
@@ -127,11 +127,11 @@ FWSelectionManager::itemChanged(const FWEventItem* iItem)
    assert(m_itemConnectionCount.size() > iItem->id());
    //if this appears in any of our models we need to remove them
    FWModelId low(iItem,0);
-   FWModelId high(iItem,0x7FFFFFFF);//largest signed 32 bit number
+   FWModelId high(iItem,0x7FFFFFFF); //largest signed 32 bit number
    bool someoneChanged = false;
    {
       std::set<FWModelId>::iterator itL=m_newSelection.lower_bound(low),
-      itH=m_newSelection.upper_bound(high);
+                                    itH=m_newSelection.upper_bound(high);
       if(itL!=itH) {
          m_wasChanged =true;
          someoneChanged=true;
@@ -140,7 +140,7 @@ FWSelectionManager::itemChanged(const FWEventItem* iItem)
    }
    {
       std::set<FWModelId>::iterator itL=m_selection.lower_bound(low),
-      itH=m_selection.upper_bound(high);
+                                    itH=m_selection.upper_bound(high);
       if(itL!=itH) {
          m_wasChanged =true;
          someoneChanged = true;

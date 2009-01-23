@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWRPZ2DSimpleProxyBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 26 11:27:21 EST 2008
-// $Id: FWRPZ2DSimpleProxyBuilder.cc,v 1.3 2008/12/02 21:17:46 chrjones Exp $
+// $Id: FWRPZ2DSimpleProxyBuilder.cc,v 1.4 2008/12/18 21:51:18 chrjones Exp $
 //
 
 // system include files
@@ -40,13 +40,13 @@
 //
 // constructors and destructor
 //
-FWRPZ2DSimpleProxyBuilder::FWRPZ2DSimpleProxyBuilder(const std::type_info& iType):
-m_rhoPhiElementsPtr(new TEveElementList),
-m_rhoZElementsPtr(new TEveElementList),
-m_compounds(new TEveElementList),
-m_helper(iType),
-m_rhoPhiNeedsUpdate(true),
-m_rhoZNeedsUpdate(true)
+FWRPZ2DSimpleProxyBuilder::FWRPZ2DSimpleProxyBuilder(const std::type_info& iType) :
+   m_rhoPhiElementsPtr(new TEveElementList),
+   m_rhoZElementsPtr(new TEveElementList),
+   m_compounds(new TEveElementList),
+   m_helper(iType),
+   m_rhoPhiNeedsUpdate(true),
+   m_rhoZNeedsUpdate(true)
 {
 }
 
@@ -77,7 +77,7 @@ FWRPZ2DSimpleProxyBuilder::~FWRPZ2DSimpleProxyBuilder()
 //
 // member functions
 //
-void 
+void
 FWRPZ2DSimpleProxyBuilder::itemChangedImp(const FWEventItem* iItem)
 {
    m_rhoPhiNeedsUpdate=true;
@@ -87,7 +87,7 @@ FWRPZ2DSimpleProxyBuilder::itemChangedImp(const FWEventItem* iItem)
    m_rhoZElementsPtr->DestroyElements();
 }
 
-void 
+void
 FWRPZ2DSimpleProxyBuilder::itemBeingDestroyedImp(const FWEventItem*)
 {
    m_rhoPhiNeedsUpdate=false;
@@ -96,7 +96,7 @@ FWRPZ2DSimpleProxyBuilder::itemBeingDestroyedImp(const FWEventItem*)
    m_rhoZElementsPtr->DestroyElements();
 }
 
-void 
+void
 FWRPZ2DSimpleProxyBuilder::modelChangesImp(const FWModelIds& iIds)
 {
    //If we need an update it means no view wanted this info and therefore
@@ -127,7 +127,7 @@ public:
                      TEveElement& iItemHolder) {
       iThis->buildRhoZ(iData,iIndex,iItemHolder);
    }
-   
+
 };
 
 template<class T>
@@ -167,11 +167,11 @@ FWRPZ2DSimpleProxyBuilder::build(TEveElementList* oAddTo, T iCaller)
          itemHolder->ElementChanged();
          oAddTo->AddElement(itemHolder.release());
       }
-   }   
+   }
 }
 
 
-TEveElementList* 
+TEveElementList*
 FWRPZ2DSimpleProxyBuilder::getRhoPhiProduct() const
 {
    if(m_rhoPhiNeedsUpdate) {
@@ -182,7 +182,7 @@ FWRPZ2DSimpleProxyBuilder::getRhoPhiProduct() const
    return m_rhoPhiElementsPtr.get();
 }
 
-TEveElementList* 
+TEveElementList*
 FWRPZ2DSimpleProxyBuilder::getRhoZProduct() const
 {
    if(m_rhoZNeedsUpdate) {
@@ -201,7 +201,7 @@ FWRPZ2DSimpleProxyBuilder::getRhoZProduct() const
 //
 // static member functions
 //
-std::string 
+std::string
 FWRPZ2DSimpleProxyBuilder::typeOfBuilder()
 {
    return std::string("simple#");

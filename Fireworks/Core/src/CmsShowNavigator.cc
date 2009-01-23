@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Tue Jun 10 14:56:46 EDT 2008
-// $Id: CmsShowNavigator.cc,v 1.20 2009/01/08 14:07:13 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.21 2009/01/20 21:25:38 amraktad Exp $
 //
 
 // #define Fireworks_Core_CmsShowNavigator_WriteLeakInfo
@@ -44,36 +44,36 @@
 #include  <TObject.h>
 #include  <TDatime.h>
 
-namespace 
+namespace
 {
-TDatime m_date;
-TFile  mg_memoryInfoFile("MemoryLeakInfo.root", "RECREATE");
-std::vector<Float_t> mg_memoryResidentVec;
-std::vector<Float_t> mg_memoryVirtualVec;
+   TDatime m_date;
+   TFile mg_memoryInfoFile("MemoryLeakInfo.root", "RECREATE");
+   std::vector<Float_t> mg_memoryResidentVec;
+   std::vector<Float_t> mg_memoryVirtualVec;
 
-void writeLeak()
-{
-   TDirectory* gd= gDirectory;
-   TFile* gf= gFile;
-   mg_memoryInfoFile.cd();
-
-   Int_t n = mg_memoryResidentVec.size();
-   TGraph gr(n);
-   TGraph gv(n);
-
-   for(Int_t i=0; i<n; i++)
+   void writeLeak()
    {
-      gr.SetPoint(i, i, mg_memoryResidentVec[i]);
-      gv.SetPoint(i, i, mg_memoryVirtualVec[i]);
-   }
-   const char* date = Form("%d:%d:%d", m_date.GetDate(), m_date.GetHour(),m_date.GetMinute());
-   printf("Write graf %s_%d\n", date, gSystem->GetPid());
-   gr.Write(Form("Resident_%s_%d", date, gSystem->GetPid()), TObject::kOverwrite);
-   gv.Write(Form("Virtual_%s_%d" , date, gSystem->GetPid()), TObject::kOverwrite);
+      TDirectory* gd= gDirectory;
+      TFile* gf= gFile;
+      mg_memoryInfoFile.cd();
 
-   gDirectory = gd;
-   gFile = gf;
-}
+      Int_t n = mg_memoryResidentVec.size();
+      TGraph gr(n);
+      TGraph gv(n);
+
+      for(Int_t i=0; i<n; i++)
+      {
+         gr.SetPoint(i, i, mg_memoryResidentVec[i]);
+         gv.SetPoint(i, i, mg_memoryVirtualVec[i]);
+      }
+      const char* date = Form("%d:%d:%d", m_date.GetDate(), m_date.GetHour(),m_date.GetMinute());
+      printf("Write graf %s_%d\n", date, gSystem->GetPid());
+      gr.Write(Form("Resident_%s_%d", date, gSystem->GetPid()), TObject::kOverwrite);
+      gv.Write(Form("Virtual_%s_%d", date, gSystem->GetPid()), TObject::kOverwrite);
+
+      gDirectory = gd;
+      gFile = gf;
+   }
 }
 #endif
 
@@ -89,18 +89,18 @@ void writeLeak()
 // constructors and destructor
 //
 CmsShowNavigator::CmsShowNavigator(const CmsShowMain &main)
-     : m_main(main),
- m_loopMode(false)
+   : m_main(main),
+     m_loopMode(false)
 {
-  m_file = 0;
-  m_eventTree = 0;
-  m_eventList = 0;
-  m_selection = "";
-  m_currentSelectedEntry = 0;
+   m_file = 0;
+   m_eventTree = 0;
+   m_eventList = 0;
+   m_selection = "";
+   m_currentSelectedEntry = 0;
 
 #ifdef Fireworks_Core_CmsShowNavigator_WriteLeakInfo
-  mg_memoryResidentVec.reserve(100000);
-  mg_memoryVirtualVec.reserve(100000);
+   mg_memoryResidentVec.reserve(100000);
+   mg_memoryVirtualVec.reserve(100000);
 #endif
 
 }
@@ -170,10 +170,10 @@ CmsShowNavigator::nextEventChangeAlsoChangeFile(const std::string& fileName)
 
 Int_t
 CmsShowNavigator::realEntry(Int_t selectedEntry) {
-  if (m_eventTree && m_eventTree->GetEventList() )
-    return m_eventTree->GetEntryNumber(selectedEntry);
-  else
-    return selectedEntry;
+   if (m_eventTree && m_eventTree->GetEventList() )
+      return m_eventTree->GetEntryNumber(selectedEntry);
+   else
+      return selectedEntry;
 }
 
 Int_t
@@ -181,17 +181,17 @@ CmsShowNavigator::realEntry(Int_t run, Int_t event) {
    m_event->fillFileIndex();
    edm::FileIndex::const_iterator i = m_event->fileIndex_.findEventPosition(run, 0, event, true);
    if (m_event->fileIndex_.end() != i)
-     return i->entry_;
+      return i->entry_;
    else
-     return -1;
+      return -1;
 }
 
 void
 CmsShowNavigator::checkPosition() {
-  if ( m_event->id() == m_firstID )
-    atBeginning.emit();
-  if ( m_event->id() == m_lastID)
-    atEnd.emit();
+   if ( m_event->id() == m_firstID )
+      atBeginning.emit();
+   if ( m_event->id() == m_lastID)
+      atEnd.emit();
 }
 
 void
@@ -210,21 +210,21 @@ CmsShowNavigator::nextEvent()
    writeLeak();
 #endif
 
-   if( ! m_nextFile.empty()) {
+   if( !m_nextFile.empty()) {
       loadFile(m_nextFile);
       m_nextFile.clear();
       return;
    }
    if ( m_loopMode &&
-       m_currentSelectedEntry == m_nEntries-1 ) {
+        m_currentSelectedEntry == m_nEntries-1 ) {
       firstEvent();
       return;
    }
    if (m_currentSelectedEntry < m_nEntries-1 &&
-      m_event->to(realEntry(m_currentSelectedEntry+1)) ) {
-     ++m_currentSelectedEntry;
-     newEvent.emit(*m_event);
-     checkPosition();
+       m_event->to(realEntry(m_currentSelectedEntry+1)) ) {
+      ++m_currentSelectedEntry;
+      newEvent.emit(*m_event);
+      checkPosition();
    } else {
       oldEvent.emit(*m_event);
    }
@@ -233,27 +233,27 @@ CmsShowNavigator::nextEvent()
 void
 CmsShowNavigator::previousEvent()
 {
-   if( ! m_nextFile.empty()) {
+   if( !m_nextFile.empty()) {
       loadFile(m_nextFile);
       m_nextFile.clear();
       return;
    }
    if (m_currentSelectedEntry > 0 &&
-      m_event->to(realEntry(m_currentSelectedEntry-1)) ) {
-     --m_currentSelectedEntry;
-     newEvent.emit(*m_event);
-     checkPosition();
-  }
-  else oldEvent.emit(*m_event);
+       m_event->to(realEntry(m_currentSelectedEntry-1)) ) {
+      --m_currentSelectedEntry;
+      newEvent.emit(*m_event);
+      checkPosition();
+   }
+   else oldEvent.emit(*m_event);
 }
 
 void
 CmsShowNavigator::firstEvent()
 {
-  m_currentSelectedEntry = 0;
-  m_event->to(realEntry(m_currentSelectedEntry));
-  newEvent.emit(*m_event);
-  atBeginning.emit();
+   m_currentSelectedEntry = 0;
+   m_event->to(realEntry(m_currentSelectedEntry));
+   newEvent.emit(*m_event);
+   atBeginning.emit();
 }
 
 void
@@ -277,9 +277,9 @@ CmsShowNavigator::goToRun(Int_t run)
    if (m_eventTree && m_eventTree->GetEventList() ) index = m_eventTree->GetEventList()->GetIndex(entry);
    if (m_event->to(entry)) {
       if ( index < 0 )
-	std::cout << "WARNING: requested event is not among preselected events! " << std::endl;
+         std::cout << "WARNING: requested event is not among preselected events! " << std::endl;
       else
-	m_currentSelectedEntry = index;
+         m_currentSelectedEntry = index;
       newEvent.emit(*m_event);
       checkPosition();
    }
@@ -298,9 +298,9 @@ CmsShowNavigator::goToEvent(Int_t event)
    if (m_eventTree && m_eventTree->GetEventList() ) index = m_eventTree->GetEventList()->GetIndex(entry);
    if (m_event->to(entry)) {
       if ( index < 0 )
-	std::cout << "WARNING: requested event is not among preselected events! " << std::endl;
+         std::cout << "WARNING: requested event is not among preselected events! " << std::endl;
       else
-	m_currentSelectedEntry = index;
+         m_currentSelectedEntry = index;
       newEvent.emit(*m_event);
       checkPosition();
    }
@@ -310,51 +310,51 @@ CmsShowNavigator::goToEvent(Int_t event)
 void
 CmsShowNavigator::filterEventsAndReset(std::string selection)
 {
-     for (FWEventItemsManager::const_iterator i = m_main.m_eiManager->begin(),
-	       end = m_main.m_eiManager->end();
-	  i != end;
-	  ++i) {
-	  if (*i == 0)
-	       continue;
-	  boost::regex re(std::string("\\$") + (*i)->name());
-	  std::string new_sel =
-	       boost::regex_replace(selection, re,
-				    (*i)->m_fullBranchName + ".obj");
-// 	  printf("selection after applying s/%s/%s/: %s\n",
-// 		 (std::string("\\$") + (*i)->name()).c_str(),
-// 		 (*i)->moduleLabel().c_str(),
-// 		 new_sel.c_str());
-	  selection.swap(new_sel);
-     }
+   for (FWEventItemsManager::const_iterator i = m_main.m_eiManager->begin(),
+                                            end = m_main.m_eiManager->end();
+        i != end;
+        ++i) {
+      if (*i == 0)
+         continue;
+      boost::regex re(std::string("\\$") + (*i)->name());
+      std::string new_sel =
+         boost::regex_replace(selection, re,
+                              (*i)->m_fullBranchName + ".obj");
+//        printf("selection after applying s/%s/%s/: %s\n",
+//               (std::string("\\$") + (*i)->name()).c_str(),
+//               (*i)->moduleLabel().c_str(),
+//               new_sel.c_str());
+      selection.swap(new_sel);
+   }
 //      std::string s = selection;
 //      for (boost::sregex_iterator i = boost::sregex_iterator(s.begin(), s.end(), re),
-// 	       end;
-// 	  i != end;
-// 	  ++i) {
-// 	  printf("%s\n", i->str(0).c_str());
+//             end;
+//        i != end;
+//        ++i) {
+//        printf("%s\n", i->str(0).c_str());
 //      }
 //      return;
-     m_selection = selection;
-     m_eventTree->SetEventList(0);
-     if ( m_selection.length() != 0 ) {
-// 	  std::cout << "Selection requested: " << m_selection << std::endl;
-	  m_eventTree->Draw(">>list",m_selection.c_str());
-	  m_eventTree->SetEventList( m_eventList );
-     }
-     m_nEntries = m_event->size();
-     if ( m_eventTree->GetEventList() ){
-	m_nEntries = m_eventList->GetN();
-	if ( m_nEntries < 1 ) {
-	   std::cout << "WARNING: No events passed selection: " << selection.c_str() << std::endl;
-	   m_eventTree->SetEventList(0);
-	   m_nEntries = m_event->size();
-	}
-     }
-     m_event->to(realEntry(0));
-     m_firstID = m_event->id();
-     m_event->to(realEntry(m_nEntries - 1));
-     m_lastID = m_event->id();
-     firstEvent();
+   m_selection = selection;
+   m_eventTree->SetEventList(0);
+   if ( m_selection.length() != 0 ) {
+//        std::cout << "Selection requested: " << m_selection << std::endl;
+      m_eventTree->Draw(">>list",m_selection.c_str());
+      m_eventTree->SetEventList( m_eventList );
+   }
+   m_nEntries = m_event->size();
+   if ( m_eventTree->GetEventList() ){
+      m_nEntries = m_eventList->GetN();
+      if ( m_nEntries < 1 ) {
+         std::cout << "WARNING: No events passed selection: " << selection.c_str() << std::endl;
+         m_eventTree->SetEventList(0);
+         m_nEntries = m_event->size();
+      }
+   }
+   m_event->to(realEntry(0));
+   m_firstID = m_event->id();
+   m_event->to(realEntry(m_nEntries - 1));
+   m_lastID = m_event->id();
+   firstEvent();
 }
 
 

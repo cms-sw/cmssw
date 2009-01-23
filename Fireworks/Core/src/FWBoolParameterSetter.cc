@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 10 11:22:32 CDT 2008
-// $Id: FWBoolParameterSetter.cc,v 1.2 2008/06/23 06:24:20 dmytro Exp $
+// $Id: FWBoolParameterSetter.cc,v 1.3 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files
@@ -34,9 +34,9 @@
 //
 // constructors and destructor
 //
-FWBoolParameterSetter::FWBoolParameterSetter():
-m_param(0),
-m_widget(0)
+FWBoolParameterSetter::FWBoolParameterSetter() :
+   m_param(0),
+   m_widget(0)
 {
 }
 

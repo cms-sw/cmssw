@@ -15,20 +15,22 @@
 #include "Fireworks/Core/interface/FWModelId.h"
 
 class FWGenParticleDetailView : public FWDetailView<reco::GenParticle> {
-   
+
 public:
    FWGenParticleDetailView();
    virtual ~FWGenParticleDetailView();
-   
+
    virtual TEveElement* build (const FWModelId &id, const reco::GenParticle*);
-   
+
 protected:
-   void setItem (const FWEventItem *iItem) { m_item = iItem; }
-   
+   void setItem (const FWEventItem *iItem) {
+      m_item = iItem;
+   }
+
 private:
    FWGenParticleDetailView(const FWGenParticleDetailView&); // stop default
    const FWGenParticleDetailView& operator=(const FWGenParticleDetailView&); // stop default
-   
+
    // ---------- member data --------------------------------
    const FWEventItem* m_item;
 };
@@ -51,21 +53,21 @@ TEveElement* FWGenParticleDetailView::build (const FWModelId &id, const reco::Ge
    // printf("calling ElectronDetailView::buildRhoZ\n");
    TEveElementList* tList =   new TEveElementList(m_item->name().c_str(),"Supercluster RhoZ",true);
    tList->SetMainColor(m_item->defaultDisplayProperties().color());
-   
+
    TEveTrackPropagator* rnrStyle = new TEveTrackPropagator();
    //units are Tesla
    rnrStyle->SetMagField( -4.0);
    //get this from geometry, units are CM
    rnrStyle->SetMaxR(120.0);
    rnrStyle->SetMaxZ(300.0);
-   
+
    //  Original Commented out here
    //  TEveTrackPropagator* rnrStyle = tList->GetPropagator();
-   
+
    int index=0;
    //cout <<"----"<<endl;
    TEveRecTrack t;
-   
+
    t.fBeta = 1.;
    t.fP = TEveVector(iParticle->px(),
                      iParticle->py(),
@@ -74,14 +76,14 @@ TEveElement* FWGenParticleDetailView::build (const FWModelId &id, const reco::Ge
                      iParticle->vy(),
                      iParticle->vz());
    t.fSign = iParticle->charge();
-   
+
    TEveElementList* genPartList = new TEveElementList(Form("genParticle%d",index));
    gEve->AddElement(genPartList,tList);
    TEveTrack* genPart = new TEveTrack(&t,rnrStyle);
    genPart->SetMainColor(m_item->defaultDisplayProperties().color());
    genPart->MakeTrack();
    genPartList->AddElement(genPart);
-   
+
    return tList;
 }
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DLegoView.cc,v 1.4 2008/06/09 18:50:04 chrjones Exp $
+// $Id: FW3DLegoView.cc,v 1.5 2008/11/06 22:05:24 amraktad Exp $
 //
 
 // system include files
@@ -52,7 +52,7 @@ void FW3DLegoView::connect( const char* receiver_class, void* receiver, const ch
 {
    // use Qt messaging mechanism
    m_legoCanvas->Connect("ProcessedEvent(Int_t,Int_t,Int_t,TObject*)",
-			 receiver_class, receiver, slot );
+                         receiver_class, receiver, slot );
    // "FW3DLegoView", this,
    // "exec3event(Int_t,Int_t,Int_t,TObject*)");
 }

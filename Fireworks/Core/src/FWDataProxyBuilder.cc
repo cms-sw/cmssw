@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FWDataProxyBuilder.cc,v 1.3 2008/06/09 19:54:03 chrjones Exp $
+// $Id: FWDataProxyBuilder.cc,v 1.4 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files
@@ -28,8 +28,8 @@
 //
 // constructors and destructor
 //
-FWDataProxyBuilder::FWDataProxyBuilder():
-  m_item(0)
+FWDataProxyBuilder::FWDataProxyBuilder() :
+   m_item(0)
 {
 }
 
@@ -60,15 +60,15 @@ FWDataProxyBuilder::~FWDataProxyBuilder()
 void
 FWDataProxyBuilder::setItem(const FWEventItem* iItem)
 {
-  m_item = iItem;
+   m_item = iItem;
 }
 
 void
 FWDataProxyBuilder::build(TObject** iObject)
 {
-  if(0!= m_item) {
-    build(m_item, iObject);
-  }
+   if(0!= m_item) {
+      build(m_item, iObject);
+   }
 }
 //
 // const member functions

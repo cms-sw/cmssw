@@ -7,16 +7,16 @@
 //
 /**\class FWGlimpseView FWGlimpseView.h Fireworks/Core/interface/FWGlimpseView.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWGlimpseView.h,v 1.8 2008/11/06 22:05:23 amraktad Exp $
+// $Id: FWGlimpseView.h,v 1.9 2009/01/22 16:05:12 amraktad Exp $
 //
 
 // system include files
@@ -42,47 +42,47 @@ class FWEveValueScaler;
 class FWGlimpseView : public FWViewBase
 {
 
-   public:
-      FWGlimpseView(TGFrame*, TEveElementList*, FWEveValueScaler*);
-      virtual ~FWGlimpseView();
+public:
+   FWGlimpseView(TGFrame*, TEveElementList*, FWEveValueScaler*);
+   virtual ~FWGlimpseView();
 
-      // ---------- const member functions ---------------------
-      TGFrame* frame() const;
-      const std::string& typeName() const;
-      virtual void addTo(FWConfiguration&) const;
+   // ---------- const member functions ---------------------
+   TGFrame* frame() const;
+   const std::string& typeName() const;
+   virtual void addTo(FWConfiguration&) const;
 
-      virtual void saveImageTo(const std::string& iName) const;
+   virtual void saveImageTo(const std::string& iName) const;
 
-      // ---------- static member functions --------------------
-      static const std::string& staticTypeName();
+   // ---------- static member functions --------------------
+   static const std::string& staticTypeName();
 
-      // ---------- member functions ---------------------------
-      virtual void setFrom(const FWConfiguration&);
+   // ---------- member functions ---------------------------
+   virtual void setFrom(const FWConfiguration&);
 
-   private:
-      FWGlimpseView(const FWGlimpseView&); // stop default
+private:
+   FWGlimpseView(const FWGlimpseView&);    // stop default
 
-      const FWGlimpseView& operator=(const FWGlimpseView&); // stop default
+   const FWGlimpseView& operator=(const FWGlimpseView&);    // stop default
 
-      void updateScale( double scale );
-      void showAxes( );
-      void showCylinder( );
+   void updateScale( double scale );
+   void showAxes( );
+   void showCylinder( );
 
-      // ---------- member data --------------------------------
-      TEvePad* m_pad;
-      TEveViewer* m_viewer;
-      TGLEmbeddedViewer* m_embeddedViewer;
-      TEveScene* m_scene;
-      TEveGeoShape*  m_cylinder;
+   // ---------- member data --------------------------------
+   TEvePad* m_pad;
+   TEveViewer* m_viewer;
+   TGLEmbeddedViewer* m_embeddedViewer;
+   TEveScene* m_scene;
+   TEveGeoShape*  m_cylinder;
 
-      TGLMatrix* m_cameraMatrix;
-      TGLMatrix* m_cameraMatrixBase;
-      Double_t*  m_cameraFOV;
+   TGLMatrix* m_cameraMatrix;
+   TGLMatrix* m_cameraMatrixBase;
+   Double_t*  m_cameraFOV;
 
-      // FWDoubleParameter m_scaleParam;
-      FWBoolParameter   m_showAxes;
-      FWBoolParameter   m_showCylinder;
-      FWEveValueScaler* m_scaler;
+   // FWDoubleParameter m_scaleParam;
+   FWBoolParameter m_showAxes;
+   FWBoolParameter m_showCylinder;
+   FWEveValueScaler* m_scaler;
 };
 
 

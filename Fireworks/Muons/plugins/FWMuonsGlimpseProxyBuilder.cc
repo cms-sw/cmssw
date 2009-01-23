@@ -2,13 +2,13 @@
 //
 // Package:     Muons
 // Class  :     FWMuonsGlimpseProxyBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Dec  4 19:04:30 EST 2008
-// $Id: FWMuonsGlimpseProxyBuilder.cc,v 1.1 2008/12/05 01:51:49 chrjones Exp $
+// $Id: FWMuonsGlimpseProxyBuilder.cc,v 1.2 2009/01/06 22:46:18 chrjones Exp $
 //
 
 // system include files
@@ -21,27 +21,27 @@
 #include "Fireworks/Candidates/interface/addStraightLineSegment.h"
 
 class FWMuonsGlimpseProxyBuilder : public FWGlimpseSimpleProxyBuilderTemplate<reco::Muon> {
-   
+
 public:
    FWMuonsGlimpseProxyBuilder();
    virtual ~FWMuonsGlimpseProxyBuilder();
-   
+
    // ---------- const member functions ---------------------
-   
+
    // ---------- static member functions --------------------
-   
+
    // ---------- member functions ---------------------------
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
    FWMuonsGlimpseProxyBuilder(const FWMuonsGlimpseProxyBuilder&); // stop default
-   
+
    const FWMuonsGlimpseProxyBuilder& operator=(const FWMuonsGlimpseProxyBuilder&); // stop default
-   
+
    virtual void build(const reco::Muon& iData, unsigned int iIndex,TEveElement& oItemHolder) const;
 
    // ---------- member data --------------------------------
-   
+
 };
 
 //
@@ -87,7 +87,7 @@ FWMuonsGlimpseProxyBuilder::~FWMuonsGlimpseProxyBuilder()
 //
 // const member functions
 //
-void 
+void
 FWMuonsGlimpseProxyBuilder::build(const reco::Muon& iData, unsigned int iIndex,TEveElement& oItemHolder) const
 {
    FWEveScalableStraightLineSet* marker = new FWEveScalableStraightLineSet("","");
@@ -95,7 +95,7 @@ FWMuonsGlimpseProxyBuilder::build(const reco::Muon& iData, unsigned int iIndex,T
    fw::addStraightLineSegment( marker, &iData, 1.0 );
    oItemHolder.AddElement(marker);
    //add to scaler at end so that it can scale the line after all ends have been added
-   scaler()->addElement(marker);   
+   scaler()->addElement(marker);
 }
 
 //

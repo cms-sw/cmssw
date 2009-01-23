@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.15 2008/12/09 05:56:18 dmytro Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.16 2008/12/12 06:07:03 dmytro Exp $
 //
 
 // system include files
@@ -67,11 +67,17 @@ static const std::string& dataForColumn( const FWGUIEventDataAdder::Data& iData,
 static const unsigned int kNColumns = 5;
 class DataAdderTableManager : public LightTableManager {
 public:
-   DataAdderTableManager(const std::vector<FWGUIEventDataAdder::Data>* iData):
-   m_data(iData), m_selectedRow(-1) { dataChanged();}
+   DataAdderTableManager(const std::vector<FWGUIEventDataAdder::Data>* iData) :
+      m_data(iData), m_selectedRow(-1) {
+      dataChanged();
+   }
 
-   virtual int NumberOfRows() const { return m_data->size();}
-   virtual int NumberOfCols() const { return kNColumns;}
+   virtual int NumberOfRows() const {
+      return m_data->size();
+   }
+   virtual int NumberOfCols() const {
+      return kNColumns;
+   }
    virtual void Sort(int col, bool sortOrder);
    virtual std::vector<std::string> GetTitles(int col) {
       std::vector<std::string> returnValue;
@@ -110,9 +116,14 @@ public:
       changeSelection(row);
    }
 
-   virtual TGFrame* GetRowCell(int row, TGFrame *parentFrame) {return 0;}
-   virtual void UpdateRowCell(int row, TGFrame *rowCell) {}
-   virtual const std::string title() const { return "Viewable Collections"; }
+   virtual TGFrame* GetRowCell(int row, TGFrame *parentFrame) {
+      return 0;
+   }
+   virtual void UpdateRowCell(int row, TGFrame *rowCell) {
+   }
+   virtual const std::string title() const {
+      return "Viewable Collections";
+   }
 
    int selectedRow() const {
       return m_selectedRow;
@@ -161,18 +172,18 @@ namespace {
       }
       unsigned int index=0;
       for(std::vector<FWGUIEventDataAdder::Data>::const_iterator it = iData.begin(),
-          itEnd = iData.end();
+                                                                 itEnd = iData.end();
           it!=itEnd;
           ++it,++index) {
          iOrdered.insert(std::make_pair(dataForColumn(*it,col),index));
       }
       unsigned int row = 0;
       for(typename TMap::iterator it = iOrdered.begin(),
-             itEnd = iOrdered.end();
+          itEnd = iOrdered.end();
           it != itEnd;
           ++it,++row) {
          if(it->second == selectedIndex) {
-               ioSelectedRow = row;
+            ioSelectedRow = row;
          }
          oRowToIndex[row]=it->second;
       }
@@ -185,7 +196,7 @@ DataAdderTableManager::Sort(int col, bool sortOrder)
    if(sortOrder) {
       std::multimap<std::string,int> ordered;
       doSort(col,*m_data, ordered, m_row_to_index,m_selectedRow);
-   }else {
+   } else {
       std::multimap<std::string,int,std::greater<std::string> > ordered;
       doSort(col,*m_data, ordered, m_row_to_index,m_selectedRow);
    }
@@ -214,16 +225,16 @@ static TGLayoutHints* addToFrame(TGVerticalFrame* iParent, const char* iName, TG
 }
 
 FWGUIEventDataAdder::FWGUIEventDataAdder(
-                                         UInt_t iWidth,UInt_t iHeight,
-                                         FWEventItemsManager* iManager,
-                                         TGFrame* iParent,
-                                         const fwlite::Event* iEvent,
-                                         const TFile* iFile,
-                                         const FWTypeToRepresentations& iTypeAndReps):
-m_manager(iManager),
-m_presentEvent(0),
-m_parentFrame(iParent),
-m_typeAndReps( new FWTypeToRepresentations(iTypeAndReps))
+   UInt_t iWidth,UInt_t iHeight,
+   FWEventItemsManager* iManager,
+   TGFrame* iParent,
+   const fwlite::Event* iEvent,
+   const TFile* iFile,
+   const FWTypeToRepresentations& iTypeAndReps) :
+   m_manager(iManager),
+   m_presentEvent(0),
+   m_parentFrame(iParent),
+   m_typeAndReps( new FWTypeToRepresentations(iTypeAndReps))
 {
    createWindow();
    update(iFile,iEvent);
@@ -273,17 +284,17 @@ FWGUIEventDataAdder::addNewItem()
 
    if ( m_manager->find( name ) ) {
       std::cout << "Event item " << name <<
-	" is already registered. Please use another name" << std::endl;
+      " is already registered. Please use another name" << std::endl;
       return;
    }
 
    int largest = -1;
    if(m_manager->begin() != m_manager->end()) {
       if ( *(m_manager->begin()) )
-	largest = (*(m_manager->begin()))->layer();
+         largest = (*(m_manager->begin()))->layer();
    }
    for(FWEventItemsManager::const_iterator it = m_manager->begin(),
-       itEnd = m_manager->end();
+                                           itEnd = m_manager->end();
        it!=itEnd;
        ++it) {
       if((*it) && largest < (*it)->layer()) {
@@ -319,13 +330,13 @@ FWGUIEventDataAdder::windowIsClosing()
    m_frame->UnmapWindow();
    m_frame->DontCallClose();
    /*
-   // m_frame->Cleanup();
-   // delete m_frame;
-   m_frame=0;
-   // delete m_tableWidget;
-   m_tableWidget=0;
-   delete m_tableManager;
-   m_tableManager=0;
+      // m_frame->Cleanup();
+      // delete m_frame;
+      m_frame=0;
+      // delete m_tableWidget;
+      m_tableWidget=0;
+      delete m_tableManager;
+      m_tableManager=0;
     */
 }
 
@@ -410,7 +421,7 @@ FWGUIEventDataAdder::fillData(const TFile* iFile)
    if(0!=m_presentEvent) {
       static const std::string s_blank;
       const std::vector<edm::BranchDescription>& branches =
-      m_presentEvent->getBranchDescriptions();
+         m_presentEvent->getBranchDescriptions();
       Data d;
 
       //I'm not going to modify TFile but I need to see what it is holding
@@ -426,25 +437,25 @@ FWGUIEventDataAdder::fillData(const TFile* iFile)
 
       std::set<std::string> purposes;
       for(std::vector<edm::BranchDescription>::const_iterator itBranch =
-          branches.begin(), itEnd=branches.end();
+             branches.begin(), itEnd=branches.end();
           itBranch != itEnd;
           ++itBranch) {
          if(itBranch->present() &&
             branchNamesInFile.end() != branchNamesInFile.find(itBranch->branchName())){
             const std::vector<FWRepresentationInfo>& infos = m_typeAndReps->representationsForType(itBranch->fullClassName());
-            
+
             //std::cout <<"try to find match "<<itBranch->fullClassName()<<std::endl;
             //the infos list can contain multiple items with the same purpose so we will just find
             // the unique ones
             purposes.clear();
             for(std::vector<FWRepresentationInfo>::const_iterator itInfo = infos.begin(),
-                itInfoEnd = infos.end();
+                                                                  itInfoEnd = infos.end();
                 itInfo != itInfoEnd;
                 ++itInfo) {
                purposes.insert(itInfo->purpose());
             }
             for(std::set<std::string>::const_iterator itPurpose = purposes.begin(),
-                itEnd = purposes.end();
+                                                      itEnd = purposes.end();
                 itPurpose != itEnd;
                 ++itPurpose) {
                d.purpose_ = *itPurpose;
@@ -454,10 +465,10 @@ FWGUIEventDataAdder::fillData(const TFile* iFile)
                d.processName_ = itBranch->processName();
                m_useableData.push_back(d);
                /*
-               std::cout <<d.purpose_<<" "<<d.type_<<" "
-            <<d.moduleLabel_<<" "
-               <<d.productInstanceLabel_<<" "
-               <<d.processName_<<std::endl;
+                  std::cout <<d.purpose_<<" "<<d.type_<<" "
+                  <<d.moduleLabel_<<" "
+                  <<d.productInstanceLabel_<<" "
+                  <<d.processName_<<std::endl;
                 */
             }
          }

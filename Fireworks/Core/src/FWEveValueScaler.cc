@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jul  3 10:30:04 EDT 2008
-// $Id: FWEveValueScaler.cc,v 1.2 2008/07/09 06:54:26 jmuelmen Exp $
+// $Id: FWEveValueScaler.cc,v 1.3 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files
@@ -33,10 +33,10 @@
 // constructors and destructor
 //
 /*
-FWEveValueScaler::FWEveValueScaler()
-{
-}
-*/
+   FWEveValueScaler::FWEveValueScaler()
+   {
+   }
+ */
 // FWEveValueScaler::FWEveValueScaler(const FWEveValueScaler& rhs)
 // {
 //    // do actual copying here;

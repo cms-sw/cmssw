@@ -7,16 +7,16 @@
 //
 /**\class FWEventItemsManager FWEventItemsManager.h Fireworks/Core/interface/FWEventItemsManager.h
 
- Description: Manages multiple FWEventItems
+   Description: Manages multiple FWEventItems
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:
 //         Created:  Thu Jan  3 13:27:29 EST 2008
-// $Id: FWEventItemsManager.h,v 1.12 2008/11/06 22:05:22 amraktad Exp $
+// $Id: FWEventItemsManager.h,v 1.13 2008/12/09 14:40:46 chrjones Exp $
 //
 
 // system include files
@@ -29,7 +29,7 @@
 
 // forward declarations
 namespace fwlite {
-  class Event;
+   class Event;
 }
 namespace fireworks {
    class Context;
@@ -44,53 +44,53 @@ class FWItemAccessorFactory;
 
 class FWEventItemsManager : public FWConfigurable
 {
-   public:
-      //does not take ownership of the object to which it points but does keep reference
-      FWEventItemsManager(FWModelChangeManager*,FWSelectionManager*);
-      virtual ~FWEventItemsManager();
+public:
+   //does not take ownership of the object to which it points but does keep reference
+   FWEventItemsManager(FWModelChangeManager*,FWSelectionManager*);
+   virtual ~FWEventItemsManager();
 
-      typedef std::vector<FWEventItem*>::const_iterator const_iterator;
+   typedef std::vector<FWEventItem*>::const_iterator const_iterator;
 
-      //configuration management interface
-      void addTo(FWConfiguration&) const;
-      void setFrom(const FWConfiguration&);
+   //configuration management interface
+   void addTo(FWConfiguration&) const;
+   void setFrom(const FWConfiguration&);
 
-      // ---------- const member functions ---------------------
-      ///NOTE: iterator is allowed to return a null object for items that have been removed
-      const_iterator begin() const;
-      const_iterator end() const;
-     // const std::vector<FWEventItem*> &items () const { return m_items; }
+   // ---------- const member functions ---------------------
+   ///NOTE: iterator is allowed to return a null object for items that have been removed
+   const_iterator begin() const;
+   const_iterator end() const;
+   // const std::vector<FWEventItem*> &items () const { return m_items; }
 
-      const FWEventItem* find(const std::string& iName) const;
-      // ---------- static member functions --------------------
+   const FWEventItem* find(const std::string& iName) const;
+   // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
-      const FWEventItem* add(const FWPhysicsObjectDesc& iItem);
-      void clearItems();
+   // ---------- member functions ---------------------------
+   const FWEventItem* add(const FWPhysicsObjectDesc& iItem);
+   void clearItems();
 
-      void newEvent(const fwlite::Event* iEvent);
-      void setGeom(const DetIdToMatrix* geom);
+   void newEvent(const fwlite::Event* iEvent);
+   void setGeom(const DetIdToMatrix* geom);
 
-      void setContext(fireworks::Context*);
+   void setContext(fireworks::Context*);
 
-      sigc::signal<void, FWEventItem*> newItem_;
-      sigc::signal<void> goingToClearItems_;
-   private:
+   sigc::signal<void, FWEventItem*> newItem_;
+   sigc::signal<void> goingToClearItems_;
+private:
 
-      void removeItem(const FWEventItem*);
-      FWEventItemsManager(const FWEventItemsManager&); // stop default
+   void removeItem(const FWEventItem*);
+   FWEventItemsManager(const FWEventItemsManager&);    // stop default
 
-      const FWEventItemsManager& operator=(const FWEventItemsManager&); // stop default
+   const FWEventItemsManager& operator=(const FWEventItemsManager&);    // stop default
 
-      // ---------- member data --------------------------------
-      std::vector<FWEventItem*> m_items;
-      FWModelChangeManager* m_changeManager;
-      FWSelectionManager* m_selectionManager;
-      fireworks::Context* m_context;
+   // ---------- member data --------------------------------
+   std::vector<FWEventItem*> m_items;
+   FWModelChangeManager* m_changeManager;
+   FWSelectionManager* m_selectionManager;
+   fireworks::Context* m_context;
 
-      const fwlite::Event* m_event;
-      const DetIdToMatrix *m_geom;
-      boost::shared_ptr<FWItemAccessorFactory> m_accessorFactory;
+   const fwlite::Event* m_event;
+   const DetIdToMatrix *m_geom;
+   boost::shared_ptr<FWItemAccessorFactory> m_accessorFactory;
 };
 
 

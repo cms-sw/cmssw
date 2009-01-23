@@ -2,13 +2,13 @@
 //
 // Package:     CaloJets
 // Class  :     FWCaloJet3DProxyBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWCaloJet3DProxyBuilder.cc,v 1.1 2008/12/04 15:26:01 dmytro Exp $
+// $Id: FWCaloJet3DProxyBuilder.cc,v 1.2 2008/12/12 06:08:05 dmytro Exp $
 //
 
 // system include files
@@ -23,26 +23,26 @@
 #include "Fireworks/Calo/interface/FW3DEveJet.h"
 
 
-class FWCaloJet3DProxyBuilder: public FW3DSimpleProxyBuilderTemplate<reco::Jet> {
-      
+class FWCaloJet3DProxyBuilder : public FW3DSimpleProxyBuilderTemplate<reco::Jet> {
+
 public:
    FWCaloJet3DProxyBuilder();
    //virtual ~FWCaloJet3DProxyBuilder();
-   
+
    // ---------- const member functions ---------------------
-   
+
    // ---------- static member functions --------------------
-   
+
    // ---------- member functions ---------------------------
    REGISTER_PROXYBUILDER_METHODS();
- 
+
 private:
    FWCaloJet3DProxyBuilder(const FWCaloJet3DProxyBuilder&); // stop default
-   
+
    const FWCaloJet3DProxyBuilder& operator=(const FWCaloJet3DProxyBuilder&); // stop default
-   
+
    virtual void build(const reco::Jet& iData, unsigned int iIndex,TEveElement& oItemHolder) const;
-   
+
    // ---------- member data --------------------------------
 };
 
@@ -54,7 +54,9 @@ private:
 // static data member definitions
 //
 namespace {
-   double getTheta( double eta ) { return 2*atan(exp(-eta)); }
+   double getTheta( double eta ) {
+      return 2*atan(exp(-eta));
+   }
 }
 
 //
@@ -67,7 +69,7 @@ FWCaloJet3DProxyBuilder::FWCaloJet3DProxyBuilder()
 //
 // member functions
 //
-void 
+void
 FWCaloJet3DProxyBuilder::build(const reco::Jet& iData, unsigned int iIndex,TEveElement& oItemHolder) const
 {
    FW3DEveJet* cone = new FW3DEveJet(iData,"jet","jet");

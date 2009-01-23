@@ -7,16 +7,16 @@
 //
 /**\class FWDisplayProperties FWDisplayProperties.h Fireworks/Core/interface/FWDisplayProperties.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:
 //         Created:  Thu Jan  3 14:22:36 EST 2008
-// $Id: FWDisplayProperties.h,v 1.5 2008/08/20 23:49:22 dmytro Exp $
+// $Id: FWDisplayProperties.h,v 1.6 2008/11/06 22:05:22 amraktad Exp $
 //
 
 // system include files
@@ -29,43 +29,43 @@
 class FWDisplayProperties
 {
 
-   public:
-      FWDisplayProperties(const Color_t& iColor = kWhite,
-			  bool isVisible = true );
-      //virtual ~FWDisplayProperties();
+public:
+   FWDisplayProperties(const Color_t& iColor = kWhite,
+                       bool isVisible = true );
+   //virtual ~FWDisplayProperties();
 
-      // ---------- const member functions ---------------------
-      const Color_t& color() const {
-	return m_color;
-      }
+   // ---------- const member functions ---------------------
+   const Color_t& color() const {
+      return m_color;
+   }
 
-      bool isVisible() const {
-	return m_isVisible;
-      }
+   bool isVisible() const {
+      return m_isVisible;
+   }
 
-      bool operator==(const FWDisplayProperties& iRHS) const {
-         return m_color == iRHS.m_color && m_isVisible == iRHS.m_isVisible;
-      }
-      bool operator!=(const FWDisplayProperties& iRHS) const {
-         return not (*this == iRHS);
-      }
+   bool operator==(const FWDisplayProperties& iRHS) const {
+      return m_color == iRHS.m_color && m_isVisible == iRHS.m_isVisible;
+   }
+   bool operator!=(const FWDisplayProperties& iRHS) const {
+      return not (*this == iRHS);
+   }
 
-      // ---------- static member functions --------------------
+   // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
-      void setIsVisible(bool iSet) {
-         m_isVisible = iSet;
-      }
+   // ---------- member functions ---------------------------
+   void setIsVisible(bool iSet) {
+      m_isVisible = iSet;
+   }
 
-      void setColor(Color_t iColor);
-   private:
-      //FWDisplayProperties(const FWDisplayProperties&); // stop default
+   void setColor(Color_t iColor);
+private:
+   //FWDisplayProperties(const FWDisplayProperties&); // stop default
 
-      //const FWDisplayProperties& operator=(const FWDisplayProperties&); // stop default
+   //const FWDisplayProperties& operator=(const FWDisplayProperties&); // stop default
 
-      // ---------- member data --------------------------------
-      Color_t m_color;
-      bool m_isVisible;
+   // ---------- member data --------------------------------
+   Color_t m_color;
+   bool m_isVisible;
 };
 
 

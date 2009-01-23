@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 14:48:14 EDT 2008
-// $Id: FWItemAccessorFactory.cc,v 1.1 2008/10/21 19:08:23 chrjones Exp $
+// $Id: FWItemAccessorFactory.cc,v 1.2 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files
@@ -86,9 +86,9 @@ FWItemAccessorFactory::accessorFor(const TClass* iClass) const
          assert(rootMemType != 0);
          if(rootMemType->GetCollectionProxy()) {
             //std::cout <<"  reaching inside object data member"<<std::endl;
-           return boost::shared_ptr<FWItemAccessorBase>(
-                        new FWItemTVirtualCollectionProxyAccessor(iClass,
-                                                                  boost::shared_ptr<TVirtualCollectionProxy>(rootMemType->GetCollectionProxy()->Generate())));
+            return boost::shared_ptr<FWItemAccessorBase>(
+                      new FWItemTVirtualCollectionProxyAccessor(iClass,
+                                                                boost::shared_ptr<TVirtualCollectionProxy>(rootMemType->GetCollectionProxy()->Generate())));
          }
       }
    }

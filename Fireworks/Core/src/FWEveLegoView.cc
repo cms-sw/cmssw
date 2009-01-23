@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.30 2008/11/26 02:18:03 chrjones Exp $
+// $Id: FWEveLegoView.cc,v 1.31 2009/01/22 16:05:12 amraktad Exp $
 //
 
 // system include files
@@ -71,21 +71,21 @@
 //
 // constructors and destructor
 //
-FWEveLegoView::FWEveLegoView(TGFrame* iParent, TEveElementList* list):
- //m_minEcalEnergy(this,"ECAL energy threshold (GeV)",1.,0.,100.),
- //m_minHcalEnergy(this,"HCAL energy threshold (GeV)",1.,0.,100.),
- //m_ecalSlice(0),
- //m_hcalSlice(0),
- m_cameraMatrix(0),
- m_cameraMatrixBase(0),
- m_cameraMatrixRef(0),
- m_cameraMatrixBaseRef(0),
- m_orthoCameraZoom(0),
- m_orthoCameraMatrix(0),
- m_orthoCameraZoomRef(0),
- m_orthoCameraMatrixRef(0),
- m_topView(false),
- m_cameraSet(false)
+FWEveLegoView::FWEveLegoView(TGFrame* iParent, TEveElementList* list) :
+   //m_minEcalEnergy(this,"ECAL energy threshold (GeV)",1.,0.,100.),
+   //m_minHcalEnergy(this,"HCAL energy threshold (GeV)",1.,0.,100.),
+   //m_ecalSlice(0),
+   //m_hcalSlice(0),
+   m_cameraMatrix(0),
+   m_cameraMatrixBase(0),
+   m_cameraMatrixRef(0),
+   m_cameraMatrixBaseRef(0),
+   m_orthoCameraZoom(0),
+   m_orthoCameraMatrix(0),
+   m_orthoCameraZoomRef(0),
+   m_orthoCameraMatrixRef(0),
+   m_topView(false),
+   m_cameraSet(false)
 {
    m_pad = new TEvePad;
    TGLEmbeddedViewer* ev = new TGLEmbeddedViewer(iParent, m_pad, 0);
@@ -103,7 +103,7 @@ FWEveLegoView::FWEveLegoView(TGFrame* iParent, TEveElementList* list):
       m_cameraMatrixBaseRef = const_cast<TGLMatrix*>(&(camera->GetCamBase()));
    }
    if ( TGLOrthoCamera* camera = dynamic_cast<TGLOrthoCamera*>( &(ev->RefCamera(TGLViewer::kCameraOrthoXOY) ))) {
-      m_orthoCameraZoomRef = & (camera->fZoom);
+      m_orthoCameraZoomRef = &(camera->fZoom);
       m_orthoCameraMatrixRef = const_cast<TGLMatrix*>(&(camera->GetCamTrans()));
    }
 
@@ -114,35 +114,35 @@ FWEveLegoView::FWEveLegoView(TGFrame* iParent, TEveElementList* list):
    gEve->AddElement(nv, gEve->GetViewers());
 
    /*
-   TEveRGBAPalette* pal = new TEveRGBAPalette(0, 100);
-   // pal->SetLimits(0, data->GetMaxVal());
-   pal->SetLimits(0, 100);
-   pal->SetDefaultColor((Color_t)1000);
+      TEveRGBAPalette* pal = new TEveRGBAPalette(0, 100);
+      // pal->SetLimits(0, data->GetMaxVal());
+      pal->SetLimits(0, 100);
+      pal->SetDefaultColor((Color_t)1000);
 
-   m_lego = new TEveCaloLego();
-   m_lego->InitMainTrans();
-   m_lego->RefMainTrans().SetScale(2*M_PI, 2*M_PI, M_PI);
-   m_lego->SetTopViewTowerColor(kWhite);
+      m_lego = new TEveCaloLego();
+      m_lego->InitMainTrans();
+      m_lego->RefMainTrans().SetScale(2*M_PI, 2*M_PI, M_PI);
+      m_lego->SetTopViewTowerColor(kWhite);
 
-   m_lego->SetPalette(pal);
-   // m_lego->SetMainColor(Color_t(TColor::GetColor("#0A0A0A")));
-   m_lego->SetGridColor(Color_t(TColor::GetColor("#202020")));
-   m_lego->Set2DMode(TEveCaloLego::kValSize);
-   m_lego->SetBinWidth(6);
-   // add calorimeter boundaries
-   TEveStraightLineSet* boundaries = new TEveStraightLineSet("boundaries");
-   boundaries->SetPickable(kFALSE);
-   boundaries->SetLineColor(Color_t(TColor::GetColor("#404040")));
-   // boundaries->SetLineWidth(2);
-   boundaries->AddLine(-1.479,-3.1416,0.001,-1.479,3.1416,0.001);
-   boundaries->AddLine(1.479,-3.1416,0.001,1.479,3.1416,0.001);
-   boundaries->AddLine(-3.0,-3.1416,0.001,-3.0,3.1416,0.001);
-   boundaries->AddLine(3.0,-3.1416,0.001,3.0,3.1416,0.001);
-   gEve->AddElement(boundaries,m_lego);
-   // lego->SetEtaLimits(etaLimLow, etaLimHigh);
-   // lego->SetTitle("caloTower Et distribution");
-   gEve->AddElement(m_lego, ns);
-   gEve->AddToListTree(m_lego, kTRUE);
+      m_lego->SetPalette(pal);
+      // m_lego->SetMainColor(Color_t(TColor::GetColor("#0A0A0A")));
+      m_lego->SetGridColor(Color_t(TColor::GetColor("#202020")));
+      m_lego->Set2DMode(TEveCaloLego::kValSize);
+      m_lego->SetBinWidth(6);
+      // add calorimeter boundaries
+      TEveStraightLineSet* boundaries = new TEveStraightLineSet("boundaries");
+      boundaries->SetPickable(kFALSE);
+      boundaries->SetLineColor(Color_t(TColor::GetColor("#404040")));
+      // boundaries->SetLineWidth(2);
+      boundaries->AddLine(-1.479,-3.1416,0.001,-1.479,3.1416,0.001);
+      boundaries->AddLine(1.479,-3.1416,0.001,1.479,3.1416,0.001);
+      boundaries->AddLine(-3.0,-3.1416,0.001,-3.0,3.1416,0.001);
+      boundaries->AddLine(3.0,-3.1416,0.001,3.0,3.1416,0.001);
+      gEve->AddElement(boundaries,m_lego);
+      // lego->SetEtaLimits(etaLimLow, etaLimHigh);
+      // lego->SetTitle("caloTower Et distribution");
+      gEve->AddElement(m_lego, ns);
+      gEve->AddToListTree(m_lego, kTRUE);
     */
    gEve->AddElement(list,ns);
    gEve->AddToListTree(list, kTRUE);
@@ -150,19 +150,19 @@ FWEveLegoView::FWEveLegoView(TGFrame* iParent, TEveElementList* list):
    //m_minEcalEnergy.changed_.connect(boost::bind(&FWEveLegoView::setMinEcalEnergy,this,_1));
    //m_minHcalEnergy.changed_.connect(boost::bind(&FWEveLegoView::setMinHcalEnergy,this,_1));
    if (list->HasChildren())
-     {
-	TEveCaloLego* lego =  dynamic_cast<TEveCaloLego*>( list->FirstChild());
-	if (lego) {
-	   TEveLegoOverlay* overlay = new TEveLegoOverlay();
-	   overlay->SetShowPlane(kFALSE);
-	   overlay->SetShowPerspective(kFALSE);
-	   overlay->RefAxisAttrib().SetLabelSize(0.02);
-	   overlay->RefAxisAttrib().SetLabelColor(kWhite);
-	   ev->AddOverlayElement(overlay);
-	   overlay->SetCaloLego(lego);
-	   gEve->AddElement(overlay, ns);
-	}
-     }
+   {
+      TEveCaloLego* lego =  dynamic_cast<TEveCaloLego*>( list->FirstChild());
+      if (lego) {
+         TEveLegoOverlay* overlay = new TEveLegoOverlay();
+         overlay->SetShowPlane(kFALSE);
+         overlay->SetShowPerspective(kFALSE);
+         overlay->RefAxisAttrib().SetLabelSize(0.02);
+         overlay->RefAxisAttrib().SetLabelColor(kWhite);
+         ev->AddOverlayElement(overlay);
+         overlay->SetCaloLego(lego);
+         gEve->AddElement(overlay, ns);
+      }
+   }
 }
 
 FWEveLegoView::~FWEveLegoView()
@@ -185,7 +185,7 @@ FWEveLegoView::~FWEveLegoView()
 void
 FWEveLegoView::finishSetup()
 {
-   if ( ! m_cameraSet ) setCameras();
+   if ( !m_cameraSet ) setCameras();
 }
 
 void
@@ -207,9 +207,9 @@ FWEveLegoView::setCameras()
       *m_orthoCameraMatrixRef = *m_orthoCameraMatrix;
       *m_orthoCameraZoomRef = m_orthoCameraZoom;
       TEveLegoEventHandler* eh =
-	   dynamic_cast<TEveLegoEventHandler*>(m_viewer->GetGLViewer()->GetEventHandler());
+         dynamic_cast<TEveLegoEventHandler*>(m_viewer->GetGLViewer()->GetEventHandler());
       if ( m_topView && eh ) {
-	 eh->Rotate(0,10000,kFALSE, kFALSE);
+         eh->Rotate(0,10000,kFALSE, kFALSE);
       }
    }
    m_cameraSet = true;
@@ -223,16 +223,16 @@ FWEveLegoView::draw(TEveCaloDataHist* data)
    m_lego->SetData(data);
    m_lego->ElementChanged();
    m_lego->DataChanged();
-   if ( ! m_cameraSet ) setCameras();*/
-     /*
-     {
+   if ( !m_cameraSet ) setCameras();*/
+   /*
+      {
       m_scene->Repaint();
       m_viewer->Redraw(kTRUE);
       // std::cout << "Viewer: " <<  m_viewer << std::endl;
       // m_viewer->GetGLViewer()->ResetCameras();
       m_cameraSet = true;
-   }
-      */
+      }
+    */
    // m_viewer->GetGLViewer()->UpdateScene();
    //CDJ m_viewer->GetGLViewer()->RequestDraw();
 }
@@ -241,20 +241,20 @@ void
 FWEveLegoView::setMinEcalEnergy(double value)
 {
    /*
-   const std::string name = "ecalLego";
-   if ( ! m_lego->GetData() ) return;
-   if ( ! m_ecalSlice )
-     for ( int i = 0; i < m_lego->GetData()->GetNSlices(); ++i )
+      const std::string name = "ecalLego";
+      if ( ! m_lego->GetData() ) return;
+      if ( ! m_ecalSlice )
+      for ( int i = 0; i < m_lego->GetData()->GetNSlices(); ++i )
        if ( name == m_lego->GetData()->RefSliceInfo(i).fHist->GetName() )
-	 {
-	    m_ecalSlice = &(m_lego->GetData()->RefSliceInfo(i));
-	    break;
-	 }
-   if ( ! m_ecalSlice ) return;
-   m_ecalSlice->fThreshold = value;
-   m_lego->ElementChanged();
-   m_lego->DataChanged();
-   m_viewer->GetGLViewer()->RequestDraw();
+         {
+            m_ecalSlice = &(m_lego->GetData()->RefSliceInfo(i));
+            break;
+         }
+      if ( ! m_ecalSlice ) return;
+      m_ecalSlice->fThreshold = value;
+      m_lego->ElementChanged();
+      m_lego->DataChanged();
+      m_viewer->GetGLViewer()->RequestDraw();
     */
 }
 
@@ -262,20 +262,20 @@ void
 FWEveLegoView::setMinHcalEnergy(double value)
 {
    /*
-   const std::string name = "hcalLego";
-   if ( ! m_lego->GetData() ) return;
-   if ( ! m_hcalSlice )
-     for ( int i = 0; i < m_lego->GetData()->GetNSlices(); ++i )
+      const std::string name = "hcalLego";
+      if ( ! m_lego->GetData() ) return;
+      if ( ! m_hcalSlice )
+      for ( int i = 0; i < m_lego->GetData()->GetNSlices(); ++i )
        if ( name == m_lego->GetData()->RefSliceInfo(i).fHist->GetName() )
-	 {
-	    m_hcalSlice = &(m_lego->GetData()->RefSliceInfo(i));
-	    break;
-	 }
-   if ( ! m_hcalSlice ) return;
-   m_hcalSlice->fThreshold = value;
-   m_lego->ElementChanged();
-   m_lego->DataChanged();
-   m_viewer->GetGLViewer()->RequestDraw();
+         {
+            m_hcalSlice = &(m_lego->GetData()->RefSliceInfo(i));
+            break;
+         }
+      if ( ! m_hcalSlice ) return;
+      m_hcalSlice->fThreshold = value;
+      m_lego->ElementChanged();
+      m_lego->DataChanged();
+      m_viewer->GetGLViewer()->RequestDraw();
     */
 }
 
@@ -283,8 +283,8 @@ void
 FWEveLegoView::setMinEnergy()
 {
    /*
-   setMinEcalEnergy( m_minEcalEnergy.value() );
-   setMinHcalEnergy( m_minHcalEnergy.value() );
+      setMinEcalEnergy( m_minEcalEnergy.value() );
+      setMinHcalEnergy( m_minHcalEnergy.value() );
     */
 }
 #endif
@@ -311,8 +311,8 @@ FWEveLegoView::setFrom(const FWConfiguration& iFrom)
    else
      m_embeddedViewer->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
    // m_embeddedViewer->ResetCurrentCamera();
-*/
-   // transformation matrix
+ */
+// transformation matrix
    assert(m_cameraMatrix);
    std::string matrixName("cameraMatrix");
    for ( unsigned int i = 0; i < 16; ++i ){
@@ -419,7 +419,7 @@ FWEveLegoView::addTo(FWConfiguration& iTo) const
    s.str("");
    bool topView = false;
    if ( dynamic_cast<TGLOrthoCamera*>( &(m_embeddedViewer->CurrentCamera()) ) )
-     topView = true;
+      topView = true;
    s << topView;
    name = "topView";
    iTo.addKeyValue(name+typeName(),FWConfiguration(s.str()));

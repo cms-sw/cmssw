@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar  3 17:20:14 EST 2008
-// $Id: FWListModel.cc,v 1.15 2008/07/17 18:28:20 chrjones Exp $
+// $Id: FWListModel.cc,v 1.16 2008/11/06 22:05:26 amraktad Exp $
 //
 
 // system include files
@@ -39,11 +39,11 @@
 //
 FWListModel::FWListModel(const FWModelId& iId,
                          FWDetailViewManager* iDVM,
-                         const std::string& iData):
-TEveElement(m_color),
-m_id(iId),
-m_color(0),
- m_detailViewManager(iDVM)
+                         const std::string& iData) :
+   TEveElement(m_color),
+   m_id(iId),
+   m_color(0),
+   m_detailViewManager(iDVM)
 {
    std::ostringstream s;
    s<<iId.item()->modelName(iId.index());
@@ -61,7 +61,7 @@ m_color(0),
 
 FWListModel::~FWListModel()
 {
-  //  std::cout<<"Here I am with address "<<this<<std::endl;
+   //  std::cout<<"Here I am with address "<<this<<std::endl;
 }
 
 //
@@ -146,7 +146,7 @@ FWListModel::SingleRnrState() const
 void
 FWListModel::openDetailView() const
 {
-     m_detailViewManager->openDetailViewFor(m_id);
+   m_detailViewManager->openDetailViewFor(m_id);
 }
 
 bool

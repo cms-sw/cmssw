@@ -4,19 +4,19 @@
 //
 // Package:     Electrons
 // Class  :     makeSuperCluster
-// 
+//
 /**\class makeSuperCluster makeSuperCluster.h Fireworks/Electrons/interface/makeSuperCluster.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Dec  5 15:32:20 EST 2008
-// $Id$
+// $Id: makeSuperCluster.h,v 1.1 2008/12/05 20:57:15 chrjones Exp $
 //
 
 // system include files
@@ -36,6 +36,6 @@ namespace fireworks {
    bool makeRhoZSuperCluster(const FWEventItem&,
                              const reco::SuperClusterRef& iCluster,
                              float iPhi,
-                             TEveElement& oItemHolder); 
+                             TEveElement& oItemHolder);
 }
 #endif

@@ -7,16 +7,16 @@
 //
 /**\class CSGAction CSGAction.h Fireworks/Core/interface/CSGAction.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:15:56 CDT 2008
-// $Id: CSGAction.h,v 1.10 2009/01/06 17:15:59 amraktad Exp $
+// $Id: CSGAction.h,v 1.11 2009/01/08 14:07:13 amraktad Exp $
 //
 
 // system include files
@@ -61,16 +61,16 @@ public:
    // ---------- member functions ---------------------------
    void setName(const std::string& name);
    void setToolTip(const std::string& tip);
-   void createTextButton(TGCompositeFrame* p, TGLayoutHints* l = 0, Int_t id = -1, GContext_t norm = TGButton::GetDefaultGC()(), FontStruct_t font = TGTextButton::GetDefaultFontStruct(), UInt_t option = kRaisedFrame|kDoubleBorder);
-   void createPictureButton(TGCompositeFrame* p, const TGPicture* pic, TGLayoutHints* l = 0, Int_t id = -1, GContext_t norm = TGButton::GetDefaultGC()(), UInt_t option = kRaisedFrame|kDoubleBorder);
+   void createTextButton(TGCompositeFrame* p, TGLayoutHints* l = 0, Int_t id = -1, GContext_t norm = TGButton::GetDefaultGC() (), FontStruct_t font = TGTextButton::GetDefaultFontStruct(), UInt_t option = kRaisedFrame|kDoubleBorder);
+   void createPictureButton(TGCompositeFrame* p, const TGPicture* pic, TGLayoutHints* l = 0, Int_t id = -1, GContext_t norm = TGButton::GetDefaultGC() (), UInt_t option = kRaisedFrame|kDoubleBorder);
    FWCustomIconsButton* createCustomIconsButton(TGCompositeFrame* p,
-                                const TGPicture* upPic,
-                                const TGPicture* downPic,
-                                const TGPicture* disabledPic,
-                                TGLayoutHints* l = 0,
-                                Int_t id = -1,
-                                GContext_t norm = TGButton::GetDefaultGC()(),
-                                UInt_t option = 0);
+                                                const TGPicture* upPic,
+                                                const TGPicture* downPic,
+                                                const TGPicture* disabledPic,
+                                                TGLayoutHints* l = 0,
+                                                Int_t id = -1,
+                                                GContext_t norm = TGButton::GetDefaultGC() (),
+                                                UInt_t option = 0);
    void createShortcut(UInt_t key, const char *mod);
    void createMenuEntry(TGPopupMenu *menu);
    void createToolBarEntry(TGToolBar *toolbar, const char *filename);
@@ -83,7 +83,9 @@ public:
 
    void addSCToMenu();
    Bool_t resizeMenuEntry();
-   void activate(){ activated.emit(); }
+   void activate(){
+      activated.emit();
+   }
 
    sigc::signal<void> activated;
 

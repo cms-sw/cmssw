@@ -1,13 +1,13 @@
-// @(#)root/eve:$Id: TEveBrowser.h 22396 2008-02-28 17:44:11Z matevz $
+// @(#)root/eve:$Id: FWListWidget.h,v 1.1 2008/07/08 20:08:04 chrjones Exp $
 // Authors: Matevz Tadel & Alja Mrak-Tadel: 2006, 2007
 
 /*************************************************************************
- * Copyright (C) 1995-2007, Rene Brun and Fons Rademakers.               *
- * All rights reserved.                                                  *
- *                                                                       *
- * For the licensing terms see $ROOTSYS/LICENSE.                         *
- * For the list of contributors see $ROOTSYS/README/CREDITS.             *
- *************************************************************************/
+* Copyright (C) 1995-2007, Rene Brun and Fons Rademakers.               *
+* All rights reserved.                                                  *
+*                                                                       *
+* For the licensing terms see $ROOTSYS/LICENSE.                         *
+* For the list of contributors see $ROOTSYS/README/CREDITS.             *
+*************************************************************************/
 
 #ifndef Fireworks_Core_src_FWListWidget
 #define Fireworks_Core_src_FWListWidget
@@ -33,7 +33,7 @@ protected:
 
    TContextMenu     *fCtxMenu;
 
-   Bool_t            fSignalsConnected;
+   Bool_t fSignalsConnected;
 
 public:
    FWListWidget(const TGWindow* p=0, Int_t width=250, Int_t height=700);
@@ -42,7 +42,9 @@ public:
    void ConnectSignals();
    void DisconnectSignals();
 
-   TGListTree*    GetListTree() const { return fListTree; }
+   TGListTree*    GetListTree() const {
+      return fListTree;
+   }
 
    void ItemBelowMouse(TGListTreeItem *entry, UInt_t mask);
    void ItemClicked(TGListTreeItem *entry, Int_t btn, UInt_t mask, Int_t x, Int_t y);

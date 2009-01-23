@@ -4,19 +4,19 @@
 //
 // Package:     Electrons
 // Class  :     FWElectronGlimpseProxyBuilder
-// 
+//
 /**\class FWElectronGlimpseProxyBuilder FWElectronGlimpseProxyBuilder.h Fireworks/Electrons/interface/FWElectronGlimpseProxyBuilder.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:05 EST 2008
-// $Id$
+// $Id: FWElectronGlimpseProxyBuilder.h,v 1.1 2008/12/02 21:11:52 chrjones Exp $
 //
 
 // system include files
@@ -28,22 +28,22 @@
 class FWElectronGlimpseProxyBuilder
 {
 
-   public:
-      FWElectronGlimpseProxyBuilder();
-      virtual ~FWElectronGlimpseProxyBuilder();
+public:
+   FWElectronGlimpseProxyBuilder();
+   virtual ~FWElectronGlimpseProxyBuilder();
 
-      // ---------- const member functions ---------------------
+   // ---------- const member functions ---------------------
 
-      // ---------- static member functions --------------------
+   // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
+   // ---------- member functions ---------------------------
 
-   private:
-      FWElectronGlimpseProxyBuilder(const FWElectronGlimpseProxyBuilder&); // stop default
+private:
+   FWElectronGlimpseProxyBuilder(const FWElectronGlimpseProxyBuilder&);    // stop default
 
-      const FWElectronGlimpseProxyBuilder& operator=(const FWElectronGlimpseProxyBuilder&); // stop default
+   const FWElectronGlimpseProxyBuilder& operator=(const FWElectronGlimpseProxyBuilder&);    // stop default
 
-      // ---------- member data --------------------------------
+   // ---------- member data --------------------------------
 
 };
 

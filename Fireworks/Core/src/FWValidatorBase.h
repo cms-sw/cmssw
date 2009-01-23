@@ -7,16 +7,16 @@
 //
 /**\class FWValidatorBase FWValidatorBase.h Fireworks/Core/interface/FWValidatorBase.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug 22 20:42:39 EDT 2008
-// $Id: FWValidatorBase.h,v 1.1 2008/08/24 00:19:12 chrjones Exp $
+// $Id: FWValidatorBase.h,v 1.2 2008/11/06 22:05:26 amraktad Exp $
 //
 
 // system include files
@@ -31,8 +31,10 @@
 class FWValidatorBase {
 
 public:
-   FWValidatorBase() {}
-   virtual ~FWValidatorBase() {}
+   FWValidatorBase() {
+   }
+   virtual ~FWValidatorBase() {
+   }
 
    // ---------- const member functions ---------------------
    //fills the vector with

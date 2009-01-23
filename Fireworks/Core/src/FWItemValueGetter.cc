@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWItemValueGetter
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Nov 30 16:15:43 EST 2008
-// $Id: FWItemValueGetter.cc,v 1.1 2008/12/01 00:51:22 chrjones Exp $
+// $Id: FWItemValueGetter.cc,v 1.2 2008/12/04 15:27:59 dmytro Exp $
 //
 
 // system include files
@@ -33,10 +33,10 @@ recursiveFindMember(const std::string& iName,
                     const ROOT::Reflex::Type& iType)
 {
    using namespace ROOT::Reflex;
-   
+
    Member temp = iType.MemberByName(iName);
    if(temp) {return temp;}
-   
+
    //try all base classes
    for(Base_Iterator it = iType.Base_Begin(), itEnd = iType.Base_End();
        it != itEnd;
@@ -49,7 +49,7 @@ recursiveFindMember(const std::string& iName,
 
 namespace {
    template <class T>
-   std::string valueToString(const std::string& iName, 
+   std::string valueToString(const std::string& iName,
                              const std::string& iUnit,
                              const ROOT::Reflex::Object& iObj) {
       std::stringstream s;
@@ -59,28 +59,28 @@ namespace {
       s<<iName <<": "<<temp<<" "<<iUnit;
       return s.str();
    }
-   
-   typedef std::string(*FunctionType)(const std::string&, const std::string&,const ROOT::Reflex::Object&);
+
+   typedef std::string (*FunctionType)(const std::string&, const std::string&,const ROOT::Reflex::Object&);
    typedef std::map<std::string, FunctionType> TypeToStringMap;
-   
+
    template<typename T>
    static void addToStringMap(TypeToStringMap& iMap) {
       iMap[typeid(T).name()]=valueToString<T>;
    }
-   
+
    template <class T>
    double valueToDouble(const ROOT::Reflex::Object& iObj) {
       return double(*(reinterpret_cast<T*>(iObj.Address())));
    }
-   
-   typedef double(*DoubleFunctionType)(const ROOT::Reflex::Object&);
+
+   typedef double (*DoubleFunctionType)(const ROOT::Reflex::Object&);
    typedef std::map<std::string, DoubleFunctionType> TypeToDoubleMap;
-   
+
    template<typename T>
    static void addToDoubleMap(TypeToDoubleMap& iMap) {
       iMap[typeid(T).name()]=valueToDouble<T>;
    }
-   
+
 }
 
 static
@@ -92,15 +92,15 @@ stringValueFor(const ROOT::Reflex::Object& iObj, const ROOT::Reflex::Member& iMe
       addToStringMap<float>(s_map);
       addToStringMap<double>(s_map);
    }
-   
+
    ROOT::Reflex::Object val = iMember.Invoke(iObj);
-   
+
    TypeToStringMap::iterator itFound =s_map.find(val.TypeOf().TypeInfo().name());
    if(itFound == s_map.end()) {
       //std::cout <<" could not print because type is "<<iObj.TypeOf().TypeInfo().name()<<std::endl;
       return std::string();
    }
-   
+
    return itFound->second(iMember.Name(),iUnit,val);
 }
 
@@ -112,16 +112,16 @@ doubleValueFor(const ROOT::Reflex::Object& iObj, const ROOT::Reflex::Member& iMe
       addToDoubleMap<float>(s_map);
       addToDoubleMap<double>(s_map);
    }
-   
+
    ROOT::Reflex::Object val = iMember.Invoke(iObj);
-   
+
    //std::cout << val.TypeOf().TypeInfo().name()<<std::endl;
    TypeToDoubleMap::iterator itFound =s_map.find(val.TypeOf().TypeInfo().name());
    if(itFound == s_map.end()) {
       //std::cout <<" could not print because type is "<<iObj.TypeOf().TypeInfo().name()<<std::endl;
       return -999.0;
    }
-   
+
    return itFound->second(val);
 }
 
@@ -129,9 +129,9 @@ doubleValueFor(const ROOT::Reflex::Object& iObj, const ROOT::Reflex::Member& iMe
 //
 // constructors and destructor
 //
-FWItemValueGetter::FWItemValueGetter(const ROOT::Reflex::Type& iType ,
-                                     const std::vector<std::pair<std::string, std::string> >& iFindValueFrom):
-m_type(iType)
+FWItemValueGetter::FWItemValueGetter(const ROOT::Reflex::Type& iType,
+                                     const std::vector<std::pair<std::string, std::string> >& iFindValueFrom) :
+   m_type(iType)
 {
    using namespace ROOT::Reflex;
    for(std::vector<std::pair<std::string,std::string> >::const_iterator it = iFindValueFrom.begin(), itEnd=iFindValueFrom.end();
@@ -179,38 +179,38 @@ m_type(iType)
 //
 // const member functions
 //
-double 
+double
 FWItemValueGetter::valueFor(const void* iObject) const
 {
    ROOT::Reflex::Object temp(m_type,
                              const_cast<void*>(iObject));
    ROOT::Reflex::Object obj= temp.CastObject(m_memberFunction.DeclaringType());
-   return ::doubleValueFor(obj,m_memberFunction);   
+   return ::doubleValueFor(obj,m_memberFunction);
 }
 
-std::string 
+std::string
 FWItemValueGetter::stringValueFor(const void* iObject) const
 {
    ROOT::Reflex::Object temp(m_type,
                              const_cast<void*>(iObject));
    ROOT::Reflex::Object obj= temp.CastObject(m_memberFunction.DeclaringType());
-   
+
    return ::stringValueFor(obj,m_memberFunction,m_unit);
 }
 
-bool 
+bool
 FWItemValueGetter::isValid() const
 {
    return bool(m_memberFunction);
 }
 
-std::string 
+std::string
 FWItemValueGetter::valueName() const
 {
    return m_memberFunction.Name();
 }
 
-const std::string& 
+const std::string&
 FWItemValueGetter::unit() const
 {
    return m_unit;

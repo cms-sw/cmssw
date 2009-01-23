@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug 22 18:13:39 EDT 2008
-// $Id: FWGUIValidatingTextEntry.cc,v 1.5 2008/11/06 22:05:25 amraktad Exp $
+// $Id: FWGUIValidatingTextEntry.cc,v 1.6 2008/12/04 20:38:26 chrjones Exp $
 //
 
 // system include files
@@ -34,12 +34,12 @@
 //
 // constructors and destructor
 //
-FWGUIValidatingTextEntry::FWGUIValidatingTextEntry(const TGWindow *parent , const char *text , Int_t id ):
-TGTextEntry(parent,text,id),
-m_validator(0)
+FWGUIValidatingTextEntry::FWGUIValidatingTextEntry(const TGWindow *parent, const char *text, Int_t id ) :
+   TGTextEntry(parent,text,id),
+   m_validator(0)
 {
    m_popup = new TGComboBoxPopup(fClient->GetDefaultRoot(), 100, 100, kVerticalFrame);
-   m_list = new TGListBox(m_popup, 1/*widget id*/, kChildFrame);
+   m_list = new TGListBox(m_popup, 1 /*widget id*/, kChildFrame);
    m_list->Resize(100,100);
    m_list->Associate(this);
    m_list->GetScrollBar()->GrabPointer(kFALSE);
@@ -135,16 +135,17 @@ FWGUIValidatingTextEntry::keyPressedInPopup(TGFrame*, UInt_t keysym, UInt_t mask
 
 namespace {
    class ChangeFocusTimer : public TTimer {
-   public:
+public:
       ChangeFocusTimer(TGWindow* iWindow) :
-      TTimer(100),
-      m_window(iWindow) {}
+         TTimer(100),
+         m_window(iWindow) {
+      }
       virtual Bool_t Notify() {
          TurnOff();
          m_window->RequestFocus();
          return kTRUE;
       }
-   private:
+private:
       TGWindow* m_window;
    };
 }
@@ -173,7 +174,7 @@ FWGUIValidatingTextEntry::showOptions() {
       }
       {
          unsigned int h = m_list->GetNumberOfEntries()*
-         m_list->GetItemVsize();
+                          m_list->GetItemVsize();
          if(h && (h<100)) {
             m_list->Resize(m_list->GetWidth(),h);
          } else {

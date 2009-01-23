@@ -7,16 +7,16 @@
 //
 /**\class FWParameterBase FWParameterBase.h Fireworks/Core/interface/FWParameterBase.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 23 13:35:15 EST 2008
-// $Id: FWParameterBase.h,v 1.1 2008/03/11 02:43:57 chrjones Exp $
+// $Id: FWParameterBase.h,v 1.2 2008/11/06 22:05:23 amraktad Exp $
 //
 
 // system include files
@@ -32,26 +32,28 @@ class FWParameterizable;
 class FWParameterBase : public FWConfigurable
 {
 
-   public:
-      FWParameterBase(FWParameterizable* iParent, const std::string& iName);
-      virtual ~FWParameterBase();
+public:
+   FWParameterBase(FWParameterizable* iParent, const std::string& iName);
+   virtual ~FWParameterBase();
 
-      // ---------- const member functions ---------------------
-      //virtual void addTo(FWConfiguration& ) const = 0;
-      const std::string& name() const { return m_name; }
+   // ---------- const member functions ---------------------
+   //virtual void addTo(FWConfiguration& ) const = 0;
+   const std::string& name() const {
+      return m_name;
+   }
 
-      // ---------- static member functions --------------------
+   // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
-      //virtual void setFrom(const FWConfiguration&) = 0;
+   // ---------- member functions ---------------------------
+   //virtual void setFrom(const FWConfiguration&) = 0;
 
-   private:
-      FWParameterBase(const FWParameterBase&); // stop default
+private:
+   FWParameterBase(const FWParameterBase&);    // stop default
 
-      const FWParameterBase& operator=(const FWParameterBase&); // stop default
+   const FWParameterBase& operator=(const FWParameterBase&);    // stop default
 
-      // ---------- member data --------------------------------
-      std::string m_name;
+   // ---------- member data --------------------------------
+   std::string m_name;
 };
 
 

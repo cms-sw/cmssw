@@ -7,16 +7,16 @@
 //
 /**\class fwCintInterfaces fwCintInterfaces.h Fireworks/Core/interface/fwCintInterfaces.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jun 12 15:00:50 EDT 2008
-// $Id: fwCintInterfaces.h,v 1.1 2008/06/12 20:07:50 chrjones Exp $
+// $Id: fwCintInterfaces.h,v 1.2 2008/11/06 22:05:27 amraktad Exp $
 //
 
 // system include files

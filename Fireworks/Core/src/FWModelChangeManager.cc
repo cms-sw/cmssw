@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan 17 19:13:46 EST 2008
-// $Id: FWModelChangeManager.cc,v 1.9 2008/09/22 20:11:39 chrjones Exp $
+// $Id: FWModelChangeManager.cc,v 1.10 2008/11/06 22:05:26 amraktad Exp $
 //
 
 // system include files
@@ -33,8 +33,8 @@
 //
 // constructors and destructor
 //
-FWModelChangeManager::FWModelChangeManager():
-m_depth(0)
+FWModelChangeManager::FWModelChangeManager() :
+   m_depth(0)
 {
 }
 
@@ -64,7 +64,9 @@ FWModelChangeManager::~FWModelChangeManager()
 //
 void
 FWModelChangeManager::beginChanges()
-{++m_depth;}
+{
+   ++m_depth;
+}
 
 void
 FWModelChangeManager::changed(const FWModelId& iID)
@@ -105,7 +107,7 @@ FWModelChangeManager::endChanges()
       for(std::set<const FWEventItem*>::iterator itChanges = m_itemChanges.begin();
           itChanges != m_itemChanges.end();
           ++itChanges,++index) {
-         if( ! guard ) {
+         if( !guard ) {
             // boost::shared_ptr<FWModelChangeManager> done(this, &sendChangeSignalsAreDone);
             guard = true;
             changeSignalsAreComing_();
@@ -135,7 +137,7 @@ FWModelChangeManager::endChanges()
           itChanges != m_changes.end();
           ++itChanges,++itSignal) {
          if(not itChanges->empty()) {
-            if( ! guard ) {
+            if( !guard ) {
                // boost::shared_ptr<FWModelChangeManager> done(this, &sendChangeSignalsAreDone);
                guard = true;
                changeSignalsAreComing_();

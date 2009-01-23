@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Wed Jun 25 15:15:04 EDT 2008
-// $Id: CmsShowViewPopup.cc,v 1.6 2008/07/16 13:38:37 chrjones Exp $
+// $Id: CmsShowViewPopup.cc,v 1.7 2008/11/06 22:05:24 amraktad Exp $
 //
 
 // system include files
@@ -36,52 +36,52 @@
 // constructors and destructor
 //
 CmsShowViewPopup::CmsShowViewPopup(const TGWindow* p, UInt_t w, UInt_t h, FWViewBase* v) :
-TGTransientFrame(gClient->GetDefaultRoot(),p, w, h)
+   TGTransientFrame(gClient->GetDefaultRoot(),p, w, h)
 {
-  m_view = v;
-  SetCleanup(kDeepCleanup);
+   m_view = v;
+   SetCleanup(kDeepCleanup);
 
-  TGHorizontalFrame* viewFrame = new TGHorizontalFrame(this);
-  m_viewLabel = new TGLabel(viewFrame, v->typeName().c_str());
-  TGFont* defaultFont = gClient->GetFontPool()->GetFont(m_viewLabel->GetDefaultFontStruct());
-  m_viewLabel->SetTextFont(gClient->GetFontPool()->GetFont(defaultFont->GetFontAttributes().fFamily, 14, defaultFont->GetFontAttributes().fWeight + 2, defaultFont->GetFontAttributes().fSlant));
-  m_viewLabel->SetTextJustify(kTextLeft);
-  m_viewLabel->SetText("No view selected");
-  viewFrame->AddFrame(m_viewLabel, new TGLayoutHints(kLHintsExpandX));
+   TGHorizontalFrame* viewFrame = new TGHorizontalFrame(this);
+   m_viewLabel = new TGLabel(viewFrame, v->typeName().c_str());
+   TGFont* defaultFont = gClient->GetFontPool()->GetFont(m_viewLabel->GetDefaultFontStruct());
+   m_viewLabel->SetTextFont(gClient->GetFontPool()->GetFont(defaultFont->GetFontAttributes().fFamily, 14, defaultFont->GetFontAttributes().fWeight + 2, defaultFont->GetFontAttributes().fSlant));
+   m_viewLabel->SetTextJustify(kTextLeft);
+   m_viewLabel->SetText("No view selected");
+   viewFrame->AddFrame(m_viewLabel, new TGLayoutHints(kLHintsExpandX));
 #if defined(CAN_REMOVE_ANY_VIEW)
-  m_removeButton = new TGTextButton(viewFrame, "Remove", -1, TGTextButton::GetDefaultGC()(), TGTextButton::GetDefaultFontStruct(), kRaisedFrame|kDoubleBorder|kFixedWidth);
-  m_removeButton->SetWidth(60);
-  m_removeButton->SetEnabled(kFALSE);
-  viewFrame->AddFrame(m_removeButton);
+   m_removeButton = new TGTextButton(viewFrame, "Remove", -1, TGTextButton::GetDefaultGC() (), TGTextButton::GetDefaultFontStruct(), kRaisedFrame|kDoubleBorder|kFixedWidth);
+   m_removeButton->SetWidth(60);
+   m_removeButton->SetEnabled(kFALSE);
+   viewFrame->AddFrame(m_removeButton);
 #endif
-  AddFrame(viewFrame, new TGLayoutHints(kLHintsExpandX, 2, 2, 0, 0));
-  AddFrame(new TGHorizontal3DLine(this, 200, 5), new TGLayoutHints(kLHintsNormal, 0, 0, 5, 5));
-  m_saveImageButton= new TGTextButton(this,"Save Image ...");
-  AddFrame(m_saveImageButton);
-  if(!m_view) {
-     m_saveImageButton->SetEnabled(kFALSE);
-  }
-  m_saveImageButton->Connect("Clicked()","CmsShowViewPopup",this,"saveImage()");
+   AddFrame(viewFrame, new TGLayoutHints(kLHintsExpandX, 2, 2, 0, 0));
+   AddFrame(new TGHorizontal3DLine(this, 200, 5), new TGLayoutHints(kLHintsNormal, 0, 0, 5, 5));
+   m_saveImageButton= new TGTextButton(this,"Save Image ...");
+   AddFrame(m_saveImageButton);
+   if(!m_view) {
+      m_saveImageButton->SetEnabled(kFALSE);
+   }
+   m_saveImageButton->Connect("Clicked()","CmsShowViewPopup",this,"saveImage()");
 
-  AddFrame(new TGHorizontal3DLine(this, 200, 5), new TGLayoutHints(kLHintsNormal, 0, 0, 5, 5));
-  m_viewContentFrame = new TGCompositeFrame(this);
-  m_setters.clear();
-  for(FWParameterizable::const_iterator itP = v->begin(), itPEnd = v->end();
+   AddFrame(new TGHorizontal3DLine(this, 200, 5), new TGLayoutHints(kLHintsNormal, 0, 0, 5, 5));
+   m_viewContentFrame = new TGCompositeFrame(this);
+   m_setters.clear();
+   for(FWParameterizable::const_iterator itP = v->begin(), itPEnd = v->end();
        itP != itPEnd;
        ++itP) {
-     boost::shared_ptr<FWParameterSetterBase> ptr( FWParameterSetterBase::makeSetterFor(*itP) );
+      boost::shared_ptr<FWParameterSetterBase> ptr( FWParameterSetterBase::makeSetterFor(*itP) );
       ptr->attach(*itP, this);
       TGFrame* pframe = ptr->build(m_viewContentFrame);
       m_viewContentFrame->AddFrame(pframe,new TGLayoutHints(kLHintsTop));
       m_setters.push_back(ptr);
-  }
-  AddFrame(m_viewContentFrame,new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
-  SetWindowName("View Controller");
-  //std::cout<<"Default size: "<<GetDefaultWidth()<<", "<<GetDefaultHeight()<<std::endl;
-  Resize(GetDefaultSize());
-  MapSubwindows();
-  Layout();
-  MapWindow();
+   }
+   AddFrame(m_viewContentFrame,new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
+   SetWindowName("View Controller");
+   //std::cout<<"Default size: "<<GetDefaultWidth()<<", "<<GetDefaultHeight()<<std::endl;
+   Resize(GetDefaultSize());
+   MapSubwindows();
+   Layout();
+   MapWindow();
 }
 
 // CmsShowViewPopup::CmsShowViewPopup(const CmsShowViewPopup& rhs)
@@ -110,43 +110,43 @@ CmsShowViewPopup::~CmsShowViewPopup()
 //
 void
 CmsShowViewPopup::reset(FWViewBase* iView) {
-  //  m_viewContentFrame->RemoveFrame(m_view->frame());
-  //  m_viewContentFrame->AddFrame(iView->frame());
-  m_view = iView;
-  m_viewContentFrame->UnmapWindow();
-  RemoveFrame(m_viewContentFrame);
-  m_viewContentFrame->DestroyWindow();
-  delete m_viewContentFrame;
-  m_viewContentFrame = new TGCompositeFrame(this);
-  m_setters.clear();
-  if(iView) {
-     m_saveImageButton->SetEnabled(kTRUE);
+   //  m_viewContentFrame->RemoveFrame(m_view->frame());
+   //  m_viewContentFrame->AddFrame(iView->frame());
+   m_view = iView;
+   m_viewContentFrame->UnmapWindow();
+   RemoveFrame(m_viewContentFrame);
+   m_viewContentFrame->DestroyWindow();
+   delete m_viewContentFrame;
+   m_viewContentFrame = new TGCompositeFrame(this);
+   m_setters.clear();
+   if(iView) {
+      m_saveImageButton->SetEnabled(kTRUE);
 
-     m_viewLabel->SetText(iView->typeName().c_str());
-     for(FWParameterizable::const_iterator itP = iView->begin(), itPEnd = iView->end();
-         itP != itPEnd;
-         ++itP) {
-        boost::shared_ptr<FWParameterSetterBase> ptr( FWParameterSetterBase::makeSetterFor(*itP) );
-        ptr->attach(*itP, this);
-        TGFrame* pframe = ptr->build(m_viewContentFrame);
-        m_viewContentFrame->AddFrame(pframe,new TGLayoutHints(kLHintsTop));
-        m_setters.push_back(ptr);
-     }
-  } else {
-     m_viewLabel->SetText("No view selected");
-     m_saveImageButton->SetEnabled(kFALSE);
-  }
-  AddFrame(m_viewContentFrame);
+      m_viewLabel->SetText(iView->typeName().c_str());
+      for(FWParameterizable::const_iterator itP = iView->begin(), itPEnd = iView->end();
+          itP != itPEnd;
+          ++itP) {
+         boost::shared_ptr<FWParameterSetterBase> ptr( FWParameterSetterBase::makeSetterFor(*itP) );
+         ptr->attach(*itP, this);
+         TGFrame* pframe = ptr->build(m_viewContentFrame);
+         m_viewContentFrame->AddFrame(pframe,new TGLayoutHints(kLHintsTop));
+         m_setters.push_back(ptr);
+      }
+   } else {
+      m_viewLabel->SetText("No view selected");
+      m_saveImageButton->SetEnabled(kFALSE);
+   }
+   AddFrame(m_viewContentFrame);
 
-  //std::cout<<"Default size: "<<GetDefaultWidth()<<", "<<GetDefaultHeight()<<std::endl;
-  Resize(GetDefaultSize());
-  MapSubwindows();
-  Layout();
+   //std::cout<<"Default size: "<<GetDefaultWidth()<<", "<<GetDefaultHeight()<<std::endl;
+   Resize(GetDefaultSize());
+   MapSubwindows();
+   Layout();
 }
 
 void
 CmsShowViewPopup::removeView() {
-  //printf("Removed!\n");
+   //printf("Removed!\n");
 }
 
 void

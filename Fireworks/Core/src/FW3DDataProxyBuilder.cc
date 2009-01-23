@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FW3DDataProxyBuilder.cc,v 1.2 2008/12/03 21:00:09 chrjones Exp $
+// $Id: FW3DDataProxyBuilder.cc,v 1.3 2008/12/04 15:29:40 dmytro Exp $
 //
 
 // system include files
@@ -37,8 +37,8 @@
 //
 // constructors and destructor
 //
-FW3DDataProxyBuilder::FW3DDataProxyBuilder():
-  m_item(0), m_elementHolder(new TEveElementList), m_modelsChanged(false), m_haveViews(false), m_mustBuild(true)
+FW3DDataProxyBuilder::FW3DDataProxyBuilder() :
+   m_item(0), m_elementHolder(new TEveElementList), m_modelsChanged(false), m_haveViews(false), m_mustBuild(true)
 {
 }
 
@@ -94,12 +94,12 @@ FW3DDataProxyBuilder::addToScene(TEveElement& iSceneElements,TEveCaloDataHist**)
 void
 FW3DDataProxyBuilder::setItem(const FWEventItem* iItem)
 {
-  m_item = iItem;
-  if(0 != m_item) {
-     m_item->changed_.connect(boost::bind(&FW3DDataProxyBuilder::modelChanges,this,_1));
-     m_item->goingToBeDestroyed_.connect(boost::bind(&FW3DDataProxyBuilder::itemBeingDestroyed,this,_1));
-     m_item->itemChanged_.connect(boost::bind(&FW3DDataProxyBuilder::itemChanged,this,_1));
-  }
+   m_item = iItem;
+   if(0 != m_item) {
+      m_item->changed_.connect(boost::bind(&FW3DDataProxyBuilder::modelChanges,this,_1));
+      m_item->goingToBeDestroyed_.connect(boost::bind(&FW3DDataProxyBuilder::itemBeingDestroyed,this,_1));
+      m_item->itemChanged_.connect(boost::bind(&FW3DDataProxyBuilder::itemChanged,this,_1));
+   }
 }
 
 void
@@ -129,36 +129,36 @@ FW3DDataProxyBuilder::itemBeingDestroyed(const FWEventItem* iItem)
 void
 FW3DDataProxyBuilder::build()
 {
-  if(0!= m_item) {
-     TEveElementList* newElements=0;
-     bool notFirstTime = m_elementHolder->NumChildren();
-     if(notFirstTime) {
-        //we know the type since it is enforced in this routine so static_cast is safe
-        newElements = static_cast<TEveElementList*>(*(m_elementHolder->BeginChildren()));
-     }
-     build(m_item, &newElements);
-     if(!notFirstTime && newElements) {
-        m_elementHolder->AddElement(newElements);
-     }
+   if(0!= m_item) {
+      TEveElementList* newElements=0;
+      bool notFirstTime = m_elementHolder->NumChildren();
+      if(notFirstTime) {
+         //we know the type since it is enforced in this routine so static_cast is safe
+         newElements = static_cast<TEveElementList*>(*(m_elementHolder->BeginChildren()));
+      }
+      build(m_item, &newElements);
+      if(!notFirstTime && newElements) {
+         m_elementHolder->AddElement(newElements);
+      }
 
-     if(newElements &&  static_cast<int>(m_item->size()) == newElements->NumChildren() ) {
-        int index=0;
-        int largestIndex = m_ids.size();
-        if(m_ids.size()<m_item->size()) {
-           m_ids.resize(m_item->size());
-        }
-        std::vector<FWModelId>::iterator itId = m_ids.begin();
-        for(TEveElement::List_i it = newElements->BeginChildren(),
-            itEnd = newElements->EndChildren();
-            it != itEnd;
-            ++it,++itId,++index) {
-           if(largestIndex<=index) {
-              *itId=FWModelId(m_item,index);
-           }
-           fireworks::setUserDataElementAndChildren(*it,&(*itId));
-        }
-     }
-  }
+      if(newElements &&  static_cast<int>(m_item->size()) == newElements->NumChildren() ) {
+         int index=0;
+         int largestIndex = m_ids.size();
+         if(m_ids.size()<m_item->size()) {
+            m_ids.resize(m_item->size());
+         }
+         std::vector<FWModelId>::iterator itId = m_ids.begin();
+         for(TEveElement::List_i it = newElements->BeginChildren(),
+                                 itEnd = newElements->EndChildren();
+             it != itEnd;
+             ++it,++itId,++index) {
+            if(largestIndex<=index) {
+               *itId=FWModelId(m_item,index);
+            }
+            fireworks::setUserDataElementAndChildren(*it,&(*itId));
+         }
+      }
+   }
    m_mustBuild=false;
 }
 
@@ -170,7 +170,7 @@ FW3DDataProxyBuilder::modelChanges(const FWModelIds& iIds)
          modelChanges(iIds,*(m_elementHolder->BeginChildren()));
       }
       m_modelsChanged=false;
-   }else {
+   } else {
       m_modelsChanged=true;
    }
 }
@@ -191,7 +191,7 @@ FW3DDataProxyBuilder::applyChangesToAllModels(TEveElement* iElements)
 
 void
 FW3DDataProxyBuilder::modelChanges(const FWModelIds& iIds,
-                                    TEveElement* iElements )
+                                   TEveElement* iElements )
 {
    //std::cout <<"modelChanged "<<m_item->size()<<" "<<iElements->GetNChildren()<<std::endl;
    assert(m_item && static_cast<int>(m_item->size()) == iElements->NumChildren() && "can not use default modelChanges implementation");

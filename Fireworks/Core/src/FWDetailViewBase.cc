@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWDetailViewBase
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan  9 13:35:56 EST 2009
-// $Id$
+// $Id: FWDetailViewBase.cc,v 1.1 2009/01/09 20:58:50 chrjones Exp $
 //
 
 // system include files
@@ -30,8 +30,8 @@
 //
 // constructors and destructor
 //
-FWDetailViewBase::FWDetailViewBase(const std::type_info& iInfo):
-m_helper(iInfo)
+FWDetailViewBase::FWDetailViewBase(const std::type_info& iInfo) :
+   m_helper(iInfo)
 {
 }
 
@@ -59,7 +59,7 @@ FWDetailViewBase::~FWDetailViewBase()
 //
 // member functions
 //
-TEveElement* 
+TEveElement*
 FWDetailViewBase::build (const FWModelId & iID)
 {
    m_helper.itemChanged(iID.item());

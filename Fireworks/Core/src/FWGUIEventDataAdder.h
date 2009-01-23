@@ -7,16 +7,16 @@
 //
 /**\class FWGUIEventDataAdder FWGUIEventDataAdder.h Fireworks/Core/interface/FWGUIEventDataAdder.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:12:36 EDT 2008
-// $Id: FWGUIEventDataAdder.h,v 1.3 2008/11/06 22:05:25 amraktad Exp $
+// $Id: FWGUIEventDataAdder.h,v 1.4 2008/11/14 16:42:19 chrjones Exp $
 //
 
 // system include files

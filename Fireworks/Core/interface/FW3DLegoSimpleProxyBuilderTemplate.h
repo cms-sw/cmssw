@@ -4,19 +4,19 @@
 //
 // Package:     Core
 // Class  :     FW3DLegoSimpleProxyBuilderTemplate
-// 
+//
 /**\class FW3DLegoSimpleProxyBuilderTemplate FW3DLegoSimpleProxyBuilderTemplate.h Fireworks/Core/interface/FW3DLegoSimpleProxyBuilderTemplate.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 16:49:16 EST 2008
-// $Id$
+// $Id: FW3DLegoSimpleProxyBuilderTemplate.h,v 1.1 2008/12/02 23:42:19 chrjones Exp $
 //
 
 // system include files
@@ -28,21 +28,22 @@
 
 template<typename T>
 class FW3DLegoSimpleProxyBuilderTemplate : public FW3DLegoSimpleProxyBuilder {
-   
+
 public:
    FW3DLegoSimpleProxyBuilderTemplate() :
-   FW3DLegoSimpleProxyBuilder(typeid(T)) {}
+      FW3DLegoSimpleProxyBuilder(typeid(T)) {
+   }
    //virtual ~FW3DLegoSimpleProxyBuilderTemplate();
-   
+
    // ---------- const member functions ---------------------
-   
+
    // ---------- static member functions --------------------
-   
+
    // ---------- member functions ---------------------------
-   
+
 private:
    FW3DLegoSimpleProxyBuilderTemplate(const FW3DLegoSimpleProxyBuilderTemplate&); // stop default
-   
+
    const FW3DLegoSimpleProxyBuilderTemplate& operator=(const FW3DLegoSimpleProxyBuilderTemplate&); // stop default
 
    virtual void build(const void*iData, unsigned int iIndex, TEveElement& oItemHolder) const
@@ -51,12 +52,12 @@ private:
          build(*reinterpret_cast<const T*> (iData), iIndex, oItemHolder);
       }
    }
-   
+
    /**iIndex is the index where iData is found in the container from which it came
-    iItemHolder is the object to which you add your own objects which inherit from TEveElement
+      iItemHolder is the object to which you add your own objects which inherit from TEveElement
     */
    virtual void build(const T& iData, unsigned int iIndex,TEveElement& oItemHolder) const = 0;
-   
+
    // ---------- member data --------------------------------
 
 };

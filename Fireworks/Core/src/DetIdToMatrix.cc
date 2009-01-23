@@ -65,8 +65,8 @@ const TGeoHMatrix* DetIdToMatrix::getMatrix( unsigned int id ) const
    if ( itr != idToMatrix_.end() ) return &(itr->second);
 
    const char* path = getPath( id );
-   if ( ! path ) return 0;
-   if ( ! manager_->cd(path) ) {
+   if ( !path ) return 0;
+   if ( !manager_->cd(path) ) {
       std::cout << "ERROR: incorrect path " << path << "\nfor DetId: " << id << std::endl;
       return 0;
    }
@@ -83,23 +83,23 @@ const TGeoHMatrix* DetIdToMatrix::getMatrix( unsigned int id ) const
       idToMatrix_[id] = m;
       return &idToMatrix_[id];
    } else if ( detId.subdetId() == MuonSubdetId::RPC ) {
-     RPCDetId rpcid(detId);
+      RPCDetId rpcid(detId);
       // std::cout << "id: " << detId.rawId() << std::endl;
-     if ( rpcid.region() == -1 || rpcid.region() == 1 ) {
-       // std::cout << "before: " << std::endl;
-       // (*(manager_->GetCurrentMatrix())).Print();
-       TGeoHMatrix m = (*(manager_->GetCurrentMatrix()))*inverseCscRotation;
-       if ( rpcid.region() == 1 ) m.ReflectY(kFALSE);
-       idToMatrix_[id] = m;
-       // std::cout << "after: " << std::endl;
-       // m.Print();
-       return &idToMatrix_[id];
-     }
+      if ( rpcid.region() == -1 || rpcid.region() == 1 ) {
+         // std::cout << "before: " << std::endl;
+         // (*(manager_->GetCurrentMatrix())).Print();
+         TGeoHMatrix m = (*(manager_->GetCurrentMatrix()))*inverseCscRotation;
+         if ( rpcid.region() == 1 ) m.ReflectY(kFALSE);
+         idToMatrix_[id] = m;
+         // std::cout << "after: " << std::endl;
+         // m.Print();
+         return &idToMatrix_[id];
+      }
       /* else {
-	std::cout << "BARREL station: " << rpcid.station() << std::endl;
-	(*(manager_->GetCurrentMatrix())).Print();
-       }
-      */
+         std::cout << "BARREL station: " << rpcid.station() << std::endl;
+         (*(manager_->GetCurrentMatrix())).Print();
+         }
+       */
    }
    TGeoHMatrix m = *(manager_->GetCurrentMatrix());
 
@@ -114,9 +114,9 @@ const char* DetIdToMatrix::getPath( unsigned int id ) const
 {
    std::map<unsigned int, std::string>::const_iterator itr = idToPath_.find(id);
    if ( itr != idToPath_.end() )
-     return itr->second.c_str();
+      return itr->second.c_str();
    else
-     return 0;
+      return 0;
 }
 
 const TGeoVolume* DetIdToMatrix::getVolume( unsigned int id ) const
@@ -127,14 +127,14 @@ const TGeoVolume* DetIdToMatrix::getVolume( unsigned int id ) const
       return manager_->GetCurrentVolume();
    }
    else
-     return 0;
+      return 0;
 }
 
 std::vector<unsigned int> DetIdToMatrix::getAllIds() const
 {
    std::vector<unsigned int> ids;
    for ( std::map<unsigned int, std::string>::const_iterator itr = idToPath_.begin(); itr != idToPath_.end(); ++itr )
-     ids.push_back( itr->first );
+      ids.push_back( itr->first );
    return ids;
 }
 
@@ -143,18 +143,18 @@ std::vector<unsigned int> DetIdToMatrix::getMatchedIds( const char* regular_expr
    std::vector<unsigned int> ids;
    TPRegexp regexp( regular_expression );
    for ( std::map<unsigned int, std::string>::const_iterator itr = idToPath_.begin(); itr != idToPath_.end(); ++itr )
-     if ( regexp.MatchB(itr->second) ) ids.push_back( itr->first );
+      if ( regexp.MatchB(itr->second) ) ids.push_back( itr->first );
    return ids;
 }
 
 
 TEveGeoShape* DetIdToMatrix::getShape(const char* path, const char* name, const TGeoMatrix* matrix /* = 0 */) const
 {
-   if ( ! manager_ || ! path || ! name ) return 0;
+   if ( !manager_ || !path || !name ) return 0;
    manager_->cd(path);
    // it's possible to get a corrected matrix from outside
    // if it's not provided, we take whatever the geo manager has
-   if ( ! matrix ) matrix = manager_->GetCurrentMatrix();
+   if ( !matrix ) matrix = manager_->GetCurrentMatrix();
 
    TEveGeoShape* shape = new TEveGeoShape(name,path);
    shape->SetTransMatrix(*matrix);
@@ -170,21 +170,21 @@ TEveGeoShape* DetIdToMatrix::getShape(const char* path, const char* name, const 
 }
 
 TEveGeoShape* DetIdToMatrix::getShape( unsigned int id,
-				       bool corrected /* = false */ ) const
+                                       bool corrected /* = false */ ) const
 {
    std::ostringstream s;
    s << id;
    if ( corrected )
-     return getShape( getPath(id), s.str().c_str(), getMatrix(id) );
+      return getShape( getPath(id), s.str().c_str(), getMatrix(id) );
    else
-     return getShape( getPath(id), s.str().c_str() );
+      return getShape( getPath(id), s.str().c_str() );
 }
 
 TEveElementList* DetIdToMatrix::getAllShapes(const char* elementListName /*= "CMS"*/) const
 {
    TEveElementList* container = new TEveElementList(elementListName );
    for ( std::map<unsigned int, std::string>::const_iterator itr = idToPath_.begin(); itr != idToPath_.end(); ++itr )
-     container->AddElement( getShape(itr->first) );
+      container->AddElement( getShape(itr->first) );
    return container;
 }
 

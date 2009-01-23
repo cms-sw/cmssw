@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FWRPZ2DDataProxyBuilder.cc,v 1.14 2008/10/28 14:17:14 chrjones Exp $
+// $Id: FWRPZ2DDataProxyBuilder.cc,v 1.15 2008/11/06 22:05:26 amraktad Exp $
 //
 
 // system include files
@@ -39,12 +39,12 @@ TEveCalo3D* FWRPZ2DDataProxyBuilder::m_caloRhoZ = 0;
 //
 // constructors and destructor
 //
-FWRPZ2DDataProxyBuilder::FWRPZ2DDataProxyBuilder():
-  m_priority(false),
-  m_rhoPhiElements(0),
-  m_rhoZElements(0),
-  m_rhoPhiNeedsUpdate(true),
-  m_rhoZNeedsUpdate(true)
+FWRPZ2DDataProxyBuilder::FWRPZ2DDataProxyBuilder() :
+   m_priority(false),
+   m_rhoPhiElements(0),
+   m_rhoZElements(0),
+   m_rhoPhiNeedsUpdate(true),
+   m_rhoZNeedsUpdate(true)
 {
 }
 
@@ -77,12 +77,12 @@ void
 FWRPZ2DDataProxyBuilder::itemChangedImp(const FWEventItem*)
 {
    /* inheriting classes own the elements
-   if(0!=m_rhoPhiElements) {
+      if(0!=m_rhoPhiElements) {
       m_rhoPhiElements->DestroyElements();
-   }
-   if(0!=m_rhoZElements) {
+      }
+      if(0!=m_rhoZElements) {
       m_rhoZElements->DestroyElements();
-   }
+      }
     */
    m_rhoPhiNeedsUpdate=true;
    m_rhoZNeedsUpdate=true;
@@ -93,7 +93,7 @@ FWRPZ2DDataProxyBuilder::itemBeingDestroyedImp(const FWEventItem* iItem)
 {
    if(0!=m_rhoPhiElements) {
       //m_rhoPhiElements->DestroyElements();
-       m_rhoPhiElements->Destroy();
+      m_rhoPhiElements->Destroy();
    }
    bool unique = m_rhoPhiElements!=m_rhoZElements;
    m_rhoPhiElements=0;
@@ -131,19 +131,19 @@ FWRPZ2DDataProxyBuilder::getRhoZProduct() const
 void
 FWRPZ2DDataProxyBuilder::buildRhoPhi(TEveElementList** iObject)
 {
-  if(0!= item()) {
-     buildRhoPhi(item(), iObject);
-     setUserData(item(),*iObject,ids());
-  }
+   if(0!= item()) {
+      buildRhoPhi(item(), iObject);
+      setUserData(item(),*iObject,ids());
+   }
 }
 
 void
 FWRPZ2DDataProxyBuilder::buildRhoZ(TEveElementList** iObject)
 {
-  if(0!= item()) {
-     buildRhoZ(item(), iObject);
-     setUserData(item(),*iObject,ids());
-  }
+   if(0!= item()) {
+      buildRhoZ(item(), iObject);
+      setUserData(item(),*iObject,ids());
+   }
 }
 
 void

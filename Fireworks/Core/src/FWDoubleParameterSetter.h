@@ -7,16 +7,16 @@
 //
 /**\class FWDoubleParameterSetter FWDoubleParameterSetter.h Fireworks/Core/interface/FWDoubleParameterSetter.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 10 11:22:26 CDT 2008
-// $Id: FWDoubleParameterSetter.h,v 1.1 2008/03/11 02:43:55 chrjones Exp $
+// $Id: FWDoubleParameterSetter.h,v 1.2 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files
@@ -32,27 +32,27 @@ class TGNumberEntry;
 class FWDoubleParameterSetter : public FWParameterSetterBase
 {
 
-   public:
-      FWDoubleParameterSetter();
-      virtual ~FWDoubleParameterSetter();
+public:
+   FWDoubleParameterSetter();
+   virtual ~FWDoubleParameterSetter();
 
-      // ---------- const member functions ---------------------
+   // ---------- const member functions ---------------------
 
-      // ---------- static member functions --------------------
+   // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
-      virtual void attach(FWParameterBase*) ;
-      virtual TGFrame* build(TGFrame* iParent) ;
-      void doUpdate(Long_t);
+   // ---------- member functions ---------------------------
+   virtual void attach(FWParameterBase*) ;
+   virtual TGFrame* build(TGFrame* iParent) ;
+   void doUpdate(Long_t);
 
-   private:
-      FWDoubleParameterSetter(const FWDoubleParameterSetter&); // stop default
+private:
+   FWDoubleParameterSetter(const FWDoubleParameterSetter&);    // stop default
 
-      const FWDoubleParameterSetter& operator=(const FWDoubleParameterSetter&); // stop default
+   const FWDoubleParameterSetter& operator=(const FWDoubleParameterSetter&);    // stop default
 
-      // ---------- member data --------------------------------
-      FWDoubleParameter* m_param;
-      TGNumberEntry* m_widget;
+   // ---------- member data --------------------------------
+   FWDoubleParameter* m_param;
+   TGNumberEntry* m_widget;
 };
 
 

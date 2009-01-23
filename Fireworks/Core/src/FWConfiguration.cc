@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 22 15:54:29 EST 2008
-// $Id: FWConfiguration.cc,v 1.2 2008/03/14 03:20:28 chrjones Exp $
+// $Id: FWConfiguration.cc,v 1.3 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files
@@ -35,10 +35,10 @@
 //{
 //}
 
-FWConfiguration::FWConfiguration(const FWConfiguration& rhs):
-m_stringValues( rhs.m_stringValues ? new std::vector<std::string>(*(rhs.m_stringValues)): 0),
-m_keyValues( rhs.m_keyValues ? new KeyValues(*(rhs.m_keyValues)): 0),
-m_version(rhs.m_version)
+FWConfiguration::FWConfiguration(const FWConfiguration& rhs) :
+   m_stringValues( rhs.m_stringValues ? new std::vector<std::string>(*(rhs.m_stringValues)) : 0),
+   m_keyValues( rhs.m_keyValues ? new KeyValues(*(rhs.m_keyValues)) : 0),
+   m_version(rhs.m_version)
 {
 }
 
@@ -56,7 +56,7 @@ const FWConfiguration& FWConfiguration::operator=(const FWConfiguration& rhs)
    swap(temp);
 
    return *this;
- }
+}
 
 //
 // member functions

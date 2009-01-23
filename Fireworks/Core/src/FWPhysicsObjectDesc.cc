@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jan 15 15:05:02 EST 2008
-// $Id: FWPhysicsObjectDesc.cc,v 1.4 2008/06/10 14:19:09 chrjones Exp $
+// $Id: FWPhysicsObjectDesc.cc,v 1.5 2008/11/06 22:05:26 amraktad Exp $
 //
 
 // system include files
@@ -37,15 +37,15 @@ FWPhysicsObjectDesc::FWPhysicsObjectDesc(const std::string& iName,
                                          const std::string& iProcessName,
                                          const std::string& iFilterExpression,
                                          unsigned int iLayer) :
-m_name(iName),
-m_type(iClass),
-m_purpose(iPurpose),
-m_displayProperties(iProperties),
-m_moduleLabel(iModuleLabel),
-m_productInstanceLabel(iProductInstanceLabel),
-m_processName(iProcessName),
-m_layer(iLayer),
-m_filterExpression(iFilterExpression)
+   m_name(iName),
+   m_type(iClass),
+   m_purpose(iPurpose),
+   m_displayProperties(iProperties),
+   m_moduleLabel(iModuleLabel),
+   m_productInstanceLabel(iProductInstanceLabel),
+   m_processName(iProcessName),
+   m_layer(iLayer),
+   m_filterExpression(iFilterExpression)
 {
 }
 
@@ -75,8 +75,8 @@ m_filterExpression(iFilterExpression)
 //
 void
 FWPhysicsObjectDesc::setLabels(const std::string& iModule,
-		       const std::string& iProductInstance,
-		       const std::string& iProcess)
+                               const std::string& iProductInstance,
+                               const std::string& iProcess)
 {
    m_moduleLabel = iModule;
    m_productInstanceLabel = iProductInstance;

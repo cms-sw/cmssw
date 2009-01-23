@@ -7,16 +7,16 @@
 //
 /**\class FWEveLegoView FWEveLegoView.h Fireworks/Core/interface/FWEveLegoView.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWEveLegoView.h,v 1.10 2008/11/14 15:34:08 chrjones Exp $
+// $Id: FWEveLegoView.h,v 1.11 2009/01/22 16:05:12 amraktad Exp $
 //
 
 // system include files
@@ -40,58 +40,58 @@ class TGLMatrix;
 class FWEveLegoView : public FWViewBase
 {
 
-   public:
-      FWEveLegoView(TGFrame*, TEveElementList*);
-      virtual ~FWEveLegoView();
+public:
+   FWEveLegoView(TGFrame*, TEveElementList*);
+   virtual ~FWEveLegoView();
 
-      // ---------- const member functions ---------------------
-      TGFrame* frame() const;
-      const std::string& typeName() const;
-      virtual void addTo(FWConfiguration&) const;
+   // ---------- const member functions ---------------------
+   TGFrame* frame() const;
+   const std::string& typeName() const;
+   virtual void addTo(FWConfiguration&) const;
 
-      virtual void saveImageTo(const std::string& iName) const;
+   virtual void saveImageTo(const std::string& iName) const;
 
-      // ---------- static member functions --------------------
-      static const std::string& staticTypeName();
+   // ---------- static member functions --------------------
+   static const std::string& staticTypeName();
 
-      // ---------- member functions ---------------------------
-      void finishSetup();
-      virtual void setFrom(const FWConfiguration&);
-      // set energy thresholds from the parameters
-      void setMinEnergy();
+   // ---------- member functions ---------------------------
+   void finishSetup();
+   virtual void setFrom(const FWConfiguration&);
+   // set energy thresholds from the parameters
+   void setMinEnergy();
 
-   private:
-      FWEveLegoView(const FWEveLegoView&); // stop default
+private:
+   FWEveLegoView(const FWEveLegoView&);    // stop default
 
-      const FWEveLegoView& operator=(const FWEveLegoView&); // stop default
+   const FWEveLegoView& operator=(const FWEveLegoView&);    // stop default
 
-      void setMinEcalEnergy(double);
-      void setMinHcalEnergy(double);
-      void setCameras();
+   void setMinEcalEnergy(double);
+   void setMinHcalEnergy(double);
+   void setCameras();
 
-      // ---------- member data --------------------------------
-      TEvePad* m_pad;
-      FWEvePtr<TEveViewer> m_viewer;
-      TGLEmbeddedViewer* m_embeddedViewer;
-      FWEvePtr<TEveScene> m_scene;
+   // ---------- member data --------------------------------
+   TEvePad* m_pad;
+   FWEvePtr<TEveViewer> m_viewer;
+   TGLEmbeddedViewer* m_embeddedViewer;
+   FWEvePtr<TEveScene> m_scene;
 
-      // FWLongParameter m_range;
-      //FWDoubleParameter m_minEcalEnergy;
-      //FWDoubleParameter m_minHcalEnergy;
-      //double m_minEcalEnergyInit;
-      //double m_minHcalEnergyInit;
+   // FWLongParameter m_range;
+   //FWDoubleParameter m_minEcalEnergy;
+   //FWDoubleParameter m_minHcalEnergy;
+   //double m_minEcalEnergyInit;
+   //double m_minHcalEnergyInit;
 
 
-      TGLMatrix*  m_cameraMatrix;
-      TGLMatrix*  m_cameraMatrixBase;
-      TGLMatrix*  m_cameraMatrixRef;
-      TGLMatrix*  m_cameraMatrixBaseRef;
-      double      m_orthoCameraZoom;
-      TGLMatrix*  m_orthoCameraMatrix;
-      double*     m_orthoCameraZoomRef;
-      TGLMatrix*  m_orthoCameraMatrixRef;
-      bool        m_topView;
-      bool        m_cameraSet;
+   TGLMatrix*  m_cameraMatrix;
+   TGLMatrix*  m_cameraMatrixBase;
+   TGLMatrix*  m_cameraMatrixRef;
+   TGLMatrix*  m_cameraMatrixBaseRef;
+   double m_orthoCameraZoom;
+   TGLMatrix*  m_orthoCameraMatrix;
+   double*     m_orthoCameraZoomRef;
+   TGLMatrix*  m_orthoCameraMatrixRef;
+   bool m_topView;
+   bool m_cameraSet;
 };
 
 

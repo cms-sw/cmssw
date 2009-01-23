@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWGlimpseView.cc,v 1.21 2008/12/01 12:25:13 dmytro Exp $
+// $Id: FWGlimpseView.cc,v 1.22 2008/12/09 13:19:00 dmytro Exp $
 //
 
 // system include files
@@ -77,15 +77,15 @@
 // constructors and destructor
 //
 FWGlimpseView::FWGlimpseView(TGFrame* iParent, TEveElementList* list,
-                             FWEveValueScaler* iScaler):
- m_cylinder(0),
- m_cameraMatrix(0),
- m_cameraMatrixBase(0),
- m_cameraFOV(0),
- // m_scaleParam(this,"Energy scale", static_cast<double>(iScaler->scale()), 0.01, 1000.),
- m_showAxes(this, "Show Axes", true ),
- m_showCylinder(this, "Show Cylinder", true),
- m_scaler(iScaler)
+                             FWEveValueScaler* iScaler) :
+   m_cylinder(0),
+   m_cameraMatrix(0),
+   m_cameraMatrixBase(0),
+   m_cameraFOV(0),
+   // m_scaleParam(this,"Energy scale", static_cast<double>(iScaler->scale()), 0.01, 1000.),
+   m_showAxes(this, "Show Axes", true ),
+   m_showCylinder(this, "Show Cylinder", true),
+   m_scaler(iScaler)
 {
    m_pad = new TEvePad;
    TGLEmbeddedViewer* ev = new TGLEmbeddedViewer(iParent, m_pad, 0);
@@ -98,8 +98,8 @@ FWGlimpseView::FWGlimpseView(TGFrame* iParent, TEveElementList* list,
    m_cameraMatrix = const_cast<TGLMatrix*>(&(ev->CurrentCamera().GetCamTrans()));
    m_cameraMatrixBase = const_cast<TGLMatrix*>(&(ev->CurrentCamera().GetCamBase()));
    if ( TGLPerspectiveCamera* camera =
-	dynamic_cast<TGLPerspectiveCamera*>(&(ev->CurrentCamera())) )
-     m_cameraFOV = &(camera->fFOV);
+           dynamic_cast<TGLPerspectiveCamera*>(&(ev->CurrentCamera())) )
+      m_cameraFOV = &(camera->fFOV);
 
    TEveScene* ns = gEve->SpawnNewScene(staticTypeName().c_str());
    m_scene = ns;
@@ -177,34 +177,34 @@ FWGlimpseView::FWGlimpseView(TGFrame* iParent, TEveElementList* list,
    wns->AddElement(m_cylinder);
 
    /*
-   TGeoTrap* cube = new TGeoTrap(100,0,0,100,100,100,0,100,100,100,0);
-   TEveGeoShapeExtract* extract = fw::getShapeExtract("Detector outline", cube, Color_t(TColor::GetColor("#202020")) );
-   TEveElement* element = TEveGeoShape::ImportShapeExtract(extract, ns);
-   element->SetPickable(kFALSE);
-   element->SetMainTransparency(80);
-   gEve->AddElement(element, ns);
-   */
+      TGeoTrap* cube = new TGeoTrap(100,0,0,100,100,100,0,100,100,100,0);
+      TEveGeoShapeExtract* extract = fw::getShapeExtract("Detector outline", cube, Color_t(TColor::GetColor("#202020")) );
+      TEveElement* element = TEveGeoShape::ImportShapeExtract(extract, ns);
+      element->SetPickable(kFALSE);
+      element->SetMainTransparency(80);
+      gEve->AddElement(element, ns);
+    */
 
    /*
-   TEveStraightLineSet* outline = new TEveStraightLineSet( "EnergyScale" );
-   outline->SetPickable(kTRUE);
-   outline->SetTitle("100 GeV Energy Scale Cube");
-   double size = 100;
-   outline->SetLineColor( Color_t(TColor::GetColor("#202020")) );
-   outline->AddLine(-size, -size, -size,  size, -size, -size);
-   outline->AddLine( size, -size, -size,  size,  size, -size);
-   outline->AddLine( size,  size, -size, -size,  size, -size);
-   outline->AddLine(-size,  size, -size, -size, -size, -size);
-   outline->AddLine(-size, -size,  size,  size, -size,  size);
-   outline->AddLine( size, -size,  size,  size,  size,  size);
-   outline->AddLine( size,  size,  size, -size,  size,  size);
-   outline->AddLine(-size,  size,  size, -size, -size,  size);
-   outline->AddLine(-size, -size, -size, -size, -size,  size);
-   outline->AddLine(-size,  size, -size, -size,  size,  size);
-   outline->AddLine( size, -size, -size,  size, -size,  size);
-   outline->AddLine( size,  size, -size,  size,  size,  size);
-   gEve->AddElement(outline, ns);
-   */
+      TEveStraightLineSet* outline = new TEveStraightLineSet( "EnergyScale" );
+      outline->SetPickable(kTRUE);
+      outline->SetTitle("100 GeV Energy Scale Cube");
+      double size = 100;
+      outline->SetLineColor( Color_t(TColor::GetColor("#202020")) );
+      outline->AddLine(-size, -size, -size,  size, -size, -size);
+      outline->AddLine( size, -size, -size,  size,  size, -size);
+      outline->AddLine( size,  size, -size, -size,  size, -size);
+      outline->AddLine(-size,  size, -size, -size, -size, -size);
+      outline->AddLine(-size, -size,  size,  size, -size,  size);
+      outline->AddLine( size, -size,  size,  size,  size,  size);
+      outline->AddLine( size,  size,  size, -size,  size,  size);
+      outline->AddLine(-size,  size,  size, -size, -size,  size);
+      outline->AddLine(-size, -size, -size, -size, -size,  size);
+      outline->AddLine(-size,  size, -size, -size,  size,  size);
+      outline->AddLine( size, -size, -size,  size, -size,  size);
+      outline->AddLine( size,  size, -size,  size,  size,  size);
+      gEve->AddElement(outline, ns);
+    */
    // m_scaleParam.changed_.connect(boost::bind(&FWGlimpseView::updateScale,this,_1));
    m_showAxes.changed_.connect(boost::bind(&FWGlimpseView::showAxes,this));
    m_showCylinder.changed_.connect(boost::bind(&FWGlimpseView::showCylinder,this));
@@ -239,7 +239,7 @@ FWGlimpseView::setFrom(const FWConfiguration& iFrom)
       std::ostringstream os;
       os << i;
       const FWConfiguration* value = iFrom.valueForKey( matrixName + os.str() + "Glimpse" );
-      if (! value ) continue;
+      if (!value ) continue;
       std::istringstream s(value->value());
       s>>((*m_cameraMatrix)[i]);
    }
@@ -251,19 +251,19 @@ FWGlimpseView::setFrom(const FWConfiguration& iFrom)
       std::ostringstream os;
       os << i;
       const FWConfiguration* value = iFrom.valueForKey( matrixName + os.str() + "Glimpse" );
-      if (! value ) continue;
+      if (!value ) continue;
       std::istringstream s(value->value());
       s>>((*m_cameraMatrixBase)[i]);
    }
 
-     {
-	assert ( m_cameraFOV );
-	const FWConfiguration* value = iFrom.valueForKey( "Glimpse FOV" );
-	if ( value ) {
-	  std::istringstream s(value->value());
-	  s>>*m_cameraFOV;
-	}
-     }
+   {
+      assert ( m_cameraFOV );
+      const FWConfiguration* value = iFrom.valueForKey( "Glimpse FOV" );
+      if ( value ) {
+         std::istringstream s(value->value());
+         s>>*m_cameraFOV;
+      }
+   }
    m_viewer->GetGLViewer()->RequestDraw();
 }
 
@@ -311,12 +311,12 @@ FWGlimpseView::addTo(FWConfiguration& iTo) const
       osValue << (*m_cameraMatrixBase)[i];
       iTo.addKeyValue(matrixName+osIndex.str()+"Glimpse",FWConfiguration(osValue.str()));
    }
-     {
-	assert ( m_cameraFOV );
-	std::ostringstream osValue;
-	osValue << *m_cameraFOV;
-	iTo.addKeyValue("Glimpse FOV",FWConfiguration(osValue.str()));
-     }
+   {
+      assert ( m_cameraFOV );
+      std::ostringstream osValue;
+      osValue << *m_cameraFOV;
+      iTo.addKeyValue("Glimpse FOV",FWConfiguration(osValue.str()));
+   }
 }
 
 void
@@ -338,9 +338,9 @@ void
 FWGlimpseView::showAxes( )
 {
    if ( m_showAxes.value() )
-     m_embeddedViewer->SetGuideState(TGLUtil::kAxesOrigin, kTRUE, kFALSE, 0);
+      m_embeddedViewer->SetGuideState(TGLUtil::kAxesOrigin, kTRUE, kFALSE, 0);
    else
-     m_embeddedViewer->SetGuideState(TGLUtil::kAxesNone, kTRUE, kFALSE, 0);
+      m_embeddedViewer->SetGuideState(TGLUtil::kAxesNone, kTRUE, kFALSE, 0);
 }
 
 
@@ -348,9 +348,9 @@ void
 FWGlimpseView::showCylinder( )
 {
    if ( m_showCylinder.value() )
-     m_cylinder->SetRnrState(kTRUE);
+      m_cylinder->SetRnrState(kTRUE);
    else
-     m_cylinder->SetRnrState(kFALSE);
+      m_cylinder->SetRnrState(kFALSE);
 
    gEve->Redraw3D();
 }

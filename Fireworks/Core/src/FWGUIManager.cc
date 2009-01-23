@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.91 2009/01/09 20:58:50 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.92 2009/01/12 17:23:48 chrjones Exp $
 //
 
 // system include files
@@ -107,34 +107,34 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
                            FWModelChangeManager* iCMgr,
                            const FWViewManagerManager* iVMMgr,
                            bool iDebugInterface
-):
-m_selectionManager(iSelMgr),
-m_eiManager(iEIMgr),
-m_changeManager(iCMgr),
-m_presentEvent(0),
-m_continueProcessingEvents(false),
-m_waitForUserAction(true),
-m_code(0),
-m_editableSelected(0),
-m_detailViewManager(new FWDetailViewManager),
-m_viewManagerManager(iVMMgr),
-m_dataAdder(0),
-m_ediFrame(0),
-m_modelPopup(0),
-m_viewPopup(0),
-m_helpPopup(0),
-m_shortcutPopup(0),
-m_tasks(new CmsShowTaskExecutor)
+                           ) :
+   m_selectionManager(iSelMgr),
+   m_eiManager(iEIMgr),
+   m_changeManager(iCMgr),
+   m_presentEvent(0),
+   m_continueProcessingEvents(false),
+   m_waitForUserAction(true),
+   m_code(0),
+   m_editableSelected(0),
+   m_detailViewManager(new FWDetailViewManager),
+   m_viewManagerManager(iVMMgr),
+   m_dataAdder(0),
+   m_ediFrame(0),
+   m_modelPopup(0),
+   m_viewPopup(0),
+   m_helpPopup(0),
+   m_shortcutPopup(0),
+   m_tasks(new CmsShowTaskExecutor)
 {
-  m_guiManager = this;
-  m_selectionManager->selectionChanged_.connect(boost::bind(&FWGUIManager::selectionChanged,this,_1));
-  m_eiManager->newItem_.connect(boost::bind(&FWGUIManager::newItem,
+   m_guiManager = this;
+   m_selectionManager->selectionChanged_.connect(boost::bind(&FWGUIManager::selectionChanged,this,_1));
+   m_eiManager->newItem_.connect(boost::bind(&FWGUIManager::newItem,
                                              this, _1) );
 
-  // These are only needed temporarilty to work around a problem which
-  // Matevz has patched in a later version of the code
-  TApplication::NeedGraphicsLibs();
-  gApplication->InitializeGraphics();
+   // These are only needed temporarilty to work around a problem which
+   // Matevz has patched in a later version of the code
+   TApplication::NeedGraphicsLibs();
+   gApplication->InitializeGraphics();
 
    TEveManager::Create(kFALSE);
 
@@ -145,46 +145,46 @@ m_tasks(new CmsShowTaskExecutor)
 
 
    {
-     //NOTE: by making sure we defaultly open to a fraction of the full screen size we avoid
-     // causing the program to go into full screen mode under default SL4 window manager
-     UInt_t width = gClient->GetDisplayWidth();
-     UInt_t height = static_cast<UInt_t>(gClient->GetDisplayHeight()*.8);
-     //try to deal with multiple horizontally placed monitors.  Since present monitors usually
-     // have less than 2000 pixels horizontally, when we see more it is a good indicator that
-     // we are dealing with more than one monitor.
-     while(width > 2000) {
-        width /= 2;
-     }
-     width = static_cast<UInt_t>(width*.8);
-     m_cmsShowMainFrame = new CmsShowMainFrame(gClient->GetRoot(),
-					       width,
-					       height,
-					       this);
-     m_cmsShowMainFrame->SetWindowName("CmsShow");
-     m_cmsShowMainFrame->SetCleanup(kDeepCleanup);
+      //NOTE: by making sure we defaultly open to a fraction of the full screen size we avoid
+      // causing the program to go into full screen mode under default SL4 window manager
+      UInt_t width = gClient->GetDisplayWidth();
+      UInt_t height = static_cast<UInt_t>(gClient->GetDisplayHeight()*.8);
+      //try to deal with multiple horizontally placed monitors.  Since present monitors usually
+      // have less than 2000 pixels horizontally, when we see more it is a good indicator that
+      // we are dealing with more than one monitor.
+      while(width > 2000) {
+         width /= 2;
+      }
+      width = static_cast<UInt_t>(width*.8);
+      m_cmsShowMainFrame = new CmsShowMainFrame(gClient->GetRoot(),
+                                                width,
+                                                height,
+                                                this);
+      m_cmsShowMainFrame->SetWindowName("CmsShow");
+      m_cmsShowMainFrame->SetCleanup(kDeepCleanup);
 
-     getAction(cmsshow::sExportImage)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::exportImageOfMainView));
-     getAction(cmsshow::sSaveConfig)->activated.connect(writeToPresentConfigurationFile_);
-     getAction(cmsshow::sSaveConfigAs)->activated.connect(sigc::mem_fun(*this,&FWGUIManager::promptForConfigurationFile));
-     getAction(cmsshow::sShowEventDisplayInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showEDIFrame));
-     getAction(cmsshow::sShowMainViewCtl)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showViewPopup));
-     getAction(cmsshow::sShowObjInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showModelPopup));
-     getAction(cmsshow::sShowAddCollection)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::addData));
-     assert(getAction(cmsshow::sHelp) != 0);
-     getAction(cmsshow::sHelp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createHelpPopup));
-     assert(getAction(cmsshow::sKeyboardShort) != 0);
-     getAction(cmsshow::sKeyboardShort)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createShortcutPopup));
+      getAction(cmsshow::sExportImage)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::exportImageOfMainView));
+      getAction(cmsshow::sSaveConfig)->activated.connect(writeToPresentConfigurationFile_);
+      getAction(cmsshow::sSaveConfigAs)->activated.connect(sigc::mem_fun(*this,&FWGUIManager::promptForConfigurationFile));
+      getAction(cmsshow::sShowEventDisplayInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showEDIFrame));
+      getAction(cmsshow::sShowMainViewCtl)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showViewPopup));
+      getAction(cmsshow::sShowObjInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showModelPopup));
+      getAction(cmsshow::sShowAddCollection)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::addData));
+      assert(getAction(cmsshow::sHelp) != 0);
+      getAction(cmsshow::sHelp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createHelpPopup));
+      assert(getAction(cmsshow::sKeyboardShort) != 0);
+      getAction(cmsshow::sKeyboardShort)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createShortcutPopup));
 
-     // toolbar special widget with non-void actions
-     m_cmsShowMainFrame->m_delaySliderListener->valueChanged_.connect(boost::bind(&FWGUIManager::delaySliderChanged,this,_1));
+      // toolbar special widget with non-void actions
+      m_cmsShowMainFrame->m_delaySliderListener->valueChanged_.connect(boost::bind(&FWGUIManager::delaySliderChanged,this,_1));
 
-     TQObject::Connect(m_cmsShowMainFrame->m_runEntry,"ReturnPressed()", "FWGUIManager", this, "runIdChanged()");
-     TQObject::Connect(m_cmsShowMainFrame->m_eventEntry, "ReturnPressed()", "FWGUIManager", this, "eventIdChanged()");
-     TQObject::Connect(m_cmsShowMainFrame->m_filterEntry, "ReturnPressed()", "FWGUIManager", this, "eventFilterChanged()");
+      TQObject::Connect(m_cmsShowMainFrame->m_runEntry,"ReturnPressed()", "FWGUIManager", this, "runIdChanged()");
+      TQObject::Connect(m_cmsShowMainFrame->m_eventEntry, "ReturnPressed()", "FWGUIManager", this, "eventIdChanged()");
+      TQObject::Connect(m_cmsShowMainFrame->m_filterEntry, "ReturnPressed()", "FWGUIManager", this, "eventFilterChanged()");
    }
    {
-     // createEDIFrame();
-     // createModelPopup();
+      // createEDIFrame();
+      // createModelPopup();
    }
 }
 
@@ -200,7 +200,7 @@ FWGUIManager::~FWGUIManager()
        ++it) {
       (*it)->destroy();
    }
-   
+
    delete m_summaryManager;
    delete m_detailViewManager;
    delete m_editableSelected;
@@ -240,7 +240,7 @@ FWGUIManager::parentForNextView()
 
    TGSplitFrame* splitParent=m_splitFrame;
    while( splitParent->GetFrame() || splitParent->GetSecond()) {
-      if(! splitParent->GetSecond()) {
+      if(!splitParent->GetSecond()) {
          if(splitParent == m_splitFrame) {
             //want to split vertically
             splitParent->SplitVertical();
@@ -248,7 +248,7 @@ FWGUIManager::parentForNextView()
             //TODO CDJ: how do I determine the true size if layout hasn't run yet?
             int width = m_splitFrame->GetWidth();
             int height = m_splitFrame->GetHeight();
-	    //  m_splitFrame->GetFirst()->Resize(static_cast<int>(width*0.8),static_cast<int>(0*height));
+            //  m_splitFrame->GetFirst()->Resize(static_cast<int>(width*0.8),static_cast<int>(0*height));
             m_splitFrame->GetFirst()->Resize(static_cast<int>(width*0.8), height);
          } else {
             splitParent->SplitHorizontal();
@@ -304,9 +304,9 @@ FWGUIManager::createView(const std::string& iName)
    addFrameHoldingAView(view->frame());
    m_viewFrames.back()->setName(iName);
    /*
-   FWListViewObject* lst = new FWListViewObject(iName.c_str(),view);
-   lst->AddIntoListTree(m_listTree,m_views);
-   //TODO: HACK should keep a hold of 'lst' and keep it so that if view is removed this goes as well
+      FWListViewObject* lst = new FWListViewObject(iName.c_str(),view);
+      lst->AddIntoListTree(m_listTree,m_views);
+      //TODO: HACK should keep a hold of 'lst' and keep it so that if view is removed this goes as well
     */
    m_viewBases.push_back(view);
 }
@@ -314,7 +314,7 @@ FWGUIManager::createView(const std::string& iName)
 void
 FWGUIManager::enableActions(bool enable)
 {
-  m_cmsShowMainFrame->enableActions(enable);
+   m_cmsShowMainFrame->enableActions(enable);
 }
 
 void
@@ -325,18 +325,18 @@ FWGUIManager::newFile(const TFile* iFile)
 
 void
 FWGUIManager::loadEvent(const fwlite::Event& event) {
-  // To be replaced when we can get index from fwlite::Event
-  m_cmsShowMainFrame->loadEvent(event);
-  m_presentEvent=&event;
-  if(m_dataAdder) {
-     m_dataAdder->update(m_openFile, &event);
-  }
+   // To be replaced when we can get index from fwlite::Event
+   m_cmsShowMainFrame->loadEvent(event);
+   m_presentEvent=&event;
+   if(m_dataAdder) {
+      m_dataAdder->update(m_openFile, &event);
+   }
 }
 
 CSGAction*
 FWGUIManager::getAction(const std::string name)
 {
-  return m_cmsShowMainFrame->getAction(name);
+   return m_cmsShowMainFrame->getAction(name);
 }
 
 CSGContinuousAction*
@@ -354,13 +354,13 @@ FWGUIManager::playEventsBackwardsAction()
 void
 FWGUIManager::disablePrevious()
 {
-  m_cmsShowMainFrame->enablePrevious(false);
+   m_cmsShowMainFrame->enablePrevious(false);
 }
 
 void
 FWGUIManager::disableNext()
 {
-  m_cmsShowMainFrame->enableNext(false);
+   m_cmsShowMainFrame->enableNext(false);
 }
 
 void
@@ -373,7 +373,7 @@ FWGUIManager::setPlayMode(bool play)
 
 void
 FWGUIManager::updateStatus(const char* status) {
-  m_cmsShowMainFrame->updateStatusBar(status);
+   m_cmsShowMainFrame->updateStatusBar(status);
 }
 
 void
@@ -418,9 +418,9 @@ FWGUIManager::selectionChanged(const FWSelectionManager& iSM)
       //m_editor->DisplayElement(m_editableSelected);
    } else {
       /*
-      if(m_editor->GetEveElement() == m_editableSelected) {
+         if(m_editor->GetEveElement() == m_editableSelected) {
          //m_editor->DisplayElement(0);
-      }
+         }
        */
       delete m_editableSelected;
       m_editableSelected=0;
@@ -548,97 +548,97 @@ FWGUIManager::viewUnselected(unsigned int iSelIndex)
 TGVerticalFrame*
 FWGUIManager::createList(TGSplitFrame *p)
 {
-  TGVerticalFrame *listFrame = new TGVerticalFrame(p, p->GetWidth(), p->GetHeight());
+   TGVerticalFrame *listFrame = new TGVerticalFrame(p, p->GetWidth(), p->GetHeight());
 
-  TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
+   TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
 
-  TGHorizontalFrame* addFrame = new TGHorizontalFrame(p,p->GetWidth(), 10);
-  TGLabel* addLabel = new TGLabel(addFrame,"List View");
-  addLabel->SetTextJustify(kTextLeft);
+   TGHorizontalFrame* addFrame = new TGHorizontalFrame(p,p->GetWidth(), 10);
+   TGLabel* addLabel = new TGLabel(addFrame,"List View");
+   addLabel->SetTextJustify(kTextLeft);
 
-  addFrame->AddFrame(addLabel, new TGLayoutHints(kLHintsCenterY|kLHintsLeft|kLHintsExpandX,2,2,2,2));
-  FWCustomIconsButton* addDataButton = new FWCustomIconsButton(addFrame,
-                                                               gClient->GetPicture(coreIcondir+"plus-sign.png"),
-                                                               gClient->GetPicture(coreIcondir+"plus-sign-over.png"),
-                                                               gClient->GetPicture(coreIcondir+"plus-sign-disabled.png"));
-  //TGTextButton* addDataButton = new TGTextButton(listFrame,"+");
-  addDataButton->SetToolTipText("Show additional collections");
-  addDataButton->Connect("Clicked()", "FWGUIManager", this, "addData()");
+   addFrame->AddFrame(addLabel, new TGLayoutHints(kLHintsCenterY|kLHintsLeft|kLHintsExpandX,2,2,2,2));
+   FWCustomIconsButton* addDataButton = new FWCustomIconsButton(addFrame,
+                                                                gClient->GetPicture(coreIcondir+"plus-sign.png"),
+                                                                gClient->GetPicture(coreIcondir+"plus-sign-over.png"),
+                                                                gClient->GetPicture(coreIcondir+"plus-sign-disabled.png"));
+   //TGTextButton* addDataButton = new TGTextButton(listFrame,"+");
+   addDataButton->SetToolTipText("Show additional collections");
+   addDataButton->Connect("Clicked()", "FWGUIManager", this, "addData()");
    addFrame->AddFrame(addDataButton, new TGLayoutHints(kLHintsCenterY|kLHintsLeft,2,2,2,2));
-  listFrame->AddFrame(addFrame, new TGLayoutHints(kLHintsExpandX|kLHintsLeft|kLHintsTop,2,2,2,2));
+   listFrame->AddFrame(addFrame, new TGLayoutHints(kLHintsExpandX|kLHintsLeft|kLHintsTop,2,2,2,2));
 
 
-  FWListWidget* ltf = new FWListWidget(listFrame);
-  listFrame->SetEditable(kFALSE);
-  listFrame->AddFrame(ltf, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
-  //  p->Resize(listFrame->GetWidth(), listFrame->GetHeight());
-  m_listTree = ltf->GetListTree();
-  m_summaryManager = new FWSummaryManager(m_listTree,
-					  m_selectionManager,
-					  m_eiManager,
-					  m_detailViewManager,
-                                          m_changeManager);
-  //m_views =  new TEveElementList("Views");
-  //m_views->AddIntoListTree(m_listTree,reinterpret_cast<TGListTreeItem*>(0));
-  //m_editor = ltf->GetEditor();
-  //m_editor->DisplayElement(0);
-  {
-    //m_listTree->Connect("mouseOver(TGListTreeItem*, UInt_t)", "FWGUIManager",
-    //                 this, "itemBelowMouse(TGListTreeItem*, UInt_t)");
-    m_listTree->Connect("Clicked(TGListTreeItem*, Int_t, UInt_t, Int_t, Int_t)", "FWGUIManager",
-			this, "itemClicked(TGListTreeItem*, Int_t, UInt_t, Int_t, Int_t)");
-    m_listTree->Connect("DoubleClicked(TGListTreeItem*, Int_t)", "FWGUIManager",
-			this, "itemDblClicked(TGListTreeItem*, Int_t)");
-    m_listTree->Connect("KeyPressed(TGListTreeItem*, ULong_t, ULong_t)", "FWGUIManager",
-			this, "itemKeyPress(TGListTreeItem*, UInt_t, UInt_t)");
-  }
-  /*
-  TGGroupFrame* vf = new TGGroupFrame(listFrame,"Selection",kVerticalFrame);
-  {
+   FWListWidget* ltf = new FWListWidget(listFrame);
+   listFrame->SetEditable(kFALSE);
+   listFrame->AddFrame(ltf, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
+   //  p->Resize(listFrame->GetWidth(), listFrame->GetHeight());
+   m_listTree = ltf->GetListTree();
+   m_summaryManager = new FWSummaryManager(m_listTree,
+                                           m_selectionManager,
+                                           m_eiManager,
+                                           m_detailViewManager,
+                                           m_changeManager);
+   //m_views =  new TEveElementList("Views");
+   //m_views->AddIntoListTree(m_listTree,reinterpret_cast<TGListTreeItem*>(0));
+   //m_editor = ltf->GetEditor();
+   //m_editor->DisplayElement(0);
+   {
+      //m_listTree->Connect("mouseOver(TGListTreeItem*, UInt_t)", "FWGUIManager",
+      //                 this, "itemBelowMouse(TGListTreeItem*, UInt_t)");
+      m_listTree->Connect("Clicked(TGListTreeItem*, Int_t, UInt_t, Int_t, Int_t)", "FWGUIManager",
+                          this, "itemClicked(TGListTreeItem*, Int_t, UInt_t, Int_t, Int_t)");
+      m_listTree->Connect("DoubleClicked(TGListTreeItem*, Int_t)", "FWGUIManager",
+                          this, "itemDblClicked(TGListTreeItem*, Int_t)");
+      m_listTree->Connect("KeyPressed(TGListTreeItem*, ULong_t, ULong_t)", "FWGUIManager",
+                          this, "itemKeyPress(TGListTreeItem*, UInt_t, UInt_t)");
+   }
+   /*
+      TGGroupFrame* vf = new TGGroupFrame(listFrame,"Selection",kVerticalFrame);
+      {
 
-    TGGroupFrame* vf2 = new TGGroupFrame(vf,"Expression");
-    m_selectionItemsComboBox = new TGComboBox(vf2,200);
-    m_selectionItemsComboBox->Resize(200,20);
-    vf2->AddFrame(m_selectionItemsComboBox, new TGLayoutHints(kLHintsTop | kLHintsLeft,0,5,5,5));
-    m_selectionExpressionEntry = new TGTextEntry(vf2,"$.pt() > 10");
-    vf2->AddFrame(m_selectionExpressionEntry, new TGLayoutHints(kLHintsExpandX,0,5,5,5));
-    m_selectionRunExpressionButton = new TGTextButton(vf2,"Select by Expression");
-    vf2->AddFrame(m_selectionRunExpressionButton);
-    m_selectionRunExpressionButton->Connect("Clicked()","FWGUIManager",this,"selectByExpression()");
-    vf->AddFrame(vf2);
+      TGGroupFrame* vf2 = new TGGroupFrame(vf,"Expression");
+      m_selectionItemsComboBox = new TGComboBox(vf2,200);
+      m_selectionItemsComboBox->Resize(200,20);
+      vf2->AddFrame(m_selectionItemsComboBox, new TGLayoutHints(kLHintsTop | kLHintsLeft,0,5,5,5));
+      m_selectionExpressionEntry = new TGTextEntry(vf2,"$.pt() > 10");
+      vf2->AddFrame(m_selectionExpressionEntry, new TGLayoutHints(kLHintsExpandX,0,5,5,5));
+      m_selectionRunExpressionButton = new TGTextButton(vf2,"Select by Expression");
+      vf2->AddFrame(m_selectionRunExpressionButton);
+      m_selectionRunExpressionButton->Connect("Clicked()","FWGUIManager",this,"selectByExpression()");
+      vf->AddFrame(vf2);
 
-    m_unselectAllButton = new TGTextButton(vf,"Unselect All");
-    m_unselectAllButton->Connect("Clicked()", "FWGUIManager",this,"unselectAll()");
-    vf->AddFrame(m_unselectAllButton);
-    m_unselectAllButton->SetEnabled(kFALSE);
+      m_unselectAllButton = new TGTextButton(vf,"Unselect All");
+      m_unselectAllButton->Connect("Clicked()", "FWGUIManager",this,"unselectAll()");
+      vf->AddFrame(m_unselectAllButton);
+      m_unselectAllButton->SetEnabled(kFALSE);
 
-  }
-  listFrame->AddFrame(vf);
-   */
+      }
+      listFrame->AddFrame(vf);
+    */
 
-  return listFrame;
+   return listFrame;
 }
 
 TGMainFrame*
 FWGUIManager::createViews(TGCompositeFrame *p)
 {
-  m_mainFrame = new TGMainFrame(p,600,450);
-  m_splitFrame = new TGSplitFrame(m_mainFrame, 800, 600);
-  m_mainFrame->AddFrame(m_splitFrame, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
+   m_mainFrame = new TGMainFrame(p,600,450);
+   m_splitFrame = new TGSplitFrame(m_mainFrame, 800, 600);
+   m_mainFrame->AddFrame(m_splitFrame, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
 
-  p->Resize(m_mainFrame->GetWidth(), m_mainFrame->GetHeight());
-  p->MapSubwindows();
-  p->MapWindow();
-  return m_mainFrame;
+   p->Resize(m_mainFrame->GetWidth(), m_mainFrame->GetHeight());
+   p->MapSubwindows();
+   p->MapWindow();
+   return m_mainFrame;
 }
 
 void
 FWGUIManager::createEDIFrame() {
-  if (m_ediFrame == 0) {
-    m_ediFrame = new CmsShowEDI(m_cmsShowMainFrame, 200, 200, m_selectionManager);
-    m_ediFrame->Connect("CloseWindow()", "FWGUIManager", this, "resetEDIFrame()");
-     m_ediFrame->CenterOnParent(kTRUE,TGTransientFrame::kTopRight);
-  }
+   if (m_ediFrame == 0) {
+      m_ediFrame = new CmsShowEDI(m_cmsShowMainFrame, 200, 200, m_selectionManager);
+      m_ediFrame->Connect("CloseWindow()", "FWGUIManager", this, "resetEDIFrame()");
+      m_ediFrame->CenterOnParent(kTRUE,TGTransientFrame::kTopRight);
+   }
 }
 
 void
@@ -653,7 +653,7 @@ FWGUIManager::resetEDIFrame() {
    m_ediFrame->UnmapWindow();
 }
 
-void 
+void
 FWGUIManager::showEDIFrame()
 {
    createEDIFrame();
@@ -663,16 +663,16 @@ FWGUIManager::showEDIFrame()
 
 void
 FWGUIManager::createModelPopup() {
-  if (m_modelPopup == 0) {
-    m_modelPopup = new CmsShowModelPopup(m_detailViewManager,m_selectionManager, m_cmsShowMainFrame, 200, 200);
-    m_modelPopup->Connect("CloseWindow()", "FWGUIManager", this, "resetModelPopup()");
-    //m_selectionManager->selectionChanged_.connect(boost::bind(&CmsShowModelPopup::fillModelPopup, m_modelPopup, _1));
-    //    m_modelChangeConn = m_changeManager->changeSignalsAreDone_.connect(boost::bind(&CmsShowModelPopup::updateDisplay, m_modelPopup));
-     m_modelPopup->CenterOnParent(kTRUE,TGTransientFrame::kRight);
-  }
+   if (m_modelPopup == 0) {
+      m_modelPopup = new CmsShowModelPopup(m_detailViewManager,m_selectionManager, m_cmsShowMainFrame, 200, 200);
+      m_modelPopup->Connect("CloseWindow()", "FWGUIManager", this, "resetModelPopup()");
+      //m_selectionManager->selectionChanged_.connect(boost::bind(&CmsShowModelPopup::fillModelPopup, m_modelPopup, _1));
+      //    m_modelChangeConn = m_changeManager->changeSignalsAreDone_.connect(boost::bind(&CmsShowModelPopup::updateDisplay, m_modelPopup));
+      m_modelPopup->CenterOnParent(kTRUE,TGTransientFrame::kRight);
+   }
 }
 
-void 
+void
 FWGUIManager::showModelPopup()
 {
    m_modelPopup->MapWindow();
@@ -682,7 +682,7 @@ FWGUIManager::showModelPopup()
 void
 FWGUIManager::updateModel(FWEventItem* iItem) {
    createModelPopup();
-  //  m_modelPopup->fillModelPopup(iItem);
+   //  m_modelPopup->fillModelPopup(iItem);
 }
 
 void
@@ -694,18 +694,18 @@ FWGUIManager::resetModelPopup() {
 
 void
 FWGUIManager::createViewPopup() {
-  if (m_viewPopup == 0) {
-    m_viewPopup = new CmsShowViewPopup(m_cmsShowMainFrame, 200, 200, m_viewBases[0]);
-    m_viewPopup->Connect("CloseWindow()", "FWGUIManager", this, "resetViewPopup()");
-     m_viewPopup->CenterOnParent(kTRUE,TGTransientFrame::kBottomRight);
-  }
+   if (m_viewPopup == 0) {
+      m_viewPopup = new CmsShowViewPopup(m_cmsShowMainFrame, 200, 200, m_viewBases[0]);
+      m_viewPopup->Connect("CloseWindow()", "FWGUIManager", this, "resetViewPopup()");
+      m_viewPopup->CenterOnParent(kTRUE,TGTransientFrame::kBottomRight);
+   }
    /* seems to work but a small scale test caused seg faults
-   Int_t x,y;
-   UInt_t w,h;
-   gVirtualX->GetWindowSize(m_viewPopup->GetId(),
+      Int_t x,y;
+      UInt_t w,h;
+      gVirtualX->GetWindowSize(m_viewPopup->GetId(),
                           x,y,w,h);
-   m_viewPopup->SetWMPosition(x,y);
-   std::cout <<x<<" "<< y<<std::endl;
+      m_viewPopup->SetWMPosition(x,y);
+      std::cout <<x<<" "<< y<<std::endl;
     */
 }
 
@@ -728,67 +728,67 @@ FWGUIManager::showViewPopup() {
 
 void FWGUIManager::createHelpPopup ()
 {
-     if (m_helpPopup == 0) {
-	  m_helpPopup = new CmsShowHelpPopup("help.html", "CmsShow Help",
-					     m_cmsShowMainFrame,
-					     800, 600);
-	  m_helpPopup->Connect("CloseWindow()", "FWGUIManager", this,
-			       "resetHelpPopup()");
-	  m_helpPopup->CenterOnParent(kTRUE,TGTransientFrame::kBottomRight);
-     }
-     m_helpPopup->MapWindow();
+   if (m_helpPopup == 0) {
+      m_helpPopup = new CmsShowHelpPopup("help.html", "CmsShow Help",
+                                         m_cmsShowMainFrame,
+                                         800, 600);
+      m_helpPopup->Connect("CloseWindow()", "FWGUIManager", this,
+                           "resetHelpPopup()");
+      m_helpPopup->CenterOnParent(kTRUE,TGTransientFrame::kBottomRight);
+   }
+   m_helpPopup->MapWindow();
 }
 
 void FWGUIManager::resetHelpPopup ()
 {
-     m_helpPopup->DontCallClose();
-     m_helpPopup->UnmapWindow();
+   m_helpPopup->DontCallClose();
+   m_helpPopup->UnmapWindow();
 }
 
 void FWGUIManager::createShortcutPopup ()
 {
-     if (m_shortcutPopup == 0) {
-	  m_shortcutPopup = new CmsShowHelpPopup("shortcuts.html",
-						 "Keyboard Shortcuts",
-						 m_cmsShowMainFrame, 800, 600);
-	  m_shortcutPopup->Connect("CloseWindow()", "FWGUIManager", this,
-				   "resetShortcutPopup()");
-	  m_shortcutPopup->CenterOnParent(kTRUE,TGTransientFrame::kBottomRight);
-     }
-     m_shortcutPopup->MapWindow();
+   if (m_shortcutPopup == 0) {
+      m_shortcutPopup = new CmsShowHelpPopup("shortcuts.html",
+                                             "Keyboard Shortcuts",
+                                             m_cmsShowMainFrame, 800, 600);
+      m_shortcutPopup->Connect("CloseWindow()", "FWGUIManager", this,
+                               "resetShortcutPopup()");
+      m_shortcutPopup->CenterOnParent(kTRUE,TGTransientFrame::kBottomRight);
+   }
+   m_shortcutPopup->MapWindow();
 }
 
 void FWGUIManager::resetShortcutPopup ()
 {
-     m_shortcutPopup->DontCallClose();
-     m_shortcutPopup->UnmapWindow();
+   m_shortcutPopup->DontCallClose();
+   m_shortcutPopup->UnmapWindow();
 }
 
 TGMainFrame *FWGUIManager::createTextView (TGTab *p)
 {
-     m_textViewTab = p;
-     p->Resize(m_mainFrame->GetWidth(), m_mainFrame->GetHeight());
-     m_textViewFrame[0] = p->AddTab("Physics objects");
-     //printf("current tab: %d\n", p->GetCurrent());
-     m_textViewFrame[1] = p->AddTab("Triggers");
-     //printf("current tab: %d\n", p->GetCurrent());
-     m_textViewFrame[2] = p->AddTab("Tracking");
-     //printf("current tab: %d\n", p->GetCurrent());
+   m_textViewTab = p;
+   p->Resize(m_mainFrame->GetWidth(), m_mainFrame->GetHeight());
+   m_textViewFrame[0] = p->AddTab("Physics objects");
+   //printf("current tab: %d\n", p->GetCurrent());
+   m_textViewFrame[1] = p->AddTab("Triggers");
+   //printf("current tab: %d\n", p->GetCurrent());
+   m_textViewFrame[2] = p->AddTab("Tracking");
+   //printf("current tab: %d\n", p->GetCurrent());
 
-     const unsigned int kTabColor=0x5f5f5f;
-     TGTabElement *tabel = 0;
-     tabel = p->GetTabTab("Physics objects");
-     tabel->SetBackgroundColor(kTabColor);
-     tabel = p->GetTabTab("Triggers");
-     tabel->SetBackgroundColor(kTabColor);
-     tabel = p->GetTabTab("Tracking");
-     tabel->SetBackgroundColor(kTabColor);
-     tabel = p->GetTabTab("Views");
-     tabel->SetBackgroundColor(kTabColor);
+   const unsigned int kTabColor=0x5f5f5f;
+   TGTabElement *tabel = 0;
+   tabel = p->GetTabTab("Physics objects");
+   tabel->SetBackgroundColor(kTabColor);
+   tabel = p->GetTabTab("Triggers");
+   tabel->SetBackgroundColor(kTabColor);
+   tabel = p->GetTabTab("Tracking");
+   tabel->SetBackgroundColor(kTabColor);
+   tabel = p->GetTabTab("Views");
+   tabel->SetBackgroundColor(kTabColor);
 
-     p->MapSubwindows();
-     p->MapWindow();
-     return m_mainFrame;
+   p->MapSubwindows();
+   p->MapWindow();
+   return m_mainFrame;
 }
 
 //
@@ -798,7 +798,7 @@ TGMainFrame *FWGUIManager::createTextView (TGTab *p)
 FWGUIManager*
 FWGUIManager::getGUIManager()
 {
-  return m_guiManager;
+   return m_guiManager;
 }
 
 void
@@ -852,8 +852,8 @@ void
 FWGUIManager::promptForConfigurationFile()
 {
    static const char* kSaveFileTypes[] = {"Fireworks Configuration files","*.fwc",
-      "All Files","*",
-   0,0};
+                                          "All Files","*",
+                                          0,0};
 
    static TString dir(".");
 
@@ -864,12 +864,12 @@ FWGUIManager::promptForConfigurationFile()
                     kFDSave,&fi);
    dir = fi.fIniDir;
    if (fi.fFilename != 0) { // to handle "cancel" button properly
-	std::string name = fi.fFilename;
-	// if the extension isn't already specified by hand, specify it now
-	std::string ext = kSaveFileTypes[fi.fFileTypeIdx + 1] + 1;
-	if (ext.size() != 0 && name.find(ext) == name.npos)
-	     name += ext;
-	writeToConfigurationFile_(name);
+      std::string name = fi.fFilename;
+      // if the extension isn't already specified by hand, specify it now
+      std::string ext = kSaveFileTypes[fi.fFileTypeIdx + 1] + 1;
+      if (ext.size() != 0 && name.find(ext) == name.npos)
+         name += ext;
+      writeToConfigurationFile_(name);
    }
 }
 
@@ -909,15 +909,16 @@ namespace {
       FWConfiguration* m_config;
       bool m_isFirst;
       FrameAddTo(FWConfiguration& iConfig) :
-      m_config(&iConfig),
-      m_isFirst(true) {}
+         m_config(&iConfig),
+         m_isFirst(true) {
+      }
 
       void operator()(TGFrame* iFrame) {
          std::stringstream s;
          if(m_isFirst) {
             m_isFirst = false;
             s<< static_cast<int>(iFrame->GetWidth());
-         }else {
+         } else {
             s<< static_cast<int>(iFrame->GetHeight());
          }
          m_config->addValue(s.str());
@@ -928,8 +929,9 @@ namespace {
       const FWConfiguration* m_config;
       int m_index;
       FrameSetFrom(const FWConfiguration* iConfig) :
-      m_config(iConfig),
-      m_index(0) {}
+         m_config(iConfig),
+         m_index(0) {
+      }
 
       void operator()(TGFrame* iFrame) {
          if(0==iFrame) {return;}
@@ -940,7 +942,7 @@ namespace {
             std::stringstream s(m_config->value(m_index));
             s >> width;
          } else {
-         // bottom left split frame
+            // bottom left split frame
             height = iFrame->GetHeight();
             std::stringstream s(m_config->value(m_index));
             s >> height;
@@ -1021,7 +1023,7 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
 
    FWConfiguration views(1);
    for(std::vector<FWViewBase* >::const_iterator it = m_viewBases.begin(),
-       itEnd = m_viewBases.end();
+                                                 itEnd = m_viewBases.end();
        it != itEnd;
        ++it) {
       FWConfiguration temp(1);
@@ -1041,9 +1043,9 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
    FWConfiguration undocked(1);
    {
       for(std::vector<FWGUISubviewArea*>::const_iterator it = m_viewFrames.begin(), itEnd=m_viewFrames.end();
-      it != itEnd; ++it) {
+          it != itEnd; ++it) {
          std::string name;
-         if(! (*it)->isDocked()) {
+         if(!(*it)->isDocked()) {
             FWConfiguration temp(1);
             {
                std::stringstream s;
@@ -1144,7 +1146,7 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom)
    const FWConfiguration::KeyValues* keyVals = views->keyValues();
    assert(0!=keyVals);
    for(FWConfiguration::KeyValues::const_iterator it = keyVals->begin(),
-       itEnd = keyVals->end();
+                                                  itEnd = keyVals->end();
        it!=itEnd;
        ++it) {
       size_t n = m_viewBases.size();
@@ -1179,7 +1181,7 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom)
       if(0!=keyVals) {
          //we have undocked views
          for(FWConfiguration::KeyValues::const_iterator it = keyVals->begin(),
-             itEnd = keyVals->end();
+                                                        itEnd = keyVals->end();
              it!=itEnd;
              ++it) {
             int index = atoi(it->first.c_str());
@@ -1200,7 +1202,7 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom)
       if(0!=keyVals) {
          //we have open controllers
          for(FWConfiguration::KeyValues::const_iterator it = keyVals->begin(),
-             itEnd = keyVals->end();
+                                                        itEnd = keyVals->end();
              it!=itEnd;
              ++it) {
             const std::string& controllerName = it->first;
@@ -1243,17 +1245,17 @@ FWGUIManager::setDelayBetweenEvents(Float_t val)
    m_cmsShowMainFrame->setPlayDelayGUI(val, kTRUE);
 }
 
-void FWGUIManager::runIdChanged() 
+void FWGUIManager::runIdChanged()
 {
    changedRunId_.emit(m_cmsShowMainFrame->m_runEntry->GetIntNumber());
 }
 
-void FWGUIManager::eventIdChanged() 
+void FWGUIManager::eventIdChanged()
 {
    changedEventId_.emit(m_cmsShowMainFrame->m_eventEntry->GetIntNumber());
 }
 
-void FWGUIManager::eventFilterChanged() 
+void FWGUIManager::eventFilterChanged()
 {
    changedEventFilter_.emit(m_cmsShowMainFrame->m_filterEntry->GetText());
 }

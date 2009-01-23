@@ -7,16 +7,16 @@
 //
 /**\class FWHandle FWHandle.h Fireworks/Core/interface/FWHandle.h
 
- Description: Used to get a particular data item from a FWEventItem
+   Description: Used to get a particular data item from a FWEventItem
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 19:23:45 EST 2008
-// $Id: FWHandle.h,v 1.1 2008/01/07 05:48:45 chrjones Exp $
+// $Id: FWHandle.h,v 1.2 2008/11/06 22:05:23 amraktad Exp $
 //
 
 // system include files
@@ -33,36 +33,39 @@
 class FWHandle
 {
 
-   public:
-      FWHandle(): data(0) {}
-      //virtual ~FWHandle();
+public:
+   FWHandle() : data(0) {
+   }
+   //virtual ~FWHandle();
 
-      // ---------- const member functions ---------------------
-      const T* get() const { return data_;}
+   // ---------- const member functions ---------------------
+   const T* get() const {
+      return data_;
+   }
 
-      const T* operator->() const {
-	return data_;
-      }
+   const T* operator->() const {
+      return data_;
+   }
 
-      const T& operator*() const {
-	return *data_;
-      }
-      // ---------- static member functions --------------------
+   const T& operator*() const {
+      return *data_;
+   }
+   // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
-      void getFrom(const FWEventItem& iItem) {
-	data_ = reinterpet_cast<const T*>(
-	     iItem.data(edm::Wrapper<T>::productTypeInfo())
-					  );
-      }
+   // ---------- member functions ---------------------------
+   void getFrom(const FWEventItem& iItem) {
+      data_ = reinterpet_cast<const T*>(
+         iItem.data(edm::Wrapper<T>::productTypeInfo())
+         );
+   }
 
-   private:
-      //FWHandle(const FWHandle&); // stop default
+private:
+   //FWHandle(const FWHandle&); // stop default
 
-      //const FWHandle& operator=(const FWHandle&); // stop default
+   //const FWHandle& operator=(const FWHandle&); // stop default
 
-      // ---------- member data --------------------------------
-      const T* data_;
+   // ---------- member data --------------------------------
+   const T* data_;
 
 };
 

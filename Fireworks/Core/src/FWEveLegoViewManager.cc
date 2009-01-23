@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWEveLegoViewManager.cc,v 1.21 2008/12/03 20:57:12 chrjones Exp $
+// $Id: FWEveLegoViewManager.cc,v 1.22 2008/12/05 17:02:18 amraktad Exp $
 //
 
 // system include files
@@ -63,15 +63,15 @@
 //
 // constructors and destructor
 //
-FWEveLegoViewManager::FWEveLegoViewManager(FWGUIManager* iGUIMgr):
-FWViewManagerBase(),
-  m_elements( new TEveElementList("Lego")),
-  m_data(0),
-  m_lego(),
-  m_legoRebinFactor(1),
-  m_eveSelection(0),
-  m_selectionManager(0),
-m_modelsHaveBeenMadeAtLeastOnce(false)
+FWEveLegoViewManager::FWEveLegoViewManager(FWGUIManager* iGUIMgr) :
+   FWViewManagerBase(),
+   m_elements( new TEveElementList("Lego")),
+   m_data(0),
+   m_lego(),
+   m_legoRebinFactor(1),
+   m_eveSelection(0),
+   m_selectionManager(0),
+   m_modelsHaveBeenMadeAtLeastOnce(false)
 {
    FWGUIManager::ViewBuildFunctor f;
    f=boost::bind(&FWEveLegoViewManager::buildView,
@@ -79,11 +79,11 @@ m_modelsHaveBeenMadeAtLeastOnce(false)
    iGUIMgr->registerViewBuilder(FWEveLegoView::staticTypeName(), f);
 
    /*
-   m_eveSelection=gEve->GetSelection();
-   m_eveSelection->SetPickToSelect(TEveSelection::kPS_Projectable);
-   m_eveSelection->Connect("SelectionAdded(TEveElement*)","FWEveLegoViewManager",this,"selectionAdded(TEveElement*)");
-   m_eveSelection->Connect("SelectionRemoved(TEveElement*)","FWEveLegoViewManager",this,"selectionRemoved(TEveElement*)");
-   m_eveSelection->Connect("SelectionCleared()","FWEveLegoViewManager",this,"selectionCleared()");
+      m_eveSelection=gEve->GetSelection();
+      m_eveSelection->SetPickToSelect(TEveSelection::kPS_Projectable);
+      m_eveSelection->Connect("SelectionAdded(TEveElement*)","FWEveLegoViewManager",this,"selectionAdded(TEveElement*)");
+      m_eveSelection->Connect("SelectionRemoved(TEveElement*)","FWEveLegoViewManager",this,"selectionRemoved(TEveElement*)");
+      m_eveSelection->Connect("SelectionCleared()","FWEveLegoViewManager",this,"selectionCleared()");
     */
 
    //create a list of the available ViewManager's
@@ -107,7 +107,7 @@ m_modelsHaveBeenMadeAtLeastOnce(false)
        it!=itEnd;
        ++it) {
       std::string::size_type first = it->find_first_of('@')+1;
-      std::string  purpose = it->substr(first,it->find_last_of('@')-first);
+      std::string purpose = it->substr(first,it->find_last_of('@')-first);
       m_typeToBuilders[purpose].push_back(*it);
    }
 
@@ -148,7 +148,7 @@ FWEveLegoViewManager::buildView(TGFrame* iParent)
 
    if(1 == m_views.size()) {
       for(std::vector<boost::shared_ptr<FW3DLegoDataProxyBuilder> >::iterator it
-          =m_builders.begin(), itEnd = m_builders.end();
+             =m_builders.begin(), itEnd = m_builders.end();
           it != itEnd;
           ++it) {
          (*it)->setHaveAWindow(true);
@@ -169,14 +169,14 @@ FWEveLegoViewManager::beingDestroyed(const FWViewBase* iView)
 
    if(1 == m_views.size()) {
       for(std::vector<boost::shared_ptr<FW3DLegoDataProxyBuilder> >::iterator it
-          =m_builders.begin(), itEnd = m_builders.end();
+             =m_builders.begin(), itEnd = m_builders.end();
           it != itEnd;
           ++it) {
          (*it)->setHaveAWindow(false);
       }
    }
    for(std::vector<boost::shared_ptr<FWEveLegoView> >::iterator it=
-       m_views.begin(), itEnd = m_views.end();
+          m_views.begin(), itEnd = m_views.end();
        it != itEnd;
        ++it) {
       if(it->get() == iView) {
@@ -188,9 +188,9 @@ FWEveLegoViewManager::beingDestroyed(const FWViewBase* iView)
 
 
 /*
-void
-FWEveLegoViewManager::newEventAvailable()
-{
+   void
+   FWEveLegoViewManager::newEventAvailable()
+   {
 
    if(0==m_data || 0==m_views.size()) return;
 
@@ -202,42 +202,42 @@ FWEveLegoViewManager::newEventAvailable()
       if ( m_modelProxies[i].ignore ) continue;
       FWEveLegoModelProxy* proxy = & (m_modelProxies[i]);
       if ( proxy->product == 0) // first time
-	{
-	   TObject* product(0);
-	   proxy->builder->build( &product );
-	   if ( ! product) {
-	      printf("WARNING: proxy builder failed to initialize product for FWEveLegoViewManager. Ignored\n");
-	      proxy->ignore = true;
-	      continue;
-	   }
-	   TH2F* hist = dynamic_cast<TH2F*>(product);
-	   if ( hist ) {
-	      // hist->Dump();
-	      hist->Rebin2D(); // FIX ME
-	      unsigned int index = m_data->AddHistogram(hist);
-	      m_data->RefSliceInfo(index).Setup(hist->GetTitle(), 0., hist->GetFillColor());
+        {
+           TObject* product(0);
+           proxy->builder->build( &product );
+           if ( ! product) {
+              printf("WARNING: proxy builder failed to initialize product for FWEveLegoViewManager. Ignored\n");
+              proxy->ignore = true;
+              continue;
+           }
+           TH2F* hist = dynamic_cast<TH2F*>(product);
+           if ( hist ) {
+              // hist->Dump();
+              hist->Rebin2D(); // FIX ME
+              unsigned int index = m_data->AddHistogram(hist);
+              m_data->RefSliceInfo(index).Setup(hist->GetTitle(), 0., hist->GetFillColor());
 
-	      proxy->product = hist;
-	      continue;
-	   }
-	   TEveElementList* element = dynamic_cast<TEveElementList*>(product);
-	   if ( element ) {
-	      m_elements->AddElement( element );
-	      proxy->product = element;
-	      continue;
-	   }
-	   printf("WARNING: unknown product for FWEveLegoViewManager. Proxy is ignored\n");
-	   proxy->ignore = true;
-	} else {
-	   proxy->builder->build( &(proxy->product) );
-	}
+              proxy->product = hist;
+              continue;
+           }
+           TEveElementList* element = dynamic_cast<TEveElementList*>(product);
+           if ( element ) {
+              m_elements->AddElement( element );
+              proxy->product = element;
+              continue;
+           }
+           printf("WARNING: unknown product for FWEveLegoViewManager. Proxy is ignored\n");
+           proxy->ignore = true;
+        } else {
+           proxy->builder->build( &(proxy->product) );
+        }
    }
 
    std::for_each(m_views.begin(), m_views.end(),
                  boost::bind(&FWEveLegoView::draw,_1, m_data) );
    for ( unsigned int i = 0; i < m_views.size(); ++i ) m_views[i]->setMinEnergy();
-}
-*/
+   }
+ */
 void
 FWEveLegoViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
 {
@@ -245,62 +245,62 @@ FWEveLegoViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
       //std::cout <<"got selection manager"<<std::endl;
       m_selectionManager = iItem->selectionManager();
    }
-  TypeToBuilders::iterator itFind = m_typeToBuilders.find(iItem->purpose());
-  if(itFind != m_typeToBuilders.end()) {
-     for ( std::vector<std::string>::const_iterator builderName = itFind->second.begin();
-	   builderName != itFind->second.end(); ++builderName )
-       {
-          FW3DLegoDataProxyBuilder* builder = FW3DLegoDataProxyBuilderFactory::get()->create(*builderName);
-	  if(0!=builder) {
-	     boost::shared_ptr<FW3DLegoDataProxyBuilder> pB( builder );
-	     builder->setItem(iItem);
-             initData();
-             if(!m_lego) {
-                m_lego.reset( new TEveCaloLego(m_data) );
-                TEveRGBAPalette* pal = new TEveRGBAPalette(0, 100);
-                // pal->SetLimits(0, data->GetMaxVal());
-                pal->SetLimits(0, 100);
-                pal->SetDefaultColor((Color_t)1000);
+   TypeToBuilders::iterator itFind = m_typeToBuilders.find(iItem->purpose());
+   if(itFind != m_typeToBuilders.end()) {
+      for ( std::vector<std::string>::const_iterator builderName = itFind->second.begin();
+            builderName != itFind->second.end(); ++builderName )
+      {
+         FW3DLegoDataProxyBuilder* builder = FW3DLegoDataProxyBuilderFactory::get()->create(*builderName);
+         if(0!=builder) {
+            boost::shared_ptr<FW3DLegoDataProxyBuilder> pB( builder );
+            builder->setItem(iItem);
+            initData();
+            if(!m_lego) {
+               m_lego.reset( new TEveCaloLego(m_data) );
+               TEveRGBAPalette* pal = new TEveRGBAPalette(0, 100);
+               // pal->SetLimits(0, data->GetMaxVal());
+               pal->SetLimits(0, 100);
+               pal->SetDefaultColor((Color_t)1000);
 
-                m_lego->InitMainTrans();
-                m_lego->RefMainTrans().SetScale(2*M_PI, 2*M_PI, M_PI);
+               m_lego->InitMainTrans();
+               m_lego->RefMainTrans().SetScale(2*M_PI, 2*M_PI, M_PI);
 
-                m_lego->SetPalette(pal);
-                // m_lego->SetMainColor(Color_t(TColor::GetColor("#0A0A0A")));
-                m_lego->SetGridColor(Color_t(TColor::GetColor("#202020")));
-                m_lego->Set2DMode(TEveCaloLego::kValSize);
-                m_lego->SetPixelsPerBin(15);
-		m_lego->SetTopViewUseMaxColor(kTRUE);
-                // lego->SetEtaLimits(etaLimLow, etaLimHigh);
-                // lego->SetTitle("caloTower Et distribution");
-                //m_lego->SetData(m_data);
-                m_data->GetEtaBins()->SetTitleFont(120);
-                m_data->GetEtaBins()->SetTitle("h");
-                m_data->GetPhiBins()->SetTitleFont(120);
-                m_data->GetPhiBins()->SetTitle("f");
+               m_lego->SetPalette(pal);
+               // m_lego->SetMainColor(Color_t(TColor::GetColor("#0A0A0A")));
+               m_lego->SetGridColor(Color_t(TColor::GetColor("#202020")));
+               m_lego->Set2DMode(TEveCaloLego::kValSize);
+               m_lego->SetPixelsPerBin(15);
+               m_lego->SetTopViewUseMaxColor(kTRUE);
+               // lego->SetEtaLimits(etaLimLow, etaLimHigh);
+               // lego->SetTitle("caloTower Et distribution");
+               //m_lego->SetData(m_data);
+               m_data->GetEtaBins()->SetTitleFont(120);
+               m_data->GetEtaBins()->SetTitle("h");
+               m_data->GetPhiBins()->SetTitleFont(120);
+               m_data->GetPhiBins()->SetTitle("f");
 
-		// add calorimeter boundaries
-		TEveStraightLineSet* boundaries = new TEveStraightLineSet("boundaries");
-		boundaries->SetPickable(kFALSE);
-		boundaries->SetLineColor(Color_t(TColor::GetColor("#404040")));
-		// boundaries->SetLineWidth(2);
-		boundaries->AddLine(-1.479,-3.1416,0.001,-1.479,3.1416,0.001);
-		boundaries->AddLine(1.479,-3.1416,0.001,1.479,3.1416,0.001);
-		boundaries->AddLine(-3.0,-3.1416,0.001,-3.0,3.1416,0.001);
-		boundaries->AddLine(3.0,-3.1416,0.001,3.0,3.1416,0.001);
-		m_lego->AddElement(boundaries);
-                m_elements->AddElement(m_lego.get());
-             }
-             builder->attach(m_elements.get(),m_data);
-	     m_builders.push_back(pB);
-             if(m_views.size()) {
-                pB->setHaveAWindow(true);
-             }
-             //m_lego->ElementChanged();
-             //m_lego->DataChanged();
-	  }
-       }
-  }
+               // add calorimeter boundaries
+               TEveStraightLineSet* boundaries = new TEveStraightLineSet("boundaries");
+               boundaries->SetPickable(kFALSE);
+               boundaries->SetLineColor(Color_t(TColor::GetColor("#404040")));
+               // boundaries->SetLineWidth(2);
+               boundaries->AddLine(-1.479,-3.1416,0.001,-1.479,3.1416,0.001);
+               boundaries->AddLine(1.479,-3.1416,0.001,1.479,3.1416,0.001);
+               boundaries->AddLine(-3.0,-3.1416,0.001,-3.0,3.1416,0.001);
+               boundaries->AddLine(3.0,-3.1416,0.001,3.0,3.1416,0.001);
+               m_lego->AddElement(boundaries);
+               m_elements->AddElement(m_lego.get());
+            }
+            builder->attach(m_elements.get(),m_data);
+            m_builders.push_back(pB);
+            if(m_views.size()) {
+               pB->setHaveAWindow(true);
+            }
+            //m_lego->ElementChanged();
+            //m_lego->DataChanged();
+         }
+      }
+   }
    //iItem->itemChanged_.connect(boost::bind(&FWEveLegoViewManager::itemChanged,this,_1));
 }
 
@@ -311,10 +311,10 @@ FWEveLegoViewManager::newItem(const FWEventItem* iItem)
 }
 
 /*
-void
-FWEveLegoViewManager::itemChanged(const FWEventItem*) {
+   void
+   FWEveLegoViewManager::itemChanged(const FWEventItem*) {
    m_itemChanged=true;
-}
+   }
  */
 void
 FWEveLegoViewManager::modelChangesComing()
@@ -325,14 +325,14 @@ void
 FWEveLegoViewManager::modelChangesDone()
 {
    /*
-   if ( m_itemChanged )
-     newEventAvailable();
-   else {
+      if ( m_itemChanged )
+      newEventAvailable();
+      else {
       std::for_each(m_views.begin(), m_views.end(),
-		    boost::bind(&FWEveLegoView::draw,_1, m_data) );
-   }
+                    boost::bind(&FWEveLegoView::draw,_1, m_data) );
+      }
 
-   m_itemChanged = false;
+      m_itemChanged = false;
     */
    m_modelsHaveBeenMadeAtLeastOnce=true;
    std::for_each(m_views.begin(), m_views.end(),
@@ -398,16 +398,16 @@ FWEveLegoViewManager::supportedTypesAndRepresentations() const
        it != itEnd;
        ++it) {
       for ( std::vector<std::string>::const_iterator builderName = it->second.begin();
-	   builderName != it->second.end(); ++builderName ) {
+            builderName != it->second.end(); ++builderName ) {
          if(builderName->substr(0,kSimple.size()) == kSimple) {
             returnValue.add(boost::shared_ptr<FWRepresentationCheckerBase>( new FWSimpleRepresentationChecker(
-                                                                                                              builderName->substr(kSimple.size(),
-                                                                                                                                  builderName->find_first_of('@')-kSimple.size()),
-                                                                                                              it->first)));
+                                                                               builderName->substr(kSimple.size(),
+                                                                                                   builderName->find_first_of('@')-kSimple.size()),
+                                                                               it->first)));
          } else {
             returnValue.add(boost::shared_ptr<FWRepresentationCheckerBase>( new FWEDProductRepresentationChecker(
-                                                                                                                 builderName->substr(0,builderName->find_first_of('@')),
-                                                                                                                 it->first)));
+                                                                               builderName->substr(0,builderName->find_first_of('@')),
+                                                                               it->first)));
          }
       }
    }

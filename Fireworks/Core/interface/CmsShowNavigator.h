@@ -7,16 +7,16 @@
 //
 /**\class CmsShowNavigator CmsShowNavigator.h Fireworks/Core/interface/CmsShowNavigator.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Joshua Berger
 //         Created:  Tue Jun 10 14:56:34 EDT 2008
-// $Id: CmsShowNavigator.h,v 1.12 2008/11/10 15:31:24 chrjones Exp $
+// $Id: CmsShowNavigator.h,v 1.13 2009/01/08 14:07:13 amraktad Exp $
 //
 
 // system include files
@@ -33,63 +33,67 @@ class CSGAction;
 class CmsShowMain;
 
 namespace edm {
-  class EventID;
+   class EventID;
 }
 
 class CmsShowNavigator
 {
 
-   public:
-      CmsShowNavigator(const CmsShowMain &);
-      virtual ~CmsShowNavigator();
-      //      void startLoop();
-      Int_t realEntry(Int_t rawEntry);
-      Int_t realEntry(Int_t run, Int_t event); // -1 means event not found
+public:
+   CmsShowNavigator(const CmsShowMain &);
+   virtual ~CmsShowNavigator();
+   //      void startLoop();
+   Int_t realEntry(Int_t rawEntry);
+   Int_t realEntry(Int_t run, Int_t event);    // -1 means event not found
 
-      void loadFile(const std::string& fileName);
-      void nextEventChangeAlsoChangeFile(const std::string& fileName);
-      void checkPosition();
-      void nextEvent();
-      void previousEvent();
-      void firstEvent();
-      void lastEvent();
-      void filterEventsAndReset(std::string selection);
-      void goToRun(Int_t);
-      void goToEvent(Int_t);
+   void loadFile(const std::string& fileName);
+   void nextEventChangeAlsoChangeFile(const std::string& fileName);
+   void checkPosition();
+   void nextEvent();
+   void previousEvent();
+   void firstEvent();
+   void lastEvent();
+   void filterEventsAndReset(std::string selection);
+   void goToRun(Int_t);
+   void goToEvent(Int_t);
 
-      bool autoRewind() const { return m_loopMode; }
-      void setAutoRewind( bool mode ) { m_loopMode = mode; }
+   bool autoRewind() const {
+      return m_loopMode;
+   }
+   void setAutoRewind( bool mode ) {
+      m_loopMode = mode;
+   }
 
-      //      void checkBefore();
-      //      void checkAfter();
-      //      sigc::signal<void, bool> notBegin;
-      //      sigc::signal<void, bool> notEnd;
-      sigc::signal<void, const fwlite::Event&> newEvent;
-      sigc::signal<void, const fwlite::Event&> oldEvent;
-      //      sigc::signal<void, int> newEventIndex; //To be replaced when we can get index from fwlite::Event
-      sigc::signal<void, const TFile*> newFileLoaded;
-      sigc::signal<void> atBeginning;
-      sigc::signal<void> atEnd;
+   //      void checkBefore();
+   //      void checkAfter();
+   //      sigc::signal<void, bool> notBegin;
+   //      sigc::signal<void, bool> notEnd;
+   sigc::signal<void, const fwlite::Event&> newEvent;
+   sigc::signal<void, const fwlite::Event&> oldEvent;
+   //      sigc::signal<void, int> newEventIndex; //To be replaced when we can get index from fwlite::Event
+   sigc::signal<void, const TFile*> newFileLoaded;
+   sigc::signal<void> atBeginning;
+   sigc::signal<void> atEnd;
 
-   private:
-      CmsShowNavigator(const CmsShowNavigator&); // stop default
+private:
+   CmsShowNavigator(const CmsShowNavigator&);    // stop default
 
-      const CmsShowNavigator& operator=(const CmsShowNavigator&); // stop default
+   const CmsShowNavigator& operator=(const CmsShowNavigator&);    // stop default
 
-      // ---------- member data --------------------------------
-      TFile *m_file;
-      fwlite::Event *m_event;
-      edm::EventID m_firstID;
-      edm::EventID m_lastID;
-      TTree *m_eventTree;
-      std::string m_selection;
-      TEventList *m_eventList;
-      int m_currentEntry;
-      int m_nEntries;
-      int m_currentSelectedEntry;
-      const CmsShowMain 	&m_main;
-      bool m_loopMode; // auto-rewind event loop
-      std::string m_nextFile;
+   // ---------- member data --------------------------------
+   TFile *m_file;
+   fwlite::Event *m_event;
+   edm::EventID m_firstID;
+   edm::EventID m_lastID;
+   TTree *m_eventTree;
+   std::string m_selection;
+   TEventList *m_eventList;
+   int m_currentEntry;
+   int m_nEntries;
+   int m_currentSelectedEntry;
+   const CmsShowMain         &m_main;
+   bool m_loopMode;    // auto-rewind event loop
+   std::string m_nextFile;
 };
 
 

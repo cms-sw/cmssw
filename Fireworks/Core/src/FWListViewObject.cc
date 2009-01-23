@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 10 09:02:44 CDT 2008
-// $Id: FWListViewObject.cc,v 1.2 2008/03/11 23:30:04 chrjones Exp $
+// $Id: FWListViewObject.cc,v 1.3 2008/11/06 22:05:26 amraktad Exp $
 //
 
 // system include files
@@ -29,9 +29,9 @@
 // constructors and destructor
 //
 FWListViewObject::FWListViewObject(const char* iName,
-                                   FWViewBase* iView):
-TNamed(iName,""),
-m_view(iView)
+                                   FWViewBase* iView) :
+   TNamed(iName,""),
+   m_view(iView)
 {
 }
 
@@ -41,10 +41,10 @@ m_view(iView)
 // }
 
 /*
-FWListViewObject::~FWListViewObject()
-{
-}
-*/
+   FWListViewObject::~FWListViewObject()
+   {
+   }
+ */
 
 //
 // assignment operators

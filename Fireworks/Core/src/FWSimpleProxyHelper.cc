@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWSimpleProxyHelper
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 15:13:22 EST 2008
-// $Id$
+// $Id: FWSimpleProxyHelper.cc,v 1.1 2008/12/02 21:11:53 chrjones Exp $
 //
 
 // system include files
@@ -34,9 +34,9 @@
 //
 // constructors and destructor
 //
-FWSimpleProxyHelper::FWSimpleProxyHelper(const std::type_info& iType):
-m_itemType(&iType),
-m_objectOffset(0)
+FWSimpleProxyHelper::FWSimpleProxyHelper(const std::type_info& iType) :
+   m_itemType(&iType),
+   m_objectOffset(0)
 {
 }
 
@@ -64,7 +64,7 @@ m_objectOffset(0)
 //
 // member functions
 //
-void 
+void
 FWSimpleProxyHelper::itemChanged(const FWEventItem* iItem)
 {
    if(0!=iItem) {
@@ -81,7 +81,7 @@ FWSimpleProxyHelper::itemChanged(const FWEventItem* iItem)
 //
 // const member functions
 //
-void 
+void
 FWSimpleProxyHelper::fillTitle(const FWEventItem& iItem, int iIndex, std::string& oTitle) const
 {
    oTitle = iItem.modelName(iIndex);
@@ -89,7 +89,7 @@ FWSimpleProxyHelper::fillTitle(const FWEventItem& iItem, int iIndex, std::string
    if(iItem.haveInterestingValue()) {
       s<<oTitle<<", "<<iItem.modelInterestingValueAsString(iIndex);
       oTitle=s.str();
-   }   
+   }
 }
 
 

@@ -7,16 +7,16 @@
 //
 /**\class FW3DView FW3DView.h Fireworks/Core/interface/FW3DView.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FW3DView.h,v 1.6 2008/12/08 18:43:28 chrjones Exp $
+// $Id: FW3DView.h,v 1.7 2009/01/22 16:05:12 amraktad Exp $
 //
 
 // system include files
@@ -39,67 +39,67 @@ class TEveGeoShape;
 class TGLMatrix;
 class FW3DViewManager;
 class DetIdToMatrix;
-  
+
 class FW3DView : public FWViewBase
 {
 
-   public:
-      FW3DView(TGFrame*, TEveElementList*);
-      virtual ~FW3DView();
+public:
+   FW3DView(TGFrame*, TEveElementList*);
+   virtual ~FW3DView();
 
-      // ---------- const member functions ---------------------
-      TGFrame* frame() const;
-      const std::string& typeName() const;
-      virtual void addTo(FWConfiguration&) const;
+   // ---------- const member functions ---------------------
+   TGFrame* frame() const;
+   const std::string& typeName() const;
+   virtual void addTo(FWConfiguration&) const;
 
-      virtual void saveImageTo(const std::string& iName) const;
+   virtual void saveImageTo(const std::string& iName) const;
 
-      // ---------- static member functions --------------------
-      static const std::string& staticTypeName();
+   // ---------- static member functions --------------------
+   static const std::string& staticTypeName();
 
-      // ---------- member functions ---------------------------
-      virtual void setFrom(const FWConfiguration&);
-      void makeGeometry( const DetIdToMatrix* geom );
+   // ---------- member functions ---------------------------
+   virtual void setFrom(const FWConfiguration&);
+   void makeGeometry( const DetIdToMatrix* geom );
 
-   private:
-      FW3DView(const FW3DView&); // stop default
+private:
+   FW3DView(const FW3DView&);    // stop default
 
-      const FW3DView& operator=(const FW3DView&); // stop default
-      void showMuonBarrel( );
-      void showMuonEndcap( );
-      void showPixelBarrel( );
-      void showPixelEndcap( );
-      void showTrackerBarrel( );
-      void showTrackerEndcap( );
-      void showWireFrame( );
-      void setTransparency( );
+   const FW3DView& operator=(const FW3DView&);    // stop default
+   void showMuonBarrel( );
+   void showMuonEndcap( );
+   void showPixelBarrel( );
+   void showPixelEndcap( );
+   void showTrackerBarrel( );
+   void showTrackerEndcap( );
+   void showWireFrame( );
+   void setTransparency( );
 
-      // ---------- member data --------------------------------
-      TEvePad* m_pad;
-      TEveViewer* m_viewer;
-      TGLEmbeddedViewer* m_embeddedViewer;
-      TEveScene* m_scene;
-      TEveScene* m_detectorScene;
+   // ---------- member data --------------------------------
+   TEvePad* m_pad;
+   TEveViewer* m_viewer;
+   TGLEmbeddedViewer* m_embeddedViewer;
+   TEveScene* m_scene;
+   TEveScene* m_detectorScene;
 
-      TGLMatrix* m_cameraMatrix;
-      TGLMatrix* m_cameraMatrixBase;
-      Double_t*  m_cameraFOV;
-   
-      TEveElement*      m_muonBarrelElements;
-      TEveElement*      m_muonEndcapElements;
-      TEveElement*      m_pixelBarrelElements;
-      TEveElement*      m_pixelEndcapElements;
-      TEveElement*      m_trackerBarrelElements;
-      TEveElement*      m_trackerEndcapElements;
-      FWBoolParameter   m_showMuonBarrel;
-      FWBoolParameter   m_showMuonEndcap;
-      FWBoolParameter   m_showPixelBarrel;
-      FWBoolParameter   m_showPixelEndcap;
-      FWBoolParameter   m_showTrackerBarrel;
-      FWBoolParameter   m_showTrackerEndcap;
-      FWBoolParameter   m_showWireFrame;
-      
-      FWLongParameter   m_geomTransparency;
+   TGLMatrix* m_cameraMatrix;
+   TGLMatrix* m_cameraMatrixBase;
+   Double_t*  m_cameraFOV;
+
+   TEveElement*      m_muonBarrelElements;
+   TEveElement*      m_muonEndcapElements;
+   TEveElement*      m_pixelBarrelElements;
+   TEveElement*      m_pixelEndcapElements;
+   TEveElement*      m_trackerBarrelElements;
+   TEveElement*      m_trackerEndcapElements;
+   FWBoolParameter m_showMuonBarrel;
+   FWBoolParameter m_showMuonEndcap;
+   FWBoolParameter m_showPixelBarrel;
+   FWBoolParameter m_showPixelEndcap;
+   FWBoolParameter m_showTrackerBarrel;
+   FWBoolParameter m_showTrackerEndcap;
+   FWBoolParameter m_showWireFrame;
+
+   FWLongParameter m_geomTransparency;
 };
 
 

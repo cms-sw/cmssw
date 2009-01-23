@@ -7,16 +7,16 @@
 //
 /**\class FWEveScalableStraightLineSet FWEveScalableStraightLineSet.h Fireworks/Core/interface/FWEveScalableStraightLineSet.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jul  3 16:25:28 EDT 2008
-// $Id: FWEveScalableStraightLineSet.h,v 1.1 2008/07/04 23:39:32 chrjones Exp $
+// $Id: FWEveScalableStraightLineSet.h,v 1.2 2008/11/06 22:05:22 amraktad Exp $
 //
 
 // system include files
@@ -30,23 +30,23 @@
 class FWEveScalableStraightLineSet : public TEveScalableStraightLineSet, public FWEveValueScaled
 {
 
-   public:
-      FWEveScalableStraightLineSet(const Text_t* iName, const Text_t* iTitle="");
-      //virtual ~FWEveScalableStraightLineSet();
+public:
+   FWEveScalableStraightLineSet(const Text_t* iName, const Text_t* iTitle="");
+   //virtual ~FWEveScalableStraightLineSet();
 
-      // ---------- const member functions ---------------------
+   // ---------- const member functions ---------------------
 
-      // ---------- static member functions --------------------
+   // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
-      void setScale(float);
+   // ---------- member functions ---------------------------
+   void setScale(float);
 
-   private:
-      FWEveScalableStraightLineSet(const FWEveScalableStraightLineSet&); // stop default
+private:
+   FWEveScalableStraightLineSet(const FWEveScalableStraightLineSet&);    // stop default
 
-      const FWEveScalableStraightLineSet& operator=(const FWEveScalableStraightLineSet&); // stop default
+   const FWEveScalableStraightLineSet& operator=(const FWEveScalableStraightLineSet&);    // stop default
 
-      // ---------- member data --------------------------------
+   // ---------- member data --------------------------------
 
 };
 

@@ -7,16 +7,16 @@
 //
 /**\class FW3DDataProxyBuilder FW3DDataProxyBuilder.h Fireworks/Core/interface/FW3DDataProxyBuilder.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id: FW3DDataProxyBuilder.h,v 1.2 2008/12/03 21:01:22 chrjones Exp $
+// $Id: FW3DDataProxyBuilder.h,v 1.3 2008/12/04 15:27:15 dmytro Exp $
 //
 
 // system include files
@@ -37,63 +37,63 @@ class TEveCaloDataHist;
 class FW3DDataProxyBuilder
 {
 
-   public:
-      FW3DDataProxyBuilder();
-      virtual ~FW3DDataProxyBuilder();
+public:
+   FW3DDataProxyBuilder();
+   virtual ~FW3DDataProxyBuilder();
 
-      // ---------- const member functions ---------------------
+   // ---------- const member functions ---------------------
 
-      // ---------- static member functions --------------------
-      ///Used by the plugin system to determine how the proxy uses the data from FWEventItem
-      static std::string typeOfBuilder();
-   
-      // ---------- member functions ---------------------------
-      void setItem(const FWEventItem* iItem);
-      void setHaveAWindow(bool iFlag);
-      void build();
+   // ---------- static member functions --------------------
+   ///Used by the plugin system to determine how the proxy uses the data from FWEventItem
+   static std::string typeOfBuilder();
 
-      void modelChanges(const FWModelIds&);
-      void itemChanged(const FWEventItem*);
+   // ---------- member functions ---------------------------
+   void setItem(const FWEventItem* iItem);
+   void setHaveAWindow(bool iFlag);
+   void build();
 
-      ///If TEveCaloDataHist is set in this routine then the TEveCalo3D must be added to the scene
-      virtual void addToScene(TEveElement&, TEveCaloDataHist**);
+   void modelChanges(const FWModelIds&);
+   void itemChanged(const FWEventItem*);
 
-   protected:
-      const FWEventItem* item() const {
-         return m_item;
-      }
+   ///If TEveCaloDataHist is set in this routine then the TEveCalo3D must be added to the scene
+   virtual void addToScene(TEveElement&, TEveCaloDataHist**);
 
-      std::vector<FWModelId>& ids() {
-         return m_ids;
-      }
+protected:
+   const FWEventItem* item() const {
+      return m_item;
+   }
 
-      //Override this if you need to special handle selection or other changes
-      virtual void modelChanges(const FWModelIds&, TEveElement*);
-      virtual void applyChangesToAllModels(TEveElement* iElements);
-      virtual void itemChangedImp(const FWEventItem*);
-   
-      virtual void itemBeingDestroyed(const FWEventItem*);
+   std::vector<FWModelId>& ids() {
+      return m_ids;
+   }
 
-   private:
-      virtual void build(const FWEventItem* iItem,
-			 TEveElementList** product) = 0 ;
+   //Override this if you need to special handle selection or other changes
+   virtual void modelChanges(const FWModelIds&, TEveElement*);
+   virtual void applyChangesToAllModels(TEveElement* iElements);
+   virtual void itemChangedImp(const FWEventItem*);
+
+   virtual void itemBeingDestroyed(const FWEventItem*);
+
+private:
+   virtual void build(const FWEventItem* iItem,
+                      TEveElementList** product) = 0 ;
 
 
-   
-      void applyChangesToAllModels();
 
-      FW3DDataProxyBuilder(const FW3DDataProxyBuilder&); // stop default
+   void applyChangesToAllModels();
 
-      const FW3DDataProxyBuilder& operator=(const FW3DDataProxyBuilder&); // stop default
+   FW3DDataProxyBuilder(const FW3DDataProxyBuilder&);    // stop default
 
-      // ---------- member data --------------------------------
-      const FWEventItem* m_item;
-      FWEvePtr<TEveElementList> m_elementHolder;//Used as a smart pointer for the item created by the builder
-      std::vector<FWModelId> m_ids;
+   const FW3DDataProxyBuilder& operator=(const FW3DDataProxyBuilder&);    // stop default
 
-      bool m_modelsChanged;
-      bool m_haveViews;
-      bool m_mustBuild;
+   // ---------- member data --------------------------------
+   const FWEventItem* m_item;
+   FWEvePtr<TEveElementList> m_elementHolder;   //Used as a smart pointer for the item created by the builder
+   std::vector<FWModelId> m_ids;
+
+   bool m_modelsChanged;
+   bool m_haveViews;
+   bool m_mustBuild;
 };
 
 

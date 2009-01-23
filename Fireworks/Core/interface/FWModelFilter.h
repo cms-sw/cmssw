@@ -7,16 +7,16 @@
 //
 /**\class FWModelFilter FWModelFilter.h Fireworks/Core/interface/FWModelFilter.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 29 13:39:51 PST 2008
-// $Id: FWModelFilter.h,v 1.4 2008/08/21 21:10:50 chrjones Exp $
+// $Id: FWModelFilter.h,v 1.5 2008/11/06 22:05:23 amraktad Exp $
 //
 
 // system include files
@@ -33,35 +33,35 @@
 class FWModelFilter
 {
 
-   public:
-      FWModelFilter(const std::string& iExpression,
-                   const std::string& iClassName);
-      virtual ~FWModelFilter();
+public:
+   FWModelFilter(const std::string& iExpression,
+                 const std::string& iClassName);
+   virtual ~FWModelFilter();
 
-      // ---------- const member functions ---------------------
+   // ---------- const member functions ---------------------
 
-      const std::string& expression() const;
+   const std::string& expression() const;
 
-      bool passesFilter(const void*) const;
+   bool passesFilter(const void*) const;
 
-      const bool trivialFilter() const;
-      // ---------- static member functions --------------------
+   const bool trivialFilter() const;
+   // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
-      /** Throws an FWExpressionException if there is a problem */
-      void setExpression(const std::string& );
-      void setClassName(const std::string& );
+   // ---------- member functions ---------------------------
+   /** Throws an FWExpressionException if there is a problem */
+   void setExpression(const std::string& );
+   void setClassName(const std::string& );
 
-   private:
-      //FWModelFilter(const FWModelFilter&); // stop default
+private:
+   //FWModelFilter(const FWModelFilter&); // stop default
 
-      //const FWModelFilter& operator=(const FWModelFilter&); // stop default
+   //const FWModelFilter& operator=(const FWModelFilter&); // stop default
 
-      // ---------- member data --------------------------------
-      std::string m_expression;
-      std::string m_className;
-      reco::parser::SelectorPtr m_selector;
-      ROOT::Reflex::Type m_type;
+   // ---------- member data --------------------------------
+   std::string m_expression;
+   std::string m_className;
+   reco::parser::SelectorPtr m_selector;
+   ROOT::Reflex::Type m_type;
 };
 
 

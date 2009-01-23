@@ -19,8 +19,9 @@ class TEveElementList;
 
 class DetIdToMatrix
 {
- public:
-   DetIdToMatrix():manager_(0){}
+public:
+   DetIdToMatrix() : manager_(0){
+   }
    ~DetIdToMatrix();
 
    // load full CMS geometry
@@ -46,22 +47,24 @@ class DetIdToMatrix
    //       to fix Sim/Reco geometry differences.
    //       For expert use only!
    TEveGeoShape* getShape(const char* path, const char* name,
-				   const TGeoMatrix* matrix = 0) const;
+                          const TGeoMatrix* matrix = 0) const;
 
    // get the detector volume in the geometry manager
    const TGeoVolume* getVolume( unsigned int id ) const;
 
    // get all known detector ids
    std::vector<unsigned int> getAllIds() const;
-   
+
    // get all known detector ids with path matching regular expression
    std::vector<unsigned int> getMatchedIds( const char* selection ) const;
 
    // extract shapes of all known elements
    TEveElementList* getAllShapes(const char* elementListName = "CMS") const;
 
-   TGeoManager* getManager() const { return manager_; }
- private:
+   TGeoManager* getManager() const {
+      return manager_;
+   }
+private:
    mutable std::map<unsigned int, TGeoHMatrix> idToMatrix_;
    std::map<unsigned int, std::string> idToPath_;
    mutable TGeoManager* manager_;

@@ -7,16 +7,16 @@
 //
 /**\class FWExpressionException FWExpressionException.h Fireworks/Core/interface/FWExpressionException.h
 
- Description: Holds information about an expression parsing failure
+   Description: Holds information about an expression parsing failure
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Aug 21 14:22:22 EDT 2008
-// $Id: FWExpressionException.h,v 1.1 2008/08/21 21:09:35 chrjones Exp $
+// $Id: FWExpressionException.h,v 1.2 2008/11/06 22:05:22 amraktad Exp $
 //
 
 // system include files
@@ -29,8 +29,9 @@
 class FWExpressionException {
 
 public:
-   FWExpressionException(const std::string& iWhat, long iColumn):
-   m_what(iWhat), m_column(iColumn) {}
+   FWExpressionException(const std::string& iWhat, long iColumn) :
+      m_what(iWhat), m_column(iColumn) {
+   }
    //virtual ~FWExpressionException();
 
    // ---------- const member functions ---------------------

@@ -7,16 +7,16 @@
 //
 /**\class expressionFormatHelpers expressionFormatHelpers.h Fireworks/Core/src/expressionFormatHelpers.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug 22 12:25:03 EDT 2008
-// $Id: expressionFormatHelpers.h,v 1.1 2008/08/22 16:54:02 chrjones Exp $
+// $Id: expressionFormatHelpers.h,v 1.2 2008/11/06 22:05:27 amraktad Exp $
 //
 
 // system include files

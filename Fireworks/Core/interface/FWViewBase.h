@@ -7,16 +7,16 @@
 //
 /**\class FWViewBase FWViewBase.h Fireworks/Core/interface/FWViewBase.h
 
- Description: Base class for all View instances
+   Description: Base class for all View instances
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 14:43:25 EST 2008
-// $Id: FWViewBase.h,v 1.6 2008/07/16 13:32:12 chrjones Exp $
+// $Id: FWViewBase.h,v 1.7 2008/11/06 22:05:23 amraktad Exp $
 //
 
 // system include files
@@ -32,31 +32,31 @@ class TGFrame;
 class FWViewBase : public FWConfigurableParameterizable
 {
 
-   public:
-      FWViewBase(unsigned int iVersion=1);
+public:
+   FWViewBase(unsigned int iVersion=1);
 
-      // ---------- const member functions ---------------------
-      virtual const std::string& typeName() const = 0;
+   // ---------- const member functions ---------------------
+   virtual const std::string& typeName() const = 0;
 
-      virtual TGFrame* frame() const = 0;
+   virtual TGFrame* frame() const = 0;
 
-      virtual void saveImageTo(const std::string& iName) const = 0;
-      void promptForSaveImageTo(TGFrame*) const;
-      // ---------- static member functions --------------------
+   virtual void saveImageTo(const std::string& iName) const = 0;
+   void promptForSaveImageTo(TGFrame*) const;
+   // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
-      void destroy();
-      sigc::signal<void,const FWViewBase*> beingDestroyed_;
+   // ---------- member functions ---------------------------
+   void destroy();
+   sigc::signal<void,const FWViewBase*> beingDestroyed_;
 
-   protected:
-      virtual ~FWViewBase();
+protected:
+   virtual ~FWViewBase();
 
-   private:
-      FWViewBase(const FWViewBase&); // stop default
+private:
+   FWViewBase(const FWViewBase&);    // stop default
 
-      const FWViewBase& operator=(const FWViewBase&); // stop default
+   const FWViewBase& operator=(const FWViewBase&);    // stop default
 
-      // ---------- member data --------------------------------
+   // ---------- member data --------------------------------
 
 };
 

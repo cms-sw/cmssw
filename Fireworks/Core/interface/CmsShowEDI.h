@@ -7,16 +7,16 @@
 //
 /**\class CmsShowEDI CmsShowEDI.h Fireworks/Core/interface/CmsShowEDI.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:42 EDT 2008
-// $Id: CmsShowEDI.h,v 1.5 2008/11/06 22:05:22 amraktad Exp $
+// $Id: CmsShowEDI.h,v 1.6 2008/12/06 02:39:13 chrjones Exp $
 //
 
 // system include files
@@ -44,59 +44,59 @@ class FWExpressionValidator;
 class CmsShowEDI : public TGTransientFrame
 {
 
-   public:
-      CmsShowEDI(const TGWindow* p = 0, UInt_t w = 1, UInt_t h = 1, FWSelectionManager* selMgr = 0);
-      virtual ~CmsShowEDI();
+public:
+   CmsShowEDI(const TGWindow* p = 0, UInt_t w = 1, UInt_t h = 1, FWSelectionManager* selMgr = 0);
+   virtual ~CmsShowEDI();
 
-      // ---------- const member functions ---------------------
+   // ---------- const member functions ---------------------
 
-      // ---------- static member functions --------------------
+   // ---------- static member functions --------------------
 
-      // ---------- member functions --------------------------
-      void fillEDIFrame(FWEventItem* iItem = 0);
-      void removeItem();
-      //      void emptyEDIFrame();
-      void updateDisplay();
-      void updateFilter();
-      void disconnectAll();
-      void changeItemColor(Pixel_t pixel = 0x000000);
-      void toggleItemVisible(Bool_t on = kTRUE);
-      void runFilter();
-      void runSelection();
-      void selectAll();
-      void moveToBack();
-      void moveToFront();
-   
-   private:
-      CmsShowEDI(const CmsShowEDI&); // stop default
+   // ---------- member functions --------------------------
+   void fillEDIFrame(FWEventItem* iItem = 0);
+   void removeItem();
+   //      void emptyEDIFrame();
+   void updateDisplay();
+   void updateFilter();
+   void disconnectAll();
+   void changeItemColor(Pixel_t pixel = 0x000000);
+   void toggleItemVisible(Bool_t on = kTRUE);
+   void runFilter();
+   void runSelection();
+   void selectAll();
+   void moveToBack();
+   void moveToFront();
 
-      const CmsShowEDI& operator=(const CmsShowEDI&); // stop default
+private:
+   CmsShowEDI(const CmsShowEDI&);    // stop default
 
-      // ---------- member data --------------------------------
-      FWSelectionManager* m_selectionManager;
-      TGLabel* m_objectLabel;
-      TGTextButton* m_removeButton;
-      TGTextButton* m_frontButton;
-      TGTextButton* m_backButton;
-      FWColorSelect* m_colorSelectWidget;
-      TGCheckButton* m_isVisibleButton;
-      FWGUIValidatingTextEntry* m_filterExpressionEntry;
-      FWGUIValidatingTextEntry* m_selectExpressionEntry;
-      TGTextButton* m_filterButton;
-      TGTextButton* m_selectButton;
-      TGTextButton* m_selectAllButton;
-      TGTextEntry* m_nameEntry;
-      TGTextEntry* m_typeEntry;
-      TGTextEntry* m_moduleEntry;
-      TGTextEntry* m_instanceEntry;
-      TGTextEntry* m_processEntry;
-      FWEventItem* m_item;
-      sigc::connection m_displayChangedConn;
-      sigc::connection m_modelChangedConn;
-      sigc::connection m_destroyedConn;
-      TGTextView* m_filterError;
-      TGTextView* m_selectError;
-      FWExpressionValidator* m_validator;
+   const CmsShowEDI& operator=(const CmsShowEDI&);    // stop default
+
+   // ---------- member data --------------------------------
+   FWSelectionManager* m_selectionManager;
+   TGLabel* m_objectLabel;
+   TGTextButton* m_removeButton;
+   TGTextButton* m_frontButton;
+   TGTextButton* m_backButton;
+   FWColorSelect* m_colorSelectWidget;
+   TGCheckButton* m_isVisibleButton;
+   FWGUIValidatingTextEntry* m_filterExpressionEntry;
+   FWGUIValidatingTextEntry* m_selectExpressionEntry;
+   TGTextButton* m_filterButton;
+   TGTextButton* m_selectButton;
+   TGTextButton* m_selectAllButton;
+   TGTextEntry* m_nameEntry;
+   TGTextEntry* m_typeEntry;
+   TGTextEntry* m_moduleEntry;
+   TGTextEntry* m_instanceEntry;
+   TGTextEntry* m_processEntry;
+   FWEventItem* m_item;
+   sigc::connection m_displayChangedConn;
+   sigc::connection m_modelChangedConn;
+   sigc::connection m_destroyedConn;
+   TGTextView* m_filterError;
+   TGTextView* m_selectError;
+   FWExpressionValidator* m_validator;
 };
 
 

@@ -7,16 +7,16 @@
 //
 /**\class FWParameterSetterEditorBase FWParameterSetterEditorBase.h Fireworks/Core/interface/FWParameterSetterEditorBase.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:
 //         Created:  Thu Jun 26 11:17:59 EDT 2008
-// $Id: FWParameterSetterEditorBase.h,v 1.1 2008/06/29 13:11:25 chrjones Exp $
+// $Id: FWParameterSetterEditorBase.h,v 1.2 2008/11/06 22:05:23 amraktad Exp $
 //
 
 // system include files
@@ -28,23 +28,23 @@
 class FWParameterSetterEditorBase
 {
 
-   public:
-      FWParameterSetterEditorBase();
-      virtual ~FWParameterSetterEditorBase();
+public:
+   FWParameterSetterEditorBase();
+   virtual ~FWParameterSetterEditorBase();
 
-      // ---------- const member functions ---------------------
+   // ---------- const member functions ---------------------
 
-      // ---------- static member functions --------------------
+   // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
-      virtual void updateEditor();
+   // ---------- member functions ---------------------------
+   virtual void updateEditor();
 
-   private:
-      FWParameterSetterEditorBase(const FWParameterSetterEditorBase&); // stop default
+private:
+   FWParameterSetterEditorBase(const FWParameterSetterEditorBase&);    // stop default
 
-      const FWParameterSetterEditorBase& operator=(const FWParameterSetterEditorBase&); // stop default
+   const FWParameterSetterEditorBase& operator=(const FWParameterSetterEditorBase&);    // stop default
 
-      // ---------- member data --------------------------------
+   // ---------- member data --------------------------------
 
 };
 

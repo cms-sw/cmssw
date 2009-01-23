@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 28 11:13:37 PST 2008
-// $Id: FWListEventItem.cc,v 1.23 2008/11/06 22:05:25 amraktad Exp $
+// $Id: FWListEventItem.cc,v 1.24 2008/12/01 01:00:57 chrjones Exp $
 //
 
 // system include files
@@ -47,10 +47,10 @@
 // constructors and destructor
 //
 FWListEventItem::FWListEventItem(FWEventItem* iItem,
-                                 FWDetailViewManager* iDV):
-TEveElementList(iItem->name().c_str(),"",kTRUE),
-m_item(iItem),
-m_detailViewManager(iDV)
+                                 FWDetailViewManager* iDV) :
+   TEveElementList(iItem->name().c_str(),"",kTRUE),
+   m_item(iItem),
+   m_detailViewManager(iDV)
 {
    m_item->itemChanged_.connect(boost::bind(&FWListEventItem::itemChanged,this,_1));
    m_item->changed_.connect(boost::bind(&FWListEventItem::modelsChanged,this,_1));
@@ -85,8 +85,8 @@ FWListEventItem::~FWListEventItem()
 // member functions
 //
 void
-  FWListEventItem::deleteListEventItem() {
-  delete this;
+FWListEventItem::deleteListEventItem() {
+   delete this;
 }
 
 bool

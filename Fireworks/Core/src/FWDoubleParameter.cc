@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:36:41 EST 2008
-// $Id: FWDoubleParameter.cc,v 1.2 2008/09/27 16:55:02 dmytro Exp $
+// $Id: FWDoubleParameter.cc,v 1.3 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files
@@ -35,11 +35,11 @@ FWDoubleParameter::FWDoubleParameter(FWParameterizable* iParent,
                                      const std::string& iName,
                                      double iDefault,
                                      double iMin,
-                                     double iMax):
-FWParameterBase(iParent,iName),
-m_value(iDefault),
-m_min(iMin),
-m_max(iMax)
+                                     double iMax) :
+   FWParameterBase(iParent,iName),
+   m_value(iDefault),
+   m_min(iMin),
+   m_max(iMax)
 {
 }
 
@@ -48,10 +48,10 @@ m_max(iMax)
 //    // do actual copying here;
 // }
 /*
-FWDoubleParameter::~FWDoubleParameter()
-{
-}
-*/
+   FWDoubleParameter::~FWDoubleParameter()
+   {
+   }
+ */
 //
 // assignment operators
 //

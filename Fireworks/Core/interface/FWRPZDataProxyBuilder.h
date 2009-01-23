@@ -7,16 +7,16 @@
 //
 /**\class FWRPZDataProxyBuilder FWRPZDataProxyBuilder.h Fireworks/Core/interface/FWRPZDataProxyBuilder.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id: FWRPZDataProxyBuilder.h,v 1.14 2008/11/06 22:05:23 amraktad Exp $
+// $Id: FWRPZDataProxyBuilder.h,v 1.15 2008/11/26 16:19:13 chrjones Exp $
 //
 
 // system include files
@@ -38,44 +38,48 @@ class TEveCalo3D;
 class FWRPZDataProxyBuilder : public FWRPZDataProxyBuilderBase
 {
 
-   public:
-      FWRPZDataProxyBuilder();
-      virtual ~FWRPZDataProxyBuilder();
+public:
+   FWRPZDataProxyBuilder();
+   virtual ~FWRPZDataProxyBuilder();
 
-      // ---------- const member functions ---------------------
-      bool highPriority() const { return m_priority; }
+   // ---------- const member functions ---------------------
+   bool highPriority() const {
+      return m_priority;
+   }
 
-      // ---------- static member functions --------------------
+   // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
-      void build();
+   // ---------- member functions ---------------------------
+   void build();
 
-      void setHighPriority( bool priority ){ m_priority = priority; }
+   void setHighPriority( bool priority ){
+      m_priority = priority;
+   }
 
-   protected:
-      static TEveCalo3D* m_calo3d;
+protected:
+   static TEveCalo3D* m_calo3d;
 
    virtual void itemChangedImp(const FWEventItem*) ;
    virtual void itemBeingDestroyedImp(const FWEventItem*);
    virtual void modelChangesImp(const FWModelIds&);
 private:
-      virtual void build(const FWEventItem* iItem,
-			 TEveElementList** product) = 0 ;
+   virtual void build(const FWEventItem* iItem,
+                      TEveElementList** product) = 0 ;
 
 
-      //abstract functions from the base class
-      virtual TEveElementList* getRhoPhiProduct() const;
-      virtual TEveElementList* getRhoZProduct() const;
+   //abstract functions from the base class
+   virtual TEveElementList* getRhoPhiProduct() const;
+   virtual TEveElementList* getRhoZProduct() const;
 
-      FWRPZDataProxyBuilder(const FWRPZDataProxyBuilder&); // stop default
+   FWRPZDataProxyBuilder(const FWRPZDataProxyBuilder&);    // stop default
 
-      const FWRPZDataProxyBuilder& operator=(const FWRPZDataProxyBuilder&); // stop default
+   const FWRPZDataProxyBuilder& operator=(const FWRPZDataProxyBuilder&);    // stop default
 
-      // ---------- member data --------------------------------
-      bool m_priority;
-      mutable TEveElementList* m_elements;
+   // ---------- member data --------------------------------
+   bool m_priority;
+   mutable TEveElementList* m_elements;
 
-      mutable bool m_needsUpdate;
+   mutable bool m_needsUpdate;
 };
 
 

@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWTypeToRepresentations
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 11 14:09:01 EST 2008
-// $Id$
+// $Id: FWTypeToRepresentations.cc,v 1.1 2008/11/14 16:29:31 chrjones Exp $
 //
 
 // system include files
@@ -58,7 +58,7 @@ FWTypeToRepresentations::~FWTypeToRepresentations()
 //
 // member functions
 //
-void 
+void
 FWTypeToRepresentations::add( boost::shared_ptr<FWRepresentationCheckerBase> iChecker)
 {
    m_checkers.push_back(iChecker);
@@ -75,12 +75,12 @@ FWTypeToRepresentations::add( boost::shared_ptr<FWRepresentationCheckerBase> iCh
       }
    }
 }
-void 
+void
 FWTypeToRepresentations::insert( const FWTypeToRepresentations& iOther)
 {
    m_typeToReps.clear();
    for(std::vector<boost::shared_ptr<FWRepresentationCheckerBase> >::const_iterator it =iOther.m_checkers.begin(),
-       itEnd = iOther.m_checkers.end();
+                                                                                    itEnd = iOther.m_checkers.end();
        it != itEnd;
        ++it) {
       m_checkers.push_back(*it);
@@ -90,7 +90,7 @@ FWTypeToRepresentations::insert( const FWTypeToRepresentations& iOther)
 //
 // const member functions
 //
-const std::vector<FWRepresentationInfo>& 
+const std::vector<FWRepresentationInfo>&
 FWTypeToRepresentations::representationsForType(const std::string& iTypeName) const
 {
    TypeToReps::const_iterator itFound = m_typeToReps.find(iTypeName);
@@ -98,7 +98,7 @@ FWTypeToRepresentations::representationsForType(const std::string& iTypeName) co
       std::vector<FWRepresentationInfo> reps;
       //check all reps
       for(std::vector<boost::shared_ptr<FWRepresentationCheckerBase> >::const_iterator it = m_checkers.begin(),
-          itEnd = m_checkers.end();
+                                                                                       itEnd = m_checkers.end();
           it != itEnd;
           ++it) {
          FWRepresentationInfo info = (*it)->infoFor(iTypeName);
@@ -109,7 +109,7 @@ FWTypeToRepresentations::representationsForType(const std::string& iTypeName) co
       m_typeToReps.insert(std::make_pair(iTypeName,reps));
       itFound = m_typeToReps.find(iTypeName);
    }
-   
+
    return itFound->second;
 }
 

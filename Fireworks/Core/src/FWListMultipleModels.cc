@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 24 11:45:18 EDT 2008
-// $Id: FWListMultipleModels.cc,v 1.3 2008/06/09 20:23:39 chrjones Exp $
+// $Id: FWListMultipleModels.cc,v 1.4 2008/11/06 22:05:26 amraktad Exp $
 //
 
 // system include files
@@ -30,9 +30,9 @@
 //
 // constructors and destructor
 //
-FWListMultipleModels::FWListMultipleModels(const std::set<FWModelId>& iIDs):
-TEveElement(m_color),
-m_ids(iIDs)
+FWListMultipleModels::FWListMultipleModels(const std::set<FWModelId>& iIDs) :
+   TEveElement(m_color),
+   m_ids(iIDs)
 {
    const FWEventItem* item = m_ids.begin()->item();
    TEveElement::SetMainColor(item->modelInfo(m_ids.begin()->index()).displayProperties().color());

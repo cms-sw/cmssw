@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FW3DViewManager.cc,v 1.5 2008/12/04 20:06:54 chrjones Exp $
+// $Id: FW3DViewManager.cc,v 1.6 2008/12/08 18:43:28 chrjones Exp $
 //
 
 // system include files
@@ -53,12 +53,12 @@
 //
 // constructors and destructor
 //
-FW3DViewManager::FW3DViewManager(FWGUIManager* iGUIMgr):
-FWViewManagerBase(),
-  m_elements( new TEveElementList("3D")),
-  m_caloData(0),
-  m_eveSelection(0),
-  m_selectionManager(0)
+FW3DViewManager::FW3DViewManager(FWGUIManager* iGUIMgr) :
+   FWViewManagerBase(),
+   m_elements( new TEveElementList("3D")),
+   m_caloData(0),
+   m_eveSelection(0),
+   m_selectionManager(0)
 {
    FWGUIManager::ViewBuildFunctor f;
    f=boost::bind(&FW3DViewManager::buildView,
@@ -66,11 +66,11 @@ FWViewManagerBase(),
    iGUIMgr->registerViewBuilder(FW3DView::staticTypeName(), f);
 
    /*
-   m_eveSelection=gEve->GetSelection();
-   m_eveSelection->SetPickToSelect(TEveSelection::kPS_Projectable);
-   m_eveSelection->Connect("SelectionAdded(TEveElement*)","FW3DViewManager",this,"selectionAdded(TEveElement*)");
-   m_eveSelection->Connect("SelectionRemoved(TEveElement*)","FW3DViewManager",this,"selectionRemoved(TEveElement*)");
-   m_eveSelection->Connect("SelectionCleared()","FW3DViewManager",this,"selectionCleared()");
+      m_eveSelection=gEve->GetSelection();
+      m_eveSelection->SetPickToSelect(TEveSelection::kPS_Projectable);
+      m_eveSelection->Connect("SelectionAdded(TEveElement*)","FW3DViewManager",this,"selectionAdded(TEveElement*)");
+      m_eveSelection->Connect("SelectionRemoved(TEveElement*)","FW3DViewManager",this,"selectionRemoved(TEveElement*)");
+      m_eveSelection->Connect("SelectionCleared()","FW3DViewManager",this,"selectionCleared()");
     */
 
    //create a list of the available ViewManager's
@@ -94,7 +94,7 @@ FWViewManagerBase(),
        it!=itEnd;
        ++it) {
       std::string::size_type first = it->find_first_of('@')+1;
-      std::string  purpose = it->substr(first,it->find_last_of('@')-first);
+      std::string purpose = it->substr(first,it->find_last_of('@')-first);
       m_typeToBuilders[purpose].push_back(*it);
    }
 
@@ -116,7 +116,7 @@ FW3DViewManager::buildView(TGFrame* iParent)
    //? pView->resetCamera();
    if(1 == m_views.size()) {
       for(std::vector<boost::shared_ptr<FW3DDataProxyBuilder> >::iterator it
-          =m_builders.begin(), itEnd = m_builders.end();
+             =m_builders.begin(), itEnd = m_builders.end();
           it != itEnd;
           ++it) {
          (*it)->setHaveAWindow(true);
@@ -132,14 +132,14 @@ FW3DViewManager::beingDestroyed(const FWViewBase* iView)
 
    if(1 == m_views.size()) {
       for(std::vector<boost::shared_ptr<FW3DDataProxyBuilder> >::iterator it
-          =m_builders.begin(), itEnd = m_builders.end();
+             =m_builders.begin(), itEnd = m_builders.end();
           it != itEnd;
           ++it) {
          (*it)->setHaveAWindow(false);
       }
    }
    for(std::vector<boost::shared_ptr<FW3DView> >::iterator it=
-       m_views.begin(), itEnd = m_views.end();
+          m_views.begin(), itEnd = m_views.end();
        it != itEnd;
        ++it) {
       if(it->get() == iView) {
@@ -156,22 +156,22 @@ FW3DViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
       //std::cout <<"got selection manager"<<std::endl;
       m_selectionManager = iItem->selectionManager();
    }
-  TypeToBuilders::iterator itFind = m_typeToBuilders.find(iItem->purpose());
-  if(itFind != m_typeToBuilders.end()) {
-     for ( std::vector<std::string>::const_iterator builderName = itFind->second.begin();
-	   builderName != itFind->second.end(); ++builderName )
-       {
-          FW3DDataProxyBuilder* builder = FW3DDataProxyBuilderFactory::get()->create(*builderName);
-	  if(0!=builder) {
-	     boost::shared_ptr<FW3DDataProxyBuilder> pB( builder );
-	     builder->setItem(iItem);
-             builder->setHaveAWindow(!m_views.empty());
-             builder->addToScene(*m_elements,&m_caloData);
-             //m_elements.AddElement(builder->usedInScene());
-             m_builders.push_back(pB);
-	  }
-       }
-  }
+   TypeToBuilders::iterator itFind = m_typeToBuilders.find(iItem->purpose());
+   if(itFind != m_typeToBuilders.end()) {
+      for ( std::vector<std::string>::const_iterator builderName = itFind->second.begin();
+            builderName != itFind->second.end(); ++builderName )
+      {
+         FW3DDataProxyBuilder* builder = FW3DDataProxyBuilderFactory::get()->create(*builderName);
+         if(0!=builder) {
+            boost::shared_ptr<FW3DDataProxyBuilder> pB( builder );
+            builder->setItem(iItem);
+            builder->setHaveAWindow(!m_views.empty());
+            builder->addToScene(*m_elements,&m_caloData);
+            //m_elements.AddElement(builder->usedInScene());
+            m_builders.push_back(pB);
+         }
+      }
+   }
 }
 
 void
@@ -244,21 +244,21 @@ FW3DViewManager::supportedTypesAndRepresentations() const
 {
    FWTypeToRepresentations returnValue;
    const std::string kSimple("simple#");
-   
+
    for(TypeToBuilders::const_iterator it = m_typeToBuilders.begin(), itEnd = m_typeToBuilders.end();
        it != itEnd;
        ++it) {
       for ( std::vector<std::string>::const_iterator builderName = it->second.begin();
-	   builderName != it->second.end(); ++builderName )
+            builderName != it->second.end(); ++builderName )
       {
          if(builderName->substr(0,kSimple.size()) == kSimple) {
-            returnValue.add(boost::shared_ptr<FWRepresentationCheckerBase>( 
-  	       new FWSimpleRepresentationChecker( builderName->substr(kSimple.size(), builderName->find_first_of('@')-kSimple.size()),
-						  it->first)));
+            returnValue.add(boost::shared_ptr<FWRepresentationCheckerBase>(
+                               new FWSimpleRepresentationChecker( builderName->substr(kSimple.size(), builderName->find_first_of('@')-kSimple.size()),
+                                                                  it->first)));
          } else {
-            returnValue.add(boost::shared_ptr<FWRepresentationCheckerBase>( 
-               new FWEDProductRepresentationChecker( builderName->substr(0,builderName->find_first_of('@')),
-						     it->first)));
+            returnValue.add(boost::shared_ptr<FWRepresentationCheckerBase>(
+                               new FWEDProductRepresentationChecker( builderName->substr(0,builderName->find_first_of('@')),
+                                                                     it->first)));
          }
       }
 

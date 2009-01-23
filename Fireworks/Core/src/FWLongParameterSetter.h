@@ -7,16 +7,16 @@
 //
 /**\class FWLongParameterSetter FWLongParameterSetter.h Fireworks/Core/interface/FWLongParameterSetter.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 10 11:22:26 CDT 2008
-// $Id: FWLongParameterSetter.h,v 1.1 2008/03/11 14:04:27 chrjones Exp $
+// $Id: FWLongParameterSetter.h,v 1.2 2008/11/06 22:05:26 amraktad Exp $
 //
 
 // system include files
@@ -32,27 +32,27 @@ class TGNumberEntry;
 class FWLongParameterSetter : public FWParameterSetterBase
 {
 
-   public:
-      FWLongParameterSetter();
-      virtual ~FWLongParameterSetter();
+public:
+   FWLongParameterSetter();
+   virtual ~FWLongParameterSetter();
 
-      // ---------- const member functions ---------------------
+   // ---------- const member functions ---------------------
 
-      // ---------- static member functions --------------------
+   // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
-      virtual void attach(FWParameterBase*) ;
-      virtual TGFrame* build(TGFrame* iParent) ;
-      void doUpdate(Long_t);
+   // ---------- member functions ---------------------------
+   virtual void attach(FWParameterBase*) ;
+   virtual TGFrame* build(TGFrame* iParent) ;
+   void doUpdate(Long_t);
 
-   private:
-      FWLongParameterSetter(const FWLongParameterSetter&); // stop default
+private:
+   FWLongParameterSetter(const FWLongParameterSetter&);    // stop default
 
-      const FWLongParameterSetter& operator=(const FWLongParameterSetter&); // stop default
+   const FWLongParameterSetter& operator=(const FWLongParameterSetter&);    // stop default
 
-      // ---------- member data --------------------------------
-      FWLongParameter* m_param;
-      TGNumberEntry* m_widget;
+   // ---------- member data --------------------------------
+   FWLongParameter* m_param;
+   TGNumberEntry* m_widget;
 };
 
 

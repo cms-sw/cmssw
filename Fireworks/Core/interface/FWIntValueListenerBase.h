@@ -5,8 +5,10 @@
 
 class FWIntValueListenerBase {
 public:
-   FWIntValueListenerBase() { }
-   virtual ~FWIntValueListenerBase() {}
+   FWIntValueListenerBase() {
+   }
+   virtual ~FWIntValueListenerBase() {
+   }
 
    // ---------- member functions ---------------------------
    void setValue(Int_t entry);

@@ -4,19 +4,19 @@
 //
 // Package:     Core
 // Class  :     FWTypeToRepresentations
-// 
+//
 /**\class FWTypeToRepresentations FWTypeToRepresentations.h Fireworks/Core/interface/FWTypeToRepresentations.h
 
- Description: For a given C++ type, gives back a list of what 'Representations' are available
+   Description: For a given C++ type, gives back a list of what 'Representations' are available
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 11 11:25:04 EST 2008
-// $Id$
+// $Id: FWTypeToRepresentations.h,v 1.1 2008/11/14 16:29:31 chrjones Exp $
 //
 
 // system include files
@@ -32,25 +32,25 @@
 class FWRepresentationCheckerBase;
 
 class FWTypeToRepresentations {
-   
+
 public:
    FWTypeToRepresentations();
    virtual ~FWTypeToRepresentations();
-   
+
    // ---------- const member functions ---------------------
    const std::vector<FWRepresentationInfo>& representationsForType(const std::string& iTypeName) const;
-   
+
    // ---------- static member functions --------------------
-   
+
    // ---------- member functions ---------------------------
    void add( boost::shared_ptr<FWRepresentationCheckerBase> iChecker);
    void insert( const FWTypeToRepresentations& );
-   
+
 private:
    //FWTypeToRepresentations(const FWTypeToRepresentations&); // stop default
-   
+
    //const FWTypeToRepresentations& operator=(const FWTypeToRepresentations&); // stop default
-   
+
    // ---------- member data --------------------------------
    mutable std::map<std::string, std::vector<FWRepresentationInfo> > m_typeToReps;
    std::vector<boost::shared_ptr<FWRepresentationCheckerBase> > m_checkers;

@@ -7,16 +7,16 @@
 //
 /**\class FWModelExpressionSelector FWModelExpressionSelector.h Fireworks/Core/interface/FWModelExpressionSelector.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Jan 23 10:37:13 EST 2008
-// $Id: FWModelExpressionSelector.h,v 1.2 2008/08/21 21:10:50 chrjones Exp $
+// $Id: FWModelExpressionSelector.h,v 1.3 2008/11/06 22:05:23 amraktad Exp $
 //
 
 // system include files
@@ -30,24 +30,25 @@ class FWEventItem;
 class FWModelExpressionSelector
 {
 
-   public:
-      FWModelExpressionSelector() {}
-      //virtual ~FWModelExpressionSelector();
+public:
+   FWModelExpressionSelector() {
+   }
+   //virtual ~FWModelExpressionSelector();
 
-      // ---------- const member functions ---------------------
-      /** Throws an FWExpressionException if there is a problem */
-      bool select(FWEventItem* iItem, const std::string& iExpression) const;
+   // ---------- const member functions ---------------------
+   /** Throws an FWExpressionException if there is a problem */
+   bool select(FWEventItem* iItem, const std::string& iExpression) const;
 
-      // ---------- static member functions --------------------
+   // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
+   // ---------- member functions ---------------------------
 
-   private:
-      FWModelExpressionSelector(const FWModelExpressionSelector&); // stop default
+private:
+   FWModelExpressionSelector(const FWModelExpressionSelector&);    // stop default
 
-      const FWModelExpressionSelector& operator=(const FWModelExpressionSelector&); // stop default
+   const FWModelExpressionSelector& operator=(const FWModelExpressionSelector&);    // stop default
 
-      // ---------- member data --------------------------------
+   // ---------- member data --------------------------------
 
 };
 

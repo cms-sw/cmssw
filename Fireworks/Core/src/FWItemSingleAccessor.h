@@ -7,16 +7,16 @@
 //
 /**\class FWItemSingleAccessor FWItemSingleAccessor.h Fireworks/Core/interface/FWItemSingleAccessor.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 11:36:41 EDT 2008
-// $Id: FWItemSingleAccessor.h,v 1.1 2008/10/21 19:08:23 chrjones Exp $
+// $Id: FWItemSingleAccessor.h,v 1.2 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files
@@ -26,7 +26,7 @@
 
 // forward declarations
 
-class FWItemSingleAccessor : public  FWItemAccessorBase {
+class FWItemSingleAccessor : public FWItemAccessorBase {
 
 public:
    FWItemSingleAccessor(const TClass*);

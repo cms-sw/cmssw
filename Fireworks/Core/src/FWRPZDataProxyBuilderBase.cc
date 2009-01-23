@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jun 28 09:51:35 PDT 2008
-// $Id: FWRPZDataProxyBuilderBase.cc,v 1.7 2008/11/26 01:55:31 chrjones Exp $
+// $Id: FWRPZDataProxyBuilderBase.cc,v 1.8 2008/12/06 02:38:48 chrjones Exp $
 //
 
 // system include files
@@ -31,15 +31,15 @@
 //
 // constructors and destructor
 //
-FWRPZDataProxyBuilderBase::FWRPZDataProxyBuilderBase():
-m_item(0),
-m_rpviews(0),
-m_rzviews(0),
-m_rhoPhiProjs(),
-m_rhoZProjs(),
-m_ids(),
-m_layer(0),
-m_modelsChanged(true)
+FWRPZDataProxyBuilderBase::FWRPZDataProxyBuilderBase() :
+   m_item(0),
+   m_rpviews(0),
+   m_rzviews(0),
+   m_rhoPhiProjs(),
+   m_rhoZProjs(),
+   m_ids(),
+   m_layer(0),
+   m_modelsChanged(true)
 {
 }
 
@@ -116,7 +116,7 @@ FWRPZDataProxyBuilderBase::itemBeingDestroyed(const FWEventItem* iItem)
 
 void
 FWRPZDataProxyBuilderBase::modelChanges(const FWModelIds& iIds,
-             TEveElement* iElements )
+                                        TEveElement* iElements )
 {
    if(0==iElements) {return;}
    //std::cout <<"modelChanged "<<m_item->size()<<" "<<iElements->GetNChildren()<<std::endl;
@@ -174,8 +174,8 @@ FWRPZDataProxyBuilderBase::modelChanges(const FWModelIds& iIds)
 
 void
 FWRPZDataProxyBuilderBase::setViews(
-              std::vector<boost::shared_ptr<FWRhoPhiZView> >* iRhoPhoViews,
-              std::vector<boost::shared_ptr<FWRhoPhiZView> >* iRhoZViews)
+   std::vector<boost::shared_ptr<FWRhoPhiZView> >* iRhoPhoViews,
+   std::vector<boost::shared_ptr<FWRhoPhiZView> >* iRhoZViews)
 {
    m_rpviews=iRhoPhoViews;
    m_rzviews=iRhoZViews;
@@ -269,7 +269,7 @@ setUserDataElementAndChildren(TEveElement* iElement,
 {
    iElement->SetUserData(const_cast<void*>(iInfo));
    for(TEveElement::List_i itElement = iElement->BeginChildren(),
-       itEnd = iElement->EndChildren();
+                           itEnd = iElement->EndChildren();
        itElement != itEnd;
        ++itElement) {
       setUserDataElementAndChildren(*itElement, iInfo);
@@ -296,7 +296,7 @@ FWRPZDataProxyBuilderBase::setUserData(const FWEventItem* iItem,TEveElementList*
    }
 }
 
-std::string 
+std::string
 FWRPZDataProxyBuilderBase::typeOfBuilder()
 {
    return std::string();

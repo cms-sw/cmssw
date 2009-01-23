@@ -7,16 +7,16 @@
 //
 /**\class FWParameterSetterBase FWParameterSetterBase.h Fireworks/Core/interface/FWParameterSetterBase.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:16:14 EST 2008
-// $Id: FWParameterSetterBase.h,v 1.3 2008/07/15 02:01:01 chrjones Exp $
+// $Id: FWParameterSetterBase.h,v 1.4 2008/11/06 22:05:23 amraktad Exp $
 //
 
 // system include files
@@ -33,30 +33,32 @@ class FWParameterSetterEditorBase;
 class FWParameterSetterBase
 {
 
-   public:
-      FWParameterSetterBase();
-      virtual ~FWParameterSetterBase();
+public:
+   FWParameterSetterBase();
+   virtual ~FWParameterSetterBase();
 
-      // ---------- const member functions ---------------------
+   // ---------- const member functions ---------------------
 
-      // ---------- static member functions --------------------
+   // ---------- static member functions --------------------
 
-      static boost::shared_ptr<FWParameterSetterBase> makeSetterFor(FWParameterBase*);
-      // ---------- member functions ---------------------------
-      void attach(FWParameterBase*, FWParameterSetterEditorBase*);
-      virtual TGFrame* build(TGFrame* iParent) = 0;
-   protected:
-      void update() const;
-      FWParameterSetterEditorBase* frame() const { return m_frame;}
-   private:
-      virtual void attach(FWParameterBase*) = 0;
+   static boost::shared_ptr<FWParameterSetterBase> makeSetterFor(FWParameterBase*);
+   // ---------- member functions ---------------------------
+   void attach(FWParameterBase*, FWParameterSetterEditorBase*);
+   virtual TGFrame* build(TGFrame* iParent) = 0;
+protected:
+   void update() const;
+   FWParameterSetterEditorBase* frame() const {
+      return m_frame;
+   }
+private:
+   virtual void attach(FWParameterBase*) = 0;
 
-      FWParameterSetterBase(const FWParameterSetterBase&); // stop default
+   FWParameterSetterBase(const FWParameterSetterBase&);    // stop default
 
-      const FWParameterSetterBase& operator=(const FWParameterSetterBase&); // stop default
+   const FWParameterSetterBase& operator=(const FWParameterSetterBase&);    // stop default
 
-      // ---------- member data --------------------------------
-      FWParameterSetterEditorBase* m_frame;
+   // ---------- member data --------------------------------
+   FWParameterSetterEditorBase* m_frame;
 };
 
 

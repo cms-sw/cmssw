@@ -9,7 +9,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWMetLegoEveProxyBuilder.cc,v 1.1 2009/01/15 18:28:56 amraktad Exp $
+// $Id: FWMetLegoEveProxyBuilder.cc,v 1.1 2009/01/19 18:41:00 amraktad Exp $
 //
 
 // system include files
@@ -27,23 +27,23 @@
 
 class FWMetLegoEveProxyBuilder : public FW3DLegoEveElementProxyBuilder
 {
-   public:
-      FWMetLegoEveProxyBuilder();
-      virtual ~FWMetLegoEveProxyBuilder();
+public:
+   FWMetLegoEveProxyBuilder();
+   virtual ~FWMetLegoEveProxyBuilder();
 
-      // ---------- const member functions ---------------------
-      REGISTER_PROXYBUILDER_METHODS();
+   // ---------- const member functions ---------------------
+   REGISTER_PROXYBUILDER_METHODS();
 
-      // ---------- static member functions --------------------
-   private:
-      virtual void build(const FWEventItem* iItem,
-                         TEveElementList** product);
+   // ---------- static member functions --------------------
+private:
+   virtual void build(const FWEventItem* iItem,
+                      TEveElementList** product);
 
-      FWMetLegoEveProxyBuilder(const FWMetLegoEveProxyBuilder&); // stop default
+   FWMetLegoEveProxyBuilder(const FWMetLegoEveProxyBuilder&);    // stop default
 
-      const FWMetLegoEveProxyBuilder& operator=(const FWMetLegoEveProxyBuilder&); // stop default
+   const FWMetLegoEveProxyBuilder& operator=(const FWMetLegoEveProxyBuilder&);    // stop default
 
-      // ---------- member data --------------------------------
+   // ---------- member data --------------------------------
 };
 
 //

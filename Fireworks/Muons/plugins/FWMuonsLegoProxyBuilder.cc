@@ -2,13 +2,13 @@
 //
 // Package:     Muons
 // Class  :     FWMuonsLegoProxyBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 17:40:15 EST 2008
-// $Id$
+// $Id: FWMuonsLegoProxyBuilder.cc,v 1.1 2008/12/03 01:16:24 chrjones Exp $
 //
 
 // system include files
@@ -21,27 +21,27 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 
 class FWMuonsLegoProxyBuilder : public FW3DLegoSimpleProxyBuilderTemplate<reco::Muon> {
-   
+
 public:
    FWMuonsLegoProxyBuilder();
    //virtual ~FWMuonsLegoProxyBuilder();
-   
+
    // ---------- const member functions ---------------------
-   
+
    // ---------- static member functions --------------------
-   
+
    // ---------- member functions ---------------------------
    REGISTER_PROXYBUILDER_METHODS();
-  
+
 private:
    FWMuonsLegoProxyBuilder(const FWMuonsLegoProxyBuilder&); // stop default
-   
+
    const FWMuonsLegoProxyBuilder& operator=(const FWMuonsLegoProxyBuilder&); // stop default
-   
+
    void build(const reco::Muon& iData, unsigned int iIndex,TEveElement& oItemHolder) const;
 
    // ---------- member data --------------------------------
-      
+
 };
 
 //
@@ -87,12 +87,12 @@ FWMuonsLegoProxyBuilder::FWMuonsLegoProxyBuilder()
 //
 // const member functions
 //
-void 
+void
 FWMuonsLegoProxyBuilder::build(const reco::Muon& iData, unsigned int iIndex,TEveElement& oItemHolder) const
 {
    TEvePointSet* points = new TEvePointSet("points");
    oItemHolder.AddElement(points);
-   
+
    points->SetMarkerStyle(2);
    points->SetMarkerSize(0.2);
    if ( iData.track().isAvailable() && iData.track()->extra().isAvailable() ) {
@@ -117,7 +117,7 @@ FWMuonsLegoProxyBuilder::build(const reco::Muon& iData, unsigned int iIndex,TEve
       }
    }
    points->SetMarkerColor(  item()->defaultDisplayProperties().color() );
-   
+
 }
 
 //

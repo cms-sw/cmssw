@@ -7,16 +7,16 @@
 //
 /**\class FWEveLegoViewManager FWEveLegoViewManager.h Fireworks/Core/interface/FWEveLegoViewManager.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:21 EST 2008
-// $Id: FWEveLegoViewManager.h,v 1.8 2008/11/11 15:21:44 chrjones Exp $
+// $Id: FWEveLegoViewManager.h,v 1.9 2008/11/14 16:40:14 chrjones Exp $
 //
 
 // system include files
@@ -43,71 +43,71 @@ class FWSelectionManager;
 class TEveCaloLego;
 
 /*
-struct FWEveLegoModelProxy
-{
+   struct FWEveLegoModelProxy
+   {
    boost::shared_ptr<FW3DLegoDataProxyBuilder>   builder;
    TObject*                           product; //owned by builder
    bool ignore;
    FWEveLegoModelProxy():product(0),ignore(false){}
    FWEveLegoModelProxy(boost::shared_ptr<FW3DLegoDataProxyBuilder> iBuilder):
     builder(iBuilder),product(0),ignore(false){}
-};
-*/
+   };
+ */
 
 class FWEveLegoViewManager : public FWViewManagerBase
 {
 
-   public:
-      FWEveLegoViewManager(FWGUIManager*);
-      virtual ~FWEveLegoViewManager();
+public:
+   FWEveLegoViewManager(FWGUIManager*);
+   virtual ~FWEveLegoViewManager();
 
-      // ---------- const member functions ---------------------
-      FWTypeToRepresentations supportedTypesAndRepresentations() const;
+   // ---------- const member functions ---------------------
+   FWTypeToRepresentations supportedTypesAndRepresentations() const;
 
-      // ---------- static member functions --------------------
+   // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
-      //virtual void newEventAvailable();
+   // ---------- member functions ---------------------------
+   //virtual void newEventAvailable();
 
-      virtual void newItem(const FWEventItem*);
+   virtual void newItem(const FWEventItem*);
 
-      FWViewBase* buildView(TGFrame* iParent);
+   FWViewBase* buildView(TGFrame* iParent);
 
-      //connect to ROOT signals
-      void selectionAdded(TEveElement*);
-      void selectionRemoved(TEveElement*);
-      void selectionCleared();
+   //connect to ROOT signals
+   void selectionAdded(TEveElement*);
+   void selectionRemoved(TEveElement*);
+   void selectionCleared();
 
-   protected:
-      virtual void modelChangesComing();
-      virtual void modelChangesDone();
+protected:
+   virtual void modelChangesComing();
+   virtual void modelChangesDone();
 
-   private:
-      FWEveLegoViewManager(const FWEveLegoViewManager&); // stop default
+private:
+   FWEveLegoViewManager(const FWEveLegoViewManager&);    // stop default
 
-      const FWEveLegoViewManager& operator=(const FWEveLegoViewManager&); // stop default
+   const FWEveLegoViewManager& operator=(const FWEveLegoViewManager&);    // stop default
 
-      void makeProxyBuilderFor(const FWEventItem* iItem);
-      void beingDestroyed(const FWViewBase*);
-      //void itemChanged(const FWEventItem*);
-      void initData();
+   void makeProxyBuilderFor(const FWEventItem* iItem);
+   void beingDestroyed(const FWViewBase*);
+   //void itemChanged(const FWEventItem*);
+   void initData();
 
-      // ---------- member data --------------------------------
-      typedef  std::map<std::string,std::vector<std::string> > TypeToBuilders;
-      TypeToBuilders m_typeToBuilders;
-       std::vector<boost::shared_ptr<FW3DLegoDataProxyBuilder> > m_builders;
+   // ---------- member data --------------------------------
+   typedef  std::map<std::string,std::vector<std::string> > TypeToBuilders;
+   TypeToBuilders m_typeToBuilders;
+   std::vector<boost::shared_ptr<FW3DLegoDataProxyBuilder> > m_builders;
 
-      std::vector<boost::shared_ptr<FWEveLegoView> > m_views;
-      FWEvePtr<TEveElementList> m_elements;
-      TEveCaloDataHist* m_data;
-      FWEvePtr<TEveCaloLego> m_lego;
-      int  m_legoRebinFactor;
+   std::vector<boost::shared_ptr<FWEveLegoView> > m_views;
+   FWEvePtr<TEveElementList> m_elements;
+   TEveCaloDataHist* m_data;
+   FWEvePtr<TEveCaloLego> m_lego;
+   int m_legoRebinFactor;
 
-      //bool m_itemChanged;
-      TEveSelection* m_eveSelection;
-      FWSelectionManager* m_selectionManager;
+   //bool m_itemChanged;
+   TEveSelection* m_eveSelection;
+   FWSelectionManager* m_selectionManager;
 
-     bool m_modelsHaveBeenMadeAtLeastOnce;
+   bool m_modelsHaveBeenMadeAtLeastOnce;
 };
 
 #endif

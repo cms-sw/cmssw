@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Fri Jul 25 11:49:12 EDT 2008
-// $Id: CmsShowTaskTimer.cc,v 1.1 2008/07/25 23:57:11 chrjones Exp $
+// $Id: CmsShowTaskTimer.cc,v 1.2 2008/11/06 22:05:24 amraktad Exp $
 //
 
 // system include files
@@ -60,8 +60,8 @@ CmsShowTaskTimer::~CmsShowTaskTimer()
 Bool_t
 CmsShowTaskTimer::Notify()
 {
-  m_taskExec->doNextTask();
-  return kTRUE;
+   m_taskExec->doNextTask();
+   return kTRUE;
 }
 
 //

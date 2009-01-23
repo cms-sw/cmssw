@@ -7,16 +7,16 @@
 //
 /**\class CmsShowModelPopup CmsShowModelPopup.h Fireworks/Core/interface/CmsShowModelPopup.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:
 //         Created:  Fri Jun 27 11:23:31 EDT 2008
-// $Id: CmsShowModelPopup.h,v 1.6 2008/07/08 17:47:00 chrjones Exp $
+// $Id: CmsShowModelPopup.h,v 1.7 2008/11/06 22:05:22 amraktad Exp $
 //
 
 // system include files
@@ -42,38 +42,38 @@ class FWSelectionManager;
 class CmsShowModelPopup : public TGTransientFrame
 {
 
-   public:
-      CmsShowModelPopup(FWDetailViewManager*, FWSelectionManager*, const TGWindow* p = 0, UInt_t w = 1, UInt_t h = 1);
-      virtual ~CmsShowModelPopup();
+public:
+   CmsShowModelPopup(FWDetailViewManager*, FWSelectionManager*, const TGWindow* p = 0, UInt_t w = 1, UInt_t h = 1);
+   virtual ~CmsShowModelPopup();
 
-      // ---------- const member functions ---------------------
+   // ---------- const member functions ---------------------
 
-      // ---------- static member functions --------------------
+   // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
-      void fillModelPopup(const FWSelectionManager& iSelMgr);
-      void updateDisplay();
-      void disconnectAll();
-      void changeModelColor(Pixel_t pixel = 0x000000);
-      void toggleModelVisible(Bool_t on = kTRUE);
-      void openDetailedView();
+   // ---------- member functions ---------------------------
+   void fillModelPopup(const FWSelectionManager& iSelMgr);
+   void updateDisplay();
+   void disconnectAll();
+   void changeModelColor(Pixel_t pixel = 0x000000);
+   void toggleModelVisible(Bool_t on = kTRUE);
+   void openDetailedView();
 
-   private:
-      CmsShowModelPopup(const CmsShowModelPopup&); // stop default
+private:
+   CmsShowModelPopup(const CmsShowModelPopup&);    // stop default
 
-      const CmsShowModelPopup& operator=(const CmsShowModelPopup&); // stop default
+   const CmsShowModelPopup& operator=(const CmsShowModelPopup&);    // stop default
 
-      // ---------- member data --------------------------------
-      TGLabel* m_modelLabel;
-      FWColorSelect* m_colorSelectWidget;
-      TGCheckButton* m_isVisibleButton;
-      TGTextButton* m_openDetailedViewButton;
-      std::set<FWModelId> m_models;
-      sigc::connection m_modelChangedConn;
-      sigc::connection m_destroyedConn;
-      sigc::connection m_changes;
+   // ---------- member data --------------------------------
+   TGLabel* m_modelLabel;
+   FWColorSelect* m_colorSelectWidget;
+   TGCheckButton* m_isVisibleButton;
+   TGTextButton* m_openDetailedViewButton;
+   std::set<FWModelId> m_models;
+   sigc::connection m_modelChangedConn;
+   sigc::connection m_destroyedConn;
+   sigc::connection m_changes;
 
-      FWDetailViewManager* m_detailViewManager;
+   FWDetailViewManager* m_detailViewManager;
 };
 
 

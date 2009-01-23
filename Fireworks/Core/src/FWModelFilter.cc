@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 29 13:39:56 PST 2008
-// $Id: FWModelFilter.cc,v 1.8 2008/08/22 16:55:58 chrjones Exp $
+// $Id: FWModelFilter.cc,v 1.9 2008/11/06 22:05:26 amraktad Exp $
 //
 
 // system include files
@@ -41,9 +41,9 @@
 // constructors and destructor
 //
 FWModelFilter::FWModelFilter(const std::string& iExpression,
-                           const std::string& iClassName):
-m_className(iClassName),
-m_type(ROOT::Reflex::Type::ByName(iClassName))
+                             const std::string& iClassName) :
+   m_className(iClassName),
+   m_type(ROOT::Reflex::Type::ByName(iClassName))
 {
    setExpression(iExpression);
 }
@@ -93,12 +93,12 @@ FWModelFilter::setExpression(const std::string& iExpression)
             throw FWExpressionException("syntax error", -1);
             //std::cout <<"failed to parse "<<iExpression<<" because of syntax error"<<std::endl;
          }
-      }catch(const reco::parser::BaseException& e) {
+      } catch(const reco::parser::BaseException& e) {
          //NOTE: need to calculate actual position before doing the regex
          throw FWExpressionException(reco::parser::baseExceptionWhat(e), indexFromNewFormatToOldFormat(temp,e.where-temp.c_str(),iExpression));
          //std::cout <<"failed to parse "<<iExpression<<" because "<<reco::parser::baseExceptionWhat(e)<<std::endl;
       }
-   }else {
+   } else {
       m_expression=iExpression;
    }
 }

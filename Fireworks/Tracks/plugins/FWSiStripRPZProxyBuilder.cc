@@ -5,16 +5,16 @@
 //
 /**\class FWSiStripRPZProxyBuilder FWSiStripRPZProxyBuilder.h Fireworks/Core/interface/FWSiStripRPZProxyBuilder.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWSiStripRPZProxyBuilder.cc,v 1.1 2009/01/16 16:19:13 chrjones Exp $
+// $Id: FWSiStripRPZProxyBuilder.cc,v 1.1 2009/01/16 20:01:29 amraktad Exp $
 //
 
 // system include files
@@ -35,18 +35,20 @@
 class FWSiStripRPZProxyBuilder : public FWRPZDataProxyBuilder
 {
 
-   public:
-      FWSiStripRPZProxyBuilder() {}
-      virtual ~FWSiStripRPZProxyBuilder() {}
-      REGISTER_PROXYBUILDER_METHODS();
-   private:
-      virtual void build(const FWEventItem* iItem, TEveElementList** product);
+public:
+   FWSiStripRPZProxyBuilder() {
+   }
+   virtual ~FWSiStripRPZProxyBuilder() {
+   }
+   REGISTER_PROXYBUILDER_METHODS();
+private:
+   virtual void build(const FWEventItem* iItem, TEveElementList** product);
 
-      FWSiStripRPZProxyBuilder(const FWSiStripRPZProxyBuilder&); // stop default
+   FWSiStripRPZProxyBuilder(const FWSiStripRPZProxyBuilder&);    // stop default
 
-      const FWSiStripRPZProxyBuilder& operator=(const FWSiStripRPZProxyBuilder&); // stop default
-      void modelChanges(const FWModelIds& iIds, TEveElement* iElements);
-      void applyChangesToAllModels(TEveElement* iElements);
+   const FWSiStripRPZProxyBuilder& operator=(const FWSiStripRPZProxyBuilder&);    // stop default
+   void modelChanges(const FWModelIds& iIds, TEveElement* iElements);
+   void applyChangesToAllModels(TEveElement* iElements);
 };
 
 void FWSiStripRPZProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
@@ -69,7 +71,7 @@ void FWSiStripRPZProxyBuilder::build(const FWEventItem* iItem, TEveElementList**
    std::set<DetId> modules;
    int index=0;
    for(edmNew::DetSetVector<SiStripCluster>::const_iterator set = clusters->begin();
-      set != clusters->end(); ++set,++index) {
+       set != clusters->end(); ++set,++index) {
       const unsigned int bufSize = 1024;
       char title[bufSize];
       char name[bufSize];
@@ -84,14 +86,14 @@ void FWSiStripRPZProxyBuilder::build(const FWEventItem* iItem, TEveElementList**
       list->SetRnrChildren( iItem->defaultDisplayProperties().isVisible() );
 
       if (iItem->getGeom()) {
-	 // const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix( id );
-	 TEveGeoShape* shape = iItem->getGeom()->getShape( id );
-	 if(0!=shape) {
-	    shape->SetMainTransparency(75);
-	    shape->SetMainColor( iItem->defaultDisplayProperties().color() );
-	    shape->SetPickable(true);
-	    list->AddElement(shape);
-	 }
+         // const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix( id );
+         TEveGeoShape* shape = iItem->getGeom()->getShape( id );
+         if(0!=shape) {
+            shape->SetMainTransparency(75);
+            shape->SetMainColor( iItem->defaultDisplayProperties().color() );
+            shape->SetPickable(true);
+            list->AddElement(shape);
+         }
       }
 
       gEve->AddElement(list,tList);

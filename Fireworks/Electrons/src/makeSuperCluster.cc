@@ -2,13 +2,13 @@
 //
 // Package:     Electrons
 // Class  :     makeSuperCluster
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Dec  5 15:32:33 EST 2008
-// $Id$
+// $Id: makeSuperCluster.cc,v 1.1 2008/12/05 20:57:15 chrjones Exp $
 //
 
 // system include files
@@ -32,7 +32,7 @@ namespace fireworks {
    {
       if ( !iCluster.isAvailable() ) return false;
       TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
-      
+
       std::vector<DetId> detids = iCluster->getHitsByDetId();
       std::vector<double> phis;
       for (std::vector<DetId>::const_iterator id = detids.begin(); id != detids.end(); ++id) {
@@ -49,13 +49,13 @@ namespace fireworks {
       oItemHolder.AddElement(sc);
       return true;
    }
-   
+
    bool makeRhoZSuperCluster(const FWEventItem& iItem,
                              const reco::SuperClusterRef& iCluster,
                              float iPhi,
                              TEveElement& oItemHolder)
    {
-      
+
       if ( !iCluster.isAvailable() ) return false;
       TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
       double theta_max = 0;
@@ -64,8 +64,8 @@ namespace fireworks {
       for (std::vector<DetId>::const_iterator id = detids.begin(); id != detids.end(); ++id) {
          const TGeoHMatrix* matrix = iItem.getGeom()->getMatrix( id->rawId() );
          if ( matrix ) {
-            double r = sqrt( matrix->GetTranslation()[0]*matrix->GetTranslation()[0] +
-                            matrix->GetTranslation()[1]*matrix->GetTranslation()[1] );
+            double r = sqrt( matrix->GetTranslation()[0] *matrix->GetTranslation()[0] +
+                             matrix->GetTranslation()[1] *matrix->GetTranslation()[1] );
             double theta = atan2(r,matrix->GetTranslation()[2]);
             if ( theta > theta_max ) theta_max = theta;
             if ( theta < theta_min ) theta_min = theta;
@@ -75,7 +75,7 @@ namespace fireworks {
       double z_ecal = 302; // ECAL endcap inner surface
       double r_ecal = 122;
       fw::addRhoZEnergyProjection( &oItemHolder, r_ecal, z_ecal, theta_min-0.003, theta_max+0.003,
-                                  iPhi, iItem.defaultDisplayProperties().color() );
+                                   iPhi, iItem.defaultDisplayProperties().color() );
       return true;
    }
 }

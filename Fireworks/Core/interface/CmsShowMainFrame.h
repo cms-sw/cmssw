@@ -7,16 +7,16 @@
 //
 /**\class CmsShowMainFrame CmsShowMainFrame.h Fireworks/Core/interface/CmsShowMainFrame.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:11:16 CDT 2008
-// $Id: CmsShowMainFrame.h,v 1.18 2009/01/07 11:54:57 amraktad Exp $
+// $Id: CmsShowMainFrame.h,v 1.19 2009/01/08 14:07:13 amraktad Exp $
 //
 
 // system include files
@@ -46,7 +46,7 @@ class TGSlider;
 class FWIntValueListener;
 
 namespace fwlite {
-  class Event;
+   class Event;
 }
 
 class CmsShowMainFrame : public TGMainFrame, public sigc::trackable {
@@ -81,8 +81,12 @@ public:
    void resizeMenu(TGPopupMenu *menu);
    void HandleMenu(Int_t id);
    Bool_t HandleKey(Event_t *event);
-   CSGContinuousAction* playEventsAction() const { return m_playEvents;}
-   CSGContinuousAction* playEventsBackwardsAction() const { return m_playEventsBack;}
+   CSGContinuousAction* playEventsAction() const {
+      return m_playEvents;
+   }
+   CSGContinuousAction* playEventsBackwardsAction() const {
+      return m_playEventsBack;
+   }
 
    CSGAction* createNewViewerAction(const std::string& iActionName);
 
@@ -97,7 +101,7 @@ private:
 
    const CmsShowMainFrame& operator=(const CmsShowMainFrame&); // stop default
 
-  void makeFixedSizeLabel(TGHorizontalFrame* p, const char* txt, UInt_t bgCol, UInt_t txtCol);
+   void makeFixedSizeLabel(TGHorizontalFrame* p, const char* txt, UInt_t bgCol, UInt_t txtCol);
    // ---------- member data --------------------------------
    std::vector<CSGAction*> m_actionList;
    FWGUIManager *m_manager;

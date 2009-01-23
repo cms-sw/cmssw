@@ -7,16 +7,16 @@
 //
 /**\class FWListMultipleModels FWListMultipleModels.h Fireworks/Core/interface/FWListMultipleModels.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 24 11:45:16 EDT 2008
-// $Id: FWListMultipleModels.h,v 1.2 2008/06/08 16:59:01 dmytro Exp $
+// $Id: FWListMultipleModels.h,v 1.3 2008/11/06 22:05:26 amraktad Exp $
 //
 
 // system include files
@@ -33,30 +33,30 @@ class FWModelId;
 class FWListMultipleModels : public TEveElement, public TNamed, public FWListItemBase
 {
 
-   public:
-      FWListMultipleModels(const std::set<FWModelId>& iIds);
-      virtual ~FWListMultipleModels();
+public:
+   FWListMultipleModels(const std::set<FWModelId>& iIds);
+   virtual ~FWListMultipleModels();
 
-      // ---------- const member functions ---------------------
-      Bool_t CanEditMainColor() const;
-      Bool_t SingleRnrState() const;
-      ClassDef(FWListMultipleModels,0);
+   // ---------- const member functions ---------------------
+   Bool_t CanEditMainColor() const;
+   Bool_t SingleRnrState() const;
+   ClassDef(FWListMultipleModels,0);
 
-      // ---------- static member functions --------------------
+   // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
-      void SetMainColor(Color_t iColor);
-      Bool_t SetRnrState(Bool_t rnr);
+   // ---------- member functions ---------------------------
+   void SetMainColor(Color_t iColor);
+   Bool_t SetRnrState(Bool_t rnr);
 
-      bool doSelection(bool);
-   private:
-      FWListMultipleModels(const FWListMultipleModels&); // stop default
+   bool doSelection(bool);
+private:
+   FWListMultipleModels(const FWListMultipleModels&);    // stop default
 
-      const FWListMultipleModels& operator=(const FWListMultipleModels&); // stop default
+   const FWListMultipleModels& operator=(const FWListMultipleModels&);    // stop default
 
-      // ---------- member data --------------------------------
-      std::set<FWModelId> m_ids;
-      Color_t m_color;
+   // ---------- member data --------------------------------
+   std::set<FWModelId> m_ids;
+   Color_t m_color;
 
 };
 

@@ -4,19 +4,19 @@
 //
 // Package:     Core
 // Class  :     FWRPZSimpleProxyBuilder
-// 
+//
 /**\class FWRPZSimpleProxyBuilder FWRPZSimpleProxyBuilder.h Fireworks/Core/interface/FWRPZSimpleProxyBuilder.h
 
- Description: Base class for 'simple' proxy builders
+   Description: Base class for 'simple' proxy builders
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 19 10:40:21 EST 2008
-// $Id: FWRPZSimpleProxyBuilder.h,v 1.3 2008/12/02 21:17:46 chrjones Exp $
+// $Id: FWRPZSimpleProxyBuilder.h,v 1.4 2008/12/02 23:43:52 chrjones Exp $
 //
 
 // system include files
@@ -31,30 +31,30 @@
 // forward declarations
 
 class FWRPZSimpleProxyBuilder : public FWRPZDataProxyBuilderBase {
-   
+
 public:
    FWRPZSimpleProxyBuilder(const std::type_info&);
    virtual ~FWRPZSimpleProxyBuilder();
-   
+
    // ---------- const member functions ---------------------
-   
+
    // ---------- static member functions --------------------
    ///Used by the plugin system to determine how the proxy uses the data from FWEventItem
    static std::string typeOfBuilder();
-   
+
    // ---------- member functions ---------------------------
-   
+
 private:
    FWRPZSimpleProxyBuilder(const FWRPZSimpleProxyBuilder&); // stop default
-   
+
    const FWRPZSimpleProxyBuilder& operator=(const FWRPZSimpleProxyBuilder&); // stop default
-   
+
    void build();
-   
-   //called once for each item in collection, the void* points to the 
+
+   //called once for each item in collection, the void* points to the
    // object properly offset in memory
    virtual void build(const void*, unsigned int iIndex, TEveElement& iItemHolder) const = 0;
-   
+
    virtual void itemChangedImp(const FWEventItem*);
    virtual void itemBeingDestroyedImp(const FWEventItem*);
    virtual void modelChangesImp(const FWModelIds&);

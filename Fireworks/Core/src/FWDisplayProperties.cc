@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 17:05:44 EST 2008
-// $Id: FWDisplayProperties.cc,v 1.2 2008/08/20 23:49:31 dmytro Exp $
+// $Id: FWDisplayProperties.cc,v 1.3 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files
@@ -18,8 +18,8 @@
 #include "TColor.h"
 #include "TROOT.h"
 FWDisplayProperties::FWDisplayProperties(const Color_t& iColor /*= kWhite*/,
-		    bool isVisible /*= true*/ ):
-m_isVisible(isVisible)
+                                         bool isVisible /*= true*/ ) :
+   m_isVisible(isVisible)
 {
    setColor(iColor);
 }
@@ -27,7 +27,7 @@ m_isVisible(isVisible)
 void FWDisplayProperties::setColor(Color_t iColor) {
    // make sure the color is availabe in ROOT
    // for colors above 100
-   if ( ! gROOT->GetColor(iColor) && iColor >= 100 ){
+   if ( !gROOT->GetColor(iColor) && iColor >= 100 ){
       m_color = TColor::GetColorDark(iColor-100);
       return;
    }

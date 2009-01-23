@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FW3DLegoDataProxyBuilder.cc,v 1.12 2008/12/03 01:15:57 chrjones Exp $
+// $Id: FW3DLegoDataProxyBuilder.cc,v 1.13 2008/12/03 20:54:40 chrjones Exp $
 //
 
 // system include files
@@ -37,8 +37,8 @@
 //
 // constructors and destructor
 //
-FW3DLegoDataProxyBuilder::FW3DLegoDataProxyBuilder():
-  m_item(0), m_modelsChanged(false), m_haveViews(false), m_mustBuild(true)
+FW3DLegoDataProxyBuilder::FW3DLegoDataProxyBuilder() :
+   m_item(0), m_modelsChanged(false), m_haveViews(false), m_mustBuild(true)
 {
 }
 
@@ -139,7 +139,7 @@ FW3DLegoDataProxyBuilder::modelChanges(const FWModelIds& iIds)
    }
 }
 
-std::string 
+std::string
 FW3DLegoDataProxyBuilder::typeOfBuilder()
 {
    return std::string();

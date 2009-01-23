@@ -7,16 +7,16 @@
 //
 /**\class CmsShowViewPopup CmsShowViewPopup.h Fireworks/Core/interface/CmsShowViewPopup.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:
 //         Created:  Wed Jun 25 15:15:12 EDT 2008
-// $Id: CmsShowViewPopup.h,v 1.4 2008/07/16 13:38:37 chrjones Exp $
+// $Id: CmsShowViewPopup.h,v 1.5 2008/11/06 22:05:22 amraktad Exp $
 //
 
 // system include files
@@ -38,31 +38,31 @@ class FWParameterSetterBase;
 class CmsShowViewPopup : public TGTransientFrame, public FWParameterSetterEditorBase
 {
 
-   public:
-      CmsShowViewPopup(const TGWindow* p = 0, UInt_t w = 0, UInt_t h = 0, FWViewBase* v = 0);
-      virtual ~CmsShowViewPopup();
+public:
+   CmsShowViewPopup(const TGWindow* p = 0, UInt_t w = 0, UInt_t h = 0, FWViewBase* v = 0);
+   virtual ~CmsShowViewPopup();
 
-      // ---------- const member functions ---------------------
+   // ---------- const member functions ---------------------
 
-      // ---------- static member functions --------------------
+   // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
-      void reset(FWViewBase* iView);
-      void removeView();
+   // ---------- member functions ---------------------------
+   void reset(FWViewBase* iView);
+   void removeView();
 
-      void saveImage();
-   private:
-      CmsShowViewPopup(const CmsShowViewPopup&); // stop default
+   void saveImage();
+private:
+   CmsShowViewPopup(const CmsShowViewPopup&);    // stop default
 
-      const CmsShowViewPopup& operator=(const CmsShowViewPopup&); // stop default
+   const CmsShowViewPopup& operator=(const CmsShowViewPopup&);    // stop default
 
-      // ---------- member data --------------------------------
-      TGLabel* m_viewLabel;
-      TGTextButton* m_removeButton;
-      TGCompositeFrame* m_viewContentFrame;
-      TGButton* m_saveImageButton;
-      FWViewBase* m_view;
-      std::vector<boost::shared_ptr<FWParameterSetterBase> > m_setters;
+   // ---------- member data --------------------------------
+   TGLabel* m_viewLabel;
+   TGTextButton* m_removeButton;
+   TGCompositeFrame* m_viewContentFrame;
+   TGButton* m_saveImageButton;
+   FWViewBase* m_view;
+   std::vector<boost::shared_ptr<FWParameterSetterBase> > m_setters;
 };
 
 

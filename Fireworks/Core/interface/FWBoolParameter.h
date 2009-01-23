@@ -7,16 +7,16 @@
 //
 /**\class FWBoolParameter FWBoolParameter.h Fireworks/Core/interface/FWBoolParameter.h
 
- Description: Provides access to a simple bool parameter
+   Description: Provides access to a simple bool parameter
 
- Usage:
+   Usage:
     If min and max values are both identical than no restriction is placed on the allowed value
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:36:34 EST 2008
-// $Id: FWBoolParameter.h,v 1.1 2008/06/20 05:57:06 dmytro Exp $
+// $Id: FWBoolParameter.h,v 1.2 2008/11/06 22:05:22 amraktad Exp $
 //
 
 // system include files
@@ -30,41 +30,41 @@
 class FWBoolParameter : public FWParameterBase
 {
 
-   public:
-      FWBoolParameter(FWParameterizable* iParent,
-		      const std::string& iName,
-		      bool iDefault=false );
-      //virtual ~FWBoolParameter();
-      template <class T>
-      FWBoolParameter(FWParameterizable* iParent,
-		      const std::string& iName,
-		      T iCallback,
-		      bool iDefault=false ):
+public:
+   FWBoolParameter(FWParameterizable* iParent,
+                   const std::string& iName,
+                   bool iDefault=false );
+   //virtual ~FWBoolParameter();
+   template <class T>
+   FWBoolParameter(FWParameterizable* iParent,
+                   const std::string& iName,
+                   T iCallback,
+                   bool iDefault=false ) :
       FWParameterBase(iParent,iName),
       m_value(iDefault)
-      {
-         changed_.connect(iCallback);
-      }
-      // ---------- const member functions ---------------------
-      bool value() const {
-         return m_value;
-      }
-      virtual void addTo(FWConfiguration& ) const ;
-      // ---------- static member functions --------------------
+   {
+      changed_.connect(iCallback);
+   }
+   // ---------- const member functions ---------------------
+   bool value() const {
+      return m_value;
+   }
+   virtual void addTo(FWConfiguration& ) const ;
+   // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
-      virtual void setFrom(const FWConfiguration&);
-      void set(bool);
+   // ---------- member functions ---------------------------
+   virtual void setFrom(const FWConfiguration&);
+   void set(bool);
 
-      sigc::signal<void,bool> changed_;
+   sigc::signal<void,bool> changed_;
 
-   private:
-      FWBoolParameter(const FWBoolParameter&); // stop default
+private:
+   FWBoolParameter(const FWBoolParameter&);    // stop default
 
-      const FWBoolParameter& operator=(const FWBoolParameter&); // stop default
+   const FWBoolParameter& operator=(const FWBoolParameter&);    // stop default
 
-      // ---------- member data --------------------------------
-      bool m_value;
+   // ---------- member data --------------------------------
+   bool m_value;
 };
 
 

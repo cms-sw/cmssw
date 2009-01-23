@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWCaloTowerRPZProxyBuilder.cc,v 1.2 2009/01/19 19:26:00 amraktad Exp $
+// $Id: FWCaloTowerRPZProxyBuilder.cc,v 1.3 2009/01/21 18:42:59 amraktad Exp $
 //
 
 // system include files
@@ -47,7 +47,7 @@ void FWCaloTowerRPZProxyBuilderBase::build(const FWEventItem* iItem, TEveElement
          }
       }
    }
-   if ( ! m_data )  {
+   if ( !m_data )  {
       m_data = new TEveCaloDataHist();
       //make sure it does not go away
       m_data->IncRefCount();
@@ -63,7 +63,7 @@ void FWCaloTowerRPZProxyBuilderBase::build(const FWEventItem* iItem, TEveElement
       if ( *product == 0)
       {
          *product = new TEveElementList("RPZCalo3DHolder");
-         (*product)->AddElement(m_calo3d); 
+         (*product)->AddElement(m_calo3d);
          gEve->AddElement(*product);
       }
    }
@@ -79,7 +79,7 @@ FWCaloTowerRPZProxyBuilderBase::itemBeingDestroyedImp(const FWEventItem* iItem)
 
 void
 FWCaloTowerRPZProxyBuilderBase::modelChanges(const FWModelIds& iIds,
-                                          TEveElement* iElements )
+                                             TEveElement* iElements )
 {
    applyChangesToAllModels(iElements);
 }

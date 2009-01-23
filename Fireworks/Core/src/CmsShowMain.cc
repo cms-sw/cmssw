@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.66 2009/01/12 17:23:48 chrjones Exp $
+// $Id: CmsShowMain.cc,v 1.67 2009/01/20 19:05:51 amraktad Exp $
 //
 
 // system include files
@@ -96,10 +96,10 @@ void CmsShowMain::setMagneticField(double var)
 double CmsShowMain::getMagneticField()
 {
    if ( m_numberOfFieldIsOnEstimates > m_numberOfFieldEstimates/2 ||
-	m_numberOfFieldEstimates == 0 )
-     return m_magneticField;
+        m_numberOfFieldEstimates == 0 )
+      return m_magneticField;
    else
-     return 0;
+      return 0;
 }
 
 void CmsShowMain::guessFieldIsOn(bool isOn)
@@ -141,21 +141,21 @@ static const char* const kPortCommandOpt = "port";
 static char const* const kBrightnessCommandOpt = "brightness";
 
 CmsShowMain::CmsShowMain(int argc, char *argv[]) :
-  m_configurationManager(new FWConfigurationManager),
-  m_changeManager(new FWModelChangeManager),
-  m_selectionManager(new FWSelectionManager(m_changeManager.get())),
-  m_eiManager(new FWEventItemsManager(m_changeManager.get(),
-                                      m_selectionManager.get())),
-  m_viewManager( new FWViewManagerManager(m_changeManager.get())),
-  m_textView(0),
-  m_context(new fireworks::Context(m_changeManager.get(),
-                                   m_selectionManager.get(),
-                                   m_eiManager.get())),
-  m_playTimer(0),
-  m_playBackTimer(0),
-  m_isPlaying(false),
-  m_playDelay(3.f)
-  //  m_configFileName(iConfigFileName)
+   m_configurationManager(new FWConfigurationManager),
+   m_changeManager(new FWModelChangeManager),
+   m_selectionManager(new FWSelectionManager(m_changeManager.get())),
+   m_eiManager(new FWEventItemsManager(m_changeManager.get(),
+                                       m_selectionManager.get())),
+   m_viewManager( new FWViewManagerManager(m_changeManager.get())),
+   m_textView(0),
+   m_context(new fireworks::Context(m_changeManager.get(),
+                                    m_selectionManager.get(),
+                                    m_eiManager.get())),
+   m_playTimer(0),
+   m_playBackTimer(0),
+   m_isPlaying(false),
+   m_playDelay(3.f)
+   //  m_configFileName(iConfigFileName)
 {
    m_eiManager->setContext(m_context.get());
    try {
@@ -165,18 +165,18 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       namespace po = boost::program_options;
       po::options_description desc(descString);
       desc.add_options()
-      (kInputFileCommandOpt,    po::value<std::string>(), "Input root file")
-      (kConfigFileCommandOpt, po::value<std::string>(),   "Include configuration file")
-      (kGeomFileCommandOpt,   po::value<std::string>(),   "Include geometry file")
-      (kNoConfigFileCommandOpt,                           "Don't load any configuration file")
-      (kLoopPlaybackCommandOpt, po::value<float>(),       "Start in auto playback mode with given interval between events in seconds")
-      (kPortCommandOpt, po::value<unsigned int>(),        "Listen to port for new data files to open")
-      (kEveCommandOpt,                                    "Show Eve browser to help debug problems")
-      (kDebugCommandOpt,                                  "Start the display from a debugger and producer a crash report")
-      (kAdvancedRenderCommandOpt,                         "Use advance options to improve rendering quality (anti-alias etc)")
-      (kSoftCommandOpt,                                   "Try to force software rendering to avoid problems with bad hardware drivers")
-      (kBrightnessCommandOpt, po::value<unsigned int>(),  "Icnrease brightness of objects when used for slides or projectors. [0-5]")
-      (kHelpCommandOpt,                                   "Display help message");
+              (kInputFileCommandOpt,    po::value<std::string>(), "Input root file")
+              (kConfigFileCommandOpt, po::value<std::string>(),   "Include configuration file")
+              (kGeomFileCommandOpt,   po::value<std::string>(),   "Include geometry file")
+              (kNoConfigFileCommandOpt,                           "Don't load any configuration file")
+              (kLoopPlaybackCommandOpt, po::value<float>(),       "Start in auto playback mode with given interval between events in seconds")
+              (kPortCommandOpt, po::value<unsigned int>(),        "Listen to port for new data files to open")
+              (kEveCommandOpt,                                    "Show Eve browser to help debug problems")
+              (kDebugCommandOpt,                                  "Start the display from a debugger and producer a crash report")
+              (kAdvancedRenderCommandOpt,                         "Use advance options to improve rendering quality (anti-alias etc)")
+              (kSoftCommandOpt,                                   "Try to force software rendering to avoid problems with bad hardware drivers")
+              (kBrightnessCommandOpt, po::value<unsigned int>(),  "Icnrease brightness of objects when used for slides or projectors. [0-5]")
+              (kHelpCommandOpt,                                   "Display help message");
       po::positional_options_description p;
       p.add(kInputFileOpt, -1);
 
@@ -239,8 +239,8 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       }
 
       m_textView = std::auto_ptr<FWTextView>(
-					     new FWTextView(this, &*m_selectionManager, &*m_changeManager,
-							    &*m_guiManager) );
+         new FWTextView(this, &*m_selectionManager, &*m_changeManager,
+                        &*m_guiManager) );
 
       printf("Input: %s\n", m_inputFileName.c_str());
       printf("Config: %s\n", m_configFileName.c_str());
@@ -267,31 +267,31 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
 
       m_startupTasks = std::auto_ptr<CmsShowTaskExecutor>(new CmsShowTaskExecutor);
       m_startupTasks->tasksCompleted_.connect(boost::bind(&FWGUIManager::clearStatus,
-                                                m_guiManager.get()) );
+                                                          m_guiManager.get()) );
       CmsShowTaskExecutor::TaskFunctor f;
       f=boost::bind(&CmsShowMain::loadGeometry,this);
       m_startupTasks->addTask(f);
 
       //loadGeometry();
       /*
-      // prepare geometry service
-      // ATTN: this should be made configurable
-      m_detIdToGeo.loadGeometry( m_geomFileName.c_str() );
-      m_detIdToGeo.loadMap( m_geomFileName.c_str() );
-      */
+         // prepare geometry service
+         // ATTN: this should be made configurable
+         m_detIdToGeo.loadGeometry( m_geomFileName.c_str() );
+         m_detIdToGeo.loadMap( m_geomFileName.c_str() );
+       */
 
       //setupViewManagers();
       f=boost::bind(&CmsShowMain::setupViewManagers,this);
       m_startupTasks->addTask(f);
       /*
-      boost::shared_ptr<FWViewManagerBase> rpzViewManager( new FWRhoPhiZViewManager(m_guiManager.get()) );
-      rpzViewManager->setGeom(&m_detIdToGeo);
-      m_viewManager->add(rpzViewManager);
+         boost::shared_ptr<FWViewManagerBase> rpzViewManager( new FWRhoPhiZViewManager(m_guiManager.get()) );
+         rpzViewManager->setGeom(&m_detIdToGeo);
+         m_viewManager->add(rpzViewManager);
 
-      m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FWEveLegoViewManager(m_guiManager.get()) ) );
+         m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FWEveLegoViewManager(m_guiManager.get()) ) );
 
-      m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FWGlimpseViewManager(m_guiManager.get()) ) );
-      */
+         m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FWGlimpseViewManager(m_guiManager.get()) ) );
+       */
 
       //setupConfiguration();
       f=boost::bind(&CmsShowMain::setupConfiguration,this);
@@ -304,31 +304,31 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       f=boost::bind(&CmsShowMain::setupDataHandling,this);
       m_startupTasks->addTask(f);
       /*
-      m_navigator = new CmsShowNavigator();
-      m_navigator->oldEvent.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::loadEvent));
-      m_navigator->newEvent.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::loadEvent));
-      m_navigator->newEvent.connect(sigc::mem_fun(*this, &CmsShowMain::draw));
-      m_navigator->newFileLoaded.connect(boost::bind(&CmsShowMain::resetInitialization,this));
-      m_navigator->newFileLoaded.connect(sigc::mem_fun(*m_guiManager,&FWGUIManager::newFile));
-      m_navigator->atBeginning.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::disablePrevious));
-      m_navigator->atEnd.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::disableNext));
-      if (m_guiManager->getAction(cmsshow::sOpenData) != 0) m_guiManager->getAction(cmsshow::sOpenData)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::openData));
-      if (m_guiManager->getAction(cmsshow::sNextEvent) != 0) m_guiManager->getAction(cmsshow::sNextEvent)->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::nextEvent));
-      if (m_guiManager->getAction(cmsshow::sPreviousEvent) != 0) m_guiManager->getAction(cmsshow::sPreviousEvent)->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::previousEvent));
-      if (m_guiManager->getAction(cmsshow::sGotoFirstEvent) != 0) m_guiManager->getAction(cmsshow::sGotoFirstEvent)->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::firstEvent));
-      if (m_guiManager->getAction(cmsshow::sQuit) != 0) m_guiManager->getAction(cmsshow::sQuit)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::quit));
-      if (m_guiManager->getAction(cmsshow::sShowEventDisplayInsp) != 0) m_guiManager->getAction(cmsshow::sShowEventDisplayInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createEDIFrame));
-      if (m_guiManager->getAction(cmsshow::sShowMainViewCtl) != 0) m_guiManager->getAction(cmsshow::sShowMainViewCtl)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createViewPopup));
-      if (m_guiManager->getRunEntry() != 0) m_guiManager->getRunEntry()->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::goToRun));
-      if (m_guiManager->getEventEntry() != 0) m_guiManager->getEventEntry()->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::goToEvent));
-      if (CSGAction* action = m_guiManager->getAction("Event Filter"))
+         m_navigator = new CmsShowNavigator();
+         m_navigator->oldEvent.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::loadEvent));
+         m_navigator->newEvent.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::loadEvent));
+         m_navigator->newEvent.connect(sigc::mem_fun(*this, &CmsShowMain::draw));
+         m_navigator->newFileLoaded.connect(boost::bind(&CmsShowMain::resetInitialization,this));
+         m_navigator->newFileLoaded.connect(sigc::mem_fun(*m_guiManager,&FWGUIManager::newFile));
+         m_navigator->atBeginning.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::disablePrevious));
+         m_navigator->atEnd.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::disableNext));
+         if (m_guiManager->getAction(cmsshow::sOpenData) != 0) m_guiManager->getAction(cmsshow::sOpenData)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::openData));
+         if (m_guiManager->getAction(cmsshow::sNextEvent) != 0) m_guiManager->getAction(cmsshow::sNextEvent)->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::nextEvent));
+         if (m_guiManager->getAction(cmsshow::sPreviousEvent) != 0) m_guiManager->getAction(cmsshow::sPreviousEvent)->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::previousEvent));
+         if (m_guiManager->getAction(cmsshow::sGotoFirstEvent) != 0) m_guiManager->getAction(cmsshow::sGotoFirstEvent)->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::firstEvent));
+         if (m_guiManager->getAction(cmsshow::sQuit) != 0) m_guiManager->getAction(cmsshow::sQuit)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::quit));
+         if (m_guiManager->getAction(cmsshow::sShowEventDisplayInsp) != 0) m_guiManager->getAction(cmsshow::sShowEventDisplayInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createEDIFrame));
+         if (m_guiManager->getAction(cmsshow::sShowMainViewCtl) != 0) m_guiManager->getAction(cmsshow::sShowMainViewCtl)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createViewPopup));
+         if (m_guiManager->getRunEntry() != 0) m_guiManager->getRunEntry()->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::goToRun));
+         if (m_guiManager->getEventEntry() != 0) m_guiManager->getEventEntry()->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::goToEvent));
+         if (CSGAction* action = m_guiManager->getAction("Event Filter"))
          action->activated.connect(boost::bind(&CmsShowNavigator::filterEvents,m_navigator,action));
-      else
+         else
          printf("Why?\n\n\n\n\n\n");
-      if(m_inputFileName.size()) {
+         if(m_inputFileName.size()) {
          m_navigator->loadFile(m_inputFileName);
-      }
-      */
+         }
+       */
       gSystem->IgnoreSignal(kSigSegmentationViolation, true);
       if(eveMode) {
          //setupDebugSupport();
@@ -343,14 +343,14 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       }
       if (vm.count(kLoopPlaybackOpt)) {
          m_playDelay = vm[kLoopPlaybackOpt].as<float>();
-	 f=boost::bind(&CSGContinuousAction::switchMode,m_guiManager->playEventsAction());
-	 m_startupTasks->addTask(f);
+         f=boost::bind(&CSGContinuousAction::switchMode,m_guiManager->playEventsAction());
+         m_startupTasks->addTask(f);
       }
 
       m_startupTasks->startDoingTasks();
       if(vm.count(kBrightnessCommandOpt)) {
-	 f=boost::bind(&CmsShowMain::setBrightness, vm[kBrightnessCommandOpt].as<unsigned int>());
-	 m_startupTasks->addTask(f);
+         f=boost::bind(&CmsShowMain::setBrightness, vm[kBrightnessCommandOpt].as<unsigned int>());
+         m_startupTasks->addTask(f);
       }
    } catch(std::exception& iException) {
       std::cerr <<"CmsShowMain caught exception "<<iException.what()<<std::endl;
@@ -367,10 +367,10 @@ CmsShowMain::~CmsShowMain()
 {
    //avoids a seg fault from eve which happens if eve is terminated after the GUI is gone
    m_selectionManager->clearSelection();
-   
-  delete m_navigator;
-  delete m_playTimer;
-  delete m_playBackTimer;
+
+   delete m_navigator;
+   delete m_playTimer;
+   delete m_playBackTimer;
 }
 
 //
@@ -389,20 +389,20 @@ CmsShowMain::~CmsShowMain()
 // member functions
 //
 void CmsShowMain::resetInitialization() {
-  //printf("Need to reset\n");
+   //printf("Need to reset\n");
 }
 
 void CmsShowMain::draw(const fwlite::Event& event)
 {
-  // TStopwatch stopwatch;
-  m_guiManager->updateStatus("loading event ...");
-  m_guiManager->enableActions(false);
-  m_eiManager->setGeom(&m_detIdToGeo);
-  m_eiManager->newEvent(&event);
-  if (m_textView.get() != 0)
-       m_textView->newEvent(event, this);
-  // stopwatch.Stop(); printf("Total event draw time: "); stopwatch.Print("m");
-  m_guiManager->clearStatus();
+   // TStopwatch stopwatch;
+   m_guiManager->updateStatus("loading event ...");
+   m_guiManager->enableActions(false);
+   m_eiManager->setGeom(&m_detIdToGeo);
+   m_eiManager->newEvent(&event);
+   if (m_textView.get() != 0)
+      m_textView->newEvent(event, this);
+   // stopwatch.Stop(); printf("Total event draw time: "); stopwatch.Print("m");
+   m_guiManager->clearStatus();
    if(m_isPlaying) {
       if(m_forward) {
          m_playTimer->Start((Long_t)(m_playDelay*1000), kFALSE);
@@ -416,62 +416,62 @@ void CmsShowMain::draw(const fwlite::Event& event)
 
 void CmsShowMain::openData()
 {
-  const char* kRootType[] = {"ROOT files","*.root",
-			     0,0};
-  TGFileInfo fi;
-  fi.fFileTypes = kRootType;
-  /* this is how things used to be done:
-     fi.fIniDir = ".";
-     this is bad because the destructor calls delete[] on fIniDir.
-  */
-  fi.fIniDir = new char[10];
-  strcpy(fi.fIniDir, ".");
-  new TGFileDialog(gClient->GetDefaultRoot(), gClient->GetDefaultRoot(), kFDOpen, &fi);
+   const char* kRootType[] = {"ROOT files","*.root",
+                              0,0};
+   TGFileInfo fi;
+   fi.fFileTypes = kRootType;
+   /* this is how things used to be done:
+      fi.fIniDir = ".";
+      this is bad because the destructor calls delete[] on fIniDir.
+    */
+   fi.fIniDir = new char[10];
+   strcpy(fi.fIniDir, ".");
+   new TGFileDialog(gClient->GetDefaultRoot(), gClient->GetDefaultRoot(), kFDOpen, &fi);
    m_guiManager->updateStatus("loading file ...");
-  if (fi.fFilename) m_navigator->loadFile(fi.fFilename);
+   if (fi.fFilename) m_navigator->loadFile(fi.fFilename);
    m_guiManager->clearStatus();
 }
 
 void CmsShowMain::quit()
 {
-  // m_configurationManager->writeToFile(m_configFileName);
+   // m_configurationManager->writeToFile(m_configFileName);
    gSystem->ExitLoop();
 }
 
 void CmsShowMain::registerPhysicsObject(const FWPhysicsObjectDesc&iItem)
 {
-  m_eiManager->add(iItem);
+   m_eiManager->add(iItem);
 }
 
 //
 // const member functions
 //
 /*
-int
-CmsShowMain::draw(const fwlite::Event& iEvent)
-{
-  const CmsShowMain* c = this;
-  return c->draw(iEvent);
-}
+   int
+   CmsShowMain::draw(const fwlite::Event& iEvent)
+   {
+   const CmsShowMain* c = this;
+   return c->draw(iEvent);
+   }
 
-int
-CmsShowMain::draw(const fwlite::Event& iEvent) const
-{
-  TStopwatch stopwatch;
-  m_eiManager->setGeom(&m_detIdToGeo);
-  m_eiManager->newEvent(&iEvent);
-  // m_textView->newEvent(iEvent);
-  stopwatch.Stop();
-  stopwatch.Print();
-  return m_guiManager->allowInteraction();
-}
+   int
+   CmsShowMain::draw(const fwlite::Event& iEvent) const
+   {
+   TStopwatch stopwatch;
+   m_eiManager->setGeom(&m_detIdToGeo);
+   m_eiManager->newEvent(&iEvent);
+   // m_textView->newEvent(iEvent);
+   stopwatch.Stop();
+   stopwatch.Print();
+   return m_guiManager->allowInteraction();
+   }
 
-void
-CmsShowMain::writeConfigurationFile(const std::string& iFileName) const
-{
-  m_configurationManager->writeToFile(iFileName);
-}
-*/
+   void
+   CmsShowMain::writeConfigurationFile(const std::string& iFileName) const
+   {
+   m_configurationManager->writeToFile(iFileName);
+   }
+ */
 
 //STARTUP TASKS
 
@@ -487,7 +487,7 @@ CmsShowMain::loadGeometry()
 void
 CmsShowMain::setupViewManagers()
 {
-  m_guiManager->updateStatus("Setting up view manager...");
+   m_guiManager->updateStatus("Setting up view manager...");
    boost::shared_ptr<FWViewManagerBase> rpzViewManager( new FWRhoPhiZViewManager(m_guiManager.get()) );
    rpzViewManager->setGeom(&m_detIdToGeo);
    m_viewManager->add(rpzViewManager);
@@ -495,7 +495,7 @@ CmsShowMain::setupViewManagers()
    m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FWEveLegoViewManager(m_guiManager.get()) ) );
 
    m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FWGlimpseViewManager(m_guiManager.get()) ) );
-   
+
    boost::shared_ptr<FWViewManagerBase> plain3DViewManager( new FW3DViewManager(m_guiManager.get()) );
    plain3DViewManager->setGeom(&m_detIdToGeo);
    m_viewManager->add( plain3DViewManager );
@@ -504,7 +504,7 @@ CmsShowMain::setupViewManagers()
 void
 CmsShowMain::setupConfiguration()
 {
-  m_guiManager->updateStatus("Setting up configuration...");
+   m_guiManager->updateStatus("Setting up configuration...");
    if(m_configFileName.empty() ) {
       std::cout << "WARNING: no configuration is loaded." << std::endl;
       m_configFileName = "newconfig.fwc";
@@ -693,21 +693,21 @@ CmsShowMain::setupConfiguration()
 
    if(not m_configFileName.empty() ) {
       /* //when the program quits we will want to save the configuration automatically
-       m_guiManager->goingToQuit_.connect(
-       boost::bind(&FWConfigurationManager::writeToFile,
-       m_configurationManager.get(),
-       m_configFileName));
+         m_guiManager->goingToQuit_.connect(
+         boost::bind(&FWConfigurationManager::writeToFile,
+         m_configurationManager.get(),
+         m_configFileName));
        */
       m_guiManager->writeToPresentConfigurationFile_.connect(
-                                                             boost::bind(&FWConfigurationManager::writeToFile,
-                                                                         m_configurationManager.get(),
-                                                                         m_configFileName));
+         boost::bind(&FWConfigurationManager::writeToFile,
+                     m_configurationManager.get(),
+                     m_configFileName));
    }
 }
 
 namespace {
    class SignalTimer : public TTimer {
-   public:
+public:
       Bool_t Notify() {
          TurnOff();
          timeout_();
@@ -767,9 +767,9 @@ CmsShowMain::setupDataHandling()
 void
 CmsShowMain::setPlayDelay(Float_t val)
 {
-  m_playDelay = val;
-  m_playTimer->Reset();
-  m_playTimer->SetTime((Long_t)(m_playDelay*1000));
+   m_playDelay = val;
+   m_playTimer->Reset();
+   m_playTimer->SetTime((Long_t)(m_playDelay*1000));
 }
 
 void
@@ -864,12 +864,12 @@ CmsShowMain::reachedEnd()
 {
    if(!m_isPlaying) m_guiManager->disableNext();
    /*
-   stopPlaying();
-   if(m_forward) {
+      stopPlaying();
+      if(m_forward) {
       m_guiManager->playEventsAction()->stop();
-   } else {
+      } else {
       m_guiManager->playEventsBackwardsAction()->stop();
-   }
+      }
     */
 }
 
@@ -892,16 +892,16 @@ CmsShowMain::setBrightness(unsigned int value)
    TObjArray* colors = (TObjArray*)gROOT->GetListOfColors();
    for (int i = 0; i < colors->GetSize(); ++i ) {
       if ( TColor* color = dynamic_cast<TColor*>(colors->At(i)) ) {
-	 Float_t r(0);
-	 Float_t g(0);
-	 Float_t b(0);
-	 color->GetRGB(r, g, b);
-	 if ( r < 0.01 && g < 0.01 && b < 0.01 ) continue; // skip black
-	 if ( r > 0.95 && g > 0.95 && b > 0.95 ) continue; // skip white
-	 r += value*0.1; if ( r > 1 ) r = 1;
-	 g += value*0.1; if ( g > 1 ) g = 1;
-	 b += value*0.1; if ( b > 1 ) b = 1;
-	 color->SetRGB(r, g, b);
+         Float_t r(0);
+         Float_t g(0);
+         Float_t b(0);
+         color->GetRGB(r, g, b);
+         if ( r < 0.01 && g < 0.01 && b < 0.01 ) continue; // skip black
+         if ( r > 0.95 && g > 0.95 && b > 0.95 ) continue; // skip white
+         r += value*0.1; if ( r > 1 ) r = 1;
+         g += value*0.1; if ( g > 1 ) g = 1;
+         b += value*0.1; if ( b > 1 ) b = 1;
+         color->SetRGB(r, g, b);
       }
    }
    gEve->FullRedraw3D(false,true);

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 14:43:19 EST 2008
-// $Id: FWViewBase.cc,v 1.8 2008/07/24 15:13:27 jmuelmen Exp $
+// $Id: FWViewBase.cc,v 1.9 2008/11/06 22:05:26 amraktad Exp $
 //
 
 // system include files
@@ -29,8 +29,8 @@
 //
 // constructors and destructor
 //
-FWViewBase::FWViewBase(unsigned int iVersion):
-FWConfigurableParameterizable(iVersion)
+FWViewBase::FWViewBase(unsigned int iVersion) :
+   FWConfigurableParameterizable(iVersion)
 {
 }
 
@@ -72,11 +72,11 @@ FWViewBase::promptForSaveImageTo(TGFrame* iParent) const
 {
    static TString dir(".");
    const char *  kImageExportTypes[] = {"Encapsulated PostScript", "*.eps",
-      "PDF",                     "*.pdf",
-      "GIF",                     "*.gif",
-      "JPEG",                    "*.jpg",
-      "PNG",                     "*.png",
-   0, 0};
+                                        "PDF",                     "*.pdf",
+                                        "GIF",                     "*.gif",
+                                        "JPEG",                    "*.jpg",
+                                        "PNG",                     "*.png",
+                                        0, 0};
 
    TGFileInfo fi;
    fi.fFileTypes = kImageExportTypes;
@@ -85,14 +85,14 @@ FWViewBase::promptForSaveImageTo(TGFrame* iParent) const
                     kFDSave,&fi);
    dir = fi.fIniDir;
    if (fi.fFilename != 0) {
-	std::string name = fi.fFilename;
-	// fi.fFileTypeIdx points to the name of the file type
-	// selected in the drop-down menu, so fi.fFileTypeIdx gives us
-	// the extension
-	std::string ext = kImageExportTypes[fi.fFileTypeIdx + 1] + 1;
-	if (name.find(ext) == name.npos)
-	     name += ext;
-	saveImageTo(name);
+      std::string name = fi.fFilename;
+      // fi.fFileTypeIdx points to the name of the file type
+      // selected in the drop-down menu, so fi.fFileTypeIdx gives us
+      // the extension
+      std::string ext = kImageExportTypes[fi.fFileTypeIdx + 1] + 1;
+      if (name.find(ext) == name.npos)
+         name += ext;
+      saveImageTo(name);
    }
 }
 

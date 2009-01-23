@@ -7,16 +7,16 @@
 //
 /**\class FWListEventItemEditor FWListEventItemEditor.h Fireworks/Core/interface/FWListEventItemEditor.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar  3 09:35:59 EST 2008
-// $Id: FWListEventItemEditor.h,v 1.2 2008/06/12 15:08:06 chrjones Exp $
+// $Id: FWListEventItemEditor.h,v 1.3 2008/11/06 22:05:26 amraktad Exp $
 //
 
 // system include files
@@ -32,30 +32,30 @@ class TGTextButton;
 class FWListEventItemEditor : public TGedFrame
 {
 
-   public:
-      FWListEventItemEditor(const TGWindow* p=0, Int_t width=170, Int_t height=30,
-                            UInt_t options=kChildFrame, Pixel_t back=GetDefaultFrameBackground());
-      virtual ~FWListEventItemEditor();
+public:
+   FWListEventItemEditor(const TGWindow* p=0, Int_t width=170, Int_t height=30,
+                         UInt_t options=kChildFrame, Pixel_t back=GetDefaultFrameBackground());
+   virtual ~FWListEventItemEditor();
 
-      // ---------- const member functions ---------------------
+   // ---------- const member functions ---------------------
 
-      // ---------- static member functions --------------------
+   // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
-      virtual void SetModel(TObject* obj);
+   // ---------- member functions ---------------------------
+   virtual void SetModel(TObject* obj);
 
-      void runFilter();
-      void removeItem();
-      ClassDef(FWListEventItemEditor, 0);
-   private:
-      FWListEventItemEditor(const FWListEventItemEditor&); // stop default
+   void runFilter();
+   void removeItem();
+   ClassDef(FWListEventItemEditor, 0);
+private:
+   FWListEventItemEditor(const FWListEventItemEditor&);    // stop default
 
-      const FWListEventItemEditor& operator=(const FWListEventItemEditor&); // stop default
+   const FWListEventItemEditor& operator=(const FWListEventItemEditor&);    // stop default
 
-      // ---------- member data --------------------------------
-      FWListEventItem* m_item;
-      TGTextEntry* m_filterExpression;
-      TGTextButton* m_filterRunExpressionButton;
+   // ---------- member data --------------------------------
+   FWListEventItem* m_item;
+   TGTextEntry* m_filterExpression;
+   TGTextButton* m_filterRunExpressionButton;
 };
 
 

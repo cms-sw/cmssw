@@ -5,16 +5,16 @@
 //
 /**\class SiPixelProxyPlain3DBuilder SiPixelProxyPlain3DBuilder.h Fireworks/Core/interface/SiPixelProxyPlain3DBuilder.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: SiPixelProxyPlain3DBuilder.cc,v 1.1 2009/01/16 23:44:38 dmytro Exp $
+// $Id: FWSiPixel3DProxyBuilder.cc,v 1.1 2009/01/16 20:01:29 amraktad Exp $
 //
 
 // system include files
@@ -33,16 +33,18 @@
 
 class FWSiPixel3DProxyBuilder : public FW3DDataProxyBuilder
 {
-   public:
-      FWSiPixel3DProxyBuilder() {}
-      virtual ~FWSiPixel3DProxyBuilder() {}
-      REGISTER_PROXYBUILDER_METHODS();
-   private:
-      virtual void build(const FWEventItem* iItem, TEveElementList** product);
-      FWSiPixel3DProxyBuilder(const FWSiPixel3DProxyBuilder&); // stop default
-      const FWSiPixel3DProxyBuilder& operator=(const FWSiPixel3DProxyBuilder&); // stop default
-      void modelChanges(const FWModelIds& iIds, TEveElement* iElements);
-      void applyChangesToAllModels(TEveElement* iElements);
+public:
+   FWSiPixel3DProxyBuilder() {
+   }
+   virtual ~FWSiPixel3DProxyBuilder() {
+   }
+   REGISTER_PROXYBUILDER_METHODS();
+private:
+   virtual void build(const FWEventItem* iItem, TEveElementList** product);
+   FWSiPixel3DProxyBuilder(const FWSiPixel3DProxyBuilder&);    // stop default
+   const FWSiPixel3DProxyBuilder& operator=(const FWSiPixel3DProxyBuilder&);    // stop default
+   void modelChanges(const FWModelIds& iIds, TEveElement* iElements);
+   void applyChangesToAllModels(TEveElement* iElements);
 };
 
 void FWSiPixel3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
@@ -79,18 +81,18 @@ void FWSiPixel3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** 
       list->SetRnrChildren( iItem->defaultDisplayProperties().isVisible() );
 
       if (iItem->getGeom()) {
-	 // const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix( id );
-	 TEveGeoShape* shape = iItem->getGeom()->getShape( id );
-	 if(0!=shape) {
-	    shape->SetMainTransparency(50);
-	    shape->SetMainColor( iItem->defaultDisplayProperties().color() );
-	    shape->SetPickable(true);
-	    list->AddElement(shape);
-	 }
+         // const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix( id );
+         TEveGeoShape* shape = iItem->getGeom()->getShape( id );
+         if(0!=shape) {
+            shape->SetMainTransparency(50);
+            shape->SetMainColor( iItem->defaultDisplayProperties().color() );
+            shape->SetPickable(true);
+            list->AddElement(shape);
+         }
       }
 
       gEve->AddElement(list,tList);
-    }
+   }
 }
 
 void

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar  3 17:20:28 EST 2008
-// $Id: FWListModelEditor.cc,v 1.4 2008/06/30 21:38:01 chrjones Exp $
+// $Id: FWListModelEditor.cc,v 1.5 2008/11/06 22:05:26 amraktad Exp $
 //
 
 // system include files
@@ -32,7 +32,7 @@ ClassImp(FWListModelEditor)
 //
 FWListModelEditor::FWListModelEditor(const TGWindow* p, Int_t width, Int_t height,
                                      UInt_t options, Pixel_t back) :
-TGedFrame(p, width, height, options | kVerticalFrame, back)
+   TGedFrame(p, width, height, options | kVerticalFrame, back)
 {
    MakeTitle("FWListModel");
    m_showDetailViewButton = new TGTextButton(this,"Open Detail View");

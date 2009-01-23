@@ -7,16 +7,16 @@
 //
 /**\class FWGlimpseEveJet FWGlimpseEveJet.h Fireworks/Calo/interface/FWGlimpseEveJet.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jul  4 10:22:47 EDT 2008
-// $Id: FWGlimpseEveJet.h,v 1.4 2008/09/26 07:40:12 dmytro Exp $
+// $Id: FWGlimpseEveJet.h,v 1.5 2008/11/06 22:05:20 amraktad Exp $
 //
 
 // system include files
@@ -33,33 +33,33 @@ namespace reco {
 class FWGlimpseEveJet : public TEveBoxSet, public FWEveValueScaled
 {
 
-   public:
-      FWGlimpseEveJet(const reco::Jet* iJet,
-                      const Text_t* iName, const Text_t* iTitle="");
-      virtual ~FWGlimpseEveJet();
+public:
+   FWGlimpseEveJet(const reco::Jet* iJet,
+                   const Text_t* iName, const Text_t* iTitle="");
+   virtual ~FWGlimpseEveJet();
 
-      // ---------- const member functions ---------------------
+   // ---------- const member functions ---------------------
 
-      // ---------- static member functions --------------------
+   // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
-      void setScale(float);
+   // ---------- member functions ---------------------------
+   void setScale(float);
 
-      //Override these so that when the system changes color it gets
-      // propagated to the 'Digit'
-      void SetMainColor(Color_t);
-      void SetMainTransparency(UChar_t);
+   //Override these so that when the system changes color it gets
+   // propagated to the 'Digit'
+   void SetMainColor(Color_t);
+   void SetMainTransparency(UChar_t);
 
-   private:
-      FWGlimpseEveJet(const FWGlimpseEveJet&); // stop default
+private:
+   FWGlimpseEveJet(const FWGlimpseEveJet&);    // stop default
 
-      const FWGlimpseEveJet& operator=(const FWGlimpseEveJet&); // stop default
+   const FWGlimpseEveJet& operator=(const FWGlimpseEveJet&);    // stop default
 
-      // ---------- member data --------------------------------
-      const reco::Jet* m_jet;
-      //NOTE: need to hold our own color since TEveBoxSet doesn't so that
-      // If we later call GetMainColor we'd always get white back
-      Color_t m_color;
+   // ---------- member data --------------------------------
+   const reco::Jet* m_jet;
+   //NOTE: need to hold our own color since TEveBoxSet doesn't so that
+   // If we later call GetMainColor we'd always get white back
+   Color_t m_color;
 };
 
 

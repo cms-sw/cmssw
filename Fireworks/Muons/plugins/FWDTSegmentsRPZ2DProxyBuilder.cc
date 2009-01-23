@@ -6,7 +6,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: DTSegmentsProxyRhoPhiZ2DBuilder.cc,v 1.1 2009/01/06 22:05:29 amraktad Exp $
+// $Id: FWDTSegmentsRPZ2DProxyBuilder.cc,v 1.1 2009/01/19 14:09:34 amraktad Exp $
 //
 
 
@@ -26,35 +26,35 @@
 class FWDTSegmentsRPZ2DProxyBuilder : public FWRPZ2DDataProxyBuilder
 {
 
-   public:
-      FWDTSegmentsRPZ2DProxyBuilder();
-      virtual ~FWDTSegmentsRPZ2DProxyBuilder();
+public:
+   FWDTSegmentsRPZ2DProxyBuilder();
+   virtual ~FWDTSegmentsRPZ2DProxyBuilder();
 
-      // ---------- const member functions ---------------------
+   // ---------- const member functions ---------------------
 
-      // ---------- static member functions --------------------
-      static void build(const FWEventItem* iItem,
-                        TEveElementList** product,
-                        bool rhoPhiProjection);
-      // ---------- member functions ---------------------------
-      REGISTER_PROXYBUILDER_METHODS();
+   // ---------- static member functions --------------------
+   static void build(const FWEventItem* iItem,
+                     TEveElementList** product,
+                     bool rhoPhiProjection);
+   // ---------- member functions ---------------------------
+   REGISTER_PROXYBUILDER_METHODS();
 
-   private:
-      virtual void buildRhoPhi(const FWEventItem* iItem,
-                               TEveElementList** product);
+private:
+   virtual void buildRhoPhi(const FWEventItem* iItem,
+                            TEveElementList** product);
 
-      virtual void buildRhoZ(const FWEventItem* iItem,
-                               TEveElementList** product);
+   virtual void buildRhoZ(const FWEventItem* iItem,
+                          TEveElementList** product);
 
-      virtual void modelChanges(const FWModelIds& iIds,
-                                TEveElement* iElements);
-      virtual void applyChangesToAllModels(TEveElement* iElements);
+   virtual void modelChanges(const FWModelIds& iIds,
+                             TEveElement* iElements);
+   virtual void applyChangesToAllModels(TEveElement* iElements);
 
-      FWDTSegmentsRPZ2DProxyBuilder(const FWDTSegmentsRPZ2DProxyBuilder&); // stop default
+   FWDTSegmentsRPZ2DProxyBuilder(const FWDTSegmentsRPZ2DProxyBuilder&);    // stop default
 
-      const FWDTSegmentsRPZ2DProxyBuilder& operator=(const FWDTSegmentsRPZ2DProxyBuilder&); // stop default
+   const FWDTSegmentsRPZ2DProxyBuilder& operator=(const FWDTSegmentsRPZ2DProxyBuilder&);    // stop default
 
-      // ---------- member data --------------------------------
+   // ---------- member data --------------------------------
 };
 
 
@@ -77,8 +77,8 @@ void FWDTSegmentsRPZ2DProxyBuilder::buildRhoZ(const FWEventItem* iItem, TEveElem
 }
 
 void FWDTSegmentsRPZ2DProxyBuilder::build(const FWEventItem* iItem,
-					    TEveElementList** product,
-					    bool rhoPhiProjection)
+                                          TEveElementList** product,
+                                          bool rhoPhiProjection)
 {
    TEveElementList* tList = *product;
 
@@ -100,75 +100,75 @@ void FWDTSegmentsRPZ2DProxyBuilder::build(const FWEventItem* iItem,
    }
    unsigned int index = 0;
    for (  DTRecSegment4DCollection::id_iterator chamberId = segments->id_begin();
-	 chamberId != segments->id_end(); ++chamberId, ++index )
-     {
+          chamberId != segments->id_end(); ++chamberId, ++index )
+   {
 
-	std::stringstream s;
-	s << "chamber" << index;
-	TEveStraightLineSet* segmentSet = new TEveStraightLineSet(s.str().c_str());
-	TEvePointSet* pointSet = new TEvePointSet();
-	pointSet->SetMarkerStyle(2);
-	pointSet->SetMarkerSize(3);
-	segmentSet->SetLineWidth(3);
-	segmentSet->SetMainColor(iItem->defaultDisplayProperties().color());
-        segmentSet->SetRnrSelf(iItem->defaultDisplayProperties().isVisible());
-        segmentSet->SetRnrChildren(iItem->defaultDisplayProperties().isVisible());
-	pointSet->SetMainColor(iItem->defaultDisplayProperties().color());
-        gEve->AddElement( segmentSet, tList );
-        segmentSet->AddElement( pointSet );
-	const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix( (*chamberId).rawId() );
+      std::stringstream s;
+      s << "chamber" << index;
+      TEveStraightLineSet* segmentSet = new TEveStraightLineSet(s.str().c_str());
+      TEvePointSet* pointSet = new TEvePointSet();
+      pointSet->SetMarkerStyle(2);
+      pointSet->SetMarkerSize(3);
+      segmentSet->SetLineWidth(3);
+      segmentSet->SetMainColor(iItem->defaultDisplayProperties().color());
+      segmentSet->SetRnrSelf(iItem->defaultDisplayProperties().isVisible());
+      segmentSet->SetRnrChildren(iItem->defaultDisplayProperties().isVisible());
+      pointSet->SetMainColor(iItem->defaultDisplayProperties().color());
+      gEve->AddElement( segmentSet, tList );
+      segmentSet->AddElement( pointSet );
+      const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix( (*chamberId).rawId() );
 
-	DTRecSegment4DCollection::range  range = segments->get(*chamberId);
-	const double segmentLength = 15;
-	for (DTRecSegment4DCollection::const_iterator segment = range.first;
-	     segment!=range.second; ++segment)
-	  {
-	     Double_t localSegmentInnerPoint[3];
-	     Double_t localSegmentCenterPoint[3];
-	     Double_t localSegmentOuterPoint[3];
-	     Double_t globalSegmentInnerPoint[3];
-	     Double_t globalSegmentCenterPoint[3];
-	     Double_t globalSegmentOuterPoint[3];
+      DTRecSegment4DCollection::range range = segments->get(*chamberId);
+      const double segmentLength = 15;
+      for (DTRecSegment4DCollection::const_iterator segment = range.first;
+           segment!=range.second; ++segment)
+      {
+         Double_t localSegmentInnerPoint[3];
+         Double_t localSegmentCenterPoint[3];
+         Double_t localSegmentOuterPoint[3];
+         Double_t globalSegmentInnerPoint[3];
+         Double_t globalSegmentCenterPoint[3];
+         Double_t globalSegmentOuterPoint[3];
 
-	     if ( (rhoPhiProjection && ! segment->hasPhi() ) ||
-		  (! rhoPhiProjection && ! segment->hasZed() ) ) {
-		localSegmentInnerPoint[0] = 0;
-		localSegmentInnerPoint[1] = 0;
-		localSegmentInnerPoint[2] = 0;
-		matrix->LocalToMaster( localSegmentInnerPoint, globalSegmentInnerPoint );
-		pointSet->SetNextPoint( globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2] );
-		continue;
-	     }
+         if ( (rhoPhiProjection && !segment->hasPhi() ) ||
+              (!rhoPhiProjection && !segment->hasZed() ) ) {
+            localSegmentInnerPoint[0] = 0;
+            localSegmentInnerPoint[1] = 0;
+            localSegmentInnerPoint[2] = 0;
+            matrix->LocalToMaster( localSegmentInnerPoint, globalSegmentInnerPoint );
+            pointSet->SetNextPoint( globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2] );
+            continue;
+         }
 
-	     localSegmentOuterPoint[0] = segment->localPosition().x() + segmentLength*segment->localDirection().x();
-	     localSegmentOuterPoint[1] = segment->localPosition().y() + segmentLength*segment->localDirection().y();
-	     localSegmentOuterPoint[2] = segmentLength*segment->localDirection().z();
+         localSegmentOuterPoint[0] = segment->localPosition().x() + segmentLength*segment->localDirection().x();
+         localSegmentOuterPoint[1] = segment->localPosition().y() + segmentLength*segment->localDirection().y();
+         localSegmentOuterPoint[2] = segmentLength*segment->localDirection().z();
 
-	     localSegmentCenterPoint[0] = segment->localPosition().x();
-	     localSegmentCenterPoint[1] = segment->localPosition().y();
-	     localSegmentCenterPoint[2] = 0;
+         localSegmentCenterPoint[0] = segment->localPosition().x();
+         localSegmentCenterPoint[1] = segment->localPosition().y();
+         localSegmentCenterPoint[2] = 0;
 
-	     localSegmentInnerPoint[0] = segment->localPosition().x() - segmentLength*segment->localDirection().x();
-	     localSegmentInnerPoint[1] = segment->localPosition().y() - segmentLength*segment->localDirection().y();
-	     localSegmentInnerPoint[2] = - segmentLength*segment->localDirection().z();
+         localSegmentInnerPoint[0] = segment->localPosition().x() - segmentLength*segment->localDirection().x();
+         localSegmentInnerPoint[1] = segment->localPosition().y() - segmentLength*segment->localDirection().y();
+         localSegmentInnerPoint[2] = -segmentLength*segment->localDirection().z();
 
-	     matrix->LocalToMaster( localSegmentInnerPoint, globalSegmentInnerPoint );
-	     matrix->LocalToMaster( localSegmentCenterPoint, globalSegmentCenterPoint );
-	     matrix->LocalToMaster( localSegmentOuterPoint, globalSegmentOuterPoint );
+         matrix->LocalToMaster( localSegmentInnerPoint, globalSegmentInnerPoint );
+         matrix->LocalToMaster( localSegmentCenterPoint, globalSegmentCenterPoint );
+         matrix->LocalToMaster( localSegmentOuterPoint, globalSegmentOuterPoint );
 
-	     if ( globalSegmentInnerPoint[1] * globalSegmentOuterPoint[1] > 0 ) {
-		segmentSet->AddLine(globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
-				    globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );
-	     } else {
-		if ( fabs(globalSegmentInnerPoint[1]) > fabs(globalSegmentOuterPoint[1]) )
-		  segmentSet->AddLine(globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
-				      globalSegmentCenterPoint[0], globalSegmentCenterPoint[1], globalSegmentCenterPoint[2] );
-		else
-		  segmentSet->AddLine(globalSegmentCenterPoint[0], globalSegmentCenterPoint[1], globalSegmentCenterPoint[2],
-				      globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );
-	     }
-	  }
-     }
+         if ( globalSegmentInnerPoint[1] *globalSegmentOuterPoint[1] > 0 ) {
+            segmentSet->AddLine(globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
+                                globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );
+         } else {
+            if ( fabs(globalSegmentInnerPoint[1]) > fabs(globalSegmentOuterPoint[1]) )
+               segmentSet->AddLine(globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
+                                   globalSegmentCenterPoint[0], globalSegmentCenterPoint[1], globalSegmentCenterPoint[2] );
+            else
+               segmentSet->AddLine(globalSegmentCenterPoint[0], globalSegmentCenterPoint[1], globalSegmentCenterPoint[2],
+                                   globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );
+         }
+      }
+   }
 }
 
 void
@@ -179,7 +179,7 @@ FWDTSegmentsRPZ2DProxyBuilder::modelChanges(const FWModelIds& iIds, TEveElement*
 
    //for now, only if all items selected will will apply the action
    //if(iIds.size() && iIds.size() == iIds.begin()->item()->size()) {
-      applyChangesToAllModels(iElements);
+   applyChangesToAllModels(iElements);
    //}
 }
 

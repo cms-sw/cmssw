@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 11 21:41:15 CDT 2008
-// $Id: changeElementAndChildren.cc,v 1.1 2008/03/12 02:53:25 chrjones Exp $
+// $Id: changeElementAndChildren.cc,v 1.2 2008/11/06 22:05:27 amraktad Exp $
 //
 
 // system include files
@@ -52,7 +52,7 @@ changeElementAndChildren(TEveElement* iElement,
    }
 
    for(TEveElement::List_i itElement = iElement->BeginChildren(),
-       itEnd = iElement->EndChildren();
+                           itEnd = iElement->EndChildren();
        itElement != itEnd;
        ++itElement) {
       changeElementAndChildren(*itElement, iInfo);

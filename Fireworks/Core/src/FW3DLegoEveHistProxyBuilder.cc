@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul  5 11:26:11 EDT 2008
-// $Id: FW3DLegoEveHistProxyBuilder.cc,v 1.2 2008/07/09 20:05:27 chrjones Exp $
+// $Id: FW3DLegoEveHistProxyBuilder.cc,v 1.3 2008/11/06 22:05:24 amraktad Exp $
 //
 
 // system include files
@@ -31,8 +31,8 @@
 //
 // constructors and destructor
 //
-FW3DLegoEveHistProxyBuilder::FW3DLegoEveHistProxyBuilder():
-m_hist(0), m_data(0), m_sliceIndex(-1)
+FW3DLegoEveHistProxyBuilder::FW3DLegoEveHistProxyBuilder() :
+   m_hist(0), m_data(0), m_sliceIndex(-1)
 {
 }
 

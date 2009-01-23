@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.39 2009/01/08 18:06:30 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.40 2009/01/09 20:56:38 chrjones Exp $
 //
 // hacks
 #define private public
@@ -189,7 +189,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    menuBar->SetBackgroundColor(backgroundColor);
    TIter next(menuBar->GetTitles());
    TGMenuTitle *title;
-   while ((title = (TGMenuTitle *)next())) 
+   while ((title = (TGMenuTitle *)next()))
       title->SetTextColor(textColor);
 
    AddFrame(menuBar, new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 0));
@@ -206,7 +206,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
 
    /**************************************************************************/
    // controls
-   
+
    TGCompositeFrame* controlFrame = new TGVerticalFrame(fullbar, 10, 20, 0, backgroundColor);
 
    TGCompositeFrame* buttonFrame = new TGHorizontalFrame(controlFrame, 10, 10, 0, backgroundColor);
@@ -237,7 +237,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    nextEvent->createCustomIconsButton(buttonFrame,
                                       fClient->GetPicture(coreIcondir+"button-stepforward.png"),
                                       fClient->GetPicture(coreIcondir+"button-stepforward-over.png"),
-                                      fClient->GetPicture(coreIcondir+"button-stepforward-disabled.png"), 
+                                      fClient->GetPicture(coreIcondir+"button-stepforward-disabled.png"),
                                       new TGLayoutHints(kLHintsCenterY| kLHintsLeft, 2, 3, 10, 0));
 
 
@@ -248,15 +248,15 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
                                        fClient->GetPicture(coreIcondir+"button-pause.png"),
                                        fClient->GetPicture(coreIcondir+"button-pause-over.png"),
                                        new TGLayoutHints(kLHintsCenterY| kLHintsLeft, 2, 3, 10, 0));
-                                       
+
    goToLast->createCustomIconsButton(buttonFrame,
                                      fClient->GetPicture(coreIcondir+"button-gotolast.png"),
                                      fClient->GetPicture(coreIcondir+"button-gotolast-over.png"),
                                      fClient->GetPicture(coreIcondir+"button-gotolast-disabled.png"),
                                      new TGLayoutHints(kLHintsCenterY| kLHintsLeft, 2, 3, 10, 0));
 
-   
-  
+
+
    controlFrame->AddFrame(buttonFrame, new TGLayoutHints(kLHintsTop | kLHintsLeft, 10, 0, 0, 0));
 
    /**************************************************************************/
@@ -276,7 +276,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    controlFrame->AddFrame(sliderFrame, new TGLayoutHints(kLHintsTop | kLHintsLeft, 10, 0, 0, 0));
 
    fullbar->AddFrame(controlFrame, new TGLayoutHints(kLHintsLeft, 2, 2, 5, 5));
-   
+
    /**************************************************************************/
    // delay label
    TGVerticalFrame* delayFrame = new TGVerticalFrame(fullbar, 60, 10, 0, backgroundColor);
@@ -291,14 +291,14 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    m_delayLabel->SetBackgroundColor(backgroundColor);
    m_delayLabel->SetTextJustify(kTextCenterX);
    m_delayLabel->SetTextColor(0xffffff);
-   labFixed->AddFrame(m_delayLabel, new TGLayoutHints(kLHintsTop | kLHintsCenterX |kLHintsExpandX , 0, 0, 0, 0));
+   labFixed->AddFrame(m_delayLabel, new TGLayoutHints(kLHintsTop | kLHintsCenterX |kLHintsExpandX, 0, 0, 0, 0));
    delayFrame->AddFrame(labFixed, new TGLayoutHints(kLHintsLeft, 0, 4, 0, 0));
 
    fullbar->AddFrame(delayFrame, new TGLayoutHints(kLHintsTop | kFixedSize, 0, 0, 0, 0));
 
    /**************************************************************************/
    // text/num entries
-   
+
    Int_t maxW =  fullbar->GetWidth() - controlFrame->GetWidth();
    TGVerticalFrame *texts = new TGVerticalFrame(fullbar, 400, 44, kFixedSize, backgroundColor);
    Int_t entryHeight = 20;
@@ -345,7 +345,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    m_timeText->SetTextColor(0xffffff);
    m_timeText->SetBackgroundColor(backgroundColor);
    texts2->AddFrame(m_timeText, new TGLayoutHints(kLHintsNormal | kLHintsExpandX| kLHintsBottom, 0,0,0,1));
-   
+
    fullbar->AddFrame(texts2, new TGLayoutHints(kLHintsNormal| kLHintsCenterY, 6, 5, 5, 5));
 
    /**************************************************************************/
@@ -355,7 +355,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    TImage *logoImg  = TImage::Open(coreIcondir+"logo-fireworks.png");
    logoFrame->SetBackgroundPixmap(logoImg->GetPixmap());
    fullbar->AddFrame(logoFrame, new TGLayoutHints(kLHintsRight | kLHintsCenterY, 0, 5, 0, 0));
-  
+
 
    /**************************************************************************/
    AddFrame(fullbar, new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 0));
@@ -386,7 +386,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    Layout();
    MapWindow();
 
-    m_delaySliderListener =  new FWIntValueListener();
+   m_delaySliderListener =  new FWIntValueListener();
    TQObject::Connect(m_delaySlider, "PositionChanged(Int_t)", "FWIntValueListenerBase",  m_delaySliderListener, "setValue(Int_t)");
 }
 
@@ -492,13 +492,13 @@ void CmsShowMainFrame::quit() {
 CSGAction*
 CmsShowMainFrame::getAction(const std::string& name)
 {
-  std::vector<CSGAction*>::iterator it_act;
-  for (it_act = m_actionList.begin(); it_act != m_actionList.end(); ++it_act) {
-    if ((*it_act)->getName() == name)
-      return *it_act;
-  }
+   std::vector<CSGAction*>::iterator it_act;
+   for (it_act = m_actionList.begin(); it_act != m_actionList.end(); ++it_act) {
+      if ((*it_act)->getName() == name)
+         return *it_act;
+   }
    std::cout << "No action is found with name \"" << name << "\"" << std::endl;
-  return 0;
+   return 0;
 }
 
 void
@@ -519,57 +519,57 @@ CmsShowMainFrame::enableActions(bool enable)
 void
 CmsShowMainFrame::enablePrevious(bool enable)
 {
-  if (m_previousEvent != 0) {
-     if (enable) {
-        m_previousEvent->enable();
-        m_playEventsBack->enable();
-     } else {
-        m_previousEvent->disable();
-        m_playEventsBack->disable();
-        m_playEventsBack->stop();
-     }
-  }
-  if (m_goToFirst != 0) {
-    if (enable)
-      m_goToFirst->enable();
-    else
-      m_goToFirst->disable();
-  }
+   if (m_previousEvent != 0) {
+      if (enable) {
+         m_previousEvent->enable();
+         m_playEventsBack->enable();
+      } else {
+         m_previousEvent->disable();
+         m_playEventsBack->disable();
+         m_playEventsBack->stop();
+      }
+   }
+   if (m_goToFirst != 0) {
+      if (enable)
+         m_goToFirst->enable();
+      else
+         m_goToFirst->disable();
+   }
 }
 
 void
 CmsShowMainFrame::enableNext(bool enable)
 {
-  if (m_nextEvent != 0) {
-     if (enable) {
-        m_nextEvent->enable();
-        m_playEvents->enable();
-        m_goToLast->enable();
-     } else {
-        m_nextEvent->disable();
-        m_playEvents->disable();
-        m_goToLast->disable();
-        m_playEvents->stop();
-     }
-  }
+   if (m_nextEvent != 0) {
+      if (enable) {
+         m_nextEvent->enable();
+         m_playEvents->enable();
+         m_goToLast->enable();
+      } else {
+         m_nextEvent->disable();
+         m_playEvents->disable();
+         m_goToLast->disable();
+         m_playEvents->stop();
+      }
+   }
 }
 
 bool
 CmsShowMainFrame::nextIsEnabled()
 {
-  return m_nextEvent->isEnabled();
+   return m_nextEvent->isEnabled();
 }
 
 bool
 CmsShowMainFrame::previousIsEnabled()
 {
-  return m_previousEvent->isEnabled();
+   return m_previousEvent->isEnabled();
 }
 
 void CmsShowMainFrame::updateStatusBar(const char* status) {
-  m_statBar->SetText(status, 0);
-  //force the status bar to update its image
-  gClient->ProcessEventsFor(m_statBar);
+   m_statBar->SetText(status, 0);
+   //force the status bar to update its image
+   gClient->ProcessEventsFor(m_statBar);
 }
 
 void CmsShowMainFrame::clearStatusBar()
@@ -585,7 +585,7 @@ void CmsShowMainFrame::HandleMenu(Int_t id) {
       {
          gApplication->Terminate(0);
       }
-         break;
+      break;
       default:
          printf("Invalid menu id\n");
          break;
@@ -641,7 +641,7 @@ CmsShowMainFrame::makeFixedSizeLabel(TGHorizontalFrame* p, const char* txt, UInt
 
    Int_t labW = 50;
    Int_t labH = 20;
-   
+
    p->SetBackgroundColor(bgCol);
    TGCompositeFrame *lframe = new TGHorizontalFrame(p, labW, labH, kFixedSize, bgCol);
    TGLabel* label = new TGLabel(lframe, txt);

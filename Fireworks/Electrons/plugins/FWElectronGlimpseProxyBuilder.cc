@@ -2,13 +2,13 @@
 //
 // Package:     Electrons
 // Class  :     FWElectronGlimpseProxyBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWElectronGlimpseProxyBuilder.cc,v 1.1 2008/12/02 21:11:52 chrjones Exp $
+// $Id: FWElectronGlimpseProxyBuilder.cc,v 1.2 2009/01/06 22:46:19 chrjones Exp $
 //
 
 // system include files
@@ -20,28 +20,28 @@
 #include "Fireworks/Core/interface/FWEveValueScaler.h"
 #include "Fireworks/Candidates/interface/addStraightLineSegment.h"
 
-class FWElectronGlimpseProxyBuilder: public FWGlimpseSimpleProxyBuilderTemplate<reco::GsfElectron> {
-      
+class FWElectronGlimpseProxyBuilder : public FWGlimpseSimpleProxyBuilderTemplate<reco::GsfElectron> {
+
 public:
    FWElectronGlimpseProxyBuilder();
    //virtual ~FWElectronGlimpseProxyBuilder();
-   
+
    // ---------- const member functions ---------------------
-   
+
    // ---------- static member functions --------------------
-   
+
    // ---------- member functions ---------------------------
    REGISTER_PROXYBUILDER_METHODS();
- 
+
 private:
    FWElectronGlimpseProxyBuilder(const FWElectronGlimpseProxyBuilder&); // stop default
-   
+
    const FWElectronGlimpseProxyBuilder& operator=(const FWElectronGlimpseProxyBuilder&); // stop default
-   
+
    virtual void build(const reco::GsfElectron& iData, unsigned int iIndex,TEveElement& oItemHolder) const;
-   
+
    // ---------- member data --------------------------------
-   
+
 };
 
 //
@@ -83,7 +83,7 @@ FWElectronGlimpseProxyBuilder::FWElectronGlimpseProxyBuilder()
 //
 // member functions
 //
-void 
+void
 FWElectronGlimpseProxyBuilder::build(const reco::GsfElectron& iData, unsigned int iIndex,TEveElement& oItemHolder) const
 {
    FWEveScalableStraightLineSet* marker = new FWEveScalableStraightLineSet("","");
@@ -91,7 +91,7 @@ FWElectronGlimpseProxyBuilder::build(const reco::GsfElectron& iData, unsigned in
    fw::addStraightLineSegment( marker, &iData, 1.0 );
    oItemHolder.AddElement(marker);
    //add to scaler at end so that it can scale the line after all ends have been added
-   scaler()->addElement(marker);   
+   scaler()->addElement(marker);
 }
 
 //

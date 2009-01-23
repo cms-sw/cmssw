@@ -7,16 +7,16 @@
 //
 /**\class FWCompositeParameter FWCompositeParameter.h Fireworks/Core/interface/FWCompositeParameter.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:37:04 EST 2008
-// $Id: FWCompositeParameter.h,v 1.1 2008/03/11 02:43:57 chrjones Exp $
+// $Id: FWCompositeParameter.h,v 1.2 2008/11/06 22:05:22 amraktad Exp $
 //
 
 // system include files
@@ -30,27 +30,27 @@
 class FWCompositeParameter : public FWParameterBase, public FWParameterizable
 {
 
-   public:
-      FWCompositeParameter(FWParameterizable* iParent,
-                           const std::string& iName,
-                           unsigned int iVersion=1);
-      virtual ~FWCompositeParameter();
+public:
+   FWCompositeParameter(FWParameterizable* iParent,
+                        const std::string& iName,
+                        unsigned int iVersion=1);
+   virtual ~FWCompositeParameter();
 
-      // ---------- const member functions ---------------------
-      virtual void addTo(FWConfiguration& ) const ;
+   // ---------- const member functions ---------------------
+   virtual void addTo(FWConfiguration& ) const ;
 
-      // ---------- static member functions --------------------
+   // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
-      virtual void setFrom(const FWConfiguration&);
+   // ---------- member functions ---------------------------
+   virtual void setFrom(const FWConfiguration&);
 
-   private:
-      FWCompositeParameter(const FWCompositeParameter&); // stop default
+private:
+   FWCompositeParameter(const FWCompositeParameter&);    // stop default
 
-      const FWCompositeParameter& operator=(const FWCompositeParameter&); // stop default
+   const FWCompositeParameter& operator=(const FWCompositeParameter&);    // stop default
 
-      // ---------- member data --------------------------------
-      unsigned int m_version;
+   // ---------- member data --------------------------------
+   unsigned int m_version;
 };
 
 

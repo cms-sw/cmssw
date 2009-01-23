@@ -7,16 +7,16 @@
 //
 /**\class CSGContinuousAction CSGContinuousAction.h Fireworks/Core/interface/CSGContinuousAction.h
 
- Description: An action which continues over time (e.g. playing events)
+   Description: An action which continues over time (e.g. playing events)
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jul 29 10:19:42 EDT 2008
-// $Id: CSGContinuousAction.h,v 1.3 2008/11/05 09:10:25 chrjones Exp $
+// $Id: CSGContinuousAction.h,v 1.4 2008/11/06 22:05:22 amraktad Exp $
 //
 
 // system include files
@@ -52,7 +52,7 @@ public:
                                 const TGPicture* downRunningPic,
                                 TGLayoutHints* l = 0,
                                 Int_t id = -1,
-                                GContext_t norm = TGButton::GetDefaultGC()(),
+                                GContext_t norm = TGButton::GetDefaultGC() (),
                                 UInt_t option = 0);
    void stop();
 

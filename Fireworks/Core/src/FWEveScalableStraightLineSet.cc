@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jul  3 16:25:33 EDT 2008
-// $Id: FWEveScalableStraightLineSet.cc,v 1.1 2008/07/04 23:39:30 chrjones Exp $
+// $Id: FWEveScalableStraightLineSet.cc,v 1.2 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files
@@ -29,8 +29,8 @@
 // constructors and destructor
 //
 FWEveScalableStraightLineSet::FWEveScalableStraightLineSet(const Text_t* iName,
-                                                           const Text_t* iTitle):
-TEveScalableStraightLineSet(iName,iTitle)
+                                                           const Text_t* iTitle) :
+   TEveScalableStraightLineSet(iName,iTitle)
 {
 }
 
@@ -39,10 +39,10 @@ TEveScalableStraightLineSet(iName,iTitle)
 //    // do actual copying here;
 // }
 /*
-FWEveScalableStraightLineSet::~FWEveScalableStraightLineSet()
-{
-}
-*/
+   FWEveScalableStraightLineSet::~FWEveScalableStraightLineSet()
+   {
+   }
+ */
 //
 // assignment operators
 //

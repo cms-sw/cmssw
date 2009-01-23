@@ -7,16 +7,16 @@
 //
 /**\class FWRhoPhiZViewManager FWRhoPhiZViewManager.h Fireworks/Core/interface/FWRhoPhiZViewManager.h
 
- Description: Manages the data and views for Rho/Phi and Rho/Z Views
+   Description: Manages the data and views for Rho/Phi and Rho/Z Views
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:
 //         Created:  Sat Jan  5 11:27:34 EST 2008
-// $Id: FWRhoPhiZViewManager.h,v 1.27 2008/11/14 16:37:46 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.h,v 1.28 2008/11/18 21:56:16 chrjones Exp $
 //
 
 // system include files
@@ -46,76 +46,76 @@ class FWRhoPhiZView;
 class FWViewBase;
 class TEveSelection;
 class TEveElement;
-class  FWSelectionManager;
+class FWSelectionManager;
 
 class FWRhoPhiZViewManager : public FWViewManagerBase
 {
 
-   public:
-      FWRhoPhiZViewManager(FWGUIManager*);
-      virtual ~FWRhoPhiZViewManager();
+public:
+   FWRhoPhiZViewManager(FWGUIManager*);
+   virtual ~FWRhoPhiZViewManager();
 
-      // ---------- const member functions ---------------------
-      FWTypeToRepresentations supportedTypesAndRepresentations() const;
+   // ---------- const member functions ---------------------
+   FWTypeToRepresentations supportedTypesAndRepresentations() const;
 
-      // ---------- static member functions --------------------
+   // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
+   // ---------- member functions ---------------------------
 
-      virtual void newItem(const FWEventItem*);
+   virtual void newItem(const FWEventItem*);
 
-      FWViewBase* createRhoPhiView(TGFrame* iParent);
-      FWViewBase* createRhoZView(TGFrame* iParent);
+   FWViewBase* createRhoPhiView(TGFrame* iParent);
+   FWViewBase* createRhoZView(TGFrame* iParent);
 
-      //connect to ROOT signals
-      void selectionAdded(TEveElement*);
-      void selectionRemoved(TEveElement*);
-      void selectionCleared();
+   //connect to ROOT signals
+   void selectionAdded(TEveElement*);
+   void selectionRemoved(TEveElement*);
+   void selectionCleared();
 
-   protected:
-      virtual void modelChangesComing() ;
-      virtual void modelChangesDone() ;
+protected:
+   virtual void modelChangesComing() ;
+   virtual void modelChangesDone() ;
 
-   private:
-      FWRhoPhiZViewManager(const FWRhoPhiZViewManager&); // stop default
+private:
+   FWRhoPhiZViewManager(const FWRhoPhiZViewManager&);    // stop default
 
-      const FWRhoPhiZViewManager& operator=(const FWRhoPhiZViewManager&); // stop default
+   const FWRhoPhiZViewManager& operator=(const FWRhoPhiZViewManager&);    // stop default
 
-      void makeProxyBuilderFor(const FWEventItem* iItem);
+   void makeProxyBuilderFor(const FWEventItem* iItem);
 
-      void beingDestroyed(const FWViewBase*);
+   void beingDestroyed(const FWViewBase*);
 
-      void setupGeometry();
-      void makeMuonGeometryRhoPhi();
-      void makeMuonGeometryRhoZ();
-      void makeMuonGeometryRhoZAdvance();
-      void makeTrackerGeometryRhoPhi();
-      void makeTrackerGeometryRhoZ();
-      void estimateProjectionSizeDT( const TGeoHMatrix*, const TGeoShape*, double&, double&, double&, double& );
-      void estimateProjectionSizeCSC( const TGeoHMatrix*, const TGeoShape*, double&, double&, double&, double& );
-      void estimateProjectionSize( const Double_t*, double&, double&, double&, double& );
-      TEveGeoShape* makeShape( const char*, double, double, double, double );
+   void setupGeometry();
+   void makeMuonGeometryRhoPhi();
+   void makeMuonGeometryRhoZ();
+   void makeMuonGeometryRhoZAdvance();
+   void makeTrackerGeometryRhoPhi();
+   void makeTrackerGeometryRhoZ();
+   void estimateProjectionSizeDT( const TGeoHMatrix*, const TGeoShape*, double&, double&, double&, double& );
+   void estimateProjectionSizeCSC( const TGeoHMatrix*, const TGeoShape*, double&, double&, double&, double& );
+   void estimateProjectionSize( const Double_t*, double&, double&, double&, double& );
+   TEveGeoShape* makeShape( const char*, double, double, double, double );
 
 
-      // ---------- member data --------------------------------
-      typedef  std::map<std::string,std::pair<std::string,bool> > TypeToBuilder;
-      TypeToBuilder m_typeToBuilder;
-      std::vector<boost::shared_ptr<FWRPZDataProxyBuilderBase> > m_builders;
+   // ---------- member data --------------------------------
+   typedef  std::map<std::string,std::pair<std::string,bool> > TypeToBuilder;
+   TypeToBuilder m_typeToBuilder;
+   std::vector<boost::shared_ptr<FWRPZDataProxyBuilderBase> > m_builders;
 
-      FWEvePtr<TEveProjectionManager> m_rhoPhiGeomProjMgr;
-      FWEvePtr<TEveProjectionManager> m_rhoZGeomProjMgr;
-      std::vector<TEveElement*> m_rhoPhiGeom;
-      std::vector<TEveElement*> m_rhoZGeom;
+   FWEvePtr<TEveProjectionManager> m_rhoPhiGeomProjMgr;
+   FWEvePtr<TEveProjectionManager> m_rhoZGeomProjMgr;
+   std::vector<TEveElement*> m_rhoPhiGeom;
+   std::vector<TEveElement*> m_rhoZGeom;
 
-      std::vector<boost::shared_ptr<FWRhoPhiZView> > m_rhoPhiViews;
-      std::vector<boost::shared_ptr<FWRhoPhiZView> > m_rhoZViews;
+   std::vector<boost::shared_ptr<FWRhoPhiZView> > m_rhoPhiViews;
+   std::vector<boost::shared_ptr<FWRhoPhiZView> > m_rhoZViews;
 
-      TEveElementList* m_eveStore;
+   TEveElementList* m_eveStore;
 
-      TEveSelection* m_eveSelection;
+   TEveSelection* m_eveSelection;
 
-      FWSelectionManager* m_selectionManager;
-     bool m_isBeingDestroyed;
+   FWSelectionManager* m_selectionManager;
+   bool m_isBeingDestroyed;
 };
 
 

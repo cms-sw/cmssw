@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWDetailViewFactory
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Jan 12 09:48:09 EST 2009
-// $Id$
+// $Id: FWDetailViewFactory.cc,v 1.1 2009/01/12 17:21:30 chrjones Exp $
 //
 
 // system include files

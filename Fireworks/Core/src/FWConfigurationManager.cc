@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Feb 24 14:42:32 EST 2008
-// $Id: FWConfigurationManager.cc,v 1.5 2008/06/17 00:08:11 chrjones Exp $
+// $Id: FWConfigurationManager.cc,v 1.6 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files
@@ -77,7 +77,7 @@ FWConfigurationManager::setFrom(const FWConfiguration& iConfig) const
 {
    assert(0!=iConfig.keyValues());
    for(FWConfiguration::KeyValues::const_iterator it = iConfig.keyValues()->begin(),
-       itEnd = iConfig.keyValues()->end();
+                                                  itEnd = iConfig.keyValues()->end();
        it != itEnd;
        ++it) {
       std::map<std::string,FWConfigurable*>::const_iterator itFound = m_configurables.find(it->first);
@@ -90,7 +90,7 @@ FWConfigurationManager::to(FWConfiguration& oConfig) const
 {
    FWConfiguration config;
    for(std::map<std::string,FWConfigurable*>::const_iterator it = m_configurables.begin(),
-       itEnd = m_configurables.end();
+                                                             itEnd = m_configurables.end();
        it != itEnd;
        ++it) {
       it->second->addTo(config);
@@ -113,8 +113,8 @@ FWConfigurationManager::writeToFile(const std::string& iName) const
    printf("Writing to file...\n");
    const std::string topName("top");
    file <<"FWConfiguration* fwConfig() {\n"
-   <<"  FWConfiguration* "<<topName<<"_p = new FWConfiguration("<<top.version()<<");\n"
-   <<"  FWConfiguration& "<<topName<<" = *"<<topName<<"_p;\n";
+        <<"  FWConfiguration* "<<topName<<"_p = new FWConfiguration("<<top.version()<<");\n"
+        <<"  FWConfiguration& "<<topName<<" = *"<<topName<<"_p;\n";
 
    for(FWConfiguration::KeyValues::const_iterator it = top.keyValues()->begin();
        it != top.keyValues()->end();

@@ -7,16 +7,16 @@
 //
 /**\class FWBoolParameterSetter FWBoolParameterSetter.h Fireworks/Core/interface/FWBoolParameterSetter.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 10 11:22:26 CDT 2008
-// $Id: FWBoolParameterSetter.h,v 1.1 2008/06/20 05:57:06 dmytro Exp $
+// $Id: FWBoolParameterSetter.h,v 1.2 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files
@@ -32,27 +32,27 @@ class TGCheckButton;
 class FWBoolParameterSetter : public FWParameterSetterBase
 {
 
-   public:
-      FWBoolParameterSetter();
-      virtual ~FWBoolParameterSetter();
+public:
+   FWBoolParameterSetter();
+   virtual ~FWBoolParameterSetter();
 
-      // ---------- const member functions ---------------------
+   // ---------- const member functions ---------------------
 
-      // ---------- static member functions --------------------
+   // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
-      virtual void attach(FWParameterBase*) ;
-      virtual TGFrame* build(TGFrame* iParent) ;
-      void doUpdate();
+   // ---------- member functions ---------------------------
+   virtual void attach(FWParameterBase*) ;
+   virtual TGFrame* build(TGFrame* iParent) ;
+   void doUpdate();
 
-   private:
-      FWBoolParameterSetter(const FWBoolParameterSetter&); // stop default
+private:
+   FWBoolParameterSetter(const FWBoolParameterSetter&);    // stop default
 
-      const FWBoolParameterSetter& operator=(const FWBoolParameterSetter&); // stop default
+   const FWBoolParameterSetter& operator=(const FWBoolParameterSetter&);    // stop default
 
-      // ---------- member data --------------------------------
-      FWBoolParameter* m_param;
-      TGCheckButton* m_widget;
+   // ---------- member data --------------------------------
+   FWBoolParameter* m_param;
+   TGCheckButton* m_widget;
 };
 
 

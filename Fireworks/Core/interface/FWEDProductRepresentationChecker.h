@@ -4,19 +4,19 @@
 //
 // Package:     Core
 // Class  :     FWEDProductRepresentationChecker
-// 
+//
 /**\class FWEDProductRepresentationChecker FWEDProductRepresentationChecker.h Fireworks/Core/interface/FWEDProductRepresentationChecker.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 11 15:20:05 EST 2008
-// $Id$
+// $Id: FWEDProductRepresentationChecker.h,v 1.1 2008/11/14 16:29:30 chrjones Exp $
 //
 
 // system include files
@@ -32,19 +32,19 @@ class FWEDProductRepresentationChecker : public FWRepresentationCheckerBase {
 public:
    FWEDProductRepresentationChecker(const std::string& iTypeName,
                                     const std::string& iPurpose);
-   
+
    // ---------- const member functions ---------------------
    virtual FWRepresentationInfo infoFor(const std::string& iTypeName) const;
 
    // ---------- static member functions --------------------
-   
+
    // ---------- member functions ---------------------------
-   
+
 private:
    FWEDProductRepresentationChecker(const FWEDProductRepresentationChecker&); // stop default
 
    const FWEDProductRepresentationChecker& operator=(const FWEDProductRepresentationChecker&); // stop default
-   
+
    // ---------- member data --------------------------------
    const std::string m_typeName;
 };

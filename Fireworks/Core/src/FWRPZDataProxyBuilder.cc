@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FWRPZDataProxyBuilder.cc,v 1.19 2008/10/28 14:20:46 chrjones Exp $
+// $Id: FWRPZDataProxyBuilder.cc,v 1.20 2008/11/06 22:05:26 amraktad Exp $
 //
 
 // system include files
@@ -37,10 +37,10 @@ TEveCalo3D* FWRPZDataProxyBuilder::m_calo3d = 0;
 //
 // constructors and destructor
 //
-FWRPZDataProxyBuilder::FWRPZDataProxyBuilder():
-  m_priority(false),
-  m_elements(0),
-m_needsUpdate(true)
+FWRPZDataProxyBuilder::FWRPZDataProxyBuilder() :
+   m_priority(false),
+   m_elements(0),
+   m_needsUpdate(true)
 {
 }
 
@@ -111,11 +111,11 @@ FWRPZDataProxyBuilder::getRhoZProduct() const
 void
 FWRPZDataProxyBuilder::build()
 {
-  if(0!= item()) {
-    build(item(), &m_elements);
+   if(0!= item()) {
+      build(item(), &m_elements);
 
-     setUserData(item(),m_elements,ids());
-  }
+      setUserData(item(),m_elements,ids());
+   }
 }
 
 void

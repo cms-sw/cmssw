@@ -7,16 +7,16 @@
 //
 /**\class FWConfigurationManager FWConfigurationManager.h Fireworks/Core/interface/FWConfigurationManager.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Feb 24 14:38:41 EST 2008
-// $Id: FWConfigurationManager.h,v 1.2 2008/02/27 00:52:26 chrjones Exp $
+// $Id: FWConfigurationManager.h,v 1.3 2008/11/06 22:05:22 amraktad Exp $
 //
 
 // system include files
@@ -32,29 +32,29 @@ class FWConfiguration;
 class FWConfigurationManager
 {
 
-   public:
-      FWConfigurationManager();
-      virtual ~FWConfigurationManager();
+public:
+   FWConfigurationManager();
+   virtual ~FWConfigurationManager();
 
-      // ---------- const member functions ---------------------
-      void setFrom(const FWConfiguration&) const;
-      void to(FWConfiguration&) const;
+   // ---------- const member functions ---------------------
+   void setFrom(const FWConfiguration&) const;
+   void to(FWConfiguration&) const;
 
-      void writeToFile(const std::string&) const;
-      void readFromFile(const std::string&) const;
-      // ---------- static member functions --------------------
+   void writeToFile(const std::string&) const;
+   void readFromFile(const std::string&) const;
+   // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
-      ///does not take ownership
-      void add(const std::string& iName, FWConfigurable*);
+   // ---------- member functions ---------------------------
+   ///does not take ownership
+   void add(const std::string& iName, FWConfigurable*);
 
-   private:
-      FWConfigurationManager(const FWConfigurationManager&); // stop default
+private:
+   FWConfigurationManager(const FWConfigurationManager&);    // stop default
 
-      const FWConfigurationManager& operator=(const FWConfigurationManager&); // stop default
+   const FWConfigurationManager& operator=(const FWConfigurationManager&);    // stop default
 
-      // ---------- member data --------------------------------
-      std::map<std::string, FWConfigurable*> m_configurables;
+   // ---------- member data --------------------------------
+   std::map<std::string, FWConfigurable*> m_configurables;
 };
 
 

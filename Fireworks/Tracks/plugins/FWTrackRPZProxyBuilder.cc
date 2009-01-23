@@ -2,13 +2,13 @@
 //
 // Package:     Tracks
 // Class  :     FWTrackRPZProxyBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 25 14:42:13 EST 2008
-// $Id: FWTrackRPZProxyBuilder.cc,v 1.2 2009/01/06 20:07:48 chrjones Exp $
+// $Id: FWTrackRPZProxyBuilder.cc,v 1.3 2009/01/06 21:38:40 chrjones Exp $
 //
 
 // system include files
@@ -29,26 +29,26 @@
 #include "Fireworks/Tracks/interface/prepareTrack.h"
 
 class FWTrackRPZProxyBuilder : public FWRPZSimpleProxyBuilderTemplate<reco::Track> {
-      
+
 public:
    FWTrackRPZProxyBuilder();
    virtual ~FWTrackRPZProxyBuilder();
-   
+
    // ---------- const member functions ---------------------
-   
+
    // ---------- static member functions --------------------
-   
+
    // ---------- member functions ---------------------------
    REGISTER_PROXYBUILDER_METHODS();
-   
+
 private:
    FWTrackRPZProxyBuilder(const FWTrackRPZProxyBuilder&); // stop default
-   
+
    const FWTrackRPZProxyBuilder& operator=(const FWTrackRPZProxyBuilder&); // stop default
-   
+
    void build(const reco::Track& iData, unsigned int iIndex,TEveElement& oItemHolder) const;
    // ---------- member data --------------------------------
-   
+
    FWEvePtr<TEveTrackPropagator> m_propagator;
 };
 
@@ -63,13 +63,13 @@ private:
 //
 // constructors and destructor
 //
-FWTrackRPZProxyBuilder::FWTrackRPZProxyBuilder():
-m_propagator( new TEveTrackPropagator)
+FWTrackRPZProxyBuilder::FWTrackRPZProxyBuilder() :
+   m_propagator( new TEveTrackPropagator)
 {
-   m_propagator->SetMagField( - CmsShowMain::getMagneticField() );
+   m_propagator->SetMagField( -CmsShowMain::getMagneticField() );
    m_propagator->SetMaxR(123.0);
    m_propagator->SetMaxZ(300.0);
-   
+
 }
 
 // FWTrackRPZProxyBuilder::FWTrackRPZProxyBuilder(const FWTrackRPZProxyBuilder& rhs)
@@ -100,7 +100,7 @@ FWTrackRPZProxyBuilder::~FWTrackRPZProxyBuilder()
 //
 // const member functions
 //
-void 
+void
 FWTrackRPZProxyBuilder::build(const reco::Track& iData, unsigned int iIndex,TEveElement& oItemHolder) const
 {
    if(CmsShowMain::isAutoField()) {
@@ -111,12 +111,12 @@ FWTrackRPZProxyBuilder::build(const reco::Track& iData, unsigned int iIndex,TEve
             bool measuredFieldIsOn = estimate > 2.0;
             if(fieldIsOn != measuredFieldIsOn) {
                CmsShowMain::guessFieldIsOn(measuredFieldIsOn);
-               m_propagator->SetMagField( - CmsShowMain::getMagneticField() );      
+               m_propagator->SetMagField( -CmsShowMain::getMagneticField() );
             }
          }
       }
    }
-   
+
    TEveTrack* trk = fireworks::prepareTrack( iData, m_propagator.get(), &oItemHolder, item()->defaultDisplayProperties().color() );
    trk->MakeTrack();
    oItemHolder.AddElement( trk );

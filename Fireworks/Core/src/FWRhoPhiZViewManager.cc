@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.46 2008/11/26 02:14:02 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.47 2008/12/19 09:52:59 dmytro Exp $
 //
 
 // system include files
@@ -72,14 +72,14 @@ const char* const kRhoZViewTypeName = "Rho Z";
 //
 // constructors and destructor
 //
-FWRhoPhiZViewManager::FWRhoPhiZViewManager(FWGUIManager* iGUIMgr):
-  FWViewManagerBase(),
-  m_rhoPhiGeomProjMgr(),
-  m_rhoZGeomProjMgr(),
-  m_eveStore(0),
-  m_eveSelection(0),
-  m_selectionManager(0),
-  m_isBeingDestroyed(false)
+FWRhoPhiZViewManager::FWRhoPhiZViewManager(FWGUIManager* iGUIMgr) :
+   FWViewManagerBase(),
+   m_rhoPhiGeomProjMgr(),
+   m_rhoZGeomProjMgr(),
+   m_eveStore(0),
+   m_eveSelection(0),
+   m_selectionManager(0),
+   m_isBeingDestroyed(false)
 {
    FWGUIManager::ViewBuildFunctor f;
    f = boost::bind(&FWRhoPhiZViewManager::createRhoPhiView,
@@ -128,7 +128,7 @@ FWRhoPhiZViewManager::FWRhoPhiZViewManager(FWGUIManager* iGUIMgr):
        it!=itEnd;
        ++it) {
       std::string::size_type first = it->find_first_of('@')+1;
-      std::string  purpose = it->substr(first,it->find_last_of('@')-first);
+      std::string purpose = it->substr(first,it->find_last_of('@')-first);
       //std::cout <<"purpose "<<purpose<<std::endl;
       m_typeToBuilder[purpose]=std::make_pair(*it,true);
    }
@@ -186,7 +186,7 @@ FWRhoPhiZViewManager::createRhoPhiView(TGFrame* iParent)
    pView->resetCamera();
 
    for ( std::vector<boost::shared_ptr<FWRPZDataProxyBuilderBase> >::iterator builderIter = m_builders.begin();
-        builderIter != m_builders.end(); ++builderIter )  {
+         builderIter != m_builders.end(); ++builderIter )  {
       (*builderIter)->attachToRhoPhiView(pView);
    }
 
@@ -208,14 +208,14 @@ FWRhoPhiZViewManager::createRhoZView(TGFrame* iParent)
    pView->beingDestroyed_.connect(boost::bind(&FWRhoPhiZViewManager::beingDestroyed,this,_1));
    m_rhoZViews.push_back(pView);
    for(TEveElement::List_i it = m_rhoZGeomProjMgr->BeginChildren(),
-       itEnd = m_rhoZGeomProjMgr->EndChildren();
+                           itEnd = m_rhoZGeomProjMgr->EndChildren();
        it != itEnd;
        ++it) {
       pView->replicateGeomElement(*it);
    }
    pView->resetCamera();
    for ( std::vector<boost::shared_ptr<FWRPZDataProxyBuilderBase> >::iterator builderIter = m_builders.begin();
-        builderIter != m_builders.end(); ++builderIter )  {
+         builderIter != m_builders.end(); ++builderIter )  {
       (*builderIter)->attachToRhoZView(pView);
    }
    return pView.get();
@@ -243,7 +243,7 @@ FWRhoPhiZViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
    TypeToBuilder::iterator itFind = m_typeToBuilder.find(iItem->purpose());
    if(itFind != m_typeToBuilder.end()) {
       FWRPZDataProxyBuilderBase* builder = FWRPZDataProxyBuilderBaseFactory::get()->create(itFind->second.first);
-      
+
       if(0!=builder) {
          boost::shared_ptr<FWRPZDataProxyBuilderBase> pB( builder );
          builder->setItem(iItem);
@@ -256,10 +256,10 @@ FWRhoPhiZViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
 void
 FWRhoPhiZViewManager::newItem(const FWEventItem* iItem)
 {
-  if(0==m_selectionManager) {
-     //std::cout <<"got selection manager"<<std::endl;
-     m_selectionManager = iItem->selectionManager();
-  }
+   if(0==m_selectionManager) {
+      //std::cout <<"got selection manager"<<std::endl;
+      m_selectionManager = iItem->selectionManager();
+   }
    makeProxyBuilderFor(iItem);
 }
 
@@ -342,7 +342,7 @@ FWRhoPhiZViewManager::beingDestroyed(const FWViewBase* iView)
 {
    //Only do this if we are NOT being called while FWRhoPhiZViewManager is being destroyed
    if(!m_isBeingDestroyed) {
-      if(! removeFrom(m_rhoPhiViews,iView) ) {
+      if(!removeFrom(m_rhoPhiViews,iView) ) {
          removeFrom(m_rhoZViews,iView);
       }
    }
@@ -353,7 +353,7 @@ FWRhoPhiZViewManager::beingDestroyed(const FWViewBase* iView)
 //
 void FWRhoPhiZViewManager::makeMuonGeometryRhoPhi()
 {
-   if ( ! detIdToGeo() ) return;
+   if ( !detIdToGeo() ) return;
 
    // rho-phi view
    TEveElementList* container = new TEveElementList( "MuonRhoPhi" );
@@ -366,10 +366,10 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoPhi()
       container->AddElement( cStation );
       for (Int_t iSector = 1 ; iSector <= 14; ++iSector)
       {
-	 if ( iStation < 4 && iSector > 12 ) continue;
-	 DTChamberId id(iWheel, iStation, iSector);
-	 TEveGeoShape* shape = detIdToGeo()->getShape( id.rawId() );
-	 if ( shape ) cStation->AddElement(shape);
+         if ( iStation < 4 && iSector > 12 ) continue;
+         DTChamberId id(iWheel, iStation, iSector);
+         TEveGeoShape* shape = detIdToGeo()->getShape( id.rawId() );
+         if ( shape ) cStation->AddElement(shape);
       }
    }
 
@@ -385,11 +385,11 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoPhi()
       m_rhoPhiGeom.push_back( rhoPhiDT.current() );
       TEveElementIter iter(rhoPhiDT.current());
       while ( TEveElement* element = iter.current() ) {
-	 element->SetMainTransparency(50);
-	 element->SetMainColor(Color_t(TColor::GetColor("#3f0000")));
-	 if ( TEvePolygonSetProjected* poly = dynamic_cast<TEvePolygonSetProjected*>(element) )
-	   poly->SetLineColor(Color_t(TColor::GetColor("#7f0000")));
-	 iter.next();
+         element->SetMainTransparency(50);
+         element->SetMainColor(Color_t(TColor::GetColor("#3f0000")));
+         if ( TEvePolygonSetProjected* poly = dynamic_cast<TEvePolygonSetProjected*>(element) )
+            poly->SetLineColor(Color_t(TColor::GetColor("#7f0000")));
+         iter.next();
       }
    }
 
@@ -398,7 +398,7 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoPhi()
 
 void FWRhoPhiZViewManager::makeMuonGeometryRhoZ()
 {
-   if ( ! detIdToGeo() ) return;
+   if ( !detIdToGeo() ) return;
    TEveElementList* container = new TEveElementList( "MuonRhoZ" );
    TEveElementList* dtContainer = new TEveElementList( "DT" );
    container->AddElement( dtContainer );
@@ -408,21 +408,21 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZ()
       TEveElementList*  cWheel  = new TEveElementList(s.str().c_str());
       dtContainer->AddElement( cWheel );
       for ( Int_t iStation=1; iStation<=4; ++iStation) {
-	 std::ostringstream s; s << "Station" << iStation;
+         std::ostringstream s; s << "Station" << iStation;
          TEveElementList* cStation  = new TEveElementList( s.str().c_str() );
-	 cWheel->AddElement( cStation );
-	 for ( Int_t iSector=1; iSector<=14; ++iSector) {
-	    if (iStation<4 && iSector>12) continue;
-	    DTChamberId id(iWheel, iStation, iSector);
-	    TEveGeoShape* shape = detIdToGeo()->getShape( id.rawId() );
+         cWheel->AddElement( cStation );
+         for ( Int_t iSector=1; iSector<=14; ++iSector) {
+            if (iStation<4 && iSector>12) continue;
+            DTChamberId id(iWheel, iStation, iSector);
+            TEveGeoShape* shape = detIdToGeo()->getShape( id.rawId() );
             if ( shape ) cStation->AddElement( shape );
-	 }
+         }
       }
    }
 
    TEveElementList* cscContainer = new TEveElementList( "CSC" );
    container->AddElement( cscContainer );
-   for ( Int_t iEndcap = 1; iEndcap <= 2; ++iEndcap ) {// 1=forward (+Z), 2=backward(-Z)
+   for ( Int_t iEndcap = 1; iEndcap <= 2; ++iEndcap ) { // 1=forward (+Z), 2=backward(-Z)
       TEveElementList* cEndcap = 0;
       if (iEndcap == 1)
          cEndcap = new TEveElementList( "Forward" );
@@ -431,28 +431,28 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZ()
       cscContainer->AddElement( cEndcap );
       for ( Int_t iStation=1; iStation<=4; ++iStation)
       {
-	 std::ostringstream s; s << "Station" << iStation;
-	 TEveElementList* cStation  = new TEveElementList( s.str().c_str() );
-	 cEndcap->AddElement( cStation );
-	 for ( Int_t iRing=1; iRing<=4; ++iRing) {
-	    if (iStation > 1 && iRing > 2) continue;
-	    std::ostringstream s; s << "Ring" << iRing;
-	    TEveElementList* cRing  = new TEveElementList( s.str().c_str() );
-	    cStation->AddElement( cRing );
-	    for ( Int_t iChamber=1; iChamber<=72; ++iChamber)
+         std::ostringstream s; s << "Station" << iStation;
+         TEveElementList* cStation  = new TEveElementList( s.str().c_str() );
+         cEndcap->AddElement( cStation );
+         for ( Int_t iRing=1; iRing<=4; ++iRing) {
+            if (iStation > 1 && iRing > 2) continue;
+            std::ostringstream s; s << "Ring" << iRing;
+            TEveElementList* cRing  = new TEveElementList( s.str().c_str() );
+            cStation->AddElement( cRing );
+            for ( Int_t iChamber=1; iChamber<=72; ++iChamber)
             {
-	       if (iStation>1 && iChamber>36) continue;
-	       Int_t iLayer = 0; // chamber
-	       // exception is thrown if parameters are not correct and I keep
-	       // forgetting how many chambers we have in each ring.
-	       try {
-		  CSCDetId id(iEndcap, iStation, iRing, iChamber, iLayer);
-		  TEveGeoShape* shape = detIdToGeo()->getShape( id.rawId() );
-		  if ( shape )  cRing->AddElement( shape );
-	       }
-	       catch ( ... ) {}
-	    }
-	 }
+               if (iStation>1 && iChamber>36) continue;
+               Int_t iLayer = 0; // chamber
+               // exception is thrown if parameters are not correct and I keep
+               // forgetting how many chambers we have in each ring.
+               try {
+                  CSCDetId id(iEndcap, iStation, iRing, iChamber, iLayer);
+                  TEveGeoShape* shape = detIdToGeo()->getShape( id.rawId() );
+                  if ( shape ) cRing->AddElement( shape );
+               }
+               catch (... ) {}
+            }
+         }
       }
    }
 
@@ -466,11 +466,11 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZ()
       m_rhoZGeom.push_back( rhoZDT.current() );
       TEveElementIter iter(rhoZDT.current());
       while ( TEveElement* element = iter.current() ) {
-	 element->SetMainTransparency(50);
-	 element->SetMainColor(Color_t(TColor::GetColor("#3f0000")));
-	 if ( TEvePolygonSetProjected* poly = dynamic_cast<TEvePolygonSetProjected*>(element) )
+         element->SetMainTransparency(50);
+         element->SetMainColor(Color_t(TColor::GetColor("#3f0000")));
+         if ( TEvePolygonSetProjected* poly = dynamic_cast<TEvePolygonSetProjected*>(element) )
             poly->SetLineColor(Color_t(TColor::GetColor("#3f0000")));
-	 iter.next();
+         iter.next();
       }
    }
 
@@ -479,11 +479,11 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZ()
       m_rhoZGeom.push_back( rhoZCSC.current() );
       TEveElementIter iter(rhoZCSC.current());
       while ( iter.current() ) {
-	 iter.current()->SetMainTransparency(50);
-	 iter.current()->SetMainColor(Color_t(TColor::GetColor("#00003f")));
-	 if ( TEvePolygonSetProjected* poly = dynamic_cast<TEvePolygonSetProjected*>(iter.current()) )
-         poly->SetLineColor(Color_t(TColor::GetColor("#00003f")));
-	 iter.next();
+         iter.current()->SetMainTransparency(50);
+         iter.current()->SetMainColor(Color_t(TColor::GetColor("#00003f")));
+         if ( TEvePolygonSetProjected* poly = dynamic_cast<TEvePolygonSetProjected*>(iter.current()) )
+            poly->SetLineColor(Color_t(TColor::GetColor("#00003f")));
+         iter.next();
       }
    }
    m_eveStore->AddElement(container);
@@ -492,7 +492,7 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZ()
 void FWRhoPhiZViewManager::makeMuonGeometryRhoZAdvance()
 {
    // lets project everything by hand
-   if ( ! detIdToGeo() ) return;
+   if ( !detIdToGeo() ) return;
    TEveElementList* container = new TEveElementList( "MuonRhoZ" );
    TEveElementList* dtContainer = new TEveElementList( "DT" );
    container->AddElement( dtContainer );
@@ -502,62 +502,62 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZAdvance()
       TEveElementList* cWheel  = new TEveElementList( s.str().c_str() );
       dtContainer->AddElement( cWheel );
       for ( Int_t iStation=1; iStation<=4; ++iStation) {
-	 std::ostringstream s; s << "Station" << iStation;
-	 double min_rho(1000), max_rho(0), min_z(2000), max_z(-2000);
+         std::ostringstream s; s << "Station" << iStation;
+         double min_rho(1000), max_rho(0), min_z(2000), max_z(-2000);
 
-	 for ( Int_t iSector=1; iSector<=14; ++iSector) {
-	    if (iStation<4 && iSector>12) continue;
-	    DTChamberId id(iWheel, iStation, iSector);
-	    TEveGeoShape* shape = detIdToGeo()->getShape( id.rawId() );
-	    if (! shape ) continue;
-	    estimateProjectionSizeDT( detIdToGeo()->getMatrix( id.rawId() ),
-				      shape->GetShape(), min_rho, max_rho, min_z, max_z );
-	 }
-	 if ( min_rho > max_rho || min_z > max_z ) continue;
-	 cWheel->AddElement( makeShape( s.str().c_str(), min_rho, max_rho, min_z, max_z ) );
-	 cWheel->AddElement( makeShape( s.str().c_str(), -max_rho, -min_rho, min_z, max_z ) );
+         for ( Int_t iSector=1; iSector<=14; ++iSector) {
+            if (iStation<4 && iSector>12) continue;
+            DTChamberId id(iWheel, iStation, iSector);
+            TEveGeoShape* shape = detIdToGeo()->getShape( id.rawId() );
+            if (!shape ) continue;
+            estimateProjectionSizeDT( detIdToGeo()->getMatrix( id.rawId() ),
+                                      shape->GetShape(), min_rho, max_rho, min_z, max_z );
+         }
+         if ( min_rho > max_rho || min_z > max_z ) continue;
+         cWheel->AddElement( makeShape( s.str().c_str(), min_rho, max_rho, min_z, max_z ) );
+         cWheel->AddElement( makeShape( s.str().c_str(), -max_rho, -min_rho, min_z, max_z ) );
       }
    }
 
    TEveElementList* cscContainer = new TEveElementList( "CSC" );
    container->AddElement( cscContainer );
-   for ( Int_t iEndcap = 1; iEndcap <= 2; ++iEndcap ) {// 1=forward (+Z), 2=backward(-Z)
+   for ( Int_t iEndcap = 1; iEndcap <= 2; ++iEndcap ) { // 1=forward (+Z), 2=backward(-Z)
       TEveElementList* cEndcap = 0;
       if (iEndcap == 1)
-	cEndcap = new TEveElementList( "Forward" );
+         cEndcap = new TEveElementList( "Forward" );
       else
-	cEndcap = new TEveElementList( "Backward" );
+         cEndcap = new TEveElementList( "Backward" );
       cscContainer->AddElement( cEndcap );
       for ( Int_t iStation=1; iStation<=4; ++iStation) {
-	 std::ostringstream s; s << "Station" << iStation;
-	 TEveElementList* cStation  = new TEveElementList( s.str().c_str() );
-	 cEndcap->AddElement( cStation );
-	 for ( Int_t iRing=1; iRing<=4; ++iRing) {
-	    if (iStation > 1 && iRing > 2) continue;
-	    std::ostringstream s; s << "Ring" << iRing;
-	    double min_rho(1000), max_rho(0), min_z(2000), max_z(-2000);
-	    for ( Int_t iChamber=1; iChamber<=72; ++iChamber) {
-	       if (iStation>1 && iChamber>36) continue;
-	       Int_t iLayer = 0; // chamber
-	       // exception is thrown if parameters are not correct and I keep
-	       // forgetting how many chambers we have in each ring.
-	       try {
-		  CSCDetId id(iEndcap, iStation, iRing, iChamber, iLayer);
-		  TEveGeoShape* shape = detIdToGeo()->getShape( id.rawId() );
-		  if ( !shape ) continue;
-		  // get matrix from the main geometry, since detIdToGeo has reflected and
-		  // rotated reference frame to get proper local coordinates
-		  TGeoManager* manager = detIdToGeo()->getManager();
-		  manager->cd( detIdToGeo()->getPath( id.rawId() ) );
-		  const TGeoHMatrix* matrix = manager->GetCurrentMatrix();
-		  estimateProjectionSizeCSC( matrix, shape->GetShape(), min_rho, max_rho, min_z, max_z );
-	       }
-	       catch ( ... ) {}
-	    }
-	    if ( min_rho > max_rho || min_z > max_z ) continue;
-	    cStation->AddElement( makeShape( s.str().c_str(), min_rho, max_rho, min_z, max_z ) );
-	    cStation->AddElement( makeShape( s.str().c_str(), -max_rho, -min_rho, min_z, max_z ) );
-	 }
+         std::ostringstream s; s << "Station" << iStation;
+         TEveElementList* cStation  = new TEveElementList( s.str().c_str() );
+         cEndcap->AddElement( cStation );
+         for ( Int_t iRing=1; iRing<=4; ++iRing) {
+            if (iStation > 1 && iRing > 2) continue;
+            std::ostringstream s; s << "Ring" << iRing;
+            double min_rho(1000), max_rho(0), min_z(2000), max_z(-2000);
+            for ( Int_t iChamber=1; iChamber<=72; ++iChamber) {
+               if (iStation>1 && iChamber>36) continue;
+               Int_t iLayer = 0; // chamber
+               // exception is thrown if parameters are not correct and I keep
+               // forgetting how many chambers we have in each ring.
+               try {
+                  CSCDetId id(iEndcap, iStation, iRing, iChamber, iLayer);
+                  TEveGeoShape* shape = detIdToGeo()->getShape( id.rawId() );
+                  if ( !shape ) continue;
+                  // get matrix from the main geometry, since detIdToGeo has reflected and
+                  // rotated reference frame to get proper local coordinates
+                  TGeoManager* manager = detIdToGeo()->getManager();
+                  manager->cd( detIdToGeo()->getPath( id.rawId() ) );
+                  const TGeoHMatrix* matrix = manager->GetCurrentMatrix();
+                  estimateProjectionSizeCSC( matrix, shape->GetShape(), min_rho, max_rho, min_z, max_z );
+               }
+               catch (... ) {}
+            }
+            if ( min_rho > max_rho || min_z > max_z ) continue;
+            cStation->AddElement( makeShape( s.str().c_str(), min_rho, max_rho, min_z, max_z ) );
+            cStation->AddElement( makeShape( s.str().c_str(), -max_rho, -min_rho, min_z, max_z ) );
+         }
       }
    }
 
@@ -571,11 +571,11 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZAdvance()
       m_rhoZGeom.push_back( rhoZDT.current() );
       TEveElementIter iter(rhoZDT.current());
       while ( TEveElement* element = iter.current() ) {
-	 element->SetMainTransparency(50);
-	 element->SetMainColor(Color_t(TColor::GetColor("#3f0000")));
-	 if ( TEvePolygonSetProjected* poly = dynamic_cast<TEvePolygonSetProjected*>(element) )
-	   poly->SetLineColor(Color_t(TColor::GetColor("#7f0000")));
-	 iter.next();
+         element->SetMainTransparency(50);
+         element->SetMainColor(Color_t(TColor::GetColor("#3f0000")));
+         if ( TEvePolygonSetProjected* poly = dynamic_cast<TEvePolygonSetProjected*>(element) )
+            poly->SetLineColor(Color_t(TColor::GetColor("#7f0000")));
+         iter.next();
       }
    }
 
@@ -584,11 +584,11 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZAdvance()
       m_rhoZGeom.push_back( rhoZCSC.current() );
       TEveElementIter iter(rhoZCSC.current());
       while ( iter.current() ) {
-	 iter.current()->SetMainTransparency(50);
-	 iter.current()->SetMainColor(Color_t(TColor::GetColor("#00003f")));
-	 if ( TEvePolygonSetProjected* poly = dynamic_cast<TEvePolygonSetProjected*>(iter.current()) )
-	   poly->SetLineColor(Color_t(TColor::GetColor("#00007f")));
-	 iter.next();
+         iter.current()->SetMainTransparency(50);
+         iter.current()->SetMainColor(Color_t(TColor::GetColor("#00003f")));
+         if ( TEvePolygonSetProjected* poly = dynamic_cast<TEvePolygonSetProjected*>(iter.current()) )
+            poly->SetLineColor(Color_t(TColor::GetColor("#00007f")));
+         iter.next();
       }
    }
 
@@ -597,10 +597,10 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZAdvance()
 
 
 void FWRhoPhiZViewManager::estimateProjectionSizeDT( const TGeoHMatrix* matrix, const TGeoShape* shape,
-						   double& min_rho, double& max_rho, double& min_z, double& max_z )
+                                                     double& min_rho, double& max_rho, double& min_z, double& max_z )
 {
    const TGeoBBox* box = dynamic_cast<const TGeoBBox*>( shape );
-   if ( ! box ) return;
+   if ( !box ) return;
 
    // we will test 5 points on both sides ( +/- z)
    Double_t local[3], global[3];
@@ -647,11 +647,11 @@ void FWRhoPhiZViewManager::estimateProjectionSizeDT( const TGeoHMatrix* matrix, 
 }
 
 void FWRhoPhiZViewManager::estimateProjectionSizeCSC( const TGeoHMatrix* matrix, const TGeoShape* shape,
-						      double& min_rho, double& max_rho, double& min_z, double& max_z )
+                                                      double& min_rho, double& max_rho, double& min_z, double& max_z )
 {
    // const TGeoTrap* trap = dynamic_cast<const TGeoTrap*>( shape );
    const TGeoBBox* bb = dynamic_cast<const TGeoBBox*>( shape );
-   if ( ! bb ) {
+   if ( !bb ) {
       std::cout << "WARNING: CSC shape is not TGeoBBox. Ignored\n";
       shape->IsA()->Print();
       return;
@@ -690,9 +690,9 @@ void FWRhoPhiZViewManager::estimateProjectionSizeCSC( const TGeoHMatrix* matrix,
 // static member functions
 //
 void FWRhoPhiZViewManager::estimateProjectionSize( const Double_t* global,
-						   double& min_rho, double& max_rho, double& min_z, double& max_z )
+                                                   double& min_rho, double& max_rho, double& min_z, double& max_z )
 {
-   double rho = sqrt(global[0]*global[0]+global[1]*global[1]);
+   double rho = sqrt(global[0] *global[0]+global[1] *global[1]);
    if ( min_rho > rho ) min_rho = rho;
    if ( max_rho < rho ) max_rho = rho;
    if ( min_z > global[2] ) min_z = global[2];
@@ -701,7 +701,7 @@ void FWRhoPhiZViewManager::estimateProjectionSize( const Double_t* global,
 
 
 TEveGeoShape* FWRhoPhiZViewManager::makeShape( const char* name,
-							     double min_rho, double max_rho, double min_z, double max_z )
+                                               double min_rho, double max_rho, double min_z, double max_z )
 {
    TEveTrans t;
    t(1,1) = 1; t(1,2) = 0; t(1,3) = 0;
@@ -756,8 +756,8 @@ void FWRhoPhiZViewManager::makeTrackerGeometryRhoPhi()
    const unsigned int nSegments = 100;
    const double r = 123;
    for ( unsigned int i = 1; i <= nSegments; ++i )
-     el->AddLine(r*sin(2*M_PI/nSegments*(i-1)), r*cos(2*M_PI/nSegments*(i-1)), 0,
-		 r*sin(2*M_PI/nSegments*i), r*cos(2*M_PI/nSegments*i), 0);
+      el->AddLine(r*sin(2*M_PI/nSegments*(i-1)), r*cos(2*M_PI/nSegments*(i-1)), 0,
+                  r*sin(2*M_PI/nSegments*i), r*cos(2*M_PI/nSegments*i), 0);
    float layer = m_rhoPhiGeomProjMgr->GetCurrentDepth();
    TEvePointSet* ref = new TEvePointSet("reference");
    ref->SetPickable(kTRUE);
@@ -784,12 +784,12 @@ FWRhoPhiZViewManager::supportedTypesAndRepresentations() const
        ++it) {
       if(it->second.first.substr(0,kSimple.size()) == kSimple) {
          returnValue.add(boost::shared_ptr<FWRepresentationCheckerBase>( new FWSimpleRepresentationChecker(
-                                                                                                           it->second.first.substr(kSimple.size(),it->second.first.find_first_of('@')-kSimple.size()),
-                                                                                                           it->first)));
+                                                                            it->second.first.substr(kSimple.size(),it->second.first.find_first_of('@')-kSimple.size()),
+                                                                            it->first)));
       } else {
          returnValue.add(boost::shared_ptr<FWRepresentationCheckerBase>( new FWEDProductRepresentationChecker(
-                                                                                                              it->second.first.substr(0,it->second.first.find_first_of('@')),
-                                                                                                              it->first)));
+                                                                            it->second.first.substr(0,it->second.first.find_first_of('@')),
+                                                                            it->first)));
       }
    }
    return returnValue;

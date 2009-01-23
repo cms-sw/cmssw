@@ -7,16 +7,16 @@
 //
 /**\class CSGConnector CSGConnector.h Fireworks/Core/interface/CSGConnector.h
 
- Description: An adapter classes used to connect ROOT signals to a CSGAction
+   Description: An adapter classes used to connect ROOT signals to a CSGAction
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:16:04 CDT 2008
-// $Id: CSGConnector.h,v 1.2 2008/11/05 09:17:21 chrjones Exp $
+// $Id: CSGConnector.h,v 1.3 2008/11/06 22:05:24 amraktad Exp $
 //
 
 // system include files
@@ -31,7 +31,8 @@ class CmsShowMainFrame;
 class CSGConnector : public TQObject {
 
 public:
-   CSGConnector(CSGAction *action, CmsShowMainFrame *frame) : m_action(action), m_frame(frame) { };
+   CSGConnector(CSGAction *action, CmsShowMainFrame *frame) : m_action(action), m_frame(frame) {
+   };
    //virtual ~CSGConnector();
 
    // ---------- member functions ---------------------------

@@ -2,13 +2,13 @@
 //
 // Package:     Photons
 // Class  :     FWPhotonRPZProxyBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 26 14:52:01 EST 2008
-// $Id: FWPhotonRPZProxyBuilder.cc,v 1.4 2008/12/01 14:46:08 chrjones Exp $
+// $Id: FWPhotonsRPZProxyBuilder.cc,v 1.1 2008/12/05 20:58:25 chrjones Exp $
 //
 
 // system include files
@@ -24,28 +24,28 @@
 #include "Fireworks/Electrons/interface/makeSuperCluster.h"
 
 class FWPhotonRPZProxyBuilder : public FWRPZ2DSimpleProxyBuilderTemplate<reco::Photon> {
-      
+
 public:
    FWPhotonRPZProxyBuilder();
    virtual ~FWPhotonRPZProxyBuilder();
-   
+
    // ---------- const member functions ---------------------
-   
+
    // ---------- static member functions --------------------
-   
+
    // ---------- member functions ---------------------------
    REGISTER_PROXYBUILDER_METHODS();
-   
+
 private:
    FWPhotonRPZProxyBuilder(const FWPhotonRPZProxyBuilder&); // stop default
-   
+
    const FWPhotonRPZProxyBuilder& operator=(const FWPhotonRPZProxyBuilder&); // stop default
-   
+
    void buildRhoPhi(const reco::Photon& iData, unsigned int iIndex,TEveElement& oItemHolder) const;
    void buildRhoZ(const reco::Photon& iData, unsigned int iIndex,TEveElement& oItemHolder) const;
    // ---------- member data --------------------------------
    mutable bool m_reportedNoSuperClusters;
-   
+
 };
 
 //
@@ -59,8 +59,8 @@ private:
 //
 // constructors and destructor
 //
-FWPhotonRPZProxyBuilder::FWPhotonRPZProxyBuilder():
-m_reportedNoSuperClusters(false)
+FWPhotonRPZProxyBuilder::FWPhotonRPZProxyBuilder() :
+   m_reportedNoSuperClusters(false)
 {
 }
 
@@ -92,7 +92,7 @@ FWPhotonRPZProxyBuilder::~FWPhotonRPZProxyBuilder()
 //
 // const member functions
 //
-void 
+void
 FWPhotonRPZProxyBuilder::buildRhoPhi(const reco::Photon& iData, unsigned int iIndex,TEveElement& oItemHolder) const
 {
    if( fireworks::makeRhoPhiSuperCluster(*item(),
@@ -107,7 +107,7 @@ FWPhotonRPZProxyBuilder::buildRhoPhi(const reco::Photon& iData, unsigned int iIn
    }
 }
 
-void 
+void
 FWPhotonRPZProxyBuilder::buildRhoZ(const reco::Photon& iData, unsigned int iIndex,TEveElement& oItemHolder) const
 {
 

@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWMetGlimpseProxyBuilder.cc,v 1.1 2009/01/14 22:05:21 amraktad Exp $
+// $Id: FWMetGlimpseProxyBuilder.cc,v 1.1 2009/01/14 12:37:34 amraktad Exp $
 //
 
 // system include files
@@ -29,23 +29,23 @@
 class FWMetGlimpseProxyBuilder : public FWGlimpseDataProxyBuilder
 {
 
-   public:
-      FWMetGlimpseProxyBuilder();
-      virtual ~FWMetGlimpseProxyBuilder();
+public:
+   FWMetGlimpseProxyBuilder();
+   virtual ~FWMetGlimpseProxyBuilder();
 
-      // ---------- const member functions ---------------------
-      REGISTER_PROXYBUILDER_METHODS();
+   // ---------- const member functions ---------------------
+   REGISTER_PROXYBUILDER_METHODS();
 
-      // ---------- static member functions --------------------
-   private:
-      virtual void build(const FWEventItem* iItem,
-			 TEveElementList** product);
+   // ---------- static member functions --------------------
+private:
+   virtual void build(const FWEventItem* iItem,
+                      TEveElementList** product);
 
-      FWMetGlimpseProxyBuilder(const FWMetGlimpseProxyBuilder&); // stop default
+   FWMetGlimpseProxyBuilder(const FWMetGlimpseProxyBuilder&);    // stop default
 
-      const FWMetGlimpseProxyBuilder& operator=(const FWMetGlimpseProxyBuilder&); // stop default
+   const FWMetGlimpseProxyBuilder& operator=(const FWMetGlimpseProxyBuilder&);    // stop default
 
-      // ---------- member data --------------------------------
+   // ---------- member data --------------------------------
 };
 
 //

@@ -7,16 +7,16 @@
 //
 /**\class FWViewManagerBase FWViewManagerBase.h Fireworks/Core/interface/FWViewManagerBase.h
 
- Description: Base class for a Manger for a specific type of View
+   Description: Base class for a Manger for a specific type of View
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:
 //         Created:  Sat Jan  5 10:29:00 EST 2008
-// $Id: FWViewManagerBase.h,v 1.13 2008/11/11 15:21:44 chrjones Exp $
+// $Id: FWViewManagerBase.h,v 1.14 2008/11/14 16:35:32 chrjones Exp $
 //
 
 // system include files
@@ -41,50 +41,54 @@ class FWTypeToRepresentations;
 class FWViewManagerBase
 {
 
-   public:
-      virtual ~FWViewManagerBase();
+public:
+   virtual ~FWViewManagerBase();
 
-      // ---------- const member functions ---------------------
-      virtual FWTypeToRepresentations supportedTypesAndRepresentations() const = 0;
-      // ---------- static member functions --------------------
+   // ---------- const member functions ---------------------
+   virtual FWTypeToRepresentations supportedTypesAndRepresentations() const = 0;
+   // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
-      virtual void newItem(const FWEventItem*) = 0;
+   // ---------- member functions ---------------------------
+   virtual void newItem(const FWEventItem*) = 0;
 
-      void setGeom(const DetIdToMatrix* geom){ m_detIdToGeo = geom; }
-      const DetIdToMatrix* getGeom(const DetIdToMatrix* geom){ return m_detIdToGeo; }
+   void setGeom(const DetIdToMatrix* geom){
+      m_detIdToGeo = geom;
+   }
+   const DetIdToMatrix* getGeom(const DetIdToMatrix* geom){
+      return m_detIdToGeo;
+   }
 
-      void setChangeManager(FWModelChangeManager* iCM);
+   void setChangeManager(FWModelChangeManager* iCM);
 
 
-      void modelChangesComingSlot();
-      void modelChangesDoneSlot();
+   void modelChangesComingSlot();
+   void modelChangesDoneSlot();
 
-   protected:
-      FWViewManagerBase();
+protected:
+   FWViewManagerBase();
 
-      /**handles dynamic loading of a library or macro containing the class
-       named iNameOfClass which inherits from iBaseClass.  The returned
-       void* will correspond to the address of the 'BaseClass'
-       */
-      void* createInstanceOf(const TClass* iBaseClass,
-			     const char* iNameOfClass);
+   /**handles dynamic loading of a library or macro containing the class
+      named iNameOfClass which inherits from iBaseClass.  The returned
+      void* will correspond to the address of the 'BaseClass'
+    */
+   void* createInstanceOf(const TClass* iBaseClass,
+                          const char* iNameOfClass);
 
-      /** called when models have changed and so the display must be updated*/
-      virtual void modelChangesComing() = 0;
-      virtual void modelChangesDone() = 0;
+   /** called when models have changed and so the display must be updated*/
+   virtual void modelChangesComing() = 0;
+   virtual void modelChangesDone() = 0;
 
-      FWModelChangeManager& changeManager() const;
-      const DetIdToMatrix* detIdToGeo() const;
-   private:
-      FWViewManagerBase(const FWViewManagerBase&); // stop default
+   FWModelChangeManager& changeManager() const;
+   const DetIdToMatrix* detIdToGeo() const;
+private:
+   FWViewManagerBase(const FWViewManagerBase&);    // stop default
 
-      const FWViewManagerBase& operator=(const FWViewManagerBase&); // stop default
+   const FWViewManagerBase& operator=(const FWViewManagerBase&);    // stop default
 
-      // ---------- member data --------------------------------
-      const DetIdToMatrix* m_detIdToGeo;
+   // ---------- member data --------------------------------
+   const DetIdToMatrix* m_detIdToGeo;
 
-      FWModelChangeManager* m_changeManager;
+   FWModelChangeManager* m_changeManager;
 
 };
 

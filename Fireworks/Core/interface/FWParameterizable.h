@@ -7,16 +7,16 @@
 //
 /**\class FWParameterizable FWParameterizable.h Fireworks/Core/interface/FWParameterizable.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 23 13:35:23 EST 2008
-// $Id: FWParameterizable.h,v 1.1 2008/03/11 02:43:57 chrjones Exp $
+// $Id: FWParameterizable.h,v 1.2 2008/11/06 22:05:23 amraktad Exp $
 //
 
 // system include files
@@ -30,33 +30,33 @@ class FWParameterBase;
 class FWParameterizable
 {
 
-   public:
-      FWParameterizable();
-      virtual ~FWParameterizable();
+public:
+   FWParameterizable();
+   virtual ~FWParameterizable();
 
-      typedef std::vector<FWParameterBase* >::const_iterator const_iterator;
-      // ---------- const member functions ---------------------
-      const_iterator begin() const {
-         return m_parameters.begin();
-      }
+   typedef std::vector<FWParameterBase* >::const_iterator const_iterator;
+   // ---------- const member functions ---------------------
+   const_iterator begin() const {
+      return m_parameters.begin();
+   }
 
-      const_iterator end() const {
-         return m_parameters.end();
-      }
+   const_iterator end() const {
+      return m_parameters.end();
+   }
 
-      // ---------- static member functions --------------------
+   // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
-      //base class implementation does not take ownership of added parameters
-      void add(FWParameterBase*);
+   // ---------- member functions ---------------------------
+   //base class implementation does not take ownership of added parameters
+   void add(FWParameterBase*);
 
-   private:
-      FWParameterizable(const FWParameterizable&); // stop default
+private:
+   FWParameterizable(const FWParameterizable&);    // stop default
 
-      const FWParameterizable& operator=(const FWParameterizable&); // stop default
+   const FWParameterizable& operator=(const FWParameterizable&);    // stop default
 
-      // ---------- member data --------------------------------
-      std::vector<FWParameterBase* > m_parameters;
+   // ---------- member data --------------------------------
+   std::vector<FWParameterBase* > m_parameters;
 };
 
 

@@ -7,16 +7,16 @@
 //
 /**\class FWSummaryManager FWSummaryManager.h Fireworks/Core/interface/FWSummaryManager.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar  4 09:35:58 EST 2008
-// $Id: FWSummaryManager.h,v 1.3 2008/07/08 20:13:50 chrjones Exp $
+// $Id: FWSummaryManager.h,v 1.4 2008/11/06 22:05:23 amraktad Exp $
 //
 
 // system include files
@@ -39,35 +39,35 @@ class FWModelChangeManager;
 class FWSummaryManager
 {
 
-   public:
-      FWSummaryManager(TGListTree* iParent,
-                       FWSelectionManager*,
-                       FWEventItemsManager*,
-                       FWDetailViewManager*,
-                       FWModelChangeManager*);
-      virtual ~FWSummaryManager();
+public:
+   FWSummaryManager(TGListTree* iParent,
+                    FWSelectionManager*,
+                    FWEventItemsManager*,
+                    FWDetailViewManager*,
+                    FWModelChangeManager*);
+   virtual ~FWSummaryManager();
 
-      // ---------- const member functions ---------------------
+   // ---------- const member functions ---------------------
 
-      // ---------- static member functions --------------------
+   // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
+   // ---------- member functions ---------------------------
 
 
-   private:
-      FWSummaryManager(const FWSummaryManager&); // stop default
+private:
+   FWSummaryManager(const FWSummaryManager&);    // stop default
 
-      const FWSummaryManager& operator=(const FWSummaryManager&); // stop default
+   const FWSummaryManager& operator=(const FWSummaryManager&);    // stop default
 
-      void selectionChanged(const FWSelectionManager&);
-      void newItem(const FWEventItem* iItem);
-      void removeAllItems();
-      void changesDone();
+   void selectionChanged(const FWSelectionManager&);
+   void newItem(const FWEventItem* iItem);
+   void removeAllItems();
+   void changesDone();
 
-      // ---------- member data --------------------------------
-      TGListTree* m_listTree;
-      //TEveElementList* m_eventObjects;
-      FWDetailViewManager* m_detailViewManager;
+   // ---------- member data --------------------------------
+   TGListTree* m_listTree;
+   //TEveElementList* m_eventObjects;
+   FWDetailViewManager* m_detailViewManager;
 };
 
 

@@ -2,13 +2,13 @@
 //
 // Package:     Electrons
 // Class  :     FWElectron3DProxyBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWElectron3DProxyBuilder.cc,v 1.1 2008/12/04 15:26:01 dmytro Exp $
+// $Id: FWElectron3DProxyBuilder.cc,v 1.2 2009/01/06 20:07:48 chrjones Exp $
 //
 
 // system include files
@@ -29,28 +29,28 @@
 #include "Fireworks/Core/src/CmsShowMain.h"
 #include "TEveTrack.h"
 
-class FWElectron3DProxyBuilder: public FW3DSimpleProxyBuilderTemplate<reco::GsfElectron> {
-      
+class FWElectron3DProxyBuilder : public FW3DSimpleProxyBuilderTemplate<reco::GsfElectron> {
+
 public:
    FWElectron3DProxyBuilder();
    //virtual ~FWElectron3DProxyBuilder();
-   
+
    // ---------- const member functions ---------------------
-   
+
    // ---------- static member functions --------------------
-   
+
    // ---------- member functions ---------------------------
    REGISTER_PROXYBUILDER_METHODS();
- 
+
 private:
    FWElectron3DProxyBuilder(const FWElectron3DProxyBuilder&); // stop default
-   
+
    const FWElectron3DProxyBuilder& operator=(const FWElectron3DProxyBuilder&); // stop default
-   
+
    virtual void build(const reco::GsfElectron& iData, unsigned int iIndex,TEveElement& oItemHolder) const;
-   
+
    // ---------- member data --------------------------------
-   FWEvePtr<TEveTrackPropagator> m_propagator;   
+   FWEvePtr<TEveTrackPropagator> m_propagator;
 };
 
 //
@@ -64,13 +64,13 @@ private:
 //
 // constructors and destructor
 //
-FWElectron3DProxyBuilder::FWElectron3DProxyBuilder():
-m_propagator( new TEveTrackPropagator)
+FWElectron3DProxyBuilder::FWElectron3DProxyBuilder() :
+   m_propagator( new TEveTrackPropagator)
 {
-   m_propagator->SetMagField( - CmsShowMain::getMagneticField() );
+   m_propagator->SetMagField( -CmsShowMain::getMagneticField() );
    m_propagator->SetMaxR(123.0);
    m_propagator->SetMaxZ(300.0);
-   
+
 }
 
 // FWElectron3DProxyBuilder::FWElectron3DProxyBuilder(const FWElectron3DProxyBuilder& rhs)
@@ -97,22 +97,22 @@ m_propagator( new TEveTrackPropagator)
 //
 // member functions
 //
-void 
+void
 FWElectron3DProxyBuilder::build(const reco::GsfElectron& iData, unsigned int iIndex,TEveElement& oItemHolder) const
 {
    // make sure we use current magnetic field
-   m_propagator->SetMagField( - CmsShowMain::getMagneticField() );
+   m_propagator->SetMagField( -CmsShowMain::getMagneticField() );
    TEveTrack* track(0);
    if ( iData.gsfTrack().isAvailable() )
-     track = fireworks::prepareTrack( *(iData.gsfTrack()),
-				      m_propagator.get(), 
-				      &oItemHolder, 
-				      item()->defaultDisplayProperties().color() );
+      track = fireworks::prepareTrack( *(iData.gsfTrack()),
+                                       m_propagator.get(),
+                                       &oItemHolder,
+                                       item()->defaultDisplayProperties().color() );
    else
-     track = fireworks::prepareSimpleTrack( iData,
-					    m_propagator.get(), 
-					    &oItemHolder, 
-					    item()->defaultDisplayProperties().color() );
+      track = fireworks::prepareSimpleTrack( iData,
+                                             m_propagator.get(),
+                                             &oItemHolder,
+                                             item()->defaultDisplayProperties().color() );
    track->MakeTrack();
    oItemHolder.AddElement( track );
 }

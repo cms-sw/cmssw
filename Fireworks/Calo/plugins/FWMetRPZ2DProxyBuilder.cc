@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWMetRPZ2DProxyBuilder.cc,v 1.1 2009/01/15 18:28:57 amraktad Exp $
+// $Id: FWMetRPZ2DProxyBuilder.cc,v 1.1 2009/01/19 18:41:01 amraktad Exp $
 //
 
 // system include files
@@ -30,31 +30,33 @@
 
 class FWMetRPZ2DProxyBuilder : public FWRPZ2DDataProxyBuilder
 {
-   public:
-      FWMetRPZ2DProxyBuilder();
-      virtual ~FWMetRPZ2DProxyBuilder();
+public:
+   FWMetRPZ2DProxyBuilder();
+   virtual ~FWMetRPZ2DProxyBuilder();
 
-      // ---------- const member functions ---------------------
-      REGISTER_PROXYBUILDER_METHODS();
+   // ---------- const member functions ---------------------
+   REGISTER_PROXYBUILDER_METHODS();
 
-      // ---------- static member functions --------------------
+   // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
+   // ---------- member functions ---------------------------
 
-   private:
-      virtual void buildRhoPhi(const FWEventItem* iItem,
-                               TEveElementList** product);
+private:
+   virtual void buildRhoPhi(const FWEventItem* iItem,
+                            TEveElementList** product);
 
-      virtual void buildRhoZ(const FWEventItem* iItem,
-                               TEveElementList** product);
+   virtual void buildRhoZ(const FWEventItem* iItem,
+                          TEveElementList** product);
 
-      double getTheta( double eta ) { return 2*atan(exp(-eta)); }
+   double getTheta( double eta ) {
+      return 2*atan(exp(-eta));
+   }
 
-      FWMetRPZ2DProxyBuilder(const FWMetRPZ2DProxyBuilder&); // stop default
+   FWMetRPZ2DProxyBuilder(const FWMetRPZ2DProxyBuilder&);    // stop default
 
-      const FWMetRPZ2DProxyBuilder& operator=(const FWMetRPZ2DProxyBuilder&); // stop default
+   const FWMetRPZ2DProxyBuilder& operator=(const FWMetRPZ2DProxyBuilder&);    // stop default
 
-      // ---------- member data --------------------------------
+   // ---------- member data --------------------------------
 };
 
 //
@@ -78,7 +80,7 @@ FWMetRPZ2DProxyBuilder::~FWMetRPZ2DProxyBuilder()
 //
 void
 FWMetRPZ2DProxyBuilder::buildRhoPhi(const FWEventItem* iItem,
-					    TEveElementList** product)
+                                    TEveElementList** product)
 {
    TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
    TEveElementList* tList = *product;
@@ -128,11 +130,11 @@ FWMetRPZ2DProxyBuilder::buildRhoPhi(const FWEventItem* iItem,
       const double dx = 0.9*size*0.05;
       const double dy = 0.9*size*cos(0.05);
       marker->AddLine( r_ecal*cos(phi), r_ecal*sin(phi), 0,
-		       (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
+                       (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
       marker->AddLine( dx*sin(phi) + (dy+r_ecal)*cos(phi), -dx*cos(phi) + (dy+r_ecal)*sin(phi), 0,
-		       (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
+                       (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
       marker->AddLine( -dx*sin(phi) + (dy+r_ecal)*cos(phi), dx*cos(phi) + (dy+r_ecal)*sin(phi), 0,
-		       (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
+                       (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
 
       container->AddElement(marker);
       container->SetRnrSelf(     iItem->defaultDisplayProperties().isVisible() );
@@ -144,7 +146,7 @@ FWMetRPZ2DProxyBuilder::buildRhoPhi(const FWEventItem* iItem,
 
 void
 FWMetRPZ2DProxyBuilder::buildRhoZ(const FWEventItem* iItem,
-					    TEveElementList** product)
+                                  TEveElementList** product)
 {
    TEveElementList* tList = *product;
    if(0 == tList) {
@@ -183,11 +185,11 @@ FWMetRPZ2DProxyBuilder::buildRhoZ(const FWEventItem* iItem,
       const double dx = 0.9*size*0.05;
       const double dy = 0.9*size*cos(0.05);
       marker->AddLine(0., (phi>0 ? r : -r), 0,
-		      0., (phi>0 ? (r+size) : -(r+size)), 0 );
+                      0., (phi>0 ? (r+size) : -(r+size)), 0 );
       marker->AddLine(0., (phi>0 ? r+dy : -(r+dy) ), dx,
-		      0., (phi>0 ? (r+size) : -(r+size)), 0 );
+                      0., (phi>0 ? (r+size) : -(r+size)), 0 );
       marker->AddLine(0., (phi>0 ? r+dy : -(r+dy) ), -dx,
-		      0., (phi>0 ? (r+size) : -(r+size)), 0 );
+                      0., (phi>0 ? (r+size) : -(r+size)), 0 );
       container->AddElement( marker );
       container->SetRnrSelf(     iItem->defaultDisplayProperties().isVisible() );
       container->SetRnrChildren( iItem->defaultDisplayProperties().isVisible() );

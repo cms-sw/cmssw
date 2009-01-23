@@ -7,16 +7,16 @@
 //
 /**\class FWGlimpseDataProxyBuilderFactory FWGlimpseDataProxyBuilderFactory.h Fireworks/Core/interface/FWGlimpseDataProxyBuilderFactory.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
+   Usage:
     <usage>
 
-*/
+ */
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jun  5 20:13:55 EDT 2008
-// $Id: FWGlimpseDataProxyBuilderFactory.h,v 1.2 2008/11/06 22:05:23 amraktad Exp $
+// $Id: FWGlimpseDataProxyBuilderFactory.h,v 1.3 2008/12/02 21:15:48 chrjones Exp $
 //
 
 // system include files
@@ -32,7 +32,7 @@ class FWGlimpseDataProxyBuilder;
 typedef edmplugin::PluginFactory<FWGlimpseDataProxyBuilder*()> FWGlimpseDataProxyBuilderFactory;
 
 #define REGISTER_FWGLIMPSEDATAPROXYBUILDER(_name_,_type_,_purpose_) \
-DEFINE_PROXYBUILDER_METHODS(_name_,_type_,_purpose_); \
-DEFINE_EDM_PLUGIN(FWGlimpseDataProxyBuilderFactory,_name_,_name_::typeOfBuilder()+_name_::classTypeName()+"@"+_name_::classPurpose()+"@" #_name_)
+   DEFINE_PROXYBUILDER_METHODS(_name_,_type_,_purpose_); \
+   DEFINE_EDM_PLUGIN(FWGlimpseDataProxyBuilderFactory,_name_,_name_::typeOfBuilder()+_name_::classTypeName()+"@"+_name_::classPurpose()+"@" # _name_)
 
 #endif

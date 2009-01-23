@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jul 29 10:21:18 EDT 2008
-// $Id: CSGContinuousAction.cc,v 1.2 2008/11/05 09:11:12 chrjones Exp $
+// $Id: CSGContinuousAction.cc,v 1.3 2008/11/06 22:05:24 amraktad Exp $
 //
 
 // system include files
@@ -29,15 +29,15 @@
 //
 // constructors and destructor
 //
-CSGContinuousAction::CSGContinuousAction(CmsShowMainFrame *iFrame, const char *iName):
-CSGAction(iFrame,iName),
-m_upPic(0),
-m_downPic(0),
-m_disabledPic(0),
-m_runningUpPic(0),
-m_runningDownPic(0),
-m_button(0),
-m_isRunning(false)
+CSGContinuousAction::CSGContinuousAction(CmsShowMainFrame *iFrame, const char *iName) :
+   CSGAction(iFrame,iName),
+   m_upPic(0),
+   m_downPic(0),
+   m_disabledPic(0),
+   m_runningUpPic(0),
+   m_runningDownPic(0),
+   m_button(0),
+   m_isRunning(false)
 {
    activated.connect(boost::bind(&CSGContinuousAction::switchMode, this));
 }
@@ -92,7 +92,7 @@ CSGContinuousAction::createCustomIconsButton(TGCompositeFrame* p,
    m_runningUpPic=upRunningPic;
    m_runningDownPic=downRunningPic;
    m_button =
-   CSGAction::createCustomIconsButton(p,upPic,downPic,disabledPic,l,id,norm,option);
+      CSGAction::createCustomIconsButton(p,upPic,downPic,disabledPic,l,id,norm,option);
 }
 
 void

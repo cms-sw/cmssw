@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:11 CDT 2008
-// $Id: CSGAction.cc,v 1.19 2009/01/06 17:16:00 amraktad Exp $
+// $Id: CSGAction.cc,v 1.20 2009/01/08 14:07:13 amraktad Exp $
 //
 
 // system include files
@@ -82,7 +82,7 @@ const std::string& CSGAction::getName() const {
 }
 
 const std::string& CSGAction::getToolTip() const {
-  return m_toolTip;
+   return m_toolTip;
 }
 
 TString CSGAction::getSCCombo() const {
@@ -101,7 +101,7 @@ void CSGAction::setToolTip(const std::string& tip) {
        ++it) {
       (*it)->SetToolTipText(tip.c_str(), m_frame->getToolTipDelay());
    }
-  if (m_tools != 0) m_tools->fTipText = tip.c_str();
+   if (m_tools != 0) m_tools->fTipText = tip.c_str();
 }
 
 void CSGAction::createTextButton(TGCompositeFrame* p, TGLayoutHints* l, Int_t id, GContext_t norm, FontStruct_t font, UInt_t option) {
@@ -126,7 +126,7 @@ CSGAction::createCustomIconsButton(TGCompositeFrame* p,
                                    const TGPicture* downPic,
                                    const TGPicture* disabledPic,
                                    TGLayoutHints* l,
-                                   Int_t id ,
+                                   Int_t id,
                                    GContext_t norm,
                                    UInt_t option)
 {
@@ -172,10 +172,10 @@ void CSGAction::createShortcut(UInt_t key, const char *mod) {
 }
 
 void CSGAction::createMenuEntry(TGPopupMenu *menu) {
-  m_menu = menu;
-  if (!(menu->HasConnection("Activated(Int_t)"))) TQObject::Connect(menu, "Activated(Int_t)", "CSGConnector", m_connector, "handleMenu(Int_t)");
-  menu->AddEntry(m_name.c_str(), m_entry);
-  if (m_keycode != 0) addSCToMenu();
+   m_menu = menu;
+   if (!(menu->HasConnection("Activated(Int_t)"))) TQObject::Connect(menu, "Activated(Int_t)", "CSGConnector", m_connector, "handleMenu(Int_t)");
+   menu->AddEntry(m_name.c_str(), m_entry);
+   if (m_keycode != 0) addSCToMenu();
 }
 
 void CSGAction::createToolBarEntry(TGToolBar *toolbar, const char *filename) {
@@ -254,16 +254,16 @@ ToolBarData_t* CSGAction::getToolBarData() const {
 }
 
 TGToolBar* CSGAction::getToolBar() const {
-  return m_toolBar;
+   return m_toolBar;
 }
 
 void CSGAction::enable() {
-  m_enabled = kTRUE;
+   m_enabled = kTRUE;
    enableImp();
 }
 
 void CSGAction::disable() {
-  m_enabled = kFALSE;
+   m_enabled = kFALSE;
    disableImp();
 }
 
@@ -283,7 +283,7 @@ CSGAction::globalDisable()
 
 
 Bool_t CSGAction::isEnabled() const {
-  return m_enabled && m_globalEnabled;
+   return m_enabled && m_globalEnabled;
 }
 
 void CSGAction::enableImp() {

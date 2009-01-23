@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar  3 09:36:01 EST 2008
-// $Id: FWListEventItemEditor.cc,v 1.5 2008/09/22 20:13:33 chrjones Exp $
+// $Id: FWListEventItemEditor.cc,v 1.6 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files
@@ -39,26 +39,26 @@ FWListEventItemEditor::FWListEventItemEditor(const TGWindow* p,
                                              Int_t width,
                                              Int_t height,
                                              UInt_t options,
-                                             Pixel_t back):
-TGedFrame(p, width, height, options | kVerticalFrame, back)
+                                             Pixel_t back) :
+   TGedFrame(p, width, height, options | kVerticalFrame, back)
 {
    //std::cout <<"FWListEventItemEditor"<<std::endl;
    /*
-   MakeTitle("FWListEventItem");
-   TGGroupFrame* vf = new TGGroupFrame(this,"Object Filter",kVerticalFrame);
+      MakeTitle("FWListEventItem");
+      TGGroupFrame* vf = new TGGroupFrame(this,"Object Filter",kVerticalFrame);
 
-   m_filterExpression = new TGTextEntry(vf);
-   vf->AddFrame(m_filterExpression, new TGLayoutHints(kLHintsExpandX,0,5,5,5));
+      m_filterExpression = new TGTextEntry(vf);
+      vf->AddFrame(m_filterExpression, new TGLayoutHints(kLHintsExpandX,0,5,5,5));
 
-   m_filterExpression->Connect("ReturnPressed()","FWListEventItemEditor",this,"runFilter()");
-   m_filterRunExpressionButton = new TGTextButton(vf,"Run Filter");
-   vf->AddFrame(m_filterRunExpressionButton);
-   m_filterRunExpressionButton->Connect("Clicked()","FWListEventItemEditor",this,"runFilter()");
-   AddFrame(vf, new TGLayoutHints(kLHintsTop, 0, 0, 0, 0));
+      m_filterExpression->Connect("ReturnPressed()","FWListEventItemEditor",this,"runFilter()");
+      m_filterRunExpressionButton = new TGTextButton(vf,"Run Filter");
+      vf->AddFrame(m_filterRunExpressionButton);
+      m_filterRunExpressionButton->Connect("Clicked()","FWListEventItemEditor",this,"runFilter()");
+      AddFrame(vf, new TGLayoutHints(kLHintsTop, 0, 0, 0, 0));
 
-   TGTextButton* removeItemButton = new TGTextButton(this,"Remove Item");
-   removeItemButton->Connect("Clicked()", "FWListEventItemEditor",this,"removeItem()");
-   AddFrame(removeItemButton, new TGLayoutHints(kLHintsTop,0,0,0,0));
+      TGTextButton* removeItemButton = new TGTextButton(this,"Remove Item");
+      removeItemButton->Connect("Clicked()", "FWListEventItemEditor",this,"removeItem()");
+      AddFrame(removeItemButton, new TGLayoutHints(kLHintsTop,0,0,0,0));
     */
 }
 
@@ -103,9 +103,9 @@ void
 FWListEventItemEditor::runFilter()
 {
    /*
-   if(m_item!=0) {
-     m_item->eventItem()->setFilterExpression(m_filterExpression->GetText());
-   }
+      if(m_item!=0) {
+      m_item->eventItem()->setFilterExpression(m_filterExpression->GetText());
+      }
     */
 }
 
@@ -113,13 +113,13 @@ void
 FWListEventItemEditor::removeItem()
 {
    /*
-  if (m_item != 0) {
-    m_item->eventItem()->destroy();
-    //    delete m_item;
-    m_item = 0;
-    gEve->EditElement(0);
-    gEve->Redraw3D();
-  }
+      if (m_item != 0) {
+      m_item->eventItem()->destroy();
+      //    delete m_item;
+      m_item = 0;
+      gEve->EditElement(0);
+      gEve->Redraw3D();
+      }
     */
 }
 //

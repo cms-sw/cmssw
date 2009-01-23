@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:36:57 EST 2008
-// $Id: FWCompositeParameter.cc,v 1.1 2008/03/11 02:43:55 chrjones Exp $
+// $Id: FWCompositeParameter.cc,v 1.2 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files
@@ -34,9 +34,9 @@
 //
 FWCompositeParameter::FWCompositeParameter(FWParameterizable* iParent,
                                            const std::string& iName,
-                                           unsigned int iVersion):
-FWParameterBase(iParent,iName),
-m_version(iVersion)
+                                           unsigned int iVersion) :
+   FWParameterBase(iParent,iName),
+   m_version(iVersion)
 {
 }
 

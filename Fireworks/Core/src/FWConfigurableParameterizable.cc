@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Mar 16 12:01:36 EDT 2008
-// $Id: FWConfigurableParameterizable.cc,v 1.1 2008/03/16 19:57:38 chrjones Exp $
+// $Id: FWConfigurableParameterizable.cc,v 1.2 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files
@@ -30,8 +30,8 @@
 //
 // constructors and destructor
 //
-FWConfigurableParameterizable::FWConfigurableParameterizable(unsigned int iVersion):
-m_version(iVersion)
+FWConfigurableParameterizable::FWConfigurableParameterizable(unsigned int iVersion) :
+   m_version(iVersion)
 {
 }
 

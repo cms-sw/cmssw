@@ -1,7 +1,7 @@
 #ifndef Fireworks_Core_FWGlimpseViewManager_h
 #define Fireworks_Core_FWGlimpseViewManager_h
 // -*- C++ -*-
-// $Id: FWGlimpseViewManager.h,v 1.5 2008/11/11 15:21:44 chrjones Exp $
+// $Id: FWGlimpseViewManager.h,v 1.6 2008/11/14 16:36:51 chrjones Exp $
 
 // system include files
 #include <string>
@@ -28,49 +28,49 @@ class FWSelectionManager;
 class FWGlimpseViewManager : public FWViewManagerBase
 {
 
-   public:
-      FWGlimpseViewManager(FWGUIManager*);
-      virtual ~FWGlimpseViewManager();
+public:
+   FWGlimpseViewManager(FWGUIManager*);
+   virtual ~FWGlimpseViewManager();
 
-      // ---------- const member functions ---------------------
-      FWTypeToRepresentations supportedTypesAndRepresentations() const;
+   // ---------- const member functions ---------------------
+   FWTypeToRepresentations supportedTypesAndRepresentations() const;
 
-      // ---------- static member functions --------------------
+   // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
-      virtual void newItem(const FWEventItem*);
+   // ---------- member functions ---------------------------
+   virtual void newItem(const FWEventItem*);
 
-      FWViewBase* buildView(TGFrame* iParent);
+   FWViewBase* buildView(TGFrame* iParent);
 
-      //connect to ROOT signals
-      void selectionAdded(TEveElement*);
-      void selectionRemoved(TEveElement*);
-      void selectionCleared();
+   //connect to ROOT signals
+   void selectionAdded(TEveElement*);
+   void selectionRemoved(TEveElement*);
+   void selectionCleared();
 
-   protected:
-      virtual void modelChangesComing();
-      virtual void modelChangesDone();
+protected:
+   virtual void modelChangesComing();
+   virtual void modelChangesDone();
 
-   private:
-      FWGlimpseViewManager(const FWGlimpseViewManager&); // stop default
+private:
+   FWGlimpseViewManager(const FWGlimpseViewManager&);    // stop default
 
-      const FWGlimpseViewManager& operator=(const FWGlimpseViewManager&); // stop default
+   const FWGlimpseViewManager& operator=(const FWGlimpseViewManager&);    // stop default
 
-      void makeProxyBuilderFor(const FWEventItem* iItem);
-      void beingDestroyed(const FWViewBase*);
+   void makeProxyBuilderFor(const FWEventItem* iItem);
+   void beingDestroyed(const FWViewBase*);
 
-      // ---------- member data --------------------------------
-      typedef  std::map<std::string,std::vector<std::string> > TypeToBuilders;
-      TypeToBuilders m_typeToBuilders;
-      std::vector<boost::shared_ptr<FWGlimpseDataProxyBuilder> > m_builders;
+   // ---------- member data --------------------------------
+   typedef  std::map<std::string,std::vector<std::string> > TypeToBuilders;
+   TypeToBuilders m_typeToBuilders;
+   std::vector<boost::shared_ptr<FWGlimpseDataProxyBuilder> > m_builders;
 
-      std::vector<boost::shared_ptr<FWGlimpseView> > m_views;
-      TEveElementList m_elements;
+   std::vector<boost::shared_ptr<FWGlimpseView> > m_views;
+   TEveElementList m_elements;
 
-      TEveSelection* m_eveSelection;
-      FWSelectionManager* m_selectionManager;
+   TEveSelection* m_eveSelection;
+   FWSelectionManager* m_selectionManager;
 
-      FWEveValueScaler m_scaler;
+   FWEveValueScaler m_scaler;
 };
 
 #endif

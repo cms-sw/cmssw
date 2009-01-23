@@ -11,19 +11,21 @@
 
 class FWTracksRecHits3DProxyBuilder : public FW3DDataProxyBuilder
 {
-   public:
-      FWTracksRecHits3DProxyBuilder() {}
-      virtual ~FWTracksRecHits3DProxyBuilder() {}
+public:
+   FWTracksRecHits3DProxyBuilder() {
+   }
+   virtual ~FWTracksRecHits3DProxyBuilder() {
+   }
 
-      REGISTER_PROXYBUILDER_METHODS();
-   private:
-      virtual void build(const FWEventItem* iItem, TEveElementList** product);
+   REGISTER_PROXYBUILDER_METHODS();
+private:
+   virtual void build(const FWEventItem* iItem, TEveElementList** product);
 
-      FWTracksRecHits3DProxyBuilder(const FWTracksRecHits3DProxyBuilder&); // stop default
-      const FWTracksRecHits3DProxyBuilder& operator=(const FWTracksRecHits3DProxyBuilder&); // stop default
+   FWTracksRecHits3DProxyBuilder(const FWTracksRecHits3DProxyBuilder&);    // stop default
+   const FWTracksRecHits3DProxyBuilder& operator=(const FWTracksRecHits3DProxyBuilder&);    // stop default
 
 };
-  
+
 void FWTracksRecHits3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
 {
    TracksRecHitsUtil::buildTracksRecHits(iItem, product);

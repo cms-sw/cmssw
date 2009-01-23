@@ -6,8 +6,10 @@
 
 class FWIntValueListener : public FWIntValueListenerBase {
 public:
-   FWIntValueListener():FWIntValueListenerBase() {}
-   virtual ~FWIntValueListener() {}
+   FWIntValueListener() : FWIntValueListenerBase() {
+   }
+   virtual ~FWIntValueListener() {
+   }
 
    // ---------- member, functions -------------------------
    virtual void setValueImp(Int_t entry);

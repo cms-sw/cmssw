@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWGlimpseProxyBuilder.template,v 1.1 2008/12/10 13:58:53 dmytro Exp $
+// $Id: FWJetsGlimpseProxyBuilder.cc,v 1.1 2008/12/12 06:06:02 dmytro Exp $
 //
 
 // include files
@@ -22,31 +22,33 @@
 #include "Fireworks/Calo/interface/FWGlimpseEveJet.h"
 
 class FWJetsGlimpseProxyBuilder : public FWGlimpseSimpleProxyBuilderTemplate<reco::Jet> {
-   
+
 public:
-   FWJetsGlimpseProxyBuilder(){}
-   virtual ~FWJetsGlimpseProxyBuilder(){}
+   FWJetsGlimpseProxyBuilder(){
+   }
+   virtual ~FWJetsGlimpseProxyBuilder(){
+   }
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
    FWJetsGlimpseProxyBuilder(const FWJetsGlimpseProxyBuilder&); // stop default
    const FWJetsGlimpseProxyBuilder& operator=(const FWJetsGlimpseProxyBuilder&); // stop default
-   
+
    virtual void build(const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder) const;
 };
 
-void 
+void
 FWJetsGlimpseProxyBuilder::build(const reco::Jet& iData, unsigned int iIndex,TEveElement& tList) const
 {
-      FWGlimpseEveJet* cone = new FWGlimpseEveJet(&iData,"jet","jet");
-      cone->SetPickable(kTRUE);
-      cone->SetMainColor(item()->defaultDisplayProperties().color());
-      cone->SetMainTransparency(50);
-      cone->SetRnrSelf(item()->defaultDisplayProperties().isVisible());
-      cone->SetRnrChildren(item()->defaultDisplayProperties().isVisible());
-      cone->SetDrawConeCap(kFALSE);
-      cone->SetMainTransparency(50);
-      tList.AddElement(cone);
+   FWGlimpseEveJet* cone = new FWGlimpseEveJet(&iData,"jet","jet");
+   cone->SetPickable(kTRUE);
+   cone->SetMainColor(item()->defaultDisplayProperties().color());
+   cone->SetMainTransparency(50);
+   cone->SetRnrSelf(item()->defaultDisplayProperties().isVisible());
+   cone->SetRnrChildren(item()->defaultDisplayProperties().isVisible());
+   cone->SetDrawConeCap(kFALSE);
+   cone->SetMainTransparency(50);
+   tList.AddElement(cone);
 }
 
 REGISTER_FWGLIMPSEDATAPROXYBUILDER(FWJetsGlimpseProxyBuilder,reco::Jet,"Jets");

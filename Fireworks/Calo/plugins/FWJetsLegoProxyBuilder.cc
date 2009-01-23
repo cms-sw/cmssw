@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWLegoProxyBuilder.template,v 1.1 2008/12/10 13:58:53 dmytro Exp $
+// $Id: FWJetsLegoProxyBuilder.cc,v 1.1 2008/12/12 06:06:02 dmytro Exp $
 //
 
 // include files
@@ -16,21 +16,23 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 
 class FWJetsLegoProxyBuilder : public FW3DLegoSimpleProxyBuilderTemplate<reco::Jet> {
-   
+
 public:
-   FWJetsLegoProxyBuilder(){}
-   virtual ~FWJetsLegoProxyBuilder(){}
+   FWJetsLegoProxyBuilder(){
+   }
+   virtual ~FWJetsLegoProxyBuilder(){
+   }
    REGISTER_PROXYBUILDER_METHODS();
-  
+
 private:
    FWJetsLegoProxyBuilder(const FWJetsLegoProxyBuilder&); // stop default
    const FWJetsLegoProxyBuilder& operator=(const FWJetsLegoProxyBuilder&); // stop default
-   
+
    void build(const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder) const;
 
 };
 
-void 
+void
 FWJetsLegoProxyBuilder::build(const reco::Jet& iData, unsigned int iIndex,TEveElement& tList) const
 {
    const unsigned int nLineSegments = 20;
@@ -41,11 +43,11 @@ FWJetsLegoProxyBuilder::build(const reco::Jet& iData, unsigned int iIndex,TEveEl
    container->SetRnrChildren( item()->defaultDisplayProperties().isVisible() );
    for ( unsigned int iphi = 0; iphi < nLineSegments; ++iphi ) {
       container->AddLine(iData.eta()+jetRadius*cos(2*M_PI/nLineSegments*iphi),
-			 iData.phi()+jetRadius*sin(2*M_PI/nLineSegments*iphi),
-			 0.1,
-			 iData.eta()+jetRadius*cos(2*M_PI/nLineSegments*(iphi+1)),
-			 iData.phi()+jetRadius*sin(2*M_PI/nLineSegments*(iphi+1)),
-			 0.1);
+                         iData.phi()+jetRadius*sin(2*M_PI/nLineSegments*iphi),
+                         0.1,
+                         iData.eta()+jetRadius*cos(2*M_PI/nLineSegments*(iphi+1)),
+                         iData.phi()+jetRadius*sin(2*M_PI/nLineSegments*(iphi+1)),
+                         0.1);
    }
    tList.AddElement(container);
 }

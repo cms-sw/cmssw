@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWL1JetTrigLegoEveProxyBuilder.cc,v 1.1 2009/01/13 20:45:11 amraktad Exp $
+// $Id: FWL1JetTrigLegoEveProxyBuilder.cc,v 1.1 2009/01/19 18:40:58 amraktad Exp $
 //
 
 // system include files
@@ -31,22 +31,22 @@
 class FWL1JetTrigLegoEveProxyBuilder : public FW3DLegoEveElementProxyBuilder
 {
 
-   public:
-      FWL1JetTrigLegoEveProxyBuilder();
-      virtual ~FWL1JetTrigLegoEveProxyBuilder();
+public:
+   FWL1JetTrigLegoEveProxyBuilder();
+   virtual ~FWL1JetTrigLegoEveProxyBuilder();
 
-      // ---------- const member functions ---------------------
+   // ---------- const member functions ---------------------
 
-      // ---------- static member functions --------------------
-      REGISTER_PROXYBUILDER_METHODS();
+   // ---------- static member functions --------------------
+   REGISTER_PROXYBUILDER_METHODS();
 
-   private:
-      virtual void build(const FWEventItem* iItem,
-			 TEveElementList** product);
+private:
+   virtual void build(const FWEventItem* iItem,
+                      TEveElementList** product);
 
-      FWL1JetTrigLegoEveProxyBuilder(const FWL1JetTrigLegoEveProxyBuilder&); // stop default
+   FWL1JetTrigLegoEveProxyBuilder(const FWL1JetTrigLegoEveProxyBuilder&);    // stop default
 
-      const FWL1JetTrigLegoEveProxyBuilder& operator=(const FWL1JetTrigLegoEveProxyBuilder&); // stop default
+   const FWL1JetTrigLegoEveProxyBuilder& operator=(const FWL1JetTrigLegoEveProxyBuilder&);    // stop default
 
 };
 
@@ -84,40 +84,40 @@ FWL1JetTrigLegoEveProxyBuilder::~FWL1JetTrigLegoEveProxyBuilder()
 void
 FWL1JetTrigLegoEveProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
 {
-  TEveElementList* tList = *product;
+   TEveElementList* tList = *product;
 
-  // Make the eve element list
-  if(0 == tList) {
-    tList =  new TEveElementList(iItem->name().c_str(),"L1JetLego",true);
-    *product = tList;
-    tList->SetMainColor(iItem->defaultDisplayProperties().color());
-  } else {
-    tList->DestroyElements();
-  }
+   // Make the eve element list
+   if(0 == tList) {
+      tList =  new TEveElementList(iItem->name().c_str(),"L1JetLego",true);
+      *product = tList;
+      tList->SetMainColor(iItem->defaultDisplayProperties().color());
+   } else {
+      tList->DestroyElements();
+   }
 
-  // Get the particle map collection for L1JetParticles
-  l1extra::L1JetParticleCollection const * triggerColl=0;
-  iItem->get(triggerColl);
-  if(0==triggerColl) return;
+   // Get the particle map collection for L1JetParticles
+   l1extra::L1JetParticleCollection const * triggerColl=0;
+   iItem->get(triggerColl);
+   if(0==triggerColl) return;
 
-  // make a counter
-  fw::NamedCounter counter("l1jettrigs");
-  TColor* c = gROOT->GetColor( tList->GetMainColor() );
-  Float_t rgba[4] = { 1, 0, 0, 1 };
-  if (c) {
-    rgba[0] = c->GetRed();
-    rgba[1] = c->GetGreen();
-    rgba[2] = c->GetBlue();
-  }
+   // make a counter
+   fw::NamedCounter counter("l1jettrigs");
+   TColor* c = gROOT->GetColor( tList->GetMainColor() );
+   Float_t rgba[4] = { 1, 0, 0, 1 };
+   if (c) {
+      rgba[0] = c->GetRed();
+      rgba[1] = c->GetGreen();
+      rgba[2] = c->GetBlue();
+   }
 
-  // Ready to loop over the triggered objects
-  l1extra::L1JetParticleCollection::const_iterator jet = triggerColl->begin(),
-  trigEnd = triggerColl->end();
-  const unsigned int nLineSegments = 6;
-  const double jetRadius = 0.5;
+   // Ready to loop over the triggered objects
+   l1extra::L1JetParticleCollection::const_iterator jet = triggerColl->begin(),
+                                                    trigEnd = triggerColl->end();
+   const unsigned int nLineSegments = 6;
+   const double jetRadius = 0.5;
 
-  // Loop over triggered objects and make some 4-vectors
-  for ( ; jet != trigEnd; ++jet ) {
+   // Loop over triggered objects and make some 4-vectors
+   for ( ; jet != trigEnd; ++jet ) {
       char title[1024];
       sprintf(title,"L1 Jet %d, Et: %0.1f GeV",counter.index(),jet->et());
       TEveStraightLineSet* container = new TEveStraightLineSet( counter.str().c_str(), title );
@@ -125,15 +125,15 @@ FWL1JetTrigLegoEveProxyBuilder::build(const FWEventItem* iItem, TEveElementList*
       container->SetLineColor(  iItem->defaultDisplayProperties().color() );
 
       for ( unsigned int iphi = 0; iphi < nLineSegments; ++iphi ) {
-	 container->AddLine(jet->eta()+jetRadius*cos(2*M_PI/nLineSegments*iphi),
-			    jet->phi()+jetRadius*sin(2*M_PI/nLineSegments*iphi),
-			    0.1,
-			    jet->eta()+jetRadius*cos(2*M_PI/nLineSegments*(iphi+1)),
-			    jet->phi()+jetRadius*sin(2*M_PI/nLineSegments*(iphi+1)),
-			    0.1);
+         container->AddLine(jet->eta()+jetRadius*cos(2*M_PI/nLineSegments*iphi),
+                            jet->phi()+jetRadius*sin(2*M_PI/nLineSegments*iphi),
+                            0.1,
+                            jet->eta()+jetRadius*cos(2*M_PI/nLineSegments*(iphi+1)),
+                            jet->phi()+jetRadius*sin(2*M_PI/nLineSegments*(iphi+1)),
+                            0.1);
       }
       tList->AddElement(container);
-  }// end loop over em particle objects
+   } // end loop over em particle objects
 
 
 
