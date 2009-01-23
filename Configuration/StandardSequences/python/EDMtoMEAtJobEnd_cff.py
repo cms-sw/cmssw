@@ -11,7 +11,7 @@ EDMtoMEConverter.convertOnEndLumi = False
 EDMtoMEConverter.convertOnEndRun = True
 dqmSaver.saveByRun = -1
 dqmSaver.saveAtJobEnd = True  
-
+dqmSaver.forceRunNumber = 1
 
 EDMtoME = cms.Sequence(EDMtoMEConverter)
 
