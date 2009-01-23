@@ -68,7 +68,7 @@ void HFClusterAlgo::clusterize(const HFRecHitCollection& hf,
   for (i=hits.begin(); i!= hits.end(); i++)  {
     isok=true;
     doCluster=false;
-    if (i->et > 10) {
+    if (i->et > 5) {
       if ((i->id.ietaAbs()==40)||(i->id.ietaAbs()==41)||(i->id.ietaAbs()==29)||(i->id.depth()!=1)) 
 	isok = false; 
       
@@ -257,7 +257,7 @@ void HFClusterAlgo::makeCluster(const HcalDetId& seedid,
     phi-=2*M_PI;
   
   double HFEtaBounds[14] = {2.853, 2.964, 3.139, 3.314, 3.489, 3.664, 3.839, 4.013, 4.191, 4.363, 4.538, 4.716, 4.889, 5.191};
-  double RcellEta = eta;
+  double RcellEta = fabs(eta);
   double Cphi = (phi>0.)?(fmod((phi),0.087*2)/(0.087*2)):((fmod((phi),0.087*2)/(0.087*2))+1.0);
   double Rbin = -1.0;
   for (int icell = 0; icell < 12; icell++ ){
