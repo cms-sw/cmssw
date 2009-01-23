@@ -1,5 +1,5 @@
 // #include "CondFormats/PhysicsToolsObjects/interface/Histogram2D.h"
-#include "CondFormats/MomentumScaleCalibrationObjects/interface/MuScleFitDBobject.h"
+#include "CondFormats/RecoMuonObjects/interface/MuScleFitDBobject.h"
 #include "CondFormats/DataRecord/interface/MuScleFitDBobjectRcd.h"
 
 #include "DBReader.h"

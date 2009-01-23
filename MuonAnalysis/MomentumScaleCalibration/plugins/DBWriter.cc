@@ -13,7 +13,7 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
 #include "DBWriter.h"
-#include "CondFormats/MomentumScaleCalibrationObjects/interface/MuScleFitDBobject.h"
+#include "CondFormats/RecoMuonObjects/interface/MuScleFitDBobject.h"
 
 using namespace std;
 using namespace edm;

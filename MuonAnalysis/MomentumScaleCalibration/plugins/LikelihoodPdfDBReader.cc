@@ -1,6 +1,6 @@
 // #include "CondFormats/PhysicsToolsObjects/interface/Histogram2D.h"
 // #include "MuonAnalysis/MomentumScaleCalibrationObjects/interface/MuScleFitLikelihoodPdf.h"
-#include "CondFormats/MomentumScaleCalibrationObjects/interface/MuScleFitLikelihoodPdf.h"
+#include "CondFormats/RecoMuonObjects/interface/MuScleFitLikelihoodPdf.h"
 // #include "MuonAnalysis/MomentumScaleCalibrationObjects/interface/MuScleFitLikelihoodPdfRcd.h"
 #include "CondFormats/DataRecord/interface/MuScleFitLikelihoodPdfRcd.h"
 

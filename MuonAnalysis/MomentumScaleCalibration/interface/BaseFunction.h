@@ -8,7 +8,7 @@
 
 #include <iostream>
 #include <vector>
-#include "CondFormats/MomentumScaleCalibrationObjects/interface/MuScleFitDBobject.h"
+#include "CondFormats/RecoMuonObjects/interface/MuScleFitDBobject.h"
 
 using namespace std;
 
