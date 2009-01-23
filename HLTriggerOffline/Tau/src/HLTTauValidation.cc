@@ -254,6 +254,11 @@ LVColl HLTTauValidation::getFilterCollection(size_t filterID,int id,const trigge
 	      trigEv.getObjects(filterID,id,obj);
 	      for(size_t i=0;i<obj.size();++i)
 		    out.push_back(obj[i]->p4());
+
+	      //get The central objects too!
+	      trigEv.getObjects(filterID,trigger::TriggerL1CenJet,obj);
+	      for(size_t i=0;i<obj.size();++i)
+		    out.push_back(obj[i]->p4());
 	    }
 
 	  if(id==trigger::TriggerTau) 
