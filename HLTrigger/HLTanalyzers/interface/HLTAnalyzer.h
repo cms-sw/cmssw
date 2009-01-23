@@ -66,7 +66,7 @@ private:
   edm::InputTag m_l1extrataujet;
   edm::InputTag m_l1extramet;
 
-  edm::InputTag particleMapSource_,mctruth_; 
+  edm::InputTag particleMapSource_,mctruth_,simhits_; 
   edm::InputTag gtReadoutRecord_,gtObjectMap_; 
   edm::InputTag gctCounts_;
 
