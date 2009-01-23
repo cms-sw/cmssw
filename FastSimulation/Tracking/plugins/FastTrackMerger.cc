@@ -56,6 +56,9 @@ FastTrackMerger::FastTrackMerger(const edm::ParameterSet& conf)
   promoteQuality = conf.getUntrackedParameter<bool>("promoteTrackQuality",false);
   qualityStr = conf.getUntrackedParameter<std::string>("newQuality","");
 
+  // optional trackAlgo (iter1/2/3/4)
+  trackAlgo = conf.getUntrackedParameter<unsigned>("trackAlgo",0);
+
   if ( !tracksOnly ) { 
     produces<reco::TrackExtraCollection>();
     produces<TrackingRecHitCollection>();
@@ -73,6 +76,16 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
   std::cout << "################################################################" << std::endl;
   std::cout << " FastTrackMerger produce init " << std::endl;
 #endif
+
+  // The track algorithm (only of merging after iterative tracking)
+  reco::TrackBase::TrackAlgorithm algo;
+  switch(trackAlgo)  {
+  case 1:  algo = reco::TrackBase::iter1; break;
+  case 2:  algo = reco::TrackBase::iter2; break;
+  case 3:  algo = reco::TrackBase::iter3; break;
+  case 4:  algo = reco::TrackBase::iter4; break;
+  default: algo = reco::TrackBase::undefAlgorithm;
+  }
 
   // The produced objects
   std::auto_ptr<reco::TrackCollection> recoTracks(new reco::TrackCollection);
@@ -191,7 +204,8 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
 	// if ( isTrackExtraCollection ) aRecoTrack.setExtra(theTrackExtraRef);
 	recoTracks->push_back(aRecoTrack);
 	// Save the quality if requested
-	if (promoteQuality) recoTracks->back().setQuality(qualityToSet);	
+	if (promoteQuality) recoTracks->back().setQuality(qualityToSet);
+	if ( trackAlgo ) recoTracks->back().setAlgorithm(algo);
 	
       }
       
@@ -257,6 +271,7 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
 	recoTracks->push_back(aRecoTrack);      
 	// Save the quality if requested
 	if (promoteQuality) recoTracks->back().setQuality(qualityToSet);	
+	if ( trackAlgo ) recoTracks->back().setAlgorithm(algo);
 	// A copy of the hits
 	unsigned nh = aRecoTrack.recHitsSize();
 	for ( unsigned ih=0; ih<nh; ++ih ) {

@@ -39,6 +39,7 @@ class FastTrackMerger : public edm::EDProducer
   bool promoteQuality;
   double pTMin2;
   unsigned minHits;
+  unsigned trackAlgo;
   std::string qualityStr;
 
 };
