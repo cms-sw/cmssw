@@ -171,9 +171,12 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
 	if( iA != alreadyAddedTracks.end() ) std::cout << recoTrackId << "(ALREADY ADDED) ";
 #endif
 	if( iA != alreadyAddedTracks.end() ) continue;
+	//if it is not there then add it! 
+	alreadyAddedTracks.insert(recoTrackId);
+
 	
 #ifdef FAMOS_DEBUG
-	std::cout << recoTrackId << " ";
+	std::cout << recoTrackId << " ADDED ";
 #endif
 
 	// Ignore tracks with too small a pT
@@ -238,8 +241,10 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
 	if( iA != alreadyAddedTracks.end() ) continue;
 	
 #ifdef FAMOS_DEBUG
-	std::cout << recoTrackId << " ";
+	std::cout << recoTrackId << " Newly Added ";
 #endif
+	//if it is not there then add it! 
+	alreadyAddedTracks.insert(recoTrackId);
 	
 	// Ignore tracks with too small a pT
 	if ( aTrackRef->innerMomentum().Perp2() < pTMin2 ) continue;
