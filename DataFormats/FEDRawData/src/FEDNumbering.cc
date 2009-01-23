@@ -1,84 +1,11 @@
 /** \file
  *
- *  $Date: 2008/02/20 13:30:04 $
- *  $Revision: 1.12 $
+ *  $Date: 2008/11/27 16:51:17 $
+ *  $Revision: 1.13 $
  *  \author G. Bruno  - CERN, EP Division
  */
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
-
-const int FEDNumbering::MAXFEDID = 1023; // 10 bits
-
-const int FEDNumbering::MINSiPixelFEDID = 0;
-const int FEDNumbering::MAXSiPixelFEDID = 39;
-
-const int FEDNumbering::MINSiStripFEDID = 50;
-const int FEDNumbering::MAXSiStripFEDID = 489;
-
-const int FEDNumbering::MINPreShowerFEDID = 520;
-const int FEDNumbering::MAXPreShowerFEDID = 575;
-
-const int FEDNumbering::MINECALFEDID = 600;
-const int FEDNumbering::MAXECALFEDID = 670;
-  
-const int FEDNumbering::MINHCALFEDID = 700;
-const int FEDNumbering::MAXHCALFEDID = 731;
-
-const int FEDNumbering::MINLUMISCALERSFEDID = 735;
-const int FEDNumbering::MAXLUMISCALERSFEDID = 735;
-
-const int FEDNumbering::MINCSCFEDID = 750;
-const int FEDNumbering::MAXCSCFEDID = 757;  
-const int FEDNumbering::MINCSCTFFEDID = 760;
-const int FEDNumbering::MAXCSCTFFEDID = 760;  
-  
-const int FEDNumbering::MINDTFEDID = 770;
-const int FEDNumbering::MAXDTFEDID = 775;
-const int FEDNumbering::MINDTTFFEDID = 780;
-const int FEDNumbering::MAXDTTFFEDID = 780;
-  
-const int FEDNumbering::MINRPCFEDID = 790;
-const int FEDNumbering::MAXRPCFEDID = 795;
-  
-const int FEDNumbering::MINTriggerGTPFEDID = 812;
-const int FEDNumbering::MAXTriggerGTPFEDID = 813;
-const int FEDNumbering::MINTriggerEGTPFEDID = 814;
-const int FEDNumbering::MAXTriggerEGTPFEDID = 815;
-const int FEDNumbering::MINTriggerGCTFEDID = 745;
-const int FEDNumbering::MAXTriggerGCTFEDID = 749;
-
-const int FEDNumbering::MINTriggerLTCFEDID = 816;
-const int FEDNumbering::MAXTriggerLTCFEDID = 824;
-const int FEDNumbering::MINTriggerLTCmtccFEDID = 815;
-const int FEDNumbering::MAXTriggerLTCmtccFEDID = 815;
-const int FEDNumbering::MINTriggerLTCTriggerFEDID = 816;
-const int FEDNumbering::MAXTriggerLTCTriggerFEDID = 816;
-const int FEDNumbering::MINTriggerLTCHCALFEDID = 817;
-const int FEDNumbering::MAXTriggerLTCHCALFEDID = 817;
-const int FEDNumbering::MINTriggerLTCSiStripFEDID = 818;
-const int FEDNumbering::MAXTriggerLTCSiStripFEDID = 818;
-const int FEDNumbering::MINTriggerLTCECALFEDID = 819;
-const int FEDNumbering::MAXTriggerLTCECALFEDID = 819;
-const int FEDNumbering::MINTriggerLTCTotemCastorFEDID = 820;
-const int FEDNumbering::MAXTriggerLTCTotemCastorFEDID = 820;
-const int FEDNumbering::MINTriggerLTCRPCFEDID = 821;
-const int FEDNumbering::MAXTriggerLTCRPCFEDID = 821;
-const int FEDNumbering::MINTriggerLTCCSCFEDID = 822;
-const int FEDNumbering::MAXTriggerLTCCSCFEDID = 822;
-const int FEDNumbering::MINTriggerLTCDTFEDID = 823;
-const int FEDNumbering::MAXTriggerLTCDTFEDID = 823;
-const int FEDNumbering::MINTriggerLTCSiPixelFEDID = 824;
-const int FEDNumbering::MAXTriggerLTCSiPixelFEDID = 824;
-
-const int FEDNumbering::MINCSCDDUFEDID = 830;
-const int FEDNumbering::MAXCSCDDUFEDID = 869;  
-const int FEDNumbering::MINCSCContingencyFEDID = 880;
-const int FEDNumbering::MAXCSCContingencyFEDID = 887;  
-const int FEDNumbering::MINCSCTFSPFEDID = 890;
-const int FEDNumbering::MAXCSCTFSPFEDID = 901;  
-
-const int FEDNumbering::MINDAQeFEDFEDID = 902;
-const int FEDNumbering::MAXDAQeFEDFEDID = 931;  
 
 
 using namespace std;
