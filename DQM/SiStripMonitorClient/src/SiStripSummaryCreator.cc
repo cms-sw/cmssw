@@ -349,7 +349,7 @@ void SiStripSummaryCreator::fillHistos(int ival, int istep, string htype,
 	  for (int k=1; k<nbins+1; k++) {
 	    float noisy = me_src->getBinContent(k,3)+me_src->getBinContent(k,5);
 	    float dead = me_src->getBinContent(k,2)+me_src->getBinContent(k,4);
-	    float good = me_src->getBinContent(k,1);
+// 	    float good = me_src->getBinContent(k,1);
 	    if (noisy >= binEntry*0.5 || dead >= binEntry*0.5) bad++;
 	  }
 	  bad = bad*100.0/nbins;    

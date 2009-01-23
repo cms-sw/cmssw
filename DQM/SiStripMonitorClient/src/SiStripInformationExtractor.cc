@@ -278,7 +278,7 @@ void SiStripInformationExtractor::plotHistosFromLayout(DQMStore * dqm_store){
   ofstream title_file;
   
   for (map<std::string, std::vector< std::string > >::iterator it = layoutMap.begin() ; it != layoutMap.end(); it++) {
-    int ival = 0;
+    unsigned int ival = 0;
     string image_list = "images/" + it->first +".lis";
     image_file.open(image_list.c_str(), ios::out);
     if (!image_file) return;
