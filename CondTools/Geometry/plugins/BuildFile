@@ -17,6 +17,7 @@
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/EcalAlgo>
 <use name=Geometry/HcalTowerAlgo>
+<use name=Geometry/ForwardGeometry>
 <use name=Geometry/CSCGeometryBuilder>
 <use name=Geometry/DTGeometry> 
 <use name=Geometry/DTGeometryBuilder>

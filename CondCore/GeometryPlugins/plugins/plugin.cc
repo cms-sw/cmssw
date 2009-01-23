@@ -11,6 +11,8 @@
 #include "Geometry/Records/interface/PEcalEndcapRcd.h"
 #include "Geometry/Records/interface/PEcalPreshowerRcd.h"
 #include "Geometry/Records/interface/PHcalRcd.h"
+#include "Geometry/Records/interface/PZdcRcd.h"
+#include "Geometry/Records/interface/PCastorRcd.h"
 
 #include "CondFormats/GeometryObjects/interface/CSCRecoDigiParameters.h"
 #include "Geometry/Records/interface/CSCRecoDigiParametersRcd.h"
@@ -28,6 +30,8 @@ REGISTER_PLUGIN(PEcalBarrelRcd,PCaloGeometry);
 REGISTER_PLUGIN(PEcalEndcapRcd,PCaloGeometry);
 REGISTER_PLUGIN(PEcalPreshowerRcd,PCaloGeometry);
 REGISTER_PLUGIN(PHcalRcd,PCaloGeometry);
+REGISTER_PLUGIN(PZdcRcd,PCaloGeometry);
+REGISTER_PLUGIN(PCastorRcd,PCaloGeometry);
 REGISTER_PLUGIN(CSCRecoDigiParametersRcd,CSCRecoDigiParameters);
 REGISTER_PLUGIN(CSCRecoGeometryRcd,RecoIdealGeometry);
 REGISTER_PLUGIN(DTRecoGeometryRcd,RecoIdealGeometry);

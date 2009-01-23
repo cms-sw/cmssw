@@ -16,6 +16,7 @@
 #include "CondFormats/AlignmentRecord/interface/CastorAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CastorAlignmentErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
+#include "Geometry/Records/interface/PCastorRcd.h"
 #include "boost/mpl/vector.hpp"
 
 
@@ -26,7 +27,8 @@ class CastorGeometryRecord :
                 IdealGeometryRecord,
 		CastorAlignmentRcd, 
 		CastorAlignmentErrorRcd,
-		GlobalPositionRcd
+		GlobalPositionRcd,
+		PCastorRcd
 		> > {};
 
 #endif /* RECORDS_CastorGEOMETRYRECORD_H */

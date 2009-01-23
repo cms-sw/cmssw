@@ -7,6 +7,8 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
+#include "Geometry/ForwardGeometry/interface/ZdcGeometry.h"
+#include "Geometry/ForwardGeometry/interface/CastorGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
@@ -25,10 +27,6 @@ PCaloGeometryBuilder::beginJob( edm::EventSetup const& es )
 {
    const std::string toDB ( "_toDB" ) ;
 
-   edm::ESHandle<CaloSubdetectorGeometry> pGhcal   ;
-   es.get<HcalGeometry::AlignedRecord>().get(
-      HcalGeometry::producerTag() + toDB, pGhcal ) ;
-
    edm::ESHandle<CaloSubdetectorGeometry>       pGeb   ;
    es.get<EcalBarrelGeometry::AlignedRecord>().get(
       EcalBarrelGeometry::producerTag() + toDB, pGeb ) ;
@@ -40,4 +38,16 @@ PCaloGeometryBuilder::beginJob( edm::EventSetup const& es )
    edm::ESHandle<CaloSubdetectorGeometry>          pGes   ;
    es.get<EcalPreshowerGeometry::AlignedRecord>().get(
       EcalPreshowerGeometry::producerTag() + toDB, pGes ) ; 
+
+   edm::ESHandle<CaloSubdetectorGeometry> pGhcal   ;
+   es.get<HcalGeometry::AlignedRecord>().get(
+      HcalGeometry::producerTag() + toDB, pGhcal ) ;
+
+   edm::ESHandle<CaloSubdetectorGeometry> pGzdc   ;
+   es.get<ZdcGeometry::AlignedRecord>().get(
+      ZdcGeometry::producerTag() + toDB,  pGzdc ) ;
+
+   edm::ESHandle<CaloSubdetectorGeometry>   pGcast   ;
+   es.get<CastorGeometry::AlignedRecord>().get(
+      CastorGeometry::producerTag() + toDB, pGcast ) ;
 }
