@@ -41,14 +41,6 @@
 #include "CLHEP/Random/RandGauss.h"
 #include <fstream>
 
-//REMOVE:
-// #include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
-// #include "TrackingTools/TrajectoryState/interface/PerigeeConversions.h"
-// #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
-// #include "TrackingTools/AnalyticalJacobians/interface/AnalyticalCurvilinearJacobian.h"
-// #include "TrackingTools/AnalyticalJacobians/interface/JacobianLocalToCurvilinear.h"
-
-
 using namespace std;
 
 
@@ -66,8 +58,6 @@ void KalmanAlignmentAlgorithm::initialize( const edm::EventSetup& setup,
 					   AlignableMuon* muon,
 					   AlignmentParameterStore* store )
 {
-cout << "THERE ARE STILL SOME COUT'S TO BE REMOVED" << endl;
-
   theTracker = tracker;
 
   theMergerFlag = theConfiguration.getParameter<bool>( "MergeResults" );
@@ -241,8 +231,6 @@ void KalmanAlignmentAlgorithm::initializeAlignmentParameters( const edm::EventSe
   // Just to be sure, set all APEs to zero ...
   setAPEToZero();
 
-  //TrackerAlignableId* alignableId = new TrackerAlignableId;
-
   const edm::ParameterSet initConfig = theConfiguration.getParameter< edm::ParameterSet >( "ParameterConfig" );
 
   int updateGraph = initConfig.getUntrackedParameter< int >( "UpdateGraphs", 100 );
@@ -345,7 +333,6 @@ void KalmanAlignmentAlgorithm::initializeAlignmentParameters( const edm::EventSe
       int iter = 1;
 
       AlignmentIORoot alignmentIO;
-
       while ( !ierr )
       {
 	cout << "[" << *itInitSel << "] read alignment parameters. file / iteration = " << file << " / " << iter << endl;
@@ -364,6 +351,13 @@ void KalmanAlignmentAlgorithm::initializeAlignmentParameters( const edm::EventSe
 
     for ( itAlignable = alignables.begin(); itAlignable != alignables.end(); itAlignable++ )
     {
+      if ( (*itAlignable)->alignmentParameters() == 0 )
+      {
+	cout << "[KalmanAlignmentAlgorithm::initializeAlignmentParameters] "
+	     << "alignable is not associated with alignment parameters --> skip" << endl;
+	continue;
+      }
+
       if ( (*itAlignable)->alignmentParameters()->type() != AlignmentParametersFactory::kRigidBody )
       {
 	cout << "[KalmanAlignmentAlgorithm::initializeAlignmentParameters] "
