@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2009/01/14 15:37:11 $
-//  $Revision: 1.22 $
+//  $Date: 2009/01/23 16:16:50 $
+//  $Revision: 1.23 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -130,8 +130,8 @@
 #include "MuonAnalysis/MomentumScaleCalibration/interface/Functions.h"
 
 // To read likelihood distributions from the database.
-#include "CondFormats/RecoMuonObjects/interface/MuScleFitLikelihoodPdf.h"
-#include "CondFormats/DataRecord/interface/MuScleFitLikelihoodPdfRcd.h"
+// #include "CondFormats/RecoMuonObjects/interface/MuScleFitLikelihoodPdf.h"
+// #include "CondFormats/DataRecord/interface/MuScleFitLikelihoodPdfRcd.h"
 
 using namespace std;
 using namespace edm;
@@ -309,8 +309,10 @@ void MuScleFit::beginOfJob (const EventSetup& eventSetup) {
   // integral of Lorentz * Gaussian as a function of mass and resolution
   // of a given measurement, for each of the six considered di-muon resonances.
   // -------------------------------------------------
-  if( readPdfFromDB ) readProbabilityDistributions( eventSetup );
-  else readProbabilityDistributionsFromFile();
+//   if( readPdfFromDB ) readProbabilityDistributions( eventSetup );
+//   else readProbabilityDistributionsFromFile();
+
+  readProbabilityDistributionsFromFile();
 
   if (debug>0) cout << "[MuScleFit]: beginOfJob" << endl;
   
@@ -1105,84 +1107,84 @@ void MuScleFit::readProbabilityDistributionsFromFile()
   }
 }
 
-void MuScleFit::readProbabilityDistributions( const edm::EventSetup & eventSetup )
-{
+// void MuScleFit::readProbabilityDistributions( const edm::EventSetup & eventSetup )
+// {
 
-  edm::ESHandle<MuScleFitLikelihoodPdf> likelihoodPdf;
-  eventSetup.get<MuScleFitLikelihoodPdfRcd>().get(likelihoodPdf);
-  string smSuffix = "";
+//   edm::ESHandle<MuScleFitLikelihoodPdf> likelihoodPdf;
+//   eventSetup.get<MuScleFitLikelihoodPdfRcd>().get(likelihoodPdf);
+//   string smSuffix = "";
 
-  // Should read different histograms in the two cases
-  if ( theMuonType == 2 ) {
-    smSuffix = "SM";
-    cout << "Error: Not yet implemented..." << endl;
-    exit(1);
-  }
+//   // Should read different histograms in the two cases
+//   if ( theMuonType == 2 ) {
+//     smSuffix = "SM";
+//     cout << "Error: Not yet implemented..." << endl;
+//     exit(1);
+//   }
 
-  edm::LogInfo("MuScleFit") << "[MuScleFit::readProbabilityDistributions] End Reading MuScleFitLikelihoodPdfRcd" << endl;
-  vector<PhysicsTools::Calibration::HistogramD2D>::const_iterator histo = likelihoodPdf->histograms.begin();
-  vector<string>::const_iterator name = likelihoodPdf->names.begin();
-  vector<int>::const_iterator xBins = likelihoodPdf->xBins.begin();
-  vector<int>::const_iterator yBins = likelihoodPdf->yBins.begin();
-  int ires = 0;
-  int iY = 0;
-  for( ; histo != likelihoodPdf->histograms.end(); ++histo, ++name, ++xBins, ++yBins ) {
-    int nBinsX = *xBins;
-    int nBinsY = *yBins;
-    if( nBinsX != MuScleFitUtils::nbins+1 || nBinsY != MuScleFitUtils::nbins+1 ) {
-      cout << "Error: for histogram \"" << *name << "\" bins are not " << MuScleFitUtils::nbins << endl; 
-      cout<< "nBinsX = " << nBinsX << ", nBinsY = " << nBinsY << endl;
-      exit(1);
-    }
+//   edm::LogInfo("MuScleFit") << "[MuScleFit::readProbabilityDistributions] End Reading MuScleFitLikelihoodPdfRcd" << endl;
+//   vector<PhysicsTools::Calibration::HistogramD2D>::const_iterator histo = likelihoodPdf->histograms.begin();
+//   vector<string>::const_iterator name = likelihoodPdf->names.begin();
+//   vector<int>::const_iterator xBins = likelihoodPdf->xBins.begin();
+//   vector<int>::const_iterator yBins = likelihoodPdf->yBins.begin();
+//   int ires = 0;
+//   int iY = 0;
+//   for( ; histo != likelihoodPdf->histograms.end(); ++histo, ++name, ++xBins, ++yBins ) {
+//     int nBinsX = *xBins;
+//     int nBinsY = *yBins;
+//     if( nBinsX != MuScleFitUtils::nbins+1 || nBinsY != MuScleFitUtils::nbins+1 ) {
+//       cout << "Error: for histogram \"" << *name << "\" bins are not " << MuScleFitUtils::nbins << endl; 
+//       cout<< "nBinsX = " << nBinsX << ", nBinsY = " << nBinsY << endl;
+//       exit(1);
+//     }
 
-    // cout << "name = " << *name << endl;
+//     // cout << "name = " << *name << endl;
 
-    // To separate the Z histograms from the other resonances we use tha names.
-    if( name->find("GLZ") != string::npos ) {
-      // ATTENTION: they are expected to be ordered
+//     // To separate the Z histograms from the other resonances we use tha names.
+//     if( name->find("GLZ") != string::npos ) {
+//       // ATTENTION: they are expected to be ordered
 
-      // cout << "For iY = " << iY << " the histogram is \"" << *name << "\"" << endl;
+//       // cout << "For iY = " << iY << " the histogram is \"" << *name << "\"" << endl;
 
-      // Extract normalization for mass slice in Y bins of Z
-      // ---------------------------------------------------
-      for(int iy=1; iy<=nBinsY; iy++){
-        MuScleFitUtils::GLZNorm[iY][iy] = 0.;
-        for(int ix=1; ix<=nBinsX; ix++){
-          MuScleFitUtils::GLZValue[iY][ix][iy] = histo->binContent (ix+1, iy+1);
-          MuScleFitUtils::GLZNorm[iY][iy] += MuScleFitUtils::GLZValue[iY][ix][iy];
-        }
-        if (debug>2) cout << "GLZValue[" << iY << "][500][" << iy << "] = " 
-                          << MuScleFitUtils::GLZValue[iY][500][iy] 
-                          << " GLZNorm[" << iY << "][" << iy << "] = " 
-                          << MuScleFitUtils::GLZNorm[iY][iy] << endl;
-      }
-      // increase the histogram counter
-      ++iY;
-    }
-    else {
-      // ATTENTION: they are expected to be ordered
+//       // Extract normalization for mass slice in Y bins of Z
+//       // ---------------------------------------------------
+//       for(int iy=1; iy<=nBinsY; iy++){
+//         MuScleFitUtils::GLZNorm[iY][iy] = 0.;
+//         for(int ix=1; ix<=nBinsX; ix++){
+//           MuScleFitUtils::GLZValue[iY][ix][iy] = histo->binContent (ix+1, iy+1);
+//           MuScleFitUtils::GLZNorm[iY][iy] += MuScleFitUtils::GLZValue[iY][ix][iy];
+//         }
+//         if (debug>2) cout << "GLZValue[" << iY << "][500][" << iy << "] = " 
+//                           << MuScleFitUtils::GLZValue[iY][500][iy] 
+//                           << " GLZNorm[" << iY << "][" << iy << "] = " 
+//                           << MuScleFitUtils::GLZNorm[iY][iy] << endl;
+//       }
+//       // increase the histogram counter
+//       ++iY;
+//     }
+//     else {
+//       // ATTENTION: they are expected to be ordered
 
-      // Extract normalization for each mass slice
-      // -----------------------------------------
+//       // Extract normalization for each mass slice
+//       // -----------------------------------------
 
-      // cout << "For ires = " << ires << " the histogram is \"" << *name << "\"" << endl;
+//       // cout << "For ires = " << ires << " the histogram is \"" << *name << "\"" << endl;
 
-      // The histograms are filled like the root TH2D from which they are taken,
-      // meaning that bin = 0 is the underflow and nBins+1 is the overflow.
-      // We start from 1 and loop up to the last bin, excluding under/overflow.
-      for(int iy=1; iy<=nBinsY; iy++){
-        MuScleFitUtils::GLNorm[ires][iy] = 0.;
-        for(int ix=1; ix<=nBinsX; ix++){
-          MuScleFitUtils::GLValue[ires][ix][iy] = histo->binContent (ix+1, iy+1);
-          MuScleFitUtils::GLNorm[ires][iy] += MuScleFitUtils::GLValue[ires][ix][iy];
-        }
-        if (debug>2) cout << "GLValue[" << ires << "][500][" << iy << "] = " 
-                          << MuScleFitUtils::GLValue[ires][500][iy] 
-                          << " GLNorm[" << ires << "][" << iy << "] = " 
-                          << MuScleFitUtils::GLNorm[ires][iy] << endl;
-      }
-      // increase the histogram counter
-      ++ires;
-    }
-  }
-}
+//       // The histograms are filled like the root TH2D from which they are taken,
+//       // meaning that bin = 0 is the underflow and nBins+1 is the overflow.
+//       // We start from 1 and loop up to the last bin, excluding under/overflow.
+//       for(int iy=1; iy<=nBinsY; iy++){
+//         MuScleFitUtils::GLNorm[ires][iy] = 0.;
+//         for(int ix=1; ix<=nBinsX; ix++){
+//           MuScleFitUtils::GLValue[ires][ix][iy] = histo->binContent (ix+1, iy+1);
+//           MuScleFitUtils::GLNorm[ires][iy] += MuScleFitUtils::GLValue[ires][ix][iy];
+//         }
+//         if (debug>2) cout << "GLValue[" << ires << "][500][" << iy << "] = " 
+//                           << MuScleFitUtils::GLValue[ires][500][iy] 
+//                           << " GLNorm[" << ires << "][" << iy << "] = " 
+//                           << MuScleFitUtils::GLNorm[ires][iy] << endl;
+//       }
+//       // increase the histogram counter
+//       ++ires;
+//     }
+//   }
+// }
