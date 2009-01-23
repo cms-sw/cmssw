@@ -443,6 +443,8 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 
    const CaloSubdetectorGeometry* geom ( cg.getSubdetectorGeometry( det, subdetn ) );
 
+   std::cout<<"############# parmgr size="<<geom->parMgrConst()->vecSize() << std::endl ;
+
    f << "{" << std::endl;
    f << "  TGeoManager* geoManager = new TGeoManager(\"ROOT\", \"" << name << "\");" << std::endl;
    f << "  TGeoMaterial* dummyMaterial = new TGeoMaterial(\"Vacuum\", 0,0,0); " << std::endl;

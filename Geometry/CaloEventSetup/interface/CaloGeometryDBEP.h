@@ -50,12 +50,14 @@ class CaloGeometryDBEP : public edm::ESProducer
       {
 	 setWhatProduced( this,
 			  &CaloGeometryDBEP<T,U>::produceAligned,
-			  edm::es::Label( T::producerName() ) ) ;//+std::string("TEST") ) ) ;
+			  edm::es::Label( T::producerTag() ) ) ;//+std::string("TEST") ) ) ;
       }
 
       virtual ~CaloGeometryDBEP<T,U>() {}
       PtrType produceAligned( const typename T::AlignedRecord& iRecord ) 
       {
+	 std::cout<<"&&&&& Here in calodb, name = "<<T::producerTag()<<std::endl ;
+
 	 const Alignments* alignPtr  ( 0 ) ;
 	 const Alignments* globalPtr ( 0 ) ;
 	 if( m_applyAlignment ) // get ptr if necessary
@@ -73,24 +75,34 @@ class CaloGeometryDBEP : public edm::ESProducer
 	    assert( globals.isValid() ) ;
 	    globalPtr = globals.product() ;
 	 }
+	 std::cout<<"&&&&& Here in calodb, 1 "<<std::endl ;
+
 
 	 TrVec  tvec ;
 	 DimVec dvec ;
 	 IVec   ivec ;
 
+	 std::cout<<"&&&&& Here in calodb, 2 "<<std::endl ;
+
 	 if( U::writeFlag() )
 	 {
+	 std::cout<<"&&&&& Here in calodb, 3 "<<std::endl ;
+
 	    edm::ESHandle<CaloSubdetectorGeometry> pG ;
-	    iRecord.get( T::producerName() + std::string("_master"), pG ) ; 
+	    iRecord.get( T::producerTag() + std::string("_master"), pG ) ; 
 
 	    const CaloSubdetectorGeometry* pGptr ( pG.product() ) ;
 
 	    pGptr->getSummary( tvec, ivec, dvec ) ;
+	 std::cout<<"&&&&& Here in calodb, 4 "<<std::endl ;
+
 
 	    U::write( tvec, dvec, ivec, T::dbString() ) ;
 	 }
 	 else
 	 {
+	 std::cout<<"&&&&& Here in calodb, 5 "<<std::endl ;
+
 	    edm::ESHandle<PCaloGeometry> pG ;
 	    iRecord.template getRecord<typename T::PGeometryRecord >().get( pG ) ; 
 
@@ -98,28 +110,9 @@ class CaloGeometryDBEP : public edm::ESProducer
 	    dvec = pG->getDimension() ;
 	    ivec = pG->getIndexes() ;
 	 }	 
-/*
-	 if( toDB )
-	 {
-	    edm::ESHandle<CaloSubdetectorGeometry> pG ;
-	    iRecord.get( T::producerName() + std::string("xml"), pG ) ; 
-
-	    const CaloSubdetectorGeometry* pGptr ( pG.product() ) ;
-
-	    pGptr->getSummary( tvec, ivec, dvec ) ;
-	 }
-	 else
-	 {
-	    // from DB
-
-	    edm::ESHandle<PCaloGeometry> peG;   
-	    iRecord.template getRecord<typename T::PGeometryRecord >().get( peG ) ; 
-         
-	    tvec = peG->getTranslation() ;
-	    dvec = peG->getDimension() ;
-	    ivec = peG->getIndexes() ;
-	    }*/
 //*********************************************************************************************
+	 std::cout<<"&&&&& Here in calodb, 6 "<<std::endl ;
+
 
 	 const unsigned int nTrParm ( tvec.size()/T::k_NumberOfCellsForCorners ) ;
 
@@ -181,6 +174,7 @@ class CaloGeometryDBEP : public edm::ESProducer
 	    const HepPoint3D lBck ( 0.25*(lc[4]+lc[5]+lc[6]+lc[7] ) ) ; // ctr rear  face in local
 	    const HepPoint3D lCor ( lc[0] ) ;
 
+	    //----------------------------------- create transform from 6 numbers ---
 	    const unsigned int jj ( i*nTrParm ) ;
 	    HepTransform3D tr ;
 	    const ROOT::Math::Translation3D tl ( tvec[jj], tvec[jj+1], tvec[jj+2] ) ;
@@ -196,9 +190,11 @@ class CaloGeometryDBEP : public edm::ESProducer
 						   zx, zy, zz ), 
 				 CLHEP::Hep3Vector(dx,dy,dz)     );
 
+	    // now prepend alignment(s) for final transform
 	    const HepTransform3D atr ( 0 == at ? tr :
 				       ( 0 == gt ? at->transform()*tr :
 					 gt->transform()*at->transform()*tr ) ) ;
+	    //--------------------------------- done making transform  ---------------
 
 	    const HepPoint3D  gRef ( atr*lRef ) ;
 	    const GlobalPoint fCtr ( gRef.x(), gRef.y(), gRef.z() ) ;
@@ -208,7 +204,7 @@ class CaloGeometryDBEP : public edm::ESProducer
 	    const GlobalPoint fCor ( gCor.x(), gCor.y(), gCor.z() ) ;
 
 	    CaloCellGeometry* cell ( T::newCell(  fCtr, fBck, fCor,
-						  ptr->cornersMgr() , myParm ) ) ;
+						  ptr->cornersMgr() , myParm, id ) ) ;
 
 	    ptr->addCell( id, cell ) ;    
 	 }

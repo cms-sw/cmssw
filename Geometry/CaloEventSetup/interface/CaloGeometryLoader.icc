@@ -85,8 +85,8 @@ CaloGeometryLoader<T>::makeGeometry( const DDCompactView*  cpv        ,
    fillNamedParams( fv0, geom ) ;
 
    geom->allocateCorners( T::k_NumberOfCellsForCorners ) ;
-   geom->allocatePar( ( geom->numberOfShapes() )*( geom->numberOfParametersPerShape() ),
-		      geom->numberOfParametersPerShape() ) ;
+   geom->allocatePar( T::k_NumberOfParametersPerShape*T::k_NumberOfShapes,
+		      T::k_NumberOfParametersPerShape ) ;
 
    DDFilteredView fv( *cpv ) ;
    fv.addFilter( m_filter ) ;

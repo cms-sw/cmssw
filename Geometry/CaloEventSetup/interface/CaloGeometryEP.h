@@ -38,7 +38,7 @@ class CaloGeometryEP : public edm::ESProducer
 	 setWhatProduced( this,
 			  &CaloGeometryEP<T>::produceAligned,
 //			  dependsOn( &CaloGeometryEP<T>::idealRecordCallBack ),
-			  edm::es::Label( T::producerName() ) ) ;
+			  edm::es::Label( T::producerTag() ) ) ;
       }
 
       virtual ~CaloGeometryEP<T>() {}
