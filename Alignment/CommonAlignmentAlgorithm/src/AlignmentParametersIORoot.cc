@@ -44,10 +44,6 @@ void AlignmentParametersIORoot::setBranchAddresses(void)
   tree->SetBranchAddress("Cov",       &theCov);
   tree->SetBranchAddress("ObjId",     &theObjId);
   tree->SetBranchAddress("HieraLevel",&theHieraLevel);
-
-  int nIndices = tree->BuildIndex( "Id", "ObjId" );
-  edm::LogInfo( "Alignment" ) << "@SUB=AlignmentParametersIORoot::setBranchAddresses"
-			      << "number of indexed entries: " << nIndices;
 }
 
 
@@ -117,4 +113,17 @@ AlignmentParameters* AlignmentParametersIORoot::readOne( Alignable* ali, int& ie
 
   ierr=-1;
   return(0);
+}
+
+
+int AlignmentParametersIORoot::close()
+{
+  if ( bWrite )
+  {
+    int nIndices = tree->BuildIndex( "Id", "ObjId" );
+    edm::LogInfo( "Alignment" ) << "@SUB=AlignmentParametersIORoot::setBranchAddresses"
+				<< "number of indexed entries: " << nIndices;
+  }
+
+  return closeRoot();
 }
