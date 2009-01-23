@@ -48,8 +48,8 @@ void MomentumScaleCorrector::readParameters( TString fileName )
       // cout << "scale function number = " << scaleFunctionNum << endl;
 
       // Create a new vector to hold the parameters for this iteration
-      vector<double> parScale;
-      parVecVec_.push_back(parScale);
+//       vector<double> parScale;
+//       parVecVec_.push_back(parScale);
 
       // Set the scaleFunction
       // scaleFunction_ = scaleFunctionArrayForVec[scaleFunctionNum];
@@ -64,11 +64,12 @@ void MomentumScaleCorrector::readParameters( TString fileName )
       stringstream paramStr;
       double param = 0;
       // Even if all the rest of the line is taken, the following
-      // convertion to a double will stop at the end of the first number.
+      // conversion to a double will stop at the end of the first number.
       paramStr << line.substr(subStr1+5);
       paramStr >> param;
-      // Fill the last vector of parameters, which corresponds to this iteration.
-      parVecVec_.back().push_back(param);
+//       // Fill the last vector of parameters, which corresponds to this iteration.
+//       parVecVec_.back().push_back(param);
+      parVecVec_.push_back(param);
       // cout << "param = " << param << endl;
 
       // This is to extract parameter errors

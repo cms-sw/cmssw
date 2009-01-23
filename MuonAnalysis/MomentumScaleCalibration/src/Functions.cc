@@ -90,9 +90,10 @@ resolutionFunctionBase<vector<double> > * resolutionFunctionVecService( const in
 backgroundFunctionBase * backgroundFunctionService( const int identifier )
 {
   switch ( identifier ) {
-  case ( 0 ): return new backgroundFunctionType1; break;
-  case ( 1 ): return new backgroundFunctionType2; break;
-  case ( 2 ): return new backgroundFunctionType3; break;
+  case ( 0 ): cout << "Error: background function type " << identifier << " not defined" << endl; exit(1); break;
+  case ( 1 ): return new backgroundFunctionType1; break;
+  case ( 2 ): return new backgroundFunctionType2; break;
+  case ( 3 ): return new backgroundFunctionType3; break;
   default: cout << "Error: undefined background function type = " << identifier << endl; exit(1); break;
   }
 }

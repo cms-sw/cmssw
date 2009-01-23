@@ -27,8 +27,8 @@ void DBReader::beginJob ( const edm::EventSetup& iSetup ) {
   // This string is one of: scale, resolution, background.
   // Create the corrector and set the parameters
   if( type_ == "scale" ) corrector_.reset(new MomentumScaleCorrector( dbObject.product() ) );
-  else if( type_ == "resolution" ) corrector_.reset(new ResolutionFunction( dbObject.product() ) );
-  else if( type_ == "background" ) corrector_.reset(new BackgroundFunction( dbObject.product() ) );
+  else if( type_ == "resolution" ) resolution_.reset(new ResolutionFunction( dbObject.product() ) );
+  else if( type_ == "background" ) background_.reset(new BackgroundFunction( dbObject.product() ) );
   else {
     cout << "Error: unrecognized type. Use one of those: 'scale', 'resolution', 'background'" << endl;
     exit(1);
@@ -43,29 +43,34 @@ DBReader::~DBReader(){}
 
 void DBReader::analyze( const edm::Event& e, const edm::EventSetup& iSetup){
 
-  cout << "checking size consistency" << endl;
-  if( corrector_->identifiers().size() != corrector_->parameters().size() ) {
-    cout << "Error: size of parameters("<<corrector_->parameters().size()<<") and identifiers("<<corrector_->identifiers().size()<<") don't match" << endl;
-    exit(1);
-  }
+//   cout << "checking size consistency" << endl;
+//   if( corrector_->identifiers().size() != corrector_->parameters().size() ) {
+//     cout << "Error: size of parameters("<<corrector_->parameters().size()<<") and identifiers("<<corrector_->identifiers().size()<<") don't match" << endl;
+//     exit(1);
+//   }
 
   // Looping directly on it does not work, because it is returned by value
   // and the iterator gets invalidated on the next line. Save it to a temporary object
   // and iterate on it.
-  vector<vector<double> > parVecVec(corrector_->parameters());
+  vector<double> parVecVec(corrector_->parameters());
   // vector<vector<double> >::const_iterator parVec = corrector_->parameters().begin();
-  vector<vector<double> >::const_iterator parVec = parVecVec.begin();
+  vector<double>::const_iterator parVec = parVecVec.begin();
   vector<int> functionId(corrector_->identifiers());
   vector<int>::const_iterator id = functionId.begin();
-  for( ; id != functionId.end(); ++id, ++parVec ) {
-    cout << "parVec.size() = " << parVec->size() << endl;
-    cout << "parVec[0] = " << (*parVec)[0] << endl;
-    cout << "id = " << *id << endl;
-    vector<double>::const_iterator par = parVec->begin();
-    int i=0;
-    for( ; par != parVec->end(); ++par, ++i ) {
-      cout << "par["<<i<<"] = " << *par << endl;
+  cout << "total number of parameters read from database = parVecVec.size() = " << parVecVec.size() << endl;
+  int iFunc = 0;
+  for( ; id != functionId.end(); ++id, ++iFunc ) {
+    int parNum = corrector_->function(iFunc)->parNum();
+    cout << "For function id = " << *id << ", with "<<parNum<< " parameters: " << endl;
+    for( int par=0; par<parNum; ++par ) {
+      cout << "par["<<par<<"] = " << *parVec << endl;
+      ++parVec;
     }
+//     vector<double>::const_iterator par = parVec->begin();
+//     int i=0;
+//     for( ; par != parVec->end(); ++par, ++i ) {
+//       cout << "par["<<i<<"] = " << *par << endl;
+//     }
   }
 }
 

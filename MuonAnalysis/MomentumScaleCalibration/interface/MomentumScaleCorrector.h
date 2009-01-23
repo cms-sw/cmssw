@@ -55,7 +55,7 @@ class MomentumScaleCorrector : public BaseFunction
 
   ~MomentumScaleCorrector() {
     if( parArray_ != 0 ) {
-      for( unsigned int i=0; i<parVecVec_.size(); ++i ) {
+      for( unsigned int i=0; i<functionId_.size(); ++i ) {
         delete[] parArray_[i];
         delete scaleFunction_[i];
       }
@@ -63,6 +63,11 @@ class MomentumScaleCorrector : public BaseFunction
       delete[] scaleFunction_;
     }
   }
+
+  /// Returns a pointer to the selected function
+  scaleFunctionBase<double * > * function(const int i) { return scaleFunction_[i]; }
+
+
   /// Method to do the corrections. It is templated to work with all the track types.
   template <class U>
   double operator()( const U & track ) {

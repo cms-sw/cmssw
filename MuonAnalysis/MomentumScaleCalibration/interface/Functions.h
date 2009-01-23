@@ -783,6 +783,9 @@ class backgroundFunctionBase {
   virtual ~backgroundFunctionBase() {};
   virtual double operator()( const double * parval, const int resTotNum, const int nres, const bool * resConsidered,
                              const double * ResMass, const double ResHalfWidth[][3], const int MuonType, const double & mass, const int nbins ) = 0;
+  virtual int parNum() { return parNum_; }
+protected:
+  int parNum_;
 };
 /// Constant
 // ---------
@@ -796,6 +799,7 @@ class backgroundFunctionType1 : public backgroundFunctionBase {
    * the right fraction overall. This is because where two resonances overlap their windows
    * a given background fraction will contribute only half to Bgrp1.
    */
+  backgroundFunctionType1() { this->parNum_ = 1; }
   virtual double operator()( const double * parval, const int resTotNum, const int nres, const bool * resConsidered,
                              const double * ResMass, const double ResHalfWidth[][3], const int MuonType, const double & mass, const int nbins ) {
     return( nres/(double)nbins ); 
@@ -810,6 +814,7 @@ class backgroundFunctionType2 : public backgroundFunctionBase {
    * equal to unity, and then, when adding together all the resonances, one gets a meaningful
    * result for the overall background fraction.
    */
+  backgroundFunctionType2() { this->parNum_ = 2; }
   virtual double operator()( const double * parval, const int resTotNum, const int nres, const bool * resConsidered,
                              const double * ResMass, const double ResHalfWidth[][3], const int MuonType, const double & mass, const int nbins ) {
     double PB = 0.;
@@ -833,6 +838,7 @@ class backgroundFunctionType2 : public backgroundFunctionBase {
 class backgroundFunctionType3 : public backgroundFunctionBase {
  public:
   // pass parval[shift]
+  backgroundFunctionType3() { this->parNum_ = 3; }
   virtual double operator()( const double * parval, const int resTotNum, const int nres, const bool * resConsidered,
                              const double * ResMass, const double ResHalfWidth[][3], const int MuonType, const double & mass, const int nbins ) {
     double PB = 0.;

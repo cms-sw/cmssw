@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2009/01/12 15:24:09 $
- *  $Revision: 1.20 $
+ *  $Date: 2009/01/14 15:36:41 $
+ *  $Revision: 1.21 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M.De Mattia - INFN Padova
  */
 // Some notes:
@@ -800,8 +800,8 @@ double MuScleFitUtils::massProb (double mass, double rapidity, double massResol,
   double P = 0.;
   int shift = parResol.size() + parScale.size();
   double Bgrp1 = 0.;
-  double Bgrp2 = 0.; 
-  double Bgrp3 = 0.;
+  //   double Bgrp2 = 0.; 
+  //   double Bgrp3 = 0.;
   
   // NB defined as below, P is a non-rigorous "probability" that we observe
   // a dimuon mass "mass", given ResMass[], gamma, and massResol. It is what we need for the
@@ -996,58 +996,58 @@ double MuScleFitUtils::massProb (double mass, double rapidity, double massResol,
 
   double PB = 0.;
   // Uncomment this two lines and comment all the next part (up to PStot excluded) to use the background functions defined in Functions.h
-  // ATTENTION: the functions depends strongly on the second size of the resHalfWidth[][3]. If it is changed, the functions must be changed too.
+  // ATTENTION: the functions depend strongly on the second size of the resHalfWidth[][3]. If it is changed, the functions must be changed too.
   // Cannot call directly passing a double ** because of the declaration of resHalfWidth[][] as 2D array. Workaround needed.
-  // int resTotNum = 6;
-  // PB = (*backgroundFunction)( &(parval[shift]), resTotNum, nres, resConsidered, ResMass, ResHalfWidth, MuonType, mass, nbins );
+  int resTotNum = 6;
+  PB = (*backgroundFunction)( &(parval[shift]), resTotNum, nres, resConsidered, ResMass, ResHalfWidth, MuonType, mass, nbins );
 
   Bgrp1 = parval[shift];
-  if (BgrFitType==1) { // Constant
-    // This is a constant normalized to unity in the span of the window (1000 bins in mass)
-    // NB: wherever there are more than a single resonance contributing, the background fraction
-    // gets multiplied by the number of signals. This allows to have the same normalization 
-    // throughout the spectrum: the background fraction (Bgrp1 in this fit) will represent 
-    // the right fraction overall. This is because where two resonances overlap their windows
-    // a given background fraction will contribute only half to Bgrp1.
-    // -----------------------------------------------------------------------------------------
-    PB = nres/(double)nbins;
-  } else if (BgrFitType==2) { // Exponential
-    Bgrp2 = parval[1+shift];
-    for (int ires=0; ires<6; ires++) {
-      // In case of an exponential, we normalize it such that it has integral in any window
-      // equal to unity, and then, when adding together all the resonances, one gets a meaningful
-      // result for the overall background fraction.
-      // ----------------------------------------------------------------------------------------
-      if (resConsidered[ires]) {
-	if (exp(-Bgrp2*(ResMass[ires]-ResHalfWidth[ires][MuonType]))-exp(-Bgrp2*(ResMass[ires]+ResHalfWidth[ires][MuonType]))>0) {
-	  PB += Bgrp2*exp(-Bgrp2*mass) * 
-	    (2*ResHalfWidth[ires][MuonType])/(double)nbins /
-	    (exp(-Bgrp2*(ResMass[ires]-ResHalfWidth[ires][MuonType]))-exp(-Bgrp2*(ResMass[ires]+ResHalfWidth[ires][MuonType])));
-	} else {
-	  cout << "Impossible to compute Background probability! - some fix needed - Bgrp2=" << Bgrp2 << endl;  
-	}
-      }
-    }
-  } else if (BgrFitType==3) { // Constant + Exponential
-    Bgrp2 = parval[1+shift];
-    Bgrp3 = parval[2+shift];
-    for (int ires=0; ires<6; ires++) {
-      // In this case, by integrating between A and B, we get for f=exp(a-bx)+k:
-      // INT = exp(a)/b*(exp(-bA)-exp(-bB))+k*(B-A) so our function, which in 1000 bins between A and B
-      // gets a total of 1, is f = (exp(a-bx)+k)*(B-A)/nbins / (INT)
-      // ----------------------------------------------------------------------------------------------
-      if (resConsidered[ires]) {
-	if (exp(-Bgrp2*(ResMass[ires]-ResHalfWidth[ires][MuonType]))-exp(-Bgrp2*(ResMass[ires]+ResHalfWidth[ires][MuonType]))>0) {
-	  PB += (exp(-Bgrp2*mass)+Bgrp3) *
-	    2*ResHalfWidth[ires][MuonType]/(double)nbins / 
-	    ( (exp(-Bgrp2*(ResMass[ires]-ResHalfWidth[ires][MuonType]))-exp(-Bgrp2*(ResMass[ires]+ResHalfWidth[ires][MuonType])))/
-	      Bgrp2 + Bgrp3*2*ResHalfWidth[ires][MuonType] );
-	} else {
-	  cout << "Impossible to compute Background probability! - some fix needed - Bgrp2=" << Bgrp2 << endl;  
-	}
-      }
-    }
-  }
+//   if (BgrFitType==1) { // Constant
+//     // This is a constant normalized to unity in the span of the window (1000 bins in mass)
+//     // NB: wherever there are more than a single resonance contributing, the background fraction
+//     // gets multiplied by the number of signals. This allows to have the same normalization 
+//     // throughout the spectrum: the background fraction (Bgrp1 in this fit) will represent 
+//     // the right fraction overall. This is because where two resonances overlap their windows
+//     // a given background fraction will contribute only half to Bgrp1.
+//     // -----------------------------------------------------------------------------------------
+//     PB = nres/(double)nbins;
+//   } else if (BgrFitType==2) { // Exponential
+//     Bgrp2 = parval[1+shift];
+//     for (int ires=0; ires<6; ires++) {
+//       // In case of an exponential, we normalize it such that it has integral in any window
+//       // equal to unity, and then, when adding together all the resonances, one gets a meaningful
+//       // result for the overall background fraction.
+//       // ----------------------------------------------------------------------------------------
+//       if (resConsidered[ires]) {
+// 	if (exp(-Bgrp2*(ResMass[ires]-ResHalfWidth[ires][MuonType]))-exp(-Bgrp2*(ResMass[ires]+ResHalfWidth[ires][MuonType]))>0) {
+// 	  PB += Bgrp2*exp(-Bgrp2*mass) * 
+// 	    (2*ResHalfWidth[ires][MuonType])/(double)nbins /
+// 	    (exp(-Bgrp2*(ResMass[ires]-ResHalfWidth[ires][MuonType]))-exp(-Bgrp2*(ResMass[ires]+ResHalfWidth[ires][MuonType])));
+// 	} else {
+// 	  cout << "Impossible to compute Background probability! - some fix needed - Bgrp2=" << Bgrp2 << endl;  
+// 	}
+//       }
+//     }
+//   } else if (BgrFitType==3) { // Constant + Exponential
+//     Bgrp2 = parval[1+shift];
+//     Bgrp3 = parval[2+shift];
+//     for (int ires=0; ires<6; ires++) {
+//       // In this case, by integrating between A and B, we get for f=exp(a-bx)+k:
+//       // INT = exp(a)/b*(exp(-bA)-exp(-bB))+k*(B-A) so our function, which in 1000 bins between A and B
+//       // gets a total of 1, is f = (exp(a-bx)+k)*(B-A)/nbins / (INT)
+//       // ----------------------------------------------------------------------------------------------
+//       if (resConsidered[ires]) {
+// 	if (exp(-Bgrp2*(ResMass[ires]-ResHalfWidth[ires][MuonType]))-exp(-Bgrp2*(ResMass[ires]+ResHalfWidth[ires][MuonType]))>0) {
+// 	  PB += (exp(-Bgrp2*mass)+Bgrp3) *
+// 	    2*ResHalfWidth[ires][MuonType]/(double)nbins / 
+// 	    ( (exp(-Bgrp2*(ResMass[ires]-ResHalfWidth[ires][MuonType]))-exp(-Bgrp2*(ResMass[ires]+ResHalfWidth[ires][MuonType])))/
+// 	      Bgrp2 + Bgrp3*2*ResHalfWidth[ires][MuonType] );
+// 	} else {
+// 	  cout << "Impossible to compute Background probability! - some fix needed - Bgrp2=" << Bgrp2 << endl;  
+// 	}
+//       }
+//     }
+//   }
   
   double PStot = 0.;
   for (int ires=0; ires<6; ires++) {

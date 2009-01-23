@@ -32,6 +32,7 @@ TestCorrection::TestCorrection(const edm::ParameterSet& iConfig) :
   eventCounter_ = 0;
   // Create the corrector and set the parameters
   corrector_.reset(new MomentumScaleCorrector( iConfig.getUntrackedParameter<string>("CorrectionsIdentifier") ) );
+  cout << "corrector_ = " << &*corrector_ << endl;
 }
 
 
@@ -98,14 +99,17 @@ void TestCorrection::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   // Loop on the recMuons
   vector<reco::LeafCandidate>::const_iterator recMuon = muons.begin();
-  for ( ; recMuon!=muons.end(); ++recMuon ) {  
+  int muonCount = 0;
+  for ( ; recMuon!=muons.end(); ++recMuon, ++muonCount ) {  
 
     // Fill the histogram with uncorrected pt values
     uncorrectedPt_->Fill(recMuon->pt());
     uncorrectedPtVsEta_->Fill(recMuon->pt(), recMuon->eta());
 
     // Fill the histogram with corrected pt values
+    cout << "correcting muon["<<muonCount<<"] with pt = " << recMuon->pt() << endl;
     double corrPt = (*corrector_)(*recMuon);
+    cout << "to pt = " << corrPt << endl;
     correctedPt_->Fill(corrPt);
     correctedPtVsEta_->Fill(corrPt, recMuon->eta());
     // correctedPt_->Fill(recMuon->pt());

@@ -31,7 +31,10 @@ class DBReader : public edm::EDAnalyzer {
  private:
   //  uint32_t printdebug_;
   string type_;
-  auto_ptr<BaseFunction> corrector_;
+  //auto_ptr<BaseFunction> corrector_;
+  auto_ptr<MomentumScaleCorrector> corrector_;
+  auto_ptr<ResolutionFunction> resolution_;
+  auto_ptr<BackgroundFunction> background_;
 
 };
 #endif

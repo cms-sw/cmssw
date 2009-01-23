@@ -48,10 +48,11 @@ DBWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   dbObject->identifiers = corrector_->identifiers();
   dbObject->parameters = corrector_->parameters();
 
-  if( dbObject->identifiers.size() != dbObject->parameters.size() ) {
-    cout << "Error: size of parameters("<<dbObject->parameters.size()<<") and identifiers("<<dbObject->identifiers.size()<<") don't match" << endl;
-    exit(1);
-  }
+//   if( dbObject->identifiers.size() != dbObject->parameters.size() ) {
+//     cout << "Error: size of parameters("<<dbObject->parameters.size()<<") and identifiers("<<dbObject->identifiers.size()<<") don't match" << endl;
+//     exit(1);
+//   }
+
 //   vector<vector<double> >::const_iterator parVec = dbObject->parameters.begin();
 //   vector<int>::const_iterator id = dbObject->identifiers.begin();
 //   for( ; id != dbObject->identifiers.end(); ++id, ++parVec ) {
