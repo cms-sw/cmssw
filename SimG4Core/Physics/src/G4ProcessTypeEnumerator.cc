@@ -53,6 +53,11 @@ G4ProcessTypeEnumerator::G4ProcessTypeEnumerator(){
   mapProcesses["dInelastic"] = "Hadronic";
   mapProcesses["tInelastic"] = "Hadronic";
   mapProcesses["nCapture"] = "Hadronic";
+  mapProcesses["alphaInelastic"] = "Hadronic";
+
+  // for GFlash Hadron process
+  mapProcesses["WrappedPionMinusInelastic"] = "Hadronic";
+  mapProcesses["WrappedPionPlusInelastic"] = "Hadronic";
 
   // ionizations
   mapProcesses["eIoni"] = "EIoni";
@@ -129,6 +134,11 @@ G4ProcessTypeEnumerator::G4ProcessTypeEnumerator(){
   map2Process["tInelastic"] = 38;
   map2Process["alphaInelastic"] = 39;
   map2Process["nCapture"] = 40;
+
+  // for GFlash hadron process
+  map2Process["WrappedPionMinusInelastic"] = 68;
+  map2Process["WrappedPionPlusInelastic"] = 69;
+
   // Decay
   map2Process["Decay"] = 50;
   // EM
