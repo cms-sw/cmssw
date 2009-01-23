@@ -226,16 +226,20 @@ namespace cscdqm {
     if (getDDUHisto(h::DDU_TRAILER_ERRORSTAT_TABLE, dduID, mo)) mo->SetEntries(config->getNEvents());
     if (getDDUHisto(h::DDU_TRAILER_ERRORSTAT_FREQUENCY, dduID, mo)) mo->SetEntries(config->getNEvents());
   
-    // Unpack all founded CSC
-    std::vector<CSCEventData> chamberDatas;
-    chamberDatas.clear();
-    chamberDatas = dduData.cscData();
+    // Unpack all found CSC
+    if (config->getPROCESS_CSC()) { 
+
+      std::vector<CSCEventData> chamberDatas;
+      chamberDatas.clear();
+      chamberDatas = dduData.cscData();
   
-    int nCSCs = chamberDatas.size();
+      int nCSCs = chamberDatas.size();
   
-    for(int i = 0; i < nCSCs; i++) {
-      config->incNUnpackedDMB();
-      processCSC(chamberDatas[i], dduID);
+      for(int i = 0; i < nCSCs; i++) {
+        config->incNUnpackedDMB();
+        processCSC(chamberDatas[i], dduID);
+      }
+
     }
   
     if (getDDUHisto(h::DDU_DMB_UNPACKED_VS_DAV, dduID, mo)) mo->Fill(dmb_active_header, config->getNUnpackedDMB());

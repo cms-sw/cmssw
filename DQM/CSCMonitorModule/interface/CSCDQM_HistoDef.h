@@ -24,6 +24,7 @@
 #include <iostream>  
 
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Utility.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_Logger.h"
 
 namespace cscdqm {
 
@@ -34,7 +35,7 @@ namespace cscdqm {
   typedef unsigned int HistoId; 
 
   /** Type for detector component (HW) id parameters */
-  typedef int HwId; 
+  typedef unsigned int HwId; 
 
   namespace h {
     /** Histogram value that implies to skip the histogram */
@@ -382,7 +383,7 @@ namespace cscdqm {
        */
       ParHistoDef(const HistoName p_name) : HistoDef(Utility::fastHash(p_name)) {
         name = p_name;
-        std::cout << getName() << " id is " << getId() << "\n";
+        LOG_DEBUG << "PARHISTODEF: " << name << " generated id = " << getId();
       }
 
       /**
@@ -391,7 +392,9 @@ namespace cscdqm {
        * @return 
        */
       ParHistoDef(const HistoId p_id) : HistoDef(p_id) {
+        LOG_DEBUG << "PARHISTODEF: " << p_id << " requested";
         name = HistoDef::getHistoName();
+        LOG_DEBUG << "PARHISTODEF: " << name << " got";
       }
 
       const HistoName&  getHistoName() const { return name; }

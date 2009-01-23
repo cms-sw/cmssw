@@ -61,10 +61,12 @@ namespace cscdqm {
 
       const bool isLocked() const { 
         return lckLock.locked(); 
+        return false;
       }
 
       const bool isLockedByOther() const {
         return lockedByOther;
+        return false;
       }
 
   };

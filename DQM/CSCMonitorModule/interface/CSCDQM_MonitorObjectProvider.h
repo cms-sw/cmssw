@@ -32,6 +32,7 @@ namespace cscdqm {
 
     const HistoDef *hdef;
     HistoType htype;
+    std::string ctype;
     const std::string *folder;
     const std::string *title;
 
@@ -53,24 +54,33 @@ namespace cscdqm {
 
     std::string option;
 
-    HistoBookRequest (const HistoDef& p_hdef, const HistoType& p_htype,
+    HistoBookRequest (const HistoDef& p_hdef, const HistoType& p_htype, const std::string& p_ctype,
                       const std::string& p_folder, const std::string& p_title,
                       const int p_nchX = 0, const double p_lowX = 0, const double p_highX = 0,
                       const int p_nchY = 0, const double p_lowY = 0, const double p_highY = 0,
                       const int p_nchZ = 0, const double p_lowZ = 0, const double p_highZ = 0,
                       const std::string& p_option = "s") {
-      hdef = &p_hdef; htype = p_htype;
-      folder = &p_folder; title = &p_title;
-      nchX = p_nchX; lowX = p_lowX;
-      highX = p_highX; nchY = p_nchY;
-      lowY = p_lowY; highY = p_highY;
-      nchZ = p_nchZ; lowZ = p_lowZ;
-      highZ = p_highZ; option = p_option;
+      hdef = &p_hdef; 
+      htype = p_htype;
+      ctype = p_ctype;
+      folder = &p_folder; 
+      title = &p_title;
+      nchX = p_nchX; 
+      lowX = p_lowX;
+      highX = p_highX; 
+      nchY = p_nchY;
+      lowY = p_lowY; 
+      highY = p_highY;
+      nchZ = p_nchZ; 
+      lowZ = p_lowZ;
+      highZ = p_highZ; 
+      option = p_option;
     }
 
     HistoBookRequest (const HistoDef& p_hdef, const std::string& p_folder, const int p_value) {
       hdef = &p_hdef;
       htype = INT;
+      ctype = "int";
       folder = &p_folder;
       default_int = p_value;
     }
@@ -78,6 +88,7 @@ namespace cscdqm {
     HistoBookRequest (const HistoDef& p_hdef, const std::string& p_folder, const float p_value) {
       hdef = &p_hdef;
       htype = FLOAT;
+      ctype = "float";
       folder = &p_folder;
       default_float = p_value;
     }
@@ -86,6 +97,7 @@ namespace cscdqm {
                       const std::string& p_title, const std::string& p_value) {
       hdef = &p_hdef;
       htype = STRING;
+      ctype = "string";
       folder = &p_folder;
       title = &p_title;
       default_string = p_value;

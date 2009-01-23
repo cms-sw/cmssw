@@ -61,7 +61,10 @@
 #define CONFIG_PARAMETERS_SEQ \
   \
   \
-  (( bool, PROCESS_DDU, true, "enter DDU (and latter) sections (EventProcessor flag)" )) \
+  (( bool, PROCESS_DDU, true, "enter DDU (and latter Chamber) sections (EventProcessor flag)" )) \
+  (( bool, PROCESS_CSC, true, "enter Chamber section (EventProcessor flag)" )) \
+  (( bool, PROCESS_EFF_HISTOS, true, "calculate efficiency histograms (Dispatcher flag)" )) \
+  (( bool, PROCESS_EFF_PARAMETERS, true, "calculate efficiency parameters (EventProcessor flag)" )) \
   (( bool, BINCHECKER_CRC_ALCT, false , "check ALCT CRC (CSCDCCExaminer flag)" )) \
   (( bool, BINCHECKER_CRC_CLCT, false , "check CLCT CRC (CSCDCCExaminer flag)" )) \
   (( bool, BINCHECKER_CRC_CFEB, false , "check CFEB CRC (CSCDCCExaminer flag)" )) \
@@ -132,6 +135,16 @@ namespace cscdqm {
 
   using namespace XERCES_CPP_NAMESPACE;
 
+  typedef struct MOFilterItem {
+
+    TPRegexp pattern;
+    bool include;
+
+    MOFilterItem(const std::string pattern_, const bool include_) :
+      pattern(pattern_.c_str()), include(include_) { }
+
+  };
+
   /**
    * @class Configuration
    * @brief Framework configuration
@@ -141,11 +154,13 @@ namespace cscdqm {
     private:
 
       bool printStatsOnExit;
+      std::vector<MOFilterItem> MOFilterItems;
       BOOST_PP_SEQ_FOR_EACH_I(CONFIG_PARAMETER_DEFINE_MACRO, _, CONFIG_PARAMETERS_SEQ)
 
     public:
       
       boost::function< bool (const HistoDef& histoT, MonitorObject*&) > fnGetHisto;
+      boost::function< bool (const HistoId id, MonitorObject*& mo, const HwId& id1, const HwId& id2, const HwId& id3, const HwId& id4) > fnGetCacheHisto;
       boost::function< void (const HistoDef& histoT, MonitorObject*&) > fnPutHisto;
       boost::function< MonitorObject* (const HistoBookRequest&) > fnBook;
       boost::function< CSCDetId (const unsigned int, const unsigned int) > fnGetCSCDetId;
@@ -196,6 +211,17 @@ namespace cscdqm {
 
           BOOST_PP_SEQ_FOR_EACH_I(CONFIG_PARAMETER_LOADXML_MACRO, _, CONFIG_PARAMETERS_SEQ)
 
+          if (nodeName.compare("MO_FILTER") == 0) {
+            DOMNodeList *filterList = node->getChildNodes();
+            for(uint32_t j = 0; j < filterList->getLength(); j++) {
+              DOMNode* filter = filterList->item(j);
+              if (filter->getNodeType() != DOMNode::ELEMENT_NODE) { continue; }
+              std::string filterName = XMLString::transcode(filter->getNodeName());
+              std::string filterValue = XMLString::transcode(filter->getTextContent());
+              MOFilterItems.insert(MOFilterItems.end(), MOFilterItem(filterValue, (filterName.compare("INCLUDE") == 0)));
+            }
+          }
+
         }
 
         //doc->release();
@@ -240,7 +266,11 @@ namespace cscdqm {
 
       boost::timer globalTimer;
       boost::timer eventTimer;
+      boost::timer fraTimer;
+      boost::timer effTimer;
       double eventTimeSum;
+      double fraTimeSum;
+      double effTimeSum;
 
     public:
 
@@ -284,6 +314,18 @@ namespace cscdqm {
 
         SEPFIELD
 
+        STATFIELD("All fra update time: ", fraTimeSum, "s")
+        double fraTimeAverage = (fraCount > 0 ? fraTimeSum / fraCount : -1.0);
+        STATFIELD("Avg. fra update time: ", fraTimeAverage, "s")
+
+        SEPFIELD
+
+        STATFIELD("All eff update time: ", effTimeSum, "s")
+        double effTimeAverage = (effCount > 0 ? effTimeSum / effCount : -1.0);
+        STATFIELD("Avg. eff update time: ", effTimeAverage, "s")
+
+        SEPFIELD
+
         STATFIELD("All time: ", allTime, "s")
         double allTimeAverage = (nEvents > 0 ? allTime / nEvents : -1.0);
         STATFIELD("Avg. event all time: ", allTimeAverage, "s")
@@ -294,6 +336,15 @@ namespace cscdqm {
 
 #undef STATFIELD
 #undef SEPFIELD
+
+      const bool needBookMO(const std::string name) const {
+        bool result = true;
+        for (unsigned int i = 0; i < MOFilterItems.size(); i++) {
+          const MOFilterItem* filter = &MOFilterItems.at(i);
+          if (Utility::regexMatch(filter->pattern, name)) result = filter->include;
+        }
+        return result;
+      }
 
     /**
       * Counters
@@ -307,7 +358,11 @@ namespace cscdqm {
         nEventsGood = 0;
         nEventsCSC = 0;
         nUnpackedDMB = 0;
+        fraCount = 0;
+        effCount = 0;
         eventTimeSum = 0.0;
+        fraTimeSum = 0.0;
+        effTimeSum = 0.0;
       }
 
       const unsigned long getNEvents() const      { return nEvents; }
@@ -316,12 +371,30 @@ namespace cscdqm {
       const unsigned long getNEventsCSC() const   { return nEventsCSC; }
       const unsigned long getNUnpackedDMB() const { return nUnpackedDMB; }
 
-      void eventProcessStart() {
-        eventTimer.restart();
+      void eventProcessTimer(const bool start) {
+        if (start) {
+          eventTimer.restart();
+        } else {
+          eventTimeSum += eventTimer.elapsed();
+        }
       }
 
-      void eventProcessEnd() {
-        eventTimeSum += eventTimer.elapsed();
+      void updateFraTimer(const bool start) {
+        if (start) {
+          fraTimer.restart();
+        } else {
+          fraTimeSum += fraTimer.elapsed();
+          fraCount++;
+        }
+      }
+
+      void updateEffTimer(const bool start) {
+        if (start) {
+          effTimer.restart();
+        } else {
+          effTimeSum += effTimer.elapsed();
+          effCount++;
+        }
       }
 
       void incNEvents()      { 
@@ -344,6 +417,10 @@ namespace cscdqm {
       unsigned long nEventsGood;
       unsigned long nEventsCSC;
       unsigned long nUnpackedDMB; 
+      unsigned long fraCount; 
+      unsigned long effCount;
+
+
 
   };
 

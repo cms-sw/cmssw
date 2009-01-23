@@ -82,13 +82,13 @@ namespace cscdqm {
       void calcEMUFractionHisto(const HistoId& result, const HistoId& set, const HistoId& subset);
 
       const bool getEMUHisto(const HistoId& histo, MonitorObject*& me);
-      const bool getDDUHisto(const HistoId& histo, const HwId dduID, MonitorObject*& me);
-      const bool getCSCHisto(const HistoId& histo, const HwId crateID, const HwId dmbSlot, MonitorObject*& me);
-      const bool getCSCHisto(const HistoId& histo, const HwId crateID, const HwId dmbSlot, const HwId adId, MonitorObject*& me);
+      const bool getDDUHisto(const HistoId& histo, const HwId& dduID, MonitorObject*& me);
+      const bool getCSCHisto(const HistoId& histo, const HwId& crateID, const HwId& dmbSlot, MonitorObject*& me);
+      const bool getCSCHisto(const HistoId& histo, const HwId& crateID, const HwId& dmbSlot, const HwId& adId, MonitorObject*& me);
       const bool getParHisto(const HistoId& histo, MonitorObject*& me);
       const bool getParHisto(const std::string& name, MonitorObject*& me);
 
-      void getCSCFromMap(const unsigned int crateId, const unsigned int dmbId, unsigned int& cscType, unsigned int& cscPosition) const;
+      void getCSCFromMap(const unsigned int& crateId, const unsigned int& dmbId, unsigned int& cscType, unsigned int& cscPosition) const;
 
       Configuration* config;
       Summary summary;
@@ -100,7 +100,7 @@ namespace cscdqm {
 
       CSCDCCExaminer binChecker;
 
-      std::map<uint32_t,uint32_t> L1ANumbers;
+      std::map<uint32_t, uint32_t> L1ANumbers;
       uint32_t L1ANumber;
       uint32_t BXN;
       bool fFirstEvent;
