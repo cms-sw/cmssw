@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
 // Package:     Core
-// Class  :     FWGenParticleProxy3DBuilder
+// Class  :     FWGenParticleRPZProxyBuilder
 //
-/**\class FWGenParticleProxy3DBuilder FWGenParticleProxy3DBuilder.h Fireworks/Core/interface/FWGenParticleProxy3DBuilder.h
+/**\class FWGenParticleRPZProxyBuilder FWGenParticleRPZProxyBuilder.h Fireworks/Core/interface/FWGenParticleRPZProxyBuilder.h
 
  Description: <one line class summary>
 
@@ -14,7 +14,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWGenParticleProxy3DBuilder.cc,v 1.9 2008/11/26 16:19:15 chrjones Exp $
+// $Id: FWGenParticleRPZProxyBuilder.cc,v 1.1 2009/01/13 02:10:02 chrjones Exp $
 //
 
 // system include files
@@ -35,11 +35,11 @@
 
 
 
-class FWGenParticleProxy3DBuilder : public FWRPZDataProxyBuilder {
+class FWGenParticleRPZProxyBuilder : public FWRPZDataProxyBuilder {
       
    public:
-      FWGenParticleProxy3DBuilder();
-      virtual ~FWGenParticleProxy3DBuilder() {}
+      FWGenParticleRPZProxyBuilder();
+      virtual ~FWGenParticleRPZProxyBuilder() {}
       
       // ---------- const member functions ---------------------
       
@@ -51,20 +51,20 @@ class FWGenParticleProxy3DBuilder : public FWRPZDataProxyBuilder {
    private:
       virtual void build(const FWEventItem* iItem, TEveElementList** product);
       
-      FWGenParticleProxy3DBuilder(const FWGenParticleProxy3DBuilder&); // stop default
+      FWGenParticleRPZProxyBuilder(const FWGenParticleRPZProxyBuilder&); // stop default
       
-      const FWGenParticleProxy3DBuilder& operator=(const FWGenParticleProxy3DBuilder&); // stop default
+      const FWGenParticleRPZProxyBuilder& operator=(const FWGenParticleRPZProxyBuilder&); // stop default
       
       // ---------- member data --------------------------------
       TDatabasePDG* m_pdg;
 };
 
-FWGenParticleProxy3DBuilder::FWGenParticleProxy3DBuilder()
+FWGenParticleRPZProxyBuilder::FWGenParticleRPZProxyBuilder()
 {
   m_pdg = new TDatabasePDG();
 }
 
-void FWGenParticleProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** product)
+void FWGenParticleRPZProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
 {
     //since we created it, we know the type (would like to do this better)
     TEveTrackList* tlist = dynamic_cast<TEveTrackList*>(*product);
@@ -134,5 +134,5 @@ void FWGenParticleProxy3DBuilder::build(const FWEventItem* iItem, TEveElementLis
 
 }
 
-REGISTER_FWRPZDATAPROXYBUILDERBASE(FWGenParticleProxy3DBuilder,reco::GenParticleCollection,"GenParticles");
+REGISTER_FWRPZDATAPROXYBUILDERBASE(FWGenParticleRPZProxyBuilder,reco::GenParticleCollection,"GenParticles");
 
