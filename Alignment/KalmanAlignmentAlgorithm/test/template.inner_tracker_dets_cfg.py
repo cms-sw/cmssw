@@ -31,6 +31,7 @@ process.MessageLogger = cms.Service( "MessageLogger",
 process.AlignmentProducer.doMisalignmentScenario = cms.bool( False )
 
 process.AlignmentProducer.ParameterBuilder = cms.PSet(
+    parameterTypes = cms.vstring( "Selector,RigidBody" ),
     Selector = cms.PSet(
         alignParams = cms.vstring(
             "TIBDSDets,111001", 
