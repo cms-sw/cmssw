@@ -16,8 +16,8 @@ namespace calogeom {
   
   Total: 7 parameters 
   
-  $Date: 2008/11/10 15:27:02 $
-  $Revision: 1.2 $
+  $Date: 2009/01/20 19:04:14 $
+  $Revision: 1.3 $
   \author P. Katsas - UoA
   */
    class IdealCastorTrapezoid: public CaloCellGeometry 
@@ -39,6 +39,13 @@ namespace calogeom {
 	const double dy() const { return param()[1] ; }
 	const double dz() const { return param()[2] ; }
     
+
+	 virtual std::vector<HepPoint3D> vocalCorners( const double* pv,
+						       HepPoint3D&   ref ) const 
+	 { return localCorners( pv, ref ) ; }
+
+	 static std::vector<HepPoint3D> localCorners( const double* pv, 
+						      HepPoint3D&   ref ) ;
      private:
   };
 

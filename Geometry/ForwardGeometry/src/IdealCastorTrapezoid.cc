@@ -3,6 +3,14 @@
 
 namespace calogeom {
 
+   std::vector<HepPoint3D>
+   IdealCastorTrapezoid::localCorners( const double* pv  ,
+				       HepPoint3D&   ref   )
+   {
+      std::vector<GlobalPoint> gc ( 8, GlobalPoint(0,0,0) ) ;
+      std::vector<HepPoint3D>  lc ( 8, HepPoint3D( 0,0,0) ) ;
+   }
+
    const CaloCellGeometry::CornersVec& 
    IdealCastorTrapezoid::getCorners() const 
    {
