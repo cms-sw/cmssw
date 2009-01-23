@@ -48,7 +48,7 @@ process.DBWriterModule = cms.EDAnalyzer(
     # Specify that we want to write the scale parameters. THIS MUST NOT BE CHANGED.
     Type = cms.untracked.string('scale'),
     # Specify the corrections to use
-    CorrectionsIdentifier = cms.untracked.string('MCresolDerivedFromY_globalMuons')
+    CorrectionsIdentifier = cms.untracked.string('MCcorrDerivedFromY_globalMuons_test')
 )
 
 process.p1 = cms.Path(process.DBWriterModule)
