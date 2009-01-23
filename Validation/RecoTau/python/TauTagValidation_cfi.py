@@ -3,13 +3,31 @@
 
 import FWCore.ParameterSet.Config as cms
 
+PFTausHighEfficiencyLeadingPionBothProngs = cms.EDAnalyzer("TauTagValidation",
+   DataType                     = cms.string('Leptons'),               
+   MatchDeltaR_Leptons          = cms.double(0.15),
+   MatchDeltaR_Jets             = cms.double(0.3),
+   SaveOutputHistograms         = cms.bool(False),
+#  RefCollection                = cms.InputTag("IterativeConeJetProducer","iterativeCone5GenJets"),
+   RefCollection                = cms.InputTag("TauGenJetProducer","selectedGenTauDecaysToHadronsPt5Cumulative"),
+   ExtensionName                = cms.string("LeadingPion"),
+   TauProducer                  = cms.string('pfRecoTauProducerHighEfficiency'),
+   discriminators               = cms.VPSet(
+    cms.PSet( discriminator = cms.string("pfRecoTauDiscriminationByLeadingPionPtCutHighEfficiency"),selectionCut = cms.double(0.5)),
+    cms.PSet( discriminator = cms.string("pfRecoTauDiscriminationByTrackIsolationUsingLeadingPionHighEfficiency"),selectionCut = cms.double(0.5)),
+    cms.PSet( discriminator = cms.string("pfRecoTauDiscriminationByECALIsolationUsingLeadingPionHighEfficiency"),selectionCut = cms.double(0.5)),
+    cms.PSet( discriminator = cms.string("pfRecoTauDiscriminationAgainstElectronHighEfficiency"),selectionCut = cms.double(0.5)),
+    cms.PSet( discriminator = cms.string("pfRecoTauDiscriminationAgainstMuonHighEfficiency"),selectionCut = cms.double(0.5))
+ )
+)
+
 PFTausHighEfficiencyBothProngs = cms.EDAnalyzer("TauTagValidation",
    DataType                     = cms.string('Leptons'),               
    MatchDeltaR_Leptons          = cms.double(0.15),
    MatchDeltaR_Jets             = cms.double(0.3),
    SaveOutputHistograms         = cms.bool(False),
 #  RefCollection                = cms.InputTag("IterativeConeJetProducer","iterativeCone5GenJets"),
-   RefCollection                = cms.InputTag("TauGenJetProducer","tauGenJets"),
+   RefCollection                = cms.InputTag("TauGenJetProducer","selectedGenTauDecaysToHadronsPt5Cumulative"),
    ExtensionName                = cms.string(""),
    TauProducer                  = cms.string('pfRecoTauProducerHighEfficiency'),
    discriminators               = cms.VPSet(
@@ -27,7 +45,7 @@ PFTausBothProngs = cms.EDAnalyzer("TauTagValidation",
    MatchDeltaR_Leptons          = cms.double(0.15),
    MatchDeltaR_Jets             = cms.double(0.3),
    SaveOutputHistograms         = cms.bool(False),
-   RefCollection                = cms.InputTag("TauGenJetProducer","tauGenJets"),
+   RefCollection                = cms.InputTag("TauGenJetProducer","selectedGenTauDecaysToHadronsPt5Cumulative"),
    ExtensionName                = cms.string(""),
    TauProducer                  = cms.string('pfRecoTauProducer'),
    discriminators = cms.VPSet(
@@ -45,7 +63,7 @@ CaloTausBothProngs = cms.EDAnalyzer("TauTagValidation",
    MatchDeltaR_Leptons          = cms.double(0.15),
    MatchDeltaR_Jets             = cms.double(0.3),
    SaveOutputHistograms         = cms.bool(False),
-   RefCollection                = cms.InputTag("TauGenJetProducer","tauGenJets"),
+   RefCollection                = cms.InputTag("TauGenJetProducer","selectedGenTauDecaysToHadronsPt5Cumulative"),
    ExtensionName                = cms.string(""),
    TauProducer                  = cms.string('caloRecoTauProducer'),
    discriminators = cms.VPSet(
@@ -59,5 +77,6 @@ CaloTausBothProngs = cms.EDAnalyzer("TauTagValidation",
 tauTagValidation = cms.Sequence( 
 	PFTausBothProngs+
         CaloTausBothProngs +
-        PFTausHighEfficiencyBothProngs
+        PFTausHighEfficiencyBothProngs+
+        PFTausHighEfficiencyLeadingPionBothProngs
 	)
