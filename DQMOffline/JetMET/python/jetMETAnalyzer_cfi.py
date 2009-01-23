@@ -24,7 +24,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
 
     TriggerResultsLabel        = cms.InputTag("TriggerResults::HLT"),
     JetLo                      = cms.string("HLT_Jet30"),
-    JetHi                      = cms.string("HLT_Jet110")
+    JetHi                      = cms.string("HLT_Jet110"),
 
     #
     # For caloMETAnalysis
@@ -111,7 +111,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
         etaMax  = cms.double(5.0),
         pMax    = cms.double(500.0),
         phiMax  = cms.double(3.2)
-    ),
+    )
 
 
 )
