@@ -21,6 +21,7 @@ extern const char * kL1GtRR;
 extern const char * kL1GtOMRec;
 extern const char * kL1GctCounts;
 extern const char * kMctruth;
+extern const char * kSimhit;
 extern const char * kGenEventScale;
 extern const char * kMucands2;
 extern const char * kMucands3;

@@ -68,6 +68,8 @@ void HLTMCtruth::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 /* **Analyze the event** */
 void HLTMCtruth::analyze(const edm::Handle<CandidateView> & mctruth,
 			 const edm::Handle<double>        & pthat,
+			 const edm::Handle<std::vector<SimTrack> > & simTracks,
+			 const edm::Handle<std::vector<SimVertex> > & simVertices,
 			 TTree* HltTree) {
 
   //std::cout << " Beginning HLTMCtruth " << std::endl;
@@ -86,6 +88,27 @@ void HLTMCtruth::analyze(const edm::Handle<CandidateView> & mctruth,
     ptEleMax = -999.0;
     ptMuMax  = -999.0;    
     pthatf   = pthat.isValid() ? * pthat : 0.0;
+
+    if((simTracks.isValid())&&(simVertices.isValid())){
+      for (unsigned int j=0; j<simTracks->size(); j++) {
+	int pdgid = simTracks->at(j).type();
+	if (abs(pdgid)!=13) continue;
+	double pt = simTracks->at(j).momentum().pt();
+	if (pt<2.5) continue;
+	double eta = simTracks->at(j).momentum().eta();
+	if (abs(eta)>2.5) continue;
+	if (simTracks->at(j).noVertex()) continue;
+	int vertIndex = simTracks->at(j).vertIndex();
+	double x = simVertices->at(vertIndex).position().x();
+	double y = simVertices->at(vertIndex).position().y();
+	double r = sqrt(x*x+y*y);
+	if (r>150.) continue; // I think units are cm here
+	double z = simVertices->at(vertIndex).position().z();
+	if (abs(z)>300.) continue; // I think units are cm here
+	mu3 += 1;
+	break;
+      }
+    }
 
     if (mctruth.isValid()){
 
@@ -122,7 +145,9 @@ void HLTMCtruth::analyze(const edm::Handle<CandidateView> & mctruth,
 	  }
 	}
 
-	if (((mcpid[nmc]==13)||(mcpid[nmc]==-13))&&(mcpt[nmc]>2.5)) {mu3 += 1;} // Flag for muons with pT > 2.5 GeV/c
+	// Set-up flags, based on Pythia-generator information, for avoiding double-counting events when
+	// using both pp->{e,mu}X AND QCD samples
+// 	if (((mcpid[nmc]==13)||(mcpid[nmc]==-13))&&(mcpt[nmc]>2.5)) {mu3 += 1;} // Flag for muons with pT > 2.5 GeV/c
 	if (((mcpid[nmc]==11)||(mcpid[nmc]==-11))&&(mcpt[nmc]>2.5)) {el3 += 1;} // Flag for electrons with pT > 2.5 GeV/c
 
 	if (mcpid[nmc]==-5) {mab += 1;} // Flag for bbar
