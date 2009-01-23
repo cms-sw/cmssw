@@ -248,10 +248,15 @@ TrajectorySeedProducer::beginRun(edm::Run & run, const edm::EventSetup & es) {
 void 
 TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {        
 
+
+  //  if( seedingAlgo[0] ==  "FourthPixelLessPairs") std::cout << "Seed producer in 4th iteration " << std::endl;
+
 #ifdef FAMOS_DEBUG
   std::cout << "################################################################" << std::endl;
   std::cout << " TrajectorySeedProducer produce init " << std::endl;
 #endif
+
+
 
   unsigned nSimTracks = 0;
   unsigned nTracksWithHits = 0;
@@ -464,7 +469,25 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 #endif
 
 	  // Check if the pair is on the requested dets
-	  if ( numberOfHits[ialgo] == 2 ) compatible = compatible && theSeedHits[0].makesAPairWith(theSeedHits[1]);
+	  if ( numberOfHits[ialgo] == 2 ) {
+	  
+	    if ( seedingAlgo[0] ==  "ThirdMixedPairs" ){
+	      compatible = compatible && theSeedHits[0].makesAPairWith3rd(theSeedHits[1]);
+	      /*
+	      if(compatible) {
+		std::cout << "Seed producer in 3rd iteration" << std::endl;
+		std::cout << "The first hit position = " << theSeedHits0.globalPosition() << std::endl;
+		std::cout << "The first hit subDetId = " << theSeedHits0.subDetId() << std::endl;
+		std::cout << "The first hit layer    = " << theSeedHits0.layerNumber() << std::endl;
+		std::cout << "The second hit position = " << theSeedHits1.globalPosition() << std::endl;
+		std::cout << "The second hit subDetId = " << theSeedHits1.subDetId() << std::endl;
+		std::cout << "The second hit layer    = " << theSeedHits1.layerNumber() << std::endl;
+	      }
+	      */
+	    } else {
+	      compatible = compatible && theSeedHits[0].makesAPairWith(theSeedHits[1]);
+	    }
+	  }	    
 
 	  // Reject non suited pairs
 	  if ( !compatible ) continue;

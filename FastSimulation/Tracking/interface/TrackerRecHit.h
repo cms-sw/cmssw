@@ -103,11 +103,12 @@ public:
 
   /// Check if a pair is on the proper combination of detectors
   bool makesAPairWith(const TrackerRecHit& anotherHit) const;
+  bool makesAPairWith3rd(const TrackerRecHit& anotherHit) const;
 
   /// Check if a triplet is on the proper combination of detectors
   bool makesATripletWith(const TrackerRecHit& anotherHit,
 			 const TrackerRecHit& yetAnotherHit) const;
- 
+
   /// Check if two hits are on the same layer of the same subdetector
   inline bool isOnTheSameLayer(const TrackerRecHit& other) const {
     
