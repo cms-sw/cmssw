@@ -50,7 +50,7 @@ multiTrackValidator = cms.EDFilter("MultiTrackValidator",
     nint = cms.int32(50),
     beamSpot = cms.InputTag("offlineBeamSpot"),
     # if *not* uses associators, the TP-RecoTrack maps has to be specified 
-    UseAssociators = cms.bool(False)
+    UseAssociators = cms.bool(True)
 )
 
 

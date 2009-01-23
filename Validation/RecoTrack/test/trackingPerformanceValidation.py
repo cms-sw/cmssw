@@ -136,7 +136,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
             if dataset!="":
 
                 #Find and format the list of files
-                cmd2='./DDSearchCLI.py  --cff --input="find file where dataset like '+ dataset +'"|grep ' + sample 
+                cmd2='./DDSearchCLI.py  --limit -1 --cff --input="find file where dataset like '+ dataset +'"|grep ' + sample 
                 filenames='import FWCore.ParameterSet.Config as cms\n'
                 filenames+='readFiles = cms.untracked.vstring()\n'
                 filenames+='secFiles = cms.untracked.vstring()\n'
@@ -154,7 +154,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
 
                 #Check if a dataset is found
                     if parentdataset!="":
-                        cmd4='./DDSearchCLI.py  --cff --input="find file where dataset like '+ parentdataset +'"|grep ' + sample 
+                        cmd4='./DDSearchCLI.py  --limit -1 --cff --input="find file where dataset like '+ parentdataset +'"|grep ' + sample 
                         filenames+='secFiles.extend( [\n'
                         first=True
 
