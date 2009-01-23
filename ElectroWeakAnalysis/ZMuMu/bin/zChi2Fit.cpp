@@ -22,6 +22,7 @@
 using namespace boost;
 namespace po = boost::program_options;
 
+#include <fstream>
 #include <iostream>
 #include <algorithm> 
 #include <exception>
@@ -94,6 +95,7 @@ int main(int ac, char *av[]) {
     
     fit::RootMinuitCommands<ChiSquared> commands("zChi2Fit.txt");
 
+    cout << "minuit command file completed" << endl;
     const unsigned int rebinMuMuNoIso = 2,rebinMuMu = 1, rebinMuMu1HLT = 1, rebinMuMu2HLT = 1, rebinMuTk = 2, rebinMuSa = 10;
     // assume that the bin size is 1 GeV!!!
     funct::Constant rebinMuMuNoIsoConst(rebinMuMuNoIso), rebinMuMuConst(rebinMuMu), 
@@ -107,13 +109,22 @@ int main(int ac, char *av[]) {
       for(vector<string>::const_iterator it = v_file.begin(); 
 	  it != v_file.end(); ++it) {
 	TFile * root_file = new TFile(it->c_str(), "read");
-	TH1 * histoZMuMuNoIso = getHisto(root_file, "nonIsolatedZToMuMuPlots/zMass",rebinMuMuNoIso);
+	/*TH1 * histoZMuMuNoIso = getHisto(root_file, "nonIsolatedZToMuMuPlots/zMass",rebinMuMuNoIso);
 	TH1 * histoZMuMu = getHisto(root_file, "goodZToMuMuPlots/zMass",rebinMuMu);
 	TH1 * histoZMuMu1HLT = getHisto(root_file, "goodZToMuMu1HLTPlots/zMass", rebinMuMu1HLT);
 	TH1 * histoZMuMu2HLT = getHisto(root_file, "goodZToMuMu2HLTPlots/zMass", rebinMuMu2HLT);
 	TH1 * histoZMuTk = getHisto(root_file, "goodZToMuMuOneTrackPlots/zMass", rebinMuTk);
 	TH1 * histoZMuSa = getHisto(root_file, "goodZToMuMuOneStandAloneMuonPlots/zMass", rebinMuSa);
-	TH1 * histoZMuSaFromMuMu = getHisto(root_file, "zmumuSaMassHistogram/zMass", rebinMuSa);
+	TH1 * histoZMuSaFromMuMu = getHisto(root_file, "zmumuSaMassHistogram/zMass", rebinMuSa);*/
+	
+	TH1 * histoZMuMuNoIso = getHisto(root_file, "nonIsolatedZToMuMuPlots/zMass_noIso",rebinMuMuNoIso);
+	TH1 * histoZMuMu = getHisto(root_file, "goodZToMuMuPlots/zMass_golden",rebinMuMu);
+	TH1 * histoZMuMu1HLT = getHisto(root_file, "goodZToMuMu1HLTPlots/zMass_1hlt", rebinMuMu1HLT);
+	TH1 * histoZMuMu2HLT = getHisto(root_file, "goodZToMuMu2HLTPlots/zMass_2hlt", rebinMuMu2HLT);
+	TH1 * histoZMuTk = getHisto(root_file, "goodZToMuMuOneTrackPlots/zMass_tk", rebinMuTk);
+	TH1 * histoZMuSa = getHisto(root_file, "goodZToMuMuOneStandAloneMuonPlots/zMass_sa", rebinMuSa);
+	TH1 * histoZMuSaFromMuMu = getHisto(root_file, "zmumuSaMassHistogram/zMass_safromGolden", rebinMuSa);
+
 
 	cout << ">>> histogram loaded\n";
 	string f_string = *it;
@@ -193,25 +204,24 @@ int main(int ac, char *av[]) {
 	funct::Numerical<1> _1;
 
 	//Efficiency term
-	Expr zMuMuEff1HLTTerm = _2 * (effTk ^ _2) *  (effSa ^ _2) * (effIso ^ _2) * effHLT * ( _1 - effHLT); 
+	Expr zMuMuEff1HLTTerm = _2 * (effTk ^ _2) *  (effSa ^ _2) * (effIso ^ _2) * effHLT * (_1 - effHLT); 
 	Expr zMuMuEff2HLTTerm = (effTk ^ _2) *  (effSa ^ _2) * (effIso ^ _2) * (effHLT ^ _2) ; 
-	Expr zMuMuNoIsoEffTerm = (effTk ^ _2) * (effSa ^ _2) * (_1 - (effIso ^ _2)) * effHLT;
+	Expr zMuMuNoIsoEffTerm = (effTk ^ _2) * (effSa ^ _2) * (_1 - (effIso ^ _2)) * (_1 - ((_1 - effHLT)^_2));
 	Expr zMuTkEffTerm = _2 * (effTk ^ _2) * effSa * (_1 - effSa) * (effIso ^ _2) * effHLT;
 	Expr zMuSaEffTerm = _2 * (effSa ^ _2) * effTk * (_1 - effTk) * (effIso ^ _2) * effHLT;
-
 
 	Expr zMuMu1HLT = rebinMuMu1HLTConst * zMuMuEff1HLTTerm * yieldZMuMu;
 	Expr zMuMu2HLT = rebinMuMu2HLTConst * zMuMuEff2HLTTerm * yieldZMuMu;
 
-	Expr zMuTkBkg = yieldBkgZMuTk * funct::Exponential(lambda) * funct::Polynomial<2>(a0, a1, a2);
+	Expr zMuTkBkg = yieldBkgZMuTk * funct::Exponential(lambda);// * funct::Polynomial<2>(a0, a1, a2);
 	Expr zMuTkBkgScaled = rebinMuTkConst * zMuTkBkg;
 	Expr zMuTk = rebinMuTkConst * (zMuTkEffTerm * yieldZMuMu * zPdfMuTk + zMuTkBkg);
 
-	Expr zMuMuNoIsoBkg = yieldBkgZMuMuNotIso * funct::Exponential(alpha) * funct::Polynomial<2>(b0, b1, b2);
+	Expr zMuMuNoIsoBkg = yieldBkgZMuMuNotIso * funct::Exponential(alpha); // * funct::Polynomial<2>(b0, b1, b2);
 	Expr zMuMuNoIsoBkgScaled = rebinMuMuNoIsoConst * zMuMuNoIsoBkg;
 	Expr zMuMuNoIso = rebinMuMuNoIsoConst * (zMuMuNoIsoEffTerm * yieldZMuMu * zPdfMuMuNonIso + zMuMuNoIsoBkg);
 
-	Expr zMuSa = rebinMuSaConst * (zMuSaEffTerm * yieldZMuMu * zPdfMuSa + (yieldBkgZMuSa * funct::Exponential(beta) )); 
+	Expr zMuSa = rebinMuSaConst * (zMuSaEffTerm * yieldZMuMu * zPdfMuSa); // + (yieldBkgZMuSa * funct::Exponential(beta) )); 
 
 	TH1D histoZCount1HLT("histoZCount1HLT", "", 1, fMin, fMax);
 	histoZCount1HLT.Fill(100, nZMuMu1HLT);
@@ -248,6 +258,7 @@ int main(int ac, char *av[]) {
 	const unsigned int nPar = 17;//WARNIG: this must be updated manually for now
 	ROOT::Math::SMatrix<double, nPar, nPar, ROOT::Math::MatRepSym<double, nPar> > err;
 	minuit.getErrorMatrix(err);
+
 	std::cout << "error matrix:" << std::endl;
 	for(size_t i = 0; i < nPar; ++i) {
 	  for(size_t j = 0; j < nPar; ++j) {
@@ -256,6 +267,24 @@ int main(int ac, char *av[]) {
 	  std::cout << std::endl;
 	} 
 	minuit.printFitResults();
+	ofstream myfile;
+	myfile.open ("fitResult.txt", ios::out | ios::app);
+	myfile<<"\n";
+        double Y =  minuit.getParameterError("YieldZMuMu");
+        double dY = minuit.getParameterError("YieldZMuMu", Y);
+        double tk_eff =  minuit.getParameterError("EfficiencyTk");
+        double dtk_eff = minuit.getParameterError("EfficiencyTk", tk_eff);
+        double sa_eff =  minuit.getParameterError("EfficiencySa");
+        double dsa_eff = minuit.getParameterError("EfficiencySa", sa_eff);
+        double iso_eff =  minuit.getParameterError("EfficiencyIso");
+        double diso_eff = minuit.getParameterError("EfficiencyIso", iso_eff);
+        double hlt_eff =  minuit.getParameterError("EfficiencyHLT");
+        double dhlt_eff = minuit.getParameterError("EfficiencyHLT",hlt_eff);
+	myfile<< Y <<" "<< dY <<" "<< tk_eff <<" "<< dtk_eff <<" "<< sa_eff << " " << dsa_eff << " " << iso_eff <<" " << diso_eff<< " " << hlt_eff << " " << dhlt_eff << " " <<chi2()/(chi2.numberOfBins()- minuit.numberOfFreeParameters());
+
+	myfile.close();
+	//	cout<<"chi2 = " << chi2()<< " numberOfFreeParameters = " << minuit.numberOfFreeParameters() << endl;
+	//cout <<"numberOfBin = " <<  chi2.numberOfBins() << endl;
 	//Plot
 	double s;
 	s = 0;
