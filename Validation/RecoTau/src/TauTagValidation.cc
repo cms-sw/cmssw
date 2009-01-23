@@ -15,7 +15,7 @@
 //
 // Original Author:  Ricardo Vasquez Sierra
 //         Created:  October 8, 2008
-// $Id: TauTagValidation.cc,v 1.5 2008/12/19 19:00:00 vasquez Exp $
+// $Id: TauTagValidation.cc,v 1.6 2009/01/21 14:40:33 vasquez Exp $
 //
 //
 // user include files
@@ -251,7 +251,7 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
       for (genCandidateCollection::const_iterator RefJet= ReferenceCollection->begin() ; RefJet != ReferenceCollection->end(); RefJet++ ){ 
 
-	if ((fabs(RefJet->eta()) > 2.5) || (RefJet->pt() < 5.0)) continue;
+	//	if ((fabs(RefJet->eta()) > 2.5) || (RefJet->pt() < 5.0)) continue;
 	
 	ptTauVisibleMap.find(refCollection_.instance())->second->Fill(RefJet->pt());
 	etaTauVisibleMap.find(refCollection_.instance())->second->Fill(RefJet->eta());
