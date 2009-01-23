@@ -5,6 +5,9 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     mctruth                         = cms.InputTag("genParticles"),
     genEventScale                   = cms.InputTag("genEventScale"),
     
+    ### SIM objects
+    simhits                         = cms.InputTag("g4SimHits"),
+
     ### Trigger objects
    #l1GctCounts                     = cms.InputTag("l1GctEmulDigis"),
    #l1GtObjectMapRecord             = cms.InputTag("l1GtEmulDigis"),
