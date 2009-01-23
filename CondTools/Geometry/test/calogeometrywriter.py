@@ -18,9 +18,11 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
                                           timetype = cms.untracked.string('runnumber'),
                                           connect = cms.string('sqlite_file:myfile.db'),
-                                          toPut = cms.VPSet(cms.PSet(record = cms.string('PEcalBarrelRcd'),tag = cms.string('TEST02')),
-                                                            cms.PSet(record = cms.string('PEcalEndcapRcd'),tag = cms.string('TEST03')),
-                                                            cms.PSet(record = cms.string('PEcalPreshowerRcd'),tag = cms.string('TEST04')))
+                                          toPut = cms.VPSet(
+    cms.PSet(record = cms.string('PEcalBarrelRcd'),   tag = cms.string('TEST02')),
+    cms.PSet(record = cms.string('PEcalEndcapRcd'),   tag = cms.string('TEST03')),
+    cms.PSet(record = cms.string('PEcalPreshowerRcd'),tag = cms.string('TEST04')),
+    cms.PSet(record = cms.string('PHcalRcd'),         tag = cms.string('TEST05')) )
                                           )
 
 process.maxEvents = cms.untracked.PSet(

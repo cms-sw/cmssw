@@ -20,11 +20,6 @@ class PCaloGeometryBuilder : public edm::EDAnalyzer
       virtual void endJob() {};
 
    private:
-
-      std::vector<double>   m_transEB, m_transEE, m_transES  ;
-      std::vector<double>   m_dimEB,   m_dimEE,   m_dimES    ;
-      std::vector<uint32_t> m_indEB,   m_indEE,   m_indES    ;
-
 };
 
 #endif
