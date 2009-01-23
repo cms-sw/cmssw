@@ -40,6 +40,7 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   muon_             = conf.getParameter<edm::InputTag> ("muon");
   mctruth_          = conf.getParameter<edm::InputTag> ("mctruth");
   genEventScale_    = conf.getParameter<edm::InputTag> ("genEventScale");
+  simhits_          = conf.getParameter<edm::InputTag> ("simhits");
 
   // keep this separate from l1extramc_ as needed by FastSim:
   //    This is purposefully done this way to allow FastSim to run with OpenHLT: 
@@ -166,6 +167,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   edm::Handle<METCollection>                        ht;
   edm::Handle<CandidateView>                        mctruth;
   edm::Handle<double>                               genEventScale;
+  edm::Handle<std::vector<SimTrack> >               simTracks;
+  edm::Handle<std::vector<SimVertex> >              simVertices;
   edm::Handle<MuonCollection>                       muon;
   edm::Handle<edm::TriggerResults>                  hltresults;
   edm::Handle<l1extra::L1EmParticleCollection>      l1extemi, l1extemn;
@@ -270,6 +273,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   getCollection( iEvent, missing, l1GtOMRec,       gtObjectMap_,       kL1GtOMRec );
   getCollection( iEvent, missing, l1GctCounts,     gctCounts_,         kL1GctCounts );
   getCollection( iEvent, missing, mctruth,         mctruth_,           kMctruth );
+  getCollection( iEvent, missing, simTracks,       simhits_,           kSimhit );
+  getCollection( iEvent, missing, simVertices,     simhits_,           kSimhit );
   getCollection( iEvent, missing, genEventScale,   genEventScale_,     kGenEventScale );
   getCollection( iEvent, missing, mucands2,        MuCandTag2_,        kMucands2 );
   getCollection( iEvent, missing, mucands3,        MuCandTag3_,        kMucands3 );
@@ -396,6 +401,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   mct_analysis_.analyze(
     mctruth,
     genEventScale,
+    simTracks,
+    simVertices,
     HltTree);
   
   alca_analysis_.analyze(  
