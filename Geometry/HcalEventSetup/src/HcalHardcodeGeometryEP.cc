@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: HcalHardcodeGeometryEP.cc,v 1.8 2008/05/19 20:12:41 heltsley Exp $
+// $Id: HcalHardcodeGeometryEP.cc,v 1.9 2008/08/30 19:32:21 fedor Exp $
 //
 //
 
@@ -24,6 +24,7 @@
 #include "Geometry/Records/interface/HcalGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalFlexiHardcodeGeometryLoader.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class HcalTopology;
@@ -47,7 +48,7 @@ HcalHardcodeGeometryEP::HcalHardcodeGeometryEP( const edm::ParameterSet& ps )
    setWhatProduced( this,
 		    &HcalHardcodeGeometryEP::produceAligned,
 		    dependsOn( &HcalHardcodeGeometryEP::idealRecordCallBack ),
-		    "HCAL");
+		    HcalGeometry::producerTag() );
 
 // disable
 //   setWhatProduced( this,
