@@ -38,6 +38,8 @@
 <use name=MagneticField/Engine>
 <use name=MagneticField/Records>
 <use name=SimDataFormats/GeneratorProducts>
+<use name=SimDataFormats/Track>
+<use name=SimDataFormats/Vertex>
 <use name=TrackingTools/TrajectoryState>
 <use name=RecoEcal/EgammaCoreTools>
 <use name=RecoEgamma/EgammaTools>
