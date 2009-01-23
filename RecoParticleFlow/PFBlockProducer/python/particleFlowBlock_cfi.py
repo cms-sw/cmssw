@@ -49,7 +49,7 @@ particleFlowBlock = cms.EDProducer("PFBlockProducer",
     # Track Quality Cut: Tracks are kept if DPt/Pt < sigma * Cut
     # and if nHit >= cut
     pf_DPtoverPt_Cut = cms.vdouble(1.0,1.0,0.80,0.50),
-    pf_NHit_Cut = cms.vint32(3,3,3,6),
+    pf_NHit_Cut = cms.vuint32(3,3,3,6),
                                    
 
     debug = cms.untracked.bool(False)
