@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #
-# $Id: submitDQMOfflineCAF.py,v 1.23 2008/11/27 17:18:38 vadler Exp $
+# $Id: submitDQMOfflineCAF.py,v 1.24 2008/11/27 17:36:56 vadler Exp $
 #
 
 ## CMSSW/DQM/SiStripMonitorClient/scripts/submitDQMOfflineCAF.py
@@ -498,6 +498,11 @@ else:
   Float_magField = float(Str_magField) # FIXME protect better from wrong user input
 # on primary dataset
 # data tier
+str_datatier = Str_dataset.split('/')[-1]
+if str_datatier == 'RAW-RECO':
+  Str_datatier = LSTR_datatiers[1] # FIXME: This should be an option
+else:
+  Str_datatier = str_datatier
 Str_datatier = Str_dataset.split('/')[-1]
 if not Str_datatier in LSTR_datatiers:
   print '> submitDQMOfflineCAF.py > datatier "%s" not processable' %(Str_datatier)
@@ -539,20 +544,11 @@ file_dbsOutput = urllib.urlopen("https://cmsweb.cern.ch/dbs_discovery/getLFN_txt
 for str_iLine in file_dbsOutput.readlines():
   lstr_wordsLine = str_iLine.split("/")
   if len(lstr_wordsLine) >= 5:
-    # Necessary and (hopefully) temporary fix due to wrongly assigned dataset
-#     if                  lstr_wordsLine[1]  == 'store'      and\
-#                         lstr_wordsLine[2]  == 'data'       and\
-#        Str_dataset.find(lstr_wordsLine[3]) >= 0            and\
-#        Str_dataset.find(lstr_wordsLine[4]) >= 0            and\
-#                         lstr_wordsLine[5]  == Str_datatier and\
-#        Str_dataset.find(lstr_wordsLine[6]) >= 0            and\
-#                     len(lstr_wordsLine[7]) == 3               :
     if                  lstr_wordsLine[1]  == 'store'      and\
                         lstr_wordsLine[2]  == 'data'       and\
        Str_dataset.find(lstr_wordsLine[3]) >= 0            and\
        Str_dataset.find(lstr_wordsLine[4]) >= 0            and\
-                        lstr_wordsLine[5]  == Str_datatier and\
-                    len(lstr_wordsLine[7]) == 3               :
+                        lstr_wordsLine[5]  == str_datatier    :
       int_nInputFiles += 1
       file_inputFilesCff.write(str_iLine)
 if int_nInputFiles == 0:
@@ -680,7 +676,8 @@ if Bool_CRAB:
   nLines = 0
   for str_linesInput in lstr_linesInput:
     nLines += 1
-    str_correctedLine = str_linesInput.replace(') );',',')
+    str_correctedLine1 = str_linesInput.replace(') );',',')
+    str_correctedLine  = str_correctedLine1.replace(' ] );',',')
     if nLines == len(lstr_linesInput):
       str_actualLine = str_correctedLine.replace(',','\n    )\n)\n')
     elif nLines%255 == 0: # FIXME add this check also to LSF
