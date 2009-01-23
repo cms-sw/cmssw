@@ -1,4 +1,7 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
+#include "Geometry/CaloGeometry/interface/IdealObliquePrism.h"
+#include "Geometry/CaloGeometry/interface/IdealZPrism.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/HcalTowerAlgo//src/HcalHardcodeGeometryData.h"
 
@@ -260,3 +263,60 @@ HcalGeometry::getCells( const GlobalPoint& r,
    return dis;
 }
 
+
+unsigned int
+HcalGeometry::alignmentTransformIndexLocal( const DetId& id )
+{
+   const CaloGenericDetId gid ( id ) ;
+
+   assert( gid.isHcal() ) ;
+
+   unsigned int index ( 0 ) ;// to be implemented
+
+   return index ;
+}
+
+unsigned int
+HcalGeometry::alignmentTransformIndexGlobal( const DetId& id )
+{
+   return (unsigned int)DetId::Hcal ;
+}
+
+std::vector<HepPoint3D> 
+HcalGeometry::localCorners( const double* pv,
+			    unsigned int  i,
+			    HepPoint3D&   ref )
+{
+   const HcalDetId hid ( HcalDetId::detIdFromDenseIndex( i ) ) ;
+   const CaloGenericDetId cgid ( hid ) ;
+   if( cgid.isHF() )
+   {
+      return ( calogeom::IdealZPrism::localCorners( pv, ref ) ) ;
+   }
+   else
+   {
+      return ( calogeom::IdealObliquePrism::localCorners( pv, ref ) ) ;
+   }
+}
+
+CaloCellGeometry* 
+HcalGeometry::newCell( const GlobalPoint& f1 ,
+		       const GlobalPoint& f2 ,
+		       const GlobalPoint& f3 ,
+		       CaloCellGeometry::CornersMgr* mgr,
+		       const double*      parm ,
+		       const DetId&       detId   ) 
+{
+   const CaloGenericDetId cgid ( detId ) ;
+
+   assert( cgid.isHcal() ) ;
+
+   if( cgid.isHF() )
+   {
+      return ( new calogeom::IdealZPrism( f1, mgr, parm ) ) ;
+   }
+   else
+   {
+      return ( new calogeom::IdealObliquePrism( f1, mgr, parm ) ) ;
+   }
+}

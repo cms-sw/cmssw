@@ -18,9 +18,9 @@ class HcalGeometry : public CaloSubdetectorGeometry
 
       enum { k_NumberOfCellsForCorners = HcalDetId::kSizeForDenseIndexing } ;
 
-      enum { k_NumberOfShapes = 17 } ;
+      enum { k_NumberOfShapes = 126 } ;
 
-      enum { k_NumberOfParametersPerShape = 11 } ;
+      enum { k_NumberOfParametersPerShape = 5 } ;
 
       static std::string dbString() { return "PHcalRcd" ; }
 
@@ -45,9 +45,9 @@ class HcalGeometry : public CaloSubdetectorGeometry
 							  double             dR ) const ;
 
 
-      static std::string producerName() { return "Hcal" ; }
+      static std::string producerTag() { return "HCAL" ; }
 
-      static unsigned int numberOfAlignments() { return 36 ; }
+      static unsigned int numberOfAlignments() { return 0 ; }
 
       static unsigned int alignmentTransformIndexLocal( const DetId& id ) ;
 
@@ -61,7 +61,8 @@ class HcalGeometry : public CaloSubdetectorGeometry
 					const GlobalPoint& f2 ,
 					const GlobalPoint& f3 ,
 					CaloCellGeometry::CornersMgr* mgr,
-					const double*      parm ) ;
+					const double*      parm,
+					const DetId&       detId     ) ;
 					
 
    private:

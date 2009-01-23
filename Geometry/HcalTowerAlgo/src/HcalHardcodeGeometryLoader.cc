@@ -54,8 +54,10 @@ HcalHardcodeGeometryLoader::load( DetId::Detector det,
    HcalSubdetector hsub=static_cast<HcalSubdetector>( subdet );
    ReturnType hg( new HcalGeometry( extTopology) );
 
-   if( hg->cornersMgr() == 0 ) hg->allocateCorners( HcalDetId::kSizeForDenseIndexing ) ;
-   if( hg->parMgr()     == 0 ) hg->allocatePar( 500, 3 ) ;
+   if( hg->cornersMgr() == 0 ) hg->allocateCorners( HcalGeometry::k_NumberOfCellsForCorners ) ;
+   if( hg->parMgr()     == 0 ) hg->allocatePar( 
+      HcalGeometry::k_NumberOfParametersPerShape*HcalGeometry::k_NumberOfShapes,
+      HcalGeometry::k_NumberOfParametersPerShape ) ;
 
    switch (hsub) 
    {
@@ -74,7 +76,7 @@ HcalHardcodeGeometryLoader::load()
    ReturnType hg( new HcalGeometry( extTopology ) ) ;
 
    if( hg->cornersMgr() == 0 ) hg->allocateCorners( HcalDetId::kSizeForDenseIndexing ) ;
-   if( hg->parMgr()     == 0 ) hg->allocatePar( 500, 3 ) ;
+   if( hg->parMgr()     == 0 ) hg->allocatePar( 500, 5 ) ;
 
    fill(HcalBarrel,  extTopology->firstHBRing(), extTopology->lastHBRing(), hg); 
    fill(HcalEndcap,  extTopology->firstHERing(), extTopology->lastHERing(), hg); 
@@ -252,10 +254,12 @@ HcalHardcodeGeometryLoader::makeCell( const HcalDetId& detId ,
    if (subdet==HcalForward) 
    {
       std::vector<double> hf ;
-      hf.reserve(3) ;
+      hf.reserve(5) ;
       hf.push_back( deta ) ;
       hf.push_back( dphi_half ) ;
       hf.push_back( thickness/2 ) ;
+      hf.push_back( fabs( point.eta() ) ) ;
+      hf.push_back( fabs( point.z() ) ) ;
       return new calogeom::IdealZPrism( 
 	 point, 
 	 geom->cornersMgr(),
@@ -267,10 +271,12 @@ HcalHardcodeGeometryLoader::makeCell( const HcalDetId& detId ,
    { 
       const double mysign ( isBarrel ? 1 : -1 ) ;
       std::vector<double> hh ;
-      hh.reserve(3) ;
+      hh.reserve(5) ;
       hh.push_back( deta ) ;
       hh.push_back( dphi_half ) ;
       hh.push_back( mysign*thickness/2. ) ;
+      hh.push_back( fabs( point.eta() ) ) ;
+      hh.push_back( fabs( point.z() ) ) ;
       return new calogeom::IdealObliquePrism(
 	 point,
 	 geom->cornersMgr(),

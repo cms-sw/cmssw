@@ -267,17 +267,24 @@ namespace {
 	  double z = iside * param.rMin * sinh(etaCenter);
 	  // make cell geometry
 	  GlobalPoint refPoint (x,y,z); // center of the cell's face
-	  std::vector<double> cellParams; cellParams.reserve (3);
+	  std::vector<double> cellParams;
+	  cellParams.reserve (5);
 	  cellParams.push_back (0.5 * (param.etaMax - param.etaMin)); // deta_half
 	  cellParams.push_back (0.5 * param.dphi * DEGREE2RAD);  // dphi_half
 	  cellParams.push_back (0.5 * (param.rMax - param.rMin) * cosh (etaCenter)); // dr_half
+	  cellParams.push_back ( fabs( refPoint.eta() ) ) ;
+	  cellParams.push_back ( fabs( refPoint.z() ) ) ;
 	  
 // 	  std::cout << "HcalFlexiHardcodeGeometryLoader::fillHBHO-> " << hid << hid.ieta() << '/' << hid.iphi() << '/' << hid.depth()
 // 		    << refPoint << '/' << cellParams [0] << '/' << cellParams [1] << '/' << cellParams [2] << std::endl;
 	  
 	  CaloCellGeometry* newcell = 
-	    new calogeom::IdealObliquePrism (refPoint, fGeometry->cornersMgr(),
-					     CaloCellGeometry::getParmPtr (cellParams, fGeometry->parMgr(), fGeometry->parVecVec()));
+	     new calogeom::IdealObliquePrism( refPoint, 
+					      fGeometry->cornersMgr(),
+					      CaloCellGeometry::getParmPtr(
+						 cellParams, 
+						 fGeometry->parMgr(), 
+						 fGeometry->parVecVec()));
 	  // ... and store it
 	  fGeometry->addCell (hid, newcell);						       
 	}
@@ -300,16 +307,23 @@ namespace {
 	  double z = iside * param.zMin;
 	  // make cell geometry
 	  GlobalPoint refPoint (x,y,z); // center of the cell's face
-	  std::vector<double> cellParams; cellParams.reserve (3);
+	  std::vector<double> cellParams;
+	  cellParams.reserve (5);
 	  cellParams.push_back (0.5 * (param.etaMax - param.etaMin)); // deta_half
 	  cellParams.push_back (0.5 * param.dphi * DEGREE2RAD);  // dphi_half
 	  cellParams.push_back (-0.5 * (param.zMax - param.zMin) / tanh (etaCenter)); // dz_half, "-" means edges in Z
+	  cellParams.push_back ( fabs( refPoint.eta() ) ) ;
+	  cellParams.push_back ( fabs( refPoint.z() ) ) ;
 	  
 // 	  std::cout << "HcalFlexiHardcodeGeometryLoader::fillHE-> " << hid << refPoint << '/' << cellParams [0] << '/' << cellParams [1] << '/' << cellParams [2] << std::endl;
 	  
 	  CaloCellGeometry* newcell = 
-	    new calogeom::IdealObliquePrism (refPoint, fGeometry->cornersMgr(),
-				       CaloCellGeometry::getParmPtr (cellParams, fGeometry->parMgr(), fGeometry->parVecVec()));
+	    new calogeom::IdealObliquePrism( refPoint, 
+					     fGeometry->cornersMgr(),
+					     CaloCellGeometry::getParmPtr(
+						cellParams, 
+						fGeometry->parMgr(), 
+						fGeometry->parVecVec()));
 	  // ... and store it
 	  fGeometry->addCell (hid, newcell);						       
 	}
@@ -338,12 +352,18 @@ namespace {
 	  cellParams.push_back (0.5 * (inner.eta() - outer.eta())); // deta_half
 	  cellParams.push_back (0.5 * param.dphi * DEGREE2RAD);  // dphi_half
 	  cellParams.push_back (0.5 * (param.zMax - param.zMin)); // dz_half
+	  cellParams.push_back ( fabs( refPoint.eta() ) ) ;
+	  cellParams.push_back ( fabs( refPoint.z() ) ) ;
 	  
 // 	  std::cout << "HcalFlexiHardcodeGeometryLoader::fillHF-> " << hid << refPoint << '/' << cellParams [0] << '/' << cellParams [1] << '/' << cellParams [2] << std::endl;
 	  
 	  CaloCellGeometry* newcell = 
-	    new calogeom::IdealZPrism (refPoint, fGeometry->cornersMgr(),
-				       CaloCellGeometry::getParmPtr (cellParams, fGeometry->parMgr(), fGeometry->parVecVec()));
+	    new calogeom::IdealZPrism( refPoint, 
+				       fGeometry->cornersMgr(),
+				       CaloCellGeometry::getParmPtr(
+					  cellParams, 
+					  fGeometry->parMgr(), 
+					  fGeometry->parVecVec()));
 	  // ... and store it
 	  fGeometry->addCell (hid, newcell);						       
 	}
@@ -361,8 +381,11 @@ HcalFlexiHardcodeGeometryLoader::HcalFlexiHardcodeGeometryLoader()
 
 CaloSubdetectorGeometry* HcalFlexiHardcodeGeometryLoader::load(const HcalTopology& fTopology) {
   CaloSubdetectorGeometry* hcalGeometry = new HcalGeometry (&fTopology);
-  if (!hcalGeometry->cornersMgr()) hcalGeometry->allocateCorners (9072) ;
-  if (!hcalGeometry->parMgr()) hcalGeometry->allocatePar (500, 3);
+  if( 0 == hcalGeometry->cornersMgr() ) hcalGeometry->allocateCorners ( 
+     HcalGeometry::k_NumberOfCellsForCorners ) ;
+  if( 0 == hcalGeometry->parMgr() ) hcalGeometry->allocatePar (
+     HcalGeometry::k_NumberOfParametersPerShape*HcalGeometry::k_NumberOfShapes,
+     HcalGeometry::k_NumberOfParametersPerShape ) ;
   // ugly kluge to extract H2 mode from the topology 
   if (fTopology.firstHEDoublePhiRing() < 22) { // regular geometry
     fillHBHO (hcalGeometry, makeHBCells(), true);
