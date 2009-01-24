@@ -6,7 +6,7 @@
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
-#include "EventFilter/RPCRawToDigi/interface/RPCRawDataCounts.h"
+#include "DataFormats/RPCDigi/interface/RPCRawDataCounts.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -19,11 +19,11 @@
 #include "CondFormats/RPCObjects/interface/RPCEMap.h"
 #include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
 #include "RPCReadOutMappingWithFastSearch.h"
-#include "EventFilter/RPCRawToDigi/interface/DataRecord.h"
-#include "EventFilter/RPCRawToDigi/interface/ReadoutError.h"
+#include "DataFormats/RPCDigi/interface/DataRecord.h"
+#include "DataFormats/RPCDigi/interface/ReadoutError.h"
+#include "DataFormats/RPCDigi/interface/RPCRawSynchro.h"
 #include "EventFilter/RPCRawToDigi/interface/EventRecords.h"
 #include "EventFilter/RPCRawToDigi/interface/DebugDigisPrintout.h"
-#include "EventFilter/RPCRawToDigi/interface/RPCRawSynchro.h"
 
 #include <iostream>
 #include <bitset>
