@@ -89,7 +89,9 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    collname1 = myName;
    collname2 = myName;
 
-   gSystem->mkdir(myName);
+   TString newDir("NEW_RELEASE/");
+   newDir+=myName;
+   gSystem->mkdir(newDir,kTRUE);
  
    rh1 = 0;
    sh1 = 0;
@@ -177,12 +179,12 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    l->AddEntry(rh1,refLabel,"LPF");
    l->AddEntry(sh1,newLabel,"LPF");
    l->Draw();
-   canvas->Print(myName+"/building.pdf");   
+   canvas->Print(newDir+"/building.pdf");   
    delete l;
 
 
    // ====== hits and pt
-   rdir->GetObject(collname1+"/hits_eta",rh1);                                                                                                                                                                                
+   rdir->GetObject(collname1+"/nhits_vs_eta_pfx",(TProfile*)rh1);                                                                                                                                                                                
    sdir->GetObject(collname2+"/nhits_vs_eta_pfx",(TProfile*)sh1);                                                                                                                                                                                
    rdir->GetObject(collname1+"/hits",rh2);                                                                                                                                                                                    
    sdir->GetObject(collname2+"/hits",sh2);         
@@ -223,7 +225,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    l->AddEntry(rh1,refLabel,"LPF");
    l->AddEntry(sh1,newLabel,"LPF");
    l->Draw();
-   canvas->Print(myName+"/hitsAndPt.pdf");
+   canvas->Print(newDir+"/hitsAndPt.pdf");
    delete l;
 
 
@@ -232,10 +234,10 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    sdir->GetObject(collname2+"/chi2",sh1);
    rdir->GetObject(collname1+"/chi2_prob",rh2);
    sdir->GetObject(collname2+"/chi2_prob",sh2);
-   rdir->GetObject(collname1+"/chi2mean",rh3);
+   rdir->GetObject(collname1+"/chi2_vs_eta_pfx",(TProfile*)rh3);
    sdir->GetObject(collname2+"/chi2_vs_eta_pfx",(TProfile*)sh3);
 
-   rdir->GetObject(collname1+"/h_ptshifteta",rh4);
+   rdir->GetObject(collname1+"/ptres_vs_eta_Mean",rh4);
    sdir->GetObject(collname2+"/ptres_vs_eta_Mean",sh4);
 
 
@@ -285,7 +287,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    l->AddEntry(rh1,refLabel,"LPF");
    l->AddEntry(sh1,newLabel,"LPF");
    l->Draw();
-   canvas->Print(myName+"/tuning.pdf");
+   canvas->Print(newDir+"/tuning.pdf");
    delete l;
    
 
@@ -352,7 +354,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    l->AddEntry(rh1,refLabel,"LPF");
    l->AddEntry(sh1,newLabel,"LPF");
    l->Draw();
-   canvas->Print(myName+"/pulls.pdf");
+   canvas->Print(newDir+"/pulls.pdf");
    delete l;
 
 
@@ -361,21 +363,21 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    
 
    //===== resolutions vs eta
-   rdir->GetObject(collname1+"/sigmaphi",rh1);
+   rdir->GetObject(collname1+"/phires_vs_eta_Sigma",rh1);
    sdir->GetObject(collname2+"/phires_vs_eta_Sigma",sh1);
 
-   rdir->GetObject(collname1+"/sigmacotTheta",rh2);
+   rdir->GetObject(collname1+"/cotThetares_vs_eta_Sigma",rh2);
    sdir->GetObject(collname2+"/cotThetares_vs_eta_Sigma",sh2);
 
-   rdir->GetObject(collname1+"/sigmadxy",rh3);
+   rdir->GetObject(collname1+"/dxyres_vs_eta_Sigma",rh3);
    //rdir->GetObject(collname1+"/sigmad0",rh3);
    sdir->GetObject(collname2+"/dxyres_vs_eta_Sigma",sh3);
 
-   rdir->GetObject(collname1+"/sigmadz",rh4);
+   rdir->GetObject(collname1+"/dzres_vs_eta_Sigma",rh4);
    //rdir->GetObject(collname1+"/sigmaz0",rh4);
    sdir->GetObject(collname2+"/dzres_vs_eta_Sigma",sh4);
 
-   rdir->GetObject(collname1+"/sigmapt",rh5);
+   rdir->GetObject(collname1+"/ptres_vs_eta_Sigma",rh5);
    sdir->GetObject(collname2+"/ptres_vs_eta_Sigma",sh5);
 
 
@@ -497,26 +499,26 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    l->AddEntry(rh1,refLabel,"LPF");
    l->AddEntry(sh1,newLabel,"LPF");
    l->Draw();
-   canvas->Print(myName+"/resolutionsEta.pdf");
+   canvas->Print(newDir+"/resolutionsEta.pdf");
    delete l;
 
    //===== resolutions vs pt
-   rdir->GetObject(collname1+"/sigmaphiPt",rh1);
+   rdir->GetObject(collname1+"/phires_vs_pt_Sigma",rh1);
    sdir->GetObject(collname2+"/phires_vs_pt_Sigma",sh1);
 
-   rdir->GetObject(collname1+"/sigmacotThetaPt",rh2);
+   rdir->GetObject(collname1+"/cotThetares_vs_pt_Sigma",rh2);
    sdir->GetObject(collname2+"/cotThetares_vs_pt_Sigma",sh2);
 
 
-   rdir->GetObject(collname1+"/sigmadxyPt",rh3);
+   rdir->GetObject(collname1+"/dxyres_vs_pt_Sigma",rh3);
    //rdir->GetObject(collname1+"/sigmad0Pt",rh3);
    sdir->GetObject(collname2+"/dxyres_vs_pt_Sigma",sh3);
 
-   rdir->GetObject(collname1+"/sigmadzPt",rh4);
+   rdir->GetObject(collname1+"/dzres_vs_pt_Sigma",rh4);
    //rdir->GetObject(collname1+"/sigmaz0Pt",rh4);
    sdir->GetObject(collname2+"/dzres_vs_pt_Sigma",sh4);
 
-   rdir->GetObject(collname1+"/sigmaptPt",rh5);
+   rdir->GetObject(collname1+"/ptres_vs_pt_Sigma",rh5);
    sdir->GetObject(collname2+"/ptres_vs_pt_Sigma",sh5);
 
 
@@ -604,7 +606,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    l->AddEntry(rh1,refLabel,"LPF");
    l->AddEntry(sh1,newLabel,"LPF");
    l->Draw();
-   canvas->Print(myName+"/resolutionsPt.pdf");
+   canvas->Print(newDir+"/resolutionsPt.pdf");
    delete l;
 
 
