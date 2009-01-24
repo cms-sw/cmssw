@@ -56,8 +56,6 @@ class CaloGeometryDBEP : public edm::ESProducer
       virtual ~CaloGeometryDBEP<T,U>() {}
       PtrType produceAligned( const typename T::AlignedRecord& iRecord ) 
       {
-	 std::cout<<"&&&&& Here in calodb, name = "<<T::producerTag()<<std::endl ;
-
 	 const Alignments* alignPtr  ( 0 ) ;
 	 const Alignments* globalPtr ( 0 ) ;
 	 if( m_applyAlignment ) // get ptr if necessary
@@ -75,34 +73,24 @@ class CaloGeometryDBEP : public edm::ESProducer
 	    assert( globals.isValid() ) ;
 	    globalPtr = globals.product() ;
 	 }
-	 std::cout<<"&&&&& Here in calodb, 1 "<<std::endl ;
-
 
 	 TrVec  tvec ;
 	 DimVec dvec ;
 	 IVec   ivec ;
 
-	 std::cout<<"&&&&& Here in calodb, 2 "<<std::endl ;
-
 	 if( U::writeFlag() )
 	 {
-	 std::cout<<"&&&&& Here in calodb, 3 "<<std::endl ;
-
 	    edm::ESHandle<CaloSubdetectorGeometry> pG ;
 	    iRecord.get( T::producerTag() + std::string("_master"), pG ) ; 
 
 	    const CaloSubdetectorGeometry* pGptr ( pG.product() ) ;
 
 	    pGptr->getSummary( tvec, ivec, dvec ) ;
-	 std::cout<<"&&&&& Here in calodb, 4 "<<std::endl ;
-
 
 	    U::write( tvec, dvec, ivec, T::dbString() ) ;
 	 }
 	 else
 	 {
-	 std::cout<<"&&&&& Here in calodb, 5 "<<std::endl ;
-
 	    edm::ESHandle<PCaloGeometry> pG ;
 	    iRecord.template getRecord<typename T::PGeometryRecord >().get( pG ) ; 
 
@@ -111,8 +99,6 @@ class CaloGeometryDBEP : public edm::ESProducer
 	    ivec = pG->getIndexes() ;
 	 }	 
 //*********************************************************************************************
-	 std::cout<<"&&&&& Here in calodb, 6 "<<std::endl ;
-
 
 	 const unsigned int nTrParm ( tvec.size()/T::k_NumberOfCellsForCorners ) ;
 

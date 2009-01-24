@@ -19,9 +19,9 @@ class ZdcGeometry : public CaloSubdetectorGeometry
 
       enum { k_NumberOfCellsForCorners = HcalZDCDetId::kSizeForDenseIndexing } ;
 
-      enum { k_NumberOfShapes = 126 } ;
+      enum { k_NumberOfShapes = 3 } ;
 
-      enum { k_NumberOfParametersPerShape = 5 } ;
+      enum { k_NumberOfParametersPerShape = 4 } ;
 
       static std::string dbString() { return "PZdcRcd" ; }
 

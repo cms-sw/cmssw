@@ -42,21 +42,24 @@ std::auto_ptr<CaloSubdetectorGeometry> CastorHardcodeGeometryLoader::load() {
 
 void CastorHardcodeGeometryLoader::fill(HcalCastorDetId::Section section, CaloSubdetectorGeometry* geom) 
 {
-  if( geom->cornersMgr() == 0 ) geom->allocateCorners( HcalCastorDetId::kSizeForDenseIndexing ) ;
+  if( geom->cornersMgr() == 0 ) geom->allocateCorners(
+     HcalCastorDetId::kSizeForDenseIndexing ) ;
   if( geom->parMgr()     == 0 ) geom->allocatePar( 
-     ( geom->numberOfShapes() )*( geom->numberOfParametersPerShape() ),
-     geom->numberOfParametersPerShape() ) ;
+     CastorGeometry::k_NumberOfShapes*
+     CastorGeometry::k_NumberOfParametersPerShape,
+     CastorGeometry::k_NumberOfParametersPerShape ) ;
 
   // start by making the new HcalDetIds
   std::vector<HcalCastorDetId> castorIds;
   HcalCastorDetId id;
   int firstCell = theTopology.firstCell(section);
   int lastCell = theTopology.lastCell(section);
+
   for(int imodule = firstCell; imodule <= lastCell; ++imodule) {
     for(int isector = 1; isector < 17; ++isector) {
-    id = HcalCastorDetId(section, true, isector, imodule);
+//    id = HcalCastorDetId(section, true, isector, imodule);
 //    if(theTopology.valid(id)) 
-    castorIds.push_back(id);
+//    castorIds.push_back(id);
     id = HcalCastorDetId(section, false, isector, imodule);
 //    if(theTopology.valid(id)) 
     castorIds.push_back(id);
@@ -66,11 +69,11 @@ void CastorHardcodeGeometryLoader::fill(HcalCastorDetId::Section section, CaloSu
  
   // for each new HcalCastorDetId, make a CaloCellGeometry
 
- for(std::vector<HcalCastorDetId>::const_iterator castorIdItr = castorIds.begin();
-     castorIdItr != castorIds.end(); ++castorIdItr)
- {
-    geom->addCell( *castorIdItr, makeCell(*castorIdItr, geom ) );
- }
+  for(std::vector<HcalCastorDetId>::const_iterator castorIdItr = castorIds.begin();
+      castorIdItr != castorIds.end(); ++castorIdItr)
+  {
+     geom->addCell( *castorIdItr, makeCell(*castorIdItr, geom ) );
+  }
 }
 
 CaloCellGeometry*

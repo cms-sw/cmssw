@@ -7,8 +7,31 @@ namespace calogeom {
    IdealCastorTrapezoid::localCorners( const double* pv  ,
 				       HepPoint3D&   ref   )
    {
+      assert( 0 != pv ) ;
+
+      const double dx ( pv[0] ) ;
+      const double dy ( pv[1] ) ;
+      const double dz ( pv[2] ) ;
+
       std::vector<GlobalPoint> gc ( 8, GlobalPoint(0,0,0) ) ;
       std::vector<HepPoint3D>  lc ( 8, HepPoint3D( 0,0,0) ) ;
+
+      gc[ 0 ] = GlobalPoint( -dx, -dy, -dz ) ; 
+      gc[ 1 ] = GlobalPoint( -dx, +dy, -dz ) ; 
+      gc[ 2 ] = GlobalPoint( +dx, +dy, -dz ) ; 
+      gc[ 3 ] = GlobalPoint( +dx, -dy, -dz ) ; 
+      gc[ 4 ] = GlobalPoint( -dx, -dy, +dz ) ; 
+      gc[ 5 ] = GlobalPoint( -dx, +dy, +dz ) ; 
+      gc[ 6 ] = GlobalPoint( +dx, +dy, +dz ) ; 
+      gc[ 7 ] = GlobalPoint( +dx, -dy, +dz ) ; 
+
+      for( unsigned int i ( 0 ) ; i != 8 ; ++i )
+      {
+	 lc[i] = HepPoint3D( gc[i].x(), gc[i].y(), gc[i].z() ) ;
+      }
+
+      ref   = 0.25*( lc[0] + lc[1] + lc[2] + lc[3] ) ;
+      return lc ;
    }
 
    const CaloCellGeometry::CornersVec& 

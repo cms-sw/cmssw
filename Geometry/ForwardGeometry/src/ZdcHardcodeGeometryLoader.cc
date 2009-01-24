@@ -70,7 +70,9 @@ void ZdcHardcodeGeometryLoader::fill( HcalZDCDetId::Section section,
     if(extTopology->valid(id)) zdcIds.push_back(id);
    }
   if( geom->cornersMgr() == 0 ) geom->allocateCorners( HcalZDCDetId::kSizeForDenseIndexing ) ;
-  if( geom->parMgr()     == 0 ) geom->allocatePar( 500, 3 ) ;
+  if( geom->parMgr()     == 0 ) geom->allocatePar( 
+     ZdcGeometry::k_NumberOfParametersPerShape*ZdcGeometry::k_NumberOfShapes,
+     ZdcGeometry::k_NumberOfParametersPerShape ) ;
 
   edm::LogInfo("ZdcHardcodeGeometry") << "Number of ZDC DetIds made: " << section << " " << zdcIds.size();
  
@@ -134,7 +136,8 @@ ZdcHardcodeGeometryLoader::makeCell(const HcalZDCDetId& detId,
   GlobalPoint faceCenter(xfaceCenter, yfaceCenter, zfaceCenter);
 
   std::vector<double> zz ;
-  zz.reserve(3) ;
+  zz.reserve(4) ;
+  zz.push_back( theTiltAngle ) ;
   zz.push_back( dx ) ;
   zz.push_back( dy ) ;
   zz.push_back( dz ) ;

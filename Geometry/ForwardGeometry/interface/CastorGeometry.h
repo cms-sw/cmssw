@@ -21,11 +21,13 @@ class CastorGeometry : public CaloSubdetectorGeometry
 
       enum { k_NumberOfCellsForCorners = HcalCastorDetId::kSizeForDenseIndexing } ;
 
-      enum { k_NumberOfShapes = 126 } ;
+      enum { k_NumberOfShapes = 2 } ;
 
-      enum { k_NumberOfParametersPerShape = 5 } ;
+      enum { k_NumberOfParametersPerShape = 3 } ;
 
       static std::string dbString() { return "PCastorRcd" ; }
+
+      virtual unsigned int numberOfTransformParms() const { return 3 ; }
 
       virtual unsigned int numberOfShapes() const { return k_NumberOfShapes ; }
       virtual unsigned int numberOfParametersPerShape() const { return k_NumberOfParametersPerShape ; }

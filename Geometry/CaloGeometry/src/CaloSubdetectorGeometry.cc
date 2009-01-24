@@ -26,8 +26,10 @@ CaloSubdetectorGeometry::addCell( const DetId&      id  ,
 /*   if( cdid.validDetId() )
    {
 */
-  const uint32_t index ( cdid.denseIndex() ) ;
-/*      if( cdid.rawId() == CaloGenericDetId( cdid.det(), 
+   const uint32_t index ( cdid.denseIndex() ) ;
+
+/*
+      if( cdid.rawId() == CaloGenericDetId( cdid.det(), 
 					    cdid.subdetId(),
 					    index           ) ) // double check all is ok
       {
