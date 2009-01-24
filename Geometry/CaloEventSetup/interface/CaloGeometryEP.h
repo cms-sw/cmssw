@@ -33,7 +33,7 @@ class CaloGeometryEP : public edm::ESProducer
       typedef typename LoaderType::PtrType   PtrType    ;
 
       CaloGeometryEP<T>( const edm::ParameterSet& ps ) :
-	 m_applyAlignment ( ps.getUntrackedParameter<bool>("applyAlignment", false) )
+	 m_applyAlignment ( ps.getParameter<bool>("applyAlignment") )
       {
 	 setWhatProduced( this,
 			  &CaloGeometryEP<T>::produceAligned,

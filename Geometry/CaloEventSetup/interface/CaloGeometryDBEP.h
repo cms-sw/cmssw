@@ -46,7 +46,7 @@ class CaloGeometryDBEP : public edm::ESProducer
       typedef HepGeom::Transform3D  HepTransform3D;
 
       CaloGeometryDBEP<T,U>( const edm::ParameterSet& ps ) :
-	 m_applyAlignment ( ps.getUntrackedParameter<bool>("applyAlignment", false) )
+	 m_applyAlignment ( ps.getParameter<bool>("applyAlignment") )
       {
 	 setWhatProduced( this,
 			  &CaloGeometryDBEP<T,U>::produceAligned,
