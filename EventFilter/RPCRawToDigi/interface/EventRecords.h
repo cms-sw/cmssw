@@ -1,10 +1,10 @@
 #ifndef EventFilter_RPCRawToDigi_EventRecords_H
 #define EventFilter_RPCRawToDigi_EventRecords_H
 
-#include "EventFilter/RPCRawToDigi/interface/DataRecord.h" 
-#include "EventFilter/RPCRawToDigi/interface/RecordBX.h" 
-#include "EventFilter/RPCRawToDigi/interface/RecordCD.h" 
-#include "EventFilter/RPCRawToDigi/interface/RecordSLD.h" 
+#include "DataFormats/RPCDigi/interface/DataRecord.h" 
+#include "DataFormats/RPCDigi/interface/RecordBX.h" 
+#include "DataFormats/RPCDigi/interface/RecordCD.h" 
+#include "DataFormats/RPCDigi/interface/RecordSLD.h" 
 #include <vector>
 
 namespace rpcrawtodigi {
@@ -25,6 +25,8 @@ public:
   void add(const DataRecord & record);
 
   int triggerBx() const { return theTriggerBX;}
+
+  int dataToTriggerDelay() const; 
 
   bool complete() const { return theValidBX && theValidLN && theValidCD; }
 

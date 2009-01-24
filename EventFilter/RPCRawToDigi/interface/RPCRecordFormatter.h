@@ -2,17 +2,13 @@
 #define RPCRecordFormatter_H
 
 
-/** \class Interprets the RPC record (16 bit) and fills the RPCDigiCollection
- *
- *  $Date: 2008/06/23 08:11:58 $
- *  $Revision: 1.16 $
- *  \author Ilaria Segoni - CERN
+/** \class Interprets the RPC raw data and fills the RPCDigiCollection
  */
 
 
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
-#include "EventFilter/RPCRawToDigi/interface/RPCRawDataCounts.h"
-#include "EventFilter/RPCRawToDigi/interface/RPCRawSynchro.h"
+#include "DataFormats/RPCDigi/interface/RPCRawDataCounts.h"
+#include "DataFormats/RPCDigi/interface/RPCRawSynchro.h"
 #include "EventFilter/RPCRawToDigi/interface/EventRecords.h"
 
 class RPCReadOutMapping;
