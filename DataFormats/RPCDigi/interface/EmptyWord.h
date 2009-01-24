@@ -1,7 +1,7 @@
 #ifndef DataFormats_RPCDigi_EmptyWord_H
 #define DataFormats_RPCDigi_EmptyWord_H
 
-#include "EventFilter/RPCRawToDigi/interface/DataRecord.h"
+#include "DataFormats/RPCDigi/DataRecord.h"
 #include <string>
 
 namespace rpcrawtodigi{
