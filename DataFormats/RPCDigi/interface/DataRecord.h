@@ -37,8 +37,7 @@ public:
 
   std::string print() const {
     std::ostringstream str;
-//    str << "KUKU" <<std::bitset<16>(theData); 
-//    str << "HERE" <<reinterpret_cast<const std::bitset<16>&>(theData); 
+    str << std::bitset<16>(theData); 
     return str.str();
   }
 
