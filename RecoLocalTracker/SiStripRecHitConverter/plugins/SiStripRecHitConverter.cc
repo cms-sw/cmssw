@@ -73,7 +73,7 @@ namespace cms
     edm::ESHandle<SiStripQuality>   stripQuality;
     if (conf_.existsAs<bool>("useSiStripQuality") && conf_.getParameter<bool>("useSiStripQuality")) {
         std::string qualityLabel = conf_.getParameter<std::string>("siStripQualityLabel");
-        es.get<SiStripQualityRcd>().get(stripQuality);
+        es.get<SiStripQualityRcd>().get(qualityLabel, stripQuality);
         ptr_stripQuality = stripQuality.product();
     }
  
