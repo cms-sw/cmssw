@@ -16,7 +16,7 @@
 //
 // Original Author:  Jeffrey Berryhill
 //         Created:  June 2008
-// $Id: FourVectorHLTOffline.h,v 1.8 2008/10/21 22:47:14 berryhil Exp $
+// $Id: FourVectorHLTOffline.h,v 1.12 2008/12/04 18:37:38 berryhil Exp $
 //
 //
 
@@ -41,12 +41,15 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
+
 #include <iostream>
 #include <fstream>
 #include <vector>
 
+class L1GtTriggerMenu;
 //
-// class decleration
+// class declaration
 //
 
 class FourVectorHLTOffline : public edm::EDAnalyzer {
@@ -87,7 +90,11 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       int theHLTOutputType;
       edm::InputTag triggerSummaryLabel_;
       edm::InputTag triggerResultsLabel_;
+      edm::InputTag gtObjectMapRecordLabel_;
+      edm::InputTag l1GTRRLabel_;
+      unsigned long long l1GtMenuCacheIDtemp_;
       HLTConfigProvider hltConfig_;
+      const L1GtTriggerMenu* l1GtMenu;
       // data across paths
       MonitorElement* scalersSelect;
       // helper class to store the data path

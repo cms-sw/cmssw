@@ -18,6 +18,8 @@
 <use name=Geometry/CaloEventSetup>
 <use name=RecoEcal/EgammaCoreTools>
 <use name=HLTrigger/HLTcore>
+<use name=CondFormats/L1TObjects>
+<use name=CondFormats/DataRecord>
 <use name=root>
 <use name=boost>
 <flags EDM_PLUGIN=1>
@@ -43,6 +45,8 @@
   <use name=Geometry/CaloEventSetup>
   <use name=RecoEcal/EgammaCoreTools>
   <use name=HLTrigger/HLTcore>
+  <use name=CondFormats/L1TObjects>
+  <use name=CondFormats/DataRecord>
   <use name=root>
   <use name=boost>
 </export>

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: FourVectorHLTOffline_cfi.py,v 1.8 2008/10/21 22:47:15 berryhil Exp $
+# $Id: FourVectorHLTOffline_cfi.py,v 1.12 2008/12/04 18:37:39 berryhil Exp $
 hltResults = cms.EDFilter("FourVectorHLTOffline",
     plotAll = cms.untracked.bool(True),
     ptMax = cms.untracked.double(100.0),
@@ -177,6 +177,8 @@ hltResults = cms.EDFilter("FourVectorHLTOffline",
      # this is I think MC and CRUZET4
     triggerSummaryLabel = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
     triggerResultsLabel = cms.InputTag("TriggerResults","","HLT"),
+    gtObjectMapRecordLabel = cms.InputTag("hltL1GtObjectMap","","HLT"),
+    l1GTRRLabel = cms.InputTag("hltGtDigis","","HLT"),
     processname = cms.string("HLT")
 
     # this is data (CRUZET I or II best guess)

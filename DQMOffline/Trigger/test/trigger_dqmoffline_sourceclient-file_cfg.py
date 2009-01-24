@@ -17,7 +17,12 @@ process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
 process.load("Configuration.StandardSequences.Geometry_cff")
 
-process.load("L1Trigger.Configuration.L1Config_cff")
+#process.load("L1Trigger.Configuration.L1Config_cff")
+process.load("L1TriggerConfig.L1ScalesProducers.L1MuTriggerScalesConfig_cff")
+process.load("L1TriggerConfig.L1ScalesProducers.L1MuTriggerPtScaleConfig_cff")
+process.load("L1TriggerConfig.L1GtConfigProducers.L1GtBoardMapsConfig_cff")
+process.load("L1TriggerConfig.L1GtConfigProducers.L1GtConfig_cff")
+process.load("L1TriggerConfig.L1GtConfigProducers.Luminosity.lumi1030.L1Menu2008_2E30_Unprescaled_cff")
 
 #process.load("L1Trigger.HardwareValidation.L1HardwareValidation_cff")
 
@@ -37,7 +42,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("PoolSource",
     fileNames = 
-cms.untracked.vstring('file:RelValZEE_210_STARTUP.root')
+cms.untracked.vstring('file:RelValZEE_2_1_7_STARTUP.root')
 )
 
 process.MessageLogger = cms.Service("MessageLogger",

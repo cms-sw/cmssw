@@ -1,9 +1,10 @@
-// $Id: FourVectorHLTOffline.cc,v 1.17 2008/12/04 18:37:39 berryhil Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.18 2008/12/11 17:39:49 berryhil Exp $
 // See header file for information. 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -35,6 +36,16 @@
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
+
+#include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 
 #include "PhysicsTools/Utilities/interface/deltaR.h"
 
@@ -101,6 +112,11 @@ FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig):
     iConfig.getParameter<edm::InputTag>("triggerSummaryLabel");
   triggerResultsLabel_ = 
     iConfig.getParameter<edm::InputTag>("triggerResultsLabel");
+  gtObjectMapRecordLabel_ = 
+    iConfig.getParameter<edm::InputTag>("gtObjectMapRecordLabel");
+  l1GTRRLabel_ = 
+    iConfig.getParameter<edm::InputTag>("l1GTRRLabel");
+  l1GtMenuCacheIDtemp_ = 0ULL;
  
   
 }
@@ -149,6 +165,41 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   
   const trigger::TriggerObjectCollection & toc(triggerObj->getObjects());
 
+  // get handle to object maps (one object map per algorithm)
+  edm::Handle<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord;
+  iEvent.getByLabel(gtObjectMapRecordLabel_, gtObjectMapRecord);
+  if(!gtObjectMapRecord.isValid()) { 
+    edm::LogInfo("FourVectorHLTOffline") << "L1GlobalTriggerObjectMapRecord not found, ";
+    //  "skipping event"; 
+    // return;
+  }
+    unsigned long long l1GtMenuCacheID = iSetup.get<L1GtTriggerMenuRcd>().cacheIdentifier();
+    
+     if (l1GtMenuCacheIDtemp_ != l1GtMenuCacheID) {
+ 
+         edm::ESHandle< L1GtTriggerMenu> l1GtMenuHandle;
+         iSetup.get< L1GtTriggerMenuRcd>().get(l1GtMenuHandle) ;
+         l1GtMenu = l1GtMenuHandle.product();
+         (const_cast<L1GtTriggerMenu*>(l1GtMenu))->buildGtConditionMap(); 
+           int printVerbosity = 2;
+           l1GtMenu->print(std::cout, printVerbosity); 
+           std::cout << std::flush << std::endl;
+ 
+         l1GtMenuCacheIDtemp_ = l1GtMenuCacheID;
+ 
+         // update also the tokenNumber members (holding the bit numbers) from m_l1AlgoLogicParser
+	 //         updateAlgoLogicParser(m_l1GtMenu);
+     }
+  const AlgorithmMap& algorithmMap = l1GtMenu->gtAlgorithmMap();
+
+  edm::Handle<L1GlobalTriggerReadoutRecord> l1GTRR;
+  iEvent.getByLabel(l1GTRRLabel_,l1GTRR);
+  if(!l1GTRR.isValid()) { 
+    edm::LogInfo("FourVectorHLTOffline") << "L1GlobalTriggerReadoutRecord "<< l1GTRRLabel_ << " not found, ";
+      //  "skipping event"; 
+      //return;
+  }
+  const DecisionWord gtDecisionWord = l1GTRR->decisionWord();
 
   edm::Handle<reco::MuonCollection> muonHandle;
   iEvent.getByLabel("muons",muonHandle);
@@ -161,9 +212,9 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   edm::Handle<l1extra::L1MuonParticleCollection> l1MuonHandle;
   iEvent.getByType(l1MuonHandle);
   if(!l1MuonHandle.isValid()) { 
-    edm::LogInfo("FourVectorHLTOffline") << "l1MuonHandle not found, "
-    "skipping event"; 
-    return;
+    edm::LogInfo("FourVectorHLTOffline") << "l1MuonHandle not found, ";
+      //"skipping event"; 
+      //return;
    }
   const l1extra::L1MuonParticleCollection l1MuonCollection = *(l1MuonHandle.product());
 
@@ -219,9 +270,9 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   Handle< L1EtMissParticleCollection > l1MetHandle ;
   iEvent.getByType(l1MetHandle) ;
   if(!l1MetHandle.isValid()) { 
-    edm::LogInfo("FourVectorHLTOffline") << "l1MetHandle not found, "
-    "skipping event"; 
-    return;
+    edm::LogInfo("FourVectorHLTOffline") << "l1MetHandle not found, ";
+    //"skipping event"; 
+    // return;
   }
   const l1extra::L1EtMissParticleCollection l1MetCollection = *(l1MetHandle.product());
 
@@ -254,6 +305,44 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 
       // ok plot denominator L1, and denominator offline, and numerator L1Off objects 
+      // first, test whether the L1 seed path for the numerator path passed
+
+      // get the list of L1seed algortihms.  
+      //Let's assume they are always OR'ed for now
+        L1GtLogicParser l1AlgoLogicParser = L1GtLogicParser(v->getl1Path());
+	std::vector<L1GtLogicParser::TokenRPN> l1RpnVector = l1AlgoLogicParser.rpnVector();
+        l1AlgoLogicParser.buildOperandTokenVector();
+	std::vector<L1GtLogicParser::OperandToken> l1AlgoSeeds = l1AlgoLogicParser.operandTokenVector();
+
+        std::vector< const std::vector<L1GtLogicParser::TokenRPN>* > l1AlgoSeedsRpn;
+        std::vector< std::vector< const std::vector<L1GtObject>* > > l1AlgoSeedsObjType;
+        
+	//	cout << v->getl1Path() << "\t" << l1AlgoLogicParser.logicalExpression() << "\t" << l1RpnVector.size() << "\t" << l1AlgoSeeds.size() << endl;
+        //l1AlgoSeeds = l1AlgoLogicParser->expressionSeedsOperandList();
+
+	// loop over the algorithms
+         int iAlgo = -1;
+         bool l1accept = false;
+	 for (std::vector<L1GtLogicParser::OperandToken>::const_iterator
+	   itSeed = l1AlgoSeeds.begin(); itSeed != l1AlgoSeeds.end(); 
+	  ++itSeed) 
+	  {
+	    // determine whether this algo passed, go to the next one if not
+	    iAlgo++;
+	    //  cout << (*itSeed).tokenName << endl;
+            int algBit = (*itSeed).tokenNumber;
+            std::string algName = (*itSeed).tokenName;
+            const bool algResult = l1GtMenu->gtAlgorithmResult(algName,
+             gtDecisionWord);
+
+            //bool algResult = (*itSeed).tokenResult;
+            if ( algResult) {
+	      //cout << "found one" << "\t" << v->getl1Path() << "\t" << algName << endl;
+              //   continue;
+              l1accept = true;
+            }
+	  }
+
       int triggertype = 0;     
       //if (idtype.size() > 0) triggertype = *idtype.begin();
       triggertype = v->getObjectType();
@@ -271,6 +360,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	  v->getOffEtaVsOffPhiOffHisto()->Fill((*muonIter).eta(),(*muonIter).phi());
 	 }
 	}
+        if (l1accept){
          for (l1extra::L1MuonParticleCollection::const_iterator l1MuonIter=l1MuonCollection.begin(); l1MuonIter!=l1MuonCollection.end(); l1MuonIter++)
          {
 	  v->getL1EtL1Histo()->Fill((*l1MuonIter).pt());
@@ -289,6 +379,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	   }}
 	 }
 	 }
+	}
       }
       // for electron triggers, loop over and fill offline 4-vectors
       else if (triggertype == trigger::TriggerElectron)
@@ -302,6 +393,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	  v->getOffPhiOffHisto()->Fill(gsfIter->phi());
 	  v->getOffEtaVsOffPhiOffHisto()->Fill(gsfIter->eta(), gsfIter->phi());
          }}
+	  if (l1accept){
          for (l1ElectronHandle=l1ElectronHandleList.begin(); l1ElectronHandle!=l1ElectronHandleList.end(); l1ElectronHandle++) {
 
          const L1EmParticleCollection l1ElectronCollection = *(l1ElectronHandle->product());
@@ -321,6 +413,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	 }}
 	   }
 	   }
+	  }
 	}
     
 
@@ -336,6 +429,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	  v->getOffPhiOffHisto()->Fill((*tauIter).phi());
 	  v->getOffEtaVsOffPhiOffHisto()->Fill((*tauIter).eta(),(*tauIter).phi());
          }}
+	  if (l1accept){
          for (l1TauHandle=l1TauHandleList.begin(); l1TauHandle!=l1TauHandleList.end(); l1TauHandle++) {
 	   if (!l1TauHandle->isValid())
 	     {
@@ -361,7 +455,9 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
          }}
 	   }
          }
+	  }
 	}
+
 
 
       // for jet triggers, loop over and fill offline 4-vectors
@@ -376,6 +472,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	  v->getOffPhiOffHisto()->Fill((*jetIter).phi());
 	  v->getOffEtaVsOffPhiOffHisto()->Fill((*jetIter).eta(),(*jetIter).phi());
          }}
+	  if (l1accept){
          for (l1JetHandle=l1JetHandleList.begin(); l1JetHandle!=l1JetHandleList.end(); l1JetHandle++) {
 	   if (!l1JetHandle->isValid())
 	     {
@@ -401,6 +498,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
          }}
 	  }
          }
+	  }
 	}
 
       // for bjet triggers, loop over and fill offline 4-vectors
@@ -419,7 +517,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	  v->getOffPhiOffHisto()->Fill((*metIter).phi());
 	  v->getOffEtaVsOffPhiOffHisto()->Fill((*metIter).eta(),(*metIter).phi());
          }}
-
+	 if (l1accept){
          for (l1extra::L1EtMissParticleCollection::const_iterator l1MetIter=l1MetCollection.begin(); l1MetIter!=l1MetCollection.end(); l1MetIter++)
          {
 	  v->getL1EtL1Histo()->Fill((*l1MetIter).pt());
@@ -437,7 +535,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	  v->getOffEtaVsOffPhiL1OffHisto()->Fill((*metIter).eta(),(*metIter).phi());}
          }}
 	  }
-
+	 }
 	}
 
 
@@ -454,7 +552,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	  v->getOffEtaVsOffPhiOffHisto()->Fill((*photonIter).eta(),(*photonIter).phi());
          }
 	  }
-
+	  if (l1accept){
          for (l1PhotonHandle=l1PhotonHandleList.begin(); l1PhotonHandle!=l1PhotonHandleList.end(); l1PhotonHandle++) {
 	   if (!l1PhotonHandle->isValid())
 	     {
@@ -480,6 +578,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
          }}
            }
 	 }
+	  }
        }
 
     // did we pass the numerator path?
@@ -490,6 +589,9 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   if (numpassed)
     {  
+      if (!l1accept) {
+	cout << "l1 seed path not accepted for hlt path "<< v->getPath() << "\t" << v->getl1Path() << endl;
+      }
     // ok plot On, L1On, and OnOff objects
 
     // fill scaler histograms
@@ -842,8 +944,23 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
       denomobjectType = trigger::TriggerTau;    
 
     // find L1 condition for numpath with numpath objecttype 
+
     // find PSet for L1 global seed for numpath, 
-    // get L1 path name which has numpath objecttype (pick just one for now)
+    // list module labels for numpath
+    std::vector<std::string> numpathmodules = hltConfig_.moduleLabels(pathname);
+
+            for(std::vector<std::string>::iterator numpathmodule = numpathmodules.begin();
+    	  numpathmodule!= numpathmodules.end(); ++numpathmodule ) {
+	      //  cout << pathname << "\t" << *numpathmodule << "\t" << hltConfig_.moduleType(*numpathmodule) << endl;
+	      if (hltConfig_.moduleType(*numpathmodule) == "HLTLevel1GTSeed")
+		{
+		  edm::ParameterSet l1GTPSet = hltConfig_.modulePSet(*numpathmodule);
+		  //                  cout << l1GTPSet.getParameter<std::string>("L1SeedsLogicalExpression") << endl;
+                  l1pathname = l1GTPSet.getParameter<std::string>("L1SeedsLogicalExpression"); 
+                  break; 
+		}
+    	} 
+   
     
 
 
