@@ -10,7 +10,7 @@ process.load("DQM.RPCMonitorModule.rpcMonitorRaw_cfi")
 process.load("DQMServices.Core.DQM_cfg")
 
 # set maxevents; -1 -> take all
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(300))
 
 process.source = cms.Source ("PoolSource",fileNames = cms.untracked.vstring(
 '/store/data/Commissioning08/Cosmics/RAW/v1/000/070/036/86276C9B-72AD-DD11-90F9-000423D6C8EE.root'
@@ -31,4 +31,4 @@ process.out = cms.OutputModule("PoolOutputModule",
 )
 
 process.p = cms.Path(process.rpcunpacker*process.rpcMonitorRaw)
-//process.ep = cms.EndPath(process.out)
+#process.ep = cms.EndPath(process.out)
