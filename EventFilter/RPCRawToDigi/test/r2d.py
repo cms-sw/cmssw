@@ -10,18 +10,25 @@ process.load("DQM.RPCMonitorModule.rpcMonitorRaw_cfi")
 process.load("DQMServices.Core.DQM_cfg")
 
 # set maxevents; -1 -> take all
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(300))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10))
 
-process.source = cms.Source ("PoolSource",fileNames = cms.untracked.vstring( 'file:r067647.root') )
+process.source = cms.Source ("PoolSource",fileNames = cms.untracked.vstring(
+'/store/data/Commissioning08/Cosmics/RAW/v1/000/070/036/86276C9B-72AD-DD11-90F9-000423D6C8EE.root'
+))
 
 # correct output file
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('rpcunpacker'),
     destinations = cms.untracked.vstring('cout'),
-    cout = cms.untracked.PSet( threshold = cms.untracked.string('INFO'))
+    cout = cms.untracked.PSet( threshold = cms.untracked.string('DEBUG'))
 )
 
 process.rpcMonitorRaw.writeHistograms = True
 
-process.p = cms.Path(process.rpcunpacker*process.rpcMonitorRaw)
+process.out = cms.OutputModule("PoolOutputModule",
+    fileName =  cms.untracked.string('file:rawdata.root'),
+    outputCommands = cms.untracked.vstring("keep *")
+)
 
+process.p = cms.Path(process.rpcunpacker*process.rpcMonitorRaw)
+//process.ep = cms.EndPath(process.out)
