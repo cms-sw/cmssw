@@ -1,7 +1,7 @@
 #ifndef DataFormats_RPCDigi_RecordBX_H
 #define DataFormats_RPCDigi_RecordBX_H
 
-#include "EventFilter/RPCRawToDigi/interface/DataRecord.h"
+#include "DataFormats/RPCDigi/interface/DataRecord.h"
 
 namespace rpcrawtodigi{
 class RecordBX : public DataRecord {

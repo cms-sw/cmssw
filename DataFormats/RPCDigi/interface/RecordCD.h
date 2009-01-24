@@ -1,7 +1,7 @@
 #ifndef DataFormats_RPCDigi_RecordCD_H
 #define DataFormats_RPCDigi_RecordCD_H
 
-#include "EventFilter/RPCRawToDigi/interface/DataRecord.h"
+#include "DataFormats/RPCDigi/interface/DataRecord.h"
 #include <vector>
 
 namespace rpcrawtodigi{

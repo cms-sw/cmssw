@@ -3,7 +3,7 @@
 
 #include <bitset>
 #include <string> 
-#include "EventFilter/RPCRawToDigi/interface/DataRecord.h"
+#include "DataFormats/RPCDigi/interface/DataRecord.h"
 
 namespace rpcrawtodigi {
 
