@@ -19,7 +19,7 @@
 
 #include "EventFilter/RPCRawToDigi/interface/RPCRecordFormatter.h"
 #include "EventFilter/RPCRawToDigi/interface/DebugDigisPrintout.h"
-#include "EventFilter/RPCRawToDigi/interface/EmptyWord.h"
+#include "DataFormats/RPCDigi/interface/EmptyWord.h"
 
 #include <string>
 #include <sstream>

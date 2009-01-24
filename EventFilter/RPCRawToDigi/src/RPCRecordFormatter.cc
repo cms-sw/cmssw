@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCRecordFormatter
  *
- *  $Date: 2008/07/30 10:37:44 $
- *  $Revision: 1.39 $
+ *  $Date: 2008/11/28 15:50:10 $
+ *  $Revision: 1.40 $
  *
  * \author Ilaria Segoni
  */
@@ -18,7 +18,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "EventFilter/RPCRawToDigi/interface/ReadoutError.h"
+#include "DataFormats/RPCDigi/interface/ReadoutError.h"
 
 
 
@@ -105,7 +105,7 @@ int RPCRecordFormatter::recordUnpack(
   eleIndex.tbLinkInputNum = currentTbLinkInputNumber;
   eleIndex.lbNumInLink = event.recordCD().lbInLink();
 
-  if(synchro) synchro->push_back( make_pair(eleIndex,RPCRawSynchro::bxDifference(event)));
+  if(synchro) synchro->push_back( make_pair(eleIndex,event.dataToTriggerDelay() ));
 
   if(readoutMapping == 0) return error.type();
   const LinkBoardSpec* linkBoard = readoutMapping->location(eleIndex);

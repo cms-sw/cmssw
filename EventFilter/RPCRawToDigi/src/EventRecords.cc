@@ -1,12 +1,22 @@
 #include "EventFilter/RPCRawToDigi/interface/EventRecords.h"
-#include "EventFilter/RPCRawToDigi/interface/ErrorRCDM.h"
-#include "EventFilter/RPCRawToDigi/interface/ErrorRDDM.h"
-#include "EventFilter/RPCRawToDigi/interface/ErrorRDM.h"
-#include "EventFilter/RPCRawToDigi/interface/ErrorSDDM.h"
+#include "DataFormats/RPCDigi/interface/ErrorRCDM.h"
+#include "DataFormats/RPCDigi/interface/ErrorRDDM.h"
+#include "DataFormats/RPCDigi/interface/ErrorRDM.h"
+#include "DataFormats/RPCDigi/interface/ErrorSDDM.h"
 
 
 using namespace rpcrawtodigi;
 using std::vector;
+
+int EventRecords::dataToTriggerDelay() const
+{
+  static const int nOrbits = 3564;
+  if (!complete()) return nOrbits;
+  int diff = recordBX().bx() - triggerBx() + 3;
+  if (diff >  nOrbits/2) diff -= nOrbits;
+  if (diff < -nOrbits/2) diff += nOrbits;
+  return diff;
+}
 
 
 void EventRecords::add(const DataRecord & record)
