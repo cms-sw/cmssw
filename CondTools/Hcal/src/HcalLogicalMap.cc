@@ -162,10 +162,11 @@ void HcalLogicalMap::printHBEFMap(FILE* hbefmapfile){
   for (std::vector<HBHEHFLogicalMapEntry>::iterator it = HBHEHFEntries_.begin(); it!=HBHEHFEntries_.end(); ++it) {
     titlecounter = titlecounter % 21;
     if (titlecounter == 0){
-      fprintf(hbefmapfile,"   linind   side    eta    phi   dphi  depth    det     rbx  wedge     rm  pixel   qie    adc");
-//      fprintf(hbefmapfile,"#   side    eta    phi   dphi  depth    det     rbx  wedge     rm  pixel   qie    adc");
+//      fprintf(hbefmapfile,"   linind   side    eta    phi   dphi  depth    det     rbx  wedge     rm  pixel   qie    adc");
+      fprintf(hbefmapfile,"#   side    eta    phi   dphi  depth    det     rbx  wedge     rm  pixel   qie    adc");
       fprintf(hbefmapfile,"  rm_fi  fi_ch  crate    htr   fpga  htr_fi  dcc_sl  spigo    dcc    slb  slbin  slbin2");
-      fprintf(hbefmapfile,"           slnam    rctcra rctcar rctcon               rctnam     fedid   hash\n");
+//      fprintf(hbefmapfile,"           slnam    rctcra rctcar rctcon               rctnam     fedid   hash\n");
+      fprintf(hbefmapfile,"           slnam    rctcra rctcar rctcon               rctnam     fedid\n");
     }
     titlecounter++;
     fprintf(hbefmapfile,"%s",it->printLMapLine());
@@ -179,9 +180,10 @@ void HcalLogicalMap::printHOXMap(FILE* hoxmapfile){
   for (std::vector<HOHXLogicalMapEntry>::iterator it = HOHXEntries_.begin(); it!=HOHXEntries_.end(); ++it) {
     titlecounter = titlecounter % 21;
     if (titlecounter == 0){
-      fprintf(hoxmapfile,"   linind   side    eta    phi   dphi  depth    det     rbx  sector    rm  pixel   qie    adc");
-//      fprintf(hoxmapfile,"#   side    eta    phi   dphi  depth    det     rbx  sector    rm  pixel   qie    adc");
-      fprintf(hoxmapfile,"  rm_fi  fi_ch let_code  crate    htr   fpga  htr_fi  dcc_sl  spigo    dcc  fedid   hash\n");
+//      fprintf(hoxmapfile,"   linind   side    eta    phi   dphi  depth    det     rbx  sector    rm  pixel   qie    adc");
+      fprintf(hoxmapfile,"#   side    eta    phi   dphi  depth    det     rbx  sector    rm  pixel   qie    adc");
+//      fprintf(hoxmapfile,"  rm_fi  fi_ch let_code  crate    htr   fpga  htr_fi  dcc_sl  spigo    dcc  fedid   hash\n");
+      fprintf(hoxmapfile,"  rm_fi  fi_ch let_code  crate    htr   fpga  htr_fi  dcc_sl  spigo    dcc  fedid\n");
     }
     titlecounter++;
     fprintf(hoxmapfile,"%s",it->printLMapLine());
@@ -195,9 +197,10 @@ void HcalLogicalMap::printCalibMap(FILE* calibmapfile){
   for (std::vector<CALIBLogicalMapEntry>::iterator it = CALIBEntries_.begin(); it!=CALIBEntries_.end(); ++it) {
     titlecounter = titlecounter % 21;
     if (titlecounter == 0){	  
-      fprintf(calibmapfile,"   linind   side    eta    phi   dphi    det     rbx  sector  rm_fi ");
-//      fprintf(calibmapfile,"#   side    eta    phi   dphi    det     rbx  sector  rm_fi ");
-      fprintf(calibmapfile," fi_ch  crate  htr  fpga  htr_fi  dcc_sl  spigo  dcc  fedid  ch_type      name   hash\n");
+//      fprintf(calibmapfile,"   linind   side    eta    phi   dphi    det     rbx  sector  rm_fi ");
+      fprintf(calibmapfile,"#   side    eta    phi   dphi    det     rbx  sector  rm_fi ");
+//      fprintf(calibmapfile," fi_ch  crate  htr  fpga  htr_fi  dcc_sl  spigo  dcc  fedid  ch_type      name   hash\n");
+      fprintf(calibmapfile," fi_ch  crate  htr  fpga  htr_fi  dcc_sl  spigo  dcc  fedid  ch_type      name\n");
     }
     titlecounter++;
     fprintf(calibmapfile,"%s",it->printLMapLine());
@@ -211,9 +214,10 @@ void HcalLogicalMap::printZDCMap(FILE* zdcmapfile){
   for (std::vector<ZDCLogicalMapEntry>::iterator it = ZDCEntries_.begin(); it!=ZDCEntries_.end(); ++it) {
     titlecounter = titlecounter % 21;
     if (titlecounter == 0){
-      fprintf(zdcmapfile,"   linind  side  x  y  dx  depth     det  det_ch  cable  rm  qie ");
-//      fprintf(zdcmapfile,"#  side  x  y  dx  depth     det  det_ch  cable  rm  qie ");
-      fprintf(zdcmapfile," adc  rm_fi  fi_ch  crate  htr  fpga  htr_fi  dcc_sl  spigo  dcc  fedid   hash\n");
+//      fprintf(zdcmapfile,"   linind  side  x  y  dx  depth     det  det_ch  cable  rm  qie ");
+      fprintf(zdcmapfile,"#  side  x  y  dx  depth     det  det_ch  cable  rm  qie ");
+//      fprintf(zdcmapfile," adc  rm_fi  fi_ch  crate  htr  fpga  htr_fi  dcc_sl  spigo  dcc  fedid   hash\n");
+      fprintf(zdcmapfile," adc  rm_fi  fi_ch  crate  htr  fpga  htr_fi  dcc_sl  spigo  dcc  fedid\n");
     }
     titlecounter++;
     fprintf(zdcmapfile,"%s",it->printLMapLine());
@@ -227,10 +231,11 @@ void HcalLogicalMap::printHTMap(FILE* htmapfile){
   for (std::vector<HTLogicalMapEntry>::iterator it = HTEntries_.begin(); it!=HTEntries_.end(); ++it) {
     titlecounter = titlecounter % 21;
       if (titlecounter == 0){
-	fprintf(htmapfile,"   linind  side  eta  phi  dphi  depth  det   wedge  crate");
-//	fprintf(htmapfile,"#  side  eta  phi  dphi  depth  det   wedge  crate");
+//	fprintf(htmapfile,"   linind  side  eta  phi  dphi  depth  det   wedge  crate");
+	fprintf(htmapfile,"#  side  eta  phi  dphi  depth  det   wedge  crate");
         fprintf(htmapfile,"  htr  fpga  dcc_sl  spigo  dcc  slb  slbin  slbin2  nDat    ");
-        fprintf(htmapfile,"     slnam  rctcra  rctcar  rctcon            rctnam  fedid   hash\n");
+//        fprintf(htmapfile,"     slnam  rctcra  rctcar  rctcon            rctnam  fedid   hash\n");
+        fprintf(htmapfile,"     slnam  rctcra  rctcar  rctcon            rctnam  fedid\n");
       }
     titlecounter++;
     fprintf(htmapfile,"%s",it->printLMapLine());

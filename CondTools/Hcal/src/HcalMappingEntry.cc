@@ -94,11 +94,12 @@ char* HBHEHFLogicalMapEntry::printLMapLine() {
 
   ( hcaleid.htrTopBottom()==0 ) ? myfpga = "bot" : myfpga = "top";
 
-  sprintf(myline,"%6d %6d %6d %6d %6d %6d %6s %7s %6d %6d %6d",hcaleid.linearIndex(),hcaldid.zside(),hcaldid.ietaAbs(),hcaldid.iphi(),mydphi_,hcaldid.depth(),mydet.c_str(),rbxid.rbx().c_str(),mywedge_,rbxid.rm(),rbxid.pixel());
-//  sprintf(myline,"%1d %6d %6d %6d %6d %6d %6s %7s %6d %6d %6d",0,hcaldid.zside(),hcaldid.ietaAbs(),hcaldid.iphi(),mydphi_,hcaldid.depth(),mydet.c_str(),rbxid.rbx().c_str(),mywedge_,rbxid.rm(),rbxid.pixel());
+//  sprintf(myline,"%6d %6d %6d %6d %6d %6d %6s %7s %6d %6d %6d",hcaleid.linearIndex(),hcaldid.zside(),hcaldid.ietaAbs(),hcaldid.iphi(),mydphi_,hcaldid.depth(),mydet.c_str(),rbxid.rbx().c_str(),mywedge_,rbxid.rm(),rbxid.pixel());
+  sprintf(myline,"%1d %6d %6d %6d %6d %6d %6s %7s %6d %6d %6d",0,hcaldid.zside(),hcaldid.ietaAbs(),hcaldid.iphi(),mydphi_,hcaldid.depth(),mydet.c_str(),rbxid.rbx().c_str(),mywedge_,rbxid.rm(),rbxid.pixel());
   sprintf(myline+strlen(myline),"%6d %6d %6d %6d %6d %6d %6s",rbxid.qieCard(),rbxid.adc(),rbxid.rmFiber(),hcaleid.fiberChanId(),hcaleid.readoutVMECrateId(),hcaleid.htrSlot(),myfpga.c_str());
   sprintf(myline+strlen(myline),"%8d %7d %6d %6d %6d %6s",hcaleid.fiberIndex(),mydcc_sl,hcaleid.spigot(),mydcc,myslb_,myslbin_.c_str());
-  sprintf(myline+strlen(myline),"%8s %15s    %6d %6d %6d %20s    %6d %5d\n",myslbin2_.c_str(),myslnam_.c_str(),myrctcra_,myrctcar_,myrctcon_,myrctnam_.c_str(),hcaleid.dccid()+700,hcalgenid.hashedId());
+//  sprintf(myline+strlen(myline),"%8s %15s    %6d %6d %6d %20s    %6d %5d\n",myslbin2_.c_str(),myslnam_.c_str(),myrctcra_,myrctcar_,myrctcon_,myrctnam_.c_str(),hcaleid.dccid()+700,hcalgenid.hashedId());
+  sprintf(myline+strlen(myline),"%8s %15s    %6d %6d %6d %20s    %6d\n",myslbin2_.c_str(),myslnam_.c_str(),myrctcra_,myrctcar_,myrctcon_,myrctnam_.c_str(),hcaleid.dccid()+700);
 
   return myline;
 }
@@ -194,10 +195,11 @@ char* HOHXLogicalMapEntry::printLMapLine() {
 
   ( hcaleid.htrTopBottom()==0 ) ? myfpga = "bot" : myfpga = "top";
 
-  sprintf(myline,"%6d %6d %6d %6d %6d %6d %6s %7s %6d %6d %6d",hcaleid.linearIndex(),myside,myeta,myphi,mydphi_,mydepth,mydet.c_str(),rbxid.rbx().c_str(),mysector_,rbxid.rm(),rbxid.pixel());
-//  sprintf(myline,"%1d %6d %6d %6d %6d %6d %6s %7s %6d %6d %6d",0,myside,myeta,myphi,mydphi_,mydepth,mydet.c_str(),rbxid.rbx().c_str(),mysector_,rbxid.rm(),rbxid.pixel());
+//  sprintf(myline,"%6d %6d %6d %6d %6d %6d %6s %7s %6d %6d %6d",hcaleid.linearIndex(),myside,myeta,myphi,mydphi_,mydepth,mydet.c_str(),rbxid.rbx().c_str(),mysector_,rbxid.rm(),rbxid.pixel());
+  sprintf(myline,"%1d %6d %6d %6d %6d %6d %6s %7s %6d %6d %6d",0,myside,myeta,myphi,mydphi_,mydepth,mydet.c_str(),rbxid.rbx().c_str(),mysector_,rbxid.rm(),rbxid.pixel());
   sprintf(myline+strlen(myline),"%6d %6d %6d %6d %8s %6d %6d %6s",rbxid.qieCard(),rbxid.adc(),rbxid.rmFiber(),hcaleid.fiberChanId(),myletter_.c_str(),hcaleid.readoutVMECrateId(),hcaleid.htrSlot(),myfpga.c_str());
-  sprintf(myline+strlen(myline),"%8d %7d %6d %6d %6d %5d\n",hcaleid.fiberIndex(),mydcc_sl,hcaleid.spigot(),mydcc,hcaleid.dccid()+700,hcalgenid.hashedId());
+//  sprintf(myline+strlen(myline),"%8d %7d %6d %6d %6d %5d\n",hcaleid.fiberIndex(),mydcc_sl,hcaleid.spigot(),mydcc,hcaleid.dccid()+700,hcalgenid.hashedId());
+  sprintf(myline+strlen(myline),"%8d %7d %6d %6d %6d\n",hcaleid.fiberIndex(),mydcc_sl,hcaleid.spigot(),mydcc,hcaleid.dccid()+700);
 
   return myline;
 }
@@ -269,10 +271,11 @@ char* CALIBLogicalMapEntry::printLMapLine() {
               mydet = "invalid")));
   (hcaleid.htrTopBottom()==0) ? myfpga = "bot" : myfpga = "top";
 
-  sprintf(myline,"%6d %6d %6d %6d %6d %6s %7s",hcaleid.linearIndex(),myside_,hcalcalibid.ieta(),hcalcalibid.iphi(),mydphi_,mydet.c_str(),myrbx_.c_str());
-//  sprintf(myline,"%1d %6d %6d %6d %6d %6s %7s",0,myside_,hcalcalibid.ieta(),hcalcalibid.iphi(),mydphi_,mydet.c_str(),myrbx_.c_str());
+//  sprintf(myline,"%6d %6d %6d %6d %6d %6s %7s",hcaleid.linearIndex(),myside_,hcalcalibid.ieta(),hcalcalibid.iphi(),mydphi_,mydet.c_str(),myrbx_.c_str());
+  sprintf(myline,"%1d %6d %6d %6d %6d %6s %7s",0,myside_,hcalcalibid.ieta(),hcalcalibid.iphi(),mydphi_,mydet.c_str(),myrbx_.c_str());
   sprintf(myline+strlen(myline),"%8d %6d %6d %6d %4d %5s",mywedge_,myrm_fi_,hcaleid.fiberChanId(),hcaleid.readoutVMECrateId(),hcaleid.htrSlot(),myfpga.c_str());
-  sprintf(myline+strlen(myline),"%8d %7d %6d %4d %6d %8d %9s %5d\n",hcaleid.fiberIndex(),mydcc_sl,hcaleid.spigot(),mydcc,hcaleid.dccid()+700, hcalcalibid.cboxChannel(), mycalibsubdet_.c_str(),hcalgenid.hashedId());
+//  sprintf(myline+strlen(myline),"%8d %7d %6d %4d %6d %8d %9s %5d\n",hcaleid.fiberIndex(),mydcc_sl,hcaleid.spigot(),mydcc,hcaleid.dccid()+700, hcalcalibid.cboxChannel(), mycalibsubdet_.c_str(),hcalgenid.hashedId());
+  sprintf(myline+strlen(myline),"%8d %7d %6d %4d %6d %8d %9s\n",hcaleid.fiberIndex(),mydcc_sl,hcaleid.spigot(),mydcc,hcaleid.dccid()+700, hcalcalibid.cboxChannel(), mycalibsubdet_.c_str());
 
   return myline;
 }
@@ -352,10 +355,11 @@ char* ZDCLogicalMapEntry::printLMapLine() {
 
   (hcaleid.htrTopBottom()==0) ? myfpga = "bot" : myfpga = "top";
 
-  sprintf(myline,"%6d %5d %2d %2d %3d %6d %7s %7d",hcaleid.linearIndex(),hcalzdcid.zside(),myx_,myy_,mydx_,mydepth_/*hcalzdcid.depth()*/,mydet.c_str(),hcalzdcid.channel());
-//  sprintf(myline,"%1d %5d %2d %2d %3d %6d %7s %7d",0,hcalzdcid.zside(),myx_,myy_,mydx_,hcalzdcid.depth(),mydet.c_str(),hcalzdcid.channel());
+//  sprintf(myline,"%6d %5d %2d %2d %3d %6d %7s %7d",hcaleid.linearIndex(),hcalzdcid.zside(),myx_,myy_,mydx_,mydepth_/*hcalzdcid.depth()*/,mydet.c_str(),hcalzdcid.channel());
+  sprintf(myline,"%1d %5d %2d %2d %3d %6d %7s %7d",0,hcalzdcid.zside(),myx_,myy_,mydx_,mydepth_/*hcalzdcid.depth()*/,mydet.c_str(),hcalzdcid.channel());
   sprintf(myline+strlen(myline),"%7d %3d %4d %4d %6d %6d %6d",mycable_,myrm_,myqie_,myadc_,myrm_fi_,hcaleid.fiberChanId(),hcaleid.readoutVMECrateId());
-  sprintf(myline+strlen(myline),"%5d %5s %7d %7d %6d %4d %6d %5d\n",hcaleid.htrSlot(),myfpga.c_str(),hcaleid.fiberIndex(),mydcc_sl,hcaleid.spigot(),mydcc,hcaleid.dccid()+700,hcalgenid.hashedId());
+//  sprintf(myline+strlen(myline),"%5d %5s %7d %7d %6d %4d %6d %5d\n",hcaleid.htrSlot(),myfpga.c_str(),hcaleid.fiberIndex(),mydcc_sl,hcaleid.spigot(),mydcc,hcaleid.dccid()+700,hcalgenid.hashedId());
+  sprintf(myline+strlen(myline),"%5d %5s %7d %7d %6d %4d %6d\n",hcaleid.htrSlot(),myfpga.c_str(),hcaleid.fiberIndex(),mydcc_sl,hcaleid.spigot(),mydcc,hcaleid.dccid()+700);
 
   return myline;
 }
@@ -421,10 +425,11 @@ char* HTLogicalMapEntry::printLMapLine() {
   string myfpga ="";
   ( hcaltrigeid.htrTopBottom()==0 ) ? myfpga = "bot" : myfpga = "top";
 
-  sprintf(myline,"%6d %5d %4d %4d %5d %6d %4s %7d %6d ",hcaltrigeid.linearIndex(),myside_,hcaltrigid.ieta(),hcaltrigid.iphi(),mydphi_,mydepth_,mydet_.c_str(),mywedge_,hcaltrigeid.readoutVMECrateId());
-//  sprintf(myline,"%1d %5d %4d %4d %5d %6d %4s %7d %6d ",0,myside_,hcaltrigid.ieta(),hcaltrigid.iphi(),mydphi_,mydepth_,mydet_.c_str(),mywedge_,hcaltrigeid.readoutVMECrateId());
+//  sprintf(myline,"%6d %5d %4d %4d %5d %6d %4s %7d %6d ",hcaltrigeid.linearIndex(),myside_,hcaltrigid.ieta(),hcaltrigid.iphi(),mydphi_,mydepth_,mydet_.c_str(),mywedge_,hcaltrigeid.readoutVMECrateId());
+  sprintf(myline,"%1d %5d %4d %4d %5d %6d %4s %7d %6d ",0,myside_,hcaltrigid.ieta(),hcaltrigid.iphi(),mydphi_,mydepth_,mydet_.c_str(),mywedge_,hcaltrigeid.readoutVMECrateId());
   sprintf(myline+strlen(myline),"%4d %5s %7d %6d %4d %4d %6s %7s %5d ",hcaltrigeid.htrSlot(),myfpga.c_str(),mydcc_sl,hcaltrigeid.spigot(),mydcc,hcaltrigeid.slbSiteNumber(),myslbin_.c_str(),myslbin2_.c_str(),hcaltrigeid.slbChannelIndex());
-  sprintf(myline+strlen(myline),"%13s %7d %7d %7d %17s %6d %5d\n",myslnam_.c_str(),myrctcra_,myrctcar_,myrctcon_,myrctnam_.c_str(),hcaltrigeid.dccid()+700,hcalgenid.hashedId());
+//  sprintf(myline+strlen(myline),"%13s %7d %7d %7d %17s %6d %5d\n",myslnam_.c_str(),myrctcra_,myrctcar_,myrctcon_,myrctnam_.c_str(),hcaltrigeid.dccid()+700,hcalgenid.hashedId());
+  sprintf(myline+strlen(myline),"%13s %7d %7d %7d %17s %6d\n",myslnam_.c_str(),myrctcra_,myrctcar_,myrctcon_,myrctnam_.c_str(),hcaltrigeid.dccid()+700);
 
   return myline;
 }
