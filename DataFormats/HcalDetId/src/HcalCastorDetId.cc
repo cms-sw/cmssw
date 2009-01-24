@@ -41,8 +41,7 @@ HcalCastorDetId::HcalCastorDetId( const DetId& gen )
 	  gen.subdetId() != SubdetectorId    ) ) 
     {
        throw cms::Exception("Invalid DetId") << "Cannot initialize CASTORDetId from " << std::hex << gen.rawId() << std::dec; 
-    }
-  
+    }  
     id_= gen.rawId();
 }
 

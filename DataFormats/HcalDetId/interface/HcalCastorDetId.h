@@ -74,7 +74,7 @@ class HcalCastorDetId : public DetId
       enum { kNumberModulesPerEnd  = 14 ,
 	     kNumberSectorsPerEnd  = 16 ,
 	     kNumberCellsPerEnd    = kNumberModulesPerEnd*kNumberSectorsPerEnd ,
-	     kSizeForDenseIndexing = 2*kNumberCellsPerEnd } ;
+	     kSizeForDenseIndexing = kNumberCellsPerEnd } ;
 
       uint32_t denseIndex() const ;
 
