@@ -4,8 +4,8 @@
  *  class to build trajectories of cosmic muons and beam-halo muons
  *
  *
- *  $Date: 2008/10/22 03:44:57 $
- *  $Revision: 1.42 $
+ *  $Date: 2008/12/31 02:34:02 $
+ *  $Revision: 1.43 $
  *  \author Chang Liu  - Purdue Univeristy
  */
 
@@ -240,11 +240,13 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
     theTraj->pop();
   }
 
-  delete theTraj;
 
   if (!theTraj->isValid() || TotalChamberUsedBack < 2 || (DTChamberUsedBack+CSCChamberUsedBack) == 0 || !lastTsos.isValid()) {
+    delete theTraj;
     return trajL;
   }
+  delete theTraj;
+
 
 //    LogTrace(category_)<<"checkDirectionByT0 "<<checkDirectionByT0(firstDTseg, lastDTseg)<<" nDTseg "<<nDTseg;
 
