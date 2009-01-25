@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.18 2008/12/11 17:39:49 berryhil Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.19 2009/01/24 16:27:39 berryhil Exp $
 // See header file for information. 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -181,9 +181,9 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
          iSetup.get< L1GtTriggerMenuRcd>().get(l1GtMenuHandle) ;
          l1GtMenu = l1GtMenuHandle.product();
          (const_cast<L1GtTriggerMenu*>(l1GtMenu))->buildGtConditionMap(); 
-           int printVerbosity = 2;
-           l1GtMenu->print(std::cout, printVerbosity); 
-           std::cout << std::flush << std::endl;
+	 // int printVerbosity = 2;
+         //  l1GtMenu->print(std::cout, printVerbosity); 
+         //  std::cout << std::flush << std::endl;
  
          l1GtMenuCacheIDtemp_ = l1GtMenuCacheID;
  
