@@ -57,10 +57,12 @@ extern const char * kIsoEleTrackIsol;
 extern const char * kNonIsoEleTrackIsol;
 extern const char * kL1IsoPixelSeeds;
 extern const char * kL1NonIsoPixelSeeds;
-extern const char * kEErechits; 
-extern const char * kEBrechits;  
-extern const char * kHBHErechits;   
-extern const char * kHOrechits;   
-extern const char * kHFrechits;   
+extern const char * kEErechits;
+extern const char * kEBrechits; 
+extern const char * kHBHErechits;  
+extern const char * kHOrechits;  
+extern const char * kHFrechits;  
+extern const char * kpi0EErechits; 
+extern const char * kpi0EBrechits;  
 
 #endif // HLTrigger_HLTanalyzers_HLTMessages_h

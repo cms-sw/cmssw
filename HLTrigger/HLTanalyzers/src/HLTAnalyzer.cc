@@ -116,10 +116,12 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   // AlCa OpenHLT input collections  
   EERecHitTag_              = conf.getParameter<edm::InputTag> ("EERecHits"); 
   EBRecHitTag_              = conf.getParameter<edm::InputTag> ("EBRecHits"); 
+  pi0EBRecHitTag_           = conf.getParameter<edm::InputTag> ("pi0EBRecHits");  
+  pi0EERecHitTag_           = conf.getParameter<edm::InputTag> ("pi0EERecHits");  
   HBHERecHitTag_            = conf.getParameter<edm::InputTag> ("HBHERecHits");  
   HORecHitTag_              = conf.getParameter<edm::InputTag> ("HORecHits");  
   HFRecHitTag_              = conf.getParameter<edm::InputTag> ("HFRecHits");  
-  
+
   m_file = 0;   // set to null
   errCnt = 0;
 
@@ -179,9 +181,9 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   edm::Handle<L1GlobalTriggerObjectMapRecord>       l1GtOMRec;
   edm::Handle<L1GlobalTriggerObjectMap>             l1GtOM;
   edm::Handle<L1GctJetCountsCollection>             l1GctCounts;
+  edm::Handle<RecoChargedCandidateCollection>       mucands2, mucands3;
   edm::Handle<L1GctHFBitCounts>                     l1GctHFBitCounts;
   edm::Handle<L1GctHFRingEtSums>                    l1GctHFRingEtSums;
-  edm::Handle<RecoChargedCandidateCollection>       mucands2, mucands3;
   edm::Handle<edm::ValueMap<bool> >                 isoMap2,  isoMap3;
   //  edm::Handle<MuonTrackLinksCollection>             mulinks;
   edm::Handle<reco::HLTTauCollection>               taus;
@@ -227,6 +229,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   // AlCa OpenHLT input collections   
   edm::Handle<EBRecHitCollection>             ebrechits;  
   edm::Handle<EERecHitCollection>             eerechits;   
+  edm::Handle<EBRecHitCollection>             pi0ebrechits;   
+  edm::Handle<EERecHitCollection>             pi0eerechits;    
   edm::Handle<HBHERecHitCollection>           hbherechits;   
   edm::Handle<HORecHitCollection>             horechits;   
   edm::Handle<HFRecHitCollection>             hfrechits;   
@@ -242,7 +246,19 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
   edm::InputTag BSProducer_(string("hltOfflineBeamSpot"));
 
+  // get EventSetup stuff needed for the AlCa pi0 path
+  edm::ESHandle< EcalElectronicsMapping > ecalmapping;
+  iSetup.get< EcalMappingRcd >().get(ecalmapping);
 
+  edm::ESHandle<CaloGeometry> geoHandle;
+  iSetup.get<CaloGeometryRecord>().get(geoHandle); 
+
+  edm::ESHandle<CaloTopology> pTopology;
+  iSetup.get<CaloTopologyRecord>().get(pTopology);
+
+  edm::ESHandle<L1CaloGeometry> l1CaloGeom ;
+  iSetup.get<L1CaloGeometryRecord>().get(l1CaloGeom) ;
+    
   // extract the collections from the event, check their validity and log which are missing
   std::vector<MissingCollectionInfo> missing;
 
@@ -330,6 +346,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   getCollection( iEvent, missing, TrackIsolMap,             IsoPhoTrackIsol_,           kIsoPhoTrackIsol);
   getCollection( iEvent, missing, eerechits,                EERecHitTag_,               kEErechits ); 
   getCollection( iEvent, missing, ebrechits,                EBRecHitTag_,               kEBrechits );  
+  getCollection( iEvent, missing, pi0eerechits,             pi0EERecHitTag_,            kpi0EErechits );  
+  getCollection( iEvent, missing, pi0ebrechits,             pi0EBRecHitTag_,            kpi0EBrechits );   
   getCollection( iEvent, missing, hbherechits,              HBHERecHitTag_,             kHBHErechits );   
   getCollection( iEvent, missing, horechits,                HORecHitTag_,               kHOrechits );   
   getCollection( iEvent, missing, hfrechits,                HFRecHitTag_,               kHFrechits );   
@@ -411,6 +429,17 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     hbherechits,  
     horechits,  
     hfrechits,  
+    pi0ebrechits,
+    pi0eerechits,
+    l1extemi, 
+    l1extemn,
+    l1extjetc, 
+    l1extjetf, 
+    l1exttaujet,
+    ecalmapping, 
+    geoHandle, 
+    pTopology, 
+    l1CaloGeom,
     HltTree);  
 
   hlt_analysis_.analyze(

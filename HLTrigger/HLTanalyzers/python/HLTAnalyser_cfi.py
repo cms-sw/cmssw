@@ -88,9 +88,29 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     ### AlCa OpenHLT related objects
     EERecHits                   = cms.InputTag("hltAlCaPhiSymStream","phiSymEcalRecHitsEE"),
     EBRecHits                   = cms.InputTag("hltAlCaPhiSymStream","phiSymEcalRecHitsEB"),
+    pi0EBRecHits                = cms.InputTag("hltAlCaPi0RegRecHits","pi0EcalRecHitsEB"),
+    pi0EERecHits                = cms.InputTag("hltAlCaPi0RegRecHits","pi0EcalRecHitsEE"),
     HBHERecHits                 = cms.InputTag("hbhereco"),
     HORecHits                   = cms.InputTag("horeco"),
     HFRecHits                   = cms.InputTag("hfreco"),
+
+    ### AlCa pi0 settings                            
+    clusSeedThr                 = cms.double( 0.5 ),
+    clusSeedThrEndCap           = cms.double( 1.0 ),
+    clusEtaSize                 = cms.int32( 3 ),
+    clusPhiSize                 = cms.int32( 3 ),
+    seleXtalMinEnergy           = cms.double( 0.0 ),
+    ParameterLogWeighted        = cms.bool( True ),
+    ParameterX0                 = cms.double( 0.89 ),
+    ParameterT0_barl            = cms.double( 7.4 ),
+    ParameterT0_endc            = cms.double( 3.1 ),
+    ParameterT0_endcPresh       = cms.double( 1.2 ),
+    ParameterW0                 = cms.double( 4.2 ),
+    RegionalMatch               = cms.untracked.bool( True ),
+    ptMinEMObj                  = cms.double( 2.0 ),
+    EMregionEtaMargin           = cms.double( 0.25 ),
+    EMregionPhiMargin           = cms.double( 0.4 ),
+    Jets                        = cms.untracked.bool( False ),
     
     ### Run parameters
     RunParameters = cms.PSet(

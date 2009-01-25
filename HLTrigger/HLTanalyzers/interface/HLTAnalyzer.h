@@ -15,7 +15,11 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"  
+
+#include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"  
 
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -114,6 +118,8 @@ private:
   // AlCa OpenHLT input collections  
   edm::InputTag EERecHitTag_; 
   edm::InputTag EBRecHitTag_;  
+  edm::InputTag pi0EERecHitTag_;  
+  edm::InputTag pi0EBRecHitTag_;   
   edm::InputTag HBHERecHitTag_;   
   edm::InputTag HORecHitTag_;   
   edm::InputTag HFRecHitTag_;   
