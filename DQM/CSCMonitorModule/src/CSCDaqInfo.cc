@@ -19,9 +19,12 @@
 #include "DQM/CSCMonitorModule/interface/CSCDaqInfo.h"
 
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+
+#ifdef CMSSW220
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 #include "CondFormats/RunInfo/interface/RunSummary.h"
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
+#endif
 
 using namespace std;
 using namespace edm;
@@ -38,6 +41,8 @@ CSCDaqInfo::~CSCDaqInfo(){}
 
 void CSCDaqInfo::beginLuminosityBlock(const LuminosityBlock& lumiBlock, const EventSetup& iSetup){
     
+#ifdef CMSSW220
+
   edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
 
   if(0 != iSetup.find(recordKey) ) {
@@ -67,6 +72,9 @@ void CSCDaqInfo::beginLuminosityBlock(const LuminosityBlock& lumiBlock, const Ev
     DaqFraction->Fill(-1);               
     return; 
   }
+
+#endif
+
 }
 
 void CSCDaqInfo::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup){}

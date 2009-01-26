@@ -90,7 +90,7 @@
   (( double, EFF_ERR_SIGFAIL,      5.0 , "statistical significance for errors in HW (EventProcessor)" )) \
   (( double, EFF_NODATA_THRESHOLD, 0.1 , "threshold in fraction to check for not reporting elements in HW (EventProcessor)" )) \
   (( double, EFF_NODATA_SIGFAIL,   5.0 , "statistical significance for not reportingelements in HW (EventProcessor)" )) \
-  (( unsigned long, EVENTS_ECHO, 1000, "frequency in events to print echo message (EventProcessor)" )) \
+  (( unsigned int, EVENTS_ECHO, 1000, "frequency in events to print echo message (EventProcessor)" )) \
   \
   \
   /* */
