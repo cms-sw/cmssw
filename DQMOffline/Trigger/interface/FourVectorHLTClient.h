@@ -7,7 +7,7 @@
    version: 01
    date:  28 Oct 2008
 */
-//$Id: $
+//$Id: FourVectorHLTClient.h,v 1.2 2008/10/15 09:39:34 rekovic Exp $
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -79,6 +79,7 @@ private:
   vector<TString> hltPathName; // names of hlt paths from MEs (histos)
   //TObjArray* hltPathNameColl; // duplicate of the above, more robust
   vector<MonitorElement*> hltMEs;
+	std::vector<std::pair<std::string, std::string> > custompathnamepairs_;
 
   int counterLS_;      ///counter
   int counterEvt_;     ///counter

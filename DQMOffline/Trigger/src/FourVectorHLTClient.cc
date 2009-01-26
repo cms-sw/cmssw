@@ -5,7 +5,7 @@
    date of first version: Sept 2008
 
 */
-//$Id: FourVectorHLTClient.cc,v 1.4 2008/11/01 19:19:47 rekovic Exp $
+//$Id: FourVectorHLTClient.cc,v 1.5 2009/01/20 11:18:04 rekovic Exp $
 
 #include "DQMOffline/Trigger/interface/FourVectorHLTClient.h"
 
@@ -72,6 +72,18 @@ void FourVectorHLTClient::initialize(){
   prescaleEvt_ = parameters_.getUntrackedParameter<int>("prescaleEvt", -1);
   LogDebug("FourVectorHLTClient")<< "DQM event prescale = " << prescaleEvt_ << " events(s)"<< endl;
   
+  std::vector<edm::ParameterSet> effpaths = parameters_.getParameter<std::vector<edm::ParameterSet> >("effpaths");
+
+  std::pair<std::string, std::string> custompathnamepair;
+  for(std::vector<edm::ParameterSet>::iterator pathconf = effpaths.begin() ; pathconf != effpaths.end(); 
+      pathconf++) {
+       custompathnamepair.first =pathconf->getParameter<std::string>("pathname"); 
+       custompathnamepair.second = pathconf->getParameter<std::string>("denompathname");   
+       custompathnamepairs_.push_back(custompathnamepair);
+       //    customdenompathnames_.push_back(pathconf->getParameter<std::string>("denompathname"));  
+       // custompathnames_.push_back(pathconf->getParameter<std::string>("pathname"));  
+    }
+
 
       
 }
@@ -180,10 +192,11 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
 
    LogDebug("FourVectorHLTClient")<< hltMEName[i]  << endl;
 
-   // collect HLT path names from MEs names, removing "_*" from the end
+   // collect HLT path names from MEs names, removing " *" from the end
+	 // e.g, of a ME name: "HLT_Mu3 HLT_Jet30_NOn"
    ////////////////////////////////////////////////////////////////
    TString tempName = hltMEName[i];
-   tempName.Remove(tempName.Last('_'),tempName.Length());
+   tempName.Remove(tempName.Last(' '),tempName.Length());
    hltPathName.push_back(tempName);
 
    TObjString *tempHltName = new TObjString(tempName.Data());
@@ -206,10 +219,9 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
 
    TObjString *curHltPath = (TObjString*)hltPathNameColl->At(j);
    TString pathPrefis = curHltPath->String() + TString("_");
-    LogDebug("FourVectorHLTClient")<< " path " << curHltPath->String() << endl;
+   LogDebug("FourVectorHLTClient")<< " path " << curHltPath->String() << endl;
 
-   TString pathFolder = clientDir_ + TString("/paths/") + curHltPath->String() + TString("/distributions");
-
+   TString pathFolder = clientDir_ + TString("/paths/") + curHltPath->String() + TString("/any");
    dbe_->setCurrentFolder(pathFolder.Data());
 
    ///////////////////////////////////////////
@@ -219,8 +231,14 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
 
      TString tempHistName = hltMEName[i];
 
-     // only consider histos belonging to current HLT path
-     if( !tempHistName.Contains(curHltPath->String()) ) continue;
+     // Only consider histos belonging to current HLT path
+		 // Such a histo should have "pathName" at the very begining
+		 // of its name.  E.g.  histogram "HLT_Mu3 HLT_Jet30_NOn" 
+		 // belongs to the path HLT_Mu3, and not to the path HLT_Jet30.
+     //if( !tempHistName.Contains(curHltPath->String()) ) continue;
+		 TString mainPath = curHltPath->String()+" ";
+     //if( tempHistName.Index(curHltPath->String().Data(), curHltPath->String().Length(),0) !=0 ) continue;
+     if( tempHistName.Index(mainPath.Data(), mainPath.Length(),0,TString::kExact) !=0 ) continue;
 
      // Some string gymnastics:
      //
@@ -228,10 +246,22 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
      // make sure we dont cross use histograms of such paths
      // histogram name can only have one character "_" in addition to the pathname
      TString radical = tempHistName;
-     radical.ReplaceAll(curHltPath->String()+"_","");
+     //radical.ReplaceAll(curHltPath->String()+"_","");
+     radical.Remove(0,tempHistName.Last('_'));
       LogDebug("FourVectorHLTClient")<< " tempHistName is " << tempHistName << "     radical is: " << radical << endl;
 
-     if(radical.CountChar('_')>0) continue;
+     if(radical.CountChar('_')>1) continue;
+
+
+		 TString diagName = curHltPath->String() +" "+ curHltPath->String();
+		 if(tempHistName.Contains(diagName,TString::kExact)) {
+   	   pathFolder = clientDir_ + TString("/paths/") + curHltPath->String() + TString("/distributions");
+		 }
+		 else {
+   	  pathFolder = clientDir_ + TString("/paths/") + curHltPath->String() + TString("/cross_distributions");
+		 }
+
+     dbe_->setCurrentFolder(pathFolder.Data());
      
      TString histName = sourceDir_+TString("/")+tempHistName;
      TString klmgrvName = tempHistName+TString("_klmgrTest");
@@ -305,18 +335,31 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
 
     dbe_->setCurrentFolder(pathFolder.Data());
 
+    for (std::vector<std::pair<std::string, std::string> >::iterator custompathnamepair = custompathnamepairs_.begin(); custompathnamepair != custompathnamepairs_.end(); ++custompathnamepair)
+    {
+
+      TString numPathName=TString(custompathnamepair->first);
+      if(!curHltPath->String().Contains(numPathName,TString::kExact)) continue;
+
+			TString denPathName=TString(custompathnamepair->second);
+
+
     vector<TString> vObj;
-    vObj.push_back(TString("phi"));
-    vObj.push_back(TString("eta"));
+    vObj.push_back(TString("offPhi"));
+    vObj.push_back(TString("offEta"));
+    vObj.push_back(TString("offEt"));
 
     for (unsigned int k=0; k<vObj.size();k++) {
 
 
-      TString oldHistPathNum = sourceDir_+TString("/")+curHltPath->String()+TString("_")+vObj[k]+TString("On"); 
-      TString oldHistPathDen = sourceDir_+TString("/")+curHltPath->String()+TString("_")+vObj[k]+TString("L1"); 
+      //TString oldHistPathNum = sourceDir_+TString("/")+curHltPath->String()+" "+curHltPath->String()+TString("_")+vObj[k]+TString("L1On"); 
+      //TString oldHistPathDen = sourceDir_+TString("/")+curHltPath->String()+" "+curHltPath->String()+TString("_")+vObj[k]+TString("L1"); 
+      TString oldHistPathNum = sourceDir_+TString("/")+numPathName+" "+denPathName+TString("_")+vObj[k]+TString("OnOff"); 
+      TString oldHistPathDen = sourceDir_+TString("/")+numPathName+" "+denPathName+TString("_")+vObj[k]+TString("Off"); 
   
   
-      TString newHistName = curHltPath->String()+TString("_"+vObj[k]+"_Eff-OnToL1");
+      TString newHistName = curHltPath->String()+TString("_"+vObj[k]+"_Eff_HLTtoL1");
+      TString newHistTitle = numPathName+" given " + denPathName +TString("  "+vObj[k]+" Eff  HLTtoL1");
       TString newHistPath = pathFolder+newHistName;
   
       MonitorElement *numME = dbe_->get(oldHistPathNum.Data());
@@ -335,7 +378,7 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
         TH1F* denHist = denME->getTH1F();
   
         TH1F* effHist = (TH1F*) numHist->Clone(newHistName.Data());
-        effHist->SetTitle(newHistName.Data());
+        effHist->SetTitle(newHistTitle.Data());
         effHist->Sumw2();
         effHist->Divide(denHist);
         
@@ -352,6 +395,7 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
 
       }
     } //end for obj k
+   } // end for custompathpair
 
   } //end for 
 

@@ -17,7 +17,12 @@ process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
 process.load("Configuration.StandardSequences.Geometry_cff")
 
-process.load("L1Trigger.Configuration.L1Config_cff")
+#process.load("L1Trigger.Configuration.L1Config_cff")
+process.load("L1TriggerConfig.L1ScalesProducers.L1MuTriggerScalesConfig_cff")
+process.load("L1TriggerConfig.L1ScalesProducers.L1MuTriggerPtScaleConfig_cff")
+process.load("L1TriggerConfig.L1GtConfigProducers.L1GtBoardMapsConfig_cff")
+process.load("L1TriggerConfig.L1GtConfigProducers.L1GtConfig_cff")
+process.load("L1TriggerConfig.L1GtConfigProducers.Luminosity.lumi1030.L1Menu2008_2E30_Unprescaled_cff")
 
 #process.load("L1Trigger.HardwareValidation.L1HardwareValidation_cff")
 
@@ -25,27 +30,11 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 
 process.load("DQMOffline.Trigger.FourVectorHLTOffline_cfi")
 process.load("DQMOffline.Trigger.FourVectorHLTOfflineClient_cfi")
-process.load("DQM.HLTEvF.FourVectorHLTOnline_cfi")
-#process.load("DQMOffline.Trigger.L1TMonitor_dqmoffline_cff")
-#process.load("DQMOffline.Trigger.Tau.HLTTauDQMOffline_cff")
-#process.load("DQMOffline.Trigger.EgammaHLTOffline_cfi")
-#process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
+process.load("DQMOffline.Trigger.L1TMonitor_dqmoffline_cff")
+process.load("DQMOffline.Trigger.Tau.HLTTauDQMOffline_cff")
+process.load("DQMOffline.Trigger.EgammaHLTOffline_cfi")
+process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 
-from DQM.HLTEvF.FourVectorHLTOnline_cfi import *
-process.hltmonitoron = cms.Sequence(hltResultsOn)
-hltResultsOn.triggerSummaryLabel = cms.InputTag("hltTriggerSummaryAOD","","HLT")
-hltResultsOn.triggerResultsLabel = cms.InputTag("TriggerResults","","HLT")
-
-from DQMOffline.Trigger.FourVectorHLTOffline_cfi import *
-process.hltmonitor = cms.Sequence(hltResults)
-hltResults.triggerSummaryLabel = cms.InputTag("hltTriggerSummaryAOD","","HLT")
-hltResults.triggerResultsLabel = cms.InputTag("TriggerResults","","HLT")
-
-process.hltEventInfoClient = cms.EDFilter("HLTEventInfoClient",
-    monitorDir = cms.untracked.string(''),
-    prescaleLS = cms.untracked.int32(-1),
-    prescaleEvt = cms.untracked.int32(1)
-)
 from DQMOffline.Trigger.FourVectorHLTOfflineClient_cfi import *
 process.hltclient = cms.Sequence(hltFourVectorClient)
 hltFourVectorClient.prescaleLS = cms.untracked.int32(-1)
@@ -55,7 +44,7 @@ hltFourVectorClient.prescaleEvt = cms.untracked.int32(1)
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(1000)
 )
 process.source = cms.Source("PoolSource",
     fileNames = 
@@ -63,6 +52,7 @@ process.source = cms.Source("PoolSource",
         cms.untracked.vstring('/store/relval/CMSSW_2_1_7/RelValZEE/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V7_v1/0001/0C3B40D7-F87D-DD11-A9FB-000423D998BA.root','/store/relval/CMSSW_2_1_7/RelValZEE/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V7_v1/0001/3A5455F3-F87D-DD11-AEF4-000423D94534.root')
                             
 )
+
 
 process.MessageLogger = cms.Service("MessageLogger",
     detailedInfo = cms.untracked.PSet(
@@ -84,11 +74,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         'cout')
 )
 
-<<<<<<< trigger_dqmoffline_sourceclient_relval-file_cfg.py
-process.psource = cms.Path(process.hltmonitor*process.hltclient*process.hltEventInfoClient)
-=======
-process.psource = cms.Path(process.hltmonitoron*process.hltmonitor*process.hltclient)
->>>>>>> 1.5
+process.psource = cms.Path(process.hltResults*process.hltclient)
 process.p = cms.EndPath(process.dqmSaver)
 process.DQMStore.verbose = 0
 process.DQM.collectorHost = ''
@@ -97,4 +83,3 @@ process.dqmSaver.saveByRun = 1
 process.dqmSaver.saveAtJobEnd = True
 
 
-process.DQMStore.referenceFileName = 'DQM_V0001_HLTOffline_R000000001_RelValZeeZmmMinBias.root'
