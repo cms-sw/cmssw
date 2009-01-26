@@ -11,8 +11,10 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring("file:/tmp/jribnik/bah.root")
 )
 
-process.load("Configuration.StandardSequences.FakeConditions_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = 'IDEAL_30X::All'
 process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Geometry.CommonDetUnit.globalTrackingGeometry_cfi")
 
 process.load("Validation.MuonIdentification.muonIdVal_cff")
 process.muonIdVal.makeEnergyPlots = cms.untracked.bool(True)
