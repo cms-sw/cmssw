@@ -9,7 +9,7 @@ import FWCore.ParameterSet.Config as cms
 
 loadTau = cms.EDAnalyzer("DQMFileLoader",
   test = cms.PSet(
-    inputFileNames = cms.vstring('/afs/cern.ch/user/v/vasquez/scratch0/CMSSW_2_2_3/src/Validation/RecoTau/test/CMSSW_2_2_3_tauGenJets.root'),
+    inputFileNames = cms.vstring('/afs/cern.ch/user/v/vasquez/scratch0/CMSSW_3_0_0_pre7/src/Validation/RecoTau/test/CMSSW_3_0_0_pre7_tauGenJets.root'),
     scaleFactor = cms.double(1.),
     dqmDirectory_store = cms.string('test')
   ),
@@ -24,5 +24,5 @@ loadTau = cms.EDAnalyzer("DQMFileLoader",
 # Give the correct test and reference labels on the plots
 #########################################################
 
-test = cms.string('CMSSW_2_2_3_Summer08')
+test = cms.string('CMSSW_3_0_0_pre7')
 reference = cms.string('CMSSW_2_2_0')
