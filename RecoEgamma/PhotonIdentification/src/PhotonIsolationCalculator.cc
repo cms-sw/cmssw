@@ -92,6 +92,17 @@ void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf) {
   photonHcalTowerThreshEB_ = conf.getParameter<double>("HcalTowerThreshEB");
 
 
+  photonHcalDepth1TowerConeInnerRadiusB_ = conf.getParameter<double>("HcalDepth1TowerInnerRadiusB");
+  photonHcalDepth1TowerConeOuterRadiusB_ = conf.getParameter<double>("HcalDepth1TowerOuterRadiusB");
+  photonHcalDepth1TowerThreshEB_ = conf.getParameter<double>("HcalDepth1TowerThreshEB");
+
+  photonHcalDepth2TowerConeInnerRadiusB_ = conf.getParameter<double>("HcalDepth2TowerInnerRadiusB");
+  photonHcalDepth2TowerConeOuterRadiusB_ = conf.getParameter<double>("HcalDepth2TowerOuterRadiusB");
+  photonHcalDepth2TowerThreshEB_ = conf.getParameter<double>("HcalDepth2TowerThreshEB");
+
+
+
+
 
 }
 
