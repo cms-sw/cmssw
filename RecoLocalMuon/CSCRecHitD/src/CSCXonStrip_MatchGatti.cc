@@ -218,7 +218,11 @@ void CSCXonStrip_MatchGatti::findXOnStrip( const CSCDetId& id, const CSCLayer* l
   charges[2] = q_sumR;
   int min_index = min_element(charges.begin(),charges.end()) - charges.begin();
   int max_index = max_element(charges.begin(),charges.end()) - charges.begin();
-  if(1!=max_index && (1==min_index || charges[max_index]/q_sumC > 1.1)){// 10% below the maximum charge
+  if(1!=max_index && (1==min_index ||
+		      // the condition below means that if the initial position estimate within strip (|xF|)
+		      // is above  1.1/2 = 0.55 "strip widths" peakMismatch is set to true (so special case);
+		      // in normal cases |xF|<=0.5 (0.5 is at the edge of the "central" strip)
+		      (charges[max_index] - charges[min_index]) > 1.1*(q_sumC - charges[min_index]) )){
     peakMismatch = true;
     switch (max_index){
     case 0:
