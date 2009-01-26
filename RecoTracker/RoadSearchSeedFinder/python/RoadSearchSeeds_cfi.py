@@ -14,6 +14,10 @@ import FWCore.ParameterSet.Config as cms
 # produces RoadSearchSeeds for seeding track reconstruction 
 #
 roadSearchSeeds = cms.EDFilter("RoadSearchSeedFinder",
+    #***top-bottom
+    AllPositiveOnly = cms.bool(False),
+    AllNegativeOnly = cms.bool(False),
+    #***
     # TrackingRecHit access configuration for outer seed rings
     # access mode for TrackingTools/RoadSearchHitAccess, allowed values: "STANDARD",'RPHI'
     OuterSeedRecHitAccessMode = cms.string('RPHI'),

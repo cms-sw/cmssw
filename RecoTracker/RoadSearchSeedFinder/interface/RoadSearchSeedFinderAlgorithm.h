@@ -14,9 +14,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: arizzi $
-// $Date: 2008/06/19 15:01:04 $
-// $Revision: 1.20 $
+// $Author: burkett $
+// $Date: 2008/11/18 19:17:12 $
+// $Revision: 1.21 $
 //
 
 #include <string>
@@ -144,6 +144,11 @@ class RoadSearchSeedFinderAlgorithm
   std::string mode_;
 
   std::string roadsLabel_;
+
+  //***top-bottom
+  bool allPositiveOnly;
+  bool allNegativeOnly;
+  //***
 
 };
 

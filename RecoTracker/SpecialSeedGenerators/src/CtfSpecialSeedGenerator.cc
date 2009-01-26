@@ -226,6 +226,9 @@ bool CtfSpecialSeedGenerator::preliminaryCheck(const SeedingHitSet& shs){
 	std::vector<std::pair<unsigned int, unsigned int> > vSubdetLayer;
 	//std::vector<std::string> vSeedLayerNames;
 	bool checkHitsAtPositiveY       = conf_.getParameter<bool>("SeedsFromPositiveY");
+	//***top-bottom
+	bool checkHitsAtNegativeY       = conf_.getParameter<bool>("SeedsFromNegativeY");
+	//***
 	bool checkHitsOnDifferentLayers = conf_.getParameter<bool>("CheckHitsAreOnDifferentLayers");
 	for (iHits = hits.begin(); iHits != hits.end(); iHits++){
 		//hits for the seeds must be at positive y
@@ -234,6 +237,9 @@ bool CtfSpecialSeedGenerator::preliminaryCheck(const SeedingHitSet& shs){
 		//GlobalPoint point = 
 		//  theTracker->idToDet(iHits->geographicalId() )->surface().toGlobal(iHits->localPosition());
 		if (checkHitsAtPositiveY){ if (hitPos.y() < 0) return false;}
+		//***top-bottom
+		if (checkHitsAtNegativeY){ if (hitPos.y() > 0) return false;}
+		//***
 		//std::string name = iHits->seedinglayer().name(); 
 		//hits for the seeds must be in different layers
 		unsigned int subid=(**iHits).geographicalId().subdetId();

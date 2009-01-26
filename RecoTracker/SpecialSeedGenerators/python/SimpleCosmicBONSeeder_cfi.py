@@ -79,5 +79,9 @@ simpleCosmicBONSeeds = cms.EDProducer("SimpleCosmicBONSeeder",
     writeTriplets   = cms.bool(False), # write the triplets to the Event as OwnVector<TrackingRecHit>
     helixDebugLevel = cms.untracked.uint32(0), # debug FastHelix (0 to 2)
     seedDebugLevel  = cms.untracked.uint32(0), # debug seed building (0 to 3)
+    #***top-bottom
+    PositiveYOnly = cms.bool(False),
+    NegativeYOnly = cms.bool(False)
+    #***
 )
 simpleCosmicBONSeeds.TripletsPSet.TEC.useSimpleRphiHitsCleaner = False

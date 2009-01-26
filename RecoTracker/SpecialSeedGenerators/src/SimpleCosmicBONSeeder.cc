@@ -37,6 +37,11 @@ SimpleCosmicBONSeeder::SimpleCosmicBONSeeder(edm::ParameterSet const& conf) :
 
   builderName = conf_.getParameter<std::string>("TTRHBuilder");   
 
+  //***top-bottom
+  positiveYOnly=conf_.getParameter<bool>("PositiveYOnly");
+  negativeYOnly=conf_.getParameter<bool>("NegativeYOnly");
+  //***
+
   produces<TrajectorySeedCollection>();
   if (writeTriplets_) produces<edm::OwnVector<TrackingRecHit> >("cosmicTriplets");
 
@@ -252,6 +257,15 @@ bool SimpleCosmicBONSeeder::triplets(const edm::Event& e, const edm::EventSetup&
                         continue;
                     } 
 
+		    //***top-bottom
+		    if (positiveYOnly && (innerpos.y()<0 || middlepos.y()<0 || outerpos.y()<0
+					  || outerpos.y() < innerpos.y()
+					  ) ) continue;
+		    if (negativeYOnly && (innerpos.y()>0 || middlepos.y()>0 || outerpos.y()>0
+					  || outerpos.y() > innerpos.y()
+					  ) ) continue;
+		    //***
+		    
                     if (tripletsVerbosity_ > 2) std::cout << "Trying seed with: " << innerpos << " + " << middlepos << " + " << outerpos << std::endl;
                     if (goodTriplet(innerpos,middlepos,outerpos,minRho)) {
                         OrderedHitTriplet oht(*iInnerHit,*iMiddleHit,*iOuterHit);

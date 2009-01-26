@@ -92,6 +92,11 @@ class SimpleCosmicBONSeeder : public edm::EDProducer
   bool checkCharge(const TrackingRecHit *hit) const ;
   bool checkCharge(const SiStripRecHit2D &hit, int subdetid) const ;
   void checkNoisyModules(const std::vector<TransientTrackingRecHit::RecHitPointer> &hits, std::vector<bool> &oks) const ;
+
+  //***top-bottom
+  bool positiveYOnly;
+  bool negativeYOnly;
+  //***
 };
 
 #endif

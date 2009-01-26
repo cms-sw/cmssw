@@ -11,9 +11,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: arizzi $
-// $Date: 2008/06/19 15:01:04 $
-// $Revision: 1.31 $
+// $Author: burkett $
+// $Date: 2008/11/18 19:17:13 $
+// $Revision: 1.32 $
 //
 
 #include <vector>
@@ -53,7 +53,9 @@
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/DetSetNew.h"
-
+//***top-bottom
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+//***
 const double speedOfLight = 2.99792458e8;
 const double unitCorrection = speedOfLight * 1e-2 * 1e-9;
 
@@ -118,6 +120,10 @@ RoadSearchSeedFinderAlgorithm::RoadSearchSeedFinderAlgorithm(const edm::Paramete
   roadsLabel_ = conf.getParameter<std::string>("RoadsLabel");
 
   maxNumberOfSeeds_ = conf.getParameter<int32_t>("MaxNumberOfSeeds");
+  //***top-bottom
+  allPositiveOnly = conf.getParameter<bool>("AllPositiveOnly");
+  allNegativeOnly = conf.getParameter<bool>("AllNegativeOnly");
+  //***
 }
 
 RoadSearchSeedFinderAlgorithm::~RoadSearchSeedFinderAlgorithm() {
@@ -150,6 +156,11 @@ void RoadSearchSeedFinderAlgorithm::run(const SiStripRecHit2DCollection* rphiRec
   edm::ESHandle<MagneticField> magnetHandle;
   es.get<IdealMagneticFieldRecord>().get(magnetHandle);
   magnet_ = magnetHandle.product();
+
+  //***top-bottom
+  //TTRHBuilder
+  TkTransientTrackingRecHitBuilder* builder = new TkTransientTrackingRecHitBuilder(tracker_,0,0,0);
+  //***
 
   // get magnetic field for 0,0,0 , approximation for minRadius calculation
   beamSpotZMagneticField_ = magnet_->inTesla(GlobalPoint(0,0,0)).z();
@@ -290,12 +301,26 @@ void RoadSearchSeedFinderAlgorithm::run(const SiStripRecHit2DCollection* rphiRec
       RoadSearchSeed seed;
       seed.setSet(localCircle->getSet());
       seed.setSeed(localCircle->getSeed());
+      //***top-bottom
+      bool allPositive = true;
+      bool allNegative = true;
+      //***
       for (std::vector<const TrackingRecHit*>::const_iterator hit = localCircle->begin_hits();
 	   hit != localCircle->end_hits();
 	   ++hit ) {
 	seed.addHit(*hit);
+	//***top-bottom
+	double seedY = builder->build(*hit)->globalPosition().y();
+	if (seedY>0) allNegative = false;
+	if (seedY<0) allPositive = false;
+	//***
       }
-      output.push_back(seed);
+      //***top-bottom
+      //output.push_back(seed);
+      if (allPositive && allPositiveOnly) output.push_back(seed);
+      if (allNegative && allNegativeOnly) output.push_back(seed);
+      if (!allPositiveOnly && !allNegativeOnly) output.push_back(seed);
+      //***
     }
 
     if ((maxNumberOfSeeds_ > 0) && (output.size() > size_t(maxNumberOfSeeds_))) {
