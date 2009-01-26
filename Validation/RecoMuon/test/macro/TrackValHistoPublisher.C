@@ -89,7 +89,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    collname1 = myName;
    collname2 = myName;
 
-   TString newDir("NEW_RELEASE/");
+   TString newDir("NEW_RELEASE/NEWSELECTION/");
    newDir+=myName;
    gSystem->mkdir(newDir,kTRUE);
  

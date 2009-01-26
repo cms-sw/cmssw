@@ -44,6 +44,7 @@ Tracksname=''
 
 #Sequence='only_validation_and_TP'
 Sequence='harvesting'
+#Sequence='report_only'
 
 # Ideal and Statup tags
 IdealTag='IDEAL_30X'
@@ -120,19 +121,19 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
         templatemacroFile = open(macro, 'r')
         print 'Get information from DBS for sample', sample
         newdir=NewRepository+'/'+NewRelease+'/'+NewSelection+'/'+sample 
-
+        
         #chech if the sample is already done
         if(os.path.isfile(newdir+'/building.pdf' )!=True):    
-
+            
             #search the primary dataset
             cmd='./DDSearchCLI.py  --limit -1 --input="find  dataset.createdate, dataset where dataset like *'
-#            cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-DIGI-RAW-HLTDEBUG-RECO* "'
+            #            cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-DIGI-RAW-HLTDEBUG-RECO* "'
             cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-RECO* "'
             cmd+='|grep '+sample+'|sort|tail -1| cut -d "," -f2 '
             print cmd
             dataset= os.popen(cmd).readline()
             print 'DataSet:  ', dataset, '\n'
-
+            
             #Check if a dataset is found
             if dataset!="":
                 print 'dataset found'
@@ -148,18 +149,18 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                 filenames+=']);\n'
                 print 'made many names'
                 # if not harvesting find secondary file names
-                if(Sequence!="harvesting"):
+                if(Sequence!="harvesting" and Sequence!="report_only"):
                     print 'NOT HARVESTING'
                     cmd3='./DDSearchCLI.py  --limit -1 --input="find dataset.parent where dataset like '+ dataset +'"|grep ' + sample
                     parentdataset=os.popen(cmd3).readline()
                     print 'Parent DataSet:  ', parentdataset, '\n'
-
-                #Check if a dataset is found
+                    
+                    #Check if a dataset is found
                     if parentdataset!="":
                         cmd4='./DDSearchCLI.py  --limit -1 --cff --input="find file where dataset like '+ parentdataset +'"|grep ' + sample 
                         filenames+='secFiles.extend( [\n'
                         first=True
-
+                        
                         for line in os.popen(cmd4).readlines():
                             filenames+=line
 #                            secfilename=line.strip()
@@ -196,24 +197,34 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
 
                 cmdrun='cmsRun ' +cfgFileName+ '.py >&  ' + cfgFileName + '.log < /dev/zero '
 #ADAM
-                retcode=os.system(cmdrun)
-#                retcode=0
+                if(os.path.exists(NewRelease+'/'+NewSelection)==False):
+                    os.makedirs(NewRelease+'/'+NewSelection)
+
+                retcode=0
+                if(Sequence!="report_only"):
+                    retcode=os.system(cmdrun)
+                else:
+                    newSample=NewRepository+'/'+NewRelease+'/'+NewSelection+'/'+sample+'/'+'val.'+sample+'.root'
+                    if os.path.isfile(newSample ):
+                        os.system('cp ' + newSample+ ' '+NewRelease+'/'+NewSelection)  
+                    else:
+                        print "No new file found at: ", NewRelease+'/'+NewSelection
 
                 if (retcode!=0):
                     print 'Job for sample '+ sample + ' failed. \n'
                 else:
                     if Sequence=="harvesting":
-                        os.system('mv  DQM_V0001_R000000001__' + GlobalTag+ '__' + sample + '__Validation.root val.' +sample+'.root')
+                        os.system('mv  DQM_V0001_R000000001__' + GlobalTag+ '__' + sample + '__Validation.root' + ' ' + NewRelease+'/'+NewSelection+'/val.' +sample+'.root')
                     referenceSample=RefRepository+'/'+RefRelease+'/'+RefSelection+'/'+sample+'/'+'val.'+sample+'.root'
                     if os.path.isfile(referenceSample ):
-                        replace_map = { 'NEW_FILE':'val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefSelection+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefSelection, 'NEWSELECTION':NewSelection, 'TrackValHistoPublisher': sample}
+                        replace_map = { 'NEW_FILE':NewRelease+'/'+NewSelection+'/val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefSelection+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefSelection, 'NEWSELECTION':NewSelection, 'TrackValHistoPublisher': sample}
 
                         if(os.path.exists(RefRelease+'/'+RefSelection)==False):
                             os.makedirs(RefRelease+'/'+RefSelection)
                         os.system('cp ' + referenceSample+ ' '+RefRelease+'/'+RefSelection)  
                     else:
                         print "No reference file found at: ", RefRelease+'/'+RefSelection
-                        replace_map = { 'NEW_FILE':'val.'+sample+'.root', 'REF_FILE':'val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewSelection, 'NEWSELECTION':NewSelection, 'TrackValHistoPublisher': sample}
+                        replace_map = { 'NEW_FILE':NewRelease+'/'+NewSelection+'/val.'+sample+'.root', 'REF_FILE':NewRelease+'/'+NewSelection+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewSelection, 'NEWSELECTION':NewSelection, 'TrackValHistoPublisher': sample}
 
 
                     macroFile = open(cfgFileName+'.C' , 'w' )
@@ -227,13 +238,13 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                         os.makedirs(newdir)
 
                     print "copying pdf files for sample: " , sample
-                    os.system('scp -r '+NewRelease+'/* ' + newdir)
+                    os.system('scp -r '+NewRelease+'/'+NewSelection+'/* ' + newdir)
 
-                    print "copying root file for sample: " , sample
-                    os.system('cp val.'+ sample+ '.root ' + newdir)
-
-                    print "copying py file for sample: " , sample
-                    os.system('cp '+cfgFileName+'.py ' + newdir)
+                    if(Sequence!='report_only'):
+                        print "copying root file for sample: " , sample
+                        os.system('cp '+NewRelease+'/'+NewSelection+'/val.'+ sample+ '.root ' + newdir)
+                        print "copying py file for sample: " , sample
+                        os.system('cp '+cfgFileName+'.py ' + newdir)
 
 
             else:
