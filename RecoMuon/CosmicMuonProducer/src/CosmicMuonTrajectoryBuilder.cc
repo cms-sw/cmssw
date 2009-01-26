@@ -4,8 +4,8 @@
  *  class to build trajectories of cosmic muons and beam-halo muons
  *
  *
- *  $Date: 2008/12/31 02:34:02 $
- *  $Revision: 1.43 $
+ *  $Date: 2009/01/25 17:58:56 $
+ *  $Revision: 1.44 $
  *  \author Chang Liu  - Purdue Univeristy
  */
 
@@ -354,18 +354,6 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
 //     getDirectionByTime(myTraj);
   if (beamhaloFlag) estimateDirection(myTraj);
   if ( myTraj.empty() ) return trajL;
-
-// try to smooth it
-
-  vector<Trajectory> smoothed = theSmoother->trajectories(myTraj);
-  if ( !smoothed.empty() )  {
-     LogTrace(category_) <<" Smoothed successfully.";
-     myTraj = smoothed.front();
-  }
-  else {
-     LogTrace(category_) <<" Smooth failed.";
-  }
-
 
   LogTrace(category_) <<"first "<< myTraj.firstMeasurement().updatedState()
                       <<"\n last "<<myTraj.lastMeasurement().updatedState();
