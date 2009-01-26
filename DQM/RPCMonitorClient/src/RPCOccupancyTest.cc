@@ -87,7 +87,49 @@ void RPCOccupancyTest::beginRun(const Run& r, const EventSetup& c){
        s++;    
  }
 
+ ////////// new
+ histoName.str("");
+ histoName<<"Asymmetry_Roll_vs_Sector_Wheel"<<w;       // new asymmetry 2D histo       
+  if ( me = dbe_->get(prefixDir_ +"/"+ histoName.str()) ) {
+    dbe_->removeElement(me->getName());
+  }
+  me = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(),  12, 0.5, 12.5, 21, 0.5, 21.5);
+  for(int bin =1; bin<13;bin++) {
+    histoName.str("");
+    histoName<<"Sec"<<s;
+    me->setBinLabel(bin,histoName.str().c_str(),1);
+    s++;    
+  }
+  
 
+  histoName.str("");
+  histoName<<"Asymmetry_Distribution_Wheel"<<w;       // new asymmetry distribution    
+  if ( me = dbe_->get(prefixDir_ +"/"+ histoName.str()) ) {
+    dbe_->removeElement(me->getName());
+  }
+  me = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  100, 0.5, 100.5);
+  
+  histoName.str("");
+  histoName<<"RMS_Roll_vs_Sector_Wheel"<<w;       // Occupancy RMS 
+  if ( me = dbe_->get(prefixDir_ +"/"+ histoName.str()) ) {
+    dbe_->removeElement(me->getName());
+  }
+  me = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(),  12, 0.5, 12.5, 21, 0.5, 21.5);
+  for(int bin =1; bin<13;bin++) {
+    histoName.str("");
+    histoName<<"Sec"<<s;
+    me->setBinLabel(bin,histoName.str().c_str(),1);
+    s++;    
+  }
+
+
+  histoName.str("");
+  histoName<<"RMS_Distribution_Wheel"<<w;       // Occupancy RMS 
+  if ( me = dbe_->get(prefixDir_ +"/"+ histoName.str()) ) {
+    dbe_->removeElement(me->getName());
+  }
+  me = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  100, 0.5, 100.5);
+ 
 
   }//end loop on wheels
 
@@ -112,6 +154,11 @@ void RPCOccupancyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
 
   MonitorElement * myAsyMe;
   MonitorElement * myGlobalMe;
+  MonitorElement * MVA;          // Mean Value Asymmetry
+  MonitorElement * RMS;          // Occupancy RMS
+  MonitorElement * RMSD;         // Occupancy RMS Distribution
+  MonitorElement * MVAD;         // Mean Value Asymmetry Distibution
+  
   stringstream meName;
   //Loop on chambers
   for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
@@ -133,10 +180,7 @@ void RPCOccupancyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
 	 RPCGeomServ RPCname(detId);
 	 //	 string Yaxis=RPCname.name();
 	 if (detId.region()==0){
-	//    Yaxis.erase (1,1);
-// 	   Yaxis.erase(0,3);
-// 	   Yaxis.replace(Yaxis.find("S"),4,"");
-// 	   Yaxis.erase(Yaxis.find("_")+2,8);
+
 	  string YLabel = RPCname.shortname();
 
 	 RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
@@ -185,6 +229,54 @@ void RPCOccupancyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
 	 myGlobalMe->setBinLabel(nr, YLabel, 2);
 	 }
 
+	 ///////////// David //////
+	 float BinsOnX = myMe->getNbinsX();
+	 float Mean = myMe->getMean();
+	 float Asymmetry = fabs(BinsOnX-Mean/2);
+	 float rms = myMe->getRMS();
+	 
+	 meName.str("");
+	 meName<<prefixDir_<<"/SummaryHistograms/RMS_Roll_vs_Sector_Wheel"<<detId.ring();
+	 RMS = dbe_->get(meName.str());
+	 if (RMS) { 
+	   RMS -> setBinContent(detId.sector(), nr, rms);
+	   RMS ->setBinLabel(nr, YLabel, 2);
+	 }
+	 
+	 
+	 meName.str("");
+	 meName<<prefixDir_<<"/SummaryHistograms/RMS_Distribution_Wheel"<<detId.ring();
+	 RMSD = dbe_->get(meName.str());
+	 RMSD->Reset();
+	 	 
+
+	 meName.str("");
+	 meName<<prefixDir_<<"/SummaryHistograms/Asymmetry_Roll_vs_Sector_Wheel"<<detId.ring();  
+	 MVA= dbe_->get(meName.str());
+	 if(MVA) {
+	   MVA -> setBinContent(detId.sector(), nr, Asymmetry);
+	   MVA -> setBinLabel(nr, YLabel, 2);
+	 }
+	 
+	 meName.str("");
+	 meName<<prefixDir_<<"/SummaryHistograms/Asymmetry_Distribution_Wheel"<<detId.ring();
+	 // cout<<meName.str()<<endl;
+	 MVAD = dbe_->get(meName.str());
+	 MVAD->Reset();
+	 if (MVAD) {
+	   for(int x=1; x<13; x++) {
+	     int roll;
+	     if(x==4) roll=22;
+	     else if(x==9 || x==11) roll=16;
+	     else roll=18;
+	     for(int y=1; y<roll; y++) {
+	       MVAD->Fill( MVA->getBinContent(x,y));
+	       if (RMSD) RMSD->Fill(RMS->getBinContent(x,y));
+	     }
+	   }
+	 }
+	 
+	 
        }//End loop on rolls in given chambers
     }
     }//End loop on chamber
