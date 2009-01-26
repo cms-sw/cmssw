@@ -4,7 +4,7 @@ set cfgFile = $1
 set runNum = $2
 echo CFG FILE: ${cfgFile}
 setenv Outdir /castor/cern.ch/cms/store/cmscaf/L1Trigger/L1Prompt
-setenv runDir ${HOME}/scratch0/CMSSW_2_1_9/src/L1TriggerOffline/L1Analyzer/test
+setenv runDir ${CMSSW_BASE}/src/L1TriggerOffline/L1Analyzer/test
 setenv tmpDir `pwd`
 echo TEMPORARY DIRECTORY: ${tmpDir}
 echo RUN DIRECTORY: ${runDir}
