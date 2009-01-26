@@ -97,7 +97,7 @@ namespace reco{
       for( size_t iFilteredCand = 0; iFilteredCand < numberOfFilteredObjects; ++iFilteredCand)
       {
          const Candidate* myCand = filteredObjects_.daughter(iFilteredCand);
-         if (absCharge >= 0 && abs(myCand->charge()) == absCharge)
+         if (absCharge < 0 || abs(myCand->charge()) == absCharge)
             output.push_back(myCand);
       }
       return output;
