@@ -40,7 +40,7 @@ hlt_BTagIP_Jet180.levels = cms.VPSet(cms.PSet(
     ), 
     cms.PSet(
         filter = cms.InputTag("hltBLifetimeL3filter","","HLT"),
-        jets = cms.InputTag("hltBLifetimeHLTJets"),
+        jets = cms.InputTag("none"),
         name = cms.string('L3'),
         title = cms.string('L3')
     ))
@@ -67,7 +67,7 @@ hlt_BTagIP_DoubleJet120.levels = cms.VPSet(cms.PSet(
     ), 
     cms.PSet(
         filter = cms.InputTag("hltBLifetimeL3filter","","HLT"),
-        jets = cms.InputTag("hltBLifetimeHLTJets"),
+        jets = cms.InputTag("none"),
         name = cms.string('L3'),
         title = cms.string('L3')
     ))
@@ -94,7 +94,7 @@ hlt_BTagIP_TripleJet70.levels = cms.VPSet(cms.PSet(
     ), 
     cms.PSet(
         filter = cms.InputTag("hltBLifetimeL3filter","","HLT"),
-        jets = cms.InputTag("hltBLifetimeHLTJets"),
+        jets = cms.InputTag("none"),
         name = cms.string('L3'),
         title = cms.string('L3')
     ))
@@ -121,7 +121,7 @@ hlt_BTagIP_QuadJet40.levels = cms.VPSet(cms.PSet(
     ), 
     cms.PSet(
         filter = cms.InputTag("hltBLifetimeL3filter","","HLT"),
-        jets = cms.InputTag("hltBLifetimeHLTJets"),
+        jets = cms.InputTag("none"),
         name = cms.string('L3'),
         title = cms.string('L3')
     ))
@@ -148,7 +148,7 @@ hlt_BTagIP_HT470.levels = cms.VPSet(cms.PSet(
     ), 
     cms.PSet(
         filter = cms.InputTag("hltBLifetimeL3filter","","HLT"),
-        jets = cms.InputTag("hltBLifetimeHLTJets"),
+        jets = cms.InputTag("none"),
         name = cms.string('L3'),
         title = cms.string('L3')
     ))

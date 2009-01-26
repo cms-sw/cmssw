@@ -37,7 +37,7 @@ hlt_BTagMu_Jet20_Calib.levels = cms.VPSet(cms.PSet(
     ), 
     cms.PSet(
         filter = cms.InputTag("hltBSoftmuonByDRL3filter","","HLT"),
-        jets = cms.InputTag("hltBSoftmuonHLTJetsByDR"),
+        jets = cms.InputTag("none"),
         name = cms.string('L3'),
         title = cms.string('L3')
     ))
@@ -62,7 +62,7 @@ hlt_BTagMu_DoubleJet120.levels = cms.VPSet(cms.PSet(
     ), 
     cms.PSet(
         filter = cms.InputTag("hltBSoftmuonL3filter","","HLT"),
-        jets = cms.InputTag("hltBSoftmuonHLTJets"),
+        jets = cms.InputTag("none"),
         name = cms.string('L3'),
         title = cms.string('L3')
     ))
@@ -87,7 +87,7 @@ hlt_BTagMu_TripleJet70.levels = cms.VPSet(cms.PSet(
     ), 
     cms.PSet(
         filter = cms.InputTag("hltBSoftmuonL3filter","","HLT"),
-        jets = cms.InputTag("hltBSoftmuonHLTJets"),
+        jets = cms.InputTag("none"),
         name = cms.string('L3'),
         title = cms.string('L3')
     ))
@@ -112,7 +112,7 @@ hlt_BTagMu_QuadJet40.levels = cms.VPSet(cms.PSet(
     ), 
     cms.PSet(
         filter = cms.InputTag("hltBSoftmuonL3filter","","HLT"),
-        jets = cms.InputTag("hltBSoftmuonHLTJets"),
+        jets = cms.InputTag("none"),
         name = cms.string('L3'),
         title = cms.string('L3')
     ))
@@ -137,7 +137,7 @@ hlt_BTagMu_HT370.levels = cms.VPSet(cms.PSet(
     ), 
     cms.PSet(
         filter = cms.InputTag("hltBSoftmuonL3filter","","HLT"),
-        jets = cms.InputTag("hltBSoftmuonHLTJets"),
+        jets = cms.InputTag("none"),
         name = cms.string('L3'),
         title = cms.string('L3')
     ))

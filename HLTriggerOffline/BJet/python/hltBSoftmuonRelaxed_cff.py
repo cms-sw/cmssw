@@ -35,7 +35,7 @@ hlt_BTagMu_DoubleJet60_Relaxed.levels = cms.VPSet(cms.PSet(
     ), 
     cms.PSet(
         filter = cms.InputTag("hltBSoftmuonL3filterRelaxed","","HLT"),
-        jets = cms.InputTag("hltBSoftmuonHLTJets"),
+        jets = cms.InputTag("none"),
         name = cms.string('L3'),
         title = cms.string('L3')
     ))
@@ -60,7 +60,7 @@ hlt_BTagMu_TripleJet40_Relaxed.levels = cms.VPSet(cms.PSet(
     ), 
     cms.PSet(
         filter = cms.InputTag("hltBSoftmuonL3filterRelaxed","","HLT"),
-        jets = cms.InputTag("hltBSoftmuonHLTJets"),
+        jets = cms.InputTag("none"),
         name = cms.string('L3'),
         title = cms.string('L3')
     ))
@@ -85,7 +85,7 @@ hlt_BTagMu_QuadJet30_Relaxed.levels = cms.VPSet(cms.PSet(
     ), 
     cms.PSet(
         filter = cms.InputTag("hltBSoftmuonL3filterRelaxed","","HLT"),
-        jets = cms.InputTag("hltBSoftmuonHLTJets"),
+        jets = cms.InputTag("none"),
         name = cms.string('L3'),
         title = cms.string('L3')
     ))
@@ -110,7 +110,7 @@ hlt_BTagMu_HT250_Relaxed.levels = cms.VPSet(cms.PSet(
     ), 
     cms.PSet(
         filter = cms.InputTag("hltBSoftmuonL3filterRelaxed","","HLT"),
-        jets = cms.InputTag("hltBSoftmuonHLTJets"),
+        jets = cms.InputTag("none"),
         name = cms.string('L3'),
         title = cms.string('L3')
     ))

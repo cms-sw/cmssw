@@ -39,7 +39,7 @@ hlt_BTagIP_Jet120_Relaxed.levels = cms.VPSet(cms.PSet(
     ), 
     cms.PSet(
         filter = cms.InputTag("hltBLifetimeL3filterRelaxed","","HLT"),
-        jets = cms.InputTag("hltBLifetimeHLTJetsRelaxed"),
+        jets = cms.InputTag("none"),
         name = cms.string('L3'),
         title = cms.string('L3')
     ))
@@ -66,7 +66,7 @@ hlt_BTagIP_DoubleJet60_Relaxed.levels = cms.VPSet(cms.PSet(
     ), 
     cms.PSet(
         filter = cms.InputTag("hltBLifetimeL3filterRelaxed","","HLT"),
-        jets = cms.InputTag("hltBLifetimeHLTJetsRelaxed"),
+        jets = cms.InputTag("none"),
         name = cms.string('L3'),
         title = cms.string('L3')
     ))
@@ -93,7 +93,7 @@ hlt_BTagIP_TripleJet40_Relaxed.levels = cms.VPSet(cms.PSet(
     ), 
     cms.PSet(
         filter = cms.InputTag("hltBLifetimeL3filterRelaxed","","HLT"),
-        jets = cms.InputTag("hltBLifetimeHLTJetsRelaxed"),
+        jets = cms.InputTag("none"),
         name = cms.string('L3'),
         title = cms.string('L3')
     ))
@@ -120,7 +120,7 @@ hlt_BTagIP_QuadJet30_Relaxed.levels = cms.VPSet(cms.PSet(
     ), 
     cms.PSet(
         filter = cms.InputTag("hltBLifetimeL3filterRelaxed","","HLT"),
-        jets = cms.InputTag("hltBLifetimeHLTJetsRelaxed"),
+        jets = cms.InputTag("none"),
         name = cms.string('L3'),
         title = cms.string('L3')
     ))
@@ -147,7 +147,7 @@ hlt_BTagIP_HT320_Relaxed.levels = cms.VPSet(cms.PSet(
     ), 
     cms.PSet(
         filter = cms.InputTag("hltBLifetimeL3filterRelaxed","","HLT"),
-        jets = cms.InputTag("hltBLifetimeHLTJetsRelaxed"),
+        jets = cms.InputTag("none"),
         name = cms.string('L3'),
         title = cms.string('L3')
     ))

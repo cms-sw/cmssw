@@ -34,7 +34,7 @@ hltBtagLifetimeAnalyzer = cms.EDAnalyzer("HLTBtagLifetimeAnalyzer",
         ), 
         cms.PSet(
             filter = cms.InputTag("hltBLifetimeL3filter","","HLT"),
-            jets = cms.InputTag("hltBLifetimeHLTJets"),
+            jets = cms.InputTag("none"),
             name = cms.string('L3'),
             title = cms.string('L3')
         )),
