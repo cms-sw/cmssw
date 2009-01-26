@@ -10,6 +10,8 @@ process = cms.Process("ProcessOne")
 #PopCon config
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 process.CondDBCommon.connect = cms.string("sqlite_file:DBCrossTalk.db")
+#process.CondDBCommon.connect = cms.string("oracle://cms_orcoff_prep/CMS_COND_CSC")
+process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
 
 process.MessageLogger = cms.Service("MessageLogger",
     cout = cms.untracked.PSet(
@@ -21,11 +23,11 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 process.source = cms.Source("EmptyIOVSource",
-    lastRun = cms.untracked.uint32(1),
+    lastValue = cms.uint64(1),
     timetype = cms.string('runnumber'),
     #change the firstRun if you want a different IOV
-    firstRun = cms.untracked.uint32(1),
-    interval = cms.uint32(1)
+    firstValue = cms.uint64(1),
+    interval = cms.uint64(1)
 )
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
@@ -33,7 +35,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     logconnect = cms.untracked.string('sqlite_file:xtalklog.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('CSCDBCrosstalkRcd'),
-        tag = cms.string('CSCDBCrosstalk_new_popcon')
+        tag = cms.string('CSCDBCrosstalk_ME42')
     ))
 )
 
