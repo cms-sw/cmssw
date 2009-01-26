@@ -17,7 +17,7 @@
                 Manager or specify a maximum number of events for
                 the client to read through a maxEvents parameter.
 
-  $Id: EventStreamHttpReader.cc,v 1.30 2008/07/19 06:24:12 wmtan Exp $
+  $Id: EventStreamHttpReader.cc,v 1.31 2008/08/13 21:46:11 wmtan Exp $
 */
 
 #include "EventFilter/StorageManager/src/EventStreamHttpReader.h"
@@ -89,10 +89,27 @@ namespace edm
     lastRequestTime_.tv_sec = 0;
     lastRequestTime_.tv_usec = 0;
 
+    // 26-Jan-2009, KAB: an ugly hack to get ParameterSet to serialize
+    // the parameters that we need
+    ParameterSet psCopy(ps.toString());
+    psCopy.addParameter<double>("TrackedMaxRate", maxEventRequestRate);
+    std::string hltOMLabel = ps.getUntrackedParameter<std::string>("SelectHLTOutput",
+                                                                   std::string());
+    psCopy.addParameter<std::string>("TrackedHLTOutMod", hltOMLabel);
+    edm::ParameterSet selectEventsParamSet =
+      ps.getUntrackedParameter("SelectEvents", edm::ParameterSet());
+    if (! selectEventsParamSet.empty()) {
+      Strings path_specs = 
+        selectEventsParamSet.getParameter<Strings>("SelectEvents");
+      if (! path_specs.empty()) {
+        psCopy.addParameter<Strings>("TrackedEventSelection", path_specs);
+      }
+    }
+
     // 28-Aug-2006, KAB: save our parameter set in string format to
     // be sent to the event server to specify our "request" (that is, which
     // events we are interested in).
-    consumerPSetString_ = ps.toString();
+    consumerPSetString_ = psCopy.toString();
 
     // 16-Aug-2006, KAB: register this consumer with the event server
     consumerId_ = (time(0) & 0xffffff);  // temporary - will get from ES later

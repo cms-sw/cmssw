@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.93 2008/12/19 23:32:36 biery Exp $
+// $Id: StorageManager.cc,v 1.94 2008/12/29 16:50:51 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -117,7 +117,7 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   progressMarker_(ProgressMarker::instance()->idle()),
   lastEventSeen_(0),
   lastErrorEventSeen_(0),
-  sm_cvs_version_("$Id: StorageManager.cc,v 1.93 2008/12/19 23:32:36 biery Exp $ $Name:  $")
+  sm_cvs_version_("$Id: StorageManager.cc,v 1.94 2008/12/29 16:50:51 biery Exp $ $Name:  $")
 {  
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Making StorageManager");
 
@@ -4164,6 +4164,49 @@ void StorageManager::consumerWebPage(xgi::Input *in, xgi::Output *out)
 
     // fetch the event selection request from the consumer request
     edm::ParameterSet requestParamSet(consumerRequest);
+
+    // 26-Jan-2009, KAB: an ugly hack to get ParameterSet to serialize
+    // the parameters that we need.  A better solution is in the works.
+    try {
+      double rate =
+        requestParamSet.getUntrackedParameter<double>("maxEventRequestRate",
+                                                      -999.0);
+      if (rate == -999.0) {
+        rate = requestParamSet.getParameter<double>("TrackedMaxRate");
+        requestParamSet.addUntrackedParameter<double>("maxEventRequestRate",
+                                                      rate);
+      }
+    }
+    catch (...) {}
+    try {
+      std::string hltOMLabel =
+        requestParamSet.getUntrackedParameter<std::string>("SelectHLTOutput",
+                                                           "NoneFound");
+      if (hltOMLabel == "NoneFound") {
+        hltOMLabel =
+          requestParamSet.getParameter<std::string>("TrackedHLTOutMod");
+        requestParamSet.addUntrackedParameter<std::string>("SelectHLTOutput",
+                                                           hltOMLabel);
+      }
+    }
+    catch (...) {}
+    try {
+      edm::ParameterSet tmpPSet1 =
+        requestParamSet.getUntrackedParameter<edm::ParameterSet>("SelectEvents",
+                                                                 edm::ParameterSet());
+      if (tmpPSet1.empty()) {
+        Strings path_specs = 
+          requestParamSet.getParameter<Strings>("TrackedEventSelection");
+        if (! path_specs.empty()) {
+          edm::ParameterSet tmpPSet2;
+          tmpPSet2.addParameter<Strings>("SelectEvents", path_specs);
+          requestParamSet.addUntrackedParameter<edm::ParameterSet>("SelectEvents",
+                                                                   tmpPSet2);
+        }
+      }
+    }
+    catch (...) {}
+
     Strings selectionRequest =
       EventSelector::getEventSelectionVString(requestParamSet);
     Strings modifiedRequest =
