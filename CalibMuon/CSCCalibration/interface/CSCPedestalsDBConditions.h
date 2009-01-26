@@ -48,7 +48,7 @@ inline CSCDBPedestals * CSCPedestalsDBConditions::prefillDBPedestals()
 {
   const int PED_FACTOR=10;
   const int RMS_FACTOR=1000;
-  const int MAX_SIZE = 217728;
+  const int MAX_SIZE = 252288;
   const int MAX_SHORT= 32767;
   CSCDBPedestals * cndbpedestals = new CSCDBPedestals();
 
@@ -111,13 +111,23 @@ inline CSCDBPedestals * CSCPedestalsDBConditions::prefillDBPedestals()
 
   for(int i=0; i<MAX_SIZE;++i){
      counter=db_index_id[i];  
+     itemvector[i] = itemvector[counter];
+     itemvector[i].ped = int (db_peds[i]);
+     itemvector[i].rms = int (db_pedrms[i]);
+
      for (unsigned int k=0;k<new_index_id.size()-1;k++){
        if(counter==new_index_id[k]){
 	 if((short int) (fabs(new_peds[k]*PED_FACTOR+0.5))<MAX_SHORT)   itemvector[counter].ped= int (new_peds[k]*PED_FACTOR+0.5);
 	 if((short int) (fabs(new_pedrms[k]*RMS_FACTOR+0.5))<MAX_SHORT) itemvector[counter].rms= int (new_pedrms[k]*RMS_FACTOR+0.5);
 	 itemvector[i] = itemvector[counter];
-	 //std::cout<<"counter "<<counter<<" new_index_id[k] "<<new_index_id[k]<<" new_slope[k] "<<new_slope[k]<<" db_slope[k] "<<db_slope[k]<<std::endl;
+	 //if (new_peds[k]==0) itemvector[counter].ped = int (db_peds[i]);
+	 //if (new_pedrms[k]==0) itemvector[counter].rms = int (db_pedrms[i]);
        }  
+     }
+     if (counter>217728){
+       itemvector[counter].ped = int (db_peds[i]);
+       itemvector[counter].rms = int (db_pedrms[i]);
+       itemvector[i] = itemvector[counter];
      }
    }
    return cndbpedestals;

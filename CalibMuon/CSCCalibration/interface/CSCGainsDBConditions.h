@@ -43,13 +43,13 @@ class CSCGainsDBConditions: public edm::ESProducer, public edm::EventSetupRecord
 // to workaround plugin library
 inline CSCDBGains *  CSCGainsDBConditions::prefillDBGains()
 {
-  const int MAX_SIZE = 217728;
+  const int MAX_SIZE = 252288;
   const int FACTOR = 1000;
   const int MAX_SHORT = 32767;
   CSCDBGains * cndbgains = new CSCDBGains();
     
   int db_index;
-  float db_gainslope,db_intercpt, db_chisq;
+  float db_gainslope;//db_intercpt, db_chisq;
   std::vector<int> db_index_id;
   std::vector<float> db_slope;
   std::vector<float> db_intercept;
@@ -75,11 +75,11 @@ inline CSCDBGains *  CSCGainsDBConditions::prefillDBGains()
   }
   
   while (!dbdata.eof() ) { 
-    dbdata >> db_index >> db_gainslope >> db_intercpt >> db_chisq ; 
+    dbdata >> db_index >> db_gainslope; 
     db_index_id.push_back(db_index);
     db_slope.push_back(db_gainslope);
-    db_intercept.push_back(db_intercpt);
-    db_chi2.push_back(db_chisq);
+    //db_intercept.push_back(db_intercpt);
+    //db_chi2.push_back(db_chisq);
     db_nrlines++;
   }
   dbdata.close();
@@ -111,13 +111,19 @@ inline CSCDBGains *  CSCGainsDBConditions::prefillDBGains()
   }
 
    for(int i=0; i<MAX_SIZE;++i){
-     counter=db_index_id[i];  
+     counter=db_index_id[i]; 
+     itemvector[i] = itemvector[counter];
+     itemvector[i].gain_slope = int (db_slope[i]);
+ 
      for (unsigned int k=0;k<new_index_id.size()-1;k++){
        if(counter==new_index_id[k]){
 	 if ((short int) (fabs(new_slope[k]*FACTOR+0.5))<MAX_SHORT) itemvector[counter].gain_slope= int (new_slope[k]*FACTOR+0.5);
 	 itemvector[i] = itemvector[counter];
-	//std::cout<<"counter "<<counter<<" new_index_id[k] "<<new_index_id[k]<<" new_slope[k] "<<new_slope[k]<<" db_slope[k] "<<db_slope[k]<<std::endl;
-       }  
+       }
+     }
+     if(counter>217728){
+       itemvector[counter].gain_slope = int (db_slope[i]);
+       itemvector[i] = itemvector[counter];
      }
    }
      return cndbgains;

@@ -43,7 +43,7 @@ class CSCNoiseMatrixDBConditions: public edm::ESProducer, public edm::EventSetup
 // to workaround plugin library
 inline CSCDBNoiseMatrix *  CSCNoiseMatrixDBConditions::prefillDBNoiseMatrix()
 {
-  const int MAX_SIZE = 217728;
+  const int MAX_SIZE = 252288;
   const int FACTOR=1000;
   const int MAX_SHORT= 32767;
  
@@ -163,6 +163,20 @@ inline CSCDBNoiseMatrix *  CSCNoiseMatrixDBConditions::prefillDBNoiseMatrix()
   
   for(int i=0; i<MAX_SIZE;++i){
     counter=db_index_id[i];  
+    itemvector[i] = itemvector[counter];
+    itemvector[i].elem33 = int (db_elem33[i]);
+    itemvector[i].elem34 = int (db_elem34[i]);
+    itemvector[i].elem44 = int (db_elem44[i]);
+    itemvector[i].elem35 = int (db_elem35[i]);
+    itemvector[i].elem45 = int (db_elem45[i]);
+    itemvector[i].elem55 = int (db_elem55[i]);
+    itemvector[i].elem46 = int (db_elem46[i]);
+    itemvector[i].elem56 = int (db_elem56[i]);
+    itemvector[i].elem66 = int (db_elem66[i]);
+    itemvector[i].elem57 = int (db_elem57[i]);
+    itemvector[i].elem67 = int (db_elem67[i]);
+    itemvector[i].elem77 = int (db_elem77[i]);
+    
     for (unsigned int k=0;k<new_index_id.size()-1;k++){
       if(counter==new_index_id[k]){
 	if((short int) (fabs(new_elem33[k]*FACTOR+0.5))<MAX_SHORT) itemvector[counter].elem33 = int (new_elem33[k]*FACTOR+0.5);
@@ -179,6 +193,22 @@ inline CSCDBNoiseMatrix *  CSCNoiseMatrixDBConditions::prefillDBNoiseMatrix()
 	if((short int) (fabs(new_elem77[k]*FACTOR+0.5))<MAX_SHORT) itemvector[counter].elem77 = int (new_elem77[k]*FACTOR+0.5);
 	itemvector[i] = itemvector[counter];
       }  
+    }
+
+    if (counter>217728){
+      itemvector[counter].elem33 = int (db_elem33[i]);
+      itemvector[counter].elem34 = int (db_elem34[i]);
+      itemvector[counter].elem44 = int (db_elem44[i]);
+      itemvector[counter].elem35 = int (db_elem35[i]);
+      itemvector[counter].elem45 = int (db_elem45[i]);
+      itemvector[counter].elem55 = int (db_elem55[i]);
+      itemvector[counter].elem46 = int (db_elem46[i]);
+      itemvector[counter].elem56 = int (db_elem56[i]);
+      itemvector[counter].elem66 = int (db_elem66[i]);
+      itemvector[counter].elem57 = int (db_elem57[i]);
+      itemvector[counter].elem67 = int (db_elem67[i]);
+      itemvector[counter].elem77 = int (db_elem77[i]);
+      itemvector[i] = itemvector[counter];
     }
   }
   
