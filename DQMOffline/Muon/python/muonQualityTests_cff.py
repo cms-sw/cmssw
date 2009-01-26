@@ -17,6 +17,7 @@ muonClientsQualityTests = cms.EDFilter("QualityTester",
     qtList = cms.untracked.FileInPath('DQMOffline/Muon/data/QualityTests2.xml')
 )
 
-muonQualityTests = cms.Sequence(ClientTrackEfficiencyTkTracks*ClientTrackEfficiencySTACosmicMuons*rpcClient*muonSourcesQualityTests*muTrackResidualsTest*muRecoTest*muonClientsQualityTests*muonTestSummary)
+cosmicMuonQualityTests = cms.Sequence(ClientTrackEfficiencyTkTracks*ClientTrackEfficiencySTACosmicMuons*rpcClient*muonSourcesQualityTests*muTrackResidualsTest*muRecoTest*muonClientsQualityTests*muonTestSummary)
 
+muonQualityTests = cms.Sequence(rpcClient*muonSourcesQualityTests*muTrackResidualsTest*muRecoTest*muonClientsQualityTests*muonTestSummary)
 
