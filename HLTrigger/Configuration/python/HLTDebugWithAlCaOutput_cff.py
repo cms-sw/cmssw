@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_0_0/pre7/HLT/V1 (CMSSW_3_0_0_pre7)
+# /dev/CMSSW_3_0_0/pre7/HLT/V10 (CMSSW_3_0_0_pre7)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_0_0/pre7/HLT/V1')
+  tableName = cms.string('/dev/CMSSW_3_0_0/pre7/HLT/V10')
 )
 
 block_hltDebugWithAlCaOutput = cms.PSet(
@@ -97,7 +97,7 @@ outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
   'keep *_hltPixelMatchStartUpElectronsL1Iso_*_*',
   'keep *_hltL1IsoStartUpElectronsRegionalCkfTrackCandidates_*_*',
   'keep *_hltBSoftmuonL3TagInfos_*_*',
-  'keep *_hltEcalRegFED_*_*',
+  'keep FEDRawDataCollection_hltEcalRegFED_*_*',
   'keep *_hltL25TauLeadingTrackPtCutSelector_*_*',
   'keep *_hltCkfL1IsoStartUpTrackCandidates_*_*',
   'keep *_hltL25TauPixelTracksLeadingTrackPtCutSelectorNoL2_*_*',
