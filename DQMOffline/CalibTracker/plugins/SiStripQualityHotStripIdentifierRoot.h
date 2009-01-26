@@ -15,6 +15,9 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+
 #include <vector>
 #include <iostream>
 #include <stdio.h>
@@ -48,9 +51,9 @@ public:
 private:
 
  //Will be called at the beginning of the job
-  void algoBeginJob(const edm::EventSetup&){ }
+  void algoBeginJob(const edm::EventSetup&){}
   //Will be called at the beginning of each run in the job
-  void algoBeginRun(const edm::Run &, const edm::EventSetup &){  }
+  void algoBeginRun(const edm::Run &, const edm::EventSetup &);
   //Will be called at the beginning of each luminosity block in the run
   void algoBeginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &){  }
   //Will be called at the end of the job
@@ -68,6 +71,9 @@ private:
   const edm::ParameterSet conf_;
   edm::FileInPath fp_;
   SiStripDetInfoFileReader* reader;
+
+  edm::ESHandle<TrackerGeometry> theTrackerGeom;
+  const TrackerGeometry* _tracker;
 
   DQMStore* dqmStore_;
 

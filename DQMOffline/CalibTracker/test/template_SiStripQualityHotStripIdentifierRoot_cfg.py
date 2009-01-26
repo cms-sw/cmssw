@@ -21,6 +21,14 @@ process.source = cms.Source("EmptyIOVSource",
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
+
+process.load("Configuration.StandardSequences.Geometry_cff")
+
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
+process.GlobalTag.globaltag = "CRAFT_V3P::All"
+process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
+
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
     DBParameters = cms.PSet(
@@ -36,6 +44,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 
 process.prod = cms.EDFilter("SiStripQualityHotStripIdentifierRoot",
     OccupancyRootFile = cms.untracked.string('HotStripsOccupancy_insertRun.root'),
+    WriteOccupancyRootFile = cms.untracked.bool(True), # Ouput File has a size of ~100MB. To suppress writing set parameter to 'False'
     OccupancyH_Xmax = cms.untracked.double(1.0),
     AlgoParameters = cms.PSet(
         AlgoName = cms.string('SiStripHotStripAlgorithmFromClusterOccupancy'),

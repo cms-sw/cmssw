@@ -8,6 +8,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -60,68 +61,14 @@ SiStripBadStrip* SiStripQualityHotStripIdentifierRoot::getNewObject(){
     theIdentifier->setMinNumEntriesPerStrip(parameters.getUntrackedParameter<uint32_t>("MinNumEntriesPerStrip",5));
     theIdentifier->setOccupancyThreshold(parameters.getUntrackedParameter<double>("OccupancyThreshold",1.E-5));
     theIdentifier->setNumberOfEvents(parameters.getUntrackedParameter<uint32_t>("NumberOfEvents",0));
+    theIdentifier->setOutputFileName(conf_.getUntrackedParameter<std::string>("OccupancyRootFile","Occupancy.root"),conf_.getUntrackedParameter<bool>("WriteOccupancyRootFile",false));
+    theIdentifier->setTrackerGeometry(_tracker);
 
     bookHistos();
   
     SiStripQuality* qobj = new SiStripQuality();
     theIdentifier->extractBadStrips(qobj,ClusterPositionHistoMap);
     
-    //*FIXME
-    //Dump the occupancy of both flagged bad strips and all strips in a histogram
-    std::vector<std::pair<double, int> > stripOccupancyHotStrips=theIdentifier->getStripOccupancyHotStrips();
-    std::vector<std::pair<double, int> > stripOccupancyAllStrips=theIdentifier->getStripOccupancyAllStrips();
-
-    if(conf_.getUntrackedParameter<uint32_t>("OccupancyH_Nbin",0)!=0){
-      edm::LogInfo("SiStripQualityHotStripIdentifierRoot") <<" [SiStripQualityHotStripIdentifierRoot::getNewObject] creating Occupancy histos"<<std::endl;
-      //uint32_t xmin=*std::min_element(stripOccupancy.begin(),stripOccupancy.end());
-      //uint32_t xmax=*std::max_element(stripOccupancy.begin(),stripOccupancy.end());
-
-      TFile f(conf_.getUntrackedParameter<std::string>("OccupancyRootFile","Occupancy.root").c_str(),"RECREATE");
-      
-      int    nbin=conf_.getUntrackedParameter<uint32_t>("OccupancyH_Nbin",0);
-      double xmin=conf_.getUntrackedParameter<double>("OccupancyH_Xmin",0.);
-      double xmax=conf_.getUntrackedParameter<double>("OccupancyH_Xmax",0.);
-
-      TH1F hStripOccupancyAllStrips("hStripOccupancyAllStrips","hStripOccupancyAllStrips",nbin,xmin,xmax);
-      TH1F hStripOccupancyAllStripsTIB("hStripOccupancyAllStripsTIB","hStripOccupancyAllStripsTIB",nbin,xmin,xmax);
-      TH1F hStripOccupancyAllStripsTID("hStripOccupancyAllStripsTID","hStripOccupancyAllStripsTID",nbin,xmin,xmax);
-      TH1F hStripOccupancyAllStripsTOB("hStripOccupancyAllStripsTOB","hStripOccupancyAllStripsTOB",nbin,xmin,xmax);
-      TH1F hStripOccupancyAllStripsTEC("hStripOccupancyAllStripsTEC","hStripOccupancyAllStripsTEC",nbin,xmin,xmax);
-      TH1F hStripOccupancyHotStrips("hStripOccupancyHotStrips","hStripOccupancyHotStrips",nbin,xmin,xmax);
-      TH1F hStripOccupancyHotStripsTIB("hStripOccupancyHotStripsTIB","hStripOccupancyHotStripsTIB",nbin,xmin,xmax);
-      TH1F hStripOccupancyHotStripsTID("hStripOccupancyHotStripsTID","hStripOccupancyHotStripsTID",nbin,xmin,xmax);
-      TH1F hStripOccupancyHotStripsTOB("hStripOccupancyHotStripsTOB","hStripOccupancyHotStripsTOB",nbin,xmin,xmax);
-      TH1F hStripOccupancyHotStripsTEC("hStripOccupancyHotStripsTEC","hStripOccupancyHotStripsTEC",nbin,xmin,xmax);
-
-      for(size_t idx=0;idx<stripOccupancyHotStrips.size();++idx){
-	LogDebug("SiStripQualityHotStripIdentifierRoot") <<" Hot Strips Occupancy " << stripOccupancyHotStrips[idx].first << " idx " << idx <<std::endl;
-	hStripOccupancyHotStrips.Fill(stripOccupancyHotStrips[idx].first);
-	if      (stripOccupancyHotStrips[idx].second==3) hStripOccupancyHotStripsTIB.Fill(stripOccupancyHotStrips[idx].first);
-	else if (stripOccupancyHotStrips[idx].second==4) hStripOccupancyHotStripsTID.Fill(stripOccupancyHotStrips[idx].first);
-	else if (stripOccupancyHotStrips[idx].second==5) hStripOccupancyHotStripsTOB.Fill(stripOccupancyHotStrips[idx].first);
-	else if (stripOccupancyHotStrips[idx].second==6) hStripOccupancyHotStripsTEC.Fill(stripOccupancyHotStrips[idx].first);
-      }
-      for(size_t idx=0;idx<stripOccupancyAllStrips.size();++idx){
-	LogDebug("SiStripQualityHotStripIdentifierRoot") <<" All Strips Occupancy " << stripOccupancyAllStrips[idx].first << " idx " << idx <<std::endl;
-	hStripOccupancyAllStrips.Fill(stripOccupancyAllStrips[idx].first);
-	if      (stripOccupancyAllStrips[idx].second==3) hStripOccupancyAllStripsTIB.Fill(stripOccupancyAllStrips[idx].first);
-	else if (stripOccupancyAllStrips[idx].second==4) hStripOccupancyAllStripsTID.Fill(stripOccupancyAllStrips[idx].first);
-	else if (stripOccupancyAllStrips[idx].second==5) hStripOccupancyAllStripsTOB.Fill(stripOccupancyAllStrips[idx].first);
-	else if (stripOccupancyAllStrips[idx].second==6) hStripOccupancyAllStripsTEC.Fill(stripOccupancyAllStrips[idx].first);
-      }
-
-      hStripOccupancyHotStrips.Write();
-      hStripOccupancyHotStripsTIB.Write();
-      hStripOccupancyHotStripsTID.Write();
-      hStripOccupancyHotStripsTOB.Write();
-      hStripOccupancyHotStripsTEC.Write();
-      hStripOccupancyAllStrips.Write();
-      hStripOccupancyAllStripsTIB.Write();
-      hStripOccupancyAllStripsTID.Write();
-      hStripOccupancyAllStripsTOB.Write();
-      hStripOccupancyAllStripsTEC.Write();
-      f.Close();
-    }
     //----------
 
     edm::LogInfo("SiStripQualityHotStripIdentifierRoot") <<" [SiStripQualityHotStripIdentifierRoot::getNewObject] copy SiStripObject in SiStripBadStrip"<<std::endl;
@@ -147,6 +94,11 @@ SiStripBadStrip* SiStripQualityHotStripIdentifierRoot::getNewObject(){
   }
   
   return obj;
+}
+
+void SiStripQualityHotStripIdentifierRoot::algoBeginRun(const edm::Run& iRun,const edm::EventSetup& iSetup){
+  iSetup.get<TrackerDigiGeometryRecord> ().get (theTrackerGeom);
+  _tracker=&(* theTrackerGeom);
 }
 
 void SiStripQualityHotStripIdentifierRoot::algoEndJob(){
