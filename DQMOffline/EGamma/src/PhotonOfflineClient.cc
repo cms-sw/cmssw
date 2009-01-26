@@ -11,7 +11,7 @@
  **  
  **
  **  $Id: PhotonOfflineClient
- **  $Date: 2008/09/30 19:50:30 $ 
+ **  $Date: 2008/11/28 12:50:37 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -61,80 +61,86 @@ void PhotonOfflineClient::endLuminosityBlock(const edm::LuminosityBlock& lumi, c
   types.push_back("All");
   types.push_back("Isolated");
   types.push_back("Nonisolated");
-
+  
   std::string AllPath = "Egamma/PhotonAnalyzer/AllPhotons/";
   std::string IsoPath = "Egamma/PhotonAnalyzer/IsolatedPhotons/";
   std::string NonisoPath = "Egamma/PhotonAnalyzer/NonisolatedPhotons/";
-  std::string IsoVarPath = "Egamma/PhotonAnalyzer/IsolationVariables/";
-
-  dividePlots(dbe_->get("Egamma/PhotonAnalyzer/Triggers"),dbe_->get("Egamma/PhotonAnalyzer/Triggers"),dbe_->get(AllPath+"Et above 0 GeV/nPhoAllEcal")->getTH1F()->GetEntries());
-
-  for (int cut=0; cut !=numberOfSteps_; ++cut) {
-
-    currentFolder_.str("");
-    currentFolder_ << "Et above " << cut*cutStep_ << " GeV/";
-
-    //making efficiency plots
+  std::string EffPath = "Egamma/PhotonAnalyzer/Efficiencies/";
   
-    dividePlots(dbe_->get(IsoVarPath+currentFolder_.str()+"EfficiencyVsEta"),dbe_->get(IsoPath+currentFolder_.str() + "phoEta"),dbe_->get(AllPath+currentFolder_.str() + "phoEta"));
-    dividePlots(dbe_->get(IsoVarPath+currentFolder_.str()+"EfficiencyVsEt"),dbe_->get(IsoPath+currentFolder_.str() + "phoEtAllEcal"),dbe_->get(AllPath+currentFolder_.str() + "phoEtAllEcal"));
- 
-    //making conversion fraction plots
-
-    dividePlots(dbe_->get(IsoVarPath+currentFolder_.str()+"convFractionVsEta"),dbe_->get(AllPath+currentFolder_.str() + "Conversions/phoConvEta"),dbe_->get(AllPath+currentFolder_.str() + "phoEta"));
-    dividePlots(dbe_->get(IsoVarPath+currentFolder_.str()+"convFractionVsEt"),dbe_->get(AllPath+currentFolder_.str() + "Conversions/phoConvEtAllEcal"),dbe_->get(AllPath+currentFolder_.str() + "phoEtAllEcal"));
+  currentFolder_.str("");
+  currentFolder_ << "Et above 0 GeV/";
+  
+  dividePlots(dbe_->get(EffPath+"Triggers"),dbe_->get(EffPath+"Triggers"),dbe_->get(AllPath+"Et above 0 GeV/nPhoAllEcal")->getTH1F()->GetEntries());
   
 
-
-    //making isolation variable profiles
-    currentFolder_.str("");
-    currentFolder_ << IsoVarPath << "Et above " << cut*cutStep_ << " GeV/";
-    dbe_->setCurrentFolder(currentFolder_.str());
+  //making efficiency plots
   
-
- 
- 
-    doProfileX( dbe_->get(currentFolder_.str()+"nIsoTracksSolid2D"),dbe_->get(currentFolder_.str()+"nIsoTracksSolid"));
-    doProfileX( dbe_->get(currentFolder_.str()+"nIsoTracksHollow2D"), dbe_->get(currentFolder_.str()+"nIsoTracksHollow"));
-
-    doProfileX( dbe_->get(currentFolder_.str()+"isoPtSumSolid2D"), dbe_->get(currentFolder_.str()+"isoPtSumSolid"));
-    doProfileX( dbe_->get(currentFolder_.str()+"isoPtSumHollow2D"), dbe_->get(currentFolder_.str()+"isoPtSumHollow"));
+  dividePlots(dbe_->get(EffPath+"EfficiencyVsEtaLoose"),dbe_->get(EffPath+ "phoEtaLoose"),dbe_->get(AllPath+currentFolder_.str() + "phoEta"));
+  dividePlots(dbe_->get(EffPath+"EfficiencyVsEtLoose"),dbe_->get(EffPath+ "phoEtLoose"),dbe_->get(AllPath+currentFolder_.str() + "phoEtAllEcal"));
+  dividePlots(dbe_->get(EffPath+"EfficiencyVsEtaTight"),dbe_->get(EffPath+ "phoEtaTight"),dbe_->get(AllPath+currentFolder_.str() + "phoEta"));
+  dividePlots(dbe_->get(EffPath+"EfficiencyVsEtTight"),dbe_->get(EffPath+ "phoEtTight"),dbe_->get(AllPath+currentFolder_.str() + "phoEtAllEcal"));
   
-    doProfileX( dbe_->get(currentFolder_.str()+"ecalSum2D"), dbe_->get(currentFolder_.str()+"ecalSum"));
-    doProfileX( dbe_->get(currentFolder_.str()+"hcalSum2D"), dbe_->get(currentFolder_.str()+"hcalSum"));
+  //making conversion fraction plots
+  
+  dividePlots(dbe_->get(EffPath+"convFractionVsEta"),dbe_->get(AllPath+currentFolder_.str() +  "Conversions/phoConvEta"),dbe_->get(AllPath+currentFolder_.str() + "phoEta"));
+  dividePlots(dbe_->get(EffPath+"convFractionVsEt"),dbe_->get(AllPath+currentFolder_.str() +  "Conversions/phoConvEtAllEcal"),dbe_->get(AllPath+currentFolder_.str() + "phoEtAllEcal"));
+  
+  currentFolder_.str("");
+  currentFolder_ << EffPath;
+  dbe_->setCurrentFolder(currentFolder_.str());
+  
+  dbe_->removeElement("phoEtaLoose");
+  dbe_->removeElement("phoEtaTight");
+  dbe_->removeElement("phoEtLoose");
+  dbe_->removeElement("phoEtTight"); 
 
-//     //removing unneeded plots
-   
 
-    dbe_->removeElement("nIsoTracksSolid2D");
-    dbe_->removeElement("nIsoTracksHollow2D");
-    dbe_->removeElement("isoPtSumSolid2D");
-    dbe_->removeElement("isoPtSumHollow2D");
-    dbe_->removeElement("ecalSum2D");
-    dbe_->removeElement("hcalSum2D");
-
-
-
- 
-
-    for(uint type=0;type!=types.size();++type){
-      currentFolder_.str("");
-      currentFolder_ << "Egamma/PhotonAnalyzer/" << types[type] << "Photons/Et above " << cut*cutStep_ << " GeV";
-   
-      dbe_->setCurrentFolder(currentFolder_.str());
-      doProfileX( dbe_->get(currentFolder_.str()+"/r9VsEt2D"),dbe_->get(currentFolder_.str()+"/r9VsEt"));
-      currentFolder_ << "/Conversions";
-      doProfileX( dbe_->get(currentFolder_.str()+"/nHitsVsEta2D"),dbe_->get(currentFolder_.str()+"/nHitsVsEta"));
+  
+  for(uint type=0;type!=types.size();++type){
     
-      dbe_->removeElement("r9VsEt2D");
+    for (int cut=0; cut !=numberOfSteps_; ++cut) {
+      
+      currentFolder_.str("");
+      currentFolder_ << "Egamma/PhotonAnalyzer/" << types[type] << "Photons/Et above " << cut*cutStep_ << " GeV/";
+      
+      //making profiles
+      
+      doProfileX( dbe_->get(currentFolder_.str()+"nIsoTracksSolid2D"),dbe_->get(currentFolder_.str()+"nIsoTracksSolid"));
+      doProfileX( dbe_->get(currentFolder_.str()+"nIsoTracksHollow2D"), dbe_->get(currentFolder_.str()+"nIsoTracksHollow"));
+      
+      doProfileX( dbe_->get(currentFolder_.str()+"isoPtSumSolid2D"), dbe_->get(currentFolder_.str()+"isoPtSumSolid"));
+      doProfileX( dbe_->get(currentFolder_.str()+"isoPtSumHollow2D"), dbe_->get(currentFolder_.str()+"isoPtSumHollow"));
+      
+      doProfileX( dbe_->get(currentFolder_.str()+"ecalSum2D"), dbe_->get(currentFolder_.str()+"ecalSum"));
+      doProfileX( dbe_->get(currentFolder_.str()+"hcalSum2D"), dbe_->get(currentFolder_.str()+"hcalSum"));
+      
+      doProfileX( dbe_->get(currentFolder_.str()+"r9VsEt2D"),dbe_->get(currentFolder_.str()+"r9VsEt"));
+      
+      //removing unneeded plots
+      
+      dbe_->setCurrentFolder(currentFolder_.str());
+      
+      dbe_->removeElement("nIsoTracksSolid2D");
+      dbe_->removeElement("nIsoTracksHollow2D");
+      dbe_->removeElement("isoPtSumSolid2D");
+      dbe_->removeElement("isoPtSumHollow2D");
+      dbe_->removeElement("ecalSum2D");
+      dbe_->removeElement("hcalSum2D");
+      dbe_->removeElement("r9VsEt2D");	
+      
+      //other plots
+      
+      currentFolder_ << "Conversions/";
+      doProfileX( dbe_->get(currentFolder_.str()+"nHitsVsEta2D"),dbe_->get(currentFolder_.str()+"nHitsVsEta"));
       dbe_->setCurrentFolder(currentFolder_.str());
       dbe_->removeElement("nHitsVsEta2D");
+      
     }
     
-  
-  
+    
   }
-   
+  
+  
 }
 
 
