@@ -42,10 +42,11 @@ int main(){
   std::ofstream myXtalkFile("goodXtalk.dat",std::ios::out);
   for(int i=0; i<nrlines1-1;++i){
     //leftChi2[i]=0.0;
-    //if (rightSlope[i]<-0.001 && rightSlope[i]!=-999 && rightInt[i]<0.1 && leftSlope[i]<-0.001 && leftInt[i]<0.1 ){
-    if (rightSlope[i]!=-999 && extra !=1){
-      myXtalkFile<<index_id[i]<<"  "<<leftSlope[i]<<"  "<<leftInt[i]<<"  "<<rightSlope[i]<<"   "<<rightInt[i]<<std::endl;
-      //std::cout<<"Warning! Xtalk out of range!!"<<index_id1[i]<<"  "<<leftSlope[i]<<std::endl;
+    if (rightSlope[i]<-0.001 && rightSlope[i]!=-999 && rightInt[i]<0.1 && leftSlope[i]<-0.001 && leftInt[i]<0.1 ){
+      if (rightSlope[i]!=-999 && extra !=1){
+	myXtalkFile<<index_id[i]<<"  "<<leftSlope[i]<<"  "<<leftInt[i]<<"  "<<rightSlope[i]<<"   "<<rightInt[i]<<std::endl;
+	std::cout<<"Warning! Xtalk out of range!!"<<index_id1[i]<<"  "<<leftSlope[i]<<std::endl;
+      }
     }
   }
 }
