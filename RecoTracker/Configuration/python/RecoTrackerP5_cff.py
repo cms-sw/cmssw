@@ -36,7 +36,14 @@ ctftracksP5 = cms.Sequence(combinatorialcosmicseedfinderP5*simpleCosmicBONSeeds*
                            ctfWithMaterialTracksP5)
 
 rstracksP5 = cms.Sequence(roadSearchSeedsP5*roadSearchCloudsP5*rsTrackCandidatesP5*rsWithMaterialTracksP5)
-cosmictracksP5 = cms.Sequence(cosmicseedfinderP5*cosmicCandidateFinderP5*cosmictrackfinderP5)
+from RecoTracker.FinalTrackSelectors.cosmicTrackSplitter_cfi import *
+cosmicTrackSplitter.tjTkAssociationMapTag = 'cosmictrackfinderP5'
+cosmicTrackSplitter.tracks = 'cosmictrackfinderP5'
+splittedTracksP5 = ctfWithMaterialTracksP5.clone(src = cms.InputTag("cosmicTrackSplitter"))
+    
+cosmictracksP5 = cms.Sequence(cosmicseedfinderP5*cosmicCandidateFinderP5*cosmictrackfinderP5*cosmicTrackSplitter*splittedTracksP5)
+
+
 #sequence tracksP5 = {cosmictracksP5, ctftracksP5, rstracksP5, trackinfoP5}
 tracksP5 = cms.Sequence(cosmictracksP5*ctftracksP5*rstracksP5)
 # explicitely switch on hit splitting
