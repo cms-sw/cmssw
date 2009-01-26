@@ -1,8 +1,8 @@
 #!/bin/sh
 
-cmsswDir=/afs/cern.ch/user/p/pjanot/scratch0/CMSSW_3_0_0_pre6/src
-castorDir=/castor/cern.ch/user/p/pjanot/CMSSW300pre6
-castor="\/castor\/cern.ch\/user\/p\/pjanot\/CMSSW300pre6"
+cmsswDir=/afs/cern.ch/user/p/pjanot/scratch0/CMSSW_3_0_0_pre7/src
+castorDir=/castor/cern.ch/user/p/pjanot/CMSSW300pre7
+castor="\/castor\/cern.ch\/user\/p\/pjanot\/CMSSW300pre7"
 
 name=QCDForPF
 simu=Full
@@ -67,8 +67,8 @@ chmod 755 copy_${type}_${name}_${job}.sh
 chmod 755 drop_${type}_${name}_${job}.sh
 
 # uncomment if you wish to copy
-#copy_${type}_${name}_${job}.sh
-#rm copy_${type}_${name}_${job}.sh
+copy_${type}_${name}_${job}.sh
+rm copy_${type}_${name}_${job}.sh
 
 # uncomment if you wish to drop
 # It's unwise to automatically drop before checking the outcome of the copy stage !
