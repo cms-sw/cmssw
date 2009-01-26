@@ -19,6 +19,9 @@ combinedP5SeedsForCTF.seedCollections = cms.VInputTag(
     cms.InputTag('combinatorialcosmicseedfinderP5'),
     cms.InputTag('simpleCosmicBONSeeds'),
 )
+#backward compatibility 2.2/3.1
+combinedP5SeedsForCTF.PairCollection = cms.InputTag('combinatorialcosmicseedfinderP5')
+combinedP5SeedsForCTF.TripletCollection = cms.InputTag('simpleCosmicBONSeeds')
 
 from RecoTracker.CkfPattern.CkfTrackCandidatesP5_cff import *
 ckfTrackCandidatesP5.src = cms.InputTag('combinedP5SeedsForCTF')
@@ -32,9 +35,12 @@ from RecoTracker.TrackProducer.RSFinalFitWithMaterialP5_cff import *
 # TRACK INFO
 #include "AnalysisAlgos/TrackInfoProducer/data/TrackInfoProducerP5.cff"
 
+ckfTrackCandidatesP5LHCNavigation    = ckfTrackCandidatesP5.clone(NavigationSchool = cms.string('SimpleNavigationSchool'))
+ctfWithMaterialTracksP5LHCNavigation = ctfWithMaterialTracksP5.clone(src = cms.InputTag("ckfTrackCandidatesP5LHCNavigation"))
+
 ctftracksP5 = cms.Sequence(combinatorialcosmicseedfinderP5*simpleCosmicBONSeeds*combinedP5SeedsForCTF*
-                           ckfTrackCandidatesP5*
-                           ctfWithMaterialTracksP5)
+                           ckfTrackCandidatesP5*ctfWithMaterialTracksP5+
+                           ckfTrackCandidatesP5LHCNavigation*ctfWithMaterialTracksP5LHCNavigation)
 
 rstracksP5 = cms.Sequence(roadSearchSeedsP5*roadSearchCloudsP5*rsTrackCandidatesP5*rsWithMaterialTracksP5)
 
