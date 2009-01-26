@@ -85,6 +85,8 @@ namespace edm {
     EventAuxiliary::ExperimentType experimentType() const {return aux_.experimentType();}
     int bunchCrossing() const {return aux_.bunchCrossing();}
     int orbitNumber() const {return aux_.orbitNumber();}
+    EventAuxiliary const & 
+    eventAuxiliary() const {return aux_;}
 
     using Base::get;
     using Base::getByLabel;
