@@ -1,21 +1,19 @@
 import FWCore.ParameterSet.Config as cms
 
-process.load("Alignment.CommonAlignmentProducer.FakeAlignmentSource_cfi")
-process.preferFakeAlign = cms.ESPrefer("FakeAlignmentSource", "FakeAlignmentSource")
-#import Geometry.CSCGeometryBuilder.cscGeometry_cfi
+import Geometry.CSCGeometryBuilder.cscGeometry_cfi
 #
 # This cff provides a CSCGeometry with the label 'idealForDigi' that is for sure matching
 # the ideal one and thus should be used in the digitisers.
 #
-#idealForDigiCSCGeometry = Geometry.CSCGeometryBuilder.cscGeometry_cfi.CSCGeometryESModule.clone()
+idealForDigiCSCGeometry = Geometry.CSCGeometryBuilder.cscGeometry_cfi.CSCGeometryESModule.clone()
 # The es_module providing fake (i.e. empty) alignment constants:
-#from Alignment.CommonAlignmentProducer.fakeForIdealAlignmentProducer_cfi import *
+from Alignment.CommonAlignmentProducer.fakeForIdealAlignmentProducer_cfi import *
 # need to set to False, see below:
-#idealForDigiCSCGeometry.applyAlignment = False
+idealForDigiCSCGeometry.applyAlignment = False
 # Label of the produced CSCGeometry:
-#idealForDigiCSCGeometry.appendToDataLabel = 'idealForDigi'
+idealForDigiCSCGeometry.appendToDataLabel = 'idealForDigi'
 # Alignments are looked for with this label:
-#idealForDigiCSCGeometry.alignmentsLabel = 'fakeForIdeal'
+idealForDigiCSCGeometry.alignmentsLabel = 'fakeForIdeal'
 # would need conversion
 #es_source fakeCSCAlignmentSource = EmptyESSource {
 #    string recordName = "CSCAlignmentRcd"
