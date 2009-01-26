@@ -14,6 +14,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
 
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
@@ -36,6 +38,15 @@
 
 
 namespace cond {
+  
+  static int c=0;
+  static void topinit(){
+    if(c==0){
+      edmplugin::PluginManager::configure(edmplugin::standard::config());
+    }
+    ++c;
+    return;
+  }
 
   namespace impl {
     struct FWMagic {
@@ -49,7 +60,7 @@ namespace cond {
   
 
   FWIncantation::FWIncantation() : magic(new impl::FWMagic) {
-
+    topinit();
     // B.  Load the message service plug-in.  Forget this and bad things happen!
     //     In particular, the job hangs as soon as the output buffer fills up.
     //     That's because, without the message service, there is no mechanism for
@@ -83,8 +94,9 @@ namespace cond {
       "service = SiteLocalConfigService{}"
       "}";
     
-    
-    boost::shared_ptr<std::vector<edm::ParameterSet> > pServiceSets;
+  
+
+  boost::shared_ptr<std::vector<edm::ParameterSet> > pServiceSets;
     boost::shared_ptr<edm::ParameterSet>          params_;
     edm::makeParameterSets(config, params_, pServiceSets);
     
@@ -99,9 +111,12 @@ namespace cond {
   //------------------------------------------------------------
 
 
-  CondDB::CondDB() : me(0){}
+  CondDB::CondDB() : me(0){
+    topinit();    
+  }
   CondDB::CondDB(cond::Connection * conn, boost::shared_ptr<cond::Logger> ilog) :
     me(conn), logger(ilog) {
+    topinit();
   }
 
   // move ownership....
@@ -181,6 +196,7 @@ namespace cond {
 
 
   RDBMS::RDBMS() : session(new DBSession) {
+    topinit();
     session->configuration().setAuthenticationMethod( cond::XML );
     session->configuration().setMessageLevel( cond::Error );
     session->open();
@@ -188,6 +204,7 @@ namespace cond {
   RDBMS::~RDBMS() {}
 
   RDBMS::RDBMS(std::string const & authPath) : session(new DBSession) {
+    topinit();
     session->configuration().setAuthenticationPath(authPath);
     session->configuration().setAuthenticationMethod( cond::XML );
     session->configuration().setMessageLevel( cond::Error );
@@ -195,6 +212,7 @@ namespace cond {
   }
   
   RDBMS::RDBMS(std::string const & user,std::string const & pass) : session(new DBSession) {
+    topinit();
     std::string userenv(std::string("CORAL_AUTH_USER=")+user);
     std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
     ::putenv(const_cast<char*>(userenv.c_str()));

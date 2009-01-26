@@ -12,7 +12,7 @@
 #include "StorageSvc/DbReflex.h"
 
 #include "FWCore/PluginManager/interface/PluginManager.h"
-
+#include "FWCore/PluginManager/interface/standard.h"
 
 #include <boost/python.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
@@ -25,23 +25,27 @@ namespace {
 
   // find and return
   boost::shared_ptr<cond::ClassInfo> pyInfo(std::string const & token) {
+    //    topinit();    
     static std::string const prefix = cond::idCategories::pythonIDCategory + "/";
     std::string pluginName = prefix + cond::classID(token);
     return boost::shared_ptr<cond::ClassInfo>(cond::ClassInfoFactory::get()->create(pluginName));
   }
   
   std::string moduleNameByTag(cond::CondDB & db, std::string const & tag) {
+    //topinit();    
     cond::IOVProxy iov = db.iov(tag);
     if (0==iov.size()) return std::string();
     return pyInfo(iov.begin()->payloadToken())->resource();
   }
 
   std::string moduleNameByToken(std::string const & token) {
+    //topinit();    
     if (token.empty()) return std::string();
     return pyInfo(token)->resource();
   }
   
   std::string moduleName(cond::CondDB & db, std::string const & ss) {
+    //topinit();    
     //assume tags never start with '['
     if (ss[0]=='[') return moduleNameByToken(ss);
     return  moduleNameByTag(db,ss);
@@ -85,7 +89,7 @@ namespace {
 }
 
 BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
-  
+
   def("append2VS",&append2VS);
 
   class_<cond::LogDBEntry>("LogDBEntry")
