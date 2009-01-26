@@ -6,13 +6,19 @@
 #include <string>
 #include <zlib.h>
 
-GeometryFile::GeometryFile(const std::string & fname, bool zip, unsigned int isize) {
+GeometryFile::GeometryFile(const std::string & fname, bool zip) {
   compressed = zip;
+  /*
+  std::cout << "isize = " << isize 
+	    << "  zip = " << (zip? "true" : "false")
+	    << std::endl;
+  */
   if (isize==0) isize= computeFileSize(fname);
+  //  std::cout << "isize = " << isize << std::endl;
   blob.reserve(isize);
   read(fname);
 }
-GeometryFile::GeometryFile(std::istream& is, bool zip, unsigned int isize) {
+GeometryFile::GeometryFile(std::istream& is, bool zip) {
   compressed = zip;
   if (isize==0) isize= computeStreamSize(is);
   blob.reserve(isize);
@@ -27,20 +33,21 @@ void GeometryFile::read(std::istream & is) {
     while (is.get(c))
       in.push_back((unsigned char)c);
     blob.resize(isize);
-    uLongf destLen = blob.size();
+    uLongf destLen = compressBound(in.size());
     int zerr =  compress2(&*blob.begin(), &destLen,
                           &*in.begin(), in.size(),
                           9);
-    if (zerr!=0) edm::LogError("GeometryFile")<< "Compression error" << zerr;
+    if (zerr!=0) edm::LogError("GeometryFile")<< "Compression error " << zerr;
     blob.resize(destLen);  
   }else{
+    std::cout << "reading uncompressed" << std::endl;
     char c;
     while (is.get(c))
       blob.push_back( (unsigned char)c);
     blob.resize(blob.size());
+    isize=blob.size();
   }
 }
-
 
 void GeometryFile::write(std::ostream & os) const {
   if(compressed){
@@ -58,7 +65,40 @@ void GeometryFile::write(std::ostream & os) const {
   }
 }
 
+std::vector<unsigned char>* GeometryFile::getUncompressedBlob() const { 
+  std::vector<unsigned char>*  newblob;
+  if(compressed)
+  {
+    newblob = new std::vector<unsigned char>(isize);
+    uLongf destLen = newblob->size();
+    int zerr =  uncompress(&*(newblob->begin()),  &destLen,
+                           &*blob.begin(), blob.size());
+    if (zerr!=0 || newblob->size()!=destLen) 
+      edm::LogError("GeometryFile")<< "uncompressing error " << zerr
+                                   << " original size was " << isize
+                                   << " new size is " << destLen;
+  }else{
+    newblob = new std::vector<unsigned char>(blob);
+  }
+  return newblob;
+ }
 
+void GeometryFile::getUncompressedBlob( std::vector<unsigned char>& myblobcopy ) const {
+  if(compressed)
+  {
+    myblobcopy.reserve(isize);
+    uLongf destLen = isize;
+    int zerr =  uncompress(&*myblobcopy.begin(),  &destLen,
+			   &*blob.begin(), blob.size());
+    if (zerr!=0 || myblobcopy.size()!=destLen) 
+      edm::LogError("GeometryFile")<< "uncompressing error " << zerr
+                                   << " original size was " << isize
+                                   << " new size is " << destLen;
+  }else{
+    myblobcopy = blob;
+  }
+  
+}
 
 void GeometryFile::read(const std::string & fname) {
      std::ifstream ifile(fname.c_str());

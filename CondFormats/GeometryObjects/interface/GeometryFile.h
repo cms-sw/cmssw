@@ -8,11 +8,11 @@
 class GeometryFile{
 
  public:
-  GeometryFile(){};
+  GeometryFile(): compressed(false), isize(0) {};
   /// constructor from file to read
-  GeometryFile(const std::string & fname, bool zip, unsigned int isize=0);
+  GeometryFile(const std::string & fname, bool zip);
   /// constructor from  stream to read
-  GeometryFile(std::istream & is, bool zip, unsigned int isize=0);
+  GeometryFile(std::istream & is, bool zip);
 
   ~GeometryFile(){};
 
@@ -26,6 +26,13 @@ class GeometryFile{
   /// write to ostream
   void write(std::ostream &) const;
 
+  bool isCompressed() const {return compressed;};
+
+  int size() const {return isize;};
+  /// i didn't want to do two copies ... hope this works.
+  std::vector<unsigned char>* getUncompressedBlob() const;
+  void getUncompressedBlob( std::vector<unsigned char>& myblobcopy ) const;
+                                 
  private:
   static unsigned int computeFileSize(const std::string &);
   static unsigned int computeStreamSize(std::istream &);
