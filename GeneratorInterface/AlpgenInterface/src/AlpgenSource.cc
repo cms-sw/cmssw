@@ -1,6 +1,6 @@
 /*
- *  $Date: 2008/12/05 20:37:54 $
- *  $Revision: 1.18 $
+ *  $Date: 2009/01/09 10:45:11 $
+ *  $Revision: 1.19 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -70,7 +70,7 @@ AlpgenSource::AlpgenSource( const ParameterSet & pset,
   char buffer[256];
   ifstream reader((fileName_+"_unw.par").c_str());
   char sNev[80];
-  lheAlpgenUnwParHeader.addLine("\n");
+  //  lheAlpgenUnwParHeader.addLine("\n");
   while ( reader.getline (buffer,256) ) {
     istringstream is(buffer);
     lheAlpgenUnwParHeader.addLine(std::string(buffer) + "\n");
@@ -181,11 +181,18 @@ void AlpgenSource::beginRun(Run & r) {
 
   // information on weighted events
   LHERunInfoProduct::Header lheAlpgenWgtHeader("AlpgenWgtFile");
-  lheAlpgenWgtHeader.addLine("\n");
+  //  lheAlpgenWgtHeader.addLine("\n");
   ifstream wgtascii((fileName_+".wgt").c_str());
   char buffer[512];
   while(wgtascii.getline(buffer,512)) {
     lheAlpgenWgtHeader.addLine(std::string(buffer) + "\n");
+  }
+
+  LHERunInfoProduct::Header lheAlpgenParHeader("AlpgenParFile");
+  //  lheAlpgenParHeader.addLine("\n");
+  ifstream parascii((fileName_+".par").c_str());
+  while(parascii.getline(buffer,512)) {
+    lheAlpgenParHeader.addLine(std::string(buffer) + "\n");
   }
 
   // comments on top
@@ -197,6 +204,7 @@ void AlpgenSource::beginRun(Run & r) {
   runInfo->addHeader(comments);
   runInfo->addHeader(lheAlpgenUnwParHeader);
   runInfo->addHeader(lheAlpgenWgtHeader);
+  runInfo->addHeader(lheAlpgenParHeader);
   r.put(runInfo);
 }
 
