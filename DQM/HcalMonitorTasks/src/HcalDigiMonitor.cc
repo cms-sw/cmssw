@@ -340,11 +340,6 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
       DigiNum = m_dbe->book1D("# of Digis","# of Digis",DIGI_NUM,-0.5,DIGI_NUM-0.5);
       DigiNum -> setAxisTitle("# of Digis",1);  
       DigiNum -> setAxisTitle("# of Events",2);
-
-      
-      DigiNum = m_dbe->book1D("# of Digis","# of Digis",DIGI_NUM,-0.5,DIGI_NUM-0.5);
-      DigiNum -> setAxisTitle("# of Digis",1);  
-      DigiNum -> setAxisTitle("# of Events",2);
       
       // Individual subdetector histograms
       m_dbe->setCurrentFolder(baseFolder_+"/digi_info/HB");
