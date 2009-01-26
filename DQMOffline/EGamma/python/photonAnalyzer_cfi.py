@@ -32,16 +32,15 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
                                 # 2 provides output of the fill step + 1
                                 # 3 provides output of the store step + 2
                                 
-    isolationStrength = cms.int32(2),
-                                # 1 => Loose EM
-                                # 2 => Loose Photon
-                                # 3 => Tight Photon
+    isolationStrength = cms.int32(0),
+                                # 0 => Loose Photon
+                                # 1 => Tight Photon
 
  
 
-    eBin = cms.int32(250),
+    eBin = cms.int32(200),
     eMin = cms.double(0.0),
-    eMax = cms.double(250.0),
+    eMax = cms.double(500.0),
                                 
     etBin = cms.int32(200),
     etMin = cms.double(0.0),
@@ -55,7 +54,7 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
     phiMin = cms.double(-3.14),
     phiMax = cms.double(3.14),
                                 
-    r9Bin = cms.int32(100),
+    r9Bin = cms.int32(110),
     r9Min = cms.double(0.0),
     r9Max = cms.double(1.1),
 
@@ -66,6 +65,7 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
     dPhiTracksBin = cms.int32(100),
     dPhiTracksMin = cms.double(-0.5),
     dPhiTracksMax = cms.double(0.5),
+                                
 # parameters for pizero finding                                
     seleXtalMinEnergy = cms.double(0.0),
     clusSeedThr = cms.double(0.5),
