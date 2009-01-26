@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl
+#!/usr/bin/env perl
 
 # This scrits must be used ./runNtpMakerCAF.pl RunNumber
 # It looks for streamer files from run with name $GLOBAL following
@@ -118,7 +118,7 @@ print CFGFILE "process.p = cms.Path(process.l1GtUnpack+process.l1GctHwDigis+proc
 print CFGFILE "\n";
 
 print "bsub -J $RUN -q cmscaf -o $RUN\_$myn.log submit.ch l1prompt_$RUN\_$myn\_cfg.py $RUN\_$myn\n";
-#system("bsub -J $RUN -q cmscaf -o $RUN\_$myn.log submit.ch l1prompt_$RUN\_$myn\_cfg.py $RUN\_$myn\n");
+system("bsub -J $RUN -q cmscaf -o $RUN\_$myn.log submit.ch l1prompt_$RUN\_$myn\_cfg.py $RUN\_$myn\n");
 
 
 if($myn==$numJobs) {exit;}
