@@ -20,6 +20,10 @@
 <use name=HLTrigger/HLTcore>
 <use name=CondFormats/L1TObjects>
 <use name=CondFormats/DataRecord>
+<use name=SimGeneral/HepPDTRecord>
+<use name=heppdt>
+<use name=clhep>
+<use name=DataFormats/HepMCCandidate>
 <use name=root>
 <use name=boost>
 <flags EDM_PLUGIN=1>
@@ -47,6 +51,10 @@
   <use name=HLTrigger/HLTcore>
   <use name=CondFormats/L1TObjects>
   <use name=CondFormats/DataRecord>
+  <use name=SimGeneral/HepPDTRecord>
+  <use name=heppdt>
+  <use name=clhep>
+  <use name=DataFormats/HepMCCandidate>
   <use name=root>
   <use name=boost>
 </export>

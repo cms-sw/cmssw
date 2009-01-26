@@ -16,7 +16,7 @@
 //
 // Original Author:  Jeffrey Berryhill
 //         Created:  June 2008
-// $Id: FourVectorHLTriggerOffline.h,v 1.13 2009/01/24 16:27:38 berryhil Exp $
+// $Id: FourVectorHLTriggerOffline.h,v 1.1 2009/01/24 17:10:43 berryhil Exp $
 //
 //
 
@@ -84,6 +84,23 @@ class FourVectorHLTriggerOffline : public edm::EDAnalyzer {
       double ptMin_ ;
       double ptMax_ ;
       
+      double electronEtaMax_;
+      double electronEtMin_;
+      double muonEtaMax_;
+      double muonEtMin_;
+      double tauEtaMax_;
+      double tauEtMin_;
+      double jetEtaMax_;
+      double jetEtMin_;
+      double bjetEtaMax_;
+      double bjetEtMin_;
+      double metEtMin_;
+      double photonEtaMax_;
+      double photonEtMin_;
+
+      std::vector<std::pair<std::string, std::string> > custompathnamepairs_;
+
+
       std::string dirname_;
       std::string processname_;
       bool monitorDaemon_;
@@ -106,6 +123,10 @@ class FourVectorHLTriggerOffline : public edm::EDAnalyzer {
       public:
 	void setHistos(
                        MonitorElement* const NOn, 
+                       MonitorElement* const mcEtMc, 
+                       MonitorElement* const mcEtaMc, 
+		       MonitorElement* const mcPhiMc, 
+		       MonitorElement* const mcEtavsmcPhiMc,  
                        MonitorElement* const onEtOn, 
                        MonitorElement* const onEtaOn, 
 		       MonitorElement* const onPhiOn, 
@@ -129,8 +150,20 @@ class FourVectorHLTriggerOffline : public edm::EDAnalyzer {
                        MonitorElement* const offEtOnOff, 
                        MonitorElement* const offEtaOnOff, 
 		       MonitorElement* const offPhiOnOff, 
-		       MonitorElement* const offEtavsoffPhiOnOff) {
+		       MonitorElement* const offEtavsoffPhiOnOff,
+                       MonitorElement* const mcEtL1Mc, 
+                       MonitorElement* const mcEtaL1Mc, 
+		       MonitorElement* const mcPhiL1Mc, 
+		       MonitorElement* const mcEtavsmcPhiL1Mc,
+                       MonitorElement* const mcEtOnMc, 
+                       MonitorElement* const mcEtaOnMc, 
+		       MonitorElement* const mcPhiOnMc, 
+		       MonitorElement* const mcEtavsmcPhiOnMc) {
 	  NOn_ = NOn;
+	  mcEtMc_ = mcEtMc;
+	  mcEtaMc_ = mcEtaMc;
+	  mcPhiMc_ = mcPhiMc;
+	  mcEtavsmcPhiMc_ = mcEtavsmcPhiMc;
 	  onEtOn_ = onEtOn;
 	  onEtaOn_ = onEtaOn;
 	  onPhiOn_ = onPhiOn;
@@ -155,9 +188,29 @@ class FourVectorHLTriggerOffline : public edm::EDAnalyzer {
 	  offEtaOnOff_ = offEtaOnOff;
 	  offPhiOnOff_ = offPhiOnOff;
 	  offEtavsoffPhiOnOff_ = offEtavsoffPhiOnOff;
+	  mcEtL1Mc_ = mcEtL1Mc;
+	  mcEtaL1Mc_ = mcEtaL1Mc;
+	  mcPhiL1Mc_ = mcPhiL1Mc;
+	  mcEtavsmcPhiL1Mc_ = mcEtavsmcPhiL1Mc;
+	  mcEtOnMc_ = mcEtOnMc;
+	  mcEtaOnMc_ = mcEtaOnMc;
+	  mcPhiOnMc_ = mcPhiOnMc;
+	  mcEtavsmcPhiOnMc_ = mcEtavsmcPhiOnMc;
 	}
 	MonitorElement * getNOnHisto() {
 	  return NOn_;
+	}
+	MonitorElement * getMcEtMcHisto() {
+	  return mcEtMc_;
+	}
+	MonitorElement * getMcEtaMcHisto() {
+	  return mcEtaMc_;
+	}
+	MonitorElement * getMcPhiMcHisto() {
+	  return mcPhiMc_;
+	}
+	MonitorElement * getMcEtaVsMcPhiMcHisto() {
+	  return mcEtavsmcPhiMc_;
 	}
 	MonitorElement * getOnEtOnHisto() {
 	  return onEtOn_;
@@ -231,6 +284,30 @@ class FourVectorHLTriggerOffline : public edm::EDAnalyzer {
 	MonitorElement * getOffEtaVsOffPhiOnOffHisto() {
 	  return offEtavsoffPhiOnOff_;
 	}
+	MonitorElement * getMcEtL1McHisto() {
+	  return mcEtL1Mc_;
+	}
+	MonitorElement * getMcEtaL1McHisto() {
+	  return mcEtaL1Mc_;
+	}
+	MonitorElement * getMcPhiL1McHisto() {
+	  return mcPhiL1Mc_;
+	}
+	MonitorElement * getMcEtaVsMcPhiL1McHisto() {
+	  return mcEtavsmcPhiL1Mc_;
+	}
+	MonitorElement * getMcEtOnMcHisto() {
+	  return mcEtOnMc_;
+	}
+	MonitorElement * getMcEtaOnMcHisto() {
+	  return mcEtaOnMc_;
+	}
+	MonitorElement * getMcPhiOnMcHisto() {
+	  return mcPhiOnMc_;
+	}
+	MonitorElement * getMcEtaVsMcPhiOnMcHisto() {
+	  return mcEtavsmcPhiOnMc_;
+	}
 	const std::string getLabel(void ) const {
 	  return filterName_;
 	}
@@ -263,17 +340,24 @@ class FourVectorHLTriggerOffline : public edm::EDAnalyzer {
 		 float ptmax):
 	  denomPathName_(denomPathName), pathName_(pathName), l1pathName_(l1pathName), filterName_(filterName), processName_(processName), objectType_(type),
 	  NOn_(0),
+          mcEtMc_(0), mcEtaMc_(0), mcPhiMc_(0), mcEtavsmcPhiMc_(0),
           onEtOn_(0), onEtaOn_(0), onPhiOn_(0), onEtavsonPhiOn_(0),
 	  offEtOff_(0), offEtaOff_(0), offPhiOff_(0), offEtavsoffPhiOff_(0),
 	  l1EtL1_(0), l1EtaL1_(0), l1PhiL1_(0), l1Etavsl1PhiL1_(0),
           l1EtL1On_(0), l1EtaL1On_(0), l1PhiL1On_(0), l1Etavsl1PhiL1On_(0),
 	  offEtL1Off_(0), offEtaL1Off_(0), offPhiL1Off_(0), offEtavsoffPhiL1Off_(0),
 	  offEtOnOff_(0), offEtaOnOff_(0), offPhiOnOff_(0), offEtavsoffPhiOnOff_(0),
+	  mcEtL1Mc_(0), mcEtaL1Mc_(0), mcPhiL1Mc_(0), mcEtavsmcPhiL1Mc_(0),
+	  mcEtOnMc_(0), mcEtaOnMc_(0), mcPhiOnMc_(0), mcEtavsmcPhiOnMc_(0),
 	  ptmin_(ptmin), ptmax_(ptmax)
 	  {
 	  };
 	  PathInfo(std::string denomPathName, std::string pathName, std::string l1pathName, std::string filterName, std::string processName, size_t type,
 		   MonitorElement *NOn,
+		   MonitorElement *mcEtMc,
+		   MonitorElement *mcEtaMc,
+		   MonitorElement *mcPhiMc,
+		   MonitorElement *mcEtavsmcPhiMc,
 		   MonitorElement *onEtOn,
 		   MonitorElement *onEtaOn,
 		   MonitorElement *onPhiOn,
@@ -298,16 +382,27 @@ class FourVectorHLTriggerOffline : public edm::EDAnalyzer {
 		   MonitorElement *offEtaOnOff,
 		   MonitorElement *offPhiOnOff,
 		   MonitorElement *offEtavsoffPhiOnOff,
+		   MonitorElement *mcEtL1Mc,
+		   MonitorElement *mcEtaL1Mc,
+		   MonitorElement *mcPhiL1Mc,
+		   MonitorElement *mcEtavsmcPhiL1Mc,
+		   MonitorElement *mcEtOnMc,
+		   MonitorElement *mcEtaOnMc,
+		   MonitorElement *mcPhiOnMc,
+		   MonitorElement *mcEtavsmcPhiOnMc,
 		   float ptmin, float ptmax
 		   ):
 	    denomPathName_(denomPathName), pathName_(pathName), l1pathName_(l1pathName), filterName_(filterName), processName_(processName), objectType_(type),
 	    NOn_(NOn), 
+            mcEtMc_(mcEtMc), mcEtaMc_(mcEtaMc), mcPhiMc_(mcPhiMc), mcEtavsmcPhiMc_(mcEtavsmcPhiMc),
             onEtOn_(onEtOn), onEtaOn_(onEtaOn), onPhiOn_(onPhiOn), onEtavsonPhiOn_(onEtavsonPhiOn),
 	    offEtOff_(offEtOff), offEtaOff_(offEtaOff), offPhiOff_(offPhiOff), offEtavsoffPhiOff_(offEtavsoffPhiOff),
 	    l1EtL1_(l1EtL1), l1EtaL1_(l1EtaL1), l1PhiL1_(l1PhiL1), l1Etavsl1PhiL1_(l1Etavsl1PhiL1),
             l1EtL1On_(l1EtL1On), l1EtaL1On_(l1EtaL1On), l1PhiL1On_(l1PhiL1On), l1Etavsl1PhiL1On_(l1Etavsl1PhiL1On),
 	    offEtL1Off_(offEtL1Off), offEtaL1Off_(offEtaL1Off), offPhiL1Off_(offPhiL1Off), offEtavsoffPhiL1Off_(offEtavsoffPhiL1Off),
 	    offEtOnOff_(offEtOnOff), offEtaOnOff_(offEtaOnOff), offPhiOnOff_(offPhiOnOff), offEtavsoffPhiOnOff_(offEtavsoffPhiOnOff),
+	    mcEtL1Mc_(mcEtL1Mc), mcEtaL1Mc_(mcEtaL1Mc), mcPhiL1Mc_(mcPhiL1Mc), mcEtavsmcPhiL1Mc_(mcEtavsmcPhiL1Mc),
+	    mcEtOnMc_(mcEtOnMc), mcEtaOnMc_(mcEtaOnMc), mcPhiOnMc_(mcPhiOnMc), mcEtavsmcPhiOnMc_(mcEtavsmcPhiOnMc),
 	    ptmin_(ptmin), ptmax_(ptmax)
 	    {};
 	    bool operator==(const std::string v) 
@@ -324,12 +419,14 @@ class FourVectorHLTriggerOffline : public edm::EDAnalyzer {
 	  int objectType_;
 
 	  // we don't own this data
-	  MonitorElement *NOn_, *onEtOn_, *onEtaOn_, *onPhiOn_, *onEtavsonPhiOn_;
+	  MonitorElement *NOn_, *mcEtMc_, *mcEtaMc_, *mcPhiMc_, *mcEtavsmcPhiMc_, *onEtOn_, *onEtaOn_, *onPhiOn_, *onEtavsonPhiOn_;
 	  MonitorElement *offEtOff_, *offEtaOff_, *offPhiOff_, *offEtavsoffPhiOff_;
 	  MonitorElement *l1EtL1_, *l1EtaL1_, *l1PhiL1_, *l1Etavsl1PhiL1_;
 	  MonitorElement *l1EtL1On_, *l1EtaL1On_, *l1PhiL1On_, *l1Etavsl1PhiL1On_;
 	  MonitorElement *offEtL1Off_, *offEtaL1Off_, *offPhiL1Off_, *offEtavsoffPhiL1Off_;
 	  MonitorElement *offEtOnOff_, *offEtaOnOff_, *offPhiOnOff_, *offEtavsoffPhiOnOff_;
+	  MonitorElement *mcEtL1Mc_, *mcEtaL1Mc_, *mcPhiL1Mc_, *mcEtavsmcPhiL1Mc_;
+	  MonitorElement *mcEtOnMc_, *mcEtaOnMc_, *mcPhiOnMc_, *mcEtavsmcPhiOnMc_;
 
 	  float ptmin_, ptmax_;
 
