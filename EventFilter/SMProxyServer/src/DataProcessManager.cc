@@ -1,4 +1,4 @@
-// $Id: DataProcessManager.cc,v 1.14 2008/06/13 15:45:09 biery Exp $
+// $Id: DataProcessManager.cc,v 1.15 2008/10/14 15:02:18 hcheung Exp $
 
 #include "EventFilter/SMProxyServer/interface/DataProcessManager.h"
 #include "EventFilter/StorageManager/interface/SMCurlInterface.h"
@@ -159,6 +159,11 @@ namespace stor
                        (1.0 / minEventRequestInterval_),
                        false);
     ps.insert(true, "maxEventRequestRate", maxRateEntry);
+
+    // 26-Jan-2009, KAB: ugly hack to get ParameterSet to serialize
+    // the parameters that we want.
+    ps.addParameter<double>("TrackedMaxRate", (1.0 / minEventRequestInterval_));
+
     // TODO fixme: only request event types that are requested by connected consumers?
     consumerPSetString_ = ps.toString();
   }
