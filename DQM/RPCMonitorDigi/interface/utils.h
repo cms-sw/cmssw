@@ -2,6 +2,9 @@
 #define rpcdqm_utils_H
 
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include <vector>
+#include <iomanip>
+using namespace std;
 
 namespace rpcdqm{
   class utils{
@@ -86,7 +89,7 @@ namespace rpcdqm{
 	  } 
 	}
       }else{//Endcap
-	//	int seg=0;
+	int seg=0;
 	int nseg=36;
 	int nsub=6;
 	if ( _id.ring()==1 &&  _id.station() > 1) {
@@ -99,9 +102,163 @@ namespace rpcdqm{
       }
 	return _cnr;
     }
+
+    void fillvect() {
+      Wvector2.push_back(0);    //Sec 0 - doen't exist ;)
+      Wvector2.push_back(1140); //Sec1
+      Wvector2.push_back(1140); //Sec2
+      Wvector2.push_back(1140); //Sec3
+      Wvector2.push_back(1236); //Sec4
+      Wvector2.push_back(1140); //Sec5
+      Wvector2.push_back(1140); //Sec6
+      Wvector2.push_back(1140); //Sec7
+      Wvector2.push_back(1116); //Sec8
+      Wvector2.push_back(1044); //Sec9
+      Wvector2.push_back(1188); //Sec10
+      Wvector2.push_back(1044); //Sec11
+      Wvector2.push_back(1166); //Sec12
+
+      Wvector1.push_back(0);       //Sec 0 - doen't exist ;) 
+      Wvector1.push_back(1146); //Sec1
+      Wvector1.push_back(1146); //Sec2
+      Wvector1.push_back(1146); //Sec3
+      Wvector1.push_back(1242); //Sec4
+      Wvector1.push_back(1146); //Sec5
+      Wvector1.push_back(1146); //Sec6
+      Wvector1.push_back(1146); //Sec7
+      Wvector1.push_back(1122); //Sec8
+      Wvector1.push_back(1050); //Sec9
+      Wvector1.push_back(1194); //Sec10
+      Wvector1.push_back(1050); //Sec11
+      Wvector1.push_back(1122); //Sec12
+      
+    }
+    
+    std::vector<int> SectorStrips2(){
+      return Wvector2;
+    }
+    
+    std::vector<int> SectorStrips1(){
+      return Wvector1;
+    }
+
+  
+    int detId2ChamberNr(const RPCDetId & _id){
+      if(_id.region()==0){//Barrel
+	if( _id.station() ==1) {// Station1
+	  if(_id.layer() ==1) {
+	   
+	    ch=1; //RB1in
+	    
+	  } else {
+	    ch=2; //RB1out
+	  }
+
+	}else if (_id.station()==2) {//Station 2	
+	  if(_id.layer()==1) {
+	    
+	      ch=3;//RB2in
+	  }else{
+	    
+	    ch=4; //RB2out
+	  }
+	}else  if(_id.station()==3){//Station 3
+	  if(_id.subsector()==1){
+	    ch=5; //RB3+
+	  } else {
+
+	    ch=6; //RB3-
+	  }
+	} else if(_id.station()==4) {//Station 4
+	  if (_id.sector()== 4) {	  
+	    if ( _id.subsector()==1){
+	      
+	      ch=7; //RB4-
+	      
+	    }else if (_id.subsector()==2){
+	      ch=8; //RB4+
+	    }else  if ( _id.subsector()==3) {
+	      ch=9; //RB4--
+	    }else if ( _id.subsector()==4){
+	      ch=10; //RB4++
+	    }
+	  } else {
+	    if(_id.subsector()==1) ch= 7; //RB4-
+	    else ch= 8; //RB4+
+	  } 
+	}
+      }else{//Endcap
+      }
+	return ch;
+    }
+
+  
+     
+std::string detId2ChamberLabel(const RPCDetId & _id){
+      if(_id.region()==0){//Barrel
+	if( _id.station() ==1) {// Station1
+	  if(_id.layer() ==1) {
+	   
+	    ChLabel="RB1in";
+	    
+	  } else {
+	    ChLabel="RB1out";
+	  }
+
+	}else if (_id.station()==2) {//Station 2	
+	  if(_id.layer()==1) {
+	    
+	    ChLabel="RB2in";
+	  }else{
+	    
+	    ChLabel="RB2out";
+	  }
+	}else  if(_id.station()==3){//Station 3
+	  if(_id.subsector()==1){
+	    ChLabel="RB3+";
+	  } else {
+
+	    ChLabel="RB3-";
+	  }
+	} else if(_id.station()==4) {//Station 4
+	  if (_id.sector()== 4) {	  
+	    if ( _id.subsector()==1){
+	      
+	      ChLabel="RB4-";
+	      
+	    }else if (_id.subsector()==2){
+	      ChLabel="RB4+";
+	    }else  if ( _id.subsector()==3) {
+	      ChLabel="RB4--";
+	    }else if ( _id.subsector()==4){
+	      ChLabel="RB4++";
+	    }
+	  } else {
+	    if(_id.subsector()==1) ChLabel="RB4-";
+	    else ChLabel="RB4-";
+	  } 
+	}
+      }else{//Endcap
+      }
+	return ChLabel;
+    }
+
+
+
+
     
   private:
       int _cnr;
+      int ch;
+      
+      std::string ChLabel;
+      std::vector<int> Wvector2;
+      std::vector<int> Wvector1;
+      
+      // public:
+     
+      
+
   };
 }
 

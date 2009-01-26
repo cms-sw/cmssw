@@ -230,13 +230,17 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
     //get roll name
     RPCGeomServ RPCname(detId);
     string nameRoll = RPCname.name();
- 
+    string YLabel = RPCname.shortname();
     stringstream os;
 
     //get roll number
     rpcdqm::utils prova;
     int nr = prova.detId2RollNr(detId);
 
+    prova.fillvect();
+    vector<int> SectStr2 = prova.SectorStrips2();
+    vector<int> SectStr1 = prova.SectorStrips1();
+    
     //get MEs corresponding to present detId  
     map<string, MonitorElement*> meMap=meCollection[id]; 
     if(meMap.size()==0) continue; 
@@ -329,11 +333,31 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
 	meMap[os.str()]->Fill(strip, nr);
     
 
-      string YLabel = RPCname.shortname();
+     
  
       if(meMap[os.str()])
 	meMap[os.str()]->setBinLabel(nr,YLabel, 2);
       
+      os.str("");
+      os<<"Occupancy_Roll_vs_Sector_"<<ringType<<"_"<<ring;       
+      if ( meRingMap[os.str()]) {
+	meRingMap[os.str()]->Fill(detId.sector(), nr, 1);
+	if(detId.region()==0) meRingMap[os.str()]->setBinLabel(nr,YLabel, 2);
+      }
+      
+      // do Occupancy normalization
+      int SectSt;
+      if(ring==2 || ring ==-2) SectSt = SectStr2[detId.sector()];     //get # of strips for given Sector
+      else  SectSt= SectStr1[detId.sector()];                         
+      float NormOcc = (meRingMap[os.str()]->getBinContent(detId.sector(), nr)/SectSt)/counter; // normalization by Strips & RPC Events
+
+      os.str("");
+      os<<"OccupancyNormByGeoAndEvents_Roll_vs_Sector_"<<ringType<<"_"<<ring;
+      if(meRingMap[os.str()]) {
+	meRingMap[os.str()]->setBinContent(detId.sector(), nr, NormOcc);
+	if(detId.region()==0) meRingMap[os.str()]->setBinLabel(nr,YLabel, 2);
+      }
+
       os.str("");
       os<<"Occupancy_"<<nameRoll;
       if(meMap[os.str()])
@@ -426,6 +450,13 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
 	float xposition=point.x();
 
 	ClusterSize_for_BarrelandEndcaps -> Fill(mult);
+	
+	if(mult>5) {
+	  os.str("");
+	  os<<"ClusterSizeGreaterThan5_"<<ringType<<"_"<<ring; 
+	  meRingMap[os.str()]->Fill(detId.sector(), nr, 1);
+	  if(detId.region()==0)  meRingMap[os.str()]->setBinLabel(nr, YLabel, 2);
+	}
 
 	if(detId.region() ==  0) {
 	  ClusterSize_for_Barrel -> Fill(mult);

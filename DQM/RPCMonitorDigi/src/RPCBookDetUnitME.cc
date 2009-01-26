@@ -198,6 +198,23 @@ map<string, MonitorElement*> RPCMonitorDigi::bookRegionRing(int region, int ring
   if (region!=0)  meMap[os.str()] = dbe->book1D(os.str(), os.str(), 6, 0.5, 6.5);
   else meMap[os.str()] = dbe->book1D(os.str(), os.str(), 12, 0.5, 12.5);
   
+  os.str("");
+  os<<"Occupancy_Roll_vs_Sector_"<<ringType<<"_"<<ring;                                      // new Occupancy Roll vs Sector
+  meMap[os.str()] = dbe->book2D(os.str(), os.str(), 12, 0.5,12.5, 21, 0.5, 21.5);
+
+  os.str("");
+  os<<"OccupancyNormByGeoAndEvents_Roll_vs_Sector_"<<ringType<<"_"<<ring;                                      // new Occupancy Roll vs Sector
+  meMap[os.str()] = dbe->book2D(os.str(), os.str(), 12, 0.5,12.5, 21, 0.5, 21.5);
+  
+  os.str("");
+  os<<"ClusterSizeGreaterThan5_"<<ringType<<"_"<<ring;                                      // new ClusterSeze > 5
+  meMap[os.str()] = dbe->book2D(os.str(), os.str(), 12, 0.5,12.5, 21, 0.5, 21.5);
+ //  for(int i=1; i<13; i++) {
+//     label.str("");
+//     label<<"Sec"<<i;
+//     meMap[os.str()]->setBinLabel(i, label.str(), 1);
+//   }
+  
 
   os.str("");
   os<<"BxDistribution_"<<ringType<<"_"<<ring;
