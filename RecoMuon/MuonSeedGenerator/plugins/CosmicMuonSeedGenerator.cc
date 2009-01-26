@@ -2,8 +2,8 @@
 /**
  *  CosmicMuonSeedGenerator
  *
- *  $Date: 2009/01/16 01:07:00 $
- *  $Revision: 1.24.2.2 $
+ *  $Date: 2009/01/20 07:19:00 $
+ *  $Revision: 1.24.2.4 $
  *
  *  \author Chang Liu - Purdue University 
  *
@@ -33,10 +33,6 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include <vector>
@@ -128,15 +124,15 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
   stable_sort(allHits.begin(),allHits.end(),DecreasingGlobalY());
 
   for (vector<DetLayer*>::reverse_iterator icsclayer = cscForwardLayers.rbegin();
-       icsclayer != cscForwardLayers.rend(); ++icsclayer) {
-
+       icsclayer != cscForwardLayers.rend() - 1; ++icsclayer) {
+       
        MuonRecHitContainer RHMF = muonMeasurements.recHits(*icsclayer);
        allHits.insert(allHits.end(),RHMF.begin(),RHMF.end());
 
   }
 
   for (vector<DetLayer*>::reverse_iterator icsclayer = cscBackwardLayers.rbegin();
-       icsclayer != cscBackwardLayers.rend(); ++icsclayer) {
+       icsclayer != cscBackwardLayers.rend() - 1; ++icsclayer) {
 
        MuonRecHitContainer RHMF = muonMeasurements.recHits(*icsclayer);
        allHits.insert(allHits.end(),RHMF.begin(),RHMF.end());
@@ -149,7 +145,7 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
        MuonRecHitContainer RHMB = muonMeasurements.recHits(*idtlayer);
        RHMBs.push_back(RHMB);
 
-       allHits.insert(allHits.end(),RHMB.begin(),RHMB.end());
+       if ( idtlayer != dtLayers.rbegin() ) allHits.insert(allHits.end(),RHMB.begin(),RHMB.end());
 
   }
 
@@ -157,8 +153,8 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
 
   LogTrace(category)<<"all RecHits: "<<allHits.size();
 
-  CosmicMuonSeedGenerator::MuonRecHitPairVector mb41 = makeSegPairs(RHMBs[0], RHMBs[3], "mb41");
-  createSeeds(seeds, mb41, eSetup);
+//  CosmicMuonSeedGenerator::MuonRecHitPairVector mb41 = makeSegPairs(RHMBs[0], RHMBs[3], "mb41");
+//  createSeeds(seeds, mb41, eSetup);
 
 //  CosmicMuonSeedGenerator::MuonRecHitPairVector mb43 = makeSegPairs(RHMBs[0],RHMBs[1], "mb43");
 //  createSeeds(seeds, mb43, eSetup);
@@ -178,7 +174,7 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
   if ( !allHits.empty() ) {
 
     MuonRecHitContainer goodhits = selectSegments(allHits);
-    theMaxSeeds = seeds.size() + 10; // reset max seeds for the second option
+    theMaxSeeds += seeds.size(); // reset max seeds for the second option
     LogTrace(category)<<"good RecHits: "<<goodhits.size();
 
     if ( goodhits.empty() ) {
@@ -466,6 +462,8 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(const CosmicMuon
     pt = paraC/fabs(dphi); 
   }
 
+  if (pt < 10.0 ) { return result; } //still use the old strategy for low pt
+
   AlgebraicVector t(4);
   AlgebraicSymMatrix mat(5,0) ;
 
@@ -495,6 +493,7 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(const CosmicMuon
   mat = hit->parametersError().similarityT( hit->projectionMatrix() );
   
   float p_err = 0.004/paraC;
+  if (pt < 10.01) p_err = 0.1; 
   mat[0][0]= p_err;
   
   LocalTrajectoryError error(mat);
