@@ -263,5 +263,4 @@ void CalibrationTask::directory( std::stringstream& dir,
       << std::setw(5) 
       << std::setfill('0') 
       << pid;
-
 }
