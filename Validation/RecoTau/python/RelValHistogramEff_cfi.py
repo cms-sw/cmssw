@@ -159,16 +159,6 @@ TauEfficiencies = cms.EDAnalyzer("DQMHistEffProducer",
     )                                
 #    outputFileName = cms.string('CMSSW_2_2_0_HadronicTauOneAndThreeProng_ALL.root'),
 )
-                            
-saveTauEff = cms.EDAnalyzer("DQMSimpleFileSaver",
-  outputFileName = cms.string('CMSSW_2_2_3_tauGenJets.root')
-)
-
-saveTauEffFast = cms.EDAnalyzer("DQMSimpleFileSaver",
-  outputFileName = cms.string('FastSim_CMSSW_2_2_3_tauGenJets.root')
-)
-
-
 
 
  
