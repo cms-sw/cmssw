@@ -12,7 +12,7 @@ using namespace std;
 using namespace sistrip;
 
 SiStripRawToClusters::SiStripRawToClusters( const edm::ParameterSet& conf ) :
-  productLabel_(conf.getParameter<edm::InputTag>("FedRawData")),
+  productLabel_(conf.getParameter<edm::InputTag>("ProductLabel")),
   cabling_(0),
   cacheId_(0),
   clusterizer_(0)
