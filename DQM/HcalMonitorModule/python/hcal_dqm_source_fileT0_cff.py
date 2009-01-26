@@ -7,7 +7,8 @@ dqmInfoHcal = cms.EDFilter("DQMEventInfo",
 )
 from DQM.HcalMonitorModule.HcalMonitorModule_cfi import *
 hcalOfflineDQMSource = cms.Sequence(hcalMonitor + dqmInfoHcal)
-hcalMonitor.DigiOccThresh          = -999999999
+# Not needed in new Digi Monitor
+#hcalMonitor.DigiOccThresh          = -999999999
 
 hcalMonitor.PedestalMonitor        = False
 hcalMonitor.PedestalMonitor_pedestalsPerChannel    = False
