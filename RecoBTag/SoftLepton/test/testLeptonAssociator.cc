@@ -25,7 +25,7 @@ namespace std {
   public:
     bool operator()(const edm::RefToBase<reco::Track> & x, const edm::RefToBase<reco::Track> & y) const
     {
-      return (x.id().id() < y.id().id()) || (x.key() < y.key()) || false;
+      return (x.id().processIndex() < y.id().processIndex()) || (x.id().productIndex() < y.id().productIndex()) || (x.key() < y.key()) || false;
     }
   };
 }
