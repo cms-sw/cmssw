@@ -92,13 +92,13 @@ HLTTauCaloDQMOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSe
   
 	     if((doRef_&&match(jet,*McInfo))||(!doRef_))
 		 {
-		   ecalIsolEt->Fill(l2info.ECALIsolConeCut);
-		   towerIsolEt->Fill(l2info.TowerIsolConeCut);
-		   nClusters->Fill(l2info.ECALClusterNClusters);
-		   seedTowerEt->Fill(l2info.SeedTowerEt);
-		   clusterEtaRMS->Fill(l2info.ECALClusterEtaRMS);
-		   clusterPhiRMS->Fill(l2info.ECALClusterPhiRMS);
-		   clusterDeltaRRMS->Fill(l2info.ECALClusterDRRMS);
+		   ecalIsolEt->Fill(l2info.ecalIsolEt());
+		   towerIsolEt->Fill(l2info.hcalIsolEt());
+		   nClusters->Fill(l2info.nEcalHits());
+		   seedTowerEt->Fill(l2info.seedHcalHitEt());
+		   clusterEtaRMS->Fill(l2info.ecalClusterShape()[0]);
+		   clusterPhiRMS->Fill(l2info.ecalClusterShape()[1]);
+		   clusterDeltaRRMS->Fill(l2info.ecalClusterShape()[2]);
 		   jetEt->Fill(jet.et());
 		   jetEta->Fill(jet.eta());
 		   jetPhi->Fill(jet.phi());
