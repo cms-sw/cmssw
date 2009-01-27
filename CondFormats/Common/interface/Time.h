@@ -3,7 +3,7 @@
 #include<utility>
 #include <string>
 #include <limits>
-
+#include <boost/cstdint.hpp>
 
 // to be fixed
 #include "CondCore/DBCommon/interface/Exception.h"
@@ -12,7 +12,7 @@
 namespace cond{
 
 
-  typedef unsigned long long Time_t;
+  typedef uint64_t  Time_t;
   typedef std::pair<unsigned int, unsigned int> UnpackedTime;
 
   typedef std::pair<Time_t, Time_t> ValidityInterval;
@@ -30,7 +30,7 @@ namespace cond{
     {"runnumber","timestamp","lumiid","userid"};
 
 
-  static const Time_t TIMELIMIT(0xFFFFFFFF);
+  const Time_t TIMELIMIT(std::numeric_limits<Time_t>::max());
 
   template<TimeType type>
   struct RealTimeType {
@@ -57,17 +57,17 @@ namespace cond{
 
   template<> struct RealTimeType<timestamp> {
     // sec, nanosec
-    typedef unsigned long long type; 
+    typedef uint64_t  type; 
   };
   
  
   template<> struct RealTimeType<lumiid> {
     // run, lumi-seg
-    typedef unsigned long long type; 
+    typedef uint64_t  type; 
   };
 
   template<> struct RealTimeType<userid> {
-    typedef unsigned long long type; 
+    typedef uint64_t  type; 
   };
 
   

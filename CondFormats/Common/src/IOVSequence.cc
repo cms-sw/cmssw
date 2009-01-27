@@ -8,9 +8,9 @@ namespace cond {
   
   IOVSequence::IOVSequence(){}
   
-  IOVSequence::IOVSequence(int type, cond::Time_t since, 
+  IOVSequence::IOVSequence(int type, cond::Time_t till, 
 			   std::string const& imetadata) :
-    m_timetype(type), m_firstsince(since),m_freeUpdate(false),
+    m_timetype(type), m_lastTill(till),m_freeUpdate(false),
     m_metadata(imetadata){}
     
   IOVSequence::~IOVSequence(){}
@@ -26,8 +26,8 @@ namespace cond {
   IOVSequence::iterator IOVSequence::find(cond::Time_t time) {
     return std::lower_bound(iovs().begin(),iovs().end(),Item(time),
 			    boost::bind(std::less<cond::Time_t>(),
-					boost::bind(&Item::tillTime,_1),
-					  boost::bind(&Item::tillTime,_2)
+					boost::bind(&Item::sinceTime,_1),
+					  boost::bind(&Item::sinceTime,_2)
 					)
 			    );
   }
@@ -35,8 +35,8 @@ namespace cond {
   IOVSequence::const_iterator IOVSequence::find(cond::Time_t time) const {
     return std::lower_bound(iovs().begin(),iovs().end(),Item(time),
 			    boost::bind(std::less<cond::Time_t>(),
-					boost::bind(&Item::tillTime,_1),
-					boost::bind(&Item::tillTime,_2)
+					boost::bind(&Item::sinceTime,_1),
+					boost::bind(&Item::sinceTime,_2)
 					)
 			    );
   }

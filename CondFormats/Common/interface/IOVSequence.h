@@ -5,6 +5,8 @@
 #include "CondFormats/Common/interface/Time.h"
 #include <vector>
 #include <string>
+#include "POOLCore/PVector.h"
+
 
 namespace cond {
 
@@ -16,7 +18,7 @@ namespace cond {
   class IOVSequence : public  UpdateStamp{
   public:
     typedef cond::IOVElement Item;
-    typedef std::vector<Item> Container;
+    typedef pool::PVector<Item> Container;
     typedef Container::iterator iterator;
     typedef Container::const_iterator const_iterator;
 
@@ -37,9 +39,9 @@ namespace cond {
 
     cond::TimeType timeType() const { return cond::timeTypeSpecs[m_timetype].type;}
 
-    cond::Time_t firstsince() const { return  m_firstsince;}
+    cond::Time_t lastTill() const { return  m_lastTill;}
 
-    void updateFirstsince(cond::Time_t since) { m_firstsince=since;}
+    void updateLastTill(cond::Time_t since) { m_firstsince=since;}
 
 
     Container & iovs() { return m_iovs;}
@@ -60,11 +62,11 @@ namespace cond {
 
     Container m_iovs;
     int m_timetype;
-    cond::Time_t m_firstsince;
+    cond::Time_t m_lastTill;
 
     bool m_freeUpdate;
 
-    std::string m_metadata;
+    std::string m_metadata; // FIXME change in Pool::Ptr???
 
   };
 
