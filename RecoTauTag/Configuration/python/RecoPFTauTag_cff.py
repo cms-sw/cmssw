@@ -1,8 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 import copy
 
+#Necessary for building PFTauTagInfos
 from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
 from RecoJets.JetAssociationProducers.ic5PFJetTracksAssociatorAtVertex_cfi import *
+
 #PFTauTagInfo Producer
 from RecoTauTag.RecoTau.PFRecoTauTagInfoProducer_cfi import *
 from RecoTauTag.RecoTau.PFRecoTauProducer_cfi import *
@@ -22,11 +24,12 @@ from RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingPionPtCut_cfi import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByTrackIsolationUsingLeadingPion_cfi import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByECALIsolationUsingLeadingPion_cfi import *
 
-
-
+#Construction of PFTauDecayModes
+from RecoTauTag.RecoTau.PFRecoTauDecayModeDeterminator_cfi import *
 #HighEfficiency collections
 from RecoTauTag.RecoTau.PFRecoTauHighEfficiency_cff import *
-
+#InsideOut collections (Optional)
+from RecoTauTag.RecoTau.PFRecoTauInsideOut_cff import *
 
 PFTauDiscrimination = cms.Sequence(
     pfRecoTauDiscriminationByIsolation*
@@ -39,9 +42,9 @@ PFTauDiscrimination = cms.Sequence(
     pfRecoTauDiscriminationByECALIsolation*
     pfRecoTauDiscriminationByECALIsolationUsingLeadingPion*
     pfRecoTauDiscriminationAgainstElectron*
-    pfRecoTauDiscriminationAgainstMuon
+    pfRecoTauDiscriminationAgainstMuon*
+    pfTauDecayMode
 )
-
 
 PFTauDiscriminationHighEfficiency = cms.Sequence(
     pfRecoTauDiscriminationByIsolationHighEfficiency*
@@ -54,9 +57,33 @@ PFTauDiscriminationHighEfficiency = cms.Sequence(
     pfRecoTauDiscriminationByECALIsolationHighEfficiency*
     pfRecoTauDiscriminationByECALIsolationUsingLeadingPionHighEfficiency*
     pfRecoTauDiscriminationAgainstElectronHighEfficiency*
-    pfRecoTauDiscriminationAgainstMuonHighEfficiency
+    pfRecoTauDiscriminationAgainstMuonHighEfficiency*
+    pfTauDecayModeHighEfficiency
 )
 
+PFTauDiscriminationInsideOut = cms.Sequence(
+    pfRecoTauDiscriminationByIsolationInsideOut*
+    pfRecoTauDiscriminationByIsolationUsingLeadingPionInsideOut*
+    pfRecoTauDiscriminationByLeadingTrackFindingInsideOut*
+    pfRecoTauDiscriminationByLeadingTrackPtCutInsideOut*
+    pfRecoTauDiscriminationByLeadingPionPtCutInsideOut*
+    pfRecoTauDiscriminationByTrackIsolationInsideOut*
+    pfRecoTauDiscriminationByTrackIsolationUsingLeadingPionInsideOut*
+    pfRecoTauDiscriminationByECALIsolationInsideOut*
+    pfRecoTauDiscriminationByECALIsolationUsingLeadingPionInsideOut*
+    pfRecoTauDiscriminationAgainstElectronInsideOut*
+    pfRecoTauDiscriminationAgainstMuonInsideOut*
+    pfTauDecayModeInsideOut
+)
+
+# Produce and discriminate on Inside Out PFTaus (not included in default 
+# PFTau sequence)
+PFTauInsideOut = cms.Sequence(
+    pfRecoTauProducerInsideOut*
+    PFTauDiscriminationInsideOut
+)
+
+# Produce and discriminate on High Efficiency PFTaus
 PFTauHighEfficiency = cms.Sequence(
     pfRecoTauProducerHighEfficiency*
     PFTauDiscriminationHighEfficiency
@@ -67,8 +94,7 @@ PFTau = cms.Sequence(
     pfRecoTauTagInfoProducer*
     pfRecoTauProducer*
     PFTauDiscrimination*
-    PFTauHighEfficiency*
-    PFTauDiscriminationHighEfficiency	
+    PFTauHighEfficiency
 )
 
 
