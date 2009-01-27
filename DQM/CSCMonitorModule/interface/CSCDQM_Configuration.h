@@ -160,11 +160,16 @@ namespace cscdqm {
     public:
       
       boost::function< bool (const HistoDef& histoT, MonitorObject*&) > fnGetHisto;
-      boost::function< bool (const HistoId id, MonitorObject*& mo, const HwId& id1, const HwId& id2, const HwId& id3, const HwId& id4) > fnGetCacheHisto;
+      boost::function< bool (const HistoId id, MonitorObject*& mo) > fnGetCacheEMUHisto;
+      boost::function< bool (const HistoId id, const HwId& id1, MonitorObject*& mo) > fnGetCacheDDUHisto;
+      boost::function< bool (const HistoId id, const HwId& id1, const HwId& id2, const HwId& id3, MonitorObject*& mo) > fnGetCacheCSCHisto;
+      boost::function< bool (const HistoId id, MonitorObject*& mo) > fnGetCacheParHisto;
       boost::function< void (const HistoDef& histoT, MonitorObject*&) > fnPutHisto;
       boost::function< MonitorObject* (const HistoBookRequest&) > fnBook;
       boost::function< CSCDetId (const unsigned int, const unsigned int) > fnGetCSCDetId;
       boost::function< bool (unsigned int&, unsigned int&, unsigned int&) > fnNextBookedCSC;
+      boost::function< bool (unsigned int&, unsigned int&) > fnIsBookedCSC;
+      boost::function< bool (unsigned int&) > fnIsBookedDDU;
 
       BOOST_PP_SEQ_FOR_EACH_I(CONFIG_PARAMETER_GETTER_MACRO, _, CONFIG_PARAMETERS_SEQ)
       BOOST_PP_SEQ_FOR_EACH_I(CONFIG_PARAMETER_SETTER_MACRO, _, CONFIG_PARAMETERS_SEQ)

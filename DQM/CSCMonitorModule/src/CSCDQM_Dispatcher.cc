@@ -27,11 +27,16 @@ namespace cscdqm {
     provider = p_provider;
 
     config->fnGetHisto = boost::bind(&Dispatcher::getHisto, this, _1, _2);
-    config->fnGetCacheHisto = boost::bind(&Cache::get, &cache, _1, _2, _3, _4, _5, _6);
+    config->fnGetCacheEMUHisto = boost::bind(&Cache::getEMU, &cache, _1, _2);
+    config->fnGetCacheDDUHisto = boost::bind(&Cache::getDDU, &cache, _1, _2, _3);
+    config->fnGetCacheCSCHisto = boost::bind(&Cache::getCSC, &cache, _1, _2, _3, _4, _5);
+    config->fnGetCacheParHisto = boost::bind(&Cache::getPar, &cache, _1, _2);
     config->fnPutHisto = boost::bind(&Cache::put, &cache, _1, _2);
     config->fnBook = boost::bind(&MonitorObjectProvider::bookMonitorObject, provider, _1);
     config->fnGetCSCDetId = boost::bind(&MonitorObjectProvider::getCSCDetId, provider, _1, _2);
-    config->fnNextBookedCSC = boost::bind(&Dispatcher::nextBookedCSC, this, _1, _2, _3);
+    config->fnNextBookedCSC = boost::bind(&Cache::nextBookedCSC, &cache, _1, _2, _3);
+    config->fnIsBookedCSC = boost::bind(&Cache::isBookedCSC, &cache, _1, _2);
+    config->fnIsBookedDDU = boost::bind(&Cache::isBookedDDU, &cache, _1);
 
     fnUpdate = boost::bind(&EventProcessorMutex::updateFractionAndEfficiencyHistos, &processorFract);
 
@@ -67,20 +72,17 @@ namespace cscdqm {
     //LOG_DEBUG << "DISPATCHER: need to book histo on " << histoD;
 
     //For the first DDU - book general
-    if (typeid(histoD) == DDUHistoDefT && bookedDDUs.find(histoD.getDDUId()) == bookedDDUs.end()) {
+    if (typeid(histoD) == DDUHistoDefT && !cache.isBookedDDU(histoD.getDDUId())) {
       collection.bookDDUHistos(histoD.getDDUId());
-      bookedDDUs.insert(histoD.getDDUId());
       if (cache.get(histoD, me)) return true;
     }
 
     //For the first and specific CSCs - book general and specific
     if (typeid(histoD) == CSCHistoDefT) {
-      CSCHwId cscId(histoD);
       //LOG_DEBUG << "DISPATCHER: looking for " << cscId;
-      if (bookedCSCs.find(boost::make_tuple(histoD.getCrateId(), histoD.getDMBId())) == bookedCSCs.end()) {
+      if (!cache.isBookedCSC(histoD.getCrateId(), histoD.getDMBId())) {
         collection.bookCSCHistos(histoD.getCrateId(), histoD.getDMBId());
         //LOG_DEBUG << "DISPATCHER: booked histos for " << cscId;
-        bookedCSCs.insert(cscId);
         //cache.printContent();
       }
       if (collection.isOnDemand(histoD.getHistoName())) {
@@ -119,18 +121,6 @@ namespace cscdqm {
         fnUpdate();
       }
     }
-  }
-
-  const bool Dispatcher::nextBookedCSC(unsigned int& n, unsigned int& crateId, unsigned int& dmbId) const {
-    if (n < bookedCSCs.size()) {
-      CSCHwIdSet::iterator iter = bookedCSCs.begin();
-      for (unsigned int i = n; i > 0; i--) iter++;
-      crateId = iter->crateId;
-      dmbId   = iter->dmbId;
-      n++;
-      return true;
-    }
-    return false;
   }
 
 #ifdef DQMLOCAL

@@ -27,8 +27,20 @@ namespace cscdqm {
    * @return true if MO was found in cache and false otherwise
    */
   const bool Cache::get(const HistoDef& histo, MonitorObject*& mo) {
-    HistoCacheKey key(histo);
-    bool found = get(key, mo);
+
+    if (typeid(histo) == EMUHistoDefT) {
+      return getEMU(histo.getId(), mo);
+    } else
+    if (typeid(histo) == DDUHistoDefT) {
+      return getDDU(histo.getId(), histo.getDDUId(), mo);
+    } else
+    if (typeid(histo) == CSCHistoDefT) {
+      return getCSC(histo.getId(), histo.getCrateId(), histo.getDMBId(), histo.getAddId(), mo);
+    } else
+    if (typeid(histo) == ParHistoDefT) {
+      return getPar(histo.getId(), mo);
+    }
+
     /*
     if (found) {
         LOG_DEBUG << "CACHE: histo " << histo << " key " << key << " found in cache: " << mo;
@@ -36,7 +48,8 @@ namespace cscdqm {
         LOG_DEBUG << "CACHE: histo " << histo << " key " << key << " NOT found in cache.";
     }
     */
-    return found;
+    
+    return false;
   }
 
   /**
@@ -49,21 +62,30 @@ namespace cscdqm {
    * @param  id4 fourth identifier (Additional id)
    * @return true if MO was found in cache and false otherwise
    */
-  const bool Cache::get(const HistoId id, MonitorObject*& mo, const HwId& id1, const HwId& id2, const HwId& id3, const HwId& id4) {
-    return get(HistoCacheKey(id, id1, id2, id3, id4), mo);
+  const bool Cache::getEMU(const HistoId& id, MonitorObject*& mo) {
+    if (data[id]) {
+      return data[id]->getMO(mo);
+    }
+    return false;
   }
 
-  /**
-   * @brief  Get Monitoring Object on Monitoring Object key
-   * @param  key Monitoring Object key
-   * @param  mo Monitoring Object to return
-   * @return true if MO was found in cache and false otherwise
-   */
-  const bool Cache::get(const HistoCacheKey& key, MonitorObject*& mo) {
-    CacheMap::iterator it = cache.find(boost::make_tuple(key.id, key.id1, key.id2, key.id3, key.id4));
-    if (it != cache.end()) {
-      mo = it->mop.get();
-      return true;
+  const bool Cache::getDDU(const HistoId& id, const HwId& dduId, MonitorObject*& mo) {
+    if (data[id]) {
+      return data[id]->getMO(dduId, mo);
+    }
+    return false;
+  }
+
+  const bool Cache::getCSC(const HistoId& id, const HwId& crateId, const HwId& dmbId, const HwId& addId, MonitorObject*& mo) {
+    if (data[id]) {
+      return data[id]->getMO(crateId, dmbId, addId, mo);
+    }
+    return false;
+  }
+
+  const bool Cache::getPar(const HistoId& id, MonitorObject*& mo) {
+    if (data[id]) {
+      return data[id]->getMO(mo);
     }
     return false;
   }
@@ -75,20 +97,83 @@ namespace cscdqm {
    * @return
    */
   void Cache::put(const HistoDef& histo, MonitorObject* mo) {
-    HistoCacheKey key(histo, mo);
-    cache.insert(key);
-    //LOG_DEBUG << "CACHE: histo " << histo << " key " << key << " was put to cache (" << mo << ")";
+
+    HistoId id = histo.getId();
+
+    if (typeid(histo) == EMUHistoDefT) {
+      if (data[id]) {
+        data[id]->setMO(mo);
+      } else {
+        data[id] = new EMUCacheItem(mo);
+      }
+    } else
+
+    if (typeid(histo) == DDUHistoDefT) {
+      HwId dduId = histo.getDDUId();
+      if (data[id]) {
+        data[id]->setMO(dduId, mo);
+      } else {
+        data[id] = new DDUCacheItem(dduId, mo);
+      }
+      ddus.insert(dduId);
+    } else
+
+    if (typeid(histo) == CSCHistoDefT) {
+      HwId crateId = histo.getCrateId();
+      HwId dmbId = histo.getDMBId();
+      HwId addId = histo.getAddId();
+      if (data[id]) {
+        data[id]->setMO(crateId, dmbId, addId, mo);
+      } else {
+        data[id] = new CSCCacheItem(crateId, dmbId, addId, mo);
+      }
+      cscs.insert(CSCIdType(crateId, dmbId));
+    } else
+
+    if (typeid(histo) == ParHistoDefT) {
+      if (data[id]) {
+        data[id]->setMO(mo);
+      } else {
+        data[id] = new ParCacheItem(mo);
+      }
+    }
+
   }
 
-  /**
-   * @brief  Print Cache content (used for debugging purposes only)
-   * @param  
-   * @return 
-   */
-  void Cache::printContent() const {
-    for (CacheMap::const_iterator it = cache.begin(); it != cache.end(); it++) {
-      LOG_DEBUG << "CACHE: content = " << *it;
+  const bool Cache::nextBookedCSC(unsigned int& n, unsigned int& crateId, unsigned int& dmbId) const {
+    if (n < cscs.size()) {
+      CSCSetType::const_iterator iter = cscs.begin();
+      for (unsigned int i = n; i > 0; i--) iter++;
+      crateId = iter->crateId;
+      dmbId   = iter->dmbId;
+      n++;
+      return true;
     }
+    return false;
+  }
+
+  const bool Cache::nextBookedDDU(unsigned int& n, unsigned int& dduId) const {
+    if (n < ddus.size()) {
+      DDUSetType::const_iterator iter = ddus.begin();
+      for (unsigned int i = n; i > 0; i--) iter++;
+      dduId = *iter;
+      n++;
+      return true;
+    }
+    return false;
+  }
+
+  const bool Cache::isBookedCSC(const HwId& crateId, const HwId& dmbId) const {
+    CSCSetType::const_iterator it = cscs.find(boost::make_tuple(crateId, dmbId));
+    if (it != cscs.end()) {
+      return true;
+    }
+    return false;
+  }
+
+  const bool Cache::isBookedDDU(const HwId& dduId) const {
+    DDUSetType::const_iterator iter = ddus.find(dduId);
+    return (iter != ddus.end());
   }
 
 }

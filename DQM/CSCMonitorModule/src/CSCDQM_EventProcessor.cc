@@ -47,7 +47,7 @@ namespace cscdqm {
   }
 
   const bool EventProcessor::getEMUHisto(const HistoId& histo, MonitorObject*& me) {
-    if (config->fnGetCacheHisto(histo, me, 0, 0, 0, 0)) return (me != NULL);
+    if (config->fnGetCacheEMUHisto(histo, me)) return (me != NULL);
     EMUHistoDef histoD(histo);
     if (config->fnGetHisto(histoD, me)) return (me != NULL);
     return false;
@@ -55,7 +55,7 @@ namespace cscdqm {
 
 
   const bool EventProcessor::getDDUHisto(const HistoId& histo, const HwId& dduID, MonitorObject*& me) {
-    if (config->fnGetCacheHisto(histo, me, dduID, 0, 0, 0)) return (me != NULL);
+    if (config->fnGetCacheDDUHisto(histo, dduID, me)) return (me != NULL);
     DDUHistoDef histoD(histo, dduID);
     if (config->fnGetHisto(histoD, me)) return (me != NULL);
     return false;
@@ -63,7 +63,7 @@ namespace cscdqm {
 
 
   const bool EventProcessor::getCSCHisto(const HistoId& histo, const HwId& crateID, const HwId& dmbSlot, MonitorObject*& me) {
-    if (config->fnGetCacheHisto(histo, me, 0, crateID, dmbSlot, 0)) return (me != NULL);
+    if (config->fnGetCacheCSCHisto(histo, crateID, dmbSlot, 0, me)) return (me != NULL);
     CSCHistoDef histoD(histo, crateID, dmbSlot);
     if (config->fnGetHisto(histoD, me)) return (me != NULL);
     return false;
@@ -71,7 +71,7 @@ namespace cscdqm {
 
 
   const bool EventProcessor::getCSCHisto(const HistoId& histo, const HwId& crateID, const HwId& dmbSlot, const HwId& adId, MonitorObject*& me) {
-    if (config->fnGetCacheHisto(histo, me, 0, crateID, dmbSlot, adId)) return (me != NULL);
+    if (config->fnGetCacheCSCHisto(histo, crateID, dmbSlot, adId, me)) return (me != NULL);
     CSCHistoDef histoD(histo, crateID, dmbSlot, adId);
     if (config->fnGetHisto(histoD, me)) return (me != NULL);
     return false;
@@ -79,7 +79,7 @@ namespace cscdqm {
 
 
   const bool EventProcessor::getParHisto(const HistoId& histo, MonitorObject*& me) {
-    if (config->fnGetCacheHisto(histo, me, 0, 0, 0, 0)) return (me != NULL);
+    if (config->fnGetCacheParHisto(histo, me)) return (me != NULL);
     ParHistoDef histoD(histo);
     if (config->fnGetHisto(histoD, me)) return (me != NULL);
     return false;
@@ -89,7 +89,7 @@ namespace cscdqm {
   const bool EventProcessor::getParHisto(const std::string& name, MonitorObject*& me) {
     const HistoName histo = const_cast<HistoName>(name.c_str());
     ParHistoDef histoD(histo);
-    if (config->fnGetCacheHisto(histoD.getId(), me, 0, 0, 0, 0)) return (me != NULL);
+    if (config->fnGetCacheParHisto(histoD.getId(), me)) return (me != NULL);
     if (config->fnGetHisto(histoD, me)) return (me != NULL);
     return false;
   }

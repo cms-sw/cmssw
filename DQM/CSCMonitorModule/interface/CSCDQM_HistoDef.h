@@ -43,7 +43,7 @@ namespace cscdqm {
   }
 
   /** DDU path pattern. Argument is DDU ID */
-  static const char PATH_DDU[]     = "DDU_%d";
+  static const char PATH_DDU[]     = "DDU_%02d";
 
   /** CSC path pattern. Arguments are Create ID and DMB ID */
   static const char PATH_CSC[]     = "CSC_%03d_%02d";
@@ -400,6 +400,11 @@ namespace cscdqm {
       const HistoName&  getHistoName() const { return name; }
 
   };
+
+  static const std::type_info& EMUHistoDefT = typeid(cscdqm::EMUHistoDef);
+  static const std::type_info& DDUHistoDefT = typeid(cscdqm::DDUHistoDef);
+  static const std::type_info& CSCHistoDefT = typeid(cscdqm::CSCHistoDef);
+  static const std::type_info& ParHistoDefT = typeid(cscdqm::ParHistoDef);
 
 }
 
