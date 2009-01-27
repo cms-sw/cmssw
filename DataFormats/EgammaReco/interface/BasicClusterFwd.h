@@ -7,6 +7,8 @@
 // #include "DataFormats/Common/interface/ExtCollection.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
+
 namespace reco {
   //class BasicCluster;
   /*
