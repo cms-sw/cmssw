@@ -1,8 +1,10 @@
 <flags GENREFLEX_ARGS="--">
 <use name=boost>
 <use name=FWCore/Framework>
+<use name=POOLCore>
 <use name=rootrflx>
 <export>
   <use name=boost>
+  <use name=POOLCore>
   <lib name=CondFormatsCommon>
 </export>

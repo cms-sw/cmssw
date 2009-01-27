@@ -18,7 +18,7 @@ namespace cond {
     IOVElement(cond::Time_t it,
 	       std::string const& ipayload,
 	       std::string const& imetadata):
-      m_tillTime(it),m_payload(ipayload),m_metadata(imetadata){}
+      m_sinceTime(it),m_payload(ipayload),m_metadata(imetadata){}
 
     cond::Time_t sinceTime() const {return m_sinceTime;}
     std::string const & payloadToken()  const {return m_payload;}

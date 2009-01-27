@@ -41,7 +41,7 @@ namespace cond {
 
     cond::Time_t lastTill() const { return  m_lastTill;}
 
-    void updateLastTill(cond::Time_t since) { m_firstsince=since;}
+    void updateLastTill(cond::Time_t till) { m_lastTill=till;}
 
 
     Container & iovs() { return m_iovs;}
