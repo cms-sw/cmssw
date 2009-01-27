@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 generalV0Candidates = cms.EDProducer("V0Producer",
     # string that tells which TrackCollection to use for vertexing
-    trackRecoAlgorithm = cms.untracked.string('generalTracks'),
+    trackRecoAlgorithm = cms.InputTag('generalTracks'),
 
     # set to true, uses tracks refit by the KVF for V0Candidate kinematics
     #  NOTE: useSmoothing and storeSmoothed...Vertex are set to FALSE
@@ -42,7 +42,7 @@ generalV0Candidates = cms.EDProducer("V0Producer",
     selectKshorts = cms.bool(True),
     selectLambdas = cms.bool(True),
 
-    vertexFitter = cms.string('KalmanVertexFitter')
+    vertexFitter = cms.InputTag('KalmanVertexFitter')
 
 )
 

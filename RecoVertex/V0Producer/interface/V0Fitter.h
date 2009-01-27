@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.h,v 1.16 2008/10/17 21:03:01 drell Exp $
+// $Id: V0Fitter.h,v 1.17 2009/01/15 00:01:06 drell Exp $
 //
 //
 
@@ -22,6 +22,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "DataFormats/Common/interface/Ref.h"
 
@@ -59,31 +60,21 @@ class V0Fitter {
 	   const edm::Event& iEvent, const edm::EventSetup& iSetup);
   ~V0Fitter();
 
-  // Get methods for the VertexCollections
-  //reco::VertexCollection getKshortCollection() const;
-  //reco::VertexCollection getLambdaCollection() const;
-  //reco::VertexCollection getLambdaBarCollection() const;
-
   // Switching to L. Lista's reco::Candidate infrastructure for V0 storage
   const reco::VertexCompositeCandidateCollection& getKshorts() const;
   const reco::VertexCompositeCandidateCollection& getLambdas() const;
-  //const reco::VertexCompositeCandidateCollection& getLambdaBars() const;
 
  private:
   // STL vector of VertexCompositeCandidate that will be filled with VertexCompositeCandidates by fitAll()
   reco::VertexCompositeCandidateCollection theKshorts;
   reco::VertexCompositeCandidateCollection theLambdas;
-  //reco::VertexCompositeCandidateCollection theLambdaBars;
-
-  // Vector used to temporarily hold candidates before cuts and selection
-  //reco::VertexCompositeCandidateCollection preCutCands;
 
   // Tracker geometry for discerning hit positions
   const TrackerGeometry* trackerGeom;
 
   const MagneticField* magField;
 
-  std::string recoAlg;
+  edm::InputTag recoAlg;
   bool useRefTrax;
   bool storeRefTrax;
   bool doKshorts;
@@ -105,7 +96,7 @@ class V0Fitter {
   double mPiPiCut;
   double tkDCACut;
 
-  string vtxFitter;
+  edm::InputTag vtxFitter;
 
   // Helper method that does the actual fitting using the KalmanVertexFitter
   void fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup);

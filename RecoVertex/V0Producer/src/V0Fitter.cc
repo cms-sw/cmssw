@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.35 2008/12/06 00:30:56 drell Exp $
+// $Id: V0Fitter.cc,v 1.36 2009/01/15 00:01:06 drell Exp $
 //
 //
 
@@ -38,10 +38,11 @@ const double lambdaMass = 1.1156;
 
 // Constructor and (empty) destructor
 V0Fitter::V0Fitter(const edm::ParameterSet& theParameters,
-		   const edm::Event& iEvent, const edm::EventSetup& iSetup) :
-  recoAlg(theParameters.getUntrackedParameter("trackRecoAlgorithm",
-				   std::string("ctfWithMaterialTracks"))) {
+		   const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using std::string;
+
+  // Get the track reco algorithm from the ParameterSet
+  recoAlg = theParameters.getParameter<edm::InputTag>("trackRecoAlgorithm");
 
   // ------> Initialize parameters from PSet. ALL TRACKED, so no defaults.
   // First set bits to do various things:
@@ -73,7 +74,7 @@ V0Fitter::V0Fitter(const edm::ParameterSet& theParameters,
   impactParameterSigCut = theParameters.getParameter<double>(string("impactParameterSigCut"));
   mPiPiCut = theParameters.getParameter<double>(string("mPiPiCut"));
   tkDCACut = theParameters.getParameter<double>(string("tkDCACut"));
-  vtxFitter = theParameters.getParameter<string>(string("vertexFitter"));
+  vtxFitter = theParameters.getParameter<edm::InputTag>("vertexFitter");
 
   //edm::LogInfo("V0Producer") << "Using " << vtxFitter << " to fit V0 vertices.\n";
   //std::cout << "Using " << vtxFitter << " to fit V0 vertices." << std::endl;
