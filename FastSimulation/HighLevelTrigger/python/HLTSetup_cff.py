@@ -7,6 +7,8 @@ import FastSimulation.HighLevelTrigger.DummyModule_cfi
 #--- Dummy replacements of HLT modules ---#
 hltEcalPreshowerDigis = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 import FastSimulation.HighLevelTrigger.DummyModule_cfi
+hltEcalRawToRecHitFacility = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+import FastSimulation.HighLevelTrigger.DummyModule_cfi
 hltEcalRegionalJetsFEDs = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 import FastSimulation.HighLevelTrigger.DummyModule_cfi
 hltEcalRegionalJetsDigis = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
