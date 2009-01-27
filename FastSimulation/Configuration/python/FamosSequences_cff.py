@@ -435,6 +435,7 @@ famosWithTracksAndEcalClusters = cms.Sequence(
 famosWithParticleFlow = cms.Sequence(
     famosWithTracksAndEcalClusters+
     vertexreco+
+    caloTowersRec+ 
     famosElectronSequence+
     famosParticleFlowSequence+
     PFJetMet
@@ -517,6 +518,7 @@ famosWithBTagging = cms.Sequence(
     ic5JetTracksAssociatorAtVertex+
     ecalClusters+
     famosMuonSequence+
+    reducedRecHitsSequence+ 
     famosBTaggingSequence
     )
 
