@@ -108,11 +108,13 @@ namespace cond {
    if(tillTime<firstSince() ||
        ( !m_iov->iov.empty() && tillTime<=m_iov->iov.back().first) 
        )    throw cond::Exception("cond::IOVEditorImpl::bulkInsert IOV not in range");
-    
-    m_iov->iov.insert(m_iov->iov.end(), values.begin(), values.end());
+   for(std::vector< std::pair<cond::Time_t,std::string> >::const_iterator it=values.begin(); it!=values.end(); ++it){
+     //     m_iov->iov.insert(m_iov->iov.end(), values.begin(), values.end());
+     m_iov->add(it->first,it->second);
+   }
     m_iov.markUpdate();   
   }
-
+  
 
   void 
   IOVEditorImpl::updateClosure( cond::Time_t newtillTime ){
@@ -161,7 +163,7 @@ namespace cond {
 
 
   }
-
+  /*
  unsigned int 
  IOVEditorImpl::freeInsert( cond::Time_t sinceTime ,
 			       const std::string& payloadToken
@@ -318,7 +320,8 @@ namespace cond {
 
   }
 
-
+  */
+  /*
   // delete entry at a given time
   unsigned int 
   IOVEditorImpl::deleteEntry(cond::Time_t time,
@@ -358,6 +361,7 @@ namespace cond {
 
   }
 
+  */
 
   void 
   IOVEditorImpl::deleteEntries(bool withPayload){

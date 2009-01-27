@@ -14,7 +14,7 @@ namespace cond{
       return std::string("IOV_DATA"); 
     }
     static std::string iovMappingVersion() {
-      return std::string("CONDIOV_3.0");
+      return std::string("CONDIOV_4.0");
     }
     static std::string const & iovMappingXML(){
       static const std::string buffer = 
@@ -22,15 +22,15 @@ namespace cond{
 	std::string("<!DOCTYPE PoolDatabase SYSTEM \"InMemory\">\n")+
         std::string("<PoolDatabase >\n")+
         std::string("<PoolContainer name=\"cond::IOV\" >\n")+
-	std::string("<Class table=\"IOV\" id_columns=\"ID\" name=\"cond::IOV\" mapping_version=\"CONDIOV_3.0\" >\n")+
+	std::string("<Class table=\"IOV\" id_columns=\"ID\" name=\"cond::IOV\" mapping_version=\"CONDIOV_4.0\" >\n")+
     	std::string("<Primitive column=\"FIRSTSINCE\" name=\"firstsince\" />\n")+
 	std::string("<Primitive column=\"TIMETYPE\" name=\"timetype\" />\n")+
-        std::string("<Container table=\"IOV_DATA\" id_columns=\"ID\" name=\"iov\" position_column=\"POS\" >\n")+
+        std::string("<PoolArray table=\"IOV_DATA\" id_columns=\"ID\" name=\"iov\" position_column=\"POS\" >\n")+
 	std::string("<Object name=\"value_type\" >\n")+
         std::string("<Primitive column=\"IOV_TIME\" name=\"first\" />\n")+
         std::string("<Primitive column=\"IOV_TOKEN\" name=\"second\" />\n")+
 	std::string("</Object >\n")+
-	std::string("</Container >\n")+
+	std::string("</PoolArray >\n")+
 	std::string("</Class >\n")+
 	std::string("</PoolContainer >\n")+
 	std::string("</PoolDatabase >\n");

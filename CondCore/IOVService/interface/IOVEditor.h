@@ -33,25 +33,25 @@ namespace cond{
 				  const std::string& payloadToken
 				  ) = 0;
     /// insert a payload with known since in any position
-    virtual unsigned int 
-    freeInsert( cond::Time_t sinceTime ,
-    	        const std::string& payloadToken
-	       )=0;
+    //virtual unsigned int 
+    //freeInsert( cond::Time_t sinceTime ,
+    //	        const std::string& payloadToken
+    //	       )=0;
     /// Bulk insert of iov chunck
     virtual void bulkInsert( std::vector< std::pair<cond::Time_t,std::string> >& values ) = 0;
 
     /// delete entry at a given time
-    virtual  unsigned int deleteEntry(cond::Time_t time,
-					bool withPayload=false ) = 0;
+    //virtual  unsigned int deleteEntry(cond::Time_t time,
+    //				bool withPayload=false ) = 0;
 
     /** insert/replace an item in a given fixed IOV interval.
 	It will pad the IOV non covered with an IOV corresponding to an "invalid" payload
      */
-    virtual unsigned int replaceInterval(cond::Time_t sinceTime,
+    /*virtual unsigned int replaceInterval(cond::Time_t sinceTime,
 					 cond::Time_t tillTime,
 					 const std::string& payloadToken,
 					 bool deletePayload=false) = 0;
-
+    */
 
     /// Update the closure of the iov sequence
     virtual void updateClosure( cond::Time_t newtillTime ) = 0;

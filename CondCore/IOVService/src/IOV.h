@@ -1,6 +1,7 @@
 #ifndef IOVService_IOV_h
 #define IOVService_IOV_h
 #include "CondCore/DBCommon/interface/Time.h"
+#include "POOLCore/PVector.h"
 #include <vector>
 #include <string>
 #include <algorithm>
@@ -11,7 +12,7 @@ namespace cond {
   class IOV {
   public:
     typedef std::pair<cond::Time_t, std::string> Item;
-    typedef std::vector<Item> Container;
+    typedef pool::PVector<Item> Container;
     typedef Container::iterator iterator;
     typedef Container::const_iterator const_iterator;
 
