@@ -1,9 +1,10 @@
 <lcgdict>
  <class name="edm::EDProduct"/>
  <class name="edm::EDProductGetter"/>
- <class name="edm::RefCore">
-   <field name="prodGetter_" transient="true"/>
+ <class name="edm::RefCore"/>
+ <class name="edm::RefCore::RefCoreTransients">
    <field name="prodPtr_" transient="true"/>
+   <field name="prodGetter_" transient="true"/>
    <field name="transient_" transient="true"/>
  </class>
  <class name="edm::RefItem<unsigned int>" />
