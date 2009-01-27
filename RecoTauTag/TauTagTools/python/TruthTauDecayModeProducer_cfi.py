@@ -2,6 +2,12 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoJets.Configuration.RecoGenJets_cff import *
 
+"""
+Build PFTauDecayModes containing Monte Carlo objects
+They either contain the visible decay products of taus selected by 
+the 'mcDecayedTaus' package or all of the consituents of a QCD GenJet
+"""
+
 mcDecayedTaus = cms.EDProducer("PdgIdAndStatusCandViewSelector",
     status = cms.vint32(2),
     src = cms.InputTag("genParticles"),

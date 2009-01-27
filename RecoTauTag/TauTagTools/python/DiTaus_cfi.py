@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+# Back to back hadronic taus
 source = cms.Source("PythiaSource",
     Phimin = cms.untracked.double(0.0),
     maxEventsToPrint = cms.untracked.int32(5),

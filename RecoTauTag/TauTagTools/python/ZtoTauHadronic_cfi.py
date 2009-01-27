@@ -1,4 +1,10 @@
 import FWCore.ParameterSet.Config as cms
+
+""" 
+######## Generate Z->tautau decays ###########
+Require both taus to decay hadronically 
+"""
+
 source = cms.Source("PythiaSource",
     PythiaParameters = cms.PSet(
         #

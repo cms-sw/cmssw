@@ -1,46 +1,52 @@
 import FWCore.ParameterSet.Config as cms
 
+## RECO-Truth standard matching criteria
 tauTruthMatchingReqs = cms.PSet(
-    maxDPtRel = cms.double(10000000.0),
+    maxDPtRel = cms.double(10000000.0),                 #don't apply a Pt resolution cut
+    resolveByMatchQuality = cms.bool(True),
+    resolveAmbiguities = cms.bool(True),
     maxDeltaR = cms.double(0.15)
 )
 qcdTruthMatchingReqs = cms.PSet(
     maxDPtRel = cms.double(10000000.0),
+    resolveByMatchQuality = cms.bool(True),
+    resolveAmbiguities = cms.bool(True),
     maxDeltaR = cms.double(0.3)
 )
+
+#########################
+#  Tau Truth matchers   #
+#########################
+
 matchMCTausInsideOut = cms.EDProducer("PFTauDecayModeTruthMatcher",
     tauTruthMatchingReqs,
-    resolveByMatchQuality = cms.bool(True),
     src = cms.InputTag("makeMCTauDecayModes"),
-    resolveAmbiguities = cms.bool(True),
     matched = cms.InputTag("pfRecoTauProducerInsideOut")
 )
 
 matchMCTausHighEfficiency = cms.EDProducer("PFTauDecayModeTruthMatcher",
     tauTruthMatchingReqs,
-    resolveByMatchQuality = cms.bool(True),
     src = cms.InputTag("makeMCTauDecayModes"),
-    resolveAmbiguities = cms.bool(True),
     matched = cms.InputTag("pfRecoTauProducerHighEfficiency")
 )
 
-#matchMCTaus = cms.Sequence(matchMCTausHighEfficiency*matchMCTausInsideOut)
+matchMCTaus = cms.Sequence(matchMCTausHighEfficiency*matchMCTausInsideOut)
+
+#########################
+#  QCD Truth matchers   #
+#########################
 
 matchMCQCDInsideOut = cms.EDProducer("PFTauDecayModeTruthMatcher",
     qcdTruthMatchingReqs,
-    resolveByMatchQuality = cms.bool(True),
     src = cms.InputTag("makeMCQCDTauDecayModes"),
-    resolveAmbiguities = cms.bool(True),
     matched = cms.InputTag("pfRecoTauProducerInsideOut")
 )
 
 matchMCQCDHighEfficiency = cms.EDProducer("PFTauDecayModeTruthMatcher",
     qcdTruthMatchingReqs,
-    resolveByMatchQuality = cms.bool(True),
     src = cms.InputTag("makeMCQCDTauDecayModes"),
-    resolveAmbiguities = cms.bool(True),
     matched = cms.InputTag("pfRecoTauProducerHighEfficiency")
 )
 
-#matchMCQCD = cms.Sequence(matchMCQCDHighEfficiency*matchMCQCDInsideOut)
+matchMCQCD = cms.Sequence(matchMCQCDHighEfficiency*matchMCQCDInsideOut)
 

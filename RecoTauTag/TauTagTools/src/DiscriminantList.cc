@@ -29,6 +29,10 @@ DiscriminantList::DiscriminantList()
    theDiscriminants_.push_back(new GammaOccupancy()        );
    theDiscriminants_.push_back(new GammaPt()               );
    theDiscriminants_.push_back(new FilteredObjectPt()      );
+   theDiscriminants_.push_back(new InvariantMassOfSignalWithFiltered() );
+   theDiscriminants_.push_back(new OutlierN() );
+   theDiscriminants_.push_back(new OutlierSumPt() );
+   theDiscriminants_.push_back(new OutlierMass()  );
 }
 
 //cleanup on destruction

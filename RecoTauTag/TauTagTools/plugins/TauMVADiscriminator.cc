@@ -13,7 +13,7 @@
 //
 // Original Author:  Evan K. Friis, UC Davis (friis@physics.ucdavis.edu)
 //         Created:  Fri Aug 15 11:22:14 PDT 2008
-// $Id: TauMVADiscriminator.cc,v 1.6 2008/11/20 22:51:09 friis Exp $
+// $Id: TauMVADiscriminator.cc,v 1.7 2008/12/04 22:56:38 friis Exp $
 //
 //
 
@@ -55,6 +55,14 @@ class TauMVADiscriminator : public edm::EDProducer {
       explicit TauMVADiscriminator(const edm::ParameterSet&);
       ~TauMVADiscriminator();
 
+      struct  MVAComputerFromDB {
+         string computerName;
+         PhysicsTools::MVAComputer* computer;
+      };
+
+      typedef vector<MVAComputerFromDB>    MVAList;
+      typedef map<int, MVAList::iterator> DecayModeToMVAMap;
+
    private:
       typedef vector<Handle<PFTauDiscriminator> > DiscriminantHandleList;
       typedef vector<Handle<PFTauDiscriminator> >::const_iterator DiscriminantHandleIterator;
@@ -66,8 +74,9 @@ class TauMVADiscriminator : public edm::EDProducer {
       InputTag                  pfTauDecayModeSrc_;
       std::vector<InputTag>     preDiscriminants_; //these must pass for the MVA value to be computed
       double                    failValue_;        //specifies discriminant output when the object fails one of the preDiscriminants
-      string                    computerName_;
-      DiscriminantList          myDiscriminants_;
+      DecayModeToMVAMap         computerMap_;        //maps decay mode to MVA implementation
+      MVAList                   computers_;
+      DiscriminantList          myDiscriminants_;  //collection of functions to compute the discriminants
       PFTauDiscriminantManager  discriminantManager_;
 
       std::vector<PhysicsTools::Variable::Value>        mvaComputerInput_;
@@ -76,15 +85,45 @@ class TauMVADiscriminator : public edm::EDProducer {
 TauMVADiscriminator::TauMVADiscriminator(const edm::ParameterSet& iConfig):
                    pfTauDecayModeSrc_(iConfig.getParameter<InputTag>("pfTauDecayModeSrc")),
                    preDiscriminants_(iConfig.getParameter<std::vector<InputTag> >("preDiscriminants")),
-                   failValue_(iConfig.getParameter<double>("prefailValue")),
-                   computerName_(iConfig.getParameter<string>("computerName"))
+                   failValue_(iConfig.getParameter<double>("prefailValue"))
 {
-   produces<PFTauDiscriminator>();
+   produces<PFTauDiscriminator>(); //define product
+
+   //get the computer/decay mode map
+   vector<ParameterSet> decayModeMap = iConfig.getParameter<vector<ParameterSet> >("computers");
+   computers_.reserve(decayModeMap.size());
+   for(vector<ParameterSet>::const_iterator iComputer  = decayModeMap.begin();
+                                            iComputer != decayModeMap.end();
+                                          ++iComputer)
+   {
+      MVAComputerFromDB toInsert;
+      toInsert.computerName = iComputer->getParameter<string>("computerName");
+      toInsert.computer     = NULL;
+      MVAList::iterator computerJustAdded = computers_.insert(computers_.end(), toInsert); //add this computer to the end of the list
+
+      //populate the map
+      vector<int> associatedDecayModes = iComputer->getParameter<vector<int> >("decayModeIndices");
+      for(vector<int>::const_iterator iDecayMode  = associatedDecayModes.begin();
+                                      iDecayMode != associatedDecayModes.end();
+                                    ++iDecayMode)
+      {
+         //map this integer specifying the decay mode to the MVA comptuer we just added to the list
+         pair<DecayModeToMVAMap::iterator, bool> insertResult = computerMap_.insert(make_pair(*iDecayMode, computerJustAdded));
+
+         //make sure we aren't double mapping a decay mode
+         if(insertResult.second == false) { //indicates that the current key (decaymode) has already been entered!
+            throw cms::Exception("TauMVADiscriminator::ctor") << "A tau decay mode: " << *iDecayMode << " has been mapped to two different MVA implementations, "
+                                                              << insertResult.first->second->computerName << " and " << toInsert.computerName 
+                                                              << ". Please check the appropriate cfi file." << std::endl;
+         }
+      }
+   }
 
    for(DiscriminantList::const_iterator aDiscriminant  = myDiscriminants_.begin();
                                         aDiscriminant != myDiscriminants_.end();
                                       ++aDiscriminant)
    {
+      //load the discriminants into the discriminant manager
       discriminantManager_.addDiscriminant(*aDiscriminant);
    }
    
@@ -109,9 +148,21 @@ TauMVADiscriminator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    auto_ptr<PFTauDiscriminator> outputProduct(new PFTauDiscriminator(pfTauDecayModes->keyProduct()));
 
    //get appropriate MVA setup (specified in CFG file)
+   //we do this on each produce as the crossing an IOV boundary could change the appropriate record
+   //TODO: move this to beginRun(...)?
    ESHandle<PhysicsTools::Calibration::MVAComputerContainer> mvaHandle;
    iSetup.get<TauMVAFrameworkDBRcd>().get(mvaHandle);
-   PhysicsTools::MVAComputer mvaComputer(&mvaHandle.product()->find(computerName_));
+   for(MVAList::iterator iMVAComputer  = computers_.begin();
+                         iMVAComputer != computers_.end();
+                       ++iMVAComputer)
+   {
+      //refresh the MVA computers
+      if(iMVAComputer->computer) { //if is non-NULL
+         delete iMVAComputer->computer;
+      }
+      string nameToGet = iMVAComputer->computerName;
+      iMVAComputer->computer = new PhysicsTools::MVAComputer(&mvaHandle.product()->find(nameToGet));
+   }
 
    DiscriminantHandleList                    otherDiscriminants;
    for(std::vector<InputTag>::const_iterator iDiscriminant  = preDiscriminants_.begin();
@@ -149,16 +200,24 @@ TauMVADiscriminator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       {
          mvaComputerInput_.clear();
          const PFTauDecayMode& theTauDecayMode = pfTauDecayModes->value(iDecayMode);
-         //sets the current tau decay mode as the active object
-         discriminantManager_.setEventData(theTauDecayMode, iEvent);
-         //applies associated discriminants (see ctor) and constructs the appropriate MVA framework input
-         discriminantManager_.buildMVAComputerLink(mvaComputerInput_);
-         output = mvaComputer.eval(mvaComputerInput_);
+         //get appropriate MVA computer
+         int decayMode = theTauDecayMode.getDecayMode();
+         DecayModeToMVAMap::iterator iterToComputer = computerMap_.find(decayMode);
+         if(iterToComputer != computerMap_.end()) //if we don't have a MVA mapped to this decay mode, skip it.
+         {
+            PhysicsTools::MVAComputer* mvaComputer = iterToComputer->second->computer;
+
+            //sets the current tau decay mode as the active object
+            discriminantManager_.setEventData(theTauDecayMode, iEvent);
+            //applies associated discriminants (see ctor) and constructs the appropriate MVA framework input
+            discriminantManager_.buildMVAComputerLink(mvaComputerInput_);
+            output = mvaComputer->eval(mvaComputerInput_);
 #undef EK_MVA_DEBUG
 #ifdef EK_MVA_DEBUG
-         std::cout << "Passed PreDisc. DecayMode: " << theTauDecayMode.getDecayMode() <<  " Pt " << theTauDecayMode.pt() 
-                   << " eta: " << theTauDecayMode.eta() << " neutral Pt: " << theTauDecayMode.neutralPions().pt() << " MVA: " << output << std::endl; 
+            std::cout << "Passed PreDisc. DecayMode: " << theTauDecayMode.getDecayMode() <<  " Pt " << theTauDecayMode.pt() 
+               << " eta: " << theTauDecayMode.eta() << " neutral Pt: " << theTauDecayMode.neutralPions().pt() << " MVA: " << output << std::endl; 
 #endif
+         }
       }
 
       outputProduct->setValue(iDecayMode, output);

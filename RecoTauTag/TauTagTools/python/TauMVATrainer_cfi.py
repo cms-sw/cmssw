@@ -5,25 +5,29 @@ standardHighEffDecayModeSetupSignal = cms.PSet(
      decayModeAssociationSource = cms.InputTag("pfTauDecayModeHighEfficiency")
 )
 
+standardHighEffDecayModeSetupBackground = cms.PSet(
+     truthMatchSource = cms.InputTag("matchMCQCDHighEfficiency"),
+     decayModeAssociationSource = cms.InputTag("pfTauDecayModeHighEfficiency")
+)
+
+#### Future collections #####
 standardInsideOutDecayModeSetupSignal = cms.PSet(
      truthMatchSource = cms.InputTag("matchMCTausInsideOut"),
      decayModeAssociationSource = cms.InputTag("pfTauDecayModeInsideOut")
 )
 
-standardHighEffDecayModeSetupBackground = cms.PSet(
-     truthMatchSource = cms.InputTag("matchMCQCDHighEfficiency"),
-     decayModeAssociationSource = cms.InputTag("pfTauDecayModeHighEfficiency")
-)
 
 standardInsideOutDecayModeSetupBackground = cms.PSet(
      truthMatchSource = cms.InputTag("matchMCQCDInsideOut"),
      decayModeAssociationSource = cms.InputTag("pfTauDecayModeInsideOut")
 )
 
+"""
+#### Define the trainers for signal & background ####
+You can add additional algorithms in the match sources, if you wish to compare performance.
+"""
 tauMVATrainerSignal = cms.EDProducer("TauMVATrainer",
     outputRootFileName = cms.string('output_signal.root'),
-    #Inside-Out currently broken
-    #matchingSources = cms.VPSet(standardHighEffDecayModeSetupSignal, standardInsideOutDecayModeSetupSignal),
     matchingSources = cms.VPSet(standardHighEffDecayModeSetupSignal),
     #any object with a multiplicity larger than the given two parameters is
     #automatically marked as "__PREFAIL__" in the output tree
@@ -35,9 +39,7 @@ tauMVATrainerSignal = cms.EDProducer("TauMVATrainer",
 
 tauMVATrainerBackground = cms.EDProducer("TauMVATrainer",
     outputRootFileName = cms.string('output_qcd.root'),
-    #Inside-Out currently broken
-    #matchingSources = cms.VPSet(standardHighEffDecayModeSetupBackground, standardInsideOutDecayModeSetupBackground),
-    matchingSources = cms.VPSet(standardHighEffDecayModeSetupBackground),
+    matchingSources = cms.VPSet(standardHighEffDecayModeSetupBackground),                
     #any object with a multiplicity larger than the given two parameters is
     #automatically marked as "__PREFAIL__" in the output tree
     maxPiZeroes = cms.uint32(4),
