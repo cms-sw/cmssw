@@ -1,10 +1,9 @@
 <lcgdict>
  <class name="edm::EDProduct"/>
  <class name="edm::EDProductGetter"/>
- <class name="edm::RefCore"/>
- <class name="edm::RefCore::RefCoreTransients">
-   <field name="prodPtr_" transient="true"/>
+ <class name="edm::RefCore">
    <field name="prodGetter_" transient="true"/>
+   <field name="prodPtr_" transient="true"/>
    <field name="transient_" transient="true"/>
  </class>
  <class name="edm::RefItem<unsigned int>" />
@@ -83,4 +82,7 @@
  <class name="edm::Wrapper<edm::ValueMap<unsigned int> >" splitLevel="0"/>
  <class name="edm::Wrapper<edm::ValueMap<float> >" splitLevel="0"/>
  <class name="edm::Wrapper<edm::ValueMap<double> >" splitLevel="0"/>
+ <class name="std::vector<edm::EventAuxiliary>"/>
+ <class name="edm::Wrapper<std::vector<edm::EventAuxiliary> >"/>
+
 </lcgdict>
