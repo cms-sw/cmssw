@@ -63,8 +63,8 @@ NewSelectionLabel=''
 
 
 #Reference and new repository
-RefRepository = '/afs/cern.ch/user/a/aeverett/scratch0'
-NewRepository = '/afs/cern.ch/user/a/aeverett/scratch0'
+RefRepository = '/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/RecoMuon/Validation/data'
+NewRepository = '/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/RecoMuon/Validation/data'
 
 #Default Nevents
 defaultNevents ='-1'
