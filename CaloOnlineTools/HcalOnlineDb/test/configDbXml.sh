@@ -184,6 +184,9 @@ lutMenu()
   echo ''
   echo -n 'Comment (please be descriptive, this can be a long line): '
   read lut_comment
+  lut_comment_sys=$'\n\nCreated by: '`whoami`$'\n\n'`uname -a`$'\n\n'`showtags`
+  lut_comment=$lut_comment$lut_comment_sys
+  echo "$lut_comment"
   echo ''
   echo 'processing LUTs from' $lut_path '...'
   lut_files_num=`find $lut_path -iname "*_[0-9]*.xml" | wc -l`
