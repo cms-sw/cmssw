@@ -32,15 +32,21 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/TriggerNames.h"
-
-#include "TFile.h"
-#include "TH1.h"
-#include "TList.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 #include "HLTriggerOffline/SUSYBSM/interface/RecoSelector.h"
 #include "HLTriggerOffline/SUSYBSM/interface/McSelector.h"
+
+//To be included in a second stage
 #include "HLTriggerOffline/SUSYBSM/interface/PlotMaker.h"
-#include "HLTriggerOffline/SUSYBSM/interface/TurnOnMaker.h"
+//#include "HLTriggerOffline/SUSYBSM/interface/TurnOnMaker.h"
+
+//included for DQM
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 
 
 
@@ -54,19 +60,36 @@ class TriggerValidator : public edm::EDAnalyzer {
    private:
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      void writeHistos();
       virtual void endJob() ;
 
+
+      void beginRun(const edm::Run& run, const edm::EventSetup& c);
+      void endRun(const edm::Run& run, const edm::EventSetup& c);
+
+      
       std::map<int,std::string> l1NameMap;
       // ----------member data ---------------------------
+      DQMStore * dbe_;
+      std::string dirname_;
+      HLTConfigProvider hltConfig_;
+      // --- names of the folders in the dbe ---
+      std::string triggerBitsDir ;
+      std::string recoSelBitsDir ; 
+      std::string mcSelBitsDir   ;      
 
+
+
+      int nHltPaths;
+      int nL1Bits;
 
 
       //RecoSelector
       RecoSelector* myRecoSelector;
       McSelector* myMcSelector;
-      PlotMaker* myPlotMaker;
-      TurnOnMaker* myTurnOnMaker;
+
+      //For the moment I switch off the more complex plots
+       PlotMaker* myPlotMaker; 
+/*       TurnOnMaker* myTurnOnMaker; */
 
       //Histo
       std::string HistoFileName;
@@ -118,33 +141,32 @@ class TriggerValidator : public edm::EDAnalyzer {
 
       
       //Histos for L1 and HLT bits
-      TH1D* hL1BitsBeforeCuts;	
-      TH1D* hHltBitsBeforeCuts;	
-      TH1D* hL1BitsAfterRecoCuts;	
-      TH1D* hHltBitsAfterRecoCuts;  
-      TH1D* hL1BitsAfterMcCuts;	
-      TH1D* hHltBitsAfterMcCuts;  
+      MonitorElement* hL1BitsBeforeCuts;	
+      MonitorElement* hHltBitsBeforeCuts;	
+      MonitorElement* hL1BitsAfterRecoCuts;	
+      MonitorElement* hHltBitsAfterRecoCuts;  
+      MonitorElement* hL1BitsAfterMcCuts;	
+      MonitorElement* hHltBitsAfterMcCuts;  
 
-      TH1D* hL1PathsBeforeCuts;
-      TH1D* hHltPathsBeforeCuts;
-      TH1D* hL1PathsAfterRecoCuts;
-      TH1D* hHltPathsAfterRecoCuts;
-      TH1D* hL1PathsAfterMcCuts;
-      TH1D* hHltPathsAfterMcCuts;
+      MonitorElement* hL1PathsBeforeCuts;
+      MonitorElement* hHltPathsBeforeCuts;
+      MonitorElement* hL1PathsAfterRecoCuts;
+      MonitorElement* hHltPathsAfterRecoCuts;
+      MonitorElement* hL1PathsAfterMcCuts;
+      MonitorElement* hHltPathsAfterMcCuts;
         
-      TH2D* hL1HltMap;
-      TH2D* hL1HltMapNorm;
-      
-      TH2D* hL1OverlapNormToTotal;
-      TH2D* hHltOverlapNormToTotal;
-      TH2D* hL1OverlapNormToLargestPath;
-      TH2D* hHltOverlapNormToLargestPath;
+
+      //if we want to keep these, probably thay have to move to the client      
+/*       TH2D* hL1OverlapNormToTotal; */
+/*       TH2D* hHltOverlapNormToTotal; */
+/*       TH2D* hL1OverlapNormToLargestPath; */
+/*       TH2D* hHltOverlapNormToLargestPath; */
 
 
 
 
 
-      bool alreadyBooked;
+      bool firstEvent;
 
 
 };
