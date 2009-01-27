@@ -95,11 +95,12 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
   PFCandidateRef myleadPFNeutralCand=myPFTauElementsOperators.leadPFGammaCand(MatchingConeMetric_,myMatchingConeSize,PFCand_minPt_);
   PFCandidateRef myleadPFCand;
 
-  bool myleadPFCand_rectkavailable=false;
-  double myleadPFCand_rectkDZ=0.;
-  double myPFTau_refInnerPosition_x=0.;
-  double myPFTau_refInnerPosition_y=0.;
-  double myPFTau_refInnerPosition_z=0.;
+  bool myleadPFCand_rectkavailable = false;
+  double myleadPFCand_rectkDZ      = 0.;
+  // Set PFTau candidate vertex to the associated PV we are using
+  double myPFTau_refInnerPosition_x = myPV.x();
+  double myPFTau_refInnerPosition_y = myPV.y();
+  double myPFTau_refInnerPosition_z = myPV.z();
 
   if(myleadPFNeutralCand.isNonnull())myPFTau.setleadPFNeutralCand(myleadPFNeutralCand); 
 
