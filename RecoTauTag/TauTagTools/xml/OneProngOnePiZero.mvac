@@ -1,0 +1,31 @@
+<!-- Default configuration for One prong, 1 pi0 taus -->
+
+        <processor id="runMVA" name="ProcTMVA">
+           <input>
+              <var source="input" name="MainTrackPt"/>
+              <var source="input" name="MainTrackAngle"/>
+              <var source="input" name="InvariantMassOfSignal"/>
+              <var source="input" name="OutlierNCharged"/>
+
+              <var source="PiZeroDefault" name="PiZeroPt1"/>
+              <var source="PiZeroDefault" name="PiZeroAngle1"/>
+
+              <var source="OutlierDefault" name="OutlierPt1"/>
+              <var source="OutlierDefault" name="OutlierPt2"/>
+              <var source="OutlierDefault" name="OutlierPt3"/>
+              <var source="OutlierDefault" name="OutlierPt4"/>
+              <var source="OutlierDefault" name="OutlierAngle1"/>
+              <var source="OutlierDefault" name="OutlierAngle2"/>
+
+           </input>
+           <config>
+              <method type="MLP" name="MLP">V:NCycles=600:HiddenLayers=N+1,N:TestRate=10</method>
+              <!--  Features not yet implemented in CVS
+              <setup cuts="" options="NSigTrain=8000:NBkgTrain=8000"/>
+              <trainVar>DecayMode</trainVar>
+              -->
+           </config>
+           <output>
+              <var name="MVAOutput"/>
+           </output>
+        </processor>
