@@ -5,9 +5,11 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
 <!-- p o r t e d  f r o m  ORCA/Data/MuonData/EndcapData Tim Cox-->
 <!-- converted for just physical chambers - ME1a & ME1b params part of ME11 - Tim Cox 02.04.2007-->
 <!-- added ME42 section copied from ME32 - Tim Cox 13.11.2007-->
+<!-- updated to match current non-ME42 version - Tim Cox 27.01.2009-->
 <!-- # =========================================================== -->
 <!-- # Parameters for Cathode Strip Chambers: ME11AlumFrame        -->
 <!-- # =========================================================== -->
+
 <SpecPar name="ChamberSpecs_ME11">
 <PartSelector path="//ME11AlumFrame"/>
 <Parameter name="NoOfAnonParams" value="35"/>
@@ -76,7 +78,7 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
 <Parameter name="upar" value="107.5"/>
 
 <!--# 29 - strip deltaPhi (mrad) -->
-<Parameter name="upar" value="2.9582"/>
+<Parameter name="upar" value="2.958185"/>
 <!--# 30 - ctiOffset - possible future use -->
 <Parameter name="upar" value="0.0"/>
 <!--# 31 - chamber frame thickness (mm) TREAT AS ZERO SINCE THEY HAVE NO FRAME-->
@@ -152,7 +154,7 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
 <Parameter name="upar" value="44.5"/>
 
 <!--# 29 - strip deltaPhi (mrad) -->
-<Parameter name="upar" value="3.8785"/>
+<Parameter name="upar" value="3.878509"/>
 <!--# 30 - ctiOffset - possible future use -->
 <Parameter name="upar" value="0.0"/>
 <!--# 31 - chamber frame thickness (mm) -->
@@ -197,6 +199,7 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
 <Parameter name="NumWiresPerGrp" value="43"/>
 
 </SpecPar>
+
 <!--# ========================================================-->
 <!--# Parameters for Cathode Strip Chambers: ME12AlumFrame    -->
 <!--# ========================================================-->
@@ -262,7 +265,7 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
 <Parameter name="upar" value="174.49"/>
 
 <!--# 29 - strip deltaPhi (mrad) -->
-<Parameter name="upar" value="2.33"/>
+<Parameter name="upar" value="2.327105"/>
 <!--# 30 - ctiOffset - possible future use -->
 <Parameter name="upar" value="0.0"/>
 <!--# 31 - chamber frame thickness (mm) -->
@@ -319,6 +322,7 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
 <Parameter name="NumWiresPerGrp" value="13"/>
 
 </SpecPar>
+
 <!--# ========================================================-->
 <!--# Parameters for Cathode Strip Chambers: ME13AlumFrame    -->
 <!--# ========================================================-->
@@ -384,7 +388,7 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
 <Parameter name="upar" value="164.16"/>
 
 <!--# 29 - strip deltaPhi (mrad) -->
-<Parameter name="upar" value="2.16"/>
+<Parameter name="upar" value="2.152552"/>
 <!--# 30 - ctiOffset - possible future use -->
 <Parameter name="upar" value="0.0"/>
 <!--# 31 - chamber frame thickness (mm) -->
@@ -437,6 +441,7 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
 <Parameter name="NumWiresPerGrp" value="18"/>
 
 </SpecPar>
+
 <!--# ========================================================-->
 <!--# Parameters for Cathode Strip Chambers: ME21AlumFrame    -->
 <!--# ========================================================-->
@@ -502,7 +507,7 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
 <Parameter name="upar" value="189.66"/>
 
 <!--# 29 - strip deltaPhi (mrad) -->
-<Parameter name="upar" value="4.65"/>
+<Parameter name="upar" value="4.654210"/>
 <!--# 30 - ctiOffset - possible future use -->
 <Parameter name="upar" value="0.0"/>
 <!--# 31 - chamber frame thickness (mm) -->
@@ -555,6 +560,7 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
 <Parameter name="NumWiresPerGrp" value="8"/>
 
 </SpecPar>
+
 <!--# ========================================================-->
 <!--# Parameters for Cathode Strip Chambers: ME31AlumFrame    -->
 <!--# ========================================================-->
@@ -620,7 +626,7 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
 <Parameter name="upar" value="169.70"/>
 
 <!--# 29 - strip deltaPhi (mrad) -->
-<Parameter name="upar" value="4.65"/>
+<Parameter name="upar" value="4.654210"/>
 <!--# 30 - ctiOffset - possible future use -->
 <Parameter name="upar" value="0.0"/>
 <!--# 31 - chamber frame thickness (mm) -->
@@ -671,6 +677,7 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
 <Parameter name="NumWiresPerGrp" value="8"/>
 
 </SpecPar>
+
 <!--# ========================================================-->
 <!--# Parameters for Cathode Strip Chambers: ME41AlumFrame    -->
 <!--# ========================================================-->
@@ -736,7 +743,7 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
 <Parameter name="upar" value="149.42"/>
 
 <!--# 29 - strip deltaPhi (mrad) -->
-<Parameter name="upar" value="4.65"/>
+<Parameter name="upar" value="4.654210"/>
 <!--# 30 - ctiOffset - possible future use -->
 <Parameter name="upar" value="0.0"/>
 <!--# 31 - chamber frame thickness (mm) -->
@@ -786,6 +793,7 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
 <Parameter name="NumWiresPerGrp" value="6"/>
 
 </SpecPar>
+
 <!--# ========================================================-->
 <!--# Parameters for Cathode Strip Chambers: ME22AlumFrame    -->
 <!--# ========================================================-->
@@ -851,7 +859,7 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
 <Parameter name="upar" value="323.06"/>
 
 <!--# 29 - strip deltaPhi (mrad) -->
-<Parameter name="upar" value="2.33"/>
+<Parameter name="upar" value="2.327105"/>
 <!--# 30 - ctiOffset - possible future use -->
 <Parameter name="upar" value="0.0"/>
 <!--# 31 - chamber frame thickness (mm) -->
@@ -916,6 +924,7 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
 <Parameter name="NumWiresPerGrp" value="16"/>
 
 </SpecPar>
+
 <!--# ========================================================-->
 <!--# Parameters for Cathode Strip Chambers: ME32AlumFrame    -->
 <!--# ========================================================-->
@@ -981,7 +990,7 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
 <Parameter name="upar" value="323.06"/>
 
 <!--# 29 - strip deltaPhi (mrad) -->
-<Parameter name="upar" value="2.33"/>
+<Parameter name="upar" value="2.327105"/>
 <!--# 30 - ctiOffset - possible future use -->
 <Parameter name="upar" value="0.0"/>
 <!--# 31 - chamber frame thickness (mm) -->
@@ -1112,7 +1121,7 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
 <Parameter name="upar" value="323.06"/>
 
 <!--# 29 - strip deltaPhi (mrad) -->
-<Parameter name="upar" value="2.33"/>
+<Parameter name="upar" value="2.327105"/>
 <!--# 30 - ctiOffset - possible future use -->
 <Parameter name="upar" value="0.0"/>
 <!--# 31 - chamber frame thickness (mm) -->
