@@ -31,8 +31,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
  TFile * rfile = new TFile(refFile);
  TDirectory * rdir=gDirectory;
 
- if(sfile->cd("DQMData/Run 1/RecoMuonV")) sfile->cd("DQMData/Run 1/RecoMuonV/Run summary/MultiTrack");
- else sfile->cd("DQMData/RecoMuonV/MultiTrack");
+ if(sfile->cd("DQMData/Run 1/RecoMuonV")) {sfile->cd("DQMData/Run 1/RecoMuonV/Run summary/MultiTrack");}
+ else {sfile->cd("DQMData/RecoMuonV/MultiTrack");}
  sdir=gDirectory;
  //TList *sl= sdir->GetListOfKeys();
  TIter nextkey( sdir->GetListOfKeys() );
@@ -89,7 +89,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    collname1 = myName;
    collname2 = myName;
 
-   TString newDir("NEW_RELEASE/NEWSELECTION/");
+   TString newDir("NEW_RELEASE/NEWSELECTION/NEW_LABEL/");
    newDir+=myName;
    gSystem->mkdir(newDir,kTRUE);
  
@@ -184,9 +184,9 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 
 
    // ====== hits and pt
-   rdir->GetObject(collname1+"/nhits_vs_eta_pfx",(TProfile*)rh1);                                                                                                                                                                                
-   sdir->GetObject(collname2+"/nhits_vs_eta_pfx",(TProfile*)sh1);                                                                                                                                                                                
-   rdir->GetObject(collname1+"/hits",rh2);                                                                                                                                                                                    
+   rdir->GetObject(collname1+"/nhits_vs_eta_pfx",(TProfile*)rh1);
+   sdir->GetObject(collname2+"/nhits_vs_eta_pfx",(TProfile*)sh1);
+   rdir->GetObject(collname1+"/hits",rh2);
    sdir->GetObject(collname2+"/hits",sh2);         
    
    rdir->GetObject(collname1+"/num_simul_pT",rh3);

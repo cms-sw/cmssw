@@ -46,6 +46,10 @@ Tracksname=''
 Sequence='harvesting'
 #Sequence='report_only'
 
+Submit=True
+DBS=True
+Publish=False
+
 # Ideal and Statup tags
 IdealTag='IDEAL_30X'
 StartupTag='STARTUP_V7'
@@ -55,7 +59,7 @@ ReferenceSelection='IDEAL_V11_noPU'
 StartupReferenceSelection='STARTUP_V7_noPU'
 
 # Default label is GlobalTag_noPU__Quality_Algo. Change this variable if you want to append an additional string.
-NewSelectionLabel='test2'
+NewSelectionLabel=''
 
 
 #Reference and new repository
@@ -109,7 +113,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
             Tracks='generalTracks'
         else:
            NewSelection+= Tracks
-    if(Tracksname==''):
+    elif(Tracksname==''):
         Tracks='cutsRecoTracks'
     else:
         Tracks=Tracksname
@@ -196,35 +200,40 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                 replace(symbol_map, templatecfgFile, cfgFile)
 
                 cmdrun='cmsRun ' +cfgFileName+ '.py >&  ' + cfgFileName + '.log < /dev/zero '
-#ADAM
-                if(os.path.exists(NewRelease+'/'+NewSelection)==False):
-                    os.makedirs(NewRelease+'/'+NewSelection)
+
+                if(os.path.exists(NewRelease+'/'+NewSelection+'/'+sample)==False):
+                    os.makedirs(NewRelease+'/'+NewSelection+'/'+sample)
 
                 retcode=0
                 if(Sequence!="report_only"):
-                    retcode=os.system(cmdrun)
+                    if(Submit):
+                        retcode=os.system(cmdrun)
+                    else:
+                        sys.exit()
                 else:
                     newSample=NewRepository+'/'+NewRelease+'/'+NewSelection+'/'+sample+'/'+'val.'+sample+'.root'
                     if os.path.isfile(newSample ):
-                        os.system('cp ' + newSample+ ' '+NewRelease+'/'+NewSelection)  
+                        os.system('cp ' + newSample+ ' '+NewRelease+'/'+NewSelection+'/'+sample)  
                     else:
-                        print "No new file found at: ", NewRelease+'/'+NewSelection
+                        print "No new file found at: ", NewRelease+'/'+NewSelection+'/'+sample
 
                 if (retcode!=0):
                     print 'Job for sample '+ sample + ' failed. \n'
                 else:
                     if Sequence=="harvesting":
-                        os.system('mv  DQM_V0001_R000000001__' + GlobalTag+ '__' + sample + '__Validation.root' + ' ' + NewRelease+'/'+NewSelection+'/val.' +sample+'.root')
+                        os.system('mv  DQM_V0001_R000000001__' + GlobalTag+ '__' + sample + '__Validation.root' + ' ' + NewRelease+'/'+NewSelection+'/'+sample+'/val.' +sample+'.root')
+                    else:
+                        os.system('mv  val.' + sample + '.root' + ' ' + NewRelease+'/'+NewSelection+'/'+sample+'/val.' +sample+'.root')
                     referenceSample=RefRepository+'/'+RefRelease+'/'+RefSelection+'/'+sample+'/'+'val.'+sample+'.root'
                     if os.path.isfile(referenceSample ):
-                        replace_map = { 'NEW_FILE':NewRelease+'/'+NewSelection+'/val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefSelection+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefSelection, 'NEWSELECTION':NewSelection, 'TrackValHistoPublisher': sample}
+                        replace_map = { 'NEW_FILE':NewRelease+'/'+NewSelection+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefSelection+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefSelection, 'NEWSELECTION':NewSelection, 'TrackValHistoPublisher': sample}
 
                         if(os.path.exists(RefRelease+'/'+RefSelection)==False):
                             os.makedirs(RefRelease+'/'+RefSelection)
                         os.system('cp ' + referenceSample+ ' '+RefRelease+'/'+RefSelection)  
                     else:
                         print "No reference file found at: ", RefRelease+'/'+RefSelection
-                        replace_map = { 'NEW_FILE':NewRelease+'/'+NewSelection+'/val.'+sample+'.root', 'REF_FILE':NewRelease+'/'+NewSelection+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewSelection, 'NEWSELECTION':NewSelection, 'TrackValHistoPublisher': sample}
+                        replace_map = { 'NEW_FILE':NewRelease+'/'+NewSelection+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':NewRelease+'/'+NewSelection+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewSelection, 'NEWSELECTION':NewSelection, 'TrackValHistoPublisher': sample}
 
 
                     macroFile = open(cfgFileName+'.C' , 'w' )
@@ -237,16 +246,37 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                     if(os.path.exists(newdir)==False):
                         os.makedirs(newdir)
 
-                    print "copying pdf files for sample: " , sample
-                    os.system('scp -r '+NewRelease+'/'+NewSelection+'/* ' + newdir)
+                    if(Publish):
+                        print "copying pdf files for sample: " , sample
+                        os.system('scp -r '+NewRelease+'/'+NewSelection+'/'+sample+'/* ' + newdir)
 
-                    if(Sequence!='report_only'):
+                    if(Sequence!='report_only' and Publish):
                         print "copying root file for sample: " , sample
-                        os.system('cp '+NewRelease+'/'+NewSelection+'/val.'+ sample+ '.root ' + newdir)
+                        os.system('cp '+NewRelease+'/'+NewSelection+'/'+sample+'/val.'+ sample+ '.root ' + newdir)
                         print "copying py file for sample: " , sample
                         os.system('cp '+cfgFileName+'.py ' + newdir)
 
+            elif DBS==False:
+                filenames='import FWCore.ParameterSet.Config as cms\n'
+                filenames+='readFiles = cms.untracked.vstring()\n'
+                filenames+='secFiles = cms.untracked.vstring()\n'
+                filenames+='source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)\n'
+                filenames+='readFiles.extend( [\n'
+                filenames+=']);\n'
+                cfgFileName=sample
+                print 'cfgFileName ' + cfgFileName
+                cfgFile = open(cfgFileName+'.py' , 'w' )
+                cfgFile.write(filenames)
+                if (Events.has_key(sample)!=True):
+                    Nevents=defaultNevents
+                else:
+                    Nevents=Events[sample]
+                    
+                symbol_map = { 'NEVENT':Nevents, 'GLOBALTAG':GlobalTag, 'SEQUENCE':Sequence, 'SAMPLE': sample, 'ALGORITHM':trackalgorithm, 'QUALITY':trackquality, 'TRACKS':Tracks}
 
+
+                cfgFile = open(cfgFileName+'.py' , 'a' )
+                replace(symbol_map, templatecfgFile, cfgFile)
             else:
                 print 'No dataset found skipping sample: '+ sample, '\n'
         else:
@@ -262,7 +292,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
 try:
      #Get some environment variables to use
      NewRelease     = os.environ["CMSSW_VERSION"]
-#      NewRelease='CMSSW_2_2_3'
+#      NewRelease='CMSSW_3_0_0_pre6'
 except KeyError:
      print >>sys.stderr, 'Error: The environment variable CMSSW_VERSION is not available.'
      print >>sys.stderr, '       Please run eval `scramv1 runtime -csh` to set your environment variables'
