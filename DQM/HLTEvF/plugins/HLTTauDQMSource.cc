@@ -840,13 +840,13 @@ HLTTauDQMSource::doL2(const Event& iEvent, const EventSetup& iSetup)
 		      //Fill Inclusive Histos
 		      L2JetEt_->Fill(jet.et());
 		      L2JetEta_->Fill(jet.eta());
-		      L2EcalIsolEt_->Fill(l2info.ECALIsolConeCut);
-		      L2TowerIsolEt_->Fill(l2info.TowerIsolConeCut);
-		      L2SeedTowerEt_->Fill(l2info.SeedTowerEt);
-		      L2NClusters_->Fill(l2info.ECALClusterNClusters);
-		      L2ClusterEtaRMS_->Fill(l2info.ECALClusterEtaRMS);
-		      L2ClusterPhiRMS_->Fill(l2info.ECALClusterPhiRMS);
-		      L2ClusterDeltaRRMS_->Fill(l2info.ECALClusterDRRMS);
+		      L2EcalIsolEt_->Fill(l2info.ecalIsolEt());
+		      L2TowerIsolEt_->Fill(l2info.hcalIsolEt());
+		      L2SeedTowerEt_->Fill(l2info.seedHcalHitEt());
+		      L2NClusters_->Fill(l2info.nEcalHits());
+		      L2ClusterEtaRMS_->Fill(l2info.ecalClusterShape()[0]);
+		      L2ClusterPhiRMS_->Fill(l2info.ecalClusterShape()[1]);
+		      L2ClusterDeltaRRMS_->Fill(l2info.ecalClusterShape()[2]);
 
 		      //Fill Reference Histos
 	            for(size_t i=0;i<refFilters_.size();++i)
@@ -859,15 +859,13 @@ HLTTauDQMSource::doL2(const Event& iEvent, const EventSetup& iSetup)
 			    //Fill the other histos!!
 			    L2JetEtRef_[i]->Fill(jet.et());
 			    L2JetEtaRef_[i]->Fill(jet.eta());
-			    L2EcalIsolEtRef_[i]->Fill(l2info.ECALIsolConeCut);
-			    L2TowerIsolEtRef_[i]->Fill(l2info.TowerIsolConeCut);
-			    L2SeedTowerEtRef_[i]->Fill(l2info.SeedTowerEt);
-			    L2NClustersRef_[i]->Fill(l2info.ECALClusterNClusters);
-			    L2ClusterEtaRMSRef_[i]->Fill(l2info.ECALClusterEtaRMS);
-			    L2ClusterPhiRMSRef_[i]->Fill(l2info.ECALClusterPhiRMS);
-			    L2ClusterDeltaRRMSRef_[i]->Fill(l2info.ECALClusterDRRMS);
-			    
-
+			    L2EcalIsolEtRef_[i]->Fill(l2info.ecalIsolEt());
+			    L2TowerIsolEtRef_[i]->Fill(l2info.hcalIsolEt());
+			    L2SeedTowerEtRef_[i]->Fill(l2info.seedHcalHitEt());
+			    L2NClustersRef_[i]->Fill(l2info.nEcalHits());
+			    L2ClusterEtaRMSRef_[i]->Fill(l2info.ecalClusterShape()[0]);
+			    L2ClusterPhiRMSRef_[i]->Fill(l2info.ecalClusterShape()[1]);
+			    L2ClusterDeltaRRMSRef_[i]->Fill(l2info.ecalClusterShape()[2]);
 			  }
 
 		      }
