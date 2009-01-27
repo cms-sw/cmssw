@@ -65,6 +65,7 @@ namespace cms{
     TFileDirectory ClusterNoise = fFile->mkdir( "ClusterNoise" );
     TFileDirectory ClusterSignal = fFile->mkdir("ClusterSignal");
     TFileDirectory ClusterStoN = fFile->mkdir("ClusterStoN");
+    TFileDirectory ClusterStoNCorr = fFile->mkdir("ClusterStoNCorr");
     TFileDirectory ClusterWidth = fFile->mkdir("ClusterWidth");
     TFileDirectory ClusterPos = fFile->mkdir("ClusterPos");
     TFileDirectory ClusterNum = fFile->mkdir("ClusterNum");
@@ -73,36 +74,60 @@ namespace cms{
     Hlist = new THashList();
     
     for (float Thc=startThC_;Thc<stopThC_;Thc+=stepThC_)
-      for (float Ths=startThS_;Ths<stopThS_ && Ths<=Thc; Ths+=stepThS_)	
-	for (float Thn=startThN_;Thn<stopThN_ && Thn<=Ths; Thn+=stepThN_)
+      for (float Ths=startThS_;Ths<stopThS_ && Ths<Thc; Ths+=stepThS_)	
+	for (float Thn=startThN_;Thn<stopThN_ && Thn<Ths; Thn+=stepThN_)
 	  for (int k=0;k<2;k++){
 	    
-	    char capp[128];
-	    sprintf(capp,"_%s_Th_%2.1f_%2.1f_%2.1f",k==0?"S":"B",Thc,Ths,Thn);
-	    TString appString(capp);
+	    char cappOn[128], cappOff[128];
+	    sprintf(cappOn,"_%s_Th_%2.1f_%2.1f_%2.1f_On",k==0?"S":"B",Thc,Ths,Thn);
+	    sprintf(cappOff,"_%s_Th_%2.1f_%2.1f_%2.1f_Off",k==0?"S":"B",Thc,Ths,Thn);
+
+	    TString appStringOn(cappOn),appStringOff(cappOff);
 	    
 	    //Cluster Width
-	    name="cWidth"+appString;
+	    name="cWidth"+appStringOn;
 	    bookHlist("TH1ClusterWidth",ClusterWidth, name, "Nstrip" );
 	    
+	    name="cWidth"+appStringOff;
+	    bookHlist("TH1ClusterWidth",ClusterWidth, name, "Nstrip" );
+
 	    //Cluster Noise
-	    name="cNoise"+appString;
+	    name="cNoise"+appStringOn;
+	    bookHlist("TH1ClusterNoise",ClusterNoise, name, "ADC count" );
+
+	    name="cNoise"+appStringOff;
 	    bookHlist("TH1ClusterNoise",ClusterNoise, name, "ADC count" );
 	    
 	    //Cluster Signal
-	    name="cSignal"+appString;
+	    name="cSignal"+appStringOn;
 	    bookHlist("TH1ClusterSignal",ClusterSignal, name, "ADC count" );
-	    
+
+	    name="cSignal"+appStringOff;
+	    bookHlist("TH1ClusterSignal",ClusterSignal, name, "ADC count" );	    
+
 	    //Cluster StoN
-	    name="cStoN"+appString;
+	    name="cStoN"+appStringOn;
 	    bookHlist("TH1ClusterStoN",ClusterStoN, name );
-	    
+
+	    name="cStoN"+appStringOff;
+	    bookHlist("TH1ClusterStoN",ClusterStoN, name );
+
+	    //Cluster StoNCorr
+	    name="cStoNCorr"+appStringOn;
+	    bookHlist("TH1ClusterStoN",ClusterStoNCorr, name );
+
 	    //Cluster Pos
-	    name="cPos"+appString;
+	    name="cPos"+appStringOn;
 	    bookHlist("TH1ClusterPos",ClusterPos, name, "Nstrip" );
-	    
+
+	    name="cPos"+appStringOff;
+	    bookHlist("TH1ClusterPos",ClusterPos, name, "Nstrip" );
+	    	    
 	    //Cluster Number
-	    name="cNum"+appString;
+	    name="cNum"+appStringOn;
+	    bookHlist("TH1ClusterNum",ClusterNum, name );
+
+	    name="cNum"+appStringOff;
 	    bookHlist("TH1ClusterNum",ClusterNum, name );
 	  }
     
@@ -112,43 +137,55 @@ namespace cms{
   //------------------------------------------------------------------------------------------
   
   void ClusterThr::endJob() {  
-    TNtupleD *tntuple = fFile->make<TNtupleD>("results","results","Tc:Ts:Tn:NTs:Ns:MeanWs:RmsWs:SckewWs:MPVs:FWHMs:NTb:Nb:MeanWb:RmsWb:SckewWb");
+    TNtupleD *tntuple = fFile->make<TNtupleD>("results","results","Tc:Ts:Tn:NTsOn:NsOn:MeanWsOn:RmsWsOn:MPVs:FWHMs:NTbOn:NbOn:MeanWbOn:RmsWbOn:NTsOff:NsOff:MeanWsOff:RmsWsOff:NTbOff:NbOff:MeanWbOff:RmsWbOff");
     
     std::vector<double> values(tntuple->GetNvar(),0);
     
     for (float Tc=startThC_;Tc<stopThC_;Tc+=stepThC_)
-      for (float Ts=startThS_;Ts<stopThS_ && Ts<=Tc; Ts+=stepThS_)	
-	for (float Tn=startThN_;Tn<stopThN_ && Tn<=Ts; Tn+=stepThN_){
+      for (float Ts=startThS_;Ts<stopThS_ && Ts<Tc; Ts+=stepThS_)	
+	for (float Tn=startThN_;Tn<stopThN_ && Tn<Ts; Tn+=stepThN_){
 
-	  char cappS[128],cappB[128];
-	  sprintf(cappS,"_S_Th_%2.1f_%2.1f_%2.1f",Tc,Ts,Tn);
-	  sprintf(cappB,"_B_Th_%2.1f_%2.1f_%2.1f",Tc,Ts,Tn);
-	  TString appS(cappS);
-	  TString appB(cappB);
+	  char cappSOn[128],cappBOn[128],cappSOff[128],cappBOff[128];
+	  sprintf(cappSOn,"_S_Th_%2.1f_%2.1f_%2.1f_On",Tc,Ts,Tn);
+	  sprintf(cappBOn,"_B_Th_%2.1f_%2.1f_%2.1f_On",Tc,Ts,Tn);
+	  sprintf(cappSOff,"_S_Th_%2.1f_%2.1f_%2.1f_Off",Tc,Ts,Tn);
+	  sprintf(cappBOff,"_B_Th_%2.1f_%2.1f_%2.1f_Off",Tc,Ts,Tn);
+	  TString appSOn(cappSOn), appSOff(cappSOff);
+	  TString appBOn(cappBOn), appBOff(cappBOff),;
 	  
 	  values[0]=Tc;
 	  values[1]=Ts;
 	  values[2]=Tn;
 	  for (int k=0;k<2;k++){
-	    if(k==0){
-	      values[iNs]=((TH1F*) Hlist->FindObject("cNum"+appS))->GetMean();
-	      values[iNTs]=((TH1F*) Hlist->FindObject("cWidth" +appS))->GetEntries();
-	      values[iMeanWs]=((TH1F*) Hlist->FindObject("cWidth" +appS))->GetMean();
-	      values[iRmsWs]=((TH1F*) Hlist->FindObject("cWidth" +appS))->GetRMS();
-	      values[iSckewWs]=((TH1F*) Hlist->FindObject("cWidth" +appS))->GetSkewness();
-	      TH1F *h = ((TH1F*) Hlist->FindObject("cStoN"+appS));
+	    if(k==0){//SIGNAL clusters ontrack
+	      values[iNsOn]=((TH1F*) Hlist->FindObject("cNum"+appSOn))->GetMean();
+	      values[iNTsOn]=((TH1F*) Hlist->FindObject("cWidth" +appSOn))->GetEntries();
+	      values[iMeanWsOn]=((TH1F*) Hlist->FindObject("cWidth" +appSOn))->GetMean();
+	      values[iRmsWsOn]=((TH1F*) Hlist->FindObject("cWidth" +appSOn))->GetRMS();
+	      //and off track
+	      values[iNsOff]=((TH1F*) Hlist->FindObject("cNum"+appSOff))->GetMean();
+	      values[iNTsOff]=((TH1F*) Hlist->FindObject("cWidth" +appSOff))->GetEntries();
+	      values[iMeanWsOff]=((TH1F*) Hlist->FindObject("cWidth" +appSOff))->GetMean();
+	      values[iRmsWsOff]=((TH1F*) Hlist->FindObject("cWidth" +appSOff))->GetRMS();
+
+	      TH1F *h = ((TH1F*) Hlist->FindObject("cStoNCorr"+appSOn));
 	      double peak=0;
 	      double fwhm=0;
 	      langausN(h,peak,fwhm,0,0,true,"RB");
 	      h->Write();
 	      values[iMPVs]=peak;
 	      values[iFWHMs]=fwhm;
-	    }else{
-	      values[iNb]=((TH1F*) Hlist->FindObject("cNum"+appB))->GetMean();
-	      values[iNTb]=((TH1F*) Hlist->FindObject("cWidth" +appB))->GetEntries();
-	      values[iMeanWb]=((TH1F*) Hlist->FindObject("cWidth" +appB))->GetMean();
-	      values[iRmsWb]=((TH1F*) Hlist->FindObject("cWidth" +appB))->GetRMS();
-	      values[iSckewWb]=((TH1F*) Hlist->FindObject("cWidth" +appB))->GetSkewness();
+	    }else{//BG clusters ontrack
+	      values[iNbOn]=((TH1F*) Hlist->FindObject("cNum"+appBOn))->GetMean();
+	      values[iNTbOn]=((TH1F*) Hlist->FindObject("cWidth" +appBOn))->GetEntries();
+	      values[iMeanWbOn]=((TH1F*) Hlist->FindObject("cWidth" +appBOn))->GetMean();
+	      values[iRmsWbOn]=((TH1F*) Hlist->FindObject("cWidth" +appBOn))->GetRMS();
+	      //and off track
+	      values[iNbOff]=((TH1F*) Hlist->FindObject("cNum"+appBOff))->GetMean();
+	      values[iNTbOff]=((TH1F*) Hlist->FindObject("cWidth" +appBOff))->GetEntries();
+	      values[iMeanWbOff]=((TH1F*) Hlist->FindObject("cWidth" +appBOff))->GetMean();
+	      values[iRmsWbOff]=((TH1F*) Hlist->FindObject("cWidth" +appBOff))->GetRMS();
+
 	    }
 	  }
 	  tntuple->Fill((double*) &values[0]);
@@ -180,7 +217,7 @@ namespace cms{
     
     if (trackCollection.isValid()){
     }else{
-      edm::LogError("SiStripMonitorTrack")<<" Track Collection is not valid !! " << TrackLabel<<std::endl;
+      edm::LogError("ClusterThrFilter")<<" Track Collection is not valid !! " << TrackLabel<<std::endl;
       tracksCollection_in_EventTree=false;
     }
     
@@ -189,15 +226,15 @@ namespace cms{
     e.getByLabel(TrackProducer, TrackLabel, TItkAssociatorCollection);
     if( TItkAssociatorCollection.isValid()){
     }else{
-      edm::LogError("SiStripMonitorTrack")<<"Association not found "<<std::endl;
+      edm::LogError("ClusterThrFilter")<<"Association not found "<<std::endl;
       trackAssociatorCollection_in_EventTree=false;
     }
     
     
     //Perform track study
     if (tracksCollection_in_EventTree && trackAssociatorCollection_in_EventTree) trackStudy(es);
-    
-    
+
+    OffTrackClusters(es);       
     //       if (dsv_SiStripCluster.isValid()){ 
     // 	for ( edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter=dsv_SiStripCluster->begin(); DSViter!=dsv_SiStripCluster->end();DSViter++){
     // 	  uint32_t detid=DSViter->id(); 
@@ -407,41 +444,41 @@ namespace cms{
       
       if (subDets.begin()!=subDets.end())
 	if (std::find(subDets.begin(),subDets.end(),subdet)==subDets.end()){
-	  LogDebug("ClusterThr") << "Skipping SubDet " << subdet << std::endl;
+	  //	  LogDebug("ClusterThr") << "Skipping SubDet " << subdet << std::endl;
 	  return;
 	}else{
 	  LogDebug("ClusterThr") << "SubDet " << subdet << std::endl;
 	}
       if (layers.begin()!=layers.end())
 	if (std::find(layers.begin(),layers.end(),layer)==layers.end()){
-	  LogDebug("ClusterThr") << "Skipping Layer " << layer << std::endl;
+	  //	  LogDebug("ClusterThr") << "Skipping Layer " << layer << std::endl;
 	  return;
 	}else{
 	  LogDebug("ClusterThr") << "Layer " << layer << std::endl;
 	}
 
       bool passedSeed=true;
-      for (float Ths=startThS_;Ths<stopThS_ && passedSeed;Ths+=stepThS_){	
-	for (float Thn=startThN_;Thn<stopThN_ && Thn<=Ths && passedSeed; Thn+=stepThN_){    
-	  bool passedClus=true;
-	  for (float Thc=startThC_;Thc<stopThC_ && passedClus && passedSeed;Thc+=stepThC_){
-	    if (Thc<Ths)
-	      continue;
-	    if(clusterizer(SiStripClusterInfo_,Thc,Ths,Thn,passedSeed,passedClus)){
+      bool passedClus=true;
+      for (float Thc=startThC_;Thc<stopThC_ && passedClus && passedSeed;Thc+=stepThC_){
+	for (float Ths=startThS_;Ths<stopThS_  && Ths<Thc && passedSeed;Ths+=stepThS_){	
+	  for (float Thn=startThN_;Thn<stopThN_ && Thn<Ths && passedSeed; Thn+=stepThN_){    
+	    // 	    if (Thc<Ths)
+	    // 	      continue;
+	    if(clusterizer(SiStripClusterInfo_,Thc,Ths,Thn,passedSeed,passedClus,"OnTrack",LV)){
 	      vPSiStripCluster.push_back(SiStripCluster_);
 	      countOn++;
 	    }
 	  }
 	}
       } 
-      
-      for (float Thc=startThC_;Thc<stopThC_;Thc+=stepThC_)
-	for (float Ths=startThS_;Ths<stopThS_ && Ths<=Thc; Ths+=stepThS_)	
-	  for (float Thn=startThN_;Thn<stopThN_ && Thn<=Ths; Thn+=stepThN_)
-	    for (int k=0;k<2;k++){
+     
+	for (float Thc=startThC_;Thc<stopThC_;Thc+=stepThC_)
+	  for (float Ths=startThS_;Ths<stopThS_ && Ths<Thc; Ths+=stepThS_)	
+	    for (float Thn=startThN_;Thn<stopThN_ && Thn<Ths; Thn+=stepThN_)
+	      for (int k=0;k<2;k++){
 	      
 	      char capp[128];
-	      sprintf(capp,"_%s_Th_%2.1f_%2.1f_%2.1f",k==0?"S":"B",Thc,Ths,Thn);
+	      sprintf(capp,"_%s_Th_%2.1f_%2.1f_%2.1f_On",k==0?"S":"B",Thc,Ths,Thn);
 	      std::map<std::string,int>::iterator iter=cNum.find(capp);
 	      if (iter!=cNum.end()){
 		if(iter->second == 0) LogDebug("ClusterThr") << "Filling with a zero for " << capp << std::endl;
@@ -457,18 +494,69 @@ namespace cms{
     }	  
   }
 
+void ClusterThr::OffTrackClusters( const edm::EventSetup& es)
+{
 
+  //Loop on Dets
+  for ( edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter=dsv_SiStripCluster->begin(); DSViter!=dsv_SiStripCluster->end();DSViter++){
+    uint32_t detid=DSViter->id();
+    if (find(ModulesToBeExcluded_.begin(),ModulesToBeExcluded_.end(),detid)!=ModulesToBeExcluded_.end()) continue;
+    //Loop on Clusters
+    edm::LogInfo("ClusterThr") << "on detid "<< detid << " N Cluster= " << DSViter->size();
+    edmNew::DetSet<SiStripCluster>::const_iterator ClusIter = DSViter->begin();
+    for(; ClusIter!=DSViter->end(); ClusIter++) {
+      SiStripClusterInfo* SiStripClusterInfo_= new SiStripClusterInfo(detid,*ClusIter,es);
+	LogDebug("ClusterThr") << "ClusIter " << &*ClusIter << "\t " 
+	                                << std::find(vPSiStripCluster.begin(),vPSiStripCluster.end(),&*ClusIter)-vPSiStripCluster.begin();
+	if (std::find(vPSiStripCluster.begin(),vPSiStripCluster.end(),&*ClusIter) == vPSiStripCluster.end()){
+	  bool passedClus=true;
+	  bool passedSeed=true;
+	  for (float Thc=startThC_;Thc<stopThC_ && passedClus && passedSeed;Thc+=stepThC_){
+	    for (float Ths=startThS_;Ths<stopThS_ && Ths<Thc && passedSeed;Ths+=stepThS_){	
+	      for (float Thn=startThN_;Thn<stopThN_ && Thn<Ths && passedSeed; Thn+=stepThN_){    
+		//		if (Thc<=Ths)
+		//		  continue;
+		if(clusterizer(SiStripClusterInfo_,Thc,Ths,Thn,passedSeed,passedClus,"OffTrack",LV)){
+		  countOff++;
+		  edm::LogInfo("ClusterThr") << "countOff" << countOff << std::endl;
+
+		}
+	      }
+	    }
+	  } 
+	  
+	  for (float Thc=startThC_;Thc<stopThC_;Thc+=stepThC_)
+	    for (float Ths=startThS_;Ths<stopThS_ && Ths<Thc; Ths+=stepThS_)	
+	      for (float Thn=startThN_;Thn<stopThN_ && Thn<Ths; Thn+=stepThN_)
+		for (int k=0;k<2;k++){
+		  
+		  char capp[128];
+		  sprintf(capp,"_%s_Th_%2.1f_%2.1f_%2.1f_Off",k==0?"S":"B",Thc,Ths,Thn);
+		  std::map<std::string,int>::iterator iter=cNum.find(capp);
+		  if (iter!=cNum.end()){
+		    if(iter->second == 0) LogDebug("ClusterThr") << "Filling with a zero for " << capp << std::endl;
+		    ((TH1F*) Hlist->FindObject("cNum"+TString(capp)))->Fill(iter->second);
+		    iter->second=0;
+		  }
+		}
+	  
+	}
+	
+	delete SiStripClusterInfo_; 
+    }
+  }
+}
 //------------------------------------------------------------------------
-    bool ClusterThr::clusterizer(SiStripClusterInfo* siStripClusterInfo,float Thc,float Ths,float Thn,bool& passedSeed,bool& passedClus){
+    bool ClusterThr::clusterizer(SiStripClusterInfo* siStripClusterInfo,float Thc,float Ths,float Thn,bool& passedSeed,bool& passedClus,char* flag,const LocalVector LV){
 
-      edm::LogInfo("ClusterThr") << "Clusterizer begin..." << std::endl;
+      edm::LogInfo("ClusterThr") << "Clusterizer begin for " << flag << std::endl;
       //takes the parameters for max Background threshold and the min Signal threshold to define the overlap region
       const edm::ParameterSet StoNThr_ = conf_.getParameter<edm::ParameterSet>("StoNThr");
       double StoNBmax_ = StoNThr_.getParameter<double>("StoNBmax");
       double StoNSmin_ = StoNThr_.getParameter<double>("StoNSmin");
       
       //takes the noises of the strips involved in the cluster   
-      const std::vector<float>&  stripNoises_ = siStripClusterInfo->getStripNoises();
+      const std::vector<float>&  stripNoises_ = siStripClusterInfo->getStripNoisesRescaledByGain();
       
       //Clusterizer Selection
       
@@ -514,8 +602,16 @@ namespace cms{
 	Noise=sqrt(Noise);
 	NoiseNorm=stripNoises_[siStripClusterInfo->getMaxPosition()-siStripClusterInfo->getFirstStrip()];
       }
+
+      float cosRZ = -2;
+      LogTrace("SiStripMonitorTrack")<< "\n\tLV " << LV.x() << " " << LV.y() << " " << LV.z() << " " << LV.mag() << std::endl;
+      if (LV.mag()!=0){
+	cosRZ= fabs(LV.z())/LV.mag();
+	LogTrace("SiStripMonitorTrack")<< "\n\t cosRZ " << cosRZ << std::endl;
+      }
       
       float StoN=Signal/NoiseNorm;
+      float StoNCorr=StoN*cosRZ;
       Pos/=Signal;
       Pos+=siStripClusterInfo->getFirstStrip();
       //Cluster
@@ -536,25 +632,43 @@ namespace cms{
 	edm::LogInfo("ClusterThr") << "Background cluster" << std::endl;
       }
 
-      edm::LogInfo("ClusterThr") << "Signal " << Signal << " Noise " << Noise << " Nstrip " << Nstrip << " StoN " << StoN << std::endl;
+      edm::LogInfo("ClusterThr") << "Signal " << Signal << " Noise " << Noise << " Nstrip " << Nstrip << " StoN " << StoN <<  " StoNCorr " << StoNCorr << std::endl;
       
       char capp[128];
-      sprintf(capp,"_%s_Th_%2.1f_%2.1f_%2.1f",StoN>StoNBmax_?"S":"B",Thc,Ths,Thn);
+      sprintf(capp,"_%s_Th_%2.1f_%2.1f_%2.1f_%s",StoN>StoNBmax_?"S":"B",Thc,Ths,Thn,flag == "OnTrack"?"On":"Off");
       TString app(capp);
-      cNum[capp]++;//increase cNum for this cluster and for this three thresholds
+      cNum[capp]++;//increase cNum for this cluster and for this set of thresholds
             
       edm::LogInfo("ClusterThr") << "cNum just increased for " << capp << " " << cNum[capp] << std::endl;
 
-      try{      
-	((TH1F*) Hlist->FindObject("cSignal"+app))->Fill(Signal);
-	((TH1F*) Hlist->FindObject("cNoise" +app))->Fill(NoiseNorm);
-	((TH1F*) Hlist->FindObject("cStoN"  +app))->Fill(StoN);
-	((TH1F*) Hlist->FindObject("cWidth" +app))->Fill(Nstrip);
-	((TH1F*) Hlist->FindObject("cPos"   +app))->Fill(Pos);
+      try{  
+	if(flag=="OnTrack"){  
+	  edm::LogInfo("ClusterThr") << "Flag is " << flag << std::endl;
+	  
+	  ((TH1F*) Hlist->FindObject("cSignal"+app))->Fill(Signal);
+	  edm::LogInfo("ClusterThr") << "Filled " << app << " on track" << std::endl;
+	  
+	  ((TH1F*) Hlist->FindObject("cNoise" +app))->Fill(NoiseNorm);
+	  ((TH1F*) Hlist->FindObject("cStoN"  +app))->Fill(StoN);
+	  ((TH1F*) Hlist->FindObject("cStoNCorr"  +app))->Fill(StoNCorr);
+	  ((TH1F*) Hlist->FindObject("cWidth" +app))->Fill(Nstrip);
+	  ((TH1F*) Hlist->FindObject("cPos"   +app))->Fill(Pos);
+	}else{
+	  edm::LogInfo("ClusterThr") << "Flag is " << flag << " and " << app << std::endl;
+	  
+	  ((TH1F*) Hlist->FindObject("cSignal"+app))->Fill(Signal);
+	  ((TH1F*) Hlist->FindObject("cNoise" +app))->Fill(NoiseNorm);
+	  ((TH1F*) Hlist->FindObject("cStoN"  +app))->Fill(StoN);
+	  ((TH1F*) Hlist->FindObject("cWidth" +app))->Fill(Nstrip);
+	  ((TH1F*) Hlist->FindObject("cPos"   +app))->Fill(Pos);
+	}
+	
       }catch(cms::Exception& e){
 	edm::LogError("ClusterThr") << "[ClusterThr::fillHistos]  cms::Exception:  DetName " << e.what() ;
-	}
-
+      }
+      
+      edm::LogInfo("ClusterThr") << "Returning" << std::endl;
+      
       return true;
     }
 

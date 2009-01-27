@@ -14,6 +14,8 @@
 #include "TKey.h"
 #include "TLegend.h"
 #include "THStack.h"
+#include "TDirectory.h"
+#include<vector>
 
 struct Params{
   string   _varexp;
@@ -49,7 +51,7 @@ public:
 
   void add(char* varexp,char* selection="",Option_t *option="",char* legend="",Long64_t nentries=100000000, Long64_t firstentry=0);
   
-  void Draw();
+  void Draw(Double_t ymin_,Double_t ymax_,char* xtitle,char* ytitle);
 
   void setHRef(TH1* h){_TH=h;}
 private:
@@ -124,78 +126,82 @@ void DrawTree::add(char* varexp,char* selection,Option_t *option,char* legend,Lo
   
 }
 
-void DrawTree::Draw(){
-  bool first=true;
+void DrawTree::Draw(Double_t ymin_,Double_t ymax_,char* xtitle,char* ytitle){
+    bool first=true;
 
-  for (size_t i=0;i<_VPar.size();i++){
-    if (_VPar[i]._1D){
-      _stack.Draw("nostack");
-      break;
-    }else{
-      if (_TH == NULL ){
-	_VPar[i]._TH->GetXaxis()->SetRangeUser(xmin,xmax);
-	_VPar[i]._TH->GetXaxis()->SetRangeUser(xmin,xmax);
-	_VPar[i]._TH->GetYaxis()->SetRangeUser(ymin,ymax);
-	_VPar[i]._TH->GetYaxis()->SetRangeUser(ymin,ymax);
-      }
-	
-      if (!first)
-	_VPar[i]._legend.append("same");
-      
-      if (_TH != NULL && first){
-	_VPar[i]._legend.append("same");
-	_TH->Draw();
-      }
-
-      if (first){
-	_VPar[i]._TH->GetXaxis()->SetTitle(xtitle.c_str());
-	_VPar[i]._TH->GetYaxis()->SetTitle(ytitle.c_str());
-      }
- 
-      _VPar[i]._TH->SetTitle("");
-      _VPar[i]._TH->SetStats(0);
-      if (_VPar[i]._TH->GetEntries()){
-	_VPar[i]._TH->Draw(_VPar[i]._legend.c_str());
-	first=false;
-      }
+    if ( _VPar.size() > 0 && !_VPar[0]._1D ) {
+       double xmin_ = _VPar[0]._TH->GetXaxis()->GetXmin();
+       double xmax_ = _VPar[0]._TH->GetXaxis()->GetXmax()+3;
+       _TH = gPad->DrawFrame(xmin_, ymin_, xmax_, ymax_);
+       _TH->GetXaxis()->SetTitle(xtitle);
+       _TH->GetYaxis()->SetTitle(ytitle);
     }
-  }
-  _legend->Draw();
+
+    for (size_t i=0;i<_VPar.size();i++){
+        if (_VPar[i]._1D){
+            _stack.Draw("nostack");
+            break;
+        }else{
+	  if (!first)
+	    _VPar[i]._legend.append("same");
+	  
+	  if (_TH != NULL && first){
+	    _VPar[i]._legend.append("same");
+	    _TH->Draw();
+	  } 
+	  
+// 	  if (first){
+// 	    _VPar[i]._TH->GetXaxis()->SetTitle(xtitle.c_str());
+// 	    _VPar[i]._TH->GetYaxis()->SetTitle(ytitle.c_str());
+	    
+// 	  }
+	  
+	  _VPar[i]._TH->SetTitle("");
+	  _VPar[i]._TH->SetStats(0);
+	  
+	  if (_VPar[i]._TH->GetEntries()){
+	    _VPar[i]._TH->Draw(_VPar[i]._legend.c_str());
+	    first=false;
+	  }
+        }
+    }
+    _legend->Draw();
 }
 
 void DrawTree::Project(Params& A){
 
-  char name[128];
-  sprintf(name,"drawTree%d_%d",fN,_countAdd++);
-  A._Hname=name;
-  _tree->Project(name,A._varexp.c_str(),A._selection.c_str(),A._option.c_str(),A._nentries,A._firstentry); 
+    char name[128];
+    sprintf(name,"drawTree%d_%d",fN,_countAdd++);
+    A._Hname=name;
+    _tree->Project(name,A._varexp.c_str(),A._selection.c_str(),A._option.c_str(),A._nentries,A._firstentry); 
 
-  TH1* h = (TH1*)gDirectory->Get(A._Hname.c_str());
+    TH1* h = (TH1*)gDirectory->Get(A._Hname.c_str());
 
-  h->SetMarkerStyle(_MarkerStyle+(_MarkerCount0++));
-  h->SetMarkerColor(_MarkerColor+(_MarkerCount1++));
-  A._TH=h;
-  _stack.Add(h);  
-   cout << A._legend.c_str() << endl;
-  _legend->AddEntry(h,A._legend.c_str(),"P");
+    h->SetMarkerStyle(_MarkerStyle+(_MarkerCount0++));
+    h->SetMarkerColor(_MarkerColor+(_MarkerCount1++));
 
-  float axmin=h->GetXaxis()->GetXmin();
-  float axmax=h->GetXaxis()->GetXmax();
+    A._TH=h;
+    _stack.Add(h);  
+    cout << A._legend.c_str() << endl;
+    _legend->AddEntry(h,A._legend.c_str(),"P");
 
-  if (xmin>axmin)
-    xmin=axmin;
-  if (xmax<axmax)
-    xmax=axmax;
+    float axmin=h->GetXaxis()->GetXmin();
+    float axmax=h->GetXaxis()->GetXmax();
 
-  if (A._varexp.find(":") != string::npos){
-    A._1D=false;
-    float aymin=h->GetYaxis()->GetXmin();
-    float aymax=h->GetYaxis()->GetXmax();
+    if (xmin>axmin)
+        xmin=axmin;
+    if (xmax<axmax)
+        xmax=axmax;
 
-    if (ymin>aymin)
-      ymin=aymin;
-    if (ymax<aymax)
-      ymax=aymax;
+    if (A._varexp.find(":") != string::npos){
+        A._1D=false;
+        float aymin=h->GetYaxis()->GetXmin();
+        float aymax=h->GetYaxis()->GetXmax();
 
-  }
+        if (ymin>aymin)
+            ymin=aymin;
+        if (ymax<aymax)
+            ymax=aymax;
+
+    }
 }

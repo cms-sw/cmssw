@@ -80,11 +80,11 @@ namespace cms{
 
       void book();
 
-      bool clusterizer(SiStripClusterInfo* siStripClusterInfo,float Thc,float Ths,float Thn,bool& passedSeed,bool& passedClus);
+      bool clusterizer(SiStripClusterInfo* siStripClusterInfo,float Thc,float Ths,float Thn,bool& passedSeed,bool& passedClus,char* flag,const LocalVector LV);
       void trackStudy(const edm::EventSetup& es);
       void RecHitInfo(const SiStripRecHit2D* tkrecHit, LocalVector LV,reco::TrackRef track_ref, const edm::EventSetup&);
       void fillTH1(float,TString,bool,float=0);
-
+      void OffTrackClusters(const edm::EventSetup& es);    
     private:
   
       edm::ParameterSet conf_;
@@ -98,6 +98,7 @@ namespace cms{
       std::vector<std::string> subDets;
       std::vector<uint32_t> layers;
 
+      LocalVector LV;
 
       edm::ParameterSet ThC_, ThS_, ThN_;
 
@@ -108,6 +109,7 @@ namespace cms{
       const StripTopology* topol;
       edm::ESHandle<SiStripDetCabling> SiStripDetCabling_;
       edm::ESHandle<SiStripQuality> SiStripQuality_;
+      edm::ESHandle<SiStripGain> gainHandle;
 
       edm::Handle<std::vector<Trajectory> > TrajectoryCollection;
       edm::Handle<reco::TrackCollection > trackCollection;
@@ -135,18 +137,25 @@ namespace cms{
 
       std::map<std::string,int> cNum;
 
-      static const int iNTs=3;
-      static const int iNs=4;
-      static const int iMeanWs=5;
-      static const int iRmsWs=6;
-      static const int iSckewWs=7;
-      static const int iMPVs=8;
-      static const int iFWHMs=9;
-      static const int iNTb=10;
-      static const int iNb=11;
-      static const int iMeanWb=12;
-      static const int iRmsWb=13;
-      static const int iSckewWb=14;
+      static const  int iNTsOn=3;	 
+      static const  int iNsOn=4;	 
+      static const  int iMeanWsOn=5;
+      static const  int iRmsWsOn=6; 
+      static const  int iMPVs=7;	 
+      static const  int iFWHMs=8; 
+      static const  int iNTbOn=9;	 
+      static const  int iNbOn=10;	 
+      static const  int iMeanWbOn=11;
+      static const  int iRmsWbOn=12;
+      //off track
+      static const int  iNTsOff=13;	 
+      static const int  iNsOff=14;	 
+      static const int  iMeanWsOff=15;
+      static const int  iRmsWsOff=16; 
+      static const int  iNTbOff=17;	 
+      static const int  iNbOff=18;	 
+      static const int  iMeanWbOff=19;
+      static const int  iRmsWbOff=20;
 
     };
 }
