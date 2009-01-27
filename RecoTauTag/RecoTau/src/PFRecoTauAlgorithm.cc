@@ -278,11 +278,11 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
 
   //Use the electron rejection only in case there is a charged leading pion
   if(myleadPFChargedCand.isNonnull()){
-    if (myleadPFCand->mva_e_pi()==1) {
+    if (myleadPFChargedCand->mva_e_pi()==1) {
       myElecPreid = true;
     }
     math::XYZPointF myElecTrkEcalPos = myleadPFCand->positionAtECALEntrance();
-    myElecTrk = myleadPFCand->trackRef();//Electron candidate
+    myElecTrk = myleadPFChargedCand->trackRef();//Electron candidate
     
     if(myElecTrk.isNonnull()) {
      
