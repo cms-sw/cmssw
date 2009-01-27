@@ -1342,6 +1342,10 @@ void DisplayManager::loadGPFBlocks()
           ident=(CLUSTERHCALID <<shiftId_) |clusref.key();
         }
       break;
+      case reco::PFBlockElement::GSF:
+      break;
+      case reco::PFBlockElement::BREM:
+      break;
       default: 
         std::cout<<"unknown PFBlock element of type "<<type<<std::endl;
         break; 
