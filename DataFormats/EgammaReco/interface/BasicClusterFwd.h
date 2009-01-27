@@ -8,7 +8,7 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 namespace reco {
-  class BasicCluster;
+  //class BasicCluster;
   /*
   struct BasicClusterRefProds {
     BasicClusterRefProds() { }

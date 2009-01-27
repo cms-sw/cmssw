@@ -1,5 +1,5 @@
 //
-// $Id: PreshowerCluster.cc,v 1.14 2007/07/31 15:20:04 ratnik Exp $
+// $Id: PreshowerCluster.cc,v 1.15 2008/04/28 19:46:15 meridian Exp $
 //
 #include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
 
@@ -9,10 +9,10 @@ PreshowerCluster::~PreshowerCluster() { }
 
 
 PreshowerCluster::PreshowerCluster(const double E, const Point& pos,
-				   const std::vector<DetId> usedHits,
+				   const std::vector< std::pair<DetId, float> > hitsAndFractions,
 				   const int plane) : CaloCluster(E, pos)
 {
-  usedHits_ = usedHits;
+  hitsAndFractions_ = hitsAndFractions;
   plane_ = plane;
 
 //   std::cout << " PreshowerCluster::PreshowerCluster, E = " << energy() << std::endl;
@@ -24,7 +24,7 @@ PreshowerCluster::PreshowerCluster(const double E, const Point& pos,
 
 PreshowerCluster::PreshowerCluster(const PreshowerCluster &b) : CaloCluster( b.energy(), b.position() ) 
 {
-  usedHits_ = b.usedHits_;
+  hitsAndFractions_ = b.hitsAndFractions_;
   plane_ = b.plane_; 
   bc_ref_=b.bc_ref_;
 }

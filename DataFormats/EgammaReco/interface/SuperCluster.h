@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: SuperCluster.h,v 1.14 2008/03/04 08:38:38 arizzi Exp $
+ * \version $Id: SuperCluster.h,v 1.15 2008/04/28 19:46:15 meridian Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
@@ -61,8 +61,8 @@ namespace reco {
     /// number of BasicCluster constituents
     size_t clustersSize() const { return clusters_.size(); }
 
-    /// list of used xtals by DetId
-    std::vector<DetId> getHitsByDetId() const { return usedHits_; }
+    /// list of used xtals by DetId // now inherited by CaloCluster
+    //std::vector<DetId> getHitsByDetId() const { return usedHits_; }
 
     /// set reference to seed BasicCluster
     void setSeed( const BasicClusterRef & r ) { seed_ = r; }
@@ -78,8 +78,8 @@ namespace reco {
     /// references to BasicCluster constitunets
     BasicClusterRefVector clusters_;
 
-    /// used hits by detId - retrieved from BC constituents
-    std::vector<DetId> usedHits_;
+    /// used hits by detId - retrieved from BC constituents -- now inherited from CaloCluster
+    //std::vector<DetId> usedHits_;
 
     double preshowerEnergy_;
 

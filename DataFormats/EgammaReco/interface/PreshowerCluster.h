@@ -5,7 +5,7 @@
  *
  * \authors Dmirty Bandurin (KSU), Ted Kolberg (ND)
  */
-// $Id: PreshowerCluster.h,v 1.16 2007/07/31 15:20:04 ratnik Exp $
+// $Id: PreshowerCluster.h,v 1.17 2008/04/28 19:46:15 meridian Exp $
 //
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
@@ -27,14 +27,14 @@ namespace reco {
 
     /// Constructor from EcalRecHits
     PreshowerCluster(const double E, const Point& pos, 
-                     const std::vector<DetId> usedHits, 
+                     const std::vector< std::pair<DetId, float> > usedHits, 
                      const int plane);
 
     /// Constructor from cluster
     PreshowerCluster(const PreshowerCluster&);
 
     /// Number of RecHits the cluster
-    int nhits() const {return usedHits_.size();}
+    int nhits() const {return hitsAndFractions_.size();}
 
     /// Preshower plane
     int plane() const { return plane_; }
@@ -48,8 +48,8 @@ namespace reco {
     /// Associated basic cluster;
     BasicClusterRef basicCluster() const {return bc_ref_;}
 
-    /// DetIds of component RecHits
-    std::vector<DetId> getHitsByDetId() const { return usedHits_; }
+    /// DetIds of component RecHits -- now inherited from CaloCluster
+    //std::vector<DetId> getHitsByDetId() const { return usedHits_; }
 
     void setBCRef( const BasicClusterRef & r ) { bc_ref_ = r; }
 
@@ -60,8 +60,8 @@ namespace reco {
     /// Associated basic cluster;
     BasicClusterRef bc_ref_;
 
-    /// used hits by detId
-    std::vector<DetId> usedHits_;
+    /// used hits by detId -- now inherited from CaloCluster
+    //std::vector<DetId> usedHits_;
   };
 }
 #endif

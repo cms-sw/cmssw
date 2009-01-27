@@ -1,4 +1,4 @@
-// $Id: SuperCluster.cc,v 1.11 2008/02/11 13:10:24 kkaadze Exp $
+// $Id: SuperCluster.cc,v 1.12 2008/04/28 19:46:15 meridian Exp $
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 using namespace reco;
@@ -25,11 +25,11 @@ SuperCluster::SuperCluster( double energy, const math::XYZPoint& position,
     clusters_.push_back( (*bcit) );
 
     // updated list of used hits
-    const std::vector<DetId> & v1 = (*bcit)->getHitsByDetId();
-    for( std::vector<DetId>::const_iterator diIt = v1.begin();
+    const std::vector< std::pair<DetId, float> > & v1 = (*bcit)->hitsAndFractions();
+    for( std::vector< std::pair<DetId, float> >::const_iterator diIt = v1.begin();
                                             diIt != v1.end();
                                            ++diIt ) {
-      usedHits_.push_back( (*diIt) );
+      hitsAndFractions_.push_back( (*diIt) );
     } // loop over rechits
   } // loop over basic clusters
 
