@@ -191,6 +191,7 @@ class PFJetBenchmark {
   double resNeutralEmEnergyMax_; 
   double recPt_cut;
   double maxEta_cut;
+  unsigned int entry_;
   DQMStore *dbe_;
 };
 

@@ -37,7 +37,7 @@ using namespace std;
 
 class MonitorElement;
 
-PFJetBenchmark::PFJetBenchmark() : file_(0) {}
+PFJetBenchmark::PFJetBenchmark() : file_(0), entry_(0) {}
 
 PFJetBenchmark::~PFJetBenchmark() {
   if(file_) file_->Close();
@@ -331,6 +331,18 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
       
       //double deltaEta = algo_->deltaEta(&pfj, truth);
       //double deltaPhi = algo_->deltaPhi(&pfj, truth);
+
+      // Print outliers for further debugging
+      if ( resPt > 0.2 && true_pt > 100. ) 
+	std::cout << "Entry " << entry_ 
+		  << " resPt = " << resPt
+		  <<" resCharged  " << resChargedHadEnergy
+		  <<" resNeutralHad  " << resNeutralHadEnergy
+		  << " resNeutralEm  " << resNeutralEmEnergy
+		  << " pT (T/R) " << true_pt << "/" << rec_pt 
+		  << " Eta (T/R) " << truth->eta() << "/" << rec_eta 
+		  << std::endl;
+
       if(abs(resPt) > abs(resPtMax_)) resPtMax_ = resPt;
       if(abs(resChargedHadEnergy) > abs(resChargedHadEnergyMax_) ) resChargedHadEnergyMax_ = resChargedHadEnergy;
       if(abs(resNeutralHadEnergy) > abs(resNeutralHadEnergyMax_) ) resNeutralHadEnergyMax_ = resNeutralHadEnergy;
@@ -495,6 +507,9 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
     } // end case deltaR < deltaRMax
 		
   } // i loop on pf Jets	
+
+  // Increment counter
+  entry_++;
 }
 
 void PFJetBenchmark::gettrue (const reco::GenJet* truth, double& true_ChargedHadEnergy, 
@@ -534,9 +549,6 @@ void PFJetBenchmark::printPFJet(const reco::PFJet* pfj){
   cout<<setiosflags(ios::fixed);
   cout<<setprecision(3);
 
-//formerly read out all the constituents, but now there is an error ??????
-//std::vector <const reco::PFCandidate*> pfCandidates = pfj->getPFConstituents ();
-
   cout << "PFJet  p/px/py/pz/pt: " << pfj->p() << "/" << pfj->px () 
        << "/" << pfj->py() << "/" << pfj->pz() << "/" << pfj->pt() << endl
        << "    eta/phi: " << pfj->eta () << "/" << pfj->phi () << endl   		
@@ -545,17 +557,10 @@ void PFJetBenchmark::printPFJet(const reco::PFJet* pfj){
        << "      charged/neutral em energy: " << pfj->chargedEmEnergy () << '/' << pfj->neutralEmEnergy () << endl
        << "      charged muon energy: " << pfj->chargedMuEnergy () << '/' << endl
        << "      charged/neutral multiplicity: " << pfj->chargedMultiplicity () << '/' << pfj->neutralMultiplicity () << endl;
-/* cout  << "    # of pfCandidates: " << pfCandidates.size() << endl;
+  
+  // And print the constituents
+  std::cout << pfj->print() << std::endl;
 
-//  vector <PFBlockRef> PFBRef;
-// print PFCandidates constituents of the jet
-  for(unsigned i=0; i<pfCandidates.size(); i++) {
-    const PFCandidate* pfCand = pfCandidates[i];
-    cout<<i <<" " << *pfCand << endl;
-  } // end loop on i (PFCandidates)
-*/
-  // print blocks associated to the jet (to be done with new format PFCandiates)
-	
   cout<<resetiosflags(ios::right|ios::fixed);
 }
 
