@@ -196,31 +196,13 @@ void
 GsfTrackProducerBase::fillStates (TrajectoryStateOnSurface tsos,
 				  std::vector<reco::GsfComponent5D>& states) const
 {
-  //   std::cout << "in fill states" << std::endl;
-  //   if ( !tsos.isValid() ) {
-  //     std::cout << std::endl << std::endl << "invalid tsos" << std::endl;
-  //     return;
-  //   }
   reco::GsfComponent5D::ParameterVector pLocS;
   reco::GsfComponent5D::CovarianceMatrix cLocS;
   std::vector<TrajectoryStateOnSurface> components(tsos.components());
   for ( std::vector<TrajectoryStateOnSurface>::const_iterator i=components.begin();
 	i!=components.end(); ++i ) {
-    //     if ( !(*i).isValid() ) {
-    //       std::cout << std::endl << "invalid component" << std::endl;
-    //       continue;
-    //     }
-    // Unneeded hack ... now we have SMatrix in tracking too
-    // const AlgebraicVector& pLoc = i->localParameters().vector();
-    // for ( int j=0; j<reco::GsfTrackExtra::dimension; ++j )  pLocS(j) = pLoc[j];
-    // const AlgebraicSymMatrix& cLoc = i->localError().matrix();
-    // for ( int j1=0; j1<reco::GsfTrack::dimension; ++j1 )
-    // for ( int j2=0; j2<=j1; ++j2 )  cLocS(j1,j2) = cLoc[j1][j2];
-    // states.push_back(reco::GsfComponent5D(i->weight(),pLocS,cLocS));
-    
     states.push_back(reco::GsfComponent5D(i->weight(),i->localParameters().vector(),i->localError().matrix()));
   }
-  //   std::cout << "end fill states" << std::endl;
 }
 
 void
@@ -238,55 +220,56 @@ GsfTrackProducerBase::fillMode (reco::GsfTrack& track, const TrajectoryStateOnSu
 		    track.vz());
   TrajectoryStateOnSurface vtxTsos = tipExtrapolator.extrapolate(innertsos,bsPos);
   if ( !vtxTsos.isValid() )  vtxTsos = innertsos;
- // extrapolate mixture
+  // extrapolate mixture
   vtxTsos = gsfProp.propagate(innertsos,vtxTsos.surface());
-  if ( vtxTsos.isValid() ) {
-    // extract mode
-    // build perigee parameters (for covariance to be stored)
-    AlgebraicVector5 modeParameters;
-    AlgebraicSymMatrix55 modeCovariance;
-    // set parameters and variances for "mode" state (local parameters)
-    for ( unsigned int iv=0; iv<5; ++iv ) {
-      MultiGaussianState1D state1D = MultiGaussianStateTransform::multiState1D(vtxTsos,iv);
-      GaussianSumUtilities1D utils(state1D);
-      modeParameters(iv) = utils.mode().mean();
-      modeCovariance(iv,iv) = utils.mode().variance();
-      if ( !utils.modeIsValid() ) {
-	// if mode calculation fails: use mean
-	modeParameters(iv) = utils.mean();
-	modeCovariance(iv,iv) = utils.variance();
-      }
-    }
-    // complete covariance matrix
-    // approximation: use correlations from mean
-    const AlgebraicSymMatrix55& meanCovariance(vtxTsos.localError().matrix());
-    for ( unsigned int iv1=0; iv1<5; ++iv1 ) {
-      for ( unsigned int iv2=0; iv2<iv1; ++iv2 ) {
-	double cov12 = meanCovariance(iv1,iv2) * 
-	  sqrt(modeCovariance(iv1,iv1)/meanCovariance(iv1,iv1)*
-	       modeCovariance(iv2,iv2)/meanCovariance(iv2,iv2));
-	modeCovariance(iv1,iv2) = modeCovariance(iv2,iv1) = cov12;
-      }
-    }
-    TrajectoryStateOnSurface modeTsos(LocalTrajectoryParameters(modeParameters,
-								vtxTsos.localParameters().pzSign()),
-				      LocalTrajectoryError(modeCovariance),
-				      vtxTsos.surface(),
-				      vtxTsos.magneticField(),
-				      vtxTsos.surfaceSide());
-    TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(*modeTsos.freeState(),bs);
-    if ( tscbl.isValid() ) {
-      FreeTrajectoryState fts = tscbl.trackStateAtPCA();
-      GlobalVector tscblMom = fts.momentum();
-      reco::GsfTrack::Vector mom(tscblMom.x(),tscblMom.y(),tscblMom.z());
-      reco::GsfTrack::CovarianceMatrixMode cov;
-      const AlgebraicSymMatrix55& tscblCov = fts.curvilinearError().matrix();
-      for ( unsigned int iv1=0; iv1<reco::GsfTrack::dimensionMode; ++iv1 ) {
-	for ( unsigned int iv2=0; iv2<reco::GsfTrack::dimensionMode; ++iv2 ) {
-	  cov(iv1,iv2) = tscblCov(iv1,iv2);
-	}
-      } 
-      track.setMode(fts.charge(),mom,cov);
+  if ( !vtxTsos.isValid() )  return;              // failed (GsfTrack keeps mode = mean)
+  // extract mode
+  // build perigee parameters (for covariance to be stored)
+  AlgebraicVector5 modeParameters;
+  AlgebraicSymMatrix55 modeCovariance;
+  // set parameters and variances for "mode" state (local parameters)
+  for ( unsigned int iv=0; iv<5; ++iv ) {
+    MultiGaussianState1D state1D = MultiGaussianStateTransform::multiState1D(vtxTsos,iv);
+    GaussianSumUtilities1D utils(state1D);
+    modeParameters(iv) = utils.mode().mean();
+    modeCovariance(iv,iv) = utils.mode().variance();
+    if ( !utils.modeIsValid() ) {
+      // if mode calculation fails: use mean
+      modeParameters(iv) = utils.mean();
+      modeCovariance(iv,iv) = utils.variance();
     }
   }
+  // complete covariance matrix
+  // approximation: use correlations from mean
+  const AlgebraicSymMatrix55& meanCovariance(vtxTsos.localError().matrix());
+  for ( unsigned int iv1=0; iv1<5; ++iv1 ) {
+    for ( unsigned int iv2=0; iv2<iv1; ++iv2 ) {
+      double cov12 = meanCovariance(iv1,iv2) * 
+	sqrt(modeCovariance(iv1,iv1)/meanCovariance(iv1,iv1)*
+	     modeCovariance(iv2,iv2)/meanCovariance(iv2,iv2));
+      modeCovariance(iv1,iv2) = modeCovariance(iv2,iv1) = cov12;
+    }
+  }
+  TrajectoryStateOnSurface modeTsos(LocalTrajectoryParameters(modeParameters,
+							      vtxTsos.localParameters().pzSign()),
+				    LocalTrajectoryError(modeCovariance),
+				    vtxTsos.surface(),
+				    vtxTsos.magneticField(),
+				    vtxTsos.surfaceSide());
+  TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(*modeTsos.freeState(),bs);
+  if ( !tscblTsos.isValid() )  return;            // failed (GsfTrack keeps mode = mean)
+  //
+  // extract state at PCA and create momentum vector and covariance matrix
+  //
+  FreeTrajectoryState fts = tscbl.trackStateAtPCA();
+  GlobalVector tscblMom = fts.momentum();
+  reco::GsfTrack::Vector mom(tscblMom.x(),tscblMom.y(),tscblMom.z());
+  reco::GsfTrack::CovarianceMatrixMode cov;
+  const AlgebraicSymMatrix55& tscblCov = fts.curvilinearError().matrix();
+  for ( unsigned int iv1=0; iv1<reco::GsfTrack::dimensionMode; ++iv1 ) {
+    for ( unsigned int iv2=0; iv2<reco::GsfTrack::dimensionMode; ++iv2 ) {
+      cov(iv1,iv2) = tscblCov(iv1,iv2);
+    }
+  } 
+  track.setMode(fts.charge(),mom,cov);
 }
