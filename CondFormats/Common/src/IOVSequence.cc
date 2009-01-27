@@ -10,7 +10,7 @@ namespace cond {
   
   IOVSequence::IOVSequence(int type, cond::Time_t till, 
 			   std::string const& imetadata) :
-    m_timetype(type), m_lastTill(till),m_freeUpdate(false),
+    m_timetype(type), m_lastTill(till),m_notOrdered(false),
     m_metadata(imetadata){}
     
   IOVSequence::~IOVSequence(){}
@@ -19,6 +19,7 @@ namespace cond {
   size_t IOVSequence::add(cond::Time_t time, 
 			  std::string const & payloadToken,
 			  std::string const & metadataToken) {
+    if (!iovs().empty() && ( m_notOrdered || time<iovs().back().sinceTime())) disorder();
     iovs().push_back(Item(time,  payloadToken, metadataToken));
     return iovs().size()-1;
   }
@@ -41,5 +42,10 @@ namespace cond {
 			    );
   }
   
+
+  void  IOVSequence::disorder() {
+    m_notOrdered=true;
+    // delete m_sorted;
+
 
 }

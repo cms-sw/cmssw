@@ -48,15 +48,15 @@ namespace cond {
     
     Container const & iovs() const  { return m_iovs;}
 
-    // if true the sequence is not guaranted to be the same in previous version
-    bool freeUpdate() const { return m_freeUpdate;}
+    // if true the "sorted" sequence is not guaranted to be the same as in previous version
+    bool notOrdered() const { return m_notOrdered;}
     
-    void enableFreeUpdate()  { m_freeUpdate=true;}
-
-
     std::string const & metadataToken() const { return m_metadata;}
 
-
+  private:
+    
+    // iovs is not in order: take action!
+    void disorder();
 
   private:
 
@@ -64,7 +64,7 @@ namespace cond {
     int m_timetype;
     cond::Time_t m_lastTill;
 
-    bool m_freeUpdate;
+    bool m_notOrdered;
 
     std::string m_metadata; // FIXME change in Pool::Ptr???
 
