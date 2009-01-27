@@ -46,7 +46,25 @@ multiTrackValidator = cms.EDAnalyzer("MultiTrackValidator",
     minHit = cms.double(0.0),
     maxHit = cms.double(75.0),
 
-    useInvPt = cms.bool(False)
+    useInvPt = cms.bool(False),
+
+    ptRes_rangeMin = cms.double(-0.1),
+    ptRes_rangeMax = cms.double(0.1),
+    phiRes_rangeMin = cms.double(-0.003),
+    phiRes_rangeMax = cms.double(0.003),
+    cotThetaRes_rangeMin = cms.double(-0.01),
+    cotThetaRes_rangeMax = cms.double(+0.01),
+    dxyRes_rangeMin = cms.double(-0.001),
+    dxyRes_rangeMax = cms.double(0.001),
+    dzRes_rangeMin = cms.double(-0.05),
+    dzRes_rangeMax = cms.double(+0.05),
+    ptRes_nbin = cms.int32(100),                                   
+    phiRes_nbin = cms.int32(100),                                   
+    cotThetaRes_nbin = cms.int32(120),                                   
+    dxyRes_nbin = cms.int32(100),                                   
+    dzRes_nbin = cms.int32(150),   
+
+                                     
 )
 
 
