@@ -30,11 +30,9 @@ namespace cond {
 
     // append a new item, return new size
     size_t add(cond::Time_t time, 
-	       std::string const & payloadToken,
-	       std::string const & metadataToken);
+	       std::string const & wrapperToken);
 
-    iterator find(cond::Time_t time);
-
+    // find IOV for which time is valid (this is not STANDARD std::find!)
     const_iterator find(cond::Time_t time) const;
 
     cond::TimeType timeType() const { return cond::timeTypeSpecs[m_timetype].type;}

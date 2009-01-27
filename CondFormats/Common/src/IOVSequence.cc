@@ -17,35 +17,27 @@ namespace cond {
   
   
   size_t IOVSequence::add(cond::Time_t time, 
-			  std::string const & payloadToken,
-			  std::string const & metadataToken) {
+			  std::string const & wrapperToken) {
     if (!iovs().empty() && ( m_notOrdered || time<iovs().back().sinceTime())) disorder();
-    iovs().push_back(Item(time,  payloadToken, metadataToken));
+    iovs().push_back(Item(time, wrapperToken));
     return iovs().size()-1;
   }
   
-  IOVSequence::iterator IOVSequence::find(cond::Time_t time) {
-    return std::lower_bound(iovs().begin(),iovs().end(),Item(time),
-			    boost::bind(std::less<cond::Time_t>(),
-					boost::bind(&Item::sinceTime,_1),
-					  boost::bind(&Item::sinceTime,_2)
-					)
-			    );
-  }
   
   IOVSequence::const_iterator IOVSequence::find(cond::Time_t time) const {
-    return std::lower_bound(iovs().begin(),iovs().end(),Item(time),
+    IOVSequence::const_iterator p = std::lower_bound(iovs().begin(),iovs().end(),Item(time),
 			    boost::bind(std::less<cond::Time_t>(),
 					boost::bind(&Item::sinceTime,_1),
 					boost::bind(&Item::sinceTime,_2)
 					)
 			    );
+    return (p!=iovs().begin()) ? p-1 : p; 
   }
   
 
   void  IOVSequence::disorder() {
     m_notOrdered=true;
     // delete m_sorted;
-
+  }
 
 }
