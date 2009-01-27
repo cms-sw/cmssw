@@ -3,9 +3,7 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "AnalysisAlgos/SiStripClusterInfoProducer/plugins/SiStripClusterInfoProducer.h"
-#include "AnalysisAlgos/SiStripClusterInfoProducer/plugins/SiStripFakeRawDigiModule.h"
+#include "AnalysisAlgos/SiStripClusterInfoProducer/plugins/SiStripProcessedRawDigiProducer.h"
 
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(SiStripClusterInfoProducer);
-DEFINE_ANOTHER_FWK_MODULE(SiStripFakeRawDigiModule);
+DEFINE_ANOTHER_FWK_MODULE(SiStripProcessedRawDigiProducer);
