@@ -14,7 +14,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(1000)
     )
 
 
@@ -90,25 +90,9 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.unpackers = cms.Sequence(process.muonDTDigis + process.muonCSCDigis + process.muonRPCDigis)
 # reco
 #process.reco = cms.Sequence(process.dt1DRecHits + process.dt4DSegments + process.muonRecoGR)
-process.reco = cms.Sequence(process.muonsLocalRecoCosmics + process.STAmuontrackingforcosmics1Leg)
+process.reco = cms.Sequence(process.offlineBeamSpot + process.muonsLocalRecoCosmics + process.STAmuontrackingforcosmics1Leg)
 
 process.DTDQMOfflineCosmics = cms.Sequence(process.dtSources)
-
-
-process.ttrig = cms.ESSource("PoolDBESSource",
-                             process.CondDBSetup,
-                             timetype = cms.string('runnumber'),
-                             toGet = cms.VPSet(
-    cms.PSet(
-    record = cms.string('DTTtrigRcd'),
-    tag = cms.string('tTrig_CRAFT_V01_offline')
-    )
-    ),
-                             connect = cms.string('sqlite_file:/afs/cern.ch/user/c/cerminar/public/DT_tTrig_CRAFT_V01_k-07_offline.db'),
-                             authenticationMethod = cms.untracked.uint32(0)
-                             )
-process.prefer = cms.ESPrefer("PoolDBESSource","ttrig")
-
 
 
 #Paths
