@@ -2,16 +2,18 @@
 
 PFRecoTauAlgorithm::PFRecoTauAlgorithm() : TransientTrackBuilder_(0){}  
 PFRecoTauAlgorithm::PFRecoTauAlgorithm(const ParameterSet& iConfig) : TransientTrackBuilder_(0){
-  LeadChargedHadrCand_minPt_          = iConfig.getParameter<double>("LeadChargedHadrCand_minPt"); 
+  LeadPFCand_minPt_                   = iConfig.getParameter<double>("LeadPFCand_minPt"); 
   ChargedHadrCand_minPt_              = iConfig.getParameter<double>("ChargedHadrCand_minPt");
-  UseChargedHadrCandLeadChargedHadrCand_tksDZconstraint_ = iConfig.getParameter<bool>("UseChargedHadrCandLeadChargedHadrCand_tksDZconstraint");
-  ChargedHadrCandLeadChargedHadrCand_tksmaxDZ_ = iConfig.getParameter<double>("ChargedHadrCandLeadChargedHadrCand_tksmaxDZ");
+  UseChargedHadrCandLeadChargedHadrCand_tksDZconstraint_ 
+                                      = iConfig.getParameter<bool>("UseChargedHadrCandLeadChargedHadrCand_tksDZconstraint");
+  ChargedHadrCandLeadChargedHadrCand_tksmaxDZ_ 
+                                      = iConfig.getParameter<double>("ChargedHadrCandLeadChargedHadrCand_tksmaxDZ");
   NeutrHadrCand_minPt_                = iConfig.getParameter<double>("NeutrHadrCand_minPt");
   GammaCand_minPt_                    = iConfig.getParameter<double>("GammaCand_minPt");       
   LeadTrack_minPt_                    = iConfig.getParameter<double>("LeadTrack_minPt");
 
-    Track_minPt_                        = iConfig.getParameter<double>("Track_minPt");
-    PFCand_minPt_                        = iConfig.getParameter<double>("PFCand_minPt");
+  Track_minPt_                        = iConfig.getParameter<double>("Track_minPt");
+  PFCand_minPt_                       = iConfig.getParameter<double>("PFCand_minPt");
     
   UseTrackLeadTrackDZconstraint_      = iConfig.getParameter<bool>("UseTrackLeadTrackDZconstraint");
   TrackLeadTrack_maxDZ_               = iConfig.getParameter<double>("TrackLeadTrack_maxDZ");
@@ -128,12 +130,10 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
 
   }
 
-  if(myleadPFChargedCand.isNonnull() && (*myleadPFChargedCand).pt() > LeadChargedHadrCand_minPt_){
-    myleadPFCand = myleadPFChargedCand;
-  }else{
-    if(myleadPFNeutralCand.isNonnull() && (*myleadPFNeutralCand).pt() > LeadChargedHadrCand_minPt_)
-      myleadPFCand = myleadPFNeutralCand;
-  }
+  if(myleadPFChargedCand.isNonnull() && (*myleadPFChargedCand).pt() > LeadPFCand_minPt_)
+     myleadPFCand = myleadPFChargedCand;
+  else if(myleadPFNeutralCand.isNonnull() && (*myleadPFNeutralCand).pt() > LeadPFCand_minPt_)
+     myleadPFCand = myleadPFNeutralCand;
   
   /*    
   if(!(myleadPFChargedCand.isNonnull()) && myleadPFNeutralCand.isNonnull()) {
@@ -184,6 +184,7 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
     mySignalPFGammaCands=myPFTauElementsOperators.PFGammaCandsInCone((*myleadPFCand).momentum(),ECALSignalConeMetric_,myECALSignalConeSize,GammaCand_minPt_);
     myPFTau.setsignalPFGammaCands(mySignalPFGammaCands);
     
+    //Add charged objects to signal cone, and calculate charge
     if((int)(mySignalPFChargedHadrCands.size())!=0){
       int mySignalPFChargedHadrCands_qsum=0;       
       for(int i=0;i<(int)mySignalPFChargedHadrCands.size();i++){
@@ -192,18 +193,23 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
       }
       myPFTau.setCharge(mySignalPFChargedHadrCands_qsum);    
     }
-    for(int i=0;i<(int)mySignalPFNeutrHadrCands.size();i++) mySignalPFCands.push_back(mySignalPFNeutrHadrCands[i]);
-    for(int i=0;i<(int)mySignalPFGammaCands.size();i++) mySignalPFCands.push_back(mySignalPFGammaCands[i]);
+    //Add neutral objects to signal cone
+    for(int i=0; i<(int)mySignalPFNeutrHadrCands.size(); i++) 
+       mySignalPFCands.push_back(mySignalPFNeutrHadrCands[i]);
+    for(int i=0; i<(int)mySignalPFGammaCands.size(); i++) 
+       mySignalPFCands.push_back(mySignalPFGammaCands[i]);
     myPFTau.setsignalPFCands(mySignalPFCands);
     
+    //Filter candidates by DZ constraint
     PFCandidateRefVector myUnfilteredIsolPFChargedHadrCands,myIsolPFNeutrHadrCands,myIsolPFGammaCands,myIsolPFCands;
-    if (UseChargedHadrCandLeadChargedHadrCand_tksDZconstraint_ && myleadPFCand_rectkavailable) myUnfilteredIsolPFChargedHadrCands=myPFTauElementsOperators.PFChargedHadrCandsInAnnulus((*myleadPFCand).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,TrackerIsolConeMetric_,myTrackerIsolConeSize,ChargedHadrCand_minPt_,ChargedHadrCandLeadChargedHadrCand_tksmaxDZ_,myleadPFCand_rectkDZ);
-    else myUnfilteredIsolPFChargedHadrCands=myPFTauElementsOperators.PFChargedHadrCandsInAnnulus((*myleadPFCand).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,TrackerIsolConeMetric_,myTrackerIsolConeSize,ChargedHadrCand_minPt_);
+    if (UseChargedHadrCandLeadChargedHadrCand_tksDZconstraint_ && myleadPFCand_rectkavailable) 
+       myUnfilteredIsolPFChargedHadrCands=myPFTauElementsOperators.PFChargedHadrCandsInAnnulus((*myleadPFCand).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,TrackerIsolConeMetric_,myTrackerIsolConeSize,ChargedHadrCand_minPt_,ChargedHadrCandLeadChargedHadrCand_tksmaxDZ_,myleadPFCand_rectkDZ);
+    else 
+       myUnfilteredIsolPFChargedHadrCands=myPFTauElementsOperators.PFChargedHadrCandsInAnnulus((*myleadPFCand).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,TrackerIsolConeMetric_,myTrackerIsolConeSize,ChargedHadrCand_minPt_);
 
     // filter isolation annulus with additional nHits quality cut (note that other cuts [pt, chi2, are already cut on])
     PFCandidateRefVector myIsolPFChargedHadrCands;
     myIsolPFChargedHadrCands = TauTagTools::filteredPFChargedHadrCandsByNumTrkHits(myUnfilteredIsolPFChargedHadrCands, ChargedHadrCand_IsolAnnulus_minNhits_); 
-
     myPFTau.setisolationPFChargedHadrCands(myIsolPFChargedHadrCands);
 
     myIsolPFNeutrHadrCands=myPFTauElementsOperators.PFNeutrHadrCandsInAnnulus((*myleadPFCand).momentum(),HCALSignalConeMetric_,myHCALSignalConeSize,HCALIsolConeMetric_,myHCALIsolConeSize,NeutrHadrCand_minPt_);
@@ -211,8 +217,9 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
     myIsolPFGammaCands=myPFTauElementsOperators.PFGammaCandsInAnnulus((*myleadPFCand).momentum(),ECALSignalConeMetric_,myECALSignalConeSize,ECALIsolConeMetric_,myECALIsolConeSize,GammaCand_minPt_);  
     myPFTau.setisolationPFGammaCands(myIsolPFGammaCands);
 
-    float myIsolPFChargedHadrCands_Ptsum=0.;
-    float myIsolPFGammaCands_Etsum=0.;
+    //Fill isolation collections, and calculate pt sum in isolation cone
+    float myIsolPFChargedHadrCands_Ptsum = 0.;
+    float myIsolPFGammaCands_Etsum       = 0.;
     for(int i=0;i<(int)myIsolPFChargedHadrCands.size();i++){
       myIsolPFChargedHadrCands_Ptsum+=myIsolPFChargedHadrCands[i]->pt();
       myIsolPFCands.push_back(myIsolPFChargedHadrCands[i]);
@@ -226,14 +233,13 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
     myPFTau.setisolationPFGammaCandsEtSum(myIsolPFGammaCands_Etsum);
     myPFTau.setisolationPFCands(myIsolPFCands);
     
+    //Making the alternateLorentzVector, i.e. direction with only signal components
+    math::XYZTLorentzVector alternatLorentzVect(0.,0.,0.,0.);
+    for (PFCandidateRefVector::const_iterator iGammaCand=mySignalPFGammaCands.begin();iGammaCand!=mySignalPFGammaCands.end();iGammaCand++) alternatLorentzVect+=(**iGammaCand).p4();
+    for (PFCandidateRefVector::const_iterator iChargedHadrCand=mySignalPFChargedHadrCands.begin();iChargedHadrCand!=mySignalPFChargedHadrCands.end();iChargedHadrCand++) alternatLorentzVect+=(**iChargedHadrCand).p4();  
+    myPFTau.setalternatLorentzVect(alternatLorentzVect);
 
-  //Making the alternateLorentzVector, i.e. direction with only signal components
-  math::XYZTLorentzVector alternatLorentzVect(0.,0.,0.,0.);
-  for (PFCandidateRefVector::const_iterator iGammaCand=mySignalPFGammaCands.begin();iGammaCand!=mySignalPFGammaCands.end();iGammaCand++) alternatLorentzVect+=(**iGammaCand).p4();
-  for (PFCandidateRefVector::const_iterator iChargedHadrCand=mySignalPFChargedHadrCands.begin();iChargedHadrCand!=mySignalPFChargedHadrCands.end();iChargedHadrCand++) alternatLorentzVect+=(**iChargedHadrCand).p4();  
-  myPFTau.setalternatLorentzVect(alternatLorentzVect);
-  
-  myPFTau.setVertex(math::XYZPoint(myPFTau_refInnerPosition_x,myPFTau_refInnerPosition_y,myPFTau_refInnerPosition_z));
+    myPFTau.setVertex(math::XYZPoint(myPFTau_refInnerPosition_x,myPFTau_refInnerPosition_y,myPFTau_refInnerPosition_z));
   }  
   // set the leading, signal cone and isolation annulus Tracks (the initial list of Tracks was catched through a JetTracksAssociation object, not through the charged hadr. PFCandidates inside the PFJet ; the motivation for considering these objects is the need for checking that a selection by the charged hadr. PFCandidates is equivalent to a selection by the rec. Tracks.)
   TrackRef myleadTk=myPFTauElementsOperators.leadTk(MatchingConeMetric_,myMatchingConeSize,LeadTrack_minPt_);
@@ -259,22 +265,18 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
   }
   
   /* For elecron rejection */
-  double myECALenergy=0.;
-  double myHCALenergy=0.;
-  double myHCALenergy3x3=0.;
-  double myMaximumHCALPFClusterE=0.;
-  double myMaximumHCALPFClusterEt=0.;
-  double myStripClusterE=0.;
-  double myEmfrac = -1.;
-  bool   myElecPreid = false;
+  double myECALenergy             = 0.;
+  double myHCALenergy             = 0.;
+  double myHCALenergy3x3          = 0.;
+  double myMaximumHCALPFClusterE  = 0.;
+  double myMaximumHCALPFClusterEt = 0.;
+  double myStripClusterE          = 0.;
+  double myEmfrac                 = -1.;
+  bool   myElecPreid              = false;
   reco::TrackRef myElecTrk;
   
   typedef std::pair<reco::PFBlockRef, unsigned> ElementInBlock;
   typedef std::vector< ElementInBlock > ElementsInBlocks; 
-
-
-
-
 
   //Use the electron rejection only in case there is a charged leading pion
   if(myleadPFChargedCand.isNonnull()){
@@ -285,42 +287,37 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
     myElecTrk = myleadPFChargedCand->trackRef();//Electron candidate
     
     if(myElecTrk.isNonnull()) {
-     
-
-
-
-
-//FROM AOD
+       //FROM AOD
       if(DataType_ == "AOD"){
 	// Corrected Cluster energies
 	for(int i=0;i<(int)myPFCands.size();i++){
-	  myHCALenergy += myPFCands[i]->hcalEnergy();
-	  myECALenergy += myPFCands[i]->ecalEnergy();
-	  
-	  math::XYZPointF candPos;
-	  if (myPFCands[i]->particleId()==1) // if charged hadron
-	    candPos = myPFCands[i]->positionAtECALEntrance();
-	  else
-	    candPos = math::XYZPointF(myPFCands[i]->px(),myPFCands[i]->py(),myPFCands[i]->pz());
+           myHCALenergy += myPFCands[i]->hcalEnergy();
+           myECALenergy += myPFCands[i]->ecalEnergy();
 
-	  double deltaR   = ROOT::Math::VectorUtil::DeltaR(myElecTrkEcalPos,candPos);
-	  double deltaPhi = ROOT::Math::VectorUtil::DeltaPhi(myElecTrkEcalPos,candPos);
-	  double deltaEta = abs(myElecTrkEcalPos.eta()-candPos.eta());
-	  double deltaPhiOverQ = deltaPhi/(double)myElecTrk->charge();
-	  
-	if (myPFCands[i]->ecalEnergy() >= EcalStripSumE_minClusEnergy_ && deltaEta < EcalStripSumE_deltaEta_ &&
-	    deltaPhiOverQ > EcalStripSumE_deltaPhiOverQ_minValue_  && deltaPhiOverQ < EcalStripSumE_deltaPhiOverQ_maxValue_) {
-	  myStripClusterE += myPFCands[i]->ecalEnergy();
-	}
-	if (deltaR<0.184) {
-	  myHCALenergy3x3 += myPFCands[i]->hcalEnergy();
-	}
-	if (myPFCands[i]->hcalEnergy()>myMaximumHCALPFClusterE) {
-	  myMaximumHCALPFClusterE = myPFCands[i]->hcalEnergy();
-	}
-	if ((myPFCands[i]->hcalEnergy()*fabs(sin(candPos.Theta())))>myMaximumHCALPFClusterEt) {
-	  myMaximumHCALPFClusterEt = (myPFCands[i]->hcalEnergy()*fabs(sin(candPos.Theta())));
-	}
+           math::XYZPointF candPos;
+           if (myPFCands[i]->particleId()==1) // if charged hadron
+              candPos = myPFCands[i]->positionAtECALEntrance();
+           else
+              candPos = math::XYZPointF(myPFCands[i]->px(),myPFCands[i]->py(),myPFCands[i]->pz());
+
+           double deltaR   = ROOT::Math::VectorUtil::DeltaR(myElecTrkEcalPos,candPos);
+           double deltaPhi = ROOT::Math::VectorUtil::DeltaPhi(myElecTrkEcalPos,candPos);
+           double deltaEta = abs(myElecTrkEcalPos.eta()-candPos.eta());
+           double deltaPhiOverQ = deltaPhi/(double)myElecTrk->charge();
+
+           if (myPFCands[i]->ecalEnergy() >= EcalStripSumE_minClusEnergy_ && deltaEta < EcalStripSumE_deltaEta_ &&
+                 deltaPhiOverQ > EcalStripSumE_deltaPhiOverQ_minValue_  && deltaPhiOverQ < EcalStripSumE_deltaPhiOverQ_maxValue_) {
+              myStripClusterE += myPFCands[i]->ecalEnergy();
+           }
+           if (deltaR<0.184) {
+              myHCALenergy3x3 += myPFCands[i]->hcalEnergy();
+           }
+           if (myPFCands[i]->hcalEnergy()>myMaximumHCALPFClusterE) {
+              myMaximumHCALPFClusterE = myPFCands[i]->hcalEnergy();
+           }
+           if ((myPFCands[i]->hcalEnergy()*fabs(sin(candPos.Theta())))>myMaximumHCALPFClusterEt) {
+              myMaximumHCALPFClusterEt = (myPFCands[i]->hcalEnergy()*fabs(sin(candPos.Theta())));
+           }
 	}
 
 	if ((myHCALenergy+myECALenergy)>0.)
@@ -335,86 +332,84 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
 	myPFTau.sethcalTotOverPLead((float)myHCALenergy/(float)myElecTrk->p());
 	
 	myPFTau.setelectronPreIDDecision(myElecPreid);
-	if (myElecTrk.isNonnull()) myPFTau.setelectronPreIDTrack(myElecTrk);
+	if (myElecTrk.isNonnull()) 
+           myPFTau.setelectronPreIDTrack(myElecTrk);
 	
       // These need to be filled!
       //myPFTau.setbremsRecoveryEOverPLead(my...);
       //myPFTau.setelectronPreIDOutput(my...);
       }
+      //From RECO
+      if(DataType_ == "RECO"){
+         // Against double counting of clusters
+         std::vector<math::XYZPoint> hcalPosV; hcalPosV.clear();
+         std::vector<math::XYZPoint> ecalPosV; ecalPosV.clear();
+         for(int i=0;i<(int)myPFCands.size();i++){
+            const ElementsInBlocks& elts = myPFCands[i]->elementsInBlocks();
+            for(ElementsInBlocks::const_iterator it=elts.begin(); it!=elts.end(); ++it) {
+               const reco::PFBlock& block = *(it->first);
+               unsigned indexOfElementInBlock = it->second;
+               const edm::OwnVector< reco::PFBlockElement >& elements = block.elements();
+               assert(indexOfElementInBlock<elements.size());
 
+               const reco::PFBlockElement& element = elements[indexOfElementInBlock];
 
-//From RECO
-if(DataType_ == "RECO"){
-   
-   // Against double counting of clusters
-   std::vector<math::XYZPoint> hcalPosV; hcalPosV.clear();
-      std::vector<math::XYZPoint> ecalPosV; ecalPosV.clear();
-      for(int i=0;i<(int)myPFCands.size();i++){
-	const ElementsInBlocks& elts = myPFCands[i]->elementsInBlocks();
-	for(ElementsInBlocks::const_iterator it=elts.begin(); it!=elts.end(); ++it) {
-	  const reco::PFBlock& block = *(it->first);
-	  unsigned indexOfElementInBlock = it->second;
-	  const edm::OwnVector< reco::PFBlockElement >& elements = block.elements();
-	  assert(indexOfElementInBlock<elements.size());
-	  
-	  const reco::PFBlockElement& element = elements[indexOfElementInBlock];
-	  
-	  if(element.type()==reco::PFBlockElement::HCAL) {
-	    math::XYZPoint clusPos = element.clusterRef()->position();
-	    double en = (double)element.clusterRef()->energy();
-	    double et = (double)element.clusterRef()->energy()*fabs(sin(clusPos.Theta()));
-	    if (en>myMaximumHCALPFClusterE) {
-	      myMaximumHCALPFClusterE = en;
-	    }
-	    if (et>myMaximumHCALPFClusterEt) {
-	      myMaximumHCALPFClusterEt = et;
-	    }
-	    if (!checkPos(hcalPosV,clusPos)) {
-	      hcalPosV.push_back(clusPos);
-	      myHCALenergy += en;
-	      double deltaR = ROOT::Math::VectorUtil::DeltaR(myElecTrkEcalPos,clusPos);
-	      if (deltaR<0.184) {
-		myHCALenergy3x3 += en;
-	      }
-	    }
-	  } else if(element.type()==reco::PFBlockElement::ECAL) {
-	    double en = (double)element.clusterRef()->energy();
-	    math::XYZPoint clusPos = element.clusterRef()->position();
-	    if (!checkPos(ecalPosV,clusPos)) {
-	      ecalPosV.push_back(clusPos);
-	      myECALenergy += en;
-	      double deltaPhi = ROOT::Math::VectorUtil::DeltaPhi(myElecTrkEcalPos,clusPos);
-	      double deltaEta = abs(myElecTrkEcalPos.eta()-clusPos.eta());
-	      double deltaPhiOverQ = deltaPhi/(double)myElecTrk->charge();
-	      if (en >= EcalStripSumE_minClusEnergy_ && deltaEta<EcalStripSumE_deltaEta_ && deltaPhiOverQ > EcalStripSumE_deltaPhiOverQ_minValue_ && deltaPhiOverQ < EcalStripSumE_deltaPhiOverQ_maxValue_) { 
-		myStripClusterE += en;
-	      }
-	    }	  
-	    
-	  }
-	}
-      }
-      
-      if ((myHCALenergy+myECALenergy)>0.)
-	myEmfrac = myECALenergy/(myHCALenergy+myECALenergy);
-      myPFTau.setemFraction((float)myEmfrac);
-      myPFTau.sethcalTotOverPLead((float)myHCALenergy/(float)myElecTrk->p());
-      myPFTau.sethcalMaxOverPLead((float)myMaximumHCALPFClusterE/(float)myElecTrk->p());
-      myPFTau.sethcal3x3OverPLead((float)myHCALenergy3x3/(float)myElecTrk->p());
-      myPFTau.setecalStripSumEOverPLead((float)myStripClusterE/(float)myElecTrk->p());
-      myPFTau.setmaximumHCALPFClusterEt(myMaximumHCALPFClusterEt);
-      myPFTau.setelectronPreIDDecision(myElecPreid);
-      if (myElecTrk.isNonnull()) myPFTau.setelectronPreIDTrack(myElecTrk);
-      
-      // These need to be filled!
-      //myPFTau.setbremsRecoveryEOverPLead(my...);
-      //myPFTau.setelectronPreIDOutput(my...);
- }       
+               if(element.type()==reco::PFBlockElement::HCAL) {
+                  math::XYZPoint clusPos = element.clusterRef()->position();
+                  double en = (double)element.clusterRef()->energy();
+                  double et = (double)element.clusterRef()->energy()*fabs(sin(clusPos.Theta()));
+                  if (en>myMaximumHCALPFClusterE) {
+                     myMaximumHCALPFClusterE = en;
+                  }
+                  if (et>myMaximumHCALPFClusterEt) {
+                     myMaximumHCALPFClusterEt = et;
+                  }
+                  if (!checkPos(hcalPosV,clusPos)) {
+                     hcalPosV.push_back(clusPos);
+                     myHCALenergy += en;
+                     double deltaR = ROOT::Math::VectorUtil::DeltaR(myElecTrkEcalPos,clusPos);
+                     if (deltaR<0.184) {
+                        myHCALenergy3x3 += en;
+                     }
+                  }
+               } else if(element.type()==reco::PFBlockElement::ECAL) {
+                  double en = (double)element.clusterRef()->energy();
+                  math::XYZPoint clusPos = element.clusterRef()->position();
+                  if (!checkPos(ecalPosV,clusPos)) {
+                     ecalPosV.push_back(clusPos);
+                     myECALenergy += en;
+                     double deltaPhi = ROOT::Math::VectorUtil::DeltaPhi(myElecTrkEcalPos,clusPos);
+                     double deltaEta = abs(myElecTrkEcalPos.eta()-clusPos.eta());
+                     double deltaPhiOverQ = deltaPhi/(double)myElecTrk->charge();
+                     if (en >= EcalStripSumE_minClusEnergy_ && deltaEta<EcalStripSumE_deltaEta_ && deltaPhiOverQ > EcalStripSumE_deltaPhiOverQ_minValue_ && deltaPhiOverQ < EcalStripSumE_deltaPhiOverQ_maxValue_) { 
+                        myStripClusterE += en;
+                     }
+                  }	  
+
+               }
+            }
+         }
+
+         if ((myHCALenergy+myECALenergy)>0.)
+            myEmfrac = myECALenergy/(myHCALenergy+myECALenergy);
+         myPFTau.setemFraction((float)myEmfrac);
+         myPFTau.sethcalTotOverPLead((float)myHCALenergy/(float)myElecTrk->p());
+         myPFTau.sethcalMaxOverPLead((float)myMaximumHCALPFClusterE/(float)myElecTrk->p());
+         myPFTau.sethcal3x3OverPLead((float)myHCALenergy3x3/(float)myElecTrk->p());
+         myPFTau.setecalStripSumEOverPLead((float)myStripClusterE/(float)myElecTrk->p());
+         myPFTau.setmaximumHCALPFClusterEt(myMaximumHCALPFClusterEt);
+         myPFTau.setelectronPreIDDecision(myElecPreid);
+         if (myElecTrk.isNonnull()) myPFTau.setelectronPreIDTrack(myElecTrk);
+
+         // These need to be filled!
+         //myPFTau.setbremsRecoveryEOverPLead(my...);
+         //myPFTau.setelectronPreIDOutput(my...);
+      }       
     }  
   }
   /* End elecron rejection */
-  
-  
+
+
   return myPFTau;  
 }
 

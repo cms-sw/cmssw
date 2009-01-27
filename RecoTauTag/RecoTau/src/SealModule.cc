@@ -19,6 +19,7 @@
 #include "RecoTauTag/RecoTau/interface/CaloRecoTauDiscriminationByLeadingTrackFinding.h"
 #include "RecoTauTag/RecoTau/interface/CaloRecoTauDiscriminationByLeadingTrackPtCut.h"
 
+#include "RecoTauTag/RecoTau/interface/CMSInsideOutJetProducer.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(PFRecoTauTagInfoProducer);
@@ -37,5 +38,6 @@ DEFINE_ANOTHER_FWK_MODULE(CaloRecoTauProducer);
 DEFINE_ANOTHER_FWK_MODULE(CaloRecoTauDiscriminationByIsolation);
 DEFINE_ANOTHER_FWK_MODULE(CaloRecoTauDiscriminationAgainstElectron);
 DEFINE_ANOTHER_FWK_MODULE(CaloRecoTauDiscriminationByLeadingTrackFinding);
+DEFINE_ANOTHER_FWK_MODULE(CMSInsideOutProducer);
 
 

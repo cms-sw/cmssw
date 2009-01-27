@@ -16,49 +16,49 @@ from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectron_cfi import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstMuon_cfi import *
 
 #copying the PFTau producer and select the shrinkingCone
-pfRecoTauProducerHighEfficiency = copy.deepcopy(pfRecoTauProducer)
+pfRecoTauProducerHighEfficiency                              = copy.deepcopy(pfRecoTauProducer)
 pfRecoTauProducerHighEfficiency.TrackerSignalConeSizeFormula = '5.0/ET'
-pfRecoTauProducerHighEfficiency.TrackerSignalConeSize_min = 0.07
-pfRecoTauProducerHighEfficiency.TrackerSignalConeSize_max = 0.15
-pfRecoTauProducerHighEfficiency.GammaCand_minPt = 1.5
-
+pfRecoTauProducerHighEfficiency.TrackerSignalConeSize_min    = 0.07
+pfRecoTauProducerHighEfficiency.TrackerSignalConeSize_max    = 0.15
+pfRecoTauProducerHighEfficiency.GammaCand_minPt              = cms.double(0.5)
+pfRecoTauProducerHighEfficiency.ChargedHadrCand_minPt        = cms.double(0.5);
 
 #copying Discriminator ByLeadingTrack(finding and pt_cut)
-pfRecoTauDiscriminationByLeadingTrackFindingHighEfficiency = copy.deepcopy(pfRecoTauDiscriminationByLeadingTrackFinding)
-pfRecoTauDiscriminationByLeadingTrackFindingHighEfficiency.PFTauProducer = 'pfRecoTauProducerHighEfficiency'
+pfRecoTauDiscriminationByLeadingTrackFindingHighEfficiency                          = copy.deepcopy(pfRecoTauDiscriminationByLeadingTrackFinding)
+pfRecoTauDiscriminationByLeadingTrackFindingHighEfficiency.PFTauProducer            = 'pfRecoTauProducerHighEfficiency'
 
-pfRecoTauDiscriminationByLeadingTrackPtCutHighEfficiency = copy.deepcopy(pfRecoTauDiscriminationByLeadingTrackPtCut)
-pfRecoTauDiscriminationByLeadingTrackPtCutHighEfficiency.PFTauProducer = 'pfRecoTauProducerHighEfficiency'
+pfRecoTauDiscriminationByLeadingTrackPtCutHighEfficiency                            = copy.deepcopy(pfRecoTauDiscriminationByLeadingTrackPtCut)
+pfRecoTauDiscriminationByLeadingTrackPtCutHighEfficiency.PFTauProducer              = 'pfRecoTauProducerHighEfficiency'
 
 #copying Discriminator ByPionTrackPtCut
-pfRecoTauDiscriminationByLeadingPionPtCutHighEfficiency = copy.deepcopy(pfRecoTauDiscriminationByLeadingPionPtCut)
-pfRecoTauDiscriminationByLeadingPionPtCutHighEfficiency.PFTauProducer = 'pfRecoTauProducerHighEfficiency'
+pfRecoTauDiscriminationByLeadingPionPtCutHighEfficiency                             = copy.deepcopy(pfRecoTauDiscriminationByLeadingPionPtCut)
+pfRecoTauDiscriminationByLeadingPionPtCutHighEfficiency.PFTauProducer               = 'pfRecoTauProducerHighEfficiency'
 
 #copying the Discriminator by Isolation
-pfRecoTauDiscriminationByIsolationHighEfficiency = copy.deepcopy(pfRecoTauDiscriminationByIsolation)
-pfRecoTauDiscriminationByIsolationHighEfficiency.PFTauProducer = 'pfRecoTauProducerHighEfficiency'
+pfRecoTauDiscriminationByIsolationHighEfficiency                                    = copy.deepcopy(pfRecoTauDiscriminationByIsolation)
+pfRecoTauDiscriminationByIsolationHighEfficiency.PFTauProducer                      = 'pfRecoTauProducerHighEfficiency'
 
-pfRecoTauDiscriminationByTrackIsolationHighEfficiency = copy.deepcopy(pfRecoTauDiscriminationByTrackIsolation)
-pfRecoTauDiscriminationByTrackIsolationHighEfficiency.PFTauProducer = 'pfRecoTauProducerHighEfficiency'
+pfRecoTauDiscriminationByTrackIsolationHighEfficiency                               = copy.deepcopy(pfRecoTauDiscriminationByTrackIsolation)
+pfRecoTauDiscriminationByTrackIsolationHighEfficiency.PFTauProducer                 = 'pfRecoTauProducerHighEfficiency'
 
-pfRecoTauDiscriminationByECALIsolationHighEfficiency = copy.deepcopy(pfRecoTauDiscriminationByECALIsolation)
-pfRecoTauDiscriminationByECALIsolationHighEfficiency.PFTauProducer = 'pfRecoTauProducerHighEfficiency'
+pfRecoTauDiscriminationByECALIsolationHighEfficiency                                = copy.deepcopy(pfRecoTauDiscriminationByECALIsolation)
+pfRecoTauDiscriminationByECALIsolationHighEfficiency.PFTauProducer                  = 'pfRecoTauProducerHighEfficiency'
 
 #copying the Discriminator by Isolation for leadingPion
-pfRecoTauDiscriminationByIsolationUsingLeadingPionHighEfficiency = copy.deepcopy(pfRecoTauDiscriminationByIsolationUsingLeadingPion)
-pfRecoTauDiscriminationByIsolationUsingLeadingPionHighEfficiency.PFTauProducer = 'pfRecoTauProducerHighEfficiency'
+pfRecoTauDiscriminationByIsolationUsingLeadingPionHighEfficiency                    = copy.deepcopy(pfRecoTauDiscriminationByIsolationUsingLeadingPion)
+pfRecoTauDiscriminationByIsolationUsingLeadingPionHighEfficiency.PFTauProducer      = 'pfRecoTauProducerHighEfficiency'
 
-pfRecoTauDiscriminationByTrackIsolationUsingLeadingPionHighEfficiency = copy.deepcopy(pfRecoTauDiscriminationByTrackIsolationUsingLeadingPion)
+pfRecoTauDiscriminationByTrackIsolationUsingLeadingPionHighEfficiency               = copy.deepcopy(pfRecoTauDiscriminationByTrackIsolationUsingLeadingPion)
 pfRecoTauDiscriminationByTrackIsolationUsingLeadingPionHighEfficiency.PFTauProducer = 'pfRecoTauProducerHighEfficiency'
 
-pfRecoTauDiscriminationByECALIsolationUsingLeadingPionHighEfficiency = copy.deepcopy(pfRecoTauDiscriminationByECALIsolationUsingLeadingPion)
-pfRecoTauDiscriminationByECALIsolationUsingLeadingPionHighEfficiency.PFTauProducer = 'pfRecoTauProducerHighEfficiency'
+pfRecoTauDiscriminationByECALIsolationUsingLeadingPionHighEfficiency                = copy.deepcopy(pfRecoTauDiscriminationByECALIsolationUsingLeadingPion)
+pfRecoTauDiscriminationByECALIsolationUsingLeadingPionHighEfficiency.PFTauProducer  = 'pfRecoTauProducerHighEfficiency'
 
 #copying discriminator against electrons and muons
-pfRecoTauDiscriminationAgainstElectronHighEfficiency = copy.deepcopy(pfRecoTauDiscriminationAgainstElectron)
-pfRecoTauDiscriminationAgainstElectronHighEfficiency.PFTauProducer = 'pfRecoTauProducerHighEfficiency'
+pfRecoTauDiscriminationAgainstElectronHighEfficiency                                = copy.deepcopy(pfRecoTauDiscriminationAgainstElectron)
+pfRecoTauDiscriminationAgainstElectronHighEfficiency.PFTauProducer                  = 'pfRecoTauProducerHighEfficiency'
 
-pfRecoTauDiscriminationAgainstMuonHighEfficiency = copy.deepcopy(pfRecoTauDiscriminationAgainstMuon)
-pfRecoTauDiscriminationAgainstMuonHighEfficiency.PFTauProducer = 'pfRecoTauProducerHighEfficiency'
+pfRecoTauDiscriminationAgainstMuonHighEfficiency                                    = copy.deepcopy(pfRecoTauDiscriminationAgainstMuon)
+pfRecoTauDiscriminationAgainstMuonHighEfficiency.PFTauProducer                      = 'pfRecoTauProducerHighEfficiency'
 
 

@@ -15,20 +15,54 @@ void PFRecoTauDiscriminationByIsolationUsingLeadingPion::produce(Event& iEvent,c
     
     if (ApplyDiscriminationByTrackerIsolation_){  
       // optional selection by a tracker isolation : ask for 0 charged hadron PFCand / reco::Track in an isolation annulus around a leading PFCand / reco::Track axis
-      double theTrackerIsolationDiscriminator = 0.;
+      double theTrackerIsolationDiscriminator = 1.;
       if (ManipulateTracks_insteadofChargedHadrCands_){
-	theTrackerIsolationDiscriminator=thePFTauElementsOperators.discriminatorByIsolTracksN(TrackerIsolAnnulus_Tracksmaxn_);
-      } else theTrackerIsolationDiscriminator=thePFTauElementsOperators.discriminatorByIsolPFChargedHadrCandsN(TrackerIsolAnnulus_Candsmaxn_);      
-      if (theTrackerIsolationDiscriminator==0.){
+         const TrackRefVector& isolationTracks = thePFTau.isolationTracks();
+         unsigned int tracksAboveThreshold = 0;
+         for(size_t iTrack = 0; iTrack < isolationTracks.size(); ++iTrack)
+         {
+            if(isolationTracks[iTrack]->pt() > maxChargedPt_) {
+               if(++tracksAboveThreshold > TrackerIsolAnnulus_Tracksmaxn_)
+               {
+                  theTrackerIsolationDiscriminator = 0.;
+                  break;
+               }
+            }
+         }
+      } else { //use pf candidates instead
+         const PFCandidateRefVector& pfIsoChargedCands = thePFTau.isolationPFChargedHadrCands();
+         unsigned int tracksAboveThreshold = 0;
+         for(size_t iIsoCand = 0; iIsoCand < pfIsoChargedCands.size(); ++iIsoCand)
+         {
+            if(pfIsoChargedCands[iIsoCand]->pt() > maxChargedPt_) {
+               if(++tracksAboveThreshold > TrackerIsolAnnulus_Candsmaxn_) {
+                  theTrackerIsolationDiscriminator = 0.;
+                  break;
+               }
+            }
+         }
+      }
+
+      if (theTrackerIsolationDiscriminator == 0.){
 	thePFTauDiscriminatorByIsolationUsingLeadingPion->setValue(iPFTau,0.);
-	  continue;
+        continue;
       }
     }    
     
     if (ApplyDiscriminationByECALIsolation_){
       // optional selection by an ECAL isolation : ask for 0 gamma PFCand in an isolation annulus around a leading PFCand
-      double theECALIsolationDiscriminator =0.;
-      theECALIsolationDiscriminator=thePFTauElementsOperators.discriminatorByIsolPFGammaCandsN(ECALIsolAnnulus_Candsmaxn_);
+      double theECALIsolationDiscriminator =1.;
+      const PFCandidateRefVector& pfIsoGammaCands = thePFTau.isolationPFGammaCands();
+      unsigned int gammasAboveThreshold = 0;
+      for(size_t iIsoGamma = 0; iIsoGamma < pfIsoGammaCands.size(); ++iIsoGamma)
+      {
+         if(pfIsoGammaCands[iIsoGamma]->pt() > maxGammaPt_) {
+            if(++gammasAboveThreshold > ECALIsolAnnulus_Candsmaxn_) {
+               theECALIsolationDiscriminator = 0;
+               break;
+            }
+         }
+      }
       if (theECALIsolationDiscriminator==0.){
 	thePFTauDiscriminatorByIsolationUsingLeadingPion->setValue(iPFTau,0);
 	continue;
@@ -38,14 +72,14 @@ void PFRecoTauDiscriminationByIsolationUsingLeadingPion::produce(Event& iEvent,c
     // not optional selection : ask for a leading (Pt>minPt) PFCand / reco::Track in a matching cone around the PFJet axis
     double theleadElementDiscriminator=1.;
     if (ManipulateTracks_insteadofChargedHadrCands_){
-      if (!thePFTau.leadTrack()) theleadElementDiscriminator=0.;
+       if (!thePFTau.leadTrack()) theleadElementDiscriminator=0.;
     }else{
-      if (!thePFTau.leadPFCand()) {
-	theleadElementDiscriminator=0.;
-      }
+       if (!thePFTau.leadPFCand()) {
+          theleadElementDiscriminator=0.;
+       }
     }
-    if (theleadElementDiscriminator < 0.5)thePFTauDiscriminatorByIsolationUsingLeadingPion->setValue(iPFTau,0);
-    else thePFTauDiscriminatorByIsolationUsingLeadingPion->setValue(iPFTau,1);
+    if (theleadElementDiscriminator < 0.5) thePFTauDiscriminatorByIsolationUsingLeadingPion->setValue(iPFTau,0);
+    else thePFTauDiscriminatorByIsolationUsingLeadingPion->setValue(iPFTau,1); //passes everything
   }    
   
   iEvent.put(thePFTauDiscriminatorByIsolationUsingLeadingPion);

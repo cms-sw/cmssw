@@ -51,6 +51,7 @@ class PFRecoTauDecayModeDeterminator : public EDProducer {
   typedef list<CompositeCandidate>::reverse_iterator  compCandRevIter;
 
   void mergePiZeroes(compCandList&, compCandRevIter);
+  void mergePiZeroesByBestMatch(compCandList&);
 
   explicit PFRecoTauDecayModeDeterminator(const ParameterSet& iConfig);
   ~PFRecoTauDecayModeDeterminator();
@@ -60,6 +61,14 @@ class PFRecoTauDecayModeDeterminator : public EDProducer {
   const double chargedPionMass;
   const double neutralPionMass;
 
+  struct  gammaMatchContainer {
+     double matchQuality;
+     size_t firstIndex;
+     size_t secondIndex;
+  };
+
+  static bool gammaMatchSorter (const gammaMatchContainer& first, const gammaMatchContainer& second);
+
  private:
   PFCandCommonVertexFitterBase* vertexFitter_;
   InputTag              PFTauProducer_;
@@ -67,11 +76,16 @@ class PFRecoTauDecayModeDeterminator : public EDProducer {
   uint32_t              maxPhotonsToMerge_;             //number of photons allowed in a merged pi0
   double                maxPiZeroMass_;             
   bool                  mergeLowPtPhotonsFirst_;
+  bool                  mergeByBestMatch_;
+  bool                  setChargedPionMass_;
+  bool                  setPi0Mass_;
+  bool                  setMergedPi0Mass_;
   bool                  refitTracks_;
   bool                  filterTwoProngs_;
   bool                  filterPhotons_;  
   double                minPtFractionForSecondProng_;   //2 prongs whose second prong falls under 
-  double                minPtFractionForGammas_;        //outlier unmerged gammas
+  double                minPtFractionSinglePhotons_; 
+  double                minPtFractionPiZeroes_; 
   TauTagTools::sortByDescendingPt<CompositeCandidate>   candDescendingSorter;
   TauTagTools::sortByAscendingPt<CompositeCandidate>    candAscendingSorter;
 };

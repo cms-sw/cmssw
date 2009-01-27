@@ -5,11 +5,16 @@ PFRecoTauDecayModeDeterminator::PFRecoTauDecayModeDeterminator(const ParameterSe
   maxPhotonsToMerge_            = iConfig.getParameter<uint32_t>("maxPhotonsToMerge");
   maxPiZeroMass_                = iConfig.getParameter<double>("maxPiZeroMass");             
   mergeLowPtPhotonsFirst_       = iConfig.getParameter<bool>("mergeLowPtPhotonsFirst");
+  mergeByBestMatch_             = iConfig.getParameter<bool>("mergeByBestMatch");
+  setChargedPionMass_           = iConfig.getParameter<bool>("setChargedPionMass");
+  setPi0Mass_                   = iConfig.getParameter<bool>("setPi0Mass");
+  setMergedPi0Mass_             = iConfig.getParameter<bool>("setMergedPi0Mass");
   refitTracks_                  = iConfig.getParameter<bool>("refitTracks");
   filterTwoProngs_              = iConfig.getParameter<bool>("filterTwoProngs");
   filterPhotons_                = iConfig.getParameter<bool>("filterPhotons");
   minPtFractionForSecondProng_  = iConfig.getParameter<double>("minPtFractionForSecondProng");
-  minPtFractionForGammas_       = iConfig.getParameter<double>("minPtFractionForThirdGamma");
+  minPtFractionSinglePhotons_   = iConfig.getParameter<double>("minPtFractionSinglePhotons");
+  minPtFractionPiZeroes_        = iConfig.getParameter<double>("minPtFractionPiZeroes");
   //setup vertex fitter
   vertexFitter_ = new PFCandCommonVertexFitter<KalmanVertexFitter>(iConfig);
   produces<PFTauDecayModeAssociation>();      
@@ -76,6 +81,76 @@ void PFRecoTauDecayModeDeterminator::mergePiZeroes(compCandList& input, compCand
    }
 }
 
+bool 
+PFRecoTauDecayModeDeterminator::gammaMatchSorter(const gammaMatchContainer& first,
+                                                 const gammaMatchContainer& second)
+{
+   return (first.matchQuality < second.matchQuality);
+}
+
+void PFRecoTauDecayModeDeterminator::mergePiZeroesByBestMatch(compCandList& input)
+{
+   if(!input.size()) //nothing to merge... (NOTE: this line is necessary, as for size_t x, x in [0, +inf), x < -1 = true)
+      return;
+
+   vector<compCandList::iterator> gammas;       // iterators to all the gammas.  needed as we are using a list for compatability
+                                                // with the original merging algorithm, and this implementation requires random access
+   vector<gammaMatchContainer> matches;
+
+   // populate the list of gammas
+   for(compCandList::iterator iGamma = input.begin(); iGamma != input.end(); ++iGamma)
+      gammas.push_back(iGamma);
+
+
+   for(size_t gammaA = 0; gammaA < gammas.size()-1; ++gammaA)
+   {
+      for(size_t gammaB = gammaA+1; gammaB < gammas.size(); ++gammaB)
+      {
+         //construct invariant mass of this pair
+         LorentzVector piZeroAB = gammas[gammaA]->p4() + gammas[gammaB]->p4();
+         //different to true pizero mass
+         double piZeroABMass               = piZeroAB.M();
+         double differenceToTruePiZeroMass = abs(piZeroABMass - neutralPionMass);
+
+         if(piZeroABMass < maxPiZeroMass_)
+         {
+            gammaMatchContainer   aMatch;
+            aMatch.matchQuality = differenceToTruePiZeroMass;
+            aMatch.firstIndex   = gammaA;
+            aMatch.secondIndex  = gammaB;
+            matches.push_back(aMatch);
+         }
+      }
+   }
+
+   sort(matches.begin(), matches.end(), gammaMatchSorter);
+   //the pairs whose mass is closest to the true pi0 mass are now at the beginning
+   //of this vector
+
+   for(vector<gammaMatchContainer>::iterator iMatch  = matches.begin(); 
+                                             iMatch != matches.end();
+                                           ++iMatch)
+   {
+      size_t gammaA = iMatch->firstIndex;
+      size_t gammaB = iMatch->secondIndex;
+      //check to see that both gammas in this match have not been used (ie their iterators set to input.end())
+      if( gammas[gammaA] != input.end() && gammas[gammaB] != input.end() )
+      {
+         //merge the second gamma into the first; loop occurs in case of multiple gamma merging option
+         for(size_t bDaughter = 0; bDaughter < gammas[gammaB]->numberOfDaughters(); ++bDaughter)
+            gammas[gammaA]->addDaughter( *(gammas[gammaB]->daughter(bDaughter)) );
+         //update the four vector information
+         addP4.set(*gammas[gammaA]);
+         //delete gammaB from the list of photons/pi zeroes, as it has been merged into gammaA
+         input.erase(gammas[gammaB]);
+         //mark both as "merged"
+         gammas[gammaA] = input.end();
+         gammas[gammaB] = input.end();
+      } // else this match contains a photon that has already been merged
+   }
+
+}
+
 void PFRecoTauDecayModeDeterminator::produce(Event& iEvent,const EventSetup& iSetup){
 
   ESHandle<TransientTrackBuilder> myTransientTrackBuilder;
@@ -125,7 +200,8 @@ void PFRecoTauDecayModeDeterminator::produce(Event& iEvent,const EventSetup& iSe
            chargedCandsToAdd.addDaughter(ShallowCloneCandidate(CandidateBaseRef(theChargedHadronCandidates[indexOfHighestPt])));
            Candidate* justAdded = chargedCandsToAdd.daughter(chargedCandsToAdd.numberOfDaughters()-1);
            totalFourVector += justAdded->p4();
-           justAdded->setMass(chargedPionMass);
+           if(setChargedPionMass_)
+              justAdded->setMass(chargedPionMass);
            //add the two prong to the list of filtered stuff (to be added to the isolation collection later)
            filteredStuff.addDaughter(ShallowCloneCandidate(CandidateBaseRef(theChargedHadronCandidates[indexOfLowerPt])));
         }
@@ -141,7 +217,8 @@ void PFRecoTauDecayModeDeterminator::produce(Event& iEvent,const EventSetup& iSe
            chargedCandsToAdd.addDaughter(ShallowCloneCandidate(CandidateBaseRef(*iCharged)));
            Candidate* justAdded = chargedCandsToAdd.daughter(chargedCandsToAdd.numberOfDaughters()-1);
            totalFourVector += justAdded->p4();
-           justAdded->setMass(chargedPionMass);
+           if(setChargedPionMass_)
+              justAdded->setMass(chargedPionMass);
         }
      }
 
@@ -162,14 +239,57 @@ void PFRecoTauDecayModeDeterminator::produce(Event& iEvent,const EventSetup& iSe
      else
         gammaCandidates.sort(candAscendingSorter);
 
-     mergePiZeroes(gammaCandidates, gammaCandidates.rbegin());
+     if (mergeByBestMatch_)
+        mergePiZeroesByBestMatch(gammaCandidates);
+     else
+        mergePiZeroes(gammaCandidates, gammaCandidates.rbegin());
+
+     if (filterPhotons_)
+     {
+        //sort by pt, from high to low.
+        gammaCandidates.sort(candAscendingSorter);
+
+        compCandRevIter wimp = gammaCandidates.rbegin();
+
+        bool doneFiltering = false;
+        while(!doneFiltering && wimp != gammaCandidates.rend())
+        {
+           double ptFraction          = wimp->pt()/totalFourVector.pt();
+           size_t numberOfPhotons     = wimp->numberOfDaughters();
+
+           //check if it is a single photon or has been merged
+           if ( (numberOfPhotons == 1 && ptFraction < minPtFractionSinglePhotons_) ||
+                (numberOfPhotons  > 1 && ptFraction < minPtFractionPiZeroes_     )    )
+           {
+              //remove
+              totalFourVector -= wimp->p4();
+              for(size_t iDaughter = 0; iDaughter < numberOfPhotons; ++iDaughter)
+              {
+                 filteredStuff.addDaughter(ShallowCloneCandidate(CandidateBaseRef( wimp->daughter(iDaughter)->masterClone() )));
+              }
+
+              //move to the next photon to filter
+              ++wimp;
+           } else
+           {
+              //if this pizero passes the filter, we are done looking
+              doneFiltering = true;
+           }
+        }
+        //delete the filtered objects
+        gammaCandidates.erase(wimp.base(), gammaCandidates.end());
+     }
+
 
      CompositeCandidate mergedPiZerosToAdd;
      for( list<CompositeCandidate>::iterator iGamma  = gammaCandidates.begin();
                                              iGamma != gammaCandidates.end();
                                            ++iGamma)
      {
-        iGamma->setMass(neutralPionMass);
+        if (setChargedPionMass_) // set mass as pi 0
+           if (iGamma->numberOfDaughters() == 1 || !setMergedPi0Mass_ ) // for merged gamma pairs, check if user wants to keep ECAL mass
+              iGamma->setMass(neutralPionMass);
+
         mergedPiZerosToAdd.addDaughter(*iGamma);
      }
 
