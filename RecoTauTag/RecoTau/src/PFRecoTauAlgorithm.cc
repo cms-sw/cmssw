@@ -9,7 +9,10 @@ PFRecoTauAlgorithm::PFRecoTauAlgorithm(const ParameterSet& iConfig) : TransientT
   NeutrHadrCand_minPt_                = iConfig.getParameter<double>("NeutrHadrCand_minPt");
   GammaCand_minPt_                    = iConfig.getParameter<double>("GammaCand_minPt");       
   LeadTrack_minPt_                    = iConfig.getParameter<double>("LeadTrack_minPt");
-  Track_minPt_                        = iConfig.getParameter<double>("Track_minPt");
+
+    Track_minPt_                        = iConfig.getParameter<double>("Track_minPt");
+    PFCand_minPt_                        = iConfig.getParameter<double>("PFCand_minPt");
+    
   UseTrackLeadTrackDZconstraint_      = iConfig.getParameter<bool>("UseTrackLeadTrackDZconstraint");
   TrackLeadTrack_maxDZ_               = iConfig.getParameter<double>("TrackLeadTrack_maxDZ");
   
@@ -83,8 +86,11 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
   
   PFTauElementsOperators myPFTauElementsOperators(myPFTau);
   double myMatchingConeSize=myPFTauElementsOperators.computeConeSize(myMatchingConeSizeTFormula,MatchingConeSize_min_,MatchingConeSize_max_);
-  PFCandidateRef myleadPFChargedCand=myPFTauElementsOperators.leadPFChargedHadrCand(MatchingConeMetric_,myMatchingConeSize,LeadChargedHadrCand_minPt_);
-  PFCandidateRef myleadPFNeutralCand=myPFTauElementsOperators.leadPFGammaCand(MatchingConeMetric_,myMatchingConeSize,LeadChargedHadrCand_minPt_);
+
+  //  PFCandidateRef myleadPFChargedCand=myPFTauElementsOperators.leadPFChargedHadrCand(MatchingConeMetric_,myMatchingConeSize,LeadChargedHadrCand_minPt_);
+  PFCandidateRef myleadPFChargedCand=myPFTauElementsOperators.leadPFChargedHadrCand(MatchingConeMetric_,myMatchingConeSize,PFCand_minPt_);
+  //  PFCandidateRef myleadPFNeutralCand=myPFTauElementsOperators.leadPFGammaCand(MatchingConeMetric_,myMatchingConeSize,LeadChargedHadrCand_minPt_);
+  PFCandidateRef myleadPFNeutralCand=myPFTauElementsOperators.leadPFGammaCand(MatchingConeMetric_,myMatchingConeSize,PFCand_minPt_);
   PFCandidateRef myleadPFCand;
 
   bool myleadPFCand_rectkavailable=false;
@@ -97,9 +103,9 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
 
   //Modification to consider leading neutral particle
   if(myleadPFChargedCand.isNonnull()) {
-    myleadPFCand = myleadPFChargedCand;
+    //    myleadPFCand = myleadPFChargedCand;
     myPFTau.setleadPFChargedHadrCand(myleadPFChargedCand);
-    TrackRef myleadPFCand_rectk=(*myleadPFCand).trackRef();
+    TrackRef myleadPFCand_rectk=(*myleadPFChargedCand).trackRef();
     if(myleadPFCand_rectk.isNonnull()){
       myleadPFCand_rectkavailable=true;
       myleadPFCand_rectkDZ=(*myleadPFCand_rectk).dz();
@@ -121,11 +127,21 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
     }
 
   }
+
+  if(myleadPFChargedCand.isNonnull() && (*myleadPFChargedCand).pt() > LeadChargedHadrCand_minPt_){
+    myleadPFCand = myleadPFChargedCand;
+  }else{
+    if(myleadPFNeutralCand.isNonnull() && (*myleadPFNeutralCand).pt() > LeadChargedHadrCand_minPt_)
+      myleadPFCand = myleadPFNeutralCand;
+  }
+  
+  /*    
   if(!(myleadPFChargedCand.isNonnull()) && myleadPFNeutralCand.isNonnull()) {
     myleadPFCand = myleadPFNeutralCand; 
     myPFTau.setleadPFNeutralCand(myleadPFNeutralCand);
   }
-   
+  */
+
   if(myleadPFCand.isNonnull()){
     myPFTau.setleadPFCand(myleadPFCand);
 

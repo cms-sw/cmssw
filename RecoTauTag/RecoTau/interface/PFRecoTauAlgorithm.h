@@ -41,6 +41,7 @@ class  PFRecoTauAlgorithm  {
   double NeutrHadrCand_minPt_;
   double GammaCand_minPt_;
   double LeadTrack_minPt_;
+  double PFCand_minPt_;
   double Track_minPt_;
   bool UseTrackLeadTrackDZconstraint_;
   double TrackLeadTrack_maxDZ_;
