@@ -1,6 +1,6 @@
 #############################################################################
 #
-# $Id:$
+# $Id: cms-valgrind-memcheck.supp,v 1.1 2008/05/24 21:55:54 elmer Exp $
 #
 # Valgrind memcheck suppression file for CMS. This is meant primarily for
 # suppressing problems reported for external packages which are known to
@@ -256,9 +256,33 @@
 # zlib
 
 {
+   ZLIB:longest_match
    Memcheck:Cond
-   obj:*libz.so.*
-   obj:*libz.so.*
+   fun:longest_match
+   fun:deflate_slow
+   fun:deflate
+}
+
+{
+   ZLIB:compress_block
+   Memcheck:Value4
+   fun:compress_block
+   fun:deflate_fast
+}
+
+{
+   ZLIB:compress_block2
+   Memcheck:Value4
+   fun:deflate_slow
+   fun:deflate 
+}
+
+{
+   ZLIB:compress_block2
+   Memcheck:Value4
+   fun:compress_block
+   fun:_tr_flush_block
+   fun:deflate_slow
    fun:deflate
 }
 
