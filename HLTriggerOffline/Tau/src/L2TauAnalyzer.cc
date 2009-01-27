@@ -91,13 +91,13 @@ L2TauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		  if((mcMatch.matched&&IsSignal_)||(!IsSignal_))
 		    {
 		      //Fill variables
-		      ecalIsol_Et=l2info.ECALIsolConeCut;
-		      towerIsol_Et=l2info.TowerIsolConeCut;
-		      cl_Nclusters=l2info.ECALClusterNClusters;
-		      cl_etaRMS=l2info.ECALClusterEtaRMS;
-		      cl_phiRMS=l2info.ECALClusterPhiRMS;
-		      cl_drRMS=l2info.ECALClusterDRRMS;
-		      seedTowerEt = l2info.SeedTowerEt;
+		      ecalIsol_Et=l2info.ecalIsolEt();
+		      towerIsol_Et=l2info.hcalIsolEt();
+		      cl_Nclusters=l2info.nEcalHits();
+		      cl_etaRMS=l2info.ecalClusterShape()[0];
+		      cl_phiRMS=l2info.ecalClusterShape()[1];
+		      cl_drRMS=l2info.ecalClusterShape()[2];
+		      seedTowerEt = l2info.seedHcalHitEt();
 		      MCeta =mcMatch.mcEta;
 		      MCet=mcMatch.mcEt;
 		      JetEt = jet.et();
