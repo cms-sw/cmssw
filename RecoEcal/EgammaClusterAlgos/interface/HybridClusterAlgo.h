@@ -105,16 +105,16 @@ class HybridClusterAlgo
   //The real constructor
   HybridClusterAlgo(double eb_str, 
 		    int step,
+		    double ethres,
 		    double eseed,
-		    double ewing,
-                    double ethres,
+                    double ewing,
                     const PositionCalc& posCalculator,
 //                    bool dynamicPhiRoad = false,
+                    DebugLevel debugLevel = pINFO,
 		    bool dynamicEThres = false,
                     double eThresA = 0,
-                    double eThresB = 0.1,
+                    double eThresB = 0.1);
 //                    const edm::ParameterSet &bremRecoveryPset,
-		    DebugLevel debugLevel = pINFO);
 
   // destructor
   ~HybridClusterAlgo() 

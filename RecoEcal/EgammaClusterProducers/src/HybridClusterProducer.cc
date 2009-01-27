@@ -63,17 +63,17 @@ HybridClusterProducer::HybridClusterProducer(const edm::ParameterSet& ps)
 
   hybrid_p = new HybridClusterAlgo(ps.getParameter<double>("HybridBarrelSeedThr"), 
                                    ps.getParameter<int>("step"),
+                                   ps.getParameter<double>("ethresh"),
                                    ps.getParameter<double>("eseed"),
                                    ps.getParameter<double>("ewing"),
-                                   ps.getParameter<double>("ethresh"),
                                    posCalculator_,
                                    //dynamicPhiRoad,
+				   debugL,
 			           ps.getParameter<bool>("dynamicEThresh"),
                                    ps.getParameter<double>("eThreshA"),
-                                   ps.getParameter<double>("eThreshB"),
+                                   ps.getParameter<double>("eThreshB")
                                    //bremRecoveryPset,
-                                   debugL);
-
+				   );
 
   // get brem recovery parameters
   bool dynamicPhiRoad = ps.getParameter<bool>("dynamicPhiRoad");
