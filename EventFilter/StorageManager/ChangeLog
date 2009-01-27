@@ -1,3 +1,10 @@
+2009-01-27  Kurt Biery <biery@fnal.gov>
+
+	* tag V04-02-03
+	* Modified the sending of event consumer registration requests
+	  to work around the recent change in edm::ParameterSet to only
+	  serialize tracked parameters.
+
 2008-12-29  Kurt Biery <biery@fnal.gov>
 
 	* tag V04-02-02
