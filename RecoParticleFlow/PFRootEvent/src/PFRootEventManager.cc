@@ -1368,17 +1368,17 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   bool goodevent = true;
   if(trueParticlesBranch_ ) {
     // this is a filter to select single particle events.
-    if(filterNParticles_ && 
+    if(filterNParticles_ && doTauBenchmark_ &&
        trueParticles_.size() != filterNParticles_ ) {
       cout << "PFRootEventManager : event discarded Nparticles="
            <<filterNParticles_<< endl; 
       goodevent = false;
     }
-    if(goodevent && filterHadronicTaus_ && !isHadronicTau() ) {
+    if(goodevent && doTauBenchmark_ && filterHadronicTaus_ && !isHadronicTau() ) {
       cout << "PFRootEventManager : leptonic tau discarded " << endl; 
       goodevent =  false;
     }
-    if( goodevent && !filterTaus_.empty() 
+    if( goodevent && doTauBenchmark_ && !filterTaus_.empty() 
         && !countChargedAndPhotons() ) {
       assert( filterTaus_.size() == 2 );
       cout <<"PFRootEventManager : tau discarded: "
@@ -2318,7 +2318,7 @@ PFRootEventManager::tauBenchmark( const reco::PFCandidateCollection& candidates)
   vector<TLorentzVector> allcalotowers;
   //   vector<double>         allemenergy;
   //   vector<double>         allhadenergy;
-  double threshCaloTowers = 0;
+  double threshCaloTowers = 1E-10;
   for ( unsigned int i = 0; i < caloTowers_.size(); ++i) {
     
     if(caloTowers_[i].energy() < threshCaloTowers) {
