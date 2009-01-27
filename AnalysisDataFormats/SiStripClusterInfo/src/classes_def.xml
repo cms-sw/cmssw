@@ -1,0 +1,18 @@
+<lcgdict>
+
+ <class name="SiStripProcessedRawDigi"/>
+ <class name="std::vector<SiStripProcessedRawDigi>"/>
+ <class name="edm::DetSet<SiStripProcessedRawDigi>"/>
+ <class name="edm::DetSetVector<SiStripProcessedRawDigi>"/>
+ <class name="std::vector<edm::DetSet<SiStripProcessedRawDigi> >"/>
+ <class name="edm::Wrapper<edm::DetSet<SiStripProcessedRawDigi> >" splitLevel="0"/>
+ <class name="edm::Wrapper<std::vector<edm::DetSet<SiStripProcessedRawDigi> > >" splitLevel="0"/>
+ <class name="edm::Wrapper<edm::DetSetVector<SiStripProcessedRawDigi> >" splitLevel="0"/>
+
+ <class name="edmNew::DetSetVector<SiStripProcessedRawDigi>" />
+ <class name="edm::Wrapper<edmNew::DetSetVector<SiStripProcessedRawDigi> >" />
+
+</lcgdict>
+
+
+
