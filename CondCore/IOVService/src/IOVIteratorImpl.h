@@ -22,16 +22,14 @@ namespace cond{
     virtual size_t position() const;
     virtual bool atEnd() const;
     virtual std::string payloadToken() const;
-    TimeType timetype() const {
-      open();
-      return (TimeType)(m_iov->timetype);     
-    }
+    TimeType timetype() const;
 
     virtual cond::ValidityInterval validity() const;
+
   private:
     void open() const;
     void init();
-    cond::Time_t till() const;
+    cond::Time_t tillTime() const;
     cond::PoolTransaction& m_pooldb;
     std::string m_token;
     cond::TypedRef<cond::IOVSequence> m_iov;

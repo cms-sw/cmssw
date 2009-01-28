@@ -16,8 +16,13 @@ void cond::IOVIteratorImpl::open() const{
 void cond::IOVIteratorImpl::init(){
   open();
   m_isInit=true;
-  m_pos=m_iov->iov.begin();
+  m_pos=m_iov->iovs().begin();
   m_count = 0;
+}
+
+cond::TimeType cond::IOVIteratorImpl::timetype() const {
+  open();
+  return m_iov->timeType();     
 }
 
 
@@ -71,12 +76,12 @@ cond::IOVIteratorImpl::validity() const{
   cond::Time_t till=0;
   if (m_isInit && !atEnd()) {
     since =  m_pos->sinceTime();
-    till =  till();
+    till =  tillTime();
   }
   return cond::ValidityInterval(since,till);
 }
 
-cond::Time_t cond::IOVIteratorImpl::till() const {
+cond::Time_t cond::IOVIteratorImpl::tillTime() const {
   const_iterator pos = m_pos+1;
   return pos==m_iov->iovs().end() ? 
     m_iov->lastTill() : m_pos->sinceTime()-1;

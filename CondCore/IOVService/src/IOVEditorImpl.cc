@@ -109,8 +109,8 @@ namespace cond {
     if(!validTime(lastTime))
       throw cond::Exception("cond::IOVEditorImpl::bulkInsert last time not in global range");
 
-   if(LastTime>=lastTill() ||
-      ( !m_iov->iovs().empty() && firstTime<=m_iov->iovs().back().first) 
+   if(lastTime>=lastTill() ||
+      ( !m_iov->iovs().empty() && firstTime<=m_iov->iovs().back().sinceTime()) 
        )    throw cond::Exception("cond::IOVEditorImpl::bulkInsert IOV not in range");
    for(std::vector< std::pair<cond::Time_t,std::string> >::const_iterator it=values.begin(); it!=values.end(); ++it){
      //     m_iov->iov.insert(m_iov->iov.end(), values.begin(), values.end());
@@ -166,7 +166,7 @@ namespace cond {
       throw cond::Exception("cond::IOVEditorImpl::append time not in global range");
     
     
-    if(  m_iov->iov.size()>1 ){
+    if(  m_iov->iovs().size()>1 ){
       //range check in case 
       cond::Time_t lastValidSince=m_iov->iovs().back().sinceTime();
       //std::cout<<"lastValidTill "<<lastValidTill<<std::endl;
@@ -206,10 +206,7 @@ namespace cond {
       throw cond::Exception("cond::IOVEditorImpl::freeInsert time not in global range");
 
 
- 
- 
-   cond::Time_t tillTime;
-   IOV::iterator p = m_iov->find(sinceTime);
+   IOVSequence::const_iterator p = m_iov->find(sinceTime);
    if (p!=m_iov->iovs().end() &&  (*(p-1)).sinceTime()==sinceTime)
      throw cond::Exception("cond::IOVEditorImpl::freeInsert sinceTime already existing");
 
@@ -234,7 +231,7 @@ namespace cond {
       IOVSequence::const_iterator payloadIt;
       IOVSequence::const_iterator payloadItEnd=m_iov->iovs().end();
       for(payloadIt=m_iov->iovs().begin();payloadIt!=payloadItEnd;++payloadIt){
-	tokenStr=payloadIt->wrapperToken;
+	tokenStr=payloadIt->wrapperToken();
 	cond::GenericRef ref(*m_pooldb,tokenStr);
 	ref.markDelete();
 	ref.reset();
