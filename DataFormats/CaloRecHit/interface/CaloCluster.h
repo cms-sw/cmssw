@@ -7,7 +7,7 @@
  *
  * \author Shahram Rahatlou, INFN
  *
- * \version $Id: CaloCluster.h,v 1.4 2008/05/05 11:06:13 cbern Exp $
+ * \version $Id: CaloCluster.h,v 1.5 2009/01/27 09:51:08 ferriff Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
@@ -104,6 +104,10 @@ namespace reco {
     
     CaloID& caloID() {return caloID_;}
     const CaloID& caloID() const {return caloID_;}
+
+    void addHitAndFraction( DetId id, float fraction ) { 
+            hitsAndFractions_.push_back( std::pair<DetId, float>(id, fraction) );
+    }
 
     CaloCluster& operator=(const CaloCluster & rhs) {
       energy_ = rhs.energy_;
