@@ -9,7 +9,7 @@
 //
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
-// $Id: SiPixelTrackResidualSource.cc,v 1.3 2008/07/25 21:49:03 schuang Exp $
+// $Id: SiPixelTrackResidualSource.cc,v 1.4 2008/11/05 13:53:08 wehrlilu Exp $
 
 
 #include <iostream>
@@ -183,19 +183,19 @@ void SiPixelTrackResidualSource::beginJob(edm::EventSetup const& iSetup) {
   //on track
   dbe_->setCurrentFolder("Pixel/Clusters/OnTrack");
   meClChargeOnTrack_all = dbe_->book1D("charge_" + clustersrc_.label(),"Charge (on track)",500,0.,500.);
-  meClChargeOnTrack_all->setAxisTitle("Charge size (MeV)",1);
+  meClChargeOnTrack_all->setAxisTitle("Charge size (in ke)",1);
   meClChargeOnTrack_bpix = dbe_->book1D("charge_" + clustersrc_.label() + "_Barrel","Charge (on track, barrel)",500,0.,500.);
-  meClChargeOnTrack_bpix->setAxisTitle("Charge size (MeV)",1);
+  meClChargeOnTrack_bpix->setAxisTitle("Charge size (in ke)",1);
   meClChargeOnTrack_fpix = dbe_->book1D("charge_" + clustersrc_.label() + "_Endcap","Charge (on track, endcap)",500,0.,500.);
-  meClChargeOnTrack_fpix->setAxisTitle("Charge size (MeV)",1);
+  meClChargeOnTrack_fpix->setAxisTitle("Charge size (in ke)",1);
   //off track
   dbe_->setCurrentFolder("Pixel/Clusters/OffTrack");
   meClChargeNotOnTrack_all = dbe_->book1D("charge_" + clustersrc_.label(),"Charge (off track)",500,0.,500.);
-  meClChargeNotOnTrack_all->setAxisTitle("Charge size (MeV)",1);
+  meClChargeNotOnTrack_all->setAxisTitle("Charge size (in ke)",1);
   meClChargeNotOnTrack_bpix = dbe_->book1D("charge_" + clustersrc_.label() + "_Barrel","Charge (off track, barrel)",500,0.,500.);
-  meClChargeNotOnTrack_bpix->setAxisTitle("Charge size (MeV)",1);
+  meClChargeNotOnTrack_bpix->setAxisTitle("Charge size (in ke)",1);
   meClChargeNotOnTrack_fpix = dbe_->book1D("charge_" + clustersrc_.label() + "_Endcap","Charge (off track, endcap)",500,0.,500.);
-  meClChargeNotOnTrack_fpix->setAxisTitle("Charge size (MeV)",1);
+  meClChargeNotOnTrack_fpix->setAxisTitle("Charge size (in ke)",1);
   //size
   //on track
   dbe_->setCurrentFolder("Pixel/Clusters/OnTrack");
