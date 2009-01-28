@@ -10,5 +10,6 @@
   <class name="SimpleL4EMFCorrector"/>
   <class name="SimpleL5FlavorCorrector"/>
   <class name="SimpleL7PartonCorrector"/>
+  <class name="FWLiteJetCorrector"/>"
 </selection>
 </lcgdict>
