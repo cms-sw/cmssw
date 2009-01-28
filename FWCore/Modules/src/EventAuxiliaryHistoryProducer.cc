@@ -31,7 +31,7 @@ namespace edm
    //Serialize into std::vector 
    std::vector<EventAuxiliary> *  out = new   std::vector<EventAuxiliary>;
    std::auto_ptr<std::vector<EventAuxiliary > > result(out);
-   for(int j = 0 ; j < history_.size(); j++)  
+   for(size_t j = 0 ; j < history_.size(); j++)  
    { 
     out->push_back(history_[j]);
    }
