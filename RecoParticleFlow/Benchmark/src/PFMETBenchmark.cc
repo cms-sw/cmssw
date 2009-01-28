@@ -1,5 +1,5 @@
 #include "RecoParticleFlow/Benchmark/interface/PFMETBenchmark.h"
-#include "TCanvas.h"
+//#include "TCanvas.h"
 #include "TProfile.h"
 #include "TF1.h"
 #include "TH1F.h"
@@ -224,6 +224,7 @@ void PFMETBenchmark::analyse()
   SETAXES(rmsCalo,   "SET", "RMS(MEX)");
 
   // Make the MET resolution versus SET plot
+  /*
   TCanvas* canvas_MetResVsRecoSet = new TCanvas("MetResVsRecoSet", "MET Sigma vs Reco SET", 500,500);
   hsigmaPF->SetStats(0); 
   func1->SetLineColor(1); 
@@ -255,8 +256,10 @@ void PFMETBenchmark::analyse()
   hrmsCalo->SetLineWidth(2);
   hrmsCalo->SetLineColor(6);
   hrmsCalo->Draw("SAME");
+  */
 
   // Make the SET response versus SET plot
+  /*
   TCanvas* canvas_SetRespVsTrueSet = new TCanvas("SetRespVsTrueSet", "SET Response vs True SET", 500,500);
   profileSETvsSETresp->SetStats(0); 
   profileSETvsSETresp->SetStats(0); 
@@ -267,8 +270,10 @@ void PFMETBenchmark::analyse()
   profileCaloSETvsCaloSETresp->SetLineWidth(2); 
   profileCaloSETvsCaloSETresp->SetLineColor(2); 
   profileCaloSETvsCaloSETresp->Draw("SAME");
+  */
 
   // Make the MET response versus MET plot
+  /*
   TCanvas* canvas_MetRespVsTrueMet = new TCanvas("MetRespVsTrueMet", "MET Response vs True MET", 500,500);
   profileMETvsMETresp->SetStats(0); 
   profileMETvsMETresp->SetStats(0); 
@@ -279,11 +284,14 @@ void PFMETBenchmark::analyse()
   profileCaloMETvsCaloMETresp->SetLineWidth(2); 
   profileCaloMETvsCaloMETresp->SetLineColor(2); 
   profileCaloMETvsCaloMETresp->Draw("SAME");
+  */
 
   //print the resulting plots to file
+  /*
   canvas_MetResVsRecoSet->Print("MetResVsRecoSet.ps");
   canvas_SetRespVsTrueSet->Print("SetRespVsTrueSet.ps");
   canvas_MetRespVsTrueMet->Print("MetRespVsTrueMet.ps");  
+  */
 }
 
 void PFMETBenchmark::FitSlicesInY(TH2F* h, TH1F* mean, TH1F* sigma, bool doGausFit, int type )
