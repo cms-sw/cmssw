@@ -19,8 +19,8 @@
  <Constant name="rMin2"        value="[CalorBeamR2]+[zRat]*
                                       ([CalorBeamR1]-[CalorBeamR2])"/>
  <Constant name="rMin3"        value="1.712*m"/>
- <Constant name="Eta"          value="0.5655"/>
- <Constant name="Phi"          value="7.5*deg"/>
+ <Constant name="Eta"          value="1.562"/>
+ <Constant name="Phi"          value="2.5*deg"/>
 </ConstantsSection>
 
 <SolidSection label="TBHcal.xml">
