@@ -1,6 +1,6 @@
 /** \class HLTElectronDetaDphiFilter
  *
- * $Id: HLTElectronDetaDphiFilter.cc,v 1.6 2008/09/17 15:40:11 ghezzi Exp $ 
+ * $Id: HLTElectronDetaDphiFilter.cc,v 1.7 2009/01/15 14:31:49 covarell Exp $ 
  *
  *  \author Alessio Ghezzi (Milano-Bicocca & CERN)
  *
@@ -94,7 +94,7 @@ HLTElectronDetaDphiFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
     float deltaeta = mapieta->val;
     float deltaphi = mapiphi->val;
 
-    if( fabs(deltaeta) < DeltaEtacut_  &&  deltaphi < DeltaPhicut_ ){
+    if( deltaeta < DeltaEtacut_  &&  deltaphi < DeltaPhicut_ ){
       n++;
       filterproduct->addObject(TriggerElectron, eleref);
     }

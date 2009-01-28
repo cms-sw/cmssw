@@ -1,6 +1,10 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+// To be used in the future for any cut
+#include "HLTrigger/Egamma/interface/HLTEgammaGenericFilter.h"
+#include "HLTrigger/Egamma/interface/HLTElectronGenericFilter.h"
+
 #include "HLTrigger/Egamma/interface/HLTEgammaEtFilter.h"
 #include "HLTrigger/Egamma/interface/HLTEgammaDoubleEtFilter.h"
 #include "HLTrigger/Egamma/interface/HLTEgammaEcalIsolFilter.h"
@@ -28,6 +32,7 @@
 #include "HLTrigger/Egamma/interface/HLTEgammaTriggerFilterObjectWrapper.h"
 
 DEFINE_SEAL_MODULE();
+DEFINE_FWK_MODULE(HLTEgammaGenericFilter);
 DEFINE_ANOTHER_FWK_MODULE(HLTEgammaEtFilter);
 DEFINE_ANOTHER_FWK_MODULE(HLTEgammaDoubleEtFilter);
 DEFINE_ANOTHER_FWK_MODULE(HLTEgammaEcalIsolFilter);
@@ -45,6 +50,7 @@ DEFINE_ANOTHER_FWK_MODULE(HLTElectronTrackIsolFilterRegional);
 
 DEFINE_ANOTHER_FWK_MODULE(HLTEgammaDoubleEtPhiFilter);
 
+DEFINE_ANOTHER_FWK_MODULE(HLTElectronGenericFilter);
 DEFINE_ANOTHER_FWK_MODULE(HLTElectronOneOEMinusOneOPFilterRegional);
 DEFINE_ANOTHER_FWK_MODULE(HLTElectronDetaDphiFilter);
 DEFINE_ANOTHER_FWK_MODULE(HLTEgammaClusterShapeFilter);

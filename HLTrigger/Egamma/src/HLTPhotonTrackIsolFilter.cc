@@ -1,6 +1,6 @@
 /** \class HLTPhotonTrackIsolFilter
  *
- * $Id: HLTPhotonTrackIsolFilter.cc,v 1.8 2008/04/22 17:01:17 ghezzi Exp $
+ * $Id: HLTPhotonTrackIsolFilter.cc,v 1.9 2009/01/20 11:30:38 covarell Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -15,6 +15,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -87,14 +89,15 @@ HLTPhotonTrackIsolFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSet
     }
 
     float vali = mapi->val;
-    
+    float energy = ref->superCluster()->energy();
+
     if ( vali <= ptOrNumtrackisolcut_) {
       n++;
       filterproduct->addObject(TriggerPhoton, ref);
       continue;
     }
-    if (ref->pt() > 0.)
-      if ( vali/ref->pt() <= pttrackisolOverEcut_ || vali/(ref->pt()*ref->pt()) <= pttrackisolOverE2cut_ ) {
+    if (energy > 0.)
+      if ( vali/energy <= pttrackisolOverEcut_ || vali/(energy*energy) <= pttrackisolOverE2cut_ ) {
       n++;
       filterproduct->addObject(TriggerPhoton, ref);
     }
