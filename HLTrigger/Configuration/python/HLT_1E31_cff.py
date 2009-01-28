@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_0_0/pre7/1E31_V10/V1 (CMSSW_3_0_0_pre7)
+# /dev/CMSSW_3_0_0/pre7/1E31_V12/V1 (CMSSW_3_1_X_2009-01-28-0200_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_0_0/pre7/1E31_V10/V1')
+  tableName = cms.string('/dev/CMSSW_3_0_0/pre7/1E31_V12/V1')
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -218,6 +218,10 @@ MeasurementTracker = cms.ESProducer( "MeasurementTrackerESProducer",
   HitMatcher = cms.string( "StandardMatcher" ),
   Regional = cms.bool( True ),
   OnDemand = cms.bool( True ),
+  UsePixelModuleQualityDB = cms.bool( True ),
+  DebugPixelModuleQualityDB = cms.untracked.bool( False ),
+  UsePixelROCQualityDB = cms.bool( True ),
+  DebugPixelROCQualityDB = cms.untracked.bool( False ),
   UseStripModuleQualityDB = cms.bool( False ),
   DebugStripModuleQualityDB = cms.untracked.bool( False ),
   UseStripAPVFiberQualityDB = cms.bool( False ),
@@ -228,7 +232,8 @@ MeasurementTracker = cms.ESProducer( "MeasurementTrackerESProducer",
   switchOffPixelsIfEmpty = cms.bool( True ),
   pixelClusterProducer = cms.string( "hltSiPixelClusters" ),
   stripClusterProducer = cms.string( "hltSiStripClusters" ),
-  stripLazyGetterProducer = cms.string( "hltSiStripRawToClustersFacility" )
+  stripLazyGetterProducer = cms.string( "hltSiStripRawToClustersFacility" ),
+  appendToDataLabel = cms.string( "" )
 )
 MuonCkfTrajectoryBuilder = cms.ESProducer( "MuonCkfTrajectoryBuilderESProducer",
   ComponentName = cms.string( "muonCkfTrajectoryBuilder" ),
@@ -432,7 +437,9 @@ TTRHBuilderPixelOnly = cms.ESProducer( "TkTransientTrackingRecHitBuilderESProduc
   ComponentName = cms.string( "TTRHBuilderPixelOnly" ),
   StripCPE = cms.string( "Fake" ),
   PixelCPE = cms.string( "PixelCPEGeneric" ),
-  Matcher = cms.string( "StandardMatcher" )
+  Matcher = cms.string( "StandardMatcher" ),
+  ComputeCoarseLocalPositionFromDisk = cms.bool( False ),
+  appendToDataLabel = cms.string( "" )
 )
 TrackerRecoGeometryESProducer = cms.ESProducer( "TrackerRecoGeometryESProducer",
   appendToDataLabel = cms.string( "" )
@@ -445,7 +452,9 @@ WithTrackAngle = cms.ESProducer( "TkTransientTrackingRecHitBuilderESProducer",
   ComponentName = cms.string( "WithTrackAngle" ),
   StripCPE = cms.string( "StripCPEfromTrackAngle" ),
   PixelCPE = cms.string( "PixelCPEGeneric" ),
-  Matcher = cms.string( "StandardMatcher" )
+  Matcher = cms.string( "StandardMatcher" ),
+  ComputeCoarseLocalPositionFromDisk = cms.bool( False ),
+  appendToDataLabel = cms.string( "" )
 )
 bJetRegionalTrajectoryBuilder = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
   ComponentName = cms.string( "bJetRegionalTrajectoryBuilder" ),
@@ -649,9 +658,11 @@ pixellayertriplets = cms.ESProducer( "PixelLayerTripletsESProducer",
   )
 )
 softLeptonByDistance = cms.ESProducer( "LeptonTaggerByDistanceESProducer",
+  appendToDataLabel = cms.string( "" ),
   distance = cms.double( 0.5 )
 )
 softLeptonByPt = cms.ESProducer( "LeptonTaggerByPtESProducer",
+  appendToDataLabel = cms.string( "" ),
   ipSign = cms.string( "any" )
 )
 trackCounting3D2nd = cms.ESProducer( "TrackCountingESProducer",
@@ -4085,7 +4096,7 @@ hltFilterL2EtCutSingleLooseIsoTau20 = cms.EDFilter( "HLT1Tau",
 hltFilterL2EcalIsolationSingleLooseIsoTau20 = cms.EDFilter( "HLT1Tau",
     inputTag = cms.InputTag( 'hltL2TauRelaxingIsolationSelector','Isolated' ),
     saveTag = cms.untracked.bool( True ),
-    MinPt = cms.double( 15.0 ),
+    MinPt = cms.double( 20.0 ),
     MaxEta = cms.double( 5.0 ),
     MinN = cms.int32( 1 )
 )
@@ -4099,7 +4110,7 @@ hltFilterL2EtCutSingleLooseIsoTau20Trk5 = cms.EDFilter( "HLT1Tau",
 )
 hltFilterL2EcalIsolationSingleLooseIsoTau20Trk5 = cms.EDFilter( "HLT1Tau",
     inputTag = cms.InputTag( 'hltL2TauRelaxingIsolationSelector','Isolated' ),
-    MinPt = cms.double( 15.0 ),
+    MinPt = cms.double( 20.0 ),
     MaxEta = cms.double( 5.0 ),
     MinN = cms.int32( 1 )
 )
@@ -4279,7 +4290,7 @@ hltFilterL2EtCutDoubleLooseIsoTau15Trk5 = cms.EDFilter( "HLT1Tau",
 )
 hltFilterL2EcalIsolationDoubleLooseIsoTau15Trk5 = cms.EDFilter( "HLT1Tau",
     inputTag = cms.InputTag( 'hltL2TauRelaxingIsolationSelector','Isolated' ),
-    MinPt = cms.double( 20.0 ),
+    MinPt = cms.double( 15.0 ),
     MaxEta = cms.double( 5.0 ),
     MinN = cms.int32( 2 )
 )
@@ -4322,7 +4333,8 @@ hltBSoftmuonL25TagInfos = cms.EDProducer( "SoftLepton",
     refineJetAxis = cms.uint32( 0 ),
     leptonDeltaRCut = cms.double( 0.4 ),
     leptonChi2Cut = cms.double( 0.0 ),
-    leptonQualityCut = cms.double( 0.0 )
+    leptonQualityCut = cms.double( 0.0 ),
+    muonSelection = cms.uint32( 0 )
 )
 hltBSoftmuonL25BJetTags = cms.EDProducer( "JetTagProducer",
     jetTagComputer = cms.string( "softLeptonByDistance" ),
@@ -4342,7 +4354,8 @@ hltBSoftmuonL3TagInfos = cms.EDProducer( "SoftLepton",
     refineJetAxis = cms.uint32( 0 ),
     leptonDeltaRCut = cms.double( 0.4 ),
     leptonChi2Cut = cms.double( 0.0 ),
-    leptonQualityCut = cms.double( 0.0 )
+    leptonQualityCut = cms.double( 0.0 ),
+    muonSelection = cms.uint32( 0 )
 )
 hltBSoftmuonL3BJetTags = cms.EDProducer( "JetTagProducer",
     jetTagComputer = cms.string( "softLeptonByPt" ),
