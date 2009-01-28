@@ -13,7 +13,7 @@
 //
 // Original Author:  Grigory SAFRONOV
 //         Created:  Mon Oct  6 10:10:22 CEST 2008
-// $Id$
+// $Id: DQMHcalIsoTrackAlCaRaw.cc,v 1.1 2008/10/16 10:12:49 safronov Exp $
 //
 //
 
@@ -54,6 +54,11 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
+
+#include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
+#include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
+
 #include "TH1F.h"
 #include "TH2F.h"
 
@@ -67,12 +72,15 @@ public:
   
 private:
 
+  int evtBuf;
+
   DQMStore* dbe_;  
 
   virtual void beginJob(const edm::EventSetup&) ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
+  bool produceRates_;
   double sampleXsec_;
   double lumi_;
   std::string outTxtFileName_;
@@ -85,17 +93,53 @@ private:
   edm::InputTag gtDigiLabel_; 
   bool useReco_;
   edm::InputTag recoTracksLabel_;
+  bool checkL2_;
+  edm::InputTag l2colLabel_; 
+
+  bool checkL1eff_;
+  edm::InputTag genJetsLabel_;
+
+  bool produceRatePdep_;
   
-  MonitorElement* hl3tauMatch;
-  MonitorElement* hl1tauMatchPt;
-  MonitorElement* hl1tauPt;
   MonitorElement* hl3Pt;
+  MonitorElement* hL3L2trackMatch;
+  MonitorElement* hL3L2pTrat;
+  MonitorElement* hl3Pt0005;
+  MonitorElement* hl3Pt0510;
+  MonitorElement* hl3Pt1015;
+  MonitorElement* hl3Pt1520;
+  MonitorElement* hl3P0005;
+  MonitorElement* hl3P0510;
+  MonitorElement* hl3P1015;
+  MonitorElement* hl3P1520;
   MonitorElement* hl3eta;
   MonitorElement* hl3phi;
+
+  MonitorElement* hl3pVsEta;
+
   MonitorElement* hOffL3TrackMatch;
   MonitorElement* hOffL3TrackPtRat;
+
+  MonitorElement* hl2eta;
+  MonitorElement* hl2phi;
+  MonitorElement* hl2pT;
+  MonitorElement* hl2pVsEta;
+  MonitorElement* hisopT;
+  MonitorElement* hisopTvsEta;
+
   MonitorElement* haccepts;
   MonitorElement* hOffPvsEta;
+  MonitorElement* hpTgenLead;
+  MonitorElement* hpTgenLeadL1;
+  MonitorElement* hpTgenNext;
+  MonitorElement* hpTgenNextL1;
+  MonitorElement* hLeadTurnOn;
+  MonitorElement* hNextToLeadTurnOn;
+
+  MonitorElement* hRateVsThr;
+
+  MonitorElement* hPhiToGJ;
+  MonitorElement* hDistToGJ;
 
   std::vector<int> l1counter;
 
@@ -105,7 +149,19 @@ private:
   int nL1accepts;
   int nHLTL2accepts;
   int nHLTL3accepts;
+  int nHLTL3acceptsPure;
+
+  int nl3_0005;
+  int nl3_0510;
+  int nl3_1015;
+  int nl3_1520;
   
+  int purnl3_0005;
+  int purnl3_0510;
+  int purnl3_1015;
+  int purnl3_1520;
+
+  double hltPThr_;
 };
 
 double getDist(double eta1, double phi1, double eta2, double phi2)
@@ -119,121 +175,180 @@ double getDist(double eta1, double phi1, double eta2, double phi2)
 DQMHcalIsoTrackAlCaRaw::DQMHcalIsoTrackAlCaRaw(const edm::ParameterSet& iConfig)
 
 {
+  produceRates_=iConfig.getParameter<bool>("produceRates");
   sampleXsec_=iConfig.getParameter<double>("sampleCrossSection");
   lumi_=iConfig.getParameter<double>("luminosity");
   outTxtFileName_=iConfig.getParameter<std::string>("outputTxtFileName");
   
   folderName_ = iConfig.getParameter<std::string>("folderName");
   outRootFileName_=iConfig.getParameter<std::string>("outputRootFileName");
+
   hltEventTag_=iConfig.getParameter<edm::InputTag>("hltTriggerEventLabel");
   hltFilterTag_=iConfig.getParameter<edm::InputTag>("hltL3FilterLabel");
+
   l1extraJetTag_=iConfig.getParameter<std::vector<edm::InputTag> >("hltL1extraJetLabel");
   gtDigiLabel_=iConfig.getParameter<edm::InputTag>("gtDigiLabel");
+  checkL1eff_=iConfig.getParameter<bool>("CheckL1TurnOn");
+  genJetsLabel_=iConfig.getParameter<edm::InputTag>("genJetsLabel");
   l1seedNames_=iConfig.getParameter<std::vector<std::string> >("l1seedNames");
   useReco_=iConfig.getParameter<bool>("useReco");
   recoTracksLabel_=iConfig.getParameter<edm::InputTag>("recoTracksLabel");
+  checkL2_=iConfig.getParameter<bool>("DebugL2");
+  l2colLabel_=iConfig.getParameter<edm::InputTag>("L2producerLabel");
+  
+  produceRatePdep_=iConfig.getParameter<bool>("produceRatePdep");
+
+  hltPThr_=iConfig.getUntrackedParameter<double>("l3momThreshold",10);
   
   for (unsigned int i=0; i<l1seedNames_.size(); i++)
     {
       l1counter.push_back(0);
     }
 
-  txtout.open(outTxtFileName_.c_str());
+  if (produceRates_) txtout.open(outTxtFileName_.c_str());
 
   nTotal=0;
   nL1accepts=0;
   nHLTL2accepts=0;
   nHLTL3accepts=0;
+  nHLTL3acceptsPure=0;
+  
+  nl3_0005=0;
+  nl3_0510=0;
+  nl3_1015=0;
+  nl3_1520=0;
+  
+  purnl3_0005=0;
+  purnl3_0510=0;
+  purnl3_1015=0;
+  purnl3_1520=0;
 }
 
 
 DQMHcalIsoTrackAlCaRaw::~DQMHcalIsoTrackAlCaRaw()
 {
-  /*
-  hfile->cd();
-  hl3tauMatch->Write();
-  hl1tauMatchPt->Write();
-  hl1tauPt->Write();
-  hl3Pt->Write();
-  hl3eta->Write();
-  hl3phi->Write();
-  haccepts->Write();
-  hOffL3TrackMatch->Write();
-  hOffL3TrackPtRat->Write();
-  hOffPvsEta->Write();
-  hfile->Close();
-  */
-  double sampleRate=(lumi_)*(sampleXsec_*10E-36);
-  double l1Rate=nL1accepts*pow(nTotal,-1)*sampleRate;
-  double hltRate=nHLTL3accepts*pow(nL1accepts,-1)*l1Rate;
-
-  double l1rateError=l1Rate/sqrt(nL1accepts);
-  double hltRateError=hltRate/sqrt(nHLTL3accepts);
-
-  txtout<<std::setw(40)<<std::left<<"sample xsec(pb)"<<sampleXsec_<<std::endl;
-  txtout<<std::setw(40)<<std::left<<"lumi(cm^-2*s^-1)"<<lumi_<<std::endl;
-  txtout<<std::setw(40)<<std::left<<"Events processed/rate(Hz)"<<nTotal<<"/"<<sampleRate<<std::endl;
-  txtout<<std::setw(40)<<std::left<<"L1 accepts/(rate+-error (Hz))"<<nL1accepts<<"/("<<l1Rate<<"+-"<<l1rateError<<")"<<std::endl;
-  txtout<<std::setw(40)<<std::left<<"HLTL3accepts/(rate+-error (Hz))"<<nHLTL3accepts<<"/("<<hltRate<<"+-"<<hltRateError<<")"<<std::endl;
+  if (produceRates_)
+    {
+      double sampleRate=(lumi_)*(sampleXsec_*1E-36);
+      double l1Rate=nL1accepts*pow(nTotal,-1)*sampleRate;
+      double hltRate=nHLTL3accepts*pow(nL1accepts,-1)*l1Rate;
+      double hltRatePure=nHLTL3acceptsPure*pow(nL1accepts,-1)*l1Rate;
+      
+      double l1rateError=l1Rate/sqrt(nL1accepts);
+      double hltRateError=hltRate/sqrt(nHLTL3accepts);
+      double hltRatePureError=hltRatePure/sqrt(nHLTL3acceptsPure);
+      
+      double rate_0005=nl3_0005*pow(nL1accepts,-1)*l1Rate;
+      double rate_0510=nl3_0510*pow(nL1accepts,-1)*l1Rate;
+      double rate_1015=nl3_1015*pow(nL1accepts,-1)*l1Rate;
+      double rate_1520=nl3_1520*pow(nL1accepts,-1)*l1Rate;
+      
+      double prate_0005=purnl3_0005*pow(nL1accepts,-1)*l1Rate;
+      double prate_0510=purnl3_0510*pow(nL1accepts,-1)*l1Rate;
+      double prate_1015=purnl3_1015*pow(nL1accepts,-1)*l1Rate;
+      double prate_1520=purnl3_1520*pow(nL1accepts,-1)*l1Rate;
+      
+      txtout<<std::setw(50)<<std::left<<"sample xsec(pb)"<<sampleXsec_<<std::endl;
+      txtout<<std::setw(50)<<std::left<<"lumi(cm^-2*s^-1)"<<lumi_<<std::endl;
+      txtout<<std::setw(50)<<std::left<<"Events processed/rate(Hz)"<<nTotal<<"/"<<sampleRate<<std::endl;
+      txtout<<std::setw(50)<<std::left<<"L1 accepts/(rate+-error (Hz))"<<nL1accepts<<"/("<<l1Rate<<"+-"<<l1rateError<<")"<<std::endl;
+      txtout<<std::setw(50)<<std::left<<"HLTL3accepts/(rate+-error (Hz))"<<nHLTL3accepts<<"/("<<hltRate<<"+-"<<hltRateError<<")"<<std::endl;
+      txtout<<std::setw(50)<<std::left<<"L3 acc. |eta|<0.5 / rate"<<nl3_0005<<" / "<<rate_0005<<std::endl;
+      txtout<<std::setw(50)<<std::left<<"L3 acc. |eta|>0.5 && |eta|<1.0 / rate"<<nl3_0510<<" / "<<rate_0510<<std::endl;
+      txtout<<std::setw(50)<<std::left<<"L3 acc. |eta|>1.0 && |eta|<1.5 / rate"<<nl3_1015<<" / "<<rate_1015<<std::endl;
+      txtout<<std::setw(50)<<std::left<<"L3 acc. |eta|>1.5 && |eta|<2.0 / rate"<<nl3_1520<<" / "<<rate_1520<<std::endl;
+      txtout<<"\n"<<std::endl;
+      txtout<<std::setw(50)<<std::left<<"HLTL3acceptsPure/(rate+-error (Hz))"<<nHLTL3acceptsPure<<"/("<<hltRatePure<<"+-"<<hltRatePureError<<")"<<std::endl; 
+      txtout<<std::setw(50)<<std::left<<"pure L3 acc. |eta|<0.5 / rate"<<purnl3_0005<<" / "<<prate_0005<<std::endl;
+      txtout<<std::setw(50)<<std::left<<"pure L3 acc. |eta|>0.5 && |eta|<1.0 / rate"<<purnl3_0510<<" / "<<prate_0510<<std::endl;
+      txtout<<std::setw(50)<<std::left<<"pure L3 acc. |eta|>1.0 && |eta|<1.5 / rate"<<purnl3_1015<<" / "<<prate_1015<<std::endl;
+      txtout<<std::setw(50)<<std::left<<"pure L3 acc. |eta|>1.5 && |eta|<2.0 / rate"<<purnl3_1520<<" / "<<prate_1520<<std::endl;
+    }
 }
 
 void DQMHcalIsoTrackAlCaRaw::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   nTotal++;
   haccepts->Fill(0.0001,1);
-  edm::ESHandle<L1GtTriggerMenu> menuRcd;
-  iSetup.get<L1GtTriggerMenuRcd>().get(menuRcd) ;
-  const L1GtTriggerMenu* menu = menuRcd.product();
-  const AlgorithmMap& bitMap = menu->gtAlgorithmMap();
-  
-  edm::ESHandle<L1GtPrescaleFactors> l1GtPfAlgo;
-  iSetup.get<L1GtPrescaleFactorsAlgoTrigRcd>().get(l1GtPfAlgo);        
-  const L1GtPrescaleFactors* preFac = l1GtPfAlgo.product();
-  const std::vector< std::vector< int > > prescaleSet=preFac->gtPrescaleFactors(); 
-  
-  if (prescaleSet.size()>1) std::cout<<"multiple prescale sets"<<std::endl;
-  
-  edm::Handle< L1GlobalTriggerReadoutRecord > gtRecord;
-  iEvent.getByLabel(gtDigiLabel_ ,gtRecord);
-  const DecisionWord dWord = gtRecord->decisionWord(); 
-  
+
+  double phiGJLead=-10000;
+  double etaGJLead=-10000;
+
   bool l1pass=false;
-  
-  for (unsigned int i=0; i<l1seedNames_.size(); i++)
+
+  if (produceRates_)
     {
-      int l1seedBitNumber=-10;
-      for (CItAlgo itAlgo = bitMap.begin(); itAlgo != bitMap.end(); itAlgo++) 
+      edm::ESHandle<L1GtTriggerMenu> menuRcd;
+      iSetup.get<L1GtTriggerMenuRcd>().get(menuRcd) ;
+      const L1GtTriggerMenu* menu = menuRcd.product();
+      const AlgorithmMap& bitMap = menu->gtAlgorithmMap();
+
+      edm::ESHandle<L1GtPrescaleFactors> l1GtPfAlgo;
+      iSetup.get<L1GtPrescaleFactorsAlgoTrigRcd>().get(l1GtPfAlgo);        
+      const L1GtPrescaleFactors* preFac = l1GtPfAlgo.product();
+      const std::vector< std::vector< int > > prescaleSet=preFac->gtPrescaleFactors(); 
+      
+      edm::Handle< L1GlobalTriggerReadoutRecord > gtRecord;
+      iEvent.getByLabel(gtDigiLabel_ ,gtRecord);
+      const DecisionWord dWord = gtRecord->decisionWord(); 
+      
+      for (unsigned int i=0; i<l1seedNames_.size(); i++)
 	{
-	  if (itAlgo->first==l1seedNames_[i]) l1seedBitNumber = (itAlgo->second).algoBitNumber();
-	}
-      int prescale=prescaleSet[0][l1seedBitNumber];
-      if (menu->gtAlgorithmResult( l1seedNames_[i], dWord)) 
-	{
-	  l1counter[i]++;
-	  if (l1counter[i]%prescale==0)
+	  int l1seedBitNumber=-10;
+	  for (CItAlgo itAlgo = bitMap.begin(); itAlgo != bitMap.end(); itAlgo++) 
 	    {
-	      l1pass=true;
-	      break;
+	      if (itAlgo->first==l1seedNames_[i]) l1seedBitNumber = (itAlgo->second).algoBitNumber();
+	    }
+	  int prescale=prescaleSet[0][l1seedBitNumber];
+	  //          std::cout<<l1seedNames_[i]<<"  "<<prescale<<std::endl;
+	  if (menu->gtAlgorithmResult( l1seedNames_[i], dWord)) 
+	    {
+	      l1counter[i]++;
+	      //	  if (l1counter[i]%prescale==0)   avoid double-prescaling 
+	      //   (think in future how to apply prescales here to unprescaled gtDigis)
+	      if (l1counter[i]%prescale==0)
+		{
+		  l1pass=true;
+		  break;
+		}
+	    }
+	}
+	
+      if (checkL1eff_) 
+	{
+	  edm::Handle<reco::GenJetCollection> gjcol;
+	  iEvent.getByLabel(genJetsLabel_,gjcol);
+	  
+	  reco::GenJetCollection::const_iterator gjit=gjcol->begin();
+	  if (gjit!=gjcol->end())
+	    {
+	      etaGJLead=gjit->eta();
+	      phiGJLead=gjit->phi();
+	      hpTgenLead->Fill(gjit->pt(),1);
+	      if (l1pass) hpTgenLeadL1->Fill(gjit->pt(),1);
+	      gjit++;
+	    }
+	  if (gjit!=gjcol->end())
+	    {
+	      hpTgenNext->Fill(gjit->pt(),1);
+	      if (l1pass) hpTgenNextL1->Fill(gjit->pt(),1);
 	    }
 	}
       
+      if (!l1pass) return;
+      else haccepts->Fill(1+0.0001,1);
+      
+      nL1accepts++;
     }
-  if (!l1pass) return;
-  else haccepts->Fill(1+0.0001,1);
-  
-  nL1accepts++;
+
+  edm::Handle<reco::IsolatedPixelTrackCandidateCollection> l2col;
+  if (checkL2_)
+    {
+      iEvent.getByLabel(l2colLabel_,l2col);
+    }
   
   edm::Handle<trigger::TriggerEvent> trEv;
   iEvent.getByLabel(hltEventTag_,trEv);
-  
-  edm::Handle<l1extra::L1JetParticleCollection> l1cjets;
-  iEvent.getByLabel(l1extraJetTag_[1],l1cjets);
-  
-  edm::Handle<l1extra::L1JetParticleCollection> l1fjets;
-  iEvent.getByLabel(l1extraJetTag_[2],l1fjets);
-  
-  edm::Handle<l1extra::L1JetParticleCollection> l1tjets;
-  iEvent.getByLabel(l1extraJetTag_[0],l1tjets);
   
   edm::Handle<reco::TrackCollection> recoTr;
   
@@ -241,39 +356,112 @@ void DQMHcalIsoTrackAlCaRaw::analyze(const edm::Event& iEvent, const edm::EventS
     {
       iEvent.getByLabel(recoTracksLabel_,recoTr);
     }
-  
+
   const trigger::TriggerObjectCollection& TOCol(trEv->getObjects());
   
   trigger::Keys KEYS;
   const trigger::size_type nFilt(trEv->sizeFilters());
+
+  int nFired=0;
+
+  bool passl3=false;
+
   for (trigger::size_type iFilt=0; iFilt!=nFilt; iFilt++) 
     {
+      trigger::Keys KEYS1=trEv->filterKeys(iFilt);
+      if (KEYS1.size()>0) nFired++;
       if (trEv->filterTag(iFilt)==hltFilterTag_) KEYS=trEv->filterKeys(iFilt);
-      
     }
+
   trigger::size_type nReg=KEYS.size();
-  if (nReg>0) 
+
+  if (nFired==2&&nReg>0)  
     {
-      nHLTL3accepts++;
-      haccepts->Fill(2+0.0001,1);
+      nHLTL3acceptsPure++;
+      for (trigger::size_type iReg=0; iReg<nReg; iReg++)
+	{
+	  const trigger::TriggerObject& TObj(TOCol[KEYS[iReg]]);
+          if (TObj.pt()*cosh(TObj.eta())<10) continue;
+	  if (fabs(TObj.eta())<0.5) purnl3_0005++;
+	  if (fabs(TObj.eta())>0.5&&fabs(TObj.eta())<1.0) purnl3_0510++;
+	  if (fabs(TObj.eta())>1.0&&fabs(TObj.eta())<1.5) purnl3_1015++;
+	  if (fabs(TObj.eta())<2.0&&fabs(TObj.eta())>1.5) purnl3_1520++;
+	}
     }
+
   for (trigger::size_type iReg=0; iReg<nReg; iReg++)
     {
       const trigger::TriggerObject& TObj(TOCol[KEYS[iReg]]);
+
+      if (produceRatePdep_){
+	for (int i=0; i<50; i++)
+	  {
+	    double pthr=5+i;
+	    if (TObj.pt()*cosh(TObj.eta())>pthr&&fabs(TObj.eta())<1.0) hRateVsThr->Fill(pthr+0.001,1);
+	  }
+      }
+
+      if (TObj.pt()*cosh(TObj.eta())<hltPThr_) continue;
+      
+      passl3=true;
+
+      double dphiGJ=fabs(TObj.phi()-phiGJLead);
+      if (dphiGJ>acos(-1)) dphiGJ=2*acos(-1)-dphiGJ;
+      double dR=sqrt(dphiGJ*dphiGJ+pow(TObj.eta()-etaGJLead,2));
+      hPhiToGJ->Fill(dphiGJ,1);
+      hDistToGJ->Fill(dR,1);
+
       hl3eta->Fill(TObj.eta(),1);
       hl3phi->Fill(TObj.phi(),1);
-      l1extra::L1JetParticleCollection::const_iterator mjet;
-      double minR=100;
-      for (l1extra::L1JetParticleCollection::const_iterator l1tjit=l1tjets->begin(); l1tjit!=l1tjets->end(); l1tjit++)
+      if (fabs(TObj.eta())<0.5) 
 	{
-	  double R=getDist(l1tjit->eta(),l1tjit->phi(),TObj.eta(),TObj.phi());
-	  if (R<minR) 
+	hl3P0005->Fill(cosh(TObj.eta())*TObj.pt(),1);
+	hl3Pt0005->Fill(TObj.pt(),1);
+	nl3_0005++;
+	}
+      if (fabs(TObj.eta())>0.5&&fabs(TObj.eta())<1.0) 
+	{
+	nl3_0510++;
+	hl3P0510->Fill(cosh(TObj.eta())*TObj.pt(),1);
+	hl3Pt0510->Fill(TObj.pt(),1);
+	}
+      if (fabs(TObj.eta())>1.0&&fabs(TObj.eta())<1.5) 
+	{
+	nl3_1015++;
+	hl3P1015->Fill(cosh(TObj.eta())*TObj.pt(),1);
+        hl3Pt1015->Fill(TObj.pt(),1);
+        } 
+      if (fabs(TObj.eta())<2.0&&fabs(TObj.eta())>1.5) 
+	{
+	nl3_1520++;
+	hl3P1520->Fill(cosh(TObj.eta())*TObj.pt(),1);
+        hl3Pt1520->Fill(TObj.pt(),1);
+        }
+      if (l2col->size()==0) continue;
+      double l2l3d=100;
+      reco::IsolatedPixelTrackCandidateCollection::const_iterator l2match;
+      for (reco::IsolatedPixelTrackCandidateCollection::const_iterator eptit=l2col->begin(); eptit!=l2col->end(); eptit++) 
+	{
+	  hl2pT->Fill(eptit->track()->pt(),1);
+	  hl2eta->Fill(eptit->track()->eta(),1);
+	  hl2phi->Fill(eptit->track()->phi(),1);
+	  hl2pVsEta->Fill(eptit->track()->eta(),eptit->track()->p(),1);
+	  hisopT->Fill(eptit->maxPtPxl(),1);
+	  hisopTvsEta->Fill(eptit->track()->eta(),eptit->maxPtPxl(),1);
+
+	  double R=getDist(eptit->eta(), eptit->phi(), TObj.eta(), TObj.phi());
+	  if (R<l2l3d) 
 	    {
-	      minR=R;
-	      mjet=l1tjit;
+	      l2match=eptit;
+	      l2l3d=R;
 	    }
 	}
-      if (recoTr->size()>0)
+
+      hL3L2trackMatch->Fill(l2l3d,1);
+      hL3L2pTrat->Fill(l2match->pt()/TObj.pt(),1);
+      hl3Pt->Fill(TObj.pt(),1);
+
+      if (useReco_&&recoTr->size()>0)
 	{
 	  double minRecoL3dist=100;
 	  reco::TrackCollection::const_iterator mrtr;
@@ -290,17 +478,12 @@ void DQMHcalIsoTrackAlCaRaw::analyze(const edm::Event& iEvent, const edm::EventS
 	  hOffL3TrackPtRat->Fill(TObj.pt()/mrtr->pt(),1);
 	  hOffPvsEta->Fill(mrtr->eta(),mrtr->p(),1);
 	}
+    }
 
-      hl3Pt->Fill(TObj.pt(),1);
-      hl1tauMatchPt->Fill(mjet->pt(),1);
-      hl3tauMatch->Fill(minR,1);
-    }
-  
-  for (l1extra::L1JetParticleCollection::const_iterator l1tjit=l1tjets->begin(); l1tjit!=l1tjets->end(); l1tjit++)
-    {
-      hl1tauPt->Fill(l1tjit->pt(),1);
-    }
-  
+if (passl3) nHLTL3accepts++;
+
+if (!l1pass||!passl3) return;
+
 }
 
 void DQMHcalIsoTrackAlCaRaw::beginJob(const edm::EventSetup&)
@@ -308,23 +491,70 @@ void DQMHcalIsoTrackAlCaRaw::beginJob(const edm::EventSetup&)
   dbe_ = edm::Service<DQMStore>().operator->();
   dbe_->setCurrentFolder(folderName_);
 
-  hl3tauMatch=dbe_->book1D("hl3tauMatch","R from L3 object to L1tauJet ",100,0,5);
-  hl3tauMatch->setAxisTitle("R(eta,phi)",1);
+  hRateVsThr=dbe_->book1D("hRatesVsThr","hRateVsThr",100,0,100);
+
+  hPhiToGJ=dbe_->book1D("hPhiToGJ","hPhiToGJ",100,0,4);
+
+  hDistToGJ=dbe_->book1D("hDistToGJ","hDistToGJ",100,0,10);
+
+  hL3L2trackMatch=dbe_->book1D("hL3L2trackMatch","R from L3 object to L2 object ",1000,0,1);
+  hL3L2trackMatch->setAxisTitle("R(eta,phi)",1);
  
-  hl1tauMatchPt=dbe_->book1D("hl1tauMatchPt","pT of matched L1tauJets",1000,0,100);
-  hl1tauMatchPt->setAxisTitle("pT(GeV)",1);
+  hL3L2pTrat=dbe_->book1D("hL3L2pTrat","ratio of L2 to L3 measurement",1000,0,10);
+  hL3L2pTrat->setAxisTitle("pT_L2/pT_L3",1);
 
-  hl1tauPt=dbe_->book1D("hl1tauPt","pT of all L1tauJets",1000,0,100);
-  hl1tauPt->setAxisTitle("pT(GeV)",1);
-
-  hl3Pt=dbe_->book1D("hl3Pt","pT of L3 objects",1000,0,1000);
+  hl3Pt=dbe_->book1D("hl3Pt","pT of L3 objects",1000,0,100);
   hl3Pt->setAxisTitle("pT(GeV)",1);
+
+  hl3Pt0005=dbe_->book1D("hl3Pt0005","hl3Pt0005",1000,0,100);
+  hl3Pt0005->setAxisTitle("pT(GeV)",1);
+
+  hl3Pt0510=dbe_->book1D("hl3Pt0510","hl3Pt0510",1000,0,100);
+  hl3Pt0510->setAxisTitle("pT(GeV)",1);
+
+  hl3Pt1015=dbe_->book1D("hl3Pt1015","hl3Pt1015",1000,0,100);
+  hl3Pt1015->setAxisTitle("pT(GeV)",1);
+
+  hl3Pt1520=dbe_->book1D("hl3Pt1520","hl3Pt1520",1000,0,100);
+  hl3Pt1520->setAxisTitle("pT(GeV)",1);
+
+  hl3P0005=dbe_->book1D("hl3P0005","hl3P0005",1000,0,100);
+  hl3P0005->setAxisTitle("P(GeV)",1);
+
+  hl3P0510=dbe_->book1D("hl3P0510","hl3P0510",1000,0,100);
+  hl3P0510->setAxisTitle("P(GeV)",1);
+
+  hl3P1015=dbe_->book1D("hl3P1015","hl3P1015",1000,0,100);
+  hl3P1015->setAxisTitle("P(GeV)",1);
+
+  hl3P1520=dbe_->book1D("hl3P1520","hl3P1520",1000,0,100);
+  hl3P1520->setAxisTitle("P(GeV)",1);
 
   hl3eta=dbe_->book1D("hl3eta","eta of L3 objects",50,-2.5,2.5);
   hl3eta->setAxisTitle("eta",1);
 
   hl3phi=dbe_->book1D("hl3phi","phi of L3 objects",70,-3.5,3.5);
-  hl3phi->setAxisTitle("phi",1);
+  hl3phi->setAxisTitle("phi(rad)",1);
+
+  hl2pT=dbe_->book1D("hl2pT","pT of L2 objects",1000,0,1000);
+  hl2pT->setAxisTitle("pT(GeV)",1);
+
+  hl2eta=dbe_->book1D("hl2eta","eta of L2 objects",50,-2.5,2.5);
+  hl2eta->setAxisTitle("eta",1);
+
+  hl2phi=dbe_->book1D("hl2phi","phi of L2 objects",70,-3.5,3.5);
+  hl2phi->setAxisTitle("phi(rad)",1);
+
+  hisopT=dbe_->book1D("hisopT","isolation pT",100,0,5.5);
+  hisopT->setAxisTitle("iso pT (GeV)",1);
+
+  hisopTvsEta=dbe_->book2D("hisopTvsEta","isolation pT vs Eta",8,-2,2,100,0,5.5);
+  hisopTvsEta->setAxisTitle("eta",1);
+  hisopTvsEta->setAxisTitle("iso pT (GeV)",2);
+
+  hl2pVsEta=dbe_->book2D("hl2pVsEta","Distribution of l2 track energy vs eta",25,-2.5,2.5,100,0,100);
+  hl2pVsEta->setAxisTitle("eta",1);
+  hl2pVsEta->setAxisTitle("E(GeV)",2);
 
   haccepts=dbe_->book1D("haccepts","Number of accepts at each level",3,0,3);
   haccepts->setAxisTitle("selection level",1);
@@ -338,12 +568,44 @@ void DQMHcalIsoTrackAlCaRaw::beginJob(const edm::EventSetup&)
   hOffPvsEta=dbe_->book2D("hOffPvsEta","Distribution of offline track energy vs eta",25,-2.5,2.5,100,0,100);
   hOffPvsEta->setAxisTitle("eta",1);
   hOffPvsEta->setAxisTitle("E(GeV)",2);
+
+  hpTgenLead=dbe_->book1D("hpTgenLead","hpTgenLead",100,0,100);
+  
+  hpTgenLeadL1=dbe_->book1D("hpTgenLeadL1","hpTgenLeadL1",100,0,100);
+
+  hpTgenNext=dbe_->book1D("hpTgenNext","hpTgenNext",100,0,100);
+
+  hpTgenNextL1=dbe_->book1D("hpTgenNextL1","hpTgenNextL1",100,0,100);
+  
+  hLeadTurnOn=dbe_->book1D("hLeadTurnOn","hLeadTurnOn",100,0,100);
+  hNextToLeadTurnOn=dbe_->book1D("hNextToLeadTurnOn","hNextToLeadTurnOn",100,0,100);
 }
 
 void DQMHcalIsoTrackAlCaRaw::endJob() {
 
-if(dbe_) {  
-      dbe_->save(outRootFileName_);
+if(dbe_) 
+  {  
+    TH1F* hpTgLe=hpTgenLead->getTH1F();
+    TH1F* hpTgNe=hpTgenNext->getTH1F();
+    
+    TH1F* hpTgLeL1=hpTgenLeadL1->getTH1F();
+    TH1F* hpTgNeL1=hpTgenNextL1->getTH1F();
+
+    hpTgLe->TH1F::Sumw2();
+    hpTgNe->TH1F::Sumw2();
+    hpTgLeL1->TH1F::Sumw2();
+    hpTgNeL1->TH1F::Sumw2();
+    
+    TH1F* hLTurnOn=new TH1F("hLTurnOn","hLTurnOn",100,0,100);
+    TH1F* hNLTurnOn=new TH1F("hNLTurnOn","hNLTurnOn",100,0,100);
+
+    hLTurnOn->Divide(hpTgLeL1,hpTgLe,1,1);
+    hNLTurnOn->Divide(hpTgNeL1,hpTgNe,1,1); 
+
+    hLeadTurnOn=dbe_->book1D("hLeadTurnOn",hLTurnOn);
+    hNextToLeadTurnOn=dbe_->book1D("hNextToLeadTurnOn",hNLTurnOn);
+
+    dbe_->save(outRootFileName_);
   }
 }
 
