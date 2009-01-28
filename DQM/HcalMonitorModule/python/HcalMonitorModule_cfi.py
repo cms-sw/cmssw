@@ -24,6 +24,8 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            HcalAnalysis = cms.untracked.bool(False),
                            HotCells = cms.untracked.vstring(),
                            checkNevents = cms.untracked.int32(250),
+
+                           FEDRawDataCollection = cms.untracked.InputTag("source"),
                            
                            #minimum Error Rate that will cause problem histograms to be filled.  Should normally be 0, or close to it?
                            minErrorFlag = cms.untracked.double(0.05), 

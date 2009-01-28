@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/01/21 17:56:33 $
- * $Revision: 1.101 $
+ * $Date: 2009/01/21 18:10:43 $
+ * $Revision: 1.102 $
  * \author W Fisher
  * \author J Temple
  *
@@ -63,6 +63,9 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   
   showTiming_ = ps.getUntrackedParameter<bool>("showTiming", false);
   dump2database_   = ps.getUntrackedParameter<bool>("dump2database",false); // dumps output to database file
+
+  FEDRawDataCollection_ = ps.getUntrackedParameter<edm::InputTag>("FEDRawDataCollection",edm::InputTag("source",""));
+  cout <<"FED = "<<FEDRawDataCollection_<<endl;
 
   // Valgrind complained when the test was simply:  if ( ps.getUntrackedParameter<bool>("DataFormatMonitor", false))
   // try assigning value to bool first?
@@ -562,7 +565,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   edm::Handle<FEDRawDataCollection> rawraw;  
 
   // Trying new getByLabel
-  if (!(e.getByLabel("source",rawraw)))
+  if (!(e.getByLabel(FEDRawDataCollection_,rawraw)))
     {
       rawOK_=false;
       LogWarning("HcalMonitorModule")<<" source not available";
@@ -626,13 +629,27 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 
   // check which Subdetectors are on by seeing which are reading out FED data
   // Assume subdetectors aren't present, unless we explicitly find otherwise
-  if ((checkHB_ && HBpresent_==0) ||
-      (checkHE_ && HEpresent_==0) ||
-      (checkHO_ && HOpresent_==0) ||
-      (checkHF_ && HFpresent_==0))
-  
-    CheckSubdetectorStatus(*rawraw,*report,*readoutMap_,*hbhe_digi, *ho_digi, *hf_digi);
-    
+
+  if (digiOK_ && rawOK_)
+    { 
+      if ((checkHB_ && HBpresent_==0) ||
+	  (checkHE_ && HEpresent_==0) ||
+	  (checkHO_ && HOpresent_==0) ||
+	  (checkHF_ && HFpresent_==0))
+	
+	CheckSubdetectorStatus(*rawraw,*report,*readoutMap_,*hbhe_digi, *ho_digi, *hf_digi);
+    }
+  else
+    {
+      // Is this the behavior we want?
+      if (debug_>1)
+	cout <<"<HcalMonitorModule::analyze>  digiOK or rawOK error.  Assuming all subdetectors present."<<endl;
+      HBpresent_=1;
+      HEpresent_=1;
+      HOpresent_=1;
+      HFpresent_=1;
+    }
+
   // Case where all subdetectors have no raw data -- skip event
   if ((checkHB_ && HBpresent_==0) &&
       (checkHE_ && HEpresent_==0) &&
