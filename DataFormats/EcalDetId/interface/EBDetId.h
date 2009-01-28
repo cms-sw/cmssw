@@ -3,6 +3,7 @@
 
 #include <ostream>
 #include <cmath>
+#include <cstdlib>
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
@@ -12,7 +13,7 @@
  *  Crystal identifier class for the ECAL barrel
  *
  *
- *  $Id: EBDetId.h,v 1.22 2008/06/25 22:11:14 heltsley Exp $
+ *  $Id: EBDetId.h,v 1.23 2008/10/15 15:14:15 heltsley Exp $
  */
 
 

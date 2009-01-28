@@ -2,6 +2,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 //#include <iostream>
+#include <algorithm>
 const int EBDetId::kModuleBoundaries[4] = { 25, 45, 65, 85 };
 
 EBDetId
