@@ -2,7 +2,7 @@
  *
  *  \author Roberto Covarelli (CERN)
  * 
- * $Id: EgammaHLTElectronDetaDphiProducer.cc,v 1.4 2008/10/10 14:05:21 covarell Exp $
+ * $Id: EgammaHLTElectronDetaDphiProducer.cc,v 1.1 2009/01/15 14:28:28 covarell Exp $
  *
  */
 
@@ -89,7 +89,7 @@ EgammaHLTElectronDetaDphiProducer::produce(edm::Event& iEvent, const edm::EventS
     const math::XYZVector trackMom =  eleref->track()->momentum();
     
     math::XYZPoint SCcorrPosition(theClus->x()-BSPosition.x(), theClus->y()-BSPosition.y() , theClus->z()-eleref->track()->vz() );
-    float deltaeta = SCcorrPosition.eta()-eleref->track()->eta();
+    float deltaeta = fabs(SCcorrPosition.eta()-eleref->track()->eta());
     float deltaphi;
 
     if (useTrackProjectionToEcal_) { 
