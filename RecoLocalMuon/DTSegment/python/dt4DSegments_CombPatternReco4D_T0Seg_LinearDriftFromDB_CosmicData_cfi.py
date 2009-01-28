@@ -15,3 +15,6 @@ dt4DSegments = cms.EDProducer("DTRecSegment4DProducer",
 )
 dt4DSegments.Reco4DAlgoConfig.performT0SegCorrection = True
 dt4DSegments.Reco4DAlgoConfig.performT0_vdriftSegCorrection = True
+
+dt4DSegments.Reco4DAlgoConfig.Reco2DAlgoConfig.performT0SegCorrection = True
+dt4DSegments.Reco4DAlgoConfig.Reco2DAlgoConfig.performT0_vdriftSegCorrection = True
