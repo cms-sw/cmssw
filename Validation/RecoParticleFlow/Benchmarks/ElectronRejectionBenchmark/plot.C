@@ -28,10 +28,8 @@ bool normHists= true;
 TString plotDir = "./";
 TString plotName = plotDir+"tauBenchmarkElecRej";
 
-TFile f1("tauBenchmarkElecRejection.root");
-TFile f2("tauBenchmarkElecRejection.root");
-//TFile f1("tauBenchmarkElecRejection_zee.root");
-//TFile f2("tauBenchmarkElecRejection_ztt.root");
+TFile f1("tauBenchmarkElecRejection_zee.root");
+TFile f2("tauBenchmarkElecRejection_ztt.root");
 
 TString dir = "DQMData/PFTask/Benchmarks/PFTauElecRejection/Gen";
 
