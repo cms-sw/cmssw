@@ -8,7 +8,7 @@
 //
 // Original Author:  Monica Vazquez Acosta
 //         Created:  Tue Jun 13 12:17:19 CEST 2006
-// $Id: EgammaHLTTrackIsolation.cc,v 1.3 2008/10/10 14:07:09 covarell Exp $
+// $Id: EgammaHLTTrackIsolation.cc,v 1.4 2009/01/20 11:31:30 covarell Exp $
 //
 
 // system include files
@@ -119,19 +119,26 @@ std::pair<int,float> EgammaHLTTrackIsolation::findIsoTracks(GlobalVector mom, Gl
     float R = sqrt( dphi*dphi + deta*deta );
 
     // Apply boundary cut
-    bool selected=false;
+    // bool selected=false;
 
-    if (pt > ptMin && R < conesize &&
-	fabs(dperp) < rspan && fabs(dz) < zspan) selected=true;
+    // if (pt > ptMin && R < conesize &&
+    //	fabs(dperp) < rspan && fabs(dz) < zspan) selected=true;
   
-    if (selected) {
-      ntrack++;
-      if (!isElectron || R > vetoConesize) ptSum+=pt; //to exclude electron track
-    }
+    // if (selected) {
+    //  ntrack++;
+    //  if (!isElectron || R > vetoConesize) ptSum+=pt; //to exclude electron track
+    // }
+    // float theVetoVar = R;
+    // if (isElectron) theVetoVar = R;  
 
+    if (pt > ptMin && R < conesize && R > vetoConesize &&
+        fabs(dperp) < rspan && fabs(dz) < zspan) {
+      ntrack++;
+      ptSum+=pt; 
+    }
   }
 
-  if (isElectron) ntrack-=1; //to exclude electron track
+  // if (isElectron) ntrack-=1; //to exclude electron track
 
   return (std::pair<int,float>(ntrack,ptSum));
 
