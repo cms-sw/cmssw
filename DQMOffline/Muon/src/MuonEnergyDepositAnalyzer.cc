@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/26 14:26:39 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/12/02 11:21:58 $
+ *  $Revision: 1.12 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -94,7 +94,7 @@ void MuonEnergyDepositAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore 
   histname = "hadS9DepositedEnergyEndcap_";
   hcalS9DepEnergyEndcap = dbe->book1D(histname+AlgoName, "Energy deposited in the HCAL endcap 3*3 towers", hadS9NoBin, hadS9NoMin, hadS9NoMax);
   hcalS9DepEnergyEndcap->setAxisTitle("GeV");
-  histname = "hadS9PointingMuDepositedEnergy_Glb";
+  histname = "hadS9PointingMuDepositedEnergy_Glb_";
   hcalS9PointingMuDepEnergy_Glb = dbe->book1D(histname+AlgoName, "Pointing glb muons energy deposited in the HCAL endcap 3*3 towers", hadS9NoBin, hadS9NoMin, hadS9NoMax);
   hcalS9PointingMuDepEnergy_Glb->setAxisTitle("GeV");
   histname = "hadS9PointingMuDepositedEnergy_Tk_";
@@ -117,13 +117,13 @@ void MuonEnergyDepositAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore 
   histname = "hoS9DepositedEnergy_";
   hoS9DepEnergy = dbe->book1D(histname+AlgoName, "Energy deposited in the HO 3*3 towers", hoS9NoBin, hoS9NoMin, hoS9NoMax);
   hoS9DepEnergy->setAxisTitle("GeV");
-  histname = "hoS9PointingMuDepositedEnergy_Glb";
+  histname = "hoS9PointingMuDepositedEnergy_Glb_";
   hoS9PointingMuDepEnergy_Glb = dbe->book1D(histname+AlgoName, "Pointing glb muons energy deposited in the HO 3*3 towers", hoS9NoBin, hoS9NoMin, hoS9NoMax);
-  hoS9PointingMuDepEnergy_Glb->setAxisTitle("GeV");
-  histname = "hoS9PointingMuDepositedEnergy_Tk";
+  hoS9PointingMuDepEnergy_Glb->setAxisTitle("GeV_");
+  histname = "hoS9PointingMuDepositedEnergy_Tk_";
   hoS9PointingMuDepEnergy_Tk = dbe->book1D(histname+AlgoName, "Pointing tk muons energy deposited in the HO 3*3 towers", hoS9NoBin, hoS9NoMin, hoS9NoMax);
   hoS9PointingMuDepEnergy_Tk->setAxisTitle("GeV");
-  histname = "hoS9PointingMuDepositedEnergy_Sta";
+  histname = "hoS9PointingMuDepositedEnergy_Sta_";
   hoS9PointingMuDepEnergy_Sta = dbe->book1D(histname+AlgoName, "Pointing sta muons energy deposited in the HO 3*3 towers", hoS9NoBin, hoS9NoMin, hoS9NoMax);
   hoS9PointingMuDepEnergy_Sta->setAxisTitle("GeV");
 
