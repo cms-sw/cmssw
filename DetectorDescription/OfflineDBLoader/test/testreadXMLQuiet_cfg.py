@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DBGeometryTest")
-process.load("DetectorDescription.OfflineDBLoader.test.cmsIdealGeometryForWrite_cfi")
+#process.load("DetectorDescription.OfflineDBLoader.test.cmsIdealGeometryForWrite_cfi")
+process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 
 process.maxEvents = cms.untracked.PSet(
         input = cms.untracked.int32(1)
