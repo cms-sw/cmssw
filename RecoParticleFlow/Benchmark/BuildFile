@@ -1,7 +1,7 @@
 <use name=root>
 <use name=rootcore>
 <use name=rootmath>
-<use name=rootinteractive>
+
 <use name=boost>
 
 <use name=FWCore/Utilities>
