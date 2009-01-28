@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/02 11:21:58 $
- *  $Revision: 1.12 $
+ *  $Date: 2009/01/28 14:36:00 $
+ *  $Revision: 1.13 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -119,7 +119,7 @@ void MuonEnergyDepositAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore 
   hoS9DepEnergy->setAxisTitle("GeV");
   histname = "hoS9PointingMuDepositedEnergy_Glb_";
   hoS9PointingMuDepEnergy_Glb = dbe->book1D(histname+AlgoName, "Pointing glb muons energy deposited in the HO 3*3 towers", hoS9NoBin, hoS9NoMin, hoS9NoMax);
-  hoS9PointingMuDepEnergy_Glb->setAxisTitle("GeV_");
+  hoS9PointingMuDepEnergy_Glb->setAxisTitle("GeV");
   histname = "hoS9PointingMuDepositedEnergy_Tk_";
   hoS9PointingMuDepEnergy_Tk = dbe->book1D(histname+AlgoName, "Pointing tk muons energy deposited in the HO 3*3 towers", hoS9NoBin, hoS9NoMin, hoS9NoMax);
   hoS9PointingMuDepEnergy_Tk->setAxisTitle("GeV");
