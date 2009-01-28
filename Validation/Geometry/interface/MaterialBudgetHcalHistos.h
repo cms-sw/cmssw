@@ -45,6 +45,7 @@ private:
   static const int         maxSet = 25;
   std::vector<std::string> sensitives, hfNames, sensitiveEC;
   std::vector<int>         hfLevels;
+  bool                     fillHistos;
   int                      binEta, binPhi;
   double                   maxEta, etaLow, etaHigh;
   TH1F                     *me400[maxSet], *me800[maxSet];

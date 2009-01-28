@@ -19,76 +19,80 @@ MaterialBudgetHcalHistos::MaterialBudgetHcalHistos(const edm::ParameterSet &p){
   maxEta      = p.getUntrackedParameter<double>("MaxEta", 5.2);
   etaLow      = p.getUntrackedParameter<double>("EtaLow", -5.2);
   etaHigh     = p.getUntrackedParameter<double>("EtaHigh", 5.2);
-  edm::LogInfo("MaterialBudget") << "MaterialBudgetHcalHistos: Eta plot: NX "
+  fillHistos  = p.getUntrackedParameter<bool>("FillHisto", true);
+  edm::LogInfo("MaterialBudget") << "MaterialBudgetHcalHistos: FillHisto : "
+				 << fillHistos << " == Eta plot: NX "
 				 << binEta << " Range " << -maxEta << ":"
 				 << maxEta << " Phi plot: NX " << binPhi
 				 << " Range " << -pi << ":" << pi << " (Eta "
 				 << "limit " << etaLow << ":" << etaHigh <<")";
-  book();
+  if (fillHistos) book();
 
 }
 
 void MaterialBudgetHcalHistos::fillBeginJob(const DDCompactView & cpv) {
 
-  std::string attribute = "ReadOutName";
-  std::string value     = "HcalHits";
-  DDSpecificsFilter filter1;
-  DDValue           ddv1(attribute,value,0);
-  filter1.setCriteria(ddv1,DDSpecificsFilter::equals);
-  DDFilteredView fv1(cpv);
-  fv1.addFilter(filter1);
-  sensitives = getNames(fv1);
-  edm::LogInfo("MaterialBudget") << "MaterialBudgetHcalHistos: Names to be "
-				 << "tested for " << attribute << " = " 
-				 << value << " has " << sensitives.size()
-				 << " elements";
-  for (unsigned int i=0; i<sensitives.size(); i++) 
-    edm::LogInfo("MaterialBudget") << "MaterialBudgetHcalHistos:  sensitives["
-				   << i << "] = " << sensitives[i];
-
-  attribute = "Volume";
-  value     = "HF";
-  DDSpecificsFilter filter2;
-  DDValue           ddv2(attribute,value,0);
-  filter2.setCriteria(ddv2,DDSpecificsFilter::equals);
-  DDFilteredView fv2(cpv);
-  fv2.addFilter(filter2);
-  hfNames = getNames(fv2);
-  fv2.firstChild();
-  DDsvalues_type sv(fv2.mergedSpecifics());
-  std::vector<double> temp =  getDDDArray("Levels",sv);
-  edm::LogInfo("MaterialBudget") << "MaterialBudgetHcalHistos: Names to be "
-				 << "tested for " << attribute << " = " 
-				 << value << " has " << hfNames.size()
-				 << " elements";
-  for (unsigned int i=0; i<hfNames.size(); i++) {
-    int level = static_cast<int>(temp[i]);
-    hfLevels.push_back(level);
-    edm::LogInfo("MaterialBudget") << "MaterialBudgetHcalHistos:  HF[" << i 
-				   << "] = " << hfNames[i] << " at level " 
-				   << hfLevels[i];
-  }
-
-  std::string ecalRO[2] = {"EcalHitsEB", "EcalHitsEE"};
-  attribute = "ReadOutName";
-  for (int k=0; k<2; k++) {
-    value     = ecalRO[k];
-    DDSpecificsFilter filter3;
-    DDValue           ddv3(attribute,value,0);
-    filter3.setCriteria(ddv3,DDSpecificsFilter::equals);
-    DDFilteredView fv3(cpv);
-    fv3.addFilter(filter3);
-    std::vector<std::string> senstmp = getNames(fv3);
+  if (fillHistos) {
+    std::string attribute = "ReadOutName";
+    std::string value     = "HcalHits";
+    DDSpecificsFilter filter1;
+    DDValue           ddv1(attribute,value,0);
+    filter1.setCriteria(ddv1,DDSpecificsFilter::equals);
+    DDFilteredView fv1(cpv);
+    fv1.addFilter(filter1);
+    sensitives = getNames(fv1);
     edm::LogInfo("MaterialBudget") << "MaterialBudgetHcalHistos: Names to be "
 				   << "tested for " << attribute << " = " 
-				   << value << " has " << senstmp.size()
+				   << value << " has " << sensitives.size()
 				   << " elements";
-    for (unsigned int i=0; i<senstmp.size(); i++)
-      sensitiveEC.push_back(senstmp[i]);
+    for (unsigned int i=0; i<sensitives.size(); i++) 
+      edm::LogInfo("MaterialBudget") << "MaterialBudgetHcalHistos: sensitives["
+				     << i << "] = " << sensitives[i];
+
+    attribute = "Volume";
+    value     = "HF";
+    DDSpecificsFilter filter2;
+    DDValue           ddv2(attribute,value,0);
+    filter2.setCriteria(ddv2,DDSpecificsFilter::equals);
+    DDFilteredView fv2(cpv);
+    fv2.addFilter(filter2);
+    hfNames = getNames(fv2);
+    fv2.firstChild();
+    DDsvalues_type sv(fv2.mergedSpecifics());
+    std::vector<double> temp =  getDDDArray("Levels",sv);
+    edm::LogInfo("MaterialBudget") << "MaterialBudgetHcalHistos: Names to be "
+				   << "tested for " << attribute << " = " 
+				   << value << " has " << hfNames.size()
+				   << " elements";
+    for (unsigned int i=0; i<hfNames.size(); i++) {
+      int level = static_cast<int>(temp[i]);
+      hfLevels.push_back(level);
+      edm::LogInfo("MaterialBudget") << "MaterialBudgetHcalHistos:  HF[" << i 
+				     << "] = " << hfNames[i] << " at level " 
+				     << hfLevels[i];
+    }
+
+    std::string ecalRO[2] = {"EcalHitsEB", "EcalHitsEE"};
+    attribute = "ReadOutName";
+    for (int k=0; k<2; k++) {
+      value     = ecalRO[k];
+      DDSpecificsFilter filter3;
+      DDValue           ddv3(attribute,value,0);
+      filter3.setCriteria(ddv3,DDSpecificsFilter::equals);
+      DDFilteredView fv3(cpv);
+      fv3.addFilter(filter3);
+      std::vector<std::string> senstmp = getNames(fv3);
+      edm::LogInfo("MaterialBudget") << "MaterialBudgetHcalHistos: Names to be"
+				     << " tested for " << attribute << " = " 
+				     << value << " has " << senstmp.size()
+				     << " elements";
+      for (unsigned int i=0; i<senstmp.size(); i++)
+	sensitiveEC.push_back(senstmp[i]);
+    }
+    for (unsigned int i=0; i<sensitiveEC.size(); i++) 
+      edm::LogInfo("MaterialBudget") << "MaterialBudgetHcalHistos:sensitiveEC["
+				     << i << "] = " << sensitiveEC[i];
   }
-  for (unsigned int i=0; i<sensitiveEC.size(); i++) 
-    edm::LogInfo("MaterialBudget") << "MaterialBudgetHcalHistos:  sensitiveEC["
-				   << i << "] = " << sensitiveEC[i];
 }
 
 void MaterialBudgetHcalHistos::fillStartTrack(const G4Track* aTrack) {
@@ -137,63 +141,67 @@ void MaterialBudgetHcalHistos::fillPerStep(const G4Step* aStep) {
 			     << step/intl << "/" << intLen;
 
   int det=0, lay=0;
-  if (isItEC(name)) {
-    det = 1;
-    lay = 1;
-  } else {
-    if (isSensitive(name)) {
-      if (isItHF(touch)) {
-	det = 5;
-	lay = 21;
-      } else {
-	det   = (touch->GetReplicaNumber(1))/1000;
-	lay   = (touch->GetReplicaNumber(0)/10)%100 + 3;
-	if (det == 4) {
-	  double abeta = std::abs(eta);
-	  if (abeta < 1.479) lay = layer + 1;
-	  else               lay--;
-	  if (lay < 3) lay = 3;
-	  if (lay == layer) lay++;
-	  if (lay > 20) lay = 20;
+  if (fillHistos) {
+    if (isItEC(name)) {
+      det = 1;
+      lay = 1;
+    } else {
+      if (isSensitive(name)) {
+	if (isItHF(touch)) {
+	  det = 5;
+	  lay = 21;
+	} else {
+	  det   = (touch->GetReplicaNumber(1))/1000;
+	  lay   = (touch->GetReplicaNumber(0)/10)%100 + 3;
+	  if (det == 4) {
+	    double abeta = std::abs(eta);
+	    if (abeta < 1.479) lay = layer + 1;
+	    else               lay--;
+	    if (lay < 3) lay = 3;
+	    if (lay == layer) lay++;
+	    if (lay > 20) lay = 20;
+	  }
 	}
+	LogDebug("MaterialBudget") << "MaterialBudgetHcalHistos: Det " << det
+				   << " Layer " << lay << " Eta " << eta 
+				   << " Phi " << phi/deg;
+      } else if (layer == 1) {
+	det = -1;
+	lay = 2;
       }
-      LogDebug("MaterialBudget") << "MaterialBudgetHcalHistos: Det " << det
-				 << " Layer " << lay << " Eta " << eta 
-				 << " Phi " << phi/deg;
-    } else if (layer == 1) {
-      det = -1;
-      lay = 2;
     }
-  }
-  if (det != 0) {
-    if (lay != layer) {
-      id    = lay;
-      layer = lay;
+    if (det != 0) {
+      if (lay != layer) {
+	id    = lay;
+	layer = lay;
+      }
     }
-  }
 
-  if (id > idOld) {
-    //    edm::LogInfo("MaterialBudget") << "MaterialBudgetHcalHistos: Step at " << name;
-    fillHisto(id-1);
+    if (id > idOld) {
+      //    edm::LogInfo("MaterialBudget") << "MaterialBudgetHcalHistos: Step at " << name;
+      fillHisto(id-1);
+    }
   }
 
   stepLen += step;
   radLen  += step/radl;
   intLen  += step/intl;
-  if (layer == 21 && det == 5) {
-    if (!isItHF(aStep->GetPostStepPoint()->GetTouchable())) {
-      LogDebug("MaterialBudget") << "MaterialBudgetHcalHistos: After HF in " 
-				 << aStep->GetPostStepPoint()->GetTouchable()->GetVolume(0)->GetName();
-      fillHisto(id);
-      id++;
-      layer = 0;
+  if (fillHistos) {
+    if (layer == 21 && det == 5) {
+      if (!isItHF(aStep->GetPostStepPoint()->GetTouchable())) {
+	LogDebug("MaterialBudget") << "MaterialBudgetHcalHistos: After HF in " 
+				   << aStep->GetPostStepPoint()->GetTouchable()->GetVolume(0)->GetName();
+	fillHisto(id);
+	id++;
+	layer = 0;
+      }
     }
   }
 }
 
 
 void MaterialBudgetHcalHistos::fillEndTrack() {
-  fillHisto(maxSet-1);
+  if (fillHistos) fillHisto(maxSet-1);
 }
 
 void MaterialBudgetHcalHistos::book() {
