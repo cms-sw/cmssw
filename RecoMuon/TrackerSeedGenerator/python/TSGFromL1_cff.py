@@ -4,12 +4,12 @@ from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
 from RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi import *
 from RecoLocalTracker.SiPixelRecHits.PixelCPEParmError_cfi import *
-from RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi import *
+#from RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi import *
 from TrackingTools.MaterialEffects.MaterialPropagator_cfi import *
 from RecoLocalTracker.SiStripRecHitConverter.StripCPE_cfi import *
-from CalibTracker.SiStripLorentzAngle.SiStripLAFakeESSource_cfi import *
-from CalibTracker.Configuration.SiPixelLorentzAngle.SiPixelLorentzAngle_Fake_cff import *
-from Configuration.StandardSequences.L1Emulator_cff import *
+#from CalibTracker.SiStripLorentzAngle.SiStripLAFakeESSource_cfi import *
+#from CalibTracker.Configuration.SiPixelLorentzAngle.SiPixelLorentzAngle_Fake_cff import *
+#from Configuration.StandardSequences.L1Emulator_cff import *
 from RecoTracker.TkSeedingLayers.PixelLayerPairs_cfi import *
 from RecoTracker.TkSeedingLayers.TTRHBuilderWithoutAngle4PixelPairs_cfi import *
 from RecoMuon.TrackerSeedGenerator.TSGFromL1_cfi import *
