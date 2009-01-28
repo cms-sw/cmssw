@@ -20,7 +20,7 @@
 
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
-#ifdef CMSSW220
+#ifdef CMSSW22
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 #include "CondFormats/RunInfo/interface/RunSummary.h"
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
@@ -41,7 +41,7 @@ CSCDaqInfo::~CSCDaqInfo(){}
 
 void CSCDaqInfo::beginLuminosityBlock(const LuminosityBlock& lumiBlock, const EventSetup& iSetup){
     
-#ifdef CMSSW220
+#ifdef CMSSW22
 
   edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
 

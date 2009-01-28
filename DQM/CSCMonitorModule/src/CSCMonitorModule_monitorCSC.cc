@@ -63,57 +63,6 @@ void CSCMonitorModule::monitorCSC(const CSCEventData& cscEvent, const int32_t& d
 
   if (MEEMU("DMB_Unpacked", me)) me->Fill(crateID, dmbID);
 
-#ifdef CMSSW20
-  
-  // 
-  // Check if any of input FIFO's are full
-  //
-
-  bool anyInputFull = dmbTrailer->tmb_full || dmbTrailer->alct_full;
-  for (int i=0; i<5; i++) {
-    anyInputFull = anyInputFull || (int)((dmbTrailer->cfeb_full>>i)&0x1);
-  }
-
-  if(anyInputFull){
-    if (CSCtype && CSCposition && MEEMU("CSC_DMB_input_fifo_full", me)) me->Fill(CSCposition, CSCtype);
-    if (MEEMU("DMB_input_fifo_full", me)) me->Fill(crateID, dmbID);
-  }
- 
-
-  //
-  // Check if any input Timeouted
-  //
-
-  bool anyInputTO = dmbTrailer->tmb_timeout || dmbTrailer->alct_timeout || dmbTrailer->cfeb_starttimeout || dmbTrailer->cfeb_endtimeout;
-  for (int i=0; i<5; i++) {
-    anyInputTO = ((dmbTrailer->cfeb_starttimeout>>i) & 0x1) || ((dmbTrailer->cfeb_endtimeout>>i) & 0x1);
-  }
-
-  if(anyInputTO){
-    if (CSCtype && CSCposition && MEEMU("CSC_DMB_input_timeout", me)) me->Fill(CSCposition, CSCtype);
-    if (MEEMU("DMB_input_timeout", me)) me->Fill(crateID, dmbID);
-  }
-
-  //
-  // Check ALCT
-  //
-
-  if (!cscEvent.nalct()) {
-    if (CSCtype && CSCposition && MEEMU("CSC_wo_ALCT", me)) me->Fill(CSCposition, CSCtype);
-    if (MEEMU("DMB_wo_ALCT", me)) me->Fill(crateID, dmbID);
-  }
-
-  //
-  // Check CLCT
-  //
-
-  if(!cscEvent.nclct()) {
-    if (CSCtype && CSCposition && MEEMU("CSC_wo_CLCT", me)) me->Fill(CSCposition, CSCtype);
-    if (MEEMU("DMB_wo_CLCT", me)) me->Fill(crateID, dmbID);
-  }
-
-#endif
-
   if (cscEvent.nalct()) {
     if (cscEvent.alctHeader()) {
       const CSCALCTHeader* alctHeader = cscEvent.alctHeader();
@@ -156,15 +105,6 @@ void CSCMonitorModule::monitorCSC(const CSCEventData& cscEvent, const int32_t& d
 
     }
   }
-
-#ifdef CMSSW20
-
-  if(NumberOfUnpackedCFEBs == 0) {
-    if (CSCtype && CSCposition && MEEMU("CSC_wo_CFEB", me)) me->Fill(CSCposition, CSCtype);
-    if (MEEMU("DMB_wo_CFEB", me)) me->Fill(crateID,dmbID);
-  }
-
-#endif
 
   // Checking L1A out of sync occurancies
   if (cscEvent.nclct() && cscEvent.nalct()) {

@@ -24,28 +24,6 @@ void CSCMonitorModule::updateFracHistos() {
   MonitorElement *me1 = NULL, *me2 = NULL, *me3 = NULL;
 
   //
-  // Calculate Aggregate Histograms
-  //
-
-#ifdef CMSSW20
-
-  if (MEEMU("DMB_Reporting", me1) && MEEMU("DMB_Format_Errors", me2) && MEEMU("DMB_Unpacked", me3)) {
-    me1->getTH1()->Add(me2->getTH1(), me3->getTH1());
-    if (MEEMU("DMB_Unpacked_with_errors", me2)) {
-      me1->getTH1()->Add(me2->getTH1(), -1);
-    }
-  }
-
-  if (MEEMU("CSC_Reporting", me1) && MEEMU("CSC_Format_Errors", me2) && MEEMU("CSC_Unpacked", me3)) {
-    me1->getTH1()->Add(me2->getTH1(), me3->getTH1());
-    if (MEEMU("CSC_Unpacked_with_errors", me2)) {
-      me1->getTH1()->Add(me2->getTH1(), -1);
-    }
-  }
- 
-#endif  
-
-  //
   // Calculate Fractional Histograms
   //
 
@@ -94,35 +72,11 @@ void CSCMonitorModule::updateFracHistos() {
   if (MEEMU("CSC_L1A_out_of_sync_Fract", me1) && MEEMU("CSC_Reporting", me2) && MEEMU("CSC_L1A_out_of_sync", me3)) 
     me1->getTH1()->Divide(me3->getTH1(), me2->getTH1());
 
-#ifdef CMSSW21
-
   if (MEEMU("DMB_Format_Warnings_Fract", me1) && MEEMU("DMB_Reporting", me2) && MEEMU("DMB_Format_Warnings", me3))
     me1->getTH1()->Divide(me3->getTH1(), me2->getTH1());
 
   if (MEEMU("CSC_Format_Warnings_Fract", me1) && MEEMU("CSC_Reporting", me2) && MEEMU("CSC_Format_Warnings", me3))
     me1->getTH1()->Divide(me3->getTH1(), me2->getTH1());
-
-#endif
-
-#ifdef CMSSW20
-
-  if (MEEMU("DMB_Format_Warnings_Fract", me1) && MEEMU("DMB_Format_Warnings", me2) && MEEMU("DMB_Unpacked", me3)) {
-    TH1* tmp=dynamic_cast<TH1*>(me3->getTH1()->Clone());
-    tmp->Add(me2->getTH1());
-    if (MEEMU("DMB_Unpacked_with_warnings", me3)) tmp->Add(me3->getTH1(), -1);
-    me1->getTH1()->Divide(me2->getTH1(), tmp);
-    delete tmp;
-  }
-
-  if (MEEMU("CSC_Format_Warnings_Fract", me1) && MEEMU("CSC_Format_Warnings", me2) && MEEMU("CSC_Unpacked", me3)) {
-    TH1* tmp=dynamic_cast<TH1*>(me3->getTH1()->Clone());
-    tmp->Add(me2->getTH1());
-    if (MEEMU("CSC_Unpacked_with_warnings", me3)) tmp->Add(me3->getTH1(), -1);
-    me1->getTH1()->Divide(me2->getTH1(), tmp);
-    delete tmp;
-  }
-
-#endif
 
   //
   // Set detector information
