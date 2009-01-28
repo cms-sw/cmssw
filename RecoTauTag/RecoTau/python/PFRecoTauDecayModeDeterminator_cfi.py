@@ -9,7 +9,7 @@ import copy
 
 standardDecayModeParams = cms.PSet(
     maxPiZeroMass               = cms.double(0.2),  # Max mass of photon pairs that can be merged into a pi0
-    refitTracks                 = cms.bool(False),  # Fit vertex for 3-prongs?
+    refitTracks                 = cms.bool(False),  # Fit vertex for 3-prongs? (Not available on AOD data)
     mergeLowPtPhotonsFirst      = cms.bool(True),   # as opposed to highest pt first (only when mergeByBestMatch = false)
     mergeByBestMatch            = cms.bool(True),   # Compare each candidate pair of photons and merge the best one
     setMergedPi0Mass            = cms.bool(True),   # Set mass for merged photons?
