@@ -1,7 +1,9 @@
 #include <stdexcept>
+#include <cstdlib>
 #include <string>
 #include <string.h>
 #include "OnlineDB/Oracle/interface/Oracle.h"
+#include <limits>
 
 #include "OnlineDB/EcalCondDB/interface/ODCCSConfig.h"
 

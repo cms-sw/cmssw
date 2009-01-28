@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iostream>
 #include <stdio.h>
+#include <cstring>
 
 
 #include "OnlineDB/Oracle/interface/Oracle.h"

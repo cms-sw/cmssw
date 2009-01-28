@@ -2,7 +2,7 @@
 #include <string>
 #include <string.h>
 #include "OnlineDB/Oracle/interface/Oracle.h"
-
+#include <cstdlib>
 #include "OnlineDB/EcalCondDB/interface/ODBadTTInfo.h"
 
 using namespace std;

@@ -3,7 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include <stdio.h>
-
+#include <cstdlib>
 
 #include "OnlineDB/Oracle/interface/Oracle.h"
 
