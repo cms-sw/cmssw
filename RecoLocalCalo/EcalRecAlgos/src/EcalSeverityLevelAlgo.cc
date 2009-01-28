@@ -44,9 +44,10 @@ int EcalSeverityLevelAlgo::severityLevel( const EcalRecHit &recHit,
                 // recovered
                 return 2;
         } else if ( recHitFlags == 7 ) {
-                // truly dead
+                // recovering failed
                 return 3;
         }
+        // good
         return 0;
 }
 
