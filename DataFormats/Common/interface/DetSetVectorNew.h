@@ -1,7 +1,7 @@
 #ifndef DataFormats_Common_DetSetVectorNew_h
 #define DataFormats_Common_DetSetVectorNew_h
 
-#include "DataFormats/Common/interface/DetSet.h"  // to get det_id_type
+// #include "DataFormats/Common/interface/DetSet.h"  // to get det_id_type
 #include "DataFormats/Common/interface/DetSetNew.h"
 #include "DataFormats/Common/interface/traits.h"
 
@@ -68,8 +68,8 @@ namespace edmNew {
     typedef unsigned int size_type; // for persistency
     typedef unsigned int id_type;
     typedef T data_type;
-    typedef DetSetVector<T> self;
-    typedef DetSet<T> DetSet;
+    typedef edmNew::DetSetVector<T> self;
+    typedef edmNew::DetSet<T> DetSet;
     typedef dslv::LazyGetter<T> Getter;
     // FIXME not sure make sense....
     typedef DetSet value_type;
