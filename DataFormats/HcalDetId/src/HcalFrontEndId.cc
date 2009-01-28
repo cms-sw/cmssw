@@ -1,6 +1,7 @@
 #include "DataFormats/HcalDetId/interface/HcalFrontEndId.h"
 #include <iomanip>
 #include <sstream>
+#include <cstdlib>
 
 HcalFrontEndId::HcalFrontEndId(const std::string& rbx,int rm,int pixel,int rmfiber,int fiberchannel,int qie,int adc)
 {
