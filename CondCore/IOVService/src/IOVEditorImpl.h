@@ -5,7 +5,7 @@
 
 namespace cond{
   class PoolTransaction;
-  class IOV;
+  class IOVSequence;
 
   class IOVEditorImpl : virtual public cond::IOVEditor{
   public:
@@ -16,15 +16,15 @@ namespace cond{
     virtual ~IOVEditorImpl();
 
     /// create a new IOV
-    void create(cond::Time_t firstSince,
-			 cond::TimeType timetype);
+    void create(cond::TimeType timetype,cond::Time_t lastTill);
 
     /// Assign a payload with till time. Returns the payload index in the iov sequence
     virtual unsigned int insert( cond::Time_t tillTime,
 				 const std::string& payloadToken
 				 );
 
-    void bulkInsert( std::vector< std::pair<cond::Time_t,std::string> >& values );
+    void bulkAppend( std::vector< std::pair<cond::Time_t,std::string> >& values );
+    void bulkAppend(std::vector< cond::IOVElement >& values);
 
     virtual void updateClosure( cond::Time_t newtillTime );
 
@@ -34,23 +34,12 @@ namespace cond{
 				  );
     
     /// insert a payload with known since in any position
-    /*unsigned int 
+    unsigned int 
     freeInsert(cond::Time_t sinceTime ,
                const std::string& payloadToken
-      	      );
-    */
-    // delete entry at a given time
-    //virtual  unsigned int deleteEntry(cond::Time_t time,
-    //				bool withPayload=false );
+	       );
 
-
-  /*virtual unsigned int replaceInterval(cond::Time_t sinceTime,
-					 cond::Time_t tillTime,
-					 const std::string& payloadToken,
-					 bool deletePayload=false);
-  */
-
-  virtual void deleteEntries( bool withPayload=false );
+    virtual void deleteEntries( bool withPayload=false );
 
     virtual void import( const std::string& sourceIOVtoken );
 
@@ -59,6 +48,7 @@ namespace cond{
     }
 
     cond::Time_t firstSince() const;
+    cond::Time_t lastTill() const;
     
     cond::TimeType timetype() const;
 
@@ -70,7 +60,7 @@ namespace cond{
     cond::PoolTransaction* m_pooldb;
     std::string m_token;
     bool m_isActive;
-    cond::TypedRef<cond::IOV> m_iov;
+    cond::TypedRef<cond::IOVSequence> m_iov;
   };
 }//ns cond
 #endif
