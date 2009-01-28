@@ -1,8 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 pfRecoTauProducer = cms.EDProducer("PFRecoTauProducer",
-<<<<<<< PFRecoTauProducer_cfi.py
-<<<<<<< PFRecoTauProducer_cfi.py
                                    PFTauTagInfoProducer = cms.InputTag("pfRecoTauTagInfoProducer"),
                                    PVProducer = cms.string('offlinePrimaryVertices'), ## ***    
                                    JetPtMin = cms.double(0.0),
@@ -77,11 +75,6 @@ pfRecoTauProducer = cms.EDProducer("PFRecoTauProducer",
                                    EcalStripSumE_minClusEnergy = cms.double(0.1),
                                    EcalStripSumE_deltaEta = cms.double(0.03),
                                    ElecPreIDLeadTkMatch_maxDR = cms.double(0.01),
-=======
-    LeadTrack_minPt = cms.double(5.0),
-    PVProducer = cms.string('offlinePrimaryVertices'), ## ***    
->>>>>>> 1.6
-=======
                                    PFTauTagInfoProducer = cms.InputTag("pfRecoTauTagInfoProducer"),
                                    PVProducer = cms.string('offlinePrimaryVertices'), ## ***    
                                    JetPtMin = cms.double(0.0),
@@ -156,7 +149,6 @@ pfRecoTauProducer = cms.EDProducer("PFRecoTauProducer",
                                    EcalStripSumE_minClusEnergy = cms.double(0.1),
                                    EcalStripSumE_deltaEta = cms.double(0.03),
                                    ElecPreIDLeadTkMatch_maxDR = cms.double(0.01),
->>>>>>> 1.7
 
                                    #DataType
                                    DataType = cms.string("RECO")
