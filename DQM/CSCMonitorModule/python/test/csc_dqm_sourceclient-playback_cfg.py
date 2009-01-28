@@ -50,7 +50,7 @@ process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 
 #process.DQMStore.referenceFileName = '/home/dqmdevlocal/reference/csc_reference.root'
-process.DQMStore.referenceFileName = '/afs/cern.ch/user/v/valdo/CMSSW_2_1_9/src/DQM/CSCMonitorModule/data/csc_reference.root'
+process.DQMStore.referenceFileName = '/afs/cern.ch/user/v/valdo/data/csc_reference.root'
 #process.DQMStore.referenceFileName = '/nfshome0/valdo/CMSSW_2_1_0/src/DQM/CSCMonitorModule/data/csc_reference.root'
 
 #----------------------------
