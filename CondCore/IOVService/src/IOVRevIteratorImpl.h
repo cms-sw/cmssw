@@ -22,10 +22,7 @@ namespace cond{
     virtual size_t position() const;
     virtual bool atEnd() const;
     virtual std::string payloadToken() const;
-    TimeType timetype() const {
-      open();
-      return (TimeType)(m_iov->timetype);
-  }
+    TimeType timetype() const;
 
     virtual cond::ValidityInterval validity() const;
   private:
