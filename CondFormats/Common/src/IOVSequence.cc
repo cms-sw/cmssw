@@ -25,13 +25,13 @@ namespace cond {
   
   
   IOVSequence::const_iterator IOVSequence::find(cond::Time_t time) const {
-    IOVSequence::const_iterator p = std::lower_bound(iovs().begin(),iovs().end(),Item(time),
+    IOVSequence::const_iterator p = std::upper_bound(iovs().begin(),iovs().end(),Item(time),
 			    boost::bind(std::less<cond::Time_t>(),
 					boost::bind(&Item::sinceTime,_1),
 					boost::bind(&Item::sinceTime,_2)
 					)
 			    );
-    return (p!=iovs().begin()) ? p-1 : p; 
+    return (p!=iovs().begin()) ? p-1 : iovs().end(); 
   }
   
 
