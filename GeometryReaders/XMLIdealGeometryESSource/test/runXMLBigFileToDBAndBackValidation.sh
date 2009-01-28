@@ -13,8 +13,6 @@ rm twMakeDB.out
 rm twLoadDBWithXML.out
 rm *.log.xml
 rm *.log
-rm dumpSpecsIdealWrite
-rm dumpGeoHistoryIdealWrite
 rm dumpGeoHistoryDBIdealRead
 rm dumpSpecsDBIdealRead
 
