@@ -112,6 +112,8 @@ namespace edm {
 	treePointers_[branchType]->addBranch(*it->branchDescription_,
 					      it->product_,
 					      it->branchDescription_->produced());
+	//make sure we always store product registry info for all branches we create
+	branchesWithStoredHistory_.insert(it->branchID());
       }
     }
     // Don't split metadata tree or event description tree
