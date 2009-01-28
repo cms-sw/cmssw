@@ -22,7 +22,7 @@
 */
 //
 // Author:      Zhen Xie
-// $Id$
+// $Id: PoolDBOutputService.h,v 1.44 2008/10/27 12:02:45 xiezhen Exp $
 namespace edm{
   class Event;
   class EventSetup;
@@ -61,18 +61,18 @@ namespace cond{
     template<typename T>
     struct GetTokenFromPointer : public GetToken {
       
-      GetTokenFromPointer(T * p, const std::string& recordName) : 
-	m_p(p),  m_recordName(recordName) {}
+      GetTokenFromPointer(T * p) : 
+	m_p(p){}
       
       virtual std::string operator()(cond::PoolTransaction& pooldb) const {
 	cond::TypedRef<T> myPayload(pooldb,m_p);
-	  myPayload.markWrite(m_recordName);
+	  myPayload.markWrite(myPayload.className());
 	  return myPayload.token();
 
       }
 
       T* m_p;
-      const std::string& m_recordName;
+      //const std::string& m_recordName;
     };
 
 
@@ -131,7 +131,7 @@ namespace cond{
 			   const std::string& EventSetupRecordName,
 			   bool withlogging=false){
 
-	createNewIOV( GetTokenFromPointer<T>(firstPayloadObj,EventSetupRecordName),
+	createNewIOV( GetTokenFromPointer<T>(firstPayloadObj),
 		      firstSinceTime, 
 		      firstTillTime,
 		      EventSetupRecordName,
@@ -158,7 +158,7 @@ namespace cond{
 			   const std::string& EventSetupRecordName,
 			   bool withlogging=false){
 	add(false,
-	    GetTokenFromPointer<T>(payloadObj,EventSetupRecordName),
+	    GetTokenFromPointer<T>(payloadObj),
 	    tillTime, 
 	    EventSetupRecordName,
 	    withlogging);
@@ -184,7 +184,7 @@ namespace cond{
 			      const std::string& EventSetupRecordName,
 			      bool withlogging=false){
 	add(true,
-	    GetTokenFromPointer<T>(payloadObj,EventSetupRecordName),
+	    GetTokenFromPointer<T>(payloadObj),
 	    sinceTime, 
 	    EventSetupRecordName,
 	    withlogging);
