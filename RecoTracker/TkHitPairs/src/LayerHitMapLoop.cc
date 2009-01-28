@@ -27,6 +27,17 @@ LayerHitMapLoop::LayerHitMapLoop(
   theBinsRz     = RangeI( max( irz1,  0), min( irz2,  theMap.theNbinsRZ-1));
   theBinsRzSafe = RangeI( irz1+1, irz2-1); 
 
+  // slide both ends of the phi range so that at least one end enters [-Pi,Pi]
+  //-------------
+  while (theRangePhi.first <  -M_PI && theRangePhi.second < -M_PI) {
+    theRangePhi.first   += 2*M_PI;
+    theRangePhi.second  += 2*M_PI;
+  }
+  while (theRangePhi.first >=  M_PI && theRangePhi.second >= M_PI) {
+    theRangePhi.first   -= 2*M_PI;
+    theRangePhi.second  -= 2*M_PI;
+  }
+
   if (theRangePhi.first >= -M_PI && theRangePhi.second < M_PI) {
     theNextPhi = inRange;
   } else {
