@@ -11,8 +11,8 @@
 #include <boost/bind.hpp>
 
 namespace {
-  void print(cond::IOVElement const & e) {
-    std::cout<<"payloadToken "<< e.payloadToken()
+  void print(cond::IOVElementProxy const & e) {
+    std::cout<<"payloadToken "<< e.wrapperToken()
 	     <<", since "<< e.since()
 	     <<", till "<< e.till()
 	     << std::endl;
@@ -29,10 +29,10 @@ int main(){
     pooldb.start(false);
     cond::IOVService iovmanager(pooldb);
     cond::IOVEditor* editor=iovmanager.newIOVEditor();
-    editor->create(1,cond::timestamp);
-    editor->insert(20,"pay1tok");
-    editor->insert(40,"pay2tok");
-    editor->insert(60,"pay3tok");
+    editor->create(cond::timestamp,60);
+    editor->add(1,"pay1tok");
+    editor->add(21,"pay2tok");
+    editor->add(41,"pay3tok");
     pooldb.commit();
     std::string iovtok=editor->token();
     ///test iterator
