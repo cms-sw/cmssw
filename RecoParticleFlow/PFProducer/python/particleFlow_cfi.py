@@ -13,7 +13,7 @@ particleFlow = cms.EDProducer("PFProducer",
     debug = cms.untracked.bool(False),
 
     # Use electron identification in PFAlgo
-    usePFElectrons = cms.bool(False),
+    usePFElectrons = cms.bool(True),
     pf_electronID_mvaWeightFile = cms.string('RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_PfElectrons23Jan.txt'),
                               
     final_chi2cut_bremps = cms.double(25.0),
