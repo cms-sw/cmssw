@@ -77,7 +77,7 @@ pfRecoTauProducer = cms.EDProducer("PFRecoTauProducer",
                                    ElecPreIDLeadTkMatch_maxDR = cms.double(0.01),
 
                                    #DataType
-                                   DataType = cms.string("RECO")
+                                   DataType = cms.string("AOD")
 
 
 )
