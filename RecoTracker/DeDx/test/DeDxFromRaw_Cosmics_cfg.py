@@ -166,11 +166,11 @@ process.filterOnTracks = cms.EDFilter("TrackCountFilter",
                                      minNumber = cms.uint32(1) 
 )
 
-#import RecoTracker.TrackProducer.RefitterWithMaterial_cff
+#import RecoTracker.TrackProducer.TrackRefitter_cff
 #process.CTFRefit = RecoTracker.TrackProducer.RefitterWithMaterial_cfi.TrackRefitter.clone()
 #process.CTFRefit.src = 'ctfWithMaterialTracksP5'
 
-#process.load("RecoTracker.TrackProducer.RefitterWithMaterial_cff")
+#process.load("RecoTracker.TrackProducer.TrackRefitter_cff")
 #process.TrackRefitter.src = 'ctfWithMaterialTracksP5'
 #process.TrackRefitter.TrajectoryInEvent = True
 

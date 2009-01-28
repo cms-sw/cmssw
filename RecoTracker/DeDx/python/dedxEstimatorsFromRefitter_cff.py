@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoTracker.TrackProducer.RefitterWithMaterial_cfi import *
+from RecoTracker.TrackProducer.TrackRefitter_cfi import *
 
 RefitterForDeDx = TrackRefitter.clone()
 RefitterForDeDx.TrajectoryInEvent = True

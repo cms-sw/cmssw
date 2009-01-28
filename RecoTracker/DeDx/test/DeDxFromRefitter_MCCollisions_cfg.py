@@ -30,7 +30,7 @@ process.load("RecoTracker.DeDx.dedxEstimatorsFromRefitter_cff")
 #process.dedxMedian.tracks=cms.InputTag("TrackRefitter")
 #process.dedxMedian.trajectoryTrackAssociation = cms.InputTag("TrackRefitter")
 
-#process.load("RecoTracker.TrackProducer.RefitterWithMaterial_cff")
+#process.load("RecoTracker.TrackProducer.TrackRefitter_cff")
 #process.TrackRefitter.TrajectoryInEvent = True
 
 
