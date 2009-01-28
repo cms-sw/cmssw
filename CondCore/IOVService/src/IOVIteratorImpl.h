@@ -3,7 +3,8 @@
 #include "CondCore/IOVService/interface/IOVIterator.h"
 #include "CondCore/DBCommon/interface/TypedRef.h"
 #include "CondCore/DBCommon/interface/Time.h"
-#include "IOV.h"
+#include "CondFormats/Common/interface/IOVSequence.h"
+
 #include <string>
 
 namespace cond{
@@ -32,7 +33,7 @@ namespace cond{
     void init();
     cond::PoolTransaction& m_pooldb;
     std::string m_token;
-    cond::TypedRef<cond::IOV> m_iov;
+    cond::TypedRef<cond::IOVSequence> m_iov;
     const_iterator m_pos;
     cond::Time_t  m_since;
     size_t m_count;

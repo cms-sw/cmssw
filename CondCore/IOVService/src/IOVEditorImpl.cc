@@ -82,6 +82,7 @@ namespace cond {
 			 ){
     if(!m_isActive) this->init();
 
+    if( m_iov->iov.empty() ) throw cond::Exception("cond::IOVEditorImpl::insert cannot inser into empty IOV sequence");
 
     if(!validTime(tillTime))
       throw cond::Exception("cond::IOVEditorImpl::insert time not in global range");
