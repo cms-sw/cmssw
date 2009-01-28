@@ -11,7 +11,7 @@
  **  
  **
  **  $Id: PhotonOfflineClient
- **  $Date: 2008/11/28 12:50:37 $ 
+ **  $Date: 2009/01/26 10:00:47 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -105,28 +105,31 @@ void PhotonOfflineClient::endLuminosityBlock(const edm::LuminosityBlock& lumi, c
       
       //making profiles
       
-      doProfileX( dbe_->get(currentFolder_.str()+"nIsoTracksSolid2D"),dbe_->get(currentFolder_.str()+"nIsoTracksSolid"));
-      doProfileX( dbe_->get(currentFolder_.str()+"nIsoTracksHollow2D"), dbe_->get(currentFolder_.str()+"nIsoTracksHollow"));
+      doProfileX( dbe_->get(currentFolder_.str()+"nIsoTracksSolidVsEta2D"),dbe_->get(currentFolder_.str()+"nIsoTracksSolidVsEta"));
+      doProfileX( dbe_->get(currentFolder_.str()+"nIsoTracksHollowVsEta2D"), dbe_->get(currentFolder_.str()+"nIsoTracksHollowVsEta"));
       
-      doProfileX( dbe_->get(currentFolder_.str()+"isoPtSumSolid2D"), dbe_->get(currentFolder_.str()+"isoPtSumSolid"));
-      doProfileX( dbe_->get(currentFolder_.str()+"isoPtSumHollow2D"), dbe_->get(currentFolder_.str()+"isoPtSumHollow"));
+      doProfileX( dbe_->get(currentFolder_.str()+"isoPtSumSolidVsEta2D"), dbe_->get(currentFolder_.str()+"isoPtSumSolidVsEta"));
+      doProfileX( dbe_->get(currentFolder_.str()+"isoPtSumHollowVsEta2D"), dbe_->get(currentFolder_.str()+"isoPtSumHollowVsEta"));
       
-      doProfileX( dbe_->get(currentFolder_.str()+"ecalSum2D"), dbe_->get(currentFolder_.str()+"ecalSum"));
-      doProfileX( dbe_->get(currentFolder_.str()+"hcalSum2D"), dbe_->get(currentFolder_.str()+"hcalSum"));
+      doProfileX( dbe_->get(currentFolder_.str()+"ecalSumVsEta2D"), dbe_->get(currentFolder_.str()+"ecalSumVsEta"));
+      doProfileX( dbe_->get(currentFolder_.str()+"hcalSumVsEta2D"), dbe_->get(currentFolder_.str()+"hcalSumVsEta"));
       
       doProfileX( dbe_->get(currentFolder_.str()+"r9VsEt2D"),dbe_->get(currentFolder_.str()+"r9VsEt"));
+      
+      doProfileX( dbe_->get(currentFolder_.str()+"covIetaIetaVsEta2D"),dbe_->get(currentFolder_.str()+"covIetaIetaVsEta"));
       
       //removing unneeded plots
       
       dbe_->setCurrentFolder(currentFolder_.str());
       
-      dbe_->removeElement("nIsoTracksSolid2D");
-      dbe_->removeElement("nIsoTracksHollow2D");
-      dbe_->removeElement("isoPtSumSolid2D");
-      dbe_->removeElement("isoPtSumHollow2D");
-      dbe_->removeElement("ecalSum2D");
-      dbe_->removeElement("hcalSum2D");
+      dbe_->removeElement("nIsoTracksSolidVsEta2D");
+      dbe_->removeElement("nIsoTracksHollowVsEta2D");
+      dbe_->removeElement("isoPtSumSolidVsEta2D");
+      dbe_->removeElement("isoPtSumHollowVsEta2D");
+      dbe_->removeElement("ecalSumVsEta2D");
+      dbe_->removeElement("hcalSumVsEta2D");
       dbe_->removeElement("r9VsEt2D");	
+      dbe_->removeElement("covIetaIetaVsEta2D");	
       
       //other plots
       
