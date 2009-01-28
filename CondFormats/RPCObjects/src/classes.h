@@ -18,6 +18,9 @@
 #include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
 #include "CondFormats/RPCObjects/interface/RPCEMap.h"
 
+#include "CondFormats/RPCObjects/interface/RPCTechTriggerConfig.h"
+#include "CondFormats/RPCObjects/interface/RBCBoardSpecs.h"
+#include "CondFormats/RPCObjects/interface/TTUBoardSpecs.h"
 
 namespace{
   struct dictionary {

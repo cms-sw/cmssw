@@ -75,4 +75,13 @@
   <class name="std::vector<RPCObPVSSmap::Item>"/>
 
 
+  <class name="RPCTechTriggerConfig"/>
+  <class name="RBCBoardSpecs"/>
+  <class name="RBCBoardSpecs::RBCBoardConfig"/>
+  <class name="std::vector<RBCBoardSpecs::RBCBoardConfig>"/>
+
+  <class name="TTUBoardSpecs"/>
+  <class name="TTUBoardSpecs::TTUBoardConfig"/>
+  <class name="std::vector<TTUBoardSpecs::TTUBoardConfig>"/> 
+
 </lcgdict>
