@@ -27,7 +27,7 @@ int main(){
     cond::IOVService iovmanager(sourcedb);
     cond::IOVEditor* editor=iovmanager.newIOVEditor();
     sourcedb.start(false);
-    editor->create(1,cond::timestamp);
+    editor->create(cond::timestamp,0);
     for(int i=0; i<5; ++i){
       std::cout<<"creating test payload obj"<<i<<std::endl;
       testPayloadObj* myobj=new testPayloadObj;
@@ -36,7 +36,7 @@ int main(){
       }
       cond::TypedRef<testPayloadObj> myobjRef(sourcedb,myobj);
       myobjRef.markWrite("testPayloadObjRcd");
-      editor->insert(i+10, myobjRef.token());
+      editor->add(i+10, myobjRef.token());
     }
     std::string iovtoken=editor->token();
     std::cout<<"iov token "<<iovtoken<<std::endl;

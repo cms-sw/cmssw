@@ -19,7 +19,7 @@ int main(){
     cond::IOVService iovmanager(pooldb);
     pooldb.start(false);
     cond::IOVEditor* editor=iovmanager.newIOVEditor();
-    editor->create(1,cond::timestamp);
+    editor->create(cond::timestamp,0);
     for(int i=0; i<5; ++i){
       std::cout<<"creating test payload obj"<<i<<std::endl;
       testPayloadObj* myobj=new testPayloadObj;
@@ -29,7 +29,7 @@ int main(){
       }
       cond::TypedRef<testPayloadObj> myobjRef(pooldb,myobj);
       myobjRef.markWrite("testPayloadObjRcd");
-      editor->insert(i+10, myobjRef.token());
+      editor->append(i+10, myobjRef.token());
     }
     std::string iovtoken=editor->token();
     std::cout<<"iov token "<<iovtoken<<std::endl;
@@ -39,7 +39,7 @@ int main(){
     pooldb.start(false);
     //same data, delete by tag this time
     cond::IOVEditor* editorNew=iovmanager.newIOVEditor();
-    editorNew->create(1,cond::timestamp);
+    editorNew->create(cond::timestamp,0);
     for(int i=0; i<9; ++i){
       std::cout<<"creating test payload obj"<<i<<std::endl;
       testPayloadObj* cid=new testPayloadObj;
@@ -50,7 +50,7 @@ int main(){
       cond::TypedRef<testPayloadObj> cidRef(pooldb,cid);
       cidRef.markWrite("testPayloadObjRcd");
       std::cout<<"token"<<cidRef.token()<<std::endl;
-      editorNew->insert(i+10, cidRef.token());
+      editorNew->append(i+10, cidRef.token());
     }
     std::cout<<"end of loop1"<<std::endl;
     iovtoken=editorNew->token();
@@ -59,7 +59,7 @@ int main(){
     delete editorNew;
     pooldb.start(false);
     cond::IOVEditor* editorNewNew=iovmanager.newIOVEditor();
-    editorNewNew->create(1,cond::timestamp);
+    editorNewNew->create(cond::timestamp, 0);
     for(int i=0; i<10; ++i){
       std::cout<<"creating test payload obj"<<i<<std::endl;
       testPayloadObj* abc=new testPayloadObj;
@@ -68,7 +68,7 @@ int main(){
       }
       cond::TypedRef<testPayloadObj> abcRef(pooldb,abc);
       abcRef.markWrite("testPayloadObjRcd");
-      editorNewNew->insert(i+10, abcRef.token());
+      editorNewNew->append(i+10, abcRef.token());
     }
     iovtoken=editorNewNew->token();
     std::cout<<"iov token "<<iovtoken<<std::endl;
