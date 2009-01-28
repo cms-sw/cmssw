@@ -2,7 +2,7 @@
 #include <cmath>
 #include <iostream>
 #include <cassert>
-
+#include <algorithm>
 
 static const int IPHI_MAX=72;
 
