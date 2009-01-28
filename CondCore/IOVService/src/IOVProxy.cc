@@ -3,7 +3,8 @@
 #include "CondCore/DBCommon/interface/Time.h"
 #include "CondCore/DBCommon/interface/ClassInfoLoader.h"
 
-#include "IOV.h"
+#include "CondFormats/Common/interface/IOVSequence.h"
+
 
 
 
@@ -16,14 +17,14 @@ namespace cond {
 	      bool nolib) :
 	pooldb(db){
 	db.start(true);
-	iov = cond::TypedRef<cond::IOV>(db,token);
+	iov = cond::TypedRef<cond::IOVSequence>(db,token);
 	if (iov->iovs().empty() || nolib) return;
 	// load dict (change: use IOV metadata....)
 	std::string ptok = iov->iovs().front().wrapperToken();
 	db.commit();   
 	cond::reflexTypeByToken(ptok);
 	db.start(true);
-	iov = cond::TypedRef<cond::IOV>(db,token);
+	iov = cond::TypedRef<cond::IOVSequence>(db,token);
       }
       ~IOVImpl(){
 	pooldb.commit();
@@ -39,7 +40,7 @@ namespace cond {
     iov(*impl.iov), elem(&impl.pooldb){}
   
 
-  void IOVElementProxy::set(IOV const & v, int i) {
+  void IOVElementProxy::set(IOVSequence const & v, int i) {
     m_since =  v.iovs()[i].sinceTime();
     m_till  =  (i+1==v.iovs().size()) ? v.lastTill() : v.iov[i+1].sinceTime()-1;
     m_token = v.iovs()[i].wrapperToken();
