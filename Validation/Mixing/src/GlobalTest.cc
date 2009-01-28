@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: GlobalTest.cc,v 1.5 2007/09/28 18:04:08 dlange Exp $
+// $Id: GlobalTest.cc,v 1.6 2008/02/29 20:48:53 ksmith Exp $
 //
 //
 
@@ -111,8 +111,8 @@ GlobalTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     edm::Handle<CrossingFrame<SimTrack> > cf_vertex;
     edm::Handle<CrossingFrame<PCaloHit> > cf_calohitE;
     edm::Handle<CrossingFrame<PCaloHit> > cf_calohitB;
-    std::string ecalsubdetb("EcalHitsEB");
-    std::string ecalsubdete("EcalHitsEE");
+    std::string ecalsubdetb("g4SimHitsEcalHitsEB");
+    std::string ecalsubdete("g4SimHitsEcalHitsEE");
     iEvent.getByType(cf_track);
     iEvent.getByType(cf_vertex);
     iEvent.getByLabel("mix",ecalsubdetb,cf_calohitB);

@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: TestSuite.cc,v 1.9 2007/09/28 18:04:08 dlange Exp $
+// $Id: TestSuite.cc,v 1.10 2008/02/29 20:48:54 ksmith Exp $
 //
 //
 
@@ -78,9 +78,9 @@ TestSuite::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     edm::Handle<CrossingFrame<PSimHit> > cf_simhit;
     edm::Handle<CrossingFrame<PCaloHit> > cf_calohitEcal;
     edm::Handle<CrossingFrame<PCaloHit> > cf_calohitHcal;
-    std::string subdetTracker("TrackerHitsTECLowTof");
-    std::string ecalsubdet("EcalHitsEB");
-    std::string hcalsubdet("HcalHits");
+    std::string subdetTracker("g4SimHitsTrackerHitsTECLowTof");
+    std::string ecalsubdet("g4SimHitsEcalHitsEB");
+    std::string hcalsubdet("g4SimHitsHcalHits");
     iEvent.getByType(cf_track);
     iEvent.getByType(cf_vertex);
     iEvent.getByLabel("mix",subdetTracker,cf_simhit);
@@ -176,6 +176,7 @@ TestSuite::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 						    //    std::string hcalsubdet("HcalHits");
     std::auto_ptr<MixCollection<PCaloHit> > colhcal(new MixCollection<PCaloHit>(cf_calohitHcal.product()));
     MixCollection<PCaloHit>::iterator cfihcal;
+    
     for (cfihcal=colhcal->begin(); cfihcal!=colhcal->end();cfihcal++) {
       if (cfihcal.getTrigger())  tofhcalhist_sig->Fill(cfihcal->time());
       else  tofhcalhist->Fill(cfihcal->time());

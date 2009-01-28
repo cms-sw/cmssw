@@ -10,3 +10,8 @@
 
 </environment>
 
+<environment name=testsuite_SmartPointers>
+
+<executable name=testsuite_SmartPointers.csh>validation suite</executable>
+
+</environment>

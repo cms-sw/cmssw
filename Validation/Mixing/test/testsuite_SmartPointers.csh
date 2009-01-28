@@ -16,27 +16,24 @@
 @ bcrend=3
 @ i=$bcrstart
 
+
 while ( $i <= $bcrend )
    echo "===================> Step1: executing EDProducer (MixingModule) for bcr $i"
 # execute Mixing Module
    /bin/rm /tmp/testsuite1_{$i}_cfg.py  >& /dev/null
-   sed "s/12345/$i/" testsuite1_cfg.py >/tmp/testsuite1_{$i}_cfg.py
-   cmsRun --parameter-set /tmp/testsuite1_{$i}_cfg.py
+   sed "s/12345/$i/" testsuite_SmartPointers_cfg.py | sed "s/23456/$bcrstart/" | sed "s/34567/$bcrend/" >/tmp/testsuite_SmartPointers{$i}_cfg.py
+   cmsRun --parameter-set /tmp/testsuite_SmartPointers{$i}_cfg.py
 # create histos
-   echo "===================> Step2: executing EDAnalyser (TestSuite) to create histos for bcr $i"
-    /bin/rm /tmp/testsuite2_{$i}_cfg.py  > &/dev/null
-    sed "s/12345/$i/" testsuite2_cfg.py | sed "s/23456/$bcrstart/" | sed "s/34567/$bcrend/" >/tmp/testsuite2_{$i}_cfg.py
-    cmsRun --parameter-set /tmp/testsuite2_{$i}_cfg.py
-####    cp  histos.root ../data/MMValHistos_$i.root  # for test preparation only!
-    echo "===================> Step2a: histogram comparison"
-    root -b -p -q DoCompare.C\(\"histos\",\"../data/MMValHistos_$i\"\)
+####    cp  histos.root ../data/MMValHistos_{$i}.root  # for test preparation only!
+    echo "===================> Step2: histogram comparison"
+#    root -b -p -q DoCompare.C\(\"histos\",\"../data/MMValHistos_$i\"\)
     @ i++
 end
    
     echo "===================> Step3: Global comparisons "
-    cmsRun globalTest1_cfg.py  # execute mixing
-    cmsRun globalTest2_cfg.py  # look at results
+#    cmsRun globalTest_SmartPointers_cfg.py  # execute mixing and look at results
+  
 ####    cp  GlobalHistos.root ../data/GlobalHistos.root  # for test preparation only!
-    root -b -p -q DoCompare.C\(\"GlobalHistos\",\"../data/GlobalHistos\"\)
+#    root -b -p -q DoCompare.C\(\"GlobalHistos\",\"../data/GlobalHistos\"\)
 
     echo "===================> MM Validation finished "
