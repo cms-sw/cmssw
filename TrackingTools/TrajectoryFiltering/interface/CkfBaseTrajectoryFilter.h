@@ -38,6 +38,7 @@ protected:
   template <class T> bool QF(const T& traj) const{
     if (!theChargeSignificanceTrajectoryFilter->qualityFilter(traj)) return false;            
     if (!theMinHitsTrajectoryFilter->qualityFilter(traj)) return false;
+    if (!theMinPtTrajectoryFilter->qualityFilter(traj)) return false;
     return true;}
 
   template <class T> bool TBC(T& traj) const{

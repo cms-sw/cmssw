@@ -34,7 +34,12 @@ public:
   virtual bool toBeContinued( Trajectory& traj) const { return TBC<Trajectory>(traj);}
   virtual bool toBeContinued( TempTrajectory& traj) const { return TBC<TempTrajectory>(traj);}
   
-  virtual std::string name() const {return "CompositeTrajectoryFilter";}
+  virtual std::string name() const { std::string rname="CompositeTrajectoryFilter";
+    uint i=0;
+    uint n=filters.size();
+    for (;i<n;i++){ rname+="_"+filters[i]->name();}
+    return rname;
+  }
 
 protected:
   template <class T> bool TBC( T& traj)const{

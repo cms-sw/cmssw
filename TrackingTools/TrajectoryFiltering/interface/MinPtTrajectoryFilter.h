@@ -26,8 +26,8 @@ public:
     theMinHits(pset.getParameter<int>("minHitsMinPt")){}
     
 
-  virtual bool qualityFilter( const Trajectory& traj)const { return TrajectoryFilter::qualityFilterIfNotContributing; }
-  virtual bool qualityFilter( const TempTrajectory& traj) const { return TrajectoryFilter::qualityFilterIfNotContributing; }
+  virtual bool qualityFilter( const Trajectory& traj)const { return test(traj.lastMeasurement(),traj.foundHits()); }
+  virtual bool qualityFilter( const TempTrajectory& traj) const { return test(traj.lastMeasurement(),traj.foundHits()); }
     
   virtual bool toBeContinued( Trajectory& traj) const {return test(traj.lastMeasurement(),traj.foundHits()); }
   virtual bool toBeContinued( TempTrajectory& traj) const { return test(traj.lastMeasurement(),traj.foundHits()); }
