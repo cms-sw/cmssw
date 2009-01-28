@@ -36,7 +36,7 @@ int main(){
       }
       cond::TypedRef<testPayloadObj> myobjRef(sourcedb,myobj);
       myobjRef.markWrite("testPayloadObjRcd");
-      editor->add(i+10, myobjRef.token());
+      editor->append(i+10, myobjRef.token());
     }
     std::string iovtoken=editor->token();
     std::cout<<"iov token "<<iovtoken<<std::endl;
