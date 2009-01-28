@@ -18,7 +18,9 @@ int main(){
     cond::IOVEditor* editor=iovmanager.newIOVEditor();
     pooldb.start(false);
     unsigned int pos=0;
-    editor->create(10,cond::timestamp);
+    editor->create(cond::timestamp,10);
+    pos=editor->append(1,"pay01tok");
+    std::cout<<"inserted 20 payload at position "<<pos<<std::endl;
     pos=editor->insert(20,"pay010tok");
     std::cout<<"inserted 20 payload at position "<<pos<<std::endl;
     pos=editor->insert(40, "pay021tok");
@@ -52,7 +54,7 @@ int main(){
     }
     try {
       pos=editor->insert(25, "pay5tok");
-      std::cout<<"shall not append payload at position "<<pos<<std::endl;
+      std::cout<<"shall not insert payload at position "<<pos<<std::endl;
     }
     catch(const cond::Exception& er){
       std::cout<<"expected error "<<er.what()<<std::endl;
@@ -67,6 +69,7 @@ int main(){
     }
     editor->updateClosure(400);
 
+    /*
     // test freeInsert
     std::cout<<"\nfreeInsert "<<std::endl;
     pos=editor->freeInsert(5,"pay005tok");
@@ -123,11 +126,11 @@ int main(){
  
 
     editor->updateClosure(900);
-
+    */
 
     std::cout<<"delete entry "<<std::endl;
 
-    
+    /*
     try {
       pos=editor->deleteEntry(5);
       std::cout<<"shall not delete payload at position "<<pos<<std::endl;
@@ -143,6 +146,7 @@ int main(){
     catch(const cond::Exception& er){
       std::cout<<"expected error "<<er.what()<<std::endl;
     }
+    
 
     pos=editor->append(593, "pay593tok");
     std::cout<<"inserted 193 payload at position "<<pos<<std::endl;
@@ -159,7 +163,7 @@ int main(){
     std::cout<<"deleted entry 45 payload at position "<<pos<<std::endl;
     pos=editor->deleteEntry(141);
     std::cout<<"deleted entry 141 payload at position "<<pos<<std::endl;
- 
+    */
 
 
     std::string token=editor->token();

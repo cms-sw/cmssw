@@ -11,7 +11,7 @@ namespace cond{
   class PoolTransaction;
   class IOVIteratorImpl : virtual public cond::IOVIterator{
   public:
-    typedef IOV::const_iterator const_iterator;
+    typedef IOVSequence::const_iterator const_iterator;
     IOVIteratorImpl( cond::PoolTransaction& pooldb,
 		     const std::string & token);
     virtual ~IOVIteratorImpl();
@@ -31,11 +31,11 @@ namespace cond{
   private:
     void open() const;
     void init();
+    cond::Time_t till() const;
     cond::PoolTransaction& m_pooldb;
     std::string m_token;
     cond::TypedRef<cond::IOVSequence> m_iov;
     const_iterator m_pos;
-    cond::Time_t  m_since;
     size_t m_count;
 
     bool m_isInit;
