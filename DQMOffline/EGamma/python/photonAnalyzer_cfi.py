@@ -8,10 +8,6 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
     phoProducer = cms.string('photons'),
     photonCollection = cms.string(''),
 
-    barrelEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
-    endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
-                                
-
     triggerResultsHLT = cms.InputTag("TriggerResults","","HLT"),
     triggerResultsFU = cms.InputTag("TriggerResults","","FU"),
                                 
@@ -45,6 +41,10 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
     etBin = cms.int32(200),
     etMin = cms.double(0.0),
     etMax = cms.double(200.0),
+
+    sumBin = cms.int32(200),
+    sumMin = cms.double(0.0),
+    sumMax = cms.double(50.0),
                                 
     etaBin = cms.int32(100),                               
     etaMin = cms.double(-2.5),
@@ -58,6 +58,26 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
     r9Min = cms.double(0.0),
     r9Max = cms.double(1.1),
 
+    hOverEBin = cms.int32(100),
+    hOverEMin = cms.double(0),                               
+    hOverEMax = cms.double(0.5), 
+
+    numberBin = cms.int32(10),
+    numberMin = cms.double(0),                               
+    numberMax = cms.double(10), 
+
+    xyBin = cms.int32(100),
+    xyMin = cms.double(-150),                               
+    xyMax = cms.double(150),
+
+    rBin = cms.int32(200),
+    rMin = cms.double(0),                               
+    rMax = cms.double(120),                                
+
+    zBin = cms.int32(100),
+    zMin = cms.double(0),                               
+    zMax = cms.double(280),
+
     dEtaTracksBin = cms.int32(100),
     dEtaTracksMin = cms.double(-0.2),
     dEtaTracksMax = cms.double(0.2),
@@ -65,27 +85,7 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
     dPhiTracksBin = cms.int32(100),
     dPhiTracksMin = cms.double(-0.5),
     dPhiTracksMax = cms.double(0.5),
-                                
-# parameters for pizero finding                                
-    seleXtalMinEnergy = cms.double(0.0),
-    clusSeedThr = cms.double(0.5),
-    clusPhiSize = cms.int32(3),
-    clusEtaSize = cms.int32(3),
-    ParameterLogWeighted = cms.bool(True),                          
-    ParameterX0 = cms.double(0.89),
-    ParameterW0 = cms.double(4.2),
-    ParameterT0_barl = cms.double(5.7),
-    selePtGammaOne = cms.double(0.9),
-    selePtGammaTwo = cms.double(0.9),                          
-    seleS4S9GammaOne = cms.double(0.85),
-    seleS4S9GammaTwo = cms.double(0.85),
-    selePtPi0 = cms.double(2.5),
-    selePi0Iso = cms.double(0.5),
-    selePi0BeltDR = cms.double(0.2),
-    selePi0BeltDeta = cms.double(0.05),
-    seleMinvMaxPi0 = cms.double(0.5),
-    seleMinvMinPi0 = cms.double(0.0),
-#                                
+                
     OutputMEsInRootFile = cms.bool(False),
  
     OutputFileName = cms.string('DQMOfflinePhotons.root'),
