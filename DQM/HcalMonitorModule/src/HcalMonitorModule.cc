@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/01/21 18:10:43 $
- * $Revision: 1.102 $
+ * $Date: 2009/01/28 19:10:33 $
+ * $Revision: 1.103 $
  * \author W Fisher
  * \author J Temple
  *
@@ -65,7 +65,6 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   dump2database_   = ps.getUntrackedParameter<bool>("dump2database",false); // dumps output to database file
 
   FEDRawDataCollection_ = ps.getUntrackedParameter<edm::InputTag>("FEDRawDataCollection",edm::InputTag("source",""));
-  cout <<"FED = "<<FEDRawDataCollection_<<endl;
 
   // Valgrind complained when the test was simply:  if ( ps.getUntrackedParameter<bool>("DataFormatMonitor", false))
   // try assigning value to bool first?
