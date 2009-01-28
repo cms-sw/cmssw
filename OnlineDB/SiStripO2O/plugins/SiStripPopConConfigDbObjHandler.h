@@ -27,8 +27,6 @@ namespace popcon{
     class SiStripPopConConfigDbObjHandler : public popcon::PopConSourceHandler<T>{
     public:
 
-    enum DataType { UNDEFINED=0, _Cabling=1, _Pedestal=2, _Noise=3, _Threshold=4, _BadStrip=5};
-
     //---------------------------------------
     //
     SiStripPopConConfigDbObjHandler(const edm::ParameterSet& pset):
@@ -86,66 +84,38 @@ namespace popcon{
     //
     std::string id() const { return m_name;}
 
-    private:
-    //methods
-    
-    DataType getDataType(){
-      
-      if(typeid(T)==typeid(SiStripFedCabling)){
-	edm::LogInfo   ("SiStripPopPopConConfigDbObjHandler") << "[getDataType] for PopCon application " << m_name << " " << typeid(T).name();
-	return _Cabling;
-      }
-      return UNDEFINED;
-    }
-    
-
-    
     //---------------------------------------
     //
     bool isTransferNeeded(){
 
 
-      edm::LogInfo   ("SiStripPopPopConConfigDbObjHandler") << "[isTransferNeeded] checking for transfer"  << std::endl;
+      edm::LogInfo   ("SiStripPopPopConConfigDbObjHandler") << "[isTransferNeeded] checking for transfer : typeid " <<   std::endl;
       std::stringstream ss_logdb, ss;
-      std::stringstream ss1; 
 
       //get log information from previous upload
       if (this->logDBEntry().usertext!="")
-	ss_logdb << this->logDBEntry().usertext.substr(this->logDBEntry().usertext.find_last_of("@"));
+	ss_logdb << this->logDBEntry().usertext.substr(this->logDBEntry().usertext.find_first_of("@"));
       else
 	ss_logdb << "";
-      
-      //get current config DB parameter
-      const SiStripDbParams& dbParams = condObjBuilder->dbParams();
-      
-      SiStripDbParams::const_iterator_range partitionsRange = dbParams.partitions(); 
 
-      SiStripDbParams::SiStripPartitions::const_iterator ipart = partitionsRange.begin();
-      SiStripDbParams::SiStripPartitions::const_iterator ipartEnd = partitionsRange.end();
-      for ( ; ipart != ipartEnd; ++ipart ) { 
-	SiStripPartition partition=ipart->second;
-	partition.print(ss1,true);
-	ss  << "@ "
-	    << " Partition " << partition.partitionName() 
-	    << " CabVer "    << partition.cabVersion().first << "." << partition.cabVersion().second
-	  ;
-	if (getDataType()!=_Cabling)
-	  ss << " FedVer "    << partition.fedVersion().first << "." << partition.fedVersion().second;
-      }
-  
-      if (!strcmp(ss.str().c_str(),ss_logdb.str().c_str())){
+      std::string label="";
+      if(typeid(T)==typeid(SiStripFedCabling))
+	label="Cabling";
+
+      if(!condObjBuilder->checkForCompatibility(ss_logdb,ss,label)){
 	//string are equal, no need to do transfer
-					  edm::LogInfo   ("SiStripPopPopConConfigDbObjHandler") 
-					    << "[isTransferNeeded] the selected conditions are already uploaded in the last iov ("  
-					    << this->tagInfo().lastInterval.first << ") open for the object " 
-					    << this->logDBEntry().payloadName << " in the db " 
-					    << this->logDBEntry().destinationDB << " parameters: "  << ss.str() << "\n NO TRANSFER NEEDED";
+	edm::LogInfo   ("SiStripPopPopConConfigDbObjHandler") 
+	  << "[isTransferNeeded] the selected conditions are already uploaded in the last iov ("  
+	  << this->tagInfo().lastInterval.first << ") open for the object " 
+	  << this->logDBEntry().payloadName << " in the db " 
+	  << this->logDBEntry().destinationDB << " parameters: "  << ss_logdb.str() << "\n NO TRANSFER NEEDED";
 	return false;
       }
+      
       this->m_userTextLog = ss.str();
       edm::LogInfo   ("SiStripPopPopConConfigDbObjHandler") 
 	<< "[isTransferNeeded] the selected conditions will be uploaded: " << ss.str() 
-	<< "\n A- "<< ss.str()  << "\n B- " << ss_logdb.str() << "\n Fine";
+	<< "\n Going to Upload: "<< ss.str()  << "\n Last Upload: " << ss_logdb.str() << "\n Fine";
 
       return true;
     }
@@ -158,16 +128,19 @@ namespace popcon{
       
       T *obj=0; 
       condObjBuilder->getValue(obj);
- 
+
+      edm::LogInfo   ("SiStripPopPopConConfigDbObjHandler") << "[setForTransfer] " << m_name << " got data to be transferred from condObjBuilder "  << std::endl;
+
       if(!this->tagInfo().size)
 	m_since=1;
       else
 	if (m_debugMode)
 	  m_since=this->tagInfo().lastInterval.first+1; 
+      edm::LogInfo   ("SiStripPopPopConConfigDbObjHandler") <<"[setForTransfer] setting since = "<< m_since <<std::endl;
 
       if (obj!=0){
 
-	edm::LogInfo   ("SiStripPopPopConConfigDbObjHandler") <<"setting since = "<< m_since <<std::endl;
+	edm::LogInfo   ("SiStripPopPopConConfigDbObjHandler") <<"[setForTransfer] filling map m_to_transfer" <<std::endl;
 	this->m_to_transfer.push_back(std::make_pair(obj,m_since));
       }else{
 	edm::LogError   ("SiStripPopPopConConfigDbObjHandler") <<"[setForTransfer] " << m_name << "  : NULL pointer of obj " << typeid(T).name() << " reported by SiStripCondObjBuilderFromDb\n Transfer aborted"<<std::endl;
