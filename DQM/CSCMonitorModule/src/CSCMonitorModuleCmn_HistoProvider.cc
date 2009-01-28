@@ -22,7 +22,7 @@ cscdqm::MonitorObject* CSCMonitorModuleCmn::bookMonitorObject(const cscdqm::Hist
 
   cscdqm::MonitorObject *me = NULL;
 
-  dbe->setCurrentFolder(*req.folder);
+  dbe->setCurrentFolder(req.folder);
 
   switch (req.htype) {
     case cscdqm::INT:
@@ -40,23 +40,23 @@ cscdqm::MonitorObject* CSCMonitorModuleCmn::bookMonitorObject(const cscdqm::Hist
       me = new CSCMonitorObject(dbe->bookString(req.hdef->getName(), req.default_string));
       break;
     case cscdqm::H1D: 
-      me = new CSCMonitorObject(dbe->book1D(req.hdef->getName(), *req.title, req.nchX, req.lowX, req.highX));
+      me = new CSCMonitorObject(dbe->book1D(req.hdef->getName(), req.title, req.nchX, req.lowX, req.highX));
       break;
     case cscdqm::H2D:
       if (std::string(req.hdef->getHistoName()).compare(cscdqm::h::names[cscdqm::h::EMU_CSC_STATS_SUMMARY]) == 0) {
         dbe->setCurrentFolder(DIR_EVENTINFO);
       } else {
-        me = new CSCMonitorObject(dbe->book2D(req.hdef->getName(), *req.title, req.nchX, req.lowX, req.highX, req.nchY, req.lowY, req.highY));
+        me = new CSCMonitorObject(dbe->book2D(req.hdef->getName(), req.title, req.nchX, req.lowX, req.highX, req.nchY, req.lowY, req.highY));
       }
       break;
     case cscdqm::H3D:
-      me = new CSCMonitorObject(dbe->book3D(req.hdef->getName(), *req.title, req.nchX, req.lowX, req.highX, req.nchY, req.lowY, req.highY, req.nchZ, req.lowZ, req.highZ));
+      me = new CSCMonitorObject(dbe->book3D(req.hdef->getName(), req.title, req.nchX, req.lowX, req.highX, req.nchY, req.lowY, req.highY, req.nchZ, req.lowZ, req.highZ));
       break;
     case cscdqm::PROFILE:
-      me = new CSCMonitorObject(dbe->bookProfile(req.hdef->getName(), *(req.title), req.nchX, req.lowX, req.highX, req.nchY, req.lowY, req.highY, req.option.c_str()));
+      me = new CSCMonitorObject(dbe->bookProfile(req.hdef->getName(), req.title, req.nchX, req.lowX, req.highX, req.nchY, req.lowY, req.highY, req.option.c_str()));
       break;
     case cscdqm::PROFILE2D:
-      me = new CSCMonitorObject(dbe->bookProfile2D(req.hdef->getName(), *(req.title), req.nchX, req.lowX, req.highX, req.nchY, req.lowY, req.highY, req.nchZ, req.lowZ, req.highZ, req.option.c_str()));
+      me = new CSCMonitorObject(dbe->bookProfile2D(req.hdef->getName(), req.title, req.nchX, req.lowX, req.highX, req.nchY, req.lowY, req.highY, req.nchZ, req.lowZ, req.highZ, req.option.c_str()));
       break;
   }
 
