@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripCondObjBuilderFromDb.h,v 1.4 2008/09/22 18:06:50 bainbrid Exp $
-// Latest tag:  $Name:  $
+// Last commit: $Id: SiStripCondObjBuilderFromDb.h,v 1.5 2008/09/29 13:20:28 bainbrid Exp $
+// Latest tag:  $Name: V03-01-02 $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/interface/SiStripCondObjBuilderFromDb.h,v $
 
 #ifndef OnlineDB_SiStripESSources_SiStripCondObjBuilderFromDb_H
@@ -33,7 +33,7 @@ class SiStripCondObjBuilderFromDb {
 			      const edm::ActivityRegistry&);
   virtual ~SiStripCondObjBuilderFromDb();
 
-  static float defaultGainValue_;
+  //  static float defaultGainValue_;
   
   /** Returns database connection parameters. */
   inline const SiStripDbParams& dbParams() const {return db_->dbParams();} 
@@ -43,6 +43,8 @@ class SiStripCondObjBuilderFromDb {
   void buildCondObj();
   void buildStripRelatedObjects( SiStripConfigDb* const db,
 				 const SiStripDetCabling& det_cabling);
+
+  bool checkForCompatibility(std::stringstream& input,std::stringstream& output,std::string& label);
 
   SiStripFedCabling*  getFedCabling() {checkUpdate(); return fed_cabling_;}
   SiStripPedestals *  getPedestals()  {checkUpdate(); return pedestals_;}  
