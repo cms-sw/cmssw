@@ -22,7 +22,7 @@ namespace cond {
   IOV * backportIOV(IOVSequence const & sequence) {
     IOV * result = new IOV(sequence.timeType(), sequence.firstSince());
     (*result).iov.reserve(sequence.iovs().size());
-    for(IOVSequence::const_iterator p=sequence.iovs().begin()
+    for(IOVSequence::const_iterator p=sequence.iovs().begin();
 	  p!=sequence.iovs().end()-1; p++) {
       cond::Time_t  till = (*(p+1)).sinceTime()-1;
       (*result).add(till, (*p).wrapperToken());
