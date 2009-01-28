@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/18 11:28:03 $
- *  $Revision: 1.11 $
+ *  $Date: 2009/01/28 14:33:50 $
+ *  $Revision: 1.12 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -640,11 +640,7 @@ void MuonTestSummary::doEnergyTests(string histname, string muonType, int binNum
   if(histname=="hadS9PointingMuDepositedEnergy_" && !(hPeak>2 && hPeak<3.5))
     energySummaryMap->setBinContent(binNumber,2, 0);
 
-  if(histname=="hoS9PointingMuDepositedEnergy_" && hPeak>2 && hPeak<3.5)
-    energySummaryMap->setBinContent(binNumber,3, 1);
-  if(histname=="hoS9PointingMuDepositedEnergy_" && !(hPeak>2 && hPeak<3.5))
-    energySummaryMap->setBinContent(binNumber,3, 0);
-
+  //missing test on ho distributions
 }
 
 
