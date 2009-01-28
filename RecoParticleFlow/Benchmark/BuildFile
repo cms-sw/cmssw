@@ -10,6 +10,7 @@
 <use name=DataFormats/JetReco>
 <use name=DataFormats/METReco>
 <use name=DataFormats/ParticleFlowCandidate>
+<use name=DataFormats/TauReco>
 
 <export>
   <lib name=RecoParticleFlowBenchmark>
