@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-TriggerValidator = cms.EDAnalyzer("TriggerValidator",
+HLTSusyExoVal = cms.EDAnalyzer("TriggerValidator",
     TurnOnParams = cms.PSet(
         hlt1MuonIsoList = cms.vstring('hltSingleMuIsoLevel1Seed', 
             'hltSingleMuIsoL1Filtered', 
