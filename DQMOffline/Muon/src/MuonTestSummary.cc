@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/17 16:35:45 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/12/18 11:28:03 $
+ *  $Revision: 1.11 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -591,23 +591,45 @@ void MuonTestSummary::doEnergyTests(string histname, string muonType, int binNum
     // Setting fit range and start values
     Double_t fitRange[2];
     Double_t startValues[4], parlimitslo[4], parlimitshi[4], fitPar[4], fitParErr[4];
-    fitRange[0]=0.0;
-    fitRange[1]=3.0;
 
-    startValues[0]=0.036; startValues[1]=0.193; startValues[2]=110.0; startValues[3]=0.06;
-    parlimitslo[0]=0.0; parlimitslo[1]=0.; parlimitslo[2]=1.0; parlimitslo[3]=0.;
-    parlimitshi[0]=0.05; parlimitshi[1]=0.5; parlimitshi[2]=80000.0; parlimitshi[3]=0.1;
-    
-    Double_t chisqr;
-    Int_t    ndf;
-    TF1 *fit = langaufit(energyHisto_root,fitRange,startValues,parlimitslo,parlimitshi,fitPar,fitParErr,&chisqr,&ndf);
-    if(fit){
-      langaupro(fitPar,hPeak,hFWHM);
-      LogTrace(metname)<<"hPeak from langau fit: "<<hPeak<<" for: "<<histname+muonType<<endl;
-      LogTrace(metname)<<"hFWHM from langau fit: "<<hFWHM<<" for: "<<histname+muonType<<endl;
+    if(histname=="ecalS9PointingMuDepositedEnergy_"){
+      fitRange[0]=0.04;
+      fitRange[1]=3.0;
+      
+      startValues[0]=0.036; startValues[1]=0.193; startValues[2]=110.0; startValues[3]=0.06;
+      parlimitslo[0]=0.0; parlimitslo[1]=0.; parlimitslo[2]=1.0; parlimitslo[3]=0.;
+      parlimitshi[0]=0.05; parlimitshi[1]=0.5; parlimitshi[2]=80000.0; parlimitshi[3]=0.1;
+      
+      Double_t chisqr;
+      Int_t    ndf;
+      TF1 *fit = langaufit(energyHisto_root,fitRange,startValues,parlimitslo,parlimitshi,fitPar,fitParErr,&chisqr,&ndf);
+      if(fit){
+	langaupro(fitPar,hPeak,hFWHM);
+	LogTrace(metname)<<"hPeak from langau fit: "<<hPeak<<" for: "<<histname+muonType<<endl;
+	LogTrace(metname)<<"hFWHM from langau fit: "<<hFWHM<<" for: "<<histname+muonType<<endl;
+      }
     }
-   }
 
+    if(histname=="hadS9PointingMuDepositedEnergy_"){
+      fitRange[0]=0.0;
+      fitRange[1]=7.0;
+
+      startValues[0]=2.0; startValues[1]=2.4; startValues[2]=110.0; startValues[3]=4.0;
+      parlimitslo[0]=0.0; parlimitslo[1]=0.; parlimitslo[2]=1.0; parlimitslo[3]=0.;
+      parlimitshi[0]=4.0; parlimitshi[1]=4.0; parlimitshi[2]=80000.0; parlimitshi[3]=8.0;
+      
+      Double_t chisqr;
+      Int_t    ndf;
+      TF1 *fit = langaufit(energyHisto_root,fitRange,startValues,parlimitslo,parlimitshi,fitPar,fitParErr,&chisqr,&ndf);
+      if(fit){
+	langaupro(fitPar,hPeak,hFWHM);
+	LogTrace(metname)<<"hPeak from langau fit: "<<hPeak<<" for: "<<histname+muonType<<endl;
+	LogTrace(metname)<<"hFWHM from langau fit: "<<hFWHM<<" for: "<<histname+muonType<<endl;
+      }
+    }
+
+  }
+  
   if(histname=="ecalS9PointingMuDepositedEnergy_" && hPeak>0.2 && hPeak<0.3)
     energySummaryMap->setBinContent(binNumber,1, 1);
   if(histname=="ecalS9PointingMuDepositedEnergy_" && !(hPeak>0.2 && hPeak<0.3))
