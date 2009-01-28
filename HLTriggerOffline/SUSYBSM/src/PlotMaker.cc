@@ -2050,7 +2050,7 @@ void PlotMaker::handleObjects(const edm::Event& iEvent)
   theCaloMETCollection = *theCaloMETCollectionHandle;
 }
 
-double PlotMaker::invariantMass(reco::Particle* p1, reco::Particle* p2) {
+double PlotMaker::invariantMass(reco::Candidate* p1, reco::Candidate* p2) {
   double mass = sqrt( (p1->energy() + p2->energy())*(p1->energy() + p2->energy()) -
 	       (p1->px() + p2->px())*(p1->px() + p2->px()) -
 	       (p1->py() + p2->py())*(p1->py() + p2->py()) -

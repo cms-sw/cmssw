@@ -69,7 +69,7 @@ class PlotMaker {
   
 
   void setBits(std::vector<int>* l1bits, std::vector<int>* hltbits) {l1bits_=l1bits; hltbits_=hltbits;}
-  double invariantMass(reco::Particle*,reco::Particle*);
+  double invariantMass(reco::Candidate*,reco::Candidate*);
   std::vector<int>* l1bits_;
   std::vector<int>* hltbits_;
     

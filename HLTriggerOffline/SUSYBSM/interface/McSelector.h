@@ -21,7 +21,6 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/METReco/interface/GenMET.h"

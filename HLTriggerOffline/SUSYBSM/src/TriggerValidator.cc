@@ -15,7 +15,7 @@ Implementation:
 //                   Maurizio Pierini
 //                   Maria Spiropulu
 //         Created:  Wed Aug 29 15:10:56 CEST 2007
-// $Id: TriggerValidator.cc,v 1.2 2007/09/28 11:10:19 chiorbo Exp $
+// $Id: TriggerValidator.cc,v 1.8 2009/01/27 11:55:11 chiorbo Exp $
 //
 //
 
@@ -143,10 +143,7 @@ void
 TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-  cout << "beginAnalyze" << endl;
   using namespace edm;
-  
-  cout << "AAAAAAAAAAAAAAA" << endl;
   
   nEvTot++;
   
@@ -157,7 +154,6 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   if(eventMcSelected) nEvMcSelected++;
   
   
-  cout << "BBBBBBBBBBBBBBB" << endl;
   // ******************************************************** 
   // Get the L1 Info
   // ********************************************************    
@@ -167,8 +163,6 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   std::vector<int> l1bits;
   if (!L1GTRR.isValid()) {cout << "L1ParticleMapCollection Not Valid!" << endl;}
   int nL1size = L1GTRR->decisionWord().size();
-  cout << "111111111111111111" << endl;
-
   if(firstEvent) {
 
 
@@ -209,7 +203,6 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     l1Names_[L1GTRR->decisionWord().size()] = "Total";
     
   }
-  cout << "222222222222222222" << endl;
   
  //fill the eff vectors and histos for L1
   for (int i=0; i<nL1size; ++i) {
@@ -227,7 +220,6 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       }
     }      
   }
-  cout << "3333333333333333" << endl;
 
   //Calculate the overlap among l1 bits
   for(int i=0; i<nL1size; ++i) {
@@ -248,17 +240,13 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     hL1BitsAfterMcCuts->Fill(nL1size);
   }
 
- cout << "CCCCCCCCCCCCCCCC" << endl;
 
   // ******************************************************** 
   // Get the HLT Info
   // ******************************************************** 
   edm::Handle<TriggerResults> trhv;
- cout << "aaaaaaaaaaaaaaaaaaa" << endl;
   iEvent.getByLabel(hltLabel,trhv);
- cout << "bbbbbbbbbbbbbbbb" << endl;
   std::vector<int> hltbits;
- cout << "ccccccccccccccccc" << endl;
 
 //   if(!trhv.isValid()) {
 //     std::cout << "invalid handle for HLT TriggerResults" << std::endl;
@@ -306,10 +294,8 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       }
     }      
   }
- cout << "1111111111" << endl;
 
   //Calculate the overlap among HLT paths
- cout << "trhv->size() = " << trhv->size() << endl;
  for(unsigned int i=0; i< trhv->size(); i++) {
    for(unsigned int j=0; j< trhv->size(); j++) {
 //      cout << "trhv->size() = " << trhv->size() << endl;
@@ -319,7 +305,6 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    }
  }
 
- cout << "DDDDDDDDDDDDDDD" << endl;
 
   //The overlap histos are filled in the endJob() method
 
@@ -344,10 +329,7 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   myPlotMaker->fillPlots(iEvent);
   //  myTurnOnMaker->fillPlots(iEvent);
 
- cout << "EEEEEEEEEEEEEEEEEE" << endl;
   firstEvent = false;
-
-  cout << "endAnalyze" << endl;
 
 }
 
@@ -362,24 +344,18 @@ TriggerValidator::beginJob(const edm::EventSetup&)
   
   
   if (dbe) {
-    cout << "beginJob if n.1 " << endl;
-    cout << "dirname = " << dirname_ << endl;
     dbe->setCurrentFolder(dirname_);
     dbe->rmdir(dirname_);
   }
   
   
   if (dbe) {
-    cout << "beginJob if n.2 " << endl;
-    cout << "dirname = " << dirname_ << endl;
     dbe->setCurrentFolder(dirname_);
   }  
   
   
   if (hltConfig_.init("HLT")) {
-    cout << "beginJob if n.3 " << endl;
     nHltPaths = hltConfig_.size(); 
-    cout << "nHltPaths = " << nHltPaths << endl;
   }
   nL1Bits = 128; 
 
@@ -405,19 +381,14 @@ TriggerValidator::beginJob(const edm::EventSetup&)
   
 
   if (dbe) {
-    cout << "beginJob if n.4 " << endl;
-    cout << "dirname = " << dirname_ << endl;
     dbe->setCurrentFolder(dirname_);
     dbe->rmdir(dirname_);
   }
   
   
   if (dbe) {
-    cout << "beginJob if n.5 " << endl;
-    cout << "dirname = " << dirname_ << endl;
     dbe->setCurrentFolder(dirname_);
     }
-    cout << "dirname = " << dirname_+triggerBitsDir << endl;
   
   dbe_->setCurrentFolder(dirname_+triggerBitsDir);
   //add 1 bin for the Total
@@ -516,8 +487,6 @@ TriggerValidator::endRun(const edm::Run& run, const edm::EventSetup& c)
   //identical to the ones with "bits"
   //but with the names in the x axis
   //instead of the numbers
-  cout << "endJob 111111111111" << endl;
-  
   dbe_->setCurrentFolder(dirname_+triggerBitsDir);
   TH1F* hTemp = (TH1F*) (hL1BitsBeforeCuts->getTH1F())->Clone("L1Paths");
   hL1PathsBeforeCuts  = dbe_->book1D("L1Paths", hTemp);
@@ -525,21 +494,18 @@ TriggerValidator::endRun(const edm::Run& run, const edm::EventSetup& c)
   hTemp = (TH1F*) (hHltBitsBeforeCuts->getTH1F())->Clone("HltPaths");
   hHltPathsBeforeCuts = dbe_->book1D("HltPaths", hTemp);
 
-  cout << "endJob 222222222222222" << endl;
   dbe_->setCurrentFolder(dirname_+recoSelBitsDir);
   hTemp = (TH1F*) (hL1BitsAfterRecoCuts->getTH1F())->Clone("L1Paths");
   hL1PathsAfterRecoCuts   = dbe_->book1D("L1Paths", hTemp);
   hTemp = (TH1F*) (hHltBitsAfterRecoCuts->getTH1F())->Clone("HltPaths");
   hHltPathsAfterRecoCuts  = dbe_->book1D("HltPaths", hTemp);
 
- cout << "endJob 333333333333333" << endl;
   dbe_->setCurrentFolder(dirname_+mcSelBitsDir);
   hTemp = (TH1F*) (hL1BitsAfterMcCuts->getTH1F())->Clone("L1Paths");
   hL1PathsAfterMcCuts   = dbe_->book1D("L1Paths", hTemp);
   hTemp = (TH1F*) (hHltBitsAfterMcCuts->getTH1F())->Clone("HltPaths");
   hHltPathsAfterMcCuts  = dbe_->book1D("HltPaths", hTemp);
   
- cout << "endJob 44444444444444" << endl;
   for(unsigned int i=0; i<l1Names_.size(); ++i) {
     hL1PathsBeforeCuts->setBinLabel(i+1,l1Names_[i].c_str(),1);
     hL1PathsAfterRecoCuts->setBinLabel(i+1,l1Names_[i].c_str(),1);
@@ -561,7 +527,6 @@ TriggerValidator::endRun(const edm::Run& run, const edm::EventSetup& c)
 
 
   //  using namespace std;
- cout << "endJob 555555555555" << endl;
 
   unsigned int n(l1Names_.size());
 
