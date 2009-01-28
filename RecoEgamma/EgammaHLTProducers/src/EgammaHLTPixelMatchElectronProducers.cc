@@ -10,7 +10,7 @@
 */
 //
 // Original Author: Monica Vazquez Acosta (CERN)
-// $Id: EgammaHLTPixelMatchElectronProducers.cc,v 1.1 2006/11/03 16:56:38 monicava Exp $
+// $Id: EgammaHLTPixelMatchElectronProducers.cc,v 1.2 2007/10/16 09:13:48 ghezzi Exp $
 //
 //
 
@@ -23,14 +23,16 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTPixelMatchElectronProducers.h"
-#include "RecoEgamma/EgammaHLTAlgos/interface/EgammaHLTPixelMatchElectronAlgo.h"
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h"
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
+
+#include "RecoEgamma/EgammaHLTAlgos/interface/EgammaHLTPixelMatchElectronAlgo.h"/*
+//#include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h"
+//#include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
+*/
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 
