@@ -17,9 +17,9 @@ namespace cond {
 	pooldb(db){
 	db.start(true);
 	iov = cond::TypedRef<cond::IOV>(db,token);
-	if (iov->iov.empty() || nolib) return;
-	// load dict
-	std::string ptok = iov->iov.front().second;
+	if (iov->iovs().empty() || nolib) return;
+	// load dict (change: use IOV metadata....)
+	std::string ptok = iov->iovs().front().wrapperToken();
 	db.commit();   
 	cond::reflexTypeByToken(ptok);
 	db.start(true);
@@ -39,10 +39,10 @@ namespace cond {
     iov(*impl.iov), elem(&impl.pooldb){}
   
 
-  void IOVElement::set(IOV const & v, int i) {
-    m_since = (i==0) ? v.firstsince : v.iov[i-1].first+1;
-    m_till  = v.iov[i].first;
-    m_token = v.iov[i].second;
+  void IOVElementProxy::set(IOV const & v, int i) {
+    m_since =  v.iovs()[i].sinceTime();
+    m_till  =  (i+1==v.iovs().size()) ? v.lastTill() : v.iov[i+1].sinceTime()-1;
+    m_token = v.iovs()[i].wrapperToken();
   }
 
 
@@ -73,7 +73,7 @@ namespace cond {
 
 
   int IOVProxy::size() const {
-    return iov().iov.size();
+    return iov().iovs().size();
   }
 
   IOV const & IOVProxy::iov() const {
@@ -81,7 +81,7 @@ namespace cond {
   }
 
   TimeType IOVProxy::timetype() const {
-    return (TimeType)(iov().timetype);     
+    return iovs().timeType();     
   }
 
 }

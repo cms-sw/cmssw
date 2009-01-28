@@ -9,10 +9,11 @@
 
 namespace cond {
 
+  // old IOV (till cmssw 3.0.X)
   class IOV {
   public:
     typedef std::pair<cond::Time_t, std::string> Item;
-    typedef pool::PVector<Item> Container;
+    typedef std::vector<Item> Container;
     typedef Container::iterator iterator;
     typedef Container::const_iterator const_iterator;
 

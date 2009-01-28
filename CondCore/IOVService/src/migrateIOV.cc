@@ -8,29 +8,26 @@
 namespace cond {
 
   IOVSequence * migrateIOV(IOV const & iov) {
-    const std::string invalidToken(" ");
-    IOVSequence * result = new IOVSequence(iov.timetype,iov.firstsince,"");
+    IOVSequence * result = new IOVSequence(iov.timetype,iov.iov.back().first,"");
     (*result).iovs().reserve(iov.iov.size());
-    std::for_each(iov.iov.begin(),iov.iov.end(),
-		  boost::bind(&IOVSequence::add,result,
-			      boost::bind(&IOV::Item::first,_1),
-			      boost::bind(&IOV::Item::second,_1),
-			      invalidToken
-			      )
-		  );
+    cond::Time_t since = iov.firstsince;
+    for(IOV::const_iterator p=iov.iov.begin(); p!=iov.iov.end(),p++) {
+      (*result).add(since, (*p).second);
+      since = (*p).first+1;
+    }
     return result;
   }
   
   
   IOV * backportIOV(IOVSequence const & sequence) {
-    IOV * result = new IOV(sequence.timeType(), sequence.firstsince());
+    IOV * result = new IOV(sequence.timeType(), sequence.firstSince());
     (*result).iov.reserve(sequence.iovs().size());
-    std::for_each(sequence.iovs().begin(),sequence.iovs().end(),
-		  boost::bind(&IOV::add,result,
-			      boost::bind(&IOVSequence::Item::tillTime,_1),
-			      boost::bind(&IOVSequence::Item:: payloadToken,_1)
-			      )
-		  );
+    for(IOVSequence::const_iterator p=sequence.iovs().begin()
+	  p!=sequence.iovs().end()-1,p++) {
+      cond::Time_t  till = (*(p+1)).sinceTime()-1;
+      (*result).add(till, (*p).wrapperToken());
+    }
+    (*result).add(sequence.lastTill(),sequence.iovs().back().wrapperToken());
     return result;
   }
 

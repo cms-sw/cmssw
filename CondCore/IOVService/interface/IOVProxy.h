@@ -9,14 +9,15 @@
 
 namespace cond {
   
-  class IOV;
+  class IOVSequence;
+  typedef  IOVSequence IOV;
   class PoolTransaction;
   
-  class IOVElement {
+  class IOVElementProxy {
   public:
-    IOVElement() : m_since(0), m_till(0), m_db(0){}
-    IOVElement(PoolTransaction * idb) : m_since(0), m_till(0), m_db(idb){}
-    IOVElement(cond::Time_t is,
+    IOVElementProxy() : m_since(0), m_till(0), m_db(0){}
+    IOVElementProxy(PoolTransaction * idb) : m_since(0), m_till(0), m_db(idb){}
+    IOVElementProxy(cond::Time_t is,
 	       cond::Time_t it,
 	       std::string const& itoken,
 	       PoolTransaction * idb) :
@@ -32,7 +33,7 @@ namespace cond {
     
     cond::Time_t since() const {return m_since;}
     cond::Time_t till() const {return m_till;}
-    std::string const & payloadToken() const {return m_token;}
+    std::string const & wrapperToken() const {return m_token;}
     PoolTransaction * db() const { return m_db;}
   private:
     cond::Time_t m_since;
@@ -58,7 +59,7 @@ namespace cond {
 	     const std::string & token, bool nolib);
     
     struct IterHelp {
-      typedef IOVElement result_type;
+      typedef IOVElementProxy result_type;
       IterHelp(impl::IOVImpl & in);
       
       result_type const & operator()(int i) const {
@@ -68,7 +69,7 @@ namespace cond {
       
     private:
       IOV const & iov;
-      mutable IOVElement elem;
+      mutable IOVElementProxy elem;
     };
     
     typedef boost::transform_iterator<IterHelp,boost::counting_iterator<int> > const_iterator;
