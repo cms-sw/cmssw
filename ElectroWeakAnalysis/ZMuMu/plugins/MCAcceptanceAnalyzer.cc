@@ -20,22 +20,29 @@ const Candidate * mcMuDaughter(const Candidate * c) {
   return 0;
 }
 
-struct ZSelector {
+struct ZSelector {                  // modify this selector in order to return an integer (0: no eta cut, 1: eta cut ony, 2 eta && pt cut, 3: eta, pt and Mass cut)
   ZSelector(double ptMin, double etaMax, double massMin, double massMax) :
     ptMin_(ptMin), etaMax_(etaMax), 
     massMin_(massMin), massMax_(massMax) { }
-  bool operator()(const Candidate& c) const {
+  int operator()(const Candidate& c) const {
     const Candidate * d0 = c.daughter(0);
     const Candidate * d1 = c.daughter(1);
     if(c.numberOfDaughters()>2) {
       d0 = mcMuDaughter(d0);
       d1 = mcMuDaughter(d1);
     }
-    if(d0->pt() < ptMin_ || fabs(d0->eta()) >etaMax_) return false; 
-    if(d1->pt() < ptMin_ || fabs(d1->eta()) >etaMax_) return false; 
-    double m = (d0->p4() + d1->p4()).mass();
-    if(m < massMin_ || m > massMax_) return false;
-    return true;
+    int temp_cut= 0;
+
+    if(fabs(d0->eta()) < etaMax_ && fabs(d1->eta()) <etaMax_) {
+      temp_cut=1;
+      if(d0->pt() > ptMin_ && d1->pt() > ptMin_) {
+	temp_cut=2;
+	double m = (d0->p4() + d1->p4()).mass();
+	if(m > massMin_ && m < massMax_) temp_cut=3; 
+      }
+    } 
+
+    return temp_cut;
   }
   double ptMin_, etaMax_, massMin_, massMax_;
 };
@@ -46,7 +53,7 @@ public:
 private:
   void analyze(const Event&, const EventSetup&);
   void endJob();
-  InputTag zToMuMu_, zToMuMuMC_, mcMap_;
+  InputTag zToMuMu_, zToMuMuMC_, zToMuMuMatched_;
   long nZToMuMu_, selZToMuMu_, nZToMuMuMC_, selZToMuMuMC_, nZToMuMuMCMatched_, selZToMuMuMCMatched_;
   ZSelector select_;
 };
@@ -54,7 +61,7 @@ private:
 MCAcceptanceAnalyzer::MCAcceptanceAnalyzer(const ParameterSet& cfg) :
   zToMuMu_(cfg.getParameter<InputTag>("zToMuMu")),
   zToMuMuMC_(cfg.getParameter<InputTag>("zToMuMuMC")),
-  mcMap_(cfg.getParameter<InputTag>("mcMap")),
+  zToMuMuMatched_(cfg.getParameter<InputTag>("zToMuMuMatched")),
   nZToMuMu_(0), selZToMuMu_(0), 
   nZToMuMuMC_(0), selZToMuMuMC_(0),
   nZToMuMuMCMatched_(0), selZToMuMuMCMatched_(0),
@@ -67,27 +74,34 @@ void MCAcceptanceAnalyzer::analyze(const Event& evt, const EventSetup&) {
   evt.getByLabel(zToMuMu_, zToMuMu);
   Handle<CandidateView> zToMuMuMC;
   evt.getByLabel(zToMuMuMC_, zToMuMuMC);
-  Handle<GenParticleMatch> mcMap;
-  evt.getByLabel(mcMap_, mcMap);
+  Handle<std::vector<GenParticleRef> > zToMuMuMatched;
+  evt.getByLabel(zToMuMuMatched_, zToMuMuMatched);
   long nZToMuMu = zToMuMu->size();
   long nZToMuMuMC = zToMuMuMC->size();
+  long nZToMuMuMatched = zToMuMuMatched->size();
   cout << ">>> " << zToMuMu_ << " has " << nZToMuMu << " entries" << endl;   
   cout << ">>> " << zToMuMuMC_ << " has " << nZToMuMuMC << " entries" << endl;   
+  cout << ">>> " << zToMuMuMatched_ << " has " << nZToMuMuMatched << " entries" << endl;
+   
   nZToMuMuMC_ += nZToMuMuMC;
   for(long i = 0; i < nZToMuMuMC; ++i) { 
     const Candidate & z = (*zToMuMuMC)[i];
-    if(select_(z)) ++selZToMuMuMC_;
+    if(select_(z)==3) ++selZToMuMuMC_;
   }
+
+  
   for(long i = 0; i < nZToMuMu; ++i) { 
+
     const Candidate & z = (*zToMuMu)[i];
     CandidateBaseRef zRef = zToMuMu->refAt(i);
-    GenParticleRef mcRef = (*mcMap)[zRef];
-    if(mcRef.isNonnull()) {
+    GenParticleRef mcRef = (*zToMuMuMatched)[i];
+    
+    if(mcRef.isNonnull()) {   // z candidate matched to Z MC
       ++nZToMuMu_;
       ++nZToMuMuMCMatched_;
-      bool selectZ = select_(z), selectMC = select_(*mcRef);
-      if(selectZ) ++selZToMuMu_;
-      if(selectMC) ++selZToMuMuMCMatched_;
+      int selectZ = select_(z), selectMC = select_(*mcRef);
+      if(selectZ==3) ++selZToMuMu_;
+      if(selectMC==3) ++selZToMuMuMCMatched_;
       if(selectZ != selectMC) {
 	cout << ">>> select reco: " << selectZ << ", select mc: " << selectMC << endl;
 	const Candidate * d0 = z.daughter(0), * d1 = z.daughter(1);
@@ -102,7 +116,9 @@ void MCAcceptanceAnalyzer::analyze(const Event& evt, const EventSetup&) {
 	     << ", mass = " << mcm << endl; 
      }
     }
+    
   }
+  
 }
 
 void MCAcceptanceAnalyzer::endJob() {
