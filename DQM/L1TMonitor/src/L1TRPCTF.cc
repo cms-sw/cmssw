@@ -1,8 +1,8 @@
 /*
  * \file L1TRPCTF.cc
  *
- * $Date: 2008/06/05 12:36:26 $
- * $Revision: 1.18 $
+ * $Date: 2008/08/21 06:59:52 $
+ * $Revision: 1.19 $
  * \author J. Berryhill
  *
  */
@@ -23,7 +23,8 @@ L1TRPCTF::L1TRPCTF(const ParameterSet& ps)
 //    digiSource_( ps.getParameter< InputTag >("rpctfRPCDigiSource") ),
 //   m_rpcDigiFine(false),
 //    m_useRpcDigi(true),
-   m_ntracks(0)
+   m_ntracks(0),
+   m_rateUpdateTime( ps.getParameter< int >("rateUpdateTime") )
 //    m_rpcDigiWithBX0(0),
 //    m_rpcDigiWithBXnon0(0)
 
@@ -117,9 +118,10 @@ void L1TRPCTF::beginJob(const EventSetup& c)
        "RPCTF quality bx -1", 6, -0.5, 5.5 ) ;
 
     rpctfntrack = dbe->book1D("RPCTF_ntrack", 
-       "RPCTF ntrack", 20, -0.5, 19.5 ) ;
+       "RPCTF number of tracks", 10, -0.5, 9.5 ) ;
+    
     rpctfbx = dbe->book1D("RPCTF_bx", 
-       "RPCTF bx", 3, -1.5, 1.5 ) ;
+       "RPCTF bx distribiution", 5, -2.5, 2.5 ) ;
 
 //     m_digiBx = dbe->book1D("RPCDigi_bx", 
 //        "RPC digis bx", 9, -4.5, 4.5 ) ;
@@ -161,21 +163,42 @@ void L1TRPCTF::beginJob(const EventSetup& c)
     m_phipackednorm = dbe->book1D("RPCTF_phi_valuepacked_norm",
                                    "RPCTF phi valuepacked", 144, -0.5, 143.5 ) ;
     
+    m_rate = dbe->book1D("RPCTF_rate",
+                           "RPCTrigger rate - arbitrary units", 36000, 0, 36000 ) ; //assuimng that run is shorter than10h
+    
     //m_floatSynchro = dbe->bookFloat("RPCTF_bx0vsOther"); // no qtests for float
 //     m_floatSynchro = dbe->book1D("RPCTF_synchronization", "RPCTF synchronization", 3, -1.5, 1.5 );
         
   }  
 }
 
+void L1TRPCTF::endRun(const edm::Run & r, const edm::EventSetup & c){
+  
+  std::pair<int,int> p = m_rateHelper.removeAndGetRateForEarliestTime();
+  while (p.first != -1 )
+  {
+     
+    if (p.first > -1 && p.first < m_rate->getNbinsX() ){
+      m_rate->setBinContent(p.first,p.second);
+    }
+    p = m_rateHelper.removeAndGetRateForEarliestTime();
+  }
+
+
+}
+
 
 void L1TRPCTF::endJob(void)
 {
+  
   if(verbose_) cout << "L1TRPCTF: end job...." << endl;
   LogInfo("EndJob") << "analyzed " << nev_ << " events"; 
 
- if ( outputFile_.size() != 0  && dbe ) dbe->save(outputFile_);
-
- return;
+  
+  
+  if ( outputFile_.size() != 0  && dbe ) dbe->save(outputFile_);
+    
+  return;
 
 }
 
@@ -263,9 +286,7 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
    vector<vector<L1MuRegionalCand> > brlAndFwdCands;
    brlAndFwdCands.push_back(RRItr->getBrlRPCCands());
    brlAndFwdCands.push_back(RRItr->getFwdRPCCands());
-   
-   //if (verbose_) cout << "RPCTFCands " << RPCTFCands.size() << endl;
-   
+  
    vector<vector<L1MuRegionalCand> >::iterator RPCTFCands = brlAndFwdCands.begin();
    for(; RPCTFCands!= brlAndFwdCands.end(); ++RPCTFCands)
    {
@@ -282,6 +303,7 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
           nrpctftrack++;
     
           if (verbose_) cout << "RPCTFCand bx " << ECItr->bx() << endl;
+          
           rpctfbx->Fill(ECItr->bx());
     
           rpctfetavalue[bxindex]->Fill(ECItr->etaValue());
@@ -299,14 +321,11 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
           rpctfquality[bxindex]->Fill(ECItr->quality());
           if (verbose_) cout << "\tRPCTFCand quality " << ECItr->quality() << endl;
           
-          
           int tower = ECItr->eta_packed();
           if (tower > 16) {
             tower = - ( (~tower & 63) + 1);
           }
 
-          //m_muonsEtaPhi->Fill(ECItr->etaValue(), ECItr->phi_packed());
-          //m_qualVsEta->Fill(ECItr->etaValue(), ECItr->quality());
           m_qualVsEta->Fill(tower, ECItr->quality());
           m_muonsEtaPhi->Fill(tower, ECItr->phi_packed());
           m_phipacked->Fill(ECItr->phi_packed());
@@ -318,59 +337,27 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
 
   rpctfntrack->Fill(nrpctftrack);
   
+  if (nrpctftrack>0) {
+    m_rateHelper.addOrbit(e.orbitNumber());
+  }
+
+  
+  int et = m_rateHelper.getEarliestTime();
+  
+  if ( ( m_rateHelper.getTimeForOrbit(e.orbitNumber()) - et > m_rateUpdateTime) 
+         && (et > -1) 
+         && m_rateUpdateTime!=-1)
+  {
+  
+    std::pair<int, int> p = m_rateHelper.removeAndGetRateForEarliestTime();
+    
+    if (p.first > -1 && p.first < m_rate->getNbinsX() ){
+      m_rate->setBinContent(p.first,p.second);
+    }
+    
+  }
+  
   m_ntracks += nrpctftrack;
- 
-
-//   if (m_rpcDigiFine) { // do we have valid digis?
-// 
-//     ++nevRPC_;
-//     RPCDigiCollection::DigiRangeIterator collectionItr;
-//     for(collectionItr=rpcdigis->begin(); collectionItr!=rpcdigis->end(); ++collectionItr){
-// 
-//       //RPCDetId detId=(*collectionItr ).first;
-// 
-//       RPCDigiCollection::const_iterator digiItr;
-//       for (digiItr = ((*collectionItr ).second).first;
-//           digiItr!=((*collectionItr).second).second; ++digiItr){
-// 
-//           int bx=(*digiItr).bx();
-// 
-//           m_digiBx->Fill(bx);
-//           m_digiBxLast->Fill(bx);
-// 
-//           if ( nrpctftrack != 0 &&  nDTTrack == 0 && nCSCTrack == 0){
-//             m_digiBxRPC->Fill(bx);
-// 
-//             m_bxs.insert(bx);
-//             if (bx == 0) {
-//               ++m_rpcDigiWithBX0;
-//             } else {
-//               ++m_rpcDigiWithBXnon0;
-//             }
-//           }
-// 
-// 
-//           if ( nrpctftrack == 0 &&  nDTTrack != 0 && nCSCTrack == 0){ 
-//             m_digiBxDT->Fill(bx);
-//           }
-//           if ( nrpctftrack == 0 &&  nDTTrack == 0 && nCSCTrack != 0){ 
-//             m_digiBxCSC->Fill(bx);
-//           }
-// 
-//       }
-// 
-// 
-//      }
-// 
-// 
-// 
-// 
-//   }
-//   if (nevRPC_%3000 == 0) {
-//     std::cout.flush();
-//     m_digiBxLast->Reset();
-//   }
-
 
   if (nev_%1000 == 0) fillNorm();
 

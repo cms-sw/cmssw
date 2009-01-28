@@ -4,8 +4,8 @@
 /*
  * \file L1TRPCTF.h
  *
- * $Date: 2008/06/05 12:36:26 $
- * $Revision: 1.10 $
+ * $Date: 2008/08/21 06:59:51 $
+ * $Revision: 1.11 $
  * \author J. Berryhill
  *
 */
@@ -32,7 +32,7 @@
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
-
+#include "DQM/L1TMonitor/interface/L1TRateHelper.h"
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -66,6 +66,8 @@ void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
                           const edm::EventSetup& context);
 void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
                         const edm::EventSetup& c);
+                        
+void endRun(const edm::Run & r, const edm::EventSetup & c);
 
 
 private:
@@ -89,6 +91,8 @@ private:
   MonitorElement* m_phipacked;
   MonitorElement * m_phipackednorm;
   MonitorElement * m_muonsEtaPhiNorm;
+  MonitorElement * m_rate;
+  L1TRateHelper::L1TRateHelper m_rateHelper;
 //   MonitorElement * m_floatSynchro;
 
 //   MonitorElement *  m_digiBxRPC;
@@ -108,9 +112,9 @@ private:
   //bool m_useRpcDigi;
   
   unsigned long m_ntracks;
-  
-  ofstream logFile_;
+  int m_rateUpdateTime;
 
+  
 
 //   std::set<int> m_bxs;
 //   int m_rpcDigiWithBX0;
