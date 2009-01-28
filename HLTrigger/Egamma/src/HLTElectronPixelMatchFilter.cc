@@ -1,6 +1,6 @@
 /** \class HLTElectronPixelMatchFilter
  *
- * $Id: HLTElectronPixelMatchFilter.cc,v 1.10 2007/12/07 14:41:33 ghezzi Exp $
+ * $Id: HLTElectronPixelMatchFilter.cc,v 1.11 2008/04/22 17:01:17 ghezzi Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -16,11 +16,13 @@
 
 #include "DataFormats/Common/interface/AssociationMap.h"
 
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
@@ -76,38 +78,44 @@ HLTElectronPixelMatchFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
   PrevFilterOutput->getObjects(TriggerCluster, recoecalcands);
 
   //get hold of the pixel seed - supercluster association map
-  edm::Handle<reco::ElectronPixelSeedCollection> L1IsoSeeds;
+  edm::Handle<reco::ElectronSeedCollection> L1IsoSeeds;
   iEvent.getByLabel (L1IsoPixelSeedsTag_,L1IsoSeeds);
 
-  edm::Handle<reco::ElectronPixelSeedCollection> L1NonIsoSeeds;
+  edm::Handle<reco::ElectronSeedCollection> L1NonIsoSeeds;
   if(!doIsolated_){
     iEvent.getByLabel (L1NonIsoPixelSeedsTag_,L1NonIsoSeeds);
   }
   
   // look at all egammas,  check cuts and add to filter object
   int n = 0;
-
+  //std::cout<<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"<<std::endl;
   for (unsigned int i=0; i<recoecalcands.size(); i++) {
 
     ref = recoecalcands[i];
     reco::SuperClusterRef recr2 = ref->superCluster();
+
+    //std::cout<<"AA  ref, e, eta, phi"<<&(*recr2)<<" "<<recr2->energy()<<" "<<recr2->eta()<<" "<<recr2->phi()<<std::endl;
     int nmatch = 0;
 
-    for(reco::ElectronPixelSeedCollection::const_iterator it = L1IsoSeeds->begin(); 
+    for(reco::ElectronSeedCollection::const_iterator it = L1IsoSeeds->begin(); 
 	it != L1IsoSeeds->end(); it++){
-      const reco::SuperClusterRef & scRef=it->superCluster();
 
+      edm::RefToBase<reco::CaloCluster> caloCluster = it->caloCluster() ;
+      reco::SuperClusterRef scRef = caloCluster.castTo<reco::SuperClusterRef>() ;
+      //std::cout<<"BB ref, e, eta, phi"<<&(*scRef)<<" "<<scRef->energy()<<" "<<scRef->eta()<<" "<<scRef->phi()<<std::endl;
+   
       if(&(*recr2) ==  &(*scRef)) {
 	nmatch++;
       }
     }
-    
+
     if(!doIsolated_){
 
-      for(reco::ElectronPixelSeedCollection::const_iterator it = L1NonIsoSeeds->begin(); 
+      for(reco::ElectronSeedCollection::const_iterator it = L1NonIsoSeeds->begin(); 
 	  it != L1NonIsoSeeds->end(); it++){
-	const reco::SuperClusterRef & scRef=it->superCluster();
-      
+	edm::RefToBase<reco::CaloCluster> caloCluster = it->caloCluster() ;
+	reco::SuperClusterRef scRef = caloCluster.castTo<reco::SuperClusterRef>() ;
+	//std::cout<<"CC ref, e, eta, phi"<<&(*scRef)<<" "<<scRef->energy()<<" "<<scRef->eta()<<" "<<scRef->phi()<<std::endl;
 	if(&(*recr2) ==  &(*scRef)) {
 	  nmatch++;
 	}
@@ -121,7 +129,7 @@ HLTElectronPixelMatchFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
     }
     
   }//end of loop over candidates
-   
+  //    std::cout<<"######################################################################"<<std::endl;   
   // filter decision
   bool accept(n>=ncandcut_);
   
@@ -130,4 +138,5 @@ HLTElectronPixelMatchFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
   
   return accept;
 }
+
 
