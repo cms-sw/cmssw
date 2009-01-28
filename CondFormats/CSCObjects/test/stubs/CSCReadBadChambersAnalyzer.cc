@@ -25,10 +25,9 @@ namespace edmtest
   {
   public:
     explicit  CSCReadBadChambersAnalyzer(edm::ParameterSet const& ps ) 
-      : outputToFile( ps.getParameter<bool>("outputToFile") ),
-      readBadChambers_(ps.getParameter<bool>("readBadChambers") ) {
-
-    }
+      : outputToFile_( ps.getParameter<bool>("outputToFile") ),
+	readBadChambers_(ps.getParameter<bool>("readBadChambers") ),
+	me42installed_( ps.getParameter<bool>("me42installed") ){ }
 
     explicit  CSCReadBadChambersAnalyzer(int i) 
     { }
@@ -45,8 +44,9 @@ namespace edmtest
 
   private:
 
-    bool outputToFile;
+    bool outputToFile_;
     bool readBadChambers_; // flag whether or not to even attempt reading bad channel info from db
+    bool me42installed_; // flag whether ME42 chambers are installed in the geometry
     const CSCBadChambers* theBadChambers;
 
   };
@@ -77,7 +77,13 @@ namespace edmtest
     int countbad = 0;
     int countgood = 0;
 
-    for( int indexc = 1; indexc!=469; ++indexc ) {
+    // One more than total number of chambers
+    // Last chamber is already in ME4 but could be 41 or 42
+    int lastRing = 1;
+    if ( me42installed_ ) lastRing = 2;
+    int totalc = indexer.startChamberIndexInEndcap(2,4,lastRing) + indexer.chambersInRingOfStation(4,lastRing);
+
+    for( int indexc = 1; indexc!=totalc; ++indexc ) {
       counter++;
 
       CSCDetId id = indexer.detIdFromChamberIndex( indexc ); 
@@ -116,7 +122,7 @@ namespace edmtest
     }
     */
 
-    if ( outputToFile ) {
+    if ( outputToFile_ ) {
 
       std::ofstream BadChamberFile("dbBadChamber.dat",std::ios::app);
 

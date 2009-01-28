@@ -1,4 +1,4 @@
-# Test bad chambers data base from Oana, Tim Cox 21.10.2008
+# Test bad chambers data base from Oana, Tim Cox 21.10.2008/28.01.2009
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,9 +12,9 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     # For testing, sqlite database file expected to be in local directory 
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('CSCBadChambersRcd'),
-        tag = cms.string('CSCBadChambers')
+        tag = cms.string('CSCBadChambers_ME42')
     )),
-    connect = cms.string('sqlite_file:BadChambers.db')
+    connect = cms.string('sqlite_file:DBBadChambers.db')
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -24,7 +24,8 @@ process.source = cms.Source("EmptySource")
 
 process.analyze = cms.EDAnalyzer("CSCReadBadChambersAnalyzer",
     outputToFile = cms.bool(False),
-    readBadChambers = cms.bool(True)
+    readBadChambers = cms.bool(True),
+    me42installed = cms.bool(True)                                 
 )
 
 process.printEventNumber = cms.OutputModule("AsciiOutputModule")
