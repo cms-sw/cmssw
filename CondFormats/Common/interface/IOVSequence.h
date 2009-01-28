@@ -23,7 +23,7 @@ namespace cond {
     typedef Container::const_iterator const_iterator;
 
     IOVSequence();
-    IOVSequence(int type, cond::Time_t since,std::string const& imetadata);
+    IOVSequence(int type, cond::Time_t till, std::string const& imetadata);
 
     ~IOVSequence();
 
