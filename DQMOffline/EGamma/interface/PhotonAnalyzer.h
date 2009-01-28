@@ -59,7 +59,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
 //
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -74,7 +74,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2008/11/28 12:51:35 $ 
+ **  $Date: 2009/01/26 09:51:05 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -110,8 +110,6 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   //
 
   float  phiNormalization( float& a);
-  void makePizero(const edm::EventSetup& es, const edm::Handle<EcalRecHitCollection> eb, const edm::Handle<EcalRecHitCollection> ee ); 
-
 
   void doProfileX(TH2 * th2, MonitorElement* me);
   void doProfileX(MonitorElement * th2m, MonitorElement* me);
@@ -134,9 +132,6 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   std::string photonProducer_;       
   std::string photonCollection_;
 
-  edm::InputTag barrelEcalHits_;
-  edm::InputTag endcapEcalHits_;  
-
   edm::InputTag triggerSummary_;
   edm::InputTag triggerResultsHLT_;
   edm::InputTag triggerResultsFU_;
@@ -155,41 +150,41 @@ class PhotonAnalyzer : public edm::EDAnalyzer
 
   int isolationStrength_; 
 
-  /// parameters needed for pizero finding
-  double clusSeedThr_;
-  int clusEtaSize_;
-  int clusPhiSize_;
-
-  double seleXtalMinEnergy_;
-
-  bool ParameterLogWeighted_;
-  double ParameterX0_;
-  double ParameterT0_barl_;
-  double ParameterW0_;
-
-  double selePtGammaOne_;
-  double selePtGammaTwo_;
-  double selePtPi0_;
-  double seleS4S9GammaOne_;
-  double seleS4S9GammaTwo_;
-  double selePi0BeltDR_;
-  double selePi0BeltDeta_;
-  double selePi0Iso_;
-  double seleMinvMaxPi0_;
-  double seleMinvMinPi0_;
- 
-
 
   std::stringstream currentFolder_;
    
   MonitorElement*  h_triggers_;
 
-  MonitorElement*  hMinvPi0EB_;
-  MonitorElement*  hPt1Pi0EB_;
-  MonitorElement*  hPt2Pi0EB_;
-  MonitorElement*  hIsoPi0EB_;
-  MonitorElement*  hPtPi0EB_;
 
+
+
+  std::vector<MonitorElement*> h_nTrackIsolSolidVsEta_isol_;
+  std::vector<MonitorElement*> h_trackPtSumSolidVsEta_isol_;
+  std::vector<MonitorElement*> h_nTrackIsolHollowVsEta_isol_;
+  std::vector<MonitorElement*> h_trackPtSumHollowVsEta_isol_;
+  std::vector<MonitorElement*> h_ecalSumVsEta_isol_;
+  std::vector<MonitorElement*> h_hcalSumVsEta_isol_;
+
+  std::vector<MonitorElement*> p_nTrackIsolSolidVsEta_isol_;
+  std::vector<MonitorElement*> p_trackPtSumSolidVsEta_isol_;
+  std::vector<MonitorElement*> p_nTrackIsolHollowVsEta_isol_;
+  std::vector<MonitorElement*> p_trackPtSumHollowVsEta_isol_;
+  std::vector<MonitorElement*> p_ecalSumVsEta_isol_;
+  std::vector<MonitorElement*> p_hcalSumVsEta_isol_;
+
+  std::vector<std::vector<MonitorElement*> > h_nTrackIsolSolidVsEta_;
+  std::vector<std::vector<MonitorElement*> > h_trackPtSumSolidVsEta_;
+  std::vector<std::vector<MonitorElement*> > h_nTrackIsolHollowVsEta_;
+  std::vector<std::vector<MonitorElement*> > h_trackPtSumHollowVsEta_;
+  std::vector<std::vector<MonitorElement*> > h_ecalSumVsEta_;
+  std::vector<std::vector<MonitorElement*> > h_hcalSumVsEta_;
+
+  std::vector<std::vector<MonitorElement*> > p_nTrackIsolSolidVsEta_;
+  std::vector<std::vector<MonitorElement*> > p_trackPtSumSolidVsEta_;
+  std::vector<std::vector<MonitorElement*> > p_nTrackIsolHollowVsEta_;
+  std::vector<std::vector<MonitorElement*> > p_trackPtSumHollowVsEta_;
+  std::vector<std::vector<MonitorElement*> > p_ecalSumVsEta_;
+  std::vector<std::vector<MonitorElement*> > p_hcalSumVsEta_;
 
   std::vector<MonitorElement*> h_nTrackIsolSolid_isol_;
   std::vector<MonitorElement*> h_trackPtSumSolid_isol_;
@@ -198,12 +193,13 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   std::vector<MonitorElement*> h_ecalSum_isol_;
   std::vector<MonitorElement*> h_hcalSum_isol_;
 
-  std::vector<MonitorElement*> p_nTrackIsolSolid_isol_;
-  std::vector<MonitorElement*> p_trackPtSumSolid_isol_;
-  std::vector<MonitorElement*> p_nTrackIsolHollow_isol_;
-  std::vector<MonitorElement*> p_trackPtSumHollow_isol_;
-  std::vector<MonitorElement*> p_ecalSum_isol_;
-  std::vector<MonitorElement*> p_hcalSum_isol_;
+  std::vector<std::vector<MonitorElement*> > h_nTrackIsolSolid_;
+  std::vector<std::vector<MonitorElement*> > h_trackPtSumSolid_;
+  std::vector<std::vector<MonitorElement*> > h_nTrackIsolHollow_;
+  std::vector<std::vector<MonitorElement*> > h_trackPtSumHollow_;
+  std::vector<std::vector<MonitorElement*> > h_ecalSum_;
+  std::vector<std::vector<MonitorElement*> > h_hcalSum_;
+
 
   MonitorElement* h_phoEta_Loose_;
   MonitorElement* h_phoEta_Tight_;
@@ -215,25 +211,8 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   MonitorElement* p_efficiencyVsEtaTight_;
   MonitorElement* p_efficiencyVsEtTight_;
 
-
-
   MonitorElement* p_convFractionVsEta_;
   MonitorElement* p_convFractionVsEt_;
-
-
-  std::vector<std::vector<MonitorElement*> > h_nTrackIsolSolid_;
-  std::vector<std::vector<MonitorElement*> > h_trackPtSumSolid_;
-  std::vector<std::vector<MonitorElement*> > h_nTrackIsolHollow_;
-  std::vector<std::vector<MonitorElement*> > h_trackPtSumHollow_;
-  std::vector<std::vector<MonitorElement*> > h_ecalSum_;
-  std::vector<std::vector<MonitorElement*> > h_hcalSum_;
-
-  std::vector<std::vector<MonitorElement*> > p_nTrackIsolSolid_;
-  std::vector<std::vector<MonitorElement*> > p_trackPtSumSolid_;
-  std::vector<std::vector<MonitorElement*> > p_nTrackIsolHollow_;
-  std::vector<std::vector<MonitorElement*> > p_trackPtSumHollow_;
-  std::vector<std::vector<MonitorElement*> > p_ecalSum_;
-  std::vector<std::vector<MonitorElement*> > p_hcalSum_;
 
 
   std::vector<MonitorElement*> h_phoE_part_;
@@ -252,6 +231,14 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   std::vector<std::vector<MonitorElement*> > h_hOverE_isol_;
   std::vector<std::vector<std::vector<MonitorElement*> > > h_hOverE_;
 
+  std::vector<MonitorElement*> h_h1OverE_part_;
+  std::vector<std::vector<MonitorElement*> > h_h1OverE_isol_;
+  std::vector<std::vector<std::vector<MonitorElement*> > > h_h1OverE_;
+
+  std::vector<MonitorElement*> h_h2OverE_part_;
+  std::vector<std::vector<MonitorElement*> > h_h2OverE_isol_;
+  std::vector<std::vector<std::vector<MonitorElement*> > > h_h2OverE_;
+
   std::vector<MonitorElement*> h_nPho_part_;
   std::vector<std::vector<MonitorElement*> > h_nPho_isol_;
   std::vector<std::vector<std::vector<MonitorElement*> > > h_nPho_;
@@ -261,9 +248,17 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   std::vector<std::vector<std::vector<MonitorElement*> > > h_phoDistribution_;
 
 
+  std::vector<MonitorElement*> h_phoConvE_part_;
+  std::vector<std::vector<MonitorElement*> > h_phoConvE_isol_;
+  std::vector<std::vector<std::vector<MonitorElement*> > > h_phoConvE_;
+
   std::vector<MonitorElement*> h_phoConvEt_part_;
   std::vector<std::vector<MonitorElement*> > h_phoConvEt_isol_;
   std::vector<std::vector<std::vector<MonitorElement*> > > h_phoConvEt_;
+
+  std::vector<MonitorElement*> h_phoConvR9_part_;
+  std::vector<std::vector<MonitorElement*> > h_phoConvR9_isol_;
+  std::vector<std::vector<std::vector<MonitorElement*> > > h_phoConvR9_;
 
   std::vector<MonitorElement*> h_nConv_part_;
   std::vector<std::vector<MonitorElement*> > h_nConv_isol_;
@@ -312,6 +307,15 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   std::vector<MonitorElement*> p_r9VsEt_isol_;
   std::vector<std::vector<MonitorElement*> > p_r9VsEt_;
 
+  std::vector<MonitorElement*> h_phoCovIetaIeta_isol_;
+  std::vector<std::vector<MonitorElement*> > h_phoCovIetaIeta_;
+
+  std::vector<MonitorElement*> h_covIetaIetaVsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > h_covIetaIetaVsEta_;
+  std::vector<MonitorElement*> p_covIetaIetaVsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > p_covIetaIetaVsEta_;
+
+
   std::vector<MonitorElement*> h_tkChi2_isol_;
   std::vector<std::vector<MonitorElement*> > h_tkChi2_;
 
@@ -328,14 +332,11 @@ class PhotonAnalyzer : public edm::EDAnalyzer
 };
 
 
-class ecalRecHitLess : public std::binary_function<EcalRecHit, EcalRecHit, bool> 
-{
-public:
-  bool operator()(EcalRecHit x, EcalRecHit y) 
-  { 
-    return (x.energy() > y.energy()); 
-  }
-};
+
 
 
 #endif
+
+
+
+
