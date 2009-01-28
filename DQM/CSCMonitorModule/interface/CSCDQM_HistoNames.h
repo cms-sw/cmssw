@@ -246,6 +246,30 @@ namespace h {
   (( EMU_PHYSICS_ME3, "Physics_ME3" )) \
   (( EMU_PHYSICS_ME4, "Physics_ME4" )) \
   (( PAR_REPORT_SUMMARY, "reportSummary" )) \
+  (( PAR_CSC_SIDEMINUS, "CSC_SideMinus" )) \
+  (( PAR_CSC_SIDEMINUS_STATION01, "CSC_SideMinus_Station01" )) \
+  (( PAR_CSC_SIDEMINUS_STATION01_RING01, "CSC_SideMinus_Station01_Ring01" )) \
+  (( PAR_CSC_SIDEMINUS_STATION01_RING02, "CSC_SideMinus_Station01_Ring02" )) \
+  (( PAR_CSC_SIDEMINUS_STATION01_RING03, "CSC_SideMinus_Station01_Ring03" )) \
+  (( PAR_CSC_SIDEMINUS_STATION02, "CSC_SideMinus_Station02" )) \
+  (( PAR_CSC_SIDEMINUS_STATION02_RING01, "CSC_SideMinus_Station02_Ring01" )) \
+  (( PAR_CSC_SIDEMINUS_STATION02_RING02, "CSC_SideMinus_Station02_Ring02" )) \
+  (( PAR_CSC_SIDEMINUS_STATION03, "CSC_SideMinus_Station03" )) \
+  (( PAR_CSC_SIDEMINUS_STATION03_RING01, "CSC_SideMinus_Station03_Ring01" )) \
+  (( PAR_CSC_SIDEMINUS_STATION03_RING02, "CSC_SideMinus_Station03_Ring02" )) \
+  (( PAR_CSC_SIDEMINUS_STATION04, "CSC_SideMinus_Station04" )) \
+  (( PAR_CSC_SIDEPLUS, "CSC_SidePlus" )) \
+  (( PAR_CSC_SIDEPLUS_STATION01, "CSC_SidePlus_Station01" )) \
+  (( PAR_CSC_SIDEPLUS_STATION01_RING01, "CSC_SidePlus_Station01_Ring01" )) \
+  (( PAR_CSC_SIDEPLUS_STATION01_RING02, "CSC_SidePlus_Station01_Ring02" )) \
+  (( PAR_CSC_SIDEPLUS_STATION01_RING03, "CSC_SidePlus_Station01_Ring03" )) \
+  (( PAR_CSC_SIDEPLUS_STATION02, "CSC_SidePlus_Station02" )) \
+  (( PAR_CSC_SIDEPLUS_STATION02_RING01, "CSC_SidePlus_Station02_Ring01" )) \
+  (( PAR_CSC_SIDEPLUS_STATION02_RING02, "CSC_SidePlus_Station02_Ring02" )) \
+  (( PAR_CSC_SIDEPLUS_STATION03, "CSC_SidePlus_Station03" )) \
+  (( PAR_CSC_SIDEPLUS_STATION03_RING01, "CSC_SidePlus_Station03_Ring01" )) \
+  (( PAR_CSC_SIDEPLUS_STATION03_RING02, "CSC_SidePlus_Station03_Ring02" )) \
+  (( PAR_CSC_SIDEPLUS_STATION04, "CSC_SidePlus_Station04" )) \
   \
   \
   /* */

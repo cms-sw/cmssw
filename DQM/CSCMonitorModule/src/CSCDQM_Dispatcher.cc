@@ -94,7 +94,8 @@ namespace cscdqm {
 
     //For the Parameters - book parameter histogram
     if (typeid(histoD) == ParHistoDefT) {
-      me = provider->bookMonitorObject(HistoBookRequest(histoD, config->getFOLDER_PAR(), -1.0f));
+      HistoBookRequest req(histoD, config->getFOLDER_PAR(), -1.0f);
+      me = provider->bookMonitorObject(req);
       cache.put(histoD, me);
       return true;
     }

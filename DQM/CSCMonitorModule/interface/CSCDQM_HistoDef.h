@@ -70,7 +70,7 @@ namespace cscdqm {
        * @param  p_hname Raw histogram name by HistoName
        * @return 
        */
-      HistoDef(const HistoId p_id) { id  = p_id; }
+      HistoDef(const HistoId p_id) : id(p_id) { }
       
       /**
        * @brief  Get Histogram ID
@@ -258,7 +258,7 @@ namespace cscdqm {
        * @param  p_dduId DDU ID
        * @return 
        */
-      DDUHistoDef(const HistoId p_id, const HwId p_dduId) : HistoDef(p_id) { dduId = p_dduId; }
+      DDUHistoDef(const HistoId p_id, const HwId p_dduId) : HistoDef(p_id), dduId(p_dduId) { }
       const HwId getDDUId() const { return dduId; }
       const std::string getPath() const { return getPath(dduId); }
 
@@ -318,11 +318,7 @@ namespace cscdqm {
        * @return 
        */
       CSCHistoDef(const HistoId p_id, const HwId p_crateId, const HwId p_dmbId, const HwId p_addId = 0) : 
-        HistoDef(p_id) {
-        crateId = p_crateId;
-        dmbId = p_dmbId;
-        addId = p_addId;
-      }
+        HistoDef(p_id), crateId(p_crateId), dmbId(p_dmbId), addId(p_addId) { }
 
       const HwId getCrateId() const { return crateId; }
       const HwId getDMBId()   const { return dmbId; }
@@ -381,10 +377,7 @@ namespace cscdqm {
        * @param  p_name Histogram name, id will be constructed by using fastHash algorithm and then to be passed to Base class
        * @return 
        */
-      ParHistoDef(const HistoName p_name) : HistoDef(Utility::fastHash(p_name)) {
-        name = p_name;
-        LOG_DEBUG << "PARHISTODEF: " << name << " generated id = " << getId();
-      }
+      ParHistoDef(const HistoName p_name) : HistoDef(Utility::fastHash(p_name)), name(p_name) { }
 
       /**
        * @brief  Constructor. It calls Base constructor inline
@@ -392,9 +385,7 @@ namespace cscdqm {
        * @return 
        */
       ParHistoDef(const HistoId p_id) : HistoDef(p_id) {
-        LOG_DEBUG << "PARHISTODEF: " << p_id << " requested";
         name = HistoDef::getHistoName();
-        LOG_DEBUG << "PARHISTODEF: " << name << " got";
       }
 
       const HistoName&  getHistoName() const { return name; }

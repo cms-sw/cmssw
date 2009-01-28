@@ -35,87 +35,31 @@
 
 namespace cscdqm {
 
-  class CacheItem {
-    public:
-      virtual ~CacheItem() { }
-      virtual void setMO(MonitorObject*) { }
-      virtual void setMO(HwId, MonitorObject*) { }
-      virtual void setMO(HwId, HwId, HwId, MonitorObject*) { }
-      virtual const bool getMO(MonitorObject*&) const { return false; }
-      virtual const bool getMO(HwId, MonitorObject*&) const { return false; }
-      virtual const bool getMO(HwId, HwId, HwId, MonitorObject*&) const { return false; }
+  typedef struct CSCHistoKeyType {
+    HistoId id;
+    HwId addId;
+    const MonitorObject* mo;
+    CSCHistoKeyType(const HistoId& id_, const HwId& addId_, const MonitorObject* mo_) : id(id_), addId(addId_), mo(mo_) { }
   };
 
-  class EMUCacheItem : public CacheItem {
-
-    private:
-
-      MonitorObject* mo;
-
-    public:
-
-      EMUCacheItem(MonitorObject* mo_) : mo(mo_) { }
-      void setMO(MonitorObject* mo_) { mo = mo_; }
-      const bool getMO(MonitorObject*& mo_) const { 
-        mo_ = mo; 
-        return true;
-      }
-
-  };
-
-  class ParCacheItem : public CacheItem {
-
-    private:
-
-      MonitorObject* mo;
-
-    public:
-
-      ParCacheItem(MonitorObject* mo_) : mo(mo_) { }
-      void setMO(MonitorObject* mo_) { mo = mo_; }
-      const bool getMO(MonitorObject*& mo_) const { 
-        mo_ = mo; 
-        return true;
-      }
-
-  };
-
-  typedef std::map<HwId, MonitorObject*> DDUCacheMapType;
-
-  class DDUCacheItem : public CacheItem {
-
-    private:
-
-      DDUCacheMapType mos;
-
-    public:
-
-      DDUCacheItem(HwId dduId, MonitorObject* mo) { 
-        mos[dduId] = mo;
-      }
-
-      void setMO(HwId dduId, MonitorObject* mo) { 
-        mos[dduId] = mo; 
-      }
-
-      const bool getMO(HwId dduId, MonitorObject*& mo_) const { 
-        DDUCacheMapType::const_iterator it = mos.find(dduId);
-        if (it != mos.end()) {
-          mo_ = it->second;
-          return true;
-        }
-        return false;
-      }
-
-  };
+  typedef boost::multi_index_container<
+    CSCHistoKeyType,
+    boost::multi_index::indexed_by<
+      boost::multi_index::ordered_unique< 
+        boost::multi_index::composite_key<
+          CSCHistoKeyType,
+          boost::multi_index::member<CSCHistoKeyType, HistoId, &CSCHistoKeyType::id>,
+          boost::multi_index::member<CSCHistoKeyType, HwId, &CSCHistoKeyType::addId>
+        >
+      >
+    >
+  > CSCHistoMapType;
 
   typedef struct CSCKeyType {
     HwId crateId;
     HwId dmbId;
-    HwId addId;
-    MonitorObject* mo;
-    CSCKeyType(HwId crateId_, HwId dmbId_, HwId addId_, MonitorObject* mo_) :
-      crateId(crateId_), dmbId(dmbId_), addId(addId_), mo(mo_) { }
+    CSCHistoMapType mos;
+    CSCKeyType(const HwId& crateId_, const HwId& dmbId_) : crateId(crateId_), dmbId(dmbId_) { }
   };
 
   typedef boost::multi_index_container<
@@ -125,61 +69,14 @@ namespace cscdqm {
         boost::multi_index::composite_key<
           CSCKeyType,
           boost::multi_index::member<CSCKeyType, HwId, &CSCKeyType::crateId>,
-          boost::multi_index::member<CSCKeyType, HwId, &CSCKeyType::dmbId>,
-          boost::multi_index::member<CSCKeyType, HwId, &CSCKeyType::addId>
+          boost::multi_index::member<CSCKeyType, HwId, &CSCKeyType::dmbId>
         >
       >
     >
-  > CSCCacheMapType;
-
-  class CSCCacheItem : public CacheItem {
-
-    private:
-
-      CSCCacheMapType mos;
-
-    public:
-
-      CSCCacheItem(HwId crateId, HwId dmbId, HwId addId, MonitorObject* mo) { 
-        mos.insert(CSCKeyType(crateId, dmbId, addId, mo));
-      }
-
-      void setMO(HwId crateId, HwId dmbId, HwId addId, MonitorObject* mo) {
-        mos.insert(CSCKeyType(crateId, dmbId, addId, mo));
-      }
-
-      const bool getMO(HwId crateId, HwId dmbId, HwId addId, MonitorObject*& mo_) const { 
-        CSCCacheMapType::const_iterator it = mos.find(boost::make_tuple(crateId, dmbId, addId));
-        if (it != mos.end()) {
-          mo_ = it->mo;
-          return true;
-        }
-        return false;
-      }
-
-  };
+  > CSCMapType;
   
-
-  /** DDU Key structure */
-  typedef std::set<HwId> DDUSetType;
-  typedef struct CSCIdType {
-    HwId crateId;
-    HwId dmbId;
-    CSCIdType(HwId crateId_, HwId dmbId_) : crateId(crateId_), dmbId(dmbId_) { }
-  };
-
-  typedef boost::multi_index_container<
-    CSCIdType,
-    boost::multi_index::indexed_by<
-      boost::multi_index::ordered_unique< 
-        boost::multi_index::composite_key<
-          CSCIdType,
-          boost::multi_index::member<CSCIdType, HwId, &CSCIdType::crateId>,
-          boost::multi_index::member<CSCIdType, HwId, &CSCIdType::dmbId>
-        >
-      >
-    >
-  > CSCSetType;
+  typedef std::map<HistoId, MonitorObject*> DDUHistoMapType;
+  typedef std::map<HwId, DDUHistoMapType*> DDUMapType;
 
   /**
    * @class Cache
@@ -189,19 +86,31 @@ namespace cscdqm {
 
     private:
 
-      CacheItem* data[h::namesSize];
+      MonitorObject* data[h::namesSize];
 
-      DDUSetType ddus;
-      CSCSetType cscs;
+      DDUMapType dduData;
+      DDUMapType::const_iterator dduPointer;
+      HwId dduPointerValue;
+
+      CSCMapType cscData;
+      CSCMapType::const_iterator cscPointer;
 
     public:
       
       Cache() {
         for (unsigned int i = 0; i < h::namesSize; i++) data[i] = 0;
+        dduPointer = dduData.end();
+        dduPointerValue = 0;
+        cscPointer = cscData.end();
       }
 
       ~Cache() {
-        for (unsigned int i = 0; i < h::namesSize; i++) if (data[i]) delete data[i];
+        DDUMapType::iterator it;
+        while (dduData.size() > 0) {
+          it = dduData.begin();
+          if (it->second) delete it->second;
+          dduData.erase(it);
+        }
       }
 
       const bool get(const HistoDef& histo, MonitorObject*& mo);

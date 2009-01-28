@@ -85,15 +85,6 @@ namespace cscdqm {
     return false;
   }
 
-
-  const bool EventProcessor::getParHisto(const std::string& name, MonitorObject*& me) {
-    const HistoName histo = const_cast<HistoName>(name.c_str());
-    ParHistoDef histoD(histo);
-    if (config->fnGetCacheParHisto(histoD.getId(), me)) return (me != NULL);
-    if (config->fnGetHisto(histoD, me)) return (me != NULL);
-    return false;
-  }
-
   void EventProcessor::getCSCFromMap(const unsigned int& crateId, const unsigned int& dmbId, unsigned int& cscType, unsigned int& cscPosition) const {
     CSCDetId cid = config->fnGetCSCDetId(crateId, dmbId);
     cscPosition  = cid.chamber();

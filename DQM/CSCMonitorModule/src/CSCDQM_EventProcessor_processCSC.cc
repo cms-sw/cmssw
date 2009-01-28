@@ -1131,11 +1131,16 @@ namespace cscdqm {
       }
 
       //--------------B
-      float Cathodes[N_CFEBs * N_Strips * N_Samples * N_Layers];
+      // Refactored for performance (VR)
+      const int a = N_CFEBs * N_Strips;
+      const int b = a * N_Samples;
+      float Cathodes[b * N_Layers];
       for(int i = 0; i < N_Layers; ++i) {
-        for(int j = 0; j < N_CFEBs * N_Strips; ++j) {
+        const int b1 = i * b;
+        for(int j = 0; j < a; ++j) {
+          const int b2 = b1 + j;
           for(int k = 0; k < N_Samples; ++k) {
-            Cathodes[i * N_CFEBs * N_Strips * N_Samples + N_CFEBs * N_Strips * k + j] = cscdata[j][k][i];
+            Cathodes[b2 + a * k] = cscdata[j][k][i];
           }
         }
       }

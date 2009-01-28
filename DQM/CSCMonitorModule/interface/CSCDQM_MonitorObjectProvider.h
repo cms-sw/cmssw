@@ -33,8 +33,8 @@ namespace cscdqm {
     const HistoDef *hdef;
     HistoType htype;
     std::string ctype;
-    const std::string *folder;
-    const std::string *title;
+    std::string folder;
+    std::string title;
 
     int nchX;
     double lowX;
@@ -63,8 +63,8 @@ namespace cscdqm {
       hdef = &p_hdef; 
       htype = p_htype;
       ctype = p_ctype;
-      folder = &p_folder; 
-      title = &p_title;
+      folder = p_folder; 
+      title = p_title;
       nchX = p_nchX; 
       lowX = p_lowX;
       highX = p_highX; 
@@ -80,16 +80,18 @@ namespace cscdqm {
     HistoBookRequest (const HistoDef& p_hdef, const std::string& p_folder, const int p_value) {
       hdef = &p_hdef;
       htype = INT;
-      ctype = "int";
-      folder = &p_folder;
+      ctype = "INT";
+      folder = p_folder;
+      title = p_hdef.getHistoName();
       default_int = p_value;
     }
 
     HistoBookRequest (const HistoDef& p_hdef, const std::string& p_folder, const float p_value) {
       hdef = &p_hdef;
       htype = FLOAT;
-      ctype = "float";
-      folder = &p_folder;
+      ctype = "FLOAT";
+      folder = p_folder;
+      title = p_hdef.getHistoName();
       default_float = p_value;
     }
 
@@ -97,9 +99,9 @@ namespace cscdqm {
                       const std::string& p_title, const std::string& p_value) {
       hdef = &p_hdef;
       htype = STRING;
-      ctype = "string";
-      folder = &p_folder;
-      title = &p_title;
+      ctype = "STRING";
+      folder = p_folder;
+      title = p_title;
       default_string = p_value;
     }
 

@@ -52,40 +52,54 @@ namespace cscdqm {
     return false;
   }
 
-  /**
-   * @brief  Get Monitoring Object on separate MO identification elements
-   * @param  id Histogram identification
-   * @param  mo Monitoring Object to return
-   * @param  id1 first identifier (DDU id)
-   * @param  id2 second identifier (Chamber id)
-   * @param  id3 third identifier (DMB id)
-   * @param  id4 fourth identifier (Additional id)
-   * @return true if MO was found in cache and false otherwise
-   */
   const bool Cache::getEMU(const HistoId& id, MonitorObject*& mo) {
     if (data[id]) {
-      return data[id]->getMO(mo);
+      mo = data[id];
+      return true;
     }
     return false;
   }
 
   const bool Cache::getDDU(const HistoId& id, const HwId& dduId, MonitorObject*& mo) {
-    if (data[id]) {
-      return data[id]->getMO(dduId, mo);
+
+    if (dduPointerValue != dduId) {
+      dduPointer = dduData.find(dduId);
+      if (dduPointer == dduData.end()) {
+        dduPointerValue = 0;
+        return false;
+      }
+    } 
+
+    dduPointerValue  = dduId;
+    DDUHistoMapType::const_iterator hit = dduPointer->second->find(id);
+    if (hit != dduPointer->second->end()) {
+      mo = hit->second;
+      return true;
     }
     return false;
+
   }
 
   const bool Cache::getCSC(const HistoId& id, const HwId& crateId, const HwId& dmbId, const HwId& addId, MonitorObject*& mo) {
-    if (data[id]) {
-      return data[id]->getMO(crateId, dmbId, addId, mo);
+
+    if (cscPointer == cscData.end() || cscPointer->crateId != crateId || cscPointer->dmbId != dmbId) {
+      cscPointer = cscData.find(boost::make_tuple(crateId, dmbId));
+    }
+
+    if (cscPointer != cscData.end()) {
+      CSCHistoMapType::const_iterator hit = cscPointer->mos.find(boost::make_tuple(id, addId));
+      if (hit != cscPointer->mos.end()) {
+        mo = const_cast<MonitorObject*>(hit->mo);
+        return true;
+      }
     }
     return false;
   }
 
   const bool Cache::getPar(const HistoId& id, MonitorObject*& mo) {
     if (data[id]) {
-      return data[id]->getMO(mo);
+      mo = data[id];
+      return true;
     }
     return false;
   }
@@ -101,48 +115,56 @@ namespace cscdqm {
     HistoId id = histo.getId();
 
     if (typeid(histo) == EMUHistoDefT) {
-      if (data[id]) {
-        data[id]->setMO(mo);
-      } else {
-        data[id] = new EMUCacheItem(mo);
-      }
+      data[id] = mo;
     } else
 
     if (typeid(histo) == DDUHistoDefT) {
+
       HwId dduId = histo.getDDUId();
-      if (data[id]) {
-        data[id]->setMO(dduId, mo);
-      } else {
-        data[id] = new DDUCacheItem(dduId, mo);
+
+      if (dduPointerValue != dduId) {
+        dduPointer = dduData.find(dduId);
+      } 
+
+      if (dduPointer == dduData.end()) {
+        dduPointer = dduData.insert(dduData.end(), std::make_pair(dduId, new DDUHistoMapType()));
       }
-      ddus.insert(dduId);
+
+      dduPointer->second->insert(std::make_pair(id, mo));
+      dduPointerValue = dduId;
+
     } else
 
     if (typeid(histo) == CSCHistoDefT) {
+
       HwId crateId = histo.getCrateId();
       HwId dmbId = histo.getDMBId();
       HwId addId = histo.getAddId();
-      if (data[id]) {
-        data[id]->setMO(crateId, dmbId, addId, mo);
-      } else {
-        data[id] = new CSCCacheItem(crateId, dmbId, addId, mo);
+
+      CSCHistoKeyType histoKey(id, addId, mo);
+
+      if (cscPointer == cscData.end() || cscPointer->crateId != crateId || cscPointer->dmbId != dmbId) {
+        cscPointer = cscData.find(boost::make_tuple(crateId, dmbId));
+      } 
+
+      if (cscPointer == cscData.end()) {
+        CSCKeyType cscKey(crateId, dmbId);
+        cscPointer = cscData.insert(cscData.end(), cscKey);
       }
-      cscs.insert(CSCIdType(crateId, dmbId));
+      CSCHistoMapType* mos = const_cast<CSCHistoMapType*>(&cscPointer->mos);
+      mos->insert(histoKey);
+
     } else
 
     if (typeid(histo) == ParHistoDefT) {
-      if (data[id]) {
-        data[id]->setMO(mo);
-      } else {
-        data[id] = new ParCacheItem(mo);
-      }
+      data[id] = mo;
     }
 
   }
 
   const bool Cache::nextBookedCSC(unsigned int& n, unsigned int& crateId, unsigned int& dmbId) const {
-    if (n < cscs.size()) {
-      CSCSetType::const_iterator iter = cscs.begin();
+    if (n < cscData.size()) {
+      CSCMapType::const_iterator iter = cscData.begin();
       for (unsigned int i = n; i > 0; i--) iter++;
       crateId = iter->crateId;
       dmbId   = iter->dmbId;
@@ -153,10 +175,10 @@ namespace cscdqm {
   }
 
   const bool Cache::nextBookedDDU(unsigned int& n, unsigned int& dduId) const {
-    if (n < ddus.size()) {
-      DDUSetType::const_iterator iter = ddus.begin();
+    if (n < dduData.size()) {
+      DDUMapType::const_iterator iter = dduData.begin();
       for (unsigned int i = n; i > 0; i--) iter++;
-      dduId = *iter;
+      dduId = iter->first;
       n++;
       return true;
     }
@@ -164,16 +186,16 @@ namespace cscdqm {
   }
 
   const bool Cache::isBookedCSC(const HwId& crateId, const HwId& dmbId) const {
-    CSCSetType::const_iterator it = cscs.find(boost::make_tuple(crateId, dmbId));
-    if (it != cscs.end()) {
+    CSCMapType::const_iterator it = cscData.find(boost::make_tuple(crateId, dmbId));
+    if (it != cscData.end()) {
       return true;
     }
     return false;
   }
 
   const bool Cache::isBookedDDU(const HwId& dduId) const {
-    DDUSetType::const_iterator iter = ddus.find(dduId);
-    return (iter != ddus.end());
+    DDUMapType::const_iterator iter = dduData.find(dduId);
+    return (iter != dduData.end());
   }
 
 }

@@ -185,10 +185,39 @@ namespace cscdqm {
     if (config->getPROCESS_EFF_PARAMETERS()) {
 
       Address adr;
-      adr.mask.station = adr.mask.ring = adr.mask.chamber = adr.mask.layer = adr.mask.cfeb = adr.mask.hv = false;
-      adr.mask.side = true;
+      adr.mask.side = adr.mask.station = adr.mask.ring = true;
+      adr.mask.chamber = adr.mask.layer = adr.mask.cfeb = adr.mask.hv = false;
   
-      double e_detector = 0, e_side = 0, e_station = 0, e_ring = 0;
+      double e_detector = 0.0, e_side = 0.0, e_station = 0.0, e_ring = 0.0;
+      
+      const HistoId parameters [] = {
+        h::PAR_CSC_SIDEMINUS_STATION01_RING01,
+        h::PAR_CSC_SIDEMINUS_STATION01_RING02,
+        h::PAR_CSC_SIDEMINUS_STATION01_RING03,
+        h::PAR_CSC_SIDEMINUS_STATION01,
+        h::PAR_CSC_SIDEMINUS_STATION02_RING01,
+        h::PAR_CSC_SIDEMINUS_STATION02_RING02,
+        h::PAR_CSC_SIDEMINUS_STATION02,
+        h::PAR_CSC_SIDEMINUS_STATION03_RING01,
+        h::PAR_CSC_SIDEMINUS_STATION03_RING02,
+        h::PAR_CSC_SIDEMINUS_STATION03,
+        h::PAR_CSC_SIDEMINUS_STATION04,
+        h::PAR_CSC_SIDEMINUS,
+        h::PAR_CSC_SIDEPLUS_STATION01_RING01,
+        h::PAR_CSC_SIDEPLUS_STATION01_RING02,
+        h::PAR_CSC_SIDEPLUS_STATION01_RING03,
+        h::PAR_CSC_SIDEPLUS_STATION01,
+        h::PAR_CSC_SIDEPLUS_STATION02_RING01,
+        h::PAR_CSC_SIDEPLUS_STATION02_RING02,
+        h::PAR_CSC_SIDEPLUS_STATION02,
+        h::PAR_CSC_SIDEPLUS_STATION03_RING01,
+        h::PAR_CSC_SIDEPLUS_STATION03_RING02,
+        h::PAR_CSC_SIDEPLUS_STATION03,
+        h::PAR_CSC_SIDEPLUS_STATION04,
+        h::PAR_CSC_SIDEPLUS
+      };
+
+      unsigned int parameter = 0;
 
       for (adr.side = 1; adr.side <= N_SIDES; adr.side++) {
         e_side = 0;
@@ -200,19 +229,20 @@ namespace cscdqm {
             e_ring = summary.GetEfficiencyHW(adr);
             e_station += e_ring;
             if (summary.getDetector().NumberOfRings(adr.station) > 1) {
-              if (getParHisto(summary.getDetector().AddressName(adr), me)) {
-                me->Fill(e_ring);
-              }
+              if (getParHisto(parameters[parameter], me)) me->Fill(e_ring);
+              parameter++;
             }
           }
           adr.mask.ring = false;
           e_station = e_station / summary.getDetector().NumberOfRings(adr.station);
-          if (getParHisto(summary.getDetector().AddressName(adr), me)) me->Fill(e_station);
+          if (getParHisto(parameters[parameter], me)) me->Fill(e_station);
+          parameter++;
           e_side += e_station;
         }
         adr.mask.station = false;
         e_side = e_side / N_STATIONS;
-        if (getParHisto(summary.getDetector().AddressName(adr), me)) me->Fill(e_side);
+        if (getParHisto(parameters[parameter], me)) me->Fill(e_side);
+        parameter++;
         e_detector += e_side; 
       }
       e_detector = e_detector / N_SIDES;

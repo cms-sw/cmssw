@@ -13,7 +13,7 @@ StripClusterFinder::StripClusterFinder(int l, int s, int cf, int st)
 	TimeSliceNmb = s;
 	StripNmb = cf*16;
 }
-void StripClusterFinder::DoAction(int LayerId,float *Cathodes)
+void StripClusterFinder::DoAction(int LayerId, float *Cathodes)
 {
   int TimeId,StripId;
   this->LId=LayerId;
@@ -25,9 +25,11 @@ void StripClusterFinder::DoAction(int LayerId,float *Cathodes)
   // fill 
   //===========================================================================
 
-  for(StripId=0;StripId<StripNmb;StripId++) { 
-    for(TimeId=0;TimeId<TimeSliceNmb;TimeId++) { 
-      PulseHeightMapTMP.height_[TimeId]=*(Cathodes+StripNmb*(TimeSliceNmb*LayerId+TimeId)+StripId);
+  const float a = *Cathodes + StripNmb * TimeSliceNmb * LayerId;
+  for (StripId = 0; StripId < StripNmb; StripId++) { 
+    const float b = a + StripId;
+    for (TimeId = 0; TimeId < TimeSliceNmb; TimeId++) { 
+      PulseHeightMapTMP.height_[TimeId] = b + StripNmb * TimeId;
     }
     PulseHeightMapTMP.bx_=0;
     PulseHeightMapTMP.channel_=StripId; // was StripId
