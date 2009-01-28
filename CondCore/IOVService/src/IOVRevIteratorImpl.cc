@@ -10,14 +10,14 @@ cond::IOVRevIteratorImpl::~IOVRevIteratorImpl(){
 void cond::IOVRevIteratorImpl::open() const{
   if (m_isOpen) return;
   const_cast<cond::IOVRevIteratorImpl*>(this)->m_iov=
-    cond::TypedRef<cond::IOV>(m_pooldb, m_token);
+    cond::TypedRef<cond::IOVSequence>(m_pooldb, m_token);
   const_cast<cond::IOVRevIteratorImpl*>(this)->m_isOpen=true;
 }
 
 void cond::IOVRevIteratorImpl::init(){
   open();
   m_isInit=true;
-  m_pos=m_iov->iovs().rbegin();
+  m_pos=iov().rbegin();
   m_till = m_iov->lastTill();
   m_count = empty() ? 0 : size()-1;
 }
@@ -30,11 +30,11 @@ bool cond::IOVRevIteratorImpl::rewind() {
 
 bool cond::IOVRevIteratorImpl::empty() const {
   open();
-  return m_iov->iovs().empty();
+  return iov().empty();
 }
 size_t cond::IOVRevIteratorImpl::size() const {
   open();
-  return m_iov->iovs().size();
+  return iov().size();
 }
 size_t cond::IOVRevIteratorImpl::position() const {
   return m_count;
@@ -42,7 +42,7 @@ size_t cond::IOVRevIteratorImpl::position() const {
 
 
 bool  cond::IOVRevIteratorImpl::atEnd() const {
-  return  m_isInit && m_pos==iovs().rend();
+  return  m_isInit && m_pos==iov().rend();
 }
 
 bool cond::IOVRevIteratorImpl::next(){
@@ -62,7 +62,7 @@ std::string
 cond::IOVRevIteratorImpl::payloadToken() const{
   if(!m_isInit) return std::string("");
   
-  return atEnd() ? std::string("") : m_pos->second;
+  return atEnd() ? std::string("") : m_pos->wrapperToken();
   
 }
 
