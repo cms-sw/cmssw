@@ -11,7 +11,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2008/11/28 12:49:39 $ 
+ **  $Date: 2009/01/26 09:56:33 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -34,10 +34,6 @@ PhotonAnalyzer::PhotonAnalyzer( const edm::ParameterSet& pset )
     photonProducer_     = pset.getParameter<std::string>("phoProducer");
     photonCollection_   = pset.getParameter<std::string>("photonCollection");
 
-    barrelEcalHits_     = pset.getParameter<edm::InputTag>("barrelEcalHits");
-    endcapEcalHits_     = pset.getParameter<edm::InputTag>("endcapEcalHits");
-
-
     triggerResultsHLT_     = pset.getParameter<edm::InputTag>("triggerResultsHLT");
     triggerResultsFU_     = pset.getParameter<edm::InputTag>("triggerResultsFU");
 
@@ -53,28 +49,6 @@ PhotonAnalyzer::PhotonAnalyzer( const edm::ParameterSet& pset )
     isolationStrength_  = pset.getParameter<int>("isolationStrength");
 
 
-
-    // parameters for Pizero finding
-    seleXtalMinEnergy_    = pset.getParameter<double> ("seleXtalMinEnergy");
-    clusSeedThr_          = pset.getParameter<double> ("clusSeedThr");
-    clusEtaSize_          = pset.getParameter<int> ("clusEtaSize");
-    clusPhiSize_          = pset.getParameter<int> ("clusPhiSize");
-    ParameterLogWeighted_ = pset.getParameter<bool> ("ParameterLogWeighted");
-    ParameterX0_          = pset.getParameter<double> ("ParameterX0");
-    ParameterT0_barl_     = pset.getParameter<double> ("ParameterT0_barl");
-    ParameterW0_          = pset.getParameter<double> ("ParameterW0");
-    
-    selePtGammaOne_       = pset.getParameter<double> ("selePtGammaOne");  
-    selePtGammaTwo_       = pset.getParameter<double> ("selePtGammaTwo");  
-    seleS4S9GammaOne_     = pset.getParameter<double> ("seleS4S9GammaOne");  
-    seleS4S9GammaTwo_     = pset.getParameter<double> ("seleS4S9GammaTwo");  
-    selePtPi0_            = pset.getParameter<double> ("selePtPi0");  
-    selePi0Iso_           = pset.getParameter<double> ("selePi0Iso");  
-    selePi0BeltDR_        = pset.getParameter<double> ("selePi0BeltDR");  
-    selePi0BeltDeta_      = pset.getParameter<double> ("selePi0BeltDeta");  
-    seleMinvMaxPi0_       = pset.getParameter<double> ("seleMinvMaxPi0");  
-    seleMinvMinPi0_       = pset.getParameter<double> ("seleMinvMinPi0");  
-  
     parameters_ = pset;
    
 
@@ -126,6 +100,10 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
   double etMax = parameters_.getParameter<double>("etMax");
   int etBin = parameters_.getParameter<int>("etBin");
 
+  double sumMin = parameters_.getParameter<double>("sumMin");
+  double sumMax = parameters_.getParameter<double>("sumMax");
+  int sumBin = parameters_.getParameter<int>("sumBin");
+
   double etaMin = parameters_.getParameter<double>("etaMin");
   double etaMax = parameters_.getParameter<double>("etaMax");
   int etaBin = parameters_.getParameter<int>("etaBin");
@@ -134,10 +112,29 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
   double phiMax = parameters_.getParameter<double>("phiMax");
   int    phiBin = parameters_.getParameter<int>("phiBin");
  
- 
   double r9Min = parameters_.getParameter<double>("r9Min"); 
   double r9Max = parameters_.getParameter<double>("r9Max"); 
   int r9Bin = parameters_.getParameter<int>("r9Bin");
+
+  double hOverEMin = parameters_.getParameter<double>("hOverEMin"); 
+  double hOverEMax = parameters_.getParameter<double>("hOverEMax"); 
+  int hOverEBin = parameters_.getParameter<int>("hOverEBin");
+
+  double xyMin = parameters_.getParameter<double>("xyMin"); 
+  double xyMax = parameters_.getParameter<double>("xyMax"); 
+  int xyBin = parameters_.getParameter<int>("xyBin");
+
+  double numberMin = parameters_.getParameter<double>("numberMin"); 
+  double numberMax = parameters_.getParameter<double>("numberMax"); 
+  int numberBin = parameters_.getParameter<int>("numberBin");
+
+  double zMin = parameters_.getParameter<double>("zMin"); 
+  double zMax = parameters_.getParameter<double>("zMax"); 
+  int zBin = parameters_.getParameter<int>("zBin");
+
+  double rMin = parameters_.getParameter<double>("rMin"); 
+  double rMax = parameters_.getParameter<double>("rMax"); 
+  int rBin = parameters_.getParameter<int>("rBin");
 
   double dPhiTracksMin = parameters_.getParameter<double>("dPhiTracksMin"); 
   double dPhiTracksMax = parameters_.getParameter<double>("dPhiTracksMax"); 
@@ -205,14 +202,16 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
 	  h_phoE_part_.push_back(dbe_->book1D("phoE"+parts[part],types[type]+" Photon Energy: "+parts[part]+";E (GeV)", eBin,eMin, eMax));
 	  h_phoEt_part_.push_back(dbe_->book1D("phoEt"+parts[part],types[type]+" Photon Transverse Energy: "+parts[part]+";Et (GeV)", etBin,etMin, etMax));
 	  h_r9_part_.push_back(dbe_->book1D("r9"+parts[part],types[type]+" Photon r9: "+parts[part]+";R9",r9Bin,r9Min, r9Max));
-	  h_hOverE_part_.push_back(dbe_->book1D("hOverE"+parts[part],types[type]+" Photon H/E: "+parts[part]+";H/E",r9Bin,r9Min, 0.5));
+	  h_hOverE_part_.push_back(dbe_->book1D("hOverE"+parts[part],types[type]+" Photon H/E: "+parts[part]+";H/E",hOverEBin,hOverEMin,hOverEMax));
+	  h_h1OverE_part_.push_back(dbe_->book1D("h1OverE"+parts[part],types[type]+" Photon H/E for Depth 1: "+parts[part]+";H/E",hOverEBin,hOverEMin,hOverEMax));
+	  h_h2OverE_part_.push_back(dbe_->book1D("h2OverE"+parts[part],types[type]+" Photon H/E for Depth 2: "+parts[part]+";H/E",hOverEBin,hOverEMin,hOverEMax));
 	  h_nPho_part_.push_back(dbe_->book1D("nPho"+parts[part],"Number of "+types[type]+" Photons per Event: "+parts[part]+";# #gamma", 5,-0.5,4.5));
 	}
 
-	h_phoDistribution_part_.push_back(dbe_->book2D("DistributionAllEcal","Distribution of "+types[type]+" Photons in Eta/Phi: AllEcal;#phi;#eta",phiBin,phiMin,phiMax,etaBin,-2.5,2.5));
+	h_phoDistribution_part_.push_back(dbe_->book2D("DistributionAllEcal","Distribution of "+types[type]+" Photons in Eta/Phi: AllEcal;#phi;#eta",phiBin,phiMin,phiMax,etaBin,etaMin,etaMax));
 	h_phoDistribution_part_.push_back(dbe_->book2D("DistributionBarrel","Distribution of "+types[type]+" Photons in Eta/Phi: Barrel;#phi;#eta",360,phiMin,phiMax,170,-1.5,1.5));
-	h_phoDistribution_part_.push_back(dbe_->book2D("DistributionEndcapMinus","Distribution of "+types[type]+" Photons in X/Y: EndcapMinus;x (cm);y (cm)",100,-150,150,100,-150,150));
-	h_phoDistribution_part_.push_back(dbe_->book2D("DistributionEndcapPlus","Distribution of "+types[type]+" Photons in X/Y: EndcapPlus;x (cm);y (cm)",100,-150,150,100,-150,150));
+	h_phoDistribution_part_.push_back(dbe_->book2D("DistributionEndcapMinus","Distribution of "+types[type]+" Photons in X/Y: EndcapMinus;x (cm);y (cm)",xyBin,xyMin,xyMax,xyBin,xyMin,xyMax));
+	h_phoDistribution_part_.push_back(dbe_->book2D("DistributionEndcapPlus","Distribution of "+types[type]+" Photons in X/Y: EndcapPlus;x (cm);y (cm)",xyBin,xyMin,xyMax,xyBin,xyMin,xyMax));
 
 	h_phoE_isol_.push_back(h_phoE_part_);
 	h_phoE_part_.clear();
@@ -222,6 +221,10 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
 	h_r9_part_.clear();
 	h_hOverE_isol_.push_back(h_hOverE_part_);
 	h_hOverE_part_.clear();
+	h_h1OverE_isol_.push_back(h_h1OverE_part_);
+	h_h1OverE_part_.clear();
+	h_h2OverE_isol_.push_back(h_h2OverE_part_);
+	h_h2OverE_part_.clear();
 	h_nPho_isol_.push_back(h_nPho_part_);
 	h_nPho_part_.clear();
 
@@ -233,24 +236,31 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
 	h_r9VsEt_isol_.push_back(dbe_->book2D("r9VsEt2D",types[type]+" Photon r9 vs. Transverse Energy;Et (GeV);R9",etBin,etMin,etMax,r9Bin,r9Min,r9Max));
 	p_r9VsEt_isol_.push_back(dbe_->book1D("r9VsEt",types[type]+" Photon r9 vs. Transverse Energy;Et (GeV);R9",etBin,etMin,etMax));
 
+	h_phoCovIetaIeta_isol_.push_back(dbe_->book1D("phoCovIetaIeta",types[type]+" Photon #sigmai#etai#eta;#sigmai#etai#eta ",100,0,0.001)) ;
+	h_covIetaIetaVsEta_isol_.push_back(dbe_->book2D("covIetaIetaVsEta2D",types[type]+" Photon #sigmai#etai#eta vs. #eta;#eta;#sigmai#etai#eta",etaBin,etaMin,etaMax,100,0,0.001));
+	p_covIetaIetaVsEta_isol_.push_back(dbe_->book1D("covIetaIetaVsEta",types[type]+" Photon #sigmai#etai#eta vs. #eta;#eta;#sigmai#etai#eta",etaBin,etaMin,etaMax));
 
 	// Isolation Variable infos
 
-	h_nTrackIsolSolid_isol_.push_back(dbe_->book2D("nIsoTracksSolid2D","Avg Number Of Tracks in the Solid Iso Cone",etaBin,etaMin, etaMax,10,-0.5, 9.5));
-	h_trackPtSumSolid_isol_.push_back(dbe_->book2D("isoPtSumSolid2D","Avg Tracks Pt Sum in the Solid Iso Cone",etaBin,etaMin, etaMax,100,0., 20.));
-	h_nTrackIsolHollow_isol_.push_back(dbe_->book2D("nIsoTracksHollow2D","Avg Number Of Tracks in the Hollow Iso Cone",etaBin,etaMin, etaMax,10,-0.5, 9.5));
-	h_trackPtSumHollow_isol_.push_back(dbe_->book2D("isoPtSumHollow2D","Avg Tracks Pt Sum in the Hollow Iso Cone",etaBin,etaMin, etaMax,100,0., 20.));
-	h_ecalSum_isol_.push_back(dbe_->book2D("ecalSum2D","Avg Ecal Sum in the Iso Cone",etaBin,etaMin, etaMax,100,0., 20.));
-	h_hcalSum_isol_.push_back(dbe_->book2D("hcalSum2D","Avg Hcal Sum in the Iso Cone",etaBin,etaMin, etaMax,100,0., 20.));
-	p_nTrackIsolSolid_isol_.push_back(dbe_->book1D("nIsoTracksSolid","Avg Number Of Tracks in the Solid Iso Cone;#eta;# tracks",etaBin,etaMin, etaMax));
-	p_trackPtSumSolid_isol_.push_back(dbe_->book1D("isoPtSumSolid","Avg Tracks Pt Sum in the Solid Iso Cone;#eta;Pt (GeV)",etaBin,etaMin, etaMax));
-	p_nTrackIsolHollow_isol_.push_back(dbe_->book1D("nIsoTracksHollow","Avg Number Of Tracks in the Hollow Iso Cone;#eta;# tracks",etaBin,etaMin, etaMax));
-	p_trackPtSumHollow_isol_.push_back(dbe_->book1D("isoPtSumHollow","Avg Tracks Pt Sum in the Hollow Iso Cone;#eta;Pt (GeV)",etaBin,etaMin, etaMax));
-	p_ecalSum_isol_.push_back(dbe_->book1D("ecalSum","Avg Ecal Sum in the Iso Cone;#eta;E (GeV)",etaBin,etaMin, etaMax));
-	p_hcalSum_isol_.push_back(dbe_->book1D("hcalSum","Avg Hcal Sum in the Iso Cone;#eta;E (GeV)",etaBin,etaMin, etaMax));
+	h_nTrackIsolSolidVsEta_isol_.push_back(dbe_->book2D("nIsoTracksSolidVsEta2D","Avg Number Of Tracks in the Solid Iso Cone vs. #eta;#eta;# tracks",etaBin,etaMin, etaMax,numberBin,numberMin,numberMax));
+	h_trackPtSumSolidVsEta_isol_.push_back(dbe_->book2D("isoPtSumSolidVsEta2D","Avg Tracks Pt Sum in the Solid Iso Cone",etaBin,etaMin, etaMax,100,0., 20.));
+	h_nTrackIsolHollowVsEta_isol_.push_back(dbe_->book2D("nIsoTracksHollowVsEta2D","Avg Number Of Tracks in the Hollow Iso Cone vs. #eta;#eta;# tracks",etaBin,etaMin, etaMax,numberBin,numberMin,numberMax));
+	h_trackPtSumHollowVsEta_isol_.push_back(dbe_->book2D("isoPtSumHollowVsEta2D","Avg Tracks Pt Sum in the Hollow Iso Cone",etaBin,etaMin, etaMax,100,0., 20.));
+	h_ecalSumVsEta_isol_.push_back(dbe_->book2D("ecalSumVsEta2D","Avg Ecal Sum in the Iso Cone",etaBin,etaMin, etaMax,100,0., 20.));
+	h_hcalSumVsEta_isol_.push_back(dbe_->book2D("hcalSumVsEta2D","Avg Hcal Sum in the Iso Cone",etaBin,etaMin, etaMax,100,0., 20.));
+	p_nTrackIsolSolidVsEta_isol_.push_back(dbe_->book1D("nIsoTracksSolidVsEta","Avg Number Of Tracks in the Solid Iso Cone vs. #eta;#eta;# tracks",etaBin,etaMin, etaMax));
+	p_trackPtSumSolidVsEta_isol_.push_back(dbe_->book1D("isoPtSumSolidVsEta","Avg Tracks Pt Sum in the Solid Iso Cone vs. #eta;#eta;Pt (GeV)",etaBin,etaMin, etaMax));
+	p_nTrackIsolHollowVsEta_isol_.push_back(dbe_->book1D("nIsoTracksHollowVsEta","Avg Number Of Tracks in the Hollow Iso Cone vs. #eta;#eta;# tracks",etaBin,etaMin, etaMax));
+	p_trackPtSumHollowVsEta_isol_.push_back(dbe_->book1D("isoPtSumHollowVsEta","Avg Tracks Pt Sum in the Hollow Iso Cone vs. #eta;#eta;Pt (GeV)",etaBin,etaMin, etaMax));
+	p_ecalSumVsEta_isol_.push_back(dbe_->book1D("ecalSumVsEta","Avg Ecal Sum in the Iso Cone vs. #eta;#eta;E (GeV)",etaBin,etaMin, etaMax));
+	p_hcalSumVsEta_isol_.push_back(dbe_->book1D("hcalSumVsEta","Avg Hcal Sum in the Iso Cone vs. #eta;#eta;E (GeV)",etaBin,etaMin, etaMax));
 
-
-
+	h_nTrackIsolSolid_isol_.push_back(dbe_->book1D("nIsoTracksSolid","Avg Number Of Tracks in the Solid Iso Cone;# tracks",numberBin,numberMin,numberMax));
+	h_trackPtSumSolid_isol_.push_back(dbe_->book1D("isoPtSumSolid","Avg Tracks Pt Sum in the Solid Iso Cone;Pt (GeV)",sumBin,sumMin,sumMax));
+	h_nTrackIsolHollow_isol_.push_back(dbe_->book1D("nIsoTracksHollow","Avg Number Of Tracks in the Hollow Iso Cone;# tracks",numberBin,numberMin,numberMax));
+	h_trackPtSumHollow_isol_.push_back(dbe_->book1D("isoPtSumHollow","Avg Tracks Pt Sum in the Hollow Iso Cone;Pt (GeV)",sumBin,sumMin,sumMax));
+	h_ecalSum_isol_.push_back(dbe_->book1D("ecalSum","Avg Ecal Sum in the Iso Cone;E (GeV)",sumBin,sumMin,sumMax));
+	h_hcalSum_isol_.push_back(dbe_->book1D("hcalSum","Avg Hcal Sum in the Iso Cone;E (GeV)",sumBin,sumMin,sumMax));
 
 
       }
@@ -263,6 +273,11 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
       h_r9_isol_.clear();
       h_hOverE_.push_back(h_hOverE_isol_);
       h_hOverE_isol_.clear();
+      h_h1OverE_.push_back(h_h1OverE_isol_);
+      h_h1OverE_isol_.clear();
+      h_h2OverE_.push_back(h_h2OverE_isol_);
+      h_h2OverE_isol_.clear();
+
       h_nPho_.push_back(h_nPho_isol_);
       h_nPho_isol_.clear();
       
@@ -277,37 +292,53 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
       h_r9VsEt_isol_.clear();
       p_r9VsEt_.push_back(p_r9VsEt_isol_);
       p_r9VsEt_isol_.clear();
-     
-
  
+      h_phoCovIetaIeta_.push_back(h_phoCovIetaIeta_isol_);
+      h_phoCovIetaIeta_isol_.clear();
+  
+      h_covIetaIetaVsEta_.push_back(h_covIetaIetaVsEta_isol_);
+      h_covIetaIetaVsEta_isol_.clear();
+      p_covIetaIetaVsEta_.push_back(p_covIetaIetaVsEta_isol_);
+      p_covIetaIetaVsEta_isol_.clear();
+ 
+      h_nTrackIsolSolidVsEta_.push_back(h_nTrackIsolSolidVsEta_isol_);
+      h_trackPtSumSolidVsEta_.push_back(h_trackPtSumSolidVsEta_isol_);
+      h_nTrackIsolHollowVsEta_.push_back(h_nTrackIsolHollowVsEta_isol_);
+      h_trackPtSumHollowVsEta_.push_back(h_trackPtSumHollowVsEta_isol_);
+      h_ecalSumVsEta_.push_back(h_ecalSumVsEta_isol_);
+      h_hcalSumVsEta_.push_back(h_hcalSumVsEta_isol_);
+      p_nTrackIsolSolidVsEta_.push_back(p_nTrackIsolSolidVsEta_isol_);
+      p_trackPtSumSolidVsEta_.push_back(p_trackPtSumSolidVsEta_isol_);
+      p_nTrackIsolHollowVsEta_.push_back(p_nTrackIsolHollowVsEta_isol_);
+      p_trackPtSumHollowVsEta_.push_back(p_trackPtSumHollowVsEta_isol_);
+      p_ecalSumVsEta_.push_back(p_ecalSumVsEta_isol_);
+      p_hcalSumVsEta_.push_back(p_hcalSumVsEta_isol_);
+    
+      h_nTrackIsolSolidVsEta_isol_.clear();
+      h_trackPtSumSolidVsEta_isol_.clear();
+      h_nTrackIsolHollowVsEta_isol_.clear();
+      h_trackPtSumHollowVsEta_isol_.clear();
+      h_ecalSumVsEta_isol_.clear();
+      h_hcalSumVsEta_isol_.clear();
+      p_nTrackIsolSolidVsEta_isol_.clear();
+      p_trackPtSumSolidVsEta_isol_.clear();
+      p_nTrackIsolHollowVsEta_isol_.clear();
+      p_trackPtSumHollowVsEta_isol_.clear();
+      p_ecalSumVsEta_isol_.clear();
+      p_hcalSumVsEta_isol_.clear();
+
       h_nTrackIsolSolid_.push_back(h_nTrackIsolSolid_isol_);
       h_trackPtSumSolid_.push_back(h_trackPtSumSolid_isol_);
       h_nTrackIsolHollow_.push_back(h_nTrackIsolHollow_isol_);
       h_trackPtSumHollow_.push_back(h_trackPtSumHollow_isol_);
       h_ecalSum_.push_back(h_ecalSum_isol_);
       h_hcalSum_.push_back(h_hcalSum_isol_);
-      p_nTrackIsolSolid_.push_back(p_nTrackIsolSolid_isol_);
-      p_trackPtSumSolid_.push_back(p_trackPtSumSolid_isol_);
-      p_nTrackIsolHollow_.push_back(p_nTrackIsolHollow_isol_);
-      p_trackPtSumHollow_.push_back(p_trackPtSumHollow_isol_);
-      p_ecalSum_.push_back(p_ecalSum_isol_);
-      p_hcalSum_.push_back(p_hcalSum_isol_);
-
-    
       h_nTrackIsolSolid_isol_.clear();
       h_trackPtSumSolid_isol_.clear();
       h_nTrackIsolHollow_isol_.clear();
       h_trackPtSumHollow_isol_.clear();
       h_ecalSum_isol_.clear();
       h_hcalSum_isol_.clear();
-      p_nTrackIsolSolid_isol_.clear();
-      p_trackPtSumSolid_isol_.clear();
-      p_nTrackIsolHollow_isol_.clear();
-      p_trackPtSumHollow_isol_.clear();
-      p_ecalSum_isol_.clear();
-      p_hcalSum_isol_.clear();
-
-
 
       //conversion plots
 
@@ -321,9 +352,12 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
 
 	for(uint part=0;part!=parts.size();++part){ //loop over different parts of the ecal
 
+	  h_phoConvE_part_.push_back(dbe_->book1D("phoConvE"+parts[part],types[type]+" Photon Energy: "+parts[part]+";E (GeV)", eBin,eMin, eMax));
 	  h_phoConvEt_part_.push_back(dbe_->book1D("phoConvEt"+parts[part],types[type]+" Photon Transverse Energy: "+parts[part]+";Et (GeV)", etBin,etMin, etMax));
 
-	  h_nConv_part_.push_back(dbe_->book1D("nConv"+parts[part],"Number Of Conversions per Event:  "+parts[part]+";# conversions" ,10,-0.5, 9.5));
+	  h_phoConvR9_part_.push_back(dbe_->book1D("phoConvR9"+parts[part],types[type]+" Photon r9: "+parts[part]+";R9",r9Bin,r9Min, r9Max));
+
+	  h_nConv_part_.push_back(dbe_->book1D("nConv"+parts[part],"Number Of Conversions per Event:  "+parts[part]+";# conversions" ,numberBin,numberMin,numberMax));
 	  h_eOverPTracks_part_.push_back(dbe_->book1D("eOverPTracks"+parts[part],"E/P of Conversions: "+parts[part]+";E/P" ,100, 0., 5.));
 	  
 	  h_dPhiTracksAtVtx_part_.push_back(dbe_->book1D("dPhiTracksAtVtx"+parts[part], "  #delta#phi of Conversion Tracks at Vertex: "+parts[part]+";#delta#phi",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax));
@@ -335,9 +369,12 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
 
 
 	}
-
+	h_phoConvE_isol_.push_back(h_phoConvE_part_);
+	h_phoConvE_part_.clear();
 	h_phoConvEt_isol_.push_back(h_phoConvEt_part_);
 	h_phoConvEt_part_.clear();
+	h_phoConvR9_isol_.push_back(h_phoConvR9_part_);
+	h_phoConvR9_part_.clear();
 
 	h_nConv_isol_.push_back(h_nConv_part_);
 	h_nConv_part_.clear();
@@ -357,17 +394,21 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
 
 	h_phoConvEta_isol_.push_back(dbe_->book1D("phoConvEta",types[type]+" Converted Photon Eta;#eta ",etaBin,etaMin, etaMax)) ;
 	h_phoConvPhi_isol_.push_back(dbe_->book1D("phoConvPhi",types[type]+" Converted Photon Phi;#phi ",phiBin,phiMin,phiMax)) ;
-	h_convVtxRvsZ_isol_.push_back(dbe_->book2D("convVtxRvsZ",types[type]+" Photon Reco conversion vtx position;Z (cm);R (cm)",100, 0., 280.,200,0., 120.));
-	h_convVtxRvsZLowEta_isol_.push_back(dbe_->book2D("convVtxRvsZLowEta",types[type]+" Photon Reco conversion vtx position: #eta < 1;Z (cm);R (cm)",100, 0., 280.,200,0., 120.));
-	h_convVtxRvsZHighEta_isol_.push_back(dbe_->book2D("convVtxRvsZHighEta",types[type]+" Photon Reco conversion vtx position: #eta > 1;Z (cm);R (cm)",100, 0., 280.,200,0., 120.));
+	h_convVtxRvsZ_isol_.push_back(dbe_->book2D("convVtxRvsZ",types[type]+" Photon Reco conversion vtx position;Z (cm);R (cm)",zBin,zMin,zMax,rBin,rMin,rMax));
+	h_convVtxRvsZLowEta_isol_.push_back(dbe_->book2D("convVtxRvsZLowEta",types[type]+" Photon Reco conversion vtx position: #eta < 1;Z (cm);R (cm)",zBin,zMin,zMax,rBin,rMin,rMax));
+	h_convVtxRvsZHighEta_isol_.push_back(dbe_->book2D("convVtxRvsZHighEta",types[type]+" Photon Reco conversion vtx position: #eta > 1;Z (cm);R (cm)",zBin,zMin,zMax,rBin,rMin,rMax));
 	h_nHitsVsEta_isol_.push_back(dbe_->book2D("nHitsVsEta2D",types[type]+" Photons: Tracks from conversions: Mean Number of  Hits vs Eta;#eta;# hits",etaBin,etaMin, etaMax,etaBin,0, 16));
 	p_nHitsVsEta_isol_.push_back(dbe_->book1D("nHitsVsEta",types[type]+" Photons: Tracks from conversions: Mean Number of  Hits vs Eta;#eta;# hits",etaBin,etaMin, etaMax));	
 	h_tkChi2_isol_.push_back(dbe_->book1D("tkChi2",types[type]+" Photons: Tracks from conversions: #chi^{2} of all tracks;#chi^{2}", 100, 0., 20.0));  
       }
 
+      h_phoConvE_.push_back(h_phoConvE_isol_);
+      h_phoConvE_isol_.clear();
       h_phoConvEt_.push_back(h_phoConvEt_isol_);
       h_phoConvEt_isol_.clear();
-   
+      h_phoConvR9_.push_back(h_phoConvR9_isol_);
+      h_phoConvR9_isol_.clear();
+
       h_nConv_.push_back(h_nConv_isol_);
       h_nConv_isol_.clear();
       h_eOverPTracks_.push_back(h_eOverPTracks_isol_);
@@ -402,26 +443,6 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
  
     }
 
-
-    currentFolder_.str("");
-    currentFolder_ << "Egamma/PhotonAnalyzer/PiZero";
-    dbe_->setCurrentFolder(currentFolder_.str());
-    
-    hMinvPi0EB_ = dbe_->book1D("Pi0InvmassEB","Pi0 Invariant Mass in EB",100,0.,0.5);
-    hMinvPi0EB_->setAxisTitle("Inv Mass [GeV] ",1);
-
-    hPt1Pi0EB_ = dbe_->book1D("Pt1Pi0EB","Pt 1st most energetic Pi0 photon in EB",100,0.,20.);
-    hPt1Pi0EB_->setAxisTitle("1st photon Pt [GeV] ",1);
-    
-    hPt2Pi0EB_ = dbe_->book1D("Pt2Pi0EB","Pt 2nd most energetic Pi0 photon in EB",100,0.,20.);
-    hPt2Pi0EB_->setAxisTitle("2nd photon Pt [GeV] ",1);
-    
-    hPtPi0EB_ = dbe_->book1D("PtPi0EB","Pi0 Pt in EB",100,0.,20.);
-    hPtPi0EB_->setAxisTitle("Pi0 Pt [GeV] ",1);
-    
-    hIsoPi0EB_ = dbe_->book1D("IsoPi0EB","Pi0 Iso in EB",50,0.,1.);
-    hIsoPi0EB_->setAxisTitle("Pi0 Iso",1);
-   
 
   } 
 
@@ -466,25 +487,6 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
   e.getByLabel("PhotonIDProd", "PhotonCutBasedIDLoose", loosePhotonFlag);
   Handle<edm::ValueMap<bool> > tightPhotonFlag;
   e.getByLabel("PhotonIDProd", "PhotonCutBasedIDTight", tightPhotonFlag);
-
- 
-  // Get EcalRecHits
-  bool validEcalRecHits=true;
-  Handle<EcalRecHitCollection> barrelHitHandle;
-  EcalRecHitCollection barrelRecHits;
-  e.getByLabel(barrelEcalHits_, barrelHitHandle);
-  if (!barrelHitHandle.isValid()) {
-    edm::LogError("PhotonProducer") << "Error! Can't get the product "<<barrelEcalHits_.label();
-    validEcalRecHits=false; 
-  }
-   
-  Handle<EcalRecHitCollection> endcapHitHandle;
-  e.getByLabel(endcapEcalHits_, endcapHitHandle);
-  EcalRecHitCollection endcapRecHits;
-  if (!endcapHitHandle.isValid()) {
-    edm::LogError("PhotonProducer") << "Error! Can't get the product "<<endcapEcalHits_.label();
-    validEcalRecHits=false; 
-  }
 
 
   // Create array to hold #photons/event information
@@ -550,7 +552,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
   // Loop over all photons in event
   for( reco::PhotonCollection::const_iterator  iPho = photonCollection.begin(); iPho != photonCollection.end(); iPho++) {
 
-    if ((*iPho).superCluster()->energy()/cosh( (*iPho).superCluster()->eta())  < minPhoEtCut_) continue;
+    if ((*iPho).et()  < minPhoEtCut_) continue;
     
 
 
@@ -578,12 +580,12 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 
     //filling histograms to make isolation efficiencies
     if (isLoosePhoton){
-	h_phoEta_Loose_->Fill( (*iPho).superCluster()->eta() );
-	h_phoEt_Loose_->Fill( (*iPho).energy()/ cosh( (*iPho).superCluster()->eta()) );
+	h_phoEta_Loose_->Fill( (*iPho).eta() );
+	h_phoEt_Loose_->Fill( (*iPho).et() );
     }
     if (isTightPhoton){
-	h_phoEta_Tight_->Fill( (*iPho).superCluster()->eta() );
-	h_phoEt_Tight_->Fill( (*iPho).energy()/ cosh( (*iPho).superCluster()->eta()) );
+	h_phoEta_Tight_->Fill( (*iPho).eta() );
+	h_phoEt_Tight_->Fill( (*iPho).et() );
     }
 
 
@@ -599,11 +601,9 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 
     nEntry_++;
 
-    float r9 = (*iPho).r9();;
 
     for (int cut=0; cut !=numberOfSteps_; ++cut) {
-      double Et =  (*iPho).energy()/cosh( (*iPho).superCluster()->eta());
-
+      double Et =  (*iPho).et();
       bool passesCuts = false;
 
       if ( useBinning_ && Et > cut*cutStep_ && ( Et < (cut+1)*cutStep_  | cut == numberOfSteps_-1 ) ){
@@ -616,65 +616,100 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
       if (passesCuts){
 
 	//filling isolation variable histograms
-	h_nTrackIsolSolid_[cut][0]->Fill( (*iPho).superCluster()->eta(),(*iPho).nTrkSolidConeDR04());
-	h_trackPtSumSolid_[cut][0]->Fill((*iPho).superCluster()->eta(), (*iPho).isolationTrkSolidConeDR04());
+	h_nTrackIsolSolidVsEta_[cut][0]->Fill( (*iPho).eta(),(*iPho).nTrkSolidConeDR04());
+	h_trackPtSumSolidVsEta_[cut][0]->Fill((*iPho).eta(), (*iPho).isolationTrkSolidConeDR04());
 	
-	h_nTrackIsolHollow_[cut][0]->Fill( (*iPho).superCluster()->eta(),(*iPho).nTrkHollowConeDR04());
-	h_trackPtSumHollow_[cut][0]->Fill((*iPho).superCluster()->eta(), (*iPho).isolationTrkHollowConeDR04());
+	h_nTrackIsolHollowVsEta_[cut][0]->Fill( (*iPho).eta(),(*iPho).nTrkHollowConeDR04());
+	h_trackPtSumHollowVsEta_[cut][0]->Fill((*iPho).eta(), (*iPho).isolationTrkHollowConeDR04());
 	
-	h_ecalSum_[cut][0]->Fill((*iPho).superCluster()->eta(), (*iPho).ecalRecHitSumConeDR04());
-	h_hcalSum_[cut][0]->Fill((*iPho).superCluster()->eta(), (*iPho).hcalTowerSumConeDR04());
+	h_ecalSumVsEta_[cut][0]->Fill((*iPho).eta(), (*iPho).ecalRecHitSumConeDR04());
+	h_hcalSumVsEta_[cut][0]->Fill((*iPho).eta(), (*iPho).hcalTowerSumConeDR04());
+
+	h_nTrackIsolSolid_[cut][0]->Fill( (*iPho).nTrkSolidConeDR04());
+	h_trackPtSumSolid_[cut][0]->Fill((*iPho).isolationTrkSolidConeDR04());
+	
+	h_nTrackIsolHollow_[cut][0]->Fill((*iPho).nTrkHollowConeDR04());
+	h_trackPtSumHollow_[cut][0]->Fill((*iPho).isolationTrkHollowConeDR04());
+	
+	h_ecalSum_[cut][0]->Fill((*iPho).ecalRecHitSumConeDR04());
+	h_hcalSum_[cut][0]->Fill((*iPho).hcalTowerSumConeDR04());
 
 
 	//filling all photons histograms
 	h_phoE_[cut][0][0]->Fill( (*iPho).energy() );
-	h_phoEt_[cut][0][0]->Fill( (*iPho).energy()/ cosh( (*iPho).superCluster()->eta()) );
+	h_phoEt_[cut][0][0]->Fill( (*iPho).et() );
 
-	h_r9_[cut][0][0]->Fill( r9 );
+	h_r9_[cut][0][0]->Fill( (*iPho).r9() );
 	h_hOverE_[cut][0][0]->Fill( (*iPho).hadronicOverEm() );
+	h_h1OverE_[cut][0][0]->Fill( (*iPho).hadronicDepth1OverEm() );
+	h_h2OverE_[cut][0][0]->Fill( (*iPho).hadronicDepth2OverEm() );
+
+
 
 	nPho[cut][0][0]++;
 	h_nConv_[cut][0][0]->Fill(float( (*iPho).conversions().size() ));
 
-	h_phoDistribution_[cut][0][0]->Fill( (*iPho).superCluster()->phi(),(*iPho).superCluster()->eta() );
+	h_phoDistribution_[cut][0][0]->Fill( (*iPho).phi(),(*iPho).eta() );
 
-	h_phoEta_[cut][0]->Fill( (*iPho).superCluster()->eta() );
-	h_phoPhi_[cut][0]->Fill( (*iPho).superCluster()->phi() );      
+	h_phoEta_[cut][0]->Fill( (*iPho).eta() );
+	h_phoPhi_[cut][0]->Fill( (*iPho).phi() );      
 
-	h_r9VsEt_[cut][0]->Fill( (*iPho).energy()/ cosh( (*iPho).superCluster()->eta()), r9 );
+	h_r9VsEt_[cut][0]->Fill( (*iPho).et(), (*iPho).r9() );
 
+	h_phoCovIetaIeta_[cut][0]->Fill( (*iPho).covIetaIeta() );
+
+	h_covIetaIetaVsEta_[cut][0]->Fill( (*iPho).eta(),(*iPho).covIetaIeta() );
 
 	// iso/noniso photons histograms
-	h_nTrackIsolSolid_[cut][type]->Fill( (*iPho).superCluster()->eta(),(*iPho).nTrkSolidConeDR04());
-	h_trackPtSumSolid_[cut][type]->Fill((*iPho).superCluster()->eta(), (*iPho).isolationTrkSolidConeDR04());
+	h_nTrackIsolSolidVsEta_[cut][type]->Fill( (*iPho).eta(),(*iPho).nTrkSolidConeDR04());
+	h_trackPtSumSolidVsEta_[cut][type]->Fill((*iPho).eta(), (*iPho).isolationTrkSolidConeDR04());
 	
-	h_nTrackIsolHollow_[cut][type]->Fill( (*iPho).superCluster()->eta(),(*iPho).nTrkHollowConeDR04());
-	h_trackPtSumHollow_[cut][type]->Fill((*iPho).superCluster()->eta(), (*iPho).isolationTrkHollowConeDR04());
+	h_nTrackIsolHollowVsEta_[cut][type]->Fill( (*iPho).eta(),(*iPho).nTrkHollowConeDR04());
+	h_trackPtSumHollowVsEta_[cut][type]->Fill((*iPho).eta(), (*iPho).isolationTrkHollowConeDR04());
 	
-	h_ecalSum_[cut][type]->Fill((*iPho).superCluster()->eta(), (*iPho).ecalRecHitSumConeDR04());
-	h_hcalSum_[cut][type]->Fill((*iPho).superCluster()->eta(), (*iPho).hcalTowerSumConeDR04());
+	h_ecalSumVsEta_[cut][type]->Fill((*iPho).eta(), (*iPho).ecalRecHitSumConeDR04());
+	h_hcalSumVsEta_[cut][type]->Fill((*iPho).eta(), (*iPho).hcalTowerSumConeDR04());
+
+	h_nTrackIsolSolid_[cut][type]->Fill((*iPho).nTrkSolidConeDR04());
+	h_trackPtSumSolid_[cut][type]->Fill((*iPho).isolationTrkSolidConeDR04());
+	
+	h_nTrackIsolHollow_[cut][type]->Fill((*iPho).nTrkHollowConeDR04());
+	h_trackPtSumHollow_[cut][type]->Fill((*iPho).isolationTrkHollowConeDR04());
+	
+	h_ecalSum_[cut][type]->Fill((*iPho).ecalRecHitSumConeDR04());
+	h_hcalSum_[cut][type]->Fill((*iPho).hcalTowerSumConeDR04());
 
 
 	h_phoE_[cut][type][0]->Fill( (*iPho).energy() );
-	h_phoEt_[cut][type][0]->Fill( (*iPho).energy()/ cosh( (*iPho).superCluster()->eta()) );
+	h_phoEt_[cut][type][0]->Fill( (*iPho).et() );
 
-	h_r9_[cut][type][0]->Fill( r9 );
+	h_r9_[cut][type][0]->Fill( (*iPho).r9() );
 	h_hOverE_[cut][type][0]->Fill( (*iPho).hadronicOverEm() );
+	h_h1OverE_[cut][type][0]->Fill( (*iPho).hadronicDepth1OverEm() );
+	h_h2OverE_[cut][type][0]->Fill( (*iPho).hadronicDepth2OverEm() );
 
 	nPho[cut][type][0]++;
 	h_nConv_[cut][type][0]->Fill(float( (*iPho).conversions().size() ));
 
-	h_phoDistribution_[cut][type][0]->Fill( (*iPho).superCluster()->phi(),(*iPho).superCluster()->eta() );
+	h_phoDistribution_[cut][type][0]->Fill( (*iPho).phi(),(*iPho).eta() );
 
-	h_phoEta_[cut][type]->Fill( (*iPho).superCluster()->eta() );
-	h_phoPhi_[cut][type]->Fill( (*iPho).superCluster()->phi() );      
+	h_phoEta_[cut][type]->Fill( (*iPho).eta() );
+	h_phoPhi_[cut][type]->Fill( (*iPho).phi() );      
 
-	h_r9VsEt_[cut][type]->Fill( (*iPho).energy()/ cosh( (*iPho).superCluster()->eta()), r9 );
+	h_r9VsEt_[cut][type]->Fill( (*iPho).et(), (*iPho).r9() );
+
+	h_phoCovIetaIeta_[cut][type]->Fill( (*iPho).covIetaIeta() );
+
+	h_covIetaIetaVsEta_[cut][type]->Fill( (*iPho).eta(), (*iPho).covIetaIeta() );
 
 
 	if((*iPho).hasConversionTracks()){
-	  	h_phoConvEt_[cut][0][0]->Fill( (*iPho).energy()/ cosh( (*iPho).superCluster()->eta()) );
-	  	h_phoConvEt_[cut][type][0]->Fill( (*iPho).energy()/ cosh( (*iPho).superCluster()->eta()) );
+	  	h_phoConvE_[cut][0][0]->Fill( (*iPho).energy() );
+	  	h_phoConvE_[cut][type][0]->Fill( (*iPho).energy() );
+	  	h_phoConvEt_[cut][0][0]->Fill( (*iPho).et() );
+	  	h_phoConvEt_[cut][type][0]->Fill( (*iPho).et() );
+	  	h_phoConvR9_[cut][0][0]->Fill( (*iPho).r9() );
+	  	h_phoConvR9_[cut][type][0]->Fill( (*iPho).r9() );
 	}
 
 	//filling both types of histograms for different ecal parts
@@ -685,34 +720,43 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 	  part = 2;
 
 	if((*iPho).hasConversionTracks()){
-	  	h_phoConvEt_[cut][0][part]->Fill( (*iPho).energy()/ cosh( (*iPho).superCluster()->eta()) );
-	  	h_phoConvEt_[cut][type][part]->Fill( (*iPho).energy()/ cosh( (*iPho).superCluster()->eta()) );
+	  	h_phoConvE_[cut][0][part]->Fill( (*iPho).energy() );
+	  	h_phoConvE_[cut][type][part]->Fill( (*iPho).energy() );
+	  	h_phoConvEt_[cut][0][part]->Fill( (*iPho).et() );
+	  	h_phoConvEt_[cut][type][part]->Fill( (*iPho).et() );
+	  	h_phoConvR9_[cut][0][part]->Fill( (*iPho).r9() );
+	  	h_phoConvR9_[cut][type][part]->Fill( (*iPho).r9() );
 	}
 
 	h_phoE_[cut][0][part]->Fill( (*iPho).energy() );
-	h_phoEt_[cut][0][part]->Fill( (*iPho).energy()/ cosh( (*iPho).superCluster()->eta()) );
+	h_phoEt_[cut][0][part]->Fill( (*iPho).et() );
 
-	h_r9_[cut][0][part]->Fill( r9 );
-	h_hOverE_[cut][0][part]->Fill( (*iPho).hadronicOverEm() );	
+	h_r9_[cut][0][part]->Fill( (*iPho).r9() );
+	h_hOverE_[cut][0][part]->Fill( (*iPho).hadronicOverEm() );
+	h_h1OverE_[cut][0][part]->Fill( (*iPho).hadronicDepth1OverEm() );
+	h_h2OverE_[cut][0][part]->Fill( (*iPho).hadronicDepth2OverEm() );
+
 
 	nPho[cut][0][part]++;
 	h_nConv_[cut][0][part]->Fill(float( (*iPho).conversions().size() ));
 
-	if ( phoIsInBarrel )  h_phoDistribution_[cut][0][1]->Fill( (*iPho).superCluster()->phi(),(*iPho).superCluster()->eta() );
+	if ( phoIsInBarrel )  h_phoDistribution_[cut][0][1]->Fill( (*iPho).phi(),(*iPho).eta() );
 	if ( phoIsInEndcapMinus )  h_phoDistribution_[cut][0][2]->Fill( (*iPho).superCluster()->x(),(*iPho).superCluster()->y() );
 	if ( phoIsInEndcapPlus )  h_phoDistribution_[cut][0][3]->Fill( (*iPho).superCluster()->x(),(*iPho).superCluster()->y() );
 
 
 	h_phoE_[cut][type][part]->Fill( (*iPho).energy() );
-	h_phoEt_[cut][type][part]->Fill( (*iPho).energy()/ cosh( (*iPho).superCluster()->eta()) );
+	h_phoEt_[cut][type][part]->Fill( (*iPho).et() );
 
-	h_r9_[cut][type][part]->Fill( r9 );
+	h_r9_[cut][type][part]->Fill( (*iPho).r9() );
 	h_hOverE_[cut][type][part]->Fill( (*iPho).hadronicOverEm() );
+	h_h1OverE_[cut][type][part]->Fill( (*iPho).hadronicDepth1OverEm() );
+	h_h2OverE_[cut][type][part]->Fill( (*iPho).hadronicDepth2OverEm() );
 
 	nPho[cut][type][part]++;
 	h_nConv_[cut][type][part]->Fill(float( (*iPho).conversions().size() ));
 
-       	if ( phoIsInBarrel )  h_phoDistribution_[cut][type][1]->Fill( (*iPho).superCluster()->phi(),(*iPho).superCluster()->eta() );
+       	if ( phoIsInBarrel )  h_phoDistribution_[cut][type][1]->Fill( (*iPho).phi(),(*iPho).eta() );
 	if ( phoIsInEndcapMinus )  h_phoDistribution_[cut][type][2]->Fill( (*iPho).superCluster()->x(),(*iPho).superCluster()->y() );
 	if ( phoIsInEndcapPlus )  h_phoDistribution_[cut][type][3]->Fill( (*iPho).superCluster()->x(),(*iPho).superCluster()->y() );
 
@@ -835,254 +879,10 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
     }
   }
 
-  if (validEcalRecHits) makePizero(esup,  barrelHitHandle, endcapHitHandle);
-
 
 
 }
 
-void PhotonAnalyzer::makePizero ( const edm::EventSetup& es, const edm::Handle<EcalRecHitCollection> rhEB,  const edm::Handle<EcalRecHitCollection> rhEE ) {
-
-  const EcalRecHitCollection *hitCollection_p = rhEB.product();
-  
-  edm::ESHandle<CaloGeometry> geoHandle;
-  es.get<CaloGeometryRecord>().get(geoHandle);     
-
-  edm::ESHandle<CaloTopology> theCaloTopology;
-  es.get<CaloTopologyRecord>().get(theCaloTopology);
-
- 
-  const CaloSubdetectorGeometry *geometry_p;    
-  const CaloSubdetectorTopology *topology_p;
-  const CaloSubdetectorGeometry *geometryES_p;
-  geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
-  geometryES_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
-  // Initialize the Position Calc
-  std::map<std::string,double> providedParameters;  
-  providedParameters.insert(std::make_pair("LogWeighted",ParameterLogWeighted_));
-  providedParameters.insert(std::make_pair("X0",ParameterX0_));
-  providedParameters.insert(std::make_pair("T0_barl",ParameterT0_barl_));
-  providedParameters.insert(std::make_pair("W0",ParameterW0_));
-  PositionCalc posCalculator_ = PositionCalc(providedParameters);
-  //
-  std::map<DetId, EcalRecHit> recHitsEB_map;
-  //
-  std::vector<EcalRecHit> seeds;
-
-  seeds.clear();
-  //
-  vector<EBDetId> usedXtals;
-  usedXtals.clear();
-  //
-  EcalRecHitCollection::const_iterator itb;
-  //
-  static const int MAXCLUS = 2000;
-  int nClus=0;
-  vector<float> eClus;
-  vector<float> etClus;
-  vector<float> etaClus;
-  vector<float> phiClus;
-  vector<EBDetId> max_hit;
-  vector< vector<EcalRecHit> > RecHitsCluster;
-  vector<float> s4s9Clus;
-  
-  // find cluster seeds in EB 
-  for(itb=rhEB->begin(); itb!=rhEB->end(); ++itb){
-    EBDetId id(itb->id());
-    double energy = itb->energy();
-    if (energy > seleXtalMinEnergy_) {
-      std::pair<DetId, EcalRecHit> map_entry(itb->id(), *itb);
-      recHitsEB_map.insert(map_entry);
-    }
-    if (energy > clusSeedThr_) seeds.push_back(*itb);
-  } // Eb rechits
-  
-  sort(seeds.begin(), seeds.end(), ecalRecHitLess());
-  for (std::vector<EcalRecHit>::iterator itseed=seeds.begin(); itseed!=seeds.end(); itseed++) {
-    EBDetId seed_id = itseed->id();
-    std::vector<EBDetId>::const_iterator usedIds;
-    
-    bool seedAlreadyUsed=false;
-    for(usedIds=usedXtals.begin(); usedIds!=usedXtals.end(); usedIds++){
-      if(*usedIds==seed_id){
-	seedAlreadyUsed=true;
-	//cout<< " Seed with energy "<<itseed->energy()<<" was used !"<<endl;
-	break; 
-      }
-    }
-    if(seedAlreadyUsed)continue;
-    topology_p = theCaloTopology->getSubdetectorTopology(DetId::Ecal,EcalBarrel);
-    std::vector<DetId> clus_v = topology_p->getWindow(seed_id,clusEtaSize_,clusPhiSize_);       
-    std::vector<DetId> clus_used;
-
-    vector<EcalRecHit> RecHitsInWindow;
-    
-    double simple_energy = 0; 
-    
-    for (std::vector<DetId>::iterator det=clus_v.begin(); det!=clus_v.end(); det++) {
-      EBDetId EBdet = *det;
-      //      cout<<" det "<< EBdet<<" ieta "<<EBdet.ieta()<<" iphi "<<EBdet.iphi()<<endl;
-      bool  HitAlreadyUsed=false;
-      for(usedIds=usedXtals.begin(); usedIds!=usedXtals.end(); usedIds++){
-	if(*usedIds==*det){
-	  HitAlreadyUsed=true;
-	  break;
-	}
-      }
-      if(HitAlreadyUsed)continue;
-      if (recHitsEB_map.find(*det) != recHitsEB_map.end()){
-	//      cout<<" Used det "<< EBdet<<endl;
-	std::map<DetId, EcalRecHit>::iterator aHit;
-	aHit = recHitsEB_map.find(*det);
-	usedXtals.push_back(*det);
-	RecHitsInWindow.push_back(aHit->second);
-	clus_used.push_back(*det);
-	simple_energy = simple_energy + aHit->second.energy();
-      }
-    }
-    
-    math::XYZPoint clus_pos = posCalculator_.Calculate_Location(clus_used,hitCollection_p,geometry_p,geometryES_p);
-    float theta_s = 2. * atan(exp(-clus_pos.eta()));
-    float p0x_s = simple_energy * sin(theta_s) * cos(clus_pos.phi());
-    float p0y_s = simple_energy * sin(theta_s) * sin(clus_pos.phi());
-    //      float p0z_s = simple_energy * cos(theta_s);
-    float et_s = sqrt( p0x_s*p0x_s + p0y_s*p0y_s);
-    
-    //cout << "       Simple Clustering: E,Et,px,py,pz: "<<simple_energy<<" "<<et_s<<" "<<p0x_s<<" "<<p0y_s<<" "<<endl;
-
-    eClus.push_back(simple_energy);
-    etClus.push_back(et_s);
-    etaClus.push_back(clus_pos.eta());
-    phiClus.push_back(clus_pos.phi());
-    max_hit.push_back(seed_id);
-    RecHitsCluster.push_back(RecHitsInWindow);
-    //Compute S4/S9 variable
-    //We are not sure to have 9 RecHits so need to check eta and phi:
-    float s4s9_[4];
-    for(int i=0;i<4;i++)s4s9_[i]= itseed->energy();
-    for(unsigned int j=0; j<RecHitsInWindow.size();j++){
-      //cout << " Simple cluster rh, ieta, iphi : "<<((EBDetId)RecHitsInWindow[j].id()).ieta()<<" "<<((EBDetId)RecHitsInWindow[j].id()).iphi()<<endl;
-      if((((EBDetId)RecHitsInWindow[j].id()).ieta() == seed_id.ieta()-1 && seed_id.ieta()!=1 ) || ( seed_id.ieta()==1 && (((EBDetId)RecHitsInWindow[j].id()).ieta() == seed_id.ieta()-2))){
-	if(((EBDetId)RecHitsInWindow[j].id()).iphi() == seed_id.iphi()-1 ||((EBDetId)RecHitsInWindow[j].id()).iphi()-360 == seed_id.iphi()-1 ){
-	  s4s9_[0]+=RecHitsInWindow[j].energy();
-	}else{
-	  if(((EBDetId)RecHitsInWindow[j].id()).iphi() == seed_id.iphi()){
-	    s4s9_[0]+=RecHitsInWindow[j].energy();
-	    s4s9_[1]+=RecHitsInWindow[j].energy();
-	  }else{
-	    if(((EBDetId)RecHitsInWindow[j].id()).iphi() == seed_id.iphi()+1 ||((EBDetId)RecHitsInWindow[j].id()).iphi()-360 == seed_id.iphi()+1 ){
-	      s4s9_[1]+=RecHitsInWindow[j].energy(); 
-	    }
-	  }
-	}
-      }else{
-	if(((EBDetId)RecHitsInWindow[j].id()).ieta() == seed_id.ieta()){
-	  if(((EBDetId)RecHitsInWindow[j].id()).iphi() == seed_id.iphi()-1 ||((EBDetId)RecHitsInWindow[j].id()).iphi()-360 == seed_id.iphi()-1 ){
-	    s4s9_[0]+=RecHitsInWindow[j].energy();
-	    s4s9_[3]+=RecHitsInWindow[j].energy();
-	  }else{
-	    if(((EBDetId)RecHitsInWindow[j].id()).iphi() == seed_id.iphi()+1 ||((EBDetId)RecHitsInWindow[j].id()).iphi()-360 == seed_id.iphi()+1 ){
-	      s4s9_[1]+=RecHitsInWindow[j].energy(); 
-	      s4s9_[2]+=RecHitsInWindow[j].energy(); 
-	    }
-	  }
-	}else{
-	  if((((EBDetId)RecHitsInWindow[j].id()).ieta() == seed_id.ieta()+1 && seed_id.ieta()!=-1 ) || ( seed_id.ieta()==-1 && (((EBDetId)RecHitsInWindow[j].id()).ieta() == seed_id.ieta()+2))){
-	    if(((EBDetId)RecHitsInWindow[j].id()).iphi() == seed_id.iphi()-1 ||((EBDetId)RecHitsInWindow[j].id()).iphi()-360 == seed_id.iphi()-1 ){
-	      s4s9_[3]+=RecHitsInWindow[j].energy();
-	    }else{
-	      if(((EBDetId)RecHitsInWindow[j].id()).iphi() == seed_id.iphi()){
-		s4s9_[2]+=RecHitsInWindow[j].energy();
-		s4s9_[3]+=RecHitsInWindow[j].energy();
-	      }else{
-		if(((EBDetId)RecHitsInWindow[j].id()).iphi() == seed_id.iphi()+1 ||((EBDetId)RecHitsInWindow[j].id()).iphi()-360 == seed_id.iphi()+1 ){
-		  s4s9_[2]+=RecHitsInWindow[j].energy(); 
-		}
-	      }
-	    }
-	  }else{
-	    cout<<" (EBDetId)RecHitsInWindow[j].id()).ieta() "<<((EBDetId)RecHitsInWindow[j].id()).ieta()<<" seed_id.ieta() "<<seed_id.ieta()<<endl;
-	    cout<<" Problem with S4 calculation "<<endl;return;
-	  }
-	}
-      }
-    }
-    s4s9Clus.push_back(*max_element( s4s9_,s4s9_+4)/simple_energy);
-    //    cout<<" s4s9Clus[0] "<<s4s9_[0]/simple_energy<<" s4s9Clus[1] "<<s4s9_[1]/simple_energy<<" s4s9Clus[2] "<<s4s9_[2]/simple_energy<<" s4s9Clus[3] "<<s4s9_[3]/simple_energy<<endl;
-    //    cout<<" Max "<<*max_element( s4s9_,s4s9_+4)/simple_energy<<endl;
-    nClus++;
-    if (nClus == MAXCLUS) return;
-  }  //  End loop over seed clusters
-
-  // cout<< " Pi0 clusters: "<<nClus<<endl;
-
-  // Selection, based on Simple clustering
-  //pi0 candidates
-  static const int MAXPI0S = 200;
-  int npi0_s=0;
-
-  vector<EBDetId> scXtals;
-  scXtals.clear();
-
-  if (nClus <= 1) return;
-  for(Int_t i=0 ; i<nClus ; i++){
-    for(Int_t j=i+1 ; j<nClus ; j++){
-      //      cout<<" i "<<i<<"  etClus[i] "<<etClus[i]<<" j "<<j<<"  etClus[j] "<<etClus[j]<<endl;
-      if( etClus[i]>selePtGammaOne_ && etClus[j]>selePtGammaTwo_ && s4s9Clus[i]>seleS4S9GammaOne_ && s4s9Clus[j]>seleS4S9GammaTwo_){
-	float theta_0 = 2. * atan(exp(-etaClus[i]));
-	float theta_1 = 2. * atan(exp(-etaClus[j]));
-        
-	float p0x = eClus[i] * sin(theta_0) * cos(phiClus[i]);
-	float p1x = eClus[j] * sin(theta_1) * cos(phiClus[j]);
-	float p0y = eClus[i] * sin(theta_0) * sin(phiClus[i]);
-	float p1y = eClus[j] * sin(theta_1) * sin(phiClus[j]);
-	float p0z = eClus[i] * cos(theta_0);
-	float p1z = eClus[j] * cos(theta_1);
-        
-	float pt_pi0 = sqrt( (p0x+p1x)*(p0x+p1x) + (p0y+p1y)*(p0y+p1y));
-	//      cout<<" pt_pi0 "<<pt_pi0<<endl;
-	if (pt_pi0 < selePtPi0_)continue;
-	float m_inv = sqrt ( (eClus[i] + eClus[j])*(eClus[i] + eClus[j]) - (p0x+p1x)*(p0x+p1x) - (p0y+p1y)*(p0y+p1y) - (p0z+p1z)*(p0z+p1z) );  
-	if ( (m_inv<seleMinvMaxPi0_) && (m_inv>seleMinvMinPi0_) ){
-
-	  //New Loop on cluster to measure isolation:
-	  vector<int> IsoClus;
-	  IsoClus.clear();
-	  float Iso = 0;
-	  TVector3 pi0vect = TVector3((p0x+p1x), (p0y+p1y), (p0z+p1z));
-	  for(Int_t k=0 ; k<nClus ; k++){
-	    if(k==i || k==j)continue;
-	    TVector3 Clusvect = TVector3(eClus[k] * sin(2. * atan(exp(-etaClus[k]))) * cos(phiClus[k]), eClus[k] * sin(2. * atan(exp(-etaClus[k]))) * sin(phiClus[k]) , eClus[k] * cos(2. * atan(exp(-etaClus[k]))));
-	    float dretaclpi0 = fabs(etaClus[k] - pi0vect.Eta());
-	    float drclpi0 = Clusvect.DeltaR(pi0vect);
-
-	    if((drclpi0<selePi0BeltDR_) && (dretaclpi0<selePi0BeltDeta_) ){
-
-	      Iso = Iso + etClus[k];
-	      IsoClus.push_back(k);
-	    }
-	  }
-
-	
-	  if(Iso/pt_pi0<selePi0Iso_){
-			
-	    hMinvPi0EB_->Fill(m_inv);
-	    hPt1Pi0EB_->Fill(etClus[i]);
-	    hPt2Pi0EB_->Fill(etClus[j]);
-	    hPtPi0EB_->Fill(pt_pi0);
-	    hIsoPi0EB_->Fill(Iso/pt_pi0);
-	    
-		
-	    npi0_s++;
-	  }
-          
-	  if(npi0_s == MAXPI0S) return;
-	}
-      }
-    } 
-  } 
-
-} 
 
 
 
@@ -1138,28 +938,31 @@ void PhotonAnalyzer::endJob()
 
 	//making profiles
 	
-	doProfileX( dbe_->get(currentFolder_.str()+"nIsoTracksSolid2D"),dbe_->get(currentFolder_.str()+"nIsoTracksSolid"));
-	doProfileX( dbe_->get(currentFolder_.str()+"nIsoTracksHollow2D"), dbe_->get(currentFolder_.str()+"nIsoTracksHollow"));
+	doProfileX( dbe_->get(currentFolder_.str()+"nIsoTracksSolidVsEta2D"),dbe_->get(currentFolder_.str()+"nIsoTracksSolidVsEta"));
+ 	doProfileX( dbe_->get(currentFolder_.str()+"nIsoTracksHollowVsEta2D"), dbe_->get(currentFolder_.str()+"nIsoTracksHollowVsEta"));
 	
-	doProfileX( dbe_->get(currentFolder_.str()+"isoPtSumSolid2D"), dbe_->get(currentFolder_.str()+"isoPtSumSolid"));
-	doProfileX( dbe_->get(currentFolder_.str()+"isoPtSumHollow2D"), dbe_->get(currentFolder_.str()+"isoPtSumHollow"));
+	doProfileX( dbe_->get(currentFolder_.str()+"isoPtSumSolidVsEta2D"), dbe_->get(currentFolder_.str()+"isoPtSumSolidVsEta"));
+	doProfileX( dbe_->get(currentFolder_.str()+"isoPtSumHollowVsEta2D"), dbe_->get(currentFolder_.str()+"isoPtSumHollowVsEta"));
 	
-	doProfileX( dbe_->get(currentFolder_.str()+"ecalSum2D"), dbe_->get(currentFolder_.str()+"ecalSum"));
-	doProfileX( dbe_->get(currentFolder_.str()+"hcalSum2D"), dbe_->get(currentFolder_.str()+"hcalSum"));
+	doProfileX( dbe_->get(currentFolder_.str()+"ecalSumVsEta2D"), dbe_->get(currentFolder_.str()+"ecalSumVsEta"));
+	doProfileX( dbe_->get(currentFolder_.str()+"hcalSumVsEta2D"), dbe_->get(currentFolder_.str()+"hcalSumVsEta"));
 
  	doProfileX( dbe_->get(currentFolder_.str()+"r9VsEt2D"),dbe_->get(currentFolder_.str()+"r9VsEt"));
+
+ 	doProfileX( dbe_->get(currentFolder_.str()+"covIetaIetaVsEta2D"),dbe_->get(currentFolder_.str()+"covIetaIetaVsEta"));
 	
 	//removing unneeded plots
 	
 	dbe_->setCurrentFolder(currentFolder_.str());
 	
-	dbe_->removeElement("nIsoTracksSolid2D");
-	dbe_->removeElement("nIsoTracksHollow2D");
-	dbe_->removeElement("isoPtSumSolid2D");
-	dbe_->removeElement("isoPtSumHollow2D");
-	dbe_->removeElement("ecalSum2D");
-	dbe_->removeElement("hcalSum2D");
+	dbe_->removeElement("nIsoTracksSolidVsEta2D");
+ 	dbe_->removeElement("nIsoTracksHollowVsEta2D");
+	dbe_->removeElement("isoPtSumSolidVsEta2D");
+	dbe_->removeElement("isoPtSumHollowVsEta2D");
+	dbe_->removeElement("ecalSumVsEta2D");
+	dbe_->removeElement("hcalSumVsEta2D");
  	dbe_->removeElement("r9VsEt2D");	
+ 	dbe_->removeElement("covIetaIetaVsEta2D");
 	
 	//other plots
 	
