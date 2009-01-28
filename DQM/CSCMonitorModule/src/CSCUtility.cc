@@ -161,31 +161,31 @@ int CSCUtility::ParseAxisLabels(const std::string& s, std::map<int, std::string>
 }
 
 /**
- * @brief  Construct CSC bin map
- * @param  tmap pointer to result vector
- * @return 
- */
-void CSCUtility::getCSCTypeToBinMap(std::map<std::string, int>& tmap) {
-  tmap["ME-4/2"] = 0;
-  tmap["ME-4/1"] = 1;
-  tmap["ME-3/2"] = 2;
-  tmap["ME-3/1"] = 3;
-  tmap["ME-2/2"] = 4;
-  tmap["ME-2/1"] = 5;
-  tmap["ME-1/3"] = 6;
-  tmap["ME-1/2"] = 7;
-  tmap["ME-1/1"] = 8;
-  tmap["ME+1/1"] = 9;
-  tmap["ME+1/2"] = 10;
-  tmap["ME+1/3"] = 11;
-  tmap["ME+2/1"] = 12;
-  tmap["ME+2/2"] = 13;
-  tmap["ME+3/1"] = 14;
-  tmap["ME+3/2"] = 15;
-  tmap["ME+4/1"] = 16;
-  tmap["ME+4/2"] = 17;
+  * @brief  Get CSC y-axis position from chamber string
+  * @param  cstr Chamber string
+  * @return chamber y-axis position
+  */
+int CSCUtility::getCSCTypeBin(const std::string& cstr) {
+  if (cstr.compare("ME-4/2") == 0) return 0;
+  if (cstr.compare("ME-4/1") == 0) return 1;
+  if (cstr.compare("ME-3/2") == 0) return 2;
+  if (cstr.compare("ME-3/1") == 0) return 3;
+  if (cstr.compare("ME-2/2") == 0) return 4;
+  if (cstr.compare("ME-2/1") == 0) return 5;
+  if (cstr.compare("ME-1/3") == 0) return 6;
+  if (cstr.compare("ME-1/2") == 0) return 7;
+  if (cstr.compare("ME-1/1") == 0) return 8;
+  if (cstr.compare("ME+1/1") == 0) return 9;
+  if (cstr.compare("ME+1/2") == 0) return 10;
+  if (cstr.compare("ME+1/3") == 0) return 11;
+  if (cstr.compare("ME+2/1") == 0) return 12;
+  if (cstr.compare("ME+2/2") == 0) return 13;
+  if (cstr.compare("ME+3/1") == 0) return 14;
+  if (cstr.compare("ME+3/2") == 0) return 15;
+  if (cstr.compare("ME+4/1") == 0) return 16;
+  if (cstr.compare("ME+4/2") == 0) return 17;
+  return 0;
 }
-
 
 /**
  * @brief  Get CSC label from CSC parameters

@@ -80,7 +80,7 @@ class CSCUtility {
     static int getHistoValue(Histo& h, const std::string name, int& value, const int def_value = 0);
     static double getHistoValue(Histo& h, const std::string name, double& value, const int def_value = 0);
     static int ParseAxisLabels(const std::string& s, std::map<int, std::string>& labels);
-    static void getCSCTypeToBinMap(std::map<std::string, int>& tmap);
+    static int getCSCTypeBin(const std::string& cstr);
     static std::string getCSCTypeLabel(int endcap, int station, int ring );
     static int tokenize(const std::string& str, std::vector<std::string>& tokens, const std::string& delimiters = " ");
     static void splitString(std::string str, const std::string delim, std::vector<std::string>& results);

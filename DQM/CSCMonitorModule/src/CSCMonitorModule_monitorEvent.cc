@@ -37,7 +37,7 @@ void CSCMonitorModule::monitorEvent(const edm::Event& e){
   // actualy the FED_EVENT_LABEL part of the event
   edm::Handle<FEDRawDataCollection> rawdata;
   if (!e.getByLabel( inputObjectsTag, rawdata)) {
-    LOGWARNING("e.getByLabel") << "No product: " << inputObjectsTag << " in FEDRawDataCollection";
+    // LOGWARNING("e.getByLabel") << "No product: " << inputObjectsTag << " in FEDRawDataCollection";
     return; 
   }
 
@@ -63,7 +63,7 @@ void CSCMonitorModule::monitorEvent(const edm::Event& e){
     // construct the DCC data object
     const FEDRawData& fedData = rawdata->FEDData(id);
 
-    LOGDEBUG("MonitorEvent") << "Event No." << nEvents << " size = " << fedData.size() << std::endl;
+    // LOGWARNING("MonitorEvent") << "Event No." << nEvents << " size = " << fedData.size() << std::endl;
 
     //if fed has data then unpack it
     if ( fedData.size() >= 32 ) {
@@ -93,7 +93,7 @@ void CSCMonitorModule::monitorEvent(const edm::Event& e){
         monitorDCC(dccData);
       } 
 
-     LOGDEBUG("MonitorEvent") << "Event No." << nEvents << " is " << std::boolalpha << goodEvent << std::endl;
+     // LOGWARNING("MonitorEvent") << "Event No." << nEvents << " is " << std::boolalpha << goodEvent << std::endl;
 
     }
   }
