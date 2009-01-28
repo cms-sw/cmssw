@@ -30,7 +30,7 @@ namespace cond {
 	pooldb.commit();
       }
       cond::PoolTransaction & pooldb;
-      cond::TypedRef<cond::IOV> iov;
+      cond::TypedRef<cond::IOVSequence> iov;
     };
 
   }
@@ -42,7 +42,7 @@ namespace cond {
 
   void IOVElementProxy::set(IOVSequence const & v, int i) {
     m_since =  v.iovs()[i].sinceTime();
-    m_till  =  (i+1==v.iovs().size()) ? v.lastTill() : v.iov[i+1].sinceTime()-1;
+    m_till  =  (i+1==v.iovs().size()) ? v.lastTill() : v.iovs()[i+1].sinceTime()-1;
     m_token = v.iovs()[i].wrapperToken();
   }
 
@@ -58,8 +58,8 @@ namespace cond {
 
 
   void IOVProxy::setRange(cond::Time_t since, cond::Time_t  till) const {
-    m_low=iov().find(since)-iov().iov.begin();
-    m_high=iov().find(till)-iov().iov.begin();
+    m_low=iov().find(since)-iov().iovs().begin();
+    m_high=iov().find(till)-iov().iovs().begin();
     m_high=std::min(m_high+1,size());
   }
 
