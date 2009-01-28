@@ -17,8 +17,8 @@ void cond::IOVRevIteratorImpl::open() const{
 void cond::IOVRevIteratorImpl::init(){
   open();
   m_isInit=true;
-  m_pos=m_iov->iov.rbegin();
-  m_next=m_pos; m_next++;
+  m_pos=m_iov->iovs().rbegin();
+  m_till = m_iov->lastTill();
   m_count = empty() ? 0 : size()-1;
 }
 
@@ -30,11 +30,11 @@ bool cond::IOVRevIteratorImpl::rewind() {
 
 bool cond::IOVRevIteratorImpl::empty() const {
   open();
-  return m_iov->iov.empty();
+  return m_iov->iovs().empty();
 }
 size_t cond::IOVRevIteratorImpl::size() const {
   open();
-  return m_iov->iov.size();
+  return m_iov->iovs().size();
 }
 size_t cond::IOVRevIteratorImpl::position() const {
   return m_count;
@@ -42,7 +42,7 @@ size_t cond::IOVRevIteratorImpl::position() const {
 
 
 bool  cond::IOVRevIteratorImpl::atEnd() const {
-  return  m_isInit && m_pos==iov().rend();
+  return  m_isInit && m_pos==iovs().rend();
 }
 
 bool cond::IOVRevIteratorImpl::next(){
@@ -51,9 +51,9 @@ bool cond::IOVRevIteratorImpl::next(){
     return !empty();
   }
   if (atEnd() ) return false;
-  m_pos=m_next;
+  m_till=m_pos->sinceTime()-1;
+  m_pos++;
   if (atEnd() ) return false;
-  ++m_next;
   --m_count;
   return true;
 }
@@ -71,8 +71,8 @@ cond::IOVRevIteratorImpl::validity() const{
   cond::Time_t since=0;
   cond::Time_t till=0;
   if (m_isInit && !atEnd()) {
-    till = m_pos->first;
-    since = (m_next!=iov().rend()) ?  m_next->first + 1 : m_iov->firstsince;
+    till = m_till;
+    since = m_pos->sinceTime();
   }
   return cond::ValidityInterval(since,till);
 }
