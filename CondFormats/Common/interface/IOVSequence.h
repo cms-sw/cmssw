@@ -37,6 +37,9 @@ namespace cond {
 
     cond::TimeType timeType() const { return cond::timeTypeSpecs[m_timetype].type;}
 
+    // FIXME shall we cache it?
+    cond::Time_t firstSince() const { return  m_iovs.front().sinceTime();}
+
     cond::Time_t lastTill() const { return  m_lastTill;}
 
     void updateLastTill(cond::Time_t till) { m_lastTill=till;}
