@@ -10,7 +10,7 @@
 */
 //
 // Original Author:  Monica Vazquez Acosta (CERN)
-// $Id: EgammaHLTPixelMatchElectronAlgo.cc,v 1.11 2008/02/15 16:05:37 ghezzi Exp $
+// $Id: EgammaHLTPixelMatchElectronAlgo.cc,v 1.12 2008/03/17 13:47:36 ghezzi Exp $
 //
 //
 #include "RecoEgamma/EgammaHLTAlgos/interface/EgammaHLTPixelMatchElectronAlgo.h"
@@ -28,8 +28,8 @@
 
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
@@ -116,8 +116,12 @@ void EgammaHLTPixelMatchElectronAlgo::process(edm::Handle<TrackCollection> track
 
     const TrackRef trackRef = edm::Ref<TrackCollection>(tracksH,i);
     edm::RefToBase<TrajectorySeed> seed = trackRef->extra()->seedRef();
-    ElectronPixelSeedRef elseed=seed.castTo<ElectronPixelSeedRef>();
-    const SuperClusterRef & scRef=elseed->superCluster();
+    ElectronSeedRef elseed=seed.castTo<ElectronSeedRef>();
+
+    edm::RefToBase<CaloCluster> caloCluster = elseed->caloCluster() ;
+    SuperClusterRef scRef = caloCluster.castTo<SuperClusterRef>() ;
+
+    //const SuperClusterRef & scRef=elseed->superCluster();
     
         // Get the momentum at vertex (not at the innermost layer)
     TSCPBuilderNoMaterial tscpBuilder;
