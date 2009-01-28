@@ -974,7 +974,16 @@ void TrackerMap::fill(int idmod, float qty ){
     mod->value=mod->value+qty;
     mod->count++;
     return;
-  }
+  }else{
+   TmModule * mod1 = imoduleMap[idmod+1];
+   TmModule * mod2 = imoduleMap[idmod+2];
+   if(mod1!=0 && mod2!=0){
+    mod1->value=mod1->value+qty;
+    mod1->count++;
+    mod2->value=mod2->value+qty;
+    mod2->count++;
+    return;
+   }}
   cout << "**************************error in fill method **************";
 }
 
