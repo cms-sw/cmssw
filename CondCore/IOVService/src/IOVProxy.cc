@@ -82,7 +82,7 @@ namespace cond {
   }
 
   TimeType IOVProxy::timetype() const {
-    return iovs().timeType();     
+    return iov().timeType();     
   }
 
 }
