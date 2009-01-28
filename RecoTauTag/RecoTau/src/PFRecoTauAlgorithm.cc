@@ -89,9 +89,7 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
   PFTauElementsOperators myPFTauElementsOperators(myPFTau);
   double myMatchingConeSize=myPFTauElementsOperators.computeConeSize(myMatchingConeSizeTFormula,MatchingConeSize_min_,MatchingConeSize_max_);
 
-  //  PFCandidateRef myleadPFChargedCand=myPFTauElementsOperators.leadPFChargedHadrCand(MatchingConeMetric_,myMatchingConeSize,LeadChargedHadrCand_minPt_);
   PFCandidateRef myleadPFChargedCand=myPFTauElementsOperators.leadPFChargedHadrCand(MatchingConeMetric_,myMatchingConeSize,PFCand_minPt_);
-  //  PFCandidateRef myleadPFNeutralCand=myPFTauElementsOperators.leadPFGammaCand(MatchingConeMetric_,myMatchingConeSize,LeadChargedHadrCand_minPt_);
   PFCandidateRef myleadPFNeutralCand=myPFTauElementsOperators.leadPFGammaCand(MatchingConeMetric_,myMatchingConeSize,PFCand_minPt_);
   PFCandidateRef myleadPFCand;
 
@@ -106,7 +104,6 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
 
   //Modification to consider leading neutral particle
   if(myleadPFChargedCand.isNonnull()) {
-    //    myleadPFCand = myleadPFChargedCand;
     myPFTau.setleadPFChargedHadrCand(myleadPFChargedCand);
     TrackRef myleadPFCand_rectk=(*myleadPFChargedCand).trackRef();
     if(myleadPFCand_rectk.isNonnull()){
@@ -130,18 +127,20 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
     }
 
   }
-
-  if(myleadPFChargedCand.isNonnull() && (*myleadPFChargedCand).pt() > LeadPFCand_minPt_)
-     myleadPFCand = myleadPFChargedCand;
-  else if(myleadPFNeutralCand.isNonnull() && (*myleadPFNeutralCand).pt() > LeadPFCand_minPt_)
-     myleadPFCand = myleadPFNeutralCand;
   
-  /*    
-  if(!(myleadPFChargedCand.isNonnull()) && myleadPFNeutralCand.isNonnull()) {
-    myleadPFCand = myleadPFNeutralCand; 
-    myPFTau.setleadPFNeutralCand(myleadPFNeutralCand);
+  bool foundLeadingPion = false;
+  if(myleadPFChargedCand.isNonnull()){
+    if((*myleadPFChargedCand).pt() > LeadPFCand_minPt_) {
+      myleadPFCand = myleadPFChargedCand;
+      foundLeadingPion  = true;
+    }
   }
-  */
+  if(!foundLeadingPion){
+    if(myleadPFNeutralCand.isNonnull()){
+      if((*myleadPFNeutralCand).pt() > LeadPFCand_minPt_)
+	myleadPFCand = myleadPFNeutralCand;
+    }
+  }
 
   if(myleadPFCand.isNonnull()){
     myPFTau.setleadPFCand(myleadPFCand);
@@ -284,7 +283,7 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
     if (myleadPFChargedCand->mva_e_pi()==1) {
       myElecPreid = true;
     }
-    math::XYZPointF myElecTrkEcalPos = myleadPFCand->positionAtECALEntrance();
+    math::XYZPointF myElecTrkEcalPos = myleadPFChargedCand->positionAtECALEntrance();
     myElecTrk = myleadPFChargedCand->trackRef();//Electron candidate
     
     if(myElecTrk.isNonnull()) {
