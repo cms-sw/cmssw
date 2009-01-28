@@ -3,6 +3,7 @@
 
 #include <Math/SVector.h>
 #include <Math/SMatrix.h>
+#include <cstring>
 
 // Use ".!" in VIM
 // for I in $(seq 1 6); do echo "typedef ROOT::Math::SVector<double,$I> AlgebraicVector$I;"; done
