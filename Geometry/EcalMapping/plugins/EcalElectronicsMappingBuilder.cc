@@ -9,16 +9,28 @@
 #include <fstream>
 
 
+#include <vector>
+
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "CondFormats/EcalObjects/interface/EcalMappingElectronics.h"
+#include "CondFormats/DataRecord/interface/EcalMappingElectronicsRcd.h"
+
+
+
+using namespace edm;
+
+
 //
 // constructors and destructor
 //
 EcalElectronicsMappingBuilder::EcalElectronicsMappingBuilder(const edm::ParameterSet& iConfig) :
-  mapFile_(iConfig.getUntrackedParameter<std::string>("MapFile",""))
+  Mapping_ ( 0 )
 {
   //the following line is needed to tell the framework what
   // data is being produced
-  setWhatProduced(this);
-  
+  // setWhatProduced(this);
+  setWhatProduced(this, (dependsOn (&EcalElectronicsMappingBuilder::DBCallback)) );
   //now do what ever other initialization is needed
 }
 
@@ -31,6 +43,15 @@ EcalElectronicsMappingBuilder::~EcalElectronicsMappingBuilder()
 // member functions
 //
 
+void EcalElectronicsMappingBuilder::DBCallback (const EcalMappingElectronicsRcd& fRecord)
+{
+
+  edm::ESHandle <EcalMappingElectronics> item;
+  fRecord.get (item);
+  Mapping_ = item.product () ;
+}
+
+
 // ------------ method called to produce the data  ------------
 EcalElectronicsMappingBuilder::ReturnType
 // EcalElectronicsMappingBuilder::produce(const IdealGeometryRecord& iRecord)
@@ -38,42 +59,28 @@ EcalElectronicsMappingBuilder::produce(const EcalMappingRcd& iRecord)
 {
    using namespace edm::es;
    std::auto_ptr<EcalElectronicsMapping> prod(new EcalElectronicsMapping());
-
-   if (!mapFile_.empty()) {
-     parseTextMap(mapFile_,*prod);
-   }
+   const std::vector<EcalMappingElement>& ee = Mapping_ -> endcapItems();
+   FillFromDatabase(ee,*prod);
    return prod;
+
 }
 
-void EcalElectronicsMappingBuilder::parseTextMap(const std::string& filename, EcalElectronicsMapping& theMap) {
-  edm::FileInPath eff(filename);
-  
-  std::ifstream f(eff.fullPath().c_str());
-  if (!f.good())
-    return; 
-  
- // uint32_t detid, elecid, triggerid;
-
- int ix, iy, iz, CL;
- // int dccid, towerid, stripid, xtalid;
- // int tccid, tower, ipseudostrip, xtalinps;
- int dccid, towerid, pseudostrip_in_SC, xtal_in_pseudostrip;
- int tccid, tower, pseudostrip_in_TCC, pseudostrip_in_TT;
-
- while ( ! f.eof()) {
-	// f >> detid >> elecid >> triggerid; 
-	f >> ix >> iy >> iz >> CL >> dccid >> towerid >> pseudostrip_in_SC >> xtal_in_pseudostrip >> tccid >> tower >> 
-		pseudostrip_in_TCC >> pseudostrip_in_TT ;
-
-	EEDetId detid(ix,iy,iz,EEDetId::XYMODE);
-	// std::cout << " dcc tower ps_in_SC xtal_in_ps " << dccid << " " << towerid << " " << pseudostrip_in_SC << " " << xtal_in_pseudostrip << std::endl;
-	EcalElectronicsId elecid(dccid,towerid, pseudostrip_in_SC, xtal_in_pseudostrip);
-        // std::cout << " tcc tt ps_in_TT xtal_in_ps " << tccid << " " << tower << " " << pseudostrip_in_TT << " " << xtal_in_pseudostrip << std::endl;
-	EcalTriggerElectronicsId triggerid(tccid, tower, pseudostrip_in_TT, xtal_in_pseudostrip);
- 
-	theMap.assign(detid,elecid,triggerid);
- }
-
-  f.close();
+void EcalElectronicsMappingBuilder::FillFromDatabase(const std::vector<EcalMappingElement>& ee,
+						     EcalElectronicsMapping& theMap)   
+{
+  //  std::cout << " --- Reading the EE mapping from Database --- " << std::endl;
+  for (unsigned int i=0; i < ee.size(); i++) 
+    {
+      if (ee[i].electronicsid == 0)
+	continue;
+      if (ee[i].triggerid == 0)
+	continue;
+      theMap.assign(EEDetId::unhashIndex(i).rawId(),ee[i].electronicsid,ee[i].triggerid);
+    }
   return;
 }
+
+
+
+
+
