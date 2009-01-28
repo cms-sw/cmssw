@@ -168,6 +168,9 @@ int main(){
 
     std::string token=editor->token();
     std::cout<<"iov token "<<token<<std::endl;
+    pooldb.commit();
+    delete editor;
+
     cond::IOVIterator* it=iovmanager.newIOVIterator(token);
     std::cout<<"forward iterator "<<std::endl;
     pooldb.start(true);
@@ -182,7 +185,6 @@ int main(){
     //bomber->deleteEntries();
     pooldb.commit();
     myconnection.disconnect();
-    delete editor;
     delete session;
   }catch(const cond::Exception& er){
     std::cout<<"error "<<er.what()<<std::endl;
