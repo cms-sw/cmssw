@@ -31,7 +31,7 @@ namespace cond{
   private:
     void open() const;
     void init();
-    IOV::Container const & iov() const { return m_iov->iov;}
+    IOVSequence::Container const & iov() const { return m_iov->iovs();}
 
     cond::PoolTransaction& m_pooldb;
     std::string m_token;

@@ -22,6 +22,11 @@ void cond::IOVRevIteratorImpl::init(){
   m_count = empty() ? 0 : size()-1;
 }
 
+cond::TimeType cond::IOVRevIteratorImpl::timetype() const {
+  open();
+  return m_iov->timeType();     
+}
+
 
 bool cond::IOVRevIteratorImpl::rewind() {
   init();
