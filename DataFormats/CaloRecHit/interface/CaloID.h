@@ -75,6 +75,8 @@ namespace reco {
     unsigned  detectors_;
   };
 
+  std::ostream& operator<<(std::ostream& out, const CaloID& id);
+
 }
 
 #endif
