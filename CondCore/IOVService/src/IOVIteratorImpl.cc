@@ -84,5 +84,5 @@ cond::IOVIteratorImpl::validity() const{
 cond::Time_t cond::IOVIteratorImpl::tillTime() const {
   const_iterator pos = m_pos+1;
   return pos==m_iov->iovs().end() ? 
-    m_iov->lastTill() : m_pos->sinceTime()-1;
+    m_iov->lastTill() : pos->sinceTime()-1;
 }

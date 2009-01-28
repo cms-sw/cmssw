@@ -4,7 +4,8 @@
 #include <map>
 #include "CondCore/DBCommon/interface/TypedRef.h"
 #include "CondCore/DBCommon/interface/Time.h"
-#include "IOV.h"
+#include "CondFormats/Common/interface/IOVSequence.h"
+
 namespace cond{
   class PoolStorageManager;
   class IOVIterator;
@@ -43,7 +44,7 @@ namespace cond{
 					   cond::Time_t till );
   private:
     cond::PoolTransaction* m_pooldb;
-    std::map< std::string,cond::IOV* > m_iovcache;
+    std::map< std::string,cond::IOVSequence* > m_iovcache;
   };
 
 }//ns cond

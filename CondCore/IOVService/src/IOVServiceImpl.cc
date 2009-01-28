@@ -12,7 +12,7 @@ cond::IOVServiceImpl::IOVServiceImpl( cond::PoolTransaction& pooldb) :
 }
 
 cond::IOVServiceImpl::~IOVServiceImpl(){
-  for(std::map< std::string,cond::IOV* >::const_iterator iter= m_iovcache.begin();
+  for(std::map< std::string,cond::IOVSequence* >::const_iterator iter= m_iovcache.begin();
       iter!=m_iovcache.end();++iter){
     if(iter->second) delete iter->second;
   }
@@ -22,36 +22,36 @@ cond::IOVServiceImpl::~IOVServiceImpl(){
 std::string 
 cond::IOVServiceImpl::payloadToken( const std::string& iovToken,
 				    cond::Time_t currenttime ){
-  std::map< std::string,cond::IOV* >::iterator it=m_iovcache.find(iovToken);
-  cond::IOV* iov=0;
+  std::map< std::string,cond::IOVSequence* >::iterator it=m_iovcache.find(iovToken);
+  cond::IOVSequence* iov=0;
   if(it==m_iovcache.end()){
-    iov = new cond::IOV(*cond::TypedRef<cond::IOV>(*m_pooldb,iovToken));
+    iov = new cond::IOVSequence(*cond::TypedRef<cond::IOVSequence>(*m_pooldb,iovToken));
     m_iovcache.insert(std::make_pair(iovToken,iov));
   } else {
     iov = it->second;
   }
-  cond::IOV::const_iterator iEnd=iov->find(currenttime);
+  cond::IOVSequence::const_iterator iEnd=iov->find(currenttime);
   if( iEnd==iov->iov.end() ){
     return "";
   }else{
-    return iEnd->second;
+    return iEnd->wrapperToken();
   }
 }
 
 bool cond::IOVServiceImpl::isValid( const std::string& iovToken,
 				    cond::Time_t currenttime ){
-  std::map< std::string,cond::IOV* >::iterator it=m_iovcache.find(iovToken);
-  cond::IOV* iov=0;
+  std::map< std::string,cond::IOVSequence* >::iterator it=m_iovcache.find(iovToken);
+  cond::IOVSequence* iov=0;
   if(it==m_iovcache.end()){
-    iov = new cond::IOV(*cond::TypedRef<cond::IOV>(*m_pooldb,iovToken));
+    iov = new cond::IOVSequence(*cond::TypedRef<cond::IOVSequence>(*m_pooldb,iovToken));
     m_iovcache.insert(std::make_pair(iovToken,iov));
   } else {
     iov = it->second;
   }
   bool result;
   
-  if(  currenttime >= iov->firstsince && 
-       currenttime <= iov->iov.back().first ){
+  if(  currenttime >= iov->firstSince() && 
+       currenttime <= iov->lastTill() ){
     result=true;
   }else{
     result=false;
@@ -61,30 +61,34 @@ bool cond::IOVServiceImpl::isValid( const std::string& iovToken,
 
 std::pair<cond::Time_t, cond::Time_t> 
 cond::IOVServiceImpl::validity( const std::string& iovToken, cond::Time_t currenttime ){
-  std::map< std::string,cond::IOV* >::iterator it=m_iovcache.find(iovToken);
-  cond::IOV* iov=0;
+  std::map< std::string,cond::IOVSequence* >::iterator it=m_iovcache.find(iovToken);
+  cond::IOVSequence* iov=0;
   if(it==m_iovcache.end()){
-    iov = new cond::IOV(*cond::TypedRef<cond::IOV>(*m_pooldb,iovToken));
+    iov = new cond::IOVSequence(*cond::TypedRef<cond::IOVSequence>(*m_pooldb,iovToken));
     m_iovcache.insert(std::make_pair(iovToken,iov));
   } else {
     iov = it->second;
   }
 
-  cond::Time_t since=iov->firstsince;
-  cond::Time_t till=iov->iov.back().first;
-  IOV::const_iterator iter=iov->find(currenttime);
-  if (iter!=iov->iov.end()) till=iter->first;
-  if( iter!=iov->iov.begin() ){
-    --iter; 
-    since=iter->first+1;
+  cond::Time_t since=iov->firstSince();
+  cond::Time_t till=iov->lastTill();
+  IOVSequence::const_iterator iter=iov->find(currenttime);
+  if (iter!=iov->iovs().end())  {
+    since=iter->sinceTime();
+    iter++;
+    if (iter!=iov->iovs().end()) 
+      till = iter->sinceTime()-1;
+  }
+  else {
+    cond::Time_t since=lastTill();
   }
   return std::make_pair<cond::Time_t, cond::Time_t>(since,till);
 }
 
 std::string 
 cond::IOVServiceImpl::payloadContainerName( const std::string& iovToken ){
-  std::map< std::string,cond::IOV* >::iterator it=m_iovcache.find(iovToken);
-  cond::IOV* iov=0;
+  std::map< std::string,cond::IOVSequence* >::iterator it=m_iovcache.find(iovToken);
+  cond::IOVSequence* iov=0;
   if(it==m_iovcache.end()){
     iov = new cond::IOV(*cond::TypedRef<cond::IOV>(*m_pooldb,iovToken));
     m_iovcache.insert(std::make_pair(iovToken,iov));
@@ -124,8 +128,8 @@ std::string
 cond::IOVServiceImpl::exportIOVWithPayload( cond::PoolTransaction& destDB,
 					    const std::string& iovToken){
 
-  std::map< std::string,cond::IOV* >::iterator it=m_iovcache.find(iovToken);
-  cond::IOV* iov=0;
+  std::map< std::string,cond::IOVSequence* >::iterator it=m_iovcache.find(iovToken);
+  cond::IOVSequence* iov=0;
   if(it==m_iovcache.end()){
     iov = new cond::IOV(*cond::TypedRef<cond::IOV>(*m_pooldb,iovToken));
     m_iovcache.insert(std::make_pair(iovToken,iov));
@@ -133,7 +137,7 @@ cond::IOVServiceImpl::exportIOVWithPayload( cond::PoolTransaction& destDB,
     iov = it->second;
   }
 
-  cond::IOV* newiov=new cond::IOV;
+  cond::IOVSequence* newiov=new cond::IOV;
   newiov->timetype= iov->timetype;
   newiov->firstsince=iov->firstsince;
 
@@ -168,8 +172,8 @@ cond::IOVServiceImpl::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
   }
 
 
-  std::map< std::string,cond::IOV* >::iterator it=m_iovcache.find(iovToken);
-  cond::IOV* iov=0;
+  std::map< std::string,cond::IOVSequence* >::iterator it=m_iovcache.find(iovToken);
+  cond::IOVSequence* iov=0;
   if(it==m_iovcache.end()){
     iov = new cond::IOV(*cond::TypedRef<cond::IOV>(*m_pooldb,iovToken));
     m_iovcache.insert(std::make_pair(iovToken,iov));
