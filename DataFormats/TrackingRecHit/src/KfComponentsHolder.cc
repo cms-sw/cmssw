@@ -1,6 +1,7 @@
 #include "DataFormats/TrackingRecHit/interface/KfComponentsHolder.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include <typeinfo>
 
 template<unsigned int D>
 void KfComponentsHolder::genericFill_(const TrackingRecHit &hit) {

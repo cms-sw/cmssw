@@ -1,7 +1,7 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <string>
-
+#include <typeinfo>
 
 void
 TrackingRecHit::recHitsV(std::vector<const TrackingRecHit*> & v) const {
