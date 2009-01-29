@@ -12,12 +12,12 @@ from RecoMuon.CosmicMuonProducer.cosmicMuons_cff import *
 
 # Global muon track producer
 from RecoMuon.CosmicMuonProducer.globalCosmicMuons_cff import *
-globalCosmicMuons.TrajectoryBuilderParameters.TkTrackCollectionLabel = 'ctfWithMaterialTracksP5'
+globalCosmicMuons.TrajectoryBuilderParameters.TkTrackCollectionLabel = 'ctfWithMaterialTracksP5LHCNavigation'
 
 # Muon Id producer
 from RecoMuon.MuonIdentification.muonIdProducerSequence_cff import *
 
-muons.inputCollectionLabels = ['ctfWithMaterialTracksP5', 'globalCosmicMuons', 'cosmicMuons']
+muons.inputCollectionLabels = ['ctfWithMaterialTracksP5LHCNavigation', 'globalCosmicMuons', 'cosmicMuons']
 muons.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks']
 muons.fillIsolation = False
 
@@ -258,24 +258,24 @@ muonrecoforcosmicsNoRPC = cms.Sequence(muontrackingforcosmicsNoRPC*allmuonsNoRPC
 
 ##############################################
 
-## Splitted Tracks  ##
+## Split Tracks  ##
 
 # Global muon track producer
-globalCosmicSplittedMuons = globalCosmicMuons.clone()
-globalCosmicSplittedMuons.TrajectoryBuilderParameters.TkTrackCollectionLabel = 'ctfWithMaterialTracksP5LHCNavigation'
-globalCosmicSplittedMuons.MuonCollectionLabel = 'cosmicMuons'
+globalCosmicSplitMuons = globalCosmicMuons.clone()
+globalCosmicSplitMuons.TrajectoryBuilderParameters.TkTrackCollectionLabel = 'splittedTracksP5'
+globalCosmicSplitMuons.MuonCollectionLabel = 'cosmicMuons'
 
 # Muon Id producer
 
-splittedMuons = muons.clone()
-splittedMuons.inputCollectionLabels = ['ctfWithMaterialTracksP5LHCNavigation', 'globalCosmicSplittedMuons', 'cosmicMuons']
-splittedMuons.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks']
-splittedMuons.fillIsolation = False
+splitMuons = muons.clone()
+splitMuons.inputCollectionLabels = ['splittedTracksP5', 'globalCosmicSplitMuons', 'cosmicMuons']
+splitMuons.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks']
+splitMuons.fillIsolation = False
 
 #Sequences
 
 # Final sequence
-muonrecoforsplittedcosmics = cms.Sequence(globalCosmicSplittedMuons*splittedMuons)
+muonrecoforsplitcosmics = cms.Sequence(globalCosmicSplitMuons*splitMuons)
 
 ##############################################
 
@@ -342,7 +342,7 @@ muonRecoLHC = cms.Sequence(muonrecocosmicLHCBarrelOnly*muonrecocosmicLHCEndCapsO
 
 ########################### SEQUENCE TO BE ADDED in ReconstructionGR_cff ##############################################
 
-muonRecoGR = cms.Sequence(muonRecoAllGR*muonRecoBarrelGR*muonRecoEndCapsGR*muonrecoforcosmicsNoRPC*muonrecoforsplittedcosmics*muonRecoLHC)
+muonRecoGR = cms.Sequence(muonRecoAllGR*muonRecoBarrelGR*muonRecoEndCapsGR*muonrecoforcosmicsNoRPC*muonrecoforsplitcosmics*muonRecoLHC)
 
 #######################################################################################################################
 
