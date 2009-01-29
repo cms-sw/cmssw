@@ -17,6 +17,7 @@
 #include "Geometry/Records/interface/EcalEndcapGeometryRecord.h"
 #include "Geometry/Records/interface/EcalPreshowerGeometryRecord.h"
 #include "Geometry/Records/interface/HcalGeometryRecord.h"
+#include "Geometry/Records/interface/CaloTowerGeometryRecord.h"
 #include "Geometry/Records/interface/ZDCGeometryRecord.h"
 #include "Geometry/Records/interface/CastorGeometryRecord.h"
 #include "boost/mpl/vector.hpp"
@@ -31,6 +32,7 @@ class CaloGeometryRecord :
 		EcalEndcapGeometryRecord,
 		EcalPreshowerGeometryRecord,
 		HcalGeometryRecord,
+		CaloTowerGeometryRecord,
 		CastorGeometryRecord,
 		ZDCGeometryRecord> > {};
 
