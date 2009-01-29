@@ -188,7 +188,7 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 							endcap = (sp->header().endcap()?1:2);
 							sector =  sp->header().sector();
 						}
-						DTChamberId id((endcap==1?2:-2),1, 2*sector+iter->id() ); // Fix me: TrackStubs have problem with DT sector numbering!!!
+						DTChamberId id((endcap==1?2:-2),1, 2*sector-1 ); // Fix me: TrackStubs have problem with DT sector numbering!!!
 						CSCCorrelatedLCTDigi base(0,iter->vq(),iter->quality(),iter->cal(),iter->flag(),iter->bc0(),iter->phi_bend(),tbin+(central_lct_bx-central_sp_bx),iter->id(),iter->bxn(),iter->timingError(),iter->BXN());
 						csctf::TrackStub dtStub(base,id,iter->phi(),0);
 						dtProduct->push_back(dtStub);
