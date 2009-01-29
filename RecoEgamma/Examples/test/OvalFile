@@ -11,15 +11,16 @@ The DBS_* variables are configuration variables for dbs_discovery.py,
 which prepares and send a query to the Data Discovery web server,
 and receive as a result the corresponding list of input data files.
 
-<var name="DBS_RELEASE" value="CMSSW_3_0_0_pre6">
+<var name="DBS_RELEASE" value="CMSSW_3_0_0_pre7">
 <var name="DBS_LIKE" value="*IDEAL_30X_v1*-RECO">
 
 The VAL_* variables are configuration variables for newvalidation.csh,
 which compares the histograms from two releases. newvalidation.csh relies
 on the ROOT script newvalidation.C.
 
-<var name="VAL_NEW_RELEASE" value="300pre6IDEAL">
-<var name="VAL_REF_RELEASE" value="220IDEAL">
+<var name="VAL_NEW_RELEASE" value="300pre7IDEAL">
+<var name="VAL_REF_RELEASE" value="300pre6IDEAL">
+
 %IMPORTANT% If we do not set specific VAL_REF_File values below, newvalidation.csh will
 %IMPORTANT% compare the current histograms with the root files stored as ref in CVS. In such
 %IMPORTANT% a case, the VAL_REF_RELEASE just above must be given the value corresponding
@@ -51,7 +52,7 @@ touch with changes in data catalog structure.
 <environment name="Pt10">
   <var name="DBS_SAMPLE" value="RelValSingleElectronPt10">
   <var name="VAL_ANALYZER" value="GsfElectronMCAnalyzer">
-  <var name="VAL_REF_FILE" value="${VAL_REF_DIR}/cmsRun.Pt10.olog.${TEST_OUTPUT_FILE}">
+  <!var name="VAL_REF_FILE" value="${VAL_REF_DIR}/cmsRun.Pt10.olog.${TEST_OUTPUT_FILE}">
   <executable name="dbs_discovery.py">
   <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
   <executable name="newvalidation.csh" args="Pt10 ${TEST_OUTPUT_FILE}">
@@ -60,7 +61,7 @@ touch with changes in data catalog structure.
 <environment name="Pt35">
   <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
   <var name="VAL_ANALYZER" value="GsfElectronMCAnalyzer">
-  <var name="VAL_REF_FILE" value="${VAL_REF_DIR}/cmsRun.Pt35.olog.${TEST_OUTPUT_FILE}">
+  <!var name="VAL_REF_FILE" value="${VAL_REF_DIR}/cmsRun.Pt35.olog.${TEST_OUTPUT_FILE}">
   <executable name="dbs_discovery.py">
   <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
   <executable name="newvalidation.csh" args="Pt35 ${TEST_OUTPUT_FILE}">
@@ -77,7 +78,7 @@ touch with changes in data catalog structure.
 <environment name="QcdPt80-120">
   <var name="DBS_SAMPLE" value="RelValQCD_Pt_80_120">
   <var name="VAL_ANALYZER" value="GsfElectronFakeAnalyzer">
-  <var name="VAL_REF_FILE" value="${VAL_REF_DIR}/cmsRun.QcdPt80-120.olog.${TEST_OUTPUT_FILE}">
+  <!var name="VAL_REF_FILE" value="${VAL_REF_DIR}/cmsRun.QcdPt80-120.olog.${TEST_OUTPUT_FILE}">
   <executable name="dbs_discovery.py">
   <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
   <executable name="newvalidation.csh" args="QcdPt80-120 ${TEST_OUTPUT_FILE}">

@@ -45,16 +45,17 @@ if (file_old==0)
   web_page
 	  <<"<p>In all plots below, "
 		<<" there was no "<<val_ref_release<<" histograms to compare with, "
-		<<" and the "<<val_new_release<<" histograms are in red.\n" ;
+		<<" and the "<<val_new_release<<" histograms are in red.</p>\n" ;
  }
 else
  {
   web_page
 	  <<"<p>In all plots below, "
 		<<" there "<<val_ref_release<<" histograms are in blue, "
-		<<" and the "<<val_new_release<<" histograms are in red.\n" ;
+		<<" and the "<<val_new_release<<" histograms are in red.</p>\n" ;
  }
 
+web_page<<"<br><br><hr>" ;
 std::ifstream histo_file("histos.txt") ;
 std::string histo_name, gif_name, canvas_name ;
 int scaled ;
@@ -64,7 +65,7 @@ while (histo_file>>histo_name>>scaled)
   canvas_name = std::string("c")+histo_name ;
   canvas = new TCanvas(canvas_name.c_str()) ;
   canvas->SetFillColor(10) ;
-  web_page<<"<br><h3>"<<histo_name<<"</h3>" ;
+  web_page<<"<br><br><p>" ;
 	
   if ( file_old != 0 )
    {
@@ -77,7 +78,7 @@ while (histo_file>>histo_name>>scaled)
      }
     else
      {
-      web_page<<"<br>(no such histo for "<<val_ref_release<<")" ;
+      web_page<<"No <b>"<<histo_name<<"</b> for "<<val_ref_release<<".<br>" ;
      }
    }
 	
@@ -94,19 +95,20 @@ while (histo_file>>histo_name>>scaled)
       <<" of mean value "<<histo_new->GetMean()
       <<std::endl ;
     canvas->SaveAs(gif_name.c_str()) ;
-	web_page<<"<br><p><img class=\"image\" width=\"500\" src=\""<<gif_name<<"\">\n" ;
+	web_page<<"<img class=\"image\" width=\"500\" src=\""<<gif_name<<"\"><br>" ;
    }
   else if ((file_old!=0)&&(histo_old!=0))
    {
     std::cout<<histo_name<<" NOT FOUND"<<std::endl ;
     web_page<<"<br>(no such histo for "<<val_new_release<<")" ;
     canvas->SaveAs(gif_name.c_str()) ;
-	web_page<<"<br><p><img class=\"image\" width=\"500\" src=\""<<gif_name<<"\">\n" ;
+	web_page<<"<img class=\"image\" width=\"500\" src=\""<<gif_name<<"\"><br>" ;
    }
   else
    {
-    web_page<<"<br>(no such histo for "<<val_new_release<<")" ;
+    web_page<<"No <b>"<<histo_name<<"</b> for "<<val_new_release<<".<br>" ;
    }
+  web_page<<"</p>\n" ;
  }
 
 web_page<<"\n</html>"<<std::endl ;

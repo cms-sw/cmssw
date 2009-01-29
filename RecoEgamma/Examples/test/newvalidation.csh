@@ -34,16 +34,19 @@
 
 setenv VAL_ENV $1
 setenv VAL_OUTPUT_FILE $2
+setenv VAL_WEB "/afs/cern.ch/cms/Physics/egamma/www/validation"
 
-if ( ${?VAL_NEW_FILE} == "0" ) then
-  setenv VAL_NEW_FILE ""
-endif
+if ( ${?VAL_NEW_FILE} == "0" ) setenv VAL_NEW_FILE ""
+if ( ${?VAL_REF_FILE} == "0" ) setenv VAL_REF_FILE ""
+
 if ( ${VAL_NEW_FILE} == "" ) then
   setenv VAL_NEW_FILE ${cwd}/cmsRun.${VAL_ENV}.olog.${VAL_OUTPUT_FILE}
 endif
 
-if ( ${?VAL_REF_FILE} == "0" ) then
-  setenv VAL_REF_FILE ""
+if ( ${VAL_REF_FILE} == "" ) then
+  if ( -e "${VAL_WEB}/${VAL_REF_RELEASE}/data/cmsRun.${VAL_ENV}.olog.${VAL_OUTPUT_FILE}" ) then
+    setenv VAL_REF_FILE ${VAL_WEB}/${VAL_REF_RELEASE}/data/cmsRun.${VAL_ENV}.olog.${VAL_OUTPUT_FILE}
+  endif
 endif
 if ( ${VAL_REF_FILE} == "" ) then
   if ( -e "${cwd}/cmsRun.${VAL_ENV}.oref.${VAL_OUTPUT_FILE}" ) then
@@ -58,6 +61,13 @@ endif
 
 #setenv DBS_SAMPLE RelValQCD_Pt_80_120
 
+
+#============== Echo parameters ==================
+
+echo "VAL_NEW_RELEASE = ${VAL_NEW_RELEASE}"
+echo "VAL_REF_RELEASE = ${VAL_REF_RELEASE}"
+echo "VAL_NEW_FILE = ${VAL_NEW_FILE}"
+echo "VAL_REF_FILE = ${VAL_REF_FILE}"
 
 #============== Prepare the output directories ==================
 
@@ -109,7 +119,7 @@ cp -f $CURRENTDIR/newvalidation.C .
 
 if ( $VAL_ANALYZER == GsfElectronMCAnalyzer ) then
 
-cat > histos.txt <<EOF
+cat >! histos.txt <<EOF
 h_ele_PoPtrue   1
 h_ele_PoPtrue_barrel   1
 h_ele_PoPtrue_endcaps   1
@@ -191,7 +201,7 @@ EOF
 
 else if ($VAL_ANALYZER == GsfElectronFakeAnalyzer ) then
 
-cat > histos.txt <<EOF
+cat >! histos.txt <<EOF
 h_ele_vertexP  	1
 h_ele_vertexPt  	1
 h_ele_outerP_mode  	1
@@ -247,7 +257,7 @@ EOF
 
 else if ( $VAL_ANALYZER == SimplePhotonAnalyzer ) then
 
-cat > histos.txt <<EOF
+cat >! histos.txt <<EOF
 scE 1
 scEt 1
 scEta 1
@@ -273,7 +283,7 @@ EOF
 
 else if ( $VAL_ANALYZER == SimpleConvertedPhotonAnalyzer ) then
 
-cat > histos.txt <<EOF
+cat >! histos.txt <<EOF
 deltaE 1
 deltaPhi 1
 deltaEta 1
