@@ -36,7 +36,7 @@ std::string
 cond::IOVServiceImpl::payloadToken( const std::string& iovToken,
 				    cond::Time_t currenttime ){
   cond::IOVSequence const & iov=iovSeq(iovToken);
-  cond::IOVSequence::const_iterator iEnd=iov->find(currenttime);
+  cond::IOVSequence::const_iterator iEnd=iov.find(currenttime);
   if( iEnd==iov.iovs().end() ){
     return "";
   }else{
@@ -59,7 +59,7 @@ cond::IOVServiceImpl::validity( const std::string& iovToken, cond::Time_t curren
 
   cond::Time_t since=iov.firstSince();
   cond::Time_t till=iov.lastTill();
-  IOVSequence::const_iterator iter=iov->find(currenttime);
+  IOVSequence::const_iterator iter=iov.find(currenttime);
   if (iter!=iov.iovs().end())  {
     since=iter->sinceTime();
     iter++;
@@ -67,7 +67,7 @@ cond::IOVServiceImpl::validity( const std::string& iovToken, cond::Time_t curren
       till = iter->sinceTime()-1;
   }
   else {
-    cond::Time_t since=iov.lastTill();
+    since=iov.lastTill();
   }
   return std::make_pair<cond::Time_t, cond::Time_t>(since,till);
 }
@@ -134,31 +134,30 @@ cond::IOVServiceImpl::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
 						 const std::string& destToken,
 						 cond::Time_t since,
 						 cond::Time_t till){
-
- {
+  
+  
+  {
     cond::TypedRef<cond::IOVSequence> iov(*m_pooldb,iovToken);
     // FIXME use iov metadata
-    std::string ptok = iov->iov.front().wrapperToken();
+    std::string ptok = iov->iovs().front().wrapperToken();
     m_pooldb->commit();   
     cond::reflexTypeByToken(ptok);
     m_pooldb->start(true);
   }
-
+  
 
 
   cond::IOVSequence const & iov=iovSeq(iovToken);
   IOVSequence::const_iterator ifirstTill=iov.find(since);
   IOVSequence::const_iterator isecondTill=iov.find(till);
-  if( isecondTill!=iov.iovs.end() ){
-    isecondTill++;
-  }
+  if( isecondTill!=iov.iovs().end() ) isecondTill++;
   
   if (ifirstTill==isecondTill) 
     throw cond::Exception("IOVServiceImpl::exportIOVRangeWithPayload Error: empty input range");
-
-
+  
+  
   since = ifirstTill->sinceTime();
-
+  
   cond::TypedRef<cond::IOVSequence> newiovref;
   if (destToken.empty()) {
     // create a new one 
@@ -166,15 +165,14 @@ cond::IOVServiceImpl::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
       cond::TypedRef<cond::IOVSequence>(destDB,
 					new cond::IOVSequence(iov.timeType(), iov.lastTill(),iov.metadataToken()));
     newiovref.markWrite(cond::IOVNames::container());
-   } else {
+  } else {
     newiovref = cond::TypedRef<cond::IOVSequence>(destDB,destToken);
     newiovref.markUpdate();
     if (!newiovref->iovs().empty() && since <= newiovref->iovs().back().sinceTime())
-	)  {
       throw cond::Exception("IOVServiceImpl::exportIOVRangeWithPayload Error: since time out of range, below last since");
-
-    }
+    
   }
+
 
   cond::IOV & newiov = *newiovref;
   for( IOV::const_iterator it=ifirstTill;
