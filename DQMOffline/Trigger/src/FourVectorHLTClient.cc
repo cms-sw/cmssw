@@ -5,7 +5,7 @@
    date of first version: Sept 2008
 
 */
-//$Id: FourVectorHLTClient.cc,v 1.5 2009/01/20 11:18:04 rekovic Exp $
+//$Id: FourVectorHLTClient.cc,v 1.6 2009/01/26 16:10:54 rekovic Exp $
 
 #include "DQMOffline/Trigger/interface/FourVectorHLTClient.h"
 
@@ -331,7 +331,7 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
     ///////////////////////////
     // Efficiencies
     ///////////////////////////
-    pathFolder = clientDir_ + TString("/paths/") + curHltPath->String() + TString("/efficiencies");
+    pathFolder = clientDir_ + TString("/paths/") + curHltPath->String() + TString("/custom-efficiencies");
 
     dbe_->setCurrentFolder(pathFolder.Data());
 
@@ -358,8 +358,8 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
       TString oldHistPathDen = sourceDir_+TString("/")+numPathName+" "+denPathName+TString("_")+vObj[k]+TString("Off"); 
   
   
-      TString newHistName = curHltPath->String()+TString("_"+vObj[k]+"_Eff_HLTtoL1");
-      TString newHistTitle = numPathName+" given " + denPathName +TString("  "+vObj[k]+" Eff  HLTtoL1");
+      TString newHistName = curHltPath->String()+TString("_"+vObj[k]+"_Eff_RECOtoHLT");
+      TString newHistTitle = numPathName+" given " + denPathName +TString("  "+vObj[k]+" Eff  RECOtoHLT");
       TString newHistPath = pathFolder+newHistName;
   
       MonitorElement *numME = dbe_->get(oldHistPathNum.Data());
