@@ -39,7 +39,8 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("PoolSource",
     fileNames = 
-cms.untracked.vstring('file:RelValZEE_2_1_7_STARTUP.root')
+#cms.untracked.vstring('file:RelValZEE_2_1_7_STARTUP.root')
+cms.untracked.vstring('/store/relval/CMSSW_2_1_7/RelValBJets_Pt_50_120/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V7_v1/0001/0029CC27-F97D-DD11-A0B9-000423D6CAF2.root')
 )
 
 process.MessageLogger = cms.Service("MessageLogger",

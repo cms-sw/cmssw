@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTriggerOffline.cc,v 1.1 2009/01/24 17:10:44 berryhil Exp $
+// $Id: FourVectorHLTriggerOffline.cc,v 1.2 2009/01/26 05:46:15 berryhil Exp $
 // See header file for information. 
 #include "TMath.h"
 
@@ -29,6 +29,7 @@
 #include "DataFormats/TauReco/interface/CaloTau.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/BTauReco/interface/JetTag.h"
 
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
@@ -273,6 +274,26 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
   iEvent.getByLabel("iterativeCone5CaloJets",jetHandle);
   if(!jetHandle.isValid()) { 
     edm::LogInfo("FourVectorHLTriggerOffline") << "jetHandle not found, ";
+      //"skipping event"; 
+      //return;
+  }
+
+ 
+   // Get b tag information
+ edm::Handle<reco::JetTagCollection> bTagIPHandle;
+ iEvent.getByLabel("trackCountingHighEffBJetTags", bTagIPHandle);
+ if (!bTagIPHandle.isValid()) {
+    edm::LogInfo("FourVectorHLTriggerOffline") << "bTagIPHandle trackCountingHighEffJetTags not found, ";
+      //"skipping event"; 
+      //return;
+  }
+
+
+   // Get b tag information
+ edm::Handle<reco::JetTagCollection> bTagMuHandle;
+ iEvent.getByLabel("softMuonBJetTags", bTagMuHandle);
+ if (!bTagMuHandle.isValid()) {
+    edm::LogInfo("FourVectorHLTriggerOffline") << "bTagMuHandle  not found, ";
       //"skipping event"; 
       //return;
   }
@@ -668,7 +689,35 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 
       // for bjet triggers, loop over and fill offline 4-vectors
       else if (triggertype == trigger::TriggerBJet)
-	{
+	{ 
+	  if (v->getPath().find("BTagIP") != std::string::npos && bTagIPHandle.isValid()){
+          const reco::JetTagCollection & bTags = *(bTagIPHandle.product());
+          for (size_t i = 0; i != bTags.size(); ++i) {
+           edm::RefToBase<reco::Jet>  BRefJet=bTags[i].first;
+ 	   if (fabs(BRefJet->eta()) <= bjetEtaMax_ && BRefJet->pt() >= bjetEtMin_ ){
+	      v->getOffEtOffHisto()->Fill(BRefJet->pt());
+	      v->getOffEtaOffHisto()->Fill(BRefJet->eta());
+	      v->getOffPhiOffHisto()->Fill(BRefJet->phi());
+	      v->getOffEtaVsOffPhiOffHisto()->Fill(BRefJet->eta(),BRefJet->phi());
+	   }
+	  }
+	 }
+
+	  if (v->getPath().find("BTagMu") != std::string::npos && bTagMuHandle.isValid()){
+          const reco::JetTagCollection & bTags = *(bTagMuHandle.product());
+          for (size_t i = 0; i != bTags.size(); ++i) {
+           edm::RefToBase<reco::Jet>  BRefJet=bTags[i].first;
+ 	   if (fabs(BRefJet->eta()) <= bjetEtaMax_ && BRefJet->pt() >= bjetEtMin_ ){
+	      v->getOffEtOffHisto()->Fill(BRefJet->pt());
+	      v->getOffEtaOffHisto()->Fill(BRefJet->eta());
+	      v->getOffPhiOffHisto()->Fill(BRefJet->phi());
+	      v->getOffEtaVsOffPhiOffHisto()->Fill(BRefJet->eta(),BRefJet->phi());
+	   }
+	  }
+	 }
+
+	
+
 	 if (genParticles.isValid()){
            for(size_t i = 0; i < genParticles->size(); ++ i) {
           const GenParticle & p = (*genParticles)[i];
@@ -680,6 +729,83 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   }
 	  }
 	 }
+
+	 if (l1accept)
+	   {
+
+
+         for (l1JetHandle=l1JetHandleList.begin(); l1JetHandle!=l1JetHandleList.end(); l1JetHandle++) {
+	   if (!l1JetHandle->isValid())
+	     {
+            edm::LogInfo("FourVectorHLTriggerOffline") << "l1JetHandle not found, "
+            "skipping event"; 
+            return;
+             } 
+         const L1JetParticleCollection l1JetCollection = *(l1JetHandle->product());
+	   for (L1JetParticleCollection::const_iterator l1JetIter=l1JetCollection.begin(); l1JetIter!=l1JetCollection.end(); l1JetIter++){
+	     if (fabs((*l1JetIter).eta()) <= bjetEtaMax_ && (*l1JetIter).pt() >= bjetEtMin_ ){
+     	  v->getL1EtL1Histo()->Fill((*l1JetIter).pt());
+     	  v->getL1EtaL1Histo()->Fill((*l1JetIter).eta());
+          v->getL1PhiL1Histo()->Fill((*l1JetIter).phi());
+     	  v->getL1EtaVsL1PhiL1Histo()->Fill((*l1JetIter).eta(),(*l1JetIter).phi());
+	    }
+
+
+	  if (v->getPath().find("BTagIP") != std::string::npos && bTagIPHandle.isValid()){
+          const reco::JetTagCollection & bTags = *(bTagIPHandle.product());
+          for (size_t i = 0; i != bTags.size(); ++i) {
+           edm::RefToBase<reco::Jet>  BRefJet=bTags[i].first;
+           
+ 	   if (fabs(BRefJet->eta()) <= bjetEtaMax_ && BRefJet->pt() >= bjetEtMin_ ){
+	   if (reco::deltaR(BRefJet->eta(),BRefJet->phi(),(*l1JetIter).eta(),(*l1JetIter).phi()) < 0.3){
+	      v->getOffEtOffHisto()->Fill(BRefJet->pt());
+	      v->getOffEtaOffHisto()->Fill(BRefJet->eta());
+	      v->getOffPhiOffHisto()->Fill(BRefJet->phi());
+	      v->getOffEtaVsOffPhiOffHisto()->Fill(BRefJet->eta(),BRefJet->phi());
+	    }
+	   }
+	  }
+	 }
+
+
+	  if (v->getPath().find("BTagMu") != std::string::npos && bTagMuHandle.isValid()){
+          const reco::JetTagCollection & bTags = *(bTagMuHandle.product());
+          for (size_t i = 0; i != bTags.size(); ++i) {
+           edm::RefToBase<reco::Jet>  BRefJet=bTags[i].first;
+           
+ 	   if (fabs(BRefJet->eta()) <= bjetEtaMax_ && BRefJet->pt() >= bjetEtMin_ ){
+	   if (reco::deltaR(BRefJet->eta(),BRefJet->phi(),(*l1JetIter).eta(),(*l1JetIter).phi()) < 0.3){
+	      v->getOffEtOffHisto()->Fill(BRefJet->pt());
+	      v->getOffEtaOffHisto()->Fill(BRefJet->eta());
+	      v->getOffPhiOffHisto()->Fill(BRefJet->phi());
+	      v->getOffEtaVsOffPhiOffHisto()->Fill(BRefJet->eta(),BRefJet->phi());
+	    }
+	   }
+	  }
+	 }
+
+
+	if (genParticles.isValid()){
+           for(size_t i = 0; i < genParticles->size(); ++ i) {
+          const GenParticle & p = (*genParticles)[i];
+          if (abs(p.pdgId()) == 5 && p.status() == 3 && fabs(p.eta()) <= bjetEtaMax_ && p.pt() >= bjetEtMin_ ){ 
+	   if (reco::deltaR(p.eta(),p.phi(),(*l1JetIter).eta(),(*l1JetIter).phi()) < 0.3){
+	    v->getMcEtL1McHisto()->Fill(p.pt());
+	    v->getMcEtaL1McHisto()->Fill(p.eta());
+	    v->getMcPhiL1McHisto()->Fill(p.phi());
+	    v->getMcEtaVsMcPhiL1McHisto()->Fill(p.eta(),p.phi());
+	   }
+	  }
+	 }
+	}       
+
+	   }
+	 }
+
+
+	   
+	   }
+
 	}
       // for met triggers, loop over and fill offline 4-vectors
       else if (triggertype == trigger::TriggerMET || triggertype == trigger::TriggerL1ETM)
@@ -1127,6 +1253,73 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
       // for bjet triggers, loop over and fill offline 4-vectors
       else if (triggertype == trigger::TriggerBJet)
 	{
+
+	  if (v->getPath().find("BTagIP") != std::string::npos && bTagIPHandle.isValid()){
+          const reco::JetTagCollection & bTags = *(bTagIPHandle.product());
+          for (size_t i = 0; i != bTags.size(); ++i) {
+           edm::RefToBase<reco::Jet>  BRefJet=bTags[i].first;
+           
+ 	   if (fabs(BRefJet->eta()) <= bjetEtaMax_ && BRefJet->pt() >= bjetEtMin_ ){
+	   if (reco::deltaR(BRefJet->eta(),BRefJet->phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3){
+	      v->getOffEtOnOffHisto()->Fill(BRefJet->pt());
+	      v->getOffEtaOnOffHisto()->Fill(BRefJet->eta());
+	      v->getOffPhiOnOffHisto()->Fill(BRefJet->phi());
+	      v->getOffEtaVsOffPhiOnOffHisto()->Fill(BRefJet->eta(),BRefJet->phi());
+	    }
+	   }
+	  }
+	}
+
+
+	  if (v->getPath().find("BTagMu") != std::string::npos && bTagMuHandle.isValid()){
+          const reco::JetTagCollection & bTags = *(bTagMuHandle.product());
+          for (size_t i = 0; i != bTags.size(); ++i) {
+           edm::RefToBase<reco::Jet>  BRefJet=bTags[i].first;
+           
+ 	   if (fabs(BRefJet->eta()) <= bjetEtaMax_ && BRefJet->pt() >= bjetEtMin_ ){
+	   if (reco::deltaR(BRefJet->eta(),BRefJet->phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3){
+	      v->getOffEtOnOffHisto()->Fill(BRefJet->pt());
+	      v->getOffEtaOnOffHisto()->Fill(BRefJet->eta());
+	      v->getOffPhiOnOffHisto()->Fill(BRefJet->phi());
+	      v->getOffEtaVsOffPhiOnOffHisto()->Fill(BRefJet->eta(),BRefJet->phi());
+	    }
+	   }
+	  }
+	}
+
+         for (l1JetHandle=l1JetHandleList.begin(); l1JetHandle!=l1JetHandleList.end(); l1JetHandle++) {
+	   if (!l1JetHandle->isValid())
+	     {
+            edm::LogInfo("FourVectorHLTriggerOffline") << "l1JetHandle not found, "
+            "skipping event"; 
+            return;
+             } 
+         const L1JetParticleCollection l1JetCollection = *(l1JetHandle->product());
+	   for (L1JetParticleCollection::const_iterator l1JetIter=l1JetCollection.begin(); l1JetIter!=l1JetCollection.end(); l1JetIter++){
+	   if (reco::deltaR((*l1JetIter).eta(),(*l1JetIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3 && fabs((*l1JetIter).eta()) <= bjetEtaMax_ && (*l1JetIter).pt() >= bjetEtMin_ ){
+     	  v->getL1EtL1OnHisto()->Fill((*l1JetIter).pt());
+     	  v->getL1EtaL1OnHisto()->Fill((*l1JetIter).eta());
+          v->getL1PhiL1OnHisto()->Fill((*l1JetIter).phi());
+     	  v->getL1EtaVsL1PhiL1OnHisto()->Fill((*l1JetIter).eta(),(*l1JetIter).phi());
+	   }
+	  }
+         }
+
+
+	if (genParticles.isValid()){
+           for(size_t i = 0; i < genParticles->size(); ++ i) {
+          const GenParticle & p = (*genParticles)[i];
+          if (abs(p.pdgId()) == 5 && p.status() == 3 && fabs(p.eta()) <= bjetEtaMax_ && p.pt() >= bjetEtMin_ ){ 
+	   if (reco::deltaR(p.eta(),p.phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3){
+	    v->getMcEtOnMcHisto()->Fill(p.pt());
+	    v->getMcEtaOnMcHisto()->Fill(p.eta());
+	    v->getMcPhiOnMcHisto()->Fill(p.phi());
+	    v->getMcEtaVsMcPhiOnMcHisto()->Fill(p.eta(),p.phi());
+	   }
+	  }
+	 }
+	}
+
 	}
       // for met triggers, loop over and fill offline 4-vectors
       else if (triggertype == trigger::TriggerMET || triggertype == trigger::TriggerL1ETM )
@@ -1308,7 +1501,7 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
     //parse pathname to guess object type
     if (pathname.find("Jet") != std::string::npos) 
       objectType = trigger::TriggerJet;    
-    if (pathname.find("BJet") != std::string::npos) 
+    if (pathname.find("BTag") != std::string::npos) 
       objectType = trigger::TriggerBJet;    
     if (pathname.find("MET") != std::string::npos) 
       objectType = trigger::TriggerMET;    
@@ -1325,7 +1518,7 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
     //parse denompathname to guess denomobject type
     if (denompathname.find("Jet") != std::string::npos) 
       denomobjectType = trigger::TriggerJet;    
-    if (denompathname.find("BJet") != std::string::npos) 
+    if (denompathname.find("BTag") != std::string::npos) 
       denomobjectType = trigger::TriggerBJet;    
     if (denompathname.find("MET") != std::string::npos) 
       denomobjectType = trigger::TriggerMET;    
@@ -1382,7 +1575,7 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
     //parse pathname to guess object type
     if (pathname.find("Jet") != std::string::npos) 
       objectType = trigger::TriggerJet;    
-    if (pathname.find("BJet") != std::string::npos) 
+    if (pathname.find("BTag") != std::string::npos) 
       objectType = trigger::TriggerBJet;    
     if (pathname.find("MET") != std::string::npos) 
       objectType = trigger::TriggerMET;    
@@ -1399,7 +1592,7 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
     //parse denompathname to guess denomobject type
     if (denompathname.find("Jet") != std::string::npos) 
       denomobjectType = trigger::TriggerJet;    
-    if (denompathname.find("BJet") != std::string::npos) 
+    if (denompathname.find("BTag") != std::string::npos) 
       denomobjectType = trigger::TriggerBJet;    
     if (denompathname.find("MET") != std::string::npos) 
       denomobjectType = trigger::TriggerMET;    
@@ -1477,7 +1670,7 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
     //parse pathname to guess object type
     if (pathname.find("Jet") != std::string::npos) 
       objectType = trigger::TriggerJet;    
-    if (pathname.find("BJet") != std::string::npos) 
+    if (pathname.find("BTag") != std::string::npos) 
       objectType = trigger::TriggerBJet;    
     if (pathname.find("MET") != std::string::npos) 
       objectType = trigger::TriggerMET;    
