@@ -14,7 +14,7 @@
 using namespace std;
 
 
-void FillRandom(int N, TH1F *pdf, TH1F * histo){
+void fillRandom(int N, TH1F *pdf, TH1F * histo){
   double m =0;
   for(int i =0 ; i <N ;++i){
     do{
@@ -43,7 +43,7 @@ public:
   BkgShape(double min, double max, double slope, double a0, double a1, double a2) :
     norm_(1), min_(min), max_(max), fmax_(0),
     slope_(slope), a0_(a0), a1_(a1), a2_(a2) { 
-    norm_ = 1./integral();
+    normalize();
   }
   double operator()(double x) const {
     if(x < min_ || x > max_) return 0;
@@ -57,8 +57,10 @@ public:
     } while(eventGenerator->Uniform(0, fmax_) > f);
     return x;
   }
+  double integral() const { return norm_; }
+
 private:
-  double integral() {
+  void normalize() {
     static const unsigned int steps = 10000;
     double s = 0, x, f;
     double base = max_ - min_;
@@ -69,7 +71,7 @@ private:
       if(f > fmax_) fmax_ = f;
     }
     fmax_ *= 1.001;
-    return s * base;
+    norm_ = s * base;
   }
   double norm_, min_, max_, fmax_;
   double slope_, a0_, a1_, a2_;
@@ -84,9 +86,11 @@ int main(int argc, char * argv[]){
   double yield(50550), effTrk(.9883), effSa(.9896), effHlt(.9155), effIso(.9786);
   double slopeMuTk(0.022330), a0MuTk(0.000505041), a1MuTk(0.019177), a2MuTk(-0.00012970);
   double slopeMuMuNonIso(0.0232129), a0MuMuNonIso(1.99999), a1MuMuNonIso(0.0944887), a2MuMuNonIso(-0.000859517);
-  BkgShape zmuMuTkBkg(60, 120, slopeMuTk, a0MuTk, a1MuTk, a2MuTk);
-  BkgShape zmuMuMuNonIsoBkg(60, 120, slopeMuMuNonIso, a0MuMuNonIso, a1MuMuNonIso, a2MuMuNonIso);
-
+  BkgShape zMuTkBkgPdf(60, 120, slopeMuTk, a0MuTk, a1MuTk, a2MuTk);
+  BkgShape zMuMuNonIsoBkgPdf(60, 120, slopeMuMuNonIso, a0MuMuNonIso, a1MuMuNonIso, a2MuMuNonIso);
+  int nMuTkBkg = eventGenerator->Poisson(zMuTkBkgPdf.integral());
+  int nMuMuNonIsoBkg = eventGenerator->Poisson(zMuMuNonIsoBkgPdf.integral());
+ 
   int expt(1), seed(1);
   
   while ((o = getopt(argc, argv,"p:n:s:y:T:S:H:I:h"))!=EOF) {
@@ -174,12 +178,12 @@ int main(int argc, char * argv[]){
       TH1F *zMuTk = new TH1F("zMass_tk","zMass",200,0,200);
       
       //Fill signal Histo
-      FillRandom(Nmumu,pdfzmm,zMuMu );
-      FillRandom(N2HLT, pdfzmm,zMuMu2HLT);
-      FillRandom(N1HLT, pdfzmm,zMuMu1HLT);
-      FillRandom(NISO,pdfzmm,zMuMuNotIso);
-      FillRandom(NSa,pdfzmsa,zMuSa);
-      FillRandom(NTk, pdfzmm,zMuTk);
+      fillRandom(Nmumu,pdfzmm,zMuMu );
+      fillRandom(N2HLT, pdfzmm,zMuMu2HLT);
+      fillRandom(N1HLT, pdfzmm,zMuMu1HLT);
+      fillRandom(NISO,pdfzmm,zMuMuNotIso);
+      fillRandom(NSa,pdfzmsa,zMuSa);
+      fillRandom(NTk, pdfzmm,zMuTk);
             
       //output	
       char head[30];
@@ -241,12 +245,14 @@ int main(int argc, char * argv[]){
       TH1F *zMuMuNotIsoBkg= new TH1F("zMass_noIso","zMass",200,0,200);
       TH1F *zMuTkBkg = new TH1F("zMass_tk","zMass",200,0,200);
       
-      int Nzmtbkg = eventGenerator->Poisson(1890);
-      int NzmNoIsobkg = eventGenerator->Poisson(2600);
       //Fill >Bkg Histograms 
-      zMuMuNotIsoBkg->FillRandom("zmnoisoBkg",Nzmtbkg);
-      zMuTkBkg->FillRandom("zmtkBkg",Nzmtbkg );
-      
+
+      for(int i = 0; i < nMuTkBkg; ++i) {
+	zMuTkBkg->Fill(zMuTkBkgPdf.rndm(eventGenerator));
+      }
+      for(int i = 0; i < nMuMuNonIsoBkg; ++i) {
+	zMuMuNotIsoBkg->Fill(zMuMuNonIsoBkgPdf.rndm(eventGenerator));
+      }
       
       char head2[30];
       sprintf(head2,"bgk_%d",j);
