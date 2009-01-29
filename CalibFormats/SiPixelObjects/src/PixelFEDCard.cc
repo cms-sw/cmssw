@@ -188,18 +188,18 @@ PixelFEDCard::PixelFEDCard(vector<vector<string> > &tableMat):PixelConfigBase(" 
   for(unsigned int r = 0 ; r < tableMat.size() ; r++){    //Goes to every row of the Matrix
     if(tableMat[r].size() == 0)
       {
-//        cout << mthn << "__________________ NEW TABLE __________________"<< endl ;
+//        cout << __LINE__ << "]\t" << mthn << "__________________ NEW TABLE __________________"<< endl ;
         size[indexsize] = r ;
-//        cout << mthn << "size[" << indexsize << "] = " << size[indexsize] << endl ;
+//        cout << __LINE__ << "]\t" << mthn << "size[" << indexsize << "] = " << size[indexsize] << endl ;
         indexsize++ ;
         continue ;
       }
     for(vector<string>::iterator it = tableMat[r].begin() ; it != tableMat[r].end() ; it++)
       {
-//      cout << mthn << *it <<"["<<&*it<<"]\t"  ;
-//        cout << mthn << *it <<"\t"  ;
+//      cout << __LINE__ << "]\t" << mthn << *it <<"["<<&*it<<"]\t"  ;
+//      cout << __LINE__ << "]\t" << mthn << *it <<"\t"  ;
       }
-//    cout << mthn << endl ;
+//    cout << __LINE__ << "]\t" << mthn << endl ;
   }
 
   // Read below quantities pertaining to a single FED that are equal accross 36 channels
@@ -538,16 +538,17 @@ PixelFEDCard::PixelFEDCard(string fileName):
   PixelConfigBase(" "," "," ")
 {
 
+  std::string mthn = "[PixelFEDCard::PixelFEDCard()]\t\t\t\t    " ;
   //const bool localDEBUG = true;
   const bool localDEBUG = false;
   
   // Added by Dario (March 26th, 2008): insure variables are all cleared before read-in
   clear() ;
 
-  //cout<<" Get setup parameters from file "<<fileName<<endl;
+  //cout << __LINE__ << "]\t" << mthn <<" Get setup parameters from file "<<fileName<<endl;
   FILE *infile = fopen((fileName.c_str()),"r");
   if (infile == NULL) {
-    cout<<"No parameter file:"<<fileName<<endl; 
+    cout<< __LINE__ << "]\t" << mthn << "No parameter file:"<<fileName<<endl; 
     return;
   }
   
@@ -558,7 +559,7 @@ PixelFEDCard::PixelFEDCard(string fileName):
          &fedNumber);
 
   printf("FED Base address, FED # :%lx\n",FEDBASE_0);
-  //if(FEDBASE != FEDBASE_0) cout<<" Inconsistent FED base address?"<<endl;
+  //if(FEDBASE != FEDBASE_0) cout<< __LINE__ << "]\t" << mthn << " Inconsistent FED base address?"<<endl;
   printf("FEDID # :%lx\n",fedNumber);
  
   // Number of ROCs
@@ -840,11 +841,14 @@ PixelFEDCard::PixelFEDCard(string fileName):
         int checkword=0;
   fscanf(infile,"Params FED file check word:%d\n",
                            &checkword);
-        if(checkword!=90508)cout<<"FEDID:"<<fedNumber<<" Params FED File read error. Checkword read "<<checkword<<" check word expected 090508"<<endl;
+        if(checkword!=90508) cout << __LINE__  << "]\t"                             << mthn 
+	                          << "FEDID: "                                      << fedNumber 
+				  << " Params FED File read error. Checkword read " << checkword
+				  <<" check word expected 090508"                   << endl;
         assert(checkword==90508);
 
         if(localDEBUG)
-    printf("Params FED file check word:%d\n",checkword);
+         cout << __LINE__  << "]\t" << mthn << "Params FED file check word: " << checkword << endl;
 
 
 
@@ -950,7 +954,7 @@ void PixelFEDCard::clear(void)
 
 void PixelFEDCard::writeASCII(std::string dir) const{
 
-  //  cout << "PixelFEDCard::writeASCII"<<endl;
+  std::string mthn = "[PixelFEDCard::writeASCII()]\t\t\t\t    " ;
 
   ostringstream s1;
   s1<<fedNumber;
@@ -962,7 +966,7 @@ void PixelFEDCard::writeASCII(std::string dir) const{
 
   FILE *outfile = fopen((filename.c_str()),"w");
   if (outfile == NULL) {
-    cout<<"Could not open file:"<<filename<<" for writing"<<endl; 
+    cout<< __LINE__ << "]\t" << mthn << "Could not open file: " << filename << " for writing" << endl; 
     return;
   }
   
@@ -1166,7 +1170,7 @@ void PixelFEDCard::writeXMLHeader(pos::PixelConfigKey key,
   // modified by MR on 05-08-2008 16:50:28
   // FED MAIN XML FILE
   fedfullPath << path << "/FedConfiguration_Template_" << PixelTimeFormatter::getmSecTime() << ".xml" ;
-  std::cout << mthn << "Writing to: " << fedfullPath.str()  << "" << std::endl ;
+  std::cout << __LINE__ << "]\t" << mthn << "Writing to: " << fedfullPath.str()  << "" << std::endl ;
 
   fedstream->open(fedfullPath.str().c_str()) ;
   
@@ -1200,72 +1204,72 @@ void PixelFEDCard::writeXMLHeader(pos::PixelConfigKey key,
 
   // ROC LEVELS MAIN XML FILE
   rocfullPath << path << "/Pixel_RocAnalogLevels_" << PixelTimeFormatter::getmSecTime() << ".xml" ;
-  std::cout << mthn << "Writing to: " << rocfullPath.str()  << "" << std::endl ;
+  std::cout << __LINE__ << "]\t" << mthn << "Writing to: " << rocfullPath.str()  << ""                    << std::endl ;
 
   rocstream->open(rocfullPath.str().c_str()) ;
   
 
-  *rocstream << "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"                         << std::endl ; 
-  *rocstream << "<ROOT xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">"                        << std::endl ; 
-  *rocstream << ""                                                                                      << std::endl ; 
-  *rocstream << " <HEADER>"                                                                             << std::endl ; 
-  *rocstream << "  <HINTS mode='only-de-root'/>"                                                        << std::endl ; 
-  *rocstream << "  <TYPE>"                                                                              << std::endl ; 
-  *rocstream << "   <EXTENSION_TABLE_NAME>ROC_ANALOG_LEVELS</EXTENSION_TABLE_NAME>"                     << std::endl ; 
-  *rocstream << "   <NAME>ROC Analog Levels</NAME>"                                                     << std::endl ; 
-  *rocstream << "  </TYPE>"                                                                             << std::endl ; 
-  *rocstream << "  <RUN>"                                                                               << std::endl ; 
-  *rocstream << "   <RUN_TYPE>ROC Analog Levels</RUN_TYPE>"                                             << std::endl ; 
-  *rocstream << "   <RUN_NUMBER>1</RUN_NUMBER>                      "                                   << std::endl ; 
-  *rocstream << "   <RUN_BEGIN_TIMESTAMP>" << PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>" << std::endl ; 
-  *rocstream << "   <INITIATED_BY_USER>Umesh Joshi</INITIATED_BY_USER> "                                << std::endl ; 
-  *rocstream << "   <LOCATION>CERN</LOCATION> "                                                         << std::endl ; 
-  *rocstream << "   <COMMENT_DESCRIPTION>ROC Analog Levels Template</COMMENT_DESCRIPTION>"              << std::endl ; 
-  *rocstream << "  </RUN>"                                                                              << std::endl ; 
-  *rocstream << " </HEADER>"                                                                            << std::endl ; 
-  *rocstream << ""                                                                                      << std::endl ; 
-  *rocstream << "  <DATA_SET>"                                                                          << std::endl ; 
-  *rocstream << "   <COMMENT_DESCRIPTION>ROC Analog Levels Template</COMMENT_DESCRIPTION>"              << std::endl ; 
-  *rocstream << "   <VERSION>" << version << "</VERSION>"                                               << std::endl ; 
-  *rocstream << "   "                                                                                   << std::endl ; 
-  *rocstream << "   <PART>"                                                                             << std::endl ; 
-  *rocstream << "           <SERIAL_NUMBER>CMS-PIXEL-ROOT</SERIAL_NUMBER>"                              << std::endl ; 
-  *rocstream << "           <KIND_OF_PART>Detector ROOT</KIND_OF_PART>"                                 << std::endl ; 
-  *rocstream << "   </PART>"                                                                            << std::endl ; 
+  *rocstream << "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"                           << std::endl ;
+  *rocstream << "<ROOT xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">"                          << std::endl ;
+  *rocstream << ""                                                                                        << std::endl ;
+  *rocstream << " <HEADER>"                                                                               << std::endl ;
+  *rocstream << "  <HINTS mode='only-de-root'/>"                                                          << std::endl ;
+  *rocstream << "  <TYPE>"                                                                                << std::endl ;
+  *rocstream << "   <EXTENSION_TABLE_NAME>ROC_ANALOG_LEVELS</EXTENSION_TABLE_NAME>"                       << std::endl ;
+  *rocstream << "   <NAME>ROC Analog Levels</NAME>"                                                       << std::endl ;
+  *rocstream << "  </TYPE>"                                                                               << std::endl ;
+  *rocstream << "  <RUN>"                                                                                 << std::endl ;
+  *rocstream << "   <RUN_TYPE>ROC Analog Levels</RUN_TYPE>"                                               << std::endl ;
+  *rocstream << "   <RUN_NUMBER>1</RUN_NUMBER>                      "                                     << std::endl ;
+  *rocstream << "   <RUN_BEGIN_TIMESTAMP>" << PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>"   << std::endl ;
+  *rocstream << "   <INITIATED_BY_USER>Umesh Joshi</INITIATED_BY_USER> "                                  << std::endl ;
+  *rocstream << "   <LOCATION>CERN</LOCATION> "                                                           << std::endl ;
+  *rocstream << "   <COMMENT_DESCRIPTION>ROC Analog Levels Template</COMMENT_DESCRIPTION>"                << std::endl ;
+  *rocstream << "  </RUN>"                                                                                << std::endl ;
+  *rocstream << " </HEADER>"                                                                              << std::endl ;
+  *rocstream << ""                                                                                        << std::endl ;
+  *rocstream << "  <DATA_SET>"                                                                            << std::endl ;
+  *rocstream << "   <COMMENT_DESCRIPTION>ROC Analog Levels Template</COMMENT_DESCRIPTION>"                << std::endl ;
+  *rocstream << "   <VERSION>" << version << "</VERSION>"                                                 << std::endl ;
+  *rocstream << "   "                                                                                     << std::endl ;
+  *rocstream << "   <PART>"                                                                               << std::endl ;
+  *rocstream << "           <SERIAL_NUMBER>CMS-PIXEL-ROOT</SERIAL_NUMBER>"                                << std::endl ;
+  *rocstream << "           <KIND_OF_PART>Detector ROOT</KIND_OF_PART>"                                   << std::endl ;
+  *rocstream << "   </PART>"                                                                              << std::endl ;
 
   // ROC LEVELS MAIN XML FILE
   tbmfullPath << path << "/Pixel_TbmAnalogLevels_" << PixelTimeFormatter::getmSecTime() << ".xml" ;
-  std::cout << mthn << "Writing to: " << tbmfullPath.str()  << "" << std::endl ;
+  std::cout << __LINE__ << "]\t" << mthn << "Writing to: " << tbmfullPath.str()  << ""                    << std::endl ;
 
   tbmstream->open(tbmfullPath.str().c_str()) ;
   
 
-  *tbmstream << "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"                         << std::endl ; 
-  *tbmstream << "<ROOT xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">"                        << std::endl ; 
-  *tbmstream << ""                                                                                      << std::endl ; 
-  *tbmstream << " <HEADER>"                                                                             << std::endl ; 
-  *tbmstream << "  <HINTS mode='only-det-root' />"                                                      << std::endl ; 
-  *tbmstream << "  <TYPE>"                                                                              << std::endl ; 
-  *tbmstream << "   <EXTENSION_TABLE_NAME>TBM_ANALOG_LEVELS</EXTENSION_TABLE_NAME>"                     << std::endl ; 
-  *tbmstream << "   <NAME>TBM Analog Levels</NAME>"                                                     << std::endl ; 
-  *tbmstream << "  </TYPE>"                                                                             << std::endl ; 
-  *tbmstream << "  <RUN>"                                                                               << std::endl ; 
-  *tbmstream << "   <RUN_TYPE>TBM Analog Levels</RUN_TYPE>"                                             << std::endl ; 
-  *tbmstream << "   <RUN_NUMBER>1</RUN_NUMBER>"                                                         << std::endl ; 
-  *tbmstream << "   <RUN_BEGIN_TIMESTAMP>" << PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>" << std::endl ; 
-  *tbmstream << "   <INITIATED_BY_USER>Umesh Joshi</INITIATED_BY_USER> "                                << std::endl ; 
-  *tbmstream << "   <LOCATION>CERN</LOCATION> "                                                         << std::endl ; 
-  *tbmstream << "   <COMMENT_DESCRIPTION>TBM Analog Levels</COMMENT_DESCRIPTION>"                       << std::endl ; 
-  *tbmstream << "  </RUN>"                                                                              << std::endl ; 
-  *tbmstream << " </HEADER>"                                                                            << std::endl ; 
-  *tbmstream << ""                                                                                      << std::endl ; 
-  *tbmstream << "  <DATA_SET>"                                                                          << std::endl ; 
-  *tbmstream << "   <VERSION>" << version << "</VERSION>"                                               << std::endl ; 
-  *tbmstream << "   "                                                                                   << std::endl ; 
-  *tbmstream << "   <PART>"                                                                             << std::endl ; 
-  *tbmstream << "    <SERIAL_NUMBER>CMS-PIXEL-ROOT</SERIAL_NUMBER>"     				<< std::endl ; 
-  *tbmstream << "    <KIND_OF_PART>Detector ROOT</KIND_OF_PART>"        				<< std::endl ; 
-  *tbmstream << "   </PART>"                                                                            << std::endl ; 
+  *tbmstream << "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"                           << std::endl ;
+  *tbmstream << "<ROOT xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">"                          << std::endl ;
+  *tbmstream << ""                                                                                        << std::endl ;
+  *tbmstream << " <HEADER>"                                                                               << std::endl ;
+  *tbmstream << "  <HINTS mode='only-det-root' />"                                                        << std::endl ;
+  *tbmstream << "  <TYPE>"                                                                                << std::endl ;
+  *tbmstream << "   <EXTENSION_TABLE_NAME>TBM_ANALOG_LEVELS</EXTENSION_TABLE_NAME>"                       << std::endl ;
+  *tbmstream << "   <NAME>TBM Analog Levels</NAME>"                                                       << std::endl ;
+  *tbmstream << "  </TYPE>"                                                                               << std::endl ;
+  *tbmstream << "  <RUN>"                                                                                 << std::endl ;
+  *tbmstream << "   <RUN_TYPE>TBM Analog Levels</RUN_TYPE>"                                               << std::endl ;
+  *tbmstream << "   <RUN_NUMBER>1</RUN_NUMBER>"                                                           << std::endl ;
+  *tbmstream << "   <RUN_BEGIN_TIMESTAMP>" << PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>"   << std::endl ;
+  *tbmstream << "   <INITIATED_BY_USER>Umesh Joshi</INITIATED_BY_USER> "                                  << std::endl ;
+  *tbmstream << "   <LOCATION>CERN</LOCATION> "                                                           << std::endl ;
+  *tbmstream << "   <COMMENT_DESCRIPTION>TBM Analog Levels</COMMENT_DESCRIPTION>"                         << std::endl ;
+  *tbmstream << "  </RUN>"                                                                                << std::endl ;
+  *tbmstream << " </HEADER>"                                                                              << std::endl ;
+  *tbmstream << ""                                                                                        << std::endl ;
+  *tbmstream << "  <DATA_SET>"                                                                            << std::endl ;
+  *tbmstream << "   <VERSION>" << version << "</VERSION>"                                                 << std::endl ;
+  *tbmstream << "   "                                                                                     << std::endl ;
+  *tbmstream << "   <PART>"                                                                               << std::endl ;
+  *tbmstream << "    <SERIAL_NUMBER>CMS-PIXEL-ROOT</SERIAL_NUMBER>"     				  << std::endl ;
+  *tbmstream << "    <KIND_OF_PART>Detector ROOT</KIND_OF_PART>"        				  << std::endl ;
+  *tbmstream << "   </PART>"                                                                              << std::endl ;
 
 }
 
@@ -1275,108 +1279,108 @@ void PixelFEDCard::writeXMLHeader(pos::PixelConfigKey key, int version, std::str
   std::stringstream fullPath ;
 
   fullPath << path << "/fedcard_" << PixelTimeFormatter::getmSecTime() << ".xml" ;
-  std::cout << mthn << "Writing to: " << fullPath.str()  << "" << std::endl ;
+  std::cout << __LINE__ << "]\t" << mthn << "Writing to: " << fullPath.str()  << ""               	  << std::endl ;
 
   out->open(fullPath.str().c_str()) ;
   
-  *out << "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"                               << std::endl ;
-  *out << "<ROOT>"                                                                                << std::endl ; 
-  *out << ""                                                                                      << std::endl ; 
-  *out << " <HEADER>"                                                                             << std::endl ; 
-  *out << "  <TYPE>"                                                                              << std::endl ; 
-  *out << "   <EXTENSION_TABLE_NAME>FED_CONFIGURATION</EXTENSION_TABLE_NAME>"                     << std::endl ; 
-  *out << "   <NAME>Pixel FED Configuration</NAME>"                                               << std::endl ; 
-  *out << "  </TYPE>"                                                                             << std::endl ; 
-  *out << "  <RUN>"                                                                               << std::endl ; 
-  *out << "   <RUN_TYPE>Pixel FED Configuration</RUN_TYPE>"                                       << std::endl ; 
-  *out << "   <RUN_NUMBER>1</RUN_NUMBER>"                                                         << std::endl ; 
-  *out << "   <RUN_BEGIN_TIMESTAMP>" << PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>" << std::endl ; 
-  *out << "   <COMMENT_DESCRIPTION>Pixel FED Configuration</COMMENT_DESCRIPTION>"                 << std::endl ; 
-  *out << "   <LOCATION>CERN TAC</LOCATION>"                                                      << std::endl ; 
-  *out << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"                               << std::endl ; 
-  *out << "  </RUN>"                                                                              << std::endl ; 
-  *out << " </HEADER>"                                                                            << std::endl ; 
-  *out << ""                                                                                      << std::endl ; 
-  *out << " <DATA_SET>"                                                                           << std::endl ;
-  *out << ""                                                                                      << std::endl ;
-  *out << "  <VERSION>" << version << "</VERSION>"                                                << std::endl ;
-  *out << "  <COMMENT_DESCRIPTION>Pixel FED Configuration</COMMENT_DESCRIPTION>"                  << std::endl ;
-  *out << ""                                                                                      << std::endl ;
-  *out << "  <PART>"                                                                              << std::endl ;
-  *out << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"                                            << std::endl ;      
-  *out << "   <KIND_OF_PART>Detector ROOT</KIND_OF_PART>"                                         << std::endl ;         
-  *out << "  </PART>"                                                                             << std::endl ;
+  *out << "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"                               	  << std::endl ;
+  *out << "<ROOT>"                                                                                 	  << std::endl ;
+  *out << ""                                                                                       	  << std::endl ;
+  *out << " <HEADER>"                                                                              	  << std::endl ;
+  *out << "  <TYPE>"                                                                               	  << std::endl ;
+  *out << "   <EXTENSION_TABLE_NAME>FED_CONFIGURATION</EXTENSION_TABLE_NAME>"                      	  << std::endl ;
+  *out << "   <NAME>Pixel FED Configuration</NAME>"                                                	  << std::endl ;
+  *out << "  </TYPE>"                                                                              	  << std::endl ;
+  *out << "  <RUN>"                                                                                	  << std::endl ;
+  *out << "   <RUN_TYPE>Pixel FED Configuration</RUN_TYPE>"                                        	  << std::endl ;
+  *out << "   <RUN_NUMBER>1</RUN_NUMBER>"                                                          	  << std::endl ;
+  *out << "   <RUN_BEGIN_TIMESTAMP>" << PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>"  	  << std::endl ;
+  *out << "   <COMMENT_DESCRIPTION>Pixel FED Configuration</COMMENT_DESCRIPTION>"                  	  << std::endl ;
+  *out << "   <LOCATION>CERN TAC</LOCATION>"                                                       	  << std::endl ;
+  *out << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"                                	  << std::endl ;
+  *out << "  </RUN>"                                                                               	  << std::endl ;
+  *out << " </HEADER>"                                                                             	  << std::endl ;
+  *out << ""                                                                                       	  << std::endl ;
+  *out << " <DATA_SET>"                                                                           	  << std::endl ;
+  *out << ""                                                                                      	  << std::endl ;
+  *out << "  <VERSION>" << version << "</VERSION>"                                                	  << std::endl ;
+  *out << "  <COMMENT_DESCRIPTION>Pixel FED Configuration</COMMENT_DESCRIPTION>"                  	  << std::endl ;
+  *out << ""                                                                                      	  << std::endl ;
+  *out << "  <PART>"                                                                              	  << std::endl ;
+  *out << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"                                            	  << std::endl ;
+  *out << "   <KIND_OF_PART>Detector ROOT</KIND_OF_PART>"                                         	  << std::endl ; 
+  *out << "  </PART>"                                                                             	  << std::endl ;
 }
 //=============================================================================================
 void PixelFEDCard::writeXML( std::ofstream *out) const {
   std::string mthn = "[PixelFEDCard::writeXML()]\t\t\t    " ;
 
-  *out << "  <DATA>"                                                                              << std::endl ;
-  *out << " "                                                                                     << std::endl ;
-  *out << "   <PXLFED_NAME>PxlFED_" << fedNumber<< "</PXLFED_NAME>"                               << std::endl ;
-  *out << "   <VME_ADDRESS>268435456</VME_ADDRESS>"                                             << std::endl ;
-//  *out << "   <CRATE_NUMBER>1</CRATE_NUMBER>"                                                   << std::endl ;
-//  *out << "   <SLOT_NUMBER>5</SLOT_NUMBER>      "                                               << std::endl ;
-//  *out << "   <VME_ADDRESS>268435456</VME_ADDRESS>"                                             << std::endl ;
-//  *out << "   <CRATE_LABEL>S1G03e</CRATE_LABEL>"                                                << std::endl ;
-  *out << ""                                                                                      << std::endl ;
-  *out << "   <CHANNEL_ID>1</CHANNEL_ID>"                                                         << std::endl ;
-  *out << "   <NUMBER_OF_ROCS>21</NUMBER_OF_ROCS>"                                                << std::endl ;
-  *out << "   <CHANNEL_OFFSET_DAC_SETTINGS>0</CHANNEL_OFFSET_DAC_SETTINGS>"                       << std::endl ;
-  *out << "   <CHANNEL_DELAY_SETTINGS>3</CHANNEL_DELAY_SETTINGS>"                                 << std::endl ;
-  *out << "   <CHANNEL_BLACK_HIGH>400</CHANNEL_BLACK_HIGH>"                                       << std::endl ;
-  *out << "   <CHANNEL_BLACK_LOW>150</CHANNEL_BLACK_LOW>"                                         << std::endl ;
-  *out << "   <CHANNEL_ULTRA_BLACK>120</CHANNEL_ULTRA_BLACK>"                                     << std::endl ;
-  *out << ""                                                                                      << std::endl ;
-  *out << "   <OPT1_CAP>0</OPT1_CAP>"                                                             << std::endl ;
-  *out << "   <OPT2_CAP>0</OPT2_CAP>"                                                             << std::endl ;
-  *out << "   <OPT3_CAP>0</OPT3_CAP>"                                                             << std::endl ;
-  *out << "   <OPT1_INP>0</OPT1_INP>"                                                             << std::endl ;
-  *out << "   <OPT2_INP>0</OPT2_INP>"                                                             << std::endl ;
-  *out << "   <OPT3_INP>0</OPT3_INP>"                                                             << std::endl ;
-  *out << "   <OPT1_OUT>0</OPT1_OUT>"                                                             << std::endl ;
-  *out << "   <OPT2_OUT>0</OPT2_OUT>"                                                             << std::endl ;
-  *out << "   <OPT3_OUT>0</OPT3_OUT>"                                                             << std::endl ;
-  *out << "   <NORTH_CLKPHB>511</NORTH_CLKPHB>"                                                   << std::endl ;
-  *out << "   <NORTHCENTER_CLKPHB>511</NORTHCENTER_CLKPHB>"                                       << std::endl ;
-  *out << "   <SOUTHCENTER_CLKPHB>511</SOUTHCENTER_CLKPHB>"                                       << std::endl ;
-  *out << "   <SOUTH_CLKPHB>511</SOUTH_CLKPHB>"                                                   << std::endl ;
-  *out << "   <NORTH_CTRL>0</NORTH_CTRL> "                                                        << std::endl ;
-  *out << "   <NORTHCENTER_CTRL>0</NORTHCENTER_CTRL>"                                             << std::endl ;
-  *out << "   <SOUTHCENTER_CTRL>0</SOUTHCENTER_CTRL>"                                             << std::endl ;
-  *out << "   <SOUTH_CTRL>0</SOUTH_CTRL>"                                                         << std::endl ;
-  *out << "   <REG1_TTCRX_FDLA>5</REG1_TTCRX_FDLA>"                                               << std::endl ;
-  *out << "   <REG2_TTCRX_CDLA>0</REG2_TTCRX_CDLA>"                                               << std::endl ;
-  *out << "   <REG3_TTCRX_CLKD2>155</REG3_TTCRX_CLKD2>"                                           << std::endl ;
-  *out << "   <CENTER_CTRL>0</CENTER_CTRL>"                                                       << std::endl ;
-  *out << "   <CENTER_MODE>0</CENTER_MODE>"                                                       << std::endl ;
-  *out << "   <B1_ADCGN>0</B1_ADCGN>"                                                             << std::endl ;
-  *out << "   <B2_ADCGN>0</B2_ADCGN>"                                                             << std::endl ;
-  *out << "   <B3_ADCGN>0</B3_ADCGN>"                                                             << std::endl ;
-  *out << "   <B4_ADCGN>0</B4_ADCGN>"                                                             << std::endl ;
-  *out << "   <NORTH_BADJ>330</NORTH_BADJ>"                                                       << std::endl ;
-  *out << "   <NORTHCENTER_BADJ>330</NORTHCENTER_BADJ>"                                           << std::endl ;
-  *out << "   <SOUTHCENTER_BADJ>330</SOUTHCENTER_BADJ>"                                           << std::endl ;
-  *out << "   <SOUTH_BADJ>330</SOUTH_BADJ>"                                                       << std::endl ;
-  *out << "   <NORTH_TBMMASK>2</NORTH_TBMMASK>"                                                   << std::endl ;
-  *out << "   <NORTHCENTER_TBMMASK>2</NORTHCENTER_TBMMASK>"                                       << std::endl ;
-  *out << "   <SOUTHCENTER_TBMMASK>2</SOUTHCENTER_TBMMASK>"                                       << std::endl ;
-  *out << "   <SOUTH_TBMMASK>2</SOUTH_TBMMASK>"                                                   << std::endl ;
-  *out << "   <NORTH_PWORD>177</NORTH_PWORD>"                                                     << std::endl ;
-  *out << "   <NORTHCENTER_PWORD>178</NORTHCENTER_PWORD>"                                         << std::endl ;
-  *out << "   <SOUTHCENTER_PWORD>179</SOUTHCENTER_PWORD>"                                         << std::endl ;
-  *out << "   <SOUTH_PWORD>180</SOUTH_PWORD>"                                                     << std::endl ;
-  *out << "   <SPECDAC>0</SPECDAC>"                                                               << std::endl ;
-  *out << "   <OOS_LVL>0</OOS_LVL>"                                                               << std::endl ;
-  *out << "   <ERR_LVL>0</ERR_LVL>"                                                               << std::endl ;
-  *out << "   <NORTH_FIFO1_BZ_LVL>900</NORTH_FIFO1_BZ_LVL>"                                       << std::endl ;
-  *out << "   <NORTHCENTER_FIFO1_BZ_LVL>900</NORTHCENTER_FIFO1_BZ_LVL>"                           << std::endl ;
-  *out << "   <SOUTHCENTER_FIFO1_BZ_LVL>900</SOUTHCENTER_FIFO1_BZ_LVL>"                           << std::endl ;
-  *out << "   <SOUTH_FIFO1_BZ_LVL>900</SOUTH_FIFO1_BZ_LVL>"                                       << std::endl ;
-  *out << "   <FIFO3_WRN_LVL>7680</FIFO3_WRN_LVL> "                                               << std::endl ;
-  *out << " "                                                                                     << std::endl ;
-  *out << "  </DATA>"                                                                             << std::endl ;
-  *out << " "                                                                                     << std::endl ;
+  *out << "  <DATA>"                                                                              	  << std::endl ;
+  *out << " "                                                                                     	  << std::endl ;
+  *out << "   <PXLFED_NAME>PxlFED_" << fedNumber<< "</PXLFED_NAME>"                               	  << std::endl ;
+  *out << "   <VME_ADDRESS>268435456</VME_ADDRESS>"                                               	  << std::endl ;
+//  *out << "   <CRATE_NUMBER>1</CRATE_NUMBER>"                                                   	  << std::endl ;
+//  *out << "   <SLOT_NUMBER>5</SLOT_NUMBER>      "                                               	  << std::endl ;
+//  *out << "   <VME_ADDRESS>268435456</VME_ADDRESS>"                                             	  << std::endl ;
+//  *out << "   <CRATE_LABEL>S1G03e</CRATE_LABEL>"                                                	  << std::endl ;
+  *out << ""                                                                                      	  << std::endl ;
+  *out << "   <CHANNEL_ID>1</CHANNEL_ID>"                                                         	  << std::endl ;
+  *out << "   <NUMBER_OF_ROCS>21</NUMBER_OF_ROCS>"                                                	  << std::endl ;
+  *out << "   <CHANNEL_OFFSET_DAC_SETTINGS>0</CHANNEL_OFFSET_DAC_SETTINGS>"                       	  << std::endl ;
+  *out << "   <CHANNEL_DELAY_SETTINGS>3</CHANNEL_DELAY_SETTINGS>"                                 	  << std::endl ;
+  *out << "   <CHANNEL_BLACK_HIGH>400</CHANNEL_BLACK_HIGH>"                                       	  << std::endl ;
+  *out << "   <CHANNEL_BLACK_LOW>150</CHANNEL_BLACK_LOW>"                                         	  << std::endl ;
+  *out << "   <CHANNEL_ULTRA_BLACK>120</CHANNEL_ULTRA_BLACK>"                                     	  << std::endl ;
+  *out << ""                                                                                      	  << std::endl ;
+  *out << "   <OPT1_CAP>0</OPT1_CAP>"                                                             	  << std::endl ;
+  *out << "   <OPT2_CAP>0</OPT2_CAP>"                                                             	  << std::endl ;
+  *out << "   <OPT3_CAP>0</OPT3_CAP>"                                                             	  << std::endl ;
+  *out << "   <OPT1_INP>0</OPT1_INP>"                                                             	  << std::endl ;
+  *out << "   <OPT2_INP>0</OPT2_INP>"                                                             	  << std::endl ;
+  *out << "   <OPT3_INP>0</OPT3_INP>"                                                             	  << std::endl ;
+  *out << "   <OPT1_OUT>0</OPT1_OUT>"                                                             	  << std::endl ;
+  *out << "   <OPT2_OUT>0</OPT2_OUT>"                                                             	  << std::endl ;
+  *out << "   <OPT3_OUT>0</OPT3_OUT>"                                                             	  << std::endl ;
+  *out << "   <NORTH_CLKPHB>511</NORTH_CLKPHB>"                                                   	  << std::endl ;
+  *out << "   <NORTHCENTER_CLKPHB>511</NORTHCENTER_CLKPHB>"                                       	  << std::endl ;
+  *out << "   <SOUTHCENTER_CLKPHB>511</SOUTHCENTER_CLKPHB>"                                       	  << std::endl ;
+  *out << "   <SOUTH_CLKPHB>511</SOUTH_CLKPHB>"                                                   	  << std::endl ;
+  *out << "   <NORTH_CTRL>0</NORTH_CTRL> "                                                        	  << std::endl ;
+  *out << "   <NORTHCENTER_CTRL>0</NORTHCENTER_CTRL>"                                             	  << std::endl ;
+  *out << "   <SOUTHCENTER_CTRL>0</SOUTHCENTER_CTRL>"                                             	  << std::endl ;
+  *out << "   <SOUTH_CTRL>0</SOUTH_CTRL>"                                                         	  << std::endl ;
+  *out << "   <REG1_TTCRX_FDLA>5</REG1_TTCRX_FDLA>"                                               	  << std::endl ;
+  *out << "   <REG2_TTCRX_CDLA>0</REG2_TTCRX_CDLA>"                                               	  << std::endl ;
+  *out << "   <REG3_TTCRX_CLKD2>155</REG3_TTCRX_CLKD2>"                                           	  << std::endl ;
+  *out << "   <CENTER_CTRL>0</CENTER_CTRL>"                                                       	  << std::endl ;
+  *out << "   <CENTER_MODE>0</CENTER_MODE>"                                                       	  << std::endl ;
+  *out << "   <B1_ADCGN>0</B1_ADCGN>"                                                             	  << std::endl ;
+  *out << "   <B2_ADCGN>0</B2_ADCGN>"                                                             	  << std::endl ;
+  *out << "   <B3_ADCGN>0</B3_ADCGN>"                                                             	  << std::endl ;
+  *out << "   <B4_ADCGN>0</B4_ADCGN>"                                                             	  << std::endl ;
+  *out << "   <NORTH_BADJ>330</NORTH_BADJ>"                                                       	  << std::endl ;
+  *out << "   <NORTHCENTER_BADJ>330</NORTHCENTER_BADJ>"                                           	  << std::endl ;
+  *out << "   <SOUTHCENTER_BADJ>330</SOUTHCENTER_BADJ>"                                           	  << std::endl ;
+  *out << "   <SOUTH_BADJ>330</SOUTH_BADJ>"                                                       	  << std::endl ;
+  *out << "   <NORTH_TBMMASK>2</NORTH_TBMMASK>"                                                   	  << std::endl ;
+  *out << "   <NORTHCENTER_TBMMASK>2</NORTHCENTER_TBMMASK>"                                       	  << std::endl ;
+  *out << "   <SOUTHCENTER_TBMMASK>2</SOUTHCENTER_TBMMASK>"                                       	  << std::endl ;
+  *out << "   <SOUTH_TBMMASK>2</SOUTH_TBMMASK>"                                                   	  << std::endl ;
+  *out << "   <NORTH_PWORD>177</NORTH_PWORD>"                                                     	  << std::endl ;
+  *out << "   <NORTHCENTER_PWORD>178</NORTHCENTER_PWORD>"                                         	  << std::endl ;
+  *out << "   <SOUTHCENTER_PWORD>179</SOUTHCENTER_PWORD>"                                         	  << std::endl ;
+  *out << "   <SOUTH_PWORD>180</SOUTH_PWORD>"                                                     	  << std::endl ;
+  *out << "   <SPECDAC>0</SPECDAC>"                                                               	  << std::endl ;
+  *out << "   <OOS_LVL>0</OOS_LVL>"                                                               	  << std::endl ;
+  *out << "   <ERR_LVL>0</ERR_LVL>"                                                               	  << std::endl ;
+  *out << "   <NORTH_FIFO1_BZ_LVL>900</NORTH_FIFO1_BZ_LVL>"                                       	  << std::endl ;
+  *out << "   <NORTHCENTER_FIFO1_BZ_LVL>900</NORTHCENTER_FIFO1_BZ_LVL>"                           	  << std::endl ;
+  *out << "   <SOUTHCENTER_FIFO1_BZ_LVL>900</SOUTHCENTER_FIFO1_BZ_LVL>"                           	  << std::endl ;
+  *out << "   <SOUTH_FIFO1_BZ_LVL>900</SOUTH_FIFO1_BZ_LVL>"                                       	  << std::endl ;
+  *out << "   <FIFO3_WRN_LVL>7680</FIFO3_WRN_LVL> "                                               	  << std::endl ;
+  *out << " "                                                                                     	  << std::endl ;
+  *out << "  </DATA>"                                                                             	  << std::endl ;
+  *out << " "                                                                                     	  << std::endl ;
 }
 
 //=============================================================================================
@@ -1504,21 +1508,21 @@ void PixelFEDCard::writeXMLTrailer(std::ofstream *fedstream,
   *fedstream << "</ROOT>"                   							     	    << std::endl ;
   
   fedstream->close() ;
-  std::cout << mthn << "Data written for main fed"						     	    << std::endl ;
+  std::cout << __LINE__ << "]\t" << mthn << "Data written for main fed"				            << std::endl ;
 
   // ROC LVLS
   *rocstream << " </DATA_SET>"              							     	    << std::endl ;
   *rocstream << "</ROOT>"                   							     	    << std::endl ;
   
   rocstream->close() ;
-  std::cout << mthn << "Data written for roc analog levels"					     	    << std::endl ;
+  std::cout << __LINE__ << "]\t" << mthn << "Data written for roc analog levels"			    << std::endl ;
 
   // TBM LVLS
   *tbmstream << " </DATA_SET>"              							     	    << std::endl ;
   *tbmstream << "</ROOT>"                   							     	    << std::endl ;
   
   tbmstream->close() ;
-  std::cout << mthn << "Data written for tbm analog levels"					     	    << std::endl ;
+  std::cout << __LINE__ << "]\t" << mthn << "Data written for tbm analog levels"			    << std::endl ;
 }
 
 //=============================================================================================
@@ -1529,7 +1533,7 @@ void PixelFEDCard::writeXMLTrailer(std::ofstream *out) const {
   *out << "</ROOT>"										     	    << std::endl ;
 
   out->close() ;
-  std::cout << mthn << "Data written"								     	    << std::endl ;
+  std::cout << __LINE__ << "]\t" << mthn << "Data written"						    << std::endl ;
 }
 
 //=============================================================================================
@@ -1538,7 +1542,7 @@ void PixelFEDCard::writeXML(pos::PixelConfigKey key, int version, std::string pa
   std::stringstream fullPath ;
 
   fullPath << path << "/fedcard.xml" ;
-  std::cout << mthn << "Writing to: |" << fullPath.str()  << "|" << std::endl ;
+  std::cout << __LINE__ << "]\t" << mthn << "Writing to: |" << fullPath.str()  << "|"            << std::endl ;
 
   std::ofstream out(fullPath.str().c_str()) ;
 
@@ -1687,7 +1691,7 @@ void PixelFEDCard::writeXML(pos::PixelConfigKey key, int version, std::string pa
 
   out.close() ;
 */  
-  std::cout << mthn << "Data written"                                                            << std::endl ;
+  std::cout << __LINE__ << "]\t" << mthn << "Data written"                                       << std::endl ;
 }
 
 //=============================================================================================

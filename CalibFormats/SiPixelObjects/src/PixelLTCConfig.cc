@@ -14,6 +14,7 @@ using namespace std;
 
 PixelLTCConfig::PixelLTCConfig(vector< vector<string> > &tableMat):PixelConfigBase(" ", " ", " ")
 {
+  std::string mthn = "[PixelLTCConfig::PixelLTCConfig()]\t\t\t    " ;
   std::map<std::string , int > colM;
   std::vector<std::string > colNames;
   /**
@@ -51,7 +52,7 @@ PixelLTCConfig::PixelLTCConfig(vector< vector<string> > &tableMat):PixelConfigBa
     {
       if(colM.find(colNames[n]) == colM.end())
 	{
-	  std::cerr << "[PixelLTCConfig::PixelLTCConfig()]\tCouldn't find in the database the column with name " << colNames[n] << std::endl;
+	  std::cerr << __LINE__ << "]\t" << mthn << "Couldn't find in the database the column with name " << colNames[n] << std::endl;
 	  assert(0);
 	}
     }
@@ -62,14 +63,15 @@ PixelLTCConfig::PixelLTCConfig(vector< vector<string> > &tableMat):PixelConfigBa
 PixelLTCConfig::PixelLTCConfig(std::string filename):
   PixelConfigBase(" "," "," "){
 
+    std::string mthn = "[PixelLTCConfig::PixelLTCConfig()]\t\t\t    " ;
     std::ifstream in(filename.c_str());
 
     if (!in.good()){
-	std::cout << "Could not open:"<<filename<<std::endl;
+	std::cout << __LINE__ << "]\t" << mthn << "Could not open: " << filename << std::endl;
 	assert(0);
     }
     else {
-	std::cout << "Opened:"<<filename<<std::endl;
+	std::cout << __LINE__ << "]\t" << mthn << "Opened: "         << filename << std::endl;
     }
 
     //ltcConfigPath_ = filename;
@@ -112,7 +114,7 @@ void PixelLTCConfig::writeXMLHeader(pos::PixelConfigKey key,
   writeASCII(path) ;
 
   maskFullPath << path << "/Pixel_LtcParameters_" << PixelTimeFormatter::getmSecTime() << ".xml";
-  std::cout << mthn << "Writing to: " << maskFullPath.str() << std::endl ;
+  std::cout << __LINE__ << "]\t" << mthn << "Writing to: " << maskFullPath.str() << std::endl ;
 
   outstream->open(maskFullPath.str().c_str()) ;
   
@@ -168,7 +170,7 @@ void PixelLTCConfig::writeXMLTrailer(std::ofstream *outstream,
   *outstream << "</ROOT>"  		 								  << std::endl ;
   
   outstream->close() ;
-  std::cout << mthn << "Data written "   								  << std::endl ;
+  std::cout << __LINE__ << "]\t" << mthn << "Data written "   						  << std::endl ;
 
 }
 

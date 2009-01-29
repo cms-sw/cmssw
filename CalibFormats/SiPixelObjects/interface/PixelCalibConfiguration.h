@@ -10,6 +10,7 @@
 #include <set>
 #include <map>
 #include <string>
+#include <sstream>
 #include <utility>
 #include "CalibFormats/SiPixelObjects/interface/PixelCalibBase.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelNameTranslation.h"

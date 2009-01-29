@@ -21,7 +21,8 @@ PixelDelay25Calib::PixelDelay25Calib(vector< vector<string> > &tableMat) :
   PixelCalibBase(),
   PixelConfigBase("","","")
 {
-  std::cout<<"PixelDelay25Calib::PixelDelay25Calib"<<std::endl;
+  std::string mthn = "[PixelDelay25Calib::PixelDelay25Calib()]\t\t\t    " ;
+  std::cout << __LINE__ << "]\t" << mthn << std::endl;
   std::map<std::string , int > colM;
   std::vector<std::string > colNames;
   /**
@@ -140,16 +141,16 @@ PixelDelay25Calib::PixelDelay25Calib(std::string filename) :
   PixelCalibBase(),
   PixelConfigBase("","",""){
 
-  //std::cout<<"PixelDelay25Calib::PixelDelay25Calib"<<std::endl;
+  std::string mthn = "[PixelDelay25Calib::PixelDelay25Calib()]\t\t\t    ";
   
   std::ifstream in(filename.c_str());
   
   if(!in.good()){
-    std::cout<<"Could not open: "<<filename<<std::endl;
+    std::cout << __LINE__ << "]\t" << mthn << "Could not open: " << filename << std::endl;
     assert(0);
   }
   else {
-    std::cout<<"Opened: "<<filename<<std::endl;
+    std::cout << __LINE__ << "]\t" << mthn << "Opened: " << filename << std::endl;
   }
 
   //Read initial SDa and RDa values, ranges,
@@ -162,7 +163,7 @@ PixelDelay25Calib::PixelDelay25Calib(std::string filename) :
   assert(tmp=="Mode:");
   in >> mode_;
 
-  //cout << "[PixelDelay25Calib::PixelDelay25Calib]:mode_="<<mode_<<endl;
+  //cout << __LINE__ << "]\t" << mthn  << "mode_="<<mode_<<endl;
 
   in >> tmp;
 
@@ -319,7 +320,7 @@ void PixelDelay25Calib::writeXMLHeader(pos::PixelConfigKey key,
   writeASCII(path) ;
 
   maskFullPath << path << "/PixelCalib_Test_" << PixelTimeFormatter::getmSecTime() << ".xml";
-  std::cout << mthn << "Writing to: " << maskFullPath.str() << std::endl ;
+  std::cout  << __LINE__ << "]\t" << mthn << "Writing to: " << maskFullPath.str() << std::endl ;
 
   outstream->open(maskFullPath.str().c_str()) ;
   
@@ -381,7 +382,7 @@ void PixelDelay25Calib::writeXMLTrailer(std::ofstream *outstream,
   *outstream << "</ROOT>"  		 								  << std::endl ;
   
   outstream->close() ;
-  std::cout << mthn << "Data written "   								  << std::endl ;
+  std::cout  << __LINE__ << "]\t" << mthn << "Data written "   						  << std::endl ;
 
 }
 

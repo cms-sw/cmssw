@@ -102,21 +102,22 @@ PixelLowVoltageMap::PixelLowVoltageMap(std::vector< std::vector < std::string> >
 PixelLowVoltageMap::PixelLowVoltageMap(std::string filename):
   PixelConfigBase("","",""){
   
-
+  std::string mthn = "[PixelLowVoltageMap::PixelLowVoltageMap()]\t\t\t    " ;
+  
   if (filename[filename.size()-1]=='t'){
     
     std::ifstream in(filename.c_str());
     
     if (!in.good()){
-      std::cout << "Could not open:"<<filename<<std::endl;
+      std::cout << __LINE__ << "]\t" << mthn << "Could not open: " << filename << std::endl;
       assert(0);
     }
     else {
-      std::cout << "Opened:"<<filename<<std::endl;
+      std::cout << __LINE__ << "]\t" << mthn << "Opened: "         << filename << std::endl;
     }
     
     if (in.eof()){
-      std::cout << "eof before reading anything!"<<std::endl;
+      std::cout << __LINE__ << "]\t" << mthn << "eof before reading anything!" << std::endl;
       ::abort();
     }
 
@@ -131,7 +132,7 @@ PixelLowVoltageMap::PixelLowVoltageMap(std::string filename):
     in >> modulename >> dpNameBase >> ianaChannel >> idigiChannel;
     
     while (!in.eof()){
-      cout << "Read modulename:"<<modulename<<endl;
+      cout << __LINE__ << "]\t" << mthn << "Read modulename: " << modulename << endl;
       PixelModuleName module(modulename);
       pair<string, string> channels(ianaChannel,idigiChannel);
       pair<string, pair<string,string> > dpName(dpNameBase,channels);
@@ -147,12 +148,12 @@ PixelLowVoltageMap::PixelLowVoltageMap(std::string filename):
 
 std::string PixelLowVoltageMap::dpNameIana(const PixelModuleName& module) const{
 
+  std::string mthn = "[PixelLowVoltageMap::dpNameIana()]\t\t\t    " ;
   std::map<PixelModuleName, pair< string, pair<string, string> > >::const_iterator i=
     dpNameMap_.find(module);
   
   if (i==dpNameMap_.end()) {
-    cout << "PixelLowVoltageMap::dpName: Could not find module:"<<module
-	 << endl;
+    cout << __LINE__ << "]\t" << mthn << "Could not find module: " << module << endl;
   }
   
   return i->second.first+"/"+i->second.second.first;
@@ -161,12 +162,12 @@ std::string PixelLowVoltageMap::dpNameIana(const PixelModuleName& module) const{
 
 std::string PixelLowVoltageMap::dpNameIdigi(const PixelModuleName& module) const{
 
+  std::string mthn = "[PixelLowVoltageMap::dpNameIdigi()]\t\t\t    " ;
   std::map<PixelModuleName, pair< string, pair<string, string> > >::const_iterator i=
     dpNameMap_.find(module);
   
   if (i==dpNameMap_.end()) {
-    cout << "PixelLowVoltageMap::dpName: Could not find module:"<<module
-	 << endl;
+    cout << __LINE__ << "]\t" << mthn << "Could not find module: " << module << endl;
   }
 
   return i->second.first+"/"+i->second.second.second;
@@ -176,12 +177,13 @@ std::string PixelLowVoltageMap::dpNameIdigi(const PixelModuleName& module) const
 
 void PixelLowVoltageMap::writeASCII(std::string dir) const {
 
+  std::string mthn = "[PixelLowVoltageMap::writeASCII()]\t\t\t    " ;
   if (dir!="") dir+="/";
   std::string filename=dir+"lowvoltagemap.dat";
 
   std::ofstream out(filename.c_str(), std::ios_base::out) ;
   if(!out) {
-    std::cout << "[PixelLowVoltageMap::writeASCII()] Could not open file " << filename << " for write" << std::endl ;
+    std::cout << __LINE__ << "]\t" << mthn << "Could not open file " << filename << " for write" << std::endl ;
     exit(1);
   }
   std::map<PixelModuleName, pair< string, pair<string, string> > >::const_iterator imodule=
@@ -211,7 +213,7 @@ void PixelLowVoltageMap::writeXMLHeader(pos::PixelConfigKey key,
   std::stringstream maskFullPath ;
 
   maskFullPath << path << "/XDAQLowVoltageMap_Test_" << PixelTimeFormatter::getmSecTime() << ".xml";
-  std::cout << mthn << "Writing to: " << maskFullPath.str() << std::endl ;
+  std::cout << __LINE__ << "]\t" << mthn << "Writing to: " << maskFullPath.str() << std::endl ;
 
   outstream->open(maskFullPath.str().c_str()) ;
   
@@ -276,7 +278,7 @@ void PixelLowVoltageMap::writeXMLTrailer(std::ofstream *outstream,
   *outstream << "</ROOT>"  		 								  << std::endl ;
   
   outstream->close() ;
-  std::cout << mthn << "Data written "   								  << std::endl ;
+  std::cout << __LINE__ << "]\t" << mthn << "Data written "   						  << std::endl ;
 
 }
 

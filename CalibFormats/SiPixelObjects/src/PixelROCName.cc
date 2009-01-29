@@ -30,31 +30,32 @@ PixelROCName::PixelROCName(std::string rocname)
 void PixelROCName::setIdFPix(char np, char LR,int disk,
 			 int blade, int panel, int plaquet, int roc){
 
+    std::string mthn = "[PixelROCName::setIdFPix()]\t\t\t\t    " ;
     id_=0;
 
-    //std::cout<<"PixelROCName::setId subdet:"<<subdet<<std::endl; 
-    //std::cout<<"PixelROCName::setId np:"<<np<<std::endl; 
-    //std::cout<<"PixelROCName::setId LR:"<<LR<<std::endl; 
-    //std::cout<<"PixelROCName::setId disk:"<<disk<<std::endl; 
+    //std::cout << __LINE__ << "]\t" << mthn << "subdet: " << subdet << std::endl; 
+    //std::cout << __LINE__ << "]\t" << mthn << "np    : " << np     << std::endl;
+    //std::cout << __LINE__ << "]\t" << mthn << "LR    : " << LR     << std::endl;
+    //std::cout << __LINE__ << "]\t" << mthn << "disk  : " << disk   << std::endl;
 
     
     assert(roc>=0&&roc<10);
 
     if (np=='p') id_=(id_|0x40000000);
-    //std::cout<<"PixelROCName::setId 2 id_="<<std::hex<<id_<<std::dec<<std::endl; 
+    //std::cout<< __LINE__ << "]\t" << mthn <<"2 id_="<<std::hex<<id_<<std::dec<<std::endl; 
     if (LR=='I') id_=(id_|0x20000000);
-    //std::cout<<"PixelROCName::setId 3 id_="<<std::hex<<id_<<std::dec<<std::endl; 
+    //std::cout<< __LINE__ << "]\t" << mthn <<"3 id_="<<std::hex<<id_<<std::dec<<std::endl; 
     id_=(id_|(disk<<12));
-    //std::cout<<"PixelROCName::setId 4 id_="<<std::hex<<id_<<std::dec<<std::endl; 
+    //std::cout<< __LINE__ << "]\t" << mthn <<"4 id_="<<std::hex<<id_<<std::dec<<std::endl; 
     id_=(id_|(blade<<7));
-    //std::cout<<"PixelROCName::setId 5 id_="<<std::hex<<id_<<std::dec<<std::endl; 
+    //std::cout<< __LINE__ << "]\t" << mthn <<"5 id_="<<std::hex<<id_<<std::dec<<std::endl; 
     id_=(id_|((panel-1)<<6));
-    //std::cout<<"PixelROCName::setId 6 id_="<<std::hex<<id_<<std::dec<<std::endl; 
+    //std::cout<< __LINE__ << "]\t" << mthn <<"6 id_="<<std::hex<<id_<<std::dec<<std::endl; 
     id_=(id_|((plaquet-1)<<4));
-    //std::cout<<"PixelROCName::setId 7 id_="<<std::hex<<id_<<std::dec<<std::endl; 
+    //std::cout<< __LINE__ << "]\t" << mthn <<"7 id_="<<std::hex<<id_<<std::dec<<std::endl; 
     id_=(id_|roc);
 
-    //std::cout<<"PixelROCName::setIdFPix final id_="<<std::hex<<id_<<std::dec<<std::endl; 
+    //std::cout<< __LINE__ << "]\t" << mthn <<"final id_="<<std::hex<<id_<<std::dec<<std::endl; 
 
 }
 
@@ -65,10 +66,10 @@ void PixelROCName::setIdBPix(char np, char LR,int sec,
 
     id_=0;
 
-    //std::cout<<"PixelROCName::setIdBPix ladder:"<<ladder<<std::endl; 
-    //std::cout<<"PixelROCName::setId np:"<<np<<std::endl; 
-    //std::cout<<"PixelROCName::setId LR:"<<LR<<std::endl; 
-    //std::cout<<"PixelROCName::setId disk:"<<disk<<std::endl; 
+    //std::cout<< __LINE__ << "]\t" << mthn <<"BPix ladder:"<<ladder<<std::endl; 
+    //std::cout<< __LINE__ << "]\t" << mthn <<"np  : " << np   << std::endl; 
+    //std::cout<< __LINE__ << "]\t" << mthn <<"LR  : " << LR   << std::endl; 
+    //std::cout<< __LINE__ << "]\t" << mthn <<"disk: " << disk << std::endl; 
 
     
     assert(roc>=0&&roc<16);
@@ -76,31 +77,32 @@ void PixelROCName::setIdBPix(char np, char LR,int sec,
     id_=0x80000000;
 
     if (np=='p') id_=(id_|0x40000000);
-    //std::cout<<"PixelROCName::setId 2 id_="<<std::hex<<id_<<std::dec<<std::endl; 
+    //std::cout<< __LINE__ << "]\t" << mthn <<"2 id_="<<std::hex<<id_<<std::dec<<std::endl; 
     if (LR=='I') id_=(id_|0x20000000);
-    //std::cout<<"PixelROCName::setId 3 id_="<<std::hex<<id_<<std::dec<<std::endl; 
+    //std::cout<< __LINE__ << "]\t" << mthn <<"3 id_="<<std::hex<<id_<<std::dec<<std::endl; 
     id_=(id_|((sec-1)<<14));
-    //std::cout<<"PixelROCName::setId 4 id_="<<std::hex<<id_<<std::dec<<std::endl; 
+    //std::cout<< __LINE__ << "]\t" << mthn <<"4 id_="<<std::hex<<id_<<std::dec<<std::endl; 
     if (HF=='F') id_=(id_|0x00000800);
 
     id_=(id_|(layer<<12));
-    //std::cout<<"PixelROCName::setId 5 id_="<<std::hex<<id_<<std::dec<<std::endl; 
+    //std::cout<< __LINE__ << "]\t" << mthn <<"5 id_="<<std::hex<<id_<<std::dec<<std::endl; 
     id_=(id_|(ladder<<6));
-    //std::cout<<"PixelROCName::setId 6 id_="<<std::hex<<id_<<std::dec<<std::endl; 
+    //std::cout<< __LINE__ << "]\t" << mthn <<"6 id_="<<std::hex<<id_<<std::dec<<std::endl; 
     id_=(id_|((module-1)<<4));
-    //std::cout<<"PixelROCName::setId 7 id_="<<std::hex<<id_<<std::dec<<std::endl; 
+    //std::cout<< __LINE__ << "]\t" << mthn <<"7 id_="<<std::hex<<id_<<std::dec<<std::endl; 
     id_=(id_|roc);
 
-    //std::cout<<"PixelROCName::setIdBPix final id_="<<std::hex<<id_<<std::dec<<std::endl; 
+    //std::cout<< __LINE__ << "]\t" << mthn <<"final id_="<<std::hex<<id_<<std::dec<<std::endl; 
 
 }
 
 
 void PixelROCName::check(bool check, const string& name){
 
+  std::string mthn = "[PixelROCName::check()]\t\t\t\t    " ;
   if (check) return;
 
-  cout << "[PixelROCName::check()]\t\t\t\t    ERROR tried to parse string:'"<<name;
+  cout << __LINE__ << "]\t" << mthn << "ERROR tried to parse string:'"<<name;
   cout << "' as a ROC name. Will terminate."<<endl;
 
   ::abort();

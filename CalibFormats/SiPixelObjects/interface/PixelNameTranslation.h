@@ -61,6 +61,9 @@ namespace pos{
     
     const bool PixelNameTranslation::checkFor(const PixelROCName& aROC) const ; 
 
+    // Added for Debbie (used there only) to allow integrity checks (Dario)
+    bool PixelNameTranslation::checkROCExistence(const PixelROCName& aROC) const ;
+ 
     const PixelChannel& getChannelForROC(const PixelROCName& aROC) const;
     std::set< PixelChannel > getChannelsOnModule(const PixelModuleName& aModule) const;
     

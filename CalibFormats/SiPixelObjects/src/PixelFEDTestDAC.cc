@@ -11,6 +11,7 @@ using namespace pos;
 
 PixelFEDTestDAC::PixelFEDTestDAC(std::vector<std::vector<std::string> > & tableMat ){
 
+  std::string mthn = "[PixelFEDTestDAC::PixelFEDTestDAC()]\t\t\t    " ;
   const unsigned long int UB=200;
   const unsigned long int B=500;
   const unsigned long int offset=0;
@@ -61,7 +62,7 @@ PixelFEDTestDAC::PixelFEDTestDAC(std::vector<std::vector<std::string> > & tableM
     {
       if(colM.find(colNames[n]) == colM.end())
 	{
-	  std::cerr << "[PixelMaxVsf::PixelMaxVsf()]\tCouldn't find in the database the column with name " << colNames[n] << std::endl;
+	  std::cerr << __LINE__ << "]\t" << mthn << "Couldn't find in the database the column with name " << colNames[n] << std::endl;
 	  assert(0);
 	}
     }
@@ -90,8 +91,8 @@ PixelFEDTestDAC::PixelFEDTestDAC(std::vector<std::vector<std::string> > & tableM
 		
       if (line.find("TBMHeader")!=npos)
 	{
-	  loc1=line.find("("); if (loc1==npos) {cout<<"'(' not found after TBMHeader.\n"; break;}
-	  loc2=line.find(")", loc1+1); if (loc2==npos) {cout<<"')' not found after TBMHeader.\n"; break;}
+	  loc1=line.find("(");         if (loc1==npos) {cout<< __LINE__ << "]\t" << mthn << "'(' not found after TBMHeader.\n"; break;}
+	  loc2=line.find(")", loc1+1); if (loc2==npos) {cout<< __LINE__ << "]\t" << mthn << "')' not found after TBMHeader.\n"; break;}
 	  int TBMHeader=atoi(line.substr(loc1+1,loc2-loc1-1).c_str());
 	  
 	  pulseTrain[i]=UB;++i;
@@ -108,8 +109,8 @@ PixelFEDTestDAC::PixelFEDTestDAC(std::vector<std::vector<std::string> > & tableM
 	}
       else if (line.find("ROCHeader")!=std::string::npos)
 	{
-	  loc1=line.find("("); if (loc1==npos) {cout<<"'(' not found after ROCHeader.\n"; break;}
-	  loc2=line.find(")", loc1+1); if (loc2==npos) {cout<<"')' not found after ROCHeader.\n"; break;}
+	  loc1=line.find("(");         if (loc1==npos) {cout<< __LINE__ << "]\t" << mthn << "'(' not found after ROCHeader.\n"; break;}
+	  loc2=line.find(")", loc1+1); if (loc2==npos) {cout<< __LINE__ << "]\t" << mthn << "')' not found after ROCHeader.\n"; break;}
 	  int LastDAC=atoi(line.substr(loc1+1,loc2-loc1-1).c_str());
 
           std::cout<<"--------------"<<std::endl;
@@ -120,10 +121,10 @@ PixelFEDTestDAC::PixelFEDTestDAC(std::vector<std::vector<std::string> > & tableM
 	}
       else if (line.find("PixelHit")!=std::string::npos) {
 
-	loc1=line.find("("); if (loc1==npos) {cout<<"'(' not found after PixelHit.\n"; break;}
-	loc2=line.find(",", loc1+1); if (loc2==npos) {cout<<"',' not found after the first argument of PixelHit.\n"; break;}
-	loc3=line.find(",", loc2+1); if (loc3==npos) {cout<<"'.' not found after the second argument of PixelHit.\n"; break;}
-	loc4=line.find(")", loc3+1); if (loc4==npos) {cout<<"')' not found after the third argument of PixelHit.\n"; break;}
+	loc1=line.find("(");         if (loc1==npos) {cout<< __LINE__ << "]\t" << mthn << "'(' not found after PixelHit.\n";                        break;}
+	loc2=line.find(",", loc1+1); if (loc2==npos) {cout<< __LINE__ << "]\t" << mthn << "',' not found after the first argument of PixelHit.\n";  break;}
+	loc3=line.find(",", loc2+1); if (loc3==npos) {cout<< __LINE__ << "]\t" << mthn << "'.' not found after the second argument of PixelHit.\n"; break;}
+	loc4=line.find(")", loc3+1); if (loc4==npos) {cout<< __LINE__ << "]\t" << mthn << "')' not found after the third argument of PixelHit.\n";  break;}
 	int column=atoi(line.substr(loc1+1, loc2-loc1-1).c_str());
 	int row=atoi(line.substr(loc2+1, loc3-loc2-1).c_str());
 	int charge=atoi(line.substr(loc3+1, loc4-loc3-1).c_str());
@@ -145,8 +146,8 @@ PixelFEDTestDAC::PixelFEDTestDAC(std::vector<std::vector<std::string> > & tableM
       }
       else if (line.find("TBMTrailer")!=std::string::npos)
 	{
-	  loc1=line.find("("); if (loc1==npos) {cout<<"'(' not found after TBMTrailer.\n"; break;}
-	  loc2=line.find(")", loc1+1); if (loc2==npos) {cout<<"')' not found after TBMTrailer.\n"; break;}
+	  loc1=line.find("(");         if (loc1==npos) {cout<< __LINE__ << "]\t" << mthn <<"'(' not found after TBMTrailer.\n"; break;}
+	  loc2=line.find(")", loc1+1); if (loc2==npos) {cout<< __LINE__ << "]\t" << mthn <<"')' not found after TBMTrailer.\n"; break;}
 	  int TBMTrailer=atoi(line.substr(loc1+1,loc2-loc1-1).c_str());
 	  
 	  pulseTrain[i]=UB;++i;
@@ -168,6 +169,7 @@ PixelFEDTestDAC::PixelFEDTestDAC(std::vector<std::vector<std::string> > & tableM
 
 PixelFEDTestDAC::PixelFEDTestDAC(std::string filename){
 
+  std::string mthn = "[PixelFEDTestDAC::PixelFEDTestDAC()]\t\t\t\t    " ;
   const unsigned long int UB=200;
   const unsigned long int B=500;
   const unsigned long int offset=0;
@@ -200,8 +202,8 @@ PixelFEDTestDAC::PixelFEDTestDAC(std::string filename){
 		
       if (line.find("TBMHeader")!=npos)
 	{
-	  loc1=line.find("("); if (loc1==npos) {cout<<"'(' not found after TBMHeader.\n"; break;}
-	  loc2=line.find(")", loc1+1); if (loc2==npos) {cout<<"')' not found after TBMHeader.\n"; break;}
+	  loc1=line.find("(");         if (loc1==npos) {cout<< __LINE__ << "]\t" << mthn << "'(' not found after TBMHeader.\n"; break;}
+	  loc2=line.find(")", loc1+1); if (loc2==npos) {cout<< __LINE__ << "]\t" << mthn << "')' not found after TBMHeader.\n"; break;}
 	  int TBMHeader=atoi(line.substr(loc1+1,loc2-loc1-1).c_str());
 	  
 	  pulseTrain[i]=UB;++i;
@@ -218,8 +220,8 @@ PixelFEDTestDAC::PixelFEDTestDAC(std::string filename){
 	}
       else if (line.find("ROCHeader")!=std::string::npos)
 	{
-	  loc1=line.find("("); if (loc1==npos) {cout<<"'(' not found after ROCHeader.\n"; break;}
-	  loc2=line.find(")", loc1+1); if (loc2==npos) {cout<<"')' not found after ROCHeader.\n"; break;}
+	  loc1=line.find("(");         if (loc1==npos) {cout<< __LINE__ << "]\t" << mthn << "'(' not found after ROCHeader.\n"; break;}
+	  loc2=line.find(")", loc1+1); if (loc2==npos) {cout<< __LINE__ << "]\t" << mthn << "')' not found after ROCHeader.\n"; break;}
 	  int LastDAC=atoi(line.substr(loc1+1,loc2-loc1-1).c_str());
 
           std::cout<<"--------------"<<std::endl;
@@ -230,10 +232,10 @@ PixelFEDTestDAC::PixelFEDTestDAC(std::string filename){
 	}
       else if (line.find("PixelHit")!=std::string::npos) {
 
-	loc1=line.find("("); if (loc1==npos) {cout<<"'(' not found after PixelHit.\n"; break;}
-	loc2=line.find(",", loc1+1); if (loc2==npos) {cout<<"',' not found after the first argument of PixelHit.\n"; break;}
-	loc3=line.find(",", loc2+1); if (loc3==npos) {cout<<"'.' not found after the second argument of PixelHit.\n"; break;}
-	loc4=line.find(")", loc3+1); if (loc4==npos) {cout<<"')' not found after the third argument of PixelHit.\n"; break;}
+	loc1=line.find("(");         if (loc1==npos) {cout<< __LINE__ << "]\t" << mthn <<"'(' not found after PixelHit.\n";                        break;}
+	loc2=line.find(",", loc1+1); if (loc2==npos) {cout<< __LINE__ << "]\t" << mthn <<"',' not found after the first argument of PixelHit.\n";  break;}
+	loc3=line.find(",", loc2+1); if (loc3==npos) {cout<< __LINE__ << "]\t" << mthn <<"'.' not found after the second argument of PixelHit.\n"; break;}
+	loc4=line.find(")", loc3+1); if (loc4==npos) {cout<< __LINE__ << "]\t" << mthn <<"')' not found after the third argument of PixelHit.\n";  break;}
 	int column=atoi(line.substr(loc1+1, loc2-loc1-1).c_str());
 	int row=atoi(line.substr(loc2+1, loc3-loc2-1).c_str());
 	int charge=atoi(line.substr(loc3+1, loc4-loc3-1).c_str());
@@ -255,8 +257,8 @@ PixelFEDTestDAC::PixelFEDTestDAC(std::string filename){
       }
       else if (line.find("TBMTrailer")!=std::string::npos)
 	{
-	  loc1=line.find("("); if (loc1==npos) {cout<<"'(' not found after TBMTrailer.\n"; break;}
-	  loc2=line.find(")", loc1+1); if (loc2==npos) {cout<<"')' not found after TBMTrailer.\n"; break;}
+	  loc1=line.find("(");         if (loc1==npos) {cout<< __LINE__ << "]\t" << mthn <<"'(' not found after TBMTrailer.\n"; break;}
+	  loc2=line.find(")", loc1+1); if (loc2==npos) {cout<< __LINE__ << "]\t" << mthn <<"')' not found after TBMTrailer.\n"; break;}
 	  int TBMTrailer=atoi(line.substr(loc1+1,loc2-loc1-1).c_str());
 	  
 	  pulseTrain[i]=UB;++i;
@@ -328,7 +330,7 @@ void PixelFEDTestDAC::writeXMLHeader(pos::PixelConfigKey key,
 //  writeASCII(path) ;
 
   maskFullPath << path << "/PixelCalib_Test_" << PixelTimeFormatter::getmSecTime() << ".xml";
-  std::cout << mthn << "Writing to: " << maskFullPath.str() << std::endl ;
+  std::cout << __LINE__ << "]\t" << mthn << "Writing to: " << maskFullPath.str() << std::endl ;
 
   outstream->open(maskFullPath.str().c_str()) ;
   
@@ -389,6 +391,6 @@ void PixelFEDTestDAC::writeXMLTrailer(std::ofstream *outstream,
   *outstream << "</ROOT>"  		 								  << std::endl ;
   
   outstream->close() ;
-  std::cout << mthn << "Data written "   								  << std::endl ;
+  std::cout << __LINE__ << "]\t" << mthn << "Data written "   						  << std::endl ;
 
 }

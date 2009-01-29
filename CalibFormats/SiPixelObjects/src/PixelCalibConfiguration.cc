@@ -79,11 +79,11 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::vector< std::vector<std::s
   
   if (tmp=="Mode:"){
     in >> mode_;
-    std::cout << mthn << "mode="<<mode_<< std::endl;
+    std::cout << __LINE__ << "]\t" << mthn << "mode=" << mode_ << std::endl;
     in >>tmp;
   } else {
     mode_="FEDChannelOffsetPixel";
-    std::cout << mthn << "mode not set, is this an old file? "
+    std::cout << __LINE__ << "]\t" << mthn << "mode not set, is this an old file? "
 	      << std::endl;
     assert(0);
   }
@@ -305,11 +305,11 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
     std::ifstream in(filename.c_str());
 
     if (!in.good()){
-	std::cout << mthn << "Could not open:"<<filename<<std::endl;
+	std::cout << __LINE__ << "]\t" << mthn << "Could not open:"<<filename<<std::endl;
 	assert(0);
     }
     else {
-	std::cout << mthn << "Opened:"<<filename<<std::endl;
+	std::cout << __LINE__ << "]\t" << mthn << "Opened:"<<filename<<std::endl;
     }
 
     std::string tmp;
@@ -318,12 +318,12 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
 
     if (tmp=="Mode:"){
       in >> mode_;
-      std::cout << mthn << "PixelCalibConfiguration mode="<<mode_<< std::endl;
+      std::cout << __LINE__ << "]\t" << mthn << "PixelCalibConfiguration mode="<<mode_<< std::endl;
       in >>tmp;
     } else {
       mode_="FEDChannelOffsetPixel";
-      std::cout << mthn << "PixelCalibCOnfiguration mode not set, is this an old file? "
-		<< std::endl;
+      std::cout << __LINE__ << "]\t" << mthn << "PixelCalibConfiguration mode not set, is this an old file? "
+		<< __LINE__ << "]\t" << std::endl;
       assert(0);
     }
 
@@ -539,7 +539,7 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
      std::string tmpString ;
      getline (inTmp, tmpString);
      calibFileContent_ += tmpString + "\n";
-     //cout << "[PixelCalibConfiguration::~PixelCalibConfiguration()]\t\t" << calibFileContent_ << endl ;
+     //cout << __LINE__ << "]\t" << "[PixelCalibConfiguration::~PixelCalibConfiguration()]\t\t" << calibFileContent_ << endl ;
     }
     inTmp.close() ;
     // End of temporary patch
@@ -547,7 +547,6 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
     return;
 
 }
-
 
 PixelCalibConfiguration::~PixelCalibConfiguration(){}
 
@@ -664,6 +663,7 @@ void PixelCalibConfiguration::buildROCAndModuleListsFromROCSet(const std::set<Pi
 {
 	assert( !rocAndModuleListsBuilt_ );
 	
+        std::string mthn = "[PixelCalibConfiguration::buildROCAndModuleListsFromROCSet()]    " ;
 	// Build the ROC list from the ROC set.
 	for (std::set<PixelROCName>::iterator rocSet_itr = rocSet.begin(); rocSet_itr != rocSet.end(); rocSet_itr++ )
 	{
@@ -703,7 +703,7 @@ void PixelCalibConfiguration::buildROCAndModuleListsFromROCSet(const std::set<Pi
       }
 		nROC_=maxROCs;
 
-		std::cout << "Max ROCs on a module="<<nROC_<<std::endl;
+		std::cout << __LINE__ << "]\t" << mthn << "Max ROCs on a module="<<nROC_<<std::endl;
 	}
 	
 	for(unsigned int irocs=0;irocs<rocs_.size();irocs++){
@@ -759,7 +759,7 @@ unsigned int PixelCalibConfiguration::iScan(std::string dac) const{
     if (dac==dacs_[i].name()) return i;
   }
 
-  std::cout << "In PixelCalibConfiguration::iScan could not find dac="
+  std::cout << __LINE__ << "]\t[PixelCalibConfiguration::iScan()]\t\t    could not find dac="
             << dac <<std::endl; 
 
   assert(0);
@@ -871,6 +871,7 @@ void PixelCalibConfiguration::nextFECState(std::map<unsigned int, PixelFECConfig
 
 					   unsigned int state) const {
 
+  std::string mthn = "[PixelCalibConfiguration::nextFECState()]\t\t    " ;
   std::string modeName=parameterValue("ScanMode");
 
   int mode=-1;
@@ -882,13 +883,13 @@ void PixelCalibConfiguration::nextFECState(std::map<unsigned int, PixelFECConfig
   static bool first=true;
 
   if (first) {
-    cout << "PixelCalibConfiguration::nextFECState mode="<<mode<<endl;
+    cout << __LINE__ << "]\t" << mthn << "mode="<<mode<<endl;
     first=false;
   }
   
   if (mode==-1) {
-    cout << "In PixelCalibConfiguration: ScanMode="<<modeName
-	 << " not understood."<<endl;
+    cout << __LINE__ << "]\t" << mthn << "ScanMode=" << modeName
+	 << " not understood."<< endl;
     ::abort();
   }
 
@@ -1573,10 +1574,10 @@ void PixelCalibConfiguration::writeASCII(std::string dir) const {
   for (unsigned int i=0;i<rocListInstructions_.size();i++){
     out << rocListInstructions_[i] <<endl;
     if (rocListInstructions_[i]=="+"||rocListInstructions_[i]=="-"){
-      cout << " ";
+      out << " ";
     }
     else {
-      cout << endl;
+      out << endl;
     }
   }  
 
@@ -1640,7 +1641,7 @@ void PixelCalibConfiguration::writeXMLHeader(pos::PixelConfigKey key,
   writeASCII(path) ;
 
   maskFullPath << path << "/PixelCalib_Test_" << PixelTimeFormatter::getmSecTime() << ".xml";
-  std::cout << mthn << "Writing to: " << maskFullPath.str() << std::endl ;
+  std::cout << __LINE__ << "]\t" << mthn << "Writing to: " << maskFullPath.str() << std::endl ;
 
   outstream->open(maskFullPath.str().c_str()) ;
   
@@ -1702,7 +1703,7 @@ void PixelCalibConfiguration::writeXMLTrailer(std::ofstream *outstream,
   *outstream << "</ROOT>"  		 								  << std::endl ;
   
   outstream->close() ;
-  std::cout << mthn << "Data written "   								  << std::endl ;
+  std::cout << __LINE__ << "]\t" << mthn << "Data written "   						  << std::endl ;
 
 }
 

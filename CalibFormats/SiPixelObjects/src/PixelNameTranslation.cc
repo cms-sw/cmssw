@@ -19,6 +19,7 @@ using namespace std;
 
 
 PixelNameTranslation::PixelNameTranslation(std::vector< std::vector<std::string> > &tableMat):PixelConfigBase(" "," "," "){
+  std::string mthn = "[PixelNameTranslation::PixelNameTranslation()]\t\t    " ;
   std::map<std::string , int > colM;
   std::vector<std::string > colNames;
 
@@ -70,7 +71,7 @@ PixelNameTranslation::PixelNameTranslation(std::vector< std::vector<std::string>
   }//end for
   for(unsigned int n=0; n<colNames.size(); n++){
     if(colM.find(colNames[n]) == colM.end()){
-      std::cerr << "[PixelNameTranslation::PixelNameTranslation()]\tCouldn't find in the database the column with name " << colNames[n] << std::endl;
+      std::cerr << __LINE__ << "]\t" << mthn << "Couldn't find in the database the column with name " << colNames[n] << std::endl;
       assert(0);
     }
   }
@@ -108,18 +109,19 @@ PixelNameTranslation::PixelNameTranslation(std::vector< std::vector<std::string>
 	
    PixelROCName aROC(rocname);
    if (aROC.rocname()!=rocname){
-     std::cout << "[PixelNameTranslation::PixelNameTranslation()]\tRocname:"<<rocname<<std::endl;
-     std::cout << "[PixelNameTranslation::PixelNameTranslation()]\tParsed to:"<<aROC.rocname()<<std::endl;
+     std::cout << __LINE__ << "]\t" << mthn << "Rocname  : " << rocname        << std::endl;
+     std::cout << __LINE__ << "]\t" << mthn << "Parsed to: " << aROC.rocname() << std::endl;
      assert(0);
    }
 
    if (ROCNameFromFEDChannelROCExists(fednumber,fedchannel,
 				      fedrocnumber)){
-     std::cout << "ROC with fednumber="<<fednumber
-	       << " fedchannel="<<fedchannel
-	       << " roc number="<<fedrocnumber
-	       << " already exists"<<std::endl;
-     std::cout << "Fix this inconsistency in the name translation"
+     std::cout << __LINE__ << "]\t" << mthn 
+               << "ROC with fednumber=" << fednumber
+	       << " fedchannel="	<< fedchannel
+	       << " roc number="	<< fedrocnumber
+	       << " already exists"     << std::endl;
+     std::cout << __LINE__ << "]\t" << mthn << "Fix this inconsistency in the name translation"
 	       << std::endl;
      assert(0);
    }
@@ -168,14 +170,15 @@ PixelNameTranslation::PixelNameTranslation(std::vector< std::vector<std::string>
 PixelNameTranslation::PixelNameTranslation(std::string filename):
   PixelConfigBase(" "," "," "){
 
+  std::string mthn = "[PixelNameTranslation::PixelNameTranslation()]\t\t    " ;
   std::ifstream in(filename.c_str());
   
   if (!in.good()){
-    std::cout << "[PixelNameTranslation::PixelNameTranslation()]\t\t    Could not open: " << filename <<std::endl;
+    std::cout << __LINE__ << "]\t" << mthn << "Could not open: " << filename << std::endl;
     assert(0);
   }
   else {
-    std::cout << "[PixelNameTranslation::PixelNameTranslation()]\t\t    Reading from: "   << filename <<std::endl;
+    std::cout << __LINE__ << "]\t" << mthn << "Reading from: "   << filename << std::endl;
   }
   
   std::string dummy;
@@ -214,19 +217,21 @@ PixelNameTranslation::PixelNameTranslation(std::string filename):
     if (!in.eof() ){
       PixelROCName aROC(rocname);
       if (aROC.rocname()!=rocname){
-	std::cout << "[PixelNameTranslation::PixelNameTranslation()]\t\t    Rocname  : "<<rocname<<std::endl;
-	std::cout << "[PixelNameTranslation::PixelNameTranslation()]\t\t    Parsed to: "<<aROC.rocname()<<std::endl;
+	std::cout << __LINE__ << "]\t" << mthn << "Rocname  : " << rocname        << std::endl;
+	std::cout << __LINE__ << "]\t" << mthn << "Parsed to: " << aROC.rocname() << std::endl;
 	assert(0);
       }
 
       
       if (ROCNameFromFEDChannelROCExists(fednumber,fedchannel,
 					 fedrocnumber)){
-	std::cout << "ROC with fednumber="<<fednumber
-		  << " fedchannel="<<fedchannel
-		  << " roc number="<<fedrocnumber
-		  << " already exists"<<std::endl;
-	std::cout << "Fix this inconsistency in the name translation"
+	std::cout << __LINE__ << "]\t"     << mthn 
+	          << "ROC with fednumber=" << fednumber
+		  << " fedchannel="	   << fedchannel
+		  << " roc number="	   << fedrocnumber
+		  << " already exists"     << std::endl;
+	std::cout << __LINE__ << "]\t"     << mthn 
+	          << "Fix this inconsistency in the name translation"
 		  << std::endl;
 	assert(0);
 	
@@ -277,9 +282,9 @@ PixelNameTranslation::PixelNameTranslation(std::string filename):
 	if ( channelTranslationTable_itr->first == aChannel ) {
 	  if (!(channelTranslationTable_itr->second |= hdwAdd)){
 		
-	    cout << "Found two ROCs on the same channe, but not same hdw"<<endl;
-	    cout << "Hdw1:"<<endl<<channelTranslationTable_itr->second<<endl;
-	    cout << "Hdw2:"<<endl<<hdwAdd<<endl;
+	    cout << __LINE__ << "]\t" << mthn << "Found two ROCs on the same channe, but not same hdw" << endl;
+	    cout << __LINE__ << "]\t" << mthn << "Hdw1: " << endl << channelTranslationTable_itr->second << endl;
+	    cout << __LINE__ << "]\t" << mthn << "Hdw2: " << endl << hdwAdd << endl;
 	  }
 	  assert( channelTranslationTable_itr->second |= hdwAdd );
 	  foundChannel = true;
@@ -363,13 +368,22 @@ std::set<PixelChannel> PixelNameTranslation::getChannels(const PixelDetectorConf
 
 const PixelHdwAddress* PixelNameTranslation::getHdwAddress(const PixelROCName& aROC) const{
 
+  std::string mthn = "[PixelNameTranslation::getHdwAddress()]\t\t    " ;
   if (translationtable_.find(aROC)==translationtable_.end()){
-    std::cout<<"Could not look up ROC:"<<aROC<<std::endl;
+    std::cout<< __LINE__ << "]\t" << mthn << "Could not look up ROC: " << aROC << std::endl;
     assert(0);
   }
     
   return &(translationtable_.find(aROC))->second;
 
+}
+
+// Added for Debbie (used there only) to allow integrity checks (Dario)
+bool PixelNameTranslation::checkROCExistence(const PixelROCName& aROC) const{
+
+  std::string mthn = "[PixelNameTranslation::checkROCExistence()]\t\t    " ;
+  if (translationtable_.find(aROC)==translationtable_.end()) return false ;
+  return true ;
 }
 
 const bool PixelNameTranslation::checkFor(const PixelROCName& aROC) const{ 
@@ -392,10 +406,11 @@ const PixelHdwAddress& PixelNameTranslation::getHdwAddress(const PixelChannel& a
 
 const PixelHdwAddress& PixelNameTranslation::firstHdwAddress(const PixelModuleName& aModule) const
 {
+        std::string mthn = "[PixelNameTranslation::firstHdwAddress()]\t\t    " ;
 	std::set<PixelChannel> channelsOnModule = getChannelsOnModule(aModule);
 	if (channelsOnModule.size() == 0 ){
-	  cout << "[PixelNameTranslation::firstHdwAddress] module="<<aModule<<" has zero channels!"<<endl;
-	  cout << "Will terminate" <<endl;
+	  cout << __LINE__ << "]\t" << mthn << "module=" << aModule << " has zero channels!" << endl;
+	  cout << __LINE__ << "]\t" << mthn << "Will terminate" << endl;
 	  ::abort();
 	}
 	std::set<PixelChannel>::const_iterator firstChannel = channelsOnModule.begin();
@@ -477,6 +492,7 @@ PixelROCName PixelNameTranslation::ROCNameFromFEDChannelROC(unsigned int fednumb
 							    unsigned int roc) const {
 
 
+  std::string mthn = "[PixelNameTranslation::ROCNameFromFEDChannelROC()]\t\t    " ;
   PixelHdwAddress tmp(0,0,0,0,0,0,fednumber,channel,roc);
 
   std::map<PixelHdwAddress,PixelROCName,PixelHdwAddress>::const_iterator it1=fedlookup_.find(tmp);
@@ -485,8 +501,8 @@ PixelROCName PixelNameTranslation::ROCNameFromFEDChannelROC(unsigned int fednumb
     return it1->second;
   }
 
-  std::cout << "PixelNameTranslation::ROCNameFromFEDChannelROC: could not find ROCName "
-	    << " for FED#" << fednumber <<" chan=" << channel << " roc#=" << roc << std::endl;
+  std::cout << __LINE__ << "]\t" << mthn << "could not find ROCName "
+	    << " for FED#" << fednumber << " chan=" << channel << " roc#=" << roc << std::endl;
 
   assert(0);
 
@@ -498,6 +514,7 @@ PixelROCName PixelNameTranslation::ROCNameFromFEDChannelROC(unsigned int fednumb
 
 PixelChannel PixelNameTranslation::ChannelFromFEDChannel(unsigned int fednumber, unsigned int fedchannel) const
 {
+        std::string mthn = "[PixelNameTranslation::ChannelFromFEDChannel()]\t\t    " ;
 	std::map<PixelChannel,PixelHdwAddress>::const_iterator toReturn;
 	bool foundOne = false;
 	for(std::map<PixelChannel,PixelHdwAddress>::const_iterator it=channelTranslationTable_.begin(); it!=channelTranslationTable_.end();it++)
@@ -506,7 +523,8 @@ PixelChannel PixelNameTranslation::ChannelFromFEDChannel(unsigned int fednumber,
 		{
 			if ( foundOne )
 			{
-				std::cout << "ERROR: multiple channels on FED#" << fednumber <<", chan=" << fedchannel << std::endl;
+				std::cout << __LINE__ << "]\t" << mthn 
+				          << "ERROR: multiple channels on FED#" << fednumber << ", chan=" << fedchannel << std::endl;
 				assert(0);
 			}
 			else
@@ -519,7 +537,8 @@ PixelChannel PixelNameTranslation::ChannelFromFEDChannel(unsigned int fednumber,
 	
 	if ( !foundOne )
 	{
-		std::cout << "ERROR: no channel found for FED#" << fednumber <<", chan=" << fedchannel << std::endl;
+		std::cout << __LINE__ << "]\t" << mthn 
+		          << "ERROR: no channel found for FED#" << fednumber << ", chan=" << fedchannel << std::endl;
 		assert(0);
 	}
 	
@@ -528,6 +547,7 @@ PixelChannel PixelNameTranslation::ChannelFromFEDChannel(unsigned int fednumber,
 
 bool PixelNameTranslation::FEDChannelExist(unsigned int fednumber, unsigned int fedchannel) const
 {
+        std::string mthn = "[PixelNameTranslation::FEDChannelExist()]\t\t    " ;
 	std::map<PixelChannel,PixelHdwAddress>::const_iterator toReturn;
 	bool foundOne = false;
 	for(std::map<PixelChannel,PixelHdwAddress>::const_iterator it=channelTranslationTable_.begin(); it!=channelTranslationTable_.end();it++)
@@ -536,7 +556,8 @@ bool PixelNameTranslation::FEDChannelExist(unsigned int fednumber, unsigned int 
 		{
 			if ( foundOne )
 			{
-				std::cout << "ERROR: multiple channels on FED#" << fednumber <<", chan=" << fedchannel << std::endl;
+				std::cout << __LINE__ << "]\t" << mthn 
+				          << "ERROR: multiple channels on FED#" << fednumber << ", chan=" << fedchannel << std::endl;
 				assert(0);
 			}
 			else
@@ -552,6 +573,7 @@ bool PixelNameTranslation::FEDChannelExist(unsigned int fednumber, unsigned int 
 const PixelChannel& PixelNameTranslation::getChannelFromHdwAddress(const PixelHdwAddress& aHdwAddress) const
 {
 // modified by MR on 30-01-2008 10:38:22
+  std::string mthn = "[PixelNameTranslation::getChannelFromHdwAddress()]\t\t    " ;
   for ( std::map<PixelChannel, PixelHdwAddress >::const_iterator channelTranslationTable_itr = channelTranslationTable_.begin(); 
 	channelTranslationTable_itr != channelTranslationTable_.end(); channelTranslationTable_itr++ )
     {
@@ -562,12 +584,14 @@ const PixelChannel& PixelNameTranslation::getChannelFromHdwAddress(const PixelHd
     }
 // modified by MR on 30-01-2008 13:56:34
 // if you get here then there was NO match on the previous loop!!
-  std::cout << "[PixelNameTranslation::getChannelFromHdwAddress()]\tERROR: no channel found for hardware address " << aHdwAddress << std::endl;
+  std::cout << __LINE__ << "]\t" << mthn 
+            << "ERROR: no channel found for hardware address " << aHdwAddress << std::endl;
   assert(0);
 }
 
 void PixelNameTranslation::writeASCII(std::string dir) const {
 
+  std::string mthn = "[PixelNameTranslation::writeASCII()]\t\t\t    " ;
   if (dir!="") dir+="/";
   std::string filename=dir+"translation.dat";
 
@@ -621,7 +645,7 @@ void PixelNameTranslation::writeXMLHeader(pos::PixelConfigKey key,
   std::string mthn = "[PixelNameTranslation:::writeXMLHeader()]\t\t\t    " ;
   std::stringstream fullPath ;
   fullPath << path << "/Pixel_NameTranslation_" << PixelTimeFormatter::getmSecTime() << ".xml" ;
-  cout << mthn << "Writing to: " << fullPath.str() << endl ;
+  cout << __LINE__ << "]\t" << mthn << "Writing to: " << fullPath.str() << endl ;
   
   outstream->open(fullPath.str().c_str()) ;
   *outstream << "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"			 	     << endl ;
@@ -701,7 +725,7 @@ void PixelNameTranslation::writeXML(pos::PixelConfigKey key, int version, std::s
   std::stringstream fullPath ;
 
   fullPath << path << "/Pixel_NameTranslation.xml" ;
-  cout << mthn << "Writing to: |" << fullPath.str()  << "|" << endl ;
+  cout << __LINE__ << "]\t" << mthn << "Writing to: " << fullPath.str()  << endl ;
   
   std::ofstream out(fullPath.str().c_str()) ;
 

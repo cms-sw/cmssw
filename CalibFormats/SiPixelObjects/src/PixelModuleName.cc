@@ -30,24 +30,25 @@ PixelModuleName::PixelModuleName(string modulename)
 void PixelModuleName::setIdFPix(char np, char LR,int disk,
 			 int blade, int panel){
 
+    std::string mthn = "[PixelModuleName::setIdFPix()]\t\t\t    " ;
     id_=0;
 
-    //cout<<"PixelModuleName::setId subdet:"<<subdet<<endl; 
-    //cout<<"PixelModuleName::setId np:"<<np<<endl; 
-    //cout<<"PixelModuleName::setId LR:"<<LR<<endl; 
-    //cout<<"PixelModuleName::setId disk:"<<disk<<endl; 
+    //cout<< __LINE__ << "]\t" << mthn << "subdet: " << subdet <<endl; 
+    //cout<< __LINE__ << "]\t" << mthn << "np    : " << np     <<endl; 
+    //cout<< __LINE__ << "]\t" << mthn << "LR    : " << LR     <<endl; 
+    //cout<< __LINE__ << "]\t" << mthn << "disk  : " << disk   <<endl; 
 
     
     if (np=='p') id_=(id_|0x40000000);
-    //cout<<"PixelModuleName::setId 2 id_="<<hex<<id_<<dec<<endl; 
+    //cout<< __LINE__ << "]\t" << mthn <<"2 id_=" << hex << id_ << dec << endl;
     if (LR=='I') id_=(id_|0x20000000);
-    //cout<<"PixelModuleName::setId 3 id_="<<hex<<id_<<dec<<endl; 
+    //cout<< __LINE__ << "]\t" << mthn <<"3 id_=" << hex << id_ << dec << endl;
     id_=(id_|(disk<<8));
-    //cout<<"PixelModuleName::setId 4 id_="<<hex<<id_<<dec<<endl; 
+    //cout<< __LINE__ << "]\t" << mthn <<"4 id_=" << hex << id_ << dec << endl;
     id_=(id_|(blade<<3));
-    //cout<<"PixelModuleName::setId 5 id_="<<hex<<id_<<dec<<endl; 
+    //cout<< __LINE__ << "]\t" << mthn <<"5 id_=" << hex << id_ << dec << endl;
     id_=(id_|((panel-1)<<2));
-    //cout<<"PixelModuleName::setId 6 id_="<<hex<<id_<<dec<<endl; 
+    //cout<< __LINE__ << "]\t" << mthn <<"6 id_=" << hex << id_ << dec << endl;
 
 }
 
@@ -56,39 +57,41 @@ void PixelModuleName::setIdBPix(char np, char LR,int sec,
 			     int layer, int ladder, char HF,
 			     int module){
 
+    std::string mthn = "[PixelModuleName::setIdBPix()]\t\t\t    " ;
     id_=0;
 
-    //cout<<"PixelModuleName::setIdBPix ladder:"<<ladder<<endl; 
-    //cout<<"PixelModuleName::setId np:"<<np<<endl; 
-    //cout<<"PixelModuleName::setId LR:"<<LR<<endl; 
-    //cout<<"PixelModuleName::setId disk:"<<disk<<endl; 
+    //cout<< __LINE__ << "]\t" << mthn << "BPix ladder: " << ladder << endl;
+    //cout<< __LINE__ << "]\t" << mthn << "np         : " << np     << endl;
+    //cout<< __LINE__ << "]\t" << mthn << "LR         : " << LR     << endl;
+    //cout<< __LINE__ << "]\t" << mthn << "disk       : " << disk   << endl;
 
     
     id_=0x80000000;
 
     if (np=='p') id_=(id_|0x40000000);
-    //cout<<"PixelModuleName::setId 2 id_="<<hex<<id_<<dec<<endl; 
+    //cout<< __LINE__ << "]\t" << mthn <<"2 id_=" << hex << id_ << dec << endl;
     if (LR=='I') id_=(id_|0x20000000);
-    //cout<<"PixelModuleName::setId 3 id_="<<hex<<id_<<dec<<endl; 
+    //cout<< __LINE__ << "]\t" << mthn <<"3 id_=" << hex << id_ << dec << endl;
     id_=(id_|((sec-1)<<10));
-    //cout<<"PixelModuleName::setId 4 id_="<<hex<<id_<<dec<<endl; 
+    //cout<< __LINE__ << "]\t" << mthn <<"4 id_=" << hex << id_ << dec << endl;
     if (HF=='F') id_=(id_|0x00000080);
 
     id_=(id_|(layer<<8));
-    //cout<<"PixelModuleName::setId 5 id_="<<hex<<id_<<dec<<endl; 
+    //cout<< __LINE__ << "]\t" << mthn <<"5 id_=" << hex << id_ << dec << endl;
     id_=(id_|(ladder<<2));
-    //cout<<"PixelModuleName::setId 6 id_="<<hex<<id_<<dec<<endl; 
+    //cout<< __LINE__ << "]\t" << mthn <<"6 id_=" << hex << id_ << dec << endl;
     id_=(id_|((module-1)));
-    //cout<<"PixelModuleName::setId 7 id_="<<hex<<id_<<dec<<endl; 
+    //cout<< __LINE__ << "]\t" << mthn <<"7 id_=" << hex << id_ << dec << endl;
 
 }
 
 void PixelModuleName::check(bool check, const string& name){
 
+  std::string mthn = "[PixelModuleName::check()]\t\t\t    " ;
   if (check) return;
 
-  cout << "[PixelModuleName::check()]\t\t\t\t    ERROR tried to parse string:'"<<name;
-  cout << "' as a module name. Will terminate."<<endl;
+  cout << __LINE__ << "]\t" << mthn << "ERROR tried to parse string: '" << name ;
+  cout << "' as a module name. Will terminate." << endl;
 
   ::abort();
 

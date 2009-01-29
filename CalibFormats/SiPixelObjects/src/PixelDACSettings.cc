@@ -24,13 +24,14 @@ using namespace pos;
 PixelDACSettings::PixelDACSettings(std::string filename):
   PixelConfigBase("","",""){
 
-
+  std::string mthn = "[PixelDACSettings::PixelDACSettings()]\t\t\t    " ;
+  
   if (filename[filename.size()-1]=='t'){
 
     std::ifstream in(filename.c_str());
 
     if (!in.good()){
-      std::cout << "Could not open:"<<filename<<std::endl;
+      std::cout << __LINE__ << "]\t" << mthn << "Could not open: " << filename << std::endl;
       assert(0);
     }
     else {
@@ -72,11 +73,11 @@ PixelDACSettings::PixelDACSettings(std::string filename):
     std::ifstream in(filename.c_str(),std::ios::binary);
 
     if (!in.good()){
-      std::cout << "Could not open:"<<filename<<std::endl;
+      std::cout << __LINE__ << "]\t" << mthn << "Could not open: " << filename << std::endl;
       assert(0);
     }
     else {
-      std::cout << "Opened:"<<filename<<std::endl;
+      std::cout << __LINE__ << "]\t" << mthn << "Opened: "	   << filename << std::endl;
     }
 
     char nchar;
@@ -92,18 +93,18 @@ PixelDACSettings::PixelDACSettings(std::string filename):
       s1.push_back(c);
     }
 
-    //std::cout << "READ ROC name:"<<s1<<std::endl;
+    //std::cout << __LINE__ << "]\t" << mthn << "READ ROC name: " << s1 << std::endl;
 
     dacsettings_.clear();
 
 
     while (!in.eof()){
 
-      //std::cout << "PixelDACSettings::PixelDACSettings read s1:"<<s1<<std::endl;
+      //std::cout << __LINE__ << "]\t" << mthn << "read s1   : " << s1    << std::endl;
 
       PixelROCName rocid(s1);
 
-      //td::cout << "PixelDACSettings::PixelDACSettings read rocid:"<<rocid<<std::endl;
+      //std::cout << __LINE__ << "]\t" << mthn << "read rocid: " << rocid << std::endl;
 	    
       PixelROCDACSettings tmp;
       
@@ -135,7 +136,7 @@ PixelDACSettings::PixelDACSettings(std::string filename):
   }
 
 
-  //std::cout << "Read dac settings for "<<dacsettings_.size()<<" ROCs"<<std::endl;
+  //std::cout << __LINE__ << "]\t" << mthn << "Read dac settings for "<<dacsettings_.size()<<" ROCs"<<std::endl;
 
 
 }
@@ -387,10 +388,11 @@ void PixelDACSettings::writeBinary(std::string filename) const {
 
 void PixelDACSettings::writeASCII(std::string dir) const {
 
+  std::string mthn = "[PixelDACSettings::writeASCII()]\t\t\t    " ;
   PixelModuleName module(dacsettings_[0].getROCName().rocname());
 
   std::string filename=dir+"/ROC_DAC_module_"+module.modulename()+".dat";
-  std::cout << "[PixelDACSettings::writeASCII()] Writing to file " << filename << std::endl ; 
+  std::cout << __LINE__ << "]\t" << mthn << "Writing to file " << filename << std::endl ; 
   std::ofstream out(filename.c_str());
   
   for(unsigned int i=0;i<dacsettings_.size();i++){
@@ -410,7 +412,7 @@ void PixelDACSettings::writeXMLHeader(pos::PixelConfigKey key,
   std::stringstream fullPath ;
 
   fullPath << path << "/Pixel_RocDacSettings_" << PixelTimeFormatter::getmSecTime() << ".xml" ;
-  std::cout << mthn << "Writing to: |" << fullPath.str()  << "|" << std::endl ;
+  std::cout << __LINE__ << "]\t" << mthn << "Writing to: " << fullPath.str()  << std::endl ;
 
   outstream->open(fullPath.str().c_str()) ;
   
@@ -443,7 +445,7 @@ void PixelDACSettings::writeXMLHeader(pos::PixelConfigKey key,
   *outstream << "  </PART>"										<< std::endl ;
   *outstream << " "                                                                       		<< std::endl ;
 
-  std::cout << mthn << "Header written" << std::endl ;
+  std::cout << __LINE__ << "]\t" << mthn << "Header written" << std::endl ;
 }
 
 //=============================================================================================
@@ -467,7 +469,7 @@ void PixelDACSettings::writeXMLTrailer(std::ofstream *outstream,
   *outstream << "</ROOT>"                   							       << std::endl ;
 
   outstream->close() ;
-  std::cout << mthn << "Data written"       							       << std::endl ;
+  std::cout << __LINE__ << "]\t" << mthn << "Data written"       				       << std::endl ;
 }
 
 /* O B S O L E T E -----

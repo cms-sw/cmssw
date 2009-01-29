@@ -23,7 +23,7 @@ using namespace pos;
 //added by Umesh
 PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):PixelConfigBase(" "," "," ")
 {
-  string mthn = "[PixelPortCardConfig::PixelPortCardConfig()]\t\t    " ;
+  string mthn = "]\t[PixelPortCardConfig::PixelPortCardConfig()]\t\t    " ;
   map<string , int > colM;
   vector<string> colNames;
 
@@ -219,13 +219,13 @@ PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):
     {
       if(colM.find(colNames[n]) == colM.end())
 	{
-	  std::cerr << mthn << "\tCouldn't find in the database the column with name " << colNames[n] << std::endl;
+	  std::cerr << __LINE__ << mthn << "\tCouldn't find in the database the column with name " << colNames[n] << std::endl;
 	  assert(0);
 	}
     }
 
   portcardname_ = tableMat[1][colM["PORT_CARD"]] ;
-  cout << mthn << "Loading PortCard " << portcardname_ << endl ;
+//  cout << __LINE__ << mthn << "Loading PortCard " << portcardname_ << endl ;
   if(portcardname_.find("FPix") != std::string::npos)
     {
       type_ = "fpix" ;
@@ -243,11 +243,11 @@ PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):
   channelAddress_ = atoi(tableMat[1][colM["CHANNEL"]].c_str() ) ;
   i2cSpeed_       = atoi(tableMat[1][colM["I2C_SPEED"]].c_str()       ) ;
 
-  cout << mthn << 
-    "ringAddress_\t"    << ringAddress_	    << endl <<
-    "ccuAddress_\t"     << ccuAddress_	    << endl <<
-    "channelAddress_\t" << channelAddress_  << endl <<
-    "i2cSpeed_\t"	<< i2cSpeed_        << endl ;
+//  cout << __LINE__ << "]\t" << mthn << 
+//    "ringAddress_\t"    << ringAddress_	    << endl <<
+//    "ccuAddress_\t"     << ccuAddress_	    << endl <<
+//    "channelAddress_\t" << channelAddress_  << endl <<
+//    "i2cSpeed_\t"	<< i2cSpeed_        << endl ;
   
   for(unsigned int col = 0 ; col < tableMat[1].size() ; col++)    //Goes to every column of the Matrix
     {
@@ -263,14 +263,14 @@ PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):
 	       && settingName.find("123") == string::npos && settingName.find("456") == string::npos ) // does not contain "123" or "456"
 	{
 	  setDataBaseAOHGain(settingName, i2c_values);
-	  cout << mthn << "Setting " << settingName << "\tto value " << std::hex << i2c_values << std::dec << std::endl ;
+	  //cout << __LINE__ << "]\t" << mthn << "Setting " << settingName << "\tto value " << std::hex << i2c_values << std::dec << std::endl ;
 	}
       else if(type_ == "bpix" && settingName.find("AOH") != string::npos && settingName.find("GAIN") != string::npos // contains both "AOH" and "Gain"
 	      && settingName.find("AOH_") == string::npos                                                            // must not contain AOH_ 'cause this is for forward
 	      && settingName.find("123")  == string::npos && settingName.find("456") == string::npos )               // does not contain "123" or "456"
 	{
 	  setDataBaseAOHGain(settingName, i2c_values);
-	  cout << mthn << "Setting " << settingName << "\tto value " << std::hex << i2c_values << std::dec << std::endl ;
+	  //cout << __LINE__ << "]\t" << mthn << "Setting " << settingName << "\tto value " << std::hex << i2c_values << std::dec << std::endl ;
 	}
       else // no special handling for this name
 	{
@@ -289,13 +289,20 @@ PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):
 		  i2c_address = strtoul(settingName.c_str(), 0, 16); // convert string to integer using base 16
 		}
 	      pair<unsigned int, unsigned int> p(i2c_address, i2c_values);
-	      cout << mthn << "Setting\t" << "|"<<settingName<<"|->"<<nameDBtoFileConversion_[settingName] 
+/*
+	      cout << __LINE__ 
+	           << mthn << "Setting\t" 
+		   << "|"
+		   << settingName
+		   << "|->"
+		   << nameDBtoFileConversion_[settingName] 
 		   << "\twith pair:\t(" 
 		   << i2c_address
 		   << ","
 		   << i2c_values
 		   << ")"
 		   << endl ;
+*/
 	      device_.push_back(p);
 	    }
 	}
@@ -306,13 +313,14 @@ PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):
 PixelPortCardConfig::PixelPortCardConfig(std::string filename):
   PixelConfigBase(" "," "," "){
 
-  //std::cout << "filename:"<<filename<<std::endl;
+  string mthn = "[PixelPortCardConfig::PixelPortCardConfig()]\t\t    " ;
+  //std::cout << __LINE__ << "]\t" << mthn << "filename:"<<filename<<std::endl;
 
   unsigned int portcardpos=filename.find(std::string("portcard_"));
-  //std::cout << "portcardpos:"<<portcardpos<<std::endl;
+  //std::cout << __LINE__ << "]\t" << mthn << "portcardpos:"<<portcardpos<<std::endl;
   assert(portcardpos!=std::string::npos);
   unsigned int datpos=filename.find(std::string(".dat"));
-  //std::cout << "datpos:"<<datpos<<std::endl;
+  //std::cout << __LINE__ << "]\t" << mthn << "datpos:"<<datpos<<std::endl;
   assert(datpos!=std::string::npos);
   assert(datpos>portcardpos);
   
@@ -323,11 +331,11 @@ PixelPortCardConfig::PixelPortCardConfig(std::string filename):
   std::ifstream in(filename.c_str());
   
   if(!in.good()){
-    std::cout<<"[PixelPortCardConfig::PixelPortCardConfig()]\t\t    Could not open: "<< filename << std::endl;
+    std::cout << __LINE__ << "]\t" << mthn << "Could not open: " << filename << std::endl;
     assert(0);
   }
   else {
-    std::cout<<"[PixelPortCardConfig::PixelPortCardConfig()]\t\t    Opened: "        << filename << std::endl;
+    std::cout << __LINE__ << "]\t" << mthn << "Opened: "         << filename << std::endl;
   }
   
   string dummy;
@@ -356,7 +364,8 @@ PixelPortCardConfig::PixelPortCardConfig(std::string filename):
   in >> dummy; assert(dummy=="channelAddress:"); in >> std::hex >> channelAddress_;
   in >> dummy; assert(dummy=="i2cSpeed:");       in >> std::hex >> i2cSpeed_;
     
-  //std::cout<<TKFECAddress_<<", "<<ringAddress_<<", "<<ccuAddress_<<", "<<channelAddress_<<", "<<i2cSpeed_<<std::endl;
+  //std::cout << __LINE__ << "]\t" << mthn 
+  //          <<TKFECAddress_<<", "<<ringAddress_<<", "<<ccuAddress_<<", "<<channelAddress_<<", "<<i2cSpeed_<<std::endl;
   
   assert( nameToAddress_.size() != 0 );
   do {
@@ -888,12 +897,13 @@ void PixelPortCardConfig::fillDBToFileAddress()
 
 void PixelPortCardConfig::writeASCII(std::string dir) const {
 
+  std::string mthn = "[PixelPortCardConfig::writeASCII()]\t\t\t\t    " ;
   if (dir!="") dir+="/";
   std::string filename=dir+"portcard_"+portcardname_+".dat";
 
   std::ofstream out(filename.c_str());
   if (!out.good()){
-    std::cout << "Could not open file:"<<filename.c_str()<<std::endl;
+    std::cout << __LINE__ << "]\t" << mthn << "Could not open file: " << filename.c_str() << std::endl;
     assert(0);
   }
 
@@ -1083,6 +1093,7 @@ bool PixelPortCardConfig::containsDeviceAddress(unsigned int deviceAddress) cons
 
 unsigned int PixelPortCardConfig::AOHBiasAddressFromAOHNumber(unsigned int AOHNumber) const
 {
+        std::string mthn = "[PixelPortCardConfig::AOHBiasAddressFromAOHNumber()]    " ;
 	if ( type_ == "fpix" )
 	{
 		if      (AOHNumber == 1) return PortCardSettingNames::k_fpix_AOH_Bias1_address;
@@ -1091,7 +1102,12 @@ unsigned int PixelPortCardConfig::AOHBiasAddressFromAOHNumber(unsigned int AOHNu
 		else if (AOHNumber == 4) return PortCardSettingNames::k_fpix_AOH_Bias4_address;
 		else if (AOHNumber == 5) return PortCardSettingNames::k_fpix_AOH_Bias5_address;
 		else if (AOHNumber == 6) return PortCardSettingNames::k_fpix_AOH_Bias6_address;
-		else {std::cout << "ERROR: For fpix, AOH number must be in the range 1-6, but the given AOH number was "<<AOHNumber<<"."<<std::endl; assert(0);}
+		else {std::cout << __LINE__ << "]\t" << mthn 
+		                << "ERROR: For fpix, AOH number must be in the range 1-6, but the given AOH number was "
+				<< AOHNumber
+				<< "."
+				<< std::endl; 
+				assert(0);}
 	}
 	else if ( type_ == "bpix" )
 	{
@@ -1119,13 +1135,19 @@ unsigned int PixelPortCardConfig::AOHBiasAddressFromAOHNumber(unsigned int AOHNu
 		else if (AOHNumber ==22) return PortCardSettingNames::k_bpix_AOH4_Bias4_address;
 		else if (AOHNumber ==23) return PortCardSettingNames::k_bpix_AOH4_Bias5_address;
 		else if (AOHNumber ==24) return PortCardSettingNames::k_bpix_AOH4_Bias6_address;
-		else {std::cout << "ERROR: For bpix, AOH number must be in the range 1-24, but the given AOH number was "<<AOHNumber<<"."<<std::endl; assert(0);}
+		else {std::cout << __LINE__ << "]\t" << mthn 
+		                << "ERROR: For bpix, AOH number must be in the range 1-24, but the given AOH number was "
+				<< AOHNumber
+				<< "."
+				<< std::endl; 
+				assert(0);}
 	}
 	else assert(0);
 }
 
 std::string PixelPortCardConfig::AOHGainStringFromAOHNumber(unsigned int AOHNumber) const
 {
+        std::string mthn = "[PixelPortCardConfig::AOHGainStringFromAOHNumber()]    " ;
 	if ( type_ == "fpix" )
 	{
 		if      (AOHNumber == 1) return "AOH_Gain1";
@@ -1134,7 +1156,12 @@ std::string PixelPortCardConfig::AOHGainStringFromAOHNumber(unsigned int AOHNumb
 		else if (AOHNumber == 4) return "AOH_Gain4";
 		else if (AOHNumber == 5) return "AOH_Gain5";
 		else if (AOHNumber == 6) return "AOH_Gain6";
-		else {std::cout << "ERROR: For fpix, AOH number must be in the range 1-6, but the given AOH number was "<<AOHNumber<<"."<<std::endl; assert(0);}
+		else {std::cout << __LINE__ << "]\t" << mthn 
+		                << "ERROR: For fpix, AOH number must be in the range 1-6, but the given AOH number was "
+				<< AOHNumber 
+				<< "."
+				<< std::endl; 
+				assert(0);}
 	}
 	else if ( type_ == "bpix" )
 	{
@@ -1162,13 +1189,19 @@ std::string PixelPortCardConfig::AOHGainStringFromAOHNumber(unsigned int AOHNumb
 		else if (AOHNumber ==22) return "AOH4_Gain4";
 		else if (AOHNumber ==23) return "AOH4_Gain5";
 		else if (AOHNumber ==24) return "AOH4_Gain6";
-		else {std::cout << "ERROR: For bpix, AOH number must be in the range 1-24, but the given AOH number was "<<AOHNumber<<"."<<std::endl; assert(0);}
+		else {std::cout << __LINE__ << "]\t" << mthn 
+		                << "ERROR: For bpix, AOH number must be in the range 1-24, but the given AOH number was "
+				<< AOHNumber
+				<< "."
+				<< std::endl; 
+				assert(0);}
 	}
 	else assert(0);
 }
 
 unsigned int PixelPortCardConfig::AOHGainAddressFromAOHNumber(unsigned int AOHNumber) const
 {
+        std::string mthn = "[PixelPortCardConfig::AOHGainAddressFromAOHNumber()]    " ;
 	unsigned int address;
 	if ( type_ == "fpix" )
 	{
@@ -1178,7 +1211,12 @@ unsigned int PixelPortCardConfig::AOHGainAddressFromAOHNumber(unsigned int AOHNu
 		else if (AOHNumber == 4) address =  PortCardSettingNames::k_fpix_AOH_Gain456_address;
 		else if (AOHNumber == 5) address =  PortCardSettingNames::k_fpix_AOH_Gain456_address;
 		else if (AOHNumber == 6) address =  PortCardSettingNames::k_fpix_AOH_Gain456_address;
-		else {std::cout << "ERROR: For fpix, AOH number must be in the range 1-6, but the given AOH number was "<<AOHNumber<<"."<<std::endl; assert(0);}
+		else {std::cout << __LINE__ << "]\t" << mthn 
+		                << "ERROR: For fpix, AOH number must be in the range 1-6, but the given AOH number was "
+				<< AOHNumber 
+				<< "."
+				<< std::endl; 
+				assert(0);}
 	}
 	else if ( type_ == "bpix" )
 	{
@@ -1206,7 +1244,12 @@ unsigned int PixelPortCardConfig::AOHGainAddressFromAOHNumber(unsigned int AOHNu
 		else if (AOHNumber ==22) address =  PortCardSettingNames::k_bpix_AOH4_Gain456_address;
 		else if (AOHNumber ==23) address =  PortCardSettingNames::k_bpix_AOH4_Gain456_address;
 		else if (AOHNumber ==24) address =  PortCardSettingNames::k_bpix_AOH4_Gain456_address;
-		else {std::cout << "ERROR: For bpix, AOH number must be in the range 1-24, but the given AOH number was "<<AOHNumber<<"."<<std::endl; assert(0);}
+		else {std::cout << __LINE__ << "]\t" << mthn 
+		                << "ERROR: For bpix, AOH number must be in the range 1-24, but the given AOH number was "
+				<< AOHNumber
+				<< "."
+				<< std::endl; 
+				assert(0);}
 	}
 	else assert(0);
 	
@@ -1235,7 +1278,7 @@ void PixelPortCardConfig::writeXMLHeader(pos::PixelConfigKey key,
   std::string mthn = "[PixelPortCardConfig::writeXMLHeader()]\t\t\t    " ;
   std::stringstream fullPath ;
   fullPath << path << "/Pixel_PortCardSettings_" << PixelTimeFormatter::getmSecTime() << ".xml" ;
-  std::cout << mthn << "Writing to: " << fullPath.str() << std::endl ;
+  std::cout << __LINE__ << "]\t" << mthn << "Writing to: " << fullPath.str() << std::endl ;
   
   outstream->open(fullPath.str().c_str()) ;
   

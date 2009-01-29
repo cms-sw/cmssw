@@ -20,8 +20,7 @@ using namespace pos;
 
 PixelDetectorConfig::PixelDetectorConfig(std::vector< std::vector < std::string> > &tableMat):PixelConfigBase("","",""){
 
-  std::stringstream s ; s << __LINE__ << "]\t[PixelDetectorConfig::PixelDetectorConfig()]\t    " ;
-  std::string mthn = s.str() ;
+  std::string mthn = "]\t[PixelDetectorConfig::PixelDetectorConfig()]\t\t    " ;
   std::vector< std::string > ins = tableMat[0];
   std::map<std::string , int > colM;
   std::vector<std::string > colNames;
@@ -54,7 +53,7 @@ PixelDetectorConfig::PixelDetectorConfig(std::vector< std::vector < std::string>
   }//end for
   for(unsigned int n=0; n<colNames.size(); n++){
     if(colM.find(colNames[n]) == colM.end()){
-      std::cerr << mthn << "Couldn't find in the database the column with name " << colNames[n] << std::endl;
+      std::cerr << __LINE__ << mthn << "Couldn't find in the database the column with name " << colNames[n] << std::endl;
       assert(0);
     }
   }
@@ -88,7 +87,7 @@ PixelDetectorConfig::PixelDetectorConfig(std::vector< std::vector < std::string>
       }
   }//end for r
 
-  std::cout << mthn << "Number of Modules in Detector Configuration Class:" << getNModules() << std::endl;
+  std::cout << __LINE__ << mthn << "Number of Modules in Detector Configuration Class: " << getNModules() << std::endl;
 
 }//end constructor
 
@@ -97,23 +96,22 @@ PixelDetectorConfig::PixelDetectorConfig(std::vector< std::vector < std::string>
 PixelDetectorConfig::PixelDetectorConfig(std::string filename):
   PixelConfigBase("","",""){
 
-  std::stringstream s ; s << __LINE__ << "]\t[PixelDetectorConfig::PixelDetectorConfig()]\t\t    " ;
-  std::string mthn = s.str() ;
+  std::string mthn = "[PixelDetectorConfig::PixelDetectorConfig()]\t\t    " ;
 
   if (filename[filename.size()-1]=='t'){
 
     std::ifstream in(filename.c_str());
 
     if (!in.good()){
-      std::cout << mthn << "Could not open: "<<filename<<std::endl;
+      std::cout << __LINE__ << "]\t" << mthn << "Could not open: " << filename << std::endl;
       assert(0);
     }
     else {
-      std::cout << mthn << "Opened: "<<filename<<std::endl;
+      std::cout << __LINE__ << "]\t" << mthn << "Opened: "         << filename << std::endl;
     }
         
     if (in.eof()){
-      std::cout << mthn << "EOF before reading anything!"<<std::endl;
+      std::cout << __LINE__ << "]\t" << mthn << "EOF before reading anything!" << std::endl;
       ::abort();
     }
 
@@ -126,22 +124,22 @@ PixelDetectorConfig::PixelDetectorConfig(std::string filename):
     in >> module;
 
     if (module=="Rocs:") {
-      std::cout << mthn << "New format of detconfig"<<std::endl;
+      std::cout << __LINE__ << "]\t" << mthn << "New format of detconfig"<<std::endl;
       //new format with list of ROCs.
       std::string rocname;
       in >> rocname;
       while (!in.eof()){
-        //cout << "Read rocname:"<<rocname<<endl;
+        //cout << __LINE__ << "]\t" << mthn << "Read rocname:"<<rocname<<endl;
         PixelROCName roc(rocname);
         std::string line;
         getline(in,line);
-        //cout << "Read line:'"<<line<<"'"<<endl;
+        //cout << __LINE__ << "]\t" << mthn << "Read line:'"<<line<<"'"<<endl;
         istringstream instring(line);
         PixelROCStatus rocstatus;
         std::string status;
         while (!instring.eof()) {
           instring >> status;
-//        cout << "Read status:"<<status<<endl;
+//        cout << __LINE__ << "]\t" << mthn << "Read status:"<<status<<endl;
           if (status!=""){
             rocstatus.set(status);
           }
@@ -159,14 +157,14 @@ PixelDetectorConfig::PixelDetectorConfig(std::string filename):
     }
         
 
-    //std::cout << "Read module:"<<module<<std::endl;
+    //std::cout << __LINE__ << "]\t" << mthn << "Read module:"<<module<<std::endl;
 
     if (in.eof()) std::cout << mthn << "EOF after reading first module name" << std::endl;
 
-    std::cout << mthn << "Old format of detconfig"<<std::endl;
+    std::cout << __LINE__ << "]\t" << mthn << "Old format of detconfig"<<std::endl;
     while (!in.eof()){
 
-      //std::cout << "Read module:"<<module<<std::endl;
+      //std::cout << __LINE__ << "]\t" << mthn << "Read module:"<<module<<std::endl;
 
       PixelModuleName moduleName(module);
 
@@ -189,11 +187,11 @@ PixelDetectorConfig::PixelDetectorConfig(std::string filename):
       std::ifstream in(filename.c_str(),std::ios::binary);
 
       if (!in.good()){
-      std::cout << "Could not open:"<<filename<<std::endl;
+      std::cout << __LINE__ << "]\t" << mthn << "Could not open:"<<filename<<std::endl;
       assert(0);
       }
       else {
-      std::cout << "Opened:"<<filename<<std::endl;
+      std::cout << __LINE__ << "]\t" << mthn << "Opened:"<<filename<<std::endl;
       }
 
       char nchar;
@@ -209,18 +207,18 @@ PixelDetectorConfig::PixelDetectorConfig(std::string filename):
       s1.push_back(c);
       }
 
-      //std::cout << "READ ROC name:"<<s1<<std::endl;
+      //std::cout << __LINE__ << "]\t" << mthn << "READ ROC name:"<<s1<<std::endl;
 
       dacsettings_.clear();
 
 
       while (!in.eof()){
 
-      //std::cout << "PixelDetectorConfig::PixelDetectorConfig read s1:"<<s1<<std::endl;
+      //std::cout << __LINE__ << "]\t" << mthn << "read s1:"<<s1<<std::endl;
 
       PixelROCName rocid(s1);
 
-      //td::cout << "PixelDetectorConfig::PixelDetectorConfig read rocid:"<<rocid<<std::endl;
+      //std::cout << __LINE__ << "]\t" << mthn << "read rocid:"<<rocid<<std::endl;
             
       PixelROCDetectorConfig tmp;
       
@@ -252,7 +250,7 @@ PixelDetectorConfig::PixelDetectorConfig(std::string filename):
   }
 
 
-  //std::cout << "Read dac settings for "<<dacsettings_.size()<<" ROCs"<<std::endl;
+  //std::cout << __LINE__ << "]\t" << mthn << "Read dac settings for "<<dacsettings_.size()<<" ROCs"<<std::endl;
 
 
 }
@@ -337,7 +335,7 @@ void PixelDetectorConfig::writeASCII(std::string dir) const {
 
   std::ofstream out(filename.c_str(), std::ios_base::out) ;
   if(!out) {
-    std::cout << mthn << "Could not open file " << filename << " for write" << std::endl ;
+    std::cout << __LINE__ << "]\t" << mthn << "Could not open file " << filename << " for write" << std::endl ;
     exit(1);
   }
 
@@ -377,7 +375,7 @@ void PixelDetectorConfig::writeXMLHeader(pos::PixelConfigKey key,
   std::string mthn = s.str() ;
   std::stringstream fullPath ;
   fullPath << path << "/Pixel_DetectorConfig_" << PixelTimeFormatter::getmSecTime() << ".xml" ;
-  cout << mthn << "Writing to: " << fullPath.str() << endl ;
+  cout << __LINE__ << "]\t" << mthn << "Writing to: " << fullPath.str() << endl ;
   
   outstream->open(fullPath.str().c_str()) ;
   
@@ -472,7 +470,7 @@ void PixelDetectorConfig::writeXML(pos::PixelConfigKey key, int version, std::st
   std::stringstream fullPath ;
 
   fullPath << path << "/Pixel_DetectorConfig.xml" ;
-  cout << mthn << "Writing to: " << fullPath.str() << endl ;
+  cout << __LINE__ << "]\t" << mthn << "Writing to: " << fullPath.str()                               << std::endl ;
   
   std::ofstream out(fullPath.str().c_str()) ;
   
@@ -548,10 +546,10 @@ void PixelDetectorConfig::addROC(   PixelROCName &theROC)  // Added by Dario (Ma
   PixelROCStatus  theStatus ;
   theStatus.reset() ;
   rocs_[theROC] = theStatus ; 
-//  cout << mthn << "Non existing ROC (" << theROC.rocname() << "): adding it"  << endl ;  
+//  cout << __LINE__ << "]\t" << mthn << "Non existing ROC (" << theROC.rocname() << "): adding it"  << endl ;  
  } else {
   theROCIt->second.reset() ;  // otherwise just turn it on by resetting it to zero
-//  cout << mthn << "Already existing ROC (" << theROC.rocname() << "): switching it on"  << endl ;  
+//  cout << __LINE__ << "]\t" << mthn << "Already existing ROC (" << theROC.rocname() << "): switching it on"  << endl ;  
  }
 }
 
@@ -568,29 +566,28 @@ void PixelDetectorConfig::addROC(   PixelROCName &theROC, string statusLabel)  /
   theStatus.set(statusLabel) ;
   theStatus.reset() ;
   rocs_[theROC] = theStatus ; 
-//  cout << mthn << "Non existing ROC (" << theROC.rocname() << "): adding it"  << endl ;  
+//  cout << __LINE__ << "]\t" << mthn << "Non existing ROC (" << theROC.rocname() << "): adding it"  << endl ;  
  } else {
   theROCIt->second.set(statusLabel) ;  // otherwise just turn it on by resetting it to zero
-//  cout << mthn << "Already existing ROC (" << theROC.rocname() << "): switching it on"  << endl ;  
+//  cout << __LINE__ << "]\t" << mthn << "Already existing ROC (" << theROC.rocname() << "): switching it on"  << endl ;  
  }
 }
 
 //=============================================================================================
 void PixelDetectorConfig::removeROC(PixelROCName &theROC)  // Added by Dario (March 3, 2008)
 {
- std::stringstream s ; s << __LINE__ << "]\t[PixelDetectorConfig::removeROC()]\t\t\t\t    " ;
- std::string mthn = s.str() ;
+ std::string mthn = "[PixelDetectorConfig::removeROC()]\t\t\t\t    " ;
 
  std::map<PixelROCName, PixelROCStatus>::iterator theROCIt = rocs_.find(theROC) ;
  if( theROCIt != rocs_.end() ) // if theROC was there remove it, otherwise ignore
  {
   theROCIt->second.set("noInit") ;  
-//  cout << mthn << "Already existing ROC (" << theROC.rocname() << "): switching it off"  << endl ;  
+//  cout << __LINE__ << "]\t" << mthn << "Already existing ROC (" << theROC.rocname() << "): switching it off"  << endl ;  
  } else {
   PixelROCStatus  theStatus ;
   theStatus.set("noInit") ;
   rocs_[theROC] = theStatus ; 
-//  cout << mthn << "ROC " << theROC.rocname() << " was not individually declared in the file: declare and switch off"  << endl ;  
+//  cout << __LINE__ << "]\t" << mthn << "ROC " << theROC.rocname() << " was not individually declared in the file: declare and switch off"  << endl ;  
  }
 }
 

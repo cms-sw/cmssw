@@ -188,6 +188,7 @@ void PixelROCDACSettings::compareDACs(std::map<std::string, unsigned int>& dacs,
 										       
 void PixelROCDACSettings::setDAC(unsigned int dacaddress, unsigned int dacvalue)       
 {
+        std::string mthn = "[PixelROCDACSettings::setDAC()]\t\t\t\t    " ;
 	switch (dacaddress) {
 		case   1: Vdd_         = dacvalue;  break;
 		case   2: Vana_        = dacvalue;  break;
@@ -218,7 +219,8 @@ void PixelROCDACSettings::setDAC(unsigned int dacaddress, unsigned int dacvalue)
 	        case  27: TempRange_   = dacvalue;  break;
 		case 254: WBC_         = dacvalue;  break;
 		case 253: ChipContReg_ = dacvalue;  break;
-		default: cout<<"DAC Address "<<dacaddress<<" does not exist!"<<endl;
+		default: cout << __LINE__ << "]\t" << mthn 
+		              << "DAC Address " << dacaddress << " does not exist!" << endl;
 	}
 
 }
@@ -379,11 +381,12 @@ void PixelROCDACSettings::checkTag(string tag,
 				   string dacName,
 				   const PixelROCName& rocid){
   
+  std::string mthn = "[PixelROCDACSettings::checkTag()]\t\t\t\t    " ;
   dacName+=":";
   if (tag!=dacName) {
-    cout << "Read ROC name:"<<tag<<endl;
-    cout << "But expected to find:"<<dacName<<endl;
-    cout << "When reading DAC settings for ROC "<<rocid<<endl;
+    cout << __LINE__ << "]\t" << mthn << "Read ROC name       : "	      << tag     << endl;
+    cout << __LINE__ << "]\t" << mthn << "But expected to find: "	      << dacName << endl;
+    cout << __LINE__ << "]\t" << mthn << "When reading DAC settings for ROC " << rocid   << endl;
     assert(0);
   }
 
@@ -391,6 +394,8 @@ void PixelROCDACSettings::checkTag(string tag,
 
 int PixelROCDACSettings::read(std::istringstream& in, const PixelROCName& rocid)
 {
+    std::string mthn = "[PixelROCDACSettings::read()]\t\t\t\t    " ;
+
     rocid_=rocid;
 
     unsigned int tmp;
@@ -479,11 +484,11 @@ int PixelROCDACSettings::read(std::istringstream& in, const PixelROCName& rocid)
     if (tag==k_DACName_WBC+":"){
       static bool first=true;
       if (first){
-	cout << "**********************************************"<<endl;
-	cout << "Did not find TempRange setting in DAC settings"<<endl;
-	cout << "Will use a default value of 4."<<endl;
-	cout << "This message will only be printed out once"<<endl;
-	cout << "**********************************************"<<endl;
+	cout << __LINE__ << "]\t" << mthn << "**********************************************" << endl;
+	cout << __LINE__ << "]\t" << mthn << "Did not find TempRange setting in DAC settings" << endl;
+	cout << __LINE__ << "]\t" << mthn << "Will use a default value of 4."                 << endl;
+	cout << __LINE__ << "]\t" << mthn << "This message will only be printed out once"     << endl;
+	cout << __LINE__ << "]\t" << mthn << "**********************************************" << endl;
 	TempRange_=4;
 	first=false;
       }
@@ -504,6 +509,7 @@ int PixelROCDACSettings::read(std::istringstream& in, const PixelROCName& rocid)
 
 int PixelROCDACSettings::read(ifstream& in, const PixelROCName& rocid){
     
+    std::string mthn = "[PixelROCDACSettings::read()]\t\t\t\t    " ;
     rocid_=rocid;
 
     unsigned int tmp;
@@ -591,11 +597,11 @@ int PixelROCDACSettings::read(ifstream& in, const PixelROCName& rocid){
     if (tag==k_DACName_WBC+":"){
       static bool first=true;
       if (first){
-	cout << "**********************************************"<<endl;
-	cout << "Did not find TempRange setting in DAC settings"<<endl;
-	cout << "Will use a default value of 4."<<endl;
-	cout << "This message will only be printed out once"<<endl;
-	cout << "**********************************************"<<endl;
+	cout << __LINE__ << "]\t" << mthn << "**********************************************" << endl;
+	cout << __LINE__ << "]\t" << mthn << "Did not find TempRange setting in DAC settings" << endl;
+	cout << __LINE__ << "]\t" << mthn << "Will use a default value of 4."                 << endl;
+	cout << __LINE__ << "]\t" << mthn << "This message will only be printed out once"     << endl;
+	cout << __LINE__ << "]\t" << mthn << "**********************************************" << endl;
 	TempRange_=4;
 	first=false;
       }

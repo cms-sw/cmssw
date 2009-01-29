@@ -26,7 +26,7 @@ using namespace std;
 PixelMaskAllPixels::PixelMaskAllPixels(std::vector< std::vector<std::string> >& tableMat) : PixelMaskBase("","","")
 {
  std::string mthn = "[PixelMaskAllPixels::PixelMaskAllPixels()]\t\t    " ;
- std::cout<< mthn << "Table Size in const:"<<tableMat.size()<<std::endl;
+ //std::cout << __LINE__ << "]\t" << mthn << "Table Size in const: " << tableMat.size() << std::endl;
 
  std::vector< std::string > ins = tableMat[0];
  std::map<std::string , int > colM;
@@ -94,13 +94,15 @@ void PixelMaskAllPixels::addROCMaskBits(PixelROCMaskBits bits)
 PixelMaskAllPixels::PixelMaskAllPixels(std::string filename):
   PixelMaskBase("","",""){
 
+    std::string mthn = "[PixelMaskAllPixels::PixelMaskAllPixels()]\t\t    " ;
+
     if (filename[filename.size()-1]=='t'){
 
 
 	std::ifstream in(filename.c_str());
 
 	if (!in.good()){
-	    std::cout << "Could not open:"<<filename<<std::endl;
+	    std::cout << __LINE__ << "]\t" << mthn << "Could not open: " << filename << std::endl;
 	    assert(0);
 	}
 	
@@ -145,18 +147,18 @@ PixelMaskAllPixels::PixelMaskAllPixels(std::string filename):
 	    s1.push_back(c);
 	}
 
-	//std::cout << "READ ROC name:"<<s1<<std::endl;
+	//std::cout << __LINE__ << "]\t" << mthn << "READ ROC name: "  << s1    << std::endl;
 	
 	maskbits_.clear();
 
 
 	while (!in.eof()){
 
-	    //std::cout << "PixelMaskAllPixels::PixelMaskAllPixels read s1:"<<s1<<std::endl;
+	    //std::cout << __LINE__ << "]\t" << mthn << "read s1: "    << s1    << std::endl;
 
 	    PixelROCName rocid(s1);
 
-	    //std::cout << "PixelMaskAllPixels::PixelMaskAllPixels read rocid:"<<rocid<<std::endl;
+	    //std::cout << __LINE__ << "]\t" << mthn << "read rocid: " << rocid << std::endl;
 	    
 	    PixelROCMaskBits tmp;
       
@@ -171,13 +173,13 @@ PixelMaskAllPixels::PixelMaskAllPixels(std::string filename):
 
 	    if (in.eof()) continue;
 	    
-	    //std::cout << "Will read:"<<(int)nchar<<" characters."<<std::endl;
+	    //std::cout << __LINE__ << "]\t" << mthn << "Will read: " << (int)nchar << " characters." <<std::endl;
 
 	    //wrote these lines of code without ref. needs to be fixed
 	    for(int i=0;i< nchar; i++){
 		char c;
 		in >>c;
-		//std::cout <<" "<<c;
+		//std::cout << " " <<c;
 		s1.push_back(c);
 	    }
 	    //std::cout << std::endl;
@@ -192,7 +194,7 @@ PixelMaskAllPixels::PixelMaskAllPixels(std::string filename):
     }
 
 
-    //std::cout << "Read maskbits for "<<maskbits_.size()<<" ROCs"<<std::endl;
+    //std::cout << __LINE__ << "]\t" << mthn << "Read maskbits for " << maskbits_.size() << " ROCs" << std::endl;
 	
     }
     
@@ -255,7 +257,7 @@ void PixelMaskAllPixels::writeXMLHeader(pos::PixelConfigKey key,
   std::stringstream maskFullPath ;
 
   maskFullPath << path << "/Pixel_RocMasks_" << PixelTimeFormatter::getmSecTime() << ".xml";
-  std::cout << mthn << "Writing to: " << maskFullPath.str() << std::endl ;
+  std::cout << __LINE__ << "]\t" << mthn << "Writing to: " << maskFullPath.str() << std::endl ;
 
   outstream->open(maskFullPath.str().c_str()) ;
   
@@ -311,7 +313,7 @@ void PixelMaskAllPixels::writeXMLTrailer(std::ofstream *outstream,
   *outstream << "</ROOT>"  		 								<< std::endl ;
   
   outstream->close() ;
-  std::cout << mthn << "Data written "   								<< std::endl ;
+  std::cout << __LINE__ << "]\t" << mthn << "Data written "   						<< std::endl ;
 
 }
 

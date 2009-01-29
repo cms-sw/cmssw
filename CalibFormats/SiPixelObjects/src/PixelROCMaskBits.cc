@@ -20,8 +20,9 @@ PixelROCMaskBits::PixelROCMaskBits(){
 
 
 /**********************Start Modification******************************/
-void  PixelROCMaskBits::setROCMaskBits(PixelROCName& rocid ,std::string bits)
+void PixelROCMaskBits::setROCMaskBits(PixelROCName& rocid ,std::string bits)
 {
+  std::string mthn = "[PixelROCMaskBits::setROCMaskBits()]\t\t\t    " ;
 try
   {
     rocid_=rocid;
@@ -37,7 +38,7 @@ try
   }
  catch(std::bad_cast)
    {
-     std::cout << "Error casting variable." << std::endl;
+     std::cout << __LINE__ << "]\t" << mthn << "Error casting variable." << std::endl;
    }
 }
 /**********************End Modification******************************/

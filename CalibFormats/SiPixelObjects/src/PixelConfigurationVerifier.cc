@@ -16,6 +16,7 @@ void PixelConfigurationVerifier::checkChannelEnable(PixelFEDCard *theFEDCard,
 						    PixelNameTranslation *theNameTranslation,
 						    PixelDetectorConfig *theDetConfig){
   
+  std::string mthn = "[PixelConfigurationVerifier::checkChannelEnable()]\t\t    " ;
   set<PixelChannel> channels=theNameTranslation->getChannels(*theDetConfig);
 
   unsigned int fedid=theFEDCard->fedNumber;
@@ -55,15 +56,15 @@ void PixelConfigurationVerifier::checkChannelEnable(PixelFEDCard *theFEDCard,
       }
     }
     if (used!=usedChannel[iChannel]) {
-      cout << "*******************************************************"<<endl;
-      cout << "WARNING for fedid="<<fedid<<" and channel="<<iChannel;
-      cout << " found that fedcard has channel as"<<endl;
-      if (used) cout << "used while configuration not using this channel"
-		     << endl;
-      if (!used)cout << "not used while configuration uses this channel"
-		     << endl;
-      cout << "The fedcard will be modifed to agree with configuration"<<endl;
-      cout << "*******************************************************"<<endl;
+      cout << __LINE__ << "]\t" << mthn << "*******************************************************"     << endl;
+      cout << __LINE__ << "]\t" << mthn << "WARNING for fedid=" << fedid << " and channel=" << iChannel  <<
+                                           " found that fedcard has channel as "                         << endl;
+      if (used)  cout << __LINE__ << "]\t" << mthn << "used while configuration not using this channel"
+		                                                                                         << endl;
+      if (!used) cout << __LINE__ << "]\t" << mthn << "not used while configuration uses this channel"
+		                                                                                     	 << endl;
+      cout << __LINE__ << "]\t" << mthn << "The fedcard will be modifed to agree with configuration" 	 << endl;
+      cout << __LINE__ << "]\t" << mthn << "*******************************************************" 	 << endl;
       theFEDCard->setChannel(iChannel,usedChannel[iChannel]);
     }
   }

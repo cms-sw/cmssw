@@ -15,6 +15,9 @@ using namespace pos;
 using namespace std;
 
 PixelFEDConfig::PixelFEDConfig(std::vector<std::vector<std::string> >& tableMat ) : PixelConfigBase(" "," "," "){
+
+  std::string mthn = "[PixelFEDConfig::PixelFEDConfig()]\t\t\t    " ;
+
   std::vector< std::string > ins = tableMat[0];
   std::map<std::string , int > colM;
    std::vector<std::string > colNames;
@@ -59,7 +62,7 @@ PixelFEDConfig::PixelFEDConfig(std::vector<std::vector<std::string> >& tableMat 
      {
        if(colM.find(colNames[n]) == colM.end())
 	 {
-	   std::cerr << "[PixelFECConfig::PixelFECConfig()]\tCouldn't find in the database the column with name " << colNames[n] << std::endl;
+	   std::cerr << __LINE__ << "]\t" << mthn << "Couldn't find in the database the column with name " << colNames[n] << std::endl;
 	   assert(0);
 	 }
      }
@@ -109,16 +112,16 @@ PixelFEDConfig::PixelFEDConfig(std::vector<std::vector<std::string> >& tableMat 
 	   }
        }//end else 
    }//end for r
-   
-   std::cout<<std::endl;
+/*   
+   std::cout << __LINE__ << "]\t"    << mthn                      << std::endl;
    
    for( unsigned int x = 0 ; x < fedconfig_.size() ; x++)
      {
-       std::cout<<fedconfig_[x]<<std::endl;
+       std::cout<< __LINE__ << "]\t" << mthn << fedconfig_[x]     << std::endl;
      }
    
-   std::cout<<fedconfig_.size()<<std::endl;
-   
+   std::cout<< __LINE__ << "]\t"     << mthn << fedconfig_.size() << std::endl;
+*/   
 }//end Constructor
 
 
@@ -131,14 +134,15 @@ PixelFEDConfig::PixelFEDConfig(std::vector<std::vector<std::string> >& tableMat 
 PixelFEDConfig::PixelFEDConfig(std::string filename):
   PixelConfigBase(" "," "," "){
 
+    std::string mthn = "[PixelFEDConfig::PixelFEDConfig()]\t\t\t\t    " ;
     std::ifstream in(filename.c_str());
 
     if (!in.good()){
-      std::cout << "Could not open:"<<filename.c_str()<<std::endl;
+      std::cout << __LINE__ << "]\t" << mthn << "Could not open: " << filename.c_str() << std::endl;
       assert(0);
     }
     else {
-      std::cout << "Opened:"<<filename.c_str()<<std::endl;
+      std::cout << __LINE__ << "]\t" << mthn << "Opened: " << filename.c_str() << std::endl;
     }
 
     std::string dummy;
@@ -159,8 +163,8 @@ PixelFEDConfig::PixelFEDConfig(std::string filename):
       in >> fednumber >> crate >> std::hex >> vme_base_address >> std::dec;
 
       if (!in.eof() ){
-	//	std::cout << std::dec << fednumber <<" "<< crate << " 0x"  
-	//   << std::hex << vme_base_address<<std::dec<<std::endl;
+	//	std::cout << __LINE__ << "]\t" << mthn << std::dec << fednumber <<" "<< crate << " 0x"  
+	//                << std::hex << vme_base_address<<std::dec<<std::endl;
 	PixelFEDParameters tmp;
 	    
 	tmp.setFEDParameters(fednumber , crate , vme_base_address);
@@ -187,12 +191,13 @@ PixelFEDConfig::~PixelFEDConfig() {}
 
 void PixelFEDConfig::writeASCII(std::string dir) const {
 
+  std::string mthn = "[PixelFEDConfig::writeASCII()]\t\t\t\t    " ;
   if (dir!="") dir+="/";
   string filename=dir+"fedconfig.dat";
 
   ofstream out(filename.c_str());
   if(!out.good()){
-    cout << "Could not open file:"<<filename<<endl;
+    cout << __LINE__ << "]\t" << mthn << "Could not open file: " << filename << endl;
     assert(0);
   }
 
@@ -238,11 +243,13 @@ unsigned int PixelFEDConfig::getVMEBaseAddress(unsigned int i) const{
 
 unsigned int PixelFEDConfig::crateFromFEDNumber(unsigned int fednumber) const{
 
+
+  std::string mthn = "[PixelFEDConfig::crateFromFEDNumber()]\t\t\t    " ;
   for(unsigned int i=0;i<fedconfig_.size();i++){
     if (fedconfig_[i].getFEDNumber()==fednumber) return fedconfig_[i].getCrate();
   }
 
-  std::cout << "Could not find FED number:"<<fednumber<<std::endl;
+  std::cout << __LINE__ << "]\t" << mthn << "Could not find FED number: " << fednumber << std::endl;
 
   assert(0);
 
@@ -253,11 +260,12 @@ unsigned int PixelFEDConfig::crateFromFEDNumber(unsigned int fednumber) const{
 
 unsigned int PixelFEDConfig::VMEBaseAddressFromFEDNumber(unsigned int fednumber) const{
 
+  std::string mthn = "[PixelFEDConfig::VMEBaseAddressFromFEDNumber()]\t\t    " ;
   for(unsigned int i=0;i<fedconfig_.size();i++){
     if (fedconfig_[i].getFEDNumber()==fednumber) return fedconfig_[i].getVMEBaseAddress();
   }
 
-  std::cout << "Could not find FED number:"<<fednumber<<std::endl;
+  std::cout << __LINE__ << "]\t" << mthn << "Could not find FED number: " << fednumber << std::endl;
 
   assert(0);
 
@@ -267,12 +275,13 @@ unsigned int PixelFEDConfig::VMEBaseAddressFromFEDNumber(unsigned int fednumber)
 
 unsigned int PixelFEDConfig::FEDNumberFromCrateAndVMEBaseAddress(unsigned int crate, unsigned int vmebaseaddress) const {
 
+  std::string mthn = "[PixelFEDConfig::FEDNumberFromCrateAndVMEBaseAddress()]\t    " ;
   for(unsigned int i=0;i<fedconfig_.size();i++){
     if (fedconfig_[i].getCrate()==crate&&
         fedconfig_[i].getVMEBaseAddress()==vmebaseaddress) return fedconfig_[i].getFEDNumber();
   }
 
-  std::cout << "Could not find FED crate and address:"<<crate<<", "<<vmebaseaddress<<std::endl;
+  std::cout << __LINE__ << "]\t" << mthn << "Could not find FED crate and address: "<< crate << ", " << vmebaseaddress << std::endl;
 
   assert(0);
 
@@ -291,7 +300,7 @@ void PixelFEDConfig::writeXMLHeader(pos::PixelConfigKey key,
   std::string mthn = "[PixelFEDConfig::::writeXMLHeader()]\t\t\t    " ;
   std::stringstream fullPath ;
   fullPath << path << "/Pixel_FedCrateConfig_" << PixelTimeFormatter::getmSecTime() << ".xml" ;
-  cout << mthn << "Writing to: " << fullPath.str() << endl ;
+  cout << __LINE__ << "]\t" << mthn << "Writing to: " << fullPath.str() << endl ;
   
   outstream->open(fullPath.str().c_str()) ;
   *outstream << "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"			 	     	     << endl ;

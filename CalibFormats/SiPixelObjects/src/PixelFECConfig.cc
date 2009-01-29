@@ -93,14 +93,16 @@ PixelFECConfig::PixelFECConfig(std::vector<std::vector<std::string> >& tableMat 
 PixelFECConfig::PixelFECConfig(std::string filename):
     PixelConfigBase(" "," "," "){
 
+    std::string mthn = "[[PixelFECConfig::PixelFECConfig()]\t\t\t   " ;
+    
     std::ifstream in(filename.c_str());
 
     if (!in.good()){
-	std::cout << "[PixelFECConfig::PixelFECConfig()]\t\t\t    Could not open: "<<filename<<std::endl;
+	std::cout << __LINE__ << "]\t" << mthn << "Could not open: " << filename << std::endl;
 	assert(0);
     }
     else {
-	std::cout << "[PixelFECConfig::PixelFECConfig()]\t\t\t    Opened: "<<filename<<std::endl;
+	std::cout << __LINE__ << "]\t" << mthn <<" Opened: "         << filename << std::endl;
     }
 
     std::string dummy;
@@ -121,7 +123,7 @@ PixelFECConfig::PixelFECConfig(std::string filename):
 	in >> fecnumber >> crate >> std::hex>> vme_base_address >>std::dec ;
 
 	if (!in.eof() ){
-	    //std::cout << fecnumber <<" "<< crate << " "  
+	    //std::cout << __LINE__ << "]\t" << mthn << fecnumber <<" "<< crate << " "  
 	    //      << std::hex << vme_base_address<<std::dec<<std::endl;
 	    
 	    PixelFECParameters tmp;
@@ -179,11 +181,12 @@ unsigned int PixelFECConfig::getVMEBaseAddress(unsigned int i) const{
 
 unsigned int PixelFECConfig::crateFromFECNumber(unsigned int fecnumber) const{
 
+    std::string mthn = "[PixelFECConfig::crateFromFECNumber()]\t\t\t    " ;
     for(unsigned int i=0;i<fecconfig_.size();i++){
 	if (fecconfig_[i].getFECNumber()==fecnumber) return fecconfig_[i].getCrate();
     }
 
-    std::cout << "Could not find FEC number:"<<fecnumber<<std::endl;
+    std::cout << __LINE__ << "]\t" << mthn << "Could not find FEC number: " << fecnumber << std::endl;
 
     assert(0);
 
@@ -193,11 +196,12 @@ unsigned int PixelFECConfig::crateFromFECNumber(unsigned int fecnumber) const{
 
 unsigned int PixelFECConfig::VMEBaseAddressFromFECNumber(unsigned int fecnumber) const{
 
+    std::string mthn = "[PixelFECConfig::VMEBaseAddressFromFECNumber()]\t\t    " ;
     for(unsigned int i=0;i<fecconfig_.size();i++){
 	if (fecconfig_[i].getFECNumber()==fecnumber) return fecconfig_[i].getVMEBaseAddress();
     }
 
-    std::cout << "Could not find FEC number:"<<fecnumber<<std::endl;
+    std::cout << __LINE__ << "]\t" << mthn << "Could not find FEC number: " << fecnumber << std::endl;
 
     assert(0);
 
@@ -234,7 +238,7 @@ void PixelFECConfig::writeXMLHeader(pos::PixelConfigKey key,
   std::string mthn = "[PixelFECConfig::writeXMLHeader()]\t\t\t    " ;
   std::stringstream fullPath ;
   fullPath << path << "/Pixel_PixelFecParameters_" << PixelTimeFormatter::getmSecTime() << ".xml" ;
-  cout << mthn << "Writing to: " << fullPath.str() << endl ;
+  cout << __LINE__ << "]\t" << mthn << "Writing to: " << fullPath.str() << endl ;
   
   outstream->open(fullPath.str().c_str()) ;
   

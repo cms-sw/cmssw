@@ -17,6 +17,7 @@ using namespace std;
 
 PixelPortcardMap::PixelPortcardMap(std::vector< std::vector < std::string> > &tableMat):PixelConfigBase(" "," "," "){
 
+  std::string mthn = "[PixelPortcardMap::PixelPortcardMap()]\t\t\t    " ;
   std::vector< std::string > ins = tableMat[0];
   std::map<std::string , int > colM;
   std::vector<std::string > colNames;
@@ -68,7 +69,8 @@ PixelPortcardMap::PixelPortcardMap(std::vector< std::vector < std::string> > &ta
     {
       if(colM.find(colNames[n]) == colM.end())
 	{
-	  std::cerr << "[PixelPortcardMap::PixelPortcardMap()]\tCouldn't find in the database the column with name " << colNames[n] << std::endl;
+	  std::cerr << __LINE__ << "]\t" << mthn 
+	            << "Couldn't find in the database the column with name " << colNames[n] << std::endl;
 	  assert(0);
 	}
     }
@@ -99,8 +101,8 @@ PixelPortcardMap::PixelPortcardMap(std::vector< std::vector < std::string> > &ta
     PixelModuleName module(modulename);
     if (module.modulename()!=modulename)
       {
-	std::cout << "[PixelPortcardMap::PixelPortcardMap()]\t\t\t    Modulename:"<<modulename<<std::endl;
-	std::cout << "[PixelPortcardMap::PixelPortcardMap()]\t\t\t    Parsed to:"<<module.modulename()<<std::endl;
+	std::cout << __LINE__ << "]\t" << mthn << "Modulename: " << modulename          << std::endl;
+	std::cout << __LINE__ << "]\t" << mthn << "Parsed to : " << module.modulename() << std::endl;
 	assert(0);
       }
     if(tbmChannel == "")
@@ -119,14 +121,15 @@ PixelPortcardMap::PixelPortcardMap(std::vector< std::vector < std::string> > &ta
 PixelPortcardMap::PixelPortcardMap(std::string filename):
   PixelConfigBase(" "," "," "){
 
+  std::string mthn = "[PixelPortcardMap::PixelPortcardMap()]\t\t\t    " ;
   std::ifstream in(filename.c_str());
 
   if (!in.good()){
-    std::cout << "[PixelPortcardMap::PixelPortcardMap()]\t\t\t    Could not open: " << filename <<std::endl;
+    std::cout << __LINE__ << "]\t" << mthn << "Could not open: " << filename <<std::endl;
     assert(0);
   }
   else {
-    std::cout << "[PixelPortcardMap::PixelPortcardMap()]\t\t\t    Reading from: "   << filename <<std::endl;
+    std::cout << __LINE__ << "]\t" << mthn << "Reading from: "   << filename <<std::endl;
   }
   
   std::string dummy;
@@ -156,8 +159,8 @@ PixelPortcardMap::PixelPortcardMap(std::string filename):
     if (!in.eof() ){
       PixelModuleName module(modulename);
       if (module.modulename()!=modulename){
-	std::cout << "Modulename:"<<modulename<<std::endl;
-	std::cout << "Parsed to:"<<module.modulename()<<std::endl;
+	std::cout << __LINE__ << "]\t" << mthn << "Modulename: " << modulename          << std::endl;
+	std::cout << __LINE__ << "]\t" << mthn << "Parsed to : " << module.modulename() << std::endl;
 	assert(0);
       }
 
@@ -189,12 +192,13 @@ PixelPortcardMap::~PixelPortcardMap(){}
 void PixelPortcardMap::writeASCII(std::string dir) const {
 
   
+  std::string mthn = "[PixelPortcardMap::writeASCII()]\t\t\t\t    " ;
   if (dir!="") dir+="/";
   string filename=dir+"portcardmap.dat";
   
   ofstream out(filename.c_str());
   if(!out.good()){
-    cout << "Could not open file:"<<filename<<endl;
+    cout << __LINE__ << "]\t" << mthn << "Could not open file: " << filename << endl;
     assert(0);
   }
 
@@ -227,6 +231,20 @@ const std::set< std::pair< std::string, int > > PixelPortcardMap::PortCardAndAOH
 	}
 	
 	return returnThis;
+}
+
+// Added by Dario for Debbie (the PixelPortcardMap::portcards is way to slow for the interactive tool)
+bool PixelPortcardMap::getName(std::string moduleName, std::string &portcardName)
+{
+	for( std::map< PixelChannel, std::pair<std::string, int> >::const_iterator map_itr = map_.begin(); map_itr != map_.end(); ++map_itr )
+	{
+		if ( map_itr->first.modulename() == moduleName )
+		{
+			portcardName = map_itr->second.first;
+			return true ;
+		}
+	}
+        return false ;
 }
 
 const std::set< std::string > PixelPortcardMap::portcards(const PixelModuleName& aModule) const
@@ -325,7 +343,7 @@ void PixelPortcardMap::writeXMLHeader(pos::PixelConfigKey key,
   std::string mthn = "[PixelPortcardMap::writeXMLHeader()]\t\t\t    " ;
   std::stringstream fullPath ;
   fullPath << path << "/Pixel_PortCardMap_" << PixelTimeFormatter::getmSecTime() << ".xml" ;
-  std::cout << mthn << "Writing to: " << fullPath.str() << std::endl ;
+  std::cout << __LINE__ << "]\t" << mthn << "Writing to: " << fullPath.str() << std::endl ;
   
   outstream->open(fullPath.str().c_str()) ;
   

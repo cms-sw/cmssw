@@ -82,6 +82,7 @@ const PixelHdwAddress& PixelHdwAddress::operator=(const PixelHdwAddress& aROC){
 // Added by Dario
 void PixelHdwAddress::setAddress(std::string what, int value)
 {
+    std::string mthn = "[PixelHdwAddress::setAddress()]\t\t\t    " ;
     if(        what == "fecnumber"   )
     {
       fecnumber_    =  value;
@@ -102,7 +103,7 @@ void PixelHdwAddress::setAddress(std::string what, int value)
     } else if( what == "fedrocnumber") {
       fedrocnumber_ =  value ;
     } else {
-      std::cout << "[PixelHdwAddress::setAddress()]\tCould not set a value for " << what 
+      std::cout << __LINE__ << "]\t" << mthn << "Could not set a value for " << what 
                 << " (invalid keyword)" << std::endl ;
       assert(0) ;
     }
@@ -111,6 +112,7 @@ void PixelHdwAddress::setAddress(std::string what, int value)
 //====================================================================================
 void PixelHdwAddress::compare(std::string what, bool &changed, unsigned int newValue, unsigned int &oldValue)
 {
+    std::string mthn = "[PixelHdwAddress::compare()]\t\t\t    " ;
     changed  = false ;
     oldValue = 0 ;
     
@@ -134,7 +136,7 @@ void PixelHdwAddress::compare(std::string what, bool &changed, unsigned int newV
     } else if(  what == "fedrocnumber") {
       if( fedrocnumber_  != newValue)   {changed = true; oldValue = fedrocnumber_; return ;}
     } else {
-      std::cout << "[PixelHdwAddress::compare()]\tCould not compare value for " << what 
+      std::cout << __LINE__ << "]\t" << mthn << "Could not compare value for " << what 
                 << " (invalid keyword)" << std::endl ;
       assert(0) ;
     }
