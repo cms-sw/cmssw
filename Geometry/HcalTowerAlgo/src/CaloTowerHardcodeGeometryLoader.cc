@@ -8,6 +8,12 @@
 std::auto_ptr<CaloSubdetectorGeometry> CaloTowerHardcodeGeometryLoader::load() {
   CaloTowerGeometry* geom=new CaloTowerGeometry();
 
+  if( 0 == geom->cornersMgr() ) geom->allocateCorners ( 
+     CaloTowerGeometry::k_NumberOfCellsForCorners ) ;
+  if( 0 == geom->parMgr() ) geom->allocatePar (
+     CaloTowerGeometry::k_NumberOfParametersPerShape*CaloTowerGeometry::k_NumberOfShapes,
+     CaloTowerGeometry::k_NumberOfParametersPerShape ) ;
+
   int nnn=0;
   // simple loop
   for (int ieta=-limits.lastHFRing(); ieta<=limits.lastHFRing(); ieta++) {
@@ -95,10 +101,14 @@ CaloTowerHardcodeGeometryLoader::makeCell( int ieta,
 
   const double mysign ( !alongZ ? 1 : -1 ) ;
   std::vector<double> hh ;
-  hh.reserve(3) ;
+  hh.reserve(5) ;
   hh.push_back( deta/2 ) ;
   hh.push_back( dphi_half ) ;
   hh.push_back( mysign*thickness/2. ) ;
+
+  hh.push_back( fabs( eta ) ) ;
+  hh.push_back( fabs( z ) ) ;
+
   return new calogeom::IdealObliquePrism(
      point,
      geom->cornersMgr(),
