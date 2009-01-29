@@ -35,7 +35,7 @@ process.mytest = cms.EDAnalyzer("ExPopConAnalyzer",
     loggingOn= cms.untracked.bool(True),
     SinceAppendMode=cms.bool(True),
     Source=cms.PSet(
-    firstSince=cms.untracked.double(300) 
+    firstSince=cms.untracked.int64(300) 
     )                            
 )
 
