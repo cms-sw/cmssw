@@ -43,8 +43,11 @@ namespace cond{
 					   cond::Time_t since,
 					   cond::Time_t till );
   private:
+
+    cond::IOVSequence const & iovSeq(const std::string& iovToken) const;
+
     cond::PoolTransaction* m_pooldb;
-    std::map< std::string,cond::IOVSequence* > m_iovcache;
+    std::map< std::string, cond::IOVSequence const * > m_iovcache;
   };
 
 }//ns cond
