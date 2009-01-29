@@ -23,8 +23,9 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     cms.PSet(record = cms.string('PEcalEndcapRcd'),   tag = cms.string('TEST03')),
     cms.PSet(record = cms.string('PEcalPreshowerRcd'),tag = cms.string('TEST04')),
     cms.PSet(record = cms.string('PHcalRcd'),         tag = cms.string('TEST05')),
-    cms.PSet(record = cms.string('PZdcRcd'),          tag = cms.string('TEST06')),
-    cms.PSet(record = cms.string('PCastorRcd'),       tag = cms.string('TEST07'))
+    cms.PSet(record = cms.string('PCaloTowerRcd'),    tag = cms.string('TEST06')),
+    cms.PSet(record = cms.string('PZdcRcd'),          tag = cms.string('TEST07')),
+    cms.PSet(record = cms.string('PCastorRcd'),       tag = cms.string('TEST08'))
     )
                                           )
 

@@ -6,6 +6,7 @@
 
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/HcalTowerAlgo/interface/CaloTowerGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/ForwardGeometry/interface/ZdcGeometry.h"
 #include "Geometry/ForwardGeometry/interface/CastorGeometry.h"
@@ -26,6 +27,10 @@ void
 PCaloGeometryBuilder::beginJob( edm::EventSetup const& es )
 {
    const std::string toDB ( "_toDB" ) ;
+
+   edm::ESHandle<CaloSubdetectorGeometry> pGct   ;
+   es.get<CaloTowerGeometry::AlignedRecord>().get(
+      CaloTowerGeometry::producerTag() + toDB, pGct ) ;
 
    edm::ESHandle<CaloSubdetectorGeometry>       pGeb   ;
    es.get<EcalBarrelGeometry::AlignedRecord>().get(
