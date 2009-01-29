@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/06/26 12:20:40 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/01/16 11:11:46 $
+ *  $Revision: 1.7 $
  *  \author N. Amapane - CERN
  */
 
@@ -38,7 +38,6 @@ DTGeometryESModule::DTGeometryESModule(const edm::ParameterSet & p)
 {
 
   applyAlignment_ = p.getParameter<bool>("applyAlignment");
-  cout << "DTGeometryESModule " << fromDDD_ << endl;
 
   setWhatProduced(this, dependsOn(&DTGeometryESModule::geometryCallback_) );
 
@@ -88,7 +87,6 @@ void DTGeometryESModule::geometryCallback_( const MuonNumberingRecord& record ) 
   // Called whenever the muon numbering (or ideal geometry) changes
   //
 
-  cout << "DTGeometryESModule::produce " << fromDDD_ << endl;
   _dtGeometry = boost::shared_ptr<DTGeometry>(new DTGeometry );
   if ( fromDDD_ ) {
     edm::ESHandle<MuonDDDConstants> mdc;
