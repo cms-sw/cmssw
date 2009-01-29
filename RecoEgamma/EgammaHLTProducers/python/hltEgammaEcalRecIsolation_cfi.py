@@ -1,3 +1,5 @@
+import FWCore.ParameterSet.Config as cms
+
 hltEgammaEcalRecIsolation = cms.EDProducer( "EgammaHLTEcalRecIsolationProducer",
                                                         recoEcalCandidateProducer = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" ),
                                                         ecalBarrelRecHitProducer = cms.InputTag("hltEcalRegionalEgammaRecHit"),
