@@ -75,8 +75,7 @@ namespace cscdqm {
     >
   > CSCMapType;
   
-  typedef std::map<HistoId, MonitorObject*> DDUHistoMapType;
-  typedef std::map<HwId, DDUHistoMapType*> DDUMapType;
+  typedef std::map<HwId, MonitorObject**> DDUMapType;
 
   /**
    * @class Cache
@@ -108,7 +107,7 @@ namespace cscdqm {
         DDUMapType::iterator it;
         while (dduData.size() > 0) {
           it = dduData.begin();
-          if (it->second) delete it->second;
+          if (it->second) delete [] it->second;
           dduData.erase(it);
         }
       }

@@ -66,7 +66,9 @@ namespace cscdqm {
       return;
     }
   
-    if (crateID == 0 || dmbID == 0 || crateID > 60 || dmbID > 10) {
+    unsigned int cscType = 0;
+    unsigned int cscPosition = 0;
+    if (!getCSCFromMap(crateID, dmbID, cscType, cscPosition )) {
       LOG_ERROR << "Invalid CSC: " << cscTag << ". Skipping";
       return;
     }
@@ -76,10 +78,6 @@ namespace cscdqm {
       return;
     }
     
-    unsigned int cscType = 0;
-    unsigned int cscPosition = 0;
-    getCSCFromMap(crateID, dmbID, cscType, cscPosition );
-  
     // if (cscName != "") cscTag+=" ["+cscName+"]";
     // nDMBEvents[cscTag]++;
     double DMBEvents  = 0.0;

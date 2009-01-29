@@ -85,7 +85,10 @@ namespace cscdqm {
     return false;
   }
 
-  void EventProcessor::getCSCFromMap(const unsigned int& crateId, const unsigned int& dmbId, unsigned int& cscType, unsigned int& cscPosition) const {
+  const bool EventProcessor::getCSCFromMap(const unsigned int& crateId, const unsigned int& dmbId, unsigned int& cscType, unsigned int& cscPosition) const {
+
+    if (crateId < 1 || crateId > 60 || dmbId < 1 || dmbId > 10) return false;
+
     CSCDetId cid = config->fnGetCSCDetId(crateId, dmbId);
     cscPosition  = cid.chamber();
     int iring    = cid.ring();
@@ -93,6 +96,9 @@ namespace cscdqm {
     int iendcap  = cid.endcap();
     std::string tlabel = cscdqm::Utility::getCSCTypeLabel(iendcap, istation, iring);
     cscType = cscdqm::Utility::getCSCTypeBin(tlabel);
+
+    return true;
+
   }
 
 }

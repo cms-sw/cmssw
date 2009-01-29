@@ -68,12 +68,11 @@ namespace cscdqm {
         dduPointerValue = 0;
         return false;
       }
+      dduPointerValue  = dduId;
     } 
 
-    dduPointerValue  = dduId;
-    DDUHistoMapType::const_iterator hit = dduPointer->second->find(id);
-    if (hit != dduPointer->second->end()) {
-      mo = hit->second;
+    if (dduPointer->second[id]) {
+      mo = dduPointer->second[id];
       return true;
     }
     return false;
@@ -127,10 +126,12 @@ namespace cscdqm {
       } 
 
       if (dduPointer == dduData.end()) {
-        dduPointer = dduData.insert(dduData.end(), std::make_pair(dduId, new DDUHistoMapType()));
+        MonitorObject** mos = new MonitorObject*[h::namesSize];
+        for (unsigned int i = 0; i < h::namesSize; i++) mos[i] = 0;
+        dduPointer = dduData.insert(dduData.end(), std::make_pair(dduId, mos));
       }
 
-      dduPointer->second->insert(std::make_pair(id, mo));
+      dduPointer->second[id] = mo;
       dduPointerValue = dduId;
 
     } else

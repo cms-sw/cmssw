@@ -87,7 +87,7 @@ namespace cscdqm {
       const bool getCSCHisto(const HistoId& histo, const HwId& crateID, const HwId& dmbSlot, const HwId& adId, MonitorObject*& me);
       const bool getParHisto(const HistoId& histo, MonitorObject*& me);
 
-      void getCSCFromMap(const unsigned int& crateId, const unsigned int& dmbId, unsigned int& cscType, unsigned int& cscPosition) const;
+      const bool getCSCFromMap(const unsigned int& crateId, const unsigned int& dmbId, unsigned int& cscType, unsigned int& cscPosition) const;
 
       Configuration* config;
       Summary summary;
