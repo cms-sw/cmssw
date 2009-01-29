@@ -279,9 +279,9 @@ int main( int argc, char** argv ){
     std::auto_ptr<cond::Logger> logdb;
     if (!logConnect.empty()) {
       logdb.reset(new cond::Logger(conHandler.getConnection("logdb")));
-      logdb->getWriteLock();
+      //   logdb->getWriteLock();
       logdb->createLogDBIfNonExist();
-      logdb->releaseWriteLock();
+      // logdb->releaseWriteLock();
     }
     cond::UserLogInfo a;
     a.provenance=sourceConnect+"/"+inputTag;
