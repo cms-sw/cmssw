@@ -4,8 +4,8 @@
 /** \class MuScleFit
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2009/01/09 15:34:26 $
- *  $Revision: 1.9 $
+ *  $Date: 2009/01/14 15:36:50 $
+ *  $Revision: 1.10 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -95,7 +95,7 @@ class MuScleFit: public edm::EDLooper {
    * of mass and resolution of a given measurement,
    * for each of the six considered diLmuon resonances.
    */
-  void readProbabilityDistributions( const edm::EventSetup & eventSetup );
+  // void readProbabilityDistributions( const edm::EventSetup & eventSetup );
   /// Raed probability distributions from a local root file.
   void readProbabilityDistributionsFromFile();
 
@@ -121,7 +121,7 @@ class MuScleFit: public edm::EDLooper {
 
   int debug;
 
-  bool readPdfFromDB;
+  // bool readPdfFromDB;
 
   edm::InputTag theMuonLabel;
   int theMuonType;

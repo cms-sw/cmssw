@@ -130,8 +130,8 @@
 #include "MuonAnalysis/MomentumScaleCalibration/interface/Functions.h"
 
 // To read likelihood distributions from the database.
-// #include "CondFormats/RecoMuonObjects/interface/MuScleFitLikelihoodPdf.h"
-// #include "CondFormats/DataRecord/interface/MuScleFitLikelihoodPdfRcd.h"
+#include "CondFormats/RecoMuonObjects/interface/MuScleFitLikelihoodPdf.h"
+#include "CondFormats/DataRecord/interface/MuScleFitLikelihoodPdfRcd.h"
 
 using namespace std;
 using namespace edm;
@@ -230,7 +230,7 @@ MuScleFit::MuScleFit (const ParameterSet& pset) {
 
   // Read the Probs file from database. If false it searches the root file in
   // MuonAnalysis/MomentumScaleCalibration/test of the active release.
-  readPdfFromDB = pset.getParameter<bool>("readPdfFromDB");
+  // readPdfFromDB = pset.getParameter<bool>("readPdfFromDB");
 
   // Check for parameters consistency
   // it will abort in case of errors.
@@ -309,9 +309,8 @@ void MuScleFit::beginOfJob (const EventSetup& eventSetup) {
   // integral of Lorentz * Gaussian as a function of mass and resolution
   // of a given measurement, for each of the six considered di-muon resonances.
   // -------------------------------------------------
-//   if( readPdfFromDB ) readProbabilityDistributions( eventSetup );
-//   else readProbabilityDistributionsFromFile();
-
+  // if( readPdfFromDB ) readProbabilityDistributions( eventSetup );
+  // else
   readProbabilityDistributionsFromFile();
 
   if (debug>0) cout << "[MuScleFit]: beginOfJob" << endl;
