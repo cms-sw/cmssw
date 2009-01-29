@@ -188,8 +188,8 @@ bool L1RCTLookupTables::hOeFGVetoBit(float ecal, float hcal, bool fgbit) const
     {
       if((hcal / ecal) > rctParameters_->hOeCut()) veto = true;
     }
-  //  else 
-  if(ecal < rctParameters_->eMinForHoECut())
+  //  else
+  if (ecal < rctParameters_->eMinForHoECut())
     {
       if(hcal > rctParameters_->hMinForHoECut()) veto = true;  // Changed from eMinForHoECut() - JLL 2008-Feb-13
     }
@@ -280,9 +280,7 @@ unsigned int L1RCTLookupTables::eGammaETCode(float ecal, float hcal, int iAbsEta
   if(rctParameters_ == 0)
     throw cms::Exception("L1RCTParameters Invalid")
       << "L1RCTParameters should be set every event" << rctParameters_;
-  float etLinear = 
-    rctParameters_->eGammaECalScaleFactors()[iAbsEta-1] * ecal +
-    rctParameters_->eGammaHCalScaleFactors()[iAbsEta-1] * hcal;
+  float etLinear = rctParameters_->EGammaTPGSum(ecal,hcal,iAbsEta);
   return convertToInteger(etLinear, rctParameters_->eGammaLSB(), 7);
 }
 
@@ -291,8 +289,6 @@ unsigned int L1RCTLookupTables::jetMETETCode(float ecal, float hcal, int iAbsEta
   if(rctParameters_ == 0)
     throw cms::Exception("L1RCTParameters Invalid")
       << "L1RCTParameters should be set every event" << rctParameters_;
-  float etLinear = 
-    rctParameters_->jetMETECalScaleFactors()[iAbsEta-1] * ecal +
-    rctParameters_->jetMETHCalScaleFactors()[iAbsEta-1] * hcal;
+  float etLinear = rctParameters_->JetMETTPGSum(ecal,hcal,iAbsEta);
   return convertToInteger(etLinear, rctParameters_->jetMETLSB(), 9);
 }
