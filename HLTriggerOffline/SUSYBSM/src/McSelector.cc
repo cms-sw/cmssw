@@ -9,6 +9,7 @@
  */
 
 #include "HLTriggerOffline/SUSYBSM/interface/McSelector.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -36,19 +37,19 @@ McSelector::McSelector(edm::ParameterSet userCut_params)
 
 
 
-  cout << endl;
-  cout << "UserAnalysis parameters, MC:" << endl;
-  cout << " mc_ptElecMin = " << mc_ptElecMin  << endl;
-  cout << " mc_ptMuonMin = " << mc_ptMuonMin  << endl;
-  cout << " mc_ptPhotMin = " << mc_ptPhotMin  << endl;
-  cout << " mc_ptJetMin  = " << mc_ptJetMin   << endl;
-  cout << " mc_metMin    = " << mc_metMin     << endl;
+  edm::LogInfo("MCSelectorParameters") << endl;
+  edm::LogInfo("MCSelectorParameters") << "UserAnalysis parameters, MC:";
+  edm::LogInfo("MCSelectorParameters") << " mc_ptElecMin = " << mc_ptElecMin;
+  edm::LogInfo("MCSelectorParameters") << " mc_ptMuonMin = " << mc_ptMuonMin;
+  edm::LogInfo("MCSelectorParameters") << " mc_ptPhotMin = " << mc_ptPhotMin;
+  edm::LogInfo("MCSelectorParameters") << " mc_ptJetMin  = " << mc_ptJetMin ;
+  edm::LogInfo("MCSelectorParameters") << " mc_metMin    = " << mc_metMin   ;
 
-  cout << " mc_nElec  	 = " << mc_nElec   << endl;
-  cout << " mc_nMuon  	 = " << mc_nMuon   << endl;
-  cout << " mc_nPhot  	 = " << mc_nPhot   << endl;
-  cout << " mc_nJet   	 = " << mc_nJet    << endl;
-  cout << endl;
+  edm::LogInfo("MCSelectorParameters") << " mc_nElec  	 = " << mc_nElec;
+  edm::LogInfo("MCSelectorParameters") << " mc_nMuon  	 = " << mc_nMuon;
+  edm::LogInfo("MCSelectorParameters") << " mc_nPhot  	 = " << mc_nPhot;
+  edm::LogInfo("MCSelectorParameters") << " mc_nJet   	 = " << mc_nJet ;
+  edm::LogInfo("MCSelectorParameters") << endl;
 
 }
 
@@ -80,21 +81,21 @@ bool McSelector::isSelected(const edm::Event& iEvent)
       if(fabs(genParticle->pdgId()) == 11) {
 	if(genParticle->pt() > mc_ptElecMin) {
 	  nMcElectrons++;
-	  //	  cout << "Mc Electron, pt = " << genParticle->pt() << endl;
+	  LogDebug("MCSelectorCuts") << "Mc Electron, pt = " << genParticle->pt();
 	}
       }
       //muons
       if(fabs(genParticle->pdgId()) == 13) {
 	if(genParticle->pt() > mc_ptMuonMin) {
 	  nMcMuons++;
-	  //	  cout << "Mc Muon, pt = " << genParticle->pt() << endl;
+	  LogDebug("MCSelectorCuts") << "Mc Muon, pt = " << genParticle->pt();
 	}
       }
       //photons
       if(fabs(genParticle->pdgId()) == 22) {
 	if(genParticle->pt() > mc_ptPhotMin) {
 	  nMcPhotons++;
-	  //	  cout << "Mc Photon, pt = " << genParticle->pt() << endl;      }
+	  LogDebug("MCSelectorCuts") << "Mc Photon, pt = " << genParticle->pt();
 	}
       }
     }
@@ -104,13 +105,13 @@ bool McSelector::isSelected(const edm::Event& iEvent)
     GenJet genjet = (*theGenJetCollection)[i];
     if(genjet.pt() > mc_ptJetMin) {
       nMcJets++;
-      //      cout << "Mc Jet, pt = " << genjet.pt() << endl;
+      LogDebug("MCSelectorCuts") << "Mc Jet, pt = " << genjet.pt();
     }
   }
 
 
   const GenMET theGenMET = theGenMETCollection->front();
-  //  cout << "GenMET = " << theGenMET.pt() << endl;
+  LogDebug("MCSelectorCuts") << "GenMET = " << theGenMET.pt();
   if(theGenMET.pt() > mc_metMin) MetCutPassed = true;
 
 
@@ -121,11 +122,11 @@ bool McSelector::isSelected(const edm::Event& iEvent)
   if(nMcJets      >= mc_nJet ) JetCutPassed      = true;
 
 
-  cout << "ElectronCutPassed = " << (int)ElectronCutPassed << endl;
-  cout << "MuonCutPassed     = " << (int)MuonCutPassed << endl;
-  cout << "PhotonCutPassed   = " << (int)PhotonCutPassed << endl;
-  cout << "JetCutPassed      = " << (int)JetCutPassed << endl;
-  cout << "MetCutPassed      = " << (int)MetCutPassed << endl;
+  edm::LogInfo("MCSelectorPassed") << "ElectronCutPassed = " << (int)ElectronCutPassed;
+  edm::LogInfo("MCSelectorPassed") << "MuonCutPassed     = " << (int)MuonCutPassed;
+  edm::LogInfo("MCSelectorPassed") << "PhotonCutPassed   = " << (int)PhotonCutPassed;
+  edm::LogInfo("MCSelectorPassed") << "JetCutPassed      = " << (int)JetCutPassed;
+  edm::LogInfo("MCSelectorPassed") << "MetCutPassed      = " << (int)MetCutPassed;
 
 
   if(

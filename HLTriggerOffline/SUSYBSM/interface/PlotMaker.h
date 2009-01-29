@@ -66,7 +66,7 @@ class PlotMaker {
 
  private:
 
-  
+  std::string dirname_;
 
   void setBits(std::vector<int>* l1bits, std::vector<int>* hltbits) {l1bits_=l1bits; hltbits_=hltbits;}
   double invariantMass(reco::Candidate*,reco::Candidate*);

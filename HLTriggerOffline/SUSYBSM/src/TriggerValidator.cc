@@ -15,7 +15,7 @@ Implementation:
 //                   Maurizio Pierini
 //                   Maria Spiropulu
 //         Created:  Wed Aug 29 15:10:56 CEST 2007
-// $Id: TriggerValidator.cc,v 1.8 2009/01/27 11:55:11 chiorbo Exp $
+// $Id: TriggerValidator.cc,v 1.9 2009/01/28 10:16:19 chiorbo Exp $
 //
 //
 
@@ -26,6 +26,8 @@ Implementation:
 #include <iomanip>
 
 #include "HLTriggerOffline/SUSYBSM/interface/TriggerValidator.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -81,6 +83,8 @@ using namespace edm;
 using namespace std;
 
 TriggerValidator::TriggerValidator(const edm::ParameterSet& iConfig):
+  dirname_(iConfig.getUntrackedParameter("dirname",
+					      std::string("HLT/SusyExo"))),
   HistoFileName(iConfig.getUntrackedParameter("histoFileName",
 					      std::string("SusyBsmTriggerValidation.root"))),
   StatFileName(iConfig.getUntrackedParameter("statFileName",
@@ -98,7 +102,6 @@ TriggerValidator::TriggerValidator(const edm::ParameterSet& iConfig):
   nEvMcSelected = 0;
 
   // --- set the names in the dbe folders ---
-  dirname_="HLTOffline/TriggerValidator/"; 
   triggerBitsDir = "/TriggerBits";
   recoSelBitsDir = "/RecoSelection"; 
   mcSelBitsDir = "/McSelection";      
@@ -121,6 +124,8 @@ TriggerValidator::TriggerValidator(const edm::ParameterSet& iConfig):
     dbe_->setCurrentFolder(dirname_);
   }
 
+
+  objectList.addParameter<std::string>("dirname",dirname_);
 
 }
 
@@ -161,7 +166,7 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   //  try {iEvent.getByType(L1GTRR);} catch (...) {;}
   iEvent.getByLabel("gtDigis",L1GTRR);
   std::vector<int> l1bits;
-  if (!L1GTRR.isValid()) {cout << "L1ParticleMapCollection Not Valid!" << endl;}
+  if (!L1GTRR.isValid()) {edm::LogWarning("Readout Error|L1") << "L1ParticleMapCollection Not Valid!";}
   int nL1size = L1GTRR->decisionWord().size();
   if(firstEvent) {
 
@@ -531,30 +536,30 @@ TriggerValidator::endRun(const edm::Run& run, const edm::EventSetup& c)
   unsigned int n(l1Names_.size());
 
   n = l1Names_.size();
-  cout << endl;
-  cout << "L1T-Table "
+  edm::LogInfo("L1TableSummary") << endl;
+  edm::LogVerbatim("L1TableSummary") << "L1T-Table "
        << right << setw(10) << "L1T  Bit#" << " "
        << "Name" << "\n";
   for (unsigned int i=0; i!=n; i++) {
-    cout << right << setw(20) << i << " "
+    edm::LogVerbatim("L1TableSummary") << right << setw(20) << i << " "
 	 << l1Names_[i] << "\n";
   }
   
   
   n = hlNames_.size();
-  cout << endl;
-  cout << "HLT-Table "
+  edm::LogInfo("HltTableSummary") << endl;
+  edm::LogVerbatim("HltTableSummary") << "HLT-Table "
        << right << setw(10) << "HLT  Bit#" << " "
        << "Name" << "\n";
   
   for (unsigned int i=0; i!=n; i++) {
-    cout << right << setw(20) << i << " "
+     edm::LogVerbatim("HltTableSummary") << right << setw(20) << i << " "
 	 << hlNames_[i] << "\n";
   }
   
-  cout << endl;
-  cout << "HLT-Table end!" << endl;
-  cout << endl;
+  edm::LogVerbatim("HltTableSummary") << endl;
+  edm::LogVerbatim("HltTableSummary") << "HLT-Table end!" << endl;
+  edm::LogVerbatim("HltTableSummary") << endl;
   
 
  

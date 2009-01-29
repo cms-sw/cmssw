@@ -8,6 +8,7 @@
 *
 */
 #include "HLTriggerOffline/SUSYBSM/interface/PlotMaker.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -36,12 +37,14 @@ PlotMaker::PlotMaker(edm::ParameterSet objectList)
   def_jetPtMin      = objectList.getParameter<double>("def_jetPtMin");
   def_photonPtMin   = objectList.getParameter<double>("def_photonPtMin");
 
-  cout << endl;
-  cout << "Object definition cuts:" << endl;
-  cout << " def_electronPtMin  " << def_electronPtMin << endl;
-  cout << " def_muonPtMin      " << def_muonPtMin     << endl;
-  cout << " def_jetPtMin       " << def_jetPtMin      << endl;
-  cout << " def_photonPtMin    " << def_photonPtMin   << endl;
+  dirname_          = objectList.getParameter<std::string>("dirname");
+
+  edm::LogInfo("PlotMakerObjects") << endl;
+  edm::LogInfo("PlotMakerObjects") << "Object definition cuts:" << endl;
+  edm::LogInfo("PlotMakerObjects") << " def_electronPtMin  " << def_electronPtMin << endl;
+  edm::LogInfo("PlotMakerObjects") << " def_muonPtMin      " << def_muonPtMin     << endl;
+  edm::LogInfo("PlotMakerObjects") << " def_jetPtMin       " << def_jetPtMin      << endl;
+  edm::LogInfo("PlotMakerObjects") << " def_photonPtMin    " << def_photonPtMin   << endl;
 
 
 }
@@ -399,7 +402,7 @@ void PlotMaker::fillPlots(const edm::Event& iEvent)
     hJet2Eta->Fill(theCaloJetCollection[1].eta());
     hJet2Phi->Fill(theCaloJetCollection[1].phi());
   }
-  //  for(int i=0; i<theCaloJetCollection.size(); i++) cout << "theCaloJetCollection)[0].pt = " << theCaloJetCollection[i].pt() << endl;
+
   for(unsigned int i=0; i<l1bits_->size(); i++) {
     if(l1bits_->at(i)) {
       hJetMultAfterL1[i]->Fill(nJets);
@@ -464,7 +467,7 @@ void PlotMaker::fillPlots(const edm::Event& iEvent)
     hElec2Eta->Fill(theElectronCollection[1].eta());
     hElec2Phi->Fill(theElectronCollection[1].phi());
   }
-  //  for(int i=0; i<theElectronCollection.size(); i++) cout << "(*)theElectronCollection[0].pt = " << theElectronCollection[i].pt() << endl;
+
   for(unsigned int i=0; i<l1bits_->size(); i++) {
     if(l1bits_->at(i)) {
       hElecMultAfterL1[i]->Fill(nElectrons);
@@ -530,7 +533,7 @@ void PlotMaker::fillPlots(const edm::Event& iEvent)
     hMuon2Eta->Fill(theMuonCollection[1].eta());
     hMuon2Phi->Fill(theMuonCollection[1].phi());
   }
-  //  for(int i=0; i<theMuonCollection.size(); i++) cout << "theMuonCollection)[0].pt = " << theMuonCollection[i].pt() << endl;
+
   for(unsigned int i=0; i<l1bits_->size(); i++) {
     if(l1bits_->at(i)) {
       hMuonMultAfterL1[i]->Fill(nMuons);
@@ -679,7 +682,7 @@ void PlotMaker::bookHistos(DQMStore * dbe_, std::vector<int>* l1bits, std::vecto
   //******************
   //Book Jets
   //******************
-  std::string dirname_="HLTOffline/TriggerValidator/"; 
+  //  std::string dirname_="HLTOffline/TriggerValidator/"; 
 
   dbe_->setCurrentFolder(dirname_+"/L1Jets/Central/General");
   hL1CentralJetMult = dbe_->book1D("JetMult", "Jet Multiplicity", 10, 0, 10);

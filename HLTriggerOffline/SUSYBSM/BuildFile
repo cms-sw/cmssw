@@ -1,5 +1,5 @@
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
+<use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/ServiceRegistry>
 <use name=DataFormats/Common>
@@ -26,7 +26,7 @@
 <export>
    <lib name=HLTriggerOfflineSUSYBSM>
    <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
+<use name=FWCore/MessageLogger>
    <use name=FWCore/ParameterSet>
 <use name=FWCore/ServiceRegistry>
 	<use name=DataFormats/Common>

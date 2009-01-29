@@ -9,6 +9,7 @@
 */
 
 #include "HLTriggerOffline/SUSYBSM/interface/RecoSelector.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -33,14 +34,14 @@ RecoSelector::RecoSelector(edm::ParameterSet userCut_params)
   reco_ptMuonMin = userCut_params.getParameter<double>("reco_ptMuonMin");
   reco_ptPhotMin = userCut_params.getParameter<double>("reco_ptPhotMin");
 
-  cout << endl;
-  cout << "UserAnalysis parameters:" << endl;
-  cout << " reco_metMin    = " << reco_metMin << endl;
-  cout << " reco_ptJet1Min = " << reco_ptJet1Min  << endl;
-  cout << " reco_ptJet2Min = " << reco_ptJet2Min  << endl;
-  cout << " reco_ptElecMin = " << reco_ptElecMin  << endl;
-  cout << " reco_ptMuonMin = " << reco_ptMuonMin  << endl;
-  cout << " reco_ptPhotMin = " << reco_ptPhotMin  << endl;
+  edm::LogInfo("RecoSelectorParameters") << endl;
+  edm::LogInfo("RecoSelectorParameters") << "UserAnalysis parameters:" << endl;
+  edm::LogInfo("RecoSelectorParameters") << " reco_metMin    = " << reco_metMin << endl;
+  edm::LogInfo("RecoSelectorParameters") << " reco_ptJet1Min = " << reco_ptJet1Min  << endl;
+  edm::LogInfo("RecoSelectorParameters") << " reco_ptJet2Min = " << reco_ptJet2Min  << endl;
+  edm::LogInfo("RecoSelectorParameters") << " reco_ptElecMin = " << reco_ptElecMin  << endl;
+  edm::LogInfo("RecoSelectorParameters") << " reco_ptMuonMin = " << reco_ptMuonMin  << endl;
+  edm::LogInfo("RecoSelectorParameters") << " reco_ptPhotMin = " << reco_ptPhotMin  << endl;
 
 }
 
@@ -61,7 +62,7 @@ bool RecoSelector::isSelected(const edm::Event& iEvent)
     float elenergy = electron.superCluster()->energy();
     float elpt = electron.pt() * elenergy / electron.p();
     if(elpt>reco_ptElecMin)  ElectronCutPassed = true;
-    //    cout << "elpt = " << elpt << endl;
+    LogDebug("RecoSelectorCuts") << "elpt = " << elpt << endl;
   }
 
   
@@ -70,7 +71,7 @@ bool RecoSelector::isSelected(const edm::Event& iEvent)
     Muon muon = (*theMuonCollection)[i];
     float muonpt = muon.pt();
     if(muonpt>reco_ptMuonMin) MuonCutPassed = true;
-    //    cout << "muonpt = " << muonpt << endl;
+    LogDebug("RecoSelectorCuts") << "muonpt = " << muonpt << endl;
   }
   
   bool PhotonCutPassed = false;
@@ -78,7 +79,7 @@ bool RecoSelector::isSelected(const edm::Event& iEvent)
     Photon photon = (*thePhotonCollection)[i];
     float photonpt = photon.pt();
     if(photonpt>reco_ptPhotMin) PhotonCutPassed = true;
-    //    cout << "photonpt = " << photonpt << endl;
+    LogDebug("RecoSelectorCuts") << "photonpt = " << photonpt << endl;
   }
 
 
@@ -91,14 +92,14 @@ bool RecoSelector::isSelected(const edm::Event& iEvent)
   bool MetCutPassed = false;  
   const CaloMET theCaloMET = theCaloMETCollection->front();
   float calomet = theCaloMET.pt();
-  //  cout << "calomet = " << calomet << endl;
+  LogDebug("RecoSelectorCuts") << "calomet = " << calomet << endl;
   if(calomet > reco_metMin) MetCutPassed = true;
 
-//   cout << "ElectronCutPassed = " << (int)ElectronCutPassed << endl;
-//   cout << "MuonCutPassed     = " << (int)MuonCutPassed << endl;
-//   cout << "PhotonCutPassed   = " << (int)PhotonCutPassed << endl;
-//   cout << "JetCutPassed      = " << (int)JetCutPassed << endl;
-//   cout << "MetCutPassed      = " << (int)MetCutPassed << endl;
+  edm::LogInfo("RecoSelectorPassed") << "ElectronCutPassed = " << (int)ElectronCutPassed << endl;
+  edm::LogInfo("RecoSelectorPassed") << "MuonCutPassed     = " << (int)MuonCutPassed << endl;
+  edm::LogInfo("RecoSelectorPassed") << "PhotonCutPassed   = " << (int)PhotonCutPassed << endl;
+  edm::LogInfo("RecoSelectorPassed") << "JetCutPassed      = " << (int)JetCutPassed << endl;
+  edm::LogInfo("RecoSelectorPassed") << "MetCutPassed      = " << (int)MetCutPassed << endl;
 
 
 

@@ -5,11 +5,13 @@ process = cms.Process("DQM")
 #  DQM SERVICES
 #
 process.load("DQMServices.Core.DQM_cfg")
+process.load("FWCore.MessageService.MessageLogger_cfi")
 
 #
 #  DQM SOURCES
 #
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
+
 
 #process.load("Configuration.GlobalRuns.ForceZeroTeslaField_cff")
 
@@ -72,7 +74,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         'cout')
 )
 
-process.p = cms.Path(process.genCandidatesForMET*process.genParticlesForMETAllVisible*process.genMetTrue*process.TriggerValidator)
+process.p = cms.Path(process.genCandidatesForMET*process.genParticlesForMETAllVisible*process.genMetTrue*process.HLTSusyExoVal)
 process.pEnd = cms.Path(process.dqmSaver)
 process.DQMStore.verbose = 0
 process.DQM.collectorHost = ''
