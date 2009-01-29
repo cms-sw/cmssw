@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 import os
 import sys
 import ConfigParser
@@ -80,8 +80,7 @@ process.TrackHitFilter.hitSelection= "SiStripOnly"
  ##
  ## Load and Configure TrackRefitter
  ##
-process.load("RecoTracker.TrackProducer.RefitterWithMaterial_cff")
-process.load("RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilderWithoutRefit_cfi")
+process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 process.TrackRefitter.src ='TrackHitFilter'
 #process.TrackRefitter.src ='AliMomConstraint'
 #process.TrackRefitter.constraint='momentum'
