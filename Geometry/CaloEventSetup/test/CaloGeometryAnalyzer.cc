@@ -689,13 +689,13 @@ CaloGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
    // get the ecal & hcal geometry
    //
    if (pass_==0) {
-     build(*pG,DetId::Ecal,EcalBarrel,"eb");
+/*     build(*pG,DetId::Ecal,EcalBarrel,"eb");
      build(*pG,DetId::Ecal,EcalEndcap,"ee");
      build(*pG,DetId::Ecal,EcalPreshower,"es");
      build(*pG,DetId::Hcal,HcalBarrel,"hb");
      build(*pG,DetId::Hcal,HcalEndcap,"he");
      build(*pG,DetId::Hcal,HcalOuter ,"ho");
-     build(*pG,DetId::Hcal,HcalForward,"hf");
+     build(*pG,DetId::Hcal,HcalForward,"hf");*/
      build(*pG,DetId::Calo,CaloTowerDetId::SubdetId     ,"ct");
      build(*pG,DetId::Calo,HcalZDCDetId::SubdetectorId  ,"zd");
      build(*pG,DetId::Calo,HcalCastorDetId::SubdetectorId  ,"ca");

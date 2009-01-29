@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: CaloGeometryBuilder.cc,v 1.13 2009/01/20 18:59:12 heltsley Exp $
+// $Id: CaloGeometryBuilder.cc,v 1.14 2009/01/21 21:27:03 heltsley Exp $
 //
 //
 
@@ -24,6 +24,13 @@
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalCastorDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
+#include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
+#include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
+#include "Geometry/HcalTowerAlgo/interface/CaloTowerGeometry.h"
+#include "Geometry/ForwardGeometry/interface/CastorGeometry.h"
+#include "Geometry/ForwardGeometry/interface/ZdcGeometry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 //
 // member functions
@@ -60,55 +67,55 @@ CaloGeometryBuilder::produceAligned( const CaloGeometryRecord& iRecord )
    {
       // look for HCAL parts
       // assume 'HCAL' for all of HCAL.  
-      if ( (*ite) == "HCAL" ) 
+      if ( (*ite) == HcalGeometry::producerTag() ) 
       {
 	 edm::LogInfo("CaloGeometryBuilder") << "Building HCAL reconstruction geometry";
 
-	 iRecord.getRecord< HcalGeometryRecord >().get("HCAL", pG);  
+	 iRecord.getRecord< HcalGeometryRecord >().get( HcalGeometry::producerTag(), pG );  
 	 pCalo->setSubdetGeometry( DetId::Hcal, HcalBarrel , pG.product() );
 	 pCalo->setSubdetGeometry( DetId::Hcal, HcalEndcap , pG.product() );
 	 pCalo->setSubdetGeometry( DetId::Hcal, HcalOuter  , pG.product() );
 	 pCalo->setSubdetGeometry( DetId::Hcal, HcalForward, pG.product() );
       }
-      else if ( (*ite) == "ZDC" ) 
+      else if ( (*ite) == ZdcGeometry::producerTag() ) 
       {
 	 edm::LogInfo("CaloGeometryBuilder") << "Building ZDC reconstruction geometry";
-	 iRecord.getRecord< ZDCGeometryRecord >().get("ZDC", pG); 
+	 iRecord.getRecord< ZDCGeometryRecord >().get( ZdcGeometry::producerTag(), pG ); 
 	 pCalo->setSubdetGeometry( DetId::Calo, HcalZDCDetId::SubdetectorId,pG.product());
       }
-      else if ( (*ite) == "CASTOR" ) 
+      else if ( (*ite) == CastorGeometry::producerTag() ) 
       {
 	 edm::LogInfo("CaloGeometryBuilder") << "Building CASTOR reconstruction geometry";
-	 iRecord.getRecord< CastorGeometryRecord >().get("CASTOR", pG); 
+	 iRecord.getRecord< CastorGeometryRecord >().get( CastorGeometry::producerTag(), pG ); 
 	 pCalo->setSubdetGeometry( DetId::Calo, HcalCastorDetId::SubdetectorId,pG.product());
       }
       // look for Ecal Barrel
-      else if ( (*ite) == "EcalBarrel" ) 
+      else if ( (*ite) == EcalBarrelGeometry::producerTag() ) 
       {
 //	 std::cout<< "Building EcalBarrel reconstruction geometry"<<std::endl;
 	 edm::LogInfo("CaloGeometryBuilder") << "Building EcalBarrel reconstruction geometry";
-	 iRecord.getRecord<EcalBarrelGeometryRecord>().get("EcalBarrel", pG); 
+	 iRecord.getRecord<EcalBarrelGeometryRecord>().get( EcalBarrelGeometry::producerTag(), pG ); 
 	 pCalo->setSubdetGeometry(DetId::Ecal,EcalBarrel,pG.product());
       }
       // look for Ecal Endcap
-      else if ( (*ite) == "EcalEndcap" ) 
+      else if ( (*ite) == EcalEndcapGeometry::producerTag() ) 
       {
 	 edm::LogInfo("CaloGeometryBuilder") << "Building EcalEndcap reconstruction geometry";
-	 iRecord.getRecord<EcalEndcapGeometryRecord>().get("EcalEndcap", pG); 
+	 iRecord.getRecord<EcalEndcapGeometryRecord>().get( EcalEndcapGeometry::producerTag(), pG ); 
 	 pCalo->setSubdetGeometry(DetId::Ecal,EcalEndcap,pG.product());
       }
       // look for Ecal Preshower
-      else if ( (*ite) == "EcalPreshower" ) 
+      else if ( (*ite) == EcalPreshowerGeometry::producerTag() ) 
       {
 	 edm::LogInfo("CaloGeometryBuilder") << "Building EcalPreshower reconstruction geometry";
-	 iRecord.getRecord<EcalPreshowerGeometryRecord>().get("EcalPreshower", pG); 
+	 iRecord.getRecord<EcalPreshowerGeometryRecord>().get(EcalPreshowerGeometry::producerTag(), pG); 
 	 pCalo->setSubdetGeometry(DetId::Ecal,EcalPreshower,pG.product());
       }
       // look for TOWER parts
-      else if ( (*ite) == "TOWER" ) 
+      else if ( (*ite) == CaloTowerGeometry::producerTag() ) 
       {
 	 edm::LogInfo("CaloGeometryBuilder") << "Building TOWER reconstruction geometry";
-	 iRecord.getRecord<IdealGeometryRecord>().get("TOWER",pG);
+	 iRecord.getRecord<CaloTowerGeometryRecord>().get(CaloTowerGeometry::producerTag(),pG);
 	 pCalo->setSubdetGeometry(DetId::Calo,1,pG.product());
       }
       else 
