@@ -30,7 +30,7 @@ matchMCTausHighEfficiency = cms.EDProducer("PFTauDecayModeTruthMatcher",
     matched = cms.InputTag("pfRecoTauProducerHighEfficiency")
 )
 
-matchMCTaus = cms.Sequence(matchMCTausHighEfficiency*matchMCTausInsideOut)
+matchMCTaus = cms.Sequence(matchMCTausHighEfficiency)
 
 #########################
 #  QCD Truth matchers   #
@@ -48,5 +48,5 @@ matchMCQCDHighEfficiency = cms.EDProducer("PFTauDecayModeTruthMatcher",
     matched = cms.InputTag("pfRecoTauProducerHighEfficiency")
 )
 
-matchMCQCD = cms.Sequence(matchMCQCDHighEfficiency*matchMCQCDInsideOut)
+matchMCQCD = cms.Sequence(matchMCQCDHighEfficiency)
 
