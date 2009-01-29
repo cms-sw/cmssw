@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2009/01/23 16:16:50 $
-//  $Revision: 1.23 $
+//  $Date: 2009/01/29 13:20:26 $
+//  $Revision: 1.25 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -130,8 +130,8 @@
 #include "MuonAnalysis/MomentumScaleCalibration/interface/Functions.h"
 
 // To read likelihood distributions from the database.
-#include "CondFormats/RecoMuonObjects/interface/MuScleFitLikelihoodPdf.h"
-#include "CondFormats/DataRecord/interface/MuScleFitLikelihoodPdfRcd.h"
+// #include "CondFormats/RecoMuonObjects/interface/MuScleFitLikelihoodPdf.h"
+// #include "CondFormats/DataRecord/interface/MuScleFitLikelihoodPdfRcd.h"
 
 using namespace std;
 using namespace edm;
