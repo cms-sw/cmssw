@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for segments associated to the muon track
  *
- *  $Date: 2008/05/14 16:48:50 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/05/23 13:48:11 $
+ *  $Revision: 1.6 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -23,7 +23,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
-#include "DQMOffline/Muon/src/SegmentsTrackAssociator.h"
+#include "RecoMuon/TrackingTools/interface/SegmentsTrackAssociator.h"
 
 
 class SegmentTrackAnalyzer : public MuonAnalyzerBase {
