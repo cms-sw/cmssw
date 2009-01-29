@@ -11,6 +11,8 @@ process.load("Configuration.StandardSequences.VtxSmearedGauss_cff")
 
 process.load("Geometry.FP420CommonData.FP420GeometryXML_cfi")
 
+process.load("SimG4Core.Application.g4SimHits_cfi")
+
 process.load("SimTransport.HectorProducer.HectorTransport_cfi")
 
 process.load("SimGeneral.MixingModule.mixNoPU_cfi")
@@ -24,8 +26,6 @@ process.load("RecoRomanPot.RecoFP420.FP420Track_cfi")
 process.load("RecoRomanPot.RecoFP420.FP420Reco_cfi")
 
 process.load("Configuration.EventContent.EventContent_cff")
-
-process.load("SimG4Core.Application.g4SimHits_cfi")
 
 process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
     oncePerEventMode = cms.untracked.bool(True),
