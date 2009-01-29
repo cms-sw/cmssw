@@ -11,15 +11,22 @@ DQMStore = cms.Service("DQMStore")
 
 
 process.maxEvents = cms.untracked.PSet(
-#    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(1000)
 )
 
 
 from DQMOffline.EGamma.photonAnalyzer_cfi import *
+from DQMOffline.EGamma.piZeroAnalyzer_cfi import *
+
 photonAnalysis.OutputMEsInRootFile = cms.bool(True)
 photonAnalysis.OutputFileName = cms.string('DQMOfflineRelValGammaJets_Pt_80_120.root')
+photonAnalysis.standAlone = cms.bool(True)
+photonAnalysis.useTriggerFiltering = cms.bool(False)
 
-
+piZeroAnalysis.standAlone = cms.bool(True)
+piZeroAnalysis.OutputMEsInRootFile = cms.bool(True)
+piZeroAnalysis.OutputFileName = cms.string('DQMOfflineRelValGammaJets_Pt_80_120.root')
+piZeroAnalysis.useTriggerFiltering = cms.bool(False)
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
