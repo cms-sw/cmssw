@@ -141,13 +141,13 @@ bool CSCMonitorModule::monitorExaminer(CSCDCCExaminer& examiner) {
     int CrateID = (chamber->first>>4) & 0xFF;
     int DMBSlot = chamber->first & 0xF;
 
-    if (CrateID ==255) { continue; }
+    if (CrateID == 255) { continue; }
 
     if (MEEMU("DMB_Reporting", me)) me->Fill(CrateID, DMBSlot);
 
     int CSCtype   = 0;
     int CSCposition = 0;
-    getCSCFromMap(CrateID, DMBSlot, CSCtype, CSCposition );
+    if (!getCSCFromMap(CrateID, DMBSlot, CSCtype, CSCposition )) continue;
 
     if (CSCtype && CSCposition && MEEMU("CSC_Reporting", me)) me->Fill(CSCposition, CSCtype);
 
@@ -183,7 +183,6 @@ bool CSCMonitorModule::monitorExaminer(CSCDCCExaminer& examiner) {
       int DMBSlot = chamber->first & 0xF;
 
       if ((CrateID == 255) || (chamber->second & 0x80)) continue; // = Skip chamber detection if DMB header is missing (Error code 6)
-      if (CrateID > 60 || DMBSlot > 10) continue;
 
       bool isCSCError = false;
       for(int bit=5; bit<24; bit++) {
@@ -205,7 +204,7 @@ bool CSCMonitorModule::monitorExaminer(CSCDCCExaminer& examiner) {
 
       int CSCtype   = 0;
       int CSCposition = 0;
-      getCSCFromMap(CrateID, DMBSlot, CSCtype, CSCposition);
+      if (!getCSCFromMap(CrateID, DMBSlot, CSCtype, CSCposition)) continue;
 
       if (isCSCError && CSCtype && CSCposition && MEEMU("CSC_Format_Errors", me)) {
         me->Fill(CSCposition, CSCtype);
@@ -230,7 +229,7 @@ bool CSCMonitorModule::monitorExaminer(CSCDCCExaminer& examiner) {
     
     int CSCtype   = 0;
     int CSCposition = 0;
-    getCSCFromMap(CrateID, DMBSlot, CSCtype, CSCposition );
+    if (!getCSCFromMap(CrateID, DMBSlot, CSCtype, CSCposition )) continue;
 
     int anyInputFull = chamber->second & 0x3F;
     if(anyInputFull){

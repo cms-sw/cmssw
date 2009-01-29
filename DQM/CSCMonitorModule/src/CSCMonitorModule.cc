@@ -198,19 +198,19 @@ void CSCMonitorModule::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
     }
 }
 
-void CSCMonitorModule::getCSCFromMap(int crate, int slot, int& csctype, int& cscposition) {
+const bool CSCMonitorModule::getCSCFromMap(const int crate, const int slot, int& csctype, int& cscposition) const {
     
-    // LOGWARNING("getCSCFromMap") << "Requesting cscType and cscPosition from " << crate << ", " << slot;
+    if (crate < 1 || crate > 60 || slot < 1 || slot > 10) return false;
+
     CSCDetId cid = pcrate->detId(crate, slot, 0, 0);
-    // LOGWARNING("getCSCFromMap") << "Received cid = " << cid;
     cscposition  = cid.chamber();
     int iring    = cid.ring();
     int istation = cid.station();
     int iendcap  = cid.endcap();
-    // LOGWARNING("getCSCFromMap") << "Which is cscposition = " << cscposition << ", iring = " << iring << ", istation = " << istation << ", iendcap = " << iendcap;
     
     std::string tlabel = CSCUtility::getCSCTypeLabel(iendcap, istation, iring);
     csctype = CSCUtility::getCSCTypeBin(tlabel);
-    // LOGWARNING("getCSCFromMap") << "tlabel = " << tlabel << " so csctype = " << csctype;
+
+    return true;
     
 }

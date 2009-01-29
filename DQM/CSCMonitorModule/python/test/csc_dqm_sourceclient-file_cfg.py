@@ -21,84 +21,10 @@ process.csc2DRecHits.readBadChambers = cms.bool(False)
 # Event Source
 #-----------------------------
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(50))
-process.source = cms.Source("DaqSource",
-    readerPluginName = cms.untracked.string('CSCFileReader'),
-    readerPset = cms.untracked.PSet(
-        firstEvent = cms.untracked.int32(0),
-        RUI05 = cms.untracked.vstring('/tmp/valdo/csc_00045738_EmuRUI05_Monitor_000.raw'),
-        RUI04 = cms.untracked.vstring('/tmp/valdo/csc_00045738_EmuRUI04_Monitor_000.raw'),
-        RUI07 = cms.untracked.vstring('/tmp/valdo/csc_00045738_EmuRUI07_Monitor_000.raw'),
-        RUI06 = cms.untracked.vstring('/tmp/valdo/csc_00045738_EmuRUI06_Monitor_000.raw'),
-        RUI01 = cms.untracked.vstring('/tmp/valdo/csc_00045738_EmuRUI01_Monitor_000.raw'),
-        RUI26 = cms.untracked.vstring('/tmp/valdo/csc_00045738_EmuRUI26_Monitor_000.raw'),
-        RUI03 = cms.untracked.vstring('/tmp/valdo/csc_00045738_EmuRUI03_Monitor_000.raw'),
-        RUI02 = cms.untracked.vstring('/tmp/valdo/csc_00045738_EmuRUI02_Monitor_000.raw'),
-        RUI29 = cms.untracked.vstring('/tmp/valdo/csc_00045738_EmuRUI29_Monitor_000.raw'),
-        RUI28 = cms.untracked.vstring('/tmp/valdo/csc_00045738_EmuRUI28_Monitor_000.raw'),
-        RUI09 = cms.untracked.vstring('/tmp/valdo/csc_00045738_EmuRUI09_Monitor_000.raw'),
-        RUI08 = cms.untracked.vstring('/tmp/valdo/csc_00045738_EmuRUI08_Monitor_000.raw'),
-        RUI20 = cms.untracked.vstring('/tmp/valdo/csc_00045738_EmuRUI20_Monitor_000.raw'),
-        RUI27 = cms.untracked.vstring('/tmp/valdo/csc_00045738_EmuRUI27_Monitor_000.raw'),
-        RUI25 = cms.untracked.vstring('/tmp/valdo/csc_00045738_EmuRUI25_Monitor_000.raw'),
-        RUI24 = cms.untracked.vstring('/tmp/valdo/csc_00045738_EmuRUI24_Monitor_000.raw'),
-        RUI21 = cms.untracked.vstring('/tmp/valdo/csc_00045738_EmuRUI21_Monitor_000.raw'),
-        RUI36 = cms.untracked.vstring('/tmp/valdo/csc_00045738_EmuRUI36_Monitor_000.raw'),
-        RUI16 = cms.untracked.vstring('/tmp/valdo/csc_00045738_EmuRUI16_Monitor_000.raw'),
-        RUI17 = cms.untracked.vstring('/tmp/valdo/csc_00045738_EmuRUI17_Monitor_000.raw'),
-        RUI14 = cms.untracked.vstring('/tmp/valdo/csc_00045738_EmuRUI14_Monitor_000.raw'),
-        RUI15 = cms.untracked.vstring('/tmp/valdo/csc_00045738_EmuRUI15_Monitor_000.raw'),
-        RUI12 = cms.untracked.vstring('/tmp/valdo/csc_00045738_EmuRUI12_Monitor_000.raw'),
-        RUI13 = cms.untracked.vstring('/tmp/valdo/csc_00045738_EmuRUI13_Monitor_000.raw'),
-        RUI10 = cms.untracked.vstring('/tmp/valdo/csc_00045738_EmuRUI10_Monitor_000.raw'),
-        RUI11 = cms.untracked.vstring('/tmp/valdo/csc_00045738_EmuRUI11_Monitor_000.raw'),
-        RUI34 = cms.untracked.vstring('/tmp/valdo/csc_00045738_EmuRUI34_Monitor_000.raw'),
-        RUI35 = cms.untracked.vstring('/tmp/valdo/csc_00045738_EmuRUI35_Monitor_000.raw'),
-        RUI23 = cms.untracked.vstring('/tmp/valdo/csc_00045738_EmuRUI23_Monitor_000.raw'),
-        RUI30 = cms.untracked.vstring('/tmp/valdo/csc_00045738_EmuRUI30_Monitor_000.raw'),
-        RUI31 = cms.untracked.vstring('/tmp/valdo/csc_00045738_EmuRUI31_Monitor_000.raw'),
-        RUI18 = cms.untracked.vstring('/tmp/valdo/csc_00045738_EmuRUI18_Monitor_000.raw'),
-        RUI19 = cms.untracked.vstring('/tmp/valdo/csc_00045738_EmuRUI19_Monitor_000.raw'),
-        RUI32 = cms.untracked.vstring('/tmp/valdo/csc_00045738_EmuRUI32_Monitor_000.raw'),
-        RUI33 = cms.untracked.vstring('/tmp/valdo/csc_00045738_EmuRUI33_Monitor_000.raw'),
-        RUI22 = cms.untracked.vstring('/tmp/valdo/csc_00045738_EmuRUI22_Monitor_000.raw'),
-        FED750 = cms.untracked.vstring('RUI01', 
-            'RUI02', 
-            'RUI03', 
-            'RUI04', 
-            'RUI05', 
-            'RUI06', 
-            'RUI07', 
-            'RUI08', 
-            'RUI09', 
-            'RUI10', 
-            'RUI11', 
-            'RUI12', 
-            'RUI13', 
-            'RUI14', 
-            'RUI15', 
-            'RUI16', 
-            'RUI17', 
-            'RUI18', 
-            'RUI19', 
-            'RUI20', 
-            'RUI21', 
-            'RUI22', 
-            'RUI23', 
-            'RUI24', 
-            'RUI25', 
-            'RUI26', 
-            'RUI27', 
-            'RUI28', 
-            'RUI29', 
-            'RUI30', 
-            'RUI31', 
-            'RUI32', 
-            'RUI33', 
-            'RUI34', 
-            'RUI35', 
-            'RUI36')
-    )
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
+process.source = cms.Source("PoolSource",
+    fileNames  = cms.untracked.vstring('/store/data/Commissioning08/Cosmics/RAW/v1/000/066/910/8CA64FCF-259F-DD11-B86D-000423D99BF2.root'),
+    skipEvents = cms.untracked.uint32(25900)
 )
 
 #----------------------------
@@ -109,7 +35,7 @@ process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 
 #process.DQMStore.referenceFileName = '/home/dqmdevlocal/reference/csc_reference.root'
-process.DQMStore.referenceFileName = '/afs/cern.ch/user/v/valdo/CMSSW_2_1_9/src/DQM/CSCMonitorModule/data/csc_reference.root'
+process.DQMStore.referenceFileName = '/afs/cern.ch/user/v/valdo/data/csc_reference.root'
 #process.DQMStore.referenceFileName = '/nfshome0/valdo/CMSSW_2_1_0/src/DQM/CSCMonitorModule/data/csc_reference.root'
 
 #----------------------------

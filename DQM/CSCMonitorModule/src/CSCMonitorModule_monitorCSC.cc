@@ -37,7 +37,6 @@ void CSCMonitorModule::monitorCSC(const CSCEventData& cscEvent, const int32_t& d
   int crateID	= dmbHeader->crateID();
   int dmbID	= dmbHeader->dmbID();
   // int ChamberID	= (((crateID) << 4) + dmbID) & 0xFFF;
-  if (crateID == 0 || dmbID == 0) return;
 
   bool L1A_out_of_sync = false;
 
@@ -53,7 +52,7 @@ void CSCMonitorModule::monitorCSC(const CSCEventData& cscEvent, const int32_t& d
   
   int CSCtype = 0;
   int CSCposition = 0;
-  getCSCFromMap(crateID, dmbID, CSCtype, CSCposition );
+  if (!getCSCFromMap(crateID, dmbID, CSCtype, CSCposition )) return;
 
   // Top level L1A synchronization
   int dmbHeaderL1A = dmbHeader->l1a()%64;
