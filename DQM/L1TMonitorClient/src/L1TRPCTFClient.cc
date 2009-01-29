@@ -67,21 +67,13 @@ void L1TRPCTFClient::beginJob(const EventSetup& context){
   dbe_ = Service<DQMStore>().operator->();  
 
   dbe_->setCurrentFolder(output_dir_);
-  
-  m_phipackedbad = dbe_->book1D("RPCTF_phi_valuepacked_bad",
-                                "RPCTF bad channels in phipacked", 144, -0.5, 143.5 ) ;
-  m_phipackeddead = dbe_->book1D("RPCTF_phi_valuepacked_dead",
-                                "RPCTF dead channels in phipacked", 144, -0.5, 143.5 ) ;
-
 
   m_deadChannels = dbe_->book2D("RPCTF_deadchannels",
                                 "RPCTF deadchannels",
-                               // 100, -2.5, 2.5,
                                 33, -16.5, 16.5,
                                 144,  -0.5, 143.5);
   m_noisyChannels =  dbe_->book2D("RPCTF_noisychannels",
                                 "RPCTF noisy channels",
-                               // 100, -2.5, 2.5,
                                 33, -16.5, 16.5,
                                 144,  -0.5, 143.5);
 }
@@ -100,121 +92,87 @@ void L1TRPCTFClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
                           const edm::EventSetup& c)
 {
    if (verbose_) std::cout <<  "L1TRPCTFClient::endLuminosityBlock" << std::endl;
-   
-//    dbe_->setCurrentFolder(output_dir_);
-   dbe_->setCurrentFolder(input_dir_);
-   std::vector<string> meVec = dbe_->getMEs();
-   
-   //std::string urrDir = dbe_->pwd();     
-   
-   /*dbe_->setCurrentFolder(output_dir_);
-   std::vector<string> addVec = dbe_->getMEs();
-   meVec.insert(meVec.end(), addVec.begin(), addVec.end());
-   */
-   
-  {
-
-    MonitorElement *me = dbe_->get("L1T/L1TRPCTF/RPCTF_phi_valuepacked_norm");
-    if (me){
-      const QReport *qreport = me->getQReport("rpcPhiOcc");
-      if (qreport) {
-        vector<dqm::me_util::Channel> badChannels = qreport->getBadChannels();
-        for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	     channel != badChannels.end(); ++channel) {
-                  m_phipackedbad->setBinContent( (*channel).getBinX(),1);
-        } // for(badchannels)
-      } //if (qreport)
-    } // if (me)
-
-  }
   
+   dbe_->setCurrentFolder(input_dir_);
+
   {
 
-    MonitorElement *me = dbe_->get("L1T/L1TRPCTF/RPCTF_phi_valuepacked_norm");
+    MonitorElement *me 
+         = dbe_->get( (input_dir_+"/RPCTF_muons_tower_phipacked").c_str() );
+     
     if (me){
-      const QReport *qreport = me->getQReport("DeadChannels");
+      const QReport *qreport;
+      
+      qreport = me->getQReport("DeadChannels2D");
       if (qreport) {
         vector<dqm::me_util::Channel> badChannels = qreport->getBadChannels();
         for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin();
-             channel != badChannels.end(); ++channel) {
-                  m_phipackeddead->setBinContent( (*channel).getBinX(),1);
+             channel != badChannels.end(); 
+             ++channel) 
+        {
+          m_deadChannels->setBinContent((*channel).getBinX(),
+                                        (*channel).getBinY(),
+                                        100);
         } // for(badchannels)
       } //if (qreport)
+      
+      qreport = me->getQReport("HotChannels2D");
+      if (qreport) {
+        vector<dqm::me_util::Channel> badChannels = qreport->getBadChannels();
+        for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin();
+             channel != badChannels.end(); 
+             ++channel) 
+        {
+          // (*channel).getBinY() == 0 for NoisyChannels QTEST
+          m_noisyChannels->setBinContent((*channel).getBinX(), 100);
+        } // for(badchannels)
+      } //if (qreport)
+      else std::cout << "dupa" << std::endl;
     } // if (me)
+  
 
   }
 
 
-  // L1T/L1TRPCTF/RPCTF_muons_tower_phipacked_norm
+  if (verbose_)
   {
-
-    MonitorElement *me = dbe_->get("L1T/L1TRPCTF/RPCTF_muons_tower_phipacked");
-    if (me){
-      const QReport *qreport = me->getQReport("DeadChannels");
-      if (qreport) {
-        vector<dqm::me_util::Channel> badChannels = qreport->getBadChannels();
-        for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin();
-             channel != badChannels.end(); ++channel) {
-                  m_deadChannels->setBinContent( (*channel).getBinX(), (*channel).getBinY(), 1);
-        } // for(badchannels)
-      } //if (qreport)
-    } // if (me)
-
+    std::vector<string> meVec = dbe_->getMEs();
+    for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
+            
+        std::string full_path = input_dir_ + "/" + (*it);
+        MonitorElement * me =dbe_->get(full_path);
+        
+        // for this MEs, get list of associated QTs
+        std::vector<QReport *> Qtest_map = me->getQReports();
+    
+        if (Qtest_map.size() > 0) {
+          std::cout << "Test: " << full_path << std::endl;
+          for (std::vector<QReport *>::const_iterator it = Qtest_map.begin(); 
+                it != Qtest_map.end(); 
+                ++it)
+          {
+              std::cout 
+                  << " Name "<< (*it)->getQRName() 
+                  << " Status " <<  (*it)->getStatus() 
+                  <<std::endl;
+              
+              std::vector<dqm::me_util::Channel> badChannels=(*it)->getBadChannels();
+              
+              vector<dqm::me_util::Channel>::iterator badchsit = badChannels.begin();
+              while(badchsit != badChannels.end())                           
+              {                             
+                int ix = (*badchsit).getBinX();
+                int iy = (*badchsit).getBinY();          
+                std::cout << "(" << ix <<","<< iy << ") ";
+                ++badchsit;
+              }
+              std::cout << std::endl;
+              
+          }
+        }
+        
+    } // 
   }
-
-  {
-
-    MonitorElement *me = dbe_->get("L1T/L1TRPCTF/RPCTF_muons_tower_phipacked");
-    if (me){
-      const QReport *qreport = me->getQReport("HotChannels");
-      if (qreport) {
-        vector<dqm::me_util::Channel> badChannels = qreport->getBadChannels();
-        for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin();
-             channel != badChannels.end(); ++channel) {
-                  m_noisyChannels->setBinContent( (*channel).getBinX(), (*channel).getBinY(), 1);
-        } // for(badchannels)
-      } //if (qreport)
-    } // if (me)
-
-  }
-
-
-   if (verbose_)
-   for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
-      
-
-      std::string full_path = input_dir_ + "/" + (*it);
-      MonitorElement * me =dbe_->get(full_path);
-      
-      // for this MEs, get list of associated QTs
-      std::vector<QReport *> Qtest_map = me->getQReports();
-   
-      if (Qtest_map.size() > 0) {
-         if (verbose_) std::cout << "Test: " << full_path << std::endl;
-         for (std::vector<QReport *>::const_iterator it = Qtest_map.begin(); 
-              it != Qtest_map.end(); 
-              ++it)
-         {
-            if (verbose_) std::cout 
-                     << "   "<< (*it)->getQRName() 
-                     << " " <<  (*it)->getStatus() 
-                     <<std::endl;
-            
-            std::vector<dqm::me_util::Channel> badChannels=(*it)->getBadChannels();
-            
-            vector<dqm::me_util::Channel>::iterator badchsit = badChannels.begin();
-            while(badchsit != badChannels.end())                           
-            {                             
-               int ix = (*badchsit).getBinX();     
-               if (verbose_) std::cout << " " << ix;
-               ++badchsit;
-            }
-            if (verbose_) std::cout << std::endl;
-            
-         }
-      }
-      
-   } // 
 }			  
 //--------------------------------------------------------
 void L1TRPCTFClient::analyze(const Event& e, const EventSetup& context){

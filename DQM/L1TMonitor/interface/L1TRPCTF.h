@@ -4,8 +4,8 @@
 /*
  * \file L1TRPCTF.h
  *
- * $Date: 2008/08/21 06:59:51 $
- * $Revision: 1.11 $
+ * $Date: 2009/01/28 15:58:38 $
+ * $Revision: 1.12 $
  * \author J. Berryhill
  *
 */
@@ -72,8 +72,6 @@ void endRun(const edm::Run & r, const edm::EventSetup & c);
 
 private:
 
-  void fillNorm(); /// fills  normalized histograms
-
   // ----------member data ---------------------------
   DQMStore * dbe;
 
@@ -89,8 +87,6 @@ private:
   MonitorElement* m_qualVsEta;
   MonitorElement* m_muonsEtaPhi;
   MonitorElement* m_phipacked;
-  MonitorElement * m_phipackednorm;
-  MonitorElement * m_muonsEtaPhiNorm;
   MonitorElement * m_rate;
   L1TRateHelper::L1TRateHelper m_rateHelper;
 //   MonitorElement * m_floatSynchro;
