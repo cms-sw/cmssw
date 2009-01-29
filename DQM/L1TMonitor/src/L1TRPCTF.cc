@@ -128,21 +128,6 @@ void L1TRPCTF::beginJob(const EventSetup& c)
     rpctfbx = m_dbe->book1D("RPCTF_bx", 
        "RPCTF bx distribiution", 5, -2.5, 2.5 ) ;
 
-//     m_digiBx = m_dbe->book1D("RPCDigi_bx", 
-//        "RPC digis bx", 9, -4.5, 4.5 ) ;
-    
-//     m_digiBxRPC = m_dbe->book1D("RPCDigiRPC_bx", 
-//        "RPC digis bx - events with RPC mu only", 9, -4.5, 4.5 ) ;
-// 
-//     m_digiBxDT = m_dbe->book1D("RPCDigiDT_bx", 
-//        "RPC digis bx - events with DT mu only", 9, -4.5, 4.5 ) ;
-// 
-//     m_digiBxCSC = m_dbe->book1D("RPCDigiCSC_bx", 
-//        "RPC digis bx - events with CSC mu only", 9, -4.5, 4.5 ) ;
-
-//     m_digiBxLast = m_dbe->book1D("RPCDigi_bx_last", 
-//        "RPC digis bx (last X events)", 9, -4.5, 4.5 ) ;
-
     m_qualVsEta = m_dbe->book2D("RPCTF_quality_vs_tower", 
                               "RPCTF quality vs eta", 
                               //100, -2.5, 2.5,
@@ -315,14 +300,14 @@ void L1TRPCTF::fillRateHisto(std::pair<int,int> & p)
       
   if (!resizePossible) return; // we have run out of space allready
   
-  static int fills = 0;
-  ++fills;
+  //static int fills = 0;
+  //++fills;
     
   // check if we are running out of storage space, if so extend the scale
   float occupancy = 1.*p.first/m_rate->getNbinsX();
   while( occupancy>0.95 && resizePossible ){
     
-    std::cout << " Trying to resize " << std::endl;
+    //std::cout << " Trying to resize " << std::endl;
     m_dbe->setCurrentFolder(output_dir_);
     static float gd = 1.61;
     int curbins=m_rate->getNbinsX();
@@ -337,11 +322,11 @@ void L1TRPCTF::fillRateHisto(std::pair<int,int> & p)
     
     if (curbins<nbins) {
     
-      std::cout << " Resizing " << std::endl;
+      //std::cout << " Resizing " << std::endl;
       TH1F * histCopy= (TH1F *)m_rate->getTH1F()->Clone();
       
       std::string name = m_rate->getName(); 
-      std::cout << " Removing: " << name << std::endl;
+      //std::cout << " Removing: " << name << std::endl;
       
       m_dbe->setCurrentFolder(output_dir_);
       m_dbe->removeElement(name);
@@ -355,7 +340,7 @@ void L1TRPCTF::fillRateHisto(std::pair<int,int> & p)
       
       delete histCopy;
     } else {
-      std::cout << " Resize impossible " << std::endl;
+      //std::cout << " Resize impossible " << std::endl;
       resizePossible = false;
     }
     
@@ -364,7 +349,7 @@ void L1TRPCTF::fillRateHisto(std::pair<int,int> & p)
   
   if (resizePossible){
     m_rate->setBinContent(p.first,p.second);
-    std::cout << fills << " Filling"  << std::endl;
+    //std::cout << fills << " Filling"  << std::endl;
   }
   
 
