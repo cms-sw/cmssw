@@ -1,6 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: FourVectorHLTOffline_cfi.py,v 1.12 2008/12/04 18:37:39 berryhil Exp $
+<<<<<<< FourVectorHLTOffline_cfi.py
+# $Id: FourVectorHLTOffline_cfi.py,v 1.14 2008/12/04 18:37:39 berryhil Exp $
+=======
+# $Id: FourVectorHLTOffline_cfi.py,v 1.13 2009/01/24 16:27:38 berryhil Exp $
+>>>>>>> 1.13
 hltResults = cms.EDFilter("FourVectorHLTOffline",
     plotAll = cms.untracked.bool(True),
     ptMax = cms.untracked.double(100.0),

@@ -16,7 +16,11 @@
 //
 // Original Author:  Jeffrey Berryhill
 //         Created:  June 2008
-// $Id: FourVectorHLTOffline.h,v 1.12 2008/12/04 18:37:38 berryhil Exp $
+<<<<<<< FourVectorHLTOffline.h
+// $Id: FourVectorHLTOffline.h,v 1.14 2008/12/04 18:37:38 berryhil Exp $
+=======
+// $Id: FourVectorHLTOffline.h,v 1.13 2009/01/24 16:27:38 berryhil Exp $
+>>>>>>> 1.13
 //
 //
 
