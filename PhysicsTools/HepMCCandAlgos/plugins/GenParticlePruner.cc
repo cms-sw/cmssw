@@ -109,14 +109,12 @@ void GenParticlePruner::beginJob(const EventSetup& es) {
 	throw Exception(errors::Configuration)
 	  << "selections \"keep *\" and \"drop *\" can be used only as first options. Here used in position # " 
 	  << (i - selection_.begin()) + 1 << "\n" << endl;
-      if(code.keepOrDrop_) {
-	switch(code.keepOrDrop_) {
-	case ::helper::SelectCode::kDrop :
-	  keepOrDropAll_ = drop; break;
-	case ::helper::SelectCode::kKeep :
-	  keepOrDropAll_ = keep; 
-	};
-      }
+      switch(code.keepOrDrop_) {
+          case ::helper::SelectCode::kDrop :
+              keepOrDropAll_ = drop; break;
+          case ::helper::SelectCode::kKeep :
+              keepOrDropAll_ = keep; 
+      };
     } else {
       cut = rep.replace(cut);
       select_.push_back(make_pair(StringCutObjectSelector<GenParticle>(cut), code));
