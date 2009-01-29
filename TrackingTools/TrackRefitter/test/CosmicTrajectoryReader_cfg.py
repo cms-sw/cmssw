@@ -73,7 +73,8 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.GLBTrajectoriesReader = cms.EDProducer("TrajectoryReader",
                                                rootFileName = cms.untracked.string('GLBTajectoriesReader.root'),
-                                               InputLabel = cms.InputTag("MuAlGlobalCosmics","Refitted")
+#                                               InputLabel = cms.InputTag("MuAlGlobalCosmics","Refitted")
+                                               InputLabel = cms.InputTag("cosmicMuons","Refitted")
                                                )
 
 # process.STATrajectoriesReader = cms.EDProducer("TrajectoryReader",
@@ -86,7 +87,7 @@ process.GLBTrajectoriesReader = cms.EDProducer("TrajectoryReader",
 #                                                InputLabel = cms.InputTag("ctfWithMaterialTracksP5","Refitted")
 #                                                )
 
-process.glbMuons = cms.Sequence(process.MuAlGlobalCosmics*process.GLBTrajectoriesReader)
+process.glbMuons = cms.Sequence(process.cosmicMuons*process.GLBTrajectoriesReader)
 #process.staMuons = cms.Sequence(process.standAloneMuons*process.STATrajectoriesReader)
 #process.tk = cms.Sequence(process.ctfWithMaterialTracksP5*process.CTFTrajectoriesReader)
 

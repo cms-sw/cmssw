@@ -15,7 +15,7 @@
  *
  *
  *  $Date: 2009/01/15
- *  $Revision: 1.3 $
+ *  $Revision: 1.1 $
  *  \original author R. Bellan - CERN <riccardo.bellan@cern.ch>
  *  modified for zed ordering by N. Kypreos - UF <nicholas.theodore.kypreos@cern.ch> 
  */
@@ -110,11 +110,11 @@ public:
   
   bool theRPCInTheFit;
 
-  enum subDetector { PXB = 1, PXF = 2, TIB = 3, TID = 4, TOB = 5, TEC = 6 };
-  int	  theSkipStation;
-  int	  theKeepDTWheel;
-  int   theTrackerSkipSystem;
-  int   theTrackerSkipSection;
+ // enum subDetector { PXB = 1, PXF = 2, TIB = 3, TID = 4, TOB = 5, TEC = 6 };
+ // int	  theSkipStation;
+ // int	  theKeepDTWheel;
+ // int   theTrackerSkipSystem;
+ // int   theTrackerSkipSection;
 
 
 

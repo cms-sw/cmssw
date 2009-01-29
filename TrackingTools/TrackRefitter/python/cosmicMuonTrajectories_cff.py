@@ -20,16 +20,14 @@ from TrackingTools.TrackRefitter.TracksToTrajectories_cff import *
 # KFTrajectoryFitterESProducer   ---> Fitter = "KFFitterForRefitOutsideIn"
 # KFTrajectorySmootherESProducer ---> Smoother = "KFSmootherForRefitOutsideIn"
 #
-globalCosmicMuons = cms.EDProducer("TracksToTrajectories",
-                                   Type = cms.string("CosmicMuonsForAlignment"),
-                                   Tracks = cms.InputTag("cosmicMuons"),
-                                   TrackTransformer = cms.PSet(TrackerRecHitBuilder = cms.string('WithTrackAngle'),
-                                                               MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
-                                                               RefitRPCHits = cms.bool(True),
+cosmicMuons = cms.EDProducer("TracksToTrajectories",
+                                  Type = cms.string("CosmicMuonsForAlignment"),
+                                  Tracks = cms.InputTag("cosmicMuons"),
+                                  TrackTransformer = cms.PSet(	TrackerRecHitBuilder = cms.string('WithTrackAngle'),
+                                                              	MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
+                                                              	RefitRPCHits = cms.bool(True),
                                                                )
                                    )
 
-
-
-MuAlGlobalCosmics = globalCosmicMuons.clone()
-MuAlGlobalCosmics.Tracks = cms.InputTag("ALCARECOMuAlGlobalCosmics","GlobalMuon")
+MuAlCosmics = cosmicMuons.clone()
+MuAlCosmics.Tracks = cms.InputTag("ALCARECOMuAlGlobalCosmics","StandAlone")
