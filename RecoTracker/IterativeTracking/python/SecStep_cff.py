@@ -38,7 +38,8 @@ seclayertriplets.BPix.HitProducer = 'secPixelRecHits'
 seclayertriplets.FPix.HitProducer = 'secPixelRecHits'
 secTriplets.RegionFactoryPSet.RegionPSet.originHalfLength = 17.5
 secTriplets.OrderedHitsFactoryPSet.SeedingLayers = 'SecLayerTriplets'
-secTriplets.RegionFactoryPSet.RegionPSet.ptMin = 0.3
+#secTriplets.RegionFactoryPSet.RegionPSet.ptMin = 0.3
+secTriplets.RegionFactoryPSet.RegionPSet.ptMin = 0.15
 
 
 # building 
@@ -58,7 +59,8 @@ secMeasurementTracker.stripClusterProducer = 'secClusters'
 secCkfTrajectoryFilter.ComponentName = 'secCkfTrajectoryFilter'
 secCkfTrajectoryFilter.filterPset.maxLostHits = 1
 secCkfTrajectoryFilter.filterPset.minimumNumberOfHits = 3
-secCkfTrajectoryFilter.filterPset.minPt = 0.3
+#secCkfTrajectoryFilter.filterPset.minPt = 0.3
+secCkfTrajectoryFilter.filterPset.minPt = 0.15
 secCkfTrajectoryBuilder.ComponentName = 'secCkfTrajectoryBuilder'
 secCkfTrajectoryBuilder.MeasurementTrackerName = 'secMeasurementTracker'
 secCkfTrajectoryBuilder.trajectoryFilterName = 'secCkfTrajectoryFilter'

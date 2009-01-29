@@ -16,10 +16,20 @@ MaterialPropagatorPtMin03 = TrackingTools.MaterialEffects.MaterialPropagator_cfi
 MaterialPropagatorPtMin03.ComponentName = 'PropagatorWithMaterialPtMin03'
 MaterialPropagatorPtMin03.ptMin = 0.3
 
+import TrackingTools.MaterialEffects.MaterialPropagator_cfi
+MaterialPropagatorPtMin015 = TrackingTools.MaterialEffects.MaterialPropagator_cfi.MaterialPropagator.clone()
+MaterialPropagatorPtMin015.ComponentName = 'PropagatorWithMaterialPtMin015'
+MaterialPropagatorPtMin015.ptMin = 0.15
+
 import TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi
 OppositeMaterialPropagatorPtMin03 = TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi.OppositeMaterialPropagator.clone()
 OppositeMaterialPropagatorPtMin03.ComponentName = 'PropagatorWithMaterialOppositePtMin03'
 OppositeMaterialPropagatorPtMin03.ptMin = 0.3
+
+import TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi
+OppositeMaterialPropagatorPtMin015 = TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi.OppositeMaterialPropagator.clone()
+OppositeMaterialPropagatorPtMin015.ComponentName = 'PropagatorWithMaterialOppositePtMin015'
+OppositeMaterialPropagatorPtMin015.ptMin = 0.15
 
 import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff
 #SEEDS
@@ -48,7 +58,8 @@ import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
 thCkfTrajectoryFilter.ComponentName = 'thCkfTrajectoryFilter'
 thCkfTrajectoryFilter.filterPset.maxLostHits = 0
 thCkfTrajectoryFilter.filterPset.minimumNumberOfHits = 3
-thCkfTrajectoryFilter.filterPset.minPt = 0.3
+thCkfTrajectoryFilter.filterPset.minPt = 0.15
+#thCkfTrajectoryFilter.filterPset.minPt = 0.3
 
 #TRAJECTORY BUILDER
 thCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone()
@@ -56,8 +67,10 @@ import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 thCkfTrajectoryBuilder.ComponentName = 'thCkfTrajectoryBuilder'
 thCkfTrajectoryBuilder.MeasurementTrackerName = 'thMeasurementTracker'
 thCkfTrajectoryBuilder.trajectoryFilterName = 'thCkfTrajectoryFilter'
-thCkfTrajectoryBuilder.propagatorAlong = cms.string('PropagatorWithMaterialPtMin03')
-thCkfTrajectoryBuilder.propagatorOpposite = cms.string('PropagatorWithMaterialOppositePtMin03')
+#thCkfTrajectoryBuilder.propagatorAlong = cms.string('PropagatorWithMaterialPtMin03')
+#thCkfTrajectoryBuilder.propagatorOpposite = cms.string('PropagatorWithMaterialOppositePtMin03')
+thCkfTrajectoryBuilder.propagatorAlong = cms.string('PropagatorWithMaterialPtMin015')
+thCkfTrajectoryBuilder.propagatorOpposite = cms.string('PropagatorWithMaterialOppositePtMin015')
 
 
 #TRACK CANDIDATES
