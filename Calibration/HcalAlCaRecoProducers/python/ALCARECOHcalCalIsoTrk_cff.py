@@ -23,11 +23,14 @@ import EventFilter.HcalRawToDigi.HcalRawToDigi_cfi
 isoTrHcalDigis = EventFilter.HcalRawToDigi.HcalRawToDigi_cfi.hcalDigis.clone()
 
 isoTrSiPixelDigis.InputLabel = 'hltSubdetFED'
+
 isoTrSiStripDigis.ProductLabel = 'hltSiStripRegFED'
-isoTrEcalDigis.DoRegional = True
+
+isoTrEcalDigis.DoRegional = False
 isoTrEcalDigis.InputLabel = 'hltEcalRegFED'
-isoTrEcalDigis.FedLabel = 'hltEcalRegFED'
 isoTrEcalPreshowerDigis.sourceTag = 'hltEcalRegFED'
+
+isoTrHcalDigis.UnpackZDC = cms.untracked.bool(False)
 isoTrHcalDigis.InputLabel = 'hltSubdetFED'
 
 siPixelClusters.src = 'isoTrSiPixelDigis'
@@ -63,7 +66,7 @@ from Calibration.HcalAlCaRecoProducers.alcaisotrk_cfi import *
 from Calibration.HcalAlCaRecoProducers.isoHLT_cfi import *
 
 doIsoTrDigi = cms.Sequence(isoTrSiPixelDigis+isoTrSiStripDigis+isoTrEcalDigis+isoTrEcalPreshowerDigis+isoTrHcalDigis)
-doLocalReco = cms.Sequence(trackerlocalreco+calolocalreco)
+doLocalReco = cms.Sequence(trackerlocalreco+ecalLocalRecoSequence+hbhereco+horeco)
 doGlobalReco = cms.Sequence(offlineBeamSpot+recopixelvertexing*ckftracks)
 seqALCARECOHcalCalIsoTrk = cms.Sequence(isoHLT*doIsoTrDigi*doLocalReco*doGlobalReco*IsoProd)
 
