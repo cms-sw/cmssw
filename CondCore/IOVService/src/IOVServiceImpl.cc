@@ -174,8 +174,8 @@ cond::IOVServiceImpl::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
   }
 
 
-  cond::IOV & newiov = *newiovref;
-  for( IOV::const_iterator it=ifirstTill;
+  cond::IOVSequence & newiov = *newiovref;
+  for( IOVSequence::const_iterator it=ifirstTill;
        it!=isecondTill; ++it){
     cond::GenericRef payloadRef(*m_pooldb,it->wrapperToken());
     std::string newPtoken=payloadRef.exportTo(destDB);
