@@ -42,20 +42,22 @@ process.MessageLogger.cerr.DQMFileSaver = cms.untracked.PSet(
        limit = cms.untracked.int32(1000000)
        )
 
-process.dqmSaver.workflow = "/CMSSW_2_2_0/RelVal/TrigVal"
+process.dqmSaver.workflow = "/CMSSW_3_1_0/RelVal/TrigVal"
 process.DQMStore.verbose=0
 process.maxEvents.input = 2
 process.source.fileNames = cms.untracked.vstring(
-'/store/relval/CMSSW_2_2_0/RelValZMM/GEN-SIM-RECO/STARTUP_V7_v1/0000/B4BBDB36-21B9-DD11-A047-000423D8F63C.root'
+'/store/relval/CMSSW_3_0_0_pre7/RelValTTbar/GEN-SIM-RECO/STARTUP_30X_v1/0002/0AB7BC40-87E9-DD11-8CCF-003048767D51.root'
 )
 
 process.load("HLTriggerOffline.Common.HLTValidation_cff")
 process.validation = cms.Path(
     #process.hltvalidation
-     process.HLTTauVal
+     process.muonTriggerRateTimeAnalyzer
+    +process.HLTTauVal
    #+process.EcalPi0Mon
     +process.egammaValidationSequence
     +process.HLTTopVal
+    +process.HLTSusyExoVal
     )
 
 process.post_validation = cms.Path(
