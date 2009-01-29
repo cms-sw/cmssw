@@ -24,7 +24,9 @@ L1TRPCTF::L1TRPCTF(const ParameterSet& ps)
 //   m_rpcDigiFine(false),
 //    m_useRpcDigi(true),
    m_ntracks(0),
-   m_rateUpdateTime( ps.getParameter< int >("rateUpdateTime") )
+   m_rateUpdateTime( ps.getParameter< int >("rateUpdateTime") ),
+   m_maxRateHistoSize( ps.getParameter< int >("maxRateHistoSize") ),
+   output_dir_ (ps.getUntrackedParameter<string>("output_dir") )
 //    m_rpcDigiWithBX0(0),
 //    m_rpcDigiWithBXnon0(0)
 
@@ -36,11 +38,11 @@ L1TRPCTF::L1TRPCTF(const ParameterSet& ps)
   if(verbose_) cout << "L1TRPCTF: constructor...." << endl;
 
 
-  dbe = NULL;
+  m_dbe = NULL;
   if ( ps.getUntrackedParameter<bool>("DQMStore", false) ) 
   {
-    dbe = Service<DQMStore>().operator->();
-    dbe->setVerbose(0);
+    m_dbe = Service<DQMStore>().operator->();
+    m_dbe->setVerbose(0);
   }
 
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
@@ -54,9 +56,10 @@ L1TRPCTF::L1TRPCTF(const ParameterSet& ps)
   }
 
 
-  if ( dbe !=NULL ) {
-    dbe->setCurrentFolder("L1T/L1TRPCTF");
+  if ( m_dbe !=NULL ) {
+    m_dbe->setCurrentFolder(output_dir_);
   }
+
 
 
 }
@@ -72,82 +75,81 @@ void L1TRPCTF::beginJob(const EventSetup& c)
   nevRPC_ = 0;
 
   // get hold of back-end interface
-  DQMStore* dbe = 0;
-  dbe = Service<DQMStore>().operator->();
+  m_dbe = Service<DQMStore>().operator->();
 
-  if ( dbe ) {
-    dbe->setCurrentFolder("L1T/L1TRPCTF");
-    dbe->rmdir("L1T/L1TRPCTF");
+  if ( m_dbe ) {
+    m_dbe->setCurrentFolder(output_dir_);
+    m_dbe->rmdir(output_dir_);
   }
 
 
-  if ( dbe ) 
+  if ( m_dbe ) 
   {
-    dbe->setCurrentFolder("L1T/L1TRPCTF");
+    m_dbe->setCurrentFolder(output_dir_);
     
-    rpctfetavalue[1] = dbe->book1D("RPCTF_eta_value", 
+    rpctfetavalue[1] = m_dbe->book1D("RPCTF_eta_value", 
        "RPCTF eta value", 100, -2.5, 2.5 ) ;
-    rpctfetavalue[2] = dbe->book1D("RPCTF_eta_value_+1", 
+    rpctfetavalue[2] = m_dbe->book1D("RPCTF_eta_value_+1", 
        "RPCTF eta value bx +1", 100, -2.5, 2.5 ) ;
-    rpctfetavalue[0] = dbe->book1D("RPCTF_eta_value_-1", 
+    rpctfetavalue[0] = m_dbe->book1D("RPCTF_eta_value_-1", 
        "RPCTF eta value bx -1", 100, -2.5, 2.5 ) ;
     
-    rpctfphivalue[1] = dbe->book1D("RPCTF_phi_value", 
+    rpctfphivalue[1] = m_dbe->book1D("RPCTF_phi_value", 
        "RPCTF phi value", 144, 0.0, 6.2832 ) ;
-    rpctfphivalue[2] = dbe->book1D("RPCTF_phi_value_+1", 
+    rpctfphivalue[2] = m_dbe->book1D("RPCTF_phi_value_+1", 
        "RPCTF phi value bx +1", 144, 0.0, 6.2832 ) ;
-    rpctfphivalue[0] = dbe->book1D("RPCTF_phi_value_-1", 
+    rpctfphivalue[0] = m_dbe->book1D("RPCTF_phi_value_-1", 
        "RPCTF phi value bx -1", 144, 0.0, 6.2832 ) ;
         
-    rpctfptvalue[1] = dbe->book1D("RPCTF_pt_value", 
+    rpctfptvalue[1] = m_dbe->book1D("RPCTF_pt_value", 
        "RPCTF pt value", 160, -0.5, 159.5 ) ;
-    rpctfptvalue[2] = dbe->book1D("RPCTF_pt_value_+1", 
+    rpctfptvalue[2] = m_dbe->book1D("RPCTF_pt_value_+1", 
        "RPCTF pt value bx +1", 160, -0.5, 159.5 ) ;
-    rpctfptvalue[0] = dbe->book1D("RPCTF_pt_value_-1", 
+    rpctfptvalue[0] = m_dbe->book1D("RPCTF_pt_value_-1", 
        "RPCTF pt value bx -1", 160, -0.5, 159.5 ) ;
     
-    rpctfchargevalue[1] = dbe->book1D("RPCTF_charge_value", 
+    rpctfchargevalue[1] = m_dbe->book1D("RPCTF_charge_value", 
        "RPCTF charge value", 3, -1.5, 1.5 ) ;
-    rpctfchargevalue[2] = dbe->book1D("RPCTF_charge_value_+1", 
+    rpctfchargevalue[2] = m_dbe->book1D("RPCTF_charge_value_+1", 
        "RPCTF charge value bx +1", 3, -1.5, 1.5 ) ;
-    rpctfchargevalue[0] = dbe->book1D("RPCTF_charge_value_-1", 
+    rpctfchargevalue[0] = m_dbe->book1D("RPCTF_charge_value_-1", 
        "RPCTF charge value bx -1", 3, -1.5, 1.5 ) ;
 
-    rpctfquality[1] = dbe->book1D("RPCTF_quality", 
+    rpctfquality[1] = m_dbe->book1D("RPCTF_quality", 
        "RPCTF quality", 6, -0.5, 5.5 ) ;
-    rpctfquality[2] = dbe->book1D("RPCTF_quality_+1", 
+    rpctfquality[2] = m_dbe->book1D("RPCTF_quality_+1", 
        "RPCTF quality bx +1", 6, -0.5, 5.5 ) ;
-    rpctfquality[0] = dbe->book1D("RPCTF_quality_-1", 
+    rpctfquality[0] = m_dbe->book1D("RPCTF_quality_-1", 
        "RPCTF quality bx -1", 6, -0.5, 5.5 ) ;
 
-    rpctfntrack = dbe->book1D("RPCTF_ntrack", 
+    rpctfntrack = m_dbe->book1D("RPCTF_ntrack", 
        "RPCTF number of tracks", 10, -0.5, 9.5 ) ;
     
-    rpctfbx = dbe->book1D("RPCTF_bx", 
+    rpctfbx = m_dbe->book1D("RPCTF_bx", 
        "RPCTF bx distribiution", 5, -2.5, 2.5 ) ;
 
-//     m_digiBx = dbe->book1D("RPCDigi_bx", 
+//     m_digiBx = m_dbe->book1D("RPCDigi_bx", 
 //        "RPC digis bx", 9, -4.5, 4.5 ) ;
     
-//     m_digiBxRPC = dbe->book1D("RPCDigiRPC_bx", 
+//     m_digiBxRPC = m_dbe->book1D("RPCDigiRPC_bx", 
 //        "RPC digis bx - events with RPC mu only", 9, -4.5, 4.5 ) ;
 // 
-//     m_digiBxDT = dbe->book1D("RPCDigiDT_bx", 
+//     m_digiBxDT = m_dbe->book1D("RPCDigiDT_bx", 
 //        "RPC digis bx - events with DT mu only", 9, -4.5, 4.5 ) ;
 // 
-//     m_digiBxCSC = dbe->book1D("RPCDigiCSC_bx", 
+//     m_digiBxCSC = m_dbe->book1D("RPCDigiCSC_bx", 
 //        "RPC digis bx - events with CSC mu only", 9, -4.5, 4.5 ) ;
 
-//     m_digiBxLast = dbe->book1D("RPCDigi_bx_last", 
+//     m_digiBxLast = m_dbe->book1D("RPCDigi_bx_last", 
 //        "RPC digis bx (last X events)", 9, -4.5, 4.5 ) ;
 
-    m_qualVsEta = dbe->book2D("RPCTF_quality_vs_tower", 
+    m_qualVsEta = m_dbe->book2D("RPCTF_quality_vs_tower", 
                               "RPCTF quality vs eta", 
                               //100, -2.5, 2.5,
                                33, -16.5, 16.5,
                                6, -0.5, 5.5); // Currently only 0...3 quals are possible
     
-    m_muonsEtaPhi = dbe->book2D("RPCTF_muons_tower_phipacked", 
+    m_muonsEtaPhi = m_dbe->book2D("RPCTF_muons_tower_phipacked", 
                                 "RPCTF muons(tower,phi)",  
                                // 100, -2.5, 2.5,
                                 33, -16.5, 16.5,
@@ -155,12 +157,12 @@ void L1TRPCTF::beginJob(const EventSetup& c)
 
    
     
-    m_phipacked = dbe->book1D("RPCTF_phi_valuepacked", 
+    m_phipacked = m_dbe->book1D("RPCTF_phi_valuepacked", 
                            "RPCTF phi valuepacked", 144, -0.5, 143.5 ) ;
 
     
-    m_rate = dbe->book1D("RPCTF_rate",
-                           "RPCTrigger rate - arbitrary units", 36000, 0, 36000 ) ; //assuimng that run is shorter than10h
+    m_rate = m_dbe->book1D("RPCTF_rate",
+                           "RPCTrigger rate - arbitrary units", 3600, 0, 3600); // range will be extended if needed
     
         
   }  
@@ -172,8 +174,8 @@ void L1TRPCTF::endRun(const edm::Run & r, const edm::EventSetup & c){
   while (p.first != -1 )
   {
      
-    if (p.first > -1 && p.first < m_rate->getNbinsX() ){
-      m_rate->setBinContent(p.first,p.second);
+    if (p.first > -1){
+      fillRateHisto(p);
     }
     p = m_rateHelper.removeAndGetRateForEarliestTime();
   }
@@ -188,7 +190,7 @@ void L1TRPCTF::endJob(void)
   if(verbose_) cout << "L1TRPCTF: end job...." << endl;
   LogInfo("EndJob") << "analyzed " << nev_ << " events"; 
 
-  if ( outputFile_.size() != 0  && dbe ) dbe->save(outputFile_);
+  if ( outputFile_.size() != 0  && m_dbe ) m_dbe->save(outputFile_);
     
   return;
 
@@ -291,8 +293,9 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
   
     std::pair<int, int> p = m_rateHelper.removeAndGetRateForEarliestTime();
     
-    if (p.first > -1 && p.first < m_rate->getNbinsX() ){
-      m_rate->setBinContent(p.first,p.second);
+    if (p.first > -1){
+      fillRateHisto(p);
+      
     }
     
   }
@@ -303,6 +306,71 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
   if (verbose_) cout << "\tRPCTFCand ntrack " << nrpctftrack << endl;
 	
 }
+
+
+/// Fills rate histo. Extends scale if needed
+void L1TRPCTF::fillRateHisto(std::pair<int,int> & p)
+{
+  static bool resizePossible = true;
+      
+  if (!resizePossible) return; // we have run out of space allready
+  
+  static int fills = 0;
+  ++fills;
+    
+  // check if we are running out of storage space, if so extend the scale
+  float occupancy = 1.*p.first/m_rate->getNbinsX();
+  while( occupancy>0.95 && resizePossible ){
+    
+    std::cout << " Trying to resize " << std::endl;
+    m_dbe->setCurrentFolder(output_dir_);
+    static float gd = 1.61;
+    int curbins=m_rate->getNbinsX();
+    int nbins=curbins*gd+1; // new size
+    
+    if (occupancy>gd) { 
+      nbins=nbins*occupancy;
+    } 
+    
+    if (nbins > m_maxRateHistoSize) // limit the number of bins
+      nbins = m_maxRateHistoSize;
+    
+    if (curbins<nbins) {
+    
+      std::cout << " Resizing " << std::endl;
+      TH1F * histCopy= (TH1F *)m_rate->getTH1F()->Clone();
+      
+      std::string name = m_rate->getName(); 
+      std::cout << " Removing: " << name << std::endl;
+      
+      m_dbe->setCurrentFolder(output_dir_);
+      m_dbe->removeElement(name);
+      
+      m_rate = m_dbe->book1D(name,
+                          "RPCTrigger rate - arbitrary units", nbins, 0, nbins);
+      
+      for (int i = 1; i < histCopy->GetNbinsX(); ++i){
+        m_rate->setBinContent(i,histCopy->GetBinContent(i));
+      } 
+      
+      delete histCopy;
+    } else {
+      std::cout << " Resize impossible " << std::endl;
+      resizePossible = false;
+    }
+    
+    occupancy = 1.*p.first/m_rate->getNbinsX();
+  }
+  
+  if (resizePossible){
+    m_rate->setBinContent(p.first,p.second);
+    std::cout << fills << " Filling"  << std::endl;
+  }
+  
+
+
+}
+
 
 void L1TRPCTF::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
                                     const edm::EventSetup& context)

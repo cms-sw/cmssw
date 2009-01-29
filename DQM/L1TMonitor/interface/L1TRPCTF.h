@@ -71,9 +71,11 @@ void endRun(const edm::Run & r, const edm::EventSetup & c);
 
 
 private:
+  void fillRateHisto(std::pair<int,int> & p);
 
+  
   // ----------member data ---------------------------
-  DQMStore * dbe;
+  DQMStore * m_dbe;
 
   MonitorElement* rpctfetavalue[3];
   MonitorElement* rpctfphivalue[3];
@@ -82,23 +84,15 @@ private:
   MonitorElement* rpctfquality[3];
   MonitorElement* rpctfntrack;
   MonitorElement* rpctfbx;
-//   MonitorElement*  m_digiBx;
-//   MonitorElement*  m_digiBxLast;
   MonitorElement* m_qualVsEta;
   MonitorElement* m_muonsEtaPhi;
   MonitorElement* m_phipacked;
   MonitorElement * m_rate;
   L1TRateHelper::L1TRateHelper m_rateHelper;
-//   MonitorElement * m_floatSynchro;
 
-//   MonitorElement *  m_digiBxRPC;
-// 
-//   MonitorElement *  m_digiBxDT;
-// 
-//   MonitorElement *  m_digiBxCSC;
 
   edm::InputTag rpctfSource_ ;
-  //edm::InputTag digiSource_ ;
+
   int nev_; // Number of events processed
   int nevRPC_; // Number of events processed where muon was found by rpc trigger
   std::string outputFile_; //file name for ROOT ouput
@@ -109,12 +103,10 @@ private:
   
   unsigned long m_ntracks;
   int m_rateUpdateTime;
-
+  int m_maxRateHistoSize;
+  std::string output_dir_;
   
 
-//   std::set<int> m_bxs;
-//   int m_rpcDigiWithBX0;
-//   int m_rpcDigiWithBXnon0;
 
 };
 
