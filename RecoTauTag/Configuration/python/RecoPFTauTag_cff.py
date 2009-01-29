@@ -42,8 +42,7 @@ PFTauDiscrimination = cms.Sequence(
     pfRecoTauDiscriminationByECALIsolation*
     pfRecoTauDiscriminationByECALIsolationUsingLeadingPion*
     pfRecoTauDiscriminationAgainstElectron*
-    pfRecoTauDiscriminationAgainstMuon*
-    pfTauDecayMode
+    pfRecoTauDiscriminationAgainstMuon
 )
 
 PFTauDiscriminationHighEfficiency = cms.Sequence(
@@ -57,8 +56,7 @@ PFTauDiscriminationHighEfficiency = cms.Sequence(
     pfRecoTauDiscriminationByECALIsolationHighEfficiency*
     pfRecoTauDiscriminationByECALIsolationUsingLeadingPionHighEfficiency*
     pfRecoTauDiscriminationAgainstElectronHighEfficiency*
-    pfRecoTauDiscriminationAgainstMuonHighEfficiency*
-    pfTauDecayModeHighEfficiency
+    pfRecoTauDiscriminationAgainstMuonHighEfficiency
 )
 
 PFTauDiscriminationInsideOut = cms.Sequence(
@@ -72,8 +70,7 @@ PFTauDiscriminationInsideOut = cms.Sequence(
     pfRecoTauDiscriminationByECALIsolationInsideOut*
     pfRecoTauDiscriminationByECALIsolationUsingLeadingPionInsideOut*
     pfRecoTauDiscriminationAgainstElectronInsideOut*
-    pfRecoTauDiscriminationAgainstMuonInsideOut*
-    pfTauDecayModeInsideOut
+    pfRecoTauDiscriminationAgainstMuonInsideOut
 )
 
 # Produce and discriminate on Inside Out PFTaus (not included in default 
