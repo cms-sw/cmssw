@@ -27,7 +27,7 @@ process.options = cms.untracked.PSet(
 #process.load("CalibTracker.Configuration.Tracker_FakeConditions_cff")
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi")
-process.GlobalTag.globaltag = 'IDEAL_V5::All' # 'CRUZET4_V3P::All'
+process.GlobalTag.globaltag = 'IDEAL_30X::All' # 'CRUZET4_V3P::All'
 
 ##
 ## Geometry
@@ -39,12 +39,6 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 ##
 process.load("Configuration.StandardSequences.MagneticField_cff")
 # 0 T:
-#process.localUniform = cms.ESProducer("UniformMagneticFieldESProducer",
-#                                      ZFieldInTesla = cms.double(0.0)
-#                                      )
-#process.prefer_localUniform = cms.ESPrefer("UniformMagneticFieldESProducer",
-#                                           "localUniform")
-# 0 T from CMSSW_2_1_5 on:
 #process.load("Configuration.StandardSequences.MagneticField_0T_cff")
 
 ##
@@ -129,7 +123,7 @@ process.AlignmentTrackSelector.applyBasicCuts = False #True
 ##
 ## Load and Configure TrackRefitter
 ##
-process.load("RecoTracker.TrackProducer.RefitterWithMaterial_cff")
+process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 process.TrackRefitter.src = 'AlignmentTrackSelector'
 process.TrackRefitter.TrajectoryInEvent = True
 
