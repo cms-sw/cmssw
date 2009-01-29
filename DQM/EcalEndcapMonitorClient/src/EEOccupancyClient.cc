@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyClient.cc
  *
- * $Date: 2008/06/25 15:08:20 $
- * $Revision: 1.27 $
+ * $Date: 2008/08/11 20:53:49 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -579,6 +579,9 @@ void EEOccupancyClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
     }
   }
+
+  delete cMap;
+  delete cProj;
 
   gStyle->SetPaintTextFormat();
 

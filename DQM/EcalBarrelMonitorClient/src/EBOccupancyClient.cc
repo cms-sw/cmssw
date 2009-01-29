@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyClient.cc
  *
- * $Date: 2008/06/25 14:16:15 $
- * $Revision: 1.29 $
+ * $Date: 2008/06/25 15:08:18 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -439,6 +439,8 @@ void EBOccupancyClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
     }
 
   }
+
+  delete cMap;
 
   gStyle->SetPaintTextFormat();
 
