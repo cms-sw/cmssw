@@ -45,7 +45,8 @@ namespace edm {
 			ActionTable::ActionMap& out,
 			const ParameterSet& pset)
     {
-      using namespace boost::lambda;
+      using boost::lambda::_1;
+      using boost::lambda::var;
       typedef std::vector<std::string> vstring;
 
       // we cannot have parameters in the main process section so look
