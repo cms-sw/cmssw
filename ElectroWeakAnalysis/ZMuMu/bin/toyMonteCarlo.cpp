@@ -13,13 +13,6 @@
 #include <cmath>
 using namespace std;
 
-TRandom3 *eventGenerator = new TRandom3();
-
-int o;
-char* endPtr;
-char* pdf("analysis_Z_133pb_trackIso_3.root");
-double yield(50550),effTrk(.9883),effSa(.9896),effHlt(.9155),effIso(.9786);
-int expt(1),seed(1);
 
 void FillRandom(int N, TH1F *pdf, TH1F * histo){
   double m =0;
@@ -33,7 +26,7 @@ void FillRandom(int N, TH1F *pdf, TH1F * histo){
 
 enum MuTag { globalMu, trackerMu, standaloneMu, undefinedMu };
 
-MuTag mu(double effTrk, double effSa) {
+MuTag mu(double effTrk, double effSa, TRandom3 * eventGenerator) {
   if( eventGenerator->Rndm()< effTrk && eventGenerator->Rndm()< effSa ){
     return globalMu;
   } else if(eventGenerator->Rndm()< effTrk){
@@ -45,11 +38,56 @@ MuTag mu(double effTrk, double effSa) {
   else return undefinedMu;
 }
 
-double bkgShape(double x) {
-  return  exp(-0.0223304 * x) * (0.000505041 + (0.019177 -0.00012970 * x) * x);
-}
+class BkgShape {
+public:
+  BkgShape(double min, double max, double slope, double a0, double a1, double a2) :
+    norm_(1), min_(min), max_(max), fmax_(0),
+    slope_(slope), a0_(a0), a1_(a1), a2_(a2) { 
+    norm_ = 1./integral();
+  }
+  double operator()(double x) const {
+    if(x < min_ || x > max_) return 0;
+    return norm_* exp(-slope_*x)*(a0_ + (a1_ + a2_*x)*x);
+  }
+  double rndm(TRandom3 * eventGenerator) const {
+    double x, f;
+    do {
+      x = eventGenerator->Uniform(min_, max_);
+      f = operator()(x);
+    } while(eventGenerator->Uniform(0, fmax_) > f);
+    return x;
+  }
+private:
+  double integral() {
+    static const unsigned int steps = 10000;
+    double s = 0, x, f;
+    double base = max_ - min_;
+    double dx = base/steps;
+    for(unsigned int n = 0; n < steps; ++n) {
+      x = min_ * n * dx;
+      s += (f = operator()(x));
+      if(f > fmax_) fmax_ = f;
+    }
+    fmax_ *= 1.001;
+    return s * base;
+  }
+  double norm_, min_, max_, fmax_;
+  double slope_, a0_, a1_, a2_;
+};
 
 int main(int argc, char * argv[]){
+  TRandom3 *eventGenerator = new TRandom3();
+
+  int o;
+  char* endPtr;
+  char* pdf("analysis_Z_133pb_trackIso_3.root");
+  double yield(50550), effTrk(.9883), effSa(.9896), effHlt(.9155), effIso(.9786);
+  double slopeMuTk(0.022330), a0MuTk(0.000505041), a1MuTk(0.019177), a2MuTk(-0.00012970);
+  double slopeMuMuNonIso(0.0232129), a0MuMuNonIso(1.99999), a1MuMuNonIso(0.0944887), a2MuMuNonIso(-0.000859517);
+  BkgShape zmuMuTkBkg(60, 120, slopeMuTk, a0MuTk, a1MuTk, a2MuTk);
+  BkgShape zmuMuMuNonIsoBkg(60, 120, slopeMuMuNonIso, a0MuMuNonIso, a1MuMuNonIso, a2MuMuNonIso);
+
+  int expt(1), seed(1);
   
   while ((o = getopt(argc, argv,"p:n:s:y:T:S:H:I:h"))!=EOF) {
     switch(o) {
@@ -93,9 +131,6 @@ int main(int argc, char * argv[]){
   TH1F *pdfzmm = (TH1F*)inputfile->Get("goodZToMuMuPlots/zMass");//pdf signal Zmumu(1hlt,2hlt), ZMuMunotIso, ZmuTk
   TH1F *pdfzmsa = (TH1F*)inputfile->Get("zmumuSaMassHistogram/zMass");//pdf signal ZmuSa
   
-  //pdf background
-  TF1 * zmutkBkg  = new TF1("zmtkBkg","exp(-0.0223304 * x) * (0.000505041 + 0.019177 * x -0.00012970 * x * x)");//pdf StandAlone
-  TF1 * zmunoisoBkg = new TF1("zmnoisoBkg","exp( -0.0232129* x) * ( 1.99999 + 0.0944887 * x -0.000859517 * x * x)");//pdf zmuNotIso
   
 
   for(int j = 0; j <expt; ++j){ 
@@ -107,8 +142,8 @@ int main(int argc, char * argv[]){
     int NSa = 0;
     int NTk = 0;
     for(int i = 0; i < N0; ++i){
-      mu1=mu(effTrk,effSa);
-      mu2=mu(effTrk,effSa);
+      mu1=mu(effTrk,effSa, eventGenerator);
+      mu2=mu(effTrk,effSa, eventGenerator);
       
       double rHLT1 = eventGenerator->Rndm();
       double rISO1 = eventGenerator->Rndm();   
