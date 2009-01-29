@@ -141,6 +141,7 @@ muonsWitht0Correction = muons.clone()
 muonsWitht0Correction.inputCollectionLabels = ['ctfWithMaterialTracksP5', 'globalCosmicMuonsWitht0Correction', 'cosmicMuonsWitht0Correction']
 muonsWitht0Correction.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks']
 muonsWitht0Correction.fillIsolation = False
+muonsWitht0Correction.timingParameters.UseSegmentT0 = True
 
 #Sequences
 
