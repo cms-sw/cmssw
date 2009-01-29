@@ -1,8 +1,4 @@
-<<<<<<< FourVectorHLTOffline.cc
-// $Id: FourVectorHLTOffline.cc,v 1.20 2008/12/11 17:39:49 berryhil Exp $
-=======
-// $Id: FourVectorHLTOffline.cc,v 1.20 2009/01/25 23:37:08 berryhil Exp $
->>>>>>> 1.20
+// $Id: FourVectorHLTOffline.cc,v 1.21 2009/01/29 15:33:11 rekovic Exp $
 // See header file for information. 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
