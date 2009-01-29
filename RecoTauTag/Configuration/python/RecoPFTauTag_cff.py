@@ -77,13 +77,15 @@ PFTauDiscriminationInsideOut = cms.Sequence(
 # PFTau sequence)
 PFTauInsideOut = cms.Sequence(
     pfRecoTauProducerInsideOut*
-    PFTauDiscriminationInsideOut
+    PFTauDiscriminationInsideOut*
+    pfTauDecayModeInsideOut
 )
 
 # Produce and discriminate on High Efficiency PFTaus
 PFTauHighEfficiency = cms.Sequence(
     pfRecoTauProducerHighEfficiency*
-    PFTauDiscriminationHighEfficiency
+    PFTauDiscriminationHighEfficiency*
+    pfTauDecayModeHighEfficiency
 )
 
 PFTau = cms.Sequence(
@@ -91,6 +93,7 @@ PFTau = cms.Sequence(
     pfRecoTauTagInfoProducer*
     pfRecoTauProducer*
     PFTauDiscrimination*
+    pfTauDecayMode*
     PFTauHighEfficiency
 )
 
