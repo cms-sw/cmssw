@@ -112,10 +112,15 @@ void ZGlobalVsSAIsolationAnalyzer::analyze(const edm::Event& event, const edm::E
   }    
 }
   
- 
 void ZGlobalVsSAIsolationAnalyzer::endJob() {
-  cout <<"Global: " << selGlobal_ << "/" << totGlobal_ << " = " << double(selGlobal_)/double(totGlobal_);
-  cout <<"St.Al.: " << selSA_ << "/" << totSA_ << " = " << double(selSA_)/double(totSA_);
+  cout << "Isolation efficiency report:" << endl;
+  double eff, err;
+  eff =  double(selGlobal_)/double(totGlobal_);
+  err = sqrt(eff*(1.-eff)/double(totGlobal_));
+  cout <<"Global: " << selGlobal_ << "/" << totGlobal_ << " = " <<eff <<"+/-" << err<< endl;
+  eff = double(selSA_)/double(totSA_);
+  err = sqrt(eff*(1.-eff)/double(totSA_));  
+  cout <<"St.Al.: " << selSA_ << "/" << totSA_ << " = " << eff <<"+/-" << err << endl;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

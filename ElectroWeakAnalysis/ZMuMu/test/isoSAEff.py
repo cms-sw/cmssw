@@ -11,22 +11,16 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-    "rfio:/castor/cern.ch/user/n/noli/Summer08/reskimed/zmm/zmumu_reskim_1.root",
-    "rfio:/castor/cern.ch/user/n/noli/Summer08/reskimed/zmm/zmumu_reskim_2.root",
-    "rfio:/castor/cern.ch/user/n/noli/Summer08/reskimed/zmm/zmumu_reskim_3.root",
-    "rfio:/castor/cern.ch/user/n/noli/Summer08/reskimed/zmm/zmumu_reskim_4.root",
-    "rfio:/castor/cern.ch/user/n/noli/Summer08/reskimed/zmm/zmumu_reskim_5.root",
-    "rfio:/castor/cern.ch/user/n/noli/Summer08/reskimed/zmm/zmumu_reskim_6.root",
-    "rfio:/castor/cern.ch/user/n/noli/Summer08/reskimed/zmm/zmumu_reskim_7.root",
-    "rfio:/castor/cern.ch/user/n/noli/Summer08/reskimed/zmm/zmumu_reskim_8.root",
-    "rfio:/castor/cern.ch/user/n/noli/Summer08/reskimed/zmm/zmumu_reskim_9.root",
-    "rfio:/castor/cern.ch/user/n/noli/Summer08/reskimed/zmm/zmumu_reskim_10.root"
+    "rfio:/dpm/na.infn.it/home/cms/store/user/noli/reskim/zmm/zmumu_reskim_1.root"
+    "rfio:/dpm/na.infn.it/home/cms/store/user/noli/reskim/zmm/zmumu_reskim_2.root"
+    "rfio:/dpm/na.infn.it/home/cms/store/user/noli/reskim/zmm/zmumu_reskim_3.root"
+    "rfio:/dpm/na.infn.it/home/cms/store/user/noli/reskim/zmm/zmumu_reskim_4.root"
     )
 )
 
 process.isoAnalyzer = cms.EDAnalyzer(
     "ZGlobalVsSAIsolationAnalyzer",
-    src = cms.InputTag("zToMuMu"),
+    src = cms.InputTag("goodZToMuMu"),
     isoCut = cms.double(1.7),
     veto = cms.double(0.001),
     ptThreshold = cms.double(1),
