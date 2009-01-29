@@ -16,12 +16,13 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr 29 10:03:54 EDT 2005
-// $Id: DependentRecordImplementation.h,v 1.7 2007/06/14 17:52:15 wmtan Exp $
+// $Id: DependentRecordImplementation.h,v 1.8 2008/01/14 15:50:55 chrjones Exp $
 //
 
 // system include files
 #include "boost/mpl/begin_end.hpp"
 #include "boost/mpl/find.hpp"
+#include "boost/static_assert.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

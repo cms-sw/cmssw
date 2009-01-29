@@ -23,6 +23,7 @@
 #include <vector>
 #include <cassert>
 #include "boost/type_traits/is_base_and_derived.hpp"
+#include "boost/static_assert.hpp"
 // user include files
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
