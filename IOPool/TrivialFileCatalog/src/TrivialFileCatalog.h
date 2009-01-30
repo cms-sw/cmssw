@@ -8,7 +8,7 @@
 #endif
 #include <list>
 #include <utility>
-#include <CoralBase/Regexp.h>
+#include "classlib/utils/Regexp.h"
 #include <xercesc/dom/DOM.hpp>
 
 namespace pool 
@@ -184,8 +184,8 @@ private:
     
     
     typedef struct {
-	coral::Regexp pathMatch;
-	coral::Regexp destinationMatch;	
+	lat::Regexp pathMatch;
+	lat::Regexp destinationMatch;	
 	std::string result;
 	std::string chain;
     } Rule;
@@ -211,7 +211,7 @@ private:
     
     std::string 		m_fileType;
     std::string			m_filename;
-    coral::StringList		m_protocols;
+    lat::StringList		m_protocols;
     std::string			m_destination;    
 };    
     

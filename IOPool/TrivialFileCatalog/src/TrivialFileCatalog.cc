@@ -20,9 +20,9 @@
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
-#include <CoralBase/StringList.h>
-#include <CoralBase/StringOps.h>
-#include <CoralBase/Regexp.h>
+#include "classlib/utils/StringList.h"
+#include "classlib/utils/StringOps.h"
+#include "classlib/utils/Regexp.h"
 #include "Reflex/PluginService.h"
 using namespace xercesc;
 using namespace pool;
@@ -134,19 +134,19 @@ pool::TrivialFileCatalog::connect ()
 		 ": Malformed url for file catalog configuration"); 
 	}
 
-	coral::StringList tokens = coral::StringOps::split (m_url, "?"); 
+	lat::StringList tokens = lat::StringOps::split (m_url, "?"); 
 	m_filename = tokens[0];
 
 	if (tokens.size () == 2)
 	{
 	    std::string options = tokens[1];
-	    coral::StringList optionTokens = coral::StringOps::split (options, "&");
+	    lat::StringList optionTokens = lat::StringOps::split (options, "&");
 
-	    for (coral::StringList::iterator option = optionTokens.begin ();
+	    for (lat::StringList::iterator option = optionTokens.begin ();
 		 option != optionTokens.end ();
 		 option++)
 	    {
-		coral::StringList argTokens = coral::StringOps::split (*option, "=") ;
+		lat::StringList argTokens = lat::StringOps::split (*option, "=") ;
 		if (argTokens.size () != 2)
 		{
 		    throw FCTransactionException
@@ -159,7 +159,7 @@ pool::TrivialFileCatalog::connect ()
 		
 		if (key == "protocol")
 		{
-		    m_protocols = coral::StringOps::split (value, ",");
+		    m_protocols = lat::StringOps::split (value, ",");
 		}
 		else if (key == "destination")
 		{
@@ -324,7 +324,7 @@ pool::TrivialFileCatalog::lookupFileByPFN (const std::string & pfn,
     fid = "";
     std::string tmpPfn = pfn;
     
-    for (coral::StringList::const_iterator protocol = m_protocols.begin ();
+    for (lat::StringList::const_iterator protocol = m_protocols.begin ();
 	 protocol != m_protocols.end ();
 	 protocol++)
     {
@@ -351,7 +351,7 @@ pool::TrivialFileCatalog::lookupFileByLFN (const std::string& lfn,
 }
 
 std::string
-replaceWithRegexp (const coral::RegexpMatch matches, 
+replaceWithRegexp (const lat::RegexpMatch matches, 
 		   const std::string inputString,
 		   const std::string outputFormat)
 {
@@ -370,11 +370,11 @@ replaceWithRegexp (const coral::RegexpMatch matches,
 	std::string variableRegexp = std::string ("[$]") + buffer;
 	std::string matchResult = matches.matchString (inputString, i);
 	
-	coral::Regexp sustitutionToken (variableRegexp);
+	lat::Regexp sustitutionToken (variableRegexp);
 	
 	//std::cerr << "Current match: " << matchResult << std::endl;
 	
-	result = coral::StringOps::replace (result, 
+	result = lat::StringOps::replace (result, 
 					   sustitutionToken, 
 					   matchResult);
     }
@@ -417,7 +417,7 @@ pool::TrivialFileCatalog::applyRules (const ProtocolRules& protocolRules,
 		applyRules (protocolRules, chain, destination, direct, name);		
 	}
 	    
-	coral::RegexpMatch matches;
+	lat::RegexpMatch matches;
 	i->pathMatch.match (name, 0, 0, &matches);
 	
 	name = replaceWithRegexp (matches, 
@@ -451,7 +451,7 @@ pool::TrivialFileCatalog::lookupBestPFN (const FileCatalog::FileID& fid,
     pfn = "";
     std::string lfn = fid;
     
-    for (coral::StringList::const_iterator protocol = m_protocols.begin ();
+    for (lat::StringList::const_iterator protocol = m_protocols.begin ();
 	 protocol != m_protocols.end ();
 	 protocol++)
     {
@@ -523,8 +523,8 @@ pool::TrivialFileCatalog::retrievePFN (const std::string& query,
 				    "Catalog not connected");
     // The only query supported is lfn='something' or pfn='something'
     // No spaces allowed in something.
-    coral::Regexp grammar ("(lfname|guid)='(.*)'");
-    coral::RegexpMatch grammarMatches;
+    lat::Regexp grammar ("(lfname|guid)='(.*)'");
+    lat::RegexpMatch grammarMatches;
     
     grammar.match (query, 0, 0, &grammarMatches);
     
@@ -538,7 +538,7 @@ pool::TrivialFileCatalog::retrievePFN (const std::string& query,
     
     std::string lfn = grammarMatches.matchString (query, 2);
     
-    for (coral::StringList::iterator protocol = m_protocols.begin ();
+    for (lat::StringList::iterator protocol = m_protocols.begin ();
 	 protocol != m_protocols.end ();
 	 protocol++)
     {
@@ -572,8 +572,8 @@ pool::TrivialFileCatalog::retrieveLFN (const std::string& query,
     // The only query supported is lfn='something' or pfn='something'
     // No spaces allowed in something.
 
-    coral::Regexp grammar ("(pfname|guid)='(.*)'");
-    coral::RegexpMatch grammarMatches;
+    lat::Regexp grammar ("(pfname|guid)='(.*)'");
+    lat::RegexpMatch grammarMatches;
     
     grammar.match (query, 0, 0, &grammarMatches);
     
@@ -597,7 +597,7 @@ pool::TrivialFileCatalog::retrieveLFN (const std::string& query,
     }
     
 
-    for (coral::StringList::iterator protocol = m_protocols.begin ();
+    for (lat::StringList::iterator protocol = m_protocols.begin ();
 	 protocol != m_protocols.end ();
 	 protocol++)
     {
