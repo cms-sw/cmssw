@@ -3,6 +3,7 @@
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
 #include "CondCore/DBCommon/interface/AuthenticationMethod.h"
 #include "CondCore/DBCommon/interface/Connection.h"
+#include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
 #include "CondCore/DBCommon/interface/FipProtocolParser.h"
 #include "CondCore/DBCommon/interface/MessageLevel.h"
@@ -170,6 +171,8 @@ int main( int argc, char** argv ){
   }else{
     session.configuration().setMessageLevel(cond::Debug);
   }
+  session.configuration().connectionConfiguration()->disablePoolAutomaticCleanUp();
+  session.configuration().connectionConfiguration()->setConnectionTimeOut(0);
 
   if( !authPath.empty() ){
     session.configuration().setAuthenticationMethod( cond::XML );

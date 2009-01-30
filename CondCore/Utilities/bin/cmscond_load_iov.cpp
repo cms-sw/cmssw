@@ -2,7 +2,7 @@
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
 #include "CondCore/DBCommon/interface/Connection.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
-//#include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
+#include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
 #include "CondCore/DBCommon/interface/MessageLevel.h"
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/Exception.h"
@@ -139,6 +139,9 @@ int main( int argc, char** argv ){
   }
   std::string iovtoken;
   cond::DBSession* session=new cond::DBSession;
+  session->configuration().connectionConfiguration()->disablePoolAutomaticCleanUp();
+  session->configuration().connectionConfiguration()->setConnectionTimeOut(0);
+
   if(!debug){
     session->configuration().setMessageLevel(cond::Error);
   }else{

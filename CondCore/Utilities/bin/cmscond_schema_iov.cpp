@@ -2,6 +2,7 @@
 #include "FWCore/PluginManager/interface/standard.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/Connection.h"
+#include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
 #include "CondCore/DBCommon/interface/AuthenticationMethod.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
 #include "CondCore/DBCommon/interface/MessageLevel.h"
@@ -70,6 +71,9 @@ int main( int argc, char** argv ){
     debug=true;
   }
   cond::DBSession* session=new cond::DBSession;
+  session->configuration().connectionConfiguration()->disablePoolAutomaticCleanUp();
+  session->configuration().connectionConfiguration()->setConnectionTimeOut(0);
+
   std::string userenv(std::string("CORAL_AUTH_USER=")+user);
   std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
   ::putenv(const_cast<char*>(userenv.c_str()));
