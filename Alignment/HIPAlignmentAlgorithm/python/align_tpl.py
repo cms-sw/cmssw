@@ -4,7 +4,7 @@ process = cms.Process("Alignment")
 process.load("Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi")
 process.load("Alignment.TrackHitFilter.TrackHitFilter_cfi")
 #process.load("RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilderWithoutRefit_cfi")
-process.load("RecoTracker.TrackProducer.RefitterWithMaterial_cff")
+process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 
 # "including" common configuration
