@@ -2,13 +2,13 @@
  * 
  *  Digi for CSC DDU info available in DDU
  *
- *  $Date: 2008/02/12 17:40:17 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/10/29 18:34:41 $
+ *  $Revision: 1.4 $
  *
  */
 #include "DataFormats/CSCDigi/interface/CSCDDUStatusDigi.h"
-
-#include <iostream>
+#include <ostream>
+#include <cstring>
 
 CSCDDUStatusDigi::CSCDDUStatusDigi(const uint16_t * header, const uint16_t * trailer)
 {
