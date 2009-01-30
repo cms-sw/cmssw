@@ -21,7 +21,7 @@
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
-#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+//#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 
 #include "RecoRomanPot/RecoFP420/interface/ClusterizerFP420.h"
