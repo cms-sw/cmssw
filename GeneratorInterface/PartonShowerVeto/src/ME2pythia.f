@@ -202,8 +202,6 @@ C...Local variables
       DOUBLE PRECISION SCALLOW(MAXNUP),PNONJ(4),PMNONJ!,PT2JETS
 
       
-      print *, ' Hello, this is MGEVNT'
-      
       NUPREAD=NUP
 
 C...Read NUP subsequent lines with information on each particle.
@@ -280,17 +278,12 @@ C...(example function included below)
       IF(MINT(35).eq.3.AND.ickkw.EQ.1) SCALUP=SQRT(PARP(67))*SCALUP
 
       
-      print *, ' ickkw= ', ickkw
-      
       IF(ickkw.gt.0) THEN
 c
 c   Set up number of jets
 c
          NLJETS=0
          NPART=0
-
-	 print *, ' NUP= ', NUP
-	 print *, ' NLJETS= ', NLJETS
 
          do i=3,NUP
             if(ISTUP(i).ne.1) cycle
@@ -300,8 +293,6 @@ c
             if(MOTHUP(1,i).gt.2) cycle
             NLJETS=NLJETS+1
             PTCLUS(NLJETS)=PTPART(NPART)
-	    print *, ' i= ', i, ' iabs(IDUP(i))= ', iabs(IDUP(i)), 
-     &               ' MOTHUP(1,i)= ', MOTHUP(1,i)	    
          enddo
          CALL ALPSOR(PTCLUS,nljets,KP,1)
 
@@ -449,12 +440,8 @@ c      endif
 
       IPVETO=0
       IF (ICKKW.NE.1) then
-         print *, ' exiting mgveto because ickkw.ne.1), with ipveto= ', 
-     &            ipveto
          RETURN
       endif
-
-      print *, ' MINJETS, MAXJETS, NLJETS ', MINJETS, MAXJETS, NLJETS
       
       IF(NLJETS.LT.MINJETS.OR.NLJETS.GT.MAXJETS)THEN
         if(idbg.eq.1)
@@ -535,9 +522,7 @@ c        CALL PYLIST(1)
         write(LNHOUT,*) 'PARTONS'
       endif
       i=0
-      
-      print *, ' NUP= ', nup
-      
+            
       do ihep=3,nup
         if(ISTUP(ihep).ne.1.or.
      $     (iabs(IDUP(ihep)).ge.6.and.IDUP(ihep).ne.21)) cycle
