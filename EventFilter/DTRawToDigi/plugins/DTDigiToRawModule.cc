@@ -27,8 +27,8 @@ DTDigiToRawModule::DTDigiToRawModule(const edm::ParameterSet& ps) {
   digibyType = ps.getUntrackedParameter<bool>("digibytype", true);
   
   useStandardFEDid_ = ps.getUntrackedParameter<bool>("useStandardFEDid", true);
-  minFEDid_ = ps.getUntrackedParameter<int>("minFEDid", 731);
-  maxFEDid_ = ps.getUntrackedParameter<int>("maxFEDid", 735);
+  minFEDid_ = ps.getUntrackedParameter<int>("minFEDid", 770);
+  maxFEDid_ = ps.getUntrackedParameter<int>("maxFEDid", 775);
   
   packer = new DTDigiToRaw(ps);
   if (debug) cout << "[DTDigiToRawModule]: constructor" << endl;
