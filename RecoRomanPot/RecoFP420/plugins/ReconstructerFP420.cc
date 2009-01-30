@@ -18,8 +18,8 @@
 #include "DataFormats/FP420Cluster/interface/TrackCollectionFP420.h"
 #include "DataFormats/FP420Cluster/interface/RecoCollectionFP420.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include "HepMC/GenEvent.h"
+//#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+//#include "HepMC/GenEvent.h"
 
 #include <iostream> 
 using namespace std;
@@ -84,6 +84,8 @@ namespace cms
     double vtxGenX = 0.;
     double vtxGenY = 0.;
     double vtxGenZ = 0.;
+
+    /*
     if(VtxFlag == 1) {
       
       Handle<HepMCProduct> EvtHandle;
@@ -141,6 +143,8 @@ namespace cms
 	}
       }
     }// if(VtxFlag == 1 
+
+*/
     
     double VtxX = 0.;
     double VtxY = 0.;
