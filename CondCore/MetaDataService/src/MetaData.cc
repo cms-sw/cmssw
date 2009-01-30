@@ -15,6 +15,7 @@
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/AttributeSpecification.h"
 #include "CoralBase/Attribute.h"
+#include <memory>
 //#include <iostream>
 cond::MetaData::MetaData(cond::CoralTransaction& coraldb):m_coraldb(coraldb){
 }
