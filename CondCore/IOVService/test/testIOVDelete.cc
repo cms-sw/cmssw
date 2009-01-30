@@ -19,7 +19,7 @@ int main(){
     cond::IOVService iovmanager(pooldb);
     pooldb.start(false);
     cond::IOVEditor* editor=iovmanager.newIOVEditor();
-    editor->create(cond::timestamp,0);
+    editor->create(cond::timestamp,1);
     for(int i=0; i<5; ++i){
       std::cout<<"creating test payload obj"<<i<<std::endl;
       testPayloadObj* myobj=new testPayloadObj;
