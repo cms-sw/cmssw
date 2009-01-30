@@ -16,7 +16,6 @@ class LHEEvent;
 #include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
-
 namespace HepMC
 {
 class GenEvent;
@@ -35,8 +34,12 @@ namespace gen {
       void setLHERunInfo( lhef::LHERunInfo* lheri ) { fRunBlock=lheri; return; }
       void setLHEEventProd( LHEEventProduct* lheep ) { fEventBlock=lheep; return ; }
       
+      void resetIterationsPerEvent() { fIterationsPerEvent = 0; return;}
+      
       void fillHeader();
       void fillEvent();  
+      
+      int getIterationsPerEvent() const { return fIterationsPerEvent; }
 
    private:
    
@@ -49,6 +52,7 @@ namespace gen {
      //lhef::LHEEvent*  fPartonLevel;
      lhef::LHERunInfo*  fRunBlock;
      LHEEventProduct*   fEventBlock;
+     int                fIterationsPerEvent;
      
      static FortranCallback* fInstance;
 
@@ -61,7 +65,7 @@ FortranCallback* FortranCallback::fInstance = 0;
 
 FortranCallback::FortranCallback()
 //   : fPartonLevel(0)
-   : fRunBlock(0), fEventBlock(0)
+   : fRunBlock(0), fEventBlock(0), fIterationsPerEvent(0)
 {   
 }
 
@@ -95,10 +99,11 @@ void FortranCallback::fillEvent()
    
    const lhef::HEPEUP* hepeup = &(fEventBlock->hepeup()); 
 
-        //if (iterations++) {
-                if (hepeup_.nup = 0)
-                return;
-        //}
+        if (fIterationsPerEvent++) 
+	{
+           hepeup_.nup = 0;
+           return;
+        }
 
    lhef::CommonBlocks::fillHEPEUP(hepeup);
 
