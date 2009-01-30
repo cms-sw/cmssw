@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: ValueMap.h,v 1.14 2008/04/01 13:46:46 gpetrucc Exp $
+ * \version $Id: ValueMap.h,v 1.15 2008/04/30 17:07:50 gpetrucc Exp $
  *
  */
 
@@ -13,6 +13,7 @@
 #include <vector>
 #include <map>
 #include <iterator>
+#include <algorithm>
 
 namespace edm {
   namespace helper {
