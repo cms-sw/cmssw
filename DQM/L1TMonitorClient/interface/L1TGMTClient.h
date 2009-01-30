@@ -72,9 +72,6 @@ private:
   MonitorElement* eff_etaphi_dtcsc;
   MonitorElement* eff_etaphi_rpc;
   
-  MonitorElement* ratio_dt_rpcb_lumi;
-  MonitorElement* ratio_csc_rpcf_lumi;
-
 };
 
 #endif

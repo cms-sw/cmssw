@@ -86,8 +86,6 @@ void L1TGMTClient::beginJob(const EventSetup& context){
   eff_etaphi_rpc->setAxisTitle("phi (deg)",2);
   eff_etaphi_rpc->getTH2F()->Sumw2();
   
-  ratio_dt_rpcb_lumi  = bookClone1D("ratio_dt_rpcb_lumi" ,"ratio candidates DT/RPCb per lumisegment","DTTF_candlumi");
-  ratio_csc_rpcf_lumi = bookClone1D("ratio_csc_rpcf_lumi","ratio candidates CSC/RPCf per lumisegment","DTTF_candlumi");
 }
 
 //--------------------------------------------------------
@@ -131,9 +129,6 @@ void L1TGMTClient::process() {
   
   makeEfficiency2D(eff_etaphi_dtcsc,"etaphi_DTCSC_and_RPC","etaphi_RPC_only");
   makeEfficiency2D(eff_etaphi_rpc  ,"etaphi_DTCSC_and_RPC","etaphi_DTCSC_only");
-  
-  makeRatio1D(ratio_dt_rpcb_lumi, "DTTF_candlumi", "RPCb_candlumi");
-  makeRatio1D(ratio_csc_rpcf_lumi,"CSCTF_candlumi","RPCf_candlumi");  
   
 }
 //--------------------------------------------------------
