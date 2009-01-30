@@ -1,8 +1,8 @@
-// $Id: HLTPerformanceInfo.cc,v 1.15 2008/07/30 09:35:08 wittich Exp $
+// $Id: HLTPerformanceInfo.cc,v 1.16 2008/08/04 14:52:29 bdahmes Exp $
 
 #include "DataFormats/Common/interface/HLTenums.h"
 #include "DataFormats/HLTReco/interface/HLTPerformanceInfo.h"
-#include <iostream>
+#include <algorithm>
 
 HLTPerformanceInfo::HLTPerformanceInfo() {
   paths_.clear(); modules_.clear();
