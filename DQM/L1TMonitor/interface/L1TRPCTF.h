@@ -4,8 +4,8 @@
 /*
  * \file L1TRPCTF.h
  *
- * $Date: 2009/01/28 15:58:38 $
- * $Revision: 1.12 $
+ * $Date: 2009/01/29 17:05:29 $
+ * $Revision: 1.14 $
  * \author J. Berryhill
  *
 */
@@ -71,7 +71,7 @@ void endRun(const edm::Run & r, const edm::EventSetup & c);
 
 
 private:
-  void fillRateHisto(std::pair<int,int> & p);
+  void fillRateHistos(int orbit, bool flush=false);
 
   
   // ----------member data ---------------------------
@@ -87,7 +87,11 @@ private:
   MonitorElement* m_qualVsEta;
   MonitorElement* m_muonsEtaPhi;
   MonitorElement* m_phipacked;
-  MonitorElement * m_rate;
+  
+  MonitorElement * m_rateAvg;
+  MonitorElement * m_rateMin;
+  MonitorElement * m_rateMax;
+  
   L1TRateHelper::L1TRateHelper m_rateHelper;
 
 
@@ -103,7 +107,8 @@ private:
   
   unsigned long m_ntracks;
   int m_rateUpdateTime;
-  int m_maxRateHistoSize;
+  int m_rateBinSize;
+  int m_rateNoOfBins;
   std::string output_dir_;
   
 

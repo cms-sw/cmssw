@@ -1,8 +1,8 @@
 /*
  * \file L1TRPCTF.cc
  *
- * $Date: 2009/01/28 15:58:38 $
- * $Revision: 1.20 $
+ * $Date: 2009/01/29 17:34:28 $
+ * $Revision: 1.23 $
  * \author J. Berryhill
  *
  */
@@ -25,7 +25,8 @@ L1TRPCTF::L1TRPCTF(const ParameterSet& ps)
 //    m_useRpcDigi(true),
    m_ntracks(0),
    m_rateUpdateTime( ps.getParameter< int >("rateUpdateTime") ),
-   m_maxRateHistoSize( ps.getParameter< int >("maxRateHistoSize") ),
+   m_rateBinSize( ps.getParameter< int >("rateBinSize") ),
+   m_rateNoOfBins( ps.getParameter< int >("rateNoOfBins") ),
    output_dir_ (ps.getUntrackedParameter<string>("output_dir") )
 //    m_rpcDigiWithBX0(0),
 //    m_rpcDigiWithBXnon0(0)
@@ -146,26 +147,23 @@ void L1TRPCTF::beginJob(const EventSetup& c)
                            "RPCTF phi valuepacked", 144, -0.5, 143.5 ) ;
 
     
-    m_rate = m_dbe->book1D("RPCTF_rate",
-                           "RPCTrigger rate - arbitrary units", 3600, 0, 3600); // range will be extended if needed
+    m_rateMin = m_dbe->book1D("RPCTF_rate_min",
+                              "RPCTrigger - minimal rate", m_rateNoOfBins, 0, m_rateNoOfBins); 
     
+    m_rateMax = m_dbe->book1D("RPCTF_rate_max",
+                              "RPCTrigger - peak rate", m_rateNoOfBins, 0, m_rateNoOfBins);
+
+    m_rateAvg = m_dbe->book1D("RPCTF_rate_avg",
+                              "RPCTrigger - average rate", m_rateNoOfBins, 0, m_rateNoOfBins); 
+
         
   }  
 }
 
 void L1TRPCTF::endRun(const edm::Run & r, const edm::EventSetup & c){
   
-  std::pair<int,int> p = m_rateHelper.removeAndGetRateForEarliestTime();
-  while (p.first != -1 )
-  {
-     
-    if (p.first > -1){
-      fillRateHisto(p);
-    }
-    p = m_rateHelper.removeAndGetRateForEarliestTime();
-  }
-
-
+      fillRateHistos(0,true);
+      
 }
 
 
@@ -267,23 +265,8 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
   if (nrpctftrack>0) {
     m_rateHelper.addOrbit(e.orbitNumber());
   }
-
+  fillRateHistos(e.orbitNumber());
   
-  int et = m_rateHelper.getEarliestTime();
-  
-  if ( ( m_rateHelper.getTimeForOrbit(e.orbitNumber()) - et > m_rateUpdateTime) 
-         && (et > -1) 
-         && m_rateUpdateTime!=-1)
-  {
-  
-    std::pair<int, int> p = m_rateHelper.removeAndGetRateForEarliestTime();
-    
-    if (p.first > -1){
-      fillRateHisto(p);
-      
-    }
-    
-  }
   
   m_ntracks += nrpctftrack;
 
@@ -293,65 +276,67 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
 }
 
 
-/// Fills rate histo. Extends scale if needed
-void L1TRPCTF::fillRateHisto(std::pair<int,int> & p)
+/** Fills rate histos. 
+ */
+void L1TRPCTF::fillRateHistos(int orbit, bool flush)
 {
-  static bool resizePossible = true;
-      
-  if (!resizePossible) return; // we have run out of space allready
   
-  //static int fills = 0;
-  //++fills;
+  static bool flushed = false;
+
+  if (flushed) {
+    LogWarning("L1TRPCTF") << "Rate histos allready flushed \n";
+  }
     
-  // check if we are running out of storage space, if so extend the scale
-  float occupancy = 1.*p.first/m_rate->getNbinsX();
-  while( occupancy>0.95 && resizePossible ){
+  if (flush) flushed = true;
+  
+
+  int nbinsUsed = 0;
+  do  {
+    nbinsUsed = 0;
+    int et = m_rateHelper.getEarliestTime();
+    if (et==-1) break;
     
-    //std::cout << " Trying to resize " << std::endl;
-    m_dbe->setCurrentFolder(output_dir_);
-    static float gd = 1.61;
-    int curbins=m_rate->getNbinsX();
-    int nbins=curbins*gd+1; // new size
-    
-    if (occupancy>gd) { 
-      nbins=nbins*occupancy;
-    } 
-    
-    if (nbins > m_maxRateHistoSize) // limit the number of bins
-      nbins = m_maxRateHistoSize;
-    
-    if (curbins<nbins) {
-    
-      //std::cout << " Resizing " << std::endl;
-      TH1F * histCopy= (TH1F *)m_rate->getTH1F()->Clone();
+    if ( (( m_rateHelper.getTimeForOrbit(orbit) - et > m_rateUpdateTime+m_rateBinSize)  // 1 minute bins
+            && m_rateUpdateTime!=-1) || flush  )
+    {
       
-      std::string name = m_rate->getName(); 
-      //std::cout << " Removing: " << name << std::endl;
       
-      m_dbe->setCurrentFolder(output_dir_);
-      m_dbe->removeElement(name);
+      int startTimeInMinutes=et/m_rateBinSize; 
+      int bin = 0;
+      std::pair<int, int> p; 
+      int max = 0, min = 0;
+      float avg=0;
+      int curTimeInMinutes=startTimeInMinutes;
+      while (curTimeInMinutes==startTimeInMinutes){
+        p = m_rateHelper.removeAndGetRateForEarliestTime(); 
+        if (p.first < 0) break; // no more items to analize, go fill histos
+        
+        if (nbinsUsed==0) {
+          bin = p.first/m_rateBinSize+1;
+          max = p.second;
+          min = p.second;
+        } else {
+          if (max < p.second) max = p.second;
+          if (min > p.second) min = p.second;
+        }
+        
+        ++nbinsUsed;
+        avg+=p.second;
+        curTimeInMinutes=m_rateHelper.getEarliestTime()/m_rateBinSize;
+      }
       
-      m_rate = m_dbe->book1D(name,
-                          "RPCTrigger rate - arbitrary units", nbins, 0, nbins);
       
-      for (int i = 1; i < histCopy->GetNbinsX(); ++i){
-        m_rate->setBinContent(i,histCopy->GetBinContent(i));
-      } 
+      avg/=m_rateBinSize;
       
-      delete histCopy;
-    } else {
-      //std::cout << " Resize impossible " << std::endl;
-      resizePossible = false;
+      if (nbinsUsed > 0){
+        m_rateAvg->setBinContent(bin,avg); // smallest possible value in f.first is 1
+        m_rateMin->setBinContent(bin,min);
+        m_rateMax->setBinContent(bin,max);
+      }
+    
     }
-    
-    occupancy = 1.*p.first/m_rate->getNbinsX();
-  }
-  
-  if (resizePossible){
-    m_rate->setBinContent(p.first,p.second);
-    //std::cout << fills << " Filling"  << std::endl;
-  }
-  
+  } while (flush);
+
 
 
 }
