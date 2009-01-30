@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo CHIOCHIA
 //         Created:  Tue Oct 17 17:40:56 CEST 2006
-// $Id: SiPixelCondObjOfflineReader.h,v 1.3 2008/04/25 14:53:24 fblekman Exp $
+// $Id: SiPixelCondObjOfflineReader.h,v 1.5 2008/11/12 14:13:06 heyburn Exp $
 //
 //
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -64,6 +64,10 @@ private:
   TH1F *_TH1F_Dead_all;
   TH1F *_TH1F_Gains_all;
   TH1F *_TH1F_Pedestals_all;
+  TH1F *_TH1F_Gains_bpix;
+  TH1F *_TH1F_Gains_fpix;
+  TH1F *_TH1F_Pedestals_bpix;
+  TH1F *_TH1F_Pedestals_fpix;
   
   
   

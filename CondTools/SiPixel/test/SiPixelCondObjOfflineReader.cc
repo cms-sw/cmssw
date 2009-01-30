@@ -7,7 +7,7 @@
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
-
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
 namespace cms{
 SiPixelCondObjOfflineReader::SiPixelCondObjOfflineReader(const edm::ParameterSet& conf): 
@@ -47,7 +47,13 @@ SiPixelCondObjOfflineReader::analyze(const edm::Event& iEvent, const edm::EventS
   _TH1F_Gains_sum =  fs->make<TH1F>("Summary_Gain","Gain Summary", vdetId_.size()+1,0,vdetId_.size()+1);
   _TH1F_Pedestals_sum =  fs->make<TH1F>("Summary_Pedestal","Pedestal Summary", vdetId_.size()+1,0,vdetId_.size()+1);
   _TH1F_Pedestals_all = fs->make<TH1F>("PedestalsAll","all Pedestals",350,-100,250);
+  _TH1F_Pedestals_bpix = fs->make<TH1F>("PedestalsBpix","bpix Pedestals",350,-100,250);
+  _TH1F_Pedestals_fpix = fs->make<TH1F>("PedestalsFpix","fpix Pedestals",350,-100,250);
   _TH1F_Gains_all = fs->make<TH1F>("GainsAll","all Gains",100,0,10);
+  _TH1F_Gains_bpix = fs->make<TH1F>("GainsBpix", "bpix Gains", 100, 0, 10);
+  _TH1F_Gains_fpix = fs->make<TH1F>("GainsFpix", "fpix Gains", 100, 0, 10);
+
+
 
   // Loop over DetId's
   int ibin = 1;
@@ -55,7 +61,7 @@ SiPixelCondObjOfflineReader::analyze(const edm::Event& iEvent, const edm::EventS
     uint32_t detid = *detid_iter;
 
      sprintf(name,"Pedestals_%d",detid);
-     _TH1F_Pedestals_m[detid] = subDirPed.make<TH1F>(name,name,250,0.,250.);    
+     _TH1F_Pedestals_m[detid] = subDirPed.make<TH1F>(name,name,350,-100.,250.);    
      sprintf(name,"Gains_%d",detid);
      _TH1F_Gains_m[detid] = subDirGain.make<TH1F>(name,name,100,0.,10.); 
 
@@ -92,15 +98,27 @@ SiPixelCondObjOfflineReader::analyze(const edm::Event& iEvent, const edm::EventS
 	   continue;
 	 }
 
+
 	 float gain  = SiPixelGainCalibrationService_.getGain(detid, col_iter, row_iter);
 	 _TH1F_Gains_m[detid]->Fill( gain );
 	 _TH1F_Gains_all->Fill(gain);
 
+	 if (detIdObject.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel))
+    	    _TH1F_Gains_bpix->Fill(gain);
+	 if (detIdObject.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap))
+	   _TH1F_Gains_fpix->Fill(gain);
+
 	 float ped  = SiPixelGainCalibrationService_.getPedestal(detid, col_iter, row_iter);
 	 _TH1F_Pedestals_m[detid]->Fill( ped );
        	 _TH1F_Pedestals_all->Fill(ped);
+	 //	 std::cout<<"detid  "<<detid<<"     ped "<<ped<<std::endl;
 
-	 //       std::cout << "       Col "<<col_iter<<" Row "<<row_iter<<" Ped "<<ped<<" Gain "<<gain<<std::endl;	 
+         if (detIdObject.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel))
+	   _TH1F_Pedestals_bpix->Fill(ped);
+	    if (detIdObject.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap))
+	   _TH1F_Pedestals_fpix->Fill(ped);
+
+//	 std::cout <<"    DetId "<<detid<<"       Col "<<col_iter<<" Row "<<row_iter<<" Ped "<<ped<<" Gain "<<gain<<std::endl;	 
        }
     }
 
