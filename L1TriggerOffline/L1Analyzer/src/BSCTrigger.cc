@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Wed Jul 16 16:11:05 CEST 2008
-// $Id: BSCTrigger.cc,v 1.1 2008/07/28 15:30:47 muriel Exp $
+// $Id: BSCTrigger.cc,v 1.2 2008/11/17 15:57:17 muriel Exp $
 //
 //
 
@@ -78,10 +78,10 @@ BSCTrigger::BSCTrigger(const edm::ParameterSet& iConfig)
   ttBits_=iConfig.getParameter< std::vector<unsigned> >("bitNumbers");
   prescales_= iConfig.getParameter< std::vector<unsigned> >("bitPrescales");
   names_= iConfig.getParameter< std::vector<std::string> >("bitNames");
-  theCoincidence_= iConfig.getUntrackedParameter<double>("coincidence",72.85);
-  theResolution_= iConfig.getUntrackedParameter<double>("resolution",3.);
-  theNinner_=iConfig.getUntrackedParameter<int>("minbiasInnerMin",1);
-  theNouter_=iConfig.getUntrackedParameter<int>("minbiasOuterMin",1);
+  theCoincidence_= iConfig.getParameter<double>("coincidence");
+  theResolution_= iConfig.getParameter<double>("resolution");
+  theNinner_=iConfig.getParameter<int>("minbiasInnerMin");
+  theNouter_=iConfig.getParameter<int>("minbiasOuterMin");
   produces<L1GtTechnicalTriggerRecord>();  
   nevt_=0;
 }
@@ -111,7 +111,9 @@ BSCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   int ZPinnerBX=0, ZPouterBX=0;
   ++nevt_;
   std::auto_ptr<L1GtTechnicalTriggerRecord> BscRecord;
-  float theThreshold=0.0027*0.7;  
+  float MipFraction=0.7;
+  float MipEnergy=0.0027;
+  float theThreshold=MipFraction*MipEnergy;
   edm::Handle<edm::PSimHitContainer> theBSCHitContainer;
   iEvent.getByLabel("g4SimHits","BSCHits",theBSCHitContainer);
   if (!theBSCHitContainer.failedToGet()) {
@@ -161,7 +163,8 @@ BSCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	ttVec.at(i)=L1GtTechnicalTrigger(names_.at(i), ttBits_.at(i), 0, false) ;
 	continue ;
       }
-      else if ( ttBits_[i] == 36 ) {
+      
+      else if ( names_.at(i) == names_[0] ) {
 	if ( EnergyBX[8] > theThreshold && EnergyBXMinusDt[27] > theThreshold ) bit=true;  
 	if ( EnergyBX[9] > theThreshold && EnergyBXMinusDt[26] > theThreshold ) bit=true;  
 	if ( EnergyBX[10] > theThreshold && EnergyBXMinusDt[25] > theThreshold ) bit=true;  
@@ -172,7 +175,7 @@ BSCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	if ( EnergyBX[15] > theThreshold && EnergyBXMinusDt[28] > theThreshold ) bit=true;  
 	ttVec.at(i)=L1GtTechnicalTrigger(names_.at(i), ttBits_.at(i), 0, bit) ;
       }
-      else if ( ttBits_[i] == 37) { 
+      else if (  names_.at(i) == names_[1]) { 
 	if ( EnergyBX[0] > theThreshold && EnergyBXMinusDt[18] > theThreshold ) bit=true;  
 	if ( EnergyBX[1] > theThreshold && EnergyBXMinusDt[19] > theThreshold ) bit=true;  
 	if ( EnergyBX[2] > theThreshold && EnergyBXMinusDt[16] > theThreshold ) bit=true;  
@@ -183,7 +186,7 @@ BSCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	if ( EnergyBX[7] > theThreshold && EnergyBXMinusDt[21] > theThreshold ) bit=true;  
 	ttVec.at(i)=L1GtTechnicalTrigger(names_.at(i), ttBits_.at(i), 0, bit) ;
       }
-      else if ( ttBits_[i] == 38) { 	
+      else if (  names_.at(i) == names_[2]) { 	
 	if ( EnergyBXMinusDt[8] > theThreshold && EnergyBX[27] > theThreshold ) bit=true;  
 	if ( EnergyBXMinusDt[9] > theThreshold && EnergyBX[26] > theThreshold ) bit=true;  
 	if ( EnergyBXMinusDt[10] > theThreshold && EnergyBX[25] > theThreshold ) bit=true;  
@@ -194,7 +197,7 @@ BSCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	if ( EnergyBXMinusDt[15] > theThreshold && EnergyBX[28] > theThreshold ) bit=true;  
 	ttVec.at(i)=L1GtTechnicalTrigger(names_.at(i), ttBits_.at(i), 0, bit) ;
       }
-      else if ( ttBits_[i] == 39 ) { 	
+      else if (  names_.at(i) == names_[3] ) { 	
 	if ( EnergyBXMinusDt[0] > theThreshold && EnergyBX[18] > theThreshold ) bit=true;  
 	if ( EnergyBXMinusDt[1] > theThreshold && EnergyBX[19] > theThreshold ) bit=true;  
 	if ( EnergyBXMinusDt[2] > theThreshold && EnergyBX[16] > theThreshold ) bit=true;  
@@ -207,11 +210,11 @@ BSCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
 
     // the minbias trigger
-      else if ( ttBits_[i] == 40 ){
+      else if (  names_.at(i) == names_[4] ){
 	if (ZPinnerBX > theNinner_ && ZMinnerBX > theNinner_ ) bit=true;	
         ttVec.at(i)=L1GtTechnicalTrigger(names_.at(i), ttBits_.at(i), 0, bit);
       }
-      else if ( ttBits_[i] == 41 ) {
+      else if (  names_.at(i) == names_[5] ) {
 	if ( ZPouterBX > theNouter_ && ZMouterBX > theNouter_ )  bit=true;	
 	ttVec.at(i)=L1GtTechnicalTrigger(names_.at(i), ttBits_.at(i), 0, bit); 
       }
@@ -242,10 +245,10 @@ int BSCTrigger::getBSCNum( int id, float z ) {
     int station = id&7;
     LogTrace("BSCTrig")<<"id="<<id<<" zside="<<zside<<" det="<<det<<" station="<<station;
   }
-  int newid;
-  if (id&16) newid=32+(id&1)+(zside<<1) ;  // small paddles further from IP
-  else newid= (id&15)+(zside<<4);          // the BSC on the HF
-  return newid;
+  int BSCNum;
+  if (id&16) BSCNum=32+(id&1)+(zside<<1) ;  // small paddles further from IP
+  else BSCNum= (id&15)+(zside<<4);          // the BSC on the HF
+  return BSCNum;
 }
 
 bool BSCTrigger::isInner( int id ){ 
