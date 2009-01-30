@@ -4,8 +4,8 @@
 /*
  * \file L1TGMT.h
  *
- * $Date: 2008/04/18 13:41:10 $
- * $Revision: 1.6 $
+ * $Date: 2008/04/25 15:38:47 $
+ * $Revision: 1.7 $
  * \author J. Berryhill, I. Mikulec
  *
 */
@@ -75,7 +75,6 @@ private:
   MonitorElement* subs_etaphi[5];
   MonitorElement* subs_etaqty[5];
   MonitorElement* subs_bits[5];
-  MonitorElement* subs_candlumi[5];
   
   MonitorElement* regional_triggers;
   
@@ -96,13 +95,16 @@ private:
   MonitorElement* dist_eta_dt_rpc;
   MonitorElement* dist_eta_csc_rpc;
   MonitorElement* dist_eta_dt_csc;
+  MonitorElement* bx_dt_rpc;
+  MonitorElement* bx_csc_rpc;
+  MonitorElement* bx_dt_csc;
   
   MonitorElement* n_rpcb_vs_dttf ;
   MonitorElement* n_rpcf_vs_csctf;
   MonitorElement* n_csctf_vs_dttf;
   
   MonitorElement* subs_dbx[4];  
-  
+
   int nev_; // Number of events processed
   std::string outputFile_; //file name for ROOT ouput
   bool verbose_;
@@ -112,8 +114,9 @@ private:
   
   int evnum_old_; // event number of previous event
   int bxnum_old_; // bx of previous event
+  int obnum_old_; // orbit of previous event
   int trsrc_old_; // code of trigger source ( bits: 0 DT, 1 bRPC, 2 CSC, 3 fRPC )
-  
+
   static const double piconv_;
 };
 

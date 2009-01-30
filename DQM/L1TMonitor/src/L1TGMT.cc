@@ -1,8 +1,8 @@
 /*
  * \file L1TGMT.cc
  *
- * $Date: 2008/06/11 16:40:29 $
- * $Revision: 1.23 $
+ * $Date: 2008/10/24 12:31:19 $
+ * $Revision: 1.24 $
  * \author J. Berryhill, I. Mikulec
  *
  */
@@ -69,6 +69,7 @@ void L1TGMT::beginJob(const EventSetup& c)
   evnum_old_ = -1;
   bxnum_old_ = -1;
 
+
   edm::ESHandle< L1MuTriggerScales > trigscales_h;
   c.get< L1MuTriggerScalesRcd >().get( trigscales_h );
   const L1MuTriggerScales* scales = trigscales_h.product();
@@ -91,14 +92,17 @@ void L1TGMT::beginJob(const EventSetup& c)
   {
     dbe->setCurrentFolder("L1T/L1TGMT");
     
-    int nphi=144; double phimin=  0.; double phimax=360.;
-    int nqty=  8; double qtymin=-0.5; double qtymax=7.5;
+    int nqty=8; double qtymin=-0.5; double qtymax=7.5;
 
     float phiscale[145];
+    int nphiscale;
     {
-      for(int j=0; j<145; j++) {
-        phiscale[j] = j*2.5 ;
+      int nbins = scales->getPhiScale()->getNBins();
+      if(nbins>144) nbins=144;
+      for(int j=0; j<=nbins; j++) {
+        phiscale[j] = piconv_ * scales->getPhiScale()->getValue(j);
       }
+      nphiscale = nbins;
     }
 
     float qscale[9];
@@ -108,75 +112,76 @@ void L1TGMT::beginJob(const EventSetup& c)
       }
     } 
     
+    // pt scale first bin reserved for empty muon
     float ptscale[32];
+    int nptscale;
     {
-      int i=0;
-      for(int j=1; j<32; j++,i++) {
-        ptscale[i] = scalept->getPtScale()->getLowEdge(j);
+      int nbins = scalept->getPtScale()->getNBins() - 1;
+      if(nbins>31) nbins=31;
+      for(int j=1; j<=nbins; j++) {
+        ptscale[j-1] = scalept->getPtScale()->getValue(j);
       }
-      ptscale[31]=ptscale[30]+10.;
+      ptscale[nbins]=ptscale[nbins-1]+10.; // make reasonable size last bin
+      nptscale = nbins;
     }
       
     float etascale[5][66];
     int netascale[5];
     // DTTF eta scale
     {
-      int i=0;
-      for(int j=0; j<=63; j++,i++) {
-        etascale[DTTF][i] = scales->getRegionalEtaScale(DTTF)->getLowEdge(j);
+      int nbins = scales->getRegionalEtaScale(DTTF)->getNBins();
+      if(nbins>65) nbins = 65;
+      for(int j=0; j<=nbins; j++) {
+        etascale[DTTF][j] = scales->getRegionalEtaScale(DTTF)->getValue(j);
       }
-      etascale[DTTF][64] = scales->getRegionalEtaScale(DTTF)->getScaleMax();
-      netascale[DTTF]=64;
+      netascale[DTTF]=nbins;
     }
     // RPCb etascale
     {
-      int i=0;
-      for(int j=48; j<=63; j++,i++) {
-        etascale[RPCb][i] = scales->getRegionalEtaScale(RPCb)->getLowEdge(j);
+      int nbins = scales->getRegionalEtaScale(RPCb)->getNBins();
+      if(nbins>65) nbins = 65;
+      for(int j=0; j<=nbins; j++) {
+        etascale[RPCb][j] = scales->getRegionalEtaScale(RPCb)->getValue(j);
       }
-      for(int j=0; j<=16; j++,i++) {
-        etascale[RPCb][i] = scales->getRegionalEtaScale(RPCb)->getLowEdge(j);
-      }
-      etascale[RPCb][33] = scales->getRegionalEtaScale(RPCb)->getScaleMax();
-      netascale[RPCb]=33;
+      netascale[RPCb]=nbins;
     }
     // CSCTF etascale
+    // special case - need to mirror 2*32 bins
     {
-      etascale[CSCTF][0] = (-1) * scales->getRegionalEtaScale(CSCTF)->getScaleMax();
-      int i=1;
-      for(int j=31; j>=0; j--,i++) {
-        etascale[CSCTF][i] = (-1) * scales->getRegionalEtaScale(CSCTF)->getLowEdge(j);
+      int nbins = scales->getRegionalEtaScale(CSCTF)->getNBins();
+      if(nbins>32) nbins = 32;
+      
+      int i=0;
+      for(int j=nbins; j>=0; j--,i++) {
+        etascale[CSCTF][i] = (-1) * scales->getRegionalEtaScale(CSCTF)->getValue(j);
       }
-      for(int j=0; j<=31; j++,i++) {
-        etascale[CSCTF][i] = scales->getRegionalEtaScale(CSCTF)->getLowEdge(j);
+      for(int j=0; j<=nbins; j++,i++) {
+        etascale[CSCTF][i] = scales->getRegionalEtaScale(CSCTF)->getValue(j);
       }
-      etascale[CSCTF][65] = scales->getRegionalEtaScale(CSCTF)->getScaleMax();
-      netascale[CSCTF]=65;
+      netascale[CSCTF]=i-1;
     }
     // RPCf etascale
     {
-      int i=0;
-      for(int j=48; j<=63; j++,i++) {
-        etascale[RPCf][i] = scales->getRegionalEtaScale(RPCf)->getLowEdge(j);
+      int nbins = scales->getRegionalEtaScale(RPCf)->getNBins();
+      if(nbins>65) nbins = 65;
+      for(int j=0; j<=nbins; j++) {
+        etascale[RPCf][j] = scales->getRegionalEtaScale(RPCf)->getValue(j);
       }
-      for(int j=0; j<=16; j++,i++) {
-        etascale[RPCf][i] = scales->getRegionalEtaScale(RPCf)->getLowEdge(j);
-      }
-      etascale[RPCf][33] = scales->getRegionalEtaScale(RPCf)->getScaleMax();
-      netascale[RPCf]=33;
+      netascale[RPCf]=nbins;
     }
     // GMT etascale
     {
-      etascale[GMT][0] = (-1) * scales->getGMTEtaScale()->getScaleMax();
-      int i=1;
-      for(int j=30; j>0; j--,i++) {
-        etascale[GMT][i] = (-1) * scales->getGMTEtaScale()->getLowEdge(j);
+      int nbins = scales->getGMTEtaScale()->getNBins();
+      if(nbins>32) nbins = 32;
+      
+      int i=0;
+      for(int j=nbins; j>0; j--,i++) {
+        etascale[GMT][i] = (-1) * scales->getGMTEtaScale()->getValue(j);
       }
-      for(int j=0; j<=30; j++,i++) {
-        etascale[GMT][i] = scales->getGMTEtaScale()->getLowEdge(j);
+      for(int j=0; j<=nbins; j++,i++) {
+        etascale[GMT][i] = scales->getGMTEtaScale()->getValue(j);
       }
-      etascale[GMT][62] = scales->getGMTEtaScale()->getScaleMax();
-      netascale[GMT]=62;
+      netascale[GMT]=i-1;
     }
     
     
@@ -195,11 +200,11 @@ void L1TGMT::beginJob(const EventSetup& c)
       subs_eta[i]->setAxisTitle("eta",1);
       
       hname = subs[i] + "_phi"; htitle = subs[i] + " phi value";
-      subs_phi[i] = dbe->book1D(hname.data(),htitle.data(), nphi, phimin, phimax);
+      subs_phi[i] = dbe->book1D(hname.data(),htitle.data(), nphiscale, phiscale);
       subs_phi[i]->setAxisTitle("phi (deg)",1);
       
       hname = subs[i] + "_pt"; htitle = subs[i] + " pt value";
-      subs_pt[i]  = dbe->book1D(hname.data(),htitle.data(), 31, ptscale);
+      subs_pt[i]  = dbe->book1D(hname.data(),htitle.data(), nptscale, ptscale);
       subs_pt[i]->setAxisTitle("L1 pT (GeV)",1);
       
       hname = subs[i] + "_qty"; htitle = subs[i] + " qty value";
@@ -207,30 +212,50 @@ void L1TGMT::beginJob(const EventSetup& c)
       subs_qty[i]->setAxisTitle(subs[i] + " quality",1);
       
       hname = subs[i] + "_etaphi"; htitle = subs[i] + " phi vs eta";
-      subs_etaphi[i] = dbe->book2D(hname.data(),htitle.data(), netascale[i], etascale[i], 144, phiscale);
+      subs_etaphi[i] = dbe->book2D(hname.data(),htitle.data(), netascale[i], etascale[i], nphiscale, phiscale);
       subs_etaphi[i]->setAxisTitle("eta",1);
       subs_etaphi[i]->setAxisTitle("phi (deg)",2);
       
       hname = subs[i] + "_etaqty"; htitle = subs[i] + " qty vs eta";
-      subs_etaqty[i] = dbe->book2D(hname.data(),htitle.data(), netascale[i], etascale[i], 8, qscale);
+      subs_etaqty[i] = dbe->book2D(hname.data(),htitle.data(), netascale[i], etascale[i], nqty, qscale);
       subs_etaqty[i]->setAxisTitle("eta",1);
       subs_etaqty[i]->setAxisTitle(subs[i] + " quality",2);
       
       hname = subs[i] + "_bits"; htitle = subs[i] + " bit population";
       subs_bits[i] = dbe->book1D(hname.data(),htitle.data(), 32, -0.5, 31.5);
       subs_bits[i]->setAxisTitle("bit number",1);
-      
-      hname = subs[i] + "_candlumi"; htitle = "number of " + subs[i] + " candidates per lumisegment";
-      subs_candlumi[i] = dbe->book1D(hname.data(),htitle.data(), 250, 0., 250.);
-      subs_candlumi[i]->setAxisTitle("luminosity segment number",1);
     }
     
-    regional_triggers = dbe->book1D("Regional_trigger","Muon trigger contribution", 4, 0., 4.);
+    regional_triggers = dbe->book1D("Regional_trigger","Muon trigger contribution", 27, 0., 27.);
     regional_triggers->setAxisTitle("regional trigger",1);
-    regional_triggers->setBinLabel(1,"DTTF",1);
-    regional_triggers->setBinLabel(2,"RPCb",1);
-    regional_triggers->setBinLabel(3,"CSCTF",1);
-    regional_triggers->setBinLabel(4,"RPCf",1);
+    int ib=1;
+    regional_triggers->setBinLabel(ib++,"All muons",1);
+    ib++;
+    regional_triggers->setBinLabel(ib++,"DT 1mu",1);
+    regional_triggers->setBinLabel(ib++,"DT 2mu",1);
+    regional_triggers->setBinLabel(ib++,"DT 3mu",1);
+    regional_triggers->setBinLabel(ib++,"DT 4mu",1);
+    ib++;
+    regional_triggers->setBinLabel(ib++,"RPCb 1mu",1);
+    regional_triggers->setBinLabel(ib++,"RPCb 2mu",1);
+    regional_triggers->setBinLabel(ib++,"RPCb 3mu",1);
+    regional_triggers->setBinLabel(ib++,"RPCb 4mu",1);
+    ib++;
+    regional_triggers->setBinLabel(ib++,"CSC 1mu",1);
+    regional_triggers->setBinLabel(ib++,"CSC 2mu",1);
+    regional_triggers->setBinLabel(ib++,"CSC 3mu",1);
+    regional_triggers->setBinLabel(ib++,"CSC 4mu",1);
+    ib++;
+    regional_triggers->setBinLabel(ib++,"RPCf 1mu",1);
+    regional_triggers->setBinLabel(ib++,"RPCf 2mu",1);
+    regional_triggers->setBinLabel(ib++,"RPCf 3mu",1);
+    regional_triggers->setBinLabel(ib++,"RPCf 4mu",1);
+    ib++;
+    regional_triggers->setBinLabel(ib++,"DT & RPC",1);
+    regional_triggers->setBinLabel(ib++,"DT & CSC",1);
+    regional_triggers->setBinLabel(ib++,"CSC & RPC",1);
+    regional_triggers->setBinLabel(ib++,"DT & CSC & RPC",1);
+
     
     bx_number = dbe->book1D("Bx_Number","Bx number ROP chip", 3564, 0., 3564.);
     bx_number->setAxisTitle("bx number",1);
@@ -257,29 +282,29 @@ void L1TGMT::beginJob(const EventSetup& c)
     eta_rpc_only->setAxisTitle("eta",1);
     
     phi_dtcsc_and_rpc = dbe->book1D("phi_DTCSC_and_RPC","phi of confirmed GMT candidates",
-        nphi, phimin, phimax);
+        nphiscale, phiscale);
     phi_dtcsc_and_rpc->setAxisTitle("phi (deg)",1);
     
     phi_dtcsc_only = dbe->book1D("phi_DTCSC_only","phi of unconfirmed DT/CSC candidates",
-        nphi, phimin, phimax);
+        nphiscale, phiscale);
     phi_dtcsc_only->setAxisTitle("phi (deg)",1);
     
     phi_rpc_only = dbe->book1D("phi_RPC_only","phi of unconfirmed RPC candidates",
-        nphi, phimin, phimax);
+        nphiscale, phiscale);
     phi_rpc_only->setAxisTitle("phi (deg)",1);
     
     etaphi_dtcsc_and_rpc = dbe->book2D("etaphi_DTCSC_and_RPC","eta vs phi map of confirmed GMT candidates",
-        100, -2.5, 2.5, nphi, phimin, phimax);
+        netascale[GMT], etascale[GMT], nphiscale, phiscale);
     etaphi_dtcsc_and_rpc->setAxisTitle("eta",1);
     etaphi_dtcsc_and_rpc->setAxisTitle("phi (deg)",2);
     
     etaphi_dtcsc_only = dbe->book2D("etaphi_DTCSC_only","eta vs phi map of unconfirmed DT/CSC candidates",
-        100, -2.5, 2.5, nphi, phimin, phimax);
+        netascale[GMT], etascale[GMT], nphiscale, phiscale);
     etaphi_dtcsc_only->setAxisTitle("eta",1);
     etaphi_dtcsc_only->setAxisTitle("phi (deg)",2);
     
     etaphi_rpc_only = dbe->book2D("etaphi_RPC_only","eta vs phi map of unconfirmed RPC candidates",
-        100, -2.5, 2.5, nphi, phimin, phimax);
+        netascale[GMT], etascale[GMT], nphiscale, phiscale);
     etaphi_rpc_only->setAxisTitle("eta",1);
     etaphi_rpc_only->setAxisTitle("phi (deg)",2);
     
@@ -316,10 +341,22 @@ void L1TGMT::beginJob(const EventSetup& c)
     n_csctf_vs_dttf->setAxisTitle("DTTF candidates",1);
     n_csctf_vs_dttf->setAxisTitle("CSCTF candidates",2);
     
+    bx_dt_rpc  = dbe->book2D("bx_DT_vs_RPC",  "1st bx DT vs. RPC",  5, -2.5, 2.5, 5, -2.5, 2.5);
+    bx_dt_rpc->setAxisTitle("bx of 1st DTTF candidate",1);
+    bx_dt_rpc->setAxisTitle("bx of 1st RPCb candidate",2);
+    
+    bx_csc_rpc  = dbe->book2D("bx_CSC_vs_RPC",  "1st bx CSC vs. RPC",  5, -2.5, 2.5, 5, -2.5, 2.5);
+    bx_csc_rpc->setAxisTitle("bx of 1st CSCTF candidate",1);
+    bx_csc_rpc->setAxisTitle("bx of 1st RPCf candidate",2);
+    
+    bx_dt_csc  = dbe->book2D("bx_DT_vs_CSC",  "1st bx DT vs. CSC",  5, -2.5, 2.5, 5, -2.5, 2.5);
+    bx_dt_csc->setAxisTitle("bx of 1st DTTF candidate",1);
+    bx_dt_csc->setAxisTitle("bx of 1st CSCTF candidate",2);
+    
     
     for(int i=0; i<4; i++) {
       hname = subs[i] + "_dbx"; htitle = "dBx " + subs[i] + " to previous event";
-      subs_dbx[i] = dbe->book2D(hname.data(),htitle.data(), 100, 0., 100., 4, 0., 4.);
+      subs_dbx[i] = dbe->book2D(hname.data(),htitle.data(), 1000, 0., 1000., 4, 0., 4.);
       for(int j=0; j<4; j++) {
         subs_dbx[i]->setBinLabel((j+1),subs[j].data(),2);
       }
@@ -353,12 +390,16 @@ void L1TGMT::analyze(const Event& e, const EventSetup& c)
     return;
   }
 
+  // remember the bx of 1st candidate of each system (9=none)
+  int bx1st[4] = {9, 9, 9, 9};
+
   // get GMT readout collection
   L1MuGMTReadoutCollection const* gmtrc = pCollection.product();
   // get record vector
   vector<L1MuGMTReadoutRecord> gmt_records = gmtrc->getRecords();
   // loop over records of individual bx's
   vector<L1MuGMTReadoutRecord>::const_iterator RRItr;
+  
   for( RRItr = gmt_records.begin(); RRItr != gmt_records.end(); RRItr++ ) 
   {
     
@@ -376,11 +417,14 @@ void L1TGMT::analyze(const Event& e, const EventSetup& c)
     
     int BxInEvent = RRItr->getBxInEvent();
     
-    // count non-empty candidates
+    // count non-empty candidates in this bx
     int nSUBS[5] = {0, 0, 0, 0, 0};
     for(int i=0; i<4; i++) {
       for( INPItr = INPCands[i].begin(); INPItr != INPCands[i].end(); ++INPItr ) {
-        if(!INPItr->empty()) nSUBS[i]++;
+        if(!INPItr->empty()) {
+          nSUBS[i]++;
+          if(bx1st[i]==9) bx1st[i]=BxInEvent;
+        }
       }      
       subs_nbx[i]->Fill(float(nSUBS[i]),float(BxInEvent));
     }
@@ -414,7 +458,6 @@ void L1TGMT::analyze(const Event& e, const EventSetup& c)
           if( word&(1<<j) ) subs_bits[i]->Fill(float(j));
         }
       }
-      subs_candlumi[i]->Fill(float(e.luminosityBlock()),float(nSUBS[i]));
     }
         
     for( GMTItr = GMTCands.begin(); GMTItr != GMTCands.end(); ++GMTItr ) {
@@ -476,20 +519,27 @@ void L1TGMT::analyze(const Event& e, const EventSetup& c)
       }
       
     }
-    subs_candlumi[GMT]->Fill(float(e.luminosityBlock()),float(nSUBS[GMT]));
     
     n_rpcb_vs_dttf ->Fill(float(nSUBS[DTTF]),float(nSUBS[RPCb]));
     n_rpcf_vs_csctf->Fill(float(nSUBS[CSCTF]),float(nSUBS[RPCf]));
     n_csctf_vs_dttf->Fill(float(nSUBS[DTTF]),float(nSUBS[CSCTF]));
     
     regional_triggers->Fill(-1.); // fill underflow for normalization
+    if(nSUBS[GMT]) regional_triggers->Fill(0.); // fill all muon bin
+    int ioff=1;
     for(int i=0; i<4; i++) {
-      if(nSUBS[i]) regional_triggers->Fill(float(i));
+      if(nSUBS[i]) regional_triggers->Fill(float(5*i+nSUBS[i]+ioff));
     }
-    
+    if(nSUBS[DTTF] && (nSUBS[RPCb] || nSUBS[RPCf])) regional_triggers->Fill(22.);
+    if(nSUBS[DTTF] && nSUBS[CSCTF]) regional_triggers->Fill(23.);
+    if(nSUBS[CSCTF] && (nSUBS[RPCb] || nSUBS[RPCf])) regional_triggers->Fill(24.);
+    if(nSUBS[DTTF] && nSUBS[CSCTF] && (nSUBS[RPCb] || nSUBS[RPCf])) regional_triggers->Fill(25.);
+        
     // fill only if previous event corresponds to previous trigger
-    if( (Ev - evnum_old_) == 1 && bxnum_old_ > -1 ) {
-      int dBx = Bx - bxnum_old_;
+//    if( (Ev - evnum_old_) == 1 && bxnum_old_ > -1 ) {
+    // assume getting all events in a sequence (usefull only from reco data)
+      if( bxnum_old_ > -1 ) {
+      int dBx = Bx - bxnum_old_ + 3564*(e.orbitNumber() - obnum_old_);
       for(int id = 0; id<4; id++) {
         if( trsrc_old_&(1<<id) ) {
           for(int i=0; i<4; i++) {
@@ -503,12 +553,16 @@ void L1TGMT::analyze(const Event& e, const EventSetup& c)
     // save quantities for the next event
     evnum_old_ = Ev;
     bxnum_old_ = Bx;
+    obnum_old_ = e.orbitNumber();
     trsrc_old_ = 0;
     for(int i=0; i<4; i++) {
       if(nSUBS[i])  trsrc_old_ |= (1<<i);
     }
-    
   }
+  
+  if(bx1st[DTTF]<9  && bx1st[RPCb]<9)  bx_dt_rpc->Fill(bx1st[DTTF], bx1st[RPCb]);
+  if(bx1st[CSCTF]<9 && bx1st[RPCf]<9) bx_csc_rpc->Fill(bx1st[CSCTF],bx1st[RPCf]);
+  if(bx1st[DTTF]<9 && bx1st[CSCTF]<9)  bx_dt_csc->Fill(bx1st[DTTF], bx1st[CSCTF]);
 
 }
 
