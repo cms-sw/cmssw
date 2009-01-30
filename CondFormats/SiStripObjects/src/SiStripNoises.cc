@@ -1,6 +1,7 @@
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <iostream>
+#include <algorithm>
 
 SiStripNoises::SiStripNoises(const SiStripNoises& input){
   v_noises.clear();

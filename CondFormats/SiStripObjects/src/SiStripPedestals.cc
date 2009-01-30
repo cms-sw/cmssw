@@ -1,5 +1,6 @@
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include <algorithm>
 
 bool SiStripPedestals::put(const uint32_t& DetId, InputVector& input) {
   // put in SiStripPedestals of DetId
