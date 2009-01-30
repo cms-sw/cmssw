@@ -51,7 +51,8 @@ public:
 
 	struct ZedComparatorInOut{    bool operator()( const TransientTrackingRecHit::ConstRecHitPointer &a,
 			   const TransientTrackingRecHit::ConstRecHitPointer &b) const{
-		return fabs(a->globalPosition().z()) < fabs(b->globalPosition().z());
+//		return fabs(a->globalPosition().z()) < fabs(b->globalPosition().z());
+		return (fabs(b->globalPosition().z()) - fabs(a->globalPosition().z())) > 1e-3;
 	  }
 	};
 	struct ZedComparatorMinusPlus{    bool operator()( const TransientTrackingRecHit::ConstRecHitPointer &a,
@@ -80,10 +81,10 @@ public:
   virtual void setServices(const edm::EventSetup&);
 
   /// the refitter used to refit the reco::Track
-  edm::ESHandle<TrajectoryFitter> fitter(bool) const;
+  edm::ESHandle<TrajectoryFitter> fitter(bool,float,float,bool) const;
   
   /// the smoother used to smooth the trajectory which came from the refitting step
-  edm::ESHandle<TrajectorySmoother> smoother(bool) const;
+  edm::ESHandle<TrajectorySmoother> smoother(bool,float,float,bool) const;
 
   TransientTrackingRecHit::ConstRecHitContainer
     getTransientRecHits(const reco::TransientTrack& track) const;
@@ -100,7 +101,7 @@ public:
   edm::ESHandle<Propagator> thePropagatorIO;
   edm::ESHandle<Propagator> thePropagatorOI;
 
-  edm::ESHandle<Propagator> propagator(bool) const;
+  edm::ESHandle<Propagator> propagator(bool,float,float,bool) const;
 
   
   unsigned long long theCacheId_TC;
