@@ -11,7 +11,7 @@ source = cms.Source("PythiaSource",
     ExternalGenerators = cms.PSet(
         Tauola = cms.untracked.PSet(
             TauolaPolar,
-            TauolaDefaultInputCards
+            InputCards = cms.vstring('TAUOLA = 0 0 214    ! TAUOLA ')
         ),
         parameterSets = cms.vstring('Tauola')
     ),
@@ -38,3 +38,5 @@ source = cms.Source("PythiaSource",
             'processParameters')
     )
 )
+
+
