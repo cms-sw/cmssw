@@ -30,7 +30,7 @@ namespace cond{
         std::string("<PoolArray table=\"IOV_DATA\" id_columns=\"ID\" name=\"m_iovs\" position_column=\"POS\" >\n")+
 	std::string("<Object name=\"value_type\" >\n")+
         std::string("<Primitive column=\"IOV_TIME\" name=\"m_sinceTime\" />\n")+
-        std::string("<Primitive column=\"IOV_TOKEN\" name=\"m_wrapperToken\" />\n")+
+        std::string("<Primitive column=\"IOV_TOKEN\" name=\"m_wrapper\" />\n")+
 	std::string("</Object >\n")+
 	std::string("</PoolArray >\n")+
 	std::string("</Class >\n")+
