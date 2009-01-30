@@ -3,39 +3,39 @@
 mkdir testPopCon
 pushd testPopCon
 
-cp $LOCALRT/src/CondCore/PopCon/test/PopConExample1_template.cfg PopConExample1_template.cfg
+cp $LOCALRT/src/CondCore/PopCon/test/PopConExample1_template.py PopConExample1_template.py
 
 
-cat PopConExample1_template.cfg | sed 's/xxx/3/g' > tmp_PopConExample.cfg
-sed -i 's/yyy/3/g' tmp_PopConExample.cfg
+cat PopConExample1_template.py | sed 's/xxx/3/g' > tmp_PopConExample.py
+sed -i 's/yyy/3/g' tmp_PopConExample.py
 
 echo "populate pop_test.db with xxx, xxx+10, xxx+20" | sed 's/xxx/3/g' 
-cmsRun tmp_PopConExample.cfg
-rm tmp_PopConExample.cfg
+cmsRun tmp_PopConExample.py
+rm tmp_PopConExample.py
 
-cat PopConExample1_template.cfg | sed 's/xxx/25/g' > tmp_PopConExample.cfg
-sed -i 's/pop_test.db/pop_test1.db/g' tmp_PopConExample.cfg
-sed -i 's/yyy/1/g' tmp_PopConExample.cfg      
+cat PopConExample1_template.py | sed 's/xxx/25/g' > tmp_PopConExample.py
+sed -i 's/pop_test.db/pop_test1.db/g' tmp_PopConExample.py
+sed -i 's/yyy/1/g' tmp_PopConExample.py      
 
 echo "populate pop_test1.db with 25"  
-cmsRun tmp_PopConExample.cfg
+cmsRun tmp_PopConExample.py
 
-rm tmp_PopConExample.cfg
+rm tmp_PopConExample.py
 
-cat PopConExample1_template.cfg | sed 's/xxx/41/g' > tmp_PopConExample.cfg
-sed -i 's/pop_test.db/pop_test2.db/g' tmp_PopConExample.cfg
-sed -i 's/yyy/1/g' tmp_PopConExample.cfg
+cat PopConExample1_template.py | sed 's/xxx/41/g' > tmp_PopConExample.py
+sed -i 's/pop_test.db/pop_test2.db/g' tmp_PopConExample.py
+sed -i 's/yyy/1/g' tmp_PopConExample.py
 echo "populate pop_test2.db with 42"
-cmsRun tmp_PopConExample.cfg
-rm tmp_PopConExample.cfg
+cmsRun tmp_PopConExample.py
+rm tmp_PopConExample.py
 
-cat PopConExample1_template.cfg | sed 's/xxx/7/g' > tmp_PopConExample.cfg
-sed -i 's/Example_tag/Example_tag2/g' tmp_PopConExample.cfg
-sed -i 's/pop_test.db/pop_test3.db/g' tmp_PopConExample.cfg
-sed -i 's/yyy/10/g' tmp_PopConExample.cfg
+cat PopConExample1_template.py | sed 's/xxx/7/g' > tmp_PopConExample.py
+sed -i 's/Example_tag/Example_tag2/g' tmp_PopConExample.py
+sed -i 's/pop_test.db/pop_test3.db/g' tmp_PopConExample.py
+sed -i 's/yyy/10/g' tmp_PopConExample.py
 echo "populate pop_test3.db with 7 + other 10"
-cmsRun tmp_PopConExample.cfg
-rm tmp_PopConExample.cfg
+cmsRun tmp_PopConExample.py
+rm tmp_PopConExample.py
 
 
 echo "inspect db"
