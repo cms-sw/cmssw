@@ -1,6 +1,7 @@
 from CondCore.DBCommon.CondDBSetup_cfi import *
 
 # loading magnetic field and geometry
+# process.load("MagneticField.Engine.uniformMagneticField_cfi")
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 
@@ -14,8 +15,8 @@ process.load("Alignment.CommonAlignmentProducer.AlignmentProducer_cff")
 process.load("Alignment.HIPAlignmentAlgorithm.FrontierConditions_GlobalTag_cff")
 # setting global tag
 process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
-# process.GlobalTag.globaltag = "CRUZET4_V6H::All"
-process.GlobalTag.globaltag = "CRAFT_V2P::All"
+process.GlobalTag.globaltag = "CRAFT_ALL_V4::All"
+
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 MessageLogger = cms.Service("MessageLogger",
@@ -32,32 +33,96 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 #es_prefer_UniformMagneticFieldESProducer = cms.ESPrefer("UniformMagneticFieldESProducer")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
+
+#---- New Lorentz Angle calibration
+process.SiStripLorentzAngle = cms.ESSource("PoolDBESSource",
+                                           BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
+                                           DBParameters = cms.PSet(
+    messageLevel = cms.untracked.int32(2),
+    authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
+    ),
+                                           timetype = cms.string('runnumber'),
+                                           toGet = cms.VPSet(cms.PSet(
+    record = cms.string('SiStripLorentzAngleRcd'),
+    tag = cms.string('SiStripLA_CRAFT_layers')
+    )),
+                                           
+                                           connect = cms.string('sqlite_file:/afs/cern.ch/user/j/jdraeger/public/LA_object/LA_CRAFT_layers.db')
+ )
+process.es_prefer_SiStripLorentzAngle =cms.ESPrefer("PoolDBESSource","SiStripLorentzAngle")
+
+#--- end LA calibration
+
+
+
+
 # configure the database file - use survey one for default
 from CondCore.DBCommon.CondDBSetup_cfi import *
-#from CondCore.DBCommon.CondDBCommon_cfi import *
-#process.load("Alignment.CommonAlignmentProducer.GlobalPosition_Frontier_cff")
-process.trackerAlignment = cms.ESSource("PoolDBESSource",
-					 CondDBSetup,
-					 timetype = cms.string('runnumber'),
-					 toGet = cms.VPSet(cms.PSet(
-												record = cms.string('TrackerAlignmentRcd'),
-												tag = cms.string('Alignments')
-												), 
-									   cms.PSet(
-												record = cms.string('TrackerAlignmentErrorRcd'),
-												tag = cms.string('AlignmentErrors')
-												)),
-#					 connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/HIP/alignmentRcds/AllSurveyButTIBTIDGlobal_FPixBPix_wErrs.db')
-					 connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/HIP/CRUZET4_DBobjects/alignments_C4fixPXESurveyV3.db')
-)
 
-process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","trackerAlignment")
+#### for ideal geometry
+## process.trackerAlignment = cms.ESSource("PoolDBESSource",
+##    process.CondDBSetup,
+##    toGet = cms.VPSet(cms.PSet(
+##        record = cms.string('TrackerAlignmentRcd'),
+##        tag = cms.string('TrackerIdealGeometry210_mc')
+##        ),
+##                      cms.PSet(
+##        record = cms.string('TrackerAlignmentErrorRcd'),
+##        tag = cms.string('TrackerIdealGeometryErrors210_mc')
+##        )),
+##    connect = cms.string('frontier://cms_conditions_data/CMS_COND_21X_ALIGNMENT')
+## )
+
+### end for ideal geom
 
 
+########### Load starting geom and APE separately
+
+import CalibTracker.Configuration.Common.PoolDBESSource_cfi
+process.trackerAlignment = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
+     connect = 'sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/HIP/CRUZET4_DBobjects/alignments_C4fixPXESurveyV3.db', #geometry from CRUZET alignment
+     toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentRcd'),
+                                tag = cms.string('Alignments')
+                                )
+                       )
+     )
+
+process.trackerAlignmentError = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
+     connect = 'sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/HIP/CRAFTpass1objects/AlignmentParameterErrors_offline_v3.db',
+     toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentErrorRcd'),
+                                tag = cms.string('Tracker_GeometryErr_v3_offline')
+                                )
+                       )
+     )
+
+
+process.es_prefer_trackerAlignment      = cms.ESPrefer("PoolDBESSource","trackerAlignment")
+process.es_prefer_trackerAlignmentError = cms.ESPrefer("PoolDBESSource","trackerAlignmentError")
 process.AlignmentProducer.applyDbAlignment = True
-# Set parameters to align
+
+
+
+### Set parameters to align
+### pixels
+#process.AlignmentProducer.ParameterBuilder.Selector.alignParams = ['PixelHalfBarrelLadders,111111']
+#process.AlignmentProducer.ParameterBuilder.Selector.alignParams = ['PixelHalfBarrelDets,111111']
+#process.AlignmentProducer.ParameterBuilder.Selector.alignParams = ['PXECLayers,111111']
 #process.AlignmentProducer.ParameterBuilder.Selector.alignParams = ['TIBSSDets,101001','TIBDSDets,111001','TOBSSDets,101001','TOBDSDets,111001']
-process.AlignmentProducer.ParameterBuilder.Selector.alignParams = ['TIBDets,111111','TOBDets,111111','TIDDets,111111','TECDets,111111']
+#process.AlignmentProducer.ParameterBuilder.Selector.alignParams = ['TIBDets,111111','TOBDets,111111','TIDDets,111111','TECDets,111111']
+#process.AlignmentProducer.ParameterBuilder.Selector.alignParams = ['PixelHalfBarrelLayers,111111','PXECLayers,111111','TIBLayers,110001','TOBLayers,110001','TIDLayers,111001','TECLayers,111001']
+#process.AlignmentProducer.ParameterBuilder.Selector.alignParams = ['PixelHalfBarrelDets,111111','TIBDets,111111','TOBDets,111111','TIDDets,111111','TECDets,111111']
+#process.AlignmentProducer.ParameterBuilder.Selector.alignParams = ['AllDets,000000']
+process.AlignmentProducer.ParameterBuilder.Selector.alignParams = ['AllDets,111111']
+"""
+process.AlignmentProducer.ParameterBuilder.Selector = cms.PSet(
+                                                    alignParams = cms.vstring(
+                                                                 'TIBSSDets,101001',
+																 'TIBDSDets,111001',
+                                                                 'TOBSSDets,101001',
+                                                                 'TOBDSDets,111001'
+																 )
+													)
+"""
 """
 process.AlignmentProducer.ParameterBuilder.Selector = cms.PSet(
                                                     alignParams = cms.vstring(
