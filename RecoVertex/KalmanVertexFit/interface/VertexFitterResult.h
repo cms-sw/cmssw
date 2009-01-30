@@ -84,7 +84,7 @@ private:
 
 //   typedef vector<const TkSimTrack*> SimTrkCont;
 // 
-  void fillParameters (const reco::TrackBase::ParameterVector& params, float* params[5],
+  void fillParameters (const reco::TrackBase::ParameterVector& perigee, float* params[5],
   			int trackNumber);
 //   void fillErrors (const reco::TrackBase::CovarianceMatrix& perigeeCov, float* errors[5],
 //   			int trackNumber);
