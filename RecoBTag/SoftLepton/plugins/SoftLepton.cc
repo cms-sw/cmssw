@@ -12,7 +12,7 @@
 
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.25 2008/11/11 14:55:36 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.26 2009/01/15 16:42:37 fwyzard Exp $
 
 
 #include <memory>
@@ -44,6 +44,8 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
@@ -73,6 +75,7 @@ using namespace reco;
 using namespace ROOT::Math::VectorUtil;
 
 typedef edm::View<reco::GsfElectron> GsfElectronView;
+typedef edm::View<reco::Electron>    ElectronView;
 typedef edm::View<reco::Muon>        MuonView;
 
 // ------------ static copy of the nominal beamspot --------------------------------------
@@ -187,6 +190,15 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
     if (h_electrons.isValid()) {
       for (GsfElectronView::const_iterator electron = h_electrons->begin(); electron != h_electrons->end(); ++electron)
         leptons.push_back(edm::RefToBase<reco::Track>( electron->gsfTrack() ));
+      break;
+    }
+  } { // else
+    // look for View<Electron>
+    Handle<ElectronView> h_electrons;
+    event.getByLabel(m_leptons, h_electrons);
+    if (h_electrons.isValid()) {
+      for (ElectronView::const_iterator electron = h_electrons->begin(); electron != h_electrons->end(); ++electron)
+        leptons.push_back(edm::RefToBase<reco::Track>( electron->track() ));
       break;
     }
   } { // else
