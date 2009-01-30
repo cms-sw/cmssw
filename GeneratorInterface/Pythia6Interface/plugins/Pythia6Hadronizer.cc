@@ -25,6 +25,8 @@
 
 #include "GeneratorInterface/Pythia6Interface/interface/PYR.h"
 
+#include "GeneratorInterface/PartonShowerVeto/interface/JetMatchingMadgraph.h"
+
 
 HepMC::IO_HEPEVT conv;
 
@@ -38,7 +40,34 @@ extern "C" {
 //   void pyupev_() ;   
 //  void pyexec_();
    void upinit_() { FortranCallback::getInstance()->fillHeader(); return; }
-   void upevnt_() { FortranCallback::getInstance()->fillEvent();  return ; }
+   void upevnt_() { 
+      FortranCallback::getInstance()->fillEvent(); 
+      if ( !Pythia6Hadronizer::getJetMatching() ) return;
+      
+      Pythia6Hadronizer::getJetMatching()->beforeHadronisationExec();
+      return ; 
+   }
+   
+   void upveto_(int* veto) { 
+         
+      if ( !Pythia6Hadronizer::getJetMatching() )
+      {
+         *veto=0;
+	 return;
+      }
+      
+      if ( !hepeup_.nup || Pythia6Hadronizer::getJetMatching()->isMatchingDone() )
+      { 
+         *veto=1;
+         return;
+      }
+      
+      // NOTE: I'm passing NULL pointers, instead of HepMC::GenEvent, etc.
+      //   
+      *veto = Pythia6Hadronizer::getJetMatching()->match(0,0,true); 
+   
+      return; 
+   }
 
    static bool call_pygive(const std::string &line)
    {
@@ -63,11 +92,15 @@ extern "C" {
 } // extern "C"
 
 
+JetMatching* Pythia6Hadronizer::fJetMatching = 0;
+
 Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps) 
    : fCOMEnergy(ps.getParameter<double>("comEnergy")),
      fGenEvent(0),
      fEventCounter(0),
      fRunInfo(0),
+     fEventInfo(0),
+     fVetoDone(false),
      fRandomEngine(getEngineReference()),     
      fHepMCVerbosity(ps.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
      fMaxEventsToPrint(ps.getUntrackedParameter<int>("maxEventsToPrint", 0)),
@@ -122,6 +155,33 @@ Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps)
       }
    }
 
+   if ( ps.exists("jetMatching") )
+   {
+      edm::ParameterSet jmParams =
+			ps.getUntrackedParameter<edm::ParameterSet>(
+								"jetMatching");
+      std::string scheme = jmParams.getParameter<std::string>("scheme");
+      if ( scheme == "Madgraph" )
+      {
+         if ( !fJetMatching) fJetMatching = new JetMatchingMadgraph(jmParams);
+      }
+      else if ( scheme == "MLM" )
+      {
+         throw cms::Exception("InvalidJetMatching")
+			<< "Port of " << scheme << "scheme \"" << "\""
+			   " for parton-shower matching is still in progress."
+			<< std::endl;
+      }
+      else
+      {
+         throw cms::Exception("InvalidJetMatching")
+			<< "Unknown scheme \"" << scheme << "\""
+			   " specified for parton-shower matching."
+			<< std::endl;
+      }
+   }
+
+
 /* old stuff
    edm::Service<edm::RandomNumberGenerator> rng;
    std::ostringstream ss;
@@ -145,14 +205,15 @@ Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps)
 Pythia6Hadronizer::~Pythia6Hadronizer()
 {
    if ( fRunInfo != 0 ) delete fRunInfo ;
+   if ( fJetMatching != 0 ) delete fJetMatching;
 }
 
-bool Pythia6Hadronizer::doEvent()
+void Pythia6Hadronizer::formEvent()
 {
    
    // generate event with Pythia6
    //
-   call_pyevnt();
+   // call_pyevnt();
    
    // convert to HEPEVT
    //
@@ -198,16 +259,22 @@ bool Pythia6Hadronizer::doEvent()
          fGenEvent->print();
       }
    }
-
-   fEventCounter++;
    
-   return true;
+   return;
 }
 
 bool Pythia6Hadronizer::generatePartonsAndHadronize()
 {
+
+   FortranCallback::getInstance()->resetIterationsPerEvent();
    
-   doEvent() ;
+   // generate event with Pythia6
+   //
+   call_pyevnt();
+   
+   formEvent();
+   
+   fEventCounter++;
       
    return true;
 }
@@ -215,10 +282,30 @@ bool Pythia6Hadronizer::generatePartonsAndHadronize()
 bool Pythia6Hadronizer::hadronize()
 {
    
+   FortranCallback::getInstance()->resetIterationsPerEvent();
+   fVetoDone = false;
+   fJetMatching->resetMatchingStatus() ;
+
    // here call JetMatching::beforeHadronization
+   if ( fJetMatching != NULL ) fJetMatching->beforeHadronisation(fEventInfo);
+      
+   // generate event with Pythia6
+   //
+   call_pyevnt();
+      
+   if ( FortranCallback::getInstance()->getIterationsPerEvent() > 1 || 
+        hepeup_.nup <= 0 || pypars.msti[0] == 1 )
+   {
+      fGenEvent = 0;
+      std::cout << " terminating loop inside event because of : " << 
+      FortranCallback::getInstance()->getIterationsPerEvent() << " " <<
+      hepeup_.nup << " " << pypars.msti[0] << std::endl;
+      return false;
+   }
+      
+   formEvent();
    
-   
-   doEvent();
+   fEventCounter++;
       
    return true;
 }
@@ -237,12 +324,15 @@ bool Pythia6Hadronizer::initializeForExternalPartons()
    if ( !paramSLHA.empty() ) setSLHAParams();
    
    call_pygive("MSEL=0");
+   call_pygive("MSTP(143)=1");
 /*
    call_pygive(std::string("MSTP(143)=") +
 	      (wantsShoweredEvent() ? "1" : "0"));
 */
    call_pyinit("USER", "", "", 0.0);
       
+   if ( fJetMatching != NULL ) fJetMatching->init( fRunInfo );
+   
    return true;
 }
 
@@ -295,6 +385,8 @@ void Pythia6Hadronizer::setLHERunInfo( lhef::LHERunInfo* lheri )
 void Pythia6Hadronizer::setLHEEventProd( LHEEventProduct* lheep )
 {
 
+   fEventInfo = lheep;
+   
    FortranCallback::getInstance()->setLHEEventProd(lheep);
 
    return;

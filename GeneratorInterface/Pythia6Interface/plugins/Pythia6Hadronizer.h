@@ -28,6 +28,9 @@ class RandFlat;
 
 namespace gen
 {
+
+class JetMatching;
+
   class Pythia6Hadronizer 
   {
   public:
@@ -42,6 +45,8 @@ namespace gen
      bool initializeForInternalPartons();
      bool declareStableParticles();
      
+     static JetMatching* getJetMatching() { return fJetMatching; }
+          
      void statistics();
 
      const char* classname() const;
@@ -52,8 +57,8 @@ namespace gen
      const edm::GenInfoProduct& getGenInfoProduct() const { return fGenInfoProduct; }
   
   protected:
-  
-     bool doEvent();
+       
+     void formEvent();
      
   private:
            
@@ -71,7 +76,11 @@ namespace gen
      int                  fEventCounter;
      
      lhef::LHERunInfo*    fRunInfo;
-     
+     LHEEventProduct*     fEventInfo;
+
+     static JetMatching*  fJetMatching; 
+     bool                 fVetoDone;    
+
      CLHEP::HepRandomEngine& fRandomEngine;
      CLHEP::RandFlat*        fRandomGenerator; 
 

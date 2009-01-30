@@ -27,7 +27,7 @@ from Configuration.Generator.PythiaUESettings_cfi import *
 
 process.generator = cms.EDFilter("Pythia6GeneratorFilter",
     pythiaHepMCVerbosity = cms.untracked.bool(True),
-    maxEventsToPrint = cms.untracked.int32(0),
+    maxEventsToPrint = cms.untracked.int32(2),
     pythiaPylistVerbosity = cms.untracked.int32(1),
     comEnergy = cms.double(10000.0),
     PythiaParameters = cms.PSet(

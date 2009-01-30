@@ -31,11 +31,10 @@ process.source = cms.Source("LHESource",
 
 process.generator = cms.EDFilter("Pythia6HadronizerFilter",
     pythiaHepMCVerbosity = cms.untracked.bool(True),
-    maxEventsToPrint = cms.untracked.int32(5),
+    maxEventsToPrint = cms.untracked.int32(2),
     pythiaPylistVerbosity = cms.untracked.int32(1),
     comEnergy = cms.double(10000.0),
     PythiaParameters = cms.PSet(
-
 ###       pythiaUESettingsBlock,
         pythiaUESettings = cms.vstring('MSTJ(11)=3     ! Choice of the fragmentation function', 
             'MSTJ(22)=2     ! Decay those unstable particles', 
@@ -69,7 +68,16 @@ process.generator = cms.EDFilter("Pythia6HadronizerFilter",
         # This is a vector of ParameterSet names to be read, in this order
         parameterSets = cms.vstring('pythiaUESettings', 
             'processParameters')
-    )
+    ),
+    jetMatching = cms.untracked.PSet(
+       scheme = cms.string("Madgraph"),
+       mode = cms.string("auto"),
+       MEMAIN_etaclmax = cms.double(5.0),
+       MEMAIN_qcut = cms.double(30.0),
+       MEMAIN_minjets = cms.int32(0),
+       MEMAIN_maxjets = cms.int32(3),
+       MEMAIN_iexcfile = cms.uint32(0) # only set to 1 if need to perform exclusive matching
+    )    
 )
 
 process.GEN = cms.OutputModule("PoolOutputModule",
