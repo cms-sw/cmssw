@@ -77,6 +77,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <cstring>
 
 namespace edm {
 namespace service {
