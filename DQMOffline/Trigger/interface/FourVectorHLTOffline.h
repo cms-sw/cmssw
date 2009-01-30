@@ -9,14 +9,14 @@
 
  Description: This is a DQM source meant to plot high-level HLT trigger
  quantities as stored in the HLT results object TriggerResults
-
+ 
  Implementation:
      <Notes on implementation>
 */
 //
 // Original Author:  Jeffrey Berryhill
 //         Created:  June 2008
-// $Id: FourVectorHLTOffline.h,v 1.14 2009/01/29 15:33:10 rekovic Exp $
+// $Id: FourVectorHLTOffline.h,v 1.2 2009/01/26 05:46:14 berryhil Exp $
 //
 //
 
@@ -84,6 +84,23 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       double ptMin_ ;
       double ptMax_ ;
       
+      double electronEtaMax_;
+      double electronEtMin_;
+      double muonEtaMax_;
+      double muonEtMin_;
+      double tauEtaMax_;
+      double tauEtMin_;
+      double jetEtaMax_;
+      double jetEtMin_;
+      double bjetEtaMax_;
+      double bjetEtMin_;
+      double metEtMin_;
+      double photonEtaMax_;
+      double photonEtMin_;
+
+      std::vector<std::pair<std::string, std::string> > custompathnamepairs_;
+
+
       std::string dirname_;
       std::string processname_;
       bool monitorDaemon_;
@@ -129,7 +146,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
                        MonitorElement* const offEtOnOff, 
                        MonitorElement* const offEtaOnOff, 
 		       MonitorElement* const offPhiOnOff, 
-		       MonitorElement* const offEtavsoffPhiOnOff) {
+		       MonitorElement* const offEtavsoffPhiOnOff ) {
 	  NOn_ = NOn;
 	  onEtOn_ = onEtOn;
 	  onEtaOn_ = onEtaOn;
