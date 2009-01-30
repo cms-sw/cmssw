@@ -41,8 +41,8 @@ trackerCosmics = cms.Sequence(offlineBeamSpot*trackerlocalreco*tracksP5)
 caloCosmics = cms.Sequence(calolocalreco*ecalClusters)
 muonsLocalRecoCosmics = cms.Sequence(muonlocalreco+muonlocalrecoT0Seg)
 
-#localReconstructionCosmics = cms.Sequence(trackerCosmics*caloCosmics*muonsLocalRecoCosmics*vertexrecoCosmics)
-localReconstructionCosmics = cms.Sequence(trackerCosmics*caloCosmics*muonsLocalRecoCosmics)
+localReconstructionCosmics = cms.Sequence(trackerCosmics*caloCosmics*muonsLocalRecoCosmics*vertexrecoCosmics)
+#localReconstructionCosmics = cms.Sequence(trackerCosmics*caloCosmics*muonsLocalRecoCosmics)
 
 # global reco
 muonsCosmics = cms.Sequence(muonRecoGR)
