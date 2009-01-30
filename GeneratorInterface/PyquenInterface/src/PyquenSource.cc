@@ -42,6 +42,7 @@ comenergy(pset.getParameter<double>("comEnergy")),
 doquench_(pset.getParameter<bool>("doQuench")),
 doradiativeenloss_(pset.getParameter<bool>("doRadiativeEnLoss")),
 docollisionalenloss_(pset.getParameter<bool>("doCollisionalEnLoss")),
+doIsospin_(pset.getParameter<bool>("doIsospin")),
 nquarkflavor_(pset.getParameter<int>("numQuarkFlavor")),
 qgpt0_(pset.getParameter<double>("qgpInitialTemperature")),
 qgptau0_(pset.getParameter<double>("qgpProperTimeFormation")),
@@ -50,7 +51,6 @@ pythiaHepMCVerbosity_(pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity",fa
 pythiaPylistVerbosity_(pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0))
 {
   // Default constructor
-
   // Verbosity Level
   // Valid PYLIST arguments are: 1, 2, 3, 5, 7, 11, 12, 13
   pythiaPylistVerbosity_ = pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0);
@@ -63,6 +63,9 @@ pythiaPylistVerbosity_(pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0
   //Max number of events printed on verbosity level 
   maxEventsToPrint_ = pset.getUntrackedParameter<int>("maxEventsToPrint",0);
   LogDebug("Events2Print") << "Number of events to be printed = " << maxEventsToPrint_ << endl;
+
+  //Proton to Nucleon fraction
+  pfrac_ = 1./(1.98+0.015*pow(abeamtarget_,2./3));
 
   //initialize pythia
   pyqpythia_init(pset);
@@ -149,6 +152,9 @@ bool PyquenSource::produce(Event & e)
 
   // Generate PYQUEN event
   // generate single partonic PYTHIA jet event
+
+  // Take into account whether it's a nn or pp or pn interaction
+  if(doIsospin_) call_pyinit("CMS", nucleon(), nucleon(), comenergy);
   call_pyevnt();
 
   // call PYQUEN to apply parton rescattering and energy loss 
@@ -286,5 +292,16 @@ bool PyquenSource::pyquen_init(const ParameterSet &pset)
   return true;
 }
 
+char* PyquenSource::nucleon(){
+  int* dummy;
+  double random = pyr_(dummy);
+  char* nuc;
+  cout<<"PYR   "<<random<<endl;
+  if(random > pfrac_) nuc = "n";
+  else nuc = "p";
+  
+  cout<<"Nucleon "<<nuc<<endl;
+  return nuc;
+}
 
 //____________________________________________________________________
