@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/16 10:38:25 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/01/29 14:50:21 $
+ *  $Revision: 1.1 $
  *  \author C. Botta, G. Mila - INFN Torino
  */
 
@@ -79,16 +79,19 @@ MuonTransientTrackingRecHit::MuonRecHitContainer SegmentsTrackAssociator::associ
     
     numRecHit++;
  
-    //get the detector Id and the local position
+    //get the detector Id
     DetId idRivHit = (*recHit)->geographicalId();
-    LocalPoint posTrackRecHit = (*recHit)->localPosition(); 
-    
+      
 
     // DT recHits
     if (idRivHit.det() == DetId::Muon && idRivHit.subdetId() == MuonSubdetId::DT ) {
 
+      // get the RecHit Local Position
+      LocalPoint posTrackRecHit = (*recHit)->localPosition(); 
+
       DTRecSegment4DCollection::range range; 	
       numRecHitDT++;
+
       // get the chamber Id
       DTChamberId chamberId(idRivHit.rawId());
       // get the segments of the chamber
@@ -151,6 +154,9 @@ MuonTransientTrackingRecHit::MuonRecHitContainer SegmentsTrackAssociator::associ
    
     // CSC recHits
     if (idRivHit.det() == DetId::Muon && idRivHit.subdetId() == MuonSubdetId::CSC ) {
+
+      // get the RecHit Local Position
+      LocalPoint posTrackRecHit = (*recHit)->localPosition(); 
 
       CSCSegmentCollection::range range; 
       numRecHitCSC++;
