@@ -794,6 +794,33 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
 }//if(enabledFedProcessing)
 }
 
+void TrackerMap::load(string inputfilename){
+  inputfile = new ifstream(inputfilename.c_str(),ios::in);
+  string line,value;
+  int ipos,id,val;
+  while (getline( *inputfile, line ))
+        {
+        ipos = line.find("value=\"");
+        if(ipos > 0)      {
+             value = line.substr(ipos+7,10);
+             ipos = value.find("\"");
+             value = value.substr(0,ipos); 
+             val=atoi(value.c_str());
+             }
+        ipos = line.find("detid=\"");
+        if(ipos > 0)      {
+             value = line.substr(ipos+7,10);
+             ipos = value.find("\"");
+             value = value.substr(0,ipos); 
+             id = atoi(value.c_str());
+             }
+        if(val>0)this->fill(id,val);
+
+        }
+ }
+
+
+
 //print in svg format tracker map
 //print_total = true represent in color the total stored in the module
 //print_total = false represent in color the average  
