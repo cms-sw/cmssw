@@ -76,6 +76,7 @@ private:
   int nGlobalMuonsMatched_passed;    // total number of global muons MC matched and passing cuts (and triggered)
   int nGlobalMuonsMatched_passedIso;    // total number of global muons MC matched and passing cuts including Iso
   int n2GlobalMuonsMatched_passedIso;    // total number of Z->2 global muons MC matched and passing cuts including Iso
+  int n2GlobalMuonsMatched_passed2NotIso; // total number of Z->2 global muons MC matched and passing cuts but both not passing Iso cut
   int nStaMuonsMatched_passedIso;       // total number of sta only muons MC matched and passing cuts including Iso
   int nTracksMuonsMatched_passedIso;    // total number of tracks only muons MC matched and passing cuts including Iso
   int n2GlobalMuonsMatched_passedIso2Trg;    // total number of Z->2 global muons MC matched and passing cuts including Iso and both triggered
@@ -175,6 +176,7 @@ ZMuMu_MCanalyzer::ZMuMu_MCanalyzer(const ParameterSet& pset) :
   nGlobalMuonsMatched_passed = 0;
   nGlobalMuonsMatched_passedIso = 0;
   n2GlobalMuonsMatched_passedIso = 0;
+  n2GlobalMuonsMatched_passed2NotIso = 0;
   nStaMuonsMatched_passedIso = 0;
   nTracksMuonsMatched_passedIso = 0;
   n2GlobalMuonsMatched_passedIso2Trg = 0;
@@ -319,22 +321,24 @@ void ZMuMu_MCanalyzer::analyze(const Event& event, const EventSetup& setup) {
 	if (pt0>ptmin_ && pt1>ptmin_ && abs(eta0)<etamax_ && abs(eta1) <etamax_ && mass >massMin_ && mass < massMax_ && (trig0found || trig1found)) { // kinematic and trigger cuts passed
 	  nGlobalMuonsMatched_passed++; // first global Muon passed kine cuts 
 	  nGlobalMuonsMatched_passed++; // second global muon passsed kine cuts
+	  h_IsoProbe_eta->Fill(eta1);            // probe the second muon
+	  h_IsoProbe_phi->Fill(phi1);            // probe the second muon
+	  h_IsoProbe_eta->Fill(eta0);            // probe the first muon
+	  h_IsoProbe_phi->Fill(phi0);            // probe the first muon
 	  if (trkiso0<isoMax_) {
 	    nGlobalMuonsMatched_passedIso++;       // first global muon passed the iso cut
-	    h_IsoProbe_eta->Fill(eta1);            // probe the second muon
-	    h_IsoProbe_phi->Fill(phi1);            // probe the second muon
+	    n2GlobalMuonsMatched_passedIso++;  // both muons passed iso cut
+	    h_IsoOk_eta->Fill(eta0);            // Iso passed
+	    h_IsoOk_phi->Fill(phi0);            // Iso passed
 	  }
 	  if (trkiso1<isoMax_) {
 	    nGlobalMuonsMatched_passedIso++;       // second global muon passed the iso cut
-	    h_IsoProbe_eta->Fill(eta0);            // probe the first muon
-	    h_IsoProbe_phi->Fill(phi0);            // probe the first muon
+	    h_IsoOk_eta->Fill(eta1);            // Iso passed
+	    h_IsoOk_phi->Fill(phi1);            // Iso passed
 	  }
+	  if (trkiso0>isoMax_ && trkiso1>isoMax_) n2GlobalMuonsMatched_passed2NotIso++;
 	  if (trkiso0<isoMax_ && trkiso1<isoMax_) {
 	    n2GlobalMuonsMatched_passedIso++;  // both muons passed iso cut
-	    h_IsoOk_eta->Fill(eta0);            // Iso passed
-	    h_IsoOk_eta->Fill(eta1);            // Iso passed
-	    h_IsoOk_phi->Fill(phi0);            // Iso passed
-	    h_IsoOk_phi->Fill(phi1);            // Iso passed
 
 	    if (trig0found && trig1found) n2GlobalMuonsMatched_passedIso2Trg++;  // both muons have HLT
 	    if (trig0found && !trig1found) nMu0onlyTriggered++;
@@ -643,6 +647,11 @@ void ZMuMu_MCanalyzer::endJob() {
   cout << "number of events zMuTk matched " << nZMuTrk_matched << endl;
   cout << "number of events zMuMu with mu0 only triggered " << nMu0onlyTriggered << endl;
   cout << "number of events zMuMu with mu1 only triggered " << nMu1onlyTriggered << endl;
+  cout << "-------------------- isolation counters ---------------------------------------" << endl;
+  cout << "numer of muons matched passing sele (no iso required) " << nGlobalMuonsMatched_passed << endl;
+  cout << "numer of muons matched passing sele (iso required) " << nGlobalMuonsMatched_passedIso << endl;
+  cout << "numer of events matched passing sele (both iso required) " << n2GlobalMuonsMatched_passedIso<< endl;
+  cout << "numer of events matched passing sele (both not isolated) " << n2GlobalMuonsMatched_passed2NotIso << endl;
   cout << "=========================================" << endl;
   cout << "n. of global muons MC matched and passing cuts:           " << nGlobalMuonsMatched_passed << endl;
   cout << "n. of global muons MC matched and passing also Iso cut:       " << nGlobalMuonsMatched_passedIso << endl;
