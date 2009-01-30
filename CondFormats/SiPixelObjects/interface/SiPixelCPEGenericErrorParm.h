@@ -2,6 +2,7 @@
 #define CondFormats_SiPixelObjects_SiPixelCPEGenericErrorParm_h 1
 
 #include <vector>
+#include <iosfwd>
 
 //--- Maybe should make this a class const, but that'd be too much work.
 //--- This usage is not worth it, since in the debugger will be obvious

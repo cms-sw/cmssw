@@ -186,7 +186,7 @@ class SiPixelTemplate {
   // retreive interpolated templates. 
   void ytemp(int fybin, int lybin, float ytemplate[41][BYSIZE]);
   
-  void xtemp(int fxbin, int fxbin, float xtemplate[41][BXSIZE]);
+  void xtemp(int fxbin, int lxbin, float xtemplate[41][BXSIZE]);
   
   // new methods to build templates from two interpolated clusters (for splitting) 
   void ytemp3d(int nypix, array_3d& ytemplate);

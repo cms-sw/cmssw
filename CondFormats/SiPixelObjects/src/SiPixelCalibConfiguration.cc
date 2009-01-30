@@ -1,5 +1,6 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelCalibConfiguration.h"
+#include <cstdlib>
 
 short SiPixelCalibConfiguration::vcalIndexForEvent(const uint32_t & eventnumber) const{
   uint32_t relative_event = abs(eventnumber-1)%patternSize();

@@ -1,5 +1,7 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationForHLT.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include <cstring>
+#include <algorithm>
 
 //
 // Constructors
