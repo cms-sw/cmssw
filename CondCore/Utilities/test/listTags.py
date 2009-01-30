@@ -11,9 +11,9 @@ context = coral.Context()
 context.setVerbosityLevel( 'ERROR' )
 # context.setVerbosityLevel( 'DEBUG' )
 svc = coral.ConnectionService( context )
-session = svc.connect("oracle://cms_orcoff_prod/CMS_COND_20X_GLOBALTAG",accessMode = coral.access_ReadOnly )
+session = svc.connect("oracle://cms_orcoff_prod/CMS_COND_21X_GLOBALTAG",accessMode = coral.access_ReadOnly )
 inv=tagInventory.tagInventory(session)
-mytree=TagTree.tagTree(session,"CRUZET3_V2P")
+mytree=TagTree.tagTree(session,"CRAFT_ALL_V3")
 result=mytree.getAllLeaves()
 tags=[]
 for r in result:
@@ -26,7 +26,7 @@ mytree=0
 inv=0
 del session
 del svc
-rdbms = RDBMS()
+rdbms = RDBMS("/afs/cern.ch/cms/DB/conddb")
 
 
 # cmscond_list_iov -c "frontier://(proxyurl=http://cmst0frontier1.cern.ch:3128)(serverurl=http://cmsfrontier.cern.ch:8000/FrontierProd)(forcereload=short)/CMS_COND_20X_HCAL"
@@ -38,8 +38,9 @@ def iovSize(rdbms,conn,tag) :
         db = rdbms.getDB(conn)
         iov = db.iov(tag)
         size = iov.size()
-        #for elem in iov.elements :
-        #    print elem.since(), elem.till(), elem.payloadToken()
+        for elem in iov.elements :
+            if (elem.till()>4294967295) : 
+                print tag, elem.since(), elem.till(), elem.payloadToken()
     except RuntimeError :
         print conn, tag," no iov?"
         size=-1

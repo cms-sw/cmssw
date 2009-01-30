@@ -28,7 +28,7 @@ namespace{
     cond::TimeType timetype;
     std::string contName;
     std::vector<Item> values;
-    cond::Time_t firstSince;
+    cond::Time_t lastTill;
 
 
     void parseInputFile(std::fstream& file){
@@ -48,18 +48,13 @@ namespace{
       file.getline(buff,1024);
       file.getline(buff,1024);
       char p;
-      bool first=true;
       while(file) {
 	file.get(p); if (p=='T') break;
 	file.putback(p);
 	file >> since >> till >> token;  file.getline(buff,1024);
-	values.push_back(Item(till,token));
-	if (first) {
-	  first=false;
-	  firstSince=since;
-	}
+	values.push_back(Item(since,token));
       }
-      
+      lastTill = till;
     }
 
   };
@@ -181,7 +176,7 @@ int main( int argc, char** argv ){
     cond::IOVService iovmanager(pooldb);
     cond::IOVEditor* editor=iovmanager.newIOVEditor("");
     pooldb.start(false);
-    editor->create(parser.firstSince,parser.timetype);
+    editor->create(parser.timetype,parser.lastTill);
     editor->bulkInsert(parser.values);
     iovtoken=editor->token();
     pooldb.commit();
