@@ -1,3 +1,11 @@
+/*************************/
+/*                       */
+/* author: Pasquale Noli */
+/* INFN Naples           */
+/* Toy Montecarlo        */
+/*                       */
+/*************************/
+
 //root include
 #include "TRandom3.h"
 #include "TH1.h"
