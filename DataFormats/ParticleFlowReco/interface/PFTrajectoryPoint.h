@@ -4,7 +4,7 @@
  */
 #include <vector>
 #include <map>
-#include <iostream>
+#include <iosfwd>
 
 #include "DataFormats/Math/interface/Point3D.h"
 #include "Rtypes.h" 
@@ -124,7 +124,8 @@ namespace reco {
     math::XYZTLorentzVector momentum_;
 
   };
-  
+
+  std::ostream& operator<<(std::ostream& out, const reco::PFTrajectoryPoint& trajPoint); 
 }
 
 #endif

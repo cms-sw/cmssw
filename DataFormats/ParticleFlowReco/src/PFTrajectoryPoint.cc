@@ -1,4 +1,5 @@
 #include "DataFormats/ParticleFlowReco/interface/PFTrajectoryPoint.h"
+#include <ostream>
 
 using namespace reco;
 
