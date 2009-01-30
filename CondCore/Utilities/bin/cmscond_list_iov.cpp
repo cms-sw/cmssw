@@ -7,6 +7,7 @@
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
 #include "CondCore/DBCommon/interface/ConnectionHandler.h"
 #include "CondCore/DBCommon/interface/Connection.h"
+#include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
 #include "CondCore/DBCommon/interface/AuthenticationMethod.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
 #include "CondCore/DBCommon/interface/MessageLevel.h"
@@ -19,6 +20,7 @@
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVIterator.h"
 #include "CondCore/Utilities/interface/CommonOptions.h"
+
 #include <boost/program_options.hpp>
 #include <iterator>
 #include <iostream>
@@ -106,6 +108,10 @@ int main( int argc, char** argv ){
   //session->configuration().connectionConfiguration()->setConnectionRetrialTimeOut( 600 );
   //session->configuration().connectionConfiguration()->enableConnectionSharing();
   //session->configuration().connectionConfiguration()->enableReadOnlySessionOnUpdateConnections();
+  session->configuration().connectionConfiguration()->disablePoolAutomaticCleanUp();
+  session->configuration().connectionConfiguration()->setConnectionTimeOut(0);
+  //session->connectionService().configuration().disablePoolAutomaticCleanUp();
+  //session->connectionService().configuration().setConnectionTimeOut(0);
   
   if( connect.find("sqlite_fip:") != std::string::npos ){
     cond::FipProtocolParser p;
@@ -113,9 +119,10 @@ int main( int argc, char** argv ){
   }
   // cond::Connection myconnection(connect,-1);  
   session->open();
+
   cond::ConnectionHandler::Instance().registerConnection(connect,*session,-1);
   cond::Connection & myconnection = *cond::ConnectionHandler::Instance().getConnection(connect);
-
+  
   if( listAll ){
     try{
       myconnection.connect(session);
