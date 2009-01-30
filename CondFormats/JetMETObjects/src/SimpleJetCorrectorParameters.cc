@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Nov 9, 2007
-// $Id: SimpleJetCorrectorParameters.cc,v 1.2 2007/11/16 00:14:32 fedor Exp $
+// $Id: SimpleJetCorrectorParameters.cc,v 1.3 2008/02/29 20:28:31 fedor Exp $
 //
 // Generic parameters for Jet corrections
 //
@@ -10,6 +10,7 @@
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>
+#include <algorithm>
 
 #include "FWCore/Utilities/interface/Exception.h"
 
