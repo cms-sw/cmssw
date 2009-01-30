@@ -177,7 +177,7 @@ int main( int argc, char** argv ){
     cond::IOVEditor* editor=iovmanager.newIOVEditor("");
     pooldb.start(false);
     editor->create(parser.timetype,parser.lastTill);
-    editor->bulkInsert(parser.values);
+    editor->bulkAppend(parser.values);
     iovtoken=editor->token();
     pooldb.commit();
     cond::CoralTransaction& coraldb=myconnection.coralTransaction();
