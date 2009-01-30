@@ -6,6 +6,7 @@ from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi i
 from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorOpposite_cfi import *
 from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi import *
 from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorHLT_cff import *
+from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorsNoErrorPropagation_cff import *
 from TrackingTools.GeomPropagators.SmartPropagator_cff import *
 from TrackingTools.GeomPropagators.SmartPropagatorAnyOpposite_cfi import *
 from TrackingTools.GeomPropagators.SmartPropagatorAny_cfi import *
@@ -17,6 +18,13 @@ MuonServiceProxy = cms.PSet(
             'SteppingHelixPropagatorL2Any', 
             'SteppingHelixPropagatorL2Along', 
             'SteppingHelixPropagatorL2Opposite', 
+            #A bunch with error propagation turned off: can be about 2 times faster 
+            'SteppingHelixPropagatorAnyNoError',
+            'SteppingHelixPropagatorAlongNoError',
+            'SteppingHelixPropagatorOppositeNoError',
+            'SteppingHelixPropagatorL2AnyNoError',
+            'SteppingHelixPropagatorL2AlongNoError',
+            'SteppingHelixPropagatorL2OppositeNoError',
             'PropagatorWithMaterial', 
             'PropagatorWithMaterialOpposite', 
             'SmartPropagator', 
