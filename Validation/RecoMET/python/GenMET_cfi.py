@@ -18,3 +18,31 @@ genMetNoNuBSMAnalyzer = cms.EDFilter("METTester",
 )
 
 
+
+genMetTrueAnalyzer = cms.EDAnalyzer(
+    "METTester",
+    OutputFile = cms.untracked.string("METTester_genMetTrue.root"),
+    InputMETLabel = cms.InputTag("genMetTrue"),
+    METType = cms.InputTag("GenMet")
+    )
+
+genMetCaloAnalyzer = cms.EDAnalyzer(
+    "METTester",
+    OutputFile = cms.untracked.string("METTester_genMetCalo.root"),
+    InputMETLabel = cms.InputTag("genMetCalo"),
+    METType = cms.InputTag("GenMet")
+    )
+
+
+
+genMetCaloAndNonPromptAnalyzer = cms.EDAnalyzer(
+    "METTester",
+    OutputFile = cms.untracked.string("METTester_genMetCaloAndNonPrompt.root"),
+    InputMETLabel = cms.InputTag("genMetCaloAndNonPrompt"),
+    METType = cms.InputTag("GenMet")
+    )
+
+
+
+
+    
