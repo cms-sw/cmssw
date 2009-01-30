@@ -1,4 +1,5 @@
 #include "DataFormats/BTauReco/interface/VertexTypes.h"
+#include <cstdlib>
 
 using namespace std;
 
