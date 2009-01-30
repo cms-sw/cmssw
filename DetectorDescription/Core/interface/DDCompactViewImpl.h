@@ -20,7 +20,7 @@ public:
   
   //FIXME: DDCompactViewImpl.h: Graph<DDLogPart, DDPosPart> :
   //FIXME:                      take more efficient EdgeData!
-  typedef graph<DDLogicalPart, DDPosData* > GraphNav;
+  typedef ::graph<DDLogicalPart, DDPosData* > GraphNav;
   //typedef GraphPath<DDLogicalPart, DDPosData*> GraphNavPaths;
   //typedef GraphWalker<DDLogicalPart,DDPosData*> walker_t;
   

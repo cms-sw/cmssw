@@ -77,7 +77,7 @@ public:
   
   //! type of representation of the compact-view (acyclic directed multigraph)
   /** Nodes are instances of DDLogicalPart, edges are pointers to instances of DDPosData */
-  typedef graph<DDLogicalPart,DDPosData*> graph_type;//:typedef Graph<DDLogicalPart,DDPosData*> graph_type;
+  typedef ::graph<DDLogicalPart,DDPosData*> graph_type;//:typedef Graph<DDLogicalPart,DDPosData*> graph_type;
  // typedef GraphWalker<DDLogicalPart,DDPosData*> walker_t;
     
   //! Creates a compact-view 
