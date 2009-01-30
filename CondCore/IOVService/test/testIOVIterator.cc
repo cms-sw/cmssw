@@ -59,9 +59,9 @@ int main(){
     delete it;
 
     std::cout<<"is 30 valid? "<<iovmanager.isValid(iovtok,30)<<std::endl;
-    std::pair<cond::Time_t, cond::Time_t> v =  iovmanager.valididy(iovtok,30);
-    std::cout<<"30 validity "<< v.first " : " << v.second <<std::endl;
-    std::cout<<"30 token "<< iovmanager.payloadToken((iovtok,30)<<std::endl;
+    std::pair<cond::Time_t, cond::Time_t> v =  iovmanager.validity(iovtok,30);
+    std::cout<<"30 validity "<< v.first << " : " << v.second <<std::endl;
+    std::cout<<"30 token "<< iovmanager.payloadToken(iovtok,30)<<std::endl;
 
     pooldb.commit();
     delete editor;
