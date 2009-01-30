@@ -210,9 +210,9 @@ cond::service::PoolDBOutputService::createNewIOV( GetToken const & payloadToken,
 
     cond::IOVService iovmanager(pooldb);
     cond::IOVEditor* editor=iovmanager.newIOVEditor("");
-    editor->create(firstSinceTime,m_timetype);
+    editor->create(m_timetype, firstTillTime);
     objToken = payloadToken(pooldb);
-    unsigned int payloadIdx=editor->insert(firstTillTime, objToken);
+    unsigned int payloadIdx=editor->append(firstSinceTime, objToken);
     iovToken=editor->token();
     delete editor;    
 

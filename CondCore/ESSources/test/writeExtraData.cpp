@@ -17,7 +17,7 @@ int main(){
   try{
     // for runnumber
     cond::TimeType timetype = cond::runnumber;
-    cond::Time_t globalSince = cond::timeTypeSpecs[timetype].beginValue;
+    cond::Time_t globalTill = cond::timeTypeSpecs[timetype].endValue;
 
     cond::DBSession* session=new cond::DBSession;
     session->configuration().setMessageLevel(cond::Error);
@@ -28,7 +28,7 @@ int main(){
     cond::IOVService iovmanager(pooldb);
     cond::IOVEditor* ioveditor=iovmanager.newIOVEditor();
     pooldb.start(false);
-    ioveditor->create(globalSince,timetype);
+    ioveditor->create(timetype,globalTill);
     std::string mytestiovtoken;
     for(unsigned int i=0; i<3; ++i){ //inserting 3 payloads
       Pedestals* myped=new Pedestals;
@@ -42,7 +42,7 @@ int main(){
       myref.markWrite("anotherPedestalsRcd");
       std::string payloadToken=myref.token();
       std::cout<<"payloadToken "<<payloadToken<<std::endl;
-      ioveditor->insert(cond::Time_t(2+2*i),payloadToken);
+      ioveditor->append(cond::Time_t(2+2*i),payloadToken);
     }
     std::string mytoken=ioveditor->token();
     pooldb.commit();

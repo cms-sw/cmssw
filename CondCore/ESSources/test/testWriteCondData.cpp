@@ -17,7 +17,7 @@ int main(){
   try{
     // for runnumber
     cond::TimeType timetype = cond::runnumber;
-    cond::Time_t globalSince = cond::timeTypeSpecs[timetype].beginValue;
+    cond::Time_t globalTill = cond::timeTypeSpecs[timetype].endValue;
     edmplugin::PluginManager::Config config;
     edmplugin::PluginManager::configure(edmplugin::standard::config());
     cond::DBSession* session=new cond::DBSession;
@@ -32,8 +32,8 @@ int main(){
     cond::IOVService iovmanager(pooldb);
     cond::IOVEditor* ioveditor=iovmanager.newIOVEditor();
     pooldb.start(false);
-    std::cout<<"globalsince value "<<globalSince<<std::endl;
-    ioveditor->create(globalSince,timetype);
+    std::cout<<"globalTill value "<<globalTill<<std::endl;
+    ioveditor->create(timetype,globalTill);
     for(unsigned int i=0; i<3; ++i){ //inserting 3 payloads
       Pedestals* myped=new Pedestals;
       for(int ichannel=1; ichannel<=5; ++ichannel){
@@ -45,7 +45,7 @@ int main(){
       cond::TypedRef<Pedestals> myref(pooldb,myped);
       myref.markWrite("PedestalsRcd");
       std::string payloadToken=myref.token();
-      ioveditor->insert(cond::Time_t(2+2*i),payloadToken);
+      ioveditor->append(cond::Time_t(2+2*i),payloadToken);
     }
     //last one
     Pedestals* myped=new Pedestals;
@@ -58,7 +58,7 @@ int main(){
     cond::TypedRef<Pedestals> myref(pooldb,myped);
     myref.markWrite("PedestalsRcd");
     std::string payloadToken=myref.token();
-    ioveditor->insert(9999,payloadToken);
+    ioveditor->append(9001,payloadToken);
     std::string iovtoken=ioveditor->token();
     std::cout<<"iov token "<<iovtoken<<std::endl;
     pooldb.commit();
@@ -66,7 +66,7 @@ int main(){
     //delete ioveditor;
     pooldb.start(false);
     ioveditor=iovmanager.newIOVEditor();
-    ioveditor->create(globalSince,timetype);
+    ioveditor->create(timetype, globalTill);
     Pedestals* p=new Pedestals;
     for(int ichannel=1; ichannel<=2; ++ichannel){
       Pedestals::Item item;
@@ -77,7 +77,7 @@ int main(){
     cond::TypedRef<Pedestals> m(pooldb,p);
     m.markWrite("PedestalsRcd");
     std::string payloadToken2=m.token();
-    ioveditor->insert(9999,payloadToken2);
+    ioveditor->append(90001,payloadToken2);
     std::string pediovtoken=ioveditor->token();
     std::cout<<"iov token "<<pediovtoken<<std::endl;
     pooldb.commit();
@@ -87,7 +87,7 @@ int main(){
     //
     cond::IOVEditor* anotherioveditor=iovmanager.newIOVEditor();
     pooldb.start(false);
-    anotherioveditor->create(globalSince,timetype);
+    anotherioveditor->create(timetype,globalTill);
     for(unsigned int i=0; i<2; ++i){ //inserting 2 payloads to another Rcd
       Pedestals* myped=new Pedestals;
       for(int ichannel=1; ichannel<=3; ++ichannel){
@@ -99,7 +99,7 @@ int main(){
       cond::TypedRef<Pedestals> myref(pooldb,myped);
       myref.markWrite("anotherPedestalsRcd");
       std::string payloadToken=myref.token();
-      anotherioveditor->insert(cond::Time_t(2+2*i),payloadToken);
+      anotherioveditor->append(cond::Time_t(2+2*i),payloadToken);
     }
     std::string anotheriovtoken=anotherioveditor->token();
     std::cout<<"anotheriovtoken "<<anotheriovtoken<<std::endl;
