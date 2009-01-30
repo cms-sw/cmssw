@@ -22,7 +22,7 @@
 #include <cmath>
 #include <string>
 #include <vector>
-
+#include <typeinfo>
 
 namespace reco { 
   namespace isodeposit {
@@ -196,13 +196,6 @@ namespace reco {
 			 const AbsVetos & vetos = AbsVetos(),        //additional vetos 
 			 bool skipDepositVeto = false                //skip exclusion of veto 
 			 ) const;
-    //! Get some info about the deposit (e.g. sum, max, sum2, count) w.r.t. other direction
-    template<typename Algo>
-    double algoWithin(const Direction &,   
-		      double coneSize,                            //dR in which deposit is computed
-		      const AbsVetos & vetos = AbsVetos(),        //additional vetos 
-		      bool skipDepositVeto = false                //skip exclusion of veto 
-		      ) const;
     // count of the non-vetoed deposits in the cone
     double countWithin(  double coneSize,                            //dR in which deposit is computed
 			 const AbsVetos & vetos = AbsVetos(),        //additional vetos 
@@ -213,12 +206,7 @@ namespace reco {
 			 const AbsVetos & vetos = AbsVetos(),        //additional vetos 
 			 bool skipDepositVeto = false                //skip exclusion of veto 
 			 ) const;
-    // sum of the non-vetoed deposits in the cone w.r.t. other direction
-    double sumWithin(const Direction & dir,	 
-		     double coneSize,                            //dR in which deposit is computed
-		     const AbsVetos & vetos = AbsVetos(),        //additional vetos 
-		     bool skipDepositVeto = false                //skip exclusion of veto 
-		     ) const;    // sum of the squares of the non-vetoed deposits in the cone
+    // sum of the squares of the non-vetoed deposits in the cone
     double sum2Within(	 double coneSize,                            //dR in which deposit is computed
 			 const AbsVetos & vetos = AbsVetos(),        //additional vetos 
 			 bool skipDepositVeto = false                //skip exclusion of veto 
@@ -266,43 +254,18 @@ double reco::IsoDeposit::algoWithin(double coneSize, const AbsVetos& vetos, bool
   for (IM im = theDeposits.begin(); im != imLoc; ++im) {
     bool vetoed = false;
     Direction dirDep = theDirection+im->first;
-    for (IV iv = vetos.begin(); iv < ivEnd; ++iv) {
+    for ( IV iv = vetos.begin(); iv < ivEnd; ++iv) {
       if ((*iv)->veto(dirDep.eta(), dirDep.phi(), im->second)) { vetoed = true;  break; }
     }
     if (!vetoed) {
-      if (skipDepositVeto || (dirDep.deltaR(theVeto.vetoDir) > theVeto.dR)) {
-	algo += im->second;
-      }
+       if (skipDepositVeto || (dirDep.deltaR(theVeto.vetoDir) > theVeto.dR)) {
+          algo += im->second;
+        }
     }
   }
   return algo.result();
 }
 
-template<typename Algo>
-double reco::IsoDeposit::algoWithin(const Direction& dir, double coneSize, 
-				    const AbsVetos& vetos, bool skipDepositVeto) const 
-{
-  using namespace reco::isodeposit;
-  Algo algo;
-  typedef AbsVetos::const_iterator IV;
-  IV ivEnd = vetos.end();
-  typedef DepositsMultimap::const_iterator IM;
-  IM imLoc = theDeposits.end();
-  for (IM im = theDeposits.begin(); im != imLoc; ++im) {
-    bool vetoed = false;
-    Direction dirDep = theDirection+im->first;
-    Distance newDist = dirDep - dir;
-    if(newDist.deltaR > coneSize) continue;
-    for (IV iv = vetos.begin(); iv < ivEnd; ++iv) {
-      if ((*iv)->veto(dirDep.eta(), dirDep.phi(), im->second)) { vetoed = true;  break; }
-    }
-    if (!vetoed) {
-      if (skipDepositVeto || (dirDep.deltaR(theVeto.vetoDir) > theVeto.dR)) {
-	algo += im->second;
-      }
-    }
-  }
-  return algo.result();
-}
+
 
 #endif
