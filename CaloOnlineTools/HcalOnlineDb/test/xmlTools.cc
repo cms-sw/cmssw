@@ -1330,6 +1330,10 @@ int createRBXLoader( string & type_, string & tag_, string & list_file, string &
 	_baseConf . extention_table_name = "HCAL_RBX_CONFIGURATION_TYPE03";
 	_baseConf . name = "HCAL RBX configuration [GOL]";
       }
+      else if ( type_ == "leds" ){
+	_baseConf . extention_table_name = "HCAL_RBX_CONFIGURATION_TYPE02";
+	_baseConf . name = "HCAL RBX configuration [type 2]";
+      }
       else{
 	cout << "Unknown config type... exiting" << endl;
 	exit(1);

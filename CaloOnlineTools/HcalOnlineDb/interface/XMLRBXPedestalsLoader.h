@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Nov 06 14:30:33 CDT 2007
-// $Id: XMLRBXPedestalsLoader.h,v 1.1 2008/02/12 17:01:59 kukartse Exp $
+// $Id: XMLRBXPedestalsLoader.h,v 1.2 2008/03/07 02:49:13 kukartse Exp $
 //
 
 // system include files
@@ -76,6 +76,7 @@ class XMLRBXPedestalsLoader : public XMLDOMBlock
 
   MemBufInputSource * _data_ped_delay; // a container for the XML template for a single pedestal or zero delay
   MemBufInputSource * _data_gol; // a container for the XML template for a single gol current
+  MemBufInputSource * _data_led; // a container for the XML template for a single led data unit
 
  private:
   XMLRBXPedestalsLoader(const XMLRBXPedestalsLoader&); // stop default

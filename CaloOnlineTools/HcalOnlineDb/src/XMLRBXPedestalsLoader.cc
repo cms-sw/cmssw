@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Oct 23 14:30:20 CDT 2007
-// $Id: XMLRBXPedestalsLoader.cc,v 1.3 2008/06/24 01:09:48 elmer Exp $
+// $Id: XMLRBXPedestalsLoader.cc,v 1.4 2008/08/31 20:40:21 kukartse Exp $
 //
 
 // system include files
@@ -80,6 +80,7 @@ XMLRBXPedestalsLoader::~XMLRBXPedestalsLoader()
 {
   if( _data_ped_delay ) delete _data_ped_delay;
   if( _data_gol ) delete _data_gol;
+  if( _data_led ) delete _data_led;
 }
 
 
@@ -104,23 +105,32 @@ int XMLRBXPedestalsLoader::addRBXSlot( datasetDBConfig * config, string brickFil
   //XMLDOMBlock rbxBrickDoc( "rbx_HBM01_PEDESTAL.xml" );
   XMLDOMBlock rbxBrickDoc( brickFileName );
   DOMDocument * rbxBrick = rbxBrickDoc . getDocument();
-  for ( int _item = 0; _item < rbxBrick -> getElementsByTagName( XMLProcessor::_toXMLCh( "Data" ) ) -> getLength(); _item++ )
-    {
+  if ( rbx_config_type == "pedestals" || rbx_config_type == "delays" || rbx_config_type == "gols" ){
+    for ( int _item = 0; _item < rbxBrick -> getElementsByTagName( XMLProcessor::_toXMLCh( "Data" ) ) -> getLength(); _item++ ){
       DOMElement * dataset_root = dataSet -> getDocumentElement();
-
-      string _rm = rbxBrickDoc . getTagAttribute( "Data", "rm", _item );
-      string _qie = rbxBrickDoc . getTagAttribute( "Data", "card", _item );
+      
+      string _rm;
+      string _qie;
       string _adc;
-
+      //string _led_item;
+      
       MemBufInputSource * _data; // a container for the XML template for a data block
       if ( rbx_config_type == "pedestals" || rbx_config_type == "delays" ){
+	_rm = rbxBrickDoc . getTagAttribute( "Data", "rm", _item );
+	_qie = rbxBrickDoc . getTagAttribute( "Data", "card", _item );
 	_adc = rbxBrickDoc . getTagAttribute( "Data", "qie", _item );
 	_data = _data_ped_delay;
       }
       else if ( rbx_config_type == "gols" ){
+	_rm = rbxBrickDoc . getTagAttribute( "Data", "rm", _item );
+	_qie = rbxBrickDoc . getTagAttribute( "Data", "card", _item );
 	_adc = rbxBrickDoc . getTagAttribute( "Data", "gol", _item );
 	_data = _data_gol;
       }
+      //else if ( rbx_config_type == "leds" ){
+      //_led_item = rbxBrickDoc . getTagAttribute( "Data", "item", _item );
+      //_data = _data_led;
+      //}
       else{
 	cout << "XMLRBXPedestalsLoader::addRBXSlot(): Unknown config type... exiting" << endl;
 	exit(1);
@@ -128,12 +138,24 @@ int XMLRBXPedestalsLoader::addRBXSlot( datasetDBConfig * config, string brickFil
       XMLDOMBlock dataDoc( *_data );
       DOMDocument * data = dataDoc . getDocument();
       string _value = rbxBrickDoc . getTagValue( "Data", _item );
-      setTagValue( "MODULE_POSITION", _rm, 0, data );
-      setTagValue( "QIE_CARD_POSITION", _qie, 0, data );
       if ( rbx_config_type == "pedestals" || rbx_config_type == "delays" ){
+	setTagValue( "MODULE_POSITION", _rm, 0, data );
+	setTagValue( "QIE_CARD_POSITION", _qie, 0, data );
 	setTagValue( "QIE_ADC_NUMBER", _adc, 0, data );
       }
       else if ( rbx_config_type == "gols" ){
+	setTagValue( "MODULE_POSITION", _rm, 0, data );
+	setTagValue( "QIE_CARD_POSITION", _qie, 0, data );
+	setTagValue( "FIBER_NUMBER", _adc, 0, data );
+      }
+      else if ( rbx_config_type == "gols" ){
+	setTagValue( "MODULE_POSITION", _rm, 0, data );
+	setTagValue( "QIE_CARD_POSITION", _qie, 0, data );
+	setTagValue( "FIBER_NUMBER", _adc, 0, data );
+      }
+      else if ( rbx_config_type == "leds" ){
+	setTagValue( "MODULE_POSITION", _rm, 0, data );
+	setTagValue( "QIE_CARD_POSITION", _qie, 0, data );
 	setTagValue( "FIBER_NUMBER", _adc, 0, data );
       }
       else{
@@ -144,6 +166,44 @@ int XMLRBXPedestalsLoader::addRBXSlot( datasetDBConfig * config, string brickFil
       DOMNode * cloneData = dataSet -> importNode( data -> getDocumentElement(), true );
       dataset_root -> appendChild( cloneData );
     }
+  }
+  else if ( rbx_config_type == "leds" ){
+    DOMElement * dataset_root = dataSet -> getDocumentElement();
+    
+    string _led_item;
+    
+    MemBufInputSource * _data; // a container for the XML template for a data block
+    _data = _data_led;
+    string _value;
+
+    XMLDOMBlock dataDoc( *_data );
+    DOMDocument * data = dataDoc . getDocument();
+
+    int _item = 0;
+    _led_item = rbxBrickDoc . getTagAttribute( "Data", "item", _item );
+    // FIXME: need to check that the right data tag (_led_item) from the original brick is being processed
+    _value = rbxBrickDoc . getTagValue( "Data", _item );
+    setTagValue( "LED1_ON_IS_CHECKED", _value, 0, data );
+    setTagValue( "SET_LEDS_IS_CHECKED", _value, 0, data );
+    _item = 1;
+    _led_item = rbxBrickDoc . getTagAttribute( "Data", "item", _item );
+    _value = rbxBrickDoc . getTagValue( "Data", _item );
+    setTagValue( "LED2_ON_IS_CHECKED", _value, 0, data );
+    if (_value.find("0")==string::npos){
+      setTagValue( "SET_LEDS_IS_CHECKED", _value, 0, data );
+    }
+    _item = 2;
+    _led_item = rbxBrickDoc . getTagAttribute( "Data", "item", _item );
+    _value = rbxBrickDoc . getTagValue( "Data", _item );
+    setTagValue( "LED_AMPLITUDE", _value, 0, data );
+    _item = 3;
+    _led_item = rbxBrickDoc . getTagAttribute( "Data", "item", _item );
+    _value = rbxBrickDoc . getTagValue( "Data", _item );
+    setTagValue( "BUNCH_NUMBER", _value, 0, data );
+    
+    DOMNode * cloneData = dataSet -> importNode( data -> getDocumentElement(), true );
+    dataset_root -> appendChild( cloneData );
+  }
 
   // copy the <data_set> node into the final XML
   DOMNode * cloneDataSet = document -> importNode( dataSet -> getDocumentElement(), true );
@@ -231,6 +291,34 @@ int XMLRBXPedestalsLoader::init( void )
   ";
   const XMLByte * _template2 = (const XMLByte *)_str2;
   _data_gol = new MemBufInputSource( _template2, strlen( (const char *)_template2 ), "_data_gol", false );
+
+  // define the <DATA/> template for LED data
+  static const char * _str3 =  "\
+  <DATA>\n\
+   <RM1_IS_CHECKED>1</RM1_IS_CHECKED>\n\
+   <RM2_IS_CHECKED>1</RM2_IS_CHECKED>\n\
+   <RM3_IS_CHECKED>1</RM3_IS_CHECKED>\n\
+   <RM4_IS_CHECKED>1</RM4_IS_CHECKED>\n\
+   <CALIB_IS_CHECKED>1</CALIB_IS_CHECKED>\n\
+   <RESET1_IS_CHECKED>1</RESET1_IS_CHECKED>\n\
+   <RESET1_VALUE>40</RESET1_VALUE>\n\
+   <RESET1_WAIT_CYCLES>3</RESET1_WAIT_CYCLES>\n\
+   <RESET2_IS_CHECKED>1</RESET2_IS_CHECKED>\n\
+   <RESET2_VALUE>40</RESET2_VALUE>\n\
+   <RESET2_WAIT_CYCLES>3</RESET2_WAIT_CYCLES>\n\
+   <SET_LEDS_IS_CHECKED>0</SET_LEDS_IS_CHECKED>\n\
+   <LED1_ON_IS_CHECKED>0</LED1_ON_IS_CHECKED>\n\
+   <LED2_ON_IS_CHECKED>0</LED2_ON_IS_CHECKED>\n\
+   <LED_AMPLITUDE>128</LED_AMPLITUDE>\n\
+   <LED_DELAY>1000</LED_DELAY>\n\
+   <TTCRX_PHASE>100</TTCRX_PHASE>\n\
+   <BROADCAST_SETTINGS>1</BROADCAST_SETTINGS>\n\
+   <QIE_RESET_DELAY>5</QIE_RESET_DELAY>\n\
+   <BUNCH_NUMBER>2000</BUNCH_NUMBER>\n\
+  </DATA>\n\
+  ";
+  const XMLByte * _template3 = (const XMLByte *)_str3;
+  _data_led = new MemBufInputSource( _template3, strlen( (const char *)_template3 ), "_data_led", false );
 
   return 0;
 }

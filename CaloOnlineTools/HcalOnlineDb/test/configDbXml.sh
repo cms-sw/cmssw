@@ -54,6 +54,7 @@ echo -n 'proceeeding to Master and OMDS '
 echo -n 'or, even better, follow the most recent instructions at '
 echo    'https://twiki.cern.ch/twiki/bin/view/CMS/OnlineHCALDataSubmissionProceduresTOProdOMDSP5Server'
 echo    ''
+echo    'Sometimes there are temporary uploading instructions when the standard services are offline for any reason'
 }
 
 
@@ -64,6 +65,7 @@ rbxPedMenu()
     echo ' 1. Pedestals'
     echo ' 2. Zero delays'
     echo ' 3. GOL currents'
+    echo ' 4. LED data'
     echo ''
     echo -n 'Type: '
     read rbx_type_num
@@ -80,6 +82,10 @@ rbxPedMenu()
 	3)
           rbx_type="gols"
           rbx_type_full="GOL currents"
+	;;
+	4)
+          rbx_type="leds"
+          rbx_type_full="LED data"
 	;;
 	*)
           echo 'Invalid choice - nothing to do...'
