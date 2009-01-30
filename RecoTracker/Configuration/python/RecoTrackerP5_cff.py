@@ -25,6 +25,8 @@ combinedP5SeedsForCTF.TripletCollection = cms.InputTag('simpleCosmicBONSeeds')
 
 from RecoTracker.CkfPattern.CkfTrackCandidatesP5_cff import *
 ckfTrackCandidatesP5.src = cms.InputTag('combinedP5SeedsForCTF')
+#backward compatibility 2.2/3.1
+ckfTrackCandidatesP5.SeedProducer = 'combinedP5SeedsForCTF'
 
 from RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff import *
 # ROACH SEARCH
