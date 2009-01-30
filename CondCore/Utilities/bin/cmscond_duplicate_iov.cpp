@@ -236,7 +236,7 @@ int main( int argc, char** argv ){
 	std::cerr <<"[Error] no payload found for time " << from << std::endl;
 	return 1;
       }
-      if ( (iov.end()-1)->payloadToken()==payload) {
+      if ( (iov.end()-1)->wrapperToken()==payload) {
 	std::cerr <<"[Warning] payload for time " << from
 		  <<" equal to last inserted payload, no new IOV will be created" <<  std::endl;
 	return 0;
