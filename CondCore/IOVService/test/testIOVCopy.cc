@@ -1,3 +1,7 @@
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
+#include "FWCore/PluginManager/interface/SharedLibrary.h"
+
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/ConnectionHandler.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
@@ -9,12 +13,16 @@
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "testPayloadObj.h"
 #include <iostream>
+
 int main(){
+  edmplugin::PluginManager::Config config;
+  edmplugin::PluginManager::configure(edmplugin::standard::config());
+
   std::string sourceConnect("sqlite_file:source.db");
   std::string destConnect("sqlite_file:dest.db");
   try{
     cond::DBSession* session=new cond::DBSession;
-    session->configuration().setMessageLevel(cond::Error);
+    session->configuration().setMessageLevel(cond::Debug);
     session->configuration().setAuthenticationMethod(cond::XML);
     static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
     conHandler.registerConnection("mysource","sqlite_file:source.db",0);
@@ -27,7 +35,7 @@ int main(){
     cond::IOVService iovmanager(sourcedb);
     cond::IOVEditor* editor=iovmanager.newIOVEditor();
     sourcedb.start(false);
-    editor->create(cond::timestamp,0);
+    editor->create(cond::timestamp,1);
     for(int i=0; i<5; ++i){
       std::cout<<"creating test payload obj"<<i<<std::endl;
       testPayloadObj* myobj=new testPayloadObj;
