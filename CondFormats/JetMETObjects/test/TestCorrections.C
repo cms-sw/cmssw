@@ -20,29 +20,21 @@ void main()
   TBranch *branch = tree->GetBranch(tree->GetAlias("IC5CaloJet"));
   branch->SetAddress(&CaloJetCollection); 
 
-  ////////////// Defining the vector of correction levels ////////
-  vector<string> Levels;
-  Levels.push_back("L2");
-  Levels.push_back("L3");
-  Levels.push_back("L4");
-  Levels.push_back("L5");
-  Levels.push_back("L7");
-  ////////////// Defining the vector of data filename tags ///////
-  vector<string> CorrectionTags;
-  CorrectionTags.push_back("Summer08_L2Relative_IC5Calo");
-  CorrectionTags.push_back("Summer08_L3Absolute_IC5Calo");
-  CorrectionTags.push_back("CMSSW_152_L4EMF");
-  CorrectionTags.push_back("L5Flavor_fromQCD_iterativeCone5");
-  CorrectionTags.push_back("L7parton_IC5_080921");
-  ////////////// Defining the flavor and parton options //////////
-  string FlavorOption("uds");
-  string PartonOption("jJ");
-  ////////////// Defining the JetCorrector ///////////////////////
-  FWLiteJetCorrector JetCorrector(Levels,CorrectionTags,FlavorOption,PartonOption);
+  ////////////// Defining the L2L3L7JetCorrector ///////////////////////
+  string Levels = "L2,L3,L7";
+  string Tags = "Summer08Redigi_L2Relative_IC5Calo,Summer08Redigi_L3Absolute_IC5Calo,L7parton_IC5_080921";
+  string Options = "Parton:jJ";
+  FWLiteJetCorrector *L2L3L7JetCorrector = new FWLiteJetCorrector(Levels,Tags,Options);
+  ////////////// Defining the L2L3JetCorrector ///////////////////////
+  string Levels = "L2,L3";
+  string Tags = "Summer08Redigi_L2Relative_IC5Calo,Summer08Redigi_L3Absolute_IC5Calo";
+  FWLiteJetCorrector *L2L3JetCorrector = new FWLiteJetCorrector(Levels,Tags);
+   
   
   ////////////// Fill demo histogram  ////////////////////////////
   TH2F *hMapping = new TH2F("Mapping","Mapping",500,0,500,500,0,500);
-  for(unsigned int index = 0; index < 200; ++index ) 
+  TH2F *hRatio = new TH2F("Ratio","Ratio",500,0,500,500,0.8,1.2);
+  for(unsigned int index = 0; index < 10; ++index ) 
     {
       cout << "Entry index: " << index << endl;  
       branch->GetEntry(index);
@@ -53,24 +45,34 @@ void main()
           double pt = Jet->pt();    
           double eta = Jet->eta();  
           double emf = Jet->emEnergyFraction();  
-	  double scale = JetCorrector.getCorrection(pt,eta,emf);
-	  vector<double> factors = JetCorrector.getSubCorrections(pt,eta,emf);
-	  cout<<"Pt = "<<pt<<", Eta = "<<eta<<", EMF = "<<emf<<", correction = "<<scale<<", CorPt = "<<scale*pt<<endl;
-          hMapping->Fill(pt,scale*pt);
-	  for(unsigned int i=0;i<factors.size();i++)
-	    cout<<Levels[i]<<" = "<<factors[i]<<endl;
+	  double L2L3scale = L2L3JetCorrector->getCorrection(pt,eta,emf);
+          double L2L3L7scale = L2L3L7JetCorrector->getCorrection(pt,eta,emf);
+          vector<double> L2L3factors = L2L3JetCorrector->getSubCorrections(pt,eta,emf);
+	  vector<double> L2L3L7factors = L2L3L7JetCorrector->getSubCorrections(pt,eta,emf);
+	  cout<<"Pt = "<<pt<<", Eta = "<<eta<<", EMF = "<<emf<<endl;
+          cout<<"L2L3correction = "<<L2L3scale<<", L2L3CorPt = "<<L2L3scale*pt<<endl;
+          for(unsigned int i=0;i<L2L3factors.size();i++)
+	    cout<<L2L3factors[i]<<endl;
+          cout<<"L2L3L7correction = "<<L2L3L7scale<<", L2L3L7CorPt = "<<L2L3L7scale*pt<<endl;
+          for(unsigned int i=0;i<L2L3L7factors.size();i++)
+	    cout<<L2L3L7factors[i]<<endl;
+          hMapping->Fill(L2L3scale*pt,L2L3L7scale*pt);
+          hRatio->Fill(L2L3scale*pt,L2L3L7scale/L2L3scale);
+	  
         }
     }
-  ////////////// Draw demo histogram /////////////////////////////
+  ////////////// Draw demo histograms /////////////////////////////
   TCanvas *c = new TCanvas("CorrectionMapping","CorrectionMapping");
   hMapping->SetTitle("Correction Mapping");
-  hMapping->GetXaxis()->SetTitle("Uncorrected jet pT (GeV)");
-  TString tmp("");
-  for(unsigned int i=0;i<Levels.size();i++)
-    tmp+=Levels[i];
-  tmp+=" Corrected jet pT (GeV)";
-  char title[1024];
-  sprintf(title,"%s",tmp);
-  hMapping->GetYaxis()->SetTitle(tmp);
+  hMapping->GetXaxis()->SetTitle("L2L3Corrected jet pT (GeV)");
+  hMapping->GetYaxis()->SetTitle("L2L3L7Corrected jet pT (GeV)");
   hMapping->Draw();
+
+  TCanvas *c = new TCanvas("RatioMapping","RatioMapping");
+  hRatio->SetTitle("Ratio Mapping");
+  hRatio->GetXaxis()->SetTitle("L2L3Corrected jet pT (GeV)");
+  hRatio->GetYaxis()->SetTitle("L2L3L7/L2L3");
+  hRatio->Draw();
+  
 }
+

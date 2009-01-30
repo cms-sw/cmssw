@@ -16,53 +16,187 @@ using namespace edm;
 ////////////////////////////////////////////////////////////////////////////////
 FWLiteJetCorrector::FWLiteJetCorrector()
 {
-  mLevels.push_back("No Correction");
-  mDataFiles.push_back("");
-  mFlavorOption = "";
-  mPartonOption = "";
+  
 }
 ////////////////////////////////////////////////////////////////////////////////
-FWLiteJetCorrector::FWLiteJetCorrector(std::vector<std::string> Levels, std::vector<std::string> CorrectionTags)
+FWLiteJetCorrector::FWLiteJetCorrector(std::string CorrectionLevels, std::string CorrectionTags)
 {
-  if (Levels.size() != CorrectionTags.size())
+  initCorrectors(CorrectionLevels, CorrectionTags); 
+}
+////////////////////////////////////////////////////////////////////////////////
+FWLiteJetCorrector::FWLiteJetCorrector(std::string CorrectionLevels, std::string CorrectionTags, std::string Options)
+{
+  initCorrectors(CorrectionLevels, CorrectionTags, Options);       
+}
+////////////////////////////////////////////////////////////////////////////////
+void FWLiteJetCorrector::initCorrectors(std::string CorrectionLevels, std::string CorrectionTags)
+{
+  mLevels = parseLevels(CorrectionLevels);
+  vector<string> Tags = parseLevels(CorrectionTags);
+  vector<string> DataFiles;
+  if (mLevels.size() != Tags.size())
     {
       throw cms::Exception ("FWLiteJetCorrector") 
-        << "number of correction levels: " << Levels.size() << " doesn't match the number of data file tags: " << CorrectionTags.size();
+        << "number of correction levels: " << mLevels.size() << " doesn't match the number of data file tags: " << Tags.size();
     }  
-  for(unsigned int i=0;i<Levels.size();i++)
-    mLevels.push_back(Levels[i]);
-  for(unsigned int i=0;i<CorrectionTags.size();i++)
+  for(unsigned int i=0;i<Tags.size();i++)
     {
-      string tmp = "CondFormats/JetMETObjects/data/"+CorrectionTags[i]+".txt";
+      string tmp = "CondFormats/JetMETObjects/data/"+Tags[i]+".txt";
       edm::FileInPath f1(tmp);  
-      mDataFiles.push_back(f1.fullPath());
+      DataFiles.push_back(f1.fullPath());
     }
-  mFlavorOption = "";
-  mPartonOption = "";      
+  for(unsigned int i=0;i<mLevels.size();i++)
+    {
+      if (mLevels[i]=="L2")
+        mL2Corrector = new SimpleL2RelativeCorrector(DataFiles[i]);
+      else if (mLevels[i]=="L3" && ((int)Tags[i].find("Calo")>=0 || (int)Tags[i].find("JPT")>=0))
+        {
+          mL3Option = "Calo";
+          mL3Corrector = new SimpleL3AbsoluteCorrector(DataFiles[i]);
+        }
+      else if (mLevels[i]=="L3" && (int)Tags[i].find("PF")>=0)
+        {
+          mL3Option = "PF";  
+          mL3PFCorrector = new SimpleL3PFAbsoluteCorrector(DataFiles[i]);
+        }
+      else if (mLevels[i]=="L4")
+        mL4Corrector = new SimpleL4EMFCorrector(DataFiles[i]);
+      else if (mLevels[i]=="L5")
+        {
+          throw cms::Exception ("FWLiteJetCorrector") 
+            << "asking L5Flavor correction without specifying flavor option";
+        }
+      else if (mLevels[i]=="L7")
+        {
+          throw cms::Exception ("FWLiteJetCorrector") 
+            << "asking L7Parton correction without specifying parton option";
+        }
+      else
+        {
+          throw cms::Exception ("FWLiteJetCorrector") 
+            << "unknown correction level: " << mLevels[i];
+        }
+    }
+        
 }
 ////////////////////////////////////////////////////////////////////////////////
-FWLiteJetCorrector::FWLiteJetCorrector(vector<string> Levels, vector<string> CorrectionTags, string FlavorOption, string PartonOption)
+void FWLiteJetCorrector::initCorrectors(std::string CorrectionLevels, std::string CorrectionTags, std::string Options)
 {
-  if (Levels.size() != CorrectionTags.size())
+  mLevels = parseLevels(CorrectionLevels);
+  std::vector<std::string> Tags = parseLevels(CorrectionTags);
+  std::vector<std::string> DataFiles;
+  std::string FlavorOption = parseOption(Options,"Flavor");
+  std::string PartonOption = parseOption(Options,"Parton");
+  if (mLevels.size() != Tags.size())
     {
       throw cms::Exception ("FWLiteJetCorrector") 
-        << "number of correction levels: " << Levels.size() << " doesn't match the number of data file tags: " << CorrectionTags.size();
-    }
-  for(unsigned int i=0;i<Levels.size();i++)
-    mLevels.push_back(Levels[i]);
-  for(unsigned int i=0;i<CorrectionTags.size();i++)
+        << "number of correction levels: " << mLevels.size() << " doesn't match the number of data file tags: " << Tags.size();
+    }  
+  for(unsigned int i=0;i<Tags.size();i++)
     {
-      string tmp = "CondFormats/JetMETObjects/data/"+CorrectionTags[i]+".txt";
+      string tmp = "CondFormats/JetMETObjects/data/"+Tags[i]+".txt";
       edm::FileInPath f1(tmp);  
-      mDataFiles.push_back(f1.fullPath());
+      DataFiles.push_back(f1.fullPath());
     }
-  mFlavorOption = FlavorOption;
-  mPartonOption = PartonOption;      
+  for(unsigned int i=0;i<mLevels.size();i++)
+    {
+      if (mLevels[i]=="L2")
+        mL2Corrector = new SimpleL2RelativeCorrector(DataFiles[i]);
+      else if (mLevels[i]=="L3" && ((int)Tags[i].find("Calo")>=0 || (int)Tags[i].find("JPT")>=0))
+        {
+          mL3Option = "Calo";
+          mL3Corrector = new SimpleL3AbsoluteCorrector(DataFiles[i]);
+        }
+      else if (mLevels[i]=="L3" && (int)Tags[i].find("PF")>=0)
+        {
+          mL3Option = "PF";  
+          mL3PFCorrector = new SimpleL3PFAbsoluteCorrector(DataFiles[i]);
+        }
+      else if (mLevels[i]=="L4")
+        mL4Corrector = new SimpleL4EMFCorrector(DataFiles[i]);
+      else if (mLevels[i]=="L5" && FlavorOption.length()==0)
+        {
+          throw cms::Exception ("FWLiteJetCorrector") 
+            << "asking L5Flavor correction without specifying flavor option";
+        }
+      else if (mLevels[i]=="L5" && FlavorOption.length()>0)
+        mL5Corrector = new SimpleL5FlavorCorrector(DataFiles[i],FlavorOption);
+      else if (mLevels[i]=="L7" && PartonOption.length()==0)
+        {
+          throw cms::Exception ("FWLiteJetCorrector") 
+            << "asking L7Parton correction without specifying parton option";
+        }
+      else if (mLevels[i]=="L7" && PartonOption.length()>0)
+        mL7Corrector = new SimpleL7PartonCorrector(DataFiles[i],PartonOption);
+      else
+        {
+          throw cms::Exception ("FWLiteJetCorrector") 
+            << "unknown correction level: " << mLevels[i];
+        }
+    }
+        
 }
 ////////////////////////////////////////////////////////////////////////////////
 FWLiteJetCorrector::~FWLiteJetCorrector()
 {
-  
+  delete mL2Corrector;
+  delete mL3Corrector;
+  delete mL3PFCorrector; 
+  delete mL4Corrector;
+  delete mL5Corrector;
+  delete mL7Corrector;
+}
+////////////////////////////////////////////////////////////////////////////////
+vector<string> FWLiteJetCorrector::parseLevels(string ss)
+{
+  vector<string> result;
+  unsigned int pos(0),j,newPos;
+  int i;
+  string tmp;
+  while (pos<ss.length())
+    {
+      tmp = "";
+      i = ss.find("," , pos);
+      if (i<0 && pos==0)
+        {
+          result.push_back(ss);
+          pos = ss.length();
+        }
+      else if (i<0 && pos>0)
+        {
+          for(j=pos;j<ss.length();j++)
+            tmp+=ss[j];
+          result.push_back(tmp);
+          pos = ss.length();
+        }  
+      else
+        {
+          newPos = i;
+          for(j=pos;j<newPos;j++)
+            tmp+=ss[j];
+          result.push_back(tmp);
+          pos = newPos+1;     
+        }
+    }
+  return result;
+}
+////////////////////////////////////////////////////////////////////////////////
+string FWLiteJetCorrector::parseOption(string ss, string type)
+{
+  string result;
+  int pos1(-1),pos2(-1);
+  pos1 = ss.find(type+":");
+  if (pos1<0)
+    result = "";
+  else
+    {
+      pos2 = ss.find(",",pos1+type.length()+1); 
+      if (pos2<0)
+        result = ss.substr(pos1+type.length()+1,ss.length()-pos1-type.length()-1);
+      else
+        result = ss.substr(pos1+type.length()+1,pos2-pos1-type.length()-1);
+    }
+  return result;
 }
 ////////////////////////////////////////////////////////////////////////////////
 double FWLiteJetCorrector::getCorrection(double pt, double eta)
@@ -74,46 +208,17 @@ double FWLiteJetCorrector::getCorrection(double pt, double eta)
     { 
       tmpPt = corPt;
       if (mLevels[i]== "L2")
-        {
-          SimpleL2RelativeCorrector L2Corrector(mDataFiles[i]);
-          scale = L2Corrector.correctionPtEta(tmpPt,eta);
-        }
-      else if (mLevels[i] == "L3")
-        {
-          SimpleL3AbsoluteCorrector L3Corrector(mDataFiles[i]);  
-          scale = L3Corrector.correctionPtEta(tmpPt,eta);
-        } 
-      else if (mLevels[i] == "L3PF")
-        {
-          SimpleL3PFAbsoluteCorrector L3Corrector(mDataFiles[i]);  
-          scale = L3Corrector.correctionPtEta(tmpPt,eta);
-        }	
+        scale = mL2Corrector->correctionPtEta(tmpPt,eta);
+      else if (mLevels[i] == "L3" && mL3Option == "Calo")
+        scale = mL3Corrector->correctionPtEta(tmpPt,eta); 
+      else if (mLevels[i] == "L3" && mL3Option == "PF")
+        scale = mL3PFCorrector->correctionPtEta(tmpPt,eta);
       else if (mLevels[i] == "L4")
         scale = 1.;  
       else if (mLevels[i] == "L5")
-        {
-	  if (mFlavorOption=="")
-	    scale = 1.;
-	  else
-	    {    
-              SimpleL5FlavorCorrector L5Corrector(mDataFiles[i],mFlavorOption);  
-              scale = L5Corrector.correctionPtEta(tmpPt,eta);
-	    }  
-        }
-      else if (mLevels[i]=="L6")
-        scale = 1.; 
-      else if (mLevels[i]=="L1")
-        scale = 1.;	  	
+        scale = mL5Corrector->correctionPtEta(tmpPt,eta);
       else if (mLevels[i] == "L7")
-        {
-	  if (mPartonOption=="")
-	    scale = 1.; 
-	  else
-	    {  
-              SimpleL7PartonCorrector L7Corrector(mDataFiles[i],mPartonOption);  
-              scale = L7Corrector.correctionPtEta(tmpPt,eta);
-	    }  
-        }
+        scale = mL7Corrector->correctionPtEta(tmpPt,eta);
       else
 	scale = 1.; 	
       factor*=scale; 	
@@ -131,49 +236,17 @@ double FWLiteJetCorrector::getCorrection(double pt, double eta, double emf)
     { 
       tmpPt = corPt;
       if (mLevels[i]== "L2")
-        {
-          SimpleL2RelativeCorrector L2Corrector(mDataFiles[i]);
-          scale = L2Corrector.correctionPtEta(tmpPt,eta);
-        }
-      else if (mLevels[i] == "L3")
-        {
-          SimpleL3AbsoluteCorrector L3Corrector(mDataFiles[i]);  
-          scale = L3Corrector.correctionPtEta(tmpPt,eta);
-        } 
-      else if (mLevels[i] == "L3PF")
-        {
-          SimpleL3PFAbsoluteCorrector L3Corrector(mDataFiles[i]);  
-          scale = L3Corrector.correctionPtEta(tmpPt,eta);
-        }	
+        scale = mL2Corrector->correctionPtEta(tmpPt,eta);
+      else if (mLevels[i] == "L3" && mL3Option == "Calo")
+        scale = mL3Corrector->correctionPtEta(tmpPt,eta); 
+      else if (mLevels[i] == "L3" && mL3Option == "PF")
+        scale = mL3PFCorrector->correctionPtEta(tmpPt,eta);
       else if (mLevels[i] == "L4")
-        {
-          SimpleL4EMFCorrector L4Corrector(mDataFiles[i]);  
-          scale = L4Corrector.correctionPtEtaEmfraction(tmpPt,eta,emf);
-        }  
+        scale = mL4Corrector->correctionPtEtaEmfraction(tmpPt,eta,emf);   
       else if (mLevels[i] == "L5")
-        {
-	  if (mFlavorOption=="")
-	    scale = 1.;
-	  else
-	    {    
-              SimpleL5FlavorCorrector L5Corrector(mDataFiles[i],mFlavorOption);  
-              scale = L5Corrector.correctionPtEta(tmpPt,eta);
-	    }  
-        }
-      else if (mLevels[i]=="L6")
-        scale = 1.; 
-      else if (mLevels[i]=="L1")
-        scale = 1.;	  	
+        scale = mL5Corrector->correctionPtEta(tmpPt,eta);
       else if (mLevels[i] == "L7")
-        {
-	  if (mPartonOption=="")
-	    scale = 1.; 
-	  else
-	    {  
-              SimpleL7PartonCorrector L7Corrector(mDataFiles[i],mPartonOption);  
-              scale = L7Corrector.correctionPtEta(tmpPt,eta);
-	    }  
-        }
+        scale = mL7Corrector->correctionPtEta(tmpPt,eta);
       else
 	scale = 1.; 	
       factor*=scale; 	
@@ -191,48 +264,19 @@ vector<double> FWLiteJetCorrector::getSubCorrections(double pt, double eta)
     { 
       tmpPt = corPt;
       if (mLevels[i]== "L2")
-        {
-          SimpleL2RelativeCorrector L2Corrector(mDataFiles[i]);
-          scale = L2Corrector.correctionPtEta(tmpPt,eta);
-        }
-      else if (mLevels[i] == "L3")
-        {
-          SimpleL3AbsoluteCorrector L3Corrector(mDataFiles[i]);  
-          scale = L3Corrector.correctionPtEta(tmpPt,eta);
-        } 
-      else if (mLevels[i] == "L3PF")
-        {
-          SimpleL3PFAbsoluteCorrector L3Corrector(mDataFiles[i]);  
-          scale = L3Corrector.correctionPtEta(tmpPt,eta);
-        }	
+        scale = mL2Corrector->correctionPtEta(tmpPt,eta);
+      else if (mLevels[i] == "L3" && mL3Option == "Calo")
+        scale = mL3Corrector->correctionPtEta(tmpPt,eta); 
+      else if (mLevels[i] == "L3" && mL3Option == "PF")
+        scale = mL3PFCorrector->correctionPtEta(tmpPt,eta);
       else if (mLevels[i] == "L4")
-        scale = 1.;
+        scale = 1.;  
       else if (mLevels[i] == "L5")
-        {
-	  if (mFlavorOption=="")
-	    scale = 1.;
-	  else
-	    {    
-              SimpleL5FlavorCorrector L5Corrector(mDataFiles[i],mFlavorOption);  
-              scale = L5Corrector.correctionPtEta(tmpPt,eta);
-	    }  
-        }
-      else if (mLevels[i]=="L6")
-        scale = 1.;
-      else if (mLevels[i]=="L1")
-        scale = 1.;
+        scale = mL5Corrector->correctionPtEta(tmpPt,eta);
       else if (mLevels[i] == "L7")
-        {
-	  if (mPartonOption=="")
-	    scale = 1.;
-	  else
-	    {  
-              SimpleL7PartonCorrector L7Corrector(mDataFiles[i],mPartonOption);  
-              scale = L7Corrector.correctionPtEta(tmpPt,eta);
-	    }  
-        }
+        scale = mL7Corrector->correctionPtEta(tmpPt,eta);
       else
-        scale = 1.;
+	scale = 1.; 
       factors.push_back(scale); 	
       corPt*=scale;
     }
@@ -248,51 +292,19 @@ vector<double> FWLiteJetCorrector::getSubCorrections(double pt, double eta, doub
     { 
       tmpPt = corPt;
       if (mLevels[i]== "L2")
-        {
-          SimpleL2RelativeCorrector L2Corrector(mDataFiles[i]);
-          scale = L2Corrector.correctionPtEta(tmpPt,eta);
-        }
-      else if (mLevels[i] == "L3")
-        {
-          SimpleL3AbsoluteCorrector L3Corrector(mDataFiles[i]);  
-          scale = L3Corrector.correctionPtEta(tmpPt,eta);
-        } 
-      else if (mLevels[i] == "L3PF")
-        {
-          SimpleL3PFAbsoluteCorrector L3Corrector(mDataFiles[i]);  
-          scale = L3Corrector.correctionPtEta(tmpPt,eta);
-        }	
+        scale = mL2Corrector->correctionPtEta(tmpPt,eta);
+      else if (mLevels[i] == "L3" && mL3Option == "Calo")
+        scale = mL3Corrector->correctionPtEta(tmpPt,eta); 
+      else if (mLevels[i] == "L3" && mL3Option == "PF")
+        scale = mL3PFCorrector->correctionPtEta(tmpPt,eta);
       else if (mLevels[i] == "L4")
-        {
-          SimpleL4EMFCorrector L4Corrector(mDataFiles[i]);  
-          scale = L4Corrector.correctionPtEtaEmfraction(tmpPt,eta,emf);
-        }
+        scale = mL4Corrector->correctionPtEtaEmfraction(tmpPt,eta,emf);   
       else if (mLevels[i] == "L5")
-        {
-	  if (mFlavorOption=="")
-	    scale = 1.;
-	  else
-	    {    
-              SimpleL5FlavorCorrector L5Corrector(mDataFiles[i],mFlavorOption);  
-              scale = L5Corrector.correctionPtEta(tmpPt,eta);
-	    }  
-        }
-      else if (mLevels[i]=="L6")
-        scale = 1.;
-      else if (mLevels[i]=="L1")
-        scale = 1.;
+        scale = mL5Corrector->correctionPtEta(tmpPt,eta);
       else if (mLevels[i] == "L7")
-        {
-	  if (mPartonOption=="")
-	    scale = 1.;
-	  else
-	    {  
-              SimpleL7PartonCorrector L7Corrector(mDataFiles[i],mPartonOption);  
-              scale = L7Corrector.correctionPtEta(tmpPt,eta);
-	    }  
-        }
+        scale = mL7Corrector->correctionPtEta(tmpPt,eta);
       else
-        scale = 1.;
+	scale = 1.;
       factors.push_back(scale); 	
       corPt*=scale;
     }

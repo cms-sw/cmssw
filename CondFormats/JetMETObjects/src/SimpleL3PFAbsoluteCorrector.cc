@@ -47,7 +47,7 @@ double SimpleL3PFAbsoluteCorrector::correctionBandPtEta (unsigned fBand, double 
   }
   const std::vector<float>& p = mParameters->record (fBand).parameters ();
   if (p.size() != nParameters) {
-    throw cms::Exception ("SimpleL3AbsoluteCorrector") 
+    throw cms::Exception ("SimpleL3PFAbsoluteCorrector") 
       << "wrong # of parameters: " << nParameters << " expected, " << p.size() << " got";
   }
   double pt = (fPt < p[0]) ? p[0] : (fPt > p[1]) ? p[1] : fPt;
