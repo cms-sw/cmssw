@@ -1,4 +1,5 @@
 #include "BFit.h"
+#include <cstring>
 
 using namespace std;
 using namespace magfieldparam;
