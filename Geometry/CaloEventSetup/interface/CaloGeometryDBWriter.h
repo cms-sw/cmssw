@@ -2,15 +2,8 @@
 #define GEOMETRY_CALOEVENTSETUP_CALOGEOMETRYDBWRITER_H 1
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-//#include "FWCore/ParameterSet/interface/ParameterSet.h"
-//#include "FWCore/Framework/interface/Event.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-//#include "FWCore/Framework/interface/EventSetup.h"
-//#include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/GeometryObjects/interface/PCaloGeometry.h"
-#include "Geometry/Records/interface/PEcalBarrelRcd.h"
-#include "Geometry/Records/interface/PEcalEndcapRcd.h"
-#include "Geometry/Records/interface/PEcalPreshowerRcd.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

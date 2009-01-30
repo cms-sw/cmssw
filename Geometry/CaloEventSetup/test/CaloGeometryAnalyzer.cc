@@ -74,7 +74,9 @@ class CaloGeometryAnalyzer : public edm::EDAnalyzer {
 		   const DetId&            did     ,
 		   const CaloCellGeometry& cell ,
 		   std::fstream&           fCtr    ,
-		   std::fstream&           fCor       );
+		   std::fstream&           fCor    ,  
+		   std::fstream&           oldCtr    ,
+		   std::fstream&           oldCor       );
   int pass_;
   //  bool fullEcalDump_;
 
@@ -329,8 +331,14 @@ CaloGeometryAnalyzer::ctrcor( const DetId::Detector   det     ,
 			      const DetId&            did     ,
 			      const CaloCellGeometry& cell    ,
 			      std::fstream&           fCtr    ,
-			      std::fstream&           fCor       )
+			      std::fstream&           fCor    , 
+			      std::fstream&           oldCtr    ,
+			      std::fstream&           oldCor      )
 {
+   int oldie ( 0 ) ;
+   int oldip ( 0 ) ;
+   oldCtr>>oldie>>oldip ;
+   oldCor>>oldie>>oldip ;
    if( det     == DetId::Ecal &&
        subdetn == EcalBarrel     )
    {
@@ -371,6 +379,9 @@ CaloGeometryAnalyzer::ctrcor( const DetId::Detector   det     ,
 	   << std::setw(4) << ix
 	   << std::setw(4) << iy
 	   << std::setw(4) << st ;
+      int oldiy, oldst ;
+      oldCtr>>oldiy>>oldst ;
+      oldCor>>oldip>>oldst ;
    }
    if( det     == DetId::Hcal    ) 
    {
@@ -382,6 +393,12 @@ CaloGeometryAnalyzer::ctrcor( const DetId::Detector   det     ,
       fCtr << std::setw(4) << ie
 	   << std::setw(4) << ip
 	   << std::setw(4) << de ;
+      fCor << std::setw(4) << ie
+	   << std::setw(4) << ip
+	   << std::setw(4) << de ;
+      int  oldde ;
+      oldCtr>>oldde ;
+      oldCor>>oldde ;
    }
    if( det     == DetId::Calo &&
        subdetn == HcalZDCDetId::SubdetectorId    ) 
@@ -390,6 +407,8 @@ CaloGeometryAnalyzer::ctrcor( const DetId::Detector   det     ,
       const int is ( zcid.section() ) ;
       const int ic ( zcid.channel() ) ;
       fCtr << std::setw(4) << is
+	   << std::setw(4) << ic ;
+      fCor << std::setw(4) << is
 	   << std::setw(4) << ic ;
    }
    if( det     == DetId::Calo  &&
@@ -400,26 +419,78 @@ CaloGeometryAnalyzer::ctrcor( const DetId::Detector   det     ,
       const int im ( cid.module() ) ;
       fCtr << std::setw(4) << is
 	   << std::setw(4) << im ;
+      fCor << std::setw(4) << is
+	   << std::setw(4) << im ;
+   }
+   if( det     == DetId::Calo  &&
+       subdetn == CaloTowerDetId::SubdetId    ) 
+   {
+      const CaloTowerDetId cid ( did ) ;
+      const int ie ( cid.ieta() ) ;
+      const int ip ( cid.iphi() ) ;
+      fCtr << std::setw(4) << ie
+	   << std::setw(4) << ip ;
+      fCor << std::setw(4) << ie
+	   << std::setw(4) << ip ;
    }
 
+   const double x ( cell.getPosition().x() ) ;
+   const double y ( cell.getPosition().y() ) ;
+   const double z ( cell.getPosition().z() ) ;
+
+   double oldx,oldy,oldz;
+
+   oldCtr >> oldx >> oldy >> oldz;
+
+   const double dx ( 1.e4*(x - oldx) ) ;
+   const double dy ( 1.e4*(y - oldy) ) ;
+   const double dz ( 1.e4*(z - oldz) ) ;
+
+   if( 1.5 < fabs( dx ) ) std::cout<<"For i="<<oldie<<" & j="<<oldip
+	     			<<"***BIG DISAGREEMENT FOUND. DX="<<dx<<" microns"<<std::endl ;
+   if( 1.5 < fabs( dy ) ) std::cout<<"For i="<<oldie<<" & j="<<oldip
+	     			<<"***BIG DISAGREEMENT FOUND. DY="<<dy<<" microns"<<std::endl ;
+   if( 1.5 < fabs( dz ) ) std::cout<<"For i="<<oldie<<" & j="<<oldip
+					<<"***BIG DISAGREEMENT FOUND. DZ="<<dz<<" microns"<<std::endl ;
+
+
    fCtr << std::fixed << std::setw(12) << std::setprecision(4)
-	<< cell.getPosition().x()
+	<< x
 	<< std::fixed << std::setw(12) << std::setprecision(4)
-	<< cell.getPosition().y()
+	<< y
 	<< std::fixed << std::setw(12) << std::setprecision(4)
-	<< cell.getPosition().z()
+	<< z
 	<< std::endl ;
 
    const CaloCellGeometry::CornersVec& co ( cell.getCorners() ) ;
 
    for( unsigned int j ( 0 ) ; j < co.size() ; ++(++(++j)) )
    {
-      fCor << std::fixed << std::setw(10) << std::setprecision(4)
-	   << co[j].x()
-	   << std::fixed << std::setw(10) << std::setprecision(4)
-	   << co[j].y()
-	   << std::fixed << std::setw(10) << std::setprecision(4)
-	   << co[j].z() ;
+      const double x ( co[j].x() ) ;
+      const double y ( co[j].y() ) ;
+      const double z ( co[j].z() ) ;
+
+      double oldx,oldy,oldz;
+
+      oldCor >> oldx >> oldy >> oldz;
+
+      const double dx ( 1.e4*(x - oldx) ) ;
+      const double dy ( 1.e4*(y - oldy) ) ;
+      const double dz ( 1.e4*(z - oldz) ) ;
+
+      if( 1.5 < fabs( dx ) ) std::cout<<"For i="<<oldie<<" & j="<<oldip<<" & jj="<<j
+					   <<"***BIG DISAGREEMENT FOUND. DX="<<dx<<" microns"<<std::endl ;
+      if( 1.5 < fabs( dy ) ) std::cout<<"For i="<<oldie<<" & j="<<oldip<<" & jj="<<j
+					   <<"***BIG DISAGREEMENT FOUND. DY="<<dy<<" microns"<<std::endl ;
+      if( 1.5 < fabs( dz ) ) std::cout<<"For i="<<oldie<<" & j="<<oldip<<" & jj="<<j
+					   <<"***BIG DISAGREEMENT FOUND. DZ="<<dz<<" microns"<<std::endl ;
+
+      fCor << std::fixed << std::setw(12) << std::setprecision(4)
+	   << x
+	   << std::fixed << std::setw(12) << std::setprecision(4)
+	   << y
+	   << std::fixed << std::setw(12) << std::setprecision(4)
+	   << z ;
    }
    fCor << std::endl ;
 }
@@ -432,10 +503,14 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 {
    std::cout<<"Name now is "<<name<<std::endl ;
 
+   const std::string oldnameCtr  ( "old" + std::string( name ) + ".ctr" ) ;
+   const std::string oldnameCor  ( "old" + std::string( name ) + ".cor" ) ;
    const std::string fnameCtr  ( std::string( name ) + ".ctr" ) ;
    const std::string fnameCor  ( std::string( name ) + ".cor" ) ;
    const std::string fnameOvr  ( std::string( name ) + ".ovr" ) ;
    const std::string fnameRoot ( std::string( name ) + ".C" ) ;
+   std::fstream oldCtr(oldnameCtr.c_str() ,std::ios_base::in);
+   std::fstream oldCor(oldnameCor.c_str() ,std::ios_base::in);
    std::fstream fCtr(fnameCtr.c_str() ,std::ios_base::out);
    std::fstream fCor(fnameCor.c_str() ,std::ios_base::out);
    std::fstream fOvr(fnameOvr.c_str() ,std::ios_base::out);
@@ -467,7 +542,9 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 	      *i,
 	      *cell,
 	      fCtr,
-	      fCor  ) ;
+	      fCor,
+	      oldCtr,
+	      oldCor ) ;
 
       const DetId      id ( *i ) ;
       const CaloGenericDetId cid ( id ) ;
@@ -689,13 +766,13 @@ CaloGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
    // get the ecal & hcal geometry
    //
    if (pass_==0) {
-/*     build(*pG,DetId::Ecal,EcalBarrel,"eb");
+     build(*pG,DetId::Ecal,EcalBarrel,"eb");
      build(*pG,DetId::Ecal,EcalEndcap,"ee");
      build(*pG,DetId::Ecal,EcalPreshower,"es");
      build(*pG,DetId::Hcal,HcalBarrel,"hb");
      build(*pG,DetId::Hcal,HcalEndcap,"he");
      build(*pG,DetId::Hcal,HcalOuter ,"ho");
-     build(*pG,DetId::Hcal,HcalForward,"hf");*/
+     build(*pG,DetId::Hcal,HcalForward,"hf");
      build(*pG,DetId::Calo,CaloTowerDetId::SubdetId     ,"ct");
      build(*pG,DetId::Calo,HcalZDCDetId::SubdetectorId  ,"zd");
      build(*pG,DetId::Calo,HcalCastorDetId::SubdetectorId  ,"ca");
