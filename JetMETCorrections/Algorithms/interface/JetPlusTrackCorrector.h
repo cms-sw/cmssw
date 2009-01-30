@@ -42,7 +42,7 @@ public:
   
   virtual double correction (const reco::Jet& fJet, const edm::Event& fEvent, const edm::EventSetup& fSetup) const;
 
-  void setParameters( std::string fDataFile, std::string fDataFile, std::string fDataFile);
+  void setParameters( std::string fDataFile1, std::string fDataFile2, std::string fDataFile3);
   
   /// if correction needs event information
   virtual bool eventRequired () const {return true;}
