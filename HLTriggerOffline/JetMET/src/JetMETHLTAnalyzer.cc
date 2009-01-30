@@ -13,7 +13,7 @@
 //
 // Original Author:  Jochen Cammin
 //         Created:  Sun Oct 14 20:47:10 CDT 2007
-// $Id$
+// $Id: JetMETHLTAnalyzer.cc,v 1.1 2008/01/28 20:25:54 cammin Exp $
 //
 //
 
@@ -161,6 +161,7 @@ JetMETHLTAnalyzer::JetMETHLTAnalyzer(const edm::ParameterSet& iConfig)
   str_CaloJets       = iConfig.getParameter<string>("CaloJets");
   str_GenJets       = iConfig.getParameter<string>("GenJets");
   _debug = iConfig.getParameter<bool>("Debug"); 
+  // HLTriggerResults_ = iConfig.getParameter<InputTag>( "HLTriggerResults" );
   l1extramc_ = iConfig.getParameter< std::string > ("l1extramc"); // can be l1extramctruth 
                                                                   // or l1extraParticles
   nProgress = 1000;
@@ -423,6 +424,8 @@ JetMETHLTAnalyzer::ObjectGetter(const edm::Event& iEvent, const edm::EventSetup&
   try {iEvent.getByLabel(str_GenJets, genjets);} catch (...) {errMsg=errMsg + " -- No GenJets"; _HasGenJets = false;}
   // get trigger results
   iEvent.getByType(hltresults);
+  //iEvent.getByLabel(HLTriggerResults,hltresults);
+
 
 //   // get L1 objects
   try {iEvent.getByLabel(l1extramc_,"Central",l1extjetc);} catch (...) {errMsg=errMsg + " -- No central L1Jet objects";}

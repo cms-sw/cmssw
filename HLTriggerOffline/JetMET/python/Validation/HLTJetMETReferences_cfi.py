@@ -15,7 +15,4 @@ HLTJetMETRef = cms.Sequence(JetMETMCProducer)
 
 
 
-
-
-
                               

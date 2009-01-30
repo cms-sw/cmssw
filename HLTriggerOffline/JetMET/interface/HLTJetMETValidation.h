@@ -2,6 +2,8 @@
 Jochen Cammin
 University of Rochester
 cammin@fnal.gov
+
+Extensions from Len Apanasevich.
 */
 
 
@@ -14,14 +16,28 @@ cammin@fnal.gov
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/TriggerNames.h"
+
+#include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerRefsCollections.h"
+
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
+
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/GenJet.h"
+
+#include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
+
+#include "DataFormats/METReco/interface/GenMET.h"
+#include "DataFormats/METReco/interface/GenMETCollection.h"
 
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
@@ -44,6 +60,7 @@ class HLTJetMETValidation : public edm::EDAnalyzer {
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
+  void getHLTResults(const edm::TriggerResults&);
 
 //JoCa  //helper functions
 //JoCa  bool match(const LV&,const LVColl&,double);
@@ -53,16 +70,18 @@ class HLTJetMETValidation : public edm::EDAnalyzer {
 //JoCa
   /// InputTag of TriggerEventWithRefs to analyze
   edm::InputTag triggerEventObject_;
+  edm::InputTag CaloJetAlgorithm, GenJetAlgorithm, CaloMETColl, GenMETColl, HLTriggerResults;
 //JoCa
 //JoCa  //reference Collection
 //JoCa  edm::InputTag refCollection_;
 //JoCa  edm::InputTag refLeptonCollection_;
 //JoCa    
   //Just a tag for better file organization
-  std::string triggerTag_;
+  std::string triggerTag_, MyTrigger;
 //JoCa
   edm::InputTag _reffilter;
   edm::InputTag _probefilter;
+  edm::InputTag _HLTPath;
 //JoCa  //Parameters
   std::string outFile_;
 //JoCa  std::string logFile_;
@@ -73,14 +92,26 @@ class HLTJetMETValidation : public edm::EDAnalyzer {
 //JoCa
 //JoCa  /*Trigger Bits for Tau and Reference Trigger*/
   MonitorElement *test_histo;
-  MonitorElement *_meSingleJetPt;
+  MonitorElement *_meRecoJetPt, *_meRecoJetPtRef, *_meRecoJetPtProbe, *_meRecoJetPtTrg;
+  MonitorElement *_meGenJetPt,  *_meGenJetPtRef , *_meGenJetPtProbe , *_meGenJetPtTrg;
+  MonitorElement *_meRecoMET,   *_meRecoMETRef  , *_meRecoMETProbe  , *_meRecoMETTrg;
+  MonitorElement *_meGenMET,    *_meGenMETRef  ,  *_meGenMETProbe  ,  *_meGenMETTrg;
   MonitorElement *_meRefPt;
   MonitorElement *_meProbePt;
+  MonitorElement *_triggerResults;
 
 //Define Numbers 
 
   int NRef;
   int NProbe;
 
+// store hlt information in a map
+  std::vector<bool> hlttrigs;
+  std::map <std::string,bool> hltTriggerMap;
+  std::map<std::string,bool>::iterator trig_iter;
+
+  edm::TriggerNames triggerNames_;  // TriggerNames class
+
+  bool HLTinit_;
 };
 #endif
