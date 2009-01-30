@@ -1,5 +1,6 @@
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
 #include <iostream>
+#include <algorithm>
 
 void SiStripClusterCollection::put(SiStripClusterCollection::Range input, unsigned int detID) {
   // put in RecHits of detID
