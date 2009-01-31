@@ -19,6 +19,11 @@
 // pool includes
 #include <boost/filesystem/operations.hpp>
 //#include <iostream>
+
+cond::DBSession::DBSession(){ 
+  config(cmsDefaults);
+}
+
 cond::DBSession::DBSession(ConfDefaults confDef){ 
   config(confDef);
 }
