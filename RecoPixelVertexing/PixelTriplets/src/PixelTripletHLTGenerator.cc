@@ -14,6 +14,7 @@
 
 using pixelrecoutilities::LongitudinalBendingCorrection;
 typedef PixelRecoRange<float> Range;
+
 using namespace std;
 using namespace ctfseeding;
 
@@ -54,11 +55,11 @@ void PixelTripletHLTGenerator::hitTriplets(
 
   int size = theLayers.size();
 
-  map<const DetLayer *, ThirdHitRZPrediction > mapPred;
+  map<const DetLayer *, ThirdHitRZPrediction<PixelRecoLineRZ> > mapPred;
   const LayerHitMap **thirdHitMap = new const LayerHitMap* [size];
   for (int il=0; il <=size-1; il++) {
      thirdHitMap[il] = &(*theLayerCache)(&theLayers[il], region, ev, es);
-     ThirdHitRZPrediction pred;
+     ThirdHitRZPrediction<PixelRecoLineRZ> pred;
      pred.initLayer(theLayers[il].detLayer());
      pred.initTolerance(extraHitRZtolerance);
      mapPred[theLayers[il].detLayer()] = pred;
@@ -95,9 +96,9 @@ void PixelTripletHLTGenerator::hitTriplets(
 
       ThirdHitCorrection correction(es, region.ptMin(), layer, line, point2, useMScat, useBend);
       
-      ThirdHitRZPrediction & predictionRZ =  mapPred[theLayers[il].detLayer()];
-      predictionRZ.initLine(line);
-      ThirdHitRZPrediction::Range rzRange = predictionRZ();
+      ThirdHitRZPrediction<PixelRecoLineRZ> & predictionRZ =  mapPred[theLayers[il].detLayer()];
+      predictionRZ.initPropagator(&line);
+      Range rzRange = predictionRZ();
 
       correction.correctRZRange(rzRange);
       Range phiRange;
@@ -149,7 +150,7 @@ void PixelTripletHLTGenerator::hitTriplets(
         float p3_phi = point.phi();
  
         if (barrelLayer) {
-          ThirdHitRZPrediction::Range allowedZ = predictionRZ(p3_r);
+          Range allowedZ = predictionRZ(p3_r);
           correction.correctRZRange(allowedZ);
 
           double zErr = nSigmaRZ * sqrt(hit->globalPositionError().czz());
@@ -157,7 +158,7 @@ void PixelTripletHLTGenerator::hitTriplets(
           Range crossingRange = allowedZ.intersection(hitRange);
           if (crossingRange.empty())  continue;
         } else {
-          ThirdHitRZPrediction::Range allowedR = predictionRZ(p3_z);
+          Range allowedR = predictionRZ(p3_z);
           correction.correctRZRange(allowedR); 
           double rErr = nSigmaRZ * sqrt(hit->globalPositionError().rerr( hit->globalPosition()));
           Range hitRange(p3_r-rErr, p3_r+rErr);
