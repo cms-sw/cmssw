@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.3 2009/01/29 13:29:52 berryhil Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.23 2009/01/30 22:59:03 berryhil Exp $
 // See header file for information. 
 #include "TMath.h"
 
@@ -184,7 +184,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   if(!gtObjectMapRecord.isValid()) { 
     edm::LogInfo("FourVectorHLTOffline") << "L1GlobalTriggerObjectMapRecord not found, ";
     //  "skipping event"; 
-    // return;
+     return;
   }
     unsigned long long l1GtMenuCacheID = iSetup.get<L1GtTriggerMenuRcd>().cacheIdentifier();
     
