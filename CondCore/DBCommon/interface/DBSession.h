@@ -38,8 +38,7 @@ namespace cond{
   **/
   class DBSession{
   public:
-    DBSession();
-    DBSession(ConfDefaults confDef = /*cmsDefaults */);
+    DBSession(ConfDefaults confDef=cmsDefaults);
     ~DBSession();
     void open();
     //void close();
