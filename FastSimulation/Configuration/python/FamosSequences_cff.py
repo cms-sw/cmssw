@@ -76,19 +76,12 @@ towerMakerWithHO.hoInput = 'caloRecHits'
 
 
 # Particle Flow
-from RecoParticleFlow.PFClusterProducer.towerMakerPF_cff import *
 from RecoParticleFlow.PFClusterProducer.particleFlowCluster_cff import *
 from RecoParticleFlow.PFTracking.particleFlowTrack_cff import *
 from RecoParticleFlow.PFBlockProducer.particleFlowSimParticle_cff import *
 from RecoParticleFlow.PFBlockProducer.particleFlowBlock_cff import *
 from RecoParticleFlow.PFProducer.particleFlow_cff import *
-towerMakerPF.ecalInputs = cms.VInputTag(
-    cms.InputTag("caloRecHits","EcalRecHitsEB"),
-    cms.InputTag("caloRecHits","EcalRecHitsEE")
-)
-towerMakerPF.hbheInput = 'caloRecHits'
-towerMakerPF.hoInput = 'caloRecHits'
-towerMakerPF.hfInput = 'caloRecHits'
+
 particleFlowRecHitECAL.ecalRecHitsEB = cms.InputTag("caloRecHits","EcalRecHitsEB")
 particleFlowRecHitECAL.ecalRecHitsEE = cms.InputTag("caloRecHits","EcalRecHitsEE")
 particleFlowRecHitPS.ecalRecHitsES = cms.InputTag("caloRecHits","EcalRecHitsES")
@@ -110,7 +103,7 @@ fsgsfPFtracks.TrajectoryInEvent = True
 pfTrackElec.GsfTrackModuleLabel = 'fsgsfPFtracks'
 
 famosParticleFlowSequence = cms.Sequence(
-    caloTowersPFRec+
+    caloTowersRec+
     particleFlowCluster+
     elecpreid+
     fsGsfElCandidates+
