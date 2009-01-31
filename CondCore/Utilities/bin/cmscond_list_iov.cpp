@@ -108,8 +108,6 @@ int main( int argc, char** argv ){
   //session->configuration().connectionConfiguration()->setConnectionRetrialTimeOut( 600 );
   //session->configuration().connectionConfiguration()->enableConnectionSharing();
   //session->configuration().connectionConfiguration()->enableReadOnlySessionOnUpdateConnections();
-  session->configuration().connectionConfiguration()->disablePoolAutomaticCleanUp();
-  session->configuration().connectionConfiguration()->setConnectionTimeOut(0);
   //session->connectionService().configuration().disablePoolAutomaticCleanUp();
   //session->connectionService().configuration().setConnectionTimeOut(0);
   

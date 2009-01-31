@@ -64,7 +64,7 @@ void cond::DBSession::open(){
     }
     std::string authName=authPath.string();
     coral::Context::instance().PropertyManager().property("AuthenticationFile")->set(authName);
-    coral::Context::instance().loadComponent( "COND/Services/XMLAuthenticationService",m_pluginmanager);
+    coral::Context::instance().loadComponent( "COND/Services/XMLAuthenticationService",&m_pluginmanager);
   }else{
     coral::Context::instance().loadComponent( "CORAL/Services/EnvironmentAuthenticationService");
   }
@@ -91,7 +91,7 @@ void cond::DBSession::open(){
     conserviceConfig.setConnectionRetrialTimeOut( conConfig->connectionRetrialTimeOut() );
     conserviceConfig.setConnectionTimeOut( conConfig->connectionTimeOut() );
     conserviceConfig.setMonitoringLevel( conConfig->monitorLevel() ); 
-    if( m_sessionConfig->hasBlobStreamService() ){
+    if( m_sessionConfig.hasBlobStreamService() ){
       std::string streamerName=m_sessionConfig.blobStreamerName();
       if(streamerName.empty()){
 	coral::Context::instance().loadComponent( "COND/Services/TBufferBlobStreamingService", &m_pluginmanager );
