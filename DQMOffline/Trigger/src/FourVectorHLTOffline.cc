@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.23 2009/01/30 22:59:03 berryhil Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.24 2009/01/31 21:28:01 monicava Exp $
 // See header file for information. 
 #include "TMath.h"
 
@@ -210,7 +210,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   if(!l1GTRR.isValid()) { 
     edm::LogInfo("FourVectorHLTOffline") << "L1GlobalTriggerReadoutRecord "<< l1GTRRLabel_ << " not found, ";
       //  "skipping event"; 
-      //return;
+      return;
   }
   const DecisionWord gtDecisionWord = l1GTRR->decisionWord();
 
