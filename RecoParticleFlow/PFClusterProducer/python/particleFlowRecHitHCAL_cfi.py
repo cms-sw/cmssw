@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 particleFlowRecHitHCAL = cms.EDFilter("PFRecHitProducerHCAL",
     # verbosity 
     verbose = cms.untracked.bool(False),
-    caloTowers = cms.InputTag("towerMakerPF"),
+    caloTowers = cms.InputTag("towerMaker"),
     hcalRecHitsHBHE = cms.InputTag(""),
     # cell threshold in barrel 
     thresh_Barrel = cms.double(0.8),

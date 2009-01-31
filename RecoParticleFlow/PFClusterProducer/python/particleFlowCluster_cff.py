@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoParticleFlow.PFClusterProducer.towerMakerPF_cff import *
+from RecoJets.Configuration.CaloTowersRec_cff import *
 from RecoParticleFlow.PFClusterProducer.particleFlowRecHitECAL_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowRecHitHCAL_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowRecHitPS_cfi import *
@@ -13,9 +13,9 @@ pfClusteringHCAL = cms.Sequence(particleFlowRecHitHCAL*particleFlowClusterHCAL)
 pfClusteringPS = cms.Sequence(particleFlowRecHitPS*particleFlowClusterPS)
 
 particleFlowCluster = cms.Sequence(
-    caloTowersPFRec*
+    caloTowersRec*
     pfClusteringECAL*
     pfClusteringHCAL*
     pfClusteringPS
-    )
+)
 

@@ -130,75 +130,103 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 	//C	
 	if(!caloTowerGeometry) 
 	  caloTowerGeometry = geoHandle->getSubdetectorGeometry(ct.id());
+
 	  
 	// get the hadronic energy.
-	double energy = ct.hadEnergy()+ct.emEnergy();
-
+	
+	//Mike: Just ask for the Hadronic part only now!
+	double energy = ct.hadEnergy();
 	if( energy < 1e-9 ) continue;  
 	  
 	  
 	  
-	// the layer will be taken from the first constituent. 
-	// all thresholds for ECAL must be set to very high values !!!
 	assert( ct.constituentsSize() );	  
-	const HcalDetId& detid = ct.constituent(0);
+	//Mike: The DetId will be taken by the first Hadronic constituent
+	//         of the tower. That is only what we need
+
+	
+	//get the constituents of the tower
+	const std::vector<DetId>& hits = ct.constituents();
+
+
+	//Reserve the DetId we are looking for:
+
+	HcalDetId detid;
+	bool foundHCALConstituent = false;
+
+ 
+	//Loop on them and search for HCAL
+	for(unsigned int i=0;i< hits.size();++i)
+	  {
+	    if(hits[i].det()==DetId::Hcal)
+	      {
+		foundHCALConstituent = true;
+		detid = hits[i];
+		break;
+	      }
+
+	  }
 	  
 	reco::PFRecHit* pfrh = 0;
-	  
-	switch( detid.subdet() ) {
-	case HcalBarrel: 
+
+	if(foundHCALConstituent)
 	  {
-	    if(energy < thresh_Barrel_ ) continue;
-	    pfrh = createHcalRecHit( detid, 
-				     energy, 
-				     PFLayer::HCAL_BARREL1, 
-				     hcalBarrelGeometry,
-				     ct.id().rawId() );
+	    switch( detid.subdet() ) {
+	    case HcalBarrel: 
+	      {
+		if(energy < thresh_Barrel_ ) continue;
+       	          pfrh = createHcalRecHit( detid, 
+					   energy, 
+					   PFLayer::HCAL_BARREL1, 
+					   hcalBarrelGeometry,
+					   ct.id().rawId() );
+	      }
+	      break;
+	    case HcalEndcap:
+	      {
+		if(energy < thresh_Endcap_ ) continue;
+		pfrh = createHcalRecHit( detid, 
+					 energy, 
+					 PFLayer::HCAL_ENDCAP, 
+					 hcalEndcapGeometry,
+					 ct.id().rawId() );
+	      }
+	      break;
+	    case HcalForward:
+	      {
+		if(energy < thresh_HF_ ) continue;
+		pfrh = createHcalRecHit( detid, 
+					 energy, 
+					 PFLayer::HCAL_HF, 
+					 hcalEndcapGeometry,
+					 ct.id().rawId() );
+	      }
+	      break;
+	    default:
+	      LogError("PFRecHitProducerHCAL")
+		<<"CaloTower constituent: unknown layer : "
+		<<detid.subdet()<<endl;
+	    } 
+	    
+	    if(pfrh) { 
+	      rechits.push_back( *pfrh );
+	      delete pfrh;
+	      idSortedRecHits.insert( make_pair(ct.id().rawId(), 
+						rechits.size()-1 ) ); 
+	    }
 	  }
-	  break;
-	case HcalEndcap:
-	  {
-	    if(energy < thresh_Endcap_ ) continue;
-	    pfrh = createHcalRecHit( detid, 
-				     energy, 
-				     PFLayer::HCAL_ENDCAP, 
-				     hcalEndcapGeometry,
-				     ct.id().rawId() );
- 	  }
-	  break;
-	case HcalForward:
-	  {
-	    if(energy < thresh_HF_ ) continue;
-	    pfrh = createHcalRecHit( detid, 
-				     energy, 
-				     PFLayer::HCAL_HF, 
-				     hcalEndcapGeometry,
-				     ct.id().rawId() );
- 	  }
-	  break;
-	default:
-	  LogError("PFRecHitProducerHCAL")
-	    <<"CaloTower constituent: unknown layer : "
-	    <<detid.subdet()<<endl;
-	} 
-	  
-	if(pfrh) { 
-	  rechits.push_back( *pfrh );
-	  delete pfrh;
-	  idSortedRecHits.insert( make_pair(ct.id().rawId(), 
-					    rechits.size()-1 ) ); 
-	}
+	
       }
 	
 	
 
       // do navigation 
       for(unsigned i=0; i<rechits.size(); i++ ) {
-	  
+	
 	findRecHitNeighboursCT( rechits[i], 
 				idSortedRecHits, 
 				caloTowerTopology);
-	  
+	
       }
     }   
   }
