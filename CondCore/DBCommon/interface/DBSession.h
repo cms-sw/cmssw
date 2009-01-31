@@ -9,11 +9,15 @@
 */
 //
 // Author:      Zhen Xie
-// $Id: DBSession.h,v 1.11 2008/12/17 15:53:18 xiezhen Exp $
 //
 #include <string>
 //#include "CoralKernel/Context.h"
 //#include "CoralKernel/IHandle.h"
+
+#include "CondCore/DBCommon/interface/SessionConfiguration.h"
+#include "CondCore/DBCommon/interface/CoralServiceManager.h"
+
+
 namespace coral{
   class IConnectionService;
   class IRelationalService;
@@ -30,8 +34,6 @@ namespace cond{
   // move to SessionConfiguration?
   enum ConfDefaults { coralDefaults, cmsDefaults, prodDefaults, toolDefaults, webDefaults}; 
 
-  class SessionConfiguration;
-  class CoralServiceManager;
   /*
   **/
   class DBSession{

@@ -1,4 +1,3 @@
-// $Id: DBSession.cc,v 1.27 2008/12/18 16:44:19 xiezhen Exp $
 //coral includes
 #include "CoralKernel/Context.h"
 #include "CoralKernel/IHandle.h"
