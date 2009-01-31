@@ -64,7 +64,9 @@ PFRootEventManager::PFRootEventManager(const char* file)
   pfBlocks_(new reco::PFBlockCollection),
   pfCandidates_(new reco::PFCandidateCollection),
   //pfJets_(new reco::PFJetCollection),
-  outFile_(0) {
+  outFile_(0),
+  calibFile_(0)
+{
   
   
   //   iEvent_=0;
@@ -127,6 +129,17 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("rootevent", "debug", debug_);
 
   
+  // output text file for calibration
+  string calibfilename;
+  options_->GetOpt("calib","outfile",calibfilename);
+  if (!calibfilename.empty()) calibFile_ = new std::ofstream(calibfilename.c_str());
+  std::cout << "Calib file name " << calibfilename << " " << calibfilename.c_str() << std::endl;
+  /* */
+  if ( calibFile_->is_open() ) 
+    std::cout << "File is open ! " << std::endl;
+  else
+    std::cout << "File is not open ! " << std::endl;
+  /* */
   // output root file   ------------------------------------------
 
   
@@ -496,6 +509,7 @@ void PFRootEventManager::readOptions(const char* file,
 
   shared_ptr<pftools::PFClusterCalibration> 
     clusterCalibration( new pftools::PFClusterCalibration() );
+  clusterCalibration_ = clusterCalibration;
 
   shared_ptr<PFEnergyCalibration> 
     calibration( new PFEnergyCalibration( e_slope,
@@ -506,6 +520,7 @@ void PFRootEventManager::readOptions(const char* file,
                                           h_slope,
                                           h_offset,
                                           h_damping ) );
+  calibration_ = calibration;
 
 
   double nSigmaECAL = 99999;
@@ -1275,6 +1290,9 @@ bool PFRootEventManager::processEntry(int entry) {
   
   if(goodevent && outTree_) 
     outTree_->Fill();
+
+  if(calibFile_)
+    printMCCalib(*calibFile_);
   
   return goodevent;
 
@@ -1499,7 +1517,7 @@ bool PFRootEventManager::countChargedAndPhotons() const {
   //    ++piter ) {
     
   //     const HepMC::GenParticle* p = *piter;
-  //     int partId = p->pdg_id();
+  //     int partId = p->pdg_id();Long64_t lines = T->ReadFile("mon_fichier","i:j:k:x:y:z");
     
   // //     pdgTable_->GetParticle( partId )->Print();
        
@@ -2568,6 +2586,53 @@ string PFRootEventManager::expand(const string& oldString) const {
   }
 
   return newString;
+}
+
+
+void 
+PFRootEventManager::printMCCalib(ofstream& out) const {
+
+  if(!out) return;
+  // if (!out.is_open()) return;
+
+  // Use only for one PFSimParticle/GenParticles
+  const HepMC::GenEvent* myGenEvent = MCTruth_.GetEvent();
+  if(!myGenEvent) return;
+  int nGen = 0;
+  for ( HepMC::GenEvent::particle_const_iterator 
+          piter  = myGenEvent->particles_begin();
+          piter != myGenEvent->particles_end(); 
+        ++piter ) nGen++;
+  int nSim = trueParticles_.size();
+  if ( nGen != 1 || nSim != 1 ) return;
+
+  // One GenJet 
+  if ( genJets_.size() != 1 ) return;
+  double true_E = genJets_[0].p();
+  double true_eta = genJets_[0].eta();
+  double true_phi = genJets_[0].phi();
+
+  // One particle-flow jet
+  if ( pfJets_.size() != 1 ) return;
+  double rec_ECALEnergy = pfJets_[0].neutralEmEnergy();
+  double rec_HCALEnergy = pfJets_[0].neutralHadronEnergy();
+
+  double col_ECALEnergy = rec_ECALEnergy * 1.05;
+  double col_HCALEnergy = rec_HCALEnergy;
+  if ( col_HCALEnergy > 1E-6 ) 
+    col_HCALEnergy = col_ECALEnergy > 1E-6 ? 
+    6. + 1.06*rec_HCALEnergy : (2.17*rec_HCALEnergy+1.73)/(1.+std::exp(2.49/rec_HCALEnergy));
+
+  double jam_ECALEnergy = rec_ECALEnergy;
+  double jam_HCALEnergy = rec_HCALEnergy;
+  clusterCalibration_->
+    getCalibratedEnergyEmbedAInHcal(jam_ECALEnergy, jam_HCALEnergy, true_eta, true_phi);
+
+  out << true_eta << " " << true_phi << " " << true_E 
+      << " " <<  rec_ECALEnergy << " " << rec_HCALEnergy
+      << " " <<  col_ECALEnergy << " " << col_HCALEnergy
+      << " " <<  jam_ECALEnergy << " " << jam_HCALEnergy << std::endl;
+
 }
 
 void  PFRootEventManager::print(ostream& out,int maxNLines ) const {

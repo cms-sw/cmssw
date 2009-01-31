@@ -68,6 +68,8 @@
 #include <set>
 #include <vector>
 #include <memory>
+#include <iostream>
+#include <fstream>
 
 class TTree;
 class TBranch;
@@ -85,6 +87,11 @@ class PFBlockElement;
 class EventColin;
 class PFEnergyCalibration;
 class PFEnergyResolution;
+
+namespace pftools { 
+  class PFClusterCalibration;
+}
+
 
 typedef std::pair<double, unsigned> simMatch;
 typedef std::list< std::pair<double, unsigned> >::iterator ITM;
@@ -278,6 +285,9 @@ class PFRootEventManager {
   /// print information
   void   print(  std::ostream& out = std::cout,
                  int maxNLines = -1 ) const;
+
+  /// print calibration information
+  void   printMCCalib(  std::ofstream& out ) const;
 
 
   /// get tree
@@ -671,5 +681,10 @@ class PFRootEventManager {
   /// and the copy constructor is protected...
   /*   TDatabasePDG*   pdgTable_; */
 
+  // Needed for single particle calibration rootTuple
+  boost::shared_ptr<pftools::PFClusterCalibration> clusterCalibration_;
+  boost::shared_ptr<PFEnergyCalibration> calibration_;
+  std::ofstream* calibFile_; 
+  
 };
 #endif
