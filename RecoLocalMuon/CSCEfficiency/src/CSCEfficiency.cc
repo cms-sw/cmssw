@@ -30,7 +30,7 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
       printf("\n==enter==CSCEfficiency===== run %i\tevent %i\tn Analyzed %i\n",iRun,iEvent,nEventsAnalyzed);
     }
   }
-  
+  theService->update(eventSetup);  
   //---- These declarations create handles to the types of records that you want
   //---- to retrieve from event "e".
   if (printalot) printf("\tget handles for digi collections\n");
@@ -72,19 +72,9 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
   edm::ESHandle<CSCGeometry> cscGeom;
   eventSetup.get<MuonGeometryRecord>().get(cscGeom);
 
-
-  edm::ESHandle<Propagator> shProp_any;
-  eventSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", shProp_any);
-
-  edm::ESHandle<Propagator> shProp_along;
-  eventSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAlong", shProp_along);
-
-  edm::ESHandle<Propagator> shProp_opposite;
-  eventSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorOpposite", shProp_opposite);
-
-  edm::ESHandle< MagneticField > magneticField;
-  eventSetup.get< IdealMagneticFieldRecord >().get( magneticField );
-
+  // use theTrackingGeometry instead of cscGeom?
+  ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
+  eventSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
 
   bool triggerPassed = true;
   if(useTrigger){
@@ -95,10 +85,12 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
     event.getByLabel(hlTriggerResults_,hltR);
     triggerPassed = applyTrigger(hltR);
   }
-
-
+  if(!triggerPassed){
+    return triggerPassed;
+  }
+  DataFlow->Fill(1.);	
   GlobalPoint gpZero(0.,0.,0.);
-  if(magneticField->inTesla(gpZero).mag2()<0.1){
+  if(theService->magneticField()->inTesla(gpZero).mag2()<0.1){ 
     magField = false;
   }
   else{
@@ -108,14 +100,14 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
   //---- store info from digis
   fillDigiInfo(alcts, clcts, correlatedlcts, wires, strips, simhits, rechits, segments, cscGeom);
 
-  if (printalot) std::cout<<"Start track loop"<<std::endl;
+  if (printalot) std::cout<<"Start track loop over "<<trackCollection.size()<<" tracks"<<std::endl;
   for(edm::View<reco::Track>::size_type i=0; i<trackCollection.size(); ++i) {
-    DataFlow->Fill(1.);
+    DataFlow->Fill(2.);
     //---- Do we need a better "clean track" definition?
     if(trackCollection.size()>2){
       break;
     }
-    DataFlow->Fill(2.);
+    DataFlow->Fill(3.);
     edm::RefToBase<reco::Track> track(trackCollectionH, i);
     if(!i && 2==trackCollection.size()){
       edm::View<reco::Track>::size_type tType = 1;
@@ -124,7 +116,7 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
         break;
       }
     }
-    DataFlow->Fill(3.);
+    DataFlow->Fill(4.);
     if (printalot){
       std::cout<<"i track = "<<i<<" P = "<<track->p()<<" chi2/ndf = "<<track->normalizedChi2()<<" nSeg = "<<segments->size()<<std::endl;
       std::cout<<"quality undef/loose/tight/high/confirmed/goodIt/size "<<
@@ -141,39 +133,51 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
       std::cout<<" track inner position = "<<track->innerPosition()<<" outer position = "<<track->outerPosition()<<std::endl;
       std::cout<<"track eta (outer) = "<<track->outerPosition().eta()<<" phi (outer) = "<<
 	track->outerPosition().phi()<<std::endl;
+      if(fabs(track->innerPosition().z())>500.){      
+	DetId innerDetId(track->innerDetId());
+	std::cout<<" dump inner state MUON detid  = "<<debug.dumpMuonId(innerDetId)<<std::endl;
+      }
+      if(fabs(track->outerPosition().z())>500.){
+        DetId outerDetId(track->outerDetId());
+	std::cout<<" dump outer state MUON detid  = "<<debug.dumpMuonId(outerDetId)<<std::endl;
+      }
+
       std::cout<<" nHits = "<<track->found()<<std::endl;
+      trackingRecHit_iterator rhbegin = track->recHitsBegin();
+      trackingRecHit_iterator rhend = track->recHitsEnd();
+      int iRH = 0;
+      for(trackingRecHit_iterator recHit = rhbegin; recHit != rhend; ++recHit){
+        const GeomDet* geomDet = theTrackingGeometry->idToDet((*recHit)->geographicalId());
+	std::cout<<"hit "<<iRH<<" loc pos = " <<(*recHit)->localPosition()<<
+	  " glob pos = " <<geomDet->toGlobal((*recHit)->localPosition())<<std::endl;
+        ++iRH;
+      }
     }
-    //bool trackerOK = false; 
-    //if(fabs(track->innerPosition().z())< 500. ||fabs(track->outerPosition().z())< 500.){
-    //trackerOK = true; 
-    //}
     float dpT_ov_pT = 0.;
     if(fabs(track->pt())>0.001){
       dpT_ov_pT =  track->ptError()/ track->pt();
     }
-    //bool closeToMagnet = (fabs(track->innerPosition().z())< 750. || fabs(track->outerPosition().z())< 750. );
-   
     //---- These define a "good" track
     if(track->normalizedChi2()>maxNormChi2){// quality
       break;
     }
-    DataFlow->Fill(4.);
+    DataFlow->Fill(5.);
     if(track->found()<minTrackHits){// enough data points
       break;
     }
-    DataFlow->Fill(5.);
+    DataFlow->Fill(6.);
     if(!segments->size()){// better have something in the CSC 
       break;
     }
-    DataFlow->Fill(6.);
+    DataFlow->Fill(7.);
     if(magField && (track->p()<minP || track->p()>maxP)){// proper energy range 
       break;
     }
-    DataFlow->Fill(7.);
+    DataFlow->Fill(8.);
     if(magField && (dpT_ov_pT >0.5) ){// not too crazy uncertainty
       break;
     }
-    DataFlow->Fill(8.);
+    DataFlow->Fill(9.);
 
     passTheEvent = true; 
     if (printalot) std::cout<<"good Track"<<std::endl;
@@ -187,7 +191,7 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
     covT *= 1e-20;
     cov_propagated *= 1e-20;
     int charge = track->charge(); 
-    FreeTrajectoryState ftsStart = getFromCLHEP(p3T, r3T, charge, covT, &*(magneticField));
+    FreeTrajectoryState ftsStart = getFromCLHEP(p3T, r3T, charge, covT, &*(theService->magneticField()));
     if (printalot){
       std::cout<<" p = "<<track->p()<<" norm chi2 = "<<track->normalizedChi2()<<std::endl;
       std::cout<<" dump the very first FTS  = "<<debug.dumpFTS(ftsStart)<<std::endl;
@@ -239,8 +243,7 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
 	std::cout<<" dump FTS start  = "<<debug.dumpFTS(ftsStart)<<std::endl;
       }
       //---- propagate to this ME
-      //tSOSDest = shPropTr->propagate(ftsStart, cscGeom->idToDet(detId)->surface());
-      tSOSDest = propagate(ftsStart, cscGeom->idToDet(detId)->surface(), shProp_along, shProp_opposite, shProp_any);
+      tSOSDest = propagate(ftsStart, cscGeom->idToDet(detId)->surface());
       if(tSOSDest.isValid()){
 	ftsStart = *tSOSDest.freeState();
 	if (printalot) std::cout<<"  dump FTS end   = "<<debug.dumpFTS(ftsStart)<<std::endl;
@@ -266,7 +269,7 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
 	    chamberCandidates(refME[iSt].station(), refME[iSt].ring(), phi, coupleOfChambers);
 	    //---- loop over the two chamber candidates
 	    for(uint iCh =0;iCh<coupleOfChambers.size();++iCh){
-	      DataFlow->Fill(9.);  
+	      DataFlow->Fill(11.);  
 	      if (printalot) std::cout<<" Check chamber N = "<<coupleOfChambers.at(iCh)<<std::endl;;
 	      CSCDetId theCSCId(refME[iSt].endcap(), refME[iSt].station(), refME[iSt].ring(), coupleOfChambers.at(iCh));
 	      const CSCChamber* cscChamber = cscGeom->chamber(theCSCId.chamberId());
@@ -285,20 +288,23 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
 		}
 		continue;
 	      }
+              DataFlow->Fill(13.);
 	      //---- propagate to the chamber (from this ME) if it is a different surface (odd/even chambers)
 	      if(dz>0.1){// i.e. non-zero (float 0 check is bad) 
 		//if(fabs(zChanmber - zFTS ) > 0.1){
-		tSOSDest = propagate(ftsStart, cscGeom->idToDet(cscChamber->geographicalId())->surface(), 
-				     shProp_along, shProp_opposite, shProp_any);
+		tSOSDest = propagate(ftsStart, cscGeom->idToDet(cscChamber->geographicalId())->surface());		     
 		if(tSOSDest.isValid()){
 		  ftsStart = *tSOSDest.freeState();
 		}
 		else{
-		  std::cout<<"TSOS not valid! Break."<<std::endl;
+		  if(printalot) std::cout<<"TSOS not valid! Break."<<std::endl;
 		  break;
 		}
 	      }
-	      DataFlow->Fill(11.);  
+              else{
+                if(printalot) std::cout<<" info: dz<0.1"<<std::endl;
+              }
+	      DataFlow->Fill(15.);  
 	      FreeTrajectoryState ftsInit = ftsStart;
 	      bool inDeadZone = false;
 	      //---- loop over the 6 layers
@@ -312,7 +318,7 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
 			   <<cscChamber->layer(iLayer+1)->surface().position().phi()<<std::endl;
 		}
 		//---- propagate to this layer
-		tSOSDest = propagate(ftsInit, cscChamber->layer(iLayer+1)->surface(), shProp_along, shProp_opposite, shProp_any);
+		tSOSDest = propagate(ftsInit, cscChamber->layer(iLayer+1)->surface());
 		if(tSOSDest.isValid()){
 		  ftsInit = *tSOSDest.freeState();
 		  if (printalot) std::cout<<" Propagation between layers successful:  dump FTS end  = "<<debug.dumpFTS(ftsInit)<<std::endl;
@@ -344,10 +350,10 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
 		  break;
 		}
 	      }
-	      DataFlow->Fill(13.);
+	      DataFlow->Fill(17.);
 	      //---- Is a track in a sensitive area for each layer?  
 	      if(!inDeadZone){//---- for any layer
-		DataFlow->Fill(15.);  
+		DataFlow->Fill(19.);  
 		if (printalot) std::cout<<"Do efficiencies..."<<std::endl;
 		//---- Do efficiencies
 		if(useDigis){
@@ -359,12 +365,18 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
 		  recSimHitEfficiency(theCSCId, ftsStart);
 		}
 	      }
+              else{
+                if(printalot) std::cout<<" Not in active area for all layers"<<std::endl;
+	      }
 	    }
 	    if(tSOSDest.isValid()){
 	      ftsStart = *tSOSDest.freeState();
 	    }
 	  }
 	}
+      }
+      else{
+        if (printalot) std::cout<<" TSOS not valid..."<<std::endl;
       }
     }
   }
@@ -1300,30 +1312,36 @@ void CSCEfficiency::chooseDirection(Hep3Vector & innerPosition, Hep3Vector & out
   }
 }
 //
-TrajectoryStateOnSurface CSCEfficiency::propagate(FreeTrajectoryState & ftsStart, const BoundPlane &bpDest,
-						  edm::ESHandle<Propagator> &shProp_along,
-						  edm::ESHandle<Propagator> &shProp_opposite,
-						  edm::ESHandle<Propagator> &shProp_any){
+const Propagator* CSCEfficiency::propagator(std::string propagatorName) const {
+  return &*theService->propagator(propagatorName);
+}
+  
+//
+TrajectoryStateOnSurface CSCEfficiency::propagate(FreeTrajectoryState & ftsStart, const BoundPlane &bpDest){
   TrajectoryStateOnSurface tSOSDest;
-  edm::ESHandle<Propagator> shProp_chosen;
+  std::string propagatorName;
+/*
+// it would work if cosmic muons had properly assigned direction...
   bool dzPositive = bpDest.position().z() - ftsStart.position().z() > 0 ? true : false;
-
  //---- Be careful with trigger conditions too
   if(!isIPdata){
     bool rightDirection = !(alongZ^dzPositive);
     if(rightDirection){
-      shProp_chosen = shProp_along;// or _any always?
+      if(printalot) std::cout<<" propagate along momentum"<<std::endl;
+      propagatorName = "SteppingHelixPropagatorAlong";
     }
     else{
-      shProp_chosen = shProp_opposite;
+      if(printalot) std::cout<<" propagate opposite momentum"<<std::endl;
+      propagatorName = "SteppingHelixPropagatorOpposite";
     }
   }
   else{
-    shProp_chosen = shProp_any; 
+    if(printalot) std::cout<<" propagate any (momentum)"<<std::endl;
+    propagatorName = "SteppingHelixPropagatorAny";
   }
-  const SteppingHelixPropagator* shPropTr =
-    dynamic_cast<const SteppingHelixPropagator*>(&*shProp_chosen);
-  tSOSDest = shPropTr->propagate(ftsStart, bpDest);
+*/
+  propagatorName = "SteppingHelixPropagatorAny";
+  tSOSDest = propagator(propagatorName)->propagate(ftsStart, bpDest);	
   return tSOSDest;
 }
 //
@@ -1699,6 +1717,7 @@ CSCEfficiency::CSCEfficiency(const ParameterSet& pset){
 
 // Destructor
 CSCEfficiency::~CSCEfficiency(){
+  if (theService) delete theService; 
   // Write the histos to a file
   theFile->cd();
   //
