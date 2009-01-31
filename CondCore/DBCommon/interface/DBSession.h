@@ -9,7 +9,7 @@
 */
 //
 // Author:      Zhen Xie
-// $Id: DBSession.h,v 1.10 2008/11/13 18:31:12 xiezhen Exp $
+// $Id: DBSession.h,v 1.11 2008/12/17 15:53:18 xiezhen Exp $
 //
 #include <string>
 //#include "CoralKernel/Context.h"
@@ -25,16 +25,24 @@ namespace pool{
   class IBlobStreamingService;
 }
 namespace cond{
+
+  // session configurartion, later more code, now just one set of defaults
+  // move to SessionConfiguration?
+  enum ConfDefaults { coralDefaults, cmsDefaults, prodDefaults, toolDefaults, webDefaults}; 
+
   class SessionConfiguration;
   class CoralServiceManager;
   /*
   **/
   class DBSession{
   public:
-    DBSession();
+    DBSession(ConfDefaults confDef=cmsDefaults);
     ~DBSession();
     void open();
     //void close();
+
+    void config(ConfDefaults confDef);
+
     coral::IConnectionService& connectionService();
     coral::IRelationalService& relationalService();
     coral::IAuthenticationService& authenticationService() ;
@@ -44,8 +52,8 @@ namespace cond{
     cond::SessionConfiguration& configuration();
   private:
     //    coral::IHandle<coral::Context> m_context;
-    SessionConfiguration* m_sessionConfig;
-    CoralServiceManager* m_pluginmanager;
+    SessionConfiguration m_sessionConfig;
+    CoralServiceManager m_pluginmanager;
   };
 }//ns cond
 #endif

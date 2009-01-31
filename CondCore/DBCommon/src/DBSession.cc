@@ -1,4 +1,4 @@
-// $Id: DBSession.cc,v 1.26 2008/12/17 15:53:18 xiezhen Exp $
+// $Id: DBSession.cc,v 1.27 2008/12/18 16:44:19 xiezhen Exp $
 //coral includes
 #include "CoralKernel/Context.h"
 #include "CoralKernel/IHandle.h"
@@ -13,23 +13,30 @@
 #include "POOLCore/IBlobStreamingService.h"
 //local includes
 #include "CondCore/DBCommon/interface/DBSession.h"
-#include "CondCore/DBCommon/interface/SessionConfiguration.h"
+
 #include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
+
 #include "CondCore/DBCommon/interface/Exception.h"
-#include "CondCore/DBCommon/interface/CoralServiceManager.h"
 // pool includes
 #include <boost/filesystem/operations.hpp>
 //#include <iostream>
-cond::DBSession::DBSession(){ 
-  m_sessionConfig = new cond::SessionConfiguration;
-  m_pluginmanager = new cond::CoralServiceManager;
+cond::DBSession::DBSession(ConfDefaults confDef=cmsDefaults){ 
+  config(confDef);
 }
-cond::DBSession::~DBSession(){
-  delete m_sessionConfig;
-  delete m_pluginmanager;
+
+void cond::DBSession::config(ConfDefaults confDef) {
+  if (confDef!=coralDefaults) {
+    configuration().connectionConfiguration()->disablePoolAutomaticCleanUp();
+    configuration().connectionConfiguration()->setConnectionTimeOut(0);
+  }
+
 }
+
+
+cond::DBSession::~DBSession(){}
+
 void cond::DBSession::open(){
-  switch ( m_sessionConfig->messageLevel() ) {
+  switch ( m_sessionConfig.messageLevel() ) {
   case cond::Error :
     { coral::MessageStream::setMsgVerbosity( coral::Error );
       break;
@@ -50,7 +57,7 @@ void cond::DBSession::open(){
     { coral::MessageStream::setMsgVerbosity( coral::Error ); }
   }
   //load authentication service
-  if( m_sessionConfig->authenticationMethod()== cond::XML ) {
+  if( m_sessionConfig.authenticationMethod()== cond::XML ) {
     
     boost::filesystem::path authPath( m_sessionConfig->authName() );
     if(boost::filesystem::is_directory(m_sessionConfig->authName())){
@@ -67,8 +74,8 @@ void cond::DBSession::open(){
   coral::IConnectionService& connSrv = connectionService();
   connSrv.configuration().setAuthenticationService(authServ);
   coral::IConnectionServiceConfiguration& conserviceConfig = connectionService().configuration();
-  cond::ConnectionConfiguration* conConfig=m_sessionConfig->connectionConfiguration();
-  if(m_sessionConfig->isSQLMonitoringOn()){
+  cond::ConnectionConfiguration* conConfig=m_sessionConfig.connectionConfiguration();
+  if(m_sessionConfig.isSQLMonitoringOn()){
     coral::Context::instance().loadComponent( "COND/Services/SQLMonitoringService",m_pluginmanager);
     conConfig->setMonitorLevel(coral::monitor::Trace);
   }
@@ -121,5 +128,5 @@ cond::DBSession::blobStreamingService(){
 }
 cond::SessionConfiguration& 
 cond::DBSession::configuration(){
-  return *m_sessionConfig;
+  return m_sessionConfig;
 }
