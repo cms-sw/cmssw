@@ -2,6 +2,8 @@
 
 #include <cmath>
 #include <iostream>
+#include <cstring>
+#include <cstdlib>
 using namespace muonisolation;
 using namespace std;
 
