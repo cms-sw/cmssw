@@ -19,7 +19,7 @@
 // pool includes
 #include <boost/filesystem/operations.hpp>
 //#include <iostream>
-cond::DBSession::DBSession(ConfDefaults confDef=cmsDefaults){ 
+cond::DBSession::DBSession(ConfDefaults confDef){ 
   config(confDef);
 }
 
@@ -58,8 +58,8 @@ void cond::DBSession::open(){
   //load authentication service
   if( m_sessionConfig.authenticationMethod()== cond::XML ) {
     
-    boost::filesystem::path authPath( m_sessionConfig->authName() );
-    if(boost::filesystem::is_directory(m_sessionConfig->authName())){
+    boost::filesystem::path authPath( m_sessionConfig.authName() );
+    if(boost::filesystem::is_directory(m_sessionConfig.authName())){
       authPath /= boost::filesystem::path("authentication.xml");
     }
     std::string authName=authPath.string();
@@ -75,7 +75,7 @@ void cond::DBSession::open(){
   coral::IConnectionServiceConfiguration& conserviceConfig = connectionService().configuration();
   cond::ConnectionConfiguration* conConfig=m_sessionConfig.connectionConfiguration();
   if(m_sessionConfig.isSQLMonitoringOn()){
-    coral::Context::instance().loadComponent( "COND/Services/SQLMonitoringService",m_pluginmanager);
+    coral::Context::instance().loadComponent( "COND/Services/SQLMonitoringService",&m_pluginmanager);
     conConfig->setMonitorLevel(coral::monitor::Trace);
   }
   if( conConfig ){
@@ -92,11 +92,11 @@ void cond::DBSession::open(){
     conserviceConfig.setConnectionTimeOut( conConfig->connectionTimeOut() );
     conserviceConfig.setMonitoringLevel( conConfig->monitorLevel() ); 
     if( m_sessionConfig->hasBlobStreamService() ){
-      std::string streamerName=m_sessionConfig->blobStreamerName();
+      std::string streamerName=m_sessionConfig.blobStreamerName();
       if(streamerName.empty()){
-	coral::Context::instance().loadComponent( "COND/Services/TBufferBlobStreamingService",m_pluginmanager );
+	coral::Context::instance().loadComponent( "COND/Services/TBufferBlobStreamingService", &m_pluginmanager );
       }else{
-	coral::Context::instance().loadComponent(streamerName,m_pluginmanager);
+	coral::Context::instance().loadComponent(streamerName, &m_pluginmanager);
       }
     }
   }
