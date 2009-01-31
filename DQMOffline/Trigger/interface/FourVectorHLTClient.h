@@ -7,7 +7,7 @@
    version: 01
    date:  28 Oct 2008
 */
-//$Id: FourVectorHLTClient.h,v 1.2 2008/10/15 09:39:34 rekovic Exp $
+//$Id: FourVectorHLTClient.h,v 1.3 2009/01/26 16:10:54 rekovic Exp $
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -74,6 +74,7 @@ private:
   DQMStore* dbe_;  
   TString sourceDir_;
   TString clientDir_;
+  TString customEffDir_;
 
   vector<TString> hltMEName; // names of all MEs (histos)
   vector<TString> hltPathName; // names of hlt paths from MEs (histos)

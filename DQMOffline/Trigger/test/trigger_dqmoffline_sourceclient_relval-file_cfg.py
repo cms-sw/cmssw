@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DQM")
+
 #
 #  DQM SERVICES
 #
@@ -49,10 +50,14 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     fileNames = 
 	#cms.untracked.vstring('file:test.root')
-        cms.untracked.vstring('/store/relval/CMSSW_2_1_7/RelValZEE/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V7_v1/0001/0C3B40D7-F87D-DD11-A9FB-000423D998BA.root','/store/relval/CMSSW_2_1_7/RelValZEE/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V7_v1/0001/3A5455F3-F87D-DD11-AEF4-000423D94534.root')
+        #cms.untracked.vstring('/store/relval/CMSSW_2_1_7/RelValZEE/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V7_v1/0001/0C3B40D7-F87D-DD11-A9FB-000423D998BA.root','/store/relval/CMSSW_2_1_7/RelValZEE/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V7_v1/0001/3A5455F3-F87D-DD11-AEF4-000423D94534.root')
+        cms.untracked.vstring(
+				'/store/relval/CMSSW_3_0_0_pre6/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP_30X_v1/0005/06F01F20-E9DD-DD11-956F-001617E30CA4.root',
+				'/store/relval/CMSSW_3_0_0_pre6/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP_30X_v1/0005/4CC9FEE5-EDDD-DD11-BA25-000423D99CEE.root'
+				)
+
                             
 )
-
 
 process.MessageLogger = cms.Service("MessageLogger",
     detailedInfo = cms.untracked.PSet(

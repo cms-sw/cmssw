@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-# $Id: FourVectorHLTOffline_cfi.py,v 1.14 2009/01/29 15:33:11 rekovic Exp $
+# $Id: FourVectorHLTOffline_cfi.py,v 1.17 2009/01/30 22:59:02 berryhil Exp $
 
 hltResults = cms.EDFilter("FourVectorHLTOffline",
     plotAll = cms.untracked.bool(False),
@@ -14,8 +14,12 @@ hltResults = cms.EDFilter("FourVectorHLTOffline",
              cms.PSet(
               pathname = cms.string("HLT_Jet110"),
               denompathname = cms.string("HLT_Jet50"),  
+             ),
+             cms.PSet(
+              pathname = cms.string("HLT_L2Mu3"),
+              denompathname = cms.string("HLT_L1Mu"),  
              )
-            ),
+    ),
                           
      # this is I think MC and CRUZET4
     triggerSummaryLabel = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
