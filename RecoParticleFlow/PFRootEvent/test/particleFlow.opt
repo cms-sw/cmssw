@@ -1,0 +1,401 @@
+
+root outfile tauBenchmark.root
+root outtree 1
+
+//colin	mode 1
+
+
+root file ../../Configuration/test/display.root
+
+// filter ------------------------------------------------------------
+
+// filter   nparticles  1
+	
+// filter   taus	     1 2
+
+
+// name of the branches of the input TTree. 
+
+// ECAL rechits branch
+root rechits_ECAL_branch  recoPFRecHits_particleFlowRecHitECAL__PROD.obj
+// HCAL rechits branch
+root rechits_HCAL_branch  recoPFRecHits_particleFlowRecHitHCAL__PROD.obj
+// PS rechits branch
+root rechits_PS_branch    recoPFRecHits_particleFlowRecHitPS__PROD.obj
+
+// ECAL clusters branch
+root clusters_ECAL_branch  recoPFClusters_particleFlowClusterECAL__PROD.obj
+// HCAL clusters branch
+root clusters_HCAL_branch  recoPFClusters_particleFlowClusterHCAL__PROD.obj
+// PS clusters branch
+root clusters_PS_branch    recoPFClusters_particleFlowClusterPS__PROD.obj
+// HepMCProduct branch
+root MCTruth_branch        edmHepMCProduct_source__PROD.obj
+// GSF Track branch
+root gsfrecTracks_branch   recoGsfPFRecTracks_pfTrackElec__PROD.obj
+// Muon branch
+root muon_branch           recoMuons_muons__PROD.obj
+// Conversion branch
+root conversion_branch     recoPFConversions_pfConversions__PROD.obj
+
+// root clusters_island_barrel_branch recoBasicClusters_islandBasicClusters_islandBarrelBasicClusters_PROD.obj
+
+root caloTowers_branch     CaloTowersSorted_towerMaker__PROD.obj
+
+// reconstructed tracks branch
+
+root recTracks_branch      recoPFRecTracks_elecpreid__PROD.obj
+//root stdTracks_branch      recoTracks_iterativeGSWithMaterialTracks__PROD.obj
+root stdTracks_branch      recoTracks_generalTracks__PROD.obj
+
+// true particles branch
+
+root trueParticles_branch  recoPFSimParticles_particleFlowSimParticle__PROD.obj
+
+
+// jet branches:
+
+// Gen Jets read from root file
+root genJetBranchName 	recoGenJets_iterativeCone5GenJets__PROD.obj
+// PF Jets read from root file
+root recPFJetBranchName 	recoPFJets_iterativeCone5PFJets__PROD.obj
+// Calo Jets read from root file
+root recCaloJetBranchName	recoCaloJets_iterativeCone5CaloJets__PROD.obj
+
+
+// GenParticleCandidates
+root genParticleforJets_branch	recoGenParticlesRefs_genParticlesForJets__PROD.obj
+
+// CaloTowersCandidates
+root caloTowerBaseCandidates_branch  recoCandidatesOwned_caloTowers__PROD.obj
+
+// Particle Flow Candidates
+root ParticleFlowCandbranch    recoCandidatesOwned_particleFlowJetCandidates__PROD.obj
+
+
+//---------------
+
+
+
+// display parameters ----------------------------------------------------
+
+// display clusters of type 2 (particle flow clusters)
+display  cluster_algos 2
+display  cluster_lines 0
+
+// size of the eta/phi canvas 
+display  viewsize_etaphi 400 200
+// size of the x/y canvas  
+display  viewsize_xy     400 400
+
+// display the color of the clusters yes/no
+// if yes, the color is equal to the type (type 2 -> red)
+display  color_clusters		1
+
+// when the function PFRootEventManager::lookForMaxRecHit is used
+// the eta/phi display zooms to the rechit with maximum energy. 
+// display/zoom_factor roughly gives the size of the view around this rechit
+// in number of ecal cells	
+display  zoom_factor		5
+
+
+//display reconstructed hits  yes/no
+display rechits                 1
+// display clusters yes/no
+display   clusters              1
+// display reconstructed tracks yes/no
+display  rectracks              1
+// display true particles yes/no
+display  particles              1              
+
+// min pt for simparticles display
+display  particles_ptmin 0
+
+// min pt for rectracks display
+display  rectracks_ptmin 0
+
+//min energy threshold to display hits
+display rechits_enmin    0 
+
+// min energy threshold to display cluster
+display   clusters_enmin  0
+
+
+// display x/y view yes/no
+display  x/y      1
+// display eta/phi view yes/no
+display  eta/phi  1
+// display r/z view yes/no
+display  r/z      1
+
+display cluster_attributes 2 5 20 10
+display track_attributes   8 1 8 8
+display simPart_attributes 4 2 8 
+display drawPFBlock 0
+
+// clustering parameters ---------------------------------------------------
+
+// perform clustering yes/no. If no, clusters are read from the TTree
+clustering on/off 1 
+
+// print debug printouts from the clustering algorithm
+clustering debug 0
+rootevent debug 0
+
+//Find RecHits neighbours: Need to be set to false if using 
+//a version of the clustering using indexes (i.e. after revision 1.20
+//of PFClusterAlgo).
+clustering findRecHitNeighbours 0
+
+// threshold on ECAL barrel rechits. Note that a threshold might have
+// been applied already, see RecoParticleFlow/PFProducer/data/particleFlow.cff
+
+clustering thresh_Ecal_Barrel           0.08
+
+// seed threshold for ECAL barrel rechits
+clustering thresh_Seed_Ecal_Barrel     	0.23
+
+// threshold on ECAL endcap rechits.
+clustering thresh_Ecal_Endcap           0.3
+
+// seed threshold for ECAL endcap rechits
+clustering thresh_Seed_Ecal_Endcap      0.8
+
+// number of neighbours to be considered for seed finding in ECAL. 
+// 4 means that it is checked that the 4 direct neighbours 
+// have a lower energy than the seed. 
+// If set to 8, it is also checked that the diagonal neighbours have a 
+// lower energy.
+clustering neighbours_Ecal		8
+
+// number of crystals around the seed used in the position calculation
+// can be -1 (all crystals), 5, 9
+clustering posCalc_nCrystal_Ecal        9
+clustering posCalc_p1_Ecal              -1
+
+// width of shower in ecal, cm
+clustering shower_Sigma_Ecal		5
+
+// depth correction flag. 0:off, 1:e/gamma mode 2:hadron mode
+// depth correction is only active in ECAL, which has non pointing cells
+// in mode 1, depth = A * (B + log(E))
+// in mode 2, depth = A (to be set correctly !!)
+clustering depthCor_Mode          1
+clustering depthCor_A 		  0.89
+clustering depthCor_B 		  7.4
+// depth correction parameters under the preshower
+clustering depthCor_A_preshower   0.89
+clustering depthCor_B_preshower   4.0
+
+// threshold on HCAL barrel rechits
+clustering thresh_Hcal_Barrel           0.8
+// seed threshold for HCAL barrel rechits
+clustering thresh_Seed_Hcal_Barrel      1.4
+// threshold on HCAL endcap rechits
+clustering thresh_Hcal_Endcap           0.8
+// seed threshold for HCAL endcap rechits
+clustering thresh_Seed_Hcal_Endcap      1.4
+
+
+// number of neighbours to be considered for seed finding in HCAL. 
+// 4 means that it is checked that the 4 direct neighbours 
+// have a lower energy than the seed. The other possibility is 8. 
+// If set to 8, it is also checked that the diagonal neighbours have a 
+// lower energy.
+clustering neighbours_Hcal		4
+clustering posCalc_p1_Hcal            1.0 
+clustering posCalc_nCrystal_Hcal        5
+
+// width of shower in Hcal, cm
+clustering shower_Sigma_Hcal	       10
+
+// threshold on preshower rechits
+clustering thresh_PS			0.0001
+// seed threshold for preshower rechits
+clustering thresh_Seed_PS		0.0005
+
+clustering posCalc_p1_PS                0
+
+// particle flow parameters ----------------------------------------------
+
+
+particle_flow resolution_map_ECAL_eta ${CMSSW_DATA_PATH}/data-RecoParticleFlow-PFBlockProducer/2/RecoParticleFlow/PFBlockProducer/data/resmap_ECAL_eta.dat
+particle_flow resolution_map_ECAL_phi ${CMSSW_DATA_PATH}/data-RecoParticleFlow-PFBlockProducer/2/RecoParticleFlow/PFBlockProducer/data/resmap_ECAL_phi.dat
+particle_flow resolution_map_HCAL_eta ${CMSSW_DATA_PATH}/data-RecoParticleFlow-PFBlockProducer/2/RecoParticleFlow/PFBlockProducer/data/resmap_HCAL_eta.dat
+particle_flow resolution_map_HCAL_phi ${CMSSW_DATA_PATH}/data-RecoParticleFlow-PFBlockProducer/2/RecoParticleFlow/PFBlockProducer/data/resmap_HCAL_phi.dat
+
+// Debug blockAlgo
+blockAlgo debug 0
+// Debug PFAlgo
+PFAlgo debug 0
+
+// Track Quality Cut: Tracks are kept if DPt/Pt < Cut * sigma(Had) 
+// and if nHit >= nHitCut
+particle_flow DPtoverPt_Cut  1. 1. 0.8 0.5
+particle_flow NHit_Cut 3 3 3 6
+
+// chi2 maximum limit for ECAL/Track association
+particle_flow chi2_ECAL_Track  100
+// chi2 maximum limit for HCAL/Track association
+particle_flow chi2_HCAL_Track  100
+// chi2 maximum limit for ECAL/HCAL assoiation
+particle_flow chi2_ECAL_HCAL	10
+
+// chi2 maximum limit for PS/ECAL association
+particle_flow chi2_PS_ECAL	0
+// chi2 maximum limit for PS/Track association
+particle_flow chi2_PS_Track	100
+// chi2 maximum limit for PSH/PSH association
+particle_flow chi2_PSH_PSV	5
+
+// if true, using special algorithm to process
+// multiple track associations to the same hcal cluster
+particle_flow multilink 1
+
+// number of sigmas for neutral energy detection
+particle_flow   nsigma_ECAL    3
+particle_flow   nsigma_HCAL    1.0
+
+//Alogrithm to recover the clusters 
+//that belong to charged hadrons
+particle_flow   clusterRecovery 0
+
+particle_flow   mergedPhotons_mvaCut 		0.5
+particle_flow	mergedPhotons_mvaWeightFile	${CMSSW_RELEASE_BASE}/src/RecoParticleFlow/PFProducer/data/MVAnalysis_MLP.weights.txt
+particle_flow   mergedPhotons_PSCut  0.001   
+
+// PFElectrons
+particle_flow 	final_chi2cut_gsfecal  900.
+particle_flow   final_chi2cut_bremecal  25.
+particle_flow 	final_chi2cut_gsfhcal  100.
+particle_flow   final_chi2cut_bremhcal 100.
+particle_flow 	final_chi2cut_gsfps  100.
+particle_flow   final_chi2cut_bremps  25.
+particle_flow   electron_mvaCut     -0.1
+particle_flow   usePFElectrons      1
+particle_flow   electronID_mvaWeightFile    ${CMSSW_BASE}/src/RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_PfElectrons23Jan.txt
+
+// PFConversions
+particle_flow   usePFConversions      0
+
+// Naive calibration
+// particle_flow   ecalib 0.108 1.050
+particle_flow   ecalib 0 1
+particle_flow 	calib_ECAL_HCAL_eslope  1.05
+particle_flow  	calib_ECAL_HCAL_hslope  1.06
+particle_flow   calib_ECAL_HCAL_offset  6.11
+  
+particle_flow	calib_HCAL_slope    2.17
+particle_flow 	calib_HCAL_offset   1.73
+particle_flow 	calib_HCAL_damping  2.49
+
+particle_flow  newCalib 0
+
+// Brand-new calibration parameters
+//Apply corrections?
+correction	doCorrection		1
+correction	doEtaCorrection		1
+//Bulk correction parameters
+correction	globalP0 		-2.314808
+correction	globalP1 		1.01
+correction	globalP2 		0.0
+//Low energy correction parameters
+correction	correctionLowLimit	1.0
+correction	lowEP0			3.249189e-01
+correction	lowEP1			7.907990e-01
+correction	allowNegativeEnergy     0
+correction	maxEToCorrect		-1.0
+
+//Auto fit evolution function to data
+evolution	ecalECut		0.0
+evolution	hcalECut		0.0
+evolution	barrelEndcapEtaDiv	1.4
+
+//Use hand fitted parameters specified below
+evolution	ecalHcalEcalBarrel	0.67	3.0	1.15	0.90    -0.060	1.4
+evolution 	ecalHcalEcalEndcap	0.46	3.0	1.10	0.40	-0.020	1.4
+evolution 	ecalHcalHcalBarrel	0.46	3.0	1.15	0.30	-0.020	1.4
+evolution	ecalHcalHcalEndcap	0.460	3.0	1.10	0.30	-0.02	1.4
+
+evolution	etaCorrection		1.01   -1.02e-02 5.17e-02 0.563 -0.425 	0.110
+
+
+// print flags ------------------------------------------------------------
+// for PFRootEventManager::print()
+
+// print rechits yes/no
+print rechits  0
+// print clusters yes/no
+print clusters 0
+// print particle flow blocks yes/no
+print PFBlocks     0
+// print reconstructed particles (PFCandidates) yes/no
+print PFCandidates  0
+// print jets yes/no
+print jets 0
+//print Sim Particles yes/no
+print simParticles 0
+// print Gen particles yes/no
+print genParticles 0
+
+
+
+// verbosity 
+print verbosity 0
+
+//tau benchmark options ---------------------------------------------------
+
+tau_benchmark	on/off	1
+
+//debug yes/no
+tau_benchmark debug 0
+	
+//cone size
+tau_benchmark cone_angle 0.5
+
+//Et threshold
+tau_benchmark seed_et 0.4
+
+//distance threshold for merging jets
+tau_benchmark cone_merge 100
+
+//PFJet benchmark options ---------------------------------------------------
+
+pfjet_benchmark	on/off	1
+
+//debug yes/no
+pfjet_benchmark debug 0
+	
+//pfjet benchmark outputfile
+pfjet_benchmark outjetfile pfjetBenchmark.root
+
+//PlotagainstReco  yes/no
+pfjet_benchmark PlotAgainstReco 0
+
+//Plot only the highest energy two jets in the event yes/no
+pfjet_benchmark onlyTwoJets 1
+
+//minimum deltaR distance for matching pfjets/genjets
+pfjet_benchmark deltaRMax 0.1
+
+// FWLITE CMSSW Jet Algorithm options --------------------------------------
+
+jets 	on/off 1
+jets 	debug  0
+
+// Jet Algo : 1= ICone; 2=MCone; 3=FastJet
+jets  algo 1
+//Eta cuts
+jets  EtInputCut 0.0
+jets  EInputCut 0.
+// IC parameter
+jets  seedThreshold 1.0
+jets  coneRadius 0.5
+// MidPointCone
+jets  coneAreaFraction 2
+jets  maxPairSize 2
+jets  maxIterations 100
+jets  overlapThreshold 0.75
+//FastJet
+jets  ptMin 10.
+jets  rParam 1.0
