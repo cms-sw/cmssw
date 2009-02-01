@@ -16,3 +16,6 @@ DEFINE_FWK_MODULE(HLTmmkFilter);
 
 #include "GetJetsFromHLTobject.h"
 DEFINE_FWK_MODULE(GetJetsFromHLTobject);
+
+#include "ConeIsolation.h"
+DEFINE_FWK_MODULE(ConeIsolation);
