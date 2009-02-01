@@ -13,7 +13,9 @@
 
 #include <algorithm>
 #include <iostream>
+#include <vector>
 #include <cmath>
+#include <map>
 
 using namespace std;
 using namespace ctfseeding;
@@ -21,6 +23,13 @@ using namespace ctfseeding;
 typedef PixelRecoRange<float> Range;
 
 typedef ThirdHitPredictionFromCircle::HelixRZ HelixRZ;
+
+namespace {
+  struct LayerRZPredictions {
+    ThirdHitRZPrediction<PixelRecoLineRZ> line;
+    ThirdHitRZPrediction<HelixRZ> helix1, helix2;
+  };
+}
 
 static const double nSigmaRZ = 3.4641016151377544; // sqrt(12.)
 static const double nSigmaPhi = 3.;
@@ -39,8 +48,7 @@ PixelTripletLargeTipGenerator::PixelTripletLargeTipGenerator(const edm::Paramete
 }
 
 void PixelTripletLargeTipGenerator::init(const HitPairGenerator & pairs,
-      const std::vector<SeedingLayer> & layers,
-      LayerCacheType* layerCache)
+      const std::vector<SeedingLayer> &layers, LayerCacheType *layerCache)
 {
   thePairGenerator = pairs.clone();
   theLayers = layers;
@@ -64,28 +72,37 @@ void PixelTripletLargeTipGenerator::hitTriplets(
     const edm::Event & ev,
     const edm::EventSetup& es)
 {
+  edm::ESHandle<TrackerGeometry> tracker;
+  es.get<TrackerDigiGeometryRecord>().get(tracker);
+
   OrderedHitPairs pairs;
   pairs.reserve(30000);
-  OrderedHitPairs::const_iterator ip;
   thePairGenerator->hitPairs(region,pairs,ev,es);
-
   if (pairs.empty())
     return;
 
   int size = theLayers.size();
 
+  map<const DetLayer*, LayerRZPredictions> mapPred;
   const LayerHitMap **thirdHitMap = new const LayerHitMap*[size];
-  for(int il = 0; il < size; il++)
+  for(int il = 0; il < size; il++) {
      thirdHitMap[il] = &(*theLayerCache)(&theLayers[il], region, ev, es);
-
-  edm::ESHandle<TrackerGeometry> tracker;
-  es.get<TrackerDigiGeometryRecord>().get(tracker);
+     const DetLayer *layer = theLayers[il].detLayer();
+     LayerRZPredictions &predRZ = mapPred[layer];
+     predRZ.line.initLayer(layer);
+     predRZ.helix1.initLayer(layer);
+     predRZ.helix2.initLayer(layer);
+     predRZ.line.initTolerance(extraHitRZtolerance);
+     predRZ.helix1.initTolerance(extraHitRZtolerance);
+     predRZ.helix2.initTolerance(extraHitRZtolerance);
+  }
 
   double curv = PixelRecoUtilities::curvature(1. / region.ptMin(), es);
 
-  for(ip = pairs.begin(); ip != pairs.end(); ip++) {
-    const TrackingRecHit * h1 = (*ip).inner();
-    const TrackingRecHit * h2 = (*ip).outer();
+  for(OrderedHitPairs::const_iterator ip = pairs.begin();
+      ip != pairs.end(); ++ip) {
+    const TrackingRecHit *h1 = ip->inner();
+    const TrackingRecHit *h2 = ip->outer();
     GlobalPoint gp1 = tracker->idToDet( 
         h1->geographicalId())->surface().toGlobal(h1->localPosition());
     GlobalPoint gp2 = tracker->idToDet( 
@@ -94,14 +111,13 @@ void PixelTripletLargeTipGenerator::hitTriplets(
     PixelRecoLineRZ line(gp1, gp2);
     PixelRecoPointRZ point2(gp2.perp(), gp2.z());
     ThirdHitPredictionFromCircle predictionRPhi(gp1, gp2, extraHitRPhitolerance);
-    ThirdHitRZPrediction<PixelRecoLineRZ> predLineRZ(&line, extraHitRZtolerance);
 
     Range generalCurvature = predictionRPhi.curvature(region.originRBound());
     if (!intersect(generalCurvature, Range(-curv, curv)))
       continue;
 
-    for (int il=0; il <=size-1; il++) {
-      const DetLayer * layer = theLayers[il].detLayer();
+    for(int il = 0; il < size; il++) {
+      const DetLayer *layer = theLayers[il].detLayer();
       bool pixelLayer = layer->subDetector() == GeomDetEnumerators::PixelBarrel ||
                         layer->subDetector() == GeomDetEnumerators::PixelEndcap;
       bool barrelLayer = layer->location() == GeomDetEnumerators::barrel;
@@ -109,10 +125,10 @@ void PixelTripletLargeTipGenerator::hitTriplets(
       Range curvature = generalCurvature;
       ThirdHitCorrection correction(es, region.ptMin(), layer, line, point2, useMScat);
 
-      predLineRZ.initLayer(layer);
+      LayerRZPredictions &predRZ = mapPred.find(layer)->second;
+      predRZ.line.initPropagator(&line);
 
       HelixRZ helix;
-      ThirdHitRZPrediction<HelixRZ> predHelixRZ;
       Range rzRange;
       if (useBend) {
         // For the barrel region:
@@ -134,7 +150,7 @@ void PixelTripletLargeTipGenerator::hitTriplets(
         // and potentially fail the layer entirely
 
         if (!barrelLayer) {
-          Range z3s = predLineRZ.detRange();
+          Range z3s = predRZ.line.detRange();
           double z3 = z3s.first < 0 ? max(z3s.first, z3s.second)
                                     : min(z3s.first, z3s.second);
           double maxCurvature = HelixRZ::maxCurvature(&predictionRPhi,
@@ -146,44 +162,42 @@ void PixelTripletLargeTipGenerator::hitTriplets(
         helix = HelixRZ(&predictionRPhi, gp1.z(), gp2.z(), curvature.first);
         HelixRZ helix2(&predictionRPhi, gp1.z(), gp2.z(), curvature.second);
 
-        predHelixRZ = ThirdHitRZPrediction<HelixRZ>(&helix,
-                                                    extraHitRZtolerance);
-        ThirdHitRZPrediction<HelixRZ> predHelix2RZ(&helix2,
-                                                   extraHitRZtolerance);
+        predRZ.helix1.initPropagator(&helix);
+        predRZ.helix2.initPropagator(&helix2);
 
-        Range rzRanges[2] = { predHelixRZ(layer), predHelix2RZ(layer) };
+        Range rzRanges[2] = { predRZ.helix1(), predRZ.helix2() };
         rzRange.first = min(rzRanges[0].first, rzRanges[1].first);
         rzRange.second = max(rzRanges[0].second, rzRanges[1].second);
 
         // if the allowed curvatures include a straight line,
         // this can give us another extremum for allowed r/z
         if (curvature.first * curvature.second < 0.0) {
-          Range rzLineRange = predLineRZ();
+          Range rzLineRange = predRZ.line();
           rzRange.first = min(rzRange.first, rzLineRange.first);
           rzRange.second = max(rzRange.second, rzLineRange.second);
         }
       } else
-        rzRange = predLineRZ(layer);
+        rzRange = predRZ.line();
 
-      if (rzRange.first == rzRange.second)
+      if (rzRange.first >= rzRange.second)
         continue;
 
       correction.correctRZRange(rzRange);
 
       Range phiRange;
       if (useFixedPreFiltering) { 
-        float phi0 = (*ip).outer().phi();
+        float phi0 = ip->outer().phi();
         phiRange = Range(phi0 - dphi, phi0 + dphi);
       } else {
         Range radius;
 
         if (barrelLayer) {
-          radius = predLineRZ.detRange();
-          if (!intersect(rzRange, predLineRZ.detSize()))
+          radius = predRZ.line.detRange();
+          if (!intersect(rzRange, predRZ.line.detSize()))
             continue;
         } else {
           radius = rzRange;
-          if (!intersect(radius, predLineRZ.detSize()))
+          if (!intersect(radius, predRZ.line.detSize()))
             continue;
         }
 
@@ -202,8 +216,8 @@ void PixelTripletLargeTipGenerator::hitTriplets(
           pixelLayer ? thirdHitMap[il]->loop(phiRange, rzRange)
                      : thirdHitMap[il]->loop();
 
-      const SeedingHit * th;
-      while ( (th = thirdHits.getHit()) ) {
+      const SeedingHit *th;
+      while((th = thirdHits.getHit())) {
          float p3_r = th->r();
          float p3_z = th->z();
          float p3_phi = th->phi();
@@ -221,11 +235,11 @@ void PixelTripletLargeTipGenerator::hitTriplets(
          if (useBend) {
            HelixRZ updatedHelix(&predictionRPhi, gp1.z(), gp2.z(),
            	                predictionRPhi.curvature(thc));
-           rangeRZ = predHelixRZ(barrelLayer ? p3_r : p3_z, updatedHelix);
+           rangeRZ = predRZ.helix1(barrelLayer ? p3_r : p3_z, updatedHelix);
          } else {
            float tIP = predictionRPhi.transverseIP(thc);
            PixelRecoLineRZ updatedLine(line.origin(), point2, tIP);
-           rangeRZ = predLineRZ(barrelLayer ? p3_r : p3_z, line);
+           rangeRZ = predRZ.line(barrelLayer ? p3_r : p3_z, line);
          }
          correction.correctRZRange(rangeRZ);
 
@@ -234,29 +248,29 @@ void PixelTripletLargeTipGenerator::hitTriplets(
                  : hit->globalPositionError().rerr(hit->globalPosition()));
          rangeRZ.first -= err, rangeRZ.second += err;
 
-         if (!rangeRZ.inside(barrelLayer ? p3_z : p3_r)) continue;
+         if (!rangeRZ.inside(barrelLayer ? p3_z : p3_r))
+           continue;
 
-         result.push_back(OrderedHitTriplet((*ip).inner(), (*ip).outer(), *th)); 
+         result.push_back(OrderedHitTriplet(ip->inner(), ip->outer(), *th)); 
       }
     }
   }
-  delete [] thirdHitMap;
+  delete[] thirdHitMap;
 }
 
 bool PixelTripletLargeTipGenerator::checkPhiInRange(float phi, float phi1, float phi2) const
 {
-  while (phi > phi2) phi -= 2*M_PI;
-  while (phi < phi1) phi += 2*M_PI;
+  while (phi > phi2) phi -= 2. * M_PI;
+  while (phi < phi1) phi += 2. * M_PI;
   return phi <= phi2;
 }  
 
-std::pair<float,float> PixelTripletLargeTipGenerator::mergePhiRanges(
-          const std::pair<float,float>& r1, const std::pair<float,float>& r2) const
+std::pair<float, float> PixelTripletLargeTipGenerator::mergePhiRanges(
+          const std::pair<float, float> &r1, const std::pair<float, float> &r2) const
 {
-  float r2_min=r2.first;
-  float r2_max=r2.second;
-  while (r1.first-r2_min > M_PI) { r2_min += 2*M_PI; r2_max += 2*M_PI;}
-  while (r1.first-r2_min < -M_PI) { r2_min -= 2*M_PI;  r2_max -= 2*M_PI; }
-
-  return std::make_pair(min(r1.first,r2_min),max(r1.second,r2_max));
+  float r2Min = r2.first;
+  float r2Max = r2.second;
+  while (r1.first - r2Min > +M_PI) r2Min += 2. * M_PI, r2Max += 2. * M_PI;
+  while (r1.first - r2Min < -M_PI) r2Min -= 2. * M_PI, r2Max -= 2. * M_PI;
+  return std::make_pair(min(r1.first, r2Min), max(r1.second, r2Max));
 }

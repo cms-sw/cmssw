@@ -26,7 +26,7 @@ public:
   const Range & detRange() const { return theDetRange; }
   const Range & detSize() const { return theDetSize; }
 
-  void initTolerance(float tolerance) {  theTolerance = Margin(tolerance, tolerance); }
+  void initTolerance(float tolerance) { theTolerance = Margin(tolerance, tolerance); }
   void initLayer(const DetLayer *layer);
 
 protected:
