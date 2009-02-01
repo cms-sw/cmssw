@@ -1,7 +1,7 @@
-#!/bin/env python
+#!/usr/bin/env python
 
 
-import shutil, sys, os
+import shutil, sys, os, re
 
 from string import Template
 
@@ -33,8 +33,21 @@ def processFile( file, outputDir ):
           else:
                return file
      
-     
 
+def readCaption( line ):
+
+     if( re.compile('^\s*$').match(line) ):
+          raise Exception
+          
+     p = re.compile('^\s*(\S+)\s*\"(.*)\"');
+     m = p.match(line)
+     if m:
+          pic = m.group(1)
+          caption = m.group(2)
+          return (pic, caption)
+     else:
+          print 'bad caption format: "%s"' % line
+          raise Exception
 
 parser = OptionParser()
 parser.usage = "usage: %prog <dir with plots> <template>"
@@ -53,32 +66,36 @@ parser.add_option("-s", "--simulation", dest="pySim",
                   help="python file for the simulation",
                   default="None")
 
-parser.add_option("-b", "--benchmark", dest="pyBenchmark",
-                  help="python file for the production of the benchmark root files",
-                  default="None")
+#parser.add_option("-b", "--benchmark", dest="pyBenchmark",
+#                  help="python file for the production of the benchmark root files",
+#                  default="None")
 
-parser.add_option("-m", "--macro", dest="macro",
-                  help="root macro used for the benchmark plots",
-                  default="None")
+#parser.add_option("-m", "--macro", dest="macro",
+#                  help="root macro used for the benchmark plots",
+#                  default="None")
 
-
-
+# the benchmark root file is NOT an option!
+rootFile = 'benchmark.root'
 
 (options,args) = parser.parse_args()
  
-if len(args)!=2:
+if len(args)!=0:
     parser.print_help()
     sys.exit(1)
 
 
-dirPlots = args[0]
-templates = args[1]
+#dirPlots = args[0]
+#templates = args[1]
+
+dirPlots = './'
+templates = '../Tools/templates'
 
 recipe = options.recipe
 genConfig = options.pyGenSource
 simConfig = options.pySim
-benchmarkConfig = options.pyBenchmark
-macro = options.macro
+benchmarkConfig = 'benchmark_cfg.py'
+macro = 'plot.C'
+date =  os.popen( 'date' ).read()
 
 # information about CMSSW
 cmssw = os.environ['CMSSW_VERSION']
@@ -103,11 +120,11 @@ else:
 pictures.sort()
 #print 'pictures: ', pictures
 
-
 testFileType(genConfig, ".py")
 testFileType(simConfig, ".py")
 testFileType(benchmarkConfig, ".py")
 testFileType(macro, ".C")
+
 
 indexhtml = "%s/%s" % (templates,"index.html")
 testFileType(indexhtml, ".html")
@@ -131,19 +148,28 @@ genConfigLink = processFile(genConfig, outputDir  )
 simConfigLink = processFile( simConfig, outputDir )
 benchmarkConfigLink = processFile( benchmarkConfig, outputDir )
 macroLink = processFile(macro, outputDir  )
+rootFileLink = processFile(rootFile, outputDir  )
 
 comments = 'no comment'
 
-imgTemplate = '<IMG src="%s" width="500" align="left" border="0">'
+
+imgTemplate = '<IMG src="%s" width="500" align="left" border="0"><br clear="ALL">'
 images = ''
-for pic in pictures:
-    img = imgTemplate % os.path.basename(pic)
-    #print img
-    images = "%s\t%s\n" % (images, img)
-    shutil.copy(pic, outputDir) 
 
+# open legend file
+legend = 'legend.txt'
 
-
+legendContents = open( legend )
+for line in legendContents:
+     try:
+          (picfile, caption) = readCaption( line )
+          img = imgTemplate % os.path.basename(picfile)
+          images = "%s<h3>%s:</h3>\n%s\n" % (images, caption, img)
+          # what to do if the file's not there? 
+          # : print a warning
+          shutil.copy(picfile, outputDir) 
+     except Exception:
+          raise
 
 ifile = open( indexhtml )
 indexTemplate = ifile.read()
@@ -159,11 +185,15 @@ subst = s.substitute(title = title,
                      benchmarkConfig = os.path.basename(benchmarkConfig),
                      benchmarkConfigLink = benchmarkConfigLink,
                      macro =  os.path.basename(macro), 
-                     macroLink = macroLink, 
+                     macroLink = macroLink,
+                     rootFile =  os.path.basename(rootFile), 
+                     rootFileLink =  rootFileLink, 
                      comments = comments,
                      cmssw = cmssw,
                      showTags = showTags,
                      images = images, 
+                     username = os.environ['USER'],
+                     date = date
                      )
 ofile = open( '%s/index.html' % outputDir, 'w' )
 ofile.write( subst )
