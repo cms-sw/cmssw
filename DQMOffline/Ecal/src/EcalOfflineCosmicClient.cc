@@ -93,7 +93,6 @@ void EcalOfflineCosmicClient::doProfileX(MonitorElement* me, string name) {
 }
 
 void EcalOfflineCosmicClient::doProfile(string path, string name) {
-   cout << path << " + " << name << endl;
    MonitorElement* me = dbe_->get(path+"/"+name);
    if(me != NULL) {
       string oldName = name;
@@ -109,6 +108,4 @@ void EcalOfflineCosmicClient::doProfile(string path, string name) {
 
       dbe_->removeElement(oldName);
    }
-   else
-      cout << "ME is NULL!" << endl;
 }
