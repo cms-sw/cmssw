@@ -16,12 +16,8 @@ process.source = cms.Source("PoolSource",
 )
 
 
-
-process.bscTrigger=cms.EDProducer("BSCTrigger",
-                          bitNumbers=cms.vuint32(36,37,38,39,40,41),
-                          bitPrescales=cms.vuint32(1,1,1,1,1,1),
-                          bitNames=cms.vstring('BSC_H_IP','BSC_H_IM','BSC_H_OP','BSC_H_OM','BSC_MB_I','BSC_MB_O')
-                          )
+# BSC Trigger simulation 
+process.load("L1TriggerOffline.L1Analyzer.bscTrigger_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
     suppressInfo = cms.untracked.vstring(),
