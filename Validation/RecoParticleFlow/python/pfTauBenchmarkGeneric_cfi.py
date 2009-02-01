@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 jets = 'iterativeCone5PFJets'
 
 pfTauBenchmarkGeneric = cms.EDAnalyzer("GenericBenchmarkAnalyzer",
-    OutputFile = cms.untracked.string('tauBenchmarkGeneric.root'),
+    OutputFile = cms.untracked.string('benchmark.root'),
     InputTruthLabel = cms.InputTag('tauGenJets'),
     maxEta = cms.double(2.5),
     recPt = cms.double(5.0),
