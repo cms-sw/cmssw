@@ -11,5 +11,8 @@ bscTrigger=cms.EDProducer("BSCTrigger",
                           coincidence=cms.double(72.85),
                           resolution=cms.double(3.),
                           minbiasInnerMin=cms.int32(1),
-                          minbiasOuterMin=cms.int32(1))
+                          minbiasOuterMin=cms.int32(1),
+			  simHits=cms.string('g4SimHits'),
+			  bscHits=cms.string('BSCHits')
+			  )
 
