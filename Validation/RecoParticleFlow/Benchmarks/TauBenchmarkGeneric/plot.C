@@ -3,7 +3,7 @@
 gROOT->LoadMacro("../Tools/NicePlot.C");
 InitNicePlot();
 
-TFile f("tauBenchmarkGeneric.root");
+TFile f("benchmark.root");
 
 
 TCanvas c1;
