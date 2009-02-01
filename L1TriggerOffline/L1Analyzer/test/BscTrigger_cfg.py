@@ -1,21 +1,18 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("Rec")
+process = cms.Process("Demo")
 
 process.load('Configuration/EventContent/EventContent_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    '/store/relval/2008/7/15/RelVal-RelValMinBias-STARTUP_V4_InitialLumiPileUp_v1-2nd/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/CMSSW_2_1_0_pre8-RelVal-STARTUP_V4_InitialLumiPileUp_v1-2nd-STARTUP_V4-unmerged/0001/44ED7716-9B52-DD11-A23E-0019DB29C614.root',
-       '/store/relval/2008/7/15/RelVal-RelValMinBias-STARTUP_V4_InitialLumiPileUp_v1-2nd/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/CMSSW_2_1_0_pre8-RelVal-STARTUP_V4_InitialLumiPileUp_v1-2nd-STARTUP_V4-unmerged/0001/5A26A125-9B52-DD11-9111-00161757BF42.root',
-       '/store/relval/2008/7/15/RelVal-RelValMinBias-STARTUP_V4_InitialLumiPileUp_v1-2nd/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/CMSSW_2_1_0_pre8-RelVal-STARTUP_V4_InitialLumiPileUp_v1-2nd-STARTUP_V4-unmerged/0001/820AE631-9D52-DD11-AEB3-0019DB29C620.root',
-       '/store/relval/2008/7/15/RelVal-RelValMinBias-STARTUP_V4_InitialLumiPileUp_v1-2nd/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/CMSSW_2_1_0_pre8-RelVal-STARTUP_V4_InitialLumiPileUp_v1-2nd-STARTUP_V4-unmerged/0001/84CFE054-9A52-DD11-B1AA-001617C3B70E.root',
-       '/store/relval/2008/7/15/RelVal-RelValMinBias-STARTUP_V4_InitialLumiPileUp_v1-2nd/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/CMSSW_2_1_0_pre8-RelVal-STARTUP_V4_InitialLumiPileUp_v1-2nd-STARTUP_V4-unmerged/0001/98023027-9B52-DD11-9936-0016177CA778.root',
-       '/store/relval/2008/7/15/RelVal-RelValMinBias-STARTUP_V4_InitialLumiPileUp_v1-2nd/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/CMSSW_2_1_0_pre8-RelVal-STARTUP_V4_InitialLumiPileUp_v1-2nd-STARTUP_V4-unmerged/0001/CA3D9B59-9A52-DD11-9D7A-001617C3B5D8.root',
-       '/store/relval/2008/7/15/RelVal-RelValMinBias-STARTUP_V4_InitialLumiPileUp_v1-2nd/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/CMSSW_2_1_0_pre8-RelVal-STARTUP_V4_InitialLumiPileUp_v1-2nd-STARTUP_V4-unmerged/0001/CE71E5E0-9A52-DD11-B509-001617C3B6DE.root')
+'rfio:/castor/cern.ch/user/b/boudoul/220/BH/BSCTrigger/Reco/step2_TrackerHaloMuon_1.root',
+'rfio:/castor/cern.ch/user/b/boudoul/220/BH/BSCTrigger/Reco/step2_TrackerHaloMuon_2.root',
+'rfio:/castor/cern.ch/user/b/boudoul/220/BH/BSCTrigger/Reco/step2_TrackerHaloMuon_3.root'
+
 )
-
-
+)
+process.GlobalTag.globaltag = 'STARTUP_V7::All'
 # BSC Trigger simulation 
 process.load("L1TriggerOffline.L1Analyzer.bscTrigger_cfi")
 
@@ -114,7 +111,7 @@ process.options = cms.untracked.PSet(
 
 process.FEVT = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
-    fileName = cms.untracked.string('/tmp/BSCTrigger.root'),
+    fileName = cms.untracked.string('BSCTrigger.root'),
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('trigger_step')
     )
