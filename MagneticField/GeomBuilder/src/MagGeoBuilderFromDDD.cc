@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/20 23:16:06 $
- *  $Revision: 1.14 $
+ *  $Date: 2009/01/16 16:43:47 $
+ *  $Revision: 1.15 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -52,7 +52,6 @@
 #include <set>
 #include "Utilities/General/interface/precomputed_value_sort.h"
 
-#include "MagneticField/GeomBuilder/src/VolumeBasedMagneticFieldESProducer.h"
 
 bool MagGeoBuilderFromDDD::debug;
 
