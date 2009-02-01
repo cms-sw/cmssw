@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Wed Jul 16 16:11:05 CEST 2008
-// $Id: BSCTrigger.cc,v 1.2 2008/11/17 15:57:17 muriel Exp $
+// $Id: BSCTrigger.cc,v 1.3 2009/01/30 18:23:10 boudoul Exp $
 //
 //
 
@@ -59,6 +59,8 @@ private:
   int theNinner_;
   int theNouter_;      
   int nevt_;
+  std::string TheSimHits_;
+  std::string TheBSCSimHits_;
 };
 
 //
@@ -82,6 +84,9 @@ BSCTrigger::BSCTrigger(const edm::ParameterSet& iConfig)
   theResolution_= iConfig.getParameter<double>("resolution");
   theNinner_=iConfig.getParameter<int>("minbiasInnerMin");
   theNouter_=iConfig.getParameter<int>("minbiasOuterMin");
+  TheSimHits_= iConfig.getParameter<std::string>("simHits");
+  TheBSCSimHits_= iConfig.getParameter<std::string>("bscHits");
+  
   produces<L1GtTechnicalTriggerRecord>();  
   nevt_=0;
 }
@@ -115,7 +120,7 @@ BSCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   float MipEnergy=0.0027;
   float theThreshold=MipFraction*MipEnergy;
   edm::Handle<edm::PSimHitContainer> theBSCHitContainer;
-  iEvent.getByLabel("g4SimHits","BSCHits",theBSCHitContainer);
+  iEvent.getByLabel(TheSimHits_,TheBSCSimHits_,theBSCHitContainer);
   if (!theBSCHitContainer.failedToGet()) {
     for ( int c=0;c<32;++c){
       EnergyBX[c]=0;
