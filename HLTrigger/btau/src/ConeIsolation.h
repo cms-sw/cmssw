@@ -6,7 +6,7 @@
  * It returns two collections: base collection is the JetTag, and extended Collection which is the IsolatedTauTagInfo.
  * The method implemented in the IsolatedTauTagInfo class are used to compute the discriminator variable.
  * A trick is used to link the IsolatedTauTagInfo to a smart reference to the JetTag.   
- *  $Revision: 1.11 $
+ *  $Revision: 1.1 $
  *  \author Simone Gennai
  */
 
@@ -18,7 +18,7 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "RecoTauTag/ConeIsolation/interface/ConeIsolationAlgorithm.h"
+#include "HLTrigger/btau/src/ConeIsolationAlgorithm.h"
 
 
 class ConeIsolation : public edm::EDProducer {
