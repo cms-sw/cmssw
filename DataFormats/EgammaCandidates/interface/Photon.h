@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Photon.h,v 1.23 2008/11/03 21:22:52 nancy Exp $
+ * \version $Id: Photon.h,v 1.24 2008/12/15 19:51:18 nancy Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -125,8 +125,8 @@ namespace reco {
     float e2x5()          const {return e2x5_;}
     float e3x3()          const {return e3x3_;}
     float e5x5()          const {return e5x5_;}
-    float covEtaEta()     const {return covEtaEta_;}
-    float covIetaIeta()   const {return covIetaIeta_;}
+    float sigmaEtaEta()     const {return sqrt(covEtaEta_);}
+    float sigmaIetaIeta()   const {return sqrt(covIetaIeta_);}
     float r1x5 ()         const {return e1x5_/e5x5_;}
     float r2x5 ()         const {return e2x5_/e5x5_;}
     float r9 ()           const {return e3x3_/this->superCluster()->rawEnergy();}  
