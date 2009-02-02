@@ -150,8 +150,7 @@ TrackAssociatorByHits.Quality_SimToReco = 0.5
 photonValidation.minPhoEtCut = 10
 photonValidation.eMax = 500
 photonValidation.etMax = 150
-photonValidation.convTrackMinPtCut = 3.
-
+photonValidation.convTrackMinPtCut = 1.
 
 
 process.FEVT = cms.OutputModule("PoolOutputModule",
