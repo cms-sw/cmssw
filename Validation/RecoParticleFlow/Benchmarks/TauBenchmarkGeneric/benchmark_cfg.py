@@ -14,7 +14,7 @@ fileNames = cms.untracked.vstring(
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(1000)
 )
 
 

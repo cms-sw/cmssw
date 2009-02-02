@@ -5,6 +5,7 @@ class Style : public TH1F {
 Style *s1;
 Style *s2;
 Style *sg1;
+Style *sback;
 
 void InitNicePlot() {
   s1 = new Style(); 
@@ -24,6 +25,10 @@ void InitNicePlot() {
   sg1->SetLineWidth(2);  
   sg1->SetMarkerStyle(21);
 
+  sback =  new Style();
+  sback->SetFillStyle(1001);  
+  sback->SetFillColor(5);  
+  
 }
 
 
@@ -37,6 +42,8 @@ void FormatHisto( TH1* h, const Style* s ) {
 
   h->SetLineWidth( s->GetLineWidth() );
   h->SetLineColor( s->GetLineColor() );
+  h->SetFillStyle( s->GetFillStyle() );
+  h->SetFillColor( s->GetFillColor() );
 }
 
 void FormatPad( TPad* pad, bool grid = true) {
