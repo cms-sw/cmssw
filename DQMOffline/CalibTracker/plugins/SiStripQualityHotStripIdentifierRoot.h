@@ -40,6 +40,7 @@
 #include "TClass.h"
 
 class SiStripHotStripAlgorithmFromClusterOccupancy;
+class SiStripBadAPVAlgorithmFromClusterOccupancy;
 
 class SiStripQualityHotStripIdentifierRoot : public ConditionDBWriter<SiStripBadStrip> {
 
@@ -83,5 +84,6 @@ private:
 
   SiStrip::QualityHistosMap ClusterPositionHistoMap;
   SiStripHotStripAlgorithmFromClusterOccupancy* theIdentifier;
+  SiStripBadAPVAlgorithmFromClusterOccupancy* theIdentifier2;
 };
 #endif
