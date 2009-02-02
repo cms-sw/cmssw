@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_0_0/pre7/HLT/V5 (CMSSW_3_0_0_pre7)
+# /dev/CMSSW_3_0_0/pre7/HLT/V12 (CMSSW_3_1_X_2009-01-28-0200_HLT1)
 # Begin replace statements specific to the FastSim HLT
 # For all HLTLevel1GTSeed objects, make the following replacements:
 #   - L1GtReadoutRecordTag changed from hltGtDigis to gtDigis
@@ -28,7 +28,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_0_0/pre7/HLT/V5')
+  tableName = cms.string('/dev/CMSSW_3_0_0/pre7/HLT/V12')
 )
 
 MCJetCorrectorIcone5 = cms.ESSource( "MCJetCorrectionService",
@@ -296,9 +296,11 @@ pixellayertriplets = cms.ESProducer( "PixelLayerTripletsESProducer",
 )
 sistripconn = cms.ESProducer( "SiStripConnectivity" )
 softLeptonByDistance = cms.ESProducer( "LeptonTaggerByDistanceESProducer",
+  appendToDataLabel = cms.string( "" ),
   distance = cms.double( 0.5 )
 )
 softLeptonByPt = cms.ESProducer( "LeptonTaggerByPtESProducer",
+  appendToDataLabel = cms.string( "" ),
   ipSign = cms.string( "any" )
 )
 trajBuilderL3 = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
@@ -5103,7 +5105,8 @@ hltBSoftmuonL25TagInfos = cms.EDProducer( "SoftLepton",
     refineJetAxis = cms.uint32( 0 ),
     leptonDeltaRCut = cms.double( 0.4 ),
     leptonChi2Cut = cms.double( 0.0 ),
-    leptonQualityCut = cms.double( 0.0 )
+    leptonQualityCut = cms.double( 0.0 ),
+    muonSelection = cms.uint32( 0 )
 )
 hltBSoftmuonL25BJetTags = cms.EDProducer( "JetTagProducer",
     jetTagComputer = cms.string( "softLeptonByDistance" ),
@@ -5123,7 +5126,8 @@ hltBSoftmuonL3TagInfos = cms.EDProducer( "SoftLepton",
     refineJetAxis = cms.uint32( 0 ),
     leptonDeltaRCut = cms.double( 0.4 ),
     leptonChi2Cut = cms.double( 0.0 ),
-    leptonQualityCut = cms.double( 0.0 )
+    leptonQualityCut = cms.double( 0.0 ),
+    muonSelection = cms.uint32( 0 )
 )
 hltBSoftmuonL3BJetTags = cms.EDProducer( "JetTagProducer",
     jetTagComputer = cms.string( "softLeptonByPt" ),
@@ -5555,7 +5559,7 @@ hltFilterL2EtCutSingleLooseIsoTau20 = cms.EDFilter( "HLT1Tau",
 hltFilterL2EcalIsolationSingleLooseIsoTau20 = cms.EDFilter( "HLT1Tau",
     inputTag = cms.InputTag( 'hltL2TauRelaxingIsolationSelector','Isolated' ),
     saveTag = cms.untracked.bool( True ),
-    MinPt = cms.double( 15.0 ),
+    MinPt = cms.double( 20.0 ),
     MaxEta = cms.double( 5.0 ),
     MinN = cms.int32( 1 )
 )
@@ -5569,7 +5573,7 @@ hltFilterL2EtCutSingleLooseIsoTau20Trk5 = cms.EDFilter( "HLT1Tau",
 )
 hltFilterL2EcalIsolationSingleLooseIsoTau20Trk5 = cms.EDFilter( "HLT1Tau",
     inputTag = cms.InputTag( 'hltL2TauRelaxingIsolationSelector','Isolated' ),
-    MinPt = cms.double( 15.0 ),
+    MinPt = cms.double( 20.0 ),
     MaxEta = cms.double( 5.0 ),
     MinN = cms.int32( 1 )
 )
@@ -5647,7 +5651,7 @@ hltFilterL2EtCutDoubleLooseIsoTau15Trk5 = cms.EDFilter( "HLT1Tau",
 )
 hltFilterL2EcalIsolationDoubleLooseIsoTau15Trk5 = cms.EDFilter( "HLT1Tau",
     inputTag = cms.InputTag( 'hltL2TauRelaxingIsolationSelector','Isolated' ),
-    MinPt = cms.double( 20.0 ),
+    MinPt = cms.double( 15.0 ),
     MaxEta = cms.double( 5.0 ),
     MinN = cms.int32( 2 )
 )
