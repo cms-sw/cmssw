@@ -142,6 +142,7 @@ muonsWitht0Correction.inputCollectionLabels = ['ctfWithMaterialTracksP5', 'globa
 muonsWitht0Correction.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks']
 muonsWitht0Correction.fillIsolation = False
 muonsWitht0Correction.timingParameters.UseSegmentT0 = True
+muonsWitht0Correction.timingParameters.MatchParameters.DTsegments = 'dt4DSegmentsT0Seg'
 
 #Sequences
 
