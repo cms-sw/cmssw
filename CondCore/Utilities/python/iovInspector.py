@@ -96,8 +96,10 @@ class Iov :
                v = [i for i in ex.values()]
                ret.append((elem.since(),elem.till(),v))
            return ret  
-
-
+       
+       def timetype(self):
+           return  self.__me.timetype()
+           
 class PayLoad :
     def __init__(self, db, token) :
         self.__db = db
