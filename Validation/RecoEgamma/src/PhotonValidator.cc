@@ -72,8 +72,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2008/11/21 11:20:46 $ 
- **  $Revision: 1.14 $
+ **  $Date: 2009/01/09 10:45:20 $ 
+ **  $Revision: 1.15 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -104,6 +104,7 @@ PhotonValidator::PhotonValidator( const edm::ParameterSet& pset )
 
 
     minPhoEtCut_ = pset.getParameter<double>("minPhoEtCut");   
+    convTrackMinPtCut_ = pset.getParameter<double>("convTrackMinPtCut");   
 
 
     trkIsolExtRadius_ = pset.getParameter<double>("trkIsolExtR");   
@@ -633,8 +634,6 @@ void PhotonValidator::beginJob( const edm::EventSetup& setup)
     p_DPhiTracksAtVtxVsR_ = dbe_->book1D(histname+"All"," Photons:Tracks from conversions: #delta#phi Tracks at vertex vs R ",rBin,rMin, rMax);
 
 
-
-
     histname="hDCotTracks";
     h_DCotTracks_[1][0]= dbe_->book1D(histname+"All"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: all Ecal ",dEtaTracksBin,dEtaTracksMin,dEtaTracksMax); 
     h_DCotTracks_[1][1]= dbe_->book1D(histname+"Barrel"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: Barrel Ecal ",dEtaTracksBin,dEtaTracksMin,dEtaTracksMax); 
@@ -769,6 +768,13 @@ void PhotonValidator::beginJob( const edm::EventSetup& setup)
     hBCEnergyOverTrackPout_[2] = dbe_->book1D(histname+"Endcap","Matrching BC E/P_out: Endcap ",100, 0., 5.);
     
 
+    ////////////// test on OutIn tracks
+    h_OIinnermostHitR_ = dbe_->book1D("OIinnermostHitR"," R innermost hit for OI tracks ",50, 0., 25);
+    h_IOinnermostHitR_ = dbe_->book1D("IOinnermostHitR"," R innermost hit for IO tracks ",50, 0., 25);
+
+    /// test track provenance
+    h_trkProv_ = dbe_->book1D("trkProv"," Track pair provenance ",3, 0., 3.);
+
 
   }
 
@@ -835,6 +841,51 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
   e.getByLabel(conversionIOTrackProducer_, inOutTrkHandle);
   //std::cout  << " ConvPhoAnalyzerWithOfficialAssociation inOutTrack collection size " << (*inOutTrkHandle).size() << "\n";
   
+
+
+ // Loop over Out In Tracks 
+  int iTrk=0;
+  int nHits=0;
+  for( View<reco::Track>::const_iterator    iTk =  (*outInTrkHandle).begin(); iTk !=  (*outInTrkHandle).end(); iTk++) {
+    std::cout  << " Barrel  Out In Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << sqrt( iTk->innerMomentum().Mag2() ) << "\n";  
+    std::cout  << " Barrel Out In Track Extra inner momentum  " << sqrt(iTk->extra()->innerMomentum().Mag2()) << "\n";  
+    h_OIinnermostHitR_ ->Fill ( sqrt( iTk->innerPosition().Perp2() ) );
+    for (  trackingRecHit_iterator itHits=iTk->extra()->recHitsBegin();  itHits!=iTk->extra()->recHitsEnd(); ++itHits ) {
+      if ( (*itHits)->isValid() ) {
+	nHits++;
+	//	cout <<nHits <<") RecHit in GP " <<  trackerGeom->idToDet((*itHits)->geographicalId())->surface().toGlobal((*itHits)->localPosition()) << " R "<< trackerGeom->idToDet((*itHits)->geographicalId())->surface().toGlobal((*itHits)->localPosition()).perp() << " Z " << trackerGeom->idToDet((*itHits)->geographicalId())->surface().toGlobal((*itHits)->localPosition()).z() << "\n";
+      }
+      
+     
+    }
+    
+    iTrk++;
+    
+    
+  }
+  
+// Loop over In Out Tracks Barrel
+  iTrk=0;
+  for( View<reco::Track>::const_iterator    iTk =  (*inOutTrkHandle).begin(); iTk !=  (*inOutTrkHandle).end(); iTk++) {
+    std::cout  << " Barrel In Out Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << sqrt( iTk->innerMomentum().Mag2())  << "\n";  
+    std::cout   << " Barrel In Out  Track Extra inner momentum  " << sqrt(iTk->extra()->innerMomentum().Mag2()) << "\n"; 
+    h_IOinnermostHitR_ ->Fill ( sqrt( iTk->innerPosition().Perp2() ) );  
+    nHits=0;
+    for (  trackingRecHit_iterator itHits=iTk->extra()->recHitsBegin();  itHits!=iTk->extra()->recHitsEnd(); ++itHits ) {
+      if ( (*itHits)->isValid() ) {
+	nHits++;
+	//cout <<nHits <<") RecHit in GP " << trackerGeom->idToDet((*itHits)->geographicalId())->surface().toGlobal((*itHits)->localPosition())  << " R "<< trackerGeom->idToDet((*itHits)->geographicalId())->surface().toGlobal((*itHits)->localPosition()).perp() << " Z " << trackerGeom->idToDet((*itHits)->geographicalId())->surface().toGlobal((*itHits)->localPosition()).z() << "\n";
+	
+      }
+    }
+    
+    
+    
+    iTrk++;
+  }
+
+
+
   
 
 
@@ -1221,6 +1272,8 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       reco::ConversionRef aConv=conversions[iConv];
       std::vector<reco::TrackRef> tracks = aConv->tracks();
       if (tracks.size() < 2 ) continue;
+      if ( sqrt( aConv->tracksPin()[0].Perp2()) < convTrackMinPtCut_ || sqrt( aConv->tracksPin()[1].Perp2()) < convTrackMinPtCut_) continue;
+
  
       if ( dCotCutOn_ ) {
 	if (  (fabs(mcEta_) > 1.1 && fabs (mcEta_)  < 1.4  )  &&
@@ -1258,10 +1311,10 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       float py=0;
       float pz=0;
       float e=0;
-      //std::cout << " Before loop on tracks  tracks size " << tracks.size() << " or " << aConv->tracks().size() <<  " nAssT2 " << nAssT2 << std::endl;
+      std::cout << " Before loop on tracks  tracks size " << tracks.size() << " or " << aConv->tracks().size() <<  " nAssT2 " << nAssT2 << std::endl;
       for (unsigned int i=0; i<tracks.size(); i++) {
 
-
+       
 
 
 
@@ -1366,6 +1419,16 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
 	///////////  Quantities per conversion
         type =1;
+
+        float trkProvenance=-1;
+	if ( tracks[0]->algoName() == "outInEcalSeededConv"  &&  tracks[1]->algoName() == "outInEcalSeededConv" ) trkProvenance=0;
+	if ( tracks[0]->algoName() == "inOutEcalSeededConv"  &&  tracks[1]->algoName() == "inOutEcalSeededConv" ) trkProvenance=1;
+	if ( ( tracks[0]->algoName() == "outInEcalSeededConv"  &&  tracks[1]->algoName() == "inOutEcalSeededConv") || 
+	     ( tracks[1]->algoName() == "outInEcalSeededConv"  &&  tracks[0]->algoName() == "inOutEcalSeededConv") ) trkProvenance=2;
+       
+        h_trkProv_->Fill( trkProvenance );
+
+
         float eoverp= aConv->EoverP();
 
 	h_invMass_[type][0] ->Fill( invM);
