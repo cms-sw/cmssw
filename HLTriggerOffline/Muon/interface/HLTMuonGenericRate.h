@@ -52,8 +52,9 @@ private:
   struct MatchStruct {
     const reco::GenParticle*       genCand;
     const reco::Track*             recCand;
-    const l1extra::L1MuonParticle* l1Cand;
-    std::vector<const reco::RecoChargedCandidate*> hltCands;
+    reco::Particle*                l1Cand;
+    std::vector<reco::Particle*>   hltCands;
+    std::vector<reco::TrackRef>    hltTracks;
   };
 
   const reco::Candidate* findMother( const reco::Candidate* );
@@ -81,6 +82,8 @@ private:
   bool         m_useMuonFromReco;
   std::string  theGenLabel;
   std::string  theRecoLabel;
+  std::string  theAodL1Label;
+  std::string  theAodL2Label;
 
   std::vector<double> theMaxPtParameters;
   std::vector<double> thePtParameters;
@@ -111,8 +114,10 @@ private:
   std::vector <MonitorElement*> hPassEtaRec;
   std::vector <MonitorElement*> hPassPhiRec;
 
+  MonitorElement *hNumObjects;
+  MonitorElement *hNumOrphansGen;
+  MonitorElement *hNumOrphansRec;
   MonitorElement *NumberOfEvents;
-  MonitorElement *NumberOfL1Events;
   MonitorElement *MinPtCut;
   MonitorElement *MaxEtaCut;
   int theEventNumber;
