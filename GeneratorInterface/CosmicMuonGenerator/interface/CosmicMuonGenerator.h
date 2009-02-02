@@ -54,6 +54,10 @@ public:
     NotInitialized = true;
     Target3dRadius = 0.;
     SurfaceRadius = 0.;
+    //set plug as default onto PX56 shaft
+    PlugVx = PlugOnShaftVx;
+    PlugVz = PlugOnShaftVz;
+
 
     std::cout << std::endl;
     std::cout << "*********************************************************" << std::endl;
@@ -71,6 +75,7 @@ public:
     delete Cosmics;
   }
   // event with one particle
+  //SingleParticleEvent OneMuoEvt;
   SingleParticleEvent OneMuoEvt;
  
  
@@ -110,6 +115,9 @@ private:
   double Ndiced; // number of diced events
   double Target3dRadius; // radius of sphere around target (cylinder)
   double SurfaceRadius; // radius for area on surface that has to be considered (for event generation)
+  double PlugVx; //Plug x position
+  double PlugVz; //Plug z position
+
   // random number generator (periodicity > 10**14)
   TRandom2 RanGen; 
   // check user input
@@ -141,6 +149,9 @@ public:
   void setTIFOnly_constant(bool TIF);
   void setTIFOnly_linear(bool TIF);
   void setMTCCHalf(bool MTCC);
+  void setPlugVx(double PlugVtx);
+  void setPlugVz(double PlugVtz);
+
   // initialize the generator
   void initialize();
    // prints rate + statistics
