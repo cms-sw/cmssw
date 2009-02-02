@@ -63,12 +63,12 @@ class logDBReader:
         """
         Dump the content of the log 
         """
-        context = coral.Context()
-        if self.__verbose is True:
-            context.setVerbosityLevel( 'DEBUG' )
-        else:
-            context.setVerbosityLevel( 'ERROR' )
-        svc = coral.ConnectionService( context )
+        #context = coral.Context()
+        #if self.__verbose is True:
+        #    context.setVerbosityLevel( 'DEBUG' )
+        #else:
+        #    context.setVerbosityLevel( 'ERROR' )
+        svc = coral.ConnectionService()
         config=svc.configuration()
         if len(self.__authpath)!=0:
             print 'self.__authpath',self.__authpath
