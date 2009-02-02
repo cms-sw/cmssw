@@ -8,7 +8,7 @@ tpSelection.tip = 120
 tpSelection.lip = 280
 tpSelection.signalOnly = False
 tpSelection.minRapidity = -2.5
-tpSelection.ptMin =0.9
+tpSelection.ptMin = 1.
 tpSelection.maxRapidity = 2.5
 tpSelection.minHit = 0
 
