@@ -19,6 +19,8 @@
 
 SiStripQualityHotStripIdentifier::SiStripQualityHotStripIdentifier(const edm::ParameterSet& iConfig) : 
   ConditionDBWriter<SiStripBadStrip>::ConditionDBWriter<SiStripBadStrip>(iConfig),
+  m_cacheID_(0), 
+  dataLabel_(iConfig.getUntrackedParameter<std::string>("dataLabel","")),
   conf_(iConfig), 
   fp_(iConfig.getUntrackedParameter<edm::FileInPath>("file",edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))),
   Cluster_src_(iConfig.getParameter<edm::InputTag>( "Cluster_src" )),
@@ -34,7 +36,6 @@ SiStripQualityHotStripIdentifier::SiStripQualityHotStripIdentifier(const edm::Pa
 
   bookHistos();
 }
-
 
 SiStripQualityHotStripIdentifier::~SiStripQualityHotStripIdentifier(){
   edm::LogInfo("SiStripQualityHotStripIdentifier") << " dtor";
@@ -52,13 +53,13 @@ SiStripBadStrip* SiStripQualityHotStripIdentifier::getNewObject(){
     
     edm::LogInfo("SiStripQualityHotStripIdentifier") <<" [SiStripQualityHotStripIdentifier::getNewObject] call to SiStripHotStripAlgorithmFromClusterOccupancy"<<std::endl;
 
-    SiStripHotStripAlgorithmFromClusterOccupancy theIdentifier;
+    SiStripHotStripAlgorithmFromClusterOccupancy theIdentifier(conf_);
     theIdentifier.setProbabilityThreshold(parameters.getUntrackedParameter<double>("ProbabilityThreshold",1.E-7));
     theIdentifier.setMinNumEntries(parameters.getUntrackedParameter<uint32_t>("MinNumEntries",100));
     theIdentifier.setMinNumEntriesPerStrip(parameters.getUntrackedParameter<uint32_t>("MinNumEntriesPerStrip",5));
 
     SiStripQuality* qobj = new SiStripQuality();
-    theIdentifier.extractBadStrips(qobj,ClusterPositionHistoMap);
+    theIdentifier.extractBadStrips(qobj,ClusterPositionHistoMap,SiStripQuality_);
 
     edm::LogInfo("SiStripQualityHotStripIdentifier") <<" [SiStripQualityHotStripIdentifier::getNewObject] copy SiStripObject in SiStripBadStrip"<<std::endl;
 
@@ -83,6 +84,19 @@ SiStripBadStrip* SiStripQualityHotStripIdentifier::getNewObject(){
   }
   
   return obj;
+}
+
+void SiStripQualityHotStripIdentifier::algoBeginRun(const edm::Run& run, const edm::EventSetup& iSetup){
+  resetHistos(); 
+  unsigned long long cacheID = iSetup.get<SiStripQualityRcd>().cacheIdentifier();
+
+  if (m_cacheID_ == cacheID) 
+    return;
+
+  m_cacheID_ = cacheID; 
+
+  iSetup.get<SiStripQualityRcd>().get(dataLabel_,SiStripQuality_);
+
 }
 
 void SiStripQualityHotStripIdentifier::algoEndJob(){
@@ -126,7 +140,6 @@ void SiStripQualityHotStripIdentifier::fillHisto(uint32_t detid,float value){
 
 
 void SiStripQualityHotStripIdentifier::algoAnalyze(const edm::Event& e, const edm::EventSetup& eSetup){
-
   edm::Handle< edm::DetSetVector<SiStripCluster> >  dsv_SiStripCluster;
   e.getByLabel( Cluster_src_, dsv_SiStripCluster);    
       

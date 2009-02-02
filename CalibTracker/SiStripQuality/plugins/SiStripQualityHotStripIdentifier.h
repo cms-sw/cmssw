@@ -1,6 +1,7 @@
 #ifndef SiStripQualityHotStripIdentifier_H
 #define SiStripQualityHotStripIdentifier_H
 
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -10,6 +11,7 @@
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
 #include "CalibTracker/SiStripQuality/interface/SiStripQualityHistos.h"
 
@@ -25,9 +27,9 @@ public:
 private:
 
  //Will be called at the beginning of the job
-  void algoBeginJob(const edm::EventSetup&){ resetHistos(); }
+  void algoBeginJob(const edm::EventSetup&){}
   //Will be called at the beginning of each run in the job
-  void algoBeginRun(const edm::Run &, const edm::EventSetup &){ resetHistos(); }
+  void algoBeginRun(const edm::Run &, const edm::EventSetup &);
   //Will be called at the beginning of each luminosity block in the run
   void algoBeginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &){ resetHistos(); }
   //Will be called at the end of the job
@@ -45,6 +47,9 @@ private:
   void fillHisto(uint32_t detid,float value);
 
 private:
+  unsigned long long m_cacheID_;
+  std::string dataLabel_;
+  edm::ESHandle<SiStripQuality> SiStripQuality_;
   const edm::ParameterSet conf_;
   edm::FileInPath fp_;
   SiStripDetInfoFileReader* reader;

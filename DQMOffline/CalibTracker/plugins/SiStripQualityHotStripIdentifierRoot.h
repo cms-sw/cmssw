@@ -17,6 +17,7 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
 #include <vector>
 #include <iostream>
@@ -69,6 +70,10 @@ private:
   void bookHistos();
 
 private:
+  unsigned long long m_cacheID_;
+  std::string dataLabel_;
+  edm::ESHandle<SiStripQuality> SiStripQuality_;
+  bool UseInputDB_;
   const edm::ParameterSet conf_;
   edm::FileInPath fp_;
   SiStripDetInfoFileReader* reader;
@@ -85,5 +90,6 @@ private:
   SiStrip::QualityHistosMap ClusterPositionHistoMap;
   SiStripHotStripAlgorithmFromClusterOccupancy* theIdentifier;
   SiStripBadAPVAlgorithmFromClusterOccupancy* theIdentifier2;
+
 };
 #endif
