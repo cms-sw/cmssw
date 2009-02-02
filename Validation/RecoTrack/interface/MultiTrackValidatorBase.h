@@ -4,8 +4,8 @@
 /** \class MultiTrackValidatorBase
  *  Base class for analyzers that produces histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2009/01/07 00:43:47 $
- *  $Revision: 1.14 $
+ *  $Date: 2009/01/13 10:22:50 $
+ *  $Revision: 1.15 $
  *  \author cerati
  */
 
@@ -73,7 +73,8 @@ class MultiTrackValidatorBase {
     cotThetaRes_nbin(pset.getParameter<int>("cotThetaRes_nbin")),
     phiRes_nbin(pset.getParameter<int>("phiRes_nbin")),
     dxyRes_nbin(pset.getParameter<int>("dxyRes_nbin")),
-    dzRes_nbin(pset.getParameter<int>("dzRes_nbin"))
+    dzRes_nbin(pset.getParameter<int>("dzRes_nbin")),
+    ignoremissingtkcollection_(pset.getParameter<bool>("ignoremissingtrackcollection"))
     //
     {
       dbe_ = edm::Service<DQMStore>().operator->();
@@ -230,7 +231,7 @@ class MultiTrackValidatorBase {
     phiRes_rangeMin,phiRes_rangeMax, cotThetaRes_rangeMin,cotThetaRes_rangeMax,    
     dxyRes_rangeMin,dxyRes_rangeMax, dzRes_rangeMin,dzRes_rangeMax;
   int ptRes_nbin, cotThetaRes_nbin, phiRes_nbin, dxyRes_nbin, dzRes_nbin;
-  
+  bool ignoremissingtkcollection_;
 
   edm::ESHandle<MagneticField> theMF;
   std::vector<const TrackAssociatorBase*> associator;

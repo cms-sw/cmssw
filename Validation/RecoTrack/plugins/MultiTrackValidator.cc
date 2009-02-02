@@ -308,7 +308,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       //get collections from the event
       //
       edm::Handle<View<Track> >  trackCollection;
-      event.getByLabel(label[www], trackCollection);
+      if(!event.getByLabel(label[www], trackCollection)&&ignoremissingtkcollection_)continue;
       //if (trackCollection->size()==0) {
       //edm::LogInfo("TrackValidator") << "TrackCollection size = 0!" ; 
       //continue;
