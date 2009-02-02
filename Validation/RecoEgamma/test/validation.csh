@@ -18,15 +18,21 @@
 #=============BEGIN CONFIGURATION=================
 
 #Input root trees for the two cases to be compared 
+#setenv OLDFILE /data/test/CMSSW_2_2_1/src/Validation/RecoEgamma/test/PhotonValidationRelVal221_SingleGammaPt35.root
+#setenv OLDFILE /data/test/CMSSW_3_0_0_pre6/src/Validation/RecoEgamma/test/PhotonValidationRelVal300pre6_SingleGammaPt35.root
+#setenv NEWFILE /data/test/CMSSW_3_0_0_pre7/src/Validation/RecoEgamma/test/PhotonValidationRelVal300pre7_SingleGammaPt35.root
 
-setenv OLDFILE /data/test/CMSSW_2_1_0/src/Validation/RecoEgamma/test/PhotonValidationRelVal210_SingleGammaPt10.root
-setenv NEWFILE /data/test/CMSSW_2_1_2/src/Validation/RecoEgamma/test/PhotonValidationRelVal212_SingleGammaPt10.root
+setenv OLDFILE /data/test/CMSSW_3_0_0_pre7/src/Validation/RecoEgamma/test/PhotonValidationRelVal300pre7_SingleGammaPt35.root
+setenv NEWFILE /tmp/nancy/CMSSW_3_0_0_pre7/src/Validation/RecoEgamma/test/PhotonValidationRelVal300pre7_SingleGammaPt35TrackPtCut.root
 
 
-setenv OLDRELEASE 210IDEAL
-setenv NEWRELEASE 212IDEAL
+
+#setenv OLDRELEASE 221IDEAL
+setenv OLDRELEASE 300pre7IDEAL
+setenv NEWRELEASE 300pre7IDEAL
 #Name of sample (affects output directory name and htmldescription only) 
-setenv SAMPLE SingleGammaPt10
+setenv SAMPLE SingleGammaPt35
+#setenv SAMPLE SingleGammaFlatPt10_100
 #setenv SAMPLE H130GGgluonfusion
 #TYPE must be one ofPixelMatchGsfElectron, Photon 
 setenv TYPE Photon
