@@ -1,6 +1,8 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/StGenEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopGenEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtFullLeptonicEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiLeptonicEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/StEvtSolution.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtDilepEvtSolution.h"
@@ -49,23 +51,28 @@ namespace {
     TtGenEvent ttgen;
     StGenEvent stgen;
     TopGenEvent topgen;
+    TtEvent ttevt;
+    TtFullLeptonicEvent ttfullevt;
     TtSemiLeptonicEvent ttsemievt;
     edm::Wrapper<TtGenEvent> w_ttgen;
     edm::Wrapper<StGenEvent> w_stgen;
     edm::Wrapper<TopGenEvent> w_topgen;
-    edm::Wrapper<TtSemiLeptonicEvent> w_tttsemievt;
+    edm::Wrapper<TtFullLeptonicEvent> w_ttfullevt;
+    edm::Wrapper<TtSemiLeptonicEvent> w_ttsemievt;
     edm::Wrapper<reco::CompositeCandidate> ttcompcand;
 
     edm::RefProd<TtGenEvent> rp_ttgen;
     edm::RefProd<StGenEvent> rp_stgen;
     edm::RefProd<TopGenEvent> rp_topgen;
+    edm::RefProd<TtFullLeptonicEvent> rp_ttfullevt;
     edm::RefProd<TtSemiLeptonicEvent> rp_ttsemievt;
 
+    std::pair<TtEvent::LepDecay, TtEvent::LepDecay> p_lepdecay_lepdecay;
     std::pair<reco::CompositeCandidate, std::vector<int> > p_compcand_vint;
     std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > v_p_compcand_vint;
     edm::Wrapper<std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > > w_v_p_compcand_vint;
 
-    std::map<TtSemiLeptonicEvent::HypoKey, std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > > m_key_v_p_compcand_vint;
+    std::map<TtEvent::HypoClassKey, std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > > m_key_v_p_compcand_vint;
 
     TtDilepEvtSolution ttdilep;
     TtSemiEvtSolution ttsemi;

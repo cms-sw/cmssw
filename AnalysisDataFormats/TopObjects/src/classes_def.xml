@@ -28,23 +28,28 @@
   <class name="TtGenEvent" />
   <class name="StGenEvent" />
   <class name="TopGenEvent" />
+  <class name="TtEvent" />
+  <class name="TtFullLeptonicEvent" />
   <class name="TtSemiLeptonicEvent" />
   <class name="edm::Wrapper<TtGenEvent>" />
   <class name="edm::Wrapper<StGenEvent>" />
   <class name="edm::Wrapper<TopGenEvent>" />
+  <class name="edm::Wrapper<TtFullLeptonicEvent>" />
   <class name="edm::Wrapper<TtSemiLeptonicEvent>" />
   <class name="edm::Wrapper<reco::CompositeCandidate>" />
 
   <class name="edm::RefProd<TtGenEvent>" />
   <class name="edm::RefProd<StGenEvent>" />
   <class name="edm::RefProd<TopGenEvent>" />
+  <class name="edm::RefProd<TtFullLeptonicEvent>" />
   <class name="edm::RefProd<TtSemiLeptonicEvent>" />
 
+  <class name="std::pair<TtEvent::LepDecay, TtEvent::LepDecay>" />
   <class name="std::pair<reco::CompositeCandidate, std::vector<int> >" />
   <class name="std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > >" />
   <class name="edm::Wrapper<std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > >" />
 
-  <class name="std::map<TtSemiLeptonicEvent::HypoKey, std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > >" />
+  <class name="std::map<TtEvent::HypoClassKey, std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > >" />
 
   <class name="TtDilepEvtSolution" />
   <class name="TtSemiEvtSolution" />

@@ -36,6 +36,7 @@ TtSemiLepHypMVADisc::buildHypo(edm::Event& evt,
   // -----------------------------------------------------
   if( !leps->empty() )
     setCandidate(leps, 0, lepton_);
+  match.push_back( 0 );
   
   // -----------------------------------------------------
   // add neutrino

@@ -32,7 +32,7 @@ TtSemiLepHypGeom::buildHypo(edm::Event& evt,
   if(maxNJets_ == -1 || (int)jets->size() < maxNJets_) maxNJets = jets->size();
 
   match.clear();
-  for(unsigned int i=0; i<4; ++i)
+  for(unsigned int i=0; i<5; ++i)
     match.push_back(-1);
   
   // -----------------------------------------------------
@@ -116,6 +116,7 @@ TtSemiLepHypGeom::buildHypo(edm::Event& evt,
   // add lepton
   // -----------------------------------------------------
   setCandidate(leps, 0, lepton_);
+  match[TtSemiLepEvtPartons::Lepton] = 0;
   
   // -----------------------------------------------------
   // add neutrino

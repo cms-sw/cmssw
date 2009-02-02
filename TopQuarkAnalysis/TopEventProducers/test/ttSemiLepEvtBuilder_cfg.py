@@ -94,3 +94,21 @@ process.p = cms.Path(process.tqafLayer1  *
                      process.makeGenEvt  *
                      process.makeTtSemiLepEvent
                      )
+
+## define event selection
+process.EventSelection = cms.PSet(
+    SelectEvents = cms.untracked.PSet(
+        SelectEvents = cms.vstring('p')
+    )
+)
+
+## configure output module
+process.out = cms.OutputModule("PoolOutputModule",
+    process.EventSelection,                      
+    fileName = cms.untracked.string('ttSemiLepJetCombMVAComputer_muons.root')
+)
+
+## output path
+## in order not to write the persistent output to
+## file, comment the following outpath
+process.outpath = cms.EndPath(process.out)

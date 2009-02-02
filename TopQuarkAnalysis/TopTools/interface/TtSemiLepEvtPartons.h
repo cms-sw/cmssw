@@ -12,7 +12,7 @@ class TtSemiLepEvtPartons {
   // defined order for semileptonic ttbar decays
  public:
 
-  enum { LightQ, LightQBar, HadB, LepB};
+  enum { LightQ, LightQBar, HadB, LepB, Lepton };
 
   TtSemiLepEvtPartons(){};
   ~TtSemiLepEvtPartons(){};

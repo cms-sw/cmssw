@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 #
 analyzeHypothesis = cms.EDAnalyzer("HypothesisAnalyzer",
     semiLepEvent = cms.InputTag("ttSemiLepEvent"),
-    hypoKey      = cms.InputTag("ttSemiLepHypMaxSumPtWMass","Key")
+    hypoClassKey = cms.InputTag("ttSemiLepHypMaxSumPtWMass","Key")
 )
 
 

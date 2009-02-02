@@ -12,8 +12,8 @@ analyzeMaxSumPtWMass = TopQuarkAnalysis.Examples.HypothesisAnalyzer_cfi.analyzeH
 analyzeGenMatch      = TopQuarkAnalysis.Examples.HypothesisAnalyzer_cfi.analyzeHypothesis.clone()
 
 # configure analyzers
-analyzeMaxSumPtWMass.hypoKey = 'ttSemiLepHypMaxSumPtWMass:Key'
-analyzeGenMatch.hypoKey      = 'ttSemiLepHypGenMatch:Key'
+analyzeMaxSumPtWMass.hypoClassKey = 'ttSemiLepHypMaxSumPtWMass:Key'
+analyzeGenMatch.hypoClassKey      = 'ttSemiLepHypGenMatch:Key'
 
 # define sequence
 analyzeAllHypotheses = cms.Sequence(analyzeMaxSumPtWMass*analyzeGenMatch)

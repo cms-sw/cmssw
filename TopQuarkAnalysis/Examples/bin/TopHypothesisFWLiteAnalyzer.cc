@@ -23,23 +23,23 @@ int main(int argc, char* argv[])
 	      << "        Please specify:" << std::endl
 	      << "        * filepath" << std::endl
 	      << "        * process name" << std::endl
-	      << "        * HypoKey" << std::endl;
+	      << "        * HypoClassKey" << std::endl;
     // -------------------------------------------------  
     return -1;
   }
 
-  // parse HypoKey
-  TtSemiLeptonicEvent::HypoKey hypoKey;
-  if(!strcmp(argv[3], "kWMassMaxSumPt")) hypoKey = TtSemiLeptonicEvent::kWMassMaxSumPt; else if
-    (!strcmp(argv[3], "kMaxSumPtWMass")) hypoKey = TtSemiLeptonicEvent::kMaxSumPtWMass; else if
-    (!strcmp(argv[3], "kGeom"         )) hypoKey = TtSemiLeptonicEvent::kGeom;          else if
-    (!strcmp(argv[3], "kKinFit"       )) hypoKey = TtSemiLeptonicEvent::kKinFit;        else if
-    (!strcmp(argv[3], "kGenMatch"     )) hypoKey = TtSemiLeptonicEvent::kGenMatch;      else if
-    (!strcmp(argv[3], "kMVADisc"      )) hypoKey = TtSemiLeptonicEvent::kMVADisc; 
+  // parse HypoClassKey
+  TtSemiLeptonicEvent::HypoClassKey hypoClassKey;
+  if(!strcmp(argv[3], "kWMassMaxSumPt")) hypoClassKey = TtSemiLeptonicEvent::kWMassMaxSumPt; else if
+    (!strcmp(argv[3], "kMaxSumPtWMass")) hypoClassKey = TtSemiLeptonicEvent::kMaxSumPtWMass; else if
+    (!strcmp(argv[3], "kGeom"         )) hypoClassKey = TtSemiLeptonicEvent::kGeom;          else if
+    (!strcmp(argv[3], "kKinFit"       )) hypoClassKey = TtSemiLeptonicEvent::kKinFit;        else if
+    (!strcmp(argv[3], "kGenMatch"     )) hypoClassKey = TtSemiLeptonicEvent::kGenMatch;      else if
+    (!strcmp(argv[3], "kMVADisc"      )) hypoClassKey = TtSemiLeptonicEvent::kMVADisc; 
   else{
     // -------------------------------------------------  
     std::cerr << "ERROR:: " 
-	      << "Unknown HypoKey!" << std::endl
+	      << "Unknown HypoClassKey!" << std::endl
 	      << "        Please specify one out of the following keys:" << std::endl
 	      << "        * kWMassMaxSumPt" << std::endl
 	      << "        * kMaxSumPtWMass" << std::endl
@@ -119,19 +119,19 @@ int main(int argc, char* argv[])
     // -------------------------------------------------  
 
     // fill histograms
-    if( !semiLepEvt.isHypoAvailable(hypoKey) ){
+    if( !semiLepEvt.isHypoAvailable(hypoClassKey) ){
       std::cerr << "NonValidHyp:: " << "Hypothesis not available for this event" << std::endl;
       continue;
     }
-    if( !semiLepEvt.isHypoValid(hypoKey) ){
+    if( !semiLepEvt.isHypoValid(hypoClassKey) ){
       std::cerr << "NonValidHyp::" << "Hypothesis not valid for this event" << std::endl;
       continue;
     }
     
-    const reco::Candidate* hadTop = semiLepEvt.hadronicTop(hypoKey);
-    const reco::Candidate* hadW   = semiLepEvt.hadronicW  (hypoKey);
-    const reco::Candidate* lepTop = semiLepEvt.leptonicTop(hypoKey);
-    const reco::Candidate* lepW   = semiLepEvt.leptonicW  (hypoKey);
+    const reco::Candidate* hadTop = semiLepEvt.hadronicTop(hypoClassKey);
+    const reco::Candidate* hadW   = semiLepEvt.hadronicW  (hypoClassKey);
+    const reco::Candidate* lepTop = semiLepEvt.leptonicTop(hypoClassKey);
+    const reco::Candidate* lepW   = semiLepEvt.leptonicW  (hypoClassKey);
     
     if(hadTop && hadW && lepTop && lepW){
       hadWPt_    ->Fill( hadW->pt()    );
@@ -152,7 +152,7 @@ int main(int argc, char* argv[])
   
   // save histograms to file
   TFile outFile( "analyzeHypothesis.root", "recreate" );
-  switch( hypoKey ){
+  switch( hypoClassKey ){
   case TtSemiLeptonicEvent::kGeom : 
     outFile.mkdir("analyzeGeom");
     outFile.cd("analyzeGeom");

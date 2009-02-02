@@ -106,24 +106,24 @@ TtSemiLepHypothesis::hypo()
 
   AddFourMomenta addFourMomenta;  
   // build up the top branch that decays leptonically
-  lepW  .addDaughter(*lepton_,   TtSemiDaughter::Lep    );
-  lepW  .addDaughter(*neutrino_, TtSemiDaughter::Nu     );
+  lepW  .addDaughter(*lepton_,   TtSemiLepDaughter::Lep    );
+  lepW  .addDaughter(*neutrino_, TtSemiLepDaughter::Nu     );
   addFourMomenta.set( lepW );
-  lepTop.addDaughter( lepW,      TtSemiDaughter::LepW   );
-  lepTop.addDaughter(*leptonicB_,TtSemiDaughter::LepB   );
+  lepTop.addDaughter( lepW,      TtSemiLepDaughter::LepW   );
+  lepTop.addDaughter(*leptonicB_,TtSemiLepDaughter::LepB   );
   addFourMomenta.set( lepTop );
   
   // build up the top branch that decays hadronically
-  hadW  .addDaughter(*lightQ_,   TtSemiDaughter::HadP   );
-  hadW  .addDaughter(*lightQBar_,TtSemiDaughter::HadQ   );
+  hadW  .addDaughter(*lightQ_,   TtSemiLepDaughter::HadP   );
+  hadW  .addDaughter(*lightQBar_,TtSemiLepDaughter::HadQ   );
   addFourMomenta.set( hadW );
-  hadTop.addDaughter( hadW,      TtSemiDaughter::HadW   );
-  hadTop.addDaughter(*hadronicB_,TtSemiDaughter::HadB   );
+  hadTop.addDaughter( hadW,      TtSemiLepDaughter::HadW   );
+  hadTop.addDaughter(*hadronicB_,TtSemiLepDaughter::HadB   );
   addFourMomenta.set( hadTop );
 
   // build ttbar hypotheses
-  hyp.addDaughter( lepTop,       TtSemiDaughter::LepTop );
-  hyp.addDaughter( hadTop,       TtSemiDaughter::HadTop );
+  hyp.addDaughter( lepTop,       TtSemiLepDaughter::LepTop );
+  hyp.addDaughter( hadTop,       TtSemiLepDaughter::HadTop );
   addFourMomenta.set( hyp );
 
   return hyp;

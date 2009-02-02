@@ -4,11 +4,16 @@ import FWCore.ParameterSet.Config as cms
 # module to fill the semi-leptonic ttbar event structure
 #
 ttSemiLepEvent = cms.EDProducer("TtSemiLepEvtBuilder",
-    ## choose semi-leptonic decay mode
-    decay = cms.int32(2),  # 0: none
-                           # 1: electron
-                           # 2: muon
-                           # 3: tau
+    ## choose leptonic decay modes
+    lepDecayTop1 = cms.int32(2),  # 0: none
+                                  # 1: electron
+                                  # 2: muon
+                                  # 3: tau
+    lepDecayTop2 = cms.int32(0),  # 0: none
+                                  # 1: electron
+                                  # 2: muon
+                                  # 3: tau
+
 
     ## set verbosity level
     verbosity = cms.int32(0),  # 0: no additional printout
