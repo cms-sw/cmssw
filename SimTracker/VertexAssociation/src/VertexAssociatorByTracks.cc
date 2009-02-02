@@ -73,8 +73,8 @@ VertexRecoToSimCollection VertexAssociatorByTracks::associateRecoToSim(
 
     for (reco::Vertex::trackRef_iterator recoDaughter = vertex->tracks_begin();
          recoDaughter != vertex->tracks_end(); ++recoDaughter) {
-      RefToBase<reco::Track>  tr = recoDaughter->castTo<RefToBase<reco::Track> >();
-      if (trackAssocResult[tr].size() > 0) {
+      RefToBase<reco::Track>  tr = *recoDaughter;
+      if (trackAssocResult.numberOfAssociations(tr) > 0 && trackAssocResult[tr].size() > 0) {
         std::vector<std::pair<TrackingParticleRef, double> > tpV = trackAssocResult[tr];
 
         // Loop over TrackingParticles associated with reco::Track
