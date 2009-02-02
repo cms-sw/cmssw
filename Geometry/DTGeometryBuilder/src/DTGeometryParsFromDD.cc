@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/01/22 21:12:16 $
- *  $Revision: 1.10 $
+ *  $Date: 2009/01/16 11:11:46 $
+ *  $Revision: 1.1 $
  *  \author Stefano Lacaprara  <lacaprara@pd.infn.it>  INFN LNL
  */
 
@@ -39,7 +39,7 @@ DTGeometryParsFromDD::~DTGeometryParsFromDD(){}
 void DTGeometryParsFromDD::build(const DDCompactView* cview,
                                  const MuonDDDConstants& muonConstants,
                                  RecoIdealGeometry& rig) {
-  cout << "DTGeometryParsFromDD::build" << endl;
+  //  cout << "DTGeometryParsFromDD::build" << endl;
   //   static const string t0 = "DTGeometryParsFromDD::build";
   //   TimeMe timer(t0,true);
 
