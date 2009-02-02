@@ -75,6 +75,11 @@ photonValidation = cms.EDAnalyzer("PhotonValidator",
     dCotCutOn =cms.bool(False),
     dCotCutValue=cms.double(0.05),
     dCotHardCutValue=cms.double(0.02),                              
+#
+    povereBin = cms.int32(100),                              
+    povereMin = cms.double(0.),
+    povereMax = cms.double(5.),
+
 # Unused stuff                                  
     hcalIsolExtR = cms.double(0.3),
     hcalIsolInnR = cms.double(0.0),
