@@ -71,7 +71,7 @@ namespace cond {
 
   private:
     boost::shared_ptr<DBSession> session;
-   boost::shared_ptr<cond::Logger> logger;
+    boost::shared_ptr<cond::Logger> logger;
 
   };
 
