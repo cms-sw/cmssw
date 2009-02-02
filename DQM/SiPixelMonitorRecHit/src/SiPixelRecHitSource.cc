@@ -14,7 +14,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelRecHitSource.cc,v 1.13 2008/10/13 19:04:33 krose Exp $
+// $Id: SiPixelRecHitSource.cc,v 1.14 2008/10/31 13:12:49 gpetrucc Exp $
 //
 //
 // Adapted by:  Keith Rose
@@ -155,8 +155,9 @@ void SiPixelRecHitSource::analyze(const edm::Event& iEvent, const edm::EventSetu
 	
 	}
       }
+      if(rechit_count > 0){
       (*struct_iter).second->nfill(rechit_count, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn);
-    
+    }
   }
 
   // slow down...
