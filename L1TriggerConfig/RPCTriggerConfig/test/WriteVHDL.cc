@@ -504,19 +504,30 @@ std::string WriteVHDL::writeConeDef(const edm::EventSetup& evtSetup, int tower, 
                     itPair = coneBuilder->getConVec(detId, strip);
 
 
-          L1RPCConeBuilder::TStripConVec::const_iterator it = itPair.first;
+          if (itPair.first!=itPair.second){
+              throw cms::Exception("") << " FIXME found uncompressed connection. " << tower << "\n";
+          }
 
-          for (; it!=itPair.second;++it){
+          std::pair<L1RPCConeBuilder::TCompressedConVec::const_iterator, L1RPCConeBuilder::TCompressedConVec::const_iterator>
+ 	  	           compressedConnPair = coneBuilder->getCompConVec(detId);
+
+          L1RPCConeBuilder::TCompressedConVec::const_iterator itComp = compressedConnPair.first;
+
+          for (; itComp!=compressedConnPair.second; ++itComp){
+
+
+              int logstrip = itComp->getLogStrip(strip,coneBuilder->getLPSizes());
+              if (logstrip==-1) continue;
 
               // iterate over all PACs 
-              if (it->m_tower != tower) continue;
+              if (itComp->m_tower != tower) continue;
 
               int dccInputChannel = getDCCNumber(tower, sector);
               int PACstart = sector*12;
               int PACend = PACstart+11;
 
               for(int PAC = PACstart; PAC <= PACend; ++PAC){
-                   if (it->m_PAC != PAC ) continue;
+                   if (itComp->m_PAC != PAC ) continue;
   
                    LinkBoardElectronicIndex a;
                    std::pair< LinkBoardElectronicIndex, LinkBoardPackedStrip> linkStrip =
@@ -539,10 +550,10 @@ std::string WriteVHDL::writeConeDef(const edm::EventSetup& evtSetup, int tower, 
 
                      if(!beg) ret<<","; else beg = false;
 
-	             ret << "(" << PAC - PACstart  << ",\t "<< PACt<<", \t"<<  (int)it->m_logplane - 1<<",\t"
+	             ret << "(" << PAC - PACstart  << ",\t "<< PACt<<", \t"<<  (int)itComp->m_logplane - 1<<",\t"
                          <<linkStrip.first.tbLinkInputNum<<",\t"
                          <<linkStrip.first.lbNumInLink<<",\t"
-                         << (int)it->m_logstrip<<",\t "
+                         << logstrip<<",\t "
                          <<linkStrip.second.packedStrip()<<", \t";
                       ret << 1 << ") --" << roll->id() << std::endl;	
 
