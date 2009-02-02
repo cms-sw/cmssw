@@ -24,8 +24,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2008/09/30 18:38:04 $ 
- **  $Revision: 1.11 $
+ **  $Date: 2008/10/07 17:45:10 $ 
+ **  $Revision: 1.12 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -110,6 +110,7 @@ class PhotonValidator : public edm::EDAnalyzer
   TrackAssociatorBase * theTrackAssociator_;
 
   double minPhoEtCut_;
+  double convTrackMinPtCut_;
   double trkIsolExtRadius_;
   double trkIsolInnRadius_;
   double trkPtLow_;
@@ -197,7 +198,10 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement*  convEffZOneTrack_;
 
 
-
+  //// test on OutIn Tracks
+  MonitorElement* h_OIinnermostHitR_;
+  MonitorElement* h_IOinnermostHitR_;
+  MonitorElement* h_trkProv_;
 
 
   MonitorElement* h_phoDEta_[2];
