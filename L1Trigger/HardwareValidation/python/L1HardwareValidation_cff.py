@@ -66,8 +66,8 @@ muonCscMon = L1Trigger.HardwareValidation.MuonCandProducerMon_cfi.muonCandMon.cl
 
 # RPC sequence
 # requires muonRPCDigis only
-import L1Trigger.RPCTrigger.rpcTriggerDigis_cfi
-#from L1Trigger.RPCTrigger.rpcTriggerDigis_cff import *
+#import L1Trigger.RPCTrigger.rpcTriggerDigis_cfi
+from L1Trigger.RPCTrigger.rpcTriggerDigis_cff import *
 valRpcTriggerDigis = L1Trigger.RPCTrigger.rpcTriggerDigis_cfi.rpcTriggerDigis.clone()
 
 # GMT sequence
