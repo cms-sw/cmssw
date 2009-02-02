@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("CaloGeometryWriter")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 process.load('Configuration/StandardSequences/GeometryIdeal_cff')
-
+process.load('Geometry/CaloEventSetup/CaloGeometryDBWriter_cfi')
 process.source = cms.Source("EmptyIOVSource",
                             lastValue = cms.uint64(1),
                             timetype = cms.string('runnumber'),
@@ -18,15 +18,14 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
                                           timetype = cms.untracked.string('runnumber'),
                                           connect = cms.string('sqlite_file:myfile.db'),
-                                          toPut = cms.VPSet(
-    cms.PSet(record = cms.string('PEcalBarrelRcd'),   tag = cms.string('TEST02')),
-    cms.PSet(record = cms.string('PEcalEndcapRcd'),   tag = cms.string('TEST03')),
-    cms.PSet(record = cms.string('PEcalPreshowerRcd'),tag = cms.string('TEST04')),
-    cms.PSet(record = cms.string('PHcalRcd'),         tag = cms.string('TEST05')),
-    cms.PSet(record = cms.string('PCaloTowerRcd'),    tag = cms.string('TEST06')),
-    cms.PSet(record = cms.string('PZdcRcd'),          tag = cms.string('TEST07')),
-    cms.PSet(record = cms.string('PCastorRcd'),       tag = cms.string('TEST08'))
-    )
+                                          toPut = cms.VPSet(cms.PSet(record = cms.string('PEcalBarrelRcd'),   tag = cms.string('EBRECO_Geometry_Test01')),
+                                                            cms.PSet(record = cms.string('PEcalEndcapRcd'),   tag = cms.string('EERECO_Geometry_Test01')),
+                                                            cms.PSet(record = cms.string('PEcalPreshowerRcd'),tag = cms.string('EPRECO_Geometry_Test01')),
+                                                            cms.PSet(record = cms.string('PHcalRcd'),         tag = cms.string('HCALRECO_Geometry_Test01')),
+                                                            cms.PSet(record = cms.string('PCaloTowerRcd'),    tag = cms.string('CTRECO_Geometry_Test01')),
+                                                            cms.PSet(record = cms.string('PZdcRcd'),          tag = cms.string('ZDCRECO_Geometry_Test01')),
+                                                            cms.PSet(record = cms.string('PCastorRcd'),       tag = cms.string('CASTORRECO_Geometry_Test01'))
+                                                            )
                                           )
 
 process.maxEvents = cms.untracked.PSet(

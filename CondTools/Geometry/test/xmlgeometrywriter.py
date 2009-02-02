@@ -13,7 +13,7 @@ process.source = cms.Source("EmptyIOVSource",
                             )
 
 process.XMLGeometryWriter = cms.EDAnalyzer("XMLGeometryBuilder",
-                                           XMLFileName = cms.untracked.string("./file_no_specpar.xml.gz"),
+                                           XMLFileName = cms.untracked.string("./fullCmsIdealGeometry.xml"),
                                            ZIP = cms.untracked.bool(True)
                                            )
 
@@ -22,7 +22,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
                                           timetype = cms.untracked.string('runnumber'),
                                           connect = cms.string('sqlite_file:myfile.db'),
-                                          toPut = cms.VPSet(cms.PSet(record = cms.string('GeometryFileRcd'),tag = cms.string('XMLFILE_TEST_01')))
+                                          toPut = cms.VPSet(cms.PSet(record = cms.string('GeometryFileRcd'),tag = cms.string('XMLFILE_Geometry_Test01')))
                                           )
 
 process.maxEvents = cms.untracked.PSet(

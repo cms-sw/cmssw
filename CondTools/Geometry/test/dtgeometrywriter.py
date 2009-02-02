@@ -21,7 +21,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 
                                           timetype = cms.untracked.string('runnumber'),
                                           connect = cms.string('sqlite_file:myfile.db'),
-                                          toPut = cms.VPSet(cms.PSet(record = cms.string('DTRecoGeometryRcd'),tag = cms.string('XMLFILE_TEST_01'))
+                                          toPut = cms.VPSet(cms.PSet(record = cms.string('DTRecoGeometryRcd'),tag = cms.string('DTRECO_Geometry_Test01'))
                                                             )
                                           )
 

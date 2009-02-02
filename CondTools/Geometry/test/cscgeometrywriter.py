@@ -21,8 +21,8 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 
                                           timetype = cms.untracked.string('runnumber'),
                                           connect = cms.string('sqlite_file:myfile.db'),
-                                          toPut = cms.VPSet(cms.PSet(record = cms.string('CSCRecoGeometryRcd'),tag = cms.string('XMLFILE_TEST_01')),
-                                                            cms.PSet(record = cms.string('CSCRecoDigiParametersRcd'),tag = cms.string('XMLFILE_TEST_02')))
+                                          toPut = cms.VPSet(cms.PSet(record = cms.string('CSCRecoGeometryRcd'),tag = cms.string('CSCRECO_Geometry_Test01')),
+                                                            cms.PSet(record = cms.string('CSCRecoDigiParametersRcd'),tag = cms.string('CSCRECODIGI_Geometry_Test01')))
                                           )
 
 process.maxEvents = cms.untracked.PSet(
