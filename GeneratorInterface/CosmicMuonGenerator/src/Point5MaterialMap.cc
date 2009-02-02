@@ -12,8 +12,8 @@ inline int inPlug(double vx, double vy, double vz,
   if (vy > SurfaceOfEarth && vy < SurfaceOfEarth + PlugWidth) {
     if (vx > PlugVx - PlugXlength/2. && vx < PlugVx + PlugXlength/2. &&
 	vz > PlugVz - PlugZlength/2. && vz < PlugVz + PlugZlength/2.) return Plug;
-    if (vz >= PlugVz - PlugZlength/2. - PlugNodgeZlength && vz < PlugVz - PlugZlength/2. &&
-	vx > PlugVx - PlugNodgeXlength/2. && vx < PlugVx + PlugNodgeXlength/2.) return Plug;
+    if (vz >= PlugVz - PlugZlength/2. - PlugNoseZlength && vz < PlugVz - PlugZlength/2. &&
+	vx > PlugVx - PlugNoseXlength/2. && vx < PlugVx + PlugNoseXlength/2.) return Plug;
   }
   return Unknown;
 }
