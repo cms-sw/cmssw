@@ -13,7 +13,7 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Wed Oct  3 12:11:10 CEST 2007
-// $Id: SiStripHotStripAlgorithmFromClusterOccupancy.h,v 1.5 2008/11/24 14:55:43 kaussen Exp $
+// $Id: SiStripHotStripAlgorithmFromClusterOccupancy.h,v 1.6 2009/01/26 13:36:20 kaussen Exp $
 //
 //
 
@@ -30,8 +30,27 @@
 #include "TTree.h"
 #include "TFile.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/StripTopology.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
+
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "CalibTracker/SiStripQuality/interface/SiStripQualityHistos.h"
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CommonTools/TrackerMap/interface/TrackerMap.h"
+#include "DQM/SiStripCommon/interface/TkHistoMap.h" 
 
 class SiStripQuality;
 
@@ -41,8 +60,8 @@ public:
   typedef SiStrip::QualityHistosMap HistoMap;  
   
 
-  SiStripHotStripAlgorithmFromClusterOccupancy():prob_(1.E-7),MinNumEntries_(0),MinNumEntriesPerStrip_(0),Nevents_(0),occupancy_(0),OutFileName_("Occupancy.root")
-  {minNevents_=Nevents_*occupancy_;}
+  SiStripHotStripAlgorithmFromClusterOccupancy(const edm::ParameterSet&);
+
   virtual ~SiStripHotStripAlgorithmFromClusterOccupancy();
 
   void setProbabilityThreshold(long double prob){prob_=prob;}
@@ -52,9 +71,14 @@ public:
   void setNumberOfEvents(uint32_t Nevents);
   void setOutputFileName(std::string OutputFileName, bool WriteOutputFile){OutFileName_=OutputFileName; WriteOutputFile_=WriteOutputFile;}
   void setTrackerGeometry(const TrackerGeometry* tkgeom){TkGeom = tkgeom;}
-  void extractBadStrips(SiStripQuality*,HistoMap&);
+  void extractBadStrips(SiStripQuality*,HistoMap&,  edm::ESHandle<SiStripQuality>&);
 
  private:
+
+  // unsigned long long m_cacheID_;
+  //std::string dataLabel_;
+  //edm::FileInPath fp_;
+  //SiStripDetInfoFileReader* reader;
 
   struct pHisto{   
 
@@ -82,7 +106,7 @@ public:
 
   TFile* f;
   TTree* striptree;
-
+  bool UseInputDB_;
   int detrawid;
   int subdetid;
   int layer_ring;

@@ -1,25 +1,31 @@
 #include "CalibTracker/SiStripQuality/interface/SiStripHotStripAlgorithmFromClusterOccupancy.h"
 
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-#include "Geometry/CommonTopologies/interface/StripTopology.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
+
+
+SiStripHotStripAlgorithmFromClusterOccupancy::SiStripHotStripAlgorithmFromClusterOccupancy(const edm::ParameterSet& iConfig):
+    prob_(1.E-7),
+    MinNumEntries_(0),
+    MinNumEntriesPerStrip_(0),
+    Nevents_(0),
+    occupancy_(0),
+    OutFileName_("Occupancy.root"),
+    UseInputDB_(iConfig.getUntrackedParameter<bool>("UseInputDB",false))
+  {  
+    minNevents_=Nevents_*occupancy_;
+  }
 
 
 SiStripHotStripAlgorithmFromClusterOccupancy::~SiStripHotStripAlgorithmFromClusterOccupancy(){
   LogTrace("SiStripHotStripAlgorithmFromClusterOccupancy")<<"[SiStripHotStripAlgorithmFromClusterOccupancy::~SiStripHotStripAlgorithmFromClusterOccupancy] "<<std::endl;
 }
 
-void SiStripHotStripAlgorithmFromClusterOccupancy::extractBadStrips(SiStripQuality* siStripQuality,HistoMap& DM){
+void SiStripHotStripAlgorithmFromClusterOccupancy::extractBadStrips(SiStripQuality* OutSiStripQuality,HistoMap& DM,edm::ESHandle<SiStripQuality>& InSiStripQuality){
 
   LogTrace("SiStripHotStripAlgorithmFromClusterOccupancy")<<"[SiStripHotStripAlgorithmFromClusterOccupancy::extractBadStrips] "<<std::endl;
 
+
+  
   if (WriteOutputFile_==true){
   f = new TFile(OutFileName_.c_str(),"RECREATE");
   f->cd();
@@ -50,20 +56,21 @@ void SiStripHotStripAlgorithmFromClusterOccupancy::extractBadStrips(SiStripQuali
   striptree->Branch("PoissonProb",          &poissonProb,       "PoissonProb/D");
   }
 
+  
   HistoMap::iterator it=DM.begin();
   HistoMap::iterator itEnd=DM.end();
   std::vector<unsigned int> badStripList;
   uint32_t detid;
   for (;it!=itEnd;++it){
     pHisto phisto;
-
     detid=it->first;
+
     DetId detectorId=DetId(detid);
     phisto._SubdetId=detectorId.subdetId();
     
-   if (edm::isDebugEnabled())
-     LogTrace("SiStripHotStrip") << "Analyzing detid " << detid<< std::endl;
-   
+    if (edm::isDebugEnabled())
+      LogTrace("SiStripHotStrip") << "Analyzing detid " << detid<< std::endl;
+    
     int numberAPVs = (int)(it->second.get())->GetNbinsX()/128;
 
     // Set the values for the tree:
@@ -130,7 +137,7 @@ void SiStripHotStripAlgorithmFromClusterOccupancy::extractBadStrips(SiStripQuali
     // End: Set the values for the tree.
 
 
-    pQuality=siStripQuality;
+    pQuality=OutSiStripQuality;
     badStripList.clear();
 
     for (int i=0; i<768; i++){
@@ -144,9 +151,21 @@ void SiStripHotStripAlgorithmFromClusterOccupancy::extractBadStrips(SiStripQuali
     hotstripspermodule = 0;
 
     for (int apv=0; apv<numberAPVs; apv++){
+      if(UseInputDB_){
+	if(InSiStripQuality->IsApvBad(detid,apv) ){
+	  if(edm::isDebugEnabled())
+	    LogTrace("SiStripHotStrip")<<"(Module and Apv number) "<<detid<<" , "<<apv<<" excluded by input ESetup."<<endl;
+	  continue;//if the apv is already flagged as bad, continue.
+	}
+	else{
+	  if(edm::isDebugEnabled())
+	    LogTrace("SiStripHotStrip")<<"(Module and Apv number) "<<detid<<" , "<<apv<<" good by input ESetup."<<endl;
+	}
+      }
+
       phisto._th1f = new TH1F("tmp","tmp",128,0.5,128.5);
       int NumberEntriesPerAPV=0;
-
+      
       for (int strip=0; strip<128; strip++){
 	phisto._th1f->SetBinContent(strip+1,(it->second.get())->GetBinContent((apv*128)+strip+1));
 	NumberEntriesPerAPV += (int)(it->second.get())->GetBinContent((apv*128)+strip+1);
@@ -190,13 +209,13 @@ void SiStripHotStripAlgorithmFromClusterOccupancy::extractBadStrips(SiStripQuali
     if (badStripList.begin()==badStripList.end())
       continue;
 
-    siStripQuality->compact(detid,badStripList);
+    OutSiStripQuality->compact(detid,badStripList);
 
     SiStripQuality::Range range(badStripList.begin(),badStripList.end());
-    if ( ! siStripQuality->put(detid,range) )
+    if ( ! OutSiStripQuality->put(detid,range) )
       edm::LogError("SiStripHotStrip")<<"[SiStripHotStripAlgorithmFromClusterOccupancy::extractBadStrips] detid already exists"<<std::endl;
   }
-  siStripQuality->fillBadComponents();
+  OutSiStripQuality->fillBadComponents();
 
   if (WriteOutputFile_==true){
   f->cd();
