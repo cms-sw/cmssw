@@ -4,8 +4,8 @@
 /** \class MultiTrackValidatorBase
  *  Base class for analyzers that produces histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2009/01/13 10:22:50 $
- *  $Revision: 1.15 $
+ *  $Date: 2009/02/02 17:57:35 $
+ *  $Revision: 1.16 $
  *  \author cerati
  */
 
@@ -74,7 +74,7 @@ class MultiTrackValidatorBase {
     phiRes_nbin(pset.getParameter<int>("phiRes_nbin")),
     dxyRes_nbin(pset.getParameter<int>("dxyRes_nbin")),
     dzRes_nbin(pset.getParameter<int>("dzRes_nbin")),
-    ignoremissingtkcollection_(pset.getParameter<bool>("ignoremissingtrackcollection"))
+    ignoremissingtkcollection_(pset.getUntrackedParameter<bool>("ignoremissingtrackcollection",false))
     //
     {
       dbe_ = edm::Service<DQMStore>().operator->();

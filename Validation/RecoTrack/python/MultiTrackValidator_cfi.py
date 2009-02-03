@@ -41,7 +41,7 @@ multiTrackValidator = cms.EDFilter("MultiTrackValidator",
     dxyRes_nbin = cms.int32(100),                                   
     dzRes_nbin = cms.int32(150),                                   
     #                                   
-    ignoremissingtrackcollection=cms.bool(False),
+    ignoremissingtrackcollection=cms.untracked.bool(False),
     #
     sim = cms.string('g4SimHits'),
     # 
