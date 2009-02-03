@@ -20,8 +20,8 @@ namespace cond {
       loadSummary();
     }
 
-    bool loadData() const =0;
-    bool loadSummary() const =0;
+    virtual bool loadData() const =0;
+    virtual bool loadSummary() const =0;
 
 
 
@@ -31,7 +31,7 @@ namespace cond {
   /** base class of IOV payload wrapper (no summary)
    */
   template<typename O> 
-  DataWrapper : public PayloadWrapper {
+  class DataWrapper : public PayloadWrapper {
   public:
     typedef PayloadWrapper base;
     typedef O Object; 
@@ -60,7 +60,7 @@ namespace cond {
   /** base class of IOV payload wrapper (with summary)
    */
   template<typename O, typename S> 
-  DataAndSummaryWrapper : public DataWrapper<O> {
+  class DataAndSummaryWrapper : public DataWrapper<O> {
   public: 
     typedef DataWrapper<O> ObjectWrapper;
     typedef typename ObjectWrapper::base base;
