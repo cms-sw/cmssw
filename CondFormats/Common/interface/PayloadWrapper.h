@@ -11,7 +11,7 @@ namespace cond {
    */
   class  PayloadWrapper {
   public:
-    ~PayloadWrapper(){}
+    virtual ~PayloadWrapper(){}
     
 
     // load DOES NOT throw!
@@ -41,7 +41,7 @@ namespace cond {
     
     explicit DataWrapper(Object * obj) : m_data(obj){}
 
-    ~DataWrapper() {
+    virtual ~DataWrapper() {
       if (m_data.isLoaded()) delete m_data.get();
     }    
 
@@ -75,7 +75,7 @@ namespace cond {
     DataAndSummaryWrapper(Object * obj, Summary * sum) :
       ObjectWrapper(obj), m_summary(sum){}
 
-    ~DataAndSummaryWrapper() {
+    virtual ~DataAndSummaryWrapper() {
       if (m_summary.isLoaded()) delete m_summary.get();
     }    
 

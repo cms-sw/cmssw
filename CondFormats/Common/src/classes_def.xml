@@ -9,6 +9,6 @@
 
  <class name="cond::PayloadWrapper"/>
  <class name="pool::Ptr<int>"/>
- <class name="cond::DataWrapper<int,int>"/>
+ <class name="cond::DataWrapper<int>"/>
  <class name="cond::DataAndSummaryWrapper<int,int>"/>
 </lcgdict>   
