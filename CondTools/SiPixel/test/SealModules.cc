@@ -10,6 +10,7 @@
 #include "CondTools/SiPixel/test/SiPixelCondObjAllPayloadsReader.h"
 #include "CondTools/SiPixel/test/SiPixelBadModuleByHandBuilder.h"
 #include "CondTools/SiPixel/test/SiPixelBadModuleReader.h"
+#include "CondTools/SiPixel/test/SiPixelGainCalibrationRejectNoisyAndDead.h"
 
 #include "CondTools/SiPixel/test/SiPixelPerformanceSummaryBuilder.h"
 #include "CondTools/SiPixel/test/SiPixelPerformanceSummaryReader.h"
@@ -47,6 +48,7 @@ DEFINE_ANOTHER_FWK_MODULE(SiPixelPerformanceSummaryBuilder);
 DEFINE_ANOTHER_FWK_MODULE(SiPixelPerformanceSummaryReader);
 DEFINE_ANOTHER_FWK_MODULE(SiPixelBadModuleByHandBuilder);
 DEFINE_ANOTHER_FWK_MODULE(SiPixelBadModuleReader);
+DEFINE_ANOTHER_FWK_MODULE(SiPixelGainCalibrationRejectNoisyAndDead);
 DEFINE_ANOTHER_FWK_MODULE(SiPixelCPEGenericErrorParmReader);
 DEFINE_ANOTHER_FWK_MODULE(SiPixelCPEGenericErrorParmUploader);
 DEFINE_ANOTHER_FWK_MODULE(SiPixelFakeCPEGenericErrorParmSourceReader);
