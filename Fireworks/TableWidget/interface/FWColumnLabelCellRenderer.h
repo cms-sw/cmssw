@@ -1,0 +1,62 @@
+#ifndef Fireworks_TableWidget_FWColumnLabelCellRenderer_h
+#define Fireworks_TableWidget_FWColumnLabelCellRenderer_h
+// -*- C++ -*-
+//
+// Package:     TableWidget
+// Class  :     FWColumnLabelCellRenderer
+// 
+/**\class FWColumnLabelCellRenderer FWColumnLabelCellRenderer.h Fireworks/TableWidget/interface/FWColumnLabelCellRenderer.h
+
+ Description: Cell Renderer which handles the labels at the top of columns
+
+ Usage:
+    This renderer will draw both the text of the column's label and if the sort order has been set to kAscendingSort or kDescendingSort
+    it will also draw the appropriate symbol denoting the sort order of the column.
+
+*/
+//
+// Original Author:  Chris Jones
+//         Created:  Mon Feb  2 16:44:11 EST 2009
+// $Id$
+//
+
+// system include files
+
+// user include files
+#include "Fireworks/TableWidget/interface/SortOrder.h"
+#include "Fireworks/TableWidget/interface/FWTextTableCellRenderer.h"
+
+// forward declarations
+
+class FWColumnLabelCellRenderer : public FWTextTableCellRenderer
+{
+
+   public:
+      FWColumnLabelCellRenderer(GContext_t iContext=getDefaultGC()(),FontStruct_t iFontStruct = getDefaultFontStruct());
+      virtual ~FWColumnLabelCellRenderer();
+
+      // ---------- const member functions ---------------------
+      fireworks::table::SortOrder sortOrder() const;
+
+      virtual UInt_t width() const;
+
+      // ---------- static member functions --------------------
+
+      // ---------- member functions ---------------------------
+      void setSortOrder(fireworks::table::SortOrder);
+
+      virtual void draw(Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight);
+
+   private:
+      //FWColumnLabelCellRenderer(const FWColumnLabelCellRenderer&); // stop default
+
+      //const FWColumnLabelCellRenderer& operator=(const FWColumnLabelCellRenderer&); // stop default
+
+      // ---------- member data --------------------------------
+      static const UInt_t kGap = 2;
+      fireworks::table::SortOrder m_sortOrder;
+
+};
+
+
+#endif
