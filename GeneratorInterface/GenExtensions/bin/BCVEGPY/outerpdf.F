@@ -140,15 +140,15 @@ c             if data file not initialized, do so.
       if(iset.ne.isetold) then
          iu= nextun()
          if (iset.ge.isetmin0 .and. iset.le.3) then
-            tablefile=flnm(iset)//'.tbl'
+            tablefile='../data/'//flnm(iset)//'.tbl'
          elseif (iset.eq.4) then
-            tablefile=flnm(iset)//'1.tbl'
+            tablefile='../data/'//flnm(iset)//'1.tbl'
          elseif (iset.ge.isetmin1 .and. iset.le.isetmax1) then
             write(nn,'(i3)') iset
-            tablefile=flnm(1)//nn//'.tbl'
+            tablefile='../data/'//flnm(1)//nn//'.tbl'
          elseif (iset.ge.isetmin2 .and. iset.le.isetmax2) then
             write(nn,'(i3)') iset
-            tablefile=flnm(5)//nn(2:3)//'.tbl'
+            tablefile='../data/'//flnm(5)//nn(2:3)//'.tbl'
          else
             print *, 'invalid iset number in setctq6 :', iset
             stop
