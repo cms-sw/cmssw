@@ -11,15 +11,15 @@ import string
 
 #Reference release
 
-RefRelease='CMSSW_2_2_3'
+RefRelease='CMSSW_3_0_0_pre6'
 
 # startup and ideal sample list
-#startupsamples= ['RelValTTbar', 'RelValMinBias', 'RelValQCD_Pt_3000_3500']
-startupsamples= ['RelValTTbar']
+startupsamples= ['RelValTTbar', 'RelValMinBias', 'RelValQCD_Pt_3000_3500']
+#startupsamples= ['RelValTTbar']
 
-#idealsamples= ['RelValSingleMuPt1', 'RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSinglePiPt1', 'RelValSinglePiPt10', 'RelValSinglePiPt100', 'RelValSingleElectronPt35', 'RelValTTbar', 'RelValQCD_Pt_3000_3500','RelValMinBias']
+idealsamples= ['RelValSingleMuPt1', 'RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSinglePiPt1', 'RelValSinglePiPt10', 'RelValSinglePiPt100', 'RelValSingleElectronPt35', 'RelValTTbar', 'RelValQCD_Pt_3000_3500','RelValMinBias']
 
-idealsamples= [ 'RelValSingleElectronPt35']
+#idealsamples= [ 'RelValSingleElectronPt35']
 #idealsamples= ['RelValTTbar']
 
 
@@ -49,11 +49,11 @@ IdealTag='IDEAL_30X'
 StartupTag='STARTUP_30X'
 
 # Reference directory name (the macro will search for ReferenceSelection_Quality_Algo)
-ReferenceSelection='IDEAL_V11_noPU'
-StartupReferenceSelection='STARTUP_V7_noPU'
+ReferenceSelection='IDEAL_30X_noPU'
+StartupReferenceSelection='STARTUP_30X_noPU'
 
 # Default label is GlobalTag_noPU__Quality_Algo. Change this variable if you want to append an additional string.
-NewSelectionLabel='test2'
+NewSelectionLabel=''
 
 
 #Reference and new repository
@@ -127,7 +127,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
             cmd='./DDSearchCLI.py  --limit -1 --input="find  dataset.createdate, dataset where dataset like *'
 #            cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-DIGI-RAW-HLTDEBUG-RECO* "'
             cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-RECO* "'
-            cmd+='|grep '+sample+'|sort|tail -1| cut -d "," -f2 '
+            cmd+='|grep '+sample+'|grep -v test|sort|tail -1| cut -d "," -f2 '
             print cmd
             dataset= os.popen(cmd).readline()
             print 'DataSet:  ', dataset, '\n'
