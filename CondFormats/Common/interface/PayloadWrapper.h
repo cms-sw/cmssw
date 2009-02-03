@@ -36,7 +36,7 @@ namespace cond {
     typedef PayloadWrapper base;
     typedef O Object; 
     typedef Object value_type; 
-    typedef PayloadWrapper<value_type> self;
+    typedef DataWrapper<value_type> self;
  
     
     explicit DataWrapper(Object * obj) : m_data(obj){}
@@ -69,13 +69,13 @@ namespace cond {
     typedef S Summary;
     typedef Summary summary_type;
     
-    typedef DataAndSummary<value_type, summary_type> self;
+    typedef DataAndSummaryWrapper<value_type, summary_type> self;
     
     
-    DataAndSummary(Object * obj, Summary * sum) :
+    DataAndSummaryWrapper(Object * obj, Summary * sum) :
       ObjectWrapper(obj), m_Summary(sum){}
 
-    ~DataAndSummary() {
+    ~DataAndSummaryWrapper() {
       if (m_summary.isLoaded()) delete m_summary.get();
     }    
 
