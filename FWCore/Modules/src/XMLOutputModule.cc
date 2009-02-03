@@ -94,17 +94,17 @@ static void doPrint(std::ostream& oStream, std::string const& iPrefix, std::stri
 }
 
 template<>
-static void doPrint<char>(std::ostream& oStream, std::string const& iPrefix, std::string const& iPostfix, Reflex::Object const& iObject, std::string const& iIndent) {
+void doPrint<char>(std::ostream& oStream, std::string const& iPrefix, std::string const& iPostfix, Reflex::Object const& iObject, std::string const& iIndent) {
   oStream << iIndent<< iPrefix<<"char"<<kNameValueSep<<static_cast<int>(*reinterpret_cast<char*>(iObject.Address()))<<iPostfix<<"\n";
 }
 
 template<>
-static void doPrint<unsigned char>(std::ostream& oStream, std::string const& iPrefix, std::string const& iPostfix, Reflex::Object const& iObject, std::string const& iIndent) {
+void doPrint<unsigned char>(std::ostream& oStream, std::string const& iPrefix, std::string const& iPostfix, Reflex::Object const& iObject, std::string const& iIndent) {
   oStream << iIndent<< iPrefix<< "unsigned char" <<kNameValueSep<<static_cast<unsigned int>(*reinterpret_cast<unsigned char*>(iObject.Address()))<<iPostfix<<"\n";
 }
 
 template<>
-static void doPrint<bool>(std::ostream& oStream, std::string const& iPrefix, std::string const& iPostfix,Reflex::Object const& iObject, std::string const& iIndent) {
+void doPrint<bool>(std::ostream& oStream, std::string const& iPrefix, std::string const& iPostfix,Reflex::Object const& iObject, std::string const& iIndent) {
   oStream << iIndent<< iPrefix << "bool" <<kNameValueSep<<((*reinterpret_cast<bool*>(iObject.Address()))?"true":"false")<<iPostfix<<"\n";
 }
 
