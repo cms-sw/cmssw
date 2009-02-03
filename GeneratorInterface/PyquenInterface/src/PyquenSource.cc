@@ -3,10 +3,8 @@
  * Generates PYQUEN HepMC events
  *
  * Original Author: Camelia Mironov
- * $Id: PyquenSource.cc,v 1.19 2009/01/30 22:08:20 yilmaz Exp $
+ * $Id: PyquenSource.cc,v 1.20 2009/02/02 21:11:45 yilmaz Exp $
 */
-
-//Test
 
 #include <iostream>
 #include "time.h"

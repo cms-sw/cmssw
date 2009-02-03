@@ -7,6 +7,8 @@ from GeneratorInterface.PyquenInterface.pyquenPythiaDefault_cff import *
 source = cms.Source("PyquenSource",
     # 0-small angle, 1-broad angle, 2-collinear                           
     doQuench = cms.bool(True),
+    doIsospin = cms.bool(True),
+                    
     qgpInitialTemperature = cms.double(1.0), ## initial temperature of QGP; allowed range [0.2,2.0]GeV;
 
     pythiaPylistVerbosity = cms.untracked.int32(0),
