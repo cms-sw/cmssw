@@ -4,6 +4,7 @@ from HLTriggerOffline.Egamma.EgammaPostProcessor_cfi import *
 from HLTriggerOffline.Top.PostProcessor_cfi import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_postProcessor_cff import *
 from HLTriggerOffline.Common.FourVectorHLTriggerOfflineClient_cfi import *
+from HLTriggerOffline.HeavyFlavor.heavyFlavorValidationHarvestingSequence_cff import *
 #from HLTriggerOffline.Common.PostProcessorExample_cfi import *
 hltpostvalidation = cms.Sequence( 
     HLTMuonPostVal
@@ -12,6 +13,7 @@ hltpostvalidation = cms.Sequence(
     +HLTTopPostVal
     +SusyExoPostVal
     +hltFourVectorClient
+    +heavyFlavorValidationHarvestingSequence
    #+ExamplePostVal
     )
 
