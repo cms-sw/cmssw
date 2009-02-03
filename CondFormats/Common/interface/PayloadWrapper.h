@@ -73,7 +73,7 @@ namespace cond {
     
     
     DataAndSummaryWrapper(Object * obj, Summary * sum) :
-      ObjectWrapper(obj), m_Summary(sum){}
+      ObjectWrapper(obj), m_summary(sum){}
 
     ~DataAndSummaryWrapper() {
       if (m_summary.isLoaded()) delete m_summary.get();
