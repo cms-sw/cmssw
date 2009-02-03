@@ -1,0 +1,3 @@
+from HLTriggerOffline.HeavyFlavor.heavyFlavorValidationHarvesting_cfi import *
+
+heavyFlavorValidationHarvestingSequence = cms.Sequence(heavyFlavorValidationHarvesting)
