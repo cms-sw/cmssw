@@ -1224,14 +1224,12 @@ void SiPixelActionExecutor::setupQTests(DQMStore * bei) {
   bei->cd();
   bei->cd("Pixel");
   
-  string localPath;
-  if(offlineXMLfile_) localPath = string("DQM/SiPixelMonitorClient/test/sipixel_tier0_qualitytest.xml");
-  else localPath = string("DQM/SiPixelMonitorClient/test/sipixel_qualitytest_config.xml");
+  string localPath = string("DQM/SiPixelMonitorClient/test/sipixel_qualitytest_config.xml");
   if(!qtHandler_){
     qtHandler_ = new QTestHandle();
   }
   if(!qtHandler_->configureTests(edm::FileInPath(localPath).fullPath(),bei)){
-    qtHandler_->attachTests(bei,false);
+    qtHandler_->attachTests(bei);
     bei->cd();
   }else{
     cout << " Problem setting up quality tests "<<endl;
