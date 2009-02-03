@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTriggerOffline.cc,v 1.2 2009/01/26 05:46:15 berryhil Exp $
+// $Id: FourVectorHLTriggerOffline.cc,v 1.3 2009/01/29 13:29:52 berryhil Exp $
 // See header file for information. 
 #include "TMath.h"
 
@@ -72,9 +72,9 @@ FourVectorHLTriggerOffline::FourVectorHLTriggerOffline(const edm::ParameterSet& 
     dbe_->setVerbose(0);
   }
   
-  
-  dirname_="HLTriggerOffline/FourVectorHLTriggerOffline" + 
-    iConfig.getParameter<std::string>("@module_label");
+  dirname_ = iConfig.getUntrackedParameter("dirname",
+					   std::string("HLT/FourVector/"));
+  //dirname_ +=  iConfig.getParameter<std::string>("@module_label");
   
   if (dbe_ != 0 ) {
     dbe_->setCurrentFolder(dirname_);
@@ -206,16 +206,12 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
          iSetup.get< L1GtTriggerMenuRcd>().get(l1GtMenuHandle) ;
          l1GtMenu = l1GtMenuHandle.product();
          (const_cast<L1GtTriggerMenu*>(l1GtMenu))->buildGtConditionMap(); 
-           int printVerbosity = 2;
-	   // l1GtMenu->print(std::cout, printVerbosity); 
-           //std::cout << std::flush << std::endl;
- 
          l1GtMenuCacheIDtemp_ = l1GtMenuCacheID;
  
          // update also the tokenNumber members (holding the bit numbers) from m_l1AlgoLogicParser
 	 //         updateAlgoLogicParser(m_l1GtMenu);
      }
-  const AlgorithmMap& algorithmMap = l1GtMenu->gtAlgorithmMap();
+     //  const AlgorithmMap& algorithmMap = l1GtMenu->gtAlgorithmMap();
 
   edm::Handle<L1GlobalTriggerReadoutRecord> l1GTRR;
   iEvent.getByLabel(l1GTRRLabel_,l1GTRR);
@@ -379,7 +375,7 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	    // determine whether this algo passed, go to the next one if not
 	    iAlgo++;
 	    //  cout << (*itSeed).tokenName << endl;
-            int algBit = (*itSeed).tokenNumber;
+            //int algBit = (*itSeed).tokenNumber;
             std::string algName = (*itSeed).tokenName;
             const bool algResult = l1GtMenu->gtAlgorithmResult(algName,
              gtDecisionWord);
@@ -813,7 +809,7 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 
 	if (genParticles.isValid()){
           double metx = 0.0; double mety = 0.0; 
-          double met = 0.0; double metphi = 0.0;
+          double met = 0.0; //double metphi = 0.0;
           for(size_t i = 0; i < genParticles->size(); ++ i) {
            const GenParticle & p = (*genParticles)[i];
           if ((abs(p.pdgId()) == 12 || abs(p.pdgId()) == 14 || abs(p.pdgId()) == 16 || abs(p.pdgId()) == 18 || abs(p.pdgId()) == 1000022 || abs(p.pdgId()) == 1000039) && p.status() == 3){ 
@@ -866,7 +862,7 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 
 	if (genParticles.isValid()){
           double metx = 0.0; double mety = 0.0; 
-          double met = 0.0; double metphi = 0.0;
+          double met = 0.0; //double metphi = 0.0;
           for(size_t i = 0; i < genParticles->size(); ++ i) {
           const GenParticle & p = (*genParticles)[i];
           if ((abs(p.pdgId()) == 12 || abs(p.pdgId()) == 14 || abs(p.pdgId()) == 16 || abs(p.pdgId()) == 18 || abs(p.pdgId()) == 1000022 || abs(p.pdgId()) == 1000039) && p.status() == 3){ 
@@ -1349,7 +1345,7 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 
 	if (genParticles.isValid()){
           double metx = 0.0; double mety = 0.0; 
-          double met = 0.0; double metphi = 0.0;
+          double met = 0.0; //double metphi = 0.0;
           for(size_t i = 0; i < genParticles->size(); ++ i) {
           const GenParticle & p = (*genParticles)[i];
           if ((abs(p.pdgId()) == 12 || abs(p.pdgId()) == 14 || abs(p.pdgId()) == 16 || abs(p.pdgId()) == 18 || abs(p.pdgId()) == 1000022 || abs(p.pdgId()) == 1000039) && p.status() == 3){ 
