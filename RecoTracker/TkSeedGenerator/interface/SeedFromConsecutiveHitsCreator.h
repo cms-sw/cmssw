@@ -45,8 +45,9 @@ protected:
       const TransientTrackingRecHit::ConstRecHitPointer &hit, 
       const TrajectoryStateOnSurface &state) const;
 
+    double theBOFFMomentum;
+
 private:
     std::string thePropagatorLabel;
-    double theBOFFMomentum;
 };
 #endif 
