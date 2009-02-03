@@ -63,12 +63,19 @@ process.load("DQM.SiStripMonitorTrack.SiStripMonitorTrack_StandAlone_cff")
 # input
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
+    '/store/data/Commissioning08/Cosmics/RECO/CRAFT_ALL_V4_ReReco-v1/0000/46FF6C90-71C1-DD11-A71F-0019B9E4FFE1.root',
+    '/store/data/Commissioning08/Cosmics/RECO/CRAFT_ALL_V4_ReReco-v1/0000/8A9B693E-46C1-DD11-88D1-001D0967D558.root',
+    '/store/data/Commissioning08/Cosmics/RECO/CRAFT_ALL_V4_ReReco-v1/0000/9ACFD2EC-67C1-DD11-8CC2-001D0967CFCC.root',
+    '/store/data/Commissioning08/Cosmics/RECO/CRAFT_ALL_V4_ReReco-v1/0001/1EF817E4-CEC1-DD11-82F4-001D0967CFCC.root',
+    '/store/data/Commissioning08/Cosmics/RECO/CRAFT_ALL_V4_ReReco-v1/0001/3CB465BE-03C2-DD11-949C-001D0967D48B.root',
+    '/store/data/Commissioning08/Cosmics/RECO/CRAFT_ALL_V4_ReReco-v1/0001/5A00515D-B5C1-DD11-B6CE-001D0967D616.root',
+    '/store/data/Commissioning08/Cosmics/RECO/CRAFT_ALL_V4_ReReco-v1/0001/EEF3EDF1-D8C1-DD11-BBF7-0019B9E4FC1C.root',
+    '/store/data/Commissioning08/Cosmics/RECO/CRAFT_ALL_V4_ReReco-v1/0002/B0A82B97-1FC2-DD11-8734-001D0968F684.root',
+    '/store/data/Commissioning08/Cosmics/RECO/CRAFT_ALL_V4_ReReco-v1/0003/8494C44F-63C2-DD11-87F6-0019B9E4FF87.root',
+    '/store/data/Commissioning08/Cosmics/RECO/CRAFT_ALL_V4_ReReco-v1/0004/1A306101-93C2-DD11-A126-001D0967D512.root'
 
-    '/store/data/Commissioning08/Cosmics/RECO/CRAFT_ALL_V4_ReReco-v1/0001/2EA98EBE-07C2-DD11-9584-001D0967D0DF.root',
-    '/store/data/Commissioning08/Cosmics/RECO/CRAFT_ALL_V4_ReReco-v1/0001/EA0B6FEA-AFC1-DD11-A9CA-001D0967BC3E.root',
-    '/store/data/Commissioning08/Cosmics/RECO/CRAFT_ALL_V4_ReReco-v1/0007/D08B578B-7CC4-DD11-9754-001D0967D24C.root',
-    '/store/data/Commissioning08/Cosmics/RECO/CRAFT_ALL_V4_ReReco-v1/0051/2A2DAF71-E6CB-DD11-9DF3-001D0967D5FD.root'
-     
+    
+
     )
                             )
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))

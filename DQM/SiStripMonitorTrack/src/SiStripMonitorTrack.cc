@@ -31,8 +31,8 @@ SiStripMonitorTrack::SiStripMonitorTrack(const edm::ParameterSet& conf):
   Mod_On_(conf.getParameter<bool>("Mod_On")),
   Trend_On_(conf.getParameter<bool>("Trend_On")),
   OffHisto_On_(conf.getParameter<bool>("OffHisto_On")),
-  RawDigis_On_(conf.getParameter<bool>("RawDigis_On")),
-  CCAnalysis_On_(conf.getParameter<bool>("CCAnalysis_On")),
+  //  RawDigis_On_(conf.getParameter<bool>("RawDigis_On")),
+  //  CCAnalysis_On_(conf.getParameter<bool>("CCAnalysis_On")),
   folder_organizer(), tracksCollection_in_EventTree(true),
   flag_ring(conf.getParameter<bool>("RingFlag_On")),
   firstEvent(-1)
@@ -97,27 +97,6 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
   }else{
     edm::LogError("SiStripMonitorTrack")<<" Track Collection is not valid !! " << TrackLabel<<std::endl;
     tracksCollection_in_EventTree=false;
-  }
-  
-  // get RawDigi collection
-  if(RawDigis_On_) {
-    std::string digiProducer = conf_.getParameter<std::string>("RawDigiProducer");
-    std::string    digiLabel = conf_.getParameter<std::string>("RawDigiLabel");
-    e.getByLabel(digiProducer,digiLabel,dsv_SiStripRawDigi);
-    if( ! dsv_SiStripRawDigi.failedToGet() ){
-      // digi check
-      edm::LogInfo("SiStripMonitorTrack") << "[SiStripMonitorTrack::analyse]  " << "Digi " << digiLabel
-					  << " found " << dsv_SiStripRawDigi->size() << "\n";
-      /* digi check
-	 for( edm::DetSetVector<SiStripRawDigi>::const_iterator iDigi = dsv_SiStripRawDigi->begin();
-	 iDigi != dsv_SiStripRawDigi->end(); ++iDigi)
-	 edm::LogInfo("SiStripMonitorTrack") << "\n\t Digi in detid " << iDigi->detId() << ": " << iDigi->size();
-      */
-    }else{
-      LogDebug("SiStripMonitorTrack") << "RawDigis not found " << std::endl;
-    }
-  } else {
-    LogDebug("SiStripMonitorTrack") << "RawDigis Off " << std::endl;
   }
   
   // trajectory input
@@ -280,10 +259,7 @@ void SiStripMonitorTrack::bookModMEs(TString name, uint32_t id)//Histograms at M
     // Cluster PGV
     theModMEs.ClusterPGV=bookMEProfile("TProfileClusterPGV", hidmanager.createHistoId("PGV_OnTrack",name.Data(),id).c_str()); 
     dbe->tag(theModMEs.ClusterPGV,id); 
-    // Symmetric Eta function Eta=(L+R)/(2C) (Capacitive Coupling)
-    //    theModMEs.ClusterSymmEtaCC=bookME1D("TH1ClusterSymmEtaCC", hidmanager.createHistoId("ClusterSymmEtaCC",name.Data(),id).c_str()); 
-    //    dbe->tag(theModMEs.ClusterSymmEtaCC,id); 
-    //bookeeping
+
     ModMEsMap[hid]=theModMEs;
   }
 }
@@ -372,19 +348,6 @@ void SiStripMonitorTrack::bookTrendMEs(TString name,int32_t layer,uint32_t id,st
       // Cluster StoN Corrected
       theLayerMEs.ClusterStoNCorr=bookME1D("TH1ClusterStoNCorr", hidmanager.createHistoLayer("Summary_ClusterStoNCorr",name.Data(),rest,flag).c_str());
       dbe->tag(theLayerMEs.ClusterStoNCorr,layer); 
-      // Symmetric Eta function Eta=(L+R)/(2C) (Capacitive Coupling)
-      theLayerMEs.ClusterSymmEtaCC=bookME1D("TH1ClusterSymmEtaCC", hidmanager.createHistoLayer("Summary_ClusterSymmEtaCC",name.Data(),rest,flag).c_str()); 
-      dbe->tag(theLayerMEs.ClusterSymmEtaCC,layer); 
-      
-      // Histograms booked and filled only if Charge Coupling Analysis is selected
-      if(CCAnalysis_On_) {
-	// Cluster Width (perpendicular tracks, Capacitive Coupling analysis)
-	theLayerMEs.ClusterWidthCC=bookME1D("TH1ClusterWidthCC", hidmanager.createHistoLayer("Summary_ClusterWidthCC",name.Data(),rest,flag).c_str()); 
-	dbe->tag(theLayerMEs.ClusterWidthCC,layer); 
-	// Charge Coupling Estimator x=Eta/(1+2xEta) (Capacitive Coupling analysis)
-	theLayerMEs.ClusterEstimatorCC=bookME1D("TH1ClusterEstimatorCC", hidmanager.createHistoLayer("Summary_ClusterEstimatorCC",name.Data(),rest,flag).c_str()); 
-	dbe->tag(theLayerMEs.ClusterEstimatorCC,layer); 
-      }
       
       if(Trend_On_){
 	// Cluster Charge Corrected
@@ -395,9 +358,6 @@ void SiStripMonitorTrack::bookTrendMEs(TString name,int32_t layer,uint32_t id,st
 	theLayerMEs.ClusterStoNCorrTrend=bookMETrend("TH1ClusterStoNCorr", hidmanager.createHistoLayer("Trend_ClusterStoNCorr",name.Data(),rest,flag).c_str());
 	dbe->tag(theLayerMEs.ClusterStoNCorrTrend,layer); 
 	
-	// Symmetric Eta function Eta=(L+R)/(2C) (Capacitive Coupling)
-	theLayerMEs.ClusterSymmEtaCCTrend=bookMETrend("TH1ClusterSymmEtaCC", hidmanager.createHistoLayer("Trend_ClusterSymmEtaCC",name.Data(),rest,flag).c_str()); 
-	dbe->tag(theLayerMEs.ClusterSymmEtaCCTrend,layer); 
       }
       
     }
@@ -480,20 +440,6 @@ void SiStripMonitorTrack::bookSubDetMEs(TString name,TString flag)//Histograms a
       // Cluster ChargeCorr
       sprintf(completeName,"Summary_ClusterChargeCorr_%s",name.Data());
       theLayerMEs.ClusterChargeCorr=bookME1D("TH1ClusterChargeCorr", completeName);
-
-      // Symmetric Eta function Eta=(L+R)/(2C) (Capacitive Coupling)
-      sprintf(completeName,"Summary_ClusterSymmEtaCC_%s",name.Data());
-      theLayerMEs.ClusterSymmEtaCC=bookME1D("TH1ClusterSymmEtaCC", completeName);
-         
-      // Histograms booked and filled only if Charge Coupling Analysis is selected
-      if(CCAnalysis_On_) {
-	// Cluster Width (perpendicular tracks, Capacitive Coupling analysis)
-	sprintf(completeName,"Summary_ClusterWidthCC_%s",name.Data());
-	theLayerMEs.ClusterWidthCC=bookME1D("TH1ClusterWidthCC", completeName);
-	// Charge Coupling Estimator x=Eta/(1+2xEta) (Capacitive Coupling analysis)
-	sprintf(completeName,"Summary_ClusterEstimatorCC_%s",name.Data());
-	theLayerMEs.ClusterEstimatorCC=bookME1D("TH1ClusterEstimatorCC", completeName);
-      }
       
       if(Trend_On_){ 
 	// Cluster StoNCorr
@@ -502,10 +448,6 @@ void SiStripMonitorTrack::bookSubDetMEs(TString name,TString flag)//Histograms a
 	// Cluster ChargeCorr
 	sprintf(completeName,"Trend_ClusterChargeCorr_%s",name.Data());
 	theLayerMEs.ClusterChargeCorrTrend=bookMETrend("TH1ClusterChargeCorr", completeName);
-	// Cluster Eta function
-	sprintf(completeName,"Trend_ClusterSymmEtaCC_%s",name.Data());
-	theLayerMEs.ClusterSymmEtaCCTrend=bookMETrend("TH1ClusterSymmEtaCC", completeName);
-
 
       }
     }
@@ -712,7 +654,7 @@ void SiStripMonitorTrack::trackStudy(const edm::EventSetup& es)
     if ( tkrecHit != NULL ){
       LogTrace("SiStripMonitorTrack") << "GOOD hit" << std::endl;
       const SiStripCluster* SiStripCluster_ = &*(tkrecHit->cluster());
-      SiStripClusterInfo* SiStripClusterInfo_ = new SiStripClusterInfo(detid,*SiStripCluster_,es);
+      SiStripClusterInfo* SiStripClusterInfo_ = new SiStripClusterInfo(*SiStripCluster_,es);
             
       if ( clusterInfos(SiStripClusterInfo_,detid,"OnTrack", LV ) ) {
 	vPSiStripCluster.push_back(SiStripCluster_);
@@ -738,7 +680,7 @@ void SiStripMonitorTrack::AllClusters( const edm::EventSetup& es)
     edm::LogInfo("SiStripMonitorTrack") << "on detid "<< detid << " N Cluster= " << DSViter->size();
     edmNew::DetSet<SiStripCluster>::const_iterator ClusIter = DSViter->begin();
     for(; ClusIter!=DSViter->end(); ClusIter++) {
-      SiStripClusterInfo* SiStripClusterInfo_= new SiStripClusterInfo(detid,*ClusIter,es);
+      SiStripClusterInfo* SiStripClusterInfo_= new SiStripClusterInfo(*ClusIter,es);
 	LogDebug("SiStripMonitorTrack") << "ClusIter " << &*ClusIter << "\t " 
 	                                << std::find(vPSiStripCluster.begin(),vPSiStripCluster.end(),&*ClusIter)-vPSiStripCluster.begin();
 	if (std::find(vPSiStripCluster.begin(),vPSiStripCluster.end(),&*ClusIter) == vPSiStripCluster.end()){
@@ -760,10 +702,10 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster, const uint32
   // if one imposes a cut on the clusters, apply it
   const  edm::ParameterSet ps = conf_.getParameter<edm::ParameterSet>("ClusterConditions");
   if( ps.getParameter<bool>("On") &&
-      (cluster->getSignalOverNoiseRescaledByGain() < ps.getParameter<double>("minStoN") ||
-       cluster->getSignalOverNoiseRescaledByGain() > ps.getParameter<double>("maxStoN") ||
-       cluster->getWidth() < ps.getParameter<double>("minWidth") ||
-       cluster->getWidth() > ps.getParameter<double>("maxWidth")                    )) return false;
+      (cluster->signalOverNoise() < ps.getParameter<double>("minStoN") ||
+       cluster->signalOverNoise() > ps.getParameter<double>("maxStoN") ||
+       cluster->width() < ps.getParameter<double>("minWidth") ||
+       cluster->width() > ps.getParameter<double>("maxWidth")                    )) return false;
   // start of the analysis
   
   int SubDet_enum = StripSubdetector(detid).subdetId()-3;
@@ -787,7 +729,6 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster, const uint32
   std::pair<std::string,int32_t> SubDetAndLayer = folder_organizer.GetSubDetAndLayer(detid,flag_ring);
   name=flag+"_in_"+SubDetAndLayer.first;
   fillTrendMEs(cluster,name,cosRZ,flag);
-  fillCapacitiveCouplingMEs(cluster,name,cosRZ,flag);
   
   char rest[1024];
   int subdetid = ((detid>>25)&0x7);
@@ -831,7 +772,6 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster, const uint32
   
   name= hidmanager1.createHistoLayer("","layer",rest,flag);
   fillTrendMEs(cluster,name,cosRZ,flag);
-  fillCapacitiveCouplingMEs(cluster,name,cosRZ,flag);
   
   // Module plots filled only for onTrack Clusters
   if(Mod_On_){
@@ -921,19 +861,19 @@ void SiStripMonitorTrack::fillModMEs(SiStripClusterInfo* cluster,TString name,fl
 {
   std::map<TString, ModMEs>::iterator iModME  = ModMEsMap.find(name);
   if(iModME!=ModMEsMap.end()){
-    fillME(iModME->second.ClusterStoN  ,cluster->getSignalOverNoiseRescaledByGain());
-    fillME(iModME->second.ClusterStoNCorr ,cluster->getSignalOverNoiseRescaledByGain()*cos);
-    fillME(iModME->second.ClusterCharge,cluster->getCharge());
-    fillME(iModME->second.ClusterChargeCorr,cluster->getCharge()*cos);
-    fillME(iModME->second.ClusterWidth ,cluster->getWidth());
-    fillME(iModME->second.ClusterPos   ,cluster->getPosition());
+    fillME(iModME->second.ClusterStoN  ,cluster->signalOverNoise());
+    fillME(iModME->second.ClusterStoNCorr ,cluster->signalOverNoise()*cos);
+    fillME(iModME->second.ClusterCharge,cluster->charge());
+    fillME(iModME->second.ClusterChargeCorr,cluster->charge()*cos);
+    fillME(iModME->second.ClusterWidth ,cluster->width());
+    fillME(iModME->second.ClusterPos   ,cluster->baryStrip());
     
     //fill the PGV histo
-    float PGVmax = cluster->getMaxCharge();
-    int PGVposCounter = cluster->getFirstStrip() - cluster->getMaxPosition();
+    float PGVmax = cluster->maxCharge();
+    int PGVposCounter = cluster->maxIndex();
     for (int i= int(conf_.getParameter<edm::ParameterSet>("TProfileClusterPGV").getParameter<double>("xmin"));i<PGVposCounter;++i)
       fillME(iModME->second.ClusterPGV, i,0.);
-    for (std::vector<uint8_t>::const_iterator it=cluster->getStripAmplitudes().begin();it<cluster->getStripAmplitudes().end();++it) {
+    for (std::vector<uint8_t>::const_iterator it=cluster->stripCharges().begin();it<cluster->stripCharges().end();++it) {
       fillME(iModME->second.ClusterPGV, PGVposCounter++,(*it)/PGVmax);
     }
     for (int i= PGVposCounter;i<int(conf_.getParameter<edm::ParameterSet>("TProfileClusterPGV").getParameter<double>("xmax"));++i)
@@ -948,100 +888,20 @@ void SiStripMonitorTrack::fillTrendMEs(SiStripClusterInfo* cluster,std::string n
   std::map<TString, LayerMEs>::iterator iLayerME  = LayerMEsMap.find(name);
   if(iLayerME!=LayerMEsMap.end()){
     if(flag=="OnTrack"){
-      fillME(iLayerME->second.ClusterStoNCorr,(cluster->getSignalOverNoiseRescaledByGain())*cos);
-      fillTrend(iLayerME->second.ClusterStoNCorrTrend,(cluster->getSignalOverNoiseRescaledByGain())*cos);
-      fillME(iLayerME->second.ClusterChargeCorr,cluster->getCharge()*cos);
-      fillTrend(iLayerME->second.ClusterChargeCorrTrend,cluster->getCharge()*cos);
+      fillME(iLayerME->second.ClusterStoNCorr,(cluster->signalOverNoise())*cos);
+      fillTrend(iLayerME->second.ClusterStoNCorrTrend,(cluster->signalOverNoise())*cos);
+      fillME(iLayerME->second.ClusterChargeCorr,cluster->charge()*cos);
+      fillTrend(iLayerME->second.ClusterChargeCorrTrend,cluster->charge()*cos);
     }
-    fillME(iLayerME->second.ClusterStoN  ,cluster->getSignalOverNoiseRescaledByGain());
-    fillTrend(iLayerME->second.ClusterStoNTrend,cluster->getSignalOverNoiseRescaledByGain());
-    fillME(iLayerME->second.ClusterCharge,cluster->getCharge());
-    fillTrend(iLayerME->second.ClusterChargeTrend,cluster->getCharge());
-    fillME(iLayerME->second.ClusterNoise ,cluster->getNoiseRescaledByGain());
-    fillTrend(iLayerME->second.ClusterNoiseTrend,cluster->getNoiseRescaledByGain());
-    fillME(iLayerME->second.ClusterWidth ,cluster->getWidth());
-    fillTrend(iLayerME->second.ClusterWidthTrend,cluster->getWidth());
-    fillME(iLayerME->second.ClusterPos   ,cluster->getPosition());
+    fillME(iLayerME->second.ClusterStoN  ,cluster->signalOverNoise());
+    fillTrend(iLayerME->second.ClusterStoNTrend,cluster->signalOverNoise());
+    fillME(iLayerME->second.ClusterCharge,cluster->charge());
+    fillTrend(iLayerME->second.ClusterChargeTrend,cluster->charge());
+    fillME(iLayerME->second.ClusterNoise ,cluster->noiseRescaledByGain());
+    fillTrend(iLayerME->second.ClusterNoiseTrend,cluster->noiseRescaledByGain());
+    fillME(iLayerME->second.ClusterWidth ,cluster->width());
+    fillTrend(iLayerME->second.ClusterWidthTrend,cluster->width());
+    fillME(iLayerME->second.ClusterPos   ,cluster->baryStrip());
   }
 }
 
-//------------------------------------------------------------------------
-void SiStripMonitorTrack::fillCapacitiveCouplingMEs(SiStripClusterInfo* cluster,std::string name, float cos, std::string flag) {
-  std::map<TString, LayerMEs>::iterator iLayerME  = LayerMEsMap.find(name);
-  if(iLayerME!=LayerMEsMap.end()){
-    // Capacitive Coupling analysis
-    if( cos > 0.9 ) { // perpendicular track
-      LogTrace("SiStripMonitorTrack") << "\t\t Perpendicular Track, cluster center " << cluster->getMaxPosition() << std::endl;
-      
-      // calculate symmetric eta function with only the Central + First Left / First Right strips
-      float chargeCentral = 0.;
-      std::pair< float,float > chargeLeftRight;
-      //
-      if(RawDigis_On_) {
-	// with RawDigi
-	if(!dsv_SiStripRawDigi.failedToGet()) {
-	  if((*(dsv_SiStripRawDigi.product())).find(cluster->getDetId()) != (*(dsv_SiStripRawDigi.product())).end() ) { // ...if they exist
-	    const edm::DetSet<SiStripRawDigi>    ds_SiStripRawDigi = (*(dsv_SiStripRawDigi.product()))[cluster->getDetId()];
-	    edmNew::DetSet<SiStripCluster> ds_SiStripCluster = (*(dsv_SiStripCluster.product()))[cluster->getDetId()];
-	    LogDebug("SiStripMonitorTrack") << "RawDigis found " << ds_SiStripRawDigi.size() << std::endl;
-	    std::vector<float> chargesCLR = cluster->getRawChargeCLR(ds_SiStripRawDigi,ds_SiStripCluster,std::string("VirginRaw"));
-	    chargeCentral = chargesCLR[0];
-	    chargeLeftRight.first = chargesCLR[1];
-	    chargeLeftRight.second = chargesCLR[2];
-	  } // no SiStripRawDigi at all
-	}
-      } else {
-	LogDebug("SiStripMonitorTrack") << "RawDigis " << RawDigis_On_ << " take info from cluster strips" << std::endl;
-	// with cluster strips only
-	chargeCentral = cluster->getMaxCharge();
-	chargeLeftRight = cluster->getChargeLRFirstNeighbour();
-      }
-      float symmetricEta = SymEta(chargeCentral,chargeLeftRight.first,chargeLeftRight.second);
-      float ccEstimator  = symmetricEta / ( 1 + 2 * symmetricEta );
-      
-      // Summary
-      LogTrace("SiStripMonitorTrack")    
-	<<"\n\t\t Cluster with multiplicity " << cluster->getWidth()
-	<< " in det " << cluster->getDetId()
-	<< ": Eta Function from Charge"
-	<<"\n\t\t\t Signal = " << cluster->getCharge()
-	<<"\n\t\t\t Noise  = " << cluster->getNoiseRescaledByGain()
-	<<"\n\t\t\t S/N    = " << cluster->getSignalOverNoiseRescaledByGain()
-	<<"\n\t\t\t  Cluster Central C = " << cluster->getMaxCharge()
-	<<"\n\t\t\t  Cluster    Left L = " << cluster->getChargeLRFirstNeighbour().first
-	<<"\n\t\t\t  Cluster   Right R = " << cluster->getChargeLRFirstNeighbour().second
-	<<"\n\t\t\t  RawDigi Central C = " << chargeCentral
-	<<"\n\t\t\t  RawDigi    Left L = " << chargeLeftRight.first
-	<<"\n\t\t\t  RawDigi   Right R = " << chargeLeftRight.second
-	<<"\n\t\t\t     Max = " << cluster->getMaxCharge()
-	<<"\n\t\t\t     Pos = " << cluster->getMaxPosition()
-	<<"\n\t\t\t     1st = " << cluster->getFirstStrip()
-	<<"\n\t\t\t Symmetric Eta = " << symmetricEta
-	<<"\n\t\t\t CC Estimator  = " << ccEstimator
-	<< std::endl;
-      for (std::vector<uint8_t>::const_iterator it=cluster->getStripAmplitudes().begin();it<cluster->getStripAmplitudes().end();++it) {
-	LogTrace("SiStripMonitorTrack")    
-	  <<"\t\t\t       " << (short)(*it) << std::endl;
-      }
-      //
-      
-      // fill monitor elements
-      fillME(iLayerME->second.ClusterSymmEtaCC , symmetricEta);
-      fillTrend(iLayerME->second.ClusterSymmEtaCCTrend, symmetricEta);
-      // Histograms booked and filled only if Charge Coupling Analysis is selected
-      if(CCAnalysis_On_) {
-	fillME(iLayerME->second.ClusterWidthCC, cluster->getWidth() );
-	fillME(iLayerME->second.ClusterEstimatorCC , ccEstimator );
-      }
-      //
-      
-    } // perpendicular track
-  }
-}
-
-//------------------------------------------------------------------------
-// Symmetric Eta function
-float SiStripMonitorTrack::SymEta( float clusterCentralCharge, float clusterLeftCharge, float clusterRightCharge){
-  float symeta = ( clusterLeftCharge + clusterRightCharge )/( 2 * clusterCentralCharge );
-  return symeta;
-}

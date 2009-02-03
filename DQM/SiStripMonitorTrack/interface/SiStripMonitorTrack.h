@@ -74,11 +74,9 @@ private:
   void trackStudy(const edm::EventSetup& es);
   //  LocalPoint project(const GeomDet *det,const GeomDet* projdet,LocalPoint position,LocalVector trackdirection)const;
   bool clusterInfos(SiStripClusterInfo* cluster, const uint32_t& detid,std::string flag, LocalVector LV);	
-  float SymEta( float clusterCentralCharge, float clusterLeftCharge, float clusterRightCharge);
   void RecHitInfo(const SiStripRecHit2D* tkrecHit, LocalVector LV,reco::TrackRef track_ref, const edm::EventSetup&);
   // fill monitorables 
   void fillModMEs(SiStripClusterInfo*,TString,float);
-  void fillCapacitiveCouplingMEs(SiStripClusterInfo*,std::string,float,std::string);
   void fillTrendMEs(SiStripClusterInfo*,std::string,float,std::string);
   void fillTrend(MonitorElement* ME,float value1);
   inline void fillME(MonitorElement* ME,float value1){if (ME!=0)ME->Fill(value1);}
@@ -129,10 +127,6 @@ private:
       ClusterNoiseTrend(0),
       ClusterWidth(0),
       ClusterWidthTrend(0),
-      ClusterSymmEtaCC(0),
-      ClusterSymmEtaCCTrend(0),
-      ClusterWidthCC(0),
-      ClusterEstimatorCC(0),
       ClusterPos(0),
       ClusterPGV(0){};
     MonitorElement* nClusters;
@@ -149,10 +143,6 @@ private:
     MonitorElement* ClusterNoiseTrend;
     MonitorElement* ClusterWidth;
     MonitorElement* ClusterWidthTrend;
-    MonitorElement* ClusterSymmEtaCC;
-    MonitorElement* ClusterSymmEtaCCTrend;
-    MonitorElement* ClusterWidthCC;
-    MonitorElement* ClusterEstimatorCC;
     MonitorElement* ClusterPos;
     MonitorElement* ClusterPGV;
   };
@@ -162,7 +152,6 @@ private:
   std::map<TString, MonitorElement*> MEMap;
 
   
-  edm::Handle< edm::DetSetVector<SiStripRawDigi> >    dsv_SiStripRawDigi;
   edm::Handle< edmNew::DetSetVector<SiStripCluster> > dsv_SiStripCluster;
   
   edm::Handle<std::vector<Trajectory> > TrajectoryCollection;
