@@ -6,6 +6,7 @@ from HLTriggerOffline.Egamma.EgammaValidation_cff import *
 from HLTriggerOffline.Top.topvalidation_cfi import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_triggerValidation_cff import *
 from HLTriggerOffline.Common.FourVectorHLTriggerOffline_cff import *
+from HLTriggerOffline.HeavyFlavor.heavyFlavorValidationSequence_cff import *
 hltvalidation = cms.Sequence(
     muonTriggerRateTimeAnalyzer
     +HLTTauVal
@@ -15,5 +16,6 @@ hltvalidation = cms.Sequence(
     +HLTTopVal
     +HLTSusyExoVal
     +HLTFourVector
+    +heavyFlavorValidationSequence
     )
 

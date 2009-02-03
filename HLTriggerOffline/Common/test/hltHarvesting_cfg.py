@@ -60,6 +60,7 @@ process.validation = cms.Path(
     +process.HLTTopVal
     +process.HLTSusyExoVal
     +process.HLTFourVector
+    +process.heavyFlavorValidationSequence
     )
 
 process.post_validation = cms.Path(
