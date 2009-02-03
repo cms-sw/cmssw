@@ -1,7 +1,7 @@
 //
 // Original Author:  Stefano Magni
 //         Created:  Fri Mar  9 10:52:11 CET 2007
-// $Id: TrackAssociatorEDProducer.cc,v 1.3 2008/04/17 22:49:46 cerati Exp $
+// $Id: TrackAssociatorEDProducer.cc,v 1.4 2009/02/03 11:08:05 vlimant Exp $
 //
 //
 
@@ -83,8 +83,7 @@ TrackAssociatorEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
    if (theIgnoremissingtrackcollection && !trackAvailable){
      //the track collection is not in the event and we're being told to ignore this.
-     rts.reset(new reco::RecoToSimCollection());
-     str.reset(new reco::SimToRecoCollection());
+     //do not output anything to the event, other wise this would be considered as inefficiency.
    }else{
      //associate tracks
      LogTrace("TrackValidator") << "Calling associateRecoToSim method" << "\n";
@@ -98,10 +97,10 @@ TrackAssociatorEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
      
      rts.reset(new reco::RecoToSimCollection(recSimColl));
      str.reset(new reco::SimToRecoCollection(simRecColl));
-   }
 
-   iEvent.put(rts);
-   iEvent.put(str);
+     iEvent.put(rts);
+     iEvent.put(str);
+   }
 }
 
 // ------------ method called once each job just before starting event loop  ------------
