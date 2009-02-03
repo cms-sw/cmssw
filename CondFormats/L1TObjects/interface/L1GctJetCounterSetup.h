@@ -7,6 +7,7 @@
  */
 
 #include <vector>
+#include <iosfwd>
 
 /*! \class L1GctJetCounterSetup
  * \brief Jet counter setup
