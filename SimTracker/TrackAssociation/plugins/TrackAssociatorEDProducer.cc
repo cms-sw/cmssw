@@ -1,7 +1,7 @@
 //
 // Original Author:  Stefano Magni
 //         Created:  Fri Mar  9 10:52:11 CET 2007
-// $Id: TrackAssociatorEDProducer.cc,v 1.2 2007/12/18 16:15:33 cerati Exp $
+// $Id: TrackAssociatorEDProducer.cc,v 1.3 2008/04/17 22:49:46 cerati Exp $
 //
 //
 
@@ -44,12 +44,14 @@ private:
   edm::InputTag label_tr;
   edm::InputTag label_tp;
   std::string associator;
+  bool  theIgnoremissingtrackcollection;
 };
 
 TrackAssociatorEDProducer::TrackAssociatorEDProducer(const edm::ParameterSet& pset):
   label_tr(pset.getParameter< edm::InputTag >("label_tr")),
   label_tp(pset.getParameter< edm::InputTag >("label_tp")),
-  associator(pset.getParameter< std::string >("associator"))
+  associator(pset.getParameter< std::string >("associator")),
+  theIgnoremissingtrackcollection(pset.getParameter<bool>("ignoremissingtrackcollection"))
 {
   produces<reco::SimToRecoCollection>();
   produces<reco::RecoToSimCollection>();
@@ -74,20 +76,29 @@ TrackAssociatorEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
    iEvent.getByLabel(label_tp, TPCollection);
      
    Handle<edm::View<reco::Track> > trackCollection;
-   iEvent.getByLabel (label_tr, trackCollection );
+   bool trackAvailable = iEvent.getByLabel (label_tr, trackCollection );
 
-   //associate tracks
-   LogTrace("TrackValidator") << "Calling associateRecoToSim method" << "\n";
-   reco::RecoToSimCollection recSimColl=theAssociator->associateRecoToSim(trackCollection,
-									  TPCollection,
-									  &iEvent);
-   LogTrace("TrackValidator") << "Calling associateSimToReco method" << "\n";
-   reco::SimToRecoCollection simRecColl=theAssociator->associateSimToReco(trackCollection,
-									  TPCollection, 
-									  &iEvent);
+   std::auto_ptr<reco::RecoToSimCollection> rts;
+   std::auto_ptr<reco::SimToRecoCollection> str;
 
-   std::auto_ptr<reco::RecoToSimCollection> rts(new reco::RecoToSimCollection(recSimColl));
-   std::auto_ptr<reco::SimToRecoCollection> str(new reco::SimToRecoCollection(simRecColl));
+   if (theIgnoremissingtrackcollection && !trackAvailable){
+     //the track collection is not in the event and we're being told to ignore this.
+     rts.reset(new reco::RecoToSimCollection());
+     str.reset(new reco::SimToRecoCollection());
+   }else{
+     //associate tracks
+     LogTrace("TrackValidator") << "Calling associateRecoToSim method" << "\n";
+     reco::RecoToSimCollection recSimColl=theAssociator->associateRecoToSim(trackCollection,
+									    TPCollection,
+									    &iEvent);
+     LogTrace("TrackValidator") << "Calling associateSimToReco method" << "\n";
+     reco::SimToRecoCollection simRecColl=theAssociator->associateSimToReco(trackCollection,
+									    TPCollection, 
+									    &iEvent);
+     
+     rts.reset(new reco::RecoToSimCollection(recSimColl));
+     str.reset(new reco::SimToRecoCollection(simRecColl));
+   }
 
    iEvent.put(rts);
    iEvent.put(str);
