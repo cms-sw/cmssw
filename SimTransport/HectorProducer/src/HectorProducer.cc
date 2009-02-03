@@ -134,6 +134,10 @@ void HectorProducer::produce(edm::Event & iEvent, const edm::EventSetup & es){
     hector->filterD1();
   }
   evt_ = hector->addPartToHepMC( evt_ );
+  if (m_verbosity) {
+    cout << "HECTOR transported event: " << endl;
+    evt_->print();
+  }
   
   // OK, create a product and put in into edm::Event
   //
