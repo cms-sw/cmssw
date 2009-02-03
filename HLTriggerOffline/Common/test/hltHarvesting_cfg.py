@@ -55,9 +55,11 @@ process.validation = cms.Path(
      process.muonTriggerRateTimeAnalyzer
     +process.HLTTauVal
    #+process.EcalPi0Mon
+    +process.EcalPhiSymMon
     +process.egammaValidationSequence
     +process.HLTTopVal
     +process.HLTSusyExoVal
+    +process.HLTFourVector
     )
 
 process.post_validation = cms.Path(
