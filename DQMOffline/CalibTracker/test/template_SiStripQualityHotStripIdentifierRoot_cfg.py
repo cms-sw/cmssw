@@ -42,7 +42,7 @@ process.a = cms.ESSource("PoolDBESSource",
         record = cms.string('SiStripBadFiberRcd'),
         tag = cms.string('SiStripBadChannel_v1')
     )),
-    connect = cms.string('sqlite_file:inputdbfile_69276.db')
+    connect = cms.string('sqlite_file:dbfile.db')
 )
 
 #to read information of o2o and cabling
@@ -102,7 +102,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
     timetype = cms.untracked.string('runnumber'),
-    connect = cms.string('sqlite_file:inputdbfile_69276.db'),
+    connect = cms.string('sqlite_file:dbfile.db'),
     toPut = cms.VPSet(
     cms.PSet(
       record = cms.string('SiStripBadStrip'),
