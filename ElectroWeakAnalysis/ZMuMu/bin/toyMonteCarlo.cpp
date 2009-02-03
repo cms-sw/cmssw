@@ -211,7 +211,6 @@ int main(int argc, char * argv[]){
       TDirectory * goodZToMuMuOneStandAloneMuon = outputfile->mkdir("goodZToMuMuOneStandAloneMuonPlots");
       TDirectory * goodZToMuMuOneTrack = outputfile->mkdir("goodZToMuMuOneTrackPlots");
       
-      cout<<"hierarchy done"<<endl;
       goodZToMuMu->cd();
       zMuMu->Write();
       
