@@ -27,7 +27,7 @@ struct Range {
 template<typename Value_t, typename Axis_t = Value_t>
 class Histogram {
     public:
-	typedef Range<Axis_t> Range;
+	typedef PhysicsTools::Calibration::Range<Axis_t> Range;
 
 	Histogram();
 
