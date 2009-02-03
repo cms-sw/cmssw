@@ -1,7 +1,7 @@
 //
 // Original Author:  Stefano Magni
 //         Created:  Fri Mar  9 10:52:11 CET 2007
-// $Id: TrackAssociatorEDProducer.cc,v 1.4 2009/02/03 11:08:05 vlimant Exp $
+// $Id: TrackAssociatorEDProducer.cc,v 1.5 2009/02/03 17:24:58 vlimant Exp $
 //
 //
 
@@ -51,7 +51,7 @@ TrackAssociatorEDProducer::TrackAssociatorEDProducer(const edm::ParameterSet& ps
   label_tr(pset.getParameter< edm::InputTag >("label_tr")),
   label_tp(pset.getParameter< edm::InputTag >("label_tp")),
   associator(pset.getParameter< std::string >("associator")),
-  theIgnoremissingtrackcollection(pset.getParameter<bool>("ignoremissingtrackcollection"))
+  theIgnoremissingtrackcollection(pset.getUntrackedParameter<bool>("ignoremissingtrackcollection",false))
 {
   produces<reco::SimToRecoCollection>();
   produces<reco::RecoToSimCollection>();

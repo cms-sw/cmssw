@@ -4,7 +4,7 @@ trackingParticleRecoTrackAsssociation = cms.EDProducer("TrackAssociatorEDProduce
     associator = cms.string('TrackAssociatorByHits'),
     label_tp = cms.InputTag("mergedtruth","MergedTrackTruth"),
     label_tr = cms.InputTag("generalTracks"),
-    ignoremissingtrackcollection=cms.bool(False)
+    ignoremissingtrackcollection=cms.untracked.bool(False)
 )
 
 
