@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from Validation.RecoMuon.selectors_cff import *
 from Validation.RecoMuon.associators_cff import *
 
-# Configurations for MultiTrackValidators
+# # Configurations for MultiTrackValidators
 import Validation.RecoMuon.MultiTrackValidator_cfi
 
 l2MuonTrackV = Validation.RecoMuon.MultiTrackValidator_cfi.multiTrackValidator.clone()
@@ -80,47 +80,47 @@ l3MuonMuTrackV.nintHit = 35
 l3MuonMuTrackV.maxHit = 35.0
 l3MuonMuTrackV.maxpT = 1100.0
 
-from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
-from Validation.RecoMuon.RecoMuonValidator_cfi import *
+## from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
+## from Validation.RecoMuon.RecoMuonValidator_cfi import *
 
-recoMuonVMuAssoc = Validation.RecoMuon.RecoMuonValidator_cfi.recoMuonValidator.clone()
+## recoMuonVMuAssoc = Validation.RecoMuon.RecoMuonValidator_cfi.recoMuonValidator.clone()
 
-recoMuonVMuAssoc.subDir = 'HLTMuonV/RecoMuon_MuonAssoc'
+## recoMuonVMuAssoc.subDir = 'HLTMuonV/RecoMuon_MuonAssoc'
 
-recoMuonVMuAssoc.trkMuLabel = 'hltL3TkTracksFromL2'
-recoMuonVMuAssoc.staMuLabel = 'hltL2Muons:UpdatedAtVtx'
-recoMuonVMuAssoc.glbMuLabel = 'hltL3Muons'
+## recoMuonVMuAssoc.trkMuLabel = 'hltL3TkTracksFromL2'
+## recoMuonVMuAssoc.staMuLabel = 'hltL2Muons:UpdatedAtVtx'
+## recoMuonVMuAssoc.glbMuLabel = 'hltL3Muons'
 
-recoMuonVMuAssoc.trkMuAssocLabel = 'tpToL3TkMuonAssociation'
-recoMuonVMuAssoc.staMuAssocLabel = 'tpToL2MuonAssociation'
-recoMuonVMuAssoc.glbMuAssocLabel = 'tpToL3MuonAssociation'
+## recoMuonVMuAssoc.trkMuAssocLabel = 'tpToL3TkMuonAssociation'
+## recoMuonVMuAssoc.staMuAssocLabel = 'tpToL2MuonAssociation'
+## recoMuonVMuAssoc.glbMuAssocLabel = 'tpToL3MuonAssociation'
 
-recoMuonVTrackAssoc = Validation.RecoMuon.RecoMuonValidator_cfi.recoMuonValidator.clone()
+## recoMuonVTrackAssoc = Validation.RecoMuon.RecoMuonValidator_cfi.recoMuonValidator.clone()
 
-recoMuonVTrackAssoc.subDir = 'HLTMuonV/RecoMuon_TrackAssoc'
+## recoMuonVTrackAssoc.subDir = 'HLTMuonV/RecoMuon_TrackAssoc'
 
-recoMuonVTrackAssoc.trkMuLabel = 'hltL3TkTracksFromL2'
-recoMuonVTrackAssoc.staMuLabel = 'hltL2Muons:UpdatedAtVtx'
-recoMuonVTrackAssoc.glbMuLabel = 'hltL3Muons'
+## recoMuonVTrackAssoc.trkMuLabel = 'hltL3TkTracksFromL2'
+## recoMuonVTrackAssoc.staMuLabel = 'hltL2Muons:UpdatedAtVtx'
+## recoMuonVTrackAssoc.glbMuLabel = 'hltL3Muons'
 
-recoMuonVTrackAssoc.trkMuAssocLabel = 'tpToL3TkTrackTrackAssociation'
-recoMuonVTrackAssoc.staMuAssocLabel = 'tpToL2TrackAssociation'
-recoMuonVTrackAssoc.glbMuAssocLabel = 'tpToL3TrackAssociation'
+## recoMuonVTrackAssoc.trkMuAssocLabel = 'tpToL3TkTrackTrackAssociation'
+## recoMuonVTrackAssoc.staMuAssocLabel = 'tpToL2TrackAssociation'
+## recoMuonVTrackAssoc.glbMuAssocLabel = 'tpToL3TrackAssociation'
 
 
-# Muon validation sequence
+# # Muon validation sequence
 muonValidationHLT_seq = cms.Sequence(
-    l2MuonTrackV
-    +l3MuonTrackV
-    +l3TkMuonTrackV
-    +l3TkMuonMuTrackV
-    +l2MuonMuTrackV
-    +l3MuonMuTrackV
-#    +recoMuonVMuAssoc
-#    +recoMuonVTrackAssoc
-    )
+     l2MuonTrackV
+     +l3MuonTrackV
+     +l3TkMuonTrackV
+     +l3TkMuonMuTrackV
+     +l2MuonMuTrackV
+     +l3MuonMuTrackV
+## # #   +recoMuonVMuAssoc
+## # #   +recoMuonVTrackAssoc
+     )
 
 recoMuonValidationHLT_seq = cms.Sequence(
-    muonAssociationHLT_seq
-    *muonValidationHLT_seq
-    )
+     muonAssociationHLT_seq
+     *muonValidationHLT_seq
+     )
