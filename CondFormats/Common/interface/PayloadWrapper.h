@@ -1,8 +1,8 @@
-ifndef Cond_PayloadWrapper_h
+#ifndef Cond_PayloadWrapper_h
 #define Cond_PayloadWrapper_h
 
 
-#include "DataSvc/Ref.h"
+#include "POOLCore/Ptr.h"
 
 namespace cond {
 
