@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <typeinfo>
 #include <string>
+#include <cstring>
 
 #include "RVersion.h"
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,0)
