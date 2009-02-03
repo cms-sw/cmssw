@@ -1,10 +1,20 @@
 #!/bin/sh
 
 # First, enable timing report and message logger
-cp $CMSSW_RELEASE_BASE/src/FastSimulation/Configuration/test/IntegrationTestWithHLT_cfg.py IntegrationTestWithHLTWithTiming_cfg.py
+if [ -f $CMSSW_BASE/src/FastSimulation/Configuration/test/IntegrationTestWithHLT_cfg.py ]
+then
+    cp  $CMSSW_BASE/src/FastSimulation/Configuration/test/IntegrationTestWithHLT_cfg.py IntegrationTestWithHLTWithTiming_cfg.py
+    echo "Taking IntegrationTestWithHLT_cfg.py from the local release area"
+else
+    cp $CMSSW_RELEASE_BASE/src/FastSimulation/Configuration/test/IntegrationTestWithHLT_cfg.py IntegrationTestWithHLTWithTiming_cfg.py
+    echo "Taking IntegrationTestWithHLT_cfg.py from the central release area"
+fi
 echo 'process.Timing =  cms.Service("Timing")'  >> IntegrationTestWithHLTWithTiming_cfg.py
 echo 'process.load("FWCore/MessageService/MessageLogger_cfi")' >> IntegrationTestWithHLTWithTiming_cfg.py
 echo 'process.MessageLogger.destinations = cms.untracked.vstring("pyDetailedInfo.txt")' >> IntegrationTestWithHLTWithTiming_cfg.py 
+
+# build the binary
+oval b
 
 #run and measure total fime
 /usr/bin/time -o timefrac -f'%P' oval run cmsRun.runWithTiming
