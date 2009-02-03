@@ -1,12 +1,10 @@
 /*
- * $Id: HydjetSource.cc,v 1.24 2009/01/09 10:45:13 saout Exp $
+ * $Id: HydjetSource.cc,v 1.25 2009/02/03 00:37:40 yilmaz Exp $
  *
  * Interface to the HYDJET generator, produces HepMC events
  *
  * Original Author: Camelia Mironov
  */
-
-#define PI 3.14159265358979
 
 #include <iostream>
 #include <cmath>
@@ -40,6 +38,8 @@ namespace {
   }
 
 }
+
+static const double pi = 3.14159265358979;
 
 using namespace edm;
 using namespace std;
@@ -505,11 +505,8 @@ bool HydjetSource::produce(Event & e)
 void HydjetSource::rotateEvtPlane(){
 
    int * dummy;
-   phi0_ = 2.*PI*pyr_(dummy) - PI;
+   phi0_ = 2.*pi*pyr_(dummy) - pi;
    sinphi0_ = sin(phi0_);
    cosphi0_ = cos(phi0_);
-
-   cout<<"PHI = "<<phi0_<<";  SIN = "<<sinphi0_<<"; COS = "<<cosphi0_<<endl;
-
 }
 

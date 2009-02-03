@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Tue Dec 18 09:44:41 EST 2007
-// $Id: HydjetAnalyzer.cc,v 1.10 2009/01/09 10:45:13 saout Exp $
+// $Id: HydjetAnalyzer.cc,v 1.11 2009/02/03 00:37:41 yilmaz Exp $
 //
 //
 
@@ -56,13 +56,9 @@
 
 using namespace std;
 
-
-#define PI 3.14159265358979
-
-#define MAXPARTICLES 5000000
-#define MAXHITS 50000
-#define MAXVTX 1000
-#define ETABINS 3 // Fix also in branch string
+static const int MAXPARTICLES = 5000000;
+static const int MAXVTX = 1000;
+static const int ETABINS = 3; // Fix also in branch string
 
 //
 // class decleration
@@ -161,8 +157,6 @@ HydjetAnalyzer::HydjetAnalyzer(const edm::ParameterSet& iConfig)
 
    etaMax_ = iConfig.getUntrackedParameter<double>("etaMax", 2);
    ptMin_ = iConfig.getUntrackedParameter<double>("ptMin", 0);
-
-   // Output
 
 }
 
@@ -269,9 +263,7 @@ HydjetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	if((*it)->status() == 1){
 	   int pdg_id = (*it)->pdg_id();
 	   float eta = (*it)->momentum().eta();
-           float phi = (*it)->momentum().phi();// - hev_.phi0;
-	   //	   if(phi > 2*PI ) phi -= 2*PI;
-	   //           if(phi < -2*PI ) phi += 2*PI;
+           float phi = (*it)->momentum().phi();
 	   float pt = (*it)->momentum().perp();
 	  const ParticleData * part = pdt->particle(pdg_id );
 	  int charge = part->charge();

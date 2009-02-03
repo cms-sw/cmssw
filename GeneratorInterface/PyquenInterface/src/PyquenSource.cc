@@ -3,7 +3,7 @@
  * Generates PYQUEN HepMC events
  *
  * Original Author: Camelia Mironov
- * $Id: PyquenSource.cc,v 1.20 2009/02/02 21:11:45 yilmaz Exp $
+ * $Id: PyquenSource.cc,v 1.21 2009/02/03 01:00:34 yilmaz Exp $
 */
 
 #include <iostream>
@@ -296,11 +296,9 @@ char* PyquenSource::nucleon(){
   int* dummy;
   double random = pyr_(dummy);
   char* nuc;
-  cout<<"PYR   "<<random<<endl;
   if(random > pfrac_) nuc = "n";
   else nuc = "p";
   
-  cout<<"Nucleon "<<nuc<<endl;
   return nuc;
 }
 
