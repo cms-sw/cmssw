@@ -24,13 +24,17 @@ using namespace std;
 
 void fillRandom(int N, TH1F *pdf, TH1F * histo){
   double m =0;
-  for(int i =0 ; i <N ;++i){
-    do{
-      m=pdf->GetRandom();
+  int i=0; 
+  do{
+    m=pdf->GetRandom();
+    if(m>=60 && m<=120){
       histo->Fill(m);
-    }while(!(m>120 && m<60));
-  }
- }
+      i++;
+    }
+    //   cout<<"indx = "<< i <<"   m = "<< m << endl;
+  }while( i< N);
+} 
+
 
 enum MuTag { globalMu, trackerMu, standaloneMu, undefinedMu };
 
@@ -56,11 +60,13 @@ public:
   double operator()(double x) const {
     if(x < min_ || x > max_) return 0;
     return norm_* exp(-slope_*x)*(a0_ + (a1_ + a2_*x)*x);
+    //return exp(-slope_*x)*(a0_ + (a1_ + a2_*x)*x);
   }
   double rndm(TRandom3 * eventGenerator) const {
     double x, f;
     do {
       x = eventGenerator->Uniform(min_, max_);
+      // cout<<"x = "<<x<<endl;
       f = operator()(x);
     } while(eventGenerator->Uniform(0, fmax_) > f);
     return x;
@@ -69,11 +75,12 @@ public:
 
 private:
   void normalize() {
-    static const unsigned int steps = 10000;
+    static const unsigned int steps = 1000;
     double s = 0, x, f;
     double base = max_ - min_;
     double dx = base/steps;
     for(unsigned int n = 0; n < steps; ++n) {
+      //  cout<<"integral step = "<< n << endl;
       x = min_ * n * dx;
       s += (f = operator()(x));
       if(f > fmax_) fmax_ = f;
@@ -96,8 +103,6 @@ int main(int argc, char * argv[]){
   double slopeMuMuNonIso(0.0232129), a0MuMuNonIso(1.99999), a1MuMuNonIso(0.0944887), a2MuMuNonIso(-0.000859517);
   BkgShape zMuTkBkgPdf(60, 120, slopeMuTk, a0MuTk, a1MuTk, a2MuTk);
   BkgShape zMuMuNonIsoBkgPdf(60, 120, slopeMuMuNonIso, a0MuMuNonIso, a1MuMuNonIso, a2MuMuNonIso);
-  int nMuTkBkg = eventGenerator->Poisson(zMuTkBkgPdf.integral());
-  int nMuMuNonIsoBkg = eventGenerator->Poisson(zMuMuNonIsoBkgPdf.integral());
  
   int expt(1), seed(1);
   
@@ -134,7 +139,7 @@ int main(int argc, char * argv[]){
       break;
     }
   }
-
+  // cout<<" begin "<<endl;
   MuTag mu1,mu2;
   eventGenerator->SetSeed(seed);
   int count = 0; 
@@ -143,25 +148,31 @@ int main(int argc, char * argv[]){
   TH1F *pdfzmm = (TH1F*)inputfile->Get("goodZToMuMuPlots/zMass");//pdf signal Zmumu(1hlt,2hlt), ZMuMunotIso, ZmuTk
   TH1F *pdfzmsa = (TH1F*)inputfile->Get("zmumuSaMassHistogram/zMass");//pdf signal ZmuSa
   
-  
-
   for(int j = 0; j <expt; ++j){ 
+    cout<<"Esperiment :"<<expt<<endl;
     int N0 = eventGenerator->Poisson(yield);
+    int nMuTkBkg = eventGenerator->Poisson(zMuTkBkgPdf.integral());
+    int nMuMuNonIsoBkg = eventGenerator->Poisson(zMuMuNonIsoBkgPdf.integral());
+
     int Nmumu = 0;
     int N2HLT = 0;
     int N1HLT = 0;
     int NISO = 0;
     int NSa = 0;
     int NTk = 0;
+    cout<<"N0 = " << N0 <<endl;
     for(int i = 0; i < N0; ++i){
+   
+      // cout<<"event :"<<i<<endl;
       mu1=mu(effTrk,effSa, eventGenerator);
       mu2=mu(effTrk,effSa, eventGenerator);
-      
+      // cout <<"tag :mu1 & mu2 " <<endl; 
       double rHLT1 = eventGenerator->Rndm();
       double rISO1 = eventGenerator->Rndm();   
       double rHLT2 = eventGenerator->Rndm();
       double rISO2 = eventGenerator->Rndm();
-      
+       cout<<"start logic" << endl;
+
       if(mu1 == globalMu && mu2 == globalMu){
 	if(rISO1< effIso && rISO2 < effIso){//two global mu isolated
 	  if(rHLT1< effHlt && rHLT2 < effHlt) N2HLT++;
@@ -174,7 +185,7 @@ int main(int argc, char * argv[]){
       }else if((mu1 == globalMu && mu2 == standaloneMu && rHLT1< effHlt) ||(mu2 == globalMu && mu1 == standaloneMu && rHLT2< effHlt)){
 	if(rISO1< effIso && rISO2 < effIso) NSa++;
       }
-      
+      // cout<<"end logic" << endl;
       Nmumu = N2HLT + N1HLT;
       
       //Define signal Histo
@@ -184,9 +195,9 @@ int main(int argc, char * argv[]){
       TH1F *zMuMuNotIso= new TH1F("zMass_noIso","zMass",200,0,200);
       TH1F *zMuSa = new TH1F("zMass_sa","zMass",200,0,200);
       TH1F *zMuTk = new TH1F("zMass_tk","zMass",200,0,200);
-      
+      // cout<<"filling signal" << endl;
       //Fill signal Histo
-      fillRandom(Nmumu,pdfzmm,zMuMu );
+      fillRandom(Nmumu,pdfzmm,zMuMu);
       fillRandom(N2HLT, pdfzmm,zMuMu2HLT);
       fillRandom(N1HLT, pdfzmm,zMuMu1HLT);
       fillRandom(NISO,pdfzmm,zMuMuNotIso);
@@ -210,7 +221,7 @@ int main(int argc, char * argv[]){
       TDirectory * goodZToMuMuOneStandAloneMuon = outputfile->mkdir("goodZToMuMuOneStandAloneMuonPlots");
       TDirectory * goodZToMuMuOneTrack = outputfile->mkdir("goodZToMuMuOneTrackPlots");
       
-      
+      cout<<"hierarchy done"<<endl;
       goodZToMuMu->cd();
       zMuMu->Write();
       
@@ -232,7 +243,7 @@ int main(int argc, char * argv[]){
       
       outputfile->Write();
       outputfile->Close();
-      
+      cout<<"filled zmm.root"<<endl;
       
       delete zMuMu;
       delete zMuMu2HLT;
@@ -242,9 +253,8 @@ int main(int argc, char * argv[]){
       delete zMuTk;
       
       delete inputfile;
-      // } //fine for
       
-           
+             
       //Define Background Histo
       TH1F *zMuMuBkg = new TH1F("zMass_golden","zMass",200,0,200);
       TH1F *zMuMu2HLTBkg = new TH1F("zMass_2hlt","zMass",200,0,200);
@@ -253,8 +263,10 @@ int main(int argc, char * argv[]){
       TH1F *zMuMuNotIsoBkg= new TH1F("zMass_noIso","zMass",200,0,200);
       TH1F *zMuTkBkg = new TH1F("zMass_tk","zMass",200,0,200);
       
-      //Fill >Bkg Histograms 
+      
 
+      //Fill >Bkg Histograms 
+      cout<<" filling bkg histograms"<<endl;
       for(int i = 0; i < nMuTkBkg; ++i) {
 	zMuTkBkg->Fill(zMuTkBkgPdf.rndm(eventGenerator));
       }
@@ -262,10 +274,13 @@ int main(int argc, char * argv[]){
 	zMuMuNotIsoBkg->Fill(zMuMuNonIsoBkgPdf.rndm(eventGenerator));
       }
       
+      cout<<" end bkg histograms"<<endl;
+     
       char head2[30];
       sprintf(head2,"bgk_%d",j);
       string title2 = head2 + tail;
       TFile *outputfile2 = new TFile(title2.c_str(),"RECREATE");
+      cout<<" bkg Create & Open "<<endl;
       
       //Hierarchy directory  
       TDirectory * goodZToMuMu2 = outputfile2->mkdir("goodZToMuMuPlots");
@@ -275,8 +290,8 @@ int main(int argc, char * argv[]){
       TDirectory * goodZToMuMuOneStandAloneMuon2 = outputfile2->mkdir("goodZToMuMuOneStandAloneMuonPlots");
       TDirectory * goodZToMuMuOneTrack2 = outputfile2->mkdir("goodZToMuMuOneTrackPlots");
       
-      
-      goodZToMuMu2->cd();
+      // cout<<" bkg Hierarchy "<<endl;
+       goodZToMuMu2->cd();
       zMuMuBkg->Write();
       
       goodZToMuMu2HLT2->cd();
@@ -294,7 +309,10 @@ int main(int argc, char * argv[]){
       goodZToMuMuOneTrack2->cd();
       zMuTkBkg->Write();
       
-      
+      outputfile2->Write();
+      outputfile2->Close();
+
+      cout<<"filled bkg.root"<<endl;
       delete zMuMuBkg;
       delete zMuMu2HLTBkg;
       delete zMuMu1HLTBkg;
