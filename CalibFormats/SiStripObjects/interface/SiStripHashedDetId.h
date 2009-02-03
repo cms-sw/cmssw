@@ -6,6 +6,7 @@
 #include <boost/cstdint.hpp>
 #include <iomanip>
 #include <vector>
+#include <algorithm>
 
 class SiStripHashedDetId;
 std::ostream& operator<< ( std::ostream& os, const SiStripHashedDetId& );
