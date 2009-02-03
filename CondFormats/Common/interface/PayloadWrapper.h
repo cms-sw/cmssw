@@ -15,7 +15,7 @@ namespace cond {
     
 
     // load DOES NOT throw!
-    virtual void loadAll const() {
+    virtual void loadAll() const {
       loadData();
       loadSummary();
     }
