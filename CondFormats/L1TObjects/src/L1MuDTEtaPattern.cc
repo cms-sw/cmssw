@@ -5,8 +5,8 @@
 //   Description: Pattern for Eta for Eta Track Finder
 //
 //
-//   $Date: 2007/03/30 07:48:02 $
-//   $Revision: 1.1 $
+//   $Date: 2008/01/22 18:50:24 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   N. Neumeister             CERN EP
@@ -27,6 +27,7 @@
 #include <iostream>
 #include <iomanip>
 #include <bitset>
+#include <cstdlib>
 
 //-------------------------------
 // Collaborating Class Headers --
