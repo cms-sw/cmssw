@@ -1,7 +1,7 @@
 #ifndef HydjetSource_h
 #define HydjetSource_h
 
-// $Id: HydjetSource.h,v 1.13 2008/01/21 12:03:08 yilmaz Exp $
+// $Id: HydjetSource.h,v 1.14 2008/06/04 09:15:51 yilmaz Exp $
 
 /** \class HydjetSource
 *
@@ -47,6 +47,7 @@ namespace edm
     bool						hydjet_init(const ParameterSet &pset);
     bool						hyjpythia_init(const ParameterSet &pset);
     inline double			                nuclear_radius() const;
+    void                                                rotateEvtPlane();
     virtual bool                                        produce(Event & e);
     
     HepMC::GenEvent *evt;
@@ -62,6 +63,7 @@ namespace edm
     double            comenergy;              // collision energy   
     bool              doradiativeenloss_;     //! DEFAULT = true
     bool              docollisionalenloss_;   //! DEFAULT = true   
+    bool              rotate_;
     bool              emptyEvents_;           // Switch to allow empty events
     double            fracsoftmult_;          // fraction of soft hydro induced hadronic multiplicity
                                               // proportional to no of nucleon participants
@@ -79,6 +81,9 @@ namespace edm
     double            maxtrany_;              // max transverse collective rapidity: 
                                               // controls slope of low-pt spectra
                                               // DEFAULT=1.5, allowed range [0.01,3.0]
+    double            phi0_;
+    double            sinphi0_;
+    double            cosphi0_;
     int               nsub_;
     int               nhard_;                 // multiplicity of PYTHIA(+PYQUEN)-induced particles in event              
     int               nmultiplicity_;         // mean soft multiplicity in central PbPb

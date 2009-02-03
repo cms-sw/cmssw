@@ -1,10 +1,12 @@
 /*
- * $Id: HydjetSource.cc,v 1.23 2008/12/01 12:40:26 yilmaz Exp $
+ * $Id: HydjetSource.cc,v 1.24 2009/01/09 10:45:13 saout Exp $
  *
  * Interface to the HYDJET generator, produces HepMC events
  *
  * Original Author: Camelia Mironov
  */
+
+#define PI 3.14159265358979
 
 #include <iostream>
 #include <cmath>
@@ -53,6 +55,7 @@ HydjetSource::HydjetSource(const ParameterSet &pset, InputSourceDescription cons
     comenergy(pset.getParameter<double>("comEnergy")),
     doradiativeenloss_(pset.getParameter<bool>("doRadiativeEnLoss")),
     docollisionalenloss_(pset.getParameter<bool>("doCollisionalEnLoss")),
+    rotate_(pset.getParameter<bool>("rotateEventPlane")),
     emptyEvents_(pset.getParameter<bool>("allowEmptyEvents")),
     fracsoftmult_(pset.getParameter<double>("fracSoftMultiplicity")),
     hadfreeztemp_(pset.getParameter<double>("hadronFreezoutTemperature")),
@@ -60,6 +63,9 @@ HydjetSource::HydjetSource(const ParameterSet &pset, InputSourceDescription cons
     maxEventsToPrint_(pset.getUntrackedParameter<int>("maxEventsToPrint", 1)),
     maxlongy_(pset.getParameter<double>("maxLongitudinalRapidity")),
     maxtrany_(pset.getParameter<double>("maxTransverseRapidity")),
+    phi0_(0.),
+    sinphi0_(0.),
+    cosphi0_(1.),
     nsub_(0),
     nhard_(0),
     nmultiplicity_(pset.getParameter<int>("nMultiplicity")),
@@ -132,7 +138,7 @@ void HydjetSource::add_heavy_ion_rec(HepMC::GenEvent *evt)
     0,                                   // Nwounded_N_collisions
     0,                                   // Nwounded_Nwounded_collisions
     hyfpar.bgen * nuclear_radius(),      // impact_parameter in [fm]
-    0,                                   // event_plane_angle
+    phi0_,                               // event_plane_angle
     0,                                   // eccentricity
     hyjpar.sigin                         // sigma_inel_NN
   );
@@ -147,10 +153,15 @@ void HydjetSource::add_heavy_ion_rec(HepMC::GenEvent *evt)
 HepMC::GenParticle* HydjetSource::build_hyjet(int index, int barcode)
 {
    // Build particle object corresponding to index in hyjets (soft+hard)
+   double x0 = hyjets.phj[0][index];
+   double y0 = hyjets.phj[1][index];
+
+   double x = x0*cosphi0_-y0*sinphi0_;
+   double y = y0*cosphi0_+x0*sinphi0_;
 
    HepMC::GenParticle* p = new HepMC::GenParticle(
-						  HepMC::FourVector(hyjets.phj[0][index],  // px
-								    hyjets.phj[1][index],  // py
+						  HepMC::FourVector(x,  // px
+								    y,  // py
 								    hyjets.phj[2][index],  // pz
 								    hyjets.phj[3][index]), // E
 						  hyjets.khj[1][index],// id
@@ -167,8 +178,10 @@ HepMC::GenVertex* HydjetSource::build_hyjet_vertex(int i,int id)
 {
   // build verteces for the hyjets stored events 
 
-   double x=hyjets.vhj[0][i];
-   double y=hyjets.vhj[1][i];
+   double x0=hyjets.vhj[0][i];
+   double y0=hyjets.vhj[1][i];
+   double x = x0*cosphi0_-y0*sinphi0_;
+   double y = y0*cosphi0_+x0*sinphi0_;
    double z=hyjets.vhj[2][i];
    double t=hyjets.vhj[4][i];
 
@@ -432,6 +445,8 @@ bool HydjetSource::produce(Event & e)
   nsoft_    = 0;
   nhard_    = 0;
 
+  if(rotate_) rotateEvtPlane();
+
   edm::LogInfo("HYDJETmode") << "##### HYDJET  nhsel = " << hyjpar.nhsel;
   edm::LogInfo("HYDJETfpart") << "##### HYDJET fpart = " << hyflow.fpart;
   edm::LogInfo("HYDJETtf") << "##### HYDJET hadron freez-out temp, Tf = " << hyflow.Tf;
@@ -485,5 +500,16 @@ bool HydjetSource::produce(Event & e)
      call_pylist(pythiaPylistVerbosity_);      
   
   return true;
+}
+
+void HydjetSource::rotateEvtPlane(){
+
+   int * dummy;
+   phi0_ = 2.*PI*pyr_(dummy) - PI;
+   sinphi0_ = sin(phi0_);
+   cosphi0_ = cos(phi0_);
+
+   cout<<"PHI = "<<phi0_<<";  SIN = "<<sinphi0_<<"; COS = "<<cosphi0_<<endl;
+
 }
 

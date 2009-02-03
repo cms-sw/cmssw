@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Tue Dec 18 09:44:41 EST 2007
-// $Id: HydjetAnalyzer.cc,v 1.9 2008/12/18 21:12:37 yilmaz Exp $
+// $Id: HydjetAnalyzer.cc,v 1.10 2009/01/09 10:45:13 saout Exp $
 //
 //
 
@@ -75,6 +75,7 @@ struct HydjetEvent{
    float npart;
    float ncoll;
    float nhard;
+   float phi0;
 
    int n[ETABINS];
    float ptav[ETABINS];
@@ -192,6 +193,7 @@ HydjetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
    hev_.mult = 0;
       
+   double phi0 = 0;
    double b = -1;
    int npart = -1;
    int ncoll = -1;
@@ -201,7 +203,7 @@ HydjetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    double vz = -99;
    double vr = -99;
    const GenEvent* evt;
-   
+  
    if(doCF_){
 
      Handle<CrossingFrame<HepMCProduct> > cf;
@@ -246,6 +248,20 @@ HydjetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       iEvent.getByLabel("source",mc);
       evt = mc->GetEvent();
 
+      const HeavyIon* hi = evt->heavy_ion();
+      if(hi){
+	 b = hi->impact_parameter();
+	 npart = hi->Npart_proj()+hi->Npart_targ();
+	 ncoll = hi->Ncoll();
+	 nhard = hi->Ncoll_hard();
+	 phi0 = hi->event_plane_angle();
+
+	 if(printLists_){
+	    out_b<<b<<endl;
+	    out_n<<npart<<endl;
+	 }
+      }
+
       int all = evt->particles_size();
       HepMC::GenEvent::particle_const_iterator begin = evt->particles_begin();
       HepMC::GenEvent::particle_const_iterator end = evt->particles_end();
@@ -253,7 +269,9 @@ HydjetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	if((*it)->status() == 1){
 	   int pdg_id = (*it)->pdg_id();
 	   float eta = (*it)->momentum().eta();
-           float phi = (*it)->momentum().phi();
+           float phi = (*it)->momentum().phi();// - hev_.phi0;
+	   //	   if(phi > 2*PI ) phi -= 2*PI;
+	   //           if(phi < -2*PI ) phi += 2*PI;
 	   float pt = (*it)->momentum().perp();
 	  const ParticleData * part = pdt->particle(pdg_id );
 	  int charge = part->charge();
@@ -275,18 +293,6 @@ HydjetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  ++(hev_.mult);
 	}
       }
-   }
-
-   const HeavyIon* hi = evt->heavy_ion();
-   if(hi){
-      b = hi->impact_parameter();
-      npart = hi->Npart_proj()+hi->Npart_targ();
-
-      if(printLists_){
-	 out_b<<b<<endl;
-	 out_n<<npart<<endl;
-      }
-
    }
 
    if(doVertex_){
@@ -313,6 +319,7 @@ HydjetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    hev_.npart = npart;
    hev_.ncoll = ncoll;
    hev_.nhard = nhard;
+   hev_.phi0 = phi0;
    hev_.vx = vx;
    hev_.vy = vy;
    hev_.vz = vz;
@@ -348,6 +355,8 @@ HydjetAnalyzer::beginJob(const edm::EventSetup& iSetup)
       hydjetTree_->Branch("npart",&hev_.npart,"npart/F");
       hydjetTree_->Branch("ncoll",&hev_.ncoll,"ncoll/F");
       hydjetTree_->Branch("nhard",&hev_.nhard,"nhard/F");
+      hydjetTree_->Branch("phi0",&hev_.phi0,"phi0/F");
+
       hydjetTree_->Branch("n",hev_.n,"n[3]/I");
       hydjetTree_->Branch("ptav",hev_.ptav,"ptav[3]/F");
       
