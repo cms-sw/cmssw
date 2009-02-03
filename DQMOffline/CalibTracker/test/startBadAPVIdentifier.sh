@@ -57,15 +57,15 @@ echo "Starting cmsRun BadAPVIdentifier"
 cmsRun log/SiStripQualityBadAPVIdentifierRoot_${run}_cfg.py > log/SiStripQualityBadAPVIdentifierRoot_${run}.log
 
 echo "Creating SiStripQualityStatistics_offline config from template"
-cat $template_dir/SiStripQualityStatistics_offline_cfg.py |sed -e "s@insertRun@$run@g" -e "s@dbfile.db@$DBFileName@" > log/SiStripQualityStatistics_offline_${run}_cfg.py
+cat $template_dir/template_SiStripQualityStatistics_offline_cfg.py |sed -e "s@insertRun@$run@g" -e "s@dbfile.db@$DBFileName@" -e "s@inputTag@HotStrips@" > log/SiStripQualityStatistics_offline_${run}_BadAPVs_cfg.py
 
 echo "Starting cmsRun SiStripQualityStatistics_offline"
-cmsRun log/SiStripQualityStatistics_offline_${run}_cfg.py > out.tmp
+cmsRun log/SiStripQualityStatistics_offline_${run}_BadAPVs_cfg.py > out_${run}_BadAPVs.tmp
 
-cat out.tmp | awk 'BEGIN{doprint=0}{if(match($0,"New IOV")!=0) doprint=1;if(match($0,"%MSG")!=0) {doprint=0;print "";} if(doprint==1) print $0}' > results/BadAPVOccupancy_x_IOV_${run}.txt
+cat out_${run}_BadAPVs.tmp  | awk 'BEGIN{doprint=0}{if(match($0,"New IOV")!=0) doprint=1;if(match($0,"%MSG")!=0) {doprint=0;print "";} if(doprint==1) print $0}' > results/BadAPVs_${run}.txt
 
 # Cleaning up and moving results to propper dir
-mv out.tmp results/out_${run}.tmp
+mv out_${run}_* results/
 mv $DBFileName results/
 mv BadAPVOccupancy_${run}.root results/
 
