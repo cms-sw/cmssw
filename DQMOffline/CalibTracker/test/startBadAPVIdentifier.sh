@@ -7,18 +7,21 @@
 
 RunDIR=$(pwd)
 
-# Check if the script is run from a CMSSW dir, in which case this is used instead of the default value
-if [ $(echo $RunDIR | grep -c CMSSW) -gt 0 ]; then
-    CMSSWDIR=$(echo $RunDIR | awk '{end=match($0,"src"); print substr($0,0,end+2)}')
-    cd $CMSSWDIR
-    eval `scramv1 runtime -sh`
-    cd $RunDIR
-else
-    echo "Not running from inside CMSSW directory"
-    exit 1
+# Check if the CMSSW environment has been set, otherwise try do do it
+if [ $(echo $SCRAMRT_SET | grep -c CMSSW) -eq 0 ]; then
+    if [ $(echo $RunDIR | grep -c CMSSW) -gt 0 ]; then
+	CMSSWDIR=$(echo $RunDIR | awk '{end=match($0,"src"); print substr($0,0,end+2)}')
+	cd $CMSSWDIR
+	eval `scramv1 runtime -sh`
+	cd $RunDIR
+    else
+	echo "CMSSW could not be initialized, exiting"
+	exit 1
+    fi
 fi
 
-template_dir=$CMSSWDIR/DQMOffline/CalibTracker/test
+CMSSWDIR=$CMSSW_BASE
+template_dir=$CMSSWDIR/src/DQMOffline/CalibTracker/test
 
 # Getting run number from filename (ARG #1)
 if [ ${#1} -eq 0 ]; then
@@ -44,6 +47,7 @@ if [ ! -d results ]; then
 fi
 
 DBFileName=dbfile_${run}.db
+echo $DBFileName
 cp $template_dir/dbfile_empty.db ./$DBFileName
 
 echo "Creating BadAPVIdentifier config from template"
