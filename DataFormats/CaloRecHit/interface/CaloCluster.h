@@ -7,7 +7,7 @@
  *
  * \author Shahram Rahatlou, INFN
  *
- * \version $Id: CaloCluster.h,v 1.6 2009/01/28 16:20:04 ferriff Exp $
+ * \version $Id: CaloCluster.h,v 1.7 2009/02/04 09:14:06 arizzi Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
@@ -46,6 +46,17 @@ namespace reco {
                  const std::vector< std::pair< DetId, float > > &usedHitsAndFractions,
                  const AlgoId algoId) :
       energy_ (energy), position_ (position), caloID_(caloID), hitsAndFractions_(usedHitsAndFractions), algoId_(algoId) {}
+ 
+   /// temporary compatibility constructor
+    CaloCluster( double energy, 
+		 const math::XYZPoint& position, 
+		 float chi2,
+                 const std::vector<DetId > &usedHits,
+                 const AlgoId algoId) :
+      energy_ (energy), position_ (position),  algoId_(algoId) 
+       {
+          for(size_t i = 0; i < usedHits.size(); i++) hitsAndFractions_.push_back(std::pair< DetId, float > ( usedHits[i],1.)); 
+      }
 
     /// destructor
     virtual ~CaloCluster() {}
