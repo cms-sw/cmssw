@@ -257,7 +257,7 @@ GsfTrackProducerBase::fillMode (reco::GsfTrack& track, const TrajectoryStateOnSu
 				    vtxTsos.magneticField(),
 				    vtxTsos.surfaceSide());
   TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(*modeTsos.freeState(),bs);
-  if ( !tscblTsos.isValid() )  return;            // failed (GsfTrack keeps mode = mean)
+  if ( !tscbl.isValid() )  return;            // failed (GsfTrack keeps mode = mean)
   //
   // extract state at PCA and create momentum vector and covariance matrix
   //
