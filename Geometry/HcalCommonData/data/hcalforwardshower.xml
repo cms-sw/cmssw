@@ -122,7 +122,7 @@
  <PosPart copyNumber="5003">
    <rParent name="hcalforwardshower:HFBox"/>
    <rChild name="hcalforwardshower:HFCladL"/>
-  <Translation x="[holeX]" y="[holeX]" z="0*fm" />
+  <Translation x="[holeX]" y="-[holeX]" z="0*fm" />
  </PosPart>
  <PosPart copyNumber="5004">
    <rParent name="hcalforwardshower:HFBox"/>
