@@ -1,15 +1,15 @@
 /**
  * \class L1GTDigiToRaw
- * 
- * 
- * Description: generate raw data from digis.  
+ *
+ *
+ * Description: generate raw data from digis.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
- * \author: Vasile Mihai Ghete - HEPHY Vienna -  GT 
+ *
+ * \author: Vasile Mihai Ghete - HEPHY Vienna -  GT
  * \author: Ivan Mikulec       - HEPHY Vienna - GMT
- * 
+ *
  * $Date$
  * $Revision$
  *
@@ -78,7 +78,7 @@ L1GTDigiToRaw::L1GTDigiToRaw(const edm::ParameterSet& pSet)
 
     LogDebug("L1GTDigiToRaw")
     << "\nInput tag for DAQ GT record: "
-    << m_daqGtInputTag.label() << " \n"
+    << m_daqGtInputTag << " \n"
     << std::endl;
 
     // input tag for GMT record
@@ -86,7 +86,7 @@ L1GTDigiToRaw::L1GTDigiToRaw(const edm::ParameterSet& pSet)
 
     LogDebug("L1GTDigiToRaw")
     << "\nInput tag for GMT record: "
-    << m_muGmtInputTag.label() << " \n"
+    << m_muGmtInputTag << " \n"
     << std::endl;
 
     // mask for active boards
@@ -135,15 +135,15 @@ void L1GTDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
 
     const std::vector<L1GtBoard> boardMaps = l1GtBM->gtBoardMaps();
     int boardMapsSize = boardMaps.size();
-    
+
     typedef std::vector<L1GtBoard>::const_iterator CItBoardMaps;
-    
+
     // create an ordered vector for the GT DAQ record
-    // header (pos 0 in record) and trailer (last position in record) 
-    // not included, as they are not in board list 
+    // header (pos 0 in record) and trailer (last position in record)
+    // not included, as they are not in board list
     std::vector<L1GtBoard> gtRecordMap;
     gtRecordMap.reserve(boardMapsSize);
-    
+
     for (int iPos = 0; iPos < boardMapsSize; ++iPos) {
         for (CItBoardMaps itBoard = boardMaps.begin(); itBoard
                 != boardMaps.end(); ++itBoard) {
@@ -152,14 +152,23 @@ void L1GTDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
                 gtRecordMap.push_back(*itBoard);
                 break;
             }
-            
+
         }
     }
 
 
     // get L1GlobalTriggerReadoutRecord
     edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecord;
-    iEvent.getByLabel(m_daqGtInputTag.label(), gtReadoutRecord);
+    iEvent.getByLabel(m_daqGtInputTag, gtReadoutRecord);
+
+    if (!gtReadoutRecord.isValid()) {
+        edm::LogWarning("L1GTDigiToRaw")
+                << "\nWarning: L1GlobalTriggerReadoutRecord with input tag " << m_daqGtInputTag
+                << "\nrequested in configuration, but not found in the event."
+                << "\nQuit packing this event" << std::endl;
+
+        return;
+    }
 
     if ( edm::isDebugEnabled() ) {
         std::ostringstream myCoutStream;
@@ -418,7 +427,7 @@ void L1GTDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
 
                         // get GMT record TODO separate GMT record or via RefProd from GT record
                         edm::Handle<L1MuGMTReadoutCollection> gmtrc_handle;
-                        iEvent.getByLabel(m_muGmtInputTag.label(), gmtrc_handle);
+                        iEvent.getByLabel(m_muGmtInputTag, gmtrc_handle);
                         L1MuGMTReadoutCollection const* gmtrc = gmtrc_handle.product();
 
                         // pack the GMT record
@@ -467,7 +476,7 @@ void L1GTDigiToRaw::packHeader(unsigned char* ptrGt, edm::Event& iEvent)
     }
     else {
         bxCrossHw = 0; // Bx number too large, set to 0!
-        LogDebug("L1GlobalTrigger")
+        LogDebug("L1GTDigiToRaw")
             << "\nBunch cross number [hex] = "
             << std::hex << bxCross
             << "\n  larger than 12 bits. Set to 0! \n"

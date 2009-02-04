@@ -1,14 +1,14 @@
 /**
  * \class L1GTEvmDigiToRaw
- * 
- * 
- * Description: generate raw data from digis.  
+ *
+ *
+ * Description: generate raw data from digis.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
- * \author: Vasile Mihai Ghete - HEPHY Vienna 
- * 
+ *
+ * \author: Vasile Mihai Ghete - HEPHY Vienna
+ *
  * $Date$
  * $Revision$
  *
@@ -72,7 +72,7 @@ L1GTEvmDigiToRaw::L1GTEvmDigiToRaw(const edm::ParameterSet& pSet) {
             << std::hex << std::setw(sizeof(m_activeBoardsMaskGt)*2)
             << std::setfill('0') << m_activeBoardsMaskGt << std::dec
             << std::setfill(' ') << "\nInput tag for EVM GT record: "
-            << m_evmGtInputTag.label() << "\nFED Id for EVM GT record: "
+            << m_evmGtInputTag << "\nFED Id for EVM GT record: "
             << m_evmGtFedId << " \n" << std::endl;
 
     //
@@ -111,15 +111,15 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
 
     const std::vector<L1GtBoard> boardMaps = l1GtBM->gtBoardMaps();
     int boardMapsSize = boardMaps.size();
-    
+
     typedef std::vector<L1GtBoard>::const_iterator CItBoardMaps;
-    
+
     // create an ordered vector for the GT EVM record
-    // header (pos 0 in record) and trailer (last position in record) 
-    // not included, as they are not in board list 
+    // header (pos 0 in record) and trailer (last position in record)
+    // not included, as they are not in board list
     std::vector<L1GtBoard> gtRecordMap;
     gtRecordMap.reserve(boardMapsSize);
-    
+
     for (int iPos = 0; iPos < boardMapsSize; ++iPos) {
         for (CItBoardMaps itBoard = boardMaps.begin(); itBoard
                 != boardMaps.end(); ++itBoard) {
@@ -128,7 +128,7 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
                 gtRecordMap.push_back(*itBoard);
                 break;
             }
-            
+
         }
     }
 
@@ -136,7 +136,16 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
 
     // get L1GlobalTriggerEvmReadoutRecord
     edm::Handle<L1GlobalTriggerEvmReadoutRecord> gtReadoutRecord;
-    iEvent.getByLabel(m_evmGtInputTag.label(), gtReadoutRecord);
+    iEvent.getByLabel(m_evmGtInputTag, gtReadoutRecord);
+
+    if (!gtReadoutRecord.isValid()) {
+        edm::LogWarning("L1GTEvmDigiToRaw")
+                << "\nWarning: L1GlobalTriggerEvmReadoutRecord with input tag " << m_evmGtInputTag
+                << "\nrequested in configuration, but not found in the event."
+                << "\nQuit packing this event" << std::endl;
+
+        return;
+    }
 
     if ( edm::isDebugEnabled() ) {
         std::ostringstream myCoutStream;
@@ -160,7 +169,7 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
 
     // length of BST record (in bytes)
     m_bstLengthBytes= static_cast<int> (gtfeBlock.bstLengthBytes());
-   
+
     // get list of active blocks from the GTFE block
     // and mask some blocks, if required
     // blocks not active are not written to the record
@@ -400,7 +409,7 @@ void L1GTEvmDigiToRaw::packHeader(unsigned char* ptrGt, edm::Event& iEvent)
     }
     else {
         bxCrossHw = 0; // Bx number too large, set to 0!
-        LogDebug("L1GlobalTrigger")
+        LogDebug("L1GTEvmDigiToRaw")
             << "\nBunch cross number [hex] = "
             << std::hex << bxCross
             << "\n  larger than 12 bits. Set to 0! \n"
@@ -463,7 +472,7 @@ void L1GTEvmDigiToRaw::packGTFE(
         gtfeBlock.setTotalTriggerNrWord64(tmpWord64[iWord], iWord);
 
         for (int iBst = 0; iBst < m_bstLengthBytes; ++iBst) {
-            gtfeBlock.setBstWord64(tmpWord64[iWord], iBst, iWord);            
+            gtfeBlock.setBstWord64(tmpWord64[iWord], iBst, iWord);
         }
 
     }
@@ -586,12 +595,12 @@ void L1GTEvmDigiToRaw::packFDL(
         fdlBlock.setGtDecisionWordBWord64(tmpWord64[iWord], iWord);
 
         fdlBlock.setGtDecisionWordExtendedWord64(tmpWord64[iWord], iWord);
-        
+
         fdlBlock.setGtPrescaleFactorIndexTechWord64(tmpWord64[iWord], iWord);
         fdlBlock.setGtPrescaleFactorIndexAlgoWord64(tmpWord64[iWord], iWord);
         fdlBlock.setNoAlgoWord64(tmpWord64[iWord], iWord);
         fdlBlock.setFinalORWord64(tmpWord64[iWord], iWord);
-        
+
         fdlBlock.setOrbitNrWord64(tmpWord64[iWord], iWord);
         fdlBlock.setLumiSegmentNrWord64(tmpWord64[iWord], iWord);
         fdlBlock.setLocalBxNrWord64(tmpWord64[iWord], iWord);
