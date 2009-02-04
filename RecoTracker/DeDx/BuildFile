@@ -1,6 +1,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
+<use name=FWCore/ServiceRegistry>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/DetId>
 <use name=DataFormats/TrackerRecHit2D>
@@ -9,6 +10,7 @@
 <use name=CondCore/DBOutputService>
 <use name=CondFormats/PhysicsToolsObjects>
 <use name=CondFormats/DataRecord>
+<use name=PhysicsTools/UtilAlgos>
 <use name=rootcore>
 <use name=root>
 

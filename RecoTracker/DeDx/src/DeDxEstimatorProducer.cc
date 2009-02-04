@@ -15,7 +15,7 @@
 //         Created:  Thu May 31 14:09:02 CEST 2007
 //    Code Updates:  loic Quertenmont (querten)
 //         Created:  Thu May 10 14:09:02 CEST 2008
-// $Id: DeDxEstimatorProducer.cc,v 1.18 2008/08/25 17:04:27 querten Exp $
+// $Id: DeDxEstimatorProducer.cc,v 1.19 2008/12/09 09:24:29 querten Exp $
 //
 //
 
@@ -34,6 +34,7 @@
 #include "RecoTracker/DeDx/interface/GenericAverageDeDxEstimator.h"
 #include "RecoTracker/DeDx/interface/TruncatedAverageDeDxEstimator.h"
 #include "RecoTracker/DeDx/interface/MedianDeDxEstimator.h"
+#include "RecoTracker/DeDx/interface/UnbinnedFitDeDxEstimator.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -50,9 +51,10 @@ DeDxEstimatorProducer::DeDxEstimatorProducer(const edm::ParameterSet& iConfig)
 
 
    string estimatorName = iConfig.getParameter<string>("estimator");
-   if(estimatorName == "median")     m_estimator = new MedianDeDxEstimator(-2.);
-   if(estimatorName == "generic")    m_estimator = new GenericAverageDeDxEstimator  (iConfig.getParameter<double>("exponent"));
-   if(estimatorName == "truncated")  m_estimator = new TruncatedAverageDeDxEstimator(iConfig.getParameter<double>("fraction"));
+   if(estimatorName == "median")      m_estimator = new MedianDeDxEstimator(-2.);
+   if(estimatorName == "generic")     m_estimator = new GenericAverageDeDxEstimator  (iConfig.getParameter<double>("exponent"));
+   if(estimatorName == "truncated")   m_estimator = new TruncatedAverageDeDxEstimator(iConfig.getParameter<double>("fraction"));
+   if(estimatorName == "unbinnedFit") m_estimator = new UnbinnedFitDeDxEstimator();
 
    MaxNrStrips         = iConfig.getUntrackedParameter<unsigned>("maxNrStrips"        ,  255);
    MinTrackHits        = iConfig.getUntrackedParameter<unsigned>("MinTrackHits"       ,  4);

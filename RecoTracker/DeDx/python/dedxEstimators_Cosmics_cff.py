@@ -5,8 +5,9 @@ import FWCore.ParameterSet.Config as cms
 from RecoTracker.DeDx.dedxTruncated40_cfi import *
 from RecoTracker.DeDx.dedxMedian_cfi import *
 from RecoTracker.DeDx.dedxHarmonic2_cfi import *
+from RecoTracker.DeDx.dedxUnbinned_cfi import *
 
-
+###CTF
 dedxTruncated40CTF = dedxTruncated40.clone()
 dedxTruncated40CTF.tracks=cms.InputTag("ctfWithMaterialTracksP5")
 dedxTruncated40CTF.trajectoryTrackAssociation = cms.InputTag("ctfWithMaterialTracksP5")
@@ -18,6 +19,11 @@ dedxHarmonic2CTF.trajectoryTrackAssociation = cms.InputTag("ctfWithMaterialTrack
 dedxMedianCTF=dedxMedian.clone()
 dedxMedianCTF.tracks=cms.InputTag("ctfWithMaterialTracksP5")
 dedxMedianCTF.trajectoryTrackAssociation = cms.InputTag("ctfWithMaterialTracksP5")
+
+dedxUnbinnedCTF=dedxUnbinned.clone()
+dedxUnbinnedCTF.tracks=cms.InputTag("ctfWithMaterialTracksP5")
+dedxUnbinnedCTF.trajectoryTrackAssociation = cms.InputTag("ctfWithMaterialTracksP5")
+
 
 ###RS
 dedxTruncated40RS = dedxTruncated40.clone()
@@ -32,7 +38,11 @@ dedxMedianRS=dedxMedian.clone()
 dedxMedianRS.tracks=cms.InputTag("rsWithMaterialTracksP5")
 dedxMedianRS.trajectoryTrackAssociation = cms.InputTag("rsWithMaterialTracksP5")
 
+dedxUnbinnedRS=dedxUnbinned.clone()
+dedxUnbinnedRS.tracks=cms.InputTag("rsWithMaterialTracksP5")
+dedxUnbinnedRS.trajectoryTrackAssociation = cms.InputTag("rsWithMaterialTracksP5")
 
+###CosmicTF
 dedxTruncated40CosmicTF = dedxTruncated40.clone()
 dedxTruncated40CosmicTF.tracks=cms.InputTag("cosmictrackfinderP5")
 dedxTruncated40CosmicTF.trajectoryTrackAssociation = cms.InputTag("cosmictrackfinderP5")
@@ -45,12 +55,16 @@ dedxMedianCosmicTF=dedxMedian.clone()
 dedxMedianCosmicTF.tracks=cms.InputTag("cosmictrackfinderP5")
 dedxMedianCosmicTF.trajectoryTrackAssociation = cms.InputTag("cosmictrackfinderP5")
 
+dedxUnbinnedCosmicTF=dedxUnbinned.clone()
+dedxUnbinnedCosmicTF.tracks=cms.InputTag("cosmictrackfinderP5")
+dedxUnbinnedCosmicTF.trajectoryTrackAssociation = cms.InputTag("cosmictrackfinderP5")
 
-doAlldEdXEstimatorsCTF = cms.Sequence(dedxTruncated40CTF + dedxMedianCTF + dedxHarmonic2CTF)
 
-doAlldEdXEstimatorsRS = cms.Sequence(dedxTruncated40RS + dedxMedianRS + dedxHarmonic2RS)
+doAlldEdXEstimatorsCTF = cms.Sequence(dedxTruncated40CTF + dedxMedianCTF + dedxHarmonic2CTF + dedxUnbinnedCTF)
 
-doAlldEdXEstimatorsCosmicTF = cms.Sequence(dedxTruncated40CosmicTF + dedxMedianCosmicTF + dedxHarmonic2CosmicTF)
+doAlldEdXEstimatorsRS = cms.Sequence(dedxTruncated40RS + dedxMedianRS + dedxHarmonic2RS + dedxUnbinnedRS)
+
+doAlldEdXEstimatorsCosmicTF = cms.Sequence(dedxTruncated40CosmicTF + dedxMedianCosmicTF + dedxHarmonic2CosmicTF +  dedxUnbinnedCosmicTF)
 
 
 doAlldEdXEstimators = cms.Sequence( doAlldEdXEstimatorsCTF + doAlldEdXEstimatorsRS + doAlldEdXEstimatorsCosmicTF )
