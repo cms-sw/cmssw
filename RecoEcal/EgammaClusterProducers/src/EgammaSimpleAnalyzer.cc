@@ -8,7 +8,7 @@
 //
 // Original Author:  Shahram Rahatlou
 //         Created:  10 May 2006
-// $Id: EgammaSimpleAnalyzer.cc,v 1.10 2007/03/25 22:59:46 futyand Exp $
+// $Id: EgammaSimpleAnalyzer.cc,v 1.11 2007/09/06 23:43:10 ratnik Exp $
 //
 
 #include "RecoEcal/EgammaClusterProducers/interface/EgammaSimpleAnalyzer.h"
@@ -148,7 +148,7 @@ EgammaSimpleAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
   for(reco::BasicClusterCollection::const_iterator aClus = islandBarrelBasicClusters->begin();
                                                     aClus != islandBarrelBasicClusters->end(); aClus++) {
     h1_islandEBBCEnergy_->Fill( aClus->energy() );
-    h1_islandEBBCXtals_->Fill(  aClus->getHitsByDetId().size() );
+    h1_islandEBBCXtals_->Fill(  aClus->size() );
     str << "energy: " << aClus->energy()
         << "\te5x5: " << (*islandEBShapes)[iClus].e5x5()
         << "\te2x2: " << (*islandEBShapes)[iClus].e2x2()
@@ -179,7 +179,7 @@ EgammaSimpleAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
   for(reco::BasicClusterCollection::const_iterator aClus = islandEndcapBasicClusters->begin();
                                                     aClus != islandEndcapBasicClusters->end(); aClus++) {
     h1_islandEEBCEnergy_->Fill( aClus->energy() );
-    h1_islandEEBCXtals_->Fill(  aClus->getHitsByDetId().size() );
+    h1_islandEEBCXtals_->Fill(  aClus->size() );
     h1_islandEEBCe5x5_->Fill( (*islandEEShapes)[iClus].e5x5() );
     h1_islandEBBCe9over25_->Fill( (*islandEEShapes)[iClus].e3x3()/(*islandEEShapes)[iClus].e5x5() );
     iClus++;

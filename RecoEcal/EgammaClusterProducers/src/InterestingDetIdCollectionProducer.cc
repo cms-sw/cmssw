@@ -75,15 +75,15 @@ InterestingDetIdCollectionProducer::produce (edm::Event& iEvent,
     float eMax=0.;
     DetId eMaxId(0);
 
-    std::vector<DetId> clusterDetIds = (*clusIt).getHitsByDetId();
-    std::vector<DetId>::iterator posCurrent;
+    std::vector<std::pair<DetId,float> > clusterDetIds = (*clusIt).hitsAndFractions();
+    std::vector<std::pair<DetId,float> >::iterator posCurrent;
 
     EcalRecHit testEcalRecHit;
     
     for(posCurrent = clusterDetIds.begin(); posCurrent != clusterDetIds.end(); posCurrent++)
       {
-	EcalRecHitCollection::const_iterator itt = recHitsHandle->find(*posCurrent);
-	if ((!((*posCurrent).null())) && (itt != recHitsHandle->end()) && ((*itt).energy() > eMax) )
+	EcalRecHitCollection::const_iterator itt = recHitsHandle->find((*posCurrent).first);
+	if ((!((*posCurrent).first.null())) && (itt != recHitsHandle->end()) && ((*itt).energy() > eMax) )
 	  {
 	    eMax = (*itt).energy();
 	    eMaxId = (*itt).id();
@@ -95,12 +95,12 @@ InterestingDetIdCollectionProducer::produce (edm::Event& iEvent,
     
     const CaloSubdetectorTopology* topology  = caloTopology_->getSubdetectorTopology(eMaxId.det(),eMaxId.subdetId());
     std::vector<DetId> xtalsToStore=topology->getWindow(eMaxId,minimalEtaSize_,minimalPhiSize_);
-    std::vector<DetId> xtalsInClus=(*clusIt).getHitsByDetId();
+    std::vector<std::pair<DetId,float > > xtalsInClus=(*clusIt).hitsAndFractions();
     
     for (unsigned int ii=0;ii<xtalsInClus.size();ii++)
       {
-	if (std::find(xtalsToStore.begin(),xtalsToStore.end(),xtalsInClus[ii]) == xtalsToStore.end())
-	  xtalsToStore.push_back(xtalsInClus[ii]);
+	if (std::find(xtalsToStore.begin(),xtalsToStore.end(),xtalsInClus[ii].first) == xtalsToStore.end())
+	  xtalsToStore.push_back(xtalsInClus[ii].first);
       }
     
     for (unsigned int iCry=0;iCry<xtalsToStore.size();iCry++)
