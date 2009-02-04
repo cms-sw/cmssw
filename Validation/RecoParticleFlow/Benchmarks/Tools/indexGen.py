@@ -157,10 +157,10 @@ imgTemplate = '<IMG src="%s" width="500" align="left" border="0"><br clear="ALL"
 images = ''
 
 # open legend file
-legend = 'legend.txt'
+captions = 'captions.txt'
 
-legendContents = open( legend )
-for line in legendContents:
+captionsContents = open( captions )
+for line in captionsContents:
      try:
           (picfile, caption) = readCaption( line )
           img = imgTemplate % os.path.basename(picfile)
