@@ -12,23 +12,34 @@ process.load("SimG4Core.Application.g4SimHits_cfi")
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout'),
     categories = cms.untracked.vstring('FiberSim', 
+        'G4cout', 'G4cerr','FlatThetaGun',                               
         'HFShower', 'HcalForwardLib'),
+    debugModules = cms.untracked.vstring('*'),
     cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO'),
+        threshold = cms.untracked.string('DEBUG'),
         INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+            limit = cms.untracked.int32(-1)
         ),
         DEBUG = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
+        G4cerr = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
+        G4cout = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
+        FlatThetaGun = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
         HFShower = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+            limit = cms.untracked.int32(-1)
         ),
         FiberSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+            limit = cms.untracked.int32(-1)
         ),
         HcalForwardLib = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+            limit = cms.untracked.int32(-1)
         )
     )
 )
@@ -47,7 +58,7 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 process.Timing = cms.Service("Timing")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(1)
 )
 
 process.source = cms.Source("FlatRandomEThetaGunSource",
@@ -57,10 +68,10 @@ process.source = cms.Source("FlatRandomEThetaGunSource",
         MaxTheta = cms.untracked.double(0.0),
         MinPhi   = cms.untracked.double(-3.1415926),
         MaxPhi   = cms.untracked.double(3.1415926),
-        MinE     = cms.untracked.double(100.0),
-        MaxE     = cms.untracked.double(100.0)
+        MinE     = cms.untracked.double(10.0),
+        MaxE     = cms.untracked.double(10.0)
     ),
-    Verbosity = cms.untracked.int32(0),
+    Verbosity = cms.untracked.int32(2),
     AddAntiParticle = cms.untracked.bool(False),
     firstRun = cms.untracked.uint32(1)
 )
@@ -70,7 +81,7 @@ process.o1 = cms.OutputModule("PoolOutputModule",
 )
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('ThfShowerLibSimu_100GeVElec.root')
+    fileName = cms.string('ThfShowerLibSimu_10GeVElec.root')
 )
 
 process.p1 = cms.Path(cms.SequencePlaceholder("randomEngineStateProducer")+process.VtxSmeared*process.g4SimHits)
@@ -80,6 +91,7 @@ process.g4SimHits.Generator.ApplyPCuts   = False
 process.g4SimHits.Generator.ApplyEtaCuts = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP'
 process.g4SimHits.Physics.DefaultCutValue = 0.1
+process.g4SimHits.G4Commands = ['/tracking/verbose 1']
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     HFShowerLibraryProducer = cms.PSet(
         Names = cms.vstring('FibreHits', 
