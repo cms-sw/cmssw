@@ -49,6 +49,7 @@
 #include <iomanip>
 #include <iterator>
 #include "TH1.h"
+#include "TH1D.h"
 #include "TProfile.h"
 //
 // class decleration
@@ -67,7 +68,8 @@ class CaloGeometryAnalyzer : public edm::EDAnalyzer {
       void build( const CaloGeometry& cg , 
 		  DetId::Detector     det, 
 		  int                 subdetn, 
-		  const char*         name);
+		  const char*         name,
+		  unsigned int        histi   );
 
       void ctrcor( const DetId::Detector   det     , 
 		   const int               subdetn , 
@@ -76,7 +78,8 @@ class CaloGeometryAnalyzer : public edm::EDAnalyzer {
 		   std::fstream&           fCtr    ,
 		   std::fstream&           fCor    ,  
 		   std::fstream&           oldCtr    ,
-		   std::fstream&           oldCor       );
+		   std::fstream&           oldCor   ,
+		   unsigned int            histi        );
   int pass_;
   //  bool fullEcalDump_;
 
@@ -99,8 +102,14 @@ class CaloGeometryAnalyzer : public edm::EDAnalyzer {
 		   const EBDetId&   id   , 
 		   std::fstream&    fOvr  );
 
+
+      edm::Service<TFileService> h_fs;
+
+
       TProfile* h_eta ;
       TProfile* h_phi;
+
+      TH1D* h_diffs[10][12] ;
 
 };
 //
@@ -119,10 +128,27 @@ CaloGeometryAnalyzer::CaloGeometryAnalyzer( const edm::ParameterSet& iConfig )
    //now do what ever initialization is needed
   pass_=0;
   //  fullEcalDump_=iConfig.getUntrackedParameter<bool>("fullEcalDump",false);
-  edm::Service<TFileService> fs;
+  h_eta = h_fs->make<TProfile>("iEta", "Eta vs iEta", 86*2*4, -86, 86, " " ) ;
+  h_phi = h_fs->make<TProfile>("iPhi", "Phi vs iPhi", 360*4, 1, 361, " " ) ;
 
-  h_eta = fs->make<TProfile>("iEta", "Eta vs iEta", 86*2*4, -86, 86, " " ) ;
-  h_phi = fs->make<TProfile>("iPhi", "Phi vs iPhi", 360*4, 1, 361, " " ) ;
+  const std::string hname[10] = { "EB", "EE", "ES", "HB", "HO", "HE", "HF", "CT", "ZD", "CA" } ;
+  const std::string cname[12] = { "XCtr", "YCtr", "ZCtr",
+				  "XCor0", "YCor0", "ZCor0",
+				  "XCor3", "YCor3", "ZCor3",
+				  "XCor6", "YCor6", "ZCor6" } ;
+
+  for( unsigned int i ( 0 ) ; i != 10 ; ++i )
+  {
+     for( unsigned int j ( 0 ) ; j != 12 ; ++j )
+     {
+	h_diffs[i][j] = h_fs->make<TH1D>( std::string( hname[i] + cname[j] +
+						       std::string("Diff (microns)") ).c_str(), 
+					  std::string( hname[i] +
+						       std::string(": New-Nom(")
+						       + cname[j] + std::string(")") ).c_str(), 
+					  200, -200., 200. ) ;
+     }
+  }
 }
 
 
@@ -131,7 +157,6 @@ CaloGeometryAnalyzer::~CaloGeometryAnalyzer()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-
 }
 
 void 
@@ -333,7 +358,8 @@ CaloGeometryAnalyzer::ctrcor( const DetId::Detector   det     ,
 			      std::fstream&           fCtr    ,
 			      std::fstream&           fCor    , 
 			      std::fstream&           oldCtr    ,
-			      std::fstream&           oldCor      )
+			      std::fstream&           oldCor    ,
+			      unsigned int            histi         )
 {
    int oldie ( 0 ) ;
    int oldip ( 0 ) ;
@@ -446,6 +472,10 @@ CaloGeometryAnalyzer::ctrcor( const DetId::Detector   det     ,
    const double dy ( 1.e4*(y - oldy) ) ;
    const double dz ( 1.e4*(z - oldz) ) ;
 
+   h_diffs[histi][0]->Fill( dx ) ;
+   h_diffs[histi][1]->Fill( dy ) ;
+   h_diffs[histi][2]->Fill( dz ) ;
+
    if( 1.5 < fabs( dx ) ) std::cout<<"For i="<<oldie<<" & j="<<oldip
 	     			<<"***BIG DISAGREEMENT FOUND. DX="<<dx<<" microns"<<std::endl ;
    if( 1.5 < fabs( dy ) ) std::cout<<"For i="<<oldie<<" & j="<<oldip
@@ -478,6 +508,10 @@ CaloGeometryAnalyzer::ctrcor( const DetId::Detector   det     ,
       const double dy ( 1.e4*(y - oldy) ) ;
       const double dz ( 1.e4*(z - oldz) ) ;
 
+      h_diffs[histi][j+3]->Fill( dx ) ;
+      h_diffs[histi][j+4]->Fill( dy ) ;
+      h_diffs[histi][j+5]->Fill( dz ) ;
+
       if( 1.5 < fabs( dx ) ) std::cout<<"For i="<<oldie<<" & j="<<oldip<<" & jj="<<j
 					   <<"***BIG DISAGREEMENT FOUND. DX="<<dx<<" microns"<<std::endl ;
       if( 1.5 < fabs( dy ) ) std::cout<<"For i="<<oldie<<" & j="<<oldip<<" & jj="<<j
@@ -499,7 +533,8 @@ void
 CaloGeometryAnalyzer::build( const CaloGeometry& cg      , 
 			     DetId::Detector     det     , 
 			     int                 subdetn , 
-			     const char*         name     ) 
+			     const char*         name    ,
+			     unsigned int        histi     ) 
 {
    std::cout<<"Name now is "<<name<<std::endl ;
 
@@ -544,7 +579,8 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 	      fCtr,
 	      fCor,
 	      oldCtr,
-	      oldCor ) ;
+	      oldCor,
+	      histi ) ;
 
       const DetId      id ( *i ) ;
       const CaloGenericDetId cid ( id ) ;
@@ -766,16 +802,16 @@ CaloGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
    // get the ecal & hcal geometry
    //
    if (pass_==0) {
-     build(*pG,DetId::Ecal,EcalBarrel,"eb");
-     build(*pG,DetId::Ecal,EcalEndcap,"ee");
-     build(*pG,DetId::Ecal,EcalPreshower,"es");
-     build(*pG,DetId::Hcal,HcalBarrel,"hb");
-     build(*pG,DetId::Hcal,HcalEndcap,"he");
-     build(*pG,DetId::Hcal,HcalOuter ,"ho");
-     build(*pG,DetId::Hcal,HcalForward,"hf");
-     build(*pG,DetId::Calo,CaloTowerDetId::SubdetId     ,"ct");
-     build(*pG,DetId::Calo,HcalZDCDetId::SubdetectorId  ,"zd");
-     build(*pG,DetId::Calo,HcalCastorDetId::SubdetectorId  ,"ca");
+     build(*pG,DetId::Ecal,EcalBarrel,"eb",0);
+     build(*pG,DetId::Ecal,EcalEndcap,"ee",1);
+     build(*pG,DetId::Ecal,EcalPreshower,"es",2);
+     build(*pG,DetId::Hcal,HcalBarrel,"hb",3);
+     build(*pG,DetId::Hcal,HcalEndcap,"he",4);
+     build(*pG,DetId::Hcal,HcalOuter ,"ho",5);
+     build(*pG,DetId::Hcal,HcalForward,"hf",6);
+     build(*pG,DetId::Calo,CaloTowerDetId::SubdetId     ,"ct",7);
+     build(*pG,DetId::Calo,HcalZDCDetId::SubdetectorId  ,"zd",8);
+     build(*pG,DetId::Calo,HcalCastorDetId::SubdetectorId  ,"ca",9);
      //Test eeGetClosestCell in Florian Point
      std::cout << "Checking getClosestCell for position" << GlobalPoint(-38.9692,-27.5548,-317) << std::endl;
      std::cout << "Position of Closest Cell in EE " << dynamic_cast<const TruncatedPyramid*>(pG->getGeometry(EEDetId((*pG).getSubdetectorGeometry(DetId::Ecal,EcalEndcap)->getClosestCell(GlobalPoint(-38.9692,-27.5548,-317)))))->getPosition(0.) << std::endl;
