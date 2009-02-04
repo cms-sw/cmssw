@@ -2,13 +2,9 @@
 mkdir EffTest
 pushd EffTest
 
-cp $LOCALRT/src/CondCore/PopCon/test/PopConEffExample.py PopConEffExample.py
+cmsRun $LOCALRT/src/CondCore/PopCon/test/PopConEffExample.py
 
-foreach T (Test1 Test2 Test3 Test4)
-  sed "s/TestN/$T/g" PopConEffExample.py > conf.py
-  cmsRun conf.py
-  rm conf.py
-end
+sqlite3 pop_test.db .tables
 
 cmscond_list_iov -c sqlite_file:pop_test.db -t Example_tag1
 
