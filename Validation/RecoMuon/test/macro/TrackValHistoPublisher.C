@@ -196,10 +196,10 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    
    canvas = new TCanvas("Tracks1","Tracks: efficiency & fakerate",1000,1050);
    
-   rh1->GetYaxis()->SetRangeUser(8,24);
-   sh1->GetYaxis()->SetRangeUser(8,24);
-   rh2->GetXaxis()->SetRangeUser(0,30);
-   sh2->GetXaxis()->SetRangeUser(0,30);
+   rh1->GetYaxis()->SetRangeUser(8,74);
+   sh1->GetYaxis()->SetRangeUser(8,74);
+   rh2->GetXaxis()->SetRangeUser(0,74);
+   sh2->GetXaxis()->SetRangeUser(0,74);
    
    rh3->GetXaxis()->SetRangeUser(0,10);
    sh3->GetXaxis()->SetRangeUser(0,10);
@@ -247,8 +247,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    NormalizeHistograms(rh2,sh2);
    fixRangeY(rh1,sh1);
    fixRangeY(rh2,sh2);
-   rh3->GetYaxis()->SetRangeUser(0,2.5);
-   sh3->GetYaxis()->SetRangeUser(0,2.5);
+   rh3->GetYaxis()->SetRangeUser(0,5.5);
+   sh3->GetYaxis()->SetRangeUser(0,5.5);
  
    rh3->SetTitle("");
    rh3->GetYaxis()->SetTitleSize(0.05);
