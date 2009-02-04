@@ -8,7 +8,7 @@
 //
 // Original Author:  Monica Vazquez Acosta
 //         Created:  Tue Jun 13 12:16:00 CEST 2006
-// $Id: EgammaHLTEcalIsolation.cc,v 1.2 2006/10/24 10:57:35 monicava Exp $
+// $Id: EgammaHLTEcalIsolation.cc,v 1.3 2008/05/12 08:55:45 ghezzi Exp $
 //
 
 // system include files
@@ -70,7 +70,7 @@ float EgammaHLTEcalIsolation::isolPtSum(const reco::RecoCandidate* recocandidate
   for(std::vector<const reco::BasicCluster*>::const_iterator cItr = bclusters.begin(); cItr != bclusters.end(); ++cItr){
  
     cluster = *cItr;
-    float ebc_bcchi2 = cluster->chi2();
+//    float ebc_bcchi2 = cluster->chi2(); //chi2 for SC was useless and it is removed in 31x
     int   ebc_bcalgo = cluster->algo();
     float ebc_bce    = cluster->energy();
     float ebc_bceta  = cluster->eta();
@@ -80,7 +80,7 @@ float EgammaHLTEcalIsolation::isolPtSum(const reco::RecoCandidate* recocandidate
 
 
     if (ebc_bcet > etMin && ebc_bcalgo == algoType_ ) {
-      if (ebc_bcchi2 < 30.) {
+      //  if (ebc_bcchi2 < 30.) {
 	
 	if(MATCHEDSC){
 	  bool inSuperCluster = false;
@@ -105,7 +105,7 @@ float EgammaHLTEcalIsolation::isolPtSum(const reco::RecoCandidate* recocandidate
 	    }
 	  }
 	}
-      } // matches ebc_bcchi2
+	//  } // matches ebc_bcchi2
     } // matches ebc_bcet && ebc_bcalgo
 
   }
