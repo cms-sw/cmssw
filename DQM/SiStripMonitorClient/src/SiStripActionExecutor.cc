@@ -264,12 +264,15 @@ void SiStripActionExecutor::fillGlobalStatusFromModule(DQMStore* dqm_store) {
   SummaryTECF->Fill(statusTECF);
   SummaryTECB->Fill(statusTECB);
     
-  cout <<"# of Det TIB : (tot)"<<setw(5)<<nDetTIBTot<< " (error) "<<nDetTIBErr <<" ==> "<<statusTIB<< endl; 
-  cout <<"# of Det TOB : (tot)"<<setw(5)<<nDetTOBTot<< " (error) "<<nDetTOBErr <<" ==> "<<statusTOB<< endl; 
-  cout <<"# of Det TIDF: (tot)"<<setw(5)<<nDetTIDFTot<<" (error) "<<nDetTIDFErr<<" ==> "<<statusTIDF<< endl; 
-  cout <<"# of Det TIDB: (tot)"<<setw(5)<<nDetTIDBTot<<" (error) "<<nDetTIDBErr<<" ==> "<<statusTIDB<< endl; 
-  cout <<"# of Det TECF: (tot)"<<setw(5)<<nDetTECFTot<<" (error) "<<nDetTECFErr<<" ==> "<<statusTECF<< endl; 
-  cout <<"# of Det TECB: (tot)"<<setw(5)<<nDetTECBTot<<" (error) "<<nDetTECBErr<<" ==> "<<statusTECB<< endl; 
+  ostringstream det_summary_str;
+  det_summary_str <<"# of Det TIB : (tot)"<<setw(5)<<nDetTIBTot<< " (error) "<<nDetTIBErr <<" ==> "<<statusTIB<< endl; 
+  det_summary_str <<"# of Det TOB : (tot)"<<setw(5)<<nDetTOBTot<< " (error) "<<nDetTOBErr <<" ==> "<<statusTOB<< endl; 
+  det_summary_str <<"# of Det TIDF: (tot)"<<setw(5)<<nDetTIDFTot<<" (error) "<<nDetTIDFErr<<" ==> "<<statusTIDF<< endl; 
+  det_summary_str <<"# of Det TIDB: (tot)"<<setw(5)<<nDetTIDBTot<<" (error) "<<nDetTIDBErr<<" ==> "<<statusTIDB<< endl; 
+  det_summary_str <<"# of Det TECF: (tot)"<<setw(5)<<nDetTECFTot<<" (error) "<<nDetTECFErr<<" ==> "<<statusTECF<< endl; 
+  det_summary_str <<"# of Det TECB: (tot)"<<setw(5)<<nDetTECBTot<<" (error) "<<nDetTECBErr<<" ==> "<<statusTECB<< endl; 
+
+  edm::LogInfo("SiStripActionExecutor") << " Detector Summary \n" << det_summary_str.str();
 }
 // 
 // -- Fill Global Status for Tier0
@@ -330,12 +333,16 @@ void SiStripActionExecutor::fillGlobalStatusFromLayer(DQMStore* dqm_store) {
   SummaryTECF->Fill(statusTECF);
   SummaryTECB->Fill(statusTECB);
 
-  cout <<"# of Det TIB : (tot)"<<setw(5)<<nDetTIBTot<< " (error) "<<nDetTIBErr <<" ==> "<<statusTIB<< endl; 
-  cout <<"# of Det TOB : (tot)"<<setw(5)<<nDetTOBTot<< " (error) "<<nDetTOBErr <<" ==> "<<statusTOB<< endl; 
-  cout <<"# of Det TIDF: (tot)"<<setw(5)<<nDetTIDFTot<<" (error) "<<nDetTIDFErr<<" ==> "<<statusTIDF<< endl; 
-  cout <<"# of Det TIDB: (tot)"<<setw(5)<<nDetTIDBTot<<" (error) "<<nDetTIDBErr<<" ==> "<<statusTIDB<< endl; 
-  cout <<"# of Det TECF: (tot)"<<setw(5)<<nDetTECFTot<<" (error) "<<nDetTECFErr<<" ==> "<<statusTECF<< endl; 
-  cout <<"# of Det TECB: (tot)"<<setw(5)<<nDetTECBTot<<" (error) "<<nDetTECBErr<<" ==> "<<statusTECB<< endl; 
+  ostringstream det_summary_str;
+  det_summary_str <<"# of Det TIB : (tot)"<<setw(5)<<nDetTIBTot<< " (error) "<<nDetTIBErr <<" ==> "<<statusTIB<< endl; 
+  det_summary_str <<"# of Det TOB : (tot)"<<setw(5)<<nDetTOBTot<< " (error) "<<nDetTOBErr <<" ==> "<<statusTOB<< endl; 
+  det_summary_str <<"# of Det TIDF: (tot)"<<setw(5)<<nDetTIDFTot<<" (error) "<<nDetTIDFErr<<" ==> "<<statusTIDF<< endl; 
+  det_summary_str <<"# of Det TIDB: (tot)"<<setw(5)<<nDetTIDBTot<<" (error) "<<nDetTIDBErr<<" ==> "<<statusTIDB<< endl; 
+  det_summary_str <<"# of Det TECF: (tot)"<<setw(5)<<nDetTECFTot<<" (error) "<<nDetTECFErr<<" ==> "<<statusTECF<< endl; 
+  det_summary_str <<"# of Det TECB: (tot)"<<setw(5)<<nDetTECBTot<<" (error) "<<nDetTECBErr<<" ==> "<<statusTECB<< endl; 
+
+  edm::LogInfo("SiStripActionExecutor") << " Detector Summary \n" << det_summary_str.str();
+
 }
 //
 // -- fill subDetStatus

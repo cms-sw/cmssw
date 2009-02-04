@@ -8,8 +8,8 @@ process.load("DQMServices.Components.EDMtoMEConverter_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.connect = "frontier://PromptProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "CRAFT_ALL_V3::All"
+process.GlobalTag.connect = "frontier://FrontierInt/CMS_COND_30X_GLOBALTAG"
+process.GlobalTag.globaltag = "CRAFT_30X::All"
 process.prefer("GlobalTag")
 
 process.load("DQM.SiStripMonitorClient.SiStripClientConfig_Tier0_cff")

@@ -16,10 +16,8 @@ process.MessageLogger = cms.Service("MessageLogger",
 #-----------------------------
 process.source = cms.Source("PoolSource",
      fileNames = cms.untracked.vstring(
-
-#    '/store/data/Commissioning08/Calo/RAW/v1/000/067/647/00247884-48A3-DD11-A10C-001D09F24498.root'
-    '/store/data/Commissioning08/Calo/RAW/v1/000/067/647/0029FCB8-85A3-DD11-9395-000423D94E1C.root'
-
+#     '/store/data/Commissioning08/Cosmics/RAW/v1/000/069/365/0A92FA00-01AB-DD11-A6AF-001617DBD288.root'
+     '/store/data/Commissioning08/Cosmics/RAW/v1/000/069/365/8C367B78-05AB-DD11-8ADF-001617C3B79A.root'
      )
 )                            
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(2000))
@@ -53,25 +51,15 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 # Calibration
 #--------------------------
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "CRAFT_ALL_V3::All"
+#process.GlobalTag.connect = "frontier://FrontierInt/CMS_COND_30X_GLOBALTAG"
+process.GlobalTag.globaltag = "CRAFT_30X::All"
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
 #-----------------------
 #  Reconstruction Modules
 #-----------------------
-# Real data raw to digi
-process.load("EventFilter.SiStripRawToDigi.SiStripDigis_cfi")
-process.siStripDigis.ProductLabel = 'source'
-process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
-process.siPixelDigis.InputLabel = 'source'
-
-# Local and Track Reconstruction
-process.load("RecoLocalTracker.Configuration.RecoLocalTracker_Cosmics_cff")
-process.load("RecoTracker.Configuration.RecoTrackerP5_cff")
-
-# offline beam spot
-process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
+process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
+process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
 
 #--------------------------
 # Strip DQM Sources and DQ
@@ -88,7 +76,6 @@ process.myOut = cms.OutputModule("PoolOutputModule",
 #--------------------------
 # Scheduling
 #--------------------------
-process.RecoForDQM = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.offlineBeamSpot*process.trackerlocalreco*process.ctftracksP5)
-process.p = cms.Path(process.RecoForDQM*process.SiStripDQMTest)
+process.p = cms.Path(process.RawToDigi_woGCT*process.reconstructionCosmics*process.SiStripDQMTest)
 
 process.outpath = cms.EndPath(process.myOut)
