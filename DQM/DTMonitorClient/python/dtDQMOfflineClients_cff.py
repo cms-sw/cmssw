@@ -5,6 +5,7 @@ from DQM.DTMonitorClient.dtSegmentAnalysisTest_cfi import *
 segmentTest.normalizeHistoPlots = True
 #segmentTest.detailedAnalysis = True
 from DQM.DTMonitorClient.dtOfflineSummaryClients_cfi import *
+from DQM.DTMonitorClient.dtOfflineSummaryClients_test_cfi import *
 from DQM.DTMonitorClient.dtResolutionAnalysisTest_cfi import *
 
 dtQualityTests = cms.EDFilter("QualityTester",
@@ -18,5 +19,6 @@ dtQualityTests = cms.EDFilter("QualityTester",
 dtClients = cms.Sequence(segmentTest*
                          dtResolutionAnalysisTest*
                          dtChamberEfficiencyClient*
-                         dtOfflineSummaryClients)
+                         dtOfflineSummaryClients*
+                         dtOfflineSummaryClients_test)
 

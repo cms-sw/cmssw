@@ -41,7 +41,6 @@ using namespace edm;
 
 DTChamberEfficiency::DTChamberEfficiency(const ParameterSet& pSet)
 {
-
   // Get the debug parameter for verbose output
   debug = pSet.getUntrackedParameter<bool>("debug","false");
 
@@ -175,6 +174,9 @@ void DTChamberEfficiency::analyze(const Event & event,
 
       //get the list of compatible layers
       vector<const DetLayer*> layer_list = compatibleLayers(initialLayer,*init_fs_free,alongMomentum);
+      vector<const DetLayer*> layer_list_2 = compatibleLayers(initialLayer,*init_fs_free,oppositeToMomentum);
+
+      layer_list.insert(layer_list.end(),layer_list_2.begin(),layer_list_2.end());
 
       //loop over the list of compatible layers
       for(int i=0;i< (int)layer_list.size();i++){

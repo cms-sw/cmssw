@@ -55,6 +55,9 @@ DEFINE_ANOTHER_FWK_MODULE(DTSummaryClients);
 #include "DQM/DTMonitorClient/src/DTOfflineSummaryClients.h"
 DEFINE_ANOTHER_FWK_MODULE(DTOfflineSummaryClients);
 
+#include "DQM/DTMonitorClient/src/DTOfflineSummaryClients_test.h"
+DEFINE_ANOTHER_FWK_MODULE(DTOfflineSummaryClients_test);
+
 #include <DQM/DTMonitorClient/src/DTResolutionAnalysisTest.h>
 DEFINE_ANOTHER_FWK_MODULE(DTResolutionAnalysisTest);
 
