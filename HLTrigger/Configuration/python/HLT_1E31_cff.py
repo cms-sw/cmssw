@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre1/1E31_V2/V2 (CMSSW_3_1_X_2009-02-03-2200_HLT1)
+# /dev/CMSSW_3_1_0/pre1/1E31_V4/V2 (CMSSW_3_1_X_2009-02-03-2200_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre1/1E31_V2/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre1/1E31_V4/V2')
 )
 
 L3AbsoluteCorrectionService = cms.ESSource( "L3AbsoluteCorrectionService",
@@ -2791,7 +2791,7 @@ hltL1NonIsoHLTIsoSinglePhotonEt15TrackIsolFilter = cms.EDFilter( "HLTPhotonTrack
     candTag = cms.InputTag( "hltL1NonIsoHLTIsoSinglePhotonEt15HcalIsolFilter" ),
     isoTag = cms.InputTag( "hltL1IsoPhotonTrackIsol" ),
     nonIsoTag = cms.InputTag( "hltL1NonIsoPhotonTrackIsol" ),
-    ptOrNumtrackisolcut = cms.double( 1.0 ),
+    ptOrNumtrackisolcut = cms.double( 0.0 ),
     pttrackisolOverEcut = cms.double( 0.0 ),
     pttrackisolOverE2cut = cms.double( 0.0 ),
     ncandcut = cms.int32( 1 ),
@@ -2858,7 +2858,7 @@ hltL1NonIsoHLTIsoSinglePhotonEt20TrackIsolFilter = cms.EDFilter( "HLTPhotonTrack
     candTag = cms.InputTag( "hltL1NonIsoHLTIsoSinglePhotonEt20HcalIsolFilter" ),
     isoTag = cms.InputTag( "hltL1IsoPhotonTrackIsol" ),
     nonIsoTag = cms.InputTag( "hltL1NonIsoPhotonTrackIsol" ),
-    ptOrNumtrackisolcut = cms.double( 1.0 ),
+    ptOrNumtrackisolcut = cms.double( 0.0 ),
     pttrackisolOverEcut = cms.double( 0.0 ),
     pttrackisolOverE2cut = cms.double( 0.0 ),
     ncandcut = cms.int32( 1 ),
@@ -3043,7 +3043,7 @@ hltL1NonIsoDoublePhotonTrackIsolFilter = cms.EDFilter( "HLTPhotonTrackIsolFilter
     candTag = cms.InputTag( "hltL1NonIsoDoublePhotonHcalIsolFilter" ),
     isoTag = cms.InputTag( "hltL1IsoPhotonTrackIsol" ),
     nonIsoTag = cms.InputTag( "hltL1NonIsoPhotonTrackIsol" ),
-    ptOrNumtrackisolcut = cms.double( 3.0 ),
+    ptOrNumtrackisolcut = cms.double( 2.0 ),
     pttrackisolOverEcut = cms.double( 0.0 ),
     pttrackisolOverE2cut = cms.double( 0.0 ),
     ncandcut = cms.int32( 2 ),

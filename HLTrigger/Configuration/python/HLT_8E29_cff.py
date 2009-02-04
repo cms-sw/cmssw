@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre1/8E29_V2/V2 (CMSSW_3_1_X_2009-02-03-2200_HLT1)
+# /dev/CMSSW_3_1_0/pre1/8E29_V4/V2 (CMSSW_3_1_X_2009-02-03-2200_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre1/8E29_V2/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre1/8E29_V4/V2')
 )
 
 L3AbsoluteCorrectionService = cms.ESSource( "L3AbsoluteCorrectionService",
@@ -2446,7 +2446,7 @@ hltL1NonIsoSinglePhotonEt10TrackIsolFilter = cms.EDFilter( "HLTPhotonTrackIsolFi
     candTag = cms.InputTag( "hltL1NonIsoSinglePhotonEt10HcalIsolFilter" ),
     isoTag = cms.InputTag( "hltL1IsoPhotonTrackIsol" ),
     nonIsoTag = cms.InputTag( "hltL1NonIsoPhotonTrackIsol" ),
-    ptOrNumtrackisolcut = cms.double( 1.0 ),
+    ptOrNumtrackisolcut = cms.double( 0.0 ),
     pttrackisolOverEcut = cms.double( 0.0 ),
     pttrackisolOverE2cut = cms.double( 0.0 ),
     ncandcut = cms.int32( 1 ),
