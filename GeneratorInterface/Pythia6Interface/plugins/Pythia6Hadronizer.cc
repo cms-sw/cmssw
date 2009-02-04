@@ -284,10 +284,11 @@ bool Pythia6Hadronizer::hadronize()
    
    FortranCallback::getInstance()->resetIterationsPerEvent();
    fVetoDone = false;
-   fJetMatching->resetMatchingStatus() ;
-
-   // here call JetMatching::beforeHadronization
-   if ( fJetMatching != NULL ) fJetMatching->beforeHadronisation(fEventInfo);
+   if ( fJetMatching != NULL) 
+   {
+      fJetMatching->resetMatchingStatus() ;
+      fJetMatching->beforeHadronisation(fEventInfo);
+   }
       
    // generate event with Pythia6
    //
