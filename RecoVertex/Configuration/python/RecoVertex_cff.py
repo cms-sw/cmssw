@@ -7,5 +7,5 @@ from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import *
 from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVerticesWithBS_cfi import *
 from RecoVertex.V0Producer.generalV0Candidates_cff import *
 
-vertexreco = cms.Sequence(offlinePrimaryVertices*offlinePrimaryVerticesWithBS*V0reco)
+vertexreco = cms.Sequence(offlinePrimaryVertices*offlinePrimaryVerticesWithBS*generalV0Candidates)
 
