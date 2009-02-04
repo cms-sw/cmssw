@@ -7,26 +7,26 @@ hcalSimParameters = cms.PSet(
     # smearing, because the first level of the PMT
     # only gives ~6 electrons per pe, which
     # comes out to a 40% smearing of the single pe peak!
-    # 
+    #
     hf1 = cms.PSet(
         readoutFrameSize = cms.int32(6),
         binOfMaximum = cms.int32(4),
-        samplingFactor = cms.double(0.278),
+        samplingFactor = cms.double(0.383),
         doPhotoStatistics = cms.bool(True),
         photoelectronsToAnalog = cms.double(2.79),
         simHitToPhotoelectrons = cms.double(6.0),
         syncPhase = cms.bool(True),
-        timePhase = cms.double(15.0)
+        timePhase = cms.double(4.0)
     ),
     hf2 = cms.PSet(
         readoutFrameSize = cms.int32(6),
         binOfMaximum = cms.int32(4),
-        samplingFactor = cms.double(0.267),
+        samplingFactor = cms.double(0.368),
         doPhotoStatistics = cms.bool(True),
         photoelectronsToAnalog = cms.double(1.843),
         simHitToPhotoelectrons = cms.double(6.0),
         syncPhase = cms.bool(True),
-        timePhase = cms.double(15.0)
+        timePhase = cms.double(4.0)
     ),
     ho = cms.PSet(
         readoutFrameSize = cms.int32(10),
@@ -55,7 +55,7 @@ hcalSimParameters = cms.PSet(
             117.46, 116.79, 117.15, 117.29, 118.41,
             134.86),
         syncPhase = cms.bool(True),
-        timePhase = cms.double(5.0)
+        timePhase = cms.double(5.0),
     ),
     he = cms.PSet(
         readoutFrameSize = cms.int32(10),
