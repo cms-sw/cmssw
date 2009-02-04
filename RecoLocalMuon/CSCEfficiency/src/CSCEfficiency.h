@@ -223,7 +223,7 @@ public:
   void ringCandidates(int station, float absEta, std::map <std::string, bool> & chamberTypes);
   void chamberCandidates(int station, int ring, float phi, std::vector <int> &coupleOfChambers);
 
-  bool digisPerChamber(CSCDetId & id, const CSCChamber* cscChamber, FreeTrajectoryState &ftsChamber);
+  bool efficienciesPerChamber(CSCDetId & id, const CSCChamber* cscChamber, FreeTrajectoryState &ftsChamber);
   bool stripWire_Efficiencies(CSCDetId & cscDetId, FreeTrajectoryState &ftsChamber);
   bool recHitSegment_Efficiencies(CSCDetId & cscDetId, const CSCChamber* cscChamber, FreeTrajectoryState &ftsChamber);
   bool recSimHitEfficiency(CSCDetId & id, FreeTrajectoryState &ftsChamber);

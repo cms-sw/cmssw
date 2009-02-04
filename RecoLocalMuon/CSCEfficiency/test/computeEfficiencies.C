@@ -52,20 +52,22 @@ void computeEfficiencies(){
 		     "ME+11","ME+12","ME+13","ME+21","ME+22","ME+31","ME+32","ME+41"};
   
   
-  TH2F *h_alctEfficiency = new TH2F("h_alctEfficiency","ALCT efficiency ",
+  TH2F *h_alctEfficiency = new TH2F("h_alctEfficiency","ALCT efficiency; chamber number  ",
 				    nx,0. + 0.5,float(nx) + 0.5, ny,0. + 0.5,float(ny) + 0.5);
-  TH2F *h_clctEfficiency = new TH2F("h_clctEfficiency","CLCT efficiency ",
+  TH2F *h_clctEfficiency = new TH2F("h_clctEfficiency","CLCT efficiency; chamber number  ",
 				    nx,0. + 0.5,float(nx) + 0.5, ny,0. + 0.5,float(ny) + 0.5);
-  TH2F *h_corrlctEfficiency = new TH2F("h_corrlctEfficiency","CorrLCT efficiency ",
+  TH2F *h_corrlctEfficiency = new TH2F("h_corrlctEfficiency","CorrLCT efficiency; chamber number  ",
 				       nx,0. + 0.5,float(nx) + 0.5, ny,0. + 0.5,float(ny) + 0.5);
-  TH2F *h_rhEfficiency = new TH2F("h_rhEfficiency","RecHit efficiency ",
+  TH2F *h_rhEfficiency = new TH2F("h_rhEfficiency","RecHit efficiency; chamber number ",
 				  nx,0. + 0.5,float(nx) + 0.5, ny,0. + 0.5,float(ny) + 0.5);
-  TH2F *h_segEfficiency = new TH2F("h_segEfficiency","Segment efficiency ",
+  TH2F *h_simrhEfficiency = new TH2F("h_simrhEfficiency","RecHit efficiency (simhit based); chamber number ",
+				  nx,0. + 0.5,float(nx) + 0.5, ny,0. + 0.5,float(ny) + 0.5);
+  TH2F *h_segEfficiency = new TH2F("h_segEfficiency","Segment efficiency; chamber number  ",
 				   nx,0. + 0.5,float(nx) + 0.5, ny,0. + 0.5,float(ny) + 0.5);
   
-  TH2F *h_stripEfficiency = new TH2F("h_stripEfficiency","Strip efficiency ",
+  TH2F *h_stripEfficiency = new TH2F("h_stripEfficiency","Strip efficiency; chamber number  ",
 				     nx,0. + 0.5,float(nx) + 0.5, ny,0. + 0.5,float(ny) + 0.5);
-  TH2F *h_wireEfficiency = new TH2F("h_wireEfficiency","Wire group efficiency ",
+  TH2F *h_wireEfficiency = new TH2F("h_wireEfficiency","Wire group efficiency; chamber number  ",
 				    nx,0. + 0.5,float(nx) + 0.5, ny,0. + 0.5,float(ny) + 0.5);
 
   for(int i=0;i<nx;++i){
@@ -73,6 +75,7 @@ void computeEfficiencies(){
     h_clctEfficiency->GetXaxis()->SetBinLabel(i+1,chambers[i]);
     h_corrlctEfficiency->GetXaxis()->SetBinLabel(i+1,chambers[i]);
     h_rhEfficiency->GetXaxis()->SetBinLabel(i+1,chambers[i]);
+    h_simrhEfficiency->GetXaxis()->SetBinLabel(i+1,chambers[i]);
     h_segEfficiency->GetXaxis()->SetBinLabel(i+1,chambers[i]);
     h_stripEfficiency->GetXaxis()->SetBinLabel(i+1,chambers[i]);
     h_wireEfficiency->GetXaxis()->SetBinLabel(i+1,chambers[i]);
@@ -82,6 +85,7 @@ void computeEfficiencies(){
     h_clctEfficiency->GetYaxis()->SetBinLabel(i+1,types[i]);
     h_corrlctEfficiency->GetYaxis()->SetBinLabel(i+1,types[i]);
     h_rhEfficiency->GetYaxis()->SetBinLabel(i+1,types[i]);
+    h_simrhEfficiency->GetYaxis()->SetBinLabel(i+1,types[i]);
     h_segEfficiency->GetYaxis()->SetBinLabel(i+1,types[i]);
     h_stripEfficiency->GetYaxis()->SetBinLabel(i+1,types[i]);
     h_wireEfficiency->GetYaxis()->SetBinLabel(i+1,types[i]);
@@ -93,7 +97,7 @@ void computeEfficiencies(){
   
   TFile* anaFile = TFile::Open("efficiencies.root", "RECREATE"); // my output file
   TCanvas *c1 = new TCanvas("c1", "canvas 1",16,30,700,500);
-  gStyle->SetOptStat(1110);
+  gStyle->SetOptStat(0);
   gStyle->SetErrorX(0);
   gPad->SetFillColor(0);
   gStyle->SetPalette(1);
@@ -215,6 +219,22 @@ void computeEfficiencies(){
 	  getEfficiency(float(nEfficient), float(nAll), efficiencyResult);
 	  std::cout<<" Rechit eff = "<<efficiencyResult[0]<<" +-"<<efficiencyResult[1]<<std::endl;
 	  h_rhEfficiency->SetBinContent(iC,int(verticalScale+0.5), efficiencyResult[0]);
+          //(simhit based)
+          histo_1 = Form("Chambers__E%d_S%d_R%d_Chamber_%d/Sim_Simhits_Ch%d",iE,iS,iR,iC,iC);
+          histo_2 = Form("Chambers__E%d_S%d_R%d_Chamber_%d/Sim_Rechits_Ch%d",iE,iS,iR,iC,iC);
+          charName = histo_1.c_str();
+          charName_2 = histo_2.c_str();
+          data_p1 =(TH1F*)(DataFiles[0]->Get(charName));
+          data_p2 =(TH1F*)(DataFiles[0]->Get(charName_2));
+	  std::cout<<" chamber name : "<<charName<<std::endl;
+          nEfficient = 0;
+          nAll =0;
+          for(int iL=1;iL<7;++iL){
+            nAll += data_p1->GetBinContent(iL+1);
+            nEfficient += data_p2->GetBinContent(iL+1);
+          }
+          getEfficiency(float(nEfficient), float(nAll), efficiencyResult);
+          h_simrhEfficiency->SetBinContent(iC,int(verticalScale+0.5), efficiencyResult[0]);
 
 	  // Segments
 	  histo_1 = Form("Chambers__E%d_S%d_R%d_Chamber_%d/digiAppearanceCount_Ch%d",iE,iS,iR,iC,iC);
@@ -400,7 +420,7 @@ void computeEfficiencies(){
   myTitle = mytitle.c_str();
   h_hitsInSegm->SetName(myTitle);
 
-  mytitle = "Residuls (track to segment) : All chambers; resirual, cm;entries";
+  mytitle = "Residuals (track to segment) : All chambers; resirual, cm;entries";
   myTitle = mytitle.c_str();
   h_Residual_Segm->SetTitle(myTitle);
   mytitle = "h_ResidInSegm_AllCh";
@@ -412,6 +432,7 @@ void computeEfficiencies(){
   h_corrlctEfficiency->Write();
 
   h_rhEfficiency->Write();
+  h_simrhEfficiency->Write();
   h_segEfficiency->Write();
 
   h_stripEfficiency->Write();

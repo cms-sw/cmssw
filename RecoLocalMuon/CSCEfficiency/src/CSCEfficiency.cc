@@ -356,8 +356,8 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
 		DataFlow->Fill(19.);  
 		if (printalot) std::cout<<"Do efficiencies..."<<std::endl;
 		//---- Do efficiencies
+                bool digi_flag; digi_flag = efficienciesPerChamber(theCSCId, cscChamber, ftsStart);  
 		if(useDigis){
-		  bool digi_flag; digi_flag = digisPerChamber(theCSCId, cscChamber, ftsStart);
 		  bool stripANDwire_flag; stripANDwire_flag = stripWire_Efficiencies(theCSCId, ftsStart);
 		}
 		bool recHitANDsegment_flag; recHitANDsegment_flag = recHitSegment_Efficiencies(theCSCId, cscChamber, ftsStart);
@@ -704,7 +704,7 @@ void CSCEfficiency::fillSimhit_info(edm::Handle<edm::PSimHitContainer> &simhits)
   for (dSHsimIter = simhits->begin(); dSHsimIter != simhits->end(); dSHsimIter++){
     // Get DetID for this simHit:
     CSCDetId sId = (CSCDetId)(*dSHsimIter).detUnitId();
-    std::pair <LocalPoint, bool> simHitPos((*dSHsimIter).localPosition(), (*dSHsimIter).particleType());  
+    std::pair <LocalPoint, int> simHitPos((*dSHsimIter).localPosition(), (*dSHsimIter).particleType());  
     allSimhits[sId.endcap()-1][sId.station()-1][sId.ring()-1][sId.chamber()-FirstCh][sId.layer()-1].push_back(simHitPos);
   }
 }
@@ -882,7 +882,7 @@ void CSCEfficiency::chamberCandidates(int station, int ring, float phi, std::vec
 }
 
 //
-bool CSCEfficiency::digisPerChamber(CSCDetId & id, const CSCChamber* cscChamber, FreeTrajectoryState &ftsChamber){
+bool CSCEfficiency::efficienciesPerChamber(CSCDetId & id, const CSCChamber* cscChamber, FreeTrajectoryState &ftsChamber){
   int ec, st, rg, ch, secondRing;
   returnTypes(id, ec, st, rg, ch, secondRing);
   
@@ -919,61 +919,63 @@ bool CSCEfficiency::digisPerChamber(CSCDetId & id, const CSCChamber* cscChamber,
   }
   bool missingALCT = false;
   bool missingCLCT = false;
-  // ALCTs
-  firstCondition = allALCT[ec][st][rg][ch];
-  secondCondition = false;
-  if(secondRing>-1){
-    secondCondition = allALCT[ec][st][secondRing][ch];
-  }
-  if(firstCondition || secondCondition){
-    ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(3);
-    StHist[ec][st].EfficientALCT_momTheta->Fill(ftsChamber.momentum().theta());
-    ChHist[ec][st][rg][ch].EfficientALCT_dydz->Fill(dydz);
-  }
-  else{
-    missingALCT = true;
-    ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(2);
-    StHist[ec][st].InefficientALCT_momTheta->Fill(ftsChamber.momentum().theta());
-    ChHist[ec][st][rg][ch].InefficientALCT_dydz->Fill(dydz);
-    if(printalot){
-      std::cout<<" missing ALCT";
-      printf("\t\tendcap/station/ring/chamber: %i/%i/%i/%i\n",ec+1,st+1,rg+1,ch+1);
+  if(useDigis){
+    // ALCTs
+    firstCondition = allALCT[ec][st][rg][ch];
+    secondCondition = false;
+    if(secondRing>-1){
+      secondCondition = allALCT[ec][st][secondRing][ch];
     }
-  }
-
-  // CLCTs
-  firstCondition = allCLCT[ec][st][rg][ch];
-  secondCondition = false;
-  if(secondRing>-1){
-    secondCondition = allCLCT[ec][st][secondRing][ch];
-  }
-  if(firstCondition || secondCondition){
-    ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(5);
-    StHist[ec][st].EfficientCLCT_momPhi->Fill(ftsChamber.momentum().phi() );// - phi chamber...
-    ChHist[ec][st][rg][ch].EfficientCLCT_dxdz->Fill(dxdz);
-  }
-  else{
-    missingCLCT = true;
-    ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(4);
-    StHist[ec][st].InefficientCLCT_momPhi->Fill(ftsChamber.momentum().phi());// - phi chamber...
-    ChHist[ec][st][rg][ch].InefficientCLCT_dxdz->Fill(dxdz);
-    if(printalot){
-      std::cout<<" missing CLCT";
-      printf("\t\tendcap/station/ring/chamber: %i/%i/%i/%i\n",ec+1,st+1,rg+1,ch+1);
+    if(firstCondition || secondCondition){
+      ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(3);
+      StHist[ec][st].EfficientALCT_momTheta->Fill(ftsChamber.momentum().theta());
+      ChHist[ec][st][rg][ch].EfficientALCT_dydz->Fill(dydz);
     }
-  }
-
-  // CorrLCTs
-  firstCondition = allCorrLCT[ec][st][rg][ch];
-  secondCondition = false;
-  if(secondRing>-1){
-    secondCondition = allCorrLCT[ec][st][secondRing][ch];
-  }
-  if(firstCondition || secondCondition){
-    ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(7);
-  }
-  else{
-    ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(6);
+    else{
+      missingALCT = true;
+      ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(2);
+      StHist[ec][st].InefficientALCT_momTheta->Fill(ftsChamber.momentum().theta());
+      ChHist[ec][st][rg][ch].InefficientALCT_dydz->Fill(dydz);
+      if(printalot){
+	std::cout<<" missing ALCT";
+	printf("\t\tendcap/station/ring/chamber: %i/%i/%i/%i\n",ec+1,st+1,rg+1,ch+1);
+      }
+    }
+    
+    // CLCTs
+    firstCondition = allCLCT[ec][st][rg][ch];
+    secondCondition = false;
+    if(secondRing>-1){
+      secondCondition = allCLCT[ec][st][secondRing][ch];
+    }
+    if(firstCondition || secondCondition){
+      ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(5);
+      StHist[ec][st].EfficientCLCT_momPhi->Fill(ftsChamber.momentum().phi() );// - phi chamber...
+      ChHist[ec][st][rg][ch].EfficientCLCT_dxdz->Fill(dxdz);
+    }
+    else{
+      missingCLCT = true;
+      ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(4);
+      StHist[ec][st].InefficientCLCT_momPhi->Fill(ftsChamber.momentum().phi());// - phi chamber...
+      ChHist[ec][st][rg][ch].InefficientCLCT_dxdz->Fill(dxdz);
+      if(printalot){
+	std::cout<<" missing CLCT";
+	printf("\t\tendcap/station/ring/chamber: %i/%i/%i/%i\n",ec+1,st+1,rg+1,ch+1);
+      }
+    }
+    
+    // CorrLCTs
+    firstCondition = allCorrLCT[ec][st][rg][ch];
+    secondCondition = false;
+    if(secondRing>-1){
+      secondCondition = allCorrLCT[ec][st][secondRing][ch];
+    }
+    if(firstCondition || secondCondition){
+      ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(7);
+    }
+    else{
+      ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(6);
+    }
   }
   bool out = false;
   //if((missingCLCT && !missingALCT )|| (missingALCT && 0==st&&2==rg)){
