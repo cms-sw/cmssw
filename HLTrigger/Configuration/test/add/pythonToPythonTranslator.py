@@ -39,14 +39,14 @@ def dumpObject(obj,key):
         returnString = "{'@classname': %s, %s" %(classname, str(obj).lstrip('{'))
         return returnString
     elif key in ('psets',):
-        returnString = "('PSet', 'untracked', %s)"%str(obj)
+        returnString = "('PSet', 'untracked', %s)" % str(obj)
         return returnString
     else:
         return str(obj)
 
 
 def trackedness(item):
-  if item.isTracked:
+  if item.isTracked():
     return 'tracked'
   else:
     return 'untracked'
