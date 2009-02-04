@@ -7,7 +7,7 @@
  *
  * \author Shahram Rahatlou, INFN
  *
- * \version $Id: CaloCluster.h,v 1.5 2009/01/27 09:51:08 ferriff Exp $
+ * \version $Id: CaloCluster.h,v 1.6 2009/01/28 16:20:04 ferriff Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
@@ -44,7 +44,7 @@ namespace reco {
 		 const math::XYZPoint& position, 
 		 const CaloID& caloID,
                  const std::vector< std::pair< DetId, float > > &usedHitsAndFractions,
-                 const AlgoId &algoId) :
+                 const AlgoId algoId) :
       energy_ (energy), position_ (position), caloID_(caloID), hitsAndFractions_(usedHitsAndFractions), algoId_(algoId) {}
 
     /// destructor
