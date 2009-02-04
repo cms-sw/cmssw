@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_0_0/pre7/8E29_V22/V2 (CMSSW_3_1_X_2009-02-02-0200)
+# /dev/CMSSW_3_1_0/pre1/8E29_V2/V2 (CMSSW_3_1_X_2009-02-03-2200_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_0_0/pre7/8E29_V22/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre1/8E29_V2/V2')
 )
 
 L3AbsoluteCorrectionService = cms.ESSource( "L3AbsoluteCorrectionService",
@@ -1657,7 +1657,8 @@ hltL1NonIsoHLTNonIsoSingleElectronEt10L1MatchFilterRegional = cms.EDFilter( "HLT
 )
 hltL1NonIsoHLTNonIsoSingleElectronEt10EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     inputTag = cms.InputTag( "hltL1NonIsoHLTNonIsoSingleElectronEt10L1MatchFilterRegional" ),
-    etcut = cms.double( 10.0 ),
+    etcutEB = cms.double( 10.0 ),
+    etcutEE = cms.double( 10.0 ),
     ncandcut = cms.int32( 1 ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
@@ -1978,6 +1979,8 @@ hltL1NonIsoHLTNonIsoSingleElectronEt10TrackIsolFilter = cms.EDFilter( "HLTElectr
     isoTag = cms.InputTag( "hltL1IsoStartUpElectronTrackIsol" ),
     nonIsoTag = cms.InputTag( "hltL1NonIsoStartupElectronTrackIsol" ),
     pttrackisolcut = cms.double( 9999999.0 ),
+    pttrackisolOverEcut = cms.double( 0.0 ),
+    pttrackisolOverE2cut = cms.double( 0.0 ),
     ncandcut = cms.int32( 1 ),
     doIsolated = cms.bool( False ),
     SaveTag = cms.untracked.bool( True ),
@@ -2009,7 +2012,8 @@ hltL1NonIsoHLTNonIsoSingleElectronEt15L1MatchFilterRegional = cms.EDFilter( "HLT
 )
 hltL1NonIsoHLTNonIsoSingleElectronEt15EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     inputTag = cms.InputTag( "hltL1NonIsoHLTNonIsoSingleElectronEt15L1MatchFilterRegional" ),
-    etcut = cms.double( 15.0 ),
+    etcutEB = cms.double( 15.0 ),
+    etcutEE = cms.double( 15.0 ),
     ncandcut = cms.int32( 1 ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
@@ -2051,6 +2055,8 @@ hltL1NonIsoHLTNonIsoSingleElectronEt15TrackIsolFilter = cms.EDFilter( "HLTElectr
     isoTag = cms.InputTag( "hltL1IsoStartUpElectronTrackIsol" ),
     nonIsoTag = cms.InputTag( "hltL1NonIsoStartupElectronTrackIsol" ),
     pttrackisolcut = cms.double( 9999999.0 ),
+    pttrackisolOverEcut = cms.double( 0.0 ),
+    pttrackisolOverE2cut = cms.double( 0.0 ),
     ncandcut = cms.int32( 1 ),
     doIsolated = cms.bool( False ),
     SaveTag = cms.untracked.bool( True ),
@@ -2082,7 +2088,8 @@ hltL1NonIsoHLTNonIsoDoubleElectronEt5L1MatchFilterRegional = cms.EDFilter( "HLTE
 )
 hltL1NonIsoHLTNonIsoDoubleElectronEt5EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     inputTag = cms.InputTag( "hltL1NonIsoHLTNonIsoDoubleElectronEt5L1MatchFilterRegional" ),
-    etcut = cms.double( 5.0 ),
+    etcutEB = cms.double( 5.0 ),
+    etcutEE = cms.double( 5.0 ),
     ncandcut = cms.int32( 2 ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
@@ -2124,6 +2131,8 @@ hltL1NonIsoHLTNonIsoDoubleElectronEt5TrackIsolFilter = cms.EDFilter( "HLTElectro
     isoTag = cms.InputTag( "hltL1IsoStartUpElectronTrackIsol" ),
     nonIsoTag = cms.InputTag( "hltL1NonIsoStartupElectronTrackIsol" ),
     pttrackisolcut = cms.double( 9999999.0 ),
+    pttrackisolOverEcut = cms.double( 0.0 ),
+    pttrackisolOverE2cut = cms.double( 0.0 ),
     ncandcut = cms.int32( 2 ),
     doIsolated = cms.bool( False ),
     SaveTag = cms.untracked.bool( True ),
@@ -2147,7 +2156,8 @@ hltL1NonIsoHLTNonIsoDoubleElectronLWonlyPMEt10L1MatchFilterRegional = cms.EDFilt
 )
 hltL1NonIsoHLTNonIsoDoubleElectronLWonlyPMEt10EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     inputTag = cms.InputTag( "hltL1NonIsoHLTNonIsoDoubleElectronLWonlyPMEt10L1MatchFilterRegional" ),
-    etcut = cms.double( 10.0 ),
+    etcutEB = cms.double( 10.0 ),
+    etcutEE = cms.double( 10.0 ),
     ncandcut = cms.int32( 2 ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
@@ -2263,7 +2273,8 @@ hltL1NonIsoSinglePhotonEt10L1MatchFilterRegional = cms.EDFilter( "HLTEgammaL1Mat
 )
 hltL1NonIsoSinglePhotonEt10EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     inputTag = cms.InputTag( "hltL1NonIsoSinglePhotonEt10L1MatchFilterRegional" ),
-    etcut = cms.double( 10.0 ),
+    etcutEB = cms.double( 10.0 ),
+    etcutEE = cms.double( 10.0 ),
     ncandcut = cms.int32( 1 ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
@@ -2414,6 +2425,7 @@ hltL1NonIsoEgammaRegionalCTFFinalFitWithMaterial = cms.EDProducer( "TrackProduce
 hltL1IsoPhotonTrackIsol = cms.EDProducer( "EgammaHLTPhotonTrackIsolationProducersRegional",
     recoEcalCandidateProducer = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     trackProducer = cms.InputTag( "hltL1IsoEgammaRegionalCTFFinalFitWithMaterial" ),
+    countTracks = cms.bool( True ),
     egTrkIsoPtMin = cms.double( 1.5 ),
     egTrkIsoConeSize = cms.double( 0.3 ),
     egTrkIsoZSpan = cms.double( 999999.0 ),
@@ -2423,6 +2435,7 @@ hltL1IsoPhotonTrackIsol = cms.EDProducer( "EgammaHLTPhotonTrackIsolationProducer
 hltL1NonIsoPhotonTrackIsol = cms.EDProducer( "EgammaHLTPhotonTrackIsolationProducersRegional",
     recoEcalCandidateProducer = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" ),
     trackProducer = cms.InputTag( "hltL1NonIsoEgammaRegionalCTFFinalFitWithMaterial" ),
+    countTracks = cms.bool( True ),
     egTrkIsoPtMin = cms.double( 1.5 ),
     egTrkIsoConeSize = cms.double( 0.3 ),
     egTrkIsoZSpan = cms.double( 999999.0 ),
@@ -2433,7 +2446,9 @@ hltL1NonIsoSinglePhotonEt10TrackIsolFilter = cms.EDFilter( "HLTPhotonTrackIsolFi
     candTag = cms.InputTag( "hltL1NonIsoSinglePhotonEt10HcalIsolFilter" ),
     isoTag = cms.InputTag( "hltL1IsoPhotonTrackIsol" ),
     nonIsoTag = cms.InputTag( "hltL1NonIsoPhotonTrackIsol" ),
-    numtrackisolcut = cms.double( 1.0 ),
+    ptOrNumtrackisolcut = cms.double( 1.0 ),
+    pttrackisolOverEcut = cms.double( 0.0 ),
+    pttrackisolOverE2cut = cms.double( 0.0 ),
     ncandcut = cms.int32( 1 ),
     doIsolated = cms.bool( False ),
     SaveTag = cms.untracked.bool( True ),
@@ -2465,7 +2480,8 @@ hltL1NonIsoHLTNonIsoSinglePhotonEt15L1MatchFilterRegional = cms.EDFilter( "HLTEg
 )
 hltL1NonIsoHLTNonIsoSinglePhotonEt15EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     inputTag = cms.InputTag( "hltL1NonIsoHLTNonIsoSinglePhotonEt15L1MatchFilterRegional" ),
-    etcut = cms.double( 15.0 ),
+    etcutEB = cms.double( 15.0 ),
+    etcutEE = cms.double( 15.0 ),
     ncandcut = cms.int32( 1 ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
@@ -2497,7 +2513,9 @@ hltL1NonIsoHLTNonIsoSinglePhotonEt15TrackIsolFilter = cms.EDFilter( "HLTPhotonTr
     candTag = cms.InputTag( "hltL1NonIsoHLTNonIsoSinglePhotonEt15HcalIsolFilter" ),
     isoTag = cms.InputTag( "hltL1IsoPhotonTrackIsol" ),
     nonIsoTag = cms.InputTag( "hltL1NonIsoPhotonTrackIsol" ),
-    numtrackisolcut = cms.double( 9999999.0 ),
+    ptOrNumtrackisolcut = cms.double( 9999999.0 ),
+    pttrackisolOverEcut = cms.double( 0.0 ),
+    pttrackisolOverE2cut = cms.double( 0.0 ),
     ncandcut = cms.int32( 1 ),
     doIsolated = cms.bool( False ),
     SaveTag = cms.untracked.bool( True ),
