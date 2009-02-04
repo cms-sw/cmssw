@@ -7,13 +7,10 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "HepMC/GenEvent.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenInfoProduct.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
-//#include "FWCore/Framework/interface/GeneratedInputSource.h"
-//#include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-//#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 
@@ -26,6 +23,8 @@ namespace edm
 
   private: 
     virtual void produce(Event & e, const EventSetup& es);
+    
+    void endRun(Run & r, const EventSetup & es);
     
     void clear();
     // define the configurable generator parameters
@@ -47,6 +46,14 @@ namespace edm
     bool         TIFOnly_linear; //if set to "true" cosmics can also be generated below 2GeV with unphysical linear energy dependence
     bool         MTCCHalf; //if set to "true" muons are sure to hit half of CMS important for MTCC, 
                            //still material and B-field of whole CMS is considered
+
+    //Plug position (default = on shaft)
+    double PlugVtx;
+    double PlugVtz;
+
+    // external cross section and filter efficiency
+    double       extCrossSect;
+    double       extFilterEff;
 
     CosmicMuonProducer* CosMuoGen;
     // the event format itself

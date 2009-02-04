@@ -7,6 +7,7 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/RandomEngine.h"
 
+
 using namespace edm;
 
 void CosmicMuonProducer::runCMG(){
@@ -357,5 +358,8 @@ void CosmicMuonProducer::setTIFOnly_constant(bool TIF){ if (NotInitialized) TIFO
 void CosmicMuonProducer::setTIFOnly_linear(bool TIF){ if (NotInitialized) TIFOnly_linear = TIF; }
 
 void CosmicMuonProducer::setMTCCHalf(bool MTCC){ if (NotInitialized) MTCCHalf = MTCC; }
+
+void CosmicMuonProducer::setPlugVx(double PlugVtx){ if (NotInitialized) PlugVx = PlugVtx; }
+void CosmicMuonProducer::setPlugVz(double PlugVtz){ if (NotInitialized) PlugVz = PlugVtz; }
 
 double CosmicMuonProducer::getRate(){ return EventRate; }

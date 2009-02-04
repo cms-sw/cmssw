@@ -114,8 +114,13 @@ private:
   double Ndiced; // number of diced events
   double Target3dRadius; // radius of sphere around target (cylinder)
   double SurfaceRadius; // radius for area on surface that has to be considered (for event generation)
+
+  //Plug position (default = on shaft)
+  double PlugVx;
+  double PlugVz;
+
   // random number generator (periodicity > 10**14)
-//TRandom2 RanGen; 
+  //TRandom2 RanGen; 
   CLHEP::HepRandomEngine*  RanGen; 
   // check user input
   bool NotInitialized;
@@ -146,6 +151,8 @@ public:
   void setTIFOnly_constant(bool TIF);
   void setTIFOnly_linear(bool TIF);
   void setMTCCHalf(bool MTCC);
+  void setPlugVx(double PlugVtx);
+  void setPlugVz(double PlugVtz);
   // initialize the generator
   void initialize();
    // prints rate + statistics

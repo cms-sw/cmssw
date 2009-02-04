@@ -5,8 +5,8 @@
 //
 #include "GeneratorInterface/CosmicMuonGenerator/interface/CosmicMuonGenerator.h"
 #include "HepMC/GenEvent.h"
-//#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenInfoProduct.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/GeneratedInputSource.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"
@@ -21,6 +21,8 @@ namespace edm
   public:
     CosMuoGenSource(const ParameterSet&, const InputSourceDescription& );
     virtual ~CosMuoGenSource();
+
+    void endRun( Run& r);
 
   private: 
     virtual bool produce(Event & e);
@@ -49,6 +51,10 @@ namespace edm
     //Plug position (default = on shaft)
     double PlugVtx;
     double PlugVtz;
+
+    // external cross section and filter efficiency
+    double extCrossSect;
+    double extFilterEff;
 
     CosmicMuonGenerator* CosMuoGen;
     // the event format itself
