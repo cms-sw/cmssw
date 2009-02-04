@@ -282,8 +282,6 @@ class AlignPlots
 
   void iter(int iter) const;
 
-  void dump(int index, int iterN = 0) const;
-
   private:
 
   static float sum(const AlignSet&);
@@ -297,7 +295,7 @@ class AlignPlots
 
 const char* const AlignPlots::titles_[nPar] = 
   {"#Deltau (#mum)", "#Deltav (#mum)", "#Deltaw (#mum)",
-   "#Delta#alpha (mrad)", "#Delta#beta (mrad)", "#Delta#gamma (mrad)"};
+   "#Delta#omega_{u} (mrad)", "#Delta#omega_{v} (mrad)", "#Delta#omega_{w} (mrad)"};
 
 AlignPlots::AlignPlots(std::string file):
   file_(file)
@@ -349,7 +347,7 @@ AlignPlots::AlignPlots(std::string file, std::vector<unsigned int> levels, int m
     return;
   }
 
-  std::string path = file.substr(0, file.find_last_of('/'));
+  string path = file.substr(0, file.find_last_of('/'));
 
   TFile fu((path + "/IOUserVariables.root").c_str());
 
@@ -468,9 +466,7 @@ void AlignPlots::iters() const
 
       for (int i = 0; i < nIteration; ++i)
       {
-        float y = alignSets_[p][i][n];
-
-        g.SetPoint(i, i, isnan(y) ? 0.f : y);
+	g.SetPoint(i, i, alignSets_[p][i][n]);
       }
 
       g.Draw("L");
@@ -481,75 +477,7 @@ void AlignPlots::iters() const
   o << file_ << "_vs_iter";
 
   c.SaveAs((o.str() + ".png").c_str());
-  c.SaveAs((o.str() + ".eps").c_str());
-}
-
-void AlignPlots::dump(int index, int iterN) const
-{
-  gStyle->SetOptTitle(0); // don't display title
-  gStyle->SetOptStat(0);  // don't display stat box
-
-  TGaxis::SetMaxDigits(3); // max digits for axis labels
-
-  const int nIteration = alignSets_[0].size();
-  const int nAlignable = alignSets_[0][0].size();
-
-  if (0 >= iterN || nIteration <= iterN) iterN = nIteration;
-  else ++iterN; // add 1 to include iteration 0
-
-  if (index >= nAlignable)
-  {
-    std::cout << "Alignable index too big. "
-              << "Number of Alignables is " << nAlignable
-              << std::endl;
-    return;
-  }
-
-  TCanvas c("c", "c", 1200, 800);
-
-  c.Divide(3, 2);
-
-  TGraph graphs[nPar];
-
-  for (int p = 0; p < nPar; ++p)
-  {
-    c.cd(p + 1);
-
-  // Find min and max y-values over all iterations to set y-axis limits.
-
-    std::vector<float> ylimits(iterN);
-
-    for (int i = 0; i < iterN; ++i)
-    {
-      ylimits[i] = std::abs(alignSets_[p][i][index]);
-    }
-
-    float ylimit = *std::max_element(ylimits.begin(), ylimits.end());
-
-    TGraph& g = graphs[p];
-
-    g.Set(iterN);
-    g.SetMinimum(-ylimit);
-    g.SetMaximum( ylimit);
-    g.GetXaxis()->SetLimits(0., iterN - 1.); // not SetRangeUser
-    g.GetXaxis()->SetTitle("iteration");
-    g.GetYaxis()->SetTitle(titles_[p]);
-    g.GetYaxis()->SetTitleSize(.04);
-    g.Draw("AP"); // need "P" to draw axes
-
-    for (int i = 0; i < iterN; ++i)
-    {
-      g.SetPoint(i, i, alignSets_[p][i][index]);
-    }
-
-    g.Draw("L");
-  }
-
-  std::ostringstream o;
-  o << file_ << "_vs_iter_Alignable" << index;
-
-  c.SaveAs((o.str() + ".png").c_str());
-  c.SaveAs((o.str() + ".eps").c_str());
+//   c.SaveAs((o.str() + ".eps").c_str());
 }
 
 float AlignPlots::sum(const AlignSet& aSet)
@@ -557,7 +485,7 @@ float AlignPlots::sum(const AlignSet& aSet)
   float sum(0.);
 
   for (unsigned int i = 0; i < aSet.size(); ++i)
-    if (std::abs(aSet[i]) < 1e8) sum += aSet[i]; // avoid big numbers
+    if (aSet[i] < 1e8) sum += aSet[i]; // avoid large numbers
 
   return sum;
 }
@@ -567,7 +495,7 @@ float AlignPlots::sum2(const AlignSet& aSet)
   float sum(0.);
 
   for (unsigned int i = 0; i < aSet.size(); ++i)
-    if (std::abs(aSet[i]) < 1e8) sum += aSet[i] * aSet[i]; // avoid big numbers
+    if (aSet[i] < 1e8) sum += aSet[i] * aSet[i]; // avoid large numbers
 
   return sum;
 }
@@ -616,7 +544,7 @@ void AlignPlots::iter(int iter) const
   {
     const AlignSet& setI = alignSets_[p][iter];
 
-    float mean = sum(setI) / setI.size();
+    float mean = (iter > 0 ? 0 : sum(setI) / setI.size());
     float rms3 = std::min(width(alignSets_[p][0]), width(setI));
 
     TH1F& h = hists[p];
@@ -647,7 +575,7 @@ void AlignPlots::iter(int iter) const
   o << file_ << "_iter" << iter;
 
   c.SaveAs((o.str() + ".png").c_str());
-  c.SaveAs((o.str() + ".eps").c_str());
+//   c.SaveAs((o.str() + ".eps").c_str());
 }
 
 void compareShifts(std::string tree)

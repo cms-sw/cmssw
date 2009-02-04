@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2008/10/17 21:10:15 $
- *  $Revision: 1.26 $
+ *  $Date: 2008/10/02 20:26:04 $
+ *  $Revision: 1.23 $
  *
  *  \author N. Neumeister        Purdue University
  *  \author C. Liu               Purdue University
@@ -75,10 +75,6 @@
 #include "RecoTracker/TkTrackingRegions/interface/TkTrackingRegionsMargin.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
 
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit2DLocalPos.h"
-#include "Geometry/CommonTopologies/interface/StripTopology.h"
-
 using namespace std;
 using namespace edm;
 
@@ -119,8 +115,6 @@ GlobalTrajectoryBuilderBase::GlobalTrajectoryBuilderBase(const edm::ParameterSet
   theRPCInTheFit = par.getParameter<bool>("RefitRPCHits");
 
   theMuonHitsOption = par.getParameter<int>("MuonHitsOption");
-  theTECxScale = par.getParameter<double>("ScaleTECxFactor");
-  theTECyScale = par.getParameter<double>("ScaleTECyFactor");
   thePtCut = par.getParameter<double>("PtCut");
   theProbCut = par.getParameter<double>("Chi2ProbabilityCut");
   theHitThreshold = par.getParameter<int>("HitThreshold");
@@ -211,21 +205,16 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
       const GlobalVector& mom = (*it)->trackerTrajectory()->lastMeasurement().updatedState().globalMomentum();
       if ( mom.mag() < 2.5 || mom.perp() < thePtCut ) continue;
 
-      ConstRecHitContainer trackerRecHits;
-      if ((*it)->trackerTrack().isNonnull()) {
-	reco::TransientTrack track(*(*it)->trackerTrack(),&*(theService->magneticField()),theService->trackingGeometry());
-	trackerRecHits = getTransientRecHits(track);
+      TransientTrackingRecHit::ConstRecHitContainer trackerRecHits;
+      if((*it)->trackerTrack().isNonnull()){
+	reco::TransientTrack track(*(*it)->trackerTrack(),&*(theService->magneticField()),theService->trackingGeometry());    LogDebug(theCategory);  
+	trackerRecHits = getTransientRecHits(track);      LogDebug(theCategory);  
       } else {
 	trackerRecHits = (*it)->trackerTrajectory()->recHits();
       }
 
       // check for single TEC RecHits in trajectories in the overalp region
-      if ( fabs(mom.eta()) > 0.95 && fabs(mom.eta()) < 1.15 && mom.perp() < 60 ) {
-        if ( theTECxScale < 0 || theTECyScale < 0 )
-	  trackerRecHits = selectTrackerHits(trackerRecHits);
-	else
-	  fixTEC(trackerRecHits,theTECxScale,theTECyScale);
-      }
+      if ( fabs(mom.eta()) > 0.95 && fabs(mom.eta()) < 1.15 ) trackerRecHits = selectTrackerHits(trackerRecHits);
 		  
       RefitDirection recHitDir = checkRecHitsOrdering(trackerRecHits);
       if ( recHitDir == outToIn ) reverse(trackerRecHits.begin(),trackerRecHits.end());
@@ -235,7 +224,7 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
       TrajectoryStateOnSurface innerTsos = innerTM.updatedState();
       
       // for cases when the tracker trajectory has not been smoothed
-      // propagate the outer state to the innermost measurment surface	
+	  // propagate the outer state to the innermost measurment surface	
       LogTrace(theCategory)<<"BackwardPredictedState "<<innerTM.backwardPredictedState().isValid();
       if ( !innerTM.backwardPredictedState().isValid() ) {
 	    TrajectoryMeasurement outerTM = ((*it)->trackerTrajectory()->direction() == alongMomentum) ? (*it)->trackerTrajectory()->lastMeasurement() : (*it)->trackerTrajectory()->firstMeasurement();
@@ -950,7 +939,7 @@ GlobalTrajectoryBuilderBase::selectTrackerHits(const ConstRecHitContainer& all) 
 
   ConstRecHitContainer hits;
   for (ConstRecHitContainer::const_iterator i = all.begin(); i != all.end(); i++) {
-    if ( !(*i)->isValid() ) continue;
+    if( !(*i)->isValid() ) continue;
     if ( (*i)->det()->geographicalId().det() == DetId::Tracker &&
          (*i)->det()->geographicalId().subdetId() == StripSubdetector::TEC) {
       nTEC++;
@@ -964,100 +953,21 @@ GlobalTrajectoryBuilderBase::selectTrackerHits(const ConstRecHitContainer& all) 
 
 }
 
-
-//
-// rescale errors of outermost TEC RecHit
-//
-void GlobalTrajectoryBuilderBase::fixTEC(ConstRecHitContainer& all,
-                                         double scl_x,
-                                         double scl_y) const {
-
-  int nTEC(0);
-  ConstRecHitContainer::iterator lone_tec;
-
-  for ( ConstRecHitContainer::iterator i = all.begin(); i != all.end(); i++) {
-    if ( !(*i)->isValid() ) continue;
-    
-    if ( (*i)->det()->geographicalId().det() == DetId::Tracker &&
-         (*i)->det()->geographicalId().subdetId() == StripSubdetector::TEC) {
-      lone_tec = i;
-      nTEC++;
-      
-      if ( (i+1) != all.end() && (*(i+1))->isValid() &&
-          (*(i+1))->det()->geographicalId().det() == DetId::Tracker &&
-          (*(i+1))->det()->geographicalId().subdetId() == StripSubdetector::TEC) {
-        nTEC++;
-        break;
-      }
-    }
-    
-    if (nTEC > 1) break;
-  }
-  
-  if ( nTEC == 1 && (*lone_tec)->hit()->isValid() &&
-       (*lone_tec)->hit()->geographicalId().det() == DetId::Tracker &&
-       (*lone_tec)->hit()->geographicalId().subdetId() == StripSubdetector::TEC) {
-    
-    // rescale the TEC rechit error matrix in its rotated frame
-    const SiStripRecHit2D* strip = dynamic_cast<const SiStripRecHit2D*>((*lone_tec)->hit());
-    const TSiStripRecHit2DLocalPos* Tstrip = dynamic_cast<const TSiStripRecHit2DLocalPos*>((*lone_tec).get());
-    if (strip && Tstrip->det() && Tstrip) {
-      LocalPoint pos = Tstrip->localPosition();
-      if ((*lone_tec)->detUnit()) {
-        const StripTopology* topology = dynamic_cast<const StripTopology*>(&(*lone_tec)->detUnit()->topology());
-        if (topology) {
-          // rescale the local error along/perp the strip by a factor
-          float angle = topology->stripAngle(topology->strip((*lone_tec)->hit()->localPosition()));
-          LocalError error = Tstrip->localPositionError();
-          LocalError rotError = error.rotate(angle);
-          LocalError scaledError(rotError.xx() * scl_x * scl_x, 0, rotError.yy() * scl_y * scl_y);
-          error = scaledError.rotate(-angle);
-          MuonTransientTrackingRecHit* mtt_rechit;
-          if (strip->cluster().isNonnull()) {
-            //// the implemetantion below works with cloning
-            //// to get a RecHitPointer to SiStripRecHit2D, the only  method that works is
-            //// RecHitPointer MuonTransientTrackingRecHit::build(const GeomDet*,const TrackingRecHit*)
-            SiStripRecHit2D* st = new SiStripRecHit2D(pos,error,
-                                                      (*lone_tec)->geographicalId().rawId(),
-                                                      strip->cluster());
-            *lone_tec = mtt_rechit->build((*lone_tec)->det(),st);
-          }
-          else {
-            SiStripRecHit2D* st = new SiStripRecHit2D(pos,error,
-                                                      (*lone_tec)->geographicalId().rawId(),
-                                                      strip->cluster_regional());
-            *lone_tec = mtt_rechit->build((*lone_tec)->det(),st);
-          }
-        }
-      }
-    }
-  }
-
-}
-
-
-//
-// get transient RecHits
-//
 TransientTrackingRecHit::ConstRecHitContainer
 GlobalTrajectoryBuilderBase::getTransientRecHits(const reco::TransientTrack& track) const {
-
   TransientTrackingRecHit::ConstRecHitContainer result;
   
-  for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit) {
-    if ( !(*hit)->isValid() ) continue;
-    if ( (*hit)->geographicalId().det() == DetId::Tracker ) {
-      result.push_back(theTrackerRecHitBuilder->build(&**hit));
-    }
-    else if ( (*hit)->geographicalId().det() == DetId::Muon ) {
-      if ( (*hit)->geographicalId().subdetId() == 3 && !theRPCInTheFit) {
-        LogDebug(theCategory) << "RPC Rec Hit discarded"; 
-        continue;
+  for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit)
+    if((*hit)->isValid())
+      if ( (*hit)->geographicalId().det() == DetId::Tracker )
+	result.push_back(theTrackerRecHitBuilder->build(&**hit));
+      else if ( (*hit)->geographicalId().det() == DetId::Muon ){
+	if( (*hit)->geographicalId().subdetId() == 3 && !theRPCInTheFit){
+	  LogDebug(theCategory) << "RPC Rec Hit discarged"; 
+	  continue;
+	}
+	result.push_back(theMuonRecHitBuilder->build(&**hit));
       }
-      result.push_back(theMuonRecHitBuilder->build(&**hit));
-    }
-  }
 
   return result;
-
 }

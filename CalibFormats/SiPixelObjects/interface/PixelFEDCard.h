@@ -52,18 +52,6 @@ namespace pos{
     virtual void writeXMLHeader(pos::PixelConfigKey key, int version, std::string path, std::ofstream *out) const ;
     virtual void writeXML(                                                              std::ofstream *out) const ;
     virtual void writeXMLTrailer(                                                       std::ofstream *out) const ;
-    virtual void writeXMLHeader(pos::PixelConfigKey key, 
-				int version, 
-				std::string path, 
-				std::ofstream *fedstream, 
-				std::ofstream *roclvlstream, 
-				std::ofstream *tbmlvlsteram) const ;
-    virtual void writeXML(std::ofstream *fedstream,
-			  std::ofstream *rocstream,
-			  std::ofstream *tbmstream) const ;
-    virtual void writeXMLTrailer(std::ofstream *fedstream,
-				 std::ofstream *recostream,
-				 std::ofstream *tbmstream) const ;
     unsigned long long enabledChannels();  // returns 64-bit integer mask 35..0
 
 
@@ -110,7 +98,7 @@ namespace pos{
     int SpecialDac;
  
     // Control register and delays for the TTCrx
-    int CoarseDel,ClkDes2,FineDes2Del,FineDes1Del;
+    int CoarseDel,ClkDes2,FineDes2Del;
  
     //Main control reg for determining the DAQ mode
     int Ccntrl; // "CtrlReg" in LAD_C

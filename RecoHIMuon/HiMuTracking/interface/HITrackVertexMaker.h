@@ -12,7 +12,7 @@
 //
 // Original Author:  Dong Ho Moon
 //         Created:  Wed May  9 06:22:36 CEST 2007
-// $Id: HITrackVertexMaker.h,v 1.2 2008/07/04 08:26:26 kodolova Exp $
+// $Id: HITrackVertexMaker.h,v 1.1 2008/05/09 13:20:47 kodolova Exp $
 //
 //
 
@@ -77,14 +77,9 @@ class HITrackVertexMaker {
 
    private:
 
-//  edm::InputTag                                 STAcandTag_;
-//  edm::InputTag                                 L1candTag_;
-  edm::InputTag                                 L2candTag_; 
+  edm::InputTag                                 candTag_; 
   edm::InputTag                                 rphirecHitsTag;
-  edm::InputTag                                 primaryVertexTag;
-
   edm::ParameterSet                             pset_;
-  std::string                                   builderName;
 
   edm::ESHandle<MagneticField>                  magfield;
   edm::ESHandle<TransientTrackingRecHitBuilder> recHitBuilderHandle;

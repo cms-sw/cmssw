@@ -1,5 +1,5 @@
 //
-// $Id: LeptonJetIsolationAngle.cc,v 1.2 2008/01/21 16:26:20 lowette Exp $
+// $Id: LeptonJetIsolationAngle.cc,v 1.3 2008/04/03 14:04:58 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatUtils/interface/LeptonJetIsolationAngle.h"
@@ -43,9 +43,9 @@ float LeptonJetIsolationAngle::calculate(const HepLorentzVector & aLepton, const
   iEvent.getByLabel("iterativeCone5CaloJets", jetHandle);
   reco::CaloJetCollection jetColl = *(jetHandle.product());
   // retrieve the electrons which might be in the jet list
-  edm::Handle<std::vector<ElectronType> > electronsHandle;
+  edm::Handle<std::vector<reco::GsfElectron> > electronsHandle;
   iEvent.getByLabel("pixelMatchGsfElectrons", electronsHandle);
-  std::vector<ElectronType> electrons = *electronsHandle;
+  std::vector<reco::GsfElectron> electrons = *electronsHandle;
   // determine the set of isolated electrons
   std::vector<Electron> isoElectrons;
   for (size_t ie=0; ie<electrons.size(); ie++) {

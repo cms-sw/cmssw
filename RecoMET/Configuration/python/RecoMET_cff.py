@@ -1,24 +1,18 @@
 import FWCore.ParameterSet.Config as cms
 
 # Name:   RecoMET.cff
-# Original Author: R.Cavanaugh
-# Date:   05.11.2006
-# Notes:  CaloMET.cfi assumes that a product with label "caloTowers" is
+# Author: R.Cavanaugh
+# Date:   28.10.2008
+# Notes:  CaloMET.cfi assumes that a product with label "towerMaker" is 
 #         already written into the event.
-# Modification by F. Ratnikov and R. Remington
-# Date: 10/21/08 
-# Addition of MET significance by F.Blekman
-# Date: 10/23/08
-
 from RecoJets.Configuration.CaloTowersES_cfi import *
 from RecoMET.METProducers.CaloTowersOpt_cfi import *
 from RecoMET.METProducers.CaloMET_cfi import *
 from RecoMET.METProducers.HTMET_cfi import *
-from RecoMET.METProducers.CaloMETSignif_cfi import *
-#sequence metreco = {met, metsig, htMetIC5, htMetMC5}
+#sequence metreco = {met, htMetIC5, htMetMC5}
 metreco = cms.Sequence(
-        met+metsignificance+metNoHF+metHO+metNoHFHO+
-            calotoweroptmaker+metOpt+metOptNoHF+calotoweroptmakerWithHO+metOptHO+metOptNoHFHO+
-            htMetSC5+htMetSC7+htMetKT4+htMetKT6+htMetIC5
-            )
+    met+metNoHF+metHO+metNoHFHO+
+    calotoweroptmaker+metOpt+metOptNoHF+calotoweroptmakerWithHO+metOptHO+metOptNoHFHO+
+    htMetSC5+htMetSC7+htMetKT4+htMetKT6+htMetIC5
+    )
 

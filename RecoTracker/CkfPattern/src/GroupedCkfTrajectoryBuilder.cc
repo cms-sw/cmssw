@@ -1,4 +1,3 @@
-
 #include "RecoTracker/CkfPattern/interface/GroupedCkfTrajectoryBuilder.h"
 #include "RecoTracker/CkfPattern/interface/TrajectorySegmentBuilder.h"
 
@@ -66,13 +65,11 @@ GroupedCkfTrajectoryBuilder(const edm::ParameterSet&              conf,
 			    const Chi2MeasurementEstimatorBase*   estimator,
 			    const TransientTrackingRecHitBuilder* recHitBuilder,
 			    const MeasurementTracker*             measurementTracker,
-			    const TrajectoryFilter*               filter,
-			    const TrajectoryFilter*               inOutFilter):
-
+			    const TrajectoryFilter*               filter):
 
   BaseCkfTrajectoryBuilder(conf,
 			   updator, propagatorAlong,propagatorOpposite,
-			   estimator, recHitBuilder, measurementTracker, filter, inOutFilter)
+			   estimator, recHitBuilder, measurementTracker,filter)
 {
   // fill data members from parameters (eventually data members could be dropped)
   //
@@ -88,14 +85,13 @@ GroupedCkfTrajectoryBuilder(const edm::ParameterSet&              conf,
   theRequireSeedHitsInRebuild = conf.getParameter<bool>("requireSeedHitsInRebuild");
   theMinNrOfHitsForRebuild    = max(0,conf.getParameter<int>("minNrOfHitsForRebuild"));
 
-  /* ======= B.M. to be ported layer ===========
+  /* ======= B.M. to be ported later =======
   bool setOK = thePropagator->setMaxDirectionChange(1.6);
   if (!setOK) 
     cout  << "GroupedCkfTrajectoryBuilder WARNING: "
 	  << "propagator does not support setMaxDirectionChange" 
 	  << endl;
   //   addStopCondition(theMinPtStopCondition);
-
   theConfigurableCondition = createAlgo<TrajectoryFilter>(componentConfig("StopCondition"));
   ===================================== */
 
@@ -173,17 +169,13 @@ GroupedCkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed& seed,
                                                 GroupedCkfTrajectoryBuilder::TrajectoryContainer &result,
 						const TrajectoryFilter* regionalCondition) const
 {
-  //
-  // Build trajectory outwards from seed
-  //
 
   analyseSeed( seed);
 
   TempTrajectory startingTraj = createStartingTrajectory( seed);
 
   work_.clear();
-  const bool inOut = true;
-  groupedLimitedCandidates( startingTraj, regionalCondition, theForwardPropagator, inOut, work_);
+  groupedLimitedCandidates( startingTraj, regionalCondition, theForwardPropagator, work_);
   if ( work_.empty() )  return ;
 
 
@@ -255,7 +247,6 @@ void
 GroupedCkfTrajectoryBuilder::groupedLimitedCandidates (TempTrajectory& startingTraj, 
 						       const TrajectoryFilter* regionalCondition,
 						       const Propagator* propagator, 
-                                                       bool inOut,
 						       TempTrajectoryContainer& result) const
 {
   uint nIter=1;
@@ -264,11 +255,13 @@ GroupedCkfTrajectoryBuilder::groupedLimitedCandidates (TempTrajectory& startingT
   candidates.push_back( startingTraj);
 
   while ( !candidates.empty()) {
-
+#ifdef DBG_GCTB
+    cout << "===== GCTB::groupedLimitedCandidates, start NEW iteration of WHILE loop" << endl;
+#endif
     newCand.clear();
     for (TempTrajectoryContainer::iterator traj=candidates.begin();
 	 traj!=candidates.end(); traj++) {
-      if ( !advanceOneLayer(*traj, regionalCondition, propagator, inOut, newCand, result) ) {
+      if ( !advanceOneLayer(*traj,regionalCondition, propagator, newCand,result) ) {
 #ifdef DBG_GCTB
 	cout << "GCTB: terminating after advanceOneLayer==false" << endl;
 #endif
@@ -331,12 +324,18 @@ GroupedCkfTrajectoryBuilder::groupedLimitedCandidates (TempTrajectory& startingT
     cout << "candidates(3)";
     for ( TempTrajectoryContainer::const_iterator it=candidates.begin();
 	  it!=candidates.end(); it++ ) 
-      cout << " " << it->lostHits() << " " << it->foundHits() 
-	   << " " << it->chiSquared() << " ;";
+      cout << "lost,found,chi2, last pt, r,z: " 
+	   << it->lostHits() << " , " 
+	   << it->foundHits() << " , " 
+	   << it->chiSquared() << " , "
+	   << it->lastMeasurement().updatedState().globalMomentum().perp() << " , "
+	   << it->lastMeasurement().updatedState().globalPosition().perp() << " , "
+	   << it->lastMeasurement().updatedState().globalPosition().z() << endl; 
     cout << endl;
 
     cout << "after intermediate cleaning = " << candidates.size() << endl;
     //B.M. ShowCand()(candidates);
+    cout << "===== GCTB::groupedLimitedCandidates, END iteration of WHILE loop" << endl;
 #endif
   }
 }
@@ -345,7 +344,6 @@ bool
 GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj, 
 					      const TrajectoryFilter* regionalCondition, 
 					      const Propagator* propagator,
-                                              bool inOut,
 					      TempTrajectoryContainer& newCand, 
 					      TempTrajectoryContainer& result) const
 {
@@ -354,7 +352,7 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
   vector<const DetLayer*>::iterator layerEnd   = stateAndLayers.second.end();
 
   //   if (nl.empty()) {
-  //     addToResult(traj,result,inOut);
+  //     addToResult(traj,result);
   //     return false;
   //   }
   
@@ -366,13 +364,8 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
   //B.M. cout << "Started from " << layerName(traj.lastLayer()) 
   const BarrelDetLayer* sbdl = dynamic_cast<const BarrelDetLayer*>(traj.lastLayer());
   const ForwardDetLayer* sfdl = dynamic_cast<const ForwardDetLayer*>(traj.lastLayer());
-  if (sbdl) {
-    cout << "Started from " << traj.lastLayer() << " r=" << sbdl->specificSurface().radius() 
-                                                << " phi=" << sbdl->specificSurface().phi() << endl;
-  } else if (sfdl) {
-    cout << "Started from " << traj.lastLayer() << " z " << sfdl->specificSurface().position().z()
-                                                << " phi " << sfdl->specificSurface().phi() << endl;
-  }
+  if (sbdl)     cout << "Started from " << traj.lastLayer() << " r " << sbdl->specificSurface().radius() << endl;
+  if (sfdl) cout << "Started from " << traj.lastLayer() << " z " << sfdl->specificSurface().position().z() << endl;
   cout << "Trying to go to";
   for ( vector<const DetLayer*>::iterator il=nl.begin();
         il!=nl.end(); il++){ 
@@ -413,16 +406,11 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
 					  theLockHits,theBestHitOnly);
 
 #ifdef DBG_GCTB
-    cout << "GCTB: starting from " 
-         << " r / phi / z = " << stateToUse.globalPosition().perp()
-	             << " / " << stateToUse.globalPosition().phi()
-	             << " / " << stateToUse.globalPosition().z() 
-         << " , pt / phi / pz /charge = " 
- 	             << stateToUse.globalMomentum().perp() << " / "  
-	             << stateToUse.globalMomentum().phi() << " / " 
-	             << stateToUse.globalMomentum().z() << " / " 
-                     << stateToUse.charge()
-         << " for layer at "<< *il << endl;
+    cout << "GCTB: starting from r / z = " << stateToUse.globalPosition().perp()
+     << " / " << stateToUse.globalPosition().z() << " , pt / pz = "
+     << stateToUse.globalMomentum().perp() << " / "
+     << stateToUse.globalMomentum().z() << " for layer at "
+     << *il << endl;
     cout << "     errors:";
     for ( int i=0; i<5; i++ )  cout << " " << sqrt(stateToUse.curvilinearError().matrix()(i,i));
     cout << endl;
@@ -465,23 +453,22 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
       //GIO// for ( vector<TM>::const_iterator im=measurements.begin();
       //GIO//        im!=measurements.end(); im++ )  newTraj.push(*im);
       //if ( toBeContinued(newTraj,regionalCondition) ) { TOBE FIXED
-      if ( toBeContinued(newTraj, inOut) ) {
-	// Have added one more hit to track candidate
+      if ( toBeContinued(newTraj) ) {
+
 #ifdef DBG_GCTB
-	cout << "GCTB: adding updated trajectory to candidates: inOut="<<inOut<<" hits="<<newTraj.foundHits()<< endl;
+	cout << "GCTB: adding new trajectory to candidates" << endl;
 #endif
 
 	newCand.push_back(newTraj);
 	foundNewCandidates = true;
       }
       else {
-	// Have finished building this track. Check if it passes cuts.
 
 #ifdef DBG_GCTB
-	cout << "GCTB: adding completed trajectory to results if passes cuts: inOut="<<inOut<<" hits="<<newTraj.foundHits()<< endl;
+	cout << "GCTB: adding new trajectory to results" << endl;
 #endif
 
-	addToResult(newTraj, result, inOut);
+	addToResult(newTraj,result);
       }
     }
   }
@@ -490,7 +477,7 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
   if ( !foundSegments )  cout << "GCTB: adding input trajectory to result" << endl;
 #endif
 
-  if ( !foundSegments )  addToResult(traj, result, inOut);
+  if ( !foundSegments )  addToResult(traj,result);
   return foundNewCandidates;
 }
 
@@ -665,14 +652,13 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(TempTrajectory& startingTraj,
   for ( TempTrajectoryContainer::iterator it=result.begin();
 	it!=result.end(); it++ ) {
     //
-    // skip candidates which are not exceeding the seed size 
-    // (e.g. because no Tracker layers outside seeding region) 
+    // skip candidates which are not exceeding the seed size
+    // (should not happen) - keep existing trajectory
     //
-
     if ( it->measurements().size()<=startingTraj.measurements().size() ) {
       rebuiltTrajectories.push_back(*it);
       #ifdef DBG2_GCTB
-      cout << "RebuildSeedingRegion skipped as in-out trajectory does not exceed seed size." << endl;
+      cout << " candidates not exceeding the seed size; skipping " <<  endl;
       #endif
       continue;
     }
@@ -683,9 +669,6 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(TempTrajectory& startingTraj,
     backwardFit(*it,nSeed,fitter,reFitted,seedHits);
     if ( reFitted.size()!=1 ) {
       rebuiltTrajectories.push_back(*it);
-      #ifdef DBG2_GCTB
-      cout << "RebuildSeedingRegion skipped as backward fit failed" << endl;
-      #endif
       //std::cout << "after reFitted.size() " << reFitted.size() << std::endl;
       continue;
     }
@@ -696,7 +679,6 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(TempTrajectory& startingTraj,
     //
     int nRebuilt =
       rebuildSeedingRegion (seedHits,reFitted.front(),rebuiltTrajectories);
-
     if ( nRebuilt==0 )  rebuiltTrajectories.push_back(*it);
   }
   //
@@ -711,9 +693,7 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const std::vector<const Tracki
 						  TempTrajectoryContainer& result) const 
 {
   //
-  // Starting from track found by in-out tracking phase, extrapolate it inwards through
-  // the seeding region if possible in towards smaller Tracker radii, searching for additional
-  // hits.
+  // Try to rebuild one candidate in the seeding region.
   // The resulting trajectories are returned in result,
   // the count is the return value.
   //
@@ -749,8 +729,7 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const std::vector<const Tracki
   // Use standard building with standard cuts. Maybe better to use different
   // cuts from "forward" building (e.g. no check on nr. of invalid hits)?
   //
-  const bool inOut = false;
-  groupedLimitedCandidates(candidate, (const TrajectoryFilter*)0, theBackwardPropagator, inOut, rebuiltTrajectories);
+  groupedLimitedCandidates(candidate,(const TrajectoryFilter*)0, theBackwardPropagator, rebuiltTrajectories);
 #ifdef DBG2_GCTB
   cout << "   After backward building: #measurements =";
   for ( TempTrajectoryContainer::iterator it=rebuiltTrajectories.begin();
@@ -833,13 +812,12 @@ GroupedCkfTrajectoryBuilder::backwardFit (TempTrajectory& candidate, unsigned in
   fittedTracks.clear();
   //
   // skip candidates which are not exceeding the seed size
-  // (e.g. Because no Tracker layers exist outside seeding region)
+  // (should not happen)
   //
   if ( candidate.measurements().size()<=nSeed ) {
     fittedTracks.clear();
     return;
   }
-
 #ifdef DBG2_GCTB
     {
       cout << "nSeed " << nSeed << endl;
@@ -859,9 +837,7 @@ GroupedCkfTrajectoryBuilder::backwardFit (TempTrajectory& candidate, unsigned in
     }
 #endif
   //
-  // backward fit trajectory.
-  // (Will try to fit only hits outside the seeding region. However,
-  // if there are not enough of these, it will also use the seeding hits).
+  // backward fit trajectory (excluding the seeding region)
   //
   TempTrajectory::DataContainer oldMeasurements(candidate.measurements());
 //   int nOld(oldMeasurements.size());
@@ -871,9 +847,8 @@ GroupedCkfTrajectoryBuilder::backwardFit (TempTrajectory& candidate, unsigned in
   //unsigned int nHit2d(0);  // number of valid hits after seeding region with 2D info
   // use all hits except the first n (from seed), but require minimum
   // specified in configuration.
-  //  Swapped over next two lines.
-  unsigned int nHitMin = max(oldMeasurements.size()-nSeed,theMinNrOfHitsForRebuild);
-  //  unsigned int nHitMin = oldMeasurements.size()-nSeed;
+  //unsigned int nHitMin = max(oldMeasurements.size()-nSeed,theMinNrOfHitsForRebuild);
+  unsigned int nHitMin = oldMeasurements.size()-nSeed;
   // we want to rebuild only if the number of measurements excluding the seed measurements is higher than the cut
   if (nHitMin<theMinNrOfHitsForRebuild){
 	fittedTracks.clear();

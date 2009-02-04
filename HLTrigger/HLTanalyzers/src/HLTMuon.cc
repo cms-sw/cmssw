@@ -92,7 +92,7 @@ void HLTMuon::analyze(const edm::Handle<MuonCollection>                 & Muon,
 		      const edm::Handle<edm::ValueMap<bool> >           & isoMap2,
 		      const edm::Handle<RecoChargedCandidateCollection> & MuCands3,
 		      const edm::Handle<edm::ValueMap<bool> >           & isoMap3,
-		      //		      const edm::Handle<MuonTrackLinksCollection>       & mulinks,
+		      const edm::Handle<MuonTrackLinksCollection>       & mulinks,
 		      TTree* HltTree) {
 
   //std::cout << " Beginning HLTMuon " << std::endl;
@@ -192,18 +192,13 @@ void HLTMuon::analyze(const edm::Handle<MuonCollection>                 & Muon,
       TrackRef staTrack;
       typedef MuonTrackLinksCollection::const_iterator l3muon;
       int il3 = 0;
-      //find the corresponding L2 track
-      staTrack = tk->seedRef().castTo<edm::Ref< L3MuonTrajectorySeedCollection> >()->l2Track();
-      il3++;
-      /*
-	for (l3muon j=mulinks->begin(); j!=mulinks->end(); j++){
+      for (l3muon j=mulinks->begin(); j!=mulinks->end(); j++){
 	if (j->globalTrack() == tk) {
-	staTrack = j->standAloneTrack();
-	break;
+	  staTrack = j->standAloneTrack();
+	  break;
 	}
 	il3++;
-	}
-      */
+      }
       int imu2idx = 0;
       if (MuCands2.isValid()) {
 	typedef RecoChargedCandidateCollection::const_iterator candl2;

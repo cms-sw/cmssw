@@ -184,24 +184,26 @@ my @BUproperties = ("runNumber","unsignedInt",$runNumber,
     
 my @PBproperties = ("parameterSet","string","file:$pwd/cfg/playback.cfg",
 		    "hasSharedMemory","boolean","false",
-		    "hasPrescaleService","boolean","false");
+		    "hasPrescaleService","boolean","false",
+		    "collReconnSec","integer","-1");
 
 my @RBproperties = ("runNumber",   "unsignedInt",$runNumber,
 		    "buClassName", "string",     $BUappname,
 		    "doCrcCheck",  "unsignedInt","1",
 		    "processKillerEnabled","boolean","true",
-		    "monSleepSec", "unsignedInt","5",
-		    "nbRawCells",  "unsignedInt","16",
+		    "monSleepSec", "unsignedInt","30",
+		    "nbRawCells",  "unsignedInt","32",
 		    "nbRecoCells", "unsignedInt","8",
 		    "nbDqmCells",  "unsignedInt","8",
-		    "rawCellSize", "unsignedInt","0x200000",
-		    "recoCellSize","unsignedInt","0x400000",
-                    "dqmCellSize", "unsignedInt","0x100000");
+		    "rawCellSize", "unsignedInt","0x400000",
+		    "recoCellSize","unsignedInt","0x800000",
+                    "dqmCellSize", "unsignedInt","0x800000");
 
 if (!$doEP) { push (@RPproperties,"doDropEvents","boolean","true"); }
 
 my @EPproperties = ("parameterSet",  "string",      "file:$EPcfg",
-		    "runNumber",     "unsignedInt", $runNumber);
+		    "runNumber",     "unsignedInt", $runNumber,
+		    "collReconnSec", "integer",     "-1");
 
 if (!$doSM) { push (@EPproperties,"outputEnabled","boolean","false"); }
 

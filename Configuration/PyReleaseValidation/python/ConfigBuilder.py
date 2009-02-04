@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.95 $"
+__version__ = "$Revision: 1.99.2.2 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -154,7 +154,6 @@ class ConfigBuilder(object):
 
         # here we check if we have fastsim or fullsim
         if "FAST" in self._options.step:
-            self.contentFile = "FastSimulation/Configuration/EventContent_cff"
             self.imports=['FastSimulation/Configuration/RandomServiceInitialization_cff']
 
             # pile up handling for fastsim
@@ -214,14 +213,14 @@ class ConfigBuilder(object):
             # fake or real conditions?
             if len(conditionsSP)>1:
                 self.loadAndRemember('FastSimulation/Configuration/CommonInputs_cff')
-                # Apply ECAL and HCAL miscalibration
-                self.additionalCommands.append('\n# Choose between hcalmiscalib_startup.xml , hcalmiscalib_1pb.xml , hcalmiscalib_10pb.xml (startup is the default)')
-                self.additionalCommands.append('process.caloRecHits.RecHitsFactory.HCAL.fileNameHcal = "hcalmiscalib_startup.xml"')
-                if "IDEAL" in conditionsSP:
-                    self.additionalCommands.append("process.caloRecHits.RecHitsFactory.doMiscalib = False")
-                # Apply Tracker misalignment
+
+                print conditionsSP
+                if "STARTUP" in conditionsSP[1]:
+                    self.additionalCommands.append("# Apply ECAL/HCAL miscalibration")
+                    self.additionalCommands.append("process.caloRecHits.RecHitsFactory.doMiscalib = True") 
+                self.additionalCommands.append("# Apply Tracker misalignment")
                 self.additionalCommands.append("process.famosSimHits.ApplyAlignment = True")
-                self.additionalCommands.append("process.misalignedTrackerGeometry.applyAlignment = True")
+                self.additionalCommands.append("process.misalignedTrackerGeometry.applyAlignment = True\n")
                                        
             else:
                 self.loadAndRemember('FastSimulation/Configuration/CommonInputsFake_cff')
@@ -302,12 +301,16 @@ class ConfigBuilder(object):
 	self.EVTCONTDefaultCFF="Configuration/EventContent/EventContent_cff"
 	self.defaultMagField='38T'
 	self.defaultBeamSpot='Early10TeVCollision'
+
+        # if fastsim switch event content
+	if "FASTSIM" in self._options.step:
+		self.EVTCONTDefaultCFF = "FastSimulation/Configuration/EventContent_cff"
 	
-# if its MC then change the raw2digi
+        # if its MC then change the raw2digi
 	if self._options.isMC==True:
 		self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_cff"
 
-# now for #%#$#! different scenarios
+        # now for #%#$#! different scenarios
 
 	if self._options.scenario=='nocoll' or self._options.scenario=='cosmics':
 	    self.SIMDefaultCFF="Configuration/StandardSequences/SimNOBEAM_cff"	
@@ -340,9 +343,9 @@ class ConfigBuilder(object):
 	if self._options.eventcontent != None:
 	    self.eventcontent=self._options.eventcontent	
 
-# for alca, skims, etc
+    # for alca, skims, etc
     def addExtraStream(self,name,stream):
-# define output module and go from there
+    # define output module and go from there
         output = cms.OutputModule("PoolOutputModule")
 	output.SelectEvents = stream.selectEvents
 	output.outputCommands = stream.content
@@ -490,9 +493,13 @@ class ConfigBuilder(object):
 
 
     def prepare_VALIDATION(self, sequence = 'validation'):
-        self.loadAndRemember(self.VALIDATIONDefaultCFF)
-        self.process.validation_step = cms.Path( self.process.validation )
+        if ( len(sequence.split(','))==1 ):
+            self.loadAndRemember(self.VALIDATIONDefaultCFF)
+        else:    
+            self.loadAndRemember(sequence.split(',')[0])
+        self.process.validation_step = cms.Path( getattr(self.process, sequence.split(',')[-1]) )
         self.process.schedule.append(self.process.validation_step)
+        return
 
     def prepare_DQM(self, sequence = 'DQMOffline'):
         # this one needs replacement
@@ -577,7 +584,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.95 $"),
+              (version=cms.untracked.string("$Revision: 1.99.2.2 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )

@@ -467,17 +467,13 @@ StoreEcalCondition::readEcalADCToGeVConstantFromFile(const char* inputFile) {
     float adc_to_gev=0;
     sscanf(line, "%f", &adc_to_gev );
     LogDebug("StoreEcalCondition") <<" calib="<< adc_to_gev ;
-    fgets(line,255,inpFile);
-    float adc_to_gev_ee=0;
-    sscanf(line, "%f", &adc_to_gev_ee );
-    LogDebug("StoreEcalCondition") <<" calib="<< adc_to_gev_ee ;
     
     fclose(inpFile);           // close inp. file
 
     sm_constr_ = sm_number;
 
     // barrel and endcaps the same 
-    EcalADCToGeVConstant* agc = new EcalADCToGeVConstant(adc_to_gev,adc_to_gev_ee );
+    EcalADCToGeVConstant* agc = new EcalADCToGeVConstant(adc_to_gev,adc_to_gev );
     edm::LogInfo("StoreEcalCondition") << "ADCtoGeV scale written into the DB";
     return agc;
 }

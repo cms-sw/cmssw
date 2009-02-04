@@ -6,8 +6,8 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelJetFpga.h"
- 
-#include "FWCore/Utilities/interface/Exception.h"  
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //DEFINE STATICS
 const unsigned int L1GctJetCounter::MAX_JETLEAF_CARDS = L1GctWheelJetFpga::MAX_LEAF_CARDS;
@@ -21,41 +21,52 @@ L1GctJetCounter::L1GctJetCounter(int id, std::vector<L1GctJetLeafCard*> leafCard
   L1GctProcessor(),
   m_id(id),
   m_jetLeafCards(leafCards),
-  m_jets(MAX_JETS_TO_COUNT)
+  m_jets(MAX_JETS_TO_COUNT),
+  m_setupOk(true)
 {
   //Check jetfinder setup
   if(m_id < 0 || m_id%100 >= 12 || m_id/100 >= 2)
-  {
-    throw cms::Exception("L1GctSetupError")
-    << "L1GctJetCounter::L1GctJetCounter() : Jet Counter ID " << m_id << " has been incorrectly constructed!\n"
-    << "ID number should be between the range of 0 to 11, or 100 to 111\n";
-  } 
+    {
+      m_setupOk = false;
+      if (m_verbose) {
+	edm::LogWarning("L1GctSetupError")
+	  << "L1GctJetCounter::L1GctJetCounter() : Jet Counter ID " << m_id << " has been incorrectly constructed!\n"
+	  << "ID number should be between the range of 0 to 11, or 100 to 111\n";
+      } 
+    }
   
   if(m_jetLeafCards.size() != MAX_JETLEAF_CARDS)
-  {
-    throw cms::Exception("L1GctSetupError")
-    << "L1GctJetCounter::L1GctJetCounter() : Jet Counter ID " << m_id << " has been incorrectly constructed!\n"
-    << "This class needs " << MAX_JETLEAF_CARDS << " leaf card pointers, yet only " << m_jetLeafCards.size()
-    << " leaf card pointers are present.\n";
-  }
+    {
+      m_setupOk = false;
+      if (m_verbose) {
+	edm::LogWarning("L1GctSetupError")
+	  << "L1GctJetCounter::L1GctJetCounter() : Jet Counter ID " << m_id << " has been incorrectly constructed!\n"
+	  << "This class needs " << MAX_JETLEAF_CARDS << " leaf card pointers, yet only " << m_jetLeafCards.size()
+	  << " leaf card pointers are present.\n";
+      }
+    }
   
   for(unsigned int i = 0; i < m_jetLeafCards.size(); ++i)
-  {
-    if(m_jetLeafCards.at(i) == 0)
     {
-      throw cms::Exception("L1GctSetupError")
-      << "L1GctJetCounter::L1GctJetCounter() : Jet Counter ID " << m_id << " has been incorrectly constructed!\n"
-      << "Leaf card pointer " << i << " has not been set!\n";
+      if(m_jetLeafCards.at(i) == 0)
+	{
+	  m_setupOk = false;
+	  if (m_verbose) {
+	    edm::LogWarning("L1GctSetupError")
+	      << "L1GctJetCounter::L1GctJetCounter() : Jet Counter ID " << m_id << " has been incorrectly constructed!\n"
+	      << "Leaf card pointer " << i << " has not been set!\n";
+	  }
+	}
     }
-  }
   
   if(jetCounterLut == 0)
-  {
-    m_jetCounterLut = new L1GctJetCounterLut();
-  } else {
-    m_jetCounterLut = new L1GctJetCounterLut(*jetCounterLut);
-  }
+    {
+      m_jetCounterLut = new L1GctJetCounterLut();
+    } else {
+      m_jetCounterLut = new L1GctJetCounterLut(*jetCounterLut);
+    }
 }
+
 
 L1GctJetCounter::~L1GctJetCounter()
 {
@@ -101,18 +112,26 @@ void L1GctJetCounter::resetProcessor()
 // Load the m_jets vector
 void L1GctJetCounter::fetchInput()
 {
+  if (m_verbose) {
+    edm::LogWarning("L1GctProcessingError")
+      << "L1GctJetCounter id= " << m_id << ", fetchInput() method called. May use excessive CPU.\n"
+      << "Recommended to use setJets() method instead" << std::endl;
+  }
   int jetnum=0;
   for (unsigned i=0; i<m_jetLeafCards.size(); i++) {
     if (jetnum+MAX_JETS_PER_LEAF>m_jets.size()) {
-      throw cms::Exception("L1GctProcessingError")
-	<< "L1GctJetCounter id= " << m_id << " trying to input too many jets for Leaf Card number " << i << std::endl
-	<< "current jetnum is " << jetnum << " about to add " << MAX_JETS_PER_LEAF << std::endl;
-    }
-    L1GctJetLeafCard* jlc = m_jetLeafCards.at(i);
-    for (unsigned j=0; j<L1GctJetFinderBase::MAX_JETS_OUT; j++) {
-      m_jets.at(jetnum++) = jlc->getOutputJetsA().at(j);
-      m_jets.at(jetnum++) = jlc->getOutputJetsB().at(j);
-      m_jets.at(jetnum++) = jlc->getOutputJetsC().at(j);
+      if (m_verbose) {
+	edm::LogError("L1GctProcessingError")
+	  << "L1GctJetCounter id= " << m_id << " trying to input too many jets for Leaf Card number " << i << std::endl
+	  << "current jetnum is " << jetnum << " about to add " << MAX_JETS_PER_LEAF << std::endl;
+      }
+    } else {
+      L1GctJetLeafCard* jlc = m_jetLeafCards.at(i);
+      for (unsigned j=0; j<L1GctJetFinderBase::MAX_JETS_OUT; j++) {
+	m_jets.at(jetnum++) = jlc->getOutputJetsA().at(j);
+	m_jets.at(jetnum++) = jlc->getOutputJetsB().at(j);
+	m_jets.at(jetnum++) = jlc->getOutputJetsC().at(j);
+      }
     }
   }
 }
@@ -152,5 +171,27 @@ void L1GctJetCounter::process()
 {
   for (unsigned i=0; i<m_jets.size(); i++) {
     if (m_jetCounterLut->passesCut(m_jets.at(i))) { m_value++; }
+  }
+}
+
+/// Method to check the setup for this jet counter
+bool L1GctJetCounter::setupOk() const {
+  return (m_setupOk &&
+	  (m_jetCounterLut != 0) &&
+	  (m_jetCounterLut->setupOk()));
+}
+
+/// control output messages
+void L1GctJetCounter::setVerbose() {
+  m_verbose = true; 
+  if (m_jetCounterLut!=0) { 
+    m_jetCounterLut->setVerbose(); 
+  } 
+}
+
+void L1GctJetCounter::setTerse() { 
+  m_verbose = false; 
+  if (m_jetCounterLut!=0) { 
+    m_jetCounterLut->setTerse(); 
   }
 }

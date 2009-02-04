@@ -50,7 +50,7 @@ MatrixMeschach::MatrixMeschach( const MatrixMeschach& mat )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void MatrixMeschach::copy( const MatrixMeschach& mat) 
 {
-  //  if( ALIUtils::debug >= 5) std::cout <<  "copy matrix" << mat._Mat << " " << _Mat << " L " << mat.NoLines() << " C " << mat.NoColumns() << " l " <<  mat.Mat()->m << " c " << mat.Mat()->n <<std::endl;
+  if( ALIUtils::debug >= 5) std::cout <<  "copy matrix" << mat._Mat << " " << _Mat << " L " << mat.NoLines() << " C " << mat.NoColumns() << " l " <<  mat.Mat()->m << " c " << mat.Mat()->n <<std::endl;
 
   for( uint lin=0; lin < _NoLines; lin++ ) {
     for( uint col=0;  col < _NoColumns; col++ ) {

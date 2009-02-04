@@ -15,7 +15,7 @@
 //         Created:  Wed Jul 30 11:37:24 CET 2007
 //         Working:  Fri Nov  9 09:39:33 CST 2007
 //
-// $Id: MuonSimHitProducer.cc,v 1.19 2008/07/12 13:47:49 mulders Exp $
+// $Id: MuonSimHitProducer.cc,v 1.21 2008/11/02 08:01:40 elmer Exp $
 //
 //
 
@@ -387,7 +387,7 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
             LocalPoint entry = lpos - 0.5*thickness*lmom/pz;
             LocalPoint exit = lpos + 0.5*thickness*lmom/pz;
             double dtof = path.second*rbeta;
-            int trkid = itrk;
+            int trkid = mySimTrack.trackId();
             unsigned int id = wid.rawId();
 	    short unsigned int processType = 2;
             PSimHit hit(entry,exit,lmom.mag(),
@@ -429,7 +429,7 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
           LocalPoint entry = lpos - 0.5*thickness*lmom/pz;
           LocalPoint exit = lpos + 0.5*thickness*lmom/pz;
           double dtof = path.second*rbeta;
-          int trkid = itrk;
+          int trkid = mySimTrack.trackId();
           unsigned int id = lid.rawId();
 	  short unsigned int processType = 2;
           PSimHit hit(entry,exit,lmom.mag(),
@@ -472,7 +472,7 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
           LocalPoint entry = lpos - 0.5*thickness*lmom/pz;
           LocalPoint exit = lpos + 0.5*thickness*lmom/pz;
           double dtof = path.second*rbeta;
-          int trkid = itrk;
+          int trkid = mySimTrack.trackId();
           unsigned int id = rid.rawId();
 	  short unsigned int processType = 2;
 	    PSimHit hit(entry,exit,lmom.mag(),
@@ -543,14 +543,15 @@ MuonSimHitProducer::readParameters(const edm::ParameterSet& fastMuons,
   // Tracks
   fullPattern_  = fastTracks.getUntrackedParameter<bool>("FullPatternRecognition");
 
-  std::cout << " MUON SIM HITS: FastSimulation parameters " << std::endl;
-  std::cout << " ============================================== " << std::endl;
-  std::cout << " Sim Hits produced for muons in the pseudorapidity range : "
-            << minEta_ << " -> " << maxEta_ << std::endl;
-  if ( fullPattern_ ) 
-    std::cout << " The FULL pattern recognition option is turned ON" << std::endl;
-  else
-    std::cout << " The FAST tracking option is turned ON" << std::endl;
+// The following should be on LogInfo
+//  std::cout << " MUON SIM HITS: FastSimulation parameters " << std::endl;
+//  std::cout << " ============================================== " << std::endl;
+//  std::cout << " Sim Hits produced for muons in the pseudorapidity range : "
+//            << minEta_ << " -> " << maxEta_ << std::endl;
+  //if ( fullPattern_ ) 
+    //std::cout << " The FULL pattern recognition option is turned ON" << std::endl;
+  //else
+    //std::cout << " The FAST tracking option is turned ON" << std::endl;
 
   // Material Effects
   theMaterialEffects = 0;

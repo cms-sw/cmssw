@@ -10,8 +10,8 @@
  *
  * \file DCCEventBlock.h
  *
- * $Date: 2008/07/14 11:22:44 $
- * $Revision: 1.13 $
+ * $Date: 2008/04/07 19:35:06 $
+ * $Revision: 1.9 $
  *
  * \author N. Almeida
  * \author G. Franzoni
@@ -38,7 +38,7 @@ class DCCEventBlock {
 	
    virtual ~DCCEventBlock();  
  
-   virtual void unpack( uint64_t * buffer, uint bufferSize, uint expFedId){};
+   void unpack( uint64_t * buffer, uint bufferSize, uint expFedId);
 	
    void enableSyncChecks();
 	
@@ -49,8 +49,6 @@ class DCCEventBlock {
    void display(std::ostream & o);
 		
    uint smId()                  { return smId_;     }
-   uint fov()                   { return fov_;      }
-   uint mem()                   { return mem_;      }
    uint l1A()                   { return l1_;       }
    uint bx()                    { return bx_;       }
    DCCDataUnpacker  * unpacker(){ return unpacker_; }
@@ -72,7 +70,6 @@ class DCCEventBlock {
     
     uint srChStatus_;
 
-    uint fov_;
     uint fedId_;
     uint bx_;
     uint l1_;
@@ -85,7 +82,6 @@ class DCCEventBlock {
     uint detailedTriggerType_;
     
     uint orbitCounter_;
-    uint mem_;
     uint sr_;
     uint zs_;
     uint tzs_;

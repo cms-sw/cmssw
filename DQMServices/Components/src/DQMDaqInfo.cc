@@ -1,49 +1,56 @@
 #include "DQMServices/Components/src/DQMDaqInfo.h"
-
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 DQMDaqInfo::DQMDaqInfo(const edm::ParameterSet& iConfig)  
-{
-  
-  /// Temporary  txt file for cross checks, will be removed
-  saveDCFile_=iConfig.getUntrackedParameter("saveDCFile",false);
-  if(saveDCFile_){
-    outputFile_=iConfig.getParameter<std::string>("outputFile");
-    dataCertificationFile.open(outputFile_.c_str());
-    dataCertificationFile<<" Run Number  |  Luminosity Section "<<std::endl;
-  }
-  
-  /// Standard output root file 
-  saveData = iConfig.getParameter<bool>("saveRootFile");
-  if(saveData) outputFileName = iConfig.getParameter<std::string>("OutputFileName");
-   
+{   
 }
-
 
 DQMDaqInfo::~DQMDaqInfo()
 {  
-  dataCertificationFile.close();
 }
-
 
 void DQMDaqInfo::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const  edm::EventSetup& iSetup){
   
-  edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunSummaryRcd"));
+  edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
+  
+  if( 0 != iSetup.find( recordKey ) ) {
     
-  edm::ESHandle<RunSummary> sum;
-  iSetup.get<RunSummaryRcd>().get(sum);
-  const RunSummary* summary=sum.product();
-  std::vector<int> SubDetId= summary->m_subdt_in;    
-  std::vector<std::string> subdet = summary->getSubdtIn();
+    edm::ESHandle<RunInfo> sumFED;
+    iSetup.get<RunInfoRcd>().get(sumFED);    
+   
+    //const RunInfo* summaryFED=sumFED.product();
+  
+    std::vector<int> FedsInIds= sumFED->m_fed_in;   
+
+    float  FedCount[9]={0., 0., 0., 0., 0., 0., 0., 0., 0.};
     
-  for(int det=0;det<7;++det) DaqFraction[det]->Fill(0.);
+    for(unsigned int fedItr=0;fedItr<FedsInIds.size(); ++fedItr) {
+      int fedID=FedsInIds[fedItr];     
+
+      if(fedID>=PixelRange.first   &  fedID<=PixelRange.second)    ++FedCount[Pixel]  ;
+      if(fedID>=TrackerRange.first &  fedID<=TrackerRange.second)  ++FedCount[SiStrip];
+      if(fedID>=CSCRange.first     &  fedID<=CSCRange.second)      ++FedCount[CSC]    ;
+      if(fedID>=RPCRange.first     &  fedID<=RPCRange.second)      ++FedCount[RPC]    ;
+      if(fedID>=DTRange.first      &  fedID<=DTRange.second)       ++FedCount[DT]     ;
+      if(fedID>=HcalRange.first    &  fedID<=HcalRange.second)     ++FedCount[Hcal]	;       
+      if(fedID>=ECALBarrRange.first    &  fedID<=ECALBarrRange.second)     ++FedCount[EcalBarrel]   ;      
+      if((fedID>=ECALEndcapRangeLow.first & fedID<=ECALEndcapRangeLow.second)
+	 ||(fedID>=ECALEndcapRangeHigh.first & fedID<=ECALEndcapRangeHigh.second)) ++FedCount[EcalEndcap]   ;
+      if(fedID>=L1TRange.first    &  fedID<=L1TRange.second)     ++FedCount[L1T]   ;
+    
+    }   
+    
+    for(int detIndex=0; detIndex<9; ++detIndex) { 
+      DaqFraction[detIndex]->Fill( FedCount[detIndex]/NumberOfFeds[detIndex]);
+    }
+
+  }else{    
   
-  if(saveDCFile_)  dataCertificationFile<<"\n"<<  lumiBlock.id().run() <<"  |  "<<lumiBlock.luminosityBlock()  <<std::endl;
+    for(int detIndex=0; detIndex<9; ++detIndex)  DaqFraction[detIndex]->Fill(-1);               
+    return; 
+  }
   
-  for (size_t itrSubDet=0; itrSubDet<subdet.size(); itrSubDet++){
-    if(saveDCFile_)  dataCertificationFile<<SubDetId[itrSubDet]<< " "<<subdet[itrSubDet] << std::endl;
-    DaqFraction[SubDetId[itrSubDet]]->Fill(1.);
-  } 
-  
+ 
 }
 
 
@@ -87,23 +94,58 @@ DQMDaqInfo::beginJob(const edm::EventSetup& iSetup)
   dbe_->setCurrentFolder(curentFolder.c_str());
   DaqFraction[DT]         = dbe_->bookFloat("DTDaqFraction");
 
-  subsystFolder="ECAL";  
+  subsystFolder="Hcal";  
   curentFolder=subsystFolder+commonFolder;
   dbe_->setCurrentFolder(curentFolder.c_str());
-  DaqFraction[ECAL]       = dbe_->bookFloat("ECALDaqFraction");
+  DaqFraction[Hcal]       = dbe_->bookFloat("HcalDaqFraction");
 
-  subsystFolder="HCAL";  
+  subsystFolder="EcalBarrel";  
   curentFolder=subsystFolder+commonFolder;
   dbe_->setCurrentFolder(curentFolder.c_str());
-  DaqFraction[HCAL]       = dbe_->bookFloat("HCALDaqFraction");
+  DaqFraction[EcalBarrel]       = dbe_->bookFloat("EcalBarrDaqFraction");
 
+  subsystFolder="EcalEndcap";  
+  curentFolder=subsystFolder+commonFolder;
+  dbe_->setCurrentFolder(curentFolder.c_str());
+  DaqFraction[EcalEndcap]       = dbe_->bookFloat("EcalEndDaqFraction");
+
+  subsystFolder="L1T";  
+  curentFolder=subsystFolder+commonFolder;
+  dbe_->setCurrentFolder(curentFolder.c_str());
+  DaqFraction[L1T]       = dbe_->bookFloat("L1TDaqFraction");
+
+
+  PixelRange   = FEDNumbering::getSiPixelFEDIds();
+  TrackerRange = FEDNumbering::getSiStripFEDIds();
+  CSCRange     = FEDNumbering::getCSCFEDIds();
+  RPCRange.first  = 790;
+  RPCRange.second = 792;
+  DTRange.first   = 770;
+  DTRange.second  = 774;
+  HcalRange  = FEDNumbering::getHcalFEDIds();
+  L1TRange   = FEDNumbering::getTriggerGTPFEDIds();
+  ECALBarrRange.first  = 610;    
+  ECALBarrRange.second = 645;
+  ECALEndcapRangeLow.first   = 601;
+  ECALEndcapRangeLow.second  = 609;
+  ECALEndcapRangeHigh.first  = 646;
+  ECALEndcapRangeHigh.second = 654;
+
+  NumberOfFeds[Pixel]   = PixelRange.second-PixelRange.first +1;
+  NumberOfFeds[SiStrip] = TrackerRange.second-TrackerRange.first +1;
+  NumberOfFeds[CSC]     = CSCRange.second-CSCRange.first  +1;
+  NumberOfFeds[RPC]     = RPCRange.second-RPCRange.first  +1;
+  NumberOfFeds[DT]      = DTRange.second-DTRange.first +1;
+  NumberOfFeds[Hcal]    = HcalRange.second-HcalRange.first +1;  
+  NumberOfFeds[EcalBarrel]    = ECALBarrRange.second-ECALBarrRange.first +1 ;
+  NumberOfFeds[EcalEndcap]    = (ECALEndcapRangeLow.second-ECALEndcapRangeLow.first +1)+(ECALEndcapRangeHigh.second-ECALEndcapRangeHigh.first +1) ;
+  NumberOfFeds[L1T]    = L1TRange.second-L1TRange.first +1;
 
 }
 
 
 void 
 DQMDaqInfo::endJob() {
-  if(saveData) dbe_->save(outputFileName);
 }
 
 
@@ -111,8 +153,7 @@ DQMDaqInfo::endJob() {
 void
 DQMDaqInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 { 
+ 
+
 }
 
-
-//define this as a plug-in
-//DEFINE_FWK_MODULE(DQMDaqInfo);

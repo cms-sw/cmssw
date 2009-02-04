@@ -48,9 +48,10 @@
 //CalibFormats
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+#include "CalibCalorimetry/CaloTPG/src/CaloTPGTranscoderULUT.h"
 #include "CalibFormats/HcalObjects/interface/HcalTPGRecord.h"
 #include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
-#include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
+
 
 class CaloGeometry;
 
@@ -77,6 +78,6 @@ class TPGntupler : public edm::EDAnalyzer {
   float rec_energy[4176];
   float tpg_uncompressed[4176];
   int index[4176];
-  //  edm::ESHandle<CaloTPGTranscoder> transcoder_;
+  edm::ESHandle<CaloTPGTranscoder> transcoder_;
 
 };

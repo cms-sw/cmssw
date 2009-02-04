@@ -21,6 +21,7 @@
 #include "DataFormats/Common/interface/BoolCache.h"
 #include "DataFormats/Common/interface/PtrVectorBase.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/Provenance/interface/EventAuxiliary.h"
 
 #include <vector>
 
@@ -65,5 +66,8 @@ namespace {
     edm::Wrapper<edm::ValueMap<bool> > wvm3;
     edm::Wrapper<edm::ValueMap<float> > wvm4;
     edm::Wrapper<edm::ValueMap<double> > wvm5;
+    std::vector<edm::EventAuxiliary> dummyVectorEventAuxiliary;
+    edm::Wrapper<std::vector<edm::EventAuxiliary> > wvea;
+
   };
 }

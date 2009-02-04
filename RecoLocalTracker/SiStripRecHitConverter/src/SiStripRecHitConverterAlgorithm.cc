@@ -197,6 +197,8 @@ void SiStripRecHitConverterAlgorithm::run(edm::Handle<edm::RefGetter<SiStripClus
 
 
 void SiStripRecHitConverterAlgorithm::match(SiStripMatchedRecHit2DCollection & outmatched,SiStripRecHit2DCollection & outrphi, SiStripRecHit2DCollection & outstereo,const TrackerGeometry& tracker, const SiStripRecHitMatcher & matcher,LocalVector trackdirection) const {
+  int maximumHits2BeforeMatching = conf_.getParameter<uint32_t>("maximumHits2BeforeMatching");
+  bool skippedPairs = false;
   
   int nmatch=0;
   
@@ -232,6 +234,12 @@ void SiStripRecHitConverterAlgorithm::match(SiStripMatchedRecHit2DCollection & o
 	const SiStripRecHit2DCollection::range rhpartnerRange = outstereo.get(theId);
 	SiStripRecHit2DCollection::const_iterator rhpartnerRangeIteratorBegin = rhpartnerRange.first;
 	SiStripRecHit2DCollection::const_iterator rhpartnerRangeIteratorEnd   = rhpartnerRange.second;
+
+        if ((maximumHits2BeforeMatching > 0) &&
+            (monoRecHitRange.second - monoRecHitRange.first) * (rhpartnerRange.second - rhpartnerRange.first) > maximumHits2BeforeMatching) {
+            skippedPairs = true;
+            break;
+        }
       
 	const GluedGeomDet* gluedDet = (const GluedGeomDet*)tracker.idToDet(DetId(specDetId.glued()));
 	SiStripRecHitMatcher::SimpleHitCollection stereoHits;
@@ -256,6 +264,9 @@ void SiStripRecHitConverterAlgorithm::match(SiStripMatchedRecHit2DCollection & o
     << "found\n"	 
     << nmatch 
     << "  matched RecHits\n";
+  if (skippedPairs) {
+    edm::LogWarning("SiStripRecHitConverter") << "Skipped matched rechits on some noisy modules.\n";
+  }
 }
 void SiStripRecHitConverterAlgorithm::fillBad128StripBlocks(const SiStripQuality &quality, const uint32_t &detid, bool bad128StripBlocks[6]) const {
     short badApvs   = quality.getBadApvs(detid);

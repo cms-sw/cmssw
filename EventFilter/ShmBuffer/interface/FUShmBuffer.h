@@ -102,28 +102,21 @@ namespace evf {
     void           scheduleRawEmptyCellForDiscard(FUShmRawCell* cell);
     
     bool           writeRecoInitMsg(unsigned int   outModId,
-				    unsigned int   fuProcessId,
-				    unsigned int   fuGuid,
 				    unsigned char *data,
 				    unsigned int   dataSize);
 
     bool           writeRecoEventData(unsigned int   runNumber,
 				      unsigned int   evtNumber,
 				      unsigned int   outModId,
-				      unsigned int   fuProcessId,
-				      unsigned int   fuGuid,
 				      unsigned char *data,
 				      unsigned int   dataSize);
     
     bool           writeErrorEventData(unsigned int runNumber,
-				       unsigned int fuProcessId,
 				       unsigned int iRawCell);
     
     bool           writeDqmEventData(unsigned int   runNumber,
 				     unsigned int   evtAtUpdate,
 				     unsigned int   folderId,
-				     unsigned int   fuProcessId,
-				     unsigned int   fuGuid,
 				     unsigned char *data,
 				     unsigned int   dataSize);
 				     

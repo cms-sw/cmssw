@@ -6,8 +6,6 @@
 <use name=SimCalorimetry/EcalSimAlgos>
 <use name=FWCore/Framework>
 <use name=FWCore/Utilities>
-<use name=CondCore/DBCommon>
-<use name=CondCore/DBOutputService>
 <export>
  <use name=DataFormats/EcalDigi>
  <use name=DataFormats/EcalDetId>

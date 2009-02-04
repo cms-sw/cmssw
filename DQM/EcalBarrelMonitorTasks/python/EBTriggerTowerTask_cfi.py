@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalBarrelTriggerTowerTask = cms.EDAnalyzer("EBTriggerTowerTask",
+ecalBarrelTriggerTowerTask = cms.EDFilter("EBTriggerTowerTask",
     prefixME = cms.untracked.string('EcalBarrel'),
     enableCleanup = cms.untracked.bool(False),
     mergeRuns = cms.untracked.bool(False),    

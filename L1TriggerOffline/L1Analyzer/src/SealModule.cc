@@ -2,7 +2,6 @@
 
 // This is the analyzer
 #include "L1TriggerOffline/L1Analyzer/interface/L1Analyzer.h"
-#include "L1TriggerOffline/L1Analyzer/interface/L1PromptAnalysis.h"
 
 // These for L1 collections
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
@@ -37,7 +36,6 @@ DEFINE_FWK_MODULE(L1EmParticleShallowCloneProducer);
 DEFINE_FWK_MODULE(L1JetParticleShallowCloneProducer);
 DEFINE_FWK_MODULE(L1MuonParticleShallowCloneProducer);
 DEFINE_FWK_MODULE(L1EtMissParticleShallowCloneProducer);
-DEFINE_FWK_MODULE(L1PromptAnalysis);
 
 
 

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalBarrelTestPulseTask = cms.EDAnalyzer("EBTestPulseTask",
+ecalBarrelTestPulseTask = cms.EDFilter("EBTestPulseTask",
     prefixME = cms.untracked.string('EcalBarrel'),
     enableCleanup = cms.untracked.bool(False),
     mergeRuns = cms.untracked.bool(False),    

@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.cc,v 1.17 2008/10/06 13:29:16 gpetrucc Exp $
+// $Id: PATTauProducer.cc,v 1.18 2008/10/16 13:18:04 veelken Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATTauProducer.h"
@@ -23,8 +23,6 @@
 // #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 // #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 // #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-
-#include "PhysicsTools/PatUtils/interface/ObjectResolutionCalc.h"
 
 #include <vector>
 #include <memory>
@@ -63,8 +61,6 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig):
   addTrigMatch_   = iConfig.getParameter<bool>               ( "addTrigMatch" );
   trigMatchSrc_   = iConfig.getParameter<std::vector<edm::InputTag> >( "trigPrimMatch" );
   addResolutions_ = iConfig.getParameter<bool>         ( "addResolutions" );
-  useNNReso_      = iConfig.getParameter<bool>         ( "useNNResolutions" );
-  tauResoFile_    = iConfig.getParameter<std::string>  ( "tauResoFile" );
 
   // tau ID configurables
   addTauID_       = iConfig.getParameter<bool>         ( "addTauID" );
@@ -94,11 +90,6 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig):
       "\t}\n";
   }
 
-  // construct resolution calculator
-  if (addResolutions_) {
-    theResoCalc_ = new ObjectResolutionCalc(edm::FileInPath(tauResoFile_).fullPath(), useNNReso_);
-  }
-
   // Efficiency configurables
   addEfficiencies_ = iConfig.getParameter<bool>("addEfficiencies");
   if (addEfficiencies_) {
@@ -116,7 +107,6 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig):
 
 
 PATTauProducer::~PATTauProducer() {
-  if (addResolutions_) delete theResoCalc_;
 }
 
 
@@ -221,11 +211,6 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       }
 
       aTau.setTauIDs(ids);
-    }
-
-    // add resolution info if demanded
-    if (addResolutions_) {
-      (*theResoCalc_)(aTau);
     }
 
     if (efficiencyLoader_.enabled()) {

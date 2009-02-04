@@ -1,18 +1,32 @@
-
-*-- Author :    Michelangelo Mangano
+*-- AUTHOR :    MICHELANGELO MANGANO
 C----------------------------------------------------------------------
       SUBROUTINE UPVETO(IPVETO)
 C----------------------------------------------------------------------
-C     subroutine to implement the MLM jet matching criterion
+C     SUBROUTINE TO IMPLEMENT THE MLM JET MATCHING CRITERION
 C----------------------------------------------------------------------
       IMPLICIT NONE
+C...GUP EVENT COMMON BLOCK
+      INTEGER MAXNUP
+      PARAMETER (MAXNUP=500)
+      INTEGER NUP,IDPRUP,IDUP,ISTUP,MOTHUP,ICOLUP
+      DOUBLE PRECISION XWGTUP,SCALUP,AQEDUP,AQCDUP,PUP,VTIMUP,SPINUP
+      COMMON/HEPEUP/NUP,IDPRUP,XWGTUP,SCALUP,AQEDUP,AQCDUP,
+     &              IDUP(MAXNUP),ISTUP(MAXNUP),MOTHUP(2,MAXNUP),
+     &              ICOLUP(2,MAXNUP),PUP(5,MAXNUP),VTIMUP(MAXNUP),
+     &              SPINUP(MAXNUP)
+C...HEPEVT COMMONBLOCK.
+      INTEGER NMXHEP,NEVHEP,NHEP,ISTHEP,IDHEP,JMOHEP,JDAHEP
+      PARAMETER (NMXHEP=4000)
+      COMMON/HEPEVT/NEVHEP,NHEP,ISTHEP(NMXHEP),IDHEP(NMXHEP),
+     &JMOHEP(2,NMXHEP),JDAHEP(2,NMXHEP),PHEP(5,NMXHEP),VHEP(4,NMXHEP)
+      DOUBLE PRECISION PHEP,VHEP
+      SAVE /HEPEVT/
 c process code
       integer ihrd
       integer itopprc
 c--event file data
       integer Nunit,NunitOut,NunitIni
-*      character*100 filename,tmpstr,tmpstr1
-      character*512 filename 
+      character*512 filename,tmpstr
 c total number of input events
       common/AHio/Nunit,NunitOut,NunitIni,filename
 c inputs for the matching algorithm
@@ -53,31 +67,13 @@ c global event cuts
       double precision ptjmin,ptjmax,etajmax,drjmin,
      +     ptbmin,ptbmax,etabmax,drbmin,
      +     ptcmin,ptcmax,etacmax,drcmin,
-     +     ptphmin,etaphmax,drphjmin,drphlmin,
+     +     ptphmin,etaphmax,drphjmin,drphmin,drphlmin,
      +     ptlmin,etalmax,drlmin,metmin,mllmin,mllmax
       common/AHcuts/ptjmin,ptjmax,etajmax,drjmin,
      +     ptbmin,ptbmax,etabmax,drbmin,
      +        ptcmin,ptcmax,etacmax,drcmin,
-     +        ptphmin,etaphmax,drphjmin,drphlmin,
+     +        ptphmin,etaphmax,drphjmin,drphmin,drphlmin,
      +        ptlmin,etalmax,drlmin,metmin,mllmin,mllmax
-
-   
-C...GUP Event common block
-      INTEGER MAXNUP
-      PARAMETER (MAXNUP=500)
-      INTEGER NUP,IDPRUP,IDUP,ISTUP,MOTHUP,ICOLUP
-      DOUBLE PRECISION XWGTUP,SCALUP,AQEDUP,AQCDUP,PUP,VTIMUP,SPINUP
-      COMMON/HEPEUP/NUP,IDPRUP,XWGTUP,SCALUP,AQEDUP,AQCDUP,
-     &              IDUP(MAXNUP),ISTUP(MAXNUP),MOTHUP(2,MAXNUP),
-     &              ICOLUP(2,MAXNUP),PUP(5,MAXNUP),VTIMUP(MAXNUP),
-     &              SPINUP(MAXNUP)
-C...HEPEVT commonblock.
-      INTEGER NMXHEP,NEVHEP,NHEP,ISTHEP,IDHEP,JMOHEP,JDAHEP
-      PARAMETER (NMXHEP=4000)
-      COMMON/HEPEVT/NEVHEP,NHEP,ISTHEP(NMXHEP),IDHEP(NMXHEP),
-     &JMOHEP(2,NMXHEP),JDAHEP(2,NMXHEP),PHEP(5,NMXHEP),VHEP(4,NMXHEP)
-      DOUBLE PRECISION PHEP,VHEP
-      SAVE /HEPEVT/
       INTEGER IPVETO
 C     CALSIM AND JET VARIABLES                             
       INTEGER NCY,NCPHI,NJMAX,JETNO,NCJET
@@ -92,80 +88,106 @@ C     CALSIM AND JET VARIABLES
       COMMON/GETCOM/PCJET(4,NJMAX),ETJET(NJMAX),JETNO(NCY,NCPHI),NCJET
 C     
       DOUBLE PRECISION PSERAP
-      INTEGER K(NJMAX),KP(NJMAX),kpj(njmax)
-c local variables
-      integer i,j,ihep,nmatch,jrmin
-      double precision etajet,phijet,delr,dphi,delrmin
-      double precision p(4,10),pt(10),eta(10),phi(10)
-      integer idbg
-      parameter (idbg=0)
-c
-      double precision tiny
-      parameter (tiny=1d-3)
-*
+      INTEGER K(NJMAX),KP(NJMAX),KPJ(NJMAX)
+C LOCAL VARIABLES
+      INTEGER I,J,IHEP,NMATCH,JRMIN
+      DOUBLE PRECISION ETAJET,PHIJET,DELR,DPHI,DELRMIN
+      DOUBLE PRECISION P(4,10),PT(10),ETA(10),PHI(10)
+C HEAVY QUARK MATCHING
+      INTEGER IHVQ(10),NHVQ,NMJET,ID
+      DOUBLE PRECISION ETAHVQ(10),PHIHVQ(10)
+      INTEGER IEND,INORAD
+      COMMON/SHVETO/IEND,INORAD(MAXNUP)
+      
+C DEBUGGING OPTIONS
+      INTEGER IDBG
+      PARAMETER (IDBG=0)
+      DOUBLE PRECISION PTPART,PTJETS,ETAPART,ETAJETS
+      INTEGER NMAX
+      COMMON/MTCHDBG/PTPART(10),PTJETS(10),ETAPART(10),ETAJETS(10),NMAX
+C
+      DOUBLE PRECISION ETMIN,ETMAX
+      DOUBLE PRECISION TINY
+      PARAMETER (TINY=1D-3)
+      INTEGER ICOUNT
+      DATA ICOUNT/0/
+C
       IPVETO=0
       IF(ICKKW.EQ.0) RETURN
+      IF(IHRD.EQ.7.OR.IHRD.EQ.8.OR.IHRD.EQ.13) THEN
+        WRITE(*,*) 'JET MATCHING FOR HARD PROCESS ',IHRD
+     $       ,' NOT IMPLEMENTED, STOP'
+        STOP
+      ENDIF
+      IF(NLJETS.EQ.0.AND.IEXC.EQ.0) RETURN
 C CHECK FOR EVENT ERROR OR ZERO WGT
       I=0
 C     HERWIG/PYTHIA SPECIFIC
       CALL ALSHER(I)
       IF(I.EQ.1) RETURN
 C
-      IF(IHRD.EQ.7.OR.IHRD.EQ.8.OR.IHRD.EQ.13) THEN
-        WRITE(*,*) 'JET MATCHING FOR HARD PROCESS ',IHRD
-     $       ,' NOT IMPLEMENTED, STOP'
-        STOP
+C     INITIALIZE DEBUG IF NEEDED
+      IF(IDBG.EQ.1) THEN
+        WRITE(1,*) ' '
+        WRITE(1,*) 'NEW EVENT '
+        WRITE(1,*) 'PARTONS'
+      ENDIF
+      IF(IDBG.EQ.2) THEN
+        DO I=1,10
+          PTPART(I)=0D0
+          ETAPART(I)=0D0
+          PTJETS(I)=0D0
+          ETAJETS(I)=0D0
+        ENDDO
+        NMAX=0
       ENDIF
 C
-c     reconstruct parton-level event
-      if(idbg.eq.1) then
-        write(1,*) ' '
-        write(1,*) 'new event '
-        write(1,*) 'PARTONS'
-      endif
-      do i=1,nljets
-        ihep=i+njstart
-        do j=1,4
-          p(j,i)=pup(j,ihep)
-        enddo
-        pt(i)=sqrt(p(1,i)**2+p(2,i)**2)
-        eta(i)=-log(tan(0.5d0*atan2(pt(i)+tiny,p(3,i))))
-        phi(i)=atan2(p(2,i),p(1,i))
-        if(idbg.eq.1) then
-          write(1,*) pt(i),eta(i),phi(i)
-        endif
-      enddo
-c     Start from the partonic system
-      CALL ALPSOR(pt,nljets,KP,2)  
-c     reconstruct showered jets
-c     
-      if(idbg.eq.1) then
-        do i=1,nhep
-          write(1,111) i,isthep(i),idhep(i),jmohep(1,i),jmohep(2,i)
-     $         ,phep(1,i),phep(2,i),phep(3,i)
-        enddo
- 111  format(5(i4,1x),3(f12.5,1x))
-      endif
-c      CALL PYLIST(7)
-c      CALL PYLIST(2)
-c      CALL PYLIST(5)
+C     RECONSTRUCT PARTON-LEVEL EVENT
+C     START FROM THE PARTONIC SYSTEM
+      DO I=1,NLJETS
+        IHEP=I+NJSTART
+        DO J=1,4
+          P(J,I)=PUP(J,IHEP)
+        ENDDO
+        PT(I)=SQRT(P(1,I)**2+P(2,I)**2)
+        ETA(I)=-LOG(TAN(0.5D0*ATAN2(PT(I)+TINY,P(3,I))))
+        PHI(I)=ATAN2(P(2,I),P(1,I))
+        IF(IDBG.EQ.1) THEN
+          WRITE(1,*) PT(I),ETA(I),PHI(I)
+        ENDIF
+      ENDDO
+      IF(NLJETS.GT.0) CALL ALPSOR(PT,NLJETS,KP,2)  
+C     
+C     DISPLAY EVENT SEEN BY UPVETO:
+      IF(IDBG.EQ.1) THEN
+        DO I=1,NHEP
+          WRITE(1,111) I,ISTHEP(I),IDHEP(I),JMOHEP(1,I),JMOHEP(2,I)
+     $         ,PHEP(1,I),PHEP(2,I),PHEP(3,I)
+        ENDDO
+ 111    FORMAT(5(I4,1X),3(F12.5,1X))
+      ENDIF
+C     DISPLAY PYTHIA EVENT:
+C      CALL PYLIST(7)    ! PYTHIA USER PROCESS EVENT DUMP
+C      CALL PYLIST(2)    ! PYTHIA FULL EVENT DUMP
+C      CALL PYLIST(5)    ! PYTHIA HEPEVT DUMP
+C
+C     RECONSTRUCT SHOWERED JETS:
       CALL CALINI
-c      CALL CALDEL(2,2,NJLAST)
       CALL CALDEL(NPFST,NPLST,NJLAST)
       CALL GETJET(RCLUS,ETCLUS,ETACLMAX)
-c      IF(NCJET.LT.NLJETS) GOTO 999
-c     analyse only events with at least nljets-reconstrcuted jets
-      CALL ALPSOR(ETJET,NCJET,K,2)              
-      if(idbg.eq.1) then
-        write(1,*) 'JETS'
-        do i=1,ncjet
-          j=k(ncjet+1-i)
-          ETAJET=PSERAP(PCJET(1,j))
-          PHIJET=ATAN2(PCJET(2,j),PCJET(1,j))
-          write(1,*) etjet(j),etajet,phijet
-        enddo
-      endif
-c     associate partons and jets, using min(delr) as criterion
+      IF(NCJET.GT.0) CALL ALPSOR(ETJET,NCJET,K,2)              
+      IF(IDBG.EQ.1) THEN
+        WRITE(1,*) 'JETS'
+        DO I=1,NCJET
+          J=K(NCJET+1-I)
+          ETAJET=PSERAP(PCJET(1,J))
+          PHIJET=ATAN2(PCJET(2,J),PCJET(1,J))
+          WRITE(1,*) ETJET(J),ETAJET,PHIJET
+        ENDDO
+      ENDIF
+C     ANALYSE ONLY EVENTS WITH AT LEAST NLJETS-RECONSTRUCTED JETS
+      IF(NCJET.LT.NLJETS) GOTO 999
+C     ASSOCIATE PARTONS AND JETS, USING MIN(DELR) AS CRITERION
       NMATCH=0
       DO I=1,NCJET
         KPJ(I)=0
@@ -184,19 +206,84 @@ c     associate partons and jets, using min(delr) as criterion
             JRMIN=J
           ENDIF
  110    CONTINUE
+        ETMIN=1D10
         IF(DELRMIN.LT.1.5*RCLUS) THEN
           NMATCH=NMATCH+1
           KPJ(JRMIN)=I
+          ETMIN=MIN(ETMIN,ETJET(JRMIN))
+C     ASSOCIATE PARTONS AND MATCHED JETS:
+          IF(IDBG.EQ.2) THEN
+            PTPART(I)=PT(KP(NLJETS-I+1))
+            ETAPART(I)=ETA(KP(NLJETS-I+1))
+            PTJETS(I)=ETJET(JRMIN)
+            ETAJETS(I)=PSERAP(PCJET(1,JRMIN))
+            NMAX=NCJET
+          ENDIF
+C          WRITE(*,*) 'PARTON-JET',I,' BEST MATCH:',K(NCJET+1-JRMIN)
+C     $           ,DELRMIN
         ENDIF
-C     WRITE(*,*) 'PARTON-JET',I,' best match:',k(ncjet+1-jrmin)
-c     $           ,delrmin
       ENDDO
-      NHEP=0
       IF(NMATCH.LT.NLJETS) GOTO 999
-C REJECT EVENTS WITH LARGER JET MULTIPLICITY FROM EXCLUSIVE SAMPLE
+C     REJECT EVENTS WITH LARGER JET MULTIPLICITY FROM EXCLUSIVE SAMPLE
       IF(NCJET.GT.NLJETS.AND.IEXC.EQ.1) GOTO 999
+C     VETO EVENTS WHERE MATCHED JETS ARE SOFTER THAN NON-MATCHED ONES
+      IF(IEXC.NE.1) THEN
+        J=NCJET
+        DO I=1,NLJETS
+          IF(KPJ(K(J)).EQ.0) GOTO 999
+          J=J-1
+        ENDDO
+      ENDIF
+C
+C     ADDITIONAL TREATMENT FOR HVQ EVENTS: VETO/ACCEPT JETS EMITTED BY HVQ'S
+      IF(IHRD.LE.2.OR.IHRD.EQ.6.OR.IHRD.EQ.10.OR.IHRD.EQ.15) THEN
+        CALL CALINI
+C     RECOSTRUCT POSSIBLE JETS FROM RADIATION OFF THE TOP QUARKS
+        CALL CALDEL_HVQ(NPFST,NPLST,NJLAST)
+        CALL GETJET(RCLUS,ETCLUS,ETACLMAX)
+C     IF NO EXTRA JET: ACCEPT EVENT
+        IF(NCJET.EQ.0) RETURN
+C     IF EXTRA JETS, REMOVE THOSE LYING WITHIN DRJMIN OF A B/C QUARK, TO
+C     ALLOW THE SHOWER TO GOVERN THE DEVELOPMENT OF A B/C JET.
+C     START BY FLAGGING VETOED Q AND QBAR OBJECTS:
+        NHVQ=0
+        DO I=1,NHEP
+          ID=IDHEP(I)
+          IF(INORAD(I).EQ.1.AND.ABS(ID).LE.5.AND.ABS(ID)
+     $         .GE.4) THEN
+            NHVQ=NHVQ+1
+            IHVQ(NHVQ)=I
+            ETAHVQ(NHVQ)=PSERAP(PHEP(1,I))
+            PHIHVQ(NHVQ)=ATAN2(PHEP(2,I),PHEP(1,I))
+          ENDIF
+        ENDDO
+        NMJET=NCJET
+        DO I=1,NCJET
+          ETAJET=PSERAP(PCJET(1,I))
+          PHIJET=ATAN2(PCJET(2,I),PCJET(1,I))
+          DO J=1,NHVQ
+            DPHI=ABS(PHIHVQ(J)-PHIJET)
+            IF(DPHI.GT.PI) DPHI=ABS(DPHI-2*PI)
+            DELR=SQRT(DPHI**2+(ETAJET-ETAHVQ(J))**2)
+            IF(DELR.LT.DRJMIN) THEN
+              NMJET=NMJET-1
+              ETJET(I)=0D0
+            ENDIF
+          ENDDO
+        ENDDO
+C     IF NO UNMATCHED JET: ACCEPT EVENT
+        IF(NMJET.EQ.0) RETURN
+C     IF JETS AND IEXC=1: REJECT EVENT
+        IF(IEXC.EQ.1) GOTO 999
+C     IF JETS AND IEXC=0: CHECK THAT JETS ARE SOFTER THAN MATCHED ONES
+        ETMAX=0D0
+        DO I=1,NCJET
+          ETMAX=MAX(ETMAX,ETJET(I))
+        ENDDO
+        IF(ETMAX.GT.ETMIN) GOTO 999
+      ENDIF
       RETURN
-c HERWIG/PYTHIA TERMINATION:
+C     HERWIG/PYTHIA TERMINATION:
  999  CALL ALSHEN
       IPVETO=1
       END
@@ -207,130 +294,13 @@ C----------------------------------------------------------------------
 C----------------------------------------------------------------------
 C     HERWIG/PYTHIA UNIVERSAL EVENT INITIALITION ROUTINE
 C----------------------------------------------------------------------
-      implicit none
-C  CMSIM version: Strong typing,  no HEPEVT, otherwise same as in Pythia 6.2
-C  As from cms130
-C
-C...This file contains an almost complete listing of all PYTHIA 
-C...commonblocks, and additionally some recommended other 
-C...declarations. You may copy this to the top of your
-C...mina program and then eliminate unnecessary parts.
-
-C-----------------------------------------------------------------
- 
-C...All real arithmetic in double precision.
-CCCC      IMPLICIT DOUBLE PRECISION(A-H, O-Z)
-C...Three Pythia functions return integers, so need declaring.
-      INTEGER KSUSY1,KSUSY2,KTECHN,KEXCIT,KDIMEN
-     &,       N,NPAD,K, MSTU,MSTJ, KCHG, MDCY,MDME,KFDP 
-     &,       MRPY, MSEL,MSELPD,MSUB,KFIN, MSTP,MSTI, MINT
-     &,       ISET,KFPR,ICOL, ISIG, MWID, NGENPD,NGEN
-     &,       IMSS, IDR,IDR2,KFR, IHIST,INDX,ITCM      
-      DOUBLE PRECISION P,V, PARU,PARJ, PMAS,PARF,VCKM, BRAT
-     &,                RRPY, CKIN, PARP,PARI, VINT, COEF
-     &,                XSFX,SIGH, WIDS, XSEC, SIGT
-     &,                XPVMD,XPANL,XPANH,XPBEH,XPDIR
-     &,                VXPVMD,VXPANL,VXPANH,VXPDGM, RMSS
-     &,                ZMIX,UMIX,VMIX,SMZ,SMW,SFMIX,ZMIXI,UMIXI,VMIXI
-     &,                RVLAM,RVLAMP,RVLAMB, AB,RMS,RES,DCMASS
-     &,                RM,A,B,RESM,RESW, XXM, X1, BIN, RTCM
-
-C...Parameter statement to help give large particle numbers
-C...(left- and righthanded SUSY, technicolor, excited fermions,
-C...extra dimensions)
-      PARAMETER (KSUSY1=1000000,KSUSY2=2000000,KTECHN=3000000,
-     &KEXCIT=4000000,KDIMEN=5000000)
-
-C...EXTERNAL statement links PYDATA on most machines.
-      EXTERNAL PYDATA
-
-C...Commonblocks.
-C...The event record.
-      COMMON/PYJETS/N,NPAD,K(4000,5),P(4000,5),V(4000,5)
-C...Parameters.
-      COMMON/PYDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
-C...Particle properties + some flavour parameters.
-      COMMON/PYDAT2/KCHG(500,4),PMAS(500,4),PARF(2000),VCKM(4,4)
-C...Decay information.
-      COMMON/PYDAT3/MDCY(500,3),MDME(8000,2),BRAT(8000),KFDP(8000,5)
-C...Particle names
-      COMMON/PYDAT4/CHAF(500,2)
-      CHARACTER CHAF*16
-C...Random number generator information.
-      COMMON/PYDATR/MRPY(6),RRPY(100)
-C...Selection of hard scattering subprocesses.
-      COMMON/PYSUBS/MSEL,MSELPD,MSUB(500),KFIN(2,-40:40),CKIN(200)
-C...Parameters. 
-      COMMON/PYPARS/MSTP(200),PARP(200),MSTI(200),PARI(200)
-C...Internal variables.
-      COMMON/PYINT1/MINT(400),VINT(400)
-C...Process information.
-      COMMON/PYINT2/ISET(500),KFPR(500,2),COEF(500,20),ICOL(40,4,2)
-C...Parton distributions and cross sections.
-      COMMON/PYINT3/XSFX(2,-40:40),ISIG(1000,3),SIGH(1000)
-C...Resonance width and secondary decay treatment.
-      COMMON/PYINT4/MWID(500),WIDS(500,5)
-C...Generation and cross section statistics.
-      COMMON/PYINT5/NGENPD,NGEN(0:500,3),XSEC(0:500,3)
-C...Process names.
-      COMMON/PYINT6/PROC(0:500)
-      CHARACTER PROC*28
-C...Total cross sections.
-      COMMON/PYINT7/SIGT(0:6,0:6,0:5)
-C...Photon parton distributions: total and valence only.
-      COMMON/PYINT8/XPVMD(-6:6),XPANL(-6:6),XPANH(-6:6),XPBEH(-6:6), 
-     &XPDIR(-6:6) 
-      COMMON/PYINT9/VXPVMD(-6:6),VXPANL(-6:6),VXPANH(-6:6),VXPDGM(-6:6) 
-C...Supersymmetry parameters.
-      COMMON/PYMSSM/IMSS(0:99),RMSS(0:99)
-C...Supersymmetry mixing matrices.
-      COMMON/PYSSMT/ZMIX(4,4),UMIX(2,2),VMIX(2,2),SMZ(4),SMW(2),
-     &SFMIX(16,4),ZMIXI(4,4),UMIXI(2,2),VMIXI(2,2)
-C...R-parity-violating couplings in supersymmetry.
-      COMMON/PYMSRV/RVLAM(3,3,3), RVLAMP(3,3,3), RVLAMB(3,3,3)
-C...Internal parameters for R-parity-violating processes.
-      COMMON/PYRVNV/AB(2,16,2),RMS(0:3),RES(6,5),IDR,IDR2,DCMASS,KFR(3)
-      COMMON/PYRVPM/RM(0:3),A(2),B(2),RESM(2),RESW(2),MFLAG
-      LOGICAL MFLAG
-C...Parameters for Gauss integration of supersymmetric widths.
-      COMMON/PYINTS/XXM(20)
-      COMMON/PYG2DX/X1
-      COMMON/PYTCSM/ITCM(0:99),RTCM(0:99)
-C...Histogram information.
-      COMMON/PYBINS/IHIST(4),INDX(1000),BIN(20000)
-      SAVE /PYDAT1/,/PYDAT2/,/PYDAT3/,/PYDAT4/,/PYDATR/,/PYSUBS/,
-     &/PYPARS/,/PYINT1/,/PYINT2/,/PYINT3/,/PYINT4/,/PYINT5/,
-     &/PYINT6/,/PYINT7/,/PYMSSM/,/PYSSMT/,/PYMSRV/,/PYTCSM/,/PYBINS/,
-     &/PYRVNV/,/PYRVPM/
-C...HEPEVT commonblock.
-CC      PARAMETER (NMXHEP=4000)
-CC      COMMON/HEPEVT/NEVHEP,NHEP,ISTHEP(NMXHEP),IDHEP(NMXHEP),
-CC     &JMOHEP(2,NMXHEP),JDAHEP(2,NMXHEP),PHEP(5,NMXHEP),VHEP(4,NMXHEP)
-CC      DOUBLE PRECISION PHEP,VHEP
-C...User process initialization commonblock.
-      INTEGER MAXPUP
-      PARAMETER (MAXPUP=100)
-      INTEGER IDBMUP,PDFGUP,PDFSUP,IDWTUP,NPRUP,LPRUP
-      DOUBLE PRECISION EBMUP,XSECUP,XERRUP,XMAXUP
-      COMMON/HEPRUP/IDBMUP(2),EBMUP(2),PDFGUP(2),PDFSUP(2),
-     &IDWTUP,NPRUP,XSECUP(MAXPUP),XERRUP(MAXPUP),XMAXUP(MAXPUP),
-     &LPRUP(MAXPUP)
-C...User process event common block.
-      INTEGER MAXNUP
-      PARAMETER (MAXNUP=500)
-      INTEGER NUP,IDPRUP,IDUP,ISTUP,MOTHUP,ICOLUP
-      DOUBLE PRECISION XWGTUP,SCALUP,AQEDUP,AQCDUP,PUP,VTIMUP,SPINUP
-      COMMON/HEPEUP/NUP,IDPRUP,XWGTUP,SCALUP,AQEDUP,AQCDUP,IDUP(MAXNUP),
-     &ISTUP(MAXNUP),MOTHUP(2,MAXNUP),ICOLUP(2,MAXNUP),PUP(5,MAXNUP),
-     &VTIMUP(MAXNUP),SPINUP(MAXNUP)
-
-
+      IMPLICIT NONE
 c process code
       integer ihrd
       integer itopprc
 c--event file data
       integer Nunit,NunitOut,NunitIni
-      character*512 filename,tmpstr,tmpstr1
+      character*512 filename,tmpstr
 c total number of input events
       common/AHio/Nunit,NunitOut,NunitIni,filename
 c inputs for the matching algorithm
@@ -371,75 +341,74 @@ c global event cuts
       double precision ptjmin,ptjmax,etajmax,drjmin,
      +     ptbmin,ptbmax,etabmax,drbmin,
      +     ptcmin,ptcmax,etacmax,drcmin,
-     +     ptphmin,etaphmax,drphjmin,drphlmin,
+     +     ptphmin,etaphmax,drphjmin,drphmin,drphlmin,
      +     ptlmin,etalmax,drlmin,metmin,mllmin,mllmax
       common/AHcuts/ptjmin,ptjmax,etajmax,drjmin,
      +     ptbmin,ptbmax,etabmax,drbmin,
      +        ptcmin,ptcmax,etacmax,drcmin,
-     +        ptphmin,etaphmax,drphjmin,drphlmin,
+     +        ptphmin,etaphmax,drphjmin,drphmin,drphlmin,
      +        ptlmin,etalmax,drlmin,metmin,mllmin,mllmax
-
       CHARACTER *3 CSHO
-C--GUP common block
-C      INTEGER MAXPUP
-C      PARAMETER(MAXPUP=100)
-C      INTEGER IDBMUP,PDFGUP,PDFSUP,IDWTUP,NPRUP,LPRUP
-C      DOUBLE PRECISION EBMUP,XSECUP,XERRUP,XMAXUP
-C      COMMON /HEPRUP/ IDBMUP(2),EBMUP(2),PDFGUP(2),PDFSUP(2),
-C     &                IDWTUP,NPRUP,XSECUP(MAXPUP),XERRUP(MAXPUP),
-C     &                XMAXUP(MAXPUP),LPRUP(MAXPUP)
+C--   GUP Event common block
+      INTEGER MAXNUP
+      PARAMETER (MAXNUP=500)
+      INTEGER NUP,IDPRUP,IDUP,ISTUP,MOTHUP,ICOLUP
+      DOUBLE PRECISION XWGTUP,SCALUP,AQEDUP,AQCDUP,PUP,VTIMUP,SPINUP
+      COMMON/HEPEUP/NUP,IDPRUP,XWGTUP,SCALUP,AQEDUP,AQCDUP,
+     &     IDUP(MAXNUP),ISTUP(MAXNUP),MOTHUP(2,MAXNUP),
+     &     ICOLUP(2,MAXNUP),PUP(5,MAXNUP),VTIMUP(MAXNUP),
+     &     SPINUP(MAXNUP)
+C--   GUP common block
+      INTEGER MAXPUP
+      PARAMETER(MAXPUP=100)
+      INTEGER IDBMUP,PDFGUP,PDFSUP,IDWTUP,NPRUP,LPRUP
+      DOUBLE PRECISION EBMUP,XSECUP,XERRUP,XMAXUP
+      COMMON /HEPRUP/ IDBMUP(2),EBMUP(2),PDFGUP(2),PDFSUP(2),
+     &     IDWTUP,NPRUP,XSECUP(MAXPUP),XERRUP(MAXPUP),
+     &     XMAXUP(MAXPUP),LPRUP(MAXPUP)
 C     CALSIM AND JET VARIABLES                             
-*      INTEGER NCY,NCPHI,NJMAX,JETNO,NCJET
-      INTEGER NCY,NCPHI 
+      INTEGER NCY,NCPHI,NJMAX,JETNO,NCJET
       DOUBLE PRECISION YCMIN,YCMAX,PI,ET,DELPHI,CPHCAL,SPHCAL,DELY,
-     &     CTHCAL,STHCAL 
-*     &     CTHCAL,STHCAL,PCJET,ETJET
+     &     CTHCAL,STHCAL,PCJET,ETJET
       PARAMETER (NCY=100)
       PARAMETER (NCPHI=60,PI=3.141593D0)
       COMMON/CALOR/DELY,DELPHI,ET(NCY,NCPHI),
      $     CTHCAL(NCY),STHCAL(NCY),CPHCAL(NCPHI),SPHCAL(NCPHI),YCMIN
      $     ,YCMAX
-C
-C LOCAL VARIABLES
+C     
+      INTEGER IEND,INORAD
+      COMMON/SHVETO/IEND,INORAD(MAXNUP)
+c     
+C     LOCAL VARIABLES
       CHARACTER*70 STDUMMY
-      INTEGER I,NTMP
+      INTEGER I,NTMP,IHEPMIN
       DOUBLE PRECISION TMP
       DOUBLE PRECISION PBEAM1,PBEAM2
-C USER ACCESS TO MATCHING PARAMETERS
+C     USER ACCESS TO MATCHING PARAMETERS
       INTEGER IUSRMAT
       PARAMETER (IUSRMAT=1)
-      character*132                           CXpar
+      character*512                           CXpar
       integer         Ixpar 
       double precision            RXpar
       common /EXGPAR/ IXpar(100), RXpar(100), CXpar(100)
 C
-C USER ACCESS TO INPUT POARAMETERS
+C USER ACCESS TO INPUT PARAMETERS
 c      CHARACTER XXX*500, PROCESS*500
       CHARACTER PROCESS*500
       INTEGER FIREVT 
       WRITE(*,*) 'INPUT NAME OF FILE CONTAINING EVENTS'
       WRITE(*,*) '(FOR "file.unw" ENTER "file")'
-
-*      OPEN(22,FILE='INPARM.DAT',STATUS='UNKNOWN')
-
-*      READ(22,FMT='(A500)') XXX
-*      READ(22,*) FILENAME
-         FILENAME = CXpar(1) ! 'alpgen'
-*      READ(22,FMT='(A500)') XXX
-*      READ(22,FMT='(A500)') PROCESS
-         PROCESS = CXpar(2)
-      WRITE(*,*) PROCESS   
-*      READ(22,FMT='(A500)') XXX
-*      READ(22,FMT='(i10)')  FIREVT
+      FILENAME = CXpar(1) ! 'alpgen'
+      PROCESS = CXpar(2)
+      WRITE(*,*) FILENAME   
       FIREVT = IXpar(1)
       WRITE(*,*) ' FIRST EVENT TO READ ', FIREVT
       IF (FIREVT.LT.1) THEN
         WRITE(*,*)'Warning: First event parameter in MY-INPARM.DAT file'
-	WRITE(*,*)'        does not have to less than 1. So it set to 1.'
-	FIREVT=1
+        WRITE(*,*)'         cannot be less than 1. So it was set to 1.'
+        FIREVT=1
       ENDIF
       CALL STRCATH(FILENAME,'-pyt.dat',TMPSTR)
-cc      CALL STRCATH('./',TMPSTR1,TMPSTR)
       WRITE(*,*) 'NAME OF TXT FILE CONTAINING GENERATION PARAMETERS', 
      +     TMPSTR
       WRITE(*,*) '!!WARNING!!If the file already exists the program' 
@@ -447,11 +416,11 @@ cc      CALL STRCATH('./',TMPSTR1,TMPSTR)
       OPEN(33,FILE=TMPSTR,STATUS='unknown') ! NEW')
       CALL STRCATH(FILENAME,'.unw',TMPSTR)
       call GETUNIT(NUNIT)
-      OPEN(UNIT=NUNIT,NAME=TMPSTR,STATUS='OLD')
+      OPEN(UNIT=NUNIT,FILE=TMPSTR,STATUS='OLD')
       CALL STRCATH(FILENAME,'_unw.par',TMPSTR)
       CALL GETUNIT(NUNITINI)
-      OPEN(UNIT=NUNITINI,NAME=TMPSTR,STATUS='OLD')
-C OPEN A LOG FILE
+      OPEN(UNIT=NUNITINI,FILE=TMPSTR,STATUS='OLD')
+C     OPEN A LOG FILE
       CALL ALSHCD(CSHO)
 C      IF(CSHO.EQ.'HER') THEN
 C        CALL STRCATH(FILENAME,'.her-log',TMPSTR)
@@ -460,16 +429,21 @@ C        CALL STRCATH(FILENAME,'.pyt-log',TMPSTR)
 C      ENDIF
 C      CALL GETUNIT(NUNITOUT)
 C      OPEN(UNIT=NUNITOUT,NAME=TMPSTR,STATUS='UNKNOWN')
-C START READING FILE
+C     START READING FILE
       DO I=1,10000
         READ(NUNITINI,'(A)') STDUMMY
         IF(STDUMMY(1:4).EQ.'****') GOTO 10
         WRITE(*,*) STDUMMY
         WRITE(33,*) STDUMMY
       ENDDO
-C
-C READ IN INPUT PARAMETERS
+C     
+C     READ IN INPUT PARAMETERS
  10   READ(NUNITINI,*) IHRD
+C     
+c     IF(IHRD.EQ.12) THEN
+c     WRITE(*,*) 'HJET PROCESSES NOT AVAILABLE AS YET'
+c     STOP
+c     ENDIF
       READ(NUNITINI,*) MC,MB,MT,MW,MZ,MH
       DO I=1,1000
         READ(NUNITINI,*,ERR=20) NTMP,TMP
@@ -482,71 +456,200 @@ C READ IN INPUT PARAMETERS
       WRITE(33,*) "INPUT CROSS SECTION (PB):",AVGWGT," +/-",ERRWGT
       WRITE(33,*) "NUMBER OF INPUT EVENTS:",UNWEV
       WRITE(33,*) "INTEGRATED LUMINOSITY:",TOTLUM
-C WRITE PARAMETER VALUES
+C     WRITE PARAMETER VALUES
       CALL AHSPAR
       PBEAM1=DBLE(EBEAM)
       PBEAM2=DBLE(EBEAM)
       IH1=1
-C CONVERT PDF TYPES
+C     CONVERT PDF TYPES
       CALL PDFCONVH(NDNS,NTMP,PDFTYP)
-C INPUT JET MATCHING CRITERIA
-      YCMAX=ETAJMAX+2*DRJMIN
-      YCMIN=-YCMAX
-      IF(ICKKW.EQ.1) THEN
-        ETACLMAX=ETAJMAX+DRJMIN/2D0
-        IF(IUSRMAT.EQ.1) THEN
-          WRITE(*,*) ' '
-          WRITE(*,*) 'INPUT ET(CLUS), R(CLUS)'
-          WRITE(*,*) '(OPTIMAL VALUES:',PTJMIN,DRJMIN,')'
-*          READ(22,FMT='(A500)') XXX
-*          READ(22,*) ETCLUS,RCLUS
-            ETCLUS = RXpar(1)
-            RCLUS  = RXpar(2)
-          WRITE(*,*) ETCLUS,RCLUS
-          WRITE(33,*) 'INPUT PARAMETERS FOR MATCHING: ETCLUS',ETCLUS,
-     +         ' RCLUS',RCLUS 
-        ELSEIF(IUSRMAT.EQ.0) THEN
-          ETCLUS=PTJMIN
-          RCLUS=DRJMIN
-        ELSE
-          WRITE(*,*) 'IUSRMAT=0 OR 1 ONLY VALID PARAMETERS'
-          WRITE(*,*) 'FOR SETTING OF MATCHING PARAMETERS'
-          STOP
+C     DEFINE RANGE FOR PARTONS TO BE USED IN MATCHING
+      NLJETS=PARVAL(10)     !  NJETS
+      DO I=1,MAXNUP
+        INORAD(I)=0
+      ENDDO
+      CALL ALSHCD(CSHO)
+      IF(CSHO.EQ.'HER') THEN
+        NPFST=149
+        NPLST=149
+C     HERWIG: ALL SHOWERS ORIGINATE FROM IHEP=6
+        IEND=6
+C     HERWIG: HEPEVT EVENT RECORD FOR FINAL STATE STARTS AT 7=6+1
+        IHEPMIN=6
+      ELSE
+        NPFST=1
+        NPLST=1
+C     PYTHIA: ALL SHOWERS ORIGINATE FROM IHEP=O
+        IEND=0
+C     PYTHIA: HEPEVT EVENT RECORD FOR FINAL STATE STARTS AT 1=0+1
+        IHEPMIN=0
+        IDPRUP=661
+      ENDIF
+      IF(IHRD.LE.2) THEN
+C        NLJETS=NPART-6
+        NJSTART=4
+        NJLAST=155
+C     DO NOT INCLUDE IN MATCHING RADIATION ORIGINATING FROM THE W
+        INORAD(IHEPMIN+2+NLJETS+1)=1
+C     DO NOT INCLUDE IN MATCHING RADIATION ORIGINATING FROM HEAVY QUARK
+C     PAIR
+        INORAD(IHEPMIN+1)=1
+        INORAD(IHEPMIN+2)=1
+      ELSEIF(IHRD.LE.4) THEN
+C        NLJETS=NPART-4
+        NJSTART=2
+        NJLAST=155
+C     DO NOT INCLUDE IN MATCHING RADIATION ORIGINATING FROM THE W
+        IF(CSHO.EQ.'HER'.AND.NLJETS.EQ.0) THEN
+C     ALLOW RADIATION FROM IHEPMIN+1 IN HERWIG WHEN NJET=0
+          INORAD(IHEPMIN+NLJETS+1)=0
+        ELSE 
+          INORAD(IHEPMIN+NLJETS+1)=1
         ENDIF
-        WRITE(*,*) ' '
-        WRITE(*,*) 'JET PARAMETERS FOR MATCHING:'
-        WRITE(*,*) 'ET>',ETCLUS,' R=',RCLUS
-        WRITE(*,*) 'DR(PARTON-JET)<',1.5*RCLUS
+      ELSEIF(IHRD.EQ.5) THEN
+C        NLJETS=NPART-3*(NW+NZ)-NH-2
+        NJSTART=2
+        NJLAST=155
+C     DO NOT INCLUDE IN MATCHING RADIATION ORIGINATING FROM THE W
+        IF(CSHO.EQ.'HER'.AND.NLJETS.EQ.0.AND.(NW+NZ+NH+NPH).EQ.1) THEN
+C     ALLOW RADIATION FROM IHEPMIN+1 IN HERWIG WHEN NJET=0 AND NW+NZ+NH
+C     +NPH=1
+          INORAD(IHEPMIN+NLJETS+1)=0
+        ELSE 
+          DO I=1,NW+NZ+NH+NPH
+            INORAD(IHEPMIN+NLJETS+I)=1
+          ENDDO
+        ENDIF
+      ELSEIF(IHRD.EQ.6) THEN
+C     DO NOT INCLUDE IN MATCHING RADIATION ORIGINATING FROM HEAVY QUARK
+C     PAIR
+C     NLJETS=NPART-8  (IHVY.EQ.6)     NLJETS=NPART-4  (IHVY.LT.6)
+        INORAD(IHEPMIN+1)=1
+        INORAD(IHEPMIN+2)=1
+        NJSTART=4
+        NJLAST=155
+      ELSEIF(IHRD.EQ.9) THEN
+C     NLJETS=NPART-2
+        NJSTART=2
+        NJLAST=155
+      ELSEIF(IHRD.EQ.10) THEN
+C        NLJETS=NPART-4
+        NJSTART=3
+        NJLAST=155
+C     DO NOT INCLUDE IN MATCHING RADIATION ORIGINATING FROM THE W
+        INORAD(IHEPMIN+NLJETS+1+1)=1
+C     DO NOT INCLUDE IN MATCHING RADIATION ORIGINATING FROM THE CHARM
+        INORAD(IHEPMIN+1)=1
+      ELSEIF(IHRD.EQ.11) THEN
+C        NLJETS=NPART-2-NPH
+        NJSTART=2
+        NJLAST=155
+C     DO NOT INCLUDE IN MATCHING THE HARD PHOTONS
+        DO I=1,NPH
+          INORAD(IHEPMIN+NLJETS+I)=1
+        ENDDO
+      ELSEIF(IHRD.EQ.12) THEN
+C        NLJETS=NPART-2-NH
+        NJSTART=2
+        NJLAST=155
+C     DO NOT INCLUDE IN MATCHING THE HIGGS DECAY PRODUCTS
+        IF(NLJETS+NH.GT.1) THEN
+          DO I=1,NH
+            INORAD(IHEPMIN+NLJETS+I)=1
+          ENDDO
+        ELSE
+          IF(CSHO.EQ.'HER'.AND.NLJETS.EQ.0) THEN
+C     ALLOW RADIATION FROM IHEPMIN+1 IN HERWIG WHEN NJET=0
+            INORAD(IHEPMIN+1)=0
+          ELSE 
+            INORAD(IHEPMIN+NLJETS+1)=1
+          ENDIF
+        ENDIF
+      ELSEIF(IHRD.EQ.14) THEN
+C        NLJETS=NPART-4-NPH
+        NJSTART=2
+        NJLAST=155
+C     DO NOT INCLUDE IN MATCHING RADIATION ORIGINATING FROM THE W
+        IF(CSHO.EQ.'HER'.AND.NLJETS.EQ.0.AND.NPH.EQ.0) THEN
+C     ALLOW RADIATION FROM IHEPMIN+1 IN HERWIG WHEN NJET=0
+          INORAD(IHEPMIN+NLJETS+1)=0
+        ELSE 
+          INORAD(IHEPMIN+NLJETS+1)=1
+        ENDIF
+      ELSEIF(IHRD.EQ.15) THEN
+C        NLJETS=NPART-6-NPH
+        NJSTART=2
+        NJLAST=155
+C     DO NOT INCLUDE IN MATCHING RADIATION ORIGINATING FROM THE W
+        INORAD(IHEPMIN+2+NLJETS+NPH+1)=1
+C     DO NOT INCLUDE IN MATCHING RADIATION ORIGINATING FROM HEAVY QUARK
+C     PAIR
+C     NOTICE THAT HERE THE LIGHT JETS PRECEDE THE QQ PAIR
+        INORAD(IHEPMIN+NLJETS+1)=1
+        INORAD(IHEPMIN+NLJETS+2)=1
+      ENDIF
+C
+C     INPUT JET MATCHING CRITERIA
+C
+      IF(ICKKW.EQ.1) THEN
         WRITE(*,*) ' '
         WRITE(*,*) 'INPUT 0 FOR INCLUSIVE JET SAMPLE, 1 FOR EXCLUSIVE'
         WRITE(*,*) '(SELECT 0 FOR HIGHEST PARTON MULTIPLICITY SAMPLE)' 
         WRITE(*,*) '(SELECT 1 OTHERWISE)'
-*        READ(22,FMT='(A500)') XXX
-*        READ(22,*) IEXC
-         IEXC = IXpar(2)
-        WRITE(*,*) ' IEXC',IEXC
+C       READ(*,*) IEXC
+	IEXC = IXpar(2)
+        WRITE(*,*) ' IEXC = ',IEXC
+        IF(NLJETS.GT.0) THEN
+          WRITE(*,*) 'INPUT ET(CLUS), R(CLUS)'
+          ETCLUS=MAX(PTJMIN+5,1.2*PTJMIN)
+          RCLUS=DRJMIN
+          WRITE(*,*) '(SUGGESTED VALUES:',ETCLUS,RCLUS,')'
+C         READ(*,*) ETCLUS,RCLUS,ETACLMAX
+          ETCLUS = RXpar(1)
+          RCLUS  = RXpar(2)
+          ETACLMAX = ETAJMAX
+        ELSEIF(NLJETS.EQ.0) THEN
+          WRITE(*,*) 'INPUT ET(CLUS), R(CLUS)'
+          WRITE(*,*) '(MUST MATCH VALUES USED IN PROCESSING',
+     +         ' OF NJET>0 EVENTS; THESE DEFAULT TO:'
+          WRITE(*,*)
+     +         'ETCLUS=MAX(PTJMIN+5,1.2*PTJMIN) RCLUS=DRJMIN, ',
+     +         ' ETACLMAX=ETAJMAX)'
+C         READ(*,*) ETCLUS,RCLUS,ETACLMAX
+          ETCLUS = RXpar(1)
+          RCLUS  = RXpar(2)
+          ETACLMAX = ETAJMAX
+        ENDIF
+        WRITE(*,*) ' '
+        WRITE(*,*) 'JET PARAMETERS FOR MATCHING:'
+        WRITE(*,*) 'ET >',ETCLUS,' ETACLUS <',ETACLMAX,' R =',RCLUS
+        WRITE(*,*) 'DR(PARTON-JET) <',1.5*RCLUS
       ENDIF
-C
+C     
+C     CALORIMETER ETA RANGE
+C     YCMAX=ETAJMAX+DRJMIN    
+      YCMAX=ETACLMAX+RCLUS      ! MLM August 24
+      YCMIN=-YCMAX
 C     FROM NOW ON, PROCESS THE INFORMATION READ IN, TO COMPLETE SETTING
 C     UP THE GUP COMMON
-C
-C--SET UP THE BEAMS
-C--ID'S OF BEAM PARTICLES
+C     
+C--   SET UP THE BEAMS
+C--   ID'S OF BEAM PARTICLES
       IF(IH1.EQ.1) THEN
-         IDBMUP(1) = 2212
+        IDBMUP(1) = 2212
       ELSEIF(IH1.EQ.-1) THEN
-         IDBMUP(1) =-2212
+        IDBMUP(1) =-2212
       ELSE
-         WRITE(*,*) 'BEAM 1 NOT PROPERLY INITIALISED, STOP'
-         STOP
+        WRITE(*,*) 'BEAM 1 NOT PROPERLY INITIALISED, STOP'
+        STOP
       ENDIF
       IF(IH2.EQ.1) THEN
-         IDBMUP(2) = 2212
+        IDBMUP(2) = 2212
       ELSEIF(IH2.EQ.-1) THEN
-         IDBMUP(2) =-2212
+        IDBMUP(2) =-2212
       ELSE
-         WRITE(*,*) 'BEAM 2 NOT PROPERLY INITIALISED, STOP'
-         STOP
+        WRITE(*,*) 'BEAM 2 NOT PROPERLY INITIALISED, STOP'
+        STOP
       ENDIF
       EBMUP(1) = ABS(PBEAM1)
       EBMUP(2) = ABS(PBEAM2)
@@ -556,129 +659,23 @@ C     READ IN EARLIER
       PDFGUP(2) = -1
       PDFSUP(1) = -1
       PDFSUP(2) = -1
-C--WHAT DO DO WITH THE WEIGHTS(WE ARE GENERATING UNWEIGHTED EVENTS)
+C--   WHAT DO DO WITH THE WEIGHTS(WE ARE GENERATING UNWEIGHTED EVENTS)
       IDWTUP = 3
-C--ONLY ONE PROCESS
+C--   ONLY ONE PROCESS
       NPRUP  = 1
-C--CROSS SECTION
+C--   CROSS SECTION
       XSECUP(1) = avgwgt
-C--ERROR ON THE CROSS SECTION
+C--   ERROR ON THE CROSS SECTION
       XERRUP(1) = errwgt
-C--MAXIMUM WEIGHT
+C--   MAXIMUM WEIGHT
       XMAXUP(1) = avgwgt
-C--HERWIG/PYTHIA SPECIFIC PART
+C--   HERWIG/PYTHIA SPECIFIC PART
       CALL ALSHIN(I)
       LPRUP(1) = I
       END
 
-C-----------------------------------------------------------------------
-      subroutine getunit(n)
-      implicit none
-      integer n,i
-      logical yes
-      do i=10,100
-        inquire(unit=i,opened=yes)
-        if(.not.yes) goto 10
-      enddo
-      write(*,*) 'no free units to write to available, stop'
-      stop
- 10   n=i
-      end
-
-c-------------------------------------------------------------------
-      subroutine AHspar
-c     set list of parameters types and assign default values
-c-------------------------------------------------------------------
-      implicit none
-c process code
-      integer ihrd
-      integer itopprc
-c--event file data
-      integer Nunit,NunitOut,NunitIni
-      character*512 filename 
-*      character*100 filename,tmpstr,tmpstr1
-c total number of input events
-      common/AHio/Nunit,NunitOut,NunitIni,filename
-c inputs for the matching algorithm
-      integer iexc,npfst,nplst,nljets,njstart,njlast
-     $     ,ickkw
-      double precision etclus,rclus,etaclmax
-      common/AHopts/etclus,rclus,etaclmax,iexc,npfst
-     $     ,nplst,nljets,njstart,njlast,ickkw
-c process and particles parameters
-      double precision mc,mb,mt,mw,mz,mh
-      double precision ebeam
-      integer ndns,ih1,ih2       
-      integer nw,nz,nh,nph
-      integer ihvy,ihvy2
-c pdf set type
-      character pdftyp*25
-c total number of partons
-      integer npart
-      common/AHppara/mc,mb,mt,mw,mz,mh,
-     & ebeam,ih1,ih2,
-     & ihrd,itopprc,
-     & nw,nz,nh,nph,
-     & ihvy,ihvy2,
-     & npart,ndns,pdftyp
-c weight information
-      real *8 maxwgt,avgwgt,errwgt,totlum
-      integer unwev
-      common/AHwgts/maxwgt,avgwgt,errwgt,totlum,unwev
-c general parameters
-      integer nparam
-      parameter (nparam=200)
-      integer parlen,partyp
-      character chpar*8,chpdes*70
-      double precision parval
-      common/AHpars/parval(nparam),chpar(nparam),chpdes(nparam)
-     $     ,parlen(nparam),partyp(nparam)
-c global event cuts
-      double precision ptjmin,ptjmax,etajmax,drjmin,
-     +     ptbmin,ptbmax,etabmax,drbmin,
-     +     ptcmin,ptcmax,etacmax,drcmin,
-     +     ptphmin,etaphmax,drphjmin,drphlmin,
-     +     ptlmin,etalmax,drlmin,metmin,mllmin,mllmax
-      common/AHcuts/ptjmin,ptjmax,etajmax,drjmin,
-     +     ptbmin,ptbmax,etabmax,drbmin,
-     +        ptcmin,ptcmax,etacmax,drcmin,
-     +        ptphmin,etaphmax,drphjmin,drphlmin,
-     +        ptlmin,etalmax,drlmin,metmin,mllmin,mllmax
-
-***
-c
-      ih2=parval(2)
-      ebeam=parval(3)
-      ndns=parval(4)
-      ickkw=parval(7)
-      ihvy=parval(11)
-      ihvy2=parval(12)
-      nw=parval(13)
-      nz=parval(14)
-      nh=parval(15)
-      nph=parval(16)
-      ptjmin=parval(30)
-      ptbmin=parval(31)
-      ptcmin=parval(32)
-      ptlmin=parval(33)
-      metmin=parval(34)
-      ptphmin=parval(35)
-      etajmax=parval(40)
-      etabmax=parval(41)
-      etacmax=parval(42)
-      etalmax=parval(43)
-      etaphmax=parval(44)
-      drjmin=parval(50)
-      drbmin=parval(51)
-      drcmin=parval(52)
-      drlmin=parval(55)
-      drphjmin=parval(56)
-      drphlmin=parval(57)
-      mllmin=parval(61)
-      mllmax=parval(62)
-      itopprc=parval(102)
-c
-      end
+C     DECK  ID>, UPEVNT.
+*     CMZ :-        -13/02/02  07.20.46  by  Peter Richardson
 *--   Author :    Michelangelo Mangano
 C----------------------------------------------------------------------
       SUBROUTINE UPEVNT
@@ -691,8 +688,7 @@ c process code
       integer itopprc
 c--event file data
       integer Nunit,NunitOut,NunitIni
-      character*512 filename 
-c      character*100 filename,tmpstr,tmpstr1
+      character*512 filename,tmpstr
 c total number of input events
       common/AHio/Nunit,NunitOut,NunitIni,filename
 c inputs for the matching algorithm
@@ -733,15 +729,13 @@ c global event cuts
       double precision ptjmin,ptjmax,etajmax,drjmin,
      +     ptbmin,ptbmax,etabmax,drbmin,
      +     ptcmin,ptcmax,etacmax,drcmin,
-     +     ptphmin,etaphmax,drphjmin,drphlmin,
+     +     ptphmin,etaphmax,drphjmin,drphmin,drphlmin,
      +     ptlmin,etalmax,drlmin,metmin,mllmin,mllmax
       common/AHcuts/ptjmin,ptjmax,etajmax,drjmin,
      +     ptbmin,ptbmax,etabmax,drbmin,
      +        ptcmin,ptcmax,etacmax,drcmin,
-     +        ptphmin,etaphmax,drphjmin,drphlmin,
+     +        ptphmin,etaphmax,drphjmin,drphmin,drphlmin,
      +        ptlmin,etalmax,drlmin,metmin,mllmin,mllmax
-
-
 C--   GUP Event common block
       INTEGER MAXNUP
       PARAMETER (MAXNUP=500)
@@ -760,9 +754,6 @@ C--   GUP Run common block
      &     IDWTUP,NPRUP,XSECUP(MAXPUP),XERRUP(MAXPUP),
      &     XMAXUP(MAXPUP),LPRUP(MAXPUP)
 c     
-      INTEGER IEND,INORAD
-      COMMON/SHVETO/IEND,INORAD(MAXNUP)
-c     
 c     local variables
       INTEGER INIT
       DATA INIT/0/
@@ -771,12 +762,12 @@ c     local variables
       PARAMETER (MAXPAR=100)
       INTEGER NEV,IPROC,IFL(MAXPAR)
       REAL SQ,SP(3,MAXPAR),SM(MAXPAR),SWGTRES
-      INTEGER I,IUP,IWCH,IST,IHEPMIN
-      REAL *8 TMP   ! ,WGTRES
+      INTEGER I,IUP,IWCH,IST
+      REAL *8 TMP,WGTRES
 C     LOCAL VARIABLES FOR TOP DECAYS
       INTEGER IT,ITB,IW,IWDEC,IBUP,IWUP
 C     LOCAL VARIABLES TOP HIGGS DECAYS
-C      INTEGER IH
+      INTEGER IH
 C     LOCAL VARIABLES FOR GAUGE BOSON  DECAYS
       INTEGER IVSTART,IVEND,NVB
 C     
@@ -808,92 +799,6 @@ C     SCALES AND WEIGHTS
       ELSE
         WRITE(*,*) 'ONLY UNWEIGHTED EVENTS ACCEPTED AS INPUT, STOP'
         STOP
-      ENDIF
-C DEFINE RANGE FOR PARTONS TO BE USED IN MATCHING
-      IF(INIT.EQ.0) THEN
-        INIT=1
-        DO I=1,MAXNUP
-          INORAD(I)=0
-        ENDDO
-        CALL ALSHCD(CSHO)
-        IF(CSHO.EQ.'HER') THEN
-          NPFST=149
-          NPLST=149
-C HERWIG: ALL SHOWERS ORIGINATE FROM IHEP=6
-          IEND=6
-C HERWIG: HEPEVT EVENT RECORD FOR FINAL STATE STARTS AT 7=6+1
-          IHEPMIN=6
-        ELSE
-          NPFST=1
-          NPLST=1
-C PYTHIA: ALL SHOWERS ORIGINATE FROM IHEP=O
-          IEND=0
-C PYTHIA: HEPEVT EVENT RECORD FOR FINAL STATE STARTS AT 7=6+1
-          IHEPMIN=6
-          IDPRUP=661
-        ENDIF
-        IF(IHRD.LE.2) THEN
-          NLJETS=NPART-6
-          NJSTART=4
-          NJLAST=155
-C DO NOT INCLUDE IN MATCHING RADIATION ORIGINATING FROM THE W
-          INORAD(IHEPMIN+2+NLJETS+1)=1
-C DO NOT INCLUDE IN MATCHING RADIATION ORIGINATING FROM HEAVY QUARK PAIR
-          INORAD(IHEPMIN+1)=1
-          INORAD(IHEPMIN+2)=1
-        ELSEIF(IHRD.LE.4) THEN
-          NLJETS=NPART-4
-          NJSTART=2
-          NJLAST=155
-C DO NOT INCLUDE IN MATCHING RADIATION ORIGINATING FROM THE W
-          INORAD(IHEPMIN+NLJETS+1)=1
-        ELSEIF(IHRD.EQ.5) THEN
-          NLJETS=NPART-3*(NW+NZ)-NH-2
-          NJSTART=2
-          NJLAST=155
-C DO NOT INCLUDE IN MATCHING RADIATION ORIGINATING FROM THE GAUGE BOSONS
-          DO I=1,NW+NZ+NH
-            INORAD(IHEPMIN+NLJETS+I)=1
-          ENDDO
-        ELSEIF(IHRD.EQ.6) THEN
-C DO NOT INCLUDE IN MATCHING RADIATION ORIGINATING FROM HEAVY QUARK PAIR
-          INORAD(IHEPMIN+1)=1
-          INORAD(IHEPMIN+2)=1
-          if(ihvy.eq.6) then
-            NLJETS=NPART-8
-            NJSTART=4
-          elseif(ihvy.eq.5) then
-            NLJETS=NPART-4
-            NJSTART=4
-          endif
-          NJLAST=155
-        ELSEIF(IHRD.EQ.9) THEN
-          NLJETS=NPART-2
-          NJSTART=2
-          NJLAST=155
-        ELSEIF(IHRD.EQ.10) THEN
-          NLJETS=NPART-4
-          NJSTART=2
-          NJLAST=155
-C DO NOT INCLUDE IN MATCHING RADIATION ORIGINATING FROM THE W
-          INORAD(IHEPMIN+NLJETS+1)=1
-        ELSEIF(IHRD.EQ.11) THEN
-          NLJETS=NPART-2-NPH
-          NJSTART=2
-          NJLAST=155
-C DO NOT INCLUDE IN MATCHING THE HARD PHOTONS
-          DO I=1,NPH
-            INORAD(IHEPMIN+NLJETS+I)=1
-          ENDDO
-        ELSEIF(IHRD.EQ.12) THEN
-          NLJETS=NPART-2-NH
-          NJSTART=2
-          NJLAST=155
-C DO NOT INCLUDE IN MATCHING THE HIGGS DECAY PRODUCTS
-          DO I=1,NH
-            INORAD(IHEPMIN+NLJETS+I)=1
-          ENDDO
-        ENDIF
       ENDIF
 c     
 c---  incoming lines
@@ -936,14 +841,17 @@ c     and now consider assignements specific to individual hard
 C     processes
 c     
 c---  W/Z/gamma b bbar + jets, or W/Z + jets
-      if (ihrd.le.4.or.ihrd.eq.10) then
+      if (ihrd.le.4.or.ihrd.eq.10.OR.IHRD.EQ.14.OR.IHRD.EQ.15) then
         iwch=0
         do iup=nup-1,nup
           mothup(1,iup)=nup+1
           mothup(2,iup)=0
-          if(ihrd.ne.2) iwch=iwch+idup(iup)
-c     electron+nubar -> 11 + (-12) = -1 => W-
-c     positron+nu    -> -11+ 12    =  1 => W+
+          if(ihrd.ne.2) iwch=iwch-mod(idup(iup),2)
+c     electron+nubar -> 11 + (-12) => -(1)+0 = -1  => W-
+c     positron+nu    -> -11+ 12    => -(-1)+0 = -1 => W+
+c     u dbar -> 2 -1  => 0 -(-1) = 1 => W+
+c     c dbar -> 4 -1  => W+
+c etc.
         enddo
         iup=nup+1
         If (iwch.gt.0) then
@@ -1257,6 +1165,102 @@ C     RESET CROSS-SECTION INFORMATION FOR END OF RUN AND FINALIZE
       close(Nunit)
       close(NunitOut)
       END
+
+c-------------------------------------------------------------------
+      subroutine AHspar
+c     set list of parameters types and assign default values
+c-------------------------------------------------------------------
+      implicit none
+c process code
+      integer ihrd
+      integer itopprc
+c--event file data
+      integer Nunit,NunitOut,NunitIni
+      character*512 filename,tmpstr
+c total number of input events
+      common/AHio/Nunit,NunitOut,NunitIni,filename
+c inputs for the matching algorithm
+      integer iexc,npfst,nplst,nljets,njstart,njlast
+     $     ,ickkw
+      double precision etclus,rclus,etaclmax
+      common/AHopts/etclus,rclus,etaclmax,iexc,npfst
+     $     ,nplst,nljets,njstart,njlast,ickkw
+c process and particles parameters
+      double precision mc,mb,mt,mw,mz,mh
+      double precision ebeam
+      integer ndns,ih1,ih2       
+      integer nw,nz,nh,nph
+      integer ihvy,ihvy2
+c pdf set type
+      character pdftyp*25
+c total number of partons
+      integer npart
+      common/AHppara/mc,mb,mt,mw,mz,mh,
+     & ebeam,ih1,ih2,
+     & ihrd,itopprc,
+     & nw,nz,nh,nph,
+     & ihvy,ihvy2,
+     & npart,ndns,pdftyp
+c weight information
+      real *8 maxwgt,avgwgt,errwgt,totlum
+      integer unwev
+      common/AHwgts/maxwgt,avgwgt,errwgt,totlum,unwev
+c general parameters
+      integer nparam
+      parameter (nparam=200)
+      integer parlen,partyp
+      character chpar*8,chpdes*70
+      double precision parval
+      common/AHpars/parval(nparam),chpar(nparam),chpdes(nparam)
+     $     ,parlen(nparam),partyp(nparam)
+c global event cuts
+      double precision ptjmin,ptjmax,etajmax,drjmin,
+     +     ptbmin,ptbmax,etabmax,drbmin,
+     +     ptcmin,ptcmax,etacmax,drcmin,
+     +     ptphmin,etaphmax,drphjmin,drphmin,drphlmin,
+     +     ptlmin,etalmax,drlmin,metmin,mllmin,mllmax
+      common/AHcuts/ptjmin,ptjmax,etajmax,drjmin,
+     +     ptbmin,ptbmax,etabmax,drbmin,
+     +        ptcmin,ptcmax,etacmax,drcmin,
+     +        ptphmin,etaphmax,drphjmin,drphmin,drphlmin,
+     +        ptlmin,etalmax,drlmin,metmin,mllmin,mllmax
+c
+      ih2=parval(2)
+      ebeam=parval(3)
+      ndns=parval(4)
+      ickkw=parval(7)
+      ihvy=parval(11)
+      ihvy2=parval(12)
+      nw=parval(13)
+      nz=parval(14)
+      nh=parval(15)
+      nph=parval(16)
+      ptjmin=parval(30)
+      ptbmin=parval(31)
+      ptcmin=parval(32)
+      ptlmin=parval(33)
+      metmin=parval(34)
+      ptphmin=parval(35)
+      etajmax=parval(40)
+      etabmax=parval(41)
+      etacmax=parval(42)
+      etalmax=parval(43)
+      etaphmax=parval(44)
+      drjmin=parval(50)
+      drbmin=parval(51)
+      drcmin=parval(52)
+      drlmin=parval(55)
+      drphjmin=parval(56)
+      drphlmin=parval(57)
+      drphmin=parval(58)
+      mllmin=parval(61)
+      mllmax=parval(62)
+      itopprc=parval(102)
+c
+      end
+
+CDECK  ID>, STRNUM.
+*CMZ :-        -13/02/02  07.20.46  by  Peter Richardson
 *-- Author :    Michelangelo Mangano
 C----------------------------------------------------------------------
       subroutine strnumH(string,num)
@@ -1291,6 +1295,8 @@ c returns the position of the last non-blank character in string
       enddo
       istrlH= i
       end
+CDECK  ID>, STRCATH.
+*CMZ :-        -13/02/02  07.20.46  by  Peter Richardson
 *-- Author :    Michelangelo Mangano
 C----------------------------------------------------------------------
       subroutine strcatH(str1,str2,str)
@@ -1307,7 +1313,6 @@ C----------------------------------------------------------------------
           write(*,*) 'l1=',l1,' str1=',str1
           write(*,*) 'l2=',l2,' str2=',str2
           write(*,*) 'l=',l
-	  write(*,*) 'Maximum length of string is 512 characters!'
           stop
       endif
       if(l1.ne.0) str(1:l1)=str1(1:l1)
@@ -1340,6 +1345,7 @@ c
       type=pdftyp(mod(nin ,100),1+nin /100)
       
       end
+
 C-----------------------------------------------------------------------
 C----Calorimeter simulation obtained from Frank Paige 23 March 1988-----
 C
@@ -1561,12 +1567,14 @@ C
       NCJET=NCJET-1
       GOTO 1
       END
-
 C-----------------------------------------------------------------------
       SUBROUTINE CALDEL(ISTLO,ISTHI,ISTOP)
 C     LABEL ALL PARTICLES WITH STATUS BETWEEN ISTLO AND ISTHI (UNTIL A
 C     PARTICLE WITH STATUS ISTOP IS FOUND) AS FINAL-STATE, CALL CALSIM
 C     AND THEN PUT LABELS BACK TO NORMAL
+C
+C     THIS VERSION LEAVES OUT PARTICLES THAT POINT BACK TO MOTHERS TO BE
+C     LEFT OUT OF MATCHING
 C-----------------------------------------------------------------------
       IMPLICIT NONE
       INTEGER MAXNUP
@@ -1580,8 +1588,9 @@ C...HEPEVT commonblock.
      &JMOHEP(2,NMXHEP),JDAHEP(2,NMXHEP),PHEP(5,NMXHEP),VHEP(4,NMXHEP)
       DOUBLE PRECISION PHEP,VHEP
       SAVE /HEPEVT/
-      INTEGER ISTOLD(NMXHEP),IHEP,IST,ISTLO,ISTHI,ISTOP,IMO 
+      INTEGER ISTOLD(NMXHEP),IHEP,IST,ISTLO,ISTHI,ISTOP,IMO
       LOGICAL FOUND
+c      write(3,*) 'new event',nevhep
       FOUND=.FALSE.
       DO 10 IHEP=1,NHEP
         IST=ISTHEP(IHEP)
@@ -1594,7 +1603,7 @@ C     FOUND A RADIATED PARTON, CHECK MOTHER
           IF(IMO.EQ.IEND) THEN
 C     PARENTHOOD OK
             IST=1
-c            write(2,*) ihep,ist
+c            write(3,*) ihep,ist
             GOTO 9
           ENDIF
           IF(INORAD(IMO).EQ.1) THEN
@@ -1615,7 +1624,87 @@ C     CHECK GRANDMOTHER
         ISTHEP(IHEP)=ISTOLD(IHEP)
  20   CONTINUE
       END
-
+C-----------------------------------------------------------------------
+      SUBROUTINE CALDEL_HVQ(ISTLO,ISTHI,ISTOP)
+C     LABEL ALL PARTICLES WITH STATUS BETWEEN ISTLO AND ISTHI (UNTIL A
+C     PARTICLE WITH STATUS ISTOP IS FOUND) AS FINAL-STATE, CALL CALSIM
+C     AND THEN PUT LABELS BACK TO NORMAL
+C
+C     THIS VERSION KEEPS ONLY ALL IST=1 PARTICLES REJECTED BY CALDEL AS
+C     DAUGHTERS OF VETOED HEAVY-QUARK MOTHERS: JETS COMPLEMENTARY TO
+C     THOSE RECONSTRUCTED BY CALDEL
+C-----------------------------------------------------------------------
+      IMPLICIT NONE
+      INTEGER MAXNUP
+      PARAMETER(MAXNUP=500)
+      INTEGER IEND,INORAD
+      COMMON/SHVETO/IEND,INORAD(MAXNUP)
+C...HEPEVT commonblock.
+      INTEGER NMXHEP,NEVHEP,NHEP,ISTHEP,IDHEP,JMOHEP,JDAHEP
+      PARAMETER (NMXHEP=4000)
+      COMMON/HEPEVT/NEVHEP,NHEP,ISTHEP(NMXHEP),IDHEP(NMXHEP),
+     &JMOHEP(2,NMXHEP),JDAHEP(2,NMXHEP),PHEP(5,NMXHEP),VHEP(4,NMXHEP)
+      DOUBLE PRECISION PHEP,VHEP
+      SAVE /HEPEVT/
+      INTEGER ISTOLD(NMXHEP),IHEP,IST,ISTLO,ISTHI,ISTOP,IMO
+      INTEGER IDMOTH,IDDAUG
+      LOGICAL FOUND
+      FOUND=.FALSE.
+C TAG W-B FROM TOP DECAYS
+      DO IHEP=1,NHEP
+        IMO=JMOHEP(1,IHEP)
+        IDMOTH=ABS(IDHEP(IMO))
+        IDDAUG=ABS(IDHEP(IHEP))
+        IF(IDMOTH.EQ.6.AND.(IDDAUG.EQ.5.OR.IDDAUG.EQ.24)) INORAD(IHEP)=2
+      ENDDO
+C
+      DO 10 IHEP=1,NHEP
+        IST=ISTHEP(IHEP)
+        ISTOLD(IHEP)=IST
+        IF (IST.EQ.ISTOP) FOUND=.TRUE.
+        IF (IST.GE.ISTLO.AND.IST.LE.ISTHI.AND..NOT.FOUND) THEN
+C     FOUND A RADIATED PARTON, CHECK MOTHER
+          IMO=IHEP
+ 1        IMO=JMOHEP(1,IMO)
+          IF(IMO.EQ.IEND) THEN
+C     PARENTHOOD OK, VETO
+            IST=0
+            GOTO 9
+          ENDIF
+          IF(INORAD(IMO).EQ.1) THEN
+            IDMOTH=ABS(IDHEP(IMO))
+            IDDAUG=ABS(IDHEP(IHEP))
+C     VERIFY IT'S A HEAVY QUARK -- LEAVE OUT GAUGE BOSON DECAYS
+            IF(IDMOTH.GE.4.AND.IDMOTH.LE.6) THEN
+C     PARTON COMES FROM A VETOED MOTHER, KEEP UNLESS IT IS THE EVOLVED
+C     MOTHER
+              IF(IDMOTH.NE.IDDAUG) THEN
+                IST=1
+                GOTO 9
+              ELSE
+                IST=0
+              ENDIF
+            ELSE
+C     NOT A HEAVY QUARK MOTHER, LEAVE OUT OF JET RECONSUTRCTION
+              IST=0
+            ENDIF
+          ELSEIF(INORAD(IMO).EQ.2) THEN
+C     IT'S A TOP DECAY PRODUCT
+            IST=0
+          ELSE
+C     GO CHECK GRANDMOTHER
+            GOTO 1
+          ENDIF
+        ELSE
+          IST=0
+        ENDIF
+ 9      ISTHEP(IHEP)=IST
+ 10   CONTINUE
+      CALL CALSIM
+      DO 20 IHEP=1,NHEP
+        ISTHEP(IHEP)=ISTOLD(IHEP)
+ 20   CONTINUE
+      END
 C-----------------------------------------------------------------------
       FUNCTION PSERAP(P)
 C     PSEUDO-RAPIDITY (-LOG TAN THETA/2)
@@ -1641,6 +1730,7 @@ C-----------------------------------------------------------------------
         write(*,*) 'Too many entries to sort in alpsrt, stop'
         stop
       endif
+      if(n.le.0) return
       IL(1)=0
       IR(1)=0
       DO 10 I=2,N
@@ -1668,22 +1758,50 @@ C-----------------------------------------------------------------------
    9  K(I)=J
       B(I)=A(J)
       I=I+1
-      IF(IR(J)) 12,30,13
-  13  J=IR(J)
-      GOTO 8
-  12  J=-IR(J)
-      GOTO 9
-  30  IF(IOPT.EQ.2) RETURN
+
+C Compatibility with gfortran (CMSSW 3_X)
+C      IF(IR(J)) 12,30,13
+C  13  J=IR(J)
+C      GOTO 8
+C  12  J=-IR(J)
+C      GOTO 9
+C  30  IF(IOPT.EQ.2) RETURN
+
+      IF (IR(J).GT.0) THEN
+         J=IR(J)
+         GOTO 8
+      ELSEIF (IR(J).LT.0) then
+         J=-IR(J)
+         GOTO 9
+      ENDIF
+      IF (IOPT.EQ.2) RETURN 
+      
       DO 31 I=1,N
   31  A(I)=B(I)
  999  END
-C----------------------------------------------------------------------
+C-----------------------------------------------------------------------
+      subroutine getunit(n)
+      implicit none
+      integer n,i
+      logical yes
+      do i=10,100
+        inquire(unit=i,opened=yes)
+        if(.not.yes) goto 10
+      enddo
+      write(*,*) 'no free units to write to available, stop'
+      stop
+ 10   n=i
+      end
+
       SUBROUTINE ALSHCD(CSHO)
       CHARACTER*3 CSHO
       CSHO='PYT'
       END
 
       SUBROUTINE ALSHEN
+C----------------------------------------------------------------------
+C     Subroutine called when an event is vetoed.
+C----------------------------------------------------------------------      
       END
 
       SUBROUTINE ALSHER(I)
@@ -1702,8 +1820,7 @@ c process code
       integer itopprc
 c--event file data
       integer Nunit,NunitOut,NunitIni
-      character*512 filename 
-c      character*100 filename,tmpstr,tmpstr1
+      character*512 filename,tmpstr
 c total number of input events
       common/AHio/Nunit,NunitOut,NunitIni,filename
 c inputs for the matching algorithm
@@ -1744,14 +1861,13 @@ c global event cuts
       double precision ptjmin,ptjmax,etajmax,drjmin,
      +     ptbmin,ptbmax,etabmax,drbmin,
      +     ptcmin,ptcmax,etacmax,drcmin,
-     +     ptphmin,etaphmax,drphjmin,drphlmin,
+     +     ptphmin,etaphmax,drphjmin,drphmin,drphlmin,
      +     ptlmin,etalmax,drlmin,metmin,mllmin,mllmax
       common/AHcuts/ptjmin,ptjmax,etajmax,drjmin,
      +     ptbmin,ptbmax,etabmax,drbmin,
      +        ptcmin,ptcmax,etacmax,drcmin,
-     +        ptphmin,etaphmax,drphjmin,drphlmin,
+     +        ptphmin,etaphmax,drphjmin,drphmin,drphlmin,
      +        ptlmin,etalmax,drlmin,metmin,mllmin,mllmax
-
       INTEGER I
 C--LOCAL VARIABLES
 C     EASY-TEXT
@@ -1771,7 +1887,7 @@ C FILL IN PYTHIA SPECIFIC INPUTS
         WRITE(CGIV2,'(D12.5)') MQ
         CPASS='PMAS('//CGIVE//',1)='//CGIV2
         CALL PYGIVE(CPASS)
-C         PMAS(IQ,1)=MQ
+C                PMAS(IQ,1)=MQ
       ENDIF 
       IF(MB.NE.0) THEN
         IQ=5
@@ -1780,7 +1896,7 @@ C         PMAS(IQ,1)=MQ
         WRITE(CGIV2,'(D12.5)') MQ
         CPASS='PMAS('//CGIVE//',1)='//CGIV2
         CALL PYGIVE(CPASS)
-C            PMAS(IQ,1)=MQ
+C                PMAS(IQ,1)=MQ
       ENDIF 
       IF(MT.NE.0) THEN
         IQ=6
@@ -1789,25 +1905,25 @@ C            PMAS(IQ,1)=MQ
         WRITE(CGIV2,'(D12.5)') MQ
         CPASS='PMAS('//CGIVE//',1)='//CGIV2
         CALL PYGIVE(CPASS)
-C             PMAS(IQ,1)=MQ
+C                PMAS(IQ,1)=MQ
       ENDIF 
       IF(MW.NE.0) THEN
         WRITE(CGIV2,'(D12.5)') MW
         CPASS='PMAS(24,1)='//CGIV2
         CALL PYGIVE(CPASS)
-C              PMAS(24,1)=MW
+C                PMAS(24,1)=MW
       ENDIF
       IF(MZ.NE.0) THEN
         WRITE(CGIV2,'(D12.5)') MZ
         CPASS='PMAS(23,1)='//CGIV2
         CALL PYGIVE(CPASS)
-C             PMAS(23,1)=MZ
+C                PMAS(23,1)=MZ
       ENDIF
       IF(MH.NE.0) THEN
         WRITE(CGIV2,'(D12.5)') MH
         CPASS='PMAS(25,1)='//CGIV2
         CALL PYGIVE(CPASS)
-C             PMAS(25,1)=MH
+C                PMAS(25,1)=MH
       ENDIF
       END
 
@@ -1846,4 +1962,3 @@ C...Generation and cross section statistics.
       close(33)
       return
       end
-      END                               

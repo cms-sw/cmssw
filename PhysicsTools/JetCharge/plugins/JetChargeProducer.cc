@@ -12,7 +12,7 @@ void JetChargeProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
     typedef reco::JetTracksAssociationCollection::const_iterator IT;
     typedef edm::RefToBase<reco::Jet>  JetRef;
 
-    std::auto_ptr<JetChargeCollection> ret(new JetChargeCollection());
+    std::auto_ptr<JetChargeCollection> ret(new JetChargeCollection(hJTAs->keyProduct()));
     for (IT it = hJTAs->begin(), ed = hJTAs->end(); it != ed; ++it) {
         const JetRef &jet = it->first;
         const reco::TrackRefVector &tracks = it->second;

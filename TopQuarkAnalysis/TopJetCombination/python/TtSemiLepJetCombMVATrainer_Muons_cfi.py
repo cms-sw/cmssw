@@ -20,7 +20,7 @@ trainTtSemiLepJetCombMVA = cms.EDAnalyzer("TtSemiLepJetCombMVATrainer",
     # (has to be >= 4, can be set to -1 if you
     # want to take all)
     # ------------------------------------------------
-    nJetsMax = cms.int32(4)
+    maxNJets = cms.int32(4)
 )
 
 

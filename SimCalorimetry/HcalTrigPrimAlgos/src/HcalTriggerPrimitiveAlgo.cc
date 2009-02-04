@@ -239,11 +239,10 @@ void HcalTriggerPrimitiveAlgo::analyzeHF(IntegerCaloSamples & samples,
   // get information from Tower map
   for(TowerMapFG::iterator mapItr = theTowerMapFG.begin(); mapItr != theTowerMapFG.end(); ++mapItr)
     {
-
+      bool set_fg = false;
       HcalTrigTowerDetId detId(mapItr->first);
       if (detId == detId_) {
 	for (int i=0; i < samples.size(); ++i) {
-	  bool set_fg = false;
 	  mapItr->second[i] >= FG_threshold_ ? set_fg = true : false;
 	  finegrain[i] = (finegrain[i] || set_fg);
 	}
@@ -254,7 +253,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHF(IntegerCaloSamples & samples,
   //cout<<"Presamples = "<<samples.presamples()<<endl;
   for(int ibin2 = 0; ibin2 < samples.size(); ++ibin2) 
     {//output[ibin2]=sum[ibin2];
-      samples[ibin2] /= 4;  // for 0.25 GeV ET RCT LSB
+      samples[ibin2] /= 8;
       //cout << "samples: " << samples[i] << endl;
       if (samples[ibin2] > 0x3FF) samples[ibin2] = 0x3FF;  //Compression is 1 to 1 with saturation at 8 bits
       output[ibin2]=samples[ibin2];

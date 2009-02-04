@@ -7,8 +7,11 @@ process = cms.Process("MonitorDigiRealData")
 #--------------------------
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-      '/store/data/Commissioning08/Cosmics/RAW/v1/000/066/993/2A8E332E-769F-DD11-8E22-001617DBD224.root',
-      '/store/data/Commissioning08/Cosmics/RAW/v1/000/066/993/4A64178D-799F-DD11-9C47-000423D996B4.root'
+#      '/store/data/Commissioning08/Cosmics/RAW/v1/000/066/993/2A8E332E-769F-DD11-8E22-001617DBD224.root'
+#      '/store/data/Commissioning08/Cosmics/RAW/v1/000/066/993/4A64178D-799F-DD11-9C47-000423D996B4.root'
+#       '/store/data/Commissioning08/Cosmics/RAW/v1/000/066/668/48F6B6B5-519C-DD11-B32A-000423D6B444.root'
+#        '/store/data/Commissioning08/Cosmics/RAW/v1/000/067/647/0000721C-35A3-DD11-9132-001D09F291D7.root'
+       '/store/data/Commissioning08/Cosmics/RAW/v1/000/067/647/22CBBD11-07A3-DD11-9DFB-001D09F2447F.root'
     )
 )
 
@@ -26,11 +29,6 @@ process.MessageLogger = cms.Service("MessageLogger",
     ),
     destinations = cms.untracked.vstring('cout')
 )
-
-#-------------------------------------------------
-# Magnetic Field
-#-------------------------------------------------
-process.load("Configuration.GlobalRuns.ForceZeroTeslaField_cff")
 
 #-------------------------------------------------
 # Geometry

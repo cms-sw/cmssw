@@ -6,6 +6,7 @@ University of Wisconsin-Madison
 e-mail: bachtis@hep.wisc.edu
 */
 
+
 #ifndef L2TAUISOLATIONALGS_H
 #define L2TAUISOLATIONALGS_H
 
@@ -32,15 +33,23 @@ class L2TauECALCluster
 
 
   //Return Functions
-  math::PtEtaPhiELorentzVector p4() const;//LorenzVector
+  double etac() const; //Eta of Center
+  double phic() const; //Phi of Center
+  double et() const; //Et (total)
   int nCrystals() const; //N Crystals
 
   //Add Crystal to Cluster
   void addCrystal(const math::PtEtaPhiELorentzVector&);//Add a Crystal
 
+
  private:
-  //Cluster LorentzVector
-  math::PtEtaPhiELorentzVector p4_;
+  //Coordinates of the center
+  double m_etac;
+  double m_phic;
+
+
+  //Cluster et(total)
+  double m_et;
 
   //Number of crystals
   int m_ncrystals;
@@ -70,16 +79,27 @@ class L2TauECALClustering
   //METHODS
   void run(const math::PtEtaPhiELorentzVectorCollection&,const CaloJet&,L2TauIsolationInfo&);
 
+
+  
  private:
   //VARIABLES
   double m_clusterRadius;     //Cluster Radius
-
-
   L2TauECALClusterCollection m_clusters;//Cluster Container
+
+
 
   //METHODS
   void clusterize(const math::PtEtaPhiELorentzVectorCollection&); //Do Clustering
-  std::vector<double> clusterSeperation(const CaloJet&) const; //Calculation of Cluster Moments
+  double deltaR(const math::PtEtaPhiELorentzVector&,const L2TauECALCluster&) const;//DeltaR (corr) between Crystal,Cluster
+  int nClusters() const; //Number of Clusters
+  std::vector<double> clusterSeperation(const CaloJet&) const; //Spreading of Clusters
+  
+  
+
+    
+  
+
+
 
 };
 

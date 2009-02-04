@@ -114,7 +114,8 @@ void EcalBarrelRecHitsMaker::loadEcalBarrelRecHits(edm::Event &iEvent,EBRecHitCo
 	  energy=sat_;
 	}
 //      std::cout << " Threshold ok " << std::endl;
-//      std::cout << " Raw Id " << barrelRawId_[icell] << std::endl;
+      //std::cout << " Raw Id " << barrelRawId_[icell] << std::endl;
+      //      std::cout << " Adding " << icell << " " << barrelRawId_[icell] << " " << energy << std::endl;
       ecalHits.push_back(EcalRecHit(myDetId,energy,0.));
       //      std::cout << " Hit stored " << std::endl;
     }
@@ -138,18 +139,21 @@ void EcalBarrelRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
   float calib=1.;
   for (cficalo=colcalo->begin(); cficalo!=cficaloend;cficalo++) 
     {
+
       unsigned hashedindex = EBDetId(cficalo->id()).hashedIndex();      
       // Check if the hit already exists
       if(theCalorimeterHits_[hashedindex]==0.)
 	{
 	  theFiredCells_.push_back(hashedindex); 
-
 	}
       // the famous 1/0.97 calibration factor is applied here ! 
       calib=calibfactor_;
       // the miscalibration is applied here:
       if(doMisCalib_) calib*=theCalibConstants_[hashedindex];
-      theCalorimeterHits_[hashedindex]+=cficalo->energy()*calib;         
+      // cficalo->energy can be 0 (a 7x7 grid is always built), in this case, one should not kill the cell (for later noise injection), but it should
+      // be added only once.  This is a dirty trick. 
+      float energy=(cficalo->energy()==0.) ? 0.000001 : cficalo->energy() ;
+      theCalorimeterHits_[hashedindex]+=energy*calib;         
 
     }
 }
@@ -195,7 +199,8 @@ void EcalBarrelRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool do
 	++ncells;
       }
       rms = std::sqrt(rms) / (float)ncells;
-      std::cout << " Found " << ncells << " cells in the barrel calibration map. RMS is " << rms << std::endl;
+      // The following should be on LogInfo
+      //std::cout << " Found " << ncells << " cells in the barrel calibration map. RMS is " << rms << std::endl;
     }  
 }
 

@@ -15,7 +15,6 @@
 #include "DataFormats/FP420Cluster/interface/TrackFP420.h"
 #include "DataFormats/FP420Cluster/interface/ClusterFP420.h"
 #include "DataFormats/FP420Cluster/interface/ClusterCollectionFP420.h"
-#include "SimG4CMS/FP420/interface/FP420NumberingScheme.h"
 
 #include <vector>
 #include <algorithm>
@@ -28,7 +27,7 @@ public:
   typedef std::vector<ClusterFP420>::const_iterator           ClusterFP420Iter;
 
   //TrackProducerFP420(int, int, double, double, double, double, double, double, double, double, bool, bool, double, double, float, float);
-  TrackProducerFP420(int, int, int, int, double, double, double, double, double, double, double, double, double, double, double, double, bool, bool, bool, bool, double, double, float, float, double, int, double, double);
+    TrackProducerFP420(int, int, int, double, double, double, double, double, double, double, double, double, double, double, double, bool, bool, bool, bool, double, double, float, float, double);
 
   //  std::vector<TrackFP420> trackFinderMaxAmplitude(ClusterCollectionFP420 input);
   //  std::vector<TrackFP420> trackFinderMaxAmplitude2(ClusterCollectionFP420 input);
@@ -46,17 +45,12 @@ private:
 
   std::vector<TrackFP420> rhits; 
 
-  FP420NumberingScheme * theFP420NumberingScheme;
-
-
  // Number of Stations:
  int sn0;
- // Number of superplanes:
- int pn0;
- // Number of sensors
- int rn0;
  // Number of planes:
- int xytype;
+ int pn0;
+ // Number of planes:
+ int zn0;
 
  // shift of planes:
 	bool UseHalfPitchShiftInX;
@@ -85,11 +79,6 @@ private:
 	float chiCutY;
 
 	double zinibeg;
-
-	int verbos;
-
-	double XsensorSize;
-	double YsensorSize;
 
 };
 

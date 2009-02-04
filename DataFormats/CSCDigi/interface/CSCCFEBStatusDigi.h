@@ -5,15 +5,14 @@
  *
  * Digi for CSC CFEB status.
  *  
- *  $Date: 2007/07/23 12:08:19 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/12/14 22:33:47 $
+ *  $Revision: 1.4 $
  *
  * \author N. Terentiev, CMU
  *
  */
 
 #include <vector>
-#include <iosfwd>
 
 class CSCCFEBStatusDigi{
 
@@ -84,6 +83,36 @@ private:
 
 };
 
-std::ostream & operator<<(std::ostream & o, const CSCCFEBStatusDigi& digi);
+#include<iostream>
+            /// needed by COBRA
+inline std::ostream & operator<<(std::ostream & o, const CSCCFEBStatusDigi& digi) {
+  o << " " << digi.getCFEBNmb()<<"\n";
+  for (size_t i = 0; i<4; ++i ){
+        o <<" " <<(digi.getSCAFullCond())[i]; }
+  o <<"\n";
+  for (size_t i = 0; i<digi.getCRC().size(); ++i ){
+    o <<" " <<(digi.getCRC())[i]; }
+  o<<"\n";
+  for (size_t i = 0; i<digi.getTS_FLAG().size(); ++i ){
+    o <<" " <<(digi.getTS_FLAG())[i]; }
+  o<<"\n";
+  for (size_t i = 0; i<digi.getSCA_FULL().size(); ++i ){
+    o <<" " <<(digi.getSCA_FULL())[i]; }
+  o<<"\n";
+  for (size_t i = 0; i<digi.getLCT_PHASE().size(); ++i ){
+    o <<" " <<(digi.getLCT_PHASE())[i]; }
+  o<<"\n";
+  for (size_t i = 0; i<digi.getL1A_PHASE().size(); ++i ){
+    o <<" " <<(digi.getL1A_PHASE())[i]; }
+  o<<"\n";
+  for (size_t i = 0; i<digi.getSCA_BLK().size(); ++i ){
+    o <<" " <<(digi.getSCA_BLK())[i]; }
+  o<<"\n";
+  for (size_t i = 0; i<digi.getTRIG_TIME().size(); ++i ){
+    o <<" " <<(digi.getTRIG_TIME())[i]; }
+  o<<"\n";
+
+  return o;
+}
 
 #endif

@@ -45,7 +45,7 @@ FUShmReader::~FUShmReader()
   if (0!=shmBuffer_) {
     edm::LogInfo("FUShmReader")<<"detach from shared memory segment."<<endl;
     if (lastCellIndex_<0xffffffff) {
-      shmBuffer_->writeErrorEventData(runNumber_,getpid(),lastCellIndex_);
+      shmBuffer_->writeErrorEventData(runNumber_,lastCellIndex_);
       shmBuffer_->removeClientPrcId(getpid());
     }
     shmdt(shmBuffer_);

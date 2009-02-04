@@ -70,7 +70,7 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   MuIsolTag2_       = conf.getParameter<edm::InputTag> ("MuIsolTag2");
   MuCandTag3_       = conf.getParameter<edm::InputTag> ("MuCandTag3");
   MuIsolTag3_       = conf.getParameter<edm::InputTag> ("MuIsolTag3");
-  //  MuLinkTag_        = conf.getParameter<edm::InputTag> ("MuLinkTag");
+  MuLinkTag_        = conf.getParameter<edm::InputTag> ("MuLinkTag");
   HLTTau_           = conf.getParameter<edm::InputTag> ("HLTTau");
 
   // btag OpenHLT input collections
@@ -170,7 +170,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   edm::Handle<L1GctHFRingEtSums>                    l1GctHFRingEtSums;
   edm::Handle<RecoChargedCandidateCollection>       mucands2, mucands3;
   edm::Handle<edm::ValueMap<bool> >                 isoMap2,  isoMap3;
-  //  edm::Handle<MuonTrackLinksCollection>             mulinks;
+  edm::Handle<MuonTrackLinksCollection>             mulinks;
   edm::Handle<reco::HLTTauCollection>               taus;
 
   // btag OpenHLT input collections
@@ -239,7 +239,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   getCollection( iEvent, missing, mucands3,        MuCandTag3_,        kMucands3 );
   getCollection( iEvent, missing, isoMap2,         MuIsolTag2_,        kIsoMap2 );
   getCollection( iEvent, missing, isoMap3,         MuIsolTag3_,        kIsoMap3 );
-  //  getCollection( iEvent, missing, mulinks,         MuLinkTag_,         kMulinks );
+  getCollection( iEvent, missing, mulinks,         MuLinkTag_,         kMulinks );
   getCollection( iEvent, missing, hRawBJets,                m_rawBJets,                 kBTagJets );
   getCollection( iEvent, missing, hCorrectedBJets,          m_correctedBJets,           kBTagCorrectedJets );
   getCollection( iEvent, missing, hLifetimeBJetsL25,        m_lifetimeBJetsL25,         kBTagLifetimeBJetsL25 );
@@ -304,7 +304,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     isoMap2,
     mucands3,
     isoMap3,
-    //    mulinks,
+    mulinks,
     HltTree);
   
   elm_analysis_.analyze(

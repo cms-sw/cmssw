@@ -7,6 +7,8 @@
 # set isolation but don't reject non-isolated electrons
 import FWCore.ParameterSet.Config as cms
 
+from RecoEgamma.EgammaIsolationAlgos.eleIsoFromDepsModules_cff import eleIsoFromDepsEcalFromHits,eleIsoFromDepsHcalFromTowers,eleIsoFromDepsTk
+
 allLayer0Electrons = cms.EDFilter("PATElectronCleaner",
     ## reco electron input source
     electronSource = cms.InputTag("pixelMatchGsfElectrons"), 
@@ -27,40 +29,39 @@ allLayer0Electrons = cms.EDFilter("PATElectronCleaner",
             # value for the cut (not optimized, just for testing)
             cut = cms.double(3.0),
             # parameters to compute isolation (Egamma POG defaults)
-            deltaR = cms.double(0.3),
-            vetos = cms.vstring('0.015', # inner radius veto cone
-                'Threshold(1.0)'),       # threshold on individual track pt
-            skipDefaultVeto = cms.bool(True),
+            vetos  = eleIsoFromDepsTk.deposits[0].vetos,
+            deltaR = eleIsoFromDepsTk.deposits[0].deltaR,
+            skipDefaultVeto = cms.bool(True), # This overrides previous settings
+#           # Or set your own vetos...
+#            deltaR = cms.double(0.3),
+#            vetos = cms.vstring('0.015', # inner radius veto cone
+#                'Threshold(1.0)'),       # threshold on individual track pt
         ),
         ecal = cms.PSet(
             # source IsoDeposit
-            src = cms.InputTag("patAODElectronIsolations","eleIsoDepositEcalFromClusts"), # FromClusts if computed on AOD
-            #src = cms.InputTag("patAODElectronIsolations","eleIsoDepositEcalFromHits"), # FromClusts if computed on AOD
+            src = cms.InputTag("patAODElectronIsolations","eleIsoDepositEcalFromHits"), 
             # value for the cut (not optimized, just for testing)
             cut = cms.double(5.0),
             # parameters to compute isolation (Egamma POG defaults)
-            deltaR = cms.double(0.4),
-            vetos = cms.vstring('EcalBarrel:0.040', 'EcalBarrel:RectangularEtaPhiVeto(-0.01,0.01,-0.5,0.5)',  # Barrel (|eta| < 1.479)
-                                'EcalEndcaps:0.070','EcalEndcaps:RectangularEtaPhiVeto(-0.02,0.02,-0.5,0.5)'),
-            skipDefaultVeto = cms.bool(True),
+            vetos  = eleIsoFromDepsEcalFromHits.deposits[0].vetos,
+            deltaR = eleIsoFromDepsEcalFromHits.deposits[0].deltaR,
+            skipDefaultVeto = cms.bool(True), # This overrides previous settings
+#           # Or set your own vetos...
+#            deltaR = cms.double(0.4),
+#            vetos = cms.vstring('EcalBarrel:0.040', 'EcalBarrel:RectangularEtaPhiVeto(-0.01,0.01,-0.5,0.5)',  # Barrel (|eta| < 1.479)
+#                                'EcalEndcaps:0.070','EcalEndcaps:RectangularEtaPhiVeto(-0.02,0.02,-0.5,0.5)'),
         ),
-        ## other option, using eleIsoDepositEcalSCVetoFromClust (see also recoLayer0/electronIsolation_cff.py)
-        #PSet ecal = cms.PSet( 
-        #   src    = cms.InputTag("patAODElectronIsolations", "eleIsoDepositEcalSCVetoFromClusts")
-        #   deltaR = cms.double(0.4)
-        #   vetos  = cms.vstring()     # no veto, already done with SC
-        #   skipDefaultVeto = cms.bool(True)
-        #   cut    = cms.double(5)
-        #),
         hcal = cms.PSet(
             # source IsoDeposit
-            #src = cms.InputTag("patAODElectronIsolations","eleIsoDepositHcalFromHits"), # FromTowers if computed from AOD
             src = cms.InputTag("patAODElectronIsolations","eleIsoDepositHcalFromTowers"), # FromTowers if computed from AOD
             # value for the cut (not optimized, just for testing)
             cut = cms.double(5.0),
             # parameters to compute isolation (Egamma POG defaults)
-            deltaR = cms.double(0.4),
-            skipDefaultVeto = cms.bool(True),
+            vetos  = eleIsoFromDepsHcalFromTowers.deposits[0].vetos,
+            deltaR = eleIsoFromDepsHcalFromTowers.deposits[0].deltaR,
+            skipDefaultVeto = cms.bool(True),  # This overrides previous settings            
+#           # Or set your own vetos...
+#            deltaR = cms.double(0.4),
         ),
         user = cms.VPSet(),
     ),

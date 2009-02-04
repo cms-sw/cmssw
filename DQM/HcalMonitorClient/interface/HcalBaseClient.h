@@ -13,8 +13,6 @@
 
 #include "TROOT.h"
 #include "TStyle.h"
-#include "TColor.h"
-
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TFile.h"
@@ -25,7 +23,6 @@
 #include <vector>
 #include <string>
 
-// Don't like having these here in the header; can we move them to src?
 using namespace cms;
 using namespace edm;
 using namespace std;
@@ -51,18 +48,13 @@ class HcalBaseClient{
   bool hasWarnings() const { return dqmReportMapWarn_.size(); }
   bool hasOther() const { return dqmReportMapOther_.size(); }
   
-  /*
-  void getSJ6histos( char* dir, char* name, TH2F* &h);
-  void getSJ6histos( char* dir, char* name, TH1F* &h);
-  */
-
  protected:
 
   int ievt_;
   int jevt_;
   
   bool cloneME_;
-  int debug_;
+  bool debug_;
   string process_;
   string baseFolder_;
   string clientName_;
@@ -75,11 +67,6 @@ class HcalBaseClient{
   
   bool subDetsOn_[4];
   
-  // Define standard error palette
-  int pcol_error_[20];
-  float rgb_error_[20][3];
-
-
   // Quality criteria for data integrity
   map<string, vector<QReport*> > dqmReportMapErr_;
   map<string, vector<QReport*> > dqmReportMapWarn_;

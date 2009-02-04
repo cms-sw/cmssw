@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.cc,v 1.18 2008/10/13 13:49:08 cbern Exp $
+// $Id: PATMuonProducer.cc,v 1.19 2008/10/19 21:11:56 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMuonProducer.h"
@@ -18,8 +18,6 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include "DataFormats/Common/interface/Association.h"
-
-#include "PhysicsTools/PatUtils/interface/ObjectResolutionCalc.h"
 
 #include "TMath.h"
 
@@ -66,18 +64,11 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) :
   
   // resolution configurables
   addResolutions_= iConfig.getParameter<bool>         ( "addResolutions" );
-  useNNReso_     = iConfig.getParameter<bool>         ( "useNNResolutions" );
-  muonResoFile_  = iConfig.getParameter<std::string>  ( "muonResoFile" );
   
   // Efficiency configurables
   addEfficiencies_ = iConfig.getParameter<bool>("addEfficiencies");
   if (addEfficiencies_) {
      efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"));
-  }
-
-  // construct resolution calculator
-  if (addResolutions_) {
-    theResoCalc_ = new ObjectResolutionCalc(edm::FileInPath(muonResoFile_).fullPath(), useNNReso_);
   }
 
   if (iConfig.exists("isoDeposits")) {
@@ -108,14 +99,9 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) :
 
 
 PATMuonProducer::~PATMuonProducer() {
-  if (addResolutions_) delete theResoCalc_;
 }
 
-
 void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
-  
-
-  
   
   if (isolator_.enabled()) isolator_.beginEvent(iEvent,iSetup);
 
@@ -257,11 +243,6 @@ void PATMuonProducer::fillMuon( Muon& aMuon,
 	aMuon.addTriggerMatch(*trigPrim);
       }
     }
-  }
-
-  // add resolution info
-  if (addResolutions_) {
-    (*theResoCalc_)(aMuon);
   }
   
   if (efficiencyLoader_.enabled()) {

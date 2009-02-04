@@ -1,5 +1,5 @@
 
-// $Id: SMFUSenderStats.cc,v 1.4 2008/09/03 00:03:59 hcheung Exp $
+// $Id: SMFUSenderStats.cc,v 1.3 2008/05/15 13:57:43 hcheung Exp $
 
 
 
@@ -12,7 +12,7 @@ SMFUSenderStats::SMFUSenderStats(boost::shared_ptr<std::vector<char> > hltURL,
                   unsigned int  hltLocalId,
                   unsigned int  hltInstance,
                   unsigned int  hltTid,
-                  uint32        rbBufferID,
+                  uint32        fuID,
                   SMFUSenderRegCollection RegistryCollection,
                   SMFUSenderDatCollection DatCollection,
                   unsigned int  connectStatus,
@@ -32,7 +32,7 @@ SMFUSenderStats::SMFUSenderStats(boost::shared_ptr<std::vector<char> > hltURL,
   hltLocalId_(hltLocalId),
   hltInstance_(hltInstance),
   hltTid_(hltTid),
-  rbBufferID_(rbBufferID),
+  fuID_(fuID),
   registryCollection_(RegistryCollection),
   datCollection_(DatCollection),
   connectStatus_(connectStatus),

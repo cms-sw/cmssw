@@ -12,8 +12,8 @@ class HcalDetId;
  *
  * \note The HE geometry is not currently correct.  The z positions must be corrected.
  *   
- * $Date: 2008/04/21 22:19:36 $
- * $Revision: 1.6 $
+ * $Date: 2007/09/07 22:05:51 $
+ * $Revision: 1.5 $
  * \author R. Wilkinson - Caltech
 */
 class HcalHardcodeGeometryLoader 
@@ -40,8 +40,8 @@ class HcalHardcodeGeometryLoader
 		 int              lastEtaRing,
 		 ReturnType       cg              );
   
-      CaloCellGeometry* makeCell( const HcalDetId& detId,
-				  ReturnType       geom   ) const;
+      const CaloCellGeometry * makeCell( const HcalDetId& detId,
+					 ReturnType       geom   ) const;
   
       HcalTopology*       theTopology;
       const HcalTopology* extTopology;

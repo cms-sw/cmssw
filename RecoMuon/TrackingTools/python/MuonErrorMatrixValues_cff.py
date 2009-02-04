@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 MuonErrorMatrixValues = cms.PSet(
     errorMatrixValuesPSet = cms.PSet(
         pf3_V12 = cms.PSet(
-            action = cms.string("scale"),
             values = cms.vdouble(1.0, 1.0, 1.0, 1.0, 1.0, 
                 1.0, 1.0, 1.0, 1.0, 1.0, 
                 1.0, 1.0, 1.0, 1.0, 1.0, 
@@ -26,7 +25,6 @@ MuonErrorMatrixValues = cms.PSet(
                 1.0, 1.0, 1.0, 1.0, 1.0)
         ),
         pf3_V13 = cms.PSet(
-            action = cms.string("scale"),
             values = cms.vdouble(1.0, 1.0, 1.0, 1.0, 1.0, 
                 1.0, 1.0, 1.0, 1.0, 1.0, 
                 1.0, 1.0, 1.0, 1.0, 1.0, 
@@ -49,7 +47,6 @@ MuonErrorMatrixValues = cms.PSet(
                 1.0, 1.0, 1.0, 1.0, 1.0)
         ),
         pf3_V11 = cms.PSet(
-            action = cms.string("scale"),
             values = cms.vdouble(1.0, 1.0, 1.0, 1.0, 4.593, 
                 5.253, 1.895, 1.985, 2.344, 5.37, 
                 2.059, 2.423, 1.985, 2.054, 2.071, 
@@ -72,7 +69,6 @@ MuonErrorMatrixValues = cms.PSet(
                 1.888, 1.839, 1.657, 1.903, 1.899)
         ),
         pf3_V25 = cms.PSet(
-            action = cms.string("scale"),
             values = cms.vdouble(1.0, 1.0, 1.0, 1.0, 1.0, 
                 1.0, 1.0, 1.0, 1.0, 1.0, 
                 1.0, 1.0, 1.0, 1.0, 1.0, 
@@ -95,7 +91,6 @@ MuonErrorMatrixValues = cms.PSet(
                 1.0, 1.0, 1.0, 1.0, 1.0)
         ),
         pf3_V14 = cms.PSet(
-            action = cms.string("scale"),
             values = cms.vdouble(1.0, 1.0, 1.0, 1.0, 1.0, 
                 1.0, 1.0, 1.0, 1.0, 1.0, 
                 1.0, 1.0, 1.0, 1.0, 1.0, 
@@ -118,7 +113,6 @@ MuonErrorMatrixValues = cms.PSet(
                 1.0, 1.0, 1.0, 1.0, 1.0)
         ),
         pf3_V15 = cms.PSet(
-            action = cms.string("scale"),
             values = cms.vdouble(1.0, 1.0, 1.0, 1.0, 1.0, 
                 1.0, 1.0, 1.0, 1.0, 1.0, 
                 1.0, 1.0, 1.0, 1.0, 1.0, 
@@ -141,7 +135,6 @@ MuonErrorMatrixValues = cms.PSet(
                 1.0, 1.0, 1.0, 1.0, 1.0)
         ),
         pf3_V34 = cms.PSet(
-            action = cms.string("scale"),
             values = cms.vdouble(1.0, 1.0, 1.0, 1.0, 1.0, 
                 1.0, 1.0, 1.0, 1.0, 1.0, 
                 1.0, 1.0, 1.0, 1.0, 1.0, 
@@ -167,7 +160,6 @@ MuonErrorMatrixValues = cms.PSet(
             1.15, 1.35, 1.55, 1.75, 2.2, 
             2.5),
         pf3_V45 = cms.PSet(
-            action = cms.string("scale"),
             values = cms.vdouble(1.0, 1.0, 1.0, 1.0, 1.0, 
                 1.0, 1.0, 1.0, 1.0, 1.0, 
                 1.0, 1.0, 1.0, 1.0, 1.0, 
@@ -190,7 +182,6 @@ MuonErrorMatrixValues = cms.PSet(
                 1.0, 1.0, 1.0, 1.0, 1.0)
         ),
         pf3_V44 = cms.PSet(
-            action = cms.string("scale"),
             values = cms.vdouble(1.0, 1.0, 1.622, 2.139, 2.08, 
                 1.178, 1.044, 1.0, 1.0, 1.0, 
                 1.0, 1.0, 1.0, 1.0, 1.0, 
@@ -216,7 +207,6 @@ MuonErrorMatrixValues = cms.PSet(
             20.787, 27.479, 36.106, 48.26, 69.03, 
             200.0),
         pf3_V23 = cms.PSet(
-            action = cms.string("scale"),
             values = cms.vdouble(1.0, 1.0, 1.0, 1.0, 1.0, 
                 1.0, 1.0, 1.0, 1.0, 1.0, 
                 1.0, 1.0, 1.0, 1.0, 1.0, 
@@ -239,7 +229,6 @@ MuonErrorMatrixValues = cms.PSet(
                 1.0, 1.0, 1.0, 1.0, 1.0)
         ),
         pf3_V22 = cms.PSet(
-            action = cms.string("scale"),
             values = cms.vdouble(1.0, 1.0, 66.152, 3.219, 66.051, 
                 1.298, 1.186, 1.197, 1.529, 2.807, 
                 1.056, 1.092, 1.15, 1.158, 1.163, 
@@ -262,7 +251,6 @@ MuonErrorMatrixValues = cms.PSet(
                 1.132, 1.132, 1.115, 1.26, 1.096)
         ),
         pf3_V55 = cms.PSet(
-            action = cms.string("scale"),
             values = cms.vdouble(1.0, 1.0, 27.275, 15.167, 13.818, 
                 1.0, 1.0, 1.0, 1.037, 1.129, 
                 1.0, 1.0, 1.0, 1.0, 1.0, 
@@ -286,7 +274,6 @@ MuonErrorMatrixValues = cms.PSet(
         ),
         zAxis = cms.vdouble(-3.14159, 3.14159),
         pf3_V35 = cms.PSet(
-            action = cms.string("scale"),
             values = cms.vdouble(1.0, 1.0, 1.0, 1.0, 1.0, 
                 1.0, 1.0, 1.0, 1.0, 1.0, 
                 1.0, 1.0, 1.0, 1.0, 1.0, 
@@ -309,7 +296,6 @@ MuonErrorMatrixValues = cms.PSet(
                 1.0, 1.0, 1.0, 1.0, 1.0)
         ),
         pf3_V33 = cms.PSet(
-            action = cms.string("scale"),
             values = cms.vdouble(1.0, 1.0, 6.174, 56.89, 1.019, 
                 2.206, 1.694, 1.698, 1.776, 3.563, 
                 2.141, 2.432, 1.898, 1.834, 1.763, 
@@ -332,7 +318,6 @@ MuonErrorMatrixValues = cms.PSet(
                 1.92, 1.86, 1.798, 1.867, 1.436)
         ),
         pf3_V24 = cms.PSet(
-            action = cms.string("scale"),
             values = cms.vdouble(1.0, 1.0, 1.0, 1.0, 1.0, 
                 1.0, 1.0, 1.0, 1.0, 1.0, 
                 1.0, 1.0, 1.0, 1.0, 1.0, 

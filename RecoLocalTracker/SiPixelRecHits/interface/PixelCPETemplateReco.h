@@ -81,6 +81,8 @@ class PixelCPETemplateReco : public PixelCPEBase
 
   mutable bool UseClusterSplitter_;
 
+  mutable bool DoCosmics_;
+
 };
 
 #endif

@@ -28,16 +28,13 @@ README for OpenHLT rate and Efficiencies calculating scripts
 			    Any number < 0 will be interpreted as "running over all existing events".
 			    Default is all (-1).
 	
-		<sMenu>: Type of trigger menu to run. Options are "default", "21X", "example", "l1default", 
-			 and"21X_29E30".
-			 The "default" option runs the full HLT menu using the trigger bits from the standard HLT in 20X. 
-			 The "21X" runs the full HLT 21X Menu using the trigger bits from the standard HLT w/o prescales.
-			 The "example" menu will run the OpenHLT triggers together with a few triggers from 
-			 the full HLT 20X for comparison. The method for adding new OpenHLT triggers is described below.
+		<sMenu>: Type of trigger menu to run. Options are "default", "example", and "l1default".
+			 The "default" option runs the full HLT menu using the trigger bits
+			 from the standard HLT. The "example" menu will run the OpenHLT 
+			 triggers together with a few triggers from the full HLT for comparison.
+			 The method for adding new OpenHLT triggers is described below.
 			 The "l1default" calculates the rates for the full L1 menu using the trigger bits
 			 from the standard L1.
-			 The "21X_29E30" runs the full HLT using the trigger bits from the standard HLT with prescales
-			 adjusted to luminosity of 2.9E30 
 
 		<sConditions>: Options are "startup" and "ideal". The "startup" option
 			       will run over events processed with 1pb-1 conditions. The "ideal" 
@@ -74,7 +71,7 @@ The case RateOnly=1 and EfficiencyOnly=1 is illegal and prints an error message
 	These are filled as entries in the vectors ProcFil and xsec, respectively. The current default 
 	uses samples of Minbias, ppEleX, ppMuX for background/rates and Z->ee, Z->mumu, W->enu, W->munu
 	as signals.
-	The example files exist on castor. The script should be working if running on lxplus.
+	The example files exist on hep.wisc.edu. The script should be working if running there.
 
 **************************************
 3. Trigger examples
@@ -83,7 +80,7 @@ The case RateOnly=1 and EfficiencyOnly=1 is illegal and prints an error message
         The list of OpenHLT triggers in the menu is defined in the BookMenu_OhltExample method in OHltRateEff.cpp.  
 	Several OpenHLT trigger algorithms are already implemented as templates. These will be 
 	executed when the script is run with the "example" option, together with the corresponding
-	triggers from the full HLT (20X). For example:
+	triggers from the full HLT. For example:
 
 		./OHltRateEff 1000000 example
 
@@ -246,33 +243,3 @@ The case RateOnly=1 and EfficiencyOnly=1 is illegal and prints an error message
 		int   L25Tiso:	L2.5 is Track isolated (1: yes, 0: no)
 		float L3Tpt:	L3 si+pix leading Track Pt threshold in GeV
 		int   L3Tiso:	L3 is Track isolated (1: yes, 0: no)
-
---------------------------------------
-3. Efficiency code
---------------------------------------
-
-	Once the HLT paths of interest are defined (either as 'standard' HLT paths or in OpenHLT) 
-	they must be inserted in the corresponding trigger menu using the menu->AddHlt() function.
-	At this step one must define the multiplicity of the relevant objects (electron,photon,muon,
-	jet,met) for booking of efficiency histograms.
-
-	Then the script must be run with settings:
-		RateOnly=0, EfficiencyOnly=1 (runs only efficiency code on signal samples)
-		RateOnly=1, EfficiencyOnly=0 (runs efficiency and rate code on both background and
-					      signal samples)
-
-	Histograms are filled with reconstructed pt,eta and phi of requested objects 
-		1) For all events in the input file
-		2) For all events passing the L1 seed corresponding to each HLT path
-		3) For all events passing the HLT paths
-
-	Efficiency histograms are filled dividing 3)/1) (overall HLT efficiency) and 3)/2) (HLT 
-	efficiency wrt L1)
-	
-	The output consists one root file per sample with efficiency histograms and a printout with global
-	integrated numbers. 
-
-	For more details see:
-	http://indico.cern.ch/materialDisplay.py?contribId=12&sessionId=1&materialId=slides&confId=41546
-	
-	In case of missing functionalities, please contact goylopez@cern.ch

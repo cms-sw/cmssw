@@ -5,6 +5,7 @@
 <use name=FWCore/Framework>
 <use name=DataFormats/Common>
 <use name=DataFormats/TrackingRecHit>
+<use name=DataFormats/Common>
 <use name=FWCore/ServiceRegistry>
 <use name=Geometry/CommonDetUnit>
 <use name=TrackingTools/Records>

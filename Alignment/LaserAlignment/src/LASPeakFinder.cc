@@ -26,7 +26,7 @@ bool LASPeakFinder::FindPeakIn( const LASModuleProfile& aProfile, std::pair<doub
   double anAmplitude = 0.;
 
   // expected beam position (in strips)
-  const unsigned int meanPosition = 256. + offset;
+  const unsigned int meanPosition = 256 + offset;
   // backplane "alignment hole" approx. half size (in strips)
   const unsigned int halfWindowSize = 33;
 
@@ -59,13 +59,13 @@ bool LASPeakFinder::FindPeakIn( const LASModuleProfile& aProfile, std::pair<doub
 
   // empty profile?
   if( fabs( sum1 ) < 1.e-3 ) {
-    std::cerr << " [LASPeakFinder::FindPeakIn] ** WARNING: Empty profile (sum=" << sum1 << ")." << std::endl;
+    std:: cout << " [LASPeakFinder::FindPeakIn] ** WARNING: Empty profile." << std::endl;/////////////////////////////////
     return false;
   }
 
   // no reasonable peak?
   if( largestAmplitude.second < 10. * noise ) {
-    std::cerr << " [LASPeakFinder::FindPeakIn] ** WARNING: No reasonably large peak." << std::endl;
+    std::cout << " [LASPeakFinder::FindPeakIn] ** WARNING: No reasonably large peak." << std::endl;/////////////////////////////////
     return false;
   }
 
@@ -82,6 +82,9 @@ bool LASPeakFinder::FindPeakIn( const LASModuleProfile& aProfile, std::pair<doub
 
   // and go
   histogram->Fit( fitFunction, "QWB", "", largestAmplitude.first - 12, largestAmplitude.first + 12 );
+  //  std::cout << "MEAN: " << fitFunction->GetParameter( 1 ) << "±" << fitFunction->GetParError( 1 ) << ", AMP: " 
+  //	    << fitFunction->GetParameter( 0 ) << ", WIDTH: " << fitFunction->GetParameter( 2 )
+  //	    << ", NOISE: " << noise << std::endl; /////////////////////////////////
 
   // prepare output
   result.first = fitFunction->GetParameter( 1 );

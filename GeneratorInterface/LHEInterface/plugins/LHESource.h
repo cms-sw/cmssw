@@ -5,9 +5,9 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "FWCore/Framework/interface/GeneratedInputSource.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Sources/interface/ExternalInputSource.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
@@ -18,17 +18,13 @@ namespace lhef {
 	class LHEReader;
 }
 
-class LHESource : public edm::GeneratedInputSource {
+class LHESource : public edm::ExternalInputSource {
     public:
 	explicit LHESource(const edm::ParameterSet &params,
 	                   const edm::InputSourceDescription &desc);
 	virtual ~LHESource();
 
     protected:
-	LHESource(const edm::ParameterSet &params,
-	          const edm::InputSourceDescription &desc,
-	          lhef::LHEReader *reader);
-
 	virtual void endJob();
 	virtual void beginRun(edm::Run &run);
 	virtual bool produce(edm::Event &event);

@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.h,v 1.9 2008/07/08 21:24:50 gpetrucc Exp $
+// $Id: PATJetProducer.h,v 1.10.4.1 2008/11/25 15:39:40 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATJetProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of JetType.
 
   \author   Steven Lowette, Jeremy Andrea
-  \version  $Id: PATJetProducer.h,v 1.9 2008/07/08 21:24:50 gpetrucc Exp $
+  \version  $Id: PATJetProducer.h,v 1.10.4.1 2008/11/25 15:39:40 gpetrucc Exp $
 */
 
 
@@ -23,14 +23,13 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/Common/interface/View.h"
 
-#include "PhysicsTools/Utilities/interface/EtComparator.h"
+#include "PhysicsTools/Utilities/interface/PtComparator.h"
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 
 #include "PhysicsTools/PatAlgos/interface/EfficiencyLoader.h"
-
 
 #include "DataFormats/PatCandidates/interface/UserData.h"
 #include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
@@ -39,10 +38,6 @@ class JetFlavourIdentifier;
 
 
 namespace pat {
-
-
-  class ObjectResolutionCalc;
-
 
   class PATJetProducer : public edm::EDProducer {
 
@@ -71,10 +66,6 @@ namespace pat {
       edm::InputTag            jetCorrFactorsSrc_;
       bool                     addTrigMatch_;
       std::vector<edm::InputTag> trigMatchSrc_;
-      bool                     addResolutions_;
-      bool                     useNNReso_;
-      std::string              caliJetResoFile_;
-      std::string              caliBJetResoFile_;
 
       bool                     addBTagInfo_;
       bool                     addDiscriminators_; 
@@ -88,13 +79,12 @@ namespace pat {
       bool                     addJetCharge_;
       edm::InputTag            jetCharge_;
       // tools
-      ObjectResolutionCalc             * theResoCalc_;
-      ObjectResolutionCalc             * theBResoCalc_;
-      GreaterByEt<Jet>                   eTComparator_;
+      GreaterByPt<Jet>                   pTComparator_;
 
       bool addEfficiencies_;
       pat::helper::EfficiencyLoader efficiencyLoader_;
 
+      bool                     addResolutions_;
 
       bool useUserData_;
       pat::PATUserDataHelper<pat::Jet>      userDataHelper_;

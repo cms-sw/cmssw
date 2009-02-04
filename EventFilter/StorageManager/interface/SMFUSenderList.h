@@ -38,7 +38,7 @@ class SMFUSenderList  //< list of data senders with thread-safe access
     const unsigned int hltInstance, const unsigned int hltTid,
     const unsigned int frameCount, const unsigned int numFrames,
     toolbox::mem::Reference *ref, const std::string outModName, 
-    const uint32 outModId, const uint32 rbBufferID);
+    const uint32 outModId, const uint32 fuID);
   /// Update data sender information and statistics for each data
   /// frame received, return true if this frame completes an event
   /// return -1 if problems, 1 if complete an event, 0 otherwise
@@ -57,20 +57,20 @@ class SMFUSenderList  //< list of data senders with thread-safe access
   void setRegCheckedOK(const char* hltURL,
     const char* hltClassName, const unsigned int hltLocalId,
     const unsigned int hltInstance, const unsigned int hltTid, 
-    const std::string outModName, const uint32 rbBufferID);
+    const std::string outModName, const uint32 fuID);
   /// methods for access to sender info and statistics
   char* getRegistryData(const char* hltURL,
     const char* hltClassName, const unsigned int hltLocalId,
     const unsigned int hltInstance, const unsigned int hltTid, 
-    const std::string outModName, const uint32 rbBufferID);
+    const std::string outModName, const uint32 fuID);
   void shrinkRegistryData(const char* hltURL,
     const char* hltClassName, const unsigned int hltLocalId,
     const unsigned int hltInstance, const unsigned int hltTid, 
-    const std::string outModName, const uint32 rbBufferID);
+    const std::string outModName, const uint32 fuID);
   unsigned int getRegistrySize(const char* hltURL,
     const char* hltClassName, const unsigned int hltLocalId,
     const unsigned int hltInstance, const unsigned int hltTid, 
-    const std::string outModName, const uint32 rbBufferID);
+    const std::string outModName, const uint32 fuID);
   /// provide access to (self-consistent) statistics
   std::vector<boost::shared_ptr<SMFUSenderStats> > getSenderStats();
 
@@ -84,7 +84,7 @@ class SMFUSenderList  //< list of data senders with thread-safe access
   boost::shared_ptr<stor::SMFUSenderEntry> findEntry(const char* hltURL, 
     const char* hltClassName, const unsigned int hltLocalId, 
     const unsigned int hltInstance, const unsigned int hltTid,
-    const uint32 rbBufferID, const std::string outModName);
+    const uint32 fuID, const std::string outModName);
   boost::shared_ptr<stor::SMFUSenderEntry> findFirstEntry(const char* hltURL, 
     const char* hltClassName, const unsigned int hltLocalId, 
     const unsigned int hltInstance, const unsigned int hltTid,
@@ -98,7 +98,7 @@ class SMFUSenderList  //< list of data senders with thread-safe access
     const unsigned int hltInstance, const unsigned int hltTid,
     const unsigned int frameCount, const unsigned int numFrames,
     toolbox::mem::Reference *ref, const std::string outModName, 
-    const uint32 outModId, const uint32 rbBufferID);
+    const uint32 outModId, const uint32 fuID);
 /*
   bool eraseFirstFUEntry(const char* hltURL, const char* hltClassName, 
                   const unsigned int hltLocalId,

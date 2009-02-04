@@ -6,7 +6,7 @@
      Header file shared memory to be used with FUShmOutputModule.
      See CMS EvF Storage Manager wiki page for further notes.
 
-   $Id: FUShmOutputModule.h,v 1.3 2008/08/18 04:16:01 hcheung Exp $
+   $Id: FUShmOutputModule.h,v 1.2 2007/05/01 22:37:31 hcheung Exp $
 */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -60,10 +60,6 @@ namespace edm
   private:
 
     evf::FUShmBuffer* shmBuffer_;
-
-    static bool fuIdsInitialized_;
-    static uint32 fuProcId_;
-    static uint32 fuGuidValue_;
 
   };
 }

@@ -22,7 +22,6 @@ bachtis@hep.wisc.edu
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
-
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 //Include DQM core
@@ -44,12 +43,10 @@ class HLTTauValidation : public edm::EDAnalyzer {
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
+  LVColl getFilterCollection(size_t,int,const trigger::TriggerEventWithRefs&);
 
   //helper functions
   bool match(const LV&,const LVColl&,double);
-  std::vector<double> calcEfficiency(int,int);
-  
-
 
   /// InputTag of TriggerEventWithRefs to analyze
   edm::InputTag triggerEventObject_;
@@ -61,64 +58,22 @@ class HLTTauValidation : public edm::EDAnalyzer {
   //Just a tag for better file organization
   std::string triggerTag_;
 
-  //The four basic filters
-  edm::InputTag l1seedFilter_;
-  edm::InputTag l2filter_;
-  edm::InputTag l25filter_;
-  edm::InputTag l3filter_;
+  //The  filters
+  std::vector<edm::InputTag> filter_;
+  std::vector<int> TauType_;
+  std::vector<int> LeptonType_;
 
+  //Parameters(Note that the first entry is for the reference events)
+  std::vector<unsigned> nTriggeredTaus_;
+  std::vector<unsigned> nTriggeredLeptons_;
 
-  //electron filter
-  edm::InputTag electronFilter_;
-  //muon filter
-  edm::InputTag muonFilter_;
-
-
-  //Parameters
-  unsigned nTriggeredTaus_;
-  unsigned nTriggeredLeptons_;
   bool doRefAnalysis_;
-  std::string outFile_;
-  std::string logFile_;
-  double matchDeltaRL1_;
-  double matchDeltaRHLT_;
+  std::vector<double> matchDeltaR_;
+
+
 
   //MonitorElements
-
-  /*Trigger Bits for Tau and Reference Trigger*/
-  MonitorElement *l1eteff;
-  MonitorElement *l2eteff;
-  MonitorElement *l25eteff;
-  MonitorElement *l3eteff;
-
-  MonitorElement *refEt;
-  MonitorElement *refEta;
-
-  MonitorElement *l1etaeff;
-  MonitorElement *l2etaeff;
-  MonitorElement *l25etaeff;
-  MonitorElement *l3etaeff;
-
   MonitorElement *accepted_events;
   MonitorElement *accepted_events_matched;
-
-
-
- 
-
-  //Define Numbers 
-  int NRefEvents;
-  int NLeptonEvents;
-  int NLeptonEvents_Matched;
-  int NL1Events;
-  int NL1Events_Matched;
-  int NL2Events;
-  int NL2Events_Matched;
-  int NL25Events;
-  int NL25Events_Matched;
-  int NL3Events;
-  int NL3Events_Matched;
- 
-
 };
 #endif

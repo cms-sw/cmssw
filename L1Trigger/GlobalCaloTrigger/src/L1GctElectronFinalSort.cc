@@ -1,8 +1,8 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronFinalSort.h"
 
-#include "FWCore/Utilities/interface/Exception.h"
-
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmLeafCard.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 L1GctElectronFinalSort::L1GctElectronFinalSort(bool iso, L1GctEmLeafCard* posEtaCard,
                                                          L1GctEmLeafCard* negEtaCard):
@@ -10,19 +10,29 @@ L1GctElectronFinalSort::L1GctElectronFinalSort(bool iso, L1GctEmLeafCard* posEta
   m_emCandsType(iso),
   m_thePosEtaLeafCard(0), m_theNegEtaLeafCard(0),
   m_inputCands(16),
-  m_outputCands(4)
+  m_outputCands(4),
+  m_setupOk(true)
 {
   if(posEtaCard!=0){
     m_thePosEtaLeafCard = posEtaCard;
   }else{
-    throw cms::Exception("L1GctSetupError")
-      <<"L1GctElectronFinalSort::Constructor() : 1st EmLeafCard passed is zero";
-      }
+    m_setupOk = false;
+    if (m_verbose) {
+      edm::LogWarning("L1GctSetupError")
+	<<"L1GctElectronFinalSort::Constructor() : 1st EmLeafCard passed is zero";
+    }
+  }
   if(negEtaCard!=0){
     m_theNegEtaLeafCard = negEtaCard;
   }else{
-    throw cms::Exception("L1GctSetupError")
-      <<"L1GctElectronFinalSort::Constructor() : 2nd EmLeafCard passed is zero";
+    m_setupOk = false;
+    if (m_verbose) {
+      edm::LogWarning("L1GctSetupError")
+	<<"L1GctElectronFinalSort::Constructor() : 2nd EmLeafCard passed is zero";
+    }
+  }
+  if (!m_setupOk && m_verbose) {
+    edm::LogError("L1GctSetupError") << "L1GctElectronFinalSort has been incorrectly constructed";
   }
 }
 
@@ -41,41 +51,45 @@ void L1GctElectronFinalSort::resetPipelines() {
 }
 
 void L1GctElectronFinalSort::fetchInput() {
-  for (int k=0; k<4; k++) {  /// loop over candidates from four electron sorter FPGAs
-    if (m_emCandsType) {
-      setInputEmCand(  k  , m_thePosEtaLeafCard->getIsoElectronSorterU1()->getOutputCands().at(k)); 
-      setInputEmCand( k+4 , m_thePosEtaLeafCard->getIsoElectronSorterU2()->getOutputCands().at(k)); 
-      setInputEmCand( k+8 , m_theNegEtaLeafCard->getIsoElectronSorterU1()->getOutputCands().at(k)); 
-      setInputEmCand( k+12, m_theNegEtaLeafCard->getIsoElectronSorterU2()->getOutputCands().at(k)); 
-    }
-    else {
-      setInputEmCand(  k  , m_thePosEtaLeafCard->getNonIsoElectronSorterU1()->getOutputCands().at(k)); 
-      setInputEmCand( k+4 , m_thePosEtaLeafCard->getNonIsoElectronSorterU2()->getOutputCands().at(k)); 
-      setInputEmCand( k+8 , m_theNegEtaLeafCard->getNonIsoElectronSorterU1()->getOutputCands().at(k)); 
-      setInputEmCand( k+12, m_theNegEtaLeafCard->getNonIsoElectronSorterU2()->getOutputCands().at(k)); 
+  if (m_setupOk) {
+    for (int k=0; k<4; k++) {  /// loop over candidates from four electron sorter FPGAs
+      if (m_emCandsType) {
+	setInputEmCand(  k  , m_thePosEtaLeafCard->getIsoElectronSorterU1()->getOutputCands().at(k)); 
+	setInputEmCand( k+4 , m_thePosEtaLeafCard->getIsoElectronSorterU2()->getOutputCands().at(k)); 
+	setInputEmCand( k+8 , m_theNegEtaLeafCard->getIsoElectronSorterU1()->getOutputCands().at(k)); 
+	setInputEmCand( k+12, m_theNegEtaLeafCard->getIsoElectronSorterU2()->getOutputCands().at(k)); 
+      }
+      else {
+	setInputEmCand(  k  , m_thePosEtaLeafCard->getNonIsoElectronSorterU1()->getOutputCands().at(k)); 
+	setInputEmCand( k+4 , m_thePosEtaLeafCard->getNonIsoElectronSorterU2()->getOutputCands().at(k)); 
+	setInputEmCand( k+8 , m_theNegEtaLeafCard->getNonIsoElectronSorterU1()->getOutputCands().at(k)); 
+	setInputEmCand( k+12, m_theNegEtaLeafCard->getNonIsoElectronSorterU2()->getOutputCands().at(k)); 
+      }
     }
   }
 }
 
 void L1GctElectronFinalSort::process(){
 
-  std::vector<prioritisedEmCand> data(m_inputCands.size());
-  // Assign a "priority" for sorting - this assumes the candidates
-  // have already been filled in "priority order"
-  for (unsigned i=0; i<m_inputCands.size(); i++) {
-    prioritisedEmCand c(m_inputCands.at(i), i);
-    data.at(i) = c;
-  }
+  if (m_setupOk) {
+    std::vector<prioritisedEmCand> data(m_inputCands.size());
+    // Assign a "priority" for sorting - this assumes the candidates
+    // have already been filled in "priority order"
+    for (unsigned i=0; i<m_inputCands.size(); i++) {
+      prioritisedEmCand c(m_inputCands.at(i), i);
+      data.at(i) = c;
+    }
 
-  //Then sort it
-  sort(data.begin(),data.end(),rank_gt());
+    //Then sort it
+    sort(data.begin(),data.end(),rank_gt());
   
-  //Copy data to output buffer
-  std::vector<L1GctEmCand> temp(4);
-  for(int i = 0; i<4; i++){
-    temp.at(i) = data.at(i).emCand;
+    //Copy data to output buffer
+    std::vector<L1GctEmCand> temp(4);
+    for(int i = 0; i<4; i++){
+      temp.at(i) = data.at(i).emCand;
+    }
+    m_outputCands.store(temp, bxRel());
   }
-  m_outputCands.store(temp, bxRel());
 }
 
 void L1GctElectronFinalSort::setInputEmCand(unsigned i, const L1GctEmCand& cand){

@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiEvtSolutionMaker.cc,v 1.39 2008/08/28 00:38:51 rwolf Exp $
+// $Id: TtSemiEvtSolutionMaker.cc,v 1.40 2008/09/24 15:08:11 snaumann Exp $
 //
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtSemiEvtSolutionMaker.h"
@@ -211,11 +211,11 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
           recjets.push_back( &jetbl );
           JetPartonMatching aMatch(quarks, recjets, matchingAlgo_, useMaxDist_, useDeltaR_, maxDist_);   
           (*evtsols)[s].setGenEvt(genEvt);   
-          (*evtsols)[s].setMCBestSumAngles(aMatch.getSumAngles());
-          (*evtsols)[s].setMCBestAngleHadp(aMatch.getAngleForParton(0));
-          (*evtsols)[s].setMCBestAngleHadq(aMatch.getAngleForParton(1));
-          (*evtsols)[s].setMCBestAngleHadb(aMatch.getAngleForParton(2));
-          (*evtsols)[s].setMCBestAngleLepb(aMatch.getAngleForParton(3));
+          (*evtsols)[s].setMCBestSumAngles(aMatch.getSumDistances());
+          (*evtsols)[s].setMCBestAngleHadp(aMatch.getDistanceForParton(0));
+          (*evtsols)[s].setMCBestAngleHadq(aMatch.getDistanceForParton(1));
+          (*evtsols)[s].setMCBestAngleHadb(aMatch.getDistanceForParton(2));
+          (*evtsols)[s].setMCBestAngleLepb(aMatch.getDistanceForParton(3));
           if(aMatch.getMatchForParton(2) == 2 && aMatch.getMatchForParton(3) == 3){
             if(aMatch.getMatchForParton(0) == 0 && aMatch.getMatchForParton(1) == 1) {
               bestSolution = s;

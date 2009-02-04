@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/16 16:30:55 $
- *  $Revision: 1.13 $
+ *  $Date: 2009/01/16 16:43:47 $
+ *  $Revision: 1.15 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -45,13 +45,13 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <sstream>
 #include <algorithm>
 #include <iterator>
 #include <map>
 #include <set>
 #include "Utilities/General/interface/precomputed_value_sort.h"
 
-#include "MagneticField/GeomBuilder/src/VolumeBasedMagneticFieldESProducer.h"
 
 bool MagGeoBuilderFromDDD::debug;
 
@@ -415,13 +415,41 @@ void MagGeoBuilderFromDDD::buildMagVolumes(const handles & volumes, map<string, 
       //FIXME08      continue;
     }
       
+
+    // Get the volume number from the volume name.
+    int volNum;
+    string name = (*vol)->name;
+    name.erase(0,name.rfind('_')+1);
+    stringstream str;    
+    str << name;
+    str >> volNum;
+
+
+    int key = volNum*100+(*vol)->copyno; 
+    // FIXME: is copyno == sector??? should be the case for V1103l; but not
+    // for 85l
+
+    map<int, double>::const_iterator isf = theScalingFactors.find(key);
+    if (isf == theScalingFactors.end()) {
+      key = volNum*100;
+      isf = theScalingFactors.find(key);
+    }
+    
+    double sf = 1.;
+    if (isf != theScalingFactors.end()) {
+      sf = (*isf).second;
+
+      //FIXME
+      edm::LogInfo("MagneticField|VolumeBasedMagneticFieldESProducer") << "Applying scaling factor " << sf << " to "<< (*vol)->name << " (key:" << key << ")" << endl;
+    }
+
     const GloballyPositioned<float> * gpos = (*vol)->placement();
     // FIXME check pos, rot corrsponds
     (*vol)->magVolume = new MagVolume6Faces(gpos->position(),
 					    gpos->rotation(),
 					    (*vol)->shape(),
 					    (*vol)->sides(),
-					    mp);
+					    mp, sf);
 
     // FIXME: debug, to be removed
     (*vol)->magVolume->name = (*vol)->name;
@@ -598,3 +626,18 @@ float MagGeoBuilderFromDDD::maxZ() const{
   //FIXME: get from the actual geometry!!!
   return 1600.;
 }
+
+
+void MagGeoBuilderFromDDD::setScaling(std::vector<int> keys, 
+				      std::vector<double> values)
+{
+  if (keys.size() != values.size()) {
+    throw cms::Exception("InvalidParameter") << "Invalid field scaling parameters 'scalingVolumes' and 'scalingFactors' ";
+  }
+  for (unsigned int i=0; i<keys.size(); ++i) {
+    theScalingFactors[keys[i]] = values[i];
+  }
+}
+
+
+

@@ -8,8 +8,7 @@
    Description: Fake event source to produce user designed run or time conditions.
 */
 //
-// Original Author:      Zhen Xie
-// $Id: EmptyIOVSource.h,v 1.6 2008/08/20 14:59:24 xiezhen Exp $
+// Author:      Zhen Xie
 //
 
 #include "FWCore/Framework/interface/ConfigurableInputSource.h"
@@ -25,10 +24,10 @@ namespace cond {
     virtual void setRunAndEventInfo();
   private:
     std::string m_timeType;
-    boost::uint64_t m_firstValid;
-    boost::uint64_t m_lastValid;
+    unsigned long long m_firstValid;
+    unsigned long long m_lastValid;
     //unsigned long long m_currentValid;
-    boost::uint64_t m_interval;
+    unsigned long long m_interval;
     std::set<cond::Time_t> m_iovs;
     std::set<cond::Time_t>::iterator m_iovit;
     std::set<cond::Time_t>::iterator m_current;

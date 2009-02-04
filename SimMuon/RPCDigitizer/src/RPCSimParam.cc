@@ -67,7 +67,6 @@ RPCSimParam::simulate(const RPCRoll* roll,
 
   const Topology& topology=roll->specs()->topology();
 
-  std::cout<<"NUMERO DI SIMHIT: "<<rpcHits.size()<<std::endl;
   for (edm::PSimHitContainer::const_iterator _hit = rpcHits.begin();
        _hit != rpcHits.end(); ++_hit){
 

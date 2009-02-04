@@ -1,7 +1,7 @@
 #ifndef FILERECORD_H
 #define FILERECORD_H
 
-// $Id: FileRecord.h,v 1.8 2008/08/20 13:20:46 loizides Exp $
+// $Id: FileRecord.h,v 1.7 2008/08/13 18:51:17 biery Exp $
 #include <EventFilter/StorageManager/interface/Parameter.h>
 #include <boost/shared_ptr.hpp>
 #include <string>
@@ -28,11 +28,11 @@ namespace edm {
       void   increaseFileSize(int i)       { fileSize_   += (long long) i; }
       void   increaseEventCount()          { events_++; }
       void   checkDirectories()      const;
-      void   setRunNumber(int i)                      { runNumber_ = i; }
-      void   setStreamLabel(const std::string &s)     { streamLabel_ = s;}
-      void   setSetupLabel(const std::string &s)      { setupLabel_ = s;}
-      void   setWhyClosed(int w)                      { whyClosed_  = w; }
-      void   setadler(unsigned int s, unsigned int i) { adlerstream_ = s; adlerindex_ = i; }
+      void   setRunNumber(int i)                     { runNumber_ = i; }
+      void   setStreamLabel(const std::string &s)    { streamLabel_ = s;}
+      void   setSetupLabel(const std::string &s)     { setupLabel_ = s;}
+      void   setWhyClosed(int w)                     { whyClosed_  = w; }
+
       const std::string& fileName()  const { return fileName_; }
       const std::string& basePath()  const { return basePath_; }
       std::string fileSystem()       const { return basePath_ + fileSystem_; }
@@ -54,27 +54,25 @@ namespace edm {
     private:
       boost::shared_ptr<stor::Parameter> smParameter_; 
 
-      std::string  fileName_;                         // file name (w/o ending)
-      std::string  basePath_;                         // base path name
-      std::string  fileSystem_;                       // file system directory
-      std::string  workingDir_;                       // current working directory
-      std::string  logPath_;                          // log path
-      std::string  logFile_;                          // log file including path
-      std::string  setupLabel_;                       // setup label
-      std::string  streamLabel_;                      // datastream label
-      std::string  cmsver_;                           // CMSSW version string
-      int          lumiSection_;                      // luminosity section  
-      int          runNumber_;                        // runNumber
-      int          fileCounter_;                      // number of files with fileName_ as name
-      long long    fileSize_;                         // current file size
-      int          events_;                           // total number of events
-      double       firstEntry_;                       // time when last event was writen
-      double       lastEntry_;                        // time when last event was writen
+      std::string fileName_;                         // file name (w/o ending)
+      std::string basePath_;                         // base path name
+      std::string fileSystem_;                       // file system directory
+      std::string workingDir_;                       // current working directory
+      std::string logPath_;                          // log path
+      std::string logFile_;                          // log file including path
+      std::string setupLabel_;                       // setup label
+      std::string streamLabel_;                      // datastream label
+      std::string cmsver_;                           // CMSSW version string
+      int         lumiSection_;                      // luminosity section  
+      int         runNumber_;                        // runNumber
+      int         fileCounter_;                      // number of files with fileName_ as name
+      long long   fileSize_;                         // current file size
+      int         events_;                           // total number of events
+      double      firstEntry_;                       // time when last event was writen
+      double      lastEntry_;                        // time when last event was writen
 
-      int          whyClosed_;                        // record why file was closed 
-                                                      // (0=open,1=stop,2=N-2lumi,3=timeout,4=size)
-      unsigned int adlerstream_;                      // adler32 checksum for streamer file
-      unsigned int adlerindex_;                       // adler32 checksum for index file
+      int         whyClosed_;                        // record why file was closed 
+                                                     // (0=open,1=stop,2=N-2lumi,3=timeout,4=size)
 
       void   checkDirectory(const std::string &) const;
       double calcPctDiff(long long, long long) const;

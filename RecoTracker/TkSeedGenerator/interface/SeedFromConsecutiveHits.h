@@ -27,28 +27,45 @@ class SeedFromConsecutiveHits{
  public:
   typedef edm::OwnVector<TrackingRecHit> recHitContainer;
   
+  // obsolete!
+  SeedFromConsecutiveHits( const TrackingRecHit* outerHit,
+			   const TrackingRecHit* innerHit,
+			   const GlobalPoint& vertexPos,
+			   const GlobalError& vertexErr,
+			   const edm::EventSetup& iSetup,
+			   const edm::ParameterSet& p
+			   );
+
   SeedFromConsecutiveHits(const SeedingHitSet & hits,
     const GlobalPoint& vertexPos,
     const GlobalError& vertexErr,
     const edm::EventSetup& es,
-    float ptMin,
     double theBOFFMomentum=-1.0);
   
   virtual  ~SeedFromConsecutiveHits(){};
 
-  bool isValid() {return isValid_; }
+  bool isValid() {return isValid_;}
   
-  PropagationDirection direction(){ return alongMomentum; }
+  PropagationDirection direction(){
+    //as in ORCA
+    return alongMomentum;};
   
-  recHitContainer hits(){ return _hits; }
+  recHitContainer hits(){ return _hits; };
 
-  PTrajectoryStateOnDet trajectoryState(){return *PTraj;}
-  TrajectorySeed TrajSeed(){return TrajectorySeed(trajectoryState(),hits(),direction());}
-
+  PTrajectoryStateOnDet trajectoryState(){return *PTraj;};
+  TrajectorySeed TrajSeed(){return TrajectorySeed(trajectoryState(),hits(),direction());};
  private:
 
+  bool construct( const TrackingRecHit* outerHit,
+		  const TrackingRecHit* innerHit,
+		  const GlobalPoint& vertexPos,
+		  const GlobalError& vertexErr,
+		  const edm::EventSetup& iSetup,
+		  const edm::ParameterSet& p
+		  );
+
   CurvilinearTrajectoryError initialError(
-      const GlobalPoint& vertexPos, const GlobalError& vertexErr, float sinTheta, float ptMin);
+		   const GlobalPoint& vertexPos, const GlobalError& vertexErr, float sinTheta);
 
   TrajectoryStateTransform transformer;
   TransientTrackingRecHit::ConstRecHitPointer outrhit;

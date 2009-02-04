@@ -92,23 +92,12 @@ void RootErrorHandler(int level, bool die, char const* location, char const* mes
 
 // Intercept some messages and downgrade the severity
 
-    if (el_message.find("dictionary") != std::string::npos) {
-      el_severity = edm::ELseverityLevel::ELsev_info;
-    }
-
-    if (el_message.find("already in TClassTable") != std::string::npos) {
-      el_severity = edm::ELseverityLevel::ELsev_info;
-    }
-
-    if (el_message.find("matrix not positive definite") != std::string::npos) {
-      el_severity = edm::ELseverityLevel::ELsev_info;
-    }
-
-    if (el_location.find("TDecompChol::Solve") != std::string::npos) {
-      el_severity = edm::ELseverityLevel::ELsev_info;
-    }
-
-    if (el_location.find("THistPainter::PaintInit") != std::string::npos) {
+    if ((el_message.find("dictionary") != std::string::npos) ||
+        (el_message.find("already in TClassTable") != std::string::npos) ||
+        (el_message.find("matrix not positive definite") != std::string::npos) ||
+        (el_location.find("Fit") != std::string::npos) ||
+        (el_location.find("TDecompChol::Solve") != std::string::npos) ||
+        (el_location.find("THistPainter::PaintInit") != std::string::npos)) {
       el_severity = edm::ELseverityLevel::ELsev_info;
     }
 

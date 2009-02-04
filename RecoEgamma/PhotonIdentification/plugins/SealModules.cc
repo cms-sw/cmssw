@@ -10,9 +10,8 @@ DEFINE_SEAL_MODULE();
 
 #include "RecoEgamma/PhotonIdentification/plugins/PhotonIDProducer.h"
 #include "RecoEgamma/PhotonIdentification/plugins/PhotonIDSimpleAnalyzer.h"
-#include "RecoEgamma/PhotonIdentification/plugins/PatPhotonSimpleAnalyzer.h"
+
 
 DEFINE_ANOTHER_FWK_MODULE(PhotonIDProducer);
 DEFINE_ANOTHER_FWK_MODULE(PhotonIDSimpleAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(PatPhotonSimpleAnalyzer);
 

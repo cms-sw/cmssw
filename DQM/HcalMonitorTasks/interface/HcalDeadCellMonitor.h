@@ -5,154 +5,118 @@
 //#include "CalibFormats/HcalObjects/interface/HcalCalibrationWidths.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include <cmath>
-#include <iostream>
-#include <fstream>
 
 /** \class HcalDeadCellMonitor
-  *
-  * $Date: 2008/10/29 23:37:34 $
-  * $Revision: 1.21 $
+  *  
+  * $Date: 2008/07/21 22:55:06 $
+  * $Revision: 1.14 $
   * \author J. Temple - Univ. of Maryland
   */
 
-struct neighborParams{
-  int DeltaIphi;
-  int DeltaIeta;
-  int DeltaDepth;
-  double maxCellEnergy; // cells above this threshold can never be considered "dead" by this algorithm
-  double minNeighborEnergy; //neighbors must have some amount of energy to be counted
-  double minGoodNeighborFrac; // fraction of neighbors with good energy must be above this value
-  double maxEnergyFrac; // cell energy/(neighbors); must be less than maxEnergyFrac for cell to be dead
+struct DeadCellHists{
+
+  bool origcheck;
+  bool check; // determine whether to run DeadCell checks on this subdetector
+  int fVerbosity; // not yet implemented for subdetectors -- use later?
+  bool makeDiagnostics; // determine whether or not to make diagnostic plots
+
+  int type; // store subdetector type (1=hb, 2=he, 3=ho, 4=hf, 10=hcal)
+  std::string subdet; // store subdetector name (HB, HE,...)
+
+  // Global histogram to keep track of all bad histograms in a given subdetector
+  MonitorElement* problemDeadCells;
+  MonitorElement* problemDeadCells_depth[4];
+ 
+
+  // Dead cell routine #1:  low ADC counts for cell
+  MonitorElement* deadADC_map;
+  MonitorElement* deadADC_map_depth[4]; // individual depth plots
+  TH2F* deadADC_temp_depth[4];
+  //MonitorElement* noADC_ID_map;
+  MonitorElement* deadADC_eta;
+  //MonitorElement* noADC_ID_eta;
+  MonitorElement* ADCdist;
+  MonitorElement* deadcapADC_map[4]; // plots for individual CAPIDs
+
+  // Dead cell routine #2:  cell cool compared to neighbors
+  double floor, mindiff;
+  MonitorElement* NADA_cool_cell_map;
+  MonitorElement* NADA_cool_cell_map_depth[4]; // individual depth plots
+
+  // Dead cell routine #3:  cell consistently less than pedestal + N sigma
+  MonitorElement* coolcell_below_pedestal;
+  MonitorElement* above_pedestal;
+  MonitorElement* coolcell_below_pedestal_depth[4];
+  MonitorElement* above_pedestal_depth[4];
+  TH2F* above_pedestal_temp_depth[4];
+  
+  // extra diagnostic plots - could be removed?  
+  // Should already have these in DigiMonitor, RecHitMonitor
+  MonitorElement* digiCheck;
+  MonitorElement* cellCheck;
+  MonitorElement* digiCheck_depth[4];
+  MonitorElement* cellCheck_depth[4];
 };
 
+
 class HcalDeadCellMonitor: public HcalBaseMonitor {
-
  public:
-  HcalDeadCellMonitor();
-
-  ~HcalDeadCellMonitor();
+  HcalDeadCellMonitor(); 
+  ~HcalDeadCellMonitor(); 
 
   void setup(const edm::ParameterSet& ps, DQMStore* dbe);
-  void setupNeighborParams(const edm::ParameterSet& ps, neighborParams& N, char* type);
-  void done(); // overrides base class function
+  void setSubDetectors(bool hb, bool he, bool ho, bool hf);
+  void done(); // overrides base class function 
   void clearME(); // overrides base class function
-  void reset();
 
-  void createMaps(const HcalDbService& cond);
-  
-  void processEvent(const HBHERecHitCollection& hbHits,
-                    const HORecHitCollection& hoHits,
-                    const HFRecHitCollection& hfHits,
-		    //const ZDCRecHitCollection& zdcHits,
+  void processEvent(const HBHERecHitCollection& hbHits, 
+		    const HORecHitCollection& hoHits, 
+		    const HFRecHitCollection& hfHits,
 		    const HBHEDigiCollection& hbhedigi,
-                    const HODigiCollection& hodigi,
-                    const HFDigiCollection& hfdigi,
-		    //const ZDCDigiCollection& zdcdigi, 
-		    const HcalDbService& cond
-		    );
-
+		    const HODigiCollection& hodigi,
+		    const HFDigiCollection& hfdigi,
+		    const HcalDbService& cond);
+    
   void processEvent_digi(const HBHEDigiCollection& hbhedigi,
 			 const HODigiCollection& hodigi,
 			 const HFDigiCollection& hfdigi,
-			 //const ZDCDigiCollection& zdcdigi, 
-			 const HcalDbService& cond
-			 );
+			 const HcalDbService& cond);
 
-  void processEvent_rechitenergy( const HBHERecHitCollection& hbheHits,
-				  const HORecHitCollection& hoHits,
-				  const HFRecHitCollection& hfHits);
-
-  void processEvent_rechitneighbors( const HBHERecHitCollection& hbheHits,
-				     const HORecHitCollection& hoHits,
-				     const HFRecHitCollection& hfHits);
-  void fillDeadHistosAtEndRun();
- private:
-
-  void fillNevents_occupancy();
-  void fillNevents_pedestal();
-  void fillNevents_neighbor();
-  void fillNevents_energy();
-
-  void fillNevents_problemCells();
-
-  bool doFCpeds_; //specify whether pedestals are in fC (if not, assume ADC)
-  bool deadmon_makeDiagnostics_;
-
-  // Booleans to control which of the three dead cell checking routines are used
-  bool deadmon_test_occupancy_;
-  bool deadmon_test_pedestal_;
-  bool deadmon_test_neighbor_;
-  bool deadmon_test_energy_;
-  bool deadmon_test_rechit_occupancy_;
-
-  int deadmon_checkNevents_;  // specify how often to check is cell is dead
-  // Let each test have its own checkNevents value
-  int deadmon_checkNevents_occupancy_;
-  int deadmon_checkNevents_pedestal_;
-  int deadmon_checkNevents_neighbor_;
-  int deadmon_checkNevents_energy_;
-  int deadmon_checkNevents_rechit_occupancy_;
-
-  double energyThreshold_;
-  double HBenergyThreshold_;
-  double HEenergyThreshold_;
-  double HOenergyThreshold_;
-  double HFenergyThreshold_;
-  double ZDCenergyThreshold_;
-
-  MonitorElement* meEVT_;
-  int ievt_;
-
-  double deadmon_minErrorFlag_; // minimum error rate needed to dump out bad bin info 
-  // Problem Histograms
-  MonitorElement* ProblemDeadCells;
-  std::vector<MonitorElement*> ProblemDeadCellsByDepth;
-
-  std::vector<MonitorElement*>UnoccupiedDeadCellsByDepth;
-  std::vector<MonitorElement*>UnoccupiedRecHitsByDepth;
-  std::vector<MonitorElement*>BelowPedestalDeadCellsByDepth;
-  double nsigma_;
-  double HBnsigma_, HEnsigma_, HOnsigma_, HFnsigma_, ZDCnsigma_;
-  std::vector<MonitorElement*>BelowNeighborsDeadCellsByDepth;
-  std::vector<MonitorElement*>BelowEnergyThresholdCellsByDepth;
+  void processEvent_hits(const HBHERecHitCollection& hbHits, 
+			 const HORecHitCollection& hoHits, 
+			 const HFRecHitCollection& hfHits);
+  void setupHists(DeadCellHists& hist,  DQMStore* dbe);
+  void reset_Nevents(DeadCellHists& h);
+  void fill_Nevents(DeadCellHists& hcal, DeadCellHists& hb, DeadCellHists& he, DeadCellHists& ho, DeadCellHists& hf);
+  void reset();
 
 
-  // map of pedestals from database (in ADC)
-  std::map<HcalDetId, float> pedestals_;
-  std::map<HcalDetId, float> widths_;
-  std::map<HcalDetId, float> pedestal_thresholds_;
-  std::map<HcalDetId, double> rechitEnergies_;
+ private:  ///Methods
   
+   bool debug_;
 
-  unsigned int occupancy[ETABINS][PHIBINS][4]; // will get filled when an occupied digi is found
-  unsigned int rechit_occupancy[ETABINS][PHIBINS][4]; // filled when rechit is presentx
-  unsigned int abovepedestal[ETABINS][PHIBINS][4]; // filled when digi is below pedestal+nsigma
-  unsigned int belowneighbors[ETABINS][PHIBINS][4];
-  unsigned int aboveenergy[ETABINS][PHIBINS][4];
+   bool checkAbovePed_;
 
-  // Diagnostic plots
-  MonitorElement* d_HBnormped;
-  MonitorElement* d_HEnormped;
-  MonitorElement* d_HOnormped;
-  MonitorElement* d_HFnormped;
-  MonitorElement* d_ZDCnormped;
+   bool doFCpeds_; // true if ped values are in FC; otherwise, assume peds in ADC counts
 
-  MonitorElement* d_HBrechitenergy;
-  MonitorElement* d_HErechitenergy;
-  MonitorElement* d_HOrechitenergy;
-  MonitorElement* d_HFrechitenergy;
-  MonitorElement* d_ZDCrechitenergy;
+   int ievt_;
+   double etaMax_, etaMin_, phiMax_, phiMin_;
+   int etaBins_, phiBins_;
+   int checkNevents_;
 
-  MonitorElement* d_HBenergyVsNeighbor;
-  MonitorElement* d_HEenergyVsNeighbor;
-  MonitorElement* d_HOenergyVsNeighbor;
-  MonitorElement* d_HFenergyVsNeighbor;
-  MonitorElement* d_ZDCenergyVsNeighbor;
+   double coolcellfrac_;
+   double Nsigma_;
+   double minADCcount_;
 
-  bool HBpresent_, HEpresent_, HOpresent_, HFpresent_;
+   double floor_, mindiff_;
 
-  neighborParams defaultNeighborParams_, HBNeighborParams_, HENeighborParams_, HONeighborParams_, HFNeighborParams_, ZDCNeighborParams_;
-};
+   DeadCellHists hbHists, heHists, hoHists, hfHists, hcalHists;
+   MonitorElement* meEVT_;
+   MonitorElement* meCheckN_; // copy of checkNevents saved to MonitorElement
+   HcalCalibrations calibs_; // shouldn't be necessary any more
+
+
+   //MonitorElement* problemDeadCells_;
+}; 
 
 #endif

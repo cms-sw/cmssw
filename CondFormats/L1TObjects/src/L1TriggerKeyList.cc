@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Feb 29 21:00:24 CET 2008
-// $Id: L1TriggerKeyList.cc,v 1.1 2008/03/03 07:31:07 wsun Exp $
+// $Id$
 //
 
 // system include files
@@ -59,30 +59,16 @@ L1TriggerKeyList::~L1TriggerKeyList()
 
 bool
 L1TriggerKeyList::addKey( const std::string& tscKey,
-			  const std::string& payloadToken,
-			  bool overwriteKey )
+			  const std::string& payloadToken )
 {
-  std::pair< KeyToToken::iterator, bool > result =
-    m_tscKeyToToken.insert( std::make_pair( tscKey, payloadToken ) ) ;
-
-  if( !result.second && overwriteKey )
-    {
-      // Erase previous entry
-      m_tscKeyToToken.erase( result.first ) ;
-
-      // Try again
-      result = m_tscKeyToToken.insert( std::make_pair( tscKey,
-						       payloadToken ) ) ;
-    }
-
-  return result.second ;
+  return
+    ( m_tscKeyToToken.insert( std::make_pair( tscKey,payloadToken ) ) ).second;
 }
 
 bool
 L1TriggerKeyList::addKey( const std::string& recordType,
 			  const std::string& key,
-			  const std::string& payloadToken,
-			  bool overwriteKey )
+			  const std::string& payloadToken )
 {
   RecordToKeyToToken::iterator it = m_recordKeyToken.find( recordType ) ;
 
@@ -92,19 +78,7 @@ L1TriggerKeyList::addKey( const std::string& recordType,
 						    KeyToToken() ) ).first ;
     } 
 
-  std::pair< KeyToToken::iterator, bool > result =
-    it->second.insert( std::make_pair( key, payloadToken ) ) ;
-
-  if( !result.second && overwriteKey )
-    {
-      // Erase previous entry
-      it->second.erase( result.first ) ;
-
-      // Try again
-      result = it->second.insert( std::make_pair( key, payloadToken ) ) ;
-    }
-
-  return result.second ;
+  return ( it->second.insert( std::make_pair( key, payloadToken ) ) ).second ;
 }
 
 //

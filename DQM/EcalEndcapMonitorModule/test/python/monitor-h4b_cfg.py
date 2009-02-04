@@ -32,7 +32,7 @@ process.load("CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cf
 
 process.load("DQMServices.Core.DQM_cfg")
 
-process.ecalEBunpacker = cms.EDProducer("EcalDCCTB07UnpackingModule",
+process.ecalEBunpacker = cms.EDFilter("EcalDCCTB07UnpackingModule",
     produceEBdigi = cms.untracked.bool(False),
     produceEEdigi = cms.untracked.bool(True),
 
@@ -60,7 +60,7 @@ process.preScaler = cms.EDFilter("Prescaler",
     prescaleFactor = cms.int32(1)
 )
 
-process.dqmInfoEE = cms.EDAnalyzer("DQMEventInfo",
+process.dqmInfoEE = cms.EDFilter("DQMEventInfo",
     subSystemFolder = cms.untracked.string('EcalEndcap')
 )
 

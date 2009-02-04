@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/10/25 12:01:15 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/08/01 12:02:38 $
+ *  $Revision: 1.4 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -24,10 +24,14 @@ bool DTHitQualityUtils::debug;
 // Constructor
 DTHitQualityUtils::DTHitQualityUtils(){
   //DTHitQualityUtils::setDebug(debug);
+  if(debug)
+    cout << "[DTHitQualityUtils] Constructor called!!" << endl;
 }
 
 // Destructor
 DTHitQualityUtils::~DTHitQualityUtils(){
+  if(debug)
+    cout << "[DTHitQualityUtils] Destructor called!!" << endl;
 }
 
 

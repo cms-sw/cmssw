@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Wed Feb  1 16:47:14 CET 2006
-// $Id: SiStripMonitorCluster.h,v 1.18 2008/10/05 11:11:25 dutta Exp $
+// $Id: SiStripMonitorCluster.h,v 1.19 2008/10/05 14:09:56 dutta Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -75,6 +75,7 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
   void createMEs(const edm::EventSetup& es);
   void createLayerMEs(std::string label, int ndets);
   void createModuleMEs(ModMEs& mod_single, uint32_t detid);
+  void createSubDetMEs(std::string label);
 
   void fillModuleMEs(ModMEs& mod_mes, ClusterProperties& cluster);
   void fillLayerMEs(LayerMEs&, ClusterProperties& cluster);
@@ -98,6 +99,7 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
   std::map<uint32_t, ModMEs> ModuleMEMap;
   std::map<std::string, LayerMEs> LayerMEMap;
   std::map<std::string, std::vector< uint32_t > > LayerDetMap;
+  std::map<std::string, MonitorElement* > SubDetMEsMap;
 
   // flags
   bool show_mechanical_structure_view, show_readout_view, show_control_view, select_all_detectors, reset_each_run;
@@ -132,6 +134,8 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
   bool moduleswitchcluswidthon;
   bool moduleswitchlocaloccupancy;
   bool moduleswitchnrclusterizedstrip;
+  bool subdetswitchtotclusterprofon;
+
 
   bool tibon;
   bool tidon;
