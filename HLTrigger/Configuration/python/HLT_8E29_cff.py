@@ -1,21 +1,32 @@
-# /dev/CMSSW_3_0_0/pre7/8E29_V14/V1 (CMSSW_3_1_X_2009-02-02-0200)
+# /dev/CMSSW_3_0_0/pre7/8E29_V22/V2 (CMSSW_3_1_X_2009-02-02-0200)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_0_0/pre7/8E29_V14/V1')
+  tableName = cms.string('/dev/CMSSW_3_0_0/pre7/8E29_V22/V2')
 )
 
+L3AbsoluteCorrectionService = cms.ESSource( "L3AbsoluteCorrectionService",
+  appendToDataLabel = cms.string( "" ),
+  tagName = cms.string( "Summer08_L3Absolute_IC5Calo" ),
+  label = cms.string( "L3AbsoluteJetCorrector" )
+)
+L2RelativeCorrectionService = cms.ESSource( "L2RelativeCorrectionService",
+  appendToDataLabel = cms.string( "" ),
+  tagName = cms.string( "Summer08_L2Relative_IC5Calo" ),
+  label = cms.string( "L2RelativeJetCorrector" )
+)
+MCJetCorrectorIcone5 = cms.ESSource( "JetCorrectionServiceChain",
+  label = cms.string( "MCJetCorrectorIcone5" ),
+  appendToDataLabel = cms.string( "" ),
+  correctors = cms.vstring( 'L2RelativeJetCorrector',
+    'L3AbsoluteJetCorrector' )
+)
 BTagRecord = cms.ESSource( "EmptyESSource",
   recordName = cms.string( "JetTagComputerRecord" ),
   iovIsRunNotTime = cms.bool( True ),
   firstValid = cms.vuint32( 1 )
-)
-MCJetCorrectorIcone5 = cms.ESSource( "MCJetCorrectionService",
-  appendToDataLabel = cms.string( "" ),
-  tagName = cms.string( "CMSSW_152_iterativeCone5" ),
-  label = cms.string( "MCJetCorrectorIcone5" )
 )
 
 AnyDirectionAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
@@ -709,6 +720,124 @@ trajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleanerESProducer",
   fractionShared = cms.double( 0.5 )
 )
 
+PrescaleService = cms.Service( "PrescaleService",
+  lvl1DefaultLabel = cms.untracked.string( "prescale1" ),
+  lvl1Labels = cms.vstring( 'prescale1',
+    'prescale2' ),
+  prescaleTable = cms.VPSet( 
+    cms.PSet(  pathName = cms.string( "HLT_L1Jet15" ),
+      prescales = cms.vuint32( 1, 2 )
+    ),
+    cms.PSet(  pathName = cms.string( "HLT_Jet30" ),
+      prescales = cms.vuint32( 1, 2 )
+    ),
+    cms.PSet(  pathName = cms.string( "HLT_Jet50" ),
+      prescales = cms.vuint32( 1, 2 )
+    ),
+    cms.PSet(  pathName = cms.string( "HLT_Jet80" ),
+      prescales = cms.vuint32( 1, 2 )
+    ),
+    cms.PSet(  pathName = cms.string( "HLT_FwdJet20" ),
+      prescales = cms.vuint32( 1, 2 )
+    ),
+    cms.PSet(  pathName = cms.string( "HLT_DiJetAve30" ),
+      prescales = cms.vuint32( 1, 2 )
+    ),
+    cms.PSet(  pathName = cms.string( "HLT_L1MET20" ),
+      prescales = cms.vuint32( 1, 2 )
+    ),
+    cms.PSet(  pathName = cms.string( "HLT_MET35" ),
+      prescales = cms.vuint32( 1, 2 )
+    ),
+    cms.PSet(  pathName = cms.string( "HLT_Ele10_SW_L1R" ),
+      prescales = cms.vuint32( 1, 2 )
+    ),
+    cms.PSet(  pathName = cms.string( "HLT_Ele15_SW_L1R" ),
+      prescales = cms.vuint32( 1, 2 )
+    ),
+    cms.PSet(  pathName = cms.string( "HLT_DoubleEle5_SW_L1R" ),
+      prescales = cms.vuint32( 1, 2 )
+    ),
+    cms.PSet(  pathName = cms.string( "HLT_DoubleEle10_LW_OnlyPixelM_L1R" ),
+      prescales = cms.vuint32( 1, 2 )
+    ),
+    cms.PSet(  pathName = cms.string( "HLT_IsoPhoton10_L1R" ),
+      prescales = cms.vuint32( 1, 2 )
+    ),
+    cms.PSet(  pathName = cms.string( "HLT_Photon15_L1R" ),
+      prescales = cms.vuint32( 1, 2 )
+    ),
+    cms.PSet(  pathName = cms.string( "HLT_L1Mu" ),
+      prescales = cms.vuint32( 1, 2 )
+    ),
+    cms.PSet(  pathName = cms.string( "HLT_L1MuOpen" ),
+      prescales = cms.vuint32( 1, 2 )
+    ),
+    cms.PSet(  pathName = cms.string( "HLT_L2Mu9" ),
+      prescales = cms.vuint32( 1, 2 )
+    ),
+    cms.PSet(  pathName = cms.string( "HLT_Mu3" ),
+      prescales = cms.vuint32( 1, 2 )
+    ),
+    cms.PSet(  pathName = cms.string( "HLT_Mu5" ),
+      prescales = cms.vuint32( 1, 2 )
+    ),
+    cms.PSet(  pathName = cms.string( "HLT_DoubleMu3" ),
+      prescales = cms.vuint32( 1, 2 )
+    ),
+    cms.PSet(  pathName = cms.string( "HLT_SingleLooseIsoTau20" ),
+      prescales = cms.vuint32( 1, 2 )
+    ),
+    cms.PSet(  pathName = cms.string( "HLT_DoubleLooseIsoTau15" ),
+      prescales = cms.vuint32( 1, 2 )
+    ),
+    cms.PSet(  pathName = cms.string( "HLT_ZeroBias" ),
+      prescales = cms.vuint32( 1, 2 )
+    ),
+    cms.PSet(  pathName = cms.string( "HLT_MinBiasHcal" ),
+      prescales = cms.vuint32( 1, 2 )
+    ),
+    cms.PSet(  pathName = cms.string( "HLT_MinBiasEcal" ),
+      prescales = cms.vuint32( 1, 2 )
+    ),
+    cms.PSet(  pathName = cms.string( "HLT_MinBiasPixel" ),
+      prescales = cms.vuint32( 1, 2 )
+    ),
+    cms.PSet(  pathName = cms.string( "HLT_MinBiasPixel_Trk5" ),
+      prescales = cms.vuint32( 1, 2 )
+    ),
+    cms.PSet(  pathName = cms.string( "HLT_BackwardBSC" ),
+      prescales = cms.vuint32( 1, 2 )
+    ),
+    cms.PSet(  pathName = cms.string( "HLT_ForwardBSC" ),
+      prescales = cms.vuint32( 1, 2 )
+    ),
+    cms.PSet(  pathName = cms.string( "HLT_CSCBeamHalo" ),
+      prescales = cms.vuint32( 1, 2 )
+    ),
+    cms.PSet(  pathName = cms.string( "HLT_CSCBeamHaloOverlapRing1" ),
+      prescales = cms.vuint32( 1, 2 )
+    ),
+    cms.PSet(  pathName = cms.string( "HLT_CSCBeamHaloOverlapRing2" ),
+      prescales = cms.vuint32( 1, 2 )
+    ),
+    cms.PSet(  pathName = cms.string( "HLT_CSCBeamHaloRing2or3" ),
+      prescales = cms.vuint32( 1, 2 )
+    ),
+    cms.PSet(  pathName = cms.string( "HLT_TrackerCosmics" ),
+      prescales = cms.vuint32( 1, 2 )
+    ),
+    cms.PSet(  pathName = cms.string( "AlCa_IsoTrack" ),
+      prescales = cms.vuint32( 1, 2 )
+    ),
+    cms.PSet(  pathName = cms.string( "AlCa_EcalPhiSym" ),
+      prescales = cms.vuint32( 1, 2 )
+    ),
+    cms.PSet(  pathName = cms.string( "AlCa_EcalPi0" ),
+      prescales = cms.vuint32( 1, 2 )
+    )
+  )
+)
 UpdaterService = cms.Service( "UpdaterService",
 )
 
