@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:12:36 EDT 2008
-// $Id: FWGUIEventDataAdder.h,v 1.4 2008/11/14 16:42:19 chrjones Exp $
+// $Id: FWGUIEventDataAdder.h,v 1.5 2009/01/23 21:35:43 amraktad Exp $
 //
 
 // system include files
@@ -37,7 +37,7 @@ class FWTypeToRepresentations;
 namespace fwlite {
    class Event;
 }
-class LightTableWidget;
+class FWTableWidget;
 class DataAdderTableManager;
 
 class FWGUIEventDataAdder {
@@ -68,6 +68,8 @@ public:
 
    void windowIsClosing();
    void update(const TFile*, const fwlite::Event*);
+   
+   void rowClicked(Int_t iRow,Int_t iButton,Int_t iKeyMod);
 private:
    FWGUIEventDataAdder(const FWGUIEventDataAdder&); // stop default
    void createWindow();
@@ -93,7 +95,7 @@ private:
    TGTextEntry* m_processName;
 
    DataAdderTableManager* m_tableManager;
-   LightTableWidget* m_tableWidget;
+   FWTableWidget* m_tableWidget;
    TGTextButton* m_apply;
 
    FWTypeToRepresentations* m_typeAndReps;

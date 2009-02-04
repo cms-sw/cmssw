@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.16 2008/12/12 06:07:03 dmytro Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.17 2009/01/23 21:35:43 amraktad Exp $
 //
 
 // system include files
@@ -29,7 +29,9 @@
 #include "Fireworks/Core/interface/FWPhysicsObjectDesc.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/src/LightTableWidget.h"
+#include "Fireworks/TableWidget/interface/FWTableWidget.h"
+#include "Fireworks/TableWidget/interface/FWTableManagerBase.h"
+#include "Fireworks/TableWidget/interface/FWTextTableCellRenderer.h"
 
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/FWLite/interface/Event.h"
@@ -65,21 +67,26 @@ static const std::string& dataForColumn( const FWGUIEventDataAdder::Data& iData,
 }
 
 static const unsigned int kNColumns = 5;
-class DataAdderTableManager : public LightTableManager {
+class DataAdderTableManager : public FWTableManagerBase {
 public:
    DataAdderTableManager(const std::vector<FWGUIEventDataAdder::Data>* iData) :
       m_data(iData), m_selectedRow(-1) {
-      dataChanged();
+      reset();
    }
 
-   virtual int NumberOfRows() const {
+   virtual int numberOfRows() const {
       return m_data->size();
    }
-   virtual int NumberOfCols() const {
+   virtual int numberOfColumns() const {
       return kNColumns;
    }
-   virtual void Sort(int col, bool sortOrder);
-   virtual std::vector<std::string> GetTitles(int col) {
+   
+   virtual int unsortedRowNumber(int iSortedRowNumber) const {
+      return m_row_to_index[iSortedRowNumber];
+   }
+
+   virtual void implSort(int col, bool sortOrder);
+   virtual std::vector<std::string> getTitles() const {
       std::vector<std::string> returnValue;
       returnValue.reserve(kNColumns);
       returnValue.push_back("Purpose");
@@ -89,25 +96,22 @@ public:
       returnValue.push_back("Process Name");
       return returnValue;
    }
-   virtual void FillCells(int rowStart, int colStart,
-                          int rowEnd, int colEnd, std::vector<std::string>& oToFill)
+   
+   virtual FWTableCellRendererBase* cellRenderer(int iSortedRowNumber, int iCol) const
    {
-      oToFill.clear();
-      assert(rowStart <=rowEnd);
-      assert(rowEnd <= static_cast<int>(m_data->size()));
-      assert(m_data->size() == m_row_to_index.size());
-      assert(colStart <= colEnd);
-      assert(colEnd <= static_cast<int>(kNColumns));
-      oToFill.reserve((rowEnd-rowStart)*(colEnd-colStart));
-      for(int row= rowStart; row != rowEnd; ++row) {
-         const FWGUIEventDataAdder::Data& data = (*m_data)[m_row_to_index[row]];
-         for(int col=colStart; col!=colEnd; ++col) {
-            oToFill.push_back(dataForColumn(data,col));
-         }
+      
+      if(static_cast<int>(m_row_to_index.size())>iSortedRowNumber) {
+         int unsortedRow =  m_row_to_index[iSortedRowNumber];
+         const FWGUIEventDataAdder::Data& data = (*m_data)[unsortedRow];
+
+         m_renderer.setData(dataForColumn(data,iCol),m_selectedRow==unsortedRow);
+      } else {
+         m_renderer.setData(std::string(),false);
       }
+      return &m_renderer;
    }
 
-   void Selection (int row, int mask) {
+   void setSelection (int row, int mask) {
       if(mask == 4) {
          if( row == m_selectedRow) {
             row = -1;
@@ -116,11 +120,6 @@ public:
       changeSelection(row);
    }
 
-   virtual TGFrame* GetRowCell(int row, TGFrame *parentFrame) {
-      return 0;
-   }
-   virtual void UpdateRowCell(int row, TGFrame *rowCell) {
-   }
    virtual const std::string title() const {
       return "Viewable Collections";
    }
@@ -133,13 +132,14 @@ public:
       return m_selectedRow == row;
    }
 
-   void dataChanged() {
+   void reset() {
       changeSelection(-1);
       m_row_to_index.clear();
       m_row_to_index.reserve(m_data->size());
       for(unsigned int i =0; i < m_data->size(); ++i) {
          m_row_to_index.push_back(i);
       }
+      dataChanged();
    }
    sigc::signal<void,int> indexSelected_;
 private:
@@ -149,13 +149,15 @@ private:
          if(-1 == iRow) {
             indexSelected_(-1);
          } else {
-            indexSelected_(m_row_to_index[iRow]);
+            indexSelected_(iRow);
          }
+         visualPropertiesChanged();
       }
    }
    const std::vector<FWGUIEventDataAdder::Data>* m_data;
    std::vector<int> m_row_to_index;
    int m_selectedRow;
+   mutable FWTextTableCellRenderer m_renderer;
 };
 
 namespace {
@@ -163,13 +165,8 @@ namespace {
    void doSort(int col,
                const std::vector<FWGUIEventDataAdder::Data>& iData,
                TMap& iOrdered,
-               std::vector<int>& oRowToIndex,
-               int& ioSelectedRow)
+               std::vector<int>& oRowToIndex)
    {
-      int selectedIndex = -1;
-      if(ioSelectedRow != -1) {
-         selectedIndex = oRowToIndex[ioSelectedRow];
-      }
       unsigned int index=0;
       for(std::vector<FWGUIEventDataAdder::Data>::const_iterator it = iData.begin(),
                                                                  itEnd = iData.end();
@@ -182,23 +179,20 @@ namespace {
           itEnd = iOrdered.end();
           it != itEnd;
           ++it,++row) {
-         if(it->second == selectedIndex) {
-            ioSelectedRow = row;
-         }
          oRowToIndex[row]=it->second;
       }
    }
 }
 
 void
-DataAdderTableManager::Sort(int col, bool sortOrder)
+DataAdderTableManager::implSort(int col, bool sortOrder)
 {
    if(sortOrder) {
       std::multimap<std::string,int> ordered;
-      doSort(col,*m_data, ordered, m_row_to_index,m_selectedRow);
+      doSort(col,*m_data, ordered, m_row_to_index);
    } else {
       std::multimap<std::string,int,std::greater<std::string> > ordered;
-      doSort(col,*m_data, ordered, m_row_to_index,m_selectedRow);
+      doSort(col,*m_data, ordered, m_row_to_index);
    }
 }
 
@@ -319,7 +313,7 @@ FWGUIEventDataAdder::show()
    // Map main frame
    if(0==m_frame) {
       createWindow();
-      m_tableWidget->Reinit();
+      //m_tableWidget->Reinit();
    }
    m_frame->MapWindow();
 }
@@ -381,10 +375,14 @@ FWGUIEventDataAdder::createWindow()
       (*itH)->SetPadLeft(maxWidth - *itW);
    }
 
+   TGLabel* label = new TGLabel(vf,"Viewable Collections");
+   vf->AddFrame(label,new TGLayoutHints(kLHintsNormal,0,0,10));
    m_tableManager= new DataAdderTableManager(&m_useableData);
    m_tableManager->indexSelected_.connect(boost::bind(&FWGUIEventDataAdder::newIndexSelected,this,_1));
-   m_tableWidget = new LightTableWidget(vf,m_tableManager,600,400);
-   // vf->AddFrame(m_tableWidget, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
+   m_tableWidget = new FWTableWidget(m_tableManager,vf);
+   m_tableWidget->Resize(200,200);
+   vf->AddFrame(m_tableWidget, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
+   m_tableWidget->Connect("rowClicked(Int_t,Int_t,Int_t)","FWGUIEventDataAdder",this,"rowClicked(Int_t,Int_t,Int_t)");
 
    m_apply = new TGTextButton(vf,"Add Data");
    vf->AddFrame(m_apply, new TGLayoutHints(kLHintsBottom|kLHintsCenterX));
@@ -473,9 +471,10 @@ FWGUIEventDataAdder::fillData(const TFile* iFile)
             }
          }
       }
-      m_tableManager->dataChanged();
-      m_tableManager->Sort(0,true);
-      m_tableWidget->Reinit();
+      m_tableManager->reset();
+      m_tableManager->sort(0,true);
+      //m_tableWidget->dataChanged();
+      //m_tableWidget->Reinit();
    }
 }
 
@@ -488,9 +487,17 @@ FWGUIEventDataAdder::newIndexSelected(int iSelectedIndex)
       m_moduleLabel->SetText(m_useableData[iSelectedIndex].moduleLabel_.c_str());
       m_productInstanceLabel->SetText(m_useableData[iSelectedIndex].productInstanceLabel_.c_str());
       m_processName->SetText(m_useableData[iSelectedIndex].processName_.c_str());
-      std::set<int> selectedRows;
-      selectedRows.insert(m_tableManager->selectedRow());
-      m_tableWidget->SelectRows(selectedRows);
+      //std::set<int> selectedRows;
+      //selectedRows.insert(m_tableManager->selectedRow());
+      //m_tableWidget->SelectRows(selectedRows);
+   }
+}
+
+void 
+FWGUIEventDataAdder::rowClicked(Int_t iRow,Int_t iButton,Int_t iKeyMod)
+{
+   if(iButton==kButton1) {
+      m_tableManager->setSelection(iRow,iKeyMod);
    }
 }
 
