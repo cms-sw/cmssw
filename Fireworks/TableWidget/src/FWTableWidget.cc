@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:42 EST 2009
-// $Id$
+// $Id: FWTableWidget.cc,v 1.1 2009/02/03 20:33:04 chrjones Exp $
 //
 
 // system include files
@@ -49,11 +49,11 @@ TGCompositeFrame(p),
    SetLayoutManager( new TGTableLayout(this,3,3) );
    
    m_header = new FWTabularWidget(m_headerTable,this);
-	AddFrame(m_header, new TGTableLayoutHints(1,2,0,1,kLHintsTop|kLHintsLeft|kRowOptions));	
+   AddFrame(m_header, new TGTableLayoutHints(1,2,0,1,kLHintsTop|kLHintsLeft|kRowOptions));	
    m_header->Connect("buttonReleased(Int_t,Int_t,Int_t,Int_t)","FWTableWidget",this,"buttonReleasedInHeader(Int_t,Int_t,Int_t,Int_t)");
 	
-	m_body = new FWTabularWidget(iManager,this);
-	AddFrame(m_body, new TGTableLayoutHints(1,2,1,2,kLHintsTop|kLHintsLeft|kRowOptions|kColOptions));
+   m_body = new FWTabularWidget(iManager,this);
+   AddFrame(m_body, new TGTableLayoutHints(1,2,1,2,kLHintsTop|kLHintsLeft|kRowOptions|kColOptions));
    m_body->Connect("buttonReleased(Int_t,Int_t,Int_t,Int_t)","FWTableWidget",this,"buttonReleasedInBody(Int_t,Int_t,Int_t,Int_t)");
 
    //set sizes
@@ -61,7 +61,7 @@ TGCompositeFrame(p),
    std::vector<unsigned int> bodyColumns = m_body->widthOfTextInColumns();
    for(std::vector<unsigned int>::iterator it = columnWidths.begin(), itEnd=columnWidths.end(), itBody=bodyColumns.begin();
        it != itEnd;
-       ++it) {
+       ++it,++itBody) {
       if(*itBody > *it) {
          *it = *itBody;
       }
@@ -89,7 +89,7 @@ TGCompositeFrame(p),
    
    m_hSlider->SetEditDisabled(kEditDisable | kEditDisableGrab | kEditDisableBtnEnable);
    m_vSlider->SetEditDisabled(kEditDisable | kEditDisableGrab | kEditDisableBtnEnable);
-   
+   m_bodyTable->Connect("dataChanged()","FWTableWidget",this,"dataChanged()");
 }
 
 // FWTableWidget::FWTableWidget(const FWTableWidget& rhs)
@@ -285,6 +285,23 @@ FWTableWidget::rowClicked(Int_t row, Int_t btn, Int_t keyMod)
    args[1]=(Long_t)btn;
    args[2]=(Long_t)keyMod;
    Emit("rowClicked(Int_t,Int_t,Int_t)",args);      
+}
+
+void 
+FWTableWidget::dataChanged()
+{
+   //set sizes
+   std::vector<unsigned int> columnWidths = m_header->widthOfTextInColumns();
+   std::vector<unsigned int> bodyColumns = m_body->widthOfTextInColumns();
+   for(std::vector<unsigned int>::iterator it = columnWidths.begin(), itEnd=columnWidths.end(), itBody=bodyColumns.begin();
+       it != itEnd;
+       ++it,++itBody) {
+      if(*itBody > *it) {
+         *it = *itBody;
+      }
+   }
+   m_header->setWidthOfTextInColumns(columnWidths);
+   m_body->setWidthOfTextInColumns(columnWidths);
 }
 
 //
