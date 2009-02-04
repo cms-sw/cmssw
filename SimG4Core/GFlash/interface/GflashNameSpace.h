@@ -45,8 +45,7 @@ namespace Gflash {
   //minimum distance to the back of parameterized envelopes in [cm]
   const G4double MinDistanceToOut = 10.0;
 
-  //@@@approximately ScaleSensitive = 0.2 and need fine tune later 
-  //@@@set it to 1.0 for the energy shape studies
+  //additional energy scale for the Hcal sensitive detector
   const G4double ScaleSensitive = 0.167;
 
   // properties for different sub-detectors (calorimeters)
@@ -71,30 +70,19 @@ namespace Gflash {
     { -1.2818e-01, -1.4000e-01,  2.9789e-01,  3.9971e+00 }
   };
 
-  const G4double hadscale[4][4] = {
+  const G4double hadscale[7][4] = {
     //based on LogNormal of Had Energy + (0.05*Einc)% swift 
     { -3.1358e+01,  5.3531e+01,  3.8817e-02, -1.5548e+01 },
-    {  9.2970e-01,  1.3589e-01, -1.4387e+00,  3.3566e+00 },
+    {  8.2970e-01,  2.6359e-01, -1.2500e+00,  3.7566e+00 },
     {  6.1175e-01,  1.3195e-01, -2.0953e+00,  2.9990e+00 },
-    { -3.1528e-01,  8.0146e-02, -6.1015e+00,  1.8951e+00 }
-
-
+    { -3.1528e-01,  8.0146e-02, -6.1015e+00,  1.8951e+00 },
+    //LogNormal of Had Energy for mip-like response based on 2006 H2 test beam data
+    {  4.4527e+00,  5.7913e+00,  1.6584e-01,  4.6872e+00 },
+    {  2.4081e-01,  1.6057e-01, -6.1439e-01,  1.9368e+00 },
+    //correction of response if ssp is between Ecal and Hcal
+    {  1.8736e-01,  1.7391e-01,  1.0991e+00,  3.3557e+00 }
   };
 
-  const G4double gapscale[4][4] = {
-    {  7.1276e-01,  1.9756e-01,  5.9602e-01,  1.8237e+00 },
-    { -1.7808e+01,  1.7822e+01,  1.4406e-01, -1.5429e+01 },
-    {  1.5973e+00, -1.6402e+00,  1.1036e-01, -1.2150e+01 },
-    {  5.7380e-02, -3.4214e-02,  3.2194e+00,  1.9463e+00 }
-  };
-  
-  const G4double mipscale[4][4] = {
-    {  7.2096e-01,  1.8156e-01,  5.4817e-01,  8.4749e-01 },
-    {  0.0000e+00,  0.0000e+00,  0.0000e+00,  0.0000e+00 },
-    {  5.0701e-02,  6.6191e-03, -1.1549e+00,  2.0902e+00 },
-    {  0.0000e+00,  0.0000e+00,  0.0000e+00,  0.0000e+00 }
-  };
-  
   const G4double par[8*NPar][4] = {
     {  6.7438e-01,  1.7413e-01,  8.1317e-01,  2.6713e+00 }, //Mean Ecal ShowerType1
     {  9.5916e-01,  1.0649e+00,  1.8075e-01,  3.0428e+00 },

@@ -23,8 +23,8 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: G4PiKBuilder_WP.cc,v 1.1 2007/10/04 23:48:12 syjun Exp $
-// GEANT4 tag $Name: V00-06-02 $
+// $Id: G4PiKBuilder_WP.cc,v 1.2 2008/02/29 23:40:56 syjun Exp $
+// GEANT4 tag $Name:  $
 //
 //---------------------------------------------------------------------------
 //
@@ -57,6 +57,8 @@ G4PiKBuilder_WP(): wasActivated(false)
 
   theWrappedPionPlusInelastic=new GflashHadronWrapperProcess("G4PionPlusInelasticProcess");
   theWrappedPionMinusInelastic=new GflashHadronWrapperProcess("G4PionMinusInelasticProcess");
+  theWrappedKaonPlusInelastic=new GflashHadronWrapperProcess("G4KaonPlusInelasticProcess");
+  theWrappedKaonMinusInelastic=new GflashHadronWrapperProcess("G4KaonMinusInelasticProcess");
 }
 
 G4PiKBuilder_WP::
@@ -101,10 +103,16 @@ Build()
   theProcMan->AddDiscreteProcess(theWrappedPionMinusInelastic);
   
   theProcMan = G4KaonPlus::KaonPlus()->GetProcessManager();
-  theProcMan->AddDiscreteProcess(theKaonPlusInelastic);
+  //  theProcMan->AddDiscreteProcess(theKaonPlusInelastic);
+  std::cout << " Adding GflashHadronWrapperProcess (G4wrapperProcess) for G4KaonPlusInelasticProcess" << std::endl;
+  theWrappedKaonPlusInelastic->RegisterProcess(theKaonPlusInelastic);
+  theProcMan->AddDiscreteProcess(theWrappedKaonPlusInelastic);
   
   theProcMan = G4KaonMinus::KaonMinus()->GetProcessManager();
-  theProcMan->AddDiscreteProcess(theKaonMinusInelastic);
+  //  theProcMan->AddDiscreteProcess(theKaonMinusInelastic);
+  std::cout << " Adding GflashHadronWrapperProcess (G4wrapperProcess) for G4KaonMinusInelasticProcess" << std::endl;
+  theWrappedKaonMinusInelastic->RegisterProcess(theKaonMinusInelastic);
+  theProcMan->AddDiscreteProcess(theWrappedKaonMinusInelastic);
   
   theProcMan = G4KaonZeroLong::KaonZeroLong()->GetProcessManager();
   theProcMan->AddDiscreteProcess(theKaonZeroLInelastic);
@@ -113,3 +121,4 @@ Build()
   theProcMan->AddDiscreteProcess(theKaonZeroSInelastic);
 }
 // 2002 by J.P. Wellisch
+// 2008 Modified for GflashHadronWrapperProcess

@@ -50,10 +50,10 @@ void ParametrisedPhysics::ConstructProcess() {
     pmanager->AddProcess(theFastSimulationManagerProcess, -1, -1, 1);
   }
 
-  // GflashEnvelop definition as GflashRegion which includes EcalRegion & HcalRegion
-  G4Region* aRegion = G4RegionStore::GetInstance()->GetRegion("GflashRegion");
+  // GflashEnvelop definition as CaloRegion which includes EcalRegion & HcalRegion
+  G4Region* aRegion = G4RegionStore::GetInstance()->GetRegion("CaloRegion");
   if(aRegion == 0){
-    std::cout << "GflashRegion is not defined !!!" << std::endl;
+    std::cout << "CaloRegion is not defined !!!" << std::endl;
     std::cout << "This means that GFlash will not be turned on." << std::endl;
     std::cout << "Take a look at cmsGflashGeometryXML.cfi if it includes gflashCaloProdCuts.xml." << std::endl;
   }

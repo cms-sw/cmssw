@@ -23,8 +23,8 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: HadronPhysicsQGSP_WP.h,v 1.1 2007/10/04 23:48:12 syjun Exp $
-// GEANT4 tag $Name: V00-06-02 $
+// $Id: HadronPhysicsQGSP_WP.h,v 1.2 2008/02/29 23:40:55 syjun Exp $
+// GEANT4 tag $Name:  $
 //
 //---------------------------------------------------------------------------
 //
@@ -44,6 +44,7 @@
 #define HadronPhysicsQGSP_WP_h 1
 
 #include "SimG4Core/GFlash/interface/G4PiKBuilder_WP.h"
+#include "SimG4Core/GFlash/interface/G4ProtonBuilder_WP.h"
 
 #include "globals.hh"
 #include "G4ios.hh"
@@ -82,7 +83,7 @@ class HadronPhysicsQGSP_WP : public G4VPhysicsConstructor
     G4LEPPiKBuilder * theLEPPiK;
     G4QGSPPiKBuilder * theQGSPPiK;
     
-    G4ProtonBuilder * thePro;
+    G4ProtonBuilder_WP * thePro;
     G4LEPProtonBuilder * theLEPPro;
     G4QGSPProtonBuilder * theQGSPPro;    
     
@@ -90,6 +91,6 @@ class HadronPhysicsQGSP_WP : public G4VPhysicsConstructor
     
     G4bool QuasiElastic;
 };
-
+// 2008 Modified for CMS GflashHadronWrapperProcess
 #endif
 

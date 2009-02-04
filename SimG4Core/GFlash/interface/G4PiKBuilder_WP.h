@@ -23,8 +23,8 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: G4PiKBuilder_WP.h,v 1.1 2007/10/04 23:48:12 syjun Exp $
-// GEANT4 tag $Name: V00-06-02 $
+// $Id: G4PiKBuilder_WP.h,v 1.2 2008/02/29 23:40:55 syjun Exp $
+// GEANT4 tag $Name:  $
 //
 //---------------------------------------------------------------------------
 //
@@ -70,6 +70,8 @@ class G4PiKBuilder_WP
      
     GflashHadronWrapperProcess*  theWrappedPionPlusInelastic;
     GflashHadronWrapperProcess*  theWrappedPionMinusInelastic;
+    GflashHadronWrapperProcess*  theWrappedKaonPlusInelastic;
+    GflashHadronWrapperProcess*  theWrappedKaonMinusInelastic;
 
     std::vector<G4VPiKBuilder *> theModelCollections;
 
@@ -77,6 +79,6 @@ class G4PiKBuilder_WP
 };
 
 // 2002 by J.P. Wellisch
-
+// 2008 Modified for CMS GflashHadronWrapperProcess
 #endif
 

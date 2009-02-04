@@ -23,8 +23,8 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: HadronPhysicsQGSP_BERT_WP.cc,v 1.3 2007/12/10 17:34:44 gunter Exp $
-// GEANT4 tag $Name: geant4-09-01-patch-01 $
+// $Id: HadronPhysicsQGSP_BERT_WP.cc,v 1.1 2008/05/14 20:53:28 syjun Exp $
+// GEANT4 tag $Name:  $
 //
 //---------------------------------------------------------------------------
 //
@@ -43,6 +43,7 @@
 //
 #include "SimG4Core/GFlash/interface/HadronPhysicsQGSP_BERT_WP.h"
 #include "SimG4Core/GFlash/interface/G4PiKBuilder_WP.h"
+#include "SimG4Core/GFlash/interface/G4ProtonBuilder_WP.h"
 
 #include "globals.hh"
 #include "G4ios.hh"
@@ -72,7 +73,7 @@ void HadronPhysicsQGSP_BERT_WP::CreateModels()
   theBertiniNeutron->SetMinEnergy(0.0*GeV);
   theBertiniNeutron->SetMaxEnergy(9.9*GeV);
 
-  thePro=new G4ProtonBuilder;
+  thePro=new G4ProtonBuilder_WP;
   thePro->RegisterMe(theQGSPPro=new G4QGSPProtonBuilder(QuasiElastic, ProjectileDiffraction));
   thePro->RegisterMe(theLEPPro=new G4LEPProtonBuilder);
   theLEPPro->SetMinEnergy(9.5*GeV);
@@ -131,4 +132,4 @@ void HadronPhysicsQGSP_BERT_WP::ConstructProcess()
   theMiscLHEP->Build();
 }
 
-// April 2008 Modified for GflashHadronWrapperProcess by S.Y. Jun
+// April 2008 Modified for CMS GflashHadronWrapperProcess

@@ -47,13 +47,13 @@ G4bool GflashEMShowerModel::ModelTrigger(const G4FastTrack & fastTrack ) {
 
   if(!trigger) return false;
 
-  // This will be changed accordingly when the way dealing with GflashRegion changes later.
+  // This will be changed accordingly when the way dealing with CaloRegion changes later.
   G4TouchableHistory* touch = (G4TouchableHistory*)(fastTrack.GetPrimaryTrack()->GetTouchable());
   G4VPhysicalVolume* pCurrentVolume = touch->GetVolume();
   if( pCurrentVolume == 0) return false;
 
   G4LogicalVolume* lv = pCurrentVolume->GetLogicalVolume();
-  if(lv->GetRegion()->GetName() != "GflashRegion") return false;
+  if(lv->GetRegion()->GetName() != "CaloRegion") return false;
 
   // The parameterization starts inside crystals
   std::size_t pos1 = lv->GetName().find("EBRY");
@@ -87,7 +87,7 @@ G4bool GflashEMShowerModel::excludeDetectorRegion(const G4FastTrack& fastTrack) 
   G4bool isExcluded=false;
 
   //exclude regions where geometry are complicated
-  G4double eta =   fastTrack.GetPrimaryTrack()->GetMomentum().pseudoRapidity() ;
+  G4double eta =   fastTrack.GetPrimaryTrack()->GetPosition().pseudoRapidity() ;
   if(fabs(eta) > 1.3 && fabs(eta) < 1.57) return true;
 
   return isExcluded;

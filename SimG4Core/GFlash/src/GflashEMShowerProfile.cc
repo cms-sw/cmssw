@@ -1,5 +1,5 @@
 //
-// $Id: GflashEMShowerProfile.cc,v 1.12 2008/10/08 01:56:24 dwjang Exp $
+// $Id: GflashEMShowerProfile.cc,v 1.13 2008/10/21 23:03:24 dwjang Exp $
 // initial setup : Soon Jun & Dongwook Jang
 // Translated from Fortran code.
 
@@ -328,7 +328,7 @@ void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
       if( aCurrentVolume == 0 ) continue;
 
       G4LogicalVolume* lv = aCurrentVolume->GetLogicalVolume();
-      if(lv->GetRegion()->GetName() != "GflashRegion") continue;
+      if(lv->GetRegion()->GetName() != "CaloRegion") continue;
 
       theGflashStep->GetPreStepPoint()->SetSensitiveDetector(aCurrentVolume->GetLogicalVolume()->GetSensitiveDetector());
       G4VSensitiveDetector* aSensitive = theGflashStep->GetPreStepPoint()->GetSensitiveDetector();

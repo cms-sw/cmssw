@@ -5,6 +5,9 @@
 
 #include "G4PionMinus.hh"
 #include "G4PionPlus.hh"
+#include "G4KaonMinus.hh"
+#include "G4KaonPlus.hh"
+#include "G4Proton.hh"
 #include "G4VProcess.hh"
 #include "G4RegionStore.hh"
 #include "G4FastSimulationManager.hh"
@@ -30,7 +33,10 @@ G4bool GflashHadronShowerModel::IsApplicable(const G4ParticleDefinition& particl
 {
   return 
     &particleType == G4PionMinus::PionMinusDefinition() ||
-    &particleType == G4PionPlus::PionPlusDefinition();
+    &particleType == G4PionPlus::PionPlusDefinition() ||
+    &particleType == G4KaonMinus::KaonMinusDefinition() ||
+    &particleType == G4KaonPlus::KaonPlusDefinition() ||
+    &particleType == G4Proton::ProtonDefinition() ;
 }
 
 G4bool GflashHadronShowerModel::ModelTrigger(const G4FastTrack& fastTrack)
@@ -92,7 +98,10 @@ G4bool GflashHadronShowerModel::isFirstInelasticInteraction(const G4FastTrack& f
   //@@@ this part is still temporary and the cut for the variable ratio should be optimized later
 
   if((particleType == G4PionPlus::PionPlusDefinition() && procName == "WrappedPionPlusInelastic") || 
-     (particleType == G4PionMinus::PionMinusDefinition() && procName == "WrappedPionMinusInelastic")) {
+     (particleType == G4PionMinus::PionMinusDefinition() && procName == "WrappedPionMinusInelastic") ||
+     (particleType == G4KaonPlus::KaonPlusDefinition() && procName == "WrappedKaonPlusInelastic") ||
+     (particleType == G4KaonMinus::KaonMinusDefinition() && procName == "WrappedKaonMinusInelastic") ||
+     (particleType == G4Proton::ProtonDefinition() && procName == "WrappedProtonInelastic")) {
 
     //skip to the second interaction if the first inelastic is a quasi-elastic like interaction
     //@@@ the cut may be optimized later
@@ -137,7 +146,7 @@ G4bool GflashHadronShowerModel::excludeDetectorRegion(const G4FastTrack& fastTra
   G4bool isExcluded=false;
   
   //exclude regions where geometry are complicated 
-  G4double eta =   fastTrack.GetPrimaryTrack()->GetMomentum().pseudoRapidity() ;
+  G4double eta =   fastTrack.GetPrimaryTrack()->GetPosition().pseudoRapidity() ;
   if(fabs(eta) > Gflash::EtaMax[Gflash::kESPM] && fabs(eta) < Gflash::EtaMin[Gflash::kENCA]) {
     //@@@remove this print statement later
     std::cout << "GflashHadronShowerModel: excluding region of eta = " << eta << std::endl;

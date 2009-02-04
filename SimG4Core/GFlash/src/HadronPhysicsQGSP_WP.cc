@@ -24,8 +24,8 @@
 // ********************************************************************
 //
 //
-// $Id: HadronPhysicsQGSP_WP.cc,v 1.1 2007/10/04 23:48:12 syjun Exp $
-// GEANT4 tag $Name: V00-06-02 $
+// $Id: HadronPhysicsQGSP_WP.cc,v 1.2 2008/02/29 23:40:56 syjun Exp $
+// GEANT4 tag $Name:  $
 //
 //---------------------------------------------------------------------------
 //
@@ -41,6 +41,7 @@
 
 #include "SimG4Core/GFlash/interface/HadronPhysicsQGSP_WP.h"
 #include "SimG4Core/GFlash/interface/G4PiKBuilder_WP.h"
+#include "SimG4Core/GFlash/interface/G4ProtonBuilder_WP.h"
 
 #include "globals.hh"
 #include "G4ios.hh"
@@ -64,7 +65,7 @@ void HadronPhysicsQGSP_WP::CreateModels()
   theNeutrons->RegisterMe(theLEPNeutron=new G4LEPNeutronBuilder);
   theLEPNeutron->SetMaxInelasticEnergy(25*GeV);  
 
-  thePro=new G4ProtonBuilder;
+  thePro=new G4ProtonBuilder_WP;
   theQGSPPro=new G4QGSPProtonBuilder(QuasiElastic);
   thePro->RegisterMe(theQGSPPro);
   thePro->RegisterMe(theLEPPro=new G4LEPProtonBuilder);
@@ -115,4 +116,4 @@ void HadronPhysicsQGSP_WP::ConstructProcess()
   theMiscLHEP->Build();
 }
 
-// Sept 2007 Modified for GflashHadronWrapperProcess by S.Y. Jun
+// Sept 2007 Modified for CMS GflashHadronWrapperProcess
