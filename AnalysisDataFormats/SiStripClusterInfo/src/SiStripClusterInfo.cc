@@ -71,9 +71,15 @@ SiStripClusterInfo::stripQualitiesBad() const {
 }
 
 float
-SiStripClusterInfo::calculate_noise(const std::vector<float>& n) const {  
-  float noiseSumInQuadrature = inner_product( n.begin(), n.end(), n.begin(), 0.0);
-  float numberStripsOverThreshold = count_if( stripCharges().begin(), stripCharges().end(), std::bind1st( std::not_equal_to<uint8_t>(), 0 )  );
+SiStripClusterInfo::calculate_noise(const std::vector<float>& noise) const {  
+  float noiseSumInQuadrature = 0;
+  int numberStripsOverThreshold = 0;
+  for(int i=0;i<width();i++) {
+    if(stripCharges().at(i)!=0) {
+      noiseSumInQuadrature += noise.at(i) * noise.at(i);
+      numberStripsOverThreshold++;
+    }
+  }
   return std::sqrt( noiseSumInQuadrature / numberStripsOverThreshold );
 } 
 
