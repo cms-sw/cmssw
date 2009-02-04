@@ -99,7 +99,7 @@ class EcalClusterTools {
                 // the size is specified by ixMin, ixMax, iyMin, iyMax in unit of crystals
                 static float matrixEnergy( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, DetId id, int ixMin, int ixMax, int iyMin, int iyMax );
                 // get the DetId and the energy of the maximum energy crystal in a vector of DetId
-                static std::pair<DetId, float> getMaximum( const std::vector<DetId> &v_id, const EcalRecHitCollection *recHits);
+                static std::pair<DetId, float> getMaximum( const std::vector< std::pair<DetId, float> > &v_id, const EcalRecHitCollection *recHits);
                 // get the energy of a DetId, return 0 if the DetId is not in the collection
                 static float recHitEnergy(DetId id, const EcalRecHitCollection *recHits);
 

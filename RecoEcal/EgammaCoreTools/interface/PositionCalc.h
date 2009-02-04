@@ -8,7 +8,7 @@
  *
  * \author Ted Kolberg, ND
  * 
- * \version $Id: PositionCalc.h,v 1.9 2007/05/10 21:10:47 tsirig Exp $
+ * \version $Id: PositionCalc.h,v 1.10 2007/09/05 22:16:50 ratnik Exp $
  *
  */
 
@@ -37,7 +37,12 @@ class PositionCalc
   // weighted average position of a vector of DetIds, which should be
   // a subset of the map used to Initialize.
 
-  math::XYZPoint Calculate_Location(std::vector<DetId> passedDetIds,
+  math::XYZPoint Calculate_Location(std::vector< DetId > passedDetIds,
+                                    const EcalRecHitCollection *passedRecHitsMap,
+                                    const CaloSubdetectorGeometry *passedGeometry,
+                                    const CaloSubdetectorGeometry *passedGeometryES=0);
+ 
+ math::XYZPoint Calculate_Location(std::vector< std::pair<DetId, float> > passedDetIds,
                                     const EcalRecHitCollection *passedRecHitsMap,
                                     const CaloSubdetectorGeometry *passedGeometry,
                                     const CaloSubdetectorGeometry *passedGeometryES=0);

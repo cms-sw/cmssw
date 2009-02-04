@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  "Federico Ferri federi
 //         Created:  Mon Apr  7 14:11:00 CEST 2008
-// $Id: testEcalClusterTools.cc,v 1.7 2008/10/03 14:59:28 sharper Exp $
+// $Id: testEcalClusterTools.cc,v 1.8 2008/10/30 14:17:16 sharper Exp $
 //
 //
 
@@ -112,7 +112,7 @@ void testEcalClusterTools::analyze(const edm::Event& ev, const edm::EventSetup& 
         std::cout << "========== BARREL ==========" << std::endl;
         for (reco::BasicClusterCollection::const_iterator it = ebClusters->begin(); it != ebClusters->end(); ++it ) {
                 std::cout << "----- new cluster -----" << std::endl;
-                std::cout << "----------------- size: " << (*it).getHitsByDetId().size() << " energy: " << (*it).energy() << std::endl;
+                std::cout << "----------------- size: " << (*it).size() << " energy: " << (*it).energy() << std::endl;
 
                 std::cout << "e1x3..................... " << EcalClusterTools::e1x3( *it, ebRecHits, topology ) << std::endl;
                 std::cout << "e3x1..................... " << EcalClusterTools::e3x1( *it, ebRecHits, topology ) << std::endl;
@@ -154,7 +154,7 @@ void testEcalClusterTools::analyze(const edm::Event& ev, const edm::EventSetup& 
         std::cout << "========== ENDCAPS ==========" << std::endl;
         for (reco::BasicClusterCollection::const_iterator it = eeClusters->begin(); it != eeClusters->end(); ++it ) {
                 std::cout << "----- new cluster -----" << std::endl;
-                std::cout << "----------------- size: " << (*it).getHitsByDetId().size() << " energy: " << (*it).energy() << std::endl;
+                std::cout << "----------------- size: " << (*it).size() << " energy: " << (*it).energy() << std::endl;
                 
                 std::cout << "e1x3..................... " << EcalClusterTools::e1x3( *it, eeRecHits, topology ) << std::endl;
                 std::cout << "e3x1..................... " << EcalClusterTools::e3x1( *it, eeRecHits, topology ) << std::endl;

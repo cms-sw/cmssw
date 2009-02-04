@@ -54,21 +54,21 @@ void ClusterShapeAlgo::Calculate_TopEnergy(const reco::BasicCluster &passedClust
   double eMax=0;
   DetId eMaxId(0);
 
-  std::vector<DetId> clusterDetIds = passedCluster.getHitsByDetId();
-  std::vector<DetId>::iterator posCurrent;
+  std::vector< std::pair<DetId, float> > clusterDetIds = passedCluster.hitsAndFractions();
+  std::vector< std::pair<DetId, float> >::iterator posCurrent;
 
   EcalRecHit testEcalRecHit;
 
   for(posCurrent = clusterDetIds.begin(); posCurrent != clusterDetIds.end(); posCurrent++)
   {
-    if ((*posCurrent != DetId(0)) && (hits->find(*posCurrent) != hits->end()))
+    if (((*posCurrent).first != DetId(0)) && (hits->find((*posCurrent).first) != hits->end()))
     {
-      EcalRecHitCollection::const_iterator itt = hits->find(*posCurrent);
+      EcalRecHitCollection::const_iterator itt = hits->find((*posCurrent).first);
       testEcalRecHit = *itt;
 
-      if(testEcalRecHit.energy() > eMax)
+      if(testEcalRecHit.energy() * (*posCurrent).second > eMax)
       {
-        eMax = testEcalRecHit.energy();
+        eMax = testEcalRecHit.energy() * (*posCurrent).second;
         eMaxId = testEcalRecHit.id();
       }
     }
@@ -83,21 +83,21 @@ void ClusterShapeAlgo::Calculate_2ndEnergy(const reco::BasicCluster &passedClust
   double e2nd=0;
   DetId e2ndId(0);
 
-  std::vector<DetId> clusterDetIds = passedCluster.getHitsByDetId();
-  std::vector<DetId>::iterator posCurrent;
+  std::vector< std::pair<DetId, float> > clusterDetIds = passedCluster.hitsAndFractions();
+  std::vector< std::pair<DetId, float> >::iterator posCurrent;
 
   EcalRecHit testEcalRecHit;
 
   for(posCurrent = clusterDetIds.begin(); posCurrent != clusterDetIds.end(); posCurrent++)
   { 
-    if ((*posCurrent != DetId(0)) && (hits->find(*posCurrent) != hits->end()))
+    if (( (*posCurrent).first != DetId(0)) && (hits->find( (*posCurrent).first ) != hits->end()))
     {
-      EcalRecHitCollection::const_iterator itt = hits->find(*posCurrent);
+      EcalRecHitCollection::const_iterator itt = hits->find( (*posCurrent).first );
       testEcalRecHit = *itt;
 
-      if(testEcalRecHit.energy() > e2nd && testEcalRecHit.id() != eMaxId_)
+      if(testEcalRecHit.energy() * (*posCurrent).second > e2nd && testEcalRecHit.id() != eMaxId_)
       {
-        e2nd = testEcalRecHit.energy();
+        e2nd = testEcalRecHit.energy() * (*posCurrent).second;
         e2ndId = testEcalRecHit.id();
       }
     }
@@ -391,15 +391,15 @@ void ClusterShapeAlgo::Calculate_BarrelBasketEnergyFraction(const reco::BasicClu
   }
 
   std::map<int,double> indexedBasketEnergy;
-  std::vector<DetId> clusterDetIds = passedCluster.getHitsByDetId();
+  std::vector< std::pair<DetId, float> > clusterDetIds = passedCluster.hitsAndFractions();
   const EcalBarrelGeometry* subDetGeometry = (const EcalBarrelGeometry*) geometry;
 
-  for(std::vector<DetId>::iterator posCurrent = clusterDetIds.begin(); posCurrent != clusterDetIds.end(); posCurrent++)
+  for(std::vector< std::pair<DetId, float> >::iterator posCurrent = clusterDetIds.begin(); posCurrent != clusterDetIds.end(); posCurrent++)
   {
     int basketIndex = 999;
 
     if(EtaPhi == Eta) {
-      int unsignedIEta = abs(EBDetId(*posCurrent).ieta());
+      int unsignedIEta = abs(EBDetId( (*posCurrent).first ).ieta());
       std::vector<int> etaBasketSize = subDetGeometry->getEtaBaskets();
 
       for(unsigned int i = 0; i < etaBasketSize.size(); i++) {
@@ -410,20 +410,20 @@ void ClusterShapeAlgo::Calculate_BarrelBasketEnergyFraction(const reco::BasicClu
           break;
         }
       }
-      basketIndex = (basketIndex+1)*(EBDetId(*posCurrent).ieta() > 0 ? 1 : -1);
+      basketIndex = (basketIndex+1)*(EBDetId( (*posCurrent).first ).ieta() > 0 ? 1 : -1);
 
     } else if(EtaPhi == Phi) {
       int halfNumBasketInPhi = (EBDetId::MAX_IPHI - EBDetId::MIN_IPHI + 1)/subDetGeometry->getBasketSizeInPhi()/2;
 
-      basketIndex = (EBDetId(*posCurrent).iphi() - 1)/subDetGeometry->getBasketSizeInPhi()
-                  - (EBDetId(clusterDetIds[0]).iphi() - 1)/subDetGeometry->getBasketSizeInPhi();
+      basketIndex = (EBDetId( (*posCurrent).first ).iphi() - 1)/subDetGeometry->getBasketSizeInPhi()
+                  - (EBDetId( (clusterDetIds[0]).first ).iphi() - 1)/subDetGeometry->getBasketSizeInPhi();
 
       if(basketIndex >= halfNumBasketInPhi)             basketIndex -= 2*halfNumBasketInPhi;
       else if(basketIndex <  -1*halfNumBasketInPhi)     basketIndex += 2*halfNumBasketInPhi;
 
     } else throw(std::runtime_error("\n\nOh No! Calculate_BarrelBasketEnergyFraction called on invalid index.\n\n"));
 
-    indexedBasketEnergy[basketIndex] += (hits->find(*posCurrent))->energy();
+    indexedBasketEnergy[basketIndex] += (hits->find( (*posCurrent).first ))->energy();
   }
 
   std::vector<double> energyFraction;
@@ -561,7 +561,7 @@ double ClusterShapeAlgo::calc_AbsZernikeMoment(const reco::BasicCluster &passedC
                                                int n, int m, double R0) {
   double r,ph,e,Re=0,Im=0,f_nm,result;
   double TotalEnergy = passedCluster.energy();
-  std::vector<DetId> clusterDetIds = passedCluster.getHitsByDetId();
+  std::vector< std::pair<DetId, float> > clusterDetIds = passedCluster.hitsAndFractions();
   int clusterSize=energyDistribution_.size();
   if(clusterSize<3) return 0.0;
 
@@ -608,17 +608,17 @@ void ClusterShapeAlgo::Calculate_EnergyDepTopology (const reco::BasicCluster &pa
   theta_axis *= 1.0/theta_axis.mag();
   Hep3Vector phi_axis = theta_axis.cross(clDir);
 
-  std::vector<DetId> clusterDetIds = passedCluster.getHitsByDetId();
+  std::vector< std::pair<DetId, float> > clusterDetIds = passedCluster.hitsAndFractions();
 
   EcalClusterEnergyDeposition clEdep;
   EcalRecHit testEcalRecHit;
-  std::vector<DetId>::iterator posCurrent;
+  std::vector< std::pair<DetId, float> >::iterator posCurrent;
   // loop over crystals
   for(posCurrent=clusterDetIds.begin(); posCurrent!=clusterDetIds.end(); ++posCurrent) {
-    EcalRecHitCollection::const_iterator itt = hits->find(*posCurrent);
+    EcalRecHitCollection::const_iterator itt = hits->find( (*posCurrent).first );
     testEcalRecHit=*itt;
 
-    if((*posCurrent != DetId(0)) && (hits->find(*posCurrent) != hits->end())) {
+    if(( (*posCurrent).first != DetId(0)) && (hits->find( (*posCurrent).first ) != hits->end())) {
       clEdep.deposited_energy = testEcalRecHit.energy();
 
       // if logarithmic weight is requested, apply cut on minimum energy of the recHit
@@ -633,7 +633,7 @@ void ClusterShapeAlgo::Calculate_EnergyDepTopology (const reco::BasicCluster &pa
         }
         else LogDebug("ClusterShapeAlgo") << "===> got crystal. Energy = " << clEdep.deposited_energy << " GeV. ";
       }
-      DetId id_ = *posCurrent;
+      DetId id_ = (*posCurrent).first;
       const CaloCellGeometry *this_cell = geometry->getGeometry(id_);
       GlobalPoint cellPos = this_cell->getPosition();
       CLHEP::Hep3Vector gblPos (cellPos.x(),cellPos.y(),cellPos.z()); //surface position?

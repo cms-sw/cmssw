@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  "Federico Ferri federi
 //         Created:  Mon Apr  7 14:11:00 CEST 2008
-// $Id: testEcalClusterLazyTools.cc,v 1.3 2008/09/03 11:01:36 sharper Exp $
+// $Id: testEcalClusterLazyTools.cc,v 1.4 2008/10/30 14:17:16 sharper Exp $
 //
 //
 
@@ -98,7 +98,7 @@ void testEcalClusterLazyTools::analyze(const edm::Event& ev, const edm::EventSet
         std::cout << "========== BARREL ==========" << std::endl;
         for (reco::BasicClusterCollection::const_iterator it = ebClusters->begin(); it != ebClusters->end(); ++it ) {
                 std::cout << "----- new cluster -----" << std::endl;
-                std::cout << "----------------- size: " << (*it).getHitsByDetId().size() << " energy: " << (*it).energy() << std::endl;
+                std::cout << "----------------- size: " << (*it).size() << " energy: " << (*it).energy() << std::endl;
 
                 std::cout << "e1x3..................... " << lazyTools.e1x3( *it ) << std::endl;
                 std::cout << "e3x1..................... " << lazyTools.e3x1( *it ) << std::endl;
@@ -140,7 +140,7 @@ void testEcalClusterLazyTools::analyze(const edm::Event& ev, const edm::EventSet
         std::cout << "========== ENDCAPS ==========" << std::endl;
         for (reco::BasicClusterCollection::const_iterator it = eeClusters->begin(); it != eeClusters->end(); ++it ) {
                 std::cout << "----- new cluster -----" << std::endl;
-                std::cout << "----------------- size: " << (*it).getHitsByDetId().size() << " energy: " << (*it).energy() << std::endl;
+                std::cout << "----------------- size: " << (*it).size() << " energy: " << (*it).energy() << std::endl;
                 
                 std::cout << "e1x3..................... " << lazyTools.e1x3( *it ) << std::endl;
                 std::cout << "e3x1..................... " << lazyTools.e3x1( *it ) << std::endl;

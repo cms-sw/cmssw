@@ -17,9 +17,7 @@
 
 #include "CondFormats/EcalObjects/interface/EcalClusterLocalContCorrParameters.h"
 
-namespace reco {
-        class BasicCluster;
-}
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
 
 namespace edm {
         class EventSetup;

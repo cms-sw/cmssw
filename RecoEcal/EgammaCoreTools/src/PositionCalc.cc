@@ -26,8 +26,21 @@ const PositionCalc& PositionCalc::operator=(const PositionCalc& rhs) {
   param_X0_ = rhs.param_X0_;
   return *this;
 }
+math::XYZPoint PositionCalc::Calculate_Location(std::vector< DetId > passedDetIds,
+                                                EcalRecHitCollection const * storedRecHitsMap_,
+                                                const CaloSubdetectorGeometry * storedSubdetectorGeometry_,
+						const CaloSubdetectorGeometry * storedESGeometry_)
+{
+ std::vector< std::pair<DetId, float> > withTrivialFraction;
+ for(size_t i=0; i < passedDetIds.size();  i++) withTrivialFraction.push_back(std::pair<DetId, float>( passedDetIds[i] ,1.) );
 
-math::XYZPoint PositionCalc::Calculate_Location(std::vector<DetId> passedDetIds,
+ return  Calculate_Location(withTrivialFraction,storedRecHitsMap_,storedSubdetectorGeometry_,storedESGeometry_);
+   
+  
+ 
+}
+
+math::XYZPoint PositionCalc::Calculate_Location(std::vector< std::pair<DetId, float> > passedDetIds,
                                                 EcalRecHitCollection const * storedRecHitsMap_,
                                                 const CaloSubdetectorGeometry * storedSubdetectorGeometry_,
 						const CaloSubdetectorGeometry * storedESGeometry_)
@@ -38,14 +51,14 @@ math::XYZPoint PositionCalc::Calculate_Location(std::vector<DetId> passedDetIds,
   if(storedRecHitsMap_ == NULL || storedSubdetectorGeometry_ == NULL)
     throw(std::runtime_error("\n\nPositionCalc::Calculate_Location called uninitialized or wrong initialization.\n\n"));
 
-  std::vector<DetId> validDetIds;
+  std::vector< std::pair<DetId,float> > validDetIds;
 
   // Check that DetIds are nonzero
-  std::vector<DetId>::iterator n;
-  for (n = passedDetIds.begin(); n != passedDetIds.end(); n++) {
-    if (((*n) != DetId(0)) 
-	&& (storedRecHitsMap_->find(*n) != storedRecHitsMap_->end()))
-      validDetIds.push_back(*n);
+  std::vector< std::pair<DetId, float> >::iterator n;
+  for (n = passedDetIds.begin(); n != passedDetIds.end(); ++n) {
+    if (((*n).first != DetId(0)) 
+	&& (storedRecHitsMap_->find( (*n).first ) != storedRecHitsMap_->end()))
+      validDetIds.push_back( *n );
   }
 
   passedDetIds.clear();
@@ -56,7 +69,7 @@ math::XYZPoint PositionCalc::Calculate_Location(std::vector<DetId> passedDetIds,
 
   double eTot = 0;
 
-  DetId maxId_ = (*(passedDetIds.begin()));
+  DetId maxId_ = (*(passedDetIds.begin())).first;
   EcalRecHitCollection::const_iterator itm = storedRecHitsMap_->find(maxId_);
 
   double eMax = itm->energy();
@@ -64,9 +77,9 @@ math::XYZPoint PositionCalc::Calculate_Location(std::vector<DetId> passedDetIds,
   DetId id_;
   double e_i = 0;
 
-  std::vector<DetId>::iterator i;
+  std::vector< std::pair<DetId, float> >::iterator i;
   for (i = passedDetIds.begin(); i !=  passedDetIds.end(); i++) {
-    id_ = (*i);
+    id_ = (*i).first;
     EcalRecHitCollection::const_iterator itt = storedRecHitsMap_->find(id_);
 
     e_i = itt->energy();
@@ -125,9 +138,9 @@ math::XYZPoint PositionCalc::Calculate_Location(std::vector<DetId> passedDetIds,
 
   double dphi = 0;
 
-  std::vector<DetId>::iterator j;
+  std::vector< std::pair<DetId, float> >::iterator j;
   for (j = passedDetIds.begin(); j != passedDetIds.end(); j++) {
-    id_ = (*j);
+    id_ = (*j).first;
     EcalRecHitCollection::const_iterator itj = storedRecHitsMap_->find(id_);
     double e_j = itj->energy();
 
