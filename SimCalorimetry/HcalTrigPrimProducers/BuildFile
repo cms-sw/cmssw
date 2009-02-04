@@ -1,22 +1,10 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=SimCalorimetry/HcalTrigPrimAlgos>
-<use name=SimCalorimetry/HcalSimAlgos>
-<use name=SimDataFormats/CrossingFrame>
-<use name=Geometry/CaloEventSetup>
-<use name=Geometry/HcalTowerAlgo>
-<use name=SimDataFormats/EncodedEventId>
-<use name=DataFormats/HcalDigi>
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=SimCalorimetryHcalTrigPrimProducers>
    <use name=SimCalorimetry/HcalTrigPrimAlgos>
-   <use name=SimCalorimetry/HcalSimAlgos>
-   <use name=SimDataFormats/CrossingFrame>
-   <use name=Geometry/CaloEventSetup>
-   <use name=Geometry/HcalTowerAlgo>
    <use name=FWCore/Framework>
    <use name=FWCore/ParameterSet>
-   <use name=SimDataFormats/EncodedEventId>
-   <use name=DataFormats/HcalDigi>
 </export>
