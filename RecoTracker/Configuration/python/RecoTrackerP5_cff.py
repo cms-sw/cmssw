@@ -184,7 +184,10 @@ trackerCosmics_TopBot = cms.Sequence(tracksP5Top+tracksP5Bottom)
 
 
 #sequence tracksP5 = {cosmictracksP5, ctftracksP5, rstracksP5, trackinfoP5}
-tracksP5 = cms.Sequence(cosmictracksP5*ctftracksP5*rstracksP5*trackerCosmics_TopBot)
+tracksP5 = cms.Sequence(cosmictracksP5*ctftracksP5*rstracksP5*trackerCosmics_TopBot*doAlldEdXEstimators)
+tracksP5_wodEdX = tracksP5.copy()
+tracksP5_wodEdX.remove(doAlldEdXEstimators)
+
 # explicitely switch on hit splitting
 ckfTrackCandidatesP5.useHitsSplitting = True
 rsTrackCandidatesP5.SplitMatchedHits = True

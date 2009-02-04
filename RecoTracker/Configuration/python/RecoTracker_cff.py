@@ -18,8 +18,12 @@ newCombinedSeeds.seedCollections = cms.VInputTag(
     cms.InputTag('newSeedFromPairs'),
 )
 
+#dEdX reconstruction
+from RecoTracker.DeDx.dedxEstimators_cff import *
 
-ckftracks = cms.Sequence(iterTracking*trackCollectionMerging*newCombinedSeeds)
+ckftracks = cms.Sequence(iterTracking*trackCollectionMerging*newCombinedSeeds*doAlldEdXEstimators)
+ckftracks_wodEdX = ckftracks.copy()
+ckftracks_wodEdX.remove(doAlldEdXEstimators)
 
 rstracks = cms.Sequence(roadSearchSeeds*
                         roadSearchClouds*rsTrackCandidates*
