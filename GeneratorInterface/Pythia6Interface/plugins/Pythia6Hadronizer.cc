@@ -323,16 +323,19 @@ bool Pythia6Hadronizer::initializeForExternalPartons()
    
    setGeneralParams();
    if ( !paramSLHA.empty() ) setSLHAParams();
-   
-   call_pygive("MSEL=0");
-   call_pygive("MSTP(143)=1");
+      
+   call_pyinit("USER", "", "", 0.0);
+      
+   if ( fJetMatching != NULL ) 
+   {
+      fJetMatching->init( fRunInfo );
+      // fJetMatching->init( fRunInfo );
+      call_pygive("MSTP(143)=1");
 /*
    call_pygive(std::string("MSTP(143)=") +
 	      (wantsShoweredEvent() ? "1" : "0"));
 */
-   call_pyinit("USER", "", "", 0.0);
-      
-   if ( fJetMatching != NULL ) fJetMatching->init( fRunInfo );
+   }
    
    return true;
 }

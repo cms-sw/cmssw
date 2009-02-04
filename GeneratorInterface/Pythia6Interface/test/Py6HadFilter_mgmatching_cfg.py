@@ -44,7 +44,16 @@ process.generator = cms.EDFilter("Pythia6HadronizerFilter",
         # This is a vector of ParameterSet names to be read, in this order
         parameterSets = cms.vstring('pythiaUESettings', 
             'processParameters')
-    )
+    ),
+    jetMatching = cms.untracked.PSet(
+       scheme = cms.string("Madgraph"),
+       mode = cms.string("auto"),
+       MEMAIN_etaclmax = cms.double(5.0),
+       MEMAIN_qcut = cms.double(30.0),
+       MEMAIN_minjets = cms.int32(0),
+       MEMAIN_maxjets = cms.int32(3),
+       MEMAIN_iexcfile = cms.uint32(0) # only set to 1 if need to perform exclusive matching
+    )    
 )
 
 process.GEN = cms.OutputModule("PoolOutputModule",
