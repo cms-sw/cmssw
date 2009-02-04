@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:42 EST 2009
-// $Id: FWTableWidget.cc,v 1.1 2009/02/03 20:33:04 chrjones Exp $
+// $Id: FWTableWidget.cc,v 1.2 2009/02/04 14:50:11 chrjones Exp $
 //
 
 // system include files
@@ -302,6 +302,8 @@ FWTableWidget::dataChanged()
    }
    m_header->setWidthOfTextInColumns(columnWidths);
    m_body->setWidthOfTextInColumns(columnWidths);
+   //this updates sliders to match our new data
+   handleResize(GetWidth(),GetHeight());
 }
 
 //
