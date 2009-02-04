@@ -8,7 +8,6 @@
 #include "HLTrigger/special/interface/HLTHcalPhiSymFilter.h"
 #include "HLTrigger/special/interface/HLTHcalNoiseFilter.h"
 #include "HLTrigger/special/interface/HLTPi0RecHitsFilter.h"
-#include "HLTrigger/special/interface/HLTEtaRecHitsFilter.h"
 #include "HLTrigger/special/interface/HLTCSCOverlapFilter.h"
 #include "HLTrigger/special/interface/HLTCSCRing2or3Filter.h"
 
@@ -30,7 +29,6 @@ DEFINE_FWK_MODULE(HLTEcalPhiSymFilter);
 DEFINE_FWK_MODULE(HLTHcalPhiSymFilter);
 DEFINE_FWK_MODULE(HLTHcalNoiseFilter);
 DEFINE_FWK_MODULE(HLTPi0RecHitsFilter);
-DEFINE_FWK_MODULE(HLTEtaRecHitsFilter);
 DEFINE_FWK_MODULE(HLTCSCOverlapFilter);
 DEFINE_FWK_MODULE(HLTCSCRing2or3Filter);
 
