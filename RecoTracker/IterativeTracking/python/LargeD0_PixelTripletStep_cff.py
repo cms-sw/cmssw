@@ -57,8 +57,9 @@ largeD0step1Seeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVerti
 largeD0step1Seeds.OrderedHitsFactoryPSet.SeedingLayers = 'largeD0step1LayerTriplets'
 # Use modified pixel-triplet code that works best for large impact parameters
 largeD0step1Seeds.OrderedHitsFactoryPSet.GeneratorPSet = cms.PSet(PixelTripletLargeTipGenerator)
-largeD0step1Seeds.RegionFactoryPSet.RegionPSet.ptMin = 0.9
-largeD0step1Seeds.RegionFactoryPSet.RegionPSet.originRadius = 2.5
+largeD0step1Seeds.SeedCreatorPSet.ComponentName = 'SeedFromConsecutiveHitsTripletOnlyCreator'
+largeD0step1Seeds.RegionFactoryPSet.RegionPSet.ptMin = 0.6
+largeD0step1Seeds.RegionFactoryPSet.RegionPSet.originRadius = 3.5
 largeD0step1Seeds.RegionFactoryPSet.RegionPSet.originHalfLength = 15
 #largeD0step1Seeds.SeedCreatorPSet.propagator = cms.string('PropagatorWithMaterialPtMin09')
 
@@ -77,7 +78,7 @@ largeD0step1CkfTrajectoryFilter.ComponentName = 'largeD0step1CkfTrajectoryFilter
 #largeD0step1CkfTrajectoryFilter.filterPset.maxLostHits = 1
 #largeD0step1CkfTrajectoryFilter.filterPset.maxConsecLostHits = 2
 largeD0step1CkfTrajectoryFilter.filterPset.minimumNumberOfHits = 6
-largeD0step1CkfTrajectoryFilter.filterPset.minPt = 0.9
+largeD0step1CkfTrajectoryFilter.filterPset.minPt = 0.6
 largeD0step1CkfTrajectoryFilter.filterPset.minHitsMinPt = 3
 
 #TRAJECTORY BUILDER
