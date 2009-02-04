@@ -24,7 +24,7 @@ private:
 using namespace std;
 using namespace reco;
 using namespace edm;
-const unsigned int maxEntries = 100;
+const unsigned int maxEntries = 10;
 
 DimuonStatistics::DimuonStatistics(const edm::ParameterSet & cfg) : 
   src_(cfg.getParameter<InputTag>("src")), 
@@ -34,12 +34,16 @@ DimuonStatistics::DimuonStatistics(const edm::ParameterSet & cfg) :
 
 void DimuonStatistics::endJob() {
   cout << " == Matched == " << endl;
-  for(unsigned int i = 0; i <= maxEntries; ++i)
-    cout << matched_[i] << ", ";
+  for(unsigned int i = 0; i <= maxEntries; ++i) {
+    cout << i << ": " << matched_[i];
+    if (i < maxEntries) cout << ", ";
+  }
   cout << endl;
   cout << " == unMatched == " << endl;
-  for(unsigned int i = 0; i <= maxEntries; ++i)
-    cout << unMatched_[i] << ", ";
+  for(unsigned int i = 0; i <= maxEntries; ++i) {
+    cout << i << ": " << unMatched_[i];
+    if (i < maxEntries) cout << ", ";
+}
   cout << endl;
 }
 
