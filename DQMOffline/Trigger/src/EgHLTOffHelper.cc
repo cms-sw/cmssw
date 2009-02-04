@@ -55,7 +55,7 @@ void EgHLTOffHelper::fillEgHLTOffEleVec(edm::Handle<reco::GsfElectronCollection>
     //need to figure out if its in the barrel or endcap
     //classification variable is unrelyable so get the first hit of the cluster and figure out if its barrel or endcap
     const reco::BasicCluster& seedClus = *(gsfIter->superCluster()->seed());
-    const DetId seedDetId = seedClus.getHitsByDetId()[0]; //note this may not actually be the seed hit but it doesnt matter because all hits will be in the barrel OR endcap (it is also incredably inefficient as it getHitsByDetId passes the vector by value not reference
+    const DetId seedDetId = seedClus.hitsAndFractions()[0].first; //note this may not actually be the seed hit but it doesnt matter because all hits will be in the barrel OR endcap (it is also incredably inefficient as it getHitsByDetId passes the vector by value not reference
     if(seedDetId.subdetId()==EcalBarrel){
       std::vector<float> stdCov = EcalClusterTools::covariances(seedClus,ebRecHits_,caloTopology_,caloGeom_);
       // std::vector<float> crysCov = EcalClusterTools::crystalCovariances(seedClus,ebRecHits_,caloTopology_,caloGeom_);

@@ -126,7 +126,7 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
       //  New way to get ClusterShape info
       //BasicClusterShapeAssociationCollection::const_iterator seedShpItr;
       // Find the entry in the map corresponding to the seed BasicCluster of the SuperCluster
-      DetId id = it_super->seed()->getHitsByDetId()[0];
+      DetId id = it_super->seed()->hitsAndFractions()[0].first;
 
       // get on-the-fly the cluster shapes
       EcalClusterLazyTools lazyTool( evt, es, barrelRecHitCollection_, endcapRecHitCollection_ );
