@@ -18,7 +18,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:47 EST 2009
-// $Id$
+// $Id: FWTableWidget.h,v 1.1 2009/02/03 20:33:03 chrjones Exp $
 //
 
 // system include files
@@ -68,6 +68,8 @@ class FWTableWidget : public TGCompositeFrame
       void rowClicked(Int_t iRow, Int_t iButton, Int_t iKeyMod); //*SIGNAL*
 
       ClassDef(FWTableWidget,0);
+   
+      void dataChanged();
 
    private:
       //FWTableWidget(const FWTableWidget&); // stop default
