@@ -8,6 +8,8 @@
 #include "IOMC/ParticleGuns/interface/FlatEGunASCIIWriter.h"
 #include "IOMC/ParticleGuns/interface/FlatRandomEGunSource.h"
 #include "IOMC/ParticleGuns/interface/FlatRandomPtGunSource.h"
+#include "IOMC/ParticleGuns/interface/FlatRandomEThetaGunSource.h"
+#include "IOMC/ParticleGuns/interface/FlatRandomPtThetaGunSource.h"
 #include "IOMC/ParticleGuns/interface/ExpoRandomPtGunSource.h"
 #include "IOMC/ParticleGuns/interface/MultiParticleInConeGunSource.h"
 #include "IOMC/ParticleGuns/interface/FlatRandomEGunProducer.h"
@@ -25,6 +27,10 @@ using edm::FlatRandomEGunSource;
 DEFINE_ANOTHER_FWK_INPUT_SOURCE(FlatRandomEGunSource);
 using edm::FlatRandomPtGunSource;
 DEFINE_ANOTHER_FWK_INPUT_SOURCE(FlatRandomPtGunSource);
+using edm::FlatRandomEThetaGunSource;
+DEFINE_ANOTHER_FWK_INPUT_SOURCE(FlatRandomEThetaGunSource);
+using edm::FlatRandomPtThetaGunSource;
+DEFINE_ANOTHER_FWK_INPUT_SOURCE(FlatRandomPtThetaGunSource);
 using edm::ExpoRandomPtGunSource;
 DEFINE_ANOTHER_FWK_INPUT_SOURCE(ExpoRandomPtGunSource);
 using edm::MultiParticleInConeGunSource;
