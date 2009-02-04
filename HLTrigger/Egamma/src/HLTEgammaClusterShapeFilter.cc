@@ -1,6 +1,6 @@
 /** \class HLTEgammaClusterShapeFilter
  *
- * $Id: HLTEgammaClusterShapeFilter.cc,v 1.1 2008/09/10 15:00:57 ghezzi Exp $
+ * $Id: HLTEgammaClusterShapeFilter.cc,v 1.2 2009/01/15 14:31:49 covarell Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -90,18 +90,18 @@ HLTEgammaClusterShapeFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
     if(EtaSC < 1.479 ) {  // Barrel
       if (sigmaee < thresholdEB_ ) {
 	n++;
-	filterproduct->addObject(TriggerCluster, ref);
-      }
-    }
+	filterproduct->addObject(TriggerCluster, ref); 
+      } 
+    } 
     else {  //Endcap
-      sigmaee = sigmaee - 0.02*(EtaSC - 2.3);
+      // sigmaee = sigmaee - 0.02*(EtaSC - 2.3);  // correction moved to producer
       if (sigmaee < thresholdEE_ ) {
 	n++;
-	filterproduct->addObject(TriggerCluster, ref);
-      }     
-    }
-    
-  }//end of loop ofver recoecalcands
+	filterproduct->addObject(TriggerCluster, ref); 
+      }      
+    } 
+     
+  }//end of loop ofver recoecalcands 
   
    // filter decision
    bool accept(n>=ncandcut_);

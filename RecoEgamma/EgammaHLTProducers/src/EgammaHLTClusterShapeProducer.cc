@@ -29,6 +29,7 @@ EgammaHLTClusterShapeProducer::EgammaHLTClusterShapeProducer(const edm::Paramete
 
   ecalRechitEBTag_ = conf_.getParameter< edm::InputTag > ("ecalRechitEB");
   ecalRechitEETag_ = conf_.getParameter< edm::InputTag > ("ecalRechitEE");
+  EtaOrIeta_ = conf_.getParameter< bool > ("isIeta");
 
   //register your products
   produces < reco::RecoEcalCandidateIsolationMap >();
@@ -59,10 +60,18 @@ EgammaHLTClusterShapeProducer::produce(edm::Event& iEvent, const edm::EventSetup
     
     reco::RecoEcalCandidateRef recoecalcandref(recoecalcandHandle,iRecoEcalCand-recoecalcandHandle->begin());
     
-    std::vector<float> vCov = lazyTools.covariances( *(recoecalcandref->superCluster()->seed()) );
-    
-    double sigmaee = sqrt(vCov[0]);
-    
+    std::vector<float> vCov ; 
+    double sigmaee;
+    if (EtaOrIeta_) {
+      vCov = lazyTools.localCovariances( *(recoecalcandref->superCluster()->seed()) );
+      sigmaee = sqrt(vCov[0]);
+    } else {
+      vCov = lazyTools.covariances( *(recoecalcandref->superCluster()->seed()) );
+      sigmaee = sqrt(vCov[0]);
+      double EtaSC = recoecalcandref->eta();
+      if (EtaSC > 1.479) sigmaee = sigmaee - 0.02*(EtaSC - 2.3); 
+    }
+
     clshMap.insert(recoecalcandref, sigmaee);
     
   }

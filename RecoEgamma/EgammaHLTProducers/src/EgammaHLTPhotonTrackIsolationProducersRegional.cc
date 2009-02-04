@@ -36,7 +36,7 @@ EgammaHLTPhotonTrackIsolationProducersRegional::EgammaHLTPhotonTrackIsolationPro
   recoEcalCandidateProducer_    = conf_.getParameter<edm::InputTag>("recoEcalCandidateProducer");
   trackProducer_                = conf_.getParameter<edm::InputTag>("trackProducer");
 
-  countTracks_                  = conf_.getUntrackedParameter<bool>("countTracks",false);
+  countTracks_                  = conf_.getParameter<bool>("countTracks");
 
   egTrkIsoPtMin_                = conf_.getParameter<double>("egTrkIsoPtMin");
   egTrkIsoConeSize_             = conf_.getParameter<double>("egTrkIsoConeSize");

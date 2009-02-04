@@ -8,7 +8,7 @@
 //
 // Original Author:  Roberto Covarelli (CERN)
 //         Created:  Tue Jun 13 14:48:33 CEST 2006
-// $Id: EgammaHLTClusterShapeProducer.h,v 1.1 2007/03/23 17:22:54 ghezzi Exp $
+// $Id: EgammaHLTClusterShapeProducer.h,v 1.1 2009/01/15 14:28:27 covarell Exp $
 //
 //
 
@@ -42,6 +42,7 @@ class EgammaHLTClusterShapeProducer : public edm::EDProducer {
   edm::InputTag recoEcalCandidateProducer_;
   edm::InputTag ecalRechitEBTag_;
   edm::InputTag ecalRechitEETag_;
+  bool EtaOrIeta_;
 
   edm::ParameterSet conf_;
 
