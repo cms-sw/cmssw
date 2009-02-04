@@ -13,7 +13,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: TOFBetaRefitter.cc,v 1.1 2008/03/17 23:24:07 ptraczyk Exp $
+// $Id: TOFBetaRefitter.cc,v 1.2 2008/05/14 12:20:01 ptraczyk Exp $
 //
 //
 
@@ -117,15 +117,15 @@ class TOFBetaRefitter : public edm::EDProducer {
       edm::InputTag MuonTags_; 
       edm::InputTag DTSegmentTags_; 
 
-  unsigned int theHitsMinTheta, theHitsMinPhi;
-  bool debug;
-  bool requireLR;
-  bool correctDist;
-  double thePruneCut;
+      unsigned int theHitsMinTheta, theHitsMinPhi;
+      bool correctDist;
+      bool requireLR;
+      bool debug;
+      double thePruneCut;
 
-  ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
-  
-  MuonServiceProxy* theService;
+      ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
+      
+      MuonServiceProxy* theService;
 };
 
 //

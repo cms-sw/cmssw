@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: BetaFromCSC.cc,v 1.1 2008/10/08 15:28:24 ptraczyk Exp $
+// $Id: BetaFromCSC.cc,v 1.1 2008/10/13 13:01:10 ptraczyk Exp $
 //
 //
 
@@ -206,7 +206,7 @@ BetaFromCSC::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if ((*mi).standAloneMuon().isNonnull()) muonTrack = (*mi).standAloneMuon();
       else continue;
 
-    double stationHits[4]={0,0,0,0};
+    //double stationHits[4]={0,0,0,0};
     double invbeta=0;
     int totalWeight=0;
     int nStations=0;
@@ -244,7 +244,7 @@ BetaFromCSC::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       if (!(*rechit)->specificRecHits().size()) continue;
 
-      const GeomDet* geomDet = theTrackingGeometry->idToDet((*rechit)->geographicalId());
+      //const GeomDet* geomDet = theTrackingGeometry->idToDet((*rechit)->geographicalId());
       const vector<CSCRecHit2D> hits2d = (*rechit)->specificRecHits();
 
       // store all the hits from the segment

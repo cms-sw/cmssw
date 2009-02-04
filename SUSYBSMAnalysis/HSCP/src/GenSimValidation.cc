@@ -35,7 +35,8 @@
 
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/HepMCProduct/interface/GenInfoProduct.h"
+//#include "SimDataFormats/HepMCProduct/interface/GenInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenInfoProduct.h"
 
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/Candidate/interface/Candidate.h"

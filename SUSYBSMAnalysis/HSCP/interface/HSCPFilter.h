@@ -5,8 +5,6 @@
 //
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDFilter.h"
-
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class HSCPFilter : public edm::EDFilter {
@@ -19,6 +17,7 @@ class HSCPFilter : public edm::EDFilter {
       virtual bool filter(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
+      // ----------member data ---------------------------
       float m_dedxCut1;
       float m_tkPCut1;
       float m_dedxCut2;
@@ -28,7 +27,6 @@ class HSCPFilter : public edm::EDFilter {
       float m_singleMuPtMin;
       float m_doubleMuPtMin;
  
-      // ----------member data ---------------------------
 };
 
 #endif

@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: BetaFromTOF.cc,v 1.20 2008/10/08 15:28:24 ptraczyk Exp $
+// $Id: BetaFromTOF.cc,v 1.21 2008/10/13 13:01:10 ptraczyk Exp $
 //
 //
 
@@ -218,7 +218,7 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if ((*mi).standAloneMuon().isNonnull()) muonTrack = (*mi).standAloneMuon();
       else continue;
 
-    double stationHits[4]={0,0,0,0};
+    //double stationHits[4]={0,0,0,0};
     double invbeta=0;
     int totalWeight=0;
     int nStations=0;

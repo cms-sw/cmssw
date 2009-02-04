@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Tue Jun 26 11:37:21 CEST 2007
-// $Id: HSCPFilter.cc,v 1.3 2007/08/20 08:43:43 arizzi Exp $
+// $Id: HSCPFilter.cc,v 1.4 2008/08/26 14:09:25 arizzi Exp $
 //
 //
 
@@ -25,14 +25,14 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "SUSYBSMAnalysis/HSCP/interface/HSCPFilter.h"
-
-#include "DataFormats/TrackReco/interface/TrackDeDxEstimate.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/HitPattern.h"
+#include "DataFormats/TrackReco/interface/DeDxData.h"
+
+#include "SUSYBSMAnalysis/HSCP/interface/HSCPFilter.h"
 
 using namespace reco;
 using namespace std;
@@ -71,33 +71,36 @@ bool
 HSCPFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
-   Handle<TrackDeDxEstimateCollection> dedxH;
-   iEvent.getByLabel("dedxTruncated40",dedxH);
 
-  
+   // dE/dx from the tracker
+   Handle<DeDxDataValueMap> dedxH;
+   iEvent.getByLabel("dedxTruncated40",dedxH);
+   const ValueMap<DeDxData> dEdxTrack = *dedxH.product();
+   edm::Handle<reco::TrackCollection> trackCollectionHandle;
+   iEvent.getByLabel("TrackRefitter",trackCollectionHandle);
+   for(unsigned int i=0; i<trackCollectionHandle->size(); i++) {
+     reco::TrackRef track  = reco::TrackRef( trackCollectionHandle, i );
+     const DeDxData& dedx = dEdxTrack[track];
+     if( (track->normalizedChi2() < 5 && track->numberOfValidHits()>=8 ) //quality cuts
+         &&
+         ((track->p() > m_tkPCut1 && dedx.dEdx()> m_dedxCut1) ||
+          (track->p() > m_tkPCut2 && dedx.dEdx()> m_dedxCut2) ||
+          (track->p() > m_tkPCut3 && dedx.dEdx()> m_dedxCut2)   ) //slow particle  cuts
+       ) return true;
+   }
+   
+   // Pt of muon tracks
    Handle<TrackCollection> muonsH;
    iEvent.getByLabel("standAloneMuons",muonsH);
-   
-   const TrackDeDxEstimateCollection & dedx = *dedxH.product();
-   for(size_t i=0; i<dedx.size() ; i++)
-    {
-      if(dedx[i].first->normalizedChi2() < 5 && dedx[i].first->numberOfValidHits()>=8 &&  //quality cuts
-         (
-           (dedx[i].first->p() > m_tkPCut1 && dedx[i].second.value()> m_dedxCut1)   
-           || (dedx[i].first->p() > m_tkPCut2 && dedx[i].second.value()> m_dedxCut2) 
-           || (dedx[i].first->p() > m_tkPCut3 && dedx[i].second.value()> m_dedxCut2)
-           )  ) //slow particle  cuts
-            return true;
-    }
    const TrackCollection & muons = *muonsH.product();
    int found=0;
-   for(size_t i=0; i<muons.size() ; i++)
-   { 
+   for(size_t i=0; i<muons.size() ; i++) { 
       if(muons[i].pt() > m_singleMuPtMin ) return true;
       if(muons[i].pt() > m_doubleMuPtMin ) found++;
       if(found >=2) return true;
    }
- 
+
+  // failed all
   return false;
 }
 
