@@ -246,7 +246,7 @@ famosMuonIdAndIsolationSequence = cms.Sequence(
 
 # Electron reconstruction
 from FastSimulation.Tracking.globalCombinedSeeds_cfi import *
-from FastSimulation.EgammaElectronAlgos.electronGSPixelSeeds_cfi import *
+from FastSimulation.EgammaElectronAlgos.fastElectronSeeds_cfi import *
 from FastSimulation.EgammaElectronAlgos.electronGSGsfTrackCandidates_cff import *
 from RecoEgamma.EgammaElectronProducers.pixelMatchGsfElectrons_cff import *
 from TrackingTools.GsfTracking.GsfElectronFit_cff import *
@@ -256,8 +256,8 @@ pixelMatchGsfFit = TrackingTools.GsfTracking.GsfElectronFit_cfi.GsfGlobalElectro
 pixelMatchGsfFit.src = 'electronGSGsfTrackCandidates'
 pixelMatchGsfFit.TTRHBuilder = 'WithoutRefit'
 pixelMatchGsfFit.TrajectoryInEvent = True
-pixelMatchGsfElectrons.barrelSuperClusters = cms.InputTag("correctedHybridSuperClusters","electronGSPixelSeeds")
-pixelMatchGsfElectrons.endcapSuperClusters = cms.InputTag("correctedEndcapSuperClustersWithPreshower","electronGSPixelSeeds")
+pixelMatchGsfElectrons.barrelSuperClusters = cms.InputTag("correctedHybridSuperClusters","fastElectronSeeds")
+pixelMatchGsfElectrons.endcapSuperClusters = cms.InputTag("correctedEndcapSuperClustersWithPreshower","fastElectronSeeds")
 pixelMatchGsfElectrons.reducedEndcapRecHitCollection = cms.InputTag("caloRecHits","EcalRecHitsEE")
 pixelMatchGsfElectrons.reducedBarrelRecHitCollection = cms.InputTag("caloRecHits","EcalRecHitsEB")
 
@@ -275,7 +275,7 @@ eidLoose.reducedEndcapRecHitCollection = cms.InputTag("caloRecHits","EcalRecHits
 famosElectronSequence = cms.Sequence(
     iterativeFirstSeeds+
     newCombinedSeeds+
-    electronGSPixelSeeds+
+    fastElectronSeeds+
     electronGSGsfTrackCandidates+
     pixelMatchGsfFit+
     pixelMatchGsfElectrons+
@@ -290,7 +290,7 @@ photons.isolationSumsCalculatorSet.barrelEcalRecHitProducer = 'caloRecHits'
 photons.isolationSumsCalculatorSet.endcapEcalRecHitProducer = 'caloRecHits'
 photons.hbheModule = 'caloRecHits'
 photons.hbheInstance = ''
-photons.pixelSeedProducer = 'electronGSPixelSeeds'
+photons.pixelSeedProducer = 'fastElectronSeeds'
 from RecoEgamma.PhotonIdentification.photonId_cff import *
 
 famosPhotonSequence = cms.Sequence(

@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
 // Package:    EgammaElectronAlgos
-// Class:      GSPixelHitMatcher
+// Class:      FastPixelHitMatcher
 // 
-/**\class GSPixelHitMatcher EgammaElectronAlgos/GSPixelHitMatcher
+/**\class FastPixelHitMatcher EgammaElectronAlgos/FastPixelHitMatcher
 
  Description: central class for finding compatible hits
 
@@ -15,7 +15,7 @@
 //
 //
 
-#include "FastSimulation/EgammaElectronAlgos/interface/GSPixelHitMatcher.h"
+#include "FastSimulation/EgammaElectronAlgos/interface/FastPixelHitMatcher.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "FastSimulation/TrackerSetup/interface/TrackerInteractionGeometry.h"
 #include "FastSimulation/TrackerSetup/interface/TrackerLayer.h"
@@ -29,7 +29,7 @@
 
 //#define FAMOS_DEBUG
 
-GSPixelHitMatcher::GSPixelHitMatcher(float ephi1min, float ephi1max, 
+FastPixelHitMatcher::FastPixelHitMatcher(float ephi1min, float ephi1max, 
 				     float pphi1min, float pphi1max, 
 				     float phi2min, float phi2max, 
 				     float z2minB, float z2maxB,
@@ -50,10 +50,10 @@ GSPixelHitMatcher::GSPixelHitMatcher(float ephi1min, float ephi1max,
   thePixelLayers(50,static_cast<TrackerLayer*>(0)),
   vertex(0.) {}
 
-GSPixelHitMatcher::~GSPixelHitMatcher() { }
+FastPixelHitMatcher::~FastPixelHitMatcher() { }
 
 void 
-GSPixelHitMatcher::setES(const MagneticFieldMap* aFieldMap, 
+FastPixelHitMatcher::setES(const MagneticFieldMap* aFieldMap, 
 			 const TrackerGeometry* aTrackerGeometry, 
 			 const GeometricSearchTracker* geomSearchTracker,
 			 const TrackerInteractionGeometry* interactionGeometry) {
@@ -78,17 +78,17 @@ GSPixelHitMatcher::setES(const MagneticFieldMap* aFieldMap,
   
 }
 
-std::vector< std::pair<GSPixelHitMatcher::ConstRecHitPointer, 
-		       GSPixelHitMatcher::ConstRecHitPointer> > 
-GSPixelHitMatcher::compatibleHits(const GlobalPoint& thePos,
+std::vector< std::pair<FastPixelHitMatcher::ConstRecHitPointer, 
+		       FastPixelHitMatcher::ConstRecHitPointer> > 
+FastPixelHitMatcher::compatibleHits(const GlobalPoint& thePos,
 				  const GlobalPoint& theVertex,
 				  float energy,
 				  std::vector<TrackerRecHit>& theHits) { 
   
-  std::vector< std::pair<GSPixelHitMatcher::ConstRecHitPointer, 
-    GSPixelHitMatcher::ConstRecHitPointer> > result;
+  std::vector< std::pair<FastPixelHitMatcher::ConstRecHitPointer, 
+    FastPixelHitMatcher::ConstRecHitPointer> > result;
 #ifdef FAMOS_DEBUG
-  std::cout << "[GSPixelHitMatcher::compatibleHits] entering .. " << std::endl;
+  std::cout << "[FastPixelHitMatcher::compatibleHits] entering .. " << std::endl;
 #endif
   
   double zCluster = thePos.z();
@@ -141,8 +141,8 @@ GSPixelHitMatcher::compatibleHits(const GlobalPoint& thePos,
 	GenericTransientTrackingRecHit::build(theHits[secondHit].geomDet(),
 					      theHits[secondHit].hit());
       result.push_back(std::pair<
-		       GSPixelHitMatcher::ConstRecHitPointer,
-		       GSPixelHitMatcher::ConstRecHitPointer>(theFirstHit,theSecondHit));
+		       FastPixelHitMatcher::ConstRecHitPointer,
+		       FastPixelHitMatcher::ConstRecHitPointer>(theFirstHit,theSecondHit));
       
     }
   }
@@ -150,7 +150,7 @@ GSPixelHitMatcher::compatibleHits(const GlobalPoint& thePos,
   return result;
 }
 
-bool GSPixelHitMatcher::isASeed(const ParticlePropagator& myElec,
+bool FastPixelHitMatcher::isASeed(const ParticlePropagator& myElec,
 				const ParticlePropagator& myPosi,
 				const GlobalPoint& theVertex,
 				double rCluster,
@@ -247,7 +247,7 @@ bool GSPixelHitMatcher::isASeed(const ParticlePropagator& myElec,
 }
   
 bool 
-GSPixelHitMatcher::propagateToLayer(ParticlePropagator& myPart,
+FastPixelHitMatcher::propagateToLayer(ParticlePropagator& myPart,
 				    const GlobalPoint& theVertex,
 				    GlobalPoint& theHit,
 				    double phimin, double phimax,
@@ -306,7 +306,7 @@ GSPixelHitMatcher::propagateToLayer(ParticlePropagator& myPart,
 					 
 
 double 
-GSPixelHitMatcher::zVertex(double zCluster,
+FastPixelHitMatcher::zVertex(double zCluster,
 			   double rCluster,
 			   GlobalPoint& theHit)
 {
@@ -320,7 +320,7 @@ GSPixelHitMatcher::zVertex(double zCluster,
 
 
 bool
-GSPixelHitMatcher::checkRZCompatibility(double zCluster,double rCluster, 
+FastPixelHitMatcher::checkRZCompatibility(double zCluster,double rCluster, 
 					double zVertex, 
 					float rzMin, float rzMax,
 					GlobalPoint& theHit, 

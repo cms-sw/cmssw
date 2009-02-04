@@ -11,10 +11,10 @@ import FWCore.ParameterSet.Config as cms
 # modules to make seeds, tracks and electrons
 # include "RecoEgamma/EgammaHLTProducers/data/egammaHLTChi2MeasurementEstimatorESProducer.cff"
 # Cluster-seeded pixel pairs
-import FastSimulation.EgammaElectronAlgos.electronGSPixelSeeds_cfi
+import FastSimulation.EgammaElectronAlgos.fastElectronSeeds_cfi
 from FastSimulation.Configuration.blockHLT_cff import *
 
-hltL1IsoLargeWindowElectronPixelSeeds = FastSimulation.EgammaElectronAlgos.electronGSPixelSeeds_cfi.electronGSPixelSeeds.clone()
+hltL1IsoLargeWindowElectronPixelSeeds = FastSimulation.EgammaElectronAlgos.fastElectronSeeds_cfi.fastElectronSeeds.clone()
 hltL1IsoLargeWindowElectronPixelSeeds.SeedConfiguration = cms.PSet(
     block_hltL1IsoLargeWindowElectronPixelSeeds
 )

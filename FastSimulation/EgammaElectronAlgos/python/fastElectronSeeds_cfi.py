@@ -2,14 +2,15 @@ import FWCore.ParameterSet.Config as cms
 
 #
 # module to produce pixel seeds for electrons from super clusters
-# $Id: electronGSPixelSeeds.cfi,v 1.11 2008/05/29 13:40:55 beaudett Exp $
+# $Id: fastElectronSeeds_cfi.py,v 1.4 2008/06/05 02:51:33 hegner Exp $
 # Author:  Ursula Berthon, Claude Charlot
 #
-from RecoEgamma.EgammaElectronProducers.pixelSeedConfiguration_cfi import *
-electronGSPixelSeeds = cms.EDProducer("ElectronGSPixelSeedProducer",
+from RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeedsParameters_cff import *
+
+fastElectronSeeds = cms.EDProducer("FastElectronSeedProducer",
     endcapSuperClusters = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
     SeedConfiguration = cms.PSet(
-        electronPixelSeedConfiguration
+        ecalDrivenElectronSeedsParameters
     ),
     beamSpot = cms.InputTag("offlineBeamSpot"),
     # Inputs
