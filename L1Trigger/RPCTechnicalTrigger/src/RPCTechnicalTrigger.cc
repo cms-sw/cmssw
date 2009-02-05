@@ -15,7 +15,7 @@ Implementation:
 //
 // Original Author:  Andres Felipe Osorio Oliveros
 //         Created:  Thu Nov 13 08:21:16 CET 2008
-// $Id$
+// $Id: RPCTechnicalTrigger.cc,v 1.1 2009/01/30 15:42:48 aosorio Exp $
 
 // local
 #include "L1Trigger/RPCTechnicalTrigger/src/RPCTechnicalTrigger.h"
@@ -119,6 +119,7 @@ void RPCTechnicalTrigger::analyze(const edm::Event& iEvent, const edm::EventSetu
   }
   
   //.. analyse results from emulation
+
   
   
   //... reset data map for next event
