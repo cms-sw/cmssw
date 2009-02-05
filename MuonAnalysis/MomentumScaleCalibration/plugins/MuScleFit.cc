@@ -1,8 +1,13 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
+// <<<<<<< MuScleFit.cc
+//  $Date: 2009/01/23 16:16:50 $
+//  $Revision: 1.23 $
+// =======
 //  $Date: 2009/01/29 13:20:26 $
 //  $Revision: 1.25 $
+// >>>>>>> 1.25
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -82,9 +87,9 @@
 //    Notes on additions, T.Dorigo 22/12/2008
 //    ---------------------------------------
 //
-//  - File Probs_new_1000_CTEQ.root now contains a set of 40 additional two-dim histograms,
+//  - File Probs_new_1000_CTEQ.root now contains a set of 24 additional two-dim histograms,
 //    defining the probability distribution of Z boson decays as a function of measured mass
-//    and expected sigma in 40 different bins of Z rapidity, extracted from CTEQ 6 PDF (at
+//    and expected sigma in 24 different bins of Z rapidity, extracted from CTEQ 6 PDF (at
 //    Leading Order) from the convolution in the factorization integral. See programs CTEQ.cpp
 //    and Fits.C.
 //  - The probability for Z boson events now thus depends on the measured rapidity of the dimuon
@@ -130,8 +135,8 @@
 #include "MuonAnalysis/MomentumScaleCalibration/interface/Functions.h"
 
 // To read likelihood distributions from the database.
-// #include "CondFormats/RecoMuonObjects/interface/MuScleFitLikelihoodPdf.h"
-// #include "CondFormats/DataRecord/interface/MuScleFitLikelihoodPdfRcd.h"
+	//#include "CondFormats/RecoMuonObjects/interface/MuScleFitLikelihoodPdf.h"
+	//#include "CondFormats/DataRecord/interface/MuScleFitLikelihoodPdfRcd.h"
 
 using namespace std;
 using namespace edm;
@@ -1033,22 +1038,24 @@ void MuScleFit::checkParameters() {
 
 void MuScleFit::readProbabilityDistributionsFromFile()
 {
-  TH2D * GLZ[40];
+  TH2D * GLZ[24];
   TH2D * GL[6];
   TFile * ProbsFile;
   if ( theMuonType!=2 ) {
-    edm::FileInPath file("MuonAnalysis/MomentumScaleCalibration/test/Probs_new_1000_CTEQ.root");
+    //edm::FileInPath file("MuonAnalysis/MomentumScaleCalibration/test/Probs_new_1000_CTEQ.root");
+    edm::FileInPath file("MuonAnalysis/MomentumScaleCalibration/test/Probs_new_Horace_CTEQ_1000.root");
     ProbsFile = new TFile (file.fullPath().c_str()); // NNBB need to reset this if MuScleFitUtils::nbins changes
     // ProbsFile = new TFile ("Probs_new_1000_CTEQ.root"); // NNBB need to reset this if MuScleFitUtils::nbins changes
-    cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from Probs_new_1000_CTEQ.root file" << endl;
+    //cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from Probs_new_1000_CTEQ.root file" << endl;
+    cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from Probs_new_Horace_CTEQ_1000.root file" << endl;
   } else {
     edm::FileInPath fileSM("MuonAnalysis/MomentumScaleCalibration/test/Probs_SM_1000.root");
     ProbsFile = new TFile (fileSM.fullPath().c_str()); // NNBB need to reset this if MuScleFitUtils::nbins changes
     // ProbsFile = new TFile ("Probs_SM_1000.root"); // NNBB need to reset this if MuScleFitUtils::nbins changes
-    cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from Probs_new_SM_1000_CTEQ.root file" << endl;
+    cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from Probs_new_SM_1000.root file" << endl;
   }
   ProbsFile->cd();
-  for ( int i=0; i<40; i++ ) {
+  for ( int i=0; i<24; i++ ) {
     char nameh[6];
     sprintf (nameh,"GLZ%d",i);
     GLZ[i] = dynamic_cast<TH2D*>(ProbsFile->Get(nameh)); 
@@ -1062,7 +1069,7 @@ void MuScleFit::readProbabilityDistributionsFromFile()
 
   // Extract normalization for mass slice in Y bins of Z
   // ---------------------------------------------------
-  for (int iY=0; iY<40; iY++) {
+  for (int iY=0; iY<24; iY++) {
     int nBinsX = GLZ[iY]->GetNbinsX();
     int nBinsY = GLZ[iY]->GetNbinsY();
     if( nBinsX != MuScleFitUtils::nbins+1 || nBinsY != MuScleFitUtils::nbins+1 ) {

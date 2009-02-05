@@ -286,7 +286,7 @@ process.looper = cms.Looper(
     FitStrategy = cms.int32(2),
 
     speedup = cms.bool(False),
-    readPdfFromDB = cms.bool(False)
+    # readPdfFromDB = cms.bool(False)
 
 )
 
