@@ -3,17 +3,17 @@
 
 	<class name="HepMC::GenEvent"/>
 	<class name="HepMC::GenVertex"/>
-	<class name="HepMC::GenParticle">  
+	<class name="HepMC::GenParticle">
 		<field name="itsParticleData" transient="true"/>
 		<field name="itsDecayData" transient="true"/>
 	</class>
-	<class name="HepMC::WeightContainer"/> 
+	<class name="HepMC::WeightContainer"/>
 	<class name="HepMC::FourVector"/>
 	<class name="HepMC::HeavyIon"/>
 	<class name="HepMC::PdfInfo"/>
 	<class name="HepMC::Flow">
 		<field name="m_particle_owner" transient="true"/>
-	</class>  
+	</class>
 	<class name="HepMC::Polarization"/>
 	<class name="HepMC::GenEvent::particle_iterator">
 		<field name="m_map_iterator" transient="true"/>
@@ -27,59 +27,68 @@
 	<class name="HepMC::GenEvent::vertex_const_iterator">
 		<field name="m_map_iterator" transient="true"/>
 	</class>
-	<class name="std::vector<HepMC::GenParticle*>"/>
-	<!-- <class name="std::iterator<std::forward_iterator_tag,HepMC::GenVertex*,int,HepMC::GenVertex**,HepMC::GenVertex*& >"/> -->
-	<class pattern="std::iterator<std::forward_iterator_tag,HepMC::GenVertex*>"/>
-	<!-- <class name="std::iterator<std::forward_iterator_tag,HepMC::GenParticle*,int,HepMC::GenParticle**,HepMC::GenParticle*& >"/> -->
-	<class pattern="std::iterator<std::forward_iterator_tag,HepMC::GenParticle*>"/>
+	<class name="std::vector&lt;HepMC::GenParticle*&gt;"/>
+	<!-- <class name="std::iterator&lt;std::forward_iterator_tag,HepMC::GenVertex*,int,HepMC::GenVertex**,HepMC::GenVertex*& &gt;"/> -->
+	<class pattern="std::iterator&lt;std::forward_iterator_tag,HepMC::GenVertex*&gt;"/>
+	<!-- <class name="std::iterator&lt;std::forward_iterator_tag,HepMC::GenParticle*,int,HepMC::GenParticle**,HepMC::GenParticle*& &gt;"/> -->
+	<class pattern="std::iterator&lt;std::forward_iterator_tag,HepMC::GenParticle*&gt;"/>
 	<!--
 		<class name="HepMC::GenVertex::edge_iterator">
 			<field name="m_set_iter" transient="true"/>
 		</class>
 	-->
-	<!-- <class name="_Rb_tree_iterator<HepMC::GenParticle*,HepMC::GenParticle* const&,HepMC::GenParticle* const*>"/> -->
-	<!-- <class pattern="*iterator<HepMC::GenParticle*>"/> -->
-	<!-- <class name="_Rb_tree_iterator<std::pair<const int,HepMC::GenVertex*>,const std::pair<const int,HepMC::GenVertex*>&,const std::pair<const int,HepMC::GenVertex*>*>"/> -->
-	<!-- <class pattern="*iterator<std::pair<*HepMC::GenVertex*>*>"/> -->
-	<!-- <class pattern="*iterator<std::pair<*HepMC::GenParticle*>*>"/> -->
-	<!-- <class name="HepPDT::ParticleID"/>-->
-	<!-- <class name="HepPDT::Quarks"/>-->
-	<!-- <class name="HepPDT::DecayDataT<HepMCConfig>"/> -->
-	<!-- <class name="HepPDT::ParticleDataT<HepMCConfig>"/> -->
+	<!-- <class name="_Rb_tree_iterator&lt;HepMC::GenParticle*,HepMC::GenParticle* const&,HepMC::GenParticle* const*&gt;"/> -->
+	<!-- <class pattern="*iterator&lt;HepMC::GenParticle*&gt;"/> -->
+	<!-- <class name="_Rb_tree_iterator&lt;std::pair&lt;const int,HepMC::GenVertex*&gt;,const std::pair&lt;const int,HepMC::GenVertex*&gt;&,const std::pair&lt;const int,HepMC::GenVertex*&gt;*&gt;"/> -->
+	<!-- <class pattern="*iterator&lt;std::pair&lt;*HepMC::GenVertex*&gt;*&gt;"/> -->
+	<!-- <class pattern="*iterator&lt;std::pair&lt;*HepMC::GenParticle*&gt;*&gt;"/> -->
+	<!-- <class name="HepPDT::ParticleID"/> -->
+	<!-- <class name="HepPDT::Quarks"/> -->
+	<!-- <class name="HepPDT::DecayDataT&lt;HepMCConfig&gt;"/> -->
+	<!-- <class name="HepPDT::ParticleDataT&lt;HepMCConfig&gt;"/> -->
 
 	<!-- HepMCProduct -->
 
-	<class name="edm::Wrapper<edm::HepMCProduct>"/>
+	<class name="edm::Wrapper&lt;edm::HepMCProduct&gt;"/>
 	<class name="edm::HepMCProduct"/>
-	<class name="edm::Ref<edm::HepMCProduct,HepMC::GenVertex,edm::refhelper::FindTrait<edm::HepMCProduct,HepMC::GenVertex>::Find>"/>
-	<class name="edm::Ref<edm::HepMCProduct,HepMC::GenParticle,edm::refhelper::FindTrait<edm::HepMCProduct,HepMC::GenParticle>::Find>"/>
-	<class name="edm::RefVector<edm::HepMCProduct,HepMC::GenVertex,edm::refhelper::FindTrait<edm::HepMCProduct,HepMC::GenVertex>::Find>"/>
-	<class name="edm::RefVector<edm::HepMCProduct,HepMC::GenParticle,edm::refhelper::FindTrait<edm::HepMCProduct,HepMC::GenParticle>::Find>"/>
-	<class name="std::map<int,HepMC::GenVertex*>"/>
-	<class name="std::pair<const int,HepMC::GenVertex*>"/>
-	<class name="std::map<int,HepMC::GenParticle*>"/> 
-	<class name="std::pair<const int,HepMC::GenParticle*>"/>
-	<class name="std::map< int,HepMC::GenVertex*,std::greater<int> >"/>
+	<class name="edm::Ref&lt;edm::HepMCProduct,HepMC::GenVertex,edm::refhelper::FindTrait&lt;edm::HepMCProduct,HepMC::GenVertex&gt;::Find&gt;"/>
+	<class name="edm::Ref&lt;edm::HepMCProduct,HepMC::GenParticle,edm::refhelper::FindTrait&lt;edm::HepMCProduct,HepMC::GenParticle&gt;::Find&gt;"/>
+	<class name="edm::RefVector&lt;edm::HepMCProduct,HepMC::GenVertex,edm::refhelper::FindTrait&lt;edm::HepMCProduct,HepMC::GenVertex&gt;::Find&gt;"/>
+	<class name="edm::RefVector&lt;edm::HepMCProduct,HepMC::GenParticle,edm::refhelper::FindTrait&lt;edm::HepMCProduct,HepMC::GenParticle&gt;::Find&gt;"/>
+	<class name="std::map&lt;int,HepMC::GenVertex*&gt;"/>
+	<class name="std::pair&lt;const int,HepMC::GenVertex*&gt;"/>
+	<class name="std::map&lt;int,HepMC::GenParticle*&gt;"/>
+	<class name="std::pair&lt;const int,HepMC::GenParticle*&gt;"/>
+	<class name="std::map&lt;int,HepMC::GenVertex*,std::greater&lt;int&gt; &gt;"/>
 
-	<!-- GenInfoProduct -->
+	<!-- Classes shared between different kinds of products -->
 
-	<class name="edm::Wrapper<edm::GenInfoProduct>"/>
-	<class name="edm::GenInfoProduct"/>
+	<class name="gen::PdfInfo"/>
+	<class name="std::auto_ptr&lt;gen::PdfInfo&gt;"/>
+
+	<!-- GenRunInfoProduct -->
+
+	<class name="GenRunInfoProduct"/>
+	<class name="GenRunInfoProduct::XSec"/>
+	<class name="edm::Wrapper&lt;GenRunInfoProduct&gt;"/>
+
+	<!-- GenEventInfoProduct -->
+
+	<class name="GenEventInfoProduct"/>
+	<class name="edm::Wrapper&lt;GenEventInfoProduct&gt;"/>
 
 	<!-- LHE products -->
 
-	<class name="std::vector<std::pair<int, int> >"/>
+	<class name="std::vector&lt;std::pair&lt;int, int&gt; &gt;"/>
 	<class name="lhef::HEPEUP::FiveVector"/>
-	<class name="std::vector<lhef::HEPEUP::FiveVector>"/>
+	<class name="std::vector&lt;lhef::HEPEUP::FiveVector&gt;"/>
 	<class name="lhef::HEPRUP"/>
 	<class name="lhef::HEPEUP"/>
 	<class name="LHERunInfoProduct::Header"/>
-	<class name="std::vector<LHERunInfoProduct::Header>"/>
+	<class name="std::vector&lt;LHERunInfoProduct::Header&gt;"/>
 	<class name="LHERunInfoProduct"/>
-	<class name="LHEEventProduct::PDF"/>
-	<class name="std::auto_ptr<LHEEventProduct::PDF>"/>
 	<class name="LHEEventProduct"/>
-	<class name="edm::Wrapper<LHERunInfoProduct>"/>
-	<class name="edm::Wrapper<LHEEventProduct>"/>
+	<class name="edm::Wrapper&lt;LHERunInfoProduct&gt;"/>
+	<class name="edm::Wrapper&lt;LHEEventProduct&gt;"/>
 
 </lcgdict>

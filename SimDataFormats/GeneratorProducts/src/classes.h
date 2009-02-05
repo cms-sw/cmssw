@@ -6,10 +6,13 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/RefVector.h"
 
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "SimDataFormats/GeneratorProducts/interface/GenInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
+
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+
+#include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 namespace {
 	struct dictionary {
@@ -43,7 +46,8 @@ namespace {
 
 		// GenInfoProduct
 
-		edm::Wrapper<edm::GenInfoProduct> m_wrap;
+		edm::Wrapper<GenRunInfoProduct> wgenruninfo;
+		edm::Wrapper<GenEventInfoProduct> wgeneventinfo;
 
 		// LHE products
 

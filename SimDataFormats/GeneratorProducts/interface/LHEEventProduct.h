@@ -6,15 +6,11 @@
 #include <string>
 
 #include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
+#include "SimDataFormats/GeneratorProducts/interface/PdfInfo.h"
 
 class LHEEventProduct {
     public:
-	struct PDF {
-		std::pair<int, int>		id;
-		std::pair<double, double>	x;
-		std::pair<double, double>	xPDF;
-		double				scalePDF;
-	};
+	typedef gen::PdfInfo PDF;
 
 	typedef std::vector<std::string>::const_iterator
 						comments_const_iterator;
