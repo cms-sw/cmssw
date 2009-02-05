@@ -9,5 +9,7 @@ CaloMiscalibTools = cms.ESSource("CaloMiscalibTools",
 )
 
 es_prefer_CaloMiscalibTools = cms.ESPrefer("CaloMiscalibTools")
-caloRecHits.RecHitsFactory.doMiscalib = True
-
+ecalRecHit.doMiscalib = True
+hbhereco.doMiscalib = True
+horeco.doMiscalib = True
+hfreco.doMiscalib = True
