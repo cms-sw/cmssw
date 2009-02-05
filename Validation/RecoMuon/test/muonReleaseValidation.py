@@ -10,7 +10,7 @@ import string
 ######### User variables
 
 #Reference release
-NewRelease='CMSSW_2_2_3'
+NewRelease='CMSSW_3_0_0_pre7'
 
 # startup and ideal sample list
 #startupsamples= ['RelValTTbar', 'RelValZMM']
@@ -48,17 +48,18 @@ DBS=True
 IdealTag='IDEAL'
 StartupTag='STARTUP'
 
-IdealTagUse='IDEAL_V11'
-StartupTagUse='STARTUP_V8'
+IdealTagUse='IDEAL_30X'
+StartupTagUse='STARTUP_30X'
 
 # Reference directory name (the macro will search for ReferenceSelection_Quality_Algo)
-ReferenceSelection='IDEAL_V5_noPU'
-StartupReferenceSelection='STARTUP_V4_noPU'
+ReferenceSelection='IDEAL_30X_noPU'
+StartupReferenceSelection='STARTUP_30X_noPU'
 
 # Default label is GlobalTag_noPU__Quality_Algo. Change this variable if you want to append an additional string.
 NewSelectionLabel=''
 
-WorkDir = '/tmp/'
+WorkDirBase = '/tmp/'
+#WorkDirBase = '/afs/cern.ch/user/a/aeverett/w0/CMSSW_2_2_3/src/Validation/RecoMuon/test'
 
 #Reference and new repository
 RefRepository = '/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/RecoMuon/Validation/val'
@@ -126,8 +127,10 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
 
         newdir=NewRepository+'/'+NewRelease+'/'+NewSelection+'/'+sample 
 
-        if(os.path.exists(NewRelease+'/'+NewSelection+'/'+sample)==False):
-            os.makedirs(NewRelease+'/'+NewSelection+'/'+sample)
+        WorkDir = WorkDirBase+'/'+NewRelease+'/'+NewSelection+'/'+sample
+
+        if(os.path.exists(WorkDir)==False):
+            os.makedirs(WorkDir)
 
         
         #chech if the sample is already done
@@ -196,14 +199,14 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                 cfgFile = open(cfgFileName+'.py' , 'a' )
                 replace(symbol_map, templatecfgFile, cfgFile)
 
-                cmdrun='cmsRun ' + NewRelease+'/'+NewSelection+'/'+sample+'/'+cfgFileName+ '.py >&  ' + cfgFileName + '.log < /dev/zero '
+                cmdrun='cmsRun ' + WorkDir +'/'+cfgFileName+ '.py >&  ' + cfgFileName + '.log < /dev/zero '
 
                 print cmdrun
 
                 lancialines='#!/usr/local/bin/bash \n'
                 lancialines+='cd '+ProjectBase+'/src \n'
                 lancialines+='eval `scramv1 run -sh` \n\n'
-                lancialines+='cd '+WorkDir+'/'+NewRelease+'/'+NewSelection+'/'+sample+'\n'
+                lancialines+='cd '+WorkDir+'\n'
                 lancialines+='cmsRun '+cfgFileName+'.py  >&  ' + cfgFileName + '.log < /dev/zero \n'
                 
 
@@ -211,15 +214,15 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                 lanciaFile.write(lancialines)
                 
                 print "copying py file for sample: " , sample
-                os.system('mv '+cfgFileName+'.py ' + NewRelease+'/'+NewSelection+'/'+sample+'/.')
-                os.system('mv lancia_'+GlobalTag+'_'+sample+' '+ NewRelease+'/'+NewSelection+'/'+sample+'/.')
+                os.system('mv '+cfgFileName+'.py ' + WorkDir)
+                os.system('mv lancia_'+GlobalTag+'_'+sample+' '+ WorkDir)
 
                 retcode=0
 
                 if(Submit):
                     retcode=os.system(cmdrun)
                     if os.path.isfile(sample+'.log'):
-                        os.system('mv '+sample+'.log ' + NewRelease+'/'+NewSelection+'/'+sample)
+                        os.system('mv '+sample+'.log ' + WorkDir)
                 else:
                     continue
 
@@ -227,11 +230,11 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                     print 'Job for sample '+ sample + ' failed. \n'
                 else:
                     if Sequence=="harvesting":
-                        os.system('mv  DQM_V0001_R000000001__' + GlobalTag+ '__' + sample + '__Validation.root' + ' ' + NewRelease+'/'+NewSelection+'/'+sample+'/val.' +sample+'.root')
+                        os.system('mv  DQM_V0001_R000000001__' + GlobalTag+ '__' + sample + '__Validation.root' + ' ' + WorkDir+'/val.' +sample+'.root')
                     if os.path.isfile('fullOutput.'+sample+'.root'):
-                        os.system('mv fullOutput.'+sample+'.root ' + NewRelease+'/'+NewSelection+'/'+sample)
+                        os.system('mv fullOutput.'+sample+'.root ' + WorkDir)
                     if os.path.isfile('output.'+sample+'.root'):
-                        os.system('mv output.'+sample+'.root ' + NewRelease+'/'+NewSelection+'/'+sample)
+                        os.system('mv output.'+sample+'.root ' + WorkDir)
                         
             else:
                 print 'No dataset found skipping sample: '+ sample, '\n'
