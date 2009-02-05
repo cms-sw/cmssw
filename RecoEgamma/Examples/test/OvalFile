@@ -32,7 +32,7 @@ on the ROOT script newvalidation.C.
 %IMPORTANT% a consistent default configuration
 <!var name="VAL_REF_DIR" value="~chamont/w1/PreviousEgammaValidations/CMSSW_2_2_0/test">
 
-The tags below are defining whic are the output line sof reference, to be compared
+The tags below are defining whic are the output lines of reference, to be compared
 from one execution to another. Currently, for each TH1 histogram, we require a constant
 number of entries, and no more than 10% change on each histogram sum.
 
