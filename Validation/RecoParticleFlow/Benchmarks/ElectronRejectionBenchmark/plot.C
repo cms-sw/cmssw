@@ -292,11 +292,34 @@ if (normHists) {
 }
 
 //////
-c2->cd();
-gPad->SaveAs(plotName+"2.gif");
+c2->cd(3);
+f1.cd(dir);
+TH1F* htau_mva = (TH1F*) gDirectory.Get("ElecMVA");
+//htau_mva.Rebin(2);
+FormatHisto(htau_mva, s1);
+htau_mva.Draw();
+
+f2.cd(dir);
+TH1F* helec_mva = (TH1F*) gDirectory.Get("ElecMVA");
+//helec_mva.Rebin(2);
+FormatHisto(helec_mva, s2);
+helec_mva.Draw("same");
+
+
+// fill performance graphs
+TGraph* mvaPerf = new TGraph();
+fillPerfGraphMVA(mvaPerf,htau_mva,helec_mva);
+
+
+gPad->SetLogy(1);
+if (normHists) {
+  NormHistos(htau_mva,helec_mva);
+}
+
 
 //return;
 ///////////////////
+
 
 TCanvas c3;
 FormatPad( &c3, false );
@@ -322,6 +345,12 @@ eopPerf->SetLineWidth(2);
 eopPerf->SetMarkerColor(kBlack);
 eopPerf->SetMarkerStyle(20);
 eopPerf->Draw("LP");
+
+mvaPerf->SetLineColor(kBlue);
+mvaPerf->SetLineWidth(2);
+mvaPerf->SetMarkerColor(kBlack);
+mvaPerf->SetMarkerStyle(21);
+mvaPerf->Draw("LP same");
 
 h3x3Perf->SetLineColor(kGreen);
 h3x3Perf->SetLineWidth(2);
@@ -373,6 +402,7 @@ leg->AddEntry(epreidPerf,"Electron Pre-ID","p");
 //leg->AddEntry(emfracPerf,"EM fraction","pl");
 leg->AddEntry(eopPerf,"E/p < [0.7,0.75,0.8,0.85,0.9]","lp");
 leg->AddEntry(h3x3Perf,"H_{3x3}/p > [0.25,0.2,0.15,0.1,0.05]","lp");
+leg->AddEntry(mvaPerf,"MVA < [-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,0.]","pl");
 gPad->Clear();
 gPad->SetLogy(0);
 leg->Draw();
@@ -383,5 +413,6 @@ gPad->Modified();
 //////
 c3->cd();
 gPad->SaveAs(plotName+"3.gif");
+
 
 }

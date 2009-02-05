@@ -131,3 +131,27 @@ void fillPerfGraphESUM(TGraph* gr, TH1* hl1,TH1* hl2) {
     gr->SetPoint(i,x[i],y[i]);
   }
 }
+
+//___________________________________________________________
+void fillPerfGraphMVA(TGraph* gr, TH1* hl1,TH1* hl2) {
+
+  int minbin = 0;
+  int maxbin = hl1->GetNbinsX()+2;
+  double effden = (double)hl1->Integral(minbin,maxbin);
+  double rejden = (double)hl2->Integral(minbin,maxbin);
+
+
+  const int n = 7;
+  double lowcut[n] = { -1.1, -1.1, -1.1, -1.1, -1.1, -1.1, -1.1 };
+  double upcut[n] = { -0.6, -0.5, -0.4, -0.3, -0.2 , -0.1 , 0. };
+  double x[n], y[n];
+  double xerr[n], yerr[n];
+  for (int i=0;i<n;i++) {
+    x[i] = (double)hl1->Integral(minbin,hl1->FindBin(upcut[i]))/effden;
+    xerr[i] = sqrt(x[i])/effden;
+    y[i] = (double)hl2->Integral(minbin,hl2->FindBin(upcut[i]))/rejden;
+    yerr[i] = sqrt(y[i])/rejden;
+
+    gr->SetPoint(i,x[i],y[i]);
+  }
+}
