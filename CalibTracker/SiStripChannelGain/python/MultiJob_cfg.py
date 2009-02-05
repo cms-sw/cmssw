@@ -7,7 +7,7 @@ process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load('Configuration/StandardSequences/MagneticField_38T_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.load("RecoTracker.TrackProducer.RefitterWithMaterial_cff")
+process.load("RecoTracker.TrackProducer.TrackRefitter_cff")
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('/store/relval/CMSSW_2_1_6/RelValMinBias/ALCARECO/STARTUP_V7_StreamALCARECOSiStripCalMinBias_v2/0001/34BE0343-B979-DD11-9E9E-001617DC1F70.root')
