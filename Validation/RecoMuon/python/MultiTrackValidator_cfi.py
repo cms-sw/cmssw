@@ -3,68 +3,32 @@ import FWCore.ParameterSet.Config as cms
 from Validation.RecoMuon.selectors_cff import *
 from Validation.RecoMuon.associators_cff import *
 
-multiTrackValidator = cms.EDAnalyzer("MultiTrackValidator",
-    dirName = cms.string('RecoMuonV/MultiTrack/'),
-    out = cms.string(''),
-    outputFile = cms.string(''),
+import Validation.RecoTrack.MultiTrackValidator_cfi
 
-    sim = cms.string('g4SimHits'),
-    label_tp_effic = cms.InputTag("mergedtruth","MergedTrackTruth"),
-    label_tp_fake = cms.InputTag("mergedtruth","MergedTrackTruth"),
-    label = cms.VInputTag(cms.InputTag("globalMuons")),
+multiTrackValidator = Validation.RecoTrack.MultiTrackValidator_cfi.multiTrackValidator.clone()
+multiTrackValidator.dirName = 'RecoMuonV/MultiTrack/'
+multiTrackValidator.pdgIdTP = (13,-13)
 
-    lipTP = cms.double(30.0),
-    tipTP = cms.double(3.5),
-    chargedOnlyTP = cms.bool(True),
-    pdgIdTP = cms.vint32(13, -13),
-    signalOnlyTP = cms.bool(True),
-    minRapidityTP = cms.double(-2.4),
-    maxRapidityTP = cms.double(2.4),
-    minHitTP = cms.int32(0),
-    ptMinTP = cms.double(0.9),
+multiTrackValidator.useFabsEta = True
+multiTrackValidator.nint = cms.int32(25)
+multiTrackValidator.min = cms.double(0)
+multiTrackValidator.max = cms.double(2.5)
 
-    UseAssociators = cms.bool(False),
-    associators = cms.vstring('TrackAssociatorByDeltaR'),
-    associatormap = cms.InputTag("tpToGlbTrackAssociation"),
+multiTrackValidator.nintPhi = cms.int32(36)
+multiTrackValidator.minPhi = cms.double(-3.15)
+multiTrackValidator.maxPhi = cms.double(3.15)
 
-    beamSpot = cms.InputTag("offlineBeamSpot"),
+multiTrackValidator.nintpT = cms.int32(25)
+multiTrackValidator.minpT = cms.double(0.0)
+multiTrackValidator.maxpT = cms.double(3100.0)
 
-    useFabsEta = cms.bool(True),
-    nint = cms.int32(25),
-    min = cms.double(0),
-    max = cms.double(2.5),
+multiTrackValidator.nintHit = cms.int32(75)
+multiTrackValidator.minHit = cms.double(-0.5)
+multiTrackValidator.maxHit = cms.double(74.5)
 
-    nintPhi = cms.int32(25),
-    minPhi = cms.double(-3.15),
-    maxPhi = cms.double(3.15),
+multiTrackValidator.UseAssociators = False
 
-    nintpT = cms.int32(25),
-    minpT = cms.double(0.0),
-    maxpT = cms.double(3100.0),
 
-    nintHit = cms.int32(75),
-    minHit = cms.double(0.0),
-    maxHit = cms.double(75.0),
 
-    useInvPt = cms.bool(False),
-
-    ptRes_rangeMin = cms.double(-0.1),
-    ptRes_rangeMax = cms.double(0.1),
-    phiRes_rangeMin = cms.double(-0.003),
-    phiRes_rangeMax = cms.double(0.003),
-    cotThetaRes_rangeMin = cms.double(-0.01),
-    cotThetaRes_rangeMax = cms.double(+0.01),
-    dxyRes_rangeMin = cms.double(-0.001),
-    dxyRes_rangeMax = cms.double(0.001),
-    dzRes_rangeMin = cms.double(-0.05),
-    dzRes_rangeMax = cms.double(+0.05),
-    ptRes_nbin = cms.int32(100),                                   
-    phiRes_nbin = cms.int32(100),                                   
-    cotThetaRes_nbin = cms.int32(120),                                   
-    dxyRes_nbin = cms.int32(100),                                   
-    dzRes_nbin = cms.int32(150),   
-
-                                     
-)
 
 

@@ -138,7 +138,9 @@ muonAssociationHLT_seq = cms.Sequence(
     (tpToL2MuonAssociation
      +tpToL3MuonAssociation
      +tpToL3TkMuonAssociation)
-    +(tpToL2TrackAssociation
-      +tpToL3TrackAssociation
-      +tpToL3TkTrackTrackAssociation)
+    +(
+    tpToL2TrackAssociation
+    +tpToL3TrackAssociation
+    +tpToL3TkTrackTrackAssociation
+    )
     )
