@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoTracker.TrackProducer.RefitterWithMaterial_cfi import *
+from RecoTracker.TrackProducer.TrackRefitter_cfi import *
 # Adjust to your needs:
 #    replace TrackRefitter.src = "AlignmentTracks"
 #    replace TrackRefitter.TrajectoryInEvent = true
