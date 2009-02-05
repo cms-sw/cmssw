@@ -8,6 +8,8 @@
 
 #include <vector>
 #include <map>
+#include <stdint.h>
+#include <iosfwd>
 
 /*! \class L1GctHfLutSetup
  * \brief Hf Lut setup (all the Luts in one class)
