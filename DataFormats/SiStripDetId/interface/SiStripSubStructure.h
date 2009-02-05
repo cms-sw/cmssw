@@ -16,10 +16,11 @@
 //
 // Original Author:  dkcira
 //         Created:  Wed Jan 25 07:18:21 CET 2006
-// $Id: SiStripSubStructure.h,v 1.3 2007/03/16 09:57:09 dkcira Exp $
+// $Id: SiStripSubStructure.h,v 1.4 2007/07/31 15:20:26 ratnik Exp $
 //
 
 #include <vector>
+#include <stdint.h>
 
 class SiStripSubStructure
 {
