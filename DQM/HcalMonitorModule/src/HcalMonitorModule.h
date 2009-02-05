@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.h
  *
- * $Date: 2008/11/10 06:47:40 $
- * $Revision: 1.38 $
+ * $Date: 2009/01/18 16:11:18 $
+ * $Revision: 1.39 $
  * \author W. Fisher
  *
 */
@@ -177,6 +177,7 @@ public:
 
   edm::InputTag inputLabelCaloTower_;
   edm::InputTag inputLabelLaser_;
+  edm::InputTag FEDRawDataCollection_;
 
   // Maps of readout hardware unit to calorimeter channel
   std::map<uint32_t, std::vector<HcalDetId> > DCCtoCell;
