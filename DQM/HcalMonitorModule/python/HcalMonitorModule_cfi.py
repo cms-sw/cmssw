@@ -360,7 +360,7 @@ def setHcalSubdetTaskValues(process):
     process.DeadCellMonitor_pedestal_HE_Nsigma           = dead_nsigma
     process.DeadCellMonitor_pedestal_HO_Nsigma           = dead_nsigma
     process.DeadCellMonitor_pedestal_HF_Nsigma           = dead_nsigma
-    process.DeadCellMonitor_pedestal_ZDC_Nsigma          = dead_nsigmax
+    process.DeadCellMonitor_pedestal_ZDC_Nsigma          = dead_nsigma
 
     dead_deltaIeta = deepcopy(process.DeadCellMonitor_neighbor_deltaIeta)
     process.DeadCellMonitor_HB_neighbor_deltaIeta           = dead_deltaIeta
@@ -424,7 +424,7 @@ def setHcalSubdetTaskValues(process):
     process.HotCellMonitor_pedestal_HE_Nsigma           = hot_nsigma
     process.HotCellMonitor_pedestal_HO_Nsigma           = hot_nsigma
     process.HotCellMonitor_pedestal_HF_Nsigma           = hot_nsigma
-    process.HotCellMonitor_pedestal_ZDC_Nsigma          = hot_nsigmax
+    process.HotCellMonitor_pedestal_ZDC_Nsigma          = hot_nsigma
 
     hot_deltaIeta = deepcopy(process.HotCellMonitor_neighbor_deltaIeta)
     process.HotCellMonitor_HB_neighbor_deltaIeta           = hot_deltaIeta
