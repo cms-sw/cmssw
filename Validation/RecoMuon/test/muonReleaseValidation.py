@@ -10,17 +10,13 @@ import string
 ######### User variables
 
 #Reference release
-
-RefRelease='CMSSW_2_2_3'
+NewRelease='CMSSW_2_2_3'
 
 # startup and ideal sample list
-#startupsamples= ['RelValTTbar', 'RelValMinBias', 'RelValQCD_Pt_3000_3500']
-#startupsamples= ['RelValTTbar']
+#startupsamples= ['RelValTTbar', 'RelValZMM']
 startupsamples= ['']
 
-#idealsamples= ['RelValSingleMuPt1', 'RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSinglePiPt1', 'RelValSinglePiPt10', 'RelValSinglePiPt100', 'RelValSingleElectronPt35', 'RelValTTbar', 'RelValQCD_Pt_3000_3500','RelValMinBias']
-
-#idealsamples= [ 'RelValSingleElectronPt35']
+#idealsamples= ['RelValSingleMuPt1', 'RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar']
 idealsamples= ['RelValTTbar']
 
 
@@ -44,38 +40,39 @@ Tracksname=''
 
 #Sequence='only_validation_and_TP'
 Sequence='harvesting'
-#Sequence='report_only'
 
-Submit=True
+Submit=False
 DBS=True
-Publish=False
 
 # Ideal and Statup tags
-IdealTag='IDEAL_30X'
-StartupTag='STARTUP_V7'
+IdealTag='IDEAL'
+StartupTag='STARTUP'
+
+IdealTagUse='IDEAL_V11'
+StartupTagUse='STARTUP_V8'
 
 # Reference directory name (the macro will search for ReferenceSelection_Quality_Algo)
-ReferenceSelection='IDEAL_V11_noPU'
-StartupReferenceSelection='STARTUP_V7_noPU'
+ReferenceSelection='IDEAL_V5_noPU'
+StartupReferenceSelection='STARTUP_V4_noPU'
 
 # Default label is GlobalTag_noPU__Quality_Algo. Change this variable if you want to append an additional string.
 NewSelectionLabel=''
 
+WorkDir = '/tmp/'
 
 #Reference and new repository
-RefRepository = '/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/RecoMuon/Validation/data'
-NewRepository = '/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/RecoMuon/Validation/data'
+RefRepository = '/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/RecoMuon/Validation/val'
+NewRepository = '/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/RecoMuon/Validation/val'
 
 #Default Nevents
 defaultNevents ='-1'
 
 #Put here the number of event to be processed for specific samples (numbers must be strings) if not specified is -1:
-Events={ 'RelValQCD_Pt_3000_3500':'5000', 'RelValTTbar':'5000', 'RelValQCD_Pt_80_120':'5000', 'RelValBJets_Pt_50_120':'5000'}
+Events={ 'RelValZMM':'5000', 'RelValTTbar':'5'}
 
 # template file names. Usually should not be changed.
 cfg='muonReleaseValidation_cfg.py'
 macro='macro/TrackValHistoPublisher.C'
-
 
 
 #########################################################################
@@ -97,9 +94,10 @@ def replace(map, filein, fileout):
 
     
 def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
-    global Sequence, RefSelection, RefRepository, NewSelection, NewRepository, defaultNevents, Events
+    global Sequence, RefSelection, RefRepository, NewSelection, NewRepository, defaultNevents, Events, GlobalTagUse
     global cfg, macro, Tracksname
-    print 'Tag: ' + GlobalTag
+    print 'Search Tag: ' + GlobalTag
+    print 'Tag to use: ' + GlobalTagUse
 
     #build the New Selection name
     NewSelection=GlobalTag +'_noPU'
@@ -123,38 +121,47 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
     for sample in samples :
         templatecfgFile = open(cfg, 'r')
         templatemacroFile = open(macro, 'r')
+
         print 'Get information from DBS for sample', sample
+
         newdir=NewRepository+'/'+NewRelease+'/'+NewSelection+'/'+sample 
+
+        if(os.path.exists(NewRelease+'/'+NewSelection+'/'+sample)==False):
+            os.makedirs(NewRelease+'/'+NewSelection+'/'+sample)
+
         
         #chech if the sample is already done
-        if(os.path.isfile(newdir+'/building.pdf' )!=True):    
+        if(os.path.isfile(newdir+'/val.'+sample+'.rootytootie' )!=True):    
             
             #search the primary dataset
             cmd='./DDSearchCLI.py  --limit -1 --input="find  dataset.createdate, dataset where dataset like *'
-            #            cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-DIGI-RAW-HLTDEBUG-RECO* "'
-            cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-RECO* "'
-            cmd+='|grep '+sample+'|sort|tail -1| cut -d "," -f2 '
+            #search for correct EventContent (and site)
+#            cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-DIGI-RAW-HLTDEBUG-RECO* AND site like *cern* "'
+            cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-RECO* AND site like *cern* "'
+            cmd+='|grep '+sample+'|grep -v FastSim |sort| tail -1 | cut -d "," -f2 '
             print cmd
             dataset= os.popen(cmd).readline()
             print 'DataSet:  ', dataset, '\n'
             
             #Check if a dataset is found
-            if dataset!="":
+            if(dataset!="" or DBS==False):
                 print 'dataset found'
                 #Find and format the list of files
                 cmd2='./DDSearchCLI.py  --limit -1 --cff --input="find file where dataset like '+ dataset +'"|grep ' + sample 
-                filenames='import FWCore.ParameterSet.Config as cms\n'
+                filenames='import FWCore.ParameterSet.Config as cms\n\n'
                 filenames+='readFiles = cms.untracked.vstring()\n'
                 filenames+='secFiles = cms.untracked.vstring()\n'
                 filenames+='source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)\n'
                 filenames+='readFiles.extend( [\n'
-                for filename in os.popen(cmd2).readlines():
-                    filenames+=filename
+                if dataset!="":
+                    for filename in os.popen(cmd2).readlines():
+                        filenames+=filename
                 filenames+=']);\n'
-                print 'made many names'
+
+                
                 # if not harvesting find secondary file names
-                if(Sequence!="harvesting" and Sequence!="report_only"):
-                    print 'NOT HARVESTING'
+                if(dataset!="" and Sequence!="harvesting"):
+                    print 'Getting secondary files'
                     cmd3='./DDSearchCLI.py  --limit -1 --input="find dataset.parent where dataset like '+ dataset +'"|grep ' + sample
                     parentdataset=os.popen(cmd3).readline()
                     print 'Parent DataSet:  ', parentdataset, '\n'
@@ -163,26 +170,16 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                     if parentdataset!="":
                         cmd4='./DDSearchCLI.py  --limit -1 --cff --input="find file where dataset like '+ parentdataset +'"|grep ' + sample 
                         filenames+='secFiles.extend( [\n'
-                        first=True
-                        
+                        first=True                        
                         for line in os.popen(cmd4).readlines():
                             filenames+=line
-#                            secfilename=line.strip()
-#                            if first==True:
-#                                filenames+="'"
-#                                first=False
-#                            else :
-#                                filenames+=",\n'"
-#                            filenames+=secfilename
-#                            filenames+="'"
-
                         filenames+=']);\n'
                     else :
                         print "No primary dataset found skipping sample: ", sample
                         continue
                 else :
-                    filenames+='secFiles.extend( (               ) )'
-                    print 'ELSE HARVESTING'
+                    filenames+='secFiles.extend( (               ) )\n'
+
                 cfgFileName=sample
                 print 'cfgFileName ' + cfgFileName
                 cfgFile = open(cfgFileName+'.py' , 'w' )
@@ -193,90 +190,44 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                 else:
                     Nevents=Events[sample]
 
-                symbol_map = { 'NEVENT':Nevents, 'GLOBALTAG':GlobalTag, 'SEQUENCE':Sequence, 'SAMPLE': sample, 'ALGORITHM':trackalgorithm, 'QUALITY':trackquality, 'TRACKS':Tracks}
+                symbol_map = { 'NEVENT':Nevents, 'GLOBALTAG':GlobalTagUse, 'SEQUENCE':Sequence, 'SAMPLE': sample, 'ALGORITHM':trackalgorithm, 'QUALITY':trackquality, 'TRACKS':Tracks}
 
 
                 cfgFile = open(cfgFileName+'.py' , 'a' )
                 replace(symbol_map, templatecfgFile, cfgFile)
 
-                cmdrun='cmsRun ' +cfgFileName+ '.py >&  ' + cfgFileName + '.log < /dev/zero '
+                cmdrun='cd '+WorkDir+'/' +NewRelease+'/'+NewSelection+'/'+sample+'/; '+'cmsRun '+cfgFileName+ '.py >&  ' + cfgFileName + '.log < /dev/zero '
 
-                if(os.path.exists(NewRelease+'/'+NewSelection+'/'+sample)==False):
-                    os.makedirs(NewRelease+'/'+NewSelection+'/'+sample)
+                print cmdrun
+
+                lancialines='#!/usr/local/bin/bash \n'
+                lancialines+='cd '+ProjectBase+'/src \n'
+                lancialines+='eval `scramv1 run -sh` \n\n'
+                #lancialines+='cd '+WorkDir+'/'+NewRelease+'/'+NewSelection+'/'+sample+'\n'
+                #lancialines+='cmsRun '+cfgFileName+'.py \n'
+                lancialines+=cmdrun
+
+                lanciaFile = open('lancia_'+GlobalTag+'_'+sample,'w')
+                lanciaFile.write(lancialines)
+                
+                print "copying py file for sample: " , sample
+                os.system('mv '+cfgFileName+'.py ' + NewRelease+'/'+NewSelection+'/'+sample+'/.')
+                os.system('mv lancia_'+GlobalTag+'_'+sample+' '+ NewRelease+'/'+NewSelection+'/'+sample+'/.')
 
                 retcode=0
-                if(Sequence!="report_only"):
-                    if(Submit):
-                        retcode=os.system(cmdrun)
-                    else:
-                        sys.exit()
+
+                if(Submit):
+                    retcode=os.system(cmdrun)
                 else:
-                    newSample=NewRepository+'/'+NewRelease+'/'+NewSelection+'/'+sample+'/'+'val.'+sample+'.root'
-                    if os.path.isfile(newSample ):
-                        os.system('cp ' + newSample+ ' '+NewRelease+'/'+NewSelection+'/'+sample)  
-                    else:
-                        print "No new file found at: ", NewRelease+'/'+NewSelection+'/'+sample
+                    continue
 
                 if (retcode!=0):
                     print 'Job for sample '+ sample + ' failed. \n'
                 else:
                     if Sequence=="harvesting":
-                        os.system('mv  DQM_V0001_R000000001__' + GlobalTag+ '__' + sample + '__Validation.root' + ' ' + NewRelease+'/'+NewSelection+'/'+sample+'/val.' +sample+'.root')
-                    else:
-                        os.system('mv  val.' + sample + '.root' + ' ' + NewRelease+'/'+NewSelection+'/'+sample+'/val.' +sample+'.root')
-                    referenceSample=RefRepository+'/'+RefRelease+'/'+RefSelection+'/'+sample+'/'+'val.'+sample+'.root'
-                    if os.path.isfile(referenceSample ):
-                        replace_map = { 'NEW_FILE':NewRelease+'/'+NewSelection+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefSelection+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefSelection, 'NEWSELECTION':NewSelection, 'TrackValHistoPublisher': sample}
-
-                        if(os.path.exists(RefRelease+'/'+RefSelection)==False):
-                            os.makedirs(RefRelease+'/'+RefSelection)
-                        os.system('cp ' + referenceSample+ ' '+RefRelease+'/'+RefSelection)  
-                    else:
-                        print "No reference file found at: ", RefRelease+'/'+RefSelection
-                        replace_map = { 'NEW_FILE':NewRelease+'/'+NewSelection+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':NewRelease+'/'+NewSelection+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewSelection, 'NEWSELECTION':NewSelection, 'TrackValHistoPublisher': sample}
+                        os.system('mv  DQM_V0001_R000000001__' + GlobalTag+ '__' + sample + '__Validation.root' + ' ' + 'val.' +sample+'.root')
 
 
-                    macroFile = open(cfgFileName+'.C' , 'w' )
-                    replace(replace_map, templatemacroFile, macroFile)
-
-
-                    os.system('root -b -q -l '+ cfgFileName+'.C'+ '>  macro.'+cfgFileName+'.log')
-
-
-                    if(os.path.exists(newdir)==False):
-                        os.makedirs(newdir)
-
-                    if(Publish):
-                        print "copying pdf files for sample: " , sample
-                        os.system('scp -r '+NewRelease+'/'+NewSelection+'/'+sample+'/* ' + newdir)
-
-                    if(Sequence!='report_only' and Publish):
-                        print "copying root file for sample: " , sample
-                        os.system('cp '+NewRelease+'/'+NewSelection+'/'+sample+'/val.'+ sample+ '.root ' + newdir)
-                        print "copying py file for sample: " , sample
-                        os.system('cp '+cfgFileName+'.py ' + newdir)
-
-            elif DBS==False:
-                filenames='import FWCore.ParameterSet.Config as cms\n'
-                filenames+='readFiles = cms.untracked.vstring()\n'
-                filenames+='secFiles = cms.untracked.vstring()\n'
-                filenames+='source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)\n'
-                filenames+='readFiles.extend( [\n'
-                filenames+=']);\n'
-                cfgFileName=sample
-                print 'cfgFileName ' + cfgFileName
-                cfgFile = open(cfgFileName+'.py' , 'w' )
-                cfgFile.write(filenames)
-                if (Events.has_key(sample)!=True):
-                    Nevents=defaultNevents
-                else:
-                    Nevents=Events[sample]
-                    
-                symbol_map = { 'NEVENT':Nevents, 'GLOBALTAG':GlobalTag, 'SEQUENCE':Sequence, 'SAMPLE': sample, 'ALGORITHM':trackalgorithm, 'QUALITY':trackquality, 'TRACKS':Tracks}
-
-
-                cfgFile = open(cfgFileName+'.py' , 'a' )
-                replace(symbol_map, templatecfgFile, cfgFile)
             else:
                 print 'No dataset found skipping sample: '+ sample, '\n'
         else:
@@ -291,8 +242,14 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
             
 try:
      #Get some environment variables to use
-     NewRelease     = os.environ["CMSSW_VERSION"]
-#      NewRelease='CMSSW_3_0_0_pre6'
+     if Submit:
+         #NewRelease     = os.environ["CMSSW_VERSION"]
+         ProjectBase    = os.environ["CMSSW_BASE"]
+     #else:
+         #NewRelease='CMSSW_2_2_3'
+
+
+      
 except KeyError:
      print >>sys.stderr, 'Error: The environment variable CMSSW_VERSION is not available.'
      print >>sys.stderr, '       Please run eval `scramv1 runtime -csh` to set your environment variables'
@@ -326,6 +283,7 @@ for algo in Algos:
         if(quality =='') and (algo==''):
             RefSelection+='_ootb'
         print 'After RefSelection: ' + RefSelection
+        GlobalTagUse=IdealTagUse
         do_validation(idealsamples, IdealTag, quality , algo)
         RefSelection=StartupReferenceSelection
         print 'Before StartupRefSelection: ' + RefSelection
@@ -336,5 +294,6 @@ for algo in Algos:
         if(quality =='') and (algo==''):
             RefSelection+='_ootb'
         print 'After StartupRefSelection: ' + RefSelection
+        GlobalTagUse=StartupTagUse
         do_validation(startupsamples, StartupTag, quality , algo)
 

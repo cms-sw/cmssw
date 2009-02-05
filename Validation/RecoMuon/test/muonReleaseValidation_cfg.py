@@ -40,7 +40,7 @@ process.load("DQMServices.Components.EDMtoMEConverter_cff")
 process.load("Validation.Configuration.postValidation_cff")
 
 ### configuration MultiTrackValidator ###
-process.multiTrackValidator.outputFile = 'val.SAMPLE.root'
+#process.multiTrackValidator.outputFile = 'mtv.SAMPLE.root'
 
 
 process.cutsRecoTracks.algorithm = cms.string('ALGORITHM')
