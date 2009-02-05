@@ -24,13 +24,11 @@ void main()
   string Levels = "L2,L3,L7";
   string Tags = "Summer08Redigi_L2Relative_IC5Calo,Summer08Redigi_L3Absolute_IC5Calo,L7parton_IC5_080921";
   string Options = "Parton:jJ";
-  FWLiteJetCorrector *L2L3L7JetCorrector = new FWLiteJetCorrector(Levels,Tags,Options);
+  CombinedJetCorrector *L2L3L7JetCorrector = new CombinedJetCorrector(Levels,Tags,Options);
   ////////////// Defining the L2L3JetCorrector ///////////////////////
   string Levels = "L2,L3";
   string Tags = "Summer08Redigi_L2Relative_IC5Calo,Summer08Redigi_L3Absolute_IC5Calo";
-  FWLiteJetCorrector *L2L3JetCorrector = new FWLiteJetCorrector(Levels,Tags);
-   
-  
+  CombinedJetCorrector *L2L3JetCorrector = new CombinedJetCorrector(Levels,Tags);
   ////////////// Fill demo histogram  ////////////////////////////
   TH2F *hMapping = new TH2F("Mapping","Mapping",500,0,500,500,0,500);
   TH2F *hRatio = new TH2F("Ratio","Ratio",500,0,500,500,0.8,1.2);

@@ -1,4 +1,9 @@
-#include "CondFormats/JetMETObjects/interface/FWLiteJetCorrector.h"
+// This is the file "CombinedJetCorrector.cc". 
+// This is the implementation of the class CombinedJetCorrector.
+// Author: Konstantinos Kousouris, 
+// Email:  kkousour@fnal.gov
+
+#include "CondFormats/JetMETObjects/interface/CombinedJetCorrector.h"
 #include "CondFormats/JetMETObjects/interface/SimpleL2RelativeCorrector.h"
 #include "CondFormats/JetMETObjects/interface/SimpleL3AbsoluteCorrector.h"
 #include "CondFormats/JetMETObjects/interface/SimpleL3PFAbsoluteCorrector.h"
@@ -14,90 +19,48 @@ using namespace std;
 using namespace edm;
 
 ////////////////////////////////////////////////////////////////////////////////
-FWLiteJetCorrector::FWLiteJetCorrector()
+CombinedJetCorrector::CombinedJetCorrector()
 {
-  
+  mL2Corrector   = new SimpleL2RelativeCorrector();
+  mL3Corrector   = new SimpleL3AbsoluteCorrector();
+  mL3PFCorrector = new SimpleL3PFAbsoluteCorrector(); 
+  mL4Corrector   = new SimpleL4EMFCorrector();
+  mL5Corrector   = new SimpleL5FlavorCorrector();
+  mL7Corrector   = new SimpleL7PartonCorrector();
+  mL3Option      = "";
+  mLevels.push_back("");
 }
 ////////////////////////////////////////////////////////////////////////////////
-FWLiteJetCorrector::FWLiteJetCorrector(std::string CorrectionLevels, std::string CorrectionTags)
+CombinedJetCorrector::CombinedJetCorrector(std::string CorrectionLevels, std::string CorrectionTags)
 {
-  initCorrectors(CorrectionLevels, CorrectionTags); 
+  initCorrectors(CorrectionLevels, CorrectionTags,""); 
 }
 ////////////////////////////////////////////////////////////////////////////////
-FWLiteJetCorrector::FWLiteJetCorrector(std::string CorrectionLevels, std::string CorrectionTags, std::string Options)
+CombinedJetCorrector::CombinedJetCorrector(std::string CorrectionLevels, std::string CorrectionTags, std::string Options)
 {
   initCorrectors(CorrectionLevels, CorrectionTags, Options);       
 }
 ////////////////////////////////////////////////////////////////////////////////
-void FWLiteJetCorrector::initCorrectors(std::string CorrectionLevels, std::string CorrectionTags)
+void CombinedJetCorrector::initCorrectors(std::string CorrectionLevels, std::string CorrectionTags, std::string Options)
 {
-  mLevels = parseLevels(CorrectionLevels);
-  vector<string> Tags = parseLevels(CorrectionTags);
-  vector<string> DataFiles;
-  if (mLevels.size() != Tags.size())
-    {
-      throw cms::Exception ("FWLiteJetCorrector") 
-        << "number of correction levels: " << mLevels.size() << " doesn't match the number of data file tags: " << Tags.size();
-    }  
-  for(unsigned int i=0;i<Tags.size();i++)
-    {
-      string tmp = "CondFormats/JetMETObjects/data/"+Tags[i]+".txt";
-      edm::FileInPath f1(tmp);  
-      DataFiles.push_back(f1.fullPath());
-    }
-  for(unsigned int i=0;i<mLevels.size();i++)
-    {
-      if (mLevels[i]=="L2")
-        mL2Corrector = new SimpleL2RelativeCorrector(DataFiles[i]);
-      else if (mLevels[i]=="L3" && ((int)Tags[i].find("Calo")>=0 || (int)Tags[i].find("JPT")>=0))
-        {
-          mL3Option = "Calo";
-          mL3Corrector = new SimpleL3AbsoluteCorrector(DataFiles[i]);
-        }
-      else if (mLevels[i]=="L3" && (int)Tags[i].find("PF")>=0)
-        {
-          mL3Option = "PF";  
-          mL3PFCorrector = new SimpleL3PFAbsoluteCorrector(DataFiles[i]);
-        }
-      else if (mLevels[i]=="L4")
-        mL4Corrector = new SimpleL4EMFCorrector(DataFiles[i]);
-      else if (mLevels[i]=="L5")
-        {
-          throw cms::Exception ("FWLiteJetCorrector") 
-            << "asking L5Flavor correction without specifying flavor option";
-        }
-      else if (mLevels[i]=="L7")
-        {
-          throw cms::Exception ("FWLiteJetCorrector") 
-            << "asking L7Parton correction without specifying parton option";
-        }
-      else
-        {
-          throw cms::Exception ("FWLiteJetCorrector") 
-            << "unknown correction level: " << mLevels[i];
-        }
-    }
-        
-}
-////////////////////////////////////////////////////////////////////////////////
-void FWLiteJetCorrector::initCorrectors(std::string CorrectionLevels, std::string CorrectionTags, std::string Options)
-{
-  mLevels = parseLevels(CorrectionLevels);
-  std::vector<std::string> Tags = parseLevels(CorrectionTags);
+  //---- Read the CorrectionLevels string and parse the requested sub-correction levels.
+  mLevels = parseLevels(removeSpaces(CorrectionLevels));
+  //---- Read the CorrectionTags string and parse the requested sub-correction tags.
+  std::vector<std::string> Tags = parseLevels(removeSpaces(CorrectionTags));
   std::vector<std::string> DataFiles;
-  std::string FlavorOption = parseOption(Options,"Flavor");
-  std::string PartonOption = parseOption(Options,"Parton");
-  if (mLevels.size() != Tags.size())
-    {
-      throw cms::Exception ("FWLiteJetCorrector") 
-        << "number of correction levels: " << mLevels.size() << " doesn't match the number of data file tags: " << Tags.size();
-    }  
+  //---- Read the Options string and define the FlavorOption and PartonOption.
+  std::string FlavorOption = parseOption(removeSpaces(Options),"Flavor");
+  std::string PartonOption = parseOption(removeSpaces(Options),"Parton");
+  //---- Check the consistency between tags and requested sub-corrections. 
+  checkConsistency(mLevels,Tags);  
+  //---- Construct the full path correction parameters filenames.
   for(unsigned int i=0;i<Tags.size();i++)
     {
       string tmp = "CondFormats/JetMETObjects/data/"+Tags[i]+".txt";
       edm::FileInPath f1(tmp);  
       DataFiles.push_back(f1.fullPath());
     }
+  //---- Create instances of the requested sub-correctors.
   for(unsigned int i=0;i<mLevels.size();i++)
     {
       if (mLevels[i]=="L2")
@@ -116,28 +79,44 @@ void FWLiteJetCorrector::initCorrectors(std::string CorrectionLevels, std::strin
         mL4Corrector = new SimpleL4EMFCorrector(DataFiles[i]);
       else if (mLevels[i]=="L5" && FlavorOption.length()==0)
         {
-          throw cms::Exception ("FWLiteJetCorrector") 
+          throw cms::Exception ("CombinedJetCorrector") 
             << "asking L5Flavor correction without specifying flavor option";
         }
       else if (mLevels[i]=="L5" && FlavorOption.length()>0)
         mL5Corrector = new SimpleL5FlavorCorrector(DataFiles[i],FlavorOption);
       else if (mLevels[i]=="L7" && PartonOption.length()==0)
         {
-          throw cms::Exception ("FWLiteJetCorrector") 
+          throw cms::Exception ("CombinedJetCorrector") 
             << "asking L7Parton correction without specifying parton option";
         }
       else if (mLevels[i]=="L7" && PartonOption.length()>0)
         mL7Corrector = new SimpleL7PartonCorrector(DataFiles[i],PartonOption);
       else
         {
-          throw cms::Exception ("FWLiteJetCorrector") 
+          throw cms::Exception ("CombinedJetCorrector") 
             << "unknown correction level: " << mLevels[i];
         }
-    }
-        
+    } 
 }
 ////////////////////////////////////////////////////////////////////////////////
-FWLiteJetCorrector::~FWLiteJetCorrector()
+void CombinedJetCorrector::checkConsistency(std::vector<std::string> Levels, std::vector<std::string> Tags)
+{
+  //---- First check: the number of tags must be equal to the number of sub-corrections.
+  if (Levels.size() != Tags.size())
+    {
+      throw cms::Exception ("CombinedJetCorrector") 
+        << "number of correction levels: " << Levels.size() << " doesn't match the number of data file tags: " << Tags.size();
+    }
+  //---- Second check: each tag must contain the corresponding sub-correction level.
+  for(unsigned int i=0;i<Tags.size();i++)
+    if ((int)Tags[i].find(Levels[i])<0)
+      {
+        throw cms::Exception ("CombinedJetCorrector") 
+          << "inconsistent tag: " << Tags[i] << " for the requested correction: " << Levels[i];
+      }
+}
+////////////////////////////////////////////////////////////////////////////////
+CombinedJetCorrector::~CombinedJetCorrector()
 {
   delete mL2Corrector;
   delete mL3Corrector;
@@ -147,12 +126,13 @@ FWLiteJetCorrector::~FWLiteJetCorrector()
   delete mL7Corrector;
 }
 ////////////////////////////////////////////////////////////////////////////////
-vector<string> FWLiteJetCorrector::parseLevels(string ss)
+vector<string> CombinedJetCorrector::parseLevels(string ss)
 {
   vector<string> result;
   unsigned int pos(0),j,newPos;
   int i;
   string tmp;
+  //---- The ss string must be of the form: "LX,LY,...,LZ"
   while (pos<ss.length())
     {
       tmp = "";
@@ -181,10 +161,11 @@ vector<string> FWLiteJetCorrector::parseLevels(string ss)
   return result;
 }
 ////////////////////////////////////////////////////////////////////////////////
-string FWLiteJetCorrector::parseOption(string ss, string type)
+string CombinedJetCorrector::parseOption(string ss, string type)
 {
   string result;
   int pos1(-1),pos2(-1);
+  //---- The ss string must be of the form: "type1:option1,type2:option2,..."
   pos1 = ss.find(type+":");
   if (pos1<0)
     result = "";
@@ -199,26 +180,38 @@ string FWLiteJetCorrector::parseOption(string ss, string type)
   return result;
 }
 ////////////////////////////////////////////////////////////////////////////////
-double FWLiteJetCorrector::getCorrection(double pt, double eta)
+string CombinedJetCorrector::removeSpaces(string ss)
 {
-  double tmpPt,corPt,scale,factor;
+  string result("");
+  string aChar;
+  for(unsigned int i=0;i<ss.length();i++)
+    {
+      aChar = ss.substr(i,1);
+      if (aChar != " ")
+        result+=aChar;
+    }
+  return result; 
+}
+////////////////////////////////////////////////////////////////////////////////
+double CombinedJetCorrector::getCorrection(double pt, double eta)
+{
+  double corPt,scale,factor;
   corPt = pt;
   factor = 1.;
   for(unsigned int i=0;i<mLevels.size();i++)
     { 
-      tmpPt = corPt;
       if (mLevels[i]== "L2")
-        scale = mL2Corrector->correctionPtEta(tmpPt,eta);
+        scale = mL2Corrector->correctionPtEta(corPt,eta);
       else if (mLevels[i] == "L3" && mL3Option == "Calo")
-        scale = mL3Corrector->correctionPtEta(tmpPt,eta); 
+        scale = mL3Corrector->correctionPtEta(corPt,eta); 
       else if (mLevels[i] == "L3" && mL3Option == "PF")
-        scale = mL3PFCorrector->correctionPtEta(tmpPt,eta);
+        scale = mL3PFCorrector->correctionPtEta(corPt,eta);
       else if (mLevels[i] == "L4")
         scale = 1.;  
       else if (mLevels[i] == "L5")
-        scale = mL5Corrector->correctionPtEta(tmpPt,eta);
+        scale = mL5Corrector->correctionPtEta(corPt,eta);
       else if (mLevels[i] == "L7")
-        scale = mL7Corrector->correctionPtEta(tmpPt,eta);
+        scale = mL7Corrector->correctionPtEta(corPt,eta);
       else
 	scale = 1.; 	
       factor*=scale; 	
@@ -227,26 +220,25 @@ double FWLiteJetCorrector::getCorrection(double pt, double eta)
   return factor; 
 }
 ////////////////////////////////////////////////////////////////////////////////
-double FWLiteJetCorrector::getCorrection(double pt, double eta, double emf)
+double CombinedJetCorrector::getCorrection(double pt, double eta, double emf)
 {
-  double tmpPt,corPt,scale,factor;
+  double corPt,scale,factor;
   corPt = pt;
   factor = 1.;
   for(unsigned int i=0;i<mLevels.size();i++)
     { 
-      tmpPt = corPt;
       if (mLevels[i]== "L2")
-        scale = mL2Corrector->correctionPtEta(tmpPt,eta);
+        scale = mL2Corrector->correctionPtEta(corPt,eta);
       else if (mLevels[i] == "L3" && mL3Option == "Calo")
-        scale = mL3Corrector->correctionPtEta(tmpPt,eta); 
+        scale = mL3Corrector->correctionPtEta(corPt,eta); 
       else if (mLevels[i] == "L3" && mL3Option == "PF")
-        scale = mL3PFCorrector->correctionPtEta(tmpPt,eta);
+        scale = mL3PFCorrector->correctionPtEta(corPt,eta);
       else if (mLevels[i] == "L4")
-        scale = mL4Corrector->correctionPtEtaEmfraction(tmpPt,eta,emf);   
+        scale = mL4Corrector->correctionPtEtaEmfraction(corPt,eta,emf);   
       else if (mLevels[i] == "L5")
-        scale = mL5Corrector->correctionPtEta(tmpPt,eta);
+        scale = mL5Corrector->correctionPtEta(corPt,eta);
       else if (mLevels[i] == "L7")
-        scale = mL7Corrector->correctionPtEta(tmpPt,eta);
+        scale = mL7Corrector->correctionPtEta(corPt,eta);
       else
 	scale = 1.; 	
       factor*=scale; 	
@@ -255,26 +247,25 @@ double FWLiteJetCorrector::getCorrection(double pt, double eta, double emf)
   return factor; 
 }
 ////////////////////////////////////////////////////////////////////////////////
-vector<double> FWLiteJetCorrector::getSubCorrections(double pt, double eta)
+vector<double> CombinedJetCorrector::getSubCorrections(double pt, double eta)
 {
-  double tmpPt,corPt,scale;
+  double corPt,scale;
   vector<double> factors;
   corPt = pt;
   for(unsigned int i=0;i<mLevels.size();i++)
     { 
-      tmpPt = corPt;
       if (mLevels[i]== "L2")
-        scale = mL2Corrector->correctionPtEta(tmpPt,eta);
+        scale = mL2Corrector->correctionPtEta(corPt,eta);
       else if (mLevels[i] == "L3" && mL3Option == "Calo")
-        scale = mL3Corrector->correctionPtEta(tmpPt,eta); 
+        scale = mL3Corrector->correctionPtEta(corPt,eta); 
       else if (mLevels[i] == "L3" && mL3Option == "PF")
-        scale = mL3PFCorrector->correctionPtEta(tmpPt,eta);
+        scale = mL3PFCorrector->correctionPtEta(corPt,eta);
       else if (mLevels[i] == "L4")
         scale = 1.;  
       else if (mLevels[i] == "L5")
-        scale = mL5Corrector->correctionPtEta(tmpPt,eta);
+        scale = mL5Corrector->correctionPtEta(corPt,eta);
       else if (mLevels[i] == "L7")
-        scale = mL7Corrector->correctionPtEta(tmpPt,eta);
+        scale = mL7Corrector->correctionPtEta(corPt,eta);
       else
 	scale = 1.; 
       factors.push_back(scale); 	
@@ -283,26 +274,25 @@ vector<double> FWLiteJetCorrector::getSubCorrections(double pt, double eta)
   return factors; 
 }
 ////////////////////////////////////////////////////////////////////////////////
-vector<double> FWLiteJetCorrector::getSubCorrections(double pt, double eta, double emf)
+vector<double> CombinedJetCorrector::getSubCorrections(double pt, double eta, double emf)
 {
-  double tmpPt,corPt,scale;
+  double corPt,scale;
   vector<double> factors;
   corPt = pt;
   for(unsigned int i=0;i<mLevels.size();i++)
     { 
-      tmpPt = corPt;
       if (mLevels[i]== "L2")
-        scale = mL2Corrector->correctionPtEta(tmpPt,eta);
+        scale = mL2Corrector->correctionPtEta(corPt,eta);
       else if (mLevels[i] == "L3" && mL3Option == "Calo")
-        scale = mL3Corrector->correctionPtEta(tmpPt,eta); 
+        scale = mL3Corrector->correctionPtEta(corPt,eta); 
       else if (mLevels[i] == "L3" && mL3Option == "PF")
-        scale = mL3PFCorrector->correctionPtEta(tmpPt,eta);
+        scale = mL3PFCorrector->correctionPtEta(corPt,eta);
       else if (mLevels[i] == "L4")
-        scale = mL4Corrector->correctionPtEtaEmfraction(tmpPt,eta,emf);   
+        scale = mL4Corrector->correctionPtEtaEmfraction(corPt,eta,emf);   
       else if (mLevels[i] == "L5")
-        scale = mL5Corrector->correctionPtEta(tmpPt,eta);
+        scale = mL5Corrector->correctionPtEta(corPt,eta);
       else if (mLevels[i] == "L7")
-        scale = mL7Corrector->correctionPtEta(tmpPt,eta);
+        scale = mL7Corrector->correctionPtEta(corPt,eta);
       else
 	scale = 1.;
       factors.push_back(scale); 	
