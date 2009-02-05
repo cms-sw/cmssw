@@ -7,9 +7,7 @@
 *   A longer explanation will be placed here later
 */
 
-#include <iostream>
-#include <vector>
-#include <string>
+#include <iosfwd>
 
 namespace pos{
 /*! \class PixelFECParameters PixelFECParameters.h "interface/PixelFECParameters.h"
@@ -38,5 +36,6 @@ namespace pos{
     unsigned int vmebaseaddress_;   
 
   };
+  std::ostream&  operator <<(std::ostream& s ,const PixelFECParameters &pFECp);
 }
 #endif

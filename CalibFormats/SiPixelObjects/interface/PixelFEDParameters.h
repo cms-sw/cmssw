@@ -8,9 +8,7 @@
 *   are used and how they are addressed
 */
 
-#include <iostream>
-#include <vector>
-#include <string>
+#include <iosfwd>
 
 namespace pos{
 /*! \class PixelFEDParameters PixelFEDParameters.h "interface/PixelFEDParameters.h"
@@ -40,5 +38,6 @@ namespace pos{
     unsigned int vmebaseaddress_;   
 
   };
+  std::ostream& operator <<(std::ostream& s ,const PixelFEDParameters &pFEDp);
 }
 #endif

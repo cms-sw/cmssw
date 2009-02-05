@@ -8,8 +8,7 @@
 *
 */
 
-#include <iostream>
-#include <vector>
+#include <iosfwd>
 #include <string>
 
 namespace pos{
@@ -43,6 +42,8 @@ namespace pos{
     unsigned int address_;
 
   };
+  std::ostream& operator <<(std::ostream& s ,const PixelTKFECParameters &pTKFECp);
+
 }
 /* @} */
 #endif

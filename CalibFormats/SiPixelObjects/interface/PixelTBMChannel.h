@@ -37,5 +37,6 @@ namespace pos{
     private:
     bool isChannelB_;
   };
+  std::ostream& operator<<(std::ostream& s, const PixelTBMChannel& TBMChannel);
 }
 #endif

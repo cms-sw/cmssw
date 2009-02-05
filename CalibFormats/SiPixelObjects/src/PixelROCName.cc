@@ -9,9 +9,8 @@
 #include <iostream>
 #include <sstream>
 #include <cctype>
-
-#include <assert.h>
-
+#include <cassert>
+#include <cstdlib>
 
 using namespace std;
 using namespace pos;

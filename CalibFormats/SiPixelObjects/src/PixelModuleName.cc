@@ -8,9 +8,9 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <fstream>
 #include <cctype>
-
-#include <assert.h>
+#include <cstdlib>
 
 using namespace std;
 using namespace pos;

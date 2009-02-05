@@ -19,6 +19,7 @@
 #include <string>
 #include <time.h>
 #include <sys/time.h>
+#include <cstdlib>
 
 #define USE_TIMER_ 0
 

@@ -1,5 +1,5 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelFECParameters.h"
-#include <fstream>
+#include <ostream>
 
 
 using namespace pos;

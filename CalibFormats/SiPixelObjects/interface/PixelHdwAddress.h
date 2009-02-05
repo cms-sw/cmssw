@@ -7,8 +7,7 @@
 *   A longer explanation will be placed here later
 */
 
-#include <iostream>
-#include <fstream>
+#include <iosfwd>
 #include <string>
 
 namespace pos{
@@ -74,5 +73,7 @@ namespace pos{
 
     
   };
+  std::ostream& operator<<(std::ostream& s, const PixelHdwAddress& pixelroc);
+  
 }
 #endif

@@ -10,8 +10,8 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelBase64.h"
 #include <iostream>
 #include <sstream>
-#include <assert.h>
-
+#include <cassert>
+#include <typeinfo>
 
 using namespace pos;
 

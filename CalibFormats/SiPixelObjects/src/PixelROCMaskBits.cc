@@ -9,8 +9,8 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelROCMaskBits.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelBase64.h"
 #include <iostream>
-#include <assert.h>
-
+#include <cassert>
+#include <typeinfo>
 
 using namespace pos;
 

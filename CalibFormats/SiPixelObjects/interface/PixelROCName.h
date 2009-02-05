@@ -9,7 +9,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <assert.h>
+#include <cassert>
 
 namespace pos{
 /*! \class PixelROCName PixelROCName.h "interface/PixelROCName.h"
@@ -107,5 +107,6 @@ namespace pos{
     unsigned int id_;
     
   };
+  std::ostream& operator<<(std::ostream& s, const PixelROCName& pixelroc);
 }
 #endif

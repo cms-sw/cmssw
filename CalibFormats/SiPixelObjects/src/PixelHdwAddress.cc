@@ -6,9 +6,9 @@
 
 #include "CalibFormats/SiPixelObjects/interface/PixelHdwAddress.h"
 #include <string>
-
-#include <assert.h>
-
+#include <cassert>
+#include <ostream>
+#include <iostream>
 
 using namespace pos;
 

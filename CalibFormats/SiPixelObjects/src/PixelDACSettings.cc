@@ -18,6 +18,7 @@
 #include <map>
 #include <sstream>
 #include <sys/time.h>
+#include <cstdlib>
 
 using namespace pos;
 

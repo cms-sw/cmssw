@@ -11,8 +11,9 @@
 #include <fstream>
 #include <iostream>
 #include <ios>
-#include <assert.h>
-#include <stdlib.h>
+#include <cassert>
+#include <cstdlib>
+#include <algorithm>
 
 using namespace pos;
 using namespace std;
