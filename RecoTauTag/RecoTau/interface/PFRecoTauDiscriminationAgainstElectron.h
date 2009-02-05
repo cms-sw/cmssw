@@ -49,10 +49,14 @@ class PFRecoTauDiscriminationAgainstElectron : public EDProducer {
 
     applyCut_electronPreID_2D_  = iConfig.getParameter<bool>("ApplyCut_ElectronPreID_2D");
 
-    elecPreID0_EOverPLead_maxValue  = iConfig.getParameter<double>("ElecPreID0_EOverPLead_maxValue");
-    elecPreID0_HOverPLead_minValue  = iConfig.getParameter<double>("ElecPreID0_HOverPLead_minValue");
-    elecPreID1_EOverPLead_maxValue  = iConfig.getParameter<double>("ElecPreID1_EOverPLead_maxValue");
-    elecPreID1_HOverPLead_minValue  = iConfig.getParameter<double>("ElecPreID1_HOverPLead_minValue");
+    elecPreID0_EOverPLead_maxValue_  = iConfig.getParameter<double>("ElecPreID0_EOverPLead_maxValue");
+    elecPreID0_HOverPLead_minValue_  = iConfig.getParameter<double>("ElecPreID0_HOverPLead_minValue");
+    elecPreID1_EOverPLead_maxValue_  = iConfig.getParameter<double>("ElecPreID1_EOverPLead_maxValue");
+    elecPreID1_HOverPLead_minValue_  = iConfig.getParameter<double>("ElecPreID1_HOverPLead_minValue");
+
+
+    applyCut_PFElectronMVA_  = iConfig.getParameter<double>("ApplyCut_PFElectronMVA");
+    pfelectronMVA_maxValue_  = iConfig.getParameter<double>("PFElectronMVA_maxValue"); 
 
     applyCut_ecalCrack_  = iConfig.getParameter<bool>("ApplyCut_EcalCrackCut");
     
@@ -82,13 +86,15 @@ class PFRecoTauDiscriminationAgainstElectron : public EDProducer {
   bool applyCut_electronPreID_;
 
   bool applyCut_electronPreID_2D_;
-  double elecPreID0_EOverPLead_maxValue;
-  double elecPreID0_HOverPLead_minValue;
-  double elecPreID1_EOverPLead_maxValue;
-  double elecPreID1_HOverPLead_minValue;
+  double elecPreID0_EOverPLead_maxValue_;
+  double elecPreID0_HOverPLead_minValue_;
+  double elecPreID1_EOverPLead_maxValue_;
+  double elecPreID1_HOverPLead_minValue_;
+
+  bool applyCut_PFElectronMVA_;
+  double pfelectronMVA_maxValue_; 
 
   bool applyCut_ecalCrack_;
-
 
 };
 #endif

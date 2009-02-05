@@ -280,9 +280,12 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
 
   //Use the electron rejection only in case there is a charged leading pion
   if(myleadPFChargedCand.isNonnull()){
-    if (myleadPFChargedCand->mva_e_pi()==1) {
+    // A continous ore discrete mva depends on if usePFElectrons is set TRUE or FALSE!!!
+    myPFTau.setelectronPreIDOutput(myleadPFCand->mva_e_pi());// particleFlow.usePFElectrons = cms.bool(True)
+    if (myleadPFChargedCand->mva_e_pi()==1) {// particleFlow.usePFElectrons = cms.bool(False)
       myElecPreid = true;
     }
+
     math::XYZPointF myElecTrkEcalPos = myleadPFChargedCand->positionAtECALEntrance();
     myElecTrk = myleadPFChargedCand->trackRef();//Electron candidate
     
@@ -295,7 +298,7 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
            myECALenergy += myPFCands[i]->ecalEnergy();
 
            math::XYZPointF candPos;
-           if (myPFCands[i]->particleId()==1) // if charged hadron
+	   if (myPFCands[i]->particleId()==1 || myPFCands[i]->particleId()==2)//if charged hadron or electron
               candPos = myPFCands[i]->positionAtECALEntrance();
            else
               candPos = math::XYZPointF(myPFCands[i]->px(),myPFCands[i]->py(),myPFCands[i]->pz());
@@ -337,7 +340,6 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
 	
       // These need to be filled!
       //myPFTau.setbremsRecoveryEOverPLead(my...);
-      //myPFTau.setelectronPreIDOutput(my...);
       }
       //From RECO
       if(DataType_ == "RECO"){
