@@ -55,18 +55,19 @@ process.load("HLTriggerOffline.Common.HLTValidation_cff")
 #extra config needed in standalone
 process.load("L1TriggerConfig.L1GtConfigProducers.L1GtConfig_cff")
 process.load("Configuration.StandardSequences.L1TriggerDefaultMenu_cff")
+process.load("Configuration.StandardSequences.Geometry_cff")
 
 process.validation = cms.Path(
-    #process.hltvalidation
-     process.muonTriggerRateTimeAnalyzer
-    +process.HLTTauVal
+    process.hltvalidation
+   # process.muonTriggerRateTimeAnalyzer
+   #+process.HLTTauVal
    #+process.EcalPi0Mon
-    +process.EcalPhiSymMon
-    +process.egammaValidationSequence
-    +process.HLTTopVal
-    +process.HLTSusyExoVal
-    +process.HLTFourVector
-    +process.heavyFlavorValidationSequence
+   #+process.EcalPhiSymMon
+   #+process.egammaValidationSequence
+   #+process.HLTTopVal
+   #+process.HLTSusyExoVal
+   #+process.HLTFourVector
+   #+process.heavyFlavorValidationSequence
     )
 
 process.post_validation = cms.Path(
