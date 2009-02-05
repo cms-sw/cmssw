@@ -136,7 +136,7 @@ LASBarrelAlignmentParameterSet LASAlignmentTubeAlgorithm::CalculateParameters( L
 
     // residual in phi (in the formulas this corresponds to y_ik/R)
     const double phiResidual = measuredCoordinates.GetTIBTOBEntry( det, beam, pos ).GetPhi() - nominalCoordinates.GetTIBTOBEntry( det, beam, pos ).GetPhi();
-    std::cout << "111111111111 det: " << det << " beam: " << beam << " pos: " << pos << " -- RES: " << phiResidual << std::endl; /////////////////////////////////////////////////////////////////////////////
+
     // sums over measured values
     sumOverPhiZPrime.at( halfbarrel )               += phiResidual * detReducedZ[0];
     sumOverPhiZPrimePrime.at( halfbarrel )          += phiResidual * detReducedZ[1];
@@ -197,7 +197,6 @@ LASBarrelAlignmentParameterSet LASAlignmentTubeAlgorithm::CalculateParameters( L
 
     // residual in phi (in the formulas this corresponds to y_ik/R)
     const double phiResidual = measuredCoordinates.GetTEC2TECEntry( det, beam, disk ).GetPhi() - nominalCoordinates.GetTEC2TECEntry( det, beam, disk ).GetPhi();
-    std::cout << "111111111111 det: " << det << " beam: " << beam << " disk: " << disk << " -- RES: " << phiResidual << std::endl; //////////////////////////////////////////////////////////////////
 
     // sums over measured values
     sumOverPhiZPrime.at( halfbarrel )               += phiResidual * detReducedZ[0];
@@ -254,7 +253,8 @@ LASBarrelAlignmentParameterSet LASAlignmentTubeAlgorithm::CalculateParameters( L
   
   
   // even more shortcuts before we can calculate the parameters
-  double beamDenominator = ( pow( sumOverZTPrimeZTPrimePrime, 2 ) - sumOverZTPrimeSquared * sumOverZTPrimePrimeSquared ) * beamRadii.at( 0 ); // latter is the TEC at beam radius (R4) ############ ????? 
+  // this one will be enabled later for the errors calculation
+  //  double beamDenominator = ( pow( sumOverZTPrimeZTPrimePrime, 2 ) - sumOverZTPrimeSquared * sumOverZTPrimePrimeSquared ) * beamRadii.at( 0 ); // latter is the TEC at beam radius (R4) ############ ????? 
 
   std::vector<double> alignmentDenominator( 6, 0. );
   std::vector<double> termA( 6, 0. ), termB( 6, 0. ), termC( 6, 0. ), termD( 6, 0. );

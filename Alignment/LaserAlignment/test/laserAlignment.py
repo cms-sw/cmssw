@@ -110,16 +110,14 @@ process.maxEvents = cms.untracked.PSet(
 
 # the laserAlignment module
 process.load( "Alignment.LaserAlignment.LaserAlignment_cfi" )
-process.LaserAlignment.NumberOfEventsPerLaserIntensity = 1
-process.LaserAlignment.NumberOfEventsForAllIntensities = 1
 process.LaserAlignment.DigiProducersList = cms.VPSet(
   cms.PSet(
     DigiLabel = cms.string( 'VirginRaw' ),
     DigiProducer = cms.string( 'laserAlignmentT0Producer' )
   )
 )
-process.LaserAlignment.saveToDbase = True
-process.LaserAlignment.saveHistograms = True
+process.LaserAlignment.SaveToDbase = True
+process.LaserAlignment.SaveHistograms = True
 process.LaserAlignment.SubtractPedestals = False
 process.LaserAlignment.UpdateFromIdealGeometry = True
 process.LaserAlignment.EnableJudgeZeroFilter = False

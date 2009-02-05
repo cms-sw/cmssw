@@ -1,118 +1,54 @@
 /** \file LaserAlignment.cc
  *  LAS reconstruction module
  *
- *  $Date: 2009/01/14 16:47:54 $
- *  $Revision: 1.32 $
+ *  $Date: 2009/02/05 11:51:22 $
+ *  $Revision: 1.33 $
  *  \author Maarten Thomas
  *  \author Jan Olzem
  */
 
 #include "Alignment/LaserAlignment/plugins/LaserAlignment.h"
-#include "FWCore/Framework/interface/Event.h" 
-#include "TFile.h" 
-
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
-
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/LaserAlignment/interface/LASBeamProfileFit.h"
-#include "DataFormats/LaserAlignment/interface/LASBeamProfileFitCollection.h"
-#include "DataFormats/LaserAlignment/interface/LASAlignmentParameter.h"
-#include "DataFormats/LaserAlignment/interface/LASAlignmentParameterCollection.h"
-
-// Conditions database
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
 
-LaserAlignment::LaserAlignment(edm::ParameterSet const& theConf) 
-  : theEvents(0), 
-    theDoPedestalSubtraction(theConf.getUntrackedParameter<bool>("SubtractPedestals", true)),
-    enableJudgeZeroFilter(theConf.getUntrackedParameter<bool>("EnableJudgeZeroFilter", true)),
-    updateFromIdealGeometry(theConf.getUntrackedParameter<bool>("UpdateFromIdealGeometry", false)),
-    theStoreToDB(theConf.getUntrackedParameter<bool>("saveToDbase", false)),
-    theSaveHistograms(theConf.getUntrackedParameter<bool>("saveHistograms",false)),
-    theDebugLevel(theConf.getUntrackedParameter<int>("DebugLevel",0)),
-    theNEventsPerLaserIntensity(theConf.getUntrackedParameter<int>("NumberOfEventsPerLaserIntensity",100)),
-    theNEventsForAllIntensities(theConf.getUntrackedParameter<int>("NumberOfEventsForAllIntensities",100)),
-    theDoAlignmentAfterNEvents(theConf.getUntrackedParameter<int>("DoAlignmentAfterNEvents",1000)),
-    /// the following three are hard-coded until the complete package has been refurbished
-    //    theAlignPosTEC( false ), // theAlignPosTEC(theConf.getUntrackedParameter<bool>("AlignPosTEC",false)),
-    //    theAlignNegTEC( false ), // theAlignNegTEC(theConf.getUntrackedParameter<bool>("AlignNegTEC",false)), 
-    //    theAlignTEC2TEC( false ), // theAlignTEC2TEC(theConf.getUntrackedParameter<bool>("AlignTECTIBTOBTEC",false)),
-    theIsGoodFit(false),
-    theSearchPhiTIB(theConf.getUntrackedParameter<double>("SearchWindowPhiTIB",0.05)),
-    theSearchPhiTOB(theConf.getUntrackedParameter<double>("SearchWindowPhiTOB",0.05)),
-    theSearchPhiTEC(theConf.getUntrackedParameter<double>("SearchWindowPhiTEC",0.05)),
-    theSearchZTIB(theConf.getUntrackedParameter<double>("SearchWindowZTIB",1.0)),
-    theSearchZTOB(theConf.getUntrackedParameter<double>("SearchWindowZTOB",1.0)),
-    thePhiErrorScalingFactor(theConf.getUntrackedParameter<double>("PhiErrorScalingFactor",1.0)),
-    theDigiProducersList(theConf.getParameter<Parameters>("DigiProducersList")),
-    theFile(),
-    theCompression(theConf.getUntrackedParameter<int>("ROOTFileCompression",1)),
-    theFileName(theConf.getUntrackedParameter<std::string>("ROOTFileName","test.root")),
-    theBeamFitPS(theConf.getParameter<edm::ParameterSet>("BeamProfileFitter")),
-    theAlignmentAlgorithmPS(theConf.getParameter<edm::ParameterSet>("AlignmentAlgorithm")),
-    theMinAdcCounts(theConf.getUntrackedParameter<int>("MinAdcCounts",0)),
-    theHistogramNames(), theHistograms(),
-    theLaserPhi(),
-    theLaserPhiError(),
-    theNumberOfIterations(0), theNumberOfAlignmentIterations(0),
-    theBeamFitter(),
-			      //    theLASAlignPosTEC(),
-			      //    theLASAlignNegTEC(),
-			      //    theLASAlignTEC2TEC(),
-			      //    theAlignmentAlgorithmBW(),
-    theUseBSFrame(theConf.getUntrackedParameter<bool>("UseBeamSplitterFrame", true)),
-    theDigiStore(),
-    theBeamProfileFitStore(),
-    theDigiVector(),
-    theAlignableTracker(),
-    theAlignRecordName( "TrackerAlignmentRcd" ),
-    theErrorRecordName( "TrackerAlignmentErrorRcd" )
 
-{
-  // load the configuration from the ParameterSet  
-  edm::LogInfo("LaserAlignment") <<    "==========================================================="
-				  << "\n===                Start configuration                  ==="
-				  << "\n    theDebugLevel               = " << theDebugLevel
-    //				  << "\n    theAlignPosTEC              = " << theAlignPosTEC
-    //				  << "\n    theAlignNegTEC              = " << theAlignNegTEC
-    //				  << "\n    theAlignTEC2TEC             = " << theAlignTEC2TEC
-				  << "\n    theSearchPhiTIB             = " << theSearchPhiTIB
-				  << "\n    theSearchPhiTOB             = " << theSearchPhiTOB
-				  << "\n    theSearchPhiTEC             = " << theSearchPhiTEC 
-				  << "\n    theSearchZTIB               = " << theSearchZTIB
-				  << "\n    theSearchZTOB               = " << theSearchZTOB
-				  << "\n    theMinAdcCounts             = " << theMinAdcCounts
-				  << "\n    theNEventsPerLaserIntensity = " << theNEventsPerLaserIntensity
-				  << "\n    theNEventsForAllIntensiteis = " << theNEventsForAllIntensities
-				  << "\n    theDoAlignmentAfterNEvents  = " << theDoAlignmentAfterNEvents
-				  << "\n    ROOT filename               = " << theFileName
-				  << "\n    compression                 = " << theCompression
-				  << "\n===========================================================";
+
+///
+///
+///
+LaserAlignment::LaserAlignment( edm::ParameterSet const& theConf ) :
+  theEvents(0), 
+  theDoPedestalSubtraction( theConf.getUntrackedParameter<bool>( "SubtractPedestals", true ) ),
+  enableJudgeZeroFilter( theConf.getUntrackedParameter<bool>( "EnableJudgeZeroFilter", true ) ),
+  updateFromIdealGeometry( theConf.getUntrackedParameter<bool>( "UpdateFromIdealGeometry", false ) ),
+  theStoreToDB ( theConf.getUntrackedParameter<bool>( "SaveToDbase", false ) ),
+  theDigiProducersList( theConf.getParameter<std::vector<edm::ParameterSet> >( "DigiProducersList" ) ),
+  theSaveHistograms( theConf.getUntrackedParameter<bool>( "SaveHistograms", false ) ),
+  theFile(),
+  theCompression( theConf.getUntrackedParameter<int>( "ROOTFileCompression", 1 ) ),
+  theFileName( theConf.getUntrackedParameter<std::string>( "ROOTFileName", "test.root" ) ),
+  theAlignableTracker(),
+  theAlignRecordName( "TrackerAlignmentRcd" ),
+  theErrorRecordName( "TrackerAlignmentErrorRcd" )   {
+
+
+  edm::LogInfo("LaserAlignment") <<   "==========================================================="
+				 << "\n===                Start configuration                  ==="
+				 << "\n"
+				 << "\n    Write histograms to file    = " << (theSaveHistograms?"true":"false")
+ 				 << "\n    Histogram file name         = " << theFileName
+				 << "\n    Histogram file compression  = " << theCompression
+				 << "\n    Subtract pedestals          = " << (theDoPedestalSubtraction?"true":"false")
+				 << "\n    EnableJudgeZeroFilter       = " << (enableJudgeZeroFilter?"true":"false")
+				 << "\n    Update from ideal geometry  = " << (updateFromIdealGeometry?"true":"false")
+				 << "\n    Store to database           = " << (theStoreToDB?"true":"false")
+				 << "\n===========================================================";
+
 
   // alias for the Branches in the root files
   std::string alias ( theConf.getParameter<std::string>("@module_label") );  
 
   // declare the product to produce
   produces<TkLasBeamCollection, edm::InRun>( "tkLaserBeams" ).setBranchAlias( alias + "TkLasBeamCollection" );
-
-  // the alignable tracker parts
-  //  theLASAlignTEC2TEC = new LaserAlignmentTEC2TEC;
-  
-  // the alignment algorithm from Bruno
-  //  theAlignmentAlgorithmBW = new AlignmentAlgorithmBW;
-  
-  // counter for the number of iterations, i.e. the number of BeamProfile fits and
-  // local Millepede fits
-  theNumberOfIterations = 0;
 
   // switch judge's zero filter depending on cfg
   judge.EnableZeroFilter( enableJudgeZeroFilter );
@@ -123,30 +59,15 @@ LaserAlignment::LaserAlignment(edm::ParameterSet const& theConf)
 
 
 
+///
+///
+///
 LaserAlignment::~LaserAlignment() {
 
-  if (theSaveHistograms) {
-    closeRootFile();
-  }
-  
-  if (theFile != 0) { delete theFile; }
-  
-  if (theBeamFitter != 0) { delete theBeamFitter; }
-  
-  //  if (theLASAlignTEC2TEC != 0) { delete theLASAlignTEC2TEC; }
-  if (theAlignableTracker != 0) { delete theAlignableTracker; }
-  //  if (theAlignmentAlgorithmBW != 0) { delete theAlignmentAlgorithmBW; }
-}
+  if ( theSaveHistograms ) theFile->Write();
+  if ( theFile ) { delete theFile; }
+  if ( theAlignableTracker ) { delete theAlignableTracker; }
 
-
-
-
-
-///
-///
-///
-double LaserAlignment::angle(double theAngle) {
-  return (theAngle >= 0.0) ? theAngle : theAngle + 2.0*M_PI;
 }
 
 
@@ -158,23 +79,19 @@ double LaserAlignment::angle(double theAngle) {
 ///
 void LaserAlignment::beginJob(const edm::EventSetup& theSetup) {
 
-  // the beam profile fitter
-  theBeamFitter = new BeamProfileFitter( theBeamFitPS, &theSetup );
 
-  // creating a new file
-  theFile = new TFile(theFileName.c_str(),"RECREATE","CMS ROOT file");
-  theFile->SetCompressionLevel(theCompression);
-      
-  // initialize the histograms
-  if (theFile) {
-    this->initHistograms();
+  // write sumed histograms to file (if selected in cfg)
+  if( theSaveHistograms ) {
+
+    // creating a new file
+    theFile = new TFile( theFileName.c_str(), "RECREATE", "CMS ROOT file" );
+    theFile->SetCompressionLevel(theCompression);
+    
+    // initialize the histograms
+    if ( theFile ) singleModulesDir = theFile->mkdir( "single modules" );
+    else throw cms::Exception( " [LaserAlignment::beginJob]") << " ** ERROR: could not open file:" << theFileName.c_str() << " for writing." << std::endl;
+
   }
-  else {
-    throw cms::Exception("LaserAlignment") << "<LaserAlignment::beginJob()>: ERROR!!! something wrong with the RootFile" << std::endl;
-  } 
-
-
-  LogDebug("LaserAlignment:beginJob()") << " access the Tracker Geometry ";
 
   // detector id maps (hard coded)
   fillDetectorId();
@@ -204,8 +121,6 @@ void LaserAlignment::beginJob(const edm::EventSetup& theSetup) {
   // loop variables for use with LASGlobalLoop object
   int det, ring, beam, disk, pos;
 
-
-
   // loop TEC modules
   det = 0; ring = 0; beam = 0; disk = 0;
   do { // loop using LASGlobalLoop functionality
@@ -230,9 +145,11 @@ void LaserAlignment::beginJob(const edm::EventSetup& theSetup) {
     theProfileNames.SetTECEntry( det, ring, beam, disk, nameBuilder.str() );
 
     // init the histograms
-    nameBuilder << "Histo";
-    summedHistograms.SetTECEntry( det, ring, beam, disk, new TH1D( nameBuilder.str().c_str(), nameBuilder.str().c_str(), 512, 0, 512 ) );
-    summedHistograms.GetTECEntry( det, ring, beam, disk )->SetDirectory( singleModulesDir );
+    if( theSaveHistograms ) {
+      nameBuilder << "Histo";
+      summedHistograms.SetTECEntry( det, ring, beam, disk, new TH1D( nameBuilder.str().c_str(), nameBuilder.str().c_str(), 512, 0, 512 ) );
+      summedHistograms.GetTECEntry( det, ring, beam, disk )->SetDirectory( singleModulesDir );
+    }
     
   } while ( moduleLoop.TECLoop( det, ring, beam, disk ) );
 
@@ -258,9 +175,11 @@ void LaserAlignment::beginJob(const edm::EventSetup& theSetup) {
     theProfileNames.SetTIBTOBEntry( det, beam, pos, nameBuilder.str() );
 
     // init the histograms
-    nameBuilder << "Histo";
-    summedHistograms.SetTIBTOBEntry( det, beam, pos, new TH1D( nameBuilder.str().c_str(), nameBuilder.str().c_str(), 512, 0, 512 ) );
-    summedHistograms.GetTIBTOBEntry( det, beam, pos )->SetDirectory( singleModulesDir );
+    if( theSaveHistograms ) {
+      nameBuilder << "Histo";
+      summedHistograms.SetTIBTOBEntry( det, beam, pos, new TH1D( nameBuilder.str().c_str(), nameBuilder.str().c_str(), 512, 0, 512 ) );
+      summedHistograms.GetTIBTOBEntry( det, beam, pos )->SetDirectory( singleModulesDir );
+    }
     
   } while( moduleLoop.TIBTOBLoop( det, beam, pos ) );
 
@@ -286,9 +205,11 @@ void LaserAlignment::beginJob(const edm::EventSetup& theSetup) {
     theProfileNames.SetTEC2TECEntry( det, beam, disk, nameBuilder.str() );
 
     // init the histograms
-    nameBuilder << "Histo";
-    summedHistograms.SetTEC2TECEntry( det, beam, disk, new TH1D( nameBuilder.str().c_str(), nameBuilder.str().c_str(), 512, 0, 512 ) );
-    summedHistograms.GetTEC2TECEntry( det, beam, disk )->SetDirectory( singleModulesDir );
+    if( theSaveHistograms ) {
+      nameBuilder << "Histo";
+      summedHistograms.SetTEC2TECEntry( det, beam, disk, new TH1D( nameBuilder.str().c_str(), nameBuilder.str().c_str(), 512, 0, 512 ) );
+      summedHistograms.GetTEC2TECEntry( det, beam, disk )->SetDirectory( singleModulesDir );
+    }
     
   } while( moduleLoop.TEC2TECLoop( det, beam, disk ) );
 
@@ -328,7 +249,6 @@ void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSet
 
 
   // do the Tracker Statistics to retrieve the current profiles
-  //  trackerStatistics( theEvent, theSetup );
   fillDataProfiles( theEvent, theSetup );
 
   // index variables for the LASGlobalLoop object
@@ -472,8 +392,8 @@ void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSet
   } while( moduleLoop.TEC2TECLoop( det, beam, disk ) );
 
 
-  // ----- check if the actual event can be used -----
-  /* here we can later on add some criteria for good alignment events!? */
+
+  // total event number counter
   theEvents++;
 
 }
@@ -485,24 +405,13 @@ void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSet
 ///
 ///
 ///
-void LaserAlignment::closeRootFile() {
-  theFile->Write();
-}
-
-
-
-
-
-///
-///
-///
 void LaserAlignment::endRun( edm::Run& theRun, const edm::EventSetup& theSetup ) {
 
-  LogDebug("LaserAlignment") << "     Total Event number = " << theEvents;
+
+  std::cout << " [LaserAlignment::endRun] -- Total number of events processed: " << theEvents << std::endl;
 
   // for debugging only..
   DumpHitmaps( numberOfAcceptedProfiles );
-
 
   // index variables for the LASGlobalLoop objects
   int det, ring, beam, disk, pos;
@@ -568,8 +477,10 @@ void LaserAlignment::endRun( edm::Run& theRun, const edm::EventSetup& theSetup )
     }
       
     // fill the histograms for saving
-    for( int bin = 1; bin <= 512; ++bin ) {
-      summedHistograms.GetTECEntry( det, ring, beam, disk )->SetBinContent( bin, collectedDataProfiles.GetTECEntry( det, ring, beam, disk ).GetValue( bin - 1 ) );
+    if( theSaveHistograms ) {
+      for( int bin = 1; bin <= 512; ++bin ) {
+	summedHistograms.GetTECEntry( det, ring, beam, disk )->SetBinContent( bin, collectedDataProfiles.GetTECEntry( det, ring, beam, disk ).GetValue( bin - 1 ) );
+      }
     }
 
   } while( moduleLoop.TECLoop( det, ring, beam, disk ) );
@@ -610,8 +521,10 @@ void LaserAlignment::endRun( edm::Run& theRun, const edm::EventSetup& theSetup )
     }
       
     // fill the histograms for saving
-    for( int bin = 1; bin <= 512; ++bin ) {
-      summedHistograms.GetTIBTOBEntry( det, beam, pos )->SetBinContent( bin, collectedDataProfiles.GetTIBTOBEntry( det, beam, pos ).GetValue( bin - 1 ) );
+    if( theSaveHistograms ) {
+      for( int bin = 1; bin <= 512; ++bin ) {
+	summedHistograms.GetTIBTOBEntry( det, beam, pos )->SetBinContent( bin, collectedDataProfiles.GetTIBTOBEntry( det, beam, pos ).GetValue( bin - 1 ) );
+      }
     }
 	
   } while( moduleLoop.TIBTOBLoop( det, beam, pos ) );
@@ -654,8 +567,10 @@ void LaserAlignment::endRun( edm::Run& theRun, const edm::EventSetup& theSetup )
     }
 
     // fill the histograms for saving
-    for( int bin = 1; bin <= 512; ++bin ) {
-      summedHistograms.GetTEC2TECEntry( det, beam, disk )->SetBinContent( bin, collectedDataProfiles.GetTEC2TECEntry( det, beam, disk ).GetValue( bin - 1 ) );
+    if( theSaveHistograms ) {
+      for( int bin = 1; bin <= 512; ++bin ) {
+	summedHistograms.GetTEC2TECEntry( det, beam, disk )->SetBinContent( bin, collectedDataProfiles.GetTEC2TECEntry( det, beam, disk ).GetValue( bin - 1 ) );
+      }
     }
 
   } while( moduleLoop.TEC2TECLoop( det, beam, disk ) );
@@ -834,8 +749,6 @@ void LaserAlignment::endRun( edm::Run& theRun, const edm::EventSetup& theSetup )
   
 
 
-
-
   
 
 
@@ -900,7 +813,7 @@ void LaserAlignment::fillDataProfiles( edm::Event const& theEvent,edm::EventSetu
   edm::Handle< edm::DetSetVector<SiStripRawDigi> > theStripDigis;
 
   // query conf for what to fetch from event
-  for ( Parameters::iterator itDigiProducersList = theDigiProducersList.begin(); itDigiProducersList != theDigiProducersList.end(); ++itDigiProducersList ) {
+  for ( std::vector<edm::ParameterSet>::iterator itDigiProducersList = theDigiProducersList.begin(); itDigiProducersList != theDigiProducersList.end(); ++itDigiProducersList ) {
     std::string digiProducer = itDigiProducersList->getParameter<std::string>( "DigiProducer" );
     std::string digiLabel = itDigiProducersList->getParameter<std::string>( "DigiLabel" );
     theEvent.getByLabel( digiProducer, digiLabel, theStripDigis );
@@ -1045,94 +958,6 @@ void LaserAlignment::fillPedestalProfiles( edm::ESHandle<SiStripPedestals>& pede
   } while( moduleLoop.TEC2TECLoop( det, beam, disk ) );
 
 }
-
-
-
-
-
-///
-///
-///
-std::vector<int> LaserAlignment::checkBeam(std::vector<std::string>::const_iterator iHistName, std::map<std::string, std::pair<DetId, TH1D*> >::iterator iHist ) {
-
-  std::vector<int> result;
-  std::string stringDisc;
-  std::string stringRing;
-  std::string stringBeam;
-  bool isTEC2TEC = false;
-  int theDisc = 0;
-  int theRing = 0;
-  int theBeam = 0;
-  int theTECSide = 0;
-  
-  // check if we are in the Endcap
-  switch (((iHist->second).first).subdetId())
-    {
-    case StripSubdetector::TIB:
-      {
-	break;
-      }
-    case StripSubdetector::TOB:
-      {
-	break;
-      }
-    case StripSubdetector::TEC:
-      {
-	TECDetId theTECDetId(((iHist->second).first).rawId());
-	
-	theTECSide = theTECDetId.side(); // 1 for TEC-, 2 for TEC+
-	
-	stringBeam = (*iHistName).at(4);
-	stringRing = (*iHistName).at(9);
-	stringDisc = (*iHistName).at(14);
-	isTEC2TEC = ( (*iHistName).size() > 21 ) ? true : false;
-	break;
-      }
-    }
-
-  if ( stringRing == "4" ) { theRing = 4; }
-  else if ( stringRing == "6" ) { theRing = 6; }
-
-  if ( stringDisc == "1" ) { theDisc = 0; }
-  else if ( stringDisc == "2" ) { theDisc = 1; }
-  else if ( stringDisc == "3" ) { theDisc = 2; } 
-  else if ( stringDisc == "4" ) { theDisc = 3; } 
-  else if ( stringDisc == "5" ) { theDisc = 4; }
-  else if ( stringDisc == "6" ) { theDisc = 5; } 
-  else if ( stringDisc == "7" ) { theDisc = 6; } 
-  else if ( stringDisc == "8" ) { theDisc = 7; } 
-  else if ( stringDisc == "9" ) { theDisc = 8; } 
-
-  if ( theRing == 4 )
-    {
-      if ( stringBeam == "0" ) { theBeam = 0; } 
-      else if ( stringBeam == "1" ) { theBeam = 1; } 
-      else if ( stringBeam == "2" ) { theBeam = 2; }
-      else if ( stringBeam == "3" ) { theBeam = 3; } 
-      else if ( stringBeam == "4" ) { theBeam = 4; }
-      else if ( stringBeam == "5" ) { theBeam = 5; } 
-      else if ( stringBeam == "6" ) { theBeam = 6; } 
-      else if ( stringBeam == "7" ) { theBeam = 7; } 
-    }
-  else if ( theRing == 6 )
-    {
-      if ( stringBeam == "0" ) { theBeam = 0; } 
-      else if ( stringBeam == "1" ) { theBeam = 1; } 
-      else if ( stringBeam == "2" ) { theBeam = 2; }
-      else if ( stringBeam == "3" ) { theBeam = 3; } 
-      else if ( stringBeam == "4" ) { theBeam = 4; }
-      else if ( stringBeam == "5" ) { theBeam = 5; } 
-      else if ( stringBeam == "6" ) { theBeam = 6; } 
-      else if ( stringBeam == "7" ) { theBeam = 7; } 
-    }
-  result.push_back(theTECSide);
-  result.push_back(theRing);
-  result.push_back(theBeam);
-  result.push_back(theDisc);
-  
-  return result;
-}
-
 
 
 
