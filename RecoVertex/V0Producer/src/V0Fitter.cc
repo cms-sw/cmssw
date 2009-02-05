@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.36 2009/01/15 00:01:06 drell Exp $
+// $Id: V0Fitter.cc,v 1.37 2009/01/27 23:15:45 drell Exp $
 //
 //
 
@@ -26,6 +26,11 @@
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+
+#include <Math/Functions.h>
+#include <Math/SVector.h>
+#include <Math/SMatrix.h>
 #include <typeinfo>
 
 // Constants
@@ -115,6 +120,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   // Handles for tracks, B-field, and tracker geometry
   Handle<reco::TrackCollection> theTrackHandle;
+  Handle<reco::BeamSpot> theBeamSpotHandle;
   ESHandle<MagneticField> bFieldHandle;
   ESHandle<TrackerGeometry> trackerGeomHandle;
   ESHandle<GlobalTrackingGeometry> globTkGeomHandle;
@@ -123,6 +129,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Get the tracks from the event, and get the B-field record
   //  from the EventSetup
   iEvent.getByLabel(recoAlg, theTrackHandle);
+  iEvent.getByLabel(std::string("offlineBeamSpot"), theBeamSpotHandle);
   if( !theTrackHandle->size() ) return;
   iSetup.get<IdealMagneticFieldRecord>().get(bFieldHandle);
   iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeomHandle);
@@ -336,15 +343,36 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       // Do post-fit cuts if specified in config file.
 
       // Find the vertex d0 and its error
+
+      typedef ROOT::Math::SMatrix<double, 3, 3, ROOT::Math::MatRepSym<double, 3> > SMatrixSym3D;
+      typedef ROOT::Math::SVector<double, 3> SVector3;
+
       GlobalPoint vtxPos(theVtx.x(), theVtx.y(), theVtx.z());
-      double x_ = vtxPos.x();
-      double y_ = vtxPos.y();
-      double rVtxMag = sqrt( x_*x_ + y_*y_);
-      double sig00 = theVtx.covariance(0,0);
-      double sig11 = theVtx.covariance(1,1);
-      double sig01 = theVtx.covariance(0,1);
-      double sigmaRvtxMag =
-	sqrt( sig00*(x_*x_) + sig11*(y_*y_) + 2*sig01*(x_*y_) ) / rVtxMag;
+      //double x_ = vtxPos.x();
+      //double y_ = vtxPos.y();
+      //double rVtxMag = sqrt( x_*x_ + y_*y_);
+      //double sig00 = theVtx.covariance(0,0);
+      //double sig11 = theVtx.covariance(1,1);
+      //double sig01 = theVtx.covariance(0,1);
+      //double sigmaRvtxMag =
+      //sqrt( sig00*(x_*x_) + sig11*(y_*y_) + 2*sig01*(x_*y_) ) / rVtxMag;
+
+      GlobalPoint beamSpotPos(theBeamSpotHandle->position().x(),
+			      theBeamSpotHandle->position().y(),
+			      theBeamSpotHandle->position().z());
+      //double beam_x = beamSpotPos.x();
+      //double beam_y = beamSpotPos.y();
+      //reco::BeamSpot::Covariance3DMatrix spotCov = theBeamSpotHandle->covariance3D();
+      //reco::Vertex::CovarianceMatrix vtxCov = theVtx.covariance();
+
+      SMatrixSym3D totalCov = theBeamSpotHandle->covariance3D() + theVtx.covariance();
+      SVector3 distanceVector(vtxPos.x() - beamSpotPos.x(),
+			      vtxPos.y() - beamSpotPos.y(),
+			      0.);//so that we get radial values only, 
+                                  //since z beamSpot uncertainty is huge
+
+      double rVtxMag = ROOT::Math::Mag(distanceVector);
+      double sigmaRvtxMag = sqrt(ROOT::Math::Similarity(totalCov, distanceVector)) / rVtxMag;
 
       // The methods innerOk() and innerPosition() require TrackExtra, which
       // is only available in the RECO data tier, not AOD. This may be a problem.
