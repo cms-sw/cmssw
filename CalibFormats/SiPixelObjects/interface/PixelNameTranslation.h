@@ -59,10 +59,10 @@ namespace pos{
     const PixelHdwAddress& getHdwAddress(const PixelChannel& aChannel) const;
     const PixelHdwAddress& firstHdwAddress(const PixelModuleName& aModule) const;
     
-    const bool PixelNameTranslation::checkFor(const PixelROCName& aROC) const ; 
+    const bool checkFor(const PixelROCName& aROC) const ; 
 
     // Added for Debbie (used there only) to allow integrity checks (Dario)
-    bool PixelNameTranslation::checkROCExistence(const PixelROCName& aROC) const ;
+    bool checkROCExistence(const PixelROCName& aROC) const ;
  
     const PixelChannel& getChannelForROC(const PixelROCName& aROC) const;
     std::set< PixelChannel > getChannelsOnModule(const PixelModuleName& aModule) const;

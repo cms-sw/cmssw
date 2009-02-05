@@ -57,7 +57,7 @@ namespace pos{
     std::set< std::string > portcards(const PixelDetectorConfig* detconfig=0);
 
     // Added by Dario for Debbie (the PixelPortcardMap::portcards is way to slow for the interactive tool)
-    bool PixelPortcardMap::getName(std::string moduleName, std::string &portcardName) ;
+    bool getName(std::string moduleName, std::string &portcardName) ;
 
     virtual void writeASCII(std::string dir) const;
     void 	 writeXML(        pos::PixelConfigKey key, int version, std::string path) const {;}
