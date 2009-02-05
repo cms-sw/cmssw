@@ -53,7 +53,7 @@ void CSCTFAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c){
 		if( dtStubs.isValid() ){
 			std::vector<csctf::TrackStub> vstubs = dtStubs->get();
 			for(std::vector<csctf::TrackStub>::const_iterator stub=vstubs.begin(); stub!=vstubs.end(); stub++){
-				edm::LogInfo("CSCTFAnalyzer")<<"   DT data: tbin="<<stub->BX()<<" sector="<<stub->sector()<<" station="<<stub->station()
+				edm::LogInfo("CSCTFAnalyzer")<<"   DT data: tbin="<<stub->BX()<<" CSC sector="<<stub->sector()<<" CSC subsector"<<stub->subsector()<<" station="<<stub->station()
 					<<" phi="<<stub->phiPacked()<<" phiBend="<<stub->getBend()<<" quality="<<stub->getQuality()<<" mb_bxn="<<stub->cscid();
 			}
 		}
