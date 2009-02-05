@@ -2,6 +2,8 @@
 <use name=DataFormats/MuonDetId>
 <use name=DataFormats/RPCDigi>
 <use name=SimDataFormats/Track>
+<use name=Validation/MuonRPCGeometry>
+
 <library file="*.cc" name=ValidationMuonRPCGeometryPlugins>
 <flags EDM_PLUGIN=1>
 </library>

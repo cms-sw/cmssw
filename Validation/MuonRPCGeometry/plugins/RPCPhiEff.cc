@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Fruboes
 //         Created:  Wed Mar  7 08:31:57 CET 2007
-// $Id$
+// $Id: RPCPhiEff.cc,v 1.1 2009/01/26 13:07:12 fruboes Exp $
 //
 //
 
@@ -26,7 +26,6 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -42,6 +41,7 @@
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
 
 #include "DataFormats/Math/interface/LorentzVector.h"
+#include "Validation/MuonRPCGeometry/plugins/RPCPhiEff.h"
 
 #include <iostream>
 #include <set>
@@ -50,41 +50,6 @@
 
 #include "L1Trigger/RPCTrigger/interface/RPCConst.h"
 
-//
-// class decleration
-//
-
-class RPCPhiEff:public edm::EDAnalyzer {
-  public:
-    explicit RPCPhiEff(const edm::ParameterSet &);
-    ~RPCPhiEff();
-
-
-  private:
-    virtual void beginJob(const edm::EventSetup &);
-    virtual void analyze(const edm::Event &, const edm::EventSetup &);
-    std::string fromCones(const edm::Event & iEvent);
-    std::string fromRaw(const edm::Event & iEvent);
-    virtual void endJob();
-    std::ofstream m_outfileC;
-    std::ofstream m_outfileR;
-
-    // ----------member data ---------------------------
-
-
-    RPCTriggerGeo m_theLinksystem;
-    RPCConst rpcconst;
-    //L1MuTriggerScales m_scales;
-    edm::InputTag m_rpcb;
-    edm::InputTag m_rpcf;
-    edm::InputTag m_g4;
-    edm::InputTag m_rpcdigi;
-
-    RPCConst m_const;
-
-
-
-};
 
 //
 // constants, enums and typedefs
@@ -411,5 +376,3 @@ void RPCPhiEff::endJob()
 {
 }
 
-//define this as a plug-in
-DEFINE_FWK_MODULE(RPCPhiEff);

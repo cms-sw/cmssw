@@ -19,6 +19,9 @@
 #include <Geometry/CommonTopologies/interface/RectangularStripTopology.h>
 #include <Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h>
 
+
+#include "Validation/MuonRPCGeometry/plugins/RPCGeometryServTest.h"
+
 #include <string>
 #include <cmath>
 #include <vector>
@@ -28,26 +31,6 @@
 
 using namespace std;
 
-class RPCGeometryServTest : public edm::EDAnalyzer {
-
- public: 
-  RPCGeometryServTest( const edm::ParameterSet& pset);
-
-  ~RPCGeometryServTest();
-
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
- 
-  const std::string& myName() { return myName_;}
-
- private: 
-
-  const int dashedLineWidth_;
-  const std::string dashedLine_;
-  const std::string myName_;
-  std::map<int, std::pair<double, double> > barzranges;
-  std::map<int, std::pair<double, double> > forRranges;
-  std::map<int, std::pair<double, double> > bacRranges;
-};
 
 RPCGeometryServTest::RPCGeometryServTest( const edm::ParameterSet& iConfig )
   : dashedLineWidth_(104), dashedLine_( std::string(dashedLineWidth_, '-') ), 
@@ -186,6 +169,3 @@ RPCGeometryServTest::analyze( const edm::Event& iEvent, const edm::EventSetup& i
   std::cout << dashedLine_ << " end" << std::endl;
 }
 
-//define this as a plug-in
-#include <FWCore/Framework/interface/MakerMacros.h>
-DEFINE_FWK_MODULE(RPCGeometryServTest);

@@ -120,9 +120,10 @@ void RPCHistos::go(){
  std::cout << "Readout start" << std::endl;
  int count=0;
  while (1){
-    if ((++count)%1000==0)
+    if ((++count)%20000==0)
       std::cout << " Read: " << count << std::endl;
 
+    if ( count==1000000) break;
    // -1.01966 -1.67928 99.9912 7 34 31 2
 
    /*      
@@ -284,7 +285,8 @@ void RPCHistos::rateVsPt(){
 
   for (int ptCut = 0; ptCut <= 31; ++ptCut){
      double arate = 0; 
-     for (int tower = 0; tower < 17; ++tower){
+     //for (int tower = 0; tower < 17; ++tower){
+     for (int tower = 0; tower < 13; ++tower){
        TH1D *cur = drawActCurv(ptCut,tower,tower);
        for (int i=2; i <= RPCConst::m_PT_CODE_MAX+1; ++i){
          double cont = cur->GetBinContent(i);
@@ -293,6 +295,7 @@ void RPCHistos::rateVsPt(){
        }
        delete cur;
      }
+    std::cout << "TT " << ptCut << " " << arate << std::endl; 
     th1rate->SetBinContent (ptCut+1, arate);
 
   }
@@ -550,8 +553,8 @@ int main(){
  rh.eff();
  rh.phiEff();
  rh.etaCorr();
-// rh.rateVsPt();
-// rh.drawActCurv(0,7);
-// rh.drawActCurv(8,16);
+ rh.rateVsPt();
+ rh.drawActCurv(0,7);
+ rh.drawActCurv(8,12);
  return 0;
 }
