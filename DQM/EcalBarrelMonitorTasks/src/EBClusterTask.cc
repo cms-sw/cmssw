@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2008/12/03 10:28:10 $
- * $Revision: 1.67 $
+ * $Date: 2008/12/03 12:55:49 $
+ * $Revision: 1.68 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -437,7 +437,7 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
     for ( BasicClusterCollection::const_iterator bCluster = pBasicClusters->begin(); bCluster != pBasicClusters->end(); ++bCluster ) {
 
       meBCEne_->Fill(bCluster->energy());
-      meBCSiz_->Fill(float(bCluster->getHitsByDetId().size()));
+      meBCSiz_->Fill(float(bCluster->size()));
 
       float xphi = bCluster->phi();
       if ( xphi > M_PI*(9-1.5)/9 ) xphi = xphi - M_PI*2;
@@ -450,9 +450,9 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
       meBCNumMapProjEta_->Fill(bCluster->eta());
       meBCNumMapProjPhi_->Fill(xphi);
 
-      meBCSizMap_->Fill(xphi, bCluster->eta(), float(bCluster->getHitsByDetId().size()));
-      meBCSizMapProjEta_->Fill(bCluster->eta(), float(bCluster->getHitsByDetId().size()));
-      meBCSizMapProjPhi_->Fill(xphi, float(bCluster->getHitsByDetId().size()));
+      meBCSizMap_->Fill(xphi, bCluster->eta(), float(bCluster->size()));
+      meBCSizMapProjEta_->Fill(bCluster->eta(), float(bCluster->size()));
+      meBCSizMapProjPhi_->Fill(xphi, float(bCluster->size()));
 
       meBCETMap_->Fill(xphi, bCluster->eta(), float(bCluster->energy()) * sin(bCluster->position().theta()));
       meBCETMapProjEta_->Fill(bCluster->eta(), float(bCluster->energy()) * sin(bCluster->position().theta()));
