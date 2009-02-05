@@ -4,8 +4,8 @@
  *  The update method is called each event in order to update the
  *  pointers.
  *
- *  $Date: 2008/02/13 13:53:55 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/02/14 10:23:27 $
+ *  $Revision: 1.15 $
  *  \author N. Amapane - CERN <nicola.amapane@cern.ch>
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -114,7 +114,6 @@ void MuonServiceProxy::update(const edm::EventSetup& setup){
   }
   
   // Propagators
-  theChangeInTrackingComponentsRecord = false;
   unsigned long long newCacheId_P = setup.get<TrackingComponentsRecord>().cacheIdentifier();
   if ( newCacheId_P != theCacheId_P ) {
     LogTrace(metname) << "Tracking Component changed!";
@@ -124,6 +123,9 @@ void MuonServiceProxy::update(const edm::EventSetup& setup){
 	++prop)
       setup.get<TrackingComponentsRecord>().get( prop->first , prop->second );
   }
+  else
+    theChangeInTrackingComponentsRecord = false;
+
 }
 
 // get the propagator
