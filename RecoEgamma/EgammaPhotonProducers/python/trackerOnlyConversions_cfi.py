@@ -1,21 +1,32 @@
 import FWCore.ParameterSet.Config as cms
 
 trackerOnlyConversions = cms.EDProducer('TrackerOnlyConversionProducer',
+    #src = cms.VInputTag(cms.InputTag("generalTracks"), cms.InputTag("secStep"), cms.InputTag("thStep")),
     src = cms.VInputTag(cms.InputTag("generalTracks")),
     convertedPhotonCollection = cms.string(''), ## or empty
 
     bcEndcapCollection = cms.InputTag("multi5x5BasicClusters","multi5x5EndcapBasicClusters"),
     bcBarrelCollection = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters"),
 
-    HalfwayEta = cms.double(.1),
-    dEtaTrackBC = cms.double(.06),
-    dPhiTrackBC = cms.double(.6),
-    EnergyBC = cms.double(1.5),
-    MaxChi2Left = cms.double(30.),
-    MaxChi2Right = cms.double(30.),
+    HalfwayEta = cms.double(.1),# Track pairing search range on Eta
+    d0 = cms.double(0.), #d0*charge cut
+    dEtaTrackBC = cms.double(.06), # Track-Basic cluster matching, position diff on eta
+    dPhiTrackBC = cms.double(.6), # Track-Basic cluster matching, position diff on phi
+    EnergyBC = cms.double(1.5), # Track-Basic cluster matching, BC energy lower cut
+    EnergyTotalBC = cms.double(5.), # Track-Basic cluster matching, two BC energy summation cut
+    MaxChi2Left = cms.double(5.), #Track quality
+    MaxChi2Right = cms.double(5.),
     MaxHitsLeft = cms.int32(5),
     MaxHitsRight = cms.int32(2),
-    DeltaCotTheta = cms.double(.02),
-    DeltaPhi = cms.double(.2),
-    AllowSingleLeg = cms.bool(True)
+    DeltaCotTheta = cms.double(.02), #Track pair opening angle on R-Z
+    DeltaPhi = cms.double(.2), #Track pair opening angle on X-Y (not a final selection cut)
+    MinApproach = cms.double(-.05), #Track pair min distance at approaching point on X-Y
+    
+    AllowD0 = cms.bool(True), #Allow d0*charge cut
+    AllowTrackBC = cms.bool(True), #Allow to match track-basic cluster
+    AllowDeltaCot = cms.bool(True), #Allow pairing using delta cot theta cut
+    AllowMinApproach = cms.bool(True), #Allow pairing using min approach cut
+    AllowOppCharge = cms.bool(True), #use opposite charge tracks to pair
+    AllowSingleLeg = cms.bool(False), #Allow single track conversion
+    AllowRightBC = cms.bool(True) #Require second leg matching basic cluster
 )
