@@ -1,8 +1,8 @@
 /** \class DirectMuonTrajectoryBuilder
  *  Class which takes a trajectory seed and fit its hits, returning a Trajectory container
  *
- *  $Date: 2008/02/04 14:58:52 $
- *  $Revision: 1.21 $
+ *  $Date: 2008/10/06 13:09:52 $
+ *  $Revision: 1.1 $
  *  \author
  */
 
@@ -129,7 +129,9 @@ DirectMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
 
 MuonTrajectoryBuilder::CandidateContainer 
 DirectMuonTrajectoryBuilder::trajectories(const TrackCand&)
-{}
+{
+  return MuonTrajectoryBuilder::CandidateContainer();
+}
 
 
 
