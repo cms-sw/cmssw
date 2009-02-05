@@ -69,7 +69,7 @@ caloRecHits = cms.EDProducer("CaloRecHitsProducer",
     )
 )
 
-simHcalTriggerPrimitiveDigis.inputLabel = 'caloRecHits'
+simHcalTriggerPrimitiveDigis.inputLabel = cms.VInputTag(cms.InputTag('caloRecHits'),cms.InputTag('caloRecHits'))
 simHcalTriggerPrimitiveDigis.peakFilter = False
 simEcalTriggerPrimitiveDigis.Famos = True
 simEcalTriggerPrimitiveDigis.Label = 'caloRecHits'
