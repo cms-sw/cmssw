@@ -28,18 +28,18 @@ web_page
   <<"<title>"<<val_new_release<<" vs "<<val_ref_release<<"<br>"<<DBS_SAMPLE<<"</title>\n"
   <<"</head>\n"
   <<"<h1>"<<val_new_release<<" vs "<<val_ref_release<<"<br>"<<DBS_SAMPLE<<"</h1>\n"
-	<<"<p>The following plots were made using analyzer "
-	<<"<a href=\"http://cmslxr.fnal.gov/lxr/source/RecoEgamma/Examples/plugins/"<<val_analyzer<<".cc\">"
-	<<"RecoEgamma/Examples/plugins/"<<val_analyzer<<".cc"
-	<<"</a>\n"
-	<<"and configuration "
-	<<"<a href=\"http://cmslxr.fnal.gov/lxr/source/RecoEgamma/Examples/test/"<<val_analyzer<<"_cfg.py\">"
-	<<"RecoEgamma/Examples/test/"<<val_analyzer<<"_cfg.py"
-	<<"</a>, with dataset "<<DBS_SAMPLE<<" as input.\n"
-	<<"<p>The script used to make the plots is "
-	<<"<a href=\"newvalidation.C\">here</a>.\n"
-	<<"<p>The list of histograms is <a href=\"histos.txt\">here</a>.\n" ;
-	
+  <<"<p>The following plots were made using analyzer "
+  <<"<a href=\"http://cmslxr.fnal.gov/lxr/source/RecoEgamma/Examples/plugins/"<<val_analyzer<<".cc\">"
+  <<"RecoEgamma/Examples/plugins/"<<val_analyzer<<".cc"
+  <<"</a>\n"
+  <<"and configuration "
+  <<"<a href=\"http://cmslxr.fnal.gov/lxr/source/RecoEgamma/Examples/test/"<<val_analyzer<<"_cfg.py\">"
+  <<"RecoEgamma/Examples/test/"<<val_analyzer<<"_cfg.py"
+  <<"</a>, with dataset "<<DBS_SAMPLE<<" as input.\n"
+  <<"<p>The script used to make the plots is "
+  <<"<a href=\"newvalidation.C\">here</a>.\n"
+  <<"<p>The list of histograms is <a href=\"histos.txt\">here</a>.\n" ;
+
 if (file_old==0)
  {
   web_page
@@ -66,7 +66,7 @@ while (histo_file>>histo_name>>scaled)
   canvas = new TCanvas(canvas_name.c_str()) ;
   canvas->SetFillColor(10) ;
   web_page<<"<br><br><p>" ;
-	
+
   if ( file_old != 0 )
    {
 	histo_old = (TH1 *)file_old->Get(histo_name.c_str()) ;
@@ -81,7 +81,7 @@ while (histo_file>>histo_name>>scaled)
       web_page<<"No <b>"<<histo_name<<"</b> for "<<val_ref_release<<".<br>" ;
      }
    }
-	
+
   histo_new = (TH1 *)file_new->Get(histo_name.c_str()) ;
   if (histo_new!=0)
    {
@@ -113,5 +113,5 @@ while (histo_file>>histo_name>>scaled)
 
 web_page<<"\n</html>"<<std::endl ;
 web_page.close() ;
- 
+
 }

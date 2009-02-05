@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronSeedProducer.cc,v 1.27 2008/12/13 18:31:48 charlot Exp $
+// $Id: ElectronSeedProducer.cc,v 1.1 2009/01/12 16:45:53 chamont Exp $
 //
 //
 
@@ -106,7 +106,6 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
     theInitialSeedColl=0;// not needed in this case
 
   ElectronSeedCollection *seeds= new ElectronSeedCollection;
-  std::auto_ptr<ElectronSeedCollection> pSeeds;
 
   calc_=HoECalculator(theCaloGeom);
 
@@ -124,7 +123,7 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
   }
 
   // store the accumulated result
-  pSeeds = std::auto_ptr<ElectronSeedCollection>(seeds) ;
+  std::auto_ptr<ElectronSeedCollection> pSeeds(seeds) ;
   ElectronSeedCollection::iterator is ;
   for ( is=pSeeds->begin() ; is!=pSeeds->end() ; is++ )
    {
