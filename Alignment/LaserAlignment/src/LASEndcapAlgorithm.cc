@@ -40,7 +40,8 @@ LASEndcapAlignmentParameterSet LASEndcapAlgorithm::CalculateParameters( LASGloba
 
   // vector containing the phi positions of the beam in rad;
   // outer vector: TEC+/-, inner vector: 8 beams
-  const double phiPositions[8] = { 0.3927, 1.1781, 1.9635, 2.74889, 3.53429, 4.31969, 5.10509, 5.89049 }; // NOT YET TO FULL PRECISION...
+  const double phiPositions[8] = { 0.392699, 1.178097, 1.963495, 2.748894, 3.534292, 4.319690, 5.105088, 5.890486 }; // new values calculated by maple
+  //  const double phiPositions[8] = { 0.3927, 1.1781, 1.9635, 2.74889, 3.53429, 4.31969, 5.10509, 5.89049 }; // NOT YET TO FULL PRECISION...
   std::vector<std::vector<double> > beamPhiPositions( 2, std::vector<double>( 8, 0. ) );
   for( det = 0; det < 2; ++ det ) {
     for( beam = 0; beam < 8; ++beam ) {

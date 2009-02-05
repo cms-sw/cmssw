@@ -4,8 +4,8 @@
 /** \class LaserAlignment
  *  Main reconstruction module for the Laser Alignment System
  *
- *  $Date: 2008/11/28 12:38:31 $
- *  $Revision: 1.18 $
+ *  $Date: 2009/01/14 16:47:54 $
+ *  $Revision: 1.19 $
  *  \author Maarten Thomas
  */
 
@@ -17,10 +17,10 @@
 
 #include "Alignment/LaserAlignment/interface/BeamProfileFitter.h"
 
-#include "Alignment/LaserAlignment/interface/LaserAlignmentPosTEC.h"
-#include "Alignment/LaserAlignment/interface/LaserAlignmentNegTEC.h"
-#include "Alignment/LaserAlignment/interface/LaserAlignmentTEC2TEC.h"
-#include "Alignment/LaserAlignment/interface/AlignmentAlgorithmBW.h"
+//#include "Alignment/LaserAlignment/interface/LaserAlignmentPosTEC.h"
+//#include "Alignment/LaserAlignment/interface/LaserAlignmentNegTEC.h"
+//#include "Alignment/LaserAlignment/interface/LaserAlignmentTEC2TEC.h"
+//#include "Alignment/LaserAlignment/interface/AlignmentAlgorithmBW.h"
 
 #include "Alignment/LaserAlignment/interface/LASvector.h"
 #include "Alignment/LaserAlignment/interface/LASvector2D.h"
@@ -29,6 +29,8 @@
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
+
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
@@ -107,12 +109,6 @@ class LaserAlignment : public edm::EDProducer, public TObject {
   /// write the ROOT file with histograms
   void closeRootFile();
 
-//   /// fill adc counts from the laser profiles into a histogram
-//   void fillAdcCounts(TH1D * theHistogram, DetId theDetId,
-//    		     edm::DetSet<SiStripRawDigi>::const_iterator digiRangeIterator,
-//    		     edm::DetSet<SiStripRawDigi>::const_iterator digiRangeIteratorEnd,
-// 		     LASModuleProfile& theProfile );
-  
   /// initialize the histograms
   void initHistograms();
 
@@ -127,18 +123,9 @@ class LaserAlignment : public edm::EDProducer, public TObject {
   bool isATBeam( void );
 
   // return the approximate beam position offset in TOB for the profileJudge
-  int getTOBProfileOffset( int det, int beam, int pos );
+  double getTIBTOBProfileOffset( int det, int beam, int pos );
   
-  /// search for dets which are hit by a laser beam and fill the profiles into a histogram
-    //  void trackerStatistics(edm::Event const& theEvent, edm::EventSetup const& theSetup);
 
-  /// do the beam profile fit
-  void fit(edm::EventSetup const& theSetup);
-
-  /// calculate alignment corrections
-  void alignmentAlgorithm(edm::ParameterSet const& theAlgorithmConf, 
-			  AlignableTracker * theAlignableTracker);
-    
 
  private:
 
@@ -168,8 +155,6 @@ class LaserAlignment : public edm::EDProducer, public TObject {
   int theNEventsPerLaserIntensity;
   int theNEventsForAllIntensities;
   int theDoAlignmentAfterNEvents;
-  bool theAlignPosTEC;
-  bool theAlignNegTEC;
   bool theAlignTEC2TEC;
   bool theIsGoodFit;
   double theSearchPhiTIB;
@@ -261,12 +246,10 @@ class LaserAlignment : public edm::EDProducer, public TObject {
   BeamProfileFitter * theBeamFitter;
 
   // the alignable Tracker parts
-  LaserAlignmentPosTEC * theLASAlignPosTEC;
-  LaserAlignmentNegTEC * theLASAlignNegTEC;
-  LaserAlignmentTEC2TEC * theLASAlignTEC2TEC;
+  //  LaserAlignmentTEC2TEC * theLASAlignTEC2TEC;
 
   /// Bruno's alignment algorithm
-  AlignmentAlgorithmBW * theAlignmentAlgorithmBW;
+  //  AlignmentAlgorithmBW * theAlignmentAlgorithmBW;
   /// use the BS frame in the alignment algorithm (i.e. BS at z = 0)
   bool theUseBSFrame;
 

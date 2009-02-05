@@ -29,13 +29,16 @@ LASProfileJudge::LASProfileJudge() {
 /// i.e. contains a visible signal or is even distorted by too high laser amplitude.
 /// This method doesn't care if the profile is usable for analysis.
 ///
-bool LASProfileJudge::IsSignalIn( const LASModuleProfile& aProfile, int offset ) {
+bool LASProfileJudge::IsSignalIn( const LASModuleProfile& aProfile, double offset ) {
 
   profile = aProfile;
   
-  double negativity = GetNegativity( offset );
-  bool isPeaks = IsPeaksInProfile( offset );
-  bool isNegativePeaks = IsNegativePeaksInProfile( offset );
+  // need only approx values, so cast here to use integers throughout
+  const int approxOffset = static_cast<int>( offset );
+
+  double negativity = GetNegativity( approxOffset );
+  bool isPeaks = IsPeaksInProfile( approxOffset );
+  bool isNegativePeaks = IsNegativePeaksInProfile( approxOffset );
   
   bool result = 
     ( negativity < -1000. ) ||  // if we see negativity, there was laser..
@@ -55,18 +58,21 @@ bool LASProfileJudge::IsSignalIn( const LASModuleProfile& aProfile, int offset )
 /// Check if a LASModuleProfile is usable for being stored,
 /// i.e. contains a visible signal & no baseline distortions
 ///
-bool LASProfileJudge::JudgeProfile( const LASModuleProfile& aProfile, int offset = 0 ) {
+bool LASProfileJudge::JudgeProfile( const LASModuleProfile& aProfile, double offset = 0. ) {
 
   profile = aProfile;
-  
+
+  // need only approx values, so cast here to use integers throughout
+  const int approxOffset = static_cast<int>( offset );
+
   // run the tests
-  double negativity = GetNegativity( offset );
+  double negativity = GetNegativity( approxOffset );
 
   bool isPeaks;
   if( !isZeroFilter ) isPeaks = true; // disable this test if set in cfg
-  else isPeaks = IsPeaksInProfile( offset );
+  else isPeaks = IsPeaksInProfile( approxOffset );
 
-  bool isNegativePeaks = IsNegativePeaksInProfile( offset );
+  bool isNegativePeaks = IsNegativePeaksInProfile( approxOffset );
 
   bool result = 
     ( negativity > -1000. ) &&  // < 1000. = distorted profile
@@ -116,6 +122,7 @@ double LASProfileJudge::GetNegativity( int offset ) {
 
   double neg = 0;
   
+  // need only x values, so cast here
   for( unsigned int i = meanPosition - sumHalfRange; i < meanPosition - halfWindowSize; ++i ) {
     neg += profile.GetValue( i );
   }

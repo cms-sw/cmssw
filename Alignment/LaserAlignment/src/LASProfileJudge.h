@@ -16,8 +16,8 @@ class LASProfileJudge {
 
  public:
   LASProfileJudge();
-  bool IsSignalIn( const LASModuleProfile&, int );
-  bool JudgeProfile( const LASModuleProfile&, int );
+  bool IsSignalIn( const LASModuleProfile&, double );
+  bool JudgeProfile( const LASModuleProfile&, double );
   void EnableZeroFilter( bool );
 
  private:

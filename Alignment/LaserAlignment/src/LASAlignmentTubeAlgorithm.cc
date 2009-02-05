@@ -133,11 +133,10 @@ LASBarrelAlignmentParameterSet LASAlignmentTubeAlgorithm::CalculateParameters( L
     beamReducedZ[0] /= ( disk9EndFaceZPositions.at( 1 ) - disk9EndFaceZPositions.at( 0 ) );
     beamReducedZ[1] = disk9EndFaceZPositions.at( 1 ) - ( measuredCoordinates.GetTIBTOBEntry( det, beam, pos ).GetZ() - radialOffset ); // ZTPrimePrime
     beamReducedZ[1] /= ( disk9EndFaceZPositions.at( 1 ) - disk9EndFaceZPositions.at( 0 ) );
-    
 
     // residual in phi (in the formulas this corresponds to y_ik/R)
     const double phiResidual = measuredCoordinates.GetTIBTOBEntry( det, beam, pos ).GetPhi() - nominalCoordinates.GetTIBTOBEntry( det, beam, pos ).GetPhi();
-
+    std::cout << "111111111111 det: " << det << " beam: " << beam << " pos: " << pos << " -- RES: " << phiResidual << std::endl; /////////////////////////////////////////////////////////////////////////////
     // sums over measured values
     sumOverPhiZPrime.at( halfbarrel )               += phiResidual * detReducedZ[0];
     sumOverPhiZPrimePrime.at( halfbarrel )          += phiResidual * detReducedZ[1];
@@ -198,6 +197,7 @@ LASBarrelAlignmentParameterSet LASAlignmentTubeAlgorithm::CalculateParameters( L
 
     // residual in phi (in the formulas this corresponds to y_ik/R)
     const double phiResidual = measuredCoordinates.GetTEC2TECEntry( det, beam, disk ).GetPhi() - nominalCoordinates.GetTEC2TECEntry( det, beam, disk ).GetPhi();
+    std::cout << "111111111111 det: " << det << " beam: " << beam << " disk: " << disk << " -- RES: " << phiResidual << std::endl; //////////////////////////////////////////////////////////////////
 
     // sums over measured values
     sumOverPhiZPrime.at( halfbarrel )               += phiResidual * detReducedZ[0];
@@ -277,6 +277,9 @@ LASBarrelAlignmentParameterSet LASAlignmentTubeAlgorithm::CalculateParameters( L
 
   // can do this in one go for all halfbarrels
   for( int aHalfbarrel = 0; aHalfbarrel < 6; ++aHalfbarrel ) {
+
+
+    // no errors yet
 
     // rotation angles of the lower z endfaces (in rad)
     theResult.GetParameter( aHalfbarrel, 0, 0 ).first = ( sumOverPhiZPrime.at( aHalfbarrel ) * sumOverZPrimeZPrimePrime.at( aHalfbarrel ) * sumOverCosThetaSquared * sumOverSinThetaSquared

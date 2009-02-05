@@ -17,7 +17,7 @@ LASPeakFinder::LASPeakFinder() {
 /// the pair<> will return mean/meanError (in strips);
 /// offset is necessary for tob modules which are hit off-center
 ///
-bool LASPeakFinder::FindPeakIn( const LASModuleProfile& aProfile, std::pair<double,double>& result, const int offset ) {
+bool LASPeakFinder::FindPeakIn( const LASModuleProfile& aProfile, std::pair<double,double>& result, const double offset ) {
 
   TH1D* histogram = new TH1D( "bufferHistogram", "bufferHistogram", 512, 0, 512 );
   TF1* fitFunction = new TF1( "fitFunction", "gaus" );
@@ -25,8 +25,12 @@ bool LASPeakFinder::FindPeakIn( const LASModuleProfile& aProfile, std::pair<doub
   std::pair<int,double> largestAmplitude( 0, 0. ); // strip, amplitude
   double anAmplitude = 0.;
 
+  // need approximate position -> cast to int
+  const int approxOffset = static_cast<int>( offset );
+
   // expected beam position (in strips)
-  const unsigned int meanPosition = 256. + offset;
+  const unsigned int meanPosition = 256 + approxOffset;
+
   // backplane "alignment hole" approx. half size (in strips)
   const unsigned int halfWindowSize = 33;
 
