@@ -291,9 +291,11 @@ void PFTauElecRejectionBenchmark::process(Handle<HepMCProduct> mcevt, Handle<rec
 		      hEmfrac_endcap->Fill((*thePFTau).emFraction());
 		    }
 
-		    hElecMVA->Fill((*thePFTau).electronPreIDOutput());
-		    hElecPreID->Fill((*thePFTau).electronPreIDDecision());
-		    hTauElecDiscriminant->Fill((*pfTauElecDiscr)[thePFTau]);
+		    // if -999 fill in -1 bin!
+		    if ((*thePFTau).electronPreIDOutput()<-1)
+		      hElecMVA->Fill(-1);
+		    else
+		      hElecMVA->Fill((*thePFTau).electronPreIDOutput());
 
 		    hHoPvsEoP->Fill((*thePFTau).ecalStripSumEOverPLead(),(*thePFTau).hcal3x3OverPLead());
 		    hEmfracvsEoP->Fill((*thePFTau).emFraction(),(*thePFTau).hcal3x3OverPLead());
