@@ -281,7 +281,7 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
   //Use the electron rejection only in case there is a charged leading pion
   if(myleadPFChargedCand.isNonnull()){
     // A continous ore discrete mva depends on if usePFElectrons is set TRUE or FALSE!!!
-    myPFTau.setelectronPreIDOutput(myleadPFCand->mva_e_pi());// particleFlow.usePFElectrons = cms.bool(True)
+    myPFTau.setelectronPreIDOutput(myleadPFChargedCand->mva_e_pi());// particleFlow.usePFElectrons = cms.bool(True)
     if (myleadPFChargedCand->mva_e_pi()==1) {// particleFlow.usePFElectrons = cms.bool(False)
       myElecPreid = true;
     }
