@@ -73,18 +73,19 @@ process.famosPileUp.PileUpSimulator.averageNumber = 0.0
 process.GlobalTag.globaltag = "IDEAL_30X::All"
 
 
-# Apply ECAL and HCAL miscalibration 
-process.caloRecHits.RecHitsFactory.doMiscalib = False
-
 # Apply Tracker misalignment
 process.famosSimHits.ApplyAlignment = True
 process.misalignedTrackerGeometry.applyAlignment = True
 
 # Apply HCAL miscalibration (not ideal in that case).
 # Choose between hcalmiscalib_startup.xml , hcalmiscalib_1pb.xml , hcalmiscalib_10pb.xml (startup is the default)
-process.caloRecHits.RecHitsFactory.HCAL.Refactor = 1.0
-process.caloRecHits.RecHitsFactory.HCAL.Refactor_mean = 1.0
-#process.caloRecHits.RecHitsFactory.HCAL.fileNameHcal = "hcalmiscalib_startup.xml"
+process.hbhereco.RecHitsFactory.HCAL.Refactor = 1.0
+process.hbhereco.RecHitsFactory.HCAL.Refactor_mean = 1.0
+process.horeco.RecHitsFactory.HCAL.Refactor = 1.0
+process.horeco.RecHitsFactory.HCAL.Refactor_mean = 1.0
+process.hfreco.RecHitsFactory.HCAL.Refactor = 1.0
+process.hfreco.RecHitsFactory.HCAL.Refactor_mean = 1.0
+
 
 
 # Note : if your process is not called HLT, you have to change that! 

@@ -27,7 +27,10 @@ rctDigis.hcalDigisLabel = 'simHcalTriggerPrimitiveDigis'
 
 # The calorimeter emulator requires doDigis=true)
 from FastSimulation.CaloRecHitsProducer.CaloRecHits_cff import *
-caloRecHits.RecHitsFactory.doDigis = True
+ecalRecHit.doDigis = True
+hbhereco.doDigis = True
+hfreco.doDigis = True
+horeco.doDigis = True
 
 # The parameterized L1 Muons (much faster than the L1 emulator)
 from FastSimulation.Muons.L1Muons_cfi import *

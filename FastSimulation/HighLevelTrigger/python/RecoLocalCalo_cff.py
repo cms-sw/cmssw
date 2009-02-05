@@ -15,15 +15,15 @@ hltEcalRegionalPi0RecHit = FastSimulation.CaloRecHitsProducer.CaloRecHitCopy_cfi
 
 hltEcalPreshowerRecHit.OutputRecHitCollections = ['EcalRecHitsES']
 hltEcalPreshowerRecHit.InputRecHitCollectionTypes = [1]
-hltEcalPreshowerRecHit.InputRecHitCollections = cms.VInputTag(cms.InputTag("caloRecHits","EcalRecHitsES"))
+hltEcalPreshowerRecHit.InputRecHitCollections = cms.VInputTag(cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES"))
 hltHbhereco.OutputRecHitCollections = ['none']
 hltHbhereco.InputRecHitCollectionTypes = [4]
-hltHbhereco.InputRecHitCollections = ['caloRecHits']
+hltHbhereco.InputRecHitCollections = ['hbhereco']
 hltHoreco.OutputRecHitCollections = ['none']
 hltHoreco.InputRecHitCollectionTypes = [5]
-hltHoreco.InputRecHitCollections = ['caloRecHits']
+hltHoreco.InputRecHitCollections = ['horeco']
 hltHfreco.OutputRecHitCollections = ['none']
 hltHfreco.InputRecHitCollectionTypes = [6]
-hltHfreco.InputRecHitCollections = ['caloRecHits']
+hltHfreco.InputRecHitCollections = ['hfreco']
 
 

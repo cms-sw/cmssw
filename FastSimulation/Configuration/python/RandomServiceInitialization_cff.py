@@ -50,11 +50,31 @@ RandomNumberGeneratorService = cms.Service(
         engineName = cms.untracked.string('TRandom3')
     ),
 
-    caloRecHits = cms.PSet(
+    ecalRecHit = cms.PSet(
         initialSeed = cms.untracked.uint32(654321),
         engineName = cms.untracked.string('TRandom3')
     ),
 
+    ecalPreshowerRecHit = cms.PSet(
+        initialSeed = cms.untracked.uint32(6541321),
+        engineName = cms.untracked.string('TRandom3')
+    ),
+
+    hbhereco = cms.PSet(
+    initialSeed = cms.untracked.uint32(541321),
+    engineName = cms.untracked.string('TRandom3')
+    ),
+
+    horeco = cms.PSet(
+    initialSeed = cms.untracked.uint32(541321),
+    engineName = cms.untracked.string('TRandom3')
+    ),
+
+    hfreco = cms.PSet(
+    initialSeed = cms.untracked.uint32(541321),
+    engineName = cms.untracked.string('TRandom3')
+    ),
+    
     paramMuons = cms.PSet(
         initialSeed = cms.untracked.uint32(54525),
         engineName = cms.untracked.string('TRandom3')

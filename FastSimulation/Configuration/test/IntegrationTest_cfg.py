@@ -33,7 +33,10 @@ process.famosSimHits.SimulateTracking = True
 process.GlobalTag.globaltag = "STARTUP_30X::All"
 
 # Apply ECAL miscalibration
-process.caloRecHits.RecHitsFactory.doMiscalib = True
+process.ecalRecHit.doMiscalib = True
+process.hbhereco.doMiscalib = True
+process.horeco.doMiscalib = True
+process.hfreco.doMiscalib = True
 
 # Apply Tracker misalignment
 process.famosSimHits.ApplyAlignment = True
