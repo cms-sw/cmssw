@@ -123,7 +123,7 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset) {
   title=" ";
   jsfilename="CommonTools/TrackerMap/data/trackermap.txt";
   infilename="CommonTools/TrackerMap/data/tracker.dat";
-  enableFedProcessing=false;ncrates=0;
+  enableFedProcessing=true;ncrates=0;
   saveAsSingleLayer=false;
   if(tkmapPset.exists("trackermaptxtPath")){
   jsfilename=tkmapPset.getUntrackedParameter<std::string>("trackermaptxtPath","")+"trackermap.txt";
@@ -797,26 +797,30 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
 void TrackerMap::load(string inputfilename){
   inputfile = new ifstream(inputfilename.c_str(),ios::in);
   string line,value;
-  int ipos,id,val;
+  int ipos,ipos1,ipos2,id,val;
+  int nline=0;
   while (getline( *inputfile, line ))
         {
-        ipos = line.find("value=\"");
-        if(ipos > 0)      {
-             value = line.substr(ipos+7,10);
+        ipos1 = line.find("value=\"");
+        if(ipos1 > 0)      {
+             value = line.substr(ipos1+7,10);
              ipos = value.find("\"");
              value = value.substr(0,ipos); 
              val=atoi(value.c_str());
              }
-        ipos = line.find("detid=\"");
-        if(ipos > 0)      {
-             value = line.substr(ipos+7,10);
+        ipos2 = line.find("detid=\"");
+        if(ipos2 > 0)      {
+             value = line.substr(ipos2+7,10);
              ipos = value.find("\"");
              value = value.substr(0,ipos); 
              id = atoi(value.c_str());
              }
-        if(val>0)this->fill(id,val);
+        if(ipos1>0 && ipos2>0 && val>0)this->fill(id,val);
+        if(ipos1>0 && ipos2>0>0)nline++;
+        //if(ipos1>0 && ipos2>0)cout << nline << " " << id << " " << val << endl; 
 
         }
+       cout << nline << " modules found in this svg file " << endl;
  }
 
 
@@ -973,7 +977,7 @@ void TrackerMap::fillc(int idmod, int red, int green, int blue  ){
      mod->red=red; mod->green=green; mod->blue=blue;
     return;
   }
-  cout << "**************************error in fill method **************";
+  cout << "**************************error in fill method **************module "<<idmod<<endl;
 }
 void TrackerMap::fillc(int layer, int ring, int nmod, int red, int green, int blue  ){
   
@@ -984,14 +988,14 @@ void TrackerMap::fillc(int layer, int ring, int nmod, int red, int green, int bl
      mod->red=red; mod->green=green; mod->blue=blue;
     return;
   }
-  cout << "**************************error in fill method **************";
+  cout << "**************************error in fill method **************"<< endl;
 }
 
 void TrackerMap::fill_current_val(int idmod, float current_val ){
 
   TmModule * mod = imoduleMap[idmod];
   if(mod!=0)  mod->value=current_val;
-  else cout << "**error in fill_current_val method ***";
+  else cout << "**error in fill_current_val method ***module "<<idmod<<endl;
 }
 
 void TrackerMap::fill(int idmod, float qty ){
@@ -1011,7 +1015,7 @@ void TrackerMap::fill(int idmod, float qty ){
     mod2->count++;
     return;
    }}
-  cout << "**************************error in fill method **************";
+  cout << "**************************error in fill method **************module "<<idmod<<endl;
 }
 
 void TrackerMap::fill(int layer, int ring, int nmod,  float qty){
@@ -1256,9 +1260,9 @@ void TrackerMap::printall(bool print_total, float minval, float maxval, string o
   
     ostringstream outs,outs1,outs2;
     outs << outputfilename<<".png";
-save(true,0.,0.,outs.str(),3000,1600);
+save(true,minval,maxval,outs.str(),3000,1600);
 temporary_file=false;
-printlayers(true,0.,0.,outputfilename);
+printlayers(true,minval,maxval,outputfilename);
 
 //Now print a text file for each layer 
   ofstream * txtfile;
