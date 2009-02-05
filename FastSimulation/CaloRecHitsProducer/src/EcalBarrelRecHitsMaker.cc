@@ -14,21 +14,39 @@
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
+#include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
+#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 EcalBarrelRecHitsMaker::EcalBarrelRecHitsMaker(edm::ParameterSet const & p,
-					       edm::ParameterSet const & pcalib,
 					       const RandomEngine* myrandom)
   : random_(myrandom)
 {
-  edm::ParameterSet RecHitsParameters = p.getParameter<edm::ParameterSet>("ECALBarrel");
+  edm::ParameterSet RecHitsParameters=p.getParameter<edm::ParameterSet>("ECALBarrel");
   inputCol_=RecHitsParameters.getParameter<edm::InputTag>("MixedSimHits");
   noise_ = RecHitsParameters.getParameter<double>("Noise");
   threshold_ = RecHitsParameters.getParameter<double>("Threshold");
   refactor_ = RecHitsParameters.getParameter<double> ("Refactor");
   refactor_mean_ = RecHitsParameters.getParameter<double> ("Refactor_mean");
+  SRThreshold_ = RecHitsParameters.getParameter<double> ("SRThreshold");
+  SREtaSize_ = RecHitsParameters.getUntrackedParameter<int> ("SREtaSize",1);
+  SRPhiSize_ = RecHitsParameters.getUntrackedParameter<int> ("SRPhiSize",1);
+
+  
   theCalorimeterHits_.resize(62000,0.);
+  crystalsinTT_.resize(2448);
+  TTTEnergy_.resize(2448,0.);
+  TTHighInterest_.resize(2448,0);
+  treatedTTs_.resize(2448,false);
+  theTTDetIds_.resize(2448);
+  neighboringTTs_.resize(2448);
+  sinTheta_.resize(86,0.);
+  
   noisified_ = (noise_==0.);
-  double c1=pcalib.getParameter<double>("EBs25notContainment"); 
+  edm::ParameterSet CalibParameters = RecHitsParameters.getParameter<edm::ParameterSet>("ContFact"); 
+  double c1=CalibParameters.getParameter<double>("EBs25notContainment"); 
   calibfactor_=1./c1;
   adcToGeV_= 0.035;
   minAdc_ = 200;
@@ -62,6 +80,30 @@ void EcalBarrelRecHitsMaker::clean()
   // If the noise is set to 0. No need to simulate it. 
   noisified_ = (noise_==0.);
   //  std::cout << " Finished to clean "  << std::endl;
+  
+  size=theFiredTTs_.size();
+  //  std::cout << " Number of barrel TT " << size << std::endl;
+  for(unsigned itt=0;itt<size;++itt)
+    {
+      //      std::cout << " TT " << theFiredTTs_[itt] << " " << TTTEnergy_[theFiredTTs_[itt]] << std::endl;
+      TTTEnergy_[theFiredTTs_[itt]]=0.;
+      treatedTTs_[theFiredTTs_[itt]]=false;
+    }  
+  theFiredTTs_.clear();
+  
+  size=theTTofHighInterest_.size();
+  for(unsigned itt=0;itt<size;++itt)
+    TTHighInterest_[theTTofHighInterest_[itt]]=0;
+  theTTofHighInterest_.clear();
+
+//  std::cout << " Check cleaning " << std::endl;
+//  for(unsigned ic=0;ic<TTTEnergy_.size();++ic)
+//    if(TTTEnergy_[ic]!=0.) std::cout << " TT " << ic << " not cleaned " << std::endl;
+//  for(unsigned ic=0;ic<TTHighInterest_.size();++ic)
+//    if(TTHighInterest_[ic]!=0) std::cout << " TTHighInterest " << ic << TTHighInterest_[ic] << " not cleaned " << std::endl;
+//  for(unsigned ic=0;ic<treatedTTs_.size();++ic)
+//    if(treatedTTs_[ic]) std::cout << " treatedTT " << ic << treatedTTs_[ic] << " not cleaned " << std::endl;
+  
 }
 
 void EcalBarrelRecHitsMaker::loadEcalBarrelRecHits(edm::Event &iEvent,EBRecHitCollection & ecalHits,EBDigiCollection & ecalDigis)
@@ -80,7 +122,9 @@ void EcalBarrelRecHitsMaker::loadEcalBarrelRecHits(edm::Event &iEvent,EBRecHitCo
       unsigned icell = theFiredCells_[ihit];
 
       EBDetId myDetId(barrelRawId_[icell]);
-      
+      EcalTrigTowerDetId towid= eTTmap_->towerOf(myDetId);
+      int TThashedindex=towid.hashedIndex();      
+
       if(doDigis_)
 	{
           ecalDigis.push_back( myDetId );
@@ -94,33 +138,34 @@ void EcalBarrelRecHitsMaker::loadEcalBarrelRecHits(edm::Event &iEvent,EBRecHitCo
 	  //ecalDigis.push_back(myDataFrame);
 	}
       
-      //      std::cout << " The Fired Cell " << icell << std::endl;
-      // It is safer to update the orignal array in case this methods is called several times
-      if (!noisified_ )  theCalorimeterHits_[icell] += random_->gaussShoot(0.,noise_);
-      
-      //      std::cout << "Noise ok " << std::endl;
-
       // If the energy+noise is below the threshold, a hit is nevertheless created, otherwise, there is a risk that a "noisy" hit 
       // is afterwards put in this cell which would not be correct. 
       float energy=theCalorimeterHits_[icell];
-      if ( energy <threshold_ ) 
+      //      std::cout << myDetId << " Energy " << theCalorimeterHits_[icell] << " " << TTTEnergy_[TThashedindex] << " " << isHighInterest(TThashedindex) << std::endl;
+      if ( SRThreshold_ && energy < threshold_  && !isHighInterest(TThashedindex))
 	{
+	  //	  std::cout << " Killed " << std::endl;
 	  theCalorimeterHits_[icell]=0.;
 	  energy=0.;
 	} 
-      else if (energy > sat_)
+      //      else
+	//	std::cout << " SR " <<  TTTEnergy_[TThashedindex] << " Cell energy " << energy << " 1" << std::endl;
+//      if( TTTEnergy_[TThashedindex] < SRThreshold_ && energy > threshold_)
+//	std::cout << " SR " << TTTEnergy_[TThashedindex] << " Cell energy " << energy << std::endl;
+      if (energy > sat_)
 	{
 	  theCalorimeterHits_[icell]=sat_;
 	  energy=sat_;
 	}
 //      std::cout << " Threshold ok " << std::endl;
-      //std::cout << " Raw Id " << barrelRawId_[icell] << std::endl;
-      //      std::cout << " Adding " << icell << " " << barrelRawId_[icell] << " " << energy << std::endl;
-      ecalHits.push_back(EcalRecHit(myDetId,energy,0.));
+//      std::cout << " Raw Id " << barrelRawId_[icell] << std::endl;
+//      std::cout << " Adding " << icell << " " << barrelRawId_[icell] << " " << energy << std::endl;
+      if(energy!=0.)
+	ecalHits.push_back(EcalRecHit(myDetId,energy,0.));
       //      std::cout << " Hit stored " << std::endl;
     }
   //  std::cout << " Done " << std::endl;
-  noisified_ = true;
+
 }
 
 void EcalBarrelRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
@@ -136,36 +181,130 @@ void EcalBarrelRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
   MixCollection<PCaloHit>::iterator cficalo;
   MixCollection<PCaloHit>::iterator cficaloend=colcalo->end();
 
-  float calib=1.;
   for (cficalo=colcalo->begin(); cficalo!=cficaloend;cficalo++) 
     {
-
       unsigned hashedindex = EBDetId(cficalo->id()).hashedIndex();      
       // Check if the hit already exists
       if(theCalorimeterHits_[hashedindex]==0.)
 	{
-	  theFiredCells_.push_back(hashedindex); 
+	  theFiredCells_.push_back(hashedindex);
+	  if (!noisified_ )  theCalorimeterHits_[hashedindex] += random_->gaussShoot(0.,noise_); 
 	}
       // the famous 1/0.97 calibration factor is applied here ! 
-      calib=calibfactor_;
       // the miscalibration is applied here:
-      if(doMisCalib_) calib*=theCalibConstants_[hashedindex];
-      // cficalo->energy can be 0 (a 7x7 grid is always built), in this case, one should not kill the cell (for later noise injection), but it should
-      // be added only once.  This is a dirty trick. 
+      float calib = (doMisCalib_) ? calibfactor_*theCalibConstants_[hashedindex]:calibfactor_;
+      // cficalo->energy can be 0 (a 7x7 grid is always built) if there is no noise simulated, in this case the cells should
+      // not be added several times. 
       float energy=(cficalo->energy()==0.) ? 0.000001 : cficalo->energy() ;
-      theCalorimeterHits_[hashedindex]+=energy*calib;         
+      energy*=calib;
+      theCalorimeterHits_[hashedindex]+=energy;         
 
+      // Now deal with the TTs. 
+      EBDetId myDetId(EBDetId(cficalo->id()));
+      EcalTrigTowerDetId towid= eTTmap_->towerOf(myDetId);
+//      std::cout << " Added " << energy << " in " << EBDetId(cficalo->id()) << std::endl;
+      int TThashedindex=towid.hashedIndex();
+      if(TTTEnergy_[TThashedindex]==0.)
+	{
+	  theFiredTTs_.push_back(TThashedindex);	   
+//	  std::cout << " Creating " ;
+	}
+      //      std::cout << " Updating " << TThashedindex << " " << energy << " " << sinTheta_[myDetId.ietaAbs()] <<std::endl;
+       TTTEnergy_[TThashedindex]+=energy*sinTheta_[myDetId.ietaAbs()];
+       //       std::cout << " TT " << TThashedindex  << " updated, now contains " << TTTEnergy_[TThashedindex] << std::endl;
     }
+  noisifyTriggerTowers();
+  noisified_ = true;
+}
+
+void EcalBarrelRecHitsMaker::noisifyTriggerTowers()
+{
+  if(noise_==0.) return;
+//  std::cout << " List of TT before" << std::endl;
+//  for(unsigned itt=0;itt<theFiredTTs_.size();++itt)
+//    std::cout << " TT " << theFiredTTs_[itt] << " " << TTTEnergy_[theFiredTTs_[itt]] << std::endl;
+
+  //  std::cout << " Starting to noisify the trigger towers " << std::endl;
+  unsigned nTT=theFiredTTs_.size();
+  for(unsigned itt=0;itt<nTT;++itt)
+    {      
+      //      std::cout << "Treating " << theFiredTTs_[itt] << " " << theTTDetIds_[theFiredTTs_[itt]].ieta() << " " <<  theTTDetIds_[theFiredTTs_[itt]].iphi() << " " << TTTEnergy_[theFiredTTs_[itt]] << std::endl;
+      // shoot noise in the trigger tower 
+      noisifyTriggerTower(theFiredTTs_[itt]);
+      // get the neighboring TTs
+      const std::vector<int>& neighbors=neighboringTTs_[theFiredTTs_[itt]];
+      unsigned nneighbors=neighbors.size();
+      // inject noise in those towers only if they have not been looked at yet
+      //      std::cout << " Now looking at the neighbours " << std::endl;
+      for(unsigned in=0;in<nneighbors;++in)
+	{
+	  //	  std::cout << " TT " << neighbors[in] << " " << theTTDetIds_[neighbors[in]] << " has been treated " << treatedTTs_[neighbors[in]] << std::endl;
+	  if(!treatedTTs_[neighbors[in]])
+	    {
+	      noisifyTriggerTower(neighbors[in]);
+	      if(TTTEnergy_[neighbors[in]]==0.)
+		theFiredTTs_.push_back(neighbors[in]);
+	      //	      std::cout << " Added " << neighbors[in] << " in theFiredTTs_ " << std::endl;;
+	    }
+	}
+    }
+//  std::cout << " List of TT after" << std::endl;
+//  for(unsigned itt=0;itt<theFiredTTs_.size();++itt)
+//    std::cout << " TT " << theFiredTTs_[itt] << " " << TTTEnergy_[theFiredTTs_[itt]] << std::endl;
+}
+
+bool EcalBarrelRecHitsMaker::noisifyTriggerTower(unsigned tthi)
+{
+  // check if the TT has already been treated or not
+  if(treatedTTs_[tthi]) return false;
+  // get the crystals in the TT (this info might need to be cached)
+  //  const std::vector<DetId> & xtals=eTTmap_->constituentsOf(theTTDetIds_[tthi]);
+  const std::vector<int> & xtals(crystalsinTT_[tthi]);
+  unsigned nxtals=xtals.size();
+  unsigned counter =0 ; 
+  float energy=0.;
+  for(unsigned ic=0;ic<nxtals;++ic)
+    {
+      unsigned hashedindex=xtals[ic];
+      // check if the crystal has been already hit
+//      std::cout << " Checking " << EBDetId(barrelRawId_[xtals[ic]]) << " " << theCalorimeterHits_[hashedindex] << std::endl;
+      if(theCalorimeterHits_[hashedindex]==0)
+	{
+	  float calib = (doMisCalib_) ? calibfactor_*theCalibConstants_[hashedindex]:calibfactor_;
+	  float energy = calib*random_->gaussShoot(0.,noise_);
+	  theCalorimeterHits_[hashedindex]=energy;
+	  //	  std::cout << " Updating with noise " << tthi << " " << energy << " " << sinTheta_[EBDetId(barrelRawId_[hashedindex]).ietaAbs()] << std::endl;
+	  if(TTTEnergy_[tthi]==0.)
+	    theFiredTTs_.push_back(tthi);
+	  TTTEnergy_[tthi]+=energy*sinTheta_[EBDetId(barrelRawId_[hashedindex]).ietaAbs()];
+	  
+	  theFiredCells_.push_back(hashedindex);
+	  ++counter;
+	}
+      else
+	energy+=theCalorimeterHits_[hashedindex];
+    }
+//  std::cout << " Energy " << energy  << " Added noise in " << counter << " cells" << std::endl;
+  treatedTTs_[tthi]=true;
+  return true;
 }
 
 void EcalBarrelRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscalib)
 {
+  //  std::cout << " Initializing EcalBarrelRecHitsMaker " << std::endl;
   doDigis_=doDigis;
   doMisCalib_=doMiscalib;
   barrelRawId_.resize(62000);
   if (doMisCalib_) theCalibConstants_.resize(62000);
   edm::ESHandle<CaloGeometry> pG;
   es.get<CaloGeometryRecord>().get(pG);   
+
+//  edm::ESHandle<CaloTopology> theCaloTopology;
+//  es.get<CaloTopologyRecord>().get(theCaloTopology);     
+
+  edm::ESHandle<EcalTrigTowerConstituentsMap> hetm;
+  es.get<IdealGeometryRecord>().get(hetm);
+  eTTmap_ = &(*hetm);
   
   const EcalBarrelGeometry * myEcalBarrelGeometry = dynamic_cast<const EcalBarrelGeometry*>(pG->getSubdetectorGeometry(DetId::Ecal,EcalBarrel));
   //  std::cout << " Got the geometry " << myEcalBarrelGeometry << std::endl;
@@ -173,8 +312,72 @@ void EcalBarrelRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool do
   unsigned size=vec.size();    
   for(unsigned ic=0; ic<size; ++ic) 
     {
-      barrelRawId_[EBDetId(vec[ic]).hashedIndex()]=vec[ic].rawId();
+      EBDetId myDetId(vec[ic]);
+      int crystalHashedIndex=myDetId.hashedIndex();
+      barrelRawId_[crystalHashedIndex]=vec[ic].rawId();
+      // save the Trigger tower DetIds
+      EcalTrigTowerDetId towid= eTTmap_->towerOf(EBDetId(vec[ic]));
+      int TThashedindex=towid.hashedIndex();      
+      theTTDetIds_[TThashedindex]=towid;                  
+      crystalsinTT_[TThashedindex].push_back(crystalHashedIndex);
+      int ietaAbs=myDetId.ietaAbs();
+      if(sinTheta_[ietaAbs]==0.)
+	{
+	  sinTheta_[ietaAbs]=std::sin(myEcalBarrelGeometry->getGeometry(myDetId)->getPosition().theta());
+	  //	  std::cout << " Ieta abs " << ietaAbs << " " << sinTheta_[ietaAbs] << std::endl;
+	}
     }
+
+
+  unsigned nTTs=theTTDetIds_.size();
+
+//  EBDetId myDetId(-58,203);
+////  std::cout << " CellID " << myDetId << std::endl;
+//  EcalTrigTowerDetId towid= eTTmap_->towerOf(myDetId);
+////  std::cout << " EcalTrigTowerDetId ieta, iphi" << towid.ieta() << " , " << towid.iphi() << std::endl;
+////  std::cout << " Constituents of this tower " <<towid.hashedIndex() << std::endl;
+//  const std::vector<int> & xtals(crystalsinTT_[towid.hashedIndex()]);
+//  unsigned Size=xtals.size();
+//  for(unsigned i=0;i<Size;++i)
+//    {
+//      std::cout << EBDetId(barrelRawId_[xtals[i]]) << std::endl;
+//    }
+
+  // now loop on each TT and save its neighbors. 
+  for(unsigned iTT=0;iTT<nTTs;++iTT)
+    {
+      int ietaPivot=theTTDetIds_[iTT].ieta();
+      int iphiPivot=theTTDetIds_[iTT].iphi();
+      int TThashedIndex=theTTDetIds_[iTT].hashedIndex();
+      //      std::cout << " TT Pivot " << TThashedIndex << " " << ietaPivot << " " << iphiPivot << " iz " << theTTDetIds_[iTT].zside() << std::endl;
+      int ietamin=std::max(ietaPivot-SREtaSize_,-17);
+      if(ietamin==0) ietamin=-1;
+      int ietamax=std::min(ietaPivot+SREtaSize_,17);
+      if(ietamax==0) ietamax=1;
+      int iphimin=iphiPivot-SRPhiSize_;
+      int iphimax=iphiPivot+SRPhiSize_;
+      for(int ieta=ietamin;ieta<=ietamax;)
+	{
+	  int iz=(ieta>0)? 1 : -1; 
+	  for(int iphi=iphimin;iphi<=iphimax;)
+	    {
+	      int riphi=iphi;
+	      if(riphi<1) riphi+=72;
+	      else if(riphi>72) riphi-=72;
+	      EcalTrigTowerDetId neighborTTDetId(iz,EcalBarrel,abs(ieta),riphi);
+	      //      std::cout << " Voisin " << ieta << " " << riphi << " " <<neighborTTDetId.hashedIndex()<< " " << neighborTTDetId.ieta() << " " << neighborTTDetId.iphi() << std::endl;
+	      if(ieta!=ietaPivot||riphi!=iphiPivot)
+		{
+		  neighboringTTs_[TThashedIndex].push_back(neighborTTDetId.hashedIndex());
+		}
+	      ++iphi;
+
+	    }
+	  ++ieta;
+	  if(ieta==0) ieta=1;
+	}
+    }
+
   //  std::cout << " Made the array " << std::endl;
 
   // Stores the miscalibration constants
@@ -223,4 +426,31 @@ void EcalBarrelRecHitsMaker::geVtoGainAdc(float e,unsigned & gain, unsigned &adc
       gain = 3; 
       adc = std::min(minAdc_+(unsigned)(e*geVToAdc3_),maxAdc_);
     }
+}
+
+bool EcalBarrelRecHitsMaker::isHighInterest(int tthi)
+{
+
+  if(TTHighInterest_[tthi]!=0) return (TTHighInterest_[tthi]>0);
+
+  TTHighInterest_[tthi]=(TTTEnergy_[tthi] > SRThreshold_) ? 1:-1;
+  // if high interest, can leave ; otherwise look at the neighbours)
+  if( TTHighInterest_[tthi]==1) 
+    {
+      theTTofHighInterest_.push_back(tthi);
+      return true;
+    }
+
+  // now look if a neighboring TT is of high interest
+  const std::vector<int> & tts(neighboringTTs_[tthi]);
+  // a tower is of high interest if it or one of its neighbour is above the SR threshold
+  unsigned size=tts.size();
+  bool result=false;
+  for(unsigned itt=0;itt<size&&!result;++itt)
+    {
+      if(TTTEnergy_[tts[itt]] > SRThreshold_) result=true;
+    }
+  TTHighInterest_[tthi]=(result)? 1:-1;
+  theTTofHighInterest_.push_back(tthi);
+  return result;
 }

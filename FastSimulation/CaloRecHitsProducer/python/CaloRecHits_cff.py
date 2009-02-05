@@ -3,74 +3,112 @@ import FWCore.ParameterSet.Config as cms
 #To include the ECAL RecHit containment corrections (the famous 0.97 factor)
 from SimCalorimetry.EcalSimProducers.ecalNotContainmentSim_cff import *
 
-# Thes includes are needed for the HCAL digi
+# This includes is needed for the ECAL digis
+from SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff import *
+
 from SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff import *
 from SimCalorimetry.HcalSimProducers.hcalSimParameters_cfi import *
 
 # This includes is needed for the ECAL digis
 from SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff import *
-caloRecHits = cms.EDProducer("CaloRecHitsProducer",
-    RecHitsFactory = cms.PSet(
-        ECALPreshower = cms.PSet(
-            Threshold = cms.double(4.5e-05),
-            MixedSimHits = cms.InputTag("mix","famosSimHitsEcalHitsES"),
-            Noise = cms.double(1.5e-05)
-        ),
-        ECALEndcap = cms.PSet(
-            Threshold = cms.double(-999.0),
-            MixedSimHits = cms.InputTag("mix","famosSimHitsEcalHitsEE"),
-            Refactor_mean = cms.double(1.0),
-            Noise = cms.double(0.15),
-            Refactor = cms.double(1.0)
-        ),
-        EErechitCollection = cms.string('EcalRecHitsEE'),
-        ESrechitCollection = cms.string('EcalRecHitsES'),
-        EBrechitCollection = cms.string('EcalRecHitsEB'),
-        doMiscalib = cms.bool(False), ## does not apply in the PS
 
-        HCAL = cms.PSet(
-            MixedSimHits = cms.InputTag("mix","famosSimHitsHcalHits"),
-            EnableSaturation = cms.bool(True),
-            NoiseFromDb = cms.bool(True),
+ecalRecHit = cms.EDProducer("CaloRecHitsProducer",
+                            InputRecHitCollectionTypes = cms.vuint32(2, 3),
+                            OutputRecHitCollections = cms.vstring('EcalRecHitsEB', 
+                                                                  'EcalRecHitsEE'),
+                            doDigis = cms.bool(False),
+                            doMiscalib = cms.bool(False),
 
-            NoiseHB = cms.double(0.20),
-            ThresholdHB = cms.double(-0.5),
+                            RecHitsFactory = cms.PSet(
+                                                       ECALBarrel = cms.PSet(
+                                                       Noise = cms.double(0.04),
+                                                       Threshold = cms.double(0.1),
+						       SRThreshold = cms.double(1.),
+#						       SREtaSize = cms.untracked.int32(1),
+#						       SRPhiSize = cms.untracked.int32(1),
+                                                       Refactor = cms.double(1.),
+                                                       Refactor_mean = cms.double(1.),
+                                                       MixedSimHits = cms.InputTag("mix","famosSimHitsEcalHitsEB"),
+                                                       ContFact = cms.PSet(ecal_notCont_sim)),
+                                                       
+                                                       ECALEndcap = cms.PSet(
+                                                       Noise = cms.double(0.15),
+                                                       Threshold = cms.double(.3),
+                                                       SRThreshold = cms.double(1.),
+                                                       Refactor = cms.double(1.),
+                                                       Refactor_mean = cms.double(1.),
+                                                       MixedSimHits = cms.InputTag("mix","famosSimHitsEcalHitsEE"),
+                                                       ContFact = cms.PSet(ecal_notCont_sim)),
+                                                       ))
 
-            NoiseHE = cms.double(0.30),
-            ThresholdHE = cms.double(-0.5),
-            
-            NoiseHO = cms.double(0.50),
-            ThresholdHO = cms.double(-0.5),
 
-            NoiseHF = cms.double(0.0),
-            ThresholdHF = cms.double(0.5),
+ecalPreshowerRecHit =  cms.EDProducer("CaloRecHitsProducer",
+                                      InputRecHitCollectionTypes = cms.vuint32(1),
+                                      OutputRecHitCollections = cms.vstring('EcalRecHitsES'),
+                                      doDigis = cms.bool(False),
+                                      doMiscalib = cms.bool(False),
 
-            fileNameHcal = cms.string('hcalmiscalib_0.0.xml'),
-            Refactor = cms.double(1.0),
-            Refactor_mean = cms.double(1.0)
+                                      RecHitsFactory = cms.PSet(
+                                                       ECALPreshower = cms.PSet(
+                                                       Noise = cms.double(1.5e-05),
+                                                       Threshold = cms.double(4.5e-05),
+                                                       MixedSimHits = cms.InputTag("mix","famosSimHitsEcalHitsES"))))
 
-        ),
-        ECALBarrel = cms.PSet(
-            Threshold = cms.double(-999.0),
-            MixedSimHits = cms.InputTag("mix","famosSimHitsEcalHitsEB"),
-            Refactor_mean = cms.double(1.0),
-            Noise = cms.double(0.04),
-            Refactor = cms.double(1.0)
-        ),
-        doDigis = cms.bool(False) ## not for PS
 
-    ),
-    #the famous 0.97 factor..
-    ContFact = cms.PSet(
-        ecal_notCont_sim
-    ),
-    hcalSimParam = cms.PSet(
-        hcalSimParameters
-    )
-)
+hbhereco = cms.EDProducer("CaloRecHitsProducer",
+                          InputRecHitCollectionTypes = cms.vuint32(4),
+                          OutputRecHitCollections = cms.vstring(""),
+                          doDigis = cms.bool(False),
+                          doMiscalib = cms.bool(False),
+                          
+                          RecHitsFactory = cms.PSet(
+                                           HCAL = cms.PSet(
+                                           Noise = cms.vdouble(-1.,-1.),
+                                           Threshold = cms.vdouble(-0.5,-0.5),
+                                           MixedSimHits = cms.InputTag("mix","famosSimHitsHcalHits"),
+                                           EnableSaturation = cms.bool(True),
+                                           Refactor = cms.double(1.),
+                                           Refactor_mean = cms.double(1.),
+                                           fileNameHcal = cms.string('hcalmiscalib_0.0.xml'))))
 
-simHcalTriggerPrimitiveDigis.inputLabel = cms.VInputTag(cms.InputTag('caloRecHits'),cms.InputTag('caloRecHits'))
+
+horeco = cms.EDProducer("CaloRecHitsProducer",
+                          InputRecHitCollectionTypes = cms.vuint32(5),
+                          OutputRecHitCollections = cms.vstring(""),
+                          doDigis = cms.bool(False),
+                          doMiscalib = cms.bool(False),
+                          
+                          RecHitsFactory = cms.PSet(
+                                           HCAL = cms.PSet(
+                                           Noise = cms.vdouble(-1.),
+                                           Threshold = cms.vdouble(-0.5),
+                                           MixedSimHits = cms.InputTag("mix","famosSimHitsHcalHits"),
+                                           EnableSaturation = cms.bool(True),
+                                           Refactor = cms.double(1.),
+                                           Refactor_mean = cms.double(1.),
+                                           fileNameHcal = cms.string('hcalmiscalib_0.0.xml'))))
+
+hfreco = cms.EDProducer("CaloRecHitsProducer",
+                        InputRecHitCollectionTypes = cms.vuint32(6),
+                        OutputRecHitCollections = cms.vstring(""),
+                        doDigis = cms.bool(False),
+                        doMiscalib = cms.bool(False),
+                        
+                        RecHitsFactory = cms.PSet(
+                                           HCAL = cms.PSet(
+                                           Noise = cms.vdouble(0.),
+                                           Threshold = cms.vdouble(0.5),
+                                           MixedSimHits = cms.InputTag("mix","famosSimHitsHcalHits"),
+                                           EnableSaturation = cms.bool(True),
+                                           Refactor = cms.double(1.),
+                                           Refactor_mean = cms.double(1.),
+                                           fileNameHcal = cms.string('hcalmiscalib_0.0.xml'))))
+
+
 simHcalTriggerPrimitiveDigis.peakFilter = False
+simHcalTriggerPrimitiveDigis.inputLabel =  cms.VInputTag(cms.InputTag('hbhereco'), cms.InputTag('hfreco'))
+'hbhereco'
 simEcalTriggerPrimitiveDigis.Famos = True
-simEcalTriggerPrimitiveDigis.Label = 'caloRecHits'
+simEcalTriggerPrimitiveDigis.Label = 'ecalRecHit'
 
+caloRecHits = cms.Sequence(ecalRecHit*ecalPreshowerRecHit*hbhereco*horeco*hfreco)

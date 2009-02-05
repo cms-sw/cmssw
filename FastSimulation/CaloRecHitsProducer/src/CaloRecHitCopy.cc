@@ -120,6 +120,8 @@ CaloRecHitCopy::produce(edm::Event & iEvent, const edm::EventSetup & es)
 	iEvent.getByLabel(theInputRecHitCollections[input],ESRecHits);
 	ESRecHitCollection::const_iterator itES = ESRecHits->begin();
 	ESRecHitCollection::const_iterator lastES = ESRecHits->end();
+	// saves a bit of CPU
+	copiedESRecHitCollection->reserve(ESRecHits->size());
 	for ( ; itES!=lastES; ++itES++ ) {
 	  EcalRecHit aHit(*itES);
 	  copiedESRecHitCollection->push_back(aHit);
@@ -139,6 +141,9 @@ CaloRecHitCopy::produce(edm::Event & iEvent, const edm::EventSetup & es)
 	iEvent.getByLabel(theInputRecHitCollections[input],EBRecHits);
 	EBRecHitCollection::const_iterator itEB = EBRecHits->begin();
 	EBRecHitCollection::const_iterator lastEB = EBRecHits->end();
+	//saves a bit of CPU
+	copiedEBRecHitCollection->reserve(EBRecHits->size());
+
 	for ( ; itEB!=lastEB; ++itEB++ ) {
 	  EcalRecHit aHit(*itEB);
 	  copiedEBRecHitCollection->push_back(aHit);
@@ -158,6 +163,9 @@ CaloRecHitCopy::produce(edm::Event & iEvent, const edm::EventSetup & es)
 	iEvent.getByLabel(theInputRecHitCollections[input],EERecHits);
 	EERecHitCollection::const_iterator itEE = EERecHits->begin();
 	EERecHitCollection::const_iterator lastEE = EERecHits->end();
+	//saves a bit of CPU
+	copiedEERecHitCollection->reserve(EERecHits->size());
+
 	for ( ; itEE!=lastEE; ++itEE++ ) {
 	  EcalRecHit aHit(*itEE);
 	  copiedEERecHitCollection->push_back(aHit);
@@ -177,6 +185,9 @@ CaloRecHitCopy::produce(edm::Event & iEvent, const edm::EventSetup & es)
 	iEvent.getByLabel(theInputRecHitCollections[input],HBHERecHits);
 	HBHERecHitCollection::const_iterator itHBHE = HBHERecHits->begin();
 	HBHERecHitCollection::const_iterator lastHBHE = HBHERecHits->end();
+	//saves a bit of CPU
+	copiedHBHERecHitCollection->reserve(HBHERecHits->size());
+
 	for ( ; itHBHE!=lastHBHE; ++itHBHE++ ) {
 	  HBHERecHit aHit(*itHBHE);
 	  copiedHBHERecHitCollection->push_back(aHit);
@@ -196,6 +207,9 @@ CaloRecHitCopy::produce(edm::Event & iEvent, const edm::EventSetup & es)
 	iEvent.getByLabel(theInputRecHitCollections[input],HORecHits);
 	HORecHitCollection::const_iterator itHO = HORecHits->begin();
 	HORecHitCollection::const_iterator lastHO = HORecHits->end();
+	//saves a bit of CPU
+	copiedHORecHitCollection->reserve(HORecHits->size());
+
 	for ( ; itHO!=lastHO; ++itHO++ ) {
 	  HORecHit aHit(*itHO);
 	  copiedHORecHitCollection->push_back(aHit);
@@ -215,6 +229,9 @@ CaloRecHitCopy::produce(edm::Event & iEvent, const edm::EventSetup & es)
 	iEvent.getByLabel(theInputRecHitCollections[input],HFRecHits);
 	HFRecHitCollection::const_iterator itHF = HFRecHits->begin();
 	HFRecHitCollection::const_iterator lastHF = HFRecHits->end();
+	//saves a bit of CPU
+	copiedHFRecHitCollection->reserve(HFRecHits->size());
+	
 	for ( ; itHF!=lastHF; ++itHF++ ) {
 	  HFRecHit aHit(*itHF);
 	  copiedHFRecHitCollection->push_back(aHit);

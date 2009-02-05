@@ -7,6 +7,7 @@
 
 
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include <string>
 
@@ -15,7 +16,6 @@ class EcalBarrelRecHitsMaker;
 class EcalEndcapRecHitsMaker;
 class EcalPreshowerRecHitsMaker;
 class RandomEngine;
-class CaloGeometryHelper;
 class ParameterSet;
 class Event;
 class EventSetup;
@@ -35,19 +35,17 @@ class CaloRecHitsProducer : public edm::EDProducer
   bool doDigis_;
   bool doMiscalib_;
   
-  HcalRecHitsMaker * HcalRecHitsMaker_;
+  EcalPreshowerRecHitsMaker * EcalPreshowerRecHitsMaker_;
   EcalBarrelRecHitsMaker * EcalBarrelRecHitsMaker_;
   EcalEndcapRecHitsMaker * EcalEndcapRecHitsMaker_;
-  EcalPreshowerRecHitsMaker * EcalPreshowerRecHitsMaker_;
-  std::string EBrechitCollection_;
-  std::string EErechitCollection_;
-  std::string ESrechitCollection_;
+  HcalRecHitsMaker * HcalRecHitsMaker_;
+
+  std::vector<std::string> theOutputRecHitCollections; 
+  std::vector<unsigned int> theInputRecHitCollectionTypes;
 
    // The random engine
   const RandomEngine* random;
   
-  CaloGeometryHelper* myCaloGeometryHelper_ ;
-
 };
 
 #endif

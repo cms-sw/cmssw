@@ -4,9 +4,11 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
+#include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 //#include <boost/cstdint.hpp>
 
 class RandomEngine;
+class EcalTrigTowerConstituentsMap;
 
 namespace edm { 
   class ParameterSet;
@@ -17,7 +19,7 @@ namespace edm {
 class EcalEndcapRecHitsMaker
 {
  public:
-  EcalEndcapRecHitsMaker(edm::ParameterSet const & p,edm::ParameterSet const & p2,const RandomEngine* random);
+  EcalEndcapRecHitsMaker(edm::ParameterSet const & p,const RandomEngine* random);
   ~EcalEndcapRecHitsMaker();
 
   void loadEcalEndcapRecHits(edm::Event &iEvent, EERecHitCollection & ecalHits,EEDigiCollection & ecalDigis);
@@ -27,6 +29,20 @@ class EcalEndcapRecHitsMaker
   void clean();
   void loadPCaloHits(const edm::Event & iEvent);
   void geVtoGainAdc(float e,unsigned & gain, unsigned &adc) const;
+  // there are 2448 TT in the barrel. 
+  inline int TThashedIndexforEE(int originalhi) const {return originalhi-2448;}
+  inline int TThashedIndexforEE(const EcalTrigTowerDetId &detid) const {return detid.hashedIndex()-2448;}
+  // the number of the SuperCrystals goes from 1 to 316 (with some holes) in each EE
+  // z should -1 or 1 
+  inline  int SChashedIndex(int SC,int z) const {return SC+(z+1)*158;}
+  inline int SChashedIndex(const EEDetId& detid) const {
+    //    std::cout << "In SC hashedIndex " <<  detid.isc() << " " << detid.zside() << " " << detid.isc()+(detid.zside()+1)*158 << std::endl;
+    return detid.isc()+(detid.zside()+1)*158;}
+  inline int towerOf(const EEDetId& detid) const {return towerOf_[detid.hashedIndex()];}
+  inline int towerOf(int hid) const {return towerOf_[hid];}
+  void noisifyTriggerTowers();
+  void noisifySuperCrystals(int tthi);
+  bool isHighInterest(const EEDetId & icell);
 
  private:
   edm::InputTag inputCol_;
@@ -60,6 +76,34 @@ class EcalEndcapRecHitsMaker
   unsigned minAdc_;
   unsigned maxAdc_;
   float t1_,t2_,sat_;
+
+  const EcalTrigTowerConstituentsMap* eTTmap_;  
+
+  // arraws for the selective readout emulation
+  // fast EEDetId -> TT hashedindex conversion
+  std::vector<int>  towerOf_;
+  // vector of the original DetId if needed
+  std::vector<EcalTrigTowerDetId> theTTDetIds_;
+  // list of SC "contained" in a TT.
+  std::vector<std::vector<int> > SCofTT_;
+  // list of TT of a given sc
+  std::vector<std::vector<int> > TTofSC_;
+  // status of each SC 
+  std::vector<bool> treatedSC_;
+  std::vector<int> SCHighInterest_;
+  // list of fired SC
+  std::vector<int> theFiredSC_;
+  // the list of fired TT
+  std::vector<int> theFiredTTs_;
+  // the energy in the TT
+  std::vector<float> TTTEnergy_;
+  // the cells in each SC
+  std::vector<std::vector<int> > CrystalsinSC_;
+  // the sin(theta) of the cell
+  std::vector<float> sinTheta_;
+  
+  // selective readout threshold
+  float SRThreshold_;
 };
 
 #endif

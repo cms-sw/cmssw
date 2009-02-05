@@ -78,8 +78,11 @@ process.load("Configuration.StandardSequences.MagneticField_40T_cff")
 process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 process.famosSimHits.SimulateCalorimetry = True
 process.famosSimHits.SimulateTracking = False
-process.caloRecHits.RecHitsFactory.doDigis = True
-
+from FastSimulation.CaloRecHitsProducer.CaloRecHits_cff import *
+ecalRecHit.doDigis = True
+hbhereco.doDigis = True
+hfreco.doDigis = True
+horeco.doDigis = True
 
 process.o1 = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('test-cfg.root')
