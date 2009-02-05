@@ -76,7 +76,7 @@ int main(int ac, char *av[]) {
       ("input-file,i", po::value< vector<string> >(), "input file")
       ("min,m", po::value<double>(&fMin)->default_value(60), "minimum value for fit range")
       ("max,M", po::value<double>(&fMax)->default_value(120), "maximum value for fit range")
-      ("plot-format,p", po::value<string>(&ext)->default_value("ps"), 
+      ("plot-format,p", po::value<string>(&ext)->default_value("eps"), 
        "output plot format");
     
     po::positional_options_description p;
@@ -109,6 +109,7 @@ int main(int ac, char *av[]) {
       for(vector<string>::const_iterator it = v_file.begin(); 
 	  it != v_file.end(); ++it) {
 	TFile * root_file = new TFile(it->c_str(), "read");
+	
 	/*TH1 * histoZMuMuNoIso = getHisto(root_file, "nonIsolatedZToMuMuPlots/zMass",rebinMuMuNoIso);
 	TH1 * histoZMuMu = getHisto(root_file, "goodZToMuMuPlots/zMass",rebinMuMu);
 	TH1 * histoZMuMu1HLT = getHisto(root_file, "goodZToMuMu1HLTPlots/zMass", rebinMuMu1HLT);
@@ -213,11 +214,11 @@ int main(int ac, char *av[]) {
 	Expr zMuMu1HLT = rebinMuMu1HLTConst * zMuMuEff1HLTTerm * yieldZMuMu;
 	Expr zMuMu2HLT = rebinMuMu2HLTConst * zMuMuEff2HLTTerm * yieldZMuMu;
 
-	Expr zMuTkBkg = yieldBkgZMuTk * funct::Exponential(lambda);// * funct::Polynomial<2>(a0, a1, a2);
+	Expr zMuTkBkg = yieldBkgZMuTk * funct::Exponential(lambda)* funct::Polynomial<2>(a0, a1, a2);
 	Expr zMuTkBkgScaled = rebinMuTkConst * zMuTkBkg;
 	Expr zMuTk = rebinMuTkConst * (zMuTkEffTerm * yieldZMuMu * zPdfMuTk + zMuTkBkg);
 
-	Expr zMuMuNoIsoBkg = yieldBkgZMuMuNotIso * funct::Exponential(alpha); // * funct::Polynomial<2>(b0, b1, b2);
+	Expr zMuMuNoIsoBkg = yieldBkgZMuMuNotIso * funct::Exponential(alpha)* funct::Polynomial<2>(b0, b1, b2);
 	Expr zMuMuNoIsoBkgScaled = rebinMuMuNoIsoConst * zMuMuNoIsoBkg;
 	Expr zMuMuNoIso = rebinMuMuNoIsoConst * (zMuMuNoIsoEffTerm * yieldZMuMu * zPdfMuMuNonIso + zMuMuNoIsoBkg);
 

@@ -90,13 +90,13 @@ private:
 
 int main(int argc, char * argv[]){
   TRandom3 *eventGenerator = new TRandom3();
-
+  cout<<"int main()"<<endl;
   int o;
   char* endPtr;
   char* pdf("analysis_Z_133pb_trackIso_3.root");
   double yield(50550), effTrk(.9883), effSa(.9896), effHlt(.9155), effIso(.9786);
-  double slopeMuTk(0.022330), a0MuTk(0.000505041), a1MuTk(0.019177), a2MuTk(-0.00012970);
-  double slopeMuMuNonIso(0.0232129), a0MuMuNonIso(1.99999), a1MuMuNonIso(0.0944887), a2MuMuNonIso(-0.000859517);
+  double slopeMuTk(0.0155572), a0MuTk(0.000368064), a1MuTk(2.99685), a2MuTk(-0.021115);
+  double slopeMuMuNonIso(0.0247058), a0MuMuNonIso(0.0959997), a1MuMuNonIso(6.70293), a2MuMuNonIso(-0.0525249);
   BkgShape zMuTkBkgPdf(60, 120, slopeMuTk, a0MuTk, a1MuTk, a2MuTk);
   BkgShape zMuMuNonIsoBkgPdf(60, 120, slopeMuMuNonIso, a0MuMuNonIso, a1MuMuNonIso, a2MuMuNonIso);
  
@@ -142,11 +142,12 @@ int main(int argc, char * argv[]){
   TFile *inputfile = new TFile(pdf);
   TH1F *pdfzmm = (TH1F*)inputfile->Get("goodZToMuMuPlots/zMass");//pdf signal Zmumu(1hlt,2hlt), ZMuMunotIso, ZmuTk
   TH1F *pdfzmsa = (TH1F*)inputfile->Get("zmumuSaMassHistogram/zMass");//pdf signal ZmuSa
-  
+  cout<<"take pdf"<<endl;
   for(int j = 0; j <expt; ++j){//loop on number of experiments  
     int N0 = eventGenerator->Poisson(yield);
     int nMuTkBkg = eventGenerator->Poisson(zMuTkBkgPdf.integral());
     int nMuMuNonIsoBkg = eventGenerator->Poisson(zMuMuNonIsoBkgPdf.integral());
+    cout<<"loop on experiment"<<endl;
 
     int Nmumu = 0;
     int N2HLT = 0;
@@ -161,8 +162,6 @@ int main(int argc, char * argv[]){
       double rISO1 = eventGenerator->Rndm();   
       double rHLT2 = eventGenerator->Rndm();
       double rISO2 = eventGenerator->Rndm();
-       cout<<"start logic" << endl;
-
       if(mu1 == globalMu && mu2 == globalMu){
 	if(rISO1< effIso && rISO2 < effIso){//two global mu isolated
 	  if(rHLT1< effHlt && rHLT2 < effHlt) N2HLT++;
@@ -175,138 +174,162 @@ int main(int argc, char * argv[]){
       }else if((mu1 == globalMu && mu2 == standaloneMu && rHLT1< effHlt) ||(mu2 == globalMu && mu1 == standaloneMu && rHLT2< effHlt)){
 	if(rISO1< effIso && rISO2 < effIso) NSa++;
       }
-      
-      Nmumu = N2HLT + N1HLT;
-      
-      //Define signal Histo
-      TH1F *zMuMu = new TH1F("zMass_golden","zMass",200,0,200);
-      TH1F *zMuMu2HLT = new TH1F("zMass_2hlt","zMass",200,0,200);
-      TH1F *zMuMu1HLT = new TH1F("zMass_1hlt","zMass",200,0,200);
-      TH1F *zMuMuNotIso= new TH1F("zMass_noIso","zMass",200,0,200);
-      TH1F *zMuSa = new TH1F("zMass_sa","zMass",200,0,200);
-      TH1F *zMuTk = new TH1F("zMass_tk","zMass",200,0,200);
-      
-      //Fill signal Histo
-      fillRandom(Nmumu,pdfzmm,zMuMu);
-      fillRandom(N2HLT, pdfzmm,zMuMu2HLT);
-      fillRandom(N1HLT, pdfzmm,zMuMu1HLT);
-      fillRandom(NISO,pdfzmm,zMuMuNotIso);
-      fillRandom(NSa,pdfzmsa,zMuSa);
-      fillRandom(NTk, pdfzmm,zMuTk);
-            
-      //output	
-      char head[30];
-      sprintf(head,"zmm_%d",j);
-      string tail =".root";
-      string title = head + tail;
-      
-      TFile *outputfile = new TFile(title.c_str(),"RECREATE");
-      
-      //Hierarchy directory  
-      
-      TDirectory * goodZToMuMu = outputfile->mkdir("goodZToMuMuPlots");
-      TDirectory * goodZToMuMu2HLT = outputfile->mkdir("goodZToMuMu2HLTPlots");
-      TDirectory * goodZToMuMu1HLT = outputfile->mkdir("goodZToMuMu1HLTPlots");
-      TDirectory * nonIsolatedZToMuMu = outputfile->mkdir("nonIsolatedZToMuMuPlots");
-      TDirectory * goodZToMuMuOneStandAloneMuon = outputfile->mkdir("goodZToMuMuOneStandAloneMuonPlots");
-      TDirectory * goodZToMuMuOneTrack = outputfile->mkdir("goodZToMuMuOneTrackPlots");
-      
-      goodZToMuMu->cd();
-      zMuMu->Write();
-      
-      goodZToMuMu2HLT->cd();
-      zMuMu2HLT->Write();
-      
-      goodZToMuMu1HLT->cd();
-      zMuMu1HLT->Write();
-      
-      nonIsolatedZToMuMu->cd();
-      zMuMuNotIso->Write();
-      
-      goodZToMuMuOneStandAloneMuon->cd();
-      zMuSa->Write();
-      
-      goodZToMuMuOneTrack->cd();
-      zMuTk->Write();
-      
-      
-      outputfile->Write();
-      outputfile->Close();
-            
-      delete zMuMu;
-      delete zMuMu2HLT;
-      delete zMuMu1HLT;
-      delete zMuMuNotIso;
-      delete zMuSa;
-      delete zMuTk;
-      
-      delete inputfile;
-      
-             
-      //Define Background Histo
-      TH1F *zMuMuBkg = new TH1F("zMass_golden","zMass",200,0,200);
-      TH1F *zMuMu2HLTBkg = new TH1F("zMass_2hlt","zMass",200,0,200);
-      TH1F *zMuMu1HLTBkg = new TH1F("zMass_1hlt","zMass",200,0,200);
-      TH1F *zMuSaBkg = new TH1F("zMass_sa","zMass",200,0,200);
-      TH1F *zMuMuNotIsoBkg= new TH1F("zMass_noIso","zMass",200,0,200);
-      TH1F *zMuTkBkg = new TH1F("zMass_tk","zMass",200,0,200);
-      
-      
-
-      //Fill >Bkg Histograms 
-      for(int i = 0; i < nMuTkBkg; ++i) {
-	zMuTkBkg->Fill(zMuTkBkgPdf.rndm(eventGenerator));
-      }
-      for(int i = 0; i < nMuMuNonIsoBkg; ++i) {
-	zMuMuNotIsoBkg->Fill(zMuMuNonIsoBkgPdf.rndm(eventGenerator));
-      }
-      
-      char head2[30];
-      sprintf(head2,"bgk_%d",j);
-      string title2 = head2 + tail;
-      TFile *outputfile2 = new TFile(title2.c_str(),"RECREATE");
-            
-      //Hierarchy directory  
-      TDirectory * goodZToMuMu2 = outputfile2->mkdir("goodZToMuMuPlots");
-      TDirectory * goodZToMuMu2HLT2 = outputfile2->mkdir("goodZToMuMu2HLTPlots");
-      TDirectory * goodZToMuMu1HLT2 = outputfile2->mkdir("goodZToMuMu1HLTPlots");
-      TDirectory * nonIsolatedZToMuMu2 = outputfile2->mkdir("nonIsolatedZToMuMuPlots");
-      TDirectory * goodZToMuMuOneStandAloneMuon2 = outputfile2->mkdir("goodZToMuMuOneStandAloneMuonPlots");
-      TDirectory * goodZToMuMuOneTrack2 = outputfile2->mkdir("goodZToMuMuOneTrackPlots");
-      
-      // cout<<" bkg Hierarchy "<<endl;
-      goodZToMuMu2->cd();
-      zMuMuBkg->Write();
-      
-      goodZToMuMu2HLT2->cd();
-      zMuMu2HLTBkg->Write();
-      
-      goodZToMuMu1HLT2->cd();
-      zMuMu1HLTBkg->Write();
-      
-      nonIsolatedZToMuMu2->cd();
-      zMuMuNotIsoBkg->Write();
-      
-      goodZToMuMuOneStandAloneMuon2->cd();
-      zMuSaBkg->Write();
-      
-      goodZToMuMuOneTrack2->cd();
-      zMuTkBkg->Write();
-      
-      outputfile2->Write();
-      outputfile2->Close();
-
-      delete zMuMuBkg;
-      delete zMuMu2HLTBkg;
-      delete zMuMu1HLTBkg;
-      delete zMuMuNotIsoBkg;
-      delete zMuSaBkg;
-      delete zMuTkBkg;
-    
     }//end of generation given yield
+    cout<<"logic end"<<endl;
+  
+    Nmumu = N2HLT + N1HLT;
+    
+    //Define signal Histo
+    TH1F *zMuMu = new TH1F("zMass_golden","zMass",200,0,200);
+    TH1F *zMuMu2HLT = new TH1F("zMass_2hlt","zMass",200,0,200);
+    TH1F *zMuMu1HLT = new TH1F("zMass_1hlt","zMass",200,0,200);
+    TH1F *zMuMuNotIso= new TH1F("zMass_noIso","zMass",200,0,200);
+    TH1F *zMuSa = new TH1F("zMass_sa","zMass",200,0,200);
+    TH1F *zMuTk = new TH1F("zMass_tk","zMass",200,0,200);
+    pdfzmsa->SetName("zMass_safromGolden");
+  
+    //Fill signal Histo
+   
+    cout<<"N0 ="<< N0 <<endl;
+    cout<<"Nmumu = "<< Nmumu <<endl;
+    cout<<"N2HLT= "<< N2HLT <<endl;
+    cout<<"N1HLT = "<< N1HLT <<endl;
+    cout<<"NISO = "<< NISO <<endl;
+    
+    fillRandom(Nmumu,pdfzmm,zMuMu);
+    fillRandom(N2HLT, pdfzmm,zMuMu2HLT);
+    fillRandom(N1HLT, pdfzmm,zMuMu1HLT);
+    fillRandom(NISO,pdfzmm,zMuMuNotIso);
+    fillRandom(NSa,pdfzmsa,zMuSa);
+    fillRandom(NTk, pdfzmm,zMuTk);
+    cout<<"Signal filled"<<endl;
+    
+    //output	
+    char head[30];
+    sprintf(head,"zmm_%d",j);
+    string tail =".root";
+    string title = head + tail;
+    
+    TFile *outputfile = new TFile(title.c_str(),"RECREATE");
+    
+    //Hierarchy directory  
+    
+    TDirectory * goodZToMuMu = outputfile->mkdir("goodZToMuMuPlots");
+    TDirectory * goodZToMuMu2HLT = outputfile->mkdir("goodZToMuMu2HLTPlots");
+    TDirectory * goodZToMuMu1HLT = outputfile->mkdir("goodZToMuMu1HLTPlots");
+    TDirectory * nonIsolatedZToMuMu = outputfile->mkdir("nonIsolatedZToMuMuPlots");
+    TDirectory * goodZToMuMuOneStandAloneMuon = outputfile->mkdir("goodZToMuMuOneStandAloneMuonPlots");
+    TDirectory * zmumuSaMassHistogram = outputfile->mkdir("zmumuSaMassHistogram");
+    TDirectory * goodZToMuMuOneTrack = outputfile->mkdir("goodZToMuMuOneTrackPlots");
+  
+    goodZToMuMu->cd();
+    zMuMu->Write();
+    
+    goodZToMuMu2HLT->cd();
+    zMuMu2HLT->Write();
+    
+    goodZToMuMu1HLT->cd();
+    zMuMu1HLT->Write();
+    
+    nonIsolatedZToMuMu->cd();
+    zMuMuNotIso->Write();
+    
+    goodZToMuMuOneStandAloneMuon->cd();
+    zMuSa->Write();
+
+    zmumuSaMassHistogram->cd();
+    pdfzmsa->Write();
+
+
+    goodZToMuMuOneTrack->cd();
+    zMuTk->Write();
+    
+    
+    outputfile->Write();
+    outputfile->Close();
+    
+    delete zMuMu;
+    delete zMuMu2HLT;
+    delete zMuMu1HLT;
+    delete zMuMuNotIso;
+    delete zMuSa;
+    delete zMuTk;
+    
+    delete inputfile;
+    
+    
+    //Define Background Histo
+    TH1F *zMuMuBkg = new TH1F("zMass_golden","zMass",200,0,200);
+    TH1F *zMuMu2HLTBkg = new TH1F("zMass_2hlt","zMass",200,0,200);
+    TH1F *zMuMu1HLTBkg = new TH1F("zMass_1hlt","zMass",200,0,200);
+    TH1F *zMuSaBkg = new TH1F("zMass_sa","zMass",200,0,200);
+    TH1F *zMuSafromGoldenBkg = new TH1F("zMass_safromGolden","zMass",200,0,200);
+    TH1F *zMuMuNotIsoBkg= new TH1F("zMass_noIso","zMass",200,0,200);
+    TH1F *zMuTkBkg = new TH1F("zMass_tk","zMass",200,0,200);
+    
+    
+    
+    //Fill >Bkg Histograms 
+    for(int i = 0; i < nMuTkBkg; ++i) {
+      zMuTkBkg->Fill(zMuTkBkgPdf.rndm(eventGenerator));
+    }
+    for(int i = 0; i < nMuMuNonIsoBkg; ++i) {
+      zMuMuNotIsoBkg->Fill(zMuMuNonIsoBkgPdf.rndm(eventGenerator));
+    }
+    
+    char head2[30];
+    sprintf(head2,"bgk_%d",j);
+    string title2 = head2 + tail;
+    TFile *outputfile2 = new TFile(title2.c_str(),"RECREATE");
+    
+    //Hierarchy directory  
+    TDirectory * goodZToMuMu2 = outputfile2->mkdir("goodZToMuMuPlots");
+    TDirectory * goodZToMuMu2HLT2 = outputfile2->mkdir("goodZToMuMu2HLTPlots");
+    TDirectory * goodZToMuMu1HLT2 = outputfile2->mkdir("goodZToMuMu1HLTPlots");
+    TDirectory * nonIsolatedZToMuMu2 = outputfile2->mkdir("nonIsolatedZToMuMuPlots");
+    TDirectory * goodZToMuMuOneStandAloneMuon2 = outputfile2->mkdir("goodZToMuMuOneStandAloneMuonPlots");
+    TDirectory * zmumuSaMassHistogram2 = outputfile2->mkdir("zmumuSaMassHistogram");
+    TDirectory * goodZToMuMuOneTrack2 = outputfile2->mkdir("goodZToMuMuOneTrackPlots");
+    
+    // cout<<" bkg Hierarchy "<<endl;
+    goodZToMuMu2->cd();
+    zMuMuBkg->Write();
+    
+    goodZToMuMu2HLT2->cd();
+    zMuMu2HLTBkg->Write();
+    
+    goodZToMuMu1HLT2->cd();
+    zMuMu1HLTBkg->Write();
+    
+    nonIsolatedZToMuMu2->cd();
+    zMuMuNotIsoBkg->Write();
+    
+    goodZToMuMuOneStandAloneMuon2->cd();
+    zMuSaBkg->Write();
+
+    zmumuSaMassHistogram2->cd();
+    zMuSafromGoldenBkg->Write();
+
+    goodZToMuMuOneTrack2->cd();
+    zMuTkBkg->Write();
+    
+    outputfile2->Write();
+    outputfile2->Close();
+    
+    delete zMuMuBkg;
+    delete zMuMu2HLTBkg;
+    delete zMuMu1HLTBkg;
+    delete zMuMuNotIsoBkg;
+    delete zMuSafromGoldenBkg;
+    delete zMuSaBkg;
+    delete zMuTkBkg;
+    
+    
     cout<<count<<"\n";
     count++;
-  }//end of experiment 
+  }//end of experiments 
+  delete pdfzmsa;
+    
   return 0;
   
 }
