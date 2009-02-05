@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre1/8E29_V4/V2 (CMSSW_3_1_X_2009-02-03-2200_HLT1)
+# /dev/CMSSW_3_1_0/pre1/8E29_V6/V2 (CMSSW_3_1_X_2009-02-05-0000_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre1/8E29_V4/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre1/8E29_V6/V2')
 )
 
 L3AbsoluteCorrectionService = cms.ESSource( "L3AbsoluteCorrectionService",
@@ -1719,7 +1719,7 @@ hltSiStripClusters = cms.EDProducer( "MeasurementTrackerSiStripRefGetterProducer
     InputModuleLabel = cms.InputTag( "hltSiStripRawToClustersFacility" ),
     measurementTrackerName = cms.string( "" )
 )
-hltL1IsoStartUpElectronPixelSeeds = cms.EDProducer( "ElectronPixelSeedProducer",
+hltL1IsoStartUpElectronPixelSeeds = cms.EDProducer( "ElectronSeedProducer",
     barrelSuperClusters = cms.InputTag( "hltCorrectedHybridSuperClustersL1Isolated" ),
     endcapSuperClusters = cms.InputTag( "hltCorrectedEndcapSuperClustersWithPreshowerL1Isolated" ),
     SeedConfiguration = cms.PSet( 
@@ -1731,13 +1731,13 @@ hltL1IsoStartUpElectronPixelSeeds = cms.EDProducer( "ElectronPixelSeedProducer",
       ePhiMin1 = cms.double( -0.025 ),
       PhiMin2 = cms.double( -0.0050 ),
       LowPtThreshold = cms.double( 5.0 ),
-      maxHOverE = cms.double( 0.2 ),
+      z2MinB = cms.double( -0.06 ),
       dynamicPhiRoad = cms.bool( False ),
       ePhiMax1 = cms.double( 0.015 ),
       DeltaPhi2 = cms.double( 0.0040 ),
       SizeWindowENeg = cms.double( 0.675 ),
       rMaxI = cms.double( 0.11 ),
-      PhiMax2 = cms.double( 0.0050 ),
+      rMinI = cms.double( -0.11 ),
       preFilteredSeeds = cms.bool( False ),
       r2MaxF = cms.double( 0.096 ),
       pPhiMin1 = cms.double( -0.015 ),
@@ -1748,13 +1748,13 @@ hltL1IsoStartUpElectronPixelSeeds = cms.EDProducer( "ElectronPixelSeedProducer",
       z2MaxB = cms.double( 0.06 ),
       fromTrackerSeeds = cms.bool( False ),
       hcalRecHits = cms.InputTag( "hltHbhereco" ),
-      z2MinB = cms.double( -0.06 ),
+      maxHOverE = cms.double( 0.2 ),
       hbheInstance = cms.string( "" ),
-      rMinI = cms.double( -0.11 ),
+      PhiMax2 = cms.double( 0.0050 ),
       hOverEConeSize = cms.double( 0.1 )
     )
 )
-hltL1NonIsoStartUpElectronPixelSeeds = cms.EDProducer( "ElectronPixelSeedProducer",
+hltL1NonIsoStartUpElectronPixelSeeds = cms.EDProducer( "ElectronSeedProducer",
     barrelSuperClusters = cms.InputTag( "hltCorrectedHybridSuperClustersL1NonIsolated" ),
     endcapSuperClusters = cms.InputTag( "hltCorrectedEndcapSuperClustersWithPreshowerL1NonIsolated" ),
     SeedConfiguration = cms.PSet( 
@@ -1766,13 +1766,13 @@ hltL1NonIsoStartUpElectronPixelSeeds = cms.EDProducer( "ElectronPixelSeedProduce
       ePhiMin1 = cms.double( -0.025 ),
       PhiMin2 = cms.double( -0.0050 ),
       LowPtThreshold = cms.double( 5.0 ),
-      maxHOverE = cms.double( 0.2 ),
+      z2MinB = cms.double( -0.06 ),
       dynamicPhiRoad = cms.bool( False ),
       ePhiMax1 = cms.double( 0.015 ),
       DeltaPhi2 = cms.double( 0.0040 ),
       SizeWindowENeg = cms.double( 0.675 ),
       rMaxI = cms.double( 0.11 ),
-      PhiMax2 = cms.double( 0.0050 ),
+      rMinI = cms.double( -0.11 ),
       preFilteredSeeds = cms.bool( False ),
       r2MaxF = cms.double( 0.096 ),
       pPhiMin1 = cms.double( -0.015 ),
@@ -1783,9 +1783,9 @@ hltL1NonIsoStartUpElectronPixelSeeds = cms.EDProducer( "ElectronPixelSeedProduce
       z2MaxB = cms.double( 0.06 ),
       fromTrackerSeeds = cms.bool( False ),
       hcalRecHits = cms.InputTag( "hltHbhereco" ),
-      z2MinB = cms.double( -0.06 ),
+      maxHOverE = cms.double( 0.2 ),
       hbheInstance = cms.string( "" ),
-      rMinI = cms.double( -0.11 ),
+      PhiMax2 = cms.double( 0.0050 ),
       hOverEConeSize = cms.double( 0.1 )
     )
 )
@@ -2175,7 +2175,7 @@ hltL1NonIsoHLTNonIsoDoubleElectronLWonlyPMEt10HcalIsolFilter = cms.EDFilter( "HL
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
-hltL1IsoLargeWindowElectronPixelSeeds = cms.EDProducer( "ElectronPixelSeedProducer",
+hltL1IsoLargeWindowElectronPixelSeeds = cms.EDProducer( "ElectronSeedProducer",
     barrelSuperClusters = cms.InputTag( "hltCorrectedHybridSuperClustersL1Isolated" ),
     endcapSuperClusters = cms.InputTag( "hltCorrectedEndcapSuperClustersWithPreshowerL1Isolated" ),
     SeedConfiguration = cms.PSet( 
@@ -2187,13 +2187,13 @@ hltL1IsoLargeWindowElectronPixelSeeds = cms.EDProducer( "ElectronPixelSeedProduc
       ePhiMin1 = cms.double( -0.045 ),
       PhiMin2 = cms.double( -0.01 ),
       LowPtThreshold = cms.double( 5.0 ),
-      maxHOverE = cms.double( 0.2 ),
+      z2MinB = cms.double( -0.2 ),
       dynamicPhiRoad = cms.bool( False ),
       ePhiMax1 = cms.double( 0.03 ),
       DeltaPhi2 = cms.double( 0.0040 ),
       SizeWindowENeg = cms.double( 0.675 ),
       rMaxI = cms.double( 0.2 ),
-      PhiMax2 = cms.double( 0.01 ),
+      rMinI = cms.double( -0.2 ),
       preFilteredSeeds = cms.bool( False ),
       r2MaxF = cms.double( 0.3 ),
       pPhiMin1 = cms.double( -0.03 ),
@@ -2204,13 +2204,13 @@ hltL1IsoLargeWindowElectronPixelSeeds = cms.EDProducer( "ElectronPixelSeedProduc
       z2MaxB = cms.double( 0.2 ),
       fromTrackerSeeds = cms.bool( False ),
       hcalRecHits = cms.InputTag( "hltHbhereco" ),
-      z2MinB = cms.double( -0.2 ),
+      maxHOverE = cms.double( 0.2 ),
       hbheInstance = cms.string( "" ),
-      rMinI = cms.double( -0.2 ),
+      PhiMax2 = cms.double( 0.01 ),
       hOverEConeSize = cms.double( 0.1 )
     )
 )
-hltL1NonIsoLargeWindowElectronPixelSeeds = cms.EDProducer( "ElectronPixelSeedProducer",
+hltL1NonIsoLargeWindowElectronPixelSeeds = cms.EDProducer( "ElectronSeedProducer",
     barrelSuperClusters = cms.InputTag( "hltCorrectedHybridSuperClustersL1NonIsolated" ),
     endcapSuperClusters = cms.InputTag( "hltCorrectedEndcapSuperClustersWithPreshowerL1NonIsolated" ),
     SeedConfiguration = cms.PSet( 
@@ -2222,13 +2222,13 @@ hltL1NonIsoLargeWindowElectronPixelSeeds = cms.EDProducer( "ElectronPixelSeedPro
       ePhiMin1 = cms.double( -0.045 ),
       PhiMin2 = cms.double( -0.01 ),
       LowPtThreshold = cms.double( 5.0 ),
-      maxHOverE = cms.double( 0.2 ),
+      z2MinB = cms.double( -0.2 ),
       dynamicPhiRoad = cms.bool( False ),
       ePhiMax1 = cms.double( 0.03 ),
       DeltaPhi2 = cms.double( 0.0040 ),
       SizeWindowENeg = cms.double( 0.675 ),
       rMaxI = cms.double( 0.2 ),
-      PhiMax2 = cms.double( 0.01 ),
+      rMinI = cms.double( -0.2 ),
       preFilteredSeeds = cms.bool( False ),
       r2MaxF = cms.double( 0.3 ),
       pPhiMin1 = cms.double( -0.03 ),
@@ -2239,9 +2239,9 @@ hltL1NonIsoLargeWindowElectronPixelSeeds = cms.EDProducer( "ElectronPixelSeedPro
       z2MaxB = cms.double( 0.2 ),
       fromTrackerSeeds = cms.bool( False ),
       hcalRecHits = cms.InputTag( "hltHbhereco" ),
-      z2MinB = cms.double( -0.2 ),
+      maxHOverE = cms.double( 0.2 ),
       hbheInstance = cms.string( "" ),
-      rMinI = cms.double( -0.2 ),
+      PhiMax2 = cms.double( 0.01 ),
       hOverEConeSize = cms.double( 0.1 )
     )
 )
