@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2008/06/25 17:34:37 $
- * $Revision: 1.210 $
+ * $Date: 2008/08/11 07:24:13 $
+ * $Revision: 1.211 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -355,19 +355,19 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           bool val;
 
-          val = true;
+          val = false;
           if ( numTot > 0 ) {
             float errorRate1 = num00 / numTot;
             if ( errorRate1 > threshCry_ )
-              val = false;
+              val = true;
             errorRate1 = ( num01 + num02 + num03 ) / numTot / 4.;
             if ( errorRate1 > threshCry_ )
-              val = false;
+              val = true;
           } else {
             if ( num00 > 0 )
-              val = false;
+              val = true;
             if ( ( num01 + num02 + num03 ) > 0 )
-              val = false;
+              val = true;
           }
           c1.setTaskStatus(val);
 
@@ -378,7 +378,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
             dataset1[ecid] = c1;
           }
 
-          status = status && val;
+          status = status && !val;
 
         }
 
@@ -436,19 +436,19 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           bool val;
 
-          val = true;
+          val = false;
           if ( numTot > 0 ) {
             float errorRate2 = num00 / numTot;
             if ( errorRate2 > threshCry_ )
-              val = false;
+              val = true;
             errorRate2 = ( num04 + num05 ) / numTot / 2.;
             if ( errorRate2 > threshCry_ )
-              val = false;
+              val = true;
           } else {
             if ( num00 > 0 )
-              val = false;
+              val = true;
             if ( ( num04 + num05 ) > 0 )
-              val = false;
+              val = true;
           }
           c2.setTaskStatus(val);
 
@@ -459,7 +459,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
             dataset2[ecid] = c2;
           }
 
-          status = status && val;
+          status = status && !val;
 
         }
 
@@ -509,19 +509,19 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           bool val;
 
-          val = true;
+          val = false;
           if ( numTot > 0 ) {
             float errorRate1 = num00 / numTot;
             if ( errorRate1 > threshCry_ )
-              val = false;
+              val = true;
             errorRate1 = ( num06 + num07 ) / numTot / 2.;
             if ( errorRate1 > threshCry_ )
-              val = false;
+              val = true;
           } else {
             if ( num00 > 0 )
-             val = false;
+             val = true;
             if ( ( num06 + num07 ) > 0 )
-              val = false;
+              val = true;
           }
           c3. setTaskStatus(val);
 
@@ -532,7 +532,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
             dataset3[ecid] = c3;
           }
 
-          status = status && val;
+          status = status && !val;
 
         }
 
@@ -589,19 +589,19 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         bool val;
 
-        val = true;
+        val = false;
         if ( numTot > 0 ) {
           float errorRate2 = num00 / numTot;
           if ( errorRate2 > threshCry_ )
-            val = false;
+            val = true;
           errorRate2 = ( num08 + num09 ) / numTot / 2.;
           if ( errorRate2 > threshCry_ )
-            val = false;
+            val = true;
         } else {
           if ( num00 > 0 )
-            val = false;
+            val = true;
           if ( ( num08 + num09 ) > 0 )
-            val = false;
+            val = true;
         }
         c4.setTaskStatus(val);
 
@@ -612,7 +612,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           dataset4[ecid] = c4;
         }
 
-        status = status && val;
+        status = status && !val;
 
       }
 
