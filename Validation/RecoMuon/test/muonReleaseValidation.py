@@ -196,16 +196,16 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                 cfgFile = open(cfgFileName+'.py' , 'a' )
                 replace(symbol_map, templatecfgFile, cfgFile)
 
-                cmdrun='cd '+WorkDir+'/' +NewRelease+'/'+NewSelection+'/'+sample+'/; '+'cmsRun '+cfgFileName+ '.py >&  ' + cfgFileName + '.log < /dev/zero '
+                cmdrun='cmsRun ' + NewRelease+'/'+NewSelection+'/'+sample+'/'+cfgFileName+ '.py >&  ' + cfgFileName + '.log < /dev/zero '
 
                 print cmdrun
 
                 lancialines='#!/usr/local/bin/bash \n'
                 lancialines+='cd '+ProjectBase+'/src \n'
                 lancialines+='eval `scramv1 run -sh` \n\n'
-                #lancialines+='cd '+WorkDir+'/'+NewRelease+'/'+NewSelection+'/'+sample+'\n'
-                #lancialines+='cmsRun '+cfgFileName+'.py \n'
-                lancialines+=cmdrun
+                lancialines+='cd '+WorkDir+'/'+NewRelease+'/'+NewSelection+'/'+sample+'\n'
+                lancialines+='cmsRun '+cfgFileName+'.py  >&  ' + cfgFileName + '.log < /dev/zero \n'
+                
 
                 lanciaFile = open('lancia_'+GlobalTag+'_'+sample,'w')
                 lanciaFile.write(lancialines)
@@ -218,6 +218,8 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
 
                 if(Submit):
                     retcode=os.system(cmdrun)
+                    if os.path.isfile(sample+'.log'):
+                        os.system('mv '+sample+'.log ' + NewRelease+'/'+NewSelection+'/'+sample)
                 else:
                     continue
 
@@ -225,9 +227,12 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                     print 'Job for sample '+ sample + ' failed. \n'
                 else:
                     if Sequence=="harvesting":
-                        os.system('mv  DQM_V0001_R000000001__' + GlobalTag+ '__' + sample + '__Validation.root' + ' ' + 'val.' +sample+'.root')
-
-
+                        os.system('mv  DQM_V0001_R000000001__' + GlobalTag+ '__' + sample + '__Validation.root' + ' ' + NewRelease+'/'+NewSelection+'/'+sample+'/val.' +sample+'.root')
+                    if os.path.isfile('fullOutput.'+sample+'.root'):
+                        os.system('mv fullOutput.'+sample+'.root ' + NewRelease+'/'+NewSelection+'/'+sample)
+                    if os.path.isfile('output.'+sample+'.root'):
+                        os.system('mv output.'+sample+'.root ' + NewRelease+'/'+NewSelection+'/'+sample)
+                        
             else:
                 print 'No dataset found skipping sample: '+ sample, '\n'
         else:
@@ -243,8 +248,9 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
 try:
      #Get some environment variables to use
      if Submit:
+         print 'Will Submit job'
          #NewRelease     = os.environ["CMSSW_VERSION"]
-         ProjectBase    = os.environ["CMSSW_BASE"]
+     ProjectBase    = os.environ["CMSSW_BASE"]
      #else:
          #NewRelease='CMSSW_2_2_3'
 
