@@ -116,18 +116,38 @@ public:
 
     void setGtConditionMap(const std::vector<ConditionMap>&);
 
-    /// get / set the trigger menu name
+    /// get / set the trigger menu names
+    inline const std::string& gtTriggerMenuInterface() const {
+        return m_triggerMenuInterface;
+    }
+
+    void setGtTriggerMenuInterface(const std::string&);
+
+    //
     inline const std::string& gtTriggerMenuName() const {
         return m_triggerMenuName;
     }
 
     void setGtTriggerMenuName(const std::string&);
 
+    //
+    inline const std::string& gtTriggerMenuImplementation() const {
+        return m_triggerMenuImplementation;
+    }
+
+    void setGtTriggerMenuImplementation(const std::string&);
+
+    /// menu associated scale key
+    inline const std::string& gtScaleDbKey() const {
+        return m_scaleDbKey;
+    }
+
+    void setGtScaleDbKey(const std::string&);
+
     /// get / set the vectors containing the conditions
     inline const std::vector<std::vector<L1GtMuonTemplate> >& vecMuonTemplate() const {
         return m_vecMuonTemplate;
     }
-
     void setVecMuonTemplate(const std::vector<std::vector<L1GtMuonTemplate> >&);
 
     //
@@ -227,12 +247,19 @@ public:
     void setCorEnergySumTemplate(
             const std::vector<std::vector<L1GtEnergySumTemplate> >&);
 
-    /// get / set the algorithm map
+    /// get / set the algorithm map (by name)
     inline const AlgorithmMap& gtAlgorithmMap() const {
         return m_algorithmMap;
     }
 
     void setGtAlgorithmMap(const AlgorithmMap&);
+
+    /// get / set the algorithm map (by alias)
+    inline const AlgorithmMap& gtAlgorithmAliasMap() const {
+        return m_algorithmAliasMap;
+    }
+
+    void setGtAlgorithmAliasMap(const AlgorithmMap&);
 
     /// get / set the technical trigger map
     inline const AlgorithmMap& gtTechnicalTriggerMap() const {
@@ -246,6 +273,48 @@ public:
     /// parse def.xml and vme.xml files
     void parseXmlFile(const std::string& defXmlFile,
             const std::string& vmeXmlFile);
+
+public:
+
+    /// get / set the XML parser creation date, author, description for menu interface, menu
+    inline const std::string& gtTriggerMenuInterfaceDate() const {
+        return m_triggerMenuInterfaceDate;
+    }
+
+    void setGtTriggerMenuInterfaceDate(const std::string&);
+
+    inline const std::string& gtTriggerMenuInterfaceAuthor() const {
+        return m_triggerMenuInterfaceAuthor;
+    }
+
+    void setGtTriggerMenuInterfaceAuthor(const std::string&);
+
+    inline const std::string& gtTriggerMenuInterfaceDescription() const {
+        return m_triggerMenuInterfaceDescription;
+    }
+
+    void setGtTriggerMenuInterfaceDescription(const std::string&);
+
+    //
+
+    inline const std::string& gtTriggerMenuDate() const {
+        return m_triggerMenuDate;
+    }
+
+    void setGtTriggerMenuDate(const std::string&);
+
+    inline const std::string& gtTriggerMenuAuthor() const {
+        return m_triggerMenuAuthor;
+    }
+
+    void setGtTriggerMenuAuthor(const std::string&);
+
+    inline const std::string& gtTriggerMenuDescription() const {
+        return m_triggerMenuDescription;
+    }
+
+    void setGtTriggerMenuDescription(const std::string&);
+
 
 private:
 
@@ -291,10 +360,6 @@ private:
     /// shutdown the xml utils and deallocate parser and error handler
     void cleanupXML(XERCES_CPP_NAMESPACE::XercesDOMParser* parser);
 
-    /// FIXME remove it after new L1 Trigger Menu Editor available
-    /// mirrors the LUT table from GTgui format to correct bit format
-    boost::uint64_t mirror(const boost::uint64_t oldLUT, int maxBitsLUT,
-            int maxBitsReal);
 
 private:
 
@@ -379,6 +444,9 @@ private:
     bool parseCorrelation(XERCES_CPP_NAMESPACE::DOMNode* node,
             const std::string& name, unsigned int chipNr = 0);
 
+    /// parse all parse all identification attributes (trigger menu names, scale DB key, etc)
+    bool parseId(XERCES_CPP_NAMESPACE::XercesDOMParser* parser);
+
     /// choose the parser for a particular condition
     bool workCondition(XERCES_CPP_NAMESPACE::DOMNode* node,
             const std::string& name, unsigned int chipNr);
@@ -431,13 +499,28 @@ private:
 
 private:
 
+    std::string m_triggerMenuInterfaceDate;
+    std::string m_triggerMenuInterfaceAuthor;
+    std::string m_triggerMenuInterfaceDescription;
+
+    std::string m_triggerMenuDate;
+    std::string m_triggerMenuAuthor;
+    std::string m_triggerMenuDescription;
+
+private:
+
     /// map containing the conditions (per condition chip) - transient
     std::vector<ConditionMap> m_conditionMap;
 
 private:
 
-    /// menu name
+    /// menu names
+    std::string m_triggerMenuInterface;
     std::string m_triggerMenuName;
+    std::string m_triggerMenuImplementation;
+
+    /// menu associated scale key
+    std::string m_scaleDbKey;
 
     /// vectors containing the conditions
     /// explicit, due to persistency...
@@ -455,8 +538,11 @@ private:
     std::vector<std::vector<L1GtCaloTemplate> > m_corCaloTemplate;
     std::vector<std::vector<L1GtEnergySumTemplate> > m_corEnergySumTemplate;
 
-    /// map containing the physics algorithms
+    /// map containing the physics algorithms (by name)
     AlgorithmMap m_algorithmMap;
+
+    /// map containing the physics algorithms (by alias)
+    AlgorithmMap m_algorithmAliasMap;
 
     /// map containing the technical triggers
     AlgorithmMap m_technicalTriggerMap;

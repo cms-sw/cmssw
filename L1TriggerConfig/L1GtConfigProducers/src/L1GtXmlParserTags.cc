@@ -9,8 +9,8 @@
  *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  *
- * $Date: 2008/09/08 17:34:32 $
- * $Revision: 1.6 $
+ * $Date: 2008/12/13 00:59:27 $
+ * $Revision: 1.7 $
  *
  */
 
@@ -39,11 +39,28 @@ L1GtXmlParserTags::~L1GtXmlParserTags() {
 
 const std::string L1GtXmlParserTags::m_xmlTagDef("def");
 const std::string L1GtXmlParserTags::m_xmlTagHeader("header");
+
+const std::string L1GtXmlParserTags::m_xmlTagMenuInterface("MenuInterface");
+const std::string L1GtXmlParserTags::m_xmlTagMenuInterfaceDate("MenuInterface_CreationDate");
+const std::string L1GtXmlParserTags::m_xmlTagMenuInterfaceAuthor("MenuInterface_CreationAuthor");
+const std::string L1GtXmlParserTags::m_xmlTagMenuInterfaceDescription("MenuInterface_Description");
+
+const std::string L1GtXmlParserTags::m_xmlTagMenuDate("Menu_CreationDate");
+const std::string L1GtXmlParserTags::m_xmlTagMenuAuthor("Menu_CreationAuthor");
+const std::string L1GtXmlParserTags::m_xmlTagMenuDescription("Menu_Description");
+
+const std::string L1GtXmlParserTags::m_xmlTagMenuAlgImpl("AlgImplementation");
+
+const std::string L1GtXmlParserTags::m_xmlTagScaleDbKey("ScaleDbKey");
+
+
 const std::string L1GtXmlParserTags::m_xmlTagChip("condition_chip_");
 const std::string L1GtXmlParserTags::m_xmlTagConditions("conditions");
 // see parseAlgorithms note for "prealgos"
 const std::string L1GtXmlParserTags::m_xmlTagAlgorithms("prealgos");
 const std::string L1GtXmlParserTags::m_xmlTagTechTriggers("techtriggers");
+
+const std::string L1GtXmlParserTags::m_xmlAlgorithmAttrAlias("algAlias");
 
 const std::string L1GtXmlParserTags::m_xmlConditionAttrCondition("condition");
 const std::string L1GtXmlParserTags::m_xmlConditionAttrObject("particle");

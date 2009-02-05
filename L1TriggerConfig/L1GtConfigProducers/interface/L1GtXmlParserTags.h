@@ -12,8 +12,8 @@
  *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  *
- * $Date: 2008/09/08 17:34:32 $
- * $Revision: 1.6 $
+ * $Date: 2008/12/13 00:59:29 $
+ * $Revision: 1.7 $
  *
  */
 
@@ -41,10 +41,26 @@ protected:
     // strings for the def.xml-syntax
     static const std::string m_xmlTagDef;
     static const std::string m_xmlTagHeader;
+
+    static const std::string m_xmlTagMenuInterface;
+    static const std::string m_xmlTagMenuInterfaceDate;
+    static const std::string m_xmlTagMenuInterfaceAuthor;
+    static const std::string m_xmlTagMenuInterfaceDescription;
+
+    static const std::string m_xmlTagMenuDate;
+    static const std::string m_xmlTagMenuAuthor;
+    static const std::string m_xmlTagMenuDescription;
+
+    static const std::string m_xmlTagMenuAlgImpl;
+
+    static const std::string m_xmlTagScaleDbKey;
+
     static const std::string m_xmlTagChip;
     static const std::string m_xmlTagConditions;
     static const std::string m_xmlTagAlgorithms;
     static const std::string m_xmlTagTechTriggers;
+
+    static const std::string m_xmlAlgorithmAttrAlias;
 
     static const std::string m_xmlConditionAttrCondition;
     static const std::string m_xmlConditionAttrObject;

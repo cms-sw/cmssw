@@ -148,7 +148,12 @@ boost::shared_ptr<L1GtTriggerMenu> L1GtTriggerMenuXmlProducer::produceGtTriggerM
                         gtXmlParser.corEnergySumTemplate()) );
 
 
+    pL1GtTriggerMenu->setGtTriggerMenuInterface(gtXmlParser.gtTriggerMenuInterface());
+    pL1GtTriggerMenu->setGtTriggerMenuImplementation(gtXmlParser.gtTriggerMenuImplementation());
+    pL1GtTriggerMenu->setGtScaleDbKey(gtXmlParser.gtScaleDbKey());
+
     pL1GtTriggerMenu->setGtAlgorithmMap(gtXmlParser.gtAlgorithmMap());
+    pL1GtTriggerMenu->setGtAlgorithmAliasMap(gtXmlParser.gtAlgorithmAliasMap());
     pL1GtTriggerMenu->setGtTechnicalTriggerMap(gtXmlParser.gtTechnicalTriggerMap());
 
     //LogDebug("L1GtConfigProducers")

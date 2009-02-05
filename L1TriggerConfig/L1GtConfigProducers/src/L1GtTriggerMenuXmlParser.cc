@@ -106,11 +106,24 @@ void L1GtTriggerMenuXmlParser::setGtConditionMap(const std::vector<ConditionMap>
 }
 
 // set the trigger menu name
+void L1GtTriggerMenuXmlParser::setGtTriggerMenuInterface(const std::string& menuInterface) {
+    m_triggerMenuInterface = menuInterface;
+}
+
 void L1GtTriggerMenuXmlParser::setGtTriggerMenuName(const std::string& menuName) {
     m_triggerMenuName = menuName;
 }
 
-// get / set the vectors containing the conditions
+void L1GtTriggerMenuXmlParser::setGtTriggerMenuImplementation(const std::string& menuImplementation) {
+    m_triggerMenuImplementation = menuImplementation;
+}
+
+// set menu associated scale key
+void L1GtTriggerMenuXmlParser::setGtScaleDbKey(const std::string& scaleKey) {
+    m_scaleDbKey = scaleKey;
+}
+
+// set the vectors containing the conditions
 void L1GtTriggerMenuXmlParser::setVecMuonTemplate(
         const std::vector<std::vector<L1GtMuonTemplate> >& vecMuonTempl) {
 
@@ -188,9 +201,14 @@ void L1GtTriggerMenuXmlParser::setCorEnergySumTemplate(
 
 
 
-// set the algorithm map
+// set the algorithm map (by algorithm names)
 void L1GtTriggerMenuXmlParser::setGtAlgorithmMap(const AlgorithmMap& algoMap) {
     m_algorithmMap = algoMap;
+}
+
+// set the algorithm map (by algorithm aliases)
+void L1GtTriggerMenuXmlParser::setGtAlgorithmAliasMap(const AlgorithmMap& algoMap) {
+    m_algorithmAliasMap = algoMap;
 }
 
 // set the technical trigger map
@@ -225,14 +243,17 @@ void L1GtTriggerMenuXmlParser::parseXmlFile(const std::string& defXmlFile,
     m_corCaloTemplate.resize(m_numberConditionChips);
     m_corEnergySumTemplate.resize(m_numberConditionChips);
 
-    // set the name of the trigger menu: defXmlFile, stripped of absolute path and .xml
-    std::string::iterator itString;
+    // set the name of the trigger menu name:
+    //     defXmlFile, stripped of absolute path and .xml
+    // will be overwritten by the value read from the xml file, with a warning if
+    // they are not the same
     m_triggerMenuName = defXmlFile;
     size_t xmlPos = m_triggerMenuName.find_last_of("/");
-    m_triggerMenuName.erase(m_triggerMenuName.begin(), m_triggerMenuName.begin()+ xmlPos+1);
+    m_triggerMenuName.erase(m_triggerMenuName.begin(), m_triggerMenuName.begin()
+            + xmlPos + 1);
 
     xmlPos = m_triggerMenuName.find_last_of(".");
-    m_triggerMenuName.erase(m_triggerMenuName.begin()+ xmlPos, m_triggerMenuName.end());
+    m_triggerMenuName.erase(m_triggerMenuName.begin() + xmlPos, m_triggerMenuName.end());
 
     // error handler for xml-parser
     m_xmlErrHandler = 0;
@@ -247,6 +268,49 @@ void L1GtTriggerMenuXmlParser::parseXmlFile(const std::string& defXmlFile,
     cleanupXML(parser);
 
 }
+
+//
+
+void L1GtTriggerMenuXmlParser::setGtTriggerMenuInterfaceDate(const std::string& val) {
+
+    m_triggerMenuInterfaceDate = val;
+
+}
+
+void L1GtTriggerMenuXmlParser::setGtTriggerMenuInterfaceAuthor(const std::string& val) {
+
+    m_triggerMenuInterfaceAuthor = val;
+
+}
+
+void L1GtTriggerMenuXmlParser::setGtTriggerMenuInterfaceDescription(const std::string& val) {
+
+    m_triggerMenuInterfaceDescription = val;
+
+}
+
+
+void L1GtTriggerMenuXmlParser::setGtTriggerMenuDate(const std::string& val) {
+
+    m_triggerMenuDate = val;
+
+}
+
+void L1GtTriggerMenuXmlParser::setGtTriggerMenuAuthor(const std::string& val) {
+
+    m_triggerMenuAuthor = val;
+
+}
+
+void L1GtTriggerMenuXmlParser::setGtTriggerMenuDescription(const std::string& val) {
+
+    m_triggerMenuDescription = val;
+
+}
+
+// private methods
+
+
 
 /**
  * initXML - Initialize XML-utilities and try to create a parser for the specified file.
@@ -833,66 +897,6 @@ void L1GtTriggerMenuXmlParser::cleanupXML(XERCES_CPP_NAMESPACE::XercesDOMParser*
 
 }
 
-// FIXME remove it after new L1 Trigger Menu Editor available
-// mirrors the LUT table from GTgui format to correct bit format
-boost::uint64_t L1GtTriggerMenuXmlParser::mirror(const boost::uint64_t oldLUT,
-        int maxBitsLUT, int maxBitsReal)
-{
-
-    LogTrace("L1GtTriggerMenuXmlParser") << "\n maxBitsLUT (dec) = "
-            << maxBitsLUT << std::endl;
-
-    boost::uint64_t newLUT = 0ULL;
-    int newBit = -1;
-
-    int firstBin = 0;
-    int diffScale = maxBitsLUT - maxBitsReal;
-    //int bits16 = maxBitsLUT/4; // hex size
-
-    if (diffScale != 0) {
-        firstBin = 1;
-    }
-
-    for (int oldBit = 0; oldBit < maxBitsLUT; ++oldBit) {
-
-        boost::uint64_t bitValue = (oldLUT & (1ULL << oldBit)) >> oldBit;
-
-        newBit = maxBitsReal/2 + firstBin - oldBit - 1;
-
-        if (newBit < 0) {
-            int newVal = (maxBitsLUT/2 + std::abs(newBit) - 1 );
-            int endValid = maxBitsLUT/2 + maxBitsReal/2;
-            if ((newVal < endValid)) {
-                newBit = newVal;
-            }
-            else {
-                newBit = oldBit + (maxBitsReal - maxBitsLUT)/2;
-
-                if (newBit >= maxBitsLUT/2) {
-                    newBit = oldBit;
-                }
-            }
-        }
-
-        newLUT = newLUT | (bitValue << newBit);
-
-        //LogTrace("L1GtTriggerMenuXmlParser") << "  old bit number -> new bit number: "
-        //        << oldBit
-        //        << "\t ---> " << newBit << ";\t  bit value = "
-        //        << bitValue << std::endl;
-    }
-
-    //LogTrace("L1GtTriggerMenuXmlParser") << "\n Converting old LUT  (hex) "
-    //        << "\n    GTgui.XML:    "
-    //        << std::hex << std::setw(bits16) << std::setfill('0')
-    //        << oldLUT
-    //        << "\n    Mirror:       "
-    //        << std::hex << std::setw(bits16) << std::setfill('0')
-    //        << newLUT << std::dec
-    //        << std::endl;
-
-    return newLUT;
-}
 
 // methods for the VME file
 
@@ -2998,9 +3002,244 @@ bool L1GtTriggerMenuXmlParser::parseCorrelation(
     return true;
 }
 
+/**
+ * parseId - parse all identification attributes (trigger menu names, scale DB key, etc)
+ *
+ * @param parser The parser to parse the XML file with.
+ *
+ * @return "true" if succeeded. "false" if an error occurred.
+ *
+ */
+bool L1GtTriggerMenuXmlParser::parseId(XERCES_CPP_NAMESPACE::XercesDOMParser* parser) {
+
+    XERCES_CPP_NAMESPACE_USE
+
+    DOMNode* doc = parser->getDocument();
+    DOMNode* n1 = doc->getFirstChild();
+
+    // we assume that the first child is m_xmlTagDef because it was checked in workXML
+
+    DOMNode* headerNode = n1->getFirstChild();
+    if (headerNode == 0) {
+        edm::LogError("L1GtTriggerMenuXmlParser") << "Error: No child of <" << m_xmlTagDef
+                << "> tag found." << std::endl;
+        return false;
+    }
+
+    std::string algImplementation;
+
+    headerNode = findXMLChild(headerNode, m_xmlTagHeader);
+    if (headerNode == 0) {
+
+        LogDebug("L1GtTriggerMenuXmlParser") << "\n  Warning: Could not find <" << m_xmlTagHeader
+                << "> tag" << "\n   - No header information." << std::endl;
+
+    } else {
+
+        DOMNode* idNode = headerNode->getFirstChild();
+
+        // find menu interface name
+        idNode = findXMLChild(idNode, m_xmlTagMenuInterface);
+        if (idNode == 0) {
+
+            LogTrace("L1GtTriggerMenuXmlParser") << "\n  Warning: Could not find <"
+                    << m_xmlTagMenuInterface << "> tag"
+                    << "\n   - Trigger menu interface name derived from file name." << std::endl;
+
+            // set the name of the trigger menu interface: from beginning of file names
+            // until beginning of "_L1T_Scales"
+            size_t xmlPos = m_triggerMenuName.find("_L1T_Scales", 0);
+            if (xmlPos == std::string::npos) {
+                LogTrace("L1GtTriggerMenuXmlParser")
+                        << "\n  Warning: Could not find \"_L1T_Scales\" " << "string in file name"
+                        << "\n   - Trigger menu interface name set to file name." << std::endl;
+                m_triggerMenuInterface = m_triggerMenuName;
+
+            } else {
+                m_triggerMenuInterface = m_triggerMenuName;
+                m_triggerMenuInterface.erase(
+                        m_triggerMenuInterface.begin(), m_triggerMenuInterface.begin() + xmlPos);
+            }
+
+        } else {
+            m_triggerMenuInterface = getXMLTextValue(idNode);
+        }
+
+        // find menu interface creation date
+        idNode = headerNode->getFirstChild();
+        idNode = findXMLChild(idNode, m_xmlTagMenuInterfaceDate);
+
+        if (idNode == 0) {
+
+            LogTrace("L1GtTriggerMenuXmlParser") << "\n  Warning: Could not find <"
+                    << m_xmlTagMenuInterfaceDate << "> tag" << "\n   - No creation date."
+                    << m_triggerMenuInterfaceDate << std::endl;
+
+        } else {
+
+            m_triggerMenuInterfaceDate = getXMLTextValue(idNode);
+        }
+
+        // find menu interface creation author
+        idNode = headerNode->getFirstChild();
+        idNode = findXMLChild(idNode, m_xmlTagMenuInterfaceAuthor);
+
+        if (idNode == 0) {
+
+            LogTrace("L1GtTriggerMenuXmlParser") << "\n  Warning: Could not find <"
+                    << m_xmlTagMenuInterfaceAuthor << "> tag" << "\n   - No creation author."
+                    << m_triggerMenuInterfaceAuthor << std::endl;
+
+        } else {
+
+            m_triggerMenuInterfaceAuthor = getXMLTextValue(idNode);
+        }
+
+        // find menu interface description
+        idNode = headerNode->getFirstChild();
+        idNode = findXMLChild(idNode, m_xmlTagMenuInterfaceDescription);
+
+        if (idNode == 0) {
+
+            LogTrace("L1GtTriggerMenuXmlParser") << "\n  Warning: Could not find <"
+                    << m_xmlTagMenuInterfaceDescription << "> tag" << "\n   - No description."
+                    << m_triggerMenuInterfaceDescription << std::endl;
+
+        } else {
+
+            m_triggerMenuInterfaceDescription = getXMLTextValue(idNode);
+        }
+
+        // find menu creation date
+        idNode = headerNode->getFirstChild();
+        idNode = findXMLChild(idNode, m_xmlTagMenuDate);
+
+        if (idNode == 0) {
+
+            LogTrace("L1GtTriggerMenuXmlParser") << "\n  Warning: Could not find <"
+                    << m_xmlTagMenuDate << "> tag" << "\n   - No creation date."
+                    << m_triggerMenuDate << std::endl;
+
+        } else {
+
+            m_triggerMenuDate = getXMLTextValue(idNode);
+        }
+
+        // find menu creation author
+        idNode = headerNode->getFirstChild();
+        idNode = findXMLChild(idNode, m_xmlTagMenuAuthor);
+
+        if (idNode == 0) {
+
+            LogTrace("L1GtTriggerMenuXmlParser") << "\n  Warning: Could not find <"
+                    << m_xmlTagMenuAuthor << "> tag" << "\n   - No creation author."
+                    << m_triggerMenuAuthor << std::endl;
+
+        } else {
+
+            m_triggerMenuAuthor = getXMLTextValue(idNode);
+        }
+
+        // find menu description
+        idNode = headerNode->getFirstChild();
+        idNode = findXMLChild(idNode, m_xmlTagMenuDescription);
+
+        if (idNode == 0) {
+
+            LogTrace("L1GtTriggerMenuXmlParser") << "\n  Warning: Could not find <"
+                    << m_xmlTagMenuDescription << "> tag" << "\n   - No description."
+                    << m_triggerMenuDescription << std::endl;
+
+        } else {
+
+            m_triggerMenuDescription = getXMLTextValue(idNode);
+        }
+
+        // find algorithm implementation tag
+
+        idNode = headerNode->getFirstChild();
+
+        idNode = findXMLChild(idNode, m_xmlTagMenuAlgImpl);
+        if (idNode == 0) {
+
+            algImplementation = "";
+            LogTrace("L1GtTriggerMenuXmlParser") << "\n  Warning: Could not find <"
+                    << m_xmlTagMenuAlgImpl << "> tag"
+                    << "\n   - Algorithm implementation tag set to empty string." << std::endl;
+
+        } else {
+
+            algImplementation = getXMLTextValue(idNode);
+        }
+
+        // find DB key for L1 scales
+
+        idNode = headerNode->getFirstChild();
+
+        idNode = findXMLChild(idNode, m_xmlTagScaleDbKey);
+        if (idNode == 0) {
+
+            m_scaleDbKey = "NULL";
+            LogTrace("L1GtTriggerMenuXmlParser") << "\n  Warning: Could not find <"
+                    << m_xmlTagScaleDbKey << "> tag" << "\n   - Scale key set to " << m_scaleDbKey
+                    << " string." << std::endl;
+
+        } else {
+            m_scaleDbKey = getXMLTextValue(idNode);
+        }
+
+    }
+
+    LogDebug("L1GtTriggerMenuXmlParser")
+    << "\n  Parsed values from XML file"
+    << "\nL1 MenuInterface:                   " << m_triggerMenuInterface
+    << "\nL1 MenuInterface - Creation date:   " << m_triggerMenuInterfaceDate
+    << "\nL1 MenuInterface - Creation author: " << m_triggerMenuInterfaceAuthor
+    << "\nL1 MenuInterface - Description:     " << m_triggerMenuInterfaceDescription
+    << "\n"
+    << "\nAlgorithm implementation tag:       " << algImplementation
+    << "\n"
+    << "\nL1 Menu - Creation date:            " << m_triggerMenuDate
+    << "\nL1 Menu - Creation author:          " << m_triggerMenuAuthor
+    << "\nL1 Menu - Description:              " << m_triggerMenuDescription
+    << std::endl;
+
+
+    // set the trigger menu name
+    // format:
+    // L1MenuInterface/ScaleDbKey/AlgorithmImplementationTag
+
+    std::string menuName = m_triggerMenuInterface + "/" + m_scaleDbKey + "/" + algImplementation;
+
+    if (menuName != m_triggerMenuName) {
+
+        LogDebug("L1GtTriggerMenuXmlParser") << "\n  Warning: Inconsistent L1 menu name:"
+                << "\n    from XML file name: " << m_triggerMenuName
+                << "\n    from XML tag:       " << menuName << std::endl;
+
+        if (m_triggerMenuInterface != "") {
+            if (m_scaleDbKey == "NULL") {
+                m_triggerMenuName = m_triggerMenuInterface;
+            } else {
+                m_triggerMenuName = menuName;
+            }
+
+            LogTrace("L1GtTriggerMenuXmlParser") << "\n  L1 menu name set to value from XML tag!"
+                    << "\n  L1 Menu name: " << m_triggerMenuName << std::endl;
+
+        } else {
+            LogTrace("L1GtTriggerMenuXmlParser") << "\n  L1 menu name set to file name!"
+                    << "\n  L1 Menu name: " << m_triggerMenuName << std::endl;
+
+        }
+    }
+
+    //
+    return true;
+}
 
 /**
- * workCondition - call the apropiate function to parse this condition.
+ * workCondition - call the appropriate function to parse this condition.
  *
  * @param node The corresponding node to the condition.
  * @param name The name of the condition.
@@ -3110,7 +3349,7 @@ bool L1GtTriggerMenuXmlParser::parseConditions(XERCES_CPP_NAMESPACE::XercesDOMPa
     if (chipNode == 0) {
 
         edm::LogError("L1GtTriggerMenuXmlParser") << "  Error: Could not find <" << m_xmlTagChip
-            << std::endl;
+            << "> tag" << std::endl;
 
         return false;
     }
@@ -3186,6 +3425,21 @@ bool L1GtTriggerMenuXmlParser::workAlgorithm(XERCES_CPP_NAMESPACE::DOMNode* node
         return false;
     }
 
+    // get alias
+    std::string algAlias = getXMLAttribute(node, m_xmlAlgorithmAttrAlias);
+
+    if (algAlias == "") {
+        algAlias = algName;
+        LogDebug("L1GtTriggerMenuXmlParser")
+                << "\n    No alias defined for algorithm. Alias set to algorithm name."
+                << "\n    Algorithm name:  " << algName << "\n    Algorithm alias: " << algAlias
+                << std::endl;
+    } else {
+        LogDebug("L1GtTriggerMenuXmlParser") << "\n    Alias defined for algorithm."
+                << "\n    Algorithm name:  " << algName << "\n    Algorithm alias: " << algAlias
+                << std::endl;
+    }
+
     // get the logical expression from the node
     std::string logExpression = getXMLTextValue(node);
 
@@ -3203,29 +3457,21 @@ bool L1GtTriggerMenuXmlParser::workAlgorithm(XERCES_CPP_NAMESPACE::DOMNode* node
     int outputPin = 0;
 
     pinNode = node->getFirstChild();
-    while ( (pinNode = findXMLChild(pinNode, m_xmlTagOutputPin) ) != 0) {
-        pinString = getXMLAttribute(pinNode, m_xmlAttrPin); // we look for the "a" pin
-        if (pinString == m_xmlAttrPinA) {
-            // found pin a
-            pinString = getXMLAttribute(pinNode, m_xmlAttrNr);
+    if ( (pinNode = findXMLChild(pinNode, m_xmlTagOutputPin) ) != 0) {
+        pinString = getXMLAttribute(pinNode, m_xmlAttrNr);
 
-            // convert pinString to integer
-            std::istringstream opStream(pinString);
+        // convert pinString to integer
+        std::istringstream opStream(pinString);
 
-            if ((opStream >> outputPin).fail()) {
-                LogDebug("L1GtTriggerMenuXmlParser") << "    Unable to convert pin string "
-                    << pinString << " to int for algorithm : " << algName << std::endl;
+        if ((opStream >> outputPin).fail()) {
+            LogDebug("L1GtTriggerMenuXmlParser")
+                    << "    Unable to convert pin string " << pinString
+                    << " to int for algorithm : " << algName
+                    << std::endl;
 
-                return false;
-            }
-
-            //LogTrace("L1GtTriggerMenuXmlParser")
-            //<< "      Output pin:         " << outputPin
-            //<< std::endl;
-
-            break;
+            return false;
         }
-        pinNode = pinNode->getNextSibling();
+
     }
 
     if (pinNode == 0) {
@@ -3234,6 +3480,11 @@ bool L1GtTriggerMenuXmlParser::workAlgorithm(XERCES_CPP_NAMESPACE::DOMNode* node
 
         return false;
     }
+
+    //LogTrace("L1GtTriggerMenuXmlParser")
+    //<< "      Output pin:         " << outputPin
+    //<< std::endl;
+
 
     // compute the bit number from chip number, output pin and order of the chips
     // pin numbering start with 1, bit numbers with 0
@@ -3246,6 +3497,7 @@ bool L1GtTriggerMenuXmlParser::workAlgorithm(XERCES_CPP_NAMESPACE::DOMNode* node
     // create a new algorithm and insert it into algorithm map
     L1GtAlgorithm alg(algName, logExpression, bitNumber);
     alg.setAlgoChipNumber(static_cast<int>(chipNr));
+    alg.setAlgoAlias(algAlias);
 
     if (edm::isDebugEnabled() ) {
 
@@ -3418,7 +3670,9 @@ bool L1GtTriggerMenuXmlParser::workTechTrigger(XERCES_CPP_NAMESPACE::DOMNode* no
     //<< std::endl;
 
     // create a new technical trigger and insert it into technical trigger map
+    // alias set automatically to name
     L1GtAlgorithm alg(algName, logExpression, bitNumber);
+    alg.setAlgoAlias(algName);
 
     if (edm::isDebugEnabled() ) {
 
@@ -3534,6 +3788,12 @@ bool L1GtTriggerMenuXmlParser::workXML(XERCES_CPP_NAMESPACE::XercesDOMParser* pa
     // clear possible old maps
     clearMaps();
 
+    if ( !parseId(parser) ) {
+        clearMaps();
+        return false;
+    }
+
+
     if ( !parseConditions(parser) ) {
         clearMaps();
         return false;
@@ -3552,6 +3812,7 @@ bool L1GtTriggerMenuXmlParser::workXML(XERCES_CPP_NAMESPACE::XercesDOMParser* pa
     return true;
 
 }
+
 
 // static class members
 
