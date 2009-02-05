@@ -81,10 +81,10 @@ namespace csctf
 
     switch(DetId(theDetId_).subdetId())
       {
-      case (MuonSubdetId::DT):
+      case (MuonSubdetId::DT): {
 	temps = DTChamberId(theDetId_).sector();
 	const unsigned int dt2csc[12] = {6,1,1,2,2,3,3,4,4,5,5,6};
-	se = dt2csc[temps-1];
+	se = dt2csc[temps-1]; }
 	break;
       case (MuonSubdetId::CSC):
 	se = CSCTriggerNumbering::triggerSectorFromLabels(CSCDetId(theDetId_));
@@ -102,10 +102,10 @@ namespace csctf
 
     switch(DetId(theDetId_).subdetId())
       {
-      case (MuonSubdetId::DT):
+      case (MuonSubdetId::DT): {
 	ss = DTChamberId(theDetId_).sector();
 	const unsigned int dt2csc_[12] = {2,1,2,1,2,1,2,1,2,1,2,1};
-	ss = dt2csc_[ss-1];
+	ss = dt2csc_[ss-1]; }
 	break;
       case (MuonSubdetId::CSC):
 	ss = CSCTriggerNumbering::triggerSubSectorFromLabels(CSCDetId(theDetId_));
