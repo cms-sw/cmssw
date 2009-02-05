@@ -55,7 +55,7 @@ class PFRecoTauDiscriminationAgainstElectron : public EDProducer {
     elecPreID1_HOverPLead_minValue_  = iConfig.getParameter<double>("ElecPreID1_HOverPLead_minValue");
 
 
-    applyCut_PFElectronMVA_  = iConfig.getParameter<double>("ApplyCut_PFElectronMVA");
+    applyCut_PFElectronMVA_  = iConfig.getParameter<bool>("ApplyCut_PFElectronMVA");
     pfelectronMVA_maxValue_  = iConfig.getParameter<double>("PFElectronMVA_maxValue"); 
 
     applyCut_ecalCrack_  = iConfig.getParameter<bool>("ApplyCut_EcalCrackCut");
