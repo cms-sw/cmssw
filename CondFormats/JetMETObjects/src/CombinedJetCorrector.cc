@@ -51,8 +51,10 @@ void CombinedJetCorrector::initCorrectors(std::string CorrectionLevels, std::str
   //---- Read the Options string and define the FlavorOption and PartonOption.
   std::string FlavorOption = parseOption(removeSpaces(Options),"Flavor");
   std::string PartonOption = parseOption(removeSpaces(Options),"Parton");
+
   //---- Check the consistency between tags and requested sub-corrections. 
   checkConsistency(mLevels,Tags);  
+  
   //---- Construct the full path correction parameters filenames.
   for(unsigned int i=0;i<Tags.size();i++)
     {
@@ -132,11 +134,11 @@ vector<string> CombinedJetCorrector::parseLevels(string ss)
   unsigned int pos(0),j,newPos;
   int i;
   string tmp;
-  //---- The ss string must be of the form: "LX,LY,...,LZ"
+  //---- The ss string must be of the form: "LX:LY:...:LZ"
   while (pos<ss.length())
     {
       tmp = "";
-      i = ss.find("," , pos);
+      i = ss.find(":" , pos);
       if (i<0 && pos==0)
         {
           result.push_back(ss);
@@ -165,13 +167,13 @@ string CombinedJetCorrector::parseOption(string ss, string type)
 {
   string result;
   int pos1(-1),pos2(-1);
-  //---- The ss string must be of the form: "type1:option1,type2:option2,..."
+  //---- The ss string must be of the form: "type1:option1&type2:option2&..."
   pos1 = ss.find(type+":");
   if (pos1<0)
     result = "";
   else
     {
-      pos2 = ss.find(",",pos1+type.length()+1); 
+      pos2 = ss.find("&",pos1+type.length()+1); 
       if (pos2<0)
         result = ss.substr(pos1+type.length()+1,ss.length()-pos1-type.length()-1);
       else

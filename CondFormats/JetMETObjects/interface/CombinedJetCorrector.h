@@ -38,11 +38,10 @@ class CombinedJetCorrector
     std::string removeSpaces(std::string ss);
     void initCorrectors(std::string CorrectionLevels, std::string CorrectionTags, std::string Options);
     void checkConsistency(std::vector<std::string> Levels, std::vector<std::string> Tags);
-
     //---- Member Data ---------
     std::string mL3Option;
     std::vector<std::string> mLevels; 
-
+    
     SimpleL2RelativeCorrector*   mL2Corrector;
     SimpleL3AbsoluteCorrector*   mL3Corrector;
     SimpleL3PFAbsoluteCorrector* mL3PFCorrector; 

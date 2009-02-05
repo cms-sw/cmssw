@@ -19,15 +19,14 @@ void main()
   vector<reco::CaloJet> CaloJetCollection;
   TBranch *branch = tree->GetBranch(tree->GetAlias("IC5CaloJet"));
   branch->SetAddress(&CaloJetCollection); 
-
   ////////////// Defining the L2L3L7JetCorrector ///////////////////////
-  string Levels = "L2,L3,L7";
-  string Tags = "Summer08Redigi_L2Relative_IC5Calo,Summer08Redigi_L3Absolute_IC5Calo,L7parton_IC5_080921";
+  string Levels = "L2:L3:L7";
+  string Tags = "Summer08Redigi_L2Relative_IC5Calo:Summer08Redigi_L3Absolute_IC5Calo:L7parton_IC5_080921";
   string Options = "Parton:jJ";
   CombinedJetCorrector *L2L3L7JetCorrector = new CombinedJetCorrector(Levels,Tags,Options);
   ////////////// Defining the L2L3JetCorrector ///////////////////////
-  string Levels = "L2,L3";
-  string Tags = "Summer08Redigi_L2Relative_IC5Calo,Summer08Redigi_L3Absolute_IC5Calo";
+  string Levels = "L2:L3";
+  string Tags = "Summer08Redigi_L2Relative_IC5Calo:Summer08Redigi_L3Absolute_IC5Calo";
   CombinedJetCorrector *L2L3JetCorrector = new CombinedJetCorrector(Levels,Tags);
   ////////////// Fill demo histogram  ////////////////////////////
   TH2F *hMapping = new TH2F("Mapping","Mapping",500,0,500,500,0,500);
@@ -55,8 +54,7 @@ void main()
           for(unsigned int i=0;i<L2L3L7factors.size();i++)
 	    cout<<L2L3L7factors[i]<<endl;
           hMapping->Fill(L2L3scale*pt,L2L3L7scale*pt);
-          hRatio->Fill(L2L3scale*pt,L2L3L7scale/L2L3scale);
-	  
+          hRatio->Fill(L2L3scale*pt,L2L3L7scale/L2L3scale);	  
         }
     }
   ////////////// Draw demo histograms /////////////////////////////
@@ -70,7 +68,5 @@ void main()
   hRatio->SetTitle("Ratio Mapping");
   hRatio->GetXaxis()->SetTitle("L2L3Corrected jet pT (GeV)");
   hRatio->GetYaxis()->SetTitle("L2L3L7/L2L3");
-  hRatio->Draw();
-  
+  hRatio->Draw(); 
 }
-
