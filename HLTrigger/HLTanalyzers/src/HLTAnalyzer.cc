@@ -209,10 +209,10 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   edm::Handle<reco::ElectronIsolationMap>           NonIsoTrackEleIsolMapLW;
   edm::Handle<reco::ElectronIsolationMap>           TrackEleIsolMap;
   edm::Handle<reco::ElectronIsolationMap>           TrackEleIsolMapLW;
-  edm::Handle<reco::ElectronPixelSeedCollection>    L1IsoPixelSeedsMap;
-  edm::Handle<reco::ElectronPixelSeedCollection>    L1IsoPixelSeedsMapLW;
-  edm::Handle<reco::ElectronPixelSeedCollection>    L1NonIsoPixelSeedsMap;
-  edm::Handle<reco::ElectronPixelSeedCollection>    L1NonIsoPixelSeedsMapLW;
+  edm::Handle<reco::ElectronSeedCollection>         L1IsoPixelSeedsMap;
+  edm::Handle<reco::ElectronSeedCollection>         L1IsoPixelSeedsMapLW;
+  edm::Handle<reco::ElectronSeedCollection>         L1NonIsoPixelSeedsMap;
+  edm::Handle<reco::ElectronSeedCollection>         L1NonIsoPixelSeedsMapLW;
   edm::Handle<reco::RecoEcalCandidateCollection>    recoIsolecalcands;
   edm::Handle<reco::RecoEcalCandidateCollection>    recoNonIsolecalcands;
   edm::Handle<reco::RecoEcalCandidateIsolationMap>  EcalIsolMap;

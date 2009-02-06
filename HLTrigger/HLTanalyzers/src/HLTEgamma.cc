@@ -9,8 +9,8 @@
 #include <cstdlib>
 #include <cstring>
 
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "HLTrigger/HLTanalyzers/interface/HLTEgamma.h"
 
 
@@ -220,10 +220,10 @@ void HLTEgamma::analyze(const edm::Handle<reco::GsfElectronCollection>         &
                         const edm::Handle<reco::ElectronIsolationMap>          & NonIsoTrackEleIsolMapLW,
                         const edm::Handle<reco::ElectronIsolationMap>          & TrackEleIsolMap,
                         const edm::Handle<reco::ElectronIsolationMap>          & TrackEleIsolMapLW,
-                        const edm::Handle<reco::ElectronPixelSeedCollection>   & L1IsoPixelSeedsMap,
-                        const edm::Handle<reco::ElectronPixelSeedCollection>   & L1IsoPixelSeedsMapLW,
-                        const edm::Handle<reco::ElectronPixelSeedCollection>   & L1NonIsoPixelSeedsMap,
-                        const edm::Handle<reco::ElectronPixelSeedCollection>   & L1NonIsoPixelSeedsMapLW,
+                        const edm::Handle<reco::ElectronSeedCollection>   & L1IsoPixelSeedsMap,
+                        const edm::Handle<reco::ElectronSeedCollection>   & L1IsoPixelSeedsMapLW,
+                        const edm::Handle<reco::ElectronSeedCollection>   & L1NonIsoPixelSeedsMap,
+                        const edm::Handle<reco::ElectronSeedCollection>   & L1NonIsoPixelSeedsMapLW,
                         const edm::Handle<reco::RecoEcalCandidateCollection>   & recoIsolecalcands,
                         const edm::Handle<reco::RecoEcalCandidateCollection>   & recoNonIsolecalcands,
                         const edm::Handle<reco::RecoEcalCandidateIsolationMap> & EcalIsolMap,
@@ -550,7 +550,7 @@ void HLTEgamma::MakeL1IsolatedElectrons(
     const edm::Handle<reco::ElectronCollection>            & electronIsoHandle,
     const edm::Handle<reco::RecoEcalCandidateCollection>   & recoIsolecalcands,
     const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalEleIsolMap,
-    const edm::Handle<reco::ElectronPixelSeedCollection>   & L1IsoPixelSeedsMap,
+    const edm::Handle<reco::ElectronSeedCollection>   & L1IsoPixelSeedsMap,
     const edm::Handle<reco::ElectronIsolationMap>          & TrackEleIsolMap,
     EcalClusterLazyTools& lazyTools,
     const edm::ESHandle<MagneticField>& theMagField,
@@ -600,9 +600,10 @@ void HLTEgamma::MakeL1IsolatedElectrons(
       int nmatch = 0;
 
       if (L1IsoPixelSeedsMap.isValid()) {
-        for (reco::ElectronPixelSeedCollection::const_iterator it = L1IsoPixelSeedsMap->begin();
+        for (reco::ElectronSeedCollection::const_iterator it = L1IsoPixelSeedsMap->begin();
              it != L1IsoPixelSeedsMap->end(); it++) {
-          const reco::SuperClusterRef & scRef = it->superCluster();
+	  edm::RefToBase<reco::CaloCluster> caloCluster = it->caloCluster() ;
+ 	  reco::SuperClusterRef scRef = caloCluster.castTo<reco::SuperClusterRef>() ;
           if (&(*recrSC) ==  &(*scRef)) { nmatch++; }
         }
       }
@@ -674,7 +675,7 @@ void HLTEgamma::MakeL1NonIsolatedElectrons(
     const edm::Handle<reco::ElectronCollection>            & electronNonIsoHandle,
     const edm::Handle<reco::RecoEcalCandidateCollection>   & recoNonIsolecalcands,
     const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalEleIsolMap,
-    const edm::Handle<reco::ElectronPixelSeedCollection>   & L1NonIsoPixelSeedsMap,
+    const edm::Handle<reco::ElectronSeedCollection>   & L1NonIsoPixelSeedsMap,
     const edm::Handle<reco::ElectronIsolationMap>          & TrackEleIsolMap,
     EcalClusterLazyTools& lazyTools,
     const edm::ESHandle<MagneticField>& theMagField,
@@ -724,9 +725,10 @@ void HLTEgamma::MakeL1NonIsolatedElectrons(
       int nmatch = 0;
 
       if (L1NonIsoPixelSeedsMap.isValid()) {
-        for (reco::ElectronPixelSeedCollection::const_iterator it = L1NonIsoPixelSeedsMap->begin();
+        for (reco::ElectronSeedCollection::const_iterator it = L1NonIsoPixelSeedsMap->begin();
              it != L1NonIsoPixelSeedsMap->end(); it++) {
-          const reco::SuperClusterRef & scRef = it->superCluster();
+	  edm::RefToBase<reco::CaloCluster> caloCluster = it->caloCluster() ;
+ 	  reco::SuperClusterRef scRef = caloCluster.castTo<reco::SuperClusterRef>() ;
           if (&(*recrSC) == &(*scRef)) { nmatch++;}
         }
       }

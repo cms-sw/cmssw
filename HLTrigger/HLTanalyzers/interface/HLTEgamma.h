@@ -35,8 +35,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
@@ -78,10 +78,10 @@ public:
       const edm::Handle<reco::ElectronIsolationMap>          & NonIsoTrackEleIsolMapLW,
       const edm::Handle<reco::ElectronIsolationMap>          & TrackEleIsolMap,
       const edm::Handle<reco::ElectronIsolationMap>          & TrackEleIsolMapLW,
-      const edm::Handle<reco::ElectronPixelSeedCollection>   & L1IsoPixelSeedsMap,
-      const edm::Handle<reco::ElectronPixelSeedCollection>   & L1IsoPixelSeedsMapLW,
-      const edm::Handle<reco::ElectronPixelSeedCollection>   & L1NonIsoPixelSeedsMap,
-      const edm::Handle<reco::ElectronPixelSeedCollection>   & L1NonIsoPixelSeedsMapLW,
+      const edm::Handle<reco::ElectronSeedCollection>   & L1IsoPixelSeedsMap,
+      const edm::Handle<reco::ElectronSeedCollection>   & L1IsoPixelSeedsMapLW,
+      const edm::Handle<reco::ElectronSeedCollection>   & L1NonIsoPixelSeedsMap,
+      const edm::Handle<reco::ElectronSeedCollection>   & L1NonIsoPixelSeedsMapLW,
       const edm::Handle<reco::RecoEcalCandidateCollection>   & recoIsolecalcands,
       const edm::Handle<reco::RecoEcalCandidateCollection>   & recoNonIsolecalcands,
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & EcalIsolMap,
@@ -123,7 +123,7 @@ private:
       const edm::Handle<reco::ElectronCollection>            & electronIsoHandle,
       const edm::Handle<reco::RecoEcalCandidateCollection>   & recoIsolecalcands,
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalEleIsolMap,
-      const edm::Handle<reco::ElectronPixelSeedCollection>   & L1IsoPixelSeedsMap,
+      const edm::Handle<reco::ElectronSeedCollection>   & L1IsoPixelSeedsMap,
       const edm::Handle<reco::ElectronIsolationMap>          & TrackEleIsolMap,
       EcalClusterLazyTools& lazyTools,
       const edm::ESHandle<MagneticField>& theMagField,
@@ -134,7 +134,7 @@ private:
       const edm::Handle<reco::ElectronCollection>            & electronNonIsoHandle,
       const edm::Handle<reco::RecoEcalCandidateCollection>   & recoNonIsolecalcands,
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalEleIsolMap,
-      const edm::Handle<reco::ElectronPixelSeedCollection>   & L1NonIsoPixelSeedsMap,
+      const edm::Handle<reco::ElectronSeedCollection>   & L1NonIsoPixelSeedsMap,
       const edm::Handle<reco::ElectronIsolationMap>          & TrackEleIsolMap, 
       EcalClusterLazyTools& lazyTools,
       const edm::ESHandle<MagneticField>& theMagField,
