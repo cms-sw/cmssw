@@ -13,11 +13,11 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1RegionMap.cc,v 1.8 2007/09/26 23:42:07 chinhan Exp $
+// $Id: FastL1RegionMap.cc,v 1.9 2007/09/27 06:09:48 chinhan Exp $
 //
 
-
 #include "FastSimulation/L1CaloTriggerProducer/interface/FastL1RegionMap.h"
+#include <cstdlib>
 
 FastL1RegionMap::FastL1RegionMap()
 {

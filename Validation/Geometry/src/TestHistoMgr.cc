@@ -13,6 +13,7 @@
 #include "StatisticsTesting/ComparisonResult.h"
 #endif
 #include <iostream>
+#include <cstdlib>
 
 //----------------------------------------------------------------------
 TestHistoMgr::TestHistoMgr()
