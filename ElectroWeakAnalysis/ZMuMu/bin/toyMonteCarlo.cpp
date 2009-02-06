@@ -38,9 +38,11 @@ void fillRandom(int N, TH1F *pdf, TH1F * histo){
 enum MuTag { globalMu, trackerMu, standaloneMu, undefinedMu };
 
 MuTag mu(double effTrk, double effSa, TRandom3 * eventGenerator) {
-  if((eventGenerator->Rndm()< effTrk) && (eventGenerator->Rndm()< effSa)) return globalMu;
-  if((eventGenerator->Rndm()< effSa)  && (eventGenerator->Rndm()>effTrk)) return standaloneMu;
-  if((eventGenerator->Rndm()< effTrk) && (eventGenerator->Rndm()> effSa)) return trackerMu;
+  double _isTraker     = eventGenerator->Rndm();
+  double _isStandAlone = eventGenerator->Rndm();
+  if((_isTraker< effTrk)   && (_isStandAlone< effSa)) return globalMu;
+  if((_isStandAlone< effSa)&& (_isTraker >effTrk)) return standaloneMu;
+  if((_isTraker < effTrk)  && (_isStandAlone > effSa)) return trackerMu;
   return undefinedMu;
 }
 
