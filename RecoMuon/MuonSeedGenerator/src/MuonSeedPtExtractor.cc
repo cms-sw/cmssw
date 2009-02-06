@@ -11,122 +11,138 @@
 #include "TMath.h"
 #include <sstream>
 
-MuonSeedPtExtractor::MuonSeedPtExtractor(const edm::ParameterSet& par){
-
+MuonSeedPtExtractor::MuonSeedPtExtractor(const edm::ParameterSet& par)
+{
   // load pT seed parameters
   // DT combinations
-  DT12 = par.getParameter<std::vector<double> >("DT_12");
-  DT13 = par.getParameter<std::vector<double> >("DT_13");
-  DT14 = par.getParameter<std::vector<double> >("DT_14");
-  DT23 = par.getParameter<std::vector<double> >("DT_23");
-  DT24 = par.getParameter<std::vector<double> >("DT_24");
-  DT34 = par.getParameter<std::vector<double> >("DT_34");
+  fillParametersForCombo("DT_12", par);
+  fillParametersForCombo("DT_13", par);
+  fillParametersForCombo("DT_14", par);
+  fillParametersForCombo("DT_23", par);
+  fillParametersForCombo("DT_24", par);
+  fillParametersForCombo("DT_34", par);
   // CSC combinations
-  CSC01 = par.getParameter<std::vector<double> >("CSC_01");
-  CSC12 = par.getParameter<std::vector<double> >("CSC_12");
-  CSC02 = par.getParameter<std::vector<double> >("CSC_02");
-  CSC13 = par.getParameter<std::vector<double> >("CSC_13");
-  CSC03 = par.getParameter<std::vector<double> >("CSC_03");
-  CSC14 = par.getParameter<std::vector<double> >("CSC_14");
-  CSC23 = par.getParameter<std::vector<double> >("CSC_23");
-  CSC24 = par.getParameter<std::vector<double> >("CSC_24");
-  CSC34 = par.getParameter<std::vector<double> >("CSC_34");
+  fillParametersForCombo("CSC_01", par);
+  fillParametersForCombo("CSC_12", par);
+  fillParametersForCombo("CSC_02", par);
+  fillParametersForCombo("CSC_13", par);
+  fillParametersForCombo("CSC_03", par);
+  fillParametersForCombo("CSC_14", par);
+  fillParametersForCombo("CSC_23", par);
+  fillParametersForCombo("CSC_24", par);
+  fillParametersForCombo("CSC_34", par);
 
   // Overlap combinations
-  OL1213 = par.getParameter<std::vector<double> >("OL_1213");
-  OL1222 = par.getParameter<std::vector<double> >("OL_1222");
-  OL1232 = par.getParameter<std::vector<double> >("OL_1232");
-  OL2213 = par.getParameter<std::vector<double> >("OL_2213");
-  OL2222 = par.getParameter<std::vector<double> >("OL_2222");
+  fillParametersForCombo("OL_1213", par);
+  fillParametersForCombo("OL_1222", par);
+  fillParametersForCombo("OL_1232", par);
+  fillParametersForCombo("OL_2213", par);
+  fillParametersForCombo("OL_2222", par);
 
   // Single segments (CSC)
-  SME11 =  par.getParameter<std::vector<double> >("SME_11");
-  SME12 =  par.getParameter<std::vector<double> >("SME_12");
-  SME13 =  par.getParameter<std::vector<double> >("SME_13");
-  SME21 =  par.getParameter<std::vector<double> >("SME_21");
-  SME22 =  par.getParameter<std::vector<double> >("SME_22");
-  SME31 =  par.getParameter<std::vector<double> >("SME_31");
-  SME32 =  par.getParameter<std::vector<double> >("SME_32");
-  SME41 =  par.getParameter<std::vector<double> >("SME_41");
+  fillParametersForCombo("SME_11", par);
+  fillParametersForCombo("SME_12", par);
+  fillParametersForCombo("SME_13", par);
+  fillParametersForCombo("SME_21", par);
+  fillParametersForCombo("SME_22", par);
+  fillParametersForCombo("SME_31", par);
+  fillParametersForCombo("SME_32", par);
+  fillParametersForCombo("SME_41", par);
 
   // Single segments (DT)
-  SMB10 =  par.getParameter<std::vector<double> >("SMB_10");
-  SMB11 =  par.getParameter<std::vector<double> >("SMB_11");
-  SMB12 =  par.getParameter<std::vector<double> >("SMB_12");
-  SMB20 =  par.getParameter<std::vector<double> >("SMB_20");
-  SMB21 =  par.getParameter<std::vector<double> >("SMB_21");
-  SMB22 =  par.getParameter<std::vector<double> >("SMB_22");
-  SMB30 =  par.getParameter<std::vector<double> >("SMB_30");
-  SMB31 =  par.getParameter<std::vector<double> >("SMB_31");
-  SMB32 =  par.getParameter<std::vector<double> >("SMB_32");
+  fillParametersForCombo("SMB_10", par);
+  fillParametersForCombo("SMB_11", par);
+  fillParametersForCombo("SMB_12", par);
+  fillParametersForCombo("SMB_20", par);
+  fillParametersForCombo("SMB_21", par);
+  fillParametersForCombo("SMB_22", par);
+  fillParametersForCombo("SMB_30", par);
+  fillParametersForCombo("SMB_31", par);
+  fillParametersForCombo("SMB_32", par);
+
+  fillScalesForCombo("CSC_01_1_scale", par);
+  fillScalesForCombo("CSC_12_1_scale", par);
+  fillScalesForCombo("CSC_12_2_scale", par);
+  fillScalesForCombo("CSC_12_3_scale", par);
+  fillScalesForCombo("CSC_13_2_scale", par);
+  fillScalesForCombo("CSC_13_3_scale", par);
+  fillScalesForCombo("CSC_14_3_scale", par);
+  fillScalesForCombo("CSC_23_1_scale", par);
+  fillScalesForCombo("CSC_23_2_scale", par);
+  fillScalesForCombo("CSC_24_1_scale", par);
+  fillScalesForCombo("CSC_34_1_scale", par);
+  fillScalesForCombo("DT_12_1_scale", par);
+  fillScalesForCombo("DT_12_2_scale", par);
+  fillScalesForCombo("DT_13_1_scale", par);
+  fillScalesForCombo("DT_13_2_scale", par);
+  fillScalesForCombo("DT_14_1_scale", par);
+  fillScalesForCombo("DT_14_2_scale", par);
+  fillScalesForCombo("DT_23_1_scale", par);
+  fillScalesForCombo("DT_23_2_scale", par);
+  fillScalesForCombo("DT_24_1_scale", par);
+  fillScalesForCombo("DT_24_2_scale", par);
+  fillScalesForCombo("DT_34_1_scale", par);
+  fillScalesForCombo("DT_34_2_scale", par);
+  fillScalesForCombo("OL_1213_0_scale", par);
+  fillScalesForCombo("OL_1222_0_scale", par);
+  fillScalesForCombo("OL_1232_0_scale", par);
+  fillScalesForCombo("OL_2213_0_scale", par);
+  fillScalesForCombo("OL_2222_0_scale", par);
+  fillScalesForCombo("SMB_10_0_scale", par);
+  fillScalesForCombo("SMB_11_0_scale", par);
+  fillScalesForCombo("SMB_12_0_scale", par);
+  fillScalesForCombo("SMB_20_0_scale", par);
+  fillScalesForCombo("SMB_21_0_scale", par);
+  fillScalesForCombo("SMB_22_0_scale", par);
+  fillScalesForCombo("SMB_30_0_scale", par);
+  fillScalesForCombo("SMB_31_0_scale", par);
+  fillScalesForCombo("SMB_32_0_scale", par);
+  fillScalesForCombo("SME_11_0_scale", par);
+  fillScalesForCombo("SME_12_0_scale", par);
+  fillScalesForCombo("SME_13_0_scale", par);
+  fillScalesForCombo("SME_21_0_scale", par);
+  fillScalesForCombo("SME_22_0_scale", par);
 
 }
+
+
 MuonSeedPtExtractor::~MuonSeedPtExtractor(){
+}
+
+
+void MuonSeedPtExtractor::fillParametersForCombo(const std::string & name, const edm::ParameterSet & pset)
+{
+  theParametersForCombo[name] = pset.getParameter<std::vector<double> >(name);
+}
+
+
+void MuonSeedPtExtractor::fillScalesForCombo(const std::string & name, const edm::ParameterSet & pset)
+{
+  theScalesForCombo[name] = pset.getParameter<std::vector<double> >(name);
 }
 
 
 std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit::ConstMuonRecHitPointer firstHit,
                                                     MuonTransientTrackingRecHit::ConstMuonRecHitPointer secondHit) const
 {
-  //std::vector<double> vPara;
+  GlobalPoint innerPoint = firstHit->globalPosition();
+  GlobalPoint outerPoint = secondHit->globalPosition();
+  MuonTransientTrackingRecHit::ConstMuonRecHitPointer innerHit = firstHit;
+  MuonTransientTrackingRecHit::ConstMuonRecHitPointer outerHit = secondHit;
+  if(innerPoint.mag() > outerPoint.mag()) {
+    innerHit = secondHit;
+    outerHit = firstHit;
+    innerPoint = innerHit->globalPosition();
+    outerPoint = outerHit->globalPosition();
+  } 
   
-  std::map <std::string, std::vector<double> > chamberCombination;
+  double phiInner = innerPoint.phi();
+  double phiOuter = outerPoint.phi();
 
-  // DT station-station
-  chamberCombination["DT12"] = dt12();
-  chamberCombination["DT13"] = dt13();
-  chamberCombination["DT14"] = dt14();
-  chamberCombination["DT23"] = dt23();
-  chamberCombination["DT24"] = dt24();
-  chamberCombination["DT34"] = dt34();
-  
-  // CSC station-station (O is ME11)
-  chamberCombination["CSC01"] = csc01();
-  chamberCombination["CSC12"] = csc12();
-  chamberCombination["CSC02"] = csc02();
-  chamberCombination["CSC13"] = csc13();
-  chamberCombination["CSC03"] = csc03();
-  chamberCombination["CSC14"] = csc14();
-  chamberCombination["CSC23"] = csc23();
-  chamberCombination["CSC24"] = csc24();
-  chamberCombination["CSC34"] = csc34();
-
-  // DT-CSC overlap 
-  chamberCombination["OL1213"] = ol1213();
-  chamberCombination["OL1222"] = ol1222();
-  chamberCombination["OL1232"] = ol1232();
-  chamberCombination["OL2213"] = ol2213();
-  chamberCombination["OL2222"] = ol2222();
-
-  // CSC single (ststion/ring)
-  chamberCombination["SME11"] = sme11();
-  chamberCombination["SME12"] = sme12();
-  chamberCombination["SME13"] = sme13();
-  chamberCombination["SME21"] = sme21();
-  chamberCombination["SME22"] = sme22();
-  chamberCombination["SME31"] = sme31();
-  chamberCombination["SME32"] = sme32();
-  chamberCombination["SME41"] = sme41();
-
-  // DT single (?)
-  chamberCombination["SMB10"] = smb10();
-  chamberCombination["SMB11"] = smb11();
-  chamberCombination["SMB12"] = smb12();
-  chamberCombination["SMB20"] = smb20();
-  chamberCombination["SMB21"] = smb21();
-  chamberCombination["SMB22"] = smb22();
-  chamberCombination["SMB30"] = smb30();
-  chamberCombination["SMB31"] = smb31();
-  chamberCombination["SMB32"] = smb32();
-
-
-  double phiInner = firstHit->globalPosition().phi();
-  double phiOuter = secondHit->globalPosition().phi();
-
-  double etaInner = firstHit->globalPosition().eta();
-  double etaOuter = secondHit->globalPosition().eta();
-  //std::cout<<" first pos = "<<firstHit->globalPosition()<<std::endl;
-  //std::cout<<" scond pos = "<<secondHit->globalPosition()<<std::endl;
+  double etaInner = innerPoint.eta();
+  double etaOuter = outerPoint.eta();
+  //std::cout<<" inner pos = "<< innerPoint << std::endl;
+  //std::cout<<" outer pos = "<< outer << std::endl;
   //double thetaInner = firstHit->globalPosition().theta();
   // if some of the segments is missing r-phi measurement then we should
   // use only the 4D phi estimate (also use 4D eta estimate only)
@@ -163,11 +179,11 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
   std::vector <int> stationCoded(2);
   stationCoded[0] = stationCoded[1] = 999;
 
-  DetId  detId_first = firstHit->hit()->geographicalId();
-  DetId  detId_second = secondHit->hit()->geographicalId();
+  DetId  detId_inner = innerHit->hit()->geographicalId();
+  DetId  detId_outer = outerHit->hit()->geographicalId();
 
-  stationCoded[0] = stationCode(firstHit);
-  stationCoded[1] = stationCode(secondHit);
+  stationCoded[0] = stationCode(innerHit);
+  stationCoded[1] = stationCode(outerHit);
 
   std::ostringstream os0 ;
   std::ostringstream os1 ;
@@ -183,17 +199,16 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
   if( stationCoded[0] == stationCoded[1]){
     // single segment - DT or CSC
     singleSegment = true;
-    GlobalPoint segPos = firstHit->globalPosition();
-    //eta = segPos.eta();
-    GlobalVector gv = firstHit->globalDirection();
+    //eta = innerPoint.eta();
+    GlobalVector gv = innerHit->globalDirection();
 
     // Psi is angle between the segment origin and segment direction
     // Use dot product between two vectors to get Psi in global x-y plane
-    double cosDpsi  = (gv.x()*segPos.x() + gv.y()*segPos.y());
-    cosDpsi /= sqrt(segPos.x()*segPos.x() + segPos.y()*segPos.y());
+    double cosDpsi  = (gv.x()*innerPoint.x() + gv.y()*innerPoint.y());
+    cosDpsi /= sqrt(innerPoint.x()*innerPoint.x() + innerPoint.y()*innerPoint.y());
     cosDpsi /= sqrt(gv.x()*gv.x() + gv.y()*gv.y());
 
-    double axb = ( segPos.x()*gv.y() ) - ( segPos.y()*gv.x() ) ;
+    double axb = ( innerPoint.x()*gv.y() ) - ( innerPoint.y()*gv.x() ) ;
     sign = (axb < 0.) ? 1 : -1;
 
     double dpsi = fabs(acos(cosDpsi)) ;
@@ -205,109 +220,33 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
     }
     dPhi = dpsi;
     double etaAbs = fabs(eta);
-    switch(stationCoded[0]){
-      // the 1st layer
-    case -1:
-     // MB10
-    if ( etaAbs < 0.3 ) {
-      combination = "SMB10";
-    }
-     // MB11
-    else if(etaAbs >= 0.3 && etaAbs < 0.82){
-      combination = "SMB11";
-    }
-    // MB12
-    else if(etaAbs >= 0.82 && etaAbs < 1.2){
-      combination = "SMB12";
-    }
-    else{
-      // can not be
-    }
-      break;
-    case 1:
-    // ME13
-      if(etaAbs > 0.92 && etaAbs < 1.16){
-        combination = "SME13";
-      }
-      // ME12
-      else if(etaAbs >= 1.16 && etaAbs <= 1.6){
-      }
-      else{
-        // can not be 
-      }
-      break;
-    case 0:
-      // ME11
-      if ( etaAbs > 1.6 && etaAbs < 2.45 ) {
-	combination = "SME11";
-      }
-      break;
-      // the 2nd layer
-    case -2:
-      // MB20
-      if ( etaAbs < 0.25 ) {
-        combination = "SMB20";
-      }
-      // MB21
-      else if ( etaAbs >= 0.25 && etaAbs < 0.72 ) {
-        combination = "SMB21";
-      }
-      // MB22
-      else if ( etaAbs >= 0.72 && etaAbs < 1.04 ) {
-        combination = "SMB22";
-      }
-      else{
-        // can not be 
-	combination = "SMB22"; // in case
-      }
-      break;
-    case 2:
-     // ME22
-     if ( etaAbs > 0.95 && etaAbs <= 1.6 ) {
-       combination = "SME22";
-     }
-     // ME21
-     else if ( etaAbs > 1.6 && etaAbs < 2.45 ) {
-       combination = "SME21";
-     }
-     else{
-       // can not be
-     }
-      break;
-      // the 3rd layer
-    case -3:
-      // MB30
-     if ( fabs(eta) <= 0.22 ) {
-       combination = "SMB30";
-     }
-     // MB31
-     if ( fabs(eta) > 0.22 && fabs(eta) <= 0.6 ) {
-       combination = "SMB31";
-     }
-     // MB32
-     if ( fabs(eta) > 0.6 && fabs(eta) < 0.95 ) {
-       combination = "SMB32";
-     }
-     else{
-       // can not be
-     }
 
-      break;
-    case 3:
-      //??
-      break;
-    case 4:
-      //??
-      break;
-    default :
-      break;
+    if(innerHit->isDT())
+    {
+      DTChamberId dtCh(detId_inner);
+      std::ostringstream os;
+      os <<  dtCh.station() << abs(dtCh.wheel());
+      combination = "SMB_"+os.str();
+    }
+    else if(innerHit->isCSC())
+    {
+      CSCDetId cscId(detId_inner);
+      std::ostringstream os;
+      int ring = cscId.ring();
+      if(ring == 4) ring = 1;
+      os << cscId.station() << ring;
+      combination = "SME_"+os.str();
+    }
+    else
+    {
+      throw cms::Exception("MuonSeedPtExtractor") << "Bad hit DetId";
     }
   }
   else{
     if(stationCoded[0]<0){
       if(stationCoded[1]<0){
         // DT-DT
-        combination = "DT" + os0.str() + os1.str();
+        combination = "DT_" + os0.str() + os1.str();
       }
       else{
         // DT-CSC
@@ -315,13 +254,13 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
         if(-1==stationCoded[0]){
           switch (stationCoded[1]){
           case 1:
-            combination = "OL1213";
+            combination = "OL_1213";
             break;
           case 2:
-            combination = "OL1222";
+            combination = "OL_1222";
             break;
           case 3:
-            combination = "OL1232";
+            combination = "OL_1232";
             break;
           default:
             // can not be 
@@ -330,11 +269,11 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
         }
         else if (-2==stationCoded[0]){
           if(1==stationCoded[1]){
-            combination = "OL2213";
+            combination = "OL_2213";
           }
           else{
             // can not be (not coded?)
-	    combination = "OL2222";// in case
+	    combination = "OL_2222";// in case
           }
         }
         else{
@@ -349,9 +288,9 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
       }
       else{
         // CSC-CSC
-        combination = "CSC" + os0.str() + os1.str();
-        if("CSC04" == combination){
-          combination = "CSC14";
+        combination = "CSC_" + os0.str() + os1.str();
+        if("CSC_04" == combination){
+          combination = "CSC_14";
         }
       }
     }
@@ -360,13 +299,17 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
   std::vector<double> pTestimate(2);// 
   //  std::cout<<" combination = "<<combination<<std::endl;
   if(init_combination!=combination){
-    //    std::cout<<" combination = "<<combination<<" eta = "<<eta<<" dPhi = "<<dPhi<<std::endl;
-    pTestimate = getPt(chamberCombination[combination], eta, dPhi);
+        //std::cout<<" combination = "<<combination<<" eta = "<<eta<<" dPhi = "<<dPhi<<std::endl;
+    ParametersMap::const_iterator parametersItr = theParametersForCombo.find(combination);
+    if(parametersItr == theParametersForCombo.end()) {
+       throw cms::Exception("MuonSeedPtEstimator") << "Cannot find parameters for combo " << combination;
+    }
+    pTestimate = getPt(parametersItr->second, eta, dPhi);
     if(singleSegment){
       pTestimate[0] = fabs(pTestimate[0]);
       pTestimate[1] = fabs(pTestimate[1]);
     }
-    pTestimate[0] = pTestimate[0] * double(sign);
+    pTestimate[0] *= double(sign);
   }
   else{
     pTestimate[0] = pTestimate[1] = 100;
@@ -393,49 +336,14 @@ int MuonSeedPtExtractor::stationCode(MuonTransientTrackingRecHit::ConstMuonRecHi
   if(hit->isDT() ){
     DTChamberId dtCh(detId);
     //std::cout<<"first (DT) St/W/S = "<<dtCh.station()<<"/"<<dtCh.wheel()<<"/"<<dtCh.sector()<<"/"<<std::endl;
-    switch (dtCh.station()){
-    case 1:
-      result = -1;
-      break;
-    case 2:
-      result = -2;
-      break;
-    case 3:
-      result = -3;
-      break;
-    case 4:
-      result = -4;
-      break;
-    default:
-      result = -99;
-      break;
-    }
+    result = -1 * dtCh.station();
   }
   else if( hit->isCSC() ){
     CSCDetId cscID(detId);
     //std::cout<<"first (CSC) E/S/R/C = "<<cscID.endcap()<<"/"<<cscID.station()<<"/"<<cscID.ring()<<"/"<<cscID.chamber()<<std::endl;
-    switch ( cscID.station() ){
-    case 1:
-      if ( 1 == cscID.ring() ||  4 == cscID.ring()){
-        result = 0;
-      }
-      else{
-        result = 1;
-      }
-      break;
-    case 2:
-      result = 2;
-      break;
-    case 3:
-      result = 3;
-      break;
-    case 4:
-      result = 4;
-      break;
-    default:
-      result = 99;
-      break;
-    }
+    result = cscID.station();
+    if(result == 1 && (1 == cscID.ring() ||  4 == cscID.ring()) )
+       result = 0;
   }
   else if(hit->isRPC()){
   }
