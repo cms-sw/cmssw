@@ -10,10 +10,14 @@ muonAssociatorByHits = cms.EDProducer("MuonAssociatorEDProducer",
     # tracksTag = cms.InputTag("standAloneMuons","UpdatedAtVtx"),
     # tracksTag = cms.InputTag("globalMuons"),
     # tracksTag = cms.InputTag("generalTracks"),
+    # tracksTag = cms.InputTag("hltL2Muons"),
+    # tracksTag = cms.InputTag("hltL2Muons","UpdatedAtVtx"),
+    # tracksTag = cms.InputTag("hltL3Muons")
     #
     # ... TrackingParticle collection
     tpTag = cms.InputTag("mergedtruth","MergedTrackTruth"),
     #
+    ignoreMissingTrackCollection = cms.untracked.bool(False),
     dumpInputCollections = cms.bool(False),
     #
     #....... general input parameters
