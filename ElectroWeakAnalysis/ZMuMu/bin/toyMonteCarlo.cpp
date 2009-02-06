@@ -38,16 +38,24 @@ void fillRandom(int N, TH1F *pdf, TH1F * histo){
 enum MuTag { globalMu, trackerMu, standaloneMu, undefinedMu };
 
 MuTag mu(double effTrk, double effSa, TRandom3 * eventGenerator) {
-  if( eventGenerator->Rndm()< effTrk && eventGenerator->Rndm()< effSa ){
-    return globalMu;
-  } else if(eventGenerator->Rndm()< effTrk){
-    return trackerMu;
-  }
-  else if(eventGenerator->Rndm()< effSa){
-    return standaloneMu;
-  }
+  if(eventGenerator->Rndm()< effTrk && eventGenerator->Rndm()< effSa) return globalMu;
+  else if(eventGenerator->Rndm()< effSa && !(eventGenerator->Rndm()<effTrk) ){
+    // cout<<"eff sa =" << eventGenerator->Rndm() <<endl;
+    return standaloneMu;}
+  else if(eventGenerator->Rndm()< effTrk && !(eventGenerator->Rndm()< effSa)){
+    // cout<<"eff tk =" << eventGenerator->Rndm() <<endl;
+    return trackerMu;}
   else return undefinedMu;
 }
+
+
+bool isolationTag(double effIso, MuTag mu, TRandom3 * eventGenerator ){
+ return eventGenerator->Rndm()< effIso;
+}
+
+bool triggerTag(double effHlt, MuTag mu, TRandom3 * eventGenerator ){
+  return eventGenerator->Rndm()< effHlt; 
+ }
 
 class BkgShape {
 public:
@@ -94,9 +102,9 @@ int main(int argc, char * argv[]){
   int o;
   char* endPtr;
   char* pdf("analysis_Z_133pb_trackIso_3.root");
-  double yield(50550), effTrk(.9883), effSa(.9896), effHlt(.9155), effIso(.9786);
-  double slopeMuTk(0.0155572), a0MuTk(0.000368064), a1MuTk(2.99685), a2MuTk(-0.021115);
-  double slopeMuMuNonIso(0.0247058), a0MuMuNonIso(0.0959997), a1MuMuNonIso(6.70293), a2MuMuNonIso(-0.0525249);
+  double yield(50550), effTrk(.9982), effSa(.989626), effHlt(.915496), effIso(.978575);
+  double slopeMuTk(0.015556), a0MuTk(0.00035202), a1MuTk(2.99663), a2MuTk(-0.0211138);
+  double slopeMuMuNonIso(0.0246876), a0MuMuNonIso(0.884777), a1MuMuNonIso(6.67684), a2MuMuNonIso(-0.0523693);
   BkgShape zMuTkBkgPdf(60, 120, slopeMuTk, a0MuTk, a1MuTk, a2MuTk);
   BkgShape zMuMuNonIsoBkgPdf(60, 120, slopeMuMuNonIso, a0MuMuNonIso, a1MuMuNonIso, a2MuMuNonIso);
  
@@ -129,7 +137,7 @@ int main(int argc, char * argv[]){
       effIso  = strtod(optarg,&endPtr);
       break;
     case 'h':
-      cout<< " -p : input root file for pdf"<<endl <<" -n : number of experiment (default 1)"<<endl <<" -s : seed for generator (default 1)"<<endl <<" -T : efficiency of track (default 0.9883)"<<endl <<" -S : efficiency of standAlone(default 0.9896)"<< endl <<" -I : efficiency of Isolation (default 0.9786)" << endl << " -H : efficiency of HLT (default 0.9155)" <<endl << " -y : yield (default 50550)"<<endl;
+      cout<< " -p : input root file for pdf"<<endl <<" -n : number of experiment (default 1)"<<endl <<" -s : seed for generator (default 1)"<<endl <<" -T : efficiency of track (default 0.99883)"<<endl <<" -S : efficiency of standAlone(default 0.9896)"<< endl <<" -I : efficiency of Isolation (default 0.9786)" << endl << " -H : efficiency of HLT (default 0.9155)" <<endl << " -y : yield (default 50550)"<<endl;
       break;
     default:
       break;
@@ -143,7 +151,7 @@ int main(int argc, char * argv[]){
   TH1F *pdfzmm = (TH1F*)inputfile->Get("goodZToMuMuPlots/zMass");//pdf signal Zmumu(1hlt,2hlt), ZMuMunotIso, ZmuTk
   TH1F *pdfzmsa = (TH1F*)inputfile->Get("zmumuSaMassHistogram/zMass");//pdf signal ZmuSa
   cout<<"take pdf"<<endl;
-  for(int j = 0; j <expt; ++j){//loop on number of experiments  
+  for(int j = 1; j <=expt; ++j){//loop on number of experiments  
     int N0 = eventGenerator->Poisson(yield);
     int nMuTkBkg = eventGenerator->Poisson(zMuTkBkgPdf.integral());
     int nMuMuNonIsoBkg = eventGenerator->Poisson(zMuMuNonIsoBkgPdf.integral());
@@ -158,25 +166,38 @@ int main(int argc, char * argv[]){
     for(int i = 0; i < N0; ++i){//loop on Z Yield
       mu1=mu(effTrk,effSa, eventGenerator);
       mu2=mu(effTrk,effSa, eventGenerator);
-      double rHLT1 = eventGenerator->Rndm();
-      double rISO1 = eventGenerator->Rndm();   
-      double rHLT2 = eventGenerator->Rndm();
-      double rISO2 = eventGenerator->Rndm();
+      bool iso1 = isolationTag(effIso,mu1,eventGenerator);
+      bool iso2 = isolationTag(effIso,mu2,eventGenerator);
+      bool trig1 = triggerTag(effHlt,mu1,eventGenerator);
+      bool trig2 = triggerTag(effHlt,mu2,eventGenerator);
+   
       if(mu1 == globalMu && mu2 == globalMu){
-	if(rISO1< effIso && rISO2 < effIso){//two global mu isolated
-	  if(rHLT1< effHlt && rHLT2 < effHlt) N2HLT++;
-	  else if((rHLT1< effHlt && !rHLT2 < effHlt)||(!rHLT1 < effHlt && rHLT2 < effHlt)) N1HLT++;
-	} else if(!rISO1< effIso || !rISO2 < effIso){//at least one not iso
-	  if( rHLT1 < effHlt || rHLT2 < effHlt) NISO++;
-	}
-      }else if((mu1 == globalMu && mu2 == trackerMu && rHLT1< effHlt ) || (mu2 == globalMu && mu1 == trackerMu && rHLT2< effHlt)){
-	if(rISO1< effIso && rISO2 < effIso) NTk++;
-      }else if((mu1 == globalMu && mu2 == standaloneMu && rHLT1< effHlt) ||(mu2 == globalMu && mu1 == standaloneMu && rHLT2< effHlt)){
-	if(rISO1< effIso && rISO2 < effIso) NSa++;
-      }
-    }//end of generation given yield
-    cout<<"logic end"<<endl;
-  
+	 if(iso1 && iso2){//two global mu isolated
+	   if(trig1 && trig2) N2HLT++;//two trigger
+	   else if((trig1 && !trig2)||(!trig1 && trig2)) N1HLT++;//one trigger
+	 }
+	 else if(!iso1 || !iso2){//at least one not iso
+	   if( trig1 || trig2) NISO++;//at least one trigger
+	 }
+       }//end global
+       else if((mu1 == globalMu && trig1 &&  mu2 == standaloneMu ) 
+	       ||(mu2 == globalMu && trig2 && mu1 == standaloneMu )){
+	 //cout<<"find standAlone"<<endl;
+	 if(iso1 && iso2) {
+	   NSa++;
+	   // cout<<"fill standAlone"<<endl;
+	 }
+       }//end mu sa
+       else if((mu1 == globalMu && trig1 && mu2 == trackerMu) 
+	       || (mu2 == globalMu && trig2 && mu1 == trackerMu)){
+	 if(iso1 && iso2) NTk++;
+       }//end mu tk
+          
+
+
+    }//end of generation given the yield
+    //cout<<"logic end"<<endl;
+    
     Nmumu = N2HLT + N1HLT;
     
     //Define signal Histo
@@ -190,11 +211,15 @@ int main(int argc, char * argv[]){
   
     //Fill signal Histo
    
-    cout<<"N0 ="<< N0 <<endl;
-    cout<<"Nmumu = "<< Nmumu <<endl;
-    cout<<"N2HLT= "<< N2HLT <<endl;
-    cout<<"N1HLT = "<< N1HLT <<endl;
-    cout<<"NISO = "<< NISO <<endl;
+    //cout<<"Yield ="<< yield <<endl;
+    //cout<<"N0 ="<< N0 <<endl;
+    //cout<<"Nmumu = "<< Nmumu <<endl;
+    // cout<<"N2HLT= "<< N2HLT <<endl;
+    //cout<<"N1HLT = "<< N1HLT <<endl;
+    //cout<<"NISO = "<< NISO <<endl;
+    // cout<<"NSa = "<< NSa <<endl;
+    //cout<<"NTk = "<< NTk <<endl;
+
     
     fillRandom(Nmumu,pdfzmm,zMuMu);
     fillRandom(N2HLT, pdfzmm,zMuMu2HLT);
@@ -202,7 +227,7 @@ int main(int argc, char * argv[]){
     fillRandom(NISO,pdfzmm,zMuMuNotIso);
     fillRandom(NSa,pdfzmsa,zMuSa);
     fillRandom(NTk, pdfzmm,zMuTk);
-    cout<<"Signal filled"<<endl;
+    //cout<<"Signal filled"<<endl;
     
     //output	
     char head[30];
@@ -278,7 +303,7 @@ int main(int argc, char * argv[]){
     }
     
     char head2[30];
-    sprintf(head2,"bgk_%d",j);
+    sprintf(head2,"bkg_%d",j);
     string title2 = head2 + tail;
     TFile *outputfile2 = new TFile(title2.c_str(),"RECREATE");
     
@@ -328,8 +353,7 @@ int main(int argc, char * argv[]){
     cout<<count<<"\n";
     count++;
   }//end of experiments 
-  delete pdfzmsa;
-    
+     
   return 0;
   
 }
