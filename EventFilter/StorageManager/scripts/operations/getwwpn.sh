@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: getwwpn.sh,v 1.2 2008/09/13 01:06:45 loizides Exp $
+# $Id: getwwpn.sh,v 1.3 2008/09/13 01:19:07 loizides Exp $
 #
 # run this script to get a mapping between hostname and wwpn
 # the mapping has the syntax of a perl hash and can be put
@@ -23,11 +23,19 @@ fi
 for i in $nodes; do
     ping -c1 -q -W3 $i > /dev/null
     if test "$?" = "0"; then
-        res=`ssh $i grep scsi-qla0-adapter-port /proc/scsi/qla2xxx/* 2>/dev/null | cut -d= -f2 | cut -d\; -f1`;
+        res=`ssh $i egrep "scsi-qla.-adapter-port" /proc/scsi/qla2xxx/* 2>/dev/null | cut -d= -f2 | cut -d\; -f1`;
         re2=`echo $res | tr 'a-z' 'A-Z'`;
-        re3=`echo $re2 | cut -b1-2`-`echo $re2 | cut -b3-4`-`echo $re2 | cut -b5-6`-`echo $re2 | cut -b7-8`-`echo $re2 | cut -b9-10`-`echo $re2 | cut -b11-12`-`echo $re2 | cut -b13-14`-`echo $re2 | cut -b15-16`
-        echo -e \"$i\" =\> \"$re3\",
+        re2a=`echo $re2 | cut -d" " -f1`;
+        re2b=`echo $re2 | cut -d" " -f2`;
+
+        re3a=`echo $re2a | cut -b1-2`-`echo $re2a | cut -b3-4`-`echo $re2a | cut -b5-6`-`echo $re2a | cut -b7-8`-`echo $re2a | cut -b9-10`-`echo $re2a | cut -b11-12`-`echo $re2a | cut -b13-14`-`echo $re2a | cut -b15-16`
+        re3b=`echo $re2b | cut -b1-2`-`echo $re2b | cut -b3-4`-`echo $re2b | cut -b5-6`-`echo $re2b | cut -b7-8`-`echo $re2b | cut -b9-10`-`echo $re2b | cut -b11-12`-`echo $re2b | cut -b13-14`-`echo $re2b | cut -b15-16`
+
+
+        echo -e \"$i\" =\> \"$re3a \ \ \ \    $re3b\",
+
     else
         echo -e \"$i\" =\> \"unknown\",
     fi
 done
+ 
