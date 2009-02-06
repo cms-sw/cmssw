@@ -1098,9 +1098,13 @@ int TrackerMap::getcolor(float value,int palette){
    if(palette==1){//palette1 1 - raibow
    float delta=(maxvalue-minvalue);
    float x =(value-minvalue);
+   if(x<minvalue){red=0;green=0;blue=255;}
+   if(x>maxvalue){red=255;green=0;blue=0;}
+   if(x>=minvalue&&x<=maxvalue){ 
    red = (int) ( x<(delta/2) ? 0 : ( x > ((3./4.)*delta) ?  255 : 255/(delta/4) * (x-(2./4.)*delta)  ) );
    green= (int) ( x<delta/4 ? (x*255/(delta/4)) : ( x > ((3./4.)*delta) ?  255-255/(delta/4) *(x-(3./4.)*delta) : 255 ) );
    blue = (int) ( x<delta/4 ? 255 : ( x > ((1./2.)*delta) ?  0 : 255-255/(delta/4) * (x-(1./4.)*delta) ) );
+     }
      }
      if (palette==2){//palette 2 yellow-green
      green = (int)((value-minvalue)/(maxvalue-minvalue)*256.);
