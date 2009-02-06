@@ -8,14 +8,13 @@ associated with a common DetId with a DetId instance, holding the
 common DetId value. The collected objects may or may not contain their
 own copy of the common DetId.
 
-$Id: DetSet.h,v 1.9 2008/03/31 21:12:11 wmtan Exp $
+$Id: DetSet.h,v 1.10 2009/01/28 12:43:30 innocent Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <vector>
 
 namespace edm {
-  typedef unsigned int uint32_t;
   typedef uint32_t det_id_type;
 
   template <class T>
