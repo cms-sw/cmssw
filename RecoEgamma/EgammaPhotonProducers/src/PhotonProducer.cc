@@ -74,6 +74,7 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
   preselCutValuesBarrel_.push_back(conf_.getParameter<double>("nTrackHollowConeBarrel"));     
   preselCutValuesBarrel_.push_back(conf_.getParameter<double>("trackPtSumSolidConeBarrel"));     
   preselCutValuesBarrel_.push_back(conf_.getParameter<double>("trackPtSumHollowConeBarrel"));     
+  preselCutValuesBarrel_.push_back(conf_.getParameter<double>("sigmaIetaIetaCutBarrel"));     
   //  
   preselCutValuesEndcap_.push_back(conf_.getParameter<double>("ecalRecHitSumEndcap")); 
   preselCutValuesEndcap_.push_back(conf_.getParameter<double>("hcalTowerSumEndcap"));
@@ -81,6 +82,7 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
   preselCutValuesEndcap_.push_back(conf_.getParameter<double>("nTrackHollowConeEndcap"));     
   preselCutValuesEndcap_.push_back(conf_.getParameter<double>("trackPtSumSolidConeEndcap"));     
   preselCutValuesEndcap_.push_back(conf_.getParameter<double>("trackPtSumHollowConeEndcap"));     
+  preselCutValuesEndcap_.push_back(conf_.getParameter<double>("sigmaIetaIetaCutEndcap"));     
   //
   thePhotonIsolationCalculator_ = new PhotonIsolationCalculator();
   edm::ParameterSet isolationSumsCalculatorSet = conf_.getParameter<edm::ParameterSet>("isolationSumsCalculatorSet"); 
@@ -382,7 +384,8 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     //    std::cout << " Photon Et " <<  newCandidate.pt() << std::endl;
     if ( newCandidate.pt() < highEt_) { 
       //std::cout << " This photon Et is below " << highEt_ << " so I apply pre-selection ID cuts " << std::endl;
-      //      std::cout << " PhotonProducer Hoe1 " << newCandidate.hadronicDepth1OverEm() << "  HoE2 " <<  newCandidate.hadronicDepth2OverEm() << " tot " <<  newCandidate.hadronicOverEm() << std::endl;
+      // std::cout << " PhotonProducer Hoe1 " << newCandidate.hadronicDepth1OverEm() << "  HoE2 " <<  newCandidate.hadronicDepth2OverEm() << " tot " <<  newCandidate.hadronicOverEm() << std::endl;
+      //     std::cout << "  PhotonProducer checking sigmaIetaIeta " << newCandidate.sigmaIetaIeta() << std::endl;
       if ( newCandidate.hadronicOverEm()                >= maxHOverE_ )              isLooseEM=false;
       if ( newCandidate.ecalRecHitSumConeDR04()          > preselCutValues[0] )      isLooseEM=false;
       if ( newCandidate.hcalTowerSumConeDR04()           > preselCutValues[1] )      isLooseEM=false;
@@ -390,6 +393,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
       if ( newCandidate.nTrkHollowConeDR04()             > int(preselCutValues[3]) ) isLooseEM=false;
       if ( newCandidate.isolationTrkSolidConeDR04()      > preselCutValues[4] )      isLooseEM=false;
       if ( newCandidate.isolationTrkHollowConeDR04()     > preselCutValues[5] )      isLooseEM=false;
+      if ( newCandidate.sigmaIetaIeta()                  > preselCutValues[6] )      isLooseEM=false;
     } 
 
 
