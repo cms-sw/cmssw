@@ -1,20 +1,19 @@
 import FWCore.ParameterSet.Config as cms
 
 hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
-    ### generator objects
+    ### GEN objects
     mctruth                         = cms.InputTag("genParticles"),
     genEventScale                   = cms.InputTag("genEventScale"),
-    
+
     ### SIM objects
     simhits                         = cms.InputTag("g4SimHits"),
 
     ### Trigger objects
-   #l1GctCounts                     = cms.InputTag("l1GctEmulDigis"),
-   #l1GtObjectMapRecord             = cms.InputTag("l1GtEmulDigis"),
-   #l1GtReadoutRecord               = cms.InputTag("l1GmtEmulDigis"),
-    l1GctCounts                     = cms.InputTag("hltGctDigis"),
-    l1GtObjectMapRecord             = cms.InputTag("hltL1GtObjectMap"),
-    l1GtReadoutRecord               = cms.InputTag("hltGtDigis"),
+    l1GctHFBitCounts                 = cms.InputTag("hltGctDigis"),
+    l1GctHFRingSums                  = cms.InputTag("hltGctDigis"),
+    l1GtObjectMapRecord             = cms.InputTag("hltL1GtObjectMap::HLT"),
+    l1GtReadoutRecord               = cms.InputTag("hltGtDigis::HLT"),
+
     l1extramc                       = cms.string('hltL1extraParticles'),
     l1extramu                       = cms.string('hltL1extraParticles'),
     hltresults                      = cms.InputTag("TriggerResults::HLT"),
@@ -86,15 +85,18 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     PerformanceBJetsL3              = cms.InputTag("openHltBPerfMeasL3BJetTags"),
 
     ### AlCa OpenHLT related objects
-    EERecHits                   = cms.InputTag("hltAlCaPhiSymStream","phiSymEcalRecHitsEE"),
-    EBRecHits                   = cms.InputTag("hltAlCaPhiSymStream","phiSymEcalRecHitsEB"),
-    pi0EBRecHits                = cms.InputTag("hltAlCaPi0RegRecHits","pi0EcalRecHitsEB"),
-    pi0EERecHits                = cms.InputTag("hltAlCaPi0RegRecHits","pi0EcalRecHitsEE"),
-    HBHERecHits                 = cms.InputTag("hbhereco"),
-    HORecHits                   = cms.InputTag("horeco"),
-    HFRecHits                   = cms.InputTag("hfreco"),
+    EERecHits                   = cms.InputTag("hltEcalRecHit","EcalRecHitsEE"),
+    EBRecHits                   = cms.InputTag("hltEcalRecHit","EcalRecHitsEB"),
+    pi0EBRecHits                = cms.InputTag("hltEcalRegionalPi0RecHit","EcalRecHitsEB"),
+    pi0EERecHits                = cms.InputTag("hltEcalRegionalPi0RecHit","EcalRecHitsEE"),
+    # HBHERecHits                 = cms.InputTag("hbhereco"),
+    # HORecHits                   = cms.InputTag("horeco"),
+    # HFRecHits                   = cms.InputTag("hfreco"),
+    HBHERecHits                 = cms.InputTag("hltHbhereco"),
+    HORecHits                   = cms.InputTag("hltHoreco"),
+    HFRecHits                   = cms.InputTag("hltHfreco"),
 
-    ### AlCa pi0 settings                            
+    ### AlCa pi0 settings
     clusSeedThr                 = cms.double( 0.5 ),
     clusSeedThrEndCap           = cms.double( 1.0 ),
     clusEtaSize                 = cms.int32( 3 ),

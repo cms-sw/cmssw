@@ -114,12 +114,14 @@ void HLTInfo::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("L1MetHad",&methad,"L1MetHad/F");
 
   // L1GctJetCounts
-  HltTree->Branch("L1HfRing0EtSumPositiveEta",&l1hfRing0EtSumPositiveEta,"L1HfRing0EtSumPositiveEta/I");
   HltTree->Branch("L1HfRing1EtSumPositiveEta",&l1hfRing1EtSumPositiveEta,"L1HfRing1EtSumPositiveEta/I");
-  HltTree->Branch("L1HfRing0EtSumNegativeEta",&l1hfRing0EtSumNegativeEta,"L1HfRing0EtSumNegativeEta/I");
+  HltTree->Branch("L1HfRing2EtSumPositiveEta",&l1hfRing2EtSumPositiveEta,"L1HfRing2EtSumPositiveEta/I");
   HltTree->Branch("L1HfRing1EtSumNegativeEta",&l1hfRing1EtSumNegativeEta,"L1HfRing1EtSumNegativeEta/I");
-  HltTree->Branch("L1HfTowerCountPositiveEta",&l1hfTowerCountPositiveEta,"L1HfTowerCountPositiveEta/I");
-  HltTree->Branch("L1HfTowerCountNegativeEta",&l1hfTowerCountNegativeEta,"L1HfTowerCountNegativeEta/I");
+  HltTree->Branch("L1HfRing2EtSumNegativeEta",&l1hfRing2EtSumNegativeEta,"L1HfRing2EtSumNegativeEta/I");
+  HltTree->Branch("L1HfTowerCountPositiveEtaRing1",&l1hfTowerCountPositiveEtaRing1,"L1HfTowerCountPositiveEtaRing1/I");
+  HltTree->Branch("L1HfTowerCountNegativeEtaRing1",&l1hfTowerCountNegativeEtaRing1,"L1HfTowerCountNegativeEtaRing1/I");
+  HltTree->Branch("L1HfTowerCountPositiveEtaRing2",&l1hfTowerCountPositiveEtaRing2,"L1HfTowerCountPositiveEtaRing2/I");
+  HltTree->Branch("L1HfTowerCountNegativeEtaRing2",&l1hfTowerCountNegativeEtaRing2,"L1HfTowerCountNegativeEtaRing2/I");
   
 }
 
@@ -134,9 +136,8 @@ void HLTInfo::analyze(const edm::Handle<edm::TriggerResults>                 & h
                       const edm::Handle<l1extra::L1EtMissParticleCollection> & L1ExtMet,
                       const edm::Handle<L1GlobalTriggerReadoutRecord>        & L1GTRR,
                       const edm::Handle<L1GlobalTriggerObjectMapRecord>      & L1GTOMRec,
-                      const edm::Handle<L1GctJetCountsCollection>            & L1GctCounts,
-                      const edm::Handle<L1GctHFBitCounts>                    & l1GctHFBitCounts,
-                      const edm::Handle<L1GctHFRingEtSums>                   & l1GctHFRingEtSums,
+		      const edm::Handle<L1GctHFBitCountsCollection>          & gctBitCounts,
+		      const edm::Handle<L1GctHFRingEtSumsCollection>         & gctRingSums,
                       TTree* HltTree) {
 
 //   std::cout << " Beginning HLTInfo " << std::endl;
@@ -385,44 +386,36 @@ void HLTInfo::analyze(const edm::Handle<edm::TriggerResults>                 & h
     if (_Debug) std::cout << "%HLTInfo -- No L1 GT ReadoutRecord or ObjectMapRecord" << std::endl;
   }
 
-  // Minbias triggers from GCT
-  // Jet Count   Quantity
-  //   6        HFTowerCountPositiveEta
-  //   7        HFTowerCountNegativeEta
-  //   8        HFRing0EtSumPositiveEta
-  //   9        HFRing0EtSumNegativeEta
-  //  10        HFRing1EtSumPositiveEta
-  //  11        HFRing1EtSumNegativeEta
   //
   // LSB for feature bits = 0.125 GeV.
   // The default LSB for the ring sums is 0.5 GeV.
-
-  if (l1GctHFBitCounts.isValid()) {
-    /*
-    for (int i=6;i<=11;i++) {
-      std::cout<<i<<" "<<L1GctCounts.count(i)<<std::endl;
+  
+  if (gctBitCounts.isValid()) {
+    L1GctHFBitCountsCollection::const_iterator bitCountItr;
+    for (bitCountItr=gctBitCounts->begin(); bitCountItr!=gctBitCounts->end(); ++bitCountItr) { 
+      if (bitCountItr->bx()==0){ // select in-time beam crossing
+	l1hfTowerCountPositiveEtaRing1=bitCountItr->bitCount(0);
+	l1hfTowerCountNegativeEtaRing1=bitCountItr->bitCount(1);
+	l1hfTowerCountPositiveEtaRing2=bitCountItr->bitCount(2);
+	l1hfTowerCountNegativeEtaRing2=bitCountItr->bitCount(3);
+      }
     }
-    std::cout<<"A "<<L1GctCounts.hfTowerCountPositiveEta()<<std::endl;
-    std::cout<<"B "<<L1GctCounts.hfTowerCountNegativeEta()<<std::endl;
-    std::cout<<"C "<<L1GctCounts.hfRing0EtSumPositiveEta()<<std::endl;
-    std::cout<<"D "<<L1GctCounts.hfRing0EtSumNegativeEta()<<std::endl;
-    std::cout<<"E "<<L1GctCounts.hfRing1EtSumPositiveEta()<<std::endl;
-    std::cout<<"F "<<L1GctCounts.hfRing1EtSumNegativeEta()<<std::endl;
-    */
-    
-    l1hfTowerCountPositiveEta = (int)l1GctHFBitCounts->bitCount(0);
-    l1hfTowerCountNegativeEta = (int)l1GctHFBitCounts->bitCount(1);
   } else {
-    if (_Debug) std::cout << "%HLTInfo -- No L1 GctHFBitCounts" << std::endl;
+    if (_Debug) std::cout << "%HLTInfo -- No L1 Gct HF BitCounts" << std::endl;
   }
 
-  if (l1GctHFRingEtSums.isValid()) {
-    l1hfRing0EtSumPositiveEta = (int)l1GctHFRingEtSums->etSum(0);
-    l1hfRing0EtSumNegativeEta = (int)l1GctHFRingEtSums->etSum(1);
-    l1hfRing1EtSumPositiveEta = (int)l1GctHFRingEtSums->etSum(2);
-    l1hfRing1EtSumNegativeEta = (int)l1GctHFRingEtSums->etSum(3);
+  if (gctRingSums.isValid()) {
+    L1GctHFRingEtSumsCollection::const_iterator ringSumsItr;
+    for (ringSumsItr=gctRingSums->begin(); ringSumsItr!=gctRingSums->end(); ++ringSumsItr) { 
+      if (ringSumsItr->bx()==0){ // select in-time beam crossing
+	l1hfRing1EtSumPositiveEta=ringSumsItr->etSum(0);
+	l1hfRing1EtSumNegativeEta=ringSumsItr->etSum(1);
+	l1hfRing2EtSumPositiveEta=ringSumsItr->etSum(2);
+	l1hfRing2EtSumNegativeEta=ringSumsItr->etSum(3);
+      }
+    }
   } else {
-    if (_Debug) std::cout << "%HLTInfo -- No L1 GctHFRingEtSums" << std::endl;
+    if (_Debug) std::cout << "%HLTInfo -- No L1 Gct HF RingSums" << std::endl;
   }
 
 }

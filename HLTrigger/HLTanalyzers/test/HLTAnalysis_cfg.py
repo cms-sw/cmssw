@@ -57,7 +57,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 # Conditions: fake or frontier
 # process.load("Configuration.StandardSequences.FakeConditions_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.globaltag = 'IDEAL_V9::All'
+process.GlobalTag.globaltag = 'STARTUP_30X::All'
 
 process.load("Configuration.StandardSequences.L1Emulator_cff")
 # Choose a menu/prescale/mask from one of the choices
@@ -83,6 +83,13 @@ process.load("Configuration.StandardSequences.L1Emulator_cff")
 # Define the HLT reco paths
 process.load("HLTrigger.HLTanalyzers.HLTopen_cff")
 
+# AlCa OpenHLT specific settings
+process.hltEcalRegionalRestFEDs.Pi0ListToIgnore =  cms.InputTag("hltEcalRegionalPi0FEDs")
+process.hltEcalRegionalJetsFEDs.Pi0ListToIgnore =  cms.InputTag("hltEcalRegionalPi0FEDs")
+process.hltEcalRegionalEgammaFEDs.Pi0ListToIgnore =  cms.InputTag("hltEcalRegionalPi0FEDs")
+process.hltEcalRegionalMuonsFEDs.Pi0ListToIgnore =  cms.InputTag("hltEcalRegionalPi0FEDs")
+process.hltEcalRegionalTausFEDs.Pi0ListToIgnore =  cms.InputTag("hltEcalRegionalPi0FEDs")
+
 # Define the analyzer modules
 process.load("HLTrigger.HLTanalyzers.HLTAnalyser_cfi")
 process.analyzeThis = cms.Path( process.hltanalysis )
@@ -97,4 +104,6 @@ process.schedule = cms.Schedule(
     process.DoHLTElectronLargeWindows, 
     process.DoHLTTau, 
     process.DoHLTBTag,
+    process.DoHLTAlCaECALPhiSym,
+    process.DoHLTAlCaPi0,
     process.analyzeThis )

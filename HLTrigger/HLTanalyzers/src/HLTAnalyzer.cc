@@ -63,10 +63,8 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   gtReadoutRecord_  = conf.getParameter<edm::InputTag> ("l1GtReadoutRecord");
   gtObjectMap_      = conf.getParameter<edm::InputTag> ("l1GtObjectMapRecord");
 
-  // only keep the module label for GCT in 2.X.X - comment from Pedrame:
-  //    As far as I (pragmatically) know, this is the way it works up to 2XX series; 
-  //    I know that Len is working on making it work in 3XX series.
-  gctCounts_        = edm::InputTag( conf.getParameter<edm::InputTag>("l1GctCounts").label(), "" );
+  gctBitCounts_        = edm::InputTag( conf.getParameter<edm::InputTag>("l1GctHFBitCounts").label(), "" );
+  gctRingSums_         = edm::InputTag( conf.getParameter<edm::InputTag>("l1GctHFRingSums").label(), "" );
   
   MuCandTag2_       = conf.getParameter<edm::InputTag> ("MuCandTag2");
   MuIsolTag2_       = conf.getParameter<edm::InputTag> ("MuIsolTag2");
@@ -180,10 +178,10 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   edm::Handle<L1GlobalTriggerReadoutRecord>         l1GtRR;
   edm::Handle<L1GlobalTriggerObjectMapRecord>       l1GtOMRec;
   edm::Handle<L1GlobalTriggerObjectMap>             l1GtOM;
-  edm::Handle<L1GctJetCountsCollection>             l1GctCounts;
+  edm::Handle< L1GctHFBitCountsCollection >         gctBitCounts ;
+  edm::Handle< L1GctHFRingEtSumsCollection >        gctRingSums ;
+
   edm::Handle<RecoChargedCandidateCollection>       mucands2, mucands3;
-  edm::Handle<L1GctHFBitCounts>                     l1GctHFBitCounts;
-  edm::Handle<L1GctHFRingEtSums>                    l1GctHFRingEtSums;
   edm::Handle<edm::ValueMap<bool> >                 isoMap2,  isoMap3;
   //  edm::Handle<MuonTrackLinksCollection>             mulinks;
   edm::Handle<reco::HLTTauCollection>               taus;
@@ -287,7 +285,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   getCollection( iEvent, missing, l1extmet,        m_l1extramet,       kL1extmet );
   getCollection( iEvent, missing, l1GtRR,          gtReadoutRecord_,   kL1GtRR );
   getCollection( iEvent, missing, l1GtOMRec,       gtObjectMap_,       kL1GtOMRec );
-  getCollection( iEvent, missing, l1GctCounts,     gctCounts_,         kL1GctCounts );
+  getCollection( iEvent, missing, gctBitCounts,     gctBitCounts_,      kL1GctBitCounts );
+  getCollection( iEvent, missing, gctRingSums,      gctRingSums_,       kL1GctRingSums );
   getCollection( iEvent, missing, mctruth,         mctruth_,           kMctruth );
   getCollection( iEvent, missing, simTracks,       simhits_,           kSimhit );
   getCollection( iEvent, missing, simVertices,     simhits_,           kSimhit );
@@ -453,9 +452,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     l1extmet,
     l1GtRR,
     l1GtOMRec,
-    l1GctCounts,
-    l1GctHFBitCounts,
-    l1GctHFRingEtSums,
+    gctBitCounts,
+    gctRingSums,
     HltTree);
   
   bjet_analysis_.analyze(
