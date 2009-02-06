@@ -67,13 +67,16 @@ namespace pos{
     virtual void writeXMLHeader(pos::PixelConfigKey key, int version, std::string path, std::ofstream *out) const {;}
     virtual void writeXML(                                                              std::ofstream *out) const {;}
     virtual void writeXMLTrailer(                                                       std::ofstream *out) const {;}
+
+    void setComment(std::string comment) {comment_ = comment;} 
+    std::string getComment()             {return comment_   ;}
     
   private:
 
     std::string description_;
-    std::string creator_;
-    std::string date_;
-     
+    std::string creator_ ;
+    std::string date_    ;
+    std::string comment_ ;
 
   };
 

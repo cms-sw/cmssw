@@ -371,13 +371,18 @@ void PixelDetectorConfig::writeXMLHeader(pos::PixelConfigKey key,
                                          std::ofstream *out1stream,
                                          std::ofstream *out2stream)  const
 {
-  std::stringstream s ; s << __LINE__ << "]\t[PixelDetectorConfig::writeXMLHeader()]\t\t\t    " ;
-  std::string mthn = s.str() ;
+  std::string mthn = "]\t[PixelDetectorConfig::writeXMLHeader()]\t\t\t    " ;
   std::stringstream fullPath ;
   fullPath << path << "/Pixel_DetectorConfig_" << PixelTimeFormatter::getmSecTime() << ".xml" ;
-  cout << __LINE__ << "]\t" << mthn << "Writing to: " << fullPath.str() << endl ;
+  cout << __LINE__ << mthn << "Writing to: " << fullPath.str() << endl ;
   
   outstream->open(fullPath.str().c_str()) ;
+  
+  if( !outstream->good() )
+    {
+      cout << __LINE__ << mthn << "FATAL: could not open file " << fullPath.str() << endl ;
+      assert(0) ;
+    }
   
   *outstream << "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"                                    << std::endl ;
   *outstream << "<ROOT xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>"                               << std::endl ;
@@ -402,6 +407,7 @@ void PixelDetectorConfig::writeXMLHeader(pos::PixelConfigKey key,
   *outstream << "  <DATA_SET>"                                                                               << std::endl ;
   *outstream << " "                                                                                          << std::endl ;
   *outstream << "   <VERSION>" << version << "</VERSION>"                                                    << std::endl ;
+  *outstream << "   <COMMENT_DESCRIPTION>" << getComment() << "</COMMENT_DESCRIPTION>"                       << std::endl ;
   *outstream << " "                                                                                          << std::endl ;
   *outstream << "   <PART>"                                                                                  << std::endl ;
   *outstream << "    <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"                                                << std::endl ;

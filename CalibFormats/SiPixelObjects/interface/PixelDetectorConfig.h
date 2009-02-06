@@ -83,7 +83,6 @@ namespace pos{
     std::vector<PixelModuleName> modules_;   
 
     std::map<PixelROCName, PixelROCStatus> rocs_;
-    
  
   };
 }

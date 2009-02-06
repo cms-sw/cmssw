@@ -439,6 +439,7 @@ void PixelDACSettings::writeXMLHeader(pos::PixelConfigKey key,
   *outstream << ""											<< std::endl ;
   *outstream << " <DATA_SET>" 									        << std::endl ;
   *outstream << "  <VERSION>" << version << "</VERSION>"						<< std::endl ;
+  *outstream << "  <COMMENT_DESCRIPTION>" << getComment() << "</COMMENT_DESCRIPTION>"                   << std::endl ;
   *outstream << " "											<< std::endl ;
   *outstream << "  <PART>"										<< std::endl ;
   *outstream << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"  					  	<< std::endl ;

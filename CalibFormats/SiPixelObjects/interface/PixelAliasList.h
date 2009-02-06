@@ -275,16 +275,16 @@ namespace pos{
     } 
     // End of Dario's addition ============================================================================
 
-    unsigned int nAliases() { return pixelConfigAliases_.size(); }
-    std::string name(unsigned int i) { return pixelConfigAliases_[i].name();}  
-    unsigned int key(unsigned int i) { return pixelConfigAliases_[i].key();}
-    PixelConfigAlias operator[](unsigned int i) {return pixelConfigAliases_[i];}
+    unsigned int     nAliases() 		    { return pixelConfigAliases_.size()       ;}
+    std::string      name(	    unsigned int i) { return pixelConfigAliases_[i].name()    ;}
+    unsigned int     key(	    unsigned int i) { return pixelConfigAliases_[i].key()     ;}
+    PixelConfigAlias operator[](unsigned int i)     { return pixelConfigAliases_[i] 	      ;}
 
-    unsigned int nVersionAliases() { return pixelVersionAliases_.size(); }
-    std::string path(unsigned int i) { return pixelVersionAliases_[i].path();}  
-    unsigned int version(unsigned int i) { return pixelVersionAliases_[i].version();}
-    std::string alias(unsigned int i) { return pixelVersionAliases_[i].alias();}  
-
+    unsigned int     nVersionAliases()  	    { return pixelVersionAliases_.size()      ;}
+    std::string      path(	    unsigned int i) { return pixelVersionAliases_[i].path()   ;} 
+    unsigned int     version(	    unsigned int i) { return pixelVersionAliases_[i].version();}
+    std::string      alias(	    unsigned int i) { return pixelVersionAliases_[i].alias()  ;} 
+    
   private:
 
     std::vector<PixelConfigAlias> pixelConfigAliases_;

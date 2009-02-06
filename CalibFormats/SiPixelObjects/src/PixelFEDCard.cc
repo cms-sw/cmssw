@@ -1195,7 +1195,7 @@ void PixelFEDCard::writeXMLHeader(pos::PixelConfigKey key,
   *fedstream << " <DATA_SET>"                                                                             << std::endl ;
   *fedstream << ""                                                                                        << std::endl ;
   *fedstream << "  <VERSION>" << version << "</VERSION>"                                                  << std::endl ;
-  *fedstream << "  <COMMENT_DESCRIPTION>Pixel FED Configuration</COMMENT_DESCRIPTION>"                    << std::endl ;
+  *fedstream << "  <COMMENT_DESCRIPTION>" << getComment() << "</COMMENT_DESCRIPTION>"                     << std::endl ;
   *fedstream << ""                                                                                        << std::endl ;
   *fedstream << "  <PART>"                                                                                << std::endl ;
   *fedstream << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"                                              << std::endl ;      

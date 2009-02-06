@@ -671,6 +671,7 @@ void PixelNameTranslation::writeXMLHeader(pos::PixelConfigKey key,
   *outstream << "   <KIND_OF_PART>Detector ROOT</KIND_OF_PART>"                                              << endl ;
   *outstream << "  </PART>"                                                                                  << endl ;
   *outstream << "  <VERSION>" << version << "</VERSION>"				         	     << endl ;
+  *outstream << "  <COMMENT_DESCRIPTION>" << getComment() << "</COMMENT_DESCRIPTION>"                        << endl ;
   *outstream << "  "								         	             << endl ;
 
 }  
