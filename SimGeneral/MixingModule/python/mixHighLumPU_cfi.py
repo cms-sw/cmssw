@@ -6,13 +6,13 @@ import FWCore.ParameterSet.Config as cms
 
 # this is the configuration to model pileup for final scheme 
 from SimGeneral.MixingModule.mixObjects_cfi import *
-mix = cms.EDProducer("MixingModule",
+mix = cms.EDFilter("MixingModule",
     LabelPlayback = cms.string(''),
     maxBunch = cms.int32(3),
     minBunch = cms.int32(-5), ## in terms of 25 ns
 
     bunchspace = cms.int32(25), ## ns
-
+    checktof = cms.bool(True),
     playback = cms.untracked.bool(False),
     useCurrentProcessOnly = cms.bool(False),
 

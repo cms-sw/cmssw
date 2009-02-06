@@ -6,13 +6,13 @@ import FWCore.ParameterSet.Config as cms
 
 # configuration to model pileup for initial physics phase
 from SimGeneral.MixingModule.mixObjects_cfi import *
-mix = cms.EDProducer("MixingModule",
+mix = cms.EDFilter("MixingModule",
     LabelPlayback = cms.string(''),
     maxBunch = cms.int32(3),
     minBunch = cms.int32(-5), ## in terms of 25 nsec
 
     bunchspace = cms.int32(75), ##ns
-
+    checktof = cms.bool(True),
     playback = cms.untracked.bool(False),
     useCurrentProcessOnly = cms.bool(False),
                    

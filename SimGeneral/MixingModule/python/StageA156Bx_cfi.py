@@ -6,13 +6,13 @@ import FWCore.ParameterSet.Config as cms
 
 # this is the configuration to model pileup in StageA with 156x156 bunchcrossings
 from SimGeneral.MixingModule.mixObjects_cfi import *
-mix = cms.EDProducer("MixingModule",
+mix = cms.EDFilter("MixingModule",
     LabelPlayback = cms.string(''),
     maxBunch = cms.int32(3),
     minBunch = cms.int32(-5), ## in terms of 25 nsec
 
     bunchspace = cms.int32(450), ## ns
-
+    checktof = cms.bool(True),
     playback = cms.untracked.bool(False),
     useCurrentProcessOnly = cms.bool(False),
     input = cms.SecSource("PoolSource",
