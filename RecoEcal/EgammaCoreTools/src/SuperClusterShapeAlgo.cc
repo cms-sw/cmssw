@@ -26,11 +26,11 @@ void SuperClusterShapeAlgo::Calculate_Covariances(const reco::SuperCluster &pass
   double scEta    = passedCluster.position().eta();
   double scPhi    = passedCluster.position().phi();
 
-  std::vector<DetId> detId = passedCluster.getHitsByDetId();
+  std::vector<std::pair<DetId,float> > detId = passedCluster.hitsAndFractions();
   // Loop over recHits associated with the given SuperCluster
-  for(std::vector<DetId>::iterator hit = detId.begin();
+  for(std::vector<std::pair<DetId,float> >::iterator hit = detId.begin();
       hit != detId.end(); ++hit) {
-    EcalRecHitCollection::const_iterator rHit = recHits_->find(*hit);
+    EcalRecHitCollection::const_iterator rHit = recHits_->find((*hit).first);
  //FIXME: THIS IS JUST A WORKAROUND A FIX SHOULD BE APPLIED  
  if(rHit == recHits_->end()) {
     continue; 
