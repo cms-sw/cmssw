@@ -1,4 +1,5 @@
 #include "OnlineDB/CSCCondDB/interface/CSCMap1.h"
+#include <cstdlib>
 
   /**
    * Constructor for cscmap1
