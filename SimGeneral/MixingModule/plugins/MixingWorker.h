@@ -13,20 +13,16 @@
  ************************************************************/
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
-#include "DataFormats/Common/interface/Wrapper.h"
-#include "DataFormats/Common/interface/Handle.h"
 
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include <vector>
 #include <string>
 #include <typeinfo>
 #include "MixingWorkerBase.h"
+#include "MixingModule.h"
 
-class SimTrack;
-class SimVertex;
 namespace edm
 {
   template <class T> 
@@ -38,13 +34,13 @@ namespace edm
       explicit MixingWorker() {;}
 
       /*Normal constructor*/ 
-      MixingWorker(int minBunch,int maxBunch, int bunchSpace,std::string subdet,std::string label, int maxNbSources,InputTag & tag, bool isTracker=false):
-	MixingWorkerBase(minBunch,maxBunch,bunchSpace,subdet,label,maxNbSources,tag,isTracker)
+      MixingWorker(int minBunch,int maxBunch, int bunchSpace,std::string subdet,std::string label, int maxNbSources,InputTag & tag, bool checktof, bool isTracker=false):
+	MixingWorkerBase(minBunch,maxBunch,bunchSpace,subdet,label,maxNbSources,tag,checktof,isTracker)
 	{
 
           trackerHigh_=false;
           if (isTracker) 
-	    if (subdet.find("HighTof")!=std::string::npos) 		trackerHigh_=true;
+	      if (subdet.find("HighTof")!=std::string::npos) 		trackerHigh_=true;
 	}
 
       /**Default destructor*/
@@ -52,20 +48,14 @@ namespace edm
 
     public:
 
-      void setTof();
-
       virtual void put(edm::Event &e) {
         std::auto_ptr<CrossingFrame<T> > pOut(crFrame_);
 	e.put(pOut,label_);
-	LogDebug("MixingModule") <<" CF was put for type "<<typeid(T).name()<<" with "<<label_;
       }
 
       virtual void createnewEDProduct(){
-        crFrame_=new CrossingFrame<T>(minBunch_,maxBunch_,bunchSpace_,subdet_,maxNbSources_);
+        crFrame_=new CrossingFrame<T>(minBunch_,maxBunch_,bunchSpace_,subdet_,maxNbSources_);//FIXME: subdet not needed in CF
       }
-      virtual void setBcrOffset() {crFrame_->setBcrOffset();}
-      virtual void setSourceOffset(const unsigned int s) {crFrame_->setSourceOffset(s);}
-
 
       virtual void addSignals(const edm::Event &e){
 	// default version
@@ -78,7 +68,19 @@ namespace edm
 	else	  LogWarning("MixingModule") <<"!!!!!!! Did not get any signal data for "<<typeid(T).name()<<", with "<<tag_;
       }
 
-      virtual void addPileups(const int bcr, EventPrincipal *ep, unsigned int eventNr,int vertexoffset);
+      virtual void addPileups(const int bcr, edm::Event* e,unsigned int eventNr,int vertexoffset)
+	{
+	  // default version
+	  // valid for CaloHits
+	  edm::Handle<std::vector<T> >  result_t;
+	  bool got = e->getByLabel(tag_,result_t);
+	  if (got) {
+	    LogDebug("MixingModule") <<result_t.product()->size()<<"  pileup objects  added, eventNr "<<eventNr;
+	    crFrame_->addPileups(bcr,result_t.product(),eventNr);
+	  }
+	}
+      virtual void setBcrOffset() {crFrame_->setBcrOffset();}
+      virtual void setSourceOffset(const unsigned int s) {crFrame_->setSourceOffset(s);}
 
     private:
       CrossingFrame<T> * crFrame_;
@@ -88,40 +90,6 @@ namespace edm
       static const int highTrackTof;
       static const int limHighLowTof;
     };
-
-//=============== template specializations ====================================================================================
-  template <class T>
-    void MixingWorker<T>::addPileups(const int bcr, EventPrincipal *ep, unsigned int eventNr,int vertexoffset)
-    {
-      // default version
-      // valid for CaloHits 
-      boost::shared_ptr<Wrapper<std::vector<T> > const> shPtr =
-	edm::getProductByTag<std::vector<T> >(*ep, tag_);
-
-      if (shPtr) {
-	LogDebug("MixingModule") <<shPtr->product()->size()<<"  pileup objects  added, eventNr "<<eventNr;
-	crFrame_->addPileups(bcr,const_cast< std::vector<T> * >(shPtr->product()),eventNr);
-      }
-    }
-
-  template <>
-    void MixingWorker<PSimHit>::addPileups(const int bcr, EventPrincipal *ep, unsigned int eventNr,int vertexoffset);
-
-  template <>
-    void MixingWorker<SimTrack>::addPileups(const int bcr, EventPrincipal *ep, unsigned int eventNr,int vertexoffset);
-
-  template <>
-      void MixingWorker<SimVertex>::addPileups(const int bcr, EventPrincipal *ep, unsigned int eventNr,int vertexoffset);
-
-template <>
-      void MixingWorker<HepMCProduct>::addPileups(const int bcr, EventPrincipal *ep, unsigned int eventNr,int vertexoffset);
-
-template <class T>
-  void MixingWorker<T>::setTof() {;}
-
-template <>
-void MixingWorker<PSimHit>::setTof();
-
-}//edm
+ }//edm
 
 #endif
