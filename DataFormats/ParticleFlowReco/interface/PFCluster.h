@@ -76,9 +76,11 @@ namespace reco {
     /// cluster position: rho, eta, phi
     const REPPoint&       positionREP() const {return posrep_;}
 
-    /// calculates posrep_ once and for all
+    /// computes posrep_ once and for all
     void calculatePositionREP() {
-      posrep_.SetCoordinates( position_.Rho(), position_.Eta(), position_.Phi() ); 
+      posrep_.SetCoordinates( position_.Rho(), 
+			      position_.Eta(), 
+			      position_.Phi() ); 
     }
 
     /// \todo move to PFClusterTools
@@ -122,12 +124,16 @@ namespace reco {
 
     /// \todo move to PFClusterTools
     static int    depthCorMode_;
+
     /// \todo move to PFClusterTools
     static double depthCorA_;
+
     /// \todo move to PFClusterTools
     static double depthCorB_ ;
+
     /// \todo move to PFClusterTools
     static double depthCorAp_;
+
     /// \todo move to PFClusterTools
     static double depthCorBp_;
 

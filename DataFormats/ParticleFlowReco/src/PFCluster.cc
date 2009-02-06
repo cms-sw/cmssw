@@ -1,4 +1,5 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 
 using namespace std;
 using namespace reco;
@@ -16,7 +17,10 @@ unsigned PFCluster::instanceCounter_ = 0;
 
 PFCluster::PFCluster(PFLayer::Layer layer, double energy,
                      double x, double y, double z ) : 
-  CaloCluster( energy, math::XYZPoint(x,y,z), PFLayer::toCaloID(layer) ),
+  CaloCluster( energy, 
+	       math::XYZPoint(x,y,z), 
+	       PFLayer::toCaloID(layer),
+	       CaloCluster::ALGO_pFClusters ),
   posrep_( position_.Rho(), position_.Eta(), position_.Phi() ),
   color_(2)
 {  }
@@ -35,6 +39,9 @@ void PFCluster::reset() {
 void PFCluster::addRecHitFraction( const reco::PFRecHitFraction& frac ) {
 
   rechits_.push_back( frac );
+
+  addHitAndFraction( frac.recHitRef()->detId(), 
+		     frac.fraction() );
 }
 
 
