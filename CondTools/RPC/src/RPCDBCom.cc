@@ -8,7 +8,12 @@
 RPCDBCom::RPCDBCom():
   m_connection( 0 )
 {
-
+  coral::Context& context = coral::Context::instance();
+  context.loadComponent( "CORAL/RelationalPlugins/oracle" );
+  coral::IHandle<coral::IRelationalDomain> domain = context.query<coral::IRelationalDomain>(
+"CORAL/RelationalPlugins/oracle" );
+  if ( ! domain.isValid() )
+    throw std::runtime_error( "Could not load the OracleAccess plugin" );
 }
 
 
