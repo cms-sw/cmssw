@@ -3,11 +3,12 @@
 
 #include "Geometry/HcalTowerAlgo/interface/CaloTowerGeometry.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include <memory>
 
 /** \class CaloTowerHardcodeGeometryLoader
   *  
-  * $Date: 2007/09/07 22:05:51 $
-  * $Revision: 1.2 $
+  * $Date: 2008/08/27 15:57:15 $
+  * $Revision: 1.3 $
   * \author J. Mans - Minnesota
   */
 class CaloTowerHardcodeGeometryLoader {
