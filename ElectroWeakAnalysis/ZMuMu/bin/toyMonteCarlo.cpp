@@ -47,11 +47,11 @@ MuTag mu(double effTrk, double effSa, TRandom3 * eventGenerator) {
 }
 
 
-bool isolationTag(double effIso, MuTag mu, TRandom3 * eventGenerator ){
+bool isolationTag(double effIso, TRandom3 * eventGenerator ){
  return (eventGenerator->Rndm()< effIso);
 }
 
-bool triggerTag(double effHlt, MuTag mu, TRandom3 * eventGenerator ){
+bool triggerTag(double effHlt,  TRandom3 * eventGenerator ){
   return (eventGenerator->Rndm()< effHlt); 
  }
 
@@ -164,10 +164,10 @@ int main(int argc, char * argv[]){
     for(int i = 0; i < N0; ++i){//loop on Z Yield
       mu1=mu(effTrk,effSa, eventGenerator);
       mu2=mu(effTrk,effSa, eventGenerator);
-      bool iso1 = isolationTag(effIso,mu1,eventGenerator);
-      bool iso2 = isolationTag(effIso,mu2,eventGenerator);
-      bool trig1 = triggerTag(effHlt,mu1,eventGenerator);
-      bool trig2 = triggerTag(effHlt,mu2,eventGenerator);
+      bool iso1 = isolationTag(effIso,eventGenerator);
+      bool iso2 = isolationTag(effIso,eventGenerator);
+      bool trig1 = triggerTag(effHlt,eventGenerator);
+      bool trig2 = triggerTag(effHlt,eventGenerator);
    
       if(mu1 == globalMu && mu2 == globalMu){
 	 if(iso1 && iso2){//two global mu isolated
