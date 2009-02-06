@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.39 2009/01/12 16:18:30 chamont Exp $
+// $Id: GsfElectronAlgo.cc,v 1.40 2009/01/23 16:42:24 charlot Exp $
 //
 //
 
@@ -235,8 +235,9 @@ void GsfElectronAlgo::process(
     const SuperClusterRef & scRef=getTrSuperCluster(gsfTrackRef);
     const SuperCluster theClus=*scRef;
     const BasicClusterRef & elbcRef=getEleBasicCluster(gsfTrackRef,scRef);
-    std::vector<DetId> vecId=theClus.seed()->getHitsByDetId();
-    subdet_ =vecId[0].subdetId();
+    //std::vector<DetId> vecId=theClus.seed()->getHitsByDetId();
+    //subdet_ =vecId[0].subdetId();
+    subdet_ =theClus.seed()->hitsAndFractions()[0].first.subdetId();
 
     // calculate Trajectory StatesOnSurface....
     if (!calculateTSOS(t,theClus, bsPosition)) continue;
@@ -335,8 +336,9 @@ void GsfElectronAlgo::createElectron
       const CaloGeometry * geometry = theCaloGeom.product() ;
       const reco::BasicCluster & seedCluster = *(scRef->seed()) ;
       const EcalRecHitCollection * reducedRecHits = 0 ;
-      std::vector<DetId> vecId=seedCluster.getHitsByDetId() ;
-      int detector = vecId[0].subdetId() ;
+      //std::vector<DetId> vecId=seedCluster.getHitsByDetId() ;
+      //int detector = vecId[0].subdetId() ;
+      int detector = seedCluster.hitsAndFractions()[0].first.subdetId() ;
       if (detector==EcalBarrel)
        { reducedRecHits = reducedEBRecHits.product() ; }
       else if (detector==EcalEndcap)

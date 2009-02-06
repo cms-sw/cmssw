@@ -10,7 +10,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //===================================================================
-// Author: Federico Ferri - INFN Milano, Bicocca university 
+// Author: Federico Ferri - INFN Milano, Bicocca university
 // 12/2005
 // new classification numbering and showering subclasses
 // golden                     =>  0
@@ -23,10 +23,10 @@
 // showering nbrem 4 ou plus  => 34
 // EB/EE transition region    => 40
 // endcap                     => barrel + 100
-// EB eta gaps                => 41 
-// EB phi gaps                => 42 
-// EE x gaps                  => 141 
-// EE y gaps                  => 142 
+// EB eta gaps                => 41
+// EB phi gaps                => 42
+// EE x gaps                  => 141
+// EE y gaps                  => 142
 // CC 08/02/2006
 // CC added crack subdivision 16/09/2008
 //===================================================================
@@ -45,21 +45,22 @@ void ElectronClassification::classify(const GsfElectron &electron) {
 
   // use supercluster energy including f(Ncry) correction
   float scEnergy=sclRef->energy();
-    
+
   // first look whether it's in crack, barrel or endcap
-  std::vector<DetId> vecId=sclRef->seed()->getHitsByDetId();
-  int detector =vecId[0].subdetId();  
+  //std::vector<DetId> vecId=sclRef->seed()->getHitsByDetId();
+  //int detector =vecId[0].subdetId();
+  int detector =sclRef->seed()->hitsAndFractions()[0].first.subdetId();
   if (detector==EcalBarrel) {
     electronClass_ = 0;
   } else if (detector==EcalEndcap) {
     electronClass_ = 100;
   } else {
     electronClass_=-1;
-    edm::LogWarning("") << "ElectronClassification::init(): Undefined electron, eta = " << 
+    edm::LogWarning("") << "ElectronClassification::init(): Undefined electron, eta = " <<
       electron.eta() << "!!!!" ;
     return;
   }
-  
+
   // cracks
   if (isInCrack(fabs(electron.eta()))) {
     electronClass_+=40;
@@ -70,41 +71,41 @@ void ElectronClassification::classify(const GsfElectron &electron) {
   } else if (isInPhiGaps(fabs(electron.phi()))) {
     electronClass_=42;
     return;
-  }  
-  
+  }
+
   // then decide for the others to which class it belongs
   float p0 = 7.20583e-04;
   float p1 = 9.20913e-02;
   float p2 = 8.97269e+00;
 
-  float pin  = electron.trackMomentumAtVtx().R(); 
+  float pin  = electron.trackMomentumAtVtx().R();
   float fbrem = electron.fbrem();
-     
+
   float peak = p0 + p1/(pin-p2);
-  
+
   int nbrem = electron.numberOfClusters()-1;
 
   // golden
-  if (nbrem == 0 && 
+  if (nbrem == 0 &&
       (pin - scEnergy)/pin < 0.1 &&
       fabs(electron.caloPosition().phi() -
 	   electron.gsfTrack()->outerMomentum().phi() - peak) < 0.15 &&
-      fbrem < 0.2) {    
+      fbrem < 0.2) {
     electronClass_ += 0;
-  } 
+  }
   // big brem
   else if (nbrem == 0 &&
 	   fbrem > 0.5 &&
 	   fabs(pin - scEnergy)/pin < 0.1) {
     electronClass_ += 10;
-  } 
+  }
   // narrow
   else if (nbrem == 0 &&
 	   fabs(pin - scEnergy)/pin < 0.1) {
     electronClass_ += 20;
   }
   // showering
-  else {   
+  else {
     if (nbrem == 0) electronClass_ += 30;
     if (nbrem == 1) electronClass_ += 31;
     if (nbrem == 2) electronClass_ += 32;
@@ -122,7 +123,7 @@ bool ElectronClassification::isInCrack(float eta) const{
 
 bool ElectronClassification::isInEtaGaps(float eta) const{
 
-  return (eta < 0.018 || 
+  return (eta < 0.018 ||
 	  (eta>0.423 && eta<0.461) ||
 	  (eta>0.770 && eta<0.806) ||
 	  (eta>1.127 && eta<1.163));

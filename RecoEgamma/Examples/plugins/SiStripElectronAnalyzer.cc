@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:49:38 EDT 2006
-// $Id: SiStripElectronAnalyzer.cc,v 1.7 2008/11/07 14:41:39 nancy Exp $
+// $Id: SiStripElectronAnalyzer.cc,v 1.8 2008/12/08 22:33:47 chamont Exp $
 //
 
 // system include files
@@ -397,13 +397,13 @@ SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	 basicClusterIter != clusterIter->clustersEnd() ;
 	 ++basicClusterIter ){
 
-      std::vector<DetId> theIds= (*basicClusterIter)->getHitsByDetId();
+      //std::vector<DetId> theIds= (*basicClusterIter)->getHitsByDetId();
 
       str << " basicCluster Energy " << (*basicClusterIter)->energy()
 	  << " Position " << (*basicClusterIter)->position()
 	  << " \n"
 	  << "        Position phi " << (*basicClusterIter)->position().phi()
-	  << " recHits " << theIds.size()
+	  << " recHits " << (*basicClusterIter)->size()
 	  << " \n" ;
 
       double eCluster =  (*basicClusterIter)->energy();
@@ -518,7 +518,7 @@ SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	 basicClusterIter != electronIter->superCluster()->clustersEnd() ;
 	 ++basicClusterIter ){
 
-      std::vector<DetId> theIds= (*basicClusterIter)->getHitsByDetId();
+      //std::vector<DetId> theIds= (*basicClusterIter)->getHitsByDetId();
 
       double eCluster =  (*basicClusterIter)->energy();
       if(eCluster > emaxSuperCluster  ){
