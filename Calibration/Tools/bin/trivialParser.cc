@@ -1,7 +1,7 @@
 //#include "Calibration/EcalAlCaRecoProducers/interface/trivialParser.h"
 #include "Calibration/Tools/bin/trivialParser.h"
 #include <iostream>
-
+#include <cstdlib>
 
 trivialParser::trivialParser (std::string configFile) 
 {
