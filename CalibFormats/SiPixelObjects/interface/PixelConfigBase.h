@@ -69,7 +69,7 @@ namespace pos{
     virtual void writeXMLTrailer(                                                       std::ofstream *out) const {;}
 
     void setComment(std::string comment) {comment_ = comment;} 
-    std::string getComment()             {return comment_   ;}
+    std::string getComment() const       {return comment_   ;}
     
   private:
 
