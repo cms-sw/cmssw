@@ -1,7 +1,7 @@
 /** \file HouseholderDecomposition.cc
  *
- * $Date: 2007/03/13$
- * $Revision: 2.0 $
+ * $Date: 2007/03/14 13:55:41 $
+ * $Revision: 1.4 $
  *
  * \author Lorenzo Agostino, R.Ofierzynski, CERN
  */
@@ -9,7 +9,7 @@
 #include "Calibration/Tools/interface/HouseholderDecomposition.h"
 #include <cfloat>
 #include <cmath>
-
+#include <cstdlib>
 
 HouseholderDecomposition::HouseholderDecomposition(int squareMode_, int mineta_, int maxeta_, int minphi_, int maxphi_)
   :squareMode(squareMode_), mineta(mineta_), maxeta(maxeta_), minphi(minphi_), maxphi(maxphi_), countEvents(0)
