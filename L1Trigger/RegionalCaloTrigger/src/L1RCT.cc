@@ -244,7 +244,7 @@ void L1RCT::shareNeighbors(){
   L1RCTRegion* sw;
   L1RCTRegion* nw;
   L1RCTRegion* ne;
-  vector<vector<vector<L1RCTRegion*> > > regions(18,7);
+  vector<vector<vector<L1RCTRegion*> > > regions(18,vector<vector<L1RCTRegion*> >(7));
   vector<L1RCTRegion*> rpair(2);
   for(int i = 0; i < 18; i++){
     for(int j = 0; j < 7; j++){
