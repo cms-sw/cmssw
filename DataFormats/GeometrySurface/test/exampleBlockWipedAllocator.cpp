@@ -129,7 +129,7 @@ void gen(BP & bp) {
   flip = !flip;
 }
 
-int main(int v) {
+int main(int v, char **) {
   if (v>1) BlockWipedPoolAllocated::usePool();
 
   dump();
