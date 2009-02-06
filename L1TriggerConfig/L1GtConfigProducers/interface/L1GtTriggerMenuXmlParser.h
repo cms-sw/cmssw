@@ -316,6 +316,13 @@ public:
     void setGtTriggerMenuDescription(const std::string&);
 
 
+    inline const std::string& gtAlgorithmImplementation() const {
+        return m_algorithmImplementation;
+    }
+
+    void setGtAlgorithmImplementation(const std::string&);
+
+
 private:
 
     // XML methods
@@ -499,6 +506,8 @@ private:
 
 private:
 
+    ///  members  for XML parser only (do not appear in CondFormats)
+
     std::string m_triggerMenuInterfaceDate;
     std::string m_triggerMenuInterfaceAuthor;
     std::string m_triggerMenuInterfaceDescription;
@@ -506,6 +515,9 @@ private:
     std::string m_triggerMenuDate;
     std::string m_triggerMenuAuthor;
     std::string m_triggerMenuDescription;
+
+    std::string m_algorithmImplementation;
+
 
 private:
 

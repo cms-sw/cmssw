@@ -308,6 +308,12 @@ void L1GtTriggerMenuXmlParser::setGtTriggerMenuDescription(const std::string& va
 
 }
 
+void L1GtTriggerMenuXmlParser::setGtAlgorithmImplementation(const std::string& val) {
+
+    m_algorithmImplementation = val;
+
+}
+
 // private methods
 
 
@@ -3026,8 +3032,6 @@ bool L1GtTriggerMenuXmlParser::parseId(XERCES_CPP_NAMESPACE::XercesDOMParser* pa
         return false;
     }
 
-    std::string algImplementation;
-
     headerNode = findXMLChild(headerNode, m_xmlTagHeader);
     if (headerNode == 0) {
 
@@ -3162,14 +3166,14 @@ bool L1GtTriggerMenuXmlParser::parseId(XERCES_CPP_NAMESPACE::XercesDOMParser* pa
         idNode = findXMLChild(idNode, m_xmlTagMenuAlgImpl);
         if (idNode == 0) {
 
-            algImplementation = "";
+            m_algorithmImplementation = "";
             LogTrace("L1GtTriggerMenuXmlParser") << "\n  Warning: Could not find <"
                     << m_xmlTagMenuAlgImpl << "> tag"
                     << "\n   - Algorithm implementation tag set to empty string." << std::endl;
 
         } else {
 
-            algImplementation = getXMLTextValue(idNode);
+            m_algorithmImplementation = getXMLTextValue(idNode);
         }
 
         // find DB key for L1 scales
@@ -3197,7 +3201,7 @@ bool L1GtTriggerMenuXmlParser::parseId(XERCES_CPP_NAMESPACE::XercesDOMParser* pa
     << "\nL1 MenuInterface - Creation author: " << m_triggerMenuInterfaceAuthor
     << "\nL1 MenuInterface - Description:     " << m_triggerMenuInterfaceDescription
     << "\n"
-    << "\nAlgorithm implementation tag:       " << algImplementation
+    << "\nAlgorithm implementation tag:       " << m_algorithmImplementation
     << "\n"
     << "\nL1 Menu - Creation date:            " << m_triggerMenuDate
     << "\nL1 Menu - Creation author:          " << m_triggerMenuAuthor
@@ -3209,7 +3213,7 @@ bool L1GtTriggerMenuXmlParser::parseId(XERCES_CPP_NAMESPACE::XercesDOMParser* pa
     // format:
     // L1MenuInterface/ScaleDbKey/AlgorithmImplementationTag
 
-    std::string menuName = m_triggerMenuInterface + "/" + m_scaleDbKey + "/" + algImplementation;
+    std::string menuName = m_triggerMenuInterface + "/" + m_scaleDbKey + "/" + m_algorithmImplementation;
 
     if (menuName != m_triggerMenuName) {
 
