@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoEgamma.PhotonIdentification.isolationCalculator_cfi import *
 #
 # producer for photons
-# $Id: photons_cfi.py,v 1.19 2008/12/15 20:15:51 nancy Exp $
+# $Id: photons_cfi.py,v 1.20 2009/01/13 17:19:42 nancy Exp $
 #
 photons = cms.EDProducer("PhotonProducer",
     isolationSumsCalculatorSet = cms.PSet(isolationSumsCalculator),
@@ -47,7 +47,11 @@ photons = cms.EDProducer("PhotonProducer",
     trackPtSumSolidConeBarrel =cms.double(999.),
     trackPtSumSolidConeEndcap =cms.double(999.),                     
     trackPtSumHollowConeBarrel =cms.double(999.),
-    trackPtSumHollowConeEndcap =cms.double(999.)                     
+    trackPtSumHollowConeEndcap =cms.double(999.),
+    sigmaIetaIetaCutBarrel=cms.double(999.),
+    sigmaIetaIetaCutEndcap=cms.double(999.)
+                         
+
 )
 
 
