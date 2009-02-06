@@ -7,11 +7,6 @@
 <use name=DataFormats/TrackingRecHit>
 <use name=DataFormats/TrajectorySeed>
 <use name=FWCore/Utilities>
-<use name=Geometry/CommonDetUnit>
-<use name=Geometry/CommonTopologies>
-<use name=Geometry/Records>
-<use name=Geometry/TrackerGeometryBuilder>
-<use name=Geometry/TrackerNumberingBuilder>
 <use name=rootrflx>
 <export>
   <use name=DataFormats/Common>
@@ -22,11 +17,6 @@
   <use name=DataFormats/TrackingRecHit>
   <use name=DataFormats/TrajectorySeed>
   <use name=FWCore/Utilities>
-  <use name=Geometry/CommonDetUnit>
-  <use name=Geometry/CommonTopologies>
-  <use name=Geometry/Records>
-  <use name=Geometry/TrackerGeometryBuilder>
-  <use name=Geometry/TrackerNumberingBuilder>
   <lib name=DataFormatsTrackReco>
 </export>
 
