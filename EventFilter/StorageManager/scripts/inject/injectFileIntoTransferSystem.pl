@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: injectFileIntoTransferSystem.pl,v 1.38 2008/10/22 04:56:38 loizides Exp $
+# $Id: injectFileIntoTransferSystem.pl,v 1.39 2009/02/04 17:05:42 loizides Exp $
 
 use strict;
 use DBI;
@@ -51,7 +51,7 @@ sub usage
       (EDM type can be choses also for general ROOT files)
     - Lumi files require runnumber, lumisection, appname, and appversion. 
     - DQM files  require runnumber, lumisection, appname, and appversion.
-    - PIXDMP files require runnumber, lumisection, numevents, appname, appversion and setuplabel.
+    - PIXDMP files require runnumber.
 
   Config file has to specify a user and password for the cms_rcms online database. At best
   see the example in ~tier0/.tier0trans.conf.
@@ -410,8 +410,8 @@ if($type eq "streamer") {
 } elsif($type eq "pixdmp") {
     $setuplabel = 'PixelCalib' if ($setuplabel eq 'default');
     $destination = 'pixdmp' if ($destination eq 'default');
-    unless($runnumber && $lumisection != -1 && $nevents && $appname && $appversion) {
-	print "Error: For edm files need runnumber, lumisection, numevents, appname, and appversion specified\n";
+    unless($runnumber) {
+	print "Error: For pixdmp files need runnumber to be specified\n";
         usageShort();
     }
 } else {
