@@ -47,13 +47,10 @@ MuTag mu(double effTrk, double effSa, TRandom3 * eventGenerator) {
 }
 
 
-bool isolationTag(double effIso, TRandom3 * eventGenerator ){
- return (eventGenerator->Rndm()< effIso);
+bool efficiencyTag(double eff, TRandom3 * eventGenerator ){
+ return (eventGenerator->Rndm()< eff);
 }
 
-bool triggerTag(double effHlt,  TRandom3 * eventGenerator ){
-  return (eventGenerator->Rndm()< effHlt); 
- }
 
 class BkgShape {
 public:
@@ -164,10 +161,10 @@ int main(int argc, char * argv[]){
     for(int i = 0; i < N0; ++i){//loop on Z Yield
       mu1=mu(effTrk,effSa, eventGenerator);
       mu2=mu(effTrk,effSa, eventGenerator);
-      bool iso1 = isolationTag(effIso,eventGenerator);
-      bool iso2 = isolationTag(effIso,eventGenerator);
-      bool trig1 = triggerTag(effHlt,eventGenerator);
-      bool trig2 = triggerTag(effHlt,eventGenerator);
+      bool iso1 =  efficiencyTag(effIso,eventGenerator);
+      bool iso2 =  efficiencyTag(effIso,eventGenerator);
+      bool trig1 = efficiencyTag(effHlt,eventGenerator);
+      bool trig2 = efficiencyTag(effHlt,eventGenerator);
    
       if(mu1 == globalMu && mu2 == globalMu){
 	 if(iso1 && iso2){//two global mu isolated
