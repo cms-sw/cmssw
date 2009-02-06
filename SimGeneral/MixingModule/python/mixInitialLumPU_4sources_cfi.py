@@ -1,4 +1,4 @@
-,# The following comments couldn't be translated into the new config version:
+# The following comments couldn't be translated into the new config version:
 
 # E33 cm-2s-1
 # mb
@@ -11,11 +11,11 @@ import FWCore.ParameterSet.Config as cms
 # please note that the names of the input sources are fixed: 'input', 'cosmics', 'beamhalo_minus', 'beamhalo_plus'
 #
 from SimGeneral.MixingModule.mixObjects_cfi import *
-mix = cms.EDFilter("MixingModule",
+mix = cms.EDProducer("MixingModule",
     LabelPlayback = cms.string(''),
     maxBunch = cms.int32(3),
     minBunch = cms.int32(-5), ## in units of 25 nsec
-    checktof = cms.bool(True),
+
     bunchspace = cms.int32(75), ## nsec
 
     playback = cms.untracked.bool(False),

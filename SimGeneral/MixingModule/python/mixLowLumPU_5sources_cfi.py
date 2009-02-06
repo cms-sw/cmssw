@@ -12,7 +12,7 @@ import FWCore.ParameterSet.Config as cms
 # and forwardDetectors
 #
 from SimGeneral.MixingModule.mixObjects_cfi import *
-mix = cms.EDFilter("MixingModule",
+mix = cms.EDProducer("MixingModule",
     LabelPlayback = cms.string(''),
     beamhalo_minus = cms.SecSource("PoolSource",
         nbPileupEvents = cms.PSet(
@@ -44,7 +44,7 @@ mix = cms.EDFilter("MixingModule",
     playback = cms.untracked.bool(False),
     useCurrentProcessOnly = cms.bool(False),
     minBunch = cms.int32(-5), ## in units of 25 nsec
-    checktof = cms.bool(True),
+
     bunchspace = cms.int32(25), ## nsec
 
     beamhalo_plus = cms.SecSource("PoolSource",
