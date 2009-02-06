@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: FourVectorHLTriggerOffline_cfi.py,v 1.2 2009/01/26 05:46:15 berryhil Exp $
+# $Id: FourVectorHLTriggerOffline_cfi.py,v 1.3 2009/02/06 19:01:21 nuno Exp $
 hltResults = cms.EDFilter("FourVectorHLTriggerOffline",
-    dirname = cms.string("HLT/FourVector/"),
+    dirname = cms.untracked.string("HLT/FourVector/"),
     plotAll = cms.untracked.bool(False),
     ptMax = cms.untracked.double(100.0),
     ptMin = cms.untracked.double(0.0),
