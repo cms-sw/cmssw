@@ -2,6 +2,7 @@
 #define HISTO_DATA__H
 
 #include <string>
+#include <cstring>
 
 class TFile;
 class TH1;
