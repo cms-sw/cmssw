@@ -13,7 +13,7 @@
 //
 // Original Author:  Roberto Covarelli
 //         Created:  Mon Jan 15 10:39:42 CET 2007
-// $Id: TrackHitFilter.cc,v 1.7 2008/02/05 14:30:54 covarell Exp $
+// $Id: TrackHitFilter.cc,v 1.10 2008/10/13 12:42:15 ntran Exp $
 //
 //
 
@@ -33,6 +33,8 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "AnalysisDataFormats/SiStripClusterInfo/interface/SiStripClusterInfo.h"
+
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 
 using namespace edm;
 using namespace reco;
@@ -106,10 +108,10 @@ void TrackHitFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        std::pair<int,int> typeAndLay = TkMap->typeAndLayerFromDetId( hit->geographicalId() );
        int type = typeAndLay.first;   
        int layer = typeAndLay.second;
+       DetId detid= hit->geographicalId();
+       if (keepThisHit( detid, type, layer, hit, iEvent,iSetup )) acchits++; 
        
-       if (keepThisHit( hit->geographicalId(), type, layer, hit, iSetup )) acchits++; 
-       
-     }
+     }//end loop on hits
      
      if (!nTr) {
        LogDebug("HitFilter") << "TrackHitFilter **** In first track " << acchits << " RecHits retained out of " << allhits;
@@ -118,7 +120,7 @@ void TrackHitFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      allHits.push_back(allhits);
      accHits.push_back(acchits);
      
-   }
+   }//end loop on tracks
 
    nTr = 0;
    // second iteration : store tracks
@@ -143,7 +145,7 @@ void TrackHitFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 int type = typeAndLay.first;   
 	 int layer = typeAndLay.second;
 	 
-	 if (keepThisHit( hit->geographicalId(), type, layer, hit, iSetup )) {
+	 if (keepThisHit( hit->geographicalId(), type, layer, hit, iEvent, iSetup )) {
    
 	   myTrk->setHitPattern( * hit, i ++ );
 	   trhSelectedHits->push_back( hit );
@@ -175,7 +177,7 @@ void
 TrackHitFilter::endJob() {
 }
 
-bool TrackHitFilter::keepThisHit(DetId id, int type, int layer, const TrackingRecHit* therechit, const edm::EventSetup& iSetup) 
+bool TrackHitFilter::keepThisHit(DetId id, int type, int layer, const TrackingRecHit* therechit, const edm::Event &iEvent, const edm::EventSetup& iSetup) 
 {
   bool keepthishit = true;
   
@@ -207,6 +209,9 @@ bool TrackHitFilter::keepThisHit(DetId id, int type, int layer, const TrackingRe
   else if ( theHitSel == "TOBandTIBl234Only" ) {
     if (!(abs(type)==5 || (abs(type)==3 && layer>=2))) keepthishit = false;
   }
+  else if ( theHitSel == "noPXE" ) {
+    if (abs(type)==2) keepthishit = false;
+  }
   
   if (rejectBadMods) {
     for( std::vector<unsigned int>::const_iterator iMod = theBadMods.begin(); iMod != theBadMods.end(); ++iMod ) {  
@@ -216,10 +221,14 @@ bool TrackHitFilter::keepThisHit(DetId id, int type, int layer, const TrackingRe
       }
     }
   }
-       
+
+
+
+         
   // Reject hits with bad S/N
   if (rejectBadStoNHits && (abs(type)>2) ) { //apply it only to Strip hits
-    const uint32_t& recHitDetId = id.rawId();
+   /*** RC ****/ 
+   //   const uint32_t& recHitDetId = id.rawId();
     const SiStripMatchedRecHit2D* matchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>(therechit);
     const SiStripRecHit2D* hit = dynamic_cast<const SiStripRecHit2D*>(therechit);
     const ProjectedSiStripRecHit2D* unmatchedhit = dynamic_cast<const ProjectedSiStripRecHit2D*>(therechit);
@@ -230,26 +239,30 @@ bool TrackHitFilter::keepThisHit(DetId id, int type, int layer, const TrackingRe
 
       const SiStripRecHit2D* monohit=matchedhit->monoHit();    
       const SiStripCluster* monocluster = &*(monohit->cluster());
-      SiStripClusterInfo monoclusterInfo = SiStripClusterInfo( recHitDetId, *monocluster, iSetup, theCMNSubtractionMode);     
-      if (monoclusterInfo.getSignalOverNoise() < theStoNthreshold ) keepmonohit = false;	
+      SiStripClusterInfo monoclusterInfo = SiStripClusterInfo( *monocluster, iSetup); 
+      if (monoclusterInfo.signalOverNoise() < theStoNthreshold ) keepmonohit = false;
+	
 
       const SiStripRecHit2D* stereohit=matchedhit->stereoHit();   
       const SiStripCluster* stereocluster = &*(stereohit->cluster());
-      SiStripClusterInfo stereoclusterInfo = SiStripClusterInfo( recHitDetId, *stereocluster, iSetup, theCMNSubtractionMode);     
-      if (stereoclusterInfo.getSignalOverNoise() < theStoNthreshold ) keepstereohit = false;	
-      
+      SiStripClusterInfo stereoclusterInfo = SiStripClusterInfo(*stereocluster, iSetup);   
+      if (stereoclusterInfo.signalOverNoise() < theStoNthreshold )keepstereohit = false;
+           
       if (!keepmonohit || !keepstereohit) keepthishit = false;    
     }
     else if (hit) {
       const SiStripCluster* cluster = &*(hit->cluster());
-      SiStripClusterInfo clusterInfo = SiStripClusterInfo( recHitDetId, *cluster, iSetup, theCMNSubtractionMode);     
-      if (clusterInfo.getSignalOverNoise() < theStoNthreshold ) keepthishit = false;    
+      SiStripClusterInfo clusterInfo = SiStripClusterInfo(*cluster, iSetup);     
+       if (clusterInfo.signalOverNoise() < theStoNthreshold )keepthishit = false;
+     
     }
     else if (unmatchedhit) {
       const SiStripRecHit2D &orighit = unmatchedhit->originalHit(); 
       const SiStripCluster* origcluster = &*(orighit.cluster());
-      SiStripClusterInfo clusterInfo = SiStripClusterInfo( recHitDetId, *origcluster, iSetup, theCMNSubtractionMode);     
-      if (clusterInfo.getSignalOverNoise() < theStoNthreshold ) keepthishit = false;    
+      SiStripClusterInfo clusterInfo = SiStripClusterInfo(*origcluster, iSetup);     
+
+      if (clusterInfo.signalOverNoise() < theStoNthreshold ) keepthishit = false;   
+      
     }
   } // end reject bad S/N
 
