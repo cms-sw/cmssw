@@ -470,7 +470,7 @@ class ModuleNodeVisitor(object):
         self.l = l
     def enter(self,visitee):
         if isinstance(visitee,_SequenceLeaf):
-            l.append(visitee)
+            self.l.append(visitee)
         pass
     def leave(self,visitee):
         pass
