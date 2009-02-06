@@ -439,7 +439,7 @@ double SETFilter::findMinChi2(unsigned int iSet, const Hep3Vector& r3T,
   //for(unsigned int iIt = 0;iIt<iterations;++iIt){
   while(iCalls<3.){
     //---- SIMPLEX step 1
-    pickElemets(chi2Feet, high, second_high, low);
+    pickElements(chi2Feet, high, second_high, low);
     ++iCalls;
     feet[high] = reflectFoot(feet, high, reflect );
     chi2Feet[high] = chi2AtSpecificStep(feet[high], r3T, muonCandidate, lastUpdatedTSOS,
@@ -719,7 +719,7 @@ std::pair <double,double> SETFilter::findParabolaMinimum(std::vector <double> &q
   return result;
 }
 
-void SETFilter::pickElemets(std::vector <double> &chi2Feet,
+void SETFilter::pickElements(std::vector <double> &chi2Feet,
                                        unsigned int & high, unsigned int & second_high, unsigned int & low){
   // a SIMPLEX function
   std::vector <double> chi2Feet_tmp = chi2Feet;
@@ -727,6 +727,7 @@ void SETFilter::pickElemets(std::vector <double> &chi2Feet,
   std::vector <double>::iterator maxEl = max_element(chi2Feet.begin(), chi2Feet.end());
   high = maxEl - chi2Feet.begin();
   low = minEl - chi2Feet.begin();
+  chi2Feet_tmp[high] = chi2Feet_tmp[low]; 
   std::vector <double>::iterator second_maxEl = max_element(chi2Feet_tmp.begin(), chi2Feet_tmp.end());
   second_high = second_maxEl - chi2Feet_tmp.begin();
 

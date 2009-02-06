@@ -161,7 +161,7 @@ private:
                                                 std::vector <double> &quadratic_chi2);
 
   // SIMPLEX minimization functions
-  void pickElemets(std::vector <double> &chi2Feet,
+  void pickElements(std::vector <double> &chi2Feet,
                    unsigned int & high, unsigned int & second_high, unsigned int & low);
 
   Hep3Vector reflectFoot(std::vector <Hep3Vector> & feet,
