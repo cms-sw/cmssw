@@ -14,7 +14,7 @@
 // Original Author:  Dmytro Kovalskyi
 // Modified for ECAL+HCAL by:  Michal Szleper
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.cc,v 1.2 2007/03/09 21:16:28 michals Exp $
+// $Id: DetIdAssociator.cc,v 1.4 2007/05/22 12:41:54 kodolova Exp $
 //
 //
 
@@ -253,7 +253,7 @@ void HDetIdAssociator::buildMap()
    check_setup();
    LogTrace("HDetIdAssociator")<<"building map" << "\n";
    if(theMap_) delete theMap_;
-   theMap_ = new std::vector<std::vector<std::set<DetId> > >(nEta_,nPhi_);
+   theMap_ = new std::vector<std::vector<std::set<DetId> > >(nEta_,std::vector<std::set<DetId> >(nPhi_));
    int numberOfDetIdsOutsideEtaRange = 0;
    int numberOfDetIdsActive = 0;
    std::set<DetId> validIds = getASetOfValidDetIds();
