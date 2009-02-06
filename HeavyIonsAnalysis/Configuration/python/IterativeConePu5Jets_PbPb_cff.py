@@ -2,7 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoJets.Configuration.RecoGenJets_cff import *
 from RecoJets.Configuration.GenJetParticles_cff import *
-from RecoJets.JetProducers.CaloTowerSchemeB_cfi import *
+#from RecoJets.JetProducers.CaloTowerSchemeB_cfi import *
+from RecoJets.Configuration.CaloTowersRec_cff import *
+
 from RecoJets.JetProducers.CaloJetPileupSubtractionParameters_cfi import *
 from RecoJets.JetProducers.IconeJetParameters_cfi import *
 from JetMETCorrections.Configuration.MCJetCorrections152_cff import *
@@ -33,6 +35,6 @@ MCJetCorJetIconePu5 = cms.EDProducer("CaloJetCorrectionProducer",
     alias = cms.untracked.string('MCJetCorJetIconePu5')
 )
 
-runjets = cms.Sequence(towerMaker*caloTowers*iterativeConePu5CaloJets*genJetParticles*iterativeCone5GenJets*MCJetCorJetIconePu5)
+runjets = cms.Sequence(caloTowersRec*caloTowers*iterativeConePu5CaloJets*genJetParticles*iterativeCone5GenJets*MCJetCorJetIconePu5)
 CaloJetPileupSubtractionParameters.inputEtJetMin = 10.
 
