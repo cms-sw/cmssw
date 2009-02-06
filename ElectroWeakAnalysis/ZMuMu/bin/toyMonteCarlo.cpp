@@ -38,23 +38,19 @@ void fillRandom(int N, TH1F *pdf, TH1F * histo){
 enum MuTag { globalMu, trackerMu, standaloneMu, undefinedMu };
 
 MuTag mu(double effTrk, double effSa, TRandom3 * eventGenerator) {
-  if(eventGenerator->Rndm()< effTrk && eventGenerator->Rndm()< effSa) return globalMu;
-  else if(eventGenerator->Rndm()< effSa && !(eventGenerator->Rndm()<effTrk) ){
-    // cout<<"eff sa =" << eventGenerator->Rndm() <<endl;
-    return standaloneMu;}
-  else if(eventGenerator->Rndm()< effTrk && !(eventGenerator->Rndm()< effSa)){
-    // cout<<"eff tk =" << eventGenerator->Rndm() <<endl;
-    return trackerMu;}
-  else return undefinedMu;
+  if((eventGenerator->Rndm()< effTrk) && (eventGenerator->Rndm()< effSa)) return globalMu;
+  if((eventGenerator->Rndm()< effSa)  && (eventGenerator->Rndm()>effTrk)) return standaloneMu;
+  if((eventGenerator->Rndm()< effTrk) && (eventGenerator->Rndm()> effSa)) return trackerMu;
+  return undefinedMu;
 }
 
 
 bool isolationTag(double effIso, MuTag mu, TRandom3 * eventGenerator ){
- return eventGenerator->Rndm()< effIso;
+ return (eventGenerator->Rndm()< effIso);
 }
 
 bool triggerTag(double effHlt, MuTag mu, TRandom3 * eventGenerator ){
-  return eventGenerator->Rndm()< effHlt; 
+  return (eventGenerator->Rndm()< effHlt); 
  }
 
 class BkgShape {
@@ -180,23 +176,22 @@ int main(int argc, char * argv[]){
 	   if( trig1 || trig2) NISO++;//at least one trigger
 	 }
        }//end global
-       else if((mu1 == globalMu && trig1 &&  mu2 == standaloneMu ) 
-	       ||(mu2 == globalMu && trig2 && mu1 == standaloneMu )){
+       else if(((mu1 == globalMu && trig1) &&  mu2 == standaloneMu ) 
+	       ||((mu2 == globalMu && trig2) && mu1 == standaloneMu )){
 	 //cout<<"find standAlone"<<endl;
 	 if(iso1 && iso2) {
 	   NSa++;
 	   // cout<<"fill standAlone"<<endl;
 	 }
        }//end mu sa
-       else if((mu1 == globalMu && trig1 && mu2 == trackerMu) 
-	       || (mu2 == globalMu && trig2 && mu1 == trackerMu)){
+      else if(((mu1 == globalMu && trig1) && mu2 == trackerMu) 
+	       || ((mu2 == globalMu && trig2) && mu1 == trackerMu)){
 	 if(iso1 && iso2) NTk++;
        }//end mu tk
-          
-
+     
 
     }//end of generation given the yield
-    //cout<<"logic end"<<endl;
+    cout<<"logic end"<<endl;
     
     Nmumu = N2HLT + N1HLT;
     
@@ -211,14 +206,14 @@ int main(int argc, char * argv[]){
   
     //Fill signal Histo
    
-    //cout<<"Yield ="<< yield <<endl;
-    //cout<<"N0 ="<< N0 <<endl;
-    //cout<<"Nmumu = "<< Nmumu <<endl;
-    // cout<<"N2HLT= "<< N2HLT <<endl;
-    //cout<<"N1HLT = "<< N1HLT <<endl;
-    //cout<<"NISO = "<< NISO <<endl;
-    // cout<<"NSa = "<< NSa <<endl;
-    //cout<<"NTk = "<< NTk <<endl;
+    cout<<"Yield ="<< yield <<endl;
+    cout<<"N0 ="<< N0 <<endl;
+    cout<<"Nmumu = "<< Nmumu <<endl;
+    cout<<"N2HLT= "<< N2HLT <<endl;
+    cout<<"N1HLT = "<< N1HLT <<endl;
+    cout<<"NISO = "<< NISO <<endl;
+    cout<<"NSa = "<< NSa <<endl;
+    cout<<"NTk = "<< NTk <<endl;
 
     
     fillRandom(Nmumu,pdfzmm,zMuMu);
