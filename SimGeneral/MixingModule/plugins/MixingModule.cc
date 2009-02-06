@@ -15,7 +15,7 @@
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFramePlaybackInfo.h"
 #include "MixingModule.h"
-#include "MixingWorker.h",,
+#include "MixingWorker.h"
 
 #include "FWCore/Services/src/Memory.h"
 using namespace std;
@@ -120,7 +120,7 @@ namespace edm
 		}
 		InputTag tagOpp(tag.label(),productInstanceNameOpp,tag.process());
 		workers_[workers_.size()-1]->setOppositeTag(tagOpp);
-		workers_[workers_.size()-1]->setCheckTof(checktof_);
+		workers_[workers_.size()-1]->setCheckTof(ps.getUntrackedParameter<bool>("checktof",true));
 		LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
 	      }
 	      produces<CrossingFrame<PSimHit> > (label);
@@ -205,7 +205,7 @@ namespace edm
   }
 
   void MixingModule::doPileUp(edm::Event &e, const edm::EventSetup& setup)
-  {//     we first loop over workers
+  { //     we first loop over workers
     // in order not to keep all CrossingFrames in memory simultaneously
     //
 
@@ -221,16 +221,20 @@ namespace edm
 	  }	
 	}
       }
-      workers_[ii]->put(e);
     }
-  }
 
-  void MixingModule::addPileups(const int bcr, Event *e, unsigned int eventNr,unsigned int worker, const edm::EventSetup& setup) {    // fill in pileup part of CrossingFrame
+    // we have to do the ToF transformation for PSimHits once all pileup has been added
+     for (unsigned int ii=0;ii<workers_.size();ii++) {
+      workers_[ii]->setTof();
+      workers_[ii]->put(e);
+     }
+ }
 
-  
-    LogDebug("MixingModule") <<"\n===============> adding objects from event  "<<e->id()<<" for bunchcrossing "<<bcr;
+  void MixingModule::addPileups(const int bcr, EventPrincipal *ep, unsigned int eventNr,unsigned int worker, const edm::EventSetup& setup) {    // fill in pileup part of CrossingFrame
 
-    workers_[worker]->addPileups(bcr,e,eventNr,vertexoffset);
+    LogDebug("MixingModule") <<"\n===============> adding objects from event  "<<ep->id()<<" for bunchcrossing "<<bcr;
+
+    workers_[worker]->addPileups(bcr,ep,eventNr,vertexoffset);
   }
   void MixingModule::setEventStartInfo(const unsigned int s) {
     playbackInfo_->setEventStartInfo(eventIDs_,fileSeqNrs_,nrEvents_,s); 
@@ -253,7 +257,6 @@ namespace edm
 	playbackInfo_H->getEventStartInfo(eventIDs_,fileSeqNrs_,nrEvents_,s);
       }else{
 	LogWarning("MixingModule")<<"\n\nAttention: No CrossingFramePlaybackInfo on the input file, but playback option set!!!!!!!\nAttention: Job is executed without playback, please change the input file if you really want playback!!!!!!!";
-	//FIXME: defaults
       }
     }
   }
