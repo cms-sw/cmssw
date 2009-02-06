@@ -43,6 +43,7 @@ Sequence='harvesting'
 
 Submit=False
 DBS=True
+OneAtATime=False
 
 # Ideal and Statup tags
 IdealTag='IDEAL'
@@ -59,7 +60,7 @@ StartupReferenceSelection='STARTUP_30X_noPU'
 NewSelectionLabel=''
 
 WorkDirBase = '/tmp/'
-#WorkDirBase = '/afs/cern.ch/user/a/aeverett/w0/CMSSW_2_2_3/src/Validation/RecoMuon/test'
+#WorkDirBase = '/afs/cern.ch/user/a/aeverett/scratch0'
 
 #Reference and new repository
 RefRepository = '/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/RecoMuon/Validation/val'
@@ -120,9 +121,6 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
 
     #loop on all the requested samples
     for sample in samples :
-        templatecfgFile = open(cfg, 'r')
-        templatemacroFile = open(macro, 'r')
-
         print 'Get information from DBS for sample', sample
 
         newdir=NewRepository+'/'+NewRelease+'/'+NewSelection+'/'+sample 
@@ -151,71 +149,84 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                 print 'dataset found'
                 #Find and format the list of files
                 cmd2='./DDSearchCLI.py  --limit -1 --cff --input="find file where dataset like '+ dataset +'"|grep ' + sample 
-                filenames='import FWCore.ParameterSet.Config as cms\n\n'
-                filenames+='readFiles = cms.untracked.vstring()\n'
-                filenames+='secFiles = cms.untracked.vstring()\n'
-                filenames+='source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)\n'
-                filenames+='readFiles.extend( [\n'
-                if dataset!="":
-                    for filename in os.popen(cmd2).readlines():
-                        filenames+=filename
-                filenames+=']);\n'
+
+                thisFile=0
+                for thisFilename in os.popen(cmd2).readlines():
+                    templatecfgFile = open(cfg, 'r')
+                    thisFile=thisFile+1
+                    filenames='import FWCore.ParameterSet.Config as cms\n\n'
+                    filenames+='readFiles = cms.untracked.vstring()\n'
+                    filenames+='secFiles = cms.untracked.vstring()\n'
+                    filenames+='source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)\n'
+                    filenames+='readFiles.extend( [\n'
+                    if dataset!="":
+                        if (OneAtATime==False):
+                            for filename in os.popen(cmd2).readlines():
+                                filenames+=filename
+                        else:
+                            filenames+=thisFilename
+                    filenames+=']);\n'
 
                 
                 # if not harvesting find secondary file names
-                if(dataset!="" and Sequence!="harvesting"):
-                    print 'Getting secondary files'
-                    cmd3='./DDSearchCLI.py  --limit -1 --input="find dataset.parent where dataset like '+ dataset +'"|grep ' + sample
-                    parentdataset=os.popen(cmd3).readline()
-                    print 'Parent DataSet:  ', parentdataset, '\n'
+                    if(dataset!="" and Sequence!="harvesting"):
+                        print 'Getting secondary files'
+                        cmd3='./DDSearchCLI.py  --limit -1 --input="find dataset.parent where dataset like '+ dataset +'"|grep ' + sample
+                        parentdataset=os.popen(cmd3).readline()
+                        print 'Parent DataSet:  ', parentdataset, '\n'
                     
-                    #Check if a dataset is found
-                    if parentdataset!="":
-                        cmd4='./DDSearchCLI.py  --limit -1 --cff --input="find file where dataset like '+ parentdataset +'"|grep ' + sample 
-                        filenames+='secFiles.extend( [\n'
-                        first=True                        
-                        for line in os.popen(cmd4).readlines():
-                            filenames+=line
-                        filenames+=']);\n'
+                        #Check if a dataset is found
+                        if parentdataset!="":
+                            cmd4='./DDSearchCLI.py  --limit -1 --cff --input="find file where dataset like '+ parentdataset +'"|grep ' + sample 
+                            filenames+='secFiles.extend( [\n'
+                            first=True                        
+                            for line in os.popen(cmd4).readlines():
+                                filenames+=line
+                            filenames+=']);\n'
+                        else :
+                            print "No primary dataset found skipping sample: ", sample
+                            continue
                     else :
-                        print "No primary dataset found skipping sample: ", sample
-                        continue
-                else :
-                    filenames+='secFiles.extend( (               ) )\n'
+                        filenames+='secFiles.extend( (               ) )\n'
 
-                cfgFileName=sample
-                print 'cfgFileName ' + cfgFileName
-                cfgFile = open(cfgFileName+'.py' , 'w' )
-                cfgFile.write(filenames)
+                    cfgFileName=('%s_%d') % (sample,thisFile)
+                    print 'cfgFileName ' + cfgFileName
+                    cfgFile = open(cfgFileName+'.py' , 'w' )
+                    cfgFile.write(filenames)
 
-                if (Events.has_key(sample)!=True):
-                    Nevents=defaultNevents
-                else:
-                    Nevents=Events[sample]
-
-                symbol_map = { 'NEVENT':Nevents, 'GLOBALTAG':GlobalTagUse, 'SEQUENCE':Sequence, 'SAMPLE': sample, 'ALGORITHM':trackalgorithm, 'QUALITY':trackquality, 'TRACKS':Tracks}
+                    if (Events.has_key(sample)!=True):
+                        Nevents=defaultNevents
+                    else:
+                        Nevents=Events[sample]
+                    print 'line 199'
+                    symbol_map = { 'NEVENT':Nevents, 'GLOBALTAG':GlobalTagUse, 'SEQUENCE':Sequence, 'SAMPLE': sample, 'ALGORITHM':trackalgorithm, 'QUALITY':trackquality, 'TRACKS':Tracks}
 
 
-                cfgFile = open(cfgFileName+'.py' , 'a' )
-                replace(symbol_map, templatecfgFile, cfgFile)
+                    cfgFile = open(cfgFileName+'.py' , 'a' )
+                    replace(symbol_map, templatecfgFile, cfgFile)
 
-                cmdrun='cmsRun ' + WorkDir +'/'+cfgFileName+ '.py >&  ' + cfgFileName + '.log < /dev/zero '
+                    cmdrun='cmsRun ' + WorkDir +'/'+cfgFileName+ '.py >&  ' + cfgFileName + '.log < /dev/zero '
 
-                print cmdrun
+                    print cmdrun
 
-                lancialines='#!/usr/local/bin/bash \n'
-                lancialines+='cd '+ProjectBase+'/src \n'
-                lancialines+='eval `scramv1 run -sh` \n\n'
-                lancialines+='cd '+WorkDir+'\n'
-                lancialines+='cmsRun '+cfgFileName+'.py  >&  ' + cfgFileName + '.log < /dev/zero \n'
-                
-
-                lanciaFile = open('lancia_'+GlobalTag+'_'+sample,'w')
-                lanciaFile.write(lancialines)
-                
-                print "copying py file for sample: " , sample
-                os.system('mv '+cfgFileName+'.py ' + WorkDir)
-                os.system('mv lancia_'+GlobalTag+'_'+sample+' '+ WorkDir)
+                    lancialines='#!/usr/local/bin/bash \n'
+                    lancialines+='cd '+ProjectBase+'/src \n'
+                    lancialines+='eval `scramv1 run -sh` \n\n'
+                    lancialines+='cd '+WorkDir+'\n'
+                    lancialines+='cmsRun '+cfgFileName+'.py  >&  ' + cfgFileName + '.log < /dev/zero \n'
+                    
+                    lanciaName=('lancia_%s_%s_%d') % (GlobalTag,sample,thisFile)
+                    lanciaFile = open(lanciaName,'w')
+                    lanciaFile.write(lancialines)
+                    lanciaFile.close()
+                    
+                    print ("copying py file for sample: %s %s") % (sample,lanciaName)
+                    iii = os.system('mv '+lanciaName+' '+WorkDir+'/.')
+                    print iii
+                    iii = os.system('mv '+cfgFileName+'.py '+WorkDir)
+                    print iii
+                    if(OneAtATime==False):
+                        break
 
                 retcode=0
 
