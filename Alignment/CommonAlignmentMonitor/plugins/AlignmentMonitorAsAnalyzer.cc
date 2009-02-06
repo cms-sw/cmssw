@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Sat Apr 26 12:36:13 CDT 2008
-// $Id: AlignmentMonitorAsAnalyzer.cc,v 1.1 2008/04/27 01:57:40 pivarski Exp $
+// $Id: AlignmentMonitorAsAnalyzer.cc,v 1.2 2008/08/11 20:24:19 pivarski Exp $
 //
 //
 
@@ -157,14 +157,15 @@ AlignmentMonitorAsAnalyzer::beginJob(const edm::EventSetup& iSetup) {
    edm::ESHandle<GeometricDet> theGeometricDet;
    iSetup.get<IdealGeometryRecord>().get( theGeometricDet );
    TrackerGeomBuilderFromGeometricDet trackerBuilder;
-   boost::shared_ptr<TrackerGeometry> theTracker = boost::shared_ptr<TrackerGeometry>(trackerBuilder.build(&(*theGeometricDet)));
+   boost::shared_ptr<TrackerGeometry> theTracker(trackerBuilder.build(&(*theGeometricDet)));
 
    edm::ESHandle<MuonDDDConstants> mdc;
    iSetup.get<MuonNumberingRecord>().get(mdc);
    DTGeometryBuilderFromDDD DTGeometryBuilder;
    CSCGeometryBuilderFromDDD CSCGeometryBuilder;
-   boost::shared_ptr<DTGeometry> theMuonDT = boost::shared_ptr<DTGeometry>(DTGeometryBuilder.build(&(*cpv), *mdc));
-   boost::shared_ptr<CSCGeometry> theMuonCSC = boost::shared_ptr<CSCGeometry>(new CSCGeometry);
+   boost::shared_ptr<DTGeometry> theMuonDT(new DTGeometry);
+   DTGeometryBuilder.build(theMuonDT, &(*cpv), *mdc);
+   boost::shared_ptr<CSCGeometry> theMuonCSC(new CSCGeometry);
    CSCGeometryBuilder.build(theMuonCSC, &(*cpv), *mdc);
 
    edm::ESHandle<Alignments> globalPositionRcd;
