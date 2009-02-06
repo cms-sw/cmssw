@@ -1,4 +1,4 @@
-#!/usr/bin/perl 
+#!/usr/bin/env perl 
 #____________________________________________________________________ 
 # File: PackageManagement.pl
 #____________________________________________________________________ 
@@ -6,7 +6,7 @@
 # Author: Shaun ASHBY <Shaun.Ashby@cern.ch>
 # (Tagcollector interface taken from CmsTCPackageList.pl (author D.Lange))
 # Update: 2006-04-10 16:15:32+0200
-# Revision: $Id: PackageManagement.pl,v 1.8 2007/04/08 18:04:47 dlange Exp $ 
+# Revision: $Id: PackageManagement.pl,v 1.13 2008/03/31 20:59:42 dlange Exp $ 
 #
 # Copyright: 2006 (C) Shaun ASHBY
 #
@@ -17,7 +17,7 @@ use Getopt::Long ();
 # Fixed parameters:
 my $cvs = '/usr/bin/cvs';
 my $projectroot='CMSSW';
-my $cvsroot = ':kserver:cmscvs.cern.ch:/cvs_server/repositories/'.$projectroot;
+my $cvsroot = ':gserver:cmscvs.cern.ch:/cvs_server/repositories/'.$projectroot;
 my $cvsrootAnon = ':pserver:anonymous@cmscvs.cern.ch:/cvs_server/repositories/'.$projectroot;
 my $outdir;
 my $rv;

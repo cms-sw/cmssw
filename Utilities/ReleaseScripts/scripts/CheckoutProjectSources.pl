@@ -1,4 +1,4 @@
-#!/usr/bin/perl 
+#!/usr/bin/env perl 
 
 #____________________________________________________________________ 
 # File: CheckoutProjectSources.pl
@@ -6,7 +6,7 @@
 #  
 # Author: Shaun ASHBY <Shaun.Ashby@cern.ch>
 # Update: 2005-10-28 12:12:08+0200
-# Revision: $Id: CheckoutProjectSources.pl,v 1.2 2006/03/22 16:44:29 sashby Exp $ 
+# Revision: $Id: CheckoutProjectSources.pl,v 1.3 2006/03/30 12:54:12 sashby Exp $ 
 #
 # Copyright: 2005 (C) Shaun ASHBY
 #
@@ -17,7 +17,7 @@ use Getopt::Long ();
 # Fixed parameters:
 my $cvs = '/usr/bin/cvs';
 my $projectroot='CMSSW';
-my $cvsroot = ':kserver:cmscvs.cern.ch:/cvs_server/repositories/'.$projectroot;
+my $cvsroot = ':gserver:cmscvs.cern.ch:/cvs_server/repositories/'.$projectroot;
 my $tagfile;
 my $outdir;
 my $rv;
