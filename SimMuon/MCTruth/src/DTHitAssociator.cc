@@ -123,21 +123,21 @@ DTHitAssociator::DTHitAssociator(const edm::Event& iEvent, const edm::EventSetup
     }
   }
 
-  // Get the DT rechits from the event
-  edm::Handle<DTRecHitCollection> DTrechits; 
-  LogTrace("DTHitAssociator") <<"getting DTRecHit1DPair collection - "<<DTrechitTag;
-  iEvent.getByLabel(DTrechitTag,DTrechits);
-  LogTrace("DTHitAssociator") <<"... size = "<<DTrechits->size();
-  
-  // map DTRecHit1DPair by DTWireId
-  mapOfRecHit.clear();
-  DTRecHitCollection::const_iterator rechit;
-  for(rechit=DTrechits->begin(); rechit!=DTrechits->end(); ++rechit) {
-    DTWireId wireid = (*rechit).wireId();
-    mapOfRecHit[wireid].push_back(*rechit);
-  }
-  
   if(dumpDT && printRtS) {
+    
+    // Get the DT rechits from the event
+    edm::Handle<DTRecHitCollection> DTrechits; 
+    LogTrace("DTHitAssociator") <<"getting DTRecHit1DPair collection - "<<DTrechitTag;
+    iEvent.getByLabel(DTrechitTag,DTrechits);
+    LogTrace("DTHitAssociator") <<"... size = "<<DTrechits->size();
+    
+    // map DTRecHit1DPair by DTWireId
+    mapOfRecHit.clear();
+    DTRecHitCollection::const_iterator rechit;
+    for(rechit=DTrechits->begin(); rechit!=DTrechits->end(); ++rechit) {
+      DTWireId wireid = (*rechit).wireId();
+      mapOfRecHit[wireid].push_back(*rechit);
+    }
     
     if (mapOfSimHit.end() != mapOfSimHit.begin()) {
       edm::LogVerbatim("DTHitAssociator")<<"\n *** Dump DT PSimHit's ***";
