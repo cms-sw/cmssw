@@ -568,6 +568,11 @@ if __name__=="__main__":
             l[:] = []
             p7.visit(namesVisitor)
             self.assertEqual(l, ['a', '!b'])
+            l[:] = []
+            moduleVisitor = ModuleNodeVisitor(l)
+            p8.visit(moduleVisitor)
+            names = [m.label_() for m in l]
+            self.assertEqual(names, ['a', 'b', 'c'])
 
         def testVisitor(self):
             class TestVisitor(object):
