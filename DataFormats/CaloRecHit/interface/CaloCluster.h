@@ -7,7 +7,7 @@
  *
  * \author Shahram Rahatlou, INFN
  *
- * \version $Id: CaloCluster.h,v 1.7 2009/02/04 09:14:06 arizzi Exp $
+ * \version $Id: CaloCluster.h,v 1.8 2009/02/04 15:57:02 arizzi Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
@@ -19,44 +19,50 @@
 
 namespace reco {
 
-  enum AlgoId { island = 0, hybrid = 1, fixedMatrix = 2, dynamicHybrid = 3, multi5x5 = 4, pFClusters = 5 };
 
   class CaloCluster {
     
   public:
 
+    enum AlgoId { ALGO_island = 0, 
+		  ALGO_hybrid, 
+		  ALGO_fixedMatrix, 
+		  ALGO_dynamicHybrid, 
+		  ALGO_multi5x5, 
+		  ALGO_pFClusters,
+		  ALGO_undefined
+    };
+    
     /// default constructor. Sets energy and position to zero
-    CaloCluster() : energy_(0.) { }
+    CaloCluster() : 
+      energy_(-1), 
+      algoId_( ALGO_undefined ) {}
 
-    /// constructor from values
-    CaloCluster( double energy, 
-		 const math::XYZPoint& position ) :
-      energy_ (energy), position_ (position) {}
+/*     /// constructor from values */
+/*     CaloCluster( double energy,  */
+/* 		 const math::XYZPoint& position ) : */
+/*       energy_ (energy), position_ (position) {} */
 
-    /// constructor from values
-    CaloCluster( double energy, 
-		 const math::XYZPoint& position, 
-		 const CaloID& caloID) :
-      energy_ (energy), position_ (position), caloID_(caloID) {}
+/*     /// constructor from values */
+/*     CaloCluster( double energy,  */
+/* 		 const math::XYZPoint& position,  */
+/* 		 const CaloID& caloID) : */
+/*       energy_ (energy), position_ (position), caloID_(caloID) {} */
 
-    /// constructor from values
-    CaloCluster( double energy, 
-		 const math::XYZPoint& position, 
+/*     /// constructor from values */
+/*     CaloCluster( double energy,  */
+/* 		 const math::XYZPoint& position,  */
+/* 		 const CaloID& caloID, */
+/*                  const std::vector< std::pair< DetId, float > > &usedHitsAndFractions, */
+/*                  const AlgoId &algoId) : */
+/*       energy_ (energy), position_ (position), caloID_(caloID), hitsAndFractions_(usedHitsAndFractions), algoId_(algoId) {} */
+
+    CaloCluster( double energy,
+		 const math::XYZPoint& position,
 		 const CaloID& caloID,
-                 const std::vector< std::pair< DetId, float > > &usedHitsAndFractions,
-                 const AlgoId algoId) :
-      energy_ (energy), position_ (position), caloID_(caloID), hitsAndFractions_(usedHitsAndFractions), algoId_(algoId) {}
- 
-   /// temporary compatibility constructor
-    CaloCluster( double energy, 
-		 const math::XYZPoint& position, 
-		 float chi2,
-                 const std::vector<DetId > &usedHits,
-                 const AlgoId algoId) :
-      energy_ (energy), position_ (position),  algoId_(algoId) 
-       {
-          for(size_t i = 0; i < usedHits.size(); i++) hitsAndFractions_.push_back(std::pair< DetId, float > ( usedHits[i],1.)); 
-      }
+                 const AlgoId& algoId) :
+      energy_ (energy), position_ (position), 
+      caloID_(caloID), algoId_(algoId) {}
 
     /// destructor
     virtual ~CaloCluster() {}

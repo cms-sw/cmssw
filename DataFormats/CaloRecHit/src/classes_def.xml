@@ -1,7 +1,9 @@
 <lcgdict>
   <class name="CaloRecHit"/>
   <class name="reco::CaloCluster"/>
-  
+  <class name="std::pair<DetId,float>" />
+  <class name="std::vector<std::pair<DetId,float> >" />
+
   <class name="edm::Ptr<reco::CaloCluster>"/>
   <class name="edm::PtrVector<reco::CaloCluster>"/>
   <class name="edm::Wrapper<edm::PtrVector<reco::CaloCluster> >"/>

@@ -9,6 +9,8 @@ namespace {
     std::vector<reco::CaloCluster> v11;
     std::vector<reco::CaloClusterPtr> v12;
     reco::CaloClusterCollection v1;
+    std::pair<DetId,float>               hitAndFraction;
+    std::vector<std::pair<DetId,float> > hitsAndFractions;
     edm::Ptr<reco::CaloCluster> p1;
     edm::PtrVector<reco::CaloCluster> pv1;
     edm::Wrapper<edm::PtrVector<reco::CaloCluster> > wpv1;
