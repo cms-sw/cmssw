@@ -70,7 +70,7 @@ namespace edm {
   // Constructor 
   BMixingModule::BMixingModule(const edm::ParameterSet& pset) :
     bunchSpace_(pset.getParameter<int>("bunchspace")),
-    checktof_(pset.getUntrackedParameter<bool>("checktof",true)),
+    checktof_(pset.getParameter<bool>("checktof")),
     minBunch_((pset.getParameter<int>("minBunch")*25)/pset.getParameter<int>("bunchspace")),
     maxBunch_((pset.getParameter<int>("maxBunch")*25)/pset.getParameter<int>("bunchspace")),
 //     input_(maybeMakePileUp(pset,"input",minBunch_,maxBunch_)),
@@ -207,16 +207,18 @@ namespace edm {
     put(e,setup);
   }
 
+ 
   void BMixingModule::merge(const int bcr, const EventPrincipalVector& vec, unsigned int worker, const edm::EventSetup& setup) {
     //
     // main loop: loop over events and merge 
     //
     eventId_=0;
-    LogDebug("MixingModule") <<"For bunchcrossing "<<bcr<<", "<<vec.size()<<" events will be merged";
+    LogDebug("MixingModule") <<"For bunchcrossing "<<bcr<<", "<<vec.size()<< " events will be merged";
     vertexoffset=0;
     for (EventPrincipalVector::const_iterator it = vec.begin(); it != vec.end(); ++it) {
-      LogDebug("MixingModule") <<" merging Event:  id " << (*it)->id();
-      addPileups(bcr, &(**it), ++eventId_,worker,setup);
+      Event e(**it, md_);
+      LogDebug("MixingModule") <<" merging Event:  id " << e.id();
+      addPileups(bcr, &e, ++eventId_,worker,setup);
     }// end main loop
   }
 
@@ -227,5 +229,4 @@ namespace edm {
       if (beamHalo_m_) beamHalo_m_->dropUnwantedBranches(wantedBranches);
       if (fwdDet_) fwdDet_->dropUnwantedBranches(wantedBranches);
   }
-
 } //edm
