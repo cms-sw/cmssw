@@ -20,17 +20,25 @@ void testReader::beginJob(const edm::EventSetup & setup) {
 void testReader::analyze(const edm::Event& event, const edm::EventSetup& setup)
 {  
   edm::Handle<edm::View<reco::Track> > trackCollectionH;
+  edm::View<reco::Track> trackCollection;
   LogTrace("testReader") << "testReader::analyze : getting reco::Track collection, "<<tracksTag;
   event.getByLabel(tracksTag,trackCollectionH);
-  const edm::View<reco::Track>  trackCollection = *(trackCollectionH.product()); 
-  LogTrace("testReader") << "... size = "<<trackCollection.size();
+  if (trackCollectionH.isValid()) { 
+    trackCollection = *(trackCollectionH.product()); 
+    LogTrace("testReader") << "... size = "<<trackCollection.size();
+  }
+  else LogTrace("testReader") << "... NOT FOUND.";
 
   edm::Handle<TrackingParticleCollection>  TPCollectionH ;
+  TrackingParticleCollection tPC;
   LogTrace("testReader") << "testReader::analyze : getting TrackingParticle collection, "<<tpTag;
   event.getByLabel(tpTag,TPCollectionH);
-  const TrackingParticleCollection tPC   = *(TPCollectionH.product());
-  LogTrace("testReader") << "... size = "<<tPC.size();
-
+  if (TPCollectionH.isValid()) {
+    tPC   = *(TPCollectionH.product());
+    LogTrace("testReader") << "... size = "<<tPC.size();
+  }
+  else LogTrace("testReader") << "... NOT FOUND.";
+  
   edm::Handle<reco::RecoToSimCollection> recSimH;
   reco::RecoToSimCollection recSimColl;
   LogTrace("testReader") << "testReader::analyze : getting  RecoToSimCollection - "<<assoMapsTag;
@@ -39,7 +47,7 @@ void testReader::analyze(const edm::Event& event, const edm::EventSetup& setup)
     recSimColl = *(recSimH.product());
     LogTrace("testReader") << "... size = "<<recSimColl.size();
   } else {
-    LogTrace("testReader") << "... NO  RecoToSimCollection found !";
+    LogTrace("testReader") << "... NOT FOUND.";
   }
 
   edm::Handle<reco::SimToRecoCollection> simRecH;
@@ -50,7 +58,7 @@ void testReader::analyze(const edm::Event& event, const edm::EventSetup& setup)
     simRecColl = *(simRecH.product());
     LogTrace("testReader") << "... size = "<<simRecColl.size();
   } else {
-    LogTrace("testReader") << "... NO  SimToRecoCollection found !";
+    LogTrace("testReader") << "... NOT FOUND.";
   }
 
   edm::LogVerbatim("testReader") <<"\n === Event ID = "<< event.id()<<" ===";
@@ -58,6 +66,8 @@ void testReader::analyze(const edm::Event& event, const edm::EventSetup& setup)
   //RECOTOSIM 
   edm::LogVerbatim("testReader") 
     << "\n                      ****************** Reco To Sim ****************** ";
+  if (recSimH.isValid()) {
+    
   edm::LogVerbatim("testReader")
     << "\n There are " << trackCollection.size() << " reco::Tracks "<< "("<<recSimColl.size()<<" matched) \n";
 
@@ -81,9 +91,13 @@ void testReader::analyze(const edm::Event& event, const edm::EventSetup& setup)
     } 
   }
 
+  } else  edm::LogVerbatim("testReader") << "\n RtS map not found in the Event.";
+
   //SIMTORECO
   edm::LogVerbatim("testReader") 
     << "\n                      ****************** Sim To Reco ****************** ";
+  if (simRecH.isValid()) {
+
   edm::LogVerbatim("testReader")
     << "\n There are " << tPC.size() << " TrackingParticles "<<"("<<simRecColl.size()<<" matched) \n";
   bool any_trackingParticle_matched = false;
@@ -130,6 +144,8 @@ void testReader::analyze(const edm::Event& event, const edm::EventSetup& setup)
   if (!any_trackingParticle_matched) {
     edm::LogVerbatim("testReader") << "NO TrackingParticle associated to ANY input reco::Track !" << "\n";
   }
+
+  } else edm::LogVerbatim("testReader") <<"\n StR map not found in the Event.";
   
 }
 #include "FWCore/Framework/interface/MakerMacros.h"
