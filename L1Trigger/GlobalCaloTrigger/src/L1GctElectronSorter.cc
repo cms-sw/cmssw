@@ -1,5 +1,5 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronSorter.h"
-
+#include <algorithm>
 
 L1GctElectronSorter::L1GctElectronSorter(int nInputs, bool iso):
   L1GctProcessor(),

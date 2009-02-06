@@ -17,6 +17,8 @@
  */
 
 #include <vector>
+#include <stdint.h>
+#include <string>
 
 class L1CaloEmCand;
 class L1CaloRegion;
