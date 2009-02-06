@@ -7,6 +7,7 @@
 
 #include "DataSvc/Ref.h"
 #include "FileCatalog/IFileCatalog.h"
+#include <memory>
 
 namespace pool {
   class IDataSvc;
