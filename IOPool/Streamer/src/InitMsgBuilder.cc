@@ -3,6 +3,7 @@
 #include "IOPool/Streamer/interface/MsgHeader.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include <cassert>
+#include <cstring>
 
 InitMsgBuilder::InitMsgBuilder(void* buf, uint32 size,
                                uint32 run, const Version& v,

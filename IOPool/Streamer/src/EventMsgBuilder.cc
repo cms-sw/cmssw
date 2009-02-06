@@ -1,6 +1,7 @@
 #include "IOPool/Streamer/interface/EventMsgBuilder.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"
+#include <cstring>
 
 EventMsgBuilder::EventMsgBuilder(void* buf, uint32 size,
                                  uint32 run, uint32 event, uint32 lumi,

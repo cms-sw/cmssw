@@ -2,6 +2,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include <iostream>
 #include <iterator>
+#include <cstring>
 
 InitMsgView::InitMsgView(void* buf):
   buf_((uint8*)buf),head_(buf)

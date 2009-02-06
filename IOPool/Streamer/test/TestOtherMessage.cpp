@@ -1,6 +1,7 @@
-#include<iostream>
+#include <iostream>
 #include "IOPool/Streamer/interface/OtherMessage.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"
+#include <cstring>
 
 int main()
 
