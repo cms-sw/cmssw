@@ -1,5 +1,6 @@
 #include "RecoParticleFlow/PFClusterTools/interface/IO.h"
 #include "RecoParticleFlow/PFClusterTools/interface/Utils.h"
+#include <cstring>
 
 using namespace std;
 using namespace pftools;

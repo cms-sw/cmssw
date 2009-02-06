@@ -1,6 +1,6 @@
 #include "RecoParticleFlow/PFClusterTools/interface/DetectorElement.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFToolsException.h"
-#include <iostream>
+#include <ostream>
 using namespace pftools;
 //A comment
 DetectorElement::DetectorElement(DetectorElementType type, double calib) :

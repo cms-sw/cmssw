@@ -88,5 +88,7 @@ private:
 
 typedef boost::shared_ptr<SpaceVoxel> SpaceVoxelPtr;
 
+std::ostream& operator<<(std::ostream& s, const pftools::SpaceVoxel& sv);
+
 }
 #endif /*SPACEVOXEL_HH_*/

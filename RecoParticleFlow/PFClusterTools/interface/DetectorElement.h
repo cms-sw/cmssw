@@ -19,6 +19,7 @@
 
 #include "TH2F.h"
 #include "TH1F.h"
+#include <iosfwd>
 
 namespace pftools {
 
@@ -65,8 +66,6 @@ public:
 		setCalibCore(calib);
 	}
 
-	//friend std::ostream& operator<<(std::ostream& s, const DetectorElement& de);
-
 	friend std::ostream& operator<<(std::ostream& s, const DetectorElement& de);
 
 
@@ -82,6 +81,8 @@ private:
 };
 
 typedef boost::shared_ptr<DetectorElement> DetectorElementPtr;
+
+std::ostream& operator<<(std::ostream& s, const DetectorElement& de);
 
 }
 
