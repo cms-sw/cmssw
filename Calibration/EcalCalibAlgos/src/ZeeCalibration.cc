@@ -1193,8 +1193,8 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
  ///////////////////////////////////////EXCLUDE ELECTRONS HAVING HOTTEST XTAL WHICH IS A BORDER XTAL - begin
 
   
-  DetId firstElehottestDetId = getHottestDetId( zeeCandidates[myBestZ].first->getRecoElectron()->superCluster()->seed()->getHitsByDetId() , hits, ehits ).first;
-  DetId secondElehottestDetId = getHottestDetId( zeeCandidates[myBestZ].second->getRecoElectron()->superCluster()->seed()->getHitsByDetId()  , hits, ehits ).first;
+  DetId firstElehottestDetId = getHottestDetId( zeeCandidates[myBestZ].first->getRecoElectron()->superCluster()->seed()->hitsAndFractions() , hits, ehits ).first;
+  DetId secondElehottestDetId = getHottestDetId( zeeCandidates[myBestZ].second->getRecoElectron()->superCluster()->seed()->hitsAndFractions()  , hits, ehits ).first;
   
   bool firstElectronIsOnModuleBorder(false);
   bool secondElectronIsOnModuleBorder(false);
@@ -2106,7 +2106,7 @@ void ZeeCalibration::fillEleInfo( std::vector<HepMC::GenParticle*>& mcEle, std::
 	      h_ESCcorrEtrue_[loopFlag_]->Fill(corrSCenergy/mcEle[i]->momentum().e());
 	      h_ESCcorrEtrueVsEta_[loopFlag_]->Fill(fabs(mySC->position().eta()),corrSCenergy/mcEle[i]->momentum().e());
 
-	      std::vector<DetId> mySCRecHits = mySC->seed()->getHitsByDetId();
+//	      std::vector<DetId> mySCRecHits = mySC->seed()->getHitsByDetId();
 
 	      h1_seedOverSC_->Fill( mySC->seed()->energy() / mySC->energy() );
 	      h1_preshowerOverSC_->Fill( mySC->preshowerEnergy() / mySC->energy() );
@@ -2177,7 +2177,7 @@ double ZeeCalibration::getEtaCorrection(const reco::PixelMatchGsfElectron* ele){
   return correction;                                                                                                                                              
 }
 
-std::pair<DetId, double> ZeeCalibration::getHottestDetId(std::vector<DetId> mySCRecHits, const EBRecHitCollection* ebhits, const EERecHitCollection* eehits){
+std::pair<DetId, double> ZeeCalibration::getHottestDetId(std::vector<std::pair< DetId,float > > mySCRecHits, const EBRecHitCollection* ebhits, const EERecHitCollection* eehits){
   
 
   double maxEnergy = -9999.;
@@ -2186,11 +2186,11 @@ std::pair<DetId, double> ZeeCalibration::getHottestDetId(std::vector<DetId> mySC
   std::pair<DetId, double> myPair (DetId(0), -9999.);
 
 
-  for(   std::vector<DetId>::const_iterator idIt=mySCRecHits.begin(); idIt != mySCRecHits.end(); idIt++){
+  for(   std::vector<std::pair<DetId,float> >::const_iterator idIt=mySCRecHits.begin(); idIt != mySCRecHits.end(); idIt++){
    
-    if (idIt->subdetId() == EcalBarrel )
+    if (idIt->first.subdetId() == EcalBarrel )
       {
-	hottestRecHit  = & (* ( ebhits->find(*idIt) ) );
+	hottestRecHit  = & (* ( ebhits->find((*idIt).first) ) );
 
 	if( hottestRecHit == & (*( ebhits->end())) )
 	  {
@@ -2198,9 +2198,9 @@ std::pair<DetId, double> ZeeCalibration::getHottestDetId(std::vector<DetId> mySC
 	    continue;
 	  }
       }
-    else if (idIt->subdetId() == EcalEndcap )
+    else if (idIt->first.subdetId() == EcalEndcap )
       {
-	hottestRecHit  = & (* ( eehits->find(*idIt) ) );
+	hottestRecHit  = & (* ( eehits->find((*idIt).first) ) );
 	if( hottestRecHit == & (*( eehits->end())) )
 	  {
 	    std::cout<<"@@@@@@@@@@@@@@@@@@@@@@@@@@@ NO RECHIT FOUND SHOULD NEVER HAPPEN"<<std::endl;

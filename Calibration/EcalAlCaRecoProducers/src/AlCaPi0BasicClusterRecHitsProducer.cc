@@ -207,7 +207,7 @@ AlCaPi0BasicClusterRecHitsProducer::produce(edm::Event& iEvent, const edm::Event
 	    if((intbc==BC1[i]) || (intbc==BC2[i]))
 	      {
 
-		std::vector<DetId> hits = aClus->getHitsByDetId();
+		std::vector< std::pair<DetId, float> > hits = aClus->hitsAndFractions();
 		//std::vector<DetId>::iterator hit;
 		std::map<DetId, EcalRecHit>::iterator aHit;
 
@@ -216,17 +216,17 @@ AlCaPi0BasicClusterRecHitsProducer::produce(edm::Event& iEvent, const edm::Event
 		double currEnergy = 0.;
 		EBDetId maxHit(0);
 
-		for( std::vector<DetId>::const_iterator idsIt = hits.begin(); idsIt != hits.end(); ++idsIt) {
+		for( std::vector< std::pair<DetId, float> >::const_iterator idsIt = hits.begin(); idsIt != hits.end(); ++idsIt) {
           
-		  if((*idsIt).subdetId()!=EcalBarrel || (*idsIt).det()!= DetId::Ecal) continue;
+		  if(( (*idsIt).first ).subdetId()!=EcalBarrel || ( (*idsIt).first ).det()!= DetId::Ecal) continue;
           
-		  if(((recHitsEB_map->find(*idsIt))->second).energy() > currEnergy) {
-		    currEnergy=((recHitsEB_map->find(*idsIt))->second).energy();
-		    maxHit=*idsIt;
+		  if(((recHitsEB_map->find( (*idsIt).first ))->second).energy() > currEnergy) {
+		    currEnergy=((recHitsEB_map->find( (*idsIt).first ))->second).energy();
+		    maxHit=(*idsIt).first;
 		  }
-		  aHit = recHitsEB_map->find(*idsIt);
+		  aHit = recHitsEB_map->find( (*idsIt).first );
 		  pi0EBRecHitCollection->push_back(aHit->second);
-		  scXtals.push_back(*idsIt);
+		  scXtals.push_back( (*idsIt).first );
 
 		  //EBDetId sel_rh_bc = aHit->second.detid();
 		  // cout << "       RecHit Ok, belongs to cluster # "<< intbc<<" : z,ieta,iphi "<<sel_rh_bc.zside()<<" "<<sel_rh_bc.ieta()<<" "<<sel_rh_bc.iphi()<<endl;    

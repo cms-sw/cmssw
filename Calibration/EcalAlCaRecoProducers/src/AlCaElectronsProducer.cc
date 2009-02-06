@@ -114,26 +114,26 @@ AlCaElectronsProducer::produce (edm::Event& iEvent,
     EBDetId maxHit(0);
     vector<EBDetId> scXtals;
     scXtals.clear();
-    const std::vector<DetId> & v1 = sc.getHitsByDetId();
+    const std::vector< std::pair<DetId, float> > & v1 = sc.hitsAndFractions();
     
-    for(std::vector<DetId>::const_iterator idsIt = v1.begin(); 
+    for(std::vector< std::pair<DetId, float> >::const_iterator idsIt = v1.begin(); 
         idsIt != v1.end(); ++idsIt) 
       {
         yy++;
         
         //PG discard hits not belonging to the Ecal Barrel
-        if((*idsIt).subdetId()!=EcalBarrel || (*idsIt).det()!= DetId::Ecal) continue;
+        if((*idsIt).first.subdetId()!=EcalBarrel || (*idsIt).first.det()!= DetId::Ecal) continue;
         
-        if((barrelHitsCollection->find(*idsIt))->energy() > currEnergy) {
-            currEnergy=(barrelHitsCollection->find(*idsIt))->energy();
-            maxHit=*idsIt;
+        if((barrelHitsCollection->find( (*idsIt).first ))->energy() > currEnergy) {
+            currEnergy=(barrelHitsCollection->find( (*idsIt).first ))->energy();
+            maxHit=(*idsIt).first;
           }
-        miniEBRecHitCollection->push_back(*(barrelHitsCollection->find(*idsIt)));
-        scXtals.push_back(*idsIt);
+        miniEBRecHitCollection->push_back(*(barrelHitsCollection->find( (*idsIt).first )));
+        scXtals.push_back( (*idsIt).first );
       }
     
     if (!maxHit.null())
-      for (unsigned int icry=0;icry< etaSize_*phiSize_;icry++)
+      for (int icry=0;icry< etaSize_*phiSize_;icry++)
         {
           
           unsigned int row = icry / etaSize_;
@@ -177,26 +177,26 @@ AlCaElectronsProducer::produce (edm::Event& iEvent,
     EEDetId maxHit(0);
     vector<EEDetId> scXtals;
     scXtals.clear();
-    const std::vector<DetId> & v1 = sc.getHitsByDetId();
+    const std::vector< std::pair<DetId, float> > & v1 = sc.hitsAndFractions();
     
-    for(std::vector<DetId>::const_iterator idsIt = v1.begin(); 
+    for(std::vector< std::pair<DetId, float> >::const_iterator idsIt = v1.begin(); 
         idsIt != v1.end(); ++idsIt) 
       {
         yy++;
         
         //PG discard hits belonging to the Ecal Barrel
-        if((*idsIt).subdetId()!=EcalEndcap || 
-           (*idsIt).det()!= DetId::Ecal) continue;
+        if((*idsIt).first.subdetId()!=EcalEndcap || 
+           (*idsIt).first.det()!= DetId::Ecal) continue;
         
-        if((endcapHitsCollection->find(*idsIt))->energy() > currEnergy) 
+        if((endcapHitsCollection->find( (*idsIt).first ))->energy() > currEnergy) 
           {
-            currEnergy=(endcapHitsCollection->find(*idsIt))->energy();
-            maxHit=*idsIt;
+            currEnergy=(endcapHitsCollection->find( (*idsIt).first ))->energy();
+            maxHit=(*idsIt).first;
           }
         miniEERecHitCollection->push_back (
-            *(endcapHitsCollection->find (*idsIt))
+            *(endcapHitsCollection->find ( (*idsIt).first ))
           );
-        scXtals.push_back (*idsIt) ; 
+        scXtals.push_back ( (*idsIt).first ) ; 
     }  
 
     int side = phiSize_ ;
@@ -205,7 +205,7 @@ AlCaElectronsProducer::produce (edm::Event& iEvent,
     if (eleIt->eta () < 0)  iz = -1 ;
     if (!maxHit.null())
       //PG loop over the local array of xtals
-      for (unsigned int icry = 0 ; icry < side*side ; icry++)
+      for (int icry = 0 ; icry < side*side ; icry++)
         {          
           unsigned int row = icry / side ;
           unsigned int column = icry % side ;

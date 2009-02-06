@@ -438,7 +438,7 @@ Pi0FixedMassWindowCalibration::duringLoop(const edm::Event& event,
 
   int iClus_recalib=0;
   for(reco::BasicClusterCollection::const_iterator aClus = clusters_recalib.begin(); aClus != clusters_recalib.end(); aClus++) {
-    cout<<" CLUSTER [recalibration] : #,NHits,e,et,eta,phi,e2x2,e3x3,e5x5: "<<iClus_recalib<<" "<<aClus->getHitsByDetId().size()<<" "<<aClus->energy()<<" "<<aClus->energy()*sin(aClus->position().theta())<<" "<<aClus->position().eta()<<" "<<aClus->position().phi()<<" "<<(*clustersshapes_p_recalib)[iClus_recalib].e2x2()<<" "<<(*clustersshapes_p_recalib)[iClus_recalib].e3x3()<<" "<<(*clustersshapes_p_recalib)[iClus_recalib].e5x5()<<endl; 
+    cout<<" CLUSTER [recalibration] : #,NHits,e,et,eta,phi,e2x2,e3x3,e5x5: "<<iClus_recalib<<" "<<aClus->size()<<" "<<aClus->energy()<<" "<<aClus->energy()*sin(aClus->position().theta())<<" "<<aClus->position().eta()<<" "<<aClus->position().phi()<<" "<<(*clustersshapes_p_recalib)[iClus_recalib].e2x2()<<" "<<(*clustersshapes_p_recalib)[iClus_recalib].e3x3()<<" "<<(*clustersshapes_p_recalib)[iClus_recalib].e5x5()<<endl; 
 
     eIslandBCEB[nIslandBCEB] = aClus->energy();
     etIslandBCEB[nIslandBCEB] = aClus->energy()*sin(aClus->position().theta());
@@ -449,17 +449,17 @@ Pi0FixedMassWindowCalibration::duringLoop(const edm::Event& event,
     e3x3IslandBCEB[nIslandBCEB] = (*clustersshapes_p_recalib)[nIslandBCEB].e3x3();    
     e5x5IslandBCEB[nIslandBCEB] = (*clustersshapes_p_recalib)[nIslandBCEB].e5x5();    
 
-    nIslandBCEBRecHits[nIslandBCEB] = aClus->getHitsByDetId().size();
+    nIslandBCEBRecHits[nIslandBCEB] = aClus->size();
 
-    std::vector<DetId> hits = aClus->getHitsByDetId();
-    std::vector<DetId>::iterator hit;
+    std::vector<std::pair< DetId,float> > hits = aClus->hitsAndFractions();
+    std::vector<std::pair< DetId,float> >::iterator hit;
     std::map<DetId, EcalRecHit>::iterator aHit;
 
     int irhcount=0;
     for(hit = hits.begin(); hit != hits.end(); hit++)
       {
         // need to get hit by DetID in order to get energy
-        aHit = recHitsEB_map->find(*hit);
+        aHit = recHitsEB_map->find((*hit).first);
         //cout << "       RecHit #: "<<irhcount<<" from Basic Cluster with Energy: "<<aHit->second.energy()<<endl; 
 
         EBDetId sel_rh = aHit->second.detid();
