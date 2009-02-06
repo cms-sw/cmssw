@@ -14,16 +14,31 @@ process.source = cms.Source("PoolSource",
 # MessageLogger
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
+#process.MessageLogger.debugModules = cms.untracked.vstring("testanalyzer","muonAssociatorByHits")
+
 process.MessageLogger.categories = cms.untracked.vstring('testReader', 'MuonAssociatorEDProducer',
     'MuonAssociatorByHits', 'DTHitAssociator', 'RPCHitAssociator', 'MuonTruth', 'PSimHitMap',
-    'FwkJob', 'FwkReport', 'FwkSummary', 'Root_NoDictionary')
+    'MixingModule', 'FwkJob', 'FwkReport', 'FwkSummary', 'Root_NoDictionary')
+
+process.MessageLogger.cerr = cms.untracked.PSet(
+    noTimeStamps = cms.untracked.bool(True),
+
+    threshold = cms.untracked.string('WARNING'),
+
+    testReader = cms.untracked.PSet(
+        limit = cms.untracked.int32(0)
+    ),
+    MixingModule = cms.untracked.PSet(
+        limit = cms.untracked.int32(20)
+    )
+)
 
 process.MessageLogger.cout = cms.untracked.PSet(
     noTimeStamps = cms.untracked.bool(True),
+    
+#    threshold = cms.untracked.string('DEBUG'),
     threshold = cms.untracked.string('INFO'),
-    INFO = cms.untracked.PSet(
-        limit = cms.untracked.int32(0)
-    ),
+    
     default = cms.untracked.PSet(
         limit = cms.untracked.int32(0)
     ),
@@ -64,11 +79,7 @@ process.MessageLogger.cout = cms.untracked.PSet(
     )
 )
 
-process.MessageLogger.statistics = cms.untracked.vstring('cout')
-
-process.MessageLogger.cerr = cms.untracked.PSet(
-    placeholder = cms.untracked.bool(True)
-)
+#process.MessageLogger.statistics = cms.untracked.vstring('cout')
 
 #process.Tracer = cms.Service("Tracer")
 
