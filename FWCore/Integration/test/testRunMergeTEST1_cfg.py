@@ -34,6 +34,7 @@ process.source = cms.Source("PoolSource",
 
     ),
     noEventSort = cms.untracked.bool(True)
+    , duplicateCheckMode = cms.untracked.string('checkEachRealDataFile')
 )
 
 process.out = cms.OutputModule("PoolOutputModule",

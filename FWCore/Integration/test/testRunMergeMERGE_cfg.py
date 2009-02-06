@@ -28,6 +28,7 @@ process.source = cms.Source("PoolSource",
         'keep *', 
         'drop *_C_*_*'
     )
+    , duplicateCheckMode = cms.untracked.string('checkEachRealDataFile')
 )
 
 process.thingWithMergeProducer = cms.EDProducer("ThingWithMergeProducer")

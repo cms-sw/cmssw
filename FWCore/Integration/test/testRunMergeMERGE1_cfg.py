@@ -34,6 +34,7 @@ process.source = cms.Source("PoolSource",
                                            '21:4',
                                            '16:2'
                                           )
+    , duplicateCheckMode = cms.untracked.string('checkEachRealDataFile')
 )
 
 process.thingWithMergeProducer = cms.EDProducer("ThingWithMergeProducer")

@@ -24,7 +24,7 @@ process.source = cms.Source("PoolSource",
         'file:testRunMergeRecombined.root',
         'file:testRunMergeRecombined.root'
     )
-    , duplicateCheckMode = cms.untracked.string('checkAllFilesOpened')
+    #, duplicateCheckMode = cms.untracked.string('checkAllFilesOpened')
     , skipEvents = cms.untracked.uint32(3)
     , eventsToProcess = cms.untracked.VEventID('1:1',
                                                '1:2',

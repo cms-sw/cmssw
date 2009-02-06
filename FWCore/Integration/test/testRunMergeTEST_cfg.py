@@ -25,6 +25,7 @@ process.source = cms.Source("PoolSource",
         'file:testRunMerge4.root',
         'file:testRunMerge5.root'
     )
+    , duplicateCheckMode = cms.untracked.string('checkEachRealDataFile')
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
