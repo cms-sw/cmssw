@@ -6,13 +6,13 @@ import FWCore.ParameterSet.Config as cms
 
 # this is the configuration to model pileup in the low-luminosity phase
 from SimGeneral.MixingModule.mixObjects_cfi import *
-mix = cms.EDFilter("MixingModule",
+mix = cms.EDProducer("MixingModule",
     LabelPlayback = cms.string(''),
     maxBunch = cms.int32(3),
     minBunch = cms.int32(-5), ## in terms of 25 ns
 
     bunchspace = cms.int32(25), ## nsec
-    checktof = cms.bool(True),
+
     playback = cms.untracked.bool(False),
     useCurrentProcessOnly = cms.bool(False),
                    

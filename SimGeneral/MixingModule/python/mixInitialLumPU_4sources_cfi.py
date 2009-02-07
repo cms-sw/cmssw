@@ -11,13 +11,13 @@ import FWCore.ParameterSet.Config as cms
 # please note that the names of the input sources are fixed: 'input', 'cosmics', 'beamhalo_minus', 'beamhalo_plus'
 #
 from SimGeneral.MixingModule.mixObjects_cfi import *
-mix = cms.EDFilter("MixingModule",
+mix = cms.EDProducer("MixingModule",
     LabelPlayback = cms.string(''),
     maxBunch = cms.int32(3),
     minBunch = cms.int32(-5), ## in units of 25 nsec
 
     bunchspace = cms.int32(75), ## nsec
-    checktof = cms.bool(True),
+
     playback = cms.untracked.bool(False),
     useCurrentProcessOnly = cms.bool(False),
     input = cms.SecSource("PoolSource",

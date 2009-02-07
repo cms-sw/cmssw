@@ -13,6 +13,7 @@
  ************************************************************/
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Principal.h"
 #include "FWCore/Framework/interface/Selector.h"
 #include "Mixing/Base/interface/PileUp.h"
 #include "DataFormats/Provenance/interface/EventID.h"
@@ -33,7 +34,6 @@ namespace edm
 	subdet_(std::string(" ")),
 	label_(std::string(" ")),
 	maxNbSources_(5),
-	checktof_(false),
  	isTracker_(false)
 	{
 	  tag_=InputTag();
@@ -41,19 +41,20 @@ namespace edm
 	}
   
       /*Normal constructor*/ 
-      MixingWorkerBase(int minBunch,int maxBunch,int bunchSpace,std::string &subdet, std::string& label,unsigned int maxNbSources,InputTag &tag,bool checktof,bool isTracker);
+      MixingWorkerBase(int minBunch,int maxBunch,int bunchSpace,std::string &subdet, std::string& label,unsigned int maxNbSources,InputTag &tag,bool isTracker);
 
       /**Default destructor*/
       virtual ~MixingWorkerBase();
       virtual void put(edm::Event &e) =0;
       virtual void createnewEDProduct()=0; 
       virtual void addSignals(const edm::Event &e) =0;
-      virtual void addPileups(const int bcr, edm::Event*,unsigned int EventNr,int vertexOffset=0)=0;
+      virtual void addPileups(const int bcr, EventPrincipal *,unsigned int EventNr,int vertexOffset=0)=0;
       virtual void setBcrOffset()=0;
       virtual void setSourceOffset(const unsigned int s)=0;
       virtual void setOppositeTag(InputTag& opp) {opp_=opp;}
       virtual void setCheckTof(bool checktof) {checktof_=checktof;}
-   
+      virtual void setTof()=0;
+  
     protected:
       int const minBunch_;
       int const maxBunch_;
@@ -61,9 +62,9 @@ namespace edm
       std::string const subdet_;
       std::string const label_;
       unsigned int const maxNbSources_;
-      bool checktof_;
-      bool isTracker_;      
       InputTag tag_;
+      bool isTracker_;
+      bool checktof_;
       InputTag opp_;
 
     private:
