@@ -132,14 +132,11 @@ void PFRootEventManager::readOptions(const char* file,
   // output text file for calibration
   string calibfilename;
   options_->GetOpt("calib","outfile",calibfilename);
-  if (!calibfilename.empty()) calibFile_ = new std::ofstream(calibfilename.c_str());
-  std::cout << "Calib file name " << calibfilename << " " << calibfilename.c_str() << std::endl;
-  /* */
-  if ( calibFile_->is_open() ) 
-    std::cout << "File is open ! " << std::endl;
-  else
-    std::cout << "File is not open ! " << std::endl;
-  /* */
+  if (!calibfilename.empty()) { 
+    calibFile_ = new std::ofstream(calibfilename.c_str());
+    std::cout << "Calib file name " << calibfilename << " " << calibfilename.c_str() << std::endl;
+  }
+
   // output root file   ------------------------------------------
 
   
@@ -507,6 +504,10 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("particle_flow","calib_HCAL_damping", h_damping);
   
 
+  unsigned newCalib = 0;
+  options_->GetOpt("particle_flow", "newCalib", newCalib);  
+  std::cout << "New calib = " << newCalib << std::endl;
+
   shared_ptr<pftools::PFClusterCalibration> 
     clusterCalibration( new pftools::PFClusterCalibration() );
   clusterCalibration_ = clusterCalibration;
@@ -519,7 +520,8 @@ void PFRootEventManager::readOptions(const char* file,
                                           eh_offset,
                                           h_slope,
                                           h_offset,
-                                          h_damping ) );
+                                          h_damping,
+					  newCalib) );
   calibration_ = calibration;
 
 
@@ -527,9 +529,6 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("particle_flow", "nsigma_ECAL", nSigmaECAL);
   double nSigmaHCAL = 99999;
   options_->GetOpt("particle_flow", "nsigma_HCAL", nSigmaHCAL);
-
-  bool   clusterRecoveryAlgo = false;
-  options_->GetOpt("particle_flow", "clusterRecovery", clusterRecoveryAlgo );
 
   double mvaCut = 999999;
   options_->GetOpt("particle_flow", "mergedPhotons_mvaCut", mvaCut);
@@ -539,9 +538,6 @@ void PFRootEventManager::readOptions(const char* file,
                    mvaWeightFile);  
   mvaWeightFile = expand( mvaWeightFile );
   
-  bool newCalib = false;
-  options_->GetOpt("particle_flow", "newCalib", newCalib);  
-  std::cout << "New calib = " << newCalib << std::endl;
   // pfAlgo_.setNewCalibration(newCalib);
 
   // Set the parameters for the brand-new calibration
@@ -597,7 +593,6 @@ void PFRootEventManager::readOptions(const char* file,
     pfAlgo_.setParameters( nSigmaECAL, nSigmaHCAL, 
                            calibration,
 			   clusterCalibration, newCalib,
-                           clusterRecoveryAlgo,
                            PSCut, mvaCut, mvaWeightFile.c_str() );
   }
   catch( std::exception& err ) {

@@ -36,9 +36,6 @@ particleFlow = cms.EDProducer("PFProducer",
     pf_nsigma_ECAL = cms.double(3.0),
     pf_nsigma_HCAL = cms.double(1.0),
 
-    # Cluster recovery                              
-    pf_clusterRecovery = cms.bool(False),
-
     # Naive cluster calibration
     # ECAL alone
     pf_calib_ECAL_offset = cms.double(0.0),
@@ -52,9 +49,9 @@ particleFlow = cms.EDProducer("PFProducer",
     pf_calib_ECAL_HCAL_eslope = cms.double(1.05),
     pf_calib_ECAL_HCAL_offset = cms.double(6.11),
 
-    # Brand-new cluster calibration !
-    # Use this new calibration ?
-    pf_newCalib = cms.bool(False),
+    # ECAL/HCAL cluster calibration !
+    # Colin = 0; Jamie = 1; Newest = 2.
+    pf_newCalib = cms.uint32(2),
    # Apply corrections?
     pfcluster_doCorrection = cms.uint32(1),
     # Bulk correction parameters

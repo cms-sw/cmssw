@@ -18,8 +18,8 @@ using namespace edm;
 PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 
 
-  bool newCalib = 
-    iConfig.getParameter<bool>("pf_newCalib");
+  unsigned int newCalib = 
+    iConfig.getParameter<unsigned int>("pf_newCalib");
 
   // Create a PFClusterCalbration auto_ptr
   shared_ptr<pftools::PFClusterCalibration> 
@@ -152,9 +152,6 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 					  h_offset,
 					  h_damping ) );
 
-  bool   clusterRecovery 
-    = iConfig.getParameter<bool>("pf_clusterRecovery");
-  
   double mvaCut = iConfig.getParameter<double>("pf_mergedPhotons_mvaCut");
   string mvaWeightFile 
     = iConfig.getParameter<string>("pf_mergedPhotons_mvaWeightFile");
@@ -177,7 +174,6 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 			  calibration,
 			  clusterCalibration,
 			  newCalib,
-			  clusterRecovery,
 			  PSCut, 
 			  mvaCut, 
 			  path_mvaWeightFile.fullPath().c_str() );

@@ -239,7 +239,7 @@ particle_flow chi2_ECAL_Track  100
 // chi2 maximum limit for HCAL/Track association
 particle_flow chi2_HCAL_Track  100
 // chi2 maximum limit for ECAL/HCAL assoiation
-particle_flow chi2_ECAL_HCAL	10
+particle_flow chi2_ECAL_HCAL   50
 
 // chi2 maximum limit for PS/ECAL association
 particle_flow chi2_PS_ECAL	0
@@ -255,10 +255,6 @@ particle_flow multilink 1
 // number of sigmas for neutral energy detection
 particle_flow   nsigma_ECAL    3
 particle_flow   nsigma_HCAL    1.0
-
-//Alogrithm to recover the clusters 
-//that belong to charged hadrons
-particle_flow   clusterRecovery 0
 
 particle_flow   mergedPhotons_mvaCut 		0.5
 particle_flow	mergedPhotons_mvaWeightFile	${CMSSW_RELEASE_BASE}/src/RecoParticleFlow/PFProducer/data/MVAnalysis_MLP.weights.txt
@@ -289,7 +285,23 @@ particle_flow	calib_HCAL_slope    2.17
 particle_flow 	calib_HCAL_offset   1.73
 particle_flow 	calib_HCAL_damping  2.49
 
-particle_flow  newCalib 0
+
+// Calibration ntuple -BEGIN
+// Uncomment if you want a text file with the inputs needed
+// for calibration, and also comment the corresponding six
+// lines just above
+// calib  outfile  calib_130_100_1000.txt
+// particle_flow 	calib_ECAL_HCAL_eslope  1.0
+// particle_flow  	calib_ECAL_HCAL_hslope  1.0
+// particle_flow   calib_ECAL_HCAL_offset  0.0
+//  
+// particle_flow	calib_HCAL_slope    2.00
+// particle_flow 	calib_HCAL_offset   0.00
+// particle_flow 	calib_HCAL_damping  0.00
+// Calibration ntuple -END
+
+
+particle_flow  newCalib 2
 
 // Brand-new calibration parameters
 //Apply corrections?
@@ -377,6 +389,8 @@ pfjet_benchmark onlyTwoJets 1
 
 //minimum deltaR distance for matching pfjets/genjets
 pfjet_benchmark deltaRMax 0.1
+
+
 
 // FWLITE CMSSW Jet Algorithm options --------------------------------------
 

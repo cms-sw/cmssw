@@ -4,6 +4,7 @@
 #include <TFile.h>
 #include "TF1.h"
 #include "TH2F.h"
+#include "TLegend.h"
 #include "TProfile.h"
 #include "TGraph.h"
 #include "TGraphErrors.h"
@@ -30,8 +31,21 @@ TGraphErrors* graX;
 TGraphErrors* grbX; 
 TGraphErrors* grcX;
 
-double threshE = 3.7;
+
+unsigned etaEH = 0;
+double threshE = 3.7; 
 double threshH = 2.9;
+//double threshE = 0.;
+//double threshH = 0.;
+// Barrel
+//double etamin = 0.0;
+//double etamax = 1.48;
+// Endcap
+double etamin = 1.48;
+double etamax = 3.0;
+// Endcap - HF border
+//double etamin = 2.9;
+//double etamax = 3.0;
 
 using namespace std;
 
@@ -204,15 +218,15 @@ public:
 
   bool fill(double e, double h, double t, double eta, unsigned input = 0) { 
     bool isFilled = false;
-    if ( ( input == 0 && t > minE && t < maxE ) ||
-	 ( input == 1 && e > minE && e < maxE ) ) { 
+    if ( t > minE && t < maxE )  { 
       S.push_back(sqrt(0.06*0.06 + 1.20*(e+h)));
       //S.push_back(1.);
-      double thresh = e > 0 ? threshE : threshH;
+    double thresh = 0.;
+    if ( input == 0 ) thresh = e > 0 ? threshE : threshH;
       E.push_back(e/S.back());
       H.push_back(h/S.back());
       T.push_back((t-thresh)/S.back());
-      Eta.push_back(eta);
+      Eta.push_back(eta-etamin);
       if ( e > 0. && h > 0. ) { 
 	XE.push_back((e+h)*(e+h)/(e*e));
 	XH.push_back((e+h)*(e+h)/(h*h));
@@ -715,10 +729,12 @@ FitReso(TH2F* h, string hname, double xmin = 7.) {
 
   TH2F* hres = new TH2F("hres","",100,0,1000,100,0.,0.5);
   TH2F* hrep = new TH2F("hrep","",100,0,1000,100,-1.,1.);
+  TH2F* hrep2 = new TH2F("hrep2","",100,0,100,100,-0.5,0.5);
 
   TCanvas *C = new TCanvas("C","",1000, 600);
   C->Divide(2,1);
   C->cd(1);
+  hres->SetStats(0);
   hres->Draw();
   gPad->SetGridx();
   gPad->SetGridy();
@@ -729,9 +745,24 @@ FitReso(TH2F* h, string hname, double xmin = 7.) {
   reso->SetLineWidth(2);						  
   TF1* fres = new TF1("fres","sqrt([0]*[0]+[1]*[1]/x+[2]*[2]/(x*x))",1,1000);
   fres->SetParameters(0.06,1.20,0.);
+  if ( etamin < 0.1 ) fres->FixParameter(2,0.);
   reso->Fit("fres","","",xmin,1000);
   reso->Draw("P");
+
+  string legend;
+  int fres0 = (int)(fres->GetParameter(0)*100.);
+  int fres1 = (int)(10.*(fres->GetParameter(0)*100.-fres0));
+  int fres2 = (int)(fres->GetParameter(1)*100.);
+  char text[100];
+  sprintf(text,"#sigma/E = %i%/#sqrt{E} + %i.%i%",fres2,fres0,fres1);
+  legend += text;
+  TLegend *leg=new TLegend(0.30,0.75,0.85,0.85);
+  leg->AddEntry(reso,legend.c_str(),"lp");
+  leg->SetTextSize(0.04);
+  leg->Draw();
+
   C->cd(2);
+  hrep->SetStats(0);
   hrep->Draw();
   gPad->SetGridx();
   gPad->SetGridy();
@@ -743,7 +774,28 @@ FitReso(TH2F* h, string hname, double xmin = 7.) {
   resp->SetLineWidth(2);						  
   resp->Draw("P");
 
-  return reso;
+  string filename = hname + ".gif";
+  C->Print(filename.c_str());
+
+  TCanvas *C1 = new TCanvas("C1","",600, 600);
+  C1->Divide(1,1);
+  C1->cd(9);
+
+  hrep2->SetStats(0);
+  hrep2->Draw();
+  gPad->SetGridx();
+  gPad->SetGridy();
+  //gPad->SetLogx();
+  resp->SetMarkerStyle(22);						
+  resp->SetMarkerSize(0.8);						
+  resp->SetMarkerColor(2);						
+  resp->SetLineColor(2);						  
+  resp->SetLineWidth(2);						  
+  resp->Draw("P");
+  string filename2 = hname + "_insert.gif";
+  C1->Print(filename2.c_str());
+  
+  return resp;
 
 }
 
@@ -767,7 +819,12 @@ double findABC(std::vector<Fit*>& fits, double tE, double tH) {
     double h = ntuple->Hcal;
     double t = ntuple->E;
     double eta = fabs(ntuple->eta);
-    if ( eta > 1.4 ) continue;
+    if ( eta < etamin || eta > etamax ) continue;
+    // This cut will fit a, b and c in a limited eta range.
+    // The eta correction can then be applied afterwards
+    // Proven not to work better than without this cut
+    //if ( etamin > 1.4 && eta > 2. && eta < 1.6 ) continue;
+    // if ( etamin < 1.4 && eta > 0.4 ) continue;
     if ((e+h) < 0.5 ) continue;
     if ( h == 0. ) continue;
     if (t < 1. ) continue;
@@ -786,6 +843,7 @@ double findABC(std::vector<Fit*>& fits, double tE, double tH) {
   for ( unsigned ifit=5; ifit<fits.size()-1; ++ifit ) {
     fits[ifit]->eMatrices();
     if (ifit<20) continue;
+    // if (ifit<50 && etamin > 1.4 ) continue;
     aveA += fits[ifit]->E2Coeffs(0);
     aveB += fits[ifit]->E2Coeffs(1);
     aveC += fits[ifit]->H1Coeffs(0);
@@ -808,7 +866,7 @@ double findABC(std::vector<Fit*>& fits, double tE, double tH) {
   return sqrt(rmsA*rmsA+rmsB*rmsB+rmsC+rmsC);
 }
 
-void
+TGraphErrors* 
 computeBarrelCoefficients(const char* calibFile) {
 
 
@@ -823,9 +881,9 @@ computeBarrelCoefficients(const char* calibFile) {
   TH2F* jamEvsP = new TH2F("jamEvsP","ECAL+HCAL jam Energy vs P",
 			   1000,0.,1000.,150,-1.5,1.5);
 
-  T->Draw("(Ecal+Hcal-E)/E:E>>rawEvsP","Ecal+Hcal>1&&E>1&&abs(eta)<1.4");
-  T->Draw("(Ecol+Hcol-E)/E:E>>colEvsP","Ecal+Hcal>1&&E>1&&abs(eta)<1.4");
-  T->Draw("(Ejam+Hjam-E)/E:E>>jamEvsP","Ecal+Hcal>1&&E>1&&abs(eta)<1.4");
+  T->Draw("(Ecal+Hcal-E)/E:E>>rawEvsP","Ecal+Hcal>1&&E>1&&abs(eta)<1.5");
+  T->Draw("(Ecol+Hcol-E)/E:E>>colEvsP","Ecal+Hcal>1&&E>1&&abs(eta)<1.5");
+  T->Draw("(Ejam+Hjam-E)/E:E>>jamEvsP","Ecal+Hcal>1&&E>1&&abs(eta)<1.5");
 
   TCanvas *c1 = new TCanvas();
   c1->cd();
@@ -843,7 +901,6 @@ computeBarrelCoefficients(const char* calibFile) {
   //TCanvas *c5 = new TCanvas();
   TCanvas *c6 = new TCanvas();
   TCanvas *c7 = new TCanvas();
-  TCanvas *c8 = new TCanvas();
 
   vector<Fit*> fits;
   
@@ -872,7 +929,7 @@ computeBarrelCoefficients(const char* calibFile) {
 
   /*
   double rmsMaxE = 999.;
-  for ( double te=0.; te<5; te=te+0.1) {
+  for ( double te=0.; te<10; te=te+0.1) {
     double rmsCoeff = findABC(fits, te, 0.);
     if ( rmsCoeff < rmsMaxE ) { 
       rmsMaxE = rmsCoeff;
@@ -883,7 +940,7 @@ computeBarrelCoefficients(const char* calibFile) {
   }
 
   double rmsMaxH = 999.;
-  for ( double th=0.; th<5.; th=th+0.1) {
+  for ( double th=0.; th<10.; th=th+0.1) {
     double rmsCoeff = findABC(fits, threshE, th);
     if ( rmsCoeff < rmsMaxH ) { 
       rmsMaxH = rmsCoeff;
@@ -931,59 +988,36 @@ computeBarrelCoefficients(const char* calibFile) {
   gra = new TGraphErrors ( xab.size(), &xab[0], &a[0], &sxab[0], &sa[0]);
   grb = new TGraphErrors ( xab.size(), &xab[0], &b[0], &sxab[0], &sb[0]);
   grc = new TGraphErrors ( xc.size(), &xc[0], &c[0], &sxc[0], &sc[0]);
-  /*
-  TGraphErrors* grd
-    = new TGraphErrors ( xd.size(), &xd[0], &d[0], &sxd[0], &sd[0]);  
-  TGraphErrors* gru
-    = new TGraphErrors ( xab.size(), &xab[0], &u[0], &sxab[0], &su[0]);
-  TGraphErrors* grv
-    = new TGraphErrors ( xab.size(), &xab[0], &v[0], &sxab[0], &sv[0]);
-
-  TGraphErrors* grs
-    = new TGraphErrors ( xab.size(), &xab[0], &st[0], &sxab[0], 0);
-  */
 
   TH2F *h = new TH2F("a & b","", 100, 0., 1000., 10, -0.5, 2.5 );
-
-  /*
-  TH2F *hu = new TH2F("u","", 100, 0., 1000., 10, -0.5, 2.0 );
-  TH2F *hv = new TH2F("v","", 100, 0., 1000., 10, 0.0, 2.5 );
-  TH2F *hs = new TH2F("s","", 100, 0., 1000., 10, -1.0, 1.0 );
-  */
 
   c1->cd();
   h->SetStats(0);
   h->Draw();
 
   TF1* fa = new TF1("fa","[0]+([1]+[2]/sqrt(x))*exp(-x/[3])-[4]*exp(-x*x/[5])",0,1000);
-  fa->SetParameters(1.15,0.2,0.,50,0.5,100); // 0.0
-  fa->SetParameters(1.15,0.2,-0.5,100,1.0,70); // 2.5
+  //fa->SetParameters(1.15,0.2,0.,50,0.5,100); // 0.0
+  //fa->SetParameters(1.15,0.2,-0.5,100,1.0,70); // 2.5
   fa->SetParameters(1.15,0.2,-0.8,100,1.0,70); // 3.0
-  gra->Fit("fa");  
-  gra->Fit("fa","W");
+  gra->Fit("fa","","",3,1000);  
+  gra->Fit("fa","W","",3,1000);
 
   TF1* fb = new TF1("fb","[0]+([1]+[2]/sqrt(x))*exp(-x/[3])-[4]*exp(-x*x/[5])",0,1000);
-  fb->SetParameters(1.2,0.3,2,50,1.5,10); // 0.0
-  fb->SetParameters(1.2,0.5,-1,50,1.2,30); // 2.5
+  //fb->SetParameters(1.2,0.3,2,50,1.5,10); // 0.0
+  //fb->SetParameters(1.2,0.5,-1,50,1.2,30); // 2.5
   fb->SetParameters(1.2,0.5,-1.5,40,1.2,30); // 3.0
-  grb->Fit("fb");  
-  grb->Fit("fb","W");
+  grb->Fit("fb","","",3,1000);  
+  grb->Fit("fb","W","",3,1000);
 
   TF1* fc = new TF1("fc","[0]+([1]+[2]/sqrt(x))*exp(-x/[3])-[4]*exp(-x*x/[5])",0,1000);
-  fc->SetParameters(1.15,0.2,2,50,0.5,100); // 0
-  fc->SetParameters(1.1,0.01,0.6,120,1.0,20); // 1
-  fc->SetParameters(1.1,0.005,0.3,90,1.0,22); // 1.5
-  fc->SetParameters(1.1,0.005,0.0,100,1.0,22); // 1.8
-  fc->SetParameters(1.1,0.01,-0.1,75,1.0,22); // 2.0
-  grc->Fit("fc");  
-  grc->Fit("fc","W");
-
-  /*
-  TF1* fd = new TF1("fd","[0]+([1]+[2]/sqrt(x))*exp(-x/[3])-[4]*exp(-x*x/[5])",0,1000);
-  fd->SetParameters(1.2,0.3,2,50,1.5,10);
-  grd->Fit("fd");  
-  grd->Fit("fd","W");
-  */
+  //fc->SetParameters(1.15,0.2,2,50,0.5,100); // 0
+  //fc->SetParameters(1.1,0.01,0.6,120,1.0,20); // 1
+  //fc->SetParameters(1.1,0.005,0.3,90,1.0,22); // 1.5
+  //fc->SetParameters(1.1,0.005,0.0,100,1.0,22); // 1.8
+  //fc->SetParameters(1.1,0.01,-0.1,75,1.0,22); // 2.0
+  fc->SetParameters(1.1,0.2,-0.8,5,1.0,24); // 2.9
+  grc->Fit("fc","","",3,1000);  
+  grc->Fit("fc","W","",3,1000);
 
   gra->SetMarkerStyle(25);						
   gra->SetMarkerSize(0.1);						
@@ -1011,66 +1045,6 @@ computeBarrelCoefficients(const char* calibFile) {
   grc->Draw("P");
 
 
-  /*
-  grd->SetMarkerStyle(25);						
-  grd->SetMarkerSize(0.1);						
-  grd->SetMarkerColor(2);						
-  grd->SetLineColor(2);						  
-  grd->SetLineWidth(2);						  
-  grd->Draw("P");
-  */
-
-  /*
-  c3->cd();
-  hu->SetStats(0);
-  hu->Draw();
-
-  // TF1* fu = new TF1("fu","max(0,[0]*abs(x-[1])-[2]*x*sqrt(x)+[3]*x*x*x*x)",0.001,1);
-  TF1* fu = new TF1("fu","[0]+([1]+[2]/sqrt(x))*exp(-x/[3])-[4]*exp(-x*x/[5])",0,1000);
-  fu->SetParameters(0.6,-1.,0.,150,-1,50);
-  gru->Fit("fu");  
-  //gru->Fit("fu","W");
-
-  TF1* fv = new TF1("fv","[0]+([1]+[2]/sqrt(x))*exp(-x/[3])-[4]*exp(-x*x/[5])",0,1000);
-  fv->SetParameters(1.6,0.5,2,150,1,30);
-  grv->Fit("fv");
-
-  gru->SetMarkerStyle(25);						
-  gru->SetMarkerSize(0.2);						
-  gru->SetMarkerColor(2);						
-  gru->SetLineColor(2);						  
-  gru->SetLineWidth(2);						  
-  gru->Draw("P");
-
-  c4->cd();
-  hv->SetStats(0);
-  hv->Draw();
-
-  //grv->Fit("fv","W");
-
-  grv->SetMarkerStyle(22);						
-  grv->SetMarkerSize(0.2);						
-  grv->SetMarkerColor(4);						
-  grv->SetLineColor(4);						  
-  grv->SetLineWidth(2);						  
-  grv->Draw("P");
-
-  c5->cd();
-  hs->SetStats(0);
-  hs->Draw();
-
-  TF1* fs = new TF1("fs","[0]+([1]+[2]*x+[3]*x*x+[4]*x*x*x)*exp(-x/[5])",0,1000);
-  fs->SetParameters(0.3,-0.5,0.03,-3E-4,1E-6,60);
-  grs->Fit("fs","W");
-
-  grs->SetMarkerStyle(23);						
-  grs->SetMarkerSize(0.2);						
-  grs->SetMarkerColor(3);						
-  grs->SetLineColor(3);						  
-  grs->SetLineWidth(2);						  
-  grs->Draw("P");
-
-  */
 
   TH2F* result = new TH2F("result","Resultat",1000,0,1000.,150,-1.5,1.5);
   TH2F* resultCol = new TH2F("resultCol","Resultat",1000,0,1000.,150,-1.5,1.5);
@@ -1087,11 +1061,15 @@ computeBarrelCoefficients(const char* calibFile) {
   TH2F* resultJamH = new TH2F("resultJamH","Resultat",1000,0,1000.,150,-1.5,1.5);
   TH2F* resultRawH = new TH2F("resultRawH","Resultat",1000,0,1000.,150,-1.5,1.5);
 
-  TH2F* etadep = new TH2F("etadep","Eta Dependence",150,0,1.5,150,-1.5,1.5);
-  TH2F* etadep_1_10 = new TH2F("etadep_1_10","Eta Dependence 1 a 10",150,0,1.5,150,-1.5,1.5);
-  TH2F* etadep_10_100 = new TH2F("etadep_10_100","Eta Dependence 1 a 10",150,0,1.5,150,-1.5,1.5);
-  TH2F* etadep_100_1000 = new TH2F("etadep_100_1000","Eta Dependence 1 a 10",150,0,1.5,150,-1.5,1.5);
+  TH2F* etadep = new TH2F("etadep","Eta Dependence",150,etamin,etamax,150,-1.5,1.5);
+  TH2F* etadep_1_10 = new TH2F("etadep_1_10","Eta Dependence 1 a 10",150,etamin,etamax,150,-1.5,1.5);
+  TH2F* etadep_10_100 = new TH2F("etadep_10_100","Eta Dependence 1 a 10",150,etamin,etamax,150,-1.5,1.5);
+  TH2F* etadep_100_1000 = new TH2F("etadep_100_1000","Eta Dependence 1 a 10",150,etamin,etamax,150,-1.5,1.5);
 
+  TH2F* etadepJam = new TH2F("etadepJam","Eta Dependence",150,etamin,etamax,150,-1.5,1.5);
+  TH2F* etadepJam_1_10 = new TH2F("etadepJam_1_10","Eta Dependence 1 a 10",150,etamin,etamax,150,-1.5,1.5);
+  TH2F* etadepJam_10_100 = new TH2F("etadepJam_10_100","Eta Dependence 1 a 10",150,etamin,etamax,150,-1.5,1.5);
+  TH2F* etadepJam_100_1000 = new TH2F("etadepJam_100_1000","Eta Dependence 1 a 10",150,etamin,etamax,150,-1.5,1.5);
 
   // Clear fit inputs
   for ( unsigned ifit=0; ifit<fits.size(); ++ifit ) fits[ifit]->clear();
@@ -1120,7 +1098,22 @@ computeBarrelCoefficients(const char* calibFile) {
     double h = ntuple->Hcal;
     double t = ntuple->E;
     double eta = fabs(ntuple->eta);
-    if ( eta > 1.4 ) continue;
+
+    // Fudges for the fit to converge better (not needed)
+    if ( fabs(eta) < 1.48 && fabs(eta) > 1.45) { 
+      e *= 1.50;
+      h *= 1.50;
+    }
+    if ( fabs(eta) < 1.45 && fabs(eta) > 1.40 ) {  
+      e /= 1.12;
+      h /= 1.12;
+    }
+    //if ( fabs(eta) > 2.90 && fabs(eta) < 3.00) { 
+    //  e *= 1.10;
+    //  h *= 1.10;
+    // }
+
+    if ( eta < etamin || eta > etamax ) continue;
     if (e+h < 0.5 ) continue;
     if (t < 1. ) continue;
     // if (e!=0.) continue;
@@ -1132,7 +1125,10 @@ computeBarrelCoefficients(const char* calibFile) {
     double eCorr = thresh + a*e + b*h;
 
     for ( unsigned ifit=0; ifit<fits.size(); ++ifit ) {
-      if ( fits[ifit]->fill(a*e,b*h,t,eta) ) break;
+      // Offset independent of eta
+      //if ( fits[ifit]->fill(a*e,b*h,t,eta) ) break;
+      // Offset dependent on eta
+      if ( fits[ifit]->fill(a*e,thresh+b*h,t,eta,1) ) break;
     }
     
     result->Fill( t, (eCorr-t)/t );
@@ -1162,6 +1158,13 @@ computeBarrelCoefficients(const char* calibFile) {
       resultJamE->Fill( t, (eCorr-t)/t ); 
     else
       resultJamH->Fill( t, (eCorr-t)/t );
+    etadepJam->Fill( fabs(ntuple->eta),  (eCorr-t)/t );
+    if ( t < 10 ) 
+      etadepJam_1_10->Fill( fabs(ntuple->eta),  (eCorr-t)/t );
+    else if ( t < 100 ) 
+      etadepJam_10_100->Fill( fabs(ntuple->eta),  (eCorr-t)/t);
+    else if ( t < 1000 ) 
+      etadepJam_100_1000->Fill( fabs(ntuple->eta),  (eCorr-t)/t);
     
     eCorr = ntuple->Ecal+ntuple->Hcal;
     resultRaw->Fill( t, (eCorr-t)/t );
@@ -1176,7 +1179,7 @@ computeBarrelCoefficients(const char* calibFile) {
   vector<double> saEta0, sbEta0, scEta0, saEta1, sbEta1, scEta1, saEta2, sbEta2, scEta2;
   vector<double> xEta, sxEta;
   for ( unsigned ifit=2; ifit<fits.size()-1; ++ifit ) {
-    bool invert = fits[ifit]->etaMatrices();
+    fits[ifit]->etaMatrices();
     cout << "Bin " << ifit 
 	 << "; a0, b0 = " 
 	 << "   " << fits[ifit]->Eta2Coeffs(0) 
@@ -1216,20 +1219,14 @@ computeBarrelCoefficients(const char* calibFile) {
 
   graEta0 = new TGraphErrors ( xEta.size(), &xEta[0], &aEta0[0], &sxEta[0], &saEta0[0]);
   grbEta0 = new TGraphErrors ( xEta.size(), &xEta[0], &bEta0[0], &sxEta[0], &sbEta0[0]);
-  // TGraphErrors* grcEta0
-  //  = new TGraphErrors ( xEta.size(), &xEta[0], &cEta0[0], &sxEta[0], &scEta0[0]);
   TGraphErrors* graEta1  
     = new TGraphErrors ( xEta.size(), &xEta[0], &aEta1[0], &sxEta[0], &saEta1[0]);
   TGraphErrors* grbEta1
     = new TGraphErrors ( xEta.size(), &xEta[0], &bEta1[0], &sxEta[0], &sbEta1[0]);
-  //TGraphErrors* grcEta1
-  //  = new TGraphErrors ( xEta.size(), &xEta[0], &cEta1[0], &sxEta[0], &scEta1[0]);
   TGraphErrors* graEta2  
     = new TGraphErrors ( xEta.size(), &xEta[0], &aEta2[0], &sxEta[0], &saEta2[0]);
   TGraphErrors* grbEta2
     = new TGraphErrors ( xEta.size(), &xEta[0], &bEta2[0], &sxEta[0], &sbEta2[0]);
-  //TGraphErrors* grcEta2
-  //  = new TGraphErrors ( xEta.size(), &xEta[0], &cEta2[0], &sxEta[0], &scEta2[0]);
 
   TH2F *heta = new TH2F("eta","", 100, 0., 1000., 1000, -1.0, 1.0 );
 
@@ -1237,19 +1234,20 @@ computeBarrelCoefficients(const char* calibFile) {
   heta->SetStats(0);
   heta->Draw();
 
-  //TF1* fs = new TF1("fs","[0]+([1]+[2]*x+[3]*x*x+[4]*x*x*x)*exp(-x/[5])",0,1000);
-  //fs->SetParameters(0.3,-0.5,0.03,-3E-4,1E-6,60);
-  //grs->Fit("fs","W");
-
-  TF1* faEta = new TF1("faEta","[0]+[1]*x+[2]*exp(-x/[3])",0,1000);
-  faEta->SetParameters(-0.05,-2E-5,-0.05,150);
+  TF1* faEta =
+    new TF1("faEta","[0]+[1]*x+[2]*exp(-x/[3])+[4]*[4]*exp(-x*x/([5]*[5]))",0,1000);
+  faEta->SetParameters(-0.02,-5E-6,-0.05,50,+0.2,22);
   graEta0->Fit("faEta");  
-  //graEta0->Fit("faEta","W");
+  graEta0->Fit("faEta","W");
 
-  TF1* fbEta = new TF1("fbEta","[0]+[1]*x+[2]*exp(-x/[3])",0,1000);
-  fbEta->SetParameters(0.02,4E-5,0.08,150);
+  TF1* fbEta = new TF1("fbEta","[0]+[1]*x+[2]*exp(-x/[3])+[4]*[4]*exp(-x*x/([5]*[5]))",0,1000);
+  if ( etamin < 0.1 ) 
+    fbEta->SetParameters(0.03,2E-5,0.05,3,-0.2,20.);
+  else 
+    fbEta->SetParameters(0.08,-6E-5,-0.06,10,-0.4,100.);
+    
   grbEta0->Fit("fbEta");  
-  //grbEta0->Fit("fbEta","W");
+  grbEta0->Fit("fbEta","W");
 
   graEta0->SetMarkerStyle(25);						
   graEta0->SetMarkerSize(0.1);						
@@ -1265,22 +1263,23 @@ computeBarrelCoefficients(const char* calibFile) {
   grbEta0->SetLineWidth(2);						  
   grbEta0->Draw("P");
 
-  /*
-  grcEta0->SetMarkerStyle(22);						
-  grcEta0->SetMarkerSize(0.1);						
-  grcEta0->SetMarkerColor(3);						
-  grcEta0->SetLineColor(3);						  
-  grcEta0->SetLineWidth(2);						  
-  grcEta0->Draw("P");
-  */
-
   c7->cd();
   heta->SetStats(0);
   heta->Draw();
 
-  //TF1* fs = new TF1("fs","[0]+([1]+[2]*x+[3]*x*x+[4]*x*x*x)*exp(-x/[5])",0,1000);
-  //fs->SetParameters(0.3,-0.5,0.03,-3E-4,1E-6,60);
-  //grs->Fit("fs","W");
+  TF1* faEta1 = etamin < 0.1 ? 
+    new TF1("faEta1","[0]+[1]*x+[2]*exp(-x/[3])",0,1000) :
+    new TF1("faEta1","[0]+[1]*x+[2]*exp(-x/[3])+[4]*exp(-x*x/([5]*[5]))",0,1000);
+  faEta1->SetParameters(-0.05,-2E-5,-0.05,150,0.1,10);
+  graEta1->Fit("faEta1");  
+  graEta1->Fit("faEta","W");
+
+  TF1* fbEta1 = etamin < 0.1 ?
+    new TF1("fbEta1","[0]+[1]*x+[2]*exp(-x/[3])",0,1000) :
+    new TF1("fbEta1","[0]+[1]*x+[2]*exp(-x/[3])+[4]*exp(-x*x/([5]*[5]))",0,1000);
+  fbEta1->SetParameters(0.02,4E-5,0.08,150,-0.20,15.);
+  grbEta1->Fit("fbEta1");  
+  grbEta1->Fit("fbEta1","W");
 
   graEta1->SetMarkerStyle(25);						
   graEta1->SetMarkerSize(0.1);						
@@ -1296,14 +1295,19 @@ computeBarrelCoefficients(const char* calibFile) {
   grbEta1->SetLineWidth(2);						  
   grbEta1->Draw("P");
 
-  /*
-  grcEta1->SetMarkerStyle(22);						
-  grcEta1->SetMarkerSize(0.1);						
-  grcEta1->SetMarkerColor(1);						
-  grcEta1->SetLineColor(1);						  
-  grcEta1->SetLineWidth(2);						  
-  grcEta1->Draw("P");
-  */
+  TF1* faEta2 = etamin < 0.1 ? 
+    new TF1("faEta2","[0]+[1]*x+[2]*exp(-x/[3])",0,1000) :
+    new TF1("faEta2","[0]+[1]*x+[2]*exp(-x/[3])+[4]*exp(-x*x/([5]*[5]))",0,1000);
+  faEta2->SetParameters(-0.05,-2E-5,-0.05,150,0.1,20);
+  graEta2->Fit("faEta2");  
+  graEta2->Fit("faEta","W");
+
+  TF1* fbEta2 = etamin < 0.1 ?
+    new TF1("fbEta2","[0]+[1]*x+[2]*exp(-x/[3])",0,1000) :
+    new TF1("fbEta2","[0]+[1]*x+[2]*exp(-x/[3])+[4]*exp(-x*x/([5]*[5]))",0,1000);
+  fbEta2->SetParameters(0.02,4E-5,0.08,150,-0.20,10.);
+  grbEta2->Fit("fbEta2");  
+  grbEta2->Fit("fbEta2","W");
 
   graEta2->SetMarkerStyle(25);						
   graEta2->SetMarkerSize(0.1);						
@@ -1319,117 +1323,13 @@ computeBarrelCoefficients(const char* calibFile) {
   grbEta2->SetLineWidth(2);						  
   grbEta2->Draw("P");
 
-  /*
-  grcEta2->SetMarkerStyle(22);						
-  grcEta2->SetMarkerSize(0.1);						
-  grcEta2->SetMarkerColor(7);						
-  grcEta2->SetLineColor(7);						  
-  grcEta2->SetLineWidth(2);						  
-  grcEta2->Draw("P");
-  */
-
   TH2F* resultEta = new TH2F("resultEta","Resultat eta",1000,0,1000.,150,-1.5,1.5);
   TH2F* resultEtaE = new TH2F("resultEtaE","Resultat eta",1000,0,1000.,150,-1.5,1.5);
   TH2F* resultEtaH = new TH2F("resultEtaH","Resultat eta",1000,0,1000.,150,-1.5,1.5);
-  TH2F* etadep_Cor = new TH2F("etadep_Cor","Eta Dependence",150,0,1.5,150,-1.5,1.5);
-  TH2F* etadep_1_10_Cor = new TH2F("etadep_1_10_Cor","Eta Dependence 1 a 10",150,0,1.5,150,-1.5,1.5);
-  TH2F* etadep_10_100_Cor = new TH2F("etadep_10_100_Cor","Eta Dependence 1 a 10",150,0,1.5,150,-1.5,1.5);
-  TH2F* etadep_100_1000_Cor = new TH2F("etadep_100_1000_Cor","Eta Dependence 1 a 10",150,0,1.5,150,-1.5,1.5);
-  TH2F* edep = new TH2F("Edep","E Dependence",100,0,100.,150,-30.,30.);
-  TH2F* edep_1_10 = new TH2F("Edep_1_10","E Dependence 1 a 10",100,0,100.,150,-30.,30.);
-  TH2F* edep_10_100 = new TH2F("Edep_10_100","E Dependence 10 a 100",100,0,100.,150,-30.,30.);
-  TH2F* edep_100_1000 = new TH2F("Edep_100_1000","E Dependence 100 a 1000",100,0,100.,150,-30.,30.);
-
-  TH2F* hdep = new TH2F("Hdep","E Dependence",100,0,100.,150,-30.,30.);
-  TH2F* hdep_1_10 = new TH2F("Hdep_1_10","H Dependence 1 a 10",100,0,100.,150,-30,30);
-  TH2F* hdep_10_100 = new TH2F("Hdep_10_100","H Dependence 10 a 100",100,0,100.,150,-30,30);
-  TH2F* hdep_100_1000 = new TH2F("Hdep_100_1000","H Dependence 100 a 1000",100,0,100.,150,-30,30);
-
-  // Clear fit inputs
-  for ( unsigned ifit=0; ifit<fits.size(); ++ifit ) fits[ifit]->clear();
-  fits.clear();
-
-  for ( double bin=0.; bin<1.; bin=bin+0.2) { 
-    fits.push_back(new Fit(bin,bin+0.2));    
-  }
-
-  for ( double bin=1.; bin<10.; bin=bin+1.) { 
-    fits.push_back(new Fit(bin,bin+1.));    
-  }
-
-  for ( double bin=10.; bin<100.; bin=bin+5.) { 
-    fits.push_back(new Fit(bin,bin+5.));    
-  }
-
-  for ( double bin=100.; bin<1000.; bin=bin+20.) { 
-    fits.push_back(new Fit(bin,bin+20.));    
-  }
-
-  for ( unsigned entry=0; entry<nEntries; ++entry ) {
-    if ( entry/10000*10000 == entry ) cout << "Process entry " << entry << endl;
-    ntuple->LoadTree(entry);
-    TT->GetEntry(entry);
-    double e = ntuple->Ecal;
-    double h = ntuple->Hcal;
-    double t = ntuple->E;
-    double eta = fabs(ntuple->eta);
-    if ( eta > 1.4 ) continue;
-    if (e+h < 0.5 ) continue;
-    if (t < 1. ) continue;
-    // if (e!=0.) continue;
-    if (h==0.) continue;
-
-    double a = fa->Eval(t);
-    double b = e>0. ? fb->Eval(t) : fc->Eval(t);
-    double etaCorr = 1. + faEta->Eval(t) + fbEta->Eval(t)*eta*eta;
-    double thresh = e > 0. ? threshE : threshH;
-    double eCorr = etaCorr * ( thresh + a*e + b*h );
-    // double xEcal = etaCorr * a * e / eCorr; 
-
-    for ( unsigned ifit=0; ifit<fits.size(); ++ifit ) {
-      if ( fits[ifit]->fill(etaCorr*a*e,etaCorr*b*h,t,eta,1) ) break;
-    }
-    
-    resultEta->Fill( t, (eCorr-t)/t );
-    if ( e>0. ) 
-      resultEtaE->Fill( t, (eCorr-t)/t );
-    else
-      resultEtaH->Fill( t, (eCorr-t)/t );
-
-    etadep_Cor->Fill( fabs(ntuple->eta),  (eCorr-t)/t );
-    edep->Fill( etaCorr*a*e, (eCorr-t) );
-    hdep->Fill( etaCorr*b*h, (eCorr-t) );
-    if ( t < 10 ) {
-      etadep_1_10_Cor->Fill( fabs(ntuple->eta),  (eCorr-t)/t );
-      edep_1_10->Fill( etaCorr*a*e, (eCorr-t) );
-      hdep_1_10->Fill( etaCorr*b*h, (eCorr-t) );
-    } else if ( t < 100 ) { 
-      etadep_10_100_Cor->Fill( fabs(ntuple->eta),  (eCorr-t)/t);
-      edep_10_100->Fill( etaCorr*a*e, (eCorr-t) );
-      hdep_10_100->Fill( etaCorr*b*h, (eCorr-t) );
-    } else if ( t < 1000 ) { 
-      etadep_100_1000_Cor->Fill( fabs(ntuple->eta),  (eCorr-t)/t);
-      edep_100_1000->Fill( etaCorr*a*e, (eCorr-t) );
-      hdep_100_1000->Fill( etaCorr*b*h, (eCorr-t) );
-    }
-
-  }
-
-  /*
-  TH2F* resultEta = new TH2F("resultEta","Resultat eta",1000,0,1000.,150,-1.5,1.5);
-  TH2F* resultEtaE = new TH2F("resultEtaE","Resultat eta",1000,0,1000.,150,-1.5,1.5);
-  TH2F* resultEtaH = new TH2F("resultEtaH","Resultat eta",1000,0,1000.,150,-1.5,1.5);
-  TH2F* etadep_Cor = new TH2F("etadep_Cor","Eta Dependence",150,0,1.5,150,-1.5,1.5);
-  TH2F* etadep_1_10_Cor = new TH2F("etadep_1_10_Cor","Eta Dependence 1 a 10",150,0,1.5,150,-1.5,1.5);
-  TH2F* etadep_10_100_Cor = new TH2F("etadep_10_100_Cor","Eta Dependence 1 a 10",150,0,1.5,150,-1.5,1.5);
-  TH2F* etadep_100_1000_Cor = new TH2F("etadep_100_1000_Cor","Eta Dependence 1 a 10",150,0,1.5,150,-1.5,1.5);
-  */
-
-  TH2F* xdep = new TH2F("xdep","X Dependence",100,0,1.,150,-1.5,1.5);
-  TH2F* xdep_1_10 = new TH2F("xdep_1_10","X Dependence 1 a 10",100,0,1.,150,-1.5,1.5);
-  TH2F* xdep_10_100 = new TH2F("xdep_10_100","X Dependence 1 a 10",100,0,1.,150,-1.5,1.5);
-  TH2F* xdep_100_1000 = new TH2F("xdep_100_1000","X Dependence 1 a 10",100,0,1.,150,-1.5,1.5);
-
+  TH2F* etadep_Cor = new TH2F("etadep_Cor","Eta Dependence",150,etamin,etamax,150,-1.5,1.5);
+  TH2F* etadep_1_10_Cor = new TH2F("etadep_1_10_Cor","Eta Dependence 1 a 10",150,etamin,etamax,150,-1.5,1.5);
+  TH2F* etadep_10_100_Cor = new TH2F("etadep_10_100_Cor","Eta Dependence 1 a 10",150,etamin,etamax,150,-1.5,1.5);
+  TH2F* etadep_100_1000_Cor = new TH2F("etadep_100_1000_Cor","Eta Dependence 1 a 10",150,etamin,etamax,150,-1.5,1.5);
 
   // Clear fit inputs
   for ( unsigned ifit=0; ifit<fits.size(); ++ifit ) fits[ifit]->clear();
@@ -1456,7 +1356,22 @@ computeBarrelCoefficients(const char* calibFile) {
     double h = ntuple->Hcal;
     double t = ntuple->E;
     double eta = fabs(ntuple->eta);
-    if ( eta > 1.4 ) continue;
+
+    // Fudges for the fit to converge
+    if ( fabs(eta) < 1.48 && fabs(eta) > 1.45) { 
+      e *= 1.50;
+      h *= 1.50;
+    }
+    if ( fabs(eta) < 1.45 && fabs(eta) > 1.40 ) {  
+      e /= 1.12;
+      h /= 1.12;
+    }
+    //if ( fabs(eta) > 2.90 && fabs(eta) < 3.00) { 
+    //  e *= 1.15;
+    //  h *= 1.15;
+    // }
+
+    if ( eta < etamin || eta > etamax ) continue;
     if (e+h < 0.5 ) continue;
     if (t < 1. ) continue;
     // if (e!=0.) continue;
@@ -1464,15 +1379,20 @@ computeBarrelCoefficients(const char* calibFile) {
 
     double a = fa->Eval(t);
     double b = e>0. ? fb->Eval(t) : fc->Eval(t);
-    double etaCorr = 1. + faEta->Eval(t) + fbEta->Eval(t)*eta*eta;
-    double eCorr = etaCorr * ( a*e + b*h );
-    double xEcal = etaCorr * a * e / eCorr; 
+    double thresh = e > 0. ? threshE : threshH;
+    double etaCorrE = etaEH ? 
+      1. + faEta1->Eval(t) + fbEta1->Eval(t)*(eta-etamin)*(eta-etamin) : 
+      1. + faEta->Eval(t) + fbEta->Eval(t)*(eta-etamin)*(eta-etamin);
+    double etaCorrH = etaEH ? 
+      1. + faEta2->Eval(t) + fbEta2->Eval(t)*(eta-etamin)*(eta-etamin) :
+      1. + faEta->Eval(t) + fbEta->Eval(t)*(eta-etamin)*(eta-etamin);
 
-    for ( unsigned ifit=0; ifit<fits.size(); ++ifit ) {
-      if ( fits[ifit]->fill(etaCorr*a*e,etaCorr*b*h,t,eta) ) break;
-    }
-    
+    double eCorr = thresh + etaCorrE * a * e + etaCorrH * b * h;
     /*
+    for ( unsigned ifit=0; ifit<fits.size(); ++ifit ) {
+      if ( fits[ifit]->fill(etaCorrE*a*e,etaCorrH*b*h,t,eta) ) break;
+    }
+    */
     resultEta->Fill( t, (eCorr-t)/t );
     if ( e>0. ) 
       resultEtaE->Fill( t, (eCorr-t)/t );
@@ -1480,154 +1400,87 @@ computeBarrelCoefficients(const char* calibFile) {
       resultEtaH->Fill( t, (eCorr-t)/t );
 
     etadep_Cor->Fill( fabs(ntuple->eta),  (eCorr-t)/t );
-    */
-    xdep->Fill( xEcal,  (eCorr-t)/t );
     if ( t < 10 ) {
-      // etadep_1_10_Cor->Fill( fabs(ntuple->eta),  (eCorr-t)/t );
-      xdep_1_10->Fill( xEcal,  (eCorr-t)/t );
+      etadep_1_10_Cor->Fill( fabs(ntuple->eta),  (eCorr-t)/t );
     } else if ( t < 100 ) { 
-      // etadep_10_100_Cor->Fill( fabs(ntuple->eta),  (eCorr-t)/t);
-      xdep_10_100->Fill( xEcal,  (eCorr-t)/t );
+      etadep_10_100_Cor->Fill( fabs(ntuple->eta),  (eCorr-t)/t);
     } else if ( t < 1000 ) { 
-      // etadep_100_1000_Cor->Fill( fabs(ntuple->eta),  (eCorr-t)/t);
-      xdep_100_1000->Fill( xEcal,  (eCorr-t)/t );
+      etadep_100_1000_Cor->Fill( fabs(ntuple->eta),  (eCorr-t)/t);
     }
 
   }
 
-  vector<double> aX, bX, cX, saX, sbX, scX;
-  vector<double> xX, sxX;
-  for ( unsigned ifit=2; ifit<fits.size()-1; ++ifit ) {
-    bool invert = fits[ifit]->xMatrices();
-    cout << "Bin " << ifit 
-	 << "; a, b, c = " 
-	 << "   " << fits[ifit]->X3Coeffs(0) 
-	 << " +/- " << sqrt(fits[ifit]->X3(0,0))
-	 << ", "  << fits[ifit]->X3Coeffs(1)
-	 << " +/- " << sqrt(fits[ifit]->X3(1,1))
-	 << ", "  << fits[ifit]->X3Coeffs(2)
-	 << " +/- " << sqrt(fits[ifit]->X3(2,2))
-	 << endl;
 
-    aX.push_back(1.*fits[ifit]->X3Coeffs(0));
-    bX.push_back(1.*fits[ifit]->X3Coeffs(1));
-    cX.push_back(1.*fits[ifit]->X3Coeffs(2));
-    saX.push_back(1.*sqrt(fits[ifit]->X3(0,0)));
-    sbX.push_back(1.*sqrt(fits[ifit]->X3(1,1)));
-    scX.push_back(1.*sqrt(fits[ifit]->X3(2,2)));
+  // output for further coding 
+  const char* fa_expression = fa->GetTitle();
+  const char* fb_expression = fb->GetTitle();
+  const char* fc_expression = fc->GetTitle();
+  const char* faEta_expression = faEta->GetTitle();
+  const char* fbEta_expression = fbEta->GetTitle();
 
-    xX.push_back(fits[ifit]->average(0));
-    sxX.push_back(fits[ifit]->rms(xEta.back(),0));
+  cout << "  threshE = " << threshE << ";" << endl; 
+  cout << "  threshH = " << threshH << ";" << endl; 
+  if ( etamin < 0.1 ) { 
+    cout << "  faBarrel = new TF1(\"faBarrel\",\"" << fa_expression << "\",1.,1000.);" << endl;
+    cout << "  fbBarrel = new TF1(\"fbBarrel\",\"" << fb_expression << "\",1.,1000.);" << endl;
+    cout << "  fcBarrel = new TF1(\"fcBarrel\",\"" << fc_expression << "\",1.,1000.);" << endl;
+    cout << "  faEtaBarrel = new TF1(\"faEtaBarrel\",\"" << faEta_expression << "\",1.,1000.);" << endl;
+    cout << "  fbEtaBarrel = new TF1(\"fbEtaBarrel\",\"" << fbEta_expression << "\",1.,1000.);" << endl;
+  } else if ( etamin < 1.7 ) { 
+    cout << "  faEndcap = new TF1(\"faEndcap\",\"" << fa_expression << "\",1.,1000.);" << endl;
+    cout << "  fbEndcap = new TF1(\"fbEndcap\",\"" << fb_expression << "\",1.,1000.);" << endl;
+    cout << "  fcEndcap = new TF1(\"fcEndcap\",\"" << fc_expression << "\",1.,1000.);" << endl;
+    cout << "  faEtaEndcap = new TF1(\"faEtaEndcap\",\"" << faEta_expression << "\",1.,1000.);" << endl;
+    cout << "  fbEtaEndcap = new TF1(\"fbEtaEndcap\",\"" << fbEta_expression << "\",1.,1000.);" << endl;
+  } else {
+  }
+
+  for ( unsigned ip=0; ip < 10 ; ++ip ) { 
+
+    double param_fa = fa->GetParameter(ip);
+    double param_fb = fb->GetParameter(ip);
+    double param_fc = fc->GetParameter(ip);
+    double param_faEta = faEta->GetParameter(ip);
+    double param_fbEta = fbEta->GetParameter(ip);
+    if ( etamin < 0.1 ) { 
+      if ( param_fa != 0. ) cout << "  faBarrel->SetParameter(" << ip << "," << param_fa << ");" << endl;
+      if ( param_fb != 0. ) cout << "  fbBarrel->SetParameter(" << ip << "," << param_fb << ");" << endl;
+      if ( param_fc != 0. ) cout << "  fcBarrel->SetParameter(" << ip << "," << param_fc << ");" << endl;
+      if ( param_faEta != 0. ) cout << "  faEtaBarrel->SetParameter(" << ip << "," << param_faEta << ");" << endl;
+      if ( param_fbEta != 0. ) cout << "  fbEtaBarrel->SetParameter(" << ip << "," << param_fbEta << ");" << endl;
+    } else if ( etamin < 1.7 ) { 
+      if ( param_fa != 0. ) cout << "  faEndcap->SetParameter(" << ip << "," << param_fa << ");" << endl;
+      if ( param_fb != 0. ) cout << "  fbEndcap->SetParameter(" << ip << "," << param_fb << ");" << endl;
+      if ( param_fc != 0. ) cout << "  fcEndcap->SetParameter(" << ip << "," << param_fc << ");" << endl;
+      if ( param_faEta != 0. ) cout << "  faEtaEndcap->SetParameter(" << ip << "," << param_faEta << ");" << endl;
+      if ( param_fbEta != 0. ) cout << "  fbEtaEndcap->SetParameter(" << ip << "," << param_fbEta << ");" << endl;
+    } else { 
+    }
+    
 
   }
 
-  graX = new TGraphErrors ( xX.size(), &xX[0], &aX[0], &sxX[0], &saX[0]);
-  grbX = new TGraphErrors ( xX.size(), &xX[0], &bX[0], &sxX[0], &sbX[0]);
-  grcX = new TGraphErrors ( xX.size(), &xX[0], &cX[0], &sxX[0], &scX[0]);
-
-  TH2F *hx = new TH2F("X","", 100, 0., 1000., 1000, -1.0, 1.0 );
-
-  c8->cd();
-  hx->SetStats(0);
-  hx->Draw();
-
-  TF1* faX = new TF1("faX","[0]*exp(-x/[1])+[2]",2,1000);
-  faX->SetParameters(0.02,10);
-  graX->Fit("faX","W","",3.,1000.);  
-  //graX->Fit("faX","W","",3.,1000.);  
-  TF1* fbX = new TF1("fbX","[0]*exp(-x/[1])+[2]*exp(-x/[3])",2,1000);
-  fbX->SetParameters(-0.0006,10,-0.02,1);
-  grbX->Fit("fbX","W","",3.,1000.);  
-  TF1* fcX = new TF1("fcX","[0]/(x*x)+[1]*exp(-x/[2])",2,1000);
-  fcX->SetParameters(-0.5,-0.05,5);
-  grcX->Fit("fcX","","",3.,1000.);  
-
-  graX->SetMarkerStyle(25);						
-  graX->SetMarkerSize(0.1);						
-  graX->SetMarkerColor(2);						
-  graX->SetLineColor(2);						  
-  graX->SetLineWidth(2);						  
-  graX->Draw("P");
-
-  grbX->SetMarkerStyle(22);						
-  grbX->SetMarkerSize(0.1);						
-  grbX->SetMarkerColor(4);						
-  grbX->SetLineColor(4);						  
-  grbX->SetLineWidth(2);						  
-  grbX->Draw("P");
-
-  grcX->SetMarkerStyle(22);						
-  grcX->SetMarkerSize(0.1);						
-  grcX->SetMarkerColor(3);						
-  grcX->SetLineColor(3);						  
-  grcX->SetLineWidth(2);						  
-  grcX->Draw("P");
-
-
-  TH2F* resultX = new TH2F("resultX","Resultat X",1000,0,1000.,150,-1.5,1.5);
-  TH2F* resultXE = new TH2F("resultXE","Resultat X",1000,0,1000.,150,-1.5,1.5);
-  TH2F* resultXH = new TH2F("resultXH","Resultat X",1000,0,1000.,150,-1.5,1.5);
-  TH2F* etadep_XCor = new TH2F("etadep_XCor","X Dependence",150,0,1.5,150,-1.5,1.5);
-  TH2F* etadep_1_10_XCor = new TH2F("etadep_1_10_XCor","X Dependence 1 a 10",150,0,1.5,150,-1.5,1.5);
-  TH2F* etadep_10_100_XCor = new TH2F("etadep_10_100_XCor","X Dependence 1 a 10",150,0,1.5,150,-1.5,1.5);
-  TH2F* etadep_100_1000_XCor = new TH2F("etadep_100_1000_XCor","X Dependence 1 a 10",150,0,1.5,150,-1.5,1.5);
-  TH2F* xdep_XCor = new TH2F("xdep_XCor","X Dependence",100,0,1.,150,-1.5,1.5);
-  TH2F* xdep_1_10_XCor = new TH2F("xdep_1_10_XCor","X Dependence 1 a 10",100,0,1.,150,-1.5,1.5);
-  TH2F* xdep_10_100_XCor = new TH2F("xdep_10_100_XCor","X Dependence 1 a 10",100,0,1.,150,-1.5,1.5);
-  TH2F* xdep_100_1000_XCor = new TH2F("xdep_100_1000_XCor","X Dependence 1 a 10",100,0,1.,150,-1.5,1.5);
-
-  for ( unsigned entry=0; entry<nEntries; ++entry ) {
-    if ( entry/10000*10000 == entry ) cout << "Process entry " << entry << endl;
-    ntuple->LoadTree(entry);
-    TT->GetEntry(entry);
-    double e = ntuple->Ecal;
-    double h = ntuple->Hcal;
-    double t = ntuple->E;
-    double eta = fabs(ntuple->eta);
-    if ( eta > 1.4 ) continue;
-    if (e+h< 0.5 ) continue;
-    if (t < 1. ) continue;
-    // if (e!=0.) continue;
-    if (h==0.) continue;
-
-    double a = fa->Eval(t);
-    double b = e>0. ? fb->Eval(t) : fc->Eval(t);
-    double etaCorr = 1. + faEta->Eval(t) + fbEta->Eval(t)*eta*eta;
-    double xEcal = a * e / (a * e + b * h) ; 
-    double xCorr = xEcal != 0. && xEcal != 1. ? 
-      1. + faX->Eval(t) + fbX->Eval(t)/(xEcal*xEcal) + fcX->Eval(t)/((1-xEcal)*(1.-xEcal)) : 1.; 
-    double thresh = e > 0. ? threshE : threshH;
-    double eCorr = xCorr * etaCorr * ( thresh + a*e + b*h );
-
-    /*
-    for ( unsigned ifit=0; ifit<fits.size(); ++ifit ) {
-      if ( fits[ifit]->fill(a*e,b*h,t,eta) ) break;
-    }
-    */
-
-    resultX->Fill( t, (eCorr-t)/t );
-    if ( e>0. ) 
-      resultXE->Fill( t, (eCorr-t)/t );
-    else
-      resultXH->Fill( t, (eCorr-t)/t );
-
-    etadep_XCor->Fill( fabs(ntuple->eta),  (eCorr-t)/t );
-    xdep_XCor->Fill( xEcal,  (eCorr-t)/t );
-    if ( t < 10 ) {
-      etadep_1_10_XCor->Fill( fabs(ntuple->eta),  (eCorr-t)/t );
-      xdep_1_10_XCor->Fill( xEcal,  (eCorr-t)/t );
-    } else if ( t < 100 ) { 
-      etadep_10_100_XCor->Fill( fabs(ntuple->eta),  (eCorr-t)/t);
-      xdep_10_100_XCor->Fill( xEcal,  (eCorr-t)/t );
-    } else if ( t < 1000 ) { 
-      etadep_100_1000_XCor->Fill( fabs(ntuple->eta),  (eCorr-t)/t);
-      xdep_100_1000_XCor->Fill( xEcal,  (eCorr-t)/t );
-    }
-
+  if ( etamin < 0.1 ) { 
+    cout << "  double a = faBarrel->Eval(t);" << endl
+	 << "  double b = e>0. ? fbBarrel->Eval(t) : fcBarrel->Eval(t);" << endl
+	 << "  double etaCorr = 1. + faEtaBarrel->Eval(t) + fbEtaBarrel->Eval(t)*eta*eta;" << endl
+	 << "  double thresh = e > 0. ? threshE : threshH;" << endl
+	 << "  double eCorr = thresh + etaCorr * ( a*e + b*h );" << endl;
+  } else if ( etamin < 1.7 ) { 
+    cout << "  double a = faEndcap->Eval(t);" << endl
+	 << "  double b = e>0. ? fbEndcap->Eval(t) : fcEndcap->Eval(t);" << endl
+	 << "  double etaCorr = 1. + faEtaEndcap->Eval(t) + fbEtaEndcap->Eval(t)*(fabs(eta)-" << etamin 
+	 << ")*(fabs(eta)-" << etamin << ");" << endl
+	 << "  double thresh = e > 0. ? threshE : threshH;" << endl
+	 << "  double eCorr = thresh + etaCorr * ( a*e + b*h );" << endl;
+  } else { 
   }
+  
+  
+  return grbEta0;
 
 }
  
 void calib() {
-  computeBarrelCoefficients("calib_130.txt");
+  computeBarrelCoefficients("calib_130_Fast.txt");
 }
