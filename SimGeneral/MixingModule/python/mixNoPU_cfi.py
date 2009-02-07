@@ -4,12 +4,13 @@ import FWCore.ParameterSet.Config as cms
 # to run it in the zero-pileup mode
 #
 from SimGeneral.MixingModule.mixObjects_cfi import *
-mix = cms.EDProducer("MixingModule",
+mix = cms.EDFilter("MixingModule",
     LabelPlayback = cms.string(''),
     maxBunch = cms.int32(3),
     minBunch = cms.int32(-5), ## in terms of 25 ns
 
     bunchspace = cms.int32(25),
+    checktof = cms.bool(True),
     playback = cms.untracked.bool(False),
     useCurrentProcessOnly = cms.bool(False),
     mixObjects = cms.PSet(
