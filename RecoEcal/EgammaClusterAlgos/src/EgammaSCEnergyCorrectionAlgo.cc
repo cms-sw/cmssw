@@ -1,5 +1,5 @@
 //
-// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.31 2008/05/14 14:08:54 ferriff Exp $
+// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.32 2008/08/24 18:25:22 dlevans Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
@@ -215,17 +215,23 @@ double EgammaSCEnergyCorrectionAlgo::fEtEta(double et, double eta)
 
   double fCorr = 0.;
   
-  double p0 = fEtEta_[0] + fEtEta_[1]/(et + fEtEta_[ 2]) + fEtEta_[ 3]/(et*et);
-  double p1 = fEtEta_[4] + fEtEta_[5]/(et + fEtEta_[ 6]) + fEtEta_[ 7]/(et*et);
-  double p2 = fEtEta_[8] + fEtEta_[9]/(et + fEtEta_[10]) + fEtEta_[11]/(et*et);
+  double p0 = fEtEta_[0]  + fEtEta_[1]/ (et + fEtEta_[ 2]) + fEtEta_[ 3]/(et*et);
+  double p1 = fEtEta_[4]  + fEtEta_[5]/ (et + fEtEta_[ 6]) + fEtEta_[ 7]/(et*et);
+  double p2 = fEtEta_[8]  + fEtEta_[9]/ (et + fEtEta_[10]) + fEtEta_[11]/(et*et);
+  double p3 = fEtEta_[12] + fEtEta_[13]/(et + fEtEta_[14]) + fEtEta_[15]/(et*et);
 
   fCorr = 
     p0 + 
-    p1 * atan(fEtEta_[12]*(fEtEta_[13]-fabs(eta))) + fEtEta_[14] * fabs(eta) + 
-    p1 * fEtEta_[15] * fabs(eta) +
-    p2 * fEtEta_[16] * eta * eta; 
- 
+    p1 * atan(fEtEta_[16]*(fEtEta_[17]-fabs(eta))) + fEtEta_[18] * fabs(eta) + 
+    p1 * fEtEta_[19] * fabs(eta) +
+    p2 * fEtEta_[20] * eta * eta;
+
+  // for EE only
+  if ( fEtEta_[21] != 0 && fabs(eta) > 1.5 ) 
+    fCorr += p3 * fEtEta_[21]/fabs(eta);
+
   if ( fCorr < 0.5 ) fCorr = 0.5;
+  if ( fCorr > 1.5 ) fCorr = 1.5;
 
   return et/fCorr;
 }
