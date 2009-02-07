@@ -15,12 +15,34 @@ PixelCPEGenericESProducer = cms.ESProducer("PixelCPEGenericESProducer",
     size_cutX = cms.double(3.0),
     size_cutY = cms.double(3.0),
 
+    # Edge cluster errors in microns (determined by looking at residual RMS) 
+    EdgeClusterErrorX = cms.double( 50.0 ),                                      
+    EdgeClusterErrorY = cms.double( 85.0 ),                                                     
+
     # ggiurgiu@jhu.edu
     inflate_errors = cms.bool(False),
     inflate_all_errors_no_trk_angle = cms.bool(False),
 
+    # Can use errors predicted by the template code
+    # If UseErrorsFromTemplates is False, must also set
+    # TruncatePixelCharge, IrradiationBiasCorrection, DoCosmics and LoadTemplatesFromDB to be False                                        
+    UseErrorsFromTemplates = cms.bool(True),
+
+    # When set True this gives a slight improvement in resolution at no cost 
+    TruncatePixelCharge = cms.bool(True),
+
+    # Turn this ON later
+    IrradiationBiasCorrection = cms.bool(False),                                       
+
+    # When set to True we use templates with extended angular acceptance   
+    DoCosmics = cms.bool(False),                                      
+
+    LoadTemplatesFromDB = cms.bool(False),                                       
+
     # petar, for clusterProbability() from TTRHs
     ClusterProbComputationFlag = cms.int32(0)         
+
+                                           
 )
 
 
