@@ -7,6 +7,7 @@
 //                                    09/09/07, replaced assert statements with throw cms::Exception 
 //                                              and fix an invalid pointer check in setTheDet function 
 //                                    09/21/07, implement caching of Lorentz drift direction
+//                                    01/24/09, use atan2 to get the alpha and beta angles
 // change to use Lorentz angle from DB Lotte Wilke, Jan. 31st, 2008
 // Change to use Generic error & Template calibration from DB - D.Fehling 11/08
 
@@ -47,30 +48,30 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *
     clusterProbComputationFlag_(0)
 {
   //--- Lorentz angle tangent per Tesla
-//   theTanLorentzAnglePerTesla =
-//     conf.getParameter<double>("TanLorentzAnglePerTesla");
-	lorentzAngle_ = lorentzAngle;
-	/*	if(!lorentzAngle_)
-		theTanLorentzAnglePerTesla =
-     conf.getParameter<double>("TanLorentzAnglePerTesla");
-	*/
-
+  //   theTanLorentzAnglePerTesla =
+  //     conf.getParameter<double>("TanLorentzAnglePerTesla");
+  lorentzAngle_ = lorentzAngle;
+  /*	if(!lorentzAngle_)
+    theTanLorentzAnglePerTesla =
+    conf.getParameter<double>("TanLorentzAnglePerTesla");
+  */
+  
   //--- Algorithm's verbosity
   theVerboseLevel = 
     conf.getUntrackedParameter<int>("VerboseLevel",0);
-
+  
   //-- Magnetic Field
   magfield_ = mag;
-
-	//-- Error Parametriaztion from DB for CPE Generic
-	genErrorParm_ = genErrorParm;
-
-	//-- Template Calibration Object from DB
-	templateDBobject_ = templateDBobject;
-
+  
+  //-- Error Parametriaztion from DB for CPE Generic
+  genErrorParm_ = genErrorParm;
+  
+  //-- Template Calibration Object from DB
+  templateDBobject_ = templateDBobject;
+  
   //-- Switch on/off E.B 
   alpha2Order = conf.getParameter<bool>("Alpha2Order");
-
+  
   //--- A flag that could be used to change the behavior of
   //--- clusterProbability() in TSiPixelRecHit (the *transient* one).  
   //--- The problem is that the transient hits are made after the CPE runs
@@ -79,7 +80,7 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *
   //
   clusterProbComputationFlag_ 
     = (unsigned int) conf.getParameter<int>("ClusterProbComputationFlag");
-
+  
 }
 
 //-----------------------------------------------------------------------------
@@ -242,22 +243,9 @@ computeAnglesFromDetPosition(const SiPixelCluster & cl,
   float gv_dot_gvz = gv.x()*gvz.x() + gv.y()*gvz.y() + gv.z()*gvz.z();
 
   // calculate angles
-  //alpha_ = atan2( gv_dot_gvz, gv_dot_gvx );
-  //beta_  = atan2( gv_dot_gvz, gv_dot_gvy );
+  alpha_ = atan2( gv_dot_gvz, gv_dot_gvx );
+  beta_  = atan2( gv_dot_gvz, gv_dot_gvy );
 
-  // Use Danek's definition to be consistent with the error parameterizatio 
-
-  alpha_ = acos(gv_dot_gvx/sqrt(gv_dot_gvx*gv_dot_gvx+gv_dot_gvz*gv_dot_gvz));
-  if ( isFlipped() )                    // &&& check for FPIX !!!
-    alpha_ = PI - alpha_ ;
-
-  beta_ = acos(gv_dot_gvy/sqrt(gv_dot_gvy*gv_dot_gvy+gv_dot_gvz*gv_dot_gvz));
-
-
-  // calculate cotalpha and cotbeta
-  //   cotalpha_ = 1.0/tan(alpha_);
-  //   cotbeta_  = 1.0/tan(beta_ );
-  // or like this
   cotalpha_ = gv_dot_gvx / gv_dot_gvz;
   cotbeta_  = gv_dot_gvy / gv_dot_gvz;
 
@@ -283,25 +271,26 @@ computeAnglesFromTrajectory( const SiPixelCluster & cl,
   float locy = localDir.y();
   float locz = localDir.z();
 
-  //cout << "locx = " << locx << endl;
-  //cout << "locy = " << locy << endl;
-  //cout << "locz = " << locz << endl;
-  
-  alpha_ = acos(locx/sqrt(locx*locx+locz*locz));
-  if ( isFlipped() )                    // &&& check for FPIX !!!
+  /*
+    // Danek's definition 
+    alpha_ = acos(locx/sqrt(locx*locx+locz*locz));
+    if ( isFlipped() )                    // &&& check for FPIX !!!
     alpha_ = PI - alpha_ ;
-  
-  beta_ = acos(locy/sqrt(locy*locy+locz*locz));
+    beta_ = acos(locy/sqrt(locy*locy+locz*locz));
+  */
 
   // &&& In the above, why not use atan2() ?
-  
-  cotalpha_ = localDir.x()/localDir.z();
-  cotbeta_  = localDir.y()/localDir.z();
+  // ggiurgiu@fnal.gov, 01/24/09 :  Use it now.
+  alpha_ = atan2( locz, locx );
+  beta_  = atan2( locz, locy );
+
+  cotalpha_ = locx/locz;
+  cotbeta_  = locy/locz;
 
   LocalPoint trk_lp = ltp.position();
   trk_lp_x = trk_lp.x();
   trk_lp_y = trk_lp.y();
-    
+  
   with_track_angle = true;
 
 }
