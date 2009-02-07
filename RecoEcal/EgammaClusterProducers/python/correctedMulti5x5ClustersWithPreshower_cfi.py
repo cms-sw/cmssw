@@ -11,11 +11,17 @@ correctedMulti5x5SuperClustersWithPreshower = cms.EDFilter("EgammaSCCorrectionMa
     # energy correction
     fix_fCorrPset = cms.PSet(
         brLinearLowThr = cms.double(0.9),
-        fBremVec = cms.vdouble(-0.1234, 0.2347, 0.8831, 0.002377, 1.037),
-        brLinearHighThr = cms.double(5.0),
-        fEtEtaVec = cms.vdouble(1.002, -0.09255, 0.0, 0.0, -4.072, 
-            67.93, -7.333, 0.0, 0.0, 0.0, 
-            2.6),
+
+        fBremVec = cms.vdouble(-0.0731, 0.133, 0.9262, -0.0008765, 1.08),
+        brLinearHighThr = cms.double(6.0),
+
+        fEtEtaVec = cms.vdouble(-0.0377, -915.9, 111.7, -135.8,
+                                 0.523,   431.1, 114.2,  104.6,
+                                 0,      -120.3, 203.6, -31.98,
+                                 0,        1054, 182.1, 112.10,
+                                 0,           0,     0,
+                                 1,           1,     1),
+        
         corrF = cms.vint32(0, 0, 1)
     ),
     VerbosityLevel = cms.string('ERROR'),
