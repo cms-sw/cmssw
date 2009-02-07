@@ -150,7 +150,8 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 					  eh_offset,
 					  h_slope,
 					  h_offset,
-					  h_damping ) );
+					  h_damping,
+					  newCalib ) );
 
   double mvaCut = iConfig.getParameter<double>("pf_mergedPhotons_mvaCut");
   string mvaWeightFile 
