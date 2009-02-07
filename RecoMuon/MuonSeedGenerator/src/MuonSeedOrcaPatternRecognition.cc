@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2008/10/03 04:32:51 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/10/09 23:30:27 $
+ *  $Revision: 1.5 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -42,6 +42,7 @@
 
 using namespace std;
 
+    const std::string metname = "Muon|RecoMuon|MuonSeedOrcaPatternRecognition";
 
 // Constructor
 MuonSeedOrcaPatternRecognition::MuonSeedOrcaPatternRecognition(const edm::ParameterSet& pset)
@@ -100,10 +101,17 @@ void MuonSeedOrcaPatternRecognition::produce(edm::Event& event, const edm::Event
   MuonRecHitContainer list7 = muonMeasurements.recHits(MB2DL,event);
   MuonRecHitContainer list8 = muonMeasurements.recHits(MB1DL,event);
 
+  if(false) {
+    dumpLayer("MB4 ", list9);
+    dumpLayer("MB3 ", list6);
+    dumpLayer("MB2 ", list7);
+    dumpLayer("MB1 ", list8);
+  }
+
+
   bool* MB1 = zero(list8.size());
   bool* MB2 = zero(list7.size());
   bool* MB3 = zero(list6.size());
-
 
   endcapPatterns(muonMeasurements.recHits(ME11Bwd,event),
                  muonMeasurements.recHits(ME12Bwd,event),
@@ -193,60 +201,45 @@ void MuonSeedOrcaPatternRecognition::produce(edm::Event& event, const edm::Event
 
   if(result.empty()) 
   {
-    const std::string metname = "Muon|RecoMuon|MuonSeedOrcaPatternRecognition";
     MuonRecHitContainer all = muonMeasurements.recHits(ME4Bwd,event);
-    LogTrace(metname)<<"ME4B "<<all.size();
     MuonRecHitContainer tmp = muonMeasurements.recHits(ME3Bwd,event);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
-    LogTrace(metname)<<"ME3B "<<tmp.size();
 
     tmp = muonMeasurements.recHits(ME2Bwd,event);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
-    LogTrace(metname)<<"ME2B "<<tmp.size();
 
     tmp = muonMeasurements.recHits(ME12Bwd,event);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
-    LogTrace(metname)<<"ME12B "<<tmp.size();
 
     tmp = muonMeasurements.recHits(ME11Bwd,event);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
-    LogTrace(metname)<<"ME11B "<<tmp.size();
 
     tmp = muonMeasurements.recHits(ME11Fwd,event);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
-    LogTrace(metname)<<"ME11F "<<tmp.size();
 
     tmp = muonMeasurements.recHits(ME12Fwd,event);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
-    LogTrace(metname)<<"ME12F "<<tmp.size();
 
     tmp = muonMeasurements.recHits(ME2Fwd,event);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
-    LogTrace(metname)<<"ME2F "<<tmp.size();
 
     tmp = muonMeasurements.recHits(ME3Fwd,event);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
-    LogTrace(metname)<<"ME3F "<<tmp.size();
 
     tmp = muonMeasurements.recHits(ME4Fwd,event);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
-    LogTrace(metname)<<"ME4F "<<tmp.size();
 
     tmp = muonMeasurements.recHits(MB4DL,event);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
-    LogTrace(metname)<<"MB4 "<<tmp.size();
 
     tmp = muonMeasurements.recHits(MB3DL,event);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
-    LogTrace(metname)<<"MB3 "<<tmp.size();
 
     tmp = muonMeasurements.recHits(MB2DL,event);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
-    LogTrace(metname)<<"MB2 "<<tmp.size();
 
     tmp = muonMeasurements.recHits(MB1DL,event);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
-    LogTrace(metname)<<"MB1 "<<tmp.size();
 
     LogTrace(metname)<<"Number of segments: "<<all.size();
 
@@ -281,6 +274,14 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
   bool * MB1, bool * MB2, bool * MB3,
   std::vector<MuonRecHitContainer> & result)
 {
+  if(false) {
+    dumpLayer("ME4 ", me4);
+    dumpLayer("ME3 ", me3);
+    dumpLayer("ME2 ", me2);
+    dumpLayer("ME12 ", me12);
+    dumpLayer("ME11 ", me11);
+  }
+
   std::vector<MuonRecHitContainer> patterns;
   MuonRecHitContainer crackSegments;
   rememberCrackSegments(me11, crackSegments);
@@ -479,7 +480,6 @@ void MuonSeedOrcaPatternRecognition::complete(MuonRecHitContainer& seedSegments,
     }   // +vvp!!!
 
     if( eta2 < 1.0 ) {     //  barrel only
-
       LocalPoint pt1 = first->det()->toLocal(ptg1); // local pos of rechit in seed's det
 
       LocalVector dir1 = first->localDirection();
@@ -647,3 +647,21 @@ void MuonSeedOrcaPatternRecognition::rememberCrackSegments(const MuonRecHitConta
     }
   }
 }
+
+
+#include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
+
+
+void MuonSeedOrcaPatternRecognition::dumpLayer(const char * name, const MuonRecHitContainer & segments) const
+{
+  MuonPatternRecoDumper theDumper;
+
+  LogTrace(metname) << name << std::endl;
+  for(MuonRecHitContainer::const_iterator segmentItr = segments.begin();
+      segmentItr != segments.end(); ++segmentItr)
+  {
+    LogTrace(metname) << theDumper.dumpMuonId((**segmentItr).geographicalId());
+  }
+}
+
+
