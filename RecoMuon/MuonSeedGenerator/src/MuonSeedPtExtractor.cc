@@ -129,7 +129,7 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
   GlobalPoint outerPoint = secondHit->globalPosition();
   MuonTransientTrackingRecHit::ConstMuonRecHitPointer innerHit = firstHit;
   MuonTransientTrackingRecHit::ConstMuonRecHitPointer outerHit = secondHit;
-  if(innerPoint.mag() > outerPoint.mag()) {
+  if(innerPoint.perp() > outerPoint.perp()) {
     innerHit = secondHit;
     outerHit = firstHit;
     innerPoint = innerHit->globalPosition();
@@ -142,7 +142,7 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
   double etaInner = innerPoint.eta();
   double etaOuter = outerPoint.eta();
   //std::cout<<" inner pos = "<< innerPoint << std::endl;
-  //std::cout<<" outer pos = "<< outer << std::endl;
+  //std::cout<<" outer pos = "<< outerPoint << std::endl;
   //double thetaInner = firstHit->globalPosition().theta();
   // if some of the segments is missing r-phi measurement then we should
   // use only the 4D phi estimate (also use 4D eta estimate only)
@@ -190,8 +190,8 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
   os0 << abs(stationCoded[0]);
   os1 << abs(stationCoded[1]);
 
-  //  std::cout<<" st1 = "<<stationCoded[0]<<" st2 = "<<stationCoded[1]<<std::endl;
-  //std::cout<<" detId_first = "<<detId_first.rawId()<<"  detId_second = "<< detId_second.rawId()<<std::endl;
+  //std::cout<<" st1 = "<<stationCoded[0]<<" st2 = "<<stationCoded[1]<<std::endl;
+  //std::cout<<" detId_inner = "<<detId_inner.rawId()<<"  detId_outer = "<< detId_outer.rawId()<<std::endl;
   std::string  combination = "0";
   std::string init_combination = combination;
   bool singleSegment = false;
@@ -297,7 +297,7 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
   }
 
   std::vector<double> pTestimate(2);// 
-  //  std::cout<<" combination = "<<combination<<std::endl;
+  //std::cout<<" combination = "<<combination<<std::endl;
   if(init_combination!=combination){
         //std::cout<<" combination = "<<combination<<" eta = "<<eta<<" dPhi = "<<dPhi<<std::endl;
     ParametersMap::const_iterator parametersItr = theParametersForCombo.find(combination);
