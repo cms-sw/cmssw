@@ -5,6 +5,8 @@
 #include "RecoParticleFlow/PFClusterAlgo/interface/PFClusterAlgo.h"
 #include "RecoParticleFlow/PFBlockAlgo/interface/PFBlockAlgo.h"
 
+class TF1;
+
 // -*- C++ -*-
 //
 // Package:    PFClusterTools
@@ -19,11 +21,16 @@
      Original Implementation of Calibration functions in PFAlgo/PFBlock 
      by Colin Bernet;
      Code moved into separate Class by Christian Veelken 
+
+ Modification 
+     To include energy-dependent and angular-dependent calibration
+     By Patrick Janot
+ 
 */
 //
 // Original Author:  Christian Veelken
 //         Created:  Tue Aug  8 16:26:18 CDT 2006
-// $Id: PFEnergyCalibration.h,v 1.3 2007/12/09 18:37:38 cbern Exp $
+// $Id: PFEnergyCalibration.h,v 1.4 2008/09/04 09:29:43 benedet Exp $
 //
 //
 
@@ -44,7 +51,8 @@ class PFEnergyCalibration
 		       double eh_offset,
 		       double h_slope,
 		       double h_offset,
-		       double h_damping );
+		       double h_damping,
+		       unsigned newCalib = 0);
 
   ~PFEnergyCalibration();
 
@@ -63,10 +71,16 @@ class PFEnergyCalibration
   double energyEmHad(double uncalibratedEnergyECAL, 
 		     double uncalibratedEnergyHCAL, 
 		     double eta=0, double phi=0) const;
+
+  // ECAL+HCAL (abc-alpha-beta) calibration, with E and eta dependent coefficients
+  void energyEmHad(double t, double& e, double&h, double eta, double phi) const;
   
   // set calibration parameters for energy deposits of electrons and photons in ECAL; this member function is needed by PFRootEvent
   void setCalibrationParametersEm(double paramECAL_slope, 
 				  double paramECAL_offset);
+
+  // Initialize E- and eta-dependent coefficient functional form
+  void initializeCalibrationFunctions();
 
   double paramECAL_slope() const {return  paramECAL_slope_;} 
 
@@ -118,6 +132,24 @@ class PFEnergyCalibration
   double EcorrPS_ePSNil(double eEcal,double eta);
   double EcorrZoneAfterPS(double E, double eta);
   double Ecorr(double eEcal,double ePS1,double ePS2,double eta,double phi);
+
+  // Barrel calibration (eta 0.00 -> 1.48)
+  TF1* faBarrel;
+  TF1* fbBarrel; 
+  TF1* fcBarrel; 
+  TF1* faEtaBarrel; 
+  TF1* fbEtaBarrel; 
+
+  // Endcap calibration (eta 1.48 -> 3.xx)
+  TF1* faEndcap;
+  TF1* fbEndcap; 
+  TF1* fcEndcap; 
+  TF1* faEtaEndcap; 
+  TF1* fbEtaEndcap; 
+
+  // Threshold correction (offset)
+  double threshE, threshH;
+
 };
 
 #endif

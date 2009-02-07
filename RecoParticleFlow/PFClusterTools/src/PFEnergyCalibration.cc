@@ -2,6 +2,7 @@
 #include <TMath.h>
 #include <math.h>
 #include <vector>
+#include <TF1.h>
 
 using namespace std;
 
@@ -49,7 +50,8 @@ PFEnergyCalibration::PFEnergyCalibration( double e_slope  ,
 					  double eh_offset,
 					  double h_slope  ,
 					  double h_offset ,
-					  double h_damping ):
+					  double h_damping,
+					  unsigned newCalib):
   
   paramECAL_slope_(e_slope),
   paramECAL_offset_(e_offset),
@@ -58,10 +60,163 @@ PFEnergyCalibration::PFEnergyCalibration( double e_slope  ,
   paramECALplusHCAL_offset_(eh_offset),
   paramHCAL_slope_(h_slope),
   paramHCAL_offset_(h_offset),
-  paramHCAL_damping_(h_damping) {}
+  paramHCAL_damping_(h_damping) 
+{
+  if ( newCalib == 2 ) initializeCalibrationFunctions();
+}
+
+void
+PFEnergyCalibration::initializeCalibrationFunctions() {
+
+  // Thresholds
+  threshE = 3.7;
+  threshH = 2.9;
+
+  // Barrel : 0 - 1.5
+  faBarrel = new TF1("faBarrel","[0]+([1]+[2]/sqrt(x))*exp(-x/[3])-[4]*exp(-x*x/[5])",1.,1000.);
+  fbBarrel = new TF1("fbBarrel","[0]+([1]+[2]/sqrt(x))*exp(-x/[3])-[4]*exp(-x*x/[5])",1.,1000.);
+  fcBarrel = new TF1("fcBarrel","[0]+([1]+[2]/sqrt(x))*exp(-x/[3])-[4]*exp(-x*x/[5])",1.,1000.);
+  faEtaBarrel = new TF1("faEtaBarrel","[0]+[1]*x+[2]*exp(-x/[3])",1.,1000.);
+  fbEtaBarrel = new TF1("fbEtaBarrel","[0]+[1]*x+[2]*exp(-x/[3])",1.,1000.);
+  faBarrel->SetParameter(0,1.14914);
+  fbBarrel->SetParameter(0,1.19731);
+  fcBarrel->SetParameter(0,1.10223);
+  faEtaBarrel->SetParameter(0,-0.0217954);
+  fbEtaBarrel->SetParameter(0,0.0223437);
+  faBarrel->SetParameter(1,0.189136);
+  fbBarrel->SetParameter(1,0.631813);
+  fcBarrel->SetParameter(1,0.755928);
+  faEtaBarrel->SetParameter(1,-6.9812e-06);
+  fbEtaBarrel->SetParameter(1,2.90376e-05);
+  faBarrel->SetParameter(2,-1.13943);
+  fbBarrel->SetParameter(2,-2.18954);
+  fcBarrel->SetParameter(2,-4.28162);
+  faEtaBarrel->SetParameter(2,-0.0369375);
+  fbEtaBarrel->SetParameter(2,0.0650036);
+  faBarrel->SetParameter(3,86.646);
+  fbBarrel->SetParameter(3,37.6879);
+  fcBarrel->SetParameter(3,30.6577);
+  faEtaBarrel->SetParameter(3,89.0204);
+  fbEtaBarrel->SetParameter(3,158.081);
+  faBarrel->SetParameter(4,0.882693);
+  fbBarrel->SetParameter(4,1.14462);
+  fcBarrel->SetParameter(4,-0.507811);
+  faBarrel->SetParameter(5,73.7661);
+  fbBarrel->SetParameter(5,31.9055);
+  fcBarrel->SetParameter(5,274.662);
 
 
+  // Endcap : 1.48 -> 3.0
+  faEndcap = new TF1("faEndcap","[0]+([1]+[2]/sqrt(x))*exp(-x/[3])-[4]*exp(-x*x/[5])",1.,1000.);
+  fbEndcap = new TF1("fbEndcap","[0]+([1]+[2]/sqrt(x))*exp(-x/[3])-[4]*exp(-x*x/[5])",1.,1000.);
+  fcEndcap = new TF1("fcEndcap","[0]+([1]+[2]/sqrt(x))*exp(-x/[3])-[4]*exp(-x*x/[5])",1.,1000.);
+  faEtaEndcap = new TF1("faEtaEndcap","[0]+[1]*x+[2]*exp(-x/[3])+[4]*exp(-x*x/([5]*[5]))",1.,1000.);
+  fbEtaEndcap = new TF1("fbEtaEndcap","[0]+[1]*x+[2]*exp(-x/[3])+[4]*exp(-x*x/([5]*[5]))",1.,1000.);
+  faEndcap->SetParameter(0,1.0502);
+  fbEndcap->SetParameter(0,1.1154);
+  fcEndcap->SetParameter(0,1.04597);
+  faEtaEndcap->SetParameter(0,-0.0199504);
+  fbEtaEndcap->SetParameter(0,0.064799);
+  faEndcap->SetParameter(1,0.649512);
+  fbEndcap->SetParameter(1,1.35135);
+  fcEndcap->SetParameter(1,0.590172);
+  faEtaEndcap->SetParameter(1,-4.38763e-06);
+  fbEtaEndcap->SetParameter(1,-3.45818e-05);
+  faEndcap->SetParameter(2,-2.0343);
+  fbEndcap->SetParameter(2,-3.76997);
+  fcEndcap->SetParameter(2,-0.577637);
+  faEtaEndcap->SetParameter(2,-0.235372);
+  fbEtaEndcap->SetParameter(2,0.374605);
+  faEndcap->SetParameter(3,106.332);
+  fbEndcap->SetParameter(3,57.3433);
+  fcEndcap->SetParameter(3,54.7831);
+  faEtaEndcap->SetParameter(3,95.6925);
+  fbEtaEndcap->SetParameter(3,79.9324);
+  faEndcap->SetParameter(4,0.739811);
+  fbEndcap->SetParameter(4,0.615289);
+  fcEndcap->SetParameter(4,1.6319);
+  faEtaEndcap->SetParameter(4,0.129587);
+  fbEtaEndcap->SetParameter(4,-0.222852);
+  faEndcap->SetParameter(5,137.362);
+  fbEndcap->SetParameter(5,88.5182);
+  fcEndcap->SetParameter(5,28.3985);
+  faEtaEndcap->SetParameter(5,-16.2754);
+  fbEtaEndcap->SetParameter(5,15.0901);
+}
 
+void 
+PFEnergyCalibration::energyEmHad(double t, double& e, double&h, double eta, double phi) const { 
+ 
+  
+  // Use calorimetric energy as true energy for neutral particles
+  double tt = t;
+  //double ee = e;
+  //double hh = h;
+  t = max(tt,e+h);
+
+  // Barrel calibration
+  if ( fabs(eta) < 1.48 ) { 
+
+    // Two fudge factors to make the fit converge better
+    if ( fabs(eta) > 1.45 ) { 
+      e *= 1.50;
+      h *= 1.50;
+    } else if ( fabs(eta) > 1.40 ) {  
+      e /= 1.12;
+      h /= 1.12;
+    }
+
+    // The energy correction
+    double a = faBarrel->Eval(t);
+    double b = e>0. ? fbBarrel->Eval(t) : fcBarrel->Eval(t);
+    double thresh = e > 0. ? threshE : threshH;
+
+    // Protection against negative calibration - to be tuned
+    if ( a < 0.05 || b < 0.05 ) { 
+      a = 1.;
+      b = 1.;
+      thresh = 0.;
+    }
+
+    // The new estimate of the true energy
+    t = max(tt, thresh+a*e+b*h);
+
+    // The angular correction
+    double etaCorr = 1. + faEtaBarrel->Eval(t) + fbEtaBarrel->Eval(t)*eta*eta;
+    t = max(tt, thresh+etaCorr*a*e+etaCorr*b*h);
+
+    if ( e > 0. && thresh > 0. ) e = threshE-threshH + etaCorr * a * e;
+    if ( h > 0. && thresh > 0. ) h = threshH + etaCorr * b * h;
+
+  // Endcap calibration   
+  } else {
+
+    // The energy correction
+    double a = faEndcap->Eval(t);
+    double b = e>0. ? fbEndcap->Eval(t) : fcEndcap->Eval(t);
+    double thresh = e > 0. ? threshE : threshH;
+
+    // Protection against negative calibration - to be tuned
+    if ( a < 0.05 || b < 0.05 ) { 
+      a = 1.;
+      b = 1.;
+      thresh = 0.;
+    }
+
+    // The new estimate of the true energy
+    t = max(tt, thresh+a*e+b*h);
+    
+    // The angular correction
+    double etaCorr = 1. + faEtaEndcap->Eval(t) + fbEtaEndcap->Eval(t)*(fabs(eta)-1.48)*(fabs(eta)-1.48);
+    t = max(tt, thresh+etaCorr*a*e+etaCorr*b*h);
+    if ( e > 0  && thresh > 0. ) e = threshE-threshH + etaCorr * a * e;
+    if ( h > 0. && thresh > 0. ) h = threshH + etaCorr * b * h;
+
+  }
+
+  // And that's it !
+  
+}
 
 
 
