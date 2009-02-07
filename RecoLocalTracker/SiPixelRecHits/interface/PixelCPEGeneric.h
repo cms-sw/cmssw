@@ -124,9 +124,21 @@ class PixelCPEGeneric : public PixelCPEBase
   bool inflate_errors;
   bool inflate_all_errors_no_trk_angle;
 
-	//--- DB Error Parametrization object
-	SiPixelCPEGenericDBErrorParametrization * genErrorsFromDB_;
-	
+  bool UseErrorsFromTemplates_;
+  bool DoCosmics_;
+  bool LoadTemplatesFromDB_;
+  bool TruncatePixelCharge_;
+  bool IrradiationBiasCorrection_;
+
+  double EdgeClusterErrorX_;
+  double EdgeClusterErrorY_;
+
+  //--- DB Error Parametrization object
+  SiPixelCPEGenericDBErrorParametrization * genErrorsFromDB_;
+
+  mutable SiPixelTemplate templ_;
+  mutable int templID_; 
+
  protected:
   //--- These functions are no longer needed, yet they are declared 
   //--- pure virtual in the base class.
