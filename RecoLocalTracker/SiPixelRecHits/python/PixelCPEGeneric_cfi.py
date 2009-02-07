@@ -37,7 +37,7 @@ PixelCPEGenericESProducer = cms.ESProducer("PixelCPEGenericESProducer",
     # When set to True we use templates with extended angular acceptance   
     DoCosmics = cms.bool(False),                                      
 
-    LoadTemplatesFromDB = cms.bool(False),                                       
+    LoadTemplatesFromDB = cms.bool(True),                                       
 
     # petar, for clusterProbability() from TTRHs
     ClusterProbComputationFlag = cms.int32(0)         
