@@ -45,6 +45,8 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
 					   const SiPixelTemplateDBObject * templateDBobject) 
   : PixelCPEBase(conf, mag, lorentzAngle, 0, templateDBobject)
 {
+  //cout << "From PixelCPETemplateReco::PixelCPETemplateReco(...)" << endl;
+
   // &&& initialize the templates, etc.
   
   //-- Use Magnetic field at (0,0,0) to select a template ID [Morris, 6/25/08] (temporary until we implement DB access)
@@ -55,6 +57,14 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
   DoCosmics_ = conf.getParameter<bool>("DoCosmics");
   LoadTemplatesFromDB_ = conf.getParameter<bool>("LoadTemplatesFromDB");
 
+  /*
+    ID  BPix V  FPix V  Temp B-field Angle Coverage  Vers
+     1   150V    150V   263K   3.8T  Collision-only  11,12
+     4   150V    150V   263K   4.0T  Collision-only  11,12
+    11   100V    300V   293K   3.8T  Coll+Cosmic     11,12
+    12   150V    150V   263K   0.0T  Coll+Cosmic     11,12
+  */
+
   if ( field_magnitude > 3.9 ) 
     {
       templID_ = 4;
@@ -64,7 +74,7 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
       if ( field_magnitude > 1.0 ) 
 	{
 	  if ( DoCosmics_ )
-	    templID_ = 10;
+	    templID_ = 11;
 	  else 
 	    templID_ = 1;
 	} 
