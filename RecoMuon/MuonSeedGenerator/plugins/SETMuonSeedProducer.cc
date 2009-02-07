@@ -828,6 +828,11 @@ validSetsPrePruning(std::vector <MuonRecHitContainer>  & allValidSets){
   for(unsigned int iSet = 0;iSet<allValidSets.size();++iSet){
     if(allValidSets[iSet].size()>3){ // to decide we need at least 4 measurements
       dPhi.clear();
+      for(unsigned int iHit = 1;iHit<allValidSets[iSet].size();++iHit){
+        dPhi_tmp = allValidSets[iSet][iHit]->globalPosition().phi() -
+	           allValidSets[iSet][iHit-1]->globalPosition().phi();
+        dPhi.push_back(dPhi_tmp);		   
+      }
       pruneHit.clear();
       //---- loop over all the hits in a set
       
@@ -836,8 +841,6 @@ validSetsPrePruning(std::vector <MuonRecHitContainer>  & allValidSets){
 	if(iHit){
 	  // if we have to remove the very first hit (iHit == 0) then 
 	  // we'll probably be in trouble already  
-	  dPhi_tmp = allValidSets[iSet][iHit]->globalPosition().phi() - 
-	    allValidSets[iSet][iHit-1]->globalPosition().phi();
 	  wildCandidate = false;
 	  // actually 2D is bad only if not r-phi... Should I refine it? 
 	  // a hit is a candidate for pruning only if dPhi > dPHI_MIN;
@@ -847,7 +850,6 @@ validSetsPrePruning(std::vector <MuonRecHitContainer>  & allValidSets){
 		  allValidSets[iSet][iHit-1]->globalPosition().phi())>dPHI_MIN ){
 	    wildCandidate = true;
 	  }
-	  dPhi.push_back(dPhi_tmp);
 	  pruneHit_tmp = -1;
 	  if(wildCandidate){
 	    // OK - this couple doesn't look good (and is from 4D segments); proceed...
