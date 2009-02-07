@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplate.h (v5.02)
+//  SiPixelTemplate.h (v5.10)
 //
 //  Add goodness-of-fit info and spare entries to templates, version number in template header, more error checking
 //  Add correction for (Q_F-Q_L)/(Q_F+Q_L) bias
@@ -27,6 +27,7 @@
 //  Change to allow template sizes to be changed at compile time
 //  Fix bug in track angle checking
 //  Accommodate Dave's new DB pushfile which overloads the old method (file input)
+//  Add CPEGeneric error information and expand qbin method to access useful info for PixelCPEGeneric
 //
 // Created by Morris Swartz on 10/27/06.
 // Copyright 2006 __TheJohnsHopkinsUniversity__. All rights reserved.
@@ -84,6 +85,9 @@ struct SiPixelTemplateEntry { //!< Basic template entry corresponding to a singl
   float qmin;              //!< minimum cluster charge for valid hit (keeps 99.9% of simulated hits) 
   float clsleny;           //!< cluster y-length in pixels at signal height symax/2
   float clslenx;           //!< cluster x-length in pixels at signal height sxmax/2
+//  float mpvvav;            //!< most probable charge in Vavilov distribution (not actually for larger kappa)
+//  float sigmavav;          //!< "sigma" scale fctor for Vavilov distribution
+//  float kappavav;          //!< kappa parameter for Vavilov distribution
   float ypar[2][5];        //!< projected y-pixel uncertainty parameterization 
   float ytemp[9][TYSIZE];  //!< templates for y-reconstruction (binned over 1 central pixel) 
   float xpar[2][5];        //!< projected x-pixel uncertainty parameterization 
@@ -110,6 +114,14 @@ struct SiPixelTemplateEntry { //!< Basic template entry corresponding to a singl
   float xrmsc2m[4];        //!< 1st pass chi2 min search: average x-rms of reconstruction binned in 4 charge bins 
   float xgx0c2m[4];        //!< 1st pass chi2 min search: average x0 from Gaussian fit binned in 4 charge bins 
   float xgsigc2m[4];       //!< 1st pass chi2 min search: average sigma_x from Gaussian fit binned in 4 charge bins 
+  float yavggen[4];        //!< generic algorithm: average y-bias of reconstruction binned in 4 charge bins 
+  float yrmsgen[4];        //!< generic algorithm: average y-rms of reconstruction binned in 4 charge bins 
+  float ygx0gen[4];        //!< generic algorithm: average y0 from Gaussian fit binned in 4 charge bins 
+  float ygsiggen[4];       //!< generic algorithm: average sigma_y from Gaussian fit binned in 4 charge bins 
+  float xavggen[4];        //!< generic algorithm: average x-bias of reconstruction binned in 4 charge bins 
+  float xrmsgen[4];        //!< generic algorithm: average x-rms of reconstruction binned in 4 charge bins 
+  float xgx0gen[4];        //!< generic algorithm: average x0 from Gaussian fit binned in 4 charge bins 
+  float xgsiggen[4];       //!< generic algorithm: average sigma_x from Gaussian fit binned in 4 charge bins 
   float yspare[10];       //!< spare entries
   float xspare[10];       //!< spare entries
 } ;
@@ -186,7 +198,7 @@ class SiPixelTemplate {
   // retreive interpolated templates. 
   void ytemp(int fybin, int lybin, float ytemplate[41][BYSIZE]);
   
-  void xtemp(int fxbin, int lxbin, float xtemplate[41][BXSIZE]);
+  void xtemp(int fxbin, int fxbin, float xtemplate[41][BXSIZE]);
   
   // new methods to build templates from two interpolated clusters (for splitting) 
   void ytemp3d(int nypix, array_3d& ytemplate);
@@ -204,9 +216,13 @@ class SiPixelTemplate {
   // Interpolate qfl correction in x. 
   float xflcorr(int binq, float qflx);
   
-  // Interpolate input beta angle to estimate the average charge and return qbin flag for input cluster charge. 
-  int qbin(int id, bool fpix, float cotbeta, float qclus);
+  // Interpolate input beta angle to estimate the average charge. return qbin flag for input cluster charge, and estimate y/x errors and biases. 
+  int qbin(int id, bool fpix, float cotalpha, float cotbeta, float qclus, float& pixmx, float& sigmay, float& deltay, float& sigmax, float& deltax, 
+           float& sy1, float& dy1, float& sy2, float& dy2, float& sx1, float& dx1, float& sx2, float& dx2);
   
+  // Overload to keep legacy interface 
+  int qbin(int id, bool fpix, float cotbeta, float qclus);
+   
   float qavg() {return pqavg;}        //!< average cluster charge for this set of track angles 
   float pixmax() {return ppixmax;}         //!< maximum pixel charge 
   float qscale() {return pqscale;}         //!< charge scaling factor 
