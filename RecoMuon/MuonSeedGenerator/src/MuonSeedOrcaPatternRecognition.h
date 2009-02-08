@@ -33,6 +33,8 @@ private:
   void rememberCrackSegments(const MuonRecHitContainer & segments,
                              MuonRecHitContainer & crackSegments) const;
 
+  void dumpLayer(const char * name, const MuonRecHitContainer & segments) const;
+
   std::vector<double> theCrackEtas;
   double theCrackWindow;
 };
