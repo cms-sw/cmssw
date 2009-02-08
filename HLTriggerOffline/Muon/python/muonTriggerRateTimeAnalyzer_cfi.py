@@ -9,7 +9,7 @@ muonTriggerRateTimeAnalyzer = cms.EDAnalyzer("MuonTriggerRateTimeAnalyzer",
     RecoLabel  = cms.untracked.string('globalMuons'),
 
     # If the RAW trigger summary is unavailable, you can use the AOD instead
-    UseAod     = cms.untracked.bool(True),
+    UseAod     = cms.untracked.bool(False),
     AodL1Label = cms.untracked.string('hltMuLevel1PathL1Filtered'),
     AodL2Label = cms.untracked.string('hltSingleMuLevel2NoIsoL2PreFiltered'),
 
