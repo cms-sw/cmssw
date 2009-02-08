@@ -30,6 +30,14 @@ void setMaxEt(bool MaxEt){m_maxEt = MaxEt;}
 void setSoft(bool Soft){m_soft = Soft;}
 void setHard(bool Hard){m_hard = Hard;}
 
+void setHighestEtTowerID (int id) {m_HighestEtTowerID = id;}
+void setHighestEmEtTowerID (int id) {m_HighestEmEtTowerID = id;}
+void setHighestHadEtTowerID (int id) {m_HighestHadEtTowerID = id;}
+
+int getHighestEtTowerID () {return m_HighestEtTowerID;}
+int getHighestEmEtTowerID () {return m_HighestEmEtTowerID;}
+int getHighestHadEtTowerID () {return m_HighestHadEtTowerID;}
+
 double getEta() const {return m_eta;}
 double getPhi() const {return m_phi;}
 double getEnergy() const {return m_energy;}
@@ -48,6 +56,15 @@ private:
   double m_phi;
   double m_energy;
   double m_et;
+
+// ID is defined like this:
+//  0  1  2  3
+//  4  5  6  7
+//  8  9 10 11
+// 12 13 14 15
+  int m_HighestEtTowerID;
+  int m_HighestEmEtTowerID;
+  int m_HighestHadEtTowerID;
 
   bool m_TauVeto;
   bool m_EmTauVeto;
