@@ -7,6 +7,7 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include <vector>
 #include <iosfwd>
+#include <strings.h>
 class CSCDMBHeader;
 
 

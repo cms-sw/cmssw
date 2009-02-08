@@ -2,6 +2,7 @@
 #define CSCRawToDigi_CSCALCTHeader2006_h
 
 #include <vector>
+#include <strings.h>
 #include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
 class CSCDMBHeader;
 

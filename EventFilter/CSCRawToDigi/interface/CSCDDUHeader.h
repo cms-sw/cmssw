@@ -5,6 +5,7 @@
 #ifndef CSCDDUHeader_h
 #define CSCDDUHeader_h
 #include "DataFormats/CSCDigi/interface/CSCDDUStatusDigi.h"
+#include <cstring>
 
 class CSCDDUHeader {
 

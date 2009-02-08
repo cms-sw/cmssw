@@ -2,6 +2,7 @@
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include <iostream>
 #include <cassert>
+#include <cstring>
 
 CSCDCCHeader::CSCDCCHeader(int bx, int l1a, int sourceId)
 {
