@@ -10,6 +10,7 @@
 #include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 #include <iostream>
 #include <iomanip>
+#include <cstdlib>
 
 void OptOCameraDetector::participateInMeasurement( LightRay& lightray, Measurement* meas, const ALIstring& behav )
 {

@@ -9,6 +9,7 @@
 #include "Alignment/CocoaModel/interface/ALIPlane.h" 
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
 #include "Alignment/CocoaModel/interface/OpticalObject.h"
+#include <cstdlib>
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

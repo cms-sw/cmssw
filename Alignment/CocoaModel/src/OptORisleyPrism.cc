@@ -8,6 +8,7 @@
 #include "Alignment/CocoaModel/interface/OptORisleyPrism.h"
 #include <iostream>
 #include <iomanip>
+#include <cstdlib>
 #include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeBox.h"
 #include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 

@@ -34,7 +34,7 @@ ALIbool FittedEntriesReader::readFittedEntriesFromFile()
 
   std::vector<ALIstring> wl;
   theFile.getWordsInLine( wl );
-  uint siz = wl.size();
+  unsigned int siz = wl.size();
   for( size_t ii = 1; ii < siz; ii+=3 ){
     ALIstring optOentryName = substitutePointBySlash( wl[ii] );
     Entry* entry = Model::getEntryByName( optOentryName );

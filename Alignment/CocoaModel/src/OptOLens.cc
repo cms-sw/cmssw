@@ -8,6 +8,7 @@
 #include "Alignment/CocoaModel/interface/OptOLens.h"
 #include <iostream>
 #include <iomanip>
+#include <cstdlib>
 #include "CLHEP/Units/SystemOfUnits.h"
 #ifdef COCOA_VIS
 #include "Alignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"

@@ -4,9 +4,9 @@
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
 #include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 
-
 using namespace std;
 #include <iostream>
+#include <cstdlib>
 
 //----------------------------------------------------------------------
 CocoaDaqReaderText::CocoaDaqReaderText(const std::string& fileName )
@@ -87,7 +87,7 @@ bool CocoaDaqReaderText::ReadNextEvent()
 	  GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
 	  ALIbool sigmaFF = gomgr->GlobalOptions()["measurementErrorFromFile"];
 	  //---------- Read the data 
-	  for ( uint ii=0; ii < meastemp->dim(); ii++){
+	  for ( unsigned int ii=0; ii < meastemp->dim(); ii++){
 	    theFilein.getWordsInLine( wordlist );
             ALIdouble sigma = 0.;
             if( !sigmaFF ) { 

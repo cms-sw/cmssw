@@ -22,6 +22,7 @@
 #include <iomanip>
 #include <fstream>
 #include <math.h>     		// I have added a new library for isnan() function
+#include <cstdlib>
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -259,7 +260,7 @@ ALILine rightCCD( dowel2 + posxy, -line_dowel21_perp ); //samir changed sign to 
   ALIbool laserLine; 
   if (ALIUtils::debug >= 2) std::cout << std::endl << "--> Now comparing measurement in ccds by x and y laser lines (will always choose the smaller one) " <<std::endl; 
      
-  uint ii;
+  unsigned int ii;
   for( ii = 0; ii < 4; ii++ ) {
     if (ALIUtils::debug >= 2) std::cout << "\tmeas CCD " << measNames[ii] << " ii=(" << ii << ") \t Values: "
      //<< (fabs( measv[ii][0] ) <  fabs( measv[ii][1]) 

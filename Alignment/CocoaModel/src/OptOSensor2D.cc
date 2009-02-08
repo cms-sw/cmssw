@@ -23,6 +23,7 @@
 #include <iostream>
 #include <iomanip>
 #include <fstream>
+#include <cstdlib>
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -145,7 +146,7 @@ void OptOSensor2D::fastTraversesLightRay( LightRay& lightray )
     }
     //--------- get measurement value of the current sensor
     std::vector< Measurement* >& measv = Model::MeasurementList();
-    uint ii;
+    unsigned int ii;
     Measurement *omeas = 0;
     for( ii = 0; ii < measv.size(); ii++ ) {
       //-   std::cout << " sensor2d finding meas " <<  measv[ii]->sensorName() << " " << name() << std::endl;

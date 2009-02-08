@@ -3,6 +3,7 @@
 #include <CLHEP/Units/SystemOfUnits.h>
 
 #include <iomanip>
+#include <cstdlib>
 
 ALIUnitsTable      ALIUnitDefinition::theUnitsTable;
 

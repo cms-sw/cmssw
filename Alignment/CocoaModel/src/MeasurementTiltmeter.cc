@@ -12,6 +12,7 @@
 #include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 #include <iostream>
 #include <iomanip>
+#include <cstdlib>
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@ calculate the simulated value propagating the light ray through the OptO that take part in the Measurement

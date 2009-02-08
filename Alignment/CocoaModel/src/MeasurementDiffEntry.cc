@@ -13,6 +13,7 @@
 #include "Alignment/CocoaUtilities/interface/ALIFileIn.h"
 #include <iostream>
 #include <iomanip>
+#include <cstdlib>
 #ifdef COCOA_VIS
 #include "Alignment/CocoaVisMgr/interface/ALIVRMLMgr.h"
 #include "Alignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"

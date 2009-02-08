@@ -8,10 +8,12 @@
 
 #include "Alignment/CocoaModel/interface/Model.h"
 
-//#include <algorithm>
+#include <algorithm>
 #include <iomanip> 
 #include <iostream>
+#include <iterator>
 #include <algo.h>
+#include <cstdlib>
 
 #include "Alignment/CocoaModel/interface/Entry.h"
 #include "Alignment/CocoaUtilities/interface/ALIFileIn.h"
@@ -79,7 +81,7 @@ void Measurement::construct()
 
 
   //---------- Read the data 
-  for ( uint ii=0; ii<dim(); ii++){
+  for ( unsigned int ii=0; ii<dim(); ii++){
     filein.getWordsInLine( wordlist );
     fillData( ii, wordlist );
   }
@@ -113,7 +115,7 @@ void Measurement::constructFromOA( OpticalAlignMeasurementInfo&  measInfo)
   }
 
   //---------- No data, set to simulated_value
-  for ( uint ii=0; ii<dim(); ii++){
+  for ( unsigned int ii=0; ii<dim(); ii++){
     wordlist.clear();
     wordlist.push_back( (measInfo.values_)[ii].name_ );
     char ctmp[20];
@@ -658,7 +660,7 @@ void Measurement::copyMeas( Measurement* meas, const std::string& subsstr1, cons
   theValue = const_cast<ALIdouble*>(meas->value());
   theSigma = const_cast<ALIdouble*>(meas->sigma());
 
-  uint ii;
+  unsigned int ii;
   for(ii = 0; ii < theDim; ii++) {
     theValueSimulated[ii] = meas->valueSimulated( ii );
     theValueSimulated_orig[ii] = meas->valueSimulated_orig( ii );

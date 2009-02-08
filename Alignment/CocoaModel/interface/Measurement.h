@@ -14,6 +14,7 @@
 #define _MEASUREMENT_HH
 
 #include <vector>
+#include <cstdlib>
 
 #include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"

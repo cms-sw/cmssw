@@ -9,6 +9,7 @@
 #include "Alignment/CocoaModel/interface/ALIUnitsTable.h"
 #include <CLHEP/Random/RandGauss.h>
 #include <CLHEP/Random/Random.h>
+#include <cstdlib>
 //----------------------------------------------------------------------------
 
 
