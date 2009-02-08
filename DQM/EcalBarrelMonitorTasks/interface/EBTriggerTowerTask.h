@@ -4,8 +4,8 @@
 /*
  * \file EBTriggerTowerTask.h
  *
- * $Date: 2008/09/05 13:37:08 $
- * $Revision: 1.20 $
+ * $Date: 2008/12/04 13:53:05 $
+ * $Revision: 1.21 $
  * \author C. Bernet
  *
 */
@@ -81,7 +81,7 @@ class EBTriggerTowerTask : public edm::EDAnalyzer {
 		     MonitorElement* meEtMap,
 		     array1& meVeto,
 		     array1& meFlags,
-		     const edm::Handle<EcalTrigPrimDigiCollection>& digis
+		     const edm::Handle<EcalTrigPrimDigiCollection>& compDigis
 		     = edm::Handle<EcalTrigPrimDigiCollection>());
 
 

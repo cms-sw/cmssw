@@ -4,8 +4,8 @@
 /*
  * \file EETriggerTowerTask.h
  *
- * $Date: 2008/09/05 13:38:06 $
- * $Revision: 1.16 $
+ * $Date: 2008/12/04 13:53:39 $
+ * $Revision: 1.17 $
  * \author C. Bernet
  *
 */
@@ -81,7 +81,7 @@ class EETriggerTowerTask : public edm::EDAnalyzer {
 		     MonitorElement* meEtMap,
 		     array1& meVeto,
 		     array1& meFlags,
-		     const edm::Handle<EcalTrigPrimDigiCollection>& digis
+		     const edm::Handle<EcalTrigPrimDigiCollection>& compDigis
 		     = edm::Handle<EcalTrigPrimDigiCollection>());
 
 
