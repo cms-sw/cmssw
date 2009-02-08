@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <ostream>
 #include <sstream>
+#include <cstring>
 
 namespace sistrip {
 

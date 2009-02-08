@@ -4,6 +4,8 @@
 #include "boost/cstdint.hpp"
 #include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h"
 #include <ostream>
+#include <memory>
+#include <cstring>
 
 namespace sistrip {
   
