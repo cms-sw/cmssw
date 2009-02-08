@@ -14,7 +14,7 @@
 //
 // Original Author:  Hans Van Haevermaet
 //         Created:  Wed Jul  9 14:00:40 CEST 2008
-// $Id: Castor.cc,v 1.2 2008/11/24 13:22:18 hvanhaev Exp $
+// $Id: Castor.cc,v 1.3 2008/12/09 08:44:01 hvanhaev Exp $
 //
 //
 
@@ -49,13 +49,6 @@
 #include "RecoLocalCalo/Castor/interface/KtAlgorithm.h"
 #include "RecoLocalCalo/Castor/interface/Egamma.h"
 #include "RecoLocalCalo/Castor/interface/Tower.h"
-
-// SimTrack 
-#include "SimDataFormats/Track/interface/SimTrack.h"
-
-// PCaloHits
-#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
-#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
 
 

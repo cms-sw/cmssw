@@ -1,9 +1,9 @@
- /*
+/*
  *  See header file for a description of this class.
  *  
  *
- *  $Date: 2008/02/19 18:05:19 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/10/17 22:35:14 $
+ *  $Revision: 1.1 $
  *
  *  \author: D. Pagano - University of Pavia & INFN Pavia
  */
@@ -38,8 +38,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 #include "math.h"
 
