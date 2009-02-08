@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Mon Mar 10 16:37:55 CDT 2008
-// $Id: MuonAlignmentInputXML.h,v 1.4 2008/06/20 15:28:12 pivarski Exp $
+// $Id: MuonAlignmentInputXML.h,v 1.5 2008/10/03 18:40:15 pivarski Exp $
 //
 
 // system include files
@@ -62,6 +62,7 @@ class MuonAlignmentInputXML: public MuonAlignmentInputMethod {
       void do_setape      (const xercesc_2_7::DOMElement *node, std::map<Alignable*, bool> &aliset, std::map<Alignable*, Alignable*> &alitoideal) const;
       void do_setsurveyerr(const xercesc_2_7::DOMElement *node, std::map<Alignable*, bool> &aliset, std::map<Alignable*, Alignable*> &alitoideal) const;
       void do_moveglobal  (const xercesc_2_7::DOMElement *node, std::map<Alignable*, bool> &aliset, std::map<Alignable*, Alignable*> &alitoideal) const;
+      void do_movelocal   (const xercesc_2_7::DOMElement *node, std::map<Alignable*, bool> &aliset, std::map<Alignable*, Alignable*> &alitoideal) const;
       void do_rotatelocal (const xercesc_2_7::DOMElement *node, std::map<Alignable*, bool> &aliset, std::map<Alignable*, Alignable*> &alitoideal) const;
       void do_rotatebeamline (const xercesc_2_7::DOMElement *node, std::map<Alignable*, bool> &aliset, std::map<Alignable*, Alignable*> &alitoideal) const;
 
@@ -86,6 +87,7 @@ class MuonAlignmentInputXML: public MuonAlignmentInputMethod {
       XMLCh *str_setape;
       XMLCh *str_setsurveyerr;
       XMLCh *str_moveglobal;
+      XMLCh *str_movelocal;
       XMLCh *str_rotatelocal;
       XMLCh *str_rotatebeamline;
       XMLCh *str_relativeto;

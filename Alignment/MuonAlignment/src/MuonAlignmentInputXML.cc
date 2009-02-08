@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Mon Mar 10 16:37:40 CDT 2008
-// $Id: MuonAlignmentInputXML.cc,v 1.8 2008/06/20 15:28:12 pivarski Exp $
+// $Id: MuonAlignmentInputXML.cc,v 1.9 2008/10/03 18:40:15 pivarski Exp $
 //
 
 // system include files
@@ -62,6 +62,7 @@ MuonAlignmentInputXML::MuonAlignmentInputXML(std::string fileName)
    str_setape = XMLString::transcode("setape");
    str_setsurveyerr = XMLString::transcode("setsurveyerr");
    str_moveglobal = XMLString::transcode("moveglobal");
+   str_movelocal = XMLString::transcode("movelocal");
    str_rotatelocal = XMLString::transcode("rotatelocal");
    str_rotatebeamline = XMLString::transcode("rotatebeamline");
    str_relativeto = XMLString::transcode("relativeto");
@@ -139,6 +140,7 @@ MuonAlignmentInputXML::~MuonAlignmentInputXML() {
    XMLString::release(&str_setape);
    XMLString::release(&str_setsurveyerr);
    XMLString::release(&str_moveglobal);
+   XMLString::release(&str_movelocal);
    XMLString::release(&str_rotatelocal);
    XMLString::release(&str_rotatebeamline);
    XMLString::release(&str_relativeto);
@@ -210,7 +212,9 @@ MuonAlignmentInputXML::~MuonAlignmentInputXML() {
 
 void MuonAlignmentInputXML::recursiveGetId(std::map<unsigned int, Alignable*> &alignableNavigator, const std::vector<Alignable*> &alignables) const {
    for (std::vector<Alignable*>::const_iterator ali = alignables.begin();  ali != alignables.end();  ++ali) {
-      if ((*ali)->alignableObjectId() == align::AlignableDetUnit) {
+      if ((*ali)->alignableObjectId() == align::AlignableDetUnit  ||  (*ali)->alignableObjectId() == align::AlignableDet  ||
+	  (*ali)->alignableObjectId() == align::AlignableDTChamber  ||  (*ali)->alignableObjectId() == align::AlignableDTSuperLayer  ||  (*ali)->alignableObjectId() == align::AlignableDTLayer  ||
+	  (*ali)->alignableObjectId() == align::AlignableCSCChamber  ||  (*ali)->alignableObjectId() == align::AlignableCSCLayer) {
 	 alignableNavigator[(*ali)->geomDetId().rawId()] = *ali;
       }
       recursiveGetId(alignableNavigator, (*ali)->components());
@@ -396,6 +400,10 @@ AlignableMuon *MuonAlignmentInputXML::newAlignableMuon(const edm::EventSetup& iS
 	       do_moveglobal((DOMElement*)(node), aliset, alitoideal);
 	    }
 
+	    else if (XMLString::equals(node->getNodeName(), str_movelocal)) {
+	       do_movelocal((DOMElement*)(node), aliset, alitoideal);
+	    }
+
 	    else if (XMLString::equals(node->getNodeName(), str_rotatelocal)) {
 	       do_rotatelocal((DOMElement*)(node), aliset, alitoideal);
 	    }
@@ -434,7 +442,7 @@ Alignable *MuonAlignmentInputXML::getNode(std::map<unsigned int, Alignable*> &al
 }
 
 Alignable *MuonAlignmentInputXML::getDTnode(align::StructureType structureType, std::map<unsigned int, Alignable*> &alignableNavigator, const xercesc_2_7::DOMElement *node) const {
-   unsigned int rawId;
+   unsigned int rawId = 0;
 
    DOMAttr *node_rawId = node->getAttributeNode(str_rawId);
    if (node_rawId != NULL) {
@@ -510,11 +518,19 @@ Alignable *MuonAlignmentInputXML::getDTnode(align::StructureType structureType, 
    } // end if it's specified by wheel, station, sector, superlayer, layer
 
    Alignable *ali = alignableNavigator[rawId];
-   assert(ali);  // if NULL, it's a programming error
+   if (ali == NULL) throw cms::Exception("XMLException") << "rawId \"" << rawId << "\" is not recognized" << std::endl;
 
    while (ali->alignableObjectId() != structureType) {
       ali = ali->mother();
-      assert(ali);  // if NULL, it's a programming error
+
+      if (ali == NULL) {
+	 if (structureType == align::AlignableDTBarrel) throw cms::Exception("XMLException") << "rawId \"" << rawId << "\" is not a DTBarrel" << std::endl;
+	 else if (structureType == align::AlignableDTWheel) throw cms::Exception("XMLException") << "rawId \"" << rawId << "\" is not a DTWheel" << std::endl;
+	 else if (structureType == align::AlignableDTStation) throw cms::Exception("XMLException") << "rawId \"" << rawId << "\" is not a DTStation" << std::endl;
+	 else if (structureType == align::AlignableDTChamber) throw cms::Exception("XMLException") << "rawId \"" << rawId << "\" is not a DTChamber" << std::endl;
+	 else if (structureType == align::AlignableDTSuperLayer) throw cms::Exception("XMLException") << "rawId \"" << rawId << "\" is not a DTSuperLayer" << std::endl;
+	 else if (structureType == align::AlignableDetUnit) throw cms::Exception("XMLException") << "rawId \"" << rawId << "\" is not a DTLayer" << std::endl;
+      }
    }
    return ali;
 }
@@ -595,11 +611,18 @@ Alignable *MuonAlignmentInputXML::getCSCnode(align::StructureType structureType,
    } // end if it's specified by endcap, station, ring, chamber, layer
 
    Alignable *ali = alignableNavigator[rawId];
-   assert(ali);  // if NULL, it's a programming error
+   if (ali == NULL) throw cms::Exception("XMLException") << "rawId \"" << rawId << "\" is not recognized" << std::endl;
 
    while (ali->alignableObjectId() != structureType) {
       ali = ali->mother();
-      assert(ali);  // if NULL, it's a programming error
+
+      if (ali == NULL) {
+	 if (structureType == align::AlignableCSCEndcap) throw cms::Exception("XMLException") << "rawId \"" << rawId << "\" is not a CSCEndcap" << std::endl;
+	 else if (structureType == align::AlignableCSCStation) throw cms::Exception("XMLException") << "rawId \"" << rawId << "\" is not a CSCStation" << std::endl;
+	 else if (structureType == align::AlignableCSCRing) throw cms::Exception("XMLException") << "rawId \"" << rawId << "\" is not a CSCRing" << std::endl;
+	 else if (structureType == align::AlignableCSCChamber) throw cms::Exception("XMLException") << "rawId \"" << rawId << "\" is not a CSCChamber" << std::endl;
+	 else if (structureType == align::AlignableDetUnit) throw cms::Exception("XMLException") << "rawId \"" << rawId << "\" is not a CSCLayer" << std::endl;
+      }
    }
    return ali;
 }
@@ -885,27 +908,27 @@ void MuonAlignmentInputXML::do_setsurveyerr(const xercesc_2_7::DOMElement *node,
    DOMAttr *node_bc = node->getAttributeNode(str_bc);
    DOMAttr *node_cc = node->getAttributeNode(str_cc);
 
-   if (node_xx == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"xx\" attribute" << std::endl;
-   if (node_xy == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"xy\" attribute" << std::endl;
-   if (node_xz == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"xz\" attribute" << std::endl;
-   if (node_xa == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"xa\" attribute" << std::endl;
-   if (node_xb == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"xb\" attribute" << std::endl;
-   if (node_xc == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"xc\" attribute" << std::endl;
-   if (node_yy == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"yy\" attribute" << std::endl;
-   if (node_yz == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"yz\" attribute" << std::endl;
-   if (node_ya == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"ya\" attribute" << std::endl;
-   if (node_yb == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"yb\" attribute" << std::endl;
-   if (node_yc == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"yc\" attribute" << std::endl;
-   if (node_zz == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"zz\" attribute" << std::endl;
-   if (node_za == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"za\" attribute" << std::endl;
-   if (node_zb == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"zb\" attribute" << std::endl;
-   if (node_zc == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"zc\" attribute" << std::endl;
-   if (node_aa == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"aa\" attribute" << std::endl;
-   if (node_ab == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"ab\" attribute" << std::endl;
-   if (node_ac == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"ac\" attribute" << std::endl;
-   if (node_bb == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"bb\" attribute" << std::endl;
-   if (node_bc == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"bc\" attribute" << std::endl;
-   if (node_cc == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"cc\" attribute" << std::endl;
+   if (node_xx == NULL) throw cms::Exception("XMLException") << "<setsurveyerr> is missing required \"xx\" attribute" << std::endl;
+   if (node_xy == NULL) throw cms::Exception("XMLException") << "<setsurveyerr> is missing required \"xy\" attribute" << std::endl;
+   if (node_xz == NULL) throw cms::Exception("XMLException") << "<setsurveyerr> is missing required \"xz\" attribute" << std::endl;
+   if (node_xa == NULL) throw cms::Exception("XMLException") << "<setsurveyerr> is missing required \"xa\" attribute" << std::endl;
+   if (node_xb == NULL) throw cms::Exception("XMLException") << "<setsurveyerr> is missing required \"xb\" attribute" << std::endl;
+   if (node_xc == NULL) throw cms::Exception("XMLException") << "<setsurveyerr> is missing required \"xc\" attribute" << std::endl;
+   if (node_yy == NULL) throw cms::Exception("XMLException") << "<setsurveyerr> is missing required \"yy\" attribute" << std::endl;
+   if (node_yz == NULL) throw cms::Exception("XMLException") << "<setsurveyerr> is missing required \"yz\" attribute" << std::endl;
+   if (node_ya == NULL) throw cms::Exception("XMLException") << "<setsurveyerr> is missing required \"ya\" attribute" << std::endl;
+   if (node_yb == NULL) throw cms::Exception("XMLException") << "<setsurveyerr> is missing required \"yb\" attribute" << std::endl;
+   if (node_yc == NULL) throw cms::Exception("XMLException") << "<setsurveyerr> is missing required \"yc\" attribute" << std::endl;
+   if (node_zz == NULL) throw cms::Exception("XMLException") << "<setsurveyerr> is missing required \"zz\" attribute" << std::endl;
+   if (node_za == NULL) throw cms::Exception("XMLException") << "<setsurveyerr> is missing required \"za\" attribute" << std::endl;
+   if (node_zb == NULL) throw cms::Exception("XMLException") << "<setsurveyerr> is missing required \"zb\" attribute" << std::endl;
+   if (node_zc == NULL) throw cms::Exception("XMLException") << "<setsurveyerr> is missing required \"zc\" attribute" << std::endl;
+   if (node_aa == NULL) throw cms::Exception("XMLException") << "<setsurveyerr> is missing required \"aa\" attribute" << std::endl;
+   if (node_ab == NULL) throw cms::Exception("XMLException") << "<setsurveyerr> is missing required \"ab\" attribute" << std::endl;
+   if (node_ac == NULL) throw cms::Exception("XMLException") << "<setsurveyerr> is missing required \"ac\" attribute" << std::endl;
+   if (node_bb == NULL) throw cms::Exception("XMLException") << "<setsurveyerr> is missing required \"bb\" attribute" << std::endl;
+   if (node_bc == NULL) throw cms::Exception("XMLException") << "<setsurveyerr> is missing required \"bc\" attribute" << std::endl;
+   if (node_cc == NULL) throw cms::Exception("XMLException") << "<setsurveyerr> is missing required \"cc\" attribute" << std::endl;
 
    align::ErrorMatrix matrix6x6;
    matrix6x6(0,0) = parseDouble(node_xx->getValue(), "xx");
@@ -953,6 +976,36 @@ void MuonAlignmentInputXML::do_moveglobal(const xercesc_2_7::DOMElement *node, s
       Alignable *ali = aliiter->first;
 
       ali->move(vect);
+
+      align::ErrorMatrix matrix6x6 = ROOT::Math::SMatrixIdentity();
+      matrix6x6 *= 1000.;  // initial assumption: infinitely weak constraint
+
+      const SurveyDet *survey = ali->survey();
+      if (survey != NULL) {
+	 matrix6x6 = survey->errors();  // save the constraint information
+      }
+      ali->setSurvey(new SurveyDet(ali->surface(), matrix6x6));
+   } // end loop over alignables
+}
+
+void MuonAlignmentInputXML::do_movelocal(const xercesc_2_7::DOMElement *node, std::map<Alignable*, bool> &aliset, std::map<Alignable*, Alignable*> &alitoideal) const {
+   DOMAttr *node_x = node->getAttributeNode(str_x);
+   DOMAttr *node_y = node->getAttributeNode(str_y);
+   DOMAttr *node_z = node->getAttributeNode(str_z);
+   if (node_x == NULL) throw cms::Exception("XMLException") << "<movelocal> is missing required \"x\" attribute" << std::endl;
+   if (node_y == NULL) throw cms::Exception("XMLException") << "<movelocal> is missing required \"y\" attribute" << std::endl;
+   if (node_z == NULL) throw cms::Exception("XMLException") << "<movelocal> is missing required \"z\" attribute" << std::endl;
+
+   double x = parseDouble(node_x->getValue(), "x");
+   double y = parseDouble(node_y->getValue(), "y");
+   double z = parseDouble(node_z->getValue(), "z");
+   LocalVector vect(x, y, z);
+
+   for (std::map<Alignable*, bool>::const_iterator aliiter = aliset.begin();  aliiter != aliset.end();  ++aliiter) {
+      Alignable *ali = aliiter->first;
+
+      GlobalVector globalVector = ali->surface().toGlobal(vect);
+      ali->move(globalVector);
 
       align::ErrorMatrix matrix6x6 = ROOT::Math::SMatrixIdentity();
       matrix6x6 *= 1000.;  // initial assumption: infinitely weak constraint
