@@ -1,5 +1,6 @@
 #include "RecoLuminosity/ROOTSchema/interface/ROOTFileTransfer.h"
 #include <sstream>
+#include <cstdlib>
 
 HCAL_HLX::ROOTFileTransfer::ROOTFileTransfer():fileName_(""),
 					       dirName_(""),

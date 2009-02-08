@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <sys/stat.h>
 
 class FileToolKit{
  public:

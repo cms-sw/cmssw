@@ -11,6 +11,7 @@
 // C
 #include <cerrno>
 #include <cstdio>
+#include <cstring>
 
 void FileToolKit::Tokenize(const std::string& str,
 			   std::vector< std::string >& tokens,

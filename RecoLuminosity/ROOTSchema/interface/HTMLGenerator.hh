@@ -7,7 +7,7 @@
 // ROOT Schema Headers
 #include <vector>
 #include <string>
-
+#include <sys/stat.h>
 
 class TH1F;
 class TCanvas;
