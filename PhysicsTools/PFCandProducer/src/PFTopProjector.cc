@@ -124,7 +124,7 @@ void PFTopProjector::produce(Event& iEvent,
 			 inputTagPileUpPFCandidates_, 
 			 iEvent );
 
-  Handle<IsolatedPFCandidateCollection> pfIsolatedElectrons;
+  Handle<PFCandidateCollection> pfIsolatedElectrons;
   pfpat::fetchCollection(pfIsolatedElectrons, 
 			 inputTagIsolatedElectrons_, 
 			 iEvent );

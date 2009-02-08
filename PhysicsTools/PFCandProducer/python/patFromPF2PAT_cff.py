@@ -118,7 +118,14 @@ patHighLevelReco = cms.Sequence(
 
 patMCTruth_withoutElectronPhoton = cms.Sequence(
     patMCTruth_withoutLeptonPhoton +
-    muonMatch
+    muonMatch +
+    ##MICHELE
+    patAODElectronIsolation+
+    allLayer0Electrons+
+    layer0ElectronIsolations+
+    patElectronId+
+    electronMatch
+    ##PIOPPI
     )
 
 patLayer1 = cms.Sequence(
@@ -127,6 +134,11 @@ patLayer1 = cms.Sequence(
     layer1METs +
     patPFTauDiscrimination +
     layer1Taus +
+    
+    ##MICHELE
+    layer1Electrons +
+    ##PIOPPI
+
     layer1Muons
 )
 
@@ -147,8 +159,77 @@ patTrigMatch = cms.Sequence(
     + tauTrigMatchHLT1Tau
 )
 
+##MICHELE
+allLayer1Electrons.useParticleFlow =  cms.bool( True )
+allLayer1Electrons.pfElectronSource = cms.InputTag("pfElectrons")
+allLayer1Electrons.embedPFCandidate = cms.bool( True )
+allLayer1Electrons.embedGenMatch    = cms.bool( True )
+allLayer1Electrons.addGenMatch      = cms.bool(True)
+allLayer1Electrons.isolation = cms.PSet(
+        tracker = cms.PSet(
+
+        ),
+        ecal = cms.PSet(
+
+        ),
+        hcal = cms.PSet(
+
+        ),
+        particle = cms.PSet(
+    src = cms.InputTag("pfeleIsoDepositPFCandidates"),
+    deltaR = cms.double(0.5),
+    weight = cms.string('1'),
+    vetos = cms.vstring('0.01', 
+                        'Threshold(2.0)'),
+    skipDefaultVeto = cms.bool(True),
+        mode = cms.string('sum')
+
+    ),
+    chargedparticle = cms.PSet(
+    src = cms.InputTag("pfeleIsoChDepositPFCandidates"),
+    deltaR = cms.double(0.5),
+    weight = cms.string('1'),
+    vetos = cms.vstring('0.01', 
+                        'Threshold(2.0)'),
+    skipDefaultVeto = cms.bool(True),
+        mode = cms.string('sum')
+
+    ),
+    neutralparticle = cms.PSet(
+    src = cms.InputTag("pfeleIsoNeDepositPFCandidates"),
+    deltaR = cms.double(0.5),
+    weight = cms.string('1'),
+    vetos = cms.vstring('0.01',
+                        'Threshold(2.0)'),
+    skipDefaultVeto = cms.bool(True),
+        mode = cms.string('sum')
+
+    ),
+    gammaparticle = cms.PSet(
+    src = cms.InputTag("pfeleIsoGaDepositPFCandidates"),
+    deltaR = cms.double(0.5),
+    weight = cms.string('1'),
+    vetos = cms.vstring('0.01',
+                        'Threshold(2.0)'),
+    skipDefaultVeto = cms.bool(True),
+        mode = cms.string('sum')
+
+    )
+    )
+
+allLayer1Electrons.isoDeposits = cms.PSet(
+    particle = cms.InputTag("pfeleIsoDepositPFCandidates"),
+    chargedparticle   = cms.InputTag("pfeleIsoChDepositPFCandidates"),
+    neutralparticle = cms.InputTag("pfeleIsoNeDepositPFCandidates"),
+    gammaparticle   = cms.InputTag("pfeleIsoGaDepositPFCandidates")
+ )
+
+allLayer1Electrons.embedGenMatch    = cms.bool(True)
+ 
+##PIOPPI
+
+
 patFromPF2PAT = cms.Sequence (
-#    allLayer0Electrons +
 #    allLayer0Potons + 
 #    patTrigMatch +
     jetTrackAssociation +
