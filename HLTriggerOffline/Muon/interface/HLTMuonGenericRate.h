@@ -3,7 +3,11 @@
 
 /** \class HLTMuonGenericRate
  *  Get L1/HLT efficiency/rate plots
+ *  Documentation available on the CMS TWiki:
+ *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
+ *  $Date: $
+ *  $Revision: $
  *  \author  M. Vander Donckt, J. Klukas  (copied from J. Alcaraz)
  */
 
@@ -50,11 +54,11 @@ private:
   // Struct and methods for matching
 
   struct MatchStruct {
-    const reco::GenParticle*       genCand;
-    const reco::Track*             recCand;
-    reco::Particle*                l1Cand;
-    std::vector<reco::Particle*>   hltCands;
-    std::vector<reco::TrackRef>    hltTracks;
+    const reco::GenParticle*     genCand;
+    const reco::Track*           recCand;
+    reco::Particle*              l1Cand;
+    std::vector<reco::Particle*> hltCands;
+    std::vector<const reco::RecoChargedCandidate*> hltTracks;
   };
 
   const reco::Candidate* findMother( const reco::Candidate* );
@@ -65,7 +69,7 @@ private:
   
   // Data members
 
-  bool    m_makeNtuple;
+  bool    makeNtuple;
   float   theNtuplePars[100]; 
   TNtuple *theNtuple;
   TFile   *theFile;
@@ -78,10 +82,12 @@ private:
   std::vector<std::string> theHltCollectionLabels;
   unsigned int             theNumberOfObjects;
 
-  bool         m_useMuonFromGenerator;
-  bool         m_useMuonFromReco;
+  bool         useMuonFromGenerator;
+  bool         useMuonFromReco;
   std::string  theGenLabel;
   std::string  theRecoLabel;
+
+  bool         useAod;
   std::string  theAodL1Label;
   std::string  theAodL2Label;
 
@@ -101,27 +107,27 @@ private:
   std::string  theNtupleFileName;
   std::string  theNtuplePath;
 
+  // Book-keeping information
+
+  int          eventNumber;
+  unsigned int numHltLabels;
+  bool         isIsolatedPath;
+
   // Monitor Elements (Histograms and ints)
 
   DQMStore* dbe_;
 
   std::vector <MonitorElement*> hPassMaxPtGen;
-  std::vector <MonitorElement*> hPassPtGen;
   std::vector <MonitorElement*> hPassEtaGen;
   std::vector <MonitorElement*> hPassPhiGen;
   std::vector <MonitorElement*> hPassMaxPtRec;
-  std::vector <MonitorElement*> hPassPtRec;
   std::vector <MonitorElement*> hPassEtaRec;
   std::vector <MonitorElement*> hPassPhiRec;
 
   MonitorElement *hNumObjects;
   MonitorElement *hNumOrphansGen;
   MonitorElement *hNumOrphansRec;
-  MonitorElement *NumberOfEvents;
-  MonitorElement *MinPtCut;
-  MonitorElement *MaxEtaCut;
-  int theEventNumber;
-  int theNumberOfL1Events;
+  MonitorElement *meNumberOfEvents;
 
 };
 #endif
