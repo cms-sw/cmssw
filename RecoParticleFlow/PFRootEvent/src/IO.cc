@@ -1,5 +1,6 @@
 #include "RecoParticleFlow/PFRootEvent/interface/IO.h"
 #include "RecoParticleFlow/PFRootEvent/interface/Utils.h"
+#include <cstring>
 
 using namespace std;
 
