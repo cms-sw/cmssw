@@ -44,15 +44,7 @@ struct IsolatedPFCandidateSelectorDefinition {
 	selected_.push_back( new reco::PFCandidate(*pfc) );
 	reco::PFCandidatePtr ptrToMother( hc, key );
 
-	std::cout<<"ISOL SEL "<<&(*c)<<" "<<val<<" "<< &(*pfc)<<" "<<&(*ptrToMother)<<std::endl;
 	unsigned nSources = ptrToMother->numberOfSourceCandidatePtrs();
-	for(unsigned i=0; i<nSources; i++) {
-    
-	  reco::CandidatePtr mother =  ptrToMother->sourceCandidatePtr(i);
-
-	  reco::CandidatePtr nonna = mother->sourceCandidatePtr(0);
-	  std::cout<<"mam "<<&(*mother)<<" NON "<<&(*nonna)<<std::endl;
-	}
 
 	selected_.back()->setSourcePtr( ptrToMother );
 	break;
