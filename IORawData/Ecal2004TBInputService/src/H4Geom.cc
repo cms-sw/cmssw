@@ -4,8 +4,8 @@
 /*! \class H4Geom
  * \brief A helper class with geometry information of the super module
  *
- * $Date: 2004/10/12 17:05:22 $
- * $Author: brunelie $
+ * $Date: 2006/04/21 10:16:50 $
+ * $Author: meridian $
  *
  * Crystal numbering schemes during automn 2004 (SM10):
  * - <b>Conventions</b>
@@ -169,6 +169,7 @@
 
 #include "IORawData/Ecal2004TBInputService/interface/H4Geom.h"
 #include <iostream>
+#include <cstdlib>
 
 using namespace std;
 

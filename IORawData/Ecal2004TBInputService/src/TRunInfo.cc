@@ -2,7 +2,7 @@
 //----------Copyright:Those valid for CMS sofware
 //----------Modified:31/1/2003
 //#include "config.h"
-#include <iostream.h>
+#include <iostream>
 #include "IORawData/Ecal2004TBInputService/interface/TRunInfo.h"
 
 using namespace std;
