@@ -1,11 +1,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "SimMuon/RPCDigitizer/src/RPCDigiProducer.h"
-#include "SimMuon/RPCDigitizer/src/RPCDigitizer.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
-#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -13,6 +9,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CalibMuon/RPCCalibration/interface/RPCCalibSetUp.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
 #include <cmath>
 #include <math.h>
