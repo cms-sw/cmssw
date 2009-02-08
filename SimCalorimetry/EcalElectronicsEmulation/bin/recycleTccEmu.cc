@@ -4,6 +4,7 @@
 #include <sstream>
 #include <inttypes.h>
 #include <iomanip>
+#include <cstdlib>
 
 using namespace std;
 

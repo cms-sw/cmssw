@@ -12,6 +12,8 @@
 #include <sstream>
 #include <vector>
 #include <cassert>
+#include <cstdlib>
+#include <cstring>
 
 #include "ecalDccMap.h"
 
