@@ -1,15 +1,16 @@
-// $Id: LogicID.cc,v 1.18 2008/09/29 12:19:01 dellaric Exp $
+// $Id: LogicID.cc,v 1.19 2008/11/04 14:14:56 dellaric Exp $
 
 /*!
   \file LogicID.cc
   \brief Construct EcalLogicIDs
   \author G. Della Ricca
   \author B. Gobbo
-  \version $Revision: 1.18 $
-  \date $Date: 2008/09/29 12:19:01 $
+  \version $Revision: 1.19 $
+  \date $Date: 2008/11/04 14:14:56 $
 */
 
 #include "DQM/EcalCommon/interface/LogicID.h"
+#include <cstring>
 
 //-------------------------------------------------------------------------
 
