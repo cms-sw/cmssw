@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
+#include <cstring>
 
 char * fileName = "scalers.dat";
 
