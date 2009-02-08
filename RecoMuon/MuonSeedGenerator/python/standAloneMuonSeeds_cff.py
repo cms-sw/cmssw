@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 # Geometries
-from Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi import *
-from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
+# from Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi import *
+# from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
 
 # Old stand alone muon seed producer used priod to 2-X-X
 from RecoMuon.MuonSeedGenerator.ancientMuonSeed_cfi import *

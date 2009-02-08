@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 # Magnetic Field
 # Geometries
-from Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi import *
-from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
+# from Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi import *
+# from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
 import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
 EstimatorForSTA = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone()
 import TrackingTools.TrackFitters.KFTrajectoryFitterESProducer_cfi

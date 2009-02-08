@@ -5,8 +5,8 @@ import FWCore.ParameterSet.Config as cms
 #include "Geometry/CMSCommonData/data/cmsIdealGeometryXML.cfi" 
 # in 150 shall be changed into
 # include "Geometry/CMSCommonData/data/cmsIdealGeometryXML.cff"
-from Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi import *
-from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
+# from Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi import *
+# from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
 # Magnetic Field
 #include "MagneticField/Engine/data/uniformMagneticField.cfi" 
 #include "Geometry/CMSCommonData/data/cmsMagneticFieldXML.cfi"

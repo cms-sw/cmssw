@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 # -*-SH-*-
 # include geometry and magnetic field
-from Geometry.CaloEventSetup.CaloTopology_cfi import *
-from Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi import *
+# from Geometry.CaloEventSetup.CaloTopology_cfi import *
+# from Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi import *
 # add the SteppingHelixPropagator to the EventSetup
 from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi import *
 from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi import *
