@@ -60,7 +60,7 @@ TtSemiLepHypKinFit::buildHypo(edm::Event& evt,
   // -----------------------------------------------------
   if( !leptons->empty() )
     setCandidate(leptons, iComb, lepton_);
-  match.push_back( -1 );
+  match.push_back( 0 );
   
   // -----------------------------------------------------
   // add neutrino
