@@ -14,6 +14,7 @@
 #include "CalibFormats/HcalObjects/interface/HcalCoder.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseContainmentCorrection.h"
+#include <memory>
 
 /** \class HcalSimpleRecAlgo
 
@@ -24,8 +25,8 @@
    has the option of correcting the reconstructed time for energy-dependent
    time slew associated with the QIE.
     
-   $Date: 2006/09/25 22:00:51 $
-   $Revision: 1.6 $
+   $Date: 2006/11/08 17:02:07 $
+   $Revision: 1.7 $
    \author J. Mans - Minnesota
 */
 class HcalSimpleRecAlgo {
