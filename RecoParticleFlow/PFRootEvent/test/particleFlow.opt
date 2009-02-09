@@ -5,7 +5,7 @@ root outtree 1
 //colin	mode 1
 
 
-root file ../../Configuration/test/display.root
+root file ../../Configuration/test/display_QCDForPF_Full_000.root
 
 // filter ------------------------------------------------------------
 
@@ -269,7 +269,7 @@ particle_flow 	final_chi2cut_gsfps  100.
 particle_flow   final_chi2cut_bremps  25.
 particle_flow   electron_mvaCut     -0.1
 particle_flow   usePFElectrons      1
-particle_flow   electronID_mvaWeightFile    ${CMSSW_BASE}/src/RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_PfElectrons23Jan.txt
+particle_flow   electronID_mvaWeightFile    ${CMSSW_DATA_PATH}/data-RecoParticleFlow-PFProducer/1/RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_PfElectrons23Jan.txt
 
 // PFConversions
 particle_flow   usePFConversions      0
