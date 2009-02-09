@@ -3,53 +3,11 @@
 
 <SpecParSection label="regions.xml" eval="true">
   <SpecPar name="castor_plate">
-    <PartSelector path="//CASF"/>
     <PartSelector path="//C3EF"/>
     <PartSelector path="//C4EF"/>
     <PartSelector path="//C3HF"/>
     <PartSelector path="//C4HF"/>
     <Parameter name="CMSCutsRegion" value="LayerRegion" eval="false"/>
-    <Parameter name="ProdCutsForElectrons" value="1*mm"/>
-    <Parameter name="ProdCutsForPositrons" value="1*mm"/>
-    <Parameter name="ProdCutsForGamma" value="10*mm"/>
-  </SpecPar>
-
-  <SpecPar name="castor_fibre">
-    <PartSelector path="//C001"/>
-    <PartSelector path="//C002"/>
-    <PartSelector path="//C003"/>
-    <PartSelector path="//C004"/>
-    <PartSelector path="//C005"/>
-    <PartSelector path="//C006"/>
-    <PartSelector path="//C007"/>
-    <PartSelector path="//C008"/>
-    <PartSelector path="//C009"/>
-    <PartSelector path="//C010"/>
-    <PartSelector path="//C011"/>
-    <PartSelector path="//C012"/>
-    <PartSelector path="//C013"/>
-    <PartSelector path="//C014"/>
-    <PartSelector path="//CP01"/>
-    <PartSelector path="//CP02"/>
-    <PartSelector path="//CP03"/>
-    <PartSelector path="//CP04"/>
-    <PartSelector path="//CP05"/>
-    <PartSelector path="//CP06"/>
-    <Parameter name="CMSCutsRegion"  value="FibreRegion" eval="false"/> 
-    <Parameter name="ProdCutsForElectrons" value="1*mm"/>
-    <Parameter name="ProdCutsForPositrons" value="1*mm"/>
-    <Parameter name="ProdCutsForGamma" value="10*mm"/>
-  </SpecPar>
-
-  <SpecPar name="castor_bundle">
-    <PartSelector path="//CALM"/>
-    <PartSelector path="//CBU1"/>
-    <PartSelector path="//CBU2"/>
-    <PartSelector path="//CBU3"/>
-    <PartSelector path="//CBU4"/>
-    <PartSelector path="//CBU5"/>
-    <PartSelector path="//CBU6"/>
-    <Parameter name="CMSCutsRegion"  value="BundleRegion" eval="false"/> 
     <Parameter name="ProdCutsForElectrons" value="1*mm"/>
     <Parameter name="ProdCutsForPositrons" value="1*mm"/>
     <Parameter name="ProdCutsForGamma" value="10*mm"/>

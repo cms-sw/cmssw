@@ -13,9 +13,6 @@
    <PartSelector path="//C4EF"/>
    <PartSelector path="//C3HF"/>
    <PartSelector path="//C4HF"/>
-   <PartSelector path="//C3TF"/>
-   <PartSelector path="//C4TF"/>
-   <PartSelector path="//CASF"/>
    <Parameter name="SensitiveDetector" value="CastorSensitiveDetector" eval="false"/>
    <Parameter name="ReadOutName" value="CastorFI" eval="false"/>
  </SpecPar>  
