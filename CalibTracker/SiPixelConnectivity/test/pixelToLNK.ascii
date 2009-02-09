@@ -1,4 +1,4 @@
-VERSION 15  15.01.2009 put back the 3 dead halfs of full modules in layer 2 w/r/t version 14 
+VERSION 16  09.02.2009 ascii file same as V15 but uses new PixelToLNKAssociateFromAscii.cc
 FED: 0
   LNK: 10 MOD: BPix_BpI_SEC1_LYR1_LDR1H_MOD1  ROC: 0, 7
   LNK: 11 MOD: BPix_BpI_SEC1_LYR1_LDR1H_MOD2  ROC: 0, 7
