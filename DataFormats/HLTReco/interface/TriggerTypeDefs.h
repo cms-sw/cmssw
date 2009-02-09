@@ -5,14 +5,15 @@
  *
  *  Misc. common simple typedefs
  *
- *  $Date: 2007/12/07 16:05:16 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/09/26 08:40:34 $
+ *  $Revision: 1.7 $
  *
  *  \author Martin Grunewald
  *
  */
 
-#include<vector>
+#include <vector>
+#include <stdint.h>
 
 namespace trigger
 {
