@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-eleIsoFromDepsTk = cms.EDFilter("CandIsolatorFromDeposits",
+eleIsoFromDepsTk = cms.EDProducer("CandIsolatorFromDeposits",
     deposits = cms.VPSet(cms.PSet(
         mode = cms.string('sum'),
         src = cms.InputTag("eleIsoDepositTk"),
@@ -11,7 +11,7 @@ eleIsoFromDepsTk = cms.EDFilter("CandIsolatorFromDeposits",
     ))
 )
 
-eleIsoFromDepsEcalFromHits = cms.EDFilter("CandIsolatorFromDeposits",
+eleIsoFromDepsEcalFromHits = cms.EDProducer("CandIsolatorFromDeposits",
     deposits = cms.VPSet(cms.PSet(
         mode = cms.string('sum'),
         src = cms.InputTag("eleIsoDepositEcalFromHits"),
@@ -19,15 +19,15 @@ eleIsoFromDepsEcalFromHits = cms.EDFilter("CandIsolatorFromDeposits",
         deltaR = cms.double(0.4),
         vetos = cms.vstring('EcalBarrel:0.045', 
                             'EcalBarrel:RectangularEtaPhiVeto(-0.02,0.02,-0.5,0.5)',
-                            'EcalBarrel:ThresholdFromTransverse(0.08)',
-                            'EcalEndcaps:ThresholdFromTransverse(0.3)',
+                            'EcalBarrel:AbsThresholdFromTransverse(0.08)',
+                            'EcalEndcaps:AbsThresholdFromTransverse(0.3)',
                             'EcalEndcaps:0.070', 
                             'EcalEndcaps:RectangularEtaPhiVeto(-0.02,0.02,-0.5,0.5)'), 
         skipDefaultVeto = cms.bool(True)
     ))
 )
 
-eleIsoFromDepsHcalFromHits = cms.EDFilter("CandIsolatorFromDeposits",
+eleIsoFromDepsHcalFromHits = cms.EDProducer("CandIsolatorFromDeposits",
     deposits = cms.VPSet(cms.PSet(
         mode = cms.string('sum'),
         src = cms.InputTag("eleIsoDepositHcalFromHits"),
@@ -38,7 +38,7 @@ eleIsoFromDepsHcalFromHits = cms.EDFilter("CandIsolatorFromDeposits",
     ))
 )
 
-eleIsoFromDepsHcalFromTowers = cms.EDFilter("CandIsolatorFromDeposits",
+eleIsoFromDepsHcalFromTowers = cms.EDProducer("CandIsolatorFromDeposits",
     deposits = cms.VPSet(cms.PSet(
         src = cms.InputTag("eleIsoDepositHcalFromTowers"),
         deltaR = cms.double(0.4),
@@ -49,7 +49,7 @@ eleIsoFromDepsHcalFromTowers = cms.EDFilter("CandIsolatorFromDeposits",
     ))
 )
 
-eleIsoFromDepsHcalDepth1FromTowers = cms.EDFilter("CandIsolatorFromDeposits",
+eleIsoFromDepsHcalDepth1FromTowers = cms.EDProducer("CandIsolatorFromDeposits",
     deposits = cms.VPSet(cms.PSet(
         src = cms.InputTag("eleIsoDepositHcalDepth1FromTowers"), #the input isodeposits
         deltaR = cms.double(0.4),
@@ -60,7 +60,7 @@ eleIsoFromDepsHcalDepth1FromTowers = cms.EDFilter("CandIsolatorFromDeposits",
     ))
 )
 
-eleIsoFromDepsHcalDepth2FromTowers = cms.EDFilter("CandIsolatorFromDeposits",
+eleIsoFromDepsHcalDepth2FromTowers = cms.EDProducer("CandIsolatorFromDeposits",
     deposits = cms.VPSet(cms.PSet(
         src = cms.InputTag("eleIsoDepositHcalDepth2FromTowers"),
         deltaR = cms.double(0.4),

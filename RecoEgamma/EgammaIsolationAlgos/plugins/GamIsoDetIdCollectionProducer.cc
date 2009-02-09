@@ -84,7 +84,7 @@ GamIsoDetIdCollectionProducer::produce (edm::Event& iEvent,
             CaloRecHitMetaCollectionV::const_iterator recIt;
             for (recIt = chosen->begin(); recIt!= chosen->end () ; ++recIt) { // Select RecHits 
 
-                if ( recIt->energy() < energyCut_) continue;  //dont fill if below noise value
+                if ( fabs(recIt->energy()) < energyCut_) continue;  //dont fill if below noise value
 
                 if(std::find(detIdCollection->begin(),detIdCollection->end(),recIt->detid()) == detIdCollection->end()) 
                     detIdCollection->push_back(recIt->detid());

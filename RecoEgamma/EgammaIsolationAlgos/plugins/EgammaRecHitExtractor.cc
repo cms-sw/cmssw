@@ -145,7 +145,7 @@ void EgammaRecHitExtractor::collect(reco::IsoDeposit &deposit,
       double phiDiff= deltaPhi(phi,calophi);
       
       if ( et > etMin_ 
-	   && energy > energyMin_ 
+	   && fabs(energy) > energyMin_  //Changed to fabs
 	   && fabs(eta-caloeta) > intStrip_ 
 	   && (eta-caloeta)*(eta-caloeta) + phiDiff*phiDiff >r2){
 	deposit.addDeposit( Direction(eta, phi), (useEt_ ? et : energy) );

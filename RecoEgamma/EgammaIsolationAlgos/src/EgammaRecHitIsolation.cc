@@ -84,7 +84,7 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject,bool retur
 	  if ( etaDiff*etaDiff + phiDiff*phiDiff < r2) continue; // jurassic exclusion cone cut
 
 	  double et = energy*position.perp()/position.mag();
-	  if ( et > etLow_ && energy > eLow_){
+	  if ( et > etLow_ && fabs(energy) > eLow_){ //Changed energy --> fabs(energy)
 	    if(returnEt) energySum+=et;
 	    else energySum+=energy;
 	  }
