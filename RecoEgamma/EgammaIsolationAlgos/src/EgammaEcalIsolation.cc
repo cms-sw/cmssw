@@ -74,7 +74,7 @@ double EgammaEcalIsolation::getEcalEtSum(const reco::Candidate* candidate){
   for(reco::BasicClusterCollection::const_iterator cItr = basicClusterCollection_->begin(); cItr != basicClusterCollection_->end(); ++cItr){
  
     cluster = &(*cItr);
-    double ebc_bcchi2 = cluster->chi2();
+//    double ebc_bcchi2 = cluster->chi2();
     int   ebc_bcalgo = cluster->algo();
     double ebc_bce    = cluster->energy();
     double ebc_bceta  = cluster->eta();
@@ -83,7 +83,7 @@ double EgammaEcalIsolation::getEcalEtSum(const reco::Candidate* candidate){
 
 
     if (ebc_bcet > etMin && ebc_bcalgo == 0) {
-      if (ebc_bcchi2 < 30.) {
+  //    if (ebc_bcchi2 < 30.) {
 	
 	if(MATCHEDSC){
 	  bool inSuperCluster = false;
@@ -105,7 +105,7 @@ double EgammaEcalIsolation::getEcalEtSum(const reco::Candidate* candidate){
 	    }
 	  }
 	}
-      } // matches ebc_bcchi2
+//      } // matches ebc_bcchi2
     } // matches ebc_bcet && ebc_bcalgo
 
   }

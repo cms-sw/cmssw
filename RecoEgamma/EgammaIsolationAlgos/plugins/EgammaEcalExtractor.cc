@@ -61,7 +61,7 @@ reco::IsoDeposit EgammaEcalExtractor::deposit(const edm::Event & ev, const edm::
   for(reco::BasicClusterCollection::const_iterator cItr = basicClusterCollectionH->begin(); cItr != basicClusterCollectionH->end(); ++cItr){
  
     cluster = &(*cItr);
-    double ebc_bcchi2 = cluster->chi2();
+//    double ebc_bcchi2 = cluster->chi2();
     int    ebc_bcalgo = cluster->algo();
     double ebc_bce    = cluster->energy();
     double ebc_bceta  = cluster->eta();
@@ -69,7 +69,7 @@ reco::IsoDeposit EgammaEcalExtractor::deposit(const edm::Event & ev, const edm::
     double newDelta = 0.;
 
     if (ebc_bcet > etMin_ && ebc_bcalgo == 0) {
-      if (ebc_bcchi2 < 30.) {
+//      if (ebc_bcchi2 < 30.) {
 	
 	if(MATCHEDSC || !scmatch_ ){  //skip selection if user wants to fill all superclusters
 	  bool inSuperCluster = false;
@@ -88,7 +88,7 @@ reco::IsoDeposit EgammaEcalExtractor::deposit(const edm::Event & ev, const edm::
 	    }
 	  }
 	}
-      } // matches ebc_bcchi2
+//      } // matches ebc_bcchi2
     } // matches ebc_bcet && ebc_bcalgo
 
   }
