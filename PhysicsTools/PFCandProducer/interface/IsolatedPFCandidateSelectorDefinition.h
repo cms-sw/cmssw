@@ -44,8 +44,6 @@ struct IsolatedPFCandidateSelectorDefinition {
 	selected_.push_back( new reco::PFCandidate(*pfc) );
 	reco::PFCandidatePtr ptrToMother( hc, key );
 
-	unsigned nSources = ptrToMother->numberOfSourceCandidatePtrs();
-
 	selected_.back()->setSourcePtr( ptrToMother );
       }
     }
