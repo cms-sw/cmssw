@@ -6,8 +6,8 @@
  *  The single EDProduct to be saved for each event (AOD case)
  *  describing the (HLT) trigger table
  *
- *  $Date: 2008/05/02 13:35:27 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/05/19 13:16:46 $
+ *  $Revision: 1.12 $
  *
  *  \author Martin Grunewald
  *
@@ -61,7 +61,7 @@ namespace trigger
   public:
     /// constructors
     TriggerEvent(): usedProcessName_(), collectionTags_(), collectionKeys_(), triggerObjects_(), triggerFilters_() { }
-    TriggerEvent(const std::string& usedProcessName, size_type nc, size_type no, size_type nf):
+    TriggerEvent(const std::string& usedProcessName, trigger::size_type nc, trigger::size_type no, trigger::size_type nf):
       usedProcessName_(usedProcessName), 
       collectionTags_(),
       collectionKeys_(),
@@ -76,8 +76,8 @@ namespace trigger
     void addObjects(const TriggerObjectCollection& triggerObjects) {triggerObjects_.insert(triggerObjects_.end(), triggerObjects.begin(), triggerObjects.end());}
     void addCollections(const std::vector<edm::InputTag>& collectionTags, const Keys& collectionKeys) {
       assert(collectionTags.size()==collectionKeys.size());
-      const size_type n(collectionTags.size());
-      for (size_type i=0; i!=n; ++i) {
+      const trigger::size_type n(collectionTags.size());
+      for (trigger::size_type i=0; i!=n; ++i) {
 	collectionTags_.push_back(collectionTags[i].encode());
       }
       collectionKeys_.insert(collectionKeys_.end(), collectionKeys.begin(), collectionKeys.end());
@@ -91,35 +91,35 @@ namespace trigger
     const Keys& collectionKeys() const {return collectionKeys_;}
     const TriggerObjectCollection& getObjects() const {return triggerObjects_;}
 
-    const edm::InputTag collectionTag(size_type index) const {return edm::InputTag(collectionTags_.at(index));}
-    size_type collectionKey(size_type index) const {return collectionKeys_.at(index);}
-    const edm::InputTag filterTag(size_type index) const {return edm::InputTag(triggerFilters_.at(index).filterTag_);}
-    const Vids& filterIds(size_type index) const {return triggerFilters_.at(index).filterIds_;}
-    const Keys& filterKeys(size_type index) const {return triggerFilters_.at(index).filterKeys_;}
+    const edm::InputTag collectionTag(trigger::size_type index) const {return edm::InputTag(collectionTags_.at(index));}
+    trigger::size_type collectionKey(trigger::size_type index) const {return collectionKeys_.at(index);}
+    const edm::InputTag filterTag(trigger::size_type index) const {return edm::InputTag(triggerFilters_.at(index).filterTag_);}
+    const Vids& filterIds(trigger::size_type index) const {return triggerFilters_.at(index).filterIds_;}
+    const Keys& filterKeys(trigger::size_type index) const {return triggerFilters_.at(index).filterKeys_;}
 
     /// find index of collection from collection tag
-    size_type collectionIndex(const edm::InputTag& collectionTag) const {
+    trigger::size_type collectionIndex(const edm::InputTag& collectionTag) const {
       const std::string encodedCollectionTag(collectionTag.encode());
-      const size_type n(collectionTags_.size());
-      for (size_type i=0; i!=n; ++i) {
+      const trigger::size_type n(collectionTags_.size());
+      for (trigger::size_type i=0; i!=n; ++i) {
 	if (encodedCollectionTag==collectionTags_[i]) {return i;}
       }
       return n;
     }
     /// find index of filter in data-member vector from filter tag
-    size_type filterIndex(const edm::InputTag& filterTag) const {
+    trigger::size_type filterIndex(const edm::InputTag& filterTag) const {
       const std::string encodedFilterTag(filterTag.encode());
-      const size_type n(triggerFilters_.size());
-      for (size_type i=0; i!=n; ++i) {
+      const trigger::size_type n(triggerFilters_.size());
+      for (trigger::size_type i=0; i!=n; ++i) {
 	if (encodedFilterTag==triggerFilters_[i].filterTag_) {return i;}
       }
       return n;
     }
 
     /// other
-    size_type sizeCollections() const {return collectionTags_.size();}
-    size_type sizeObjects() const {return triggerObjects_.size();}
-    size_type sizeFilters() const {return triggerFilters_.size();}
+    trigger::size_type sizeCollections() const {return collectionTags_.size();}
+    trigger::size_type sizeObjects() const {return triggerObjects_.size();}
+    trigger::size_type sizeFilters() const {return triggerFilters_.size();}
 
   };
 
