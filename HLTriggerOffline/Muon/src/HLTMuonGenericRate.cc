@@ -3,8 +3,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2009/02/08 21:49:52 $
+ *  $Revision: 1.57 $
  */
 
 
@@ -621,7 +621,7 @@ HLTMuonGenericRate::begin()
 
     if ( useMuonFromGenerator ){
 
-      hNumOrphansGen = dbe_->book1D( "genNumOrphans", "Number of Orphans;;Number of objects not matched to a gen muon", 5, 0, 5 );
+      hNumOrphansGen = dbe_->book1D( "genNumOrphans", "Number of Orphans;;Number of Objects Not Matched to a Gen #mu", 5, 0, 5 );
       for ( size_t i = 0; i < binLabels.size(); i++ )
 	hNumOrphansGen->setBinLabel( i + 1, binLabels[i].c_str() );
       hNumOrphansGen->getTH1()->LabelsDeflate("X");
@@ -637,7 +637,7 @@ HLTMuonGenericRate::begin()
 
     if ( useMuonFromReco ){
 
-      hNumOrphansRec = dbe_->book1D( "recNumOrphans", "Number of Orphans;;Number of objects not matched to a reconstructed muon", 5, 0, 5 );
+      hNumOrphansRec = dbe_->book1D( "recNumOrphans", "Number of Orphans;;Number of Objects Not Matched to a Reconstructed #mu", 5, 0, 5 );
       for ( size_t i = 0; i < binLabels.size(); i++ )
 	hNumOrphansRec->setBinLabel( i + 1, binLabels[i].c_str() );
       hNumOrphansRec->getTH1()->LabelsDeflate("X");
