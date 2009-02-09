@@ -33,7 +33,7 @@ uint32_t
 HcalZDCDetId::denseIndex() const 
 {
    const int se ( section() ) ;
-   return ( ( zside()<0 ? 0 : kDepTot ) + depth() - 1 +
+   return ( ( zside()<0 ? 0 : kDepTot ) + channel() - 1 +
 	    ( se == HAD  ? kDepEM :
 	      ( se == LUM ? kDepEM + kDepHAD : 0 ) ) ) ;
 }

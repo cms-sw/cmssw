@@ -36,11 +36,11 @@ class HcalLogicalMapGenerator {
 			       );
     
 
-    static const int HBHEHFShift = 0; //shift to get the linear index
-    static const int HOHXShift   = 0; // to fit in each vector from 
-    static const int CalibShift  = 0; //the raw electronics id
-    static const int ZDCShift    = 0; //
-    static const int HTShift     = 0;
+//    static const int HBHEHFShift = 0; //shift to get the linear index
+//    static const int HOHXShift   = 0; // to fit in each vector from 
+//    static const int CalibShift  = 0; //the raw electronics id
+//    static const int ZDCShift    = 0; //
+//    static const int HTShift     = 0;
     
 
 /*****************************Constants**************************/

@@ -297,7 +297,6 @@ ZDCLogicalMapEntry::ZDCLogicalMapEntry(
   myy_      = in_y;
   mydx_     = in_dx;
   mycable_  = in_cab;
-  mydepth_  = in_dep; //temporary fix until ZDCDetId is approved
   myrm_     = in_rm;
   myqie_    = in_qie;
   myadc_    = in_adc;
@@ -334,7 +333,6 @@ char* ZDCLogicalMapEntry::printLMapLine() {
 
   int mydcc_sl = -1;
   int mydcc    = -1;
-  //int mydepth  = -1;
   if ((hcaleid.dccid()%2)==1) {
     mydcc_sl = 19;
     mydcc    = 2;
@@ -355,8 +353,8 @@ char* ZDCLogicalMapEntry::printLMapLine() {
 
   (hcaleid.htrTopBottom()==0) ? myfpga = "bot" : myfpga = "top";
 
-//  sprintf(myline,"%6d %5d %2d %2d %3d %6d %7s %7d",hcaleid.linearIndex(),hcalzdcid.zside(),myx_,myy_,mydx_,mydepth_/*hcalzdcid.depth()*/,mydet.c_str(),hcalzdcid.channel());
-  sprintf(myline,"%1d %5d %2d %2d %3d %6d %7s %7d",0,hcalzdcid.zside(),myx_,myy_,mydx_,mydepth_/*hcalzdcid.depth()*/,mydet.c_str(),hcalzdcid.channel());
+//  sprintf(myline,"%6d %5d %2d %2d %3d %6d %7s %7d",hcaleid.linearIndex(),hcalzdcid.zside(),myx_,myy_,mydx_,hcalzdcid.depth(),mydet.c_str(),hcalzdcid.channel());
+  sprintf(myline,"%1d %5d %2d %2d %3d %6d %7s %7d",0,hcalzdcid.zside(),myx_,myy_,mydx_,hcalzdcid.depth(),mydet.c_str(),hcalzdcid.channel());
   sprintf(myline+strlen(myline),"%7d %3d %4d %4d %6d %6d %6d",mycable_,myrm_,myqie_,myadc_,myrm_fi_,hcaleid.fiberChanId(),hcaleid.readoutVMECrateId());
 //  sprintf(myline+strlen(myline),"%5d %5s %7d %7d %6d %4d %6d %5d\n",hcaleid.htrSlot(),myfpga.c_str(),hcaleid.fiberIndex(),mydcc_sl,hcaleid.spigot(),mydcc,hcaleid.dccid()+700,hcalgenid.hashedId());
   sprintf(myline+strlen(myline),"%5d %5s %7d %7d %6d %4d %6d\n",hcaleid.htrSlot(),myfpga.c_str(),hcaleid.fiberIndex(),mydcc_sl,hcaleid.spigot(),mydcc,hcaleid.dccid()+700);

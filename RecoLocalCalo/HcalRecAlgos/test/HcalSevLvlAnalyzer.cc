@@ -3,7 +3,7 @@
 // Package:    HcalSevLvlAnalyzer
 // Class:      HcalSevLvlAnalyzer
 // 
-/**\class HcalSevLvlAnalyzer HcalSevLvlAnalyzer.cc Demo/HcalSevLvlAnalyzer/src/HcalSevLvlAnalyzer.cc
+/**\class HcalSevLvlAnalyzer HcalSevLvlAnalyzer.cc 
 
  Description: <one line class summary>
 
@@ -13,7 +13,7 @@
 //
 // Original Author:  Radek Ofierzynski
 //         Created:  Wed Jan 21 13:46:27 CET 2009
-// $Id$
+// $Id: HcalSevLvlAnalyzer.cc,v 1.1 2009/01/22 12:43:22 rofierzy Exp $
 //
 //
 
@@ -29,9 +29,11 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelProducer.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
 //
 // class decleration
 //
@@ -48,7 +50,6 @@ class HcalSevLvlAnalyzer : public edm::EDAnalyzer {
       virtual void endJob() ;
 
       // ----------member data ---------------------------
-  HcalSeverityLevelProducer* myProd;
 
 };
 
@@ -69,7 +70,6 @@ HcalSevLvlAnalyzer::HcalSevLvlAnalyzer(const edm::ParameterSet& iConfig)
    //now do what ever initialization is needed
 
   // initialize the severity level code
-  myProd = new HcalSeverityLevelProducer(iConfig);
 
 }
 
@@ -104,6 +104,13 @@ HcalSevLvlAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    ESHandle<SetupData> pSetup;
    iSetup.get<SetupRecord>().get(pSetup);
 #endif
+
+   // here's how to access the severity level computer:
+   ESHandle<HcalSeverityLevelComputer> mycomputer;
+   iSetup.get<HcalSeverityLevelComputerRcd>().get(mycomputer);
+   const HcalSeverityLevelComputer* myProd = mycomputer.product();
+
+
 
    // create some example cases:
    std::cout << std::showbase;

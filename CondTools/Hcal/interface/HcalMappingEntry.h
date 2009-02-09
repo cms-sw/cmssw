@@ -156,7 +156,7 @@ class ZDCLogicalMapEntry {
   uint32_t hcalZDCDetID_;
 
   // input data members
-  int myx_, myy_, mydx_, mydet_ch_, mydepth_, mycable_, myrm_, myqie_, myadc_, myrm_fi_;
+  int myx_, myy_, mydx_, mydet_ch_, mycable_, myrm_, myqie_, myadc_, myrm_fi_;
 
 };
 

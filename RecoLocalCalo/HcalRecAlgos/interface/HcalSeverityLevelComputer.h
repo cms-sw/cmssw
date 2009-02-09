@@ -1,5 +1,18 @@
-#ifndef HCALSEVERITYLEVELPRODUCER_H
-#define HCALSEVERITYLEVELPRODUCER_H
+// -*- C++ -*-
+//
+// Package:    HcalRecAlgos
+// Class:      HcalSeverityLevelComputer
+// 
+/*
+ Description: delivers the severity level for HCAL cells
+*/
+//
+// Original Author:  Radek Ofierzynski
+//
+//
+
+#ifndef HCALSEVERITYLEVELCOMPUTER_H
+#define HCALSEVERITYLEVELCOMPUTER_H
 
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -9,15 +22,15 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 
 
-class HcalSeverityLevelProducer
+class HcalSeverityLevelComputer
 {
 
  public:
-  HcalSeverityLevelProducer( const edm::ParameterSet& );
-  ~HcalSeverityLevelProducer();
+  HcalSeverityLevelComputer( const edm::ParameterSet& );
+  ~HcalSeverityLevelComputer();
   
   // gives back severity level based on evaluation of the RecHit flag and cell's channel status
-  int getSeverityLevel(const DetId myid, const uint32_t myflag, const uint32_t mystatus);
+  int getSeverityLevel(const DetId& myid, const uint32_t& myflag, const uint32_t& mystatus) const;
   
  private:
   class HcalSeverityDefinition
@@ -37,7 +50,7 @@ class HcalSeverityLevelProducer
 
   void setBit (const unsigned bitnumber, uint32_t& where);
 
-  friend std::ostream& operator<<(std::ostream& s, const HcalSeverityLevelProducer::HcalSeverityDefinition& def);
+  friend std::ostream& operator<<(std::ostream& s, const HcalSeverityLevelComputer::HcalSeverityDefinition& def);
 
 
 };

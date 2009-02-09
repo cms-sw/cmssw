@@ -1,17 +1,18 @@
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelProducer.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
-HcalSeverityLevelProducer::HcalSeverityLevelProducer( const edm::ParameterSet& iConfig)
+HcalSeverityLevelComputer::HcalSeverityLevelComputer( const edm::ParameterSet& iConfig)
 {
-  std::cout << "HcalSeverityLevelProducer - initializing" << std::endl;
+  std::cout << "HcalSeverityLevelComputer - initializing" << std::endl;
 
   // initialize: get the levels and masks from the cfg:
   typedef std::vector< edm::ParameterSet > myParameters;
-  myParameters myLevels = iConfig.getParameter<myParameters>((std::string)"Levels");
+  myParameters myLevels = iConfig.getParameter<myParameters>((std::string)"SeverityLevels");
 
   // now run through the parameter set vector:
   for ( myParameters::iterator itLevels = myLevels.begin(); itLevels != myLevels.end(); ++itLevels)
@@ -34,6 +35,7 @@ HcalSeverityLevelProducer::HcalSeverityLevelProducer( const edm::ParameterSet& i
       // channel status:
       for (unsigned k=0; k < myChStatuses.size(); k++)
 	{
+	  if (myChStatuses[k].empty()) break;
 	  if (myChStatuses[k] == "HcalCellOff") 
 	    setBit(HcalChannelStatus::HcalCellOff, mydef.chStatusMask);
 	  else if (myChStatuses[k] == "HcalCellL1Mask") 
@@ -49,14 +51,16 @@ HcalSeverityLevelProducer::HcalSeverityLevelProducer( const edm::ParameterSet& i
 	  else 
 	    {
 	      // error: unrecognized channel status name
-	      std::cout << "HcalSeverityLevelProducer: Error: ChannelStatusFlag >>" << myChStatuses[k] 
-			<< "<< unknown. Ignoring." << std::endl;
+	      edm::LogWarning  ("HcalSeverityLevelComputer") 
+		<< "HcalSeverityLevelComputer: Error: ChannelStatusFlag >>" << myChStatuses[k] 
+		<< "<< unknown. Ignoring.";
 	    }
 	}
       // RecHitFlag:
       //      HBHEStatusFlag, HOStatusFlag, HFStatusFlag, ZDCStatusFlag, CalibrationFlag
       for (unsigned k=0; k < myRecHitFlags.size(); k++)
 	{
+	  if (myRecHitFlags[k].empty()) break;
         // HB, HE ++++++++++++++++++++
 	  if (myRecHitFlags[k] == "HBHEHpdHitMultiplicity")
 	    setBit(HcalCaloFlagLabels::HBHEHpdHitMultiplicity, mydef.HBHEFlagMask);
@@ -85,8 +89,9 @@ HcalSeverityLevelProducer::HcalSeverityLevelProducer( const edm::ParameterSet& i
 	  else
 	    {
 	      // error: unrecognized flag name
-	      std::cout << "HcalSeverityLevelProducer: Error: RecHitFlag >>" << myRecHitFlags[k] 
-			<< "<< unknown. Ignoring." << std::endl;
+	      edm::LogWarning  ("HcalSeverityLevelComputer") 
+		<< "HcalSeverityLevelComputer: Error: RecHitFlag >>" << myRecHitFlags[k] 
+		<< "<< unknown. Ignoring.";
 	    }
 	}
 
@@ -102,8 +107,9 @@ HcalSeverityLevelProducer::HcalSeverityLevelProducer( const edm::ParameterSet& i
 	  
 	  if (it->sevLevel == mydef.sevLevel)
 	    {
-	      std::cout << "HcalSeverityLevelProducer: Error: level " << mydef.sevLevel 
-			<< " already defined. Ignoring new definition." << std::endl;
+	      edm::LogWarning  ("HcalSeverityLevelComputer") 
+		<< "HcalSeverityLevelComputer: Error: level " << mydef.sevLevel 
+		<< " already defined. Ignoring new definition.";
 	      break;
 	    }
 
@@ -120,21 +126,23 @@ HcalSeverityLevelProducer::HcalSeverityLevelProducer( const edm::ParameterSet& i
 
     } //for (myParameters::iterator itLevels=myLevels.begin(); itLevels != myLevels.end(); ++itLevels)
 
-  std::cout << "HcalSeverityLevelProducer - Summary of Severity Levels:" << std::endl;
+  edm::LogInfo("HcalSeverityLevelComputer") 
+    << "HcalSeverityLevelComputer - Summary of Severity Levels:" << std::endl;
   for (std::vector<HcalSeverityDefinition>::iterator it = SevDef.begin(); it !=SevDef.end(); it++)
     {
       // debug: write the levels definitions on screen:
-      std::cout << (*it) << std::endl;
+      edm::LogInfo("HcalSeverityLevelComputer") 
+	<< (*it) << std::endl;
     }
 
-} // HcalSeverityLevelProducer::HcalSeverityLevelProducer
+} // HcalSeverityLevelComputer::HcalSeverityLevelComputer
 
 
-HcalSeverityLevelProducer::~HcalSeverityLevelProducer() {}
+HcalSeverityLevelComputer::~HcalSeverityLevelComputer() {}
 
   
-int HcalSeverityLevelProducer::getSeverityLevel(const DetId mydetid, const uint32_t myflag, 
-						const uint32_t mystatus)
+int HcalSeverityLevelComputer::getSeverityLevel(const DetId& mydetid, const uint32_t& myflag, 
+						const uint32_t& mystatus) const
 {
   uint32_t myRecHitMask;
   HcalGenericDetId myId(mydetid);
@@ -178,13 +186,13 @@ int HcalSeverityLevelProducer::getSeverityLevel(const DetId mydetid, const uint3
 }
   
 
-void HcalSeverityLevelProducer::setBit(const unsigned bitnumber, uint32_t& where) 
+void HcalSeverityLevelComputer::setBit(const unsigned bitnumber, uint32_t& where) 
 {
   uint32_t statadd = 0x1<<(bitnumber);
   where = where|statadd;
 }
 
-std::ostream& operator<<(std::ostream& s, const HcalSeverityLevelProducer::HcalSeverityDefinition& def)
+std::ostream& operator<<(std::ostream& s, const HcalSeverityLevelComputer::HcalSeverityDefinition& def)
 {
   s << "Hcal Severity Level Definition, Level = " << def.sevLevel << std::endl;
   s << std::hex << std::showbase;
