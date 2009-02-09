@@ -1,7 +1,7 @@
 #!/bin/sh
 
-castorDir=/castor/cern.ch/user/p/pjanot/CMSSW300pre6/
-cmsswDir=/afs/cern.ch/user/p/pjanot/scratch0/CMSSW_3_0_0_pre6/src
+castorDir=/castor/cern.ch/user/p/pjanot/CMSSW310pre1/
+cmsswDir=/afs/cern.ch/user/p/pjanot/scratch0/CMSSW_3_1_0_pre1/src
 
 for ((job=0;job<=10;job++));
   do
@@ -39,7 +39,7 @@ rfcp aod.root $castorDir$aodfilename
 
 EOF
 chmod 755 job_${name}.sh
-bsub -q cmst3 -R "mem>2000" -J $name $PWD/job_${name}.sh
+bsub -q cms8nht3 -R "mem>2000" -J $name $PWD/job_${name}.sh
 
 
 done

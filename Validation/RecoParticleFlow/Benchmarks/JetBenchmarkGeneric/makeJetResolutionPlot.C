@@ -179,7 +179,7 @@ void Resolution(unsigned barrel, const char* input, const char* output, const ch
 	      0, 700, -0.25, 0.01);
 
   c->cd(2);
-  TLegend *leg=new TLegend(0.35,0.7,0.75,0.85);
+  TLegend *leg=new TLegend(0.35,0.5,0.75,0.30);
   leg->AddEntry( gr12, "Arithmetic Estimate", "lp");
   leg->AddEntry( gr1, "Gaussian Fit", "lp");
   leg->SetTextSize(0.03);

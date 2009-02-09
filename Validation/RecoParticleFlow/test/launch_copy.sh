@@ -1,13 +1,13 @@
 #!/bin/sh
 
-cmsswDir=/afs/cern.ch/user/p/pjanot/scratch0/CMSSW_3_0_0_pre7/src
-castorDir=/castor/cern.ch/user/p/pjanot/CMSSW300pre7
-castor="\/castor\/cern.ch\/user\/p\/pjanot\/CMSSW300pre7"
+cmsswDir=/afs/cern.ch/user/p/pjanot/scratch0/CMSSW_3_1_0_pre1/src
+castorDir=/castor/cern.ch/user/p/pjanot/CMSSW310pre1
+castor="\/castor\/cern.ch\/user\/p\/pjanot\/CMSSW310pre1"
 
 name=QCDForPF
 simu=Full
 
-for ((job=0; job<10; job++));
+for ((job=7; job<9; job++));
     do
 
 jobin=${job}
