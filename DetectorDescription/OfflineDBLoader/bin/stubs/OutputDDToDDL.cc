@@ -82,7 +82,7 @@ OutputDDToDDL::beginJob( edm::EventSetup const& es)
   std::cout << "fname_=" << fname_ << " namespace = " << out.ns_ << std::endl;
   std::string ns_ = out.ns_;
 
-  (*xos_) << std::fixed << std::setprecision(9);
+  (*xos_) << std::scientific << std::setprecision(5);
   DDMaterial::iterator<DDMaterial> it(DDMaterial::begin()), ed(DDMaterial::end());
   (*xos_) << "<MaterialSection label=\"" << ns_ << "\">" << std::endl;
   for (; it != ed; ++it) {

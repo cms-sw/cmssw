@@ -260,18 +260,26 @@ void DDCoreToDDXMLOutput::material ( const DDMaterial& material, std::ostream& x
    int noc = material.noOfConstituents();
    if ( noc == 0 ) {
      xos << "<ElementaryMaterial name=\""  << material.toString() << "\""
-	 << " density=\"" << material.density() / g * cm3 << "*g/cm3\""
-	 << " atomicWeight=\"" << material.a() / g * mole << "*g/mole\""
-	 << " atomicNumber=\"" << material.z() << "\"/>"
+	 << " density=\"" 
+	 << std::scientific << std::setprecision(5)
+	 << material.density() / mg * cm3 << "*mg/cm3\""
+	 << " atomicWeight=\"" 
+	 << std::fixed  
+	 << material.a() / g * mole << "*g/mole\""
+	 << std::setprecision(0) << std::fixed << " atomicNumber=\"" << material.z() << "\"/>"
 	 << std::endl;
    } else {
      xos << "<CompositeMaterial name=\""  << material.toString() << "\""
-	 << " density=\"" << material.density() / g * cm3 << "*g/cm3\""
+	 << " density=\"" 
+	 << std::scientific << std::setprecision(5)
+	 << material.density() / mg * cm3 << "*mg/cm3\""
 	 << " method=\"mixture by weight\">" << std::endl;
      
      int j=0;
      for (; j<noc; ++j) {
-       xos << "<MaterialFraction fraction=\"" << material.constituent(j).second << "\">" << std::endl;
+       xos << "<MaterialFraction fraction=\"" 
+	   << std::fixed << std::setprecision(9)
+	   << material.constituent(j).second << "\">" << std::endl;
        xos << "<rMaterial name=\""  << material.constituent(j).first.name() << "\"/>" << std::endl;
        xos << "</MaterialFraction>" << std::endl;
      }
