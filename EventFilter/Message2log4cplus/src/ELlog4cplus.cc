@@ -19,6 +19,7 @@
 #include "log4cplus/loglevel.h"
 
 #include "xdaq/Application.h"
+#include <memory>
 
 // Possible Traces:
 // #define ELoutputCONSTRUCTOR_TRACE
