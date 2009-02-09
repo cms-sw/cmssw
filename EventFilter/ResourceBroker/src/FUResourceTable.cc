@@ -775,11 +775,11 @@ void FUResourceTable::sendInitMessage(UInt_t   fuResourceId,
     LOG4CPLUS_ERROR(log_,"No StorageManager, DROP INIT MESSAGE!");
   }
   else {
+    acceptSMDataDiscard_[fuResourceId] = true;
     UInt_t nbBytes=sm_->sendInitMessage(fuResourceId,outModId,fuProcessId,
 					fuGuid,data,dataSize);
     sumOfSquares_+=(uint64_t)nbBytes*(uint64_t)nbBytes;
     sumOfSizes_  +=nbBytes;
-    acceptSMDataDiscard_[fuResourceId] = true;
   }
 }
 
@@ -798,12 +798,12 @@ void FUResourceTable::sendDataEvent(UInt_t   fuResourceId,
     LOG4CPLUS_ERROR(log_,"No StorageManager, DROP DATA EVENT!");
   }
   else {
+    acceptSMDataDiscard_[fuResourceId] = true;
     UInt_t nbBytes=sm_->sendDataEvent(fuResourceId,runNumber,evtNumber,
 				      outModId,fuProcessId,fuGuid,
 				      data,dataSize);
     sumOfSquares_+=(uint64_t)nbBytes*(uint64_t)nbBytes;
     sumOfSizes_  +=nbBytes;
-    acceptSMDataDiscard_[fuResourceId] = true;
   }
 }
 
@@ -821,11 +821,11 @@ void FUResourceTable::sendErrorEvent(UInt_t   fuResourceId,
     LOG4CPLUS_ERROR(log_,"No StorageManager, DROP ERROR EVENT!");
   }
   else {
+    acceptSMDataDiscard_[fuResourceId] = true;
     UInt_t nbBytes=sm_->sendErrorEvent(fuResourceId,runNumber,evtNumber,
 				       fuProcessId,fuGuid,data,dataSize);
     sumOfSquares_+=(uint64_t)nbBytes*(uint64_t)nbBytes;
     sumOfSizes_  +=nbBytes;
-    acceptSMDataDiscard_[fuResourceId] = true;
   }
 }
 
@@ -844,10 +844,10 @@ void FUResourceTable::sendDqmEvent(UInt_t   fuDqmId,
     LOG4CPLUS_WARN(log_,"No StorageManager, DROP DQM EVENT.");
   }
   else {
+    acceptSMDqmDiscard_[fuDqmId] = true;
     sm_->sendDqmEvent(fuDqmId,runNumber,evtAtUpdate,folderId,
 		      fuProcessId,fuGuid,data,dataSize);
     nbSentDqm_++;
-    acceptSMDqmDiscard_[fuDqmId] = true;
   }
 }
 

@@ -170,7 +170,7 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   
   // set application icon for hyperdaq
   getApplicationDescriptor()->setAttribute("icon", "/evf/images/rbicon.jpg");
-  FUResource::useEvmBoard_ = useEvmBoard_;
+  //FUResource::useEvmBoard_ = useEvmBoard_;
 }
 
 
@@ -202,6 +202,7 @@ bool FUResourceBroker::configuring(toolbox::task::WorkLoop* wl)
 				       bu_,sm_,
 				       log_);
     FUResource::doFedIdCheck(doFedIdCheck_);
+    FUResource::useEvmBoard(useEvmBoard_);
     resourceTable_->setDoCrcCheck(doCrcCheck_);
     resourceTable_->setDoDumpEvents(doDumpEvents_);
     reset();
@@ -447,6 +448,7 @@ void FUResourceBroker::actionPerformed(xdata::Event& e)
       string item=dynamic_cast<xdata::ItemChangedEvent&>(e).itemName();
       
       if (item=="doFedIdCheck") FUResource::doFedIdCheck(doFedIdCheck_);
+      if (item=="useEvmBoard")  FUResource::useEvmBoard(useEvmBoard_);
       if (item=="doCrcCheck")   resourceTable_->setDoCrcCheck(doCrcCheck_);
       if (item=="doDumpEvents") resourceTable_->setDoDumpEvents(doDumpEvents_);
     }
@@ -712,6 +714,7 @@ void FUResourceBroker::exportParameters()
   gui_->exportParameters();
 
   gui_->addItemChangedListener("doFedIdCheck",      this);
+  gui_->addItemChangedListener("useEvmBoard",       this);
   gui_->addItemChangedListener("doCrcCheck",        this);
   gui_->addItemChangedListener("doDumpEvents",      this);
 }

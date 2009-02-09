@@ -1,3 +1,10 @@
+2009-02-09  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-12-02
+	* finally fix race condition related to acceptSM*Discard flags,
+	which need to be set in a different order (reported by Kurt Biery)
+	* correctly handle useEvmBoard parameter (reported by Frank Ma)
+
 2008-11-20  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-12-01
