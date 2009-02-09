@@ -33,6 +33,9 @@ void PFCluster::reset() {
   posrep_ *= 0;
   
   rechits_.clear();
+
+  CaloCluster::reset();
+  
 }
 
 
