@@ -7,6 +7,13 @@
 using namespace std;
 using namespace reco;
 
+
+void CaloCluster::reset() {
+  position_ = math::XYZPoint();
+  energy_ = 0;
+  hitsAndFractions_.clear();
+}
+
 string CaloCluster::printHitAndFraction(unsigned i) const {
   
   ostringstream out; 

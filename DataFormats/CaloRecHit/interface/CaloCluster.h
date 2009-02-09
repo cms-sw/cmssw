@@ -7,7 +7,7 @@
  *
  * \author Shahram Rahatlou, INFN
  *
- * \version $Id: CaloCluster.h,v 1.9 2009/02/06 12:51:48 cbern Exp $
+ * \version $Id: CaloCluster.h,v 1.10 2009/02/09 10:55:21 cbern Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
@@ -37,13 +37,18 @@ namespace reco {
     
     /// default constructor. Sets energy and position to zero
     CaloCluster() : 
-      energy_(-1), 
+      energy_(0), 
       algoID_( ALGO_undefined ) {}
 
     /// constructor with algoId, to be used in all child classes
     CaloCluster(AlgoID algoID) : 
-      energy_(-1), 
+      energy_(0), 
       algoID_( algoID ) {}
+
+
+    /// resets the CaloCluster (position, energy, hitsAndFractions)
+    void reset();
+
     
 
 /*     /// constructor from values */
