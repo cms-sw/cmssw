@@ -1,4 +1,5 @@
 #include "RecoLocalMuon/CSCValidation/src/CSCValHists.h"
+#include <algorithm>
 
 using namespace std;
 

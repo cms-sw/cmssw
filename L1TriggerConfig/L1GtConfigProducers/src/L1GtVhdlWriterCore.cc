@@ -25,6 +25,7 @@
 #include <sstream>
 #include <vector>
 #include <sys/stat.h>
+#include <algorithm>
 
 // CMSSW headers
 #include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtVhdlTemplateFile.h"

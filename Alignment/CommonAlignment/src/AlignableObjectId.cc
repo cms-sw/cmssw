@@ -1,6 +1,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
+#include <algorithm>
 
 using namespace align;
 

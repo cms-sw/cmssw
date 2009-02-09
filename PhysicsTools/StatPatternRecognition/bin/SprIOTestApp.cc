@@ -1,4 +1,4 @@
-//$Id: SprIOTestApp.cc,v 1.3 2007/11/30 20:13:35 narsky Exp $
+//$Id: SprIOTestApp.cc,v 1.3 2007/12/01 01:29:41 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsFilter.hh"
@@ -16,6 +16,7 @@
 #include <set>
 #include <string>
 #include <memory>
+#include <algorithm>
 
 using namespace std;
 
