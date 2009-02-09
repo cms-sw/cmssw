@@ -8,8 +8,8 @@ siPixelClusters = cms.EDProducer("SiPixelClusterProducer",
     ChannelThreshold = cms.int32(2500),
     MissCalibrate = cms.untracked.bool(True),
     SplitClusters = cms.untracked.bool(False),
-    VCaltoElectronGain = cms.int32(65),
-    VCaltoElectronOffset = cms.int32(0),                          
+    VCaltoElectronGain = cms.int32(65.5),
+    VCaltoElectronOffset = cms.int32(-414),                          
     # **************************************
     # ****  payLoadType Options         ****
     # ****  HLT - column granularity    ****
