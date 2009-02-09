@@ -42,6 +42,8 @@ IsoDepositVetoFactory::make(const char *string, reco::isodeposit::EventDependent
         ecalSwitch("^Ecal(Barrel|Endcaps):(.*)"),
         threshold("Threshold\\((\\d+\\.\\d+)\\)"),
         thresholdtransverse("ThresholdFromTransverse\\((\\d+\\.\\d+)\\)"),
+        absthreshold("AbsThreshold\\((\\d+\\.\\d+)\\)"),
+        absthresholdtransverse("AbsThresholdFromTransverse\\((\\d+\\.\\d+)\\)"),
         cone("ConeVeto\\((\\d+\\.\\d+)\\)"),
         angleCone("AngleCone\\((\\d+\\.\\d+)\\)"),
         angleVeto("AngleVeto\\((\\d+\\.\\d+)\\)"),
@@ -57,6 +59,10 @@ IsoDepositVetoFactory::make(const char *string, reco::isodeposit::EventDependent
         return new ThresholdVeto(atof(match[1].first));
     } else if (regex_match(string, match, thresholdtransverse)) {
         return new ThresholdVetoFromTransverse(atof(((std::string)match[1]).c_str()));
+    } else if (regex_match(string, match, absthreshold)) {
+        return new AbsThresholdVeto(atof(match[1].first));
+    } else if (regex_match(string, match, absthresholdtransverse)) {
+        return new AbsThresholdVetoFromTransverse(atof(((std::string)match[1]).c_str()));
     } else if (regex_match(string, match, cone)) {
         return new ConeVeto(Direction(), atof(match[1].first));
     } else if (regex_match(string, match, number)) {
