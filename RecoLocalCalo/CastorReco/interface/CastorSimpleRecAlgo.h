@@ -6,6 +6,7 @@
 #include "CalibFormats/CastorObjects/interface/CastorCoder.h"
 #include "CalibFormats/CastorObjects/interface/CastorCalibrations.h"
 #include "CalibCalorimetry/CastorCalib/interface/CastorPulseContainmentCorrection.h"
+#include <memory>
 
 /** \class CastorSimpleRecAlgo
 
