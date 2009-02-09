@@ -50,7 +50,7 @@ def readCaption( line ):
           raise Exception
 
 parser = OptionParser()
-parser.usage = "usage: %prog <dir with plots> <template>"
+parser.usage = "usage: %prog. Run from your Benchmark directory"
 
 parser.add_option("-r", "--recipe", dest="recipe",
                   help="url pointing to a recipe",
