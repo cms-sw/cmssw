@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <algorithm>
 
 //used to be ComCodesBase, however changed the design that instead of inheriting from this class, all my communication classes
 //would own an object of this class
