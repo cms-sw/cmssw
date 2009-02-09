@@ -13,5 +13,6 @@ namespace {
     edm::Wrapper<DetIdCollection> anotherDIw_;
     edm::Wrapper< edm::EDCollection<DetId> > theDIw_;
     std::vector<std::pair<DetId,float> > dummyPairFloat;
+    std::pair<DetId,float>    thepair;           
   };
 }

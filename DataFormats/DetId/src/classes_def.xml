@@ -5,4 +5,5 @@
   <class name="DetIdCollection"/>
   <class name="edm::Wrapper<edm::EDCollection<DetId> > " id="B43E6BF6-86FA-FECE-7156-21F4971E01E6"/>
   <class name="std::vector<std::pair<DetId,float> >"/>  
+  <class name="std::pair<DetId,float>"/>               
 </lcgdict>
