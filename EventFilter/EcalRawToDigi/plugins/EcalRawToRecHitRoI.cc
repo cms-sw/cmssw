@@ -176,7 +176,7 @@ void EcalRawToRecHitRoI::produce(edm::Event & e, const edm::EventSetup& iSetup){
  LogDebug(category)<< "Will unpack FED\n" <<dumpFEDs(feds)
 		   <<watcher.lap();
  
- if (nf<1){edm::LogWarning(category)<<"no ECAL FED to unpack for Run " << e.id().run() << "  Event " << e.id().event() ;}
+ // if (nf<1){edm::LogWarning(category)<<"no ECAL FED to unpack for Run " << e.id().run() << "  Event " << e.id().event() ;}
  
  productAddress->SetList(feds);
  e.put(productAddress);
