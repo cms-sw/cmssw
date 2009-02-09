@@ -27,6 +27,8 @@ edm::CosMuoGenProducer::CosMuoGenProducer( const ParameterSet & pset ) :
   MTCCHalf(pset.getParameter<bool>("MTCCHalf")),
   PlugVtx(pset.getParameter<double>("PlugVx")),
   PlugVtz(pset.getParameter<double>("PlugVz")),
+  MinEn(pset.getParameter<double>("MinEnu")),
+  MaxEn(pset.getParameter<double>("MaxEnu")),
   extCrossSect(pset.getUntrackedParameter<double>("crossSection", -1.)),
   extFilterEff(pset.getUntrackedParameter<double>("filterEfficiency", -1.)),
   cmVerbosity_(pset.getParameter<bool>("Verbosity"))
@@ -73,6 +75,8 @@ edm::CosMuoGenProducer::CosMuoGenProducer( const ParameterSet & pset ) :
     CosMuoGen->setMTCCHalf(MTCCHalf);
     CosMuoGen->setPlugVx(PlugVtx);
     CosMuoGen->setPlugVz(PlugVtz);    
+    CosMuoGen->setMinEnu(MinEn);
+    CosMuoGen->setMaxEnu(MaxEn);    
     CosMuoGen->initialize();
     produces<HepMCProduct>();
     //  fEvt = new HepMC::GenEvent();

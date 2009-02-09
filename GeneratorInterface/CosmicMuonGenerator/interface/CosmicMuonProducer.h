@@ -119,6 +119,11 @@ private:
   double PlugVx;
   double PlugVz;
 
+  //For upgoing muon generation: Neutrino energy limits
+  double MinEnu;
+  double MaxEnu;
+
+
   // random number generator (periodicity > 10**14)
   //TRandom2 RanGen; 
   CLHEP::HepRandomEngine*  RanGen; 
@@ -153,6 +158,8 @@ public:
   void setMTCCHalf(bool MTCC);
   void setPlugVx(double PlugVtx);
   void setPlugVz(double PlugVtz);
+  void setMinEnu(double MinEn);
+  void setMaxEnu(double MaxEn);
   // initialize the generator
   void initialize();
    // prints rate + statistics

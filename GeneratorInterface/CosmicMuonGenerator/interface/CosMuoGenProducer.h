@@ -51,6 +51,10 @@ namespace edm
     double PlugVtx;
     double PlugVtz;
 
+    //For upgoing muon generation: Neutrino energy limits
+    double MinEn;
+    double MaxEn;
+
     // external cross section and filter efficiency
     double       extCrossSect;
     double       extFilterEff;

@@ -31,7 +31,9 @@ void SingleParticleEvent::propagate(double ElossScaleFac, double RadiusTarget, d
     double acceptZ = Z_DistTargetEff + stepSize;
     bool continuePropagation = true;
     while (continuePropagation){
-      if (tmpVy < -acceptR) continuePropagation = false;
+      //if (tmpVy < -acceptR) continuePropagation = false;
+      if (dY < 0. && tmpVy < -acceptR) continuePropagation = false;
+      if (dY >= 0. && tmpVy > acceptR) continuePropagation = false;
       if (absVzTmp() < acceptZ && rVxyTmp() < acceptR){
 	HitTarget = true;
 	continuePropagation = false;
@@ -46,7 +48,9 @@ void SingleParticleEvent::propagate(double ElossScaleFac, double RadiusTarget, d
     double acceptZ = Z_DistTargetEff + stepSize;
     bool continuePropagation = true;
     while (continuePropagation){
-      if (tmpVy < -acceptR) continuePropagation = false;
+      //if (tmpVy < -acceptR) continuePropagation = false;
+      if (dY < 0. && tmpVy < -acceptR) continuePropagation = false;
+      if (dY >= 0. && tmpVy > acceptR) continuePropagation = false;
       if (absVzTmp() < acceptZ && rVxyTmp() < acceptR){
 	HitTarget = true;
 	continuePropagation = false;
@@ -61,7 +65,9 @@ void SingleParticleEvent::propagate(double ElossScaleFac, double RadiusTarget, d
     double acceptZ = Z_DistTargetEff + stepSize;
     bool continuePropagation = true;
     while (continuePropagation){
-      if (tmpVy < -acceptR) continuePropagation = false;
+      //if (tmpVy < -acceptR) continuePropagation = false;
+      if (dY < 0. && tmpVy < -acceptR) continuePropagation = false;
+      if (dY >= 0. && tmpVy > acceptR) continuePropagation = false;
       if (absVzTmp() < acceptZ && rVxyTmp() < acceptR){
 	HitTarget = true;
 	continuePropagation = false;
@@ -76,7 +82,9 @@ void SingleParticleEvent::propagate(double ElossScaleFac, double RadiusTarget, d
     double acceptZ = Z_DistTargetEff + stepSize;
     bool continuePropagation = true;
     while (continuePropagation){
-      if (tmpVy < -acceptR) continuePropagation = false;
+      //if (tmpVy < -acceptR) continuePropagation = false;
+      if (dY < 0. && tmpVy < -acceptR) continuePropagation = false;
+      if (dY >= 0. && tmpVy > acceptR) continuePropagation = false;
       if (absVzTmp() < acceptZ && rVxyTmp() < acceptR){
 	HitTarget = true;
 	continuePropagation = false;
@@ -91,7 +99,9 @@ void SingleParticleEvent::propagate(double ElossScaleFac, double RadiusTarget, d
     double acceptZ = Z_DistTargetEff + stepSize;
     bool continuePropagation = true;
     while (continuePropagation){
-      if (tmpVy < -acceptR) continuePropagation = false;
+      //if (tmpVy < -acceptR) continuePropagation = false;
+      if (dY < 0. && tmpVy < -acceptR) continuePropagation = false;
+      if (dY >= 0. && tmpVy > acceptR) continuePropagation = false;
       if (absVzTmp() < acceptZ && rVxyTmp() < acceptR){
 	HitTarget = true;
 	continuePropagation = false;
@@ -106,7 +116,9 @@ void SingleParticleEvent::propagate(double ElossScaleFac, double RadiusTarget, d
     double acceptZ = Z_DistTargetEff + stepSize;
     bool continuePropagation = true;
     while (continuePropagation){
-      if (tmpVy < -acceptR) continuePropagation = false;
+      //if (tmpVy < -acceptR) continuePropagation = false;
+      if (dY < 0. && tmpVy < -acceptR) continuePropagation = false;
+      if (dY >= 0. && tmpVy > acceptR) continuePropagation = false;
       if (0 < absVzTmp()){ //only check for MTCC setup in last step of propagation, need fine stepSize
 	if (absVzTmp() < acceptZ && rVxyTmp() < acceptR){
 	  HitTarget = true;
@@ -130,7 +142,9 @@ void SingleParticleEvent::propagate(double ElossScaleFac, double RadiusTarget, d
     }
     bool continuePropagation = true;
     while (continuePropagation){
-      if (Vy < -acceptR) continuePropagation = false;
+      //if (Vy < -acceptR) continuePropagation = false;
+      if (dY < 0. && tmpVy < -acceptR) continuePropagation = false;
+      if (dY >= 0. && tmpVy > acceptR) continuePropagation = false;
       if (absVz() < acceptZ && rVxy() < acceptR){
         HitTarget = true;
         continuePropagation = false;

@@ -24,13 +24,21 @@ void CosmicMuonGenerator::initialize(){
     }
     Target3dRadius = sqrt(RadiusTargetEff*RadiusTargetEff + Z_DistTargetEff*Z_DistTargetEff) + MinStepSize;
     if (Debug) std::cout << "  radius of sphere  around  target = " << Target3dRadius << " mm" << std::endl;
-    SurfaceRadius = (SurfaceOfEarth+PlugWidth+RadiusTargetEff)*tan(MaxTheta) + Target3dRadius;  
+
+    if (MinTheta > 90.*Deg2Rad) //upgoing muons from neutrinos
+      SurfaceRadius = (RadiusCMS)*(-tan(MinTheta)) + MinStepSize;
+    else
+      SurfaceRadius = (SurfaceOfEarth+PlugWidth+RadiusTargetEff)*tan(MaxTheta) + Target3dRadius;  
     if (Debug) std::cout << "  starting point radius at Surface + PlugWidth = " << SurfaceRadius << " mm" << std::endl;
 
     OneMuoEvt.PlugVx = PlugVx;
     OneMuoEvt.PlugVz = PlugVz;
     //set energy and angle limits for CMSCGEN, give same seed as above 
-    Cosmics->initialize(MinP, MaxP, MinTheta, MaxTheta, RanSeed, TIFOnly_constant, TIFOnly_linear);
+    if (MinTheta >= 90.*Deg2Rad) //upgoing muons from neutrinos
+      Cosmics->initializeNuMu(MinP, MaxP, MinTheta, MaxTheta, MinEnu, MaxEnu, 
+			      MinPhi, MaxPhi, RanSeed);
+    else 
+      Cosmics->initialize(MinP, MaxP, MinTheta, MaxTheta, RanSeed, TIFOnly_constant, TIFOnly_linear);
    
 #if ROOT_INTERACTIVE
   // book histos
@@ -55,16 +63,21 @@ void CosmicMuonGenerator::nextEvent(){
   while (notSelected){
 	bool   badMomentumGenerated = true;
 	while (badMomentumGenerated){
-	  Cosmics->generate(); //dice one event now
+
+	  if (MinTheta > 90.*Deg2Rad) //upgoing muons from neutrinos
+	    Cosmics->generateNuMu();
+	  else
+	    Cosmics->generate(); //dice one event now
+	  
 	  E = sqrt(Cosmics->momentum_times_charge()*Cosmics->momentum_times_charge() + MuonMass*MuonMass);
 	  Theta = TMath::ACos( Cosmics->cos_theta() ) ; //angle has to be in RAD here
 	  Ngen+=1.;   //count number of initial cosmic events (in surface area), vertices will be added later
-	    badMomentumGenerated = false;
-	    Phi = RanGen.Rndm()*(MaxPhi-MinPhi) + MinPhi;
+	  badMomentumGenerated = false;
+	  Phi = RanGen.Rndm()*(MaxPhi-MinPhi) + MinPhi;
 	}
 	Norm->events_n100cos(E, Theta); //test if this muon is in normalization range
 	Ndiced += 1; //one more cosmic is diced
-  
+	//std::cout << "diced: E=" << E << " Theta=" << Theta << " Phi=" << Phi << std::endl;
     // generate vertex
     double Nver = 0.;
     bool   badVertexGenerated = true;
@@ -90,17 +103,36 @@ void CosmicMuonGenerator::nextEvent(){
     double Py = -verMom;         // [GeV/c]
     double Pz = horMom*cos(Phi); // [GeV/c]
     double Vx = RxzV*sin(PhiV);  // [mm]
-    double Vy = SurfaceOfEarth + PlugWidth;  // [mm]
+
+    double Vy;
+    if (MinTheta > 90.*Deg2Rad) //upgoing muons from neutrinos
+      Vy = -RadiusCMS;
+    else
+      Vy = SurfaceOfEarth + PlugWidth;  // [mm]
+
     double Vz = RxzV*cos(PhiV);  // [mm]
     double T0 = (RanGen.Rndm()*(MaxT0-MinT0) + MinT0)*SpeedOfLight; // [mm/c];
+    //std::cout << "Vx=" << Vx << " Vy=" << Vy << " Vz=" << Vz << std::endl;
     OneMuoEvt.create(id, Px, Py, Pz, E, MuonMass, Vx, Vy, Vz, T0); 
     // if angles are ok, propagate to target
-    if (goodOrientation()) OneMuoEvt.propagate(ElossScaleFactor, RadiusOfTarget, ZDistOfTarget, TrackerOnly, MTCCHalf);
-    // if cosmic hits target test also if P>Pmin_CMS; the default is MinP_surface=MinP_CMS, thus no bias from access shaft
+    if (goodOrientation()) { 
+      if (MinTheta > 90.*Deg2Rad) //upgoing muons from neutrinos
+	OneMuoEvt.propagate(0., RadiusOfTarget, ZDistOfTarget, TrackerOnly, MTCCHalf);
+      else
+	OneMuoEvt.propagate(ElossScaleFactor, RadiusOfTarget, ZDistOfTarget, TrackerOnly, MTCCHalf);
+    }
+      // if cosmic hits target test also if P>Pmin_CMS; the default is MinP_surface=MinP_CMS, thus no bias from access shaft
+
+    //std::cout << "OneMuoEvt.hitTarget()=";
+    //if (OneMuoEvt.hitTarget()) std::cout << "true";
+    //else std::cout << "false";
+    //std::cout << " P(Mu)=" << sqrt(OneMuoEvt.e()*OneMuoEvt.e() - MuonMass*MuonMass)
+    //      << " MinP_CMS=" << MinP_CMS << std::endl;
+
     if (OneMuoEvt.hitTarget() && sqrt(OneMuoEvt.e()*OneMuoEvt.e() - MuonMass*MuonMass) > MinP_CMS){
       Nsel+=1.; //count number of generated and accepted events  
       notSelected = false;
-      }
+    }
   }
   // plot variables of selected events
 #if ROOT_INTERACTIVE
@@ -146,8 +178,11 @@ void CosmicMuonGenerator::terminate(){
     std::cout << "       energy  loss:   " << ElossScaleFactor*100. << "%" << std::endl;
     std::cout << std::endl;
     double area = 1.e-6*Pi*SurfaceRadius*SurfaceRadius; // area on surface [m^2] 
-    std::cout << "       area of initial cosmics on Surface + PlugWidth:   " << area << " m^2" << std::endl;
-    std::cout << "       depth of CMS detector (from Surface, without PlugWidth)):   " << SurfaceOfEarth/1000 << " m" << std::endl;
+    if (MinTheta > 90.*Deg2Rad) //upgoing muons from neutrinos)
+      std::cout << "       area of initial cosmics at CMS detector bottom surface:   " << area << " m^2" << std::endl;
+    else
+      std::cout << "       area of initial cosmics on Surface + PlugWidth:   " << area << " m^2" << std::endl;
+    std::cout << "       depth of CMS detector (from Surface):   " << SurfaceOfEarth/1000 << " m" << std::endl;
        
     if(n100cos>0){
       // rate: corrected for area and selection-Eff. and normalized to known flux, integration over solid angle (dOmega) is implicit
@@ -156,9 +191,18 @@ void CosmicMuonGenerator::terminate(){
       // normalisation factor has unit [1/s/m^2] 
       // rate = N/time --> normalization factor gives 1/runtime/area 
       // normalization with respect to number of actually diced events (Ndiced)
-      EventRate= (Ndiced * Norm->norm(n100cos)) * area * selEff;
-      rateErr_stat = EventRate/sqrt( (double) n100cos);  // stat. rate error 
-      rateErr_syst = EventRate/2.63e-3 * 0.06e-3;  // syst. rate error, from error of known flux 
+
+      if (MinTheta > 90.*Deg2Rad) {//upgoing muons from neutrinos) 
+	double Omega = (cos(MinTheta)-cos(MaxTheta)) * (MaxPhi-MinPhi);
+	EventRate = (Ndiced * 3.e-13) * Omega * area*1.e4 * selEff;//area in cm, flux=3.e-13cm^-2s^-1sr^-1
+	rateErr_stat = EventRate/sqrt( (double) n100cos);  // stat. rate error 
+	rateErr_syst = EventRate/3.e-13 * 1.0e-13;  // syst. rate error, from error of known flux 
+      }
+      else {
+	EventRate= (Ndiced * Norm->norm(n100cos)) * area * selEff;
+	rateErr_stat = EventRate/sqrt( (double) n100cos);  // stat. rate error 
+	rateErr_syst = EventRate/2.63e-3 * 0.06e-3;  // syst. rate error, from error of known flux 
+      }
 
       // normalisation in region 1.-cos(theta) < 1./(2.*Pi), if MaxTheta even lower correct for this
       if(MaxTheta<0.572){
@@ -210,6 +254,13 @@ void CosmicMuonGenerator::checkIn(){
     std::cout << "  CMG-ERR: max.t0 is not greater than min.t0" << std::endl << std::endl; }
   if (ElossScaleFactor < 0.){ NumberOfEvents = 0;
     std::cout << "  CMG-ERR: E-loss scale factor is out of range [0 ... inf)" << std::endl << std::endl; }
+  if (MinEnu < 0.){ NumberOfEvents = 0;
+    std::cout << "  CMG-ERR: min.Enu is out of range [0 GeV ... inf]" << std::endl << std::endl; }
+  if (MaxEnu < 0.){ NumberOfEvents = 0;
+    std::cout << "  CMG-ERR: max.Enu is out of range [0 GeV ... inf]" << std::endl << std::endl; }
+  if (MaxEnu <= MinEnu){ NumberOfEvents = 0;
+    std::cout << "  CMG-ERR: max.Enu is not greater than min.Enu" << std::endl << std::endl; }
+
 }
 
 bool CosmicMuonGenerator::goodOrientation(){
@@ -218,7 +269,13 @@ bool CosmicMuonGenerator::goodOrientation(){
   bool phiaccepted = false;
   bool thetaaccepted = false;
   double RxzV = sqrt(OneMuoEvt.vx()*OneMuoEvt.vx() + OneMuoEvt.vz()*OneMuoEvt.vz());
-  double rVY = sqrt(RxzV*RxzV + (SurfaceOfEarth+PlugWidth)*(SurfaceOfEarth+PlugWidth));
+
+  double rVY;
+  if (MinTheta > 90.*Deg2Rad) //upgoing muons from neutrinos
+    rVY = -sqrt(RxzV*RxzV + RadiusCMS*RadiusCMS);
+  else 
+    rVY = sqrt(RxzV*RxzV + (SurfaceOfEarth+PlugWidth)*(SurfaceOfEarth+PlugWidth));
+
   double Phi = OneMuoEvt.phi();
   double PhiV = atan2(OneMuoEvt.vx(),OneMuoEvt.vz()) + Pi; if (PhiV > TwoPi) PhiV -= TwoPi;
   double disPhi = fabs(PhiV - Phi); if (disPhi > Pi) disPhi = TwoPi - disPhi;
@@ -226,7 +283,7 @@ bool CosmicMuonGenerator::goodOrientation(){
   if (disPhi < dPhi) phiaccepted = true;
   double Theta = OneMuoEvt.theta();
   double ThetaV = asin(RxzV/rVY);
-  double dTheta = Pi; if (rVY > Target3dRadius) dTheta = asin(Target3dRadius/rVY);
+  double dTheta = Pi; if (fabs(rVY) > Target3dRadius) dTheta = asin(Target3dRadius/fabs(rVY));
   //std::cout << "    dPhi = " <<   dPhi << "  (" <<   Phi << " <p|V> " <<   PhiV << ")" << std::endl;
   //std::cout << "  dTheta = " << dTheta << "  (" << Theta << " <p|V> " << ThetaV << ")" << std::endl;
 
@@ -364,5 +421,7 @@ void CosmicMuonGenerator::setMTCCHalf(bool MTCC){ if (NotInitialized) MTCCHalf =
 void CosmicMuonGenerator::setPlugVx(double PlugVtx){ if (NotInitialized) PlugVx = PlugVtx; }
 void CosmicMuonGenerator::setPlugVz(double PlugVtz){ if (NotInitialized) PlugVz = PlugVtz; }
 
+void CosmicMuonGenerator::setMinEnu(double MinEn){ if (NotInitialized) MinEnu = MinEn; }
+void CosmicMuonGenerator::setMaxEnu(double MaxEn){ if (NotInitialized) MaxEnu = MaxEn; }
 
 double CosmicMuonGenerator::getRate(){ return EventRate; }

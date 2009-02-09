@@ -467,3 +467,118 @@ double CMSCGEN::flux()
   
 }
 
+
+
+int CMSCGEN::initializeNuMu(double pmin_in, double pmax_in, double thetamin_in, double thetamax_in, double Enumin_in, double Enumax_in, double Phimin_in, double Phimax_in, int RanSeed) {
+    
+  RanGen2.SetSeed(RanSeed);
+  
+  Rnunubar = 1.2;
+  ProdAlt = 7.5e6; //mm
+
+  sigma = (0.72*Rnunubar+0.09)/(1+Rnunubar)*1.e-38; //cm^2GeV^-1
+
+  AR = (0.69+0.06*Rnunubar)/(0.09+0.72*Rnunubar);
+
+
+  //set smin and smax, here convert between coordinate systems:
+  pmin = pmin_in;
+  pmax = pmax_in;
+  cmin = TMath::Cos(thetamin_in);//input angle already converted from Deg to Rad!
+  cmax = TMath::Cos(thetamax_in);//input angle already converted from Deg to Rad!
+  enumin = (Enumin_in < 10.) ? 10. : Enumin_in; //no nu's below 10GeV
+  enumax = Enumax_in;
+
+
+  //do initial run of flux rate to determine Maximum
+  integrated_flux = 0.;
+  dNdEmudEnuMax = 0.;
+  negabs = 0.;
+  negfrac = 0.;
+  int trials = 100000;
+  for (int i=0; i<trials; ++i) {
+    double ctheta = cmin + (cmax-cmin)*RanGen2.Rndm();
+    double Emu = pmin + (pmax-pmin)*RanGen2.Rndm();
+    double Enu = enumin + (enumax-enumin)*RanGen2.Rndm();
+    double rate =  dNdEmudEnu(Enu, Emu, ctheta);
+    //std::cout << "trial=" << i << " ctheta=" << ctheta << " Emu=" << Emu << " Enu=" << Enu 
+    //      << " rate=" << rate << std::endl;
+    //std::cout << "cmin=" << cmin << " cmax=" << cmax 
+    //      << " pmin=" << pmin << " pmax=" << pmax 
+    //      << " enumin=" << enumin << " enumax=" << enumax << std::endl;
+    if (rate > 0.) {
+      integrated_flux += rate;
+      if (rate > dNdEmudEnuMax)
+	dNdEmudEnuMax = rate;
+    }
+    else negabs++;
+  }
+  negfrac = negabs/trials;
+  integrated_flux /= trials;
+
+  std::cout << "CMSCGEN::initializeNuMu: After " << trials << " trials:" << std::endl;
+  std::cout << "dNdEmudEnuMax=" << dNdEmudEnuMax << std::endl;
+  std::cout << "negfrac=" << negfrac << std::endl;
+
+  //multiply by phase space boundaries
+  integrated_flux *= (cmin-cmax);
+  integrated_flux *= (Phimax_in-Phimin_in);
+  integrated_flux *= (pmax-pmin);
+  integrated_flux *= (enumax-enumin);
+  //remove negative phase space areas which do not contribute anything
+  integrated_flux *= (1.-negfrac);
+  std::cout << " >>> CMSCGEN.initializeNuMu <<< " <<
+    " Integrated flux = " << integrated_flux << " units??? " << std::endl;
+
+
+  initialization = 1;
+
+  return initialization;
+
+} 
+
+
+
+double CMSCGEN::dNdEmudEnu(double Enu, double Emu, double ctheta) {
+  double thetas = asin(sin(acos(ctheta))*(Rearth-SurfaceOfEarth)/(Rearth+ProdAlt));
+  double costhetas = cos(thetas);
+  double dNdEnudW = 0.0286*pow(Enu,-2.7)*(1./(1.+(6.*Enu*costhetas)/115.)+0.213/(1.+(1.44*Enu*costhetas)/850.)); //cm^2*s*sr*GeV
+  double dNdEmudEnu = N_A*sigma/alpha*dNdEnudW*1./(1.+Emu/epsilon)*
+    (Enu-Emu+AR/3*(Enu*Enu*Enu-Emu*Emu*Emu)/(Enu*Enu));
+  return dNdEmudEnu;
+}
+
+
+int CMSCGEN::generateNuMu() {
+  if(initialization==0) 
+    {
+      std::cout << " >>> CMSCGEN <<< warning: not initialized" << std::endl;
+      return -1;
+    }
+  
+  double ctheta, Emu;
+  while (1) {
+    ctheta = cmin + (cmax-cmin)*RanGen2.Rndm();
+    Emu = pmin + (pmax-pmin)*RanGen2.Rndm();
+    double Enu = enumin + (enumax-enumin)*RanGen2.Rndm();
+    double rate = dNdEmudEnu(Enu, Emu, ctheta);
+    if (rate > dNdEmudEnuMax*RanGen2.Rndm()) break;
+  }
+
+  c = -ctheta; //historical sign convention
+
+  pq = Emu;
+  //
+  // +++ nu/nubar ratio (~1.2)
+  //
+  double charg = 1.; //nubar -> mu+
+  if (RanGen2.Rndm() > Rnunubar/(1.+Rnunubar))
+    charg = -1.; //neutrino -> mu-
+
+  pq = pq*charg;
+ 
+  
+  //int flux += this event rate
+
+  return 1;
+}

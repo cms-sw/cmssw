@@ -216,6 +216,12 @@ void CosmicMuonProducer::checkIn(){
     std::cout << "  CMG-ERR: max.t0 is not greater than min.t0" << std::endl << std::endl; }
   if (ElossScaleFactor < 0.){ NumberOfEvents = 0;
     std::cout << "  CMG-ERR: E-loss scale factor is out of range [0 ... inf)" << std::endl << std::endl; }
+  if (MinEnu < 0.){ NumberOfEvents = 0;
+    std::cout << "  CMG-ERR: min.Enu is out of range [0 GeV ... inf]" << std::endl << std::endl; }
+  if (MaxEnu < 0.){ NumberOfEvents = 0;
+    std::cout << "  CMG-ERR: max.Enu is out of range [0 GeV ... inf]" << std::endl << std::endl; }
+  if (MaxEnu <= MinEnu){ NumberOfEvents = 0;
+    std::cout << "  CMG-ERR: max.Enu is not greater than min.Enu" << std::endl << std::endl; }
 }
 
 bool CosmicMuonProducer::goodOrientation(){
@@ -361,5 +367,8 @@ void CosmicMuonProducer::setMTCCHalf(bool MTCC){ if (NotInitialized) MTCCHalf = 
 
 void CosmicMuonProducer::setPlugVx(double PlugVtx){ if (NotInitialized) PlugVx = PlugVtx; }
 void CosmicMuonProducer::setPlugVz(double PlugVtz){ if (NotInitialized) PlugVz = PlugVtz; }
+
+void CosmicMuonProducer::setMinEnu(double MinEn){ if (NotInitialized) MinEnu = MinEn; }
+void CosmicMuonProducer::setMaxEnu(double MaxEn){ if (NotInitialized) MaxEnu = MaxEn; }
 
 double CosmicMuonProducer::getRate(){ return EventRate; }

@@ -22,8 +22,8 @@
 
 #include "TMath.h" 
 #include <iostream>
-//#include "GeneratorInterface/CosmicMuonGenerator/interface/CosmicMuonGenerator.h"
 #include "TRandom2.h"
+#include "GeneratorInterface/CosmicMuonGenerator/interface/CosmicMuonParameters.h"
 
 
 class CMSCGEN 
@@ -80,6 +80,12 @@ private:
   bool TIFOnly_const;
   bool TIFOnly_lin;
 
+
+  //variables for upgoing muons from neutrinos
+  double enumin;
+  double enumax;
+
+
 public:
 
   // constructor
@@ -104,6 +110,20 @@ public:
 
   double flux();
    
+  //upward going muons from neutrinos
+  int initializeNuMu(double, double, double, double, double, double, double, double, int);  
+  int generateNuMu();
+
+
+
+  double Rnunubar; //Ration of nu to nubar
+  double ProdAlt; //production altitude in atmosphere
+  double sigma;
+  double AR;
+  double dNdEmudEnu(double Enu, double Emu, double theta);
+  double dNdEmudEnuMax;
+  double negabs, negfrac;
+
 };
 #endif
 
