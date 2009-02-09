@@ -76,7 +76,7 @@ class ApvAnalysisFactory
 
  private:
   //  void  constructAuxiliaryApvClasses (ApvAnalysis* thisApv);
-  void  constructAuxiliaryApvClasses (ApvAnalysis* thisApv, uint32_t det_id, int thisApv);
+  void  constructAuxiliaryApvClasses (ApvAnalysis* theApv, uint32_t det_id, int thisApv);
   void deleteApv(ApvAnalysis* apv);
   ApvAnalysisMap apvMap_;
   std::string theAlgorithmType_;

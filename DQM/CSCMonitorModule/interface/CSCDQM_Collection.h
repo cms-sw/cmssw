@@ -92,7 +92,7 @@ namespace cscdqm {
       static double&      getHistoValue(const CoHistoProps& h, const std::string name, double& value, const int def_value = 0.0);
       
       void load();
-      void book(const HistoDef& h, const CoHistoProps& h, const std::string& folder) const;
+      void book(const HistoDef& h, const CoHistoProps& p, const std::string& folder) const;
       static const int ParseAxisLabels(const std::string& s, std::map<int, std::string>& labels);
       static void getNodeProperties(DOMNode*& node, CoHistoProps& hp);
       
