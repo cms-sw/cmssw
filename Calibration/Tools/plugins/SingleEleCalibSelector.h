@@ -41,7 +41,7 @@ class SingleEleCalibSelector{
 
  edm::ESHandle<CaloTopology> theCaloTopology;   
 
- DetId findMaxHit (const std::vector<DetId> & v1,
+ DetId findMaxHit (const std::vector<std::pair<DetId,float> > & v1,
 		   const EBRecHitCollection* EBhits,
 		   const EERecHitCollection* EEhits);
  

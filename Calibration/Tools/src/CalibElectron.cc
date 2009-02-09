@@ -28,19 +28,19 @@ std::vector< std::pair<int,float> > CalibElectron::getCalibModulesWeights(TStrin
       for (int i=0;i<EcalRingCalibrationTools::N_RING_TOTAL;++i)
 	w_ring[i]=0.;
       
-      std::vector<DetId> scDetIds = theElectron_->superCluster()->getHitsByDetId();
+      std::vector<std::pair<DetId,float> > scDetIds = theElectron_->superCluster()->hitsAndFractions();
 
       
-      for(std::vector<DetId>::const_iterator idIt=scDetIds.begin(); idIt!=scDetIds.end(); ++idIt){
+      for(std::vector<std::pair<DetId,float> >::const_iterator idIt=scDetIds.begin(); idIt!=scDetIds.end(); ++idIt){
     
 	const EcalRecHit* rh=0;
-	if ( (*idIt).subdetId() == EcalBarrel) 
-	  rh = &*(theHits_->find(*idIt));
-	else if ( (*idIt).subdetId() == EcalEndcap) 
-	  rh = &*(theEEHits_->find(*idIt));
+	if ( (*idIt).first.subdetId() == EcalBarrel) 
+	  rh = &*(theHits_->find((*idIt).first));
+	else if ( (*idIt).first.subdetId() == EcalEndcap) 
+	  rh = &*(theEEHits_->find((*idIt).first));
 	if (!rh)
 	  std::cout << "CalibElectron::BIG ERROR::RecHit NOT FOUND" << std::endl;  
-	w_ring[EcalRingCalibrationTools::getRingIndex(*idIt)]+=rh->energy();
+	w_ring[EcalRingCalibrationTools::getRingIndex((*idIt).first)]+=rh->energy();
 	
       }
 
@@ -58,19 +58,19 @@ std::vector< std::pair<int,float> > CalibElectron::getCalibModulesWeights(TStrin
       for (int i=0;i<EcalRingCalibrationTools::N_MODULES_BARREL;++i)
         w_ring[i]=0.;
 
-      std::vector<DetId> scDetIds = theElectron_->superCluster()->getHitsByDetId();
+      std::vector<std::pair<DetId,float> > scDetIds = theElectron_->superCluster()->hitsAndFractions();
 
 
-      for(std::vector<DetId>::const_iterator idIt=scDetIds.begin(); idIt!=scDetIds.end(); ++idIt){
+      for(std::vector<std::pair<DetId,float> >::const_iterator idIt=scDetIds.begin(); idIt!=scDetIds.end(); ++idIt){
 
         const EcalRecHit* rh=0;
-        if ( (*idIt).subdetId() == EcalBarrel)
-          rh = &*(theHits_->find(*idIt));
-        else if ( (*idIt).subdetId() == EcalEndcap)
-          rh = &*(theEEHits_->find(*idIt));
+        if ( (*idIt).first.subdetId() == EcalBarrel)
+          rh = &*(theHits_->find((*idIt).first));
+        else if ( (*idIt).first.subdetId() == EcalEndcap)
+          rh = &*(theEEHits_->find((*idIt).first));
         if (!rh)
           std::cout << "CalibElectron::BIG ERROR::RecHit NOT FOUND" << std::endl;
-        w_ring[EcalRingCalibrationTools::getModuleIndex(*idIt)]+=rh->energy();
+        w_ring[EcalRingCalibrationTools::getModuleIndex((*idIt).first)]+=rh->energy();
 
       }
 
@@ -87,16 +87,16 @@ std::vector< std::pair<int,float> > CalibElectron::getCalibModulesWeights(TStrin
 
       float w_ring(0.);
       
-      std::vector<DetId> scDetIds = theElectron_->superCluster()->getHitsByDetId();
-      
-      
-      for(std::vector<DetId>::const_iterator idIt=scDetIds.begin(); idIt!=scDetIds.end(); ++idIt){
+      std::vector<std::pair<DetId,float> > scDetIds = theElectron_->superCluster()->hitsAndFractions();
+
+
+      for(std::vector<std::pair<DetId,float> >::const_iterator idIt=scDetIds.begin(); idIt!=scDetIds.end(); ++idIt){
 	
         const EcalRecHit* rh=0;
-        if ( (*idIt).subdetId() == EcalBarrel)
-          rh = &*(theHits_->find(*idIt));
-        else if ( (*idIt).subdetId() == EcalEndcap)
-          rh = &*(theEEHits_->find(*idIt));
+        if ( (*idIt).first.subdetId() == EcalBarrel)
+          rh = &*(theHits_->find((*idIt).first));
+        else if ( (*idIt).first.subdetId() == EcalEndcap)
+          rh = &*(theEEHits_->find((*idIt).first));
         if (!rh)
           std::cout << "CalibElectron::BIG ERROR::RecHit NOT FOUND" << std::endl;
 	
@@ -118,16 +118,15 @@ std::vector< std::pair<int,float> > CalibElectron::getCalibModulesWeights(TStrin
       for (int i=0; i< EcalIndexingTools::getInstance()->getNumberOfChannels(); ++i)
         w_ring[i]=0.;
 
-      std::vector<DetId> scDetIds = theElectron_->superCluster()->getHitsByDetId();
+      std::vector<std::pair<DetId,float> > scDetIds = theElectron_->superCluster()->hitsAndFractions();
 
 
-      for(std::vector<DetId>::const_iterator idIt=scDetIds.begin(); idIt!=scDetIds.end(); ++idIt){
-
+      for(std::vector<std::pair<DetId,float> >::const_iterator idIt=scDetIds.begin(); idIt!=scDetIds.end(); ++idIt){
         const EcalRecHit* rh=0;
-        if ( (*idIt).subdetId() == EcalBarrel)
-          rh = &*(theHits_->find(*idIt));
-        else if ( (*idIt).subdetId() == EcalEndcap)
-          rh = &*(theEEHits_->find(*idIt));
+        if ( (*idIt).first.subdetId() == EcalBarrel)
+          rh = &*(theHits_->find((*idIt).first));
+        else if ( (*idIt).first.subdetId() == EcalEndcap)
+          rh = &*(theEEHits_->find((*idIt).first));
         if (!rh)
           std::cout << "CalibElectron::BIG ERROR::RecHit NOT FOUND" << std::endl;
 	

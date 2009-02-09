@@ -70,7 +70,7 @@ SingleEleCalibSelector::select (edm::Handle<collection> inputHandle,
   for( collection::const_iterator ele = (*inputHandle).begin(); ele != (*inputHandle).end(); ++ ele ){
      
     //Find DetID max hit
-    DetId maxHitId = findMaxHit((*ele).superCluster()->getHitsByDetId(),EBHitsColl,EEHitsColl);
+    DetId maxHitId = findMaxHit((*ele).superCluster()->hitsAndFractions(),EBHitsColl,EEHitsColl);
     
     if(maxHitId.null()){std::cout<<" Null Id"<<std::endl; continue;}
 
@@ -120,34 +120,35 @@ SingleEleCalibSelector::~SingleEleCalibSelector()
 
 
 // To find Max Hit
-DetId SingleEleCalibSelector::findMaxHit(const std::vector<DetId> & v1,
+DetId SingleEleCalibSelector::findMaxHit(const std::vector<std::pair<DetId,float> > & v1,
 				const EBRecHitCollection* EBhits,
 				const EERecHitCollection* EEhits) 
 {
   double currEnergy = 0. ;
   DetId maxHit ;
-  for (std::vector<DetId>::const_iterator idsIt = v1.begin () ; 
+  for (std::vector<std::pair<DetId,float> >::const_iterator idsIt = v1.begin () ; 
        idsIt != v1.end () ; ++idsIt)
     {
-      if (idsIt->subdetId () == EcalBarrel) 
+      if (idsIt->first.subdetId () == EcalBarrel) 
 	{              
 	  EBRecHitCollection::const_iterator itrechit ;
-	  itrechit = EBhits->find (*idsIt) ;
+	  itrechit = EBhits->find ((*idsIt).first) ;
 	  if (itrechit == EBhits->end () )
 	    {
 	      edm::LogInfo ("reading") << "[findMaxHit] rechit not found! " ;
 	      continue ;
 	    }
+//FIXME: use fraction ??
 	  if (itrechit->energy () > currEnergy)
 	    {
 	      currEnergy = itrechit->energy () ;
-	      maxHit= *idsIt ;
+	      maxHit= (*idsIt).first ;
 	    }
 	}
       else 
 	{     
 	  EERecHitCollection::const_iterator itrechit ;
-	  itrechit = EEhits->find (*idsIt) ;
+	  itrechit = EEhits->find ((*idsIt).first) ;
 	  if (itrechit == EEhits->end () )
 	    {
 	      edm::LogInfo ("reading")<< "[findMaxHit] rechit not found! " ;
@@ -157,7 +158,7 @@ DetId SingleEleCalibSelector::findMaxHit(const std::vector<DetId> & v1,
 	  if (itrechit->energy () > currEnergy)
 	    {
 	      currEnergy=itrechit->energy () ;
-	      maxHit= *idsIt ;
+	      maxHit= (*idsIt).first ;
 	    }
 	}
     }
