@@ -12,7 +12,7 @@
 */
 // Original Author:  Keti Kaadze
 //         Created:  Thu Jun 21 08:59:42 CDT 2007
-// $Id: EnergyScaleAnalyzer.cc,v 1.3 2008/06/18 17:17:48 kkaadze Exp $
+// $Id: EnergyScaleAnalyzer.cc,v 1.5 2009/01/09 10:23:25 saout Exp $
 //
 
 //#include "RecoEcal/EnergyScaleAnalyzer/interface/EnergyScaleAnalyzer.h"
@@ -359,7 +359,7 @@ void EnergyScaleAnalyzer::fillTree ( const reco::SuperClusterCollection* scColl,
   tree_.em_phi   = em->position().phi();
   tree_.em_eta   = em->position().eta();
   tree_.em_theta = em->position().theta();
-  tree_.em_nCell = (em->getHitsByDetId()).size();
+  tree_.em_nCell = em->size();
   tree_.em_nBC   = em->clustersSize();
   
   //Get physics e, et etc:
