@@ -47,7 +47,6 @@ struct IsolatedPFCandidateSelectorDefinition {
 	unsigned nSources = ptrToMother->numberOfSourceCandidatePtrs();
 
 	selected_.back()->setSourcePtr( ptrToMother );
-	break;
       }
     }
   }
