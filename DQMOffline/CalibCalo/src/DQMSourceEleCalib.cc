@@ -4,7 +4,7 @@
  * \author Andrea Gozzelino - Universita  e INFN Torino
  * \author Stefano Argiro
  *        
- * $Date: 2008/08/13 09:20:27 $
+ * $Date: 2008/10/29 16:52:36 $
  * $Revision: 1.1 $
  *
  *
@@ -122,8 +122,8 @@ void DQMSourceEleCalib::analyze(const Event& iEvent,
     for (reco::GsfElectronCollection::const_iterator eleIt = pElectrons->begin();
     	eleIt!= pElectrons->end(); ++eleIt){
     ESCoP_->Fill(eleIt->eSuperClusterOverP());
-    numberOfAssociatedHits+= eleIt->superCluster()->getHitsByDetId().size();
-    DetId Max = findMaxHit (eleIt->superCluster ()->getHitsByDetId (), 
+    numberOfAssociatedHits+= eleIt->superCluster()->size();
+    DetId Max = findMaxHit (eleIt->superCluster ()->hitsAndFractions (), 
                              rhEB.product(),  rhEE.product()) ;
     if (!Max.det()) continue;
     if (Max.subdetId()==EcalBarrel) {
@@ -186,38 +186,38 @@ void DQMSourceEleCalib::endJob(){
 
 
 DetId
-DQMSourceEleCalib::findMaxHit (const std::vector<DetId> & v1,
+DQMSourceEleCalib::findMaxHit (const std::vector<std::pair<DetId,float> > & v1,
                                const EcalRecHitCollection* EBhits,
                                const EcalRecHitCollection* EEhits) 
 {
 
   double currEnergy = 0. ;
   DetId maxHit ;
-  for (std::vector<DetId>::const_iterator idsIt = v1.begin () ; 
+  for (std::vector<std::pair<DetId,float> >::const_iterator idsIt = v1.begin () ; 
        idsIt != v1.end () ; ++idsIt)
     {
             
-     if (idsIt->subdetId () == EcalBarrel) 
+     if (idsIt->first.subdetId () == EcalBarrel) 
        {              
          EcalRecHitCollection::const_iterator itrechit ;
-         itrechit = EBhits->find (*idsIt) ;
+         itrechit = EBhits->find ((*idsIt).first) ;
          if (itrechit == EBhits->end () )
            {
              edm::LogInfo ("reading")
              << "[findMaxHit] rechit not found! " ;
              continue ;
            }
-                
+//FIXME: wnat to use the fraction i.e. .second??
          if (itrechit->energy () > currEnergy)
            {
              currEnergy = itrechit->energy () ;
-             maxHit= *idsIt ;
+             maxHit= (*idsIt).first ;
            }
        }
      else 
        {     
          EcalRecHitCollection::const_iterator itrechit ;
-         itrechit = EEhits->find (*idsIt) ;
+         itrechit = EEhits->find ((*idsIt).first) ;
          if (itrechit == EEhits->end () )
            {
              edm::LogInfo ("reading")
@@ -225,10 +225,11 @@ DQMSourceEleCalib::findMaxHit (const std::vector<DetId> & v1,
              continue ;
            }
               
+//FIXME: wnat to use the fraction i.e. .second??
          if (itrechit->energy () > currEnergy)
            {
             currEnergy=itrechit->energy () ;
-            maxHit= *idsIt ;
+            maxHit= (*idsIt).first ;
            }
        }
     }

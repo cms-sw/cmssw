@@ -22,7 +22,7 @@ ClusterFillMap::~ClusterFillMap()
 }
 
 DetId 
-ClusterFillMap::fillMap (const std::vector<DetId> & v1,
+ClusterFillMap::fillMap (const std::vector<std::pair<DetId,float> > & v1,
                 const EcalRecHitCollection * barrelHitsCollection,
 		const EcalRecHitCollection * endcapHitsCollection,
                 std::map<int,double> & xtlMap,
@@ -30,25 +30,25 @@ ClusterFillMap::fillMap (const std::vector<DetId> & v1,
 {
  
   DetId Max = findMaxHit (v1, barrelHitsCollection, endcapHitsCollection);
-  for (std::vector<DetId>::const_iterator idsIt = v1.begin();
+  for (std::vector<std::pair<DetId,float> >::const_iterator idsIt = v1.begin();
        idsIt != v1.end () ;
        ++idsIt)
  {
    int RegionNumber = m_xtalRegionId[Max.rawId()];
    EcalRecHitCollection::const_iterator itrechit;
    double dummy;
-   if(idsIt->subdetId()==EcalBarrel)
+   if(idsIt->first.subdetId()==EcalBarrel)
    {
-     itrechit=barrelHitsCollection->find(*idsIt);
+     itrechit=barrelHitsCollection->find(idsIt->first);
      dummy=itrechit->energy();
-     dummy*= (*m_barrelMap)[*idsIt];
+     dummy*= (*m_barrelMap)[idsIt->first];
    }
-   if(idsIt->subdetId()==EcalEndcap){
-     itrechit=endcapHitsCollection->find(*idsIt);
+   if(idsIt->first.subdetId()==EcalEndcap){
+     itrechit=endcapHitsCollection->find(idsIt->first);
      dummy=itrechit->energy();
-     dummy*= (*m_endcapMap)[*idsIt];
+     dummy*= (*m_endcapMap)[idsIt->first];
    }
-   int ID=idsIt->rawId();
+   int ID=idsIt->first.rawId();
    if (isnan(dummy)) {
      dummy=0;
    }

@@ -25,15 +25,16 @@ class VFillMap
 	//!dtor
 	virtual ~VFillMap () {};
 	//! The Map filler
-        virtual DetId fillMap (const std::vector<DetId> &, 
+        virtual DetId fillMap (const std::vector<std::pair<DetId,float> > &, 
 			const EcalRecHitCollection *, 
 			const EcalRecHitCollection *,
 			std::map<int,double> & xtlMap,
 			double & ) = 0;
 
 	protected:
-        DetId findMaxHit (const std::vector<DetId> &,const EcalRecHitCollection *, 
-			const EcalRecHitCollection *);
+        DetId findMaxHit (const std::vector<std::pair<DetId,float> > &,
+			  const EcalRecHitCollection *, 
+			  const EcalRecHitCollection *);
 	int m_recoWindowSidex;
 	int m_recoWindowSidey;
         std::map<int,int> m_xtalRegionId;

@@ -23,7 +23,7 @@ MatrixFillMap::~MatrixFillMap ()
 
 
 DetId
-MatrixFillMap::fillMap (const std::vector<DetId>  & v1,
+MatrixFillMap::fillMap (const std::vector<std::pair<DetId,float> >  & v1,
 	 const EcalRecHitCollection * barrelHitsCollection,
 	 const EcalRecHitCollection * endcapHitsCollection,
 	 std::map<int, double> & xtlMap,

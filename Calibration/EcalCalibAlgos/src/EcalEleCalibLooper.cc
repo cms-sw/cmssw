@@ -241,7 +241,7 @@ EcalEleCalibLooper::duringLoop (const edm::Event& iEvent,
      double pSubtract = 0 ;
      double pTk = 0 ;
      std::map<int , double> xtlMap;
-     DetId Max = m_MapFiller->fillMap(eleIt->superCluster ()->getHitsByDetId (), 
+     DetId Max = m_MapFiller->fillMap(eleIt->superCluster ()->hitsAndFractions (), 
                            barrelHitsCollection,endcapHitsCollection, xtlMap,pSubtract);
      if (m_maxSelectedNumPerXtal > 0 && 
         m_xtalNumOfHits[Max.rawId ()] > m_maxSelectedNumPerXtal ) continue;

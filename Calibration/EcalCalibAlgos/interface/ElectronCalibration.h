@@ -16,7 +16,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO, Radek Ofierzynski
 //         Created:  Tue Jul 18 12:17:01 CEST 2006
-// $Id: ElectronCalibration.h,v 1.5.2.1 2007/10/22 16:29:56 beaucero Exp $
+// $Id: ElectronCalibration.h,v 1.6 2007/10/30 16:07:49 beaucero Exp $
 //
 //
 
@@ -56,7 +56,7 @@ class ElectronCalibration : public edm::EDAnalyzer {
    private:
 
       EBDetId  findMaxHit(edm::Handle<EBRecHitCollection> &);
-      EBDetId  findMaxHit2(const std::vector<DetId> & ,const EBRecHitCollection* );
+      EBDetId  findMaxHit2(const std::vector<std::pair<DetId,float> > & ,const EBRecHitCollection* );
 
       // ----------member data ---------------------------
       std::string rootfile_;

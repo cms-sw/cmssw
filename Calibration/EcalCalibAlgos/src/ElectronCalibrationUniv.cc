@@ -354,35 +354,37 @@ ElectronCalibrationUniv::endJob() {
 }
 
 
-DetId  ElectronCalibrationUniv::findMaxHit(const std::vector<DetId> & v1,const EBRecHitCollection *EBhits,const EERecHitCollection *EEhits) {
+DetId  ElectronCalibrationUniv::findMaxHit(const std::vector<std::pair<DetId, float> > & v1,const EBRecHitCollection *EBhits,const EERecHitCollection *EEhits) {
   //=================================================================================
   
   double currEnergy = 0.;
   DetId maxHit;
   
-  for( std::vector<DetId>::const_iterator idsIt = v1.begin(); idsIt != v1.end(); ++idsIt) {
-    if(idsIt->subdetId()==1){
+  for( std::vector<std::pair<DetId, float> >::const_iterator idsIt = v1.begin(); idsIt != v1.end(); ++idsIt) {
+    if(idsIt->first.subdetId()==1){
      EBRecHitCollection::const_iterator itrechit;
-      itrechit = EBhits->find(*idsIt);
+      itrechit = EBhits->find((*idsIt).first);
       if(itrechit==EBhits->end()){
 	std::cout << "ElectronCalibration::findMaxHit: rechit not found! " << std::endl;
 	continue;
       }
+//FIXME: use fraction, i.e. .second
       if(itrechit->energy() > currEnergy) {
 	currEnergy=itrechit->energy();
-	maxHit= *idsIt;
+	maxHit= (*idsIt).first;
       }
     }else{
       EERecHitCollection::const_iterator itrechit;
-      itrechit = EEhits->find(*idsIt);
+      itrechit = EEhits->find((*idsIt).first);
       if(itrechit==EEhits->end()){
       	std::cout << "ElectronCalibration::findMaxHit: rechit not found! " << std::endl;
 	continue;
       }
+//FIXME: use fraction, i.e. .second
       
       if(itrechit->energy() > currEnergy) {
 	currEnergy=itrechit->energy();
-	maxHit= *idsIt;
+	maxHit= (*idsIt).first;
       }
     }
   }
@@ -502,7 +504,7 @@ ElectronCalibrationUniv::analyze(const edm::Event& iEvent, const edm::EventSetup
   
   const reco::SuperCluster & sc = *(highPtElectron.superCluster()) ;
   //  if(fabs(sc.eta())>1.479){cout<<" SC not in Barrel "<<endl;;}
-  const std::vector<DetId> & v1 = sc.getHitsByDetId();
+  const std::vector<std::pair<DetId,float> > & v1 = sc.hitsAndFractions();
   DetId maxHitId;
   
   maxHitId = findMaxHit(v1,(EBhits),(EEhits)); 

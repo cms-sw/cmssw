@@ -298,7 +298,7 @@ InvRingCalib::duringLoop (const edm::Event& iEvent,
       pSubtract =0;
       pTk=eleIt->trackMomentumAtVtx().R();
       std::map<int , double> xtlMap;
-      DetId Max = m_MapFiller->fillMap(eleIt->superCluster ()->getHitsByDetId (), 
+      DetId Max = m_MapFiller->fillMap(eleIt->superCluster ()->hitsAndFractions (), 
                            barrelHitsCollection,endcapHitsCollection, xtlMap,pSubtract);
       if (Max.det()==0) continue;			
       if (m_xtalRegionId[Max.rawId()]==-1) continue;

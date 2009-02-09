@@ -371,24 +371,25 @@ EBDetId ElectronCalibration::findMaxHit(edm::Handle<EBRecHitCollection> &  phits
 }
 
 //=================================================================================
-EBDetId  ElectronCalibration::findMaxHit2(const std::vector<DetId> & v1,const EBRecHitCollection* hits) {
+EBDetId  ElectronCalibration::findMaxHit2(const std::vector<std::pair<DetId,float> > & v1,const EBRecHitCollection* hits) {
 //=================================================================================
 
   double currEnergy = 0.;
   EBDetId maxHit;
   
-  for( std::vector<DetId>::const_iterator idsIt = v1.begin(); idsIt != v1.end(); ++idsIt) {
-    if(idsIt->subdetId()!=1) continue;
+  for( std::vector<std::pair<DetId,float> >::const_iterator idsIt = v1.begin(); idsIt != v1.end(); ++idsIt) {
+    if(idsIt->first.subdetId()!=1) continue;
     EBRecHitCollection::const_iterator itrechit;
-    itrechit = hits->find(*idsIt);
+    itrechit = hits->find((*idsIt).first);
 	   
     if(itrechit == hits->end()){
       std::cout << "ElectronCalibration::findMaxHit2: rechit not found! " << std::endl;
       continue;
     }
+//FIXME: use also the fraction in .second ??
     if(itrechit->energy() > currEnergy) {
       currEnergy=itrechit->energy();
-      maxHit= *idsIt;
+      maxHit= (*idsIt).first;
     }
   }
   
@@ -458,7 +459,7 @@ void ElectronCalibration::analyze(const edm::Event& iEvent, const edm::EventSetu
 //      cout << "track eta = " << highPtElectron.eta() << endl;
 //      cout << "track phi = " << highPtElectron.phi() << endl;
     
-      const std::vector<DetId> & v1 = sc.getHitsByDetId();
+      const std::vector<std::pair<DetId,float> > & v1 = sc.hitsAndFractions();
       EBDetId maxHitId;
       
       maxHitId = findMaxHit2(v1,hits); 

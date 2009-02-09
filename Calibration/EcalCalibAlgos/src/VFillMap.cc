@@ -18,7 +18,7 @@
 
 
 DetId
- VFillMap::findMaxHit (const std::vector<DetId> & v1,
+ VFillMap::findMaxHit (const std::vector<std::pair<DetId,float> > & v1,
 		            const EcalRecHitCollection * EBhits,
 			    const EcalRecHitCollection * EEhits)
 {
@@ -26,13 +26,13 @@ DetId
  //creates an empty DetId 
  DetId maxHit;
  //Loops over the vector of the recHits
- for (std::vector<DetId>::const_iterator idsIt = v1.begin () ; 
+ for (std::vector<std::pair<DetId,float> >::const_iterator idsIt = v1.begin (); 
       idsIt != v1.end () ; ++idsIt)
    {
-    if (idsIt->subdetId () == EcalBarrel) 
+    if (idsIt->first.subdetId () == EcalBarrel) 
        {              
          EBRecHitCollection::const_iterator itrechit;
-         itrechit = EBhits->find (*idsIt) ;
+         itrechit = EBhits->find (idsIt->first) ;
 	       //not really understood why this should happen, but it happens
          if (itrechit == EBhits->end () )
            {
@@ -43,14 +43,14 @@ DetId
          if (itrechit->energy () > currEnergy)
            {
              currEnergy = itrechit->energy () ;
-             maxHit= *idsIt ;
+             maxHit= idsIt->first ;
            }
        } //barrel part ends
     else 
        {     
 	       //as the barrel part
          EERecHitCollection::const_iterator itrechit;
-         itrechit = EEhits->find (*idsIt) ;
+         itrechit = EEhits->find (idsIt->first) ;
          if (itrechit == EEhits->end () )
            {
              continue;
@@ -58,7 +58,7 @@ DetId
          if (itrechit->energy () > currEnergy)
            {
             currEnergy=itrechit->energy ();
-            maxHit= *idsIt;
+            maxHit= idsIt->first;
            }
        } //ends the endcap part
     } //end of the loop over the detId

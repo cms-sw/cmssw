@@ -5,7 +5,7 @@
  * *
  *  DQM Source for phi symmetry stream
  *
- *  $Date: 2008/08/13 09:20:27 $
+ *  $Date: 2008/10/29 16:52:37 $
  *  $Revision: 1.1 $
  *  \author Stefano Argiro'
  *          Andrea Gozzelino - Universita  e INFN Torino
@@ -49,7 +49,7 @@ protected:
 private:
   
   //!find the MOX
-  DetId findMaxHit (const std::vector<DetId>&,
+  DetId findMaxHit (const std::vector<std::pair<DetId, float> >&,
 		    const EcalRecHitCollection*, 
 		    const EcalRecHitCollection*  
 		  );

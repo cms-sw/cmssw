@@ -55,9 +55,6 @@
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include <FWCore/Framework/interface/TriggerNames.h>
 #include <FWCore/Framework/interface/Selector.h>
-#include <FWCore/Framework/interface/SelectorProvenance.h>
-//#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
-/////////
 
 
 #include "TTree.h"
