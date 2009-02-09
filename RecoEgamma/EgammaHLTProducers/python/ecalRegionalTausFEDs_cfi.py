@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 # -- needed for regional unpacking:
-from L1TriggerConfig.L1GeometryProducers.l1CaloGeometry_cfi import *
-from L1TriggerConfig.L1GeometryProducers.l1CaloGeomRecordSource_cff import *
+# from L1TriggerConfig.L1GeometryProducers.l1CaloGeometry_cfi import *
+# from L1TriggerConfig.L1GeometryProducers.l1CaloGeomRecordSource_cff import *
 #  es_source l1CaloGeomRecordSource = EmptyESSource {
 #    string recordName = "L1CaloGeometryRecord"
 #    vuint32 firstValid = { 1 }
