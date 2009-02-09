@@ -20,7 +20,7 @@ PFCluster::PFCluster(PFLayer::Layer layer, double energy,
   CaloCluster( energy, 
 	       math::XYZPoint(x,y,z), 
 	       PFLayer::toCaloID(layer),
-	       CaloCluster::ALGO_pFClusters ),
+	       CaloCluster::ALGO_pfClusters ),
   posrep_( position_.Rho(), position_.Eta(), position_.Phi() ),
   color_(2)
 {  }
@@ -107,16 +107,21 @@ std::ostream& reco::operator<<(std::ostream& out,
   const std::vector< reco::PFRecHitFraction >& fracs = 
     cluster.recHitFractions();
   
-  out<<"cluster "
-     <<"\tlayer: "<<cluster.layer()
-     <<"\tenergy: "<<cluster.energy()
+  out<<"PFcluster "
+     <<", layer: "<<cluster.layer()
+     <<"\tE = "<<cluster.energy()
      <<"\tXYZ: "
      <<pos.X()<<","<<pos.Y()<<","<<pos.Z()<<" | "
      <<"\tREP: "
      <<posrep.Rho()<<","<<posrep.Eta()<<","<<posrep.Phi()<<" | "
-     <<fracs.size()<<" rechits: ";
+     <<fracs.size()<<" rechits";
+  
   for(unsigned i=0; i<fracs.size(); i++) {
-    out<<fracs[i]<<", ";
+    // PFRecHit is not available, print the detID
+    if( !fracs[i].recHitRef().isAvailable() )
+      out<<cluster.printHitAndFraction(i)<<", ";
+    else 
+      out<<fracs[i]<<", ";
   }
   
   return out;
