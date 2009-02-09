@@ -1,4 +1,5 @@
 #include "DQM/SiStripCommissioningAnalysis/src/Utility.h"
+#include <algorithm>
 
 // ----------------------------------------------------------------------------
 // 

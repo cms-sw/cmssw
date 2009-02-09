@@ -11,8 +11,8 @@
 //   Author List: Benn Tannenbaum 30 August 1999.
 //                Based on code by Nick Wisniewski.
 //
-//   $Date: 2006/12/20 22:11:26 $
-//   $Revision: 1.4 $
+//   $Date: 2007/06/13 14:45:02 $
+//   $Revision: 1.5 $
 //
 //   Modifications: Numerous later improvements by Jason Mumford and
 //                  Slava Valuev (see cvs in ORCA).
@@ -20,8 +20,9 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <L1Trigger/CSCTriggerPrimitives/src/CSCMuonPortCard.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCMuonPortCard.h"
+#include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
+#include <algorithm>
 
 void CSCMuonPortCard::loadDigis(const CSCCorrelatedLCTDigiCollection& thedigis)
 {
