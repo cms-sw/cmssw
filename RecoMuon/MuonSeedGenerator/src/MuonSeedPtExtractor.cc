@@ -1,17 +1,13 @@
 #include "RecoMuon/MuonSeedGenerator/src/MuonSeedPtExtractor.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-//#include "TrackingTools/DetLayers/interface/DetLayer.h"
-//#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-
-#include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
 #include "TMath.h"
 #include <sstream>
 
 MuonSeedPtExtractor::MuonSeedPtExtractor(const edm::ParameterSet& par)
+: scaleDT_( par.getParameter<bool>("scaleDT") )
 {
   // load pT seed parameters
   // DT combinations
@@ -219,7 +215,6 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
       dpsi = 0.00005;
     }
     dPhi = dpsi;
-    double etaAbs = fabs(eta);
 
     if(innerHit->isDT())
     {
@@ -304,6 +299,11 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
     if(parametersItr == theParametersForCombo.end()) {
        throw cms::Exception("MuonSeedPtEstimator") << "Cannot find parameters for combo " << combination;
     }
+
+    if(scaleDT_ && outerHit->isDT() )
+    {
+      dPhi = scaledPhi(dPhi, combination, detId_outer);
+    }
     pTestimate = getPt(parametersItr->second, eta, dPhi);
     if(singleSegment){
       pTestimate[0] = fabs(pTestimate[0]);
@@ -350,7 +350,7 @@ int MuonSeedPtExtractor::stationCode(MuonTransientTrackingRecHit::ConstMuonRecHi
   return result;
 }
 
-// it is a copy from the Seed code - call it from there?
+
 std::vector<double> MuonSeedPtExtractor::getPt(const std::vector<double> & vPara, double eta, double dPhi ) const {
   // std::cout<<" eta = "<<eta<<" dPhi = "<<dPhi<<" vPara[0] = "<<vPara[0]<<" vPara[1] = "<<vPara[1]<<" vPara[2] = "<<vPara[2]<<std::endl;
   double h  = fabs(eta);
@@ -362,3 +362,26 @@ std::vector<double> MuonSeedPtExtractor::getPt(const std::vector<double> & vPara
   paraPt.push_back( estSPt ) ;
   return paraPt ;
 }
+
+
+double MuonSeedPtExtractor::scaledPhi( double dphi, const std::string & combination, const DTChamberId & outerDetId) const
+{
+  int wheel = 0;
+  if(combination[0] == 'D') {
+    wheel = abs(outerDetId.wheel());
+  }
+
+  std::ostringstream os;
+  os << combination << "_" << wheel << "_scale";
+
+  ScalesMap::const_iterator scalesItr = theScalesForCombo.find(os.str());
+
+  if (dphi != 0. && scalesItr != theScalesForCombo.end()) {
+    double t1 = scalesItr->second[3];
+    double oPhi = 1./dphi ;
+    double scaleFactor = 1./( 1. + t1/( oPhi + 10. ) ) ;
+    dphi *= scaleFactor ;
+  }
+  return dphi ;
+}
+
