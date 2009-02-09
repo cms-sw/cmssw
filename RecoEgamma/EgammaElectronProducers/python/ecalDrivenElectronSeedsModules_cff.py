@@ -5,7 +5,6 @@ from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
 from RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi import *
 from RecoLocalTracker.SiPixelRecHits.PixelCPEParmError_cfi import *
 from RecoLocalTracker.SiStripRecHitConverter.StripCPE_cfi import *
-from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
 from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi import *
 from RecoTracker.TkNavigation.NavigationSchoolESProducer_cff import *
 from RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi import *
