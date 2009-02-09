@@ -29,6 +29,8 @@
 #include <ThePEG/EventRecord/SubProcess.h>
 #include <ThePEG/Handlers/XComb.h>
 #include <ThePEG/Handlers/EventHandler.h>
+#include <ThePEG/PDF/PartonExtractor.h>
+#include <ThePEG/PDF/PDF.h>
 
 #include "GeneratorInterface/ThePEGInterface/interface/HepMCConverter.h"
 
@@ -82,31 +84,7 @@ void HepMCConverter<HepMCEventT,Traits>::init(const Event &ev, bool nocopies)
 	tcPVector all;
 	ev.select(back_inserter(all), SelectAll());
 	vertices.reserve(all.size()*2);
-
-	// order the particles topologically
-	std::set<tcPPtr> visited;
-	for(unsigned int head = 0; head < all.size(); head++) {
-		bool vetoed = true;
-		for(unsigned int cur = head; cur < all.size(); cur++) {
-			vetoed = false;
-			for(tParticleVector::const_iterator iter =
-						all[cur]->parents().begin();
-			    iter != all[cur]->parents().end(); ++iter) {
-				if (visited.find(*iter) == visited.end()) {
-					vetoed = true;
-					break;
-				}
-			}
-			if (!vetoed) {
-				if (cur != head)
-					std::swap(all[head], all[cur]);
-				break;
-			}
-		}
-
-		visited.insert(all[head]);
-	}
-	visited.clear();
+	sortTopologically(all);
 
 	GenParticle *beam1 = 0, *beam2 = 0;
 
@@ -277,6 +255,72 @@ HepMCConverter<HepMCEventT,Traits>::createVertex(Vertex *v)
 	Traits::setPosition(*gv, p, lengthUnit);
 
 	return gv;
+}
+
+/*
+template <typename HepMCEventT, typename Traits>
+typename HepMCConverter<HepMCEventT,Traits>::PdfInfo *
+HepMCConverter<HepMCEventT,Traits>::createPdfInfo(const Event & e) {
+  // ids of the partons going into the primary sub process
+  tSubProPtr sub = e.primarySubProcess();
+  int id1 = sub->incoming().first ->id();
+  int id2 = sub->incoming().second->id();
+  // get the event handler
+  tcEHPtr eh = dynamic_ptr_cast<tcEHPtr>(e.handler());
+  // get the values of x
+  double x1 = eh->lastX1();
+  double x2 = eh->lastX2();
+  // get the pdfs
+  pair<PDF,PDF> pdfs;
+  pdfs.first  =  eh->pdf<PDF>(sub->incoming().first );
+  pdfs.second =  eh->pdf<PDF>(sub->incoming().second);
+  // get the scale
+  Energy2 scale = eh->lastScale();
+  // get the values of the pdfs
+  double pdf1 = pdfs.first.xfx(sub->incoming().first ->dataPtr(),scale,x1);
+  double pdf2 = pdfs.first.xfx(sub->incoming().second->dataPtr(),scale,x2);
+  // create the PDFinfo object
+  PdfInfo * output = new PdfInfo();
+  // set the values
+  output->set_id1(id1);
+  output->set_id2(id2);
+  output->set_x1(x1);
+  output->set_x2(x2);
+  output->set_scalePDF(sqrt(scale/GeV2));
+  output->set_pdf1(pdf1);
+  output->set_pdf2(pdf2);
+  // return the answer
+  return output;
+}
+*/
+
+template <typename HepMCEventT, typename Traits>
+void HepMCConverter<HepMCEventT,Traits>::sortTopologically(tcPVector &all)
+{
+	// order the particles topologically
+	std::set<tcPPtr> visited;
+	for(unsigned int head = 0; head < all.size(); head++) {
+		bool vetoed = true;
+		for(unsigned int cur = head; cur < all.size(); cur++) {
+			vetoed = false;
+			for(tParticleVector::const_iterator iter =
+						all[cur]->parents().begin();
+			    iter != all[cur]->parents().end(); ++iter) {
+				if (visited.find(*iter) == visited.end()) {
+					vetoed = true;
+					break;
+				}
+			}
+			if (!vetoed) {
+				if (cur != head)
+					std::swap(all[head], all[cur]);
+				break;
+			}
+		}
+
+		visited.insert(all[head]);
+	}
+	visited.clear();
 }
 
 template class ThePEG::HepMCConverter<HepMC::GenEvent>;

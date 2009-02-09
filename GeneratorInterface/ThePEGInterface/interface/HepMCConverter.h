@@ -54,6 +54,8 @@ public:
   typedef typename Traits::EventT GenEvent;
   /** Forward typedefs from Traits class. */
   typedef typename Traits::VertexT GenVertex;
+  /** Forward typedefs from Traits class. */
+//  typedef typename Traits::PdfInfoT PdfInfo;
   /** Map ThePEG particles to HepMC particles. */
   typedef map<tcPPtr,GenParticle*> ParticleMap;
   /** Map ThePEG colour lines to HepMC colour indices. */
@@ -142,6 +144,16 @@ private:
    * Create a GenVertex from a temporary Vertex.
    */
   GenVertex * createVertex(Vertex * v);
+
+  /**
+   * Create a PdfInfo object from the event
+   */
+//  PdfInfo * createPdfInfo(const Event & e);
+
+  /**
+   * Sort vertices topologically
+   */
+  void sortTopologically(tcPVector & allv);
 
 private:
 
