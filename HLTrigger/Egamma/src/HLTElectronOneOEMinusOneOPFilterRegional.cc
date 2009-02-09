@@ -2,7 +2,7 @@
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
- * $Id: HLTElectronOneOEMinusOneOPFilterRegional.cc,v 1.6 2007/12/07 14:41:33 ghezzi Exp $
+ * $Id: HLTElectronOneOEMinusOneOPFilterRegional.cc,v 1.7 2008/11/03 11:00:50 ghezzi Exp $
  *
  */
 
@@ -35,6 +35,9 @@ HLTElectronOneOEMinusOneOPFilterRegional::HLTElectronOneOEMinusOneOPFilterRegion
    ncandcut_  = iConfig.getParameter<int> ("ncandcut");
    doIsolated_  = iConfig.getParameter<bool> ("doIsolated");
 
+   store_ = iConfig.getUntrackedParameter<bool> ("SaveTag",false) ;
+   // L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
+   // L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
 
    //register your products
    produces<trigger::TriggerFilterObjectWithRefs>();
@@ -52,6 +55,8 @@ HLTElectronOneOEMinusOneOPFilterRegional::filter(edm::Event& iEvent, const edm::
   // The filter object
   using namespace trigger;
     std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterproduct (new trigger::TriggerFilterObjectWithRefs(path(),module()));
+    if( store_ ){filterproduct->addCollectionTag(electronIsolatedProducer_);}
+    if( store_ && !doIsolated_){filterproduct->addCollectionTag(electronNonIsolatedProducer_);}  
     //will be a collection of Ref<reco::ElectronCollection> ref;
     
   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;

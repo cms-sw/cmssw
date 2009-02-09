@@ -4,7 +4,7 @@
 /** \class HLTElectronOneOEMinusOneOPFilterRegional
  *
  *  \author Monica Vazquez Acosta (CERN)
- * $Id: HLTElectronOneOEMinusOneOPFilterRegional.h,v 1.2 2007/04/02 17:14:13 mpieri Exp $
+ * $Id: HLTElectronOneOEMinusOneOPFilterRegional.h,v 1.1 2007/08/28 15:21:51 ghezzi Exp $
  */
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
@@ -28,6 +28,10 @@ class HLTElectronOneOEMinusOneOPFilterRegional : public HLTFilter {
       double barrelcut_; //  Eoverp barrel
       double endcapcut_; //  Eoverp endcap
       int    ncandcut_;        // number of electrons required
+
+      bool   store_;
+      // edm::InputTag L1IsoCollTag_; 
+      // edm::InputTag L1NonIsoCollTag_; 
 };
 
 #endif //HLTElectronOneOEMinusOneOPFilterRegional_h
