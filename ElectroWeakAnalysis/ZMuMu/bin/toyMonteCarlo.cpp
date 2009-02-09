@@ -93,13 +93,12 @@ private:
 
 int main(int argc, char * argv[]){
   TRandom3 *eventGenerator = new TRandom3();
-  cout<<"int main()"<<endl;
   int o;
   char* endPtr;
   char* pdf("analysis_Z_133pb_trackIso_3.root");
-  double yield(50550), effTrk(.9982), effSa(.989626), effHlt(.915496), effIso(.978575);
-  double slopeMuTk(0.015556), a0MuTk(0.00035202), a1MuTk(2.99663), a2MuTk(-0.0211138);
-  double slopeMuMuNonIso(0.0246876), a0MuMuNonIso(0.884777), a1MuMuNonIso(6.67684), a2MuMuNonIso(-0.0523693);
+  double yield(50381.3), effTrk(.998364), effSa(.989626), effHlt(.980196), effIso(.915496);
+  double slopeMuTk(.0155572), a0MuTk(.000368064), a1MuTk(2.99685), a2MuTk(-0.021115);
+  double slopeMuMuNonIso(.0247058), a0MuMuNonIso(.0959997), a1MuMuNonIso(6.70293), a2MuMuNonIso(-0.0525249);
   BkgShape zMuTkBkgPdf(60, 120, slopeMuTk, a0MuTk, a1MuTk, a2MuTk);
   BkgShape zMuMuNonIsoBkgPdf(60, 120, slopeMuMuNonIso, a0MuMuNonIso, a1MuMuNonIso, a2MuMuNonIso);
  
@@ -145,13 +144,12 @@ int main(int argc, char * argv[]){
   TFile *inputfile = new TFile(pdf);
   TH1F *pdfzmm = (TH1F*)inputfile->Get("goodZToMuMuPlots/zMass");//pdf signal Zmumu(1hlt,2hlt), ZMuMunotIso, ZmuTk
   TH1F *pdfzmsa = (TH1F*)inputfile->Get("zmumuSaMassHistogram/zMass");//pdf signal ZmuSa
-  cout<<"take pdf"<<endl;
+  
   for(int j = 1; j <=expt; ++j){//loop on number of experiments  
     int N0 = eventGenerator->Poisson(yield);
     int nMuTkBkg = eventGenerator->Poisson(zMuTkBkgPdf.integral());
     int nMuMuNonIsoBkg = eventGenerator->Poisson(zMuMuNonIsoBkgPdf.integral());
-    cout<<"loop on experiment"<<endl;
-
+  
     int Nmumu = 0;
     int N2HLT = 0;
     int N1HLT = 0;
@@ -177,11 +175,7 @@ int main(int argc, char * argv[]){
        }//end global
        else if(((mu1 == globalMu && trig1) &&  mu2 == standaloneMu ) 
 	       ||((mu2 == globalMu && trig2) && mu1 == standaloneMu )){
-	 //cout<<"find standAlone"<<endl;
-	 if(iso1 && iso2) {
-	   NSa++;
-	   // cout<<"fill standAlone"<<endl;
-	 }
+	 if(iso1 && iso2) NSa++;
        }//end mu sa
       else if(((mu1 == globalMu && trig1) && mu2 == trackerMu) 
 	       || ((mu2 == globalMu && trig2) && mu1 == trackerMu)){
@@ -190,8 +184,7 @@ int main(int argc, char * argv[]){
      
 
     }//end of generation given the yield
-    cout<<"logic end"<<endl;
-    
+       
     Nmumu = N2HLT + N1HLT;
     
     //Define signal Histo
@@ -205,24 +198,13 @@ int main(int argc, char * argv[]){
   
     //Fill signal Histo
    
-    cout<<"Yield ="<< yield <<endl;
-    cout<<"N0 ="<< N0 <<endl;
-    cout<<"Nmumu = "<< Nmumu <<endl;
-    cout<<"N2HLT= "<< N2HLT <<endl;
-    cout<<"N1HLT = "<< N1HLT <<endl;
-    cout<<"NISO = "<< NISO <<endl;
-    cout<<"NSa = "<< NSa <<endl;
-    cout<<"NTk = "<< NTk <<endl;
-
-    
     fillRandom(Nmumu,pdfzmm,zMuMu);
     fillRandom(N2HLT, pdfzmm,zMuMu2HLT);
     fillRandom(N1HLT, pdfzmm,zMuMu1HLT);
     fillRandom(NISO,pdfzmm,zMuMuNotIso);
     fillRandom(NSa,pdfzmsa,zMuSa);
     fillRandom(NTk, pdfzmm,zMuTk);
-    //cout<<"Signal filled"<<endl;
-    
+        
     //output	
     char head[30];
     sprintf(head,"zmm_%d",j);
@@ -344,7 +326,7 @@ int main(int argc, char * argv[]){
     delete zMuTkBkg;
     
     
-    cout<<count<<"\n";
+    // cout<<count<<"\n";
     count++;
   }//end of experiments 
      

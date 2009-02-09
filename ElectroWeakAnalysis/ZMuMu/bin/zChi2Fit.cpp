@@ -109,15 +109,15 @@ int main(int ac, char *av[]) {
       for(vector<string>::const_iterator it = v_file.begin(); 
 	  it != v_file.end(); ++it) {
 	TFile * root_file = new TFile(it->c_str(), "read");
-	
-	/*TH1 * histoZMuMuNoIso = getHisto(root_file, "nonIsolatedZToMuMuPlots/zMass",rebinMuMuNoIso);
+	/*
+	TH1 * histoZMuMuNoIso = getHisto(root_file, "nonIsolatedZToMuMuPlots/zMass",rebinMuMuNoIso);
 	TH1 * histoZMuMu = getHisto(root_file, "goodZToMuMuPlots/zMass",rebinMuMu);
 	TH1 * histoZMuMu1HLT = getHisto(root_file, "goodZToMuMu1HLTPlots/zMass", rebinMuMu1HLT);
 	TH1 * histoZMuMu2HLT = getHisto(root_file, "goodZToMuMu2HLTPlots/zMass", rebinMuMu2HLT);
 	TH1 * histoZMuTk = getHisto(root_file, "goodZToMuMuOneTrackPlots/zMass", rebinMuTk);
 	TH1 * histoZMuSa = getHisto(root_file, "goodZToMuMuOneStandAloneMuonPlots/zMass", rebinMuSa);
-	TH1 * histoZMuSaFromMuMu = getHisto(root_file, "zmumuSaMassHistogram/zMass", rebinMuSa);*/
-	
+	TH1 * histoZMuSaFromMuMu = getHisto(root_file, "zmumuSaMassHistogram/zMass", rebinMuSa);
+	*/
 	TH1 * histoZMuMuNoIso = getHisto(root_file, "nonIsolatedZToMuMuPlots/zMass_noIso",rebinMuMuNoIso);
 	TH1 * histoZMuMu = getHisto(root_file, "goodZToMuMuPlots/zMass_golden",rebinMuMu);
 	TH1 * histoZMuMu1HLT = getHisto(root_file, "goodZToMuMu1HLTPlots/zMass_1hlt", rebinMuMu1HLT);
@@ -282,10 +282,8 @@ int main(int ac, char *av[]) {
         double hlt_eff =  minuit.getParameterError("EfficiencyHLT");
         double dhlt_eff = minuit.getParameterError("EfficiencyHLT",hlt_eff);
 	myfile<< Y <<" "<< dY <<" "<< tk_eff <<" "<< dtk_eff <<" "<< sa_eff << " " << dsa_eff << " " << iso_eff <<" " << diso_eff<< " " << hlt_eff << " " << dhlt_eff << " " <<chi2()/(chi2.numberOfBins()- minuit.numberOfFreeParameters());
-
 	myfile.close();
-	//	cout<<"chi2 = " << chi2()<< " numberOfFreeParameters = " << minuit.numberOfFreeParameters() << endl;
-	//cout <<"numberOfBin = " <<  chi2.numberOfBins() << endl;
+
 	//Plot
 	double s;
 	s = 0;
