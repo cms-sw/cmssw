@@ -149,7 +149,6 @@ int main(int argc, char * argv[]){
     int N0 = eventGenerator->Poisson(yield);
     int nMuTkBkg = eventGenerator->Poisson(zMuTkBkgPdf.integral());
     int nMuMuNonIsoBkg = eventGenerator->Poisson(zMuMuNonIsoBkgPdf.integral());
-  
     int Nmumu = 0;
     int N2HLT = 0;
     int N1HLT = 0;
