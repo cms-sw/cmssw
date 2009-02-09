@@ -1268,18 +1268,18 @@ void DisplayManager::loadGClusters()
     int clusId=(CLUSTERPSID<<shiftId_) | i;
     createGCluster( (*(em_->clustersPS_))[i],clusId,phi0);
   }
-  for(unsigned i=0; i<em_->clustersIslandBarrel_.size(); i++) {
-    PFLayer::Layer layer = PFLayer::ECAL_BARREL;
-    //int clusId=(i<<shiftId_) | CLUSTERIBID;
-    int clusId=(CLUSTERIBID<<shiftId_) | i;
+//   for(unsigned i=0; i<em_->clustersIslandBarrel_.size(); i++) {
+//     PFLayer::Layer layer = PFLayer::ECAL_BARREL;
+//     //int clusId=(i<<shiftId_) | CLUSTERIBID;
+//     int clusId=(CLUSTERIBID<<shiftId_) | i;
                 
-    reco::PFCluster cluster( layer, 
-                             em_->clustersIslandBarrel_[i].energy(),
-                             em_->clustersIslandBarrel_[i].x(),
-                             em_->clustersIslandBarrel_[i].y(),
-                             em_->clustersIslandBarrel_[i].z() ); 
-    createGCluster( cluster,clusId, phi0);
-  }  
+//     reco::PFCluster cluster( layer, 
+//                              em_->clustersIslandBarrel_[i].energy(),
+//                              em_->clustersIslandBarrel_[i].x(),
+//                              em_->clustersIslandBarrel_[i].y(),
+//                              em_->clustersIslandBarrel_[i].z() ); 
+//     createGCluster( cluster,clusId, phi0);
+//   }  
 }
 //_____________________________________________________________________
 void DisplayManager::loadGPFBlocks()

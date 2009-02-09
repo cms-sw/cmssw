@@ -50,10 +50,7 @@ bool MyPFRootEventManager::processEntry(int entry) {
     ;
   }   
 
-  // access island clusters, which are read from the input tree
-  for(unsigned i=0; i<clustersIslandBarrel_.size(); i++) {
-    ;
-  }
+
 
   return false;
 }

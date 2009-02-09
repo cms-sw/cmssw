@@ -42,7 +42,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "PhysicsTools/CandUtils/interface/pdgIdUtils.h"
 
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
+/* #include "DataFormats/EgammaReco/interface/BasicCluster.h" */
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
 
@@ -471,7 +471,7 @@ class PFRootEventManager {
   std::auto_ptr< reco::PFClusterCollection > clustersPS_;
 
   /// clusters ECAL island barrel
-  std::vector<reco::BasicCluster>  clustersIslandBarrel_;
+/*   std::vector<reco::BasicCluster>  clustersIslandBarrel_; */
   
   /// input collection of calotowers
   CaloTowerCollection     caloTowers_;

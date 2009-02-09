@@ -920,21 +920,21 @@ void PFRootEventManager::connect( const char* infilename ) {
   // other branches ----------------------------------------------
   
   
-  string clustersIslandBarrelbranchname;
-  clustersIslandBarrelBranch_ = 0;
-  options_->GetOpt("root","clusters_island_barrel_branch", 
-                   clustersIslandBarrelbranchname);
-  if(!clustersIslandBarrelbranchname.empty() ) {
-    clustersIslandBarrelBranch_ 
-      = tree_->GetBranch(clustersIslandBarrelbranchname.c_str());
-    if(!clustersIslandBarrelBranch_) {
-      cerr<<"PFRootEventManager::ReadOptions : clusters_island_barrel_branch not found : "
-          <<clustersIslandBarrelbranchname<< endl;
-    }
-  }
-  else {
-    cerr<<"branch not found: root/clusters_island_barrel_branch"<<endl;
-  }
+//   string clustersIslandBarrelbranchname;
+//   clustersIslandBarrelBranch_ = 0;
+//   options_->GetOpt("root","clusters_island_barrel_branch", 
+//                    clustersIslandBarrelbranchname);
+//   if(!clustersIslandBarrelbranchname.empty() ) {
+//     clustersIslandBarrelBranch_ 
+//       = tree_->GetBranch(clustersIslandBarrelbranchname.c_str());
+//     if(!clustersIslandBarrelBranch_) {
+//       cerr<<"PFRootEventManager::ReadOptions : clusters_island_barrel_branch not found : "
+//           <<clustersIslandBarrelbranchname<< endl;
+//     }
+//   }
+//   else {
+//     cerr<<"branch not found: root/clusters_island_barrel_branch"<<endl;
+//   }
 
   string recTracksbranchname;
   options_->GetOpt("root","recTracks_branch", recTracksbranchname);
@@ -1116,8 +1116,8 @@ void PFRootEventManager::setAddresses() {
   if( clustersECALBranch_ ) clustersECALBranch_->SetAddress( clustersECAL_.get() );
   if( clustersHCALBranch_ ) clustersHCALBranch_->SetAddress( clustersHCAL_.get() );
   if( clustersPSBranch_ ) clustersPSBranch_->SetAddress( clustersPS_.get() );
-  if( clustersIslandBarrelBranch_ ) 
-    clustersIslandBarrelBranch_->SetAddress(&clustersIslandBarrel_);
+//   if( clustersIslandBarrelBranch_ ) 
+//     clustersIslandBarrelBranch_->SetAddress(&clustersIslandBarrel_);
   if( recTracksBranch_ ) recTracksBranch_->SetAddress(&recTracks_);
   if( stdTracksBranch_ ) stdTracksBranch_->SetAddress(&stdTracks_);
   if( gsfrecTracksBranch_ ) gsfrecTracksBranch_->SetAddress(&gsfrecTracks_); 
