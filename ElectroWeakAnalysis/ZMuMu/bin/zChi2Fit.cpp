@@ -109,7 +109,7 @@ int main(int ac, char *av[]) {
       for(vector<string>::const_iterator it = v_file.begin(); 
 	  it != v_file.end(); ++it) {
 	TFile * root_file = new TFile(it->c_str(), "read");
-	/*
+	
 	TH1 * histoZMuMuNoIso = getHisto(root_file, "nonIsolatedZToMuMuPlots/zMass",rebinMuMuNoIso);
 	TH1 * histoZMuMu = getHisto(root_file, "goodZToMuMuPlots/zMass",rebinMuMu);
 	TH1 * histoZMuMu1HLT = getHisto(root_file, "goodZToMuMu1HLTPlots/zMass", rebinMuMu1HLT);
@@ -117,15 +117,6 @@ int main(int ac, char *av[]) {
 	TH1 * histoZMuTk = getHisto(root_file, "goodZToMuMuOneTrackPlots/zMass", rebinMuTk);
 	TH1 * histoZMuSa = getHisto(root_file, "goodZToMuMuOneStandAloneMuonPlots/zMass", rebinMuSa);
 	TH1 * histoZMuSaFromMuMu = getHisto(root_file, "zmumuSaMassHistogram/zMass", rebinMuSa);
-	*/
-	TH1 * histoZMuMuNoIso = getHisto(root_file, "nonIsolatedZToMuMuPlots/zMass_noIso",rebinMuMuNoIso);
-	TH1 * histoZMuMu = getHisto(root_file, "goodZToMuMuPlots/zMass_golden",rebinMuMu);
-	TH1 * histoZMuMu1HLT = getHisto(root_file, "goodZToMuMu1HLTPlots/zMass_1hlt", rebinMuMu1HLT);
-	TH1 * histoZMuMu2HLT = getHisto(root_file, "goodZToMuMu2HLTPlots/zMass_2hlt", rebinMuMu2HLT);
-	TH1 * histoZMuTk = getHisto(root_file, "goodZToMuMuOneTrackPlots/zMass_tk", rebinMuTk);
-	TH1 * histoZMuSa = getHisto(root_file, "goodZToMuMuOneStandAloneMuonPlots/zMass_sa", rebinMuSa);
-	TH1 * histoZMuSaFromMuMu = getHisto(root_file, "zmumuSaMassHistogram/zMass_safromGolden", rebinMuSa);
-
 
 	cout << ">>> histogram loaded\n";
 	string f_string = *it;
@@ -268,21 +259,6 @@ int main(int ac, char *av[]) {
 	  std::cout << std::endl;
 	} 
 	minuit.printFitResults();
-	ofstream myfile;
-	myfile.open ("fitResult.txt", ios::out | ios::app);
-	myfile<<"\n";
-        double Y =  minuit.getParameterError("YieldZMuMu");
-        double dY = minuit.getParameterError("YieldZMuMu", Y);
-        double tk_eff =  minuit.getParameterError("EfficiencyTk");
-        double dtk_eff = minuit.getParameterError("EfficiencyTk", tk_eff);
-        double sa_eff =  minuit.getParameterError("EfficiencySa");
-        double dsa_eff = minuit.getParameterError("EfficiencySa", sa_eff);
-        double iso_eff =  minuit.getParameterError("EfficiencyIso");
-        double diso_eff = minuit.getParameterError("EfficiencyIso", iso_eff);
-        double hlt_eff =  minuit.getParameterError("EfficiencyHLT");
-        double dhlt_eff = minuit.getParameterError("EfficiencyHLT",hlt_eff);
-	myfile<< Y <<" "<< dY <<" "<< tk_eff <<" "<< dtk_eff <<" "<< sa_eff << " " << dsa_eff << " " << iso_eff <<" " << diso_eff<< " " << hlt_eff << " " << dhlt_eff << " " <<chi2()/(chi2.numberOfBins()- minuit.numberOfFreeParameters());
-	myfile.close();
 
 	//Plot
 	double s;
