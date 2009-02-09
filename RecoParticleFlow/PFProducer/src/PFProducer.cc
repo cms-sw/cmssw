@@ -16,8 +16,7 @@ using namespace edm;
 
 
 PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
-
-
+  
   unsigned int newCalib = 
     iConfig.getParameter<unsigned int>("pf_newCalib");
 
@@ -82,10 +81,20 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   inputTagBlocks_ 
     = iConfig.getParameter<InputTag>("blocks");
 
+
+  usePFElectrons_
+    = iConfig.getParameter<bool>("usePFElectrons");    
+
+  electronOutputCol_
+    = iConfig.getParameter<std::string>("pf_electron_output_col");
+
+
   // register products
   produces<reco::PFCandidateCollection>();
 
-
+  if (usePFElectrons_)
+    produces<reco::PFCandidateCollection>(electronOutputCol_);
+  
   double nSigmaECAL 
     = iConfig.getParameter<double>("pf_nsigma_ECAL");
   double nSigmaHCAL 
@@ -128,18 +137,21 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 
   double mvaEleCut
     = iConfig.getParameter<double>("pf_electron_mvaCut");
-  bool usePFElectrons
-    = iConfig.getParameter<bool>("usePFElectrons");  
+
   string mvaWeightFileEleID
     = iConfig.getParameter<string>("pf_electronID_mvaWeightFile");
-  edm::FileInPath path_mvaWeightFileEleID( mvaWeightFileEleID.c_str() );
-  
+
+  string path_mvaWeightFileEleID;
+  if(usePFElectrons_)
+    {
+      path_mvaWeightFileEleID = edm::FileInPath ( mvaWeightFileEleID.c_str() ).fullPath();
+    }
+
   // End PFElectrons Configuration
 
   bool usePFConversions
     = iConfig.getParameter<bool>("usePFConversions");  
   
-
 
 
   shared_ptr<PFEnergyCalibration> 
@@ -187,8 +199,8 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 			      chi2PsGSF,
 			      chi2PsBrem,
 			      mvaEleCut,
-			      path_mvaWeightFileEleID.fullPath(),
-			      usePFElectrons);
+			      path_mvaWeightFileEleID,
+			      usePFElectrons_);
 
   pfAlgo_->setPFConversionParameters(usePFConversions);
 
@@ -252,6 +264,9 @@ void PFProducer::produce(Event& iEvent,
   auto_ptr< reco::PFCandidateCollection > 
     pOutputCandidateCollection( pfAlgo_->transferCandidates() ); 
   
+
+
+  
   LogDebug("PFProducer")<<"particle flow: putting products in the event"<<endl;
   if ( verbose_ ) std::cout <<"particle flow: putting products in the event. Here the full list"<<endl;
   int nC=0;
@@ -262,5 +277,11 @@ void PFProducer::produce(Event& iEvent,
   }
   
   iEvent.put(pOutputCandidateCollection);
+  if(usePFElectrons_)
+    {
+      auto_ptr< reco::PFCandidateCollection >  
+	pOutputElectronCandidateCollection( pfAlgo_->transferElectronCandidates() ); 
+      iEvent.put(pOutputElectronCandidateCollection,electronOutputCol_);
+    }
 }
 

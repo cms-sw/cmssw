@@ -36,10 +36,13 @@ class PFProducer : public edm::EDProducer {
  private:
 
   edm::InputTag  inputTagBlocks_;
+  std::string electronOutputCol_;
 
   /// verbose ?
   bool                       verbose_;
 
+  bool usePFElectrons_;
+  
   /// particle flow algorithm
   std::auto_ptr<PFAlgo>      pfAlgo_;
 
