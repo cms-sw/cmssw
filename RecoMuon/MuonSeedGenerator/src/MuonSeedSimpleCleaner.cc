@@ -2,18 +2,43 @@
 
 void MuonSeedSimpleCleaner::clean(TrajectorySeedCollection & seeds)
 {
-  TrajectorySeedCollection output;
   for(std::vector<TrajectorySeed>::iterator seed = seeds.begin();
       seed != seeds.end(); ++seed){
-    int counter =0;
-    for(std::vector<TrajectorySeed>::iterator seed2 = seed;
-        seed2 != seeds.end(); ++seed2)
-      if( seed->startingState().parameters().vector() ==
-          seed2->startingState().parameters().vector() )
-        ++counter;
-
-    if( counter > 1 ) seeds.erase(seed--);
-    else output.push_back(*seed);
+    if(!checkPt(*seed))
+    {
+       seeds.erase(seed--);
+    }
+    else
+    {
+      int counter =0;
+      for(std::vector<TrajectorySeed>::iterator seed2 = seed;
+          seed2 != seeds.end(); ++seed2)
+        if( seed->startingState().parameters().vector() ==
+            seed2->startingState().parameters().vector() )
+          ++counter;
+      if( counter > 1 ) seeds.erase(seed--);
+    }
   }
+}
+
+
+bool MuonSeedSimpleCleaner::checkPt(const TrajectorySeed & seed) const
+{
+  bool result = true;
+  if(seed.nHits() == 1)
+  {
+    int rawId = seed.startingState().detId();
+    DetId detId(rawId);
+
+    bool isBarrel = (detId.subdetId() == 1);
+    LocalVector p = seed.startingState().parameters().momentum();
+    // ghetto local-to-global
+    double pt = (isBarrel) ? -p.z() : p.perp();
+    if(fabs(pt) < 3.001)
+    {
+      result = false;
+    }
+  }
+  return result;
 }
 
