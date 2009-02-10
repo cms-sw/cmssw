@@ -61,7 +61,8 @@ standAloneMuons = cms.EDProducer("StandAloneMuonProducer",
                                                                      RefitterParameters = cms.PSet(FitterName = cms.string('KFFitterSmootherSTA'),
                                                                                                    NumberOfIterations = cms.uint32(3),
                                                                                                    ForceAllIterations = cms.bool(False),
-                                                                                                   MaxFractionOfLostHits = cms.double(0.05)
+                                                                                                   MaxFractionOfLostHits = cms.double(0.05),
+                                                                                                   RescaleError = cms.double(100.)
                                                                                                    )
                                                                      
                                                                      )
