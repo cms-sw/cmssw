@@ -1,4 +1,5 @@
 
+
 /*
   LumiNibble structure definitions
 */
@@ -9,6 +10,7 @@
 // The string and stream definitions
 #include <iostream>
 #include <string>
+#include <vector>
 
 // Type definitions used by the HAL, etc...
 #ifndef ICTypeDefs_HH  // CMSSW compatible
@@ -20,6 +22,16 @@
 
 //#define HCAL_HLX_NUM_BUNCHES 3564
 //#define HCAL_HLX_NUM_HLXS 36
+
+#ifdef __CINT__
+typedef char      int8_t;
+typedef short int int16_t;
+typedef int       int32_t;
+
+typedef unsigned char      uint8_t;
+typedef unsigned short int uint16_t;
+typedef unsigned int       uint32_t;
+#endif
 
 // Changes
 // Namespace for the HCAL HLX
@@ -34,16 +46,15 @@ namespace HCAL_HLX
 
     float InstantLumi;
     float InstantLumiErr;
-    i16 InstantLumiQlty;
+    int16_t InstantLumiQlty;
 
     float InstantETLumi;
     float InstantETLumiErr;
-    i16 InstantETLumiQlty;
-    float ETNormalization;  // Calculated
-
+    int16_t InstantETLumiQlty;
+    float ETNormalization;  // Calculated 
     float InstantOccLumi[2];
     float InstantOccLumiErr[2];
-    i16 InstantOccLumiQlty[2];
+    int16_t InstantOccLumiQlty[2];
     float OccNormalization[2];
 
     float lumiNoise[2];
@@ -54,12 +65,12 @@ namespace HCAL_HLX
 
     float ETLumi[HCAL_HLX_MAX_BUNCHES];
     float ETLumiErr[HCAL_HLX_MAX_BUNCHES];
-    i16 ETLumiQlty[HCAL_HLX_MAX_BUNCHES];
+    int16_t ETLumiQlty[HCAL_HLX_MAX_BUNCHES];
     float ETBXNormalization[HCAL_HLX_MAX_BUNCHES];
 
     float OccLumi[2][HCAL_HLX_MAX_BUNCHES];
     float OccLumiErr[2][HCAL_HLX_MAX_BUNCHES];
-    i16 OccLumiQlty[2][HCAL_HLX_MAX_BUNCHES];
+    int16_t OccLumiQlty[2][HCAL_HLX_MAX_BUNCHES];
     float OccBXNormalization[2][HCAL_HLX_MAX_BUNCHES];
   };
 
@@ -79,33 +90,28 @@ namespace HCAL_HLX
 
   struct LEVEL1_TRIGGER {
     std::string GTLumiInfoFormat;
-    uint32_t  GTAlgoCounts[128];
+    uint32_t GTAlgoCounts[128];
     uint32_t GTAlgoPrescaling[128];
     uint32_t GTTechCounts[64];
     uint32_t GTTechPrescaling[64];
     uint32_t GTPartition0TriggerCounts[10];
-    uint32_t GTPartition0DeadTime[10 ];
+    uint32_t GTPartition0DeadTime[10];
+  };
+
+  struct HLTPath{
+    std::string PathName; //This is the name of trigger path
+    uint32_t L1Pass;      //Number of times the path was entered
+    uint32_t PSPass;      //Number after prescaling
+    uint32_t PAccept;     //Number of accepts by the trigger path
+    uint32_t PExcept;     //Number of exceptional event encountered
+    uint32_t PReject;     
+    std::string PrescalerModule; //Name of the prescale module in the path
+    uint32_t PSIndex;     //Index into the set of pre defined prescales
   };
 
   struct HLT{
-//     PATHNAME  STRING  //This is the name of trigger path
-//     L1PASS? LONG //Number of times the path was entered
-//     PSPASS - LONG //Number after prescaling
-//     PACCEPT LONG //Number of accepts by the trigger path
-//     PEXCEPT LONG //Number of exceptional event encountered
-//     PREJECT LONG //Number of rejected events
-//     PRESCALERMODULE STRING //Name of the prescale module in the path
-//     PSINDEX LONG //Index into the set of pre defined prescales
-
-    std::string PathName;
-    uint32_t L1Pass;
-    uint32_t PSPass;
-    uint32_t PAccept;
-    uint32_t PExcept;
-    uint32_t PReject;
-    std::string PrescalerModule;
-    uint32_t PSIndex;
-    
+    std::string HLT_Config_KEY;
+    std::vector< HLTPath > HLTPaths;
   };
 
   struct TRIGGER_DEADTIME {
@@ -162,11 +168,11 @@ namespace HCAL_HLX
     bool bOC0;        // Was section initialised by an OC0?
 
     uint16_t LS_Quality; // 0-999
-    std::string RunSequenceName;  // Cosmic, Pedestal, ....
+    char RunSequenceName[64];  // Cosmic, Pedestal, ....
     uint32_t RunSequenceNumber; // Number that identifies version of RunSequenceName;
-    std::string HLT_Config_KEY
-    std::string CMSSW_Tag;
-    std::string TriDAS_Tag;
+
+    char CMSSW_Tag[64];
+    char TriDAS_Tag[64];
   };
 
   struct LUMI_SECTION_SUB_HEADER {

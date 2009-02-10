@@ -27,6 +27,7 @@
 #pragma link C++ struct HCAL_HLX::TRIGGER_DEADTIME+;
 #pragma link C++ struct HCAL_HLX::LEVEL1_TRIGGER+;
 #pragma link C++ struct HCAL_HLX::HLT+;
+#pragma link C++ struct HCAL_HLX::HLTPath+;
 #pragma link C++ struct HCAL_HLX::LUMI_HF_RING_SET+;
 #pragma link C++ struct HCAL_HLX::LUMI_SECTION+;
 

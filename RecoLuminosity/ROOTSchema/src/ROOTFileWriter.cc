@@ -118,6 +118,13 @@ void HCAL_HLX::ROOTFileWriter::FillTree(const HCAL_HLX::LUMI_SECTION& localSecti
 }
 
 void HCAL_HLX::ROOTFileWriter::InsertInformation(){
+  
+  Header_->LS_Quality = 100; // 0-999
+  strcpy(Header_->RunSequenceName,"Test Run Sequence Name");  // Cosmic, Pedestal, ....
+  Header_->RunSequenceNumber = 5; // Number that identifies version of RunSequenceName;
+  
+  strcpy(Header_->CMSSW_Tag, "V01-00-00");
+  strcpy(Header_->TriDAS_Tag,"V00-00-00");
 
   // This information will eventually come from the lms cell
   Threshold_->OccThreshold1Set1 = 51;
@@ -126,14 +133,33 @@ void HCAL_HLX::ROOTFileWriter::InsertInformation(){
   Threshold_->OccThreshold2Set2 = 54;
   Threshold_->ETSum             = 55;
   
-  L1Trigger_->L1lineNumber  = 71;
-  L1Trigger_->L1Scaler      = 72;
-  L1Trigger_->L1RateCounter = 73;
+  std::string GTLumiInfoFormat;
   
-  HLT_->TriggerPath    = 81;
-  HLT_->InputCount     = 82;
-  HLT_->AcceptCount    = 83;
-  HLT_->PrescaleFactor = 84;
+  for( unsigned int iAlgo = 0; iAlgo < 128; ++iAlgo ){
+    L1Trigger_->GTAlgoCounts[iAlgo] = iAlgo;
+    L1Trigger_->GTAlgoPrescaling[iAlgo] = iAlgo*2;
+  }
+  for( unsigned int iTech = 0; iTech < 64; ++iTech ){
+    L1Trigger_->GTTechCounts[iTech] = iTech;
+    L1Trigger_->GTTechPrescaling[iTech] = iTech*2;
+  }
+  for( unsigned iPartZero = 0; iPartZero < 10; ++iPartZero ){
+    L1Trigger_->GTPartition0TriggerCounts[iPartZero];
+    L1Trigger_->GTPartition0DeadTime[iPartZero];
+  }
+
+  HLTPath newPath;
+  newPath.PathName = "Test Path Name";
+  newPath.L1Pass = 1;
+  newPath.PSPass = 2;
+  newPath.PAccept = 3;
+  newPath.PExcept = 4;
+  newPath.PReject = 5;
+  newPath.PrescalerModule = "Some prescaler module";
+  newPath.PSIndex = 2;
+
+  HLT_->HLT_Config_KEY = "Fake Lumi Key";
+  HLT_->HLTPaths.push_back(newPath);
 
   TriggerDeadtime_->TriggerDeadtime = 91;
 
