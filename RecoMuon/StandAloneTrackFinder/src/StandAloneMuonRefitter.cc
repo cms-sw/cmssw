@@ -1,9 +1,10 @@
 /** \class StandAloneMuonRefitter
  *  Class ti interface the muon system rechits with the standard KF tools.
  *
- *  $Date: 2008/07/16 10:40:08 $
- *  $Revision: 1.46 $
- *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
+ *  $Date: 2008/07/17 13:32:51 $
+ *  $Revision: 1.47 $
+ *  \authors R. Bellan - INFN Torino <riccardo.bellan@cern.ch>,
+ *           D. Trocino - INFN Torino <daniele.trocino@to.infn.it>
  */
 
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneMuonRefitter.h"
@@ -28,6 +29,7 @@ StandAloneMuonRefitter::StandAloneMuonRefitter(const ParameterSet& par, const Mu
   theNumberOfIterations = par.getParameter<unsigned int>("NumberOfIterations");
   isForceAllIterations = par.getParameter<bool>("ForceAllIterations");
   theMaxFractionOfLostHits = par.getParameter<double>("MaxFractionOfLostHits");
+  errorRescale = par.getParameter<double>("RescaleError");
 }
 
 /// Destructor
@@ -46,16 +48,10 @@ StandAloneMuonRefitter::RefitResult StandAloneMuonRefitter::singleRefit(const Tr
 
   TrajectoryMeasurement lastTM = trajectory.lastMeasurement();                                      
 
-  //  TrajectoryStateOnSurface firstTsos = TrajectoryStateWithArbitraryError()(lastTM.updatedState());  
+  TrajectoryStateOnSurface firstTsos = TrajectoryStateWithArbitraryError()(lastTM.updatedState());
 
-  AlgebraicSymMatrix55 newErr = lastTM.updatedState().localError().matrix();
-  newErr *= 100.;
-
-  TrajectoryStateOnSurface firstTsos(lastTM.updatedState().localParameters(), 
-				     LocalTrajectoryError(newErr), 
-				     lastTM.updatedState().surface(),
-				     &lastTM.updatedState().globalParameters().magneticField());
-
+  // Rescale errors before refit, not to bias the result
+  firstTsos.rescaleError(errorRescale);
 
   TransientTrackingRecHit::ConstRecHitContainer trajRH = trajectory.recHits();                      
   reverse(trajRH.begin(),trajRH.end());                                                             

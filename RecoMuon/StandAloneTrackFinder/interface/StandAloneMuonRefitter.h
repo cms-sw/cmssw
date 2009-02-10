@@ -4,9 +4,10 @@
 /** \class StandAloneMuonRefitter
  *  Class ti interface the muon system rechits with the standard KF tools.
  *
- *  $Date: 2008/07/07 12:36:41 $
- *  $Revision: 1.31 $
- *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
+ *  $Date: 2008/07/16 10:40:17 $
+ *  $Revision: 1.32 $
+ *  \authors R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
+ *           D. Trocino - INFN Torino <daniele.trocino@to.infn.it>
  */
 
 
@@ -44,6 +45,7 @@ private:
   unsigned int theNumberOfIterations;
   bool isForceAllIterations;
   double theMaxFractionOfLostHits;
+  double errorRescale;
 };
 #endif
 
