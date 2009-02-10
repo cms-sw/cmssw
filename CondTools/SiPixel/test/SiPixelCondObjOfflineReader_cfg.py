@@ -3,11 +3,13 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PixelDBReader")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-process.load("Geometry.TrackerSimData.trackerSimGeometryXML_cfi")
-
+#process.load("Geometry.TrackerSimData.trackerSimGeometryXML_cfi")
+process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
+process.load("Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+#process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 
 process.load("CondTools.SiPixel.SiPixelGainCalibrationService_cfi")
 
@@ -16,9 +18,9 @@ process.TFileService = cms.Service("TFileService",
                                    )
 
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = 'sqlite_file:./prova.db'
-process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
-process.CondDBCommon.DBParameters.messageLevel = 3
+process.CondDBCommon.connect = 'sqlite_file:provaOUT.db'
+process.CondDBCommon.DBParameters.authenticationPath = '.' #'/afs/cern.ch/cms/DB/conddb'
+process.CondDBCommon.DBParameters.messageLevel = 10
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
@@ -39,7 +41,7 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('SiPixelGainCalibrationOfflineRcd'),
-        tag = cms.string('V2_deadpixels_002percent')
+        tag = cms.string('GainCalib_TEST')
     ))
 )
 
