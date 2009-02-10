@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Thu Sep 20 12:13:20 CEST 2007
-// $Id: SiPixelCalibConfigurationReadDb.cc,v 1.1 2008/02/14 14:14:33 fblekman Exp $
+// $Id: SiPixelCalibConfigurationReadDb.cc,v 1.1 2008/02/14 20:29:55 fblekman Exp $
 //
 //
 
@@ -47,6 +47,7 @@ class SiPixelCalibConfigurationReadDb : public edm::EDAnalyzer {
       virtual void endJob() ;
 
       // ----------member data ---------------------------
+  bool verbose_;
 };
 
 //
@@ -60,7 +61,8 @@ class SiPixelCalibConfigurationReadDb : public edm::EDAnalyzer {
 //
 // constructors and destructor
 //
-SiPixelCalibConfigurationReadDb::SiPixelCalibConfigurationReadDb(const edm::ParameterSet& iConfig)
+SiPixelCalibConfigurationReadDb::SiPixelCalibConfigurationReadDb(const edm::ParameterSet& iConfig):
+  verbose_(iConfig.getParameter<bool>("verbosity"))
 
 {
    //now do what ever initialization is needed
@@ -95,33 +97,57 @@ SiPixelCalibConfigurationReadDb::analyze(const edm::Event& iEvent, const edm::Ev
    std::cout << "number of triggers: " << calib->getNTriggers() << std::endl;
    std::vector<short> vcalvalues= calib->getVCalValues();
    std::cout << "number of VCAL: " << vcalvalues.size() << std::endl;
+   int ngoodcols=0;
+   int ngoodrows=0;
    for(uint32_t i=0; i<vcalvalues.size(); ++i){
-     std::cout << "Vcal values " << i << "," << i+1 << " : " << vcalvalues[i] << "," ;
+     if(verbose_){
+       std::cout << "Vcal values " << i << "," << i+1 << " : " << vcalvalues[i] << "," ;
+     }
      ++i;
-     if(i<vcalvalues.size())
-       std::cout << vcalvalues[i];
-     std::cout << std::endl;
+     if(verbose_){
+       if(i<vcalvalues.size())
+	 std::cout << vcalvalues[i];
+       std::cout << std::endl;
+     }
    }
-   std::cout << "column patterns:" << std::endl;
+   if(verbose_)
+     std::cout << "column patterns:" << std::endl;
    for(uint32_t i=0; i<calib->getColumnPattern().size(); ++i){
-     if(calib->getColumnPattern()[i]!=-1)
-       std::cout << calib->getColumnPattern()[i] ;
-     if(i!=0)
-       std::cout << " ";
-     if(calib->getColumnPattern()[i]==-1)
-       std::cout << "- " ;
-   } 
-   std::cout << std::endl;
-   std::cout << "row patterns:" << std::endl;
-   for(uint32_t i=0; i<calib->getRowPattern().size(); ++i){
-     if(calib->getRowPattern()[i]!=-1)
-       std::cout << calib->getRowPattern()[i] ;
-     if(i!=0)
-       std::cout << " ";
-     if(calib->getRowPattern()[i]==-1)
-       std::cout << "- ";
+     if(calib->getColumnPattern()[i]!=-1){
+       if(verbose_)
+	 std::cout << calib->getColumnPattern()[i] ;
+       ngoodcols++;
+     }
+     if(verbose_){
+       if(i!=0)
+	 std::cout << " ";
+       if(calib->getColumnPattern()[i]==-1)
+	 std::cout << "- " ;
+     } 
    }
-   std::cout << std::endl;
+   if(verbose_){
+     std::cout << std::endl;
+     std::cout << "row patterns:" << std::endl;
+   }
+   for(uint32_t i=0; i<calib->getRowPattern().size(); ++i){
+     if(calib->getRowPattern()[i]!=-1){
+       if(verbose_)
+	 std::cout << calib->getRowPattern()[i] ;
+       ngoodrows++;
+     }
+     if(verbose_){
+       if(i!=0)
+	 std::cout << " ";
+       if(calib->getRowPattern()[i]==-1)
+	 std::cout << "- ";
+     }
+   }
+   if(verbose_){
+     std::cout << std::endl;
+     std::cout << "number of row patterns: " << ngoodrows << std::endl;
+     std::cout << "number of column patterns: " << ngoodcols << std::endl;
+   }
+   std::cout << "this payload is designed to run on " << vcalvalues.size()*ngoodcols*ngoodrows*calib->getNTriggers() << " events." << std::endl;
 }
 
 
