@@ -283,25 +283,25 @@ TrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
     stripSourceProdID = stripClusters.id();
 //DBG// std::cout << "TrackClusterRemover: Read strip " << stripClusters_.encode() << " = ID " << stripSourceProdID << std::endl;
 
+    auto_ptr<ClusterRemovalInfo> cri(new ClusterRemovalInfo(pixelClusters, stripClusters));
+
     Handle<ClusterRemovalInfo> oldRemovalInfo;
     if (mergeOld_) { 
         iEvent.getByLabel(oldRemovalInfo_, oldRemovalInfo); 
         // Check ProductIDs
-        if ( (oldRemovalInfo->stripNewProdID() == stripClusters.id()) &&
-             (oldRemovalInfo->pixelNewProdID() == pixelClusters.id()) ) {
+        if ( (oldRemovalInfo->stripNewRefProd().id() == stripClusters.id()) &&
+             (oldRemovalInfo->pixelNewRefProd().id() == pixelClusters.id()) ) {
 
-            pixelOldProdID = oldRemovalInfo->pixelProdID();
-            stripOldProdID = oldRemovalInfo->stripProdID();
+            cri->getOldClustersFrom(*oldRemovalInfo);
 
-            // if Hits in the Trajectory are already rekeyed you need the following
-            //    pixelSourceProdID = oldRemovalInfo->pixelProdID();
-            //    stripSourceProdID = oldRemovalInfo->stripProdID();
-            // but also some other parts of the index logic must be changed
+            pixelOldProdID = oldRemovalInfo->pixelRefProd().id();
+            stripOldProdID = oldRemovalInfo->stripRefProd().id();
+
         } else {
             throw cms::Exception("Inconsistent Data") << "TrackClusterRemover: " <<
                 "Input collection product IDs are [pixel: " << pixelClusters.id() << ", strip: " << stripClusters.id() << "] \n" <<
                 "\t but the *old* ClusterRemovalInfo " << oldRemovalInfo_.encode() << " refers as 'new product ids' to " <<
-                    "[pixel: " << oldRemovalInfo->pixelNewProdID() << ", strip: " << oldRemovalInfo->stripNewProdID() << "]\n" << 
+                    "[pixel: " << oldRemovalInfo->pixelNewRefProd().id() << ", strip: " << oldRemovalInfo->stripNewRefProd().id() << "]\n" << 
                 "NOTA BENE: when running TrackClusterRemover with an old ClusterRemovalInfo the hits in the trajectory MUST be already re-keyed.\n";
         }
     } else { // then Old == Source
@@ -329,17 +329,16 @@ TrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
         }
     }
 
-    auto_ptr<ClusterRemovalInfo> cri(new ClusterRemovalInfo(pixelOldProdID, stripOldProdID));
     auto_ptr<edmNew::DetSetVector<SiPixelCluster> > newPixelClusters = cleanup(*pixelClusters, pixels, 
                 cri->pixelIndices(), mergeOld_ ? &oldRemovalInfo->pixelIndices() : 0);
     auto_ptr<edmNew::DetSetVector<SiStripCluster> > newStripClusters = cleanup(*stripClusters, strips, 
                 cri->stripIndices(), mergeOld_ ? &oldRemovalInfo->stripIndices() : 0);
 
     OrphanHandle<edmNew::DetSetVector<SiPixelCluster> > newPixels = iEvent.put(newPixelClusters); 
-    cri->setNewPixelProdID(newPixels.id());
+    cri->setNewPixelClusters(newPixels);
 //DBG// std::cout << "TrackClusterRemover: Wrote pixel " << newPixels.id() << " from " << pixelSourceProdID << std::endl;
     OrphanHandle<edmNew::DetSetVector<SiStripCluster> > newStrips = iEvent.put(newStripClusters); 
-    cri->setNewStripProdID(newStrips.id());
+    cri->setNewStripClusters(newStrips);
 //DBG// std::cout << "TrackClusterRemover: Wrote strip " << newStrips.id() << " from " << stripSourceProdID << std::endl;
 
     iEvent.put(cri);
