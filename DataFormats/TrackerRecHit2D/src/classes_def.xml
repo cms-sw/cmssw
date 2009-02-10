@@ -74,5 +74,7 @@
  <class name="edm::Wrapper<edmNew::DetSetVector<SiPixelRecHit> >"/>
 
   <class name="reco::ClusterRemovalInfo" />
+  <class name="reco::ClusterRemovalInfo::SiPixelClusterRefProd" />
+  <class name="reco::ClusterRemovalInfo::SiStripClusterRefProd" />
   <class name="edm::Wrapper<reco::ClusterRemovalInfo>" />
 </lcgdict>

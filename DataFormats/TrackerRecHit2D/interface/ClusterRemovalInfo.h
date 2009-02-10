@@ -1,20 +1,33 @@
 #ifndef DataFormats_TrackerRecHit2D_ClusterRemovalInfo_h
 #define DataFormats_TrackerRecHit2D_ClusterRemovalInfo_h
 
-#include "DataFormats/Common/interface/DetSetVectorNew.h" 
-#include "DataFormats/Provenance/interface/ProductID.h" 
+#include "DataFormats/Common/interface/RefProd.h" 
+#include "DataFormats/Common/interface/Handle.h" 
+#include "DataFormats/Common/interface/OrphanHandle.h" 
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h" 
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h" 
 
 namespace reco {
     
     class ClusterRemovalInfo {
         public:
+            typedef SiStripRecHit2D::ClusterRef::product_type SiStripClusters;
+            typedef SiPixelRecHit::ClusterRef::product_type   SiPixelClusters;
+            typedef edm::RefProd<SiStripClusters> SiStripClusterRefProd;
+            typedef edm::RefProd<SiPixelClusters> SiPixelClusterRefProd;
+
             typedef std::vector<uint32_t> Indices;
 
             ClusterRemovalInfo() {}
 
-            ClusterRemovalInfo(const edm::ProductID &pixelProdID, 
-                               const edm::ProductID &stripProdID) : 
-                stripProdID_(stripProdID), pixelProdID_(pixelProdID) { }
+            ClusterRemovalInfo(const edm::Handle<SiPixelClusters> &pixelClusters, 
+                               const edm::Handle<SiStripClusters> &stripClusters) : 
+                pixelProd_(pixelClusters), stripProd_(stripClusters) { }
+
+            void getOldClustersFrom(const ClusterRemovalInfo &other) {
+                stripProd_ = other.stripProd_;
+                pixelProd_ = other.pixelProd_;
+            }
            
             Indices & pixelIndices() { return pixelIndices_; }
             Indices & stripIndices() { return stripIndices_; }
@@ -22,20 +35,21 @@ namespace reco {
             const Indices & pixelIndices() const { return pixelIndices_; }
             const Indices & stripIndices() const { return stripIndices_; }
 
-            edm::ProductID pixelProdID() const { return pixelProdID_; }
-            edm::ProductID stripProdID() const { return stripProdID_; }
-            edm::ProductID pixelNewProdID() const { return pixelNewProdID_; }
-            edm::ProductID stripNewProdID() const { return stripNewProdID_; }
+            const SiPixelClusterRefProd & pixelRefProd() const { return pixelProd_; }
+            const SiStripClusterRefProd & stripRefProd() const { return stripProd_; }
+            const SiPixelClusterRefProd & pixelNewRefProd() const { return pixelNewProd_; }
+            const SiStripClusterRefProd & stripNewRefProd() const { return stripNewProd_; }
     
-            void setNewPixelProdID(const edm::ProductID &pixelProdID) { pixelNewProdID_ = pixelProdID; }
-            void setNewStripProdID(const edm::ProductID &stripProdID) { stripNewProdID_ = stripProdID; }
+            void setNewPixelClusters(const edm::OrphanHandle<SiPixelClusters> &pixels) { pixelNewProd_ = SiPixelClusterRefProd(pixels); }
+            void setNewStripClusters(const edm::OrphanHandle<SiStripClusters> &strips) { stripNewProd_ = SiStripClusterRefProd(strips); }
  
             void swap(reco::ClusterRemovalInfo &other) ;
         private:
-            edm::ProductID stripProdID_, pixelProdID_;
-            edm::ProductID stripNewProdID_, pixelNewProdID_;
+            SiPixelClusterRefProd pixelProd_;
+            SiStripClusterRefProd stripProd_;
+            SiPixelClusterRefProd pixelNewProd_;
+            SiStripClusterRefProd stripNewProd_;
             Indices stripIndices_, pixelIndices_; 
-        
      };
 
     void swap(reco::ClusterRemovalInfo &cri1, reco::ClusterRemovalInfo &cri2) ;
