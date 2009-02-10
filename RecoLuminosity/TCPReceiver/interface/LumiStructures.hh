@@ -78,16 +78,34 @@ namespace HCAL_HLX
   };
 
   struct LEVEL1_TRIGGER {
-    int L1lineNumber;
-    int L1Scaler;
-    int L1RateCounter;
+    std::string GTLumiInfoFormat;
+    uint32_t  GTAlgoCounts[128];
+    uint32_t GTAlgoPrescaling[128];
+    uint32_t GTTechCounts[64];
+    uint32_t GTTechPrescaling[64];
+    uint32_t GTPartition0TriggerCounts[10];
+    uint32_t GTPartition0DeadTime[10 ];
   };
 
   struct HLT{
-    int TriggerPath;
-    int InputCount;
-    int AcceptCount;
-    int PrescaleFactor;
+//     PATHNAME  STRING  //This is the name of trigger path
+//     L1PASS? LONG //Number of times the path was entered
+//     PSPASS - LONG //Number after prescaling
+//     PACCEPT LONG //Number of accepts by the trigger path
+//     PEXCEPT LONG //Number of exceptional event encountered
+//     PREJECT LONG //Number of rejected events
+//     PRESCALERMODULE STRING //Name of the prescale module in the path
+//     PSINDEX LONG //Index into the set of pre defined prescales
+
+    std::string PathName;
+    uint32_t L1Pass;
+    uint32_t PSPass;
+    uint32_t PAccept;
+    uint32_t PExcept;
+    uint32_t PReject;
+    std::string PrescalerModule;
+    uint32_t PSIndex;
+    
   };
 
   struct TRIGGER_DEADTIME {
@@ -142,6 +160,13 @@ namespace HCAL_HLX
     u16  numHLXs;     // Number of HLXs in lumi section
     bool bCMSLive;    // Is CMS taking data?
     bool bOC0;        // Was section initialised by an OC0?
+
+    uint16_t LS_Quality; // 0-999
+    std::string RunSequenceName;  // Cosmic, Pedestal, ....
+    uint32_t RunSequenceNumber; // Number that identifies version of RunSequenceName;
+    std::string HLT_Config_KEY
+    std::string CMSSW_Tag;
+    std::string TriDAS_Tag;
   };
 
   struct LUMI_SECTION_SUB_HEADER {
