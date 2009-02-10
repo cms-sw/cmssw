@@ -29,6 +29,7 @@ SiPixelCondObjOfflineReader::analyze(const edm::Event& iEvent, const edm::EventS
   unsigned int nmodules = 0;
   uint32_t nchannels = 0;
   uint32_t ndead=0;
+  uint32_t nnoisy=0;
   
   // Get the calibration data
   SiPixelGainCalibrationService_.setESObjects(iSetup);
@@ -44,6 +45,8 @@ SiPixelCondObjOfflineReader::analyze(const edm::Event& iEvent, const edm::EventS
   //Create histograms
   _TH1F_Dead_sum =  fs->make<TH1F>("Summary_dead","Dead pixel fraction (0=dead, 1=alive)",vdetId_.size()+1,0,vdetId_.size()+1);
   _TH1F_Dead_all =  fs->make<TH1F>("DeadAll","Dead pixel fraction (0=dead, 1=alive)",50,0.,conf_.getUntrackedParameter<double>("maxRangeDeadPixHist",0.001));
+  _TH1F_Noisy_sum = fs->make<TH1F>("Summary_noisy","Noisy pixel fraction (0=noisy, 1=alive)",vdetId_.size()+1,0,vdetId_.size()+1);
+  _TH1F_Noisy_all = fs->make<TH1F>("NoisyAll","Noisy pixel fraction (0=noisy, 1=alive)",50,0.,conf_.getUntrackedParameter<double>("maxRangeDeadPixHist",0.001));
   _TH1F_Gains_sum =  fs->make<TH1F>("Summary_Gain","Gain Summary", vdetId_.size()+1,0,vdetId_.size()+1);
   _TH1F_Pedestals_sum =  fs->make<TH1F>("Summary_Pedestal","Pedestal Summary", vdetId_.size()+1,0,vdetId_.size()+1);
   _TH1F_Pedestals_all = fs->make<TH1F>("PedestalsAll","all Pedestals",350,-100,250);
@@ -74,6 +77,7 @@ SiPixelCondObjOfflineReader::analyze(const edm::Event& iEvent, const edm::EventS
     }     
    
     _deadfrac_m[detid]=0.;
+    _noisyfrac_m[detid]=0.;
 
     nmodules++;
 
@@ -95,6 +99,12 @@ SiPixelCondObjOfflineReader::analyze(const edm::Event& iEvent, const edm::EventS
 	    //	    std::cout << "found dead pixel " << detid << " " <<col_iter << "," << row_iter << std::endl;
 	   ndead++;
 	   _deadfrac_m[detid]++;
+	   continue;
+	 }
+	 else if(SiPixelGainCalibrationService_.isNoisy(detid,col_iter,row_iter)){
+	    //	    std::cout << "found noisy pixel " << detid << " " <<col_iter << "," << row_iter << std::endl;
+	   nnoisy++;
+	   _noisyfrac_m[detid]++;
 	   continue;
 	 }
 
@@ -123,8 +133,11 @@ SiPixelCondObjOfflineReader::analyze(const edm::Event& iEvent, const edm::EventS
     }
 
     _deadfrac_m[detid]/=nchannelspermod;
+    _noisyfrac_m[detid]/=nchannelspermod;
     _TH1F_Dead_sum->SetBinContent(ibin,_deadfrac_m[detid]);
     _TH1F_Dead_all->Fill(_deadfrac_m[detid]);
+    _TH1F_Noisy_sum->SetBinContent(ibin,_noisyfrac_m[detid]);
+    _TH1F_Noisy_all->Fill(_noisyfrac_m[detid]);
     _TH1F_Gains_sum->SetBinContent(ibin,_TH1F_Gains_m[detid]->GetMean());
     _TH1F_Gains_sum->SetBinError(ibin,_TH1F_Gains_m[detid]->GetRMS());
     _TH1F_Pedestals_sum->SetBinContent(ibin,_TH1F_Pedestals_m[detid]->GetMean());
@@ -137,6 +150,11 @@ SiPixelCondObjOfflineReader::analyze(const edm::Event& iEvent, const edm::EventS
   edm::LogInfo("SiPixelCondObjOfflineReader") <<"[SiPixelCondObjOfflineReader::analyze] ---> PIXEL Modules  " << nmodules  << std::endl;
   edm::LogInfo("SiPixelCondObjOfflineReader") <<"[SiPixelCondObjOfflineReader::analyze] ---> PIXEL Channels (i.e. Number of Columns)" << nchannels << std::endl;
   
+  
+  std::cout<<" ---> SUMMARY :"<<std::endl;
+  std::cout<<"Encounted "<<ndead<<" dead pixels"<<std::endl;
+  std::cout<<"Encounted "<<nnoisy<<" noisy pixels"<<std::endl;
+    
     
 }
 
@@ -152,6 +170,7 @@ SiPixelCondObjOfflineReader::beginJob(const edm::EventSetup& iSetup)
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 SiPixelCondObjOfflineReader::endJob() {
-  std::cout<<" ---> End job "<<std::endl;
+  std::cout<<" ---> End job "<<std::endl;  
+  
 }
 }
