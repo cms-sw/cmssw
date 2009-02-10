@@ -61,7 +61,7 @@ public:
   }
   double operator()(double x) const {
     if(x < min_ || x > max_) return 0;
-    return (1/norm_)* exp(-slope_*x)*(a0_ + (a1_ + a2_*x)*x);
+    return exp(-slope_*x)*(a0_ + (a1_ + a2_*x)*x);
   }
   double rndm(TRandom3 * eventGenerator) const {
     double x, f;
@@ -75,7 +75,7 @@ public:
 
 private:
   void normalize() {
-    static const unsigned int steps = 10000;
+    static const unsigned int steps = 100000;
     double s = 0, x, f;
     double base = max_ - min_;
     double dx = base/steps;
@@ -96,9 +96,9 @@ int main(int argc, char * argv[]){
   int o;
   char* endPtr;
   char* pdf("analysis_Z_133pb_trackIso_3.root");
-  double yield(50381.3), effTrk(.998364), effSa(.989626), effHlt(.980196), effIso(.915496);
-  double slopeMuTk(.0155572), a0MuTk(.000368064), a1MuTk(2.99685), a2MuTk(-0.021115);
-  double slopeMuMuNonIso(.0247058), a0MuMuNonIso(.0959997), a1MuMuNonIso(6.70293), a2MuMuNonIso(-0.0525249);
+  double yield(50550.0), effTrk(.998364), effSa(.989626),effHlt(.915496), effIso(.978575);
+  double slopeMuTk(.015556), a0MuTk(.00035202), a1MuTk(2.99663), a2MuTk(-0.0211138);
+  double slopeMuMuNonIso(.0246876),a0MuMuNonIso(.884777), a1MuMuNonIso(6.67684), a2MuMuNonIso(-0.0523693);
   BkgShape zMuTkBkgPdf(60., 120., slopeMuTk, a0MuTk, a1MuTk, a2MuTk);
   BkgShape zMuMuNonIsoBkgPdf(60., 120., slopeMuMuNonIso, a0MuMuNonIso, a1MuMuNonIso, a2MuMuNonIso);
  
@@ -131,7 +131,7 @@ int main(int argc, char * argv[]){
       effIso  = strtod(optarg,&endPtr);
       break;
     case 'h':
-      cout<< " -p : input root file for pdf"<<endl <<" -n : number of experiment (default 1)"<<endl <<" -s : seed for generator (default 1)"<<endl <<" -T : efficiency of track (default 0.99883)"<<endl <<" -S : efficiency of standAlone(default 0.9896)"<< endl <<" -I : efficiency of Isolation (default 0.9786)" << endl << " -H : efficiency of HLT (default 0.9155)" <<endl << " -y : yield (default 50550)"<<endl;
+      cout<< " -p : input root file for pdf"<<endl <<" -n : number of experiment (default 1)"<<endl <<" -s : seed for generator (default 1)"<<endl <<" -T : efficiency of track (default 0.9984)"<<endl <<" -S : efficiency of standAlone(default 0.9896)"<< endl <<" -I : efficiency of Isolation (default 0.9786)" << endl << " -H : efficiency of HLT (default 0.9155)" <<endl << " -y : yield (default 50550)"<<endl;
       break;
     default:
       break;
@@ -149,7 +149,6 @@ int main(int argc, char * argv[]){
     int N0 = eventGenerator->Poisson(yield);
     int nMuTkBkg = eventGenerator->Poisson(zMuTkBkgPdf.integral());
     int nMuMuNonIsoBkg = eventGenerator->Poisson(zMuMuNonIsoBkgPdf.integral());
-    cout<<"nMuTkBkg = "<<zMuTkBkgPdf.integral()<<endl<<"nMuMuNonIsoBkg = "<<zMuMuNonIsoBkgPdf.integral()<<endl;
     int Nmumu = 0;
     int N2HLT = 0;
     int N1HLT = 0;
