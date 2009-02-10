@@ -30,7 +30,7 @@ namespace edm
     useCurrentProcessOnly_=false;
     if (ps_mix.exists("useCurrentProcessOnly")) {
       useCurrentProcessOnly_=ps_mix.getParameter<bool>("useCurrentProcessOnly");
-      LogWarning("MixingModule") <<" using given Parameter 'useCurrentProcessOnly' ="<<useCurrentProcessOnly_;
+      LogInfo("MixingModule") <<" using given Parameter 'useCurrentProcessOnly' ="<<useCurrentProcessOnly_;
     }
     if (labelPlayback_.size()>0){
       sel_=new Selector( ModuleLabelSelector(labelPlayback_));
@@ -55,7 +55,7 @@ namespace edm
             std::string label;
             if (verifyRegistry(object,std::string(""),tag,label));
 	    {
-	      workers_.push_back(new MixingWorker<SimTrack>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,maxNbSources_,tag));  
+	      workers_.push_back(new MixingWorker<SimTrack>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,maxNbSources_,tag,checktof_));  
 	      produces<CrossingFrame<SimTrack> >(label);
 	      LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
 	    }
@@ -66,7 +66,7 @@ namespace edm
             std::string label;
             if (verifyRegistry(object,std::string(""),tag,label))
 	    {
-	      workers_.push_back(new MixingWorker<SimVertex>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,maxNbSources_,tag));  
+	      workers_.push_back(new MixingWorker<SimVertex>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,maxNbSources_,tag,checktof_));  
 	      produces<CrossingFrame<SimVertex> >(label);
 	      LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag "<<tag.encode()<<", label will be "<<label;
 	    }
@@ -77,7 +77,7 @@ namespace edm
 	    if (tags.size()>0) tag=tags[0];
             std::string label;
             if (verifyRegistry(object,std::string(""),tag,label)){
-	    workers_.push_back(new MixingWorker<HepMCProduct>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,maxNbSources_,tag));  
+	    workers_.push_back(new MixingWorker<HepMCProduct>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,maxNbSources_,tag,checktof_));  
 	    produces<CrossingFrame<HepMCProduct> >(label);
 	    LogInfo("MixingModule") <<"Will mix"<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
 	    }
@@ -90,7 +90,7 @@ namespace edm
               else if(tags.size()>1) tag=tags[ii]; //FIXME: verify sizes
 	      std::string label;
 	      if (verifyRegistry(object,subdets[ii],tag,label)){
-	      workers_.push_back(new MixingWorker<PCaloHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,maxNbSources_,tag));  
+	      workers_.push_back(new MixingWorker<PCaloHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,maxNbSources_,tag,checktof_));  
 	      produces<CrossingFrame<PCaloHit> > (label);
 	      LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
 	      }
@@ -105,10 +105,10 @@ namespace edm
 	      std::string label;
               if (!verifyRegistry(object,subdets[ii],tag,label)) continue;
 	      if ((subdets[ii].find("HighTof")==std::string::npos) && (subdets[ii].find("LowTof")==std::string::npos)) {
-		workers_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,maxNbSources_,tag));  
+		workers_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,maxNbSources_,tag,checktof_));  
 		LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
 	      }else {
-		workers_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,maxNbSources_,tag,true));  
+		workers_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,maxNbSources_,tag,checktof_,true));  
 		// here we have to give the opposite selector too (low for high, high for low)
 		int slow=(subdets[ii]).find("LowTof");//FIXME: to be done before when creating trackerPids
 		int iend=(subdets[ii]).size();
@@ -120,7 +120,7 @@ namespace edm
 		}
 		InputTag tagOpp(tag.label(),productInstanceNameOpp,tag.process());
 		workers_[workers_.size()-1]->setOppositeTag(tagOpp);
-		workers_[workers_.size()-1]->setCheckTof(ps.getUntrackedParameter<bool>("checktof",true));
+		workers_[workers_.size()-1]->setCheckTof(checktof_);
 		LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
 	      }
 	      produces<CrossingFrame<PSimHit> > (label);
@@ -205,7 +205,7 @@ namespace edm
   }
 
   void MixingModule::doPileUp(edm::Event &e, const edm::EventSetup& setup)
-  { //     we first loop over workers
+  {//     we first loop over workers
     // in order not to keep all CrossingFrames in memory simultaneously
     //
 
@@ -221,20 +221,16 @@ namespace edm
 	  }	
 	}
       }
-    }
-
-    // we have to do the ToF transformation for PSimHits once all pileup has been added
-     for (unsigned int ii=0;ii<workers_.size();ii++) {
-      workers_[ii]->setTof();
       workers_[ii]->put(e);
-     }
- }
+    }
+  }
 
-  void MixingModule::addPileups(const int bcr, EventPrincipal *ep, unsigned int eventNr,unsigned int worker, const edm::EventSetup& setup) {    // fill in pileup part of CrossingFrame
+  void MixingModule::addPileups(const int bcr, Event *e, unsigned int eventNr,unsigned int worker, const edm::EventSetup& setup) {    // fill in pileup part of CrossingFrame
 
-    LogDebug("MixingModule") <<"\n===============> adding objects from event  "<<ep->id()<<" for bunchcrossing "<<bcr;
+  
+    LogDebug("MixingModule") <<"\n===============> adding objects from event  "<<e->id()<<" for bunchcrossing "<<bcr;
 
-    workers_[worker]->addPileups(bcr,ep,eventNr,vertexoffset);
+    workers_[worker]->addPileups(bcr,e,eventNr,vertexoffset);
   }
   void MixingModule::setEventStartInfo(const unsigned int s) {
     playbackInfo_->setEventStartInfo(eventIDs_,fileSeqNrs_,nrEvents_,s); 
@@ -257,6 +253,7 @@ namespace edm
 	playbackInfo_H->getEventStartInfo(eventIDs_,fileSeqNrs_,nrEvents_,s);
       }else{
 	LogWarning("MixingModule")<<"\n\nAttention: No CrossingFramePlaybackInfo on the input file, but playback option set!!!!!!!\nAttention: Job is executed without playback, please change the input file if you really want playback!!!!!!!";
+	//FIXME: defaults
       }
     }
   }
