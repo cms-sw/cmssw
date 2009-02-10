@@ -19,7 +19,8 @@
 float SiPixelGainCalibrationForHLTService::getPedestal( const uint32_t& detID,const int& col, const int& row)
 {
    bool isDead = false;
-   float pedestalValue = this->getPedestalByColumn(detID, col, row, isDead);
+   bool isNoisy = false;
+   float pedestalValue = this->getPedestalByColumn(detID, col, row, isDead, isNoisy);
    if (isDead)
    {
       this->throwExepctionForBadRead("HLT getPedestal()", detID, col, row, pedestalValue);
@@ -31,7 +32,8 @@ float SiPixelGainCalibrationForHLTService::getPedestal( const uint32_t& detID,co
 float SiPixelGainCalibrationForHLTService::getGain( const uint32_t& detID,const int& col, const int& row)
 {
    bool isDead = false;
-   float gainValue = this->getGainByColumn(detID, col, row, isDead);
+   bool isNoisy = false;
+   float gainValue = this->getGainByColumn(detID, col, row, isDead, isNoisy);
    if (isDead)
    {
       this->throwExepctionForBadRead("HLT getGain()", detID, col, row, gainValue);
@@ -43,9 +45,10 @@ float SiPixelGainCalibrationForHLTService::getGain( const uint32_t& detID,const 
 bool SiPixelGainCalibrationForHLTService::isDead( const uint32_t& detID,const int& col, const int& row)
 {
    bool isDead = false;
+   bool isNoisy = false;
    try  
    {
-      this->getPedestalByColumn(detID, col, row, isDead); //pedestal stores dead column value as well
+      this->getPedestalByColumn(detID, col, row, isDead, isNoisy); //pedestal stores dead column value as well
    }
    catch (cms::Exception& e) 
    {
@@ -59,9 +62,10 @@ bool SiPixelGainCalibrationForHLTService::isDead( const uint32_t& detID,const in
 bool SiPixelGainCalibrationForHLTService::isDeadColumn( const uint32_t& detID,const int& col, const int& row)
 {
    bool isDead = false;
+   bool isNoisy = false;
    try  
    {
-      this->getGainByColumn(detID, col, row, isDead);
+      this->getGainByColumn(detID, col, row, isDead, isNoisy);
    }
    catch (cms::Exception& e) 
    {

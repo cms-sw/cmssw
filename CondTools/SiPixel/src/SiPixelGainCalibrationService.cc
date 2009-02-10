@@ -19,7 +19,8 @@
 float SiPixelGainCalibrationService::getPedestal( const uint32_t& detID,const int& col, const int& row)
 {
    bool isDead = false;
-   float pedestalValue = this->getPedestalByPixel(detID, col, row, isDead);
+   bool isNoisy = false;
+   float pedestalValue = this->getPedestalByPixel(detID, col, row, isDead, isNoisy);
    if (isDead)
    {
       this->throwExepctionForBadRead("FullCalibration getPedestal()",detID, col, row, pedestalValue);
@@ -31,7 +32,8 @@ float SiPixelGainCalibrationService::getPedestal( const uint32_t& detID,const in
 float SiPixelGainCalibrationService::getGain( const uint32_t& detID,const int& col, const int& row)
 {
    bool isDead = false;
-   float gainValue = this->getGainByColumn(detID, col, row, isDead);
+   bool isNoisy = false;
+   float gainValue = this->getGainByColumn(detID, col, row, isDead, isNoisy);
    if (isDead)
    {
       this->throwExepctionForBadRead("FullCalibration getGain()",detID, col, row, gainValue);
@@ -43,9 +45,10 @@ float SiPixelGainCalibrationService::getGain( const uint32_t& detID,const int& c
 bool SiPixelGainCalibrationService::isDead( const uint32_t& detID,const int& col, const int& row)
 {
    bool isDead = false;
+   bool isNoisy = false;
    try  
    {
-      this->getPedestalByPixel(detID, col, row, isDead); 
+      this->getPedestalByPixel(detID, col, row, isDead, isNoisy); 
    }
    catch (cms::Exception& e) 
    {
