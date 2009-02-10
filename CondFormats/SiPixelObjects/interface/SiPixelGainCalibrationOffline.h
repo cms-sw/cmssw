@@ -16,7 +16,7 @@
 // Original Author:  Vincenzo Chiochia
 //         Modified: Evan Friis
 //         Created:  Tue 8 12:31:25 CEST 2007
-// $Id: SiPixelGainCalibrationOffline.h,v 1.1 2008/02/06 16:29:55 friis Exp $
+// $Id: SiPixelGainCalibrationOffline.h,v 1.4 2008/04/16 10:09:22 friis Exp $
 //
 //
 #include<vector>
@@ -61,8 +61,8 @@ class SiPixelGainCalibrationOffline {
   const std::pair<const Range, const int> getRangeAndNCols(const uint32_t& detID) const;
 
   // Set and get public methods
-  void  setDataGain     ( float gain, const int& nRows, std::vector<char>& vped , bool thisColumnIsDead = false);
-  void  setDataPedestal ( float pedestal,               std::vector<char>& vped , bool thisPixelIsDead  = false);
+  void  setDataGain     ( float gain, const int& nRows, std::vector<char>& vped , bool thisColumnIsDead = false , bool thisColumnIsNoisy = false);
+  void  setDataPedestal ( float pedestal,               std::vector<char>& vped , bool thisPixelIsDead  = false , bool thisPixelIsNoisy  = false);
 
   unsigned int getNumberOfRowsToAverageOver() const { return numberOfRowsToAverageOver_; }
 
@@ -70,9 +70,13 @@ class SiPixelGainCalibrationOffline {
   void  setDeadPixel(std::vector<char>& vped)                    { setDataPedestal(0 /*dummy value, not used*/,    vped,  true ); }
   void  setDeadColumn(const int& nRows, std::vector<char>& vped) { setDataGain(0 /*dummy value, not used*/, nRows, vped,  true ); }
 
+  // Set noisy pixels
+  void  setNoisyPixel(std::vector<char>& vped)                    { setDataPedestal(0 /*dummy value, not used*/,    vped,  false, true ); }
+  void  setNoisyColumn(const int& nRows, std::vector<char>& vped) { setDataGain(0 /*dummy value, not used*/, nRows, vped,  false, true ); }
+
   // these methods SHOULD NEVER BE ACESSED BY THE USER - use the services in CondTools/SiPixel!!!!
-  float getPed   (const int& col, const int& row, const Range& range, const int& nCols, bool& isDead) const;
-  float getGain  (const int& col, const int& row, const Range& range, const int& nCols, bool& isDeadColumn) const;
+  float getPed   (const int& col, const int& row, const Range& range, const int& nCols, bool& isDead, bool& isNoisy) const;
+  float getGain  (const int& col, const int& row, const Range& range, const int& nCols, bool& isDeadColumn, bool& isNoisyColumn) const;
 
 
   private:
@@ -89,6 +93,7 @@ class SiPixelGainCalibrationOffline {
   unsigned int numberOfRowsToAverageOver_;   //THIS WILL BE HARDCODED TO 80 (all rows in a ROC) DON'T CHANGE UNLESS YOU KNOW WHAT YOU ARE DOING! 
   unsigned int nBinsToUseForEncoding_;
   unsigned int deadFlag_;
+  unsigned int noisyFlag_;
 
 };
     
