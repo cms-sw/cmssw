@@ -363,8 +363,7 @@ ElectronLikelihood::CalculateFisher(const reco::GsfElectron &electron,
 
   // evaluate the Fisher discriminant
   double clusterShapeFisher;
-  std::vector<DetId> vecId=electron.superCluster()->getHitsByDetId () ;
-  EcalSubdetector subdet = EcalSubdetector (vecId[0].subdetId ()) ;
+  EcalSubdetector subdet = EcalSubdetector (electron.superCluster()->hitsAndFractions()[0].first.subdetId ()) ;
   
   if (subdet==EcalBarrel) {
     if (electron.pt()<15.) {
@@ -461,8 +460,7 @@ ElectronLikelihood::result (const reco::GsfElectron &electron,
   }
 
   reco::SuperClusterRef sclusRef = electron.superCluster() ;
-  std::vector<DetId> vecId=sclusRef->getHitsByDetId () ;
-  EcalSubdetector subdet = EcalSubdetector (vecId[0].subdetId ()) ;
+  EcalSubdetector subdet = EcalSubdetector (sclusRef->hitsAndFractions()[0].first.subdetId ()) ;
   float thisPt =  electron.pt();
 
   if (subdet==EcalBarrel && thisPt<15.)
