@@ -18,6 +18,7 @@
      <Primitive column="NUMROWSTOAVERAGE" name="numberOfRowsToAverageOver_" />
      <Primitive column="NBINSFORENCODE" name="nBinsToUseForEncoding_" />
      <Primitive column="DEADPIXFLAG" name="deadFlag_" />
+     <Primitive column="NOISYPIXFLAG" name="noisyFlag_" />
      <Blob column="GAINCALIBRATION_BLOB" name="v_pedestals" />
     </Class>
   </PoolContainer >
