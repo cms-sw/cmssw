@@ -135,8 +135,10 @@ void TrackerHitProducer::produce(edm::Event& iEvent,
     eventout += "\n       ******************************";
     eventout += "\n       Module       : ";
     eventout += AllProv[i]->moduleLabel();
-    eventout += "\n       ProductID    : ";
-    eventout += AllProv[i]->productID().id();
+    eventout += "\n       ProductID process index: ";
+    eventout += AllProv[i]->productID().processIndex();
+    eventout += "\n       ProductID product index: ";
+    eventout += AllProv[i]->productID().productIndex();
     eventout += "\n       ClassName    : ";
     eventout += AllProv[i]->className();
     eventout += "\n       InstanceName : ";

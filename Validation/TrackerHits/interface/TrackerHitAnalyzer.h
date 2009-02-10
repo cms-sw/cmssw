@@ -4,8 +4,8 @@
 /*
  * \file TrackerHitAnalyzer.h
  *
- * $Date: 2008/02/15 16:30:57 $
- * $Revision: 1.2 $
+ * $Date: 2008/02/29 20:49:22 $
+ * $Revision: 1.3 $
  * \author F. Cossutti
  *
 */
@@ -87,6 +87,14 @@ private:
  
  std::string fOutputFile;
 
+ MonitorElement* htofeta;
+ MonitorElement* htofphi;
+ MonitorElement* htofr;
+ MonitorElement* htofz;
+ MonitorElement* htofeta_profile;
+ MonitorElement* htofphi_profile;
+ MonitorElement* htofr_profile;
+ MonitorElement* htofz_profile;
  MonitorElement* h1e[12];
  MonitorElement* h2e[12];
  MonitorElement* h3e[12];

@@ -1,33 +1,24 @@
-<use name=FWCore/Framework>
-<use name=FWCore/ParameterSet>
-<use name=FWCore/MessageLogger>
-<use name=SimDataFormats/ValidationFormats>
-<use name=SimDataFormats/GeneratorProducts>
-<use name=DataFormats/DetId>
-<use name=Geometry/CommonDetUnit>
-<use name=DQMServices/Core>
-<use name=clhep>
-<use name=DataFormats/Math>
-
-<flags EDM_PLUGIN=1>
-
-<export>
- <lib name=ValidationTrackerHits>
- <use name=FWCore/Framework>
- <use name=FWCore/ParameterSet>
- <use name=FWCore/MessageLogger>
- <use name=SimG4CMS/Tracker>
- <use name=root>
- <use name=SimDataFormats/ValidationFormats>
- <use name=SimDataFormats/GeneratorProducts>
- <use name=DataFormats/DetId>
- <use name=Geometry/CommonDetUnit>
- <use name=DQMServices/Core>
- <use name=root>
- <use name=clhep>
- <use name=DataFormats/Math> 
-</export>
-
-<use name=SimG4CMS/Tracker>
-<use name=root>
-
+<use name="DQMServices/Core">
+<use name="DataFormats/Common">
+<use name="DataFormats/DetId">
+<use name="DataFormats/Math">
+<use name="DataFormats/Provenance">
+<use name="DataFormats/SiPixelDetId">
+<use name="DataFormats/SiStripDetId">
+<use name="FWCore/Framework">
+<use name="FWCore/MessageLogger">
+<use name="FWCore/ParameterSet">
+<use name="FWCore/ServiceRegistry">
+<use name="Geometry/CommonDetUnit">
+<use name="Geometry/Records">
+<use name="Geometry/TrackerGeometryBuilder">
+<use name="SimDataFormats/CaloHit">
+<use name="SimDataFormats/EncodedEventId">
+<use name="SimDataFormats/GeneratorProducts">
+<use name="SimDataFormats/Track">
+<use name="SimDataFormats/TrackingHit">
+<use name="SimDataFormats/ValidationFormats">
+<use name="SimDataFormats/Vertex">
+<use name="clhep">
+<use name="rootcore">
+<flags EDM_PLUGIN="1">

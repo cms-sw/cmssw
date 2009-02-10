@@ -8,6 +8,8 @@
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 // data in edm::event
 #include "SimDataFormats/ValidationFormats/interface/PValidationFormats.h"
@@ -77,6 +79,14 @@ TrackerHitAnalyzer::TrackerHitAnalyzer(const edm::ParameterSet& ps) {
      
      // is there any way to record CPU Info ???
      // if so, it can be done once - via beginJob() 
+
+    fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/");
+    htofeta  = fDBE->book2D ("tof_eta", "Time of flight vs eta", 300 , -3.0 , 3.0,200,-100,100);
+    htofphi  = fDBE->book2D("tof_phi", "Time of flight vs phi", 360,-180,180,200,-100,100);
+    htofr  = fDBE->book2D("tof_r", "Time of flight vs r", 300 , 0 , 300, 200, -100,100);
+    htofz  = fDBE->book2D("tof_z", "Time of flight vs z", 280 , -280 , 280, 200, -100,100);
+
+
  const float E2NEL = 1.; 
  
  const char *Region[] = {"005","051","115","152","225","253",
@@ -286,6 +296,7 @@ const float low3[] = {-6.0, -10., -5.6, -10.5, -3.4, -0.52};
    
    }
    
+   
   }
 }
 
@@ -300,6 +311,13 @@ void TrackerHitAnalyzer::beginJob(const edm::EventSetup& c){
 
 void TrackerHitAnalyzer::endJob() 
 {
+
+  fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/");
+  htofeta_profile  = fDBE->bookProfile ("tof_eta_profile",htofeta->getTH2F()->ProfileX());
+  htofphi_profile  = fDBE->bookProfile("tof_phi_profile", htofphi->getTH2F()->ProfileX());
+  htofr_profile  = fDBE->bookProfile("tof_r_profile",htofr->getTH2F()->ProfileX());
+  htofz_profile  = fDBE->bookProfile("tof_z_profile", htofz->getTH2F()->ProfileX());
+
 
   if ( fOutputFile.size() != 0 && fDBE ) fDBE->save(fOutputFile);
 
@@ -455,6 +473,14 @@ void TrackerHitAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
       << "Unable to find SimTrack in event!";
     return;
   }
+
+  // Get geometry information
+
+  edm::ESHandle<TrackerGeometry> tracker;
+  c.get<TrackerDigiGeometryRecord>().get( tracker );
+
+
+  
   int ir = -100;
   edm::SimTrackContainer::const_iterator itTrk;
   for (itTrk = G4TrkContainer->begin(); itTrk != G4TrkContainer->end(); 
@@ -499,14 +525,31 @@ void TrackerHitAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
   // get Pixel information
   ///////////////////////////////
   for (itHit = PxlBrlLowContainer->begin(); itHit != PxlBrlLowContainer->end(); ++itHit) {
-   h5e[ir]->Fill(itHit->energyLoss());
-   h5ex[ir]->Fill(itHit->entryPoint().x()-itHit->exitPoint().x());
-   h5ey[ir]->Fill(itHit->entryPoint().y()-itHit->exitPoint().y());
-   h5ez[ir]->Fill(std::fabs(itHit->entryPoint().z()-itHit->exitPoint().z()));
-   h5lx[ir]->Fill(itHit->localPosition().x());
-   h5ly[ir]->Fill(itHit->localPosition().y());
+    DetId detid=DetId(itHit->detUnitId());
+    const GeomDetUnit * det=(const GeomDetUnit*)tracker->idToDetUnit( detid );
+    GlobalPoint gpos=det->toGlobal(itHit->localPosition());
+    htofeta->Fill(gpos.eta(), itHit->timeOfFlight());
+    htofphi->Fill(gpos.phi().degrees(), itHit->timeOfFlight());
+    htofr->Fill(gpos.mag(), itHit->timeOfFlight());
+    htofz->Fill(gpos.z(), itHit->timeOfFlight());
+
+    h5e[ir]->Fill(itHit->energyLoss());
+    h5ex[ir]->Fill(itHit->entryPoint().x()-itHit->exitPoint().x());
+    h5ey[ir]->Fill(itHit->entryPoint().y()-itHit->exitPoint().y());
+    h5ez[ir]->Fill(std::fabs(itHit->entryPoint().z()-itHit->exitPoint().z()));
+    h5lx[ir]->Fill(itHit->localPosition().x());
+    h5ly[ir]->Fill(itHit->localPosition().y());
   }
   for (itHit = PxlBrlHighContainer->begin(); itHit != PxlBrlHighContainer->end(); ++itHit) {
+    DetId detid=DetId(itHit->detUnitId());
+    const GeomDetUnit * det=(const GeomDetUnit*)tracker->idToDetUnit( detid );
+    GlobalPoint gpos=det->toGlobal(itHit->localPosition());
+    htofeta->Fill(gpos.eta(), itHit->timeOfFlight());
+    htofphi->Fill(gpos.phi().degrees(), itHit->timeOfFlight());
+    htofr->Fill(gpos.mag(), itHit->timeOfFlight());
+    htofz->Fill(gpos.z(), itHit->timeOfFlight());
+
+
    h5e[ir]->Fill(itHit->energyLoss());
    h5ex[ir]->Fill(itHit->entryPoint().x()-itHit->exitPoint().x());
    h5ey[ir]->Fill(itHit->entryPoint().y()-itHit->exitPoint().y());
@@ -515,6 +558,15 @@ void TrackerHitAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
    h5ly[ir]->Fill(itHit->localPosition().y());
   }
   for (itHit = PxlFwdLowContainer->begin(); itHit != PxlFwdLowContainer->end(); ++itHit) {
+    DetId detid=DetId(itHit->detUnitId());
+    const GeomDetUnit * det=(const GeomDetUnit*)tracker->idToDetUnit( detid );
+    GlobalPoint gpos=det->toGlobal(itHit->localPosition());
+    htofeta->Fill(gpos.eta(), itHit->timeOfFlight());
+    htofphi->Fill(gpos.phi().degrees(), itHit->timeOfFlight());
+    htofr->Fill(gpos.mag(), itHit->timeOfFlight());
+    htofz->Fill(gpos.z(), itHit->timeOfFlight());
+
+
    h6e[ir]->Fill(itHit->energyLoss());
    h6ex[ir]->Fill(itHit->entryPoint().x()-itHit->exitPoint().x());
    h6ey[ir]->Fill(itHit->entryPoint().y()-itHit->exitPoint().y());
@@ -523,6 +575,15 @@ void TrackerHitAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
    h6ly[ir]->Fill(itHit->localPosition().y());
   }  
   for (itHit = PxlFwdHighContainer->begin(); itHit != PxlFwdHighContainer->end(); ++itHit) {
+    DetId detid=DetId(itHit->detUnitId());
+    const GeomDetUnit * det=(const GeomDetUnit*)tracker->idToDetUnit( detid );
+    GlobalPoint gpos=det->toGlobal(itHit->localPosition());
+    htofeta->Fill(gpos.eta(), itHit->timeOfFlight());
+    htofphi->Fill(gpos.phi().degrees(), itHit->timeOfFlight());
+    htofr->Fill(gpos.mag(), itHit->timeOfFlight());
+    htofz->Fill(gpos.z(), itHit->timeOfFlight());
+
+
    h6e[ir]->Fill(itHit->energyLoss());
    h6ex[ir]->Fill(itHit->entryPoint().x()-itHit->exitPoint().x());
    h6ey[ir]->Fill(itHit->entryPoint().y()-itHit->exitPoint().y());
@@ -534,6 +595,15 @@ void TrackerHitAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
   // get TIB information
   ///////////////////////////////
   for (itHit = SiTIBLowContainer->begin(); itHit != SiTIBLowContainer->end(); ++itHit) {
+    DetId detid=DetId(itHit->detUnitId());
+    const GeomDetUnit * det=(const GeomDetUnit*)tracker->idToDetUnit( detid );
+    GlobalPoint gpos=det->toGlobal(itHit->localPosition());
+    htofeta->Fill(gpos.eta(), itHit->timeOfFlight());
+    htofphi->Fill(gpos.phi().degrees(), itHit->timeOfFlight());
+    htofr->Fill(gpos.mag(), itHit->timeOfFlight());
+    htofz->Fill(gpos.z(), itHit->timeOfFlight());
+
+
    h1e[ir]->Fill(itHit->energyLoss());
    h1ex[ir]->Fill(itHit->entryPoint().x()-itHit->exitPoint().x());
    h1ey[ir]->Fill(itHit->entryPoint().y()-itHit->exitPoint().y());
@@ -542,6 +612,15 @@ void TrackerHitAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
    h1ly[ir]->Fill(itHit->localPosition().y());
   }
   for (itHit = SiTIBHighContainer->begin(); itHit != SiTIBHighContainer->end(); ++itHit) {
+    DetId detid=DetId(itHit->detUnitId());
+    const GeomDetUnit * det=(const GeomDetUnit*)tracker->idToDetUnit( detid );
+    GlobalPoint gpos=det->toGlobal(itHit->localPosition());
+    htofeta->Fill(gpos.eta(), itHit->timeOfFlight());
+    htofphi->Fill(gpos.phi().degrees(), itHit->timeOfFlight());
+    htofr->Fill(gpos.mag(), itHit->timeOfFlight());
+    htofz->Fill(gpos.z(), itHit->timeOfFlight());
+
+
    h1e[ir]->Fill(itHit->energyLoss());
    h1ex[ir]->Fill(itHit->entryPoint().x()-itHit->exitPoint().x());
    h1ey[ir]->Fill(itHit->entryPoint().y()-itHit->exitPoint().y());
@@ -553,6 +632,15 @@ void TrackerHitAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
   // get TOB information
   ///////////////////////////////
   for (itHit = SiTOBLowContainer->begin(); itHit != SiTOBLowContainer->end(); ++itHit) {
+    DetId detid=DetId(itHit->detUnitId());
+    const GeomDetUnit * det=(const GeomDetUnit*)tracker->idToDetUnit( detid );
+    GlobalPoint gpos=det->toGlobal(itHit->localPosition());
+    htofeta->Fill(gpos.eta(), itHit->timeOfFlight());
+    htofphi->Fill(gpos.phi().degrees(), itHit->timeOfFlight());
+    htofr->Fill(gpos.mag(), itHit->timeOfFlight());
+    htofz->Fill(gpos.z(), itHit->timeOfFlight());
+
+
    h2e[ir]->Fill(itHit->energyLoss());
    h2ex[ir]->Fill(itHit->entryPoint().x()-itHit->exitPoint().x());
    h2ey[ir]->Fill(itHit->entryPoint().y()-itHit->exitPoint().y());
@@ -561,6 +649,14 @@ void TrackerHitAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
    h2ly[ir]->Fill(itHit->localPosition().y());
   }  
   for (itHit = SiTOBHighContainer->begin(); itHit != SiTOBHighContainer->end(); ++itHit) {
+    DetId detid=DetId(itHit->detUnitId());
+    const GeomDetUnit * det=(const GeomDetUnit*)tracker->idToDetUnit( detid );
+    GlobalPoint gpos=det->toGlobal(itHit->localPosition());
+    htofeta->Fill(gpos.eta(), itHit->timeOfFlight());
+    htofphi->Fill(gpos.phi().degrees(), itHit->timeOfFlight());
+    htofr->Fill(gpos.mag(), itHit->timeOfFlight());
+    htofz->Fill(gpos.z(), itHit->timeOfFlight());
+
    h2e[ir]->Fill(itHit->energyLoss());
    h2ex[ir]->Fill(itHit->entryPoint().x()-itHit->exitPoint().x());
    h2ey[ir]->Fill(itHit->entryPoint().y()-itHit->exitPoint().y());
@@ -572,6 +668,14 @@ void TrackerHitAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
   // get TID information
   ///////////////////////////////
   for (itHit = SiTIDLowContainer->begin(); itHit != SiTIDLowContainer->end(); ++itHit) {
+    DetId detid=DetId(itHit->detUnitId());
+    const GeomDetUnit * det=(const GeomDetUnit*)tracker->idToDetUnit( detid );
+    GlobalPoint gpos=det->toGlobal(itHit->localPosition());
+    htofeta->Fill(gpos.eta(), itHit->timeOfFlight());
+    htofphi->Fill(gpos.phi().degrees(), itHit->timeOfFlight());
+    htofr->Fill(gpos.mag(), itHit->timeOfFlight());
+    htofz->Fill(gpos.z(), itHit->timeOfFlight());
+
    h3e[ir]->Fill(itHit->energyLoss());
    h3ex[ir]->Fill(itHit->entryPoint().x()-itHit->exitPoint().x());
    h3ey[ir]->Fill(itHit->entryPoint().y()-itHit->exitPoint().y());
@@ -580,6 +684,14 @@ void TrackerHitAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
    h3ly[ir]->Fill(itHit->localPosition().y());
   }  
   for (itHit = SiTIDHighContainer->begin(); itHit != SiTIDHighContainer->end(); ++itHit) {
+    DetId detid=DetId(itHit->detUnitId());
+    const GeomDetUnit * det=(const GeomDetUnit*)tracker->idToDetUnit( detid );
+    GlobalPoint gpos=det->toGlobal(itHit->localPosition());
+    htofeta->Fill(gpos.eta(), itHit->timeOfFlight());
+    htofphi->Fill(gpos.phi().degrees(), itHit->timeOfFlight());
+    htofr->Fill(gpos.mag(), itHit->timeOfFlight());
+    htofz->Fill(gpos.z(), itHit->timeOfFlight());
+
    h3e[ir]->Fill(itHit->energyLoss());
    h3ex[ir]->Fill(itHit->entryPoint().x()-itHit->exitPoint().x());
    h3ey[ir]->Fill(itHit->entryPoint().y()-itHit->exitPoint().y());
@@ -591,6 +703,14 @@ void TrackerHitAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
   // get TEC information
   ///////////////////////////////
   for (itHit = SiTECLowContainer->begin(); itHit != SiTECLowContainer->end(); ++itHit) {
+    DetId detid=DetId(itHit->detUnitId());
+    const GeomDetUnit * det=(const GeomDetUnit*)tracker->idToDetUnit( detid );
+    GlobalPoint gpos=det->toGlobal(itHit->localPosition());
+    htofeta->Fill(gpos.eta(), itHit->timeOfFlight());
+    htofphi->Fill(gpos.phi().degrees(), itHit->timeOfFlight());
+    htofr->Fill(gpos.mag(), itHit->timeOfFlight());
+    htofz->Fill(gpos.z(), itHit->timeOfFlight());
+
    h4e[ir]->Fill(itHit->energyLoss());
    h4ex[ir]->Fill(itHit->entryPoint().x()-itHit->exitPoint().x());
    h4ey[ir]->Fill(itHit->entryPoint().y()-itHit->exitPoint().y());
@@ -599,6 +719,14 @@ void TrackerHitAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
    h4ly[ir]->Fill(itHit->localPosition().y());
   }  
   for (itHit = SiTECHighContainer->begin(); itHit != SiTECHighContainer->end(); ++itHit) {
+    DetId detid=DetId(itHit->detUnitId());
+    const GeomDetUnit * det=(const GeomDetUnit*)tracker->idToDetUnit( detid );
+    GlobalPoint gpos=det->toGlobal(itHit->localPosition());
+    htofeta->Fill(gpos.eta(), itHit->timeOfFlight());
+    htofphi->Fill(gpos.phi().degrees(), itHit->timeOfFlight());
+    htofr->Fill(gpos.mag(), itHit->timeOfFlight());
+    htofz->Fill(gpos.z(), itHit->timeOfFlight());
+
    h4e[ir]->Fill(itHit->energyLoss());
    h4ex[ir]->Fill(itHit->entryPoint().x()-itHit->exitPoint().x());
    h4ey[ir]->Fill(itHit->entryPoint().y()-itHit->exitPoint().y());
