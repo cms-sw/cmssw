@@ -98,7 +98,7 @@ class CosmicClusterAlgo
   // The vector of DetId's in the cluster currently reconstructed
   std::vector<DetId> current_v9;
   std::vector<DetId> current_v25;
-  std::vector<DetId> current_v25Sup;
+  std::vector< std::pair<DetId, float> > current_v25Sup;
 
   // The vector of clusters
   std::vector<reco::BasicCluster> clusters_v;

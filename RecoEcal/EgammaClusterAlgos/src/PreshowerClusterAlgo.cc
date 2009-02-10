@@ -28,7 +28,7 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
   }
 
   // create null-cluster
-  std::vector<DetId> dummy;
+  std::vector< std::pair<DetId,float> > dummy;
   Point posi(0,0,0);  
   if ( debugLevel_ <= pINFO ) std::cout << " Creating a null-cluster" << std::endl;
   reco::PreshowerCluster nullcluster=reco::PreshowerCluster(0.,posi,dummy,plane);
@@ -209,10 +209,10 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
   double Eclust = 0;
 
   if ( debugLevel_ == pINFO ) std::cout << "The found ES cluster strips: " << std::endl;  
-  std::vector<DetId> usedHits;
+  std::vector<std::pair<DetId,float > > usedHits;
   for (it=clusterRecHits.begin(); it != clusterRecHits.end(); it++) {
      Eclust += it->energy();
-     usedHits.push_back(it->id());
+     usedHits.push_back(std::pair<DetId,float > (it->id(),1.));
      if ( debugLevel_ == pINFO ) std::cout << ESDetId(it->id()) <<", E = " << it->energy()<<"; ";
   }   
   if ( debugLevel_ == pINFO ) std::cout << std::endl;

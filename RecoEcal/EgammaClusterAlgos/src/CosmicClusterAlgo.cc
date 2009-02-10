@@ -67,22 +67,22 @@ std::vector<reco::BasicCluster> CosmicClusterAlgo::makeClusters(
 	  
 	  if (!uncalibRecHits_){  
 	     if (verbosity < pINFO)
-                {
-                std::cout << "-------------------------------------------------------------" << std::endl;
-                std::cout << "No Uncalibrated RecHits no Uncalibrated rec hit collection available" << std::endl;
-                }
-	     continue;
+         {
+            std::cout << "-------------------------------------------------------------" << std::endl;
+            std::cout << "No Uncalibrated RecHits no Uncalibrated rec hit collection available" << std::endl;
+			continue;
+         }
 	  }
 	  
 	  EcalUncalibratedRecHitCollection::const_iterator itt =  uncalibRecHits_->find(it->id());
 	  
 	  if (itt == uncalibRecHits_->end()){  
 	     if (verbosity < pINFO)
-                {
-                std::cout << "-------------------------------------------------------------" << std::endl;
-                std::cout << "No Uncalibrated RecHit associated with the RecHit Probably no Uncalibrated rec hit collection available" << std::endl;
-		}
-	     continue;
+         {
+            std::cout << "-------------------------------------------------------------" << std::endl;
+            std::cout << "No Uncalibrated RecHit associated with the RecHit Probably no Uncalibrated rec hit collection available" << std::endl;
+			continue;
+		 }
 	  }
 	  
       EcalUncalibratedRecHit uhit_p = *itt;
@@ -249,7 +249,8 @@ void CosmicClusterAlgo::makeCluster(
 	  
       if ( uhit_p.amplitude() > ( inEB ? ecalBarrelSupThreshold : ecalEndcapSupThreshold)) 
       {  
-         current_v25Sup.push_back(hit_p.id());
+         // energy fraction = 1
+         current_v25Sup.push_back( std::pair<DetId, float>( hit_p.id(), 1.) );
          energy += hit_p.energy(); //Keep the fully corrected energy 
          chi2 += 0;
       }     
@@ -271,8 +272,7 @@ void CosmicClusterAlgo::makeCluster(
 //       std::cout << "JH****Emax****  "<<energyMax << " ieta " <<detFir.ieta() <<" iphi "<<detFir.ieta()  << std::endl;
 //       std::cout << "JH****Esec****  "<<energySecond << " ieta " <<detSec.ieta() <<" iphi "<<detSec.ieta() << std::endl;
     }
-
-   clusters_v.push_back(reco::BasicCluster(energy, position, chi2, current_v25Sup, reco::island));
+   clusters_v.push_back(reco::BasicCluster(energy, position, reco::CaloID(), current_v25Sup, reco::island));
 }
 
 bool CosmicClusterAlgo::checkMaxima(CaloNavigator<DetId> &navigator)

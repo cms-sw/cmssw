@@ -83,8 +83,8 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
  
   // Find the detector region of the supercluster
   // where is the seed cluster?
-  std::vector<DetId> seedHits = seedC->getHitsByDetId();  
-  EcalSubdetector theBase = EcalSubdetector(seedHits.at(0).subdetId());
+  std::vector<std::pair<DetId, float> > seedHits = seedC->hitsAndFractions();  
+  EcalSubdetector theBase = EcalSubdetector(seedHits.at(0).first.subdetId());
   if (verbosity_ <= pINFO)
   {
     std::cout << "   seed cluster location == " << theBase << std::endl;
@@ -215,23 +215,17 @@ double EgammaSCEnergyCorrectionAlgo::fEtEta(double et, double eta)
 
   double fCorr = 0.;
   
-  double p0 = fEtEta_[0]  + fEtEta_[1]/ (et + fEtEta_[ 2]) + fEtEta_[ 3]/(et*et);
-  double p1 = fEtEta_[4]  + fEtEta_[5]/ (et + fEtEta_[ 6]) + fEtEta_[ 7]/(et*et);
-  double p2 = fEtEta_[8]  + fEtEta_[9]/ (et + fEtEta_[10]) + fEtEta_[11]/(et*et);
-  double p3 = fEtEta_[12] + fEtEta_[13]/(et + fEtEta_[14]) + fEtEta_[15]/(et*et);
+  double p0 = fEtEta_[0] + fEtEta_[1]/(et + fEtEta_[ 2]) + fEtEta_[ 3]/(et*et);
+  double p1 = fEtEta_[4] + fEtEta_[5]/(et + fEtEta_[ 6]) + fEtEta_[ 7]/(et*et);
+  double p2 = fEtEta_[8] + fEtEta_[9]/(et + fEtEta_[10]) + fEtEta_[11]/(et*et);
 
   fCorr = 
     p0 + 
-    p1 * atan(fEtEta_[16]*(fEtEta_[17]-fabs(eta))) + fEtEta_[18] * fabs(eta) + 
-    p1 * fEtEta_[19] * fabs(eta) +
-    p2 * fEtEta_[20] * eta * eta;
-
-  // for EE only
-  if ( fEtEta_[21] != 0 && fabs(eta) > 1.5 ) 
-    fCorr += p3 * fEtEta_[21]/fabs(eta);
-
+    p1 * atan(fEtEta_[12]*(fEtEta_[13]-fabs(eta))) + fEtEta_[14] * fabs(eta) + 
+    p1 * fEtEta_[15] * fabs(eta) +
+    p2 * fEtEta_[16] * eta * eta; 
+ 
   if ( fCorr < 0.5 ) fCorr = 0.5;
-  if ( fCorr > 1.5 ) fCorr = 1.5;
 
   return et/fCorr;
 }
@@ -334,7 +328,7 @@ int EgammaSCEnergyCorrectionAlgo::nCrystalsGT2Sigma(const reco::BasicCluster &se
   // return number of crystals 2Sigma above
   // electronic noise
   
-  std::vector<DetId> hits = seed.getHitsByDetId();
+  std::vector<std::pair<DetId,float > > hits = seed.hitsAndFractions();
 
   if (verbosity_ <= pINFO)
   {
@@ -345,12 +339,12 @@ int EgammaSCEnergyCorrectionAlgo::nCrystalsGT2Sigma(const reco::BasicCluster &se
   }
 
   int nCry = 0;
-  std::vector<DetId>::iterator hit;
+  std::vector<std::pair<DetId,float > >::iterator hit;
   std::map<DetId, EcalRecHit>::iterator aHit;
   for(hit = hits.begin(); hit != hits.end(); hit++)
     {
       // need to get hit by DetID in order to get energy
-      aHit = recHits_m->find(*hit);
+      aHit = recHits_m->find((*hit).first);
       if(aHit->second.energy()>2.*sigmaElectronicNoise_) nCry++;
     }
 
