@@ -31,6 +31,8 @@ class SiPixelGainCalibrationServiceBase {
       virtual float getPedestal  ( const uint32_t& detID , const int& col , const int& row)=0;
       virtual bool  isDead       ( const uint32_t& detID , const int& col , const int& row)=0;
       virtual bool  isDeadColumn ( const uint32_t& detID , const int& col , const int& row)=0;
+   //   virtual bool  isNoisy       ( const uint32_t& detID , const int& col , const int& row)=0;
+   //   virtual bool  isNoisyColumn ( const uint32_t& detID , const int& col , const int& row)=0;
       virtual void  setESObjects(const edm::EventSetup& es )=0;
       virtual std::vector<uint32_t> getDetIds()=0;
 };
@@ -51,18 +53,21 @@ class SiPixelGainCalibrationServicePayloadGetter : public SiPixelGainCalibration
   virtual bool isDead       ( const uint32_t& detID, const int& col, const int& row )=0;
   virtual bool isDeadColumn ( const uint32_t& detID, const int& col, const int& row )=0;
 
+  //virtual bool isNoisy       ( const uint32_t& detID, const int& col, const int& row )=0;
+  //virtual bool isNoisyColumn ( const uint32_t& detID, const int& col, const int& row )=0;
+
   void    setESObjects(const edm::EventSetup& es );
 
   std::vector<uint32_t> getDetIds();
 
  protected:
 
-  float   getPedestalByPixel(const uint32_t& detID,const int& col, const int& row, bool& isDeadPixel) ;
-  float   getGainByPixel(const uint32_t& detID,const int& col, const int& row, bool& isDeadPixel) ;
+  float   getPedestalByPixel(const uint32_t& detID,const int& col, const int& row, bool& isDeadPixel, bool& isNoisyPixel) ;
+  float   getGainByPixel(const uint32_t& detID,const int& col, const int& row, bool& isDeadPixel, bool& isNoisyPixel) ;
 
   // the getByColumn functions caches the data to prevent multiple lookups on averaged quanitities
-  float   getPedestalByColumn(const uint32_t& detID,const int& col, const int& row, bool& isDeadColumn) ;
-  float   getGainByColumn(const uint32_t& detID,const int& col, const int& row, bool& isDeadColumn) ;
+  float   getPedestalByColumn(const uint32_t& detID,const int& col, const int& row, bool& isDeadColumn, bool& isNoisyColumn) ;
+  float   getGainByColumn(const uint32_t& detID,const int& col, const int& row, bool& isDeadColumn, bool& isNoisyColumn) ;
 
   void    throwExepctionForBadRead(std::string payload, const uint32_t& detID, const int& col, const int& row, double value) const;
 
@@ -83,6 +88,8 @@ class SiPixelGainCalibrationServicePayloadGetter : public SiPixelGainCalibration
   
   bool     oldThisColumnIsDeadGain_;
   bool     oldThisColumnIsDeadPed_;
+  bool     oldThisColumnIsNoisyGain_;
+  bool     oldThisColumnIsNoisyPed_;
   int      oldColumnIndexGain_;
   int      oldColumnIndexPed_;
   float    oldColumnValueGain_;
@@ -109,6 +116,8 @@ SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordType>::Si
   oldAveragedBlockDataPed_  = -1;
   oldThisColumnIsDeadGain_ = false;
   oldThisColumnIsDeadPed_  = false;
+  oldThisColumnIsNoisyGain_ = false;
+  oldThisColumnIsNoisyPed_  = false;
 
 }
 
@@ -131,7 +140,7 @@ std::vector<uint32_t> SiPixelGainCalibrationServicePayloadGetter<thePayloadObjec
 }
 
 template<class thePayloadObject, class theDBRecordType>
-float SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordType>::getPedestalByPixel(const uint32_t& detID,const int& col, const int& row, bool& isDead) { 
+float SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordType>::getPedestalByPixel(const uint32_t& detID,const int& col, const int& row, bool& isDead, bool& isNoisy) { 
   if(ESetupInit_) {
     //&&&&&&&&&&&&&&&&&&&&
     //Access from DB
@@ -143,15 +152,14 @@ float SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordTyp
 	old_cols  = rangeAndNCols.second;
       }
       //std::cout<<" Pedestal "<<ped->getPed(col, row, old_range, old_cols)<<std::endl;
-      return  ped->getPed(col, row, old_range, old_cols, isDead);
+      return  ped->getPed(col, row, old_range, old_cols, isDead, isNoisy);
   } else throw cms::Exception("NullPointer")
     << "[SiPixelGainCalibrationServicePayloadGetter::getPedestalByPixel] SiPixelGainCalibrationRcd not initialized ";
 }
 
 
 template<class thePayloadObject, class theDBRecordType>
-float SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordType>::getGainByPixel(const uint32_t& detID,const int& col, const int& row, bool& isDead) {
-  
+float SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordType>::getGainByPixel(const uint32_t& detID,const int& col, const int& row, bool& isDead, bool& isNoisy) {
   if(ESetupInit_) {
     //&&&&&&&&&&&&&&&&&&&&
     //Access from DB
@@ -162,14 +170,14 @@ float SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordTyp
       old_range = rangeAndNCols.first;
       old_cols  = rangeAndNCols.second;
     }
-    return ped->getGain(col, row, old_range, old_cols, isDead);
+    return ped->getGain(col, row, old_range, old_cols, isDead, isNoisy);
   } else throw cms::Exception("NullPointer")
     << "[SiPixelGainCalibrationServicePayloadGetter::getGainByPixel] SiPixelGainCalibrationRcd not initialized ";
 }
 
 
 template<class thePayloadObject, class theDBRecordType>
-float SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordType>::getPedestalByColumn(const uint32_t& detID,const int& col, const int& row, bool& isDeadColumn) { 
+float SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordType>::getPedestalByColumn(const uint32_t& detID,const int& col, const int& row, bool& isDeadColumn, bool& isNoisyColumn) { 
   if(ESetupInit_) {
     //&&&&&&&&&&&&&&&&&&&&
     //Access from DB
@@ -188,13 +196,15 @@ float SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordTyp
       else if (col == oldColumnIndexPed_ && inTheSameAveragedDataBlock) // same DetID, same column, same data block
       {
          isDeadColumn = oldThisColumnIsDeadPed_;
+         isNoisyColumn = oldThisColumnIsNoisyPed_;
          return oldColumnValuePed_;
       } 
 
       oldColumnIndexPed_       = col;
       oldAveragedBlockDataPed_ = row / numberOfRowsAveragedOver_;
-      oldColumnValuePed_       = ped->getPed(col, row, old_range, old_cols, isDeadColumn);
+      oldColumnValuePed_       = ped->getPed(col, row, old_range, old_cols, isDeadColumn, isNoisyColumn);
       oldThisColumnIsDeadPed_  = isDeadColumn;
+      oldThisColumnIsNoisyPed_  = isNoisyColumn;
 
       return oldColumnValuePed_;
 
@@ -204,8 +214,7 @@ float SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordTyp
 
 
 template<class thePayloadObject, class theDBRecordType>
-float SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordType>::getGainByColumn(const uint32_t& detID,const int& col, const int& row, bool& isDeadColumn) {
-  
+float SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordType>::getGainByColumn(const uint32_t& detID,const int& col, const int& row, bool& isDeadColumn, bool& isNoisyColumn) {
   if(ESetupInit_) {
     //&&&&&&&&&&&&&&&&&&&&
     //Access from DB
@@ -223,13 +232,15 @@ float SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordTyp
     else if (col == oldColumnIndexGain_ && inTheSameAveragedDataBlock) // same DetID, same column
     {
        isDeadColumn = oldThisColumnIsDeadGain_;
+       isDeadColumn = oldThisColumnIsNoisyGain_;
        return oldColumnValueGain_;
     }
 
     oldColumnIndexGain_       = col;
     oldAveragedBlockDataGain_ = row / numberOfRowsAveragedOver_;
-    oldColumnValueGain_       = ped->getGain(col, row, old_range, old_cols, isDeadColumn);
+    oldColumnValueGain_       = ped->getGain(col, row, old_range, old_cols, isDeadColumn, isNoisyColumn);
     oldThisColumnIsDeadGain_  = isDeadColumn;
+    oldThisColumnIsNoisyGain_  = isNoisyColumn;
 
     return oldColumnValueGain_;
 
@@ -241,13 +252,13 @@ template<class thePayloadObject, class theDBRecordType>
 void SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordType>::throwExepctionForBadRead(std::string payload, const uint32_t& detID, const int& col, const int& row, const double value = -1) const
 {
    std::cerr << "[SiPixelGainCalibrationServicePayloadGetter::SiPixelGainCalibrationServicePayloadGetter]"
-      << "[SiPixelGainCalibrationServicePayloadGetter] ERROR - Slow down, speed racer! You have tried to read the ped/gain on a pixel that is flagged as dead. For payload: " << payload << "  DETID: " 
+      << "[SiPixelGainCalibrationServicePayloadGetter] ERROR - Slow down, speed racer! You have tried to read the ped/gain on a pixel that is flagged as dead/noisy. For payload: " << payload << "  DETID: " 
       << detID << " col: " << col << " row: " << row << ". You must check if the pixel is dead before asking for the ped/gain value, otherwise you will get corrupt data! value: " << value << std::endl;
 
    // really yell if this occurs
 
    edm::LogError("SiPixelGainCalibrationService") << "[SiPixelGainCalibrationServicePayloadGetter::SiPixelGainCalibrationServicePayloadGetter]"
-      << "[SiPixelGainCalibrationServicePayloadGetter] ERROR - Slow down, speed racer! You have tried to read the ped/gain on a pixel that is flagged as dead. For payload: " << payload << "  DETID: " 
+      << "[SiPixelGainCalibrationServicePayloadGetter] ERROR - Slow down, speed racer! You have tried to read the ped/gain on a pixel that is flagged as dead/noisy. For payload: " << payload << "  DETID: " 
       << detID << " col: " << col << " row: " << row << ". You must check if the pixel is dead before asking for the ped/gain value, otherwise you will get corrupt data! value: " << value << std::endl;
 }
 
