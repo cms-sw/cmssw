@@ -8,11 +8,11 @@ process.load("Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.globaltag = "CRAFT_ALL_V5::All"
 
-process.readfileOffline = cms.EDFilter("SiPixelGainCalibrationRejectNoisyAndDead",
-    inputrootfile = cms.untracked.string('file:///tmp/rougny/test.root'),
-    record = cms.untracked.string('SiPixelGainCalibrationOfflineRcd'),
-    useMeanWhenEmpty = cms.untracked.bool(True)  ,                                     
-)
+#process.readfileOffline = cms.EDFilter("SiPixelGainCalibrationRejectNoisyAndDead",
+#    inputrootfile = cms.untracked.string('file:///tmp/rougny/test.root'),
+#    record = cms.untracked.string('SiPixelGainCalibrationOfflineRcd'),
+#    useMeanWhenEmpty = cms.untracked.bool(True)  ,                                     
+#)
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 

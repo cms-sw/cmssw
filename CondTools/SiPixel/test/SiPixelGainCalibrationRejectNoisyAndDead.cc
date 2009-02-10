@@ -13,7 +13,7 @@
 //
 // Original Author:  Romain Rougny
 //         Created:  Tue Feb  3 15:18:02 CET 2009
-// $Id: SiPixelGainCalibrationRejectNoisyAndDead.cc,v 1.1 2009/02/03 16:00:57 rougny Exp $
+// $Id: SiPixelGainCalibrationRejectNoisyAndDead.cc,v 1.2 2009/02/10 17:51:53 rougny Exp $
 //
 //
 
@@ -58,6 +58,7 @@ void SiPixelGainCalibrationRejectNoisyAndDead::fillDatabase(const edm::EventSetu
   if(gainhi_>20) gainhi_=20;
   if(pedlow_<-100) pedlow_=-100;
   if(pedhi_>300) pedhi_=300;
+  
   theGainCalibrationDbInputOffline_ = new SiPixelGainCalibrationOffline(pedlow_*0.999,pedhi_*1.001,gainlow_*0.999,gainhi_*1.001);
 
   int nnoisy = 0;
