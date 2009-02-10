@@ -61,7 +61,7 @@ public:
   }
   double operator()(double x) const {
     if(x < min_ || x > max_) return 0;
-    return norm_* exp(-slope_*x)*(a0_ + (a1_ + a2_*x)*x);
+    return (1/norm_)* exp(-slope_*x)*(a0_ + (a1_ + a2_*x)*x);
   }
   double rndm(TRandom3 * eventGenerator) const {
     double x, f;
@@ -75,17 +75,17 @@ public:
 
 private:
   void normalize() {
-    static const unsigned int steps = 1000;
+    static const unsigned int steps = 10000;
     double s = 0, x, f;
     double base = max_ - min_;
     double dx = base/steps;
     for(unsigned int n = 0; n < steps; ++n) {
-      x = min_ * n * dx;
-      s += (f = operator()(x));
+      x = min_ + (n * dx);
+      s += (f = operator()(x))* dx;
       if(f > fmax_) fmax_ = f;
     }
-    fmax_ *= 1.001;
-    norm_ = s * base;
+    fmax_ *= 1.001;//max of f
+    norm_ = s;
   }
   double norm_, min_, max_, fmax_;
   double slope_, a0_, a1_, a2_;
@@ -99,11 +99,11 @@ int main(int argc, char * argv[]){
   double yield(50381.3), effTrk(.998364), effSa(.989626), effHlt(.980196), effIso(.915496);
   double slopeMuTk(.0155572), a0MuTk(.000368064), a1MuTk(2.99685), a2MuTk(-0.021115);
   double slopeMuMuNonIso(.0247058), a0MuMuNonIso(.0959997), a1MuMuNonIso(6.70293), a2MuMuNonIso(-0.0525249);
-  BkgShape zMuTkBkgPdf(60, 120, slopeMuTk, a0MuTk, a1MuTk, a2MuTk);
-  BkgShape zMuMuNonIsoBkgPdf(60, 120, slopeMuMuNonIso, a0MuMuNonIso, a1MuMuNonIso, a2MuMuNonIso);
+  BkgShape zMuTkBkgPdf(60., 120., slopeMuTk, a0MuTk, a1MuTk, a2MuTk);
+  BkgShape zMuMuNonIsoBkgPdf(60., 120., slopeMuMuNonIso, a0MuMuNonIso, a1MuMuNonIso, a2MuMuNonIso);
  
   int expt(1), seed(1);
-  
+
   while ((o = getopt(argc, argv,"p:n:s:y:T:S:H:I:h"))!=EOF) {
     switch(o) {
     case 'p':
@@ -149,6 +149,7 @@ int main(int argc, char * argv[]){
     int N0 = eventGenerator->Poisson(yield);
     int nMuTkBkg = eventGenerator->Poisson(zMuTkBkgPdf.integral());
     int nMuMuNonIsoBkg = eventGenerator->Poisson(zMuMuNonIsoBkgPdf.integral());
+    cout<<"nMuTkBkg = "<<zMuTkBkgPdf.integral()<<endl<<"nMuMuNonIsoBkg = "<<zMuMuNonIsoBkgPdf.integral()<<endl;
     int Nmumu = 0;
     int N2HLT = 0;
     int N1HLT = 0;
@@ -255,8 +256,7 @@ int main(int argc, char * argv[]){
     delete zMuSa;
     delete zMuTk;
     
-    delete inputfile;
-    
+       
     
     //Define Background Histo
     TH1F *zMuMuBkg = new TH1F("zMass_golden","zMass",200,0,200);
@@ -291,7 +291,7 @@ int main(int argc, char * argv[]){
     TDirectory * zmumuSaMassHistogram2 = outputfile2->mkdir("zmumuSaMassHistogram");
     TDirectory * goodZToMuMuOneTrack2 = outputfile2->mkdir("goodZToMuMuOneTrackPlots");
     
-    // cout<<" bkg Hierarchy "<<endl;
+
     goodZToMuMu2->cd();
     zMuMuBkg->Write();
     
@@ -315,7 +315,7 @@ int main(int argc, char * argv[]){
     
     outputfile2->Write();
     outputfile2->Close();
-    
+
     delete zMuMuBkg;
     delete zMuMu2HLTBkg;
     delete zMuMu1HLTBkg;
@@ -323,12 +323,14 @@ int main(int argc, char * argv[]){
     delete zMuSafromGoldenBkg;
     delete zMuSaBkg;
     delete zMuTkBkg;
-    
+
     
     // cout<<count<<"\n";
     count++;
   }//end of experiments 
-     
+
+  delete inputfile;
+    
   return 0;
   
 }
