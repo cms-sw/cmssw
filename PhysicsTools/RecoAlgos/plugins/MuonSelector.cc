@@ -2,6 +2,8 @@
  *
  * Selects muon with a configurable string-based cut.
  * Saves clones of the selected muons 
+ * Warning: this module can read anything that inherits from reco::Muon, but it will
+ *   only clone the reco::Muon part of the object, the rest is lost.
  *
  * \author: Luca Lista, INFN
  *
@@ -23,12 +25,14 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "PhysicsTools/UtilAlgos/interface/SingleObjectSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/StringCutObjectSelector.h"
+#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
  typedef SingleObjectSelector<
-           reco::MuonCollection, 
-           StringCutObjectSelector<reco::Muon> 
+           edm::View<reco::Muon>, 
+           StringCutObjectSelector<reco::Muon>,
+           reco::MuonCollection
          > MuonSelector;
 
 DEFINE_FWK_MODULE( MuonSelector );
