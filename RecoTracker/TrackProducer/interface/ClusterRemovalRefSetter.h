@@ -24,8 +24,6 @@ class ClusterRemovalRefSetter {
         void reKey(SiPixelRecHit *hit, uint32_t detid) const ;
     private:
         const reco::ClusterRemovalInfo *cri_;
-        edm::Handle<edmNew::DetSetVector<SiStripCluster> > handleStrip_; // note: Handles are not const,
-        edm::Handle<edmNew::DetSetVector<SiPixelCluster> > handlePixel_; // but they wrap const pointers.
 };
 
 #endif

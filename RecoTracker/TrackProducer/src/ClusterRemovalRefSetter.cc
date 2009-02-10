@@ -6,11 +6,8 @@ ClusterRemovalRefSetter::ClusterRemovalRefSetter(const edm::Event &iEvent, const
     iEvent.getByLabel(tag, hCRI);
     cri_ = &*hCRI; 
 
-    iEvent.get(cri_->pixelProdID(), handlePixel_);
-    iEvent.get(cri_->stripProdID(), handleStrip_);
-
-    //std::cout << "Rekeying PIXEL ProdID " << cri_->pixelNewProdID() << " => " << cri_->pixelProdID() << std::endl;
-    //std::cout << "Rekeying STRIP ProdID " << cri_->stripNewProdID() << " => " << cri_->stripProdID() << std::endl;
+    //std::cout << "Rekeying PIXEL ProdID " << cri_->pixelNewRefProd().id() << " => " << cri_->pixelRefProd().id() << std::endl;
+    //std::cout << "Rekeying STRIP ProdID " << cri_->stripNewRefProd().id() << " => " << cri_->stripRefProd().id() << std::endl;
 }
 
 void ClusterRemovalRefSetter::reKey(TrackingRecHit *hit) const {
@@ -41,16 +38,16 @@ void ClusterRemovalRefSetter::reKey(SiStripRecHit2D *hit, uint32_t detid) const 
     SiStripRecHit2D::ClusterRef newRef = hit->cluster();
     // "newRef" as it refs to the "new"(=cleaned) collection, instead of the old one
 
-    if (newRef.id() != cri_->stripNewProdID()) {   // this is a cfg error in the tracking configuration, much more likely
+    if (newRef.id() != cri_->stripNewRefProd().id()) {   // this is a cfg error in the tracking configuration, much more likely
         throw cms::Exception("Inconsistent Data") << "ClusterRemovalRefSetter: " << 
             "Existing strip cluster refers to product ID " << newRef.id() << 
-            " while the ClusterRemovalInfo expects as *new* cluster collection the ID " << cri_->stripNewProdID() << "\n";
+            " while the ClusterRemovalInfo expects as *new* cluster collection the ID " << cri_->stripNewRefProd().id() << "\n";
     }
 
     size_t newIndex = newRef.key();
     assert(newIndex < indices.size());
     size_t oldIndex = indices[newIndex];
-    SiStripRecHit2D::ClusterRef oldRef(handleStrip_, oldIndex, false);
+    SiStripRecHit2D::ClusterRef oldRef(cri_->stripRefProd(), oldIndex);
     hit->setClusterRef(oldRef);
 }
 
@@ -60,15 +57,15 @@ void ClusterRemovalRefSetter::reKey(SiPixelRecHit *hit, uint32_t detid) const {
     SiPixelRecHit::ClusterRef newRef = hit->cluster();
     // "newRef" as it refs to the "new"(=cleaned) collection, instead of the old one
 
-    if (newRef.id()  != cri_->pixelNewProdID()) {
+    if (newRef.id()  != cri_->pixelNewRefProd().id()) {
         throw cms::Exception("Inconsistent Data") << "ClusterRemovalRefSetter: " << 
             "Existing pixel cluster refers to product ID " << newRef.id() << 
-            " while the ClusterRemovalInfo expects as *new* cluster collection the ID " << cri_->pixelNewProdID() << "\n";
+            " while the ClusterRemovalInfo expects as *new* cluster collection the ID " << cri_->pixelNewRefProd().id() << "\n";
     }
     size_t newIndex = newRef.key();
     assert(newIndex < indices.size());
     size_t oldIndex = indices[newIndex];
-    SiPixelRecHit::ClusterRef oldRef(handlePixel_, oldIndex, false);
+    SiPixelRecHit::ClusterRef oldRef(cri_->pixelRefProd(), oldIndex);
     hit->setClusterRef(oldRef);
 }
 
