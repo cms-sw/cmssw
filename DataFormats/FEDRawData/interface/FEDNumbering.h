@@ -27,6 +27,7 @@ class FEDNumbering {
 
   static std::pair<int,int> getPreShowerFEDIds();
   static std::pair<int,int> getEcalFEDIds();
+  static std::pair<int,int> getCastorFEDIds();
   static std::pair<int,int> getHcalFEDIds();
 
   static std::pair<int,int> getLumiScalersFEDIds();
@@ -88,6 +89,8 @@ class FEDNumbering {
      MAXPreShowerFEDID = 575,
      MINECALFEDID = 600,
      MAXECALFEDID = 670,
+     MINCASTORFEDID = 690,
+     MAXCASTORFEDID = 693,
      MINHCALFEDID = 700,
      MAXHCALFEDID = 731,
      MINLUMISCALERSFEDID = 735,

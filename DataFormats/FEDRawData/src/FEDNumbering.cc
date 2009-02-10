@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/11/27 16:51:17 $
- *  $Revision: 1.13 $
+ *  $Date: 2009/01/23 17:00:31 $
+ *  $Revision: 1.14 $
  *  \author G. Bruno  - CERN, EP Division
  */
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
@@ -73,6 +73,13 @@ pair<int,int> FEDNumbering::getPreShowerFEDIds(){
 pair<int,int> FEDNumbering::getEcalFEDIds(){
 
   return pair<int,int> (MINECALFEDID, MAXECALFEDID);
+
+}
+
+
+pair<int,int> FEDNumbering::getCastorFEDIds(){
+
+  return pair<int,int> (MINCASTORFEDID, MAXCASTORFEDID);
 
 }
 
@@ -226,6 +233,11 @@ void FEDNumbering::init()
     {
       in_[i] = true;
       from_[i] = "Ecal";
+    }
+  for(i=getCastorFEDIds().first; i<=getCastorFEDIds().second; i++)
+    {
+      in_[i] = true;
+      from_[i] = "Castor";
     }
   for(i=getHcalFEDIds().first; i<=getHcalFEDIds().second; i++)
     {
