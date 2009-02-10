@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: injectFileIntoTransferSystem.pl,v 1.39 2009/02/04 17:05:42 loizides Exp $
+# $Id: injectFileIntoTransferSystem.pl,v 1.40 2009/02/06 07:38:36 loizides Exp $
 
 use strict;
 use DBI;
@@ -410,8 +410,8 @@ if($type eq "streamer") {
 } elsif($type eq "pixdmp") {
     $setuplabel = 'PixelCalib' if ($setuplabel eq 'default');
     $destination = 'pixdmp' if ($destination eq 'default');
-    unless($runnumber) {
-	print "Error: For pixdmp files need runnumber to be specified\n";
+    unless($runnumber && $nevents) {
+	print "Error: For pixdmp files need runnumber and numevents to be specified\n";
         usageShort();
     }
 } else {
