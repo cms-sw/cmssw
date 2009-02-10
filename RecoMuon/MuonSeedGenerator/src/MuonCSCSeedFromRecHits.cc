@@ -43,12 +43,13 @@ void MuonCSCSeedFromRecHits::fillConstants(int chamberType1, int chamberType2, d
 
 TrajectorySeed MuonCSCSeedFromRecHits::seed() const
 {
+  TrajectorySeed result;
   if(theRhits.size() == 1) 
   {
-     return createSeed(100., 100., theRhits[0]);
+     //return createSeed(100., 100., theRhits[0]);
+     makeDefaultSeed(result);
+     return result;
   }
-  //analyze();
-  TrajectorySeed result;
   //@@ doesn't handle overlap between ME11 and ME12 correctly
   // sort by station
   MuonRecHitContainer station1Hits, station2Hits, station3Hits, station4Hits;
