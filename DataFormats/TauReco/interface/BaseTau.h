@@ -28,15 +28,15 @@ namespace reco {
     void setalternatLorentzVect(math::XYZTLorentzVector);
     
     // leading Track
-    const reco::TrackRef& leadTrack()const;
+    virtual reco::TrackRef leadTrack() const;
     void setleadTrack(const TrackRef&);
     
     // Tracks which passed quality cuts and are inside a tracker signal cone around leading Track 
-    const reco::TrackRefVector& signalTracks()const;
+    virtual const reco::TrackRefVector& signalTracks() const;
     void setsignalTracks(const TrackRefVector&);
  
     // Tracks which passed quality cuts and are inside a tracker isolation annulus around leading Track 
-    const reco::TrackRefVector& isolationTracks()const;
+    virtual const reco::TrackRefVector& isolationTracks() const;
     void setisolationTracks(const TrackRefVector&);  
   private:
     // check overlap with another candidate
