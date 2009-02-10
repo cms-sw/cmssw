@@ -13,16 +13,16 @@
 namespace edm
 {
   struct EventAuxiliary {
-    // These types are very tentative for now
+    // Updated on 9 Feb. '09 on a request from Emelio Meschi
     enum ExperimentType {
-      Any = 0,
-      Align = 1,
-      Calib = 2,
-      Cosmic = 3, 
-      Data = 4,
-      Mc = 5,
-      Raw = 6,
-      Test = 7
+      Undefined          =  0,
+      PhysicsTrigger     =  1,
+      CalibrationTrigger =  2,
+      RandomTrigger      =  3,
+      Reserved           =  4, 
+      TracedEvent        =  5,
+      TestTrigger        =  6,
+      ErrorTrigger       = 15
     };
     static int const invalidBunchXing = -1;
     static int const invalidStoreNumber = 0;
@@ -33,12 +33,12 @@ namespace edm
 	time_(),
 	luminosityBlock_(),
 	isRealData_(false), 
-	experimentType_(Any),
+	experimentType_(Undefined),
 	bunchCrossing_(invalidBunchXing),
 	orbitNumber_(invalidBunchXing),
         storeNumber_(invalidStoreNumber) {}
     EventAuxiliary(EventID const& theId, std::string const& theProcessGUID, Timestamp const& theTime,
-		   LuminosityBlockNumber_t lb, bool isReal, ExperimentType eType = Any,
+		   LuminosityBlockNumber_t lb, bool isReal, ExperimentType eType = Undefined,
 		   int bunchXing = invalidBunchXing, int storeNumber = invalidStoreNumber,
                    int orbitNum = invalidBunchXing) :
 	processHistoryID_(),
