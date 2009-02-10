@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya BLEKMAN
 //         Created:  Tue Aug  5 16:22:46 CEST 2008
-// $Id: SiPixelGainCalibrationReadDQMFile.cc,v 1.9 2008/11/26 16:20:48 fblekman Exp $
+// $Id: SiPixelGainCalibrationReadDQMFile.cc,v 1.1 2009/02/04 16:05:49 rougny Exp $
 //
 //
 
@@ -253,8 +253,8 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup& iSet
     
     
     // Loop over columns and rows of this DetID
-    float peds[161];
-    float gains[161];
+    float peds[160];
+    float gains[160];
     float pedforthiscol[2];
     float gainforthiscol[2];
     int nusedrows[2];
