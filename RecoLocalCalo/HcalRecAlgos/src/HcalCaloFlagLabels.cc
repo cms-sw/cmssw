@@ -22,9 +22,11 @@ int HcalCaloFlagTool::getFieldWidth(HcalSubdetector sd, int bit) const {
 }
 
 int HcalCaloFlagTool::getFieldStart(HcalSubdetector sd, const std::string& field) const {
+  return 0;
 }
 
 int HcalCaloFlagTool::getFieldWidth(HcalSubdetector sd, const std::string& field) const {
+  return 0;
 }
 
 bool HcalCaloFlagTool::hasField(HcalSubdetector sd, const std::string& field) const {
