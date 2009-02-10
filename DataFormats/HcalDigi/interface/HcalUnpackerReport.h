@@ -5,11 +5,12 @@
 #include <map>
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
+#include "DataFormats/HcalDigi/interface/HcalCalibrationEventTypes.h"
 
 /** \class HcalUnpackerReport
   *  
-  * $Date: 2008/02/12 19:22:50 $
-  * $Revision: 1.2 $
+  * $Date: 2009/01/22 18:33:35 $
+  * $Revision: 1.3 $
   * \author J. Mans - Minnesota
   */
 class HcalUnpackerReport {
@@ -28,17 +29,10 @@ public:
   int totalHOTPDigis() const { return totalHOTPDigis_; }
   bool unsuppressedChannels() const { return unsuppressed_; }
 
-  static const uint16_t ct_Null = 0;
-  static const uint16_t ct_Pedestal = 1;
-  static const uint16_t ct_RADDAM = 2;
-  static const uint16_t ct_HBHEHPD = 3;
-  static const uint16_t ct_HOHPD = 4;
-  static const uint16_t ct_HFPMT = 5;
-
   bool hasFedWithCalib() const { return !fedInfo_.empty(); }
-  uint16_t fedCalibType(uint16_t fed) const;
+  HcalCalibrationEventType fedCalibType(uint16_t fed) const;
 
-  void setFedCalibInfo(uint16_t fed, uint16_t ctype);
+  void setFedCalibInfo(uint16_t fed, HcalCalibrationEventType ctype);
 
   typedef std::vector<DetId> DetIdVector;
   typedef std::vector<HcalElectronicsId> ElectronicsIdVector;

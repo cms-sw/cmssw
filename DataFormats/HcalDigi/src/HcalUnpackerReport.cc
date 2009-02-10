@@ -56,28 +56,28 @@ void HcalUnpackerReport::countUnmappedTPDigi(const HcalElectronicsId& eid) {
   unmappedIds_.push_back(eid);
 }
 
-uint16_t HcalUnpackerReport::fedCalibType(uint16_t fed) const {
+HcalCalibrationEventType HcalUnpackerReport::fedCalibType(uint16_t fed) const {
   std::vector<FedCalibInfo>::const_iterator i;
-  uint16_t retval=ct_Null;
+  uint16_t retval=0;
   for (i=fedInfo_.begin(); i!=fedInfo_.end(); i++)
     if (i->fed_==fed) {
       retval=i->type_;
       break;
     }
-  return retval;
+  return HcalCalibrationEventType(retval);
 }
 
-void HcalUnpackerReport::setFedCalibInfo(uint16_t fed, uint16_t ctype) {
+void HcalUnpackerReport::setFedCalibInfo(uint16_t fed, HcalCalibrationEventType ctype) {
   std::vector<FedCalibInfo>::iterator i;
   for (i=fedInfo_.begin(); i!=fedInfo_.end(); i++)
     if (i->fed_==fed) {
-      i->type_=ctype;
+      i->type_=uint16_t(ctype);
       break;
     }
   if (i==fedInfo_.end()) {
     fedInfo_.push_back(FedCalibInfo());
     fedInfo_.back().fed_=fed;
-    fedInfo_.back().type_=ctype;
+    fedInfo_.back().type_=uint16_t(ctype);
   }
 }
 
