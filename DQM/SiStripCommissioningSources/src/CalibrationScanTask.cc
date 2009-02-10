@@ -81,7 +81,7 @@ void CalibrationScanTask::book() {
 
   // book the isha, vfs values
   std::string pwd = dqm()->pwd();
-  std::string rootDir = pwd.substr(0,pwd.find(sistrip::root_ + "/")+sistrip::root_.size());
+  std::string rootDir = pwd.substr(0,pwd.find(std::string(sistrip::root_) + "/")+(sizeof(sistrip::root_) - 1));
   dqm()->setCurrentFolder( rootDir );
   std::vector<std::string> existingMEs = dqm()->getMEs();
   if(find(existingMEs.begin(),existingMEs.end(),"isha")!=existingMEs.end()) {

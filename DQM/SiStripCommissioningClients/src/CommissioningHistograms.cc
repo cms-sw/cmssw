@@ -133,7 +133,7 @@ uint32_t CommissioningHistograms::runNumber( DQMStore* const bei,
     std::string client_dir = path.path();
     std::string slash = client_dir.substr( client_dir.size()-1, 1 ); 
     if ( slash == sistrip::dir_ ) { client_dir = client_dir.substr( 0, client_dir.size()-1 ); }
-    client_dir = sistrip::collate_ + sistrip::dir_ + client_dir;
+    client_dir = std::string(sistrip::collate_) + sistrip::dir_ + client_dir;
     
     // Iterate though MonitorElements from source directory
     std::vector<MonitorElement*> me_list = bei->getContents( source_dir );
@@ -153,7 +153,7 @@ uint32_t CommissioningHistograms::runNumber( DQMStore* const bei,
       
       // Extract run number from string 
       if ( pos != std::string::npos ) { 
-	std::string value = title.substr( pos+sistrip::runNumber_.size()+1, std::string::npos ); 
+	std::string value = title.substr( pos+sizeof(sistrip::runNumber_) , std::string::npos ); 
 	if ( !value.empty() ) { 
 	  LogTrace(mlDqmClient_)
 	    << "[CommissioningHistograms::" << __func__ << "]"
@@ -208,7 +208,7 @@ sistrip::RunType CommissioningHistograms::runType( DQMStore* const bei,
     std::string client_dir = path.path();
     std::string slash = client_dir.substr( client_dir.size()-1, 1 ); 
     if ( slash == sistrip::dir_ ) { client_dir = client_dir.substr( 0, client_dir.size()-1 ); } 
-    client_dir = sistrip::collate_ + sistrip::dir_ + client_dir;
+    client_dir = std::string(sistrip::collate_) + sistrip::dir_ + client_dir;
     
     // Iterate though MonitorElements from source directory
     std::vector<MonitorElement*> me_list = bei->getContents( source_dir );
@@ -236,7 +236,7 @@ sistrip::RunType CommissioningHistograms::runType( DQMStore* const bei,
 
       // Extract commissioning task from string 
       if ( pos != std::string::npos ) { 
-	std::string value = title.substr( pos+sistrip::taskId_.size()+1, std::string::npos ); 
+	std::string value = title.substr( pos+sizeof(sistrip::taskId_) , std::string::npos ); 
 	if ( !value.empty() ) { 
 	  LogTrace(mlDqmClient_)
 	    << "[CommissioningHistograms::" << __func__ << "]"
@@ -437,7 +437,7 @@ void CommissioningHistograms::extractHistograms( const std::vector<std::string>&
     else { client_dir = SiStripKey( path.key() ).path(); }
     std::string slash = client_dir.substr( client_dir.size()-1, 1 ); 
     if ( slash == sistrip::dir_ ) { client_dir = client_dir.substr( 0, client_dir.size()-1 ); }
-    client_dir = sistrip::collate_ + sistrip::dir_ + client_dir;
+    client_dir = std::string(sistrip::collate_) + sistrip::dir_ + client_dir;
 
     // Retrieve MonitorElements from source directory
     std::vector<MonitorElement*> me_list = bei_->getContents( source_dir );
@@ -985,7 +985,7 @@ TH1* CommissioningHistograms::histogram( const sistrip::Monitorable& mon,
   
   // Remember pwd 
   std::string pwd = bei_->pwd();
-  bei_->setCurrentFolder( sistrip::collate_ + sistrip::dir_ + directory );
+  bei_->setCurrentFolder( std::string(sistrip::collate_) + sistrip::dir_ + directory );
   
   // Construct histogram name 
   std::string name = SummaryGenerator::name( task_, mon, pres, view, directory );

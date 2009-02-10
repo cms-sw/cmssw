@@ -1,4 +1,4 @@
-// Last commit: $Id: CalibrationHistosUsingDb.cc,v 1.7 2008/05/06 12:38:07 bainbrid Exp $
+// Last commit: $Id: CalibrationHistosUsingDb.cc,v 1.8 2008/10/22 10:40:09 delaer Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/CalibrationHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/CalibrationAnalysis.h"
@@ -12,6 +12,11 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
+std::string getBasePath (const std::string &path)
+{
+  return path.substr(0,path.find(std::string(sistrip::root_) + "/")+sizeof(sistrip::root_) );
+}
+
 CalibrationHistosUsingDb::CalibrationHistosUsingDb( DQMOldReceiver* mui,
 						    SiStripConfigDb* const db,
 						    const sistrip::RunType& task )
@@ -42,11 +47,11 @@ CalibrationHistosUsingDb::CalibrationHistosUsingDb( DQMOldReceiver* mui,
   }
   // Load the histograms with the results
   std::string pwd = bei()->pwd();
-  std::string ishaPath = pwd.substr(0,pwd.find(sistrip::root_ + "/")+sistrip::root_.size()+1);
+  std::string ishaPath = getBasePath(pwd);
   ishaPath += "/ControlView/isha";
   LogTrace(mlDqmClient_) << "Looking for " << ishaPath;
   ishaHistogram_ = ExtractTObject<TH1F>().extract( bei()->get(ishaPath) );
-  std::string vfsPath = pwd.substr(0,pwd.find(sistrip::root_ + "/")+sistrip::root_.size()+1);
+  std::string vfsPath = getBasePath(pwd);
   vfsPath += "/ControlView/vfs";
   LogTrace(mlDqmClient_) << "Looking for " << vfsPath;
   vfsHistogram_ = ExtractTObject<TH1F>().extract( bei()->get(vfsPath) );
@@ -84,11 +89,11 @@ CalibrationHistosUsingDb::CalibrationHistosUsingDb( DQMStore* bei,
   }
   // Load the histograms with the results
   std::string pwd = bei->pwd();
-  std::string ishaPath = pwd.substr(0,pwd.find(sistrip::root_ + "/")+sistrip::root_.size()+1);
+  std::string ishaPath = getBasePath(pwd);
   ishaPath += "/ControlView/isha";
   LogTrace(mlDqmClient_) << "Looking for " << ishaPath;
   ishaHistogram_ = ExtractTObject<TH1F>().extract( bei->get(ishaPath) );
-  std::string vfsPath = pwd.substr(0,pwd.find(sistrip::root_ + "/")+sistrip::root_.size()+1);
+  std::string vfsPath = getBasePath(pwd);
   vfsPath += "/ControlView/vfs";
   LogTrace(mlDqmClient_) << "Looking for " << vfsPath;
   vfsHistogram_ = ExtractTObject<TH1F>().extract( bei->get(vfsPath) );

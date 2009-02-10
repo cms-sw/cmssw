@@ -1,4 +1,4 @@
-// Last commit: $Id: ConstantsForDqm.h,v 1.9 2008/03/17 17:37:10 bainbrid Exp $
+// Last commit: $Id: ConstantsForDqm.h,v 1.10 2008/04/09 12:35:01 delaer Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForDqm_H
 #define DataFormats_SiStripCommon_ConstantsForDqm_H
@@ -15,47 +15,47 @@ namespace sistrip {
   
   // ---------- Useful characters ----------
   
-  static const std::string dir_  = "/";
-  static const std::string sep_  = "_";
-  static const std::string pipe_ = "|";
-  static const std::string dot_  = ".";
-  static const std::string hex_  = "0x";
+  static const char dir_[]  = "/";
+  static const char sep_[]  = "_";
+  static const char pipe_[] = "|";
+  static const char dot_[]  = ".";
+  static const char hex_[]  = "0x";
 
   // ---------- Naming dirs and histos ----------
 
-  static const std::string dqmSourceFileName_ = "SiStripCommissioningSource";
-  static const std::string dqmClientFileName_ = "SiStripCommissioningClient";
+  static const char dqmSourceFileName_[] = "SiStripCommissioningSource";
+  static const char dqmClientFileName_[] = "SiStripCommissioningClient";
 
-  static const std::string dqmRoot_     = "DQMData";
-  static const std::string collate_     = "Collate";
-  static const std::string root_        = "SiStrip";
-  static const std::string taskId_      = "SiStripCommissioningTask";
-  static const std::string summaryPlot_ = "SummaryPlot";
-  static const std::string runNumber_   = "RunNumber";
+  static const char dqmRoot_[]     = "DQMData";
+  static const char collate_[]     = "Collate";
+  static const char root_[]        = "SiStrip";
+  static const char taskId_[]      = "SiStripCommissioningTask";
+  static const char summaryPlot_[] = "SummaryPlot";
+  static const char runNumber_[]   = "RunNumber";
 
   namespace extrainfo { 
 
     // ---------- opto scan ----------
     
-    static const std::string gain_        = "Gain";
-    static const std::string digital_     = "Digital";
-    static const std::string baselineRms_ = "BaselineNoise";
+    static const char gain_[]        = "Gain";
+    static const char digital_[]     = "Digital";
+    static const char baselineRms_[] = "BaselineNoise";
 
     // ---------- peds and noise ----------
     
-    static const std::string pedestals_  = "Pedestals";
-    static const std::string rawNoise_   = "RawNoise";
-    static const std::string noise_      = "Noise";
-    static const std::string commonMode_ = "CommonMode";
+    static const char pedestals_[]  = "Pedestals";
+    static const char rawNoise_[]   = "RawNoise";
+    static const char noise_[]      = "Noise";
+    static const char commonMode_[] = "CommonMode";
     
-    static const std::string pedsAndRawNoise_   = "PedsAndRawNoise";          //@@ LEGACY
-    static const std::string residualsAndNoise_ = "ResidualsAndNoise";        //@@ LEGACY
-    static const std::string pedsAndCmSubNoise_ = "PedsAndCMSubtractedNoise"; //@@ LEGACY
+    static const char pedsAndRawNoise_[]   = "PedsAndRawNoise";          //@@ LEGACY
+    static const char residualsAndNoise_[] = "ResidualsAndNoise";        //@@ LEGACY
+    static const char pedsAndCmSubNoise_[] = "PedsAndCMSubtractedNoise"; //@@ LEGACY
 
     // ---------- latency ----------
 
-    static const std::string clusterCharge_     = "ClusterCharge";
-    static const std::string occupancy_         = "Occupancy";
+    static const char clusterCharge_[]     = "ClusterCharge";
+    static const char occupancy_[]         = "Occupancy";
     
   }
   

@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedKey.cc,v 1.13 2008/02/14 13:29:55 bainbrid Exp $
+// Last commit: $Id: SiStripFedKey.cc,v 1.14 2008/02/28 13:14:22 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include "DataFormats/SiStripCommon/interface/Constants.h" 
@@ -380,7 +380,7 @@ void SiStripFedKey::initFromPath() {
     // Check if root is found
     if ( path().find( sistrip::root_ ) == std::string::npos ) {
       std::string temp = path();
-      path( sistrip::root_ + sistrip::dir_ + temp );
+      path( std::string(sistrip::root_) + sistrip::dir_ + temp );
     }
     
     uint32_t curr = 0; // current string position
@@ -392,16 +392,16 @@ void SiStripFedKey::initFromPath() {
     if ( curr != std::string::npos ) { 
       next = path().find( sistrip::feDriver_, curr );
       std::string readout_view( path(), 
-				curr+sistrip::readoutView_.size(), 
-				(next-sistrip::dir_.size())-curr );
+				curr+(sizeof(sistrip::readoutView_) - 1), 
+				(next-(sizeof(sistrip::dir_) - 1))-curr );
       
       // Extract FED id
       curr = next;
       if ( curr != std::string::npos ) { 
 	next = path().find( sistrip::feUnit_, curr );
 	std::string fed_id( path(), 
-			    curr+sistrip::feDriver_.size(), 
-			    (next-sistrip::dir_.size())-curr );
+			    curr+(sizeof(sistrip::feDriver_) - 1), 
+			    (next-(sizeof(sistrip::dir_) - 1))-curr );
 	fedId_ = atoi( fed_id.c_str() );
 	
 	// Extract FE unit
@@ -409,7 +409,7 @@ void SiStripFedKey::initFromPath() {
 	if ( curr != std::string::npos ) { 
 	  next = path().find( sistrip::feChan_, curr );
 	  std::string fe_unit( path(), 
-			       curr+sistrip::feUnit_.size(), 
+			       curr+(sizeof(sistrip::feUnit_) - 1), 
 			       next-curr );
 	  feUnit_ = atoi( fe_unit.c_str() );
 	  
@@ -418,7 +418,7 @@ void SiStripFedKey::initFromPath() {
 	  if ( curr != std::string::npos ) { 
 	    next = path().find( sistrip::fedApv_, curr );
 	    std::string fe_chan( path(), 
-				 curr+sistrip::feChan_.size(), 
+				 curr+(sizeof(sistrip::feChan_) - 1), 
 				 next-curr );
 	    feChan_ = atoi( fe_chan.c_str() );
 	    
@@ -427,7 +427,7 @@ void SiStripFedKey::initFromPath() {
 	    if ( curr != std::string::npos ) { 
 	      next = std::string::npos;
 	      std::string fed_apv( path(), 
-				   curr+sistrip::fedApv_.size(), 
+				   curr+(sizeof(sistrip::fedApv_) - 1), 
 				   next-curr );
 	      fedApv_ = atoi( fed_apv.c_str() );
 	    }

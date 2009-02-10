@@ -56,13 +56,13 @@ void OptoScanAlgorithm::extract( const std::vector<TH1*>& histos ) {
     uint16_t gain = sistrip::invalid_; 
     if ( title.extraInfo().find(sistrip::extrainfo::gain_) != std::string::npos ) {
       std::stringstream ss;
-      ss << title.extraInfo().substr( title.extraInfo().find(sistrip::extrainfo::gain_) + sistrip::extrainfo::gain_.size(), 1 );
+      ss << title.extraInfo().substr( title.extraInfo().find(sistrip::extrainfo::gain_) + (sizeof(sistrip::extrainfo::gain_) - 1), 1 );
       ss >> std::dec >> gain;
     }
     uint16_t digital = sistrip::invalid_; 
     if ( title.extraInfo().find(sistrip::extrainfo::digital_) != std::string::npos ) {
       std::stringstream ss;
-      ss << title.extraInfo().substr( title.extraInfo().find(sistrip::extrainfo::digital_) + sistrip::extrainfo::digital_.size(), 1 );
+      ss << title.extraInfo().substr( title.extraInfo().find(sistrip::extrainfo::digital_) + (sizeof(sistrip::extrainfo::digital_) - 1), 1 );
       ss >> std::dec >> digital;
     }
     bool baseline_rms = false;

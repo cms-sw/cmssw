@@ -1,4 +1,4 @@
-// Last commit: $Id: ConstantsForHistoType.h,v 1.2 2007/03/21 08:22:59 bainbrid Exp $
+// Last commit: $Id: ConstantsForHistoType.h,v 1.1 2007/06/19 12:16:52 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForHistoType_H
 #define DataFormats_SiStripCommon_ConstantsForHistoType_H
@@ -16,11 +16,11 @@ namespace sistrip {
 
   // ---------- Constants ---------- 
   
-  static const std::string unknownHistoType_   = "UnknownHistoType";
-  static const std::string undefinedHistoType_ = "UndefinedHistoType";
+  static const char unknownHistoType_[]   = "UnknownHistoType";
+  static const char undefinedHistoType_[] = "UndefinedHistoType";
   
-  static const std::string expertHisto_  = "ExpertHisto";
-  static const std::string summaryHisto_ = "SummaryHisto";
+  static const char expertHisto_[]  = "ExpertHisto";
+  static const char summaryHisto_[] = "SummaryHisto";
 
   // ---------- Enumerated type ---------- 
 

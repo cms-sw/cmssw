@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFecKey.cc,v 1.19 2008/02/22 09:53:15 bainbrid Exp $
+// Last commit: $Id: SiStripFecKey.cc,v 1.20 2008/02/28 13:14:22 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripNullKey.h"
@@ -598,7 +598,7 @@ void SiStripFecKey::initFromPath() {
     // Check if root is found
     if ( path().find( sistrip::root_ ) == std::string::npos ) {
       std::string temp = path();
-      path( sistrip::root_ + sistrip::dir_ + temp );
+      path( std::string(sistrip::root_) + sistrip::dir_ + temp );
     }
     
     uint32_t curr = 0; // current string position
@@ -610,16 +610,16 @@ void SiStripFecKey::initFromPath() {
     if ( curr != std::string::npos ) { 
       next = path().find( sistrip::fecCrate_, curr );
       std::string control_view( path(), 
-				curr+sistrip::controlView_.size(), 
-				(next-sistrip::dir_.size())-curr );
+				curr+(sizeof(sistrip::controlView_) - 1), 
+				next-(sizeof(sistrip::dir_) - 1)-curr );
       
       // Extract FEC crate
       curr = next;
       if ( curr != std::string::npos ) { 
 	next = path().find( sistrip::fecSlot_, curr );
 	std::string fec_crate( path(), 
-			       curr+sistrip::fecCrate_.size(), 
-			       (next-sistrip::dir_.size())-curr );
+			       curr+(sizeof(sistrip::fecCrate_) - 1), 
+			       next-(sizeof(sistrip::dir_) - 1)-curr );
 	fecCrate_ = std::atoi( fec_crate.c_str() );
 
 	// Extract FEC slot
@@ -627,8 +627,8 @@ void SiStripFecKey::initFromPath() {
 	if ( curr != std::string::npos ) { 
 	  next = path().find( sistrip::fecRing_, curr );
 	  std::string fec_slot( path(), 
-				curr+sistrip::fecSlot_.size(), 
-				(next-sistrip::dir_.size())-curr );
+				curr+(sizeof(sistrip::fecSlot_) - 1), 
+				next-(sizeof(sistrip::dir_) - 1)-curr );
 	  fecSlot_ = std::atoi( fec_slot.c_str() );
 
 	  // Extract FEC ring
@@ -636,8 +636,8 @@ void SiStripFecKey::initFromPath() {
 	  if ( curr != std::string::npos ) { 
 	    next = path().find( sistrip::ccuAddr_, curr );
 	    std::string fec_ring( path(), 
-				  curr+sistrip::fecRing_.size(),
-				  (next-sistrip::dir_.size())-curr );
+				  curr+(sizeof(sistrip::fecRing_) - 1),
+				  next-(sizeof(sistrip::dir_) - 1)-curr );
 	    fecRing_ = std::atoi( fec_ring.c_str() );
 
 	    // Extract CCU address
@@ -645,8 +645,8 @@ void SiStripFecKey::initFromPath() {
 	    if ( curr != std::string::npos ) { 
 	      next = path().find( sistrip::ccuChan_, curr );
 	      std::string ccu_addr( path(), 
-				    curr+sistrip::ccuAddr_.size(), 
-				    (next-sistrip::dir_.size())-curr );
+				    curr+(sizeof(sistrip::ccuAddr_) - 1), 
+				    next-(sizeof(sistrip::dir_) - 1)-curr );
 	      ccuAddr_ = std::atoi( ccu_addr.c_str() );
 
 	      // Extract CCU channel
@@ -654,8 +654,8 @@ void SiStripFecKey::initFromPath() {
 	      if ( curr != std::string::npos ) { 
 		next = path().find( sistrip::lldChan_, curr );
 		std::string ccu_chan( path(), 
-				      curr+sistrip::ccuChan_.size(), 
-				      (next-sistrip::dir_.size())-curr );
+				      curr+(sizeof(sistrip::ccuChan_) - 1), 
+				      next-(sizeof(sistrip::dir_) - 1)-curr );
 		ccuChan_ = std::atoi( ccu_chan.c_str() );
 		
 		// Extract LLD channel
@@ -663,8 +663,8 @@ void SiStripFecKey::initFromPath() {
 		if ( curr != std::string::npos ) { 
 		  next = path().find( sistrip::apv_, curr );
 		  std::string lld_chan( path(), 
-					curr+sistrip::lldChan_.size(), 
-					(next-sistrip::dir_.size())-curr );
+					curr+(sizeof(sistrip::lldChan_) - 1), 
+					next-(sizeof(sistrip::dir_) - 1)-curr );
 		  lldChan_ = std::atoi( lld_chan.c_str() );
 		  
 		  // Extract I2C address
@@ -672,7 +672,7 @@ void SiStripFecKey::initFromPath() {
 		  if ( curr != std::string::npos ) { 
 		    next = std::string::npos;
 		    std::string i2c_addr( path(), 
-					  curr+sistrip::apv_.size(),
+					  curr+(sizeof(sistrip::apv_) - 1),
 					  next-curr );
 		    i2cAddr_ = std::atoi( i2c_addr.c_str() );
 		  }

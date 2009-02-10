@@ -25,7 +25,8 @@ CalibrationHistograms::CalibrationHistograms( DQMStore* bei,const sistrip::RunTy
   LogTrace(mlDqmClient_) 
        << "[CalibrationHistograms::" << __func__ << "]"
        << " Constructing object...";
-  MonitorElement* calchanElement = bei->get(sistrip::collate_ + "/" + sistrip::root_ + "/calchan");
+  std::string temp = std::string(sistrip::collate_) + "/" + sistrip::root_;
+  MonitorElement* calchanElement = bei->get(temp + "/calchan");
   if(calchanElement) {
     calchan_ = calchanElement->getIntValue();
     edm::LogVerbatim(mlDqmClient_)
@@ -36,9 +37,9 @@ CalibrationHistograms::CalibrationHistograms( DQMStore* bei,const sistrip::RunTy
       << "[CalibrationHistograms::" << __func__ << "]"
       << "CalChan value not found. Using " << calchan_;
   }
-  MonitorElement* ishaElement = bei->get(sistrip::collate_ + "/" + sistrip::root_ + "/isha");
+  MonitorElement* ishaElement = bei->get(temp + "/isha");
   if(ishaElement) isha_ = ishaElement->getIntValue() ;
-  MonitorElement* vfsElement = bei->get(sistrip::collate_ + "/" + sistrip::root_ + "/vfs");
+  MonitorElement* vfsElement = bei->get(temp + "/vfs");
   if(vfsElement) vfs_ = vfsElement->getIntValue() ;
 }
 
@@ -51,8 +52,9 @@ CalibrationHistograms::CalibrationHistograms( DQMOldReceiver* mui,const sistrip:
   LogTrace(mlDqmClient_) 
        << "[CalibrationHistograms::" << __func__ << "]"
        << " Constructing object...";
+  std::string temp = std::string(sistrip::collate_) + "/" + sistrip::root_;
   factory_ = auto_ptr<CalibrationSummaryFactory>( new CalibrationSummaryFactory );
-  MonitorElement* calchanElement = bei()->get(sistrip::collate_ + "/" + sistrip::root_ + "/calchan");
+  MonitorElement* calchanElement = bei()->get(temp + "/calchan");
   if(calchanElement) {
     calchan_ = calchanElement->getIntValue() ;
     edm::LogVerbatim(mlDqmClient_)
@@ -63,9 +65,9 @@ CalibrationHistograms::CalibrationHistograms( DQMOldReceiver* mui,const sistrip:
       << "[CalibrationHistograms::" << __func__ << "]"
       << "CalChan value not found. Using " << calchan_;
   }
-  MonitorElement*  ishaElement = bei()->get(sistrip::collate_ + "/" + sistrip::root_ + "/isha");
+  MonitorElement*  ishaElement = bei()->get(temp + "/isha");
   if(ishaElement) isha_ = ishaElement->getIntValue() ;
-  MonitorElement*  vfsElement = bei()->get(sistrip::collate_ + "/" + sistrip::root_ + "/vfs");
+  MonitorElement*  vfsElement = bei()->get(temp + "/vfs");
   if(vfsElement) vfs_ = vfsElement->getIntValue() ;
 }
 

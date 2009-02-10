@@ -145,17 +145,17 @@ void SummaryPlot::check() {
   if ( level_.find( sistrip::root_ ) == std::string::npos ) { 
     if ( check == sistrip::UNKNOWN_VIEW ) {
       level_ = 
-	sistrip::root_ + sistrip::dir_ + 
+	std::string(sistrip::root_) + sistrip::dir_ + 
 	sistrip::unknownView_ + sistrip::dir_ + 
 	level_; 
     } else if ( check == sistrip::UNDEFINED_VIEW ) {
       level_ = 
-	sistrip::root_ + sistrip::dir_ + 
+	std::string(sistrip::root_) + sistrip::dir_ + 
 	sistrip::undefinedView_ + sistrip::dir_ + 
 	level_; 
     } else { 
       level_ = 
-	sistrip::root_ + sistrip::dir_ + 
+	std::string(sistrip::root_) + sistrip::dir_ + 
 	level_; 
     }
   }

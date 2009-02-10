@@ -52,7 +52,7 @@ void LatencyTask::book() {
     timingMap_[title] = HistoSet();
     int nBins = NBINS;
     std::string pwd = dqm()->pwd();
-    std::string rootDir = pwd.substr(0,pwd.find(sistrip::root_ + "/")+sistrip::root_.size());
+    std::string rootDir = pwd.substr(0,pwd.find(std::string(sistrip::root_) + "/")+(sizeof(sistrip::root_) - 1));
     rootDir += "/"; rootDir += sistrip::controlView_;
     dqm()->setCurrentFolder( rootDir );
     LogDebug("Commissioning") << "[LatencyTask::book] booking a new histogram in " << dqm()->pwd();
@@ -111,7 +111,7 @@ void LatencyTask::book() {
     clusterMap_[title] = HistoSet();
     int nBins = NBINS;
     std::string pwd = dqm()->pwd();
-    std::string rootDir = pwd.substr(0,pwd.find(sistrip::root_ + "/")+sistrip::root_.size());
+    std::string rootDir = pwd.substr(0,pwd.find(std::string(sistrip::root_) + "/")+(sizeof(sistrip::root_) - 1));
     rootDir += "/"; rootDir += sistrip::controlView_;
     dqm()->setCurrentFolder( rootDir );
     LogDebug("Commissioning") << "[LatencyTask::book] booking a new histogram in " << dqm()->pwd();

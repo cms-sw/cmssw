@@ -24,7 +24,7 @@ SamplingHistograms::SamplingHistograms( DQMStore* bei,const sistrip::RunType& ta
        << " Constructing object...";
   factory_ = auto_ptr<SamplingSummaryFactory>( new SamplingSummaryFactory );
   // retreive the latency code from the root file
-  std::string dataPath = sistrip::collate_ + "/" + sistrip::root_ + "/latencyCode";
+  std::string dataPath = std::string(sistrip::collate_) + "/" + sistrip::root_ + "/latencyCode";
   MonitorElement* codeElement = bei->get(dataPath);
   if(codeElement) latencyCode_ = codeElement->getIntValue() ;
   else latencyCode_ = 0;
@@ -40,7 +40,7 @@ SamplingHistograms::SamplingHistograms( DQMOldReceiver* mui,const sistrip::RunTy
        << " Constructing object...";
   factory_ = auto_ptr<SamplingSummaryFactory>( new SamplingSummaryFactory );
   // retreive the latency code from the root file
-  std::string dataPath = sistrip::collate_ + "/" + sistrip::root_ + "/latencyCode";
+  std::string dataPath = std::string(sistrip::collate_) + "/" + sistrip::root_ + "/latencyCode";
   MonitorElement* codeElement = bei()->get(dataPath);
   if(codeElement) latencyCode_ = codeElement->getIntValue() ;
   else latencyCode_ = 0;

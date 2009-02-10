@@ -56,7 +56,7 @@ void VpspScanAlgorithm::extract( const std::vector<TH1*>& histos ) {
     uint16_t apv = sistrip::invalid_; 
     if ( title.extraInfo().find(sistrip::apv_) != std::string::npos ) {
       std::stringstream ss;
-      ss << title.extraInfo().substr( title.extraInfo().find(sistrip::apv_) + sistrip::apv_.size(), 1 );
+      ss << title.extraInfo().substr( title.extraInfo().find(sistrip::apv_) + (sizeof(sistrip::apv_) - 1), 1 );
       ss >> std::dec >> apv;
     }
 

@@ -1,4 +1,4 @@
-// Last commit: $Id: ConstantsForMonitorable.h,v 1.8 2008/01/15 16:29:37 bainbrid Exp $
+// Last commit: $Id: ConstantsForMonitorable.h,v 1.9 2008/03/06 17:46:38 delaer Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForMonitorable_H
 #define DataFormats_SiStripCommon_ConstantsForMonitorable_H
@@ -17,110 +17,110 @@ namespace sistrip {
   // ---------- Constants ---------- 
 
   // misc monitorables
-  static const std::string unknownMonitorable_   = "UnknownMonitorable";
-  static const std::string undefinedMonitorable_ = "UndefinedMonitorable";
+  static const char unknownMonitorable_[]   = "UnknownMonitorable";
+  static const char undefinedMonitorable_[] = "UndefinedMonitorable";
   
   // fed cabling
-  static const std::string fedCablingFedId_    = "FedId";
-  static const std::string fedCablingFedCh_    = "FedCh";
-  static const std::string fedCablingAdcLevel_ = "AdcLevel";
+  static const char fedCablingFedId_[]    = "FedId";
+  static const char fedCablingFedCh_[]    = "FedCh";
+  static const char fedCablingAdcLevel_[] = "AdcLevel";
 
   // fast cabling
-  static const std::string fastCablingDcuId_       = "DcuId";
-  static const std::string fastCablingLldCh_       = "LldCh";
-  static const std::string fastCablingHighLevel_   = "HighLightLevel";
-  static const std::string fastCablingHighRms_     = "SpreadInHighLightLevel";
-  static const std::string fastCablingLowLevel_    = "LowLightLevel";
-  static const std::string fastCablingLowRms_      = "SpreadInLowLightLevel";
-  static const std::string fastCablingAdcRange_    = "AdcRangeInLightLevel";
-  static const std::string fastCablingMax_         = "MaximumLightLevel";
-  static const std::string fastCablingMin_         = "MinimumLightLevel";
-  static const std::string fastCablingConnsPerFed_ = "ConnectionsPerFed";
+  static const char fastCablingDcuId_[]       = "DcuId";
+  static const char fastCablingLldCh_[]       = "LldCh";
+  static const char fastCablingHighLevel_[]   = "HighLightLevel";
+  static const char fastCablingHighRms_[]     = "SpreadInHighLightLevel";
+  static const char fastCablingLowLevel_[]    = "LowLightLevel";
+  static const char fastCablingLowRms_[]      = "SpreadInLowLightLevel";
+  static const char fastCablingAdcRange_[]    = "AdcRangeInLightLevel";
+  static const char fastCablingMax_[]         = "MaximumLightLevel";
+  static const char fastCablingMin_[]         = "MinimumLightLevel";
+  static const char fastCablingConnsPerFed_[] = "ConnectionsPerFed";
 
   // timing
-  static const std::string apvTimingTime_   = "TimeOfTickMarkEdge";
-  static const std::string apvTimingMax_    = "MaxSamplingPoint";
-  static const std::string apvTimingDelay_  = "RequiredDelayAdjustment";
-  static const std::string apvTimingError_  = "ErrorOnTickMarkEdge";
-  static const std::string apvTimingBase_   = "TickMarkBase";
-  static const std::string apvTimingPeak_   = "TickMarkPeak";
-  static const std::string apvTimingHeight_ = "TickMarkHeight";
+  static const char apvTimingTime_[]   = "TimeOfTickMarkEdge";
+  static const char apvTimingMax_[]    = "MaxSamplingPoint";
+  static const char apvTimingDelay_[]  = "RequiredDelayAdjustment";
+  static const char apvTimingError_[]  = "ErrorOnTickMarkEdge";
+  static const char apvTimingBase_[]   = "TickMarkBase";
+  static const char apvTimingPeak_[]   = "TickMarkPeak";
+  static const char apvTimingHeight_[] = "TickMarkHeight";
 
   // timing
-  static const std::string fedTimingTime_   = "TimeOfTickMarkEdge";
-  static const std::string fedTimingMax_    = "MaxSamplingPoint";
-  static const std::string fedTimingDelay_  = "RequiredDelayAdjustment";
-  static const std::string fedTimingError_  = "ErrorOnTickMarkEdge";
-  static const std::string fedTimingBase_   = "TickMarkBase";
-  static const std::string fedTimingPeak_   = "TickMarkPeak";
-  static const std::string fedTimingHeight_ = "TickMarkHeight";
+  static const char fedTimingTime_[]   = "TimeOfTickMarkEdge";
+  static const char fedTimingMax_[]    = "MaxSamplingPoint";
+  static const char fedTimingDelay_[]  = "RequiredDelayAdjustment";
+  static const char fedTimingError_[]  = "ErrorOnTickMarkEdge";
+  static const char fedTimingBase_[]   = "TickMarkBase";
+  static const char fedTimingPeak_[]   = "TickMarkPeak";
+  static const char fedTimingHeight_[] = "TickMarkHeight";
 
   // opto scan
-  static const std::string optoScanLldBias_     = "LldBiasSetting";
-  static const std::string optoScanLldGain_     = "LldGainSetting";
-  static const std::string optoScanMeasGain_    = "MeasuredGain";
-  static const std::string optoScanZeroLight_   = "ZeroLightLevel";
-  static const std::string optoScanLinkNoise_   = "LinkNoise";
-  static const std::string optoScanBaseLiftOff_ = "BaselineLiftOff";
-  static const std::string optoScanLaserThresh_ = "LaserThreshold";
-  static const std::string optoScanTickHeight_  = "TickHeight";
+  static const char optoScanLldBias_[]     = "LldBiasSetting";
+  static const char optoScanLldGain_[]     = "LldGainSetting";
+  static const char optoScanMeasGain_[]    = "MeasuredGain";
+  static const char optoScanZeroLight_[]   = "ZeroLightLevel";
+  static const char optoScanLinkNoise_[]   = "LinkNoise";
+  static const char optoScanBaseLiftOff_[] = "BaselineLiftOff";
+  static const char optoScanLaserThresh_[] = "LaserThreshold";
+  static const char optoScanTickHeight_[]  = "TickHeight";
 
   // vpsp scan
-  static const std::string vpspScanBothApvs_    = "ApvVpspSettings";
-  static const std::string vpspScanApv0_        = "Apv0VpspSetting";
-  static const std::string vpspScanApv1_        = "Apv1VpspSetting";
-  static const std::string vpspScanAdcLevel_    = "BaselineLevel";
-  static const std::string vpspScanDigitalHigh_ = "DigitalHigh";
-  static const std::string vpspScanDigitalLow_  = "DigitalLow";
+  static const char vpspScanBothApvs_[]    = "ApvVpspSettings";
+  static const char vpspScanApv0_[]        = "Apv0VpspSetting";
+  static const char vpspScanApv1_[]        = "Apv1VpspSetting";
+  static const char vpspScanAdcLevel_[]    = "BaselineLevel";
+  static const char vpspScanDigitalHigh_[] = "DigitalHigh";
+  static const char vpspScanDigitalLow_[]  = "DigitalLow";
 
   // pedestals
-  static const std::string pedestalsAllStrips_ = "StripPedestals";
-  static const std::string pedestalsMean_      = "PedestalMean";
-  static const std::string pedestalsSpread_    = "PedestalRmsSpread";
-  static const std::string pedestalsMax_       = "PedestalMax";
-  static const std::string pedestalsMin_       = "PedestalMin";
+  static const char pedestalsAllStrips_[] = "StripPedestals";
+  static const char pedestalsMean_[]      = "PedestalMean";
+  static const char pedestalsSpread_[]    = "PedestalRmsSpread";
+  static const char pedestalsMax_[]       = "PedestalMax";
+  static const char pedestalsMin_[]       = "PedestalMin";
 
   // noise
-  static const std::string noiseAllStrips_     = "StripNoise";
-  static const std::string noiseMean_          = "NoiseMean";
-  static const std::string noiseSpread_        = "NoiseRmsSpread";
-  static const std::string noiseMax_           = "NoiseMax";
-  static const std::string noiseMin_           = "NoiseMin";
-  static const std::string numOfDead_          = "NumOfDeadStrips";
-  static const std::string numOfNoisy_         = "NumOfNoisyStrips";
+  static const char noiseAllStrips_[]     = "StripNoise";
+  static const char noiseMean_[]          = "NoiseMean";
+  static const char noiseSpread_[]        = "NoiseRmsSpread";
+  static const char noiseMax_[]           = "NoiseMax";
+  static const char noiseMin_[]           = "NoiseMin";
+  static const char numOfDead_[]          = "NumOfDeadStrips";
+  static const char numOfNoisy_[]         = "NumOfNoisyStrips";
 
   // Fine Delay
-  static const std::string fineDelayPos_       = "FineDelayPosition";
-  static const std::string fineDelayErr_       = "FineDelayError";
+  static const char fineDelayPos_[]       = "FineDelayPosition";
+  static const char fineDelayErr_[]       = "FineDelayError";
 
   // Calibration
-  static const std::string calibrationAmplitude_    = "CalibrationAmplitude";
-  static const std::string calibrationTail_         = "CalibrationTail";
-  static const std::string calibrationRiseTime_     = "CalibrationRiseTime";
-  static const std::string calibrationTimeConstant_ = "CalibrationTimeConstant";
-  static const std::string calibrationSmearing_     = "CalibrationSmearing";
-  static const std::string calibrationChi2_         = "CalibrationChi2";
-  static const std::string calibrationAmplitudeAS_    = "StripCalibrationAmplitude";
-  static const std::string calibrationTailAS_         = "StripCalibrationTail";
-  static const std::string calibrationRiseTimeAS_     = "StripCalibrationRiseTime";
-  static const std::string calibrationTimeConstantAS_ = "StripCalibrationTimeConstant";
-  static const std::string calibrationSmearingAS_     = "StripCalibrationSmearing";
-  static const std::string calibrationChi2AS_         = "StripCalibrationChi2";
-  static const std::string calibrationAmplitudeMin_    = "MinCalibrationAmplitude";
-  static const std::string calibrationTailMin_         = "MinCalibrationTail";
-  static const std::string calibrationRiseTimeMin_     = "MinCalibrationRiseTime";
-  static const std::string calibrationTimeConstantMin_ = "MinCalibrationTimeConstant";
-  static const std::string calibrationSmearingMin_     = "MinCalibrationSmearing";
-  static const std::string calibrationChi2Min_         = "MinCalibrationChi2";
-  static const std::string calibrationAmplitudeMax_    = "MaxCalibrationAmplitude";
-  static const std::string calibrationTailMax_         = "MaxCalibrationTail";
-  static const std::string calibrationRiseTimeMax_     = "MaxCalibrationRiseTime";
-  static const std::string calibrationTimeConstantMax_ = "MaxCalibrationTimeConstant";
-  static const std::string calibrationSmearingMax_     = "MaxCalibrationSmearing";
-  static const std::string calibrationChi2Max_         = "MaxCalibrationChi2";
+  static const char calibrationAmplitude_[]    = "CalibrationAmplitude";
+  static const char calibrationTail_[]         = "CalibrationTail";
+  static const char calibrationRiseTime_[]     = "CalibrationRiseTime";
+  static const char calibrationTimeConstant_[] = "CalibrationTimeConstant";
+  static const char calibrationSmearing_[]     = "CalibrationSmearing";
+  static const char calibrationChi2_[]         = "CalibrationChi2";
+  static const char calibrationAmplitudeAS_[]    = "StripCalibrationAmplitude";
+  static const char calibrationTailAS_[]         = "StripCalibrationTail";
+  static const char calibrationRiseTimeAS_[]     = "StripCalibrationRiseTime";
+  static const char calibrationTimeConstantAS_[] = "StripCalibrationTimeConstant";
+  static const char calibrationSmearingAS_[]     = "StripCalibrationSmearing";
+  static const char calibrationChi2AS_[]         = "StripCalibrationChi2";
+  static const char calibrationAmplitudeMin_[]    = "MinCalibrationAmplitude";
+  static const char calibrationTailMin_[]         = "MinCalibrationTail";
+  static const char calibrationRiseTimeMin_[]     = "MinCalibrationRiseTime";
+  static const char calibrationTimeConstantMin_[] = "MinCalibrationTimeConstant";
+  static const char calibrationSmearingMin_[]     = "MinCalibrationSmearing";
+  static const char calibrationChi2Min_[]         = "MinCalibrationChi2";
+  static const char calibrationAmplitudeMax_[]    = "MaxCalibrationAmplitude";
+  static const char calibrationTailMax_[]         = "MaxCalibrationTail";
+  static const char calibrationRiseTimeMax_[]     = "MaxCalibrationRiseTime";
+  static const char calibrationTimeConstantMax_[] = "MaxCalibrationTimeConstant";
+  static const char calibrationSmearingMax_[]     = "MaxCalibrationSmearing";
+  static const char calibrationChi2Max_[]         = "MaxCalibrationChi2";
 
   // daq scope mode
-  static const std::string daqScopeModeMeanSignal_ = "DaqScopeMode_MeanSignal";
+  static const char daqScopeModeMeanSignal_[] = "DaqScopeMode_MeanSignal";
 
   // ---------- Enumerated type ---------- 
 

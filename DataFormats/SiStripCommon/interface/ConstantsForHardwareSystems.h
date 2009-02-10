@@ -1,4 +1,4 @@
-// Last commit: $Id: ConstantsForHardwareSystems.h,v 1.5 2007/07/31 15:20:24 ratnik Exp $
+// Last commit: $Id: ConstantsForHardwareSystems.h,v 1.6 2007/11/21 13:40:55 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForHardwareSystems_H
 #define DataFormats_SiStripCommon_ConstantsForHardwareSystems_H
@@ -93,21 +93,21 @@ namespace sistrip {
 
   // -------------------- String constants -------------------- 
 
-  static const std::string unknownApvReadoutMode_   = "UnknownApvReadoutMode";
-  static const std::string undefinedApvReadoutMode_ = "UndefinedApvReadoutMode";
+  static const char unknownApvReadoutMode_[]   = "UnknownApvReadoutMode";
+  static const char undefinedApvReadoutMode_[] = "UndefinedApvReadoutMode";
 
-  static const std::string apvPeakMode_ = "ApvPeakMode";
-  static const std::string apvDeconMode_ = "ApvDeconMode";
-  static const std::string apvMultiMode_ = "ApvMultiMode";
+  static const char apvPeakMode_[] = "ApvPeakMode";
+  static const char apvDeconMode_[] = "ApvDeconMode";
+  static const char apvMultiMode_[] = "ApvMultiMode";
 
-  static const std::string unknownFedReadoutMode_   = "UnknownFedReadoutMode";
-  static const std::string undefinedFedReadoutMode_ = "UndefinedFedReadoutMode";
+  static const char unknownFedReadoutMode_[]   = "UnknownFedReadoutMode";
+  static const char undefinedFedReadoutMode_[] = "UndefinedFedReadoutMode";
 
-  static const std::string fedScopeMode_     = "FedScopeMode";
-  static const std::string fedVirginRaw_     = "FedVirginRaw";
-  static const std::string fedProcRaw_       = "FedProcessedRaw";
-  static const std::string fedZeroSuppr_     = "FedZeroSuppressed";
-  static const std::string fedZeroSupprLite_ = "FedZeroSupprressedLite";
+  static const char fedScopeMode_[]     = "FedScopeMode";
+  static const char fedVirginRaw_[]     = "FedVirginRaw";
+  static const char fedProcRaw_[]       = "FedProcessedRaw";
+  static const char fedZeroSuppr_[]     = "FedZeroSuppressed";
+  static const char fedZeroSupprLite_[] = "FedZeroSupprressedLite";
   
   // -------------------- Enumerators --------------------
   

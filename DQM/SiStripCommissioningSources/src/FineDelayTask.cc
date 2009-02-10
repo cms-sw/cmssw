@@ -71,7 +71,7 @@ void FineDelayTask::book() {
   LogDebug("Commissioning") << "[FineDelayTask::book] done";
   if(!mode_) {
     std::string pwd = dqm()->pwd();
-    std::string rootDir = pwd.substr(0,pwd.find(sistrip::root_ + "/")+sistrip::root_.size());
+    std::string rootDir = pwd.substr(0,pwd.find(std::string(sistrip::root_) + "/")+(sizeof(sistrip::root_) - 1));
     dqm()->setCurrentFolder( rootDir );
     mode_ = dqm()->bookInt("latencyCode");
   }

@@ -1,4 +1,4 @@
-// Last commit: $Id: ConstantsForPresentation.h,v 1.2 2007/03/21 08:22:59 bainbrid Exp $
+// Last commit: $Id: ConstantsForPresentation.h,v 1.3 2007/06/19 12:16:52 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForPresentation_H
 #define DataFormats_SiStripCommon_ConstantsForPresentation_H
@@ -16,13 +16,13 @@ namespace sistrip {
 
   // ---------- Constants ---------- 
   
-  static const std::string unknownPresentation_   = "UnknownPresentation";
-  static const std::string undefinedPresentation_ = "UndefinedPresentation";
+  static const char unknownPresentation_[]   = "UnknownPresentation";
+  static const char undefinedPresentation_[] = "UndefinedPresentation";
   
-  static const std::string histo1d_        = "Histo1D";
-  static const std::string histo2dSum_     = "Histo2DSum";
-  static const std::string histo2dScatter_ = "Histo2DScatter";
-  static const std::string profile1D_      = "Profile1D";
+  static const char histo1d_[]        = "Histo1D";
+  static const char histo2dSum_[]     = "Histo2DSum";
+  static const char histo2dScatter_[] = "Histo2DScatter";
+  static const char profile1D_[]      = "Profile1D";
 
   // ---------- Enumerated type ---------- 
 

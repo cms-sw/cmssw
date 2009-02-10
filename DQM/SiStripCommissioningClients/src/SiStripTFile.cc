@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripTFile.cc,v 1.2 2007/06/19 12:29:22 bainbrid Exp $
+// Last commit: $Id: SiStripTFile.cc,v 1.3 2008/02/21 14:19:05 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningClients/interface/SiStripTFile.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -43,8 +43,8 @@ TDirectory* SiStripTFile::setDQMFormat( sistrip::RunType run_type,
     std::stringstream ss("");
     ss << sistrip::dqmRoot_ << sistrip::dir_ << sistrip::root_ << sistrip::dir_ << sistrip::controlView_;
     top_ = addPath( ss.str() );
-    dqmTop_ = GetDirectory(sistrip::dqmRoot_.c_str());
-    sistripTop_ = dqmTop_->GetDirectory(sistrip::root_.c_str());
+    dqmTop_ = GetDirectory(sistrip::dqmRoot_);
+    sistripTop_ = dqmTop_->GetDirectory(sistrip::root_);
     dqmFormat_ = true;
     
     //TNamed defining commissioning runType
@@ -71,9 +71,9 @@ TDirectory* SiStripTFile::setDQMFormat( sistrip::RunType run_type,
 TDirectory* SiStripTFile::readDQMFormat() {
   
   //check directory structure and find readout view
-  dqmTop_ = GetDirectory(sistrip::dqmRoot_.c_str());
-  if (dqmTop_) sistripTop_ = dqmTop_->GetDirectory(sistrip::root_.c_str());
-  if (sistripTop_) top_ = sistripTop_->GetDirectory(sistrip::controlView_.c_str());
+  dqmTop_ = GetDirectory(sistrip::dqmRoot_);
+  if (dqmTop_) sistripTop_ = dqmTop_->GetDirectory(sistrip::root_);
+  if (sistripTop_) top_ = sistripTop_->GetDirectory(sistrip::controlView_);
   if (top_!=gDirectory) view_ = sistrip::CONTROL_VIEW;
   
   //does file conform with DQM Format requirements?
@@ -159,7 +159,7 @@ void SiStripTFile::addDevice(unsigned int key) {
     if (!dqmFormat_) setDQMFormat(sistrip::UNKNOWN_RUN_TYPE, sistrip::CONTROL_VIEW);
     SiStripFecKey control_path(key);
     std::string directory_path = control_path.path();
-    cd(sistrip::dqmRoot_.c_str());
+    cd(sistrip::dqmRoot_);
     addPath(directory_path);
   }
 
@@ -186,13 +186,13 @@ TDirectory* SiStripTFile::addPath( const std::string& path ) {
 
   //fill std::vector
   std::string::const_iterator it, previous_dir, latest_dir;
-  if (*(path.begin()) == sistrip::dir_) {
+  if (*(path.begin()) == std::string(sistrip::dir_)) {
     it = previous_dir = latest_dir = path.begin();}
   else {it = previous_dir = latest_dir = path.begin()-1;}
 
   while (it != path.end()) {
     it++;
-    if (*it == sistrip::dir_) {
+    if (*it == std::string(sistrip::dir_)) {
       previous_dir = latest_dir; 
       latest_dir = it;
       directories.push_back(std::string(previous_dir+1, latest_dir));

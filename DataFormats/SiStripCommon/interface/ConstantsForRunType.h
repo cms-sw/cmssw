@@ -1,10 +1,9 @@
-// Last commit: $Id: ConstantsForRunType.h,v 1.8 2008/01/14 09:17:15 bainbrid Exp $
+// Last commit: $Id: ConstantsForRunType.h,v 1.9 2008/03/17 17:37:10 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForRunType_H
 #define DataFormats_SiStripCommon_ConstantsForRunType_H
 
 #include "DataFormats/SiStripCommon/interface/Constants.h"
-#include <string>
 
 /** 
     @file ConstantsForRunType.h
@@ -16,26 +15,26 @@ namespace sistrip {
   
   // ---------- Constants ---------- 
   
-  static const std::string unknownRunType_      = "UnknownRunType";
-  static const std::string undefinedRunType_    = "UndefinedRunType";
+  static const char unknownRunType_[]       = "UnknownRunType";
+  static const char undefinedRunType_[]     = "UndefinedRunType";
   
-  static const std::string fastCablingRun_      = "FastCabling";
-  static const std::string fedCablingRun_       = "FedCabling";
-  static const std::string apvTimingRun_        = "ApvTiming";
-  static const std::string fedTimingRun_        = "FedTiming";
-  static const std::string optoScanRun_         = "OptoScan";
-  static const std::string vpspScanRun_         = "VpspScan";
-  static const std::string pedestalsRun_        = "Pedestals";
-  static const std::string pedsOnlyRun_         = "PedsOnly";
-  static const std::string noiseRun_            = "Noise";
-  static const std::string apvLatencyRun_       = "ApvLatency";
-  static const std::string fineDelayRun_        = "FineDelay";
-  static const std::string calibPeakRun_        = "CalibrationPeak";
-  static const std::string calibDeconRun_       = "CalibrationDeco";
-  static const std::string calibScanPeakRun_    = "CalibrationScanPeak";
-  static const std::string calibScanDeconRun_   = "CalibrationScanDeco";
-  static const std::string daqScopeModeRun_     = "DaqScopeMode";
-  static const std::string physicsRun_          = "Physics";
+  static const char fastCablingRun_[]       = "FastCabling";
+  static const char fedCablingRun_[]        = "FedCabling";
+  static const char apvTimingRun_[]         = "ApvTiming";
+  static const char fedTimingRun_[]         = "FedTiming";
+  static const char optoScanRun_[]          = "OptoScan";
+  static const char vpspScanRun_[]          = "VpspScan";
+  static const char pedestalsRun_[]         = "Pedestals";
+  static const char pedsOnlyRun_[]          = "PedsOnly";
+  static const char noiseRun_[]             = "Noise";
+  static const char apvLatencyRun_[]        = "ApvLatency";
+  static const char fineDelayRun_[]         = "FineDelay";
+  static const char calibPeakRun_[]         = "CalibrationPeak";
+  static const char calibDeconRun_[]        = "CalibrationDeco";
+  static const char calibScanPeakRun_[]     = "CalibrationScanPeak";
+  static const char calibScanDeconRun_[]    = "CalibrationScanDeco";
+  static const char daqScopeModeRun_[]      = "DaqScopeMode";
+  static const char physicsRun_[]           = "Physics";
   
   // ---------- Enumerated type ---------- 
   

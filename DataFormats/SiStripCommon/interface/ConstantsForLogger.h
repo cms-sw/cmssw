@@ -1,4 +1,4 @@
-// Last commit: $Id: ConstantsForLogger.h,v 1.4 2007/03/21 08:22:59 bainbrid Exp $
+// Last commit: $Id: ConstantsForLogger.h,v 1.5 2007/03/26 10:11:53 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForLogger_H
 #define DataFormats_SiStripCommon_ConstantsForLogger_H
@@ -12,20 +12,20 @@
 
 namespace sistrip { 
   
-  static const std::string mlCabling_       = "SiStripCabling";
-  static const std::string mlCommissioning_ = "SiStripCommissioning";
-  static const std::string mlConfigDb_      = "SiStripConfigDb";
-  static const std::string mlDigis_         = "SiStripDigis";
-  static const std::string mlDqmCommon_     = "SiStripDqmCommon";
-  static const std::string mlDqmClient_     = "SiStripDqmClient";
-  static const std::string mlDqmSource_     = "SiStripDqmSource";
-  static const std::string mlESSources_     = "SiStripESSources";
-  static const std::string mlInputSource_   = "SiStripInputSource";
-  static const std::string mlO2O_           = "SiStripO2O";
-  static const std::string mlRawToCluster_  = "SiStripRawToCluster";
-  static const std::string mlRawToDigi_     = "SiStripRawToDigi";
-  static const std::string mlSummaryPlots_  = "SiStripSummaryPlots";
-  static const std::string mlTest_          = "SiStripTEST";
+  static const char mlCabling_[]       = "SiStripCabling";
+  static const char mlCommissioning_[] = "SiStripCommissioning";
+  static const char mlConfigDb_[]      = "SiStripConfigDb";
+  static const char mlDigis_[]         = "SiStripDigis";
+  static const char mlDqmCommon_[]     = "SiStripDqmCommon";
+  static const char mlDqmClient_[]     = "SiStripDqmClient";
+  static const char mlDqmSource_[]     = "SiStripDqmSource";
+  static const char mlESSources_[]     = "SiStripESSources";
+  static const char mlInputSource_[]   = "SiStripInputSource";
+  static const char mlO2O_[]           = "SiStripO2O";
+  static const char mlRawToCluster_[]  = "SiStripRawToCluster";
+  static const char mlRawToDigi_[]     = "SiStripRawToDigi";
+  static const char mlSummaryPlots_[]  = "SiStripSummaryPlots";
+  static const char mlTest_[]          = "SiStripTEST";
 
 }
 

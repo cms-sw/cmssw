@@ -14,12 +14,12 @@ namespace sistrip {
 
   // ---------- Constants ---------- 
 
-  static const std::string unknownView_   = "UnknownView";
-  static const std::string undefinedView_ = "UndefinedView";
+  static const char unknownView_[]   = "UnknownView";
+  static const char undefinedView_[] = "UndefinedView";
   
-  static const std::string readoutView_   = "ReadoutView";
-  static const std::string controlView_   = "ControlView";
-  static const std::string detectorView_  = "DetectorView";
+  static const char readoutView_[]   = "ReadoutView";
+  static const char controlView_[]   = "ControlView";
+  static const char detectorView_[]  = "DetectorView";
   
   // ---------- Enumerated type ---------- 
 

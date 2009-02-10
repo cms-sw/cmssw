@@ -1,4 +1,4 @@
-// Last commit: $Id: testSiStripKey.cc,v 1.2 2007/07/31 15:20:25 ratnik Exp $
+// Last commit: $Id: test_SiStripKey.cc,v 1.3 2008/01/14 09:18:17 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/test/plugins/test_SiStripKey.h"
 #include "FWCore/Framework/interface/Event.h" 
@@ -35,7 +35,7 @@ testSiStripKey::testSiStripKey( const edm::ParameterSet& pset )
   std::stringstream key;
   std::string tmp = pset.getUntrackedParameter<std::string>("Key","0x0");
   if ( tmp.find( sistrip::hex_ ) != std::string::npos ) {
-    key << std::string( tmp, sistrip::hex_.size(), tmp.size() ); 
+    key << std::string( tmp, (sizeof(sistrip::hex_) - 1), tmp.size() ); 
   } else { key << tmp; }
   key >> std::hex >> key_;
   

@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: ConstantsForKeyType.h,v 1.2 2007/03/21 08:22:59 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForKeyType_H
 #define DataFormats_SiStripCommon_ConstantsForKeyType_H
@@ -16,12 +16,12 @@ namespace sistrip {
   
   // ---------- Constants ---------- 
 
-  static const std::string unknownKey_   = "UnknownKey";
-  static const std::string undefinedKey_ = "UndefinedKey";
+  static const char unknownKey_[]   = "UnknownKey";
+  static const char undefinedKey_[] = "UndefinedKey";
 
-  static const std::string fedKey_ = "FedKey";
-  static const std::string fecKey_ = "FecKey";
-  static const std::string detKey_ = "DetKey";
+  static const char fedKey_[] = "FedKey";
+  static const char fecKey_[] = "FecKey";
+  static const char detKey_[] = "DetKey";
 
   // ---------- Enumerated type ---------- 
 

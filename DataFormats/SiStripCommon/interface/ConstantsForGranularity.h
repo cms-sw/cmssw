@@ -1,4 +1,4 @@
-// Last commit: $Id: ConstantsForGranularity.h,v 1.3 2007/03/21 08:22:59 bainbrid Exp $
+// Last commit: $Id: ConstantsForGranularity.h,v 1.4 2007/06/29 10:12:42 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForGranularity_H
 #define DataFormats_SiStripCommon_ConstantsForGranularity_H
@@ -17,44 +17,44 @@ namespace sistrip {
   // ---------- Constants ---------- 
   
   // misc granularity
-  static const std::string unknownGranularity_   = "UnknownGranularity";
-  static const std::string undefinedGranularity_ = "UndefinedGranularity";
+  static const char unknownGranularity_[]   = "UnknownGranularity";
+  static const char undefinedGranularity_[] = "UndefinedGranularity";
   
   // system granularity
-  static const std::string tracker_   = "Tracker";
-  static const std::string partition_ = "Partition";
-  static const std::string tib_       = "Tib";
-  static const std::string tob_       = "Tob";
-  static const std::string tec_       = "Tec";
+  static const char tracker_[]   = "Tracker";
+  static const char partition_[] = "Partition";
+  static const char tib_[]       = "Tib";
+  static const char tob_[]       = "Tob";
+  static const char tec_[]       = "Tec";
 
   // sub-structure granularity
-  static const std::string layer_  = "Layer";
-  static const std::string rod_    = "Rod";
-  static const std::string string_ = "String";
-  static const std::string disk_   = "Disk";
-  static const std::string petal_  = "Petal";
-  static const std::string ring_   = "Ring";
+  static const char layer_[]  = "Layer";
+  static const char rod_[]    = "Rod";
+  static const char string_[] = "String";
+  static const char disk_[]   = "Disk";
+  static const char petal_[]  = "Petal";
+  static const char ring_[]   = "Ring";
 
   // module granularity  
-  static const std::string module_  = "Module";
-  static const std::string lldChan_ = "LldChannel";
-  static const std::string apv_     = "Apv";
+  static const char module_[]  = "Module";
+  static const char lldChan_[] = "LldChannel";
+  static const char apv_[]     = "Apv";
 
   // readout granularity
-  static const std::string fedSystem_  = "FedSystem";
-  static const std::string feDriver_   = "FrontEndDriver";
-  static const std::string feUnit_     = "FrontEndUnit";
-  static const std::string feChan_     = "FrontEndChannel";
-  static const std::string fedApv_     = "FedApv";
-  static const std::string fedChannel_ = "FedChannel";
+  static const char fedSystem_[]  = "FedSystem";
+  static const char feDriver_[]   = "FrontEndDriver";
+  static const char feUnit_[]     = "FrontEndUnit";
+  static const char feChan_[]     = "FrontEndChannel";
+  static const char fedApv_[]     = "FedApv";
+  static const char fedChannel_[] = "FedChannel";
 
   // control granularity
-  static const std::string fecSystem_ = "FecSystem";
-  static const std::string fecCrate_  = "FecCrate";
-  static const std::string fecSlot_   = "FecSlot";
-  static const std::string fecRing_   = "FecRing";
-  static const std::string ccuAddr_   = "CcuAddr";
-  static const std::string ccuChan_   = "CcuChan";
+  static const char fecSystem_[] = "FecSystem";
+  static const char fecCrate_[]  = "FecCrate";
+  static const char fecSlot_[]   = "FecSlot";
+  static const char fecRing_[]   = "FecRing";
+  static const char ccuAddr_[]   = "CcuAddr";
+  static const char ccuChan_[]   = "CcuChan";
  
   // ---------- Enumerated type ---------- 
 

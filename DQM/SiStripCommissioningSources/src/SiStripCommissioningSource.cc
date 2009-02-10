@@ -659,7 +659,7 @@ void SiStripCommissioningSource::createRunNumber() {
   dqm()->setCurrentFolder( base_ + sistrip::root_ );
   std::stringstream run;
   run << run_;
-  dqm()->bookString( sistrip::runNumber_ + sistrip::sep_ + run.str(), run.str() ); 
+  dqm()->bookString( std::string(sistrip::runNumber_) + sistrip::sep_ + run.str(), run.str() ); 
   
 }
 
@@ -706,7 +706,7 @@ void SiStripCommissioningSource::createTask( const SiStripEventSummary* const su
   // Create ME (std::string) that identifies commissioning task
   dqm()->setCurrentFolder( base_ + sistrip::root_ );
   std::string task_str = SiStripEnumsAndStrings::runType( task_ );
-  dqm()->bookString( sistrip::taskId_ + sistrip::sep_ + task_str, task_str ); 
+  dqm()->bookString( std::string(sistrip::taskId_) + sistrip::sep_ + task_str, task_str ); 
   
   // Check commissioning task is known / defined
   if ( task_ == sistrip::UNKNOWN_RUN_TYPE ||
