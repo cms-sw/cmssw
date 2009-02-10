@@ -16,7 +16,7 @@
 // Original Author:  Vincenzo Chiochia
 //         Created:  Tue 8 12:31:25 CEST 2007
 //         Modified: Evan Friis
-// $Id: SiPixelGainCalibrationForHLT.h,v 1.1 2008/02/06 16:29:55 friis Exp $
+// $Id: SiPixelGainCalibrationForHLT.h,v 1.4 2008/04/16 10:09:22 friis Exp $
 //
 //
 #include<vector>
@@ -64,11 +64,11 @@ class SiPixelGainCalibrationForHLT {
   unsigned int getNumberOfRowsToAverageOver() const { return numberOfRowsToAverageOver_; }
 
   // Set and get public methods
-  void  setData(float ped, float gain, std::vector<char>& vped, bool thisColumnIsDead = false);
+  void  setData(float ped, float gain, std::vector<char>& vped, bool thisColumnIsDead = false, bool thisColumnIsNoisy = false);
   void  setDeadColumn(const int& nRows, std::vector<char>& vped) { setData(0, 0 /*dummy values, not used*/, vped, true); }
 
-  float getPed   (const int& col, const int& row, const Range& range, const int& nCols, bool& isDeadColumn ) const;
-  float getGain  (const int& col, const int& row, const Range& range, const int& nCols, bool& isDeadColumn ) const;
+  float getPed   (const int& col, const int& row, const Range& range, const int& nCols, bool& isDeadColumn, bool& isNoisyColumn ) const;
+  float getGain  (const int& col, const int& row, const Range& range, const int& nCols, bool& isDeadColumn, bool& isNoisyColumn ) const;
 
   private:
 
@@ -84,6 +84,7 @@ class SiPixelGainCalibrationForHLT {
   unsigned int numberOfRowsToAverageOver_;   //THIS WILL BE HARDCODED TO 80 (all rows in a ROC) DON'T CHANGE UNLESS YOU KNOW WHAT YOU ARE DOING! 
   unsigned int nBinsToUseForEncoding_;
   unsigned int deadFlag_;
+  unsigned int noisyFlag_;
 };
     
 #endif

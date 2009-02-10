@@ -12,8 +12,9 @@ SiPixelGainCalibrationForHLT::SiPixelGainCalibrationForHLT() :
   minGain_(0.),
   maxGain_(255.),
   numberOfRowsToAverageOver_(80),
-  nBinsToUseForEncoding_(254),
-  deadFlag_(255)
+  nBinsToUseForEncoding_(253),
+  deadFlag_(255),
+  noisyFlag_(254)
 {
    if (deadFlag_ > 0xFF)
       throw cms::Exception("GainCalibration Payload configuration error")
@@ -26,8 +27,9 @@ SiPixelGainCalibrationForHLT::SiPixelGainCalibrationForHLT(float minPed, float m
   minGain_(minGain),
   maxGain_(maxGain),
   numberOfRowsToAverageOver_(80),
-  nBinsToUseForEncoding_(254),
-  deadFlag_(255)
+  nBinsToUseForEncoding_(253),
+  deadFlag_(255),
+  noisyFlag_(254)
 {
    if (deadFlag_ > 0xFF)
       throw cms::Exception("GainCalibration Payload configuration error")
@@ -92,7 +94,7 @@ void SiPixelGainCalibrationForHLT::getDetIds(std::vector<uint32_t>& DetIds_) con
   }
 }
 
-void SiPixelGainCalibrationForHLT::setData(float ped, float gain, std::vector<char>& vped, bool thisColumnIsDead){
+void SiPixelGainCalibrationForHLT::setData(float ped, float gain, std::vector<char>& vped, bool thisColumnIsDead, bool thisColumnIsNoisy){
   
   float theEncodedGain  = encodeGain(gain);
   float theEncodedPed   = encodePed (ped);
@@ -112,7 +114,7 @@ void SiPixelGainCalibrationForHLT::setData(float ped, float gain, std::vector<ch
   ::memcpy((void*)(&vped[vped.size()-2]),(void*)(&data),2);
 }
 
-float SiPixelGainCalibrationForHLT::getPed(const int& col, const int& row, const Range& range, const int& nCols, bool& isDeadColumn) const {
+float SiPixelGainCalibrationForHLT::getPed(const int& col, const int& row, const Range& range, const int& nCols, bool& isDeadColumn, bool& isNoisyColumn) const {
    // TODO MERGE THIS FUNCTION WITH GET GAIN, then provide wrappers
 
   // determine what averaged data block we are in (there should be 1 or 2 of these depending on if plaquette is 1 by X or 2 by X
@@ -135,7 +137,7 @@ float SiPixelGainCalibrationForHLT::getPed(const int& col, const int& row, const
   return decodePed(s.ped & 0xFF);  
 }
 
-float SiPixelGainCalibrationForHLT::getGain(const int& col, const int& row, const Range& range, const int& nCols, bool& isDeadColumn) const {
+float SiPixelGainCalibrationForHLT::getGain(const int& col, const int& row, const Range& range, const int& nCols, bool& isDeadColumn, bool& isNoisyColumn) const {
 
   // determine what averaged data block we are in (there should be 1 or 2 of these depending on if plaquette is 1 by X or 2 by X
   unsigned int lengthOfColumnData  = (range.second-range.first)/nCols;

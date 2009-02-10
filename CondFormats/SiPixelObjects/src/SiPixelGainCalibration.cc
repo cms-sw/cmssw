@@ -12,8 +12,9 @@ SiPixelGainCalibration::SiPixelGainCalibration() :
   minGain_(0.),
   maxGain_(255.),
   numberOfRowsToAverageOver_(1),
-  nBinsToUseForEncoding_(254),
-  deadFlag_(255)
+  nBinsToUseForEncoding_(253),
+  deadFlag_(255),
+  noisyFlag_(254)
 {
    if (deadFlag_ > 0xFF)
       throw cms::Exception("GainCalibration Payload configuration error")
@@ -26,8 +27,9 @@ SiPixelGainCalibration::SiPixelGainCalibration(float minPed, float maxPed, float
   minGain_(minGain),
   maxGain_(maxGain),
   numberOfRowsToAverageOver_(1),
-  nBinsToUseForEncoding_(254),
-  deadFlag_(255)
+  nBinsToUseForEncoding_(253),
+  deadFlag_(255),
+  noisyFlag_(254)
 {
    if (deadFlag_ > 0xFF)
       throw cms::Exception("GainCalibration Payload configuration error")
@@ -91,7 +93,7 @@ void SiPixelGainCalibration::getDetIds(std::vector<uint32_t>& DetIds_) const {
   }
 }
 
-void SiPixelGainCalibration::setData(float ped, float gain, std::vector<char>& vped, bool isDeadPixel){
+void SiPixelGainCalibration::setData(float ped, float gain, std::vector<char>& vped, bool isDeadPixel, bool isNoisyPixel){
   
   float theEncodedGain  = encodeGain(gain);
   float theEncodedPed   = encodePed (ped);
@@ -111,7 +113,7 @@ void SiPixelGainCalibration::setData(float ped, float gain, std::vector<char>& v
   ::memcpy((void*)(&vped[vped.size()-2]),(void*)(&data),2);
 }
 
-float SiPixelGainCalibration::getPed(const int& col, const int& row, const Range& range, const int& nCols, bool& isDead) const {
+float SiPixelGainCalibration::getPed(const int& col, const int& row, const Range& range, const int& nCols, bool& isDead, bool& isNoisy) const {
 
   int nRows = (range.second-range.first)/2 / nCols;
   const DecodingStructure & s = (const DecodingStructure & ) *(range.first+(col*nRows + row)*2);
@@ -124,7 +126,7 @@ float SiPixelGainCalibration::getPed(const int& col, const int& row, const Range
   return decodePed(s.ped & 0xFF);  
 }
 
-float SiPixelGainCalibration::getGain(const int& col, const int& row, const Range& range, const int& nCols, bool& isDead) const {
+float SiPixelGainCalibration::getGain(const int& col, const int& row, const Range& range, const int& nCols, bool& isDead, bool& isNoisy) const {
 
   int nRows = (range.second-range.first)/2 / nCols;
   const DecodingStructure & s = (const DecodingStructure & ) *(range.first+(col*nRows + row)*2);

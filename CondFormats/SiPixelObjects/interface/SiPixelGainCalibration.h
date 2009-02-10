@@ -16,7 +16,7 @@
 // Original Author:  Vincenzo Chiochia
 //         Created:  Tue 8 12:31:25 CEST 2007
 //         Modified: Evan Friis
-// $Id: SiPixelGainCalibration.h,v 1.5 2008/02/06 16:29:55 friis Exp $
+// $Id: SiPixelGainCalibration.h,v 1.7 2008/04/16 10:09:22 friis Exp $
 //
 //
 #include<vector>
@@ -65,12 +65,12 @@ class SiPixelGainCalibration {
   unsigned int getNumberOfRowsToAverageOver() const { return numberOfRowsToAverageOver_; }
 
   // Set and get public methods
-  void  setData(float ped, float gain, std::vector<char>& vped, bool thisPixelIsDead = false);
+  void  setData(float ped, float gain, std::vector<char>& vped, bool thisPixelIsDead = false, bool thisPixelIsNoisy = false);
 
-  void  setDeadPixel(std::vector<char>& vped) { setData(0, 0, /*dummy values, not used*/ vped,  true ); }
+  void  setDeadPixel(std::vector<char>& vped) { setData(0, 0, /*dummy values, not used*/ vped,  true , false ); }
 
-  float getPed   (const int& col, const int& row, const Range& range, const int& nCols, bool& isDead) const;
-  float getGain  (const int& col, const int& row, const Range& range, const int& nCols, bool& isDead) const;
+  float getPed   (const int& col, const int& row, const Range& range, const int& nCols, bool& isDead, bool& isNoisy) const;
+  float getGain  (const int& col, const int& row, const Range& range, const int& nCols, bool& isDead, bool& isNoisy) const;
 
   private:
 
@@ -86,6 +86,7 @@ class SiPixelGainCalibration {
   unsigned int numberOfRowsToAverageOver_;   //THIS WILL BE HARDCODED TO 1 (no averaging) DON'T CHANGE UNLESS YOU KNOW WHAT YOU ARE DOING! 
   unsigned int nBinsToUseForEncoding_;
   unsigned int deadFlag_;
+  unsigned int noisyFlag_;
 
 };
     
