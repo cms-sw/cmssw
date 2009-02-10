@@ -13,13 +13,20 @@ void HcalTriggerPrimitiveDigi::setSize(int size) {
   else size_=size;
 }
 void HcalTriggerPrimitiveDigi::setPresamples(int ps) {
-  if (ps<0) hcalPresamples_=0;
+  if (ps<0) hcalPresamples_&=0xFFFFFF0;
   //  else if (ps>=size_) hcalPresamples_=size_-1;
-  else hcalPresamples_=ps;
+  else hcalPresamples_|=ps&0xF;
 }
-  
+
+void HcalTriggerPrimitiveDigi::setZSInfo(bool unsuppressed, bool markAndPass) {
+  if (markAndPass) hcalPresamples_|=0x10;
+  if (unsuppressed) hcalPresamples_|=0x20;
+}
+
 std::ostream& operator<<(std::ostream& s, const HcalTriggerPrimitiveDigi& digi) {
-  s << digi.id() << " " << digi.size() << " samples " << std::endl;
+  s << digi.id() << " " << digi.size() << " samples "<< digi.presamples() << " presamples " << std::endl;
+  if (digi.zsUnsuppressed()) s << " zsUS ";
+  if (digi.zsMarkAndPass()) s << " zsM&P ";
   for (int i=0; i<digi.size(); i++) 
     s << "  " << digi.sample(i) << std::endl;
   return s;
