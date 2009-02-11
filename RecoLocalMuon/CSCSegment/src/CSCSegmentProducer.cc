@@ -1,8 +1,5 @@
 /** \file CSCSegmentProducer.cc
  *
- * $Date: 2006/08/01 15:26:08 $
- * $Revision: 1.3 $
- * \author M. Sani
  */
 
 #include <RecoLocalMuon/CSCSegment/src/CSCSegmentProducer.h>
@@ -29,13 +26,13 @@ CSCSegmentProducer::CSCSegmentProducer(const edm::ParameterSet& pas) : iev(0) {
 
 CSCSegmentProducer::~CSCSegmentProducer() {
 
-    LogDebug("CSC") << "deleting segmentBuilder_ after " << iev << " events.\n";
+    LogDebug("CSCSegment|CSC") << "deleting CSCSegmentBuilder after " << iev << " events w/csc data.";
     delete segmentBuilder_;
 }
 
 void CSCSegmentProducer::produce(edm::Event& ev, const edm::EventSetup& setup) {
 
-    LogDebug("CSC") << "Start producing segments for event " << ++iev << "\n";
+    LogDebug("CSCSegment|CSC") << "start producing segments for " << ++iev << "th event with csc data";
 	
     // find the geometry (& conditions?) for this event & cache it in the builder
   
