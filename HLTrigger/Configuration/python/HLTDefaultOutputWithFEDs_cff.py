@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre1/HLT/V2 (CMSSW_3_1_X_2009-02-03-2200_HLT1)
+# /dev/CMSSW_3_1_0/pre2/HLT/V28 (CMSSW_3_1_X_2009-02-05-0000_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre1/HLT/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/HLT/V28')
 )
 
 block_hltDefaultOutputWithFEDs = cms.PSet(
