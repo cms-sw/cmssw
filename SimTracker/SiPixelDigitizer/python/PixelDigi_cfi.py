@@ -8,11 +8,15 @@ simSiPixelDigis = cms.EDFilter("SiPixelDigitizer",
         'g4SimHitsTrackerHitsPixelEndcapLowTof', 
         'g4SimHitsTrackerHitsPixelEndcapHighTof'),
     OffsetSmearing = cms.double(0.0),
+    ThresholdInElectrons_FPix = cms.double(2870.0), 
+    ThresholdInElectrons_BPix = cms.double(3700.0),
+    AddThresholdSmearing = cms.bool(False),
     NoiseInElectrons = cms.double(175.0),
-    ThresholdInElectrons = cms.double(2500.0),
     MissCalibrate = cms.bool(True),
-    TofUpperCut = cms.double(12.5),
+    ElectronsPerVcal = cms.double(65.5),
+    ElectronsPerVcal_Offset = cms.double(-414.0),
     ElectronPerAdc = cms.double(135.0),
+    TofUpperCut = cms.double(12.5),
     AdcFullScale = cms.int32(255),
     TofLowerCut = cms.double(-12.5),
     TanLorentzAnglePerTesla_FPix = cms.double(0.106),
@@ -30,6 +34,10 @@ simSiPixelDigis = cms.EDFilter("SiPixelDigitizer",
     DeadModules = cms.VPSet()
 )
 
+
+# Threshold in electrons are the Official pixel numbers since january 2009: D. Kotlinski
+#    ThresholdInElectrons_FPix = cms.double(2870.0) 
+#    ThresholdInElectrons_BPix = cms.double(3700.0)
 
 #DEAD MODULES LIST:
 #    DeadModules = cms.VPSet(cms.PSet(Dead_detID = cms.int32(302197784), Module = cms.string("whole")),
@@ -58,7 +66,6 @@ simSiPixelDigis = cms.EDFilter("SiPixelDigitizer",
 #                            cms.PSet(Dead_detID = cms.int32(344076548), Module = cms.string("whole")),
 #                            cms.PSet(Dead_detID = cms.int32(344076552), Module = cms.string("whole")),
 #                            cms.PSet(Dead_detID = cms.int32(344076556), Module = cms.string("whole")),
-#                            cms.PSet(Dead_detID = cms.int32(344076556), Module = cms.string("whole")),
 #                            cms.PSet(Dead_detID = cms.int32(344076560), Module = cms.string("whole")),
 #                            cms.PSet(Dead_detID = cms.int32(344076804), Module = cms.string("whole")),
 #                            cms.PSet(Dead_detID = cms.int32(344076808), Module = cms.string("whole")),
@@ -79,7 +86,6 @@ simSiPixelDigis = cms.EDFilter("SiPixelDigitizer",
 #                            cms.PSet(Dead_detID = cms.int32(344014340), Module = cms.string("whole")),
 #                            cms.PSet(Dead_detID = cms.int32(344014344), Module = cms.string("whole")),
 #                            cms.PSet(Dead_detID = cms.int32(344014348), Module = cms.string("whole")))
-
 
 
 #List of dead pixel modules:
