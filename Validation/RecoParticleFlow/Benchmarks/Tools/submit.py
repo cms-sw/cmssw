@@ -1,53 +1,11 @@
 #!/usr/bin/env python
+# to submit a benchmark webpage to the validation website
+# author: Colin
 
-
-import shutil, sys, os, re
-
-from string import Template
+import shutil, sys, os
 
 from optparse import OptionParser
 
-
-def testFileType( file, ext ):
-
-     if file == "None":
-          return
-     
-     if os.path.isfile( file ) == False:
-          print '%s is not a file' % file
-          sys.exit(2)
-     
-     (fileroot, fileext) = os.path.splitext( file )
-     if fileext != ext:
-          print '%s does not end with %s' % (file, ext) 
-          sys.exit(3)
-
-def processFile( file, outputDir ):
- 
-     if file == "None":
-          return 'infoNotFound.html'
-     else:
-          if os.path.isfile(file):
-               shutil.copy(file, outputDir)
-               return os.path.basename(file)
-          else:
-               return file
-     
-
-def readCaption( line ):
-
-     if( re.compile('^\s*$').match(line) ):
-          raise Exception
-          
-     p = re.compile('^\s*(\S+)\s*\"(.*)\"');
-     m = p.match(line)
-     if m:
-          pic = m.group(1)
-          caption = m.group(2)
-          return (pic, caption)
-     else:
-          print 'bad caption format: "%s"' % line
-          raise Exception
 
 
 parser = OptionParser()
@@ -65,14 +23,18 @@ if len(args)!=0:
     sys.exit(1)
 
 
-website = '/afs/cern.ch/cms/Physics/particleflow/Validation/cms-project-pflow-validation/Releases'
+website = '/afs/cern.ch/cms/Physics/particleflow/Validation/cms-project-pfvalidation/Releases'
+url = 'http://cern.ch/pfvalidation/Releases'
 release = os.environ['CMSSW_VERSION']
-benchmark = os.path.basename( os.getcwd() ) 
-releaseOnWebSite = '%s/%s' % (website, release)
-benchmarkOnWebSite = '%s/%s'  % (releaseOnWebSite, benchmark)
-
+benchmark = os.path.basename( os.getcwd() )
+benchmarkWithExt = benchmark
 if( options.extension != None ):
-     benchmarkOnWebSite = '%s_%s' % (benchmarkOnWebSite, options.extension)
+     benchmarkWithExt = '%s_%s' % (benchmark, options.extension)
+
+releaseOnWebSite = '%s/%s' % (website, release)
+benchmarkOnWebSite = '%s/%s'  % (releaseOnWebSite, benchmarkWithExt)
+releaseUrl = '%s/%s' % (url, release)
+benchmarkUrl = '%s/%s'  % (releaseUrl, benchmarkWithExt)
 
 print 'submitting benchmark:'
 print benchmarkOnWebSite
@@ -95,7 +57,8 @@ if( os.path.isdir( benchmarkOnWebSite )):
      print '  e.g: submit.py -e Feb10'
 else:
      shutil.copytree(benchmark, benchmarkOnWebSite) 
-     print 'done'
+     print 'done. Access your benchmark here:'
+     print benchmarkUrl
      sys.exit(0)
 
 
