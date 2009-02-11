@@ -73,6 +73,7 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
     if(menu->DoL1preLoop() && menu->IsHltMenu()) {
       ApplyL1Prescales(menu);
     }
+    SetOpenL1Bits();
     SetMapL1BitOfStandardHLTPath(menu);
     SetL1MuonQuality();
 	  
