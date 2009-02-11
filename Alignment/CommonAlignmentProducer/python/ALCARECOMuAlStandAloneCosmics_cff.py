@@ -15,7 +15,6 @@ import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 ALCARECOMuAlStandAloneCosmics = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone(
     src = "cosmicMuons", #cms.InputTag("cosmicMuons")
     filter = True,
-    nHitMinSA = 1,
     ptMin = 0.0,
     etaMin = -100.0,
     etaMax = 100.0
