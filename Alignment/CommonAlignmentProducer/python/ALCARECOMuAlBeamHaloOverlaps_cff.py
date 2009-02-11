@@ -2,11 +2,11 @@
 
 import FWCore.ParameterSet.Config as cms
 
-# import HLTrigger.HLTfilters.hltHighLevel_cfi
-# ALCARECOMuAlBeamHaloOverlapsHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
-#     HLTPaths = ['HLT_CSCBeamHaloOverlapRing1', 'HLT_CSCBeamHaloOverlapRing2'],
-#     throw = False # tolerate triggers stated above, but not available
-#     )
+import HLTrigger.HLTfilters.hltHighLevel_cfi
+ALCARECOMuAlBeamHaloOverlapsHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
+    HLTPaths = ['HLT_CSCBeamHaloOverlapRing1', 'HLT_CSCBeamHaloOverlapRing2'],
+    throw = False # tolerate triggers stated above, but not available
+    )
 
 # from RecoMuon.Configuration.RecoMuonCosmics_cff import *  # required as of 2_1_X
 
