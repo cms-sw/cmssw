@@ -1,6 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-#HIT REMOVAL
+##########################################################################
+# Large impact parameter tracking using TIB/TID/TEC stereo layer seeding #
+##########################################################################
+
+# REMOVE HITS ASSIGNED TO GOOD TRACKS FROM PREVIOUS ITERATIONS
+
 thfilter = cms.EDFilter("QualityFilter",
     TrackQuality = cms.string('highPurity'),
     recTracks = cms.InputTag("thStep")
@@ -17,7 +22,7 @@ fourthClusters = cms.EDFilter("TrackClusterRemover",
 )
 
 
-#TRACKER HITS
+# TRACKER HITS
 import RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi
 import RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi
 fourthPixelRecHits = RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi.siPixelRecHits.clone()
@@ -26,56 +31,7 @@ fourthPixelRecHits.src = 'fourthClusters'
 fourthStripRecHits.ClusterProducer = 'fourthClusters'
 
 
-
-
-#SEEDS
-import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff
-fourthPLSeeds = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff.globalMixedSeeds.clone()
-import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
-fourthPLSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'FourthLayerPairs'
-fourthPLSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.6
-fourthPLSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 10.0
-fourthPLSeeds.RegionFactoryPSet.RegionPSet.originRadius = 2.0
-
-
-#TRAJECTORY MEASUREMENT
-fourthMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone()
-import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
-fourthMeasurementTracker.ComponentName = 'fourthMeasurementTracker'
-fourthMeasurementTracker.pixelClusterProducer = 'fourthClusters'
-fourthMeasurementTracker.stripClusterProducer = 'fourthClusters'
-
-#TRAJECTORY FILTER
-fourthCkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone()
-import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
-fourthCkfTrajectoryFilter.ComponentName = 'fourthCkfTrajectoryFilter'
-fourthCkfTrajectoryFilter.filterPset.maxLostHits = 0
-fourthCkfTrajectoryFilter.filterPset.minimumNumberOfHits = 5
-fourthCkfTrajectoryFilter.filterPset.minPt = 0.3
-
-#TRAJECTORY BUILDER
-fourthCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone()
-import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
-fourthCkfTrajectoryBuilder.ComponentName = 'fourthCkfTrajectoryBuilder'
-fourthCkfTrajectoryBuilder.MeasurementTrackerName = 'fourthMeasurementTracker'
-fourthCkfTrajectoryBuilder.trajectoryFilterName = 'fourthCkfTrajectoryFilter'
-fourthCkfTrajectoryBuilder.minNrOfHitsForRebuild = 5
-
-
-#TRACK CANDIDATES
-fourthTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
-import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
-fourthTrackCandidates.src = cms.InputTag('fourthPLSeeds')
-fourthTrackCandidates.TrajectoryBuilder = 'fourthCkfTrajectoryBuilder'
-
-
-#TRACKS
-fourthWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
-fourthWithMaterialTracks.src = 'fourthTrackCandidates'
-fourthWithMaterialTracks.clusterRemovalInfo = 'fourthClusters'
-fourthWithMaterialTracks.AlgorithmName = cms.string('iter4') 
-
-#SEEDING LAYERS
+# SEEDING LAYERS
 fourthlayerpairs = cms.ESProducer("PixelLessLayerPairsESProducer",
     ComponentName = cms.string('FourthLayerPairs'),
     layerList = cms.vstring('TIB1+TIB2',
@@ -104,8 +60,51 @@ fourthlayerpairs = cms.ESProducer("PixelLessLayerPairsESProducer",
     )
 )
 
+# SEEDS
+import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff
+fourthPLSeeds = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff.globalMixedSeeds.clone()
+import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
+fourthPLSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'FourthLayerPairs'
+fourthPLSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.6
+fourthPLSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 10.0
+fourthPLSeeds.RegionFactoryPSet.RegionPSet.originRadius = 2.0
 
-# track selection
+# TRACKER DATA CONTROL
+fourthMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone()
+import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
+fourthMeasurementTracker.ComponentName = 'fourthMeasurementTracker'
+fourthMeasurementTracker.pixelClusterProducer = 'fourthClusters'
+fourthMeasurementTracker.stripClusterProducer = 'fourthClusters'
+
+# QUALITY CUTS DURING TRACK BUILDING
+fourthCkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone()
+import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
+fourthCkfTrajectoryFilter.ComponentName = 'fourthCkfTrajectoryFilter'
+fourthCkfTrajectoryFilter.filterPset.maxLostHits = 0
+fourthCkfTrajectoryFilter.filterPset.minimumNumberOfHits = 5
+fourthCkfTrajectoryFilter.filterPset.minPt = 0.3
+
+# TRACK BUILDING
+fourthCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone()
+import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
+fourthCkfTrajectoryBuilder.ComponentName = 'fourthCkfTrajectoryBuilder'
+fourthCkfTrajectoryBuilder.MeasurementTrackerName = 'fourthMeasurementTracker'
+fourthCkfTrajectoryBuilder.trajectoryFilterName = 'fourthCkfTrajectoryFilter'
+fourthCkfTrajectoryBuilder.minNrOfHitsForRebuild = 5
+
+# MAKING OF TRACK CANDIDATES
+fourthTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
+import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
+fourthTrackCandidates.src = cms.InputTag('fourthPLSeeds')
+fourthTrackCandidates.TrajectoryBuilder = 'fourthCkfTrajectoryBuilder'
+
+# TRACK FITTING
+fourthWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
+fourthWithMaterialTracks.src = 'fourthTrackCandidates'
+fourthWithMaterialTracks.clusterRemovalInfo = 'fourthClusters'
+fourthWithMaterialTracks.AlgorithmName = cms.string('iter4') 
+
+# TRACK SELECTION AND QUALITY FLAG SETTING.
 import RecoTracker.FinalTrackSelectors.selectLoose_cfi
 import RecoTracker.FinalTrackSelectors.selectTight_cfi
 import RecoTracker.FinalTrackSelectors.selectHighPurity_cfi
