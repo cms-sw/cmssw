@@ -386,7 +386,7 @@ std::vector< std::vector<const CSCRecHit2D*> > CSCSegAlgoST::clusterHits(const C
 	
     for(uint MMM = NNN+1; MMM < seeds.size(); ++MMM) {
       if(running_meanX[MMM] == 999999. || running_meanX[NNN] == 999999. ) {
-	LogDebug("CSC") << "CSCSegmentST::clusterHits: Warning: Skipping used seeds, this should happen - inform developers!\n";      
+	LogDebug("CSCSegment|CSC") << "CSCSegmentST::clusterHits: Warning: Skipping used seeds, this should happen - inform developers!";
 	//	std::cout<<"We should never see this line now!!!"<<std::endl;
 	continue; //skip seeds that have been used 
       }
@@ -613,8 +613,8 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(ChamberHitContainer rechits)
     return segmentInChamber;  
 
   } else{
-        LogDebug("CSC") <<"Number of rechits in the cluster/chamber > "<< UpperLimit<<
-	  " ... Segment finding in the cluster/chamber canceled! \n";
+        LogDebug("CSCSegment|CSC") <<"Number of rechits in the cluster/chamber > "<< UpperLimit<<
+	  " ... Segment finding in the cluster/chamber canceled!";
 	//     std::cout<<"Number of rechits in the cluster/chamber > "<< UpperLimit<<
 	//     " ... Segment finding in the cluster/chamber canceled! "<<std::endl;
         return segmentInChamber;  
@@ -1267,7 +1267,7 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(ChamberHitContainer rechits)
     
   default : 
     // Fallback - should never occur.
-    LogDebug("CSC") <<"CSCSegAlgoST: Unexpected number of layers with hits - please inform developers.\n";
+    LogDebug("CSCSegment|CSC") <<"CSCSegAlgoST: Unexpected number of layers with hits - please inform developers.";
     //     std::cout<<"CSCSegAlgoST: Unexpected number of layers with hits - please inform developers."<<std::endl;
     hit_drop_limit = 0.1;
   }
@@ -1423,7 +1423,7 @@ void CSCSegAlgoST::ChooseSegments2(int best_seg) {
       // skip here too if segment was marked bad
       SumCommonHits =0;
       if( Psegments[iCand].size() != Psegments[iiCand].size() ) {
-	LogDebug("CSC") <<"CSCSegmentST::ChooseSegments2: ALARM!! THIS should not happen!!\n";
+	LogDebug("CSCSegment|CSC") <<"CSCSegmentST::ChooseSegments2: ALARM!! THIS should not happen!!";
 // 	std::cout<<"CSCSegmentST::ChooseSegments2: ALARM!! THIS should not happen!!"<<std::endl;
       }
       else {
@@ -1490,7 +1490,7 @@ void CSCSegAlgoST::fitSlopes() {
     int ierr = 0;
     IC.invert(ierr); // inverts in place
     if (ierr != 0) {
-      LogDebug("CSC") << "CSCSegment::fitSlopes: failed to invert covariance matrix=\n" << IC << "\n";      
+      LogDebug("CSCSegment|CSC") << "CSCSegment::fitSlopes: failed to invert covariance matrix=\n" << IC;      
       //       std::cout<< "CSCSegment::fitSlopes: failed to invert covariance matrix=\n" << IC << "\n"<<std::endl;
     }
     
@@ -1560,7 +1560,7 @@ void CSCSegAlgoST::fillChiSquared() {
     int ierr = 0;
     IC.invert(ierr);
     if (ierr != 0) {
-      LogDebug("CSC") << "CSCSegment::fillChiSquared: failed to invert covariance matrix=\n" << IC << "\n";
+      LogDebug("CSCSegment|CSC") << "CSCSegment::fillChiSquared: failed to invert covariance matrix=\n" << IC;
       //       std::cout << "CSCSegment::fillChiSquared: failed to invert covariance matrix=\n" << IC << "\n";
       
     }
