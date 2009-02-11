@@ -70,7 +70,7 @@ namespace edm {
   // Constructor 
   BMixingModule::BMixingModule(const edm::ParameterSet& pset) :
     bunchSpace_(pset.getParameter<int>("bunchspace")),
-    checktof_(pset.getUntrackedParameter<bool>("checktof",true)),
+    checktof_(pset.getParameter<bool>("checktof")),
     minBunch_((pset.getParameter<int>("minBunch")*25)/pset.getParameter<int>("bunchspace")),
     maxBunch_((pset.getParameter<int>("maxBunch")*25)/pset.getParameter<int>("bunchspace")),
 //     input_(maybeMakePileUp(pset,"input",minBunch_,maxBunch_)),
