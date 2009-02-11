@@ -69,9 +69,6 @@ HiggsToZZ4LeptonsHLTAnalysis::HiggsToZZ4LeptonsHLTAnalysis(const edm::ParameterS
   aliasaccept="flagHLTaccept";
   produces<bool> (aliasaccept).setBranchAlias(aliasaccept);
 
-
-  // this is a user/analysis filter: it places no product into the event!
-
 }
 
 HiggsToZZ4LeptonsHLTAnalysis::~HiggsToZZ4LeptonsHLTAnalysis()
