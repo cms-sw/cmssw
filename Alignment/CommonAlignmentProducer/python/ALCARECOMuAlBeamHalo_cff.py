@@ -37,5 +37,5 @@ ALCARECOMuAlBeamHalo = cms.EDFilter("AlignmentCSCBeamHaloSelectorModule",
 
 # seqALCARECOMuAlBeamHalo = cms.Sequence(ALCARECOMuAlBeamHaloHLT + reconstructAsCosmicMuonsALCARECOBH * ALCARECOMuAlBeamHalo)
 # seqALCARECOMuAlBeamHalo = cms.Sequence(reconstructAsCosmicMuonsALCARECOBH * ALCARECOMuAlBeamHalo)
-seqALCARECOMuAlBeamHalo = cms.Sequence(ALCARECOMuAlBeamHalo)
+seqALCARECOMuAlBeamHalo = cms.Sequence(ALCARECOMuAlBeamHaloHLT + ALCARECOMuAlBeamHalo)
 
