@@ -61,7 +61,7 @@ class HiggsToZZ4LeptonsHLTAnalysis : public edm::EDProducer {
     /// list of required HLT triggers by HLT index
     std::vector<unsigned int> HLTPathsByIndex_;
 
-    unsigned int npassed;
+    unsigned int nEvents,npassed;
     std::vector<unsigned int> ntrig;
     std::vector<bool> boolflag;
     std::vector<std::string> valias;

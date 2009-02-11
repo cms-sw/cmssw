@@ -57,9 +57,9 @@ HiggsToZZ4LeptonsSkim::HiggsToZZ4LeptonsSkim(const edm::ParameterSet& pset) {
 HiggsToZZ4LeptonsSkim::~HiggsToZZ4LeptonsSkim() {
 
   std::cout << "HiggsToZZ4LeptonsSkim: \n" 
-  << "N_events_read= " << nEvents          
-  << "N_events_kept= " << nSelectedEvents 
-  << "     Efficiency= " << double(nSelectedEvents)/double(nEvents) << std::endl;
+  << " N_events_HLTread= " << nEvents          
+  << " N_events_Skimkept= " << nSelectedEvents 
+  << "     RelEfficiency4lFilter= " << double(nSelectedEvents)/double(nEvents) << std::endl;
 }
 
 

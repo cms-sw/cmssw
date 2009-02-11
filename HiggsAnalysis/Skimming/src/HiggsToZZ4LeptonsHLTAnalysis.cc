@@ -49,6 +49,7 @@ HiggsToZZ4LeptonsHLTAnalysis::HiggsToZZ4LeptonsHLTAnalysis(const edm::ParameterS
 
   ntrig.resize(n_);
   boolflag.resize(n_);
+  nEvents         = 0;
   npassed=0;
   
   int loc=0;
