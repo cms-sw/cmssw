@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2008/10/16 23:12:34 $
- *  $Revision: 1.28 $
+ *  $Date: 2008/10/17 10:42:35 $
+ *  $Revision: 1.29 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -238,7 +238,7 @@ namespace edm {
     }
     // make a brand new event
     EventAuxiliary eventAux(eventId,
-      processGUID(), timestamp(), luminosityBlockPrincipal()->luminosityBlock(), true, EventAuxiliary::Data, bunchCrossing, EventAuxiliary::invalidStoreNumber,
+      processGUID(), timestamp(), luminosityBlockPrincipal()->luminosityBlock(), true, EventAuxiliary::PhysicsTrigger, bunchCrossing, EventAuxiliary::invalidStoreNumber,
 			    orbitNumber);
     ep_ = std::auto_ptr<EventPrincipal>(
 	new EventPrincipal(eventAux, productRegistry(), processConfiguration()));
