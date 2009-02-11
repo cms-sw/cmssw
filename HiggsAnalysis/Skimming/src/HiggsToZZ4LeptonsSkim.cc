@@ -14,12 +14,13 @@
 // User include files
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
-// Muons:
-#include <DataFormats/TrackReco/interface/Track.h>
-
 // Electrons
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+
+// Muons
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 // C++
 #include <iostream>
@@ -37,8 +38,7 @@ HiggsToZZ4LeptonsSkim::HiggsToZZ4LeptonsSkim(const edm::ParameterSet& pset) {
   debug              = pset.getParameter<bool>("DebugHiggsToZZ4LeptonsSkim");
 
   // Reconstructed objects
-  recTrackLabel      = pset.getParameter<edm::InputTag>("RecoTrackLabel");
-  theGLBMuonLabel    = pset.getParameter<edm::InputTag>("GlobalMuonCollectionLabel");
+  theMuonLabel       = pset.getParameter<edm::InputTag>("MuonCollectionLabel");
   theGsfELabel       = pset.getParameter<edm::InputTag>("ElectronCollectionLabel");
 
   // Minimum Pt for leptons for skimming
@@ -69,7 +69,7 @@ bool HiggsToZZ4LeptonsSkim::filter(edm::Event& event, const edm::EventSetup& set
 
   nEvents++;
 
-  using reco::TrackCollection;
+  using reco::MuonCollection;
 
   bool keepEvent   = false;
   int  nStiffLeptons    = 0;
@@ -78,17 +78,17 @@ bool HiggsToZZ4LeptonsSkim::filter(edm::Event& event, const edm::EventSetup& set
 
   // First look at muons:
 
-  // Get the muon track collection from the event
-  edm::Handle<reco::TrackCollection> muTracks;
-  event.getByLabel(theGLBMuonLabel.label(), muTracks);
+  // Get the muon collection from the event
+  edm::Handle<reco::MuonCollection> mus;
+  event.getByLabel(theMuonLabel.label(), mus);
 
-  if ( muTracks.isValid() ) {  
+  if ( mus.isValid() ) {  
   
-    reco::TrackCollection::const_iterator muons;
+    reco::MuonCollection::const_iterator muons;
         
     // Loop over muon collections and count how many muons there are, 
     // and how many are above threshold
-    for ( muons = muTracks->begin(); muons != muTracks->end(); ++muons ) {
+    for ( muons = mus->begin(); muons != mus->end(); ++muons ) {
       if ( muons->pt() > stiffMinPt) nStiffLeptons++; 
       if ( muons->pt() > softMinPt) nLeptons++; 
     }  
@@ -97,19 +97,16 @@ bool HiggsToZZ4LeptonsSkim::filter(edm::Event& event, const edm::EventSetup& set
   // Now look at electrons:
 
   // Get the electron track collection from the event
-  edm::Handle<reco::GsfElectronCollection> pTracks;
+  edm::Handle<reco::GsfElectronCollection> eles;
+  event.getByLabel(theGsfELabel.label(),eles);
 
-  event.getByLabel(theGsfELabel.label(),pTracks);
-
-  if ( pTracks.isValid() ) {  
-
-    const reco::GsfElectronCollection* eTracks = pTracks.product();
+  if ( eles.isValid() ) {  
 
     reco::GsfElectronCollection::const_iterator electrons;
 
     // Loop over electron collections and count how many muons there are, 
     // and how many are above threshold
-    for ( electrons = eTracks->begin(); electrons != eTracks->end(); ++electrons ) {
+    for ( electrons = eles->begin(); electrons != eles->end(); ++electrons ) {
       float pt_e = electrons->pt(); 
       if ( pt_e > stiffMinPt) nStiffLeptons++; 
       if ( pt_e > softMinPt) nLeptons++; 
