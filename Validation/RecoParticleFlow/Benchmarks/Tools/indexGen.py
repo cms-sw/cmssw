@@ -101,7 +101,7 @@ date =  os.popen( 'date' ).read()
 cmssw = os.environ['CMSSW_VERSION']
 #print cmssw
 
-showTags = os.popen( 'showtags -t -r').read()
+showTags = os.popen( 'showtags -t -r -u').read()
 #print showTags
 
 # get the pictures
