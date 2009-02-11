@@ -6,8 +6,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2009/02/08 21:51:20 $
+ *  $Revision: 1.29 $
  *  \author  M. Vander Donckt, J. Klukas  (copied from J. Alcaraz)
  */
 
@@ -30,9 +30,16 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+#include "DataFormats/Math/interface/LorentzVector.h"
+
 #include <vector>
 #include "TFile.h"
 #include "TNtuple.h"
+
+
+
+typedef math::XYZTLorentzVector LorentzVector;
+
 
 
 class HLTMuonGenericRate {
@@ -54,10 +61,10 @@ private:
   // Struct and methods for matching
 
   struct MatchStruct {
-    const reco::GenParticle*     genCand;
-    const reco::Track*           recCand;
-    reco::Particle*              l1Cand;
-    std::vector<reco::Particle*> hltCands;
+    const reco::GenParticle*   genCand;
+    const reco::Track*         recCand;
+    LorentzVector              l1Cand;
+    std::vector<LorentzVector> hltCands;
     std::vector<const reco::RecoChargedCandidate*> hltTracks;
   };
 
