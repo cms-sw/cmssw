@@ -2,7 +2,7 @@
 #define CSCDigitizer_CSCDbStripConditions_h
 
 #include "SimMuon/CSCDigitizer/src/CSCStripConditions.h"
-#include "CondFormats/CSCObjects/interface/CSCConditions.h"
+#include "CalibMuon/CSCCalibration/interface/CSCConditions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class CSCDbStripConditions : public CSCStripConditions

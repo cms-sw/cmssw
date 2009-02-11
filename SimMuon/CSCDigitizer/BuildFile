@@ -1,3 +1,4 @@
+<use name=CalibMuon/CSCCalibration>
 <use name=CondFormats/CSCObjects>
 <use name=DataFormats/CSCDigi>
 <use name=DataFormats/GeometryVector>
