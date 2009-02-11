@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     03-Jul-2007
 #     A. Parenti, DESY Hamburg    27-Mar-2008
-#     $Revision: 1.3 $
-#     $Date: 2008/07/30 14:09:06 $
+#     $Revision: 1.5 $
+#     $Date: 2009/01/14 19:02:32 $
 #
 #  Take card file, blank all INFI directives and insert
 #  the INFI directives from the modifier file instead.
@@ -137,7 +137,7 @@ $nn = () = $newFileNames =~ /\.root/g; print "******** \$nn=".$nn."\n";
 if ($nn > 1) {
   $MergingFileNames="$MergingFileNames \nreadFiles.extend\(\($newFileNames \)\)";
 } else { # One file only... use single parenthesis
-  $MergingFileNames="$MergingFileNames \nreadFiles.extend\($newFileNames\)";
+  $MergingFileNames="$MergingFileNames \nreadFiles.extend\(\[$newFileNames\]\)";
 }
 
 $nrep = ($body =~ s/^ *readFiles.extend\(\'file.root\'\)/$MergingFileNames/gm);
