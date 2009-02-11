@@ -112,6 +112,7 @@ namespace evf {
 
     static unsigned int gtpDaqId_;
     static unsigned int gtpEvmId_;
+    static unsigned int gtpeId_;
 
   };
   
