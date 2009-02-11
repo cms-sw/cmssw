@@ -75,7 +75,7 @@ public:
 
 private:
   void normalize() {
-    static const unsigned int steps = 100000;
+    static const unsigned int steps = 1000;
     double s = 0, x, f;
     double base = max_ - min_;
     double dx = base/steps;
@@ -144,11 +144,13 @@ int main(int argc, char * argv[]){
   TFile *inputfile = new TFile(pdf);
   TH1F *pdfzmm = (TH1F*)inputfile->Get("goodZToMuMuPlots/zMass");//pdf signal Zmumu(1hlt,2hlt), ZMuMunotIso, ZmuTk
   TH1F *pdfzmsa = (TH1F*)inputfile->Get("zmumuSaMassHistogram/zMass");//pdf signal ZmuSa
-  
+  double NzMumuNoIsobkg = zMuMuNonIsoBkgPdf.integral();
+  double NzMutkbkg = zMuTkBkgPdf.integral();
+
   for(int j = 1; j <=expt; ++j){//loop on number of experiments  
     int N0 = eventGenerator->Poisson(yield);
-    int nMuTkBkg = eventGenerator->Poisson(zMuTkBkgPdf.integral());
-    int nMuMuNonIsoBkg = eventGenerator->Poisson(zMuMuNonIsoBkgPdf.integral());
+    int nMuTkBkg = eventGenerator->Poisson(NzMutkbkg);
+    int nMuMuNonIsoBkg = eventGenerator->Poisson(NzMumuNoIsobkg);
     int Nmumu = 0;
     int N2HLT = 0;
     int N1HLT = 0;
