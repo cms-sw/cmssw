@@ -1,3 +1,19 @@
+//-------------------------------------------------
+//
+//   \class L1GctConfigKeyOnlineProducer
+//
+//   Description:      A key producer to deduce the GCT keys from the master 
+//                     GCT config key, following example of GMT
+//
+//   $Date: $
+//   $Revision: $
+//
+//   Author :
+//   Jim Brooke
+//
+//--------------------------------------------------
+
+
 #include "CondTools/L1Trigger/interface/L1ObjectKeysOnlineProdBase.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
