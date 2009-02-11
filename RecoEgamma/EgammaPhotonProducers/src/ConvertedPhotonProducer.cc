@@ -138,6 +138,9 @@ void  ConvertedPhotonProducer::beginRun (edm::Run& r, edm::EventSetup const & th
 
 
 
+  theEcalImpactPositionFinder_->setMagneticField ( &(*theMF_) );
+
+
 }
 
 
