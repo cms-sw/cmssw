@@ -9,6 +9,8 @@
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/RefToBaseVector.h"
+#include "DataFormats/Common/interface/Ptr.h"
+#include "DataFormats/Common/interface/PtrVector.h"
 #include <memory>
 #include "boost/static_assert.hpp"
 #include "boost/type_traits.hpp"
@@ -45,6 +47,16 @@ namespace helper {
   template<typename T>
   struct IteratorToObjectConverter<edm::RefToBaseVector<T> > {
     typedef edm::RefToBase<T> value_type;
+    template<typename I>
+    static value_type convert( const I & i ) {
+      return value_type( * i );
+    }
+  };
+
+
+  template<typename T>
+  struct IteratorToObjectConverter<edm::PtrVector<T> > {
+    typedef edm::Ptr<T> value_type;
     template<typename I>
     static value_type convert( const I & i ) {
       return value_type( * i );
