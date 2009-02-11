@@ -109,6 +109,7 @@ DDGeometryReturnType DDG4Builder::BuildGeometry() {
   G4ReflectionFactory * refFact = G4ReflectionFactory::Instance();
   refFact->SetScalePrecision(100.*refFact->GetScalePrecision());
 
+  typedef DDCompactView::graph_type graph_type;
   const graph_type & gra = compactView->graph();
   typedef graph_type::const_adj_iterator adjl_iterator;
   adjl_iterator git = gra.begin();
