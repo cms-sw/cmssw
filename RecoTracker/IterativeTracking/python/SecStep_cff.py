@@ -19,6 +19,16 @@ secClusters = cms.EDFilter("TrackClusterRemover",
     Common = cms.PSet(
         maxChi2 = cms.double(30.0)
     )
+                           
+# For debug purposes, you can run this iteration not eliminating any hits from previous ones by
+# instead using
+#    trajectories = cms.InputTag("zeroStepFilter"),
+#    pixelClusters = cms.InputTag("siPixelClusters"),
+#    stripClusters = cms.InputTag("siStripClusters"),
+#     Common = cms.PSet(
+#       maxChi2 = cms.double(0.0)
+#    )
+                           
 )
 
 # TRACKER HITS
@@ -45,6 +55,10 @@ secTriplets.OrderedHitsFactoryPSet.SeedingLayers = 'SecLayerTriplets'
 #secTriplets.RegionFactoryPSet.RegionPSet.ptMin = 0.3
 secTriplets.RegionFactoryPSet.RegionPSet.ptMin = 0.15
 
+# Use modified pixel-triplet code that works best for large impact parameters
+#secTriplets.SeedCreatorPSet.ComponentName = 'SeedFromConsecutiveHitsTripletOnlyCreator'
+#from RecoPixelVertexing.PixelTriplets.PixelTripletLargeTipGenerator_cfi import *
+#secTriplets.OrderedHitsFactoryPSet.GeneratorPSet = cms.PSet(PixelTripletLargeTipGenerator)
 
 # TRACKER DATA CONTROL
 import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi

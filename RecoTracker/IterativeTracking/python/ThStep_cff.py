@@ -14,10 +14,19 @@ thClusters = cms.EDFilter("TrackClusterRemover",
     oldClusterRemovalInfo = cms.InputTag("secClusters"),
     trajectories = cms.InputTag("secfilter"),
     pixelClusters = cms.InputTag("secClusters"),
+    stripClusters = cms.InputTag("secClusters"),
     Common = cms.PSet(
         maxChi2 = cms.double(30.0)
-    ),
-    stripClusters = cms.InputTag("secClusters")
+    )
+
+# For debug purposes, you can run this iteration not eliminating any hits from previous ones by
+# instead using
+#    trajectories = cms.InputTag("zeroStepFilter"),
+#    pixelClusters = cms.InputTag("siPixelClusters"),
+#    stripClusters = cms.InputTag("siStripClusters"),
+#     Common = cms.PSet(
+#       maxChi2 = cms.double(0.0)
+#    )
 )
 
 # TRACKER HITS
