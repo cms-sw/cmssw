@@ -1,7 +1,7 @@
-#ifndef HZZ4LeptonsHLTAnalysis_h
-#define HZZ4LeptonsHLTAnalysis_h
+#ifndef HiggsToZZ4LeptonsHLTAnalysis_h
+#define HiggsToZZ4LeptonsHLTAnalysis_h
 
-/** \class HZZ4LeptonsHLTAnalysis
+/** \class HiggsToZZ4LeptonsHLTAnalysis
  *
  *  
  *  This class is an HLTProducer creating a flag for each HLT pattern satisfied
@@ -26,12 +26,12 @@
 // class declaration
 //
 
-class HZZ4LeptonsHLTAnalysis : public edm::EDProducer {
+class HiggsToZZ4LeptonsHLTAnalysis : public edm::EDProducer {
 
   public:
 
-    explicit HZZ4LeptonsHLTAnalysis(const edm::ParameterSet&);
-    ~HZZ4LeptonsHLTAnalysis();
+    explicit HiggsToZZ4LeptonsHLTAnalysis(const edm::ParameterSet&);
+    ~HiggsToZZ4LeptonsHLTAnalysis();
 
  private:
     virtual void produce(edm::Event& event, const edm::EventSetup& eventSetup);
@@ -69,4 +69,4 @@ class HZZ4LeptonsHLTAnalysis : public edm::EDProducer {
 
 };
 
-#endif //HZZ4LeptonsHLTAnalysis_h
+#endif //HiggsToZZ4LeptonsHLTAnalysis_h

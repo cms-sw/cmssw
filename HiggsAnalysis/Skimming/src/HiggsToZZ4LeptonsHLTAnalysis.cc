@@ -1,4 +1,4 @@
-/** \class HZZ4LeptonsHLTAnalysis
+/** \class HiggsToZZ4LeptonsHLTAnalysis
  *
  * See header file for documentation
  *
@@ -7,7 +7,7 @@
  *
  */
 
-#include "HiggsAnalysis/HiggsToZZ4Leptons/plugins/HZZ4LeptonsHLTAnalysis.h"
+#include "HiggsAnalysis/Skimming/interface/HiggsToZZ4LeptonsHLTAnalysis.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Common/interface/RefToBase.h"
@@ -32,7 +32,7 @@ using namespace reco;
 //
 // constructors and destructor
 //
-HZZ4LeptonsHLTAnalysis::HZZ4LeptonsHLTAnalysis(const edm::ParameterSet& iConfig)
+HiggsToZZ4LeptonsHLTAnalysis::HiggsToZZ4LeptonsHLTAnalysis(const edm::ParameterSet& iConfig)
 {
   // get names from module parameters, then derive slot numbers
 
@@ -73,7 +73,7 @@ HZZ4LeptonsHLTAnalysis::HZZ4LeptonsHLTAnalysis(const edm::ParameterSet& iConfig)
 
 }
 
-HZZ4LeptonsHLTAnalysis::~HZZ4LeptonsHLTAnalysis()
+HiggsToZZ4LeptonsHLTAnalysis::~HiggsToZZ4LeptonsHLTAnalysis()
 {
 }
 
@@ -82,7 +82,7 @@ HZZ4LeptonsHLTAnalysis::~HZZ4LeptonsHLTAnalysis()
 //
 
 // ------------ method called to produce the data  ------------
-void HZZ4LeptonsHLTAnalysis::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+void HiggsToZZ4LeptonsHLTAnalysis::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
   
@@ -199,7 +199,7 @@ void HZZ4LeptonsHLTAnalysis::produce(edm::Event& iEvent, const edm::EventSetup& 
    
 }
 
-void HZZ4LeptonsHLTAnalysis::endJob() {
+void HiggsToZZ4LeptonsHLTAnalysis::endJob() {
   
   for (unsigned int i=0; i<ntrig.size(); i++) {
     cout << "Triggered paths " << HLTPathsByName_[i] << "= " << ntrig[i] << endl;
