@@ -13,8 +13,8 @@
 //
 // Original Author:  Gobinda Majumder
 //         Created:  Sat Jul  7 09:51:31 CEST 2007
-// $Id$
-// $Id: HOCalibAnalyzer.cc,v 1.5 2008/08/16 17:18:39 kodolova Exp $
+// $Id: HOCalibAnalyzer.cc,v 1.6 2008/10/08 09:39:53 kodolova Exp $
+// $Id: HOCalibAnalyzer.cc,v 1.6 2008/10/08 09:39:53 kodolova Exp $
 //
 //
 
@@ -247,6 +247,7 @@ class HOCalibAnalyzer : public edm::EDAnalyzer {
       double m_sigma;
 
   static const int ncut = 13;
+  static const int mypow_2_ncut = 8192; // 2^13, should be changed to match ncut
 
   int ipass;
  
@@ -905,6 +906,22 @@ void
 HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
+  // calcualte these once (and avoid the pow(int,int) ambiguities for c++)
+  int mypow_2_0 = 0; // 2^0
+  int mypow_2_1 = 2; // 2^1
+  int mypow_2_2 = 4; // 2^2
+
+  int mypow_2_3 = 8; // 2^3
+  int mypow_2_4 = 16; // 2^4
+  int mypow_2_5 = 32; // 2^5
+  int mypow_2_6 = 64; // 2^6
+  int mypow_2_7 = 128; // 2^7
+  int mypow_2_8 = 256; // 2^8
+  int mypow_2_9 = 512; // 2^9
+  int mypow_2_10 = 1024; // 2^10
+  int mypow_2_11 = 2048; // 2^11
+  int mypow_2_12 = 4096; // 2^12
+
   /*
   //FIXGM Put this is initialiser
   int mapx1[6][3]={{1,4,8}, {12,7,3}, {5,9,13}, {11,6,2}, {16,15,14}, {19,18,17}}; 
@@ -1068,85 +1085,85 @@ HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       // CRUZET1
       if (m_cosmic) {
 	/*  GMA temoparily change to increase event size at 3 & 9 O'clock position */
-	if (abs(ndof) >=20 && abs(ndof) <40) {ips0 = (int)pow(2,0); ipsall += ips0;}
-	if (chisq >0 && chisq<15) {ips1 = (int)pow(2,1); ipsall +=ips1;} //18Jan2008
-	if (fabs(trkth-pival/2) <21.5) {ips2 = (int)pow(2,2); ipsall +=ips2;} //No nead for pp evt
-	if (fabs(trkph+pival/2) <21.5) {ips3 = (int)pow(2,3); ipsall +=ips3;} //No nead for pp evt
+	if (abs(ndof) >=20 && abs(ndof) <40) {ips0 = (int)mypow_2_0; ipsall += ips0;}
+	if (chisq >0 && chisq<15) {ips1 = (int)mypow_2_1; ipsall +=ips1;} //18Jan2008
+	if (fabs(trkth-pival/2) <21.5) {ips2 = (int)mypow_2_2; ipsall +=ips2;} //No nead for pp evt
+	if (fabs(trkph+pival/2) <21.5) {ips3 = (int)mypow_2_3; ipsall +=ips3;} //No nead for pp evt
 	
-	if (therr <0.02)             {ips4 = (int)pow(2,4); ipsall +=ips4;}
-	if (pherr <0.0002)             {ips5 = (int)pow(2,5); ipsall +=ips5;}
-	if (fabs(hoang) >0.30)             {ips6 = (int)pow(2,6);  ipsall +=ips6;}
-	if (fabs(trkmm) >0.100)        {ips7 = (int)pow(2,7); ipsall +=ips7;}
-	//      if (nmuon ==1)               {ips8 = (int)pow(2,8);  ipsall +=ips8;}
-	if (nmuon >=1 && nmuon <=4)        {ips8 = (int)pow(2,8);  ipsall +=ips8;}
+	if (therr <0.02)             {ips4 = (int)mypow_2_4; ipsall +=ips4;}
+	if (pherr <0.0002)             {ips5 = (int)mypow_2_5; ipsall +=ips5;}
+	if (fabs(hoang) >0.30)             {ips6 = (int)mypow_2_6;  ipsall +=ips6;}
+	if (fabs(trkmm) >0.100)        {ips7 = (int)mypow_2_7; ipsall +=ips7;}
+	//      if (nmuon ==1)               {ips8 = (int)mypow_2_8;  ipsall +=ips8;}
+	if (nmuon >=1 && nmuon <=4)        {ips8 = (int)mypow_2_8;  ipsall +=ips8;}
 
 	if (iring2==2) {
 	  if (fabs(hodx)<100 && fabs(hodx)>2 && fabs(hocorsig[8]) <40 && fabs(hocorsig[8]) >2 )
-	    {ips10=(int)pow(2,10);ipsall +=ips10;}
+	    {ips10=(int)mypow_2_10;ipsall +=ips10;}
 	  
 	  if (fabs(hody)<100 && fabs(hody)>2 && fabs(hocorsig[9]) <40 && fabs(hocorsig[9]) >2 )
-	    {ips11=(int)pow(2,11);ipsall +=ips11;}
+	    {ips11=(int)mypow_2_11;ipsall +=ips11;}
 	  
 	} else {
 	  if (fabs(hodx)<100 && fabs(hodx)>2 )
-	    {ips10=(int)pow(2,10);ipsall +=ips10;}
+	    {ips10=(int)mypow_2_10;ipsall +=ips10;}
 	  
 	  if (fabs(hody)<100 && fabs(hody)>2)
-	    {ips11=(int)pow(2,11);ipsall +=ips11;}
+	    {ips11=(int)mypow_2_11;ipsall +=ips11;}
 	}
-	if (caloen[0] ==0) { ips12=(int)pow(2,12);ipsall +=ips12;}
+	if (caloen[0] ==0) { ips12=(int)mypow_2_12;ipsall +=ips12;}
       } else {
 	//csa08
-	if (abs(ndof) >=20 && abs(ndof) <40) {ips0 = (int)pow(2,0); ipsall += ips0;}
-	if (chisq >0 && chisq<15) {ips1 = (int)pow(2,1); ipsall +=ips1;} //18Jan2008
-	if (fabs(trkth-pival/2) <21.5) {ips2 = (int)pow(2,2); ipsall +=ips2;} //No nead for pp evt
-	if (fabs(trkph+pival/2) <21.5) {ips3 = (int)pow(2,3); ipsall +=ips3;} //No nead for pp evt
+	if (abs(ndof) >=20 && abs(ndof) <40) {ips0 = (int)mypow_2_0; ipsall += ips0;}
+	if (chisq >0 && chisq<15) {ips1 = (int)mypow_2_1; ipsall +=ips1;} //18Jan2008
+	if (fabs(trkth-pival/2) <21.5) {ips2 = (int)mypow_2_2; ipsall +=ips2;} //No nead for pp evt
+	if (fabs(trkph+pival/2) <21.5) {ips3 = (int)mypow_2_3; ipsall +=ips3;} //No nead for pp evt
 	
-	if (therr <0.02)             {ips4 = (int)pow(2,4); ipsall +=ips4;}
-	if (pherr <0.0002)             {ips5 = (int)pow(2,5); ipsall +=ips5;}
-	if (fabs(hoang) >0.30)             {ips6 = (int)pow(2,6);  ipsall +=ips6;}
-	if (fabs(trkmm) >4.0)        {ips7 = (int)pow(2,7); ipsall +=ips7;}
-	if (nmuon >=1 && nmuon <=2)        {ips8 = (int)pow(2,8);  ipsall +=ips8;}
+	if (therr <0.02)             {ips4 = (int)mypow_2_4; ipsall +=ips4;}
+	if (pherr <0.0002)             {ips5 = (int)mypow_2_5; ipsall +=ips5;}
+	if (fabs(hoang) >0.30)             {ips6 = (int)mypow_2_6;  ipsall +=ips6;}
+	if (fabs(trkmm) >4.0)        {ips7 = (int)mypow_2_7; ipsall +=ips7;}
+	if (nmuon >=1 && nmuon <=2)        {ips8 = (int)mypow_2_8;  ipsall +=ips8;}
 
 	if (iring2==2) {
 	  if (fabs(hodx)<100 && fabs(hodx)>2 && fabs(hocorsig[8]) <40 && fabs(hocorsig[8]) >2 )
-	    {ips10=(int)pow(2,10);ipsall +=ips10;}
+	    {ips10=(int)mypow_2_10;ipsall +=ips10;}
 	  
 	  if (fabs(hody)<100 && fabs(hody)>2 && fabs(hocorsig[9]) <40 && fabs(hocorsig[9]) >2 )
-	    {ips11=(int)pow(2,11);ipsall +=ips11;}
+	    {ips11=(int)mypow_2_11;ipsall +=ips11;}
 	  
 	} else {
 	  if (fabs(hodx)<100 && fabs(hodx)>2 )
-	    {ips10=(int)pow(2,10);ipsall +=ips10;}
+	    {ips10=(int)mypow_2_10;ipsall +=ips10;}
 	  
 	  if (fabs(hody)<100 && fabs(hody)>2)
-	    {ips11=(int)pow(2,11);ipsall +=ips11;}      
+	    {ips11=(int)mypow_2_11;ipsall +=ips11;}      
 	}
-	//	if (m_cosmic || (caloen[0] >0.5 && caloen[0]<5.0)) {ips12=(int)pow(2,12);ipsall +=ips12;}
-	if (ndof >0 && caloen[0]<5.0) {ips12=(int)pow(2,12);ipsall +=ips12;}
+	//	if (m_cosmic || (caloen[0] >0.5 && caloen[0]<5.0)) {ips12=(int)pow_2_12;ipsall +=ips12;}
+	if (ndof >0 && caloen[0]<5.0) {ips12=(int)mypow_2_12;ipsall +=ips12;}
 	/*      */
       }
       
       if (m_digiInput) {
-	if (htime >2.5 && htime <6.5)        {ips9=(int)pow(2.,9);ipsall +=ips9;}
+	if (htime >2.5 && htime <6.5)        {ips9=(int)mypow_2_9;ipsall +=ips9;}
       } else {
-	if (htime >-40 && htime <60)         {ips9=(int)pow(2.,9);ipsall +=ips9;}
+	if (htime >-40 && htime <60)         {ips9=(int)mypow_2_9;ipsall +=ips9;}
       }    
-      
-      if (ipsall-ips0==pow(2,ncut)-pow(2,0)-1) sigvsevt[iring2][0]->Fill(abs(ndof), hosig[4]);
-      if (ipsall-ips1==pow(2,ncut)-pow(2,1)-1) sigvsevt[iring2][1]->Fill(chisq, hosig[4]);
-      if (ipsall-ips2==pow(2,ncut)-pow(2,2)-1) sigvsevt[iring2][2]->Fill(trkth, hosig[4]);
-      if (ipsall-ips3==pow(2,ncut)-pow(2,3)-1) sigvsevt[iring2][3]->Fill(trkph, hosig[4]);
-      if (ipsall-ips4==pow(2,ncut)-pow(2,4)-1) sigvsevt[iring2][4]->Fill(therr, hosig[4]);
-      if (ipsall-ips5==pow(2,ncut)-pow(2,5)-1) sigvsevt[iring2][5]->Fill(pherr, hosig[4]);
-      if (ipsall-ips6==pow(2,ncut)-pow(2,6)-1) sigvsevt[iring2][6]->Fill(hoang, hosig[4]);
-      if (ipsall-ips7==pow(2,ncut)-pow(2,7)-1) sigvsevt[iring2][7]->Fill(fabs(trkmm), hosig[4]);
-      if (ipsall-ips8==pow(2,ncut)-pow(2,8)-1) sigvsevt[iring2][8]->Fill(nmuon, hosig[4]);
-      if (ipsall-ips9==pow(2,ncut)-pow(2,9)-1) sigvsevt[iring2][9]->Fill(htime, hosig[4]);
-      if (ipsall-ips10==pow(2,ncut)-pow(2,10)-1) sigvsevt[iring2][10]->Fill(hodx, hosig[4]);
-      if (ipsall-ips11==pow(2,ncut)-pow(2,11)-1) sigvsevt[iring2][11]->Fill(hody, hosig[4]);
+
+      if (ipsall-ips0==mypow_2_ncut-mypow_2_0-1) sigvsevt[iring2][0]->Fill(abs(ndof), hosig[4]);
+      if (ipsall-ips1==mypow_2_ncut-mypow_2_1-1) sigvsevt[iring2][1]->Fill(chisq, hosig[4]);
+      if (ipsall-ips2==mypow_2_ncut-mypow_2_2-1) sigvsevt[iring2][2]->Fill(trkth, hosig[4]);
+      if (ipsall-ips3==mypow_2_ncut-mypow_2_3-1) sigvsevt[iring2][3]->Fill(trkph, hosig[4]);
+      if (ipsall-ips4==mypow_2_ncut-mypow_2_4-1) sigvsevt[iring2][4]->Fill(therr, hosig[4]);
+      if (ipsall-ips5==mypow_2_ncut-mypow_2_5-1) sigvsevt[iring2][5]->Fill(pherr, hosig[4]);
+      if (ipsall-ips6==mypow_2_ncut-mypow_2_6-1) sigvsevt[iring2][6]->Fill(hoang, hosig[4]);
+      if (ipsall-ips7==mypow_2_ncut-mypow_2_7-1) sigvsevt[iring2][7]->Fill(fabs(trkmm), hosig[4]);
+      if (ipsall-ips8==mypow_2_ncut-mypow_2_8-1) sigvsevt[iring2][8]->Fill(nmuon, hosig[4]);
+      if (ipsall-ips9==mypow_2_ncut-mypow_2_9-1) sigvsevt[iring2][9]->Fill(htime, hosig[4]);
+      if (ipsall-ips10==mypow_2_ncut-mypow_2_10-1) sigvsevt[iring2][10]->Fill(hodx, hosig[4]);
+      if (ipsall-ips11==mypow_2_ncut-mypow_2_11-1) sigvsevt[iring2][11]->Fill(hody, hosig[4]);
       if (!m_cosmic) {
-	if (ipsall-ips12==pow(2,ncut)-pow(2,12)-1) sigvsevt[iring2][12]->Fill(caloen[0], hosig[4]);
+	if (ipsall-ips12==mypow_2_ncut-mypow_2_12-1) sigvsevt[iring2][12]->Fill(caloen[0], hosig[4]);
       }
       
       sigvsevt[iring2+5][0]->Fill(abs(ndof), hosig[4]);               
@@ -1201,7 +1218,7 @@ HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       sigvsevt[iring2+10][11]->Fill(hody, hosig[4]);     
       if (!m_cosmic) sigvsevt[iring2+10][12]->Fill(caloen[0], hosig[4]);  
 
-      int iselect = (ipsall == pow(2,ncut) - 1) ? 1 : 0;
+      int iselect = (ipsall == mypow_2_ncut - 1) ? 1 : 0;
 
       if (hocro !=-100.0 && hocro <-50.0) hocro +=100.;
       
