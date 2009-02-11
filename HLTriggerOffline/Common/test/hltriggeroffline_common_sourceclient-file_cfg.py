@@ -40,8 +40,9 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("PoolSource",
     fileNames = 
-#cms.untracked.vstring('file:RelValZEE_2_1_7_STARTUP.root')
-cms.untracked.vstring('/store/relval/CMSSW_3_0_0_pre6/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP_30X_v1/0005/06F01F20-E9DD-DD11-956F-001617E30CA4.root')
+cms.untracked.vstring('file:relval_ttbar_ideal_310pre1_gensimreco.root')
+#cms.untracked.vstring('/store/relval/CMSSW_3_1_0_pre1/RelValMinBias/GEN-SIM-RECO/STARTUP_30X_v1/0001/48C7FFEB-49F4-DD11-85AB-001617C3B79A.root')
+#cms.untracked.vstring('/store/relval/CMSSW_3_1_0_pre1/RelValSingleMuPt100/GEN-SIM-RECO/IDEAL_30X_v1/0001/325025BD-49F4-DD11-92D4-001617C3B70E.root')
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
@@ -51,7 +52,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     critical = cms.untracked.PSet(
         threshold = cms.untracked.string('ERROR')
     ),
-    debugModules = cms.untracked.vstring('*'),
+    debugModules = cms.untracked.vstring('hltResults'),
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('WARNING'),
         WARNING = cms.untracked.PSet(
