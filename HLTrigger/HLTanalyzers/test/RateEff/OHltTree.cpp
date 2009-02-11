@@ -66,14 +66,16 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
 
     if ( cfg->pdomucuts[procID] && MCmu3!=0 ) continue;
     if ( cfg->pdoecuts[procID] && MCel3!=0 ) continue;
-    
+ 
+    SetOpenL1Bits(); 
+   
     // 1. Loop to check which Bit fired
     // Triggernames are assigned to trigger cuts in unambigous way!
     // If you define a new trigger also define a new unambigous name!
     if(menu->DoL1preLoop() && menu->IsHltMenu()) {
       ApplyL1Prescales(menu);
     }
-    SetOpenL1Bits();
+
     SetMapL1BitOfStandardHLTPath(menu);
     SetL1MuonQuality();
 	  
