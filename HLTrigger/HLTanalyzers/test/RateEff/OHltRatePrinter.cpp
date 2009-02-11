@@ -396,3 +396,40 @@ void OHltRatePrinter::printHltRatesTex(OHltConfig *cfg, OHltMenu *menu) {
     outFile << "\\end{document}";
     outFile.close();
 }
+
+/* ********************************************** */ 
+// Print out prescales as text file 
+/* ********************************************** */ 
+void OHltRatePrinter::printPrescalesCfg(OHltConfig *cfg, OHltMenu *menu) { 
+  TString tableFileName = GetFileName(cfg,menu); 
+  
+  TString txtFile = tableFileName + TString("_prescales_cffsnippet.py"); 
+  ofstream outFile(txtFile.Data()); 
+  if (!outFile){cout<<"Error opening prescale output file"<< endl;} 
+  
+  //  outFile <<setprecision(2); 
+  //  outFile.setf(ios::floatfield,ios::fixed); 
+
+  outFile << "PrescaleService = cms.Service( \"PrescaleService\"," << endl;
+  outFile << "\tlvl1DefaultLabel = cms.untracked.string( \"prescale1\" ), " << endl;
+  outFile << "\tlvl1Labels = cms.vstring( 'prescale1' )," << endl;
+  outFile << "\tprescaleTable = cms.VPSet( " << endl;
+  
+  outFile << "\tcms.PSet(  pathName = cms.string( \"HLTriggerFirstPath\" )," << endl; 
+  outFile << "\t\tprescales = cms.vuint32( 1 )" << endl; 
+  outFile << "\t\t)," << endl; 
+  
+  for (unsigned int i=0;i<menu->GetTriggerSize();i++) { 
+    outFile << "\tcms.PSet(  pathName = cms.string( \"" << menu->GetTriggerName(i) << "\" )," << endl;
+    outFile << "\t\tprescales = cms.vuint32( " << menu->GetPrescale(i) << " )" << endl;
+    outFile << "\t\t)," << endl;
+  }
+
+  outFile << "\tcms.PSet(  pathName = cms.string( \"HLTriggerFinalPath\" )," << endl;
+  outFile << "\t\tprescales = cms.vuint32( 1 )" << endl;
+  outFile << "\t\t)" << endl;
+  outFile << "\t)" << endl;
+  outFile << ")" << endl;
+  
+  outFile.close();
+}
