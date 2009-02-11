@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripCondObjBuilderFromDb.cc,v 1.10 2008/09/29 13:20:28 bainbrid Exp $
-// Latest tag:  $Name: V03-01-02 $
+// Last commit: $Id: SiStripCondObjBuilderFromDb.cc,v 1.11 2009/01/28 18:21:45 alinn Exp $
+// Latest tag:  $Name: V03-02-00 $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripCondObjBuilderFromDb.cc,v $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripCondObjBuilderFromDb.h"
@@ -347,8 +347,10 @@ void SiStripCondObjBuilderFromDb::buildStripRelatedObjects( SiStripConfigDb* con
       
       // Retrieve Fed9UStrips object from FED description
       const Fed9U::Fed9UStrips& strips = (*description)->getFedStrips();
-      
+
+
       // Retrieve StripDescriptions for each APV
+      uint16_t jstrip = ipair->apvPairNumber()*sistrip::STRIPS_PER_FEDCH;
       for ( uint16_t iapv = 2*ipair->fedCh(); iapv < 2*ipair->fedCh()+2; iapv++ ) {
 	
 	// Get StripDescriptions for the given APV
@@ -357,7 +359,6 @@ void SiStripCondObjBuilderFromDb::buildStripRelatedObjects( SiStripConfigDb* con
 	vector<Fed9U::Fed9UStripDescription> strip = strips.getApvStrips(addr);
 	
 	vector<Fed9U::Fed9UStripDescription>::const_iterator istrip = strip.begin();
-	uint16_t jstrip = ipair->apvPairNumber()*sistrip::STRIPS_PER_FEDCH;
 	for ( ; istrip != strip.end(); istrip++ ) {
 	  pedestals_->setData( istrip->getPedestal() , inputPedestals);
 	  noises_   ->setData( istrip->getNoise()    , inputNoises );
