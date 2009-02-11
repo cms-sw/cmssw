@@ -91,10 +91,8 @@ namespace edm
   bool
   HadronizerFilter<HAD>::filter(Event& ev, EventSetup const& /* es */)
   {
-    
     std::auto_ptr<HepMCProduct> bare_product(new HepMCProduct());
-        
-    
+
     // get LHE stuff and pass to hadronizer !
     //
     edm::Handle<LHEEventProduct> product;
@@ -110,16 +108,12 @@ namespace edm
 
     if ( !hadronizer_.decay() ) return false;
     
-    if( hadronizer_.getGenEvent() ) 
-    {
-       bare_product->addHepMCData( hadronizer_.getGenEvent() );
-       ev.put(bare_product);
-    }
-    else 
-    { 
-       return false ; 
-    }
-       
+    HepMC::GenEvent* event = hadronizer_.getGenEvent();
+    if ( !event ) return false;
+
+    bare_product->addHepMCData(event);
+    ev.put(bare_product);
+
     return true;
   }
 

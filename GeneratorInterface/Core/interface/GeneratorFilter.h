@@ -83,28 +83,22 @@ namespace edm
   bool
   GeneratorFilter<HAD>::filter(Event& ev, EventSetup const& /* es */)
   {
-    
     std::auto_ptr<HepMCProduct> bare_product(new HepMCProduct());
-        
+
     // hadronizer_.generatePartons();
     // hadronizer_.hadronize();
     if ( !hadronizer_.generatePartonsAndHadronize() ) return false;
 
     // When the external decay driver is added to the system, it
     // should be called here.
-
     if ( !hadronizer_.decay() ) return false;
-    
-    if( hadronizer_.getGenEvent() ) 
-    {
-       bare_product->addHepMCData( hadronizer_.getGenEvent() );
-       ev.put(bare_product);
-    }
-    else 
-    { 
-       return false ; 
-    }
-       
+
+    HepMC::GenEvent* event = hadronizer_.getGenEvent();
+    if ( !event ) return false;
+
+    bare_product->addHepMCData(event);
+    ev.put(bare_product);
+
     return true;
   }
 
