@@ -56,10 +56,10 @@ HiggsToZZ4LeptonsSkim::HiggsToZZ4LeptonsSkim(const edm::ParameterSet& pset) {
 // Destructor
 HiggsToZZ4LeptonsSkim::~HiggsToZZ4LeptonsSkim() {
 
-  edm::LogVerbatim("HiggsToZZ4LeptonsSkim") 
-  << " Number_events_read " << nEvents          
-  << " Number_events_kept " << nSelectedEvents 
-  << " Efficiency         " << ((double)nSelectedEvents)/((double) nEvents + 0.01) << std::endl;
+  std::cout << "HiggsToZZ4LeptonsSkim: \n" 
+  << "N_events_read= " << nEvents          
+  << "N_events_kept= " << nSelectedEvents 
+  << "     Efficiency= " << double(nSelectedEvents)/double(nEvents) << std::endl;
 }
 
 
