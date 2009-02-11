@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 from HiggsAnalysis.Skimming.higgsToZZ4Leptons_HLTPaths_cfi import *
 
 # HLT analysis
-from  HiggsAnalysis.HiggsToZZ4Leptons.hTozzTo4leptonsHLTAnalysis_cfi import *
+from  HiggsAnalysis.Skimming.higgsToZZ4LeptonsHLTAnalysis_cfi import *
 
 # HZZ4l filter
 from HiggsAnalysis.Skimming.higgsToZZ4Leptons_Filter_cfi import *
@@ -18,9 +18,9 @@ hltReport = HLTrigger.HLTanalyzers.hlTrigReport_cfi.hlTrigReport.clone()
 hltReport.HLTriggerResults = cms.InputTag("TriggerResults","","HLTreprocess")
 
 higgsToZZ4LeptonsSequence = cms.Sequence(
-        hTozzTo4leptonsHLTAnalysis +
-	higgsToZZ4LeptonsHLTFilter +
-	higgsToZZ4LeptonsFilterNew +
+        higgsToZZ4LeptonsHLTAnalysis +
+	higgsToZZ4LeptonsHLTFilter   +
+	higgsToZZ4LeptonsFilterNew   +
         hltReport 
 	)
 

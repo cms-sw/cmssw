@@ -1,6 +1,7 @@
 #include <FWCore/PluginManager/interface/ModuleDef.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 
+#include <HiggsAnalysis/Skimming/interface/HiggsToZZ4LeptonsHLTAnalysis.h>   
 #include <HiggsAnalysis/Skimming/interface/HiggsToZZ4LeptonsSkim.h>
 #include <HiggsAnalysis/Skimming/interface/HiggsToZZ4LeptonsSkimEff.h>
 #include <HiggsAnalysis/Skimming/interface/HiggsToZZ4LeptonsPreFilter.h>
@@ -10,6 +11,7 @@
 
 
 DEFINE_SEAL_MODULE();
+DEFINE_ANOTHER_FWK_MODULE(HiggsToZZ4LeptonsHLTAnalysis);
 DEFINE_ANOTHER_FWK_MODULE(HiggsToZZ4LeptonsSkim);
 DEFINE_ANOTHER_FWK_MODULE(HiggsToZZ4LeptonsSkimEff);
 DEFINE_ANOTHER_FWK_MODULE(HiggsToZZ4LeptonsPreFilter);

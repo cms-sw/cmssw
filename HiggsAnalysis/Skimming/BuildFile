@@ -11,6 +11,7 @@
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/JetReco>
 <use name=DataFormats/BTauReco>
+<use name=DataFormats/MuonReco>
 <use name=clhep> 
 <use name=root>
 
