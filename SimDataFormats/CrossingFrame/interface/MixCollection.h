@@ -27,19 +27,32 @@ class MixCollection {
   bool inRegistry() const {return inRegistry_;}
 
   // get object the index of which -in the whole collection- is known
-  const T & getObject(unsigned int ip) const { 
-    //ip is the serial number in the MixCollection
-    if (ip<0 || ip>=(unsigned int)size()) throw cms::Exception("BadIndex")<<"MixCollection::getObject called with an invalid index!";
-    int n=ip;
-    int iframe=0;
-    for (unsigned int ii=0;ii<crossingFrames_.size();++ii) {
-      iframe=ii;
-      int s=crossingFrames_[iframe]->getNrSignals()+crossingFrames_[iframe]->getNrPileups();
-      if (n<s) break;
-      n=n-s;
-    }
+   const T & getObject(unsigned int ip) const { 
+     if (ip<0 || ip>=(unsigned int)size()) throw cms::Exception("BadIndex")<<"MixCollection::getObject called with an invalid index!";
+     int n=ip;
+/*
+-    int iframe=0;
+-    for (unsigned int ii=0;ii<crossingFrames_.size();++ii) {
+-      iframe=ii;
+-      int s=crossingFrames_[iframe]->getNrSignals()+crossingFrames_[iframe]->getNrPileups();
+-      if (n<s) break;
+*/
+    for (unsigned int iframe=0;iframe<crossingFrames_.size();++iframe) {
+      int s=crossingFrames_[iframe]->getNrSignals();
+      if (n<s) return crossingFrames_[iframe]->getObject(n);
+       n=n-s;
+     }
+/*
     return crossingFrames_[iframe]->getObject(n);
-  }
+*/
+    for (unsigned int iframe=0;iframe<crossingFrames_.size();++iframe) {
+      int s=crossingFrames_[iframe]->getNrSignals();
+      int p=crossingFrames_[iframe]->getNrPileups();
+      if (n<p) return crossingFrames_[iframe]->getObject(s+n);
+      n=n-p;
+    }
+    throw cms::Exception("InternalError")<<"MixCollection::getObject reached impossible condition"; 
+   }
 
   class MixItr;
   friend class MixItr;
