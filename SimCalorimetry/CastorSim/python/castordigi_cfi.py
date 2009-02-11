@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-castorDigis = cms.EDProducer("CastorDigiProducer",
+simCastorDigis = cms.EDProducer("CastorDigiProducer",
     doNoise = cms.bool(True),
     doTimeSlew = cms.bool(True),
     castor = cms.PSet(
