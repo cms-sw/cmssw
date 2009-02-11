@@ -3,8 +3,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2009/02/09 20:25:37 $
- *  $Revision: 1.58 $
+ *  $Date: 2009/02/11 20:21:59 $
+ *  $Revision: 1.59 $
  */
 
 
@@ -32,10 +32,10 @@ using namespace l1extra;
 
 typedef std::vector< edm::ParameterSet > Parameters;
 
-const int numCones = 5;
-double coneSizes[] = { 0.20, 0.24, 0.30, 0.35, 0.40 };
-const int numMinPtCuts = 5;
-double minPtCuts[] = { 0., 1.5, 2., 3., 5. };
+const int numCones = 3;
+double coneSizes[] = { 0.20, 0.24, 0.30 };
+const int numMinPtCuts = 1;
+double minPtCuts[] = { 0. };
 
 
 /// Constructor
@@ -109,10 +109,15 @@ HLTMuonGenericRate::HLTMuonGenericRate( const ParameterSet& pset,
       int cone  = (int)(coneSizes[i]*100);
       vars += Form("sumCaloIso%.2i:",cone);
       vars += Form("numCaloIso%.2i:",cone);
+      vars += Form("sumEcalIso%.2i:",cone);
+      vars += Form("sumHcalIso%.2i:",cone);
+    }
+    for ( int i = 0; i < numCones; i++ ) {
+      int cone  = (int)(coneSizes[i]*100);
       for ( int j = 0; j < numMinPtCuts; j++ ) {
-	int ptCut = (int)(minPtCuts[j]*10);
-	vars += Form("sumTrackIso%.2i_%.2i:",ptCut,cone);
-	vars += Form("sumTrackIso%.2i_%.2i:",ptCut,cone);
+        int ptCut = (int)(minPtCuts[j]*10);
+        vars += Form("sumTrackIso%.2i_%.2i:",ptCut,cone);
+        vars += Form("numTrackIso%.2i_%.2i:",ptCut,cone);
       }
     }
     vars.Resize( vars.Length() - 1 );
@@ -446,8 +451,8 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
 	      for ( int m = 0; m < numCones; m++ ) {
 		double dr = coneSizes[m];
 		std::pair<double,int> depInfo = dep.depositAndCountWithin(dr);
-		theNtuplePars[16+(1+numMinPtCuts)*2*m+0] = depInfo.first;
-		theNtuplePars[16+(1+numMinPtCuts)*2*m+1] = depInfo.second;
+		theNtuplePars[ 16 + 4*m + 0 ] = depInfo.first;
+		theNtuplePars[ 16 + 4*m + 1 ] = depInfo.second;
 	  } } }
 	  if ( ( !isIsolatedPath && j == 1 ) ||
 	       (  isIsolatedPath && j == 2 ) ) {
@@ -463,8 +468,9 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
 		  double minPt = minPtCuts[n];
 		  std::pair<double,int> depInfo;
 		  depInfo = dep.depositAndCountWithin(dr, vetos, minPt);
-		  theNtuplePars[16+(1+numMinPtCuts)*2*m+2+2*n] =depInfo.first;
-		  theNtuplePars[16+(1+numMinPtCuts)*2*m+3+2*n] =depInfo.second;
+		  int currentPlace = 16 + 4*numCones + 2*numMinPtCuts*m + 2*n;
+		  theNtuplePars[ currentPlace + 0 ] = depInfo.first;
+		  theNtuplePars[ currentPlace + 1 ] = depInfo.second;
 		}
 	  } } }
 	  if ( isIsolatedPath && j == 1 ) theNtuplePars[2] = true;
