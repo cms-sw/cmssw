@@ -14,9 +14,10 @@ ALCARECOMuAlGlobalCosmicsHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLeve
 import Alignment.CommonAlignmentProducer.AlignmentMuonSelector_cfi
 
 ALCARECOMuAlGlobalCosmics = Alignment.CommonAlignmentProducer.AlignmentMuonSelector_cfi.AlignmentMuonSelector.clone(
-    src = cms.InputTag("GLBMuons"),
+    src = cms.InputTag("muonsBarrelOnly"),
     filter = True, # not strictly necessary, but provided for symmetry with MuAlStandAloneCosmics
-    ptMin = 0.0,
+    nHitMinGB = 1,
+    ptMin = 0.0,   # FIXME: someday we should choose a minimum
     etaMin = -100.0,
     etaMax =  100.0
     )
