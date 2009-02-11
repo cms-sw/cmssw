@@ -17,6 +17,7 @@ void compare() {
   FormatHisto( c.h0_, sback );
   FormatHisto( c.h1_, s2 );
 
+  gPad->SetLogy();
   gPad->SaveAs("c_tauBenchmarkGeneric.png");
   
 }

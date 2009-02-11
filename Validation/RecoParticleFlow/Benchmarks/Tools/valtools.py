@@ -22,9 +22,12 @@ class website:
 
 class benchmark:
 
-    def __init__(self, extension = None):
+    def __init__(self, extension = None, release=None):
         
-        self.release_ = os.environ['CMSSW_VERSION']
+        if release==None:
+            self.release_ = os.environ['CMSSW_VERSION']
+        else:
+            self.release_ = release
 
         # benchmark directory, as the current working directory
         self.benchmark_ = os.path.basename( os.getcwd() )
@@ -41,6 +44,11 @@ class benchmark:
     def benchmarkOnWebSite( self, website ):
         return '%s/%s'  % ( self.releaseOnWebSite(website), 
                             self.benchmarkWithExt_ )
+
+    def rootFileOnWebSite( self, website ):
+        return '%s/%s'  % ( self.benchmarkOnWebSite(website), 
+                            'benchmark.root' )
+        
 
     def releaseUrl( self, website ):
         return '%s/%s'  % ( website.url_, self.release_ )

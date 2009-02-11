@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-import shutil, sys, os, re
+import shutil, sys, os, re, valtools
 
 from string import Template
 
@@ -52,6 +52,10 @@ def readCaption( line ):
 parser = OptionParser()
 parser.usage = "usage: %prog. Run from your Benchmark directory"
 
+
+parser.add_option("-c", "--compare", dest="compare",
+                  help="name of another release",
+                  default=None)
 parser.add_option("-r", "--recipe", dest="recipe",
                   help="url pointing to a recipe",
                   default="None")
@@ -83,18 +87,13 @@ if len(args)!=0:
     parser.print_help()
     sys.exit(1)
 
-
-#dirPlots = args[0]
-#templates = args[1]
-
+benchCompare = None
 dirPlots = './'
 templates = '../Tools/templates'
-
 recipe = options.recipe
 genConfig = options.pyGenSource
 simConfig = options.pySim
 benchmarkConfig = 'benchmark_cfg.py'
-macro = 'plot.C'
 date =  os.popen( 'date' ).read()
 
 # information about CMSSW
@@ -103,6 +102,25 @@ cmssw = os.environ['CMSSW_VERSION']
 
 showTags = os.popen( 'showtags -t -r -u').read()
 #print showTags
+
+macro = 'plot.C'
+captions = 'captions.txt'
+benchmarkName = os.path.basename( os.getcwd() ) 
+title = benchmarkName
+templateFile = 'index.html'
+compareLine = None
+if options.compare != None:
+     title = '%s_%s_VS_%s' %  ( benchmarkName, cmssw, options.compare)
+     print title
+     macro = 'compare.C'
+     captions = 'c_captions.txt'
+     website = valtools.website()
+     benchCompare = valtools.benchmark( None, options.compare) 
+     compareLine = '<b>Compared with</b> <a href="%s">%s</a>'%(benchCompare.benchmarkUrl( website ), options.compare) 
+
+outputDir = title
+indexhtml = "%s/%s" % (templates,templateFile)
+
 
 # get the pictures
 pictures = []
@@ -126,21 +144,16 @@ testFileType(benchmarkConfig, ".py")
 testFileType(macro, ".C")
 
 
-indexhtml = "%s/%s" % (templates,"index.html")
 testFileType(indexhtml, ".html")
 infonotfoundhtml = "%s/%s" % (templates,"infoNotFound.html")
 testFileType(infonotfoundhtml, ".html")
 
-
-title = os.path.basename( os.getcwd() ) 
-outputDir = title
 
 if os.path.isdir( outputDir ):
      print outputDir, "already exists"
      sys.exit(3)
 else:
      os.mkdir( outputDir )
-
 
 
 recipeLink = processFile( recipe, outputDir )
@@ -157,7 +170,6 @@ imgTemplate = '<IMG src="%s" width="500" align="left" border="0"><br clear="ALL"
 images = ''
 
 # open legend file
-captions = 'captions.txt'
 
 captionsContents = open( captions )
 for line in captionsContents:
@@ -191,6 +203,7 @@ subst = s.substitute(title = title,
                      comments = comments,
                      cmssw = cmssw,
                      showTags = showTags,
+                     compareLine = compareLine,
                      images = images, 
                      username = os.environ['USER'],
                      date = date
