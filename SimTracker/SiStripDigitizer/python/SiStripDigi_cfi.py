@@ -1,14 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 simSiStripDigis = cms.EDFilter("SiStripDigitizer",
-    TOFCutForPeak = cms.double(100.0),
     DeltaProductionCut = cms.double(0.120425),
     Temperature = cms.double(263.0),
     #-------------------------------------
     #-----SiHitDigitizer
     DepletionVoltage = cms.double(140.0),
-    SigmaShapePeak = cms.double(52.17),
-    TOFCutForDeconvolution = cms.double(50.0),
     SimProducer = cms.string('SimDigitizer'),
     VerbosityLevel = cms.untracked.int32(0),
     #---------------------------------------
@@ -63,6 +60,9 @@ simSiStripDigis = cms.EDFilter("SiStripDigitizer",
     electronPerAdc = cms.double(250.0),
     APVpeakmode = cms.bool(False),
     SigmaShapeDeco = cms.double(12.06),
+    TOFCutForDeconvolution = cms.double(50.0),
+    SigmaShapePeak = cms.double(52.17),
+    TOFCutForPeak = cms.double(180.0),
     NoiseSigmaThreshold = cms.double(2.0),
     ChargeDistributionRMS = cms.double(6.5e-10),
     CosmicDelayShift = cms.untracked.double(0.0),
