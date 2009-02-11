@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/01/28 19:10:33 $
- * $Revision: 1.103 $
+ * $Date: 2009/01/28 19:11:55 $
+ * $Revision: 1.104 $
  * \author W Fisher
  * \author J Temple
  *
@@ -684,7 +684,8 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   if (!(e.getByLabel(inputLabelRecHitHBHE_,hb_hits)))
     {
       rechitOK_=false;
-      LogWarning("HcalMonitorModule")<< inputLabelRecHitHBHE_<<" not available"; 
+      //if (debug_>0)
+	LogWarning("HcalMonitorModule")<< inputLabelRecHitHBHE_<<" not available"; 
     }
   
   if (rechitOK_&&!hb_hits.isValid()) {
@@ -693,7 +694,8 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   if (!(e.getByLabel(inputLabelRecHitHO_,ho_hits)))
     {
       rechitOK_=false;
-      LogWarning("HcalMonitorModule")<< inputLabelRecHitHO_<<" not available"; 
+      //if (debug_>0) 
+	LogWarning("HcalMonitorModule")<< inputLabelRecHitHO_<<" not available"; 
     }
   if (rechitOK_&&!ho_hits.isValid()) {
     rechitOK_ = false;
@@ -701,7 +703,8 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   if (!(e.getByLabel(inputLabelRecHitHF_,hf_hits)))
     {
       rechitOK_=false;
-      LogWarning("HcalMonitorModule")<< inputLabelRecHitHF_<<" not available"; 
+      //if (debug_>0) 
+	LogWarning("HcalMonitorModule")<< inputLabelRecHitHF_<<" not available"; 
     }
   if (rechitOK_&&!hf_hits.isValid()) {
     rechitOK_ = false;
@@ -710,13 +713,14 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   if (!(e.getByLabel(inputLabelRecHitZDC_,zdc_hits)))
     {
       zdchitOK_=false;
-      LogWarning("HcalMonitorModule")<< inputLabelRecHitZDC_<<" not available"; 
+      // ZDC Warnings should be suppressed unless debugging is on (since we don't yet normally run zdcreco)
+      if (debug_>0) 
+	LogWarning("HcalMonitorModule")<< inputLabelRecHitZDC_<<" not available"; 
     }
-  if (zdchitOK_&&!zdc_hits.isValid()) {
-    zdchitOK_ = false;
-    //cout <<"CANNOT GET ZDC HITS!!!!"<<endl;
-    //cout <<"input label = "<<inputLabelRecHitZDC_<<endl;
-  }
+  if (zdchitOK_&&!zdc_hits.isValid()) 
+    {
+      zdchitOK_ = false;
+    }
 
   // try to get calotowers 
   if (ctMon_!=NULL)
@@ -724,7 +728,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
       if (!(e.getByLabel(inputLabelCaloTower_,calotowers)))
 	{
 	  calotowerOK_=false;
-	  LogWarning("HcalMonitorModule")<< inputLabelCaloTower_<<" not available"; 
+	  if (debug_>0) LogWarning("HcalMonitorModule")<< inputLabelCaloTower_<<" not available"; 
 	}
       if(calotowerOK_&&!calotowers.isValid()){
 	calotowerOK_=false;
