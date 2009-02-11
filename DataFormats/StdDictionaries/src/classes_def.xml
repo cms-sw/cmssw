@@ -13,6 +13,8 @@
  <class name="std::map<int,std::pair<unsigned int,unsigned int> >"/>
  <class name="std::map<int,std::pair<unsigned long,unsigned long> >"/>
  <class name="std::map<std::basic_string<char>,int>"/>
+ <class name="std::map<std::string, std::string>"/>
+ <class name="std::pair<const std::string, std::string>"/>
  <class name="std::map<std::basic_string<char>,std::vector<std::basic_string<char> > >"/>
  <class name="std::map<std::basic_string<char>,std::vector<std::pair<std::basic_string<char>,double> > >"/>
  <class name="std::map<unsigned int,bool>"/>

@@ -69,6 +69,8 @@ namespace {
   std::map<unsigned long long, std::basic_string<char> > dummyypwmv5;
   std::multimap<double, double> dummyypwmv6;
   std::map<std::basic_string<char>,int> dummyypwmv7;
+  std::map<std::string, std::string> dummymss1;
+  std::pair<const std::string, std::string> dummymss1_valuetype;
   std::map<std::basic_string<char>,std::vector<std::pair<std::basic_string<char>,double> > > dummyypwmv8;
   std::map<int,std::pair<unsigned int,unsigned int> > dummyypwmv9;
   std::map<int,std::pair<unsigned long,unsigned long> > dummyypwmv10;
