@@ -276,10 +276,15 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            LED_ADC_Thresh = cms.untracked.double(-1000.0),
                            LEDPerChannel = cms.untracked.bool(True),
 
-                           # ------------- DEPRECATED/UNUSED MONITORS ----------------------- #
-                           # EXPERT MONITOR (should generally be turned off)
+                           # SPECIALIZED (EXPERT-USE) MONITORS
+
+                            # EXPERT MONITOR (should generally be turned off)
                            ExpertMonitor = cms.untracked.bool(False),
 
+                           # Empty Event/Unsuppressed data monitor
+                           EEUSMonitor = cms.untracked.bool(False),
+                           # ------------- DEPRECATED/UNUSED MONITORS ----------------------- #
+                                                      
                            # CALO TOWER MONITOR
                            CaloTowerMonitor = cms.untracked.bool(False),
                            caloTowerLabel = cms.InputTag("towerMaker"),

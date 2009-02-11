@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/01/28 19:11:55 $
- * $Revision: 1.104 $
+ * $Date: 2009/02/11 09:44:15 $
+ * $Revision: 1.105 $
  * \author W Fisher
  * \author J Temple
  *
@@ -31,7 +31,7 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   deadMon_ = 0;   tpMon_ = 0;
   ctMon_ = 0;     beamMon_ = 0;
   laserMon_ = 0;
-  expertMon_ = 0;
+  expertMon_ = 0;  eeusMon_ = 0;
 
   // initialize hcal quality object
   
@@ -162,7 +162,13 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
     tempAnalysis_ = new HcalTemplateAnalysis();
     tempAnalysis_->setup(ps);
   }
-  
+
+  if (ps.getUntrackedParameter<bool>("EEUSMonitor",false))
+    {
+      if (debug_>0) cout <<"HcalMonitorModule:  Empty Event/Unsuppressed Moniotr is on..."<<endl;
+      eeusMon_ = new HcalEEUSMonitor();
+      eeusMon_->setup(ps, dbe_);
+    }
 
   // set parameters   
   prescaleEvt_ = ps.getUntrackedParameter<int>("diagnosticPrescaleEvt", -1);
@@ -444,6 +450,7 @@ void HcalMonitorModule::endJob(void) {
   if (ctMon_!=NULL) ctMon_->done();
   if (beamMon_!=NULL) beamMon_->done();
   if (expertMon_!=NULL) expertMon_->done();
+  if (eeusMon_!=NULL) eeusMon_->done();
   if(tempAnalysis_!=NULL) tempAnalysis_->done();
 
   if (dump2database_)
@@ -515,6 +522,8 @@ void HcalMonitorModule::reset(){
   if(ctMon_!=NULL) ctMon_->reset();
   if(beamMon_!=NULL) beamMon_->reset();
   if(expertMon_!=NULL) expertMon_->reset();
+  if(eeusMon_!=NULL) eeusMon_->reset();
+
 }
 
 //--------------------------------------------------------
@@ -902,6 +911,18 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     {
       cpu_timer.stop();
       if (expertMon_!=NULL) cout <<"TIMER:: EXPERT MONITOR ->"<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.reset(); cpu_timer.start();
+    }
+
+  // Empty Event/Unsuppressed monitor plots
+  if (eeusMon_ != NULL) 
+    {
+      eeusMon_->processEvent( *rawraw,*report,*readoutMap_);
+    }
+  if (showTiming_)
+    {
+      cpu_timer.stop();
+      if (eeusMon_!=NULL) cout <<"TIMER:: EE/US MONITOR ->"<<cpu_timer.cpuTime()<<endl;
       cpu_timer.reset(); cpu_timer.start();
     }
 

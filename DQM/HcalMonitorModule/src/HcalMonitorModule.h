@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.h
  *
- * $Date: 2009/01/18 16:11:18 $
- * $Revision: 1.39 $
+ * $Date: 2009/02/05 09:50:56 $
+ * $Revision: 1.40 $
  * \author W. Fisher
  *
 */
@@ -53,6 +53,7 @@
 #include "DQM/HcalMonitorTasks/interface/HcalCaloTowerMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalTrigPrimMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalTemplateAnalysis.h"
+#include "DQM/HcalMonitorTasks/interface/HcalEEUSMonitor.h"
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBRunData.h"
 
 // Use to hold/get channel status
@@ -209,7 +210,8 @@ public:
   HcalCaloTowerMonitor*   ctMon_;
   HcalTrigPrimMonitor*    tpMon_;
   HcalTemplateAnalysis*   tempAnalysis_;
-  
+  HcalEEUSMonitor*        eeusMon_;
+
   edm::ESHandle<HcalDbService> conditions_;
   const HcalElectronicsMap*    readoutMap_;
 
