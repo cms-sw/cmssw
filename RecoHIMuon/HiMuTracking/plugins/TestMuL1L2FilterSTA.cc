@@ -7,13 +7,13 @@
 //
 // Original Author:  Dong Ho Moon
 //         Created:  Wed May  9 06:22:36 CEST 2007
-// $Id: TestMuL1L2Filter.cc,v 1.5 2009/02/11 15:37:04 kodolova Exp $
+// $Id: TestMuL1L2FilterSTASTA.cc,v 1.4 2009/02/11 15:42:33 kodolova Exp $
 //
 //
 // Comment: Dimuon reconstruction need primary vertex
 //
  
-#include "RecoHIMuon/HiMuTracking/plugins/TestMuL1L2Filter.h" 
+#include "RecoHIMuon/HiMuTracking/plugins/TestMuL1L2FilterSTA.h" 
 
 #include <memory>
 
@@ -35,19 +35,19 @@
 using namespace std;
 
 namespace cms{
-TestMuL1L2Filter::TestMuL1L2Filter(const edm::ParameterSet& ps1)
+TestMuL1L2FilterSTA::TestMuL1L2FilterSTA(const edm::ParameterSet& ps1)
 {
    pset_ = ps1;
 }
 
-void TestMuL1L2Filter::beginJob(const edm::EventSetup& es1)
+void TestMuL1L2FilterSTA::beginJob(const edm::EventSetup& es1)
 {
    theHICConst = new HICConst();
    theFmpConst = new FmpConst();
    theTrackVertexMaker = new HITrackVertexMaker(pset_,es1);
 }
 
-void TestMuL1L2Filter::endJob()
+void TestMuL1L2FilterSTA::endJob()
 {
    delete theHICConst;
    delete theFmpConst;
@@ -58,11 +58,11 @@ void TestMuL1L2Filter::endJob()
 
 //Destructor
 
-TestMuL1L2Filter::~TestMuL1L2Filter()
+TestMuL1L2FilterSTA::~TestMuL1L2FilterSTA()
 {
 } 
 
-bool TestMuL1L2Filter::filter(edm::Event& e1, const edm::EventSetup& es1)
+bool TestMuL1L2FilterSTA::filter(edm::Event& e1, const edm::EventSetup& es1)
 {
 
 // Start track finder

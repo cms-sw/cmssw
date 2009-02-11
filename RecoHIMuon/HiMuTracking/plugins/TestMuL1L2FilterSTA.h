@@ -12,12 +12,12 @@
 //
 // Original Author:  Dong Ho Moon
 //         Created:  Wed May  9 06:22:36 CEST 2007
-// $Id: TestMuL1L2Filter.h,v 1.3 2009/02/11 15:36:59 kodolova Exp $
+// $Id: TestMuL1L2FilterSTASTA.h,v 1.2 2009/02/11 15:42:33 kodolova Exp $
 //
 //
 
-#ifndef TESTMU_L1L2_FILTER_H
-#define TESTMU_L1L2_FILTER_H
+#ifndef TESTMU_L1L2_FILTERSTA_H
+#define TESTMU_L1L2_FILTERSTA_H
 
 
 // system include files
@@ -43,7 +43,7 @@
 // class declaration
 //
 namespace cms{
-class TestMuL1L2Filter : public edm::EDFilter {
+class TestMuL1L2FilterSTA : public edm::EDFilter {
 
    private:
      edm::ParameterSet pset_;
@@ -55,8 +55,8 @@ class TestMuL1L2Filter : public edm::EDFilter {
 
   //constructor
 
-      explicit TestMuL1L2Filter(const edm::ParameterSet&);
-      ~TestMuL1L2Filter();
+      explicit TestMuL1L2FilterSTA(const edm::ParameterSet&);
+      ~TestMuL1L2FilterSTA();
       
   // General Block
   
