@@ -1,5 +1,5 @@
 /** \class ThePEGInterface
- *  $Id: ThePEGInterface.cc,v 1.8 2008/08/31 15:10:52 stober Exp $
+ *  $Id: ThePEGInterface.cc,v 1.9 2008/10/08 22:39:42 stober Exp $
  *  
  *  Oliver Oberst <oberst@ekp.uni-karlsruhe.de>
  *  Fred-Markus Stober <stober@ekp.uni-karlsruhe.de>
@@ -31,13 +31,16 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "GeneratorInterface/Core/interface/ParameterCollector.h"
+
 #include "GeneratorInterface/ThePEGInterface/interface/ThePEGInterface.h"
 #include "GeneratorInterface/ThePEGInterface/interface/HepMCConverter.h"
 
 using namespace std;
+using namespace gen;
 
 ThePEGInterface::ThePEGInterface(const edm::ParameterSet &pset) :
-	dataLocation_(resolveEnvVars(pset.getParameter<string>("dataLocation"))),
+	dataLocation_(ParameterCollector::resolve(pset.getParameter<string>("dataLocation"))),
 	generator_(pset.getParameter<string>("generatorModule")),
 	run_(pset.getParameter<string>("run")),
 	dumpConfig_(pset.getUntrackedParameter<string>("dumpConfig", "")),
@@ -63,7 +66,7 @@ ThePEGInterface::~ThePEGInterface()
 
 string ThePEGInterface::dataFile(const string &fileName) const
 {
-	if (fileName[0] == '/')
+	if (fileName.empty() || fileName[0] == '/')
 		return fileName;
 	else
 		return dataLocation_ + "/" + fileName;
@@ -77,72 +80,6 @@ string ThePEGInterface::dataFile(const edm::ParameterSet &pset,
 		return entry.getFileInPath().fullPath();
 	else
 		return dataFile(entry.getString());
-}
-
-string ThePEGInterface::resolveEnvVars(const string &s)
-{
-	string result(s);
-
-	for(;;) {
-		string::size_type pos = result.find("${");
-		if (pos == string::npos)
-			break;
-
-		string::size_type endpos = result.find('}', pos);
-		if (endpos == string::npos)
-			break;
-		else
-			++endpos;
-
-		string var = result.substr(pos + 2, endpos - pos - 3);
-		const char *path = getenv(var.c_str());
-
-		result.replace(pos, endpos - pos, path ? path : "");
-	}
-
-	return result;
-}
-
-void ThePEGInterface::readParameterSet(const edm::ParameterSet &pset, const string &paramSet) const
-{
-	stringstream logstream;
-	ofstream cfgDump;
-	if (!dumpConfig_.empty())
-		cfgDump.open(dumpConfig_.c_str(), ios_base::app);
-
-	edm::LogInfo("ThePEGInterface") << "Loading parameter set (" << paramSet << ")";
-	if (!dumpConfig_.empty() && (paramSet != "parameterSets"))
-		cfgDump << endl << "####### " << paramSet << " #######" << endl;
-
-	// Read CMSSW config file parameter set
-	vector<string> params = pset.getParameter<vector<string> >(paramSet);
-
-	// Loop over the parameter sets
-	for(vector<string>::const_iterator psIter = params.begin();
-	    psIter != params.end(); ++psIter) {
-
-		// Include other parameter sets specified by +psName
-		if (psIter->find_first_of('+') == 0)
-			readParameterSet(pset, psIter->substr(1));
-		// Topmost parameter set is called "parameterSets"
-		else if (paramSet == "parameterSets")
-			readParameterSet(pset, *psIter);
-		// Transfer parameters to the repository
-		else {
-			string line = resolveEnvVars(*psIter);
-			string out = ThePEG::Repository::exec(line, logstream);
-			if (!dumpConfig_.empty())
-				cfgDump << line << endl;
-			if (out != "")
-			{
-				edm::LogInfo("ThePEGInterface") << line << " => " << out;
-				cerr << "Error in ThePEG configuration!" << endl
-					<< "\tParameter set: " << paramSet << endl
-					<< "\tLine: " << line << endl
-					<< out << endl;
-			}
-		}
-	}
 }
 
 void ThePEGInterface::initRepository(const edm::ParameterSet &pset) const
@@ -188,11 +125,26 @@ void ThePEGInterface::initRepository(const edm::ParameterSet &pset) const
 	}
 
 	// Read CMSSW config file parameter sets starting from "parameterSets"
-	readParameterSet(pset, "parameterSets");
-	if (!dumpConfig_.empty())
-	{
-		ofstream cfgDump;
+
+	ofstream cfgDump;
+	ParameterCollector collector(pset);
+	ParameterCollector::const_iterator iter;
+	if (!dumpConfig_.empty()) {
 		cfgDump.open(dumpConfig_.c_str(), ios_base::app);
+		iter = collector.begin(cfgDump);
+	} else
+		iter = collector.begin();
+
+	for(; iter != collector.end(); ++iter) {
+		string out = ThePEG::Repository::exec(*iter, logstream);
+		if (!out.empty()) {
+			edm::LogInfo("ThePEGInterface") << *iter << " => " << out;
+			cerr << "Error in ThePEG configuration!\n"
+			        "\tLine: " << *iter << "\n" << out << endl;
+		}
+	}
+
+	if (!dumpConfig_.empty()) {
 		cfgDump << "saverun " << run_ << " " << generator_ << endl;
 		cfgDump.close();
 	}

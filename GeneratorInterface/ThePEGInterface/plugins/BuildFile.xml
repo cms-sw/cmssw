@@ -2,6 +2,14 @@
 <use name="SimDataFormats/GeneratorProducts"/>
 <use name="GeneratorInterface/ThePEGInterface"/>
 <use name="hepmc"/>
+<library name="GeneratorInterfaceThePEGHadronizerPlugins" file="ThePEGHadronizer.cc">
+	<use name="GeneratorInterface/Core"/>
+	<use name="GeneratorInterface/LHEInterface"/>
+	<use name="boost"/>
+	<use name="thepeg"/>
+	<flags EDM_PLUGIN="1"/>
+	<flags LDFLAGS="${THEPEG_BASE}/lib/ThePEG/LesHouches.so"/>
+</library>
 <library name="GeneratorInterfaceThePEGSource" file="ThePEGSource.cc ThePEGProducer.cc">
 	<flags EDM_PLUGIN="1"/>
 </library>

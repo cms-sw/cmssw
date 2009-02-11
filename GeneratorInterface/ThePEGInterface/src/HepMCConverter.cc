@@ -257,8 +257,8 @@ HepMCConverter<HepMCEventT,Traits>::createVertex(Vertex *v)
 	return gv;
 }
 
-/*
-template <typename HepMCEventT, typename Traits>
+#if 0
+template<typename HepMCEventT, typename Traits>
 typename HepMCConverter<HepMCEventT,Traits>::PdfInfo *
 HepMCConverter<HepMCEventT,Traits>::createPdfInfo(const Event & e) {
   // ids of the partons going into the primary sub process
@@ -292,10 +292,10 @@ HepMCConverter<HepMCEventT,Traits>::createPdfInfo(const Event & e) {
   // return the answer
   return output;
 }
-*/
+#endif
 
-template <typename HepMCEventT, typename Traits>
-void HepMCConverter<HepMCEventT,Traits>::sortTopologically(tcPVector &all)
+template<typename HepMCEventT, typename Traits>
+void HepMCConverter<HepMCEventT, Traits>::sortTopologically(tcPVector &all)
 {
 	// order the particles topologically
 	std::set<tcPPtr> visited;

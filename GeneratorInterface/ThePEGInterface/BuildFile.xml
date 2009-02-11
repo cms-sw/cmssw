@@ -1,5 +1,6 @@
 <use name="FWCore/Framework"/>
 <use name="SimDataFormats/GeneratorProducts"/>
+<use name="GeneratorInterface/Core"/>
 <use name="hepmc"/>
 <use name="thepeg"/>
 <export>
