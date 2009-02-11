@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.cc,v 1.39 2008/07/31 23:17:15 wmtan Exp $
+$Id: ConfigurableInputSource.cc,v 1.40 2008/10/16 23:06:28 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
@@ -40,7 +40,7 @@ namespace edm {
     eventSet_(false),
     ep_(0),
     isRealData_(realData),
-    eType_(EventAuxiliary::Any)
+    eType_(EventAuxiliary::Undefined)
   { 
     setTimestamp(Timestamp(presentTime_));
     // We need to map this string to the EventAuxiliary::ExperimentType enumeration
