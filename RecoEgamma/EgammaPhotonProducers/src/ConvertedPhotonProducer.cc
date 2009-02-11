@@ -130,7 +130,7 @@ void  ConvertedPhotonProducer::beginRun (edm::Run& r, edm::EventSetup const & th
      // instantiate the algorithm for finding the position of the track extrapolation at the Ecal front face
     theEcalImpactPositionFinder_ = new   ConversionTrackEcalImpactPoint ( &(*theMF_) );
   }  
-
+  theEcalImpactPositionFinder_->setMagneticField ( &(*theMF_) );
 
 
   // Transform Track into TransientTrack (needed by the Vertex fitter)
