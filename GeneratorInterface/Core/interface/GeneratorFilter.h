@@ -6,6 +6,9 @@
 // the hadronizer type HAD to generate partons, hadronize them, and
 // decay the resulting particles, in the CMS framework.
 
+#ifndef gen_GeneratorFilter_h
+#define gen_GeneratorFilter_h
+
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -191,3 +194,5 @@ namespace edm
   { }
 
 }
+
+#endif // gen_HadronizerFilter_h

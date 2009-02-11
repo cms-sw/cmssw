@@ -6,6 +6,9 @@
 // the hadronizer type HAD to read in external partons and hadronize them, 
 // and decay the resulting particles, in the CMS framework.
 
+#ifndef gen_HadronizerFilter_h
+#define gen_HadronizerFilter_h
+
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -221,3 +224,5 @@ namespace edm
   { }
 
 }
+
+#endif // gen_HadronizerFilter_h
