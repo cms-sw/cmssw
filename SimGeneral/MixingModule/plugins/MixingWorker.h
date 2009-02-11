@@ -38,8 +38,8 @@ namespace edm
       explicit MixingWorker() {;}
 
       /*Normal constructor*/ 
-      MixingWorker(int minBunch,int maxBunch, int bunchSpace,std::string subdet,std::string label, int maxNbSources,InputTag & tag, bool isTracker=false):
-	MixingWorkerBase(minBunch,maxBunch,bunchSpace,subdet,label,maxNbSources,tag,isTracker)
+      MixingWorker(int minBunch,int maxBunch, int bunchSpace,std::string subdet,std::string label, int maxNbSources,InputTag& tag,bool checktof, bool isTracker=false):
+	MixingWorkerBase(minBunch,maxBunch,bunchSpace,subdet,label,maxNbSources,tag,checktof,isTracker)
 	{
 
           trackerHigh_=false;

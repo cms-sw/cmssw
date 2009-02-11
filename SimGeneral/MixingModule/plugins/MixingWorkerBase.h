@@ -34,6 +34,7 @@ namespace edm
 	subdet_(std::string(" ")),
 	label_(std::string(" ")),
 	maxNbSources_(5),
+	checktof_(false),
  	isTracker_(false)
 	{
 	  tag_=InputTag();
@@ -41,7 +42,7 @@ namespace edm
 	}
   
       /*Normal constructor*/ 
-      MixingWorkerBase(int minBunch,int maxBunch,int bunchSpace,std::string &subdet, std::string& label,unsigned int maxNbSources,InputTag &tag,bool isTracker);
+      MixingWorkerBase(int minBunch,int maxBunch,int bunchSpace,std::string &subdet, std::string& label,unsigned int maxNbSources,InputTag &tag,bool checktof,bool isTracker);
 
       /**Default destructor*/
       virtual ~MixingWorkerBase();
@@ -63,8 +64,8 @@ namespace edm
       std::string const label_;
       unsigned int const maxNbSources_;
       InputTag tag_;
-      bool isTracker_;
       bool checktof_;
+      bool isTracker_;
       InputTag opp_;
 
     private:
