@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     11-Oct-2007
 #     A. Parenti, DESY Hamburg    16-Apr-2008
-#     $Revision: 1.8 $
-#     $Date: 2008/07/29 17:10:40 $
+#     $Revision: 1.9 $
+#     $Date: 2009/01/05 14:17:31 $
 #
 #  Save output from jobs that have FETCH status
 #  
@@ -72,7 +72,7 @@ if (@JOBSTATUS[$i] eq "FETCH"
 
   @FILENAMES = ("treeFile_merge.root","histograms_merge.root","millePedeMonitor_merge.root",
 		"alignment_merge.py","alignment.log*","millepede.log*",
-		"millepede.res","millepede.his*[^~]","pede.dump*",
+		"millepede.res*","millepede.his*","pede.dump*",
 		"alignments_MP.db");
 
   while ($theFile = shift @FILENAMES) {
