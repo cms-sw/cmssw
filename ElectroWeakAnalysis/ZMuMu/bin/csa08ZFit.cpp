@@ -48,8 +48,6 @@ void fix(TH1* histo) {
 
 typedef funct::GaussIntegrator IntegratorConv;
 typedef funct::GaussIntegrator IntegratorNorm;
-//typedef funct::TrapezoidIntegrator IntegratorConv;
-//typedef funct::TrapezoidIntegrator IntegratorNorm;
 
 typedef funct::Product<funct::Exponential, 
 		       funct::Convolution<funct::ZLineShape, funct::Gaussian, IntegratorConv>::type>::type ZPeakNoNorm;
@@ -90,31 +88,35 @@ int main(int ac, char *av[]) {
     typedef funct::Product<ZMuTkEfficiencyTerm, ZMuMuFunClone>::type ZMuTkSig;
     typedef funct::Product<funct::Parameter, 
                            funct::Product<funct::Exponential, funct::Polynomial<2> >::type >::type ZMuTkBkg;
+
     typedef funct::Product<funct::Constant,ZMuTkBkg>::type ZMuTkBkgScaled;//bgtrack rescaled
-    typedef ZMuTkBkg ZMuMuNoIsoBkg;
-    typedef ZMuTkBkgScaled  ZMuMuNoIsoBkgScaled ;//bgZmmNotIso rescaled
     typedef ZMuTkEfficiencyTerm ZMuSaEfficiencyTerm;
     typedef funct::Product<ZMuSaEfficiencyTerm, 
                            funct::Product<funct::Parameter, funct::Gaussian>::type>::type ZMuSaSig;
-    typedef funct::Product<funct::Parameter, funct::Exponential>::type ZMuSaBkg;
- 
-    // typedef ZMuTkBkg ZMuMuNoIsoBkg;
+    typedef funct::Parameter ZMuSaBkg;
+    // typedef funct::Product<ZMuMuNoIsoEfficiencyTerm, 
+    //  funct::Product<funct::Parameter, funct::Gaussian>::type>::type ZMuMuNoIsoSig;//togliere questa..la uso per definiere NoIso come StandAlone 1
+    typedef ZMuSaBkg ZMuMuNoIsoBkg;//2
     typedef funct::Product<funct::Constant, funct::Sum<ZMuMuNoIsoSig, ZMuMuNoIsoBkg>::type>::type ZMuMuNoIso;//3
+    // typedef funct::Product<funct::Constant, ZMuMuNoIsoSig>::type ZMuMuNoIso;
     typedef funct::Product<funct::Constant, ZMuMuSig>::type ZMuMu;
     typedef funct::Product<funct::Constant, funct::Sum<ZMuTkSig, ZMuTkBkg>::type>::type ZMuTk;
     typedef funct::Product<funct::Constant, funct::Sum<ZMuSaSig, ZMuSaBkg>::type>::type ZMuSa;
     typedef fit::MultiHistoChiSquare<ZMuMu, ZMuTk, ZMuSa, ZMuMuNoIso> ChiSquared;
+    fit::RootMinuitCommands<ChiSquared> commands("fit.txt");
 
     double fMin, fMax;
     string ext;
     po::options_description desc("Allowed options");
     desc.add_options()
-      ("help,h", "produce help message")
+      ("help", "produce help message")
+      ("include-path,I", po::value< vector<string> >(), 
+       "include path")
       ("input-file,i", po::value< vector<string> >(), "input file")
       ("min,m", po::value<double>(&fMin)->default_value(60), "minimum value for fit range")
       ("max,M", po::value<double>(&fMax)->default_value(120), "maximum value for fit range")
-      ("plot-format,p", po::value<string>(&ext)->default_value("ps"), 
-       "output plot format")
+      ("output-file,O", po::value<string>(&ext)->default_value(".ps"), 
+       "output file format")
       ;
     
     po::positional_options_description p;
@@ -131,8 +133,11 @@ int main(int ac, char *av[]) {
       return 0;
       }
     
-    fit::RootMinuitCommands<ChiSquared> commands("csa08ZFit.txt");
-
+    if (vm.count("include-path")) {
+      cout << "Include paths are: " 
+	   << vm["include-path"].as< vector<string> >() << "\n";
+    }
+    
     const int rebinMuMuNoIso = 2,rebinMuMu = 1, rebinMuTk = 2, rebinMuSa = 8;
     // assume that the bin size is 1 GeV!!!
     funct::Constant rebinMuMuNoIsoConst(rebinMuMuNoIso),rebinMuMuConst(rebinMuMu), rebinMuTkConst(rebinMuTk), rebinMuSaConst(rebinMuSa);
@@ -144,19 +149,19 @@ int main(int ac, char *av[]) {
       for(vector<string>::const_iterator it = v_file.begin(); 
 	  it != v_file.end(); ++it) {
 	TFile * root_file = new TFile(it->c_str(),"read");
-
+	//TH1D * histoZMuMuNoIso = (TH1D*) root_file->Get("zMuMuAnalyzer/ZMuMumassNoIso");//CSA07
 	TH1D * histoZMuMuNoIso = (TH1D*) root_file->Get("nonIsolatedZToMuMuPlots/zMass");
 	histoZMuMuNoIso->Rebin(rebinMuMuNoIso);
 	fix(histoZMuMuNoIso);
-
+	//TH1D * histoZMuMu = (TH1D*) root_file->Get("zMuMuAnalyzer/ZMuMumass");
 	TH1D * histoZMuMu = (TH1D*) root_file->Get("goodZToMuMuPlots/zMass");
 	histoZMuMu->Rebin(rebinMuMu);
 	fix(histoZMuMu);
-
+	//TH1D * histoZMuTk = (TH1D*) root_file->Get("zMuMuAnalyzer/ZMuSingleTrackmass");
 	TH1D * histoZMuTk = (TH1D*) root_file->Get("goodZToMuMuOneTrackPlots/zMass");
 	histoZMuTk->Rebin(rebinMuTk);
 	fix(histoZMuTk);
-
+	//TH1D * histoZMuSa = (TH1D*) root_file->Get("zMuMuAnalyzer/ZMuSingleStandAlonemass");
 	TH1D * histoZMuSa = (TH1D*) root_file->Get("goodZToMuMuOneStandAloneMuonPlots/zMass");
 	histoZMuSa->Rebin(rebinMuSa);
 	fix(histoZMuSa);
@@ -164,8 +169,7 @@ int main(int ac, char *av[]) {
 	cout << ">>> histogram loaded\n";
 	string f_string = *it;
 	replace(f_string.begin(), f_string.end(), '.', '_');
-	replace(f_string.begin(), f_string.end(), '/', '_');
-	string plot_string = f_string + "." + ext;
+	string plot_string = f_string + ext;
 	cout << ">>> Input files loaded\n";
 	
 	const char * kYieldZMuMu = "YieldZMuMu";
@@ -182,16 +186,12 @@ int main(int ac, char *av[]) {
 	const char * kInterferenceFactorZMuMu = "InterferenceFactorZMuMu";
 	const char * kMeanZMuMu = "MeanZMuMu";
 	const char * kSigmaZMuMu = "SigmaZMuMu";
-	const char * kAlpha = "Alpha";
-	const char * kB0 = "B0"; 
-	const char * kB1 = "B1"; 
-	const char * kB2 = "B2"; 
 	const char * kLambda = "Lambda";
 	const char * kA0 = "A0"; 
 	const char * kA1 = "A1"; 
 	const char * kA2 = "A2"; 
-	const char * kBeta = "Beta";
 	const char * kSigmaZMuSa = "SigmaZMuSa";
+	const char * kSigmaZMuMuNotIso = "SigmaZMuMuNotIso";
 	
 	funct::Parameter lambdaZMuMu(kLambdaZMuMu, commands.par(kLambdaZMuMu));
 	funct::Parameter mass(kMass, commands.par(kMass));
@@ -208,21 +208,16 @@ int main(int ac, char *av[]) {
 	funct::Parameter meanZMuMu(kMeanZMuMu, commands.par(kMeanZMuMu));
 	funct::Parameter sigmaZMuMu(kSigmaZMuMu, commands.par(kSigmaZMuMu)); 
 	funct::Parameter sigmaZMuSa(kSigmaZMuSa, commands.par(kSigmaZMuSa)); 
+	funct::Parameter sigmaZMuMuNotIso(kSigmaZMuMuNotIso, commands.par(kSigmaZMuMuNotIso)); 
 	funct::Parameter lambda(kLambda, commands.par(kLambda));
-	funct::Parameter alpha(kAlpha, commands.par(kAlpha));
-	funct::Parameter beta(kBeta, commands.par(kBeta));
-	funct::Parameter b0(kB0, commands.par(kB0));
-	funct::Parameter b1(kB1, commands.par(kB1));
-	funct::Parameter b2(kB2, commands.par(kB2));
 	funct::Parameter a0(kA0, commands.par(kA0));
 	funct::Parameter a1(kA1, commands.par(kA1));
 	funct::Parameter a2(kA2, commands.par(kA2));
+	                
 	funct::Constant cFMin(fMin), cFMax(fMax);
 
-	//IntegratorConv integratorConv(20);
-	//IntegratorNorm integratorNorm(20);
-	IntegratorConv integratorConv(1.e-4);
-	IntegratorNorm integratorNorm(1.e-4);
+	IntegratorConv integratorConv(1.e-5);
+	IntegratorNorm integratorNorm(1.e-5);
 
 	ZPeakNoNorm zPeakNN = funct::Exponential(lambdaZMuMu) * 
 	  funct::conv(funct::ZLineShape(mass, gamma, photonFactorZMuMu, interferenceFactorZMuMu), 
@@ -237,26 +232,20 @@ int main(int ac, char *av[]) {
 	ZMuMuNoIsoEfficiencyTerm zMuMuNoIsoEfficiencyTerm = ((efficiencyTk ^ funct::Numerical<2>(2)) * 
 	  (efficiencySa ^ funct::Numerical<2>(2))) * (funct::Numerical<1>(1) - efficiencyIsoSquare);
 	ZMuMu zMuMu = rebinMuMuConst * (zMuMuEfficiencyTerm * zMuMuFun);
-
+	ZMuMuNoIso   zMuMuNoIso= rebinMuMuNoIsoConst * ((zMuMuNoIsoEfficiencyTerm * zMuMuFunClone) + yieldBkgZMuMuNotIso);
 	ZMuTkBkg zMuTkBkg = yieldBkgZMuTk * (funct::Exponential(lambda) * funct::Polynomial<2>(a0, a1, a2));
 	ZMuTkBkgScaled zMuTkBkgScaled = rebinMuTkConst * zMuTkBkg;
 	ZMuTkEfficiencyTerm zMuTkEfficiencyTerm = funct::Numerical<2>(2) * 
 	  ((efficiencyTk ^ funct::Numerical<2>(2)) * (efficiencySa * (funct::Numerical<1>(1) - efficiencySa))) * efficiencyIsoSquare;
 	ZMuTk zMuTk = rebinMuTkConst*(zMuTkEfficiencyTerm * zMuMuFunClone + zMuTkBkg);
-
-	ZMuMuNoIsoBkg zMuMuNoIsoBkg = yieldBkgZMuMuNotIso * (funct::Exponential(alpha) * funct::Polynomial<2>(b0, b1, b2));
-	ZMuMuNoIsoBkgScaled  zMuMuNoIsoBkgScaled = rebinMuMuNoIsoConst * zMuMuNoIsoBkg;
-	ZMuMuNoIso zMuMuNoIso = rebinMuMuNoIsoConst * ((zMuMuNoIsoEfficiencyTerm * zMuMuFunClone) +  zMuMuNoIsoBkg);
-
 	ZMuSaEfficiencyTerm zMuSaEfficiencyTerm = funct::Numerical<2>(2) * 
 	  ((efficiencySa ^ funct::Numerical<2>()) * (efficiencyTk * (funct::Numerical<1>() - efficiencyTk)))* efficiencyIsoSquare ;
-	ZMuSa zMuSa = rebinMuSaConst *(zMuSaEfficiencyTerm * (yieldZMuMu * funct::Gaussian(mass, sigmaZMuSa)) 
-				       + (yieldBkgZMuSa * funct::Exponential(beta)));
-
+	ZMuSa zMuSa = rebinMuSaConst *(zMuSaEfficiencyTerm * (yieldZMuMu * funct::Gaussian(mass, sigmaZMuSa)) + yieldBkgZMuSa);
+	//ZMuMuNoIso   zMuMuNoIso= rebinMuMuNoIsoConst * ((zMuMuNoIsoEfficiencyTerm * ( yieldZMuMu * funct::Gaussian(mass, sigmaZMuMuNotIso))) + yieldBkgZMuMuNotIso);
 	ChiSquared chi2(zMuMu, histoZMuMu, 
 			zMuTk, histoZMuTk, 
 			zMuSa, histoZMuSa, 
-			zMuMuNoIso,histoZMuMuNoIso,
+			zMuMuNoIso,histoZMuMuNoIso,\
 			fMin, fMax);//WARNING attento all'ordine in cui hai definito il ch2
 	cout << "N. deg. of freedom: " << chi2.degreesOfFreedom() << endl;
 	fit::RootMinuit<ChiSquared> minuit(chi2, true);
@@ -274,18 +263,14 @@ int main(int ac, char *av[]) {
 	commands.add(minuit, interferenceFactorZMuMu);
 	commands.add(minuit, meanZMuMu);
 	commands.add(minuit, sigmaZMuMu);
-	commands.add(minuit, sigmaZMuSa);
 	commands.add(minuit, lambda);
-	commands.add(minuit, alpha);
-	commands.add(minuit, beta);
 	commands.add(minuit, a0);
 	commands.add(minuit, a1);
 	commands.add(minuit, a2);
-	commands.add(minuit, b0);
-	commands.add(minuit, b1);
-	commands.add(minuit, b2);
+	commands.add(minuit, sigmaZMuSa);
+	commands.add(minuit, sigmaZMuMuNotIso);
 	commands.run(minuit);
-	const unsigned int nPar = 24;//WARNIG: this must be updated manually for now
+	const unsigned int nPar = 20;//WARNIG cambiare il numero di parametri!!!
 	ROOT::Math::SMatrix<double, nPar, nPar, ROOT::Math::MatRepSym<double, nPar> > err;
 	minuit.getErrorMatrix(err);
 	std::cout << "error matrix:" << std::endl;
@@ -297,6 +282,7 @@ int main(int ac, char *av[]) {
 	} 
 	minuit.printFitResults();
 
+	/*
 	double s;
 	s = 0;
 	for(int i = 1; i <= histoZMuMuNoIso->GetNbinsX(); ++i)
@@ -313,7 +299,7 @@ int main(int ac, char *av[]) {
 	for(int i = 1; i <= histoZMuSa->GetNbinsX(); ++i)
 	  s += histoZMuSa->GetBinContent(i);
 	histoZMuSa->SetEntries(s);
-	string ZMuMuPlot = "ZMuMuFit_" + plot_string;
+	string ZMuMuPlot = "ZMuMuFit" + plot_string;
 	root::plot<ZMuMu>(ZMuMuPlot.c_str(), *histoZMuMu, zMuMu, fMin, fMax, 
 			  efficiencyTk, efficiencySa, efficiencyIso,
 			  yieldZMuMu, lambdaZMuMu, mass, gamma, photonFactorZMuMu, interferenceFactorZMuMu, 
@@ -321,17 +307,17 @@ int main(int ac, char *av[]) {
 			  kRed, 2, kDashed, 100, 
 			  "Z -> #mu #mu mass", "#mu #mu invariant mass (GeV/c^{2})", 
 			  "Events");
-	
-	string ZMuMuNoIsoPlot = "ZMuMuNoIsoFit_" + plot_string;
-	root::plot<ZMuMuNoIso>(ZMuMuNoIsoPlot.c_str(), *histoZMuMuNoIso, zMuMuNoIso, fMin, fMax, 
-			       efficiencyTk, efficiencySa, efficiencyIso, 
-			       yieldZMuMu, lambdaZMuMu, mass, gamma, photonFactorZMuMu, interferenceFactorZMuMu, 
-			       meanZMuMu, sigmaZMuMu, 
-			       kRed, 2, kDashed, 100, 
-			       "Z -> #mu #mu Not Iso mass", "#mu #mu invariant mass (GeV/c^{2})", 
-			       "Events");	
-	
-	string ZMuTkPlot = "ZMuTkFit_" + plot_string;
+
+	string ZMuMuNoIsoPlot = "ZMuMuNoIsoFit" + plot_string;
+		root::plot<ZMuMuNoIso>(ZMuMuNoIsoPlot.c_str(), *histoZMuMuNoIso, zMuMuNoIso, fMin, fMax, 
+		  efficiencyTk, efficiencySa, efficiencyIso, 
+		  yieldZMuMu, lambdaZMuMu, mass, gamma, photonFactorZMuMu, interferenceFactorZMuMu, 
+		  meanZMuMu, sigmaZMuMu, 
+		  kRed, 2, kDashed, 100, 
+			  "Z -> #mu #mu Not Iso mass", "#mu #mu invariant mass (GeV/c^{2})", 
+			  "Events");	
+
+	string ZMuTkPlot = "ZMuTkFit" + plot_string;
 	TF1 funZMuTk = root::tf1<ZMuTk>("ZMuTkFunction", zMuTk, fMin, fMax, 
 					efficiencyTk, efficiencySa,efficiencyIso,
 					yieldZMuMu, lambdaZMuMu, mass, gamma, photonFactorZMuMu, interferenceFactorZMuMu, 
@@ -358,7 +344,7 @@ int main(int ac, char *av[]) {
 	canvas->SetLogy();
 	string logZMuTkPlot = "log_" + ZMuTkPlot;
 	canvas->SaveAs(logZMuTkPlot.c_str());
-	string ZMuSaPlot = "ZMuSaFit_" + plot_string;
+	string ZMuSaPlot = "ZMuSaFit" + plot_string;
 	root::plot<ZMuSa>(ZMuSaPlot.c_str(), *histoZMuSa, zMuSa, fMin, fMax, 
 			  efficiencySa, efficiencyTk, efficiencyIso,
 			  yieldZMuMu, mass, sigmaZMuSa, yieldBkgZMuSa, 
@@ -366,6 +352,7 @@ int main(int ac, char *av[]) {
 			  "Z -> #mu + (unmatched) standalone mass", 
 			  "#mu + (unmatched) standalone invariant mass (GeV/c^{2})", 
 			  "Events");
+	*/
       }
     }
     

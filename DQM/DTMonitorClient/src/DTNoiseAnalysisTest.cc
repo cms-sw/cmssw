@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/25 14:17:23 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/10/22 12:45:25 $
+ *  $Revision: 1.8 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -46,8 +46,8 @@ DTNoiseAnalysisTest::DTNoiseAnalysisTest(const edm::ParameterSet& ps){
   noisyCellDef = ps.getUntrackedParameter<int>("noisyCellDef",500);
 
   // switch on/off the summaries for the Synchronous noise
-  doSynchNoise = ps.getUntrackedParameter<bool>("doSynchNoise", false);;
-
+  doSynchNoise = ps.getUntrackedParameter<bool>("doSynchNoise", false);
+  maxSynchNoiseRate =  ps.getUntrackedParameter<double>("maxSynchNoiseRate", 0.001);
 
 }
 
@@ -81,6 +81,7 @@ void DTNoiseAnalysisTest::analyze(const edm::Event& e, const edm::EventSetup& co
   nevents++;
   if(nevents%1000 == 0) LogTrace("DTDQM|DTMonitorClient|DTNoiseAnalysisTest")
     << "[DTNoiseAnalysisTest]: "<<nevents<<" events";
+
 }
 
 void DTNoiseAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
@@ -169,11 +170,14 @@ void DTNoiseAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
       if(histoNoiseSynch != 0) {
 	for(int sect = 1; sect != 13; ++sect) { // loop over sectors
 	  TH2F * histo = histoNoiseSynch->getTH2F();
-	  LogTrace("DTDQM|DTMonitorClient|DTNoiseAnalysisTest")
-	    << "   Wheel: " << wheel << " sect: " << sect
-	    << " integral is: " << histo->Integral(sect,sect,1,4) << endl;
-	  if(histo->Integral(sect,sect,1,4) != 0) {
-	    summarySynchNoiseHisto->Fill(sect,wheel,1);
+	  for(int sta = 1; sta != 5; ++sta) {
+	    LogTrace("DTDQM|DTMonitorClient|DTNoiseAnalysisTest")
+	      << "   Wheel: " << wheel << " sect: " << sect
+	      << " station: " << sta
+	      << " rate is: " << histo->GetBinContent(sect, sta) << endl;
+	    if(histo->GetBinContent(sect, sta) > maxSynchNoiseRate) {
+	      summarySynchNoiseHisto->Fill(sect,wheel,1);
+	    }
 	  }
 	}
       } else {
@@ -244,7 +248,7 @@ void DTNoiseAnalysisTest::bookHistos() {
 
 
   if(doSynchNoise) {
-    dbe->setCurrentFolder("DT/01-Digi/SynchNoise/");
+    dbe->setCurrentFolder("DT/04-Noise/SynchNoise/");
     histoName =  "SynchNoiseSummary";
     summarySynchNoiseHisto = dbe->book2D(histoName.c_str(),"Summary Synch. Noise",12,1,13,5,-2,3);
     summarySynchNoiseHisto->setAxisTitle("Sector",1);
@@ -259,7 +263,7 @@ string DTNoiseAnalysisTest::getSynchNoiseMEName(int wheelId) const {
   
   stringstream wheel; wheel << wheelId;	
   string folderName = 
-    "DT/01-Digi/SynchNoise/";
+    "DT/04-Noise/SynchNoise/";
   string histoname = folderName + string("SyncNoiseEvents")  
     + "_W" + wheel.str();
 

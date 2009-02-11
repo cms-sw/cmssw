@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoEgamma.EgammaIsolationAlgos.gamIsoFromDepsModules_cff import gamIsoFromDepsEcalFromHits,gamIsoFromDepsHcalFromTowers,gamIsoFromDepsTk
+
 allLayer0Photons = cms.EDFilter("PATPhotonCleaner",
     ## Input collection of Photons
     photonSource = cms.InputTag("photons"),
@@ -15,24 +17,29 @@ allLayer0Photons = cms.EDFilter("PATPhotonCleaner",
         tracker = cms.PSet(
             # source IsoDeposit
             src = cms.InputTag("patAODPhotonIsolations","gamIsoDepositTk"),
-            # parameters (E/gamma POG defaults)
-            deltaR = cms.double(0.3),              # Cone radius
-            vetos  = cms.vstring('0.015',          # Inner veto cone radius
-                                'Threshold(1.0)'), # Pt threshold
-            skipDefaultVeto = cms.bool(True),
             # cut value - just a test, not an official one
             cut = cms.double(3.0),
+            # parameters (E/gamma POG defaults)
+            vetos  = gamIsoFromDepsTk.deposits[0].vetos,
+            deltaR = gamIsoFromDepsTk.deposits[0].deltaR,
+            skipDefaultVeto = cms.bool(True), # This overrides previous settings
+#           # Or set your own vetos...
+#            deltaR = cms.double(0.3),              # Cone radius
+#            vetos  = cms.vstring('0.015',          # Inner veto cone radius
+#                                'Threshold(1.0)'), # Pt threshold
         ),
         ecal = cms.PSet(
             # source IsoDeposit
-            # src = cms.InputTag("patAODPhotonIsolations","gamIsoDepositEcalFromHits"), # FromClusts if computed from AOD
-            src = cms.InputTag("patAODPhotonIsolations","gamIsoDepositEcalFromClusts"), # FromClusts if computed from AOD
-            # parameters (E/gamma POG defaults)
-            deltaR          = cms.double(0.4),
-            vetos           = cms.vstring('EcalBarrel:0.045', 'EcalEndcaps:0.070'),
-            skipDefaultVeto = cms.bool(True),
+            src = cms.InputTag("patAODPhotonIsolations","gamIsoDepositEcalFromHits"), 
             # cut value - just a test, not an official one
             cut = cms.double(5.0),
+            # parameters (E/gamma POG defaults)
+            vetos  = gamIsoFromDepsEcalFromHits.deposits[0].vetos,
+            deltaR = gamIsoFromDepsEcalFromHits.deposits[0].deltaR,
+            skipDefaultVeto = cms.bool(True),
+#           # Or set your own vetos...
+#            deltaR          = cms.double(0.4),
+#            vetos           = cms.vstring('EcalBarrel:0.045', 'EcalEndcaps:0.070'),
         ),
         ## other option, using gamIsoDepositEcalSCVetoFromClust (see also recoLayer0/photonIsolation_cff.py)
         #PSet ecal = cms.PSet( 
@@ -44,13 +51,15 @@ allLayer0Photons = cms.EDFilter("PATPhotonCleaner",
         #),
         hcal = cms.PSet(
             # source IsoDeposit
-            #src = cms.InputTag("patAODPhotonIsolations","gamIsoDepositHcalFromHits"), ## ..FromTowers if computed on AOD
-            src = cms.InputTag("patAODPhotonIsolations","gamIsoDepositHcalFromTowers"), ## ..FromTowers if computed on AOD
-            # parameters (E/gamma POG defaults)
-            deltaR          = cms.double(0.4),
-            skipDefaultVeto = cms.bool(True),
+            src = cms.InputTag("patAODPhotonIsolations","gamIsoDepositHcalFromTowers"), ## 
             # cut value - just a test, not an official one
-            cut = cms.double(5.0)
+            cut = cms.double(5.0),
+            # parameters (E/gamma POG defaults)
+            vetos  = gamIsoFromDepsHcalFromTowers.deposits[0].vetos,
+            deltaR = gamIsoFromDepsHcalFromTowers.deposits[0].deltaR,
+            skipDefaultVeto = cms.bool(True),
+#           # Or set your own vetos...            
+#            deltaR          = cms.double(0.4),
         ),
         user = cms.VPSet(),
     ),

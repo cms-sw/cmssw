@@ -56,23 +56,9 @@ private:
   // *************************************************************************
 
 public:
-  //--- The overall probability.  flags is the 32-bit-packed set of flags that
-  //--- our own concrete implementation of clusterProbability() uses to direct
-  //--- the computation based on the information stored in the quality word
-  //--- (and which was computed by the CPE).  The default of flags==0 returns
-  //--- probabilityY() only (as that's the safest thing to do).
-  //--- Flags are static and kept in the transient rec hit.
-  float clusterProbability(unsigned int flags = 0);
-
-
   //--- Allow direct access to the packed quality information.
-  inline SiPixelRecHitQuality::QualWordType rawQualityWord() const { 
-    return qualWord_ ; 
-  }
-  inline void setRawQualityWord( SiPixelRecHitQuality::QualWordType w ) { 
-    qualWord_ = w; 
-  }
-
+  SiPixelRecHitQuality::QualWordType rawQualityWord() const { return qualWord_; }
+  
 
   //--- Template fit probability, in X and Y directions
   inline float probabilityX() const     {

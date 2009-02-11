@@ -49,24 +49,15 @@ process.preScaler = cms.EDFilter("Prescaler",
     prescaleFactor = cms.int32(1)
 )
 
-process.ecalPrescaler = cms.EDFilter("EcalMonitorPrescaler",
-    EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
-    laserPrescaleFactor = cms.untracked.int32(1),
-    ledPrescaleFactor = cms.untracked.int32(1),
-    pedestalPrescaleFactor = cms.untracked.int32(1),
-    testpulsePrescaleFactor = cms.untracked.int32(1),
-    pedestaloffsetPrescaleFactor = cms.untracked.int32(1)
-)
-
-process.dqmInfoEB = cms.EDAnalyzer("DQMEventInfo",
+process.dqmInfoEB = cms.EDFilter("DQMEventInfo",
     subSystemFolder = cms.untracked.string('EcalBarrel')
 )
 
-process.dqmInfoEE = cms.EDAnalyzer("DQMEventInfo",
+process.dqmInfoEE = cms.EDFilter("DQMEventInfo",
     subSystemFolder = cms.untracked.string('EcalEndcap')
 )
 
-process.dqmSaver = cms.EDAnalyzer("DQMFileSaver",
+process.dqmSaver = cms.EDFilter("DQMFileSaver",
     dirName = cms.untracked.string('.'),
     convention = cms.untracked.string('Online')
 )
@@ -215,15 +206,14 @@ process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout')
 )
 
-process.ecalDataSequence = cms.Sequence(process.preScaler*process.ecalEBunpacker*process.l1GtEvmUnpack*process.ecalUncalibHit*process.ecalUncalibHit2*process.ecalRecHit*process.simEcalTriggerPrimitiveDigis)
+process.ecalDataSequence = cms.Sequence(process.preScaler*process.ecalEBunpacker*process.l1GtEvmUnpack*process.ecalUncalibHit*process.ecalUncalibHit2*process.ecalRecHit*process.simEcalTriggerPrimitiveDigis*process.hybridSuperClusters*process.correctedHybridSuperClusters*process.multi5x5BasicClusters*process.multi5x5SuperClusters)
 
 process.ecalBarrelMonitorSequence = cms.Sequence(process.ecalBarrelMonitorModule*process.dqmInfoEB*process.ecalBarrelMonitorClient)
 
 process.ecalEndcapMonitorSequence = cms.Sequence(process.ecalEndcapMonitorModule*process.dqmInfoEE*process.ecalEndcapMonitorClient)
 
 process.p = cms.Path(process.ecalDataSequence*process.ecalBarrelMonitorSequence*process.ecalEndcapMonitorSequence*process.dqmSaver)
-process.q = cms.Path(process.ecalDataSequence*~process.ecalPrescaler*process.hybridSuperClusters*process.correctedHybridSuperClusters*process.multi5x5BasicClusters*process.multi5x5SuperClusters)
-process.r = cms.EndPath(process.ecalBarrelDefaultTasksSequence*process.ecalBarrelClusterTask*process.ecalEndcapDefaultTasksSequence*process.ecalEndcapClusterTask)
+process.q = cms.EndPath(process.ecalBarrelDefaultTasksSequence*process.ecalBarrelClusterTask*process.ecalEndcapDefaultTasksSequence*process.ecalEndcapClusterTask)
 
 process.l1GtEvmUnpack.EvmGtInputTag = 'source'
 

@@ -67,22 +67,22 @@ std::vector<reco::BasicCluster> CosmicClusterAlgo::makeClusters(
 	  
 	  if (!uncalibRecHits_){  
 	     if (verbosity < pINFO)
-                {
-                std::cout << "-------------------------------------------------------------" << std::endl;
-                std::cout << "No Uncalibrated RecHits no Uncalibrated rec hit collection available" << std::endl;
-                }
-	     continue;
+         {
+            std::cout << "-------------------------------------------------------------" << std::endl;
+            std::cout << "No Uncalibrated RecHits no Uncalibrated rec hit collection available" << std::endl;
+			continue;
+         }
 	  }
 	  
 	  EcalUncalibratedRecHitCollection::const_iterator itt =  uncalibRecHits_->find(it->id());
 	  
 	  if (itt == uncalibRecHits_->end()){  
 	     if (verbosity < pINFO)
-                {
-                std::cout << "-------------------------------------------------------------" << std::endl;
-                std::cout << "No Uncalibrated RecHit associated with the RecHit Probably no Uncalibrated rec hit collection available" << std::endl;
-		}
-	     continue;
+         {
+            std::cout << "-------------------------------------------------------------" << std::endl;
+            std::cout << "No Uncalibrated RecHit associated with the RecHit Probably no Uncalibrated rec hit collection available" << std::endl;
+			continue;
+		 }
 	  }
 	  
       EcalUncalibratedRecHit uhit_p = *itt;

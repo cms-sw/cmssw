@@ -16,6 +16,10 @@
   <class name="std::vector<int>" />
   <class name="std::vector<std::pair<std::string, double> >" />
 
+  <class name="TString" />
+  <class name="edm::Wrapper<TString>" />
+  <class name="edm::Wrapper<std::vector<std::vector<int> > >" />
+
   <class name="PtrMet" />
   <class name="PtrJet" />
   <class name="PtrMuon" />
@@ -29,14 +33,18 @@
   <class name="edm::Wrapper<StGenEvent>" />
   <class name="edm::Wrapper<TopGenEvent>" />
   <class name="edm::Wrapper<TtSemiLeptonicEvent>" />
+  <class name="edm::Wrapper<reco::CompositeCandidate>" />
 
   <class name="edm::RefProd<TtGenEvent>" />
   <class name="edm::RefProd<StGenEvent>" />
   <class name="edm::RefProd<TopGenEvent>" />
   <class name="edm::RefProd<TtSemiLeptonicEvent>" />
 
-  <class name="std::map<TtSemiLeptonicEvent::HypoKey, reco::CompositeCandidate>" />
-  <class name="std::map<TtSemiLeptonicEvent::HypoKey, std::vector<int> >" />
+  <class name="std::pair<reco::CompositeCandidate, std::vector<int> >" />
+  <class name="std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > >" />
+  <class name="edm::Wrapper<std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > >" />
+
+  <class name="std::map<TtSemiLeptonicEvent::HypoKey, std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > >" />
 
   <class name="TtDilepEvtSolution" />
   <class name="TtSemiEvtSolution" />

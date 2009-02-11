@@ -1740,15 +1740,7 @@ class dbsBaseGui:
             self.cmsRunOutput.append(outputdir)
 
         # now check that root file exists
-        #outputroot="%s.root"%(os.path.join(self.basedir,outname))
-        if (runnum<100000):
-            outname="DQM_V0001_Hcal_R0000%i"%runnum
-        else:
-            outname="DQM_V0001_Hcal_R000%i"%runnum
         outputroot="%s.root"%(os.path.join(self.basedir,outname))
-        
-        # Looks like output .root files are being changed to DQM_V0001_Hcal_R0000XXXX.root.  Make this name change.  I'm not sure if/when  the V0001 increments, though -- Jeff, 29 Sep. 2008
-        
         success=success and (os.path.exists(outputroot))
         if os.path.exists(outputroot):
             # Perform additional move when lumi block checking is incremented

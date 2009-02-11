@@ -1,5 +1,5 @@
 //
-// $Id: PATPFParticleProducer.cc,v 1.1 2008/07/24 12:45:38 cbern Exp $
+// $Id: PATPFParticleProducer.cc,v 1.2 2008/09/01 14:47:38 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATPFParticleProducer.h"
@@ -13,8 +13,6 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include "DataFormats/Common/interface/Association.h"
-
-#include "PhysicsTools/PatUtils/interface/ObjectResolutionCalc.h"
 
 #include "TMath.h"
 

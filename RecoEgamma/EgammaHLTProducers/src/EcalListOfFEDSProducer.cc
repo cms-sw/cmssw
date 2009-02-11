@@ -42,7 +42,6 @@ EcalListOfFEDSProducer::EcalListOfFEDSProducer(const edm::ParameterSet& pset) {
 
  debug_ = pset.getUntrackedParameter<bool>("debug");
 
- Pi0ListToIgnore_ = pset.getParameter<edm::InputTag>("Pi0ListToIgnore");
 
  EGamma_ = pset.getUntrackedParameter<bool>("EGamma",false);
  Muon_ = pset.getUntrackedParameter<bool>("Muon",false);
@@ -133,8 +132,6 @@ void EcalListOfFEDSProducer::produce(edm::Event & e, const edm::EventSetup& iSet
  unsigned int nDone = FEDs_Done.size();
  if (debug_) std::cout << " ECAL unpacking module has already run " << nDone << " times. " << std::endl;
  for (unsigned int id=0; id < nDone; id++) {
-   // ignore the FEDs coming from unpacking in pi0 paths
-   if( Pi0ListToIgnore_.label() == FEDs_Done[id].provenance()->moduleLabel() ){continue;}
    std::vector<int> done = FEDs_Done[id]-> GetList();
    for (int jd=0; jd < (int)done.size(); jd++) {
  	Done.push_back(done[jd] -first_fed );

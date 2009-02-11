@@ -1,12 +1,9 @@
-<use name=DataFormats/GeometryVector>
 <use name=FWCore/Framework>
-<use name=FWCore/ParameterSet>
-<use name=MagneticField/Engine>
-<use name=MagneticField/Records>
+<use name=DataFormats/GeometryVector>
 
 <export>
   <lib name=MagneticFieldParametrizedEngine>
   <use name=MagneticField/Engine>
 </export>
 
-<flags EDM_PLUGIN=1>
+

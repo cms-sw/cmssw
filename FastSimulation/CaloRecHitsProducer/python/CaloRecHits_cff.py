@@ -31,20 +31,21 @@ caloRecHits = cms.EDProducer("CaloRecHitsProducer",
         HCAL = cms.PSet(
             MixedSimHits = cms.InputTag("mix","famosSimHitsHcalHits"),
             EnableSaturation = cms.bool(True),
+            NoiseFromDb = cms.bool(True),
 
-            NoiseHB = cms.double(0.25),
+            NoiseHB = cms.double(0.20),
             ThresholdHB = cms.double(-0.5),
 
-            NoiseHE = cms.double(0.38),
+            NoiseHE = cms.double(0.30),
             ThresholdHE = cms.double(-0.5),
             
-            NoiseHO = cms.double(0.67),
+            NoiseHO = cms.double(0.50),
             ThresholdHO = cms.double(-0.5),
 
             NoiseHF = cms.double(0.0),
             ThresholdHF = cms.double(0.5),
 
-            fileNameHcal = cms.string('hcalmiscalib_startup.xml'),
+            fileNameHcal = cms.string('hcalmiscalib_0.0.xml'),
             Refactor = cms.double(1.0),
             Refactor_mean = cms.double(1.0)
 

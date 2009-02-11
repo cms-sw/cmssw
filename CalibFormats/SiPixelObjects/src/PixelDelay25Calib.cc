@@ -7,7 +7,6 @@
 //
 
 #include "CalibFormats/SiPixelObjects/interface/PixelDelay25Calib.h"
-#include "CalibFormats/SiPixelObjects/interface/PixelTimeFormatter.h"
 #include <iostream>
 #include <assert.h>
 #include <map>
@@ -26,24 +25,23 @@ PixelDelay25Calib::PixelDelay25Calib(vector< vector<string> > &tableMat) :
   std::vector<std::string > colNames;
   /**
 
-  EXTENSION_TABLE_NAME: PIXEL_CALIB_CLOB (VIEW: CONF_KEY_PIXEL_CALIB_V)
-  
-  CONFIG_KEY				    NOT NULL VARCHAR2(80)
-  KEY_TYPE				    NOT NULL VARCHAR2(80)
-  KEY_ALIAS				    NOT NULL VARCHAR2(80)
-  VERSION					     VARCHAR2(40)
-  KIND_OF_COND  			    NOT NULL VARCHAR2(40)
-  CALIB_TYPE					     VARCHAR2(200)
-  CALIB_OBJ_DATA_FILE			    NOT NULL VARCHAR2(200)
-  CALIB_OBJ_DATA_CLOB			    NOT NULL CLOB
+     View's name: CONF_KEY_PIXEL_CALIB_MV
+     CONFIG_KEY_ID                             NOT NULL NUMBER(38)
+     CONFG_KEY                                 NOT NULL VARCHAR2(80)
+     VERSION                                            VARCHAR2(40)
+     KIND_OF_COND                              NOT NULL VARCHAR2(40)
+     RUN_TYPE                                           VARCHAR2(40)
+     RUN_NUMBER                                         NUMBER(38)
+     CALIB_OBJ_DATA_FILE                       NOT NULL VARCHAR2(200)
+     CALIB_OBJ_DATA_CLOB                       NOT NULL CLOB
   */
 
-  colNames.push_back("CONFIG_KEY"  	  );
-  colNames.push_back("KEY_TYPE"    	  );
-  colNames.push_back("KEY_ALIAS"   	  );
-  colNames.push_back("VERSION"     	  );
-  colNames.push_back("KIND_OF_COND"	  );
-  colNames.push_back("CALIB_TYPE"  	  );
+  colNames.push_back("CONFIG_KEY_ID"      );
+  colNames.push_back("CONFG_KEY"          );
+  colNames.push_back("VERSION"            );
+  colNames.push_back("KIND_OF_COND"       );
+  colNames.push_back("RUN_TYPE"           );
+  colNames.push_back("RUN_NUMBER"         );
   colNames.push_back("CALIB_OBJ_DATA_FILE");
   colNames.push_back("CALIB_OBJ_DATA_CLOB");
   
@@ -62,7 +60,7 @@ PixelDelay25Calib::PixelDelay25Calib(vector< vector<string> > &tableMat) :
     {
       if(colM.find(colNames[n]) == colM.end())
 	{
-	  std::cerr << "[[PixelDelay25Calib::PixelDelay25Calib()]\tCouldn't find in the database the column with name " << colNames[n] << std::endl;
+	  std::cerr << "[PixelMaxVsf::PixelMaxVsf()]\tCouldn't find in the database the column with name " << colNames[n] << std::endl;
 	  assert(0);
 	}
     }
@@ -140,7 +138,7 @@ PixelDelay25Calib::PixelDelay25Calib(std::string filename) :
   PixelCalibBase(),
   PixelConfigBase("","",""){
 
-  //std::cout<<"PixelDelay25Calib::PixelDelay25Calib"<<std::endl;
+  std::cout<<"PixelDelay25Calib::PixelDelay25Calib"<<std::endl;
   
   std::ifstream in(filename.c_str());
   
@@ -161,8 +159,6 @@ PixelDelay25Calib::PixelDelay25Calib(std::string filename) :
 
   assert(tmp=="Mode:");
   in >> mode_;
-
-  //cout << "[PixelDelay25Calib::PixelDelay25Calib]:mode_="<<mode_<<endl;
 
   in >> tmp;
 
@@ -303,86 +299,6 @@ void PixelDelay25Calib::writeASCII(std::string dir) const {
   out << commands_<<endl;
   
   out.close();
-}
-
-//=============================================================================================
-void PixelDelay25Calib::writeXMLHeader(pos::PixelConfigKey key, 
-                                       int version, 
-                                       std::string path, 
-                                       std::ofstream *outstream,
-                                       std::ofstream *out1stream,
-                                       std::ofstream *out2stream) const
-{
-  std::string mthn = "[PixelDelay25Calib::writeXMLHeader()]\t\t\t    " ;
-  std::stringstream maskFullPath ;
-
-  writeASCII(path) ;
-
-  maskFullPath << path << "/PixelCalib_Test_" << PixelTimeFormatter::getmSecTime() << ".xml";
-  std::cout << mthn << "Writing to: " << maskFullPath.str() << std::endl ;
-
-  outstream->open(maskFullPath.str().c_str()) ;
-  
-  *outstream << "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"                                 << std::endl ;
-  *outstream << "<ROOT xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>" 		 	          << std::endl ;
-  *outstream << ""                                                                                        << std::endl ; 
-  *outstream << " <!-- " << mthn << "-->"                                                                 << std::endl ; 
-  *outstream << ""                                                                                        << std::endl ; 
-  *outstream << " <HEADER>"                                                                               << std::endl ; 
-  *outstream << "  <TYPE>"                                                                                << std::endl ; 
-  *outstream << "   <EXTENSION_TABLE_NAME>PIXEL_CALIB_CLOB</EXTENSION_TABLE_NAME>"                        << std::endl ; 
-  *outstream << "   <NAME>Calibration Object Clob</NAME>"                                                 << std::endl ; 
-  *outstream << "  </TYPE>"                                                                               << std::endl ; 
-  *outstream << "  <RUN>"                                                                                 << std::endl ; 
-  *outstream << "   <RUN_TYPE>delay25</RUN_TYPE>"                                                         << std::endl ; 
-  *outstream << "   <RUN_NUMBER>1</RUN_NUMBER>"                                                           << std::endl ; 
-  *outstream << "   <RUN_BEGIN_TIMESTAMP>" << PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>"   << std::endl ; 
-  *outstream << "   <COMMENT_DESCRIPTION>Calibration Object Clob</COMMENT_DESCRIPTION>"                   << std::endl ; 
-  *outstream << "   <LOCATION>CERN TAC</LOCATION>"                                                        << std::endl ; 
-  *outstream << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"                                 << std::endl ; 
-  *outstream << "  </RUN>"                                                                                << std::endl ; 
-  *outstream << " </HEADER>"                                                                              << std::endl ; 
-  *outstream << ""                                                                                        << std::endl ; 
-  *outstream << " <DATA_SET>"                                                                             << std::endl ;
-  *outstream << ""                                                                                        << std::endl ;
-  *outstream << "  <VERSION>" << version << "</VERSION>"                                                  << std::endl ;
-  *outstream << ""                                                                                        << std::endl ;
-  *outstream << "  <PART>"                                                                                << std::endl ;
-  *outstream << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"                                              << std::endl ;      
-  *outstream << "   <KIND_OF_PART>Detector ROOT</KIND_OF_PART>"                                           << std::endl ;         
-  *outstream << "  </PART>"                                                                               << std::endl ;
-
-}
-
-//=============================================================================================
-void PixelDelay25Calib::writeXML( std::ofstream *outstream,
-                                  std::ofstream *out1stream,
-                                  std::ofstream *out2stream) const 
-{
-  std::string mthn = "[PixelDelay25Calib::writeXML()]\t\t\t    " ;
-  
-
-  *outstream << " "                                                                                       << std::endl ;
-  *outstream << "  <DATA>"                                                                                << std::endl ;
-  *outstream << "   <CALIB_OBJ_DATA_FILE>./delay25.dat</CALIB_OBJ_DATA_FILE>"                             << std::endl ;
-  *outstream << "   <CALIB_TYPE>delay25</CALIB_TYPE>"                                                     << std::endl ;
-  *outstream << "  </DATA>"                                                                               << std::endl ;
-  *outstream << " "                                                                                       << std::endl ;
-}
-
-//=============================================================================================
-void PixelDelay25Calib::writeXMLTrailer(std::ofstream *outstream,
-                             	     	std::ofstream *out1stream,
-                             	     	std::ofstream *out2stream ) const 
-{
-  std::string mthn = "[PixelDelay25Calib::writeXMLTrailer()]\t\t\t    " ;
-  
-  *outstream << " </DATA_SET>"		 								  << std::endl ;
-  *outstream << "</ROOT>"  		 								  << std::endl ;
-  
-  outstream->close() ;
-  std::cout << mthn << "Data written "   								  << std::endl ;
-
 }
 
 

@@ -1,8 +1,3 @@
-<use name=FWCore/Framework>
-<use name=FWCore/Utilities>
-<use name=FWCore/PluginManager>
-<use name=FWCore/ParameterSet>
-<use name=FWCore/ServiceRegistry>
 <use name=boost>
 <use name=oracle>
 <use name=DataFormats/Common>
@@ -11,9 +6,6 @@
 <use name=xdaq>
 <use name=zlib>
 <use name=DataFormats/HcalDetId>
-<use name=CalibCalorimetry/CaloTPG>
-<use name=CalibCalorimetry/HcalTPGAlgos>
-
 <export>
   <lib name=CaloOnlineToolsHcalOnlineDb>
   <use name=boost>

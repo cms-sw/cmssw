@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiEvtSolution.cc,v 1.25 2008/05/09 21:20:42 srappocc Exp $
+// $Id: TtSemiEvtSolution.cc,v 1.26 2008/07/03 21:26:38 srappocc Exp $
 //
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -38,29 +38,37 @@ TtSemiEvtSolution::~TtSemiEvtSolution()
 //------------------------------------------- 
 pat::Jet TtSemiEvtSolution::getHadb() const 
 {
-  if (jetCorrScheme_ == 1) return hadb_->mcFlavCorrJet(); // calibrate jets according to MC truth
-  else if (jetCorrScheme_ == 2) return hadb_->bCorrJet();
+  // WARNING this is obsolete and only 
+  // kept for backwards compatibility
+  if (jetCorrScheme_ == 1) return hadb_->correctedJet("HAD", "B"); // calibrate jets according to MC truth
+  else if (jetCorrScheme_ == 2) return hadb_->correctedJet("HAD", "B");
   else return *hadb_;
 }
 
 pat::Jet TtSemiEvtSolution::getHadp() const 
 {
-  if (jetCorrScheme_ == 1) return hadp_->mcFlavCorrJet(); // calibrate jets according to MC truth
-  else if (jetCorrScheme_ == 2) return hadp_->wCorrJet();
+  // WARNING this is obsolete and only 
+  // kept for backwards compatibility
+  if (jetCorrScheme_ == 1) return hadp_->correctedJet("HAD", "UDS"); // calibrate jets according to MC truth
+  else if (jetCorrScheme_ == 2) return hadp_->correctedJet("HAD", "UDS");
   else return *hadp_;
 }
 
 pat::Jet TtSemiEvtSolution::getHadq() const 
 {
-  if (jetCorrScheme_ == 1) return hadq_->mcFlavCorrJet(); // calibrate jets according to MC truth
-  else if (jetCorrScheme_ == 2) return hadq_->wCorrJet();
+  // WARNING this is obsolete and only 
+  // kept for backwards compatibility
+  if (jetCorrScheme_ == 1) return hadq_->correctedJet("HAD", "UDS"); // calibrate jets according to MC truth
+  else if (jetCorrScheme_ == 2) return hadq_->correctedJet("HAD", "UDS");
   else return *hadq_;
 }
 
 pat::Jet TtSemiEvtSolution::getLepb() const 
 {
-  if (jetCorrScheme_ == 1) return lepb_->mcFlavCorrJet(); // calibrate jets according to MC truth
-  else if (jetCorrScheme_ == 2) return lepb_->bCorrJet();
+  // WARNING this is obsolete and only 
+  // kept for backwards compatibility
+  if (jetCorrScheme_ == 1) return lepb_->correctedJet("HAD", "B"); // calibrate jets according to MC truth
+  else if (jetCorrScheme_ == 2) return lepb_->correctedJet("HAD", "B");
   else return *lepb_;
 }
 

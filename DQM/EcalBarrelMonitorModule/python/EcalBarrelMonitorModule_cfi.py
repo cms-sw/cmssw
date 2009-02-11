@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalBarrelMonitorModule = cms.EDAnalyzer("EcalBarrelMonitorModule",
+ecalBarrelMonitorModule = cms.EDFilter("EcalBarrelMonitorModule",
     EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
     EBDigiCollection = cms.InputTag("ecalEBunpacker","ebDigis"),
     EcalRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEB"),

@@ -16,7 +16,7 @@ process.load("FastSimulation.Validation.TrackValidation_HighPurity_cff")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(100000)
 )
 process.source = cms.Source("FlatRandomPtGunSource",
     PGunParameters = cms.untracked.PSet(
@@ -39,12 +39,12 @@ process.o1 = cms.OutputModule("PoolOutputModule",
 )
 
 process.p1 = cms.Path(process.famosWithTracks*process.valid)
-#process.load("Configuration.StandardSequences.MagneticField_40T_cff")
-process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+process.load("Configuration.StandardSequences.MagneticField_40T_cff")
+#process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 process.famosSimHits.SimulateCalorimetry = False
 process.famosSimHits.SimulateTracking = True
-process.multiTrackValidator.outputFile = 'valid_pi_1GeV.root'
+process.multiTrackValidator.out = 'valid_pi_1GeV.root'
 process.MessageLogger.destinations = ['detailedInfo_pi1.txt']
 
 

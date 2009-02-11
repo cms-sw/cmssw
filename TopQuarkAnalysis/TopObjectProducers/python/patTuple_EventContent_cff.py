@@ -26,7 +26,9 @@ def makePatTupleEventContent(process):
         outputCommands = cms.untracked.vstring('keep *_genParticles_*_*',          ## all genPaticles (unpruned)
                                                'keep *_genEventScale_*_*',         ## genEvent info
                                                'keep *_genEventWeight_*_*',        ## genEvent info
+                                               'keep *_genEventProcID_*_*',        ## genEvent info
                                                'keep *_genEventPdfInfo_*_*',       ## genEvent info
+                                               'keep *_genEventRunInfo_*_*',       ## genEvent info
                                                'keep *_hltTriggerSummaryAOD_*_*',  ## hlt TriggerEvent
                                                'keep *_towerMaker_*_*',            ## all caloTowers
                                                'keep *_offlineBeamSpot_*_*'        ## offline beamspot

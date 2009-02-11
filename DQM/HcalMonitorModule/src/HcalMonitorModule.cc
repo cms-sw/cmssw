@@ -4,14 +4,15 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/10/28 20:04:02 $
- * $Revision: 1.87 $
+ * $Date: 2008/11/11 12:39:14 $
+ * $Revision: 1.75.2.2 $
  * \author W Fisher
  *
 */
 
 //--------------------------------------------------------
 HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
+  
 
   irun_=0; ilumisec_=0; ievent_=0; itime_=0;
   actonLS_=false;
@@ -20,14 +21,13 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   meLatency_=0; meQuality_=0;
   fedsListed_ = false;
   digiMon_ = NULL;   dfMon_ = NULL;
-  diTask_ = NULL;
+  diMon_=NULL;
   rhMon_ = NULL;     pedMon_ = NULL; 
   ledMon_ = NULL;    mtccMon_ = NULL;
   hotMon_ = NULL;    tempAnalysis_ = NULL;
   deadMon_ = NULL;   tpMon_ = NULL;
   ctMon_ = NULL;     beamMon_ = NULL;
   laserMon_ = NULL;
-  expertMon_ = NULL;
 
   inputLabelDigi_        = ps.getParameter<edm::InputTag>("digiLabel");
   inputLabelRecHitHBHE_  = ps.getParameter<edm::InputTag>("hbheRecHitLabel");
@@ -46,99 +46,94 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   
   dbe_ = Service<DQMStore>().operator->();
   
-  debug_ = ps.getUntrackedParameter<int>("debug", 0);
+  debug_ = ps.getUntrackedParameter<bool>("debug", false);
+  if (debug_) cout << endl<<" *** Hcal Monitor Module ***" <<endl<<endl;
+  if(debug_) cout << "HcalMonitorModule: constructor...." << endl;
   
   showTiming_ = ps.getUntrackedParameter<bool>("showTiming", false);
+
   
   if ( ps.getUntrackedParameter<bool>("DataFormatMonitor", false) ) {
-    if(debug_>0) cout << "HcalMonitorModule: DataFormat monitor flag is on...." << endl;
+    if(debug_) cout << "HcalMonitorModule: DataFormat monitor flag is on...." << endl;
     dfMon_ = new HcalDataFormatMonitor();
     dfMon_->setup(ps, dbe_);
   }
 
-  if (ps.getUntrackedParameter<bool>("DataIntegrityTask",false))
-    {
-      if (debug_>0) cout <<"<calMonitorModule: DataIntegrity monitor flag is on...."<<endl;
-      diTask_ = new HcalDataIntegrityTask();
-      diTask_->setup(ps, dbe_);
-    }
+   if ( ps.getUntrackedParameter<bool>("DataIntegrityTask", false) ) {
+    if(debug_) cout << "HcalMonitorModule: DataIntegrity task flag is on...." << endl;
+    diMon_ = new HcalDataIntegrityTask();
+    diMon_->setup(ps, dbe_);
+  }
 
   if ( ps.getUntrackedParameter<bool>("DigiMonitor", false) ) {
-    if(debug_>0) cout << "HcalMonitorModule: Digi monitor flag is on...." << endl;
+    if(debug_) cout << "HcalMonitorModule: Digi monitor flag is on...." << endl;
     digiMon_ = new HcalDigiMonitor();
     digiMon_->setup(ps, dbe_);
   }
   
   if ( ps.getUntrackedParameter<bool>("RecHitMonitor", false) ) {
-    if(debug_>0) cout << "HcalMonitorModule: RecHit monitor flag is on...." << endl;
+    if(debug_) cout << "HcalMonitorModule: RecHit monitor flag is on...." << endl;
     rhMon_ = new HcalRecHitMonitor();
     rhMon_->setup(ps, dbe_);
   }
   
   if ( ps.getUntrackedParameter<bool>("PedestalMonitor", false) ) {
-    if(debug_>0) cout << "HcalMonitorModule: Pedestal monitor flag is on...." << endl;
+    if(debug_) cout << "HcalMonitorModule: Pedestal monitor flag is on...." << endl;
     pedMon_ = new HcalPedestalMonitor();
     pedMon_->setup(ps, dbe_);
   }
   
   if ( ps.getUntrackedParameter<bool>("LEDMonitor", false) ) {
-    if(debug_>0) cout << "HcalMonitorModule: LED monitor flag is on...." << endl;
+    if(debug_) cout << "HcalMonitorModule: LED monitor flag is on...." << endl;
     ledMon_ = new HcalLEDMonitor();
     ledMon_->setup(ps, dbe_);
   }
   
   if ( ps.getUntrackedParameter<bool>("LaserMonitor", false) ) {
-    if(debug_>0) cout << "HcalMonitorModule: Laser monitor flag is on...." << endl;
+    if(debug_) cout << "HcalMonitorModule: Laser monitor flag is on...." << endl;
     laserMon_ = new HcalLaserMonitor();
     laserMon_->setup(ps, dbe_);
   }
 
   if ( ps.getUntrackedParameter<bool>("MTCCMonitor", false) ) {
-    if(debug_>0) cout << "HcalMonitorModule: MTCC monitor flag is on...." << endl;
+    if(debug_) cout << "HcalMonitorModule: MTCC monitor flag is on...." << endl;
     mtccMon_ = new HcalMTCCMonitor();
     mtccMon_->setup(ps, dbe_);
   }
   
   if ( ps.getUntrackedParameter<bool>("HotCellMonitor", false) ) {
-    if(debug_>0) cout << "HcalMonitorModule: Hot Cell monitor flag is on...." << endl;
+    if(debug_) cout << "HcalMonitorModule: Hot Cell monitor flag is on...." << endl;
     hotMon_ = new HcalHotCellMonitor();
     hotMon_->setup(ps, dbe_);
   }
   
   if ( ps.getUntrackedParameter<bool>("DeadCellMonitor", false) ) {
-    if(debug_>0) cout << "HcalMonitorModule: Dead Cell monitor flag is on...." << endl;
+    if(debug_) cout << "HcalMonitorModule: Dead Cell monitor flag is on...." << endl;
     deadMon_ = new HcalDeadCellMonitor();
     deadMon_->setup(ps, dbe_);
   }
 
   if ( ps.getUntrackedParameter<bool>("TrigPrimMonitor", false) ) { 	 
-    if(debug_>0) cout << "HcalMonitorModule: TrigPrim monitor flag is on...." << endl; 	 
+    if(debug_) cout << "HcalMonitorModule: TrigPrim monitor flag is on...." << endl; 	 
     tpMon_ = new HcalTrigPrimMonitor(); 	 
     tpMon_->setup(ps, dbe_); 	 
   }  
 
   if (ps.getUntrackedParameter<bool>("CaloTowerMonitor",false)){
-    if(debug_>0) cout << "HcalMonitorModule: CaloTower monitor flag is on...." << endl; 	 
+    if(debug_) cout << "HcalMonitorModule: CaloTower monitor flag is on...." << endl; 	 
     ctMon_ = new HcalCaloTowerMonitor(); 	 
     ctMon_->setup(ps, dbe_); 	 
   }  
 
   if (ps.getUntrackedParameter<bool>("BeamMonitor",false)){
-    if(debug_>0) cout << "HcalMonitorModule: Beam monitor flag is on...."<<endl;
+    if(debug_) cout << "HcalMonitorModule: Beam monitor flag is on...."<<endl;
     beamMon_ = new HcalBeamMonitor();
     beamMon_->setup(ps, dbe_);
   }
 
-  if (ps.getUntrackedParameter<bool>("ExpertMonitor",false)){
-    if(debug_>0) cout << "HcalMonitorModule: Expert monitor flag is on...."<<endl;
-    expertMon_ = new HcalExpertMonitor();
-    expertMon_->setup(ps, dbe_);
-  }
-
-  
 
   if ( ps.getUntrackedParameter<bool>("HcalAnalysis", false) ) {
-    if(debug_>0) cout << "HcalMonitorModule: Hcal Analysis flag is on...." << endl;
+    if(debug_) cout << "HcalMonitorModule: Hcal Analysis flag is on...." << endl;
     tempAnalysis_ = new HcalTemplateAnalysis();
     tempAnalysis_->setup(ps);
   }
@@ -146,21 +141,21 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
 
   // set parameters   
   prescaleEvt_ = ps.getUntrackedParameter<int>("diagnosticPrescaleEvt", -1);
-  if(debug_>1) cout << "===>HcalMonitor event prescale = " << prescaleEvt_ << " event(s)"<< endl;
+  if (debug_) cout << "===>HcalMonitor event prescale = " << prescaleEvt_ << " event(s)"<< endl;
 
   prescaleLS_ = ps.getUntrackedParameter<int>("diagnosticPrescaleLS", -1);
-  if(debug_>1) cout << "===>HcalMonitor lumi section prescale = " << prescaleLS_ << " lumi section(s)"<< endl;
+  if (debug_) cout << "===>HcalMonitor lumi section prescale = " << prescaleLS_ << " lumi section(s)"<< endl;
   if (prescaleLS_>0) actonLS_=true;
 
   prescaleUpdate_ = ps.getUntrackedParameter<int>("diagnosticPrescaleUpdate", -1);
-  if(debug_>1) cout << "===>HcalMonitor update prescale = " << prescaleUpdate_ << " update(s)"<< endl;
+  if (debug_) cout << "===>HcalMonitor update prescale = " << prescaleUpdate_ << " update(s)"<< endl;
 
   prescaleTime_ = ps.getUntrackedParameter<int>("diagnosticPrescaleTime", -1);
-  if(debug_>1) cout << "===>HcalMonitor time prescale = " << prescaleTime_ << " minute(s)"<< endl;
+  if (debug_) cout << "===>HcalMonitor time prescale = " << prescaleTime_ << " minute(s)"<< endl;
   
   // Base folder for the contents of this job
   string subsystemname = ps.getUntrackedParameter<string>("subSystemFolder", "Hcal") ;
-  if(debug_>0) cout << "===>HcalMonitor name = " << subsystemname << endl;
+  if (debug_) cout << "===>HcalMonitor name = " << subsystemname << endl;
   rootFolder_ = subsystemname + "/";
   
   gettimeofday(&psTime_.updateTV,NULL);
@@ -169,15 +164,17 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   psTime_.updateTime /= 1000.0;
   psTime_.elapsedTime=0;
   psTime_.vetoTime=psTime_.updateTime;
+
 }
 
 //--------------------------------------------------------
 HcalMonitorModule::~HcalMonitorModule(){
   
+  if( debug_ ) printf("HcalMonitorModule: Destructor.....\n");
+  
 // if (dbe_){    
 //   if(digiMon_!=NULL)   {  digiMon_->clearME();}
 //   if(dfMon_!=NULL)     {  dfMon_->clearME();}
-//   if(diTask_!=NULL)    {  diTask_->clearME();}
 //   if(pedMon_!=NULL)    {  pedMon_->clearME();}
 //   if(ledMon_!=NULL)    {  ledMon_->clearME();}
 //   if(laserMon_!=NULL)  {  laserMon_->clearME();}
@@ -192,7 +189,6 @@ HcalMonitorModule::~HcalMonitorModule(){
 //
 //  if(digiMon_!=NULL) { delete digiMon_;  digiMon_=NULL; }
 //  if(dfMon_!=NULL) { delete dfMon_;     dfMon_=NULL; }
-//  if(diTask_!=NULL) { delete diTask_;   diTask_=NULL; }
 //  if(pedMon_!=NULL) { delete pedMon_;   pedMon_=NULL; }
 //  if(ledMon_!=NULL) { delete ledMon_;   ledMon_=NULL; }
 //  if(laserMon_!=NULL) { delete laserMon_;   laserMon_=NULL; }
@@ -203,7 +199,8 @@ HcalMonitorModule::~HcalMonitorModule(){
 //  if(tempAnalysis_!=NULL) { delete tempAnalysis_; tempAnalysis_=NULL; }
 //  delete evtSel_; evtSel_ = NULL;
 //
-} //void HcalMonitorModule::~HcalMonitorModule()
+
+}
 
 //--------------------------------------------------------
 void HcalMonitorModule::beginJob(const edm::EventSetup& c){
@@ -211,6 +208,8 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
   
   ievt_pre_=0;
 
+  if(debug_) cout << "HcalMonitorModule: begin job...." << endl;
+  
   if ( dbe_ != NULL ){
     dbe_->setCurrentFolder(rootFolder_+"DQM Job Status" );
     meStatus_  = dbe_->bookInt("STATUS");
@@ -227,7 +226,6 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
 
   edm::ESHandle<HcalDbService> pSetup;
   c.get<HcalDbRecord>().get( pSetup );
-
   readoutMap_=pSetup->getHcalMapping();
   DetId detid_;
   HcalDetId hcaldetid_; 
@@ -262,10 +260,13 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
 	  tempv.push_back(hcaldetid_);
 	  pair <int, std::vector<HcalDetId> > thispair;
 	  thispair = pair <int, std::vector<HcalDetId> > (dccid,tempv);
+	  //std::cout << "Had to add for DCC " << dccid << std::endl;
 	  DCCtoCell.insert(thispair); 
 	}
 	else {
+	  //cout << "++_+_+_ Pushbacked. Tooked " << thisDCC->second.size(); 
 	  thisDCC->second.push_back(hcaldetid_);
+	  //cout << " up to " << thisDCC->second.size() << endl;
 	}
       
 	// If this HTR has no entries, make this its first one.
@@ -274,38 +275,38 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
 	  tempv.push_back(hcaldetid_);
 	  pair < pair <int,int>, std::vector<HcalDetId> > thispair;
 	  thispair = pair <pair <int,int>, std::vector<HcalDetId> > (dcc_spgt,tempv);
+	  //std::cout << "Had to add for HTR " << dccid << ", " << eid->spigot() << std::endl;
 	  HTRtoCell.insert(thispair); 
+	  //std::cout << "Added for HTR " << dccid <<  ", " << eid->spigot() << std::endl;
 	}
 	else {
 	  thisHTR->second.push_back(hcaldetid_);	
 	}
-
+	// std::cout << "Looped once more through AllElIds" << std::endl;
       } catch (...) {
+	//std::cout << " ---> ";
+	//std::cout << "Det " << detid_.det() << " and " << "Subdet " << detid_.subdetId() << std::endl;
       }
     } // fi (!detid_.null()) 
   } 
   if (dfMon_) {
+    if (debug_) cout << "About to smuggle from beginJob()" << endl;
     dfMon_->smuggleMaps(DCCtoCell, HTRtoCell);
   }
-
   //get conditions
   c.get<HcalDbRecord>().get(conditions_);
 
-  // fill reference pedestals with database values
-  // Need to repeat this so many times?  Just do it once? And then we can be smarter about the whole fC/ADC thing?
-  if (pedMon_!=NULL)
-    pedMon_->fillDBValues(*conditions_);
-  if (deadMon_!=NULL)
-    deadMon_->createMaps(*conditions_);
-  if (hotMon_!=NULL)
-    hotMon_->createMaps(*conditions_);
   return;
-} // HcalMonitorModule::beginJob(...)
+}
+
 
 //--------------------------------------------------------
 void HcalMonitorModule::beginRun(const edm::Run& run, const edm::EventSetup& c) {
+  if (debug_) cout <<"HcalMonitorModule::beginRun"<<endl;
+
   fedsListed_ = false;
   reset();
+  if (debug_) cout <<"Finished beginRun"<<endl;
 }
 
 //--------------------------------------------------------
@@ -327,29 +328,23 @@ void HcalMonitorModule::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 }
 
 //--------------------------------------------------------
-void HcalMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& context)
-{
-  if (debug_>1)  
-    cout <<"HcalMonitorModule::endRun(...) "<<endl;
-  // Do final pedestal histogram filling
-  if (pedMon_!=NULL)
-    pedMon_->fillPedestalHistos();
-  if (deadMon_!=NULL)
-    deadMon_->fillDeadHistosAtEndRun();
-
-  return;
-    }
+void HcalMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& context){
+  if (debug_) cout <<"HcalMonitorModule::endRun"<<endl;
+  }
 
 
 //--------------------------------------------------------
 void HcalMonitorModule::endJob(void) {
+
+  if(debug_) cout << "HcalMonitorModule: end job...." << endl;  
+  if (debug_) cout << "HcalMonitorModule::endJob, analyzed " << ievt_ << " events" << endl;
   
   if ( meStatus_ ) meStatus_->Fill(2);
 
   if(rhMon_!=NULL) rhMon_->done();
   if(digiMon_!=NULL) digiMon_->done();
   if(dfMon_!=NULL) dfMon_->done();
-  if(diTask_!=NULL) diTask_->done();
+  if(diMon_!=NULL) diMon_->done();
   if(pedMon_!=NULL) pedMon_->done();
   if(ledMon_!=NULL) ledMon_->done();
   if(laserMon_!=NULL) laserMon_->done();
@@ -359,7 +354,6 @@ void HcalMonitorModule::endJob(void) {
   if (tpMon_!=NULL) tpMon_->done();
   if (ctMon_!=NULL) ctMon_->done();
   if (beamMon_!=NULL) beamMon_->done();
-  if (expertMon_!=NULL) expertMon_->done();
   if(tempAnalysis_!=NULL) tempAnalysis_->done();
   return;
 }
@@ -367,10 +361,12 @@ void HcalMonitorModule::endJob(void) {
 //--------------------------------------------------------
 void HcalMonitorModule::reset(){
 
+  if (debug_) cout << "HcalMonitorModule: reset...." << endl;
+
   if(rhMon_!=NULL)   rhMon_->reset();
   if(digiMon_!=NULL) digiMon_->reset();
   if(dfMon_!=NULL)   dfMon_->reset();
-  if(diTask_!=NULL)  diTask_->reset();
+  if(diMon_!=NULL)   diMon_->reset();
   if(pedMon_!=NULL)  pedMon_->reset();
   if(ledMon_!=NULL)  ledMon_->reset();
   if(laserMon_!=NULL)  laserMon_->reset();
@@ -381,11 +377,12 @@ void HcalMonitorModule::reset(){
   if(tpMon_!=NULL) tpMon_->reset();
   if(ctMon_!=NULL) ctMon_->reset();
   if(beamMon_!=NULL) beamMon_->reset();
-  if(expertMon_!=NULL) expertMon_->reset();
 }
 
 //--------------------------------------------------------
 void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& eventSetup){
+
+  if(debug_) cout << "HcalMonitorModule: analyze...." << endl;
 
   // environment datamembers
   irun_     = e.id().run();
@@ -393,7 +390,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   ievent_   = e.id().event();
   itime_    = e.time().value();
 
-  if (debug_>1) cout << "HcalMonitorModule: evts: "<< nevt_ << ", run: " << irun_ << ", LS: " << ilumisec_ << ", evt: " << ievent_ << ", time: " << itime_ << endl <<"\t counter = "<<ievt_pre_<<"\t total count = "<<ievt_<<endl; 
+  if (debug_) cout << "HcalMonitorModule: evts: "<< nevt_ << ", run: " << irun_ << ", LS: " << ilumisec_ << ", evt: " << ievent_ << ", time: " << itime_ << endl <<"\t counter = "<<ievt_pre_<<"\t total count = "<<ievt_<<endl; 
 
   // skip this event if we're prescaling...
   ievt_pre_++; // need to increment counter before calling prescale
@@ -429,39 +426,26 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 
   // try to get raw data and unpacker report
   edm::Handle<FEDRawDataCollection> rawraw;  
-
-  try{
-    e.getByType(rawraw);
-  }
-  catch(...)
-    {
-      rawOK_=false;
-    }
-  if (rawOK_&&!rawraw.isValid()) {
+  e.getByType(rawraw);
+  if (!rawraw.isValid()) {
     rawOK_=false;
   }
+
 
   edm::Handle<HcalUnpackerReport> report;  
-  try{
-    e.getByType(report);
-  }
-  catch(...)
-    {
-      rawOK_=false;
-    }
-  if (rawOK_&&!report.isValid()) {
+
+  e.getByType(report);
+  if (!report.isValid()) {
     rawOK_=false;
-  }
-  else 
-    {
-      if(!fedsListed_){
-	const std::vector<int> feds =  (*report).getFedsUnpacked();    
-	for(unsigned int f=0; f<feds.size(); f++){
-	  meFEDS_->Fill(feds[f]);    
-	}
-	fedsListed_ = true;
+  } else {
+    if(!fedsListed_){
+      const std::vector<int> feds =  (*report).getFedsUnpacked();    
+      for(unsigned int f=0; f<feds.size(); f++){
+	meFEDS_->Fill(feds[f]);    
       }
+      fedsListed_ = true;
     }
+  }
 
   // check which Subdetectors are on by seeing which are reading out FED data
   // Assume subdetectors aren't present, unless we explicitly find otherwise
@@ -469,61 +453,37 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   HEpresent_ = false;
   HOpresent_ = false;
   HFpresent_ = false;
-  
   CheckSubdetectorStatus(*rawraw,*report,*readoutMap_);
-    
+
+  
   // try to get digis
   edm::Handle<HBHEDigiCollection> hbhe_digi;
   edm::Handle<HODigiCollection> ho_digi;
   edm::Handle<HFDigiCollection> hf_digi;
   edm::Handle<HcalTrigPrimDigiCollection> tp_digi;
   edm::Handle<HcalLaserDigi> laser_digi;
-
-  try 
-    {
-      e.getByLabel(inputLabelDigi_,hbhe_digi);
-    }
-  catch(...)
-    {
-      digiOK_=false;
-    }
-  if (digiOK_&&!hbhe_digi.isValid()) {
-
+  e.getByLabel(inputLabelDigi_,hbhe_digi);
+  if (!hbhe_digi.isValid()) {
     digiOK_=false;
   }
 
-  try{
   e.getByLabel(inputLabelDigi_,hf_digi);
-  }
-  catch(...)
-    {digiOK_=false;}
-  if (digiOK_&&!hf_digi.isValid()) {
+  if (!hf_digi.isValid()) {
     digiOK_=false;
   }
 
-  try
-    {e.getByLabel(inputLabelDigi_,ho_digi);}
-  catch(...)
-    {digiOK_=false;}
-  if (digiOK_&&!ho_digi.isValid()) {
+  e.getByLabel(inputLabelDigi_,ho_digi);
+  if (!ho_digi.isValid()) {
     digiOK_=false;
   }
 
-  try{
-    e.getByLabel(inputLabelDigi_,tp_digi);
-  }
-  catch(...)
-    {tpdOK_=false;}
-
-  if (tpdOK_ && !tp_digi.isValid()) {
+  e.getByLabel(inputLabelDigi_,tp_digi);
+  if (!tp_digi.isValid()) {
     tpdOK_=false;
   }
-  try{
+
   e.getByLabel(inputLabelLaser_,laser_digi);
-  }
-  catch(...)
-    {laserOK_=false;}
-  if (laserOK_&&!laser_digi.isValid()) {
+  if (!laser_digi.isValid()) {
     laserOK_=false;
   }
 
@@ -534,38 +494,23 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   edm::Handle<ZDCRecHitCollection> zdc_hits;
   edm::Handle<CaloTowerCollection> calotowers;
 
-  try{
+
   e.getByLabel(inputLabelRecHitHBHE_,hb_hits);
-  }
-  catch(...)
-    {rechitOK_=false;}
-  
-  if (rechitOK_&&!hb_hits.isValid()) {
+  if (!hb_hits.isValid()) {
     rechitOK_ = false;
   }
-  try{
+
   e.getByLabel(inputLabelRecHitHO_,ho_hits);
-  }
-  catch(...)
-    {rechitOK_=false;}
-  if (rechitOK_&&!ho_hits.isValid()) {
+  if (!ho_hits.isValid()) {
     rechitOK_ = false;
   }
-  try{
-    e.getByLabel(inputLabelRecHitHF_,hf_hits);
-  }
-  catch(...)
-    {rechitOK_=false;}
-  if (rechitOK_&&!hf_hits.isValid()) {
+  e.getByLabel(inputLabelRecHitHF_,hf_hits);
+  if (!hf_hits.isValid()) {
     rechitOK_ = false;
   }
   
-  try{
-    e.getByLabel(inputLabelRecHitZDC_,zdc_hits);
-  }
-  catch(...)
-    {zdchitOK_=false;}
-  if (zdchitOK_&&!zdc_hits.isValid()) {
+  e.getByLabel(inputLabelRecHitZDC_,zdc_hits);
+  if (!zdc_hits.isValid()) {
     zdchitOK_ = false;
     //cout <<"CANNOT GET ZDC HITS!!!!"<<endl;
     //cout <<"input label = "<<inputLabelRecHitZDC_<<endl;
@@ -574,12 +519,8 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   // try to get calotowers 
   if (ctMon_!=NULL)
     {
-      try{
       e.getByLabel(inputLabelCaloTower_,calotowers);
-      }
-      catch(...)
-	{calotowerOK_=false;}
-      if(calotowerOK_&&!calotowers.isValid()){
+      if(!calotowers.isValid()){
 	calotowerOK_=false;
       }
     }
@@ -597,22 +538,16 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 
   if((dfMon_ != NULL) && (evtMask&DO_HCAL_DFMON) && rawOK_) 
     dfMon_->processEvent(*rawraw,*report,*readoutMap_);
+
+  if (diMon_ != NULL && rawOK_)
+    diMon_->processEvent(*rawraw,*report,*readoutMap_);
+
   if (showTiming_)
     {
       cpu_timer.stop();
       if (dfMon_ !=NULL) cout <<"TIMER:: DATAFORMAT MONITOR ->"<<cpu_timer.cpuTime()<<endl;
       cpu_timer.reset(); cpu_timer.start();
     }
-
-  if ((diTask_ != NULL) && (evtMask&DO_HCAL_DFMON) && rawOK_)
-    diTask_->processEvent(*rawraw,*report,*readoutMap_);
-  if (showTiming_)
-    {
-      cpu_timer.stop();
-      if (diTask_ !=NULL) cout <<"TIMER:: DATA INTEGRITY TASK ->"<<cpu_timer.cpuTime()<<endl;
-      cpu_timer.reset(); cpu_timer.start();
-    }
-
   // Digi monitor task
   if((digiMon_!=NULL) && (evtMask&DO_HCAL_DIGIMON) && digiOK_) 
     {
@@ -675,7 +610,6 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
       cpu_timer.reset(); cpu_timer.start();
     }
   
-  // Beam Monitor task
   if ((beamMon_ != NULL) && (evtMask&DO_HCAL_RECHITMON) && rechitOK_)
     {
       beamMon_->processEvent(*hb_hits,*ho_hits,*hf_hits,*hf_digi);
@@ -693,7 +627,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     {
       hotMon_->processEvent(*hb_hits,*ho_hits,*hf_hits, 
 			    *hbhe_digi,*ho_digi,*hf_digi,*conditions_);
-      //hotMon_->setSubDetectors(HBpresent_,HEpresent_, HOpresent_, HFpresent_);
+      hotMon_->setSubDetectors(HBpresent_,HEpresent_, HOpresent_, HFpresent_);
     }
   if (showTiming_)
     {
@@ -704,7 +638,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   // Dead Cell monitor task -- may end up using both rec hits and digis?
   if((deadMon_ != NULL) && (evtMask&DO_HCAL_RECHITMON) && rechitOK_ && digiOK_) 
     {
-      //deadMon_->setSubDetectors(HBpresent_,HEpresent_, HOpresent_, HFpresent_);
+      deadMon_->setSubDetectors(HBpresent_,HEpresent_, HOpresent_, HFpresent_);
       deadMon_->processEvent(*hb_hits,*ho_hits,*hf_hits,
 			     *hbhe_digi,*ho_digi,*hf_digi,*conditions_); 
     }
@@ -722,7 +656,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   if (showTiming_)
     {
       cpu_timer.stop();
-      if (ctMon_ !=NULL) cout <<"TIMER:: CALOTOWER MONITOR ->"<<cpu_timer.cpuTime()<<endl;
+      if (deadMon_!=NULL) cout <<"TIMER:: CALOTOWER MONITOR ->"<<cpu_timer.cpuTime()<<endl;
       cpu_timer.reset(); cpu_timer.start();
     }
 
@@ -739,37 +673,20 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
       if (tpMon_!=NULL) cout <<"TIMER:: TRIGGERPRIMITIVE MONITOR ->"<<cpu_timer.cpuTime()<<endl;
     }
 
-  // Expert monitor plots
-  if (expertMon_ != NULL) 
-    {
-      expertMon_->processEvent(*hb_hits,*ho_hits,*hf_hits,
-			       *hbhe_digi,*ho_digi,*hf_digi,
-			       *tp_digi,
-			       *rawraw,*report,*readoutMap_);
-    }
-  if (showTiming_)
-    {
-      cpu_timer.stop();
-      if (expertMon_!=NULL) cout <<"TIMER:: EXPERT MONITOR ->"<<cpu_timer.cpuTime()<<endl;
-      cpu_timer.reset(); cpu_timer.start();
-    }
-
-
-  if(debug_>0 && ievt_%1000 == 0)
+  if(ievt_%1000 == 0 && debug_)
     cout << "HcalMonitorModule: processed " << ievt_ << " events" << endl;
 
-  if(debug_>1)
-    {
-      cout << "HcalMonitorModule: processed " << ievt_ << " events" << endl;
-      cout << "    RAW Data   ==> " << rawOK_<< endl;
-      cout << "    Digis      ==> " << digiOK_<< endl;
-      cout << "    RecHits    ==> " << rechitOK_<< endl;
-      cout << "    TrigRec    ==> " << trigOK_<< endl;
-      cout << "    TPdigis    ==> " << tpdOK_<< endl;    
-      cout << "    CaloTower  ==> " << calotowerOK_ <<endl;
-      cout << "    LaserDigis ==> " << laserOK_ << endl;
-    }
-  
+  if(debug_){
+    cout << "HcalMonitorModule: processed " << ievt_ << " events" << endl;
+    cout << "    RAW Data   ==> " << rawOK_<< endl;
+    cout << "    Digis      ==> " << digiOK_<< endl;
+    cout << "    RecHits    ==> " << rechitOK_<< endl;
+    cout << "    TrigRec    ==> " << trigOK_<< endl;
+    cout << "    TPdigis    ==> " << tpdOK_<< endl;    
+    cout << "    CaloTower  ==> " <<calotowerOK_ <<endl;
+    cout << "    LaserDigis ==> " << laserOK_ << endl;
+  }
+
   return;
 }
 
@@ -778,7 +695,7 @@ bool HcalMonitorModule::prescale()
 {
   ///Return true if this event should be skipped according to the prescale condition...
   ///    Accommodate a logical "OR" of the possible tests
-  if (debug_>0) cout <<"HcalMonitorModule::prescale"<<endl;
+  if (debug_) cout <<"HcalMonitorModule::prescale"<<endl;
   
   gettimeofday(&psTime_.updateTV,NULL);
   double time = (psTime_.updateTV.tv_sec*1000.0+psTime_.updateTV.tv_usec/1000.0);
@@ -792,32 +709,27 @@ bool HcalMonitorModule::prescale()
   bool updatePS = prescaleUpdate_>0;
 
   // If no prescales are set, keep the event
-  if(!evtPS && !lsPS && !timePS && !updatePS)
-    {
-      return false;
-    }
+  if(!evtPS && !lsPS && !timePS && !updatePS) return false;
+
   //check each instance
   if(lsPS && (ilumisec_%prescaleLS_)!=0) lsPS = false; //LS veto
   //if(evtPS && (ievent_%prescaleEvt_)!=0) evtPS = false; //evt # veto
   // we can't just call (ievent_%prescaleEvt_) because ievent values not consecutive
   if (evtPS && (ievt_pre_%prescaleEvt_)!=0) evtPS = false;
-  if(timePS)
-    {
-      double elapsed = (psTime_.updateTime - psTime_.vetoTime)/60.0;
-      if(elapsed<prescaleTime_){
-	timePS = false;  //timestamp veto
-	psTime_.vetoTime = psTime_.updateTime;
-      }
-    } //if (timePS)
-
+  if(timePS){
+    double elapsed = (psTime_.updateTime - psTime_.vetoTime)/60.0;
+    if(elapsed<prescaleTime_){
+      timePS = false;  //timestamp veto
+      psTime_.vetoTime = psTime_.updateTime;
+    }
+  } //if (timePS)
   //  if(prescaleUpdate_>0 && (nupdates_%prescaleUpdate_)==0) updatePS=false; ///need to define what "updates" means
   
-  if (debug_>1) 
-    {
-      cout<<"HcalMonitorModule::prescale  evt: "<<ievent_<<"/"<<evtPS<<", ";
-      cout <<"ls: "<<ilumisec_<<"/"<<lsPS<<",";
-      cout <<"time: "<<psTime_.updateTime - psTime_.vetoTime<<"/"<<timePS<<endl;
-    }  
+  if (debug_) printf("HcalMonitorModule::prescale  evt: %d/%d, ls: %d/%d, time: %f/%d\n",
+		     ievent_,evtPS,
+		     ilumisec_,lsPS,
+		     psTime_.updateTime - psTime_.vetoTime,timePS);
+  
   // if any criteria wants to keep the event, do so
   if(evtPS || lsPS || timePS) return false; //FIXME updatePS left out for now
   return true;
@@ -853,14 +765,13 @@ void HcalMonitorModule::CheckSubdetectorStatus(const FEDRawDataCollection& rawra
 	  HFpresent_ = true;
 	  continue;
 	}
-
       // check for HO
       if (dccid>723)
 	{
 	  HOpresent_ = true;
 	  continue;
 	}
-      
+
       // Looking at HB and HE is more complicated, since they're combined into HBHE
       // walk through the HTR data...
       HcalHTRData htr;  
@@ -868,7 +779,7 @@ void HcalMonitorModule::CheckSubdetectorStatus(const FEDRawDataCollection& rawra
 	if (!dccHeader->getSpigotPresent(spigot)) continue;
 	
 	// Load the given decoder with the pointer and length from this spigot.
-	dccHeader->getSpigotData(spigot,htr, fed.size()); 
+	dccHeader->getSpigotData(spigot,htr,fed.size()); 
 	
 	// check min length, correct wordcount, empty event, or total length if histo event.
 	if (!htr.check()) continue;
@@ -907,10 +818,9 @@ void HcalMonitorModule::CheckSubdetectorStatus(const FEDRawDataCollection& rawra
 		  } // if (!did.null())
 	      } // for (int fib=0;...)
 	  } // for (int fchan = 0;...)
-
+	
       } // for (int spigot=0;...)
-    } //  for (vector<int>::const_iterator i=fedUnpackList.begin();
-  return;
+    } // for (vector<int>::const_iterator i=fedUnpackList.begin();...)
 } // void HcalMonitorModule::CheckSubdetectorStatus(...)
 
 #include "FWCore/Framework/interface/MakerMacros.h"

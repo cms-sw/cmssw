@@ -6,7 +6,6 @@
 //
 
 #include "CalibFormats/SiPixelObjects/interface/PixelLowVoltageMap.h"
-#include "CalibFormats/SiPixelObjects/interface/PixelTimeFormatter.h"
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -23,31 +22,6 @@ PixelLowVoltageMap::PixelLowVoltageMap(std::vector< std::vector < std::string> >
   std::string mthn = "[PixelLowVoltageMap::PixelLowVoltageMap()] " ;
   std::map<std::string , int > colM;
   std::vector<std::string > colNames;
-/*
-  EXTENSION_TABLE_NAME: XDAQ_LOW_VOLTAGE_MAP  (VIEW: CONF_KEY_XDAQ_LOW_VOLTAGE_V) 
-  
-  CONFIG_KEY				    NOT NULL VARCHAR2(80)
-  KEY_TYPE				    NOT NULL VARCHAR2(80)
-  KEY_ALIAS				    NOT NULL VARCHAR2(80)
-  VERSION					     VARCHAR2(40)
-  KIND_OF_COND  			    NOT NULL VARCHAR2(40)
-  PANEL_NAME				    NOT NULL VARCHAR2(200)
-  DATAPOINT				    NOT NULL VARCHAR2(200)
-  LV_DIGITAL				    NOT NULL VARCHAR2(200)
-  LV_ANALOG				    NOT NULL VARCHAR2(200)
-  
-*/
-
-  colNames.push_back("CONFIG_KEY"  );
-  colNames.push_back("KEY_TYPE"    );
-  colNames.push_back("KEY_ALIAS"   );
-  colNames.push_back("VERSION"     );
-  colNames.push_back("KIND_OF_COND");
-  colNames.push_back("PANEL_NAME"  );
-  colNames.push_back("DATAPOINT"   );
-  colNames.push_back("LV_DIGITAL"  );
-  colNames.push_back("LV_ANALOG"   );
-/*
   colNames.push_back("CONFIG_KEY_ID"	);
   colNames.push_back("CONFG_KEY"	);
   colNames.push_back("VERSION"	);
@@ -58,7 +32,6 @@ PixelLowVoltageMap::PixelLowVoltageMap(std::vector< std::vector < std::string> >
   colNames.push_back("DATAPOINT"	);
   colNames.push_back("LV_DIGITAL"	);
   colNames.push_back("LV_ANALOG"	);
-*/
   
   for(unsigned int c = 0 ; c < tableMat[0].size() ; c++)
     {
@@ -188,95 +161,14 @@ void PixelLowVoltageMap::writeASCII(std::string dir) const {
     dpNameMap_.begin();
 
   for (;imodule!=dpNameMap_.end();++imodule) {
-    out <<       imodule->first
-        << " "<< imodule->second.first 
-	<< " "<< imodule->second.second.first
-	<< " "<< imodule->second.second.second 
-	<<endl;
+    out << imodule->first<<" "<<imodule->second.first 
+	<< " "<<imodule->second.second.first
+	<< " "<<imodule->second.second.first<<endl;
   }
 
   out.close();
 
 }
 
-//=============================================================================================
-void PixelLowVoltageMap::writeXMLHeader(pos::PixelConfigKey key, 
-                                      	int version, 
-                                      	std::string path, 
-                                      	std::ofstream *outstream,
-                                      	std::ofstream *out1stream,
-                                      	std::ofstream *out2stream) const
-{
-  std::string mthn = "[PixelLowVoltageMap::writeXMLHeader()]\t\t\t    " ;
-  std::stringstream maskFullPath ;
 
-  maskFullPath << path << "/XDAQLowVoltageMap_Test_" << PixelTimeFormatter::getmSecTime() << ".xml";
-  std::cout << mthn << "Writing to: " << maskFullPath.str() << std::endl ;
-
-  outstream->open(maskFullPath.str().c_str()) ;
-  
-  *outstream << "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"                                 << std::endl ;
-  *outstream << "<ROOT xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>" 		 	          << std::endl ;
-  *outstream << ""                                                                                        << std::endl ; 
-  *outstream << " <HEADER>"                                                                               << std::endl ; 
-  *outstream << "  <TYPE>"                                                                                << std::endl ; 
-  *outstream << "   <EXTENSION_TABLE_NAME>XDAQ_LOW_VOLTAGE_MAP</EXTENSION_TABLE_NAME>"                    << std::endl ; 
-  *outstream << "   <NAME>XDAQ Low Voltage Map</NAME>"                                                    << std::endl ; 
-  *outstream << "  </TYPE>"                                                                               << std::endl ; 
-  *outstream << "  <RUN>"                                                                                 << std::endl ; 
-  *outstream << "   <RUN_TYPE>XDAQ Low Voltage Map</RUN_TYPE>"                                            << std::endl ; 
-  *outstream << "   <RUN_NUMBER>1</RUN_NUMBER>"                                                           << std::endl ; 
-  *outstream << "   <RUN_BEGIN_TIMESTAMP>" << PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>"   << std::endl ; 
-  *outstream << "   <COMMENT_DESCRIPTION>XDAQ Low Voltage Map</COMMENT_DESCRIPTION>"                      << std::endl ; 
-  *outstream << "   <LOCATION>CERN TAC</LOCATION>"                                                        << std::endl ; 
-  *outstream << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"                                 << std::endl ; 
-  *outstream << "  </RUN>"                                                                                << std::endl ; 
-  *outstream << " </HEADER>"                                                                              << std::endl ; 
-  *outstream << ""                                                                                        << std::endl ; 
-  *outstream << " <DATA_SET>"                                                                             << std::endl ;
-  *outstream << ""                                                                                        << std::endl ;
-  *outstream << "  <VERSION>" << version << "</VERSION>"                                                  << std::endl ;
-  *outstream << ""                                                                                        << std::endl ;
-  *outstream << "  <PART>"                                                                                << std::endl ;
-  *outstream << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"                                              << std::endl ;      
-  *outstream << "   <KIND_OF_PART>Detector ROOT</KIND_OF_PART>"                                           << std::endl ;         
-  *outstream << "  </PART>"                                                                               << std::endl ;
-  *outstream << " "                                                                                       << std::endl ;
-
-}
-
-//=============================================================================================
-void PixelLowVoltageMap::writeXML( std::ofstream *outstream,
-                            	   std::ofstream *out1stream,
-                            	   std::ofstream *out2stream) const 
-{
-  std::string mthn = "[PixelLowVoltageMap::writeXML()]\t\t\t    " ;
-
-  std::map<PixelModuleName, pair< string, pair<string, string> > >::const_iterator imodule=dpNameMap_.begin();
-
-  for (;imodule!=dpNameMap_.end();++imodule) {
-    *outstream << "  <DATA>"                                                                              << std::endl ;
-    *outstream << "   <PANEL_NAME>" << imodule->first		     << "</PANEL_NAME>"   		  << std::endl ;
-    *outstream << "   <DATAPOINT>"  << imodule->second.first	     << "</DATAPOINT>"    		  << std::endl ;
-    *outstream << "   <LV_DIGITAL>" << imodule->second.second.first  << "</LV_DIGITAL>"   		  << std::endl ;
-    *outstream << "   <LV_ANALOG>"  << imodule->second.second.second << "</LV_ANALOG>" 			  << std::endl ;
-    *outstream << "  </DATA>"                                                                             << std::endl ;
-    *outstream << ""                                                                                      << std::endl ;
-  }
-}
-
-//=============================================================================================
-void PixelLowVoltageMap::writeXMLTrailer(std::ofstream *outstream,
-                             	         std::ofstream *out1stream,
-                             	         std::ofstream *out2stream ) const 
-{
-  std::string mthn = "[PixelLowVoltageMap::writeXMLTrailer()]\t\t\t    " ;
-  
-  *outstream << " </DATA_SET>"		 								  << std::endl ;
-  *outstream << "</ROOT>"  		 								  << std::endl ;
-  
-  outstream->close() ;
-  std::cout << mthn << "Data written "   								  << std::endl ;
-
-}
 

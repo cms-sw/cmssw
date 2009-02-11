@@ -68,6 +68,10 @@ SeedGeneratorForCosmics::SeedGeneratorForCosmics(edm::ParameterSet const& conf):
   edm::LogInfo("SeedGeneratorForCosmics")<<" PtMin of track is "<<ptmin<< 
     " The Radius of the cylinder for seeds is "<<originradius <<"cm"  << " The set Seed Momentum" <<  seedpt;
 
+  //***top-bottom
+  positiveYOnly=conf_.getParameter<bool>("PositiveYOnly");
+  negativeYOnly=conf_.getParameter<bool>("NegativeYOnly");
+  //***
 
 
 }
@@ -109,6 +113,16 @@ bool SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
     // TransientTrackingRecHit::ConstRecHitPointer outrhit=TTTRHBuilder->build(HitPairs[is].outer())
 
     TransientTrackingRecHit::ConstRecHitPointer outrhit= TTTRHBuilder->build(HitTriplets[it].outer());
+    //***top-bottom
+    TransientTrackingRecHit::ConstRecHitPointer innrhit = TTTRHBuilder->build(HitTriplets[it].inner());
+    if (positiveYOnly && (outrhit->globalPosition().y()<0 || innrhit->globalPosition().y()<0
+			  || outrhit->globalPosition().y() < innrhit->globalPosition().y()
+			  ) ) continue;
+    if (negativeYOnly && (outrhit->globalPosition().y()>0 || innrhit->globalPosition().y()>0
+			  || outrhit->globalPosition().y() > innrhit->globalPosition().y()
+			  ) ) continue;
+    //***
+
     edm::OwnVector<TrackingRecHit> hits;
     hits.push_back((*(HitTriplets[it].outer())).clone());
     FastHelix helix(inner, middle, outer,iSetup);
@@ -185,6 +199,15 @@ bool SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
     LogDebug("CosmicSeedFinder") <<"inner point of the seed "<<inner <<" outer point of the seed "<<outer; 
     //RC const TransientTrackingRecHit* outrhit=TTTRHBuilder->build(HitPairs[is].outer().RecHit());  
     TransientTrackingRecHit::ConstRecHitPointer outrhit = TTTRHBuilder->build((HitPairs[is].outer()));
+    //***top-bottom
+    TransientTrackingRecHit::ConstRecHitPointer innrhit = TTTRHBuilder->build((HitPairs[is].inner()));
+    if (positiveYOnly && (outrhit->globalPosition().y()<0 || innrhit->globalPosition().y()<0
+			  || outrhit->globalPosition().y() < innrhit->globalPosition().y()
+			  ) ) continue;
+    if (negativeYOnly && (outrhit->globalPosition().y()>0 || innrhit->globalPosition().y()>0
+			  || outrhit->globalPosition().y() > innrhit->globalPosition().y()
+			  ) ) continue;
+    //***
 
     edm::OwnVector<TrackingRecHit> hits;
     hits.push_back((*(HitPairs[is].outer())).clone());

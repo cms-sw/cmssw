@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.16 $
- *  $Date: 2008/07/30 15:44:49 $
+ *  $Revision: 1.14 $
+ *  $Date: 2008/03/25 16:15:57 $
  *  (last update by $Author: flucke $)
  */
 
@@ -71,7 +71,7 @@ bool MillePedeMonitor::init(TDirectory *directory)
   if (!this->equidistLogBins(binsPt, kNumBins, 0.8, 100.)) {
 //     cerr << "MillePedeMonitor::init: problem with log bins" << endl;
   }
-  const int nHits = 35;
+  const int nHits = 25;
 
   myTrackHists1D.push_back(new TH1F("ptTrackLogBins",  "p_{t}(track);p_{t} [GeV]",
 				    kNumBins, binsPt));
@@ -120,7 +120,7 @@ bool MillePedeMonitor::init(TDirectory *directory)
   myUsedTrackHists2D = this->cloneHists(myTrackHists2D, "used", " (used tracks)");
   // must be after clone: index in vector!
   myUsedTrackHists1D.push_back(new TH1F("usedHitsX", "n(x-hits) transferred to pede;n(x-hits)", nHits, 0., nHits));
-  myUsedTrackHists1D.push_back(new TH1F("usedHitsY", "n(y-hits) transferred to pede;n(y-hits)", 10, 0., 10));
+  myUsedTrackHists1D.push_back(new TH1F("usedHitsY", "n(y-hits) transferred to pede;n(y-hits)", nHits-10, 0., nHits-10));
 
   TDirectory *dirUsedTracks = directory->mkdir("usedTrackHists", "used tracks");
   this->addToDirectory(myUsedTrackHists1D, dirUsedTracks);
@@ -312,15 +312,16 @@ bool MillePedeMonitor::init(TDirectory *directory)
 // small angles with respect to the sensor normal in sensitive direction. 
   // Here for x-measurements:
   std::vector<TH1*> allResidHistsX;
-  allResidHistsX.push_back(new TH1F("resid", "hit residuals;residuum [cm]", 101,-.5,.5));//51,-.05, .05));
-  //allResidHistsX.back()->SetBit(TH1::kCanRebin);
-  allResidHistsX.push_back(new TH1F("sigma", "hit uncertainties;#sigma [cm]", 100,0.,1.));//50, 0., .02));
-  //allResidHistsX.back()->SetBit(TH1::kCanRebin);
+  allResidHistsX.push_back(new TH1F("resid", "hit residuals;residuum [cm]", 51, -.05, .05));
+  allResidHistsX.back()->SetBit(TH1::kCanRebin);
+  allResidHistsX.push_back(new TH1F("sigma", "hit uncertainties;#sigma [cm]", 50, 0., .02));
+  allResidHistsX.back()->SetBit(TH1::kCanRebin);
   allResidHistsX.push_back(new TH1F("reduResid", "reduced hit residuals;res./#sigma",
-				    101, -10., 10.));//51, -3., 3.));
-  //  allResidHistsX.back()->SetBit(TH1::kCanRebin);
+				    51, -3., 3.));
+  allResidHistsX.back()->SetBit(TH1::kCanRebin);
   allResidHistsX.push_back(new TH1F("angle", "#phi_{tr} wrt normal (sens. plane);#phi_{n}^{sens}",
 				    50, 0., TMath::PiOver2()));
+  allResidHistsX.back()->SetBit(TH1::kCanRebin);
   allResidHistsX.push_back(new TH2F("residVsAngle",
 				    "residuum vs. #phi_{tr} wrt normal (sens. plane);#phi_{n}^{sens};residuum [cm]",
 				    50, 0., TMath::PiOver2(), 51, -1., 1.));
@@ -334,27 +335,27 @@ bool MillePedeMonitor::init(TDirectory *directory)
 
   allResidHistsX.push_back(new TH1F("residGt45",
 				    "hit residuals (#phi_{n}^{sens}>45#circ);residuum [cm]",
-				    101, -.5, .5));//51, -.05, .05));
-  // allResidHistsX.back()->SetBit(TH1::kCanRebin);
+				    51, -.05, .05));
+  allResidHistsX.back()->SetBit(TH1::kCanRebin);
   allResidHistsX.push_back(new TH1F("sigmaGt45",
 				    "hit uncertainties(#phi_{n}^{sens}>45#circ);#sigma [cm]",
-				     100, 0., 1.));//50, 0., .02));
-  // allResidHistsX.back()->SetBit(TH1::kCanRebin);
+				    50, 0., .02));
+  allResidHistsX.back()->SetBit(TH1::kCanRebin);
   allResidHistsX.push_back(new TH1F("reduResidGt45",
 				    "reduced hit residuals(#phi_{n}^{sens}>45#circ);res./#sigma",
-                                    101, -10., 10.));//51,-3.,3.));
-  // allResidHistsX.back()->SetBit(TH1::kCanRebin);
+				    51,-3.,3.));
+  allResidHistsX.back()->SetBit(TH1::kCanRebin);
   allResidHistsX.push_back(new TH1F("residLt45",
 				    "hit residuals (#phi_{n}^{sens}<45#circ);residuum [cm]",
-				    101, -.5, .5));//51, -.15, .15));
-  // allResidHistsX.back()->SetBit(TH1::kCanRebin);
+				    51, -.15, .15));
+  allResidHistsX.back()->SetBit(TH1::kCanRebin);
   allResidHistsX.push_back(new TH1F("sigmaLt45",
 				    "hit uncertainties(#phi_{n}^{sens}<45#circ);#sigma [cm]",
-				    100, 0., 1.));//50, 0., .01));
-  // allResidHistsX.back()->SetBit(TH1::kCanRebin);
+				    50, 0., .01));
+  allResidHistsX.back()->SetBit(TH1::kCanRebin);
   allResidHistsX.push_back(new TH1F("reduResidLt45",
 				    "reduced hit residuals(#phi_{n}^{sens}<45#circ);res./#sigma",
-				    101, -10., 10.));//51,-3.,3.));
+				    51,-3.,3.));
   myResidHistsVec1DX.push_back(allResidHistsX); // at [0] for all subdets together...
   // ... then separately - indices/order like DetId.subdetId() in tracker:
   myResidHistsVec1DX.push_back(this->cloneHists(allResidHistsX, "TPB", " x-coord. in pixel barrel"));
@@ -435,16 +436,6 @@ bool MillePedeMonitor::init(TDirectory *directory)
   TDirectory *dirF2f = directory->mkdir("frame2FrameHists", "derivatives etc.");
   this->addToDirectory(myFrame2FrameHists2D, dirF2f);
 
-
-  myCorrHists.push_back(new TH1F("xyCorrTPB", "#rho_{xy} in pixel barrel", 50, -.5, .5));
-  myCorrHists.push_back(new TH1F("xyCorrTPE", "#rho_{xy} in forward pixel", 50, -.5, .5));
-  myCorrHists.push_back(new TH1F("xyCorrTIB", "#rho_{xy} in TIB", 50, -.5, .5));
-  myCorrHists.push_back(new TH1F("xyCorrTID", "#rho_{xy} in TID", 50, -1., 1.));
-  myCorrHists.push_back(new TH1F("xyCorrTOB", "#rho_{xy} in TOB", 50, -.5, .5));
-  myCorrHists.push_back(new TH1F("xyCorrTEC", "#rho_{xy} in TEC", 50, -1., 1.));
-  TDirectory *dirCorr = directory->mkdir("hitCorrelationHists", "correlations");
-  this->addToDirectory( myCorrHists, dirCorr);
-
   oldDir->cd();
   return true;
 }
@@ -482,14 +473,15 @@ void MillePedeMonitor::fillTrack(const reco::Track *track)
 void MillePedeMonitor::fillUsedTrack(const reco::Track *track, unsigned int nHitX,
 				     unsigned int nHitY)
 {
+  if (!track) return;
+  this->fillTrack(track, myUsedTrackHists1D, myUsedTrackHists2D);
+
   // these hist exist only for 'used track' hists:
   static const int iUsedX = this->GetIndex(myUsedTrackHists1D, "usedHitsX");
   myUsedTrackHists1D[iUsedX]->Fill(nHitX);
   static const int iUsedY = this->GetIndex(myUsedTrackHists1D, "usedHitsY");
   myUsedTrackHists1D[iUsedY]->Fill(nHitY);
 
-  if (!track) return;
-  this->fillTrack(track, myUsedTrackHists1D, myUsedTrackHists2D);
 }
 
 //__________________________________________________________________
@@ -911,17 +903,4 @@ void MillePedeMonitor::fillFrameToFrame(const AlignableDetOrUnitPtr &aliDet, con
   }
 }
 
-//____________________________________________________________________
-void MillePedeMonitor::fillCorrelations2D(float corr, const ConstRecHitPointer &recHit)
-{
-  const DetId detId(recHit->det()->geographicalId());
-  if (detId.det() != DetId::Tracker) return;
 
-  if (detId.subdetId() < 1 || detId.subdetId() > 6) {
-    edm::LogWarning("Alignment") << "@SUB=MillePedeMonitor::fillCorrelations2D"
-                                 << "Expect subdetId from 1 to 6, got " << detId.subdetId();
-    return;
-  }
-
-  myCorrHists[detId.subdetId()-1]->Fill(corr);
-}

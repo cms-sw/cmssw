@@ -46,7 +46,10 @@ L1RCTProducer::L1RCTProducer(const edm::ParameterSet& conf) :
   useHcalCosmicTiming(conf.getParameter<bool>("useHcalCosmicTiming")),
   useEcalCosmicTiming(conf.getParameter<bool>("useEcalCosmicTiming")),
   preSamples(conf.getParameter<unsigned>("preSamples")),
-  postSamples(conf.getParameter<unsigned>("postSamples"))
+  postSamples(conf.getParameter<unsigned>("postSamples")),
+  useMCAsInput(conf.getParameter<bool>("UseMCAsInput")),
+  hfShift(conf.getParameter<int>("HFShift")),
+  hbShift(conf.getParameter<int>("HBShift"))
 {
   produces<L1CaloEmCollection>();
   produces<L1CaloRegionCollection>();
@@ -155,30 +158,17 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 	}
       //std::cout << std::endl ;
 
-      
+      // HCAL
       //std::cout << "HCAL" << std::endl ;
-      
-      //HCAL -  positive eta
       for( unsigned short ieta = 1 ; ieta <= L1CaloHcalScale::nBinEta; ++ieta )
 	{
 	  for( unsigned short irank = 0 ; irank < L1CaloHcalScale::nBinRank; ++irank )
 	    {
-	      double etGeVPos = h_tpg->hcaletValue( ieta, irank ) ;
-	      hcalScale->setBin( irank, ieta, 1, etGeVPos ) ;
-	     
+	      double etGeV = h_tpg->hcaletValue( ieta, irank ) ;
 
-	    }
-	  //std::cout << std::endl ;
-	}
-
-      //HCAL - negative eta
-      for( unsigned short ieta = 1 ; ieta <= L1CaloHcalScale::nBinEta; ++ieta )
-	{
-	  for( unsigned short irank = 0 ; irank < L1CaloHcalScale::nBinRank; ++irank )
-	    {
-	      double etGeVNeg = h_tpg->hcaletValue( -ieta, irank ) ;
-	      hcalScale->setBin( irank, ieta, -1, etGeVNeg ) ;
-
+	      hcalScale->setBin( irank, ieta, 1, etGeV ) ;
+	      hcalScale->setBin( irank, ieta, -1, etGeV ) ;
+	      //std::cout << etGeV << ", " ;
 	    }
 	  //std::cout << std::endl ;
 	}
@@ -498,12 +488,33 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 		  //else
 		  if ((!useHcalCosmicTiming) || (iphi >= 37 && iphi <= 72))
 		    {
-		      hcalDigi.setSample(0, HcalTriggerPrimitiveSample
-					 (hcal_it->sample(hcal_it->
-							  presamples() + 
-							  sample - 
-							  preSamples).raw()));
-		      
+
+		      //If it is MC keep as it is
+//		      if(useMCAsInput)
+//			{
+			  hcalDigi.setSample(0, HcalTriggerPrimitiveSample
+					     (hcal_it->sample(hcal_it->
+							      presamples() + 
+							      sample - 
+							      preSamples).raw()));
+/*			}
+		      else //It is data 
+			{
+			  if(ieta>-29 && ieta<29) 
+			    hcalDigi.setSample(0, HcalTriggerPrimitiveSample
+					       (hcal_it->sample(hcal_it->
+							      presamples() + 
+								sample - 
+								preSamples+hbShift).raw()));
+			  if(ieta<=-29 || ieta>=29)
+			    hcalDigi.setSample(0, HcalTriggerPrimitiveSample
+					       (hcal_it->sample(hcal_it->
+							      presamples() + 
+								sample - 
+								preSamples+hfShift).raw()));
+
+			}
+*/
 		    }
 		  hcalColl[sample].push_back(hcalDigi);
 		}
@@ -571,11 +582,36 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 		  //else
 		  if ((!useHcalCosmicTiming) || (iphi >= 37 && iphi <= 72))
 		    {
-		      hcalDigi.setSample(0, HcalTriggerPrimitiveSample
-					 (hcal_it->sample(hcal_it->
-							  presamples() + 
-							  sample - 
-							  preSamples).raw()));
+//		      hcalDigi.setSample(0, HcalTriggerPrimitiveSample
+//					 (hcal_it->sample(hcal_it->
+//							  presamples() + 
+//							  sample - 
+//							  preSamples).raw()));
+		      //If it is MC keep as it is
+		      if(useMCAsInput)
+			{
+			  hcalDigi.setSample(0, HcalTriggerPrimitiveSample
+					     (hcal_it->sample(hcal_it->
+							      presamples() + 
+							      sample - 
+							      preSamples).raw()));
+			}
+		      else //It is data 
+			{
+			  if(ieta>-29 && ieta<29) 
+			    hcalDigi.setSample(0, HcalTriggerPrimitiveSample
+					       (hcal_it->sample(hcal_it->
+							      presamples() + 
+								sample - 
+								preSamples+hbShift).raw()));
+			  if(ieta<=-29 || ieta>=29)
+			    hcalDigi.setSample(0, HcalTriggerPrimitiveSample
+					       (hcal_it->sample(hcal_it->
+							      presamples() + 
+								sample - 
+								preSamples+hfShift).raw()));
+
+			}
 		    }
 		  hcalColl[sample].push_back(hcalDigi);  
 		}

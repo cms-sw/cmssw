@@ -1,9 +1,11 @@
 <use name=FWCore/Framework>
 <use name=Geometry/Records>
+<use name=CondFormats/DataRecord>
 <use name=boost>
 <export>
   <use name=FWCore/Framework>
   <use name=Geometry/Records>
+  <use name=CondFormats/DataRecord>
   <use name=boost>
   <lib name=MagneticFieldRecords>
 </export>

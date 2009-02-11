@@ -29,6 +29,7 @@ RPCEventSummary::RPCEventSummary(const ParameterSet& ps ){
   prefixDir_ = ps.getUntrackedParameter<string>("RPCPrefixDir", "RPC/RecHits");
   verbose_=ps.getUntrackedParameter<bool>("VerboseLevel", 0);
   minHitsInRoll_=ps.getUntrackedParameter<unsigned int>("MinimunHitsPerRoll", 2000);
+ tier0_=ps.getUntrackedParameter<bool>("Tier0", false);
 
 }
 
@@ -136,6 +137,8 @@ void RPCEventSummary::analyze(const Event& iEvent, const EventSetup& c) {
 
 void RPCEventSummary::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& iSetup) {  
   LogVerbatim ("rpceventsummary") <<"[RPCEventSummary]: End of LS transition, performing DQM client operation";
+
+  if (tier0_) return;
 
   // counts number of lumiSegs 
    nLumiSegs_ = lumiSeg.id().luminosityBlock();

@@ -7,7 +7,9 @@ dtResolutionAnalysisMonitor = cms.EDAnalyzer("DTResolutionAnalysisTask",
     recHits4DLabel = cms.string('dt4DSegments'),
     recHitLabel = cms.string('dt1DRecHits'),
     # interval of lumi block after which we reset the histos
-    ResetCycle = cms.untracked.int32(10000)
+    ResetCycle = cms.untracked.int32(10000),
+    # switch for sector summaries                                         
+    doSectorSummaries = cms.untracked.bool(False)
 )
 
 

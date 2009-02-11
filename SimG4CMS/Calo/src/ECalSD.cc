@@ -23,8 +23,6 @@
 #include "G4Track.hh"
 #include "G4VProcess.hh"
 
-//#define DebugLog
-
 ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
 	       SensitiveDetectorCatalog & clg, 
 	       edm::ParameterSet const & p, const SimTrackManager* manager) : 
@@ -61,9 +59,8 @@ ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
   } else {edm::LogWarning("EcalSim") << "ECalSD: ReadoutName not supported\n";}
 
   if (scheme)  setNumberingScheme(scheme);
-#ifdef DebugLog
-  LogDebug("EcalSim") << "Constructing a ECalSD  with name " << GetName();
-#endif
+  LogDebug("EcalSim") 
+    << "Constructing a ECalSD  with name " << GetName() << "\n";
   edm::LogInfo("EcalSim")  << "ECalSD:: Use of Birks law is set to      " 
 			   << useBirk << "        with three constants kB = "
 			   << birk1 << ", C1 = " << birk2 << ", C2 = " << birk3
@@ -107,12 +104,11 @@ double ECalSD::getEnergyDeposit(G4Step * aStep) {
 		((pdg/10)%100) > 0)) && (ke<kmaxIon)) weight = 0;
 	  if ((pdg == 2212) && (ke < kmaxProton))     weight = 0;
 	  if ((pdg == 2112) && (ke < kmaxNeutron))    weight = 0;
-#ifdef DebugLog
-	  if (weight == 0) 
+	  if (weight == 0) {
 	    LogDebug("EcalSim") << "Ignore Track " << theTrack->GetTrackID()
 				<< " Type " << theTrack->GetDefinition()->GetParticleName()
 				<< " Kinetic Energy " << ke << " MeV";
-#endif
+	  }
 	}
       }
     }
@@ -124,32 +120,41 @@ double ECalSD::getEnergyDeposit(G4Step * aStep) {
       }
     }
     double edep   = aStep->GetTotalEnergyDeposit() * weight;
-#ifdef DebugLog
     LogDebug("EcalSim") << "ECalSD:: " << nameVolume
 			<<" Light Collection Efficiency " << weight 
 			<< " Weighted Energy Deposit " << edep/MeV << " MeV";
-#endif
     return edep;
   } 
 }
 
-uint16_t ECalSD::getRadiationLength(G4Step * aStep) {
+int ECalSD::getRadiationLenght(G4Step * aStep) {
   
-  uint16_t thisX0 = 0;
-  if (aStep != NULL) {
-    G4StepPoint* hitPoint = aStep->GetPreStepPoint();
-    G4LogicalVolume* lv   = hitPoint->GetTouchable()->GetVolume(0)->GetLogicalVolume();
+  if (aStep == NULL) {
+    return 0;
+  } else {
     
-    if (useWeight) {
-      G4ThreeVector  localPoint = setToLocal(hitPoint->GetPosition(),
-					     hitPoint->GetTouchable());
-      double crlength = crystalLength(lv);
-      double radl     = hitPoint->GetMaterial()->GetRadlen();
-      double detz     = (float)(0.5*crlength + localPoint.z());
-      thisX0 = (uint16_t)floor(detz/radl);   
+    G4ThreeVector hitPoint = aStep->GetPreStepPoint()->GetPosition();
+    G4VPhysicalVolume* currentPV  = aStep->GetPreStepPoint()->GetPhysicalVolume();
+    G4String name = currentPV->GetName();
+    std::string crystal;
+    crystal.assign(name,0,4);
+    
+    int thisX0 = 0;
+    if (crystal == "EFRY"){
+      float z = hitPoint.z();
+      float detz = fabs(fabs(z)-3200);
+      thisX0 = (int)floor( detz/8.9 );   
     } 
+    if(crystal == "EBRY") {
+      float x = hitPoint.x();
+      float y = hitPoint.y();
+      float r = sqrt(x*x +y*y);
+      float detr = r -1290;
+      thisX0 = (int)floor( detr/8.9);
+    }
+    
+    return thisX0;
   }
-  return thisX0;
 }
 
 uint32_t ECalSD::setDetUnitId(G4Step * aStep) { 
@@ -189,30 +194,24 @@ void ECalSD::initMap(G4String sd, const DDCompactView & cpv) {
 	lv = (*lvcite);
 	break;
       }
-#ifdef DebugLog
     LogDebug("EcalSim") << "ECalSD::initMap (for " << sd << "): Solid " << name
 			<< " Shape " << sol.shape() << " Parameter 0 = " 
 			<< paras[0] << " Logical Volume " << lv;
-#endif
     if (sol.shape() == ddtrap) {
       double dz = 2*paras[0];
       xtalLMap.insert(std::pair<G4LogicalVolume*,double>(lv,dz));
     }
     dodet = fv.next();
   }
-#ifdef DebugLog
   LogDebug("EcalSim") << "ECalSD: Length Table for " << attribute << " = " 
 		      << sd << ":";   
-#endif
   std::map<G4LogicalVolume*,double>::const_iterator ite = xtalLMap.begin();
   int i=0;
   for (; ite != xtalLMap.end(); ite++, i++) {
     G4String name = "Unknown";
     if (ite->first != 0) name = (ite->first)->GetName();
-#ifdef DebugLog
     LogDebug("EcalSim") << " " << i << " " << ite->first << " " << name 
 			<< " L = " << ite->second;
-#endif
   }
 }
 
@@ -237,13 +236,11 @@ double ECalSD::curve_LY(G4Step* aStep) {
 			       << " z of localPoint = " << localPoint.z() 
 			       << " take weight = " << weight;
   }
-#ifdef DebugLog
   LogDebug("EcalSim") << "ECalSD, light coll curve : " << dapd 
 		      << " crlength = " << crlength
 		      << " crystal name = " << nameVolume 
 		      << " z of localPoint = " << localPoint.z() 
 		      << " take weight = " << weight;
-#endif
   return weight;
 }
 
@@ -265,11 +262,9 @@ void ECalSD::getBaseNumber(const G4Step* aStep) {
   if ( theSize > 1 ) {
     for (int ii = 0; ii < theSize ; ii++) {
       theBaseNumber.addLevel(touch->GetVolume(ii)->GetName(),touch->GetReplicaNumber(ii));
-#ifdef DebugLog
       LogDebug("EcalSim") << "ECalSD::getBaseNumber(): Adding level " << ii
                           << ": " << touch->GetVolume(ii)->GetName() << "["
                           << touch->GetReplicaNumber(ii) << "]";
-#endif
     }
   }
 
@@ -288,12 +283,10 @@ double ECalSD::getBirkL3(G4Step* aStep) {
     weight         = 1. - birkSlope*log(rkb*dedx);
     if (weight < birkCut) weight = birkCut;
     else if (weight > 1.) weight = 1.;
-#ifdef DebugLog
     LogDebug("EcalSim") << "ECalSD::getBirkL3 in " << mat->GetName()
                         << " Charge " << charge << " dE/dx " << dedx
                         << " Birk Const " << rkb << " Weight = " << weight 
 			<< " dE " << aStep->GetTotalEnergyDeposit();
-#endif
   }
   return weight;
 

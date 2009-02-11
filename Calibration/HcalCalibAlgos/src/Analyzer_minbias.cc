@@ -36,30 +36,15 @@ Analyzer_minbias::Analyzer_minbias(const edm::ParameterSet& iConfig)
   // get name of output file with histogramms
   fOutputFileName = iConfig.getUntrackedParameter<string>("HistOutFile"); 
   // get names of modules, producing object collections
-  
-  hbherecoMB = iConfig.getParameter<edm::InputTag>("hbheInputMB");
-  horecoMB   = iConfig.getParameter<edm::InputTag>("hoInputMB");
-  hfrecoMB   = iConfig.getParameter<edm::InputTag>("hfInputMB");
-  
-  hbherecoNoise = iConfig.getParameter<edm::InputTag>("hbheInputNoise");
-  horecoNoise   = iConfig.getParameter<edm::InputTag>("hoInputNoise");
-  hfrecoNoise   = iConfig.getParameter<edm::InputTag>("hfInputNoise");
-  
-  theRecalib = iConfig.getParameter<bool>("Recalib"); 
-   
-//
-//
-  for(int i=0; i<73; i++)
-  {
-     for(int j=0; j<43; j++)
-     {
-        noise_min[i][j] = 0.;
-	noise_pl[i][j] = 0.;
-     } 
-  }
-//
-//
-     
+  nameprod = iConfig.getUntrackedParameter<std::string>("nameProd");
+  hbhereco = iConfig.getParameter<edm::InputTag>("hbheInput");
+  horeco   = iConfig.getParameter<edm::InputTag>("hoInput");
+  hfreco   = iConfig.getParameter<edm::InputTag>("hfInput");
+  hbhecut  = iConfig.getParameter<double>("hbheCut");
+  hocut  = iConfig.getParameter<double>("hoCut");
+  hfcut  = iConfig.getParameter<double>("hfCut");
+  useMCInfo = iConfig.getParameter<bool>("useMC");
+  theRecalib = iConfig.getParameter<bool>("Recalib");  
 }
 
 Analyzer_minbias::~Analyzer_minbias()
@@ -74,6 +59,7 @@ void Analyzer_minbias::beginJob( const edm::EventSetup& iSetup)
 {
    double phibound = 4.*atan(1.);
    hOutputFile   = new TFile( fOutputFileName.c_str(), "RECREATE" ) ;
+   mystart = 0;
    
    myTree = new TTree("RecJet","RecJet Tree");
    myTree->Branch("mydet",  &mydet, "mydet/I");
@@ -84,205 +70,104 @@ void Analyzer_minbias::beginJob( const edm::EventSetup& iSetup)
    myTree->Branch("eta",  &eta, "eta/F");
    myTree->Branch("phi",  &phi, "phi/F");
    
-   myTree->Branch("mom0_MB",  &mom0_MB, "mom0_MB/F");
-   myTree->Branch("mom1_MB",  &mom1_MB, "mom1_MB/F");
-   myTree->Branch("mom2_MB",  &mom2_MB, "mom2_MB/F");
-   
-   myTree->Branch("mom0_Noise",  &mom0_Noise, "mom0_Noise/F");
-   myTree->Branch("mom1_Noise",  &mom1_Noise, "mom1_Noise/F");
-   myTree->Branch("mom2_Noise",  &mom2_Noise, "mom2_Noise/F");
-   
-   myTree->Branch("mom0_Diff",  &mom0_Diff, "mom0_Diff/F");
-   myTree->Branch("mom1_Diff",  &mom1_Diff, "mom1_Diff/F");
-   myTree->Branch("mom2_Diff",  &mom2_Diff, "mom2_Diff/F");
+   myTree->Branch("mom0",  &mom0, "mom0/F");
+   myTree->Branch("mom1",  &mom1, "mom1/F");
+   myTree->Branch("mom2",  &mom2, "mom2/F");
+   myTree->Branch("mom3",  &mom3, "mom3/F");
+   myTree->Branch("mom4",  &mom4, "mom4/F");
 
+   myTree->Branch("mom0_cut",  &mom0_cut, "mom0_cut/F");
+   myTree->Branch("mom1_cut",  &mom1_cut, "mom1_cut/F");
+   myTree->Branch("mom2_cut",  &mom2_cut, "mom2_cut/F");
+   myTree->Branch("mom3_cut",  &mom3_cut, "mom3_cut/F");
+   myTree->Branch("mom4_cut",  &mom4_cut, "mom4_cut/F");
    myTree->Branch("occup",  &occup, "occup/F");
    
-   std::cout<<" Before ordering Histos "<<std::endl;
+   hHBHEEt    = new TH1D( "hHBHEEt", "HBHEEt", 100,  -1., 10. );
+   hHBHEEt_eta_1    = new TH1D( "hHBHEEt_eta_1", "HBHEEt_eta_1", 100,  -1., 10. );
+   hHBHEEt_eta_25    = new TH1D( "hHBHEEt_eta_25", "HBHEEt_eta_25", 100,  -1., 10. );
+   
+   hHBHEEta    = new TH1D( "hHBHEEta", "HBHEEta", 100,  -3., 3. );
+   hHBHEPhi    = new TH1D( "hHBHEPhi", "HBHEPhi", 100,  -1.*phibound, phibound );
+
+   hHFEt    = new TH1D( "hHFEt", "HFEt", 100,  -1., 10. );
+   hHFEt_eta_33    = new TH1D( "hHFEt_eta_33", "HFEt_eta_33", 100,  -1., 10. );
+   
+   hHFEta    = new TH1D( "hHFEta", "HFEta", 100,  -3., 3. );
+   hHFPhi    = new TH1D( "hHFPhi", "HFPhi", 100,  -1.*phibound, phibound );
   
-   char str0[15];
-   char str1[15];
+   hHOEt    = new TH1D( "hHOEt", "HOEt", 100,  -1., 10. );
+   hHOEt_eta_5    = new TH1D( "hHOEt_eta_5", "HOEt_eta_5", 100,  -1., 10. );
 
-   char str10[15];
-   char str11[15];
+   hHOEta    = new TH1D( "hHOEta", "HOEta", 100,  -3., 3. );
+   hHOPhi    = new TH1D( "hHOPhi", "HOPhi", 100,  -1.*phibound, phibound );
 
-   int k=0;
-   nevent = 0;
+// Start the job   
+   start = 0;
+   
+   
+  std::string ccc = "hcal.dat";
 
-   for(int i=1;i<73;i++){
-    for(int j=1;j<43;j++){
-
-       meannoise_pl[i][j] = 0.;
-       meannoise_min[i][j] = 0.;
-
-//     for(int l=1;l<5;l++){
-        k = i*1000+j;
-        sprintf(str0,"mpl%d",k);
-        sprintf(str1,"mmin%d",k);
-
-        sprintf(str10,"vpl%d",k);
-        sprintf(str11,"vmin%d",k);
-//      cout<<" "<<i<<" "<<j<<endl;
-    if( j < 30 )
-    {
-// first order moment
-    hCalo1[i][j] = new TH1F(str0, "h0", 320, -10., 10.);
-    hCalo2[i][j] = new TH1F(str1, "h1", 320, -10., 10.);
-
-// second order moment
-    hCalo1mom2[i][j] = new TH1F(str10, "h10", 320, 0., 20.);
-    hCalo2mom2[i][j] = new TH1F(str11, "h11", 320, 0., 20.);
-    }
-      else
-      {
-// HF
-// first order moment
-//   cout<<" "<<i<<" "<<j<<" "<<k<<endl;
-   if(j < 40)
-   {
-    hCalo1[i][j] = new TH1F(str0, "h0", 320, -10., 10.);
-    hCalo2[i][j] = new TH1F(str1, "h1", 320, -10., 10.);
-//
-// second order moment
-    hCalo1mom2[i][j] = new TH1F(str10, "h10", 320, 0., 40.);
-    hCalo2mom2[i][j] = new TH1F(str11, "h11", 320, 0., 40.);
-   }
-     else
-     {
-    hCalo1[i][j] = new TH1F(str0,"h0" , 320, -10., 10.);
-    hCalo2[i][j] = new TH1F(str1, "h1", 320, -10., 10.);
-
-// second order moment
-    hCalo1mom2[i][j] = new TH1F(str10, "h10", 320, 0., 120.);
-    hCalo2mom2[i][j] = new TH1F(str11, "h11", 320, 0., 120.);
-
-     }
-    } // HE/HF boundary
-//     } // l
-    } // j
-   } // i
-
-
-   std::cout<<" After ordering Histos "<<std::endl;
-
-   std::string ccc = "noise_0.dat";
-
-   myout_hcal = new ofstream(ccc.c_str());
-   if(!myout_hcal) cout << " Output file not open!!! "<<endl;
-
-//
-   for (int i=0; i<5;i++)
-   {
-    for (int j=0; j<5;j++)
-    {
-     for (int k=0; k<73;k++)
-     {
-       for (int l=0; l<43;l++)
-       {
-        theMBFillDetMapPl0[i][j][k][l] = 0.;
-        theMBFillDetMapPl1[i][j][k][l] = 0.;
-        theMBFillDetMapPl2[i][j][k][l] = 0.;
-        theMBFillDetMapMin0[i][j][k][l] = 0.;
-        theMBFillDetMapMin1[i][j][k][l] = 0.;
-        theMBFillDetMapMin2[i][j][k][l] = 0.;
-        theNSFillDetMapPl0[i][j][k][l] = 0.;
-        theNSFillDetMapPl1[i][j][k][l] = 0.;
-        theNSFillDetMapPl2[i][j][k][l] = 0.;
-        theNSFillDetMapMin0[i][j][k][l] = 0.;
-        theNSFillDetMapMin1[i][j][k][l] = 0.;
-        theNSFillDetMapMin2[i][j][k][l] = 0.;
-        theDFFillDetMapPl0[i][j][k][l] = 0.;
-        theDFFillDetMapPl1[i][j][k][l] = 0.;
-        theDFFillDetMapPl2[i][j][k][l] = 0.;
-        theDFFillDetMapMin0[i][j][k][l] = 0.;
-        theDFFillDetMapMin1[i][j][k][l] = 0.;
-        theDFFillDetMapMin2[i][j][k][l] = 0.;
-       }
-     }  
-    }
-   }    
+  myout_hcal = new ofstream(ccc.c_str());
+  if(!myout_hcal) cout << " Output file not open!!! "<<endl;
     
    return ;
 }
-//
-//  EndJob
-//
+
 void Analyzer_minbias::endJob()
 {
-   int ii=0;
-      
-   for (int i=1; i<5;i++)
-   {
-    for (int j=1; j<5;j++)
-    {
-     for (int k=1; k<73;k++)
-     {
-       for (int l=1; l<43;l++)
-       {
-	  if(theMBFillDetMapPl0[i][j][k][l] > 0)
-	  { 
-            mom0_MB = theMBFillDetMapPl0[i][j][k][l];
-            mom1_MB = theMBFillDetMapPl1[i][j][k][l];
-            mom2_MB = theMBFillDetMapPl2[i][j][k][l];
-            mom0_Noise = theNSFillDetMapPl0[i][j][k][l];
-            mom1_Noise = theNSFillDetMapPl1[i][j][k][l];
-            mom2_Noise = theNSFillDetMapPl2[i][j][k][l];
-            mom0_Diff = theDFFillDetMapPl0[i][j][k][l];
-            mom1_Diff = theDFFillDetMapPl1[i][j][k][l];
-            mom2_Diff = theDFFillDetMapPl2[i][j][k][l];
-	    
-            mysubd = i;
-            depth = j;
-            ieta = l;
-            iphi = k;
-            cout<<" Result Plus= "<<mysubd<<" "<<ieta<<" "<<iphi<<" mom0  "<<mom0_MB<<" mom1 "<<mom1_MB<<" mom2 "<<mom2_MB<<endl;
-            myTree->Fill();
-            ii++;
-	   } // Pl > 0
-         
-	  if(theMBFillDetMapMin0[i][j][k][l] > 0)
-	  { 
-            mom0_MB = theMBFillDetMapMin0[i][j][k][l];
-            mom1_MB = theMBFillDetMapMin1[i][j][k][l];
-            mom2_MB = theMBFillDetMapMin2[i][j][k][l];
-            mom0_Noise = theNSFillDetMapMin0[i][j][k][l];
-            mom1_Noise = theNSFillDetMapMin1[i][j][k][l];
-            mom2_Noise = theNSFillDetMapMin2[i][j][k][l];
-            mom0_Diff = theDFFillDetMapMin0[i][j][k][l];
-            mom1_Diff = theDFFillDetMapMin1[i][j][k][l];
-            mom2_Diff = theDFFillDetMapMin2[i][j][k][l];
-	    
-	    
-            mysubd = i;
-            depth = j;
-            ieta = -1*l;
-            iphi = k;
-            cout<<" Result Minus= "<<mysubd<<" "<<ieta<<" "<<iphi<<" mom0  "<<mom0_MB<<" mom1 "<<mom1_MB<<" mom2 "<<mom2_MB<<endl;
-            myTree->Fill();
-            ii++;
-	    
-	  } // Min>0  
-      } // ieta
-     } // iphi  
-    } // depth
-   } //subd    
+   int i=0;
    
-   
-   
-   cout<<" Number of cells "<<ii<<endl; 
-      
+   for(std::vector<DetId>::const_iterator did=alldid.begin(); did != alldid.end(); did++)
+   {      
+      if( (*did).det() == DetId::Hcal ) 
+      {
+       HcalDetId hid = HcalDetId(*did);
+
+//       GlobalPoint pos = geo->getPosition(hid);
+//       mydet = ((hid).rawId()>>28)&0xF;
+//       mysubd = ((hid).rawId()>>25)&0x7;
+//       depth =(hid).depth();
+//       ieta = (hid).ieta();
+//       iphi = (hid).iphi();
+//       phi = pos.phi();
+//       eta = pos.eta();
+       
+       mom0 = theFillDetMap0[hid];
+       mom1 = theFillDetMap1[hid];
+       mom2 = theFillDetMap2[hid];
+       mom3 = theFillDetMap3[hid];
+       mom4 = theFillDetMap4[hid];
+       
+
+       if(theFillDetMap_cut0[hid]>0.){
+       
+       mom0_cut = theFillDetMap_cut0[hid];
+       mom1_cut = theFillDetMap_cut1[hid];
+       mom2_cut = theFillDetMap_cut2[hid];
+       mom3_cut = theFillDetMap_cut3[hid];
+       mom4_cut = theFillDetMap_cut4[hid];
+       
+       occup = theFillDetMap_cut0[hid]/theFillDetMap0[hid];
+       
+       } else
+       {  
+          mom0_cut = -10000.;
+          mom1_cut = -10000.;
+	  mom2_cut = -10000.;
+	  mom3_cut = -10000.;
+	  mom4_cut = -10000.;
+       }
+
+  //     cout<<" Result= "<<mydet<<" "<<mysubd<<" "<<ieta<<" "<<iphi<<" mom0  "<<mom0<<" mom1 "<<mom1<<" mom2 "<<mom2<<
+  //     " mom0_cut "<<mom0_cut<<" mom1_cut "<<mom1_cut<<endl;
+       myTree->Fill();
+       i++;
+      } 
+   }
+   cout<<" Number of cells "<<i<<endl;    
    hOutputFile->Write() ;   
    hOutputFile->cd();
-   for(int i=1;i<73;i++){
-    for(int j=1;j<43;j++){
-    hCalo1[i][j]->Write();
-    hCalo2[i][j]->Write();
-    hCalo1mom2[i][j]->Write();
-    hCalo2mom2[i][j]->Write();
-   }
-  }
-  
-   
    myTree->Write();
    hOutputFile->Close() ;
    
@@ -299,8 +184,8 @@ void
 Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-  std::cout<<" Start Analyzer_minbias::analyze "<<nevent<<std::endl;
-  nevent++; 
+  std::cout<<" Start Analyzer_minbias::analyze "<<std::endl;
+  
   using namespace edm;
 /*
   std::vector<Provenance const*> theProvenance;
@@ -314,8 +199,34 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   }
 */
 
-//   edm::ESHandle<CaloGeometry> pG;
-//   iSetup.get<CaloGeometryRecord>().get(pG);
+   edm::ESHandle<CaloGeometry> pG;
+   iSetup.get<CaloGeometryRecord>().get(pG);
+   const CaloGeometry* geo = pG.product();
+   
+  if( start == 0 ) {
+  
+   
+   alldid =  geo->getValidDetIds();
+
+   for(std::vector<DetId>::const_iterator id=alldid.begin(); id != alldid.end(); id++)
+   {
+      if( (*id).det() == DetId::Hcal ) {
+      HcalDetId hid = HcalDetId(*id);
+      theFillDetMap0[hid] = 0.;
+      theFillDetMap1[hid] = 0.;
+      theFillDetMap2[hid] = 0.;
+      theFillDetMap3[hid] = 0.;
+      theFillDetMap4[hid] = 0.;
+      theFillDetMap_cut0[hid] = 0.;
+      theFillDetMap_cut1[hid] = 0.;
+      theFillDetMap_cut2[hid] = 0.;
+      theFillDetMap_cut3[hid] = 0.;
+      theFillDetMap_cut4[hid] = 0.;
+   }
+   }
+  
+  }
+
 
   const HcalRespCorrs* myRecalib;
   if( theRecalib ) {
@@ -326,268 +237,169 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 // end
   } // theRecalib
 
-// Noise part for HB HE
-
-     double tmpNSFillDetMapPl1[5][5][73][43]; 
-     double tmpNSFillDetMapPl2[5][5][73][43];
-     double tmpNSFillDetMapMin1[5][5][73][43]; 
-     double tmpNSFillDetMapMin2[5][5][73][43];
-
-   for (int i=0; i<5;i++)
+  float pt,eta,phi;
+//  useMCInfo = true;
+      bool allowMissingInputs_ = true;  
+   if(useMCInfo)
    {
-    for (int j=0; j<5;j++)
+  try {
+    cout<<" Try to take HepMCProduct "<<endl;
+    edm::Handle< edm::HepMCProduct >  EvtHandles ;
+    iEvent.getByType( EvtHandles ) ;
+    const HepMC::GenEvent* Evt = EvtHandles->GetEvent();
+    for (HepMC::GenEvent::particle_const_iterator
+            Part = Evt->particles_begin() ; Part!=Evt->particles_end(); Part++ )
     {
-     for (int k=0; k<73;k++)
-     {
-       for (int l=0; l<43;l++)
-       {
-        tmpNSFillDetMapPl1[i][j][k][l] = 0.;
-        tmpNSFillDetMapPl2[i][j][k][l] = 0.;
-        tmpNSFillDetMapMin1[i][j][k][l] = 0.;
-        tmpNSFillDetMapMin2[i][j][k][l] = 0.;
-       }
-     }  
+       cout<<" pion "<<(*Part)->pdg_id()<<" "<<((*Part)->momentum()).perp()<<" "<<((*Part)->momentum()).eta()<<
+       " "<<((*Part)->momentum()).phi()<<endl;
     }
-   }    
-
-
-   edm::Handle<HBHERecHitCollection> hbheNS;
-   iEvent.getByLabel(hbherecoNoise, hbheNS);
-
-   if(!hbheNS.isValid()){
-     LogDebug("") << "HcalCalibAlgos: Error! can't get hbhe product!" << std::endl;
-     cout<<" No HBHE MS "<<endl;
-     return ;
-   }
-  const HBHERecHitCollection HithbheNS = *(hbheNS.product());
-  cout<<" HBHE NS size of collection "<<HithbheNS.size()<<endl;
-  
-  for(HBHERecHitCollection::const_iterator hbheItr=HithbheNS.begin(); hbheItr!=HithbheNS.end(); hbheItr++)
-        {
-// Recalibration of energy
-         float icalconst=1.;	 
-         DetId mydetid = hbheItr->id().rawId();
-	 if( theRecalib ) icalconst=myRecalib->getValues(mydetid)->getValue();
-    
-	 HBHERecHit aHit(hbheItr->id(),hbheItr->energy()*icalconst,hbheItr->time());
-	 
-         double energyhit = aHit.energy();
-	 
-	 DetId id = (*hbheItr).detid(); 
-	 HcalDetId hid=HcalDetId(id);
- 
-         int mysu = ((hid).rawId()>>25)&0x7;
-         if( hid.ieta() > 0 ) {
-	 theNSFillDetMapPl0[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theNSFillDetMapPl0[mysu][hid.depth()][hid.iphi()][hid.ieta()]+ 1.;
-         theNSFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theNSFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()]+energyhit;
-	 theNSFillDetMapPl2[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theNSFillDetMapPl2[mysu][hid.depth()][hid.iphi()][hid.ieta()]+pow(energyhit,2);
-	 
-         tmpNSFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()] = energyhit;
-	 tmpNSFillDetMapPl2[mysu][hid.depth()][hid.iphi()][hid.ieta()] = pow(energyhit,2);
-	 
-	 
-         } else {
-	 theNSFillDetMapMin0[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] = theNSFillDetMapMin0[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())]+ 1.;
-         theNSFillDetMapMin1[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] = theNSFillDetMapMin1[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())]+energyhit;
-	 theNSFillDetMapMin2[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] = theNSFillDetMapMin2[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())]+pow(energyhit,2);
-
-         tmpNSFillDetMapMin1[mysu][hid.depth()][hid.iphi()][hid.ieta()] = energyhit;
-	 tmpNSFillDetMapMin2[mysu][hid.depth()][hid.iphi()][hid.ieta()] = pow(energyhit,2);
-	 
-	 }  
-	 
-         if(hid.depth() == 1) {
-         if( hid.ieta() > 0 ) {
-          hCalo1[hid.iphi()][hid.ieta()]->Fill(energyhit-noise_pl[hid.iphi()][hid.ieta()]);
-          hCalo1mom2[hid.iphi()][hid.ieta()]->Fill(pow(energyhit,2));
-         } else {
-          hCalo2[hid.iphi()][abs(hid.ieta())]->Fill(energyhit-noise_min[hid.iphi()][abs(hid.ieta())]);
-          hCalo2mom2[hid.iphi()][abs(hid.ieta())]->Fill(pow(energyhit,2));
-         } // eta><0
-	 } // depth=1
-        } // HBHE_NS
-
-
-// Signal part for HB HE
+  } catch (std::exception& e) { // can't find it!
+    if (!allowMissingInputs_) {cout<<" GenParticles are missed "<<endl; throw e;}
+  }
      
-   edm::Handle<HBHERecHitCollection> hbheMB;
-   iEvent.getByLabel(hbherecoMB, hbheMB);
+   }
+   
+    std::cout<<" Analyzer_minbias::analyze::before HBHE "<<std::endl;
+     
+   edm::Handle<HBHERecHitCollection> hbhe;
+   iEvent.getByLabel(hbhereco, hbhe);
 
-   if(!hbheMB.isValid()){
+   if(!hbhe.isValid()){
      LogDebug("") << "HcalCalibAlgos: Error! can't get hbhe product!" << std::endl;
-     cout<<" No HBHE MB"<<endl;
+     cout<<" No HBHE "<<endl;
      return ;
    }
 
-  const HBHERecHitCollection HithbheMB = *(hbheMB.product());
-  cout<<" HBHE MB size of collection "<<HithbheMB.size()<<endl;
+  const HBHERecHitCollection Hithbhe = *(hbhe.product());
+  cout<<" HBHE size of collection "<<Hithbhe.size()<<endl;
 
-  for(HBHERecHitCollection::const_iterator hbheItr=HithbheMB.begin(); hbheItr!=HithbheMB.end(); hbheItr++)
+  for(HBHERecHitCollection::const_iterator hbheItr=Hithbhe.begin(); hbheItr!=Hithbhe.end(); hbheItr++)
         {
 // Recalibration of energy
          float icalconst=1.;	 
          DetId mydetid = hbheItr->id().rawId();
 	 if( theRecalib ) icalconst=myRecalib->getValues(mydetid)->getValue();
-    
+    //     cout<<" icalconst "<<icalconst<<endl;
 	 HBHERecHit aHit(hbheItr->id(),hbheItr->energy()*icalconst,hbheItr->time());
 	 
+//         hHBHEEt->Fill((*hbheItr).energy());
          double energyhit = aHit.energy();
 	 
+	 hHBHEEta->Fill(geo->getPosition((*hbheItr).detid()).eta());
+	 hHBHEPhi->Fill(geo->getPosition((*hbheItr).detid()).phi());
 	 DetId id = (*hbheItr).detid(); 
 	 HcalDetId hid=HcalDetId(id);
- 
-         int mysu = ((hid).rawId()>>25)&0x7;
-         if( hid.ieta() > 0 ) {
-	 theMBFillDetMapPl0[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theMBFillDetMapPl0[mysu][hid.depth()][hid.iphi()][hid.ieta()]+ 1.;
-         theMBFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theMBFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()]+energyhit;
-	 theMBFillDetMapPl2[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theMBFillDetMapPl2[mysu][hid.depth()][hid.iphi()][hid.ieta()]+pow(energyhit,2);
-	 float mydiff = energyhit - tmpNSFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()];
-	 
-	 
-         theDFFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theDFFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()]+mydiff;
-	 theDFFillDetMapPl2[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theDFFillDetMapPl2[mysu][hid.depth()][hid.iphi()][hid.ieta()]+pow(mydiff,2);
-	 if( hid.ieta() == 1 && hid.depth() == 1 && mysu == 1 ) { 
-	 std::cout<<" Energy "<<hid.iphi()<<" "<<energyhit<<
-	                                                         " "<<tmpNSFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()]<<std::endl;
-	 std::cout<<" Mom2 "<< theDFFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()]<< " " << theMBFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()]<<" "<<
-	 tmpNSFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()]<<std::endl;							 
-								 }
-         } else {
-	 theMBFillDetMapMin0[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] = theMBFillDetMapMin0[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())]+ 1.;
-         theMBFillDetMapMin1[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] = theMBFillDetMapMin1[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())]+energyhit;
-	 theMBFillDetMapMin2[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] = theMBFillDetMapMin2[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())]+pow(energyhit,2);
-	 float mydiff = energyhit - tmpNSFillDetMapMin1[mysu][hid.depth()][hid.iphi()][hid.ieta()];
-         theDFFillDetMapMin1[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theDFFillDetMapMin1[mysu][hid.depth()][hid.iphi()][hid.ieta()]+mydiff;
-	 theDFFillDetMapMin2[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theDFFillDetMapMin2[mysu][hid.depth()][hid.iphi()][hid.ieta()]+pow(mydiff,2);
-	 }  
+//	 if(mystart == 0) theHcalId.push_back(hid);
+//     Get gains and setup threshold proportional to gains
+//
+//          HcalGenericDetId hcalGenDetId(hbheItr->id());
+//          const HcalGain*  gain = conditions->getGain(hcalGenDetId);
+//	  const HcalPedestal* pedestal = conditions->getPedestal(hcalGenDetId);
 
-	 
-         if(hid.depth() == 1) {
-         if( hid.ieta() > 0 ) {
-          hCalo1[hid.iphi()][hid.ieta()]->Fill(energyhit);
-          hCalo1mom2[hid.iphi()][hid.ieta()]->Fill(pow(energyhit,2));
-         } else {
-          hCalo2[hid.iphi()][abs(hid.ieta())]->Fill(energyhit);
-          hCalo2mom2[hid.iphi()][abs(hid.ieta())]->Fill(pow(energyhit,2));
-         } // eta><0
-	 } // depth=1
-        } // HBHE_MB
+         if(hid.ieta() == 1 ) (*myout_hcal)<<iEvent.id().run()<<" "<<iEvent.id().event()<<" "<<hid.iphi()<<" "<<energyhit<<endl; 
+ 
+	 theFillDetMap0[hid] = theFillDetMap0[hid]+ 1.;
+         theFillDetMap1[hid] = theFillDetMap1[hid]+energyhit;
+	 theFillDetMap2[hid] = theFillDetMap2[hid]+pow(energyhit,2);
+	 theFillDetMap3[hid] = theFillDetMap3[hid]+pow(energyhit,3);
+	 theFillDetMap4[hid] = theFillDetMap4[hid]+pow(energyhit,4);
 	
-// HF
-   edm::Handle<HFRecHitCollection> hfNS;
-   iEvent.getByLabel(hfrecoNoise, hfNS);
-
-   if(!hfNS.isValid()){
-     LogDebug("") << "HcalCalibAlgos: Error! can't get hbhe product!" << std::endl;
-     cout<<" No HF NS "<<endl;
-     return ;
-   }
-  const HFRecHitCollection HithfNS = *(hfNS.product());
-  cout<<" HFE NS size of collection "<<HithfNS.size()<<endl;
-  
-  for(HFRecHitCollection::const_iterator hbheItr=HithfNS.begin(); hbheItr!=HithfNS.end(); hbheItr++)
-        {
-// Recalibration of energy
-         float icalconst=1.;	 
-         DetId mydetid = hbheItr->id().rawId();
-	 if( theRecalib ) icalconst=myRecalib->getValues(mydetid)->getValue();
-    
-	 HFRecHit aHit(hbheItr->id(),hbheItr->energy()*icalconst,hbheItr->time());
-	 
-         double energyhit = aHit.energy();
-	 
-	 DetId id = (*hbheItr).detid(); 
-	 HcalDetId hid=HcalDetId(id);
+//         if((hid).depth() == 1&&abs((hid).ieta()) == 1 ) {
+//          cout<<"Pedestal,Gain"<<(hid).ieta()<<" "<<(hid).iphi()<< " Gain "<<gain->getValue(0)<<endl;
+//            cout<<" Energy per bin "<<energyhit<<endl;
+//         }
  
-         int mysu = ((hid).rawId()>>25)&0x7;
-         if( hid.ieta() > 0 ) {
-	 theNSFillDetMapPl0[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theNSFillDetMapPl0[mysu][hid.depth()][hid.iphi()][hid.ieta()]+ 1.;
-         theNSFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theNSFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()]+energyhit;
-	 theNSFillDetMapPl2[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theNSFillDetMapPl2[mysu][hid.depth()][hid.iphi()][hid.ieta()]+pow(energyhit,2);
+//	 if((*hbheItr).energy()>0.5*(gain->getValue(0))/0.12)
+         if((*hbheItr).energy()>0.)
+	 { 
+	 theFillDetMap_cut0[hid] = theFillDetMap_cut0[hid]+ 1.;
+         theFillDetMap_cut1[hid] = theFillDetMap_cut1[hid]+energyhit;
+	 theFillDetMap_cut2[hid] = theFillDetMap_cut2[hid]+pow(energyhit,2);
+	 theFillDetMap_cut3[hid] = theFillDetMap_cut3[hid]+pow(energyhit,3);
+	 theFillDetMap_cut4[hid] = theFillDetMap_cut4[hid]+pow(energyhit,4);
+	 }
 	 
-         tmpNSFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()] = energyhit;
-	 tmpNSFillDetMapPl2[mysu][hid.depth()][hid.iphi()][hid.ieta()] = pow(energyhit,2);
+	 if( hid.ieta() == 1 ) hHBHEEt_eta_1->Fill(energyhit);
+	 if( hid.ieta() == 25 ) hHBHEEt_eta_25->Fill(energyhit);
 	 
+//	 cout<<" "<<geo->getPosition((*hbheItr).detid()).eta()<<" Eta= "<<hid.ieta()<<" "<<hid.depth()<<
+//	 "energy "<<(*hbheItr).energy()<<endl;
 	 
-         } else {
-	 theNSFillDetMapMin0[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] = theNSFillDetMapMin0[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())]+ 1.;
-         theNSFillDetMapMin1[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] = theNSFillDetMapMin1[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())]+energyhit;
-	 theNSFillDetMapMin2[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] = theNSFillDetMapMin2[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())]+pow(energyhit,2);
-
-         tmpNSFillDetMapMin1[mysu][hid.depth()][hid.iphi()][hid.ieta()] = energyhit;
-	 tmpNSFillDetMapMin2[mysu][hid.depth()][hid.iphi()][hid.ieta()] = pow(energyhit,2);
-	 
-	 }  
-	 
-         if(hid.depth() == 1) {
-         if( hid.ieta() > 0 ) {
-          hCalo1[hid.iphi()][hid.ieta()]->Fill(energyhit-noise_pl[hid.iphi()][hid.ieta()]);
-          hCalo1mom2[hid.iphi()][hid.ieta()]->Fill(pow(energyhit,2));
-         } else {
-          hCalo2[hid.iphi()][abs(hid.ieta())]->Fill(energyhit-noise_min[hid.iphi()][abs(hid.ieta())]);
-          hCalo2mom2[hid.iphi()][abs(hid.ieta())]->Fill(pow(energyhit,2));
-         } // eta><0
-	 } // depth=1
-        } // HBHE_NS
+        }
 
 
-// Signal part for HB HE
-     
-   edm::Handle<HFRecHitCollection> hfMB;
-   iEvent.getByLabel(hfrecoMB, hfMB);
+   edm::Handle<HORecHitCollection> ho;
+   iEvent.getByLabel(horeco, ho);
 
-   if(!hfMB.isValid()){
-     LogDebug("") << "HcalCalibAlgos: Error! can't get hbhe product!" << std::endl;
-     cout<<" No HBHE MB"<<endl;
-     return ;
-   }
+    if(!ho.isValid()) {
+      LogDebug("") << "HcalCalibAlgos: Error! can't get ho product!" << std::endl;
+      cout<<" No HO "<<endl;
+    }
 
-  const HFRecHitCollection HithfMB = *(hfMB.product());
-  cout<<" HF MB size of collection "<<HithfMB.size()<<endl;
 
-  for(HFRecHitCollection::const_iterator hbheItr=HithfMB.begin(); hbheItr!=HithfMB.end(); hbheItr++)
+  const HORecHitCollection Hitho = *(ho.product());
+  cout<<" HO size of collection "<<Hitho.size()<<endl;
+  for(HORecHitCollection::const_iterator hoItr=Hitho.begin(); hoItr!=Hitho.end(); hoItr++)
         {
-// Recalibration of energy
-         float icalconst=1.;	 
-         DetId mydetid = hbheItr->id().rawId();
+         float icalconst=1.;
+         DetId mydetid = hoItr->id().rawId();
 	 if( theRecalib ) icalconst=myRecalib->getValues(mydetid)->getValue();
-    
-	 HFRecHit aHit(hbheItr->id(),hbheItr->energy()*icalconst,hbheItr->time());
+	 HORecHit aHit(hoItr->id(),hoItr->energy()*icalconst,hoItr->time());
+	 double energyhit = aHit.energy();
+	
+	
+         hHOEt->Fill(energyhit);
+	 hHOEta->Fill(geo->getPosition((*hoItr).detid()).eta());
+	 hHOPhi->Fill(geo->getPosition((*hoItr).detid()).phi());
+	 HcalDetId hid=HcalDetId((*hoItr).detid());
+//	 if(mystart == 0) theHcalId.push_back(hid);
 	 
-         double energyhit = aHit.energy();
+	 theFillDetMap0[hid] = theFillDetMap0[hid]+ 1.;
+         theFillDetMap1[hid] = theFillDetMap1[hid]+energyhit;
+	 theFillDetMap2[hid] = theFillDetMap2[hid]+pow(energyhit,2);
+	 theFillDetMap3[hid] = theFillDetMap3[hid]+pow(energyhit,3);
+	 theFillDetMap4[hid] = theFillDetMap4[hid]+pow(energyhit,4);
 	 
-	 DetId id = (*hbheItr).detid(); 
-	 HcalDetId hid=HcalDetId(id);
- 
-         int mysu = ((hid).rawId()>>25)&0x7;
-         if( hid.ieta() > 0 ) {
-	 theMBFillDetMapPl0[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theMBFillDetMapPl0[mysu][hid.depth()][hid.iphi()][hid.ieta()]+ 1.;
-         theMBFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theMBFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()]+energyhit;
-	 theMBFillDetMapPl2[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theMBFillDetMapPl2[mysu][hid.depth()][hid.iphi()][hid.ieta()]+pow(energyhit,2);
-         theDFFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theDFFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()]+energyhit-tmpNSFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()];
-	 theDFFillDetMapPl2[mysu][hid.depth()][hid.iphi()][hid.ieta()] =
-	 theDFFillDetMapPl2[mysu][hid.depth()][hid.iphi()][hid.ieta()]+pow((energyhit-tmpNSFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()]),2);
-         } else {
-	 theMBFillDetMapMin0[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] = theMBFillDetMapMin0[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())]+ 1.;
-         theMBFillDetMapMin1[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] = theMBFillDetMapMin1[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())]+energyhit;
-	 theMBFillDetMapMin2[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] = theMBFillDetMapMin2[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())]+pow(energyhit,2);
-         theDFFillDetMapMin1[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theDFFillDetMapMin1[mysu][hid.depth()][hid.iphi()][hid.ieta()]+energyhit-tmpNSFillDetMapMin1[mysu][hid.depth()][hid.iphi()][hid.ieta()];
-	 theDFFillDetMapMin2[mysu][hid.depth()][hid.iphi()][hid.ieta()] =
-	 theDFFillDetMapMin2[mysu][hid.depth()][hid.iphi()][hid.ieta()]+pow((energyhit-tmpNSFillDetMapMin1[mysu][hid.depth()][hid.iphi()][hid.ieta()]),2);
-	 }  
+	 
+         if( hid.ieta() == 5 ) hHOEt_eta_5->Fill((*hoItr).energy());
+//	 cout<<" "<<geo->getPosition((*hoItr).detid()).eta()<<" Eta= "<<hid.ieta()<<" "<<hid.depth()<<endl;
+	  
+        }
 
-	 
-         if(hid.depth() == 1) {
-         if( hid.ieta() > 0 ) {
-          hCalo1[hid.iphi()][hid.ieta()]->Fill(energyhit);
-          hCalo1mom2[hid.iphi()][hid.ieta()]->Fill(pow(energyhit,2));
-         } else {
-          hCalo2[hid.iphi()][abs(hid.ieta())]->Fill(energyhit);
-          hCalo2mom2[hid.iphi()][abs(hid.ieta())]->Fill(pow(energyhit,2));
-         } // eta><0
-	 } // depth=1
-        } // HF_MB
+   edm::Handle<HFRecHitCollection> hf;
+   iEvent.getByLabel(hfreco, hf);
+    if(!hf.isValid()) {
+      LogDebug("") << "HcalCalibAlgos: Error! can't get hf product!" << std::endl;
+      cout<<"No HF "<<endl; 
+    }
 
+  const HFRecHitCollection Hithf = *(hf.product());
+  for(HFRecHitCollection::const_iterator hfItr=Hithf.begin(); hfItr!=Hithf.end(); hfItr++)
+      {	
+         float icalconst=1.; 
+         DetId mydetid = hfItr->id().rawId();
+         if( theRecalib ) icalconst=myRecalib->getValues(mydetid)->getValue();
+	 HFRecHit aHit(hfItr->id(),hfItr->energy()*icalconst,hfItr->time());
+	 double energyhit = aHit.energy();
+
+         hHFEt->Fill(energyhit);
+	 hHFEta->Fill(geo->getPosition((*hfItr).detid()).eta());
+	 hHFPhi->Fill(geo->getPosition((*hfItr).detid()).phi());
+	 HcalDetId hid=HcalDetId((*hfItr).detid());
+//	 if(mystart == 0) theHcalId.push_back(hid);
+	 
+	 theFillDetMap0[hid] = theFillDetMap0[hid]+ 1.;
+         theFillDetMap1[hid] = theFillDetMap1[hid]+energyhit;
+	 theFillDetMap2[hid] = theFillDetMap2[hid]+pow(energyhit,2);
+	 theFillDetMap3[hid] = theFillDetMap3[hid]+pow(energyhit,3);
+	 theFillDetMap4[hid] = theFillDetMap4[hid]+pow(energyhit,4);
+	 
+	 
+         if( hid.ieta() == 33 ) hHFEt_eta_33->Fill(energyhit);	 
+//	 cout<<" "<<geo->getPosition((*hfItr).detid()).eta()<<" Eta= "<<hid.ieta()<<" "<<hid.depth()<<
+//         " "<<energyhit<<endl;
+	 
+      }
    std::cout<<" Event is finished "<<std::endl;
 }
 }

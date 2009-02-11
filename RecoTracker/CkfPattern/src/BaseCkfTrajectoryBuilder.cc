@@ -28,16 +28,14 @@ BaseCkfTrajectoryBuilder(const edm::ParameterSet&              conf,
 			 const Chi2MeasurementEstimatorBase*   estimator,
 			 const TransientTrackingRecHitBuilder* recHitBuilder,
 			 const MeasurementTracker*             measurementTracker,
-			 const TrajectoryFilter*               filter,
-                         const TrajectoryFilter*               inOutFilter):
+			 const TrajectoryFilter*               filter):
   theUpdator(updator),
   thePropagatorAlong(propagatorAlong),thePropagatorOpposite(propagatorOpposite),
   theEstimator(estimator),theTTRHBuilder(recHitBuilder),
   theMeasurementTracker(measurementTracker),
   theLayerMeasurements(new LayerMeasurements(theMeasurementTracker)),
   theForwardPropagator(0),theBackwardPropagator(0),
-  theFilter(filter),
-  theInOutFilter(inOutFilter)
+  theFilter(filter)
 {}
  
 BaseCkfTrajectoryBuilder::~BaseCkfTrajectoryBuilder(){
@@ -116,40 +114,32 @@ createStartingTrajectory( const TrajectorySeed& seed) const
 }
 
 
-bool BaseCkfTrajectoryBuilder::toBeContinued (TempTrajectory& traj, bool inOut) const
+bool BaseCkfTrajectoryBuilder::toBeContinued (TempTrajectory& traj) const
 {
-  // Called after each new hit is added to the trajectory, to see if it is 
-  // worth continuing to build this track candidate.
-  if (inOut) {
-    if (theInOutFilter == 0) edm::LogError("CkfPattern") << "CkfTrajectoryBuilder error: trying to use dedicated filter for in-out tracking phase, when none specified";
-    return theInOutFilter->toBeContinued(traj);
-  } else {
-    return theFilter->toBeContinued(traj);
+  if (traj.measurements().size() > 400) {
+    edm::LogError("Cropping Track After 400 Measurements");
+    LogTrace("Cropping Track After 400 Measurements") <<
+         "Last predicted state: " << traj.lastMeasurement().predictedState() << "\n" <<
+         "Last layer subdetector: " << (traj.lastLayer() ? traj.lastLayer()->subDetector() : -1) << "\n" <<
+         "Found hits: " << traj.foundHits() << ", lost hits: " << traj.lostHits() << "\n\n";
+    return false;
   }
+  return theFilter->toBeContinued(traj);
 }
 
 
- bool BaseCkfTrajectoryBuilder::qualityFilter( const TempTrajectory& traj, bool inOut) const
+ bool BaseCkfTrajectoryBuilder::qualityFilter( const TempTrajectory& traj) const
 {
-  // Called after building a trajectory is completed, to see if it is good enough
-  // to keep.
-  if (inOut) {
-    if (theInOutFilter == 0) edm::LogError("CkfPattern") << "CkfTrajectoryBuilder error: trying to use dedicated filter for in-out tracking phase, when none specified";
-    return theInOutFilter->qualityFilter(traj);
-  } else {
-    return theFilter->qualityFilter(traj);
-  }
+  return theFilter->qualityFilter(traj);
 }
 
 
 void 
 BaseCkfTrajectoryBuilder::addToResult (TempTrajectory& tmptraj, 
-				       TrajectoryContainer& result,
-                                       bool inOut) const
+				       TrajectoryContainer& result) const
 {
   // quality check
-  //  std::cout<<"ADDTORESULT "<<inOut<<" "<<tmptraj.foundHits()<<" "<<qualityFilter(tmptraj, inOut)<<std::endl;
-  if ( !qualityFilter(tmptraj, inOut) )  return;
+  if ( !qualityFilter(tmptraj) )  return;
   Trajectory traj = tmptraj.toTrajectory();	
   // discard latest dummy measurements
   while (!traj.empty() && !traj.lastMeasurement().recHit()->isValid()) traj.pop();
@@ -157,11 +147,10 @@ BaseCkfTrajectoryBuilder::addToResult (TempTrajectory& tmptraj,
 }
 void 
 BaseCkfTrajectoryBuilder::addToResult (TempTrajectory& tmptraj, 
-				       TempTrajectoryContainer& result,
-                                       bool inOut) const
+				       TempTrajectoryContainer& result) const
 {
   // quality check
-  if ( !qualityFilter(tmptraj, inOut) )  return;
+  if ( !qualityFilter(tmptraj) )  return;
   // discard latest dummy measurements
   TempTrajectory traj = tmptraj;
   while (!traj.empty() && !traj.lastMeasurement().recHit()->isValid()) traj.pop();

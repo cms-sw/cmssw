@@ -1,9 +1,3 @@
-2008-10-14  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
-
-	* tag V01-03-00
-	* add Kurt's changes
-	* write the process id to the error event record in shared memory
-
 2008-06-13  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V01-02-00

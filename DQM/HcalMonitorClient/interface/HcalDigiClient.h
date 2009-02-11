@@ -101,53 +101,11 @@ private:
   
   double errorFrac_;
 
-  /*
   TH2F* RawPedestalMean[4];
   TH2F* RawPedestalRMS[4];
   TH2F* SubPedestalMean[4]; 
   TH2F* SubPedestalRMS[4]; 
-  */
-
-  TH2F* HBRawPedestalMean[4];
-  TH2F* HBRawPedestalRMS[4];
-  TH2F* HBSubPedestalMean[4];
-  TH2F* HBSubPedestalRMS[4];
-
-  TH2F* HERawPedestalMean[4];
-  TH2F* HERawPedestalRMS[4];
-  TH2F* HESubPedestalMean[4];
-  TH2F* HESubPedestalRMS[4];
-
-  TH2F* HORawPedestalMean[4];
-  TH2F* HORawPedestalRMS[4];
-  TH2F* HOSubPedestalMean[4];
-  TH2F* HOSubPedestalRMS[4];
-
-  TH2F* HFRawPedestalMean[4];
-  TH2F* HFRawPedestalRMS[4];
-  TH2F* HFSubPedestalMean[4];
-  TH2F* HFSubPedestalRMS[4];
-
-  TH1F* HBRawPedestalMean_1D[4];
-  TH1F* HBRawPedestalRMS_1D[4];
-  TH1F* HBSubPedestalMean_1D[4];
-  TH1F* HBSubPedestalRMS_1D[4];
-
-  TH1F* HERawPedestalMean_1D[4];
-  TH1F* HERawPedestalRMS_1D[4];
-  TH1F* HESubPedestalMean_1D[4];
-  TH1F* HESubPedestalRMS_1D[4];
-
-  TH1F* HORawPedestalMean_1D[4];
-  TH1F* HORawPedestalRMS_1D[4];
-  TH1F* HOSubPedestalMean_1D[4];
-  TH1F* HOSubPedestalRMS_1D[4];
-
-  TH1F* HFRawPedestalMean_1D[4];
-  TH1F* HFRawPedestalRMS_1D[4];
-  TH1F* HFSubPedestalMean_1D[4];
-  TH1F* HFSubPedestalRMS_1D[4];
-
+ 
 };
 
 #endif

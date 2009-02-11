@@ -39,3 +39,21 @@ std::string DataRecord::print(const DataRecord & data)
 
   return str.str();
 }
+
+std::string DataRecord::name(const recordName & code)
+{
+  std::string result;
+  switch (code) {
+    case (None)                         : { result = "None"; break; }
+    case (StartOfBXData)                : { result = "StartOfBXData"; break; }
+    case (StartOfTbLinkInputNumberData) : { result = "StartOfTBLnkData"; break; }
+    case (ChamberData)                  : { result = "ChamberData"; break; }
+    case (Empty)                        : { result = "Empty"; break; }
+    case (RDDM)                         : { result = "RDDM"; break; }
+    case (SDDM)                         : { result = "SDDM"; break; }
+    case (RCDM)                         : { result = "RCDM"; break; }
+    case (RDM)                          : { result = "RDM"; break; }
+    default                             : { result = "UndefinedType"; } 
+  }
+  return result;
+}

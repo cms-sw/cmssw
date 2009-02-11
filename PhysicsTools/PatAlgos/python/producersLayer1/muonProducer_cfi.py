@@ -27,8 +27,8 @@ allLayer1Muons = cms.EDProducer("PATMuonProducer",
     ),
                                 
     embedTrack          = cms.bool(False), ## whether to embed in AOD externally stored tracker track
-    embedCombinedMuon   = cms.bool(False), ## whether to embed in AOD externally stored combined muon track
-    embedStandAloneMuon = cms.bool(False), ## whether to embed in AOD externally stored standalone muon track
+    embedCombinedMuon   = cms.bool(True), ## whether to embed in AOD externally stored combined muon track
+    embedStandAloneMuon = cms.bool(True), ## whether to embed in AOD externally stored standalone muon track
     embedPFCandidate = cms.bool(False),
 
     # isolation configurables
@@ -66,9 +66,7 @@ allLayer1Muons = cms.EDProducer("PATMuonProducer",
     ),
 
     # Resolution configurables
-    addResolutions = cms.bool(True),
-    muonResoFile = cms.string('PhysicsTools/PatUtils/data/Resolutions_muon.root'),
-    useNNResolutions = cms.bool(False), ## use the neural network approach?
+    addResolutions = cms.bool(False),
 
     # Trigger matching configurables
     addTrigMatch = cms.bool(True),

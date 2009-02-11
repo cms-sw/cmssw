@@ -18,8 +18,7 @@ PhysVarHisto( std::string name,
 	      std::string units,
 	      std::string type,
 	      bool        saveHist,
-	      bool        saveNtup,
-	      bool        isMC )
+	      bool        saveNtup )
   :
   currDir_ (currDir),
   name_  (name),
@@ -29,12 +28,10 @@ PhysVarHisto( std::string name,
   xlow_  (xlow),
   xhigh_ (xhigh),
   units_ (units),
-  isMC_  (isMC),
   //
   histos_ (),             // vector of 0 elements
   value_ (-999999),
   value_ext_ (0),
-  indices_(0),
   //
   saveHist_ (saveHist),
   saveNtup_ (saveNtup),
@@ -50,7 +47,7 @@ PhysVarHisto( std::string name,
 
 void
 PhysVarHisto::
-makeTH1(int nameId)
+makeTH1()
 {
   if (verboseLevel_ > 5)
     std::cout << "PhysVarHisto(" << name_ << "):: in makeTH1()." << std::endl;
@@ -63,11 +60,8 @@ makeTH1(int nameId)
 
     std::string name, title;
     std::stringstream partNum;
-    if ( nameId < 0 )
-      partNum << histos_.size()+1;
-    else
-      partNum << nameId;
-    
+    partNum << histos_.size()+1;
+
     name  = name_  + "_" + partNum.str();
     title = title_ + " #" + partNum.str()+ ";" + units_ ;
 
@@ -78,8 +72,6 @@ makeTH1(int nameId)
     // &&& lift the axis labels from RooFit which does a nice job on them
 
     histos_.push_back( h );
-    if ( isMC_ ) 
-      indices_.push_back( nameId );
   }
 }
 
@@ -122,31 +114,18 @@ fill( double x, unsigned int imulti, double weight )
   //--- mode is larger than our current vector of histograms,
   //--- then grow it up to the location requested.
   //
-
-  if ( !isMC_ ) {
-    while ( imulti > histos_.size() ) {
-      if (verboseLevel_ > 4) {
-	std::cout << "PhysVarHisto(" << name_ << ")::fill: grow histo list by one."
-		  << std::endl;
-      }
-      //--- Make another TH1 at index == current value of size()
-      makeTH1();    // histos_ vector grows by one element
+  while ( imulti > histos_.size() ) {
+    if (verboseLevel_ > 4) {
+      std::cout << "PhysVarHisto(" << name_ << ")::fill: grow histo list by one."
+		<< std::endl;
     }
-    if ( verboseLevel_ > 4 )
-      std::cout << "PhysVarHisto(" << name_ << ")::fill: About to fill " << imulti << std::endl;
-    histos_[ imulti-1 ]->Fill( value_, weight );
-    if ( verboseLevel_ > 4 )
-      std::cout << "PhysVarHisto(" << name_ << ")::fill: Done filling " << imulti << std::endl;
-  } 
-  else {
-    
-    std::vector<int>::const_iterator ifound = find( indices_.begin(), indices_.end(), imulti );
-    if ( ifound == indices_.end() ) {
-      makeTH1(imulti);
-    } else {
-      unsigned int index = ifound - indices_.begin();
-      histos_[index]->Fill( value_, weight );
-    }
+    //--- Make another TH1 at index == current value of size()
+    makeTH1();    // histos_ vector grows by one element
   }
+  if ( verboseLevel_ > 4 )
+    std::cout << "PhysVarHisto(" << name_ << ")::fill: About to fill " << imulti << std::endl;
+  histos_[ imulti-1 ]->Fill( value_, weight );
+  if ( verboseLevel_ > 4 )
+    std::cout << "PhysVarHisto(" << name_ << ")::fill: Done filling " << imulti << std::endl;
 }
 

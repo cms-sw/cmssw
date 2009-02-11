@@ -203,8 +203,21 @@ public:
   
   void setSeedRef(const edm::RefToBase<TrajectorySeed> & seedRef) { seedRef_ = seedRef ; } 
 
+  TrajectoryStateOnSurface geometricalInnermostState() const;
+
+  TrajectoryMeasurement const & closestMeasurement(GlobalPoint) const; 
 
 private:
+
+  /// used to determine closest measurement to given point
+  struct LessMag {
+    LessMag(GlobalPoint point) : thePoint(point) {}
+    bool operator()(const TrajectoryMeasurement& lhs,
+                    const TrajectoryMeasurement& rhs) const{ 
+            return (lhs.updatedState().globalPosition() - thePoint).mag() < (rhs.updatedState().globalPosition() -thePoint).mag();
+      }
+    GlobalPoint thePoint;
+  };
 
   DataContainer theData;
   double theChiSquared;

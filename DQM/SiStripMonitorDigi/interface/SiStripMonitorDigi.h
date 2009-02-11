@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorDigi.h,v 1.12 2008/09/28 09:33:13 dutta Exp $
+// $Id: SiStripMonitorDigi.h,v 1.13 2008/10/25 21:12:33 dutta Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -76,8 +76,7 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   void createLayerMEs(std::string label, int ndet);
   void createSubDetMEs(std::string label);
   void getLayerLabel(uint32_t detid, std::string& label, int& subdetid, int& subsubdetid);
-      
-
+  int getDigiSource(uint32_t id, edm::DetSet<SiStripDigi>& digi_detset);
       
  private:
   DQMStore* dqmStore_;
@@ -97,7 +96,7 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   SiStripFolderOrganizer folder_organizer;
   std::map<std::pair<std::string,int32_t>,bool> DetectedLayers;
   /*        edm::Handle< edmNew::DetSetVector<SiStripDigi> > digi_detsetvektor; */
-  edm::Handle< edm::DetSetVector<SiStripDigi> > digi_detsetvektor;
+  edm::Handle< edm::DetSetVector<SiStripDigi> > digi_detsetvektor[4];
   std::vector<uint32_t> ModulesToBeExcluded_;
 
   int runNb, eventNb;

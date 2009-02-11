@@ -5,8 +5,7 @@ rpcRecHits = cms.EDProducer("RPCRecHitProducer",
 
     ),
     recAlgo = cms.string('RPCRecHitStandardAlgo'),
-    rpcDigiLabel = cms.InputTag("muonRPCDigis"),
-    maskmapfile = cms.FileInPath('RecoLocalMuon/RPCRecHit/data/RPCMaskedStrips.dat')
+    rpcDigiLabel = cms.InputTag("muonRPCDigis")
 )
 
 

@@ -56,21 +56,13 @@ namespace edm
     private:
       // data specifiers
 
-      edm::InputTag DTdigi_collectionSig_; // secondary name given to collection of DT digis
-      edm::InputTag RPCdigi_collectionSig_; // secondary name given to collection of RPC digis
-      edm::InputTag CSCDigiTagSig_; // primary? name given to collection of CSC digis
-      edm::InputTag DTDigiTagSig_; // primary? name given to collection of DT digis
-      edm::InputTag RPCDigiTagSig_; // primary? name given to collection of RPC digis
-      edm::InputTag CSCstripdigi_collectionSig_; // secondary name given to collection of CSC Strip digis
-      edm::InputTag CSCwiredigi_collectionSig_; // secondary name given to collection of CSC wire digis
-
-      edm::InputTag DTdigi_collectionPile_; // secondary name given to collection of DT digis
-      edm::InputTag RPCdigi_collectionPile_; // secondary name given to collection of RPC digis
-      edm::InputTag CSCDigiTagPile_; // primary? name given to collection of CSC digis
-      edm::InputTag DTDigiTagPile_; // primary? name given to collection of DT digis
-      edm::InputTag RPCDigiTagPile_; // primary? name given to collection of RPC digis
-      edm::InputTag CSCstripdigi_collectionPile_; // secondary name given to collection of CSC Strip digis
-      edm::InputTag CSCwiredigi_collectionPile_; // secondary name given to collection of CSC wire digis
+      edm::InputTag DTdigi_collection_; // secondary name given to collection of DT digis
+      edm::InputTag RPCdigi_collection_; // secondary name given to collection of RPC digis
+      edm::InputTag CSCDigiTag_; // primary? name given to collection of CSC digis
+      edm::InputTag DTDigiTag_; // primary? name given to collection of DT digis
+      edm::InputTag RPCDigiTag_; // primary? name given to collection of RPC digis
+      edm::InputTag CSCstripdigi_collection_; // secondary name given to collection of CSC Strip digis
+      edm::InputTag CSCwiredigi_collection_; // secondary name given to collection of CSC wire digis
 
       std::string DTDigiCollectionDM_; // secondary name to be given to new DT digis
       std::string RPCDigiCollectionDM_; // secondary name to be given to new RPC digis

@@ -44,22 +44,13 @@
   <class name="L1RPCDevCoords"/>
   <class name="std::set<L1RPCDevCoords>"/>
 
+  <class name="RPCdbData"/>
+  <class name="RPCdbData::Item"/>
+  <class name="std::vector<RPCdbData::Item>"/>
+
   <class name="RPCStripNoises"/>
   <class name="RPCStripNoises::NoiseItem"/>
   <class name="std::vector<RPCStripNoises::NoiseItem>"/>
   <class name="std::vector<float>"/>
-
-  <class name="RPCObGas"/>
-  <class name="RPCObGas::Item"/>
-  <class name="std::vector<RPCObGas::Item>"/>
-
-  <class name="RPCObCond"/>
-  <class name="RPCObCond::Item"/>
-  <class name="std::vector<RPCObCond::Item>"/>
-
-  <class name="RPCObPVSSmap"/>
-  <class name="RPCObPVSSmap::Item"/>
-  <class name="std::vector<RPCObPVSSmap::Item>"/>
-
 
 </lcgdict>

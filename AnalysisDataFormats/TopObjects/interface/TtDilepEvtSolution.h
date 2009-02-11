@@ -1,5 +1,5 @@
 //
-// $Id: TtDilepEvtSolution.h,v 1.19 2008/03/16 17:11:28 delaer Exp $
+// $Id: TtDilepEvtSolution.h,v 1.20 2008/08/28 00:38:55 rwolf Exp $
 //
 
 #ifndef TopObjects_TtDilepEvtSolution_h
@@ -66,9 +66,9 @@ class TtDilepEvtSolution {
   //-------------------------------------------
   // get (un-)/calibrated reco objects
   //-------------------------------------------
-  pat::JetType  getRecJetB() const { return this->getJetB().recJet(); };
+  pat::JetType  getRecJetB() const { return this->getJetB().correctedJet("RAW"); };
   pat::Jet      getCalJetB() const { return this->getJetB(); };
-  pat::JetType  getRecJetBbar() const { return this->getJetBbar().recJet(); };
+  pat::JetType  getRecJetBbar() const { return this->getJetBbar().correctedJet("RAW"); };
   pat::Jet      getCalJetBbar() const { return this->getJetBbar(); };
 
   //-------------------------------------------

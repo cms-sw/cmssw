@@ -33,6 +33,8 @@ class CSCGeometry;
 class CSCDetId;
 class CSCHitFromStripOnly;
 class CSCHitFromWireOnly;
+class CSCWireSegments;
+class CSCStripSegments;
 class CSCMake2DRecHit;
 class CSCRecoConditions;
 
@@ -74,6 +76,7 @@ class CSCRecHitDBuilder
 
  private:
 
+  //bool isData;
   bool useCalib;
   int stripWireDeltaT;
   bool makePseudo2DHits;
@@ -85,7 +88,8 @@ class CSCRecHitDBuilder
    */
   CSCHitFromStripOnly*   hitsFromStripOnly_;
   CSCHitFromWireOnly*    hitsFromWireOnly_;
-
+  //CSCWireSegments*       hitsFromWireSegments_;  
+  //CSCStripSegments*      hitsFromStripSegments_;  
   CSCMake2DRecHit*       make2DHits_;
 
   /*

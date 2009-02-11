@@ -23,14 +23,12 @@ EcalRecHitsMerger::EcalRecHitsMerger(const edm::ParameterSet& pset) {
  TausSourceEB_  = pset.getUntrackedParameter<edm::InputTag>("TausSource_EB");
  JetsSourceEB_   = pset.getUntrackedParameter<edm::InputTag>("JetsSource_EB");
  RestSourceEB_   = pset.getUntrackedParameter<edm::InputTag>("RestSource_EB");
- Pi0SourceEB_   = pset.getUntrackedParameter<edm::InputTag>("Pi0Source_EB",edm::InputTag("dummyPi0"));
 
  EgammaSourceEE_ = pset.getUntrackedParameter<edm::InputTag>("EgammaSource_EE");
  MuonsSourceEE_  = pset.getUntrackedParameter<edm::InputTag>("MuonsSource_EE");
  TausSourceEE_  = pset.getUntrackedParameter<edm::InputTag>("TausSource_EE");
  JetsSourceEE_   = pset.getUntrackedParameter<edm::InputTag>("JetsSource_EE");
  RestSourceEE_   = pset.getUntrackedParameter<edm::InputTag>("RestSource_EE");
- Pi0SourceEE_   = pset.getUntrackedParameter<edm::InputTag>("Pi0Source_EE",edm::InputTag("dummyPi0"));
 
  OutputLabelEB_ = pset.getUntrackedParameter<std::string>("OutputLabel_EB");
  OutputLabelEE_ = pset.getUntrackedParameter<std::string>("OutputLabel_EE");
@@ -80,8 +78,7 @@ void EcalRecHitsMerger::produce(edm::Event & e, const edm::EventSetup& iSetup){
 	module_label != MuonsSourceEB_.label() &&
 	module_label != JetsSourceEB_.label() &&
  	module_label != TausSourceEB_.label() &&
- 	module_label != RestSourceEB_.label() &&
-        module_label != Pi0SourceEB_.label() ) continue;
+ 	module_label != RestSourceEB_.label() ) continue;
 
    if (instance == InputRecHitEB_)  {
 	nEB += EcalRecHits_done[i] -> size();
@@ -105,8 +102,7 @@ void EcalRecHitsMerger::produce(edm::Event & e, const edm::EventSetup& iSetup){
 	module_label != MuonsSourceEB_.label() &&
 	module_label != JetsSourceEB_.label() &&
  	module_label != TausSourceEB_.label() &&
- 	module_label != RestSourceEB_.label() &&
-        module_label != Pi0SourceEB_.label() ) continue;
+ 	module_label != RestSourceEB_.label() ) continue;
 
     if (instance == InputRecHitEB_) {
 	for (EcalRecHitCollection::const_iterator it=EcalRecHits_done[i]->begin(); it !=EcalRecHits_done[i]->end(); it++) {

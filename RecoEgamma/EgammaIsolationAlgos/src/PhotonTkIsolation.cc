@@ -32,16 +32,12 @@ PhotonTkIsolation::PhotonTkIsolation (double extRadius,
 				      double intRadius,
 				      double etLow,
 				      double lip,
-				      double drb,
- 				      const reco::TrackCollection* trackCollection,
-				      reco::TrackBase::Point beamPoint)   :
+				      const reco::TrackCollection* trackCollection)   :
   extRadius_(extRadius),
   intRadius_(intRadius),
   etLow_(etLow),
   lip_(lip),
-  drb_(drb),
-  trackCollection_(trackCollection),
-  beamPoint_(beamPoint)
+  trackCollection_(trackCollection)  
 {
 }
 
@@ -58,8 +54,13 @@ std::pair<int,double> PhotonTkIsolation::getIso(const reco::Candidate* photon ) 
   double ptSum =0.;
 
 
-  //Take the photon position
-  math::XYZVector mom= photon->momentum();
+  //Take the SC position
+  reco::SuperClusterRef sc = photon->get<reco::SuperClusterRef>();
+  math::XYZPoint theCaloPosition = sc.get()->position();
+  reco::Particle::Point vtxPos = photon->vertex();
+  math::XYZVector mom (theCaloPosition.x() - vtxPos.x(),
+		    theCaloPosition.y() - vtxPos.y(),
+		    theCaloPosition.z() - vtxPos.z());
 
   //loop over tracks
   for(reco::TrackCollection::const_iterator trItr = trackCollection_->begin(); trItr != trackCollection_->end(); ++trItr){
@@ -71,8 +72,6 @@ std::pair<int,double> PhotonTkIsolation::getIso(const reco::Candidate* photon ) 
     double this_pt  = (*trItr).pt();
     if ( this_pt < etLow_ ) 
       continue ;  
-    if (fabs( (*trItr).dxy(beamPoint_) ) > drb_   ) // only consider tracks from the main vertex
-      continue;
     double dr = DeltaR(tmpTrackMomentumAtVtx,mom) ;
     if(fabs(dr) < extRadius_ &&
        fabs(dr) >= intRadius_ )
@@ -85,7 +84,8 @@ std::pair<int,double> PhotonTkIsolation::getIso(const reco::Candidate* photon ) 
 
   std::pair<int,double> retval;
   retval.first  = counter;
-  retval.second = ptSum;  
+  retval.second = ptSum;
+
   return retval;
 }
 

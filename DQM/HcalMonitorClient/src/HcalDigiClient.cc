@@ -44,47 +44,10 @@ void HcalDigiClient::init(const ParameterSet& ps, DQMStore* dbe, string clientNa
     ProblemDigiCellsHO_DEPTH[i]=0;
     ProblemDigiCellsHF_DEPTH[i]=0;
 
-    HBRawPedestalMean[i]=0; 
-    HBRawPedestalRMS[i]=0; 
-    HBSubPedestalMean[i]=0;  
-    HBSubPedestalRMS[i]=0;  
-
-    HERawPedestalMean[i]=0; 
-    HERawPedestalRMS[i]=0; 
-    HESubPedestalMean[i]=0;  
-    HESubPedestalRMS[i]=0;  
-
-    HORawPedestalMean[i]=0; 
-    HORawPedestalRMS[i]=0; 
-    HOSubPedestalMean[i]=0;  
-    HOSubPedestalRMS[i]=0;  
-
-    HFRawPedestalMean[i]=0; 
-    HFRawPedestalRMS[i]=0; 
-    HFSubPedestalMean[i]=0;  
-    HFSubPedestalRMS[i]=0;  
-
-    HBRawPedestalMean_1D[i]=0; 
-    HBRawPedestalRMS_1D[i]=0; 
-    HBSubPedestalMean_1D[i]=0;  
-    HBSubPedestalRMS_1D[i]=0;  
-
-    HERawPedestalMean_1D[i]=0; 
-    HERawPedestalRMS_1D[i]=0; 
-    HESubPedestalMean_1D[i]=0;  
-    HESubPedestalRMS_1D[i]=0;  
-
-    HORawPedestalMean_1D[i]=0; 
-    HORawPedestalRMS_1D[i]=0; 
-    HOSubPedestalMean_1D[i]=0;  
-    HOSubPedestalRMS_1D[i]=0;  
-
-    HFRawPedestalMean_1D[i]=0; 
-    HFRawPedestalRMS_1D[i]=0; 
-    HFSubPedestalMean_1D[i]=0;  
-    HFSubPedestalRMS_1D[i]=0;  
-    
-
+    RawPedestalMean[i]=0; 
+    RawPedestalRMS[i]=0; 
+    SubPedestalMean[i]=0;  
+    SubPedestalRMS[i]=0;  
   }
   
   ProblemDigiCells=0;
@@ -209,42 +172,10 @@ void HcalDigiClient::cleanup(void) {
       if (ProblemDigiCellsHE_DEPTH[i]) delete ProblemDigiCellsHE_DEPTH[i];
       if (ProblemDigiCellsHO_DEPTH[i]) delete ProblemDigiCellsHO_DEPTH[i];
       if (ProblemDigiCellsHF_DEPTH[i]) delete ProblemDigiCellsHF_DEPTH[i];
-      if (HBRawPedestalMean[i]) delete HBRawPedestalMean[i]; 
-      if (HBRawPedestalRMS[i])  delete HBRawPedestalRMS[i]; 
-      if (HBSubPedestalMean[i]) delete HBSubPedestalMean[i];  
-      if (HBSubPedestalMean[i]) delete HBSubPedestalRMS[i];  
-      if (HBRawPedestalMean_1D[i]) delete HBRawPedestalMean_1D[i]; 
-      if (HBRawPedestalRMS_1D[i])  delete HBRawPedestalRMS_1D[i]; 
-      if (HBSubPedestalMean_1D[i]) delete HBSubPedestalMean_1D[i];  
-      if (HBSubPedestalMean_1D[i]) delete HBSubPedestalRMS_1D[i];  
-
-      if (HERawPedestalMean[i]) delete HERawPedestalMean[i]; 
-      if (HERawPedestalRMS[i])  delete HERawPedestalRMS[i]; 
-      if (HESubPedestalMean[i]) delete HESubPedestalMean[i];  
-      if (HESubPedestalMean[i]) delete HESubPedestalRMS[i];  
-      if (HERawPedestalMean_1D[i]) delete HERawPedestalMean_1D[i]; 
-      if (HERawPedestalRMS_1D[i])  delete HERawPedestalRMS_1D[i]; 
-      if (HESubPedestalMean_1D[i]) delete HESubPedestalMean_1D[i];  
-      if (HESubPedestalMean_1D[i]) delete HESubPedestalRMS_1D[i];  
-
-      if (HORawPedestalMean[i]) delete HORawPedestalMean[i]; 
-      if (HORawPedestalRMS[i])  delete HORawPedestalRMS[i]; 
-      if (HOSubPedestalMean[i]) delete HOSubPedestalMean[i];  
-      if (HOSubPedestalMean[i]) delete HOSubPedestalRMS[i];  
-      if (HORawPedestalMean_1D[i]) delete HORawPedestalMean_1D[i]; 
-      if (HORawPedestalRMS_1D[i])  delete HORawPedestalRMS_1D[i]; 
-      if (HOSubPedestalMean_1D[i]) delete HOSubPedestalMean_1D[i];  
-      if (HOSubPedestalMean_1D[i]) delete HOSubPedestalRMS_1D[i];  
-
-      if (HFRawPedestalMean[i]) delete HFRawPedestalMean[i]; 
-      if (HFRawPedestalRMS[i])  delete HFRawPedestalRMS[i]; 
-      if (HFSubPedestalMean[i]) delete HFSubPedestalMean[i];  
-      if (HFSubPedestalMean[i]) delete HFSubPedestalRMS[i];  
-      if (HFRawPedestalMean_1D[i]) delete HFRawPedestalMean_1D[i]; 
-      if (HFRawPedestalRMS_1D[i])  delete HFRawPedestalRMS_1D[i]; 
-      if (HFSubPedestalMean_1D[i]) delete HFSubPedestalMean_1D[i];  
-      if (HFSubPedestalMean_1D[i]) delete HFSubPedestalRMS_1D[i];  
-
+      if (RawPedestalMean[i]) delete RawPedestalMean[i]; 
+      if (RawPedestalRMS[i])  delete RawPedestalRMS[i]; 
+      if (SubPedestalMean[i]) delete SubPedestalMean[i];  
+      if (SubPedestalMean[i]) delete SubPedestalRMS[i];  
     } // for (int i=0;i<4;++i)
     /*
     if (gl_occ_geo_)   delete gl_occ_geo_;
@@ -289,41 +220,10 @@ void HcalDigiClient::cleanup(void) {
     ProblemDigiCellsHO_DEPTH[i]=0;
     ProblemDigiCellsHF_DEPTH[i]=0;
 
-    HBRawPedestalMean[i]=0; 
-    HBRawPedestalRMS[i]=0; 
-    HBSubPedestalMean[i]=0;  
-    HBSubPedestalRMS[i]=0;  
-    HBRawPedestalMean_1D[i]=0; 
-    HBRawPedestalRMS_1D[i]=0; 
-    HBSubPedestalMean_1D[i]=0;  
-    HBSubPedestalRMS_1D[i]=0;  
-
-    HERawPedestalMean[i]=0; 
-    HERawPedestalRMS[i]=0; 
-    HESubPedestalMean[i]=0;  
-    HESubPedestalRMS[i]=0;  
-    HERawPedestalMean_1D[i]=0; 
-    HERawPedestalRMS_1D[i]=0; 
-    HESubPedestalMean_1D[i]=0;  
-    HESubPedestalRMS_1D[i]=0;  
-
-    HORawPedestalMean[i]=0; 
-    HORawPedestalRMS[i]=0; 
-    HOSubPedestalMean[i]=0;  
-    HOSubPedestalRMS[i]=0;  
-    HORawPedestalMean_1D[i]=0; 
-    HORawPedestalRMS_1D[i]=0; 
-    HOSubPedestalMean_1D[i]=0;  
-    HOSubPedestalRMS_1D[i]=0;  
-
-    HFRawPedestalMean[i]=0; 
-    HFRawPedestalRMS[i]=0; 
-    HFSubPedestalMean[i]=0;  
-    HFSubPedestalRMS[i]=0;  
-    HFRawPedestalMean_1D[i]=0; 
-    HFRawPedestalRMS_1D[i]=0; 
-    HFSubPedestalMean_1D[i]=0;  
-    HFSubPedestalRMS_1D[i]=0;  
+    RawPedestalMean[i]=0; 
+    RawPedestalRMS[i]=0; 
+    SubPedestalMean[i]=0;  
+    SubPedestalRMS[i]=0;  
 
     gl_occ_geo_[i]=0;
     if(i<3) gl_occ_elec_[i]=0;
@@ -414,82 +314,14 @@ void HcalDigiClient::getHistograms(){
       ProblemDigiCellsHO_DEPTH[i]=getHisto2(name,process_,dbe_,debug_,cloneME_);
       sprintf(name,"DigiMonitor/HF/expertPlots/HFProblemDigiCells_depth%i",i+1);
       ProblemDigiCellsHF_DEPTH[i]=getHisto2(name,process_,dbe_,debug_,cloneME_);
-      // HB pedestals 
-      sprintf(name,"DigiMonitor/HB/PedestalPlots/HB_etaphi_raw_pedestal_mean_depth%i",i+1);
-      HBRawPedestalMean[i]=getHisto2(name,process_,dbe_,debug_,cloneME_); 
-      sprintf(name,"DigiMonitor/HB/PedestalPlots/HB_etaphi_raw_pedestal_rms_depth%i",i+1);
-      HBRawPedestalRMS[i]=getHisto2(name,process_,dbe_,debug_,cloneME_); 
-      sprintf(name,"DigiMonitor/HB/PedestalPlots/HB_etaphi_sub_pedestal_mean_depth%i",i+1);
-      HBSubPedestalMean[i]=getHisto2(name,process_,dbe_,debug_,cloneME_); 
-      sprintf(name,"DigiMonitor/HB/PedestalPlots/HB_etaphi_sub_pedestal_rms_depth%i",i+1);
-      HBSubPedestalRMS[i]=getHisto2(name,process_,dbe_,debug_,cloneME_); 
-
-      sprintf(name,"DigiMonitor/HB/PedestalPlots/HB_raw_pedestal_mean_depth%i",i+1);
-      HBRawPedestalMean_1D[i]=getHisto(name,process_,dbe_,debug_,cloneME_); 
-      sprintf(name,"DigiMonitor/HB/PedestalPlots/HB_raw_pedestal_rms_depth%i",i+1);
-      HBRawPedestalRMS_1D[i]=getHisto(name,process_,dbe_,debug_,cloneME_); 
-      sprintf(name,"DigiMonitor/HB/PedestalPlots/HB_sub_pedestal_mean_depth%i",i+1);
-      HBSubPedestalMean_1D[i]=getHisto(name,process_,dbe_,debug_,cloneME_); 
-      sprintf(name,"DigiMonitor/HB/PedestalPlots/HB_sub_pedestal_rms_depth%i",i+1);
-      HBSubPedestalRMS_1D[i]=getHisto(name,process_,dbe_,debug_,cloneME_); 
-
-      // HE pedestals
-      sprintf(name,"DigiMonitor/HE/PedestalPlots/HE_etaphi_raw_pedestal_mean_depth%i",i+1);
-      HERawPedestalMean[i]=getHisto2(name,process_,dbe_,debug_,cloneME_); 
-      sprintf(name,"DigiMonitor/HE/PedestalPlots/HE_etaphi_raw_pedestal_rms_depth%i",i+1);
-      HERawPedestalRMS[i]=getHisto2(name,process_,dbe_,debug_,cloneME_); 
-      sprintf(name,"DigiMonitor/HE/PedestalPlots/HE_etaphi_sub_pedestal_mean_depth%i",i+1);
-      HESubPedestalMean[i]=getHisto2(name,process_,dbe_,debug_,cloneME_); 
-      sprintf(name,"DigiMonitor/HE/PedestalPlots/HE_etaphi_sub_pedestal_rms_depth%i",i+1);
-      HESubPedestalRMS[i]=getHisto2(name,process_,dbe_,debug_,cloneME_); 
-
-      sprintf(name,"DigiMonitor/HE/PedestalPlots/HE_raw_pedestal_mean_depth%i",i+1);
-      HERawPedestalMean_1D[i]=getHisto(name,process_,dbe_,debug_,cloneME_); 
-      sprintf(name,"DigiMonitor/HE/PedestalPlots/HE_raw_pedestal_rms_depth%i",i+1);
-      HERawPedestalRMS_1D[i]=getHisto(name,process_,dbe_,debug_,cloneME_); 
-      sprintf(name,"DigiMonitor/HE/PedestalPlots/HE_sub_pedestal_mean_depth%i",i+1);
-      HESubPedestalMean_1D[i]=getHisto(name,process_,dbe_,debug_,cloneME_); 
-      sprintf(name,"DigiMonitor/HE/PedestalPlots/HE_sub_pedestal_rms_depth%i",i+1);
-      HESubPedestalRMS_1D[i]=getHisto(name,process_,dbe_,debug_,cloneME_); 
-
-      // HO
-      sprintf(name,"DigiMonitor/HO/PedestalPlots/HO_etaphi_raw_pedestal_mean_depth%i",i+1);
-      HORawPedestalMean[i]=getHisto2(name,process_,dbe_,debug_,cloneME_); 
-      sprintf(name,"DigiMonitor/HO/PedestalPlots/HO_etaphi_raw_pedestal_rms_depth%i",i+1);
-      HORawPedestalRMS[i]=getHisto2(name,process_,dbe_,debug_,cloneME_); 
-      sprintf(name,"DigiMonitor/HO/PedestalPlots/HO_etaphi_sub_pedestal_mean_depth%i",i+1);
-      HOSubPedestalMean[i]=getHisto2(name,process_,dbe_,debug_,cloneME_); 
-      sprintf(name,"DigiMonitor/HO/PedestalPlots/HO_etaphi_sub_pedestal_rms_depth%i",i+1);
-      HOSubPedestalRMS[i]=getHisto2(name,process_,dbe_,debug_,cloneME_); 
-
-      sprintf(name,"DigiMonitor/HO/PedestalPlots/HO_raw_pedestal_mean_depth%i",i+1);
-      HORawPedestalMean_1D[i]=getHisto(name,process_,dbe_,debug_,cloneME_); 
-      sprintf(name,"DigiMonitor/HO/PedestalPlots/HO_raw_pedestal_rms_depth%i",i+1);
-      HORawPedestalRMS_1D[i]=getHisto(name,process_,dbe_,debug_,cloneME_); 
-      sprintf(name,"DigiMonitor/HO/PedestalPlots/HO_sub_pedestal_mean_depth%i",i+1);
-      HOSubPedestalMean_1D[i]=getHisto(name,process_,dbe_,debug_,cloneME_); 
-      sprintf(name,"DigiMonitor/HO/PedestalPlots/HO_sub_pedestal_rms_depth%i",i+1);
-      HOSubPedestalRMS_1D[i]=getHisto(name,process_,dbe_,debug_,cloneME_); 
-
-
-      // HF
-      sprintf(name,"DigiMonitor/HF/PedestalPlots/HF_etaphi_raw_pedestal_mean_depth%i",i+1);
-      HFRawPedestalMean[i]=getHisto2(name,process_,dbe_,debug_,cloneME_); 
-      sprintf(name,"DigiMonitor/HF/PedestalPlots/HF_etaphi_raw_pedestal_rms_depth%i",i+1);
-      HFRawPedestalRMS[i]=getHisto2(name,process_,dbe_,debug_,cloneME_); 
-      sprintf(name,"DigiMonitor/HF/PedestalPlots/HF_etaphi_sub_pedestal_mean_depth%i",i+1);
-      HFSubPedestalMean[i]=getHisto2(name,process_,dbe_,debug_,cloneME_); 
-      sprintf(name,"DigiMonitor/HF/PedestalPlots/HF_etaphi_sub_pedestal_rms_depth%i",i+1);
-      HFSubPedestalRMS[i]=getHisto2(name,process_,dbe_,debug_,cloneME_); 
-
-      sprintf(name,"DigiMonitor/HF/PedestalPlots/HF_raw_pedestal_mean_depth%i",i+1);
-      HFRawPedestalMean_1D[i]=getHisto(name,process_,dbe_,debug_,cloneME_); 
-      sprintf(name,"DigiMonitor/HF/PedestalPlots/HF_raw_pedestal_rms_depth%i",i+1);
-      HFRawPedestalRMS_1D[i]=getHisto(name,process_,dbe_,debug_,cloneME_); 
-      sprintf(name,"DigiMonitor/HF/PedestalPlots/HF_sub_pedestal_mean_depth%i",i+1);
-      HFSubPedestalMean_1D[i]=getHisto(name,process_,dbe_,debug_,cloneME_); 
-      sprintf(name,"DigiMonitor/HF/PedestalPlots/HF_sub_pedestal_rms_depth%i",i+1);
-      HFSubPedestalRMS_1D[i]=getHisto(name,process_,dbe_,debug_,cloneME_); 
+      sprintf(name,"DigiMonitor/HCAL/RawPedestalMeanDepth%i",i+1);
+      RawPedestalMean[i]=getHisto2(name,process_,dbe_,debug_,cloneME_); 
+      sprintf(name,"DigiMonitor/HCAL/RawPedestalRMSDepth%i",i+1);
+      RawPedestalRMS[i]=getHisto2(name,process_,dbe_,debug_,cloneME_); 
+      sprintf(name,"DigiMonitor/HCAL/SubPedestalMeanDepth%i",i+1);
+      SubPedestalMean[i]=getHisto2(name,process_,dbe_,debug_,cloneME_); 
+      sprintf(name,"DigiMonitor/HCAL/SubPedestalRMSDepth%i",i+1);
+      SubPedestalRMS[i]=getHisto2(name,process_,dbe_,debug_,cloneME_); 
     }
   
   
@@ -642,71 +474,14 @@ void HcalDigiClient::resetAllME(){
       sprintf(name,"%sHcal/DigiMonitor/HF/expertPlots/HFProblemDigiCells_depth%i",process_.c_str(),i);
       resetME(name,dbe_);
       
-      // HB pedestals
-      sprintf(name,"DigiMonitor/HB/PedestalPlots/HB_etaphi_raw_pedestal_mean_depth%i",i+1);
+      sprintf(name,"%sHcal/DigiMonitor/HCAL/RawPedestalMeanDepth%i",process_.c_str(),i);
       resetME(name,dbe_);
-      sprintf(name,"DigiMonitor/HB/PedestalPlots/HB_etaphi_raw_pedestal_rms_depth%i",i+1);
+      sprintf(name,"%sHcal/DigiMonitor/HCAL/RawPedestalRMSDepth%i",process_.c_str(),i);
       resetME(name,dbe_);
-      sprintf(name,"DigiMonitor/HB/PedestalPlots/HB_etaphi_sub_pedestal_mean_depth%i",i+1);
+      sprintf(name,"%sHcal/DigiMonitor/HCAL/SubPedestalMeanDepth%i",process_.c_str(),i);
       resetME(name,dbe_);
-      sprintf(name,"DigiMonitor/HB/PedestalPlots/HB_etaphi_sub_pedestal_rms_depth%i",i+1);
+      sprintf(name,"%sHcal/DigiMonitor/HCAL/SubPedestalRMSDepth%i",process_.c_str(),i);
       resetME(name,dbe_);
-      sprintf(name,"DigiMonitor/HB/PedestalPlots/HB_raw_pedestal_mean_depth%i",i+1);
-      resetME(name,dbe_);
-      sprintf(name,"DigiMonitor/HB/PedestalPlots/HB_raw_pedestal_rms_depth%i",i+1);
-      resetME(name,dbe_);
-      sprintf(name,"DigiMonitor/HB/PedestalPlots/HB_sub_pedestal_mean_depth%i",i+1);
-      resetME(name,dbe_);
-      sprintf(name,"DigiMonitor/HB/PedestalPlots/HB_sub_pedestal_rms_depth%i",i+1);
-       // HE pedestals
-      sprintf(name,"DigiMonitor/HE/PedestalPlots/HE_etaphi_raw_pedestal_mean_depth%i",i+1);
-      resetME(name,dbe_);
-      sprintf(name,"DigiMonitor/HE/PedestalPlots/HE_etaphi_raw_pedestal_rms_depth%i",i+1);
-      resetME(name,dbe_);
-      sprintf(name,"DigiMonitor/HE/PedestalPlots/HE_etaphi_sub_pedestal_mean_depth%i",i+1);
-      resetME(name,dbe_);
-      sprintf(name,"DigiMonitor/HE/PedestalPlots/HE_etaphi_sub_pedestal_rms_depth%i",i+1);
-      resetME(name,dbe_);
-      sprintf(name,"DigiMonitor/HE/PedestalPlots/HE_raw_pedestal_mean_depth%i",i+1);
-      resetME(name,dbe_);
-      sprintf(name,"DigiMonitor/HE/PedestalPlots/HE_raw_pedestal_rms_depth%i",i+1);
-      resetME(name,dbe_);
-      sprintf(name,"DigiMonitor/HE/PedestalPlots/HE_sub_pedestal_mean_depth%i",i+1);
-      resetME(name,dbe_);
-      sprintf(name,"DigiMonitor/HE/PedestalPlots/HE_sub_pedestal_rms_depth%i",i+1);
-       // HO pedestals
-      sprintf(name,"DigiMonitor/HO/PedestalPlots/HO_etaphi_raw_pedestal_mean_depth%i",i+1);
-      resetME(name,dbe_);
-      sprintf(name,"DigiMonitor/HO/PedestalPlots/HO_etaphi_raw_pedestal_rms_depth%i",i+1);
-      resetME(name,dbe_);
-      sprintf(name,"DigiMonitor/HO/PedestalPlots/HO_etaphi_sub_pedestal_mean_depth%i",i+1);
-      resetME(name,dbe_);
-      sprintf(name,"DigiMonitor/HO/PedestalPlots/HO_etaphi_sub_pedestal_rms_depth%i",i+1);
-      resetME(name,dbe_);
-      sprintf(name,"DigiMonitor/HO/PedestalPlots/HO_raw_pedestal_mean_depth%i",i+1);
-      resetME(name,dbe_);
-      sprintf(name,"DigiMonitor/HO/PedestalPlots/HO_raw_pedestal_rms_depth%i",i+1);
-      resetME(name,dbe_);
-      sprintf(name,"DigiMonitor/HO/PedestalPlots/HO_sub_pedestal_mean_depth%i",i+1);
-      resetME(name,dbe_);
-      sprintf(name,"DigiMonitor/HO/PedestalPlots/HO_sub_pedestal_rms_depth%i",i+1);
-       // HF pedestals
-      sprintf(name,"DigiMonitor/HF/PedestalPlots/HF_etaphi_raw_pedestal_mean_depth%i",i+1);
-      resetME(name,dbe_);
-      sprintf(name,"DigiMonitor/HF/PedestalPlots/HF_etaphi_raw_pedestal_rms_depth%i",i+1);
-      resetME(name,dbe_);
-      sprintf(name,"DigiMonitor/HF/PedestalPlots/HF_etaphi_sub_pedestal_mean_depth%i",i+1);
-      resetME(name,dbe_);
-      sprintf(name,"DigiMonitor/HF/PedestalPlots/HF_etaphi_sub_pedestal_rms_depth%i",i+1);
-      resetME(name,dbe_);
-      sprintf(name,"DigiMonitor/HF/PedestalPlots/HF_raw_pedestal_mean_depth%i",i+1);
-      resetME(name,dbe_);
-      sprintf(name,"DigiMonitor/HF/PedestalPlots/HF_raw_pedestal_rms_depth%i",i+1);
-      resetME(name,dbe_);
-      sprintf(name,"DigiMonitor/HF/PedestalPlots/HF_sub_pedestal_mean_depth%i",i+1);
-      resetME(name,dbe_);
-      sprintf(name,"DigiMonitor/HF/PedestalPlots/HF_sub_pedestal_rms_depth%i",i+1);
-      
   }
 
   sprintf(name,"%sHcal/DigiMonitor/HCAL/HCALProblemDigiCells",process_.c_str());
@@ -861,7 +636,6 @@ void HcalDigiClient::htmlExpertOutput(int runNo, string htmlDir, string htmlName
   if(subDetsOn_[1]) htmlFile << "<a href=\"#HE_Plots\">HE Plots </a></br>" << endl;
   if(subDetsOn_[2]) htmlFile << "<a href=\"#HF_Plots\">HF Plots </a></br>" << endl;
   if(subDetsOn_[3]) htmlFile << "<a href=\"#HO_Plots\">HO Plots </a></br>" << endl;
-  htmlFile <<"<a href=\"#Pedestal_Plots\">Pedestal Plots </a></br>"<<endl;
   htmlFile << "</h3>" << endl;
   htmlFile << "<hr>" << endl;
 
@@ -1011,119 +785,24 @@ void HcalDigiClient::htmlExpertOutput(int runNo, string htmlDir, string htmlName
     htmlFile << "</tr>" << endl;
     
   } // for (int i=0;i<4;++i)
+
+  for (int i=0;i<4;++i)
+    {
+      htmlFile<<" <tr>"<<endl;
+      histoHTML2(runNo,RawPedestalMean[i],"i#eta","i#phi",92, htmlFile, htmlDir);
+      histoHTML2(runNo,RawPedestalRMS[i],"i#eta","i#phi",92, htmlFile, htmlDir);
+      htmlFile<<" </tr>"<<endl;
+    }
+
+  for (int i=0;i<4;++i)
+    {
+      htmlFile<<" <tr>"<<endl;
+      histoHTML2(runNo,SubPedestalMean[i],"i#eta","i#phi",92, htmlFile, htmlDir);
+      histoHTML2(runNo,SubPedestalRMS[i],"i#eta","i#phi",92, htmlFile, htmlDir);
+      htmlFile<<" </tr>"<<endl;
+    }
+
   htmlFile << "</table>" << endl;
-  htmlFile << "<br>" << endl;
-  htmlFile<<"<br><h2><a name=\"Pedestal_Plots\">Pedestal Plots</a></h2><br>"<<endl;
-
-  // HB
-  htmlFile<<"<h3>HB Pedestals</h3><br>"<<endl;
-  htmlFile<<"<table>"<<endl;
-  for (int i=0;i<2;++i)
-    {
-      htmlFile<<" <tr>"<<endl;
-      histoHTML2(runNo,HBRawPedestalMean[i],"i#eta","i#phi",92, htmlFile, htmlDir);
-      histoHTML2(runNo,HBRawPedestalRMS[i],"i#eta","i#phi",92, htmlFile, htmlDir);
-      htmlFile<<" </tr>"<<endl;
-      htmlFile<<" <tr>"<<endl;
-      histoHTML2(runNo,HBSubPedestalMean[i],"i#eta","i#phi",92, htmlFile, htmlDir);
-      histoHTML2(runNo,HBSubPedestalRMS[i],"i#eta","i#phi",92, htmlFile, htmlDir);
-      htmlFile<<" </tr>"<<endl;
-    }
-  for (int i=0;i<2;++i)
-    {
-      htmlFile<<" <tr>"<<endl;
-      histoHTML(runNo,HBRawPedestalMean_1D[i],"i#eta","i#phi",92, htmlFile, htmlDir);
-      histoHTML(runNo,HBRawPedestalRMS_1D[i],"i#eta","i#phi",92, htmlFile, htmlDir);
-      htmlFile<<" </tr>"<<endl;
-      htmlFile<<" <tr>"<<endl;
-      histoHTML(runNo,HBSubPedestalMean_1D[i],"i#eta","i#phi",92, htmlFile, htmlDir);
-      histoHTML(runNo,HBSubPedestalRMS_1D[i],"i#eta","i#phi",92, htmlFile, htmlDir);
-      htmlFile<<" </tr>"<<endl;
-    }
-  htmlFile<<"</table>"<<endl;
-  
-  // HE
-  htmlFile<<"<h3>HE Pedestals</h3><br>"<<endl;
-  htmlFile<<"<table>"<<endl;
-  for (int i=0;i<3;++i)
-    {
-      htmlFile<<" <tr>"<<endl;
-      histoHTML2(runNo,HERawPedestalMean[i],"i#eta","i#phi",92, htmlFile, htmlDir);
-      histoHTML2(runNo,HERawPedestalRMS[i],"i#eta","i#phi",92, htmlFile, htmlDir);
-      htmlFile<<" </tr>"<<endl;
-      htmlFile<<" <tr>"<<endl;
-      histoHTML2(runNo,HESubPedestalMean[i],"i#eta","i#phi",92, htmlFile, htmlDir);
-      histoHTML2(runNo,HESubPedestalRMS[i],"i#eta","i#phi",92, htmlFile, htmlDir);
-      htmlFile<<" </tr>"<<endl;
-    }
-  for (int i=0;i<3;++i)
-    {
-      htmlFile<<" <tr>"<<endl;
-      histoHTML(runNo,HERawPedestalMean_1D[i],"i#eta","i#phi",92, htmlFile, htmlDir);
-      histoHTML(runNo,HERawPedestalRMS_1D[i],"i#eta","i#phi",92, htmlFile, htmlDir);
-      htmlFile<<" </tr>"<<endl;
-      htmlFile<<" <tr>"<<endl;
-      histoHTML(runNo,HESubPedestalMean_1D[i],"i#eta","i#phi",92, htmlFile, htmlDir);
-      histoHTML(runNo,HESubPedestalRMS_1D[i],"i#eta","i#phi",92, htmlFile, htmlDir);
-      htmlFile<<" </tr>"<<endl;
-    }
-  htmlFile<<"</table>"<<endl;
-
-  // HO
-  htmlFile<<"<h3>HO Pedestals</h3><br>"<<endl;
-  htmlFile<<"<table>"<<endl;
-  for (int i=3;i<4;++i)
-    {
-      htmlFile<<" <tr>"<<endl;
-      histoHTML2(runNo,HORawPedestalMean[i],"i#eta","i#phi",92, htmlFile, htmlDir);
-      histoHTML2(runNo,HORawPedestalRMS[i],"i#eta","i#phi",92, htmlFile, htmlDir);
-      htmlFile<<" </tr>"<<endl;
-      htmlFile<<" <tr>"<<endl;
-      histoHTML2(runNo,HOSubPedestalMean[i],"i#eta","i#phi",92, htmlFile, htmlDir);
-      histoHTML2(runNo,HOSubPedestalRMS[i],"i#eta","i#phi",92, htmlFile, htmlDir);
-      htmlFile<<" </tr>"<<endl;
-    }
-  for (int i=3;i<4;++i)
-    {
-      htmlFile<<" <tr>"<<endl;
-      histoHTML(runNo,HORawPedestalMean_1D[i],"i#eta","i#phi",92, htmlFile, htmlDir);
-      histoHTML(runNo,HORawPedestalRMS_1D[i],"i#eta","i#phi",92, htmlFile, htmlDir);
-      htmlFile<<" </tr>"<<endl;
-      htmlFile<<" <tr>"<<endl;
-      histoHTML(runNo,HOSubPedestalMean_1D[i],"i#eta","i#phi",92, htmlFile, htmlDir);
-      histoHTML(runNo,HOSubPedestalRMS_1D[i],"i#eta","i#phi",92, htmlFile, htmlDir);
-      htmlFile<<" </tr>"<<endl;
-    }
-  htmlFile<<"</table>"<<endl;
-  
-  // HF
-  htmlFile<<"<h3>HF Pedestals</h3><br>"<<endl;
-  htmlFile<<"<table>"<<endl;
-  for (int i=0;i<2;++i)
-    {
-      htmlFile<<" <tr>"<<endl;
-      histoHTML2(runNo,HFRawPedestalMean[i],"i#eta","i#phi",92, htmlFile, htmlDir);
-      histoHTML2(runNo,HFRawPedestalRMS[i],"i#eta","i#phi",92, htmlFile, htmlDir);
-      htmlFile<<" </tr>"<<endl;
-      htmlFile<<" <tr>"<<endl;
-      histoHTML2(runNo,HFSubPedestalMean[i],"i#eta","i#phi",92, htmlFile, htmlDir);
-      histoHTML2(runNo,HFSubPedestalRMS[i],"i#eta","i#phi",92, htmlFile, htmlDir);
-      htmlFile<<" </tr>"<<endl;
-    }
-  for (int i=0;i<2;++i)
-    {
-      htmlFile<<" <tr>"<<endl;
-      histoHTML(runNo,HFRawPedestalMean_1D[i],"i#eta","i#phi",92, htmlFile, htmlDir);
-      histoHTML(runNo,HFRawPedestalRMS_1D[i],"i#eta","i#phi",92, htmlFile, htmlDir);
-      htmlFile<<" </tr>"<<endl;
-      htmlFile<<" <tr>"<<endl;
-      histoHTML(runNo,HFSubPedestalMean_1D[i],"i#eta","i#phi",92, htmlFile, htmlDir);
-      histoHTML(runNo,HFSubPedestalRMS_1D[i],"i#eta","i#phi",92, htmlFile, htmlDir);
-      htmlFile<<" </tr>"<<endl;
-    }
-  htmlFile<<"</table>"<<endl;
-
-
   htmlFile << "<br>" << endl;
 
   
@@ -1386,7 +1065,6 @@ void HcalDigiClient::loadHistograms(TFile* infile){
     sprintf(name,"DigiMonitor/HF/expertPlots/HFProblemDigiCells_depth%i",i+1);
     ProblemDigiCellsHF_DEPTH[i]=(TH2F*)infile->Get(name);
 
-    /*
     sprintf(name,"DigiMonitor/HCAL/RawPedestalMeanDepth%i",i+1);
     RawPedestalMean[i]=(TH2F*)infile->Get(name); 
     sprintf(name,"DigiMonitor/HCAL/RawPedestalRMSDepth%i",i+1);
@@ -1395,85 +1073,6 @@ void HcalDigiClient::loadHistograms(TFile* infile){
     SubPedestalMean[i]=(TH2F*)infile->Get(name); 
     sprintf(name,"DigiMonitor/HCAL/SubPedestalRMSDepth%i",i+1);
     SubPedestalRMS[i]=(TH2F*)infile->Get(name); 
-    */
-
-      // HB pedestals 
-      sprintf(name,"DigiMonitor/HB/PedestalPlots/HB_etaphi_raw_pedestal_mean_depth%i",i+1);
-      HBRawPedestalMean[i]=(TH2F*)infile->Get(name); 
-      sprintf(name,"DigiMonitor/HB/PedestalPlots/HB_etaphi_raw_pedestal_rms_depth%i",i+1);
-      HBRawPedestalRMS[i]=(TH2F*)infile->Get(name); 
-      sprintf(name,"DigiMonitor/HB/PedestalPlots/HB_etaphi_sub_pedestal_mean_depth%i",i+1);
-      HBSubPedestalMean[i]=(TH2F*)infile->Get(name); 
-      sprintf(name,"DigiMonitor/HB/PedestalPlots/HB_etaphi_sub_pedestal_rms_depth%i",i+1);
-      HBSubPedestalRMS[i]=(TH2F*)infile->Get(name); 
-
-      sprintf(name,"DigiMonitor/HB/PedestalPlots/HB_raw_pedestal_mean_depth%i",i+1);
-      HBRawPedestalMean_1D[i]=(TH1F*)infile->Get(name);
-      sprintf(name,"DigiMonitor/HB/PedestalPlots/HB_raw_pedestal_rms_depth%i",i+1);
-      HBRawPedestalRMS_1D[i]=(TH1F*)infile->Get(name);
-      sprintf(name,"DigiMonitor/HB/PedestalPlots/HB_sub_pedestal_mean_depth%i",i+1);
-      HBSubPedestalMean_1D[i]=(TH1F*)infile->Get(name);
-      sprintf(name,"DigiMonitor/HB/PedestalPlots/HB_sub_pedestal_rms_depth%i",i+1);
-      HBSubPedestalRMS_1D[i]=(TH1F*)infile->Get(name);
-
-      // HE pedestals
-      sprintf(name,"DigiMonitor/HE/PedestalPlots/HE_etaphi_raw_pedestal_mean_depth%i",i+1);
-      HERawPedestalMean[i]=(TH2F*)infile->Get(name); 
-      sprintf(name,"DigiMonitor/HE/PedestalPlots/HE_etaphi_raw_pedestal_rms_depth%i",i+1);
-      HERawPedestalRMS[i]=(TH2F*)infile->Get(name); 
-      sprintf(name,"DigiMonitor/HE/PedestalPlots/HE_etaphi_sub_pedestal_mean_depth%i",i+1);
-      HESubPedestalMean[i]=(TH2F*)infile->Get(name); 
-      sprintf(name,"DigiMonitor/HE/PedestalPlots/HE_etaphi_sub_pedestal_rms_depth%i",i+1);
-      HESubPedestalRMS[i]=(TH2F*)infile->Get(name); 
-
-      sprintf(name,"DigiMonitor/HE/PedestalPlots/HE_raw_pedestal_mean_depth%i",i+1);
-      HERawPedestalMean_1D[i]=(TH1F*)infile->Get(name);
-      sprintf(name,"DigiMonitor/HE/PedestalPlots/HE_raw_pedestal_rms_depth%i",i+1);
-      HERawPedestalRMS_1D[i]=(TH1F*)infile->Get(name);
-      sprintf(name,"DigiMonitor/HE/PedestalPlots/HE_sub_pedestal_mean_depth%i",i+1);
-      HESubPedestalMean_1D[i]=(TH1F*)infile->Get(name);
-      sprintf(name,"DigiMonitor/HE/PedestalPlots/HE_sub_pedestal_rms_depth%i",i+1);
-      HESubPedestalRMS_1D[i]=(TH1F*)infile->Get(name);
-
-      // HO
-      sprintf(name,"DigiMonitor/HO/PedestalPlots/HO_etaphi_raw_pedestal_mean_depth%i",i+1);
-      HORawPedestalMean[i]=(TH2F*)infile->Get(name); 
-      sprintf(name,"DigiMonitor/HO/PedestalPlots/HO_etaphi_raw_pedestal_rms_depth%i",i+1);
-      HORawPedestalRMS[i]=(TH2F*)infile->Get(name); 
-      sprintf(name,"DigiMonitor/HO/PedestalPlots/HO_etaphi_sub_pedestal_mean_depth%i",i+1);
-      HOSubPedestalMean[i]=(TH2F*)infile->Get(name); 
-      sprintf(name,"DigiMonitor/HO/PedestalPlots/HO_etaphi_sub_pedestal_rms_depth%i",i+1);
-      HOSubPedestalRMS[i]=(TH2F*)infile->Get(name); 
-
-      sprintf(name,"DigiMonitor/HO/PedestalPlots/HO_raw_pedestal_mean_depth%i",i+1);
-      HORawPedestalMean_1D[i]=(TH1F*)infile->Get(name);
-      sprintf(name,"DigiMonitor/HO/PedestalPlots/HO_raw_pedestal_rms_depth%i",i+1);
-      HORawPedestalRMS_1D[i]=(TH1F*)infile->Get(name);
-      sprintf(name,"DigiMonitor/HO/PedestalPlots/HO_sub_pedestal_mean_depth%i",i+1);
-      HOSubPedestalMean_1D[i]=(TH1F*)infile->Get(name);
-      sprintf(name,"DigiMonitor/HO/PedestalPlots/HO_sub_pedestal_rms_depth%i",i+1);
-      HOSubPedestalRMS_1D[i]=(TH1F*)infile->Get(name);
-
-
-      // HF
-      sprintf(name,"DigiMonitor/HF/PedestalPlots/HF_etaphi_raw_pedestal_mean_depth%i",i+1);
-      HFRawPedestalMean[i]=(TH2F*)infile->Get(name); 
-      sprintf(name,"DigiMonitor/HF/PedestalPlots/HF_etaphi_raw_pedestal_rms_depth%i",i+1);
-      HFRawPedestalRMS[i]=(TH2F*)infile->Get(name); 
-      sprintf(name,"DigiMonitor/HF/PedestalPlots/HF_etaphi_sub_pedestal_mean_depth%i",i+1);
-      HFSubPedestalMean[i]=(TH2F*)infile->Get(name); 
-      sprintf(name,"DigiMonitor/HF/PedestalPlots/HF_etaphi_sub_pedestal_rms_depth%i",i+1);
-      HFSubPedestalRMS[i]=(TH2F*)infile->Get(name); 
-
-      sprintf(name,"DigiMonitor/HF/PedestalPlots/HF_raw_pedestal_mean_depth%i",i+1);
-      HFRawPedestalMean_1D[i]=(TH1F*)infile->Get(name);
-      sprintf(name,"DigiMonitor/HF/PedestalPlots/HF_raw_pedestal_rms_depth%i",i+1);
-      HFRawPedestalRMS_1D[i]=(TH1F*)infile->Get(name);
-      sprintf(name,"DigiMonitor/HF/PedestalPlots/HF_sub_pedestal_mean_depth%i",i+1);
-      HFSubPedestalMean_1D[i]=(TH1F*)infile->Get(name);
-      sprintf(name,"DigiMonitor/HF/PedestalPlots/HF_sub_pedestal_rms_depth%i",i+1);
-      HFSubPedestalRMS_1D[i]=(TH1F*)infile->Get(name);
-
 
   }
   return;

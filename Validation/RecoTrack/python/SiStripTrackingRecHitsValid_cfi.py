@@ -11,7 +11,7 @@ StripTrackingRecHitsValid = cms.EDFilter("SiStripTrackingRecHitsValid",
 			'g4SimHitsTrackerHitsTOBHighTof', 
 			'g4SimHitsTrackerHitsTECLowTof', 
 			'g4SimHitsTrackerHitsTECHighTof'),
-    trajectoryInput = cms.string('TrackRefitter'),
+    trajectoryInput = cms.string('generalTracks'),
     associateRecoTracks = cms.bool(False),
     #	string trajectoryInput = "rsWithMaterialTracks"
     associateStrip = cms.bool(True)

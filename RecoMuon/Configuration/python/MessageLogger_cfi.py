@@ -13,9 +13,6 @@ MessageLogger = cms.Service("MessageLogger",
         DEBUG = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),      
         TrackFitters = cms.untracked.PSet(
             limit = cms.untracked.int32(10000000)
         ),

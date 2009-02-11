@@ -144,10 +144,12 @@ reco::TrackRef muon::tevOptimizedOld( const reco::Muon& muon,
 //
 double muon::trackProbability(const reco::TrackRef track) {
 
-  int nDOF = std::max((int)track->ndof()-5, 0);
-  double prob = -LnChiSquaredProbability(track->chi2(), nDOF);
-  
-  return prob;
+  int nDOF = (int)track->ndof();
+  if ( nDOF > 0 && track->chi2()> 0) { 
+    return -LnChiSquaredProbability(track->chi2(), nDOF);
+  } else { 
+    return 0.0;
+  }
 
 }
 

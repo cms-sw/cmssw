@@ -36,7 +36,7 @@ class AlignmentMonitorMuonPositions: public AlignmentMonitorBase {
       ~AlignmentMonitorMuonPositions() {};
 
       void book();
-      void event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& iTrajTracks);
+      void event(const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& iTrajTracks);
       void afterAlignment(const edm::EventSetup &iSetup);
 
    private:
@@ -185,7 +185,7 @@ void AlignmentMonitorMuonPositions::book() {
 // event()
 //////////////////////////////////////////////////////////////////////
 
-void AlignmentMonitorMuonPositions::event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& tracks) { }
+void AlignmentMonitorMuonPositions::event(const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& tracks) { }
 
 //////////////////////////////////////////////////////////////////////
 // afterAlignment()

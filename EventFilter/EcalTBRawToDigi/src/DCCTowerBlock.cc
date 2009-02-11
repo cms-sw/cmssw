@@ -2,6 +2,7 @@
 #include "DCCEventBlock.h"
 #include "DCCDataParser.h"
 #include "DCCXtalBlock.h"
+#include "DCCEventBlock.h"
 #include "DCCDataMapper.h"
 #include "ECALParserBlockException.h"
 #include <stdio.h>

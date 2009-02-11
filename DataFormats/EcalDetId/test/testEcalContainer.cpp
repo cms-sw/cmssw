@@ -2,12 +2,12 @@
    \file
    Test suit for EcalContainer
 
-   \version $Id: testEcalContainer.cpp,v 1.3 2008/01/31 10:39:44 muzaffar Exp $
+   \version $Id: testEcalContainer.cpp,v 1.1 2007/09/27 10:04:42 ferriff Exp $
 
    \note This test is not exaustive     
 */
 
-static const char CVSId[] = "$Id: testEcalContainer.cpp,v 1.3 2008/01/31 10:39:44 muzaffar Exp $";
+static const char CVSId[] = "$Id: testEcalContainer.cpp,v 1.1 2007/09/27 10:04:42 ferriff Exp $";
 
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
@@ -77,7 +77,7 @@ void testEcalContainer::testContainer() {
       }
   std::cout << "Loop finished." << std::endl;
   
-  for (int i=0; i!= EBDetId::kSizeForDenseIndexing;++i) {
+  for (int i=0; i!= EBDetId::SIZE_HASH;++i) {
 	    CPPUNIT_ASSERT( ec.item(i) == i);
           //std::cout << ec.item(i) << " " << i << std::endl;
   }

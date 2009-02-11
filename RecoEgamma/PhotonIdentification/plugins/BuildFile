@@ -7,7 +7,6 @@
 <use name=Geometry/CaloGeometry>
 <use name=RecoCaloTools/MetaCollections>
 <use name=RecoEgamma/EgammaPhotonAlgos>
-<use name=DataFormats/PatCandidates>
 
 <library name=RecoEgammaPhotonIdentificationPlugins file="*.cc">
   <use name=RecoEgamma/PhotonIdentification>

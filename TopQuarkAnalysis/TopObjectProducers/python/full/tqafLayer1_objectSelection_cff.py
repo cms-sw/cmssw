@@ -1,5 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
+#
+# keep potential top spaecific default replacements here
+#
+
 #---------------------------------------
 # Electron
 #---------------------------------------
@@ -11,7 +15,7 @@ selectedLayer1Electrons.cut = cms.string('pt > 0.')
 #---------------------------------------
 # Muon
 #---------------------------------------
-from PhysicsTools.PatAlgos.selectionLayer1.muonSelector_cfi import selectedLayer1Muons
+from PhysicsTools.PatAlgos.selectionLayer1.muonSelector_cfi     import selectedLayer1Muons
 
 selectedLayer1Muons.src = cms.InputTag("allLayer1Muons")
 selectedLayer1Muons.cut = cms.string('pt > 0.')
@@ -20,7 +24,7 @@ selectedLayer1Muons.cut = cms.string('pt > 0.')
 #---------------------------------------
 # Tau
 #---------------------------------------
-from PhysicsTools.PatAlgos.selectionLayer1.tauSelector_cfi import selectedLayer1Taus
+from PhysicsTools.PatAlgos.selectionLayer1.tauSelector_cfi      import selectedLayer1Taus
 
 selectedLayer1Taus.src = cms.InputTag("allLayer1Taus")
 selectedLayer1Taus.cut = cms.string('pt > 10.')
@@ -29,7 +33,7 @@ selectedLayer1Taus.cut = cms.string('pt > 10.')
 #---------------------------------------
 # Jet
 #---------------------------------------
-from PhysicsTools.PatAlgos.selectionLayer1.jetSelector_cfi import selectedLayer1Jets
+from PhysicsTools.PatAlgos.selectionLayer1.jetSelector_cfi      import selectedLayer1Jets
 
 selectedLayer1Jets.src = cms.InputTag("allLayer1Jets")
 selectedLayer1Jets.cut = cms.string('et > 15. & nConstituents > 0')
@@ -38,7 +42,7 @@ selectedLayer1Jets.cut = cms.string('et > 15. & nConstituents > 0')
 #---------------------------------------
 # MET
 #---------------------------------------
-from PhysicsTools.PatAlgos.selectionLayer1.metSelector_cfi import selectedLayer1METs
+from PhysicsTools.PatAlgos.selectionLayer1.metSelector_cfi      import selectedLayer1METs
 
 selectedLayer1METs.src = cms.InputTag("allLayer1METs")
-selectedLayer1METs.cut = cms.string('et > 0.')
+selectedLayer1METs.cut = cms.string('et >= 0.')

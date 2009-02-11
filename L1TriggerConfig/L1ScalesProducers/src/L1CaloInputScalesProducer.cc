@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Fri May 16 16:09:43 CEST 2008
-// $Id: L1CaloInputScalesProducer.cc,v 1.1 2008/05/30 19:29:27 wsun Exp $
+// $Id: L1CaloInputScalesProducer.cc,v 1.2 2008/05/24 00:16:15 wsun Exp $
 //
 //
 
@@ -52,10 +52,8 @@ L1CaloInputScalesProducer::L1CaloInputScalesProducer(const edm::ParameterSet& iC
      iConfig.getParameter< std::vector<double> >("L1EcalEtThresholdsPositiveEta");
    m_ecalEtThresholdsNegEta =
      iConfig.getParameter< std::vector<double> >("L1EcalEtThresholdsNegativeEta");
-   m_hcalEtThresholdsPosEta =
-     iConfig.getParameter< std::vector<double> >("L1HcalEtThresholdsPositiveEta");
-   m_hcalEtThresholdsNegEta =
-     iConfig.getParameter< std::vector<double> >("L1HcalEtThresholdsNegativeEta");
+   m_hcalEtThresholds =
+     iConfig.getParameter< std::vector<double> >("L1HcalEtThresholds");
 }
 
 
@@ -112,12 +110,8 @@ L1CaloInputScalesProducer::produceHcalScale(const L1CaloHcalScaleRcd& iRecord)
    boost::shared_ptr<L1CaloHcalScale> pL1CaloHcalScale =
      boost::shared_ptr<L1CaloHcalScale>( new L1CaloHcalScale ) ;
 
-   std::vector< double >::const_iterator posItr =
-     m_hcalEtThresholdsPosEta.begin() ;
-
-   std::vector< double >::const_iterator negItr =
-     m_hcalEtThresholdsNegEta.begin() ;
-
+   std::vector< double >::const_iterator itr =
+     m_hcalEtThresholds.begin() ;
 
    for( unsigned short ieta = 1 ;
 	ieta <= L1CaloHcalScale::nBinEta ;
@@ -127,11 +121,10 @@ L1CaloInputScalesProducer::produceHcalScale(const L1CaloHcalScaleRcd& iRecord)
 	    irank < L1CaloHcalScale::nBinRank;
 	    ++irank )
 	 {
-	   pL1CaloHcalScale->setBin( irank, ieta, 1, *posItr ) ;
-	   pL1CaloHcalScale->setBin( irank, ieta, -1, *negItr ) ;
+	   pL1CaloHcalScale->setBin( irank, ieta, 1, *itr ) ;
+	   pL1CaloHcalScale->setBin( irank, ieta, -1, *itr ) ;
 
-	   ++posItr ;
-	   ++negItr ;
+	   ++itr ;
 	 }
      }
 

@@ -19,7 +19,7 @@ stager_get -M $MSSDIR/milleBinaryISN.dat
 rfcp $MSSDIR/milleBinaryISN.dat $BATCH_DIR
 
 # set up the CMS environment
-cd $HOME/cms/CMSSW/CMSSW_2_1_10
+cd $HOME/scratch0/CMSSW_2_1_0
 eval `scramv1 runtime -sh`
 rehash
 
@@ -44,10 +44,10 @@ gzip -f *.txt
 # ...and remove individual histogram files after merging to save space (if success):
 # NOTE: the names "histograms.root" and "millePedeMonitor.root" must match what is in
 #      the mps_template.cfg!
-#hadd histograms_merge.root $RUNDIR/../job???/histograms.root
-#if [ $? -eq 0 ]; then
-#    rm $RUNDIR/../job???/histograms.root
-#fi
+hadd histograms_merge.root $RUNDIR/../job???/histograms.root
+if [ $? -eq 0 ]; then
+    rm $RUNDIR/../job???/histograms.root
+fi
 hadd millePedeMonitor_merge.root $RUNDIR/../job???/millePedeMonitor.root
 if [ $? -eq 0 ]; then
     rm $RUNDIR/../job???/millePedeMonitor.root

@@ -33,20 +33,6 @@ namespace pos{
     PixelFEDTestDAC(std::vector< std::vector<std::string> > &);
     std::string mode() {return mode_;}
     std::vector<unsigned int> dacs() {return dacs_;}
-    virtual void writeXMLHeader(  pos::PixelConfigKey key, 
-				  int version, 
-				  std::string path, 
-				  std::ofstream *out,
-				  std::ofstream *out1 = NULL,
-				  std::ofstream *out2 = NULL
-				  ) const ;
-    virtual void writeXML( 	  std::ofstream *out,		        				    
-			   	  std::ofstream *out1 = NULL ,	       
-			   	  std::ofstream *out2 = NULL ) const ; 
-    virtual void writeXMLTrailer( std::ofstream *out, 
-				  std::ofstream *out1 = NULL,
-				  std::ofstream *out2 = NULL
-				  ) const ;
 
   private:
 

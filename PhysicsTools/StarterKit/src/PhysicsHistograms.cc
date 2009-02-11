@@ -8,7 +8,7 @@
 //
 // Original Author:  Petar Maksimovic
 //         Created:  Christmas 2007
-// $Id: PhysicsHistograms.cc,v 1.5 2008/07/07 20:06:56 srappocc Exp $
+// $Id: PhysicsHistograms.cc,v 1.4 2008/04/11 16:31:17 srappocc Exp $
 //
 // Revision History:
 //------------------------------------------------------------------------
@@ -28,8 +28,7 @@ PhysicsHistograms::PhysicsHistograms( KinAxisLimits const & muonAxis,
 				      KinAxisLimits const & jetAxis, 
 				      KinAxisLimits const & METAxis, 
 				      KinAxisLimits const & photonAxis, 
-				      KinAxisLimits const & trackAxis,
-				      KinAxisLimits const & genParticlesAxis
+				      KinAxisLimits const & trackAxis
 				      )
 {
   //--- Initialize histogram objects
@@ -54,9 +53,6 @@ PhysicsHistograms::PhysicsHistograms( KinAxisLimits const & muonAxis,
   std::cout << "PhysicsHistograms: Creating track histograms" << std::endl;
   trackHistograms_    = 
     new pat::HistoTrack   ( "track", "Track", "track", trackAxis.pt1, trackAxis.pt2, trackAxis.m1, trackAxis.m2 );
-  std::cout << "PhysicsHistograms: Creating genParticle histograms" << std::endl;
-  genParticleHistograms_    = 
-    new pat::HistoGenParticle   ( "genParticle", "GenParticle", "genParticle", genParticlesAxis.pt1, genParticlesAxis.pt2, genParticlesAxis.m1, genParticlesAxis.m2 );
 }
 
 
@@ -76,7 +72,6 @@ PhysicsHistograms::~PhysicsHistograms()
   delete metHistograms_      ;
   delete photonHistograms_   ;
   delete trackHistograms_    ;
-  delete genParticleHistograms_    ;
 
   for ( unsigned int i = 0; i < allVarHistos_.size(); ++i ) {
     if ( allVarHistos_[i] ) delete allVarHistos_[i];
@@ -109,7 +104,6 @@ PhysicsHistograms::configure( std::string & histos_to_disable,   // comma separa
   jetHistograms_     ->configure( histos_to_disable, histos_to_enable ) ;
   photonHistograms_  ->configure( histos_to_disable, histos_to_enable ) ;
   trackHistograms_   ->configure( histos_to_disable, histos_to_enable ) ;
-  genParticleHistograms_   ->configure( histos_to_disable, histos_to_enable ) ;
 
 }
 
@@ -134,7 +128,6 @@ PhysicsHistograms::select( std::string  vars_to_select,   // comma separated lis
   jetHistograms_     ->select( vars_to_select, selectedVars ) ;
   photonHistograms_  ->select( vars_to_select, selectedVars ) ;
   trackHistograms_   ->select( vars_to_select, selectedVars ) ;
-  genParticleHistograms_   ->select( vars_to_select, selectedVars ) ;
   
   std::vector<pat::PhysVarHisto*>::iterator i = allVarHistos_.begin();
   std::vector<pat::PhysVarHisto*>::iterator end = allVarHistos_.end();
@@ -161,7 +154,6 @@ void PhysicsHistograms::clearVec()
   jetHistograms_     ->clearVec() ;
   photonHistograms_  ->clearVec() ;
   trackHistograms_   ->clearVec() ;
-  genParticleHistograms_   ->clearVec() ;
   for ( uint i = 0; i < allVarHistos_.size(); i++ ) {
     allVarHistos_[i]->clearVec();
   }

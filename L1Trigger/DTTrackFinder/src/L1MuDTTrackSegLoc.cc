@@ -5,8 +5,8 @@
 //   Description: Logical location of a Track Segment
 //
 //
-//   $Date: 2007/02/27 11:44:00 $
-//   $Revision: 1.2 $
+//   $Date: 2006/06/26 16:11:13 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   N. Neumeister             CERN EP
@@ -50,14 +50,14 @@ L1MuDTTrackSegLoc::L1MuDTTrackSegLoc(int wheel_id,
                                      int station_id) : 
   m_wheel(wheel_id), m_sector(sector_id), m_station(station_id) { 
   
-  //  assert(wheel_id   >= -3 && wheel_id   <=  3);
-  //  assert(sector_id  >=  0 && sector_id  <  12);
+  assert(wheel_id   >= -3 && wheel_id   <=  3);
+  assert(sector_id  >=  0 && sector_id  <  12);
 
   if ( abs(wheel_id) == 3 ) { 
-    //    assert(station_id >= 3 && station_id <= 4);
+    assert(station_id >= 3 && station_id <= 4);
   }
   else {
-    //    assert(station_id >= 1 && station_id <= 4);
+    assert(station_id >= 1 && station_id <= 4);
   }
 
 }			 			 

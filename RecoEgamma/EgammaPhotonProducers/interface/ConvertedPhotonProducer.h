@@ -3,9 +3,9 @@
 /** \class ConvertedPhotonProducer
  **  
  **
- **  $Id: ConvertedPhotonProducer.h,v 1.21 2008/08/21 09:04:04 nancy Exp $ 
- **  $Date: 2008/08/21 09:04:04 $ 
- **  $Revision: 1.21 $
+ **  $Id: ConvertedPhotonProducer.h,v 1.20 2008/08/15 12:46:52 nancy Exp $ 
+ **  $Date: 2008/08/15 12:46:52 $ 
+ **  $Revision: 1.20 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -22,7 +22,6 @@
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
@@ -72,7 +71,6 @@ class ConvertedPhotonProducer : public edm::EDProducer {
   edm::ParameterSet conf_;
 
   edm::ESHandle<MagneticField> theMF_;
-  edm::ESHandle<TransientTrackBuilder> theTransientTrackBuilder_;
 
   ConversionTrackPairFinder*      theTrackPairFinder_;
   ConversionVertexFinder*         theVertexFinder_;

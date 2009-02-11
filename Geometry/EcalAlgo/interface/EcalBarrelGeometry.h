@@ -26,7 +26,7 @@ class EcalBarrelGeometry : public CaloSubdetectorGeometry
 
       typedef EcalBarrelNumberingScheme NumberingScheme ;
 
-      enum { k_NumberOfCellsForCorners = EBDetId::kSizeForDenseIndexing } ;
+      enum CornersCount { k_NumberOfCellsForCorners = 61200 } ;
 
       EcalBarrelGeometry() ;
   
@@ -61,8 +61,6 @@ class EcalBarrelGeometry : public CaloSubdetectorGeometry
       static std::string producerName() { return "EcalBarrel" ; }
 
       static unsigned int numberOfAlignments() { return 36 ; }
-
-      static unsigned int whichGlobal() { return (unsigned int)DetId::Ecal ; } // global position record index
 
    private:
       /** number of crystals in eta direction */

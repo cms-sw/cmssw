@@ -1,11 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-# module to make a jet parton match for semi-leptonic
-# ttbar decays; the match will be a std::vector<int>
-# in order  (LightQ, LightQBar, HadB, LepB)
+# module to make jet-parton matches for semi-leptonic
+# ttbar decays; the product will be a std::vector of
+# matches, each match a std::vector<int> in the order
+# (LightQ, LightQBar, HadB, LepB)
 #
-ttSemiLepJetPartonMatch = cms.EDFilter("TtSemiLepJetPartonMatch",
+ttSemiLepJetPartonMatch = cms.EDProducer("TtSemiLepJetPartonMatch",
     ## sources
     jets = cms.InputTag("selectedLayer1Jets"),
 
@@ -38,7 +39,21 @@ ttSemiLepJetPartonMatch = cms.EDFilter("TtSemiLepJetPartonMatch",
     # (has to be >= 4, can be set to -1 if you want to 
     # take all)
     #-------------------------------------------------
-    nJets = cms.int32(-1)
+    maxNJets = cms.int32(4),
+
+    #-------------------------------------------------
+    # number of different combinations to be stored
+    # (can be set to -1 if you want to take all,
+    #  minSumDist is the only algorithm that provides
+    #  more than only the best combination)
+    #-------------------------------------------------
+    maxNComb = cms.int32(1),
+
+    #-------------------------------------------------
+    # verbosity level: 0: no additional printout
+    #                  1: print info for each event
+    #-------------------------------------------------
+    verbosity = cms.int32(0)
 )
 
 

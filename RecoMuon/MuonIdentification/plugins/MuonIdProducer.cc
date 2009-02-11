@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.27 2008/10/07 01:54:44 dmytro Exp $
+// $Id: MuonIdProducer.cc,v 1.29.2.1 2009/01/15 13:32:51 ptraczyk Exp $
 //
 //
 
@@ -69,6 +69,10 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
    // Load TrackDetectorAssociator parameters
    edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
    parameters_.loadParameters( parameters );
+
+   // Load parameters for the TimingExtractor
+   edm::ParameterSet timingParameters = iConfig.getParameter<edm::ParameterSet>("timingParameters");
+   theTimingExtractor_ = new MuonTimingExtractor(timingParameters);
    
    if (fillCaloCompatibility_){
       // Load MuonCaloCompatibility parameters
@@ -112,6 +116,7 @@ MuonIdProducer::~MuonIdProducer()
    if (muIsoExtractorCalo_) delete muIsoExtractorCalo_;
    if (muIsoExtractorTrack_) delete muIsoExtractorTrack_;
    if (muIsoExtractorJet_) delete muIsoExtractorJet_;
+   if (theTimingExtractor_) delete theTimingExtractor_;
    // TimingReport::current()->dump(std::cout);
 }
 
@@ -283,7 +288,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    // TimerStack timers;
    // timers.push("MuonIdProducer::produce");
-   
+
    std::auto_ptr<reco::MuonCollection> outputMuons(new reco::MuonCollection);
    init(iEvent, iSetup);
 
@@ -371,8 +376,8 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		       {
 			  newMuon = false;
 			  muon->setMatches( trackerMuon.matches() );
-			  muon->setTime( trackerMuon.time() );
-			  muon->setCalEnergy( trackerMuon.calEnergy() );
+			  if (trackerMuon.isTimeValid()) muon->setTime( trackerMuon.time() );
+			  if (trackerMuon.isEnergyValid()) muon->setCalEnergy( trackerMuon.calEnergy() );
 			  muon->setType( muon->type() | reco::Muon::TrackerMuon );
 			  LogTrace("MuonIdentification") << "Found a corresponding global muon. Set energy, matches and move on";
 			  break;
@@ -454,6 +459,24 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	// timers.push("MuonIdProducer::produce::fillIsolation");
 	if ( fillIsolation_ ) fillMuonIsolation(iEvent, iSetup, *muon);
 	// timers.pop();
+
+        // fill timing information
+        reco::MuonTime muonTime;
+
+        if ( ! muon->standAloneMuon().isNull() )	
+          muonTime = theTimingExtractor_->fillTiming(iEvent,iSetup,muon->standAloneMuon());
+
+        if (muonTime.nStations) {
+          LogTrace("MuonIdentification") << "Global 1/beta: " << muonTime.inverseBeta << " +/- " << muonTime.inverseBetaErr<<std::endl;
+          LogTrace("MuonIdentification") << "  Free 1/beta: " << muonTime.freeInverseBeta << " +/- " << muonTime.freeInverseBetaErr<<std::endl;
+          LogTrace("MuonIdentification") << "  Vertex time (in-out): " << muonTime.timeAtIpInOut << " +/- " << muonTime.timeAtIpInOutErr
+                                         << "  # of points: " << muonTime.nStations <<std::endl;
+          LogTrace("MuonIdentification") << "  Vertex time (out-in): " << muonTime.timeAtIpOutIn << " +/- " << muonTime.timeAtIpOutInErr<<std::endl;
+          LogTrace("MuonIdentification") << "  direction: "   << muonTime.direction() << std::endl;
+        
+          muon->setTime(muonTime);
+        }  
+ 	
      }
 	
    LogTrace("MuonIdentification") << "number of muons produced: " << outputMuons->size();
@@ -694,7 +717,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
    LogTrace("MuonIdentification") << "number of segment matches with the producer requirements: " << 
      aMuon.numberOfMatches( reco::Muon::NoArbitration );
    
-   fillTime( iEvent, iSetup, aMuon );
+   // fillTime( iEvent, iSetup, aMuon );
 }
 
 void MuonIdProducer::fillArbitrationInfo( reco::MuonCollection* pOutputMuons )

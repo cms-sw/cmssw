@@ -2,6 +2,7 @@
 <use name=DataFormats/Common>
 <use name=DataFormats/EgammaCandidates>
 <use name=DataFormats/EgammaReco>
+<use name=DataFormats/HLTReco>
 <use name=DataFormats/JetReco>
 <use name=DataFormats/L1Trigger>
 <use name=DataFormats/Math>
@@ -16,10 +17,12 @@
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/MessageService>
 <use name=FWCore/Utilities>
+<use name=HLTrigger/HLTcore>
 <use name=PhysicsTools/PatUtils>
 <use name=PhysicsTools/UtilAlgos>
 <use name=PhysicsTools/Utilities>
 <use name=PhysicsTools/IsolationAlgos>
+<use name=RecoEcal/EgammaCoreTools>
 <use name=clhep>
 <export>
   <lib name=PhysicsToolsPatAlgos>
@@ -27,6 +30,7 @@
   <use name=DataFormats/Common>
   <use name=DataFormats/EgammaCandidates>
   <use name=DataFormats/EgammaReco>
+  <use name=DataFormats/HLTReco>
   <use name=DataFormats/JetReco>
   <use name=DataFormats/Math>
   <use name=DataFormats/METReco>
@@ -40,6 +44,7 @@
   <use name=FWCore/ParameterSet>
   <use name=FWCore/ServiceRegistry>
   <use name=FWCore/Utilities>
+  <use name=HLTrigger/HLTcore>
   <use name=PhysicsTools/PatUtils>
   <use name=PhysicsTools/UtilAlgos>
   <use name=PhysicsTools/Utilities>

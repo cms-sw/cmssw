@@ -7,7 +7,7 @@
 //
 // Original Author:  Dong Ho Moon
 //         Created:  Wed May  9 06:22:36 CEST 2007
-// $Id: HITrackVertexMaker.cc,v 1.6 2008/09/14 12:25:20 kodolova Exp $
+// $Id: HITrackVertexMaker.cc,v 1.4 2008/07/04 08:26:26 kodolova Exp $
 //
 //
  
@@ -51,8 +51,6 @@
 #include "RecoTracker/TkNavigation/interface/NavigationSchoolFactory.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
@@ -104,11 +102,8 @@ namespace cms{
 HITrackVertexMaker::HITrackVertexMaker(const edm::ParameterSet& ps1, const edm::EventSetup& es1)
 {
 
-   L2candTag_          = ps1.getParameter< edm::InputTag > ("L2CandTag");
-   rphirecHitsTag      = ps1.getParameter< edm::InputTag > ("rphiRecHits");
-   builderName         = ps1.getParameter< std::string > ("TTRHBuilder");
-   primaryVertexTag    = ps1.getParameter< edm::InputTag > ("PrimaryVertexTag");
-
+   candTag_          = ps1.getParameter< edm::InputTag > ("CandTag");
+   rphirecHitsTag    = ps1.getParameter<edm::InputTag>("rphiRecHits");
 #ifdef DEBUG
    std::cout<<" Start HI TrackVertexMaker constructor "<<std::endl;
 #endif
@@ -119,7 +114,7 @@ HITrackVertexMaker::HITrackVertexMaker(const edm::ParameterSet& ps1, const edm::
     es1.get<TrackerRecoGeometryRecord>().get( tracker );
     es1.get<IdealMagneticFieldRecord>().get(magfield);
     es1.get<CkfComponentsRecord>().get("",measurementTrackerHandle);
-    es1.get<TransientRecHitRecord>().get(builderName,recHitBuilderHandle); 
+    es1.get<TransientRecHitRecord>().get("WithoutRefit",recHitBuilderHandle); 
        
     double theChiSquareCut = 500.;
     double nsig = 3.;
@@ -152,34 +147,25 @@ HITrackVertexMaker::HITrackVertexMaker(const edm::ParameterSet& ps1, const edm::
 
 HITrackVertexMaker::~HITrackVertexMaker()
 {
+//   std::cout<<" Destructor starts "<<std::endl;
+//   delete theTrajectoryBuilder;
+//   delete theMinPtFilter;
+//   delete theEstimator;
+//   std::cout<<" Destructor ends "<<std::endl; 
 } 
 
 bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSetup& es1, HICConst* theHICConst, FmpConst* theFmpConst)
 {
     
    bool dimuon = false;
-   edm::Handle<reco::VertexCollection> vertexcands;
-   e1.getByLabel (primaryVertexTag,vertexcands);
-   int iv = 0;
 
-//   cout<<" Number of vertices primary  "<<vertexcands->size()<<endl;
-
-   if(vertexcands->size()<1) return dimuon;
-
-   for (reco::VertexCollection::const_iterator ipvertex=vertexcands->begin();ipvertex!=vertexcands->end();ipvertex++)
-   {
-//     cout<<" Vertex position from pixels "<<(*ipvertex).position().z()<<endl;
-     if (iv == 0) {theHICConst->setVertex((*ipvertex).position().z()); theFmpConst->setVertex((*ipvertex).position().z());} 
-     iv++;
-   } 
-
-//   cout << " Vertex is set to "<<theHICConst->zvert<<endl;
+   cout << " Vertex is set to "<<theHICConst->zvert<<endl;
  
 //
 // Get recHit builder
 //
 
-  es1.get<TransientRecHitRecord>().get(builderName,recHitBuilderHandle);
+  es1.get<TransientRecHitRecord>().get("WithoutRefit",recHitBuilderHandle);
 
 //
 // Get measurement tracker
@@ -200,8 +186,8 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
 //
 // Get L1 muon info
 //
-
   vector<L1MuGMTExtendedCand> excall;
+
 
 /*  
 try{  
@@ -245,17 +231,25 @@ for(gmt_iter1 = exc1.begin(); gmt_iter1!=exc1.end(); gmt_iter1++)
               throw e;
        }
 
-*/
 
-   edm::Handle<RecoChargedCandidateCollection> L2mucands;
-   //edm::Handle<TrackCollection> L2mucands;
-   e1.getByLabel (L2candTag_,L2mucands);
-   RecoChargedCandidateCollection::const_iterator L2cand1;
-   RecoChargedCandidateCollection::const_iterator L2cand2;
+   edm::Handle<RecoChargedCandidateCollection> mucands;
+   e1.getByLabel (candTag_,mucands);
+   RecoChargedCandidateCollection::const_iterator cand1;
+   RecoChargedCandidateCollection::const_iterator cand2;
+*/   
+   
+   
+   edm::Handle<reco::TrackCollection> mucands;
+   e1.getByLabel (candTag_,mucands);
+   reco::TrackCollection::const_iterator cand1;
+   reco::TrackCollection::const_iterator cand2;
+   
       
-   cout<<" Number of muon candidates "<<L2mucands->size()<<endl;
+   cout<<" Number of muon candidates "<<mucands->size()<<" "<<excall.size()<<endl;
 
-   if( L2mucands->size() < 2 ) return dimuon;
+//   if(mucands->size() == 0 && excall.size() == 0) return dimuon;
+
+   if( mucands->size() < 2 ) return dimuon;
    
 // For trajectory builder   
    int  theLowMult = 1;
@@ -269,7 +263,7 @@ for(gmt_iter1 = exc1.begin(); gmt_iter1!=exc1.end(); gmt_iter1++)
     TrajectoryStateOnSurface tsos;
     
 #ifdef DEBUG   
-//   for (cand1=L2mucands->begin(); cand1!=L2mucands->end(); cand1++) {
+//   for (cand1=mucands->begin(); cand1!=mucands->end(); cand1++) {
 //     reco::TrackRef mytr = (*cand1).track(); 
 //      std::cout<<" Inner position "<<(*mytr).innerPosition().x()<<" "<<(*mytr).innerPosition().y()<<" "<<(*mytr).innerPosition().z()<<std::endl;
 //
@@ -283,11 +277,9 @@ for(gmt_iter1 = exc1.begin(); gmt_iter1!=exc1.end(); gmt_iter1++)
     HICTkOuterStartingLayerFinder TkOSLF(NumOfSigma, &(*magfield), &(*tracker), theHICConst);
    
     int mult = 1;
-    DiMuonSeedGeneratorHIC Seed(rphirecHitsTag,&(*magfield),&(*tracker), theHICConst, builderName, mult);
+    DiMuonSeedGeneratorHIC Seed(rphirecHitsTag,&(*magfield),&(*tracker), theHICConst, mult);
 
-//    vector<FreeTrajectoryState> theFts = vFts.createFTSfromStandAlone((*mucands));
-
-   vector<FreeTrajectoryState> theFts = vFts.createFTSfromL2((*L2mucands)); 
+    vector<FreeTrajectoryState> theFts = vFts.createFTSfromStandAlone((*mucands));
 
 #ifdef DEBUG
     cout<<" Size of the freeTS "<<theFts.size()<<endl;
@@ -328,6 +320,9 @@ for(gmt_iter1 = exc1.begin(); gmt_iter1!=exc1.end(); gmt_iter1++)
 #endif
 
 	if( seedlayers.size() == 0 ) continue;
+	
+//	DiMuonSeedGeneratorHIC::SeedContainer seeds = Seed.produce(e1 ,es1, (*ftsnew), tsos, (*ifts), 
+//	                                      recHitBuilderHandle.product(), measurementTrackerHandle.product(), &seedlayers);
 
         map<DetLayer*, DiMuonSeedGeneratorHIC::SeedContainer> seedmap = Seed.produce(e1 ,es1, (*ftsnew), tsos, (*ifts), 
 	                                       recHitBuilderHandle.product(), measurementTrackerHandle.product(), &seedlayers);

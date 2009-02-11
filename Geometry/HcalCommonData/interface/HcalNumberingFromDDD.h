@@ -39,7 +39,6 @@ public:
   HcalCellType::HcalCell cell(int det, int zside, int depth, int etaR, 
 			      int iphi, bool corr=true) const;
   std::vector<double> getEtaTable() const;
-  unsigned int   numberOfCells(HcalSubdetector) const;
   std::vector<HcalCellType::HcalCellType> HcalCellTypes() const;
   std::vector<HcalCellType::HcalCellType> HcalCellTypes(HcalSubdetector) const;
 
@@ -56,7 +55,6 @@ private:
   int            getShift(HcalSubdetector subdet, int depth) const;
   double         getGain (HcalSubdetector subdet, int depth) const;
   unsigned       find (int element, std::vector<int> array) const;
-  int            unitPhi (int det, int etaR) const;
 
 private:
 
@@ -79,15 +77,13 @@ private:
   std::vector<int>    shiftHE;  // Readout shift ..  ..
   std::vector<double> gainHF;   // Gain factor   for HF
   std::vector<int>    shiftHF;  // Readout shift ..  ..
-  double              zVcal;    // Z-position  of the front of HF
+  double              zVcal;    // Z-position  of the HF
   double              dzVcal;   // Half length of the HF
-  double              dlShort;  // Diference of length between long and short
   std::vector<int>    nOff;     // Speical eta bin #'s in barrel and endcap
-  std::vector<double> rHB, drHB;    // Radial positions of HB layers
-  std::vector<double> zHE, dzHE;    // Z-positions of HE layers
+  std::vector<double> rHB;      // Radial positions of HB layers
+  std::vector<double> zHE;      // Z-positions of HE layers
   int                 nzHB, nmodHB; // Number of halves and modules in HB
   int                 nzHE, nmodHE; // Number of halves and modules in HE
-  double              etaHO[4];     // eta in HO ring boundaries
 };
 
 #endif

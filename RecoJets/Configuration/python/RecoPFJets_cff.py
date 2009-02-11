@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: RecoPFJets_cff.py,v 1.3 2008/04/21 03:27:29 rpw Exp $
+# $Id: RecoPFJets_cff.py,v 1.4 2008/08/22 12:19:18 oehler Exp $
 #
 # ShR 27 Mar 07: move modules producing candidates for Jets into separate cff file due to scheduling problem
 #

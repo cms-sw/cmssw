@@ -122,6 +122,8 @@ struct RecoMuonValidator::MuonME {
 
     // - Misc. variables
     hNTrks_ = dqm->book1D("NTrks", "Number of reco tracks per event", hDim.nTrks, 0, hDim.nTrks);
+    hNTrksEta_ = dqm->book1D("NTrksEta", "Number of reco tracks vs #eta", hDim.nBinEta, hDim.minEta, hDim.maxEta);
+    hNTrksPt_ = dqm->book1D("NTrksPt", "Number of reco tracks vs p_{T}", hDim.nBinPt, hDim.minPt, hDim.maxPt);
 
     hMisQPt_  = dqm->book1D("MisQPt" , "Charge mis-id vs Pt" , hDim.nBinPt , hDim.minPt , hDim.maxPt );
     hMisQEta_ = dqm->book1D("MisQEta", "Charge mis-id vs Eta", hDim.nBinEta, hDim.minEta, hDim.maxEta);
@@ -308,7 +310,7 @@ struct RecoMuonValidator::MuonME {
   MEP hNDof_, hChi2_, hChi2Norm_, hChi2Prob_;
   MEP hNDof_vs_Eta_, hChi2_vs_Eta_, hChi2Norm_vs_Eta_, hChi2Prob_vs_Eta_;
 
-  MEP hNTrks_;
+  MEP hNTrks_, hNTrksEta_,  hNTrksPt_;
 
   MEP hMisQPt_, hMisQEta_;
 
@@ -334,6 +336,8 @@ struct RecoMuonValidator::CommonME {
 
 RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
 {
+  verbose_ = pset.getUntrackedParameter<unsigned int>("verbose", 0);
+
   outputFileName_ = pset.getUntrackedParameter<string>("outputFileName", "");
 
   // Set histogram dimensions
@@ -402,6 +406,16 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
 
 //  seedPropagatorName_ = pset.getParameter<string>("SeedPropagator");
 
+  ParameterSet tpset = pset.getParameter<ParameterSet>("tpSelector");
+  tpSelector_ = TrackingParticleSelector(tpset.getParameter<double>("ptMin"),
+                                         tpset.getParameter<double>("minRapidity"),
+                                         tpset.getParameter<double>("maxRapidity"),
+                                         tpset.getParameter<double>("tip"),
+                                         tpset.getParameter<double>("lip"),
+                                         tpset.getParameter<int>("minHit"),
+                                         tpset.getParameter<bool>("signalOnly"),
+                                         tpset.getParameter<bool>("chargedOnly"),
+                                         tpset.getParameter<std::vector<int> >("pdgId"));
 
   // the service parameters
   ParameterSet serviceParameters 
@@ -462,7 +476,7 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
   staMuME_->bookHistograms(theDQM, subDir_+"/Sta", hDim);
   glbMuME_->bookHistograms(theDQM, subDir_+"/Glb", hDim);
 
-  theDQM->showDirStructure();
+  if ( verbose_ > 0 ) theDQM->showDirStructure();
 
 }
 
@@ -604,11 +618,15 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
     if ( iMuon->isStandAloneMuon() ) {
       const TrackRef staTrack = iMuon->standAloneMuon();
 
-      staNMuonHits = staTrack->hitPattern().numberOfValidMuonHits();
+      staNMuonHits = staTrack->recHitsSize();
 
       staMuME_->hNMuonHits_->Fill(staNMuonHits);
       staMuME_->hNMuonHits_vs_Pt_->Fill(staTrack->pt(), staNMuonHits);
       staMuME_->hNMuonHits_vs_Eta_->Fill(staTrack->eta(), staNMuonHits);
+
+      staMuME_->hNTrksEta_->Fill(staTrack->eta());
+      staMuME_->hNTrksPt_->Fill(staTrack->pt());
+      
     }
 
     if ( iMuon->isGlobalMuon() ) {
@@ -624,6 +642,10 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
       glbMuME_->hNMuonHits_->Fill(glbNMuonHits);
       glbMuME_->hNMuonHits_vs_Pt_->Fill(glbTrack->pt(), glbNMuonHits);
       glbMuME_->hNMuonHits_vs_Eta_->Fill(glbTrack->eta(), glbNMuonHits);
+
+      glbMuME_->hNTrksEta_->Fill(glbTrack->eta());
+      glbMuME_->hNTrksPt_->Fill(glbTrack->pt());
+      
     }
 
     commonME_->hTrkToGlbDiffNTrackerHits_->Fill(trkNTrackerHits-glbNTrackerHits);
@@ -633,6 +655,8 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
   // Analyzer reco::Track
   for(TrackingParticleCollection::size_type i=0; i<nSim; i++) {
     TrackingParticleRef simRef(simHandle, i);
+    const TrackingParticle* simTP = simRef.get();
+    if ( ! tpSelector_(*simTP) ) continue;
 
     const double simP   = simRef->p();
     const double simPt  = simRef->pt();
@@ -647,8 +671,6 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
     commonME_->hSimPhi_->Fill(simPhi);
 
     commonME_->hNSimHits_->Fill(nSimHits);
-
-    const TrackingParticle* simTP = simRef.get();
 
     // Get sim-reco association for a simRef
     vector<pair<RefToBase<Track>, double> > trkMuRefV, staMuRefV, glbMuRefV;

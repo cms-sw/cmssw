@@ -12,9 +12,6 @@ DEFINE_ANOTHER_FWK_MODULE(PixelTrackProducerWithZPos);
 #include "PixelVertexProducerMedian.h"
 DEFINE_ANOTHER_FWK_MODULE(PixelVertexProducerMedian);
 
-#include "PixelVertexProducerClusters.h"
-DEFINE_ANOTHER_FWK_MODULE(PixelVertexProducerClusters);
-
 #include "TrackListCombiner.h"
 DEFINE_ANOTHER_FWK_MODULE(TrackListCombiner);
 

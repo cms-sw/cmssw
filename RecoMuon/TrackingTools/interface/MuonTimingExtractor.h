@@ -9,7 +9,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: MuonTimingExtractor.h,v 1.1 2008/10/13 13:01:10 ptraczyk Exp $
+// $Id: MuonTimingExtractor.h,v 1.2 2008/11/04 15:45:27 ptraczyk Exp $
 //
 //
 
@@ -70,11 +70,12 @@ public:
      bool isPhi;
      float posInLayer;
      float distIP;
+     float timeCorr;
      int station;
      DetId driftCell;
   };
 
-  void fillTiming(edm::Event&, const edm::EventSetup&, reco::Muon& muon);
+  reco::MuonTime fillTiming(edm::Event&, const edm::EventSetup&, reco::TrackRef muonTrack);
 
 private:
   double fitT0(double &a, double &b, vector<double> xl, vector<double> yl, vector<double> xr, vector<double> yr );
@@ -83,6 +84,7 @@ private:
   edm::InputTag DTSegmentTags_; 
   unsigned int theHitsMin;
   double thePruneCut;
+  bool useSegmentT0;
   bool debug;
   
   MuonServiceProxy* theService;

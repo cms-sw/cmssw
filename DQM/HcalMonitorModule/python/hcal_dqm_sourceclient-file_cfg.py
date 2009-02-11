@@ -5,18 +5,18 @@ process = cms.Process("HCALDQM")
 # Event Source
 #-----------------------------
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(1000)
     )
 
-###process.source = cms.Source("NewEventStreamFileReader",
-###                            fileNames = cms.untracked.vstring('/store/data/GlobalCruzet3MW33/A/000/056/416/GlobalCruzet3MW33.00056416.0001.A.storageManager.0.0000.dat',
-###                            '/store/data/GlobalCruzet3MW33/A/000/056/416/GlobalCruzet3MW33.00056416.0001.A.storageManager.1.0000.dat',
-###                            '/store/data/GlobalCruzet3MW33/A/000/056/416/GlobalCruzet3MW33.00056416.0001.A.storageManager.2.0000.dat',
-###                            '/store/data/GlobalCruzet3MW33/A/000/056/416/GlobalCruzet3MW33.00056416.0001.A.storageManager.3.0000.dat')
-###                            )
+##process.source = cms.Source("NewEventStreamFileReader",
+##                            fileNames = cms.untracked.vstring('/store/data/GlobalCruzet3MW33/A/000/056/416/GlobalCruzet3MW33.00056416.0001.A.storageManager.0.0000.dat',
+##                            '/store/data/GlobalCruzet3MW33/A/000/056/416/GlobalCruzet3MW33.00056416.0001.A.storageManager.1.0000.dat',
+##                            '/store/data/GlobalCruzet3MW33/A/000/056/416/GlobalCruzet3MW33.00056416.0001.A.storageManager.2.0000.dat',
+##                            '/store/data/GlobalCruzet3MW33/A/000/056/416/GlobalCruzet3MW33.00056416.0001.A.storageManager.3.0000.dat')
+##                            )
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/data/CRUZET3/Cosmics/RAW/v1/000/051/199/EA1F908F-AD4E-DD11-8235-000423D6A6F4.root')
+    fileNames = cms.untracked.vstring('file:/tmp/78318520-3BA5-DD11-B2A0-000423D944DC.root')
 )
 
 # process.source = cms.Source("EventStreamHttpReader",
@@ -56,8 +56,8 @@ process.load("DQMServices.Core.DQM_cfg")
 #replace DQMStore.referenceFileName = "Hcal_reference.root"
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 
-process.DQM.collectorHost = 'cmsru2'
-process.DQM.collectorPort = 9190
+process.DQM.collectorHost = 'myhost'
+process.DQM.collectorPort = 9092
 process.dqmSaver.convention = 'Online'
 #replace dqmSaver.dirName          = "."
 process.dqmSaver.producer = 'DQM'
@@ -77,7 +77,7 @@ process.dqmSaver.saveByRun = 1
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 # process.GlobalTag.connect = "frontier://(proxyurl=http://localhost:3128)(serverurl=http://frontier1.cms:8000/FrontierOnProd)(serverurl=http://frontier2.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_21X_GLOBALTAG"
 process.GlobalTag.connect = 'frontier://Frontier/CMS_COND_21X_GLOBALTAG'
-process.GlobalTag.globaltag = 'CRUZET4_V5P::All' # or any other appropriate
+process.GlobalTag.globaltag = 'CRZT210_V1::All' # or any other appropriate
 process.prefer("GlobalTag")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -115,19 +115,21 @@ process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_zdc_cfi")
 # hcalMonitor configurable values -----------------------
 process.hcalMonitor.debug = False
 process.hcalMonitor.DigiOccThresh = -999999999 ##Temporary measure while DigiOcc is reworked.
-process.hcalMonitor.PedestalMonitor_pedestalsInFC = True
+process.hcalMonitor.PedestalsPerChannel = False
+process.hcalMonitor.PedestalsInFC = True
 
 # Turn on/off individual hcalMonitor modules ------------
 process.hcalMonitor.DataFormatMonitor   = True
+process.hcalMonitor.DataIntegrityTask   = True
 process.hcalMonitor.DigiMonitor         = True
 process.hcalMonitor.RecHitMonitor       = True
 process.hcalMonitor.TrigPrimMonitor     = True
-process.hcalMonitor.DeadCellMonitor     = True
-process.hcalMonitor.HotCellMonitor      = True
-process.hcalMonitor.BeamMonitor         = True
-process.hcalMonitor.LEDMonitor          = False
-process.hcalMonitor.CaloTowerMonitor    = False
 process.hcalMonitor.PedestalMonitor     = False
+process.hcalMonitor.DeadCellMonitor     = False
+process.hcalMonitor.HotCellMonitor      = False
+process.hcalMonitor.LEDMonitor          = False
+process.hcalMonitor.BeamMonitor         = False
+process.hcalMonitor.CaloTowerMonitor    = False
 process.hcalMonitor.MTCCMonitor         = False
 process.hcalMonitor.HcalAnalysis        = False
 

@@ -28,11 +28,13 @@
 <use name="TrackingTools/PatternTools">
 <use name="TrackingTools/Records">
 <use name="TrackingTools/TrackFitters">
-<use name="TrackingTools/TrackRefitter">
 <use name="TrackingTools/TrajectoryState">
 <use name="TrackingTools/TransientTrack">
 <use name="TrackingTools/TransientTrackingRecHit">
+<use name="DataFormats/DTRecHit">
+<use name="TrackingTools/TrackRefitter">
 <use name="roothistmatrix">
+
 <export>
   <use name="DataFormats/BeamSpot">
   <use name="DataFormats/Common">

@@ -7,19 +7,17 @@
 //
 
 #include "CalibFormats/SiPixelObjects/interface/PixelROCMaskBits.h"
-#include "CalibFormats/SiPixelObjects/interface/PixelBase64.h"
 #include <iostream>
 #include <assert.h>
 
 
 using namespace pos;
 
-//=====================================================================/
 PixelROCMaskBits::PixelROCMaskBits(){
 }
 
-
 /**********************Start Modification******************************/
+
 void  PixelROCMaskBits::setROCMaskBits(PixelROCName& rocid ,std::string bits)
 {
 try
@@ -40,19 +38,10 @@ try
      std::cout << "Error casting variable." << std::endl;
    }
 }
+
 /**********************End Modification******************************/
 
-// Added by Dario: handles the base_64-decoded strings from aDB read
-int PixelROCMaskBits::read(const PixelROCName& rocid, std::string in){
- rocid_=rocid;
- for( int i=0; i<(int)sizeof(bits_); i++)
- {
-  bits_[i] = in.at(i) ;
- }
- return 1 ;
-}
 
-//=====================================================================/
 int PixelROCMaskBits::read(const PixelROCName& rocid, std::ifstream& in){
 
     rocid_=rocid;
@@ -95,7 +84,6 @@ int PixelROCMaskBits::read(const PixelROCName& rocid, std::ifstream& in){
 
 }
 
-//=====================================================================/
 // modified by MR on 23-06-2008 11:57:58
 int PixelROCMaskBits::read(const PixelROCName& rocid, std::istringstream& in)
 {
@@ -127,7 +115,6 @@ int PixelROCMaskBits::read(const PixelROCName& rocid, std::istringstream& in)
   return 1;
 }
 
-//=====================================================================/
 int PixelROCMaskBits::readBinary(const PixelROCName& rocid, std::ifstream& in){
 
     rocid_=rocid;
@@ -139,7 +126,8 @@ int PixelROCMaskBits::readBinary(const PixelROCName& rocid, std::ifstream& in){
     return 1;
 }
 
-//=====================================================================/
+
+
 void PixelROCMaskBits::writeBinary(std::ofstream& out) const{
 
     out << (char)rocid_.rocname().size();
@@ -151,7 +139,7 @@ void PixelROCMaskBits::writeBinary(std::ofstream& out) const{
 
 }
 
-//=====================================================================/
+
 void PixelROCMaskBits::writeASCII(std::ofstream& out) const{
 
     out << "ROC:    "<<rocid_.rocname()<<std::endl;
@@ -168,7 +156,6 @@ void PixelROCMaskBits::writeASCII(std::ofstream& out) const{
 
 }
 
-//=====================================================================/
 unsigned int PixelROCMaskBits::mask(unsigned int col, unsigned int row) const{
 
   unsigned int tmp=bits_[col*10+row/8];
@@ -182,7 +169,6 @@ unsigned int PixelROCMaskBits::mask(unsigned int col, unsigned int row) const{
 
 }
 
-//=====================================================================/
 void PixelROCMaskBits::setMask(unsigned int col, unsigned int row, unsigned int mask){
 
   assert(mask==0||mask==1);  
@@ -193,7 +179,7 @@ void PixelROCMaskBits::setMask(unsigned int col, unsigned int row, unsigned int 
 
 }
 
-//=====================================================================/
+
 std::ostream& pos::operator<<(std::ostream& s, const PixelROCMaskBits& mask){
 
   s << "Dumping ROC masks" <<std::endl; 
@@ -218,72 +204,6 @@ std::ostream& pos::operator<<(std::ostream& s, const PixelROCMaskBits& mask){
 
   return s;
   
-}
-
-//=============================================================================================
-void PixelROCMaskBits::writeXML(std::ofstream * out) const
-{
-  std::string mthn = "[PixelROCMaskBits::writeXML()]\t\t\t\t" ;
-
-  std::string encoded = base64_encode(bits_, sizeof(bits_));
-/*
-  std::string decoded = base64_decode(encoded);
-  std::cout << mthn << "Dumping ROC masks for " <<rocid_.rocname()<<std::endl; 
-
-  std::cout << mthn << "bits_   " << bits_                             << std::endl; 
-  std::cout << mthn << "encoded " << encoded << " :" << encoded.size() << std::endl; 
-  std::cout << mthn << "decoded " << decoded                           << std::endl<<std::endl; 
-
-  for(int i=0;i<52;i++){
-    std::cout<<"Col"<<i<<":";
-    for(int j=0;j<10;j++){
-      unsigned char bitmask=1;
-      for(int k=0;k<8;k++){
-	if(bits_[i*10+j]&bitmask) {
-	  std::cout << "1";
-	}
-	else{
-	  std::cout << " ";
-	}
-	bitmask*=2;
-      }
-    }
-    std::cout<<std::endl;
-  }
-  std::cout<<std::endl;
-
-  unsigned char dits_[520] ;
-  for(int i = 0 ; i < (int)(sizeof(dits_)*sizeof(char)) ; i++)
-  {
-    dits_[i]  = (unsigned char)decoded[i] ;
-  }
-  
-
-  for(int i=0;i<52;i++){
-    std::cout<<"Col"<<i<<":";
-    for(int j=0;j<10;j++){
-      unsigned char bitmask=1;
-      for(int k=0;k<8;k++){
-	if(dits_[i*10+j]&bitmask) {
-	  std::cout << "1";
-	}
-	else{
-	  std::cout << " ";
-	}
-	bitmask*=2;
-      }
-    }
-    std::cout<<std::endl;
-  }
-  std::cout<<std::endl;
-*/   
-
-  *out << "  <DATA>"						 << std::endl ;
-  *out << "   <ROC_NAME>"  << rocid_.rocname() << "</ROC_NAME>"  << std::endl ;
-  *out << "   <KILL_MASK>" << encoded	       << "</KILL_MASK>" << std::endl ;
-  *out << "  </DATA>"						 << std::endl ;
-  *out << " "  						         << std::endl ;
-      
 }
 
 

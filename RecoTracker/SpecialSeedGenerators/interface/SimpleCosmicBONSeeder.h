@@ -14,6 +14,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -46,12 +47,10 @@ class SimpleCosmicBONSeeder : public edm::EDProducer
 
   void init(const edm::EventSetup& c);
   bool triplets(const edm::Event &e , const edm::EventSetup& c);
-  bool seedsInOut(TrajectorySeedCollection &output, const edm::EventSetup& iSetup);
-  bool seedsOutIn(TrajectorySeedCollection &output, const edm::EventSetup& iSetup);
   bool seeds(TrajectorySeedCollection &output, const edm::EventSetup& iSetup);
   void done();
 
-  bool goodTriplet(const GlobalPoint &inner, const GlobalPoint & middle, const GlobalPoint & outer) const ;
+  bool goodTriplet(const GlobalPoint &inner, const GlobalPoint & middle, const GlobalPoint & outer, const double & minRho) const ;
 
   std::pair<GlobalVector,int>
   pqFromHelixFit(const GlobalPoint &inner, const GlobalPoint & middle, const GlobalPoint & outer, const edm::EventSetup& iSetup) const ;
@@ -61,7 +60,8 @@ class SimpleCosmicBONSeeder : public edm::EDProducer
   std::string builderName;
 
   SeedingLayerSetsBuilder theLsb;
-  GlobalTrackingRegion region;
+  GlobalTrackingRegion region_;
+  double pMin_;
   bool writeTriplets_;
 
   bool   seedOnMiddle_; 
@@ -83,6 +83,20 @@ class SimpleCosmicBONSeeder : public edm::EDProducer
 
   OrderedHitTriplets hitTriplets;
 
+  int  goodHitsPerSeed_; // number of hits that must be good
+  bool checkCharge_;     // check cluster charge
+  bool matchedRecHitUsesAnd_;
+  std::vector<int32_t> chargeThresholds_;
+  bool checkMaxHitsPerModule_;
+  std::vector<int32_t> maxHitsPerModule_;
+  bool checkCharge(const TrackingRecHit *hit) const ;
+  bool checkCharge(const SiStripRecHit2D &hit, int subdetid) const ;
+  void checkNoisyModules(const std::vector<TransientTrackingRecHit::RecHitPointer> &hits, std::vector<bool> &oks) const ;
+
+  //***top-bottom
+  bool positiveYOnly;
+  bool negativeYOnly;
+  //***
 };
 
 #endif

@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/01/22 18:46:41 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/06/19 13:37:36 $
+ *  $Revision: 1.7 $
  *  \author S. Argiro - N. Amapane - M. Zanetti 
  * FRC 060906
  */
@@ -61,9 +61,12 @@ DTUnpackingModule::DTUnpackingModule(const edm::ParameterSet& ps) : unpacker(0) 
   useStandardFEDid_ = ps.getUntrackedParameter<bool>("useStandardFEDid", true);
   minFEDid_ = ps.getUntrackedParameter<int>("minFEDid", 73);
   maxFEDid_ = ps.getUntrackedParameter<int>("maxFEDid", 735);
+  dqmOnly = ps.getUntrackedParameter<bool>("dqmOnly", false);
 
-  produces<DTDigiCollection>();
-  produces<DTLocalTriggerCollection>();
+  if(!dqmOnly) {
+    produces<DTDigiCollection>();
+    produces<DTLocalTriggerCollection>();
+  }
 }
 
 DTUnpackingModule::~DTUnpackingModule(){
@@ -114,7 +117,9 @@ void DTUnpackingModule::produce(Event & e, const EventSetup& context){
   }
 
   // commit to the event  
-  e.put(detectorProduct);
-  e.put(triggerProduct);
+  if(!dqmOnly) {
+    e.put(detectorProduct);
+    e.put(triggerProduct);
+  }
 }
 

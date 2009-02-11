@@ -95,7 +95,7 @@ HLTLevel1GTSeed::HLTLevel1GTSeed(const edm::ParameterSet& parSet) {
     m_l1MuonCollectionTag = parSet.getParameter<edm::InputTag>("L1MuonCollectionTag");
 
     //
-    saveTags_ = parSet.getUntrackedParameter<bool>("saveTags",false);
+    saveTags_ = parSet.getUntrackedParameter<bool>("saveTags",true);
 
     if (m_l1SeedsLogicalExpression != "L1GlobalDecision") {
 

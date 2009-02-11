@@ -189,8 +189,11 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
 
   LocalTrajectoryParameters param;
 
+  //double dof = static_cast<double>(seg[0]->degreesOfFreedom());
+  //double chi2_dof = seg[0]->chi2() / dof;
   double p_err =0.0;
   // determine the seed layer
+  
   int    best_seg= 0;
   double chi2_dof = 9999.0;
   unsigned int ini_seg = 0;
@@ -203,6 +206,25 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
       best_seg = static_cast<int>(i);
   }  
   
+  //bool highPt = (fabs(ptmean) > 500.) ? true : false ;
+  //bool badDirection = ( chi2_dof  > 50. ) ? true : false ;
+  /*
+  int  segsize = seg.size()-1 ;
+  int  p2 = segsize ;
+  int  p1 = 0 ;
+  if ( best_seg < segsize && best_seg > 0 ) { 
+     p1 = best_seg - 1 ;
+     p2 = best_seg + 1 ;
+  }
+  if ( best_seg == 0 ) { 
+     p1 = 0 ;
+     p2 = best_seg + 1 ;
+  }
+  if ( best_seg == segsize ) { 
+     p1 = best_seg -1 ;
+     p2 = best_seg    ;
+  }
+  */
 
   if ( type==1 || type==5 || type== 4) {
      // Fill the LocalTrajectoryParameters
@@ -213,7 +235,32 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
      segPos = seg[last]->localPosition();
      /// get the Global direction
   
+     /*   
+     GlobalVector polar;
+     if ( highPt && badDirection && type != 4 )  {
+        // make up the direction for bad segments 
+        //GlobalVector dv  = seg[ p2 ]->globalPosition() - seg[ p1 ]->globalPosition(); 
+        GlobalVector dv  = seg[1]->globalPosition() - seg[0]->globalPosition(); 
+        GlobalVector polar1(GlobalVector::Spherical(dv.theta(),dv.phi(),1.));
+        polar = polar1;
+        last = 0; 
+        mom = seg[last]->globalPosition()-GlobalPoint();
+        segPos = seg[last]->localPosition();
+     } else {
+        GlobalVector polar2(GlobalVector::Spherical(mom.theta(),seg[last]->globalDirection().phi(),1.));
+        polar = polar2;
+     }
+     GlobalVector polar;
+     if ( highPt ) {
+        GlobalVector polar2(GlobalVector::Spherical(mom.theta(),mom.phi(),1.));
+        polar = polar2;
+     } else {
+        GlobalVector polar1(GlobalVector::Spherical(mom.theta(),seg[last]->globalDirection().phi(),1.));
+        polar = polar1;
+     } 
+     */ 
      GlobalVector polar(GlobalVector::Spherical(mom.theta(),seg[last]->globalDirection().phi(),1.));
+      
 
      /// scale the magnitude of total momentum
      polar *= fabs(ptmean)/polar.perp();
@@ -237,13 +284,6 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
         mat[2][2] = 2.25*mat[2][2];
         mat[3][3] = 2.25*mat[3][3];
         mat[4][4] = 2.25*mat[4][4];
-     }
-     double dh = fabs( seg[last]->globalPosition().eta() ) - 1.6 ; 
-     if ( fabs(dh) < 0.1 && type == 1 ) {
-        mat[1][1] = 4.*mat[1][1];
-        mat[2][2] = 4.*mat[2][2];
-        mat[3][3] = 9.*mat[3][3];
-        mat[4][4] = 9.*mat[4][4];
      }
 
      //if ( !highPt && type != 1 ) mat[1][1]= 2.25*mat[1][1];
@@ -354,7 +394,7 @@ void MuonSeedCreator::estimatePtCSC(SegmentContainer seg, std::vector<int> layer
   int layer0 = layers[0];
   segPos[0] = seg[0]->globalPosition();
   float eta = fabs( segPos[0].eta() );
-  //float corr = fabs( tan(segPos[0].theta()) );
+  float corr = fabs( tan(segPos[0].theta()) );
   // use pt from vertex information
   /*
   if ( layer0 == 0 ) {
@@ -378,8 +418,7 @@ void MuonSeedCreator::estimatePtCSC(SegmentContainer seg, std::vector<int> layer
       segPos[1] = seg[idx1]->globalPosition();      
 
       double dphi = segPos[0].phi() - segPos[1].phi();
-      //double temp_dphi = dphi/corr;
-      double temp_dphi = dphi;
+      double temp_dphi = dphi/corr;
        
       double sign = 1.0;  
       if (temp_dphi < 0.) {
@@ -431,8 +470,8 @@ void MuonSeedCreator::estimatePtCSC(SegmentContainer seg, std::vector<int> layer
         // ME2 is outer-most
         if ( layer1 == 2 ) {
 
-          //if ( eta <= 1.2 )  {   temp_dphi = scaledPhi(temp_dphi, CSC12_1[3]); }
-          //if ( eta >  1.2 )  {   temp_dphi = scaledPhi(temp_dphi, CSC12_2[3]); }
+          if ( eta <= 1.2 )  {   temp_dphi = scaledPhi(temp_dphi, CSC12_1[3]); }
+          if ( eta >  1.2 )  {   temp_dphi = scaledPhi(temp_dphi, CSC12_2[3]); }
           pt  = getPt( CSC12, eta , temp_dphi )[0];
           spt = getPt( CSC12, eta , temp_dphi )[1];
         }

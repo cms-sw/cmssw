@@ -42,7 +42,9 @@ public:
   virtual bool inside( const GlobalPoint& gp, double tolerance=0.) const {return true;}
 
   /// Access to volume faces
-  virtual std::vector<VolumeSide> faces() const {return std::vector<VolumeSide>();}
+  virtual const std::vector<VolumeSide>& faces() const {return theFaces;}
+private:
+  std::vector<VolumeSide> theFaces;
 };
 
 

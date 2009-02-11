@@ -21,8 +21,10 @@ public:
   typedef GloballyPositioned<float>::GlobalVector   GlobalVector;
 
   MagVolume( const PositionType& pos, const RotationType& rot, 
-	     DDSolidShape shape, const MagneticFieldProvider<float> * mfp) :
-    Base(pos,rot), MagneticField(), theShape(shape), theProvider( mfp) {}
+	     DDSolidShape shape, const MagneticFieldProvider<float> * mfp,
+	     double sf=1.) :
+    Base(pos,rot), MagneticField(), theShape(shape), theProvider(mfp), 
+    theScalingFactor(sf) {}
 
   virtual ~MagVolume() {}
 
@@ -39,7 +41,7 @@ public:
   const MagneticFieldProvider<float>* provider() const {return theProvider;}
 
   /// Access to volume faces
-  virtual std::vector<VolumeSide> faces() const = 0;
+  virtual const std::vector<VolumeSide>& faces() const = 0;
 
   virtual ::GlobalVector inTesla ( const ::GlobalPoint& gp) const {
     return fieldInTesla( gp);
@@ -49,6 +51,7 @@ private:
 
   DDSolidShape theShape;
   const MagneticFieldProvider<float> * theProvider;
+  double theScalingFactor;
 
 };
 

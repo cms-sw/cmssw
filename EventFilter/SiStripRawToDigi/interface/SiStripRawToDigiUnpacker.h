@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripRawToDigiUnpacker.h,v 1.20.2.1 2008/07/03 14:27:39 gpetrucc Exp $
 
 #ifndef EventFilter_SiStripRawToDigi_SiStripRawToDigiUnpacker_H
 #define EventFilter_SiStripRawToDigi_SiStripRawToDigiUnpacker_H

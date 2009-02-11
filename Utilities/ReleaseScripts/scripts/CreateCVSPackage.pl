@@ -1,11 +1,11 @@
 #!/usr/bin/perl
-#______________  ______________________________________________________ 
+#____________________________________________________________________ 
 # File: CreateCVSPackage.pl
 #____________________________________________________________________ 
 #  
 # Author: Shaun ASHBY <Shaun.Ashby@cern.ch>
 # Update: 2006-04-28 09:50:38+0200
-# Revision: $Id: CreateCVSPackage.pl,v 1.11 2007/07/30 19:08:01 dlange Exp $ 
+# Revision: $Id: CreateCVSPackage.pl,v 1.10 2006/12/07 15:25:22 sashby Exp $ 
 #
 # Copyright: 2006 (C) Shaun ASHBY
 #

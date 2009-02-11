@@ -455,6 +455,7 @@ void PFRootEventManager::readOptions(const char* file,
   catch( std::exception& err ) {
     cerr<<"exception setting PFBlockAlgo parameters: "
         <<err.what()<<". terminating."<<endl;
+    delete this;
     exit(1);
   }
   
@@ -584,6 +585,7 @@ void PFRootEventManager::readOptions(const char* file,
   catch( std::exception& err ) {
     cerr<<"exception setting PFAlgo parameters: "
         <<err.what()<<". terminating."<<endl;
+    delete this;
     exit(1);
   }
 
@@ -632,6 +634,7 @@ void PFRootEventManager::readOptions(const char* file,
   catch( std::exception& err ) {
     cerr<<"exception setting PFAlgo Electron parameters: "
         <<err.what()<<". terminating."<<endl;
+    delete this;
     exit(1);
   }
 
@@ -645,6 +648,7 @@ void PFRootEventManager::readOptions(const char* file,
   catch( std::exception& err ) {
     cerr<<"exception setting PFAlgo Conversions parameters: "
         <<err.what()<<". terminating."<<endl;
+    delete this;
     exit(1);
   }
 
@@ -770,9 +774,13 @@ void PFRootEventManager::readOptions(const char* file,
 
   printGenParticles_ = true;
   options_->GetOpt("print", "genParticles", printGenParticles_ );
-  
-  printMCTruthMatching_ = true;
+
+  //MCTruthMatching Tool set to false by default
+  //can only be used with fastsim and the UnFoldedMode set to true
+  //when generating the simulated file
+  printMCTruthMatching_ = false; 
   options_->GetOpt("print", "mctruthmatching", printMCTruthMatching_ );  
+
 
   verbosity_ = VERBOSE;
   options_->GetOpt("print", "verbosity", verbosity_ );
@@ -1128,7 +1136,6 @@ PFRootEventManager::~PFRootEventManager() {
   }
 
   if(outEvent_) delete outEvent_;
-
 
   delete options_;
 
@@ -2545,6 +2552,7 @@ string PFRootEventManager::expand(const string& oldString) const {
 
   if(!directory) {
     cerr<<"please define environment variable $"<<env_variable<<endl;
+    delete this;
     exit(1);
   }
   string sdir = directory;
@@ -2639,7 +2647,7 @@ void  PFRootEventManager::print(ostream& out,int maxNLines ) const {
 
     //print a detailed list of PFSimParticles matching
     //the PFCandiates
-    if(printMCTruthMatching_)
+    if(printMCTruthMatching_){
       cout<<"MCTruthMatching Results"<<endl;
       for(unsigned icand=0; icand<pfCandidates_->size(); 
 	  icand++) {
@@ -2670,7 +2678,7 @@ void  PFRootEventManager::print(ostream& out,int maxNLines ) const {
 	}//loop simparticles
 	cout<<"________________"<<endl;
       }//loop candidates 
-
+    }////print mc truth matching
   }
   if(printPFJets_) {
     out<<"Jets  ====================================================="<<endl;
@@ -2699,7 +2707,6 @@ void  PFRootEventManager::print(ostream& out,int maxNLines ) const {
         out<<"\t"<<trueParticles_[i]<<endl;
     }   
  
-    //modif-beg
     //print a detailed list of PFSimParticles matching
     //the PFCandiates
     if(printMCTruthMatching_) {

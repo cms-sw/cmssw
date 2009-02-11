@@ -1,12 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-# module to make a jet parton match for full-hadronic
-# ttbar decays; the match will be a std::vector<int>
-# in order  (LightQTop, LightQBarTop, B, LightQTopBar,
+# module to make jet-parton matches for full-hadronic
+# ttbar decays; the product will be a std::vector of
+# matches, each match a std::vector<int> in the order
+# (LightQTop, LightQBarTop, B, LightQTopBar,
 # LightQBarTopBar, BBar)
 #
-ttFullHadJetPartonMatch = cms.EDFilter("TtFullHadJetPartonMatch",
+ttFullHadJetPartonMatch = cms.EDProducer("TtFullHadJetPartonMatch",
     ## sources
     jets = cms.InputTag("selectedLayer1Jets"),
 
@@ -39,7 +40,21 @@ ttFullHadJetPartonMatch = cms.EDFilter("TtFullHadJetPartonMatch",
     # (has to be >= 6, can be set to -1 if you want to 
     # take all)
     #-------------------------------------------------
-    nJets = cms.int32(-1)
+    maxNJets = cms.int32(6),
+
+    #-------------------------------------------------
+    # number of different combinations to be stored
+    # (can be set to -1 if you want to take all,
+    #  minSumDist is the only algorithm that provides
+    #  more than only the best combination)
+    #-------------------------------------------------
+    maxNComb = cms.int32(1),
+
+    #-------------------------------------------------
+    # verbosity level: 0: no additional printout
+    #                  1: print info for each event
+    #-------------------------------------------------
+    verbosity = cms.int32(0)
 )
 
 

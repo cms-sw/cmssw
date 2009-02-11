@@ -1,16 +1,17 @@
 /** \file
  *
- *  $Date: 2008/03/03 17:54:35 $
- *  $Revision: 1.15 $
+ *  $Date: 2008/02/12 17:39:40 $
+ *  $Revision: 1.14 $
  *
  * \author M.Schmitt, Northwestern
  */
-#include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
-#include <iostream>
+#include <DataFormats/CSCDigi/interface/CSCStripDigi.h>
+
+using namespace std;
 
 // Constructors
-CSCStripDigi::CSCStripDigi (const int & istrip, const std::vector<int> & vADCCounts, const std::vector<uint16_t> & vADCOverflow,
-			    const std::vector<uint16_t> & vOverlap, const std::vector<uint16_t> & vErrorstat ):
+CSCStripDigi::CSCStripDigi (const int & istrip, const vector<int> & vADCCounts, const vector<uint16_t> & vADCOverflow,
+			    const vector<uint16_t> & vOverlap, const vector<uint16_t> & vErrorstat ):
   strip(istrip),
   ADCCounts(vADCCounts),
   ADCOverflow(vADCOverflow),
@@ -19,7 +20,7 @@ CSCStripDigi::CSCStripDigi (const int & istrip, const std::vector<int> & vADCCou
 {
 }
 
-CSCStripDigi::CSCStripDigi (const int & istrip, const std::vector<int> & vADCCounts):
+CSCStripDigi::CSCStripDigi (const int & istrip, const vector<int> & vADCCounts):
   strip(istrip),
   ADCCounts(vADCCounts),
   ADCOverflow(8,0),
@@ -60,7 +61,7 @@ CSCStripDigi::operator == (const CSCStripDigi& digi) const {
 //}
 
 
-void CSCStripDigi::setADCCounts(std::vector<int>vADCCounts) {
+void CSCStripDigi::setADCCounts(vector<int>vADCCounts) {
   bool badVal = false;
   for (int i=0; i<(int)vADCCounts.size(); i++) {
     if (vADCCounts[i] < 1) badVal = true;
@@ -68,7 +69,7 @@ void CSCStripDigi::setADCCounts(std::vector<int>vADCCounts) {
   if ( !badVal ) {
     ADCCounts = vADCCounts;
   } else {
-    std::vector<int> ZeroCounts(8,0);
+    vector<int> ZeroCounts(8,0);
     ADCCounts = ZeroCounts;
   }
 }
@@ -76,18 +77,11 @@ void CSCStripDigi::setADCCounts(std::vector<int>vADCCounts) {
 // Debug
 void
 CSCStripDigi::print() const {
-  std::cout << "CSC Strip: " << getStrip() << "  ADC Counts: ";
-  for (int i=0; i<(int)getADCCounts().size(); i++) {std::cout << getADCCounts()[i] << " ";}
-  std::cout << "\n";
+  cout << "CSC Strip: " << getStrip() << "  ADC Counts: ";
+  for (int i=0; i<(int)getADCCounts().size(); i++) {cout << getADCCounts()[i] << " ";}
+  cout << "\n";
 }
 
-std::ostream & operator<<(std::ostream & o, const CSCStripDigi& digi) {
-  o << " " << digi.getStrip();
-  for (size_t i = 0; i<digi.getADCCounts().size(); ++i ){
-    o <<" " <<(digi.getADCCounts())[i]; }
-  return o;
-
-}
 
 
 
