@@ -161,25 +161,37 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
 
   if(invalidDataFlag == false) // Only attempt unpack with valid data
   {
-    // Setup blockUnpacker
-    blockUnpacker_->setRctEmCollection( rctEm.get() );
-    blockUnpacker_->setRctCaloRegionCollection( rctCalo.get() );
+
+    // always unpack output data
     blockUnpacker_->setIsoEmCollection( gctIsoEm.get() );
     blockUnpacker_->setNonIsoEmCollection( gctNonIsoEm.get() );
-    blockUnpacker_->setInternEmCollection( gctInternEm.get() );
-    blockUnpacker_->setFibreCollection( gctFibres.get() );
     blockUnpacker_->setCentralJetCollection( gctCenJets.get() );
     blockUnpacker_->setForwardJetCollection( gctForJets.get() );
     blockUnpacker_->setTauJetCollection( gctTauJets.get() );
-    blockUnpacker_->setJetCountsCollection( jetCounts.get() );
     blockUnpacker_->setHFBitCountsCollection( hfBitCounts.get() );
     blockUnpacker_->setHFRingEtSumsCollection( hfRingEtSums.get() );
     blockUnpacker_->setEtTotalCollection( etTotResult.get() );
     blockUnpacker_->setEtHadCollection( etHadResult.get() );
     blockUnpacker_->setEtMissCollection( etMissResult.get() );
-    blockUnpacker_->setInternJetDataCollection( gctInternJets.get() );
-    blockUnpacker_->setInternEtSumCollection( gctInternEtSums.get() );
-    blockUnpacker_->setInternHFDataCollection( gctInternHFData.get() );
+
+    // unpack RCT data
+    if (doRct_ && !hltMode_) {
+      blockUnpacker_->setRctEmCollection( rctEm.get() );
+      blockUnpacker_->setRctCaloRegionCollection( rctCalo.get() );
+    }
+
+    // unpack intermediate data
+    if (doInternEm_ && !hltMode_) {
+      blockUnpacker_->setInternEmCollection( gctInternEm.get() );
+    }
+    if (doInternJets_ && !hltMode_) {
+      blockUnpacker_->setInternJetDataCollection( gctInternJets.get() );
+      blockUnpacker_->setInternEtSumCollection( gctInternEtSums.get() );
+      blockUnpacker_->setInternHFDataCollection( gctInternHFData.get() );
+    }
+    if (doFibres_ && !hltMode_) {
+      blockUnpacker_->setFibreCollection( gctFibres.get() );
+    }
   
     const unsigned char * data = d.data();  // The 8-bit wide raw-data array.  
 
@@ -248,38 +260,24 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
   else { ++unpackFailures_; }
 
   // put data into the event
-  if (hltMode_ || doEm_)
-  {
-    e.put(gctIsoEm, "isoEm");
-    e.put(gctNonIsoEm, "nonIsoEm");
-  }
-  if (hltMode_ || doJets_)
-  {
-    e.put(gctCenJets,"cenJets");
-    e.put(gctForJets,"forJets");
-    e.put(gctTauJets,"tauJets");
-    e.put(jetCounts);
-    e.put(hfBitCounts);
-    e.put(hfRingEtSums);
-  }
-  if (hltMode_ || doEtSums_)
-  {
-    e.put(etTotResult);
-    e.put(etHadResult);
-    e.put(etMissResult);
-  }
-  if (!hltMode_ && doInternEm_) { e.put(gctInternEm); }
-  if (!hltMode_ && doInternJets_) { e.put(gctInternJets); }
+  e.put(gctIsoEm, "isoEm");
+  e.put(gctNonIsoEm, "nonIsoEm");
+  e.put(gctCenJets,"cenJets");
+  e.put(gctForJets,"forJets");
+  e.put(gctTauJets,"tauJets");
+  e.put(hfBitCounts);
+  e.put(hfRingEtSums);
+  e.put(etTotResult);
+  e.put(etHadResult);
+  e.put(etMissResult);
+  e.put(gctInternEm);
+  e.put(gctInternJets);
+  e.put(gctInternEtSums);
+  e.put(gctInternHFData);
+  e.put(rctEm);
+  e.put(rctCalo);
+  e.put(gctFibres);
 
-  if (!hltMode_ && doInternESums_) { e.put(gctInternEtSums); }
-  if (!hltMode_ && doInternHF_) { e.put(gctInternHFData); }
-
-  if (!hltMode_ && doRct_)
-  {
-    e.put(rctEm);
-    e.put(rctCalo);
-  }
-  if (!hltMode_ && doFibres_)   { e.put(gctFibres); }
 }
 
 
