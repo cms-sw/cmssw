@@ -2,8 +2,8 @@
   * \file InvRingCalib.h
   * \class InvRingCalib
   * \brief ECAL TB 2006 calibration with matrix inversion technique
-  * $Date: 2008/11/12 09:34:42 $
-  * $Revision: 1.1 $
+  * $Date: 2008/11/14 11:38:45 $
+  * $Revision: 1.3 $
   * \author 
   *
 */
@@ -104,7 +104,7 @@ class InvRingCalib : public edm::EDLooper {
     EcalIntercalibConstantMap m_barrelMap;
     EcalIntercalibConstantMap m_endcapMap;
     //! LP sets the number of loops to do
-    int m_loops ;
+    unsigned int m_loops ;
     //! LP define the EE region to calibrate
     int m_startRing;
     int m_endRing;

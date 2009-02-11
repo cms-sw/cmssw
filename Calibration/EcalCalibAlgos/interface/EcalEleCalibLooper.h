@@ -2,8 +2,8 @@
   * \file EcalEleCalibLooper.h
   * \class EcalEleCalibLooper
   * \brief ECAL TB 2006 calibration with matrix inversion technique
-  * $Date: 2008/11/12 09:34:42 $
-  * $Revision: 1.1 $
+  * $Date: 2008/11/14 11:38:45 $
+  * $Revision: 1.3 $
   * \author 
   *
 */
@@ -128,9 +128,9 @@ class EcalEleCalibLooper : public edm::EDLooper {
     //The map Filler
     VFillMap * m_MapFiller; 
 
-  //DS numero delle regioni lungo il raggio (onion rings) (da fare divisione lungo phi)
+  //DS number of regions in the Endcap
   inline int EEregionsNum () const ;
-  //DS numero delle regioni in EB
+  //DS number of regions in the barrel
   inline int EBregionsNum () const ;
 
   std::vector<int> m_regions;

@@ -36,7 +36,7 @@ ClusterFillMap::fillMap (const std::vector<std::pair<DetId,float> > & v1,
  {
    int RegionNumber = m_xtalRegionId[Max.rawId()];
    EcalRecHitCollection::const_iterator itrechit;
-   double dummy;
+   double dummy=0.;
    if(idsIt->first.subdetId()==EcalBarrel)
    {
      itrechit=barrelHitsCollection->find(idsIt->first);

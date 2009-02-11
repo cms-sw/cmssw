@@ -20,10 +20,10 @@
  
     \brief interface to the L3Univ class for testing  
 
-    $Date: 2008/02/25 17:50:39 $
-    $Revision: 1.2 $
-    $Id: L3CalibBlock.h,v 1.2 2008/02/25 17:50:39 malberti Exp $ 
-    \author $Author: malberti $
+    $Date: 2008/09/05 08:55:42 $
+    $Revision: 1.3 $
+    $Id: L3CalibBlock.h,v 1.3 2008/09/05 08:55:42 govoni Exp $ 
+    \author $Author: govoni $
 */
 class L3CalibBlock : public VEcalCalibBlock
 {
@@ -61,15 +61,3 @@ class L3CalibBlock : public VEcalCalibBlock
 #endif
 #endif
 
-/* TODOS and dubios
-   ----------------
-
-- fare l'inversione finale
-- uso le CLHEP
-- ritorno CLHEP o un vector<double>? forse la seconda e' meglio
-- oppure una mappa con uindex, coeff? cosi' poi si possono incollare insieme
-  tutte le mappe facilmente?
-- CLHEP hanno qualche metodo utile per usare STL che non ho visto?
-- rem se ho gia' invertito con una variabile: ha senso?
-
-*/

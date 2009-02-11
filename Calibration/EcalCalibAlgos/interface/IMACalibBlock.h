@@ -18,10 +18,10 @@
  
     \brief element for the single ECAL block intercalibration  
 
-    $Date: 2008/02/25 17:50:28 $
-    $Revision: 1.2 $
-    $Id: IMACalibBlock.h,v 1.2 2008/02/25 17:50:28 malberti Exp $ 
-    \author $Author: malberti $
+    $Date: 2008/09/05 08:55:42 $
+    $Revision: 1.3 $
+    $Id: IMACalibBlock.h,v 1.3 2008/09/05 08:55:42 govoni Exp $ 
+    \author $Author: govoni $
 */
 class IMACalibBlock : public VEcalCalibBlock
 {
@@ -67,15 +67,3 @@ class IMACalibBlock : public VEcalCalibBlock
 #endif
 #endif
 
-/* TODOS and dubios
-   ----------------
-
-- fare l'inversione finale
-- uso le CLHEP
-- ritorno CLHEP o un vector<double>? forse la seconda e' meglio
-- oppure una mappa con uindex, coeff? cosi' poi si possono incollare insieme
-  tutte le mappe facilmente?
-- CLHEP hanno qualche metodo utile per usare STL che non ho visto?
-- rem se ho gia' invertito con una variabile: ha senso?
-
-*/

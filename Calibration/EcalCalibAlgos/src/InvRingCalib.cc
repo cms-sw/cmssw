@@ -41,7 +41,6 @@ InvRingCalib::InvRingCalib (const edm::ParameterSet& iConfig) :
   m_minCoeff (iConfig.getParameter<double>("minCoeff")),
   m_maxCoeff (iConfig.getParameter<double>("maxCoeff")),
   m_usingBlockSolver(iConfig.getParameter<int>("usingBlockSolver")),
-  m_loops (iConfig.getParameter<int>("loops")),
   m_startRing (iConfig.getParameter<int>("startRing")),
   m_endRing (iConfig.getParameter<int>("endRing")),
   m_EBcoeffFile (iConfig.getParameter<std::string>("EBcoeffs")),
@@ -62,6 +61,7 @@ InvRingCalib::InvRingCalib (const edm::ParameterSet& iConfig) :
   assert (!((m_endRing - m_startRing)%m_etaWidth));
   assert (( abs(m_EEZone)<=1));
   
+  m_loops = (unsigned int) iConfig.getParameter<int>("loops")- 1;
   //LP CalibBlock vector instantiation
   edm::LogInfo ("IML") << "[InvRingCalib][ctor] Calib Block" ;
   std::string algorithm = iConfig.getParameter<std::string> ("algorithm") ;
@@ -268,7 +268,7 @@ InvRingCalib::duringLoop (const edm::Event& iEvent,
 
  if (!barrelRecHitsHandle.isValid ()) {
      edm::LogError ("IML") << "[EcalEleCalibLooper] barrel rec hits not found" ;
-     return  kContinue ;//maybe FIXME not with a kContinue but a skip only on the barrel part;
+     return  kContinue ;
     }
   //gets the endcap recHits
   const EcalRecHitCollection* endcapHitsCollection = 0;
@@ -569,6 +569,8 @@ int InvRingCalib::EBRegionNum () const
   
   if ((m_etaEnd*m_etaStart)<0)
    return ((m_etaEnd - m_etaStart-1 )/m_etaWidth); 
+  
+  return 0;
 }
 //!Divides the barrel in region, necessary to take into
 //! account the missing 0 xtal
