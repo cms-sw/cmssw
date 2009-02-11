@@ -1,15 +1,17 @@
 
-/* \class HiggsTo4LeptonsSkim 
+/* \class HiggsTo4LeptonsSkimProducer 
  *
  * Consult header file for description
  *
  * author:  Dominique Fortin - UC Riverside
  * modified by N. De Filippis - LLR - Ecole Polytechnique
+ *
  */
 
 
 // system include files
-#include <HiggsAnalysis/Skimming/interface/HiggsToZZ4LeptonsSkim.h>
+#include <HiggsAnalysis/Skimming/interface/HiggsToZZ4LeptonsSkimProducer.h>
+#include "DataFormats/Common/interface/Handle.h"
 
 // User include files
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
@@ -32,7 +34,7 @@ using namespace reco;
 
 
 // Constructor
-HiggsToZZ4LeptonsSkim::HiggsToZZ4LeptonsSkim(const edm::ParameterSet& pset) {
+HiggsToZZ4LeptonsSkimProducer::HiggsToZZ4LeptonsSkimProducer(const edm::ParameterSet& pset) {
 
   // Local Debug flag
   debug              = pset.getParameter<bool>("DebugHiggsToZZ4LeptonsSkim");
@@ -47,35 +49,24 @@ HiggsToZZ4LeptonsSkim::HiggsToZZ4LeptonsSkim(const edm::ParameterSet& pset) {
   nStiffLeptonMin    = pset.getParameter<int>("nStiffLeptonMinimum");
   nLeptonMin         = pset.getParameter<int>("nLeptonMinimum");
 
-  nEvents         = 0;
-  nSelectedEvents = 0;
+  aliasaccept="flagSkimaccept";
+  produces<bool> (aliasaccept).setBranchAlias(aliasaccept);
 
 }
 
 
 // Destructor
-HiggsToZZ4LeptonsSkim::~HiggsToZZ4LeptonsSkim() {
+HiggsToZZ4LeptonsSkimProducer::~HiggsToZZ4LeptonsSkimProducer() {
 
-  std::cout << "HiggsToZZ4LeptonsSkim: \n" 
-  << " N_events_HLTread= " << nEvents          
-  << " N_events_Skimkept= " << nSelectedEvents 
-  << "     RelEfficiency4lFilter= " << double(nSelectedEvents)/double(nEvents) << std::endl;
 }
 
-
-
-// Filter event
-bool HiggsToZZ4LeptonsSkim::filter(edm::Event& event, const edm::EventSetup& setup ) {
-
-  nEvents++;
-
-  using reco::MuonCollection;
+// Produce flags for event
+void HiggsToZZ4LeptonsSkimProducer::produce(edm::Event& event, const edm::EventSetup& setup ) {
 
   bool keepEvent   = false;
   int  nStiffLeptons    = 0;
   int  nLeptons    = 0;
   
-
   // First look at muons:
 
   // Get the muon collection from the event
@@ -113,12 +104,15 @@ bool HiggsToZZ4LeptonsSkim::filter(edm::Event& event, const edm::EventSetup& set
     }
   }
 
+
   // Make decision:
   if ( nStiffLeptons >= nStiffLeptonMin && nLeptons >= nLeptonMin) keepEvent = true;
+  
+  auto_ptr<bool> flagaccept ( new bool );
+  *flagaccept=keepEvent;
+  event.put(flagaccept,aliasaccept);
 
-  if (keepEvent) nSelectedEvents++;
-
-  return keepEvent;
 }
 
-
+void HiggsToZZ4LeptonsSkimProducer::endJob() {
+}

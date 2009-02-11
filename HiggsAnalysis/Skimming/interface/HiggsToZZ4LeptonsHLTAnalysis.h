@@ -65,7 +65,7 @@ class HiggsToZZ4LeptonsHLTAnalysis : public edm::EDProducer {
     std::vector<unsigned int> ntrig;
     std::vector<bool> boolflag;
     std::vector<std::string> valias;
-    std::string aliasaccept;
+    std::string aliasinput,aliasaccept;
 
 };
 

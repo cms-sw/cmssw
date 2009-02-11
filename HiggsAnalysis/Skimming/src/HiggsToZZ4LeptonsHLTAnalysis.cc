@@ -66,6 +66,9 @@ HiggsToZZ4LeptonsHLTAnalysis::HiggsToZZ4LeptonsHLTAnalysis(const edm::ParameterS
     produces<bool >(valias.at(j)).setBranchAlias( valias.at(j) );
   }
 
+  aliasinput="flaginput";
+  produces<bool> (aliasinput).setBranchAlias(aliasinput);
+
   aliasaccept="flagHLTaccept";
   produces<bool> (aliasaccept).setBranchAlias(aliasaccept);
 
@@ -74,11 +77,10 @@ HiggsToZZ4LeptonsHLTAnalysis::HiggsToZZ4LeptonsHLTAnalysis(const edm::ParameterS
 HiggsToZZ4LeptonsHLTAnalysis::~HiggsToZZ4LeptonsHLTAnalysis()
 {
 
-  std::cout << "HiggsToZZ4LeptonsHLTAnalysis: \n"
-  << " N_eventsInput_read= " << nEvents
-  << " N_eventsHLT_kept= " << npassed
-  << "     EfficiencyHLT= " << double(npassed)/double(nEvents) << std::endl;
-
+//  std::cout << "HiggsToZZ4LeptonsHLTAnalysis: \n"
+//  << " N_eventsInput_read= " << nEvents
+//  << " N_eventsHLT_kept= " << npassed
+//  << "     EfficiencyHLT= " << double(npassed)/double(nEvents) << std::endl;
 
 }
 
@@ -91,6 +93,9 @@ void HiggsToZZ4LeptonsHLTAnalysis::produce(edm::Event& iEvent, const edm::EventS
 {
 
   nEvents++;
+  auto_ptr<bool> flaginput ( new bool );
+  *flaginput=nEvents;
+  iEvent.put(flaginput,aliasinput);
   
   const string invalid("@@invalid@@");
   
