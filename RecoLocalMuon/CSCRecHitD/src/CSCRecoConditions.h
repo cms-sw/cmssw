@@ -18,7 +18,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CondFormats/CSCObjects/interface/CSCConditions.h"
+#include "CalibMuon/CSCCalibration/interface/CSCConditions.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
 class CSCRecoConditions 
