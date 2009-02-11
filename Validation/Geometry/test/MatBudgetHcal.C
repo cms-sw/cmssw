@@ -337,7 +337,7 @@ void etaPhiPlotHC(TString fileName="matbdg_HCAL.root", TString plot="IntLen",
   hcalFile->cd("g4SimHits");
   setStyle();
 
-  int ihid[4] = {2, 19, 20, 21};
+  int ihid[20] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17. 18, 19, 20, 21};
   TString xtit = TString("#eta");
   TString ytit = "none";
   int ymin = 0, ymax = 20, istart = 200;
@@ -362,12 +362,13 @@ void etaPhiPlotHC(TString fileName="matbdg_HCAL.root", TString plot="IntLen",
   leg->SetTextSize(0.04);
   int nplots=0;
   TProfile *prof[nlaymax];
-  for (int ii=3; ii>=0; ii--) {
+  for (int ii=19; ii>=0; ii--) {
     char hname[10], title[50];
     int idpl = istart+ihid[ii];
     sprintf(hname, "%i", idpl);
-    int icol = colorLayer[ii];
-    if (ii > 1) icol = colorLayer[ii-1];
+    int icol = colorLayer[0];
+    if (ii >= 18)    icol = colorLayer[2];
+    else if (ii > 0) icol = colorLayer[1];
     gDirectory->GetObject(hname,prof[nplots]);
     prof[nplots]->GetXaxis()->SetTitle(xtit);
     prof[nplots]->GetYaxis()->SetTitle(ytit);
@@ -383,7 +384,7 @@ void etaPhiPlotHC(TString fileName="matbdg_HCAL.root", TString plot="IntLen",
       prof[nplots]->GetYaxis()->SetTitleOffset(1.05);
     if (ifEta && maxEta > 0) 
       prof[nplots]->GetXaxis()->SetRangeUser(0.0,maxEta);
-    if (ii >= 3) {
+    if (ii == 19) {
       sprintf(title, "End of HF");
       leg->AddEntry(prof[nplots], title, "lf");
     } else if (ii == 1) {
