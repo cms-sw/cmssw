@@ -6,18 +6,27 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Timing.cc,v 1.13 2008/06/20 20:55:48 fischler Exp $
+// $Id: Timing.cc,v 1.14 2008/12/20 17:39:56 wmtan Exp $
 //
 // Change Log
 //
 // 1 - mf 4/22/08   Facilitate summary output to job report and logs:
 //		    In Timing ctor, default for report_summary_ changed to true 
 //                  In postEndJob, add output to logger
+//
+// 2 - 2009/01/14 10:29:00, Natalia Garcia Nebot
+//        Modified the service to add some new measurements to report:
+//                - Average time per event (cpu and wallclock)
+//                - Fastest time per event (cpu and wallclock)
+//                - Slowest time per event (cpu and wallclock)
+//
+
 
 #include "FWCore/Services/interface/Timing.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -25,9 +34,17 @@
 
 #include <iostream>
 #include <sys/time.h>
+#include <sys/resource.h>
+#include <sstream>
 
 namespace edm {
   namespace service {
+
+    static std::string d2str(double d){
+	std::stringstream t;
+	t << d;
+	return t.str();
+    }
 
     static double getTime()
     {
@@ -36,6 +53,18 @@ namespace edm {
 	throw cms::Exception("SysCallFailed","Failed call to gettimeofday");
 
       return (double)t.tv_sec + (double(t.tv_usec) * 1E-6);
+    }
+
+    static double getCPU(){
+	struct rusage usage;
+	getrusage(RUSAGE_SELF, &usage);
+
+	double totalCPUTime = 0.0;
+	// User code
+	totalCPUTime = (double)usage.ru_utime.tv_sec + (double(usage.ru_utime.tv_usec) * 1E-6);
+	// System functions
+	totalCPUTime += (double)usage.ru_stime.tv_sec + (double(usage.ru_stime.tv_usec) * 1E-6);
+	return totalCPUTime;
     }
 
     Timing::Timing(const ParameterSet& iPS, ActivityRegistry&iRegistry):
@@ -63,6 +92,10 @@ namespace edm {
 
     void Timing::postBeginJob()
     {
+      curr_job_time_ = getTime();
+      curr_job_cpu_ = getCPU();
+      total_event_cpu_ = 0.0;
+
       //edm::LogInfo("TimeReport")
       if (not summary_only_) {
         edm::LogAbsolute("TimeReport")
@@ -70,33 +103,54 @@ namespace edm {
 	<< "TimeReport> Report columns headings for events: "
 	<< "eventnum runnum timetaken\n"
 	<< "TimeReport> Report columns headings for modules: "
-	<< "eventnum runnum modulelabel modulename timetaken";
+	<< "eventnum runnum modulelabel modulename timetakeni\n"
+	<< "TimeReport> JobTime=" << curr_job_time_  << " JobCPU=" << curr_job_cpu_  << "\n";
       }
-      curr_job_ = getTime();
     }
 
     void Timing::postEndJob()
     {
-      double t = getTime() - curr_job_;
-      double average_event_t = t / total_event_count_;
+      double total_job_time = getTime() - curr_job_time_;
+      double average_event_time = total_job_time / total_event_count_;
+
+      double total_job_cpu = getCPU() - curr_job_cpu_;
+      double average_event_cpu = total_event_cpu_ / total_event_count_;
+
       //edm::LogInfo("TimeReport")
       edm::LogAbsolute("TimeReport")				// Changelog 1
+      //edm::LogAbsolute("FwkJob")
 	<< "TimeReport> Time report complete in "
-	<< t << " seconds"
+	<< total_job_time << " seconds"
 	<< "\n"
         << " Time Summary: \n" 
-        << " Min: " << min_event_time_ << "\n"
-        << " Max: " << max_event_time_ << "\n"
-        << " Avg: " << average_event_t << "\n";
+        << " - Min event:   " << min_event_time_ << "\n"
+        << " - Max event:   " << max_event_time_ << "\n"
+        << " - Avg event:   " << average_event_time << "\n"
+	<< " - Total job:   " << total_job_time << "\n"
+	<< " CPU Summary: \n"
+        << " - Min event:   " << min_event_cpu_ << "\n"
+        << " - Max event:   " << max_event_cpu_ << "\n"
+        << " - Avg event:   " << average_event_cpu << "\n"
+        << " - Total job:   " << total_job_cpu << "\n"
+        << " - Total event: " << total_event_cpu_ << "\n";
+
       if (report_summary_){
 	Service<JobReport> reportSvc;
-	std::map<std::string, double> reportData;
+//	std::map<std::string, double> reportData;
+	std::map<std::string, std::string> reportData;
 
-	reportData.insert(std::make_pair("MinEventTime", min_event_time_));
-	reportData.insert(std::make_pair("MaxEventTime", max_event_time_));
-	reportData.insert(std::make_pair("AvgEventTime", average_event_t));
-	reportData.insert(std::make_pair("TotalTime", t));
-	reportSvc->reportTimingInfo(reportData);
+	reportData.insert(std::make_pair("MinEventTime", d2str(min_event_time_)));
+	reportData.insert(std::make_pair("MaxEventTime", d2str(max_event_time_)));
+	reportData.insert(std::make_pair("AvgEventTime", d2str(average_event_time)));
+	reportData.insert(std::make_pair("TotalJobTime", d2str(total_job_time)));
+        reportData.insert(std::make_pair("MinEventCPU", d2str(min_event_cpu_)));
+        reportData.insert(std::make_pair("MaxEventCPU", d2str(max_event_cpu_)));
+        reportData.insert(std::make_pair("AvgEventCPU", d2str(average_event_cpu)));
+	reportData.insert(std::make_pair("TotalJobCPU", d2str(total_job_cpu)));
+        reportData.insert(std::make_pair("TotalEventCPU", d2str(total_event_cpu_)));
+	
+	reportSvc->reportPerformanceSummary("Timing", reportData);
+//	reportSvc->reportTimingInfo(reportData);
       }
 
     }
@@ -106,26 +160,37 @@ namespace edm {
     {
       curr_event_ = iID;
       curr_event_time_ = getTime();
+      curr_event_cpu_ = getCPU();
       
-
     }
+
     void Timing::postEventProcessing(const Event& e, const EventSetup&)
     {
-      double t = getTime() - curr_event_time_;
+      curr_event_cpu_ = getCPU() - curr_event_cpu_;
+      total_event_cpu_ += curr_event_cpu_;
+
+      curr_event_time_ = getTime() - curr_event_time_;
+      
       if (not summary_only_) {
         edm::LogAbsolute("TimeEvent")
 	<< "TimeEvent> "
 	<< curr_event_.event() << " "
 	<< curr_event_.run() << " "
-	<< t;
+	<< curr_event_time_ << " "
+	<< curr_event_cpu_ << " "
+	<< total_event_cpu_;
       }
       if (total_event_count_ == 0) {
-	max_event_time_ = t;
-        min_event_time_ = t;
+	max_event_time_ = curr_event_time_;
+        min_event_time_ = curr_event_time_;
+	max_event_cpu_ = curr_event_cpu_;
+        min_event_cpu_ = curr_event_cpu_;
       }
       
-      if (t > max_event_time_) max_event_time_ = t;
-      if (t < min_event_time_) min_event_time_ = t;
+      if (curr_event_time_ > max_event_time_) max_event_time_ = curr_event_time_;
+      if (curr_event_time_ < min_event_time_) min_event_time_ = curr_event_time_;
+      if (curr_event_cpu_ > max_event_cpu_) max_event_cpu_ = curr_event_cpu_;
+      if (curr_event_cpu_ < min_event_cpu_) min_event_cpu_ = curr_event_cpu_;
       total_event_count_ = total_event_count_ + 1;
     }
 
@@ -149,6 +214,7 @@ namespace edm {
    
       newMeasurementSignal(desc,t);
     }
-
   }
 }
+
+

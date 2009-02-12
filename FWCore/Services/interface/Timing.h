@@ -7,8 +7,19 @@
 // 
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Timing.h,v 1.5 2006/12/20 00:22:46 wmtan Exp $
+// $Id: Timing.h,v 1.6 2007/03/04 05:55:26 wmtan Exp $
 //
+
+/*
+
+Changes Log 1: 2009/01/14 10:29:00, Natalia Garcia Nebot
+	Modified the service to add some new measurements:
+		- Average time per event (cpu and wallclock)
+                - Fastest time per event (cpu and wallclock)
+                - Slowest time per event (cpu and wallclock)
+*/
+
+
 #include "sigc++/signal.h"
 
 #include "DataFormats/Provenance/interface/EventID.h"
@@ -38,9 +49,12 @@ namespace edm {
       void postModule(const ModuleDescription&);
 
       EventID curr_event_;
-      double curr_job_; // seconds
+      double curr_job_time_; // seconds
+      double curr_job_cpu_; // seconds
       double curr_event_time_;  // seconds
+      double curr_event_cpu_; // seconds
       double curr_module_time_; // seconds
+      double total_event_cpu_; // seconds
       bool summary_only_;
       bool report_summary_;
       
@@ -48,7 +62,9 @@ namespace edm {
        // Min Max and average event times for summary
       //  at end of job
       double max_event_time_;    // seconds
+      double max_event_cpu_; // seconds
       double min_event_time_;    // seconds
+      double min_event_cpu_; // seconds
       int total_event_count_; 
     };
   }

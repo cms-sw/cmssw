@@ -19,8 +19,17 @@ through the MessageLogger.
 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.h,v 1.26 2008/07/22 14:00:11 evansde Exp $
+// $Id: JobReport.h,v 1.27 2008/09/29 19:14:03 evansde Exp $
 //
+
+
+/*
+
+Changes Log 1: 2009/01/14 10:29:00, Natalia Garcia Nebot
+	Modified and added some methods to report CPU and memory information from /proc/cpuinfo
+	and /proc/meminfo files and Memory statistics 
+
+*/
 
 #include <cstddef>
 #include <string>
@@ -397,7 +406,7 @@ namespace edm {
       /// Invoked by the Memory service to send an end of job 
       /// summary about memory usage for inclusion in the job report
       ///
-      void reportMemoryInfo(std::map<std::string, double> const& memoryData);
+      void reportMemoryInfo(std::map<std::string, double> const& memoryData, std::map<std::string, double> const& memoryProperties);
 
       ///
       /// Report Memory statistics
@@ -406,6 +415,21 @@ namespace edm {
       /// summary about memory usage for inclusion in the job report
       ///
       void reportMemoryInfo(std::vector<std::string> const& memoryData);
+
+      ///
+      /// Report CPU information from /proc/cpuinfo file in the system
+      /// Invoked by the CPU service to send an end of job
+      /// summary about cpu information for inclusion in the job report
+      ///
+      void reportCPUInfo(std::map<std::string, std::map<std::string, std::string> > const& CPUData);
+      ///
+      /// Report Memory statistics
+      /// Invoked by the Memory service to send at the end of the job
+      /// summary about the machine's memory propertiese for inclusion in the job report
+      /// in Memory Statistics section
+      ///
+      void reportMachineMemoryProperties(std::map<std::string, double> const& memoryProperties);
+
 
       ///
       /// Report Message statistics

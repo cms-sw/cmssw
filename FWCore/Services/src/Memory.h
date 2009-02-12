@@ -7,13 +7,16 @@
 // 
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Memory.h,v 1.5 2008/04/24 22:28:29 fischler Exp $
+// $Id: Memory.h,v 1.6 2008/06/20 20:55:48 fischler Exp $
 //
 // Change Log
 //
 // 1 - Apr 25, 2008 M. Fischler
 //	Data structures for Event summary statistics, 
 //
+// 2 - Jan 14, 2009 Natalia Garcia Nebot
+//      Added:  - Average rate of growth in RSS and peak value attained.
+//              - Average rate of growth in VSize over time, Peak VSize
 
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -71,6 +74,7 @@ namespace edm {
     private:
       procInfo fetch();
       double pageSize() const { return pg_size_; }
+      double averageGrowthRate(double current, double past, int count);
       void update();
       void updateMax();
       void andPrint(const std::string& type,
@@ -93,6 +97,10 @@ namespace edm {
       bool showMallocInfo;
       bool oncePerEventMode;
       int count_;
+
+      //Rates of growth
+      double growthRateVsize_;
+      double growthRateRss_;
 
       // Event summary statistics 				changeLog 1
       struct SignificantEvent {
@@ -117,6 +125,22 @@ namespace edm {
       friend class SignificantEvent;
       friend std::ostream & operator<< (std::ostream & os, 
     		SimpleMemoryCheck::SignificantEvent const & se); 
+
+      /* 
+        Significative events for deltaVsize:
+	- eventM_: Event which makes the biggest value for deltaVsize
+	- eventL1_: Event which makes the second biggest value for deltaVsize
+	- eventL2_: Event which makes the third biggest value for deltaVsize
+	- eventR1_: Event which makes the second biggest value for deltaVsize
+	- eventR2_: Event which makes the third biggest value for deltaVsize
+	M>L1>L2 and M>R1>R2
+		Unknown relation between Ls and Rs events ???????
+        Significative events for vsize:
+	- eventT1_: Event whith the biggest value for vsize
+        - eventT2_: Event whith the second biggest value for vsize
+        - eventT3_: Event whith the third biggest value for vsize
+	T1>T2>T3
+       */
       SignificantEvent eventM_;  
       SignificantEvent eventL1_; 
       SignificantEvent eventL2_; 
@@ -125,12 +149,33 @@ namespace edm {
       SignificantEvent eventT1_; 
       SignificantEvent eventT2_; 
       SignificantEvent eventT3_; 
+
+      /*
+	Significative event for deltaRss:
+        - eventRssT1_: Event whith the biggest value for rss
+        - eventRssT2_: Event whith the second biggest value for rss
+        - eventRssT3_: Event whith the third biggest value for rss
+	T1>T2>T3
+	Significative events for deltaRss:
+        - eventDeltaRssT1_: Event whith the biggest value for deltaRss
+        - eventDeltaRssT2_: Event whith the second biggest value for deltaRss
+        - eventDeltaRssT3_: Event whith the third biggest value for deltaRss
+        T1>T2>T3
+       */
+      SignificantEvent eventRssT1_;
+      SignificantEvent eventRssT2_;
+      SignificantEvent eventRssT3_;
+      SignificantEvent eventDeltaRssT1_;
+      SignificantEvent eventDeltaRssT2_;
+      SignificantEvent eventDeltaRssT3_;
+
+
       void updateEventStats(edm::EventID const & e);
       std::string eventStatOutput(std::string title, 
       				  SignificantEvent const& e) const;
       void eventStatOutput(std::string title, 
     			   SignificantEvent const& e,
-			   std::map<std::string, double> &m) const;
+			   std::map<std::string, std::string> &m) const;
       std::string mallOutput(std::string title, size_t const& n) const;
 
       // Module summary statistices

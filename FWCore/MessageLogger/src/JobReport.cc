@@ -17,9 +17,16 @@
 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.cc,v 1.43 2008/09/29 19:14:03 evansde Exp $
+// $Id: JobReport.cc,v 1.44 2008/09/30 21:42:21 evansde Exp $
 //
 
+/*
+
+Changes Log 1: 2009/01/14 10:29:00, Natalia Garcia Nebot
+        Modified and added some methods to report CPU and memory information from /proc/cpuinfo
+        and /proc/meminfo files and Memory statistics
+
+*/
 
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -267,7 +274,7 @@ namespace edm
  	    *ost_ <<"\n</Input>";
  	}
  	*ost_ << "\n</Inputs>";
- 	*ost_ << "\n</File>";
+ 	*ost_ << "\n</File>\n";
       }
     }
 
@@ -789,7 +796,7 @@ namespace edm
   }
 
   void
-  JobReport::reportMemoryInfo(std::map<std::string, double> const& memoryData){
+  JobReport::reportMemoryInfo(std::map<std::string, double> const& memoryData, std::map<std::string, double> const& memoryProperties){
 
     if(impl_->ost_) {
       std::ostream& msg=*(impl_->ost_);
@@ -800,6 +807,8 @@ namespace edm
         <<  "  Value=\"" << pos->second  << "\" />"
         <<  "\n";
       }
+
+      reportMachineMemoryProperties(memoryProperties);
       msg << "</MemoryService>\n";
       msg << std::flush;
     }
@@ -817,6 +826,42 @@ namespace edm
         msg << *pos << "\n";
       }
       msg << "</MemoryService>\n";
+      msg << std::flush;
+    }
+  }
+
+  void JobReport::reportCPUInfo(std::map<std::string, std::map<std::string, std::string> > const& CPUData){
+
+    if(impl_->ost_) {
+      std::ostream& msg=*(impl_->ost_);
+      msg << "<CPUService>\n";
+
+      std::map<std::string, std::map<std::string, std::string> >::const_iterator core_pos;
+      std::map<std::string, std::string>::const_iterator property_pos;
+
+      for (core_pos = CPUData.begin(); core_pos != CPUData.end(); ++core_pos){
+	msg << "  <CPUCore Core=\"" << core_pos->first << "\">\n";
+      	for (property_pos = core_pos->second.begin(); property_pos != core_pos->second.end(); ++property_pos){
+       	    msg <<  "    <Property Name=\"" << property_pos->first << "\">" << property_pos->second << "</Property>\n";
+        }
+	msg << "  </CPUCore>\n";
+      }
+
+      msg << "</CPUService>\n";
+      msg << std::flush;
+    }
+  }
+
+  void
+  JobReport::reportMachineMemoryProperties(std::map<std::string, double> const& memoryProperties){
+    if(impl_->ost_) {
+      std::ostream& msg=*(impl_->ost_);
+      msg << "  <Memory>\n";
+      std::map<std::string, double>::const_iterator pos;
+      for (pos = memoryProperties.begin(); pos != memoryProperties.end(); ++pos){
+       msg <<  "    <Property Name=\"" << pos->first << "\">" << pos->second << "</Property>\n";
+      }
+      msg << "  </Memory>\n";
       msg << std::flush;
     }
   }

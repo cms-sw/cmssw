@@ -6,6 +6,7 @@
 #include "FWCore/Services/src/JobReportService.h"
 #include "FWCore/Services/interface/Timing.h"
 #include "FWCore/Services/src/Memory.h"
+#include "FWCore/Services/src/CPU.h"
 #include "FWCore/Services/src/Profiling.h"
 #include "FWCore/Services/src/LoadAllDictionaries.h"
 #include "FWCore/Services/src/EnableFloatingPointExceptions.h"
@@ -18,6 +19,7 @@ using edm::service::JobReportService;
 using edm::service::Tracer;
 using edm::service::Timing;
 using edm::service::SimpleMemoryCheck;
+using edm::service::CPU;
 using edm::service::SimpleProfiling;
 using edm::service::LoadAllDictionaries;
 using edm::service::SiteLocalConfigService;
@@ -29,7 +31,7 @@ using edm::rootfix::LockService;
 DEFINE_FWK_SERVICE(Tracer);
 DEFINE_FWK_SERVICE(Timing);
 DEFINE_FWK_SERVICE(UpdaterService);
-
+DEFINE_FWK_SERVICE(CPU);
 
 typedef edm::serviceregistry::NoArgsMaker<PrintLoadingPlugins> PrintLoadingPluginsMaker;
 DEFINE_FWK_SERVICE_MAKER(PrintLoadingPlugins, PrintLoadingPluginsMaker);

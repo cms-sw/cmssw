@@ -1,12 +1,12 @@
 // -*- C++ -*-
 //
 // Package:     Services
-// Class  :     Timing
+// Class  :     Memory
 // 
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Memory.cc,v 1.17 2008/10/08 22:11:44 wmtan Exp $
+// $Id: Memory.cc,v 1.18 2008/12/20 17:39:56 wmtan Exp $
 //
 // Change Log
 //
@@ -17,6 +17,12 @@
 // 2 - May 7, 2008 M. Fischler
 //      Collect module summary information and output to XML file and logger
 //	at the end of the job.
+//
+// 3 - Jan 14, 2009 Natalia Garcia Nebot
+//	Added:	- Average rate of growth in RSS and peak value attained.
+//		- Average rate of growth in VSize over time, Peak VSize
+//
+//
 
 #include "FWCore/Services/src/Memory.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
@@ -31,6 +37,10 @@
 #include <malloc.h>
 #include <sstream>
 #include <iostream>
+#include <string>
+#include <stdio.h>
+#include <string.h>
+#include <cstring>
 
 #ifdef __linux__
 #define LINUX 1
@@ -42,6 +52,17 @@
 namespace edm {
   namespace service {
 
+    static std::string d2str(double d){
+	std::ostringstream t;
+	t << d;
+	return t.str();
+    }
+
+    static std::string i2str(int i){
+	std::ostringstream t;
+	t << i;
+	return t.str();
+    }
 
     struct linux_proc {
       int pid; // %d
@@ -154,6 +175,11 @@ namespace edm {
 #endif
       return ret;
     }
+
+
+    double SimpleMemoryCheck::averageGrowthRate(double current, double past, int count) {
+	return (current-past)/(double)count;
+    }
     
     SimpleMemoryCheck::SimpleMemoryCheck(const ParameterSet& iPS,
 					 ActivityRegistry&iReg)
@@ -167,6 +193,8 @@ namespace edm {
     , oncePerEventMode
       	(iPS.getUntrackedParameter<bool>("oncePerEventMode",false))
     , count_()
+    , growthRateVsize_()
+    , growthRateRss_()
     , moduleSummaryRequested
         (iPS.getUntrackedParameter<bool>("moduleMemorySummary",false))
 								// changelog 2
@@ -199,6 +227,8 @@ namespace edm {
              &SimpleMemoryCheck::postEventProcessing);
         iReg.watchPostModule(this,
              &SimpleMemoryCheck::postModule);
+        iReg.watchPostBeginJob(this,
+             &SimpleMemoryCheck::postBeginJob);
         iReg.watchPostEndJob(this,
              &SimpleMemoryCheck::postEndJob);
       } else { 
@@ -267,6 +297,8 @@ namespace edm {
 
     void SimpleMemoryCheck::postBeginJob()
     {
+        growthRateVsize_ = current_->vsize;
+        growthRateRss_ = current_->rss;
     }
  
     void SimpleMemoryCheck::preSourceConstruction(const ModuleDescription& md) 
@@ -343,7 +375,8 @@ namespace edm {
 								// changelog 1
 #define SIMPLE_MEMORY_CHECK_ORIGINAL_XML_OUTPUT
 #ifdef  SIMPLE_MEMORY_CHECK_ORIGINAL_XML_OUTPUT
-     std::map<std::string, double> reportData;
+//     std::map<std::string, double> reportData;
+	std::map<std::string, std::string> reportData;
 
       if (eventL2_.vsize > 0) 
       	eventStatOutput("LargeVsizeIncreaseEventL2", eventL2_, reportData);
@@ -357,26 +390,49 @@ namespace edm {
       	eventStatOutput("LargeVsizeIncreaseEventR2", eventR2_, reportData);
       if (eventT3_.vsize > 0) 
       	eventStatOutput("ThirdLargestVsizeEventT3",  eventT3_, reportData);
-      if (eventT3_.vsize > 0) 
+      if (eventT2_.vsize > 0) 
       	eventStatOutput("SecondLargestVsizeEventT2", eventT2_, reportData);
-      if (eventT3_.vsize > 0)
+      if (eventT1_.vsize > 0)
       	eventStatOutput("LargestVsizeEventT1",       eventT1_, reportData);
-      
+
+      if (eventRssT3_.rss > 0)
+        eventStatOutput("ThirdLargestRssEvent", eventRssT3_, reportData);
+      if (eventRssT2_.rss > 0)
+        eventStatOutput("SecondLargestRssEvent", eventRssT2_, reportData);
+      if (eventRssT1_.rss > 0)
+        eventStatOutput("LargestRssEvent", eventRssT1_, reportData);
+      if (eventDeltaRssT3_.deltaRss > 0)
+        eventStatOutput("ThirdLargestIncreaseRssEvent", eventDeltaRssT3_, reportData);
+      if (eventDeltaRssT2_.deltaRss > 0)
+        eventStatOutput("SecondLargestIncreaseRssEvent", eventDeltaRssT2_, reportData);
+      if (eventDeltaRssT1_.deltaRss > 0)
+        eventStatOutput("LargestIncreaseRssEvent", eventDeltaRssT1_, reportData);
+     
       struct mallinfo minfo = mallinfo();
       reportData.insert(
-        std::make_pair("HEAP_ARENA_SIZE_BYTES", minfo.arena));  
+        std::make_pair("HEAP_ARENA_SIZE_BYTES", i2str(minfo.arena)));  
       reportData.insert(
-        std::make_pair("HEAP_ARENA_N_UNUSED_CHUNKS", minfo.ordblks));  
+        std::make_pair("HEAP_ARENA_N_UNUSED_CHUNKS", i2str(minfo.ordblks)));  
       reportData.insert(
-        std::make_pair("HEAP_TOP_FREE_BYTES", minfo.keepcost));  
+        std::make_pair("HEAP_TOP_FREE_BYTES", i2str(minfo.keepcost)));  
       reportData.insert(
-        std::make_pair("HEAP_MAPPED_SIZE_BYTES", minfo.hblkhd));  
+        std::make_pair("HEAP_MAPPED_SIZE_BYTES", i2str(minfo.hblkhd)));  
       reportData.insert(
-        std::make_pair("HEAP_MAPPED_N_CHUNKS", minfo.hblks));  
+        std::make_pair("HEAP_MAPPED_N_CHUNKS", i2str(minfo.hblks)));  
       reportData.insert(
-        std::make_pair("HEAP_USED_BYTES", minfo.uordblks));  
+        std::make_pair("HEAP_USED_BYTES", i2str(minfo.uordblks)));  
       reportData.insert(
-        std::make_pair("HEAP_UNUSED_BYTES", minfo.fordblks));  
+        std::make_pair("HEAP_UNUSED_BYTES", i2str(minfo.fordblks)));  
+
+      // Report Growth rates for VSize and Rss
+      reportData.insert(
+        std::make_pair("AverageGrowthRateVsize", d2str(averageGrowthRate(current_->vsize, growthRateVsize_, count_))));     
+      reportData.insert(
+        std::make_pair("PeakValueVsize", d2str(eventT1_.vsize)));
+      reportData.insert(
+        std::make_pair("AverageGrowthRateRss", d2str(averageGrowthRate(current_->rss, growthRateRss_, count_))));
+      reportData.insert(
+        std::make_pair("PeakValueRss", d2str(eventRssT1_.rss)));
 
       if (moduleSummaryRequested) {				// changelog 2
 	for (SignificantModulesMap::iterator im=modules_.begin(); 
@@ -385,24 +441,46 @@ namespace edm {
 	  if ( m.totalDeltaVsize == 0 && m.totalEarlyVsize == 0 ) continue;
 	  std::string label = im->first+":";
       	  reportData.insert(
-            std::make_pair(label+"PostEarlyCount", m.postEarlyCount));  
+            std::make_pair(label+"PostEarlyCount", i2str(m.postEarlyCount)));  
 	  if ( m.postEarlyCount > 0 ) {
       	    reportData.insert(
               std::make_pair(label+"AverageDeltaVsize", 
-	      m.totalDeltaVsize/m.postEarlyCount));  
+	      d2str(m.totalDeltaVsize/m.postEarlyCount)));  
 	  }
       	  reportData.insert(
-              std::make_pair(label+"MaxDeltaVsize",m.maxDeltaVsize));  
+              std::make_pair(label+"MaxDeltaVsize", d2str(m.maxDeltaVsize)));  
 	  if ( m.totalEarlyVsize > 0 ) {
       	    reportData.insert(
-              std::make_pair(label+"TotalEarlyVsize", m.totalEarlyVsize));  
+              std::make_pair(label+"TotalEarlyVsize", d2str(m.totalEarlyVsize)));  
       	    reportData.insert(
-              std::make_pair(label+"MaxEarlyDeltaVsize", m.maxEarlyVsize));  
+              std::make_pair(label+"MaxEarlyDeltaVsize", d2str(m.maxEarlyVsize)));  
 	  }
 	}
       } 
+
+      std::map<std::string, std::string> reportMemoryProperties;
+
+      if (FILE *fmeminfo = fopen("/proc/meminfo", "r")){
+	char buf[128];
+	char space[] = " ";
+	size_t value;
+
+	while (fgets(buf, sizeof(buf), fmeminfo)){
+	  char *token = NULL;
+	  token = strtok(buf, space);
+	  if (token != NULL){
+	    value = atol(strtok(NULL, space));
+	    std::string category = token;
+	    reportMemoryProperties.insert(std::make_pair(category.substr(0,strlen(token)-1), i2str(value)));
+	  }
+	}
+
+	fclose(fmeminfo);
+      }
 	
-      reportSvc->reportMemoryInfo(reportData);
+//      reportSvc->reportMemoryInfo(reportData, reportMemoryProperties);
+	reportSvc->reportPerformanceSummary("ApplicationMemory", reportData);
+	reportSvc->reportPerformanceSummary("SystemMemory", reportMemoryProperties);
 #endif
 
 #ifdef SIMPLE_MEMORY_CHECK_DIFFERENT_XML_OUTPUT
@@ -420,10 +498,23 @@ namespace edm {
       	eventStatOutput("LargeVsizeIncreaseEventR2", eventR2_));
       if (eventT3_.vsize > 0) reportData.push_back(
       	eventStatOutput("ThirdLargestVsizeEventT3", eventT3_));
-      if (eventT3_.vsize > 0) reportData.push_back(
+      if (eventT2_.vsize > 0) reportData.push_back(
       	eventStatOutput("SecondLargestVsizeEventT2", eventT2_));
-      if (eventT3_.vsize > 0) reportData.push_back(
+      if (eventT1_.vsize > 0) reportData.push_back(
       	eventStatOutput("LargestVsizeEventT1", eventT1_));
+
+      if (eventRssT3_.rss > 0)
+        eventStatOutput("ThirdLargestRssEvent", eventRssT3_, reportData);
+      if (eventRssT2_.rss > 0)
+        eventStatOutput("SecondLargestRssEvent", eventRssT2_, reportData);
+      if (eventRssT1_.rss > 0)
+        eventStatOutput("LargestRssEvent", eventRssT1_, reportData);
+      if (eventDeltaRssT3_.deltaRss > 0)
+        eventStatOutput("ThirdLargestIncreaseRssEvent", eventDeltaRssT3_, reportData);
+      if (eventDeltaRssT2_.deltaRss > 0)
+        eventStatOutput("SecondLargestIncreaseRssEvent", eventDeltaRssT2_, reportData);
+      if (eventDeltaRssT1_.deltaRss > 0)
+        eventStatOutput("LargestIncreaseRssEvent", eventDeltaRssT1_, reportData);
       
       struct mallinfo minfo = mallinfo();
       reportData.push_back(
@@ -441,6 +532,16 @@ namespace edm {
       reportData.push_back(
         mallOutput("HEAP_UNUSED_BYTES", minfo.fordblks));  
 	
+      // Report Growth rates for VSize and Rss
+      reportData.insert(
+        std::make_pair("AverageGrowthRateVsize", d2str(averageGrowthRate(current_->vsize, growthRateVsize_, count_))));
+      reportData.insert(
+        std::make_pair("PeakValueVsize", d2str(eventT1_.vsize)));
+      reportData.insert(
+        std::make_pair("AverageGrowthRateRss", d2str(averageGrowthRate(current_->rss, growthRateRss_, count_))));
+      reportData.insert(
+        std::make_pair("PeakValueRss", d2str(eventRssT1_.rss)));
+
       reportSvc->reportMemoryInfo(reportData);
       // This is a form of reportMemoryInfo taking s vector, not a map
 #endif
@@ -505,16 +606,28 @@ namespace edm {
       if (count_ == num_to_skip_) {
 	eventT1_.set(0, 0, e, this);
 	eventM_.set (0, 0, e, this);
+	eventRssT1_.set(0, 0, e, this);
+	eventDeltaRssT1_.set(0, 0, e, this);
         return;
       }
       double vsize = current_->vsize;
-      double deltaVsize = vsize -  eventT1_.vsize;
+      double deltaVsize = vsize - eventT1_.vsize;
+
+      // Update significative events for Vsize
       if (vsize > eventT1_.vsize) {
 	double deltaRss = current_->rss - eventT1_.rss;
         eventT3_ = eventT2_;
         eventT2_ = eventT1_;
 	eventT1_.set(deltaVsize, deltaRss, e, this);
+      } else if(vsize > eventT2_.vsize) {
+        double deltaRss = current_->rss - eventT1_.rss;
+	eventT3_ = eventT2_;
+        eventT2_.set(deltaVsize, deltaRss, e, this);
+      } else if(vsize > eventT3_.vsize) {
+        double deltaRss = current_->rss - eventT1_.rss;
+        eventT3_.set(deltaVsize, deltaRss, e, this);
       }
+
       if (deltaVsize > eventM_.deltaVsize) {
 	double deltaRss = current_->rss - eventM_.rss;
         if (eventL1_.deltaVsize >= eventR1_.deltaVsize) {
@@ -533,6 +646,31 @@ namespace edm {
       } else if (deltaVsize > eventR2_.deltaVsize) {
 	double deltaRss = current_->rss - eventR1_.rss;
 	eventR2_.set(deltaVsize, deltaRss, e, this);
+      }
+
+      // Update significative events for Rss
+      double rss = current_->rss;
+      double deltaRss = rss - eventRssT1_.rss;
+
+      if(rss > eventRssT1_.rss){
+	eventRssT3_ = eventRssT2_;
+	eventRssT2_ = eventRssT1_;
+	eventRssT1_.set(deltaVsize, deltaRss, e, this);
+      } else if(rss > eventRssT2_.rss) {
+	eventRssT3_ = eventRssT2_;
+	eventRssT2_.set(deltaVsize, deltaRss, e, this);
+      } else if(rss > eventRssT3_.rss) {
+	eventRssT3_.set(deltaVsize, deltaRss, e, this);
+      }
+      if(deltaRss > eventDeltaRssT1_.deltaRss) {
+        eventDeltaRssT3_ = eventDeltaRssT2_;
+        eventDeltaRssT2_ = eventDeltaRssT1_;
+        eventDeltaRssT1_.set(deltaVsize, deltaRss, e, this);
+      } else if(deltaRss > eventDeltaRssT2_.deltaRss) {
+        eventDeltaRssT3_ = eventDeltaRssT2_;
+        eventDeltaRssT2_.set(deltaVsize, deltaRss, e, this);
+      } else if(deltaRss > eventDeltaRssT3_.deltaRss) {
+        eventDeltaRssT3_.set(deltaVsize, deltaRss, e, this);
       }
     }	// updateEventStats
       
@@ -583,28 +721,26 @@ namespace edm {
     void
     SimpleMemoryCheck::eventStatOutput(std::string title, 
     				       SignificantEvent const& e,
-				       std::map<std::string, double> &m) const
+				       std::map<std::string, std::string> &m) const
     {
       { std::ostringstream os;
         os << title << "-a-COUNT";
-        m.insert(std::make_pair(os.str(), e.count)); }
+        m.insert(std::make_pair(os.str(), i2str(e.count))); }
       { std::ostringstream os;
         os << title << "-b-RUN";
-        m.insert(std::make_pair(os.str(), static_cast<double>
-						(e.event.run()) )); }
+        m.insert(std::make_pair(os.str(), d2str(static_cast<double>(e.event.run())) )); }
       { std::ostringstream os;
         os << title << "-c-EVENT";
-        m.insert(std::make_pair(os.str(), static_cast<double>
-						(e.event.event()) )); }
+        m.insert(std::make_pair(os.str(), d2str(static_cast<double>(e.event.event())) )); }
       { std::ostringstream os;
         os << title << "-d-VSIZE";
-        m.insert(std::make_pair(os.str(), e.vsize)); }
+        m.insert(std::make_pair(os.str(), d2str(e.vsize))); }
       { std::ostringstream os;
         os << title << "-e-DELTV";
-        m.insert(std::make_pair(os.str(), e.deltaVsize)); }
+        m.insert(std::make_pair(os.str(), d2str(e.deltaVsize))); }
       { std::ostringstream os;
         os << title << "-f-RSS";
-        m.insert(std::make_pair(os.str(), e.rss)); }
+        m.insert(std::make_pair(os.str(), d2str(e.rss))); }
     } // eventStatOutput
 #endif
 
@@ -678,9 +814,6 @@ namespace edm {
 	
       return os;
     }
-      
-      
-
 
   } // end namespace service
 } // end namespace edm
