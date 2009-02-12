@@ -1,6 +1,6 @@
 #ifndef DataFormats_Common_OwnVector_h
 #define DataFormats_Common_OwnVector_h
-// $Id: OwnVector.h,v 1.35 2007/12/21 22:42:30 wmtan Exp $
+// $Id: OwnVector.h,v 1.36 2008/03/31 21:12:11 wmtan Exp $
 
 #include <algorithm>
 #include <functional>
@@ -35,39 +35,40 @@ namespace edm {
   public:
     typedef typename base::size_type size_type;
     typedef T value_type;
-    typedef T * pointer;
-    typedef T & reference;
-    typedef const T & const_reference;
+    typedef T* pointer;
+    typedef T& reference;
+    typedef T const& const_reference;
     typedef P policy_type;
       
     class iterator;
     class const_iterator {
     public:
       typedef T value_type;
-      typedef T * pointer;
-      typedef T & reference;
+      typedef T* pointer;
+      typedef T const& reference; 
       typedef ptrdiff_t difference_type;
       typedef typename base::const_iterator::iterator_category iterator_category;
-      const_iterator(const typename base::const_iterator & it) : i(it) { }
-      const_iterator(const const_iterator & it) : i(it.i) { }
-      const_iterator(const iterator & it) : i(it.i) { }
+      const_iterator(typename base::const_iterator const& it) : i(it) { }
+      const_iterator(const_iterator const& it) : i(it.i) { }
+      const_iterator(iterator const& it) : i(it.i) { }
       const_iterator() {}
-      const_iterator & operator=(const const_iterator & it) { i = it.i; return *this; }
+      const_iterator& operator=(const_iterator const& it) { i = it.i; return *this; }
       const_iterator& operator++() { ++i; return *this; }
       const_iterator operator++(int) { const_iterator ci = *this; ++i; return ci; }
       const_iterator& operator--() { --i; return *this; }
       const_iterator operator--(int) { const_iterator ci = *this; --i; return ci; }
-      difference_type operator-(const const_iterator & o) const { return i - o.i; }
+      difference_type operator-(const_iterator const& o) const { return i - o.i; }
       const_iterator operator+(difference_type n) const { return const_iterator(i + n); }
       const_iterator operator-(difference_type n) const { return const_iterator(i - n); }
-      bool operator<(const const_iterator & o) const { return i < o.i; }
-      bool operator==(const const_iterator& ci) const { return i == ci.i; }
-      bool operator!=(const const_iterator& ci) const { return i != ci.i; }
-      const T & operator *() const { return **i; }
-      //    operator const T *() const { return & **i; }
-      const T * operator->() const { return & (operator*()); }
+      bool operator<(const_iterator const& o) const { return i < o.i; }
+      bool operator==(const_iterator const& ci) const { return i == ci.i; }
+      bool operator!=(const_iterator const& ci) const { return i != ci.i; }
+      T const& operator *() const { return **i; }
+      //    operator T const*() const { return & **i; }
+      T const* operator->() const { return & (operator*()); }
       const_iterator & operator +=(difference_type d) { i += d; return *this; }
       const_iterator & operator -=(difference_type d) { i -= d; return *this; }
+      reference operator[](difference_type d) const { return *const_iterator(i+d); } // for boost::iterator_range []
     private:
       typename base::const_iterator i;
     };
@@ -78,35 +79,36 @@ namespace edm {
       typedef T & reference;
       typedef ptrdiff_t difference_type;
       typedef typename base::iterator::iterator_category iterator_category;
-      iterator(const typename base::iterator & it) : i(it) { }
-      iterator(const iterator & it) : i(it.i) { }
+      iterator(typename base::iterator const& it) : i(it) { }
+      iterator(iterator const& it) : i(it.i) { }
       iterator() {}
-      iterator & operator=(const iterator & it) { i = it.i; return *this; }
+      iterator & operator=(iterator const& it) { i = it.i; return *this; }
       iterator& operator++() { ++i; return *this; }
       iterator operator++(int) { iterator ci = *this; ++i; return ci; }
       iterator& operator--() { --i; return *this; }
       iterator operator--(int) { iterator ci = *this; --i; return ci; }
-      difference_type operator-(const iterator & o) const { return i - o.i; }
+      difference_type operator-(iterator const& o) const { return i - o.i; }
       iterator operator+(difference_type n) const { return iterator(i + n); }
       iterator operator-(difference_type n) const { return iterator(i - n); }
-      bool operator<(const iterator & o) const { return i < o.i; }
-      bool operator==(const iterator& ci) const { return i == ci.i; }
-      bool operator!=(const iterator& ci) const { return i != ci.i; }
+      bool operator<(iterator const& o) const { return i < o.i; }
+      bool operator==(iterator const& ci) const { return i == ci.i; }
+      bool operator!=(iterator const& ci) const { return i != ci.i; }
       T & operator *() const { return **i; }
       //    operator T *() const { return & **i; }
       //T *& get() { return *i; }
       T * operator->() const { return & (operator*()); }
       iterator & operator +=(difference_type d) { i += d; return *this; }
       iterator & operator -=(difference_type d) { i -= d; return *this; }
+      reference operator[](difference_type d) const { return *iterator(i+d); } // for boost::iterator_range []
     private:
       typename base::iterator i;
-      friend const_iterator::const_iterator(const iterator &);
+      friend const_iterator::const_iterator(iterator const&);
       friend class OwnVector<T, P>;
    };
       
     OwnVector();
     OwnVector(size_type);
-    OwnVector(const OwnVector &);
+    OwnVector(OwnVector const&);
     ~OwnVector();
       
     iterator begin();
@@ -118,19 +120,20 @@ namespace edm {
     reference operator[](size_type);
     const_reference operator[](size_type) const;
       
-    OwnVector<T, P> & operator=(const OwnVector<T, P> &);
+    OwnVector<T, P> & operator=(OwnVector<T, P> const&);
       
     void reserve(size_t);
     template <typename D> void push_back(D*& d);
-    template <typename D> void push_back(D* const&  d);
+    template <typename D> void push_back(D* const& d);
     template <typename D> void push_back(std::auto_ptr<D> d);
+    void push_back(T const& valueToCopy);
     bool is_back_safe() const;
     void pop_back();
     reference back();
     const_reference back() const;
     reference front();
     const_reference front() const;
-    const base & data() const; 
+    base const& data() const; 
     void clear();
     iterator erase(iterator pos);
     iterator erase(iterator first, iterator last);
@@ -148,15 +151,15 @@ namespace edm {
     void destroy();
     template<typename O>
     struct Ordering {
-      Ordering(const O & c) : comp(c) { }
-      bool operator()(const T * t1, const T * t2) const {
+      Ordering(O const& c) : comp(c) { }
+      bool operator()(T const* t1, T const* t2) const {
 	return comp(*t1, *t2);
       }
     private:
       O comp;
     };
     template<typename O>
-    static Ordering<O> ordering(const O & comp) {
+    static Ordering<O> ordering(O const& comp) {
       return Ordering<O>(comp);
     }
     base data_;      
@@ -174,7 +177,7 @@ namespace edm {
   }
   
   template<typename T, typename P>
-  inline OwnVector<T, P>::OwnVector(const OwnVector<T, P> & o) : data_(o.size()) {
+  inline OwnVector<T, P>::OwnVector(OwnVector<T, P> const& o) : data_(o.size()) {
     size_type current = 0;
     for (const_iterator i = o.begin(), e = o.end(); i != e; ++i,++current) 
       data_[current] = policy_type::clone(*i);
@@ -186,7 +189,7 @@ namespace edm {
   }
   
   template<typename T, typename P>
-  inline OwnVector<T, P> & OwnVector<T, P>::operator=(const OwnVector<T, P> & o) {
+  inline OwnVector<T, P> & OwnVector<T, P>::operator=(OwnVector<T, P> const& o) {
     OwnVector<T,P> temp(o);
     swap(temp);
     fixup_ = o.fixup_;
@@ -279,6 +282,13 @@ namespace edm {
 
 
   template<typename T, typename P>
+  inline void OwnVector<T, P>::push_back(T const& d) {
+    data_.push_back(policy_type::clone(d));
+    touch();
+  }
+
+
+  template<typename T, typename P>
   inline void OwnVector<T, P>::pop_back() {
     // We have to delete the pointed-to thing, before we squeeze it
     // out of the vector...
@@ -342,7 +352,7 @@ namespace edm {
   }
   
   template<typename T, typename P>
-  inline const typename OwnVector<T, P>::base & OwnVector<T, P>::data() const {
+  inline typename OwnVector<T, P>::base const& OwnVector<T, P>::data() const {
     fixup();
     return data_;
   }
