@@ -77,7 +77,7 @@ namespace cms
 
     if( metTypeInputTag_.label() == "CaloMET")
       {
-	Handle<CaloMETCollection> inputUncorMet;                     //Define Inputs
+	Handle<View<reco::CaloMET> > inputUncorMet;
 	iEvent.getByLabel( uncorMETInputTag_, inputUncorMet  );     //Get Inputs
 	std::auto_ptr<CaloMETCollection> output( new CaloMETCollection() );  //Create empty output
 	
@@ -95,7 +95,7 @@ namespace cms
       }
     else
       {
-	Handle<METCollection> inputUncorMet;                     //Define Inputs
+	Handle<View<reco::MET> > inputUncorMet;                     //Define Inputs
 	iEvent.getByLabel( uncorMETInputTag_,  inputUncorMet );     //Get Inputs
 	std::auto_ptr<METCollection> output( new METCollection() );  //Create empty output
 	
