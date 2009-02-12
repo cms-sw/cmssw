@@ -150,7 +150,7 @@ int main(int ac, char *av[]) {
 	cout << "set functions" << endl;
 	typedef fit::HistoChiSquare<FitFunction> ChiSquared;
 	ChiSquared chi2(f, zMass, fMin, fMax);
-	int fullBins = chi2.degreesOfFreedom();
+	int fullBins = chi2.numberOfBins();
 	cout << "N. deg. of freedom: " << fullBins << endl;
 	fit::RootMinuit<ChiSquared> minuit(chi2, true);
 	minuit.addParameter(yield, 10, 100, 10000000);
@@ -215,7 +215,7 @@ int main(int ac, char *av[]) {
 	cout << "set functions" << endl;
 	typedef fit::HistoChiSquare<FitFunction> ChiSquared;
 	ChiSquared chi2(f, zMass, fMin, fMax);
-	int fullBins = chi2.degreesOfFreedom();
+	int fullBins = chi2.numberOfBins();
 	cout << "N. deg. of freedom: " << fullBins << endl;
 	fit::RootMinuit<ChiSquared> minuit(chi2, true);
 	minuit.addParameter(yield, 10, 100, 10000000);
@@ -290,7 +290,7 @@ int main(int ac, char *av[]) {
 	cout << "set functions" << endl;
 	typedef fit::HistoChiSquare<FitFunction> ChiSquared;
 	ChiSquared chi2(f, zMass, fMin, fMax);
-	int fullBins = chi2.degreesOfFreedom();
+	int fullBins = chi2.numberOfBins();
 	cout << "N. deg. of freedom: " << fullBins << endl;
 	fit::RootMinuit<ChiSquared> minuit(chi2, true);
 	minuit.addParameter(yield, 10, 100, 10000000);
