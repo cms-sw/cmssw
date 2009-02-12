@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre2/HLT/V57 (CMSSW_3_1_X_2009-02-05-0000_HLT1)
+# /dev/CMSSW_3_1_0/pre2/HLT/V84 (CMSSW_3_1_X_2009-02-05-0000_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/HLT/V57')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/HLT/V84')
 )
 
 block_hltDebugOutput = cms.PSet(
@@ -23,6 +23,7 @@ outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
   'keep *_hltL1NonIsoLargeWindowElectronPixelSeeds_*_*',
   'keep *_hltL1NonIsolatedPhotonEcalIsol_*_*',
   'keep *_hltL1IsoStartUpElectronTrackIsol_*_*',
+  'keep *_hltL1HLTDoubleLooseIsoTau15JetsMatch_*_*',
   'keep *_hltBSoftmuonL3BJetTagsByDR_*_*',
   'keep *_hltL1NonIsoEgammaRegionalPixelSeedGenerator_*_*',
   'keep *_hltL1NonIsoPhotonTrackIsol_*_*',
@@ -75,6 +76,7 @@ outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
   'keep *_hltMuonTauIsoL2IsoFilteredNoL1Tau_*_*',
   'keep *_hltCkfL1NonIsoStartUpTrackCandidates_*_*',
   'keep *_hltPixelMatchStartUpElectronsL1NonIso_*_*',
+  'keep *_hltL2TauNarrowConeIsolationProducer_*_*',
   'keep *_hltL3MuonIsolations_*_*',
   'keep *_hltL25TauJetTracksAssociator_*_*',
   'keep recoTracks_hltCtfL1IsoLargeWindowWithMaterialTracks_*_*',
@@ -88,6 +90,7 @@ outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
   'keep *_hltL1NonIsoStartUpElectronPixelSeeds_*_*',
   'keep recoTracks_hltL1NonIsoStartUpElectronsRegionalCTFFinalFitWithMaterial_*_*',
   'keep *_hltL1IsoStartUpElectronPixelSeeds_*_*',
+  'keep *_hltL3TauIsolationSelector_*_*',
   'keep *_hltMumuPixelSeedFromL2Candidate_*_*',
   'keep *_hltL1IsoStartUpElectronsRegionalPixelSeedGenerator_*_*',
   'keep *_hltPixelMatchStartUpElectronsL1Iso_*_*',
@@ -100,11 +103,15 @@ outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
   'keep *_hltMCJetCorJetIcone5Regional_*_*',
   'keep *_hltCkfL1IsoTrackCandidates_*_*',
   'keep recoTracks_hltL1IsoElectronsRegionalCTFFinalFitWithMaterial_*_*',
+  'keep *_hltL1HLTDoubleLooseIsoTau15Trk5JetsMatch_*_*',
   'keep *_hltIterativeCone5CaloJets_*_*',
+  'keep *_hltL3TauCtfWithMaterialTracks_*_*',
   'keep *_hltSiPixelRecHits_*_*',
   'keep recoTracks_hltCtfL1IsoStartUpWithMaterialTracks_*_*',
+  'keep *_hltL1HLTSingleIsoTau20JetsMatch_*_*',
   'keep *_hltBLifetimeL3Jets_*_*',
   'keep *_hltCtfWithMaterialTracksMumuk_*_*',
+  'keep *_hltL3TauConeIsolation_*_*',
   'keep recoTracks_hltL1NonIsoLargeWindowElectronsRegionalCTFFinalFitWithMaterial_*_*',
   'keep *_hltBLifetimeL3JetsRelaxed_*_*',
   'keep *_hltL25TauJetPixelTracksAssociator_*_*',
@@ -130,11 +137,13 @@ outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
   'keep recoTracks_hltL1IsoEgammaRegionalCTFFinalFitWithMaterial_*_*',
   'keep *_hltBSoftmuonL3BJetTags_*_*',
   'keep *_hltL1GtObjectMap_*_*',
+  'keep *_hltL3TauJetTracksAssociator_*_*',
   'keep *_hltMuonTauIsoL2IsoFiltered_*_*',
   'keep *_hltL1NonIsoElectronsRegionalCkfTrackCandidates_*_*',
   'keep *_hltL1NonIsoLargeWindowElectronsRegionalPixelSeedGenerator_*_*',
   'keep *_hltL1NonIsoStartupElectronTrackIsol_*_*',
   'keep *_hltL1IsoElectronTrackIsol_*_*',
+  'keep *_hltL1HLTSingleLooseIsoTau20JetsMatch_*_*',
   'keep *_hltL2Muons_*_*',
   'keep *_hltMCJetCorJetIcone5_*_*',
   'keep *_hltBLifetimeL3BJetTags_*_*',
