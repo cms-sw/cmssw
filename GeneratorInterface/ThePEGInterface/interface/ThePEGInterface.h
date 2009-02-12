@@ -2,7 +2,7 @@
 #define GeneratorInterface_ThePEGInterface_ThePEGInterface_h
 
 /** \class ThePEGInterface
- *  $Id: ThePEGInterface.h,v 1.6 2008/07/17 08:26:17 stober Exp $
+ *  $Id: ThePEGInterface.h,v 1.7 2009/02/11 19:34:52 saout Exp $
  *  
  *  Oliver Oberst <oberst@ekp.uni-karlsruhe.de>
  *  Fred-Markus Stober <stober@ekp.uni-karlsruhe.de>
@@ -10,6 +10,8 @@
 
 #include <memory>
 #include <string>
+
+#include <boost/shared_ptr.hpp>
 
 #include <HepMC/GenEvent.h>
 #include <HepMC/PdfInfo.h>
@@ -20,6 +22,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "GeneratorInterface/ThePEGInterface/interface/RandomEngineGlue.h"
+
 class ThePEGInterface {
     public:
 	ThePEGInterface(const edm::ParameterSet &params);
@@ -28,6 +32,7 @@ class ThePEGInterface {
     protected:
 	void initRepository(const edm::ParameterSet &params) const;
 	void initGenerator();
+	void flushRandomNumberGenerator();
 
 	static std::auto_ptr<HepMC::GenEvent>
 				convert(const ThePEG::EventPtr &event);
@@ -45,6 +50,9 @@ class ThePEGInterface {
 	std::auto_ptr<HepMC::IO_BaseClass>	iobc_;
 
     private:
+	boost::shared_ptr<ThePEG::RandomEngineGlue::Proxy>
+						randomEngineGlueProxy_;
+
 	const std::string			dataLocation_;
 	const std::string			generator_;
 	const std::string			run_;

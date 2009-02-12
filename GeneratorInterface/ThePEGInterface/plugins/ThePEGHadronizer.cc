@@ -84,6 +84,7 @@ bool ThePEGHadronizer::generatePartonsAndHadronize()
 {
 	edm::LogInfo("Generator|ThePEGHadronizer") << "Start production";
 
+	flushRandomNumberGenerator();
 	ThePEG::EventPtr thepegEvent = eg_->shoot();
 	if (!thepegEvent) {
 		edm::LogWarning("Generator|ThePEGHadronizer") << "thepegEvent not initialized";

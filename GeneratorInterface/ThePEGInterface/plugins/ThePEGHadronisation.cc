@@ -18,9 +18,9 @@
 #include <ThePEG/LesHouches/LesHouchesReader.h>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+//#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+//#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/Event.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
@@ -51,9 +51,9 @@ class ThePEGHadronisation : public ThePEGInterface, public Hadronisation {
 
 	void initLHE();
 
-	const string			handlerDirectory_;
-
 	boost::shared_ptr<LHEProxy>	proxy_;
+
+	const std::string		handlerDirectory_;
 };
 
 void ThePEGHadronisation::initLHE()
@@ -63,8 +63,8 @@ void ThePEGHadronisation::initLHE()
 
 	ostringstream logstream;
 
-	ThePEG::Repository::exec("cd " + handlerDirectory_, logstream);
-	ThePEG::Repository::exec("set LHEReader:ProxyID " + ss.str(), logstream);
+	ThePEG::Repository::exec("set " + handlerDirectory_ +
+	                         "/LHEReader:ProxyID " + ss.str(), logstream);
 
 	edm::LogInfo("Generator|LHEInterface") << logstream.str();
 }
@@ -126,10 +126,11 @@ void ThePEGHadronisation::newRunInfo(
 {
 	proxy_->loadRunInfo(runInfo);
 
+	flushRandomNumberGenerator();
 	initGenerator();
 
-	edm::Service<edm::RandomNumberGenerator> rng;
-	eg_->setSeed(rng->mySeed());
+//	edm::Service<edm::RandomNumberGenerator> rng;
+//	eg_->setSeed(rng->mySeed());
 }
 
 DEFINE_LHE_HADRONISATION_PLUGIN(ThePEGHadronisation);

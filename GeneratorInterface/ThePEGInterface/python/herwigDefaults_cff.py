@@ -6,6 +6,7 @@ herwigDefaultsBlock = cms.PSet(
 	repository = cms.string('HerwigDefaults.rpo'),
 	eventHandlers = cms.string('/Herwig/EventHandlers'),
 	generatorModule = cms.string('/Herwig/Generators/LHCGenerator'),
+
 	run = cms.string('LHC'),
 
 	cmsDefaults = cms.vstring(
@@ -17,11 +18,13 @@ herwigDefaultsBlock = cms.PSet(
 
 	basicSetup = cms.vstring(
 		'cd /Herwig/Generators',
+		'create ThePEG::RandomEngineGlue /Herwig/RandomGlue',
 		'set LHCGenerator:NumberOfEvents 10000000',
 		'set LHCGenerator:DebugLevel 1',
 		'set LHCGenerator:PrintEvent 0',
 		'set LHCGenerator:MaxErrors 10000',
-		'cd /',
+		'set LHCGenerator:RandomNumberGenerator /Herwig/RandomGlue',
+		'cd /'
 	),
 
 	pdfMRST2001 = cms.vstring(

@@ -1,5 +1,5 @@
 /** \class ThePEGInterface
- *  $Id: ThePEGInterface.cc,v 1.9 2008/10/08 22:39:42 stober Exp $
+ *  $Id: ThePEGInterface.cc,v 1.10 2009/02/11 19:34:52 saout Exp $
  *  
  *  Oliver Oberst <oberst@ekp.uni-karlsruhe.de>
  *  Fred-Markus Stober <stober@ekp.uni-karlsruhe.de>
@@ -12,6 +12,7 @@
 #include <cmath>
 #include <stdlib.h>
 
+#include <boost/shared_ptr.hpp>
 #include <boost/filesystem.hpp>
 
 #include <HepMC/GenEvent.h>
@@ -33,13 +34,16 @@
 
 #include "GeneratorInterface/Core/interface/ParameterCollector.h"
 
-#include "GeneratorInterface/ThePEGInterface/interface/ThePEGInterface.h"
+#include "GeneratorInterface/ThePEGInterface/interface/Proxy.h"
+#include "GeneratorInterface/ThePEGInterface/interface/RandomEngineGlue.h"
 #include "GeneratorInterface/ThePEGInterface/interface/HepMCConverter.h"
+#include "GeneratorInterface/ThePEGInterface/interface/ThePEGInterface.h"
 
 using namespace std;
 using namespace gen;
 
 ThePEGInterface::ThePEGInterface(const edm::ParameterSet &pset) :
+	randomEngineGlueProxy_(ThePEG::RandomEngineGlue::Proxy::create()),
 	dataLocation_(ParameterCollector::resolve(pset.getParameter<string>("dataLocation"))),
 	generator_(pset.getParameter<string>("generatorModule")),
 	run_(pset.getParameter<string>("run")),
@@ -149,6 +153,13 @@ void ThePEGInterface::initRepository(const edm::ParameterSet &pset) const
 		cfgDump.close();
 	}
 
+	// write the ProxyID for the RandomEngineGlue to fill its pointer in
+	ostringstream ss;
+	ss << randomEngineGlueProxy_->getID();
+	ThePEG::Repository::exec("set " + generator_ +
+	                         ":RandomNumberGenerator:ProxyID " + ss.str(),
+	                         logstream);
+
 	// Print the directories where ThePEG looks for libs
 	vector<string> libdirlist = ThePEG::DynamicLoader::allPaths();
 	for(vector<string>::const_iterator libdir = libdirlist.begin();
@@ -175,9 +186,21 @@ void ThePEGInterface::initGenerator()
 
 	// Skip events
 	for (unsigned int i = 0; i < skipEvents_; i++) {
+		flushRandomNumberGenerator();
 		eg_->shoot();
 		edm::LogInfo("ThePEGInterface") << "Event discarded";
 	}
+}
+
+void ThePEGInterface::flushRandomNumberGenerator()
+{
+	ThePEG::RandomEngineGlue *rnd = randomEngineGlueProxy_->getInstance();
+
+	if (!rnd)
+		edm::LogWarning("ProxyMissing")
+			<< "ThePEG not initialised with RandomEngineGlue.";
+	else
+		rnd->flush();
 }
 
 auto_ptr<HepMC::GenEvent> ThePEGInterface::convert(
