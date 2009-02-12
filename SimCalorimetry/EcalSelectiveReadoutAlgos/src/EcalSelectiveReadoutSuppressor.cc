@@ -163,7 +163,7 @@ bool EcalSelectiveReadoutSuppressor::accept(edm::DataFrame const & frame,
   int iWeight = 0;
   for(int iSample=firstFIRSample-1;
       iSample<lastFIRSample; ++iSample, ++iWeight){
-    if(iSample>=0 && iSample < frame.size()){
+    if(iSample>=0 && iSample < (int)frame.size()){
       EcalMGPASample sample(frame[iSample]);
       if(sample.gainId()!=gain12) gain12saturated = true;
       //LogTrace("DccFir") << (iSample>=firstFIRSample?"+":"") << sample.adc()
@@ -177,9 +177,11 @@ bool EcalSelectiveReadoutSuppressor::accept(edm::DataFrame const & frame,
   }
   //LogTrace("DccFir") << "\n";
   //discards the 8 LSBs 
-  //(shift operator cannot be used on negative numbers because
-  // the result depends on compilator implementation)
-  acc = (acc>=0)?(acc >> 8):-(-acc >> 8);
+  //(result of shift operator on negative numbers depends on compiler
+  //implementation, therefore the value is offset to make sure it is positive
+  //before performing the bit shift).
+  acc = ((acc + (1<<30)) >>8) - (1 <<(30-8));
+
   //ZS passed if weigthed sum acc above ZS threshold or if
   //one sample has a lower gain than gain 12 (that is gain 12 output
   //is saturated)
