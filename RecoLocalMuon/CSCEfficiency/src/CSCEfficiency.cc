@@ -1196,6 +1196,10 @@ bool CSCEfficiency::recHitSegment_Efficiencies(CSCDetId & id, const CSCChamber* 
 	oneSegment = true;
 	const BoundPlane bp = cscChamber->layer(iLayer+1)->surface();
 	linearExtrapolation(globalPos,globalDir, bp.position().z(), posXY);
+        GlobalPoint gp_extrapol( posXY.at(0), posXY.at(1),bp.position().z());
+        LocalPoint lp_extrapol = cscChamber->layer(iLayer+1)->toLocal(gp_extrapol);
+        posXY.at(0) = lp_extrapol.x();
+        posXY.at(1) = lp_extrapol.y();
       }
       if(firstCondition || secondCondition){
 	ChHist[ec][st][rg][ch].EfficientRechits_inSegment->Fill(iLayer+1);
