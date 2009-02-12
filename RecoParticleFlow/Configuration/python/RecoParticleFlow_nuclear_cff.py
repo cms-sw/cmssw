@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoParticleFlow.PFClusterProducer.particleFlowCluster_cff import *
 
 from RecoParticleFlow.PFTracking.particleFlowTrack_cff import *
 
@@ -12,7 +11,6 @@ from RecoParticleFlow.PFTracking.nuclearRemainingHits_cff import *
 
 particleFlowRecoNuclear = cms.Sequence(
     nuclearRemainingHits*
-    particleFlowCluster*
     particleFlowTrackWithNuclear*
     particleFlowBlock*particleFlow
     )

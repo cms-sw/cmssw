@@ -31,7 +31,7 @@ particleFlowSimParticle = cms.EDProducer("PFSimParticleProducer",
     #MC Truth Matching info (only if UnFoldedMode = true in FastSim) 
     MCTruthMatchingInfo = cms.untracked.bool(False), 
     #retrieving RecTracks
-    RecTracks = cms.InputTag("elecpreid"),                                 
+    RecTracks = cms.InputTag("trackerDrivenElectronSeeds"),                                 
     #retrieving EcalRechits
     ecalRecHitsEB = cms.InputTag('caloRecHits','EcalRecHitsEB'),
     ecalRecHitsEE = cms.InputTag('caloRecHits','EcalRecHitsEE'),

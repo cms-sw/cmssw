@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoParticleFlow.PFClusterProducer.particleFlowCluster_cff import *
 
 from RecoParticleFlow.PFTracking.particleFlowTrackWithConversion_cff import *
 
@@ -10,8 +9,7 @@ particleFlowBlock.useConversions =True
 
 from RecoParticleFlow.PFProducer.particleFlow_cff import *
 
-particleFlowRecoConversion = cms.Sequence( particleFlowCluster*
-                                           particleFlowTrackWithConversion*
+particleFlowRecoConversion = cms.Sequence( particleFlowTrackWithConversion*
                                            particleFlowBlock*
                                            particleFlow )
 
