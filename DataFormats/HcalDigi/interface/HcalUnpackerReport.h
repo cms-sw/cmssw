@@ -9,8 +9,8 @@
 
 /** \class HcalUnpackerReport
   *  
-  * $Date: 2009/01/22 18:33:35 $
-  * $Revision: 1.3 $
+  * $Date: 2009/02/10 15:46:52 $
+  * $Revision: 1.4 $
   * \author J. Mans - Minnesota
   */
 class HcalUnpackerReport {
@@ -44,11 +44,8 @@ public:
 
   bool hasReportInfo(const std::string& name) const;
   std::string getReportInfo(const std::string& name) const;
-
-  typedef std::map<std::string,std::string> ReportInfoMap;
-  ReportInfoMap::const_iterator report_info_begin() const { return reportInfo_.begin(); }
-  ReportInfoMap::const_iterator report_info_end() const { return reportInfo_.end(); }
-
+  std::vector<std::string> getReportKeys() const;
+  
   // setters
   void addUnpacked(int fed);
   void addError(int fed);
@@ -72,13 +69,9 @@ private:
   DetIdVector badqualityIds_;
   ElectronicsIdVector unmappedIds_;
   bool unsuppressed_;
-  std::map<std::string, std::string> reportInfo_;
 
-  struct FedCalibInfo {
-    uint16_t fed_;
-    uint16_t type_;
-  };
-  std::vector<FedCalibInfo> fedInfo_;
+  std::vector<std::string> reportInfo_;
+  std::vector<uint16_t> fedInfo_; // first is fed, second is type
 
 };
 

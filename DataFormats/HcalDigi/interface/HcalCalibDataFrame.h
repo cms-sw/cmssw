@@ -38,12 +38,16 @@ public:
   
   /// validate appropriate DV and ER bits as well as capid rotation for the specified samples (default is all)
   bool validate(int firstSample=0, int nSamples=100) const;
+
+  /// offset of bunch number for this channel relative to nominal set in the unpacker (range is +7->-7.  -1000 indicates the data is invalid/unavailable)
+  int fiberIdleOffset() const;
   
   void setSize(int size);
   void setPresamples(int ps);
   void setSample(int i, const HcalQIESample& sam) { data_[i]=sam; }
   void setZSInfo(bool unsuppressed, bool markAndPass);
   void setReadoutIds(const HcalElectronicsId& eid);
+  void setFiberIdleOffset(int offset);
   
   static const int MAXSAMPLES = 10;
 private:

@@ -43,10 +43,25 @@ void HcalCalibDataFrame::setZSInfo(bool unsuppressed, bool markAndPass) {
   if (unsuppressed) hcalPresamples_|=0x20;
 }
 
+int HcalCalibDataFrame::fiberIdleOffset() const {
+  int val=(hcalPresamples_&0xF00)>>8;
+  return (val==0)?(-1000):((val&0x8==0)?(-(val&0x7)):(val&0x7));
+}
+
+void HcalCalibDataFrame::setFiberIdleOffset(int offset) {
+  if (offset>=7) hcalPresamples_|=0xF00;
+  else if (offset>=0) hcalPresamples_|=(0x800)|(offset<<8);
+  else if (offset>=-7) hcalPresamples_|=((-offset)<<8);
+  else hcalPresamples_|=0x700;
+}  
+
 std::ostream& operator<<(std::ostream& s, const HcalCalibDataFrame& digi) {
   s << digi.id() << " " << digi.size() << " samples  " << digi.presamples() << " presamples ";
   if (digi.zsUnsuppressed()) s << " zsUS ";
   if (digi.zsMarkAndPass()) s << " zsM&P ";
+  if (digi.fiberIdleOffset()!=0)
+    if (digi.fiberIdleOffset()==-1000) s << " nofiberOffset";
+    else s << " fiberOffset=" << digi.fiberIdleOffset();
   s << std::endl;
   for (int i=0; i<digi.size(); i++) 
     s << "  " << digi.sample(i) << std::endl;
