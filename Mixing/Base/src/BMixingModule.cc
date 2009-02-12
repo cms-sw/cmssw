@@ -207,18 +207,16 @@ namespace edm {
     put(e,setup);
   }
 
- 
   void BMixingModule::merge(const int bcr, const EventPrincipalVector& vec, unsigned int worker, const edm::EventSetup& setup) {
     //
     // main loop: loop over events and merge 
     //
     eventId_=0;
-    LogDebug("MixingModule") <<"For bunchcrossing "<<bcr<<", "<<vec.size()<< " events will be merged";
+    LogDebug("MixingModule") <<"For bunchcrossing "<<bcr<<", "<<vec.size()<<" events will be merged";
     vertexoffset=0;
     for (EventPrincipalVector::const_iterator it = vec.begin(); it != vec.end(); ++it) {
-      Event e(**it, md_);
-      LogDebug("MixingModule") <<" merging Event:  id " << e.id();
-      addPileups(bcr, &e, ++eventId_,worker,setup);
+      LogDebug("MixingModule") <<" merging Event:  id " << (*it)->id();
+      addPileups(bcr, &(**it), ++eventId_,worker,setup);
     }// end main loop
   }
 
@@ -229,4 +227,5 @@ namespace edm {
       if (beamHalo_m_) beamHalo_m_->dropUnwantedBranches(wantedBranches);
       if (fwdDet_) fwdDet_->dropUnwantedBranches(wantedBranches);
   }
+
 } //edm
