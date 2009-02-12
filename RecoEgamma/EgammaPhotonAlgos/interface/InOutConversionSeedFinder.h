@@ -4,9 +4,9 @@
 /** \class InOutConversionSeedFinder
  **  
  **
- **  $Id: InOutConversionSeedFinder.h,v 1.10 2008/02/15 16:46:39 nancy Exp $ 
- **  $Date: 2008/02/15 16:46:39 $ 
- **  $Revision: 1.10 $
+ **  $Id: InOutConversionSeedFinder.h,v 1.11 2008/05/08 20:41:06 nancy Exp $ 
+ **  $Date: 2008/05/08 20:41:06 $ 
+ **  $Revision: 1.11 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -18,12 +18,13 @@
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionSeedFinder.h"
-
+#include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h" 
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include <string>
 #include <vector>
@@ -85,8 +86,8 @@ class InOutConversionSeedFinder : public ConversionSeedFinder {
   int maxNumberOfInOutSeedsPerInputTrack_;
      
 
+  mutable TrajectoryMeasurement* myPointer;
 
-  
   std::vector<Trajectory> inputTracks_;
   std::vector<Trajectory> theOutInTracks_;
   mutable std::vector<TrajectoryMeasurement> theFirstMeasurements_;
