@@ -42,7 +42,7 @@ class MuonMETAlgo
   
   virtual void run(const edm::Event& iEvent,
 		   const edm::EventSetup& iSetup, 
-		   const reco::METCollection& uncorMET,
+		   const edm::View<reco::MET>& uncorMET,
 		   const edm::View<reco::Muon>& Muons,
 		   TrackDetectorAssociator& trackAssociator,
 		   TrackAssociatorParameters& trackAssociatorParameters,
@@ -53,7 +53,7 @@ class MuonMETAlgo
 		   double towerEtThreshold);
   virtual void run(const edm::Event& iEvent,
 		   const edm::EventSetup& iSetup, 
-		   const reco::CaloMETCollection& uncorMET, 
+		   const edm::View<reco::CaloMET>& uncorMET, 
                    const edm::View<reco::Muon>& Muons,
 		   TrackDetectorAssociator& trackAssociator,
 		   TrackAssociatorParameters& trackAssociatorParameters,
@@ -65,7 +65,7 @@ class MuonMETAlgo
 		   
   template <class T> void MuonMETAlgo_run(const edm::Event& iEvent,
 					  const edm::EventSetup& iSetup,
-					  const std::vector<T>& v_uncorMET,
+					  const edm::View<T>& v_uncorMET,
 	                                  const edm::View<reco::Muon>& inputMuons,
 					  TrackDetectorAssociator& trackAssociator,
 					  TrackAssociatorParameters& trackAssociatorParameters,
