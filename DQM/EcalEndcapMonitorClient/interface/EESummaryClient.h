@@ -4,8 +4,8 @@
 /*
  * \file EESummaryClient.h
  *
- * $Date: 2008/06/25 15:08:19 $
- * $Revision: 1.30 $
+ * $Date: 2008/12/04 13:54:56 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  *
 */
@@ -15,6 +15,7 @@
 #include <fstream>
 
 #include "TROOT.h"
+#include "TProfile2D.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -103,14 +104,21 @@ MonitorElement* meOccupancy_[2];
 MonitorElement* meOccupancy1D_;
 MonitorElement* mePedestalOnline_[2];
 MonitorElement* mePedestalOnlineErr_;
+MonitorElement* mePedestalOnlineMean_[2];
+MonitorElement* mePedestalOnlineRMS_[2];
+MonitorElement* mePedestalOnlineRMSMap_[2];
 MonitorElement* meLaserL1_[2];
 MonitorElement* meLaserL1Err_;
 MonitorElement* meLaserL1PN_[2];
 MonitorElement* meLaserL1PNErr_;
+MonitorElement* meLaserL1AmplOverPN_[2];
+MonitorElement* meLaserL1Timing_[2];
 MonitorElement* meLedL1_[2];
 MonitorElement* meLedL1Err_;
 MonitorElement* meLedL1PN_[2];
 MonitorElement* meLedL1PNErr_;
+MonitorElement* meLedL1AmplOverPN_[2];
+MonitorElement* meLedL1Timing_[2];
 MonitorElement* mePedestal_[2];
 MonitorElement* mePedestalErr_;
 MonitorElement* mePedestalPN_[2];
@@ -119,6 +127,9 @@ MonitorElement* meTestPulse_[2];
 MonitorElement* meTestPulseErr_;
 MonitorElement* meTestPulsePN_[2];
 MonitorElement* meTestPulsePNErr_;
+MonitorElement* meTestPulseAmplG01_[2];
+MonitorElement* meTestPulseAmplG06_[2];
+MonitorElement* meTestPulseAmplG12_[2];
 
 MonitorElement* meCosmic_[2];
 MonitorElement* meTiming_[2];
@@ -127,6 +138,8 @@ MonitorElement* meTriggerTowerEmulError_[2];
 MonitorElement* meTriggerTowerTiming_[2];
 
 MonitorElement* meGlobalSummary_[2];
+
+TProfile2D* hpot01_[18];
 
 };
 

@@ -4,8 +4,8 @@
 /*
  * \file EBSummaryClient.h
  *
- * $Date: 2008/06/25 15:08:17 $
- * $Revision: 1.39 $
+ * $Date: 2008/12/04 13:54:25 $
+ * $Revision: 1.40 $
  * \author G. Della Ricca
  *
 */
@@ -15,6 +15,7 @@
 #include <fstream>
 
 #include "TROOT.h"
+#include "TProfile2D.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -103,8 +104,13 @@ MonitorElement* meOccupancy_;
 MonitorElement* meOccupancy1D_;
 MonitorElement* mePedestalOnline_;
 MonitorElement* mePedestalOnlineErr_;
+MonitorElement* mePedestalOnlineMean_;
+MonitorElement* mePedestalOnlineRMS_;
+MonitorElement* mePedestalOnlineRMSMap_;
 MonitorElement* meLaserL1_;
 MonitorElement* meLaserL1Err_;
+MonitorElement* meLaserL1AmplOverPN_;
+MonitorElement* meLaserL1Timing_;
 MonitorElement* meLaserL1PN_;
 MonitorElement* meLaserL1PNErr_;
 MonitorElement* mePedestal_;
@@ -115,6 +121,9 @@ MonitorElement* meTestPulse_;
 MonitorElement* meTestPulseErr_;
 MonitorElement* meTestPulsePN_;
 MonitorElement* meTestPulsePNErr_;
+MonitorElement* meTestPulseAmplG01_;
+MonitorElement* meTestPulseAmplG06_;
+MonitorElement* meTestPulseAmplG12_;
 
 MonitorElement* meCosmic_;
 MonitorElement* meTiming_;
@@ -123,6 +132,8 @@ MonitorElement* meTriggerTowerEmulError_;
 MonitorElement* meTriggerTowerTiming_;
 
 MonitorElement* meGlobalSummary_;
+
+TProfile2D* hpot01_[36];
 
 };
 
