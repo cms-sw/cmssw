@@ -9,7 +9,7 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 
 process.load("Configuration.StandardSequences.FakeConditions_cff")
 
-process.load("RecoTracker.TrackProducer.RefitterWithMaterial_cff")
+process.load("RecoTracker.TrackProducer.TrackRefitter_cff")
 
 process.load("DQMServices.Core.DQM_cfg")
 
