@@ -8,6 +8,9 @@ class MuonSeedSimpleCleaner: public MuonSeedVCleaner
 public:
 
   virtual void clean(TrajectorySeedCollection & seeds);
+
+private:
+  bool checkPt(const TrajectorySeed & seed) const;
 };
 
 #endif
