@@ -5,8 +5,8 @@
 //   Description:      A key producer to deduce the GCT keys from the master 
 //                     GCT config key, following example of GMT
 //
-//   $Date: $
-//   $Revision: $
+//   $Date: 2009/02/11 17:05:28 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   Jim Brooke
@@ -52,14 +52,14 @@ L1GctConfigKeyOnlineProducer::fillObjectKeys( ReturnType pL1TriggerKey )
 	  // WHERE rhs
 	  m_omdsReader.singleAttribute( subsystemKey  ) );
 
-      if( lutKeyResults.queryFailed() || keyResults.numberRows() != 1 ) // check if query was successful
+      if( keyResults.queryFailed() || keyResults.numberRows() != 1 ) // check if query was successful
       {
-         edm::LogError( "L1-O2O" ) << "Problem extracting GCT key from GCT config key." ;
+         edm::LogError( "L1-O2O" ) << "Problem extracting GCT key." ;
          return ;
       }
 
       std::string objectKey ;
-      softwareConfigKeyResults.fillVariable(objectKey) ;
+      keyResults.fillVariable(objectKey) ;
 
       //      pL1TriggerKey->add( "L1MuGMTParametersRcd", "L1MuGMTParameters", objectKey ) ;
 }
