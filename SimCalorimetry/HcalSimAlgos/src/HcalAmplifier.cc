@@ -32,55 +32,47 @@ void HcalAmplifier::setRandomEngine(CLHEP::HepRandomEngine & engine)
   theRandGaussQ = new CLHEP::RandGaussQ(engine);
 }
 
+
 void HcalAmplifier::amplify(CaloSamples & frame) const {
+  pe2fC(frame);
+  if(theNoiseSignalGenerator==0 || !theNoiseSignalGenerator->contains(frame.id()))
+  {
+    addPedestals(frame);
+  }
+  LogDebug("HcalAmplifier") << frame;
+}
+
+
+void HcalAmplifier::pe2fC(CaloSamples & frame) const
+{
   const CaloSimParameters & parameters = theParameterMap->simParameters(frame.id());
+  frame *= parameters.photoelectronsToAnalog(frame.id());
+}
+
+
+void HcalAmplifier::addPedestals(CaloSamples & frame) const
+{
   assert(theDbService != 0);
   HcalGenericDetId hcalGenDetId(frame.id());
 
-  // Access in HcalDbService was changed
-  //  HcalCalibrationWidths calibWidths;
-  //  theDbService->makeHcalCalibrationWidth(hcalGenDetId, &calibWidths);
-
-  const HcalCalibrationWidths & calibWidths = 
+  const HcalCalibrationWidths & calibWidths =
     theDbService->getHcalCalibrationWidths(hcalGenDetId);
   const HcalCalibrations& calibs = theDbService->getHcalCalibrations(hcalGenDetId);
 
-  /*
-  // checks performed when using the "old" inputs 
-  if (!peds || !pwidths )
-  {
-    edm::LogError("HcalAmplifier") << "Could not fetch HCAL conditions for channel " << hcalGenDetId;
-  }
-  */
-
   double noise [32] = {0.}; //big enough
-  double fCperPE = parameters.photoelectronsToAnalog(frame.id());
-
-  // add noise if the noise signal generator didn't already
-  bool doNoise = addNoise_ && (theNoiseSignalGenerator==0 || !theNoiseSignalGenerator->contains(frame.id()));
- 
-  if(doNoise)
+  if(addNoise_)
   {
     double gauss [32]; //big enough
     for (int i = 0; i < frame.size(); i++) gauss[i] = theRandGaussQ->fire(0., 1.);
     makeNoise(calibWidths, frame.size(), gauss, noise);
   }
 
-  for(int tbin = 0; tbin < frame.size(); ++tbin) {
+  for (int tbin = 0; tbin < frame.size(); ++tbin) {
     int capId = (theStartingCapId + tbin)%4;
-
-    double pedestal = calibs.pedestal(capId);
-
-    if(doNoise) {
-      pedestal += noise [tbin];
-    }
-    frame[tbin] *= fCperPE;
+    double pedestal = calibs.pedestal(capId) + noise[tbin];
     frame[tbin] += pedestal;
   }
-  LogDebug("HcalAmplifier") << frame;
 }
-
-
 
 
 void HcalAmplifier::makeNoise (const HcalCalibrationWidths& width, int fFrames, double* fGauss, double* fNoise) const {

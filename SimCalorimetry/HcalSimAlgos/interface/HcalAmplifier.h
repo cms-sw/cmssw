@@ -32,9 +32,12 @@ public:
 
   void setStartingCapId(int capId) {theStartingCapId = capId;}
 
+private:
+
+  void pe2fC(CaloSamples & frame) const;
+  void addPedestals(CaloSamples & frame) const;
   void makeNoise (const HcalCalibrationWidths& width, int fFrames, double* fGauss, double* fNoise) const;
 
-private:
   const HcalDbService * theDbService;
   CLHEP::RandGaussQ * theRandGaussQ;
   const CaloVSimParameterMap * theParameterMap;
