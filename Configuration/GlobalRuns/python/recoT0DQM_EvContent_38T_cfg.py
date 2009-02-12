@@ -10,9 +10,8 @@ process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(-1) )
 
 process.source = cms.Source("PoolSource",
-    skipEvents = cms.untracked.uint32(4169),
     fileNames = cms.untracked.vstring(
-    '/castor/cern.ch/cms/store/data/Commissioning08/Cosmics/RAW-RECO/CRAFT_ALL_V4_TrackingPointing_TrackerPointing_v3/0272/78C097C9-4EF1-DD11-ADC8-0019B9E8B3CD.root')
+    '/store/data/Commissioning08/Cosmics/RAW-RECO/CRAFT_ALL_V4_TrackingPointing_TrackerPointing_v3/0272/78C097C9-4EF1-DD11-ADC8-0019B9E8B3CD.root')
 )
 
 # output module
@@ -47,7 +46,7 @@ process.FEVT.outputCommands.append('keep recoCandidatesOwned_caloTowersOpt_*_*')
 process.FEVT.outputCommands.append('keep RPCDetIdRPCDigiMuonDigiCollection_muonRPCDigis_*_*')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.23 $'),
+    version = cms.untracked.string('$Revision: 1.24 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/GlobalRuns/python/recoT0DQM_EvContent_38T_cfg.py,v $'),
     annotation = cms.untracked.string('CRUZET Prompt Reco with DQM with Mag field at 3.8T')
 )
