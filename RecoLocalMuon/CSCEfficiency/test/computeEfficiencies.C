@@ -219,6 +219,7 @@ void computeEfficiencies(){
 	  getEfficiency(float(nEfficient), float(nAll), efficiencyResult);
 	  std::cout<<" Rechit eff = "<<efficiencyResult[0]<<" +-"<<efficiencyResult[1]<<std::endl;
 	  h_rhEfficiency->SetBinContent(iC,int(verticalScale+0.5), efficiencyResult[0]);
+	  h_rhEfficiency->SetBinError(iC,int(verticalScale+0.5), efficiencyResult[1]); 
           //(simhit based)
           histo_1 = Form("Chambers__E%d_S%d_R%d_Chamber_%d/Sim_Simhits_Ch%d",iE,iS,iR,iC,iC);
           histo_2 = Form("Chambers__E%d_S%d_R%d_Chamber_%d/Sim_Rechits_Ch%d",iE,iS,iR,iC,iC);
@@ -235,6 +236,8 @@ void computeEfficiencies(){
           }
           getEfficiency(float(nEfficient), float(nAll), efficiencyResult);
           h_simrhEfficiency->SetBinContent(iC,int(verticalScale+0.5), efficiencyResult[0]);
+          h_simrhEfficiency->SetBinError(iC,int(verticalScale+0.5), efficiencyResult[1]);
+
 
 	  // Segments
 	  histo_1 = Form("Chambers__E%d_S%d_R%d_Chamber_%d/digiAppearanceCount_Ch%d",iE,iS,iR,iC,iC);
@@ -244,21 +247,25 @@ void computeEfficiencies(){
 	  nAll = data_p1->GetBinContent(1) + nEfficient;
 	  getEfficiency(float(nEfficient), float(nAll), efficiencyResult);
 	  h_segEfficiency->SetBinContent(iC,int(verticalScale+0.5), efficiencyResult[0]);
+	  h_segEfficiency->SetBinError(iC,int(verticalScale+0.5), efficiencyResult[1]);
 	  // LCT
 	  nEfficient = data_p1->GetBinContent(4);
 	  nAll = data_p1->GetBinContent(3) + nEfficient;
 	  getEfficiency(float(nEfficient), float(nAll), efficiencyResult);
 	  h_alctEfficiency->SetBinContent(iC,int(verticalScale+0.5), efficiencyResult[0]);
+	  h_alctEfficiency->SetBinError(iC,int(verticalScale+0.5), efficiencyResult[1]);
 	  //
 	  nEfficient = data_p1->GetBinContent(6);
 	  nAll = data_p1->GetBinContent(5) + nEfficient;
 	  getEfficiency(float(nEfficient), float(nAll), efficiencyResult);
 	  h_clctEfficiency->SetBinContent(iC,int(verticalScale+0.5), efficiencyResult[0]);
+	  h_clctEfficiency->SetBinError(iC,int(verticalScale+0.5), efficiencyResult[1]);
 	  //
 	  nEfficient = data_p1->GetBinContent(8);
 	  nAll = data_p1->GetBinContent(7) + nEfficient;
 	  getEfficiency(float(nEfficient), float(nAll), efficiencyResult);
 	  h_corrlctEfficiency->SetBinContent(iC,int(verticalScale+0.5), efficiencyResult[0]);
+	  h_corrlctEfficiency->SetBinError(iC,int(verticalScale+0.5), efficiencyResult[1]);
 	  //
 	  
 	  // Strips
@@ -273,6 +280,7 @@ void computeEfficiencies(){
 	  nAll = 6*data_p1->GetBinContent(10);	  
 	  getEfficiency(float(nEfficient), float(nAll), efficiencyResult);
 	  h_stripEfficiency->SetBinContent(iC,int(verticalScale+0.5), efficiencyResult[0]);
+	  h_stripEfficiency->SetBinError(iC,int(verticalScale+0.5), efficiencyResult[1]);
 	  // Wires
 	  histo_1 = Form("Chambers__E%d_S%d_R%d_Chamber_%d/EfficientWireGroups_Ch%d",iE,iS,iR,iC,iC);
 	  charName = histo_1.c_str();
@@ -284,6 +292,7 @@ void computeEfficiencies(){
 	  nAll = 6*data_p1->GetBinContent(10);
 	  getEfficiency(float(nEfficient), float(nAll), efficiencyResult);
 	  h_wireEfficiency->SetBinContent(iC,int(verticalScale+0.5), efficiencyResult[0]);
+	  h_wireEfficiency->SetBinError(iC,int(verticalScale+0.5), efficiencyResult[1]);
 	  
 	  //ALCT
 	  histo_1 = Form("Chambers__E%d_S%d_R%d_Chamber_%d/EfficientALCT_dydz_Ch%d",iE,iS,iR,iC,iC);
