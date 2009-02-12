@@ -12,7 +12,7 @@ gsfElCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidat
 import TrackingTools.GsfTracking.GsfElectronFit_cfi
 gsfPFtracks = TrackingTools.GsfTracking.GsfElectronFit_cfi.GsfGlobalElectronTest.clone()
 from RecoParticleFlow.PFTracking.pfTrackElec_cfi import *
-particleFlowTrack = cms.Sequence(elecPreId*gsfSeedclean*gsfElCandidates*gsfPFtracks*pfTrackElec)
+particleFlowTrack = cms.Sequence(pfTrackElec)
 particleFlowTrackWithNuclear = cms.Sequence(elecPreId*gsfSeedclean*gsfElCandidates*gsfPFtracks*pfTrackElec*pfNuclear)
 particleFlowTrackWithV0 = cms.Sequence(elecPreId*gsfSeedclean*gsfElCandidates*gsfPFtracks*pfTrackElec*pfV0)
 gsfElCandidates.TrajectoryBuilder = 'TrajectoryBuilderForElectronsinJets'

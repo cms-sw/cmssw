@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-elecpreid = cms.EDProducer("GoodSeedProducer",
+trackerDrivenElectronSeeds = cms.EDProducer("GoodSeedProducer",
     ProduceCkfPFTracks = cms.untracked.bool(True),
     MaxEOverP = cms.double(3.0),
     Smoother = cms.string('GsfTrajectorySmoother_forPreId'),
