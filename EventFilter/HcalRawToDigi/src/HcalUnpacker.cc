@@ -7,10 +7,18 @@
 
 namespace HcalUnpacker_impl {
   template <class DigiClass>
-  const HcalQIESample* unpack(const HcalQIESample* startPoint, const HcalQIESample* limit, DigiClass& digi, int presamples, const HcalElectronicsId& eid, int startSample, int endSample) {
+  const HcalQIESample* unpack(const HcalQIESample* startPoint, const HcalQIESample* limit, DigiClass& digi, int presamples, const HcalElectronicsId& eid, int startSample, int endSample, int expectedTime, const HcalHTRData& hhd) {
     // set parameters
     digi.setPresamples(presamples);
     digi.setReadoutIds(eid);
+    int fiber=startPoint->fiber();
+    int fiberchan=startPoint->fiberChan();
+    digi.setZSInfo(hhd.isUnsuppressed(),hhd.wasMarkAndPassZS(fiber,fiberchan));
+
+    if (expectedTime>=0 && !hhd.isUnsuppressed()) {
+      //      std::cout << hhd.getFibOrbMsgBCN(fiber) << " " << expectedTime << std::endl;
+      digi.setFiberIdleOffset(hhd.getFibOrbMsgBCN(fiber)-expectedTime);
+    }
 
     // what is my sample number?
     int myFiberChan=startPoint->fiberAndChan();
@@ -174,7 +182,7 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
 							   unrolled[i].soi,
 							   unrolled[i].databits));
       }
-    } else {
+    } else { // regular TPs (not HO)
       for (tp_work=tp_begin; tp_work!=tp_end; tp_work++) {
 	if (tp_work->raw()==0xFFFF) continue; // filler word
 	if (tp_work->slbAndChan()!=currFiberChan) { // start new set
@@ -201,6 +209,8 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
 	  colls.tpCont->push_back(HcalTriggerPrimitiveDigi(id));
 	  // set the various bits
 	  if (!tpgSOIbitInUse) colls.tpCont->back().setPresamples(nps);
+	  colls.tpCont->back().setZSInfo(htr.isUnsuppressed(),htr.wasMarkAndPassZSTP(tp_work->slb(),tp_work->slbChan()));
+
 	  // no hits recorded for current
 	  ncurr=0;
 	  valid=true;
@@ -244,27 +254,27 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
       if (!did.null()) {
 	if (did.det()==DetId::Calo && did.subdetId()==HcalZDCDetId::SubdetectorId) {
 	  colls.zdcCont->push_back(ZDCDataFrame(HcalZDCDetId(did)));
-	  qie_work=HcalUnpacker_impl::unpack<ZDCDataFrame>(qie_work, qie_end, colls.zdcCont->back(), nps, eid, startSample_, endSample_); 
+	  qie_work=HcalUnpacker_impl::unpack<ZDCDataFrame>(qie_work, qie_end, colls.zdcCont->back(), nps, eid, startSample_, endSample_, expectedOrbitMessageTime_, htr); 
 	} else if (did.det()==DetId::Hcal) {
 	  switch (((HcalSubdetector)did.subdetId())) {
 	  case (HcalBarrel):
 	  case (HcalEndcap): {
 	    colls.hbheCont->push_back(HBHEDataFrame(HcalDetId(did)));
-	    qie_work=HcalUnpacker_impl::unpack<HBHEDataFrame>(qie_work, qie_end, colls.hbheCont->back(), nps, eid, startSample_, endSample_);
+	    qie_work=HcalUnpacker_impl::unpack<HBHEDataFrame>(qie_work, qie_end, colls.hbheCont->back(), nps, eid, startSample_, endSample_, expectedOrbitMessageTime_, htr);
 	  } break;
 	  case (HcalOuter): {
 	    colls.hoCont->push_back(HODataFrame(HcalDetId(did)));
-	    qie_work=HcalUnpacker_impl::unpack<HODataFrame>(qie_work, qie_end, colls.hoCont->back(), nps, eid, startSample_, endSample_);
+	    qie_work=HcalUnpacker_impl::unpack<HODataFrame>(qie_work, qie_end, colls.hoCont->back(), nps, eid, startSample_, endSample_, expectedOrbitMessageTime_, htr);
 	  } break;
 	  case (HcalForward): {
 	    colls.hfCont->push_back(HFDataFrame(HcalDetId(did)));
-	    qie_work=HcalUnpacker_impl::unpack<HFDataFrame>(qie_work, qie_end, colls.hfCont->back(), nps, eid, startSample_, endSample_);
+	    qie_work=HcalUnpacker_impl::unpack<HFDataFrame>(qie_work, qie_end, colls.hfCont->back(), nps, eid, startSample_, endSample_, expectedOrbitMessageTime_, htr);
 	  } break;
 	  case (HcalOther) : {
 	    HcalOtherDetId odid(did);
 	    if (odid.subdet()==HcalCalibration) {
 	      colls.calibCont->push_back(HcalCalibDataFrame(HcalCalibDetId(did)));
-	      qie_work=HcalUnpacker_impl::unpack<HcalCalibDataFrame>(qie_work, qie_end, colls.calibCont->back(), nps, eid, startSample_, endSample_); 
+	      qie_work=HcalUnpacker_impl::unpack<HcalCalibDataFrame>(qie_work, qie_end, colls.calibCont->back(), nps, eid, startSample_, endSample_, expectedOrbitMessageTime_, htr); 
 	    }
 	  } break;
 	  case (HcalEmpty): 

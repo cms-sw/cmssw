@@ -8,8 +8,8 @@
  *  Since this class requires external specification of the length of the data, it is implemented
  *  as an interpreter, rather than a cast-able header class.
  *
- *  $Date: 2008/06/19 15:44:48 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/10/24 12:50:58 $
+ *  $Revision: 1.12 $
  *  \author J. Mans - UMD
  */
 
@@ -115,6 +115,8 @@ class HcalHTRData {
   bool isUnsuppressed() const;
   /** \brief Was this channel passed as part of Mark&Pass ZS?*/
   bool wasMarkAndPassZS(int fiber, int fiberchan) const;
+  /** \brief Was this channel passed as part of Mark&Pass ZS?*/
+  bool wasMarkAndPassZSTP(int slb, int slbchan) const;
   
   /** \brief Is this event a pattern-ram event? */
   bool isPatternRAMEvent() const;
@@ -150,6 +152,11 @@ class HcalHTRData {
  /** \brief Get TTCready bit */
   inline unsigned int getTTCready() const { 
     return m_rawConst[5]&0x1; }
+
+ /** \brief Get the BCN of the Fiber Orbit Messages */
+  inline unsigned int getFibOrbMsgBCN(int fiber) const {
+    return (m_formatVersion==-1 || fiber<1 || fiber>8)?(0):(m_rawConst[m_rawLength-12+(fiber-1)]&0xFFF);
+  }
 
  /** \brief Get the BCN of the Fiber Orbit Messages */
   inline unsigned int getFib1OrbMsgBCN() const {

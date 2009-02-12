@@ -1,7 +1,7 @@
 //#include "Utilities/Configuration/interface/Architecture.h"
 /*  
- *  $Date: 2008/06/19 15:44:48 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/10/24 12:50:58 $
+ *  $Revision: 1.10 $
  *  \author J. Mans -- UMD
  */
 #ifndef HTBDAQ_DATA_STANDALONE
@@ -308,9 +308,18 @@ bool HcalHTRData::isUnsuppressed() const {
 bool HcalHTRData::wasMarkAndPassZS(int fiber, int fiberchan) const {
   if (fiber<1 || fiber>8 || fiberchan<0 || fiberchan>2) return false;
   if (!isUnsuppressed() || m_formatVersion<5) return false;
-  unsigned short val=(fiber<5)?(m_rawConst[m_rawLength-12]):(m_rawConst[m_rawLength-11]);
-  int shift=(((fiber-1)%4)*3)+fiberchan;
-  return ((val>>shift)&0x1)!=0;
+  int linchan=(fiber-1)*3+fiberchan;
+
+  unsigned short val=m_rawConst[m_rawLength-12+(linchan/8)];
+  return ((val>>(linchan%8))&0x1)!=0;
+} 
+bool HcalHTRData::wasMarkAndPassZSTP(int slb, int slbchan) const {
+  if (slb<1 || slb>6 || slbchan<0 || slbchan>3) return false;
+  if (!isUnsuppressed() || m_formatVersion<5) return false;
+  int linchan=(slb-1)*4+slbchan;
+
+  unsigned short val=m_rawConst[m_rawLength-12+(linchan/8)];
+  return ((val>>(linchan%8))&0x100)!=0;
 } 
 
 bool HcalHTRData::isPatternRAMEvent() const {
