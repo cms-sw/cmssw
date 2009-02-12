@@ -5,7 +5,7 @@
 //   Description:  A class to produce the L1 GMT emulator Parameters record in the event setup
 //                 by reading them from the online database.
 //
-//   $Date: 2008/11/24 19:00:38 $
+//   $Date: 2009/02/12 17:00:17 $
 //   $Revision: 1.1 $
 //
 //   Author :
@@ -42,19 +42,19 @@ boost::shared_ptr<L1GctChannelMask> L1GctMasksOnlineProducer::newObject( const s
   // new object in smart pointer
   boost::shared_ptr<L1GctChannelMask> ptrResult(new L1GctChannelMask);
 
-  // make SQL query
+  // get region masks from OMDS
   l1t::OMDSReader::QueryResults resultLines = 
     m_omdsReader.basicQuery(
           // SELECTed columns
-	  "",
+	  "*",
 	  // schema name
 	  "CMS_GMT",
 	  // table name
-          "GMT_SOFTWARE_CONFIG",
+          "GCT_RGN_MASKS",
 	  // WHERE lhs
-	  "GMT_SOFTWARE_CONFIG.KEY",
+	  "GCT_RGN_MASKS.CONFIG_KEY",
 	  // WHERE rhs
-	  m_omdsReader.singleAttribute(objectKey) );
+	  m_omdsReader.singleAttribute(objectKey) );  /// how do I deal with non keyed data?
 
   if(resultLines.numberRows() == 1) {
     const AttributeList&  resultRecord = resultLines.attributeLists().front();
