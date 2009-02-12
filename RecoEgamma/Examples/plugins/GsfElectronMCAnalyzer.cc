@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.cc,v 1.9 2008/12/11 23:29:35 charlot Exp $
+// $Id: GsfElectronMCAnalyzer.cc,v 1.10 2009/01/12 17:10:30 chamont Exp $
 //
 //
 
@@ -127,7 +127,7 @@ void GsfElectronMCAnalyzer::beginJob(edm::EventSetup const&iSetup){
   h_simP               = new TH1F( "h_mc_P",               "mc p",              nbinp,0.,pmax); 
   h_simPt               = new TH1F( "h_mc_Pt",               "mc pt",            nbinpteff,5.,ptmax); 
   h_simPhi               = new TH1F( "h_mc_phi",               "mc phi",        nbinphi,phimin,phimax); 
-  h_simZ      = new TH1F( "h_mc_z",      "mc z ",    50, -25, 25 );
+  h_simZ      = new TH1F( "h_mc_z",      "mc z ",    nbinxyz, -25, 25 );
 
   // ctf tracks
   h_ctf_foundHitsVsEta      = new TH2F( "h_ctf_foundHitsVsEta",      "ctf track # found hits vs eta",  nbineta2D,etamin,etamax,nbinfhits,0.,fhitsmax);
@@ -353,11 +353,218 @@ void
 GsfElectronMCAnalyzer::endJob(){
   
   histfile_->cd();
+
+  // add errors
+
+  // mc truth  
+  h_mcNum->Sumw2();
+  h_eleNum->Sumw2();
+  h_gamNum->Sumw2();
+   
+  // rec event 
+  histNum_->Sumw2();
+  
+  // mc  
+  h_simEta->Sumw2();
+  h_simAbsEta->Sumw2();
+  h_simP->Sumw2();
+  h_simPt->Sumw2();
+  h_simPhi->Sumw2();
+  h_simZ->Sumw2();
+
+  // ctf tracks
+  h_ctf_foundHitsVsEta->Sumw2();
+  h_ctf_lostHitsVsEta->Sumw2();
+  
+  // all electrons  
+  h_ele_EoverP_all->Sumw2();
+  h_ele_TIP_all->Sumw2();
+  h_ele_vertexPt_all->Sumw2();
+  h_ele_vertexEta_all->Sumw2();
+  h_ele_mee_all->Sumw2();
+  
+  // matched electrons
+  h_ele_charge->Sumw2();
+  h_ele_chargeVsEta->Sumw2();
+  h_ele_chargeVsPhi->Sumw2();
+  h_ele_chargeVsPt->Sumw2();
+  h_ele_vertexP->Sumw2();
+  h_ele_vertexPt->Sumw2();
+  h_ele_vertexPtVsEta->Sumw2();
+  h_ele_vertexPtVsPhi->Sumw2();
+  h_ele_simPt_matched->Sumw2();
+  h_ele_vertexEta->Sumw2();
+  h_ele_vertexEtaVsPhi->Sumw2();
+  h_ele_simAbsEta_matched->Sumw2();
+  h_ele_simEta_matched->Sumw2();
+  h_ele_vertexPhi->Sumw2();
+  h_ele_vertexX->Sumw2();
+  h_ele_vertexY ->Sumw2();
+  h_ele_vertexZ->Sumw2();
+  h_ele_vertexTIP->Sumw2();
+  h_ele_simZ_matched->Sumw2();
+  h_ele_vertexTIPVsEta->Sumw2();
+  h_ele_vertexTIPVsPhi->Sumw2();
+  h_ele_vertexTIPVsPt->Sumw2();
+  h_ele_PoPtrue->Sumw2();
+  h_ele_PoPtrueVsEta ->Sumw2();
+  h_ele_PoPtrueVsPhi->Sumw2();
+  h_ele_PoPtrueVsPt->Sumw2();
+  h_ele_PoPtrue_barrel ->Sumw2();
+  h_ele_PoPtrue_endcaps->Sumw2();
+  h_ele_EtaMnEtaTrue->Sumw2();
+  h_ele_EtaMnEtaTrueVsEta ->Sumw2();
+  h_ele_EtaMnEtaTrueVsPhi->Sumw2();
+  h_ele_EtaMnEtaTrueVsPt->Sumw2();
+  h_ele_PhiMnPhiTrue ->Sumw2();
+  h_ele_PhiMnPhiTrue2 ->Sumw2();
+  h_ele_PhiMnPhiTrueVsEta->Sumw2();
+  h_ele_PhiMnPhiTrueVsPhi->Sumw2();
+  h_ele_PhiMnPhiTrueVsPt->Sumw2();
+  
+  // matched electron, superclusters
+  histSclEn_->Sumw2();
+  histSclEoEtrue_barrel->Sumw2();
+  histSclEoEtrue_endcaps->Sumw2();
+  histSclEt_->Sumw2();
+  histSclEtVsEta_->Sumw2();
+  histSclEtVsPhi_->Sumw2();
+  histSclEtaVsPhi_ ->Sumw2();
+  histSclEta_->Sumw2();
+  histSclPhi_->Sumw2();
+
+  histSclSigEtaEta_->Sumw2();
+  histSclSigIEtaIEtabarrel_->Sumw2();
+  histSclSigIEtaIEtaendcaps_->Sumw2();
+  histSclE1x5_->Sumw2();
+  histSclE2x5max_->Sumw2();
+  histSclE5x5_->Sumw2();
+  
+  // matched electron, gsf tracks
+  h_ele_ambiguousTracks->Sumw2();
+  h_ele_ambiguousTracksVsEta->Sumw2();
+  h_ele_ambiguousTracksVsPhi->Sumw2();
+  h_ele_ambiguousTracksVsPt->Sumw2();
+  h_ele_foundHits->Sumw2();
+  h_ele_foundHitsVsEta->Sumw2();
+  h_ele_foundHitsVsPhi->Sumw2();
+  h_ele_foundHitsVsPt->Sumw2();
+  h_ctf_foundHits->Sumw2();
+  h_ele_lostHits->Sumw2();
+  h_ele_lostHitsVsEta->Sumw2();
+  h_ele_lostHitsVsPhi->Sumw2();
+  h_ele_lostHitsVsPt->Sumw2();
+  h_ele_chi2 ->Sumw2();
+  h_ele_chi2VsEta ->Sumw2();
+  h_ele_chi2VsPhi ->Sumw2();
+  h_ele_chi2VsPt->Sumw2();
+  h_ele_PinMnPout->Sumw2();
+  h_ele_PinMnPout_mode->Sumw2();
+  h_ele_PinMnPoutVsEta_mode->Sumw2();
+  h_ele_PinMnPoutVsPhi_mode->Sumw2();
+  h_ele_PinMnPoutVsPt_mode->Sumw2();
+  h_ele_PinMnPoutVsE_mode->Sumw2();
+  h_ele_PinMnPoutVsChi2_mode->Sumw2();
+  h_ele_outerP ->Sumw2();
+  h_ele_outerP_mode->Sumw2();
+  h_ele_outerPVsEta_mode->Sumw2();
+  h_ele_outerPt->Sumw2();
+  h_ele_outerPt_mode ->Sumw2();
+  h_ele_outerPtVsEta_mode->Sumw2();
+  h_ele_outerPtVsPhi_mode->Sumw2();
+  h_ele_outerPtVsPt_mode->Sumw2(); 
+ 
+  // matched electrons, matching 
+  h_ele_EoP ->Sumw2();
+  h_ele_EoPVsEta ->Sumw2();
+  h_ele_EoPVsPhi->Sumw2();
+  h_ele_EoPVsE->Sumw2();
+  h_ele_EseedOP->Sumw2();
+  h_ele_EseedOPVsEta->Sumw2();
+  h_ele_EseedOPVsPhi->Sumw2();
+  h_ele_EseedOPVsE->Sumw2();
+  h_ele_EoPout->Sumw2();
+  h_ele_EoPoutVsEta->Sumw2();
+  h_ele_EoPoutVsPhi->Sumw2();
+  h_ele_EoPoutVsE ->Sumw2();
+  h_ele_EeleOPout->Sumw2();
+  h_ele_EeleOPoutVsEta->Sumw2();
+  h_ele_EeleOPoutVsPhi->Sumw2();
+  h_ele_EeleOPoutVsE->Sumw2();
+  h_ele_dEtaSc_propVtx->Sumw2();
+  h_ele_dEtaScVsEta_propVtx->Sumw2();
+  h_ele_dEtaScVsPhi_propVtx->Sumw2();
+  h_ele_dEtaScVsPt_propVtx ->Sumw2();
+  h_ele_dPhiSc_propVtx->Sumw2();
+  h_ele_dPhiScVsEta_propVtx ->Sumw2();
+  h_ele_dPhiScVsPhi_propVtx->Sumw2();
+  h_ele_dPhiScVsPt_propVtx->Sumw2();
+  h_ele_dEtaCl_propOut->Sumw2();
+  h_ele_dEtaClVsEta_propOut->Sumw2();
+  h_ele_dEtaClVsPhi_propOut->Sumw2();
+  h_ele_dEtaClVsPt_propOut->Sumw2();
+  h_ele_dPhiCl_propOut->Sumw2();
+  h_ele_dPhiClVsEta_propOut->Sumw2();
+  h_ele_dPhiClVsPhi_propOut->Sumw2();
+  h_ele_dPhiClVsPt_propOut->Sumw2(); 
+  h_ele_dEtaEleCl_propOut->Sumw2(); 
+  h_ele_dEtaEleClVsEta_propOut->Sumw2(); 
+  h_ele_dEtaEleClVsPhi_propOut->Sumw2(); 
+  h_ele_dEtaEleClVsPt_propOut->Sumw2(); 
+  h_ele_dPhiEleCl_propOut->Sumw2(); 
+  h_ele_dPhiEleClVsEta_propOut->Sumw2(); 
+  h_ele_dPhiEleClVsPhi_propOut->Sumw2(); 
+  h_ele_dPhiEleClVsPt_propOut->Sumw2(); 
+  
+  h_ele_HoE->Sumw2();
+  h_ele_HoEVsEta->Sumw2();
+  h_ele_HoEVsPhi->Sumw2();
+  h_ele_HoEVsE->Sumw2();
+
+  h_ele_seed_dphi2_->Sumw2();
+  h_ele_seed_dphi2VsEta_->Sumw2();
+  h_ele_seed_dphi2VsPt_->Sumw2();
+  h_ele_seed_drz2_->Sumw2();
+  h_ele_seed_drz2VsEta_->Sumw2();
+  h_ele_seed_drz2VsPt_->Sumw2();
+  h_ele_seed_subdet2_->Sumw2();
+  
+  // classes  
+  h_ele_classes->Sumw2();
+  h_ele_eta->Sumw2();
+  h_ele_eta_golden->Sumw2();
+  h_ele_eta_bbrem->Sumw2();
+  h_ele_eta_narrow->Sumw2();
+  h_ele_eta_shower->Sumw2();
+  h_ele_PinVsPoutGolden_mode->Sumw2();
+  h_ele_PinVsPoutShowering0_mode->Sumw2();
+  h_ele_PinVsPoutShowering1234_mode->Sumw2();
+  h_ele_PinVsPoutGolden_mean->Sumw2();
+  h_ele_PinVsPoutShowering0_mean->Sumw2();
+  h_ele_PinVsPoutShowering1234_mean->Sumw2();
+  h_ele_PtinVsPtoutGolden_mode->Sumw2();
+  h_ele_PtinVsPtoutShowering0_mode->Sumw2();
+  h_ele_PtinVsPtoutShowering1234_mode->Sumw2();
+  h_ele_PtinVsPtoutGolden_mean->Sumw2();
+  h_ele_PtinVsPtoutShowering0_mean->Sumw2();
+  h_ele_PtinVsPtoutShowering1234_mean->Sumw2();
+  histSclEoEtrueGolden_barrel->Sumw2();
+  histSclEoEtrueGolden_endcaps->Sumw2();
+  histSclEoEtrueShowering0_barrel->Sumw2();
+  histSclEoEtrueShowering0_endcaps->Sumw2();
+  histSclEoEtrueShowering1234_barrel->Sumw2();
+  histSclEoEtrueShowering1234_endcaps->Sumw2();
+
+  // fbrem
+  h_ele_fbrem->Sumw2();
+  //h_ele_fbremVsEta_mode->Sumw2(); 
+  //h_ele_fbremVsEta_mean->Sumw2();
+  
   std::cout << "efficiency calculation " << std::endl; 
   // efficiency vs eta
   TH1F *h_ele_etaEff = (TH1F*)h_ele_simEta_matched->Clone("h_ele_etaEff");
   h_ele_etaEff->Reset();
-  h_ele_etaEff->Divide(h_ele_simEta_matched,h_simEta,1,1);
+  h_ele_etaEff->Divide(h_ele_simEta_matched,h_simEta,1,1,"b");
   h_ele_etaEff->Print();
   h_ele_etaEff->GetXaxis()->SetTitle("#eta");
   h_ele_etaEff->GetYaxis()->SetTitle("eff");
@@ -365,7 +572,7 @@ GsfElectronMCAnalyzer::endJob(){
   // efficiency vs z
   TH1F *h_ele_zEff = (TH1F*)h_ele_simZ_matched->Clone("h_ele_zEff");
   h_ele_zEff->Reset();
-  h_ele_zEff->Divide(h_ele_simZ_matched,h_simZ,1,1);
+  h_ele_zEff->Divide(h_ele_simZ_matched,h_simZ,1,1,"b");
   h_ele_zEff->Print();
   h_ele_zEff->GetXaxis()->SetTitle("z");
   h_ele_zEff->GetYaxis()->SetTitle("eff");
@@ -373,34 +580,34 @@ GsfElectronMCAnalyzer::endJob(){
   // efficiency vs |eta|
   TH1F *h_ele_absetaEff = (TH1F*)h_ele_simAbsEta_matched->Clone("h_ele_absetaEff");
   h_ele_absetaEff->Reset();
-  h_ele_absetaEff->Divide(h_ele_simAbsEta_matched,h_simAbsEta,1,1);
+  h_ele_absetaEff->Divide(h_ele_simAbsEta_matched,h_simAbsEta,1,1,"b");
   h_ele_absetaEff->GetXaxis()->SetTitle("|#eta|");
   h_ele_absetaEff->GetYaxis()->SetTitle("eff");
 
   // efficiency vs pt
   TH1F *h_ele_ptEff = (TH1F*)h_ele_simPt_matched->Clone("h_ele_ptEff");
   h_ele_ptEff->Reset();
-  h_ele_ptEff->Divide(h_ele_simPt_matched,h_simPt,1,1);
+  h_ele_ptEff->Divide(h_ele_simPt_matched,h_simPt,1,1,"b");
   h_ele_ptEff->GetXaxis()->SetTitle("p_T");
   h_ele_ptEff->GetYaxis()->SetTitle("eff");
 
   // efficiency vs phi
   TH1F *h_ele_phiEff = (TH1F*)h_ele_simPhi_matched->Clone("h_ele_phiEff");
   h_ele_phiEff->Reset();
-  h_ele_phiEff->Divide(h_ele_simPhi_matched,h_simPhi,1,1);
+  h_ele_phiEff->Divide(h_ele_simPhi_matched,h_simPhi,1,1,"b");
   h_ele_phiEff->GetXaxis()->SetTitle("phi");
   h_ele_phiEff->GetYaxis()->SetTitle("eff");
 
   // rec/gen all electrons
   TH1F *h_ele_etaEff_all = (TH1F*)h_ele_vertexEta_all->Clone("h_ele_etaEff_all");
   h_ele_etaEff_all->Reset();
-  h_ele_etaEff_all->Divide(h_ele_vertexEta_all,h_simEta,1,1);
+  h_ele_etaEff_all->Divide(h_ele_vertexEta_all,h_simEta,1,1,"b");
   h_ele_etaEff_all->Print();
   h_ele_etaEff_all->GetXaxis()->SetTitle("#eta");
   h_ele_etaEff_all->GetYaxis()->SetTitle("rec/gen");
   TH1F *h_ele_ptEff_all = (TH1F*)h_ele_vertexPt_all->Clone("h_ele_ptEff_all");
   h_ele_ptEff_all->Reset();
-  h_ele_ptEff_all->Divide(h_ele_vertexPt_all,h_simPt,1,1);
+  h_ele_ptEff_all->Divide(h_ele_vertexPt_all,h_simPt,1,1,"b");
   h_ele_ptEff_all->Print();
   h_ele_ptEff_all->GetXaxis()->SetTitle("p_{T}");
   h_ele_ptEff_all->GetYaxis()->SetTitle("rec/gen");
@@ -408,16 +615,16 @@ GsfElectronMCAnalyzer::endJob(){
   // classes
   TH1F *h_ele_eta_goldenFrac = (TH1F*)h_ele_eta_golden->Clone("h_ele_eta_goldenFrac");
   h_ele_eta_goldenFrac->Reset();
-  h_ele_eta_goldenFrac->Divide(h_ele_eta_golden,h_ele_eta,1,1);
+  h_ele_eta_goldenFrac->Divide(h_ele_eta_golden,h_ele_eta,1,1,"b");
   TH1F *h_ele_eta_bbremFrac = (TH1F*)h_ele_eta_bbrem->Clone("h_ele_eta_bbremFrac");
   h_ele_eta_bbremFrac->Reset();
-  h_ele_eta_bbremFrac->Divide(h_ele_eta_bbrem,h_ele_eta,1,1);
+  h_ele_eta_bbremFrac->Divide(h_ele_eta_bbrem,h_ele_eta,1,1,"b");
   TH1F *h_ele_eta_narrowFrac = (TH1F*)h_ele_eta_narrow->Clone("h_ele_eta_narrowFrac");
   h_ele_eta_narrowFrac->Reset();
-  h_ele_eta_narrowFrac->Divide(h_ele_eta_narrow,h_ele_eta,1,1);
+  h_ele_eta_narrowFrac->Divide(h_ele_eta_narrow,h_ele_eta,1,1,"b");
   TH1F *h_ele_eta_showerFrac = (TH1F*)h_ele_eta_shower->Clone("h_ele_eta_showerFrac");
   h_ele_eta_showerFrac->Reset();
-  h_ele_eta_showerFrac->Divide(h_ele_eta_shower,h_ele_eta,1,1);
+  h_ele_eta_showerFrac->Divide(h_ele_eta_shower,h_ele_eta,1,1,"b");
   
   // fbrem
   TH1F *h_ele_xOverX0VsEta = new TH1F( "h_ele_xOverx0VsEta","mean X/X_0 vs eta",nbineta/2,0.0,2.5);
