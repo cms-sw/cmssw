@@ -107,7 +107,14 @@ namespace edm
       produces< HFDigiCollection >(HFDigiCollectionDM_);
       produces< ZDCDigiCollection >(ZDCDigiCollectionDM_);
 
-      HcalDigiWorker_ = new DataMixingHcalDigiWorker(ps);
+      MergeHcalDigisProd_ = (ps.getParameter<std::string>("HcalDigiMerge")=="FullProd");
+
+      if(MergeHcalDigisProd_) {
+	HcalDigiWorkerProd_ = new DataMixingHcalDigiWorkerProd(ps);
+      }
+      else {HcalDigiWorker_ = new DataMixingHcalDigiWorker(ps);
+      }
+
 
     }
     else{
@@ -231,7 +238,7 @@ namespace edm
     delete sel_;
     if(MergeEMDigis_){ delete EMDigiWorker_;}
     else {delete EMWorker_;}
-    if(MergeHcalDigis_) { delete HcalDigiWorker_;}
+    if(MergeHcalDigis_) { delete HcalDigiWorker_; delete HcalDigiWorkerProd_;}
     else {delete HcalWorker_;}
     delete MuonWorker_;
     delete SiStripWorker_;
@@ -250,7 +257,14 @@ namespace edm
     else{ EMWorker_->addEMSignals(e);}
 
     // Hcal
-    if(MergeHcalDigis_) { HcalDigiWorker_->addHcalSignals(e, ES);}
+    if(MergeHcalDigis_) { 
+      if(MergeHcalDigisProd_){
+	HcalDigiWorkerProd_->addHcalSignals(e, ES);
+      }
+      else{
+	HcalDigiWorker_->addHcalSignals(e, ES);
+      }
+    }
     else {HcalWorker_->addHcalSignals(e);}
     
     // Muon
@@ -279,7 +293,13 @@ namespace edm
     else {EMWorker_->addEMPileups(bcr, e, eventNr); }
 
     // Hcal
-    if(MergeHcalDigis_) {    HcalDigiWorker_->addHcalPileups(bcr, e, eventNr, ES);}
+    if(MergeHcalDigis_) {    
+      if(MergeHcalDigisProd_) {    
+	HcalDigiWorkerProd_->addHcalPileups(bcr, e, eventNr, ES);
+      }
+      else{
+	HcalDigiWorker_->addHcalPileups(bcr, e, eventNr, ES);}
+    }
     else {HcalWorker_->addHcalPileups(bcr, e, eventNr);}
 
     // Muon
@@ -320,7 +340,14 @@ namespace edm
     else {EMWorker_->putEM(e);}
 
     // Hcal
-    if(MergeHcalDigis_) {HcalDigiWorker_->putHcal(e,ES);}
+    if(MergeHcalDigis_) {
+      if(MergeHcalDigisProd_) {
+	HcalDigiWorkerProd_->putHcal(e,ES);
+      }
+      else{
+	HcalDigiWorker_->putHcal(e,ES);
+      }
+    }
     else {HcalWorker_->putHcal(e);}
 
     // Muon

@@ -25,6 +25,7 @@
 #include "SimGeneral/DataMixingModule/plugins/DataMixingHcalWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingEMDigiWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingHcalDigiWorker.h"
+#include "SimGeneral/DataMixingModule/plugins/DataMixingHcalDigiWorkerProd.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingMuonWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingSiStripWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingSiPixelWorker.h"
@@ -143,7 +144,10 @@ namespace edm
       
       DataMixingHcalWorker *HcalWorker_ ;
       DataMixingHcalDigiWorker *HcalDigiWorker_ ;
+      DataMixingHcalDigiWorkerProd *HcalDigiWorkerProd_ ;
+
       bool MergeHcalDigis_;
+      bool MergeHcalDigisProd_;
 
       // Muons
 
