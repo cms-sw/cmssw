@@ -1,4 +1,6 @@
 import FWCore.ParameterSet.Config as cms
+from DQM.HcalMonitorModule.HcalMonitorModule_cfi import * # there's probably a better way to do this, once I discover the difference between import and load
+from DQM.HcalMonitorClient.HcalMonitorClient_cfi import * # ditto
 
 process = cms.Process("HCALDQM")
 #----------------------------
@@ -99,12 +101,9 @@ process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_zdc_cfi")
 
 # hcalMonitor configurable values -----------------------
 process.hcalMonitor.debug = False
-process.hcalMonitor.DigiOccThresh = -999999999 ##Temporary measure while DigiOcc is reworked.
-#process.hcalMonitor.PedestalsPerChannel = False
-#process.hcalMonitor.PedestalsInFC = True
 
 # Turn on/off individual hcalMonitor modules ------------
-# Expert-level info :  Turn off everything except ExpertMonitor
+# Expert-level info :  Turn off everything except ExpertMonitor, EEUSMonitor
 process.hcalMonitor.DataFormatMonitor   = False
 process.hcalMonitor.DigiMonitor         = False
 process.hcalMonitor.RecHitMonitor       = False
@@ -118,6 +117,10 @@ process.hcalMonitor.CaloTowerMonitor    = False
 process.hcalMonitor.MTCCMonitor         = False
 process.hcalMonitor.HcalAnalysis        = False
 process.hcalMonitor.ExpertMonitor       = True
+process.hcalMonitor.EEUSMonitor         = True
+
+# This takes the default cfg values from the hcalMonitor base class and applies them to the subtasks.
+setHcalTaskValues(process.hcalMonitor)
 
 #-----------------------------
 # Scheduling
@@ -127,6 +130,8 @@ process.options = cms.untracked.PSet(
         'TooManyProducts', 
         'TooFewProducts')
     )
+
+# We don't bother to run the client in expert mode right now
 
 process.p = cms.Path(process.hcalDigis*process.horeco*process.hfreco*process.hbhereco*process.zdcreco*process.hcalMonitor*process.dqmEnv*process.dqmSaver)
 
