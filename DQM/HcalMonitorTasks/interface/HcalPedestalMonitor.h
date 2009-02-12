@@ -10,8 +10,8 @@
 
 /** \class HcalPedestalMonitor
   *  
-  * $Date: 2008/10/26 18:22:33 $
-  * $Revision: 1.19 $
+  * $Date: 2009/01/21 15:01:37 $
+  * $Revision: 1.20 $
   * \author W. Fisher - FNAL
   */
 
@@ -107,15 +107,15 @@ private:
 
 
   //Quick pedestal arrays -- these store the values that are used to compute pedestals
-  unsigned int pedcounts[ETABINS][PHIBINS][4];
-  float rawpedsum[ETABINS][PHIBINS][4];
-  float rawpedsum2[ETABINS][PHIBINS][4];
-  float subpedsum[ETABINS][PHIBINS][4];
-  float subpedsum2[ETABINS][PHIBINS][4];
-  float fC_rawpedsum[ETABINS][PHIBINS][4];
-  float fC_rawpedsum2[ETABINS][PHIBINS][4];
-  float fC_subpedsum[ETABINS][PHIBINS][4];
-  float fC_subpedsum2[ETABINS][PHIBINS][4];
+  unsigned int pedcounts[ETABINS][PHIBINS][6];
+  float rawpedsum[ETABINS][PHIBINS][6];
+  float rawpedsum2[ETABINS][PHIBINS][6];
+  float subpedsum[ETABINS][PHIBINS][6];
+  float subpedsum2[ETABINS][PHIBINS][6];
+  float fC_rawpedsum[ETABINS][PHIBINS][6];
+  float fC_rawpedsum2[ETABINS][PHIBINS][6];
+  float fC_subpedsum[ETABINS][PHIBINS][6];
+  float fC_subpedsum2[ETABINS][PHIBINS][6];
 
 
 
