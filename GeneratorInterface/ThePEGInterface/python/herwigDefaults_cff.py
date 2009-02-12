@@ -10,25 +10,28 @@ herwigDefaultsBlock = cms.PSet(
 	run = cms.string('LHC'),
 
 	cmsDefaults = cms.vstring(
+		'+pdfMRST2001',
 		'+basicSetup',
 		'+cm14TeV',
-		'+pdfMRST2001',
 		'+setParticlesStableForDetector',
 	),
 
 	basicSetup = cms.vstring(
 		'cd /Herwig/Generators',
 		'create ThePEG::RandomEngineGlue /Herwig/RandomGlue',
+		'set LHCGenerator:RandomNumberGenerator /Herwig/RandomGlue',
 		'set LHCGenerator:NumberOfEvents 10000000',
 		'set LHCGenerator:DebugLevel 1',
 		'set LHCGenerator:PrintEvent 0',
 		'set LHCGenerator:MaxErrors 10000',
-		'set LHCGenerator:RandomNumberGenerator /Herwig/RandomGlue',
-		'cd /'
+		'cd /Herwig/Particles',
+		'set p+:PDF /cmsPDFSet',
+		'set pbar-:PDF /cmsPDFSet',
+		'cd /',
 	),
 
 	pdfMRST2001 = cms.vstring(
-		''
+		'cp /Herwig/Partons/MRST /cmsPDFSet'
 	),	
 	pdfCTEQ5L = cms.vstring(
 		'mkdir /LHAPDF',
@@ -36,9 +39,7 @@ herwigDefaultsBlock = cms.PSet(
 		'create ThePEG::LHAPDF CTEQ5L',
 		'set CTEQ5L:PDFName cteq5l.LHgrid',
 		'set CTEQ5L:RemnantHandler /Herwig/Partons/HadronRemnants',
-		'cp CTEQ5L cmsPDFSet',
-		'set /Herwig/Particles/p+:PDF cmsPDFSet',
-		'set /Herwig/Particles/pbar-:PDF cmsPDFSet',
+		'cp CTEQ5L /cmsPDFSet',
 		'cd /',
 	),
 	pdfCTEQ6L1 = cms.vstring(
@@ -47,9 +48,7 @@ herwigDefaultsBlock = cms.PSet(
 		'create ThePEG::LHAPDF CTEQ6L1',
 		'set CTEQ6L1:PDFName cteq6ll.LHpdf',
 		'set CTEQ6L1:RemnantHandler /Herwig/Partons/HadronRemnants',
-		'cp CTEQ6L1 cmsPDFSet',
-		'set /Herwig/Particles/p+:PDF cmsPDFSet',
-		'set /Herwig/Particles/pbar-:PDF cmsPDFSet',
+		'cp CTEQ6L1 /cmsPDFSet',
 		'cd /',
 	),
 
@@ -88,29 +87,27 @@ herwigDefaultsBlock = cms.PSet(
 	),
 
 	lheDefaults = cms.vstring(
-		'cd /Herwig/Cuts', 
-		'create ThePEG::Cuts NoCuts', 
-		'cd /Herwig/EventHandlers', 
-		'create ThePEG::LesHouchesInterface LHEReader', 
-		'set LHEReader:Cuts /Herwig/Cuts/NoCuts', 
-		'set LHEReader:PDFA /LHAPDF/cmsPDFSet', 
-		'set LHEReader:PDFB /LHAPDF/cmsPDFSet', 
-		'create ThePEG::LesHouchesEventHandler LHEHandler', 
-		'set LHEHandler:WeightOption VarWeight', 
-		'set LHEHandler:PartonExtractor /Herwig/Partons/QCDExtractor', 
-		'set LHEHandler:CascadeHandler /Herwig/Shower/ShowerHandler', 
-		'set LHEHandler:HadronizationHandler /Herwig/Hadronization/ClusterHadHandler', 
-		'set LHEHandler:DecayHandler /Herwig/Decays/DecayHandler', 
-		'insert LHEHandler:LesHouchesReaders 0 LHEReader', 
-		'cd /Herwig/Generators', 
+		'cd /Herwig/Cuts',
+		'create ThePEG::Cuts NoCuts',
+		'cd /Herwig/EventHandlers',
+		'create ThePEG::LesHouchesInterface LHEReader',
+		'set LHEReader:Cuts /Herwig/Cuts/NoCuts',
+		'create ThePEG::LesHouchesEventHandler LHEHandler',
+		'set LHEHandler:WeightOption VarWeight',
+		'set LHEHandler:PartonExtractor /Herwig/Partons/QCDExtractor',
+		'set LHEHandler:CascadeHandler /Herwig/Shower/ShowerHandler',
+		'set LHEHandler:HadronizationHandler /Herwig/Hadronization/ClusterHadHandler',
+		'set LHEHandler:DecayHandler /Herwig/Decays/DecayHandler',
+		'insert LHEHandler:LesHouchesReaders 0 LHEReader',
+		'cd /Herwig/Generators',
 		'set LHCGenerator:EventHandler /Herwig/EventHandlers/LHEHandler',
 		'cd /',
 	),
 
 	lheDefaultPDFs = cms.vstring(
-		'cd /Herwig/EventHandlers', 
-		'set LHEReader:PDFA /LHAPDF/cmsPDFSet', 
-		'set LHEReader:PDFB /LHAPDF/cmsPDFSet',
+		'cd /Herwig/EventHandlers',
+		'set LHEReader:PDFA /cmsPDFSet',
+		'set LHEReader:PDFB /cmsPDFSet',
 		'cd /',
 	)
 )

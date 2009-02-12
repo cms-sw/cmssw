@@ -12,9 +12,7 @@
 #include "FWCore/Framework/interface/GeneratedInputSource.h"
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-//#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-//#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -60,9 +58,6 @@ ThePEGSource::~ThePEGSource()
 void ThePEGSource::beginRun(edm::Run &run)
 {
 	initGenerator();
-
-//	edm::Service<edm::RandomNumberGenerator> rng;
-//	eg_->setSeed(rng->mySeed());
 }
 
 void ThePEGSource::endRun(edm::Run &run)

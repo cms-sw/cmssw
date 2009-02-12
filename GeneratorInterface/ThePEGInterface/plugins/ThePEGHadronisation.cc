@@ -18,9 +18,7 @@
 #include <ThePEG/LesHouches/LesHouchesReader.h>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-//#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-//#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/Event.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
@@ -97,6 +95,7 @@ std::auto_ptr<HepMC::GenEvent> ThePEGHadronisation::doHadronisation()
 
 	ThePEG::EventPtr thepegEvent;
 	try {
+		flushRandomNumberGenerator();
 		thepegEvent = eg_->shoot();
 	} catch(ThePEG::Stop) {
 		// no event
@@ -126,11 +125,7 @@ void ThePEGHadronisation::newRunInfo(
 {
 	proxy_->loadRunInfo(runInfo);
 
-	flushRandomNumberGenerator();
 	initGenerator();
-
-//	edm::Service<edm::RandomNumberGenerator> rng;
-//	eg_->setSeed(rng->mySeed());
 }
 
 DEFINE_LHE_HADRONISATION_PLUGIN(ThePEGHadronisation);

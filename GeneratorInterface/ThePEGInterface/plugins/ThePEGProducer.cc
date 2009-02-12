@@ -12,9 +12,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-//#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-//#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -59,9 +57,6 @@ ThePEGProducer::~ThePEGProducer()
 void ThePEGProducer::beginRun(edm::Run &run, const edm::EventSetup &es)
 {
 	initGenerator();
-
-//	edm::Service<edm::RandomNumberGenerator> rng;
-//	eg_->setSeed(rng->mySeed());
 }
 
 void ThePEGProducer::endRun(edm::Run &run, const edm::EventSetup &es)
