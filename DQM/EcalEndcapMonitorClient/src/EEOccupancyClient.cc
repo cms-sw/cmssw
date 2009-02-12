@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyClient.cc
  *
- * $Date: 2008/08/11 20:53:49 $
- * $Revision: 1.28 $
+ * $Date: 2009/01/29 11:17:45 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -399,8 +399,8 @@ void EEOccupancyClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
   string imgNameMapThr[2][2], imgNameProjRThr[2][2], imgNameProjPhiThr[2][2];
   string imgName, meName;
 
-  TCanvas* cMap = new TCanvas("cMap", "cMap", csize2D, csize2D);
-  TCanvas* cProj = new TCanvas("cProj", "cProj", csize1D, csize1D);
+  TCanvas* cMap = new TCanvas("cMapEE", "cMapEE", csize2D, csize2D);
+  TCanvas* cProj = new TCanvas("cProjEE", "cProjEE", csize1D, csize1D);
 
   TH2F* obj2f;
   TH1F* obj1fR;
