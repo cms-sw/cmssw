@@ -3,6 +3,7 @@
 #define HcalDCCHeader_H
 
 #include <iostream>
+#include "DataFormats/HcalDigi/interface/HcalCalibrationEventTypes.h"
 class HcalHTRData;
 
 /**  \class HcalDCCHeader
@@ -10,8 +11,8 @@ class HcalHTRData;
  *  Interpretive class for an HcalDCCHeader
  *   
  *
- *  $Date: 2008/08/26 09:33:44 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/09/11 13:19:21 $
+ *  $Revision: 1.7 $
  *  \author J. Mans - UMD
  */
 
@@ -49,6 +50,10 @@ class HcalDCCHeader {
   inline unsigned int getSlink64ReservedBits() const { return (  (commondataformat3>>4)&0x00FFFFFF ); }
   /** Get the Beginning Of Event bits.  If it's not the first or last CDF Slink64 word, the high 4 bits must be zero.*/
   inline short BOEshouldBeZeroAlways() const { return ( (commondataformat3>>28) & 0x0F); }
+
+  /** Get the Calibration Type*/
+  inline bool isCalibType() const { return ( 0 != getCalibType ());}
+  inline HcalCalibrationEventType  getCalibType() const { return HcalCalibrationEventType ((commondataformat3>>24)&0x0000000F);}
 
   //// The 64-bit DCC Header 
   inline short getDCCDataFormatVersion() const { return (dcch0 & 0xFF); }
