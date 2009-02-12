@@ -21,13 +21,15 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
   unpackCalib_(conf.getUntrackedParameter<bool>("UnpackCalib",false)),
   unpackZDC_(conf.getUntrackedParameter<bool>("UnpackZDC",false)),
   silent_(conf.getUntrackedParameter<bool>("silent",true)),
-  complainEmptyData_(conf.getUntrackedParameter<bool>("ComplainEmptyData",false))
+  complainEmptyData_(conf.getUntrackedParameter<bool>("ComplainEmptyData",false)),
+  expectedOrbitMessageTime_(conf.getUntrackedParameter<int>("ExpectedOrbitMessageTime",-1))
 {
   if (fedUnpackList_.empty()) {
     for (int i=FEDNumbering::getHcalFEDIds().first; i<=FEDNumbering::getHcalFEDIds().second; i++)
       fedUnpackList_.push_back(i);
   } 
   
+  unpacker_.setExpectedOrbitMessageTime(expectedOrbitMessageTime_);
   std::ostringstream ss;
   for (unsigned int i=0; i<fedUnpackList_.size(); i++) 
     ss << fedUnpackList_[i] << " ";

@@ -38,6 +38,7 @@ private:
   int firstFED_;
   bool unpackCalib_, unpackZDC_;
   bool silent_,complainEmptyData_;
+  int expectedOrbitMessageTime_;
 
   struct Statistics {
     int max_hbhe, ave_hbhe;
