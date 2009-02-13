@@ -20,6 +20,7 @@
 <use name=DataFormats/L1Trigger>
 
 <use name=root>
+<use name=HLTrigger/HLTcore>
 
 <use name=DataFormats/HcalRecHit>
 <flags EDM_PLUGIN=1>
@@ -29,4 +30,5 @@
    <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=DataFormats/HcalRecHit>
+   <use name=HLTrigger/HLTcore>
 </export>
