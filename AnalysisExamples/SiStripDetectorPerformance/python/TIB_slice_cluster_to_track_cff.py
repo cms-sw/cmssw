@@ -72,7 +72,7 @@ combinatorialcosmicseedfinder.LowerScintillatorParameters = cms.PSet(
 MeasurementTracker.pixelClusterProducer = '' ##
 
 ckfTrackCandidates.TrajectoryBuilder = 'GroupedCkfTrajectoryBuilder'
-ckfTrackCandidates.SeedProducer = 'combinatorialcosmicseedfinder'
+ckfTrackCandidates.src = 'combinatorialcosmicseedfinder'
 ckfBaseTrajectoryFilter.filterPset.minPt = 0.01
 ckfBaseTrajectoryFilter.filterPset.maxLostHits = 3
 ckfBaseTrajectoryFilter.filterPset.maxConsecLostHits = 1
