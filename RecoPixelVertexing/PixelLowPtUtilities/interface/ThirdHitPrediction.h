@@ -35,7 +35,9 @@ public:
   typedef TkTrackingRegionsMargin<float> Margin;
 
   ThirdHitPrediction
-    (float originRBound, float ptMin, GlobalPoint inner, GlobalPoint outer, const edm::EventSetup& es, double nSigMultipleScattering, double maxAngleRatio);
+    (float originRBound, float ptMin, GlobalPoint inner, GlobalPoint outer,
+const edm::EventSetup& es, double nSigMultipleScattering, double
+maxAngleRatio, std::string builderName);
   ~ThirdHitPrediction();
 
   void getRanges(const DetLayer *layer, float phi[],float rz[]);

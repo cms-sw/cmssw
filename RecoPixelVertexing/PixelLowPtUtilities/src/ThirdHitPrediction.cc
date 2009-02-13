@@ -23,16 +23,15 @@ using namespace std;
 ThirdHitPrediction::ThirdHitPrediction
   (float originRBound, float ptMin, GlobalPoint inner, GlobalPoint outer,
    const edm::EventSetup& es,
-   double nSigMultipleScattering, double maxAngleRatio)
+   double nSigMultipleScattering, double maxAngleRatio,
+   string builderName)
 {
  using namespace edm;
  ESHandle<MagneticField> magfield;
  es.get<IdealMagneticFieldRecord>().get(magfield);
 
  edm::ESHandle<TransientTrackingRecHitBuilder> ttrhbESH;
-// std::string builderName = ZZ`Z.getParameter<std::string>("TTRHBuilder");
-// es.get<TransientRecHitRecord>().get(builderName,ttrhbESH);
- es.get<TransientRecHitRecord>().get("TTRHBuilderWithoutAngle4PixelTriplets",ttrhbESH);
+ es.get<TransientRecHitRecord>().get(builderName,ttrhbESH);
  theTTRecHitBuilder = ttrhbESH.product();
 
  Bz = fabs(magfield->inInverseGeV(GlobalPoint(0,0,0)).z());

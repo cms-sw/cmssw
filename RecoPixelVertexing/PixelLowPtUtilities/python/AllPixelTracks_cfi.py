@@ -36,7 +36,8 @@ allPixelTracks = cms.EDFilter("PixelTrackProducerWithZPos",
             ComponentName = cms.string('TripletGenerator'),
             checkClusterShape = cms.bool(True),
             maxAngleRatio = cms.double(10.0),
-            rzTolerance = cms.double(0.2)
+            rzTolerance = cms.double(0.2),
+            TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelTriplets')
         )
     )
 )

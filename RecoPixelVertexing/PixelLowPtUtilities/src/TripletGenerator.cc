@@ -21,8 +21,8 @@ using namespace std;
 using namespace ctfseeding;
 
 /*****************************************************************************/
-void TripletGenerator::init( const HitPairGenerator & pairs,
-      const std::vector<SeedingLayer> & layers,
+void TripletGenerator::init(const HitPairGenerator & pairs,
+      const vector<SeedingLayer> & layers,
       LayerCacheType* layerCache)
 {
   thePairGenerator = pairs.clone();
@@ -34,6 +34,8 @@ void TripletGenerator::init( const HitPairGenerator & pairs,
   checkClusterShape       = ps.getParameter<bool>("checkClusterShape"); 
   rzTolerance             = ps.getParameter<double>("rzTolerance");
   maxAngleRatio           = ps.getParameter<double>("maxAngleRatio");
+
+  builderName             = ps.getParameter<string>("TTRHBuilder");
 }
 
 /*****************************************************************************/
@@ -108,7 +110,7 @@ cerr << " RecHits " + HitInfo::getInfo(*recHits[0]) +
     ThirdHitPrediction
       thePrediction(region.originRBound(), region.ptMin(),
                     points[0],points[1], es,
-                    nSigMultipleScattering,maxAngleRatio);
+                    nSigMultipleScattering,maxAngleRatio,builderName);
 
     // Look at all layers
     for(int il=0; il<size; il++)

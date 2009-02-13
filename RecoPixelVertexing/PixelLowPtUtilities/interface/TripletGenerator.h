@@ -54,6 +54,8 @@ class   TripletGenerator :
   bool checkClusterShape;
   double rzTolerance;
   double maxAngleRatio;
+
+  std::string builderName;
 };
 
 #endif
