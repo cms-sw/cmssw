@@ -1,142 +1,11 @@
-#include "SimTracker/SiStripDigitizer/interface/SiLinearChargeDivider.h"
-#include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "DataFormats/GeometryVector/interface/LocalVector.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <TCanvas.h>
+#include <TF1.h>
 
-SiLinearChargeDivider::SiLinearChargeDivider(const edm::ParameterSet& conf, CLHEP::HepRandomEngine& eng):
-  conf_(conf),theParticleDataTable(0),rndEngine(eng){
-  // Run APV in peak instead of deconvolution mode, which degrades the time resolution.
-  peakMode=conf_.getParameter<bool>("APVpeakmode");
-
-  // Enable interstrip Landau fluctuations within a cluster.
-  fluctuateCharge=conf_.getParameter<bool>("LandauFluctuations");
-  
-  // Number of segments per strip into which charge is divided during
-  // simulation. If large, precision of simulation improves.
-  chargedivisionsPerStrip=conf_.getParameter<int>("chargeDivisionsPerStrip");
- 
-  // delta cutoff in MeV, has to be same as in Geant (0.120425 MeV corresponding to 100um range for electrons)
-  deltaCut=conf_.getParameter<double>("DeltaProductionCut");
-
-  //Offset for digitization during the MTCC and in general for taking cosmic particle
-  //The value to be used it must be evaluated and depend on the volume defnition used
-  //for the cosimc generation (Considering only the tracker the value is 11 ns)
-  cosmicShift=conf_.getUntrackedParameter<double>("CosmicDelayShift");
-  
-  // Geant4 engine used to fluctuate the charge from segment to segment
-  fluctuate = new SiG4UniversalFluctuation(rndEngine);
-}
-
-SiLinearChargeDivider::~SiLinearChargeDivider(){
-  delete fluctuate;
-}
-
-SiChargeDivider::ionization_type 
-SiLinearChargeDivider::divide(const PSimHit& hit, const LocalVector& driftdir, double moduleThickness, const StripGeomDetUnit& det) {
-
-  // computes the number of segments from number of segments per strip times number of strips.
-  int NumberOfSegmentation =  
-    (int)(1 + chargedivisionsPerStrip*fabs(driftXPos(hit.exitPoint(), driftdir, moduleThickness)-
-                                           driftXPos(hit.entryPoint(), driftdir, moduleThickness) )
-                                     /det.specificTopology().localPitch(hit.localPosition())         ); 
- 
-  // Eloss in GeV
-  float eLoss = hit.energyLoss();
-
-  // signal after pulse shape correction
-  float decSignal = TimeResponse(hit, det);
-
-  // Prepare output
-  ionization_type _ionization_points;
-  _ionization_points.resize(NumberOfSegmentation);
-
-  // Fluctuate charge in track subsegments
-  LocalVector direction = hit.exitPoint() - hit.entryPoint();  
-  float* eLossVector = new float[NumberOfSegmentation];
-  if( fluctuateCharge ) {
-    fluctuateEloss(hit.particleType(), hit.pabs(), eLoss, direction.mag(), NumberOfSegmentation, eLossVector);   
-    // Save the energy of each segment
-    for ( int i = 0; i != NumberOfSegmentation; i++) {
-      // take energy value from vector eLossVector, 
-      _ionization_points[i] = EnergyDepositUnit(eLossVector[i]*decSignal/eLoss,
-                                                hit.entryPoint()+float((i+0.5)/NumberOfSegmentation)*direction);
-    }
-  } else {
-    // Save the energy of each segment
-    for ( int i = 0; i != NumberOfSegmentation; i++) {
-      // take energy value from eLoss average over n.segments.
-      _ionization_points[i] = EnergyDepositUnit(decSignal/float(NumberOfSegmentation),
-                                                hit.entryPoint()+float((i+0.5)/NumberOfSegmentation)*direction);
-    }
-  }
- 
-  delete[] eLossVector;
-  return _ionization_points;
-}
-
-void SiLinearChargeDivider::fluctuateEloss(int pid, float particleMomentum, 
-                                           float eloss, float length, 
-                                           int NumberOfSegs,float elossVector[]) {
-
-  // Get the nass if the particle, in MeV.
-  // Protect from particles with Mass = 0, assuming then the pion mass
-  assert(theParticleDataTable != 0);
-  ParticleData const * particle = theParticleDataTable->particle( pid );
-  double particleMass = particle ? particle->mass()*1000 : 139.57;
-  if(!particle) {
-    LogDebug("SiLinearChargeDivider") << "Cannot find particle of type "<<pid
-                                      << " in the PDT we assign to this particle the mass of the Pion";
-  }
-  if(fabs(particleMass)<1.e-6 || pid == 22) particleMass = 139.57;
-
-  // Generate charge fluctuations.
-  float sum=0.;
-  double deltaCutoff;
-  double mom = particleMomentum*1000.;
-  double seglen = length/NumberOfSegs*10.;
-  double segeloss = (1000.*eloss)/NumberOfSegs;
-  for (int i=0;i<NumberOfSegs;i++) {
-    // The G4 routine needs momentum in MeV, mass in MeV, delta-cut in MeV,
-    // track segment length in mm, segment eloss in MeV 
-    // Returns fluctuated eloss in MeV
-    // the cutoff is sometimes redefined inside, so fix it.
-    deltaCutoff = deltaCut;
-    sum += (elossVector[i] = fluctuate->SampleFluctuations(mom,particleMass,deltaCutoff,seglen,segeloss)/1000.);
-  }
-  
-  if(sum>0.) {  // If fluctuations give eloss>0.
-    // Rescale to the same total eloss
-    float ratio = eloss/sum;
-    for (int ii=0;ii<NumberOfSegs;ii++) elossVector[ii]= ratio*elossVector[ii];
-  } else {  // If fluctuations gives 0 eloss
-    float averageEloss = eloss/NumberOfSegs;
-    for (int ii=0;ii<NumberOfSegs;ii++) elossVector[ii]= averageEloss; 
-  }
-  return;
-}
-
-float SiLinearChargeDivider::PeakShape(const PSimHit& hit, const StripGeomDetUnit& det){
-  // x is difference between the tof and the tof for a photon (reference)
-  // converted into a bin number
-  int x = int(((det.surface().toGlobal(hit.localPosition()).mag()/30.) - cosmicShift - hit.tof())*2)+120;
-  if(x < 0 || x > 920) return 0;
-  return hit.energyLoss()*peakValues[x];
-}
-
-float SiLinearChargeDivider::DeconvolutionShape(const PSimHit& hit, const StripGeomDetUnit& det){
-  // x is difference between the tof and the tof for a photon (reference)
-  // converted into a bin number
-  int x = int(((det.surface().toGlobal(hit.localPosition()).mag()/30.) - cosmicShift - hit.tof())*10)+300;
-  if(x < 0 || x > 650) return 0;
-  return hit.energyLoss()*decoValues[x];
-}
+//validation of the new pulse shape
+// comparison of old and new functions
 
 // Automatically generated using parametrizePulse::generateCode(low=-30, high=35, step=0.1)
-// That pulse shapes correspond to the ones described in CMS NOTE 2007/027
-// with tau=50ns and delta=20ns
-// It is fairly similar to the previous analytical forms, except in the tails
-float SiLinearChargeDivider::decoValues[651] = 
+float decoValues[651] = 
                            { 0.00924234, 0.00994226, 0.0106394, 0.0115231, 0.0127115
                            , 0.0138952, 0.015074, 0.0162481, 0.0174175, 0.0185821
                            , 0.019742, 0.0208972, 0.0220476, 0.0231934, 0.0243346
@@ -269,7 +138,7 @@ float SiLinearChargeDivider::decoValues[651] =
                            , 0.00862127, 0.00813344, 0.00764753, 0.00716353, 0.00668143
                            , 0.00620122 };
 
-float SiLinearChargeDivider::peakValues[921] = 
+float peakValues[921] = 
                            { 0.000598718, 0.00179789, 0.00380417, 0.00622833, 0.00934726
                            , 0.0133483, 0.0172689, 0.0225072, 0.0282688, 0.0339136
                            , 0.040572, 0.0482572, 0.0557854, 0.063159, 0.0727605
@@ -455,3 +324,82 @@ float SiLinearChargeDivider::peakValues[921] =
                            , 0.00329962, 0.00327046, 0.00324155, 0.00321289, 0.00318449
                            , 0.00315633, 0.00312841, 0.00310074, 0.00307331, 0.00304612
                            , 0.00301916 };
+
+Double_t oldPeakShape(Double_t *x, Double_t *) {
+  // Time when read out relative to time hit produced.
+  float readTimeNorm = -x[0]/52.17;
+  // return the energyLoss weighted CR-RC shape peaked at t0.
+  if (1 + readTimeNorm > 0) {
+    return (1 + readTimeNorm)*exp(-readTimeNorm);
+  } else {
+    return 0.;
+  }
+}
+
+Double_t oldDeconvolutionShape(Double_t *x, Double_t *) {
+  // Time when read out relative to time hit produced.
+  float readTimeNorm = -x[0]/12.06;
+  // return the energyLoss weighted with a gaussian centered at t0 
+  return exp(-0.5*readTimeNorm*readTimeNorm);
+}
+
+//new peak pulse
+Double_t newPeakShape(Double_t *x, Double_t *) {
+  // x is difference between the tof and the tof for a photon (reference)
+  int xx = int(-x[0]*2)+120;
+  if(xx < 0 || xx > 920) return 0;
+  return peakValues[xx];
+}
+
+//new deconv pulse
+Double_t newDeconvolutionShape(Double_t *x, Double_t *){
+  // x is difference between the tof and the tof for a photon (reference)
+  // converted into a bin number
+  int xx = int(-x[0]*10)+300;
+  if(xx < 0 || xx > 650) return 0;
+  return decoValues[xx];
+}
+
+// difference in peak mode
+Double_t diffPeakShape(Double_t *x, Double_t *) {
+  Double_t oldone = oldPeakShape(x,NULL);
+  Double_t newone = newPeakShape(x,NULL);
+  if(newone>1e-5) return (oldone-newone)/newone;
+  else return 0.;
+}
+
+// difference in deconv mode
+Double_t diffDeconvolutionShape(Double_t *x, Double_t *) {
+  Double_t oldone = oldDeconvolutionShape(x,NULL);
+  Double_t newone = newDeconvolutionShape(x,NULL);
+  if(newone>1e-5) return (oldone-newone)/newone;
+  else return 0.;
+}
+
+void compare()
+{
+  TF1 *theNewPeak = new TF1("theNewPeak",newPeakShape,-400,100,0);
+  TF1 *theOldPeak = new TF1("theOldPeak",oldPeakShape,-400,100,0);
+  TF1 *theNewDeco = new TF1("theNewDeco",newDeconvolutionShape,-50,50,0);
+  TF1 *theOldDeco = new TF1("theOldDeco",oldDeconvolutionShape,-50,50,0);
+ 
+  new TCanvas;
+  theOldPeak->Draw();
+  theNewPeak->Draw("same");
+  new TCanvas;
+  theNewDeco->Draw();
+  theOldDeco->Draw("same");
+
+}
+
+void difference()
+{
+  TF1 *theDiffPeak = new TF1("theDiffPeak",diffPeakShape,-400,100,0);
+  TF1 *theDiffDeco = new TF1("theDiffDeco",diffDeconvolutionShape,-50,50,0);
+
+  new TCanvas;
+  theDiffPeak->Draw();
+  new TCanvas;
+  theDiffDeco->Draw();
+
+}
