@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/02/11 09:44:15 $
- * $Revision: 1.105 $
+ * $Date: 2009/02/11 18:36:29 $
+ * $Revision: 1.106 $
  * \author W Fisher
  * \author J Temple
  *
@@ -539,8 +539,8 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 
   // skip this event if we're prescaling...
   ievt_pre_++; // need to increment counter before calling prescale
-  if(prescale()) return;
 
+  if(prescale()) return;
   meLatency_->Fill(psTime_.elapsedTime);
 
   // Do default setup...
@@ -611,7 +611,11 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 
   if (!(e.getByLabel(inputLabelDigi_,hbhe_digi)))
     digiOK_=false;
-
+  /*
+  if (!(e.getByType(hbhe_digi)))
+    digiOK_=false;
+  cout <<"TEST HBHE = "<<(*hbhe_digi).size()<<endl;
+  */
   if (digiOK_&&!hbhe_digi.isValid()) {
     digiOK_=false;
     LogWarning("HcalMonitorModule")<< inputLabelDigi_<<" hbhe_digi not available";
@@ -634,7 +638,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   if (digiOK_&&!ho_digi.isValid()) {
     digiOK_=false;
   }
-
+  
   // check which Subdetectors are on by seeing which are reading out FED data
   // Assume subdetectors aren't present, unless we explicitly find otherwise
 
@@ -730,7 +734,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     {
       zdchitOK_ = false;
     }
-
+  
   // try to get calotowers 
   if (ctMon_!=NULL)
     {
@@ -788,7 +792,9 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     }
   // Pedestal monitor task
   if((pedMon_!=NULL) && (evtMask&DO_HCAL_PED_CALIBMON) && digiOK_) 
-    pedMon_->processEvent(*hbhe_digi,*ho_digi,*hf_digi,*conditions_);
+    {
+      pedMon_->processEvent(*hbhe_digi,*ho_digi,*hf_digi,*conditions_);
+    }
   if (showTiming_)
     {
       cpu_timer.stop();
