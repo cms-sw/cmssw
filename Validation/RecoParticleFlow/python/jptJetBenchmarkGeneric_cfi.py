@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-jets = 'iterativeCone5CaloJets'
+jets = 'JetPlusTrackZSPCorJetIcone5'
 
-caloJetBenchmarkGeneric = cms.EDAnalyzer("GenericBenchmarkAnalyzer",
+jptJetBenchmarkGeneric = cms.EDAnalyzer("GenericBenchmarkAnalyzer",
     OutputFile = cms.untracked.string('jetBenchmarkGeneric.root'),
     InputTruthLabel = cms.InputTag('iterativeCone5GenJets'),
     maxEta = cms.double(1.4),
