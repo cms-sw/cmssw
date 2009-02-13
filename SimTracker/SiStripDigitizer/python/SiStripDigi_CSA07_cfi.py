@@ -6,7 +6,6 @@ simSiStripDigis = cms.EDFilter("SiStripDigitizer",
     #-------------------------------------
     #-----SiHitDigitizer
     DepletionVoltage = cms.double(140.0),
-    SigmaShapePeak = cms.double(52.17),
     #-----SiStripDigitizerAlgorithm 
     electronPerAdc = cms.double(250.0),
     SimProducer = cms.string('SimDigitizer'),
@@ -39,7 +38,6 @@ simSiStripDigis = cms.EDFilter("SiStripDigitizer",
     ChargeMobility = cms.double(480.0),
     APVpeakmode = cms.bool(False), ## also in SiLinearChargeDivider
 
-    SigmaShapeDeco = cms.double(12.06),
     NoiseSigmaThreshold = cms.double(2.0),
     ChargeDistributionRMS = cms.double(6.5e-10),
     CouplingCostantPeak = cms.vdouble(0.76, 0.12),

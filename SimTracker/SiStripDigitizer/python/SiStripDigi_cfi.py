@@ -59,17 +59,14 @@ simSiStripDigis = cms.EDFilter("SiStripDigitizer",
     #-----SiStripDigitizerAlgorithm 
     electronPerAdc = cms.double(250.0),
     APVpeakmode = cms.bool(False),
-    SigmaShapeDeco = cms.double(12.06),
     TOFCutForDeconvolution = cms.double(50.0),
-    SigmaShapePeak = cms.double(52.17),
     TOFCutForPeak = cms.double(180.0),
     NoiseSigmaThreshold = cms.double(2.0),
     ChargeDistributionRMS = cms.double(6.5e-10),
     CosmicDelayShift = cms.untracked.double(0.0),
     ChargeMobility = cms.double(480.0),
     LorentzAngle = cms.string('fake'),
-    Gain = cms.string('fake')
+    Gain = cms.string('fake'),
+    Inefficiency = cms.double(0.0)
 )
-
-
 
