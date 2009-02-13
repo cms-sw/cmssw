@@ -159,6 +159,9 @@ std::vector<CSCSegment> CSCSegAlgoST::prune_bad_hits(const CSCChamber* aChamber,
   
   for(std::vector<CSCSegment>::iterator it=segments.begin(); it != segments.end(); it++) {
     
+    // do nothing for nhit <= minHitPerSegment
+    if( (*it).nRecHits() <= minHitsPerSegment ) continue;
+    
     if( !use_brute_force ) {// find worst hit
       
       float chisq    = (*it).chi2();
