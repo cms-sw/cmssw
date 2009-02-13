@@ -25,6 +25,7 @@
 #include "DataFormats/Provenance/interface/FileID.h"
 #include "DataFormats/Provenance/interface/FileIndex.h"
 #include "DataFormats/Provenance/interface/Selections.h"
+#include "DataFormats/Provenance/interface/ParentageID.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Output/src/RootOutputTree.h"
@@ -117,6 +118,7 @@ namespace edm {
     RootOutputTree runTree_;
     RootOutputTreePtrArray treePointers_;
     bool dataTypeReported_;
+    std::set<ParentageID> parentageIDs_;
     std::set<BranchID> branchesWithStoredHistory_;
   };
    

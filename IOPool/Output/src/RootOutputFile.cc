@@ -99,7 +99,10 @@ namespace edm {
                filePtr_, InRun, pRunAux_, pRunEntryInfoVector_,
                om_->basketSize(), om_->splitLevel(), om_->treeMaxVirtualSize()),
       treePointers_(),
-      dataTypeReported_(false) {
+      dataTypeReported_(false),
+      parentageIDs_(),
+      branchesWithStoredHistory_() {
+
     treePointers_[InEvent] = &eventTree_;
     treePointers_[InLumi]  = &lumiTree_;
     treePointers_[InRun]   = &runTree_;
@@ -268,9 +271,12 @@ namespace edm {
 	<< "Failed to create a branch for Parentages in the output file";
 
     ParentageRegistry& ptReg = *ParentageRegistry::instance();
+    std::set<ParentageID>::const_iterator pidend = parentageIDs_.end();
     for (ParentageRegistry::const_iterator i = ptReg.begin(), e = ptReg.end(); i != e; ++i) {
-      desc = &(i->second);
-      parentageTree_->Fill();
+      if (parentageIDs_.find(i->first) != pidend) {
+        desc = &(i->second);
+        parentageTree_->Fill();
+      }
     }
   }
 
@@ -492,6 +498,7 @@ namespace edm {
 	  provenanceToKeep.insert(*oh.productProvenance());
 	  assert(principal.branchMapperPtr());
 	  insertAncestors(*oh.productProvenance(), principal, provenanceToKeep);
+	  parentageIDs_.insert(oh.productProvenance()->parentageID());
 	}
       }
       if (getProd) {
