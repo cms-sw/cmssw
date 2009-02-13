@@ -26,7 +26,7 @@ void DDpos(const DDLogicalPart & self,
 	   const DDDivision * div)
 {
   DDCompactView cpv(true); 
-  graph_type & graph = cpv.writeableGraph();
+  DDCompactView::graph_type & graph = cpv.writeableGraph();
 //   std::cout << "about to pos using int copy_no " << copyno << "  of  " << std::endl;
 //   std::cout << self << " in mother " << std::endl<< mother << std::endl;
 //   std::cout << "Rotation matrix " << std::endl << *(rot.rotation()) << std::endl;

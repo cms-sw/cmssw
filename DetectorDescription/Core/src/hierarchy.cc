@@ -168,17 +168,17 @@ void writeMaterials(std::map<std::string,std::set<DDMaterial> > & m)
 void hierarchy(const DDLogicalPart & parent)
 {
   static  DDCompactView cpv ;
-  static graph_type g = cpv.graph();
+  static DDCompactView::graph_type g = cpv.graph();
   static int count=0;
   static std::vector<DDLogicalPart> history;
   static std::map<std::string,std::set<DDMaterial> > materials;
-  //graph_type::adj_iterator it = g.begin();
+  //DDCompactView::graph_type::adj_iterator it = g.begin();
   
   history.push_back(parent);
   materials[parent.material().name().ns()].insert(parent.material());
   std::cout << history.size() << std::string(2*count,' ') << " " << parent.ddname() << std::endl;
-  graph_type::edge_range er = g.edges(parent);
-  graph_type::edge_iterator eit = er.first;
+  DDCompactView::graph_type::edge_range er = g.edges(parent);
+  DDCompactView::graph_type::edge_iterator eit = er.first;
   std::map<DDLogicalPart,int> children;
   for (; eit != er.second; ++eit) {  
      children[g.nodeData(*eit)]++;

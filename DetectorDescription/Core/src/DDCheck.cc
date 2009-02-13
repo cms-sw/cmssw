@@ -44,7 +44,7 @@ bool DDCheckLP(const DDLogicalPart & lp, std::ostream & os)
 
 // checks PosData* if it contains sensfull stuff ...
 //:void DDCheckPD(const DDLogicalPart & lp, graph_type::neighbour_type & nb, std::ostream & os)
-bool DDCheckPD(const DDLogicalPart & lp, graph_type::edge_range nb, const graph_type & g, std::ostream & os)
+bool DDCheckPD(const DDLogicalPart & lp, DDCompactView::graph_type::edge_range nb, const DDCompactView::graph_type & g, std::ostream & os)
 {
    bool result = false;
    if (nb.first != nb.second) {
@@ -88,10 +88,10 @@ bool DDCheckConnect(const DDCompactView & cpv, std::ostream & os)
      << " (multiple-)connected LogicalParts with root=" << cpv.root().ddname() << std::endl;
   
   // Pass 2:
-  graph_type & g = const_cast<graph_type&>(cpv.graph());
+  DDCompactView::graph_type & g = const_cast<DDCompactView::graph_type&>(cpv.graph());
 
   int uc = 0;
-  graph_type::adj_list::size_type it = 0;
+  DDCompactView::graph_type::adj_list::size_type it = 0;
   
   for(; it < g.size(); ++it) { 
     if (! visited[g.nodeData(it)] ) {
@@ -120,12 +120,12 @@ bool DDCheckAll(const DDCompactView & cpv, std::ostream & os)
 {
    bool result = false;
    // const_cast because graph_type does not provide const_iterators!
-   graph_type & g = const_cast<graph_type&>(cpv.graph());
+   DDCompactView::graph_type & g = const_cast<DDCompactView::graph_type&>(cpv.graph());
    
    // basic debuggger
    std::map< std::pair<std::string,std::string>, int > lp_names;
    
-   graph_type::adj_list::size_type it = 0;
+   DDCompactView::graph_type::adj_list::size_type it = 0;
    for(; it < g.size(); ++it) { 
      const DDLogicalPart & lp = g.nodeData(it);
      lp_names[std::make_pair(lp.name().ns(),lp.name().name())]++;

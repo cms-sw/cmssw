@@ -612,9 +612,9 @@ void DDStreamer::pos_write()
 {
   DCOUT('Y', "DDStreamer::pos_write()");
   DDCompactView cpv;
-  const graph_type & g = cpv.graph();
-  graph_type::const_iterator it = g.begin_iter();
-  graph_type::const_iterator ed = g.end_iter();
+  const DDCompactView::graph_type & g = cpv.graph();
+  DDCompactView::graph_type::const_iterator it = g.begin_iter();
+  DDCompactView::graph_type::const_iterator ed = g.end_iter();
   std::ostream & os = *o_;
   // first the root
   DDLogicalPart rt = DDRootDef::instance().root();
@@ -622,8 +622,8 @@ void DDStreamer::pos_write()
   nameout(os,rt.name());
   os << std::endl;
   //os << g.edge_size() << std::endl;
-  graph_type::const_iterator iit = g.begin_iter();
-  graph_type::const_iterator eed = g.end_iter();
+  DDCompactView::graph_type::const_iterator iit = g.begin_iter();
+  DDCompactView::graph_type::const_iterator eed = g.end_iter();
   size_t count(0);
   for(; iit != eed; ++iit) {
     ++count;
@@ -687,7 +687,7 @@ void DDStreamer::pos_read()
   is >> n;
   size_t i=0;
   DDCompactView cpv;
-  graph_type & g = const_cast<graph_type&>(cpv.graph());
+  DDCompactView::graph_type & g = const_cast<DDCompactView::graph_type&>(cpv.graph());
   //LogDebug << "===== GRAPH SIZE = " << g.size() << " ======" << std::endl << std::endl;
   if (g.size()) {
     edm::LogWarning("DDStreamer") << std::endl;

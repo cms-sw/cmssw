@@ -29,7 +29,7 @@ class DDPhysicalPart;
 
 //typedef TreeNode<DDPhysicalPart,int> expnode_t;
 //! type of data representation of DDCompactView
-typedef graph<DDLogicalPart,DDPosData*> graph_type; //:typedef Graph<DDLogicalPart,DDPosData*> graph_type;
+//typedef graph<DDLogicalPart,DDPosData*> graph_type; //:typedef Graph<DDLogicalPart,DDPosData*> graph_type;
 
 //! Compact representation of the geometrical detector hierarchy
 /** A DDCompactView represents the detector as an acyclic directed multigraph.
