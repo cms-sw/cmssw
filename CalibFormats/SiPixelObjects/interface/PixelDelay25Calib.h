@@ -21,7 +21,7 @@ namespace pos{
 *  \class PixelDelay25Calib PixelDelay25Calib.h
 *  \brief This class manages data and files used in the Delay25 calibration
 */
-  class PixelDelay25Calib : public PixelCalibBase, public PixelConfigBase{
+  class PixelDelay25Calib : public PixelCalibBase, public PixelConfigBase {
 
   public:
   

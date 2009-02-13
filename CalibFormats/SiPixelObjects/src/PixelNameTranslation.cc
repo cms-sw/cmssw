@@ -659,9 +659,9 @@ void PixelNameTranslation::writeXMLHeader(pos::PixelConfigKey key,
   *outstream << "   <RUN_TYPE>Pixel Name Translation</RUN_TYPE>" 		                             << endl ;
   *outstream << "   <RUN_NUMBER>1</RUN_NUMBER>"					         	             << endl ;
   *outstream << "   <RUN_BEGIN_TIMESTAMP>" << pos::PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>" << endl ;
-  *outstream << "   <COMMENT_DESCRIPTION>Test ofPixel Name Translation xml</COMMENT_DESCRIPTION>"      	     << endl ;
+  *outstream << "   <COMMENT_DESCRIPTION>" << getComment() << "</COMMENT_DESCRIPTION>"                       << endl ;
   *outstream << "   <LOCATION>CERN TAC</LOCATION>"					         	     << endl ;
-  *outstream << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"			 	     << endl ;
+  *outstream << "   <INITIATED_BY_USER>"   << getAuthor()  << "</INITIATED_BY_USER>"                         << endl ; 
   *outstream << "  </RUN>"								         	     << endl ;
   *outstream << " </HEADER>"								         	     << endl ;
   *outstream << "  "								         	             << endl ;
@@ -671,7 +671,6 @@ void PixelNameTranslation::writeXMLHeader(pos::PixelConfigKey key,
   *outstream << "   <KIND_OF_PART>Detector ROOT</KIND_OF_PART>"                                              << endl ;
   *outstream << "  </PART>"                                                                                  << endl ;
   *outstream << "  <VERSION>" << version << "</VERSION>"				         	     << endl ;
-  *outstream << "  <COMMENT_DESCRIPTION>" << getComment() << "</COMMENT_DESCRIPTION>"                        << endl ;
   *outstream << "  "								         	             << endl ;
 
 }  

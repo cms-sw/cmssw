@@ -227,57 +227,6 @@ void PixelROCMaskBits::writeXML(std::ofstream * out) const
   std::string mthn = "[PixelROCMaskBits::writeXML()]\t\t\t\t" ;
 
   std::string encoded = base64_encode(bits_, sizeof(bits_));
-/*
-  std::string decoded = base64_decode(encoded);
-  std::cout << mthn << "Dumping ROC masks for " <<rocid_.rocname()<<std::endl; 
-
-  std::cout << mthn << "bits_   " << bits_                             << std::endl; 
-  std::cout << mthn << "encoded " << encoded << " :" << encoded.size() << std::endl; 
-  std::cout << mthn << "decoded " << decoded                           << std::endl<<std::endl; 
-
-  for(int i=0;i<52;i++){
-    std::cout<<"Col"<<i<<":";
-    for(int j=0;j<10;j++){
-      unsigned char bitmask=1;
-      for(int k=0;k<8;k++){
-	if(bits_[i*10+j]&bitmask) {
-	  std::cout << "1";
-	}
-	else{
-	  std::cout << " ";
-	}
-	bitmask*=2;
-      }
-    }
-    std::cout<<std::endl;
-  }
-  std::cout<<std::endl;
-
-  unsigned char dits_[520] ;
-  for(int i = 0 ; i < (int)(sizeof(dits_)*sizeof(char)) ; i++)
-  {
-    dits_[i]  = (unsigned char)decoded[i] ;
-  }
-  
-
-  for(int i=0;i<52;i++){
-    std::cout<<"Col"<<i<<":";
-    for(int j=0;j<10;j++){
-      unsigned char bitmask=1;
-      for(int k=0;k<8;k++){
-	if(dits_[i*10+j]&bitmask) {
-	  std::cout << "1";
-	}
-	else{
-	  std::cout << " ";
-	}
-	bitmask*=2;
-      }
-    }
-    std::cout<<std::endl;
-  }
-  std::cout<<std::endl;
-*/   
 
   *out << "  <DATA>"						 << std::endl ;
   *out << "   <ROC_NAME>"  << rocid_.rocname() << "</ROC_NAME>"  << std::endl ;

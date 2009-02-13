@@ -26,7 +26,7 @@ namespace pos{
 *
 *   A longer explanation will be placed here later
 */
-  class PixelFEDTestDAC : public PixelCalibBase{
+  class PixelFEDTestDAC : public PixelCalibBase {
 
   public:
     PixelFEDTestDAC(std::string filename);

@@ -129,9 +129,9 @@ void PixelTTCciConfig::writeXMLHeader(pos::PixelConfigKey key,
   *outstream << "   <RUN_TYPE>TTC Configuration Parameters</RUN_TYPE>"                                    << std::endl ; 
   *outstream << "   <RUN_NUMBER>1</RUN_NUMBER>"                                                           << std::endl ; 
   *outstream << "   <RUN_BEGIN_TIMESTAMP>" << PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>"   << std::endl ; 
-  *outstream << "   <COMMENT_DESCRIPTION>TTC Configuration Parameters</COMMENT_DESCRIPTION>"              << std::endl ; 
+  *outstream << "   <COMMENT_DESCRIPTION>" << getComment() << "</COMMENT_DESCRIPTION>"                    << std::endl ;
   *outstream << "   <LOCATION>CERN TAC</LOCATION>"                                                        << std::endl ; 
-  *outstream << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"                                 << std::endl ; 
+  *outstream << "   <INITIATED_BY_USER>"   << getAuthor()  << "</INITIATED_BY_USER>"                      << std::endl ; 
   *outstream << "  </RUN>"                                                                                << std::endl ; 
   *outstream << " </HEADER>"                                                                              << std::endl ; 
   *outstream << ""                                                                                        << std::endl ; 

@@ -215,9 +215,9 @@ void PixelGlobalDelay25::writeXMLHeader(pos::PixelConfigKey key,
   *outstream << "   <RUN_TYPE>Pixel Global Delay25</RUN_TYPE>"                                               << std::endl ;
   *outstream << "   <RUN_NUMBER>1</RUN_NUMBER>"                                                              << std::endl ;
   *outstream << "   <RUN_BEGIN_TIMESTAMP>" << pos::PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>" << std::endl ;
-  *outstream << "   <COMMENT_DESCRIPTION>Test of DetectorConfig xml</COMMENT_DESCRIPTION>"                   << std::endl ;
+  *outstream << "   <COMMENT_DESCRIPTION>" << getComment() << "</COMMENT_DESCRIPTION>"                       << std::endl ;
   *outstream << "   <LOCATION>CERN TAC</LOCATION>"                                                           << std::endl ;
-  *outstream << "   <INITIATED_BY_USER>Marco Rovere</INITIATED_BY_USER>"                                     << std::endl ;
+  *outstream << "   <INITIATED_BY_USER>"   << getAuthor()  << "</INITIATED_BY_USER>"                         << std::endl ; 
   *outstream << "  </RUN>"                                                                                   << std::endl ;
   *outstream << " </HEADER>"                                                                                 << std::endl ;
   *outstream << ""                                                                                           << std::endl ;
