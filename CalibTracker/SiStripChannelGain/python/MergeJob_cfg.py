@@ -51,8 +51,6 @@ process.SiStripCalib = cms.EDFilter("SiStripGainFromData",
     TrajToTrackProducer = cms.string('TrackRefitter'),
     TrajToTrackLabel    = cms.string(''),
 
-    OutputHistos        = cms.string('SiStripCalib.root'),
-
     minTrackMomentum    = cms.untracked.double(1.0),
     minNrEntries        = cms.untracked.uint32(100),
     maxChi2OverNDF      = cms.untracked.double(9999999.0),
