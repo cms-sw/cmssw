@@ -48,8 +48,6 @@
 
 namespace cscdqm {
 
-  typedef std::map<std::string, uint32_t> CSCCounters;
-
   /**
    * @class EventProcessor
    * @brief Object used to process Events and compute statistics
@@ -93,9 +91,6 @@ namespace cscdqm {
       Summary summary;
 
       bool bCSCEventCounted;
-
-      std::map<std::string, uint32_t> nDMBEvents;
-      std::map<std::string, CSCCounters> cscCntrs;
 
       CSCDCCExaminer binChecker;
 

@@ -33,6 +33,12 @@
 #include <xercesc/framework/StdOutFormatTarget.hpp>
 #include <xercesc/dom/DOM.hpp>
 
+#include <boost/multi_index_container.hpp>
+#include <boost/multi_index/member.hpp>
+#include <boost/multi_index/composite_key.hpp>
+#include <boost/multi_index/ordered_index.hpp>
+#include "boost/tuple/tuple.hpp"
+
 #include <boost/preprocessor/tuple/elem.hpp>
 #include <boost/preprocessor/seq/for_each_i.hpp>
 #include <boost/preprocessor/stringize.hpp>
@@ -144,6 +150,37 @@ namespace cscdqm {
       pattern(pattern_.c_str()), include(include_) { }
 
   };
+
+  typedef enum ChamberCounterType {
+    DMB_EVENTS,
+    BAD_EVENTS,
+    DMB_TRIGGERS,
+    ALCT_TRIGGERS,
+    CLCT_TRIGGERS,
+    CFEB_TRIGGERS
+  };
+
+  typedef std::map<ChamberCounterType, uint32_t> ChamberCounterMapType;
+
+  typedef struct ChamberCounterKeyType {
+    HwId crateId;
+    HwId dmbId;
+    ChamberCounterMapType counters;
+    ChamberCounterKeyType(const HwId& crateId_, const HwId& dmbId_, const ChamberCounterMapType& c_) : crateId(crateId_), dmbId(dmbId_), counters(c_) { }
+  };
+
+  typedef boost::multi_index_container<
+    ChamberCounterKeyType,
+    boost::multi_index::indexed_by<
+      boost::multi_index::ordered_unique< 
+        boost::multi_index::composite_key<
+          ChamberCounterKeyType,
+          boost::multi_index::member<ChamberCounterKeyType, HwId, &ChamberCounterKeyType::crateId>,
+          boost::multi_index::member<ChamberCounterKeyType, HwId, &ChamberCounterKeyType::dmbId>
+        >
+      >
+    >
+  > ChamberMapCounterMapType;
 
   /**
    * @class Configuration
@@ -281,7 +318,7 @@ namespace cscdqm {
 
 #define STATFIELD(caption, value, units) \
       logger << std::setfill(' '); \
-      logger << std::setiosflags(std::ios::right) << std::setw(25) << caption << ": "; \
+      logger << std::setiosflags(std::ios::right) << std::setw(25) << caption << " : "; \
       logger << std::setiosflags(std::ios::right) << std::setw(12); \
       if (value < 0) { \
         logger << "NA"; \
@@ -304,38 +341,44 @@ namespace cscdqm {
         logger << std::endl;
 
         STATFIELD("Events processed", nEvents, "")
-        STATFIELD("Bad events: ", nEventsBad, "")
-        STATFIELD("Good events: ", nEventsGood, "")
-        STATFIELD("CSC events: ", nEventsCSC, "")
-        STATFIELD("Unpacked DMBs: ", nUnpackedDMB, "")
+        STATFIELD("Bad events", nEventsBad, "")
+        STATFIELD("Good events", nEventsGood, "")
+        STATFIELD("CSC DCC events", nEventsCSC, "")
+        STATFIELD("Unpacked CSCs", nUnpackedCSC, "")
 
         SEPFIELD
 
-        STATFIELD("All event time: ", eventTimeSum, "s")
+        STATFIELD("All event time", eventTimeSum, "s")
         double eventTimeAverage = (nEvents > 0 ? eventTimeSum / nEvents : -1.0);
-        STATFIELD("Avg. event time: ", eventTimeAverage, "s")
+        STATFIELD("Avg. event time", eventTimeAverage, "s")
         double eventRateAverage = (eventTimeSum > 0 ? nEvents / eventTimeSum : -1.0);
-        STATFIELD("Avg. event rate: ", eventRateAverage, "Hz")
+        STATFIELD("Avg. event rate", eventRateAverage, "Hz")
+        double chamberRateAverage = (eventTimeSum > 0 ? nUnpackedCSC / eventTimeSum : -1.0);
+        STATFIELD("Avg. chamber rate", chamberRateAverage, "Hz")
 
         SEPFIELD
 
-        STATFIELD("All fra update time: ", fraTimeSum, "s")
+        STATFIELD("All fra update time", fraTimeSum, "s")
+        STATFIELD("All fra update count", fraCount, "")
         double fraTimeAverage = (fraCount > 0 ? fraTimeSum / fraCount : -1.0);
-        STATFIELD("Avg. fra update time: ", fraTimeAverage, "s")
+        STATFIELD("Avg. fra update time", fraTimeAverage, "s")
 
         SEPFIELD
 
-        STATFIELD("All eff update time: ", effTimeSum, "s")
+        STATFIELD("All eff update time", effTimeSum, "s")
+        STATFIELD("All eff update count", effCount, "")
         double effTimeAverage = (effCount > 0 ? effTimeSum / effCount : -1.0);
-        STATFIELD("Avg. eff update time: ", effTimeAverage, "s")
+        STATFIELD("Avg. eff update time", effTimeAverage, "s")
 
         SEPFIELD
 
-        STATFIELD("All time: ", allTime, "s")
+        STATFIELD("All time", allTime, "s")
         double allTimeAverage = (nEvents > 0 ? allTime / nEvents : -1.0);
-        STATFIELD("Avg. event all time: ", allTimeAverage, "s")
+        STATFIELD("Avg. event all time", allTimeAverage, "s")
         double allRateAverage = (allTime > 0 ? nEvents / allTime : -1.0);
-        STATFIELD("Avg. event all rate: ", allRateAverage, "Hz")
+        STATFIELD("Avg. event all rate", allRateAverage, "Hz")
+        double chamberAllRateAverage = (allTime > 0 ? nUnpackedCSC / allTime : -1.0);
+        STATFIELD("Avg. chamber all rate", chamberAllRateAverage, "Hz")
 
       }
 
@@ -362,7 +405,7 @@ namespace cscdqm {
         nEventsBad = 0;
         nEventsGood = 0;
         nEventsCSC = 0;
-        nUnpackedDMB = 0;
+        nUnpackedCSC = 0;
         fraCount = 0;
         effCount = 0;
         eventTimeSum = 0.0;
@@ -374,7 +417,7 @@ namespace cscdqm {
       const unsigned long getNEventsBad() const   { return nEventsBad; }
       const unsigned long getNEventsGood() const  { return nEventsGood; }
       const unsigned long getNEventsCSC() const   { return nEventsCSC; }
-      const unsigned long getNUnpackedDMB() const { return nUnpackedDMB; }
+      const unsigned long getNUnpackedCSC() const { return nUnpackedCSC; }
 
       void eventProcessTimer(const bool start) {
         if (start) {
@@ -413,7 +456,37 @@ namespace cscdqm {
       void incNEventsBad()   { nEventsBad++; }
       void incNEventsGood()  { nEventsGood++; }
       void incNEventsCSC()   { nEventsCSC++; }
-      void incNUnpackedDMB() { nUnpackedDMB++; }
+      void incNUnpackedCSC() { nUnpackedCSC++; }
+
+      void incChamberCounter(const ChamberCounterType counter, const HwId crateId, const HwId dmbId) {
+        setChamberCounterValue(counter, crateId, dmbId, getChamberCounterValue(counter, crateId, dmbId) + 1);
+      }
+
+      void setChamberCounterValue(const ChamberCounterType counter, const HwId crateId, const HwId dmbId, const uint32_t value) {
+        ChamberMapCounterMapType::iterator it = chamberCounters.find(boost::make_tuple(crateId, dmbId));
+        if (it == chamberCounters.end()) {
+          it = chamberCounters.insert(chamberCounters.end(), ChamberCounterKeyType(crateId, dmbId, ChamberCounterMapType()));
+        }
+        ChamberCounterMapType* cs = const_cast<ChamberCounterMapType*>(&it->counters);
+        ChamberCounterMapType::iterator itc = cs->find(counter);
+        if (itc == cs->end()) {
+          cs->insert(std::make_pair(counter, value));
+        } else {
+          itc->second = value;
+        }
+      }
+
+      void copyChamberCounterValue(const ChamberCounterType counter_from, const ChamberCounterType counter_to, const HwId crateId, const HwId dmbId) {
+        setChamberCounterValue(counter_from, crateId, dmbId, getChamberCounterValue(counter_from, crateId, dmbId));
+      }
+
+      const uint32_t getChamberCounterValue(const ChamberCounterType counter, const HwId crateId, const HwId dmbId) const {
+        ChamberMapCounterMapType::iterator it = chamberCounters.find(boost::make_tuple(crateId, dmbId));
+        if (it == chamberCounters.end()) return 0;
+        ChamberCounterMapType::const_iterator itc = it->counters.find(counter);
+        if (itc == it->counters.end()) return 0;
+        return itc->second;
+      }
 
     private:
 
@@ -421,11 +494,11 @@ namespace cscdqm {
       unsigned long nEventsBad;
       unsigned long nEventsGood;
       unsigned long nEventsCSC;
-      unsigned long nUnpackedDMB; 
+      unsigned long nUnpackedCSC; 
       unsigned long fraCount; 
       unsigned long effCount;
 
-
+      ChamberMapCounterMapType chamberCounters;
 
   };
 

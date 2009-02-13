@@ -102,6 +102,8 @@ namespace cscdqm {
           // Check if this histogram is an ON DEMAND histogram?
           hp[XML_BOOK_ONDEMAND] = (Utility::regexMatch(REGEXP_ONDEMAND, name) ? XML_BOOK_ONDEMAND_TRUE : XML_BOOK_ONDEMAND_FALSE );
 
+          LOG_DEBUG << "[Collection::load] loading " << prefix << "::" << name << " XML_BOOK_ONDEMAND = " << hp[XML_BOOK_ONDEMAND]; 
+
           CoHistoMap::iterator it = collection.find(prefix);
           if (it == collection.end()) {
             CoHisto h;
@@ -115,7 +117,7 @@ namespace cscdqm {
       }
 
     } catch (XMLException& e) {
-      char* message = XMLString::transcode( e.getMessage() );
+      char* message = XMLString::transcode(e.getMessage());
       //if (doc) doc->release();
       //XMLPlatformUtils::Terminate();
       throw Exception(message);
@@ -137,6 +139,15 @@ namespace cscdqm {
       if (node->getNodeType() != DOMNode::ELEMENT_NODE) { continue; }
       std::string name  = XMLString::transcode(node->getNodeName());
       std::string value = XMLString::transcode(node->getTextContent());
+      DOMNamedNodeMap* attributes = node->getAttributes();
+      if (attributes) {
+        for (uint32_t i = 0; i < attributes->getLength(); i++) {
+          DOMNode* attribute = attributes->item(i);
+          std::string aname  = XMLString::transcode(attribute->getNodeName());
+          std::string avalue = XMLString::transcode(attribute->getNodeValue());
+          p[name + "_" + aname] = avalue;
+        }
+      }
       p[name] = value;
     }
   }
@@ -305,10 +316,17 @@ namespace cscdqm {
       const CoHisto hs = i->second;
       for (CoHisto::const_iterator j = hs.begin(); j != hs.end(); j++) {
         std::string s = "";
-        if (getHistoValue(j->second, XML_BOOK_ONDEMAND, s, XML_BOOK_ONDEMAND_FALSE) == XML_BOOK_ONDEMAND_FALSE) {
-          HistoId hid = 0;
-          if (HistoDef::getHistoIdByName(j->first, hid)) {
-            book(CSCHistoDef(hid, crateId, dmbId), j->second, config->getFOLDER_CSC());
+        HistoId hid = 0;
+        if (HistoDef::getHistoIdByName(j->first, hid)) {
+          if (getHistoValue(j->second, XML_BOOK_ONDEMAND, s, XML_BOOK_ONDEMAND_FALSE) == XML_BOOK_ONDEMAND_FALSE) {
+              book(CSCHistoDef(hid, crateId, dmbId), j->second, config->getFOLDER_CSC());
+          } else {
+            int from = 0, to = 0;
+            if (checkHistoValue(j->second, "Name_from", from) && checkHistoValue(j->second, "Name_to", to)) {
+              for (int k = from; k <= to; k++) {
+                book(CSCHistoDef(hid, crateId, dmbId, k), j->second, config->getFOLDER_CSC());
+              }
+            }
           }
         }
       }
@@ -341,7 +359,7 @@ namespace cscdqm {
     bool ondemand = (getHistoValue(p, XML_BOOK_ONDEMAND, s, XML_BOOK_ONDEMAND_FALSE) == XML_BOOK_ONDEMAND_TRUE ? true : false);
       
     if (!checkHistoValue(p, XML_BOOK_HISTO_TYPE, type))   { throw Exception("Histogram does not have type!"); }
-    if (!checkHistoValue(p, XML_BOOK_HISTO_TITLE, title)) { title = name; }
+    checkHistoValue(p, XML_BOOK_HISTO_TITLE, title);
 
     if (ondemand) {
       title = h.processTitle(title);
@@ -483,6 +501,8 @@ namespace cscdqm {
       me->unlock();
 
     }
+
+    LOG_DEBUG << "[Collection::book] booked " << h.getFullPath() << " (" << me << ")"; 
 
     config->fnPutHisto(h, me);
 

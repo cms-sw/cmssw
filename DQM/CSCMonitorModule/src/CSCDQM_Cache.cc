@@ -41,14 +41,6 @@ namespace cscdqm {
       return getPar(histo.getId(), mo);
     }
 
-    /*
-    if (found) {
-        LOG_DEBUG << "CACHE: histo " << histo << " key " << key << " found in cache: " << mo;
-    } else {
-        LOG_DEBUG << "CACHE: histo " << histo << " key " << key << " NOT found in cache.";
-    }
-    */
-    
     return false;
   }
 

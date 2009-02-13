@@ -30,7 +30,7 @@ namespace cscdqm {
     }
 
     // Only 8bits are significant; format of DDU id is Dxx
-    int dduID = dduHeader.source_id()&0xFF;
+    int dduID = dduHeader.source_id() & 0xFF;
 
     MonitorObject* mo = 0;
 
@@ -192,7 +192,7 @@ namespace cscdqm {
     if (getDDUHisto(h::DDU_CSC_WARNINGS, dduID, mo)) mo->SetEntries(config->getNEvents());
     if (getDDUHisto(h::DDU_DMB_ACTIVE_HEADER_COUNT, dduID, mo)) mo->Fill(dmb_active_header);
     if (getDDUHisto(h::DDU_DMB_DAV_HEADER_COUNT_VS_DMB_ACTIVE_HEADER_COUNT, dduID, mo)) 
-      mo->Fill(dmb_active_header,dmb_dav_header_cnt);
+      mo->Fill(dmb_active_header, dmb_dav_header_cnt);
   
     // Check binary Error status at DDU Trailer
     uint32_t trl_errorstat = dduTrailer.errorstat();
@@ -226,6 +226,9 @@ namespace cscdqm {
     if (getDDUHisto(h::DDU_TRAILER_ERRORSTAT_TABLE, dduID, mo)) mo->SetEntries(config->getNEvents());
     if (getDDUHisto(h::DDU_TRAILER_ERRORSTAT_FREQUENCY, dduID, mo)) mo->SetEntries(config->getNEvents());
   
+
+    uint32_t nCSCs = 0;
+
     // Unpack all found CSC
     if (config->getPROCESS_CSC()) { 
 
@@ -233,16 +236,15 @@ namespace cscdqm {
       chamberDatas.clear();
       chamberDatas = dduData.cscData();
   
-      int nCSCs = chamberDatas.size();
-  
-      for(int i = 0; i < nCSCs; i++) {
-        config->incNUnpackedDMB();
+      nCSCs = chamberDatas.size();
+
+      for(uint32_t i = 0; i < nCSCs; i++) {
         processCSC(chamberDatas[i], dduID);
       }
 
     }
   
-    if (getDDUHisto(h::DDU_DMB_UNPACKED_VS_DAV, dduID, mo)) mo->Fill(dmb_active_header, config->getNUnpackedDMB());
+    if (getDDUHisto(h::DDU_DMB_UNPACKED_VS_DAV, dduID, mo)) mo->Fill(dmb_active_header, nCSCs);
   
     fFirstEvent = false;
   

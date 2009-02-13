@@ -23,6 +23,8 @@ namespace cscdqm {
 
   void EventProcessor::processCSC(const CSCEventData& data, const int dduID) {
 
+    config->incNUnpackedCSC();
+
     if (&data == 0) {
       LOG_ERROR << "Zero pointer. DMB data are not available for unpacking"; //KK is->are
       return;
@@ -57,8 +59,8 @@ namespace cscdqm {
     crateID = dmbHeader->crateID();
     dmbID = dmbHeader->dmbID();
     chamberID = (((crateID) << 4) + dmbID) & 0xFFF;
-  
-    std::string cscTag = CSCHistoDef::getPath(crateID, dmbID);
+
+    const std::string cscTag = CSCHistoDef::getPath(crateID, dmbID);
   
     unsigned long errors = binChecker.errorsForChamber(chamberID);
     if ((errors & config->getBINCHECK_MASK()) > 0 ) {
@@ -78,13 +80,10 @@ namespace cscdqm {
       return;
     }
     
-    // if (cscName != "") cscTag+=" ["+cscName+"]";
-    // nDMBEvents[cscTag]++;
     double DMBEvents  = 0.0;
-    DMBEvents = nDMBEvents[cscTag];  
+    DMBEvents = config->getChamberCounterValue(DMB_EVENTS, crateID, dmbID);  
   
-    CSCCounters& trigCnts = cscCntrs[cscTag];
-    trigCnts["DMB"] = nDMBEvents[cscTag];
+    config->copyChamberCounterValue(DMB_EVENTS, DMB_TRIGGERS, crateID, dmbID);
   
     if (cscType && cscPosition && getEMUHisto(h::EMU_CSC_UNPACKED, mo)){
       mo->Fill(cscPosition, cscType);
@@ -298,9 +297,8 @@ namespace cscdqm {
         // Set number of ALCT-events to third bin
         if (getCSCHisto(h::CSC_CSC_RATE, crateID, dmbID, mo)) { 
           mo->Fill(2);
-          // trigCnts.ALCTcnt++;
           uint32_t ALCTEvent = (uint32_t)mo->GetBinContent(3);
-          trigCnts["ALCT"] = ALCTEvent;
+          config->setChamberCounterValue(ALCT_TRIGGERS, crateID, dmbID, ALCTEvent);
           if (getCSCHisto(h::CSC_CSC_EFFICIENCY, crateID, dmbID, mo)){
             if(config->getNEvents() > 0) {
               //KK
@@ -370,12 +368,18 @@ namespace cscdqm {
         }
   
         for (uint32_t lct = 0; lct < alctsDatas.size(); lct++) {
+
           // TODO: Add support for more than 2 ALCTs
           if (lct >= 2) continue;	
-          if (getCSCHisto(h::CSC_ALCTXX_KEYWG, crateID, dmbID, lct, mo)) 
+
+          if (getCSCHisto(h::CSC_ALCTXX_KEYWG, crateID, dmbID, lct, mo)) {
             mo->Fill(alctsDatas[lct].getKeyWG());
+          }
+
           if(lct == 0) alct_keywg  = alctsDatas[lct].getKeyWG();
+
           int alct_dtime = (int)(alctsDatas[lct].getBX() - (alctHeader->BXNCount() & 0x1F));
+
           if (getCSCHisto(h::CSC_ALCTXX_DTIME, crateID, dmbID, lct, mo)) {
             if(alct_dtime < -16) {
               mo->Fill(alct_dtime + 32);
@@ -399,7 +403,7 @@ namespace cscdqm {
             if(alct_dtime < -16) {
               mo->Fill(alctsDatas[lct].getKeyWG(), alct_dtime + 32);
             } else {
-              if(alct_dtime > 16) mo->Fill(alctsDatas[lct].getKeyWG(), alct_dtime - 32);
+              if (alct_dtime > 16) mo->Fill(alctsDatas[lct].getKeyWG(), alct_dtime - 32);
               else mo->Fill(alctsDatas[lct].getKeyWG(), alct_dtime);
             }
           }
@@ -587,7 +591,7 @@ namespace cscdqm {
           if (getCSCHisto(h::CSC_CSC_RATE, crateID, dmbID, mo)) {
             mo->Fill(3);
             uint32_t CLCTEvent = (uint32_t)mo->GetBinContent(4);
-            trigCnts["CLCT"] = CLCTEvent;
+            config->setChamberCounterValue(CLCT_TRIGGERS, crateID, dmbID, CLCTEvent);
             if (getCSCHisto(h::CSC_CSC_EFFICIENCY, crateID, dmbID, mo)) {
               if(config->getNEvents() > 0) {
                 mo->SetBinContent(2,((float)CLCTEvent/(float)(DMBEvents)*100.0));
@@ -671,9 +675,10 @@ namespace cscdqm {
   
           //LOG_DEBUG << "CLCT BX = " << clctsDatas[lct].getBX() << " TMB BX = " << tmbHeader->BXNCount() << " 03 = " << (int)(tmbHeader->BXNCount()&0x3);
           //LOG_DEBUG <<  "diff = " << clctsDatas[lct].getBX()-(tmbHeader->BXNCount()&0x3);
-          //LOG_DEBUG <<  "LCT:" << lct << " Type:" << clctsDatas[lct].getStripType() << " Strip:" << clctsDatas[lct].getKeyStrip();
+          LOG_DEBUG <<  "LCT:" << lct << " Type:" << clctsDatas[lct].getStripType() << " Strip:" << clctsDatas[lct].getKeyStrip();
           
           if (clctsDatas[lct].getStripType()) { // HalfStrip Type
+
             if (getCSCHisto(h::CSC_CLCTXX_KEYHALFSTRIP, crateID, dmbID, lct, mo)) 
               mo->Fill(clctsDatas[lct].getKeyStrip());
             if (getCSCHisto(h::CSC_CLCTXX_DTIME_VS_HALF_STRIP, crateID, dmbID, lct, mo)) {
@@ -713,8 +718,11 @@ namespace cscdqm {
               mo->Fill((int)(clctsDatas[lct].getKeyStrip()), (int)(clctsDatas[lct].getQuality()));
   
           } else { // DiStrip Type
+
+            LOG_INFO << "Entering block!";
   
             if (getCSCHisto(h::CSC_CLCTXX_KEYDISTRIP, crateID, dmbID, lct, mo)) mo->Fill(clctsDatas[lct].getKeyStrip());
+            else LOG_ERROR << "Not found h::CSC_CLCTXX_KEYDISTRIP = " << h::CSC_CLCTXX_KEYDISTRIP;
     
             if(lct == 0) clct_kewdistrip = clctsDatas[lct].getKeyStrip();
   
@@ -876,6 +884,7 @@ namespace cscdqm {
     memset(hbuf, 0, sizeof(hbuf));
   
     for(int nCFEB = 0; nCFEB < N_CFEBs; ++nCFEB) {
+
       cfebData[nCFEB] = data.cfebData(nCFEB);
       if (cfebData[nCFEB] !=0) {
         if (!cfebData[nCFEB]->check()) continue;
@@ -887,7 +896,7 @@ namespace cscdqm {
           if (getCSCHisto(h::CSC_CSC_RATE, crateID, dmbID, mo)) {
             mo->Fill(4);
             uint32_t CFEBEvent = (uint32_t)mo->GetBinContent(5);
-            trigCnts["CFEB"] = CFEBEvent;
+            config->setChamberCounterValue(CFEB_TRIGGERS, crateID, dmbID, CFEBEvent);
             if (getCSCHisto(h::CSC_CSC_EFFICIENCY, crateID, dmbID, mo)) {
               if(config->getNEvents() > 0) {
                 mo->SetBinContent(3, ((float)CFEBEvent/(float)(DMBEvents)*100.0));
@@ -909,15 +918,15 @@ namespace cscdqm {
   
         // =VB= Optimizations for faster histogram object access 
         MonitorObject* mo_CFEB_SCA_Block_Occupancy = 0;
-        getCSCHisto(h::CSC_CFEBXX_SCA_BLOCK_OCCUPANCY, crateID, dmbID, nCFEB, mo_CFEB_SCA_Block_Occupancy);
+        getCSCHisto(h::CSC_CFEBXX_SCA_BLOCK_OCCUPANCY, crateID, dmbID, nCFEB + 1, mo_CFEB_SCA_Block_Occupancy);
         MonitorObject*  mo_CFEB_Free_SCA_Cells = 0;      
-        getCSCHisto(h::CSC_CFEBXX_FREE_SCA_CELLS, crateID, dmbID, nCFEB, mo_CFEB_Free_SCA_Cells);
+        getCSCHisto(h::CSC_CFEBXX_FREE_SCA_CELLS, crateID, dmbID, nCFEB + 1, mo_CFEB_Free_SCA_Cells);
         MonitorObject* mo_CFEB_SCA_Blocks_Locked_by_LCTs = 0;
-        getCSCHisto(h::CSC_CFEBXX_SCA_BLOCKS_LOCKED_BY_LCTS, crateID, dmbID, nCFEB, mo_CFEB_SCA_Blocks_Locked_by_LCTs);
+        getCSCHisto(h::CSC_CFEBXX_SCA_BLOCKS_LOCKED_BY_LCTS, crateID, dmbID, nCFEB + 1, mo_CFEB_SCA_Blocks_Locked_by_LCTs);
         MonitorObject* mo_CFEB_SCA_Blocks_Locked_by_LCTxL1 = 0;
-        getCSCHisto(h::CSC_CFEBXX_SCA_BLOCKS_LOCKED_BY_LCTXL1, crateID, dmbID, nCFEB, mo_CFEB_SCA_Blocks_Locked_by_LCTxL1);
+        getCSCHisto(h::CSC_CFEBXX_SCA_BLOCKS_LOCKED_BY_LCTXL1, crateID, dmbID, nCFEB + 1, mo_CFEB_SCA_Blocks_Locked_by_LCTxL1);
         MonitorObject* mo_CFEB_DMB_L1A_diff = 0;
-        getCSCHisto(h::CSC_CFEBXX_DMB_L1A_DIFF, crateID, dmbID, nCFEB, mo_CFEB_DMB_L1A_diff);
+        getCSCHisto(h::CSC_CFEBXX_DMB_L1A_DIFF, crateID, dmbID, nCFEB + 1, mo_CFEB_DMB_L1A_diff);
         
         //LOG_DEBUG << " nSample = " << nSample;
   
@@ -988,18 +997,18 @@ namespace cscdqm {
             //LOG_DEBUG << "*********"<<" TRIGTIME="<<TrigTime<<" BIT COUNT="<<bit_count;
   
             // SCA Block Occupancy Histograms
-            // if (getCSCHisto(h::CSC_CFEBXX_SCA_BLOCK_OCCUPANCY, crateID, dmbID, nCFEB, mo)) mo->Fill(SCA_BLK);
+            // if (getCSCHisto(h::CSC_CFEBXX_SCA_BLOCK_OCCUPANCY, crateID, dmbID, nCFEB + 1, mo)) mo->Fill(SCA_BLK);
             if (mo_CFEB_SCA_Block_Occupancy) mo_CFEB_SCA_Block_Occupancy->Fill(SCA_BLK);
   
             // Free SCA Cells
-            // if (getCSCHisto(h::CSC_CFEBXX_FREE_SCA_CELLS, crateID, dmbID, nCFEB, mo)) 
+            // if (getCSCHisto(h::CSC_CFEBXX_FREE_SCA_CELLS, crateID, dmbID, nCFEB + 1, mo)) 
             if (mo_CFEB_Free_SCA_Cells) {
               if (scaControllerWord[nCFEB][nSample][nLayer-1].sca_full == 1) mo_CFEB_Free_SCA_Cells->Fill(-1);
               mo_CFEB_Free_SCA_Cells->Fill(FreeCells);
             }
   
             // Number of SCA Blocks Locked by LCTs
-            // if (getCSCHisto(h::CSC_CFEBXX_SCA_BLOCKS_LOCKED_BY_LCTS, crateID, dmbID, nCFEB, mo)) 
+            // if (getCSCHisto(h::CSC_CFEBXX_SCA_BLOCKS_LOCKED_BY_LCTS, crateID, dmbID, nCFEB + 1, mo)) 
             if (mo_CFEB_SCA_Blocks_Locked_by_LCTs) {
               if (LCT_Pipe_Empty == 1) mo_CFEB_SCA_Blocks_Locked_by_LCTs->Fill(-0.5);
               if (LCT_Pipe_Full == 1) mo_CFEB_SCA_Blocks_Locked_by_LCTs->Fill(16.5);
@@ -1007,7 +1016,7 @@ namespace cscdqm {
             }
   
             // Number of SCA Blocks Locked by LCTxL1
-            // if (getCSCHisto(h::CSC_CFEBXX_SCA_BLOCKS_LOCKED_BY_LCTXL1, crateID, dmbID, nCFEB, mo)) 
+            // if (getCSCHisto(h::CSC_CFEBXX_SCA_BLOCKS_LOCKED_BY_LCTXL1, crateID, dmbID, nCFEB + 1, mo)) 
             if (mo_CFEB_SCA_Blocks_Locked_by_LCTxL1) {
               if (L1_Pipe_Empty == 1) mo_CFEB_SCA_Blocks_Locked_by_LCTxL1->Fill(-0.5);
               if (L1_Pipe_Full == 1) mo_CFEB_SCA_Blocks_Locked_by_LCTxL1->Fill(31.5);
@@ -1025,19 +1034,19 @@ namespace cscdqm {
               L1APhase = (int)(((scaControllerWord[nCFEB][nSample][nLayer - 1]).l1a_phase) & 0x1);
               UnpackedTrigTime = ((k << 1) & 0xE) + L1APhase;
   
-              if (getCSCHisto(h::CSC_CFEBXX_L1A_SYNC_TIME, crateID, dmbID, nCFEB, mo)) 
+              if (getCSCHisto(h::CSC_CFEBXX_L1A_SYNC_TIME, crateID, dmbID, nCFEB + 1, mo)) 
                 mo->Fill((int)UnpackedTrigTime);
               LCTPhase = (int)(((scaControllerWord[nCFEB][nSample][nLayer-1]).lct_phase)&0x1);
   
-              if (getCSCHisto(h::CSC_CFEBXX_LCT_PHASE_VS_L1A_PHASE, crateID, dmbID, nCFEB, mo)) 
+              if (getCSCHisto(h::CSC_CFEBXX_LCT_PHASE_VS_L1A_PHASE, crateID, dmbID, nCFEB + 1, mo)) 
                 mo->Fill(LCTPhase, L1APhase);
   
               // LOG_DEBUG <<  "L1APhase " << L1APhase << " UnpackedTrigTime " << UnpackedTrigTime;
   
-              if (getCSCHisto(h::CSC_CFEBXX_L1A_SYNC_TIME_VS_DMB, crateID, dmbID, nCFEB, mo))  
+              if (getCSCHisto(h::CSC_CFEBXX_L1A_SYNC_TIME_VS_DMB, crateID, dmbID, nCFEB + 1, mo))  
                 mo->Fill((int)(dmbHeader->dmbCfebSync()), (int)UnpackedTrigTime);
   
-              if (getCSCHisto(h::CSC_CFEBXX_L1A_SYNC_TIME_DMB_DIFF, crateID, dmbID, nCFEB, mo)) {
+              if (getCSCHisto(h::CSC_CFEBXX_L1A_SYNC_TIME_DMB_DIFF, crateID, dmbID, nCFEB + 1, mo)) {
                 int cfeb_dmb_L1A_sync_time = (int)(dmbHeader->dmbCfebSync()) - (int)UnpackedTrigTime;
                 if(cfeb_dmb_L1A_sync_time < -8) mo->Fill(cfeb_dmb_L1A_sync_time+16);
                 else {
@@ -1128,92 +1137,102 @@ namespace cscdqm {
         }
       }
 
-      //--------------B
-      // Refactored for performance (VR)
-      const int a = N_CFEBs * N_Strips;
-      const int b = a * N_Samples;
-      float Cathodes[b * N_Layers];
-      for(int i = 0; i < N_Layers; ++i) {
-        const int b1 = i * b;
-        for(int j = 0; j < a; ++j) {
-          const int b2 = b1 + j;
-          for(int k = 0; k < N_Samples; ++k) {
-            Cathodes[b2 + a * k] = cscdata[j][k][i];
-          }
+    }
+
+    //--------------B
+    // Refactored for performance (VR)
+    const int a = N_CFEBs * N_Strips;
+    const int b = a * N_Samples;
+    float Cathodes[b * N_Layers];
+    for(int i = 0; i < N_Layers; ++i) {
+      const int b1 = i * b;
+      for(int j = 0; j < a; ++j) {
+        const int b2 = b1 + j;
+        for(int k = 0; k < N_Samples; ++k) {
+          Cathodes[b2 + a * k] = cscdata[j][k][i];
         }
       }
-      std::vector<StripCluster> Clus;
+    }
+
+    std::vector<StripCluster> Clus;
+    Clus.clear();
+    StripClusterFinder ClusterFinder(N_Layers, N_Samples, N_CFEBs, N_Strips);
+
+    for(int nLayer = 1; nLayer <= N_Layers; ++nLayer) {
+    
+      // StripClusterFinder *ClusterFinder = new StripClusterFinder(N_Layers, N_Samples, N_CFEBs, N_Strips);
+    
+      ClusterFinder.DoAction(nLayer - 1, Cathodes);
+      Clus = ClusterFinder.getClusters();
+
+      // LOG_DEBUG <<  "***  CATHODE PART  DEBUG: Layer=" << nLayer <<"  Number of Clusters=" << Clus.size() << "      ***";
+      // Number of Clusters Histograms
+      if (getCSCHisto(h::CSC_CFEB_NUMBER_OF_CLUSTERS_LY_XX, crateID, dmbID, nLayer, mo)) {
+        if(Clus.size() >= 0)  mo->Fill(Clus.size());
+      }
+
+      for(uint32_t u = 0; u < Clus.size(); u++){
+
+        Clus_Sum_Charge = 0.0;
+
+        for(uint32_t k = 0;k < Clus[u].ClusterPulseMapHeight.size(); k++) {
+
+          // LOG_DEBUG <<  "Strip: " << Clus[u].ClusterPulseMapHeight[k].channel_+1;
+          
+          for(int n = Clus[u].LFTBNDTime; n < Clus[u].IRTBNDTime; n++) {
+            Clus_Sum_Charge = Clus_Sum_Charge + Clus[u].ClusterPulseMapHeight[k].height_[n];
+          }
+
+        }
+
+        // Clusters Charge Histograms
+        if (getCSCHisto(h::CSC_CFEB_CLUSTERS_CHARGE_LY_XX, crateID, dmbID, nLayer, mo)) {
+          mo->Fill(Clus_Sum_Charge);
+        }
+
+        // Width of Clusters Histograms
+        if (getCSCHisto(h::CSC_CFEB_WIDTH_OF_CLUSTERS_LY_XX, crateID, dmbID, nLayer, mo)) {
+          mo->Fill(Clus[u].IRTBNDStrip - Clus[u].LFTBNDStrip + 1);
+        }
+
+        // Cluster Duration Histograms
+        if (getCSCHisto(h::CSC_CFEB_CLUSTER_DURATION_LY_XX, crateID, dmbID, nLayer, mo)) {
+          mo->Fill(Clus[u].IRTBNDTime - Clus[u].LFTBNDTime + 1);
+        }
+
+      }
+
       Clus.clear();
-      StripClusterFinder ClusterFinder(N_Layers, N_Samples, N_CFEBs, N_Strips);
   
-      for(int nLayer = 1; nLayer <= N_Layers; ++nLayer) {
-      
-        // StripClusterFinder *ClusterFinder = new StripClusterFinder(N_Layers, N_Samples, N_CFEBs, N_Strips);
-      
-        ClusterFinder.DoAction(nLayer - 1, Cathodes);
-        Clus = ClusterFinder.getClusters();
+      // delete ClusterFinder;
+    }
+  
+    //--------------E
 
-        // LOG_DEBUG <<  "***  CATHODE PART  DEBUG: Layer=" << nLayer <<"  Number of Clusters=" << Clus.size() << "      ***";
-        // Number of Clusters Histograms
-        if (getCSCHisto(h::CSC_CFEB_NUMBER_OF_CLUSTERS_LY_XX, crateID, dmbID, nLayer, mo)) {
-          if(Clus.size() >= 0)  mo->Fill(Clus.size());
-        }
-  
-        for(uint32_t u = 0; u < Clus.size(); u++){
-          Clus_Sum_Charge = 0.0;
-          for(uint32_t k = 0;k < Clus[u].ClusterPulseMapHeight.size(); k++) {
-            // LOG_DEBUG <<  "Strip: " << Clus[u].ClusterPulseMapHeight[k].channel_+1;
-            for(int n=Clus[u].LFTBNDTime; n < Clus[u].IRTBNDTime; n++) {
-              Clus_Sum_Charge = Clus_Sum_Charge + Clus[u].ClusterPulseMapHeight[k].height_[n];
-            }
-          }
-  
-          // Clusters Charge Histograms
-          if (getCSCHisto(h::CSC_CFEB_CLUSTERS_CHARGE_LY_XX, crateID, dmbID, nLayer, mo)) 
-            mo->Fill(Clus_Sum_Charge);
-  
-          // Width of Clusters Histograms
-          if (getCSCHisto(h::CSC_CFEB_WIDTH_OF_CLUSTERS_LY_XX, crateID, dmbID, nLayer, mo)) 
-            mo->Fill(Clus[u].IRTBNDStrip - Clus[u].LFTBNDStrip + 1);
-  
-          // Cluster Duration Histograms
-          if (getCSCHisto(h::CSC_CFEB_CLUSTER_DURATION_LY_XX, crateID, dmbID, nLayer, mo)) 
-            mo->Fill(Clus[u].IRTBNDTime - Clus[u].LFTBNDTime + 1);
-        }
-  
-        Clus.clear();
-    
-        // delete ClusterFinder;
-      }
-    
-      //--------------E
-  
-      // Fill Hisogram for Different Combinations of FEBs Unpacked vs DAV
-      if (getCSCHisto(h::CSC_DMB_FEB_COMBINATIONS_UNPACKED_VS_DAV, crateID, dmbID, mo)) {
-        float feb_combination_unpacked = -1.0;
-        if(alct_unpacked == 0 && tmb_unpacked == 0 && cfeb_unpacked == 0) feb_combination_unpacked = 0.0;
-        if(alct_unpacked >  0 && tmb_unpacked == 0 && cfeb_unpacked == 0) feb_combination_unpacked = 1.0;
-        if(alct_unpacked == 0 && tmb_unpacked >  0 && cfeb_unpacked == 0) feb_combination_unpacked = 2.0;
-        if(alct_unpacked == 0 && tmb_unpacked == 0 && cfeb_unpacked >  0) feb_combination_unpacked = 3.0;
-        if(alct_unpacked >  0 && tmb_unpacked >  0 && cfeb_unpacked == 0) feb_combination_unpacked = 4.0;
-        if(alct_unpacked >  0 && tmb_unpacked == 0 && cfeb_unpacked >  0) feb_combination_unpacked = 5.0;
-        if(alct_unpacked == 0 && tmb_unpacked >  0 && cfeb_unpacked >  0) feb_combination_unpacked = 6.0;
-        if(alct_unpacked >  0 && tmb_unpacked >  0 && cfeb_unpacked >  0) feb_combination_unpacked = 7.0;
-        mo->Fill(feb_combination_dav, feb_combination_unpacked);
-      }
-  
-      if((clct_kewdistrip > -1 && alct_keywg > -1) && (getCSCHisto(h::CSC_CLCT0_KEYDISTRIP_VS_ALCT0_KEYWIREGROUP, crateID, dmbID, mo))) {
-        mo->Fill(alct_keywg, clct_kewdistrip);
-      }
-  
-      if (L1A_out_of_sync && cscType && cscPosition && getEMUHisto(h::EMU_CSC_L1A_OUT_OF_SYNC, mo)){
-        mo->Fill(cscPosition, cscType);
-      }
-  
-      if (L1A_out_of_sync && getEMUHisto(h::EMU_DMB_L1A_OUT_OF_SYNC, mo)){
-        mo->Fill(crateID, dmbID);
-      }
+    // Fill Hisogram for Different Combinations of FEBs Unpacked vs DAV
+    if (getCSCHisto(h::CSC_DMB_FEB_COMBINATIONS_UNPACKED_VS_DAV, crateID, dmbID, mo)) {
+      float feb_combination_unpacked = -1.0;
+      if(alct_unpacked == 0 && tmb_unpacked == 0 && cfeb_unpacked == 0) feb_combination_unpacked = 0.0;
+      if(alct_unpacked >  0 && tmb_unpacked == 0 && cfeb_unpacked == 0) feb_combination_unpacked = 1.0;
+      if(alct_unpacked == 0 && tmb_unpacked >  0 && cfeb_unpacked == 0) feb_combination_unpacked = 2.0;
+      if(alct_unpacked == 0 && tmb_unpacked == 0 && cfeb_unpacked >  0) feb_combination_unpacked = 3.0;
+      if(alct_unpacked >  0 && tmb_unpacked >  0 && cfeb_unpacked == 0) feb_combination_unpacked = 4.0;
+      if(alct_unpacked >  0 && tmb_unpacked == 0 && cfeb_unpacked >  0) feb_combination_unpacked = 5.0;
+      if(alct_unpacked == 0 && tmb_unpacked >  0 && cfeb_unpacked >  0) feb_combination_unpacked = 6.0;
+      if(alct_unpacked >  0 && tmb_unpacked >  0 && cfeb_unpacked >  0) feb_combination_unpacked = 7.0;
+      mo->Fill(feb_combination_dav, feb_combination_unpacked);
+    }
 
+    if((clct_kewdistrip > -1 && alct_keywg > -1) && (getCSCHisto(h::CSC_CLCT0_KEYDISTRIP_VS_ALCT0_KEYWIREGROUP, crateID, dmbID, mo))) {
+      mo->Fill(alct_keywg, clct_kewdistrip);
+    }
+
+    if (L1A_out_of_sync && cscType && cscPosition && getEMUHisto(h::EMU_CSC_L1A_OUT_OF_SYNC, mo)){
+      mo->Fill(cscPosition, cscType);
+    }
+
+    if (L1A_out_of_sync && getEMUHisto(h::EMU_DMB_L1A_OUT_OF_SYNC, mo)){
+      mo->Fill(crateID, dmbID);
     }
 
   }

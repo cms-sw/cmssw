@@ -30,7 +30,7 @@ namespace cscdqm {
 
     MonitorObject* me = 0;
     if (getEMUHisto(h::EMU_ALL_READOUT_ERRORS, me)) {
-      if(errorStat != 0) {
+      if (errorStat != 0) {
         me->Fill(nodeNumber, 1);
         for (unsigned int i = 0; i < 16; i++) {
           if ((errorStat >> i) & 0x1) {

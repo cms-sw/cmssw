@@ -45,18 +45,19 @@ namespace cscdqm {
     MonitorObject *mo = 0, *mof = 0;
     while (config->fnNextBookedCSC(iter, crateId, dmbId)) {
 
-      std::string cscTag = CSCHistoDef::getPath(crateId, dmbId);
+      uint32_t dmbEvents = config->getChamberCounterValue(DMB_EVENTS, crateId, dmbId);
 
       if (getCSCHisto(h::CSC_BINCHECK_DATAFLOW_PROBLEMS_TABLE, crateId, dmbId, mo) && 
           getCSCHisto(h::CSC_BINCHECK_DATAFLOW_PROBLEMS_FREQUENCY, crateId, dmbId, mof)) {
+        
         TH1* th = mof->getTH1Lock();
         th->Reset();
         th->Add(mo->getTH1());
-        th->Scale(1. / (nDMBEvents[cscTag]));
+        th->Scale(1. / dmbEvents);
         mof->unlock();
         mof->SetMaximum(1.);
-        mof->SetEntries(nDMBEvents[cscTag]);
-        mo->SetEntries(nDMBEvents[cscTag]);
+        mof->SetEntries(dmbEvents);
+        mo->SetEntries(dmbEvents);
       }
 
       if (getCSCHisto(h::CSC_BINCHECK_ERRORSTAT_TABLE, crateId, dmbId, mo) && 
@@ -64,11 +65,11 @@ namespace cscdqm {
         TH1* th = mof->getTH1Lock();
         th->Reset();
         th->Add(mo->getTH1());
-        th->Scale(1. / (nDMBEvents[cscTag]));
+        th->Scale(1. / dmbEvents);
         mof->unlock();
         mof->SetMaximum(1.);
-        mof->SetEntries(nDMBEvents[cscTag]);
-        mo->SetEntries(nDMBEvents[cscTag]);
+        mof->SetEntries(dmbEvents);
+        mo->SetEntries(dmbEvents);
       }
 
     }

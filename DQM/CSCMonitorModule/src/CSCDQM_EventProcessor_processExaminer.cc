@@ -76,16 +76,12 @@ namespace cscdqm {
       int crateID = (chamberID >> 4) & 0xFF;
       int dmbSlot = chamberID & 0xF;
       
-      std::string cscTag = CSCHistoDef::getPath(crateID, dmbSlot);
-
       if (crateID == 255) { continue; }
 
       // Update counters
-      nDMBEvents[cscTag]++;
-      CSCCounters& trigCnts = cscCntrs[cscTag];
-      trigCnts["DMB"] = nDMBEvents[cscTag];
-
-      long DMBEvents = nDMBEvents[cscTag];
+      config->incChamberCounter(DMB_EVENTS, crateID, dmbSlot);
+      long DMBEvents = config->getChamberCounterValue(DMB_EVENTS, crateID, dmbSlot);
+      config->copyChamberCounterValue(DMB_EVENTS, DMB_TRIGGERS, crateID, dmbSlot);
 
       if (getEMUHisto(h::EMU_DMB_REPORTING, mo)) {
         mo->Fill(crateID, dmbSlot);
@@ -260,14 +256,14 @@ namespace cscdqm {
     }
 
   // === Check and fill CSC Data Flow Problems
+   
   std::map<int,long> statuses = binChecker.statusDetailed();
-  for(std::map<int,long>::const_iterator chamber = statuses.begin(); chamber != statuses.end(); chamber++)
-    {
+  for(std::map<int,long>::const_iterator chamber = statuses.begin(); chamber != statuses.end(); chamber++) {
+
       int chamberID = chamber->first;
 
       unsigned int crateID = (chamberID >> 4) & 0xFF;
       unsigned int dmbSlot = chamberID & 0xF;
-      std::string cscTag = CSCHistoDef::getPath(crateID, dmbSlot);
 
       if (crateID == 255) { continue; }
 
@@ -276,17 +272,18 @@ namespace cscdqm {
       if (!getCSCFromMap(crateID, dmbSlot, cscType, cscPosition)) continue;
 
       if (getCSCHisto(h::CSC_BINCHECK_DATAFLOW_PROBLEMS_TABLE, crateID, dmbSlot, mo)) {
-	for(int bit = 0; bit < binChecker.nSTATUSES; bit++)
-	  if( chamber->second & (1 << bit) ) {
+	for (int bit = 0; bit < binChecker.nSTATUSES; bit++) {
+	  if (chamber->second & (1<<bit) ) {
 	    mo->Fill(0., bit);
 	  }
-	mo->SetEntries(nDMBEvents[cscTag]);
+        }
+	mo->SetEntries(config->getChamberCounterValue(DMB_EVENTS, crateID, dmbSlot));
       }
 
       
       int anyInputFull = chamber->second & 0x3F;
-      if(anyInputFull){
-	if(cscType && cscPosition && getEMUHisto(h::EMU_CSC_DMB_INPUT_FIFO_FULL, mo)){
+      if (anyInputFull) {
+	if (cscType && cscPosition && getEMUHisto(h::EMU_CSC_DMB_INPUT_FIFO_FULL, mo)) {
 	  mo->Fill(cscPosition, cscType);
 	}
 	if (getEMUHisto(h::EMU_DMB_INPUT_FIFO_FULL, mo)) {
@@ -296,8 +293,8 @@ namespace cscdqm {
 
 
       int anyInputTO = (chamber->second >> 7) & 0x3FFF;
-      if(anyInputTO){
-	if(cscType && cscPosition && getEMUHisto(h::EMU_CSC_DMB_INPUT_TIMEOUT, mo)){
+      if (anyInputTO) {
+	if (cscType && cscPosition && getEMUHisto(h::EMU_CSC_DMB_INPUT_TIMEOUT, mo)) {
 	  mo->Fill(cscPosition, cscType);
 	}
 	if (getEMUHisto(h::EMU_DMB_INPUT_TIMEOUT, mo)) {
@@ -317,28 +314,23 @@ namespace cscdqm {
       }
     }
 
-  // Check and fill CSC Format Errors 
-  std::map<int,long> checkerErrors = binChecker.errorsDetailed();
-  for(std::map<int,long>::const_iterator chamber = checkerErrors.begin(); chamber != checkerErrors.end(); chamber++) {
+    // Check and fill CSC Format Errors 
+    std::map<int,long> checkerErrors = binChecker.errorsDetailed();
+    for(std::map<int,long>::const_iterator chamber = checkerErrors.begin(); chamber != checkerErrors.end(); chamber++) {
 
       unsigned int chamberID = chamber->first;
       unsigned int crateID = (chamberID >> 4) & 0xFF;
       unsigned int dmbSlot = chamberID & 0xF;
 
-      std::string cscTag = CSCHistoDef::getPath(crateID , dmbSlot);
-
       if ((crateID ==255) || 
 	  (chamber->second & 0x80)) { continue; } // = Skip chamber detection if DMB header is missing (Error code 6)
 
-      if (crateID>60 || dmbSlot>10) {
-	//LOG4CPLUS_WARN(logger_, eTag << "Invalid CSC: " << cscTag << ". Skipping");
+      if (crateID > 60 || dmbSlot > 10) {
 	continue;
       }
  
       if ((chamber->second & config->getBINCHECK_MASK()) != 0) {
-	// nDMBEvents[cscTag]++;	
-	CSCCounters& trigCnts = cscCntrs[cscTag];
-	trigCnts["BAD"]++; 
+        config->incChamberCounter(BAD_EVENTS, crateID , dmbSlot);
       }
 
       bool isCSCError = false;
@@ -349,13 +341,11 @@ namespace cscdqm {
 	    isCSCError = true;
 	    mo->Fill(0., bit - 5);
 	  }
-          mo->SetEntries(nDMBEvents[cscTag]);
+          mo->SetEntries(config->getChamberCounterValue(DMB_EVENTS, crateID , dmbSlot));
         }
       }
 
       if (isCSCError) {
-
-	//LOG4CPLUS_WARN(logger_,eTag << "Format Errors "<< cscTag << ": 0x" << std::hex << chamber->second);
 
 	if (getEMUHisto(h::EMU_DMB_FORMAT_ERRORS, mo)) {
 	  mo->Fill(crateID, dmbSlot);

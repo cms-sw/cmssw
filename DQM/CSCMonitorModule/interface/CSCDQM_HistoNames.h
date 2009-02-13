@@ -170,6 +170,7 @@ namespace h {
   (( DDU_DMB_DAV_HEADER_OCCUPANCY_RATE, "DMB_DAV_Header_Occupancy_Rate" )) \
   (( DDU_DMB_UNPACKED_VS_DAV, "DMB_unpacked_vs_DAV" )) \
   (( DDU_L1A_INCREMENT, "L1A_Increment" )) \
+  (( DDU_READOUT_ERRORS, "Readout_Errors" )) \
   (( DDU_TRAILER_ERRORSTAT_FREQUENCY, "Trailer_ErrorStat_Frequency" )) \
   (( DDU_TRAILER_ERRORSTAT_RATE, "Trailer_ErrorStat_Rate" )) \
   (( DDU_TRAILER_ERRORSTAT_TABLE, "Trailer_ErrorStat_Table" )) \
