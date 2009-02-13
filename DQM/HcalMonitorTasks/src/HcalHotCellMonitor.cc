@@ -329,12 +329,13 @@ void HcalHotCellMonitor::createMaps(const HcalDbService& cond)
   
   if (fVerbosity>0)
     cout <<"<HcalHotCellMonitor::createMaps>:  Making pedestal maps"<<endl;
-  float ped=0;
-  float width=0;
+  double ped=0;
+  double width=0;
   HcalCalibrations calibs;
   const HcalQIEShape* shape = cond.getHcalShape();
 
   double myNsigma=0;
+  double myADC=0;
 
   for (int ieta=(int)etaMin_;ieta<=(int)etaMax_;++ieta)
     {
@@ -362,43 +363,31 @@ void HcalHotCellMonitor::createMaps(const HcalDbService& cond)
 		   
 		  ped=0.;
 		  width=0.;
-
+		  myADC=0.;
 		  // loop over capids
 		  for (int capid=0;capid<4;++capid)
 		    {
+		      // pedestals from calibs.pedestal are always in fC
+		      const HcalQIECoder* channelCoder=cond.getHcalCoder(hcal);
+		      
+		      // Convert pedestals to ADC
+		      ped+=channelCoder->adc(*shape,
+					     (float)calibs.pedestal(capid),
+					     capid);
+
+		      // Now the tricky part -- need to convert widths to ADC if provided in fC
 		      if (doFCpeds_)
 			{
-			  // pedestals in fC
-			  const HcalQIECoder* channelCoder=cond.getHcalCoder(hcal);
-
-			  // Convert pedestals to ADC
-			  ped+=channelCoder->adc(*shape,
-						 (float)calibs.pedestal(capid),
-						 capid);
-
-			  // Okay, this definitely isn't right.  Need to figure out how to convert from fC to ADC properly
-			  // Right now, take width as half the difference between (ped+width)- (ped-width), converting each to ADC
-
-			  width+=0.5*(channelCoder->adc(*shape,
-							(float)calibs.pedestal(capid)+(float)pow((double)pedw->getWidth(capid),(double)0.5),
-							capid)
-				      - channelCoder->adc(*shape,
-							  (float)calibs.pedestal(capid)-(float)pow((double)pedw->getWidth(capid),(double)0.5),
-							  capid));
-			} // if (doFCpeds_) // (pedestals in fC)
+			  // Form width by summing the diagonal terms of the covariance matrix (sigma_ii),
+			  // and scale by ADC/fC ratio to convert from fC^2 to ADC^2
+			  width+=(pedw->getSigma(capid,capid)*pow(myADC/calibs.pedestal(capid),2));
+			}
 		      else
-			{
-			  // pedestals in ADC
-			  ped+=calibs.pedestal(capid);
-			  width+=pedw->getWidth(capid); // add in quadrature?  Make use of correlations?
-			} // else //pedestals in ADC
+			width+=pedw->getSigma(capid,capid);
 		    } // for (int capid=0;capid<4;++capid)
 
 		  ped/=4.;  // pedestal value is average over capids
-		  if (doFCpeds_)
-		    width/=4.;
-		  else
-		    width=pow((double)width/4.,(double)0.5); // getWidth returns width^2
+		  width=pow(width,0.5)/4.;
 
 		  pedestals_[hcal]=ped;
 		  widths_[hcal]=width;

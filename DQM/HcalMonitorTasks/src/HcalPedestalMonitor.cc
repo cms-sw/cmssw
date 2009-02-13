@@ -182,8 +182,6 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
 				       //const ZDCDigiCollection& zdc, // ZDCs not yet added
 				       const HcalDbService& cond)
 {
-
-  cout <<"EVENT"<<endl<<endl;
   if (showTiming)
     {
       cpu_timer.reset(); cpu_timer.start();
