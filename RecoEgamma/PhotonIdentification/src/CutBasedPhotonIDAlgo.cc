@@ -167,7 +167,7 @@ void CutBasedPhotonIDAlgo::decideEB(const reco::Photon* pho, bool &LoosePhoton, 
 
   if (dophotonsigmaeeCut_){
  
-    double sigmaee = pho->covIetaIeta();
+    double sigmaee = pho->sigmaIetaIeta();
     if (sigmaee > loosephotonEtaWidthCutEB_){
       LoosePhoton = false;
       TightPhoton = false;
@@ -258,7 +258,7 @@ void CutBasedPhotonIDAlgo::decideEB(const reco::Photon* pho, bool &LoosePhoton, 
   //eta width
 
   if (dophotonsigmaeeCut_){
-    double sigmaee = pho->covIetaIeta();
+    double sigmaee = pho->sigmaIetaIeta();
     if (sigmaee > tightphotonEtaWidthCutEB_){
       LoosePhoton = true;
       TightPhoton = false;
@@ -387,7 +387,7 @@ void CutBasedPhotonIDAlgo::decideEE(const reco::Photon* pho, bool &LoosePhoton, 
 
   if (dophotonsigmaeeCut_){
     
-    double sigmaee = pho->covIetaIeta();
+    double sigmaee = pho->sigmaIetaIeta();
   
     if (sigmaee > loosephotonEtaWidthCutEE_){
       LoosePhoton = false;
@@ -480,7 +480,7 @@ void CutBasedPhotonIDAlgo::decideEE(const reco::Photon* pho, bool &LoosePhoton, 
 
   if (dophotonsigmaeeCut_){
    
-    double sigmaee = pho->covIetaIeta();
+    double sigmaee = pho->sigmaIetaIeta();
         
     if (sigmaee > tightphotonEtaWidthCutEE_){
       LoosePhoton = true;
