@@ -334,7 +334,7 @@ int main(int ac, char *av[]) {
     
     cout << "It works!\n";
   }
-  catch(exception& e) {
+  catch(std::exception& e) {
     cerr << "error: " << e.what() << "\n";
     return 1;
   }
