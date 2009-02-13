@@ -45,6 +45,7 @@
 #include "OnlineDB/EcalCondDB/interface/ODFEDelaysInfo.h"
 #include "OnlineDB/EcalCondDB/interface/ODFEWeightsInfo.h"
 #include "OnlineDB/EcalCondDB/interface/ODDelaysDat.h"
+#include "OnlineDB/EcalCondDB/interface/ODWeightsDat.h"
 #include "OnlineDB/EcalCondDB/interface/ODBadTTInfo.h"
 #include "OnlineDB/EcalCondDB/interface/ODBadTTDat.h"
 #include "OnlineDB/EcalCondDB/interface/ODBadXTInfo.h"
