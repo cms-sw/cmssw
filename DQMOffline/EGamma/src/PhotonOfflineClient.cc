@@ -11,7 +11,7 @@
  **  
  **
  **  $Id: PhotonOfflineClient
- **  $Date: 2009/01/26 10:00:47 $ 
+ **  $Date: 2009/01/28 15:31:17 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -59,12 +59,12 @@ void PhotonOfflineClient::endLuminosityBlock(const edm::LuminosityBlock& lumi, c
 
   vector<string> types;
   types.push_back("All");
-  types.push_back("Isolated");
-  types.push_back("Nonisolated");
+  types.push_back("GoodCandidate");
+  types.push_back("Background");
   
   std::string AllPath = "Egamma/PhotonAnalyzer/AllPhotons/";
-  std::string IsoPath = "Egamma/PhotonAnalyzer/IsolatedPhotons/";
-  std::string NonisoPath = "Egamma/PhotonAnalyzer/NonisolatedPhotons/";
+  std::string IsoPath = "Egamma/PhotonAnalyzer/GoodCandidatePhotons/";
+  std::string NonisoPath = "Egamma/PhotonAnalyzer/BackgroundPhotons/";
   std::string EffPath = "Egamma/PhotonAnalyzer/Efficiencies/";
   
   currentFolder_.str("");

@@ -11,7 +11,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2009/01/26 09:56:33 $ 
+ **  $Date: 2009/01/28 14:05:03 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -153,8 +153,8 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
 
   vector<string> types;
   types.push_back("All");
-  types.push_back("Isolated");
-  types.push_back("Nonisolated");
+  types.push_back("GoodCandidate");
+  types.push_back("Background");
 
   //booking all histograms
 
@@ -236,9 +236,9 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
 	h_r9VsEt_isol_.push_back(dbe_->book2D("r9VsEt2D",types[type]+" Photon r9 vs. Transverse Energy;Et (GeV);R9",etBin,etMin,etMax,r9Bin,r9Min,r9Max));
 	p_r9VsEt_isol_.push_back(dbe_->book1D("r9VsEt",types[type]+" Photon r9 vs. Transverse Energy;Et (GeV);R9",etBin,etMin,etMax));
 
-	h_phoCovIetaIeta_isol_.push_back(dbe_->book1D("phoCovIetaIeta",types[type]+" Photon #sigmai#etai#eta;#sigmai#etai#eta ",100,0,0.001)) ;
-	h_covIetaIetaVsEta_isol_.push_back(dbe_->book2D("covIetaIetaVsEta2D",types[type]+" Photon #sigmai#etai#eta vs. #eta;#eta;#sigmai#etai#eta",etaBin,etaMin,etaMax,100,0,0.001));
-	p_covIetaIetaVsEta_isol_.push_back(dbe_->book1D("covIetaIetaVsEta",types[type]+" Photon #sigmai#etai#eta vs. #eta;#eta;#sigmai#etai#eta",etaBin,etaMin,etaMax));
+	h_phoSigmaIetaIeta_isol_.push_back(dbe_->book1D("phoSigmaIetaIeta",types[type]+" Photon #sigmai#etai#eta;#sigmai#etai#eta ",100,0,0.001)) ;
+	h_sigmaIetaIetaVsEta_isol_.push_back(dbe_->book2D("sigmaIetaIetaVsEta2D",types[type]+" Photon #sigmai#etai#eta vs. #eta;#eta;#sigmai#etai#eta",etaBin,etaMin,etaMax,100,0,0.001));
+	p_sigmaIetaIetaVsEta_isol_.push_back(dbe_->book1D("sigmaIetaIetaVsEta",types[type]+" Photon #sigmai#etai#eta vs. #eta;#eta;#sigmai#etai#eta",etaBin,etaMin,etaMax));
 
 	// Isolation Variable infos
 
@@ -293,13 +293,13 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
       p_r9VsEt_.push_back(p_r9VsEt_isol_);
       p_r9VsEt_isol_.clear();
  
-      h_phoCovIetaIeta_.push_back(h_phoCovIetaIeta_isol_);
-      h_phoCovIetaIeta_isol_.clear();
+      h_phoSigmaIetaIeta_.push_back(h_phoSigmaIetaIeta_isol_);
+      h_phoSigmaIetaIeta_isol_.clear();
   
-      h_covIetaIetaVsEta_.push_back(h_covIetaIetaVsEta_isol_);
-      h_covIetaIetaVsEta_isol_.clear();
-      p_covIetaIetaVsEta_.push_back(p_covIetaIetaVsEta_isol_);
-      p_covIetaIetaVsEta_isol_.clear();
+      h_sigmaIetaIetaVsEta_.push_back(h_sigmaIetaIetaVsEta_isol_);
+      h_sigmaIetaIetaVsEta_isol_.clear();
+      p_sigmaIetaIetaVsEta_.push_back(p_sigmaIetaIetaVsEta_isol_);
+      p_sigmaIetaIetaVsEta_isol_.clear();
  
       h_nTrackIsolSolidVsEta_.push_back(h_nTrackIsolSolidVsEta_isol_);
       h_trackPtSumSolidVsEta_.push_back(h_trackPtSumSolidVsEta_isol_);
@@ -656,9 +656,9 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 
 	h_r9VsEt_[cut][0]->Fill( (*iPho).et(), (*iPho).r9() );
 
-	h_phoCovIetaIeta_[cut][0]->Fill( (*iPho).covIetaIeta() );
+	h_phoSigmaIetaIeta_[cut][0]->Fill( (*iPho).sigmaIetaIeta() );
 
-	h_covIetaIetaVsEta_[cut][0]->Fill( (*iPho).eta(),(*iPho).covIetaIeta() );
+	h_sigmaIetaIetaVsEta_[cut][0]->Fill( (*iPho).eta(),(*iPho).sigmaIetaIeta() );
 
 	// iso/noniso photons histograms
 	h_nTrackIsolSolidVsEta_[cut][type]->Fill( (*iPho).eta(),(*iPho).nTrkSolidConeDR04());
@@ -698,9 +698,9 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 
 	h_r9VsEt_[cut][type]->Fill( (*iPho).et(), (*iPho).r9() );
 
-	h_phoCovIetaIeta_[cut][type]->Fill( (*iPho).covIetaIeta() );
+	h_phoSigmaIetaIeta_[cut][type]->Fill( (*iPho).sigmaIetaIeta() );
 
-	h_covIetaIetaVsEta_[cut][type]->Fill( (*iPho).eta(), (*iPho).covIetaIeta() );
+	h_sigmaIetaIetaVsEta_[cut][type]->Fill( (*iPho).eta(), (*iPho).sigmaIetaIeta() );
 
 
 	if((*iPho).hasConversionTracks()){
@@ -893,12 +893,12 @@ void PhotonAnalyzer::endJob()
 
     vector<string> types;
     types.push_back("All");
-    types.push_back("Isolated");
-    types.push_back("Nonisolated");
+    types.push_back("GoodCandidate");
+    types.push_back("Background");
     
     std::string AllPath = "Egamma/PhotonAnalyzer/AllPhotons/";
-    std::string IsoPath = "Egamma/PhotonAnalyzer/IsolatedPhotons/";
-    std::string NonisoPath = "Egamma/PhotonAnalyzer/NonisolatedPhotons/";
+    std::string IsoPath = "Egamma/PhotonAnalyzer/GoodCandidatePhotons/";
+    std::string NonisoPath = "Egamma/PhotonAnalyzer/BackgroundPhotons/";
     std::string EffPath = "Egamma/PhotonAnalyzer/Efficiencies/";
     
     currentFolder_.str("");
@@ -949,7 +949,7 @@ void PhotonAnalyzer::endJob()
 
  	doProfileX( dbe_->get(currentFolder_.str()+"r9VsEt2D"),dbe_->get(currentFolder_.str()+"r9VsEt"));
 
- 	doProfileX( dbe_->get(currentFolder_.str()+"covIetaIetaVsEta2D"),dbe_->get(currentFolder_.str()+"covIetaIetaVsEta"));
+ 	doProfileX( dbe_->get(currentFolder_.str()+"sigmaIetaIetaVsEta2D"),dbe_->get(currentFolder_.str()+"sigmaIetaIetaVsEta"));
 	
 	//removing unneeded plots
 	
@@ -962,7 +962,7 @@ void PhotonAnalyzer::endJob()
 	dbe_->removeElement("ecalSumVsEta2D");
 	dbe_->removeElement("hcalSumVsEta2D");
  	dbe_->removeElement("r9VsEt2D");	
- 	dbe_->removeElement("covIetaIetaVsEta2D");
+ 	dbe_->removeElement("sigmaIetaIetaVsEta2D");
 	
 	//other plots
 	

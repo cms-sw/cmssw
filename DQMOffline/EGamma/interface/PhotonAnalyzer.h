@@ -74,7 +74,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2009/01/26 09:51:05 $ 
+ **  $Date: 2009/01/28 14:03:10 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -307,13 +307,13 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   std::vector<MonitorElement*> p_r9VsEt_isol_;
   std::vector<std::vector<MonitorElement*> > p_r9VsEt_;
 
-  std::vector<MonitorElement*> h_phoCovIetaIeta_isol_;
-  std::vector<std::vector<MonitorElement*> > h_phoCovIetaIeta_;
+  std::vector<MonitorElement*> h_phoSigmaIetaIeta_isol_;
+  std::vector<std::vector<MonitorElement*> > h_phoSigmaIetaIeta_;
 
-  std::vector<MonitorElement*> h_covIetaIetaVsEta_isol_;
-  std::vector<std::vector<MonitorElement*> > h_covIetaIetaVsEta_;
-  std::vector<MonitorElement*> p_covIetaIetaVsEta_isol_;
-  std::vector<std::vector<MonitorElement*> > p_covIetaIetaVsEta_;
+  std::vector<MonitorElement*> h_sigmaIetaIetaVsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > h_sigmaIetaIetaVsEta_;
+  std::vector<MonitorElement*> p_sigmaIetaIetaVsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > p_sigmaIetaIetaVsEta_;
 
 
   std::vector<MonitorElement*> h_tkChi2_isol_;
