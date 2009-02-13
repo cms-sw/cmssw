@@ -12,11 +12,13 @@ process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = 'IDEAL_30X::All'
 process.load("Configuration/StandardSequences/RawToDigi_cff")
+process.load('Configuration/StandardSequences/Digi_cff')
+process.load("SimGeneral.MixingModule.mixNoPU_cfi")
 # for Beam
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 # for Cosmics
 #process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
-
+process.load("RecoLocalMuon.Configuration.RecoLocalMuon_cff")
 
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
 
@@ -40,11 +42,11 @@ process.ana = cms.EDFilter("CSCEfficiency",
     IPdata = cms.untracked.bool(True),
 #    Beamdata = cms.untracked.bool(False),
 #    distanceFromDeadZone = cms.untracked.double(10.0),
-    alctDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCALCTDigi"),
-    clctDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCCLCTDigi"),
-    corrlctDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCCorrelatedLCTDigi"),
-    stripDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi"),
-    wireDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi"),
+    alctDigiTag = cms.InputTag("muonCSCDigis","MuonCSCALCTDigi"),
+    clctDigiTag = cms.InputTag("muonCSCDigis","MuonCSCCLCTDigi"),
+    corrlctDigiTag = cms.InputTag("muonCSCDigis","MuonCSCCorrelatedLCTDigi"),
+    stripDigiTag = cms.InputTag("muonCSCDigis","MuonCSCStripDigi"),
+    wireDigiTag = cms.InputTag("muonCSCDigis","MuonCSCWireDigi"),
     rechitDigiTag = cms.InputTag("csc2DRecHits"),
     segmentDigiTag = cms.InputTag("cscSegments"),
     simHitTag = cms.InputTag("g4SimHits", "MuonCSCHits"),
@@ -56,7 +58,7 @@ process.ana = cms.EDFilter("CSCEfficiency",
 #    maxNormChi2 = cms.untracked.double(3.0),
 #    minTrackHits = cms.untracked.uint32(10),
 # if no magnetic filed - P values don't matter
-    minP = cms.untracked.double(20.0),
+#    minP = cms.untracked.double(20.0),
 #    maxP = cms.untracked.double(100.0)
 # trigger
     useTrigger = cms.untracked.bool(False),
@@ -101,6 +103,6 @@ process.out = cms.OutputModule("PoolOutputModule",
 #)
 
 process.analyze = cms.Path(process.ana)
-#process.p = cms.Path(process.simMuonCSCDigis*process.csc2DRecHits*process.cscSegments*process.ana)
+#process.p = cms.Path(process.mix*process.muonCSCDigis*process.csc2DRecHits*process.cscSegments*process.ana)
 
     
