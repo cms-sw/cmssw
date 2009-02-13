@@ -235,6 +235,10 @@ public:
   /** DCC zero suppression FIR filter uncalibrated normalized weigths
    */
   std::vector<double> weights;
+
+  /** Flag to use a symetric zero suppression (cut on absolute value)
+   */
+  bool symetricZS;
   
   /** Zero suppresion threshold for the ECAL expressed in ebThrUnit and
    * eeThrUnit. Set to numeric_limits<int>::min() for FULL READOUT and

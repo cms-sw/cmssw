@@ -48,6 +48,10 @@ simEcalDigis = cms.EDProducer("EcalSelectiveReadoutProducer",
     dccNormalizedWeights = cms.vdouble(-0.374, -0.374, -0.3629, 0.2721, 0.4681, 
         0.3707),
 
+    # Switch to use a symetric zero suppression (cut on absolute value). For
+    # studies only, for time being it is not supported by the hardware.
+    symetricZS = cms.bool(False),
+
     # ZS energy threshold in GeV to apply to low interest channels of barrel
     srpBarrelLowInterestChannelZS = cms.double(0.1),
 

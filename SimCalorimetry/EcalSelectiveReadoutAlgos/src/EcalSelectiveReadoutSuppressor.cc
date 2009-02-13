@@ -30,7 +30,9 @@ const int EcalSelectiveReadoutSuppressor::nFIRTaps = 6;
 
 EcalSelectiveReadoutSuppressor::EcalSelectiveReadoutSuppressor(const edm::ParameterSet & params):
   firstFIRSample(params.getParameter<int>("ecalDccZs1stSample")),
-  weights(params.getParameter<vector<double> >("dccNormalizedWeights")){
+  weights(params.getParameter<vector<double> >("dccNormalizedWeights")),
+  symetricZS(params.getParameter<bool>("symetricZS"))
+{
   
   double adcToGeV = params.getParameter<double>("ebDccAdcToGeV");
   thrUnit[BARREL] = adcToGeV/4.; //unit=1/4th ADC count
@@ -175,6 +177,11 @@ bool EcalSelectiveReadoutSuppressor::accept(edm::DataFrame const & frame,
 	"parameter is not valid...";
     }
   }
+
+  if(symetricZS){//cut on absolute value
+    if(acc<0) acc = -acc;
+  }
+  
   //LogTrace("DccFir") << "\n";
   //discards the 8 LSBs 
   //(result of shift operator on negative numbers depends on compiler
@@ -185,16 +192,17 @@ bool EcalSelectiveReadoutSuppressor::accept(edm::DataFrame const & frame,
   //ZS passed if weigthed sum acc above ZS threshold or if
   //one sample has a lower gain than gain 12 (that is gain 12 output
   //is saturated)
-
-  const bool result = acc>=thr || gain12saturated;
+  
+  const bool result = (acc >= thr) || gain12saturated;
   
   //LogTrace("DccFir") << "acc: " << acc << "\n"
-  //  		     << "threshold: " << thr << " ("
-  //  		     << thr*thrUnit[frame.id().subdet()==EcalBarrel?0:1]
-  //  		     << "GeV)\n"
-  //  		     << "saturated: " << (gain12saturated?"yes":"no") << "\n"
-  //  		     << "ZS passed: " << (result?"yes":"no") << "\n";
-
+  //                   << "threshold: " << thr << " ("
+  //                   << thr*thrUnit[((EcalDataFrame&)frame).id().subdetId()==EcalBarrel?0:1]
+  //                   << "GeV)\n"
+  //                   << "saturated: " << (gain12saturated?"yes":"no") << "\n"
+  //                   << "ZS passed: " << (result?"yes":"no")
+  //                   << (symetricZS?" (symetric cut)":"") << "\n";
+  
   return result;
 }
 
