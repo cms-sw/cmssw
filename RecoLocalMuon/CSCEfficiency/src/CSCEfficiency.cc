@@ -143,6 +143,7 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
       }
 
       std::cout<<" nHits = "<<track->found()<<std::endl;
+      /*
       trackingRecHit_iterator rhbegin = track->recHitsBegin();
       trackingRecHit_iterator rhend = track->recHitsEnd();
       int iRH = 0;
@@ -152,6 +153,7 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
 	  " glob pos = " <<geomDet->toGlobal((*recHit)->localPosition())<<std::endl;
         ++iRH;
       }
+      */
     }
     float dpT_ov_pT = 0.;
     if(fabs(track->pt())>0.001){
@@ -1455,7 +1457,7 @@ CSCEfficiency::CSCEfficiency(const ParameterSet& pset){
   isBeamdata  = pset.getUntrackedParameter<bool>("Beamdata",false);// 
   useDigis = pset.getUntrackedParameter<bool>("useDigis", true);// 
   distanceFromDeadZone = pset.getUntrackedParameter<double>("distanceFromDeadZone", 10.);// 
-  minP = pset.getUntrackedParameter<double>("minP",10.);//
+  minP = pset.getUntrackedParameter<double>("minP",20.);//
   maxP = pset.getUntrackedParameter<double>("maxP",100.);//
   maxNormChi2 = pset.getUntrackedParameter<double>("maxNormChi2", 3.);//
   minTrackHits = pset.getUntrackedParameter<uint>("minTrackHits",10);//
