@@ -104,7 +104,7 @@ process.p = cms.Path(process.TrackRefitter*process.ctfWithMaterialTracksMTF*proc
 #process.outpath = cms.EndPath(process.out)
 process.MTFTrajectoryBuilder.ComponentName = 'MTFTrajectoryBuilder'
 process.MTFTrajectoryBuilder.trajectoryFilterName = 'newTrajectoryFilter'
-process.MTFTrackCandidateMaker.SeedProducer = 'newCombinedSeeds'
+process.MTFTrackCandidateMaker.src = 'newCombinedSeeds'
 process.MTFTrackCandidateMaker.TrajectoryBuilder = 'MTFTrajectoryBuilder'
 process.MTFTrackCandidateMaker.useHitsSplitting = False
 
