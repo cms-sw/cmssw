@@ -36,9 +36,9 @@ bool LASProfileJudge::IsSignalIn( const LASModuleProfile& aProfile, double offse
   // need only approx values, so cast here to use integers throughout
   const int approxOffset = static_cast<int>( offset );
 
-  double negativity = GetNegativity( approxOffset );
-  bool isPeaks = IsPeaksInProfile( approxOffset );
-  bool isNegativePeaks = IsNegativePeaksInProfile( approxOffset );
+  const double negativity = GetNegativity( approxOffset );
+  const bool isPeaks = IsPeaksInProfile( approxOffset );
+  const bool isNegativePeaks = IsNegativePeaksInProfile( approxOffset );
   
   bool result = 
     ( negativity < -1000. ) ||  // if we see negativity, there was laser..
@@ -66,18 +66,23 @@ bool LASProfileJudge::JudgeProfile( const LASModuleProfile& aProfile, double off
   const int approxOffset = static_cast<int>( offset );
 
   // run the tests
-  double negativity = GetNegativity( approxOffset );
+  const double negativity = GetNegativity( approxOffset );
 
   bool isPeaks;
   if( !isZeroFilter ) isPeaks = true; // disable this test if set in cfg
   else isPeaks = IsPeaksInProfile( approxOffset );
 
-  bool isNegativePeaks = IsNegativePeaksInProfile( approxOffset );
+  const bool isNegativePeaks = IsNegativePeaksInProfile( approxOffset );
+
+  bool isOverdrive; // disable this test if set in cfg
+  if( !isZeroFilter ) isOverdrive = false;
+  else isOverdrive = IsOverdrive( approxOffset );
 
   bool result = 
     ( negativity > -1000. ) &&  // < 1000. = distorted profile
     ( isPeaks )             &&  // want to see a peak (zero filter)
-    !( isNegativePeaks ); // no negative peaks
+    !( isNegativePeaks )    &&  // no negative peaks
+    !( isOverdrive );           // no overdrive
 
   return( result );
 
@@ -212,5 +217,33 @@ bool LASProfileJudge::IsNegativePeaksInProfile( int offset ) {
   }
 
   return( returnValue );
+
+}
+
+
+
+
+
+///
+/// check if peak in signal region is too high;
+/// this can cause baseline distortions and therefore position bias
+///
+bool LASProfileJudge::IsOverdrive( int offset ) {
+
+  
+  // expected beam position in middle of module (in strips)
+  const unsigned int meanPosition = 256 + offset;
+  // backplane "alignment hole" approx. half size (in strips)
+  const unsigned int halfWindowSize = 33;
+
+  // to be softcoded...
+  const unsigned int maxmimumAllowedAmplitude = 200;
+
+  // find maximum strip amplitude in range
+  for( unsigned int strip = meanPosition - halfWindowSize; strip < meanPosition + halfWindowSize; ++strip ) {
+    if( profile.GetValue( strip ) > maxmimumAllowedAmplitude ) return true;
+  }
+
+  return false;
 
 }

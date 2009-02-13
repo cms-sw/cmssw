@@ -24,6 +24,8 @@ class LASProfileJudge {
   double GetNegativity( int );
   bool IsPeaksInProfile( int );
   bool IsNegativePeaksInProfile( int );
+  bool IsOverdrive( int );
+
   LASModuleProfile profile;
   std::pair<unsigned int, double> thePeak;
   bool isZeroFilter;

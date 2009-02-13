@@ -6,8 +6,8 @@
 /** \class LaserAlignment
  *  Main reconstruction module for the Laser Alignment System
  *
- *  $Date: 2009/02/05 11:51:22 $
- *  $Revision: 1.20 $
+ *  $Date: 2009/02/05 15:52:36 $
+ *  $Revision: 1.21 $
  *  \author Maarten Thomas
  *  \author Jan Olzem
  */
@@ -89,7 +89,9 @@ class LaserAlignment : public edm::EDProducer, public TObject {
   virtual void endJob( void );
   virtual void endRun( edm::Run&, const edm::EventSetup& );
 
-  
+  /// for debugging & testing only, will disappear..
+  void testRoutine( void );
+
 
  private:
 
@@ -103,8 +105,11 @@ class LaserAlignment : public edm::EDProducer, public TObject {
   bool isTECBeam( void );
   bool isATBeam( void );
 
-  /// returns the approximate beam position offset in TOB for the profileJudge
-  double getTIBTOBProfileOffset( int det, int beam, int pos );
+  /// returns the nominal beam position (strips) in TOB for the profileJudge
+  double getTIBTOBNominalBeamOffset( unsigned int, unsigned int, unsigned int );
+
+  /// returns the nominal beam position (strips) in TEC (AT) for the profileJudge
+  double getTEC2TECNominalBeamOffset( unsigned int, unsigned int, unsigned int );
 
   /// fill hard coded detIds
   void fillDetectorId( void );
@@ -128,16 +133,31 @@ class LaserAlignment : public edm::EDProducer, public TObject {
   bool theDoPedestalSubtraction;
 
   /// config switch
+  bool theUseMinuitAlgorithm;
+
+  /// config switch
   bool enableJudgeZeroFilter;
 
   /// config switch
-  bool updateFromIdealGeometry;
+  bool updateFromInputGeometry;
 
   /// config switch
   bool theStoreToDB;
 
   // digi producer
   std::vector<edm::ParameterSet> theDigiProducersList;
+
+  /// config switch
+  bool theSaveHistograms;
+
+  /// config parameter (histograms file compression level)
+  int theCompression;
+
+  /// config parameter (histograms file output name)
+  std::string theFileName;
+
+  /// config switch
+  bool theSetNominalStrips;
 
   // this object can judge if 
   // a LASModuleProfile is usable for position measurement
@@ -179,14 +199,9 @@ class LaserAlignment : public edm::EDProducer, public TObject {
   // avoids nested for-statements
   LASGlobalLoop moduleLoop;
 
-  /// config switch
-  bool theSaveHistograms;
-
   /// Tree stuff
   TFile * theFile;
   TDirectory* singleModulesDir;
-  int theCompression;
-  std::string theFileName;
 
   /// tracker geometry;
   edm::ESHandle<GeometricDet> gD;

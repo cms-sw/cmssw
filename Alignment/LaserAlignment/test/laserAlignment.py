@@ -1,14 +1,13 @@
+
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "laserAlignment" )
-
 
 process.load( "Geometry.CMSCommonData.cmsIdealGeometryXML_cfi" )
 process.load( "CondCore.DBCommon.CondDBSetup_cfi" )
 
 
-
-# message logger
+## message logger
 process.MessageLogger = cms.Service( "MessageLogger",
   debugModules = cms.untracked.vstring( 'LaserAlignment' ),
   cerr = cms.untracked.PSet(
@@ -20,14 +19,14 @@ process.MessageLogger = cms.Service( "MessageLogger",
   destinations = cms.untracked.vstring( 'cout', 'cerr' )
 )
 
-# all db records
+## all db records
 process.allSource = cms.ESSource( "PoolDBESSource",
   process.CondDBSetup,
   connect = cms.string( 'frontier://FrontierProd/CMS_COND_20X_GLOBALTAG' ),
   globaltag = cms.string( 'IDEAL_v2::All' )
 )
 
-# get the tracker alignment records from this file
+## get the tracker alignment records from this file
 process.alignmentSource = cms.ESSource( "PoolDBESSource",
   process.CondDBSetup,
   timetype = cms.string( 'runnumber' ),
@@ -44,8 +43,9 @@ process.alignmentSource = cms.ESSource( "PoolDBESSource",
   connect = cms.string( 'sqlite_file:/afs/cern.ch/user/o/olzem/cms/cmssw/CMSSW_2_2_1/src/Alignment/LaserAlignment/test/Alignments_S.db' )
 )
 
-# prefer the alignment record
+## prefer the alignment record
 process.prefer( "alignmentSource" )
+
 
 process.load( "Geometry.TrackerGeometryBuilder.trackerGeometry_cfi" )
 process.TrackerDigiGeometryESModule.applyAlignment = True
@@ -53,7 +53,7 @@ process.TrackerDigiGeometryESModule.applyAlignment = True
 process.load( "Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi" )
 
 
-# fast standalone reco output: an sql file
+## fast standalone reco output: an sql file
 process.load( "CondCore.DBCommon.CondDBCommon_cfi" )
 process.CondDBCommon.connect = 'sqlite_file:Alignments.db'
 process.PoolDBOutputService = cms.Service( "PoolDBOutputService",
@@ -71,14 +71,28 @@ process.PoolDBOutputService = cms.Service( "PoolDBOutputService",
 )
 
 
-# input files
+## input files
 process.source = cms.Source( "PoolSource",
   fileNames = cms.untracked.vstring(
+    #'file:/afs/cern.ch/user/o/olzem/scratch0/LaserEvents.70659.root'
     'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_0.root',
     'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_1.root',
     'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_2.root',
-    'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_3.root'
-    )
+    'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_3.root',
+    'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_4.root',
+    'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_5.root',
+    'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_6.root',
+    'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_7.root',
+    'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_8.root',
+    'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_9.root',
+    'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_10.root',
+    'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_11.root',
+    'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_12.root',
+    'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_13.root',
+    'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_14.root',
+    'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_15.root'
+  )
+
 #    '/store/mc/Summer08/TrackerLaser/ALCARECO/IDEAL_V2_TkAlLAS_v1/0053/0A045025-DC5C-DD11-BACC-001E0B477F28.root', 
 #    '/store/mc/Summer08/TrackerLaser/ALCARECO/IDEAL_V2_TkAlLAS_v1/0053/0C24CE61-DC5C-DD11-A849-001E0B479F9C.root', 
 #    '/store/mc/Summer08/TrackerLaser/ALCARECO/IDEAL_V2_TkAlLAS_v1/0053/0ED0A72F-DC5C-DD11-A382-001F29C49310.root', 
@@ -104,27 +118,32 @@ process.source = cms.Source( "PoolSource",
 #    '/store/mc/Summer08/TrackerLaser/ALCARECO/IDEAL_V2_TkAlLAS_v1/0054/F8FF6F59-DF5C-DD11-B93F-001E0B5FA53A.root', 
 #    '/store/mc/Summer08/TrackerLaser/ALCARECO/IDEAL_V2_TkAlLAS_v1/0054/FCD96445-DF5C-DD11-AE4B-001E0B48610E.root' )
 )
+
 process.maxEvents = cms.untracked.PSet(
   input = cms.untracked.int32( 50 )
 )
 
-# the laserAlignment module
+## the LaserAlignment module
 process.load( "Alignment.LaserAlignment.LaserAlignment_cfi" )
 process.LaserAlignment.DigiProducersList = cms.VPSet(
   cms.PSet(
     DigiLabel = cms.string( 'VirginRaw' ),
-    DigiProducer = cms.string( 'laserAlignmentT0Producer' )
+    DigiProducer = cms.string( 'laserAlignmentT0Producer' ),
+    DigiType = cms.string( 'Raw' )
   )
 )
-process.LaserAlignment.SaveToDbase = True
+process.LaserAlignment.SaveToDbase = False
 process.LaserAlignment.SaveHistograms = True
 process.LaserAlignment.SubtractPedestals = False
-process.LaserAlignment.UpdateFromIdealGeometry = True
+process.LaserAlignment.UpdateFromInputGeometry = False
 process.LaserAlignment.EnableJudgeZeroFilter = False
 
+## special parameters for LaserAlignment
+# process.LaserAlignment.ForceFitterToNominalStrips = True
 
-# the output file containing the TkLasBeamCollection
-# for the track based interface
+
+## the output file containing the TkLasBeamCollection
+## for the track based interface
 process.out = cms.OutputModule( "PoolOutputModule",
   fileName = cms.untracked.string( 'tkLasBeams.root' ),
   outputCommands = cms.untracked.vstring(
@@ -134,7 +153,7 @@ process.out = cms.OutputModule( "PoolOutputModule",
 )
 
 
-# for debugging
+## for debugging
 process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 
 process.alignment = cms.Sequence( process.LaserAlignment )
