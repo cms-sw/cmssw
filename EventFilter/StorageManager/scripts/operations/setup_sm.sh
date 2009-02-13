@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.27 2008/11/14 07:02:16 loizides Exp $
+# $Id: setup_sm.sh,v 1.28 2008/11/28 09:04:23 jserrano Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
@@ -59,19 +59,35 @@ modifykparams () {
 #    echo 1 > /proc/sys/fs/xfs/error_level
 }
 
-stopunwantedservices () {
-    /etc/init.d/cups     stop >/dev/null 2>&1
-    /etc/init.d/squid    stop >/dev/null 2>&1
-    /etc/init.d/xfs      stop >/dev/null 2>&1
-    /etc/init.d/sendmail stop >/dev/null 2>&1
-    /etc/init.d/gpm      stop >/dev/null 2>&1
-}
-
 startwantedservices () {
     ms="~smpro/sm_scripts_cvs/operations/monitoringSar.sh";
     if test -e $ms; then 
         $ms >> /var/log/monitoringSar.log &
     fi
+}
+
+startcopyworker () {
+    local local_file="/opt/copyworker/TransferSystem_Cessy.cfg"
+    local reference_file="/nfshome0/smpro/configuration/TransferSystem_Cessy.cfg"
+
+    if test -r "$reference_file"; then
+        local local_time=`stat -t $local_file 2>/dev/nulli | cut -f13 -d' '`
+        local reference_time=`stat -t $reference_file 2>/dev/nulli | cut -f13 -d' '`
+        if test $reference_time -gt $local_time; then
+            logger -s -t "SM INIT" "INFO: $reference_file is more recent than $local_file"
+            logger -s -t "SM INIT" "INFO: I will overwrite the copyworker local configuration"a
+            mv $local_file $local_file.old.$local_time
+            cp $reference_file $local_file
+            sed -i "1i# File copied from $reference_file on `date`" $local_file
+            chmod 644 $local_file
+            chown cmsprod.root $local_file
+        fi
+    else
+        logger -s -t "SM INIT" "WARNING: Can not read $reference_file"
+    fi
+    
+    su - cmsprod -c "$t0control stop" >/dev/null 2>&1
+    su - cmsprod -c "NCOPYWORKER=2 $t0control start"
 }
 
 start () {
@@ -92,7 +108,6 @@ start () {
             done
             ;;
         srv-c2c07-* | srv-C2C07-* | srv-c2c06-* | srv-C2C06-*)
-            stopunwantedservices
 
             if test -x "/sbin/multipath"; then
                 echo "Refresh multipath devices"
@@ -114,7 +129,6 @@ start () {
 
             startwantedservices
             modifykparams
-            #mount -oro,remount /dev/sda1 /boot/
             ;;
         *)
             echo "Unknown host: $hname"
@@ -140,8 +154,7 @@ start () {
         fi
     fi
 
-    su - cmsprod -c "$t0control stop" >/dev/null 2>&1
-    su - cmsprod -c "NCOPYWORKER=2 $t0control start"
+    startcopyworker
     su - smpro -c "$t0inject stop" >/dev/null 2>&1
     rm -f /tmp/.20*-${hname}-*.log.lock
     su - smpro -c "$t0inject start"
