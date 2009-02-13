@@ -58,9 +58,10 @@ namespace cms{
     theSeedCleaner(0)
   {  
     //produces<TrackCandidateCollection>();  
-    if (!conf.exists("src"))
-      theSeedLabel = InputTag(conf_.getParameter<std::string>("SeedProducer"),conf_.getParameter<std::string>("SeedLabel"));
-    else
+    // old configuration totally descoped.
+    //    if (!conf.exists("src"))
+    //      theSeedLabel = InputTag(conf_.getParameter<std::string>("SeedProducer"),conf_.getParameter<std::string>("SeedLabel"));
+    //    else
       theSeedLabel= conf.getParameter<edm::InputTag>("src");
   }
 
