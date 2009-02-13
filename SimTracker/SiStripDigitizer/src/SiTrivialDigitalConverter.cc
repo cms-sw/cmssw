@@ -12,18 +12,21 @@ SiTrivialDigitalConverter::convert(const std::vector<double>& analogSignal, edm:
   SiDigitalConverter::DigitalVecType _temp;
   _temp.reserve(analogSignal.size());
   
-  SiStripApvGain::Range detGainRange; 
-  if(gainHandle.isValid()) detGainRange = gainHandle->getRange(detid);
-
-  
-  for ( unsigned int i=0; i<analogSignal.size(); i++) {
-    if (analogSignal[i]<=0) continue;
-    float gainFactor  = (gainHandle.isValid()) ? gainHandle->getStripGain(i, detGainRange) : 1;
-    
-    // convert analog amplitude to digital
-    int adc = convert( gainFactor*(analogSignal[i]) );
-    
-    if ( adc > 0) _temp.push_back(SiStripDigi(i, adc));
+  if(gainHandle.isValid()) {
+    SiStripApvGain::Range detGainRange = gainHandle->getRange(detid);
+    for ( unsigned int i=0; i<analogSignal.size(); i++) {
+      if (analogSignal[i]<=0) continue;
+      // convert analog amplitude to digital
+      int adc = convert( (gainHandle->getStripGain(i, detGainRange))*(analogSignal[i]) );
+      if ( adc > 0) _temp.push_back(SiStripDigi(i, adc));
+    }
+  } else {
+    for ( unsigned int i=0; i<analogSignal.size(); i++) {
+      if (analogSignal[i]<=0) continue;
+      // convert analog amplitude to digital
+      int adc = convert( analogSignal[i] );
+      if ( adc > 0) _temp.push_back(SiStripDigi(i, adc));
+    }
   }
   return _temp;
 }
@@ -33,40 +36,31 @@ SiTrivialDigitalConverter::convertRaw(const std::vector<double>& analogSignal, e
   
   SiDigitalConverter::DigitalRawVecType _temp;
   _temp.reserve(analogSignal.size());
-  
-  SiStripApvGain::Range detGainRange; 
-  if(gainHandle.isValid()) detGainRange = gainHandle->getRange(detid);
-  
-  
-  for ( unsigned int i=0; i<analogSignal.size(); i++) {
-    // Raw Digis: we need all the channels
-    //            saturation below the baseline
-    //            (baseline=0 if we do not add pedestals)
-    //        --> the following line not needed:
-    //    if (analogSignal[i]<=0) continue;
-    // and replace with this:
-    if (analogSignal[i]<=0) {
-      _temp.push_back(SiStripRawDigi(0));
-      continue;
+
+  if(gainHandle.isValid()) {
+    SiStripApvGain::Range detGainRange = gainHandle->getRange(detid);
+    for ( unsigned int i=0; i<analogSignal.size(); i++) {
+      if (analogSignal[i]<=0) { _temp.push_back(SiStripRawDigi(0)); continue; }
+      // convert analog amplitude to digital
+      int adc = convertRaw( (gainHandle->getStripGain(i, detGainRange))*(analogSignal[i]));
+      _temp.push_back(SiStripRawDigi(adc));
     }
-    
-    float gainFactor  = (gainHandle.isValid()) ? gainHandle->getStripGain(i, detGainRange) : 1;
-    
-    // convert analog amplitude to digital
-    int adc = convertRaw( gainFactor*(analogSignal[i]));
-    
-    _temp.push_back(SiStripRawDigi(adc));
+  } else {
+    for ( unsigned int i=0; i<analogSignal.size(); i++) {
+      if (analogSignal[i]<=0) { _temp.push_back(SiStripRawDigi(0)); continue; }
+      // convert analog amplitude to digital
+      int adc = convertRaw( analogSignal[i] );
+      _temp.push_back(SiStripRawDigi(adc));
+    }
   }
   return _temp;
 }
 
-
 int SiTrivialDigitalConverter::truncate(float in_adc) {
-  
-  //Rounding teh ADC number instaed of truncating it
+  //Rounding the ADC number instead of truncating it
   int adc = int(in_adc+0.5);
   /*
-    254 ADC: 254<=raw charge < 511
+    254 ADC: 254<= raw charge < 511
     255 ADC: 512<= raw charge < 1023
   */
   if (adc > 511 ) return 255;
@@ -76,14 +70,12 @@ int SiTrivialDigitalConverter::truncate(float in_adc) {
   return adc;
 }
 
-
 int SiTrivialDigitalConverter::truncateRaw(float in_adc) {
-  
   //Rounding the ADC number
   int adc = int(in_adc+0.5);
-
   if (adc > 1023 ) return 1023;
   //Protection
   if (adc < 0) return 0;
   return adc;
 }
+

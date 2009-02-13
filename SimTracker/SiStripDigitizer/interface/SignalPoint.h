@@ -6,7 +6,8 @@
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 
 /**
- * An elementar charge point, with position, sigma from diffusion and tof.
+ * An elementar charge point, with position, sigma from diffusion and Amplitude.
+ * That describes the drifted charge seen on the surface of the sensors.
  */
 class SignalPoint {
  public:

@@ -10,6 +10,7 @@
 class StripDet;
 /**
  * Base class for the induction of signal on strips.
+ * Given a SignalPoint, computes the charge on each strip.
  */
 
 class SiInduceChargeOnStrips{

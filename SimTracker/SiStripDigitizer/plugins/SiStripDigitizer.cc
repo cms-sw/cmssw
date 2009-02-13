@@ -98,7 +98,6 @@ SiStripDigitizer::~SiStripDigitizer() {
 // Functions that gets called by framework every event
 void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-
   // Step A: Get Inputs
   edm::ESHandle < ParticleDataTable > pdt;
   iSetup.getData( pdt );
@@ -123,16 +122,13 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   
   //inside SimHitSelectorFromDb add the counter information from the original allhits collection 
   std::vector<std::pair<PSimHit,int> > trackerHits = SimHitSelectorFromDB_.getSimHit(allTrackerHits,theDetIdList);
-  
   std::vector<std::pair<PSimHit,int> >::iterator isim;
   for (isim=trackerHits.begin() ; isim!= trackerHits.end();isim++) {
     //make a pair = <*isim, counter> and save also position in the vector for DigiSimLink
     SimHitMap[((*isim).first).detUnitId()].push_back(*isim);
-    //    std::cout << "Hit in the final MAP  " << (*isim).second << std::endl; 
   }
   
   edm::ESHandle<TrackerGeometry> pDD;
-  
   iSetup.get<TrackerDigiGeometryRecord>().get(geometryType,pDD);
   
   edm::ESHandle<MagneticField> pSetup;
@@ -152,37 +148,29 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   iSetup.get<SiStripThresholdRcd>().get(thresholdHandle);
   iSetup.get<SiStripPedestalsRcd>().get(pedestalHandle);
 
-
   theDigiAlgo->setParticleDataTable(&*pdt);
 
-  // Step B: LOOP on StripGeomDetUnit //
+  // Step B: LOOP on StripGeomDetUnit
   theDigiVector.reserve(10000);
   theDigiVector.clear();
-  
   theDigiLinkVector.reserve(10000);
   theDigiLinkVector.clear();
 
   for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); iu ++){
-    
     if(useConfFromDB){
       //apply the cable map _before_ digitization: consider only the detis that are connected 
       if(theDetIdList.find((*iu)->geographicalId().rawId())==theDetIdList.end())
         continue;
     }
-    
     GlobalVector bfield=pSetup->inTesla((*iu)->surface().position());
-    
     StripGeomDetUnit* sgd = dynamic_cast<StripGeomDetUnit*>((*iu));
     if (sgd != 0){
       edm::DetSet<SiStripDigi> collectorZS((*iu)->geographicalId().rawId());
       edm::DetSet<SiStripRawDigi> collectorRaw((*iu)->geographicalId().rawId());
       edm::DetSet<StripDigiSimLink> linkcollector((*iu)->geographicalId().rawId());
-      
-      float langle=0.;
-      if(lorentzAngleHandle.isValid())langle=lorentzAngleHandle->getLorentzAngle((*iu)->geographicalId().rawId());
+      float langle = (lorentzAngleHandle.isValid()) ? lorentzAngleHandle->getLorentzAngle((*iu)->geographicalId().rawId()) : 0.;
       theDigiAlgo->run(collectorZS,collectorRaw,SimHitMap[(*iu)->geographicalId().rawId()],sgd,bfield,langle,
 		       gainHandle,thresholdHandle,noiseHandle,pedestalHandle);
-      
       if(zeroSuppression){
         if(collectorZS.data.size()>0){
           theDigiVector.push_back(collectorZS);
@@ -212,10 +200,8 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     std::auto_ptr<edm::DetSetVector<SiStripRawDigi> > output_processedraw(new edm::DetSetVector<SiStripRawDigi>());
     std::auto_ptr<edm::DetSetVector<SiStripDigi> > output(new edm::DetSetVector<SiStripDigi>(theDigiVector) );
     std::auto_ptr<edm::DetSetVector<StripDigiSimLink> > outputlink(new edm::DetSetVector<StripDigiSimLink>(theDigiLinkVector) );
-
     // Step D: write output to file
     edm::ParameterSet ParamSet=conf_.getParameter<edm::ParameterSet>("DigiModeList");
-    
     iEvent.put(output,ParamSet.getParameter<std::string>("ZSDigi"));
     iEvent.put(outputlink);
     iEvent.put(output_scopemode,   ParamSet.getParameter<std::string>("SCDigi"));
@@ -228,10 +214,8 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     std::auto_ptr<edm::DetSetVector<SiStripRawDigi> > output_processedraw(new edm::DetSetVector<SiStripRawDigi>());
     std::auto_ptr<edm::DetSetVector<SiStripDigi> > output(new edm::DetSetVector<SiStripDigi>() );
     std::auto_ptr<edm::DetSetVector<StripDigiSimLink> > outputlink(new edm::DetSetVector<StripDigiSimLink>(theDigiLinkVector) );
-    
     // Step D: write output to file
     edm::ParameterSet ParamSet=conf_.getParameter<edm::ParameterSet>("DigiModeList");
-    
     iEvent.put(output,ParamSet.getParameter<std::string>("ZSDigi"));
     iEvent.put(outputlink);
     iEvent.put(output_scopemode,   ParamSet.getParameter<std::string>("SCDigi"));

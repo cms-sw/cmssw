@@ -5,6 +5,9 @@
 #include "SimTracker/SiStripDigitizer/interface/SiInduceChargeOnStrips.h"
 /**
  * Concrete implementation of SiInduceChargeOnStrips.
+ * Effects considered are: 
+ * - precomputed spread due to diffusion (stored in the SignalPoint)
+ * - capacitive coupling (or cross-talk)
  */
 
 class SiTrivialInduceChargeOnStrips: public SiInduceChargeOnStrips{
@@ -25,6 +28,5 @@ private:
   std::vector<double> signalCoupling_TEC; 
   double geVperElectron;
 };
-
 
 #endif

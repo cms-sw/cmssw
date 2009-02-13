@@ -24,27 +24,31 @@ class SiStripDetType;
 /**
 * Digitizes the response for a single SimHit.
 */
-class SiHitDigitizer{
+class SiHitDigitizer {
  public:
 
   SiHitDigitizer(const edm::ParameterSet& conf,CLHEP::HepRandomEngine&);
 
   ~SiHitDigitizer();
 
-  void setChargeDivider(SiChargeDivider* cd){
+  void setChargeDivider(SiChargeDivider* cd) {
     if (theSiChargeDivider) delete theSiChargeDivider;
     theSiChargeDivider = cd;
   }
-  void setChargeCollectionDrifter(SiChargeCollectionDrifter* cd){
+
+  void setChargeCollectionDrifter(SiChargeCollectionDrifter* cd) {
     if (theSiChargeCollectionDrifter) delete theSiChargeCollectionDrifter;
     theSiChargeCollectionDrifter = cd;
   }
-  void setInduceChargeOnStrips(SiInduceChargeOnStrips* cd){
+
+  void setInduceChargeOnStrips(SiInduceChargeOnStrips* cd) {
     if (theSiInduceChargeOnStrips) delete theSiInduceChargeOnStrips;
     theSiInduceChargeOnStrips = cd;
   }
   
-  void setParticleDataTable(const ParticleDataTable * pdt);
+  void setParticleDataTable(const ParticleDataTable * pdt) { 
+    theSiChargeDivider->setParticleDataTable(pdt); 
+  }
 
   void processHit(const PSimHit&, const StripGeomDetUnit&, GlobalVector,float,
 		  std::vector<double>&, unsigned int&, unsigned int&);
@@ -53,7 +57,6 @@ class SiHitDigitizer{
   SiChargeDivider* theSiChargeDivider;
   SiChargeCollectionDrifter* theSiChargeCollectionDrifter;
   SiInduceChargeOnStrips* theSiInduceChargeOnStrips;
-
   edm::ParameterSet conf_;
   CLHEP::HepRandomEngine& rndEngine;
   double depletionVoltage;
@@ -63,8 +66,12 @@ class SiHitDigitizer{
   bool noDiffusion;
   double chargeDistributionRMS;
   double gevperelectron;
-  LocalVector DriftDirection(const StripGeomDetUnit*,GlobalVector,float);
-  typedef GloballyPositioned<double>      Frame;
+  typedef GloballyPositioned<double> Frame;
+  
+  LocalVector DriftDirection(const StripGeomDetUnit* _detp, GlobalVector _bfield, float langle) {
+    LocalVector Bfield=Frame(_detp->surface().position(),_detp->surface().rotation()).toLocal(_bfield);
+    return LocalVector(-langle * Bfield.y(),langle * Bfield.x(),1.);
+  }
 
 };
 

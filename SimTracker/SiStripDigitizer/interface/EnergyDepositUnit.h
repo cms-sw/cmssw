@@ -5,7 +5,7 @@
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 /**
  * Class which allows to "follow" an elementary charge in the silicon.
- * It basically defines a quantum of energy, with a position.
+ * It basically defines a quantum of energy in the bulk, with a 3D position.
  */
 class EnergyDepositUnit{
  public:

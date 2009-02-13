@@ -5,26 +5,24 @@
 #include "SimTracker/SiStripDigitizer/interface/EnergyDepositUnit.h"
 /**
  * Concrete implementation of SiChargeCollectionDrifter. Drifts the charges linearly.
+ * Drift each energy deposits in the bulk to the surface.                                                              
+ * The resulting position depends on the Lorentz angle, and a sigma is computed                                        
+ * that describes the diffusion.               
  */
 class SiLinearChargeCollectionDrifter : public SiChargeCollectionDrifter{
  public:
   SiLinearChargeCollectionDrifter(double,double,double,double);
-  SiChargeCollectionDrifter::collection_type drift (const SiChargeCollectionDrifter::ionization_type, const LocalVector&,double,double);
-
+  SiChargeCollectionDrifter::collection_type drift(const SiChargeCollectionDrifter::ionization_type, 
+                                                   const LocalVector&,double,double);
  private:
-  
-  SignalPoint drift
-    (const EnergyDepositUnit&, const LocalVector&);
-  
+  SignalPoint drift(const EnergyDepositUnit&, const LocalVector&);
+ private:
   double moduleThickness;
   double timeNormalisation;
   double diffusionConstant;
   double chargeDistributionRMS;
   double depletionVoltage;
   double appliedVoltage;
-  
 };
-
-
 #endif
 
