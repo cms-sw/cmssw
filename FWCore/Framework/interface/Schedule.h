@@ -123,7 +123,8 @@ namespace edm {
 	     WorkerRegistry& wregistry,
 	     ProductRegistry& pregistry,
 	     ActionTable& actions,
-	     boost::shared_ptr<ActivityRegistry> areg);
+	     boost::shared_ptr<ActivityRegistry> areg,
+	     boost::shared_ptr<ProcessConfiguration> processConfiguration);
 
     enum State { Ready=0, Running, Latched };
 
@@ -214,6 +215,8 @@ namespace edm {
     void clearCounters();
 
   private:
+    std::string const& processName() const;
+
     AllWorkers::const_iterator workersBegin() const 
     { return all_workers_.begin(); }
 
@@ -252,7 +255,7 @@ namespace edm {
     WorkerRegistry*     worker_reg_;
     ProductRegistry*    prod_reg_;
     ActionTable*        act_table_;
-    std::string         processName_;
+    boost::shared_ptr<ProcessConfiguration> processConfiguration_;
     boost::shared_ptr<ActivityRegistry> actReg_;
 
     State state_;

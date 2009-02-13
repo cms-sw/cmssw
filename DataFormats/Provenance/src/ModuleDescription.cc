@@ -7,7 +7,7 @@
 
 /*----------------------------------------------------------------------
 
-$Id: ModuleDescription.cc,v 1.2 2007/06/28 23:30:50 wmtan Exp $
+$Id: ModuleDescription.cc,v 1.3 2008/12/20 18:40:28 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -17,27 +17,73 @@ namespace edm {
     parameterSetID_(),
     moduleName_(),
     moduleLabel_(),
-    processConfiguration_()
-  { }
+    processConfigurationPtr_(new ProcessConfiguration()) {}
+
+  ModuleDescription::ModuleDescription(
+		ParameterSetID const& pid,
+		std::string const& modName,
+		std::string const& modLabel) :
+			parameterSetID_(pid),
+			moduleName_(modName),
+			moduleLabel_(modLabel),
+			processConfigurationPtr_(new ProcessConfiguration()) {}
 
   ModuleDescription::ModuleDescription(
 		ParameterSetID const& pid,
 		std::string const& modName,
 		std::string const& modLabel,
-		ProcessConfiguration const& procConfig) :
+		boost::shared_ptr<ProcessConfiguration> procConfig) :
 			parameterSetID_(pid),
 			moduleName_(modName),
 			moduleLabel_(modLabel),
-			processConfiguration_(procConfig) {}
+			processConfigurationPtr_(procConfig) {}
+
+  ModuleDescription::ModuleDescription(
+		std::string const& modName,
+		std::string const& modLabel) :
+			parameterSetID_(),
+			moduleName_(modName),
+			moduleLabel_(modLabel),
+			processConfigurationPtr_(new ProcessConfiguration()) {}
 
   ModuleDescription::ModuleDescription(
 		std::string const& modName,
 		std::string const& modLabel,
-		ProcessConfiguration const& procConfig) :
+		boost::shared_ptr<ProcessConfiguration> procConfig) :
 			parameterSetID_(),
 			moduleName_(modName),
 			moduleLabel_(modLabel),
-			processConfiguration_(procConfig) {}
+			processConfigurationPtr_(procConfig) {}
+
+  ProcessConfiguration const&
+  ModuleDescription::processConfiguration() const {
+    return *processConfigurationPtr_;
+  }
+
+  ProcessConfigurationID
+  ModuleDescription::processConfigurationID() const {
+    return processConfiguration().id();
+  }
+
+  std::string const&
+  ModuleDescription::processName() const {
+    return processConfiguration().processName();
+  }
+
+  std::string const&
+  ModuleDescription::releaseVersion() const {
+    return processConfiguration().releaseVersion();
+  }
+
+  std::string const&
+  ModuleDescription::passID() const {
+    return processConfiguration().passID();
+  }
+
+  ParameterSetID const&
+  ModuleDescription::mainParameterSetID() const {
+    return processConfiguration().parameterSetID();
+  }
 
   bool
   ModuleDescription::operator<(ModuleDescription const& rh) const {
@@ -69,11 +115,12 @@ namespace edm {
   ModuleDescription::write(std::ostream& os) const {
     os  << "Module type=" << moduleName() << ", "
 	<< "Module label=" << moduleLabel() << ", "
-	<< "Parameter Set ID=" << parameterSetID() << ", "
-	<< "Process name=" << processName() << ", "
-	<< "Release Version=" << releaseVersion() << ", "
-	<< "Pass ID=" << passID() << ", "
-	<< "Main Parameter Set ID=" << mainParameterSetID();
+	<< "Parameter Set ID=" << parameterSetID();
+	//<< "Parameter Set ID=" << parameterSetID() << ", "
+	//<< "Process name=" << processName() << ", "
+	//<< "Release Version=" << releaseVersion() << ", "
+	//<< "Pass ID=" << passID() << ", "
+	//<< "Main Parameter Set ID=" << mainParameterSetID();
   }
 
   ModuleDescriptionID

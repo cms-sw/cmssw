@@ -41,9 +41,9 @@ namespace edm {
     void write(std::ostream& os) const;
 
     std::string const& moduleName() const {return getModuleDescriptionPtr()->moduleName();}
-    PassID const& passID() const {return getModuleDescriptionPtr()->passID();}
+    PassID passID() const {return getModuleDescriptionPtr()->passID();}
     ParameterSetID const& psetID() const {return getModuleDescriptionPtr()->parameterSetID();}
-    ReleaseVersion const& releaseVersion() const {return getModuleDescriptionPtr()->releaseVersion();}
+    ReleaseVersion releaseVersion() const {return getModuleDescriptionPtr()->releaseVersion();}
     std::vector<BranchID> const& parents() const {return parents_;}
     std::vector<BranchID> & parents() {return parents_;}
 

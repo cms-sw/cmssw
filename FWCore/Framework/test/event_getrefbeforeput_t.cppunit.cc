@@ -9,6 +9,7 @@ Test of the EventPrincipal class.
 #include <stdexcept>
 #include <string>
 #include <typeinfo>
+#include "boost/shared_ptr.hpp"
 
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
@@ -124,7 +125,8 @@ void testEventGetRefBeforePut::getRefTest() {
   edm::EventID col(1L, 1L);
   std::string uuid = edm::createGlobalIdentifier();
   edm::Timestamp fakeTime;
-  edm::ProcessConfiguration pc(processName, edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
+  boost::shared_ptr<edm::ProcessConfiguration> pcPtr(new edm::ProcessConfiguration(processName, edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID()));
+  edm::ProcessConfiguration& pc = *pcPtr;
   boost::shared_ptr<edm::ProductRegistry const> pregc(preg);
   edm::RunAuxiliary runAux(col.run(), fakeTime, fakeTime);
   boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, pregc, pc));
@@ -137,7 +139,7 @@ void testEventGetRefBeforePut::getRefTest() {
 
   edm::RefProd<edmtest::IntProduct> refToProd;
   try {
-    edm::ModuleDescription modDesc("Blah", label, pc);
+    edm::ModuleDescription modDesc("Blah", label, pcPtr);
 
     edm::Event event(ep, modDesc);
     std::auto_ptr<edmtest::IntProduct> pr(new edmtest::IntProduct);

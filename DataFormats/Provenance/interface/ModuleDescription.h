@@ -5,10 +5,11 @@
   
 ModuleDescription: The description of a producer module.
 
-$Id: ModuleDescription.h,v 1.2 2008/12/18 05:00:31 wmtan Exp $
+$Id: ModuleDescription.h,v 1.3 2008/12/20 18:40:28 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <string>
 #include <iosfwd>
+#include "boost/shared_ptr.hpp"
 
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
@@ -26,25 +27,32 @@ namespace edm {
     ModuleDescription();
 
     ModuleDescription(std::string const& modName,
+		      std::string const& modLabel);
+
+    ModuleDescription(std::string const& modName,
 		      std::string const& modLabel,
-		      ProcessConfiguration const& procConfig = ProcessConfiguration());
+		      boost::shared_ptr<ProcessConfiguration> procConfig);
+
+    ModuleDescription(ParameterSetID const& pid,
+		      std::string const& modName,
+		      std::string const& modLabel);
 
     ModuleDescription(ParameterSetID const& pid,
 		      std::string const& modName,
 		      std::string const& modLabel,
-		      ProcessConfiguration const& procConfig = ProcessConfiguration());
+		      boost::shared_ptr<ProcessConfiguration> procConfig);
 
     void write(std::ostream& os) const;
 
     ParameterSetID const& parameterSetID() const {return parameterSetID_;}
     std::string const& moduleName() const {return moduleName_;}
     std::string const& moduleLabel() const {return moduleLabel_;}
-    ProcessConfiguration const& processConfiguration() const {return processConfiguration_;}
-    ProcessConfigurationID const processConfigurationID() const {return processConfiguration().id();}
-    std::string const& processName() const {return processConfiguration().processName();}
-    std::string const& releaseVersion() const {return processConfiguration().releaseVersion();}
-    std::string const& passID() const {return processConfiguration().passID();}
-    ParameterSetID const& mainParameterSetID() const {return processConfiguration().parameterSetID();}
+    ProcessConfiguration const& processConfiguration() const;
+    ProcessConfigurationID processConfigurationID() const;
+    std::string const& processName() const;
+    std::string const& releaseVersion() const;
+    std::string const& passID() const;
+    ParameterSetID const& mainParameterSetID() const;
 
     // compiler-written copy c'tor, assignment, and d'tor are correct.
 
@@ -68,7 +76,7 @@ namespace edm {
     std::string moduleLabel_;
 
     // The process configuration.
-    ProcessConfiguration processConfiguration_;
+    boost::shared_ptr<ProcessConfiguration> processConfigurationPtr_;
   };
 
   inline

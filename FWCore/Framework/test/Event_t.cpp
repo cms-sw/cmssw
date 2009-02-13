@@ -164,7 +164,8 @@ testEvent::registerProduct(std::string const& tag,
   
   ProcessConfiguration process(processName, processParams.id(), getReleaseVersion(), getPassID());
 
-  ModuleDescription localModuleDescription(moduleParams.id(), moduleClassName, moduleLabel, process);
+  boost::shared_ptr<ProcessConfiguration> processX(new ProcessConfiguration(process));
+  ModuleDescription localModuleDescription(moduleParams.id(), moduleClassName, moduleLabel, processX);
   
   TypeID product_type(typeid(T));
 
@@ -241,7 +242,8 @@ testEvent::testEvent() :
 
   TypeID product_type(typeid(prod_t));
 
-  currentModuleDescription_ = new ModuleDescription(moduleParams.id(), moduleClassName, moduleLabel, process);
+  boost::shared_ptr<ProcessConfiguration> processX(new ProcessConfiguration(process));
+  currentModuleDescription_ = new ModuleDescription(moduleParams.id(), moduleClassName, moduleLabel, processX);
 
   std::string productInstanceName("int1");
 

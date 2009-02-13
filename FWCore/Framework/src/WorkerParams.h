@@ -14,6 +14,7 @@ This struct is used to communication parameters into the worker factory.
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <string>
+#include "boost/shared_ptr.hpp"
 
 namespace edm
 {
@@ -23,26 +24,25 @@ namespace edm
   struct WorkerParams
   {
     WorkerParams(): 
-      procPset_(0), pset_(0),reg_(0),actions_(0),
-      processName_(),releaseVersion_(),passID_() { }
+      procPset_(0), pset_(0), reg_(0), processConfiguration_(), actions_(0)
+      {}
 
     WorkerParams(ParameterSet const& procPset,
 		 ParameterSet const& pset,
 		 ProductRegistry& reg,
-		 ActionTable& actions,
-		 std::string const& processName,
-		 std::string releaseVersion=getReleaseVersion(),
-		 std::string passID=getPassID()):
-      procPset_(&procPset),pset_(&pset),reg_(&reg),actions_(&actions),
-      processName_(processName),releaseVersion_(releaseVersion),passID_(passID) { }
+		 boost::shared_ptr<ProcessConfiguration> processConfiguration,
+		 ActionTable& actions) :
+      procPset_(&procPset),
+      pset_(&pset),
+      reg_(&reg),
+      processConfiguration_(processConfiguration),
+      actions_(&actions) {}
 
     ParameterSet const* procPset_;
     ParameterSet const* pset_;
     ProductRegistry* reg_;
+    boost::shared_ptr<ProcessConfiguration> processConfiguration_;
     ActionTable* actions_;
-    std::string processName_;
-    ReleaseVersion releaseVersion_;
-    PassID passID_;
   };
 }
 

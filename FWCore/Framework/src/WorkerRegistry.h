@@ -6,7 +6,7 @@
    Declaration of class ModuleRegistry
 
    \author Stefano ARGIRO
-   \version $Id: WorkerRegistry.h,v 1.10 2008/10/16 23:06:28 wmtan Exp $
+   \version $Id: WorkerRegistry.h,v 1.11 2008/12/19 00:45:07 wmtan Exp $
    \date 18 May 2005
 */
 
@@ -56,9 +56,7 @@ namespace edm {
     /// Get a unique name for the worker
     /** Form a string to be used as a key in the map of workers */
     void mangleWorkerParameters(ParameterSet const& parameterSet,
-				std::string const& processName,
-				ReleaseVersion const& releaseVersion,
-				PassID const& passID,
+				ProcessConfiguration const& processConfiguration,
 				std::string& result);
 
     /// the container of workers

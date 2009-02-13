@@ -48,7 +48,6 @@
 
 #include "FWCore/Framework/src/EPStates.h"
 
-using boost::shared_ptr;
 using edm::serviceregistry::ServiceLegacy; 
 using edm::serviceregistry::kOverlapIsError;
 
@@ -209,11 +208,12 @@ namespace edm {
     //  mRunID, mRunCount, mSetRun
 
   // ---------------------------------------------------------------
-  shared_ptr<InputSource> 
+  boost::shared_ptr<InputSource> 
   makeInput(ParameterSet const& params,
 	    EventProcessor::CommonParams const& common,
 	    ProductRegistry& preg,
-            boost::shared_ptr<ActivityRegistry> areg)
+            boost::shared_ptr<ActivityRegistry> areg,
+	    boost::shared_ptr<ProcessConfiguration> processConfiguration)
   {
     // find single source
     bool sourceSpecified = false;
@@ -227,17 +227,15 @@ namespace edm {
       // There is no module label for the unnamed input source, so 
       // just use "source".
       // Only the tracked parameters belong in the process configuration.
-      ProcessConfiguration pc(common.processName_, params.id(), getReleaseVersion(), getPassID());
-      ProcessConfigurationRegistry::instance()->insertMapped(pc);
       ModuleDescription md(main_input.id(),
 			   main_input.getParameter<std::string>("@module_type"),
 			   "source",
-			   pc);
+			   processConfiguration);
 
       sourceSpecified = true;
       InputSourceDescription isdesc(md, preg, areg, common.maxEventsInput_, common.maxLumisInput_);
       areg->preSourceConstructionSignal_(md);
-      shared_ptr<InputSource> input(InputSourceFactory::get()->makeInputSource(main_input, isdesc).release());
+      boost::shared_ptr<InputSource> input(InputSourceFactory::get()->makeInputSource(main_input, isdesc).release());
       areg->postSourceConstructionSignal_(md);
       
       return input;
@@ -252,7 +250,7 @@ namespace edm {
  	    throw;
  	}
     }
-    return shared_ptr<InputSource>();
+    return boost::shared_ptr<InputSource>();
   }
   
   // ---------------------------------------------------------------
@@ -435,6 +433,7 @@ namespace edm {
     id_set_(false),
     event_loop_id_(),
     my_sig_num_(getSigNum()),
+    processConfiguration_(),
     fb_(),
     looper_(),
     shouldWeStop_(false),
@@ -472,6 +471,7 @@ namespace edm {
     id_set_(false),
     event_loop_id_(),
     my_sig_num_(getSigNum()),
+    processConfiguration_(),
     fb_(),
     looper_(),
     shouldWeStop_(false),
@@ -509,6 +509,7 @@ namespace edm {
     id_set_(false),
     event_loop_id_(),
     my_sig_num_(getSigNum()),
+    processConfiguration_(),
     fb_(),
     looper_(),
     shouldWeStop_(false),
@@ -570,11 +571,8 @@ namespace edm {
     //  They must be cleared here because some processes run multiple EventProcessors in succession.
     BranchIDListHelper::clearRegistries();
 
-    // TODO: Fix const-correctness. The ParameterSets that are
-    // returned here should be const, so that we can be sure they are
-    // not modified.
-
-    shared_ptr<ParameterSet> parameterSet = processDesc->getProcessPSet();
+    boost::shared_ptr<ParameterSet> parameterSet = processDesc->getProcessPSet();
+    
 
     ParameterSet optionsPset(parameterSet->getUntrackedParameter<ParameterSet>("options", ParameterSet()));
     fileMode_ = optionsPset.getUntrackedParameter<std::string>("fileMode", "");
@@ -584,7 +582,7 @@ namespace edm {
     maxEventsPset_ = parameterSet->getUntrackedParameter<ParameterSet>("maxEvents", ParameterSet());
     maxLumisPset_ = parameterSet->getUntrackedParameter<ParameterSet>("maxLuminosityBlocks", ParameterSet());
 
-    shared_ptr<std::vector<ParameterSet> > pServiceSets = processDesc->getServicesPSets();
+    boost::shared_ptr<std::vector<ParameterSet> > pServiceSets = processDesc->getServicesPSets();
     //makeParameterSets(config, parameterSet, pServiceSets);
 
     //create the services
@@ -596,7 +594,7 @@ namespace edm {
     
     //add the ProductRegistry as a service ONLY for the construction phase
     typedef serviceregistry::ServiceWrapper<ConstProductRegistry> w_CPR;
-    shared_ptr<w_CPR>
+    boost::shared_ptr<w_CPR>
       reg(new w_CPR(std::auto_ptr<ConstProductRegistry>(new ConstProductRegistry(preg_))));
     ServiceToken tempToken2(ServiceRegistry::createContaining(reg, 
 							      tempToken, 
@@ -609,7 +607,7 @@ namespace edm {
     typedef edm::service::TriggerNamesService TNS;
     typedef serviceregistry::ServiceWrapper<TNS> w_TNS;
 
-    shared_ptr<w_TNS> tnsptr
+    boost::shared_ptr<w_TNS> tnsptr
       (new w_TNS(std::auto_ptr<TNS>(new TNS(*parameterSet))));
 
     serviceToken_ = ServiceRegistry::createContaining(tnsptr, 
@@ -633,18 +631,21 @@ namespace edm {
     looper_ = fillLooper(*esp_, *parameterSet, common);
     if (looper_) looper_->setActionTable(&act_table_);
     
-    input_= makeInput(*parameterSet, common, preg_, actReg_);
+    processConfiguration_.reset(new ProcessConfiguration(processName, parameterSet->id(), getReleaseVersion(), getPassID()));
+    input_= makeInput(*parameterSet, common, preg_, actReg_, processConfiguration_);
     schedule_ = std::auto_ptr<Schedule>
       (new Schedule(*parameterSet,
 		    ServiceRegistry::instance().get<TNS>(),
 		    wreg_,
 		    preg_,
 		    act_table_,
-		    actReg_));
+		    actReg_,
+		    processConfiguration_));
 
     //   initialize(iToken,iLegacy);
     FDEBUG(2) << parameterSet << std::endl;
     connectSigs(this);
+    ProcessConfigurationRegistry::instance()->insertMapped(*processConfiguration_);
     BranchIDListHelper::updateRegistries(preg_);
   }
 

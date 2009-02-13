@@ -65,13 +65,14 @@ namespace edm {
 		 ProductRegistry& preg,
 		 ActionTable& actions,
 		 boost::shared_ptr<ActivityRegistry> areg,
+		 boost::shared_ptr<ProcessConfiguration> processConfiguration,
 		 Schedule::TrigResPtr trptr) {
 
-      WorkerParams work_args(proc_pset,trig_pset,preg,actions,proc_name);
+      WorkerParams work_args(proc_pset, trig_pset, preg, processConfiguration, actions);
       ModuleDescription md(trig_pset.id(),
 			   "TriggerResultInserter",
 			   "TriggerResults",
-			   ProcessConfiguration(proc_name, proc_pset.id(), getReleaseVersion(), getPassID()));
+			   processConfiguration);
 
       areg->preModuleConstructionSignal_(md);
       std::auto_ptr<EDProducer> producer(new TriggerResultInserter(trig_pset,trptr));
@@ -95,12 +96,13 @@ namespace edm {
 		     WorkerRegistry& wreg,
 		     ProductRegistry& preg,
 		     ActionTable& actions,
-		     boost::shared_ptr<ActivityRegistry> areg):
+		     boost::shared_ptr<ActivityRegistry> areg,
+		     boost::shared_ptr<ProcessConfiguration> processConfiguration):
     pset_(proc_pset),
     worker_reg_(&wreg),
     prod_reg_(&preg),
     act_table_(&actions),
-    processName_(tns.getProcessName()),
+    processConfiguration_(processConfiguration),
     actReg_(areg),
     state_(Ready),
     trig_name_list_(tns.getTrigPaths()),
@@ -136,8 +138,8 @@ namespace edm {
     if (hasPath) {
       // the results inserter stands alone
       results_inserter_ = makeInserter(pset_, tns.getTriggerPSet(), 
-				       processName_,
-				       preg, actions, actReg_, results_);
+				       processName(),
+				       preg, actions, actReg_, processConfiguration_, results_);
       addToAllWorkers(results_inserter_.get());
     }
 
@@ -180,8 +182,7 @@ namespace edm {
 	  //Need to hold onto the parameters long enough to make the call to getWorker
 	  ParameterSet workersParams(proc_pset.getParameter<ParameterSet>(*itLabel));
 	  WorkerParams params(proc_pset, workersParams,
-			      *prod_reg_, *act_table_,
-			      processName_, getReleaseVersion(), getPassID());
+			      *prod_reg_, processConfiguration_, *act_table_);
 	  Worker* newWorker(wreg.getWorker(params));
 	  if (dynamic_cast<WorkerT<EDProducer>*>(newWorker) ||
               dynamic_cast<WorkerT<EDFilter>*>(newWorker) ) {
@@ -239,7 +240,7 @@ namespace edm {
 	  itProdInfoEnd = prodsList.end();
 	itProdInfo != itProdInfoEnd;
 	++itProdInfo) {
-      if(processName_ == itProdInfo->second.processName() && itProdInfo->second.branchType() == InEvent &&
+      if(processName() == itProdInfo->second.processName() && itProdInfo->second.branchType() == InEvent &&
          unscheduledLabels.end() != unscheduledLabels.find(itProdInfo->second.moduleLabel())) {
 	boost::shared_ptr<ConstBranchDescription const> bd(new ConstBranchDescription(itProdInfo->second));
 	demandBranches_.push_back(bd);
@@ -250,6 +251,11 @@ namespace edm {
     // already relied on all_workers_ being full.
     assert (all_workers_count == all_workers_.size());
   } // Schedule::Schedule
+
+  std::string const&
+  Schedule::processName() const {
+    return processConfiguration_->processName();
+  }
 
   void
   Schedule::limitOutput() {
@@ -343,8 +349,7 @@ namespace edm {
 	  "\" appears in " << pathType << " \"" << name <<
 	  "\"\n please check spelling or remove that label from the path.";
       }
-      WorkerParams params(pset_, modpset, *prod_reg_, *act_table_,
-			  processName_, getReleaseVersion(), getPassID());
+      WorkerParams params(pset_, modpset, *prod_reg_, processConfiguration_, *act_table_);
       WorkerInPath w(worker_reg_->getWorker(params), filterAction);
       tmpworkers.push_back(w);
     }

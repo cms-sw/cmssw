@@ -65,7 +65,9 @@
  <class name="edm::EventAux"/>
  <class name="edm::LuminosityBlockAux"/>
  <class name="edm::RunAux"/>
- <class name="edm::ModuleDescription"/>
+ <class name="edm::ModuleDescription">
+   <field name="processConfigurationPtr_" transient="true"/>
+ </class>
  <class name="edm::BranchEntryDescription"/>
  <class name="edm::EventEntryInfo"/>
  <class name="edm::RunLumiEntryInfo"/>

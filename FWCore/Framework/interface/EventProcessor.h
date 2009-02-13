@@ -404,6 +404,7 @@ namespace edm {
     volatile bool                                 id_set_;
     volatile pthread_t                            event_loop_id_;
     int                                           my_sig_num_;
+    boost::shared_ptr<ProcessConfiguration>       processConfiguration_;
     boost::shared_ptr<FileBlock>                  fb_;
     boost::shared_ptr<EDLooper>                   looper_;
 

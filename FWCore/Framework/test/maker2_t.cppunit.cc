@@ -12,9 +12,9 @@
 #include "FWCore/Framework/src/WorkerMaker.h"
 #include "FWCore/Framework/src/WorkerParams.h"
 
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "boost/shared_ptr.hpp"
 
 #include <cppunit/extensions/HelperMacros.h>
 
@@ -72,8 +72,9 @@ void testmaker2::maker2Test()
   edm::ActionTable table;
 
   edm::ProductRegistry preg;
-  edm::WorkerParams params1(p1, p1, preg, table, "PROD", edm::getReleaseVersion(), edm::getPassID());
-  edm::WorkerParams params2(p2, p2, preg, table, "PROD", edm::getReleaseVersion(), edm::getPassID());
+  boost::shared_ptr<ProcessConfiguration> pc(new ProcessConfiguration("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID()));
+  edm::WorkerParams params1(p1, p1, preg, pc, table);
+  edm::WorkerParams params2(p2, p2, preg, pc, table);
 
   sigc::signal<void, const ModuleDescription&> aSignal;
   std::auto_ptr<Worker> w1 = f->makeWorker(params1,aSignal,aSignal);

@@ -10,6 +10,7 @@ Test of the EventPrincipal class.
 #include <typeinfo>
 
 #include <cppunit/extensions/HelperMacros.h>
+#include "boost/shared_ptr.hpp"
 
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
@@ -129,9 +130,9 @@ test_ep::fake_single_process_branch(std::string const& tag,
   modParams.addParameter<std::string>("@module_type", moduleClass);
   modParams.addParameter<std::string>("@module_label", moduleLabel);
   modParams.registerIt();
-  edm::ProcessConfiguration* process = 
-    fake_single_module_process(tag, processName, modParams);
-  edm::ModuleDescription mod(modParams.id(), moduleClass, moduleLabel, *process);
+  edm::ProcessConfiguration* process = fake_single_module_process(tag, processName, modParams);
+  boost::shared_ptr<edm::ProcessConfiguration> processX(new edm::ProcessConfiguration(*process));
+  edm::ModuleDescription mod(modParams.id(), moduleClass, moduleLabel, processX);
 
   edm::BranchDescription* result = 
     new edm::BranchDescription(edm::InEvent, 
@@ -217,7 +218,7 @@ void test_ep::tearDown()
 {
 
   clear_map(branchDescriptions_);
-  clear_map(processConfigurations_);  
+  clear_map(processConfigurations_);
 
   delete pEvent_;
   pEvent_ = 0;
