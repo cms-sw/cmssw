@@ -14,8 +14,8 @@
 
 /** \class HcalHotCellMonitor
   *
-  * $Date: 2008/10/29 23:37:34 $
-  * $Revision: 1.22 $
+  * $Date: 2008/11/06 18:02:33 $
+  * $Revision: 1.23 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -127,6 +127,14 @@ class HcalHotCellMonitor: public HcalBaseMonitor {
   unsigned int abovepersistent[ETABINS][PHIBINS][4]; // when rechit is consistently above some threshold
   unsigned int rechit_occupancy_sum[ETABINS][PHIBINS][4];
   float rechit_energy_sum[ETABINS][PHIBINS][4];
+  
+  // counters for diagnostic plots
+  int diagADC_HB[300];
+  int diagADC_HE[300];
+  int diagADC_HO[300];
+  int diagADC_HF[300];
+  int diagADC_ZDC[300];
+
 
   // Diagnostic plots
   MonitorElement* d_HBnormped;
