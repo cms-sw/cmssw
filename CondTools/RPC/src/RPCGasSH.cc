@@ -1,8 +1,8 @@
 /*
  *  See headers for a description
  *
- *  $Date: 2008/12/12 20:20:52 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/12/30 10:13:36 $
+ *  $Revision: 1.11 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -28,25 +28,27 @@ popcon::RpcObGasData::~RpcObGasData()
 
 void popcon::RpcObGasData::getNewObjects() {
 
-  std::cout << "------- " << m_name << " - > getNewObjects\n" 
-	    << "got offlineInfo"<< tagInfo().name 
-	    << ", size " << tagInfo().size << ", last object valid since " 
-	    << tagInfo().lastInterval.first << " token "   
+  std::cout << "------- " << m_name << " - > getNewObjects\n"
+            << "got offlineInfo"<< tagInfo().name
+            << ", size " << tagInfo().size << ", last object valid since "
+            << tagInfo().lastInterval.first << " token "
             << tagInfo().lastPayloadToken << std::endl;
 
-  std::cout << " ------ last entry info regarding the payload (if existing): " 
-	    << logDBEntry().usertext << "last record with the correct tag has been written in the db: "
-	    << logDBEntry().destinationDB << std::endl; 
-  
+  std::cout << " ------ last entry info regarding the payload (if existing): "
+            << logDBEntry().usertext << "last record with the correct tag has been written in the db: "
+            << logDBEntry().destinationDB << std::endl;
+
   snc = tagInfo().lastInterval.first;
 
 
   //--------------------------IOV
-  ::timeval tv;
-  gettimeofday(&tv,0);
-  edm::Timestamp tstamp((unsigned long long)tv.tv_usec);
-  std::cout << "Now ==> UNIX TIME = " << tstamp.value() << std::endl;
-  utime = tstamp.value();
+  std::string str;
+  time_t t;
+  t = time (NULL);
+  std::stringstream ss;
+  ss << t; ss >> str;
+  std::cout << "Now ==> UNIX TIME = " << str << std::endl;
+  utime = atoi (str.c_str());
   //-----------------------------
 
 
