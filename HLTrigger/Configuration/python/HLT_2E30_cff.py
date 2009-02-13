@@ -1,15 +1,16 @@
-# /dev/CMSSW_3_1_0/pre2/HLT/V84 (CMSSW_3_1_X_2009-02-05-0000_HLT1)
+# /dev/CMSSW_3_1_0/pre2/HLT/V86 (CMSSW_3_1_X_2009-02-12-1600_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/HLT/V84')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/HLT/V86')
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
   recordName = cms.string( "JetTagComputerRecord" ),
   iovIsRunNotTime = cms.bool( True ),
+  appendToDataLabel = cms.string( "" ),
   firstValid = cms.vuint32( 1 )
 )
 L2RelativeCorrectionService = cms.ESSource( "L2RelativeCorrectionService",
@@ -35,9 +36,12 @@ AnyDirectionAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProduc
   MaxDPhi = cms.double( 1.6 ),
   appendToDataLabel = cms.string( "" )
 )
-CaloTopologyBuilder = cms.ESProducer( "CaloTopologyBuilder" )
+CaloTopologyBuilder = cms.ESProducer( "CaloTopologyBuilder",
+  appendToDataLabel = cms.string( "" )
+)
 CaloTowerConstituentsMapBuilder = cms.ESProducer( "CaloTowerConstituentsMapBuilder",
-  MapFile = cms.untracked.string( "Geometry/CaloTopology/data/CaloTowerEEGeometric.map.gz" )
+  MapFile = cms.untracked.string( "Geometry/CaloTopology/data/CaloTowerEEGeometric.map.gz" ),
+  appendToDataLabel = cms.string( "" )
 )
 Chi2EstimatorForL2Refit = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
   ComponentName = cms.string( "Chi2EstimatorForL2Refit" ),
@@ -618,6 +622,7 @@ navigationSchoolESProducer = cms.ESProducer( "NavigationSchoolESProducer",
   appendToDataLabel = cms.string( "" )
 )
 pixellayerpairs = cms.ESProducer( "PixelLayerPairsESProducer",
+  appendToDataLabel = cms.string( "" ),
   ComponentName = cms.string( "PixelLayerPairs" ),
   layerList = cms.vstring( 'BPix1+BPix2',
     'BPix1+BPix3',
@@ -648,6 +653,7 @@ pixellayerpairs = cms.ESProducer( "PixelLayerPairsESProducer",
   )
 )
 pixellayertriplets = cms.ESProducer( "PixelLayerTripletsESProducer",
+  appendToDataLabel = cms.string( "" ),
   ComponentName = cms.string( "PixelLayerTriplets" ),
   layerList = cms.vstring( 'BPix1+BPix2+BPix3',
     'BPix1+BPix2+FPix1_pos',
@@ -7411,6 +7417,10 @@ hltBLifetimeRegionalPixelSeedGenerator = cms.EDProducer( "SeedGeneratorFromRegio
       SeedingLayers = cms.string( "PixelLayerPairs" )
     ),
     SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) ),
+    SeedCreatorPSet = cms.PSet( 
+      ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
+      propagator = cms.string( "PropagatorWithMaterial" )
+    ),
     TTRHBuilder = cms.string( "WithTrackAngle" )
 )
 hltBLifetimeRegionalCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
@@ -7541,6 +7551,10 @@ hltBLifetimeRegionalPixelSeedGeneratorRelaxed = cms.EDProducer( "SeedGeneratorFr
       SeedingLayers = cms.string( "PixelLayerPairs" )
     ),
     SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) ),
+    SeedCreatorPSet = cms.PSet( 
+      ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
+      propagator = cms.string( "PropagatorWithMaterial" )
+    ),
     TTRHBuilder = cms.string( "WithTrackAngle" )
 )
 hltBLifetimeRegionalCkfTrackCandidatesRelaxed = cms.EDProducer( "CkfTrackCandidateMaker",
@@ -7838,6 +7852,10 @@ hltMumuPixelSeedFromL2Candidate = cms.EDProducer( "SeedGeneratorFromRegionHitsED
       SeedingLayers = cms.string( "PixelLayerPairs" )
     ),
     SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) ),
+    SeedCreatorPSet = cms.PSet( 
+      ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
+      propagator = cms.string( "PropagatorWithMaterial" )
+    ),
     TTRHBuilder = cms.string( "WithTrackAngle" )
 )
 hltCkfTrackCandidatesMumu = cms.EDProducer( "CkfTrackCandidateMaker",
@@ -7968,6 +7986,10 @@ hltMumukPixelSeedFromL2Candidate = cms.EDProducer( "SeedGeneratorFromRegionHitsE
       SeedingLayers = cms.string( "PixelLayerPairs" )
     ),
     SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) ),
+    SeedCreatorPSet = cms.PSet( 
+      ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
+      propagator = cms.string( "PropagatorWithMaterial" )
+    ),
     TTRHBuilder = cms.string( "WithTrackAngle" )
 )
 hltCkfTrackCandidatesMumuk = cms.EDProducer( "CkfTrackCandidateMaker",
@@ -8299,6 +8321,10 @@ hltL25TauPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
       SeedingLayers = cms.string( "PixelLayerPairs" )
     ),
     SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) ),
+    SeedCreatorPSet = cms.PSet( 
+      ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
+      propagator = cms.string( "PropagatorWithMaterial" )
+    ),
     TTRHBuilder = cms.string( "WithTrackAngle" )
 )
 hltL25TauCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
@@ -8388,6 +8414,10 @@ hltL3TauPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
       SeedingLayers = cms.string( "PixelLayerPairs" )
     ),
     SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) ),
+    SeedCreatorPSet = cms.PSet( 
+      ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
+      propagator = cms.string( "PropagatorWithMaterial" )
+    ),
     TTRHBuilder = cms.string( "WithTrackAngle" )
 )
 hltL3TauCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
