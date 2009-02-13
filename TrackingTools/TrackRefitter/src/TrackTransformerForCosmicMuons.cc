@@ -107,6 +107,7 @@ TrackTransformerForCosmicMuons::getTransientRecHits(const reco::TransientTrack& 
   TransientTrackingRecHit::ConstRecHitContainer staHits;
   TransientTrackingRecHit::ConstRecHitContainer staHitsDTp;
   TransientTrackingRecHit::ConstRecHitContainer staHitsDTm;
+  TransientTrackingRecHit::ConstRecHitContainer staHitsCSC;
 
   for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit)
     if((*hit)->isValid())
@@ -126,12 +127,19 @@ TrackTransformerForCosmicMuons::getTransientRecHits(const reco::TransientTrack& 
 			if (gpZ >= 0) staHitsDTp.push_back(theMuonRecHitBuilder->build(&**hit));
 			if (gpZ < 0 ) staHitsDTm.push_back(theMuonRecHitBuilder->build(&**hit));
 		}
+		if ( hitId.subdetId() == MuonSubdetId::CSC ) {  
+  			staHitsCSC.push_back(theMuonRecHitBuilder->build(&**hit));
+			
+		}
 //	staHits.push_back(theMuonRecHitBuilder->build(&**hit));
       }
   
   	stable_sort(staHitsDTp	.begin(),staHitsDTp	.end(), ZedComparatorInOut() );
+//  	reverse(staHitsDTp	.begin(),staHitsDTp	.end());
   	stable_sort(staHitsDTp	.begin(),staHitsDTp	.end(), ZedComparatorInOut() );
-  	stable_sort(staHitsDTm	.begin(),staHitsDTm	.end(), ZedComparatorInOut() );
+ 
+ 	stable_sort(staHitsDTm	.begin(),staHitsDTm	.end(), ZedComparatorInOut() );
+  //	reverse(staHitsDTm	.begin(),staHitsDTm	.end());
   	stable_sort(staHitsDTm	.begin(),staHitsDTm	.end(), ZedComparatorInOut() );
 
 	if ( staHitsDTp.empty() ) {
@@ -145,26 +153,26 @@ TrackTransformerForCosmicMuons::getTransientRecHits(const reco::TransientTrack& 
 
 	else if ( fabs(staHitsDTp.front()->globalPosition().z()) > fabs(staHitsDTm.front()->globalPosition().z())) {
 
-		copy(staHitsDTm.begin(), staHitsDTm.end(), back_inserter(staHits));
+		copy(staHitsDTm.end(), staHitsDTm.begin(), back_inserter(staHits));
 		copy(staHitsDTp.begin(), staHitsDTp.end(), back_inserter(staHits));
 	} else {
 
-		copy(staHitsDTp.begin(), staHitsDTp.end(), back_inserter(staHits));
+		copy(staHitsDTp.end(), staHitsDTp.begin(), back_inserter(staHits));
 		copy(staHitsDTm.begin(), staHitsDTm.end(), back_inserter(staHits));
 		
 	}
   if(staHits.empty()) return staHits;
 
-//  bool up = staHits.front()->globalPosition().y()>0 ? true : false;
-
-//  if(up){
-//    reverse(staHits.begin(),staHits.end());
-//    reverse(tkHits.begin(),tkHits.end());
-//  }
+//
+// put the DTs and CSC together
+//
 
   copy(staHits.begin(),staHits.end(),back_inserter(tkHits));
-//  stable_sort(tkHits.begin(),tkHits.end(), ZedComparatorInOut() );	
 
+  stable_sort(staHitsCSC.begin(), staHitsCSC.end(), ZedComparatorInOut());
+  copy(staHitsCSC.begin(), staHitsCSC.end(), back_inserter(tkHits));
+
+//	std::cout<<"dumping the rec Hits"<<std::endl;
   for(TransientTrackingRecHit::ConstRecHitContainer::const_iterator hit = tkHits.begin();
       hit !=tkHits.end(); ++hit){
 
@@ -191,8 +199,10 @@ TrackTransformerForCosmicMuons::getTransientRecHits(const reco::TransientTrack& 
     } else if(hitId.det() == DetId::Muon) {
       if(hitId.subdetId() == MuonSubdetId::DT)
 	LogTrace("TrackFitters") << glbpoint << " I am DT " << DTWireId(hitId);
+//	std::cout << glbpoint << " I am DT " << DTWireId(hitId)<<std::endl;
       else if (hitId.subdetId() == MuonSubdetId::CSC )
 	LogTrace("TrackFitters") << glbpoint << " I am CSC " << CSCDetId(hitId);
+//	std::cout<< glbpoint << " I am CSC " << CSCDetId(hitId)<<std::endl;
       else if (hitId.subdetId() == MuonSubdetId::RPC )
 	LogTrace("TrackFitters") << glbpoint << " I am RPC " << RPCDetId(hitId);
       else 
@@ -211,16 +221,16 @@ ESHandle<TrajectoryFitter> TrackTransformerForCosmicMuons::fitter(bool up, float
 //  else return theFitterIO;
   	if (up){
 		if (slope < 0 && zFirst > 0) 			return theFitterIO;
-//		if (slope < 0 && zFirst < 0 && cross) 	return theFitterIO;
+		if (slope < 0 && zFirst < 0 && cross) 	return theFitterIO;
 		if (slope > 0 && zFirst < 0) 			return theFitterIO;
-//		if (slope > 0 && zFirst > 0 && cross) 	return theFitterIO;
+		if (slope > 0 && zFirst > 0 && cross) 	return theFitterIO;
   		else return theFitterOI;
 
 	}else {
 		if (slope > 0 && zFirst > 0) 			return theFitterOI;
-//		if (slope > 0 && zFirst < 0 && cross) 	return theFitterOI;
+		if (slope > 0 && zFirst < 0 && cross) 	return theFitterOI;
 		if (slope < 0 && zFirst < 0) 			return theFitterOI;
-//		if (slope < 0 && zFirst > 0 && cross) 	return theFitterOI;
+		if (slope < 0 && zFirst > 0 && cross) 	return theFitterOI;
 		else return theFitterIO;
 	}
 }
@@ -231,16 +241,16 @@ ESHandle<TrajectorySmoother> TrackTransformerForCosmicMuons::smoother(bool up, f
 //  else return theSmootherIO;
   	if (up){
 		if (slope < 0 && zFirst > 0) 			return theSmootherIO;
-//		if (slope < 0 && zFirst < 0 && cross) 	return theSmootherIO;
+		if (slope < 0 && zFirst < 0 && cross) 	return theSmootherIO;
 		if (slope > 0 && zFirst < 0) 			return theSmootherIO;
-//		if (slope > 0 && zFirst > 0 && cross) 	return theSmootherIO;
+		if (slope > 0 && zFirst > 0 && cross) 	return theSmootherIO;
   		else return theSmootherOI;
 
 	}else {
 		if (slope > 0 && zFirst > 0) 			return theSmootherOI;
-//		if (slope > 0 && zFirst < 0 && cross) 	return theSmootherOI;
+		if (slope > 0 && zFirst < 0 && cross) 	return theSmootherOI;
 		if (slope < 0 && zFirst < 0) 			return theSmootherOI;
-//		if (slope < 0 && zFirst > 0 && cross) 	return theSmootherOI;
+		if (slope < 0 && zFirst > 0 && cross) 	return theSmootherOI;
 		else return theSmootherIO;
 	}
 }
@@ -250,16 +260,16 @@ ESHandle<Propagator> TrackTransformerForCosmicMuons::propagator(bool up, float s
 //  else return thePropagatorOI;
   	if (up){
 		if (slope < 0 && zFirst > 0) 			return thePropagatorIO;
-//		if (slope < 0 && zFirst < 0 && cross) 	return thePropagatorIO;
+		if (slope < 0 && zFirst < 0 && cross) 	return thePropagatorIO;
 		if (slope > 0 && zFirst < 0) 			return thePropagatorIO;
-//		if (slope > 0 && zFirst > 0 && cross) 	return thePropagatorIO;
+		if (slope > 0 && zFirst > 0 && cross) 	return thePropagatorIO;
   		else return thePropagatorOI;
 
 	}else {
 		if (slope > 0 && zFirst > 0) 			return thePropagatorOI;
-//		if (slope > 0 && zFirst < 0 && cross) 	return thePropagatorOI;
+		if (slope > 0 && zFirst < 0 && cross) 	return thePropagatorOI;
 		if (slope < 0 && zFirst < 0) 			return thePropagatorOI;
-//		if (slope < 0 && zFirst > 0 && cross) 	return thePropagatorOI;
+		if (slope < 0 && zFirst > 0 && cross) 	return thePropagatorOI;
 		else return thePropagatorIO;
 	}
 }
@@ -295,34 +305,37 @@ vector<Trajectory> TrackTransformerForCosmicMuons::transform(const reco::Track& 
 
   PropagationDirection propagationDirection = up ? oppositeToMomentum : alongMomentum;
   if ( up 	&& slope < 0 && zfirst > 0) 			propagationDirection = alongMomentum;
-//  if ( up 	&& slope < 0 && zfirst < 0 && cross) 	propagationDirection = alongMomentum;
+  if ( up 	&& slope < 0 && zfirst < 0 && cross) 	propagationDirection = alongMomentum;
   if ( up 	&& slope > 0 && zfirst < 0) 			propagationDirection = alongMomentum;
-//  if ( up 	&& slope > 0 && zfirst > 0 && cross) 	propagationDirection = alongMomentum;
+  if ( up 	&& slope > 0 && zfirst > 0 && cross) 	propagationDirection = alongMomentum;
   if ( !up 	&& slope > 0 && zfirst > 0) 			propagationDirection = oppositeToMomentum;
-//  if ( !up 	&& slope > 0 && zfirst < 0 && cross) 	propagationDirection = oppositeToMomentum;
+  if ( !up 	&& slope > 0 && zfirst < 0 && cross) 	propagationDirection = oppositeToMomentum;
   if ( !up 	&& slope < 0 && zfirst < 0) 			propagationDirection = oppositeToMomentum;
-//  if ( !up 	&& slope < 0 && zfirst > 0 && cross) 	propagationDirection = oppositeToMomentum;
+  if ( !up 	&& slope < 0 && zfirst > 0 && cross) 	propagationDirection = oppositeToMomentum;
 
   TrajectoryStateOnSurface firstTSOS = up ? track.outermostMeasurementState() : track.innermostMeasurementState();
   if (up && slope < 0 && zfirst > 0) 			firstTSOS = track.innermostMeasurementState();
-//  if (up && slope < 0 && zfirst < 0 && cross) 	firstTSOS = track.innermostMeasurementState();
+  if (up && slope < 0 && zfirst < 0 && cross) 	firstTSOS = track.innermostMeasurementState();
   if (up && slope > 0 && zfirst < 0) 			firstTSOS = track.innermostMeasurementState();
-//  if (up && slope > 0 && zfirst > 0 && cross) 	firstTSOS = track.innermostMeasurementState();
+  if (up && slope > 0 && zfirst > 0 && cross) 	firstTSOS = track.innermostMeasurementState();
   if (!up && slope > 0 && zfirst > 0) 			firstTSOS = track.outermostMeasurementState();
-//  if (!up && slope > 0 && zfirst < 0 && cross)	firstTSOS = track.outermostMeasurementState();
+  if (!up && slope > 0 && zfirst < 0 && cross)	firstTSOS = track.outermostMeasurementState();
   if (!up && slope < 0 && zfirst < 0) 			firstTSOS = track.outermostMeasurementState();
-//  if (!up && slope < 0 && zfirst > 0 && cross) 	firstTSOS = track.outermostMeasurementState();
+  if (!up && slope < 0 && zfirst > 0 && cross) 	firstTSOS = track.outermostMeasurementState();
 
   unsigned int innerId = up ? track.track().outerDetId() : track.track().innerDetId();
   if (up && slope < 0 && zfirst > 0) 			innerId = track.track().innerDetId();
-//  if (up && slope < 0 && zfirst < 0 && cross) 	innerId = track.track().innerDetId();
+  if (up && slope < 0 && zfirst < 0 && cross) 	innerId = track.track().innerDetId();
   if (up && slope < 0 && zfirst > 0) 			innerId = track.track().innerDetId();
-//  if (up && slope < 0 && zfirst < 0 && cross) 	innerId = track.track().innerDetId();
+  if (up && slope < 0 && zfirst < 0 && cross) 	innerId = track.track().innerDetId();
   if (!up && slope > 0 && zfirst > 0) 			innerId = track.track().outerDetId();
-//  if (!up && slope > 0 && zfirst < 0 && cross) 	innerId = track.track().outerDetId();
+  if (!up && slope > 0 && zfirst < 0 && cross) 	innerId = track.track().outerDetId();
   if (!up && slope > 0 && zfirst > 0) 			innerId = track.track().outerDetId();
-//  if (!up && slope > 0 && zfirst < 0 && cross) 	innerId = track.track().outerDetId();
+  if (!up && slope > 0 && zfirst < 0 && cross) 	innerId = track.track().outerDetId();
 
+//
+//
+//
 //	unsigned int innerId = recHitsForReFit.front()->geographicalId();
 
   LogTrace(metname) << "Prop Dir: " << propagationDirection << " FirstId " << innerId << " firstTSOS " << firstTSOS;
