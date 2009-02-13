@@ -159,6 +159,7 @@ private:
   bool    preClustering;
   bool    Pruning;
   bool    BrutePruning;
+  double  BPMinImprovement;
   bool    onlyBestSegment;
   bool    useShowering;
 

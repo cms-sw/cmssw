@@ -42,6 +42,7 @@ CSCSegAlgoST::CSCSegAlgoST(const edm::ParameterSet& ps) : CSCSegmentAlgorithm(ps
   preClustering          = ps.getUntrackedParameter<bool>("preClustering");
   Pruning                = ps.getUntrackedParameter<bool>("Pruning");
   BrutePruning           = ps.getUntrackedParameter<bool>("BrutePruning");
+  BPMinImprovement        = ps.getUntrackedParameter<double>("BPMinImprovement");
   // maxRecHitsInCluster is the maximal number of hits in a precluster that is being processed
   // This cut is intended to remove messy events. Currently nothing is returned if there are
   // more that maxRecHitsInCluster hits. It could be useful to return an estimate of the 
@@ -304,10 +305,11 @@ std::vector<CSCSegment> CSCSegAlgoST::prune_bad_hits(const CSCChamber* aChamber,
       //
       CSCSegment temp(protoSegment, protoIntercept, protoDirection, protoErrors, protoChi2);
 
-      // replace n hit segment with n-1 hit segment, if segment probability is 1e3 better:
+      // replace n hit segment with n-1 hit segment, if segment probability is BPMinImprovement better:
       if( ( ChiSquaredProbability((double)(*it).chi2(),(double)((2*(*it).nRecHits())-4)) 
 	    < 
-	    (1.e-3)*(ChiSquaredProbability((double)temp.chi2(),(double)(2*temp.nRecHits()-4))) )
+	    (1./BPMinImprovement)*(ChiSquaredProbability((double)temp.chi2(),(double)(2*temp.nRecHits()-4))) ) // was (1.e-3) 081202
+
 	  && 
 	  ( (ChiSquaredProbability((double)temp.chi2(),(double)(2*temp.nRecHits()-4))) 
 	    > best_red_seg_prob 
@@ -316,8 +318,12 @@ std::vector<CSCSegment> CSCSegAlgoST::prune_bad_hits(const CSCChamber* aChamber,
 	  ( (ChiSquaredProbability((double)temp.chi2(),(double)(2*temp.nRecHits()-4))) > 1e-10 )
 	  ) {
 	best_red_seg_prob = ChiSquaredProbability((double)temp.chi2(),(double)(2*temp.nRecHits()-4));
-	// exchange current n hit segment (*it) with better n-1 hit segment:
-	(*it) = temp;
+        // The alternative n-1 segment is much cleaner. If this segment 
+        // has >= minHitsPerSegment hits exchange current n hit segment (*it) 
+        // with better n-1 hit segment:
+        if( temp.nRecHits() >= minHitsPerSegment ) {
+          (*it) = temp;
+        }
       }
     }
   }
