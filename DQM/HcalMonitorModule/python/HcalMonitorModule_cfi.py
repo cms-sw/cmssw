@@ -23,7 +23,7 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            MonitorDaemon = cms.untracked.bool(True),
                            HcalAnalysis = cms.untracked.bool(False),
                            HotCells = cms.untracked.vstring(),
-                           checkNevents = cms.untracked.int32(250),
+                           checkNevents = cms.untracked.int32(1000),
 
                            FEDRawDataCollection = cms.untracked.InputTag("source"),
                            
@@ -45,7 +45,7 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            fillUnphysicalIphi = cms.untracked.bool(True),
                            
                            # Specify Pedestal Units
-                           pedestalsInFC                               = cms.untracked.bool(False),
+                           pedestalsInFC                               = cms.untracked.bool(True),
                            # Specify Digis
                            digiLabel = cms.InputTag("hcalDigis"),
                            #Specify RecHits
@@ -59,7 +59,7 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            PedestalMonitor                              = cms.untracked.bool(True),
                            # Add in a make diagnostic plot variable here somewhere?  Peds don't currently have diagnostic plots
                            PedestalMonitor_pedestalsPerChannel          = cms.untracked.bool(True), # not used
-                           PedestalMonitor_pedestalsInFC                = cms.untracked.bool(False),
+                           PedestalMonitor_pedestalsInFC                = cms.untracked.bool(True),
                            PedestalMonitor_nominalPedMeanInADC          = cms.untracked.double(3.),
                            PedestalMonitor_nominalPedWidthInADC         = cms.untracked.double(1.),
                            PedestalMonitor_maxPedMeanDiffADC            = cms.untracked.double(1.),
@@ -67,24 +67,24 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            PedestalMonitor_startingTimeSlice            = cms.untracked.int32(0),
                            PedestalMonitor_endingTimeSlice              = cms.untracked.int32(1),
                            PedestalMonitor_minErrorFlag                 = cms.untracked.double(0.05),
-                           PedestalMonitor_checkNevents                 = cms.untracked.int32(500),
+                           PedestalMonitor_checkNevents                 = cms.untracked.int32(1000),
                            PedestalMonitor_minEntriesPerPed = cms.untracked.uint32(10),
 
                            # DEAD CELL MONITOR
                            DeadCellMonitor                              = cms.untracked.bool(True),
-                           DeadCellMonitor_pedestalsInFC                = cms.untracked.bool(False),
+                           DeadCellMonitor_pedestalsInFC                = cms.untracked.bool(True),
                            DeadCellMonitor_makeDiagnosticPlots          = cms.untracked.bool(False),
                            DeadCellMonitor_test_occupancy               = cms.untracked.bool(True),
                            DeadCellMonitor_test_rechit_occupancy        = cms.untracked.bool(True),
                            DeadCellMonitor_test_neighbor                = cms.untracked.bool(False), # doesn't give much useful info
                            DeadCellMonitor_test_pedestal                = cms.untracked.bool(True),
                            DeadCellMonitor_test_energy                  = cms.untracked.bool(True),
-                           DeadCellMonitor_checkNevents                 = cms.untracked.int32(500),
-                           DeadCellMonitor_checkNevents_occupancy       = cms.untracked.int32(500),
-                           DeadCellMonitor_checkNevents_rechit_occupancy= cms.untracked.int32(500),
-                           DeadCellMonitor_checkNevents_pedestal        = cms.untracked.int32(500),
-                           DeadCellMonitor_checkNevents_neighbor        = cms.untracked.int32(500),
-                           DeadCellMonitor_checkNevents_energy          = cms.untracked.int32(500),
+                           DeadCellMonitor_checkNevents                 = cms.untracked.int32(1000),
+                           DeadCellMonitor_checkNevents_occupancy       = cms.untracked.int32(1000),
+                           DeadCellMonitor_checkNevents_rechit_occupancy= cms.untracked.int32(1000),
+                           DeadCellMonitor_checkNevents_pedestal        = cms.untracked.int32(1000),
+                           DeadCellMonitor_checkNevents_neighbor        = cms.untracked.int32(1000),
+                           DeadCellMonitor_checkNevents_energy          = cms.untracked.int32(1000),
                            #checking for cells consistently below (ped + Nsigma*width)
                            DeadCellMonitor_pedestal_Nsigma              = cms.untracked.double(0.),
                            DeadCellMonitor_pedestal_HB_Nsigma           = cms.untracked.double(0.),
@@ -144,17 +144,17 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            
                            # HOT CELL MONITOR
                            HotCellMonitor                              = cms.untracked.bool(True),
-                           HotCellMonitor_pedestalsInFC                = cms.untracked.bool(False),
+                           HotCellMonitor_pedestalsInFC                = cms.untracked.bool(True),
                            HotCellMonitor_makeDiagnosticPlots          = cms.untracked.bool(False),
                            HotCellMonitor_test_neighbor                = cms.untracked.bool(False),
                            HotCellMonitor_test_pedestal                = cms.untracked.bool(True),
                            HotCellMonitor_test_energy                  = cms.untracked.bool(True),
                            HotCellMonitor_test_persistent              = cms.untracked.bool(True),
-                           HotCellMonitor_checkNevents                 = cms.untracked.int32(500),
-                           HotCellMonitor_checkNevents_pedestal        = cms.untracked.int32(500),
-                           HotCellMonitor_checkNevents_neighbor        = cms.untracked.int32(500),
-                           HotCellMonitor_checkNevents_energy          = cms.untracked.int32(500),
-                           HotCellMonitor_checkNevents_persistent      = cms.untracked.int32(500),
+                           HotCellMonitor_checkNevents                 = cms.untracked.int32(1000),
+                           HotCellMonitor_checkNevents_pedestal        = cms.untracked.int32(1000),
+                           HotCellMonitor_checkNevents_neighbor        = cms.untracked.int32(1000),
+                           HotCellMonitor_checkNevents_energy          = cms.untracked.int32(1000),
+                           HotCellMonitor_checkNevents_persistent      = cms.untracked.int32(1000),
                            #checking for cells consistently above (ped + Nsigma*width)
                            HotCellMonitor_pedestal_Nsigma              = cms.untracked.double(3.),
                            HotCellMonitor_pedestal_HB_Nsigma           = cms.untracked.double(3.),
@@ -221,7 +221,7 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
 
                            # DIGI MONITOR
                            DigiMonitor                                    = cms.untracked.bool(True),
-                           DigiMonitor_checkNevents                       = cms.untracked.int32(500),
+                           DigiMonitor_checkNevents                       = cms.untracked.int32(1000),
                            DigiMonitor_problems_checkForMissingDigis      = cms.untracked.bool(False), # also checked in DeadCellMonitor, which may be the more appropriate place for the check
                            DigiMonitor_problems_checkCapID                = cms.untracked.bool(True),
                            DigiMonitor_problems_checkDigiSize             = cms.untracked.bool(True),
@@ -237,7 +237,7 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
 
                            # RECHIT MONITOR
                            RecHitMonitor                                  = cms.untracked.bool(True),
-                           RecHitMonitor_checkNevents                     = cms.untracked.int32(500),
+                           RecHitMonitor_checkNevents                     = cms.untracked.int32(1000),
                            RecHitMonitor_minErrorFlag                     = cms.untracked.double(0.),
                            RecHitMonitor_makeDiagnosticPlots              = cms.untracked.bool(False),
                            RecHitMonitor_energyThreshold                  = cms.untracked.double(2.),
@@ -249,13 +249,13 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            
                            # BEAM MONITOR
                            BeamMonitor                                    = cms.untracked.bool(True),
-                           BeamMonitor_checkNevents                       = cms.untracked.int32(500),
+                           BeamMonitor_checkNevents                       = cms.untracked.int32(1000),
                            BeamMonitor_minErrorFlag                       = cms.untracked.double(0.),
                            BeamMonitor_makeDiagnosticPlots                = cms.untracked.bool(False),
 
                            # DATA FORMAT MONITOR
                            DataFormatMonitor                              = cms.untracked.bool(True),
-                           DataFormatMonitor_checkNevents                 = cms.untracked.int32(500),
+                           DataFormatMonitor_checkNevents                 = cms.untracked.int32(1000),
                            dfPrtLvl                                       = cms.untracked.int32(0), # this seems similar to the debug int we have; deprecate this?
 
                            # DATA INTEGRITY TASK
@@ -267,7 +267,7 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            TrigPrimMonitor_Threshold                      = cms.untracked.double(1.),
                            TrigPrimMonitor_TPdigiTS                       = cms.untracked.int32(1),
                            TrigPrimMonitor_ADCdigiTS                      = cms.untracked.int32(3),
-                           TrigPrimMonitor_checkNevents                   = cms.untracked.int32(500),
+                           TrigPrimMonitor_checkNevents                   = cms.untracked.int32(1000),
                            TrigPrimMonitor_makeDiagnostics                = cms.untracked.bool(False),
                            gtLabel = cms.InputTag("l1GtUnpack"),
                            
