@@ -51,6 +51,10 @@ namespace edm {
                     ParameterSet const& pset,
                     InputSourceDescription const& desc):
     InputSource(pset, desc),
+    // The value for the following parameter gets overwritten in at least one derived class
+    // where it has a different default value.
+    inputFileTransitionsEachEvent_(
+      pset.getUntrackedParameter<bool>("inputFileTransitionsEachEvent", false)),
     newRun_(true),
     newLumi_(true),
     ep_(),
@@ -169,11 +173,18 @@ namespace edm {
     if (ep_.get() != 0) {
       return IsEvent;
     }
+    if (inputFileTransitionsEachEvent_) {
+      resetRunPrincipal();
+      resetLuminosityBlockPrincipal();
+    }
     ep_ = read();
     if (ep_.get() == 0) {
       return IsStop;
     } else {
       runEndingFlag_ = false;
+      if (inputFileTransitionsEachEvent_) {
+        return IsFile;
+      }
     }
     if(newRun_) {
       return IsRun;
