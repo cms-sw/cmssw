@@ -17,6 +17,7 @@
 <use name=DataFormats/CSCDigi>
 <use name=DataFormats/SiStripDigi>
 <use name=DataFormats/SiPixelDigi>
+<use name=CondFormats/EcalObjects>
 <export>
   <use name=DataFormats/Common>
   <use name=DataFormats/Provenance>
@@ -33,5 +34,6 @@
   <use name=DataFormats/SiStripDigi>
   <use name=DataFormats/SiPixelDigi>
   <use name=CalibFormats/HcalObjects>
+  <use name=CondFormats/EcalObjects>	
 </export>
 

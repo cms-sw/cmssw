@@ -5,6 +5,7 @@
 //--------------------------------------------
 
 #include <map>
+#include <cmath>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
@@ -12,6 +13,14 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
+#include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
+#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalMGPAGainRatio.h"
+
 //
 //
 #include "DataMixingEMDigiWorker.h"
@@ -280,6 +289,7 @@ namespace edm
     std::auto_ptr< EEDigiCollection > EEdigis( new EEDigiCollection );
     std::auto_ptr< ESDigiCollection > ESdigis( new ESDigiCollection );
 
+
     // loop over the maps we have, re-making individual hits or digis if necessary.
     DetId formerID = 0;
     DetId currentID;
@@ -330,28 +340,47 @@ namespace edm
 	  }
 	  else { adc_old = 0;}
 
+	  const vector<float> pedeStals = GetPedestals(ES,currentID);
+	  const vector<float> gainRatios = GetGainRatios(ES,currentID);
+
 	  if(adc_new>0 && adc_old>0) {
 	    if(gain_old == gain_new) {  // we're happy - easy case
 	      gain_consensus = gain_old;
 	    }
 	    else {  // lower gain sample has more energy
-	      if(gain_old > gain_new) {
-		int gain_diff = (gain_old-gain_new)*6;
-		adc_old = adc_old/gain_diff;  // scale energy to new gain
+	     	      	      
+
+	      if(gain_old < gain_new) { // old has higher gain than new, scale to lower gain
+		
+	
+		float ratio = gainRatios[gain_new-1]/gainRatios[gain_old-1];
+		adc_old = (int) round ((adc_old - pedeStals[gain_old-1]) * ratio + pedeStals[gain_new-1] );  
 		gain_consensus = gain_new;
 	      }
-	      else {
-		int gain_diff = (gain_new-gain_old)*6;
-		adc_new = adc_new/gain_diff;  // scale energy to new gain
+	      else { // scale to old (lower) gain
+		float ratio = gainRatios[gain_old-1]/gainRatios[gain_new-1];
+		adc_new = (int) round ( (adc_new - pedeStals[gain_new-1]) * ratio+ pedeStals[gain_old-1] );
 		gain_consensus = gain_old;
-	      }
+	      } 
 	    }
 	  }
 
 	  // add values
 	  adc_sum = adc_new + adc_old;
-	  // make data word of gain, rawdata
-	  adc_sum = min(adc_sum,4096); //first 12 bits of (uint)
+
+	  // if we are now saturating that gain, switch to the next
+	  if (adc_sum> 4096) {
+	    if (gain_consensus<3){
+
+	      double ratio = gainRatios[gain_consensus]/gainRatios[gain_consensus-1];
+	      adc_sum = (int) round ((adc_sum - pedeStals[gain_consensus-1])* ratio + pedeStals[gain_consensus]  )  ;
+	      ++gain_consensus;
+	    }
+	    else adc_sum = 4096;
+		
+	  } 
+
+
 	  data = adc_sum+gain_consensus<<12; // data is 14 bit word with gain as MSBs
 	  EB_old.setSample(isamp,data);  // overwrite old sample, adding new info
 	}
@@ -409,28 +438,47 @@ namespace edm
 	  }
 	  else { adc_old = 0;}
 
+	  const vector<float> pedeStals = GetPedestals(ES,currentID);
+	  const vector<float> gainRatios = GetGainRatios(ES,currentID);
+
 	  if(adc_new>0 && adc_old>0) {
 	    if(gain_old == gain_new) {  // we're happy - easy case
 	      gain_consensus = gain_old;
 	    }
 	    else {  // lower gain sample has more energy
-	      if(gain_old > gain_new) {
-		int gain_diff = (gain_old-gain_new)*6;
-		adc_old = adc_old/gain_diff;  // scale energy to new gain
+
+	      if(gain_old < gain_new) { // old has higher gain than new, scale to lower gain
+		
+		
+		float ratio = gainRatios[gain_new-1]/gainRatios[gain_old-1];
+		adc_old = (int) round ((adc_old - pedeStals[gain_old-1]) * ratio + pedeStals[gain_new-1] );  
 		gain_consensus = gain_new;
 	      }
-	      else {
-		int gain_diff = (gain_new-gain_old)*6;
-		adc_new = adc_new/gain_diff;  // scale energy to new gain
+	      else { // scale to old (lower) gain
+		float ratio = gainRatios[gain_old-1]/gainRatios[gain_new-1];
+		adc_new = (int) round ( (adc_new - pedeStals[gain_new-1]) * ratio+ pedeStals[gain_old-1] );
 		gain_consensus = gain_old;
-	      }
+	      } 
 	    }
-	  }
+	    
+          }
+	     
 
 	  // add values
 	  adc_sum = adc_new + adc_old;
-	  // make data word of gain, rawdata
-	  adc_sum = min(adc_sum,4096); //first 12 bits of (uint)
+	  
+	  // if the sum saturates this gain, switch
+	  if (adc_sum> 4096) {
+	    if (gain_consensus<3){
+	      
+	      double ratio = gainRatios[gain_consensus]/gainRatios[gain_consensus-1];
+	      adc_sum = (int) round ((adc_sum - pedeStals[gain_consensus-1])* ratio + pedeStals[gain_consensus]  )  ;
+	      ++gain_consensus;
+	    }
+	    else adc_sum = 4096;
+	    
+	  } 
+	  
 	  data = adc_sum+gain_consensus<<12; // data is 14 bit word with gain as MSBs
 	  EE_old.setSample(isamp,data);
 	}
@@ -536,5 +584,50 @@ namespace edm
     ESDigiStorage_.clear();
 
   }
+  const vector<float>  DataMixingEMDigiWorker::GetPedestals (const edm::EventSetup& ES, const DetId& detid) {
+    
+    vector<float> pedeStals(3);
+
+    // get pedestals
+    edm::ESHandle<EcalPedestals> pedHandle;
+    ES.get<EcalPedestalsRcd>().get( pedHandle );
+    
+    
+    const EcalPedestalsMap & pedMap = pedHandle.product()->getMap(); // map of pedestals
+    EcalPedestalsMapIterator pedIter; // pedestal iterator
+    EcalPedestals::Item aped; // pedestal object for a single xtal
+    
+    
+    pedIter = pedMap.find(detid);
+    if( pedIter != pedMap.end() ) {
+      aped = (*pedIter);
+    } else {
+      edm::LogError("DataMixing") << "Cannot find pedestals";  
+    }
+    
+    
+    pedeStals[0] = aped.mean_x12;
+    pedeStals[1] = aped.mean_x6;
+    pedeStals[2] = aped.mean_x1;
+    
+    return pedeStals;
+  }
+
+  const vector<float>  DataMixingEMDigiWorker::GetGainRatios(const edm::EventSetup& ES, const DetId& detid) {
+
+    vector<float> gainRatios(3);
+    // get gain ratios  
+    edm::ESHandle<EcalGainRatios> grHandle;
+    ES.get<EcalGainRatiosRcd>().get(grHandle);
+    EcalMGPAGainRatio theRatio= (*grHandle)[detid];
+    
+    
+    gainRatios[0] = 1.;
+    gainRatios[1] = theRatio.gain12Over6();
+    gainRatios[2] = theRatio.gain6Over1()  * theRatio.gain12Over6();
+
+    return gainRatios;
+  }
+
 
 } //edm

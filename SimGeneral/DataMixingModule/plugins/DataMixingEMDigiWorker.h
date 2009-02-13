@@ -55,6 +55,14 @@ namespace edm
 
 
     private:
+      /// retrieve pedestals for that detid [0]=g12, [1]=g6, [2]=g12
+      const std::vector<float> GetPedestals (const edm::EventSetup& ES, 
+					     const DetId& detid) ;
+
+      /// retrieve gain ratios for that detid [0]=g12, [1]=g6, [2]=g12
+      const std::vector<float> GetGainRatios(const edm::EventSetup& ES, 
+					     const DetId& detid) ;
+
       // data specifiers
 
       edm::InputTag EBProducerSig_; // primary? name given to collection of EB calib digis
