@@ -117,10 +117,11 @@ TopDecaySubset::wInDecayChain(const reco::GenParticleCollection& src, const int&
   bool isContained=false;
   for(GenParticleCollection::const_iterator t=src.begin(); t!=src.end(); ++t){
     if( t->status() == TopDecayID::unfrag && t->pdgId()==partId ){ 
-      GenParticle::const_iterator td=t->begin();
-      if( td->status()==TopDecayID::unfrag && abs( td->pdgId() )==TopDecayID::WID ){ 
-	isContained=true;
-	break;
+      for(GenParticle::const_iterator td=t->begin(); td!=t->end(); ++td){
+	if( td->status()==TopDecayID::unfrag && abs( td->pdgId() )==TopDecayID::WID ){ 
+	  isContained=true;
+	  break;
+	}
       }
     }
   }
