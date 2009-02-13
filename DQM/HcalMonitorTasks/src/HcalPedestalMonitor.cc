@@ -610,8 +610,6 @@ void HcalPedestalMonitor::fillDBValues(const HcalDbService& cond)
 		  fC_width=pow(fC_width,0.5)/4.;
 		  ADC_width=pow(ADC_width,0.5)/4.;
 
-		  // getWidth returns width^2; need to take square root
-		  // (Still need a good way to convert units)
 		  if (fVerbosity>1)
 		    {
 		      cout <<"<HcalPedestalMonitor::fillDBValues> HcalDet ID = "<<(HcalSubdetector)subdet<<": ("<<ieta<<", "<<iphi<<", "<<depth<<")"<<endl;
