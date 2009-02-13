@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.22 2008/11/26 20:50:18 flucke Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.23 2009/01/20 08:26:25 jdraeger Exp $
 //
 //
 
@@ -1102,7 +1102,7 @@ TrackerOfflineValidation::fillTree(TTree &tree,
       treeMem.side = tibId.string()[0];
       treeMem.rod = tibId.string()[2]; 
       treeMem.outerInner = tibId.string()[1]; 
-      treeMem.isRPhi = tibId.isRPhi();
+      treeMem.isStereo = tibId.stereo();
       treeMem.isDoubleSide = tibId.isDoubleSide();
     } else if(treeMem.subDetId == StripSubdetector::TID){
       TIDDetId tidId(detId_); 
@@ -1110,14 +1110,14 @@ TrackerOfflineValidation::fillTree(TTree &tree,
       treeMem.side = tidId.side();
       treeMem.ring = tidId.ring(); 
       treeMem.outerInner = tidId.module()[0]; 
-      treeMem.isRPhi = tidId.isRPhi();
+      treeMem.isStereo = tidId.stereo();
       treeMem.isDoubleSide = tidId.isDoubleSide();
     } else if(treeMem.subDetId == StripSubdetector::TOB){
       TOBDetId tobId(detId_); 
       treeMem.layer = tobId.layer(); 
       treeMem.side = tobId.rod()[0];
       treeMem.rod = tobId.rod()[1]; 
-      treeMem.isRPhi = tobId.isRPhi();
+      treeMem.isStereo = tobId.stereo();
       treeMem.isDoubleSide = tobId.isDoubleSide();
     } else if(treeMem.subDetId == StripSubdetector::TEC) {
       TECDetId tecId(detId_); 
@@ -1126,7 +1126,7 @@ TrackerOfflineValidation::fillTree(TTree &tree,
       treeMem.ring  = tecId.ring(); 
       treeMem.petal = tecId.petal()[1]; 
       treeMem.outerInner = tecId.petal()[0];
-      treeMem.isRPhi = tecId.isRPhi();
+      treeMem.isStereo = tecId.stereo();
       treeMem.isDoubleSide = tecId.isDoubleSide(); 
     }
     

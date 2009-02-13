@@ -26,7 +26,7 @@ struct TkOffTreeVariables
       = blade = panel 
       = outerInner = 0;
     // Bool_t's
-    isDoubleSide = isRPhi = false;
+    isDoubleSide = isStereo = false;
     // std::string's
     histNameLocalX = histNameNormLocalX 
       = histNameX = histNameNormX
@@ -69,8 +69,10 @@ struct TkOffTreeVariables
     layer, side, rod, 
     ring, petal, 
     blade, panel, 
-    outerInner; //orientation of modules in TIB:1/2= int/ext string, TID:1/2=back/front ring, TEC 1/2=back/front petal 
-  Bool_t isDoubleSide, isRPhi; //if (!=isDoubleSide && !=isRPhi) then module is a stereo module
+    outerInner; //orientation of modules in TIB:1/2= int/ext string, TID:1/2=back/front ring, TEC 1/2=back/front petal
+
+  /** A non-zero value means a stereo module, null means not stereo. */
+  Bool_t isDoubleSide, isStereo; //if (isDoubleSide==0 && isStereo==0) then module is a rphi module
   std::string histNameLocalX, histNameNormLocalX, histNameX, histNameNormX,
     histNameY, histNameNormY;    
 };
