@@ -26,6 +26,7 @@ process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 
 #process.load("MagneticField.Engine.volumeBasedMagneticField_cfi")
+process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
 process.load("Geometry.CaloEventSetup.CaloGeometry_cff")
 
@@ -42,7 +43,18 @@ process.pcsc = cms.EDAnalyzer("CSCGeometryAnalyzer")
 
 process.ptrak = cms.EDAnalyzer("TrackerDigiGeometryAnalyzer")
 
-process.pcalo = cms.EDAnalyzer("CaloGeometryAnalyzer")
+#process.pcalo = cms.EDAnalyzer("CaloGeometryAnalyzer")
+process.load("Geometry.CaloEventSetup.CaloGeometry_cff")
+process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
+process.etta = cms.EDFilter("dumpEcalTrigTowerMapping")
+
+process.ctgw = cms.EDFilter("testEcalGetWindow")
+process.mfa = cms.EDFilter("testMagneticField")
+process.TFileService = cms.Service("TFileService", fileName = cms.string('calogeom.root') )
+
+process.cga = cms.EDAnalyzer("CaloGeometryAnalyzer",
+                                 fullEcalDump = cms.untracked.bool(True)
+                             )
 
 process.myprint = cms.OutputModule("AsciiOutputModule")
 
@@ -63,5 +75,5 @@ process.MessageLogger = cms.Service("MessageLogger",
                                                                                      'warning')
                                     )
 
-process.p1 = cms.Path(process.pcsc*process.prpc*process.pdt*process.ptrak*process.pcalo)
+process.p1 = cms.Path(process.pcsc*process.prpc*process.pdt*process.ptrak*process.etta*process.ctgw*process.cga*process.mfa) #*process.pcalo)
 process.ep = cms.EndPath(process.myprint)
