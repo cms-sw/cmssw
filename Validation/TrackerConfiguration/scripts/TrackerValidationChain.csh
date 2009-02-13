@@ -104,13 +104,19 @@ cp ${REFDIR}/SimHits/* ../
 
 #cp TrackerHitHisto.root $NEWREFDIR/SimHit
 if ( ! -e plots ) mkdir plots
-root -b -p -q SiStripHitsCompareEnergy.C
+root -b -p -q SiTrackerHitsCompareEnergy.C
 if ( ! -e plots/muon ) mkdir plots/muon
 gzip -f *.eps
 mv eloss*.eps.gz plots/muon
 mv eloss*.gif plots/muon
 
-root -b -p -q SiStripHitsComparePosition.C
+root -b -p -q SiTrackerHitsComparePosition.C
+if ( ! -e plots/muon ) mkdir plots/muon
+gzip -f *.eps
+mv pos*.eps.gz plots/muon
+mv pos*.gif plots/muon
+
+root -b -p -q SiTrackerHitsComparePosition.C
 if ( ! -e plots/muon ) mkdir plots/muon
 gzip -f *.eps
 mv pos*.eps.gz plots/muon
