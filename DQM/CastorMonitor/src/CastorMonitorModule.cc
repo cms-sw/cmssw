@@ -349,13 +349,13 @@ void CastorMonitorModule::reset(){
 //=================================================================//
 //========================== analyze  ===============================//
 //=================================================================//
-void CastorMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& eventSetup){
+void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetup& eventSetup){
 
   // environment datamembers
-  irun_     = e.id().run();
-  ilumisec_ = e.luminosityBlock();
-  ievent_   = e.id().event();
-  itime_    = e.time().value();
+  irun_     = iEvent.id().run();
+  ilumisec_ = iEvent.luminosityBlock();
+  ievent_   = iEvent.id().event();
+  itime_    = iEvent.time().value();
 
   if (fVerbosity>0) { 
   cout << "CastorMonitorModule: evts: "<< nevt_ << ", run: " << irun_ << ", LS: " << ilumisec_ << endl;
@@ -393,11 +393,11 @@ void CastorMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& ev
 
 
  
-  ////---- try to get raw data and unpacker report
+  ////---- try to get raw data 
   edm::Handle<FEDRawDataCollection> RawData;  
  
   try{
-    e.getByType(RawData);
+    iEvent.getByType(RawData);
   }
   catch(...)
     {
@@ -406,10 +406,11 @@ void CastorMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& ev
   if (rawOK_&&!RawData.isValid()) {
     rawOK_=false;
   }
-  
+
+  ////---- try to get unpacker report
   edm::Handle<HcalUnpackerReport> report;  
   try{
-    e.getByType(report);
+    iEvent.getByType(report);
   }
   catch(...)
     {
@@ -438,7 +439,7 @@ void CastorMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& ev
   edm::Handle<CastorDigiCollection> CastorDigi;
 
   try{
-      e.getByLabel(inputLabelDigi_,CastorDigi);
+      iEvent.getByLabel(inputLabelDigi_,CastorDigi);
     }
   catch(...) {
       digiOK_=false;
@@ -459,7 +460,7 @@ void CastorMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& ev
   edm::Handle<CastorRecHitCollection> CastorHits;
 
   try{
-  e.getByLabel(inputLabelRecHitCASTOR_,CastorHits);
+  iEvent.getByLabel(inputLabelRecHitCASTOR_,CastorHits);
   }
   catch(...) {
   rechitOK_=false;

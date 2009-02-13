@@ -36,23 +36,22 @@ void CastorRecHitMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   
   CastorBaseMonitor::setup(ps,dbe);
   baseFolder_ = rootFolder_+"RecHitMonitor";
-
+  ievt_=0;
+  
    if(fVerbosity>0) cout << "CastorRecHitMonitor::setup (start)" << endl;
   
 
-  if ( ps.getUntrackedParameter<bool>("RecHitsPerChannel", false) ){
+  if ( ps.getUntrackedParameter<bool>("RecHitsPerChannel", false) )
     doPerChannel_ = true;
-  }
-    
-  ievt_=0;
-  
+ 
   if ( m_dbe !=NULL ) {    
     m_dbe->setCurrentFolder(baseFolder_);
     ////---- book MonitorElements
     meEVT_ = m_dbe->bookInt("RecHit Event Number"); // meEVT_->Fill(ievt_);
-    castorHists.meRECHIT_E_all = m_dbe->book1D("Castor RecHit Energies","Castor RecHit Energies",200,0,200);
+    castorHists.meRECHIT_E_all = m_dbe->book1D("Castor RecHit Energies","Castor RecHit Energies",150,0,150);
     castorHists.meRECHIT_T_all = m_dbe->book1D("Castor RecHit Times","Castor RecHit Times",300,-100,200);     
-    castorHists.meRECHIT_MAP_CHAN_E = m_dbe->book1D("RecHit Channel Energy Map","RecHit Channel Energy Map",30,0,30);
+    castorHists.meRECHIT_MAP_CHAN_E = m_dbe->book1D("RecHit Channel Energy Map","RecHit Channel Energy Map",224,0,224);
+    castorHists.meRECHIT_MAP_CHAN_T = m_dbe->book1D("RecHit Channel Time Map","RecHit Channel Time Map",224,0,224);
   } 
 
   else{
@@ -80,7 +79,7 @@ namespace CastorRecHitPerChan{
     
     std::map<HcalCastorDetId,MonitorElement*>::iterator _mei;
 
-    string type = "CastorPerChannel";
+    string type = "CastorRecHitPerChannel";
 
     if(dbe) dbe->setCurrentFolder(baseFolder+"/"+type);
     
@@ -125,7 +124,7 @@ namespace CastorRecHitPerChan{
 void CastorRecHitMonitor::processEvent(const CastorRecHitCollection& castorHits ){
 
   if(!m_dbe) { 
-    if(fVerbosity>0) cout <<"CastorRecHitMonitor::processEvent => DQMStore not instantiated !!!"<<endl;  
+    if(fVerbosity>0) cout <<"CastorRecHitMonitor::processEvent => DQMStore not initizlised !!!"<<endl;  
     return; 
   }
 
@@ -151,9 +150,10 @@ void CastorRecHitMonitor::processEvent(const CastorRecHitCollection& castorHits 
       ////---- plot energy vs channel 
       HcalCastorDetId id(CASTORiter->detid().rawId());
       //float zside  = id.zside(); 
-      float module = id.module(); float sector = id.sector(); //get module & sector from id
-      float channel = 16*(module-1)+sector; // define channel
+      float module = id.module(); float sector = id.sector(); //-- get module & sector from id
+      float channel = 16*(module-1)+sector; //-- define channel
       castorHists.meRECHIT_MAP_CHAN_E->Fill(channel,energy);
+      castorHists.meRECHIT_MAP_CHAN_T->Fill(channel,time);
 
       ////---- do histograms per channel     
       if(doPerChannel_) 

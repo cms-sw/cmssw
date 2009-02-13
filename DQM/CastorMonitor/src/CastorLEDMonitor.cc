@@ -33,11 +33,9 @@ void CastorLEDMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
 
   baseFolder_ = rootFolder_+"CastorLEDMonitor";
 
-
   ////---- get steerable variables
-  if ( ps.getUntrackedParameter<bool>("LEDPerChannel", false) ) {
+  if ( ps.getUntrackedParameter<bool>("LEDPerChannel", false) ) 
     doPerChannel_ = true;
-  }
 
   sigS0_ = ps.getUntrackedParameter<int>("FirstSignalBin", 0);
   sigS1_ = ps.getUntrackedParameter<int>("LastSignalBin", 9);
@@ -220,6 +218,9 @@ void CastorLEDMonitor::perChanHists(const HcalCastorDetId DetID, float* vals,
 				  map<HcalCastorDetId, MonitorElement*> &tEnergy,
 				  string baseFolder){
   
+  string type = "CastorLEDPerChannel";
+  if(m_dbe) m_dbe->setCurrentFolder(baseFolder+"/"+type);
+
   MonitorElement* me;
   if(m_dbe==NULL) return;
   meIter=tShape.begin();
