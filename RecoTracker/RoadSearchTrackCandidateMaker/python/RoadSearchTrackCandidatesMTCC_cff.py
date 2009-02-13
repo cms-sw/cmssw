@@ -6,7 +6,7 @@ from MagneticField.Engine.uniformMagneticField_cfi import *
 # tracker geometry
 # tracker numbering
 # tracker reco geometry builder
-from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
+
 # stripCPE
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
 from RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi import *

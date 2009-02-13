@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # magnetic field
 # cms geometry
-#include "Geometry/TrackerRecoData/data/trackerRecoGeometryXML.cfi"
+
 # tracker geometry
 # tracker numbering
 # KFUpdatoerESProducer

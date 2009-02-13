@@ -4,10 +4,10 @@ import FWCore.ParameterSet.Config as cms
 #include "MagneticField/Engine/data/volumeBasedMagneticField.cfi"
 from MagneticField.Engine.uniformMagneticField_cfi import *
 # initialize geometry #####################
-#include "Geometry/CMSCommonData/data/cmsIdealGeometryXML.cfi"
-#include "Geometry/TrackerGeometryBuilder/data/trackerGeometry.cfi"
-#include "Geometry/TrackerNumberingBuilder/data/trackerNumberingGeometry.cfi"
-from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
+
+
+
+
 # KFUpdatoerESProducer
 from TrackingTools.KalmanUpdators.KFUpdatorESProducer_cfi import *
 # Chi2MeasurementEstimatorESProducer

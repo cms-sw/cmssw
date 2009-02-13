@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # geometry
-from Geometry.CMSCommonData.cmsMTCCGeometryXML_cfi import *
+
 # tracker geometry
 # tracker numbering
 import copy

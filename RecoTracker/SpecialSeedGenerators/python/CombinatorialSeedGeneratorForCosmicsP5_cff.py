@@ -10,7 +10,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # magnetic field
-#include "Geometry/CMSCommonData/data/cmsMagneticFieldXML.cfi"
+
 # cms geometry
 # tracker geometry
 # tracker numbering

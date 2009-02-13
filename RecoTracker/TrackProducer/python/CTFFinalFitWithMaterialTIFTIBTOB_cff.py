@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 # magnetic field
-#include "Geometry/CMSCommonData/data/cmsMagneticFieldXML.cfi"
+
 from MagneticField.Engine.uniformMagneticField_cfi import *
 # cms geometry
-#include "Geometry/TrackerRecoData/data/trackerRecoGeometryXML.cfi"
+
 # tracker geometry
 # tracker numbering
 # KFUpdatoerESProducer

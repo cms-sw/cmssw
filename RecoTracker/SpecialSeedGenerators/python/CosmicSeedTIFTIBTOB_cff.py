@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 # initialize magnetic field #########################
-#include "Geometry/CMSCommonData/data/cmsMagneticFieldXML.cfi"
+
 from MagneticField.Engine.uniformMagneticField_cfi import *
 #initialize geometry
-from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
+
 #stripCPE
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
 #pixelCPE
