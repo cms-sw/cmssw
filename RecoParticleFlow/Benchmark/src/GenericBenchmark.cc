@@ -56,7 +56,7 @@ void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_) {
 
   // delta eta quantities
   BOOK1D(DeltaEta,"#Delta#eta",100,-0.2,0.2);
-  BOOK2D(DeltaEtavsEt,"#Delta#eta vs E_{T}",1000,0,1000,100,-3,3);
+  BOOK2D(DeltaEtavsEt,"#Delta#eta vs E_{T}",250,0,500,1000,-0.5,0.5);
   BOOK2D(DeltaEtaOverEtavsEt,"#Delta#eta/#eta vs E_(T}",1000,0,1000,100,-1,1); // ms: propose remove
   BOOK2D(DeltaEtavsEta,"#Delta#eta vs #eta",200,-5,5,100,-3,3);
   BOOK2D(DeltaEtaOverEtavsEta,"EDelta#eta/#eta vs #eta",200,-5,5,100,-1,1); // ms: propose remove
@@ -65,7 +65,7 @@ void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_) {
 
   // delta phi quantities
   BOOK1D(DeltaPhi,"#Delta#phi",100,-0.2,0.2);
-  BOOK2D(DeltaPhivsEt,"#Delta#phi vs E_{T}",1000,0,1000,100,-M_PI_2,M_PI_2);
+  BOOK2D(DeltaPhivsEt,"#Delta#phi vs E_{T}",250,0,500,1000,-0.5,0.5);
   BOOK2D(DeltaPhiOverPhivsEt,"#Delta#phi/#phi vs E_{T}",1000,0,1000,100,-1,1); // ms: propose remove
   BOOK2D(DeltaPhivsEta,"#Delta#phi vs #eta",200,-5,5,100,-M_PI_2,M_PI_2);
   BOOK2D(DeltaPhiOverPhivsEta,"#Delta#phi/#phi vs #eta",200,-5,5,100,-1,1); // ms: propose remove
@@ -175,7 +175,7 @@ void GenericBenchmark::fill(const edm::View<reco::Candidate> *RecoCollection, co
     hDeltaEtOverEtvsDeltaR->Fill(deltaR,deltaEt/et);
     
     hDeltaEta->Fill(deltaEta);
-    hDeltaEtavsEt->Fill(et,deltaEta/eta);
+    hDeltaEtavsEt->Fill(et,deltaEta);
     hDeltaEtaOverEtavsEt->Fill(et,deltaEta/eta);
     hDeltaEtavsEta->Fill(eta,deltaEta);
     hDeltaEtaOverEtavsEta->Fill(eta,deltaEta/eta);
