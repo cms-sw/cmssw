@@ -426,7 +426,7 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
                  track.setPtPacked(singlesTrackPt);
                  track.setQualityPacked((singlesTrackPt&0x60)>>5);
                  track.setChargeValidPacked((singlesTrackPt&0x80)>>7);
-                 track.setPtLUTAddress(15<<16);
+                 track.setPtLUTAddress(11<<16);
                  //CSCCorrelatedLCTDigiCollection singles;
                  //std::vector<csctf::TrackStub> stubs = myStubContainer[bx].get();
                  //for(std::vector<csctf::TrackStub>::const_iterator st_iter=stubs.begin();
