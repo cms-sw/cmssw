@@ -79,20 +79,20 @@ TrackerHitAnalyzer::TrackerHitAnalyzer(const edm::ParameterSet& ps) {
      
      // is there any way to record CPU Info ???
      // if so, it can be done once - via beginJob() 
+ int nbin = 5000;   
 
     fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/");
-    htofeta  = fDBE->book2D ("tof_eta", "Time of flight vs eta", 300 , -3.0 , 3.0,200,-100,100);
-    htofphi  = fDBE->book2D("tof_phi", "Time of flight vs phi", 360,-180,180,200,-100,100);
-    htofr  = fDBE->book2D("tof_r", "Time of flight vs r", 300 , 0 , 300, 200, -100,100);
-    htofz  = fDBE->book2D("tof_z", "Time of flight vs z", 280 , -280 , 280, 200, -100,100);
+    htofeta  = fDBE->book2D ("tof_eta", "Time of flight vs eta", nbin , -3.0 , 3.0,200,-100,100);
+    htofphi  = fDBE->book2D("tof_phi", "Time of flight vs phi", nbin,-180,180,200,-100,100);
+    htofr  = fDBE->book2D("tof_r", "Time of flight vs r", nbin , 0 , 300, 200, -100,100);
+    htofz  = fDBE->book2D("tof_z", "Time of flight vs z", nbin , -280 , 280, 200, -100,100);
 
 
  const float E2NEL = 1.; 
  
  const char *Region[] = {"005","051","115","152","225","253",
                        "-050","-105","-151","-215","-252","-325"};  
- 
- int nbin = 10000;   
+  nbin = 10000;   
       
 // Energy loss histograms
    for(int i=0; i<12; i++) {
@@ -161,6 +161,9 @@ const float low[] = {-0.03, -0.03, -0.02, -0.03, -0.03, -0.03};
    
    }
 
+const float high0[] = {0.05, 0.06, 0.03, 0.03, 0.03, 0.03};
+const float low0[] = {-0.05, -0.06, -0.03, -0.03, -0.03, -0.03};
+
    for(int i=0; i<12; i++) {
   
     sprintf (htitle1,"Entryy-Exity in TIB %s", Region[i]);
@@ -178,17 +181,17 @@ const float low[] = {-0.03, -0.03, -0.02, -0.03, -0.03, -0.03};
     sprintf (hname6,"Entryy-Exity_FPIX_%i",i+1);
    
     fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/TIBHit");
-    h1ey[i]  = fDBE->book1D (hname1, htitle1, nbin , low[0] , high[0]);
+    h1ey[i]  = fDBE->book1D (hname1, htitle1, nbin , low0[0] , high0[0]);
     fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/TOBHit");
-    h2ey[i]  = fDBE->book1D (hname2, htitle2, nbin , low[1] , high[1]);
+    h2ey[i]  = fDBE->book1D (hname2, htitle2, nbin , low0[1] , high0[1]);
     fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/TIDHit");
-    h3ey[i]  = fDBE->book1D (hname3, htitle3, nbin , low[2] , high[2]);
+    h3ey[i]  = fDBE->book1D (hname3, htitle3, nbin , low0[2] , high0[2]);
     fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/TECHit");
-    h4ey[i]  = fDBE->book1D (hname4, htitle4, nbin , low[3] , high[3]);
+    h4ey[i]  = fDBE->book1D (hname4, htitle4, nbin , low0[3] , high0[3]);
     fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/BPIXHit");
-    h5ey[i]  = fDBE->book1D (hname5, htitle5, nbin , low[4] , high[4]);
+    h5ey[i]  = fDBE->book1D (hname5, htitle5, nbin , low0[4] , high0[4]);
     fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/FPIXHit");
-    h6ey[i]  = fDBE->book1D (hname6, htitle6, nbin , low[5] , high[5]);
+    h6ey[i]  = fDBE->book1D (hname6, htitle6, nbin , low0[5] , high0[5]);
    
    }
 

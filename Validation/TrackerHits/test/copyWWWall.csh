@@ -40,6 +40,7 @@ mkdir $WWWDIR/gif/TK-pixels/Entryx-Exitx
 mkdir $WWWDIR/gif/TK-pixels/Entryy-Exity
 mkdir $WWWDIR/gif/TK-pixels/Entryz-Exitz
 mkdir $WWWDIR/gif/TK-summary
+mkdir $WWWDIR/gif/ToF
 
 echo "...Copying..."
 
@@ -57,6 +58,7 @@ mv plots/muon/pos_Entryz-Exitz_*PIX*.eps.gz $WWWDIR/eps/TK-pixels/Entryz-Exitz
 mv plots/muon/pos_Localy_*PIX*.eps.gz $WWWDIR/eps/TK-pixels/Localy
 mv plots/muon/pos_Localx_*PIX*.eps.gz $WWWDIR/eps/TK-pixels/Localx
 
+mv plots/muon/Tof.eps.gz       $WWWDIR/eps/ToF/
 mv plots/muon/*summary*.eps.gz $WWWDIR/eps/TK-summary
 
 mv plots/muon/eloss_T*_KS*.gif $WWWDIR/gif/TK-strips/eloss
@@ -73,6 +75,7 @@ mv plots/muon/pos_Entryz-Exitz_*PIX*.gif $WWWDIR/gif/TK-pixels/Entryz-Exitz
 mv plots/muon/pos_Localy_*PIX*.gif $WWWDIR/gif/TK-pixels/Localy
 mv plots/muon/pos_Localx_*PIX*.gif $WWWDIR/gif/TK-pixels/Localx
 
+mv plots/muon/Tof.gif       $WWWDIR/gif/ToF/
 mv plots/muon/*summary*.gif $WWWDIR/gif/TK-summary
 
 echo "...Done..."

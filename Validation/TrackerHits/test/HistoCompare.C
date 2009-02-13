@@ -6,9 +6,9 @@ class HistoCompare {
 
   HistoCompare() { std::cout << "Initializing HistoCompare... " << std::endl; } ;
 
-  Double_t KSCompute(TH1F * oldHisto , TH1F * newHisto , TText * te );
-  Int_t KSok(TH1F * oldHisto , TH1F * newHisto);
-  void KSdraw(TH1F * oldHisto , TH1F * newHisto); 
+  Double_t KSCompute(TH1 * oldHisto , TH1 * newHisto , TText * te );
+  Int_t KSok(TH1 * oldHisto , TH1 * newHisto);
+  void KSdraw(TH1 * oldHisto , TH1 * newHisto); 
 
  private:
   
@@ -22,7 +22,7 @@ class HistoCompare {
 
 };
 
-Int_t HistoCompare::KSok(TH1F * oldHisto , TH1F * newHisto) 
+Int_t HistoCompare::KSok(TH1 * oldHisto , TH1 * newHisto) 
 {
   myoldHisto1 = oldHisto;
   mynewHisto1 = newHisto;
@@ -61,7 +61,7 @@ Int_t HistoCompare::KSok(TH1F * oldHisto , TH1F * newHisto)
 }
 
 
-Double_t HistoCompare::KSCompute(TH1F * oldHisto , TH1F * newHisto , TText * te )
+Double_t HistoCompare::KSCompute(TH1 * oldHisto , TH1 * newHisto , TText * te )
 {
   myoldHisto1 = oldHisto;
   mynewHisto1 = newHisto;
@@ -73,7 +73,7 @@ Double_t HistoCompare::KSCompute(TH1F * oldHisto , TH1F * newHisto , TText * te 
 
 }
 
-void HistoCompare::KSdraw(TH1F * oldHisto , TH1F * newHisto)
+void HistoCompare::KSdraw(TH1 * oldHisto , TH1 * newHisto)
 {
   float max;
   myoldHisto1 = oldHisto;
