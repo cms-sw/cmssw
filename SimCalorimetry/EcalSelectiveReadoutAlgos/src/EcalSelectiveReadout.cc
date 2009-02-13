@@ -1,6 +1,6 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-"
 /*
- * $Id: EcalSelectiveReadout.cc,v 1.12 2007/06/04 16:52:30 pgras Exp $
+ * $Id: EcalSelectiveReadout.cc,v 1.13 2007/06/15 21:25:16 fabiocos Exp $
  */
 
 #include "SimCalorimetry/EcalSelectiveReadoutAlgos/src/EcalSelectiveReadout.h"
