@@ -5,7 +5,8 @@
 namespace {
   namespace {
     struct Dummy {
-      cond::DataAndSummaryWrapper<int,int> dummy;
+      cond::DataAndSummaryWrapper<int,int> dummyI;
+      cond::DataAndSummaryWrapper<double,double> dummyD;
     };
 
   }
