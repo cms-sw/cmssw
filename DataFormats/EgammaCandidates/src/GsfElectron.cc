@@ -113,6 +113,14 @@ GsfElectron::GsfElectron
   momentumFromEpCombination_=false;
   trackMomentumError_=0;
   
+  isEB_=false;
+  isEE_=false;
+  isEBEEGap_=false;
+  isEBEtaGap_=false;
+  isEBPhiGap_=false;
+  isEEDeeGap_=false;
+  isEERingGap_=false;
+  
 }
 
 void GsfElectron::correctElectronEnergyScale(const float newEnergy) {

@@ -7,7 +7,7 @@
  *
  * \author U.Berthon, ClaudeCharlot, LLR
  *
- * \version $Id: GsfElectron.h,v 1.18 2008/12/15 19:49:56 nancy Exp $
+ * \version $Id: GsfElectron.h,v 1.19 2009/01/12 15:41:36 chamont Exp $
  *
  */
 
@@ -26,6 +26,9 @@
 // Ursula Berthon - LLR Ecole polytechnique
 //
 // $Log: GsfElectron.h,v $
+// Revision 1.19  2009/01/12 15:41:36  chamont
+// *** empty log message ***
+//
 // Revision 1.18  2008/12/15 19:49:56  nancy
 // Move a variable to avoid warning about initialization order
 //
@@ -147,6 +150,14 @@ class GsfElectron : public RecoCandidate {
   void addAmbiguousGsfTrack( const reco::GsfTrackRef & t )
    { ambiguousGsfTracks_.push_back(t) ; }
 
+  void setIsEB(bool isEB) {isEB_=true;}
+  void setIsEE(bool isEE) {isEE_=true;}
+  void setIsEBEEGap(bool isEBEEGap) {isEBEEGap_=true;}
+  void setIsEBEtaGap(bool isEBEtaGap) {isEBEtaGap_=true;}
+  void setIsEBPhiGap(bool isEBPhiGap) {isEBPhiGap_=true;}
+  void setIsEEDeeGap(bool isEEDeeGap) {isEEDeeGap_=true;}
+  void setIsEERingGap(bool isEERingGap) {isEERingGap_=true;}
+  
   // supercluster and electron track related quantities
   /** the supercluster energy after electron level eta corrections. It differs from the supercluster energy
       only when isEnergyScaleCorrected() returns true.
@@ -246,6 +257,26 @@ class GsfElectron : public RecoCandidate {
   float scE2x5Max() const { return scE2x5Max_ ; }
   //! supercluster shape variable
   float scE5x5() const { return scE5x5_ ; }
+  
+  /// Fiducial volume
+  //! true if electron is in ECAL barrel
+  bool isEB() const{return isEB_;}
+  //! true if electron is in ECAL endcap
+  bool isEE() const{return isEE_;}
+  //! true if electron is in EB, and inside the eta boundaries in super crystals/modules
+  bool isEBEtaGap() const{return isEBEtaGap_;}
+  //! true if electron is in EB, and inside the phi boundaries in super crystals/modules
+  bool isEBPhiGap() const{return isEBPhiGap_;}
+  //! true if electron is in EB, and inside the boundaries in super crystals/modules
+  bool isEBGap() const{return isEBEtaGap_ || isEBPhiGap_;}
+  //! true if electron is in EE, and inside the dee boundaries in supercrystal/D
+  bool isEEDeeGap() const{return isEEDeeGap_;}
+  //! true if electron is in EE, and inside the ring boundaries in supercrystal/D
+  bool isEERingGap() const{return isEERingGap_;}
+  //! true if electron is in EE, and inside the boundaries in supercrystal/D
+  bool isEEGap() const{return isEEDeeGap_ || isEERingGap_;}
+  //! true if electron is in boundary between EB and EE
+  bool isEBEEGap() const{return isEBEEGap_;}
 
   //! accessor to the ambiguous gsf tracks
   GsfTrackRefVector::size_type ambiguousGsfTracksSize() const
@@ -323,6 +354,14 @@ private:
   // e seed cluster / pin
   float eSeedClusterOverP_;
   
+  // crack and gaps
+  bool isEB_;
+  bool isEE_;
+  bool isEBEtaGap_;
+  bool isEBPhiGap_;
+  bool isEEDeeGap_;
+  bool isEERingGap_;
+  bool isEBEEGap_;
   
   /// check overlap with another candidate
   virtual bool overlap( const Candidate & ) const;
