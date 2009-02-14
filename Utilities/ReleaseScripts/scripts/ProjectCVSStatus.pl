@@ -1,11 +1,11 @@
-#!/usr/bin/env perl_
+#!/usr/bin/env perl
 #____________________________________________________________________ 
 # File: ProjectCVSStatus.pl
 #____________________________________________________________________ 
 #  
 # Author: Shaun ASHBY <Shaun.Ashby@cern.ch>
 # Update: 2006-04-11 14:46:41+0200
-# Revision: $Id: ProjectCVSStatus.pl,v 1.3 2007/07/30 19:08:01 dlange Exp $ 
+# Revision: $Id: ProjectCVSStatus.pl,v 1.4 2009/02/06 08:05:48 andreasp Exp $ 
 #
 # Copyright: 2006 (C) Shaun ASHBY
 #
