@@ -1,11 +1,12 @@
 #!/usr/bin/env perl
 #
-# $Id: showtags,v 1.8 2009/02/06 08:05:48 andreasp Exp $
+# $Id: showtags,v 1.9 2009/02/14 10:11:40 elmer Exp $
 #
 # Created by: Shahram Rahatlou
 #             University of Rome & INFN
 #             23 Feb 2006
 #
+use warnings;
 use strict;
 use Getopt::Long;
 use Cwd;
