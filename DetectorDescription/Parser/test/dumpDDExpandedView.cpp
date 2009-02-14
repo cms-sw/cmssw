@@ -56,7 +56,7 @@
 
 int main(int argc, char *argv[])
 {
-  typedef graph_type::const_adj_iterator adjl_iterator;
+  typedef DDCompactView::graph_type::const_adj_iterator adjl_iterator;
 
   std::cout << "main:: initialize" << std::endl;
 
