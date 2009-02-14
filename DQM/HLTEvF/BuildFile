@@ -2,6 +2,8 @@
 <use name="DataFormats/Common">
 <use name="DataFormats/HLTReco">
 <use name="DataFormats/Provenance">
+<use name="DataFormats/BTauReco">
+<use name="DataFormats/TauReco">
 <use name="FWCore/Framework">
 <use name="FWCore/MessageLogger">
 <use name="FWCore/ParameterSet">

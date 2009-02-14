@@ -4,8 +4,6 @@
   <use name="DQMServices/Core">
   <use name=DQMServices/Components>
   <use name=DQMServices/ClientConfig>
-  <use name="DataFormats/BTauReco">
-  <use name="DataFormats/TauReco">
   <use name="DataFormats/BeamSpot">
   <use name="DataFormats/Common">
   <use name="DataFormats/EgammaCandidates">
