@@ -6,6 +6,9 @@
 
    \brief adds noise to the given frame
 
+Algorithm taken from
+http://cg.scs.carleton.ca/~luc/chapter_eleven.pdf
+Uses a Cholesky decomposition
 */
 #include "CLHEP/Random/JamesRandom.h"
 #include "CLHEP/Random/RandGaussQ.h"
