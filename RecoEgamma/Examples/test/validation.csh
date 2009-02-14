@@ -19,12 +19,13 @@
 #=============BEGIN CONFIGURATION=================
 
 #Input root trees for the two cases to be compared 
-setenv NEWFILE ~/scratch0/CMSSW_3_0_0_pre6/src/RecoEgamma/Examples/test/gsfElectronHistos_Relval300pre6SingleElectronPt35.root 
-setenv OLDFILE ~/scratch0/CMSSW_2_2_0/src/RecoEgamma/Examples/test/gsfElectronHistos_RelVal220SingleElectronPt35.root
+setenv OLDFILE ~/scratch0/CMSSW_3_1_0_pre1/src/RecoEgamma/Examples/test/gsfElectronHistos_RelVal310pre1SingleElectronPt35.root 
+#setenv NEWFILE ~/scratch0/CMSSW_3_1_0_pre1/src/RecoEgamma/EgammaElectronProducers/test/gsfElectronHistos_RelVal330pre1SingleElectronPt35_newfiducial.root
+setenv NEWFILE ~/scratch0/CMSSW_3_1_0_pre1/src/RecoEgamma/EgammaElectronProducers/test/gsfElectronHistos_RelVal330pre1SingleElectronPt35_newfiducial_boundary.root
 
 #Release versions to be compared (affects output directory name and html description only)
-setenv NEWRELEASE 300pre6IDEAL
-setenv OLDRELEASE 220IDEAL
+setenv NEWRELEASE 310pre1_newfiducial_boundary
+setenv OLDRELEASE 310pre1
 
 #Name of sample (affects output directory name and html description only)
 setenv SAMPLE SingleElectronPt35

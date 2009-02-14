@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.cc,v 1.10 2009/01/12 17:10:30 chamont Exp $
+// $Id: GsfElectronMCAnalyzer.cc,v 1.11 2009/02/12 16:31:26 charlot Exp $
 //
 //
 
@@ -1059,14 +1059,14 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         histSclEt_->Fill(sclRef->energy()*(Rt/R));
         histSclEtVsEta_->Fill(sclRef->eta(),sclRef->energy()*(Rt/R));
         histSclEtVsPhi_->Fill(sclRef->phi(),sclRef->energy()*(Rt/R));
-        if (bestGsfElectron.classification() < 100)  histSclEoEtrue_barrel->Fill(sclRef->energy()/pAssSim.t());
-        if (bestGsfElectron.classification() >= 100)  histSclEoEtrue_endcaps->Fill(sclRef->energy()/pAssSim.t());
+        if (bestGsfElectron.isEB())  histSclEoEtrue_barrel->Fill(sclRef->energy()/pAssSim.t());
+        if (bestGsfElectron.isEE())  histSclEoEtrue_endcaps->Fill(sclRef->energy()/pAssSim.t());
         histSclEta_->Fill(sclRef->eta());
         histSclEtaVsPhi_->Fill(sclRef->phi(),sclRef->eta());
         histSclPhi_->Fill(sclRef->phi());
         histSclSigEtaEta_->Fill(bestGsfElectron.scSigmaEtaEta());
-        if (bestGsfElectron.classification() < 100) histSclSigIEtaIEtabarrel_->Fill(bestGsfElectron.scSigmaIEtaIEta());
-        if (bestGsfElectron.classification() >= 100) histSclSigIEtaIEtaendcaps_->Fill(bestGsfElectron.scSigmaIEtaIEta());
+        if (bestGsfElectron.isEB()) histSclSigIEtaIEtabarrel_->Fill(bestGsfElectron.scSigmaIEtaIEta());
+        if (bestGsfElectron.isEE()) histSclSigIEtaIEtaendcaps_->Fill(bestGsfElectron.scSigmaIEtaIEta());
         histSclE1x5_->Fill(bestGsfElectron.scE1x5());
         histSclE2x5max_->Fill(bestGsfElectron.scE2x5Max());
         histSclE5x5_->Fill(bestGsfElectron.scE5x5());
