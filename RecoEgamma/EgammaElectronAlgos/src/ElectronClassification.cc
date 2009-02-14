@@ -25,10 +25,11 @@
 // endcap                     => barrel + 100
 // EB eta gaps                => 41
 // EB phi gaps                => 42
-// EE x gaps                  => 141
-// EE y gaps                  => 142
+// EE ring gaps               => 141
+// EE dee gaps                => 142
 // CC 08/02/2006
 // CC added crack subdivision 16/09/2008
+// CC fiducial region (EB, EE, gaps) from electron interface
 //===================================================================
 
 using namespace reco;
@@ -47,12 +48,9 @@ void ElectronClassification::classify(const GsfElectron &electron) {
   float scEnergy=sclRef->energy();
 
   // first look whether it's in crack, barrel or endcap
-  //std::vector<DetId> vecId=sclRef->seed()->getHitsByDetId();
-  //int detector =vecId[0].subdetId();
-  int detector =sclRef->seed()->hitsAndFractions()[0].first.subdetId();
-  if (detector==EcalBarrel) {
+  if (electron.isEB()) {
     electronClass_ = 0;
-  } else if (detector==EcalEndcap) {
+  } else if (electron.isEE()) {
     electronClass_ = 100;
   } else {
     electronClass_=-1;
@@ -62,14 +60,14 @@ void ElectronClassification::classify(const GsfElectron &electron) {
   }
 
   // cracks
-  if (isInCrack(fabs(electron.eta()))) {
+  if (electron.isEBEEGap()) {
     electronClass_+=40;
     return;
-  } else if (isInEtaGaps(fabs(electron.eta()))) {
-    electronClass_=41;
+  } else if (electron.isEBEtaGap() || electron.isEERingGap()) {
+    electronClass_+=41;
     return;
-  } else if (isInPhiGaps(fabs(electron.phi()))) {
-    electronClass_=42;
+  } else if (electron.isEBPhiGap() || electron.isEEDeeGap()) {
+    electronClass_+=42;
     return;
   }
 
@@ -115,6 +113,7 @@ void ElectronClassification::classify(const GsfElectron &electron) {
 
 }
 
+/*
 bool ElectronClassification::isInCrack(float eta) const{
 
   return (eta>1.460 && eta<1.558);
@@ -135,3 +134,4 @@ bool ElectronClassification::isInPhiGaps(float phi) const{
   return false;
 
 }
+*/

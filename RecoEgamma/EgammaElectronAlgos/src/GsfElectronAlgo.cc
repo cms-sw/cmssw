@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.40 2009/01/23 16:42:24 charlot Exp $
+// $Id: GsfElectronAlgo.cc,v 1.41 2009/02/06 13:29:28 chamont Exp $
 //
 //
 
@@ -33,6 +33,9 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -338,7 +341,8 @@ void GsfElectronAlgo::createElectron
       const EcalRecHitCollection * reducedRecHits = 0 ;
       //std::vector<DetId> vecId=seedCluster.getHitsByDetId() ;
       //int detector = vecId[0].subdetId() ;
-      int detector = seedCluster.hitsAndFractions()[0].first.subdetId() ;
+      DetId seedXtalId = seedCluster.hitsAndFractions()[0].first;
+      int detector = seedXtalId.subdetId() ;
       if (detector==EcalBarrel)
        { reducedRecHits = reducedEBRecHits.product() ; }
       else if (detector==EcalEndcap)
@@ -365,6 +369,22 @@ void GsfElectronAlgo::createElectron
        GsfElectron(momentum,scRef,trackRef,sclPos_,sclMom,seedPos,seedMom,innPos,innMom,vtxPos,vtxMom_,outPos,outMom,HoE1,
        HoE2,scSigmaEtaEta,scSigmaIEtaIEta,scE1x5,scE2x5,scE5x5,ctfTrackRef,shFracInnerHits,elbcRef,elePos,eleMom) ;
 
+      // set fiducial region
+      if (detector==EcalBarrel) 
+	ele->setIsEB(true);
+      else if (detector==EcalEndcap) 
+	ele->setIsEE(true);
+      else
+        std::cout << "Electron not in EcalBarrel nor EcalEndcap!! " << std::endl;    
+      double feta=fabs(scRef->position().eta());
+      // using nextToBoundary definition of gaps
+      if (fabs(feta-1.479)<.1 && ele->isEB() && EBDetId::isNextToEtaBoundary(EBDetId(seedXtalId))) ele->setIsEBEEGap(true); 
+      if (fabs(feta-1.479)<.1 && ele->isEE() && EEDetId::isNextToRingBoundary(EEDetId(seedXtalId))) ele->setIsEBEEGap(true); 
+      if (ele->isEB() && EBDetId::isNextToEtaBoundary(EBDetId(seedXtalId)) && !ele->isEBEEGap()) ele->setIsEBEtaGap(true); 
+      if (ele->isEB() && EBDetId::isNextToPhiBoundary(EBDetId(seedXtalId))) ele->setIsEBPhiGap(true); 
+      if (ele->isEE() && EEDetId::isNextToRingBoundary(EEDetId(seedXtalId)) && !ele->isEBEEGap()) ele->setIsEERingGap(true); 
+      if (ele->isEE() && EEDetId::isNextToDBoundary(EEDetId(seedXtalId))) ele->setIsEEDeeGap(true); 
+      
       // set corrections + classification
       ElectronClassification theClassifier;
       theClassifier.correct(*ele);
