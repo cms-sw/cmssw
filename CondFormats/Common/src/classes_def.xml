@@ -11,4 +11,7 @@
  <class name="pool::Ptr<int>"/>
  <class name="cond::DataWrapper<int>"/>
  <class name="cond::DataAndSummaryWrapper<int,int>"/>
+ <class name="pool::Ptr<double>"/>
+ <class name="cond::DataWrapper<double>"/>
+ <class name="cond::DataAndSummaryWrapper<double,double>"/>
 </lcgdict>   
