@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.41 2009/02/06 13:29:28 chamont Exp $
+// $Id: GsfElectronAlgo.cc,v 1.42 2009/02/14 11:01:29 charlot Exp $
 //
 //
 
@@ -81,15 +81,25 @@ GsfElectronAlgo::GsfElectronAlgo
  ( const edm::ParameterSet & conf,
    double maxEOverPBarrel, double maxEOverPEndcaps,
    double minEOverPBarrel, double minEOverPEndcaps,
-   double maxDeltaEta, double maxDeltaPhi,
+   double maxDeltaEtaBarrel, double maxDeltaEtaEndcaps,
+   double maxDeltaPhiBarrel,double maxDeltaPhiEndcaps,
    double hOverEConeSize, double hOverEPtMin,
-   double maxHOverEDepth1, double maxHOverEDepth2,
+   double maxHOverEDepth1Barrel, double maxHOverEDepth1Endcaps,
+   double maxHOverEDepth2,
+   double maxSigmaIetaIetaBarrel, double maxSigmaIetaIetaEndcaps,
+   double maxFbremBarrel, double maxFbremEndcaps,
+   bool isBarrel, bool isEndcaps, bool isFiducial,
    bool applyEtaCorrection, bool applyAmbResolution )
  : maxEOverPBarrel_(maxEOverPBarrel), maxEOverPEndcaps_(maxEOverPEndcaps),
    minEOverPBarrel_(minEOverPBarrel), minEOverPEndcaps_(minEOverPEndcaps),
-   maxDeltaEta_(maxDeltaEta), maxDeltaPhi_(maxDeltaPhi),
+   maxDeltaEtaBarrel_(maxDeltaEtaBarrel), maxDeltaEtaEndcaps_(maxDeltaEtaEndcaps), 
+   maxDeltaPhiBarrel_(maxDeltaPhiBarrel),maxDeltaPhiEndcaps_(maxDeltaPhiEndcaps),
    hOverEConeSize_(hOverEConeSize), hOverEPtMin_(hOverEPtMin),
-   maxHOverEDepth1_(maxHOverEDepth1), maxHOverEDepth2_(maxHOverEDepth2),
+   maxHOverEDepth1Barrel_(maxHOverEDepth1Barrel), maxHOverEDepth1Endcaps_(maxHOverEDepth1Endcaps),
+   maxHOverEDepth2_(maxHOverEDepth2),
+   maxSigmaIetaIetaBarrel_(maxSigmaIetaIetaBarrel), maxSigmaIetaIetaEndcaps_(maxSigmaIetaIetaEndcaps),
+   maxFbremBarrel_(maxFbremBarrel), maxFbremEndcaps_(maxFbremEndcaps),
+   isBarrel_(isBarrel), isEndcaps_(isEndcaps), isFiducial_(isFiducial),
    applyEtaCorrection_(applyEtaCorrection), applyAmbResolution_(applyAmbResolution),
    cacheIDGeom_(0),cacheIDTopo_(0),cacheIDTDGeom_(0),cacheIDMagField_(0)
  {
@@ -251,7 +261,7 @@ void GsfElectronAlgo::process(
     double HoE1=towerIso1.getTowerESum(&theClus)/theClus.energy();
     double HoE2=towerIso2.getTowerESum(&theClus)/theClus.energy();
 
-    if (preSelection(theClus, HoE1, HoE2))
+    if (preSelection(theClus, HoE1, HoE2, reducedEBRecHits,reducedEERecHits))
      {
       pair<TrackRef,float> ctfpair = getCtfTrackRef(gsfTrackRef,ctfTracksH) ;
       const TrackRef ctfTrackRef = ctfpair.first ;
@@ -263,7 +273,9 @@ void GsfElectronAlgo::process(
   } // loop over tracks
 }
 
-bool GsfElectronAlgo::preSelection(const SuperCluster& clus, double HoE1, double HoE2)
+bool GsfElectronAlgo::preSelection(const SuperCluster& clus, double HoE1, double HoE2,
+   edm::Handle<EcalRecHitCollection> reducedEBRecHits,
+   edm::Handle<EcalRecHitCollection> reducedEERecHits)
 {
 
   LogDebug("")<< "========== preSelection ==========";
@@ -278,7 +290,9 @@ bool GsfElectronAlgo::preSelection(const SuperCluster& clus, double HoE1, double
 
   // HoE cuts
   LogDebug("") << "HoE1 : " << HoE1 << "HoE2 : " << HoE2;
-  if ( HoE1 > maxHOverEDepth1_ || HoE2 > maxHOverEDepth2_ ) return false;
+  if ( (subdet_==EcalBarrel) && (HoE1 > maxHOverEDepth1Barrel_) ) return false;
+  if ( (subdet_==EcalEndcap) && (HoE1 > maxHOverEDepth1Endcaps_) ) return false;
+  if ( HoE2 > maxHOverEDepth2_ ) return false;
   LogDebug("") << "H/E criteria is satisfied ";
 
   // delta eta criteria
@@ -286,7 +300,8 @@ bool GsfElectronAlgo::preSelection(const SuperCluster& clus, double HoE1, double
   double etatrk = sclPos_.eta();
   double deta = etaclu-etatrk;
   LogDebug("") << "delta eta : " << deta;
-  if (fabs(deta) > maxDeltaEta_) return false;
+  if ((subdet_==EcalBarrel) && (fabs(deta) > maxDeltaEtaBarrel_)) return false;
+  if ((subdet_==EcalEndcap) && (fabs(deta) > maxDeltaEtaEndcaps_)) return false;
   LogDebug("") << "Delta eta criteria is satisfied ";
 
   // delta phi criteria
@@ -296,9 +311,41 @@ bool GsfElectronAlgo::preSelection(const SuperCluster& clus, double HoE1, double
   if (fabs(dphi)>CLHEP::pi)
     dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
   LogDebug("") << "delta phi : " << dphi;
-  if (fabs(dphi) > maxDeltaPhi_) return false;
+  if ((subdet_==EcalBarrel) && (fabs(dphi) > maxDeltaPhiBarrel_)) return false;
+  if ((subdet_==EcalEndcap) && (fabs(dphi) > maxDeltaPhiEndcaps_)) return false;
   LogDebug("") << "Delta phi criteria is satisfied ";
 
+  const reco::BasicCluster & seedCluster = *(clus.seed()) ;
+  // sigmaieatieta
+  // need factorize this code duplicated here from createElectron!
+  const CaloTopology * topology = theCaloTopo.product() ;
+  const EcalRecHitCollection * reducedRecHits = 0 ;
+  if (subdet_==EcalBarrel)
+   { reducedRecHits = reducedEBRecHits.product() ; }
+  else if (subdet_==EcalEndcap)
+   { reducedRecHits = reducedEERecHits.product() ; }
+  else
+   { edm::LogWarning("")<<"GsfElectronAlgo::createElectron(): do not know if it is a barrel or endcap seed cluster !!!!" ; }
+  std::vector<float> localCovariances = EcalClusterTools::localCovariances(seedCluster,reducedRecHits,topology) ;
+  if ((subdet_==EcalBarrel) && (sqrt(localCovariances[0]) > maxSigmaIetaIetaBarrel_)) return false;
+  if ((subdet_==EcalEndcap) && (sqrt(localCovariances[0]) > maxSigmaIetaIetaEndcaps_)) return false;
+    
+  // fiducial 
+  // need factorize this code duplicated here from createElectron!
+  DetId seedXtalId = seedCluster.hitsAndFractions()[0].first;
+  double feta=fabs(clus.position().eta());
+  // using nextToBoundary definition of gaps
+  bool isEBEEGap=false, isEBEtaGap=false, isEBPhiGap=false, isEERingGap=false, isEEDeeGap=false;
+  if (fabs(feta-1.479)<.1 && (subdet_==EcalBarrel) && EBDetId::isNextToEtaBoundary(EBDetId(seedXtalId))) isEBEEGap=true; 
+  if (fabs(feta-1.479)<.1 && (subdet_==EcalEndcap) && EEDetId::isNextToRingBoundary(EEDetId(seedXtalId))) isEBEEGap=true; 
+  if ((subdet_==EcalBarrel) && EBDetId::isNextToEtaBoundary(EBDetId(seedXtalId)) && isEBEEGap) isEBEtaGap=true; 
+  if ((subdet_==EcalBarrel) && EBDetId::isNextToPhiBoundary(EBDetId(seedXtalId))) isEBPhiGap=true; 
+  if ((subdet_==EcalEndcap) && EEDetId::isNextToRingBoundary(EEDetId(seedXtalId)) && isEBEEGap) isEERingGap=true; 
+  if ((subdet_==EcalEndcap) && EEDetId::isNextToDBoundary(EEDetId(seedXtalId))) isEEDeeGap=true; 
+  if ((subdet_!=EcalBarrel) && isBarrel_) return false;
+  if ((subdet_!=EcalEndcap) && isEndcaps_) return false;
+  if ((isEBEEGap || isEBEtaGap || isEBPhiGap || isEERingGap || isEEDeeGap) && isFiducial_) return false;
+  
   LogDebug("") << "electron has passed preselection criteria ";
   LogDebug("") << "=================================================";
   return true;

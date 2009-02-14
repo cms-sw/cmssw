@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronProducer.cc,v 1.9 2008/12/16 23:03:49 charlot Exp $
+// $Id: GsfElectronProducer.cc,v 1.10 2009/01/12 16:45:53 chamont Exp $
 //
 //
 
@@ -47,12 +47,22 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& iConfig)
 		    iConfig.getParameter<double>("maxEOverPEndcaps"),
 		    iConfig.getParameter<double>("minEOverPBarrel"),
 		    iConfig.getParameter<double>("minEOverPEndcaps"),
-		    iConfig.getParameter<double>("maxDeltaEta"),
-		    iConfig.getParameter<double>("maxDeltaPhi"),
+		    iConfig.getParameter<double>("maxDeltaEtaBarrel"),
+		    iConfig.getParameter<double>("maxDeltaEtaEndcaps"),
+		    iConfig.getParameter<double>("maxDeltaPhiBarrel"),
+		    iConfig.getParameter<double>("maxDeltaPhiEndcaps"),
 		    iConfig.getParameter<double>("hOverEConeSize"),
 		    iConfig.getParameter<double>("hOverEPtMin"),
-		    iConfig.getParameter<double>("maxHOverEDepth1"),
+		    iConfig.getParameter<double>("maxHOverEDepth1Barrel"),
+		    iConfig.getParameter<double>("maxHOverEDepth1Endcaps"),
 		    iConfig.getParameter<double>("maxHOverEDepth2"),
+		    iConfig.getParameter<double>("maxSigmaIetaIetaBarrel"),
+		    iConfig.getParameter<double>("maxSigmaIetaIetaEndcaps"),
+		    iConfig.getParameter<double>("maxFbremBarrel"),
+		    iConfig.getParameter<double>("maxFbremEndcaps"),
+		    iConfig.getParameter<bool>("isBarrel"),
+		    iConfig.getParameter<bool>("isEndcaps"),
+		    iConfig.getParameter<bool>("isFiducial"),
 		    iConfig.getParameter<bool>("applyEtaCorrection"),
 		    iConfig.getParameter<bool>("applyAmbResolution")
 		    );

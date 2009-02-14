@@ -44,9 +44,14 @@ class GsfElectronAlgo {
       const edm::ParameterSet & conf,
       double maxEOverPBarrel, double maxEOverPEndcaps,
       double minEOverPBarrel, double minEOverPEndcaps,
-      double maxDeltaEta, double maxDeltaPhi,
+      double maxDeltaEtaBarrel, double maxDeltaEtaEndcaps,
+      double maxDeltaPhiBarrel,double maxDeltaPhiEndcaps,
       double hOverEConeSize, double hOverEPtMin,
-      double maxHOverEDepth1, double maxHOverEDepth2,
+      double maxHOverEDepth1Barrel, double maxHOverEDepth1Endcaps,
+      double maxHOverEDepth2,
+      double maxSigmaIetaIetaBarrel, double maxSigmaIetaIetaEndcaps,
+      double maxFbremBarrel, double maxFbremEndcaps,
+      bool isBarrel, bool isEndcaps, bool isFiducial,
       bool applyEtaCorrection, bool applyAmbResolution
 		) ;
     ~GsfElectronAlgo() ;
@@ -70,7 +75,9 @@ class GsfElectronAlgo {
        GsfElectronPtrCollection & outEle);
 
     // preselection method
-    bool preSelection( const reco::SuperCluster &, double HoE1, double HoE2 ) ;
+    bool preSelection( const reco::SuperCluster &, double HoE1, double HoE2, 
+       edm::Handle<EcalRecHitCollection> reducedEBRecHits,
+       edm::Handle<EcalRecHitCollection> reducedEERecHits);
 
     // interface to be improved...
     void createElectron
@@ -110,19 +117,33 @@ class GsfElectronAlgo {
     double minEOverPBarrel_;
     double minEOverPEndcaps_;
     // maximum eta difference between the supercluster position and the track position at the closest impact to the supercluster
-    double maxDeltaEta_;
+    double maxDeltaEtaBarrel_;
+    double maxDeltaEtaEndcaps_;
     // maximum phi difference between the supercluster position and the track position at the closest impact to the supercluster
     // position to the supercluster
-    double maxDeltaPhi_;
+    double maxDeltaPhiBarrel_;
+    double maxDeltaPhiEndcaps_;
     // cone size for H/E evaluation
     double hOverEConeSize_;
     // min tower Et for H/E evaluation
     double hOverEPtMin_;
-    // minimum H/E for depth1
-    double maxHOverEDepth1_;
-    // minimum H/E for depth2
+    // maximum H/E for depth1
+    double maxHOverEDepth1Barrel_;
+    double maxHOverEDepth1Endcaps_;
+    // maximum H/E for depth2
     double maxHOverEDepth2_;
-
+    // maximum sigma ieta ieta
+    double maxSigmaIetaIetaBarrel_;
+    double maxSigmaIetaIetaEndcaps_;
+    // maximum fbrem
+    double maxFbremBarrel_;
+    double maxFbremEndcaps_;
+    
+    // fiducial regions
+    bool isBarrel_;
+    bool isEndcaps_;
+    bool isFiducial_;
+    
     // if this parameter is false, only SC level Escale correctoins are applied
     bool applyEtaCorrection_;
 
