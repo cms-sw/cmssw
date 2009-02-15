@@ -915,14 +915,14 @@ C...Cluster particles with |eta| < etaclmax for histograms
          varev(46+I)=SQRT(Y(I))
       ENDDO
       
-      print *, ' finishing up mgveto, with ipveto= ', ipveto
+cc      print *, ' finishing up mgveto, with ipveto= ', ipveto
 
 
       RETURN
  4001 FORMAT(50E15.6)
 c HERWIG/PYTHIA TERMINATION:
  999  IPVETO=1
-      print *, ' finishing up mgveto, with ipveto= ', ipveto
+cc      print *, ' finishing up mgveto, with ipveto= ', ipveto
       END
 
 C*********************************************************************
