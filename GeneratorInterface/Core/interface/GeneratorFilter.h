@@ -86,7 +86,7 @@ namespace edm
 
   template <class HAD>
   GeneratorFilter<HAD>::~GeneratorFilter()
-  { }
+  { if ( decayer_ ) delete decayer_;}
 
   template <class HAD>
   bool
