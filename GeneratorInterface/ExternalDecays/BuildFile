@@ -1,0 +1,12 @@
+<use name=FWCore/ParameterSet>
+<use name=hepmc> 
+<use name=tauola>
+<use name=photos>
+
+<export>
+ <use name=FWCore/ParameterSet>
+ <use name=hepmc> 
+ <use name=tauola>
+ <use name=photos>
+</export>
+
