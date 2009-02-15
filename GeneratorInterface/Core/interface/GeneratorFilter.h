@@ -19,10 +19,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
+#include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 
 //#include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "SimDataFormats/GeneratorProducts/interface/GenInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 
 namespace edm
 {
@@ -51,6 +52,8 @@ namespace edm
 
   private:
     Hadronizer hadronizer_;
+    gen::ExternalDecayDriver* decayer_;
+    
   };
 
   //------------------------------------------------------------------------
@@ -60,22 +63,25 @@ namespace edm
   template <class HAD>
   GeneratorFilter<HAD>::GeneratorFilter(ParameterSet const& ps) :
     EDFilter(),
-    hadronizer_(ps)
+    hadronizer_(ps),
+    decayer_(0)
   {
     // TODO:
     // Put the list of types produced by the filters here.
     // The current design calls for:
-    //   * LHEGeneratorInfo
-    //   * LHEEvent
+    //   * GenRunInfoProduct
     //   * HepMCProduct
-    // But I can not find the LHEGeneratorInfo class; it might need to
-    // be invented.
-
-    // Commented out because of compilation failures; inability to
-    // find headers.
     //
+    // other maybe added as needs be
+    //
+    
+    if ( ps.exists("ExternalDecays") )
+    {
+       decayer_ = new gen::ExternalDecayDriver(ps.getParameter<ParameterSet>("ExternalDecays"));
+    }
+
     produces<edm::HepMCProduct>();
-    produces<edm::GenInfoProduct, edm::InRun>();
+    produces<GenRunInfoProduct, edm::InRun>();
   }
 
   template <class HAD>
@@ -86,22 +92,52 @@ namespace edm
   bool
   GeneratorFilter<HAD>::filter(Event& ev, EventSetup const& /* es */)
   {
+    
     std::auto_ptr<HepMCProduct> bare_product(new HepMCProduct());
-
+        
     // hadronizer_.generatePartons();
     // hadronizer_.hadronize();
     if ( !hadronizer_.generatePartonsAndHadronize() ) return false;
+        
+    // check gen event validity
+    if ( !hadronizer_.getGenEvent() ) return false;
 
-    // When the external decay driver is added to the system, it
-    // should be called here.
+    //  this is a "fake" stuff
+    // in principle, decays are done as part of full event generation,
+    // except for particles that are marked as to be kept stable
+    // but we currently keep in it the design, because we might want
+    // to use such feature for other applications
+    //
     if ( !hadronizer_.decay() ) return false;
-
+    
     HepMC::GenEvent* event = hadronizer_.getGenEvent();
+
+    if( !event ) return false; 
+
+    // The external decay driver is being added to the system,
+    // it should be called here
+    //
+    if ( decayer_ ) 
+    {
+      event = decayer_->decay( event );
+    }
+
     if ( !event ) return false;
-
-    bare_product->addHepMCData(event);
+    
+    // check and perform if there're any unstable particles after 
+    // running external decay packges
+    //
+    hadronizer_.resetEvent( event );
+    if ( !hadronizer_.residualDecay() ) return false;
+    
+    hadronizer_.finalizeEvent();
+    
+    event = hadronizer_.getGenEvent() ;
+    if ( !event ) return false;
+    
+    bare_product->addHepMCData( event );
     ev.put(bare_product);
-
+       
     return true;
   }
 
@@ -109,12 +145,10 @@ namespace edm
   void
   GeneratorFilter<HAD>::beginJob(EventSetup const&)
   { 
-
-    if (! hadronizer_.declareStableParticles())
-      throw edm::Exception(errors::Configuration)
-	<< "Failed to declare stable particles in hadronizer "
-	<< hadronizer_.classname()
-	<< "\n";
+  
+    if ( decayer_ ) decayer_->init() ;
+    return;
+  
   }
   
   template <class HAD>
@@ -129,11 +163,20 @@ namespace edm
     // Create the LHEGeneratorInfo product describing the run
     // conditions here, and insert it into the Run object.
 
-    if (! hadronizer_.initializeForInternalPartons())
-      throw edm::Exception(errors::Configuration) 
+    if ( !hadronizer_.initializeForInternalPartons() )
+       throw edm::Exception(errors::Configuration) 
 	<< "Failed to initialize hadronizer "
 	<< hadronizer_.classname()
 	<< " for internal parton generation\n";
+    
+    if ( decayer_ )
+    {
+       if ( !hadronizer_.declareStableParticles( decayer_->operatesOnParticles() ) )
+          throw edm::Exception(errors::Configuration)
+	  << "Failed to declare stable particles in hadronizer "
+	  << hadronizer_.classname()
+	  << "\n";
+    }
 
     return true;
   }
@@ -149,8 +192,10 @@ namespace edm
 
     hadronizer_.statistics();
     
-    std::auto_ptr<edm::GenInfoProduct> giproduct(new edm::GenInfoProduct(hadronizer_.getGenInfoProduct()));
-    r.put(giproduct);
+    if ( decayer_ ) decayer_->statistics();
+    
+    std::auto_ptr<GenRunInfoProduct> griproduct(new GenRunInfoProduct(hadronizer_.getGenRunInfo()));
+    r.put(griproduct);
 
     return true;
   }
@@ -195,4 +240,4 @@ namespace edm
 
 }
 
-#endif // gen_HadronizerFilter_h
+#endif // gen_GeneratorFilter_h

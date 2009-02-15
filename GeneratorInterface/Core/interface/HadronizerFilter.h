@@ -6,9 +6,6 @@
 // the hadronizer type HAD to read in external partons and hadronize them, 
 // and decay the resulting particles, in the CMS framework.
 
-#ifndef gen_HadronizerFilter_h
-#define gen_HadronizerFilter_h
-
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -19,6 +16,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
+#ifndef gen_HadronizerFilter_h
+#define gen_HadronizerFilter_h
+
 // LHE Run
 // #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h" // this comes through LHERunInfo
 #include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
@@ -28,7 +28,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "SimDataFormats/GeneratorProducts/interface/GenInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 
 namespace edm
 {
@@ -83,7 +83,7 @@ namespace edm
     // find headers.
     //
     produces<edm::HepMCProduct>();
-    produces<edm::GenInfoProduct, edm::InRun>();
+    produces<GenRunInfoProduct, edm::InRun>();
   }
 
   template <class HAD>
@@ -94,8 +94,10 @@ namespace edm
   bool
   HadronizerFilter<HAD>::filter(Event& ev, EventSetup const& /* es */)
   {
+    
     std::auto_ptr<HepMCProduct> bare_product(new HepMCProduct());
-
+        
+    
     // get LHE stuff and pass to hadronizer !
     //
     edm::Handle<LHEEventProduct> product;
@@ -111,12 +113,16 @@ namespace edm
 
     if ( !hadronizer_.decay() ) return false;
     
-    HepMC::GenEvent* event = hadronizer_.getGenEvent();
-    if ( !event ) return false;
-
-    bare_product->addHepMCData(event);
-    ev.put(bare_product);
-
+    if( hadronizer_.getGenEvent() ) 
+    {
+       bare_product->addHepMCData( hadronizer_.getGenEvent() );
+       ev.put(bare_product);
+    }
+    else 
+    { 
+       return false ; 
+    }
+       
     return true;
   }
 
@@ -128,11 +134,13 @@ namespace edm
     // do things that's common through the job, such as
     // attach external decay packages, etc.
     
+/*
     if (! hadronizer_.declareStableParticles())
       throw edm::Exception(errors::Configuration)
 	<< "Failed to declare stable particles in hadronizer "
 	<< hadronizer_.classname()
 	<< "\n";
+*/
   }
   
   template <class HAD>
@@ -179,8 +187,8 @@ namespace edm
     
     hadronizer_.statistics();
     
-    std::auto_ptr<edm::GenInfoProduct> giproduct(new edm::GenInfoProduct(hadronizer_.getGenInfoProduct()));
-    r.put(giproduct);
+    std::auto_ptr<GenRunInfoProduct> griproduct(new GenRunInfoProduct(hadronizer_.getGenRunInfo()));
+    r.put(griproduct);
     
     return true;
   }
