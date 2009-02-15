@@ -49,7 +49,6 @@ import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 electronCkfTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
 electronCkfTrackCandidates.src = cms.InputTag('electronMergedSeeds')
 electronCkfTrackCandidates.TrajectoryBuilder = 'TrajectoryBuilderForElectrons'
-electronCkfTrackCandidates.SeedLabel = cms.InputTag('')
 electronCkfTrackCandidates.TrajectoryCleaner = 'TrajectoryCleanerBySharedHits'
 electronCkfTrackCandidates.NavigationSchool = 'SimpleNavigationSchool'
 electronCkfTrackCandidates.RedundantSeedCleaner = 'CachingSeedCleanerBySharedInput'
