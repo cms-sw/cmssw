@@ -27,18 +27,19 @@
 
 #include "GeneratorInterface/PartonShowerVeto/interface/JetMatchingMadgraph.h"
 
-
+ 
 HepMC::IO_HEPEVT conv;
+
+// NOTE: here a number of Pythia6 routines are declared,
+// plus some functionalities to pass around Pythia6 params
+//
+#include "Pythia6Service.h"
+#include "Pythia6Declarations.h"
 
 namespace gen
 {
 
 extern "C" {
-   void pygive_(const char *line, int length);
-   void txgive_(const char *line, int length);
-   void txgive_init_(void);
-//   void pyupev_() ;   
-//  void pyexec_();
    void upinit_() { FortranCallback::getInstance()->fillHeader(); return; }
    void upevnt_() { 
       FortranCallback::getInstance()->fillEvent(); 
@@ -69,91 +70,22 @@ extern "C" {
       return; 
    }
 
-   static bool call_pygive(const std::string &line)
-   {
-      int numWarn = pydat1.mstu[26];	// # warnings
-      int numErr = pydat1.mstu[22];	// # errors
-
-      pygive_(line.c_str(), line.length());
-
-      return pydat1.mstu[26] == numWarn &&
-             pydat1.mstu[22] == numErr;
-   }
-
-   static bool call_txgive(const std::string &line)
-   {
-      txgive_(line.c_str(), line.length());
-      return true;
-   }
-
-   static void call_txgive_init(void)
-   { txgive_init_(); }
-
 } // extern "C"
 
 
 JetMatching* Pythia6Hadronizer::fJetMatching = 0;
 
 Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps) 
-   : fCOMEnergy(ps.getParameter<double>("comEnergy")),
+   : fPy6Service( new Pythia6Service(ps) ), // this will store py6 params for further settings
+     fCOMEnergy(ps.getParameter<double>("comEnergy")),
      fGenEvent(0),
      fEventCounter(0),
      fRunInfo(0),
      fEventInfo(0),
-     fVetoDone(false),
-     fRandomEngine(getEngineReference()),     
      fHepMCVerbosity(ps.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
      fMaxEventsToPrint(ps.getUntrackedParameter<int>("maxEventsToPrint", 0)),
      fPythiaListVerbosity(ps.getUntrackedParameter<int>("pythiaPylistVerbosity", 0))
 { 
-
-   // Set PYTHIA parameters in a single ParameterSet
-   //
-   edm::ParameterSet pythia_params = 
-      ps.getParameter<edm::ParameterSet>("PythiaParameters") ;
-      
-   // read and sort Pythia6 cards
-   //
-   std::vector<std::string> setNames =
-      pythia_params.getParameter<std::vector<std::string> >("parameterSets");
-      
-   // std::vector<std::string>	paramLines;
-   paramGeneral.clear();
-   paramCSA.clear();
-   paramSLHA.clear();
-   
-
-   for(std::vector<std::string>::const_iterator iter = setNames.begin();
-	                                        iter != setNames.end(); ++iter) 
-   {
-      std::vector<std::string> lines =
-         pythia_params.getParameter< std::vector<std::string> >(*iter);
-
-      for(std::vector<std::string>::const_iterator line = lines.begin();
-		                                   line != lines.end(); ++line ) 
-      {
-         if (line->substr(0, 7) == "MRPY(1)")
-	    throw cms::Exception("PythiaError") <<
-	    "Attempted to set random number"
-	    " using Pythia command 'MRPY(1)'."
-	    " Please use the"
-	    " RandomNumberGeneratorService." <<
-	    std::endl;
-
-	 if ( *iter == "CSAParameters" )
-	 {
-	    paramCSA.push_back(*line);
-	 }
-	 else if ( *iter == "SLHAParameteters" )
-	 {
-	    paramSLHA.push_back(*line);
-	 }
-	 else
-	 {
-	    paramGeneral.push_back(*line);
-	 }
-      }
-   }
 
    if ( ps.exists("jetMatching") )
    {
@@ -180,18 +112,29 @@ Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps)
 			<< std::endl;
       }
    }
+   
+   fGenRunInfo.setFilterEfficiency(
+      ps.getUntrackedParameter<double>("filterEfficiency", -1.) );
+   //
+   // fill up later 
+   //
+   //fGenRunInfo.setsetExternalXSecLO(
+   //   GenRunInfoProduct::XSec(ps.getUntrackedParameter<double>("...", -1.)) );
+   //fGenRunInfo.setsetExternalXSecNLO(
+   //    GenRunInfoProduct::XSec(ps.getUntrackedParameter<double>("...", -1.)) );
 
 
-/* old stuff
+/* old stuff 
    edm::Service<edm::RandomNumberGenerator> rng;
+   int seed = rng->mySeed();
+   std::cout << " seed = " << seed << std::endl;
    std::ostringstream ss;
    ss << "MRPY(1)=" << rng->mySeed();
    paramGeneral.push_back(ss.str());
 */
    // Initialize the random engine unconditionally
    //
-   randomEngine = &fRandomEngine;
-   fRandomGenerator = new CLHEP::RandFlat(fRandomEngine) ;
+   randomEngine = &getEngineReference();
 
    // first of all, silence Pythia6 banner printout
    if (!call_pygive("MSTU(12)=12345")) 
@@ -204,31 +147,27 @@ Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps)
 
 Pythia6Hadronizer::~Pythia6Hadronizer()
 {
+   if ( fPy6Service != 0 ) delete fPy6Service;
    if ( fRunInfo != 0 ) delete fRunInfo ;
    if ( fJetMatching != 0 ) delete fJetMatching;
 }
 
-void Pythia6Hadronizer::formEvent()
+void Pythia6Hadronizer::finalizeEvent()
 {
-   
-   // generate event with Pythia6
-   //
-   // call_pyevnt();
-   
+      
    // convert to HEPEVT
    //
-   call_pyhepc(1);
-   
+   //call_pyhepc(1);
+      
    // convert to HepMC
    //
-   fGenEvent = conv.read_next_event();
-   
+   //fGenEvent = conv.read_next_event();
+      
    fGenEvent->set_signal_process_id(pypars.msti[0]);
    fGenEvent->set_event_scale(pypars.pari[16]);
    // evt->set_event_number(numberEventsInRun() - remainingEvents() - 1);
    fGenEvent->set_event_number( fEventCounter );
    
-
    // get pdf info directly from Pythia6 and set it up into HepMC::GenEvent
    //
    int id1 = pyint1.mint[14];
@@ -245,7 +184,7 @@ void Pythia6Hadronizer::formEvent()
    fGenEvent->set_pdf_info( HepMC::PdfInfo(id1,id2,x1,x2,Q,pdf1,pdf2) ) ;
     
    fGenEvent->weights().push_back( pyint1.vint[96] );
-
+   
    // service printouts, if requested
    //
    if (fMaxEventsToPrint > 0) 
@@ -272,7 +211,9 @@ bool Pythia6Hadronizer::generatePartonsAndHadronize()
    //
    call_pyevnt();
    
-   formEvent();
+   //formEvent();
+   call_pyhepc(1);
+   fGenEvent = conv.read_next_event() ;
    
    fEventCounter++;
       
@@ -283,7 +224,6 @@ bool Pythia6Hadronizer::hadronize()
 {
    
    FortranCallback::getInstance()->resetIterationsPerEvent();
-   fVetoDone = false;
    if ( fJetMatching != NULL) 
    {
       fJetMatching->resetMatchingStatus() ;
@@ -298,13 +238,17 @@ bool Pythia6Hadronizer::hadronize()
         hepeup_.nup <= 0 || pypars.msti[0] == 1 )
    {
       fGenEvent = 0;
+/*
       std::cout << " terminating loop inside event because of : " << 
       FortranCallback::getInstance()->getIterationsPerEvent() << " " <<
       hepeup_.nup << " " << pypars.msti[0] << std::endl;
+*/
       return false;
    }
       
-   formEvent();
+   //formEvent();
+   call_pyhepc(1);
+   fGenEvent = conv.read_next_event() ;
    
    fEventCounter++;
       
@@ -316,20 +260,24 @@ bool Pythia6Hadronizer::decay()
    return true;
 }
 
+bool Pythia6Hadronizer::residualDecay()
+{
+   return true;
+}
+
 bool Pythia6Hadronizer::initializeForExternalPartons()
 {
      
    // note: CSA mode is NOT supposed to woirk with external partons !!!
    
-   setGeneralParams();
-   if ( !paramSLHA.empty() ) setSLHAParams();
+   fPy6Service->setGeneralParams();
+   fPy6Service->setSLHAParams();
       
    call_pyinit("USER", "", "", 0.0);
       
    if ( fJetMatching != NULL ) 
    {
       fJetMatching->init( fRunInfo );
-      // fJetMatching->init( fRunInfo );
       call_pygive("MSTP(143)=1");
 /*
    call_pygive(std::string("MSTP(143)=") +
@@ -343,16 +291,26 @@ bool Pythia6Hadronizer::initializeForExternalPartons()
 bool Pythia6Hadronizer::initializeForInternalPartons()
 {
     
-   setGeneralParams();   
-   if ( !paramCSA.empty() )  setCSAParams();
-   if ( !paramSLHA.empty() ) setSLHAParams();
+   fPy6Service->setGeneralParams();   
+   fPy6Service->setCSAParams();
+   fPy6Service->setSLHAParams();
    
    call_pyinit("CMS", "p", "p", fCOMEnergy);
    return true;
 }
 
-bool Pythia6Hadronizer::declareStableParticles()
+bool Pythia6Hadronizer::declareStableParticles( std::vector<int> pdg )
 {
+   
+   for ( size_t i=0; i<pdg.size(); i++ )
+   {
+      int pyCode = pycomp_( pdg[i] );
+      std::ostringstream pyCard ;
+      pyCard << "MDCY(" << pyCode << ",1)=0";
+      std::cout << pyCard.str() << std::endl;
+      call_pygive( pyCard.str() );
+   }
+   
    return true;
 }
 
@@ -360,9 +318,7 @@ void Pythia6Hadronizer::statistics()
 {
 
   double cs = pypars.pari[0]; // cross section in mb
-  fGenInfoProduct.set_cross_section(cs);
-  // fGenInfoProduct.set_external_cross_section(extCrossSect);
-  // fGenInfoProduct.set_filter_efficiency(extFilterEff);
+  fGenRunInfo.setInternalXSec(GenRunInfoProduct::XSec(cs));
 
   call_pystat(1);
   
@@ -397,39 +353,17 @@ void Pythia6Hadronizer::setLHEEventProd( LHEEventProduct* lheep )
 
 }
 
-void Pythia6Hadronizer::setGeneralParams()
+void Pythia6Hadronizer::resetEvent( const HepMC::GenEvent* e )
 {
-   // now pass general config cards 
+
+   // here I have to reset contents of HEPEVT, for consistency, 
+   // and also of PYJETS !!!
    //
-   for(std::vector<std::string>::const_iterator iter = paramGeneral.begin();
-	                                        iter != paramGeneral.end(); ++iter)
-   {
-      if (!call_pygive(*iter))
-         throw cms::Exception("PythiaError")
-	 << "Pythia did not accept \""
-	 << *iter << "\"." << std::endl;
-   }
+   if ( fGenEvent ) delete fGenEvent;
+   fGenEvent = new HepMC::GenEvent( *e );
    
-   return ;
-}
-
-void Pythia6Hadronizer::setCSAParams()
-{
-      
-   call_txgive_init();
-   
-   for(std::vector<std::string>::const_iterator iter = paramCSA.begin();
-	                                        iter != paramCSA.end(); ++iter)
-   {
-      call_txgive(*iter);
-   }   
-   
-   return ;
-}
-
-void Pythia6Hadronizer::setSLHAParams()
-{
    return;
+   
 }
 
 }
