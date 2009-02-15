@@ -78,7 +78,7 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
   }
 
   static bool debug = edm::MessageDrop::instance()->debugEnabled;
-  if (debug) cout << cablingTree_->version() << endl;
+  if (debug) LogDebug("SiPixelDigiToRaw") << cablingTree_->version();
   
   PixelDataFormatter formatter(cablingTree_);
 
@@ -97,9 +97,10 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
     delete rawData;
   }
   allWordCounter += formatter.nWords();
-  if (debug) cout << "Words/Digis this ev: "<<digiCounter<<"(fm:"<<formatter.nDigis()<<")/"
+  if (debug) LogDebug("SiPixelDigiToRaw") 
+        << "Words/Digis this ev: "<<digiCounter<<"(fm:"<<formatter.nDigis()<<")/"
         <<formatter.nWords()
-       <<"  all: "<< allDigiCounter <<"/"<<allWordCounter<<endl;
+        <<"  all: "<< allDigiCounter <<"/"<<allWordCounter;
 
   
   ev.put( buffers );

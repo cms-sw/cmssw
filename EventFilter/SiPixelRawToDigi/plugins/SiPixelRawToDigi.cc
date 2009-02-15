@@ -156,11 +156,11 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
 
   if (theTimer) {
     theTimer->stop();
-    cout << "TIMING IS: (real)" << theTimer->lastMeasurement().real() << endl;
+    LogDebug("SiPixelRawToDigi") << "TIMING IS: (real)" << theTimer->lastMeasurement().real() ;
     ndigis += formatter.nDigis();
     nwords += formatter.nWords();
-    cout << " (Words/Digis) this ev: "<<formatter.nWords()<<"/"<<formatter.nDigis()
-         << "--- all :"<<nwords<<"/"<<ndigis<<endl;
+    LogDebug("SiPixelRawToDigi") << " (Words/Digis) this ev: "
+         <<formatter.nWords()<<"/"<<formatter.nDigis() << "--- all :"<<nwords<<"/"<<ndigis;
     hCPU->Fill( theTimer->lastMeasurement().real() ); 
     hDigi->Fill(formatter.nDigis());
   }
