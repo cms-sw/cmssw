@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.29 2009/02/13 14:56:32 jserrano Exp $
+# $Id: setup_sm.sh,v 1.30 2009/02/16 09:10:30 jserrano Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
@@ -57,13 +57,6 @@ modifykparams () {
     echo   256 > /proc/sys/vm/lower_zone_protection
     echo 16384 > /proc/sys/vm/min_free_kbytes
 #    echo 1 > /proc/sys/fs/xfs/error_level
-}
-
-startwantedservices () {
-    ms="~smpro/sm_scripts_cvs/operations/monitoringSar.sh";
-    if test -e $ms; then 
-        $ms >> /var/log/monitoringSar.log &
-    fi
 }
 
 startcopyworker () {
@@ -133,7 +126,6 @@ start () {
                 /sbin/multipath -F
             fi
 
-            startwantedservices
             modifykparams
             ;;
         *)
