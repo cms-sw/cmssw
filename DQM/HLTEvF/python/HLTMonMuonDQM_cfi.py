@@ -6,6 +6,12 @@ hltMonMuDQM = cms.EDAnalyzer("HLTMuonDQMSource",
     MonitorDaemon = cms.untracked.bool(True),
     reqNum = cms.uint32(1),
     DaqMonitorBEInterface = cms.untracked.bool(True),
+    filters = cms.VPSet(
+    	# L1 muon
+	cms.PSet(
+		HLTCollectionLabels = cms.string("HLT_L1Mu")
+	)
+    ),
     disableROOToutput = cms.untracked.bool(True)
 )
 

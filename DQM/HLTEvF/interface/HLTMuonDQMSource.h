@@ -5,8 +5,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/03/05 09:54:04 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/10/16 16:43:33 $
+ *  $Revision: 1.6 $
  *  \author  M. Vander Donckt CERN
  *   
  */
@@ -59,14 +59,18 @@ private:
   std::string monitorName_;
   std::string outputFile_;
   int counterEvt_;      ///counter
+  int nTrig_;		/// mutriggered events
   int prescaleEvt_;     ///every n events
   double coneSize_;
   edm::InputTag l2collectionTag_;
   edm::InputTag l2isolationTag_;
   edm::InputTag l2seedscollectionTag_;
+  edm::InputTag l3seedscollectionTag_;
   edm::InputTag l3collectionTag_;
   edm::InputTag l3isolationTag_;
   //  edm::InputTag l3linksTag_;
+
+  std::vector<std::string> theHLTCollectionLabels;
 
   // ----------member data ---------------------------
   bool verbose_;
