@@ -18,11 +18,9 @@ poolDBESSource.toGet = cms.VPSet(cms.PSet(
     )) 
 process.glbPositionSource = poolDBESSource
 
-process.source = cms.Source("EmptyIOVSource",
-    firstValue = cms.uint64(1),
-    lastValue = cms.uint64(100),
-    timetype = cms.string('runnumber'),
-    interval = cms.uint64(90)
+process.source = cms.Source("EmptySource",
+    numberEventsInRun = cms.untracked.uint32(1),
+    firstRun = cms.untracked.uint32(70680)
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -36,16 +34,16 @@ process.tzeroRef = cms.ESSource("PoolDBESSource",
     timetype = cms.string('runnumber'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('DTT0Rcd'),
-        tag = cms.string('t0_CRUZET_080507_1135'),
+        tag = cms.string('t0_CRAFT_V01_offline'),
         label = cms.untracked.string('tzeroRef')
     ), 
         cms.PSet(
             record = cms.string('DTT0Rcd'),
             tag = cms.string('t0'),
-            connect = cms.untracked.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_MUONCALIB/DTCALIB/CRUZET3/t0_47041.db'),
+            connect = cms.untracked.string('sqlite_file:/tmp/giorgia/CMSSW_3_0_0_pre6/src/DQMOffline/CalibMuon/test/t0_70195.db'),
             label = cms.untracked.string('tzeroToValidate')
         )),
-    connect = cms.string('oracle://cms_orcoff_prod/CMS_COND_20X_DT'),
+    connect = cms.string('frontier://FrontierProd/CMS_COND_30X_DT'),
     siteLocalConfig = cms.untracked.bool(False)
 )
 
@@ -75,7 +73,9 @@ process.dtT0Analyzer = cms.EDFilter("DTt0DBValidation",
     labelDBRef = cms.untracked.string('tzeroRef'),
     t0TestName = cms.untracked.string('t0DifferenceInRange'),
     OutputFileName = cms.untracked.string('MuonTestMonitoring.root'),
-    labelDB = cms.untracked.string('tzeroToValidate')
+    labelDB = cms.untracked.string('tzeroToValidate'),
+    minT0Limit = cms.untracked.int32(10),
+    maxT0Limit = cms.untracked.int32(20)
 )
 
 process.qTester = cms.EDFilter("QualityTester",
