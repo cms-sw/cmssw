@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.28 2008/11/28 09:04:23 jserrano Exp $
+# $Id: setup_sm.sh,v 1.29 2009/02/13 14:56:32 jserrano Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
@@ -90,6 +90,12 @@ startcopyworker () {
     su - cmsprod -c "NCOPYWORKER=2 $t0control start"
 }
 
+startinjectworker () {
+    su - smpro -c "$t0inject stop" >/dev/null 2>&1
+    rm -f /tmp/.20*-${hname}-*.log.lock
+    su - smpro -c "$t0inject start"
+}
+
 start () {
     case $hname in
         cmsdisk0)
@@ -155,9 +161,7 @@ start () {
     fi
 
     startcopyworker
-    su - smpro -c "$t0inject stop" >/dev/null 2>&1
-    rm -f /tmp/.20*-${hname}-*.log.lock
-    su - smpro -c "$t0inject start"
+    startinjectworker
 
     return 0;
 }
