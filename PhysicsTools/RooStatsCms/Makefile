@@ -28,4 +28,5 @@ progs:
 
 doc:
 	$(DOXYGEN) scripts/Doxygen.cfg
-
+	echo "don't forget: find /autofs/ekpwww/web/RooStatsCms/public_html | grep -v '\\.' | xargs -i chmod 755 '{}'" 
+	echo "and: find /autofs/ekpwww/web/RooStatsCms/public_html | grep '\\.' | xargs -i chmod 644 '{}'"

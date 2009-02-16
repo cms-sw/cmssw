@@ -121,7 +121,7 @@ developed and tested with Scientific Linux 4 (Intel(R) Xeon(R) CPU 5150, gcc
 \section getting_started_sec Getting started
 
 \subsection getting_sec Obtain the package
-The package can be found in the Cms Higgs Working Group CVS 
+The package can be found in the Cms PhysicsTools CVS 
 <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/
 CMSSW/PhysicsTools/RooStatsCms" target="blank">here</a>. 
 To check it out type (bash users):
@@ -168,7 +168,7 @@ tarball and type \b make. This will create a library dynamic called
 So far, so good: how can we start?
 Let's move before each example to the root dir of the RSC installation
 \verbatim
-cd [yourdir]/HiggsAnalysis/RooStatsCms
+cd [yourdir]/PhysicsTools/RooStatsCms
 \endverbatim
 Here we go.
 
