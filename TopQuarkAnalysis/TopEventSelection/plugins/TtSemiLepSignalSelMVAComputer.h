@@ -35,24 +35,18 @@ class TtSemiLepSignalSelMVAComputer : public edm::EDProducer {
   virtual void produce(edm::Event& evt, const edm::EventSetup& setup);
   virtual void endJob();
 
-  edm::InputTag leptons_;
+  double DeltaPhi(math::XYZTLorentzVector v1, math::XYZTLorentzVector v2);
+  double DeltaR(math::XYZTLorentzVector v1, math::XYZTLorentzVector v2);
+
+  edm::InputTag muons_;
   edm::InputTag jets_;
   edm::InputTag METs_;
-
-
-  unsigned int maxNJets_;
+  edm::InputTag electrons_;
 
   PhysicsTools::MVAComputerCache mvaComputer;
 
-  // compare two jets in ET
-  struct CompareJetET {
-    bool operator()( pat::Jet j1, pat::Jet j2 ) const
-    {
-      return j1.et() > j2.et();
-    }
-  };
-  CompareJetET JetETComparison;
-
+  double DiscSel;
+  
 };
 
 #endif
