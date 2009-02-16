@@ -61,7 +61,7 @@ secondCkfTrajectoryBuilder.MeasurementTrackerName = 'secondMeasurementTracker'
 secondCkfTrajectoryBuilder.trajectoryFilterName = 'MinBiasCkfTrajectoryFilter'
 
 secoTrackCandidates.TrajectoryCleaner = 'TrajectoryCleanerBySharedSeeds'
-secoTrackCandidates.SeedProducer = 'secoSeeds'
+secoTrackCandidates.src = 'secoSeeds'
 secoTrackCandidates.TrajectoryBuilder = 'secondCkfTrajectoryBuilder'
 secoTrackCandidates.RedundantSeedCleaner = 'none'
 secoTrackCandidates.doSeedingRegionRebuilding = False
