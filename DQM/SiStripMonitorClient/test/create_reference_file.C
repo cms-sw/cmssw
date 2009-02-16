@@ -6,27 +6,38 @@
 #include <TH1.h>
 #include <string>
 #include <vector>
-void parseXML(TXMLNode *node, TFile* file1, TDirectory* ts, bool flag, string store_path);
+void parseXML(TXMLNode *node, TFile* file1, TDirectory* ts, string store_path);
 void split(const string& str, vector<string>& tokens, const string& delimiters);
 void setPath(TH1* th1, string& path, TDirectory* topDir);
+bool goToDir(TDirectory* top_dir, string dname);
 
-void create_reference_file(string fname1, string fname2, string irun)
+void create_reference_file(string fname1, string fname2, string type)
 {
   TFile* file1 = new TFile(fname1.c_str());
   if (!file1) return;
 
-  bool online = false;
-  if (fname1.find("SiStripWebInterface") != string::npos) online = true;
+  // Get the path name of the required directory specified by type
+  TDirectory* td1 = dynamic_cast<TDirectory*>( file1->Get("DQMData"));
+  if (!goToDir(td1, type)) {
+    cout << " Required Directory does not exist! ";
+    return;
+  }
 
-  cout << fname1 << " " << online << endl;
+  TDirectory* rDir = gDirectory;
+  string store_path;
+  store_path = rDir->GetPath();
+  store_path += "/Run summary";
+
+  // Open the new file and create DQMData directory
+
   TFile* file2 = new TFile(fname2.c_str(), "RECREATE");
-
-  TDirectory* td =   file2->mkdir("DQMData");
-  if (!td) {
+  TDirectory* td2 =   file2->mkdir("DQMData");
+  if (!td2) {
     cout << " Can not create directory structure in " << fname2 << endl;
     return;
   }
 
+  // Create XML parser
   TDOMParser *domParser = new TDOMParser();
 
   domParser->SetValidate(false); // do not validate with DTD
@@ -36,9 +47,8 @@ void create_reference_file(string fname1, string fname2, string irun)
 
   TXMLNode *node = domParser->GetXMLDocument()->GetRootNode();
 
-  string store_path;
-  store_path = "DQMData/Run "+ irun + "/SiStrip/Run summary";
-  parseXML(node, file1, td, online, store_path);
+  parseXML(node, file1, td2, store_path);
+
 
   delete domParser;
   file1->Close();
@@ -46,7 +56,7 @@ void create_reference_file(string fname1, string fname2, string irun)
   file2->Close();
 }
 
-void parseXML(TXMLNode *node, TFile* file1, TDirectory* td, bool flag, string store_path)
+void parseXML(TXMLNode *node, TFile* file1, TDirectory* td, string store_path)
 {
   for ( ; node; node = node->GetNextNode()) {
     if (node->GetNodeType() == TXMLNode::kXMLElementNode) { // Element Node
@@ -84,7 +94,7 @@ void parseXML(TXMLNode *node, TFile* file1, TDirectory* td, bool flag, string st
       cout << "Comment: " << node->GetContent();
     }
     
-    parseXML(node->GetChildren(), file1, td, flag,store_path);
+    parseXML(node->GetChildren(), file1, td, store_path);
   }
 }
 //
@@ -131,5 +141,27 @@ void setPath(TH1* th1, string& path, TDirectory* topDir) {
     th1->SetDirectory(temp_dir);
     topDir->cd();
   }
+}
+bool goToDir(TDirectory* top_dir, string dname){
+  string dir_name = top_dir->GetTitle();
+  if (dir_name == dname) {
+    return true;
+  } else {
+
+    TIter next(top_dir->GetListOfKeys());
+    TKey *key;
+    while  ( (key = dynamic_cast<TKey*>(next())) ) {
+      string clName(key->GetClassName());
+      if (clName == "TDirectoryFile") {
+        TDirectory *curr_dir = dynamic_cast<TDirectory*>(key->ReadObj());
+        string name = curr_dir->GetName();
+        if (name == "Reference") continue;
+	curr_dir->cd();
+	if (goToDir(curr_dir, dname)) return true;
+	curr_dir->cd("..");
+      }
+    }
+  }
+  return false;
 }
 
