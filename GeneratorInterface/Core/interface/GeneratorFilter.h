@@ -24,6 +24,7 @@
 //#include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 namespace edm
 {
@@ -81,6 +82,7 @@ namespace edm
     }
 
     produces<edm::HepMCProduct>();
+    produces<GenEventInfoProduct>();
     produces<GenRunInfoProduct, edm::InRun>();
   }
 
@@ -93,14 +95,13 @@ namespace edm
   GeneratorFilter<HAD>::filter(Event& ev, EventSetup const& /* es */)
   {
     
-    std::auto_ptr<HepMCProduct> bare_product(new HepMCProduct());
-        
     // hadronizer_.generatePartons();
     // hadronizer_.hadronize();
     if ( !hadronizer_.generatePartonsAndHadronize() ) return false;
-        
-    // check gen event validity
-    if ( !hadronizer_.getGenEvent() ) return false;
+
+// some things are done internally, so don't require a complex GenEvent already
+//    // check gen event validity
+//    if ( !hadronizer_.getGenEvent() ) return false;
 
     //  this is a "fake" stuff
     // in principle, decays are done as part of full event generation,
@@ -111,7 +112,6 @@ namespace edm
     if ( !hadronizer_.decay() ) return false;
     
     HepMC::GenEvent* event = hadronizer_.getGenEvent();
-
     if( !event ) return false; 
 
     // The external decay driver is being added to the system,
@@ -121,23 +121,26 @@ namespace edm
     {
       event = decayer_->decay( event );
     }
-
     if ( !event ) return false;
-    
+
     // check and perform if there're any unstable particles after 
     // running external decay packges
     //
     hadronizer_.resetEvent( event );
     if ( !hadronizer_.residualDecay() ) return false;
-    
+
     hadronizer_.finalizeEvent();
-    
+
     event = hadronizer_.getGenEvent() ;
     if ( !event ) return false;
-    
+
+    std::auto_ptr<HepMCProduct> bare_product(new HepMCProduct());
     bare_product->addHepMCData( event );
     ev.put(bare_product);
-       
+
+    std::auto_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(event));
+    ev.put(genEventInfo);
+    
     return true;
   }
 
