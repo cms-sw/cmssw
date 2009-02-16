@@ -1,5 +1,24 @@
 #include "DQMOffline/Trigger/interface/HLTTauRefProducer.h"
-
+#include "TLorentzVector.h"
+// TAU includes
+#include "DataFormats/TauReco/interface/PFTau.h"
+#include "DataFormats/TauReco/interface/PFTauDiscriminatorByIsolation.h"
+#include "DataFormats/TauReco/interface/CaloTau.h"
+#include "DataFormats/TauReco/interface/CaloTauDiscriminatorByIsolation.h"
+// ELECTRON includes
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
+#include "AnalysisDataFormats/Egamma/interface/ElectronIDAssociation.h"
+#include "AnalysisDataFormats/Egamma/interface/ElectronID.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+// MUON includes
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "TLorentzVector.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 
 
@@ -38,10 +57,6 @@ HLTTauRefProducer::HLTTauRefProducer(const edm::ParameterSet& iConfig)
   e_minIsoDR_= electrons.getUntrackedParameter<double>("InnerConeDR",0.02);
   e_maxIsoDR_= electrons.getUntrackedParameter<double>("OuterConeDR",0.6);
   e_isoMaxSumPt_= electrons.getUntrackedParameter<double>("MaxIsoVar",0.02);
-  doElecFromZ_=electrons.getUntrackedParameter<bool>("doElecFromZ",false);
-  e_zMmin_= electrons.getUntrackedParameter<double>("MinZwindow",70);
-  e_zMmax_= electrons.getUntrackedParameter<double>("MaxZwindow",110);
-  e_FromZet_ = electrons.getUntrackedParameter<double>("ElecEtFromZcut",15);
 
   ParameterSet  muons = iConfig.getUntrackedParameter<edm::ParameterSet>("Muons");
   Muons_ = muons.getUntrackedParameter<InputTag>("MuonCollection");
@@ -60,7 +75,6 @@ HLTTauRefProducer::HLTTauRefProducer(const edm::ParameterSet& iConfig)
   produces<LorentzVectorCollection>("PFTaus");
   produces<LorentzVectorCollection>("CaloTaus");
   produces<LorentzVectorCollection>("Electrons");
-  produces<LorentzVectorCollection>("ElectronsFromZ");
   produces<LorentzVectorCollection>("Muons");
   produces<LorentzVectorCollection>("Jets");
 
@@ -74,7 +88,7 @@ void HLTTauRefProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
     doPFTaus(iEvent,iES);
   if(doCaloTaus_)
     doCaloTaus(iEvent,iES);
-  if(doElectrons_||doElecFromZ_)
+  if(doElectrons_)
     doElectrons(iEvent,iES);
   if(doMuons_)
     doMuons(iEvent,iES);
@@ -143,22 +157,27 @@ HLTTauRefProducer::doCaloTaus(edm::Event& iEvent,const edm::EventSetup& iES)
      
 }
 
+
 void 
 HLTTauRefProducer::doElectrons(edm::Event& iEvent,const edm::EventSetup& iES)
 {
   auto_ptr<LorentzVectorCollection> product_Electrons(new LorentzVectorCollection);
   //Retrieve the collections
-  edm::Handle<edm::ValueMap<float> > pEleID;
-  iEvent.getByLabel(e_idAssocProd_,pEleID);
-  if (!pEleID.isValid()){
-    edm::LogInfo("")<< "Error! Can't get electronID by label. ";
-  }
   
+  edm::Handle<reco::ElectronIDAssociationCollection> pEleID;
+  if(e_doID_){//UGLY HACK UNTIL GET ELETRON ID WORKING IN 210
+   
+      iEvent.getByLabel(e_idAssocProd_,pEleID);
+    
+    if (!pEleID.isValid()){
+      edm::LogInfo("")<< "Error! Can't get electronIDAssocProducer by label. ";
+    }
+  }
   edm::Handle<reco::TrackCollection> pCtfTracks;
   iEvent.getByLabel(e_ctfTrackCollection_, pCtfTracks);
   if (!pCtfTracks.isValid()) {
-    edm::LogInfo("")<< "Error! Can't get " << e_ctfTrackCollection_.label() << " by label. ";
-    return;
+  edm::LogInfo("")<< "Error! Can't get " << e_ctfTrackCollection_.label() << " by label. ";
+  return;
   }
   const reco::TrackCollection * ctfTracks = pCtfTracks.product();
   edm::Handle<GsfElectronCollection> electrons;
@@ -166,18 +185,38 @@ HLTTauRefProducer::doElectrons(edm::Event& iEvent,const edm::EventSetup& iES)
     for(size_t i=0;i<electrons->size();++i)
       {
 	edm::Ref<reco::GsfElectronCollection> electronRef(electrons,i);
-	float idDec=0.;
+	bool idDec=false;
 	if(e_doID_){
-	  idDec=(*pEleID)[electronRef];
-	}else idDec=1.;
+	  reco::ElectronIDAssociationCollection::const_iterator tagIDAssocItr;
+	  tagIDAssocItr = pEleID->find(electronRef);
+	  const reco::ElectronIDRef& id_tag = tagIDAssocItr->val;
+	  idDec=id_tag->cutBasedDecision();
+	}else idDec=true;
 	if((*electrons)[i].pt()>ptMinElectron_&&fabs((*electrons)[i].eta())<etaMax&&idDec)
 	  {
 	    if(e_doTrackIso_){
-	      double isolation_value_ele = ElectronTrkIsolation(ctfTracks,(*electrons)[i]);
+	      reco::TrackCollection::const_iterator tr = ctfTracks->begin();
+	      double sum_of_pt_ele=0;
+	      for(;tr != ctfTracks->end();++tr)
+		{
+		  double lip = (*electrons)[i].gsfTrack()->dz() - tr->dz();
+		  if(tr->pt() > e_trackMinPt_ && fabs(lip) < e_lipCut_){
+		    double dphi=fabs(tr->phi()-(*electrons)[i].trackMomentumAtVtx().phi());
+		    if(dphi>acos(-1.))dphi=2*acos(-1.)-dphi;
+		    double deta=fabs(tr->eta()-(*electrons)[i].trackMomentumAtVtx().eta());
+		    double dr_ctf_ele = sqrt(deta*deta+dphi*dphi);
+		    if((dr_ctf_ele>e_minIsoDR_) && (dr_ctf_ele<e_maxIsoDR_)){
+		      double cft_pt_2 = (tr->pt())*(tr->pt());
+		      sum_of_pt_ele += cft_pt_2;
+		    }
+		  }
+		}
+	      double isolation_value_ele = sum_of_pt_ele/((*electrons)[i].trackMomentumAtVtx().Rho()*(*electrons)[i].trackMomentumAtVtx().Rho());
 	      if(isolation_value_ele<e_isoMaxSumPt_){
 		LorentzVector vec((*electrons)[i].px(),(*electrons)[i].py(),(*electrons)[i].pz(),(*electrons)[i].energy());
 		product_Electrons->push_back(vec);
 	      } 
+	      
 	    }
 	    else{ 
 	      LorentzVector vec((*electrons)[i].px(),(*electrons)[i].py(),(*electrons)[i].pz(),(*electrons)[i].energy());
@@ -186,52 +225,7 @@ HLTTauRefProducer::doElectrons(edm::Event& iEvent,const edm::EventSetup& iES)
 	  }
       }
   
-  if(doElecFromZ_)
-    doElectronsFromZ(iEvent,iES,product_Electrons);
-  
-  else iEvent.put(product_Electrons,"Electrons");
-}
-
-void 
-HLTTauRefProducer::doElectronsFromZ(edm::Event& iEvent,const edm::EventSetup& iES,
-				    auto_ptr<LorentzVectorCollection>& product_Electrons)
-{
-  auto_ptr<LorentzVectorCollection> product_ElectronsFromZ(new LorentzVectorCollection);
-  if(product_Electrons->size()==2)
-    {
-      LorentzVector e1=product_Electrons->at(0);
-      LorentzVector e2=product_Electrons->at(1);
-      if((e1+e2).M()>e_zMmin_ && (e1+e2).M()<e_zMmax_
-	 && e1.Et()>e_FromZet_ && e2.Et()>e_FromZet_){
-	product_ElectronsFromZ->push_back(e1);
-	product_ElectronsFromZ->push_back(e2);
-      }
-    }
-  iEvent.put(product_ElectronsFromZ,"ElectronsFromZ"); 
-}
-
-
-double 
-HLTTauRefProducer::ElectronTrkIsolation(const reco::TrackCollection* ctfTracks,const GsfElectron& electron)
-{
-  reco::TrackCollection::const_iterator tr = ctfTracks->begin();
-  double sum_of_pt_ele=0;
-  for(;tr != ctfTracks->end();++tr)
-    {
-      double lip = electron.gsfTrack()->dz() - tr->dz();
-      if(tr->pt() > e_trackMinPt_ && fabs(lip) < e_lipCut_){
-	double dphi=fabs(tr->phi()-electron.trackMomentumAtVtx().phi());
-	if(dphi>acos(-1.))dphi=2*acos(-1.)-dphi;
-	double deta=fabs(tr->eta()-electron.trackMomentumAtVtx().eta());
-	double dr_ctf_ele = sqrt(deta*deta+dphi*dphi);
-	if((dr_ctf_ele>e_minIsoDR_) && (dr_ctf_ele<e_maxIsoDR_)){
-	  double cft_pt_2 = (tr->pt())*(tr->pt());
-	  sum_of_pt_ele += cft_pt_2;
-	}
-      }
-    }
-  double isolation_value_ele = sum_of_pt_ele/(electron.trackMomentumAtVtx().Rho()*electron.trackMomentumAtVtx().Rho());
-  return isolation_value_ele;
+  iEvent.put(product_Electrons,"Electrons"); 
 }
 
 void 

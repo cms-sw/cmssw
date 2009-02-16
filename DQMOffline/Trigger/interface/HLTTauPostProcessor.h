@@ -1,62 +1,59 @@
-#ifndef DQMOffline_Trigger_HLTTauPostProcessor_h
-#define DQMOffline_Trigger_HLTTauPostProcessor_h
-
-
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
+/*DQM For Tau HLT
+Author : Michail Bachtis
+University of Wisconsin-Madison
+bachtis@hep.wisc.edu
+*/
+ 
+#include <memory>
+#include <unistd.h>
+#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-//DQM services
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-
-#include <iostream>
-#include <stdlib.h>
-#include <string>
-#include <memory>
-#include <vector>
-
-class HLTTauPostProcessor : public edm::EDAnalyzer
-{
-  
- public:
-
-  explicit HLTTauPostProcessor(const edm::ParameterSet&);
-  virtual ~HLTTauPostProcessor();
-  virtual void beginJob(const edm::EventSetup&);
-  virtual void endJob();  
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void endRun(const edm::Run&, const edm::EventSetup&);
+#include "DQM/HLTEvF/interface/HLTTauDQMSummaryPlotter.h"
 
 
-  
- private:
-  void createEfficiencyHisto(std::string,std::string,std::string ,std::string ,DQMStore*);
-  void createIntegratedHisto(std::string ,std::string ,std::string ,int ,DQMStore* );
-  void calculatePathEfficiencies(std::string folder,std::string histo,DQMStore*dbe);
-  std::vector<double> calcEfficiency(float,float);
+class HLTTauPostProcessor : public edm::EDAnalyzer {
+public:
+  HLTTauPostProcessor( const edm::ParameterSet& );
+  ~HLTTauPostProcessor();
 
-  DQMStore *dbe;
-  
-  //Input Folders
-  std::vector<std::string> L1Folder_;
-  std::vector<std::string> L2Folder_;
-  std::vector<std::string> L25Folder_;
-  std::vector<std::string> L3Folder_;
+protected:
+   
+  /// BeginJob
+  void beginJob(const edm::EventSetup& c);
 
-  //Path Validation Folder
-  std::vector<std::string> pathValFolder_;
+  /// BeginRun
+  void beginRun(const edm::Run& r, const edm::EventSetup& c);
 
-  //Offline DQM Path Comparison Folder
-  std::vector<std::string> pathDQMFolder_;
+  /// Fake Analyze
+  void analyze(const edm::Event& e, const edm::EventSetup& c) ;
+
+  ///Luminosity Block 
+  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+                            const edm::EventSetup& context) ;
+  /// DQM Client Diagnostic
+  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+                          const edm::EventSetup& c);
+  /// EndRun
+  void endRun(const edm::Run& r, const edm::EventSetup& c);
+
+  /// Endjob
+  void endJob();
+
+
+
+private:
+  DQMStore* dbe_;  
+  edm::ParameterSet config_;
+
 
 };
+//#endif
 
-#endif
+

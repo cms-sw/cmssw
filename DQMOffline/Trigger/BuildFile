@@ -20,6 +20,7 @@
 <use name=HLTrigger/HLTcore>
 <use name=CondFormats/L1TObjects>
 <use name=CondFormats/DataRecord>
+<use name=DQM/HLTEvF>
 <use name=root>
 <use name=boost>
 <flags EDM_PLUGIN=1>

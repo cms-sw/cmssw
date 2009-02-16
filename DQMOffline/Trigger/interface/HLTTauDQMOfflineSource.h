@@ -1,12 +1,10 @@
-#ifndef HLTTauDQMOfflineSource_H
-#define HLTTauDQMOfflineSource_H
-
-/*Offline DQM For Tau HLT
+/*Offlone DQM For Tau HLT
 Author : Michail Bachtis
 University of Wisconsin-Madison
 bachtis@hep.wisc.edu
 */
 
+ 
 #include <memory>
 #include <unistd.h>
 #include <FWCore/Framework/interface/EDAnalyzer.h>
@@ -19,13 +17,19 @@ bachtis@hep.wisc.edu
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+//Plotters
+#include "DQM/HLTEvF/interface/HLTTauDQML1Plotter.h"
+#include "DQM/HLTEvF/interface/HLTTauDQMCaloPlotter.h"
+#include "DQM/HLTEvF/interface/HLTTauDQMTrkPlotter.h"
+#include "DQM/HLTEvF/interface/HLTTauDQMPathPlotter.h"
+#include "DQM/HLTEvF/interface/HLTTauDQMLitePathPlotter.h"
 
-
+//
+// class declaration
+//
 
 typedef math::XYZTLorentzVectorD LV;
 typedef std::vector<LV> LVColl;
-
 
 class HLTTauDQMOfflineSource : public edm::EDAnalyzer {
 public:
@@ -43,13 +47,12 @@ protected:
   /// Fake Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) ;
 
+  ///Luminosity Block 
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
                             const edm::EventSetup& context) ;
-
   /// DQM Client Diagnostic
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
                           const edm::EventSetup& c);
-
   /// EndRun
   void endRun(const edm::Run& r, const edm::EventSetup& c);
 
@@ -60,68 +63,39 @@ protected:
 
 private:
   DQMStore* dbe_;  
+  std::vector<edm::ParameterSet> config_;
+  std::vector<std::string> configType_;
 
-  /* GENERAL DQM PATH */
-  
-  //Set the Monitor Parameters
-  std::string mainFolder_; //main DQM Folder
-  std::string monitorName_;///Monitor name
-  std::string outputFile_;///OutputFile
+  //Reference
+  bool doRefAnalysis_;
+  int NPtBins_;
+  int NEtaBins_;
+  int NPhiBins_;
+  double EtMax_;
+  double L1MatchDr_;
+  double HLTMatchDr_;
 
+
+  std::vector<edm::InputTag> refObjects_;
+
+
+  //  edm::InputTag refFilter2_;
+  //  int refID2_;
+  //  double ptThres2_;
+
+
+  //DQM Prescaler
   int counterEvt_;      ///counter
   int prescaleEvt_;     ///every n events 
-  bool disable_;        ///disable
-  bool verbose_;        //verbose  
 
-  unsigned  nTriggeredTaus_; //Number of Taus required by the Trigger
-  unsigned  nTriggeredLeptons_; //Number of Taus required by the Trigger
-  int leptonPdgID_;
-  int tauPdgID_;
-
-  //Trigger Event Object
+  //get The trigger Event
   edm::InputTag triggerEvent_;
-  
 
-  //Tau Paths
-  edm::InputTag mainPath_;
-  edm::InputTag l1BackupPath_;
-  edm::InputTag l2BackupPath_;
-  edm::InputTag l25BackupPath_;
-  edm::InputTag l3BackupPath_;
-
-  //Correlations with other Objects
-  edm::InputTag refTauObjects_; //Reference object collections for Taus
-  edm::InputTag refLeptonObjects_; //Reference object collections for Leptons
-  double corrDeltaR_; // Delta R to match to offline
-
-
-
-  //Et Histogram Limits
-  double EtMin_;
-  double EtMax_;
-  int NEtBins_;
-  int NEtaBins_;
-
-
-  //Number of reference objects
-  int NRefEvents; //Reference Reco events
-
-   
-  //Path Monitoring
-  MonitorElement* EventsPassed_;
-  MonitorElement* EventsPassedMatched_;
-  MonitorElement* EventsPassedNotMatched_;
-  MonitorElement* EventsRef_;
-
-  //Turn On Curves
-
-
-
-  bool match(const LV&,const LVColl& ,double);
-  LVColl importFilterColl(edm::InputTag& filter,int pdgID,const edm::Event& iEvent);
- 
-
+  //Define Dummy vectors of Plotters
+  std::vector<HLTTauDQML1Plotter> l1Plotters;
+  std::vector<HLTTauDQMCaloPlotter> caloPlotters;
+  std::vector<HLTTauDQMTrkPlotter> trackPlotters; 
+  std::vector<HLTTauDQMPathPlotter> pathPlotters;
+  std::vector<HLTTauDQMLitePathPlotter> litePathPlotters;
 };
-
-#endif
 
