@@ -39,7 +39,7 @@ namespace cond {
     typedef DataWrapper<value_type> self;
  
     
-    explicit DataWrapper(Object * obj) : m_data(obj){}
+    explicit DataWrapper(Object * obj=0) : m_data(obj){}
 
     virtual ~DataWrapper() {
       if (m_data.isLoaded()) delete m_data.get();
@@ -72,7 +72,7 @@ namespace cond {
     typedef DataAndSummaryWrapper<value_type, summary_type> self;
     
     
-    DataAndSummaryWrapper(Object * obj, Summary * sum) :
+    DataAndSummaryWrapper(Object * obj=0, Summary * sum=0) :
       ObjectWrapper(obj), m_summary(sum){}
 
     virtual ~DataAndSummaryWrapper() {
