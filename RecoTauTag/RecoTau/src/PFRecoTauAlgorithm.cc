@@ -156,12 +156,16 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
        double deltaRToSeed = TauTagTools::computeDeltaR(myleadPFCand->momentum(), (**iCand).momentum());
        if (deltaRToSeed > jetOpeningAngle)
           jetOpeningAngle = deltaRToSeed;
-
+       
        tmpLorentzVect+=(**iCand).p4();
     }
-
+    
+    //Setting the myPFTau four momentum as the one made from the signal cone constituents.
+ 
     double energy = tmpLorentzVect.energy();
     double transverseEnergy = tmpLorentzVect.pt();
+    myPFTau.setP4(tmpLorentzVect);
+
     //    Taking  signal and isolation cone sizes
     double myTrackerSignalConeSize = myPFTauElementsOperators.computeConeSize(myTrackerSignalConeSizeTFormula , TrackerSignalConeSize_min_ , TrackerSignalConeSize_max_ , transverseEnergy , energy, jetOpeningAngle);
     double myTrackerIsolConeSize   = myPFTauElementsOperators.computeConeSize(myTrackerIsolConeSizeTFormula   , TrackerIsolConeSize_min_   , TrackerIsolConeSize_max_   , transverseEnergy , energy, jetOpeningAngle);
@@ -172,16 +176,16 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
     
     //Taking signal PFCandidates
     PFCandidateRefVector mySignalPFChargedHadrCands,mySignalPFNeutrHadrCands,mySignalPFGammaCands,mySignalPFCands;
-    if (UseChargedHadrCandLeadChargedHadrCand_tksDZconstraint_ && myleadPFCand_rectkavailable) mySignalPFChargedHadrCands=myPFTauElementsOperators.PFChargedHadrCandsInCone((*myleadPFCand).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,ChargedHadrCand_minPt_,ChargedHadrCandLeadChargedHadrCand_tksmaxDZ_,myleadPFCand_rectkDZ);
+    if (UseChargedHadrCandLeadChargedHadrCand_tksDZconstraint_ && myleadPFCand_rectkavailable) mySignalPFChargedHadrCands=myPFTauElementsOperators.PFChargedHadrCandsInCone(myPFTau.momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,ChargedHadrCand_minPt_,ChargedHadrCandLeadChargedHadrCand_tksmaxDZ_,myleadPFCand_rectkDZ);
 
-    else mySignalPFChargedHadrCands=myPFTauElementsOperators.PFChargedHadrCandsInCone((*myleadPFCand).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,ChargedHadrCand_minPt_);
+    else mySignalPFChargedHadrCands=myPFTauElementsOperators.PFChargedHadrCandsInCone(myPFTau.momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,ChargedHadrCand_minPt_);
 
     myPFTau.setsignalPFChargedHadrCands(mySignalPFChargedHadrCands);
 
-    mySignalPFNeutrHadrCands=myPFTauElementsOperators.PFNeutrHadrCandsInCone((*myleadPFCand).momentum(),HCALSignalConeMetric_,myHCALSignalConeSize,NeutrHadrCand_minPt_);
+    mySignalPFNeutrHadrCands=myPFTauElementsOperators.PFNeutrHadrCandsInCone(myPFTau.momentum(),HCALSignalConeMetric_,myHCALSignalConeSize,NeutrHadrCand_minPt_);
     myPFTau.setsignalPFNeutrHadrCands(mySignalPFNeutrHadrCands);
 
-    mySignalPFGammaCands=myPFTauElementsOperators.PFGammaCandsInCone((*myleadPFCand).momentum(),ECALSignalConeMetric_,myECALSignalConeSize,GammaCand_minPt_);
+    mySignalPFGammaCands=myPFTauElementsOperators.PFGammaCandsInCone(myPFTau.momentum(),ECALSignalConeMetric_,myECALSignalConeSize,GammaCand_minPt_);
     myPFTau.setsignalPFGammaCands(mySignalPFGammaCands);
     
     //Add charged objects to signal cone, and calculate charge
@@ -203,18 +207,18 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
     //Filter candidates by DZ constraint
     PFCandidateRefVector myUnfilteredIsolPFChargedHadrCands,myIsolPFNeutrHadrCands,myIsolPFGammaCands,myIsolPFCands;
     if (UseChargedHadrCandLeadChargedHadrCand_tksDZconstraint_ && myleadPFCand_rectkavailable) 
-       myUnfilteredIsolPFChargedHadrCands=myPFTauElementsOperators.PFChargedHadrCandsInAnnulus((*myleadPFCand).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,TrackerIsolConeMetric_,myTrackerIsolConeSize,ChargedHadrCand_minPt_,ChargedHadrCandLeadChargedHadrCand_tksmaxDZ_,myleadPFCand_rectkDZ);
+       myUnfilteredIsolPFChargedHadrCands=myPFTauElementsOperators.PFChargedHadrCandsInAnnulus(myPFTau.momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,TrackerIsolConeMetric_,myTrackerIsolConeSize,ChargedHadrCand_minPt_,ChargedHadrCandLeadChargedHadrCand_tksmaxDZ_,myleadPFCand_rectkDZ);
     else 
-       myUnfilteredIsolPFChargedHadrCands=myPFTauElementsOperators.PFChargedHadrCandsInAnnulus((*myleadPFCand).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,TrackerIsolConeMetric_,myTrackerIsolConeSize,ChargedHadrCand_minPt_);
+       myUnfilteredIsolPFChargedHadrCands=myPFTauElementsOperators.PFChargedHadrCandsInAnnulus(myPFTau.momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,TrackerIsolConeMetric_,myTrackerIsolConeSize,ChargedHadrCand_minPt_);
 
     // filter isolation annulus with additional nHits quality cut (note that other cuts [pt, chi2, are already cut on])
     PFCandidateRefVector myIsolPFChargedHadrCands;
     myIsolPFChargedHadrCands = TauTagTools::filteredPFChargedHadrCandsByNumTrkHits(myUnfilteredIsolPFChargedHadrCands, ChargedHadrCand_IsolAnnulus_minNhits_); 
     myPFTau.setisolationPFChargedHadrCands(myIsolPFChargedHadrCands);
 
-    myIsolPFNeutrHadrCands=myPFTauElementsOperators.PFNeutrHadrCandsInAnnulus((*myleadPFCand).momentum(),HCALSignalConeMetric_,myHCALSignalConeSize,HCALIsolConeMetric_,myHCALIsolConeSize,NeutrHadrCand_minPt_);
+    myIsolPFNeutrHadrCands=myPFTauElementsOperators.PFNeutrHadrCandsInAnnulus(myPFTau.momentum(),HCALSignalConeMetric_,myHCALSignalConeSize,HCALIsolConeMetric_,myHCALIsolConeSize,NeutrHadrCand_minPt_);
     myPFTau.setisolationPFNeutrHadrCands(myIsolPFNeutrHadrCands);
-    myIsolPFGammaCands=myPFTauElementsOperators.PFGammaCandsInAnnulus((*myleadPFCand).momentum(),ECALSignalConeMetric_,myECALSignalConeSize,ECALIsolConeMetric_,myECALIsolConeSize,GammaCand_minPt_);  
+    myIsolPFGammaCands=myPFTauElementsOperators.PFGammaCandsInAnnulus(myPFTau.momentum(),ECALSignalConeMetric_,myECALSignalConeSize,ECALIsolConeMetric_,myECALIsolConeSize,GammaCand_minPt_);  
     myPFTau.setisolationPFGammaCands(myIsolPFGammaCands);
 
     //Fill isolation collections, and calculate pt sum in isolation cone
