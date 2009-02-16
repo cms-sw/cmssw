@@ -44,6 +44,12 @@ namespace cscdqm {
     return false;
   }
 
+  /**
+   * @brief  Get EMU MO on Histogram Id
+   * @param  id Histogram identifier
+   * @param  mo Monitoring Object to return
+   * @return true if MO was found in cache and false otherwise
+   */
   const bool Cache::getEMU(const HistoId& id, MonitorObject*& mo) {
     if (data[id]) {
       mo = data[id];
@@ -52,8 +58,16 @@ namespace cscdqm {
     return false;
   }
 
+  /**
+   * @brief  Get DDU MO on Histogram Id and DDU Id
+   * @param  id Histogram identifier
+   * @param  dduId DDU identifier
+   * @param  mo Monitoring Object to return
+   * @return true if MO was found in cache and false otherwise
+   */
   const bool Cache::getDDU(const HistoId& id, const HwId& dduId, MonitorObject*& mo) {
 
+    /** If not cached (last DDU) - find DDU */
     if (dduPointerValue != dduId) {
       dduPointer = dduData.find(dduId);
       if (dduPointer == dduData.end()) {
@@ -63,6 +77,7 @@ namespace cscdqm {
       dduPointerValue  = dduId;
     } 
 
+    /** Get MO from static array */
     if (dduPointer->second[id]) {
       mo = dduPointer->second[id];
       return true;
@@ -71,12 +86,22 @@ namespace cscdqm {
 
   }
 
+  /**
+   * @brief  Get CSC MO on Histogram Id and CSC Crate and DMB Ids
+   * @param  id Histogram identifier
+   * @param  crateId CSC Crate identifier
+   * @param  dmbId CSC DMB identifier
+   * @param  mo Monitoring Object to return
+   * @return true if MO was found in cache and false otherwise
+   */
   const bool Cache::getCSC(const HistoId& id, const HwId& crateId, const HwId& dmbId, const HwId& addId, MonitorObject*& mo) {
 
+    /** If not cached (last CSC) - find CSC */
     if (cscPointer == cscData.end() || cscPointer->crateId != crateId || cscPointer->dmbId != dmbId) {
       cscPointer = cscData.find(boost::make_tuple(crateId, dmbId));
     }
 
+    /** Get Monitor object from multi_index List */
     if (cscPointer != cscData.end()) {
       CSCHistoMapType::const_iterator hit = cscPointer->mos.find(boost::make_tuple(id, addId));
       if (hit != cscPointer->mos.end()) {
@@ -87,6 +112,12 @@ namespace cscdqm {
     return false;
   }
 
+  /**
+   * @brief  Get Parameter MO on Histogram Id
+   * @param  id Histogram identifier
+   * @param  mo Monitoring Object to return
+   * @return true if MO was found in cache and false otherwise
+   */
   const bool Cache::getPar(const HistoId& id, MonitorObject*& mo) {
     if (data[id]) {
       mo = data[id];
@@ -97,7 +128,7 @@ namespace cscdqm {
 
   /**
    * @brief  Put Monitoring Object into cache
-   * @param  histo Histogram Definition (to be used to generate cache key)
+   * @param  histo Histogram Definition
    * @param  mo Monitoring Object to put
    * @return
    */
@@ -105,10 +136,12 @@ namespace cscdqm {
 
     HistoId id = histo.getId();
 
+    /** EMU MO */
     if (typeid(histo) == EMUHistoDefT) {
       data[id] = mo;
     } else
 
+    /** DDU MO */
     if (typeid(histo) == DDUHistoDefT) {
 
       HwId dduId = histo.getDDUId();
@@ -128,6 +161,7 @@ namespace cscdqm {
 
     } else
 
+    /** CSC MO */
     if (typeid(histo) == CSCHistoDefT) {
 
       HwId crateId = histo.getCrateId();
@@ -149,12 +183,20 @@ namespace cscdqm {
 
     } else
 
+    /** Parameter MO */
     if (typeid(histo) == ParHistoDefT) {
       data[id] = mo;
     }
 
   }
 
+  /**
+   * @brief  Iterator to get booked CSC identifiers on enumerator
+   * @param  n iterator (0 and up)
+   * @param  crateId CSC Crate Id returned
+   * @param  dmbId CSC DMB Id returned
+   * @return true if CSC on n found, false - otherwise
+   */
   const bool Cache::nextBookedCSC(unsigned int& n, unsigned int& crateId, unsigned int& dmbId) const {
     if (n < cscData.size()) {
       CSCMapType::const_iterator iter = cscData.begin();
@@ -167,6 +209,12 @@ namespace cscdqm {
     return false;
   }
 
+  /**
+   * @brief  Iterator to get booked DDU identifier on enumerator
+   * @param  n iterator (0 and up)
+   * @param  dduId DDU Id returned
+   * @return true if DDU on n found, false - otherwise
+   */
   const bool Cache::nextBookedDDU(unsigned int& n, unsigned int& dduId) const {
     if (n < dduData.size()) {
       DDUMapType::const_iterator iter = dduData.begin();
@@ -178,6 +226,12 @@ namespace cscdqm {
     return false;
   }
 
+  /**
+   * @brief  Check if CSC was booked on given identifiers 
+   * @param  crateId CSC Crate Id
+   * @param  dmbId CSC DMB Id
+   * @return true if CSC was booked, false - otherwise
+   */
   const bool Cache::isBookedCSC(const HwId& crateId, const HwId& dmbId) const {
     CSCMapType::const_iterator it = cscData.find(boost::make_tuple(crateId, dmbId));
     if (it != cscData.end()) {
@@ -186,6 +240,11 @@ namespace cscdqm {
     return false;
   }
 
+  /**
+   * @brief  Check if DDU was booked on given identifier 
+   * @param  dduId DDU Id
+   * @return true if DDU was booked, false - otherwise
+   */
   const bool Cache::isBookedDDU(const HwId& dduId) const {
     DDUMapType::const_iterator iter = dduData.find(dduId);
     return (iter != dduData.end());

@@ -20,56 +20,56 @@
 
 namespace cscdqm {
 
+  /**
+   * @brief  Constructor.
+   * @param  p_config Pointer to Global Configuration
+   * @param  p_provider Pointer to MonitorObjectProvider
+   * @return 
+   */
   Dispatcher::Dispatcher(Configuration* const p_config, MonitorObjectProvider* p_provider) : 
   collection(p_config), processor(p_config), processorFract(p_config) {
 
+    /** Save pointers to class properties */
     config = p_config;
     provider = p_provider;
 
-    config->fnGetHisto = boost::bind(&Dispatcher::getHisto, this, _1, _2);
+    /** Link/share Cache methods to function pointers in configuration */
     config->fnGetCacheEMUHisto = boost::bind(&Cache::getEMU, &cache, _1, _2);
     config->fnGetCacheDDUHisto = boost::bind(&Cache::getDDU, &cache, _1, _2, _3);
     config->fnGetCacheCSCHisto = boost::bind(&Cache::getCSC, &cache, _1, _2, _3, _4, _5);
     config->fnGetCacheParHisto = boost::bind(&Cache::getPar, &cache, _1, _2);
     config->fnPutHisto = boost::bind(&Cache::put, &cache, _1, _2);
-    config->fnBook = boost::bind(&MonitorObjectProvider::bookMonitorObject, provider, _1);
-    config->fnGetCSCDetId = boost::bind(&MonitorObjectProvider::getCSCDetId, provider, _1, _2);
     config->fnNextBookedCSC = boost::bind(&Cache::nextBookedCSC, &cache, _1, _2, _3);
     config->fnIsBookedCSC = boost::bind(&Cache::isBookedCSC, &cache, _1, _2);
     config->fnIsBookedDDU = boost::bind(&Cache::isBookedDDU, &cache, _1);
 
-    fnUpdate = boost::bind(&EventProcessorMutex::updateFractionAndEfficiencyHistos, &processorFract);
+    /** Link/share local functions */
+    config->fnGetHisto = boost::bind(&Dispatcher::getHisto, this, _1, _2);
+
+    /** Link/share getCSCDetId function */
+    config->fnGetCSCDetId = boost::bind(&MonitorObjectProvider::getCSCDetId, provider, _1, _2);
+
+    /** Link/share booking function */
+    config->fnBook = boost::bind(&MonitorObjectProvider::bookMonitorObject, provider, _1);
 
   }
 
+  /**
+   * @brief  Initialize Dispatcher: book histograms, init processor, etc.
+   * @return 
+   */
   void Dispatcher::init() {
     collection.bookEMUHistos();
     processor.init();
   }
 
-  void EventProcessorMutex::updateFractionAndEfficiencyHistos() {
-    lock();
-
-    config->updateFraTimer(true);
-    processor.updateFractionHistos();
-    config->updateFraTimer(false);
-
-    if (config->getPROCESS_EFF_HISTOS()) {
-
-      config->updateEffTimer(true);
-      processor.updateEfficiencyHistos();
-      config->updateEffTimer(false);
-
-    }
-    unlock();
-  }
-
+  /**
+   * @brief  Global get MO function. If request has reached this function it means that histo is not in cache!
+   * @param  histoD Histogram Definition to get
+   * @param  me MO to return
+   * @return true if me found and filled, false - otherwise
+   */
   const bool Dispatcher::getHisto(const HistoDef& histoD, MonitorObject*& me) {
-
-    //Look at the cache - if found - return it 
-    //if (cache.get(histoD, me)) return true;
-
-    //LOG_DEBUG << "DISPATCHER: need to book histo on " << histoD;
 
     //For the first DDU - book general
     if (typeid(histoD) == DDUHistoDefT && !cache.isBookedDDU(histoD.getDDUId())) {
@@ -79,14 +79,11 @@ namespace cscdqm {
 
     //For the first and specific CSCs - book general and specific
     if (typeid(histoD) == CSCHistoDefT) {
-      //LOG_DEBUG << "DISPATCHER: looking for " << cscId;
       if (!cache.isBookedCSC(histoD.getCrateId(), histoD.getDMBId())) {
         collection.bookCSCHistos(histoD.getCrateId(), histoD.getDMBId());
-        //LOG_DEBUG << "DISPATCHER: booked histos for " << cscId;
         //cache.printContent();
       }
       if (collection.isOnDemand(histoD.getHistoName())) {
-        //LOG_DEBUG << "DISPATCHER: booking on demand " << histoD;
         collection.bookCSCHistos(histoD.getId(), histoD.getCrateId(), histoD.getDMBId(), histoD.getAddId());
       }
       if (cache.get(histoD, me)) return true;
@@ -106,6 +103,10 @@ namespace cscdqm {
     return false;
   }
 
+  /**
+   * @brief  Automatically called fraction and efficiency MOs update function
+   * @return 
+   */
   void Dispatcher::updateFractionAndEfficiencyHistosAuto() {
     if ( config->getFRAEFF_AUTO_UPDATE() &&
         (config->getNEventsCSC() >= config->getFRAEFF_AUTO_UPDATE_START()) &&
@@ -114,18 +115,31 @@ namespace cscdqm {
     }
   }
 
+  /**
+   * @brief  On demand update fraction and efficiency MOs
+   * @return 
+   */
   void Dispatcher::updateFractionAndEfficiencyHistos() {
     if (!processorFract.isLockedByOther()) {
       if (config->getFRAEFF_SEPARATE_THREAD()) { 
+        boost::function<void ()> fnUpdate = boost::bind(&EventProcessorMutex::updateFractionAndEfficiencyHistos, &processorFract);
         threads.create_thread(boost::ref(fnUpdate));
       } else {
-        fnUpdate();
+        processorFract.updateFractionAndEfficiencyHistos();
       }
     }
   }
 
 #ifdef DQMLOCAL
 
+  /**
+   * @brief  Process event (Local DQM)
+   * @param  data Event Data buffer
+   * @param  dataSize Event Data buffer size
+   * @param  errorStat Error status received by reading DAQ buffer
+   * @param  nodeNumber DAQ node number
+   * @return 
+   */
   void Dispatcher::processEvent(const char* data, const int32_t dataSize, const uint32_t errorStat, const int32_t nodeNumber) {
     config->eventProcessTimer(true);
     processor.processEvent(data, dataSize, errorStat, nodeNumber);
@@ -137,6 +151,12 @@ namespace cscdqm {
 
 #ifdef DQMGLOBAL
 
+  /**
+   * @brief  Process event (Global DQM)
+   * @param  e Event object
+   * @param  inputTag Tag to search Event Data in
+   * @return 
+   */
   void Dispatcher::processEvent(const edm::Event& e, const edm::InputTag& inputTag) {
     config->eventProcessTimer(true);
     processor.processEvent(e, inputTag);

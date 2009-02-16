@@ -22,7 +22,8 @@ namespace cscdqm {
 
 /**
  * @brief  Constructor
- * @param  
+ * @param  p_partition_x Number of efficiency partitions on X axis
+ * @param  p_partition_y Number of efficiency partitions on Y axis
  * @return 
  */
 Detector::Detector(const unsigned int p_partitions_x, const unsigned int p_partitions_y) {
@@ -41,7 +42,6 @@ Detector::Detector(const unsigned int p_partitions_x, const unsigned int p_parti
     float sign = +1.0;
     if(adr.side == 2) sign = -1.0;
     for (adr.station = 1; adr.station <= N_STATIONS; adr.station++) {
-      station_partitions[adr.station - 1].from[adr.side - 1] = i;
       for (adr.ring = 1; adr.ring <= NumberOfRings(adr.station); adr.ring++) { 
         for (adr.chamber = 1; adr.chamber <= NumberOfChambers(adr.station, adr.ring); adr.chamber++) {
           for (adr.cfeb = 1; adr.cfeb <= NumberOfChamberCFEBs(adr.station, adr.ring); adr.cfeb++) {
@@ -64,6 +64,7 @@ Detector::Detector(const unsigned int p_partitions_x, const unsigned int p_parti
                 phi_min = PhiMinCFEB(adr.station, adr.ring, adr.chamber, adr.cfeb);
                 phi_max = PhiMaxCFEB(adr.station, adr.ring, adr.chamber, adr.cfeb);
               }
+
               float y_min = PhiToY(phi_min);
               float y_max = PhiToY(phi_max);
                 
@@ -78,6 +79,9 @@ Detector::Detector(const unsigned int p_partitions_x, const unsigned int p_parti
               boxes[i].xmax = xboxmax;
               boxes[i].ymin = yboxmin;
               boxes[i].ymax = yboxmax;
+
+              /** Address box calculated successfully. Now lets cache its
+               * partition elements for performace. */
 
               unsigned int x1 = int(floor(xboxmin / PARTITION_STEP_X)) + int(partitions_x / 2);
               unsigned int x2 = int( ceil(xboxmax / PARTITION_STEP_X)) + int(partitions_x / 2);
@@ -95,8 +99,6 @@ Detector::Detector(const unsigned int p_partitions_x, const unsigned int p_parti
                   }
                   partitions[index].push_back(i);
 
-                  //LOGINFO("Debug") << index << " = " << partitions[index]->size();
-
                 }
               }
 
@@ -106,7 +108,6 @@ Detector::Detector(const unsigned int p_partitions_x, const unsigned int p_parti
           }
         }
       }
-      station_partitions[adr.station - 1].to[adr.side - 1] = i - 1;
     }
 
   }
@@ -158,16 +159,10 @@ const float Detector::Area(const Address& adr) const {
  * @return number of rings for the given station
  */
 const unsigned int Detector::NumberOfRings(const unsigned int station) const {
-  switch (station) {
-    case 1:
-      return 3;
-    case 2:
-      return 2;
-    case 3:
-      return 2;
-    case 4:
-      return 1;
-  }
+  if (station == 1) return 3;
+  if (station == 2) return 2;
+  if (station == 3) return 2;
+  if (station == 4) return 1;
   return 0;
 }
 
@@ -256,6 +251,13 @@ void Detector::PrintAddress(const Address& adr) const {
   std::cout << std::endl;
 }
 
+/**
+ * @brief  Address iterator by mask
+ * @param  i Iterator
+ * @param  adr Address to return
+ * @param  mask for addresses
+ * @return true if address was found and filled in, false - otherwise 
+ */
 const bool Detector::NextAddress(unsigned int& i, const Address*& adr, const Address& mask) const {
   for(; i < N_ELEMENTS; i++ ) {
     if (boxes[i].adr == mask) {
@@ -267,28 +269,14 @@ const bool Detector::NextAddress(unsigned int& i, const Address*& adr, const Add
   return false;
 }
 
+/**
+ * @brief  Address box iterator by mask
+ * @param  i Iterator
+ * @param  adr AddressBox to return
+ * @param  mask for addresses
+ * @return true if address box was found and filled in, false - otherwise 
+ */
 const bool Detector::NextAddressBox(unsigned int& i, const AddressBox*& box, const Address& mask) const {
-
-  /*
-  if (mask.mask.station) {
-    unsigned int side = 1;
-    if (mask.mask.side) side = mask.side;
-    if (i == 0) 
-      i = station_partitions[mask.station - 1].from[side - 1];
-    else {
-      if (mask.mask.side) {
-        if (i > station_partitions[mask.station - 1].to[side - 1])
-          i = N_ELEMENTS;
-      } else {
-        if (i > station_partitions[mask.station - 1].to[0] && i < station_partitions[mask.station - 1].from[1])
-          i = station_partitions[mask.station - 1].from[1];
-        else
-          if (i > station_partitions[mask.station - 1].to[1])
-            i = N_ELEMENTS;
-      }
-    }    
-  }
-  */
 
   for(; i < N_ELEMENTS; i++ ) {
     if (boxes[i].adr == mask) {
@@ -300,28 +288,15 @@ const bool Detector::NextAddressBox(unsigned int& i, const AddressBox*& box, con
   return false;
 }
 
+/**
+ * @brief  Address box iterator by partition
+ * @param  i Iterator
+ * @param  px Partition x index
+ * @param  py Partition y index
+ * @param  box AddressBox to return
+ * @return true if address box was found and filled in, false - otherwise 
+ */
 const bool Detector::NextAddressBoxByPartition (unsigned int& i, const unsigned int px, const unsigned int py, AddressBox*& box) {
-
-/*
-const bool Detector::NextAddressBoxByPartition (
-    unsigned int& i,
-    unsigned int& px,
-    unsigned int& py,
-    const AddressBox*& box,
-    const Address& mask,
-    const float xmin, const float xmax,
-    const float ymin, const float ymax) {
-
-  for(; i < N_ELEMENTS; i++ ) {
-    if (boxes[i].adr == mask); else continue; 
-    if ((xmin < boxes[i].xmin && xmax < boxes[i].xmin) || (xmin > boxes[i].xmax && xmax > boxes[i].xmax)) continue;
-    if ((ymin < boxes[i].ymin && ymax < boxes[i].ymin) || (ymin > boxes[i].ymax && ymax > boxes[i].ymax)) continue;
-    box = &boxes[i];
-    i++;
-    return true; 
-  }
-  return false;
-  */
 
   unsigned int index = PARTITION_INDEX(px, py);
 
@@ -339,17 +314,20 @@ const bool Detector::NextAddressBoxByPartition (
 
 const float Detector::Eta(const float r, const float z) const {
   if(r > 0.0 || z > 0.0) {
-    float sin_theta, cos_theta;
-    sin_theta = r/sqrt(r*r+z*z);
-    cos_theta = z/sqrt(r*r+z*z);
-    return  - log(sin_theta/(cos_theta + 1));
+    float sin_theta = r / sqrt(r * r + z * z);
+    float cos_theta = z / sqrt(r * r + z * z);
+    return - log(sin_theta / (cos_theta + 1));
   }
   if(r == 0.0) return FLT_MAX;
   return 0.0;
 }
 
 
-// Transform eta coordinate to local canvas coordinate
+/**
+ * @brief   Transform eta coordinate to local canvas coordinate
+ * @param  eta Eta coordinate
+ * @return local canvas coordinate
+ */
 const float Detector::EtaToX(const float eta) const {
   float x_min   = -2.5;
   float x_max   =  2.5;
@@ -360,7 +338,11 @@ const float Detector::EtaToX(const float eta) const {
   return a * eta + b;
 }
 
-// Transform phi coordinate to local canvas coordinate
+/**
+ * @brief   Transform phi coordinate to local canvas coordinate
+ * @param  phi Phi coordinate
+ * @return local canvas coordinate
+ */
 const float Detector::PhiToY(const float phi) const {
   float y_min   = 0.0;
   float y_max   = 2.0 * 3.14159;
@@ -371,6 +353,12 @@ const float Detector::PhiToY(const float phi) const {
   return a * phi + b;
 }
 
+/**
+ * @brief  Get Z parameter (used in address eta/phi calculation)
+ * @param  station Station Id
+ * @param  ring Ring Id
+ * @return Z value
+ */
 const float Detector::Z(const int station, const int ring) const {
   float z_csc = 0;
   
@@ -384,6 +372,13 @@ const float Detector::Z(const int station, const int ring) const {
   return z_csc;
 }
 
+/**
+ * @brief  Get R min parameter (used in address eta/phi calculation)
+ * @param  station Station Id
+ * @param  ring Ring Id
+ * @param  n_hv HV number
+ * @return R min value
+ */
 const float Detector::RMinHV(const int station, const int ring, const int n_hv) const {
   float r_min_hv = 0;
   
@@ -433,6 +428,13 @@ const float Detector::RMinHV(const int station, const int ring, const int n_hv) 
   return r_min_hv;
 }
 
+/**
+ * @brief  Get R max parameter (used in address eta/phi calculation)
+ * @param  station Station Id
+ * @param  ring Ring Id
+ * @param  n_hv HV number
+ * @return R max value
+ */
 const float Detector::RMaxHV(const int station, const int ring, const int n_hv) const {
   float r_max_hv = 0;
   
@@ -482,6 +484,14 @@ const float Detector::RMaxHV(const int station, const int ring, const int n_hv) 
   return r_max_hv;
 }
 
+/**
+ * @brief  Get Min phi boundary for particular CFEB
+ * @param  station Station number
+ * @param  ring Ring number
+ * @param  chamber Chamber number
+ * @param  cfeb CFEB number
+ * @return Min phi CFEB boundary
+ */
 const float Detector::PhiMinCFEB(const int station, const int ring, const int chamber, const int cfeb) const {
   float phi_min_cfeb;
   
@@ -493,6 +503,14 @@ const float Detector::PhiMinCFEB(const int station, const int ring, const int ch
   return phi_min_cfeb;
 }
 
+/**
+ * @brief  Get Max phi boundary for particular CFEB
+ * @param  station Station number
+ * @param  ring Ring number
+ * @param  chamber Chamber number
+ * @param  cfeb CFEB number
+ * @return Max phi CFEB boundary
+ */
 const float Detector::PhiMaxCFEB(const int station, const int ring, const int chamber, const int cfeb) const {
   float phi_max_cfeb;
   
@@ -536,6 +554,12 @@ const std::string Detector::AddressName(const Address& adr) const {
   return oss.str();
 }
 
+/**
+ * @brief  Construct address from string
+ * @param  str_address Address in string
+ * @param  adr Address to return
+ * @return true if address was successfully created, false - otherwise
+ */
 const bool Detector::AddressFromString(const std::string str_address, Address& adr) const {
   
   std::vector<std::string> tokens;

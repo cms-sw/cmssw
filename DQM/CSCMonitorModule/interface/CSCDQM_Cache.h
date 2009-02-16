@@ -3,7 +3,8 @@
  *
  *       Filename:  CSCDQM_Cache.h
  *
- *    Description:  Efficiently manages lists of MonitorObject 's 
+ *    Description:  Efficiently manages lists of MonitorObject's for internal
+ *    MO cache.
  *
  *        Version:  1.0
  *        Created:  11/27/2008 10:05:00 AM
@@ -35,6 +36,7 @@
 
 namespace cscdqm {
 
+  /** Chamber MO List object definition */
   typedef struct CSCHistoKeyType {
     HistoId id;
     HwId addId;
@@ -42,6 +44,7 @@ namespace cscdqm {
     CSCHistoKeyType(const HistoId& id_, const HwId& addId_, const MonitorObject* mo_) : id(id_), addId(addId_), mo(mo_) { }
   };
 
+  /** Chamber MO List definition */
   typedef boost::multi_index_container<
     CSCHistoKeyType,
     boost::multi_index::indexed_by<
@@ -55,6 +58,7 @@ namespace cscdqm {
     >
   > CSCHistoMapType;
 
+  /** Chamber List object definition */
   typedef struct CSCKeyType {
     HwId crateId;
     HwId dmbId;
@@ -62,6 +66,7 @@ namespace cscdqm {
     CSCKeyType(const HwId& crateId_, const HwId& dmbId_) : crateId(crateId_), dmbId(dmbId_) { }
   };
 
+  /** Chamber List definition */
   typedef boost::multi_index_container<
     CSCKeyType,
     boost::multi_index::indexed_by<
@@ -75,42 +80,56 @@ namespace cscdqm {
     >
   > CSCMapType;
   
+  /** DDU List definition (static MO list) */
   typedef std::map<HwId, MonitorObject**> DDUMapType;
 
   /**
    * @class Cache
-   * @brief MonitorObject cache - lists and routines to manage cache
+   * @brief MonitorObject cache - list objects and routines to manage cache
    */
   class Cache {
 
     private:
 
+      /** EMU and PAR MO static List */
       MonitorObject* data[h::namesSize];
 
+      /** DDU MO List */
       DDUMapType dduData;
+      /** Pointer to the Last DDU object used (cached) */
       DDUMapType::const_iterator dduPointer;
+      /** Last DDU id used (cached) */
       HwId dduPointerValue;
 
+      /** Chamber MO List */
       CSCMapType cscData;
+      /** Pointer to the Last Chamber object used (cached) */
       CSCMapType::const_iterator cscPointer;
 
     public:
       
+      /** Cache Constructor */
       Cache() {
+        
+        /** Initialize EMU and PAR static array with zero's */
         for (unsigned int i = 0; i < h::namesSize; i++) data[i] = 0;
+
+        /** Initialize DDU and CSC cached pointers */
         dduPointer = dduData.end();
         dduPointerValue = 0;
         cscPointer = cscData.end();
       }
 
+      /** Destructor */
       ~Cache() {
-        DDUMapType::iterator it;
-        while (dduData.size() > 0) {
-          it = dduData.begin();
-          if (it->second) delete [] it->second;
-          dduData.erase(it);
+        /** Clear DDU MO static arrays */
+        while (dduData.begin() != dduData.end()) {
+          if (dduData.begin()->second) delete [] dduData.begin()->second;
+          dduData.erase(dduData.begin());
         }
       }
+
+      /** Native Cache methods */
 
       const bool get(const HistoDef& histo, MonitorObject*& mo);
       const bool getEMU(const HistoId& id, MonitorObject*& mo);
@@ -118,6 +137,8 @@ namespace cscdqm {
       const bool getCSC(const HistoId& id, const HwId& crateId, const HwId& dmbId, const HwId& addId, MonitorObject*& mo);
       const bool getPar(const HistoId& id, MonitorObject*& mo);
       void put(const HistoDef& histo, MonitorObject* mo);
+
+      /** Utility methods */
 
       const bool nextBookedDDU(unsigned int& n, unsigned int& dduId) const;
       const bool nextBookedCSC(unsigned int& n, unsigned int& crateId, unsigned int& dmbId) const;

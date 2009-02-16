@@ -66,10 +66,6 @@ namespace cscdqm {
       void init();
       void updateFractionHistos();
       void updateEfficiencyHistos();
-      void updateFractionAndEfficiencyHistos() {
-        updateFractionHistos();
-        updateEfficiencyHistos();
-      }
 
     private:
       

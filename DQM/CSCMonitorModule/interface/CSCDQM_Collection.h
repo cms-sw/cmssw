@@ -3,7 +3,7 @@
  *
  *       Filename:  CSCDQM_Collection.h
  *
- *    Description:  Histogram Collection management class
+ *    Description:  Histogram Booking Collection Management Class
  *
  *        Version:  1.0
  *        Created:  10/30/2008 04:40:38 PM
@@ -40,6 +40,9 @@ namespace cscdqm {
 
   using namespace XERCES_CPP_NAMESPACE;
 
+  /**
+   * Constants used for element recognition in Booking XML.
+   */
   static const char XML_BOOK_DEFINITION[]     =  "Definition";
   static const char XML_BOOK_DEFINITION_ID[]  =  "id";
   static const char XML_BOOK_HISTOGRAM[]      =  "Histogram";
@@ -51,14 +54,17 @@ namespace cscdqm {
   static const char XML_BOOK_ONDEMAND[]       =  "OnDemand";
   static const char XML_BOOK_ONDEMAND_TRUE[]  =  "1";
   static const char XML_BOOK_ONDEMAND_FALSE[] =  "0";
+  static const char XML_BOOK_NAME_FROM[]      =  "Name_from";
+  static const char XML_BOOK_NAME_TO[]        =  "Name_to";
 
+  /** Default histogram color */
   static const int  DEF_HISTO_COLOR           =  48;
 
-  /**
-  * Type Definition Section
-  */
+  /** List of Single Histogram properties */
   typedef std::map<std::string, std::string>     CoHistoProps;
+  /** List of Histograms */
   typedef std::map<std::string, CoHistoProps>    CoHisto;
+  /** List of Histogram Types */
   typedef std::map<std::string, CoHisto>         CoHistoMap;
   
   /**
@@ -97,7 +103,6 @@ namespace cscdqm {
       static void getNodeProperties(DOMNode*& node, CoHistoProps& hp);
       
       Configuration*         config;
-
       CoHistoMap             collection;
 
   };

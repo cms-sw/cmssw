@@ -31,6 +31,10 @@
 
 namespace cscdqm {
 
+/**
+ * Number of Detector Components.
+ */
+
 #define N_SIDES    2
 #define N_STATIONS 4
 #define N_RINGS    3
@@ -39,20 +43,23 @@ namespace cscdqm {
 #define N_CFEBS    5
 #define N_HVS      5
 
+/** Size of the address (number of components) */
 #define ADDR_SIZE  7
 
+/** Number of addressing elements in detector */
 #define N_ELEMENTS 7740
+
+/**
+ * Partition function shortcuts
+ */
 
 #define PARTITION_INDEX(x,y)  (x * partitions_y + y)
 #define PARTITION_STEP_X      (5.0 / partitions_x)
 #define PARTITION_STEP_Y      ((2.0 * 3.14159) / partitions_y)
 
-//#define P_X(i)        int(i / partitions_y)
-//#define P_Y(i,x)      (i - x * partitions_y)
-
 /**
-  * @brief  Mask of the address which is used to switch on and off appropriate Address fields.
-  */
+ * @brief  Mask of the address which is used to switch on and off appropriate Address fields.
+ */
 typedef struct AddressMask {
   bool side;
   bool station;
@@ -64,9 +71,9 @@ typedef struct AddressMask {
 };
 
 /**
-  * @brief  Structure to store detector addresses of any granularity: from
-  * whole detector to the single HV element.
-  */
+ * @brief  Structure to store detector addresses of any granularity: from
+ * whole detector to the single HV element.
+ */
 typedef struct Address {
 
   unsigned int side;
@@ -121,15 +128,11 @@ typedef struct AddressBox {
   float ymax;
 };
 
-/**
- * @brief  Structure to store eta/phy atomic element for Physics efficiency.
- */
-struct AddressBoxStationPartition {
-  unsigned int from[2];
-  unsigned int to[2];
-};
 
+/** Map of partitions and partition covering adresses indexes type */
 typedef std::map<const unsigned int, std::vector<unsigned int> > PartitionMap;
+
+/** Iterator type of PartitionMap */
 typedef PartitionMap::iterator PartitionMapIterator;
 
 /**
@@ -170,16 +173,20 @@ class Detector {
     const float PhiMinCFEB(const int station, const int ring, const int chamber, const int cfeb) const;
     const float PhiMaxCFEB(const int station, const int ring, const int chamber, const int cfeb) const;
 
+    /** Address boxes in epa/phi space */
     AddressBox boxes[N_ELEMENTS];
+
+    /** Station areas precalculated */
     float station_area[N_STATIONS];
 
+    /** Number of partitions in X axis */
     unsigned int partitions_x;
-    unsigned int partitions_y;
-    unsigned int partitions_offset;
 
-    // To improve performance
+    /** Number of partitions in Y axis */
+    unsigned int partitions_y;
+
+    /** Map of partitions and list of it covering addresses indexes */
     PartitionMap partitions;
-    AddressBoxStationPartition station_partitions[N_STATIONS];
 
 };
 

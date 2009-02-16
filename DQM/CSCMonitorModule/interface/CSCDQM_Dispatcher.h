@@ -3,7 +3,7 @@
  *
  *       Filename:  CSCDQM_Dispatcher.h
  *
- *    Description:  Framework frontend and Histogram Cache controller
+ *    Description:  CSCDQM Framework frontend and Histogram Cache controller
  *
  *        Version:  1.0
  *        Created:  10/03/2008 10:26:04 AM
@@ -20,9 +20,7 @@
 #define CSCDQM_Dispatcher_H
 
 #include <typeinfo>
-
 #include <boost/thread.hpp>
-#include <boost/thread/recursive_mutex.hpp>
 
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Configuration.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_EventProcessor.h"
@@ -33,55 +31,93 @@
 
 namespace cscdqm {
 
+  /**
+   * @class EventProcessorMutex
+   * @brief Locking object (wrapper) that holds a separate EventProcessor. This
+   * object can be used (theoretically) in separate thread.
+   */
   class EventProcessorMutex : public Lock {
 
     private:
 
+      /** Local (wrapped) event processor */
       EventProcessor processor;
+
+      /** Global Configuration */
       Configuration *config;
 
     public:
 
+      /**
+       * @brief  Constructor.
+       * @param  p_config Pointer to Global Configuration
+       */
       EventProcessorMutex(Configuration* const p_config) : processor(p_config) {
         config = p_config;
       }
-      void updateFractionAndEfficiencyHistos();
+
+      /**
+       * @brief  Update Fraction and Efficiency histograms
+       * @return 
+       */
+      void updateFractionAndEfficiencyHistos() {
+        lock();
+        config->updateFraTimer(true);
+        processor.updateFractionHistos();
+        config->updateFraTimer(false);
+        if (config->getPROCESS_EFF_HISTOS()) {
+          config->updateEffTimer(true);
+          processor.updateEfficiencyHistos();
+          config->updateEffTimer(false);
+        }
+        unlock();
+      }
 
   };
 
   /**
    * @class Dispatcher
-   * @brief Framework frontend and Histogram Cache controller
+   * @brief CSCDQM Framework frontend and Histogram Cache controller
    */
   class Dispatcher {
 
     public:
 
       Dispatcher(Configuration* const p_config, MonitorObjectProvider* const p_provider);
+
+      /**
+       * @brief  Destructor. Joins and waits to complete all threads.
+       */
       ~Dispatcher() { threads.join_all(); }
 
       void init();
-
       void updateFractionAndEfficiencyHistos();
-      const bool nextBookedCSC(unsigned int& n, unsigned int& crateId, unsigned int& dmbId) const;
-
-      Collection* getCollection() { return &collection; }
-       
       const bool getHisto(const HistoDef& histoD, MonitorObject*& me);
 
     private:
 
       void updateFractionAndEfficiencyHistosAuto();
 
+      /** Pointer to Global Configuration */
       Configuration         *config;
+
+      /** Pointer to MO provider */
       MonitorObjectProvider *provider;
+
+      /** MO Collection object */
       Collection            collection;
+
+      /** Event Processor object */
       EventProcessor        processor;
+
+      /** MO Cache object */
       Cache                 cache;
 
+      /** Lockable Fractional and Efficiency MO update object */
       EventProcessorMutex processorFract;
+
+      /** Thread group to store all threads created by Dispatcher */
       boost::thread_group threads;
-      boost::function<void ()> fnUpdate;
 
 #ifdef DQMLOCAL
 

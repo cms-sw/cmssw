@@ -19,6 +19,10 @@
 
 namespace cscdqm {
 
+  /**
+   * @brief  Constructor
+   * @param  p_config Pointer to Global configuration object
+   */
   Collection::Collection(Configuration* const p_config) {
     config = p_config;
     load();
@@ -26,8 +30,7 @@ namespace cscdqm {
 
   
   /**
-   * @brief  Load XML file and create definitions
-   * @param  bookingFile Booking file to load
+   * @brief  Load XML file and fill definition map(s)
    * @return 
    */
   void Collection::load() {
@@ -132,6 +135,13 @@ namespace cscdqm {
     
   }
   
+  /**
+   * @brief  Extract and write single histogram properties from XML node to
+   * map.
+   * @param  node XML node
+   * @param  p List of properties to fill
+   * @return 
+   */
   void Collection::getNodeProperties(DOMNode*& node, CoHistoProps& p) {
     DOMNodeList *props  = node->getChildNodes();
     for(uint32_t j = 0; j < props->getLength(); j++) {
@@ -169,12 +179,11 @@ namespace cscdqm {
   }
   
   /**
-   * @brief  get Histogram int value out of the map and 
+   * @brief  get Histogram int value out of the map and return boolean result
    * @param  h Histogram map
    * @param  name parameter name
    * @param  value handler for parameter value
-   * @param  default value if parameter not found 
-   * @return pointer to value
+   * @return true if parameter found and filled, false - otherwise
    */
   const bool Collection::checkHistoValue(const CoHistoProps& h, const std::string& name, int& value) {
     CoHistoProps::const_iterator i = h.find(name);
@@ -188,12 +197,12 @@ namespace cscdqm {
   }
   
   /**
-   * @brief  get Histogram double value out of the map and 
+   * @brief  get Histogram double value out of the map and return boolean
+   * result
    * @param  h Histogram map
    * @param  name parameter name
    * @param  value handler for parameter value
-   * @param  default value if parameter not found 
-   * @return pointer to value
+   * @return true if parameter found and filled, false - otherwise
    */
   const bool Collection::checkHistoValue(const CoHistoProps& h, const std::string name, double& value) {
     CoHistoProps::const_iterator i = h.find(name);
@@ -269,7 +278,7 @@ namespace cscdqm {
         int nbin = strtol(label_pair.substr(0, label_pair.find("=")).c_str(), &stopstring, 10);
         std::string label = label_pair.substr(label_pair.find("=") + 1, label_pair.length());
         while (label.find("\'") != std::string::npos) {
-          label.erase(label.find("\'"),1);
+          label.erase(label.find("\'"), 1);
         }
         labels[nbin] = label;
       }
@@ -278,6 +287,10 @@ namespace cscdqm {
     return labels.size();
   }
   
+  /**
+   * @brief  Book EMU histograms
+   * @return 
+   */
   void Collection::bookEMUHistos() const {
     CoHistoMap::const_iterator i = collection.find("EMU");
     if (i != collection.end()) {
@@ -294,6 +307,11 @@ namespace cscdqm {
     }
   }
 
+  /**
+   * @brief  Book DDU histograms
+   * @param  dduId DDU Id
+   * @return 
+   */
   void Collection::bookDDUHistos(const HwId dduId) const {
     CoHistoMap::const_iterator i = collection.find("DDU");
     if (i != collection.end()) {
@@ -310,6 +328,12 @@ namespace cscdqm {
     }
   }
 
+  /**
+   * @brief  Book Chamber Histograms
+   * @param  crateId CSC Crate Id
+   * @param  dmbId CSC DMB Id
+   * @return 
+   */
   void Collection::bookCSCHistos(const HwId crateId, const HwId dmbId) const {
     CoHistoMap::const_iterator i = collection.find("CSC");
     if (i != collection.end()) {
@@ -322,7 +346,7 @@ namespace cscdqm {
               book(CSCHistoDef(hid, crateId, dmbId), j->second, config->getFOLDER_CSC());
           } else {
             int from = 0, to = 0;
-            if (checkHistoValue(j->second, "Name_from", from) && checkHistoValue(j->second, "Name_to", to)) {
+            if (checkHistoValue(j->second, XML_BOOK_NAME_FROM, from) && checkHistoValue(j->second, XML_BOOK_NAME_TO, to)) {
               for (int k = from; k <= to; k++) {
                 book(CSCHistoDef(hid, crateId, dmbId, k), j->second, config->getFOLDER_CSC());
               }
@@ -333,6 +357,14 @@ namespace cscdqm {
     }
   }
 
+  /**
+   * @brief  Book Chamber Histogram with additional identifier (On Demand)
+   * @param  hid Histogram Identifier
+   * @param  crateId CSC Crate Id
+   * @param  dmbId CSC DMB Id
+   * @param  addId CSC Additional identifier, ex. Layer Id, ALCT Id, etc.
+   * @return 
+   */
   void Collection::bookCSCHistos(const HistoId hid, const HwId crateId, const HwId dmbId, const HwId addId) const {
     CoHistoMap::const_iterator i = collection.find("CSC");
     if (i != collection.end()) {
@@ -343,13 +375,21 @@ namespace cscdqm {
     }
   }
 
+  /**
+   * @brief  Book histogram
+   * @param  h Histogram definition to book
+   * @param  p Map of Histogram properties
+   * @param  folder folder to book histograms to
+   * @return 
+   */
   void Collection::book(const HistoDef& h, const CoHistoProps& p, const std::string& folder) const {
 
     MonitorObject* me = NULL;
     std::string name = h.getName(), type, title, s;
 
+    /** Check if this histogram is included in booking by filters */
     if (!config->needBookMO(name)) {
-      LOG_INFO << "MOFilter excluded " << name << " from bookingfrom booking"; 
+      LOG_INFO << "MOFilter excluded " << name << " from booking"; 
       config->fnPutHisto(h, me);
       return;
     }
@@ -504,10 +544,16 @@ namespace cscdqm {
 
     LOG_DEBUG << "[Collection::book] booked " << h.getFullPath() << " (" << me << ")"; 
 
+    /** Put histogram into cache */
     config->fnPutHisto(h, me);
 
   }
 
+  /**
+   * @brief  Check if the histogram is on demand (by histogram name)
+   * @param  name name of the histogram
+   * @return true if this histogram is on demand, false - otherwise
+   */
   const bool Collection::isOnDemand(const HistoName& name) const {
     CoHistoMap::const_iterator i = collection.find("CSC");
     if (i != collection.end()) {
@@ -523,7 +569,6 @@ namespace cscdqm {
 
   /**
   * @brief  Print collection of available histograms and their parameters
-  * @param  
   * @return 
   */
   void Collection::printCollection() const{

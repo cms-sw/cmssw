@@ -51,6 +51,7 @@
 
 #include <boost/timer.hpp>
 
+/** Headers for Global DQM Only */
 #ifdef DQMGLOBAL
 
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
@@ -62,8 +63,13 @@
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Utility.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Logger.h"
 
+/** Length of Global Parameter sequence */
 #define CONFIG_PARAMETERS_SEQ_LEN 4
 
+/** 
+ * Sequence of Global Parameters. Add new line or edit existing in form:
+ * (( type (C++), name (upper case), default value, "description" )) \
+ */
 #define CONFIG_PARAMETERS_SEQ \
   \
   \
@@ -78,6 +84,7 @@
   (( bool, BINCHECKER_OUTPUT,   false , "print 1 and 2 output (CSCDCCExaminer flag)" )) \
   (( bool, FRAEFF_AUTO_UPDATE,  false , "start fractional and efficiency histogram update automatically (Dispatcher flag)" )) \
   (( bool, FRAEFF_SEPARATE_THREAD,  false , "start fractional and efficiency histogram update on separate thread (EventProcessor flag)" )) \
+  (( bool, PRINT_STATS_ON_EXIT,  true , "print statistics on exit (destruction)" )) \
   (( std::string, BOOKING_XML_FILE, "" , "histogram description (booking) file in XML format (Collection)" )) \
   (( std::string, FOLDER_EMU, "" , "root file folder name to be used for EMU histograms (EventProcessor)" )) \
   (( std::string, FOLDER_DDU, "" , "root file folder name to be used for DDU histograms (EventProcessor)" )) \
@@ -99,33 +106,49 @@
   (( unsigned int, EVENTS_ECHO, 1000, "frequency in events to print echo message (EventProcessor)" )) \
   \
   \
-  /* */
 
+/**
+ * Global Parameter Manipulation macros.
+ */
+
+/** Parameter as class property definition */
 #define CONFIG_PARAMETER_DEFINE_MACRO(r, data, i, elem) \
   BOOST_PP_TUPLE_ELEM(CONFIG_PARAMETERS_SEQ_LEN, 0, elem) BOOST_PP_TUPLE_ELEM(CONFIG_PARAMETERS_SEQ_LEN, 1, elem);
 
+/** Parameter Default value definition (in constructor) */
 #define CONFIG_PARAMETER_DEFAULT_MACRO(r, data, i, elem) \
   BOOST_PP_TUPLE_ELEM(CONFIG_PARAMETERS_SEQ_LEN, 1, elem) = BOOST_PP_TUPLE_ELEM(CONFIG_PARAMETERS_SEQ_LEN, 2, elem);
 
+/** Parameter Getter method */
 #define CONFIG_PARAMETER_GETTER_MACRO(r, data, i, elem) \
   const BOOST_PP_TUPLE_ELEM(CONFIG_PARAMETERS_SEQ_LEN, 0, elem) BOOST_PP_CAT(get, BOOST_PP_TUPLE_ELEM(CONFIG_PARAMETERS_SEQ_LEN, 1, elem))() const { \
     return BOOST_PP_TUPLE_ELEM(CONFIG_PARAMETERS_SEQ_LEN, 1, elem); \
-  } \
+  } 
 
+/** Parameter Setter method */
 #define CONFIG_PARAMETER_SETTER_MACRO(r, data, i, elem) \
   void BOOST_PP_CAT(set, BOOST_PP_TUPLE_ELEM(CONFIG_PARAMETERS_SEQ_LEN, 1, elem))(BOOST_PP_TUPLE_ELEM(CONFIG_PARAMETERS_SEQ_LEN, 0, elem) p) { \
     BOOST_PP_TUPLE_ELEM(CONFIG_PARAMETERS_SEQ_LEN, 1, elem) = p; \
-  } \
+  } 
 
+#ifdef DQMGLOBAL
+
+/** Load parameter from parameters set line (Global DQM) */
 #define CONFIG_PARAMETER_LOADPS_MACRO(r, data, i, elem) \
   BOOST_PP_CAT(set, BOOST_PP_TUPLE_ELEM(CONFIG_PARAMETERS_SEQ_LEN, 1, elem))(ps.getUntrackedParameter<BOOST_PP_TUPLE_ELEM(CONFIG_PARAMETERS_SEQ_LEN, 0, elem)>(BOOST_PP_STRINGIZE(BOOST_PP_TUPLE_ELEM(CONFIG_PARAMETERS_SEQ_LEN, 1, elem)), BOOST_PP_TUPLE_ELEM(CONFIG_PARAMETERS_SEQ_LEN, 2, elem)));
 
+#endif
+
+#ifdef DQMLOCAL
+
+/** Load parameter from XML node line (Local DQM) */
 #define CONFIG_PARAMETER_LOADXML_MACRO(r, data, i, elem) \
   if (nodeName.compare(BOOST_PP_STRINGIZE(BOOST_PP_TUPLE_ELEM(CONFIG_PARAMETERS_SEQ_LEN, 1, elem))) == 0) { \
     stm >> BOOST_PP_TUPLE_ELEM(CONFIG_PARAMETERS_SEQ_LEN, 1, elem); \
     continue; \
-  } \
+  }
 
+/** Include parameter into XML stream for printing */
 #define CONFIG_PARAMETER_PRINTXML_MACRO(r, data, i, elem) \
   { \
     DOMComment* comment = doc->createComment(XERCES_TRANSCODE(BOOST_PP_TUPLE_ELEM(CONFIG_PARAMETERS_SEQ_LEN, 3, elem))); \
@@ -135,22 +158,26 @@
     el->appendChild(tdata); \
     rootElem->appendChild(comment); \
     rootElem->appendChild(el); \
-  } \
+  }
+
+#endif
 
 namespace cscdqm {
 
   using namespace XERCES_CPP_NAMESPACE;
 
+  /** MO filter Item definition (loaded from XML/PSet) */
   typedef struct MOFilterItem {
-
+    /** Regexp filter pattern */
     TPRegexp pattern;
+    /** Include filtered item or not */
     bool include;
-
+    /** Constructor */
     MOFilterItem(const std::string pattern_, const bool include_) :
       pattern(pattern_.c_str()), include(include_) { }
-
   };
 
+  /** Chamber level counter types */
   typedef enum ChamberCounterType {
     DMB_EVENTS,
     BAD_EVENTS,
@@ -160,8 +187,10 @@ namespace cscdqm {
     CFEB_TRIGGERS
   };
 
+  /** Single Chamber counters type */
   typedef std::map<ChamberCounterType, uint32_t> ChamberCounterMapType;
 
+  /** Chamber Counters key type */
   typedef struct ChamberCounterKeyType {
     HwId crateId;
     HwId dmbId;
@@ -169,6 +198,7 @@ namespace cscdqm {
     ChamberCounterKeyType(const HwId& crateId_, const HwId& dmbId_, const ChamberCounterMapType& c_) : crateId(crateId_), dmbId(dmbId_), counters(c_) { }
   };
 
+  /** Map of Chamber Counters Type */
   typedef boost::multi_index_container<
     ChamberCounterKeyType,
     boost::multi_index::indexed_by<
@@ -184,56 +214,98 @@ namespace cscdqm {
 
   /**
    * @class Configuration
-   * @brief Framework configuration
+   * @brief CSCDQM Framework Global Configuration
    */
   class Configuration {
 
     private:
 
-      bool printStatsOnExit;
+      unsigned short printStatsLocal;
+
+      /** Map of MO Filters */
       std::vector<MOFilterItem> MOFilterItems;
+
+      /** Define parameters */
       BOOST_PP_SEQ_FOR_EACH_I(CONFIG_PARAMETER_DEFINE_MACRO, _, CONFIG_PARAMETERS_SEQ)
+
+      /**
+       * @brief  Initialize parameter values and reset counters (used by constructors)
+       * @return 
+       */
+      void init() {
+        /** Assign default values to parameters */
+        BOOST_PP_SEQ_FOR_EACH_I(CONFIG_PARAMETER_DEFAULT_MACRO, _, CONFIG_PARAMETERS_SEQ)
+        reset();
+      }
 
     public:
       
+      /**
+        * Pointers to Shared functions (created in Dispatcher)
+        */
+
+      /** Get MO Globally */
       boost::function< bool (const HistoDef& histoT, MonitorObject*&) > fnGetHisto;
+      /** Pointers to Cache Functions */
       boost::function< bool (const HistoId id, MonitorObject*& mo) > fnGetCacheEMUHisto;
       boost::function< bool (const HistoId id, const HwId& id1, MonitorObject*& mo) > fnGetCacheDDUHisto;
       boost::function< bool (const HistoId id, const HwId& id1, const HwId& id2, const HwId& id3, MonitorObject*& mo) > fnGetCacheCSCHisto;
       boost::function< bool (const HistoId id, MonitorObject*& mo) > fnGetCacheParHisto;
       boost::function< void (const HistoDef& histoT, MonitorObject*&) > fnPutHisto;
-      boost::function< MonitorObject* (const HistoBookRequest&) > fnBook;
-      boost::function< CSCDetId (const unsigned int, const unsigned int) > fnGetCSCDetId;
       boost::function< bool (unsigned int&, unsigned int&, unsigned int&) > fnNextBookedCSC;
       boost::function< bool (unsigned int&, unsigned int&) > fnIsBookedCSC;
       boost::function< bool (unsigned int&) > fnIsBookedDDU;
+      /** Pointer to Collection Book Function */
+      boost::function< MonitorObject* (const HistoBookRequest&) > fnBook;
+      /** Pointer to CSC Det Id function */
+      boost::function< CSCDetId (const unsigned int, const unsigned int) > fnGetCSCDetId;
 
+      /** Parameter Getters */
       BOOST_PP_SEQ_FOR_EACH_I(CONFIG_PARAMETER_GETTER_MACRO, _, CONFIG_PARAMETERS_SEQ)
+        
+      /** Parameter Setters */
       BOOST_PP_SEQ_FOR_EACH_I(CONFIG_PARAMETER_SETTER_MACRO, _, CONFIG_PARAMETERS_SEQ)
 
-      Configuration(const bool p_printStatsOnExit = true) {
-        printStatsOnExit = p_printStatsOnExit;
-        BOOST_PP_SEQ_FOR_EACH_I(CONFIG_PARAMETER_DEFAULT_MACRO, _, CONFIG_PARAMETERS_SEQ)
-        reset();
+      /**
+       * @brief  Constructor
+       */
+      Configuration() {
+        init();
+        printStatsLocal = 0;
       }
 
+      /**
+       * @brief  Constructor
+       * @param printStats Print statistics on exit or not (overrides configuration parameter)
+       */
+      Configuration(const bool printStats) {
+        init();
+        if (printStats) {
+          printStatsLocal = 1;
+        } else {
+          printStatsLocal = 2;
+        }
+      }
+
+      /**
+       * @brief  Destructor
+       */
       ~Configuration() {
-        if (printStatsOnExit) {
+        if ((PRINT_STATS_ON_EXIT && printStatsLocal == 0) || printStatsLocal == 1) {
           printStats();
         }
       }
 
+#ifdef DQMLOCAL
+
+      /**
+       * @brief  Load parameters from XML file (Local DQM)
+       * @param  configFile Parameters file in XML format
+       * @return 
+       */
       void load(const std::string& configFile) {
         XMLPlatformUtils::Initialize();
         boost::shared_ptr<XercesDOMParser> parser(new XercesDOMParser());
-
-        /*
-        parser->setValidationScheme(XercesDOMParser::Val_Always);
-        parser->setDoNamespaces(true);
-        parser->setDoSchema(false);
-        parser->setExitOnFirstFatalError(true);
-        parser->setValidationConstraintFatal(true);
-        */
 
         XMLFileErrorHandler eh;
         parser->setErrorHandler(&eh);
@@ -266,11 +338,13 @@ namespace cscdqm {
 
         }
 
-        //doc->release();
-        //XMLPlatformUtils::Terminate();
-
       }
 
+      /**
+       * @brief  Print configuration in XML format
+       * @param  config Configuration object to print
+       * @return 
+       */
       static void printXML(const Configuration& config) {
         XMLPlatformUtils::Initialize();
 
@@ -292,8 +366,15 @@ namespace cscdqm {
         XMLPlatformUtils::Terminate();
       }
 
+#endif
+
 #ifdef DQMGLOBAL
 
+      /**
+       * @brief  Load parameters from ParameterSet (Global DQM)
+       * @param  ps ParameterSet to load parameters from
+       * @return 
+       */
       void load(const edm::ParameterSet& ps) {
         BOOST_PP_SEQ_FOR_EACH_I(CONFIG_PARAMETER_LOADPS_MACRO, _, CONFIG_PARAMETERS_SEQ)
       }
@@ -301,21 +382,35 @@ namespace cscdqm {
 #endif
 
     /**
-      * Statistics
+      * Statistics collection and printing section
       */
 
     private:
 
+      /** Global Timer */
       boost::timer globalTimer;
+
+      /** Event processing Timer */
       boost::timer eventTimer;
+
+      /** Fractional MO update Timer */
       boost::timer fraTimer;
+      
+      /** Efficiency MO update Timer */
       boost::timer effTimer;
+      
+      /** Event processing time cummulative */
       double eventTimeSum;
+      
+      /** Fractional MO update time cummulative */
       double fraTimeSum;
+      
+      /** Efficiency MO update time cummulative */
       double effTimeSum;
 
     public:
 
+/** Statistics field definition */
 #define STATFIELD(caption, value, units) \
       logger << std::setfill(' '); \
       logger << std::setiosflags(std::ios::right) << std::setw(25) << caption << " : "; \
@@ -327,6 +422,8 @@ namespace cscdqm {
       } \
       logger << std::setiosflags(std::ios::left) << std::setw(2) << units; \
       logger << std::endl;
+      
+/** Statistics separator definition */
 #define SEPFIELD \
       logger << std::setfill('-'); \
       logger << std::setw(25) << ""; \
@@ -334,6 +431,10 @@ namespace cscdqm {
       logger << std::setw(2)  << ""; \
       logger << std::endl;
 
+      /**
+       * @brief  Print Statistics on Exit (Destruction)
+       * @return 
+       */
       void printStats() {
 
         double allTime = globalTimer.elapsed();
@@ -385,6 +486,52 @@ namespace cscdqm {
 #undef STATFIELD
 #undef SEPFIELD
 
+      /**
+       * @brief  Switch on/off event processing timer
+       * @param start timer action (true - start, false - stop) 
+       * @return 
+       */
+      void eventProcessTimer(const bool start) {
+        if (start) {
+          eventTimer.restart();
+        } else {
+          eventTimeSum += eventTimer.elapsed();
+        }
+      }
+
+      /**
+       * @brief  Switch on/off fractional MO processing timer
+       * @param start timer action (true - start, false - stop) 
+       * @return 
+       */
+      void updateFraTimer(const bool start) {
+        if (start) {
+          fraTimer.restart();
+        } else {
+          fraTimeSum += fraTimer.elapsed();
+          fraCount++;
+        }
+      }
+
+      /**
+       * @brief  Switch on/off efficiency MO processing timer
+       * @param start timer action (true - start, false - stop) 
+       * @return 
+       */
+      void updateEffTimer(const bool start) {
+        if (start) {
+          effTimer.restart();
+        } else {
+          effTimeSum += effTimer.elapsed();
+          effCount++;
+        }
+      }
+
+      /**
+       * @brief  Check if MO is not excluded by MO Filter
+       * @param  name MO name to book
+       * @return true if MO is not excluded, false - otherwise
+       */
       const bool needBookMO(const std::string name) const {
         bool result = true;
         for (unsigned int i = 0; i < MOFilterItems.size(); i++) {
@@ -395,11 +542,15 @@ namespace cscdqm {
       }
 
     /**
-      * Counters
+      * Counters section.
       */
 
     public:
 
+      /**
+       * @brief  Reset counters
+       * @return 
+       */
       void reset() {
         nEvents = 0;
         nEventsBad = 0;
@@ -413,37 +564,19 @@ namespace cscdqm {
         effTimeSum = 0.0;
       }
 
+      /**
+       * Getters for Global Counters.
+       */
+
       const unsigned long getNEvents() const      { return nEvents; }
       const unsigned long getNEventsBad() const   { return nEventsBad; }
       const unsigned long getNEventsGood() const  { return nEventsGood; }
       const unsigned long getNEventsCSC() const   { return nEventsCSC; }
       const unsigned long getNUnpackedCSC() const { return nUnpackedCSC; }
 
-      void eventProcessTimer(const bool start) {
-        if (start) {
-          eventTimer.restart();
-        } else {
-          eventTimeSum += eventTimer.elapsed();
-        }
-      }
-
-      void updateFraTimer(const bool start) {
-        if (start) {
-          fraTimer.restart();
-        } else {
-          fraTimeSum += fraTimer.elapsed();
-          fraCount++;
-        }
-      }
-
-      void updateEffTimer(const bool start) {
-        if (start) {
-          effTimer.restart();
-        } else {
-          effTimeSum += effTimer.elapsed();
-          effCount++;
-        }
-      }
+      /**
+       * Increments (by 1) for Global Counters.
+       */
 
       void incNEvents()      { 
         nEvents++; 
@@ -458,10 +591,25 @@ namespace cscdqm {
       void incNEventsCSC()   { nEventsCSC++; }
       void incNUnpackedCSC() { nUnpackedCSC++; }
 
+      /**
+       * @brief  Increment Chamber counter by 1
+       * @param  counter Counter Type
+       * @param  crateId CSC Crate ID
+       * @param  dmbId CSC DMB ID
+       * @return 
+       */
       void incChamberCounter(const ChamberCounterType counter, const HwId crateId, const HwId dmbId) {
         setChamberCounterValue(counter, crateId, dmbId, getChamberCounterValue(counter, crateId, dmbId) + 1);
       }
 
+      /**
+       * @brief  Set Chamber counter value
+       * @param  counter Counter Type
+       * @param  crateId CSC Crate ID
+       * @param  dmbId CSC DMB ID
+       * @param value value to set
+       * @return 
+       */
       void setChamberCounterValue(const ChamberCounterType counter, const HwId crateId, const HwId dmbId, const uint32_t value) {
         ChamberMapCounterMapType::iterator it = chamberCounters.find(boost::make_tuple(crateId, dmbId));
         if (it == chamberCounters.end()) {
@@ -476,10 +624,25 @@ namespace cscdqm {
         }
       }
 
+      /**
+       * @brief  Copy Chamber counter value from one counter to another
+       * @param  counter_from Counter Type to copy value from
+       * @param  counter_to Counter Type to copy value to
+       * @param  crateId CSC Crate ID
+       * @param  dmbId CSC DMB ID
+       * @return 
+       */
       void copyChamberCounterValue(const ChamberCounterType counter_from, const ChamberCounterType counter_to, const HwId crateId, const HwId dmbId) {
         setChamberCounterValue(counter_from, crateId, dmbId, getChamberCounterValue(counter_from, crateId, dmbId));
       }
 
+      /**
+       * @brief  Get Chamber counter value
+       * @param  counter Counter Type
+       * @param  crateId CSC Crate ID
+       * @param  dmbId CSC DMB ID
+       * @return current counter value
+       */
       const uint32_t getChamberCounterValue(const ChamberCounterType counter, const HwId crateId, const HwId dmbId) const {
         ChamberMapCounterMapType::iterator it = chamberCounters.find(boost::make_tuple(crateId, dmbId));
         if (it == chamberCounters.end()) return 0;
@@ -490,14 +653,32 @@ namespace cscdqm {
 
     private:
 
+      /**
+       * Global Counters.
+       */
+
+      /** Number of events */
       unsigned long nEvents;
+
+      /** Number of bad events */
       unsigned long nEventsBad;
+      
+      /** Number of good events */
       unsigned long nEventsGood;
+      
+      /** Number of events that have CSC data (used in Global DQM) */
       unsigned long nEventsCSC;
+      
+      /** number of unpacked chambers */
       unsigned long nUnpackedCSC; 
+      
+      /** Number of Fractional MO updates */
       unsigned long fraCount; 
+      
+      /** Number of Efficiency MO updates */
       unsigned long effCount;
 
+      /** Map of chamber counters */
       ChamberMapCounterMapType chamberCounters;
 
   };
