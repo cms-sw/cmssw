@@ -6,8 +6,6 @@ hltTauDQMProcess = "HLT2"
 
 
 
-
-
 hltTauMonitor = cms.EDFilter("HLTTauDQMSource",
     MonitorSetup = cms.VPSet(
         cms.PSet(
@@ -122,10 +120,6 @@ hltTauMonitor = cms.EDFilter("HLTTauDQMSource",
    matchObjectMinPt    = cms.untracked.vdouble(15),
    TriggerEvent = cms.InputTag("hltTriggerSummaryRAW","",hltTauDQMProcess )                          
 )
-
-
-
-
 
 
 
@@ -249,7 +243,7 @@ hltTauElectronMonitor = cms.EDFilter("HLTTauDQMSource",
     
    doMatching = cms.bool(True),
 
-   matchFilter         = cms.untracked.VInputTag(cms.InputTag("hltL1NonIsoLargeWindowDoubleElectronTrackIsolFilter","",hltTauDQMProcess) ),
+   matchFilter         = cms.untracked.VInputTag(cms.InputTag("hltL1IsoDoubleElectronTrackIsolFilter","",hltTauDQMProcess) ),
    matchObjectID       = cms.untracked.vint32(92),
    matchObjectMinPt    = cms.untracked.vdouble(15),
    TriggerEvent = cms.InputTag("hltTriggerSummaryRAW","",hltTauDQMProcess )                          
