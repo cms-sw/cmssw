@@ -9,7 +9,6 @@
 
 #include "TString.h"
 #include "TObjString.h"
-#include "TUnixSystem.h"
 
 int create_mainpage(const char* name, RooAbsPdf* pdf,RooArgList vars);
 int create_page(const char* name, RooAbsArg* pdf, bool first_call);
@@ -43,10 +42,11 @@ RooAbsPdf* sb_model=combo.getPdf();
 
 RooMsgService::instance().setGlobalKillBelow(RooMsgService::DEBUG) ;
 
-TUnixSystem sys;
+//TUnixSystem sys;
 
 // make docu directory
-sys.MakeDirectory(model_name.Data());
+//sys.MakeDirectory(model_name.Data());
+system(("mkdir " + model_name).Data());
 
 // mainpage
 RooArgList vars(combo.getVars());
@@ -59,7 +59,6 @@ for (int i=0;i<l.getSize();++i){
     create_page(model_name.Data(),obj,true);
     }
 
-
 std::cout << "Creating pages for the parameters...\n";
 
 RooArgList pars (*sb_model->getParameters(vars));
@@ -68,7 +67,9 @@ for (int i=0;i<pars.getSize();++i){
     create_page(model_name.Data(),obj,true);
     }
 
+
 create_varspage(model_name.Data(),sb_model,true);
+
 
 // now put the link among the variables
 
@@ -103,6 +104,12 @@ for (int i=0;i<pars.getSize();++i){
     }
 
 create_varspage(model_name.Data(),sb_model,false);
+
+std::cout << "WebSite created in directory " << model_name.Data() << " \n";
+
+ARR.Clear();
+
+return 0;
 
 }
 /*----------------------------------------------------------------------------*/
