@@ -1,6 +1,6 @@
 #include "CondFormats/Common/interface/IOVSequence.h"
 #include "CondFormats/Common/interface/PayloadWrapper.h"
-
+#include <vector>
 
 namespace {
   namespace {

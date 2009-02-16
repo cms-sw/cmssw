@@ -15,5 +15,5 @@
  <class name="cond::DataAndSummaryWrapper<std::vector<int>, std::vector<int> >"/>
  <class name="pool::Ptr<std::vector<double> >"/>
  <class name="cond::DataWrapper<std::vector<double> >"/>
- <class name="cond::DataAndSummaryWrapper<std::vector<double,std::vector<double> >"/>
+ <class name="cond::DataAndSummaryWrapper<std::vector<double>,std::vector<double> >"/>
 </lcgdict>   
