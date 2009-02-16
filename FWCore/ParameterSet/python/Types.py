@@ -249,7 +249,11 @@ class LuminosityBlockRange(_ParameterTypeBase):
         value = value.replace(' ','')
         parts = value.split("-")
         startParts = parts[0].split(":")
-        endParts   = parts[1].split(":")
+        try:
+            endParts = parts[1].split(":")
+        except IndexError:
+            endParts = parts[0].split(":") # If just "1:2" turn into "1:2-1:2"
+
         if startParts[1].lower() == "max":
             startParts[1] = "0"
         if startParts[1].lower() == "min":
@@ -298,7 +302,11 @@ class EventRange(_ParameterTypeBase):
         value = value.replace(' ','')
         parts = value.split("-")
         startParts = parts[0].split(":")
-        endParts   = parts[1].split(":")
+        try:
+            endParts = parts[1].split(":")
+        except IndexError:
+            endParts = parts[0].split(":") # If just "1:2" turn into "1:2-1:2"
+
         if startParts[1].lower() == "max":
             startParts[1] = "0"
         if startParts[1].lower() == "min":
