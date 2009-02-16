@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorDigi.h,v 1.13 2008/10/25 21:12:33 dutta Exp $
+// $Id: SiStripMonitorDigi.h,v 1.14 2008/12/04 21:03:06 dutta Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -56,6 +56,10 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
  	
   };
 
+  struct SubDetMEs{
+    MonitorElement* SubDetTotDigiProf;
+    MonitorElement* SubDetDigiApvProf;
+  };
 
  private:
   void createMEs(const edm::EventSetup& es);
@@ -65,7 +69,7 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   MonitorElement* bookME1D(const char* ParameterSetLabel, const char* HistoName);
   void bookTrendMEs(TString name,int32_t layer,uint32_t id,std::string flag);
   void fillDigiADCsMEs(int value, std::string name);
-  void fillTrend(MonitorElement* me ,float value);
+  void fillTrend(MonitorElement* me ,float value, float timeinorbit);
   inline void fillME(MonitorElement* ME,float value1){if (ME!=0)ME->Fill(value1);}
   inline void fillME(MonitorElement* ME,float value1,float value2){if (ME!=0)ME->Fill(value1,value2);}
   inline void fillME(MonitorElement* ME,float value1,float value2,float value3){if (ME!=0)ME->Fill(value1,value2,value3);}
@@ -75,6 +79,7 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   void createModuleMEs(ModMEs& mod_single, uint32_t detid);
   void createLayerMEs(std::string label, int ndet);
   void createSubDetMEs(std::string label);
+  void createSubDetTH2(std::string label);
   void getLayerLabel(uint32_t detid, std::string& label, int& subdetid, int& subsubdetid);
   int getDigiSource(uint32_t id, edm::DetSet<SiStripDigi>& digi_detset);
       
@@ -87,7 +92,7 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
 
   std::map<std::string, std::vector< uint32_t > > LayerDetMap;
   std::map<std::string, LayerMEs> LayerMEsMap;
-  std::map<std::string, MonitorElement* > SubDetMEsMap;
+  std::map<std::string, SubDetMEs> SubDetMEsMap;
        
   edm::ParameterSet Parameters;
   
@@ -109,6 +114,7 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   bool layerswitchstripoccupancyon;
   bool layerswitchnumdigisprofon;
   bool layerswitchdigiadcprofon;
+  bool layerswitchdigitkhistomapon;
 
   bool moduleswitchnumdigison;
   bool moduleswitchadchotteston;
@@ -116,13 +122,9 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   bool moduleswitchdigiadcson;
   bool moduleswitchstripoccupancyon;
   bool subdetswitchtotdigiprofon;
+  bool subdetswitchapvcycleprofon;
 
   bool Mod_On_;
-
-  bool tibon;
-  bool tidon;
-  bool tobon;
-  bool tecon;
 
   bool createTrendMEs;
 };

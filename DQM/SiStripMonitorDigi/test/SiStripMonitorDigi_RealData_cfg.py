@@ -7,12 +7,10 @@ process = cms.Process("MonitorDigiRealData")
 #--------------------------
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-#      '/store/data/Commissioning08/Cosmics/RAW/v1/000/066/993/2A8E332E-769F-DD11-8E22-001617DBD224.root'
-#      '/store/data/Commissioning08/Cosmics/RAW/v1/000/066/993/4A64178D-799F-DD11-9C47-000423D996B4.root'
-#       '/store/data/Commissioning08/Cosmics/RAW/v1/000/066/668/48F6B6B5-519C-DD11-B32A-000423D6B444.root'
 #        '/store/data/Commissioning08/Cosmics/RAW/v1/000/067/647/0000721C-35A3-DD11-9132-001D09F291D7.root'
-       '/store/data/Commissioning08/Cosmics/RAW/v1/000/067/647/22CBBD11-07A3-DD11-9DFB-001D09F2447F.root'
-    )
+#       '/store/data/Commissioning08/Cosmics/RAW/v1/000/067/647/22CBBD11-07A3-DD11-9DFB-001D09F2447F.root'
+        '/store/data/Commissioning08/Cosmics/RAW/v1/000/066/668/ECBAB6B1-519C-DD11-BBB5-000423D94E70.root'
+)
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -39,8 +37,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 # Calibration
 #-------------------------------------------------
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "CRAFT_V3P::All"
+process.GlobalTag.globaltag = "CRAFT_30X::All"
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
 #-----------------------
@@ -63,6 +60,8 @@ process.DQMStore = cms.Service("DQMStore",
 process.load("DQM.SiStripMonitorDigi.SiStripMonitorDigi_cfi")
 process.SiStripMonitorDigi.CreateTrendMEs = True
 process.SiStripMonitorDigi.OutputMEsInRootFile = True
+process.SiStripMonitorDigi.TProfTotalNumberOfDigis.subdetswitchon = True
+process.SiStripMonitorDigi.TProfDigiApvCycle.subdetswitchon = True
 process.SiStripMonitorDigi.OutputFileName = 'SiStripMonitorDigi_RealData.root'
 process.SiStripMonitorDigi.SelectAllDetectors = True
 
