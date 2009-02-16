@@ -159,7 +159,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
     }
   }
 
-  // JH - post-review
+  //---------------New JetMET and e/gamma triggers approved in Jan 2009--------------------    
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1Jet6U") == 0) { 
     if(map_BitOfStandardHLTPath.find("L1_SingleJet6_00001")->second == 1) {       
       if(OpenHlt1JetPassed(6)>=1) { 
@@ -231,9 +231,6 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
       }      
     }      
   } 
-
-  // end JJH
-
 
   /* Forward & MultiJet */
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_FwdJet20U") == 0) {      
@@ -832,7 +829,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
     }          
   }          
 
-  //------------------Triggers approved in winter 2008 reviews----------------------------   
+  //-----------------Muon triggers approved in winter 2008 reviews---------------------------   
   //-------- https://hypernews.cern.ch/HyperNews/CMS/get/online-selection/662.html--------
 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1DoubleMuOpen") == 0) {    
@@ -910,8 +907,13 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
       if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }     
     }            
   }         
+
+  //----------------- Cross Triggers approved in Jan 2009 ---------------------------    
   
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu9_1Jet30") == 0){ // SGL - example lepton+jet cross-trigger
+  // SGL - lepton+jet cross-triggers. These are for 1E31, so the *corrected* 
+  // jets are used at HLT. For now, they run on the translated *uncorrected* 
+  // L1 jet seeds.
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu9_1JetU15") == 0){ 
     if((L1_Mu5_Jet6_00001==1)) {      // L1 Seed  
       int rc = 0; 
       if(OpenHlt1CorJetPassed(30)>=1){ // Require 1 corrected jet above threshold
@@ -927,6 +929,72 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
     } 
   }
 
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele10_SW_L1R_3Jet30_3JetL1") == 0){
+    if((L1_EG5_TripleJet6_00001 == 1)) {      // L1 Seed 
+      int rc = 0;
+      if(OpenHlt1CorJetPassed(30)>=3){
+	if(OpenHlt1ElectronPassed(10.,0,9999.,9999.)>=1) {
+	  if(rc>0) {  
+	    if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }      
+	  }
+	}
+      }
+    }
+  }
+
+  // John Paul Chou - e(gamma) + mu cross-trigger. 
+  // One non-isolated photon plus one non-isolated L2 muons.
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu5_Photon9_L1R")){
+    if(OpenL1_Mu3EG5 == 1){      // L1 Seed  
+      if(OpenHlt1L2MuonPassed(5.,5.,2.)>=1 && OpenHlt1PhotonPassed(9.,0,9999.,9999.,9999.,9999.)>=1)
+	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }        
+    } 
+  }
+
+  // Exotica mu + e/gamma, mu + jet, and mu + MET L1-passthrough cross-triggers
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_L1Mu14_L1SingleEG10")){
+    if(L1_SingleMu14 == 1){      // L1 Seed
+      if(L1_SingleEG10_00001 == 1)
+	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
+    }
+  }
+
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_L1Mu14_L1SingleJet15")){ 
+    if(L1_SingleMu14 == 1){      // L1 Seed 
+      if(L1_SingleJet6_00001 == 1) 
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; } 
+    } 
+  } 
+
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_L1Mu14_L1ETM30")){ 
+    if(L1_SingleMu14 == 1){      // L1 Seed 
+      if(L1_ETM30_00001 == 1) 
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; } 
+    } 
+  }
+
+  // triple jet b-tag trigger for top
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_BTagIP_TripleJet20U")){
+    if(L1_TripleJet30_00001 == 1){      // L1 Seed  
+      int njets = 0;
+      int ntaggedjets = 0;
+      int max =  (NohBJetL2 > 2) ? 2 : NohBJetL2; 
+      for(int i = 0; i < max; i++) {  
+        if(ohBJetL2Et[i] > 20.) { // ET cut on uncorrected jets 
+	  njets++;
+          if(ohBJetPerfL25Tag[i] > 0.5) { // Level 2.5 b tag 
+            if(ohBJetPerfL3Tag[i] > 0.5) { // Level 3 b tag 
+	      ntaggedjets++;
+            }  
+          } 
+        } 
+      } 
+      if(njets > 2 && ntaggedjets > 0) {  // Require >= 3 jets, and >= 1 tagged jet
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }  
+      }  
+    } 
+  }
+  
   //------------------ Tau Triggers approved in Jan 2009 ----------------------------   
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_SingleLooseIsoTau20_L2R") == 0) {        
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) { 
@@ -1452,6 +1520,63 @@ int OHltTree::OpenHlt2MuonPassed(double ptl1, double ptl2, double ptl3, double d
   return rcL1L2L3; 
 } 
 
+int OHltTree::OpenHlt1L2MuonPassed(double ptl1, double ptl2, double dr) 
+{ 
+  // This is a modification of the standard Hlt1Muon code, which does not consider L3 information 
+  
+  int rcL1 = 0; int rcL2 = 0; int rcL1L2L3 = 0; 
+  int NL1Mu = 8; 
+  int L1MinimalQuality = 3; 
+  int L1MaximalQuality = 7; 
+  int doL1L2matching = 0; 
+  
+  // Loop over all oh L2 muons and apply cuts 
+  for (int j=0;j<NohMuL2;j++) {   
+    int bestl1l2drmatchind = -1; 
+    double bestl1l2drmatch = 999.0;  
+    
+    if(fabs(ohMuL2Eta[j])>=2.5) continue;  // L2 eta cut 
+    if( ohMuL2Pt[j] <= ptl2 ) continue; // L2 pT cut 
+    rcL2++; 
+    
+    // Begin L1 muons here. 
+    // Require there be an L1Extra muon Delta-R 
+    // matched to the L2 candidate, and that it have  
+    // good quality and pass nominal L1 pT cuts  
+    for(int k = 0;k < NL1Mu;k++) { 
+      if( (L1MuPt[k] < ptl1) ) continue; // L1 pT cut 
+      
+      double deltaphi = fabs(ohMuL2Phi[j]-L1MuPhi[k]);  
+      if(deltaphi > 3.14159) deltaphi = (2.0 * 3.14159) - deltaphi;  
+      double deltarl1l2 = sqrt((ohMuL2Eta[j]-L1MuEta[k])*(ohMuL2Eta[j]-L1MuEta[k]) + (deltaphi*deltaphi)); 
+      if(deltarl1l2 < bestl1l2drmatch) { 
+	bestl1l2drmatchind = k;   
+	bestl1l2drmatch = deltarl1l2;   
+      }   
+    } // End loop over L1Extra muons 
+    if(doL1L2matching == 1) { 
+	// Cut on L1<->L2 matching and L1 quality 
+	if((bestl1l2drmatch > 0.3) || (L1MuQal[bestl1l2drmatchind] < L1MinimalQuality) || (L1MuQal[bestl1l2drmatchind] > L1MaximalQuality)) { 
+	    rcL1 = 0;  
+	    cout << "Failed L1-L2 match/quality" << endl; 
+	    cout << "L1-L2 delta-eta = " << L1MuEta[bestl1l2drmatchind] << ", " << ohMuL2Eta[j] << endl;  
+	    cout << "L1-L2 delta-pho = " << L1MuPhi[bestl1l2drmatchind] << ", " << ohMuL2Phi[j] << endl;   
+	    cout << "L1-L2 delta-R = " << bestl1l2drmatch << endl; 
+	} else { 
+	  cout << "Passed L1-L2 match/quality" << endl; 
+	  rcL1++; 
+	  rcL1L2L3++; 
+	} // End L1 matching and quality cuts            
+    } else { 
+      rcL1L2L3++; 
+    } 
+  } // End L2 loop over muons 
+  return rcL1L2L3; 
+} 
+
+
+
+    
 
 int OHltTree::OpenHlt1JetPassed(double pt)
 {

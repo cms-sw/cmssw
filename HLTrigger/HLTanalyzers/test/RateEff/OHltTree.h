@@ -351,8 +351,10 @@ public :
   Int_t           L1_TauJet10_ETM40_00001; 
   Int_t           L1_TripleJet30_00001; 
   Int_t           L1_TripleMu3; 
-  
+
+  // Here we declare any emulated L1 bits 
   Int_t           OpenL1_ZeroBias;
+  Int_t           OpenL1_Mu3EG5; 
 
   Int_t           HLT_L1Jet15;
   Int_t           HLT_Jet30;
@@ -1162,6 +1164,7 @@ public :
   int OpenHlt1PhotonLooseEcalIsoPassed(float Et,int L1iso,float Tiso,float Eiso,float HisoBR,float HisoEC);
   int OpenHlt1MuonPassed(double ptl1,double ptl2,double ptl3,double dr,int iso);
   int OpenHlt2MuonPassed(double ptl1,double ptl2,double ptl3,double dr,int iso);
+  int OpenHlt1L2MuonPassed(double ptl1,double ptl2,double dr);  
   int OpenHlt1JetPassed(double pt);
   int OpenHlt1CorJetPassed(double pt);
   int OpenHltFwdJetPassed(double esum);
@@ -2153,6 +2156,12 @@ void OHltTree::SetOpenL1Bits()
 {
   OpenL1_ZeroBias = 1;
   map_BitOfStandardHLTPath["OpenL1_ZeroBias"] = OpenL1_ZeroBias;
+
+  if(L1GoodSingleMuPt[0] > 3.0 && (L1NIsolEmEt[0] > 5.0 || L1IsolEmEt[0] > 5.0)) 
+    OpenL1_Mu3EG5 = 1; 
+  else 
+    OpenL1_Mu3EG5 = 0; 
+
 }
 
 
