@@ -12,7 +12,7 @@
 
 <library file="*Filter.cc,Pythia6Hadronizer.cc,*.f" name=GeneratorInterfacePythia6Filters>
   <use name=GeneratorInterface/PartonShowerVeto>
-  <lib name=GeneratorInterfaceExternalDecays>
+  <use name=GeneratorInterface/ExternalDecays>
   <lib name=GeneratorInterfacePythia6Service>
   <flags FFLAGS=-w>
   <flags EDM_PLUGIN=1>
