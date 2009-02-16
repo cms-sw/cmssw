@@ -13,8 +13,8 @@ cmsswDir=/afs/cern.ch/user/p/pjanot/scratch0/CMSSW_3_0_0_pre6/src
 #for energy in 300 500 700 1000
 #for energy in 15
 # Some electrons with pt = 35 GeV/c
-eMin=100
-eMax=1000
+eMin=10
+eMax=100
 #echo "Energy "$energy
 echo "E = "$eMin" -> "$eMax
 
@@ -28,7 +28,7 @@ for pid in 130 22
   DIRNAME=$castorhome"SingleParticlePID"$pid
   echo "Creating directory "$DIRNAME
   rfmkdir $DIRNAME
-  for ((job=0;job<=9;job++));
+  for ((job=0;job<=19;job++));
     do
     
     echo "JOB "$job

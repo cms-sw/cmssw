@@ -23,16 +23,16 @@ process.source = cms.Source (
        #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre1/aod_QCDForPF_Fast_9.root',
        #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre1/aod_QCDForPF_Fast_10.root'
     # Full
-       #'file:aod_QCDForPF_Full_000.root',
-       #'file:aod_QCDForPF_Full_001.root',
-       #'file:aod_QCDForPF_Full_002.root',
-       #'file:aod_QCDForPF_Full_003.root',
-       #'file:aod_QCDForPF_Full_004.root',
-       #'file:aod_QCDForPF_Full_005.root',
-       #'file:aod_QCDForPF_Full_006.root',
-       #'file:aod_QCDForPF_Full_007.root',
-       #'file:aod_QCDForPF_Full_008.root'
-       'file:aod.root'
+       'file:aod_QCDForPF_Full_000.root',
+       'file:aod_QCDForPF_Full_001.root',
+       'file:aod_QCDForPF_Full_002.root',
+       'file:aod_QCDForPF_Full_003.root',
+       'file:aod_QCDForPF_Full_004.root',
+       'file:aod_QCDForPF_Full_005.root',
+       'file:aod_QCDForPF_Full_006.root',
+       'file:aod_QCDForPF_Full_007.root',
+       'file:aod_QCDForPF_Full_008.root'
+       #'file:aod.root'
        ),
     secondaryFileNames = cms.untracked.vstring(),
     noEventSort = cms.untracked.bool(True)
@@ -65,9 +65,9 @@ process.genParticlesForJets.ignoreParticleIDs.append(16)
 process.genParticlesForJets.excludeResonances = False
 
 
-process.pfJetBenchmarkGeneric.OutputFile = cms.untracked.string('TauBenchmarkGeneric.root')
-process.caloJetBenchmarkGeneric.OutputFile = cms.untracked.string('TauBenchmarkGeneric.root')
-process.jptJetBenchmarkGeneric.OutputFile = cms.untracked.string('TauBenchmarkGeneric.root')
+process.pfJetBenchmarkGeneric.OutputFile = cms.untracked.string('JetBenchmarkGeneric.root')
+process.caloJetBenchmarkGeneric.OutputFile = cms.untracked.string('JetBenchmarkGeneric.root')
+process.jptJetBenchmarkGeneric.OutputFile = cms.untracked.string('JetBenchmarkGeneric.root')
 
 process.p =cms.Path(
     process.genJetParticles+
