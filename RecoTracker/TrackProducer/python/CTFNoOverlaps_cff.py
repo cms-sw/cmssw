@@ -18,9 +18,9 @@ from RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi import *
 from RecoLocalTracker.SiPixelRecHits.PixelCPEParmError_cfi import *
 #TransientTrackingBuilder
 from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi import *
-import copy
-from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi import *
+
+import RecoTracker.TrackProducer.TrackProducer_cfi
 # TrackProducer
-ctfNoOverlaps = copy.deepcopy(ctfWithMaterialTracks)
+ctfNoOverlaps = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone()
 ctfNoOverlaps.src = 'ckfTrackCandidatesNoOverlaps'
 

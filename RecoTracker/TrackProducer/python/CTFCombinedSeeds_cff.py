@@ -1,10 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-# magnetic field
-# cms geometry
-
-# tracker geometry
-# tracker numbering
 # KFUpdatoerESProducer
 from TrackingTools.KalmanUpdators.KFUpdatorESProducer_cfi import *
 # Chi2MeasurementEstimatorESProducer
@@ -18,9 +13,9 @@ from RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi import *
 from RecoLocalTracker.SiPixelRecHits.PixelCPEParmError_cfi import *
 #TransientTrackingBuilder
 from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi import *
-import copy
-from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi import *
+
+import RecoTracker.TrackProducer.TrackProducer_cfi
 # TrackProducer
-ctfCombinedSeeds = copy.deepcopy(ctfWithMaterialTracks)
+ctfCombinedSeeds = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone()
 ctfCombinedSeeds.src = 'ckfTrackCandidatesCombinedSeeds'
 

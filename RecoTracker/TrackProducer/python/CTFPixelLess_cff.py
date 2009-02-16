@@ -13,8 +13,8 @@ from RecoLocalTracker.SiPixelRecHits.PixelCPEParmError_cfi import *
 from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi import *
 
 # TrackProducer
-import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi 
-ctfPixelLess = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone(
+import RecoTracker.TrackProducer.TrackProducer_cfi 
+ctfPixelLess = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = cms.InputTag("ckfTrackCandidatesPixelLess"),  
     Fitter = cms.string('RKFittingSmoother')
 )

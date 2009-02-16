@@ -25,10 +25,11 @@ from RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi import *
 from RecoLocalTracker.SiPixelRecHits.PixelCPEParmError_cfi import *
 #TransientTrackingBuilder
 from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi import *
-import copy
-from RecoTracker.TrackProducer.RSFinalFitWithMaterial_cfi import *
+
+import RecoTracker.TrackProducer.RSFinalFitWithMaterial_cff
 # include TrackProducer and clone with new module label
-rsWithMaterialTracksP5 = copy.deepcopy(rsWithMaterialTracks)
-rsWithMaterialTracksP5.src = 'rsTrackCandidatesP5'
-rsWithMaterialTracksP5.TTRHBuilder = 'WithTrackAngle'
+rsWithMaterialTracksP5 = RecoTracker.TrackProducer.RSFinalFitWithMaterial_cff.rsWithMaterialTracks.clone(
+    src = 'rsTrackCandidatesP5',
+    TTRHBuilder = 'WithTrackAngle'
+    )
 

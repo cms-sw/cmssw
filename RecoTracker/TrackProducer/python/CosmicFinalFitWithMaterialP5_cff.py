@@ -25,10 +25,14 @@ from RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi import *
 from RecoLocalTracker.SiPixelRecHits.PixelCPEParmError_cfi import *
 #TransientTrackingBuilder
 from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi import *
-import copy
-from RecoTracker.TrackProducer.CosmicFinalFitWithMaterial_cfi import *
+
+import RecoTracker.TrackProducer.TrackProducer_cfi
+
 # include TrackProducer and clone with new module label
-cosmictrackfinderP5 = copy.deepcopy(cosmictrackfinder)
+cosmictrackfinderP5 = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone()
+
 cosmictrackfinderP5.src = 'cosmicCandidateFinderP5'
 cosmictrackfinderP5.TTRHBuilder = 'WithTrackAngle'
+cosmictrackfinderP5.AlgorithmName = 'cosmic'
+cosmictrackfinderP5.Fitter = 'RKFittingSmoother'
 

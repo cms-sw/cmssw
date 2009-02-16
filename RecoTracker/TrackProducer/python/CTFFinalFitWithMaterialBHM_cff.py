@@ -21,9 +21,9 @@ KFFittingSmootherBeamHalo = copy.deepcopy(KFFittingSmoother)
 #get the dependencies
 from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cff import *
 import copy
-from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi import *
+from RecoTracker.TrackProducer.TrackProducer_cfi import *
 #clone the track producer
-ctfWithMaterialTracksBeamHaloMuon = copy.deepcopy(ctfWithMaterialTracks)
+ctfWithMaterialTracksBeamHaloMuon = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone()
 KFTrajectoryFitterBeamHalo.ComponentName = 'KFFitterBH'
 KFTrajectoryFitterBeamHalo.Propagator = 'BeamHaloPropagatorAlong'
 KFTrajectorySmootherBeamHalo.ComponentName = 'KFSmootherBH'

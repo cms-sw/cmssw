@@ -31,5 +31,13 @@ from RecoLocalTracker.SiPixelRecHits.PixelCPEParmError_cfi import *
 #TransientTrackingBuilder
 from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi import *
 # TrackProducer
-from RecoTracker.TrackProducer.RSFinalFitAnalytical_cfi import *
 
+import RecoTracker.TrackProducer.TrackProducer_cfi
+
+RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
+    src = 'rsTrackCandidates',
+    AlgorithmName = 'rs',
+    Propagator = 'AnalyticalPropagator',
+    Fitter = 'KFFittingSmoother',
+    TTRHBuilder = 'WithTrackAngle'
+    )

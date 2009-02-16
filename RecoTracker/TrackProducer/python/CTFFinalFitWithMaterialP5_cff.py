@@ -16,8 +16,8 @@ FittingSmootherRKP5.Fitter = 'RKFitter'
 FittingSmootherRKP5.Smoother = 'RKSmoother'
 FittingSmootherRKP5.MinNumberOfHits = 4
 
-import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
-ctfWithMaterialTracksP5 = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone(
+import RecoTracker.TrackProducer.TrackProducer_cfi
+ctfWithMaterialTracksP5 = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = 'ckfTrackCandidatesP5',
     Fitter = 'FittingSmootherRKP5',
     TTRHBuilder = 'WithTrackAngle',
