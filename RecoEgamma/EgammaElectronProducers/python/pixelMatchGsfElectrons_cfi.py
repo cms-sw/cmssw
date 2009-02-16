@@ -7,7 +7,7 @@ pixelMatchGsfElectrons = cms.EDProducer("GsfElectronProducer",
     # input collections
     barrelSuperClusters = cms.InputTag("correctedHybridSuperClusters","ecalDrivenElectronSeeds"),
     endcapSuperClusters = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower","ecalDrivenElectronSeeds"),
-    tracks = cms.InputTag("pixelMatchGsfFit"),
+    tracks = cms.InputTag("electronGsfTracks"),
     ctfTracks = cms.InputTag("generalTracks"),
     hcalTowers = cms.InputTag("towerMaker"),
     reducedBarrelRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
