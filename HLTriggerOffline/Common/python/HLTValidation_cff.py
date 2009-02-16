@@ -4,7 +4,7 @@ from HLTriggerOffline.special.MonitorAlCaEcalPi0_cfi import *
 from HLTriggerOffline.special.EcalPhiSymHLTVal_cfi import *
 from HLTriggerOffline.Egamma.EgammaValidation_cff import *
 from HLTriggerOffline.Top.topvalidation_cfi import *
-from HLTriggerOffline.SUSYBSM.SUSYBSM_triggerValidation_cff import *
+#from HLTriggerOffline.SUSYBSM.SUSYBSM_triggerValidation_cff import *
 from HLTriggerOffline.Common.FourVectorHLTriggerOffline_cff import *
 from HLTriggerOffline.HeavyFlavor.heavyFlavorValidationSequence_cff import *
 hltvalidation = cms.Sequence(
@@ -14,7 +14,7 @@ hltvalidation = cms.Sequence(
     +EcalPhiSymMon
     +egammaValidationSequence
     +HLTTopVal
-    +HLTSusyExoVal
+   #+HLTSusyExoVal
     +HLTFourVector
     +heavyFlavorValidationSequence
     )
