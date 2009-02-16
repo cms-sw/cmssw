@@ -3,328 +3,9 @@ import os
 import sys
 import ConfigParser
 import optparse
+import datetime
 
-
-offlineTemplate = """
-import FWCore.ParameterSet.Config as cms
-
-process = cms.Process("OfflineValidator.oO[name]Oo.") 
-   
-process.load("Alignment.OfflineValidation..oO[dataset]Oo._cff")
-
- ##
- ## Maximum number of Events
- ## 
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(.oO[nEvents]Oo.)
- )
-
- ##
- ## Output File Configuration
- ##
-process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('.oO[workdir]Oo./AlignmentValidation_.oO[name]Oo..root')
- )
-
- ##   
- ## Messages & Convenience
- ##
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('LOGFILE_Offline_.oO[name]Oo.', 
-        'cout')
-)
-
- ## report only every 100th record
- ##process.MessageLogger.cerr.FwkReport.reportEvery = 100
-    
- ##
- ## Alignment Track Selection
- ##
-process.load("Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi")
-process.AlignmentTrackSelector.src = ".oO[TrackCollection]Oo."
-process.AlignmentTrackSelector.filter = True
-process.AlignmentTrackSelector.applyBasicCuts = True
-process.AlignmentTrackSelector.ptMin   = 0.
-process.AlignmentTrackSelector.etaMin  = -9.
-process.AlignmentTrackSelector.etaMax  = 9.
-process.AlignmentTrackSelector.nHitMin = 10
-process.AlignmentTrackSelector.nHitMin2D = 2
-process.AlignmentTrackSelector.chi2nMax = 999.
-process.AlignmentTrackSelector.applyMultiplicityFilter = True
-process.AlignmentTrackSelector.maxMultiplicity = 1
-process.AlignmentTrackSelector.applyNHighestPt = False
-process.AlignmentTrackSelector.nHighestPt = 1
-process.AlignmentTrackSelector.seedOnlyFrom = 0 
-process.AlignmentTrackSelector.applyIsolationCut = False
-process.AlignmentTrackSelector.minHitIsolation = 0.8
-process.AlignmentTrackSelector.applyChargeCheck = False
-process.AlignmentTrackSelector.minHitChargeStrip = 50.
-
- ##
- ## Load and Configure TrackHitFilter
- ##
-process.load("Alignment.TrackHitFilter.TrackHitFilter_cfi")
-process.TrackHitFilter.src= 'AlignmentTrackSelector'
-process.TrackHitFilter.hitSelection= "SiStripOnly"
-#process.TrackHitFilter.hitSelection= "TOBandTIBandTIDOnly"
-
-##
-## Apply a momentum constraint
-##
-#process.load("RecoTracker.TrackProducer.AliMomConstraint_cff")
-#process.AliMomConstraint.src='TrackHitFilter'
-#process.AliMomConstraint.FixedMomentum = 1.0
-#process.AliMomConstraint.FixedMomentumError = 0.001
-
- ##
- ## Load and Configure TrackRefitter
- ##
-process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
-process.TrackRefitter.src ='TrackHitFilter'
-#process.TrackRefitter.src ='AliMomConstraint'
-#process.TrackRefitter.constraint='momentum'
-process.TrackRefitter.TrajectoryInEvent = True
-
-# Reject outliers
-## include  "TrackingTools/TrackFitters/data/RungeKuttaKFFittingSmootherESProducer.cfi"
-#process.RKFittingSmoother.EstimateCut=50.0
-#process.RKFittingSmoother.MinNumberOfHits=5
-
-    
- ## 
- ## Database configuration
- ##
- #process.load("CondCore.DBCommon.CondDBCommon_cfi")
- #process.load("CondCore.DBCommon.CondDBSetup_cfi")
- 
- ##
- ## Get the BeamSpot
- ##
-process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
- 
- ##
- ## GlobalTag Conditions (if needed)
- ##
-process.load("Alignment.OfflineValidation.GlobalTag_cff")
-process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
-process.GlobalTag.connect="frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
-  
- ##
- ## Geometry
- ##
-process.load("Configuration.StandardSequences.Geometry_cff")
- 
- ##
- ## Magnetic Field
- ##
-process.load("MagneticField/Engine/uniformMagneticField_cfi")
-process.UniformMagneticFieldESProducer.ZFieldInTesla = 0.0
-
-.oO[zeroAPE]Oo.
-
-.oO[dbLoad]Oo.
-
-## to apply misalignments
-#TrackerDigiGeometryESModule.applyAlignment = True
-    
- ##
- ## Load and Configure OfflineValidation
- ##
-process.load("Alignment.OfflineValidation.TrackerOfflineValidation_cfi")
-process.TrackerOfflineValidation.Tracks = 'TrackRefitter'
-process.TrackerOfflineValidation.trajectoryInput = 'TrackRefitter'
-#process.TrackerOfflineValidation.moduleLevelHistsTransient = False
-process.TrackerOfflineValidation.TH1ResModules = cms.PSet(
-    xmin = cms.double(-0.5),
-    Nbinx = cms.int32(300),
-    xmax = cms.double(0.5)
- )
-process.TrackerOfflineValidation.TH1NormResModules = cms.PSet(
-    xmin = cms.double(-3.0),
-    Nbinx = cms.int32(300),
-    xmax = cms.double(3.0)
- )
-
- ##
- ## PATH
- ##
-process.p = cms.Path(process.offlineBeamSpot*process.AlignmentTrackSelector*process.TrackHitFilter*process.TrackRefitter*process.TrackerOfflineValidation)
-
-"""
-
-intoNTuplesTemplate="""
-import FWCore.ParameterSet.Config as cms
-
-process = cms.Process(".oO[name]Oo.IntoNTuples")
-
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
-process.load("Alignment.CommonAlignmentProducer.GlobalPosition_Frontier_cff")
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
-
-process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('detailedInfo', 
-        'cout')
-) 
-
-process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-    process.CondDBSetup,
-    timetype = cms.string('runnumber'),
-    toGet = cms.VPSet(cms.PSet(
-        record = cms.string('TrackerAlignmentRcd'),
-        tag = cms.string('.oO[tag]Oo.')
-    ), 
-        cms.PSet(
-            record = cms.string('TrackerAlignmentErrorRcd'),
-            tag = cms.string('.oO[errortag]Oo.')
-        )),
-    connect = cms.string('.oO[dbpath]Oo.')
-)
-
-process.source = cms.Source("EmptySource")
-
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(0)
-)
-process.dump = cms.EDFilter("TrackerGeometryIntoNtuples",
-    outputFile = cms.untracked.string('.oO[workdir]Oo./.oO[name]Oo.ROOTGeometry.root'),
-    outputTreename = cms.untracked.string('alignTree')
-)
-
-process.p = cms.Path(process.dump)  
-"""
-
-compareTemplate="""
-import FWCore.ParameterSet.Config as cms
-
-process = cms.Process("compareIdealTo.oO[name]Oo.Common.oO[common]Oo.")
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cff")
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
-process.load("Alignment.CommonAlignmentProducer.GlobalPosition_Frontier_cff")
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
-
-process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('LOGFILE_Common.oO[common]Oo._.oO[name]Oo.', 
-        'cout')
-)
-
-process.source = cms.Source("EmptySource")
-
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(0)
-)
-
-  # configuration of the Tracker Geometry Comparison Tool
-  # Tracker Geometry Comparison
-process.load("Alignment.OfflineValidation.TrackerGeometryCompare_cfi")
-  # the input "IDEAL" is special indicating to use the ideal geometry of the release
-
-process.TrackerGeometryCompare.inputROOTFile1 = 'IDEAL'
-process.TrackerGeometryCompare.inputROOTFile2 = '.oO[workdir]Oo./.oO[name]Oo.ROOTGeometry.root'
-process.TrackerGeometryCompare.outputFile = ".oO[workdir]Oo./.oO[name]Oo.Comparison_common.oO[common]Oo..root"
-process.TrackerGeometryCompare.levels = [ .oO[levels]Oo. ]
-
-  ##FIXME!!!!!!!!!
-  ##replace TrackerGeometryCompare.writeToDB = .oO[dbOutput]Oo.
-  ##.oO[dbOutputService]Oo.
-
-process.p = cms.Path(process.TrackerGeometryCompare)
-"""
-  
-dbOutputTemplate= """
-//_________________________ db Output ____________________________
-        # setup for writing out to DB
-        include "CondCore/DBCommon/data/CondDBSetup.cfi"
-#       include "CondCore/DBCommon/data/CondDBCommon.cfi"
-
-    service = PoolDBOutputService {
-        using CondDBSetup
-        VPSet toPut = {
-            { string record = "TrackerAlignmentRcd"  string tag = ".oO[tag]Oo." },
-            { string record = "TrackerAlignmentErrorRcd"  string tag = ".oO[errortag]Oo." }
-        }
-                string connect = "sqlite_file:.oO[workdir]Oo./.oO[name]Oo.Common.oO[common]Oo..db"
-                # untracked string catalog = "file:alignments.xml"
-        untracked string timetype = "runnumber"
-    }
-"""
-
-dbLoadTemplate="""
-from CondCore.DBCommon.CondDBSetup_cfi import *
-process.trackerAlignment = cms.ESSource("PoolDBESSource",CondDBSetup,
-                                        connect = cms.string('.oO[dbpath]Oo.'),
-                                        timetype = cms.string("runnumber"),
-                                        toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentRcd'),
-                                                                   tag = cms.string('.oO[tag]Oo.')
-                                                                   ))
-                                        )
-process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource", "trackerAlignment")
-"""
-
-
-zeroAPETemplate="""
-from CondCore.DBCommon.CondDBSetup_cfi import *
-process.ZeroAPE = cms.ESSource("PoolDBESSource",CondDBSetup,
-                                        connect = cms.string('frontier://FrontierProd/CMS_COND_21X_ALIGNMENT'),
-                                        timetype = cms.string("runnumber"),
-                                        toGet = cms.VPSet(
-                                                          cms.PSet(record = cms.string('TrackerAlignmentErrorRcd'),
-                                                                   tag = cms.string('TrackerIdealGeometryErrors210_mc')
-                                                                   ))
-                                        )
-process.es_prefer_ZeroAPE = cms.ESPrefer("PoolDBESSource", "ZeroAPE")
-"""
-
-
-#batch job execution
-scriptTemplate="""
-#!/bin/bash
-#init
-export STAGE_SVCCLASS=cmscaf
-source /afs/cern.ch/cms/sw/cmsset_default.sh
-cd .oO[CMSSW_BASE]Oo./src
-eval `scramv1 ru -sh`
-rfmkdir -p .oO[workdir]Oo.
-rm -f .oO[workdir]Oo./*
-cd .oO[workdir]Oo.
-
-#run
-pwd
-df -h .
-.oO[CommandLine]Oo.
-ls -ltr
-
-#retrive
-rfmkdir .oO[logdir]Oo.
-gzip LOGFILE_*_.oO[name]Oo..log
-find .oO[workdir]Oo. -maxdepth 1 -name "LOGFILE*.oO[name]Oo.*" -print | xargs -I {} bash -c "rfcp {} .oO[logdir]Oo."
-rfmkdir .oO[datadir]Oo.
-find .oO[workdir]Oo. -maxdepth 1 -name "*.oO[name]Oo.*.root" -print | xargs -I {} bash -c "rfcp {} .oO[datadir]Oo."
-#cleanup
-rm LOGFILE_*.log.gz
-rm .oO[workdir]Oo./*_.oO[name]Oo.*.root
-echo "done."
-"""
-
-mergeTemplate="""
-#!/bin/bash
-#init
-export STAGE_SVCCLASS=cmscaf
-source /afs/cern.ch/cms/sw/cmsset_default.sh
-cd .oO[CMSSW_BASE]Oo./src
-eval `scramv1 ru -sh`
-rfmkdir .oO[workdir]Oo.
-cd .oO[workdir]Oo.
-
-#run
-.oO[DownloadData]Oo.
-.oO[CompareAllignments]Oo.
-
-find ./ -maxdepth 1 -name "*_result.root" -print | xargs -I {} bash -c "rfcp {} .oO[datadir]Oo."
-"""
+from configTemplates import intoNTuplesTemplate, compareTemplate, compareTemplate, dbOutputTemplate, dbLoadTemplate, zeroAPETemplate, scriptTemplate, mergeTemplate, offlineTemplate
 
 #replaces .oO[id]Oo. by map[id] in target
 def replaceByMap(target, map):
@@ -353,6 +34,22 @@ def getCommandOutput2(command):
         raise RuntimeError, '%s failed w/ exit code %d' % (command, err)
     return data
 
+#check if a directory exsits on castor
+def castorDirExists(path):
+    if path[-1] == "/":
+        path = path[:-1]
+    containingPath = os.path.join( *path.split("/")[:-1] )
+    dirInQuestion = path.split("/")[-1]
+    try:
+        rawLines =getCommandOutput2("rfdir /"+containingPath).splitlines()
+    except RuntimeError:
+        return False
+    for line in rawLines:
+        if line.split()[0][0] == "d":
+            if line.split()[8] == dirInQuestion:
+                return True
+    return False                                
+
 #creates the configfile
 def createValidationCfg(name,dbpath,tag,errortag,general):
      repMap ={}
@@ -367,7 +64,8 @@ def createValidationCfg(name,dbpath,tag,errortag,general):
      repMap["dbLoad"] = dbLoadTemplate
      repMap["zeroAPE"] = zeroAPETemplate
      repMap["GlobalTag"] = str(general["globaltag"])
-
+     repMap["offlineModuleLevelHistsTransient"] = str(general["offlinemodulelevelhiststransient"])
+     
      cfgName = "TkAlOfflineValidation."+name+".py"
      cfgFile = open(cfgName,"w")
      cfgFile.write(replaceByMap(offlineTemplate, repMap))
@@ -529,6 +227,13 @@ def readGeneral(fileName):
         result["logdir"] = os.getcwd()
     if not "datadir" in result:
         result["datadir"] = os.path.join(os.getcwd(),"resultingData")
+    if not "offlinemodulelevelhiststransient" in result:
+        result["offlinemodulelevelhiststransient"] = "True"
+    if "localGeneral" in config.sections():
+        for option in result:
+            if option in [item[0] for item in config.items("localGeneral")]:
+                result[ option ] = config.get("localGeneral", option)
+
     return result
 
 def runJob(name,cfgNames, general, dryRun, postProcess = ""):
@@ -548,22 +253,48 @@ def runJob(name,cfgNames, general, dryRun, postProcess = ""):
 def main():
     optParser = optparse.OptionParser()
     optParser.add_option("-n", "--dryRun", dest="dryRun", action="store_true", default=False,
-                  help="create all scripts and cfg File but do not start jobs (default=False)")
+                         help="create all scripts and cfg File but do not start jobs (default=False)")
     optParser.add_option( "--getImages", dest="getImages", action="store_true", default=False,
-                  help="get all Images created during the process (default= False)")
+                          help="get all Images created during the process (default= False)")
     optParser.add_option("-c", "--config", dest="config",
-                  help="configuration to use (default compareConfig.ini)", metavar="CONFIG")
+                         help="configuration to use (default compareConfig.ini) this can be a comma-seperated list of all .ini file you want to merge", metavar="CONFIG")
+    optParser.add_option("-N", "--Name", dest="Name",
+                         help="Name of this validation (default: alignmentValidation_DATE_TIME)", metavar="NAME")
 
     (options, args) = optParser.parse_args()
 
     if options.config == None:
         options.config = "compareConfig.ini"
+    else:
+        options.config = options.config.split(",")
+        result = []
+        for iniFile in options.config:
+            result.append( os.path.abspath(iniFile) )
+        options.config = result
+
+    if options.Name == None:
+        options.Name = "alignmentValidation_%s"%(datetime.datetime.now().strftime("%y%m%d_%H%M%S"))
+
+    outPath = os.path.abspath( options.Name )
+    if not os.path.exists( outPath ):
+        os.makedirs( outPath )
+    elif not os.path.isdir( outPath ):
+        raise "the file %s is in the way rename the Job or move it away"%outPath
+
+    currentDir = os.getcwd() 
+    os.chdir( outPath ) 
 
     log = ""
     alignments = readAlignments(options.config)
     compares = readCompare(options.config)
     general = readGeneral(options.config)
     maxEvents = general["maxevents"]
+
+    general["datadir"]= os.path.join( general["datadir"], options.Name )
+    general["workdir"]= os.path.join( general["workdir"], options.Name )
+    if not castorDirExists( general["datadir"] ):
+        getCommandOutput2( "rfmkdir -p %s"%general["datadir"])
+
    
     for name in alignments:
         if "offline" in alignments[name][0].split():
