@@ -28,6 +28,7 @@ ckfTrackCandidatesP5.src = cms.InputTag('combinedP5SeedsForCTF')
 #backward compatibility 2.2/3.1
 ckfTrackCandidatesP5.SeedProducer = 'combinedP5SeedsForCTF'
 
+#import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
 from RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff import *
 # ROACH SEARCH
 from RecoTracker.RoadSearchSeedFinder.RoadSearchSeedsP5_cff import *
