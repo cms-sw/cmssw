@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.31 2009/02/16 09:13:09 jserrano Exp $
+# $Id: setup_sm.sh,v 1.32 2009/02/16 09:21:11 jserrano Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
@@ -194,7 +194,6 @@ stop () {
             ;;
         srv-c2c07-* | srv-C2C07-* | srv-c2c06-* | srv-C2C06-*)
             stopworkers
-            killall -5 monitoringSar.sh
             for i in $store/sata*a*v*; do 
                 sn=`basename $i`
                 if test -n "`mount | grep $sn`"; then
