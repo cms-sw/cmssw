@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 hltFourVectorClient = cms.EDFilter("FourVectorHLTClient",
-    hltClientDir = cms.untracked.string('HLT/FourVector/client'),
-    hltSourceDir = cms.untracked.string('HLT/FourVector/'),
+    hltClientDir = cms.untracked.string('HLT/FourVector/client/'),
+    hltSourceDir = cms.untracked.string('HLT/FourVector/source/'),
     prescaleLS = cms.untracked.int32(-1),
     prescaleEvt = cms.untracked.int32(1),
     customEffDir = cms.untracked.string('custom-eff'),
