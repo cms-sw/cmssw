@@ -7,7 +7,7 @@
  *
  * \author Shahram Rahatlou, INFN
  *
- * \version $Id: CaloCluster.h,v 1.10 2009/02/09 10:55:21 cbern Exp $
+ * \version $Id: CaloCluster.h,v 1.11 2009/02/09 12:14:16 cbern Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
@@ -21,21 +21,17 @@
 
 namespace reco {
 
+  //FIXME: to be moved inside CaloCluster
+  enum AlgoId { island = 0, hybrid = 1, fixedMatrix = 2, dynamicHybrid = 3, multi5x5 = 4, pFClusters = 5 , ALGO_undefined = 100};
 
   class CaloCluster {
-    
   public:
 
-    enum AlgoID { ALGO_island = 0, 
-		  ALGO_hybrid, 
-		  ALGO_fixedMatrix, 
-		  ALGO_dynamicHybrid, 
-		  ALGO_multi5x5, 
-		  ALGO_pfClusters,
-		  ALGO_undefined
-    };
-    
-    /// default constructor. Sets energy and position to zero
+   //FIXME:  
+   //temporary fix... to be removed before 310 final
+   typedef AlgoId AlgoID ;
+ 
+   /// default constructor. Sets energy and position to zero
     CaloCluster() : 
       energy_(0), 
       algoID_( ALGO_undefined ) {}
@@ -45,30 +41,20 @@ namespace reco {
       energy_(0), 
       algoID_( algoID ) {}
 
+    CaloCluster( double energy,
+                 const math::XYZPoint& position,
+                 const CaloID& caloID) :
+      energy_ (energy), position_ (position), caloID_(caloID) {}
+
 
     /// resets the CaloCluster (position, energy, hitsAndFractions)
     void reset();
-
     
+     /// constructor from values 
+     CaloCluster( double energy,  
+ 		 const math::XYZPoint& position ) : 
+       energy_ (energy), position_ (position) {} 
 
-/*     /// constructor from values */
-/*     CaloCluster( double energy,  */
-/* 		 const math::XYZPoint& position ) : */
-/*       energy_ (energy), position_ (position) {} */
-
-/*     /// constructor from values */
-/*     CaloCluster( double energy,  */
-/* 		 const math::XYZPoint& position,  */
-/* 		 const CaloID& caloID) : */
-/*       energy_ (energy), position_ (position), caloID_(caloID) {} */
-
-/*     /// constructor from values */
-/*     CaloCluster( double energy,  */
-/* 		 const math::XYZPoint& position,  */
-/* 		 const CaloID& caloID, */
-/*                  const std::vector< std::pair< DetId, float > > &usedHitsAndFractions, */
-/*                  const AlgoId &algoId) : */
-/*       energy_ (energy), position_ (position), caloID_(caloID), hitsAndFractions_(usedHitsAndFractions), algoId_(algoId) {} */
 
     CaloCluster( double energy,
 		 const math::XYZPoint& position,
@@ -76,6 +62,27 @@ namespace reco {
                  const AlgoID& algoID) :
       energy_ (energy), position_ (position), 
       caloID_(caloID), algoID_(algoID) {}
+
+    CaloCluster( double energy,
+                 const math::XYZPoint& position,
+                 const CaloID& caloID,
+                 const std::vector< std::pair< DetId, float > > &usedHitsAndFractions,
+                 const AlgoId algoId) :
+      energy_ (energy), position_ (position), caloID_(caloID), hitsAndFractions_(usedHitsAndFractions), algoID_(algoId) {}
+
+   //FIXME:
+   /// temporary compatibility constructor
+    CaloCluster( double energy,
+                 const math::XYZPoint& position,
+                 float chi2,
+                 const std::vector<DetId > &usedHits,
+                 const AlgoId algoId) :
+      energy_ (energy), position_ (position),  algoID_(algoId)
+       {
+          hitsAndFractions_.reserve(usedHits.size());
+          for(size_t i = 0; i < usedHits.size(); i++) hitsAndFractions_.push_back(std::pair< DetId, float > ( usedHits[i],1.));
+      }
+
 
     /// destructor
     virtual ~CaloCluster() {}
@@ -107,9 +114,9 @@ namespace reco {
     }
 
     /// comparison == operator
-/*     bool operator==(const CaloCluster& rhs) const { */
-/*             return (energy_ == rhs.energy_); */
-/*     }; */
+     bool operator==(const CaloCluster& rhs) const { 
+             return (energy_ == rhs.energy_); 
+     }; 
 
     /// x coordinate of cluster centroid
     double x() const { return position_.x(); }
@@ -130,9 +137,9 @@ namespace reco {
     size_t size() const { return hitsAndFractions_.size(); }
 
     /// algorithm identifier
-    AlgoID algoID() const { return algoID_; }
+    AlgoId algo() const { return algoID_; }
+    AlgoID algoID() const { return algo(); }
     
-/*     CaloID& caloID() {return caloID_;} */
     const CaloID& caloID() const {return caloID_;}
 
     void addHitAndFraction( DetId id, float fraction ) { 
