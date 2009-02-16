@@ -16,7 +16,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "SimDataFormats/GeneratorProducts/interface/GenInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 
 #include "GeneratorInterface/ThePEGInterface/interface/ThePEGInterface.h"
 
@@ -47,7 +47,7 @@ ThePEGProducer::ThePEGProducer(const edm::ParameterSet &pset) :
 	initRepository(pset);
 
 	produces<edm::HepMCProduct>();
-	produces<edm::GenInfoProduct, edm::InRun>();
+	produces<GenRunInfoProduct, edm::InRun>();
 }
 
 ThePEGProducer::~ThePEGProducer()
@@ -61,11 +61,11 @@ void ThePEGProducer::beginRun(edm::Run &run, const edm::EventSetup &es)
 
 void ThePEGProducer::endRun(edm::Run &run, const edm::EventSetup &es)
 {
-	std::auto_ptr<edm::GenInfoProduct> genInfoProd(new edm::GenInfoProduct);
-	genInfoProd->set_cross_section(eg_->integratedXSec() / ThePEG::picobarn);
-	genInfoProd->set_external_cross_section(extCrossSect);
-	genInfoProd->set_filter_efficiency(extFilterEff);
-	run.put(genInfoProd);
+	std::auto_ptr<GenRunInfoProduct> genRunInfo(new GenRunInfoProduct);
+	genRunInfo->setInternalXSec(eg_->integratedXSec() / ThePEG::picobarn);
+	genRunInfo->setExternalXSecLO(extCrossSect);
+	genRunInfo->setFilterEfficiency(extFilterEff);
+	run.put(genRunInfo);
 }
 
 void ThePEGProducer::produce(edm::Event &event, const edm::EventSetup &es)
