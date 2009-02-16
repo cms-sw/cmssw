@@ -73,11 +73,6 @@ class FEDNumbering {
 
   static const std::string &fromDet(int);
 
- private:
-  static std::vector<std::string> from_;
-  static bool *in_;
-  static bool init_;
-
    enum {
      NOT_A_FEDID = -1,
      MAXFEDID = 1023, // 10 bits
@@ -142,6 +137,11 @@ class FEDNumbering {
      MINDAQeFEDFEDID = 902,
      MAXDAQeFEDFEDID = 931
    };
+ private:
+  static std::vector<std::string> from_;
+  static bool *in_;
+  static bool init_;
+
 };
 
 #endif // FEDNumbering_H
