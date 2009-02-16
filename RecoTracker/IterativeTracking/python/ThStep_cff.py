@@ -135,14 +135,14 @@ thCkfTrajectoryBuilder.propagatorOpposite = cms.string('PropagatorWithMaterialOp
 
 # MAKING OF TRACK CANDIDATES
 thTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
-import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
+import RecoTracker.TrackProducer.TrackProducer_cfi
 thTrackCandidates.src = cms.InputTag('thPLSeeds')
 thTrackCandidates.TrajectoryBuilder = 'thCkfTrajectoryBuilder'
 thTrackCandidates.doSeedingRegionRebuilding = True
 thTrackCandidates.useHitsSplitting = True
 
 # TRACK FITTING
-thWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
+thWithMaterialTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone()
 thWithMaterialTracks.AlgorithmName = cms.string('iter3')
 thWithMaterialTracks.src = 'thTrackCandidates'
 thWithMaterialTracks.clusterRemovalInfo = 'thClusters'

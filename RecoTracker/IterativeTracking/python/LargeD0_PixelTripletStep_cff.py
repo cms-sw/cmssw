@@ -127,8 +127,8 @@ largeD0step1RKTrajectoryFitter.minHits = 6
 largeD0step1RKTrajectorySmoother.minHits = 6
 
 #TRACKS
-import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
-largeD0step1WithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
+import RecoTracker.TrackProducer.TrackProducer_cfi
+largeD0step1WithMaterialTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone()
 largeD0step1WithMaterialTracks.src = 'largeD0step1TrackCandidates'
 largeD0step1WithMaterialTracks.clusterRemovalInfo = 'largeD0step1Clusters'
 largeD0step1WithMaterialTracks.AlgorithmName = cms.string('iter1LargeD0')

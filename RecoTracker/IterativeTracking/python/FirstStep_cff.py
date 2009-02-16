@@ -39,7 +39,7 @@ newTrackCandidateMaker.TrajectoryBuilder = 'newTrajectoryBuilder'
 
 # fitting
 from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cff import *
-preFilterZeroStepTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
+preFilterZeroStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone()
 preFilterZeroStepTracks.src = 'newTrackCandidateMaker'
 preFilterZeroStepTracks.Fitter = 'KFFittingSmootherWithOutliersRejectionAndRK'
 preFilterZeroStepTracks.AlgorithmName = 'ctf'
@@ -102,7 +102,7 @@ stepOneTrackCandidateMaker.TrajectoryBuilder = 'stepOneCkfTrajectoryBuilder'
 
 
 # fitting
-preFilterStepOneTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
+preFilterStepOneTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone()
 preFilterStepOneTracks.AlgorithmName = cms.string('ctf')
 preFilterStepOneTracks.src = 'stepOneTrackCandidateMaker'
 preFilterStepOneTracks.clusterRemovalInfo = 'newClusters'

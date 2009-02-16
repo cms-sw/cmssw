@@ -142,8 +142,8 @@ fifthRKTrajectoryFitter.minHits = 6
 fifthRKTrajectorySmoother.minHits = 6
 
 # TRACK FITTING
-import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
-fifthWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
+import RecoTracker.TrackProducer.TrackProducer_cfi
+fifthWithMaterialTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone()
 fifthWithMaterialTracks.src = 'fifthTrackCandidates'
 fifthWithMaterialTracks.clusterRemovalInfo = 'fifthClusters'
 fifthWithMaterialTracks.AlgorithmName = cms.string('iter5')

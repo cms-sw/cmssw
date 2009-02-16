@@ -92,8 +92,8 @@ secTrackCandidates.doSeedingRegionRebuilding = True
 secTrackCandidates.useHitsSplitting = True
 
 # TRACK FITTING
-import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
-secWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
+import RecoTracker.TrackProducer.TrackProducer_cfi
+secWithMaterialTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone()
 secWithMaterialTracks.AlgorithmName = cms.string('iter2')
 secWithMaterialTracks.src = 'secTrackCandidates'
 secWithMaterialTracks.clusterRemovalInfo = 'secClusters'
