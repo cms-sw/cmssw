@@ -11,6 +11,8 @@ tcMetAnalyzer = cms.EDAnalyzer(
     OutputFile = cms.untracked.string('output.root'),
     InputMETLabel = cms.InputTag("tcMet"),
     METType = cms.untracked.string('MET')
-   ) 
+    FineBinning = cms.untracked.bool(False)
+
+    ) 
 
 

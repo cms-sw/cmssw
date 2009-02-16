@@ -39,7 +39,7 @@ private:
   edm::InputTag hORecHitsLabel_;
   bool debug_;
   bool dumpGeometry_;
-
+  bool finebinning_;
   // Helper Functions
   void FillGeometry(const edm::EventSetup&);
   void DumpGeometry();

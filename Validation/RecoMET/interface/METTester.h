@@ -41,6 +41,7 @@ public:
   std::string METType_;
   std::string outputFile_;
   edm::InputTag inputMETLabel_;
+  bool finebinning_;
 
 };
 

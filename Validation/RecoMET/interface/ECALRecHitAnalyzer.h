@@ -104,7 +104,7 @@ public:
   edm::InputTag EERecHitsLabel_;
   bool debug_;
   bool dumpGeometry_;
-
+  bool finebinning_;
   int CurrentEvent;
 };
 

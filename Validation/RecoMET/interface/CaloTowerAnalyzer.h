@@ -38,7 +38,7 @@ private:
   bool debug_;
   bool dumpGeometry_;
   double energyThreshold_;
-
+  bool finebinning_;
   // Helper Functions
   void FillGeometry(const edm::EventSetup&);
   void DumpGeometry();

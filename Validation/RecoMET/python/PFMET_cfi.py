@@ -10,7 +10,8 @@ pfMetAnalyzer = cms.EDAnalyzer(
    "METTester",
     OutputFile = cms.untracked.string('output.root'),
     InputMETLabel = cms.InputTag("pfMet"),
-    METType = cms.untracked.string('PFMET')
+    METType = cms.untracked.string('PFMET'),
+   FineBinning = cms.untracked.bool(False)
    ) 
 
 
