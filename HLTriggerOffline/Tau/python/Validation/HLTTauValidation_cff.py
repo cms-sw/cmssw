@@ -6,10 +6,10 @@ from HLTriggerOffline.Tau.Validation.HLTTauReferences_cfi import *
 #from HLTriggerOffline.Tau.Validation.SingleTauMETValidation_cfi import *
 #from HLTriggerOffline.Tau.Validation.ElectronTauValidation_cfi import *
 #from HLTriggerOffline.Tau.Validation.MuonTauValidation_cfi import *
-from HLTriggerOffline.Tau.Validation.L1TauValidation_cfi import *
+#from HLTriggerOffline.Tau.Validation.L1TauValidation_cfi import *
 from HLTriggerOffline.Tau.Validation.HLTTauValidation_cfi import *
 
-HLTTauVal    = cms.Sequence(HLTTauRef+L1TauVal+HLTTauValidationSequence)
+HLTTauVal    = cms.Sequence(HLTTauRef+HLTTauValidationSequence)
 
 
 

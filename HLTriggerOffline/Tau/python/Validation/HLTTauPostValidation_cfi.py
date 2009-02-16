@@ -1,23 +1,25 @@
 import FWCore.ParameterSet.Config as cms
-
 HLTTauValPostAnalysis = cms.EDFilter("HLTTauPostProcessor",
-                            L1Folder = cms.vstring('HLT/HLTTAU/L1'),
-                            L2Folder = cms.vstring('HLT/HLTTAU/L2'),
-
-                            L25Folder = cms.vstring('HLT/HLTTAU/L25'),
-
-                            L3Folder = cms.vstring('HLT/HLTTAU/L3'),
-                                                  
-                            
-                            
-                            HLTPathValidationFolder = cms.vstring('HLT/HLTTAU/DoubleTau',
-                                                   'HLT/HLTTAU/SingleTau',
-                                                   'HLT/HLTTAU/ElectronTau',
-                                                   'HLT/HLTTAU/MuonTau'
-                                                   ),
-    
-                            HLTPathDQMFolder = cms.vstring('')
-                            )
+  Harvester = cms.PSet(
+    L1Dirs                  = cms.vstring(
+    "HLT/TauRelVal/MC/L1"
+    ),
+    caloDirs                = cms.vstring(
+    "HLT/TauRelVal/MC/L2"
+    ),
+    trackDirs               = cms.vstring(
+    "HLT/TauRelVal/MC/L25",
+    "HLT/TauRelVal/MC/L3"
+    ),
+    pathDirs                = cms.vstring(
+    "HLT/TauRelVal/MC/DoubleTau",
+    "HLT/TauRelVal/MC/SingleTau"
+    ),
+    pathSummaryDirs         = cms.vstring(
+    'HLT/TauRelVal/MC/Summary'
+    )
+  )
+)
 
 
 HLTTauPostVal = cms.Sequence(HLTTauValPostAnalysis)
