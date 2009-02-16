@@ -89,6 +89,7 @@ void testEventRange::overlapTest()
     CPPUNIT_ASSERT(contains(normal,small));
     CPPUNIT_ASSERT(!contains(normal,late));
     CPPUNIT_ASSERT(!contains(normal,early));
+    CPPUNIT_ASSERT(!contains(normal,large));
     CPPUNIT_ASSERT(distinct(early,late));
     CPPUNIT_ASSERT(overlaps(normal,late));
     CPPUNIT_ASSERT(overlaps(normal,early));
