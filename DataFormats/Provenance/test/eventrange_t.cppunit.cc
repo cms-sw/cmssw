@@ -18,6 +18,7 @@ class testEventRange: public CppUnit::TestFixture
 
    CPPUNIT_TEST(constructTest);
    CPPUNIT_TEST(comparisonTest);
+   CPPUNIT_TEST(overlapTest);
 //   CPPUNIT_TEST(iterationTest);
 
    CPPUNIT_TEST_SUITE_END();
@@ -27,6 +28,7 @@ public:
 
    void constructTest();
    void comparisonTest();
+   void overlapTest();
 //   void iterationTest();
 };
 
@@ -63,14 +65,35 @@ void testEventRange::comparisonTest()
     const EventRange normal(5,1,8,1);
     const EventRange maxed(5,1,8,0);
 
-    CPPUNIT_ASSERT(!normal.contains(small));
-    CPPUNIT_ASSERT(normal.contains(med));
-    CPPUNIT_ASSERT(!normal.contains(large));
-    CPPUNIT_ASSERT(!normal.contains(larger));
+    CPPUNIT_ASSERT(!contains(normal,small));
+    CPPUNIT_ASSERT(contains(normal,med));
+    CPPUNIT_ASSERT(!contains(normal,large));
+    CPPUNIT_ASSERT(!contains(normal,larger));
 
-    CPPUNIT_ASSERT(!maxed.contains(small));
-    CPPUNIT_ASSERT(maxed.contains(med));
-    CPPUNIT_ASSERT(maxed.contains(large));
-    CPPUNIT_ASSERT(!maxed.contains(larger));
+    CPPUNIT_ASSERT(!contains(maxed,small));
+    CPPUNIT_ASSERT(contains(maxed,med));
+    CPPUNIT_ASSERT(contains(maxed,large));
+    CPPUNIT_ASSERT(!contains(maxed,larger));
+
+}
+
+void testEventRange::overlapTest()
+{
+
+    const EventRange normal(5,1,8,1);
+    const EventRange small(6,1,7,1);
+    const EventRange large(3,1,10,1);
+    const EventRange early(3,1,6,1);
+    const EventRange late(7,1,10,1);
+
+    CPPUNIT_ASSERT(contains(normal,small));
+    CPPUNIT_ASSERT(!contains(normal,late));
+    CPPUNIT_ASSERT(!contains(normal,early));
+    CPPUNIT_ASSERT(distinct(early,late));
+    CPPUNIT_ASSERT(overlaps(normal,late));
+    CPPUNIT_ASSERT(overlaps(normal,early));
+    CPPUNIT_ASSERT(contains(large,early));
+    CPPUNIT_ASSERT(contains(large,late));
+    CPPUNIT_ASSERT(contains(large,large));
 
 }

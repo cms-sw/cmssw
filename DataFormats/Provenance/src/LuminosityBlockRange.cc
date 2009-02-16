@@ -28,11 +28,29 @@ namespace edm {
     return oStream;
   }
 
-  bool LuminosityBlockRange::contains(LuminosityBlockID const& test) const {
-    if (test >= startLumiID_ && test <= endLumiID_) {
+  bool contains(LuminosityBlockRange const& lh, LuminosityBlockID const& rh) {
+    if (rh >= lh.startLumiID() && rh <= lh.endLumiID()) {
       return true;
     }
     return false;
+  }
+
+  bool contains(LuminosityBlockRange const& lh, LuminosityBlockRange const& rh) {
+    if (contains(lh,rh.startLumiID()) && contains(lh,rh.endLumiID())) {
+      return true;
+    }
+    return false;
+  }
+
+  bool overlaps(LuminosityBlockRange const& lh, LuminosityBlockRange const& rh) {
+    if (contains(lh,rh.startLumiID()) || contains(lh,rh.endLumiID())) {
+      return true;
+    }
+    return false;
+  }
+
+  bool distinct(LuminosityBlockRange const& lh, LuminosityBlockRange const& rh) {
+    return !overlaps(lh,rh);
   }
 
 }

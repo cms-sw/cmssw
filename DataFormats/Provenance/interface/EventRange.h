@@ -64,9 +64,6 @@ class EventRange
       EventNumber_t startEvent() const {return   startEvent_; }
       EventNumber_t   endEvent() const {return     endEvent_; }
 
-      bool contains(EventID const& test) const;
-
-
    private:
 
       // ---------- member data --------------------------------
@@ -76,6 +73,10 @@ class EventRange
 };
 
 std::ostream& operator<<(std::ostream& oStream, EventRange const& iID);
+bool contains(EventRange const& lh, EventID const& rh);
+bool contains(EventRange const& lh, EventRange const& rh);
+bool overlaps(EventRange const& lh, EventRange const& rh);
+bool distinct(EventRange const& lh, EventRange const& rh);
 
 }
 #endif

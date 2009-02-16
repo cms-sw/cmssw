@@ -65,8 +65,6 @@ class LuminosityBlockRange
       LuminosityBlockNumber_t startLumi() const {return startLumi_; }
       LuminosityBlockNumber_t   endLumi() const {return endLumi_; }
 
-      bool contains(LuminosityBlockID const& test) const;
-
       // ---------- static functions ---------------------------
 
       // ---------- member functions ---------------------------
@@ -82,6 +80,13 @@ class LuminosityBlockRange
 };
 
 std::ostream& operator<<(std::ostream& oStream, LuminosityBlockRange const& iID);
+bool contains(LuminosityBlockRange const& lh, LuminosityBlockID const& rh);
+bool contains(LuminosityBlockRange const& lh, LuminosityBlockRange const& rh);
+bool overlaps(LuminosityBlockRange const& lh, LuminosityBlockRange const& rh);
+bool distinct(LuminosityBlockRange const& lh, LuminosityBlockRange const& rh);
 
 }
+
+
+
 #endif
