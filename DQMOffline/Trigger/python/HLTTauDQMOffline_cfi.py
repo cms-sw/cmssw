@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hltTauDQMofflineProcess = "HLT2"
+hltTauDQMofflineProcess = "HLT"
 
 
 #Ref Pbjects-------------------------------------------------------------------------------------------------------
