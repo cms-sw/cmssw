@@ -5,64 +5,87 @@
 TtSemiLepSignalSel::TtSemiLepSignalSel(){}
 
 TtSemiLepSignalSel::TtSemiLepSignalSel(const std::vector<pat::Jet>& topJets, math::XYZTLorentzVector lepton, 
-                                 const edm::View<pat::MET>& MET, unsigned int maxNJets)
-{ 
+                                 const edm::View<pat::MET>& MET)
+{ //function
 
-  var_dphiMETlepton = fabs(MET.begin()->phi()-lepton.phi());
-  if (var_dphiMETlepton > 3.1415927)  var_dphiMETlepton =  2*3.1415927 - var_dphiMETlepton;
-  if (var_dphiMETlepton < -3.1415927) var_dphiMETlepton = -2*3.1415927 - var_dphiMETlepton;
-
-
-  var_dphiMETleadingjet = fabs(MET.begin()->phi()-topJets[0].phi());
-  if (var_dphiMETleadingjet > 3.1415927)  var_dphiMETleadingjet =  2*3.1415927 - var_dphiMETleadingjet;
-  if (var_dphiMETleadingjet < -3.1415927) var_dphiMETleadingjet = -2*3.1415927 - var_dphiMETleadingjet;
-
-  if(topJets.size()>=5) var_ETratiojet5jet4 = (topJets[4].et()/topJets[3].et());
-  else var_ETratiojet5jet4 = 0.;
-
-  std::vector<TVector3> p;
-
-  TVector3 lep(lepton.px(),lepton.py(),lepton.pz());
+  unsigned int nJetsMax = topJets.size();
   
-  //std::cout<<"lepton -- px: "<<lepton.px()<<"  py: "<<lepton.py()<<"  pz: "<<lepton.pz()<<std::endl;
-  //std::cout<<"lepton aus lep -- px: "<<lep.x()<<"  py: "<<lep.y()<<"  pz: "<<lep.z()<<std::endl;
- 
-  p.push_back(lep);
-  //std::cout<<"lepton aus p -- px: "<<p[0].x()<<"  py: "<<p[0].y()<<"  pz: "<<p[0].z()<<std::endl;
-
-  if(topJets.size()<maxNJets) maxNJets = topJets.size();
-
-  //std::cout<<"maxNJets: "<<maxNJets<<std::endl;
-
-  for(unsigned int i=0; i<maxNJets; i++) {
-    TVector3 jet(topJets[i].px(),topJets[i].py(),topJets[i].pz());
-    //std::cout<<"jet"<<i<<":  px: "<<topJets[i].px()<<"  py: "<<topJets[i].py()<<"  pz: "<<topJets[i].pz()<<std::endl;
-    p.push_back(jet);
-  }
-
-  EventShapeVariables eventshape;
-
-  var_aplanarity = eventshape.aplanarity(p);
-  var_sphericity = eventshape.sphericity(p);
-  var_circularity = eventshape.circularity(p);
-  var_isotropy = eventshape.isotropy(p);
-
-
+  var_MET = MET.begin()->et();
   var_sumEt = 0.;
-  var_maxEta = 0.;
-  for(unsigned int i=0; i<maxNJets; i++) {
+  
+  math::XYZTLorentzVector Jetsum(0.,0.,0.,0.);
+  
+  for(unsigned int i=0; i<nJetsMax; i++) {
+    math::XYZTLorentzVector aJet = topJets[i].p4();
+    Jetsum += aJet;
     var_sumEt += topJets[i].et();
-    if(i==0) var_maxEta = fabs(topJets[i].eta());
-    else if(fabs(topJets[i].eta())>var_maxEta) var_maxEta = fabs(topJets[i].eta());
+  }
+  massalljets = Jetsum.M();
+  
+  var_lepeta = lepton.Eta();
+
+  math::XYZTLorentzVector Met = MET.begin()->p4();
+  math::XYZTLorentzVector Lep = lepton;
+  double Etjet[4];
+  double Jetjet[6];
+  double dijetmass;
+  var_mindijetmass = 99999.;
+  var_maxdijetmass = -1.;
+  int counter = 0;
+  for(int i=0; i<4; i++) {
+    math::XYZTLorentzVector aJet = topJets[i].p4();
+    Etjet[i] = aJet.Et();
+    for(int j=i+1; j<4; j++) {
+      math::XYZTLorentzVector asecJet = topJets[j].p4();
+      dijetmass = (aJet+asecJet).M();
+      if(dijetmass<var_mindijetmass) var_mindijetmass = dijetmass;
+      if(dijetmass>var_maxdijetmass) var_maxdijetmass = dijetmass;
+      counter++;
+    }
   }
 
-  var_Et1 = topJets[0].et();
-  var_Et2 = topJets[1].et();
-  var_Et3 = topJets[2].et();
-  var_Et4 = topJets[3].et();
-  
-  var_lepPt = TMath::Sqrt(lep.x()*lep.x()+lep.y()*lep.y());
+  var_Et1 = Etjet[0];
+   
+  var_dphiMETlepton = DeltaPhi(Met,Lep);
 
+
+
+  counter=0;
+  for(int i=0; i<4; i++) {
+    math::XYZTLorentzVector aJet = topJets[i].p4();
+    for(int j=i+1; j<4; j++) {
+      math::XYZTLorentzVector asecJet = topJets[j].p4();
+      Jetjet[counter] = fabs(aJet.Eta()-asecJet.Eta());
+      counter++;
+    }
+  }
+
+  var_detajet2jet3 = Jetjet[3];
+  var_detajet3jet4 = Jetjet[5];
+
+ 
+  double Lepjet[4];
+  var_mindRjetlepton = 99999.;
+  for(int i=0; i<4; i++) {
+    math::XYZTLorentzVector aJet = topJets[i].p4();
+    Lepjet[i] = DeltaR(Lep,aJet);
+    if(Lepjet[i]<var_mindRjetlepton) var_mindRjetlepton = Lepjet[i];
+  }
+  
+}
+
+double TtSemiLepSignalSel::DeltaPhi(math::XYZTLorentzVector v1, math::XYZTLorentzVector v2)
+{
+  double dPhi = fabs(v1.Phi() - v2.Phi());
+  if (dPhi > TMath::Pi()) dPhi =  2*TMath::Pi() - dPhi;
+  return dPhi;
+}
+
+double TtSemiLepSignalSel::DeltaR(math::XYZTLorentzVector v1, math::XYZTLorentzVector v2)
+{
+  double dPhi = DeltaPhi(v1,v2);
+  double dR = TMath::Sqrt((v1.Eta()-v2.Eta())*(v1.Eta()-v2.Eta())+dPhi*dPhi);
+  return dR;
 }
 
 TtSemiLepSignalSel::~TtSemiLepSignalSel() 
