@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: TTUEmulator.cc,v 1.1 2009/01/30 15:42:48 aosorio Exp $
 // Include files 
 
 
@@ -32,7 +32,9 @@ TTUEmulator::TTUEmulator( int _id, int _mxw  )
   
   m_ttuin[0] = new TTUInput();
   m_ttuin[1] = new TTUInput();
-  
+
+  m_trigger.reset();
+    
   m_mode = 1;
   
 }
@@ -54,13 +56,15 @@ TTUEmulator::TTUEmulator( int _id, const char * rbclogic_type, const char * ttul
   m_ttuin[1] = new TTUInput();
   
   m_ttuconf   = dynamic_cast<TTUConfiguration*> (new TTUBasicConfig (ttulogic_type));
+
+  m_trigger.reset();
   
   m_mode = 1;
   
 }
 
 TTUEmulator::TTUEmulator( int _id, const char * f_name, const char * rbclogic_type, 
-                const char * ttulogic_type, int _mxw  ) 
+                          const char * ttulogic_type, int _mxw  ) 
 {
   
   m_id        = _id;
@@ -76,6 +80,8 @@ TTUEmulator::TTUEmulator( int _id, const char * f_name, const char * rbclogic_ty
   m_ttuin[1] = new TTUInput();
   
   m_ttuconf   = dynamic_cast<TTUConfiguration*> (new TTUBasicConfig (ttulogic_type));
+
+  m_trigger.reset();
 
   m_mode = 1;
   
@@ -144,7 +150,9 @@ void TTUEmulator::processlocal( RPCInputSignal * signal )
   
   //. 
   bool trg(false); 
-  
+
+  m_trigger.reset();
+    
   std::map<int,RBCInput*> * linkboardin;
   linkboardin = dynamic_cast<RBCLinkBoardGLSignal*>( signal )->m_linkboardin;
   
@@ -163,12 +171,17 @@ void TTUEmulator::processlocal( RPCInputSignal * signal )
       //... and produce a Wheel level trigger
       trg = m_ttuconf->m_ttulogic->isTriggered();
       
-      std::cout << "TTUEmulator::processlocal " << trg << std::endl;
+      m_trigger.set(k,trg);
       
+      std::cout << "TTUEmulator::processlocal ttuid: " << m_id 
+                << " wheel: "       << m_Wheels[k]->getid()
+                << " response: "    << trg << std::endl;
     }
     
   }
-    
+  
+  std::cout << "TTUEmulator::processlocal> done with this TTU: " << m_id << std::endl;
+  
 }
 
 void TTUEmulator::processglobal( RPCInputSignal * signal ) 
@@ -176,6 +189,8 @@ void TTUEmulator::processglobal( RPCInputSignal * signal )
   
   //. 
   bool trg(false);
+
+  m_trigger.reset();
 
   std::map<int,TTUInput*> * wheelmapin;
   wheelmapin = dynamic_cast<TTUGlobalSignal*>( signal )->m_wheelmap;
@@ -197,11 +212,18 @@ void TTUEmulator::processglobal( RPCInputSignal * signal )
       //... and produce a Wheel level trigger
       trg = m_ttuconf->m_ttulogic->isTriggered();
       
-      std::cout << "TTUEmulator::processglobal " << trg << std::endl;
+      m_trigger.set(k,trg);
       
+      std::cout << "TTUEmulator::processglobal ttuid: " << m_id 
+                << " wheel: "       << m_Wheels[k]->getid()
+                << " response: "    << trg << std::endl;
+
+
     }
     
   }
+
+  std::cout << "TTUEmulator::processglobal> done with this TTU: " << m_id << std::endl;
   
 }
 

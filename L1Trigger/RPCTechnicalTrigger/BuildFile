@@ -1,13 +1,19 @@
 <use name=FWCore/Framework>
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
+<use name=FWCore/ServiceRegistry>
+<use name=FWCore/MessageService>
+<use name=FWCore/Utilities>
 <use name=DataFormats/RPCRecHit>
 <use name=DataFormats/RPCDigi>
+<use name=DataFormats/L1GlobalMuonTrigger>
 <use name=DataFormats/Common>
 <use name=CondFormats/RPCObjects>
 <use name=CondFormats/DataRecord>
 <use name=Geometry/Records>
 <use name=Geometry/RPCGeometry>
+<use name=PhysicsTools/Utilities>
+<use name=PhysicsTools/UtilAlgos>
 <use name=root>
 
 <flags EDM_PLUGIN=1>
@@ -17,11 +23,16 @@
    <use name=FWCore/Framework>
    <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
+   <use name=FWCore/ServiceRegistry>
+   <use name=FWCore/Utilities>
    <use name=DataFormats/RPCRecHit>
    <use name=DataFormats/Common>
+   <use name=DataFormats/L1GlobalMuonTrigger>
    <use name=CondFormats/RPCObjects>
    <use name=CondFormats/DataRecord>
    <use name=Geometry/Records>
    <use name=Geometry/RPCGeometry>
+   <use name=PhysicsTools/Utilities>
+   <use name=PhysicsTools/UtilAlgos>
    <use name=root>
 </export>

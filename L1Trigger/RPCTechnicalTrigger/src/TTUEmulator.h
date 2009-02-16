@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: TTUEmulator.h,v 1.1 2009/02/05 13:46:21 aosorio Exp $
 #ifndef TTUEMULATOR_H 
 #define TTUEMULATOR_H 1
 
@@ -11,6 +11,7 @@
 #include "CondFormats/RPCObjects/interface/TTUBoardSpecs.h"
 
 #include <map>
+#include <bitset>
 
 /** @class TTUEmulator TTUEmulator.h
  *  
@@ -70,8 +71,9 @@ public:
   };
 
   void setSpecs( );
-  
-  
+
+  std::bitset<2> m_trigger;
+    
 protected:
   
 private:

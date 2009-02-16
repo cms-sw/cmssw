@@ -1,10 +1,11 @@
-// $Id: $
+// $Id: RPCProcessDigiSignal.h,v 1.1 2009/02/05 13:46:21 aosorio Exp $
 #ifndef RPCPROCESSDIGISIGNAL_H 
 #define RPCPROCESSDIGISIGNAL_H 1
 
 // Include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+
 
 #include "Geometry/RPCGeometry/interface/RPCRoll.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
