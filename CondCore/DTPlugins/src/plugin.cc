@@ -27,6 +27,8 @@
 #include "CondFormats/DataRecord/interface/DTPerformanceRcd.h"
 #include "CondFormats/DTObjects/interface/DTCCBConfig.h"
 #include "CondFormats/DataRecord/interface/DTCCBConfigRcd.h"
+#include "CondFormats/DTObjects/interface/DTTPGParameters.h"
+#include "CondFormats/DataRecord/interface/DTTPGParametersRcd.h"
 
 
 DEFINE_SEAL_MODULE();
@@ -40,3 +42,4 @@ REGISTER_PLUGIN(DTStatusFlagRcd,DTStatusFlag);
 REGISTER_PLUGIN(DTDeadFlagRcd,DTDeadFlag);
 REGISTER_PLUGIN(DTPerformanceRcd,DTPerformance);
 REGISTER_PLUGIN(DTCCBConfigRcd,DTCCBConfig);
+REGISTER_PLUGIN(DTTPGParametersRcd,DTTPGParameters);

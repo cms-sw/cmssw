@@ -18,6 +18,8 @@
   <class name="DTMtimeId" id="6A4F37E1-085D-DA11-95BC-000E0C5CE283"/>
   <class name="DTMtimeData" id="1652A588-ED08-DB11-8A60-000E0C5CE283"/>
   <class name="DTRangeT0" id="C4574CFD-EDD9-DA11-8194-000E0C5CE283"/>
+  <class name="std::pair<DTRangeT0Id,DTRangeT0Data>"/>
+  <class name="std::vector<std::pair<DTRangeT0Id,DTRangeT0Data> >"/>
   <class name="DTRangeT0Id" id="7E44AD27-EED9-DA11-88D9-000E0C5CE283"/>
   <class name="DTRangeT0Data" id="2A604FAD-F208-DB11-8307-000E0C5CE283"/>
   <class name="DTStatusFlag" id="80AB52A5-E3E4-DA11-A636-000E0C5CE283"/>
@@ -26,16 +28,27 @@
   <class name="DTStatusFlagId" id="D29C0DA7-E3E4-DA11-B3BF-000E0C5CE283"/>
   <class name="DTStatusFlagData" id="DE44FE7A-0509-DB11-947C-000E0C5CE283"/>
   <class name="DTDeadFlag" id="BAE2BE38-1A4B-DC11-82DE-000E0C5CE282"/>
+  <class name="std::pair<DTDeadFlagId,DTDeadFlagData>"/>
+  <class name="std::vector<std::pair<DTDeadFlagId,DTDeadFlagData> >"/>
   <class name="DTDeadFlagId" id="2A899460-1A4B-DC11-A3A9-000E0C5CE282"/>
   <class name="DTDeadFlagData" id="BEE2F160-1A4B-DC11-B0DB-000E0C5CE282"/>
   <class name="DTPerformance" id="684587E2-C306-DB11-9361-000E0C5CE283"/>
+  <class name="std::pair<DTPerformanceId,DTPerformanceData>"/>
+  <class name="std::vector<std::pair<DTPerformanceId,DTPerformanceData> >"/>
   <class name="DTPerformanceId" id="B0D31E0B-C406-DB11-B446-000E0C5CE283"/>
   <class name="DTPerformanceData" id="9E02CF0B-C406-DB11-A68B-000E0C5CE283"/>
   <class name="DTCCBConfig" id="40303F32-EC9F-DB11-B3E2-000E0C5CE283"/>
+  <class name="std::pair<DTCCBId,int>"/>
+  <class name="std::vector<std::pair<DTCCBId,int> >"/>
   <class name="DTCCBId" id="1433B332-EC9F-DB11-BD6F-000E0C5CE283"/>
   <class name="DTConfigList" id="9CB14BE8-30A2-DB11-9935-000E0C5CE283"/>
   <class name="DTConfigData" id="3858CAFE-30A2-DB11-9E86-000E0C5CE283"/>
   <class name="DTConfigToken" id="4AA88D8D-31A2-DB11-A311-000E0C5CE283"/>
+  <class name="DTTPGParameters" id="80556B7A-C7C5-DD11-8FEE-000E0C5CE282"/>
+  <class name="std::pair<DTTPGParametersId,DTTPGParametersData>"/>
+  <class name="std::vector<std::pair<DTTPGParametersId,DTTPGParametersData> >"/>
+  <class name="DTTPGParametersId" id="D0D7107B-C7C5-DD11-AA5A-000E0C5CE282"/>
+  <class name="DTTPGParametersData" id="5EEE8E7B-C7C5-DD11-A18E-000E0C5CE282"/>
   <class name="std::basic_string<char>"/>
 </lcgdict>
 
