@@ -1,5 +1,10 @@
 2009-01-09  Emilio Meschi  <emilio.meschi@cern.ch>
 
+	* tag V00-06-23
+	* added -tcp option to initialize script to support use of old pttcp
+
+2009-01-09  Emilio Meschi  <emilio.meschi@cern.ch>
+
 	* tag V00-06-22
 	* support SM python config
 	* added -debug option to initialize to include stepper in cfg
