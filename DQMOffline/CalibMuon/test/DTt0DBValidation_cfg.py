@@ -74,7 +74,9 @@ process.dtT0Analyzer = cms.EDFilter("DTt0DBValidation",
     labelDBRef = cms.untracked.string('tzeroRef'),
     t0TestName = cms.untracked.string('t0DifferenceInRange'),
     OutputFileName = cms.untracked.string('MuonTestMonitoring_47041.root'),
-    labelDB = cms.untracked.string('tzeroToValidate')
+    labelDB = cms.untracked.string('tzeroToValidate'),
+    minT0Limit = cms.untracked.int32(10),
+    maxT0Limit = cms.untracked.int32(20)
 )
 
 process.qTester = cms.EDFilter("QualityTester",

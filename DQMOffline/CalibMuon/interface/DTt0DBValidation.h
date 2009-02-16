@@ -4,8 +4,8 @@
 /** \class DTt0DBValidation
  *  Plot the t0 from the DB
  *
- *  $Date: 2008/04/18 12:28:37 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/10/03 10:20:04 $
+ *  $Revision: 1.2 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -45,6 +45,7 @@ public:
   //Do the real work
   void endJob();
   void bookHistos(DTLayerId lId, int firstWire, int lastWire);
+  void bookHistos(int wheel);
 
 protected:
 
@@ -67,11 +68,16 @@ private:
   const DTT0 *tZeroMap;
   const DTT0 *tZeroRefMap;
  
-  // Map of the t0 and sigma by wire
+  // Map of the t0 and sigma per wire
   std::map<DTWireId, std::vector<float> > t0RefMap;
   std::map<DTWireId, std::vector<float> > t0Map;
 
-  // Map of the t0 difference histos by layer
+  // Map of the t0 difference histos per layer
   std::map<DTLayerId, MonitorElement* > t0DiffHistos;
+  // Map of the wrong t0 difference per layer
+  std::map<DTLayerId, int > t0WrongDiff;
+
+  // summary histos
+  std::map<int, MonitorElement* > wheelSummary;
 };
 #endif

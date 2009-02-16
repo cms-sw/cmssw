@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/24 17:23:49 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/10/03 10:20:05 $
+ *  $Revision: 1.4 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -145,8 +145,7 @@ void DTt0DBValidation::beginRun(const edm::Run& run, const EventSetup& setup) {
 
     }
   } // Loop over the t0 map reference
-  
-  
+   
 }
 
 
@@ -163,8 +162,39 @@ void DTt0DBValidation::endJob() {
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	   channel != badChannels.end(); channel++) {
 	cout << "layer:"<<(*hDiff).first<<" Bad mean channels: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents()<<endl;
+	t0WrongDiff[(*hDiff).first]++;
       }
       cout << "-------- layer: "<<(*hDiff).first<<"  "<<theDiffQReport->getMessage()<<" ------- "<<theDiffQReport->getStatus()<<endl; 
+    }
+  }
+
+  // book the summary histos
+  dbe->setCurrentFolder("DT/t0Validation/Summary");
+  for(int wheel=-2; wheel<=2; wheel++){
+    bookHistos(wheel);
+  }
+  // fill the summary histos
+  for(map<DTLayerId, int>::const_iterator wrongDiff = t0WrongDiff.begin();
+      wrongDiff != t0WrongDiff.end();
+      wrongDiff++) {
+    int xBin=0;
+    if((*wrongDiff).first.station()!=4 && (*wrongDiff).first.superlayer()!=3)
+      xBin = ((*wrongDiff).first.station()-1)*12+(*wrongDiff).first.layer()+4*((*wrongDiff).first.superlayer()-1);
+    else
+      xBin = ((*wrongDiff).first.station()-1)*12+(*wrongDiff).first.layer()+4*((*wrongDiff).first.superlayer()-2);
+    if((*wrongDiff).second<parameters.getUntrackedParameter<int>("minT0Limit")){
+      wheelSummary[(*wrongDiff).first.wheel()]->Fill(xBin,(*wrongDiff).first.sector(),0);
+      cout<<"Summary for layer:"<<(*wrongDiff).first<<" - #of wrong t0:: "<<(*wrongDiff).second<<endl;
+    }
+    else{
+      if((*wrongDiff).second<parameters.getUntrackedParameter<int>("maxT0Limit")){
+	wheelSummary[(*wrongDiff).first.wheel()]->Fill(xBin,(*wrongDiff).first.sector(),1);
+	cout<<"Summary for layer:"<<(*wrongDiff).first<<" - #of wrong t0:: "<<(*wrongDiff).second<<endl;
+      }
+      else{
+	wheelSummary[(*wrongDiff).first.wheel()]->Fill(xBin,(*wrongDiff).first.sector(),2);
+	cout<<"Summary for layer:"<<(*wrongDiff).first<<" - #of wrong t0:: "<<(*wrongDiff).second<<endl;
+      }
     }
   }
 
@@ -203,4 +233,52 @@ void DTt0DBValidation::bookHistos(DTLayerId lId, int firstWire, int lastWire) {
   t0DiffHistos[lId] = hDifference;
 }
 
-
+// Book the summary histos
+void DTt0DBValidation::bookHistos(int wheel) {
+  stringstream wh; wh << wheel;
+    wheelSummary[wheel]= dbe->book2D("summaryWrongT0_W"+wh.str(), "W"+wh.str()+": summary of wrong t0 differences",44,1,45,14,1,15);
+    wheelSummary[wheel]->setBinLabel(1,"M1L1",1);
+    wheelSummary[wheel]->setBinLabel(2,"M1L2",1);
+    wheelSummary[wheel]->setBinLabel(3,"M1L3",1);
+    wheelSummary[wheel]->setBinLabel(4,"M1L4",1);
+    wheelSummary[wheel]->setBinLabel(5,"M1L5",1);
+    wheelSummary[wheel]->setBinLabel(6,"M1L6",1);
+    wheelSummary[wheel]->setBinLabel(7,"M1L7",1);
+    wheelSummary[wheel]->setBinLabel(8,"M1L8",1);
+    wheelSummary[wheel]->setBinLabel(9,"M1L9",1);
+    wheelSummary[wheel]->setBinLabel(10,"M1L10",1);
+    wheelSummary[wheel]->setBinLabel(11,"M1L11",1);
+    wheelSummary[wheel]->setBinLabel(12,"M1L12",1);
+    wheelSummary[wheel]->setBinLabel(13,"M2L1",1);
+    wheelSummary[wheel]->setBinLabel(14,"M2L2",1);
+    wheelSummary[wheel]->setBinLabel(15,"M2L3",1);
+    wheelSummary[wheel]->setBinLabel(16,"M2L4",1);
+    wheelSummary[wheel]->setBinLabel(17,"M2L5",1);
+    wheelSummary[wheel]->setBinLabel(18,"M2L6",1);
+    wheelSummary[wheel]->setBinLabel(19,"M2L7",1);
+    wheelSummary[wheel]->setBinLabel(20,"M2L8",1);
+    wheelSummary[wheel]->setBinLabel(21,"M2L9",1);
+    wheelSummary[wheel]->setBinLabel(22,"M2L10",1);
+    wheelSummary[wheel]->setBinLabel(23,"M2L11",1);
+    wheelSummary[wheel]->setBinLabel(24,"M2L12",1);
+    wheelSummary[wheel]->setBinLabel(25,"M3L1",1);
+    wheelSummary[wheel]->setBinLabel(26,"M3L2",1);
+    wheelSummary[wheel]->setBinLabel(27,"M3L3",1);
+    wheelSummary[wheel]->setBinLabel(28,"M3L4",1);
+    wheelSummary[wheel]->setBinLabel(29,"M3L5",1);
+    wheelSummary[wheel]->setBinLabel(30,"M3L6",1);
+    wheelSummary[wheel]->setBinLabel(31,"M3L7",1);
+    wheelSummary[wheel]->setBinLabel(32,"M3L8",1);
+    wheelSummary[wheel]->setBinLabel(33,"M3L9",1);
+    wheelSummary[wheel]->setBinLabel(34,"M3L10",1);
+    wheelSummary[wheel]->setBinLabel(35,"M3L11",1);
+    wheelSummary[wheel]->setBinLabel(36,"M3L12",1);
+    wheelSummary[wheel]->setBinLabel(37,"M4L1",1);
+    wheelSummary[wheel]->setBinLabel(38,"M4L2",1);
+    wheelSummary[wheel]->setBinLabel(39,"M4L3",1);
+    wheelSummary[wheel]->setBinLabel(40,"M4L4",1);
+    wheelSummary[wheel]->setBinLabel(41,"M4L5",1);
+    wheelSummary[wheel]->setBinLabel(42,"M4L6",1);
+    wheelSummary[wheel]->setBinLabel(43,"M4L7",1);
+    wheelSummary[wheel]->setBinLabel(44,"M4L8",1);
+}
