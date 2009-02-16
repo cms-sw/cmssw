@@ -27,6 +27,7 @@ my $doPyCfg  = 0;
 my $doSM  = 1;
 my $doDQM = 0;
 my $useStepper = 0;
+my $useAtcp = 1;
 
 my $PBfile;
 my $EPcfg = "";
@@ -46,6 +47,7 @@ my $RBappname = "evf::FUResourceBroker";
 my $EPappname = "evf::FUEventProcessor";
 my $SMappname = "StorageManager";
 my $PTappname = "pt::atcp::PeerTransportATCP";
+my $PTTappname = "pt::tcp::PeerTransportTCP";
 
 my $BUlocalid=21;
 my $PBlocalid=22;
@@ -65,6 +67,9 @@ my $RBlibname = "libEventFilterResourceBroker.so";
 my $EPlibname = "libEventFilterProcessor.so";
 my $SMlibname = "libEventFilterStorageManager.so";
 my $PTlibname = "libptatcp.so";
+my $PTTlibname = "libpttcp.so";
+
+my $i2oprotocol = "atcp";
 
 my $SMperl = 
     $ENV{"CMSSW_RELEASE_BASE"} .
@@ -90,6 +95,7 @@ foreach $param (@ARGV) {
     elsif ($param    eq "-drop")     { $doEP=0;$doSM=0;$doDQM=0;}
     elsif ($param    eq "-noSM")     { $doSM=0; }
     elsif ($param    eq "-debug")    { $useStepper=1; }
+    elsif ($param    eq "-tcp")      { $useAtcp=0; }
     elsif ($param    eq "-noDQM")    { $doDQM=0; }
     elsif ($param    eq "-python")   { $doPyCfg=1; }
     else { die ("Unknown parameter $param!\n"); }
@@ -99,7 +105,11 @@ print "hostname = $hostname\n";
 
 if (!$doEP) { $doSM  = 0; }
 if (!$doSM) { $doDQM = 0; }
-
+if (!$useAtcp) { 
+    $PTappname   = $PTTappname; 
+    $PTlibname   = $PTTlibname;
+    $i2oprotocol = "tcp";
+}
 
 #
 # make directories
@@ -238,7 +248,7 @@ print XML makeXmlComm(@apps);
 
 # BU context
 print XML makeXmlContextHeader("BU",$hostname,$BUport);
-if ($doSM) { print XML makeXmlEndpoint($hostname,50000); }
+if ($doSM) { print XML makeXmlEndpoint($hostname,50000,$i2oprotocol); }
 print XML makeXmlAppHeader(1,$BUappname,$BUlocalid);
 print XML makeXmlAppProperties($BUappname,@BUproperties);
 print XML makeXmlAppTrailer(1,$BUlibpath,$BUlibname);
@@ -269,7 +279,7 @@ for ($i=0;$i<$doEP;$i++) {
 # SM context
 if ($doSM) {
     print XML makeXmlContextHeader("SM",$hostname,$SMport);
-    print XML makeXmlEndpoint($hostname,50002);
+    print XML makeXmlEndpoint($hostname,50002,$i2oprotocol);
     print XML makeXmlAppHeader(1,$SMappname,$SMlocalid);
     print XML makeXmlAppProperties($SMappname,@SMproperties);
     print XML makeXmlUnicast($RBappname);
@@ -333,16 +343,20 @@ print "make control scripts ...\n";
 open (CTL,">configure") or die ("Can't open file: $!\n");
 print CTL "#!/usr/bin/perl\n\n";
 if ($doSM) {
-    print CTL makeCtlCommand("Configure",$PTappname,"SMPT",$hostname,$SMport,1);
-    print CTL makeCtlCommand("Enable",$PTappname,"SMPT",$hostname,$SMport,1);
+    if( $useAtcp ){
+	print CTL makeCtlCommand("Configure",$PTappname,"SMPT",$hostname,$SMport,1);
+	print CTL makeCtlCommand("Enable",$PTappname,"SMPT",$hostname,$SMport,1);
+    }
     print CTL makeCtlCommand("Configure",$SMappname,"SM",$hostname,$SMport,1);
 }
 if ($doPB) {
     print CTL makeCtlCommand("Configure",$EPappname,"PB",$hostname,$BUport,30);
     print CTL makeCtlCommand("Enable",   $EPappname,"PB",$hostname,$BUport,5);
 }
-print CTL makeCtlCommand("Configure",$PTappname,"BUPT",$hostname,$BUport,1);
-print CTL makeCtlCommand("Enable",$PTappname,"BUPT",$hostname,$BUport,1);
+if( $useAtcp ){
+    print CTL makeCtlCommand("Configure",$PTappname,"BUPT",$hostname,$BUport,1);
+    print CTL makeCtlCommand("Enable",$PTappname,"BUPT",$hostname,$BUport,1);
+}
 print CTL makeCtlCommand("Configure",$BUappname,"BU",$hostname,$BUport,0);
 print CTL makeCtlCommand("Configure",$RBappname,"RB",$hostname,$BUport,0);
 if ($doEP) {
@@ -897,12 +911,12 @@ sub makeXmlContextHeader
 ################################################################################
 sub makeXmlEndpoint
 {
-    my ($hostname,$port) = @_;
+    my ($hostname,$port,$protocol) = @_;
 
     my $result = "";
     $result = $result . "    <xc:Endpoint hostname=\"" . $hostname .
 	"\" network=\"tcp0\" " .
-	"port=\"" .$port . "\" protocol=\"atcp\" " .
+	"port=\"" .$port . "\" protocol=\"" . $protocol ."\" " .
 	"service=\"i2o\"></xc:Endpoint>\n\n";
     return $result;
 }
