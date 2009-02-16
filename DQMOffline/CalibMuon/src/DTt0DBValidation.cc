@@ -172,28 +172,29 @@ void DTt0DBValidation::endJob() {
   dbe->setCurrentFolder("DT/t0Validation/Summary");
   for(int wheel=-2; wheel<=2; wheel++){
     bookHistos(wheel);
+    wheelSummary[wheel]->Reset();
   }
   // fill the summary histos
   for(map<DTLayerId, int>::const_iterator wrongDiff = t0WrongDiff.begin();
       wrongDiff != t0WrongDiff.end();
       wrongDiff++) {
-    int xBin=0;
-    if((*wrongDiff).first.station()!=4 && (*wrongDiff).first.superlayer()!=3)
-      xBin = ((*wrongDiff).first.station()-1)*12+(*wrongDiff).first.layer()+4*((*wrongDiff).first.superlayer()-1);
-    else
+
+    int xBin = ((*wrongDiff).first.station()-1)*12+(*wrongDiff).first.layer()+4*((*wrongDiff).first.superlayer()-1);
+    if((*wrongDiff).first.station()==4 && (*wrongDiff).first.superlayer()==3)
       xBin = ((*wrongDiff).first.station()-1)*12+(*wrongDiff).first.layer()+4*((*wrongDiff).first.superlayer()-2);
+
     if((*wrongDiff).second<parameters.getUntrackedParameter<int>("minT0Limit")){
       wheelSummary[(*wrongDiff).first.wheel()]->Fill(xBin,(*wrongDiff).first.sector(),0);
-      cout<<"Summary for layer:"<<(*wrongDiff).first<<" - #of wrong t0:: "<<(*wrongDiff).second<<endl;
+      cout<<"0 || Summary for layer:"<<(*wrongDiff).first<<" - #of wrong t0:: "<<(*wrongDiff).second<<endl;
     }
     else{
       if((*wrongDiff).second<parameters.getUntrackedParameter<int>("maxT0Limit")){
 	wheelSummary[(*wrongDiff).first.wheel()]->Fill(xBin,(*wrongDiff).first.sector(),1);
-	cout<<"Summary for layer:"<<(*wrongDiff).first<<" - #of wrong t0:: "<<(*wrongDiff).second<<endl;
+	cout<<"1 || Summary for layer:"<<(*wrongDiff).first<<" - #of wrong t0:: "<<(*wrongDiff).second<<endl;
       }
       else{
 	wheelSummary[(*wrongDiff).first.wheel()]->Fill(xBin,(*wrongDiff).first.sector(),2);
-	cout<<"Summary for layer:"<<(*wrongDiff).first<<" - #of wrong t0:: "<<(*wrongDiff).second<<endl;
+	cout<<"2 || Summary for layer:"<<(*wrongDiff).first<<" - #of wrong t0:: "<<(*wrongDiff).second<<endl;
       }
     }
   }
