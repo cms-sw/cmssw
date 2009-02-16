@@ -134,9 +134,13 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 	  
 	// get the hadronic energy.
 	
-	//Mike: Just ask for the Hadronic part only now!
+	// Mike: Just ask for the Hadronic part only now!
+	// Patrick : ARGH ! While this is ok for the HCAL, this is 
+	// just wrong for the HF (in which em/had are artificially 
+	// separated. 
 	double energy = ct.hadEnergy();
-	if( energy < 1e-9 ) continue;  
+	double energyEM = ct.emEnergy(); // For HF !
+	// if( energy < 1e-9 ) continue;  
 	  
 	  
 	  
@@ -194,9 +198,9 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 	      break;
 	    case HcalForward:
 	      {
-		if(energy < thresh_HF_ ) continue;
+		if( energy+energyEM < thresh_HF_ ) continue;
 		pfrh = createHcalRecHit( detid, 
-					 energy, 
+					 energy+energyEM, 
 					 PFLayer::HCAL_HF, 
 					 hcalEndcapGeometry,
 					 ct.id().rawId() );
@@ -214,6 +218,7 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 	      idSortedRecHits.insert( make_pair(ct.id().rawId(), 
 						rechits.size()-1 ) ); 
 	    }
+
 	  }
 	
       }
