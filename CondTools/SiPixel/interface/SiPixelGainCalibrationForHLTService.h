@@ -30,6 +30,8 @@ class SiPixelGainCalibrationForHLTService : public SiPixelGainCalibrationService
   float   getGain      ( const uint32_t& detID,const int& col, const int& row);
   bool    isDead       ( const uint32_t& detID,const int& col, const int& row); //also return dead by column.
   bool    isDeadColumn ( const uint32_t& detID,const int& col, const int& row);
+  bool    isNoisy       ( const uint32_t& detID,const int& col, const int& row);
+  bool    isNoisyColumn ( const uint32_t& detID,const int& col, const int& row);
 
 };
 #endif

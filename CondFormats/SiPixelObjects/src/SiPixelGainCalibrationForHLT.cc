@@ -107,6 +107,11 @@ void SiPixelGainCalibrationForHLT::setData(float ped, float gain, std::vector<ch
      ped_  = deadFlag_ & 0xFF;
      gain_ = deadFlag_ & 0xFF;
   }
+  else if (thisColumnIsNoisy)
+  {
+     ped_  = noisyFlag_ & 0xFF;
+     gain_ = noisyFlag_ & 0xFF;
+  }
 
   unsigned int data = (ped_ << 8) | gain_ ;
   vped.resize(vped.size()+2);
@@ -125,9 +130,9 @@ float SiPixelGainCalibrationForHLT::getPed(const int& col, const int& row, const
   const DecodingStructure & s = (const DecodingStructure & ) *(range.first+col*lengthOfColumnData + lengthOfAveragedDataInEachColumn*numberOfDataBlocksToSkip);
 
   if ((s.ped & 0xFF) == deadFlag_)
-  {
      isDeadColumn = true;
-  }
+  else if ((s.ped & 0xFF) == noisyFlag_)
+     isNoisyColumn = true;
 
   int maxRow = (lengthOfColumnData/lengthOfAveragedDataInEachColumn)*numberOfRowsToAverageOver_ - 1;
   if (col >= nCols || row > maxRow){
@@ -147,10 +152,10 @@ float SiPixelGainCalibrationForHLT::getGain(const int& col, const int& row, cons
   const DecodingStructure & s = (const DecodingStructure & ) *(range.first+col*lengthOfColumnData + lengthOfAveragedDataInEachColumn*numberOfDataBlocksToSkip);
 
   if ((s.gain & 0xFF) == deadFlag_)
-  {
      isDeadColumn = true;
-  }
-
+  else if ((s.gain & 0xFF) == noisyFlag_)
+     isNoisyColumn = true;
+     
   int maxRow = (lengthOfColumnData/lengthOfAveragedDataInEachColumn)*numberOfRowsToAverageOver_ - 1;
   if (col >= nCols || row > maxRow){
     throw cms::Exception("CorruptedData")

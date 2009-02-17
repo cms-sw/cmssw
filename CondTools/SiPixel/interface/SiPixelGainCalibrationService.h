@@ -30,6 +30,8 @@ class SiPixelGainCalibrationService : public SiPixelGainCalibrationServicePayloa
   float   getGain      ( const uint32_t& detID,const int& col, const int& row);
   bool    isDead       ( const uint32_t& detID,const int& col, const int& row);
   bool    isDeadColumn ( const uint32_t& detID,const int& col, const int& row); //throws exception!
+  bool    isNoisy       ( const uint32_t& detID,const int& col, const int& row);
+  bool    isNoisyColumn ( const uint32_t& detID,const int& col, const int& row);
 
 
 };

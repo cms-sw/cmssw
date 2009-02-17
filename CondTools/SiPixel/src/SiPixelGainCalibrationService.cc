@@ -21,7 +21,7 @@ float SiPixelGainCalibrationService::getPedestal( const uint32_t& detID,const in
    bool isDead = false;
    bool isNoisy = false;
    float pedestalValue = this->getPedestalByPixel(detID, col, row, isDead, isNoisy);
-   if (isDead)
+   if (isDead || isNoisy)
    {
       this->throwExepctionForBadRead("FullCalibration getPedestal()",detID, col, row, pedestalValue);
       return 0.0;
@@ -34,7 +34,7 @@ float SiPixelGainCalibrationService::getGain( const uint32_t& detID,const int& c
    bool isDead = false;
    bool isNoisy = false;
    float gainValue = this->getGainByColumn(detID, col, row, isDead, isNoisy);
-   if (isDead)
+   if (isDead || isNoisy)
    {
       this->throwExepctionForBadRead("FullCalibration getGain()",detID, col, row, gainValue);
       return 0.0;
@@ -58,10 +58,32 @@ bool SiPixelGainCalibrationService::isDead( const uint32_t& detID,const int& col
    }
    return isDead;
 }
+
+bool SiPixelGainCalibrationService::isNoisy( const uint32_t& detID,const int& col, const int& row)
+{
+   bool isDead = false;
+   bool isNoisy = false;
+   try  
+   {
+      this->getPedestalByPixel(detID, col, row, isDead, isNoisy); 
+   }
+   catch (cms::Exception& e) 
+   {
+      // Do not stop processing if you check if a nonexistant pixel is noisy
+      edm::LogInfo("SiPixelGainCalibrationService") << "Attempting to check if nonexistant pixel is noisy.  Exception message: " << e.what();
+      isNoisy = false; 
+   }
+   return isNoisy;
+}
    
 bool SiPixelGainCalibrationService::isDeadColumn( const uint32_t& detID,const int& col, const int& row)
 {
    edm::LogError("SiPixelGainCalibrationService") << "You attempted to check if an entire column was dead with a payload that stores information at pixel granularity.  Please check by pixel. THANKS!";
    return false;
 }
-
+   
+bool SiPixelGainCalibrationService::isNoisyColumn( const uint32_t& detID,const int& col, const int& row)
+{
+   edm::LogError("SiPixelGainCalibrationService") << "You attempted to check if an entire column was noisy with a payload that stores information at pixel granularity.  Please check by pixel. THANKS!";
+   return false;
+}

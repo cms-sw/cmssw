@@ -103,10 +103,14 @@ void SiPixelGainCalibration::setData(float ped, float gain, std::vector<char>& v
 
   if (isDeadPixel)
   {
-     ped_  = deadFlag_;
-     gain_ = deadFlag_;
+     ped_  = deadFlag_ & 0xFF;
+     gain_ = deadFlag_ & 0xFF;
   }
-
+  if (isNoisyPixel)
+  {
+     ped_  = noisyFlag_ & 0xFF;
+     gain_ = noisyFlag_ & 0xFF;
+  }
   unsigned int data = (ped_ << 8) | gain_ ;
   vped.resize(vped.size()+2);
   // insert in vector of char
@@ -122,7 +126,9 @@ float SiPixelGainCalibration::getPed(const int& col, const int& row, const Range
       << "[SiPixelGainCalibration::getPed] Pixel out of range: col " << col << " row " << row;
   }  
   if ((s.ped & 0xFF) == deadFlag_)
-     isDead = true;
+     isDead = true;  
+  if ((s.ped & 0xFF) == noisyFlag_)
+     isNoisy = true;
   return decodePed(s.ped & 0xFF);  
 }
 
@@ -135,7 +141,9 @@ float SiPixelGainCalibration::getGain(const int& col, const int& row, const Rang
       << "[SiPixelGainCalibration::getPed] Pixel out of range: col " << col << " row " << row;
   }  
   if ((s.gain & 0xFF) == deadFlag_)
-     isDead = true;
+     isDead = true;  
+  if ((s.gain & 0xFF) == noisyFlag_)
+     isNoisy = true;
   return decodeGain(s.gain & 0xFF);
 }
 

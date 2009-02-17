@@ -21,7 +21,7 @@ float SiPixelGainCalibrationForHLTService::getPedestal( const uint32_t& detID,co
    bool isDead = false;
    bool isNoisy = false;
    float pedestalValue = this->getPedestalByColumn(detID, col, row, isDead, isNoisy);
-   if (isDead)
+   if (isDead || isNoisy)
    {
       this->throwExepctionForBadRead("HLT getPedestal()", detID, col, row, pedestalValue);
       return 0.0;
@@ -34,7 +34,7 @@ float SiPixelGainCalibrationForHLTService::getGain( const uint32_t& detID,const 
    bool isDead = false;
    bool isNoisy = false;
    float gainValue = this->getGainByColumn(detID, col, row, isDead, isNoisy);
-   if (isDead)
+   if (isDead || isNoisy)
    {
       this->throwExepctionForBadRead("HLT getGain()", detID, col, row, gainValue);
       return 0.0;
@@ -58,6 +58,23 @@ bool SiPixelGainCalibrationForHLTService::isDead( const uint32_t& detID,const in
    }
    return isDead;
 }
+
+bool SiPixelGainCalibrationForHLTService::isNoisy( const uint32_t& detID,const int& col, const int& row)
+{
+   bool isDead = false;
+   bool isNoisy = false;
+   try  
+   {
+      this->getPedestalByColumn(detID, col, row, isDead, isNoisy); //pedestal stores noisy column value as well
+   }
+   catch (cms::Exception& e) 
+   {
+      // Do not stop processing if you check if a nonexistant pixel is noisy
+      edm::LogInfo("SiPixelGainCalibrationForHLTService") << "Attempting to check if nonexistant pixel is noisy.  Exception message: " << e.what();
+      isNoisy = false; 
+   }
+   return isNoisy;
+}
    
 bool SiPixelGainCalibrationForHLTService::isDeadColumn( const uint32_t& detID,const int& col, const int& row)
 {
@@ -74,5 +91,22 @@ bool SiPixelGainCalibrationForHLTService::isDeadColumn( const uint32_t& detID,co
       isDead = false; 
    }
    return isDead;
+}
+  
+bool SiPixelGainCalibrationForHLTService::isNoisyColumn( const uint32_t& detID,const int& col, const int& row)
+{
+   bool isDead = false;
+   bool isNoisy = false;
+   try  
+   {
+      this->getGainByColumn(detID, col, row, isDead, isNoisy);
+   }
+   catch (cms::Exception& e) 
+   {
+      // Do not stop processing if you check if a nonexistant pixel is noisy
+      edm::LogInfo("SiPixelGainCalibrationForHLTService") << "Attempting to check if nonexistant pixel is noisy.  Exception message: " << e.what();
+      isNoisy = false; 
+   }
+   return isNoisy;
 }
 
