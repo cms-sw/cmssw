@@ -332,17 +332,20 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
       // if set to dynamic (otherwise uncanged from
       // fixed setting
       if (dynamicEThres_) {
+
+	//std::cout << "i : " << i << " idxPeak " << idxPeak << std::endl;
+	//std::cout << "    the dominoEnergy.size() = " << dominoEnergy.size() << std::endl;
          // compute e5x5 for this seed crystal
          //std::cout << "idxPeak, phiSteps " << idxPeak << ", " << phiSteps << std::endl;
          e5x5 = lump;
          //std::cout << "lump " << e5x5 << std::endl;
-         if (abs(idxPeak + 1) < (int)dominoEnergy.size()) e5x5 += dominoEnergy[idxPeak + 1];
+         if ((idxPeak + 1) < (int)dominoEnergy.size()) e5x5 += dominoEnergy[idxPeak + 1];
          //std::cout << "+1 " << e5x5 << std::endl;
-         if (abs(idxPeak + 2) < (int)dominoEnergy.size()) e5x5 += dominoEnergy[idxPeak + 2];
+         if ((idxPeak + 2) < (int)dominoEnergy.size()) e5x5 += dominoEnergy[idxPeak + 2];
          //std::cout << "+2 " << e5x5 << std::endl;
-         if (abs(idxPeak - 1) > 0) e5x5 += dominoEnergy[idxPeak - 1];
+         if ((idxPeak - 1) > 0) e5x5 += dominoEnergy[idxPeak - 1];
          //std::cout << "-1 " << e5x5 << std::endl;
-         if (abs(idxPeak - 2) > 0) e5x5 += dominoEnergy[idxPeak - 2];
+         if ((idxPeak - 2) > 0) e5x5 += dominoEnergy[idxPeak - 2];
          //std::cout << "-2 " << e5x5 << std::endl;
          // compute eThres
          eThres = (eThresA_ * e5x5) + eThresB_;   
