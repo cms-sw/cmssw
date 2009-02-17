@@ -177,8 +177,13 @@ print XML makeXmlHeader();
 print XML makeXmlProfileHeader();
 print XML makeXmlAppHeader(0,"executive::Application",0,"executive");
 print XML makeXmlAppProperties("Executive",@EXproperties);
-print XML makeXmlAppTrailer(0,$ENV{"XDAQ_ROOT"}."/lib","libb2innub.so");
-print XML addModuleToXmlAppTrailer(0,$ENV{"XDAQ_ROOT"}."/lib","libexecutive.so");
+if($useAtcp){
+  print XML makeXmlAppTrailer(0,$ENV{"XDAQ_ROOT"}."/lib","libb2innub.so");
+  print XML addModuleToXmlAppTrailer(0,$ENV{"XDAQ_ROOT"}."/lib","libexecutive.so");
+}
+else{
+  print XML makeXmlAppTrailer(0,$ENV{"XDAQ_ROOT"}."/lib","libexecutive.so");
+}
 print XML makeXmlAppHeader(0,"pt::http::PeerTransportHTTP",1);
 print XML makeXmlAppProperties("pt::http::PeerTransportHTTP",@HTTPproperties);
 print XML makeXmlAppTrailer(0,$ENV{"XDAQ_ROOT"}."/lib","libpthttp.so");
