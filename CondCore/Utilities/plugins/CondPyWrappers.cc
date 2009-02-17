@@ -35,7 +35,7 @@ namespace {
     //topinit();    
     cond::IOVProxy iov = db.iov(tag);
     if (0==iov.size()) return std::string();
-    return pyInfo(iov.begin()->payloadToken())->resource();
+    return pyInfo(iov.begin()->wrapperToken())->resource();
   }
 
   std::string moduleNameByToken(std::string const & token) {
@@ -120,10 +120,10 @@ BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
     .def(vector_indexing_suite<std::vector<int> >())
     ;
    
-  class_<cond::IOVElement>("IOVElement", init<>())
-    .def("since", &cond::IOVElement::since)
-    .def("till", &cond::IOVElement::till)
-    .def("payloadToken", &cond::IOVElement::payloadToken, return_value_policy<copy_const_reference>())
+  class_<cond::IOVElementProxy>("IOVElement", init<>())
+    .def("since", &cond::IOVElementProxy::since)
+    .def("till", &cond::IOVElementProxy::till)
+    .def("payloadToken", &cond::IOVElementProxy::wrapperToken, return_value_policy<copy_const_reference>())
     ;
   
   enum_<cond::TimeType>("timetype")
@@ -132,7 +132,7 @@ BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
     .value("lumiid",cond::lumiid)
     .value("userid",cond::userid)
     ;
-
+  
   class_<cond::IOVProxy>("IOV", init<>())
     .def("size", &cond::IOVProxy::size)
     .def("setRange", &cond::IOVProxy::setRange)

@@ -20,7 +20,7 @@ namespace cond {
     virtual ~UpdateStamp();
     
     // stamp and return current revision number;
-    int stamp( std::string const & icomment);
+    int stamp( std::string const & icomment, bool append=false);
     
     int revision() const { return  m_revision;}
     
