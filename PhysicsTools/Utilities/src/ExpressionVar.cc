@@ -9,6 +9,52 @@ using namespace std;
 
 ExpressionVar::ExpressionVar(const vector<MethodInvoker>& methods, method::TypeCode retType) : 
   methods_(methods), retType_(retType) { 
+    initObjects_();
+}
+
+ExpressionVar::ExpressionVar(const ExpressionVar &other) :
+  methods_(other.methods_), retType_(other.retType_) { 
+    initObjects_();
+}
+
+ExpressionVar::~ExpressionVar() {
+    for(std::vector<Reflex::Object>::iterator it = objects_.begin(); it != objects_.end(); ++it) {
+        if (it->Address() != 0) {
+            if (it->TypeOf().IsPointer() || it->TypeOf().IsReference()) {
+                // just delete a void *, as that's what it was
+                void **p = static_cast<void **>(it->Address());
+                delete p;
+            } else {
+	      //std::cout << "Calling Destruct on a " << it->TypeOf().Name(QUALIFIED) << std::endl;
+	      it->Destruct(); 
+            }
+        }
+    }
+    objects_.clear();
+}
+
+void ExpressionVar::initObjects_() {
+    objects_.reserve(methods_.size());
+    static Type tVoid = Type::ByName("void");
+    for (std::vector<MethodInvoker>::const_iterator it = methods_.begin(); it != methods_.end(); ++it) {
+        if (it->method().IsFunctionMember()) {
+            Reflex::Type retType = it->method().TypeOf().ReturnType();
+	    //remove any typedefs if any. If we do not do this it appears that we get a memory leak
+	    // because typedefs do not have 'destructors'
+	    retType = retType.FinalType();
+            if (retType == tVoid) {
+                objects_.push_back(Reflex::Object(tVoid));
+            } else if (retType.IsPointer() || retType.IsReference()) {
+                // in this case, I have to allocate a void *, not an object!
+                objects_.push_back(Reflex::Object(retType, new void *));
+            } else {
+                objects_.push_back(retType.Construct());
+                //std::cout << "ExpressionVar: reserved memory at "  << objects_.back().Address() << " for a " << retType.Name(QUALIFIED) << " returned by " << it->method().Name() << std::endl;
+            }
+        } else { // no alloc, we don't need it
+            objects_.push_back(Reflex::Object());
+        }
+    }
 }
 
 bool ExpressionVar::isValidReturnType(method::TypeCode retType)
@@ -36,19 +82,14 @@ bool ExpressionVar::isValidReturnType(method::TypeCode retType)
 
 double ExpressionVar::value(const Object & o) const {
   using namespace method;
-  std::pair<Object,bool> ro(o,false);
+  Object ro = o;
   std::vector<Object> toBeDeleted;
-  for(vector<MethodInvoker>::const_iterator m = methods_.begin();
-      m != methods_.end(); ++m) {
-      if (ro.second) { toBeDeleted.push_back(ro.first); }
-      ro = m->value(ro.first);
+  std::vector<MethodInvoker>::const_iterator itm, end = methods_.end();
+  std::vector<Reflex::Object>::iterator      ito;
+  for(itm = methods_.begin(), ito = objects_.begin(); itm != end; ++itm, ++ito) {
+      ro = itm->invoke(ro, *ito);
   }
-  for (std::vector<Object>::iterator it = toBeDeleted.begin(), ed = toBeDeleted.end(); it != ed; ++it) {
-      //std::cout << "Should delete Object at " << it->Address() << ", type = " << it->TypeOf().Name() << std::endl;
-      //it->Destruct(); // this is not ok, it uses "free" while we need "delete"
-      trueDelete(*it);
-  }
-  void * addr = ro.first.Address();
+  void * addr = ro.Address();
   double ret = 0;
   switch(retType_) {
   case(doubleType) : ret = * static_cast<double         *>(addr); break;
@@ -73,9 +114,9 @@ void ExpressionVar::trueDelete(Reflex::Object & obj) {
      void * reflexTypeId = obj.TypeOf().Id();
      std::map<void *, Reflex::NewDelFunctions *>::iterator match = deleters_.find(reflexTypeId);
      if (match == deleters_.end()) {
-         Reflex::Object newDel;
-         obj.Invoke("__getNewDelFunctions", newDel);
-         Reflex::NewDelFunctions *ptr = static_cast<Reflex::NewDelFunctions *>(newDel.Address());
+         Reflex::NewDelFunctions *ptr;
+         Reflex::Object newDel(Reflex::Type::ByTypeInfo(typeid(ptr)), &ptr);
+         obj.Invoke("__getNewDelFunctions", &newDel);
          match = deleters_.insert(std::make_pair(reflexTypeId, ptr)).first;   
      }
      (*match->second->fDelete)(obj.Address());

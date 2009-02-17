@@ -36,9 +36,9 @@ void MethodInvoker::setArgs() {
   }
 }
 
-std::pair<Object,bool> MethodInvoker::value(const Object & o) const {
-  Object ret;
-  bool   owned = false;
+Reflex::Object
+MethodInvoker::invoke(const Object & o, Reflex::Object &retstore) const {
+  Reflex::Object ret = retstore;
   /* no need to check the type at run time
   if(method_.IsVirtual()) {
     Type dynType = o.DynamicType();
@@ -50,46 +50,41 @@ std::pair<Object,bool> MethodInvoker::value(const Object & o) const {
     ret = met.Invoke(Object(dynType, o.Address()), args_);
     } else */
   /*std::cout << "Invoking " << method_.Name() 
-            << " from " << method_.DeclaringType().Name() 
-            << " on an instance of " << o.DynamicType().Name() 
+            << " from " << method_.DeclaringType().Name(QUALIFIED) 
+            << " on an instance of " << o.DynamicType().Name(QUALIFIED) 
+            << " at " << o.Address()
             << " with " << args_.size() << " arguments"
             << std::endl;*/
+  Type retType;
   if(isFunction_) {
-     method_.Invoke(o, ret, args_);
+     method_.Invoke(o, &ret, args_);
+     retType = method_.TypeOf().ReturnType(); // this is correct, it takes pointers and refs into account
   } else {
      ret = method_.Get(o);
+     retType = method_.TypeOf();
   }
   void * addr = ret.Address(); 
+  //std::cout << "Stored result of " <<  method_.Name() << " (type " << method_.TypeOf().ReturnType().Name(QUALIFIED) << ") at " << addr << std::endl;
   if(addr==0)
     throw edm::Exception(edm::errors::InvalidReference)
       << "method \"" << method_.Name() << "\" called with " << args_.size() 
       << " arguments returned a null pointer ";   
-  Type retType = ret.TypeOf();
-  if (retType.IsClass() && !retType.IsPointer() && !retType.IsReference()) {
-    //std::cout << "Object, and not pointer, at " << addr << ", type " <<  retType.Name() 
-    //          << ", from " << method_.Name() << ": I need to delete it" << std::endl;
-    owned = true;
-  }
-  bool stripped = false;
-  while(retType.IsTypedef()) { 
-    retType = retType.ToType(); stripped = true; 
-  }
-  bool isPtr = retType.IsPointer() /* isRef = retType.IsReference() */;
-  if(isPtr) {
-    if(!stripped) {
-      stripped = true;
-      retType = retType.ToType();
-      while(retType.IsTypedef()) {
-	retType = retType.ToType();
+  //std::cout << "Return type is " << retType.Name(QUALIFIED) << std::endl;
+   
+  if(retType.IsPointer() || retType.IsReference()) { // both need (void **)->(void *) conversion
+      if (retType.IsPointer()) {
+        retType = retType.ToType(); // for Pointers, I get the real type this way
+      } else {
+        retType = Type(retType, 0); // strip cv & ref flags
       }
-    }
+      while (retType.IsTypedef()) retType = retType.ToType();
+      ret = Object(retType, *static_cast<void **>(addr));
+      //std::cout << "Now type is " << retType.Name(QUALIFIED) << std::endl;
   }
-  if(stripped)
-    ret = Object(retType, addr);
   if(!ret) 
      throw edm::Exception(edm::errors::Configuration)
       << "method \"" << method_.Name() 
       << "\" returned void invoked on object of type \"" 
-      << o.TypeOf().Name() << "\"\n";
-  return std::make_pair(ret,owned);
+      << o.TypeOf().Name(QUALIFIED) << "\"\n";
+  return ret;
 }

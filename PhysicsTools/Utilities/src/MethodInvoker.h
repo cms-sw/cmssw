@@ -12,8 +12,12 @@ namespace reco {
       explicit MethodInvoker(const Reflex::Member & method,
 			     const std::vector<AnyMethodArgument>    & ints   = std::vector<AnyMethodArgument>() );
       MethodInvoker(const MethodInvoker &); 
-      /// Returns the object, and an info about if we have to delete such object or not
-      std::pair<Reflex::Object,bool> value(const Reflex::Object & o) const;
+
+      /// Invokes the method, putting the result in retval.
+      /// Returns the Object that points to the result value, after removing any "*" and "&" 
+      /// Caller code is responsible for allocating retstore before calling 'invoke', and of deallocating it afterwards
+      Reflex::Object
+      invoke(const Reflex::Object & o, Reflex::Object &retstore) const;
       const Reflex::Member & method() const { return method_; }
       MethodInvoker & operator=(const MethodInvoker &);
     private:
