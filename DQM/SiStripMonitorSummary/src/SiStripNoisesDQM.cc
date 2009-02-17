@@ -230,8 +230,7 @@ void SiStripNoisesDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, u
     for(unsigned int i=0;i<sameLayerDetIds_.size();i++){
       if(sameLayerDetIds_[i]==selDetId_){iBin=i+1;}
     }  
-    // Cumulative distribution with average Noise value on a layer (not needed):
-    ////  selME_.SummaryDistr->Fill(iBin,meanNoise);
+    selME_.SummaryDistr->Fill(iBin,meanNoise);
 
     // Fill the Histo_TkMap with the mean Noise:
         if(HistoMaps_On_ ) Tk_HM_->fill(selDetId_, meanNoise);
