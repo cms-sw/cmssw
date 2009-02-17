@@ -1,5 +1,5 @@
 /*
- * $Id: HydjetProducer.cc,v 1.3 2008/04/21 16:51:48 yilmaz Exp $
+ * $Id: HydjetProducer.cc,v 1.5 2009/01/09 10:23:09 saout Exp $
  *
  * Interface to the HYDJET generator, produces HepMC events
  *
@@ -12,6 +12,7 @@
 #include "boost/lexical_cast.hpp"
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -30,6 +31,8 @@
 #include "HepMC/SimpleVector.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 #include "SimDataFormats/HiGenData/interface/GenHIEvent.h"
 
 
@@ -95,6 +98,8 @@ HydjetProducer::HydjetProducer(const ParameterSet &pset) :
   call_hyinit(comenergy,abeamtarget_,cflag_,bmin_,bmax_,bfixed_,nmultiplicity_);
     
   produces<HepMCProduct>();
+  produces<GenEventInfoProduct>();
+  produces<GenRunInfoProduct, InRun>();
   produces<GenHIEvent>();
 }
 
@@ -471,15 +476,23 @@ void HydjetProducer::produce(Event & e, const EventSetup& es)
   add_heavy_ion_rec(evt);
 
   auto_ptr<HepMCProduct> bare_product(new HepMCProduct());
-  bare_product->addHepMCData(evt );
+  bare_product->addHepMCData(evt);
   auto_ptr<GenHIEvent> genhi(new GenHIEvent(subvector,hyjpar.nhsel));
   e.put(bare_product);
   e.put(genhi);
+
+  auto_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(evt));
+  e.put(genEventInfo);
 
   // print PYLIST info
   if (e.id().event() <= maxEventsToPrint_ && pythiaPylistVerbosity_)     
      call_pylist(pythiaPylistVerbosity_);      
 }
 
+void HydjetProducer::endRun(Run & run, const EventSetup& es)
+{
+  auto_ptr<GenRunInfoProduct> genRunInfo(new GenRunInfoProduct());
+  run.put(genRunInfo);
+}
 
 //________________________________________________________________

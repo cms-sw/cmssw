@@ -1,7 +1,7 @@
 #ifndef HydjetProducer_h
 #define HydjetProducer_h
 
-// $Id: HydjetProducer.h,v 1.13 2008/01/21 12:03:08 yilmaz Exp $
+// $Id: HydjetProducer.h,v 1.1 2008/04/09 15:40:33 marafino Exp $
 
 /** \class HydjetProducer
 *
@@ -51,7 +51,8 @@ namespace edm
     bool					hyjpythia_init(const ParameterSet &pset);
     inline double			        nuclear_radius() const;
     virtual void                                produce(Event & e, const EventSetup & es);
-    
+    virtual void                                endRun(Run & run, const EventSetup & es);
+
     HepMC::GenEvent   *evt;
     double            abeamtarget_;           // beam/target atomic mass number 
     double            bfixed_;                // fixed impact param (fm); valid only if cflag_=0
