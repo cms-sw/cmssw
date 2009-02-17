@@ -33,7 +33,9 @@ class SiStripPedestalsDQM;
 class SiStripNoisesDQM;
 class SiStripQualityDQM;
 class SiStripApvGainsDQM;
-class SiStripLorentzAngleDQM;
+class SiStripLorentzAngleDQM; 
+class SiStripCablingDQM;
+class SiStripThresholdDQM;
 
 class SiStripClassToMonitorCondData{
  
@@ -57,12 +59,15 @@ class SiStripClassToMonitorCondData{
    
    edm::ParameterSet conf_;
   
-   bool monitorPedestals_   ;
-   bool monitorNoises_      ;
-   bool monitorQuality_     ;
-   bool monitorApvGains_    ;
-   bool monitorLorentzAngle_;
-   
+   bool monitorPedestals_     ;
+   bool monitorNoises_        ;
+   bool monitorQuality_       ;
+   bool monitorApvGains_      ;
+   bool monitorLorentzAngle_  ;
+   bool monitorLowThreshold_  ;
+   bool monitorHighThreshold_ ;
+   bool monitorCabling_       ;
+
    bool gainRenormalisation_;
      
    std::string outPutFileName;
@@ -71,7 +76,11 @@ class SiStripClassToMonitorCondData{
    SiStripNoisesDQM*                 noisesDQM_; 
    SiStripQualityDQM*               qualityDQM_; 
    SiStripApvGainsDQM*             apvgainsDQM_; 
-   SiStripLorentzAngleDQM*     lorentzangleDQM_; 
+   SiStripLorentzAngleDQM*     lorentzangleDQM_;    
+   SiStripCablingDQM*               cablingDQM_;
+   SiStripThresholdDQM*        lowthresholdDQM_;
+   SiStripThresholdDQM*       highthresholdDQM_;
+
   
 };
 
