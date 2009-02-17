@@ -72,6 +72,8 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
   
   seleNRHMax_ = iConfig.getParameter<int> ("seleNRHMax");
   seleXtalMinEnergy_ = iConfig.getParameter<double>("seleXtalMinEnergy");
+  seleXtalMinEnergyEndCap_ = iConfig.getParameter<double>("seleXtalMinEnergyEndCap");
+  
   
   
   doSelForPi0Barrel_ = iConfig.getParameter<bool> ("doSelForPi0Barrel");  
@@ -620,7 +622,9 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       
             
     }
-        
+    
+    if(simple_energy <= 0) continue; 
+    
     
     math::XYZPoint clus_pos = posCalculator_.Calculate_Location(clus_used,hitCollection_p,geometry_eb,geometry_es);
     
@@ -628,14 +632,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     float theta_s = 2. * atan(exp(-clus_pos.eta()));
     float et_s = simple_energy * sin(theta_s);
     
-    eClus.push_back(simple_energy);
-    etClus.push_back(et_s);
-    etaClus.push_back(clus_pos.eta());
-    thetaClus.push_back(theta_s);
-    
-    phiClus.push_back(clus_pos.phi());
-    max_hit.push_back(seed_id);
-    RecHitsCluster.push_back(RecHitsInWindow);
+  
     //Compute S4/S9 variable
     //We are not sure to have 9 RecHits so need to check eta and phi:
 
@@ -673,8 +670,13 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       
     }
     
+
+    if(e3x3 <= 0) continue; 
+    
+    
+
     float s4s9_max = *max_element( s4s9_tmp,s4s9_tmp+4)/e3x3; 
-    s4s9Clus.push_back(s4s9_max);
+   
     
     ///calculate e5x5
     std::vector<DetId> clus_v5x5 = topology_eb->getWindow(seed_id,5,5);	
@@ -702,7 +704,18 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       e5x5 += EBRecHits[nn].energy();
       
     }
+    
+    
+    if(e5x5 <= 0) continue; 
+    
+    eClus.push_back(simple_energy);
+    etClus.push_back(et_s);
+    etaClus.push_back(clus_pos.eta());
+    thetaClus.push_back(theta_s);
+    phiClus.push_back(clus_pos.phi());
+    s4s9Clus.push_back(s4s9_max);
     s9s25Clus.push_back(e3x3/e5x5);
+    RecHitsCluster.push_back(RecHitsInWindow);
     RecHitsCluster5x5.push_back(RecHitsInWindow5x5);
     
     
@@ -939,6 +952,14 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      if( storeIsoClusRecHitEtaEB_){
 		for(unsigned int iii=0 ; iii<IsoClus.size() ; iii++){   
 		  int ind = IsoClus[iii];
+
+		  
+		  ///eta candidates isoClus.
+		  it = find(indEtaCand.begin(),indEtaCand.end(),ind);
+		  if(it == indEtaCand.end()){
+		    indEtaCand.push_back(ind);
+		  }
+
 		  it = find(indClusSelected.begin(),indClusSelected.end(),ind);
 		  if( it == indClusSelected.end()){
 		    indClusSelected.push_back(ind);
@@ -960,7 +981,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	
       } // End of the "j" loop over Simple Clusters
     } // End of the "i" loop over Simple Clusters
-        
+    
     if( store5x5RecHitEtaEB_){
       ///for selected eta->gg candidates save 5x5 rechits also
       for(int j=0; j<int(indEtaCand.size());j++){
@@ -1022,7 +1043,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   EERecHitCollection::const_iterator ite;
   for (ite=endcapRecHitsHandle->begin(); ite!=endcapRecHitsHandle->end(); ite++) {
     double energy = ite->energy();
-    if( energy < seleXtalMinEnergy_) continue; 
+    if( energy < seleXtalMinEnergyEndCap_) continue; 
     
     EEDetId det = ite->id();
     if (RegionalMatch_){
@@ -1121,6 +1142,9 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
         
     }
     
+    if( simple_energy <= 0) continue; 
+    
+
         
     math::XYZPoint clus_pos = posCalculator_.Calculate_Location(clus_used,hitCollection_e,geometry_ee,geometry_es);
     
@@ -1128,12 +1152,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     float et_s = simple_energy * sin(theta_s);
     
     
-    eClusEndCap.push_back(simple_energy);
-    etClusEndCap.push_back(et_s);
-    etaClusEndCap.push_back(clus_pos.eta());
-    thetaClusEndCap.push_back(theta_s);
-    phiClusEndCap.push_back(clus_pos.phi());
-    RecHitsClusterEndCap.push_back(RecHitsInWindow);
+ 
     
     //Compute S4/S9 variable
     //We are not sure to have 9 RecHits so need to check eta and phi:
@@ -1160,14 +1179,15 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if( abs(dx)<=2 && abs(dy)<=2) e5x5 += en; 
       
     }
-    s4s9ClusEndCap.push_back(*max_element( s4s9_tmp,s4s9_tmp+4)/e3x3);
+    
+    if(e3x3 <= 0) continue; 
     
     
     std::vector<DetId> clus_v5x5 = topology_ee->getWindow(seed_id,5,5);	
     for( std::vector<DetId>::const_iterator idItr = clus_v5x5.begin(); idItr != clus_v5x5.end(); idItr++){
       EEDetId det = *idItr;
 
-      ///once again. check FED of this det which could be in another FED which are unpacked.
+      ///once again. check FED of this det which could be in another FED which are not unpacked.
       if (RegionalMatch_){
 	EcalElectronicsId elid = TheMapping->getElectronicsId(det);
 	int fed = elid.dccId();
@@ -1189,10 +1209,18 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       
     }
     
+    if(e5x5 <= 0) continue; 
+    
+    eClusEndCap.push_back(simple_energy);
+    etClusEndCap.push_back(et_s);
+    etaClusEndCap.push_back(clus_pos.eta());
+    thetaClusEndCap.push_back(theta_s);
+    phiClusEndCap.push_back(clus_pos.phi());
+    s4s9ClusEndCap.push_back(*max_element( s4s9_tmp,s4s9_tmp+4)/e3x3);
     s9s25ClusEndCap.push_back(e3x3/e5x5);
+    RecHitsClusterEndCap.push_back(RecHitsInWindow);
     RecHitsCluster5x5EndCap.push_back(RecHitsInWindow5x5);
-    
-    
+        
     
     if(debug_>=1){
       cout<<"3x3_cluster_ee (n,nxt,e,et eta,phi,s4s9,s925) "<<nClusEndCap<<" "<<int(RecHitsInWindow.size())<<" "<<eClusEndCap[nClusEndCap]<<" "<<" "<<etClusEndCap[nClusEndCap]<<" "<<etaClusEndCap[nClusEndCap]<<" "<<phiClusEndCap[nClusEndCap]<<" "<<s4s9ClusEndCap[nClusEndCap]<<" "<<s9s25ClusEndCap[nClusEndCap]<<endl;
@@ -1353,6 +1381,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      for(int jj =0; jj<2; jj++){
 		int ind = indtmp[jj];
 
+		///eta candidates
 		it = find(indEtaCand.begin(),indEtaCand.end(),ind);
 		if(it == indEtaCand.end()){
 		  indEtaCand.push_back(ind);
@@ -1373,6 +1402,12 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		
 		for(unsigned int iii=0 ; iii<IsoClus.size() ; iii++){   
 		  int ind = IsoClus[iii];
+		  ///eta candidates IsoClus.
+		  it = find(indEtaCand.begin(),indEtaCand.end(),ind);
+		  if(it == indEtaCand.end()){
+		    indEtaCand.push_back(ind);
+		  }
+
 		  it = find(indClusEndCapSelected.begin(),indClusEndCapSelected.end(),ind);
 		  if( it == indClusEndCapSelected.end()){
 		    indClusEndCapSelected.push_back(ind);
@@ -1425,8 +1460,13 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   int collsizeEndCap = int(selEERecHitCollection->size());
       
   
+  ///no rechits selected.
   if( collsize < 2 && collsizeEndCap <2) return false; 
-    
+  
+  
+  ///too many rechits.
+  if(collsize + collsizeEndCap > seleNRHMax_ ) return false; 
+  
   
   ////Now put into events selected rechits.
   if(doBarrel){

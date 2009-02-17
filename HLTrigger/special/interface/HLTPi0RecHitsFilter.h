@@ -116,6 +116,7 @@ class HLTPi0RecHitsFilter : public HLTFilter {
       int clusEtaSize_;
       int clusPhiSize_;
       double seleXtalMinEnergy_;
+      double seleXtalMinEnergyEndCap_;
       int seleNRHMax_;
       
 
