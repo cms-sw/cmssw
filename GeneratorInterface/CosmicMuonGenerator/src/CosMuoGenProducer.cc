@@ -1,13 +1,15 @@
-#include "GeneratorInterface/CosmicMuonGenerator/interface/CosMuoGenProducer.h"
-#include "GeneratorInterface/CosmicMuonGenerator/interface/CosmicMuonProducer.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "SimDataFormats/GeneratorProducts/interface/GenInfoProduct.h"
+
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+
+#include "GeneratorInterface/CosmicMuonGenerator/interface/CosMuoGenProducer.h"
 
 
 edm::CosMuoGenProducer::CosMuoGenProducer( const ParameterSet & pset ) :
-  EDProducer(),  
   //RanS(pset.getParameter<int>("RanSeed", 123456)), //get seed now from Framework
   MinP(pset.getParameter<double>("MinP")),
   MinP_CMS(pset.getParameter<double>("MinP_CMS")),
@@ -36,10 +38,6 @@ edm::CosMuoGenProducer::CosMuoGenProducer( const ParameterSet & pset ) :
     //if not specified (i.e. negative) then use MinP also for MinP_CMS
     if(MinP_CMS < 0) MinP_CMS = MinP;
 
-    //get seed now from Framework
-    //edm::Service<edm::RandomNumberGenerator> rng;
-    //RanS = rng->mySeed();
-
 #ifdef NOTYET
     //In the future, we will get the random number seed on each event and tell 
     // the cosmic muon generator to use that new seed
@@ -47,11 +45,14 @@ edm::CosMuoGenProducer::CosMuoGenProducer( const ParameterSet & pset ) :
     edm::Service<RandomNumberGenerator> rng;
     uint32_t seed = rng->mySeed();
     RanS = seed;
+#else
+    //get seed now from Framework
+    edm::Service<edm::RandomNumberGenerator> rng;
+    RanS = rng->mySeed();
 #endif
 
-
     // set up the generator
-    CosMuoGen = new CosmicMuonProducer();
+    CosMuoGen = new CosmicMuonGenerator();
 // Begin JMM change
 //  CosMuoGen->setNumberOfEvents(numberEventsInRun());
     CosMuoGen->setNumberOfEvents(999999999);
@@ -79,8 +80,8 @@ edm::CosMuoGenProducer::CosMuoGenProducer( const ParameterSet & pset ) :
     CosMuoGen->setMaxEnu(MaxEn);    
     CosMuoGen->initialize();
     produces<HepMCProduct>();
-    //  fEvt = new HepMC::GenEvent();
-    produces<GenInfoProduct, edm::InRun>();
+    produces<GenEventInfoProduct>();
+    produces<GenRunInfoProduct, edm::InRun>();
   }
 
 edm::CosMuoGenProducer::~CosMuoGenProducer(){
@@ -90,24 +91,23 @@ edm::CosMuoGenProducer::~CosMuoGenProducer(){
   clear();
 }
 
-void edm::CosMuoGenProducer::clear(){}
-
-
-void edm::CosMuoGenProducer::endRun(Run & r, const EventSetup & es) {
+void edm::CosMuoGenProducer::endRun( Run &run, const EventSetup& es )
+{
+  std::auto_ptr<GenRunInfoProduct> genRunInfo(new GenRunInfoProduct());
 
   double cs = CosMuoGen->getRate(); // flux in Hz, not s^-1m^-2
-  std::auto_ptr<GenInfoProduct> giprod (new GenInfoProduct());
-  giprod->set_cross_section(cs);
-  giprod->set_external_cross_section(extCrossSect);
-  giprod->set_filter_efficiency(extFilterEff);
-  r.put(giprod);
-  
-  CosMuoGen->terminate();
+  genRunInfo->setInternalXSec(cs);
+  genRunInfo->setExternalXSecLO(extCrossSect);
+  genRunInfo->setFilterEfficiency(extFilterEff);
 
+  run.put(genRunInfo);
+
+  CosMuoGen->terminate();
 }
 
+void edm::CosMuoGenProducer::clear(){}
 
-void edm::CosMuoGenProducer::produce(Event & e, const EventSetup& es)
+void edm::CosMuoGenProducer::produce(Event &e, const edm::EventSetup &es)
 {  
   // generate event
   CosMuoGen->nextEvent();
@@ -132,5 +132,7 @@ void edm::CosMuoGenProducer::produce(Event & e, const EventSetup& es)
   std::auto_ptr<HepMCProduct> CMProduct(new HepMCProduct());
   CMProduct->addHepMCData( fEvt );
   e.put(CMProduct);
-}
 
+  std::auto_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct( fEvt ));
+  e.put(genEventInfo);
+}

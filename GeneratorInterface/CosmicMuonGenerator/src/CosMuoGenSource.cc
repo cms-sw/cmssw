@@ -1,7 +1,12 @@
 #include "FWCore/Framework/interface/Run.h"
-#include "GeneratorInterface/CosmicMuonGenerator/interface/CosMuoGenSource.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+
+#include "GeneratorInterface/CosmicMuonGenerator/interface/CosMuoGenSource.h"
 
 
 edm::CosMuoGenSource::CosMuoGenSource( const ParameterSet & pset, InputSourceDescription const& desc ) :
@@ -65,7 +70,7 @@ edm::CosMuoGenSource::CosMuoGenSource( const ParameterSet & pset, InputSourceDes
     CosMuoGen->initialize();
     produces<HepMCProduct>();
     //  fEvt = new HepMC::GenEvent();
-    produces<GenInfoProduct, edm::InRun>();
+    produces<GenRunInfoProduct, edm::InRun>();
   }
 
 edm::CosMuoGenSource::~CosMuoGenSource(){
@@ -78,15 +83,16 @@ edm::CosMuoGenSource::~CosMuoGenSource(){
 
 void edm::CosMuoGenSource::endRun(Run & r) {
 
+  std::auto_ptr<GenRunInfoProduct> genRunInfo(new GenRunInfoProduct());
+
   double cs = CosMuoGen->getRate(); // flux in Hz, not s^-1m^-2
-  std::auto_ptr<GenInfoProduct> giprod (new GenInfoProduct());
-  giprod->set_cross_section(cs);
-  giprod->set_external_cross_section(extCrossSect);
-  giprod->set_filter_efficiency(extFilterEff);
-  r.put(giprod);
+  genRunInfo->setInternalXSec(cs);
+  genRunInfo->setExternalXSecLO(extCrossSect);
+  genRunInfo->setFilterEfficiency(extFilterEff);
+
+  r.put(genRunInfo);
   
   CosMuoGen->terminate();
-
 }
 
 

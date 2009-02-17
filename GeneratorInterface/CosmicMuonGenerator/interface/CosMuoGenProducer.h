@@ -3,20 +3,20 @@
 //
 // CosmicMuonProducer by droll (01/FEB/2006)
 //
-#include "GeneratorInterface/CosmicMuonGenerator/interface/CosmicMuonProducer.h"
+#include "HepMC/GenEvent.h"
+
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "HepMC/GenEvent.h"
-#include "SimDataFormats/GeneratorProducts/interface/GenInfoProduct.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include "GeneratorInterface/CosmicMuonGenerator/interface/CosmicMuonGenerator.h"
 
 namespace edm
 {
-  class CosMuoGenProducer : public EDProducer{
+  class CosMuoGenProducer : public EDProducer {
   public:
     CosMuoGenProducer(const ParameterSet& );
     virtual ~CosMuoGenProducer();
@@ -24,7 +24,7 @@ namespace edm
   private: 
     virtual void produce(Event & e, const EventSetup& es);
     
-    void endRun(Run & r, const EventSetup & es);
+    virtual void endRun(Run & r, const EventSetup & es);
     
     void clear();
     // define the configurable generator parameters
@@ -59,7 +59,7 @@ namespace edm
     double       extCrossSect;
     double       extFilterEff;
 
-    CosmicMuonProducer* CosMuoGen;
+    CosmicMuonGenerator* CosMuoGen;
     // the event format itself
     HepMC::GenEvent* fEvt;
     bool cmVerbosity_;
