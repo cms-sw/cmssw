@@ -31,7 +31,7 @@ namespace {
   std::string dsw("cond::DataAndSummaryWrapper");
 }
 
-int cond::service::GetToken::sizeDSW() {
+unsigned int cond::service::GetToken::sizeDSW() {
   return dsw.size();
 }
 

@@ -69,7 +69,7 @@ namespace cond{
       
       virtual std::string operator()(cond::PoolTransaction& pooldb) const {
 	cond::TypedRef<Wrapper> myPayload(pooldb,m_w);
-	myPayload.markWrite(myPayload.className().replace(0,sizeDSW(),"DSW");
+	myPayload.markWrite(myPayload.className().replace(0,sizeDSW(),"DSW"));
 	return myPayload.token();
 
       }
