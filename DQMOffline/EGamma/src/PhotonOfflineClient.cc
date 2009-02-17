@@ -11,7 +11,7 @@
  **  
  **
  **  $Id: PhotonOfflineClient
- **  $Date: 2009/01/28 15:31:17 $ 
+ **  $Date: 2009/02/13 14:17:52 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -116,7 +116,7 @@ void PhotonOfflineClient::endLuminosityBlock(const edm::LuminosityBlock& lumi, c
       
       doProfileX( dbe_->get(currentFolder_.str()+"r9VsEt2D"),dbe_->get(currentFolder_.str()+"r9VsEt"));
       
-      doProfileX( dbe_->get(currentFolder_.str()+"covIetaIetaVsEta2D"),dbe_->get(currentFolder_.str()+"covIetaIetaVsEta"));
+      doProfileX( dbe_->get(currentFolder_.str()+"sigmaIetaIetaVsEta2D"),dbe_->get(currentFolder_.str()+"sigmaIetaIetaVsEta"));
       
       //removing unneeded plots
       
@@ -129,7 +129,7 @@ void PhotonOfflineClient::endLuminosityBlock(const edm::LuminosityBlock& lumi, c
       dbe_->removeElement("ecalSumVsEta2D");
       dbe_->removeElement("hcalSumVsEta2D");
       dbe_->removeElement("r9VsEt2D");	
-      dbe_->removeElement("covIetaIetaVsEta2D");	
+      dbe_->removeElement("sigmaIetaIetaVsEta2D");	
       
       //other plots
       
