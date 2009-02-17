@@ -49,7 +49,7 @@ namespace {
     std::map<std::string, Algo>::const_iterator tmp23;
   };
   struct wrappers {
-    cond::DataAndSummaryWrapper<mySiStripNoises,std::string> > d0;
-    cond::DataAndSummaryWrapper<Pedestals,std::string> > d1;
+    cond::DataAndSummaryWrapper<mySiStripNoises,std::string> d0;
+    cond::DataAndSummaryWrapper<Pedestals,std::string> d1;
   };
 }

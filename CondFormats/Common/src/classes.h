@@ -4,6 +4,10 @@
 
 namespace {
   namespace {
+    struct dictionaries {
+	pool::Ptr<std::string> d0;
+    };
+
     struct Dummy {
       std::vector<int> vid;
       std::vector<double> vdd;
