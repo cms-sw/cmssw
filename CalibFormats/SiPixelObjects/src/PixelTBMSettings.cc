@@ -20,7 +20,7 @@ using namespace pos;
 
 
 PixelTBMSettings::PixelTBMSettings(std::vector < std::vector< std::string> > &tableMat):PixelConfigBase("","",""){
-  std::string mthn = "]\t[PixelTBMSettings::PixelTBMSettings()]\t\t    " ;
+  std::string mthn = "]\t[PixelTBMSettings::PixelTBMSettings()]\t\t\t    " ;
   std::vector< std::string > ins = tableMat[0];
   std::map<std::string , int > colM;
   std::vector<std::string > colNames;
@@ -81,10 +81,10 @@ PixelTBMSettings::PixelTBMSettings(std::vector < std::vector< std::string> > &ta
  
   if(tableMat.size() >1)
     {
-		  std::cout << __LINE__ << mthn << "Module from DB: " << tableMat[1][colM["MODULE_NAME"]]<< std::endl ;
+      //std::cout << __LINE__ << mthn << "Module from DB: " << tableMat[1][colM["MODULE_NAME"]]<< std::endl ;
       PixelROCName tmp(tableMat[1][colM["MODULE_NAME"]]);
       rocid_ = tmp ;
-		  std::cout << __LINE__ << mthn << "Built ROCNAME: " << rocid_.rocname()<< std::endl ;
+      //std::cout << __LINE__ << mthn << "Built ROCNAME: " << rocid_.rocname()<< std::endl ;
       
       analogInputBias_  = atoi(tableMat[1][colM["ANLG_INBIAS_VAL"]].c_str());
       analogOutputBias_ = atoi(tableMat[1][colM["ANLG_OUTBIAS_VAL"]].c_str());

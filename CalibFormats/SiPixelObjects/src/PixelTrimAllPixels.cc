@@ -24,7 +24,7 @@ using namespace pos;
 PixelTrimAllPixels::PixelTrimAllPixels( std::vector <std::vector<std::string> >& tableMat):
   PixelTrimBase("","","")
 {
-
+    std::string mthn = "]\t[PixelTrimAllPixels::PixelTrimAllPixels()]\t\t    " ; 
     std::stringstream currentRocName;
     std::map<std::string , int > colM;
     std::vector<std::string > colNames;
@@ -64,7 +64,7 @@ PixelTrimAllPixels::PixelTrimAllPixels( std::vector <std::vector<std::string> >&
       {
       if(colM.find(colNames[n]) == colM.end())
 	{
-	  std::cerr << "[PixelTrimAllPixels::PixelTrimAllPixels()]\tCouldn't find in the database the column with name " << colNames[n] << std::endl;
+	  std::cerr << __LINE__ << mthn << "Couldn't find in the database the column with name " << colNames[n] << std::endl;
 	  assert(0);
 	}
       }
