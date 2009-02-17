@@ -8,6 +8,5 @@
 using edm::BeamHaloSource;
 using edm::BeamHaloProducer;
 
-DEFINE_SEAL_MODULE();
 DEFINE_FWK_INPUT_SOURCE(BeamHaloSource);
 DEFINE_FWK_MODULE(BeamHaloProducer);

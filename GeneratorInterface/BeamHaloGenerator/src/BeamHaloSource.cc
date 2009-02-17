@@ -1,13 +1,14 @@
+#include <iostream>
+#include <time.h>
 
-#include "GeneratorInterface/BeamHaloGenerator/interface/BeamHaloSource.h"
-#include "GeneratorInterface/BeamHaloGenerator/interface/PYR.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
-#include <iostream>
-#include "time.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+
+#include "GeneratorInterface/BeamHaloGenerator/interface/BeamHaloSource.h"
+#include "GeneratorInterface/BeamHaloGenerator/interface/PYR.h"
 
 using namespace edm;
 using namespace std;
@@ -42,8 +43,8 @@ extern "C" {
 
 // HepMC::ConvertHEPEVT conv;
 //include "HepMC/HEPEVT_Wrapper.h"
-HepMC::HEPEVT_Wrapper wrapper;
-HepMC::IO_HEPEVT conv;
+static HepMC::HEPEVT_Wrapper wrapper;
+static HepMC::IO_HEPEVT conv;
 
 
 BeamHaloSource::~BeamHaloSource() {
@@ -57,7 +58,7 @@ BeamHaloSource::BeamHaloSource( const ParameterSet & pset,
 	GeneratedInputSource(pset, desc), evt(0)
 {
 
-   int iparam[6];
+   int iparam[8];
    float fparam[3];
    std::string cparam;
  // -- from bhgctrl.inc
