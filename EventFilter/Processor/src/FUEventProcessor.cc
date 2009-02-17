@@ -1044,7 +1044,7 @@ void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
   //version number, please update consistently with TAG
   *out << "<tr>"								<< endl;
   *out << "  <td colspan=\"5\" align=\"right\">"				<< endl;
-  *out << "    Version 1.4.2"							<< endl;
+  *out << "    Version 1.4.6"							<< endl;
   *out << "  </td>"								<< endl;
   *out << "</tr>"								<< endl;
 
