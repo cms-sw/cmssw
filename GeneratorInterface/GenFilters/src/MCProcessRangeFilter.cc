@@ -9,7 +9,7 @@ using namespace std;
 
 
 MCProcessRangeFilter::MCProcessRangeFilter(const edm::ParameterSet& iConfig) :
-label_(iConfig.getUntrackedParameter("moduleLabel",std::string("source"))),
+label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))),
 minProcessID(iConfig.getUntrackedParameter("MinProcessID",0)),
 maxProcessID(iConfig.getUntrackedParameter("MaxProcessID",500)),
 pthatMin(iConfig.getUntrackedParameter("MinPthat",0)),

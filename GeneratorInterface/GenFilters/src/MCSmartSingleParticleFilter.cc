@@ -9,7 +9,7 @@ using namespace std;
 
 
 MCSmartSingleParticleFilter::MCSmartSingleParticleFilter(const edm::ParameterSet& iConfig) :
-label_(iConfig.getUntrackedParameter("moduleLabel",std::string("source")))
+label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")))
 {
    //here do whatever other initialization is needed
    vector<int> defpid ;

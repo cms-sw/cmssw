@@ -11,7 +11,7 @@ using namespace std;
 
 
 MCZll::MCZll(const edm::ParameterSet& iConfig) :
-  label_(iConfig.getUntrackedParameter("moduleLabel",std::string("source"))), nEvents_(0), nAccepted_(0)
+  label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))), nEvents_(0), nAccepted_(0)
 {
   leptonFlavour_ = iConfig.getUntrackedParameter<int>("leptonFlavour",11);
   leptonPtMin_ = iConfig.getUntrackedParameter<double>("leptonPtMin",5.);

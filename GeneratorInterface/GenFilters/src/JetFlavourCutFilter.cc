@@ -8,7 +8,7 @@ using namespace HepMC;
 
 JetFlavourCutFilter::JetFlavourCutFilter(const edm::ParameterSet& iConfig)
 {
-  label_ = iConfig.getUntrackedParameter("moduleLabel",std::string("source"));
+  label_ = iConfig.getUntrackedParameter("moduleLabel",std::string("generator"));
   jetType = iConfig.getParameter< int >("jetType");
   if ((jetType>=1)&&(jetType<=3)) jetType=1;
 

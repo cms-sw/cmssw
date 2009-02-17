@@ -24,7 +24,8 @@ process.configurationMetadata = cms.untracked.PSet(
     name = cms.untracked.string(''),
     annotation = cms.untracked.string('generation of D*, with LongLived filter applied')
 )
-process.source = cms.Source("PythiaSource",
+process.source = cms.Source("EmptySource")
+process.generator = cms.EDFilter("Pythia6GeneratorFilter",
     Ptmax = cms.untracked.double(200.0),
     pythiaPylistVerbosity = cms.untracked.int32(0),
     ymax = cms.untracked.double(10.0),
@@ -34,6 +35,7 @@ process.source = cms.Source("PythiaSource",
     Ptmin = cms.untracked.double(200.0),
     ymin = cms.untracked.double(-10.0),
     maxEventsToPrint = cms.untracked.int32(0),
+    comEnergy = cms.double(10000.0),
     PythiaParameters = cms.PSet(
         process.pythiaDefaultBlock,
         # User cards - name is "myParameters"                                
@@ -66,12 +68,12 @@ process.out = cms.OutputModule("PoolOutputModule",
     )
 )
 
-process.p1 = cms.Path(process.select)
+process.p1 = cms.Path(process.generator*process.select)
 process.outpath = cms.EndPath(process.out)
 process.schedule = cms.Schedule(process.p1,process.outpath)
 
-process.PythiaSource.pythiaPylistVerbosity = 0
-process.PythiaSource.maxEventsToPrint = 10
-process.PythiaSource.pythiaHepMCVerbosity = True
+process.generator.pythiaPylistVerbosity = 0
+process.generator.maxEventsToPrint = 10
+process.generator.pythiaHepMCVerbosity = True
 
 

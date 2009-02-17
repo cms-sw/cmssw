@@ -11,7 +11,7 @@ using namespace std;
 
 
 MCParticlePairFilter::MCParticlePairFilter(const edm::ParameterSet& iConfig) :
-label_(iConfig.getUntrackedParameter("moduleLabel",std::string("source"))),
+label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))),
 particleCharge(iConfig.getUntrackedParameter("ParticleCharge",0)),
 minInvMass(iConfig.getUntrackedParameter("MinInvMass", 0.)),
 maxInvMass(iConfig.getUntrackedParameter("MaxInvMass", 14000.)),

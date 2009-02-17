@@ -7,7 +7,7 @@
 #include<cmath>
 
 PythiaFilterZJet::PythiaFilterZJet(const edm::ParameterSet& iConfig) :
-label_(iConfig.getUntrackedParameter("moduleLabel",std::string("source"))),
+label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))),
 etaMuMax(iConfig.getUntrackedParameter<double>("MaxMuonEta", 2.5)),
 ptZMin(iConfig.getUntrackedParameter<double>("MinZPt")),
 ptZMax(iConfig.getUntrackedParameter<double>("MaxZPt")),

@@ -9,7 +9,7 @@ using namespace std;
 
 
 PythiaFilter::PythiaFilter(const edm::ParameterSet& iConfig) :
-label_(iConfig.getUntrackedParameter("moduleLabel",std::string("source"))),
+label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))),
 particleID(iConfig.getUntrackedParameter("ParticleID", 0)),
 minptcut(iConfig.getUntrackedParameter("MinPt", 0.)),
 maxptcut(iConfig.getUntrackedParameter("MaxPt", 10000.)),

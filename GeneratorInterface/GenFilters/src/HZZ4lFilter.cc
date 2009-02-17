@@ -13,7 +13,7 @@
 //
 // Original Author:  Puljak Ivica
 //         Created:  Wed Apr 18 12:52:31 CEST 2007
-// $Id: HZZ4lFilter.cc,v 1.1 2007/07/13 14:33:42 fmoortga Exp $
+// $Id: HZZ4lFilter.cc,v 1.3 2009/01/09 10:23:08 saout Exp $
 //
 //
 
@@ -35,7 +35,7 @@
 
 
 HZZ4lFilter::HZZ4lFilter(const edm::ParameterSet& iConfig) :
-label_(iConfig.getUntrackedParameter("moduleLabel",std::string("source"))),
+label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))),
 minPtElectronMuon(iConfig.getUntrackedParameter("MinPtElectronMuon", 0.)),
 maxEtaElectronMuon(iConfig.getUntrackedParameter("MaxEtaElectronMuon", 10.))
 {

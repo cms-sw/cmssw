@@ -7,7 +7,7 @@
 #include<cmath>
 
 PythiaFilterZJetWithOutBg::PythiaFilterZJetWithOutBg(const edm::ParameterSet& iConfig) :
-label_(iConfig.getUntrackedParameter("moduleLabel",std::string("source"))),
+label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))),
 etaMuMax(iConfig.getUntrackedParameter<double>("MaxMuonEta", 2.5)),
 ptMuMin(iConfig.getUntrackedParameter<double>("MinMuonPt", 3.5)),
 ptZMin(iConfig.getUntrackedParameter<double>("MinZPt")),

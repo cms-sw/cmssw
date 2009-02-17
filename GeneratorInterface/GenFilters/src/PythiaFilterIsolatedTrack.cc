@@ -38,7 +38,7 @@ namespace{
 
 
 PythiaFilterIsolatedTrack::PythiaFilterIsolatedTrack(const edm::ParameterSet& iConfig) :
-label_(iConfig.getUntrackedParameter("moduleLabel",std::string("source"))),
+label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))),
 etaMax(iConfig.getUntrackedParameter<double>("MaxChargedHadronEta", 2.3)),
 ptSeed(iConfig.getUntrackedParameter<double>("ChargedHadronSeedPt", 10.)),
 cone(iConfig.getUntrackedParameter<double>("isoCone", 0.5)),

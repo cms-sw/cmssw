@@ -21,7 +21,7 @@ bool CosmicGenFilterLowE::filter(edm::Event& iEvent, const edm::EventSetup& iSet
   
   
   edm::Handle<edm::HepMCProduct>HepMCEvt;
-  iEvent.getByLabel("source","",HepMCEvt);
+  iEvent.getByLabel("generator","",HepMCEvt);
   const HepMC::GenEvent* MCEvt = HepMCEvt->GetEvent();
   
   double Ene = 0;

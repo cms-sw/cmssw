@@ -11,7 +11,7 @@ using namespace std;
 
 
 PythiaDauFilter::PythiaDauFilter(const edm::ParameterSet& iConfig) :
-label_(iConfig.getUntrackedParameter("moduleLabel",std::string("source"))),
+label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))),
 particleID(iConfig.getUntrackedParameter("ParticleID", 0)),
 chargeconju(iConfig.getUntrackedParameter("ChargeConjugation", true)),
 ndaughters(iConfig.getUntrackedParameter("NumberDaughters", 0)),

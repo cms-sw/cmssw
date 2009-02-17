@@ -6,7 +6,7 @@
 #include<cmath>
 
 PythiaFilterZgamma::PythiaFilterZgamma(const edm::ParameterSet& iConfig) :
-label_(iConfig.getUntrackedParameter("moduleLabel",std::string("source"))),
+label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))),
 selProc(iConfig.getUntrackedParameter<int>("SelectProcess")),
 ptElMin(iConfig.getUntrackedParameter<double>("MinElPt", 5.0)),
 ptMuMin(iConfig.getUntrackedParameter<double>("MinMuPt", 3.0)),

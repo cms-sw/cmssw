@@ -15,7 +15,7 @@ using namespace HepMC;
 
 
 PythiaFilterGammaGamma::PythiaFilterGammaGamma(const edm::ParameterSet& iConfig) :
-  label(iConfig.getUntrackedParameter<std::string>("moduleLabel",std::string("source"))),
+  label(iConfig.getUntrackedParameter<std::string>("moduleLabel",std::string("generator"))),
   //fileName(iConfig.getUntrackedParameter<std::string>("fileName", std::string("plots.root"))),
   maxEvents(iConfig.getUntrackedParameter<int>("maxEvents", 100000)),
   ptSeedThr(iConfig.getUntrackedParameter<double>("PtSeedThr")),

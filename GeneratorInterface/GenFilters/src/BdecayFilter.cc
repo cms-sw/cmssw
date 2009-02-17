@@ -8,7 +8,7 @@ using namespace HepMC;
 
 BdecayFilter::BdecayFilter(const edm::ParameterSet& iConfig)
 {
-  label_ = iConfig.getUntrackedParameter("moduleLabel",std::string("source"));
+  label_ = iConfig.getUntrackedParameter("moduleLabel",std::string("generator"));
   motherParticle = iConfig.getParameter< int >("motherParticle");
 
   firstDaughter.type = iConfig.getParameter< int >("firstDaughter");
