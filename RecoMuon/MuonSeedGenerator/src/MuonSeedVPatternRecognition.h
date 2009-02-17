@@ -15,7 +15,7 @@ public:
   explicit MuonSeedVPatternRecognition(const edm::ParameterSet & pset);
   virtual ~MuonSeedVPatternRecognition() {}
 
-  virtual void produce(edm::Event& event, const edm::EventSetup& eSetup,
+  virtual void produce(const edm::Event& event, const edm::EventSetup& eSetup,
                        std::vector<MuonRecHitContainer> & result) = 0;
 
 protected:

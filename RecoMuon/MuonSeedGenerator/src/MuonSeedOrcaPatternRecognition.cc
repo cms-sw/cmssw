@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2008/10/09 23:30:27 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/02/07 01:31:56 $
+ *  $Revision: 1.6 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -54,7 +54,7 @@ MuonSeedOrcaPatternRecognition::MuonSeedOrcaPatternRecognition(const edm::Parame
 
 
 // reconstruct muon's seeds
-void MuonSeedOrcaPatternRecognition::produce(edm::Event& event, const edm::EventSetup& eSetup,
+void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm::EventSetup& eSetup,
                                              std::vector<MuonRecHitContainer> & result)
 {
   // divide the RecHits by DetLayer, in order to fill the

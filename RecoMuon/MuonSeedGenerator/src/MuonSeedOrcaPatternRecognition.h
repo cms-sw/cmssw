@@ -3,12 +3,13 @@
 
 #include "RecoMuon/MuonSeedGenerator/src/MuonSeedVPatternRecognition.h"
 
+
 class MuonSeedOrcaPatternRecognition : public MuonSeedVPatternRecognition
 {
 public:
   explicit MuonSeedOrcaPatternRecognition(const edm::ParameterSet & pset); 
 
-  void produce(edm::Event& event, const edm::EventSetup& eSetup,
+  void produce(const edm::Event& event, const edm::EventSetup& eSetup,
                std::vector<MuonRecHitContainer> & result);
 
 private:
