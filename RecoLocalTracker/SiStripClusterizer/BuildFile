@@ -21,5 +21,4 @@
 <use name=CondFormats/SiStripObjects>
 <use name=CalibFormats/SiStripObjects>
 <use name=CalibTracker/Records>
-<flags EDM_PLUGIN=1>
 </export>

@@ -17,6 +17,7 @@ class ThreeThresholdStripClusterizer {
   void clusterizeDetUnit(const edm::DetSet<SiStripDigi> &,    edmNew::DetSetVector<SiStripCluster>::FastFiller & output);
   void clusterizeDetUnit(const edmNew::DetSet<SiStripDigi> &, edmNew::DetSetVector<SiStripCluster>::FastFiller & output);
   
+  struct InvalidChargeException : public cms::Exception { public: InvalidChargeException(const SiStripDigi&); };
  private:
   struct isSeed;
   struct thresholdGroup;
@@ -96,7 +97,6 @@ struct ThreeThresholdStripClusterizer::DigiInfo {
   SiStripNoises::Range  noiseRange;
   SiStripQuality::Range qualityRange;
     
-  struct InvalidChargeException : public cms::Exception { public: InvalidChargeException(const SiStripDigi&); };
 };
 
 #endif

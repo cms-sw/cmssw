@@ -9,24 +9,28 @@
 #include <cmath>
 #include <sstream>
 
-ThreeThresholdStripClusterizer::ThreeThresholdStripClusterizer(float strip_thr, float seed_thr,float clust_thr, int max_holes, int max_bad, int max_adj)
+ThreeThresholdStripClusterizer::
+ThreeThresholdStripClusterizer(float strip_thr, float seed_thr,float clust_thr, int max_holes, int max_bad, int max_adj)
   : digiInfo(0) {
   thresholds = new thresholdGroup(strip_thr,seed_thr,clust_thr,max_holes,max_bad,max_adj);
 }
 
-ThreeThresholdStripClusterizer::~ThreeThresholdStripClusterizer()   {
+ThreeThresholdStripClusterizer::
+~ThreeThresholdStripClusterizer()   {
   delete thresholds;
   if(digiInfo) delete digiInfo;
   digiInfo=0;
 }
 
 void
-ThreeThresholdStripClusterizer::init(const edm::EventSetup& es, std::string qualityLabel, std::string thresholdLabel) {
+ThreeThresholdStripClusterizer::
+init(const edm::EventSetup& es, std::string qualityLabel, std::string thresholdLabel) {
   if(digiInfo) delete digiInfo;
   digiInfo = new DigiInfo(es, thresholds, qualityLabel);
 }
 
-ThreeThresholdStripClusterizer::DigiInfo::DigiInfo(const edm::EventSetup& es, thresholdGroup* thresholds, std::string qualityLabel) 
+ThreeThresholdStripClusterizer::
+DigiInfo::DigiInfo(const edm::EventSetup& es, thresholdGroup* thresholds, std::string qualityLabel) 
   : thresholdHandle(thresholds) {
   es.get<SiStripGainRcd>().get(gainHandle);
   es.get<SiStripNoisesRcd>().get(noiseHandle);
@@ -34,7 +38,8 @@ ThreeThresholdStripClusterizer::DigiInfo::DigiInfo(const edm::EventSetup& es, th
 }
 
 void
-ThreeThresholdStripClusterizer::DigiInfo::setFastAccessDetId(uint32_t id) {
+ThreeThresholdStripClusterizer::
+DigiInfo::setFastAccessDetId(uint32_t id) {
   currentDetId = id;
   gainRange =  gainHandle->getRange(id); 
   noiseRange = noiseHandle->getRange(id);
@@ -42,17 +47,20 @@ ThreeThresholdStripClusterizer::DigiInfo::setFastAccessDetId(uint32_t id) {
 }
 
 void 
-ThreeThresholdStripClusterizer::clusterizeDetUnit(const edm::DetSet<SiStripDigi> & digis, edmNew::DetSetVector<SiStripCluster>::FastFiller & output) {
+ThreeThresholdStripClusterizer::
+clusterizeDetUnit(const edm::DetSet<SiStripDigi> & digis, edmNew::DetSetVector<SiStripCluster>::FastFiller & output) {
   clusterizeDetUnitTemplate(digis,output);
 }
 void 
-ThreeThresholdStripClusterizer::clusterizeDetUnit(const edmNew::DetSet<SiStripDigi> & digis, edmNew::DetSetVector<SiStripCluster>::FastFiller & output) {
+ThreeThresholdStripClusterizer::
+clusterizeDetUnit(const edmNew::DetSet<SiStripDigi> & digis, edmNew::DetSetVector<SiStripCluster>::FastFiller & output) {
   clusterizeDetUnitTemplate(digis,output);
 }
 
 template<class digiDetSet>
 void 
-ThreeThresholdStripClusterizer::clusterizeDetUnitTemplate(const digiDetSet & digis, edmNew::DetSetVector<SiStripCluster>::FastFiller & output) {
+ThreeThresholdStripClusterizer::
+clusterizeDetUnitTemplate(const digiDetSet & digis, edmNew::DetSetVector<SiStripCluster>::FastFiller & output) {
   if( !digiInfo->isModuleUsable( digis.detId() )) return;
   digiInfo->setFastAccessDetId( digis.detId() );
 
@@ -70,13 +78,15 @@ ThreeThresholdStripClusterizer::clusterizeDetUnitTemplate(const digiDetSet & dig
 }
 
 inline bool
-ThreeThresholdStripClusterizer::isSeed::operator()(const SiStripDigi& digi) {
+ThreeThresholdStripClusterizer::
+isSeed::operator()(const SiStripDigi& digi) {
   return digiInfo->isAboveSeed(digi) && digiInfo->isGoodStrip(digi) ; 
 }
 
 template<class digiIter>
 inline digiIter
-ThreeThresholdStripClusterizer::findClusterEdge(digiIter seed, digiIter end) const {
+ThreeThresholdStripClusterizer::
+findClusterEdge(digiIter seed, digiIter end) const {
   digiIter back(seed), test(seed);
   while( !clusterEdgeCondition(back,++test,end) )
     if(digiInfo->includeInCluster(*test))
@@ -86,7 +96,8 @@ ThreeThresholdStripClusterizer::findClusterEdge(digiIter seed, digiIter end) con
  
 template<class digiIter>
 inline bool
-ThreeThresholdStripClusterizer::clusterEdgeCondition(digiIter back, digiIter test, digiIter end) const {
+ThreeThresholdStripClusterizer::
+clusterEdgeCondition(digiIter back, digiIter test, digiIter end) const {
   uint16_t Nbetween = std::abs( test->strip() - back->strip()) - 1;
   return ( test == end
 	   || ( Nbetween > digiInfo->maxSequentialHoles()                                
@@ -96,7 +107,8 @@ ThreeThresholdStripClusterizer::clusterEdgeCondition(digiIter back, digiIter tes
 }
 
 inline bool
-ThreeThresholdStripClusterizer::DigiInfo::anyGoodBetween(uint16_t a, uint16_t b) const {
+ThreeThresholdStripClusterizer::DigiInfo::
+anyGoodBetween(uint16_t a, uint16_t b) const {
   uint16_t strip = 1 + std::min(a,b) ;  
   while( strip < std::max(a,b)  &&  qualityHandle->IsStripBad(qualityRange,strip) )
     ++strip;
@@ -105,7 +117,8 @@ ThreeThresholdStripClusterizer::DigiInfo::anyGoodBetween(uint16_t a, uint16_t b)
 
 template<class digiIter>
 inline bool
-ThreeThresholdStripClusterizer::aboveClusterThreshold(digiIter left, digiIter right) const {
+ThreeThresholdStripClusterizer::
+aboveClusterThreshold(digiIter left, digiIter right) const {
   float charge(0), noise2(0);
   for(digiIter it = left; it < right; it++) {
     if( digiInfo->includeInCluster(*it) ) {
@@ -118,7 +131,8 @@ ThreeThresholdStripClusterizer::aboveClusterThreshold(digiIter left, digiIter ri
 
 template<class digiIter>
 SiStripCluster*
-ThreeThresholdStripClusterizer::clusterize(digiIter left, digiIter right) {
+ThreeThresholdStripClusterizer::
+clusterize(digiIter left, digiIter right) {
   uint8_t preBad  = digiInfo->nBadBeforeUpToMaxAdjacent(*left);
   uint8_t postBad = digiInfo->nBadAfterUpToMaxAdjacent(*(right-1));
   
@@ -137,7 +151,8 @@ ThreeThresholdStripClusterizer::clusterize(digiIter left, digiIter right) {
 }
 
 inline uint8_t
-ThreeThresholdStripClusterizer::DigiInfo::nBadBeforeUpToMaxAdjacent(const SiStripDigi& digi) const {
+ThreeThresholdStripClusterizer::
+DigiInfo::nBadBeforeUpToMaxAdjacent(const SiStripDigi& digi) const {
   uint8_t count=0;
   while(count < maxAdjacentBad() && qualityHandle->IsStripBad(qualityRange, digi.strip()-1-count ))
     ++count;
@@ -145,7 +160,8 @@ ThreeThresholdStripClusterizer::DigiInfo::nBadBeforeUpToMaxAdjacent(const SiStri
 }
 
 inline uint8_t
-ThreeThresholdStripClusterizer::DigiInfo::nBadAfterUpToMaxAdjacent(const SiStripDigi& digi) const {
+ThreeThresholdStripClusterizer::
+DigiInfo::nBadAfterUpToMaxAdjacent(const SiStripDigi& digi) const {
   uint8_t count=0;
   while(count < maxAdjacentBad() && qualityHandle->IsStripBad(qualityRange, digi.strip()+1+count ))
     ++count;
@@ -153,7 +169,8 @@ ThreeThresholdStripClusterizer::DigiInfo::nBadAfterUpToMaxAdjacent(const SiStrip
 }
 
 inline uint16_t 
-ThreeThresholdStripClusterizer::DigiInfo::correctedCharge(const SiStripDigi& digi) const { 
+ThreeThresholdStripClusterizer::
+DigiInfo::correctedCharge(const SiStripDigi& digi) const { 
   if(!includeInCluster(digi)) return 0;
   if(digi.adc() > 255) throw InvalidChargeException(digi);
   uint16_t stripCharge = static_cast<uint16_t>( digi.adc()/gain(digi) + 0.5 ); //adding 0.5 turns truncation into rounding
@@ -162,7 +179,8 @@ ThreeThresholdStripClusterizer::DigiInfo::correctedCharge(const SiStripDigi& dig
   return stripCharge;
 }
 
-ThreeThresholdStripClusterizer::DigiInfo::InvalidChargeException::InvalidChargeException(const SiStripDigi& digi)
+ThreeThresholdStripClusterizer::
+InvalidChargeException::InvalidChargeException(const SiStripDigi& digi)
   : cms::Exception("Invalid Charge") {
   std::stringstream s;
   s << "Digi charge of " << digi.adc() << " ADC "
