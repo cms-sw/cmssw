@@ -30,9 +30,9 @@ selectHighPurity = cms.EDFilter("AnalyticalTrackSelector",
     max_z0 = cms.double(100.),
 
     # Cuts on numbers of layers with hits/3D hits/lost hits. 
-    minNumberLayers = cms.uint32(0),
-    minNumber3DLayers = cms.uint32(0),
-    maxNumberLostLayers = cms.uint32(999)
+    minNumberLayers = cms.uint32(4),
+    minNumber3DLayers = cms.uint32(4),
+    maxNumberLostLayers = cms.uint32(2)
                                 
 )
 
