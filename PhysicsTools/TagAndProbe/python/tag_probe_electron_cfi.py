@@ -93,7 +93,7 @@ allSuperClusters = cms.EDFilter("CandViewMerger",
 # My final selection of superCluster candidates 
 theSuperClusters = cms.EDFilter("CandViewSelector",
     src = cms.InputTag("allSuperClusters"),
-    cut = cms.string('et  > 10.0 | ((abs( eta ) < 1.4442) | (abs( eta ) > 1.560 & abs( eta ) < 3.0) | (abs( eta ) > 3 & abs( eta ) < 5))')
+    cut = cms.string('et  > 20.0 & ((abs( eta ) < 1.4442) | (abs( eta ) > 1.560 & abs( eta ) < 3.0) | (abs( eta ) > 3 & abs( eta ) < 5))')
 )
 ###Old sequence to be used again when HF calibration is in the corrected SuperCluster Step.
 #sc_sequence = cms.Sequence( (HybridSuperClusters * EBSuperClusters + EndcapSuperClusters * EESuperClusters + HFSuperClusterCands * HFSuperClusters * theHFSuperClusters) *allSuperClusters * theSuperClusters)
@@ -117,7 +117,7 @@ electrons = cms.EDFilter("ElectronDuplicateRemover",
 
 theGsfElectrons = cms.EDFilter("GsfElectronSelector",
     src = cms.InputTag("electrons"),
-    cut = cms.string('pt > 20.0 | ((abs( eta ) < 1.4442) | (abs( eta ) > 1.560 & abs( eta ) < 3.0))')
+    cut = cms.string('pt > 20.0 & ((abs( eta ) < 1.4442) | (abs( eta ) > 1.560 & abs( eta ) < 3.0)) &  (( caloEnergy * sin( caloPosition.theta ) )  > 20.0) ')
 )
 
 #HFElectronIDCands = cms.EDProducer("ConcreteEcalCandidateProducer",
@@ -157,6 +157,7 @@ theId = cms.EDProducer("eidCandProducer",
 theHLT = cms.EDProducer("eTriggerCandProducer",
     InputProducer = cms.InputTag('theId'),              
     hltTag = cms.untracked.InputTag("hltL1NonIsoHLTLooseIsoSingleElectronLWEt15TrackIsolFilter","","HLT")
+    #hltTag = cms.untracked.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt10TrackIsolFilter","","HLT")
 )
 
 electron_sequence = cms.Sequence(electrons * theGsfElectrons * theIsolation * eidRobust * theId * theHLT * HFElectronID )

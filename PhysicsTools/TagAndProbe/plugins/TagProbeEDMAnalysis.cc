@@ -98,6 +98,19 @@ TagProbeEDMAnalysis::TagProbeEDMAnalysis(const edm::ParameterSet& iConfig)
    var2High_       = iConfig.getUntrackedParameter< double >("Var2High",2.4);
    var2Bins_       = iConfig.getUntrackedParameter< vector<double> >("Var2BinBoundaries",dBins);
 
+   // This gives the option to use bins from a file. 
+   doTextDefinedBins_ = iConfig.getUntrackedParameter< bool >("DoBinsFromTxt",false);
+   if (doTextDefinedBins_)
+   {
+      textBinsFile_      = iConfig.getUntrackedParameter< std::string >("EffBinsFile","EffBinsFile.txt");
+      effBinsFromTxt_    = new EffTableLoader(textBinsFile_);
+      var1Bins_.clear();
+      for (int bin = 0; bin <= effBinsFromTxt_->size(); ++bin) 
+        {
+           var1Bins_.push_back(bin);
+        }
+   }
+
 
    // If want to use reconstructed or detector values (instead of MC generated values) 
    // of var1 and var2 when doing MC truth efficiencies (i.e., when "calcEffsTruth==true").
@@ -138,6 +151,7 @@ TagProbeEDMAnalysis::TagProbeEDMAnalysis(const edm::ParameterSet& iConfig)
    var2NameUp_.at(0) -= 32;
 
    // Set up the bins for the eff histograms ...
+   
    if( var1Bins_.size() == 0 ) 
    {
       // User didn't set bin boundaries, so use even binning
@@ -772,11 +786,18 @@ void TagProbeEDMAnalysis::TPEffSBS( string &fileName, string &bvar,
    cout << "***** Here in TP sideband subtraction ******" << endl;
    cout << "Number of entries " << fitTree_->GetEntries() << endl;
    
-   string hname = "sbs_eff_" + bvar;
-   string htitle = "SBS Efficiency vs " + bvar;
+   // Here I will just change the names if we are using 1D regions by reading 
+   // in the efficiencies from a file.
+ 
+   string bvard = bvar;
+   if ( doTextDefinedBins_ ) bvard = bvar + "_" + bvar2;
 
-   string hdname = "sbs_den_" + bvar; 
-   string hdtitle = "SBS Denominator vs " + bvar; 
+   string hname = "sbs_eff_" + bvard;
+   string htitle = "SBS Efficiency vs " + bvard;
+
+   string hdname = "sbs_den_" + bvard; 
+   string hdtitle = "SBS Denominator vs " + bvard; 
+
 
    stringstream condition;
    stringstream histoName;
@@ -814,7 +835,17 @@ void TagProbeEDMAnalysis::TPEffSBS( string &fileName, string &bvar,
       double lowEdge = bins[bin];
       double highEdge = bins[bin+1];
       if( bvar == "Pt" ) bunits = "GeV";
-
+      if ( doTextDefinedBins_ ) 
+      {
+         bunits = "";
+         std::vector<std::pair<float, float> > bininfo = effBinsFromTxt_->GetCellInfo(bin);
+         lowEdge  = bininfo[0].first;
+         highEdge = bininfo[0].second;
+         bvar2Lo  = bininfo[1].first;
+         bvar2Hi  = bininfo[1].second;
+         std::cout << " Bin " << bin << ", lowEdge " << lowEdge << ", highEdge " << highEdge << ", bvar2Lo " << bvar2Lo << ", bvar2Hi " << bvar2Hi << std::endl;
+      }
+///////////// HERE I NEED TO CHANGE THESE VALUES
       // Print out the pass/fail condition
       stringstream DisplayCondition;
       DisplayCondition.str(std::string());
@@ -831,7 +862,7 @@ void TagProbeEDMAnalysis::TPEffSBS( string &fileName, string &bvar,
 	" && " << bvar << "<" << highEdge << " && " << bvar2 << ">" << 
 	bvar2Lo << " && " << bvar2 << "<" << bvar2Hi <<")*Weight";
       histoName.str(std::string());
-      histoName << "sbs_pass_" << bvar << "_" << bin;
+      histoName << "sbs_pass_" << bvard << "_" << bin;
       histoTitle.str(std::string());
       histoTitle << "Passing Probes - " << lowEdge << "<" << bvar << 
 	"<" << highEdge;
@@ -849,7 +880,7 @@ void TagProbeEDMAnalysis::TPEffSBS( string &fileName, string &bvar,
 	" && " << bvar << "<" << highEdge << " && " << bvar2 << ">" << 
 	bvar2Lo << " && " << bvar2 << "<" << bvar2Hi <<")*Weight";
       histoName.str(std::string());
-      histoName << "sbs_fail_" <<  bvar << "_" << bin;
+      histoName << "sbs_fail_" <<  bvard << "_" << bin;
       histoTitle.str(std::string());
       histoTitle << "Failing Probes - " << lowEdge << "<" << bvar << 
 	"<" << highEdge;
@@ -863,7 +894,7 @@ void TagProbeEDMAnalysis::TPEffSBS( string &fileName, string &bvar,
 
       // SBS Passing  Probes
       histoName.str(std::string());
-      histoName << "sbs_pass_subtracted_" << bvar << "_" << bin;
+      histoName << "sbs_pass_subtracted_" << bvard << "_" << bin;
       histoTitle.str(std::string());
       histoTitle << "Passing Probes SBS - "  << lowEdge << "<" << 
 	bvar << "<" << highEdge;
@@ -874,7 +905,7 @@ void TagProbeEDMAnalysis::TPEffSBS( string &fileName, string &bvar,
 
       // SBS Failing Probes
       histoName.str(std::string());
-      histoName << "sbs_fail_subtracted_" << bvar << "_" << bin; 
+      histoName << "sbs_fail_subtracted_" << bvard << "_" << bin; 
       histoTitle.str(std::string());
       histoTitle << "Failing Probes SBS - "  << lowEdge << "<" << 
 	bvar << "<" << highEdge;
@@ -1985,7 +2016,7 @@ void TagProbeEDMAnalysis::CalculateEfficiencies()
       {
 	 // We have filled the simple tree ... call side band subtraction
 	 TPEffSBS(  fitFileName_, var1NameUp_, var1Bins_, var2NameUp_, var2Bins_[0], var2Bins_[nbins2] );
-	 TPEffSBS(  fitFileName_, var2NameUp_, var2Bins_, var1NameUp_, var1Bins_[0], var1Bins_[nbins1] );
+	 if (!doTextDefinedBins_) TPEffSBS(  fitFileName_, var2NameUp_, var2Bins_, var1NameUp_, var1Bins_[0], var1Bins_[nbins1] );
 
 	 // 2D SBS
 	 if( do2DFit_ )

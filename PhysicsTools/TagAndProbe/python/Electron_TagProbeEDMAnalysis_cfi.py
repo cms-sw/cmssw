@@ -20,6 +20,10 @@ demo = cms.EDAnalyzer("TagProbeEDMAnalysis",
     NumBkgPass = cms.untracked.vdouble(1000.0, 0.0, 10000.0),
     NumBinsVar1 = cms.untracked.int32(28),
     NumBinsVar2 = cms.untracked.int32(30),
+    # There is also an option to read the variables in 
+    # via a file. This allows for much greater binning flexability
+    # 
+    #      
     # Background variables
     BkgAlpha = cms.untracked.vdouble(62.0, 50.0, 70.0),
     # Root file to eff histograms to

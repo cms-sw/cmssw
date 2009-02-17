@@ -1,7 +1,7 @@
 //  Adapted From:
 //----------------
 // Original Author:  Fedor Ratnikov Nov 9, 2007
-// $Id: SimpleJetCorrectorParameters.h,v 1.2 2007/11/16 00:14:29 fedor Exp $
+// $Id: EffTableReader.h,v 1.1 2009/01/07 19:02:22 kalanand Exp $
 //-----------------------------------------------------------------------
 
 
@@ -17,7 +17,7 @@ class EffTableReader {
   public:
     Record () : mEtaMin (0), mEtaMax (0), mEtMax(0), mEtMin(0) {}
     Record (float fEtaMin, float fEtaMax, float fEtMax, float fEtMin, const std::vector<float>& fParameters) 
-      : mEtMax (fEtMax), mEtMin (fEtMin), mEtaMin (fEtaMin), mEtaMax (fEtaMax), mParameters (fParameters) {}
+      : mEtaMin (fEtaMin), mEtaMax (fEtaMax), mEtMax (fEtMax), mEtMin (fEtMin), mParameters (fParameters) {}
     Record (const std::string& fLine);
     float etaMin() const {return mEtaMin;}
     float etaMax() const {return mEtaMax;}
@@ -32,8 +32,8 @@ class EffTableReader {
   private:
     float mEtaMin;
     float mEtaMax;
-    float mEtMin;
     float mEtMax;
+    float mEtMin;
     std::vector<float> mParameters;
   };
 

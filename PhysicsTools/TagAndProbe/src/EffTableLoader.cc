@@ -31,7 +31,11 @@ std::vector<float> EffTableLoader::correctionEff (float fEt,float fEta) const {
   std::vector<float> param=rec.parameters();
   return param;
 }
-
+std::vector<float> EffTableLoader::correctionEff (int index) const {
+  EffTableReader::Record rec=mParameters->record(index);
+  std::vector<float> param=rec.parameters();
+  return param;
+}
 
 
 std::vector<std::pair<float, float> > EffTableLoader::GetCellInfo(int index)const {
@@ -76,4 +80,8 @@ std::vector<std::pair<float, float> > EffTableLoader::GetCellInfo(float fEt, flo
 std::pair<float, float> EffTableLoader::GetCellCenter(float fEt, float fEta )const {
   int index=mParameters->bandIndex(fEt, fEta);
   return (this->GetCellCenter(index)); 
+}
+
+int EffTableLoader::size(void) {
+  return mParameters->size();
 }

@@ -4,7 +4,7 @@
 //
 // Original Author: Nadia Adam (Princeton University) 
 //         Created:  Fri May 16 16:48:24 CEST 2008
-// $Id: TagProbeEDMAnalysis.h,v 1.8 2008/12/10 18:45:36 neadam Exp $
+// $Id: TagProbeEDMAnalysis.h,v 1.9 2009/01/21 21:01:59 neadam Exp $
 //
 //
 // Kalanand Mishra: July 1, 2008 
@@ -34,6 +34,9 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "PhysicsTools/TagAndProbe/interface/RooCMSShapePdf.h"
+
+// Used for 2D efficiency reading/writing
+#include "PhysicsTools/TagAndProbe/interface/EffTableLoader.h"
 
 // ROOT
 
@@ -155,6 +158,9 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer
       double var2High_;              // Upper bound for var2 eff range
       std::vector<double> var2Bins_; // Bin boundaries for var2 if non-uniform desired
 
+      bool doTextDefinedBins_;         // Allow the 2-D bins to be read in from a text file into 1-D regions
+      std::string textBinsFile_;       // This is the name of the file that holds the 2D bin information
+      EffTableLoader* effBinsFromTxt_; // This holds the efficiency bins information
 
       // Parameter set fo the available fit functions 
 

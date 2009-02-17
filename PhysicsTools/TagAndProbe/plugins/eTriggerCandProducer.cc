@@ -134,6 +134,7 @@ void eTriggerCandProducer::produce(edm::Event &event,
    if (not trgEvent.isValid()) {
      edm::LogInfo("info")<< "******** Following Trigger Summary Object Not Found: " << 
        triggerEventTag_;
+     event.put(outCol);
      return;
    }
 
@@ -160,6 +161,7 @@ void eTriggerCandProducer::produce(edm::Event &event,
    if( index >= trgEvent->sizeFilters() ) {
      // edm::LogInfo("info")<< "******** Following TRIGGER Name Not in Dataset: " << 
      //  hltTag_.label();
+     event.put(outCol);
      return;
    }
 
