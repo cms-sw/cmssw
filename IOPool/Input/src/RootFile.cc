@@ -325,15 +325,25 @@ namespace edm {
     // Read the parentage tree.  Old format files are handled internally in readParentageTree().
     readParentageTree();
 
-    // Remove runs, lumis, and/or events we do not whsh to process.
+    // Remove runs, lumis, and/or events we do not wish to process.
     size_t entries = fileIndex_.size();
-
-    // On this pass, we remove only events.
     RemoveIt removeIt(FileIndex::Element(startAtRun, startAtLumi, startAtEvent),
 			whichLumisToSkip, whichLumisToProcess,
 			whichEventsToSkip, whichEventsToProcess);
     fileIndex_.erase(std::remove_if(fileIndex_.begin(), fileIndex_.end(), removeIt), fileIndex_.end());
     fastClonable_ = fastClonable_ && (entries == fileIndex_.size());
+
+    // Remove any runs containing no lumis.
+    for (FileIndex::iterator it = fileIndex_.begin(), itEnd = fileIndex_.end(); it != itEnd; ++it) {
+      if (it->lumi_ == 0) {
+	assert(it->event_ == 0);
+	FileIndex::iterator next = it + 1;
+	if (next == itEnd || next->lumi_ == 0) {
+	  *it = FileIndex::Element();
+	}
+      }
+    }
+    fileIndex_.erase(std::remove(fileIndex_.begin(), fileIndex_.end(), FileIndex::Element()), fileIndex_.end());
 
     initializeDuplicateChecker();
     if (noEventSort_) fileIndex_.sortBy_Run_Lumi_EventEntry();
