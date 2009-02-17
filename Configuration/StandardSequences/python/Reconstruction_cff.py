@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoLocalMuon.Configuration.RecoLocalMuon_cff import *
 from RecoLocalCalo.Configuration.RecoLocalCalo_cff import *
 from RecoTracker.Configuration.RecoTracker_cff import *
+from RecoParticleFlow.PFClusterProducer.particleFlowCluster_cff import *
 from TrackingTools.Configuration.TrackingTools_cff import *
 # Global  reco
 from RecoEcal.Configuration.RecoEcal_cff import *
@@ -33,11 +34,11 @@ from RecoTauTag.Configuration.RecoPFTauTag_cff import *
 from RecoTauTag.Configuration.RecoTauTag_cff import *
 # Also BeamSpot
 from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
-localreco = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalreco)
+localreco = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalreco+particleFlowCluster)
 #
 # temporarily switching off recoGenJets; since this are MC and wil be moved to a proper sequence
 #
-globalreco = cms.Sequence(offlineBeamSpot+recopixelvertexing*ckftracks+ecalClusters+caloTowersRec*vertexreco*recoJets+metreco+muonreco_plus_isolation)
+globalreco = cms.Sequence(offlineBeamSpot+recopixelvertexing*ckftracks+ecalClusters+caloTowersRec*vertexreco*recoJets+metreco+muonreco_plus_isolation+electronGsfTracking)
 globalreco_plusRS = cms.Sequence(globalreco*rstracks)
 globalreco_plusGSF = cms.Sequence(globalreco*GsfGlobalElectronTestSequence)
 globalreco_plusRS_plusGSF = cms.Sequence(globalreco*rstracks*GsfGlobalElectronTestSequence)
