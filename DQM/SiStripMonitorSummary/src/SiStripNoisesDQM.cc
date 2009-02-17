@@ -10,6 +10,7 @@ SiStripNoisesDQM::SiStripNoisesDQM(const edm::EventSetup & eSetup,
   gainRenormalisation_ = hPSet_.getParameter<bool>("GainRenormalisation");
   if( gainRenormalisation_){ eSetup.get<SiStripApvGainRcd>().get(gainHandle_);}
 
+
   // Build the Histo_TkMap:
   if(HistoMaps_On_ ) Tk_HM_ = new TkHistoMap("SiStrip/Histo_Map","MeanNoise_TkMap",0.);
 
@@ -109,8 +110,6 @@ void SiStripNoisesDQM::fillSummaryMEs(const std::vector<uint32_t> & selectedDetI
 // -----
 void SiStripNoisesDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, uint32_t selDetId_){
   
-
-
   // ----
   int subdetectorId_ = ((selDetId_>>25)&0x7);
   
@@ -122,7 +121,6 @@ void SiStripNoisesDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, u
     return;
   }
   // ----
-   
   
   std::map<uint32_t, ModMEs>::iterator selMEsMapIter_  = selMEsMap_.find(getLayerNameAndId(selDetId_).second);
   ModMEs selME_;
@@ -131,8 +129,7 @@ void SiStripNoisesDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, u
   
   SiStripNoises::Range noiseRange = noiseHandle_->getRange(selDetId_);
   int nStrip =  reader->getNumberOfApvsAndStripLength(selDetId_).first*128;
-
-
+  
   SiStripHistoId hidmanager;
   float gainFactor=1;
   
@@ -233,11 +230,13 @@ void SiStripNoisesDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, u
     for(unsigned int i=0;i<sameLayerDetIds_.size();i++){
       if(sameLayerDetIds_[i]==selDetId_){iBin=i+1;}
     }  
-    selME_.SummaryDistr->Fill(iBin,meanNoise);
+    // Cumulative distribution with average Noise value on a layer (not needed):
+    ////  selME_.SummaryDistr->Fill(iBin,meanNoise);
 
     // Fill the Histo_TkMap with the mean Noise:
         if(HistoMaps_On_ ) Tk_HM_->fill(selDetId_, meanNoise);
-
+    
+    
   }//if fill
 
   /// Cumulative distr. for Noise:

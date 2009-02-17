@@ -8,8 +8,6 @@ SiStripPedestalsDQM::SiStripPedestalsDQM(const edm::EventSetup & eSetup,
 
   // Build the Histo_TkMap:
   if(HistoMaps_On_ ) Tk_HM_ = new TkHistoMap("SiStrip/Histo_Map","MeanPed_TkMap",0.);
-
-
 }
 // -----
 
@@ -106,6 +104,8 @@ void SiStripPedestalsDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_
     return;
   }
   // ----
+
+//     // Cumulative distribution with average Ped value on a layer (not needed):  
      
   std::map<uint32_t, ModMEs>::iterator selMEsMapIter_ = selMEsMap_.find(getLayerNameAndId(selDetId_).second);
   ModMEs selME_;
@@ -118,22 +118,21 @@ void SiStripPedestalsDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_
   
   SiStripHistoId hidmanager;
 
-  if(hPSet_.getParameter<bool>("FillSummaryProfileAtLayerLevel")){
+   if(hPSet_.getParameter<bool>("FillSummaryProfileAtLayerLevel")){
   
-    // --> profile summary    
+     // --> profile summary    
   
-    std::string hSummaryOfProfile_description;
-    hSummaryOfProfile_description  = hPSet_.getParameter<std::string>("SummaryOfProfile_description");
+     std::string hSummaryOfProfile_description;
+     hSummaryOfProfile_description  = hPSet_.getParameter<std::string>("SummaryOfProfile_description");
   
-    std::string hSummaryOfProfile_name; 
+     std::string hSummaryOfProfile_name; 
   
   
     hSummaryOfProfile_name = hidmanager.createHistoLayer(hSummaryOfProfile_description, 
 							 "layer", 
 							 getLayerNameAndId(selDetId_).first, 
 							 "") ;
-  
-  
+ 
     for( int istrip=0;istrip<nStrip;++istrip){
     
       try{ 
@@ -151,7 +150,7 @@ void SiStripPedestalsDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_
 	  << e.what() ;
       }
     }// istrip	
-  }//if Fill ...
+   }//if Fill ...
 
   if(hPSet_.getParameter<bool>("FillSummaryAtLayerLevel")){
 
@@ -185,8 +184,8 @@ void SiStripPedestalsDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_
     }//istrip
   
     meanPedestal = meanPedestal/nStrip;
-  
-  
+
+
     // -----
     // get detIds belonging to same layer to fill X-axis with detId-number
   
@@ -205,12 +204,12 @@ void SiStripPedestalsDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_
     selME_.SummaryDistr->Fill(iBin,meanPedestal);
 
     // Fill the Histo_TkMap with the mean Pedestal:
-        if(HistoMaps_On_ ) Tk_HM_->fill(selDetId_, meanPedestal);
+    if(HistoMaps_On_ ) Tk_HM_->fill(selDetId_, meanPedestal);
 
   }//if Fill ...
   
   
   
-}  
+} 
 // -----
 

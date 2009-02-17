@@ -333,16 +333,18 @@ void SiStripBaseCondObjDQM::getSummaryMEs(ModMEs& CondObj_ME, const uint32_t& de
 
   // --> currently only profile summary defined for all condition objects except quality
   if(  (CondObj_fillId_ =="ProfileAndCumul" || CondObj_fillId_ =="onlyProfile" ) &&
-     (CondObj_name_ == "pedestal"     || 
+     (
+      CondObj_name_ == "pedestal"     || 
       CondObj_name_ == "noise"         || 
       CondObj_name_ == "lowthreshold"  || 
       CondObj_name_ == "highthreshold" || 
       CondObj_name_ == "apvgain"       || 
       CondObj_name_ == "lorentzangle") ) {
     if(hPSet_.getParameter<bool>("FillSummaryProfileAtLayerLevel"))	
-      if (CondObj_ME.SummaryOfProfileDistr) { bookSummaryProfileMEs(CondObj_ME,detId_);}  
+           if (CondObj_ME.SummaryOfProfileDistr) { bookSummaryProfileMEs(CondObj_ME,detId_);
+      }  
     
-  }
+}
     
   // --> currently only genuine cumul LA
   if(   (CondObj_fillId_ =="ProfileAndCumul" || CondObj_fillId_ =="onlyCumul" ) &&
