@@ -64,13 +64,13 @@ fourthCkfTrajectoryBuilder.minNrOfHitsForRebuild = 5
 
 #TRACK CANDIDATES
 fourthTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
-import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
+import RecoTracker.TrackProducer.TrackProducer_cfi
 fourthTrackCandidates.src = cms.InputTag('fourthPLSeeds')
 fourthTrackCandidates.TrajectoryBuilder = 'fourthCkfTrajectoryBuilder'
 
 
 #TRACKS
-fourthWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
+fourthWithMaterialTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone()
 fourthWithMaterialTracks.src = 'fourthTrackCandidates'
 fourthWithMaterialTracks.clusterRemovalInfo = 'fourthClusters'
 fourthWithMaterialTracks.AlgorithmName = cms.string('iter4') 

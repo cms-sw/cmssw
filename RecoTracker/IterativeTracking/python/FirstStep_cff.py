@@ -30,7 +30,7 @@ newSeedFromTriplets.RegionFactoryPSet.RegionPSet.ptMin = 0.5
 newTrackCandidateMaker = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
 newTrackCandidateMaker.src = cms.InputTag('newSeedFromTriplets')
 newTrackCandidateMaker.TrajectoryBuilder = 'newTrajectoryBuilder'
-preFilterZeroStepTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
+preFilterZeroStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone()
 preFilterZeroStepTracks.src = 'newTrackCandidateMaker'
 preFilterZeroStepTracks.Fitter = 'KFFittingSmootherWithOutliersRejectionAndRK'
 preFilterZeroStepTracks.AlgorithmName = 'ctf'
@@ -91,7 +91,7 @@ stepOneTrackCandidateMaker.TrajectoryBuilder = 'stepOneCkfTrajectoryBuilder'
 
 
 # fitting
-preFilterStepOneTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
+preFilterStepOneTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone()
 preFilterStepOneTracks.AlgorithmName = cms.string('ctf')
 preFilterStepOneTracks.src = 'stepOneTrackCandidateMaker'
 preFilterStepOneTracks.clusterRemovalInfo = 'newClusters'
