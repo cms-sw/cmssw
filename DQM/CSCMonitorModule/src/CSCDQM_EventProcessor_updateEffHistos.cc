@@ -20,6 +20,9 @@
 
 namespace cscdqm {
   
+  /**
+   * @brief  Update Efficiency MOs
+   */
   void EventProcessor::updateEfficiencyHistos() {
 
     MonitorObject *me = 0, *me1 = 0;
@@ -28,11 +31,11 @@ namespace cscdqm {
 
       const TH2* rep = dynamic_cast<const TH2*>(me->getTH1());
 
-      // Get CSC Reporting reference histogram
+      /**  Get CSC Reporting reference histogram */
       const TObject *tobj = me->getRefRootObject();
        
-      // If reference for CSC_Reporting is defined - use it
-      // Else - do it flat way
+      /** If reference for CSC_Reporting is defined - use it
+       *  Else - do it flat way */
        
       if (tobj) {
         const TH2* ref = dynamic_cast<const TH2*>(tobj);
@@ -145,9 +148,9 @@ namespace cscdqm {
       me->unlock();
     }
     
-    //
-    // Write summary information
-    //
+    /**
+     * Write summary information
+     */
 
     if (getEMUHisto(h::EMU_PHYSICS_ME1, me)){
       TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
@@ -179,8 +182,9 @@ namespace cscdqm {
       me->unlock();
     }
 
-    // Looping via addresses (scope: side->station->ring) and
-    // filling in HW efficiencies
+    /** Looping via addresses (scope: side->station->ring) and
+     *  filling in HW efficiencies
+     */
     
     if (config->getPROCESS_EFF_PARAMETERS()) {
 

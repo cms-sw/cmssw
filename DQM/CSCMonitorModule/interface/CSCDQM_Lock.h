@@ -3,7 +3,7 @@
  *
  *       Filename:  CSCDQM_Lock.h
  *
- *    Description:  Monitor Object interface
+ *    Description:  Lockable interface that blocks current thread.
  *
  *        Version:  1.0
  *        Created:  10/06/2008 01:49:51 PM
@@ -32,19 +32,33 @@ namespace cscdqm {
   
     private:
 
+      /** Mutex object */
       boost::recursive_mutex lckMutex;
+
+      /** Lock object */
       boost::recursive_mutex::scoped_lock lckLock;
+     
+      /** Flag to mark a locked state */
       bool lockedByOther; 
 
     public: 
 
+      /**
+       * @brief  Constructor.
+       */
       Lock() : lckLock(lckMutex) { 
         unlock(); 
         lockedByOther = false;
       }
 
+      /**
+       * @brief  Destructor.
+       */
       virtual ~Lock() { }
 
+      /**
+       * @brief  Lock object.
+       */
       void lock() { 
         if (!isLocked()) {
           lckLock.lock(); 
@@ -52,6 +66,9 @@ namespace cscdqm {
         }
       }
 
+      /**
+       * @brief  Unlock object.
+       */
       void unlock() { 
         if (isLocked()) {
           lckLock.unlock(); 
@@ -59,14 +76,20 @@ namespace cscdqm {
         }
       }
 
+      /**
+       * @brief  If I (this thread) have locked this object?
+       * @return true if the object have locked this object, false - otherwise.
+       */
       const bool isLocked() const { 
         return lckLock.locked(); 
-        return false;
       }
 
+      /**
+       * @brief  If someone else (another thread) have locked this object?
+       * @return true if the object have locked another thread, false - otherwise.
+       */
       const bool isLockedByOther() const {
         return lockedByOther;
-        return false;
       }
 
   };

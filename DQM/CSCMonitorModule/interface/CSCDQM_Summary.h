@@ -39,8 +39,8 @@
 namespace cscdqm {
 
 /**
-  * @brief Hardware Status Bit values used in Summary efficiency calculation
-  */
+ * @brief Hardware Status Bit values used in Summary efficiency calculation
+ */
 enum HWStatusBit {
 
   DATA,         /// Data available (reporting)
@@ -114,11 +114,10 @@ class Summary {
     const double SignificanceLevel(const unsigned int N, const unsigned int n, const double eps) const;
     const double SignificanceLevelHot(const unsigned int N, const unsigned int n) const;
 
-    // Atomic HW element status matrix
+    /** Atomic HW element status matrix */
     HWStatusBitSet map[N_SIDES][N_STATIONS][N_RINGS][N_CHAMBERS][N_LAYERS][N_CFEBS][N_HVS];
 
-    std::vector<Address*> masked;
-
+    /** Detector routines object */
     Detector detector;
 
 };

@@ -61,6 +61,10 @@ namespace cscdqm {
     public:
       
       EventProcessor(Configuration* const p_config);
+
+      /**
+       * @brief  Destructor
+       */
       ~EventProcessor() { }
 
       void init();
@@ -83,11 +87,13 @@ namespace cscdqm {
 
       const bool getCSCFromMap(const unsigned int& crateId, const unsigned int& dmbId, unsigned int& cscType, unsigned int& cscPosition) const;
 
+      /** Pointer to Global Configuration */
       Configuration* config;
+
+      /** Detector efficiency manipulation object */
       Summary summary;
 
-      bool bCSCEventCounted;
-
+      /** CSC DCC Examiner object */
       CSCDCCExaminer binChecker;
 
       std::map<uint32_t, uint32_t> L1ANumbers;
@@ -113,6 +119,10 @@ namespace cscdqm {
 // ===================================================================================================
 
 #ifdef DQMGLOBAL
+
+    private:
+
+      bool bCSCEventCounted;
 
     public:
 

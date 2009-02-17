@@ -71,17 +71,17 @@ namespace cscdqm {
    */
   const bool Dispatcher::getHisto(const HistoDef& histoD, MonitorObject*& me) {
 
-    //For the first DDU - book general
+    /** For the first DDU - book general */
     if (typeid(histoD) == DDUHistoDefT && !cache.isBookedDDU(histoD.getDDUId())) {
       collection.bookDDUHistos(histoD.getDDUId());
       if (cache.get(histoD, me)) return true;
     }
 
-    //For the first and specific CSCs - book general and specific
+    /** For the first and specific CSCs - book general and specific */
     if (typeid(histoD) == CSCHistoDefT) {
       if (!cache.isBookedCSC(histoD.getCrateId(), histoD.getDMBId())) {
         collection.bookCSCHistos(histoD.getCrateId(), histoD.getDMBId());
-        //cache.printContent();
+        /** cache.printContent(); */
       }
       if (collection.isOnDemand(histoD.getHistoName())) {
         collection.bookCSCHistos(histoD.getId(), histoD.getCrateId(), histoD.getDMBId(), histoD.getAddId());
@@ -89,7 +89,7 @@ namespace cscdqm {
       if (cache.get(histoD, me)) return true;
     }
 
-    //For the Parameters - book parameter histogram
+    /** For the Parameters - book parameter histogram */
     if (typeid(histoD) == ParHistoDefT) {
       HistoBookRequest req(histoD, config->getFOLDER_PAR(), -1.0f);
       me = provider->bookMonitorObject(req);
@@ -97,7 +97,7 @@ namespace cscdqm {
       return true;
     }
 
-    //If not found after booking - mark it as not existent
+    /** If not found after booking - mark it as not existent */
     cache.put(histoD, NULL);
 
     return false;

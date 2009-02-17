@@ -28,6 +28,15 @@
 
 namespace h {
 
+/**
+ *  List of histogram identifiers and names. Please add or update list items in
+ *  a form:
+ *  (( ID, "name" )) \
+ *  , where ID should be unique with prefix CSC, DDU, EMU or PAR, name should
+ *  correlate with histogram name from XML Booking file or just to be unique in
+ *  type.
+ */
+
 #define CONFIG_HISTONAMES_SEQ \
   \
   \
@@ -273,22 +282,25 @@ namespace h {
   (( PAR_CSC_SIDEPLUS_STATION04, "CSC_SidePlus_Station04" )) \
   \
   \
-  /* */
 
-
+/** Histogram name definition */
 #define CONFIG_MACRO_ID(r, data, i, elem) \
   const HistoId BOOST_PP_TUPLE_ELEM(2, 0, elem) = i;
 
+/** Item of names list definition */
 #define CONFIG_MACRO_NAME(r, data, i, elem) \
   BOOST_PP_TUPLE_ELEM(2, 1, elem) \
   BOOST_PP_COMMA_IF(BOOST_PP_LESS(BOOST_PP_INC(i), BOOST_PP_SEQ_SIZE(CONFIG_HISTONAMES_SEQ)))
 
+  /** Histogram names */
   BOOST_PP_SEQ_FOR_EACH_I(CONFIG_MACRO_ID, _, CONFIG_HISTONAMES_SEQ)
 
+  /** Array of histogram names */
   static const HistoName names[] = {
     BOOST_PP_SEQ_FOR_EACH_I(CONFIG_MACRO_NAME, _, CONFIG_HISTONAMES_SEQ)
   };
 
+  /** Number of histograms */
   static const unsigned int namesSize = BOOST_PP_SEQ_SIZE(CONFIG_HISTONAMES_SEQ);
 
 }

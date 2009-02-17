@@ -23,6 +23,14 @@ namespace cscdqm {
 #ifdef DQMLOCAL
 
 
+  /**
+   * @brief  Process event (Local DQM)
+   * @param  data Event Data buffer
+   * @param  dataSize Event Data buffer size
+   * @param  errorStat Error status received by reading DAQ buffer
+   * @param  nodeNumber DAQ node number
+   * @return 
+   */
   void EventProcessor::processEvent(const char* data, const int32_t dataSize, const uint32_t errorStat, const int32_t nodeNumber) {
 
     config->incNEvents();
@@ -68,6 +76,12 @@ namespace cscdqm {
 #ifdef DQMGLOBAL
 
 
+  /**
+   * @brief  Process event (Global DQM)
+   * @param  e Event object
+   * @param  inputTag Tag to search Event Data in
+   * @return 
+   */
   void EventProcessor::processEvent(const edm::Event& e, const edm::InputTag& inputTag) {
 
     config->incNEvents();

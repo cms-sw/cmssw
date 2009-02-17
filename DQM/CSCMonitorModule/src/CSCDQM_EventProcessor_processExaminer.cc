@@ -20,12 +20,21 @@
 
 namespace cscdqm {
 
+  /**
+   * @brief  Execute Examiner on Data buffer and collect output results.
+   * @param  data Data buffer
+   * @param  dataSize Data buffer size
+   * @param  eventDenied Return flag if this buffer (event) was denied by Examiner or not
+   * @return 
+   */
   void EventProcessor::processExaminer(const uint16_t *data, const uint32_t dataSize, bool& eventDenied) {
     
     binChecker.setMask(config->getBINCHECK_MASK());
     
     if (binChecker.check(data, dataSize) < 0) {
-      // No ddu trailer found - force checker to summarize errors by adding artificial trailer
+
+      /** No ddu trailer found - force checker to summarize errors by adding artificial trailer */
+
       const uint16_t dduTrailer[4] = { 0x8000, 0x8000, 0xFFFF, 0x8000 };
       const uint16_t *tmp = dduTrailer;
       binChecker.check(tmp, uint32_t(4));
@@ -52,7 +61,8 @@ namespace cscdqm {
         }
       }
 
-      /* Temporary tweak for cases when there were no DDU errors  */
+      /** Temporary tweak for cases when there were no DDU errors  */
+
       if (binChecker.errors() == 0) {
         int dduID = binChecker.dduSourceID() & 0xFF;
         mo->Fill(dduID, 0);
@@ -78,7 +88,7 @@ namespace cscdqm {
       
       if (crateID == 255) { continue; }
 
-      // Update counters
+      /** Update counters */
       config->incChamberCounter(DMB_EVENTS, crateID, dmbSlot);
       long DMBEvents = config->getChamberCounterValue(DMB_EVENTS, crateID, dmbSlot);
       config->copyChamberCounterValue(DMB_EVENTS, DMB_TRIGGERS, crateID, dmbSlot);
@@ -95,7 +105,7 @@ namespace cscdqm {
         mo->Fill(cscPosition, cscType);
       }
 
-      // Get FEBs Data Available Info
+      /** Get FEBs Data Available Info */
       long payload = chamber->second;
       int cfeb_dav = (payload >> 7) & 0x1F;
       int cfeb_active = payload & 0x1F;
@@ -181,7 +191,7 @@ namespace cscdqm {
 
       if (getCSCHisto(h::CSC_DMB_CFEB_ACTIVE_VS_DAV, crateID, dmbSlot, mo)) mo->Fill(cfeb_dav, cfeb_active);
 
-      // Fill Histogram for FEB DAV Efficiency
+      /** Fill Histogram for FEB DAV Efficiency */
       if (getCSCHisto(h::CSC_ACTUAL_DMB_FEB_DAV_RATE, crateID, dmbSlot, mo)) {
 	if (getCSCHisto(h::CSC_ACTUAL_DMB_FEB_DAV_FREQUENCY, crateID, dmbSlot, mo1)) {
 	  for (int i = 1; i < 4; i++) {
@@ -217,7 +227,7 @@ namespace cscdqm {
       
 
       float feb_combination_dav = -1.0;
-      // Fill Histogram for Different Combinations of FEB DAV Efficiency
+      /** Fill Histogram for Different Combinations of FEB DAV Efficiency */
       if (getCSCHisto(h::CSC_ACTUAL_DMB_FEB_COMBINATIONS_DAV_RATE, crateID, dmbSlot, mo)) {
 	if(alct_dav == 0 && tmb_dav == 0 && cfeb_dav == 0) feb_combination_dav = 0.0; // Nothing
 	if(alct_dav >  0 && tmb_dav == 0 && cfeb_dav == 0) feb_combination_dav = 1.0; // ALCT Only
@@ -255,7 +265,7 @@ namespace cscdqm {
       
     }
 
-  // === Check and fill CSC Data Flow Problems
+  /**  === Check and fill CSC Data Flow Problems */
    
   std::map<int,long> statuses = binChecker.statusDetailed();
   for(std::map<int,long>::const_iterator chamber = statuses.begin(); chamber != statuses.end(); chamber++) {
@@ -314,7 +324,7 @@ namespace cscdqm {
       }
     }
 
-    // Check and fill CSC Format Errors 
+    /**  Check and fill CSC Format Errors  */
     std::map<int,long> checkerErrors = binChecker.errorsDetailed();
     for(std::map<int,long>::const_iterator chamber = checkerErrors.begin(); chamber != checkerErrors.end(); chamber++) {
 

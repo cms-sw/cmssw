@@ -20,6 +20,9 @@
 
 namespace cscdqm {
 
+  /**
+   * @brief  Update Fractional MOs
+   */
   void EventProcessor::updateFractionHistos() {
 
     calcEMUFractionHisto(h::EMU_DMB_FORMAT_ERRORS_FRACT, h::EMU_DMB_REPORTING, h::EMU_DMB_FORMAT_ERRORS);
@@ -76,14 +79,12 @@ namespace cscdqm {
 
   }
 
-/**
- * @brief Calculate fractional histogram 
- * @param result Histogram to write results to
- * @param set Histogram of the set
- * @param subset Histogram of the subset
- * @return 
- */
-
+  /**
+   * @brief Calculate fractional histogram 
+   * @param result Histogram to write results to
+   * @param set Histogram of the set
+   * @param subset Histogram of the subset
+   */
   void EventProcessor::calcEMUFractionHisto(const HistoId& result, const HistoId& set, const HistoId& subset) {
 
     MonitorObject *mo = 0, *mo1 = 0, *mo2 = 0;

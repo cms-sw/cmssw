@@ -20,16 +20,20 @@
 
 namespace cscdqm {
 
+  /**
+   * @brief  Process DDU output and fill MOs
+   * @param  dduData DDU object to process
+   */
   void EventProcessor::processDDU(const CSCDDUEventData& dduData) {
     
     CSCDDUHeader dduHeader  = dduData.header();
     CSCDDUTrailer dduTrailer = dduData.trailer();
     if (!dduTrailer.check()) {
-      // LOG4CPLUS_WARN(logger_,eTag << "Skipped because of DDU Trailer check failed.");
+      /**  LOG4CPLUS_WARN(logger_,eTag << "Skipped because of DDU Trailer check failed."); */
       return;
     }
 
-    // Only 8bits are significant; format of DDU id is Dxx
+    /**  Only 8bits are significant; format of DDU id is Dxx */
     int dduID = dduHeader.source_id() & 0xFF;
 
     MonitorObject* mo = 0;
@@ -42,12 +46,12 @@ namespace cscdqm {
 
     if (getDDUHisto(h::DDU_BUFFER_SIZE, dduID, mo)) mo->Fill(dduData.size());
 
-    // DDU word counter
+    /**  DDU word counter */
     int trl_word_count = 0;
     trl_word_count = dduTrailer.wordcount();
     if (getDDUHisto(h::DDU_WORD_COUNT, dduID, mo)) mo->Fill(trl_word_count );
   
-    //LOG4CPLUS_DEBUG(logger_,dduTag << " Trailer Word (64 bits) Count = " << std::dec << trl_word_count);
+    /** LOG4CPLUS_DEBUG(logger_,dduTag << " Trailer Word (64 bits) Count = " << std::dec << trl_word_count); */
   
     if (trl_word_count > 0) { 
       if (getEMUHisto(h::EMU_ALL_DDUS_EVENT_SIZE, mo)) {
@@ -59,18 +63,18 @@ namespace cscdqm {
     }
 
     fCloseL1As = dduTrailer.reserved() & 0x1; // Get status if Close L1As bit
-    // if (fCloseL1As) LOG4CPLUS_DEBUG(logger_,eTag << " Close L1As bit is set");
+    /**  if (fCloseL1As) LOG4CPLUS_DEBUG(logger_,eTag << " Close L1As bit is set"); */
 
-    // DDU Header bunch crossing number (BXN)
+    /**  DDU Header bunch crossing number (BXN) */
     BXN = dduHeader.bxnum();
-    // LOG4CPLUS_WARN(logger_,dduTag << " DDU Header BXN Number = " << std::dec << BXN);
+    /**  LOG4CPLUS_WARN(logger_,dduTag << " DDU Header BXN Number = " << std::dec << BXN); */
     if (getDDUHisto(h::DDU_BXN, dduID, mo)) mo->Fill(BXN);
 
-    // L1A number from DDU Header
+    /**  L1A number from DDU Header */
     int L1ANumber_previous_event = L1ANumbers[dduID];
     L1ANumbers[dduID] = (int)(dduHeader.lvl1num());
     L1ANumber = L1ANumbers[dduID];
-    //LOG4CPLUS_DEBUG(logger_,dduTag << " Header L1A Number = " << std::dec << L1ANumber);
+    /** LOG4CPLUS_DEBUG(logger_,dduTag << " Header L1A Number = " << std::dec << L1ANumber); */
     int L1A_inc = L1ANumber - L1ANumber_previous_event;
     if (!fFirstEvent) {
       if (getDDUHisto(h::DDU_L1A_INCREMENT, dduID, mo)) mo->Fill(L1A_inc);
@@ -88,7 +92,7 @@ namespace cscdqm {
       }
     }
 
-    // ==     Occupancy and number of DMB (CSC) with Data available (DAV) in header of particular DDU
+    /**  ==     Occupancy and number of DMB (CSC) with Data available (DAV) in header of particular DDU */
     int dmb_dav_header      = 0;
     int dmb_dav_header_cnt  = 0;
   
@@ -98,7 +102,7 @@ namespace cscdqm {
     int csc_error_state     = 0;
     int csc_warning_state   = 0;
   
-    //  ==    Number of active DMB (CSC) in header of particular DDU
+    /**   ==    Number of active DMB (CSC) in header of particular DDU */
     int dmb_active_header   = 0;
   
     dmb_dav_header       = dduHeader.dmb_dav();
@@ -107,8 +111,8 @@ namespace cscdqm {
     csc_warning_state    = dduTrailer.dmb_warn()  & 0x7FFF; // Only 15 inputs for DDU
     ddu_connected_inputs = dduHeader.live_cscs();
   
-    //LOG4CPLUS_DEBUG(logger_,dduTag << " Header DMB DAV = 0x" << std::hex << dmb_dav_header);
-    //LOG4CPLUS_DEBUG(logger_,dduTag << " Header Number of Active DMB = " << std::dec << dmb_active_header);
+    /** LOG4CPLUS_DEBUG(logger_,dduTag << " Header DMB DAV = 0x" << std::hex << dmb_dav_header); */
+    /** LOG4CPLUS_DEBUG(logger_,dduTag << " Header Number of Active DMB = " << std::dec << dmb_active_header); */
   
     double freq = 0;
     for (int i = 0; i < 15; ++i) {
@@ -194,10 +198,10 @@ namespace cscdqm {
     if (getDDUHisto(h::DDU_DMB_DAV_HEADER_COUNT_VS_DMB_ACTIVE_HEADER_COUNT, dduID, mo)) 
       mo->Fill(dmb_active_header, dmb_dav_header_cnt);
   
-    // Check binary Error status at DDU Trailer
+    /**  Check binary Error status at DDU Trailer */
     uint32_t trl_errorstat = dduTrailer.errorstat();
     if (dmb_dav_header_cnt == 0) trl_errorstat &= ~0x20000000; // Ignore No Good DMB CRC bit of no DMB is present
-    // LOG4CPLUS_DEBUG(logger_,dduTag << " Trailer Error Status = 0x" << std::hex << trl_errorstat);
+    /**  LOG4CPLUS_DEBUG(logger_,dduTag << " Trailer Error Status = 0x" << std::hex << trl_errorstat); */
     for (int i = 0; i < 32; i++) {
       if ((trl_errorstat >> i) & 0x1) {
         if (getDDUHisto(h::DDU_TRAILER_ERRORSTAT_RATE, dduID, mo)) { 
@@ -229,7 +233,7 @@ namespace cscdqm {
 
     uint32_t nCSCs = 0;
 
-    // Unpack all found CSC
+    /**  Unpack all found CSC */
     if (config->getPROCESS_CSC()) { 
 
       std::vector<CSCEventData> chamberDatas;
