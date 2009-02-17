@@ -16,7 +16,7 @@
 // Original Author:  Vincenzo Chiochia
 //         Modified: Evan Friis
 //         Created:  Tue 8 12:31:25 CEST 2007
-// $Id: SiPixelGainCalibrationOffline.h,v 1.4 2008/04/16 10:09:22 friis Exp $
+// $Id: SiPixelGainCalibrationOffline.h,v 1.5 2009/02/10 17:26:50 rougny Exp $
 //
 //
 #include<vector>
@@ -65,6 +65,10 @@ class SiPixelGainCalibrationOffline {
   void  setDataPedestal ( float pedestal,               std::vector<char>& vped , bool thisPixelIsDead  = false , bool thisPixelIsNoisy  = false);
 
   unsigned int getNumberOfRowsToAverageOver() const { return numberOfRowsToAverageOver_; }
+  double getGainLow() const { return minGain_; }
+  double getGainHigh() const { return maxGain_; }
+  double getPedLow() const { return minPed_; }
+  double getPedHigh() const { return maxPed_; }
 
   // Set dead pixels
   void  setDeadPixel(std::vector<char>& vped)                    { setDataPedestal(0 /*dummy value, not used*/,    vped,  true ); }

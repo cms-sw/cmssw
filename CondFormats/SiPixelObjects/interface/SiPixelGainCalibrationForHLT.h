@@ -16,7 +16,7 @@
 // Original Author:  Vincenzo Chiochia
 //         Created:  Tue 8 12:31:25 CEST 2007
 //         Modified: Evan Friis
-// $Id: SiPixelGainCalibrationForHLT.h,v 1.4 2008/04/16 10:09:22 friis Exp $
+// $Id: SiPixelGainCalibrationForHLT.h,v 1.5 2009/02/10 17:25:58 rougny Exp $
 //
 //
 #include<vector>
@@ -62,10 +62,15 @@ class SiPixelGainCalibrationForHLT {
   const std::pair<const Range, const int> getRangeAndNCols(const uint32_t& detID) const;
 
   unsigned int getNumberOfRowsToAverageOver() const { return numberOfRowsToAverageOver_; }
+  double getGainLow() const { return minGain_; }
+  double getGainHigh() const { return maxGain_; }
+  double getPedLow() const { return minPed_; }
+  double getPedHigh() const { return maxPed_; }
 
   // Set and get public methods
   void  setData(float ped, float gain, std::vector<char>& vped, bool thisColumnIsDead = false, bool thisColumnIsNoisy = false);
-  void  setDeadColumn(const int& nRows, std::vector<char>& vped) { setData(0, 0 /*dummy values, not used*/, vped, true); }
+  void  setDeadColumn(const int& nRows, std::vector<char>& vped)  { setData(0, 0 /*dummy values, not used*/, vped, true, false); }
+  void  setNoisyColumn(const int& nRows, std::vector<char>& vped) { setData(0, 0 /*dummy values, not used*/, vped, false, true); }
 
   float getPed   (const int& col, const int& row, const Range& range, const int& nCols, bool& isDeadColumn, bool& isNoisyColumn ) const;
   float getGain  (const int& col, const int& row, const Range& range, const int& nCols, bool& isDeadColumn, bool& isNoisyColumn ) const;
