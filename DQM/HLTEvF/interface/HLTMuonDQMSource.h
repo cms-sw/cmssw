@@ -70,14 +70,9 @@ private:
   edm::InputTag l3isolationTag_;
   //  edm::InputTag l3linksTag_;
 
-<<<<<<< HLTMuonDQMSource.h
   std::vector<std::string> theHLTCollectionLabels;
   std::vector<std::string> theHLTCollectionLevel;
 
-=======
-  std::vector<std::string> theHLTCollectionLabels;
-
->>>>>>> 1.7
   // ----------member data ---------------------------
   bool verbose_;
 

@@ -6,7 +6,6 @@ hltMonMuDQM = cms.EDAnalyzer("HLTMuonDQMSource",
     MonitorDaemon = cms.untracked.bool(True),
     reqNum = cms.uint32(1),
     DaqMonitorBEInterface = cms.untracked.bool(True),
-<<<<<<< HLTMonMuonDQM_cfi.py
     filters = cms.VPSet(
     	# L1 muon
 	cms.PSet(
@@ -24,14 +23,6 @@ hltMonMuDQM = cms.EDAnalyzer("HLTMuonDQMSource",
 		HLTCollectionLabels = cms.string("HLT_Mu3")
 	)
     ),
-=======
-    filters = cms.VPSet(
-    	# L1 muon
-	cms.PSet(
-		HLTCollectionLabels = cms.string("HLT_L1Mu")
-	)
-    ),
->>>>>>> 1.2
     disableROOToutput = cms.untracked.bool(True)
 )
 

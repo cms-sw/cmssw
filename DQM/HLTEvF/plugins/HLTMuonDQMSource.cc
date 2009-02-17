@@ -13,13 +13,9 @@ Implementation:
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Wed Dec 12 09:55:42 CET 2007
-<<<<<<< HLTMuonDQMSource.cc
 // $Id: HLTMuonDQMSource.cc,v 1.10 2009/02/16 14:50:49 hdyoo Exp $
 // Modification:  Hwidong Yoo (Purdue University)
 // contact: hdyoo@cern.ch
-=======
-// $Id: HLTMuonDQMSource.cc,v 1.10 2009/02/16 14:50:49 hdyoo Exp $
->>>>>>> 1.10
 //
 //
 
@@ -103,18 +99,11 @@ HLTMuonDQMSource::HLTMuonDQMSource( const edm::ParameterSet& ps ) :counterEvt_(0
      dbe_->setCurrentFolder("HLT/HLTMonMuon");
    }
 
-<<<<<<< HLTMuonDQMSource.cc
    std::vector<edm::ParameterSet> filters = parameters_.getParameter<std::vector<edm::ParameterSet> >("filters");
    for(std::vector<edm::ParameterSet>::iterator filterconf = filters.begin() ; filterconf != filters.end() ; filterconf++){
      theHLTCollectionLevel.push_back(filterconf->getParameter<std::string>("HLTCollectionLevel"));
      theHLTCollectionLabels.push_back(filterconf->getParameter<std::string>("HLTCollectionLabels"));
    }
-=======
-   std::vector<edm::ParameterSet> filters = parameters_.getParameter<std::vector<edm::ParameterSet> >("filters");
-   for(std::vector<edm::ParameterSet>::iterator filterconf = filters.begin() ; filterconf != filters.end() ; filterconf++){
-     theHLTCollectionLabels.push_back(filterconf->getParameter<std::string>("HLTCollectionLabels"));
-   }
->>>>>>> 1.10
 
 }
 
@@ -150,19 +139,13 @@ void HLTMuonDQMSource::beginJob(const EventSetup& context){
      char name[512], title[512];
      double pt_max;
      for ( int level = 1 ; level < 5 ; ++ level ) {
-<<<<<<< HLTMuonDQMSource.cc
        if( level < 4 ) sprintf(name,"Level%i",level);
        else if (level == 4 ) sprintf(name,"Level%iSeed", level-2);
 
        if( level == 1 ) pt_max = 140;
        else pt_max = 200;
-=======
-       if( level < 4 ) sprintf(name,"Level%i",level);
-       else if (level == 4 ) sprintf(name,"Level%iSeed", level-2);
->>>>>>> 1.10
        dbe_->setCurrentFolder(monitorName_+name);
        if (level==1)hl1quality = dbe_->book1D("h1L1Quality","GMT quality Flag", 8, 0., 8.);
-<<<<<<< HLTMuonDQMSource.cc
        if( level < 4 ) {
          sprintf(name,"HLTMuonL%i_NMu",level);
          sprintf(title,"L%i number of muons",level);
@@ -248,103 +231,7 @@ void HLTMuonDQMSource::beginJob(const EventSetup& context){
          hcharge[level-1]->setAxisTitle("Charge", 1);
        }
 
-=======
-       if( level < 4 ) {
-	 if( level > 1 ) {
-           sprintf(name,"HLTMuonL%i_NMu",level);
-           sprintf(title,"L%i number of muons",level);
-           hNMu[level-1] = dbe_->book1D(name,title, 5, 0, 5);
-           hNMu[level-1]->setAxisTitle("Number of muons", 1);
-	 }
-         sprintf(name,"HLTMuonL%i_pt",level);
-         sprintf(title,"L%i Pt",level);
-         hpt[level-1] = dbe_->book1D(name,title, NBINS, 0., 140);
-         hpt[level-1]->setAxisTitle("Pt", 1);
-         sprintf(name,"HLTMuonL%i_eta",level);
-         sprintf(title,"L%i Muon #eta",level);
-         heta[level-1] = dbe_->book1D(name,title, NBINS, -2.5, 2.5);
-         heta[level-1]->setAxisTitle("#eta", 1);
-         sprintf(name,"HLTMuonL%i_phi",level);
-         sprintf(title,"L%i Muon #phi",level);
-         hphi[level-1] = dbe_->book1D(name,title, NBINS, -3.15, 3.15);
-         hphi[level-1]->setAxisTitle("#phi", 1);
-         sprintf(name,"HLTMuonL%i_etaphi",level);
-         sprintf(title,"L%i Muon #eta vs #phi",level);
-         hetaphi[level-1] = dbe_->book2D(name,title, NBINS, -3.15, 3.15,NBINS,-2.5, 2.5);
-         hetaphi[level-1]->setAxisTitle("#phi", 1);
-         hetaphi[level-1]->setAxisTitle("#eta", 2); 
-         sprintf(name,"HLTMuonL%i_ptphi",level);
-         sprintf(title,"L%i Muon pt vs #phi",level);         
-         hptphi[level-1] = dbe_->book2D(name,title, NBINS, 0., 140.,NBINS,-3.15, 3.15);
-         hptphi[level-1]->setAxisTitle("pt", 1);
-         hptphi[level-1]->setAxisTitle("#phi", 2);
-         sprintf(name,"HLTMuonL%i_pteta",level);
-         sprintf(title,"L%i Muon pt vs #eta",level);         
-         hpteta[level-1] = dbe_->book2D(name,title, NBINS, 0., 140.,NBINS,-2.5, 2.5);
-         hpteta[level-1]->setAxisTitle("pt", 1);
-         hpteta[level-1]->setAxisTitle("#eta", 2);
-	 if( level > 1 ) {
-           sprintf(name,"HLTMuonL%i_nhit",level);
-           sprintf(title,"L%i Number of Valid Hits",level);         
-           hnhit[level-1] = dbe_->book1D(name,title, NBINS, 0., 100.);
-           hnhit[level-1]->setAxisTitle("Number of Valid Hits", 1);
-	 }
-         sprintf(name,"HLTMuonL%i_charge",level);
-         sprintf(title,"L%i Muon Charge",level);         
-         hcharge[level-1]  = dbe_->book1D(name,title, 3, -1.5, 1.5);
-         hcharge[level-1]->setAxisTitle("Charge", 1);
-       }
-       else if( level == 4 ) {
-         sprintf(name,"HLTMuonL%iSeed_NMu",level-2);
-         sprintf(title,"L%iSeed number of muons",level-2);
-         hNMu[level-1] = dbe_->book1D(name,title, 5, 0, 5);
-         hNMu[level-1]->setAxisTitle("Number of muons", 1);
-         sprintf(name,"HLTMuonL%iSeed_pt",level-2);
-         sprintf(title,"L%iSeed Pt",level-2);
-         hpt[level-1] = dbe_->book1D(name,title, NBINS, 0., 140);
-         hpt[level-1]->setAxisTitle("Pt", 1);
-         sprintf(name,"HLTMuonL%iSeed_eta",level-2);
-         sprintf(title,"L%iSeed Muon #eta",level-2);
-         heta[level-1] = dbe_->book1D(name,title, NBINS, -2.5, 2.5);
-         heta[level-1]->setAxisTitle("#eta", 1);
-         sprintf(name,"HLTMuonL%iSeed_phi",level-2);
-         sprintf(title,"L%iSeed Muon #phi",level-2);
-         hphi[level-1] = dbe_->book1D(name,title, NBINS, -3.15, 3.15);
-         hphi[level-1]->setAxisTitle("#phi", 1);
-         sprintf(name,"HLTMuonL%iSeed_etaphi",level-2);
-         sprintf(title,"L%iSeed Muon #eta vs #phi",level-2);
-         hetaphi[level-1] = dbe_->book2D(name,title, NBINS, -3.15, 3.15,NBINS,-2.5, 2.5);
-         hetaphi[level-1]->setAxisTitle("#phi", 1);
-         hetaphi[level-1]->setAxisTitle("#eta", 2); 
-         sprintf(name,"HLTMuonL%iSeed_ptphi",level-2);
-         sprintf(title,"L%iSeed Muon pt vs #phi",level-2);         
-         hptphi[level-1] = dbe_->book2D(name,title, NBINS, 0., 140.,NBINS,-3.15, 3.15);
-         hptphi[level-1]->setAxisTitle("pt", 1);
-         hptphi[level-1]->setAxisTitle("#phi", 2);
-         sprintf(name,"HLTMuonL%iSeed_pteta",level-2);
-         sprintf(title,"L%iSeed Muon pt vs #eta",level-2);         
-         hpteta[level-1] = dbe_->book2D(name,title, NBINS, 0., 140.,NBINS,-2.5, 2.5);
-         hpteta[level-1]->setAxisTitle("pt", 1);
-         hpteta[level-1]->setAxisTitle("#eta", 2);
-         //sprintf(name,"HLTMuonL%iSeed_nhit",level-2);
-         //sprintf(title,"L%iSeed Number of Valid Hits",level-2);         
-         //hnhit[level-1] = dbe_->book1D(name,title, NBINS, 0., 100.);
-         //hnhit[level-1]->setAxisTitle("Number of Valid Hits", 1);
-         sprintf(name,"HLTMuonL%iSeed_charge",level-2);
-         sprintf(title,"L%iSeed Muon Charge",level-2);         
-         hcharge[level-1]  = dbe_->book1D(name,title, 3, -1.5, 1.5);
-         hcharge[level-1]->setAxisTitle("Charge", 1);
-       }
-
->>>>>>> 1.10
        if (level>1&&level<4){
-<<<<<<< HLTMuonDQMSource.cc
-=======
-	 sprintf(name,"HLTMuonL%i_ptlx",level);
-	 sprintf(title,"L%i Muon 90 percent efficiency Pt",level);
-	 hptlx[level-2] = dbe_->book1D(name,title, NBINS, 0., 140);
-	 hptlx[level-2]->setAxisTitle("90% efficiency Pt", 1);
->>>>>>> 1.10
 	 sprintf(name,"HLTMuonL%i_dr",level);
 	 sprintf(title,"L%i Muon radial impact vs BeamSpot",level);         
 	 hdr[level-2] = dbe_->book1D(name,title, NBINS, -0.3, 0.3);
@@ -525,7 +412,6 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
   if (prescaleEvt_ > 0 && counterEvt_%prescaleEvt_!=0) return;
   LogDebug("HLTMuonDQMSource") << " processing conterEvt_: " << counterEvt_ <<endl;
 
-<<<<<<< HLTMuonDQMSource.cc
   bool trigFired = false;
   bool L1trigFired = false;
   bool L2trigFired = false;
@@ -555,33 +441,10 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
   if( L2trigFired ) LogDebug("HLTMuonDQMSource") << " HLT L2 triggered" << endl;
   if( L3trigFired ) LogDebug("HLTMuonDQMSource") << " HLT L3 triggered" << endl;
 
-=======
-  bool trigFired = false;
-  Handle<TriggerResults> trigResult;
-  iEvent.getByLabel(InputTag("TriggerResults"), trigResult);
-  if( !trigResult.failedToGet() ) {
-    int ntrigs = trigResult->size();
-    TriggerNames trigName;
-    trigName.init(*trigResult);
-    for( int itrig = 0; itrig != ntrigs; ++itrig) {
-      for(unsigned int n=0; n < theHLTCollectionLabels.size() ; n++) { 
-	//cout << "trigger = " << trigResult->name(itrig) << endl;
-        if( trigResult->accept(trigName.triggerIndex(theHLTCollectionLabels[n])) ) trigFired = true;
-      }
-    }
-  }
-  if( !trigFired ) return;
-  nTrig_++;
-
->>>>>>> 1.10
   Handle<RecoChargedCandidateCollection> l2mucands, l3mucands;
   iEvent.getByLabel (l2collectionTag_,l2mucands);
   iEvent.getByLabel (l3collectionTag_,l3mucands);
-<<<<<<< HLTMuonDQMSource.cc
   RecoChargedCandidateCollection::const_iterator cand, cand2, cand3;
-=======
-  RecoChargedCandidateCollection::const_iterator cand,cand2;
->>>>>>> 1.10
 
   Handle<L2MuonTrajectorySeedCollection> l2seeds; 
   iEvent.getByLabel (l2seedscollectionTag_,l2seeds);
@@ -647,7 +510,6 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
  	    if (!l3mucands.failedToGet()) {
 	      for (cand=l3mucands->begin(); cand!=l3mucands->end(); ++cand) {
 	        TrackRef l3tk= cand->get<TrackRef>();
-<<<<<<< HLTMuonDQMSource.cc
 		if( l3tk->seedRef().castTo<Ref<L3MuonTrajectorySeedCollection> > ().isAvailable() ) {
 	          if (l3tk->seedRef().castTo<Ref<L3MuonTrajectorySeedCollection> >()->l2Track() == tk){
 		    if(l1ref->pt()*l3tk->pt() != 0 ) {
@@ -673,22 +535,6 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 		    //break; //plot only once per L2?
 	          }//if
 		}
-=======
-		cout << "L3 trajectory = " << l3tk->seedRef().castTo<Ref<L3MuonTrajectorySeedCollection> > ().isAvailable() << endl;
-		if( l3tk->seedRef().castTo<Ref<L3MuonTrajectorySeedCollection> > ().isAvailable() ) {
-	          if (l3tk->seedRef().castTo<Ref<L3MuonTrajectorySeedCollection> >()->l2Track() == tk){
-		    if(l1ref->pt()*l3tk->pt() != 0 )hptres[2]->Fill(1/l1ref->pt() - 1/l3tk->pt());
-		    hetares[2]->Fill(l1ref->eta()-l3tk->eta());
-		    hetareseta[2]->Fill(l1ref->eta(),l1ref->eta()-l3tk->eta());
-		    hphires[2]->Fill(l1ref->phi()-l3tk->phi());
-		    double dphi=l1ref->phi()-l3tk->phi();
-		    if (dphi>TMath::TwoPi())dphi-=2*TMath::TwoPi();
-		    else if (dphi<-TMath::TwoPi()) dphi+=TMath::TwoPi();
-		    hphiresphi[2]->Fill(l3tk->phi(),dphi);
-		    //break; //plot only once per L2?
-	          }//if
-		}
->>>>>>> 1.10
 	      }//for
 	    }
 	    break;
@@ -735,6 +581,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	for (thehit = tk->recHitsBegin(); thehit != tk->recHitsEnd(); thehit++) {
 	    if( (*thehit)->isValid() ) nhits++;
 	}
+	cout << "nhits = " << nhits << endl;
 	hnhit[1]->Fill(nhits);
 	hd0[0]->Fill(tk->d0()); 
         if (!recoBeamSpotHandle.failedToGet()){
@@ -812,7 +659,6 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	TrackRef tk2=cand2->get<TrackRef>();
 	if ( tk->charge()*tk2->charge() == -1 ){
 	  double mass=(cand->p4()+cand2->p4()).M();
-<<<<<<< HLTMuonDQMSource.cc
 	  hdimumass[1]->Fill(mass);
 	}
       }
@@ -821,10 +667,6 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
         if(tk->pt()*l2tk->pt() != 0 ) {
 	    hptres[1]->Fill(1/l2tk->pt() - 1/tk->pt());
 	    hptrespt[1]->Fill(tk->pt(), 1/l2tk->pt() - 1/tk->pt());
-=======
-	  hdimumass[1]->Fill(mass);
-	  cout << "mass = " << mass << " " << cand->p4().M() << " " << cand2->p4().M() <<endl;
->>>>>>> 1.10
 	}
         hetares[1]->Fill(l2tk->eta()-tk->eta());
         hetareseta[1]->Fill(tk->eta(),l2tk->eta()-tk->eta());
@@ -843,20 +685,6 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	else if( l2charge == 1 && l3charge == 1 ) chargeconv = 3;
 	hchargeconv[1]->Fill(chargeconv);
       }
-<<<<<<< HLTMuonDQMSource.cc
-=======
-      if( tk->seedRef().castTo<Ref<L3MuonTrajectorySeedCollection> >().isAvailable() ) {
-        TrackRef l2tk = tk->seedRef().castTo<Ref<L3MuonTrajectorySeedCollection> >()->l2Track();
-        if(tk->pt()*l2tk->pt() != 0 )hptres[1]->Fill(1/tk->pt() - 1/l2tk->pt());
-        hetares[1]->Fill(tk->eta()-l2tk->eta());
-        hetareseta[1]->Fill(tk->eta(),tk->eta()-l2tk->eta());
-        hphires[1]->Fill(tk->phi()-l2tk->phi());
-        double dphi=tk->phi()-l2tk->phi();
-        if (dphi>TMath::TwoPi())dphi-=2*TMath::TwoPi();
-        else if (dphi<-TMath::TwoPi()) dphi+=TMath::TwoPi();
-        hphiresphi[1]->Fill(tk->phi(),dphi);
-      }
->>>>>>> 1.10
     }
   }  
 
@@ -904,14 +732,9 @@ void HLTMuonDQMSource::endRun(const Run& r, const EventSetup& context){
 }
 //--------------------------------------------------------
 void HLTMuonDQMSource::endJob(){
-<<<<<<< HLTMuonDQMSource.cc
-   LogInfo("HLTMonMuon") << "analyzed " << counterEvt_ << " , triggered = " << nTrig_ << " events";
+   LogInfo("HLTMonMuon") << "analyzed " << counterEvt_ << " events";
    //cout << "analyzed = " << counterEvt_ << " , triggered = " << nTrig_ << endl;
 
-=======
-   LogInfo("HLTMonMuon") << "analyzed " << counterEvt_ << " events";
-   cout << "analyzed = " << counterEvt_ << " , triggered = " << nTrig_ << endl;
->>>>>>> 1.10
  
    //if (outputFile_.size() != 0 && dbe_)
    //dbe_->save(outputFile_);
