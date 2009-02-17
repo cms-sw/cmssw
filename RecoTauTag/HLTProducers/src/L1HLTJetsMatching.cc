@@ -5,6 +5,7 @@
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h" 
+#include "DataFormats/Math/interface/Point3D.h"
 //
 // class decleration
 //
@@ -20,6 +21,7 @@ L1HLTJetsMatching::L1HLTJetsMatching(const edm::ParameterSet& iConfig)
   mEt_Min = iConfig.getParameter<double>("EtMin");
   
   produces<std::vector<reco::LeafCandidate> >();
+  produces<reco::CaloJetCollection>();
 }
 
 L1HLTJetsMatching::~L1HLTJetsMatching(){ }
@@ -35,7 +37,8 @@ void L1HLTJetsMatching::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 
  typedef vector<LeafCandidate> LeafCandidateCollection;
 
- auto_ptr<LeafCandidateCollection> tauL2jets(new LeafCandidateCollection);
+ auto_ptr<LeafCandidateCollection> tauL2LC(new LeafCandidateCollection);
+ auto_ptr<CaloJetCollection> tauL2jets(new CaloJetCollection);
  
  double deltaR = 1.0;
  double matchingR = 0.5;
@@ -53,6 +56,8 @@ void L1HLTJetsMatching::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 	
        l1TriggeredTaus->getObjects( trigger::TriggerL1TauJet,tauCandRefVec);
        l1TriggeredTaus->getObjects( trigger::TriggerL1CenJet,jetCandRefVec);
+       math::XYZPoint a(0.,0.,0.);
+       CaloJet::Specific f;
 	
        for( unsigned int iL1Tau=0; iL1Tau <tauCandRefVec.size();iL1Tau++)
 	 {  
@@ -63,7 +68,11 @@ void L1HLTJetsMatching::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 	       deltaR = ROOT::Math::VectorUtil::DeltaR(myJet.p4().Vect(), (tauCandRefVec[iL1Tau]->p4()).Vect());
 	       if(deltaR < matchingR ) {
 		 LeafCandidate myLC(myJet);
-		if(myJet.pt() > mEt_Min) tauL2jets->push_back(myLC);
+		 CaloJet myCaloJet(myJet.p4(),a,f);
+		if(myJet.pt() > mEt_Min) {
+		  tauL2LC->push_back(myLC);
+		  tauL2jets->push_back(myCaloJet);
+		}
 		break;
 	       }
 	     }
@@ -78,7 +87,11 @@ void L1HLTJetsMatching::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 	       deltaR = ROOT::Math::VectorUtil::DeltaR(myJet.p4().Vect(), (jetCandRefVec[iL1Tau]->p4()).Vect());
 	       if(deltaR < matchingR ) {
 		 LeafCandidate myLC(myJet);
-		if(myJet.pt() > mEt_Min) tauL2jets->push_back(myLC);
+		 CaloJet myCaloJet(myJet.p4(),a,f);
+		 if(myJet.pt() > mEt_Min) {
+		   tauL2LC->push_back(myLC);
+		   tauL2jets->push_back(myCaloJet);
+		 }
 		break;
 	       }
 	     }
@@ -90,5 +103,6 @@ void L1HLTJetsMatching::produce(edm::Event& iEvent, const edm::EventSetup& iES)
  //  cout <<"Size of L2 jets "<<tauL2jets->size()<<endl;
 
  iEvent.put(tauL2jets);
+ iEvent.put(tauL2LC);
 
 }
