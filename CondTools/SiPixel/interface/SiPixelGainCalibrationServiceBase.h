@@ -31,10 +31,14 @@ class SiPixelGainCalibrationServiceBase {
       virtual float getPedestal  ( const uint32_t& detID , const int& col , const int& row)=0;
       virtual bool  isDead       ( const uint32_t& detID , const int& col , const int& row)=0;
       virtual bool  isDeadColumn ( const uint32_t& detID , const int& col , const int& row)=0;
-   //   virtual bool  isNoisy       ( const uint32_t& detID , const int& col , const int& row)=0;
-   //   virtual bool  isNoisyColumn ( const uint32_t& detID , const int& col , const int& row)=0;
+      virtual bool  isNoisy       ( const uint32_t& detID , const int& col , const int& row)=0;
+      virtual bool  isNoisyColumn ( const uint32_t& detID , const int& col , const int& row)=0;
       virtual void  setESObjects(const edm::EventSetup& es )=0;
       virtual std::vector<uint32_t> getDetIds()=0;
+      virtual double getGainLow()=0;
+      virtual double getGainHigh()=0;
+      virtual double getPedLow()=0;
+      virtual double getPedHigh()=0;
 };
 
 
@@ -53,12 +57,16 @@ class SiPixelGainCalibrationServicePayloadGetter : public SiPixelGainCalibration
   virtual bool isDead       ( const uint32_t& detID, const int& col, const int& row )=0;
   virtual bool isDeadColumn ( const uint32_t& detID, const int& col, const int& row )=0;
 
-  //virtual bool isNoisy       ( const uint32_t& detID, const int& col, const int& row )=0;
-  //virtual bool isNoisyColumn ( const uint32_t& detID, const int& col, const int& row )=0;
+  virtual bool isNoisy       ( const uint32_t& detID, const int& col, const int& row )=0;
+  virtual bool isNoisyColumn ( const uint32_t& detID, const int& col, const int& row )=0;
 
   void    setESObjects(const edm::EventSetup& es );
 
   std::vector<uint32_t> getDetIds();
+  double getGainLow();
+  double getGainHigh();
+  double getPedLow();
+  double getPedHigh();
 
  protected:
 
@@ -77,6 +85,10 @@ class SiPixelGainCalibrationServicePayloadGetter : public SiPixelGainCalibration
   bool ESetupInit_;
   edm::ESHandle<thePayloadObject> ped;
   int numberOfRowsAveragedOver_;
+  double gainLow_;
+  double gainHigh_;
+  double pedLow_;
+  double pedHigh_;
 
   uint32_t old_detID;
   int      old_cols;
@@ -137,6 +149,30 @@ std::vector<uint32_t> SiPixelGainCalibrationServicePayloadGetter<thePayloadObjec
   ped->getDetIds(vdetId_);
   return vdetId_;
 
+}
+
+template<class thePayloadObject, class theDBRecordType>
+double SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordType>::getGainLow() {
+  double gainLow_ = ped->getGainLow();
+  return gainLow_;
+}
+
+template<class thePayloadObject, class theDBRecordType>
+double SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordType>::getGainHigh() {
+  double gainHigh_ = ped->getGainHigh();
+  return gainHigh_;
+}
+
+template<class thePayloadObject, class theDBRecordType>
+double SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordType>::getPedLow() {
+  double pedLow_ = ped->getPedLow();
+  return pedLow_;
+}
+
+template<class thePayloadObject, class theDBRecordType>
+double SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordType>::getPedHigh() {
+  double pedHigh_ = ped->getPedHigh();
+  return pedHigh_;
 }
 
 template<class thePayloadObject, class theDBRecordType>
@@ -253,13 +289,13 @@ void SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordType
 {
    std::cerr << "[SiPixelGainCalibrationServicePayloadGetter::SiPixelGainCalibrationServicePayloadGetter]"
       << "[SiPixelGainCalibrationServicePayloadGetter] ERROR - Slow down, speed racer! You have tried to read the ped/gain on a pixel that is flagged as dead/noisy. For payload: " << payload << "  DETID: " 
-      << detID << " col: " << col << " row: " << row << ". You must check if the pixel is dead before asking for the ped/gain value, otherwise you will get corrupt data! value: " << value << std::endl;
+      << detID << " col: " << col << " row: " << row << ". You must check if the pixel is dead/noisy before asking for the ped/gain value, otherwise you will get corrupt data! value: " << value << std::endl;
 
    // really yell if this occurs
 
    edm::LogError("SiPixelGainCalibrationService") << "[SiPixelGainCalibrationServicePayloadGetter::SiPixelGainCalibrationServicePayloadGetter]"
       << "[SiPixelGainCalibrationServicePayloadGetter] ERROR - Slow down, speed racer! You have tried to read the ped/gain on a pixel that is flagged as dead/noisy. For payload: " << payload << "  DETID: " 
-      << detID << " col: " << col << " row: " << row << ". You must check if the pixel is dead before asking for the ped/gain value, otherwise you will get corrupt data! value: " << value << std::endl;
+      << detID << " col: " << col << " row: " << row << ". You must check if the pixel is dead/noisy before asking for the ped/gain value, otherwise you will get corrupt data! value: " << value << std::endl;
 }
 
 
