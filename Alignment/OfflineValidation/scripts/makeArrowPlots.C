@@ -69,7 +69,7 @@ int makeRPhiArrowPlot( TTree* data, char* name, double xLim, double yLim, double
 	for(int entry = 0;entry<data->GetEntries(); entry++)
     {
 		data->GetEntry(entry);
-		if ((level_ == level)&&(sublevel_ == sublevel)){
+		if ((level_ == level)&&(((sublevel_ == sublevel)&&(sublevel != 0))||(sublevel == 0))){
 			if ((z_ <= zMax)&&(z_ > zMin)&&(r_ <= rMax)&&(r_ > rMin)){
 				TArrow* aArraw = new TArrow( x_, y_ , x_ + barrelRPhiRescale*dx_, y_+barrelRPhiRescale*dy_,0.0075,">");
 				aArraw->Draw();
@@ -114,7 +114,7 @@ int makeZPhiArrowPlot( TTree* data, char* name, double zLim, double phiLim, doub
 	for(int entry = 0;entry<data->GetEntries(); entry++)
     {
 		data->GetEntry(entry);
-		if ((level_ == level)&&(sublevel_ == sublevel)){
+			if ((level_ == level)&&(((sublevel_ == sublevel)&&(sublevel != 0))||(sublevel == 0))){
 			if ((z_ <= zMax)&&(z_ > zMin)&&(r_ <= rMax)&&(r_ > rMin)){
 				TArrow* aArraw = new TArrow( z_, r_*phi_ , z_ + barrelRPhiRescale*dz_, r_*phi_+barrelRPhiRescale*r_*dphi_,0.0075,">");
 				aArraw->Draw();

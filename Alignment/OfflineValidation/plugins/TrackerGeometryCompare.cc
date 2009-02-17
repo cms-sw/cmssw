@@ -72,10 +72,10 @@ TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg)
 	
 	//setting the levels being used in the geometry comparator
 	AlignableObjectId dummy;
-	edm::LogInfo("TrakcerGeomertyCompare") << "levels: " << levels.size();
+	edm::LogInfo("TrackerGeometryCompare") << "levels: " << levels.size();
 	for (unsigned int l = 0; l < levels.size(); ++l){
 		theLevels.push_back( dummy.nameToType(levels[l]));
-		edm::LogInfo("TrakcerGeomertyCompare") << "level: " << levels[l];
+		edm::LogInfo("TrackerGeometryCompare") << "level: " << levels[l];
 	}
 	
 		
@@ -135,6 +135,12 @@ TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg)
 	_alignTree->Branch("dalpha", &_dalphaVal, "dalpha/F");
 	_alignTree->Branch("dbeta", &_dbetaVal, "dbeta/F");
 	_alignTree->Branch("dgamma", &_dgammaVal, "dgamma/F");
+	_alignTree->Branch("du", &_duVal, "du/F");
+	_alignTree->Branch("dv", &_dvVal, "dv/F");
+	_alignTree->Branch("dw", &_dwVal, "dw/F");
+	_alignTree->Branch("da", &_daVal, "da/F");
+	_alignTree->Branch("db", &_dbVal, "db/F");
+	_alignTree->Branch("dg", &_dgVal, "dg/F");
 	_alignTree->Branch("useDetId", &_useDetId, "useDetId/I");
 	_alignTree->Branch("detDim", &_detDim, "detDim/I");	
 	_alignTree->Branch("surW", &_surWidth, "surW/F");
@@ -317,9 +323,9 @@ void TrackerGeometryCompare::compareGeometries(Alignable* refAli, Alignable* cur
 		//std::cout << "ali identifiers: " << refAli->id() << ", " << refAli->alignableObjectId() << std::endl;
 		//std::cout << "diff pos" << (refAli->globalPosition() - curAli->globalPosition()) << std::endl;
 		//std::cout <<"z";
-		Hep3Vector Rtotal, Wtotal;
+	        Hep3Vector Rtotal, Wtotal, lRtotal, lWtotal;
 		Rtotal.set(0.,0.,0.); Wtotal.set(0.,0.,0.);
-		
+		lRtotal.set(0.,0.,0.); lWtotal.set(0.,0.,0.);
 		for (int i = 0; i < 100; i++){
 			AlgebraicVector diff = align::diffAlignables(refAli,curAli, _weightBy, _weightById, _weightByIdVector);
 			Hep3Vector dR(diff[0],diff[1],diff[2]);
@@ -329,6 +335,9 @@ void TrackerGeometryCompare::compareGeometries(Alignable* refAli, Alignable* cur
 			HepRotation drot(dW.unit(),dW.mag());
 			rot*=drot;
 			Wtotal.set(rot.axis().x()*rot.delta(), rot.axis().y()*rot.delta(), rot.axis().z()*rot.delta());
+			// local coordinates
+			lRtotal.set(diff[6],diff[7],diff[8]);
+			lWtotal.set(diff[9],diff[10],diff[11]);
 			//std::cout << "a";
 			//if (refAli->alignableObjectId() == 1) std::cout << "DIFF: " << diff << std::endl;
 			align::moveAlignable(curAli, diff);
@@ -338,27 +347,29 @@ void TrackerGeometryCompare::compareGeometries(Alignable* refAli, Alignable* cur
 			align::GlobalVector checkW(check[3],check[4],check[5]);
 			DetId detid(refAli->id());
 			if ((checkR.mag() > tolerance)||(checkW.mag() > tolerance)){
-				edm::LogInfo("CopareGeoms") << "Tolerance Exceeded!(alObjId: " << refAli->alignableObjectId()
+				edm::LogInfo("TrackerGeometryCompare") << "Tolerance Exceeded!(alObjId: " << refAli->alignableObjectId()
 				<< ", rawId: " << refAli->geomDetId().rawId()
 				<< ", subdetId: "<< detid.subdetId() << "): " << diff;
+				throw cms::Exception("Tolerance in TrackerGeometryCompare exceeded");
 			}
 			else{
 				break;
 			}
 		}
 		
-		AlgebraicVector TRtot(6);
+		AlgebraicVector TRtot(12);
+		// global 
 		TRtot(1) = Rtotal.x(); TRtot(2) = Rtotal.y(); TRtot(3) = Rtotal.z();
 		TRtot(4) = Wtotal.x(); TRtot(5) = Wtotal.y(); TRtot(6) = Wtotal.z();
+		// local
+		TRtot(7) = lRtotal.x(); TRtot(8) = lRtotal.y(); TRtot(9) = lRtotal.z();
+		TRtot(10) = lWtotal.x(); TRtot(11) = lWtotal.y(); TRtot(12) = lWtotal.z();
 		fillTree(refAli, TRtot);
-		
-		
 	}
-	
+
 	//another added level for difference between det and detunit
-	for (unsigned int i = 0; i < nComp; ++i) compareGeometries(refComp[i],curComp[i]);
-	
-	
+	for (unsigned int i = 0; i < nComp; ++i) 
+	  compareGeometries(refComp[i],curComp[i]);	
 }
 
 void TrackerGeometryCompare::setCommonTrackerSystem(){
@@ -425,7 +436,7 @@ void TrackerGeometryCompare::diffCommonTrackerSystem(Alignable *refAli, Alignabl
 			align::GlobalVector checkW(check[3],check[4],check[5]);
 			DetId detid(refAli->id());
 			if ((checkR.mag() > tolerance)||(checkW.mag() > tolerance)){
-				edm::LogInfo("CopareGeoms") << "Tolerance Exceeded!(alObjId: " << refAli->alignableObjectId()
+				edm::LogInfo("TrackerGeometryCompare") << "Tolerance Exceeded!(alObjId: " << refAli->alignableObjectId()
 				<< ", rawId: " << refAli->geomDetId().rawId()
 				<< ", subdetId: "<< detid.subdetId() << "): " << diff;
 			}
@@ -479,17 +490,30 @@ void TrackerGeometryCompare::fillTree(Alignable *refAli, AlgebraicVector diff){
 	_alphaVal = eulerAngles[0];
 	_betaVal = eulerAngles[1];
 	_gammaVal = eulerAngles[2];
+	// global
 	_dxVal = diff[0];
 	_dyVal = diff[1];
 	_dzVal = diff[2];
+	// local
+	_duVal = diff[6];
+	_dvVal = diff[7];
+	_dwVal = diff[8];
+	//...TODO...
+	align::GlobalVector g(_dxVal, _dyVal, _dzVal);
+	align::LocalVector l = refAli->surface().toLocal(g);
 	//getting dR and dPhi
 	align::GlobalVector vRef(_xVal,_yVal,_zVal);
 	align::GlobalVector vCur(_xVal - _dxVal, _yVal - _dyVal, _zVal - _dzVal);
 	_drVal = vCur.perp() - vRef.perp();
 	_dphiVal = vCur.phi() - vRef.phi();
+	// global
 	_dalphaVal = diff[3];
 	_dbetaVal = diff[4];
 	_dgammaVal = diff[5];
+	// local
+	_daVal = diff[9];
+	_dbVal = diff[10];
+	_dgVal = diff[11];
 	
 	//detIdFlag
 	if (refAli->alignableObjectId() == align::AlignableDetUnit){

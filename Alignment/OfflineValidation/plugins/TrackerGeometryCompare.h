@@ -14,8 +14,8 @@
  *   path p = { comparator }
  *
  *
- *  $Date: 2008/06/12 13:00:43 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/06/17 15:35:14 $
+ *  $Revision: 1.7 $
  *  \author Nhan Tran
  */
 
@@ -119,7 +119,10 @@ private:
 	
 	int _id, _level, _mid, _mlevel, _sublevel, _useDetId, _detDim;
 	float _xVal, _yVal, _zVal, _rVal, _phiVal, _alphaVal, _betaVal, _gammaVal, _etaVal;
+	// changes in global variables
 	float _dxVal, _dyVal, _dzVal, _drVal, _dphiVal, _dalphaVal, _dbetaVal, _dgammaVal;
+	// changes local variables: u, v, w, alpha, beta, gamma
+	float _duVal, _dvVal, _dwVal, _daVal, _dbVal, _dgVal;
 	float _surWidth, _surLength;
 	uint32_t _identifiers[6];
 	double _surRot[9];
