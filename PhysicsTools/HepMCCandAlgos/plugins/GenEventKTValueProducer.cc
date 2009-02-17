@@ -2,7 +2,7 @@
  *
  * \author Christophe Saout, CERN
  *
- * \version $Id: GenEventKTValueProducer.cc,blubb Exp $
+ * \version $Id: GenEventKTValueProducer.cc,v 1.2 2008/11/26 17:18:02 saout Exp $
  *
  */
 
@@ -110,6 +110,20 @@ static bool findHerwigPPME( const Candidate *seed, MatrixElement &me )
   return me.incoming.size() > 1 && me.outgoing.size() > 1;
 }
 
+static bool findHerwig6ME( const GenParticleCollection &c, MatrixElement &me )
+{
+  me.incoming.clear();
+  me.outgoing.clear();
+
+  for(GenParticleCollection::const_iterator p = c.begin(); p != c.end(); ++p)
+    if (p->status() == 121 || p->status() == 122)
+      me.incoming.push_back(&*p);
+    else if (p->status() == 123 || p->status() == 124)
+      me.outgoing.push_back(&*p);
+
+  return me.incoming.size() > 1 && me.outgoing.size() > 1;
+}
+
 GenEventKTValueProducer::GenEventKTValueProducer( const ParameterSet & p ) :
   src_( p.getParameter<InputTag>( "src" ) )
 {
@@ -163,6 +177,16 @@ void GenEventKTValueProducer::produce( Event& evt, const EventSetup& es )
 
       // ok, we have found a Herwig++ matrix element with a subsection
       // of the status 2 graph with all one-mother-one-daughter endpoints...
+      for( vector<const Candidate*>::const_iterator out = me.outgoing.begin();
+           out != me.outgoing.end(); ++out )
+        *event_kt_value = max( *event_kt_value, (*out)->pt() );
+    }
+  }
+
+  if ( *event_kt_value < 0. ) {
+    // last resort, it might be Herwig6
+    MatrixElement me;
+    if ( findHerwig6ME( *genParticles, me ) ) {
       for( vector<const Candidate*>::const_iterator out = me.outgoing.begin();
            out != me.outgoing.end(); ++out )
         *event_kt_value = max( *event_kt_value, (*out)->pt() );
