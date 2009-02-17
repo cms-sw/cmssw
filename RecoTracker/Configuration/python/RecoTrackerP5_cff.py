@@ -26,7 +26,7 @@ combinedP5SeedsForCTF.TripletCollection = cms.InputTag('simpleCosmicBONSeeds')
 from RecoTracker.CkfPattern.CkfTrackCandidatesP5_cff import *
 ckfTrackCandidatesP5.src = cms.InputTag('combinedP5SeedsForCTF')
 #backward compatibility 2.2/3.1
-ckfTrackCandidatesP5.SeedProducer = 'combinedP5SeedsForCTF'
+#ckfTrackCandidatesP5.SeedProducer = 'combinedP5SeedsForCTF'
 
 #import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
 from RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff import *
@@ -73,7 +73,7 @@ simpleCosmicBONSeedsTop.NegativeYOnly = False
 combinedP5SeedsForCTFTop.PairCollection    = 'combinatorialcosmicseedfinderP5Top'
 combinedP5SeedsForCTFTop.TripletCollection = 'simpleCosmicBONSeedsTop'
 ckfTrackCandidatesP5Top.NavigationSchool   = 'CosmicNavigationSchool'
-ckfTrackCandidatesP5Top.SeedProducer       = 'combinedP5SeedsForCTFTop'
+ckfTrackCandidatesP5Top.src       = 'combinedP5SeedsForCTFTop'
 ckfTrackCandidatesP5Top.useHitsSplitting = True
 filterCkfTop.Input = 'ckfTrackCandidatesP5Top'
 filterCkfTop.SeedY = 1.
@@ -137,7 +137,7 @@ simpleCosmicBONSeedsBottom.NegativeYOnly = True
 combinedP5SeedsForCTFBottom.PairCollection = 'combinatorialcosmicseedfinderP5Bottom'
 combinedP5SeedsForCTFBottom.TripletCollection = 'simpleCosmicBONSeedsBottom'
 ckfTrackCandidatesP5Bottom.NavigationSchool = 'CosmicNavigationSchool'
-ckfTrackCandidatesP5Bottom.SeedProducer = 'combinedP5SeedsForCTFBottom'
+ckfTrackCandidatesP5Bottom.src = 'combinedP5SeedsForCTFBottom'
 ckfTrackCandidatesP5Bottom.useHitsSplitting = True
 filterCkfBottom.Input = 'ckfTrackCandidatesP5Bottom'
 filterCkfBottom.SeedY = -1.
