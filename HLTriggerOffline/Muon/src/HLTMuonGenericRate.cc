@@ -3,8 +3,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2009/02/11 20:21:59 $
- *  $Revision: 1.59 $
+ *  $Date: 2009/02/11 22:12:41 $
+ *  $Revision: 1.60 $
  */
 
 
@@ -22,6 +22,7 @@
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
 
+#include "TPRegexp.h"
 #include <iostream>
 
 using namespace std;
@@ -53,9 +54,10 @@ HLTMuonGenericRate::HLTMuonGenericRate( const ParameterSet& pset,
   theAodL2Label  = pset.getUntrackedParameter<string>("AodL2Label");
 
   theHltCollectionLabels.clear();
+  TPRegexp l1Regexp("L1.*Filtered");
   for ( size_t i = 0; i < moduleNames.size(); i++ ) {
     string module = moduleNames[i];
-    if ( TString(module).Contains("L1Filtered") ) 
+    if ( TString(module).Contains(l1Regexp) ) 
       theL1CollectionLabel = module;
     else if ( TString(module).Contains("Filtered") ) 
       theHltCollectionLabels.push_back(module);
