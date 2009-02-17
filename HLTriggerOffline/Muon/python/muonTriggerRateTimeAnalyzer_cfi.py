@@ -38,9 +38,9 @@ muonTriggerRateTimeAnalyzer = cms.EDAnalyzer("MuonTriggerRateTimeAnalyzer",
     NSigmas90 = cms.untracked.vdouble(3.0, 3.0, 3.0, 3.0),
 
     TriggerNames = cms.vstring(
-        # "HLT_L1Mu",
-        # "HLT_L1MuOpen",
-        # "HLT_L2Mu9",
+        "HLT_L1Mu",
+        "HLT_L1MuOpen",
+        "HLT_L2Mu9",
         "HLT_IsoMu9",
         "HLT_IsoMu11",
         "HLT_IsoMu13",
