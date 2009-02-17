@@ -134,9 +134,6 @@ class SiStripBaseCondObjDQM {
     SiStripFolderOrganizer folder_organizer;         
     DQMStore* dqmStore_;
 
-
-
-
 };
 
 
