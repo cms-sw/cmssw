@@ -38,8 +38,7 @@ class ThePEGHadronizer : public ThePEGInterface {
 //	bool hadronize();
 
 	bool decay();
-	void resetEvent(const HepMC::GenEvent *e)	// WHAT THE FUCK?!
-	{ genEvent.reset(const_cast<HepMC::GenEvent*>(e)); }	// WTF^2
+	void resetEvent(HepMC::GenEvent *e) { genEvent.reset(e); } // WTF
 	bool residualDecay();
 	void finalizeEvent();
 
