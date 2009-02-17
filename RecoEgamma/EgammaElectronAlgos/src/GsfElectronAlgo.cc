@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.42 2009/02/14 11:01:29 charlot Exp $
+// $Id: GsfElectronAlgo.cc,v 1.43 2009/02/14 14:53:55 charlot Exp $
 //
 //
 
@@ -92,7 +92,7 @@ GsfElectronAlgo::GsfElectronAlgo
    bool applyEtaCorrection, bool applyAmbResolution )
  : maxEOverPBarrel_(maxEOverPBarrel), maxEOverPEndcaps_(maxEOverPEndcaps),
    minEOverPBarrel_(minEOverPBarrel), minEOverPEndcaps_(minEOverPEndcaps),
-   maxDeltaEtaBarrel_(maxDeltaEtaBarrel), maxDeltaEtaEndcaps_(maxDeltaEtaEndcaps), 
+   maxDeltaEtaBarrel_(maxDeltaEtaBarrel), maxDeltaEtaEndcaps_(maxDeltaEtaEndcaps),
    maxDeltaPhiBarrel_(maxDeltaPhiBarrel),maxDeltaPhiEndcaps_(maxDeltaPhiEndcaps),
    hOverEConeSize_(hOverEConeSize), hOverEPtMin_(hOverEPtMin),
    maxHOverEDepth1Barrel_(maxHOverEDepth1Barrel), maxHOverEDepth1Endcaps_(maxHOverEDepth1Endcaps),
@@ -245,17 +245,24 @@ void GsfElectronAlgo::process(
 
     const GsfTrack & t=(*gsfTrackCollection)[i];
     const GsfTrackRef gsfTrackRef = edm::Ref<GsfTrackCollection>(gsfTracksH,i);
-    const SuperClusterRef & scRef=getTrSuperCluster(gsfTrackRef);
-    const SuperCluster theClus=*scRef;
-    const BasicClusterRef & elbcRef=getEleBasicCluster(gsfTrackRef,scRef);
+
+    // Get the super cluster. If none, ignore the current track.
+    edm::RefToBase<TrajectorySeed> seed = gsfTrackRef->extra()->seedRef() ;
+    ElectronSeedRef elseed = seed.castTo<ElectronSeedRef>() ;
+    edm::RefToBase<CaloCluster> caloCluster = elseed->caloCluster() ;
+    if (&(*caloCluster)==0) continue ;
+    SuperClusterRef scRef = caloCluster.castTo<SuperClusterRef>() ;
+    const SuperCluster theClus = *scRef ;
+
+    BasicClusterRef elbcRef = getEleBasicCluster(gsfTrackRef,scRef) ;
     //std::vector<DetId> vecId=theClus.seed()->getHitsByDetId();
     //subdet_ =vecId[0].subdetId();
-    subdet_ =theClus.seed()->hitsAndFractions()[0].first.subdetId();
+    subdet_ = theClus.seed()->hitsAndFractions()[0].first.subdetId();
 
     // calculate Trajectory StatesOnSurface....
-    if (!calculateTSOS(t,theClus, bsPosition)) continue;
-    mtsMode_->momentumFromModeCartesian(vtxTSOS_,vtxMom_);
-    sclPos_=sclTSOS_.globalPosition();
+    if (!calculateTSOS(t,theClus, bsPosition)) continue ;
+    mtsMode_->momentumFromModeCartesian(vtxTSOS_,vtxMom_) ;
+    sclPos_=sclTSOS_.globalPosition() ;
 
     // hadronic energy
     double HoE1=towerIso1.getTowerESum(&theClus)/theClus.energy();
@@ -329,23 +336,23 @@ bool GsfElectronAlgo::preSelection(const SuperCluster& clus, double HoE1, double
   std::vector<float> localCovariances = EcalClusterTools::localCovariances(seedCluster,reducedRecHits,topology) ;
   if ((subdet_==EcalBarrel) && (sqrt(localCovariances[0]) > maxSigmaIetaIetaBarrel_)) return false;
   if ((subdet_==EcalEndcap) && (sqrt(localCovariances[0]) > maxSigmaIetaIetaEndcaps_)) return false;
-    
-  // fiducial 
+
+  // fiducial
   // need factorize this code duplicated here from createElectron!
   DetId seedXtalId = seedCluster.hitsAndFractions()[0].first;
   double feta=fabs(clus.position().eta());
   // using nextToBoundary definition of gaps
   bool isEBEEGap=false, isEBEtaGap=false, isEBPhiGap=false, isEERingGap=false, isEEDeeGap=false;
-  if (fabs(feta-1.479)<.1 && (subdet_==EcalBarrel) && EBDetId::isNextToEtaBoundary(EBDetId(seedXtalId))) isEBEEGap=true; 
-  if (fabs(feta-1.479)<.1 && (subdet_==EcalEndcap) && EEDetId::isNextToRingBoundary(EEDetId(seedXtalId))) isEBEEGap=true; 
-  if ((subdet_==EcalBarrel) && EBDetId::isNextToEtaBoundary(EBDetId(seedXtalId)) && isEBEEGap) isEBEtaGap=true; 
-  if ((subdet_==EcalBarrel) && EBDetId::isNextToPhiBoundary(EBDetId(seedXtalId))) isEBPhiGap=true; 
-  if ((subdet_==EcalEndcap) && EEDetId::isNextToRingBoundary(EEDetId(seedXtalId)) && isEBEEGap) isEERingGap=true; 
-  if ((subdet_==EcalEndcap) && EEDetId::isNextToDBoundary(EEDetId(seedXtalId))) isEEDeeGap=true; 
+  if (fabs(feta-1.479)<.1 && (subdet_==EcalBarrel) && EBDetId::isNextToEtaBoundary(EBDetId(seedXtalId))) isEBEEGap=true;
+  if (fabs(feta-1.479)<.1 && (subdet_==EcalEndcap) && EEDetId::isNextToRingBoundary(EEDetId(seedXtalId))) isEBEEGap=true;
+  if ((subdet_==EcalBarrel) && EBDetId::isNextToEtaBoundary(EBDetId(seedXtalId)) && isEBEEGap) isEBEtaGap=true;
+  if ((subdet_==EcalBarrel) && EBDetId::isNextToPhiBoundary(EBDetId(seedXtalId))) isEBPhiGap=true;
+  if ((subdet_==EcalEndcap) && EEDetId::isNextToRingBoundary(EEDetId(seedXtalId)) && isEBEEGap) isEERingGap=true;
+  if ((subdet_==EcalEndcap) && EEDetId::isNextToDBoundary(EEDetId(seedXtalId))) isEEDeeGap=true;
   if ((subdet_!=EcalBarrel) && isBarrel_) return false;
   if ((subdet_!=EcalEndcap) && isEndcaps_) return false;
   if ((isEBEEGap || isEBEtaGap || isEBPhiGap || isEERingGap || isEEDeeGap) && isFiducial_) return false;
-  
+
   LogDebug("") << "electron has passed preselection criteria ";
   LogDebug("") << "=================================================";
   return true;
@@ -417,21 +424,21 @@ void GsfElectronAlgo::createElectron
        HoE2,scSigmaEtaEta,scSigmaIEtaIEta,scE1x5,scE2x5,scE5x5,ctfTrackRef,shFracInnerHits,elbcRef,elePos,eleMom) ;
 
       // set fiducial region
-      if (detector==EcalBarrel) 
+      if (detector==EcalBarrel)
 	ele->setIsEB(true);
-      else if (detector==EcalEndcap) 
+      else if (detector==EcalEndcap)
 	ele->setIsEE(true);
       else
-        std::cout << "Electron not in EcalBarrel nor EcalEndcap!! " << std::endl;    
+        std::cout << "Electron not in EcalBarrel nor EcalEndcap!! " << std::endl;
       double feta=fabs(scRef->position().eta());
       // using nextToBoundary definition of gaps
-      if (fabs(feta-1.479)<.1 && ele->isEB() && EBDetId::isNextToEtaBoundary(EBDetId(seedXtalId))) ele->setIsEBEEGap(true); 
-      if (fabs(feta-1.479)<.1 && ele->isEE() && EEDetId::isNextToRingBoundary(EEDetId(seedXtalId))) ele->setIsEBEEGap(true); 
-      if (ele->isEB() && EBDetId::isNextToEtaBoundary(EBDetId(seedXtalId)) && !ele->isEBEEGap()) ele->setIsEBEtaGap(true); 
-      if (ele->isEB() && EBDetId::isNextToPhiBoundary(EBDetId(seedXtalId))) ele->setIsEBPhiGap(true); 
-      if (ele->isEE() && EEDetId::isNextToRingBoundary(EEDetId(seedXtalId)) && !ele->isEBEEGap()) ele->setIsEERingGap(true); 
-      if (ele->isEE() && EEDetId::isNextToDBoundary(EEDetId(seedXtalId))) ele->setIsEEDeeGap(true); 
-      
+      if (fabs(feta-1.479)<.1 && ele->isEB() && EBDetId::isNextToEtaBoundary(EBDetId(seedXtalId))) ele->setIsEBEEGap(true);
+      if (fabs(feta-1.479)<.1 && ele->isEE() && EEDetId::isNextToRingBoundary(EEDetId(seedXtalId))) ele->setIsEBEEGap(true);
+      if (ele->isEB() && EBDetId::isNextToEtaBoundary(EBDetId(seedXtalId)) && !ele->isEBEEGap()) ele->setIsEBEtaGap(true);
+      if (ele->isEB() && EBDetId::isNextToPhiBoundary(EBDetId(seedXtalId))) ele->setIsEBPhiGap(true);
+      if (ele->isEE() && EEDetId::isNextToRingBoundary(EEDetId(seedXtalId)) && !ele->isEBEEGap()) ele->setIsEERingGap(true);
+      if (ele->isEE() && EEDetId::isNextToDBoundary(EEDetId(seedXtalId))) ele->setIsEEDeeGap(true);
+
       // set corrections + classification
       ElectronClassification theClassifier;
       theClassifier.correct(*ele);
@@ -443,12 +450,12 @@ void GsfElectronAlgo::createElectron
       outEle.push_back(ele);
 }
 
-const SuperClusterRef GsfElectronAlgo::getTrSuperCluster(const GsfTrackRef & trackRef) {
-    edm::RefToBase<TrajectorySeed> seed = trackRef->extra()->seedRef();
-    ElectronSeedRef elseed=seed.castTo<ElectronSeedRef>();
-    edm::RefToBase<CaloCluster> caloCluster = elseed->caloCluster() ;
-    return caloCluster.castTo<SuperClusterRef>() ;
-}
+//const SuperClusterRef GsfElectronAlgo::getTrSuperCluster(const GsfTrackRef & trackRef) {
+//    edm::RefToBase<TrajectorySeed> seed = trackRef->extra()->seedRef();
+//    ElectronSeedRef elseed=seed.castTo<ElectronSeedRef>();
+//    edm::RefToBase<CaloCluster> caloCluster = elseed->caloCluster() ;
+//    return caloCluster.castTo<SuperClusterRef>() ;
+//}
 
 const BasicClusterRef GsfElectronAlgo::getEleBasicCluster(const GsfTrackRef &t, const SuperClusterRef & scRef) {
 
