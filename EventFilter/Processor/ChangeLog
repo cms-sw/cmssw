@@ -1,4 +1,9 @@
 2009-02-17  Emilio Meschi  <emilio.meschi@cern.ch>
+		
+	* tag V01-04-07
+	* small fix to spotlight web must bump up version no
+
+2009-02-17  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V01-04-06
 	* update version number in web page

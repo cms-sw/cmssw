@@ -1044,7 +1044,7 @@ void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
   //version number, please update consistently with TAG
   *out << "<tr>"								<< endl;
   *out << "  <td colspan=\"5\" align=\"right\">"				<< endl;
-  *out << "    Version 1.4.6"							<< endl;
+  *out << "    Version 1.4.7"							<< endl;
   *out << "  </td>"								<< endl;
   *out << "</tr>"								<< endl;
 
@@ -1504,8 +1504,7 @@ void FUEventProcessor::spotlightWebPage(xgi::Input  *in, xgi::Output *out)
   *out << "  <td width=\"32\">"                                      << endl;
   *out << "  </td>"                                                  << endl;
   *out << "  <td width=\"32\">"                                      << endl;
-  *out << "    <a href=\"/" << urn 
-       << "/Default\">"                                              << endl;
+  *out << "    <a href=\"/" << urn << "/\">"                         << endl;
   *out << "      <img"                                               << endl;
   *out << "       align=\"middle\""                                  << endl;
   *out << "       src=\"/evf/images/epicon.jpg\""		     << endl;
