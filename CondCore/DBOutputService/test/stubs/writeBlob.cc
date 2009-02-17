@@ -47,7 +47,6 @@ writeBlob::analyze( const edm::Event& evt, const edm::EventSetup& evtSetup)
     mydbservice->writeOne(me,new std::string("100*256"),
 			  mydbservice->currentTime(),
 			  m_StripRecordName);
-    }
   }catch(const std::exception& er){
     std::cout<<"caught std::exception "<<er.what()<<std::endl;
   }catch(...){

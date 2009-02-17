@@ -35,7 +35,7 @@ writeMultipleRecords::analyze( const edm::Event& evt, const edm::EventSetup& evt
     unsigned int detidseed=1234;
     unsigned int bsize=10;
     unsigned int nAPV=2;
-
+    
     for (uint32_t detid=detidseed;detid<(detidseed+bsize);detid++){
       //Generate Noise for det detid
       std::vector<short> theSiStripVector;
@@ -46,11 +46,11 @@ writeMultipleRecords::analyze( const edm::Event& evt, const edm::EventSetup& evt
       }
       me->put(detid,theSiStripVector);
     }
-
+    
     mydbservice->writeOne(me,new std::string("100*256"),
 			  mydbservice->currentTime(),m_StripRecordName);
-    }
  
+  
     Pedestals* myped=new Pedestals;
     for(int ichannel=1; ichannel<=5; ++ichannel){
       Pedestals::Item item;
