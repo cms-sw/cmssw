@@ -5,8 +5,8 @@
 
 /**
 \class RscBaseModel
-$Revision: 1.3 $
-$Date: 2008/10/24 11:11:45 $
+$Revision: 1.1 $
+$Date: 2009/01/06 12:18:37 $
 \author G. Schott (gregory.Schott<at>cern.ch), Danilo Piparo - Universitaet Karlsruhe
 
 The distribution is defined in the datacard. An example for a Gaussian 
@@ -88,6 +88,7 @@ public:
   RooRealVar* sigma2;
   /// Double gaussian distribution parameter
   RooRealVar* frac;
+
   /// 4 gaussian distribution parameter
   RooRealVar* mean3;
   /// 4 gaussian distribution parameter
@@ -124,6 +125,17 @@ public:
   RooRealVar* coef_6;
   /// Polynomial distribution parameter
   RooRealVar* coef_7;
+
+  // BifurGaus
+  RooRealVar* sigmaL;
+  RooRealVar* sigmaR;
+
+  // CBShape+Gaussian
+  RooRealVar* m0;
+  RooRealVar* alpha;
+  RooRealVar* n;
+  RooRealVar* gmean;
+  RooRealVar* gsigma;
 
   // BreitWigner
   /// Gaussian / BreitWigner distribution parameter

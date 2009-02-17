@@ -1,4 +1,6 @@
 #include "RooAddPdf.h"
+#include "RooBifurGauss.h"
+#include "RooCBShape.h"
 #include "RooExponential.h"
 #include "RooGaussian.h"
 #include "RooPolynomial.h"
@@ -41,6 +43,8 @@ RscBaseModel::RscBaseModel(TString theName, RooRealVar& theVar, RooArgSet* discV
   model.defineType("histo");
   model.defineType("yieldonly");
   model.defineType("flat");
+  model.defineType("CBShapeGaussian");
+  model.defineType("BifurGauss");
 
   model.setLabel("none");
 
@@ -82,6 +86,14 @@ void RscBaseModel::buildPdf() {
 //     coef_1=new RooRealVar ("coef_1","coef_1",0.0001*random);
 //     _thePdf = new RooPolynomial((_name+"_flatHist").Data(),"Flat Histogram",*x,RooArgList(*coef_0,*coef_1));
 
+  }
+  else if (model=="CBShapeGaussian") {
+      RooCBShape* cbshape = new RooCBShape(_name+"_cbshape","CBShape",*x,*m0,*sigma,*alpha,*n);
+      RooGaussian* gaussian = new RooGaussian(_name+"_gaussian","Gaussian",*x,*gmean,*gsigma);
+      _thePdf = new RooAddPdf(_name,"CBShapeGaussian",*cbshape,*gaussian,*frac);
+  }
+  else if (model=="BifurGauss") {
+      _thePdf = new RooBifurGauss(_name,"BifurGauss",*x,*mean,*sigmaL,*sigmaR);
   }
   else if (model=="gauss") {
     _thePdf = new RooGaussian(_name,"gaussian",*x,*mean,*sigma);
@@ -342,10 +354,63 @@ void RscBaseModel::readDataCard() {
 		    getDataCard(),
 		    coef_7,0);
     }
-
-    if (model=="histo")
-        RooArgSet(fileName,dataName)
-    .readFromFile(getDataCard(), 0, _name);
+    if (model=="histo") {
+        RooArgSet(fileName,dataName).readFromFile(getDataCard(), 0, _name);
+    }
+    if (model=="BifurGauss") {
+	readParameter(_name+"_mean",
+		      "mean",
+		      _name,
+		      getDataCard(),
+		      mean,0);
+    	readParameter(_name+"_sigmaL",
+		      "sigmaL",
+		      _name,
+		      getDataCard(),
+		      sigmaL,0);
+    	readParameter(_name+"_sigmaR",
+		      "sigmaR",
+		      _name,
+		      getDataCard(),
+		      sigmaR,0);
+    }
+    if (model=="CBShapeGaussian") {
+	readParameter(_name+"_m0",
+		      "m0",
+		      _name,
+		      getDataCard(),
+		      m0,0);
+	readParameter(_name+"_sigma",
+		      "sigma",
+		      _name,
+		      getDataCard(),
+		      sigma,0);
+	readParameter(_name+"_alpha",
+		      "alpha",
+		      _name,
+		      getDataCard(),
+		      alpha,0);
+	readParameter(_name+"_n",
+		      "n",
+		      _name,
+		      getDataCard(),
+		      n,0);
+	readParameter(_name+"_gmean",
+		      "gmean",
+		      _name,
+		      getDataCard(),
+		      gmean,0);
+	readParameter(_name+"_gsigma",
+		      "gsigma",
+		      _name,
+		      getDataCard(),
+		      gsigma,0);
+	readParameter(_name+"_frac",
+		      "frac",
+		      _name,
+		      getDataCard(),
+		      frac,0);
+    }
   }
 }
 
@@ -361,6 +426,12 @@ void RscBaseModel::writeDataCard(ostream& out) {
     .writeToStream(out,false);
 
     if (model=="dblgauss") RooArgSet(*mean1,*sigma1,*mean2,*sigma2,*frac)
+			     .writeToStream(out,false);
+
+    if (model=="CBShapeGaussian") RooArgSet(*m0,*sigma,*alpha,*n,*gmean,*gsigma,*frac)
+			     .writeToStream(out,false);
+
+    if (model=="BifurGauss") RooArgSet(*mean,*sigmaL,*sigmaR)
 			     .writeToStream(out,false);
 
     if (model=="exponential") RooArgSet(*slope)
