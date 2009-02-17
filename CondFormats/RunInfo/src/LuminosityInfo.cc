@@ -1,4 +1,4 @@
-#include "CondFormats/Calibration/interface/LuminosityInfo.h"
+#include "CondFormats/RunInfo/interface/LuminosityInfo.h"
 //#include "FWCore/Utilities/Exception.h"
 
 lumi::LuminosityInfo::LuminosityInfo(){
