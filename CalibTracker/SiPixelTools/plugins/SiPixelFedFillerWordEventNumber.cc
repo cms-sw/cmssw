@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Andres Carlos FLOREZ B
 //         Created:  Thu Jun 26 09:02:02 CEST 2008
-// $Id$
+// $Id: SiPixelFedFillerWordEventNumber.cc,v 1.2 2008/08/04 13:37:44 florez Exp $
 //
 //
 
@@ -366,7 +366,7 @@ SiPixelFedFillerWordEventNumber ::produce(edm::Event& iEvent, const edm::EventSe
   std::auto_ptr<std::vector<uint32_t> > SaveFillerWords(new std::vector<uint32_t>);
   //===== Loop over all the FEDs ========================================================
   FEDNumbering fednum;
-  std::pair<int,int> fedIds = fednum.getSiPixelFEDIds();
+  std::pair<int,int> fedIds;
   fedIds.first  = 0;
   fedIds.second = 39; 
   

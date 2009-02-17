@@ -106,7 +106,7 @@ SiStripRegFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   //   if ( ( rawData[i].provenance()->processName() != e.processHistory().rbegin()->processName() ) )
   //       continue ; // skip all raw collections not produced by the current process
   
-  for ( int j=0; j< FEDNumbering::lastFEDId(); ++j ) 
+  for ( int j=0; j< FEDNumbering::MAXFEDID; ++j ) 
     {
       bool rightFED=false;
       for (uint32_t k=0; k<stripFEDVec.size(); k++) 

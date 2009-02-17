@@ -29,7 +29,7 @@ void EcalHexDisplay::analyze( const edm::Event & e, const  edm::EventSetup& c){
 
   std::ofstream dumpFile (filename_.c_str(),std::ios::app );
   
-  for (int id= 0; id<=FEDNumbering::lastFEDId(); ++id){ 
+  for (int id= 0; id<=FEDNumbering::MAXFEDID; ++id){ 
     
     if (id < beg_fed_id_ || end_fed_id_ < id) continue;
 

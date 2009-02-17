@@ -62,7 +62,7 @@ void ECALRegFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       
       const FEDRawDataCollection *rdc=rawIn.product();
       
-      for ( int j=0; j< FEDNumbering::lastFEDId(); j++ ) 
+      for ( int j=0; j< FEDNumbering::MAXFEDID; j++ ) 
 	{
 	  bool rightFED=false;
 	  for (uint32_t k=0; k<EC_FED_IDs.size(); k++)
@@ -77,7 +77,7 @@ void ECALRegFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 		    }
 		}
 	    }
-	  if (j>=FEDNumbering::getPreShowerFEDIds().first&&j<=FEDNumbering::getPreShowerFEDIds().second) 
+	  if (j>=FEDNumbering::MINPreShowerFEDID&&j<=FEDNumbering::MAXPreShowerFEDID) 
 	    {
 	      fedSaved[j]=true;
 	      rightFED=true;

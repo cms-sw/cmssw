@@ -1,6 +1,6 @@
-// Last commit: $Id: SiStripNoiseESSource.cc,v 1.1 2006/12/22 12:04:33 bainbrid Exp $SiStripNoiseESSource
-// Latest tag:  $Name: V07-00-02-00 $
-// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/CalibTracker/SiStripPedestals/src/SiStripNoiseESSource.cc,v $
+// Last commit: $Id: SiStripNoiseESSource.cc,v 1.1 2008/05/14 10:00:02 giordano Exp $SiStripNoiseESSource
+// Latest tag:  $Name: V03-00-00-00 $
+// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/CalibTracker/SiStripESProducers/src/SiStripNoiseESSource.cc,v $
 
 #include "CalibTracker/SiStripESProducers/interface/SiStripNoiseESSource.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

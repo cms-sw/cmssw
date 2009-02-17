@@ -38,7 +38,7 @@ SiPixelFedCablingMapBuilder::SiPixelFedCablingMapBuilder(const string & associat
 SiPixelFedCablingTree * SiPixelFedCablingMapBuilder::produce( const edm::EventSetup& setup)
 {
   FEDNumbering fednum;
-//  TRange<int> fedIds = fednum.getSiPixelFEDIds();
+//  TRange<int> fedIds(FEDNumbering::MINSiPixelFEDID, FEDNumbering::MAXSiPixelFEDID);
   TRange<int> fedIds(0,39);
   edm::LogInfo("SiPixelFedCablingMapBuilder")<<"pixel fedid range: "<<fedIds;
 

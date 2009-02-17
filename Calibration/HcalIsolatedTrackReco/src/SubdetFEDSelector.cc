@@ -33,11 +33,11 @@ SubdetFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   if (getEcal_)
     {
-      for (int i=FEDNumbering::getEcalFEDIds().first; i<=FEDNumbering::getEcalFEDIds().second; i++)
+      for (int i=FEDNumbering::MINECALFEDID; i<=FEDNumbering::MAXECALFEDID; i++)
 	{
 	  selFEDs.push_back(i);
 	}
-      for (int i=FEDNumbering::getPreShowerFEDIds().first; i<=FEDNumbering::getPreShowerFEDIds().second; i++)
+      for (int i=FEDNumbering::MINPreShowerFEDID; i<=FEDNumbering::MAXPreShowerFEDID; i++)
 	{
 	  selFEDs.push_back(i);
 	}
@@ -45,35 +45,35 @@ SubdetFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   if (getMuon_)
     {
-      for (int i=FEDNumbering::getCSCFEDIds().first; i<=FEDNumbering::getCSCFEDIds().second; i++)
+      for (int i=FEDNumbering::MINCSCFEDID; i<=FEDNumbering::MAXCSCFEDID; i++)
 	{
 	  selFEDs.push_back(i);
 	}
-  for (int i=FEDNumbering::getCSCTFFEDIds().first; i<=FEDNumbering::getCSCTFFEDIds().second; i++)
+  for (int i=FEDNumbering::MINCSCTFFEDID; i<=FEDNumbering::MAXCSCTFFEDID; i++)
         {
 	  selFEDs.push_back(i);
         }
-  for (int i=FEDNumbering::getDTFEDIds().first; i<=FEDNumbering::getDTFEDIds().second; i++)
+  for (int i=FEDNumbering::MINDTFEDID; i<=FEDNumbering::MAXDTFEDID; i++)
         {
 	  selFEDs.push_back(i);
         }
-  for (int i=FEDNumbering::getDTTFFEDIds().first; i<=FEDNumbering::getDTTFFEDIds().second; i++)
+  for (int i=FEDNumbering::MINDTTFFEDID; i<=FEDNumbering::MAXDTTFFEDID; i++)
         {
 	  selFEDs.push_back(i);
         }
-  for (int i=FEDNumbering::getRPCFEDIds().first; i<=FEDNumbering::getRPCFEDIds().second; i++)
+  for (int i=FEDNumbering::MINRPCFEDID; i<=FEDNumbering::MAXRPCFEDID; i++)
         {
 	  selFEDs.push_back(i);
         }
-  for (int i=FEDNumbering::getCSCDDUFEDIds().first; i<=FEDNumbering::getCSCDDUFEDIds().second; i++)
+  for (int i=FEDNumbering::MINCSCDDUFEDID; i<=FEDNumbering::MAXCSCDDUFEDID; i++)
         {
 	  selFEDs.push_back(i);
         }
-  for (int i=FEDNumbering::getCSCContingencyFEDIds().first; i<=FEDNumbering::getCSCContingencyFEDIds().second; i++)
+  for (int i=FEDNumbering::MINCSCContingencyFEDID; i<=FEDNumbering::MAXCSCContingencyFEDID; i++)
         {
 	  selFEDs.push_back(i);
         }
-  for (int i=FEDNumbering::getCSCTFSPFEDIds().first; i<=FEDNumbering::getCSCTFSPFEDIds().second; i++)
+  for (int i=FEDNumbering::MINCSCTFSPFEDID; i<=FEDNumbering::MAXCSCTFSPFEDID; i++)
         {
 	  selFEDs.push_back(i);
         }
@@ -82,7 +82,7 @@ SubdetFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   if (getHcal_)
     {
-      for (int i=FEDNumbering::getHcalFEDIds().first; i<=FEDNumbering::getHcalFEDIds().second; i++)
+      for (int i=FEDNumbering::MINHCALFEDID; i<=FEDNumbering::MAXHCALFEDID; i++)
 	{
 	  selFEDs.push_back(i);
 	}
@@ -91,7 +91,7 @@ SubdetFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   if (getStrip_)
     {
-      for (int i=FEDNumbering::getSiStripFEDIds().first;  i<=FEDNumbering::getSiStripFEDIds().second; i++)
+      for (int i=FEDNumbering::MINSiStripFEDID;  i<=FEDNumbering::MAXSiStripFEDID; i++)
 	{
 	  selFEDs.push_back(i);
 	}
@@ -100,7 +100,7 @@ SubdetFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   if (getPixel_)
     {
-      for (int i=FEDNumbering::getSiPixelFEDIds().first;  i<=FEDNumbering::getSiPixelFEDIds().second; i++)
+      for (int i=FEDNumbering::MINSiPixelFEDID;  i<=FEDNumbering::MAXSiPixelFEDID; i++)
 	{
 	  selFEDs.push_back(i);
 	}
@@ -108,72 +108,72 @@ SubdetFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   if (getTrigger_)
     {
-      for (int i=FEDNumbering::getTriggerEGTPFEDIds().first;  i<=FEDNumbering::getTriggerEGTPFEDIds().second; i++)
+      for (int i=FEDNumbering::MINTriggerEGTPFEDID;  i<=FEDNumbering::MAXTriggerEGTPFEDID; i++)
 	{
 	  selFEDs.push_back(i);
 	}
-      for (int i=FEDNumbering::getTriggerGTPFEDIds().first;  i<=FEDNumbering::getTriggerGTPFEDIds().second; i++)
+      for (int i=FEDNumbering::MINTriggerGTPFEDID;  i<=FEDNumbering::MAXTriggerGTPFEDID; i++)
 	{
 	  selFEDs.push_back(i);
 	}
-      for (int i=FEDNumbering::getTriggerLTCFEDIds().first;  i<=FEDNumbering::getTriggerLTCFEDIds().second; i++)
+      for (int i=FEDNumbering::MINTriggerLTCFEDID;  i<=FEDNumbering::MAXTriggerLTCFEDID; i++)
 	{
 	  selFEDs.push_back(i);
 	}
-      for (int i=FEDNumbering::getTriggerLTCmtccFEDIds().first;  i<=FEDNumbering::getTriggerLTCmtccFEDIds().second; i++)
+      for (int i=FEDNumbering::MINTriggerLTCmtccFEDID;  i<=FEDNumbering::MAXTriggerLTCmtccFEDID; i++)
 	{
 	  selFEDs.push_back(i);
 	}
-      for (int i=FEDNumbering::getTriggerGCTFEDIds().first;  i<=FEDNumbering::getTriggerGCTFEDIds().second; i++)
+      for (int i=FEDNumbering::MINTriggerGCTFEDID;  i<=FEDNumbering::MAXTriggerGCTFEDID; i++)
         {
           selFEDs.push_back(i);
         }
 
-      for (int i=FEDNumbering::getTriggerLTCTriggerFEDID().first;  i<=FEDNumbering::getTriggerLTCTriggerFEDID().second; i++)
+      for (int i=FEDNumbering::MINTriggerLTCTriggerFEDID;  i<=FEDNumbering::MAXTriggerLTCTriggerFEDID; i++)
         {
           selFEDs.push_back(i);
         }
 
-      for (int i=FEDNumbering::getTriggerLTCHCALFEDID().first;  i<=FEDNumbering::getTriggerLTCHCALFEDID().second; i++)
+      for (int i=FEDNumbering::MINTriggerLTCHCALFEDID;  i<=FEDNumbering::MAXTriggerLTCHCALFEDID; i++)
         {
           selFEDs.push_back(i);
         }
 
-      for (int i=FEDNumbering::getTriggerLTCSiStripFEDID().first;  i<=FEDNumbering::getTriggerLTCSiStripFEDID().second; i++)
+      for (int i=FEDNumbering::MINTriggerLTCSiStripFEDID;  i<=FEDNumbering::MAXTriggerLTCSiStripFEDID; i++)
         {
           selFEDs.push_back(i);
         }
 
-      for (int i=FEDNumbering::getTriggerLTCECALFEDID().first;  i<=FEDNumbering::getTriggerLTCECALFEDID().second; i++)
+      for (int i=FEDNumbering::MINTriggerLTCECALFEDID;  i<=FEDNumbering::MAXTriggerLTCECALFEDID; i++)
         {
           selFEDs.push_back(i);
         }
 
-      for (int i=FEDNumbering::getTriggerLTCTotemCastorFEDID().first;  i<=FEDNumbering::getTriggerLTCTotemCastorFEDID().second; i++)
+      for (int i=FEDNumbering::MINTriggerLTCTotemCastorFEDID;  i<=FEDNumbering::MAXTriggerLTCTotemCastorFEDID; i++)
         {
           selFEDs.push_back(i);
         }
-      for (int i=FEDNumbering::getTriggerLTCRPCFEDID().first;  i<=FEDNumbering::getTriggerLTCRPCFEDID().second; i++)
+      for (int i=FEDNumbering::MINTriggerLTCRPCFEDID;  i<=FEDNumbering::MAXTriggerLTCRPCFEDID; i++)
         {
           selFEDs.push_back(i);
         }
       
-      for (int i=FEDNumbering::getTriggerLTCCSCFEDID().first;  i<=FEDNumbering::getTriggerLTCCSCFEDID().second; i++)
+      for (int i=FEDNumbering::MINTriggerLTCCSCFEDID;  i<=FEDNumbering::MAXTriggerLTCCSCFEDID; i++)
         {
           selFEDs.push_back(i);
         }
-      for (int i=FEDNumbering::getTriggerLTCDTFEDID().first;  i<=FEDNumbering::getTriggerLTCDTFEDID().second; i++)
+      for (int i=FEDNumbering::MINTriggerLTCDTFEDID;  i<=FEDNumbering::MAXTriggerLTCDTFEDID; i++)
         {
           selFEDs.push_back(i);
         }
-      for (int i=FEDNumbering::getTriggerLTCSiPixelFEDID().first;  i<=FEDNumbering::getTriggerLTCSiPixelFEDID().second; i++)
+      for (int i=FEDNumbering::MINTriggerLTCSiPixelFEDID;  i<=FEDNumbering::MAXTriggerLTCSiPixelFEDID; i++)
         {
           selFEDs.push_back(i);
         }
 
     }
   
-  for (int i=FEDNumbering::getDAQeFEDFEDIds().first;  i<=FEDNumbering::getDAQeFEDFEDIds().second; i++)
+  for (int i=FEDNumbering::MINDAQeFEDFEDID;  i<=FEDNumbering::MAXDAQeFEDFEDID; i++)
     {
       selFEDs.push_back(i);
     }
@@ -185,7 +185,7 @@ SubdetFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //   if ( ( rawData[i].provenance()->processName() != e.processHistory().rbegin()->processName() ) )
   //       continue ; // skip all raw collections not produced by the current process
   
-  for ( int j=0; j< FEDNumbering::lastFEDId(); ++j ) 
+  for ( int j=0; j< FEDNumbering::MAXFEDID; ++j ) 
     {
       bool rightFED=false;
       for (uint32_t k=0; k<selFEDs.size(); k++)
