@@ -11,16 +11,16 @@
 //The real constructor
 HybridClusterAlgo::HybridClusterAlgo(double eb_str, 
 				     int step, 
+				     double ethres,
 				     double eseed,
-				     double ewing,
-                                     double ethres,
+                                     double ewing,
 				     const PositionCalc& posCalculator,
 //				     bool dynamicPhiRoad,
+                                     DebugLevel debugLevel,
 				     bool dynamicEThres,
                                      double eThresA,
-                                     double eThresB,
+                                     double eThresB) :
      //                                const edm::ParameterSet &bremRecoveryPset,
-				     DebugLevel debugLevel) :
    eb_st(eb_str), phiSteps_(step), 
    eThres_(ethres), eThresA_(eThresA), eThresB_(eThresB),
    Eseed(eseed),  Ewing(ewing), 
@@ -193,6 +193,14 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
     //First, the domino about the seed:
     std::vector <EcalRecHit> initialdomino;
     double e_init = makeDomino(navigator, initialdomino);
+    // to eventually form a valid basic cluster
+    // the central domino should be a local maxima with energy
+    // greater than Eseed. If this is not true for the seed crystal
+    // it can never seed a basic cluster and is not a valid seed crystal. 
+    // in this case, continue. Do not mark the seed as used because
+    // it could still be used (not as a seed) in another cluster at this stage.
+    if (e_init <= Eseed ) continue;
+
     if ( debugLevel_ == pDEBUG )
       {
 	std::cout << "Make initial domino" << std::endl;
@@ -448,36 +456,27 @@ reco::SuperClusterCollection HybridClusterAlgo::makeSuperClusters(const reco::Ba
     //Loop over this set of basic clusters, find their references, and add them to the
     //supercluster.  This could be somehow more efficient.
 
-    double seedE = 0;
-    for (size_t i = 0; i < thiscoll.size(); ++i) 
-    {
-       //The BasicCluster in question.
-       reco::BasicCluster thisclus = thiscoll[i];
+    for (int i=0;i<int(thiscoll.size());++i){
+      reco::BasicCluster thisclus = thiscoll[i]; //The Cluster in question.
+      for (int j=0;j<int(clustersCollection.size());++j){
+	//Find the appropriate cluster from the list of references
+	reco::BasicCluster cluster_p = *clustersCollection[j];
+	if (thisclus== cluster_p){ //Comparison based on energy right now.
+	  thissc.push_back(clustersCollection[j]);
+	  bool isSeed = false;
+	  for (int qu=0;qu<int(seedClus_.size());++qu){
+	    if (cluster_p == seedClus_[qu])
+	      isSeed = true;
+	  }
+	  if (isSeed) seed = clustersCollection[j];
 
-       for (size_t j = 0; j < clustersCollection.size(); ++j)
-       {
-          //Find the appropriate cluster from the list of references
-	  reco::BasicCluster cluster_p = *clustersCollection[j];
-	  if (thisclus == cluster_p)
-          {
-	     thissc.push_back(clustersCollection[j]);
-
-             // the highest energy basic cluster is the seed
-             if (clustersCollection[j]->energy() > seedE)
-             {
-                seed = clustersCollection[j];
-                seedE = clustersCollection[j]->energy();
-             }
-
-	     ClusterE += cluster_p.energy();
-	     posX += cluster_p.energy() * cluster_p.position().X();
-	     posY += cluster_p.energy() * cluster_p.position().Y();
-	     posZ += cluster_p.energy() * cluster_p.position().Z();
+	  ClusterE += cluster_p.energy();
+	  posX += cluster_p.energy() * cluster_p.position().X();
+	  posY += cluster_p.energy() * cluster_p.position().Y();
+	  posZ += cluster_p.energy() * cluster_p.position().Z();
 								     
-	} //End loop over 
-
+	}
       }//End loop over finding references.
-
     }//End loop over clusters.
 
     posX /= ClusterE;
