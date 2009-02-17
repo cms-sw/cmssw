@@ -13,7 +13,7 @@ import SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi
 assocInOutConversionTracks = SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi.trackingParticleRecoTrackAsssociation.clone()
 assoc2secStepTk.label_tr = 'secStep'
 assoc2thStepTk.label_tr = 'thStep'
-assoc2GsfTracks.label_tr = 'pixelMatchGsfFit'
+assoc2GsfTracks.label_tr = 'electronGsfTracks'
 assocOutInConversionTracks.label_tr = 'ckfOutInTracksFromConversions'
 assocInOutConversionTracks.label_tr = 'ckfInOutTracksFromConversions'
 
