@@ -320,6 +320,9 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths");
       meEnConeEtaProfile = dbe_->bookProfile(histo, histo, 82, -41., 41., 210, -10., 200.);  
 
+      sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths_EH");
+      meEnConeEtaProfile_EH = dbe_->bookProfile(histo, histo, 82, -41., 41., 210, -10., 200.);  
+
 
     }
     
@@ -1357,7 +1360,8 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
       meEnConeEtaProfile_depth2->Fill(double(ietaMax2), HcalCone_d2);
       meEnConeEtaProfile_depth3->Fill(double(ietaMax3), HcalCone_d3);
       meEnConeEtaProfile_depth4->Fill(double(ietaMax4), HcalCone_d4);
-      meEnConeEtaProfile       ->Fill(double(ietaMax),  HcalCone);
+      meEnConeEtaProfile       ->Fill(double(ietaMax),  HcalCone);   // 
+      meEnConeEtaProfile_EH    ->Fill(double(ietaMax),  HcalCone+eEcalCone); 
     }
 
     //     std::cout << "*** 7" << std::endl; 

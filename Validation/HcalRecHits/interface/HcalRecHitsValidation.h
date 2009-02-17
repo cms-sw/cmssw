@@ -204,7 +204,7 @@ class HcalRecHitsValidation : public edm::EDAnalyzer {
   MonitorElement* meEnConeEtaProfile_depth3;
   MonitorElement* meEnConeEtaProfile_depth4;
   MonitorElement* meEnConeEtaProfile;
-
+  MonitorElement* meEnConeEtaProfile_EH;
   // Single particles - deviation of cluster from MC truth
   MonitorElement* meDeltaPhi;
   MonitorElement* meDeltaEta;
