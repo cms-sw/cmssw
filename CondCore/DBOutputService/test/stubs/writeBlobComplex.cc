@@ -27,12 +27,7 @@ writeBlobComplex::analyze( const edm::Event& evt, const edm::EventSetup& evtSetu
     BlobComplex* me = new BlobComplex;
     unsigned int serial = 123;
     me->fill(serial);
-    if( mydbservice->isNewTagRequest(m_RecordName) ){
-      cond::Time_t firstSinceTime=mydbservice->beginOfTime();
-      mydbservice->createNewIOV<BlobComplex>(me,firstSinceTime,mydbservice->endOfTime(),m_RecordName);
-    }else{
-      mydbservice->appendSinceTime<BlobComplex>(me,mydbservice->currentTime(),m_RecordName);
-    }
+    mydbservice->writeOne(me,new std::string("123"),mydbservice->currentTime(),m_RecordName);
   }catch(const std::exception& er){
     std::cout<<"caught std::exception "<<er.what()<<std::endl;
     throw er;

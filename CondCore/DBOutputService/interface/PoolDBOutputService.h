@@ -12,6 +12,8 @@
 #include "CondCore/DBCommon/interface/TagInfo.h"
 #include <string>
 #include <map>
+#include "CondFormats/Common/interface/PayloadWrapper.h"
+
 //#include <iostream>
 //
 // Package:     DBOutputService
@@ -22,7 +24,7 @@
 */
 //
 // Author:      Zhen Xie
-// $Id: PoolDBOutputService.h,v 1.44 2008/10/27 12:02:45 xiezhen Exp $
+// $Id: PoolDBOutputService.h,v 1.45 2009/01/28 17:10:22 xiezhen Exp $
 namespace edm{
   class Event;
   class EventSetup;
@@ -58,20 +60,21 @@ namespace cond{
       std::string m_token;
     };
 
-    template<typename T>
+    template<typename T, typename S>
     struct GetTokenFromPointer : public GetToken {
+      typedef cond::DataAndSummaryWrapper<T,S> Wrapper;
       
-      GetTokenFromPointer(T * p) : 
-	m_p(p){}
+      GetTokenFromPointer(T * p, S * s) : 
+	m_w(new Wrapper(p,s)){}
       
       virtual std::string operator()(cond::PoolTransaction& pooldb) const {
-	cond::TypedRef<T> myPayload(pooldb,m_p);
-	  myPayload.markWrite(myPayload.className());
-	  return myPayload.token();
+	cond::TypedRef<Wrapper> myPayload(pooldb,m_w);
+	myPayload.markWrite(myPayload.className());
+	return myPayload.token();
 
       }
 
-      T* m_p;
+      Wrapper * m_w;
       //const std::string& m_recordName;
     };
 
@@ -107,31 +110,19 @@ namespace cond{
       bool isNewTagRequest( const std::string& EventSetupRecordName );
       const cond::Logger& queryLog() const;
 
-
-      // 180 compatible interface
-      template<typename T>
-      void createNewIOV( T* firstPayloadObj,
-			 cond::Time_t firstTillTime,
-			 const std::string& EventSetupRecordName){
-	// generate warning
-	bool UsingTheOldInterfaceWOfirstSinceTimePleaseUpgrade;
-	
-	createNewIOV(firstPayloadObj, beginOfTime(),firstTillTime, EventSetupRecordName,false);
-      }
-
       //
-      // insert the payload and its valid till time into the database
+      // insert the payload and its valid since/till time into the database
       // Note: user looses the ownership of the pointer to the payloadObj
       // The payload object will be stored as well
       // 
-      template<typename T>
-	void createNewIOV( T* firstPayloadObj, 
+      template<typename T, typename S>
+	void createNewIOV( T* firstPayloadObj,  S* summary,
 			   cond::Time_t firstSinceTime,
 			   cond::Time_t firstTillTime,
 			   const std::string& EventSetupRecordName,
 			   bool withlogging=false){
 
-	createNewIOV( GetTokenFromPointer<T>(firstPayloadObj),
+	createNewIOV( GetTokenFromPointer<T,S>(firstPayloadObj, summary),
 		      firstSinceTime, 
 		      firstTillTime,
 		      EventSetupRecordName,
@@ -152,13 +143,13 @@ namespace cond{
 		      withlogging);
       }
 
-      template<typename T>
-      void appendTillTime( T* payloadObj, 
+      template<typename T, typename S>
+      void appendTillTime( T* payloadObj,  S* summary,
 			   cond::Time_t tillTime,
 			   const std::string& EventSetupRecordName,
 			   bool withlogging=false){
 	add(false,
-	    GetTokenFromPointer<T>(payloadObj),
+	    GetTokenFromPointer<T,S>(payloadObj,summary),
 	    tillTime, 
 	    EventSetupRecordName,
 	    withlogging);
@@ -178,13 +169,13 @@ namespace cond{
       }
 
       
-      template<typename T>
-	void appendSinceTime( T* payloadObj, 
+      template<typename T, typename S>
+      void appendSinceTime( T* payloadObj, S* summary,
 			      cond::Time_t sinceTime,
 			      const std::string& EventSetupRecordName,
 			      bool withlogging=false){
 	add(true,
-	    GetTokenFromPointer<T>(payloadObj),
+	    GetTokenFromPointer<T,S>(payloadObj,summary),
 	    sinceTime, 
 	    EventSetupRecordName,
 	    withlogging);
@@ -208,21 +199,22 @@ namespace cond{
 
 
       // write one (either create or append
-      template<typename T>
-      void writeOne(T * payload, Time_t time, const std::string& recordName, 
+      template<typename T, typename S>
+      void writeOne(T * payload, , S* summary, 
+		    Time_t time, const std::string& recordName, 
 		    bool withlogging=false, bool since=true) {
 	if (isNewTagRequest(recordName) ){
-	  createNewIOV<T>(payload, 
+	  createNewIOV<T,S>(payload, summary,
 			  since ? time : beginOfTime(),
 			  since ?  endOfTime() : time, 
 			  recordName, withlogging);
 	}
 	else{
 	  if (since){ 
-	    appendSinceTime<T>(payload, time, recordName, withlogging);
+	    appendSinceTime<T,S>(payload, summary, time, recordName, withlogging);
 	  } 
 	  else { 
-	    appendTillTime<T>(payload, time, recordName, withlogging);
+	    appendTillTime<T>(payload, summary, time, recordName, withlogging);
 	  }
 	}	
       }

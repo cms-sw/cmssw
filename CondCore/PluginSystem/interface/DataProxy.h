@@ -9,10 +9,15 @@
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "DataSvc/Ref.h"
+#include "DataSvc/RefException.h"
+
+#include "CondFormats/Common/interface/PayloadWrapper.h"
+
 
 template< class RecordT, class DataT >
   class DataProxy : public edm::eventsetup::DataProxyTemplate<RecordT, DataT>{
   public:
+  typedef cond::DataWrapper<DataT> DataWrapper;
   /*  DataProxy( pool::IDataSvc* svc, std::map<std::string,std::string>::iterator& pProxyToToken ): m_svc(svc), m_pProxyToToken(pProxyToToken) { 
   //NOTE: We do this so that the type 'DataT' will get registered
   // when the plugin is dynamically loaded
@@ -36,17 +41,19 @@ template< class RecordT, class DataT >
   
   protected:
   virtual const DataT* make(const RecordT&, const edm::eventsetup::DataKey&) {
-    DataT* result=0;
+    DataT const * result=0;
     //std::cout<<"DataT make "<<std::endl;
     cond::PoolTransaction& pooldb=m_connection->poolTransaction();
     pooldb.start(true);      
-    pool::Ref<DataT> mydata(&(pooldb.poolDataSvc()),m_pDatumToToken->second);
-    result=mydata.ptr();
+    pool::Ref<DataWrapper> mydata(&(pooldb.poolDataSvc()),m_pDatumToToken->second);
+    try{
+      result = &mydata->data();
+    }
+    catch( const pool::Exception& e) {
+       throw cond::Exception("DataProxy::make: null result");
+    }
     m_data.copyShallow(mydata);
     pooldb.commit();
-    if(!result){
-      throw cond::Exception("DataProxy::make: null result");
-    }
     return result;
   }
   virtual void invalidateCache() {
@@ -58,6 +65,6 @@ template< class RecordT, class DataT >
   // ---------- member data --------------------------------
   cond::Connection* m_connection;
   std::map<std::string,std::string>::iterator m_pDatumToToken;
-  pool::Ref<DataT> m_data;
+  pool::Ref<DataWrapper> m_data;
 };
 #endif /* CONDCORE_PLUGINSYSTEM_DATAPROXY_H */

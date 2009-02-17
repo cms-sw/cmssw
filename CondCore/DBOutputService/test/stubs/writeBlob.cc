@@ -44,10 +44,8 @@ writeBlob::analyze( const edm::Event& evt, const edm::EventSetup& evtSetup)
       me->put(detid,theSiStripVector);
     }
 
-    if( mydbservice->isNewTagRequest(m_StripRecordName) ){
-      mydbservice->createNewIOV<mySiStripNoises>(me,mydbservice->beginOfTime(),mydbservice->endOfTime(),m_StripRecordName);
-    }else{
-      mydbservice->appendSinceTime<mySiStripNoises>(me,mydbservice->currentTime(),m_StripRecordName);
+    mydbservice->writeOne(me,new std::string("100*256"),
+			  mydbservice->currentTime(),m_StripRecordName);
     }
   }catch(const std::exception& er){
     std::cout<<"caught std::exception "<<er.what()<<std::endl;

@@ -48,7 +48,7 @@ void popcon::ExEffSource::getNewObjects() {
 
   std::cout<<"since = "<< m_since <<std::endl;
   
-  // the most stupid factory It shall be in fase with "record name"
+  // the most stupid factory It shall be not be anymore in fase with "record name"
   condex::Efficiency * p0=0;
   if (m_type.find("Eta")!=std::string::npos)
     p0 = new condex::ParametricEfficiencyInEta(m_params[0],m_params[1],m_params[2],m_params[3]);
