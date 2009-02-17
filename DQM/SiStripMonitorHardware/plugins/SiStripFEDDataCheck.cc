@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDDataCheck.cc,v 1.5 2008/11/04 09:55:11 nc302 Exp $
+// $Id: SiStripFEDDataCheck.cc,v 1.6 2008/11/06 16:05:49 nc302 Exp $
 //
 //
 
@@ -99,9 +99,9 @@ SiStripFEDCheckPlugin::SiStripFEDCheckPlugin(const edm::ParameterSet& iConfig)
     printDebug_(iConfig.getUntrackedParameter<bool>("PrintDebugMessages",false)),
     writeDQMStore_(iConfig.getUntrackedParameter<bool>("WriteDQMStore",false)),
     updateFrequency_(iConfig.getUntrackedParameter<unsigned int>("HistogramUpdateFrequency",0)),
-    fedsPresentBinContents_(FEDNumbering::getSiStripFEDIds().second+1,0),
-    fedFatalErrorBinContents_(FEDNumbering::getSiStripFEDIds().second+1,0),
-    fedNonFatalErrorBinContents_(FEDNumbering::getSiStripFEDIds().second+1,0),
+    fedsPresentBinContents_(FEDNumbering::MAXSiStripFEDID+1,0),
+    fedFatalErrorBinContents_(FEDNumbering::MAXSiStripFEDID+1,0),
+    fedNonFatalErrorBinContents_(FEDNumbering::MAXSiStripFEDID+1,0),
     eventCount_(0),
     doPayloadChecks_(iConfig.getUntrackedParameter<bool>("DoPayloadChecks",true)),
     checkChannelLengths_(iConfig.getUntrackedParameter<bool>("CheckChannelLengths",true)),
@@ -143,8 +143,8 @@ SiStripFEDCheckPlugin::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   const FEDRawDataCollection& rawDataCollection = *rawDataCollectionHandle;
   
   //get FED IDs
-  const unsigned int siStripFedIdMin = FEDNumbering::getSiStripFEDIds().first;
-  const unsigned int siStripFedIdMax = FEDNumbering::getSiStripFEDIds().second;
+  const unsigned int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
+  const unsigned int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID;
   
   //loop over siStrip FED IDs
   for (unsigned int fedId = siStripFedIdMin; fedId <= siStripFedIdMax; fedId++) {
@@ -175,9 +175,8 @@ void
 SiStripFEDCheckPlugin::beginJob(const edm::EventSetup&)
 {
   //get FED IDs
-  const FEDNumbering numbering;
-  const unsigned int siStripFedIdMin = numbering.getSiStripFEDIds().first;
-  const unsigned int siStripFedIdMax = numbering.getSiStripFEDIds().second;
+  const unsigned int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
+  const unsigned int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID;
   //get DQM store
   dqm_ = &(*edm::Service<DQMStore>());
   dqm_->setCurrentFolder(dirName_);
@@ -351,8 +350,8 @@ void SiStripFEDCheckPlugin::updateHistograms()
 {
   //if the cache is not being used then do nothing
   if (!updateFrequency_) return;
-  const unsigned int siStripFedIdMin = FEDNumbering::getSiStripFEDIds().first;
-  const unsigned int siStripFedIdMax = FEDNumbering::getSiStripFEDIds().second;
+  const unsigned int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
+  const unsigned int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID;
   unsigned int entriesFedsPresent = 0;
   unsigned int entriesFatalErrors = 0;
   unsigned int entriesNonFatalErrors = 0;

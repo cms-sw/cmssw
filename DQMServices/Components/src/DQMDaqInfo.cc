@@ -115,15 +115,20 @@ DQMDaqInfo::beginJob(const edm::EventSetup& iSetup)
   DaqFraction[L1T]       = dbe_->bookFloat("L1TDaqFraction");
 
 
-  PixelRange   = FEDNumbering::getSiPixelFEDIds();
-  TrackerRange = FEDNumbering::getSiStripFEDIds();
-  CSCRange     = FEDNumbering::getCSCFEDIds();
+  PixelRange.first  = FEDNumbering::MINSiPixelFEDID;
+  PixelRange.second = FEDNumbering::MAXSiPixelFEDID;
+  TrackerRange.first = FEDNumbering::MINSiStripFEDID;
+  TrackerRange.second = FEDNumbering::MAXSiStripFEDID;
+  CSCRange.first  = FEDNumbering::MINCSCFEDID;
+  CSCRange.second = FEDNumbering::MAXCSCFEDID;
   RPCRange.first  = 790;
   RPCRange.second = 792;
   DTRange.first   = 770;
   DTRange.second  = 774;
-  HcalRange  = FEDNumbering::getHcalFEDIds();
-  L1TRange   = FEDNumbering::getTriggerGTPFEDIds();
+  HcalRange.first  = FEDNumbering::MINHCALFEDID;
+  HcalRange.second = FEDNumbering::MAXHCALFEDID;
+  L1TRange.first  = FEDNumbering::MINTriggerGTPFEDID;
+  L1TRange.second = FEDNumbering::MAXTriggerGTPFEDID;
   ECALBarrRange.first  = 610;    
   ECALBarrRange.second = 645;
   ECALEndcapRangeLow.first   = 601;

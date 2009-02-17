@@ -91,7 +91,7 @@ void PlaybackRawDataProvider::analyze(const Event& iEvent,
   // copy the raw data collection into rawData_, retrievable via getFEDRawData()
   assert(0==eventQueue_[writeIndex_]);
   eventQueue_[writeIndex_]=new FEDRawDataCollection();
-  for (unsigned int i=0;i<(unsigned int)FEDNumbering::lastFEDId()+1;i++) {
+  for (unsigned int i=0;i<(unsigned int)FEDNumbering::MAXFEDID+1;i++) {
     unsigned int fedSize=pRawData->FEDData(i).size();
     if (fedSize>0) {
       FEDRawData& fedData=eventQueue_[writeIndex_]->FEDData(i);

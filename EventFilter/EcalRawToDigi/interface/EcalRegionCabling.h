@@ -31,20 +31,20 @@ class EcalRegionCabling {
 							const double eta,
 							const double phi)const;
   
-  static uint32_t maxElementIndex() {return (FEDNumbering::getEcalFEDIds().second - FEDNumbering::getEcalFEDIds().first +1);}
+  static uint32_t maxElementIndex() {return (FEDNumbering::MAXECALFEDID - FEDNumbering::MINECALFEDID +1);}
 
   static uint32_t elementIndex(const int FEDindex) {
     //do a test for the time being
-    if (FEDindex > FEDNumbering::getEcalFEDIds().second || FEDindex < FEDNumbering::getEcalFEDIds().first) {
+    if (FEDindex > FEDNumbering::MAXECALFEDID || FEDindex < FEDNumbering::MINECALFEDID) {
       edm::LogError("EcalRegionCabling")<<"FEDindex: "<< FEDindex
-					<<" is not between: "<<FEDNumbering::getEcalFEDIds().first
-					<<" and "<<FEDNumbering::getEcalFEDIds().second;
+					<<" is not between: "<<(int) FEDNumbering::MINECALFEDID
+					<<" and "<<(int)FEDNumbering::MAXECALFEDID;
       return 0;}
-    uint32_t eI = FEDindex - FEDNumbering::getEcalFEDIds().first;
+    uint32_t eI = FEDindex - FEDNumbering::MINECALFEDID;
     return eI; }
   
   static int fedIndex(const uint32_t index){ 
-    int fI = index+FEDNumbering::getEcalFEDIds().first; 
+    int fI = index+FEDNumbering::MINECALFEDID; 
     return fI;}
     
 

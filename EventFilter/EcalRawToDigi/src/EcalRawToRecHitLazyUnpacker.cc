@@ -8,7 +8,7 @@ EcalRawToRecHitLazyUnpacker::EcalRawToRecHitLazyUnpacker(const EcalRegionCabling
   raw_(&fedcollection), cabling_(&cable), worker_(&worker)
 {
   LogDebug("EcalRawToRecHit|LazyUnpacker")<<"lazy unpacker created with a max of: "
-					  <<FEDNumbering::getEcalFEDIds().second-FEDNumbering::getEcalFEDIds().first+1
+					  <<FEDNumbering::MAXECALFEDID-FEDNumbering::MINECALFEDID+1
 					  <<" regions";
 }
 

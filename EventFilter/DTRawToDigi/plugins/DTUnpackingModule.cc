@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/06/19 13:37:36 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/11/06 17:06:20 $
+ *  $Revision: 1.8 $
  *  \author S. Argiro - N. Amapane - M. Zanetti 
  * FRC 060906
  */
@@ -96,8 +96,8 @@ void DTUnpackingModule::produce(Event & e, const EventSetup& context){
   // Loop over the DT FEDs
   int FEDIDmin = 0, FEDIDMax = 0;
   if (useStandardFEDid_){
-    FEDIDmin = FEDNumbering::getDTFEDIds().first;
-    FEDIDMax = FEDNumbering::getDTFEDIds().second;
+    FEDIDmin = FEDNumbering::MINDTFEDID;
+    FEDIDMax = FEDNumbering::MAXDTFEDID;
   }
   else {
     FEDIDmin = minFEDid_;

@@ -128,7 +128,6 @@ ESDataFormatterV4::ESDataFormatterV4(const ParameterSet& ps)
   // read in look-up table
   int nLines, iz, ip, ix, iy, fed, kchip, pace, bundle, fiber, optorx;
   ifstream file;
-  ESFEDIds_ = FEDNumbering::getPreShowerFEDIds();
   file.open(lookup_.fullPath().c_str());
   if( file.is_open() ) {
 
@@ -138,14 +137,14 @@ ESDataFormatterV4::ESDataFormatterV4(const ParameterSet& ps)
       int fedId = -1; 
       file >> iz >> ip >> ix >> iy >> fed >> kchip >> pace >> bundle >> fiber >> optorx;
       
-      fedId = fedId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = fed - 1 + ESFEDIds_.first;
+      fedId = fedId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = fed - 1 + FEDNumbering::MINPreShowerFEDID;
       kchipId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = kchip;
       paceId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = pace - 1;
       bundleId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = bundle;
       fiberId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = fiber;
       optoId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = optorx; 
       
-      if (fedId<ESFEDIds_.first || fedId>ESFEDIds_.second) { 
+      if (fedId<FEDNumbering::MINPreShowerFEDID|| fedId>FEDNumbering::MAXPreShowerFEDID) { 
 	if (debug_) cout << "ESDataFormatterV4::ESDataFormatterV4 : fedId value : " << fedId 
 			 << " out of ES range, at lookup table line : " << i << endl; 
       } else if (optorx < 1 || optorx > 3) { 
@@ -262,7 +261,7 @@ FEDRawData * ESDataFormatterV4::DigiToRaw(int fedId, Digis & digis) {
   
   for(int iopto=0; iopto<3; ++iopto) { 
     
-    if (fedIdOptoRx_[fedId-ESFEDIds_.first][iopto]) { 
+    if (fedIdOptoRx_[fedId-FEDNumbering::MINPreShowerFEDID][iopto]) { 
       
       word2 = (0x6 << sOHEAD) | (kchip_ec_ << sOEMUKEC) | (kchip_bc_ << sOEMUTTCBC) ; 
       word1 = (kchip_ec_ << sOEMUTTCEC) ;
@@ -288,7 +287,7 @@ FEDRawData * ESDataFormatterV4::DigiToRaw(int fedId, Digis & digis) {
 	
 	if (debug_) cout<<"KCHIP : "<<kchip_fiber.first << " FIBER: " << kchip_fiber.second << endl;
 	
-	if (fedIdOptoRxFiber_[fedId-ESFEDIds_.first][iopto][kchip_fiber.second-1]) { 
+	if (fedIdOptoRxFiber_[fedId-FEDNumbering::MINPreShowerFEDID][iopto][kchip_fiber.second-1]) { 
 	  
 	  // Set all PACEs enabled for MC 
 	  word1 = (0 << sKFLAG1) | (0x15 << sKFLAG2) | (((kchip_fiber.first<<2) | 0x02) << sKID);
@@ -338,18 +337,18 @@ FEDRawData * ESDataFormatterV4::DigiToRaw(int fedId, Digis & digis) {
   for(int iopto=0; iopto < 3; ++iopto ) { 
     // N optorx module header word: 
     word1 = 0;
-    if (fedIdOptoRx_[fedId-ESFEDIds_.first][iopto]) {
+    if (fedIdOptoRx_[fedId-FEDNumbering::MINPreShowerFEDID][iopto]) {
       word2 = (3 << sDHEAD) | ((iopto+4) <<sDH) | (0x80 << sDOPTO) ; 
       int ich = 0; 
       for(ich=0;ich<4;++ich) { 
 	int chStatus = (optorx_ch_counts[iopto][ich+8]>0) ? 0xe : 0xd ;
-	chStatus = (fedIdOptoRxFiber_[fedId-ESFEDIds_.first][iopto][ich+8]) ? chStatus : 0x00 ; 
+	chStatus = (fedIdOptoRxFiber_[fedId-FEDNumbering::MINPreShowerFEDID][iopto][ich+8]) ? chStatus : 0x00 ; 
 	word2 |= (chStatus  << (ich*4)); // 
       }
       
       for(ich=0;ich<8;++ich) {
 	int chStatus = (optorx_ch_counts[iopto][ich]>0) ? 0xe : 0xd ;
-      chStatus = (fedIdOptoRxFiber_[fedId-ESFEDIds_.first][iopto][ich]) ? chStatus : 0x00 ;
+      chStatus = (fedIdOptoRxFiber_[fedId-FEDNumbering::MINPreShowerFEDID][iopto][ich]) ? chStatus : 0x00 ;
       word1 |= (chStatus  << (ich*4));     
       }
     } else

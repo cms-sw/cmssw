@@ -51,9 +51,9 @@ void HcalDataIntegrityTask::setup(const edm::ParameterSet& ps,
   if(fVerbosity) 
     cout << "About to pushback fedUnpackList_" << endl;
   
-  firstFED_ = FEDNumbering::getHcalFEDIds().first;
-  for (int i=FEDNumbering::getHcalFEDIds().first; 
-       i<=FEDNumbering::getHcalFEDIds().second;
+  firstFED_ = FEDNumbering::MINHCALFEDID;
+  for (int i=FEDNumbering::MINHCALFEDID; 
+       i<=FEDNumbering::MAXHCALFEDID;
        ++i) 
     {
       if(fVerbosity) cout << "[DFMon:]Pushback for fedUnpackList_: " << i <<endl;

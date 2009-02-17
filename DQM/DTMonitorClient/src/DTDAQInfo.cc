@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2008/12/12 18:04:17 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -77,8 +77,8 @@ void DTDAQInfo::beginLuminosityBlock(const LuminosityBlock& lumi, const  EventSe
     int fedCount=0;
 
     // the range of DT feds
-    static int FEDIDmin = FEDNumbering::getDTFEDIds().first;
-    static int FEDIDMax = FEDNumbering::getDTFEDIds().second;
+    static int FEDIDmin = FEDNumbering::MINDTFEDID;
+    static int FEDIDMax = FEDNumbering::MAXDTFEDID;
     static int nFeds = FEDIDMax-FEDIDmin-1;
 
     // loop on all active feds

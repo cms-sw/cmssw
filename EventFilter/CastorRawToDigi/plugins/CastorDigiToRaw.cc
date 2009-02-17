@@ -43,9 +43,9 @@ void CastorDigiToRaw::produce(edm::Event& e, const edm::EventSetup& es)
   // Step B: Create empty output
   std::auto_ptr<FEDRawDataCollection> raw=std::auto_ptr<FEDRawDataCollection>(new FEDRawDataCollection());
 
-// change to this when getCastorFEDIds is added to FEDNumbering
-//  const int ifed_first=FEDNumbering::getCastorFEDIds().first;
-//  const int ifed_last=FEDNumbering::getCastorFEDIds().second;
+// change to this when MINCastorFEDID/MAXCastorFEDID are added to FEDNumbering
+//  const int ifed_first=FEDNumbering::MINCastorFEDID;
+//  const int ifed_last=FEDNumbering::MAXCastorFEDID;
   const int ifed_first=690;
   const int ifed_last=693;
 

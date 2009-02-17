@@ -196,8 +196,7 @@ void SiPixelRawDataErrorSource::buildStructure(const edm::EventSetup& iSetup){
     }
   }
   LogDebug ("PixelDQM") << " ---> Adding Module for Additional Errors " << endl;
-  FEDNumbering fednum;
-  pair<int,int> fedIds = fednum.getSiPixelFEDIds();
+  pair<int,int> fedIds (FEDNumbering::MINSiPixelFEDID, FEDNumbering::MAXSiPixelFEDID);
   fedIds.first = 0;
   fedIds.second = 39;
   for (int fedId = fedIds.first; fedId <= fedIds.second; fedId++) {

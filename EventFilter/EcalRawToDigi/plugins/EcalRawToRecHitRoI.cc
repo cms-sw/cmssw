@@ -154,9 +154,6 @@ void EcalRawToRecHitRoI::produce(edm::Event & e, const edm::EventSetup& iSetup){
 		    <<watcher.lap();
   TheMapping =cabling->mapping();
 
-  std::pair<int,int> ecalfeds = FEDNumbering::getEcalFEDIds();
-  int first_fed = ecalfeds.first;
-  
   std::auto_ptr<EcalListOfFEDS> productAddress(new EcalListOfFEDS);
   std::vector<int> feds;		// the list of FEDS produced by this module
 
@@ -171,7 +168,7 @@ void EcalRawToRecHitRoI::produce(edm::Event & e, const edm::EventSetup& iSetup){
  if (All_)  {   for (int i=1; i <= 54; feds.push_back(i++)){} }
  
  uint nf = feds.size();
- for (uint i=0; i <nf; feds[i++]+=first_fed) {}
+ for (uint i=0; i <nf; feds[i++]+=FEDNumbering::MINECALFEDID) {}
  
  LogDebug(category)<< "Will unpack FED\n" <<dumpFEDs(feds)
 		   <<watcher.lap();

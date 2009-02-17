@@ -45,7 +45,7 @@ BxTiming::BxTiming(const edm::ParameterSet& iConfig) {
     std::cout << "\n" << std::flush;
   }
 
-  nfed_ = FEDNumbering::lastFEDId()+1;
+  nfed_ = FEDNumbering::MAXFEDID+1;
 
   dbe = NULL;
   if (iConfig.getUntrackedParameter<bool>("DQMStore", false)) { 
@@ -87,17 +87,19 @@ BxTiming::beginJob(const edm::EventSetup&) {
   std::string SysLabel[NSYS] = {
     "ECAL", "HCAL", "GCT", "CSCTPG", "CSCTF", "DTTPG", "DTTF", "RPC", "GT"
   };
-  
+
+  typedef std::pair<int, int> FEDRange; 
+ 
   std::pair<int,int> fedRange[NSYS] = {
-    FEDNumbering::getEcalFEDIds(),      //600..670
-    FEDNumbering::getHcalFEDIds(),      //700..731
-    FEDNumbering::getTriggerGCTFEDIds(),//745..749
-    FEDNumbering::getCSCFEDIds(),       //750..757
-    FEDNumbering::getCSCTFFEDIds(),     //760..760
-    FEDNumbering::getDTFEDIds(),        //770..775
-    FEDNumbering::getDTTFFEDIds(),      //780..780
-    FEDNumbering::getRPCFEDIds(),       //790..795
-    FEDNumbering::getTriggerGTPFEDIds() //812..813
+    FEDRange(FEDNumbering::MINECALFEDID, FEDNumbering::MAXECALFEDID),               //600..670
+    FEDRange(FEDNumbering::MINHCALFEDID, FEDNumbering::MAXHCALFEDID),               //700..731
+    FEDRange(FEDNumbering::MINTriggerGCTFEDID, FEDNumbering::MAXTriggerEGTPFEDID),  //745..749
+    FEDRange(FEDNumbering::MINCSCFEDID, FEDNumbering::MAXCSCFEDID),                 //750..757
+    FEDRange(FEDNumbering::MINCSCTFFEDID, FEDNumbering::MAXCSCTFFEDID),             //760..760
+    FEDRange(FEDNumbering::MINDTFEDID, FEDNumbering::MAXDTFEDID),                   //770..775
+    FEDRange(FEDNumbering::MINDTTFFEDID, FEDNumbering::MAXDTTFFEDID),               //780..780
+    FEDRange(FEDNumbering::MINRPCFEDID, FEDNumbering::MAXRPCFEDID),                 //790..795
+    FEDRange(FEDNumbering::MINTriggerGTPFEDID, FEDNumbering::MAXTriggerGTPFEDID)    //812..813
   };
   for(int i=0; i<NSYS; i++) fedRange_[i]=fedRange[i];
 
@@ -297,7 +299,7 @@ BxTiming::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   int ttype = FEDHeader(rawdata->FEDData(812).data()).triggerType();
 
   // loop over feds
-  for (int i = 0; i<FEDNumbering::lastFEDId(); i++){
+  for (int i = 0; i<FEDNumbering::MAXFEDID; i++){
     const FEDRawData& data = rawdata->FEDData(i);
     size_t size=data.size();
     if(!size) continue;

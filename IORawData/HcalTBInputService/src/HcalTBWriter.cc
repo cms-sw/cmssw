@@ -83,7 +83,7 @@ void HcalTBWriter::buildTree(const FEDRawDataCollection& raw) {
   chunkMap_.clear();
   trigChunk_=-1;
   int j=0;
-  for (int i=0; i<FEDNumbering::lastFEDId()+1; i++) {
+  for (int i=0; i<FEDNumbering::MAXFEDID+1; i++) {
     const FEDRawData& frd=raw.FEDData(i);
     if (frd.size()<16) continue; // it's empty... like
     

@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDMonitor.cc,v 1.3 2008/11/06 16:51:56 nc302 Exp $
+// $Id: SiStripFEDMonitor.cc,v 1.4 2008/11/06 19:40:01 nc302 Exp $
 //
 //
 
@@ -128,13 +128,8 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent, const edm::EventSetup
   iEvent.getByLabel(rawDataTag_,rawDataCollectionHandle);
   const FEDRawDataCollection& rawDataCollection = *rawDataCollectionHandle;
   
-  //get FED IDs
-  const FEDNumbering numbering;
-  const unsigned int siStripFedIdMin = numbering.getSiStripFEDIds().first;
-  const unsigned int siStripFedIdMax = numbering.getSiStripFEDIds().second;
-  
   //loop over siStrip FED IDs
-  for (unsigned int fedId = siStripFedIdMin; fedId <= siStripFedIdMax; fedId++) {
+  for (unsigned int fedId = FEDNumbering::MINSiStripFEDID; fedId <= FEDNumbering::MAXSiStripFEDID; fedId++) {
     const FEDRawData& fedData = rawDataCollection.FEDData(fedId);
     //check data exists
     if (!fedData.size() || !fedData.data()) continue;
@@ -153,9 +148,8 @@ SiStripFEDMonitorPlugin::beginJob(const edm::EventSetup&)
   
   bookTopLevelHistograms();
   
-  const FEDNumbering numbering;
-  const unsigned int siStripFedIdMin = numbering.getSiStripFEDIds().first;
-  const unsigned int siStripFedIdMax = numbering.getSiStripFEDIds().second;
+  const unsigned int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
+  const unsigned int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID;
   //book FED level histograms
   histosBooked_.resize(siStripFedIdMax+1,false);
   debugHistosBooked_.resize(siStripFedIdMax+1,false);
@@ -436,9 +430,8 @@ void SiStripFEDMonitorPlugin::bookFEDHistograms(unsigned int fedId, bool fullDeb
 void SiStripFEDMonitorPlugin::bookAllFEDHistograms()
 {
   //get FED IDs
-  const FEDNumbering numbering;
-  const unsigned int siStripFedIdMin = numbering.getSiStripFEDIds().first;
-  const unsigned int siStripFedIdMax = numbering.getSiStripFEDIds().second;
+  const unsigned int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
+  const unsigned int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID;
   //book them
   for (unsigned int iFed = siStripFedIdMin; iFed <= siStripFedIdMax; iFed++) {
     bookFEDHistograms(iFed,true);
@@ -448,9 +441,8 @@ void SiStripFEDMonitorPlugin::bookAllFEDHistograms()
 void SiStripFEDMonitorPlugin::bookTopLevelHistograms()
 {
   //get FED IDs
-  const FEDNumbering numbering;
-  const unsigned int siStripFedIdMin = numbering.getSiStripFEDIds().first;
-  const unsigned int siStripFedIdMax = numbering.getSiStripFEDIds().second;
+  const unsigned int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
+  const unsigned int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID;
   //book histos
   anyErrors_ = dqm_->book1D("AnyErrors",
                             "Number of buffers with any error per FED",

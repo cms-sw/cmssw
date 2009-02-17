@@ -1,7 +1,7 @@
 /* \file EcalDCCTB07UnpackingModule.h
  *
- *  $Date: 2007/11/23 09:31:09 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/01/21 11:21:00 $
+ *  $Revision: 1.10 $
  *  \author Y. Maravin
  *  \author G. Franzoni
  *  \author G. Della Ricca
@@ -235,7 +235,7 @@ void EcalDCCTB07UnpackingModule::produce(edm::Event & e, const edm::EventSetup& 
 
   try {
 
-  for (int id= 0; id<=FEDNumbering::lastFEDId(); ++id){ 
+  for (int id= 0; id<=FEDNumbering::MAXFEDID; ++id){ 
 
     //    edm::LogInfo("EcalDCCTB07UnpackingModule") << "EcalDCCTB07UnpackingModule::Got FED ID "<< id <<" ";
     const FEDRawData& data = rawdata->FEDData(id);

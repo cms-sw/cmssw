@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/08/07 23:27:45 $
- *  $Revision: 1.31 $
+ *  $Date: 2008/08/30 00:33:02 $
+ *  $Revision: 1.32 $
  *  \author A. Tumanov - Rice
  */
 
@@ -179,11 +179,11 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
   
   int l1a=e.id().event(); //need to add increments or get it from lct digis 
   int bx = 0;//same as above
-  //int startingFED = FEDNumbering::getCSCFEDIds().first;
+  //int startingFED = FEDNumbering::MINCSCFEDID;
 
   std::map<int, CSCDCCEventData> dccMap;
-  for (int idcc=FEDNumbering::getCSCFEDIds().first;
-       idcc<=FEDNumbering::getCSCFEDIds().second;++idcc) 
+  for (int idcc=FEDNumbering::MINCSCFEDID;
+       idcc<=FEDNumbering::MAXCSCFEDID;++idcc) 
   {
     //idcc goes from startingFed to startingFED+7
     // @@ if ReadoutMapping changes, this'll have to change

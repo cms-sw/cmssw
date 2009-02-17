@@ -48,7 +48,7 @@ void RawDataCollectorModule::produce(Event & e, const EventSetup& c){
         ( rawData[i].provenance()->processName() != e.processHistory().rbegin()->processName() ) )
        continue ; // skip all raw collections not produced by the current process
 
-   for ( int j=0; j< FEDNumbering::lastFEDId(); ++j ) {
+   for ( int j=0; j< FEDNumbering::MAXFEDID; ++j ) {
      const FEDRawData & fedData = rdc->FEDData(j);
      size_t size=fedData.size();
 

@@ -11,22 +11,22 @@ using namespace std;
 
 CastorRawToDigi::CastorRawToDigi(edm::ParameterSet const& conf):
   dataTag_(conf.getParameter<edm::InputTag>("InputLabel")),
-  unpacker_(conf.getUntrackedParameter<int>("CastorFirstFED",FEDNumbering::getHcalFEDIds().first),conf.getParameter<int>("firstSample"),conf.getParameter<int>("lastSample")),
-  // unpacker_(conf.getUntrackedParameter<int>("CastorFirstFED",FEDNumbering::getCastorFEDIds().first),conf.getParameter<int>("firstSample"),conf.getParameter<int>("lastSample")),
+  unpacker_(conf.getUntrackedParameter<int>("CastorFirstFED",FEDNumbering::MINHCALFEDID),conf.getParameter<int>("firstSample"),conf.getParameter<int>("lastSample")),
+  // unpacker_(conf.getUntrackedParameter<int>("CastorFirstFED",FEDNumbering::MINCastorFEDID),conf.getParameter<int>("firstSample"),conf.getParameter<int>("lastSample")),
   filter_(conf.getParameter<bool>("FilterDataQuality"),conf.getParameter<bool>("FilterDataQuality"),
 	  false,
 	  0, 0, 
 	  -1),
   fedUnpackList_(conf.getUntrackedParameter<std::vector<int> >("FEDs", std::vector<int>())),
-  firstFED_(conf.getUntrackedParameter<int>("CastorFirstFED",FEDNumbering::getHcalFEDIds().first)),
-//  firstFED_(conf.getUntrackedParameter<int>("CastorFirstFED",FEDNumbering::getCastorFEDIds().first)),
+  firstFED_(conf.getUntrackedParameter<int>("CastorFirstFED",FEDNumbering::MINHCALFEDID)),
+//  firstFED_(conf.getUntrackedParameter<int>("CastorFirstFED",FEDNumbering::MINCastorFEDID)),
 //  unpackCalib_(conf.getUntrackedParameter<bool>("UnpackCalib",false)),
 
   complainEmptyData_(conf.getUntrackedParameter<bool>("ComplainEmptyData",false))
 {
   if (fedUnpackList_.empty()) {
-    for (int i=FEDNumbering::getHcalFEDIds().first; i<=FEDNumbering::getHcalFEDIds().second; i++)
-    // for (int i=FEDNumbering::getCastorFEDIds().first; i<=FEDNumbering::getCastorFEDIds().second; i++)
+    for (int i=FEDNumbering::MINHCALFEDID; i<=FEDNumbering::MAXHCALFEDID; i++)
+    // for (int i=FEDNumbering::MINCastorFEDID; i<=FEDNumbering::MAXCastorFEDID; i++)
       fedUnpackList_.push_back(i);
   } 
   

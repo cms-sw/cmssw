@@ -107,8 +107,7 @@ LinkDataXMLReader::LinkDataXMLReader(const edm::ParameterSet& iConfig,
   isOpen_ = false; noMoreData_ = false; 
   endOfFile_ = false;
 
-  pair<int,int> rpcFEDS=FEDNumbering::getRPCFEDIds();
-  for (int id= rpcFEDS.first; id<=rpcFEDS.second; ++id){
+  for (int id= FEDNumbering::MINRPCFEDID; id<=FEDNumbering::MAXRPCFEDID; ++id){
     results[id] = std::vector<rpcrawtodigi::EventRecords>();
   }
 
@@ -191,9 +190,7 @@ bool LinkDataXMLReader::produce(edm::Event& ev){
 
   auto_ptr<FEDRawDataCollection> buffers( new FEDRawDataCollection );
 
-  pair<int,int> rpcFEDS=FEDNumbering::getRPCFEDIds();
-  //pair<int,int> rpcFEDS(790,790);
-  for (int id= rpcFEDS.first; id<=rpcFEDS.second; ++id){
+  for (int id= FEDNumbering::MINRPCFEDID; id<=FEDNumbering::MAXRPCFEDID; ++id){
 
     FEDRawData *  rawData1 =  rawData(id, results[id]);
     FEDRawData& fedRawData = buffers->FEDData(id);
@@ -410,8 +407,7 @@ void  LinkDataXMLReader::clear(){
  triggerBoardNum = -1;
  opticalLinkNum  = -1;
 
- pair<int,int> rpcFEDS=FEDNumbering::getRPCFEDIds();
-  for (int id= rpcFEDS.first; id<=rpcFEDS.second; ++id){
+  for (int id= FEDNumbering::MINRPCFEDID; id<=FEDNumbering::MAXRPCFEDID; ++id){
     results[id].clear();
   }
 }

@@ -127,7 +127,7 @@ void EcalTrigPrimAnalyzerMIPs::analyze(const edm::Event& iEvent, const  edm::Eve
 
   edm::Handle<FEDRawDataCollection> rawdata;
   iEvent.getByType(rawdata);  
-  for (int id= 0; id<=FEDNumbering::lastFEDId(); ++id){ 
+  for (int id= 0; id<=FEDNumbering::MAXFEDID; ++id){ 
     if (id < 600 || id > 654) continue;
     const FEDRawData& data = rawdata->FEDData(id);
     fedId_ = id ;

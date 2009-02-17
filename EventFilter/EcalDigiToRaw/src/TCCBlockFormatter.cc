@@ -3,7 +3,7 @@
 #include "EventFilter/EcalDigiToRaw/interface/TCCBlockFormatter.h"
 
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
-
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 using namespace std;
 
@@ -42,7 +42,7 @@ void TCCBlockFormatter::DigiToRaw(const EcalTriggerPrimitiveDigi& trigprim,
 	bool IsEndCap = ( (EcalElectronicsId::MIN_DCCID_EEM <= iDCC && iDCC <= EcalElectronicsId::MAX_DCCID_EEM) ||
 			  (EcalElectronicsId::MIN_DCCID_EEP <= iDCC && iDCC <= EcalElectronicsId::MAX_DCCID_EEP) );
 
-	int FEDid = EcalFEDIds.first + iDCC;
+	int FEDid = FEDNumbering::MINECALFEDID + iDCC;
 
 
 	int NTT_max = 68;	// Barrel case

@@ -1,4 +1,4 @@
-// Last commit: $Id: ConstantsForHardwareSystems.h,v 1.6 2007/11/21 13:40:55 bainbrid Exp $
+// Last commit: $Id: ConstantsForHardwareSystems.h,v 1.7 2009/02/10 21:45:54 lowette Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForHardwareSystems_H
 #define DataFormats_SiStripCommon_ConstantsForHardwareSystems_H
@@ -19,9 +19,9 @@ namespace sistrip {
 
   // -------------------- FED ids --------------------
   
-  static const uint16_t FED_ID_MIN     = static_cast<uint16_t>( FEDNumbering::getSiStripFEDIds().first );
-  static const uint16_t FED_ID_MAX     = static_cast<uint16_t>( FEDNumbering::getSiStripFEDIds().second );
-  static const uint16_t CMS_FED_ID_MAX = static_cast<uint16_t>( FEDNumbering::lastFEDId() );
+  static const uint16_t FED_ID_MIN     = static_cast<uint16_t>( FEDNumbering::MINSiStripFEDID);
+  static const uint16_t FED_ID_MAX     = static_cast<uint16_t>( FEDNumbering::MAXSiStripFEDID);
+  static const uint16_t CMS_FED_ID_MAX = static_cast<uint16_t>( FEDNumbering::MAXFEDID);
   static const uint16_t NUMBER_OF_FEDS = static_cast<uint16_t>( FED_ID_MAX - FED_ID_MIN );
   
   // -------------------- FEDs to channels --------------------

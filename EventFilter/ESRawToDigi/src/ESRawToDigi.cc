@@ -29,9 +29,6 @@ ESRawToDigi::~ESRawToDigi(){
 }
 
 void ESRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
-
-  pair<int,int> ESFEDIds = FEDNumbering::getPreShowerFEDIds();
-
   // Input
   Handle<FEDRawDataCollection> rawdata;
   e.getByLabel(sourceTag_, rawdata);
@@ -46,7 +43,7 @@ void ESRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
   
   ESDigiCollection digis;
 
-  for (int fedId=ESFEDIds.first; fedId<=ESFEDIds.second; ++fedId) {
+  for (int fedId=FEDNumbering::MINPreShowerFEDID; fedId<=FEDNumbering::MAXPreShowerFEDID; ++fedId) {
 
     const FEDRawData& fedRawData = rawdata->FEDData(fedId);
     ESUnpacker_->interpretRawData(fedId, fedRawData, *productDCC, *productKCHIP, *productDigis);

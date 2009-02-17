@@ -7,7 +7,7 @@
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
-
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 using namespace std;
 
@@ -38,7 +38,7 @@ void TowerBlockFormatter::DigiToRaw(const EBDataFrame& dataframe, FEDRawData& ra
         const EBDetId& ebdetid = dataframe.id();
 
 	int DCCid = TheMapping -> DCCid(ebdetid);
-	int FEDid = EcalFEDIds.first + DCCid ;
+	int FEDid = FEDNumbering::MINECALFEDID + DCCid ;
 
 
         int nsamples = dataframe.size();
@@ -194,7 +194,7 @@ void TowerBlockFormatter::EndEvent(FEDRawDataCollection* productRawData) {
 
 	//if (idcc != 34) continue;
 
-	int FEDid = EcalFEDIds.first + idcc;
+	int FEDid = FEDNumbering::MINECALFEDID + idcc;
 	// cout << "Process FED " << FEDid << endl;
 	FEDRawData& fedData = productRawData -> FEDData(FEDid);
 	if (fedData.size() <= 16) continue;
@@ -424,7 +424,7 @@ void TowerBlockFormatter::DigiToRaw(const EEDataFrame& dataframe, FEDRawData& ra
         const EEDetId& eedetid = dataframe.id();
 	EcalElectronicsId elid = TheMapping -> getElectronicsId(eedetid);
         int DCCid = elid.dccId();
-	int FEDid = EcalFEDIds.first + DCCid ;
+	int FEDid = FEDNumbering::MINECALFEDID + DCCid ;
 	int iFE = elid.towerId();
 
 	if (debug_) cout << "enter in TowerBlockFormatter::DigiToRaw DCCid FEDid iFE " <<

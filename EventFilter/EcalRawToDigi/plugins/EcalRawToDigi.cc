@@ -89,7 +89,7 @@ EcalRawToDigi::EcalRawToDigi(edm::ParameterSet const& conf):
   // if there are FEDs specified to unpack fill the vector of the fedUnpackList_
   // else fill with the entire ECAL fed range (600-670)
   if (fedUnpackList_.empty()) 
-    for (int i=FEDNumbering::getEcalFEDIds().first; i<=FEDNumbering::getEcalFEDIds().second; i++)
+    for (int i=FEDNumbering::MINECALFEDID; i<=FEDNumbering::MAXECALFEDID; i++)
       fedUnpackList_.push_back(i);
 
   //print the FEDs to unpack to the logger

@@ -109,9 +109,6 @@ void EcalListOfFEDSProducer::endJob(){
 
 void EcalListOfFEDSProducer::produce(edm::Event & e, const edm::EventSetup& iSetup){
 
- std::pair<int,int> ecalfeds = FEDNumbering::getEcalFEDIds();
- int first_fed = ecalfeds.first;
-
  if (first_) {
    edm::ESHandle< EcalElectronicsMapping > ecalmapping;
    iSetup.get< EcalMappingRcd >().get(ecalmapping);
@@ -137,7 +134,7 @@ void EcalListOfFEDSProducer::produce(edm::Event & e, const edm::EventSetup& iSet
    if( Pi0ListToIgnore_.label() == FEDs_Done[id].provenance()->moduleLabel() ){continue;}
    std::vector<int> done = FEDs_Done[id]-> GetList();
    for (int jd=0; jd < (int)done.size(); jd++) {
- 	Done.push_back(done[jd] -first_fed );
+ 	Done.push_back(done[jd] - FEDNumbering::MINECALFEDID);
    }
  }
  if (debug_) std::cout << " For this event, " << Done.size() << " ECAL FEDs have already been unpacked." << std::endl;
@@ -167,7 +164,7 @@ void EcalListOfFEDSProducer::produce(edm::Event & e, const edm::EventSetup& iSet
 
  int nf = (int)feds.size();
  for (int i=0; i <nf; i++) {
-  feds[i] += first_fed;
+  feds[i] += FEDNumbering::MINECALFEDID;
   if (debug_) std::cout << "Will unpack FED " << feds[i] << std::endl;
  }
 

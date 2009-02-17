@@ -49,7 +49,6 @@ class ESDataFormatterV4 : public ESDataFormatter {
 
   bool fedIdOptoRx_[56][3]; 
   bool fedIdOptoRxFiber_[56][3][12]; 
-  std::pair<int,int> ESFEDIds_; 
 
   protected :
 

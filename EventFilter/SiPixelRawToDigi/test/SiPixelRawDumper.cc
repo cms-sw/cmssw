@@ -228,8 +228,7 @@ void SiPixelRawDumper::analyze(const  edm::Event& ev, const edm::EventSetup& es)
   
   ev.getByLabel( label, instance, buffers);
 
-  FEDNumbering fednum;
-  std::pair<int,int> fedIds = fednum.getSiPixelFEDIds();
+  std::pair<int,int> fedIds(FEDNumbering::MINSiPixelFEDID, FEDNumbering::MAXSiPixelFEDID);
 
   PixelDataFormatter formatter(0);
   bool dummyErrorBool;

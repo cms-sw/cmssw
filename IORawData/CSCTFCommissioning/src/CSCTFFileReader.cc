@@ -75,7 +75,7 @@ bool CSCTFFileReader::fillRawData(edm::EventID& eID, edm::Timestamp& tstamp, FED
   memcpy(dccBuf,dduBuf,length);
 
   // The FED ID
-  FEDRawData& fedRawData = data->FEDData( FEDNumbering::getCSCFEDIds().first );
+  FEDRawData& fedRawData = data->FEDData( FEDNumbering::MINCSCFEDID );
   int newlength = 0;
   if(length%8)
     {

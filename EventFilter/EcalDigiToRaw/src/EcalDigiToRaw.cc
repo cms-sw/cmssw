@@ -13,7 +13,7 @@
 //
 // Original Author:  Emmanuelle Perez
 //         Created:  Sat Nov 25 13:59:51 CET 2006
-// $Id: EcalDigiToRaw.cc,v 1.8 2008/01/22 19:10:41 muzaffar Exp $
+// $Id: EcalDigiToRaw.cc,v 1.9 2008/07/23 18:17:34 franzoni Exp $
 //
 //
 
@@ -125,8 +125,6 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   auto_ptr<FEDRawDataCollection> productRawData(new FEDRawDataCollection);
 
 
-  pair<int,int> EcalFEDIds=FEDNumbering::getEcalFEDIds();
-
   Headerblockformatter_ -> DigiToRaw(productRawData.get());
 
 
@@ -154,7 +152,7 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
            if ( (detid.subDet() == EcalEndcap) && (! doEndCap_) ) continue;
 
 	   int iDCC = TheMapping -> DCCid(detid);
-           int FEDid = EcalFEDIds.first + iDCC;
+           int FEDid = FEDNumbering::MINECALFEDID + iDCC;
 
            FEDRawData& rawdata = productRawData.get() -> FEDData(FEDid);
 
@@ -181,7 +179,7 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		EcalTrigTowerDetId id = srflag.id();
 		int Dccid = TheMapping -> DCCid(id);
 		int DCC_Channel = TheMapping -> iTT(id);
-		int FEDid = EcalFEDIds.first + Dccid;
+		int FEDid = FEDNumbering::MINECALFEDID + Dccid;
 		// if (Dccid == 10) cout << "Dcc " << Dccid << " DCC_Channel " << DCC_Channel << " flag " << flag << endl;
 		if (debug_) cout << "will process SRblockformatter_ for FEDid " << dec << FEDid << endl;
 		FEDRawData& rawdata = productRawData.get() -> FEDData(FEDid);
@@ -205,7 +203,7 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		int Dccid = ind.first;
 		int DCC_Channel = ind.second;
 
-                int FEDid = EcalFEDIds.first + Dccid;
+                int FEDid = FEDNumbering::MINECALFEDID + Dccid;
                 FEDRawData& rawdata = productRawData.get() -> FEDData(FEDid);
                 SRblockformatter_ -> DigiToRaw(Dccid,DCC_Channel,flag, rawdata);
            }
@@ -229,7 +227,7 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                 const EBDataFrame& dataframe = *it;
                 const EBDetId& ebdetid = it -> id();
 		int DCCid = TheMapping -> DCCid(ebdetid);
-        	int FEDid = EcalFEDIds.first + DCCid ;
+        	int FEDid = FEDNumbering::MINECALFEDID + DCCid ;
                 FEDRawData& rawdata = productRawData.get() -> FEDData(FEDid);
                 Towerblockformatter_ -> DigiToRaw(dataframe, rawdata, TheMapping);
         }
@@ -245,7 +243,7 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                 const EEDetId& eedetid = it -> id();
 		EcalElectronicsId elid = TheMapping -> getElectronicsId(eedetid);
                 int DCCid = elid.dccId() ;   
-                int FEDid = EcalFEDIds.first + DCCid;
+                int FEDid = FEDNumbering::MINECALFEDID + DCCid;
                 FEDRawData& rawdata = productRawData.get() -> FEDData(FEDid);
                 Towerblockformatter_ -> DigiToRaw(dataframe, rawdata, TheMapping);
         }

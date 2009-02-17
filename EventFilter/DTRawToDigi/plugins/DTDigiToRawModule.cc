@@ -60,8 +60,8 @@ void DTDigiToRawModule::produce(Event & e, const EventSetup& iSetup) {
   // Create the packed data
   int FEDIDmin = 0, FEDIDMax = 0;
   if (useStandardFEDid_){
-    FEDIDmin = FEDNumbering::getDTFEDIds().first;
-    FEDIDMax = FEDNumbering::getDTFEDIds().second;
+    FEDIDmin = FEDNumbering::MINDTFEDID;
+    FEDIDMax = FEDNumbering::MAXDTFEDID;
   }
   else {
     FEDIDmin = minFEDid_;

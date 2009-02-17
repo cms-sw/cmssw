@@ -155,8 +155,8 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
   // then examinerMask for CSC level errors will be used during unpacking of each CSC block
   unsigned long dccBinCheckMask = 0x06080016;
 
-  for (int id=FEDNumbering::getCSCFEDIds().first;
-       id<=FEDNumbering::getCSCFEDIds().second; ++id) { // loop over DCCs
+  for (int id=FEDNumbering::MINCSCFEDID;
+       id<=FEDNumbering::MAXCSCFEDID; ++id) { // loop over DCCs
     /// uncomment this for regional unpacking
     /// if (id!=SOME_ID) continue;
     

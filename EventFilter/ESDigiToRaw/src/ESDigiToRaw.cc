@@ -83,8 +83,6 @@ void ESDigiToRaw::produce(edm::Event& ev, const edm::EventSetup& es) {
   ESDataFormatter_->setKchipBC(kchip_bc_);
   ESDataFormatter_->setKchipEC(kchip_ec_);
 
-  pair<int,int> ESFEDIds = FEDNumbering::getPreShowerFEDIds();
-
   edm::Handle<ESDigiCollection> digis;
   ev.getByLabel(label_, instanceName_, digis);
 
@@ -100,7 +98,7 @@ void ESDigiToRaw::produce(edm::Event& ev, const edm::EventSetup& es) {
     ifed = fedId_[(3-detId.zside())/2-1][detId.plane()-1][detId.six()-1][detId.siy()-1] - 1;
     if (ifed < 0) continue;
 
-    int fedId = ESFEDIds.first + ifed;
+    int fedId = FEDNumbering::MINPreShowerFEDID + ifed;
 
     Digis[fedId].push_back(df);
   }

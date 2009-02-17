@@ -101,8 +101,8 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
   baseFolder_ = rootFolder_+"DataFormatMonitor";
 
   if(fVerbosity) cout << "About to pushback fedUnpackList_" << endl;
-  firstFED_ = FEDNumbering::getHcalFEDIds().first;
-  for (int i=FEDNumbering::getHcalFEDIds().first; i<=FEDNumbering::getHcalFEDIds().second; i++) {
+  firstFED_ = FEDNumbering::MINHCALFEDID;
+  for (int i=FEDNumbering::MINHCALFEDID; i<=FEDNumbering::MAXHCALFEDID; i++) {
     if(fVerbosity) cout << "[DFMon:]Pushback for fedUnpackList_: " << i <<endl;
     fedUnpackList_.push_back(i);
   }

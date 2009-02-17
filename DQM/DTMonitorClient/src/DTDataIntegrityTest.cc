@@ -2,8 +2,8 @@
 /*
  * \file DTDataIntegrityTest.cc
  * 
- * $Date: 2008/10/09 09:39:51 $
- * $Revision: 1.23 $
+ * $Date: 2008/11/24 09:17:55 $
+ * $Revision: 1.24 $
  * \author S. Bolognesi - CERN
  *
  */
@@ -131,7 +131,7 @@ void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
   counter++;
 
   //Loop on FED id
-  for (int dduId=FEDNumbering::getDTFEDIds().first; dduId<FEDNumbering::getDTFEDIds().second; ++dduId){
+  for (int dduId=FEDNumbering::MINDTFEDID; dduId<FEDNumbering::MAXDTFEDID; ++dduId){
     LogVerbatim ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") <<"[DTDataIntegrityTest]:FED Id: "<<dduId;
  
     //Each nTimeBin onUpdate remove timing histos and book a new bunch of them
