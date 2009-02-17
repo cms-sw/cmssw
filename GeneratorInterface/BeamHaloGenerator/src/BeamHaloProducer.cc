@@ -120,12 +120,9 @@ void BeamHaloProducer::produce(Event & e, const EventSetup & es) {
 // Throw an exception if call_ki_bhg_fill(...) fails.  Use the EventCorruption
 // exception since it maps onto SkipEvent which is what we want to do here.
 
-        if( iret < 0 ) {
-          std::ostringstream sstr;
-          sstr << "BeamHaloProducer: function call_ki_bhg_fill returned " << iret << "\n";
-          edm::Exception except(edm::errors::EventCorruption, sstr.str());
-          throw except;
-        }
+        if( iret < 0 )
+          throw edm::Exception(edm::errors::EventCorruption)
+            << "BeamHaloProducer: function call_ki_bhg_fill returned " << iret << endl;
 
 	// cout << "apres fortran " << endl;
 
