@@ -38,6 +38,12 @@ SiStripMonitorDigi = cms.EDFilter("SiStripMonitorDigi",
         layerswitchon = cms.bool(True),
         moduleswitchon = cms.bool(True)
     ),
+    TH1NumberOfDigisPerStrip = cms.PSet(
+        Nbinx = cms.int32(768),
+        xmin = cms.double(-0.5),
+        xmax = cms.double(767.5),
+        moduleswitchon = cms.bool(False)
+    ),                        
     TH1StripOccupancy = cms.PSet(
         Nbinx = cms.int32(51),
         xmin = cms.double(-0.01),

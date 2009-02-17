@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorDigi.h,v 1.14 2008/12/04 21:03:06 dutta Exp $
+// $Id: SiStripMonitorDigi.h,v 1.15 2009/02/16 16:15:44 borrell Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -32,6 +32,7 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   struct ModMEs{
 	
     MonitorElement* NumberOfDigis;
+    MonitorElement* NumberOfDigisPerStrip;
     MonitorElement* ADCsHottestStrip;
     MonitorElement* ADCsCoolestStrip;
     MonitorElement* DigiADCs;
@@ -108,6 +109,7 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   int firstEvent;
 
   bool layerswitchnumdigison;
+  bool layerswitchnumdigisapvon;
   bool layerswitchadchotteston;
   bool layerswitchadccooleston;
   bool layerswitchdigiadcson;
@@ -117,6 +119,7 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   bool layerswitchdigitkhistomapon;
 
   bool moduleswitchnumdigison;
+  bool moduleswitchnumdigispstripon;
   bool moduleswitchadchotteston;
   bool moduleswitchadccooleston;
   bool moduleswitchdigiadcson;

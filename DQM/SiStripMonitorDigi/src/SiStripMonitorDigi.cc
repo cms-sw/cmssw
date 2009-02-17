@@ -3,7 +3,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.36 2008/12/04 21:03:07 dutta Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.37 2009/02/16 16:12:00 borrell Exp $
 #include<fstream>
 #include "TNamed.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -29,6 +29,9 @@
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 
+#include "iostream"
+
+
 //--------------------------------------------------------------------------------------------
 SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) : dqmStore_(edm::Service<DQMStore>().operator->()), conf_(iConfig), show_mechanical_structure_view(true), show_readout_view(false), show_control_view(false), select_all_detectors(true), reset_each_run(false), m_cacheID_(0), folder_organizer() 
 {
@@ -40,6 +43,9 @@ SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) : dqmSt
   layerswitchnumdigison = ParametersNumberOfDigis.getParameter<bool>("layerswitchon");
   moduleswitchnumdigison = ParametersNumberOfDigis.getParameter<bool>("moduleswitchon");
   
+  edm::ParameterSet ParametersNumberOfDigisPerStrip =  conf_.getParameter<edm::ParameterSet>("TH1NumberOfDigisPerStrip");
+  moduleswitchnumdigispstripon = ParametersNumberOfDigisPerStrip.getParameter<bool>("moduleswitchon");
+
   edm::ParameterSet ParametersADCsHottestStrip =  conf_.getParameter<edm::ParameterSet>("TH1ADCsHottestStrip");
   layerswitchadchotteston = ParametersADCsHottestStrip.getParameter<bool>("layerswitchon");
   moduleswitchadchotteston = ParametersADCsHottestStrip.getParameter<bool>("moduleswitchon");
@@ -284,7 +290,10 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
 	
 	if(this_adc>largest_adc) largest_adc  = this_adc; 
 	if(this_adc<smallest_adc) smallest_adc  = this_adc; 
-	
+
+	if(Mod_On_ && moduleswitchnumdigispstripon && (local_modmes.NumberOfDigisPerStrip != NULL) && (this_adc > 0.0) )
+          (local_modmes.NumberOfDigisPerStrip)->Fill(digiIter->strip());
+
 	if(Mod_On_ && moduleswitchdigiadcson && (local_modmes.DigiADCs != NULL) )
 	  (local_modmes.DigiADCs)->Fill(static_cast<float>(this_adc));
 	
@@ -374,6 +383,7 @@ void SiStripMonitorDigi::ResetModuleMEs(uint32_t idet){
   ModMEs mod_me = pos->second;
 
   if(Mod_On_ && moduleswitchnumdigison) mod_me.NumberOfDigis->Reset();
+  if(Mod_On_ && moduleswitchnumdigispstripon) mod_me.NumberOfDigisPerStrip ->Reset();
   if(Mod_On_ && moduleswitchadchotteston) mod_me.ADCsHottestStrip->Reset();
   if(Mod_On_ && moduleswitchadccooleston) mod_me.ADCsCoolestStrip->Reset();
   if(Mod_On_ && moduleswitchdigiadcson) mod_me.DigiADCs->Reset();
@@ -438,6 +448,14 @@ void SiStripMonitorDigi::createModuleMEs(ModMEs& mod_single, uint32_t detid) {
     mod_single.NumberOfDigis->getTH1()->StatOverflows(kTRUE);  // over/underflows in Mean calculation
   }
   
+  //nr. of digis per strip in module
+  if(moduleswitchnumdigispstripon){
+    hid = hidmanager.createHistoId("NumberOfDigisPerStrip","det",detid);
+    mod_single.NumberOfDigisPerStrip = dqmStore_->book1D(hid, hid, mod_single.nStrip, -0.5, mod_single.nStrip+0.5);
+    dqmStore_->tag(mod_single.NumberOfDigisPerStrip, detid);
+    mod_single.NumberOfDigisPerStrip->setAxisTitle("number of (digis > 0) per strip");
+    mod_single.NumberOfDigisPerStrip->getTH1()->StatOverflows(kTRUE);  // over/underflows in Mean calculation
+  }
   //#ADCs for hottest strip
   if(moduleswitchadchotteston) {
     hid = hidmanager.createHistoId("ADCsHottestStrip","det",detid);
