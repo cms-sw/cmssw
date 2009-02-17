@@ -27,6 +27,13 @@
 
 //static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
 
+namespace {
+  std::string dsw("cond::DataAndSummaryWrapper");
+}
+
+int cond::service::GetToken::sizeDSW() {
+  return dsw.size();
+}
 
 cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet & iConfig,edm::ActivityRegistry & iAR ): 
   m_currentTime( 0 ),

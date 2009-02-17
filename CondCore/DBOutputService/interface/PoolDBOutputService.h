@@ -45,7 +45,7 @@ namespace cond{
 
     struct GetToken {
       virtual std::string operator()(cond::PoolTransaction&) const =0;
-
+      static unsigned int sizeDSW();
     };
 
     struct GetTrivialToken : public GetToken {
@@ -69,7 +69,7 @@ namespace cond{
       
       virtual std::string operator()(cond::PoolTransaction& pooldb) const {
 	cond::TypedRef<Wrapper> myPayload(pooldb,m_w);
-	myPayload.markWrite(myPayload.className());
+	myPayload.markWrite(myPayload.className().replace(0,sizeDSW(),"DSW");
 	return myPayload.token();
 
       }
