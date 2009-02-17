@@ -5,8 +5,8 @@
  *
  *  Tools for comparing alignables
  *
- *  $Date: 2008/05/05 08:59:57 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/06/17 12:46:54 $
+ *  $Revision: 1.5 $
  *  \author Nhan Tran
  */
 
@@ -14,7 +14,9 @@
 
 namespace align{
 
-	///Finds the TR between two alignables - first alignable is reference
+	///Finds the TR between two alignables - first alignable is
+        ///reference. Returns a vector with 12 components. First six are global, second
+        ///six are local.
 	AlgebraicVector diffAlignables(Alignable* refAli, Alignable* curAli, const std::string &weightBy, bool weightById, const std::vector< unsigned int > &weightByIdVector);
 	
 	///Finds the TR between 2 sets of alignables
