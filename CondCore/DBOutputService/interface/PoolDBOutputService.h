@@ -24,7 +24,7 @@
 */
 //
 // Author:      Zhen Xie
-// $Id: PoolDBOutputService.h,v 1.45 2009/01/28 17:10:22 xiezhen Exp $
+//
 namespace edm{
   class Event;
   class EventSetup;
@@ -200,7 +200,7 @@ namespace cond{
 
       // write one (either create or append
       template<typename T, typename S>
-      void writeOne(T * payload, , S* summary, 
+      void writeOne(T * payload, S* summary, 
 		    Time_t time, const std::string& recordName, 
 		    bool withlogging=false, bool since=true) {
 	if (isNewTagRequest(recordName) ){
