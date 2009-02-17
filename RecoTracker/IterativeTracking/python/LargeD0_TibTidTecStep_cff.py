@@ -111,7 +111,7 @@ largeD0step4CkfTrajectoryBuilder.minNrOfHitsForRebuild = 7
 #TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 largeD0step4TrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
-largeD0step4TrackCandidates.SeedProducer = 'largeD0step4Seeds'
+largeD0step4TrackCandidates.src = 'largeD0step4Seeds'
 largeD0step4TrackCandidates.TrajectoryBuilder = 'largeD0step4CkfTrajectoryBuilder'
 largeD0step4TrackCandidates.doSeedingRegionRebuilding = True
 largeD0step4TrackCandidates.useHitsSplitting = True
@@ -140,8 +140,8 @@ largeD0step4RKTrajectoryFitter.minHits = 7
 largeD0step4RKTrajectorySmoother.minHits = 7
 
 #TRACKS
-import RecoTracker.TrackProducer.TrackProducer_cfi
-largeD0step4WithMaterialTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone()
+import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
+largeD0step4WithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
 largeD0step4WithMaterialTracks.src = 'largeD0step4TrackCandidates'
 largeD0step4WithMaterialTracks.clusterRemovalInfo = 'largeD0step4Clusters'
 largeD0step4WithMaterialTracks.AlgorithmName = cms.string('iter4LargeD0')

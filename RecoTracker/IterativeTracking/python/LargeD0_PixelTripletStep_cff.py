@@ -57,9 +57,8 @@ largeD0step1Seeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVerti
 largeD0step1Seeds.OrderedHitsFactoryPSet.SeedingLayers = 'largeD0step1LayerTriplets'
 # Use modified pixel-triplet code that works best for large impact parameters
 largeD0step1Seeds.OrderedHitsFactoryPSet.GeneratorPSet = cms.PSet(PixelTripletLargeTipGenerator)
-largeD0step1Seeds.SeedCreatorPSet.ComponentName = 'SeedFromConsecutiveHitsTripletOnlyCreator'
-largeD0step1Seeds.RegionFactoryPSet.RegionPSet.ptMin = 0.6
-largeD0step1Seeds.RegionFactoryPSet.RegionPSet.originRadius = 3.5
+largeD0step1Seeds.RegionFactoryPSet.RegionPSet.ptMin = 0.9
+largeD0step1Seeds.RegionFactoryPSet.RegionPSet.originRadius = 2.5
 largeD0step1Seeds.RegionFactoryPSet.RegionPSet.originHalfLength = 15
 #largeD0step1Seeds.SeedCreatorPSet.propagator = cms.string('PropagatorWithMaterialPtMin09')
 
@@ -78,7 +77,7 @@ largeD0step1CkfTrajectoryFilter.ComponentName = 'largeD0step1CkfTrajectoryFilter
 #largeD0step1CkfTrajectoryFilter.filterPset.maxLostHits = 1
 #largeD0step1CkfTrajectoryFilter.filterPset.maxConsecLostHits = 2
 largeD0step1CkfTrajectoryFilter.filterPset.minimumNumberOfHits = 6
-largeD0step1CkfTrajectoryFilter.filterPset.minPt = 0.6
+largeD0step1CkfTrajectoryFilter.filterPset.minPt = 0.9
 largeD0step1CkfTrajectoryFilter.filterPset.minHitsMinPt = 3
 
 #TRAJECTORY BUILDER
@@ -98,7 +97,7 @@ largeD0step1CkfTrajectoryBuilder.minNrOfHitsForRebuild = 6
 #TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 largeD0step1TrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
-largeD0step1TrackCandidates.SeedProducer = 'largeD0step1Seeds'
+largeD0step1TrackCandidates.src = 'largeD0step1Seeds'
 largeD0step1TrackCandidates.TrajectoryBuilder = 'largeD0step1CkfTrajectoryBuilder'
 largeD0step1TrackCandidates.doSeedingRegionRebuilding = True
 largeD0step1TrackCandidates.useHitsSplitting = True
@@ -127,8 +126,8 @@ largeD0step1RKTrajectoryFitter.minHits = 6
 largeD0step1RKTrajectorySmoother.minHits = 6
 
 #TRACKS
-import RecoTracker.TrackProducer.TrackProducer_cfi
-largeD0step1WithMaterialTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone()
+import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
+largeD0step1WithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
 largeD0step1WithMaterialTracks.src = 'largeD0step1TrackCandidates'
 largeD0step1WithMaterialTracks.clusterRemovalInfo = 'largeD0step1Clusters'
 largeD0step1WithMaterialTracks.AlgorithmName = cms.string('iter1LargeD0')
