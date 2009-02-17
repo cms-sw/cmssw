@@ -4,13 +4,15 @@ process = cms.Process("TEST")
 #-------------------------------------------------
 # CALIBRATION
 #-------------------------------------------------
-#include "DQM/SiStripMonitorSummary/data/Tags20X.cff"
-process.load("CalibTracker.Configuration.Tracker_FrontierConditions_TIF_20X_cff")
+process.load("DQM.SiStripMonitorSummary.Tags21X_cff")
 
 #-------------------------------------------------
 # DQM
 #-------------------------------------------------
 process.load("DQM.SiStripMonitorSummary.SiStripMonitorCondDataOnDemandExample_cfi")
+
+## SI STRIP MONITOR TRACK:
+process.load("DQM.SiStripCommon.TkHistoMap_cfi");
 
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('SiStripMonitorCondDataOnDemandExample'),
@@ -21,23 +23,43 @@ process.MessageLogger = cms.Service("MessageLogger",
         'cout')
 )
 
-process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/cms/store/TAC/TIBTOB/edm_2007_03_07/tif.00006215.A.testStorageManager_0.0.root')
+
+process.source = cms.Source("EmptySource",
+    lastRun = cms.untracked.uint32(70409),
+    timetype = cms.string('runnumber'),
+    firstRun = cms.untracked.uint32(70409),
+    interval = cms.uint32(1)
 )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(2)
 )
-process.DQMStore = cms.Service("DQMStore",
-    referenceFileName = cms.untracked.string(''),
-    verbose = cms.untracked.int32(0)
+
+process.qTester = cms.EDFilter("QualityTester",
+    qtList = cms.untracked.FileInPath('DQM/SiStripMonitorSummary/data/CondDBQtests.xml'),
+    QualityTestPrescaler = cms.untracked.int32(1),
+    getQualityTestsFromFile = cms.untracked.bool(True)
 )
 
-process.p = cms.Path(process.myOnDemandExample)
-process.myOnDemandExample.OutputMEsInRootFile = True
-process.myOnDemandExample.MonitorSiStripPedestal = True
-process.myOnDemandExample.MonitorSiStripNoise = True
-process.myOnDemandExample.MonitorSiStripQuality = False
-process.myOnDemandExample.MonitorSiStripApvGain = True
-process.myOnDemandExample.MonitorSiStripLorentzAngle = True
 
+process.DQMStore = cms.Service("DQMStore",
+    referenceFileName = cms.untracked.string(''),
+    verbose = cms.untracked.int32(1)
+)
+
+process.p = cms.Path(process.myOnDemandExample*process.qTester)
+process.myOnDemandExample.OutputMEsInRootFile = True
+
+process.myOnDemandExample.MonitorSiStripPedestal      = True
+process.myOnDemandExample.MonitorSiStripNoise         = True
+process.myOnDemandExample.MonitorSiStripApvGain       = False ## to be tested on REAL data
+
+process.myOnDemandExample.MonitorSiStripQuality      = False
+process.myOnDemandExample.MonitorSiStripLorentzAngle = False
+process.myOnDemandExample.MonitorSiStripCabling      = False
+
+
+
+process.myOnDemandExample.SiStripNoisesDQM_PSet.GainRenormalisation   = False
+process.myOnDemandExample.SiStripNoisesDQM_PSet.CondObj_fillId        = 'onlyProfile'
+process.myOnDemandExample.SiStripPedestalsDQM_PSet.CondObj_fillId        = 'onlyProfile'
