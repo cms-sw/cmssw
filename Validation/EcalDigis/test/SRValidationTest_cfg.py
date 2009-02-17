@@ -11,7 +11,14 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 # geometry (Only Ecal)
+#process.load("Geometry.EcalCommonData.EcalOnly_cfi")
+# geometry (Only Ecal)
 process.load("Geometry.EcalCommonData.EcalOnly_cfi")
+process.load("Geometry.CaloEventSetup.CaloGeometry_cff")
+process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
+process.load("Geometry.EcalMapping.EcalMapping_cfi")
+process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
+
 
 # DQM services:
 process.load("DQMServices.Core.DQM_cfg")
@@ -47,6 +54,8 @@ process.load("Validation.EcalDigis.ecalSelectiveReadoutValidation_cfi")
 
 #ECAL reco sequence:
 process.load("RecoLocalCalo.Configuration.ecalLocalRecoSequence_cff")
+process.ecalWeightUncalibRecHit.EBdigiCollection = cms.InputTag("simEcalDigis", "ebDigis")
+process.ecalWeightUncalibRecHit.EEdigiCollection = cms.InputTag("simEcalDigis", "eeDigis")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
@@ -65,43 +74,9 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
     sourceSeed = cms.untracked.uint32(135799753)
 )
 
-process.source = cms.Source("PythiaSource",
-    pythiaHepMCVerbosity = cms.untracked.bool(False),
-    maxEventsToPrint = cms.untracked.int32(0),
-    pythiaPylistVerbosity = cms.untracked.int32(0),
-    PythiaParameters = cms.PSet(
-        processParameters = cms.vstring('MSEL=1               ! QCD hight pT processes', 
-            'CKIN(3)=30.          ! minimum pt hat for hard interactions', 
-            'CKIN(4)=50.          ! maximum pt hat for hard interactions'),
-        # This is a vector of ParameterSet names to be read, in this order
-        parameterSets = cms.vstring('pythiaUESettings', 
-            'processParameters'),
-        pythiaUESettingsBlock = cms.PSet(
-            pythiaUESettings = cms.vstring('MSTJ(11)=3     ! Choice of the fragmentation function', 
-                'MSTJ(22)=2     ! Decay those unstable particles', 
-                'PARJ(71)=10 .  ! for which ctau  10 mm', 
-                'MSTP(2)=1      ! which order running alphaS', 
-                'MSTP(33)=0     ! no K factors in hard cross sections', 
-                'MSTP(51)=7     ! structure function chosen', 
-                'MSTP(81)=1     ! multiple parton interactions 1 is Pythia default', 
-                'MSTP(82)=4     ! Defines the multi-parton model', 
-                'MSTU(21)=1     ! Check on possible errors during program execution', 
-                'PARP(82)=1.9409   ! pt cutoff for multiparton interactions', 
-                'PARP(89)=1960. ! sqrts for which PARP82 is set', 
-                'PARP(83)=0.5   ! Multiple interactions: matter distrbn parameter', 
-                'PARP(84)=0.4   ! Multiple interactions: matter distribution parameter', 
-                'PARP(90)=0.16  ! Multiple interactions: rescaling power', 
-                'PARP(67)=2.5    ! amount of initial-state radiation', 
-                'PARP(85)=1.0  ! gluon prod. mechanism in MI', 
-                'PARP(86)=1.0  ! gluon prod. mechanism in MI', 
-                'PARP(62)=1.25   ! ', 
-                'PARP(64)=0.2    ! ', 
-                'MSTP(91)=1     !', 
-                'PARP(91)=2.1   ! kt distribution', 
-                'PARP(93)=15.0  ! ')
-        )
-    )
-)
+#Pythia configuration to generate multijet event with pt_hat between 30
+#and 50 GeV/c
+process.load("Configuration.Generator.QCD_Pt_30_50_cfi")
 
 process.tpparams12 = cms.ESSource("EmptyESSource",
     recordName = cms.string('EcalTPGPhysicsConstRcd'),
@@ -109,10 +84,21 @@ process.tpparams12 = cms.ESSource("EmptyESSource",
     firstValid = cms.vuint32(1)
 )
 
-process.detSim = cms.Sequence(process.VtxSmeared*process.g4SimHits)
-process.p1 = cms.Path(process.detSim*process.mix*process.simEcalUnsuppressedDigis*process.simEcalTriggerPrimitiveDigis*process.simEcalDigis*process.ecalWeightUncalibRecHit*process.ecalRecHit*process.ecalSelectiveReadoutValidation)
-process.outpath = cms.EndPath(process.o1)
 process.DQM.collectorHost = ''
+
 process.g4SimHits.Generator.HepMCProductLabel = 'source'
+
 process.simEcalDigis.writeSrFlags = True
+
+# detector response simulation path:
+process.detSim = cms.Sequence(process.VtxSmeared*process.g4SimHits)
+
+# processing path:
+process.p1 = cms.Path(process.detSim*process.mix*process.simEcalUnsuppressedDigis*process.simEcalTriggerPrimitiveDigis*process.simEcalDigis*process.ecalWeightUncalibRecHit*process.ecalRecHit*process.ecalSelectiveReadoutValidation)
+
+process.outpath = cms.EndPath(process.o1)
+
+
+process.simEcalDigis.srpEndcapLowInterestChannelZS = -1.e9 #-0.06
+process.simEcalDigis.srpBarrelLowInterestChannelZS = -1.e9 #-0.035
 
