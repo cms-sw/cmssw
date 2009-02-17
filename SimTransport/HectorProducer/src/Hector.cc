@@ -52,6 +52,23 @@ Hector::Hector(const edm::ParameterSet & param, bool verbosity, bool FP420Transp
   
   if(m_verbosity) {
     cout << "===================================================================" << endl;  
+    cout << " * * * * * * * * * * * * * * * * * * * * * * * * * * * *           " << endl;
+    cout << " *                                                         *       " << endl;
+    cout << " *                   --<--<--  A fast simulator --<--<--     *     " << endl;
+    cout << " *                 | --<--<--     of particle   --<--<--     *     " << endl;
+    cout << " *  ----HECTOR----<                                          *     " << endl;
+    cout << " *                 | -->-->-- transport through-->-->--      *     " << endl; 
+    cout << " *                   -->-->-- generic beamlines -->-->--     *     " << endl;
+    cout << " *                                                           *     " << endl; 
+    cout << " * JINST 2:P09005 (2007)                                     *     " << endl;
+    cout << " *      X Rouby, J de Favereau, K Piotrzkowski (CP3)         *     " << endl;
+    cout << " *       http://www.fynu.ucl.ac.be/hector.html               *     " << endl;
+    cout << " *                                                           *     " << endl;
+    cout << " * Center for Cosmology, Particle Physics and Phenomenology  *     " << endl;
+    cout << " *              Universite catholique de Louvain             *     " << endl;
+    cout << " *                 Louvain-la-Neuve, Belgium                 *     " << endl;
+    cout << " *                                                         *       " << endl;
+    cout << " * * * * * * * * * * * * * * * * * * * * * * * * * * * *           " << endl; 
     cout << "=== Hector:    m_FP420Transport=" << m_FP420Transport <<"m_ZDCTransport " << m_ZDCTransport << endl;
     cout << "=== lengthfp420: " << lengthfp420 << endl;
     cout << "=== m_rpp420_f: " << m_rpp420_f << endl;
