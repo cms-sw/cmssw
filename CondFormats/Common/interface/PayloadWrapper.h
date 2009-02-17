@@ -71,7 +71,6 @@ namespace cond {
     
     typedef DataAndSummaryWrapper<value_type, summary_type> self;
     
-    
     DataAndSummaryWrapper(Object * obj=0, Summary * sum=0) :
       ObjectWrapper(obj), m_summary(sum){}
 
