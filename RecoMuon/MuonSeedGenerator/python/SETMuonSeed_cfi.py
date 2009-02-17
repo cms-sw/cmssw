@@ -11,6 +11,7 @@ SETMuonSeed  = cms.EDProducer("SETMuonSeedProducer",
     SETTrajBuilderParameters = cms.PSet(
         ptSeedParameterization, 
         dphiScale,
+        scaleDT = cms.bool(True),
         Apply_prePruning = cms.bool(True),
 # Careful - next is used together with useSubRecHits in standAloneMuons_cfi.py (for now)
 #	UseSegmentsInTrajectory = cms.bool(True),
