@@ -1,3 +1,5 @@
+#include "CondFormats/Common/interface/PayloadWrapper.h"
+
 #include "CondFormats/Calibration/interface/Pedestals.h"
 #include "CondFormats/Calibration/interface/BlobPedestals.h"
 #include "CondFormats/Calibration/interface/BlobNoises.h"
@@ -45,5 +47,9 @@ namespace {
     std::map<std::string, Algo> e;
     std::map<std::string, Algo>::iterator tmp22;
     std::map<std::string, Algo>::const_iterator tmp23;
+  };
+  struct wrappers {
+    cond::DataAndSummaryWrapper<mySiStripNoises,std::string> > d0;
+    cond::DataAndSummaryWrapper<Pedestals,std::string> > d1;
   };
 }

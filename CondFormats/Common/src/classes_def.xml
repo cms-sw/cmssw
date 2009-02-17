@@ -8,7 +8,9 @@
  <class name="cond::IOVSequence" id="3F16F0A9-79D5-4881-CE0B-C301DD84A7F1" class_version="0"/>
 
  <class name="cond::PayloadWrapper"/>
- <class name="std::vector<int>"/>
+ <class name="pool::Ptr<std:::basic_string<char> >"/>
+ 
+<class name="std::vector<int>"/>
  <class name="std::vector<double>"/>
  <class name="pool::Ptr<std::vector<int> >"/>
  <class name="cond::DataWrapper<std::vector<int> >"/>

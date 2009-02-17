@@ -4,11 +4,20 @@
  <class name="Pedestals" class_version="0"/>
  <class name="BlobPedestals"/>
 
+ <class name="pool::Ptr<Pedestals>"/>
+ <class name="cond::DataWrapper<Pedestals>"/>
+ <class name="cond::DataAndSummaryWrapper<Pedestals,std::string> >"/>
+ 
+
  <class name="BlobNoises"/>
  <class name="BlobNoises::DetRegistry"/>  
  <class name="std::vector<BlobNoises::DetRegistry>"/>
 
- <class name="mySiStripNoises" class_version="0"/>
+ <class name="pool::Ptr<mySiStripNoises>"/>
+ <class name="cond::DataWrapper<mySiStripNoises>"/>
+ <class name="cond::DataAndSummaryWrapper<mySiStripNoises,std::string> >"/>
+ 
+<class name="mySiStripNoises" class_version="0"/>
  <class name="mySiStripNoises::DetRegistry"/>
  <class name="std::vector<mySiStripNoises::DetRegistry>"/>
 
@@ -23,6 +32,7 @@
  <class name="BlobComplexObjects"/>
  <class name="std::vector<BlobComplexObjects>"/>
  <class name="BlobComplex"/>
+
  <class name="__gnu_cxx::__normal_iterator<const unsigned int*,std::vector<unsigned int> >"/>
  <class name="__gnu_cxx::__normal_iterator<unsigned int*,std::vector<unsigned int> >"/>
  <class name="__gnu_cxx::__normal_iterator<const BlobComplexObjects*,std::vector<BlobComplexObjects> >"/>
