@@ -16,6 +16,8 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Run.h"
 
 #include "CLHEP/Random/JamesRandom.h"
 #include "CLHEP/Random/RandFlat.h"
@@ -33,9 +35,11 @@ namespace edm
     BaseFlatGunProducer(const ParameterSet &);
     virtual ~BaseFlatGunProducer();
     void beginJob( const edm::EventSetup& ) ;
+    void endRun( edm::Run& r, const edm::EventSetup& ) ;
+
   private:
    
-  protected :
+  protected:
   
     // non-virtuals ! this and only way !
     //

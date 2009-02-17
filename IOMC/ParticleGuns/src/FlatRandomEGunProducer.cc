@@ -1,6 +1,6 @@
 /*
- *  $Date: 2008/04/10 13:04:13 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/01/09 10:45:16 $
+ *  $Revision: 1.2 $
  *  \author Julia Yarba
  */
 
@@ -9,6 +9,7 @@
 #include "IOMC/ParticleGuns/interface/FlatRandomEGunProducer.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -31,6 +32,7 @@ FlatRandomEGunProducer::FlatRandomEGunProducer(const ParameterSet& pset) :
    fMaxE = pgun_params.getUntrackedParameter<double>("MaxE",1.01); 
   
    produces<HepMCProduct>();
+   produces<GenEventInfoProduct>();
 
    cout << "Internal FlatRandomEGun is initialzed" << endl ;
 // cout << "It is going to generate " << remainingEvents() << "events" << endl ;
@@ -128,6 +130,9 @@ void FlatRandomEGunProducer::produce(Event & e, const EventSetup& es)
    auto_ptr<HepMCProduct> BProduct(new HepMCProduct()) ;
    BProduct->addHepMCData( fEvt );
    e.put(BProduct);
+
+   auto_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));
+   e.put(genEventInfo);
     
    if ( fVerbosity > 0 )
    {

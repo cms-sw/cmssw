@@ -1,21 +1,27 @@
 /*
- *  $Date: 2008/04/16 19:50:05 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/01/09 10:45:16 $
+ *  $Revision: 1.3 $
  *  \author Julia Yarba
  */
 
 #include <ostream>
-
-#include "IOMC/ParticleGuns/interface/BaseFlatGunProducer.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-#include "FWCore/Utilities/interface/Exception.h"
+#include <memory>
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
+
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+
+#include "IOMC/ParticleGuns/interface/BaseFlatGunProducer.h"
+
 
 #include <iostream>
 
@@ -89,6 +95,8 @@ BaseFlatGunProducer::BaseFlatGunProducer( const ParameterSet& pset ) :
 // The Service has already instantiated an engine.  Use it.
    fRandomGenerator = new RandFlat(fRandomEngine) ;
    fAddAntiParticle = pset.getUntrackedParameter("AddAntiParticle", false) ;
+
+   produces<GenRunInfoProduct, InRun>();
 }
 
 BaseFlatGunProducer::~BaseFlatGunProducer()
@@ -109,4 +117,14 @@ void BaseFlatGunProducer::beginJob( const EventSetup& es )
    es.getData( fPDGTable ) ;
    return ;
 
+}
+
+
+void BaseFlatGunProducer::endRun( Run &run, const EventSetup& es )
+{
+   // just create an empty product
+   // to keep the EventContent definitions happy
+   // later on we might put the info into the run info that this is a PGun
+   auto_ptr<GenRunInfoProduct> genRunInfo( new GenRunInfoProduct() );
+   run.put( genRunInfo );
 }

@@ -1,6 +1,6 @@
 /*
- *  $Date: 2008/04/10 13:04:13 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/01/09 10:45:16 $
+ *  $Revision: 1.2 $
  *  \author Jean-Roch Vlimant
  */
 
@@ -9,6 +9,7 @@
 #include "IOMC/ParticleGuns/interface/MultiParticleInConeGunProducer.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -45,6 +46,7 @@ MultiParticleInConeGunProducer::MultiParticleInConeGunProducer(const ParameterSe
    fInConeMaxTry = pgun_params.getUntrackedParameter<uint>("InConeMaxTry",100);
    
    produces<HepMCProduct>();
+   produces<GenEventInfoProduct>();
 }
 
 MultiParticleInConeGunProducer::~MultiParticleInConeGunProducer()
@@ -189,7 +191,10 @@ void MultiParticleInConeGunProducer::produce(Event &e, const EventSetup& es)
    auto_ptr<HepMCProduct> BProduct(new HepMCProduct()) ;
    BProduct->addHepMCData( fEvt );
    e.put(BProduct);
-   
+
+   auto_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));
+   e.put(genEventInfo);
+
    if ( fVerbosity > 0 )
      {
        cout << " MultiParticleInConeGunProducer : Event Generation Done " << endl;

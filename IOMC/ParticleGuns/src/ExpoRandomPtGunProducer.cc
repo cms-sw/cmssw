@@ -1,6 +1,6 @@
 /*
- *  $Date: 2008/04/10 13:04:13 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/01/09 10:45:16 $
+ *  $Revision: 1.2 $
  *  \author Jean-Roch Vlimant
  */
 
@@ -9,6 +9,7 @@
 #include "IOMC/ParticleGuns/interface/ExpoRandomPtGunProducer.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -35,6 +36,7 @@ ExpoRandomPtGunProducer::ExpoRandomPtGunProducer(const ParameterSet& pset) :
    fMeanPt = pgun_params.getUntrackedParameter<double>("MeanPt",-1.);
 
    produces<HepMCProduct>();
+   produces<GenEventInfoProduct>();
 
    //the explonential generator
    fRandomExpoGenerator = new RandExponential(fRandomEngine,fMeanPt);
@@ -138,6 +140,9 @@ void ExpoRandomPtGunProducer::produce(Event &e, const EventSetup& es)
    auto_ptr<HepMCProduct> BProduct(new HepMCProduct()) ;
    BProduct->addHepMCData( fEvt );
    e.put(BProduct);
+
+   auto_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));
+   e.put(genEventInfo);
     
    if ( fVerbosity > 0 )
    {
