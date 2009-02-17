@@ -4,6 +4,7 @@
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "DataFormats/Candidate/interface/LeafCandidate.h" 
 //
 // class decleration
 //
@@ -18,7 +19,7 @@ L1HLTJetsMatching::L1HLTJetsMatching(const edm::ParameterSet& iConfig)
   tauTrigger = iConfig.getParameter<InputTag>("L1TauTrigger");
   mEt_Min = iConfig.getParameter<double>("EtMin");
   
-  produces<CaloJetCollection>();
+  produces<std::vector<reco::LeafCandidate> >();
 }
 
 L1HLTJetsMatching::~L1HLTJetsMatching(){ }
@@ -32,16 +33,16 @@ void L1HLTJetsMatching::produce(edm::Event& iEvent, const edm::EventSetup& iES)
  using namespace trigger;
  using namespace l1extra;
 
+ typedef vector<LeafCandidate> LeafCandidateCollection;
 
- auto_ptr<CaloJetCollection> tauL2jets(new CaloJetCollection);
+ auto_ptr<LeafCandidateCollection> tauL2jets(new LeafCandidateCollection);
  
  double deltaR = 1.0;
  double matchingR = 0.5;
  //Getting HLT jets to be matched
- edm::Handle<CaloJetCollection> tauJets;
+ edm::Handle<edm::View<Candidate> > tauJets;
  if(iEvent.getByLabel( jetSrc, tauJets ))
    {
-     const CaloJetCollection myJets = *(tauJets.product());
      
      Handle<trigger::TriggerFilterObjectWithRefs> l1TriggeredTaus;
      if(iEvent.getByLabel(tauTrigger,l1TriggeredTaus)){
@@ -55,12 +56,14 @@ void L1HLTJetsMatching::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 	
        for( unsigned int iL1Tau=0; iL1Tau <tauCandRefVec.size();iL1Tau++)
 	 {  
-	   for(unsigned int iJet=0;iJet<myJets.size();iJet++)
+	   for(unsigned int iJet=0;iJet<tauJets->size();iJet++)
 	     {
 	       //Find the relative L2TauJets, to see if it has been reconstructed
-	       deltaR = ROOT::Math::VectorUtil::DeltaR(myJets[iJet].p4().Vect(), (tauCandRefVec[iL1Tau]->p4()).Vect());
+	       const Candidate &  myJet = (*tauJets)[iJet];
+	       deltaR = ROOT::Math::VectorUtil::DeltaR(myJet.p4().Vect(), (tauCandRefVec[iL1Tau]->p4()).Vect());
 	       if(deltaR < matchingR ) {
-		if(myJets[iJet].pt() > mEt_Min) tauL2jets->push_back(myJets[iJet]);
+		 LeafCandidate myLC(myJet);
+		if(myJet.pt() > mEt_Min) tauL2jets->push_back(myLC);
 		break;
 	       }
 	     }
@@ -68,12 +71,14 @@ void L1HLTJetsMatching::produce(edm::Event& iEvent, const edm::EventSetup& iES)
        
        for(unsigned int iL1Tau=0; iL1Tau <jetCandRefVec.size();iL1Tau++)
 	 {  
-	   for(unsigned int iJet=0;iJet<myJets.size();iJet++)
+	   for(unsigned int iJet=0;iJet<tauJets->size();iJet++)
 	     {
+	       const Candidate & myJet = (*tauJets)[iJet];
 	       //Find the relative L2TauJets, to see if it has been reconstructed
-	       deltaR = ROOT::Math::VectorUtil::DeltaR(myJets[iJet].p4().Vect(), (jetCandRefVec[iL1Tau]->p4()).Vect());
+	       deltaR = ROOT::Math::VectorUtil::DeltaR(myJet.p4().Vect(), (jetCandRefVec[iL1Tau]->p4()).Vect());
 	       if(deltaR < matchingR ) {
-		if(myJets[iJet].pt() > mEt_Min) tauL2jets->push_back(myJets[iJet]);
+		 LeafCandidate myLC(myJet);
+		if(myJet.pt() > mEt_Min) tauL2jets->push_back(myLC);
 		break;
 	       }
 	     }

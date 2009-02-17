@@ -68,13 +68,13 @@ class TauRegionalPixelSeedGenerator : public TrackingRegionProducer {
       }
       
       // get the jet direction
-      edm::Handle<reco::CaloJetCollection> h_jets;
+      edm::Handle<edm::View<reco::Candidate> > h_jets;
       e.getByLabel(m_jetSrc, h_jets);
-      const reco::CaloJetCollection & jets = * h_jets;
       
-      for (reco::CaloJetCollection::const_iterator iJet = jets.begin(); iJet != jets.end(); ++iJet)
-      {
-          GlobalVector jetVector(iJet->p4().x(), iJet->p4().y(), iJet->p4().z());
+      for (unsigned int iJet =0; iJet < h_jets->size(); ++iJet)
+	{
+	  const reco::Candidate & myJet = (*h_jets)[iJet];
+          GlobalVector jetVector(myJet.momentum().x(),myJet.momentum().y(),myJet.momentum().z());
           GlobalPoint  vertex(0, 0, originZ);
           RectangularEtaPhiTrackingRegion* etaphiRegion = new RectangularEtaPhiTrackingRegion( jetVector,
                                                                                                vertex,
