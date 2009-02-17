@@ -31,6 +31,8 @@
 #include "DQM/SiStripMonitorSummary/interface/SiStripQualityDQM.h" 
 #include "DQM/SiStripMonitorSummary/interface/SiStripApvGainsDQM.h" 
 #include "DQM/SiStripMonitorSummary/interface/SiStripLorentzAngleDQM.h" 
+#include "DQM/SiStripMonitorSummary/interface/SiStripCablingDQM.h"
+#include "DQM/SiStripMonitorSummary/interface/SiStripThresholdDQM.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
@@ -66,7 +68,10 @@ SiStripClassToMonitorCondData::SiStripClassToMonitorCondData(edm::ParameterSet c
   monitorQuality_        = iConfig.getParameter<bool>("MonitorSiStripQuality");
   monitorApvGains_       = iConfig.getParameter<bool>("MonitorSiStripApvGain");
   monitorLorentzAngle_   = iConfig.getParameter<bool>("MonitorSiStripLorentzAngle");
-  
+  monitorLowThreshold_   = iConfig.getParameter<bool>("MonitorSiStripLowThreshold");
+  monitorHighThreshold_  = iConfig.getParameter<bool>("MonitorSiStripHighThreshold");
+  monitorCabling_        = iConfig.getParameter<bool>("MonitorSiStripCabling"); 
+   
 }
 // -----
 
@@ -77,11 +82,14 @@ SiStripClassToMonitorCondData::SiStripClassToMonitorCondData(edm::ParameterSet c
 // 
 SiStripClassToMonitorCondData::~SiStripClassToMonitorCondData(){
   
-  if(monitorPedestals_)  { delete pedestalsDQM_;}
-  if(monitorNoises_)     { delete noisesDQM_;   }
-  if(monitorQuality_)    { delete qualityDQM_;  }
-  if(monitorApvGains_)   { delete apvgainsDQM_; }
-  if(monitorLorentzAngle_){ delete lorentzangleDQM_; }
+  if(monitorPedestals_)    { delete pedestalsDQM_;}
+  if(monitorNoises_)       { delete noisesDQM_;   }
+  if(monitorQuality_)      { delete qualityDQM_;  }
+  if(monitorApvGains_)     { delete apvgainsDQM_; }
+  if(monitorLorentzAngle_) { delete lorentzangleDQM_; }
+  if(monitorLowThreshold_) { delete lowthresholdDQM_ ;}
+  if(monitorHighThreshold_){ delete highthresholdDQM_;}
+  if(monitorCabling_)      { delete cablingDQM_;}
 
 }
 // -----
@@ -123,11 +131,27 @@ void SiStripClassToMonitorCondData::beginRun(edm::EventSetup const& eSetup) {
   
   if(monitorLorentzAngle_){
     lorentzangleDQM_ = new SiStripLorentzAngleDQM(eSetup,
-                                          conf_.getParameter<edm::ParameterSet>("SiStripLorentzAngleDQM_PSet"),
-                                          conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
+                                                  conf_.getParameter<edm::ParameterSet>("SiStripLorentzAngleDQM_PSet"),
+                                                  conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
   }
   
+  if(monitorLowThreshold_){
+    lowthresholdDQM_ = new SiStripThresholdDQM(eSetup,
+                                               conf_.getParameter<edm::ParameterSet>("SiStripLowThresholdDQM_PSet"),
+                                               conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
+  }
 
+  if(monitorHighThreshold_){
+    highthresholdDQM_ = new SiStripThresholdDQM(eSetup,
+                                                conf_.getParameter<edm::ParameterSet>("SiStripHighThresholdDQM_PSet"),
+                                                conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
+  }
+
+  if(monitorCabling_){
+    cablingDQM_ = new SiStripCablingDQM(eSetup,
+                                        conf_.getParameter<edm::ParameterSet>("SiStripCablingDQM_PSet"),
+                                        conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
+  }
 } // beginRun
 // -----
 
@@ -146,10 +170,13 @@ void SiStripClassToMonitorCondData::getModMEsOnDemand(edm::EventSetup const& eSe
 
   if(monitorPedestals_)      { pedestalsDQM_     ->analysisOnDemand(eSetup,requestedDetId);}
   if(monitorNoises_)         { noisesDQM_        ->analysisOnDemand(eSetup,requestedDetId);}    
-  if(monitorQuality_)        { qualityDQM_       ->analysisOnDemand(eSetup,requestedDetId);}
+  if(monitorQuality_)        { qualityDQM_       ->analysisOnDemand(eSetup,requestedDetId);
+                              qualityDQM_       ->fillGrandSummaryMEs()                  ;}//fillGrand. for SiStripquality
   if(monitorApvGains_)       { apvgainsDQM_      ->analysisOnDemand(eSetup,requestedDetId);} 
   if(monitorLorentzAngle_)   { lorentzangleDQM_  ->analysisOnDemand(eSetup,requestedDetId);} 
-    
+  if(monitorCabling_)        { cablingDQM_       ->analysisOnDemand(eSetup,requestedDetId);}   
+  if(monitorLowThreshold_)   { lowthresholdDQM_  ->analysisOnDemand(eSetup,requestedDetId);}
+  if(monitorHighThreshold_)  { highthresholdDQM_ ->analysisOnDemand(eSetup,requestedDetId);}
 }
 // -----
 
@@ -162,9 +189,13 @@ void SiStripClassToMonitorCondData::getLayerMEsOnDemand(edm::EventSetup const& e
  
   if(monitorPedestals_)      { pedestalsDQM_     ->analysisOnDemand(eSetup,requestedSubDetector, requestedSide,requestedLayer);}
   if(monitorNoises_)         { noisesDQM_        ->analysisOnDemand(eSetup,requestedSubDetector, requestedSide,requestedLayer);}    
-  if(monitorQuality_)        { qualityDQM_       ->analysisOnDemand(eSetup,requestedSubDetector, requestedSide,requestedLayer);}
+  if(monitorQuality_)        { qualityDQM_       ->analysisOnDemand(eSetup,requestedSubDetector, requestedSide,requestedLayer);
+  qualityDQM_       ->fillGrandSummaryMEs();}
   if(monitorApvGains_)       { apvgainsDQM_      ->analysisOnDemand(eSetup,requestedSubDetector, requestedSide,requestedLayer);} 
   if(monitorLorentzAngle_)   { lorentzangleDQM_  ->analysisOnDemand(eSetup,requestedSubDetector, requestedSide,requestedLayer);} 
+  if(monitorCabling_)        { cablingDQM_       ->analysisOnDemand(eSetup,requestedSubDetector, requestedSide,requestedLayer);}
+  if(monitorLowThreshold_)   { lowthresholdDQM_  ->analysisOnDemand(eSetup,requestedSubDetector, requestedSide,requestedLayer);}
+  if(monitorHighThreshold_)  { highthresholdDQM_ ->analysisOnDemand(eSetup,requestedSubDetector, requestedSide,requestedLayer);}
   
 }
 
@@ -175,10 +206,13 @@ void SiStripClassToMonitorCondData::analyseCondData(edm::EventSetup const& eSetu
 
   if(monitorPedestals_)      { pedestalsDQM_     ->analysis(eSetup);}
   if(monitorNoises_)         { noisesDQM_        ->analysis(eSetup);}    
-  if(monitorQuality_)        { qualityDQM_       ->analysis(eSetup);}
+  if(monitorQuality_)        { qualityDQM_       ->analysis(eSetup); qualityDQM_->fillGrandSummaryMEs();}//fillGrand. for SiStripquality
   if(monitorApvGains_)       { apvgainsDQM_      ->analysis(eSetup);} 
   if(monitorLorentzAngle_)   { lorentzangleDQM_  ->analysis(eSetup);} 
-    
+  if(monitorCabling_)        { cablingDQM_       ->analysis(eSetup);}   
+  if(monitorLowThreshold_)   { lowthresholdDQM_  ->analysis(eSetup);} 
+  if(monitorHighThreshold_)  { highthresholdDQM_ ->analysis(eSetup);} 
+   
 } // analyze
 // -----
 
@@ -189,7 +223,7 @@ void SiStripClassToMonitorCondData::analyseCondData(edm::EventSetup const& eSetu
 //    
 void SiStripClassToMonitorCondData::endRun(edm::EventSetup const& eSetup) {
   
-  bool outputMEsInRootFile    = conf_.getParameter<bool>("OutputMEsInRootFile");
+  bool outputMEsInRootFile     = conf_.getParameter<bool>("OutputMEsInRootFile");
   std::string outputFileName  = conf_.getParameter<std::string>("OutputFileName");
 
   DQMStore* dqmStore_=edm::Service<DQMStore>().operator->();
