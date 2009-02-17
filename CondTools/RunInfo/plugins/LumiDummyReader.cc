@@ -1,6 +1,6 @@
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "CondCore/DBCommon/interface/Time.h"
-#include "CondFormats/Calibration/interface/LuminosityInfo.h"
+#include "CondFormats/RunInfo/interface/LuminosityInfo.h"
 #include "LumiDummyReader.h"
 #include "CondTools/RunInfo/interface/LumiReaderFactory.h"
 #include <iostream>

@@ -8,7 +8,7 @@
 #include "CondCore/DBCommon/interface/Connection.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/src/CoralConnectionProxy.h"
-#include "CondFormats/Calibration/interface/LuminosityInfo.h"
+#include "CondFormats/RunInfo/interface/LuminosityInfo.h"
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeSpecification.h"

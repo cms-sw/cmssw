@@ -9,7 +9,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "CondFormats/Calibration/interface/LuminosityInfo.h"
+#include "CondFormats/RunInfo/interface/LuminosityInfo.h"
 #include "CondFormats/DataRecord/interface/LuminosityInfoRcd.h"
 
 using namespace std;

@@ -1,7 +1,7 @@
 #ifndef CondTools_RunInfo_LuminosityInfoHandler_h
 #define CondTools_RunInfo_LuminosityInfoHandler_h
 #include <string>
-#include "CondFormats/Calibration/interface/LuminosityInfo.h"
+#include "CondFormats/RunInfo/interface/LuminosityInfo.h"
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 namespace edm{

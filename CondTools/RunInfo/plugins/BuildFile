@@ -2,6 +2,7 @@
 <use name=CondCore/PopCon>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
+<use name=CondFormats/DataRecord>
 <library file=LuminosityPopConAnalyzer.cc name=CondToolsLuminosityPopConAnalyzer>
    <flags EDM_PLUGIN=1>
 </library>
