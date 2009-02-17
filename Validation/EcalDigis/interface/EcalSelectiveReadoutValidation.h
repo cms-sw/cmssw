@@ -4,8 +4,8 @@
 /*
  * \file EcalSelectiveReadoutValidation.h
  *
- * $Date: 2008/07/03 14:29:00 $
- * $Revision: 1.5 $
+ * $Date: 2008/11/13 15:59:41 $
+ * $Revision: 1.6 $
  *
  */
 
@@ -625,6 +625,11 @@ private:
    * (registered by the registerHist method), including disabled one.
    */
   void printAvailableHists();
+
+  /** Scaled histograms expressed in rate by 1/eventCount
+   * @param eventCount event count to use for normalization factor
+   */
+  void normalizeHists(double eventCount);
 
   /** Configure DCC ZS FIR weights. Heuristic is used to determine
    * if input weights are normalized weights or integer weights in
