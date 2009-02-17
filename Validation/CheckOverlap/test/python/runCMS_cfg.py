@@ -8,30 +8,21 @@ process.load("Validation.CheckOverlap.testGeometry_cfi")
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
+    destinations = cms.untracked.vstring('cout'),
+    categories = cms.untracked.vstring('G4cout', 'G4cerr''),
     debugModules = cms.untracked.vstring('*'),
     cout = cms.untracked.PSet(
-        SimG4CoreGeometry = cms.untracked.PSet(
+        threshold = cms.untracked.string('DEBUG'),
+        default = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         G4cerr = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
         ),
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        MagneticField = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        threshold = cms.untracked.string('DEBUG'),
         G4cout = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
         )
-    ),
-    categories = cms.untracked.vstring('G4cout', 
-        'G4cerr', 
-        'SimG4CoreGeometry', 
-        'MagneticField'),
-    destinations = cms.untracked.vstring('cout')
+    )
 )
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",

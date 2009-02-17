@@ -9,7 +9,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "G4Run.hh"
-#include "G4PhysicalVolumeStore.hh"
+#include "G4LogicalVolumeStore.hh"
 #include "G4PVPlacement.hh"
 #include "G4PVParameterised.hh"
 #include "G4LogicalVolume.hh"
@@ -19,39 +19,48 @@
 #include <set>
 
 CheckOverlap::CheckOverlap(const edm::ParameterSet &p) : topLV(0) {
-  nodeName = p.getUntrackedParameter<std::string>("NodeName", "");
-  nPoints  = p.getUntrackedParameter<int>("Resolution", 1000);
-  edm::LogInfo("G4cout") << "CheckOverlap:: initialised with Node Name "
-			 << " " << nodeName << " and Resolution " 
-			 << nPoints;
+  std::vector<std::string> defNames;
+  nodeNames = p.getUntrackedParameter<std::vector<std::string> >("NodeNames", defNames);
+  nPoints   = p.getUntrackedParameter<int>("Resolution", 1000);
+  edm::LogInfo("G4cout") << "CheckOverlap:: initialised with " 
+			 << nodeNames.size() << " Node Names and Resolution " 
+			 << nPoints << " the names are:"; 
+  for (unsigned int ii=0; ii<nodeNames.size(); ii++)
+    edm::LogInfo("G4cout") << "CheckOverlap:: Node[" << ii << "] : " << nodeNames[ii]; 
 }
  
 CheckOverlap::~CheckOverlap() {}
   
 void CheckOverlap::update(const BeginOfRun * run) {
   
-  edm::LogInfo("G4cout") << "Node Name " << nodeName;
-  if (nodeName != "") {
-    const G4PhysicalVolumeStore * pvs = G4PhysicalVolumeStore::GetInstance();
-    std::vector<G4VPhysicalVolume *>::const_iterator pvcite;
+  if (nodeNames.size() > 0) {
+    const G4LogicalVolumeStore * lvs = G4LogicalVolumeStore::GetInstance();
+    std::vector<G4LogicalVolume *>::const_iterator lvcite;
     int i = 0;
-    for (pvcite = pvs->begin(); pvcite != pvs->end(); pvcite++) {
-      edm::LogInfo("G4cout") << "Name of node " << (++i) << " : " 
-			     << (*pvcite)->GetName();
-      if ((*pvcite)->GetName() == (G4String)(nodeName)) {
-	topLV = (*pvcite)->GetLogicalVolume();
-	break;
+    for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
+      for (unsigned int ii=0; ii<nodeNames.size(); ii++) {
+	if ((*lvcite)->GetName() == (G4String)(nodeNames[ii])) {
+	  topLV.push_back((*lvcite));
+	  break;
+	}
       }
+      edm::LogInfo("G4cout") << "Name of node " << (++i) << " : " 
+			     << (*lvcite)->GetName();
+      if (topLV.size() == nodeNames.size()) break;
     }
   } else {
     G4VPhysicalVolume * theTopPV = getTopPV();
-    topLV = theTopPV->GetLogicalVolume();
+    topLV.push_back(theTopPV->GetLogicalVolume());
   }
-  if (topLV != 0) edm::LogInfo("G4cout") << "Top LV Name " << topLV->GetName();
-  else            edm::LogInfo("G4cout") << "No Top LV Found";
-  //---------- Check all PV's
-  if (topLV) 
-    checkHierarchyLeafPVLV(topLV, 0);
+
+  if (topLV.size() == 0) {
+    edm::LogInfo("G4cout") << "No Top LV Found";
+  } else {
+    for (unsigned int ii=0; ii<topLV.size(); ii++) {
+      edm::LogInfo("G4cout") << "Top LV Name " << topLV[ii]->GetName();
+      checkHierarchyLeafPVLV(topLV[ii], 0);
+    }
+  }
 }
 
 void CheckOverlap::checkHierarchyLeafPVLV(G4LogicalVolume * lv, 

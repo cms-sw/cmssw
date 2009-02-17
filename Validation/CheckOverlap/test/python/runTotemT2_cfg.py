@@ -12,6 +12,8 @@ process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
+    destinations = cms.untracked.vstring('cout'),
+    categories = cms.untracked.vstring('G4cout', 'G4cerr'),
     cout = cms.untracked.PSet(
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
@@ -22,10 +24,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         G4cerr = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
         )
-    ),
-    categories = cms.untracked.vstring('G4cout', 
-        'G4cerr'),
-    destinations = cms.untracked.vstring('cout')
+    )
 )
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
@@ -58,8 +57,8 @@ process.g4SimHits.Physics.type = 'SimG4Core/Physics/DummyPhysics'
 process.g4SimHits.Physics.DummyEMPhysics = True
 process.g4SimHits.Generator.HepMCProductLabel = 'source'
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
+    type       = cms.string('CheckOverlap'),
     Resolution = cms.untracked.int32(1000),
-    type = cms.string('CheckOverlap'),
-    NodeName = cms.untracked.string('TotemT2')
+    NodeNames  = cms.untracked.vstring('TotemT2')
 ))
 

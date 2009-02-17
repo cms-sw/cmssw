@@ -34,9 +34,9 @@ private:
 
 private:
 
-  std::string              nodeName;
-  int                      nPoints;
-  G4LogicalVolume *        topLV; 
+  std::vector<std::string>      nodeNames;
+  int                           nPoints;
+  std::vector<G4LogicalVolume*> topLV; 
 
 };
 
