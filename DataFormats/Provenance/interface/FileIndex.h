@@ -5,7 +5,7 @@
 
 FileIndex.h 
 
-$Id: FileIndex.h,v 1.10.4.1 2008/11/19 22:43:07 wmtan Exp $
+$Id: FileIndex.h,v 1.11 2008/12/18 05:00:31 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -55,6 +55,8 @@ namespace edm {
 
       typedef std::vector<Element>::const_iterator const_iterator;
 
+      typedef std::vector<Element>::iterator iterator;
+
       void sortBy_Run_Lumi_Event();
       void sortBy_Run_Lumi_EventEntry();
 
@@ -91,6 +93,14 @@ namespace edm {
       const_iterator begin() const {return entries_.begin();}
 
       const_iterator end() const {return entries_.end();}
+
+      iterator begin() {return entries_.begin();}
+
+      iterator end() {return entries_.end();}
+
+      iterator erase(iterator pos) {return entries_.erase(pos);}
+
+      iterator erase(iterator begin, iterator end) {return entries_.erase(begin, end);}
 
       std::vector<Element>::size_type size() const {return entries_.size();}
 
