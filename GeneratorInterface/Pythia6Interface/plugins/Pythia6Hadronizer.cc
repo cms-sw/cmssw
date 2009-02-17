@@ -78,7 +78,6 @@ JetMatching* Pythia6Hadronizer::fJetMatching = 0;
 Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps) 
    : fPy6Service( new Pythia6Service(ps) ), // this will store py6 params for further settings
      fCOMEnergy(ps.getParameter<double>("comEnergy")),
-     fGenEvent(0),
      fEventCounter(0),
      fRunInfo(0),
      fEventInfo(0),
@@ -213,7 +212,7 @@ bool Pythia6Hadronizer::generatePartonsAndHadronize()
    
    //formEvent();
    call_pyhepc(1);
-   fGenEvent = conv.read_next_event() ;
+   fGenEvent.reset( conv.read_next_event() );
    
    fEventCounter++;
       
@@ -237,7 +236,7 @@ bool Pythia6Hadronizer::hadronize()
    if ( FortranCallback::getInstance()->getIterationsPerEvent() > 1 || 
         hepeup_.nup <= 0 || pypars.msti[0] == 1 )
    {
-      fGenEvent = 0;
+      fGenEvent.reset();
 /*
       std::cout << " terminating loop inside event because of : " << 
       FortranCallback::getInstance()->getIterationsPerEvent() << " " <<
@@ -248,7 +247,7 @@ bool Pythia6Hadronizer::hadronize()
       
    //formEvent();
    call_pyhepc(1);
-   fGenEvent = conv.read_next_event() ;
+   fGenEvent.reset( conv.read_next_event() );
    
    fEventCounter++;
       
@@ -353,17 +352,15 @@ void Pythia6Hadronizer::setLHEEventProd( LHEEventProduct* lheep )
 
 }
 
-void Pythia6Hadronizer::resetEvent( const HepMC::GenEvent* e )
+void Pythia6Hadronizer::resetEvent( HepMC::GenEvent* e )
 {
 
    // here I have to reset contents of HEPEVT, for consistency, 
    // and also of PYJETS !!!
    //
-   if ( fGenEvent ) delete fGenEvent;
-   fGenEvent = new HepMC::GenEvent( *e );
-   
+   fGenEvent.reset(e);
+
    return;
-   
 }
 
-}
+} // namespace gen

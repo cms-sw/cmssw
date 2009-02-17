@@ -6,6 +6,7 @@
 // class Pythia6Hadronizer is an example of a class that models the
 // Hadronizer concept.
 
+#include <memory>
 
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
@@ -62,9 +63,9 @@ class JetMatching;
      void setLHERunInfo( lhef::LHERunInfo* lheri ) ;
      void setLHEEventProd( LHEEventProduct* lheep ); 
      
-     void resetEvent( const HepMC::GenEvent* );
+     void resetEvent( HepMC::GenEvent* );
      
-     HepMC::GenEvent* getGenEvent() { return fGenEvent; }
+     HepMC::GenEvent* getGenEvent() { return fGenEvent.release(); }
      const GenRunInfoProduct& getGenRunInfo() const { return fGenRunInfo; }
              
   private:
@@ -76,14 +77,14 @@ class JetMatching;
      //
      double fCOMEnergy ;  // this one is irrelevant for setting py6 as hadronizer
                           // or if anything, it should be picked up from LHERunInfoProduct !   
-     HepMC::GenEvent*     fGenEvent; 
-     GenRunInfoProduct    fGenRunInfo;
-     int                  fEventCounter;
+     std::auto_ptr<HepMC::GenEvent> fGenEvent; 
+     GenRunInfoProduct              fGenRunInfo;
+     int                            fEventCounter;
      
-     lhef::LHERunInfo*    fRunInfo;
-     LHEEventProduct*     fEventInfo;
+     lhef::LHERunInfo*              fRunInfo;
+     LHEEventProduct*               fEventInfo;
 
-     static JetMatching*  fJetMatching; 
+     static JetMatching*            fJetMatching; 
 
      bool            fHepMCVerbosity;
      unsigned int    fMaxEventsToPrint ;
