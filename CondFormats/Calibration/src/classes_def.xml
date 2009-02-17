@@ -70,12 +70,5 @@
  <class name="std::vector<big::bigHeader>"/>
  <class name="std::vector<big::bigStore>"/>
 
- <class name="lumi::LuminosityInfo" class_version="0"/>
- <class name="lumi::HLTInfo"/>
- <class name="lumi::BunchCrossingInfo"/>
- <class name="lumi::LumiAverage"/>
- <class name="std::vector<lumi::BunchCrossingInfo>"/>
- <class name="std::vector<lumi::LumiAverage>"/>
- <class name="std::vector<lumi::HLTInfo>"/>
 </lcgdict>   
 
