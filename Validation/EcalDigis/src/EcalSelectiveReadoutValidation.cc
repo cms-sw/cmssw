@@ -1,8 +1,8 @@
 /*
  * \file EcalSelectiveReadoutValidation.cc
  *
- * $Date: 2008/10/29 10:54:11 $
- * $Revision: 1.19 $
+ * $Date: 2008/11/13 15:59:42 $
+ * $Revision: 1.20 $
  *
  */
 
@@ -518,12 +518,12 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event,
     int iY0 = iXY2cIndex(static_cast<const EEDetId&>(frame.id()).iy());
     int iZ0 = static_cast<const EEDetId&>(frame.id()).zside()>0?1:0;
     if(iX0<0 || iX0>=nEeX){
-        cout << "iX0 (= " << iX0 << ") is out of range ("
-             << "[0," << nEeX -1 << "]\n";
+      cout << "iX0 (= " << iX0 << ") is out of range ("
+	   << "[0," << nEeX -1 << "]\n";
     }
     if(iY0<0 || iY0>=nEeY){
-        cout << "iY0 (= " << iY0 << ") is out of range ("
-             << "[0," << nEeY -1 << "]\n";
+      cout << "iY0 (= " << iY0 << ") is out of range ("
+	   << "[0," << nEeY -1 << "]\n";
     }
     //    cout << "EE zs Energy computation...";
     if(localReco_){
@@ -535,8 +535,8 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event,
       = eeSrFlags_->find(readOutUnitOf(frame.id()));
     
     if(srf == eeSrFlags_->end()){
-	throw cms::Exception("EcalSelectiveReadoutValidation")
-	  << __FILE__ << ":" << __LINE__ << ": SR flag not found";
+      throw cms::Exception("EcalSelectiveReadoutValidation")
+	<< __FILE__ << ":" << __LINE__ << ": SR flag not found";
     }
       
     bool highInterest = ((srf->value() & ~EcalSrFlag::SRF_FORCED_MASK)
@@ -557,7 +557,7 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event,
         fill(meEeRecE_, eeEnergies[iZ0][iX0][iY0].recE);
 	
         fill(meEeEMean_, ievt_+1,
-			 eeEnergies[iZ0][iX0][iY0].recE);
+	     eeEnergies[iZ0][iX0][iY0].recE);
         
         if(!eeEnergies[iZ0][iX0][iY0].simHit){//noise only crystal channel
           fill(meEeNoise_, eeEnergies[iZ0][iX0][iY0].noZsRecE);
@@ -566,9 +566,9 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event,
           fill(meEeRecEHitXtal_, eeEnergies[iZ0][iX0][iY0].recE);
         }
 	fill(meEeRecVsSimE_, eeEnergies[iZ0][iX0][iY0].simE,
-			     eeEnergies[iZ0][iX0][iY0].recE);
+	     eeEnergies[iZ0][iX0][iY0].recE);
 	fill(meEeNoZsRecVsSimE_, eeEnergies[iZ0][iX0][iY0].simE,
-				 eeEnergies[iZ0][iX0][iY0].noZsRecE); 
+	     eeEnergies[iZ0][iX0][iY0].noZsRecE); 
       }
     }
   }
@@ -662,38 +662,38 @@ EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event,
 	     << "[0," << nEbEta -1 << "]");
     }
     if(iPhi0<0 || iPhi0>=nEbPhi){
-	throw (cms::Exception("EcalSelectiveReadoutValidation")
-	       << "iPhi0 (= " << iPhi0 << ") is out of range ("
-	       << "[0," << nEbPhi -1 << "]");
-      }
-      assert(iEta0>=0 && iEta0<nEbEta);
-      assert(iPhi0>=0 && iPhi0<nEbPhi);
-      if(!crystalShot[iEta0][iPhi0]){
-        crystalShot[iEta0][iPhi0] = true;
-      } else{
-        cout << "Error: several digi for same crystal!";
-        abort();
-      }
-      if(localReco_){
-        ebEnergies[iEta0][iPhi0].recE = frame2Energy(frame);
-      }
-      fill(meChOcc_, iEta0+120, iPhi0);
-      EBSrFlagCollection::const_iterator srf
-	= ebSrFlags_->find(readOutUnitOf(frame.id()));
+      throw (cms::Exception("EcalSelectiveReadoutValidation")
+	     << "iPhi0 (= " << iPhi0 << ") is out of range ("
+	     << "[0," << nEbPhi -1 << "]");
+    }
+    assert(iEta0>=0 && iEta0<nEbEta);
+    assert(iPhi0>=0 && iPhi0<nEbPhi);
+    if(!crystalShot[iEta0][iPhi0]){
+      crystalShot[iEta0][iPhi0] = true;
+    } else{
+      cout << "Error: several digi for same crystal!";
+      abort();
+    }
+    if(localReco_){
+      ebEnergies[iEta0][iPhi0].recE = frame2Energy(frame);
+    }
+    fill(meChOcc_, iEta0+120, iPhi0);
+    EBSrFlagCollection::const_iterator srf
+      = ebSrFlags_->find(readOutUnitOf(frame.id()));
       
-      if(srf == ebSrFlags_->end()){
-	throw cms::Exception("EcalSelectiveReadoutValidation")
-	  << __FILE__ << ":" << __LINE__ << ": SR flag not found";
-      }
+    if(srf == ebSrFlags_->end()){
+      throw cms::Exception("EcalSelectiveReadoutValidation")
+	<< __FILE__ << ":" << __LINE__ << ": SR flag not found";
+    }
       
-      bool highInterest = ((srf->value() & ~EcalSrFlag::SRF_FORCED_MASK)
-			   == EcalSrFlag::SRF_FULL);
+    bool highInterest = ((srf->value() & ~EcalSrFlag::SRF_FORCED_MASK)
+			 == EcalSrFlag::SRF_FULL);
       
-      if(highInterest){
-	fill(meEbHiZsFir_, dccZsFIR(frame, firWeights_, firstFIRSample_, 0));
-      } else{
-	fill(meEbLiZsFir_, dccZsFIR(frame, firWeights_, firstFIRSample_, 0));
-      }
+    if(highInterest){
+      fill(meEbHiZsFir_, dccZsFIR(frame, firWeights_, firstFIRSample_, 0));
+    } else{
+      fill(meEbLiZsFir_, dccZsFIR(frame, firWeights_, firstFIRSample_, 0));
+    }
   } //next EB digi
 
   if(!localReco_){
@@ -763,7 +763,8 @@ EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event,
   }
 }
 
-EcalSelectiveReadoutValidation::~EcalSelectiveReadoutValidation(){ 
+EcalSelectiveReadoutValidation::~EcalSelectiveReadoutValidation(){
+  normalizeHists(ievt_);
   if(outputFile_.size()!=0) dbe_->save(outputFile_);
 }
 
@@ -862,7 +863,7 @@ void EcalSelectiveReadoutValidation::analyzeDataVolume(const Event& e,
     fill(meDccVol_, iDcc+1, getDccEventSize(iDcc, nPerDcc_[iDcc])/kByte_);
     const FEDRawDataCollection& raw = *fedRaw_;
     fill(meDccVolFromData_, iDcc+1,
-			    ((double)raw.FEDData(601+iDcc).size())/kByte_);
+	 ((double)raw.FEDData(601+iDcc).size())/kByte_);
   }
 
 
@@ -985,15 +986,15 @@ double EcalSelectiveReadoutValidation::frame2Energy(const EcalDataFrame& frame) 
 }
   
 int EcalSelectiveReadoutValidation::getRuCount(int iDcc0) const{
-//   static int nEemRu[] = {34, 32, 33, 33, 32, 34, 33, 34, 33};
-//   static int nEepRu[] = {32, 33, 33, 32, 34, 33, 34, 33, 34};
-//   if(iDcc0<9){//EE-
-//     return nEemRu[iDcc0];
-//   } else if(iDcc0>=45){//EE+
-//     return nEepRu[iDcc0-45];
-//   } else{//EB
-//     return 68;
-//   }
+  //   static int nEemRu[] = {34, 32, 33, 33, 32, 34, 33, 34, 33};
+  //   static int nEepRu[] = {32, 33, 33, 32, 34, 33, 34, 33, 34};
+  //   if(iDcc0<9){//EE-
+  //     return nEemRu[iDcc0];
+  //   } else if(iDcc0>=45){//EE+
+  //     return nEepRu[iDcc0-45];
+  //   } else{//EB
+  //     return 68;
+  //   }
   return nRuPerDcc_[iDcc0];
 }
 
@@ -1242,16 +1243,16 @@ void EcalSelectiveReadoutValidation::readAllCollections(const edm::Event& event)
 }
  
 void EcalSelectiveReadoutValidation::printAvailableHists(){
-   LogInfo log("HistoList");
-   log << "Avalailable histograms (DQM monitor elements): \n";
-   for(map<string, string>::iterator it = availableHistList_.begin();
-       it != availableHistList_.end();
-       ++it){
-     log << it->first << ": " << it->second << "\n";
-   }
-   log << "\nTo include an histogram add its name in the vstring parameter "
-     "'histograms' of the EcalSelectiveReadoutValidation module\n";
- }
+  LogInfo log("HistoList");
+  log << "Avalailable histograms (DQM monitor elements): \n";
+  for(map<string, string>::iterator it = availableHistList_.begin();
+      it != availableHistList_.end();
+      ++it){
+    log << it->first << ": " << it->second << "\n";
+  }
+  log << "\nTo include an histogram add its name in the vstring parameter "
+    "'histograms' of the EcalSelectiveReadoutValidation module\n";
+}
  
 double EcalSelectiveReadoutValidation::getEbEventSize(double nReadXtals) const{
   double ruHeaderPayload = 0.;
@@ -1270,13 +1271,25 @@ double EcalSelectiveReadoutValidation::getEeEventSize(double nReadXtals) const{
   for(unsigned iDcc0 = 0; iDcc0 < nDccs; ++iDcc0){
     //skip barrel:
     if(iDcc0== firstEbDcc0) iDcc0 += nEbDccs;
-      ruHeaderPayload += getRuCount(iDcc0)*8.;      
+    ruHeaderPayload += getRuCount(iDcc0)*8.;      
   }
   return getDccOverhead(EE)*nEeDccs + nReadXtals*getBytesPerCrystal()
     + ruHeaderPayload;
 }
 
-//------
+void EcalSelectiveReadoutValidation::normalizeHists(double eventCount){
+  MonitorElement* mes[] = { meChOcc_, meTtf_, meTpMap_, meFullRoTt_,
+			    meZs1Tt_, meForcedTt_, meLiTtf_, meHiTtf_};
+  
+  double scale = 1./eventCount;
+  
+  for(unsigned i = 0; i < sizeof(mes)/sizeof(mes[0]); ++i){
+    if(mes[i] == 0) continue;
+    TH1* h = mes[i]->getTH1();
+    cout << "[SRValid] " << "Normalizing " << h->GetName() << "\n";
+    h->Scale(scale);
+  }
+}
 
 //This implementation  assumes that int is coded on at least 28-bits,
 //which in pratice should be always true.
@@ -1389,3 +1402,4 @@ EcalSelectiveReadoutValidation::configFirWeights(vector<double> weightsForZsFIR)
   
   log <<"\nFirst FIR sample: " << firstFIRSample_;
 }
+
