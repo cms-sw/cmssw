@@ -6,12 +6,32 @@ hltMonMuDQM = cms.EDAnalyzer("HLTMuonDQMSource",
     MonitorDaemon = cms.untracked.bool(True),
     reqNum = cms.uint32(1),
     DaqMonitorBEInterface = cms.untracked.bool(True),
+<<<<<<< HLTMonMuonDQM_cfi.py
+    filters = cms.VPSet(
+    	# L1 muon
+	cms.PSet(
+		HLTCollectionLevel = cms.string("L1"),
+		HLTCollectionLabels = cms.string("HLT_L1Mu")
+	),
+    	# L2 muon
+	cms.PSet(
+		HLTCollectionLevel = cms.string("L2"),
+		HLTCollectionLabels = cms.string("HLT_L2Mu9")
+	),
+    	# L3 muon
+	cms.PSet(
+		HLTCollectionLevel = cms.string("L3"),
+		HLTCollectionLabels = cms.string("HLT_Mu3")
+	)
+    ),
+=======
     filters = cms.VPSet(
     	# L1 muon
 	cms.PSet(
 		HLTCollectionLabels = cms.string("HLT_L1Mu")
 	)
     ),
+>>>>>>> 1.2
     disableROOToutput = cms.untracked.bool(True)
 )
 

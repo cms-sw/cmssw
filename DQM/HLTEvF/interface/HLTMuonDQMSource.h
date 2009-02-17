@@ -5,8 +5,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/10/16 16:43:33 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/02/16 14:51:04 $
+ *  $Revision: 1.7 $
  *  \author  M. Vander Donckt CERN
  *   
  */
@@ -70,20 +70,27 @@ private:
   edm::InputTag l3isolationTag_;
   //  edm::InputTag l3linksTag_;
 
+<<<<<<< HLTMuonDQMSource.h
+  std::vector<std::string> theHLTCollectionLabels;
+  std::vector<std::string> theHLTCollectionLevel;
+
+=======
   std::vector<std::string> theHLTCollectionLabels;
 
+>>>>>>> 1.7
   // ----------member data ---------------------------
   bool verbose_;
 
   MonitorElement * hNMu[4];
   MonitorElement * hcharge[4];
+  MonitorElement * hchargeconv[3];
   MonitorElement * hpt[4];
-  MonitorElement * hptlx[2];
   MonitorElement * heta[4];
   MonitorElement * hphi[4];
   MonitorElement * hptphi[4];
   MonitorElement * hpteta[4];
   MonitorElement * hptres[3];
+  MonitorElement * hptrespt[3];
   MonitorElement * hetares[3];
   MonitorElement * hetareseta[3];
   MonitorElement * hphires[3];
@@ -100,7 +107,14 @@ private:
   MonitorElement * hdimumass[2];
   MonitorElement * hiso[2];
   MonitorElement * hl1quality;
+  MonitorElement * hptfrac[2];
+  MonitorElement * hetafrac[2];
+  MonitorElement * hphifrac[2];
   float XMIN; float XMAX;
+
+  TH1D *_hpt1[2], *_hpt2[2];
+  TH1D *_heta1[2], *_heta2[2];
+  TH1D *_hphi1[2], *_hphi2[2];
 };
 
 #endif
