@@ -36,6 +36,13 @@
 
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 
+// RC
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+
+
+
+
 using namespace edm;
 using namespace reco;
 
@@ -50,8 +57,9 @@ TrackHitFilter::TrackHitFilter(const edm::ParameterSet& iConfig):
   theBadMods( iConfig.getParameter<std::vector<unsigned int> >( "theBadModules" ) ),
   rejectBadStoNHits( iConfig.getParameter<bool>( "rejectBadStoNHits" ) ),
   theCMNSubtractionMode(iConfig.getUntrackedParameter<std::string>( "CMNSubtractionMode" ,"Median") ) ,
-  theStoNthreshold( iConfig.getParameter<double>( "theStoNthreshold" ) )
-  
+  theStoNthreshold( iConfig.getParameter<double>( "theStoNthreshold" ) ),  
+  rejectBadClusterPixelHits( iConfig.getParameter<bool>( "rejectBadClusterPixelHits" ) ),
+  thePixelClusterthreshold( iConfig.getParameter<double>( "thePixelClusterthreshold" ) )
 {
 
    //register your products, and/or set an "alias" label
@@ -223,12 +231,21 @@ bool TrackHitFilter::keepThisHit(DetId id, int type, int layer, const TrackingRe
   }
 
 
+  //********* Rejects pixel hits with 'bad' cluster 
 
-         
+  if(rejectBadClusterPixelHits && (abs(type)==1 || abs(type)==2)){
+
+    const SiPixelRecHit* pixelhit = dynamic_cast<const SiPixelRecHit*>(therechit);
+    const SiPixelCluster* pixelcluster = &*(pixelhit->cluster());
+    if(pixelcluster->size()==1 && pixelcluster->charge()<thePixelClusterthreshold){keepthishit = false;}
+ }
+
+
+ // ****************        
   // Reject hits with bad S/N
   if (rejectBadStoNHits && (abs(type)>2) ) { //apply it only to Strip hits
-   /*** RC ****/ 
-   //   const uint32_t& recHitDetId = id.rawId();
+
+    const uint32_t& recHitDetId = id.rawId();
     const SiStripMatchedRecHit2D* matchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>(therechit);
     const SiStripRecHit2D* hit = dynamic_cast<const SiStripRecHit2D*>(therechit);
     const ProjectedSiStripRecHit2D* unmatchedhit = dynamic_cast<const ProjectedSiStripRecHit2D*>(therechit);
@@ -239,30 +256,30 @@ bool TrackHitFilter::keepThisHit(DetId id, int type, int layer, const TrackingRe
 
       const SiStripRecHit2D* monohit=matchedhit->monoHit();    
       const SiStripCluster* monocluster = &*(monohit->cluster());
-      SiStripClusterInfo monoclusterInfo = SiStripClusterInfo( *monocluster, iSetup); 
-      if (monoclusterInfo.signalOverNoise() < theStoNthreshold ) keepmonohit = false;
-	
+      SiStripClusterInfo monoclusterInfo = SiStripClusterInfo( recHitDetId, *monocluster, iSetup, theCMNSubtractionMode);    //  if (monoclusterInfo.signalOverNoise() < theStoNthreshold ) keepmonohit = false;
+      if (monoclusterInfo.getSignalOverNoise() < theStoNthreshold ) keepmonohit = false;	
 
       const SiStripRecHit2D* stereohit=matchedhit->stereoHit();   
       const SiStripCluster* stereocluster = &*(stereohit->cluster());
-      SiStripClusterInfo stereoclusterInfo = SiStripClusterInfo(*stereocluster, iSetup);   
-      if (stereoclusterInfo.signalOverNoise() < theStoNthreshold )keepstereohit = false;
-           
+      SiStripClusterInfo stereoclusterInfo = SiStripClusterInfo( recHitDetId, *stereocluster, iSetup, theCMNSubtractionMode);   
+      //if (stereoclusterInfo.signalOverNoise() < theStoNthreshold ) keepstereohit = false;
+      if (stereoclusterInfo.getSignalOverNoise() < theStoNthreshold ) keepstereohit = false;	
+      
       if (!keepmonohit || !keepstereohit) keepthishit = false;    
     }
     else if (hit) {
       const SiStripCluster* cluster = &*(hit->cluster());
-      SiStripClusterInfo clusterInfo = SiStripClusterInfo(*cluster, iSetup);     
-       if (clusterInfo.signalOverNoise() < theStoNthreshold )keepthishit = false;
-     
+      SiStripClusterInfo clusterInfo = SiStripClusterInfo( recHitDetId, *cluster, iSetup, theCMNSubtractionMode);     
+      // if (clusterInfo.signalOverNoise() < theStoNthreshold ) keepthishit = false;    
+      if (clusterInfo.getSignalOverNoise() < theStoNthreshold ) keepthishit = false;    
     }
     else if (unmatchedhit) {
       const SiStripRecHit2D &orighit = unmatchedhit->originalHit(); 
       const SiStripCluster* origcluster = &*(orighit.cluster());
-      SiStripClusterInfo clusterInfo = SiStripClusterInfo(*origcluster, iSetup);     
+      SiStripClusterInfo clusterInfo = SiStripClusterInfo( recHitDetId, *origcluster, iSetup, theCMNSubtractionMode);     
 
-      if (clusterInfo.signalOverNoise() < theStoNthreshold ) keepthishit = false;   
-      
+      //if (clusterInfo.signalOverNoise() < theStoNthreshold ) keepthishit = false;    
+       if (clusterInfo.getSignalOverNoise() < theStoNthreshold ) keepthishit = false;    
     }
   } // end reject bad S/N
 

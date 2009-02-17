@@ -13,7 +13,7 @@
 //
 // Original Author:  Roberto Covarelli
 //         Created:  Mon Jan 15 10:39:42 CET 2007
-// $Id: TrackHitFilter.h,v 1.6 2008/02/05 14:30:54 covarell Exp $
+// $Id: TrackHitFilter.h,v 1.7 2008/10/13 12:42:14 ntran Exp $
 //
 //
 
@@ -43,7 +43,7 @@ class TrackHitFilter : public edm::EDProducer {
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
   //     bool keepThisHit(DetId id, int type, int layer);
-      bool keepThisHit(DetId id, int type, int layer, const TrackingRecHit* , const edm::EventSetup&);  
+      bool keepThisHit(DetId id, int type, int layer, const TrackingRecHit* , const edm::Event&, const edm::EventSetup&);  
 
    protected:
       edm::InputTag theSrc;    
@@ -52,8 +52,10 @@ class TrackHitFilter : public edm::EDProducer {
       bool rejectBadMods;
       std::vector<unsigned int> theBadMods; 
   /* EM */
-      bool rejectBadStoNHits;
-      std::string theCMNSubtractionMode;
-      double theStoNthreshold;
- 
+  bool rejectBadStoNHits;
+  std::string theCMNSubtractionMode;
+  double theStoNthreshold;
+  /*RC*/
+  bool rejectBadClusterPixelHits;
+  double thePixelClusterthreshold;
 };
