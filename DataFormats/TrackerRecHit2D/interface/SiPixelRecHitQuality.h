@@ -115,11 +115,11 @@ class SiPixelRecHitQuality {
     //
     inline void setCotAlphaFromCluster( float cotalpha, QualWordType & qualWord ) {
       int raw = (int) (cotalpha/cotAlpha_units);     // convert to integer units
-      qualWord &= ((raw & cotAlpha_mask) << cotAlpha_shift);
+      qualWord |= ((raw & cotAlpha_mask) << cotAlpha_shift);
     }
     inline void setCotBetaFromCluster( float cotbeta, QualWordType & qualWord ) {
       int raw = (int) (cotbeta/cotBeta_units);     // convert to integer units
-      qualWord &= ((raw & cotBeta_mask) << cotBeta_shift);
+      qualWord |= ((raw & cotBeta_mask) << cotBeta_shift);
     }
     
 
@@ -127,28 +127,28 @@ class SiPixelRecHitQuality {
       double draw = - log( (double) prob ) * probX_1_over_log_units;
       unsigned int raw = (int) (draw+0.5);   // convert to integer, round correctly
       // cout << "Prob = " << prob << " --> Bits = " << raw << endl;
-      qualWord &= ((raw & probX_mask) << probX_shift);
+      qualWord |= ((raw & probX_mask) << probX_shift);
     }
     inline void setProbabilityY( float prob, QualWordType & qualWord ) {
       double draw = - log( (double) prob ) * probY_1_over_log_units;
       unsigned int raw = (int) (draw+0.5);   // convert to integer, round correctly
       // cout << "Prob = " << prob << " --> Bits = " << raw << endl;
-      qualWord &= ((raw & probY_mask) << probY_shift);
+      qualWord |= ((raw & probY_mask) << probY_shift);
     }
 
     
     inline void setQBin( int qbin, QualWordType & qualWord ) {
-      qualWord &= ((qbin & qBin_mask) << qBin_shift);
+      qualWord |= ((qbin & qBin_mask) << qBin_shift);
     }
     
     inline void setIsOnEdge( bool flag, QualWordType & qualWord ) {
-      qualWord &= ((flag & edge_mask) << edge_shift);
+      qualWord |= ((flag & edge_mask) << edge_shift);
     }
     inline void setHasBadPixels( bool flag, QualWordType & qualWord ) {
-      qualWord &= ((flag & bad_mask) << bad_shift);
+      qualWord |= ((flag & bad_mask) << bad_shift);
     }
     inline void setSpansTwoROCs( bool flag, QualWordType & qualWord ) {
-      qualWord &= ((flag & twoROC_mask) << twoROC_shift);
+      qualWord |= ((flag & twoROC_mask) << twoROC_shift);
     }
 
   };

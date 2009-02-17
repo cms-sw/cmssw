@@ -62,7 +62,7 @@ public:
   //--- (and which was computed by the CPE).  The default of flags==0 returns
   //--- probabilityY() only (as that's the safest thing to do).
   //--- Flags are static and kept in the transient rec hit.
-  float clusterProbability(unsigned int flags = 0);
+  float clusterProbability(unsigned int flags = 0) const;
 
 
   //--- Allow direct access to the packed quality information.

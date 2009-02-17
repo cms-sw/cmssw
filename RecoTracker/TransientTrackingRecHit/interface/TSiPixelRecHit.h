@@ -74,7 +74,7 @@ public:
 
 
   //!  Probability of the compatibility of the track with the pixel cluster shape.
-  virtual float clusterProbability() {
+  virtual float clusterProbability() const {
     return theHitData.clusterProbability( theClusterProbComputationFlag );
   }
 

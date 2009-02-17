@@ -27,7 +27,7 @@ bool SiPixelRecHit::sharesInput( const TrackingRecHit* other,
 //--- (and which was computed by the CPE).  The default of flags==0 returns
 //--- probabilityY() only (as that's the safest thing to do).
 //--- Flags are static and kept in the transient rec hit.
-float SiPixelRecHit::clusterProbability(unsigned int flags)
+float SiPixelRecHit::clusterProbability(unsigned int flags) const
 {
   if (flags == 0) {
     return probabilityY();

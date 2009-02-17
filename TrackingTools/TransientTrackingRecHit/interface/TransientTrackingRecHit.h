@@ -96,7 +96,7 @@ public:
   float getAnnealingFactor() const {return annealing_;} 
 
   /// cluster probability, overloaded by pixel rechits.
-  virtual float clusterProbability() { return 1; }
+  virtual float clusterProbability() const { return 1; }
 
 private:
   void setPositionErrors() const;
