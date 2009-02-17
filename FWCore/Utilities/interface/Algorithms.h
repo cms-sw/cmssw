@@ -47,6 +47,28 @@ namespace edm {
     return std::find(s.begin(), s.end(), d) != s.end();
   }
 
+  /// wrappers for std::find
+  template <typename ForwardSequence, typename Predicate>
+  inline
+  typename ForwardSequence::const_iterator
+  find_if_in_all(ForwardSequence const& s, Predicate const& p) {
+    return std::find_if(s.begin(), s.end(), p);
+  }
+
+  template <typename ForwardSequence, typename Predicate>
+  inline
+  typename ForwardSequence::iterator
+  find_if_in_all(ForwardSequence& s, Predicate const& p) {
+    return std::find_if(s.begin(), s.end(), p);
+  }
+
+  template <typename ForwardSequence, typename Predicate>
+  inline
+  bool
+  search_if_in_all(ForwardSequence const& s, Predicate const& p) {
+    return std::find_if(s.begin(), s.end(), p) != s.end();
+  }
+
   /// wrapper for std::binary_search
   template <typename ForwardSequence, typename Datum>
   inline
