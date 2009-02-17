@@ -23,8 +23,10 @@ RootFile.h // used by ROOT input sources
 #include "DataFormats/Provenance/interface/BranchIDListRegistry.h"
 #include "DataFormats/Provenance/interface/BranchMapper.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
+#include "DataFormats/Provenance/interface/EventRange.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockRange.h"
 #include "DataFormats/Provenance/interface/ProductStatus.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
@@ -62,14 +64,16 @@ namespace edm {
 	     LuminosityBlockNumber_t const& startAtLumi,
 	     EventNumber_t const& startAtEvent,
 	     unsigned int eventsToSkip,
-	     std::vector<LuminosityBlockID> const& whichLumisToSkip,
+	     std::vector<LuminosityBlockRange> const& whichLumisToSkip,
+	     std::vector<EventRange> const& whichEventsToSkip,
 	     int remainingEvents,
 	     int remainingLumis,
 	     unsigned int treeCacheSize,
              int treeMaxVirtualSize,
 	     InputSource::ProcessingMode processingMode,
 	     int forcedRunOffset,
-	     std::vector<EventID> const& whichEventsToProcess,
+	     std::vector<LuminosityBlockRange> const& whichLumisToProcess,
+	     std::vector<EventRange> const& whichEventsToProcess,
              bool noEventSort,
 	     GroupSelectorRules const& groupSelectorRules,
              bool dropMergeable,
@@ -163,13 +167,7 @@ namespace edm {
     FileIndex::const_iterator fileIndexIter_;
     std::vector<EventProcessHistoryID> eventProcessHistoryIDs_;  // backward compatibility
     std::vector<EventProcessHistoryID>::const_iterator eventProcessHistoryIter_; // backward compatibility
-    RunNumber_t startAtRun_;
-    LuminosityBlockNumber_t startAtLumi_;
-    EventNumber_t startAtEvent_;
     unsigned int eventsToSkip_;
-    std::vector<LuminosityBlockID> whichLumisToSkip_;
-    std::vector<EventID> whichEventsToProcess_;
-    std::vector<EventID>::const_iterator eventListIter_;
     bool noEventSort_;
     bool fastClonable_;
     JobReport::Token reportToken_;

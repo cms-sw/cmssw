@@ -232,11 +232,13 @@ namespace edm {
     desc.addOptionalUntracked<unsigned int>("firstEvent", 1U);
     desc.addOptionalUntracked<unsigned int>("skipEvents", 0U);
 
-    std::vector<LuminosityBlockID> defaultLumis;
-    desc.addOptionalUntracked<std::vector<LuminosityBlockID> >("lumisToSkip", defaultLumis);
+    std::vector<LuminosityBlockRange> defaultLumis;
+    desc.addOptionalUntracked<std::vector<LuminosityBlockRange> >("lumisToSkip", defaultLumis);
+    desc.addOptionalUntracked<std::vector<LuminosityBlockRange> >("lumisToProcess", defaultLumis);
 
-    std::vector<EventID> defaultEvents;
-    desc.addOptionalUntracked<std::vector<EventID> >("eventsToProcess", defaultEvents);
+    std::vector<EventRange> defaultEvents;
+    desc.addOptionalUntracked<std::vector<EventRange> >("eventsToSkip", defaultEvents);
+    desc.addOptionalUntracked<std::vector<EventRange> >("eventsToProcess", defaultEvents);
 
     desc.addOptionalUntracked<bool>("noEventSort", false);
     desc.addOptionalUntracked<bool>("skipBadFiles", false);

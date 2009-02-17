@@ -28,7 +28,7 @@ process.source = cms.Source("PoolSource",
     , firstRun = cms.untracked.uint32(17)
     , firstLuminosityBlock = cms.untracked.uint32(3)
     , firstEvent = cms.untracked.uint32(6)
-    , lumisToSkip = cms.untracked.VLuminosityBlockID(
+    , lumisToSkip = cms.untracked.VLuminosityBlockRange(
                                            '18:3',
                                            '19:2',
                                            '21:4',

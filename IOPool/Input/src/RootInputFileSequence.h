@@ -18,7 +18,9 @@ RootInputFileSequence: This is an InputSource
 #include "FWCore/Sources/interface/VectorInputSource.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/EventRange.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockRange.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 
 #include "boost/shared_ptr.hpp"
@@ -97,8 +99,10 @@ namespace edm {
     LuminosityBlockNumber_t startAtLumi_;
     EventNumber_t startAtEvent_;
     unsigned int eventsToSkip_;
-    std::vector<LuminosityBlockID> whichLumisToSkip_;
-    std::vector<EventID> eventsToProcess_;
+    std::vector<LuminosityBlockRange> whichLumisToSkip_;
+    std::vector<LuminosityBlockRange> whichLumisToProcess_;
+    std::vector<EventRange> whichEventsToSkip_;
+    std::vector<EventRange> whichEventsToProcess_;
     bool noEventSort_;
     bool skipBadFiles_;
     unsigned int treeCacheSize_;

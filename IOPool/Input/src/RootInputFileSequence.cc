@@ -45,8 +45,10 @@ namespace edm {
     startAtLumi_(pset.getUntrackedParameter<unsigned int>("firstLuminosityBlock", 1U)),
     startAtEvent_(pset.getUntrackedParameter<unsigned int>("firstEvent", 1U)),
     eventsToSkip_(pset.getUntrackedParameter<unsigned int>("skipEvents", 0U)),
-    whichLumisToSkip_(pset.getUntrackedParameter<std::vector<LuminosityBlockID> >("lumisToSkip", std::vector<LuminosityBlockID>())),
-    eventsToProcess_(pset.getUntrackedParameter<std::vector<EventID> >("eventsToProcess",std::vector<EventID>())),
+    whichLumisToSkip_(pset.getUntrackedParameter<std::vector<LuminosityBlockRange> >("lumisToSkip", std::vector<LuminosityBlockRange>())),
+    whichLumisToProcess_(pset.getUntrackedParameter<std::vector<LuminosityBlockRange> >("lumisToProcess", std::vector<LuminosityBlockRange>())),
+    whichEventsToSkip_(pset.getUntrackedParameter<std::vector<EventRange> >("eventsToSkip",std::vector<EventRange>())),
+    whichEventsToProcess_(pset.getUntrackedParameter<std::vector<EventRange> >("eventsToProcess",std::vector<EventRange>())),
     noEventSort_(pset.getUntrackedParameter<bool>("noEventSort", false)),
     skipBadFiles_(pset.getUntrackedParameter<bool>("skipBadFiles", false)),
     treeCacheSize_(pset.getUntrackedParameter<unsigned int>("cacheSize", 0U)),
@@ -60,11 +62,10 @@ namespace edm {
     dropDescendants_(pset.getUntrackedParameter<bool>("dropDescendantsOfDroppedBranches", true)) {
 
     if (!primarySequence_) noEventSort_ = false;
-    if (noEventSort_ && ((startAtEvent_ > 1) || !eventsToProcess_.empty())) {
+    if (!whichLumisToProcess_.empty() && !whichEventsToProcess_.empty()) {
       throw edm::Exception(errors::Configuration)
         << "Illegal configuration options passed to PoolSource\n"
-        << "You cannot request \"noEventSort\" and also set \"firstEvent\"\n"
-        << "or \"eventsToProcess\".\n";
+        << "You cannot request both \"luminosityBlocksToProcess\" and \"eventsToProcess\".\n";
     }
 
     if (primarySequence_ && primary()) duplicateChecker_.reset(new DuplicateChecker(pset));
@@ -72,8 +73,6 @@ namespace edm {
     StorageFactory *factory = StorageFactory::get();
     for(fileIter_ = fileIterBegin_; fileIter_ != fileIterEnd_; ++fileIter_)
       factory->stagein(fileIter_->fileName());
-
-    sort_all(eventsToProcess_);
 
     std::string parametersMustMatch = pset.getUntrackedParameter<std::string>("parametersMustMatch", std::string("permissive"));
     if (parametersMustMatch == std::string("strict")) parametersMustMatch_ = BranchDescription::Strict;
@@ -181,10 +180,13 @@ namespace edm {
       logFileAction("  Successfully opened file ", fileIter_->fileName());
       rootFile_ = RootFileSharedPtr(new RootFile(fileIter_->fileName(), catalog_.url(),
 	  processConfiguration(), fileIter_->logicalFileName(), filePtr,
-	  startAtRun_, startAtLumi_, startAtEvent_, eventsToSkip_, whichLumisToSkip_,
+	  startAtRun_, startAtLumi_, startAtEvent_, eventsToSkip_,
+	  whichLumisToSkip_, whichEventsToSkip_,
 	  remainingEvents(), remainingLuminosityBlocks(), treeCacheSize_, treeMaxVirtualSize_,
 	  input_.processingMode(),
-	  forcedRunOffset_, eventsToProcess_, noEventSort_,
+	  forcedRunOffset_,
+	  whichLumisToProcess_, whichEventsToProcess_,
+	  noEventSort_,
 	  groupSelectorRules_, !primarySequence_, duplicateChecker_, dropDescendants_));
       fileIndexes_[fileIter_ - fileIterBegin_] = rootFile_->fileIndexSharedPtr();
     } else {
