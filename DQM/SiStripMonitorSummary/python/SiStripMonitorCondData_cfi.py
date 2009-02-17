@@ -18,6 +18,7 @@ CondDataMonitoring = cms.EDFilter("SiStripMonitorCondData",
     FillConditions_PSet = cms.PSet(
       FolderName_For_QualityAndCabling_SummaryHistos= cms.string("SiStrip/Tracks"),
       Mod_On                  = cms.bool(False),
+      HistoMaps_On            = cms.bool(True),
       SummaryOnStringLevel_On = cms.bool(False),
       SummaryOnLayerLevel_On  = cms.bool(True),
       GrandSummary_On         = cms.bool(True),
