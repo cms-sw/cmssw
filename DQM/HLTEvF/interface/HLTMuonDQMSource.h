@@ -5,8 +5,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2009/02/16 14:51:04 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/02/17 11:47:38 $
+ *  $Revision: 1.9 $
  *  \author  M. Vander Donckt CERN
  *   
  */
@@ -75,41 +75,46 @@ private:
 
   // ----------member data ---------------------------
   bool verbose_;
+  static const int NTRIG = 5;
+  int nTrigs;
 
-  MonitorElement * hNMu[4];
-  MonitorElement * hcharge[4];
-  MonitorElement * hchargeconv[3];
-  MonitorElement * hpt[4];
-  MonitorElement * heta[4];
-  MonitorElement * hphi[4];
-  MonitorElement * hptphi[4];
-  MonitorElement * hpteta[4];
-  MonitorElement * hptres[3];
-  MonitorElement * hptrespt[3];
-  MonitorElement * hetares[3];
-  MonitorElement * hetareseta[3];
-  MonitorElement * hphires[3];
-  MonitorElement * hphiresphi[3];
-  MonitorElement * hetaphi[4];
-  MonitorElement * hdr[2];
-  MonitorElement * hd0[2];
-  MonitorElement * hdz[2];
-  MonitorElement * hdrphi[2];
-  MonitorElement * hd0phi[2];
-  MonitorElement * hdzeta[2];
-  MonitorElement * herr0[2];
-  MonitorElement * hnhit[4];
-  MonitorElement * hdimumass[2];
-  MonitorElement * hiso[2];
-  MonitorElement * hl1quality;
-  MonitorElement * hptfrac[2];
-  MonitorElement * hetafrac[2];
-  MonitorElement * hphifrac[2];
+  MonitorElement * hNMu[NTRIG][4];
+  MonitorElement * hcharge[NTRIG][4];
+  MonitorElement * hchargeconv[NTRIG][3];
+  MonitorElement * hpt[NTRIG][4];
+  MonitorElement * heta[NTRIG][4];
+  MonitorElement * hphi[NTRIG][4];
+  MonitorElement * hptphi[NTRIG][4];
+  MonitorElement * hpteta[NTRIG][4];
+  MonitorElement * hptres[NTRIG][3];
+  MonitorElement * hptrespt[NTRIG][3];
+  MonitorElement * hetares[NTRIG][3];
+  MonitorElement * hetareseta[NTRIG][3];
+  MonitorElement * hphires[NTRIG][3];
+  MonitorElement * hphiresphi[NTRIG][3];
+  MonitorElement * hetaphi[NTRIG][4];
+  MonitorElement * hdr[NTRIG][2];
+  MonitorElement * hd0[NTRIG][2];
+  MonitorElement * hdz[NTRIG][2];
+  MonitorElement * hdrphi[NTRIG][2];
+  MonitorElement * hd0phi[NTRIG][2];
+  MonitorElement * hdzeta[NTRIG][2];
+  MonitorElement * herr0[NTRIG][2];
+  MonitorElement * hnHits[NTRIG][4];
+  MonitorElement * hnValidHits[NTRIG];
+  MonitorElement * hnTkValidHits[NTRIG];
+  MonitorElement * hnMuValidHits[NTRIG];
+  MonitorElement * hdimumass[NTRIG][2];
+  MonitorElement * hiso[NTRIG][2];
+  MonitorElement * hl1quality[NTRIG];
+  MonitorElement * hptfrac[NTRIG][2];
+  MonitorElement * hetafrac[NTRIG][2];
+  MonitorElement * hphifrac[NTRIG][2];
   float XMIN; float XMAX;
 
-  TH1D *_hpt1[2], *_hpt2[2];
-  TH1D *_heta1[2], *_heta2[2];
-  TH1D *_hphi1[2], *_hphi2[2];
+  TH1D *_hpt1[NTRIG][2], *_hpt2[NTRIG][2];
+  TH1D *_heta1[NTRIG][2], *_heta2[NTRIG][2];
+  TH1D *_hphi1[NTRIG][2], *_hphi2[NTRIG][2];
 };
 
 #endif
