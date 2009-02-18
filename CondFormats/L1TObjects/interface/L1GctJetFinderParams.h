@@ -18,23 +18,23 @@ class L1GctJetFinderParams
   ~L1GctJetFinderParams();
 
   // get methods
-  double getRgnEtLsb() { return rgnEtLsb_; }
-  double getHtLsb() { return htLsb_; }
-  double getCenJetEtSeed() { return cenJetEtSeed_; }
-  double getForJetEtSeed() { return forJetEtSeed_; }
-  double getTauJetEtSeed() { return tauJetEtSeed_; }
-  double getTauIsoEtThreshold() { return tauIsoEtThreshold_; }
-  double getHtJetEtThreshold() { return htJetEtThreshold_; }
-  double getMHtJetEtThreshold() { return mhtJetEtThreshold_; }
+  double getRgnEtLsbGeV() { return rgnEtLsb_; }
+  double getHtLsbGeV() { return htLsb_; }
+  double getCenJetEtSeedGeV() { return cenJetEtSeed_; }
+  double getForJetEtSeedGeV() { return forJetEtSeed_; }
+  double getTauJetEtSeedGeV() { return tauJetEtSeed_; }
+  double getTauIsoEtThresholdGeV() { return tauIsoEtThreshold_; }
+  double getHtJetEtThresholdGeV() { return htJetEtThreshold_; }
+  double getMHtJetEtThresholdGeV() { return mhtJetEtThreshold_; }
   unsigned getCenForJetEtaBoundary() { return cenForJetEtaBoundary_; }
 
   // get integers
-  unsigned getCenJetSeedRank() { return static_cast<unsigned>(cenJetEtSeed_/rgnEtLsb_); }
-  unsigned getForJetSeedRank() { return static_cast<unsigned>(forJetEtSeed_/rgnEtLsb_); }
-  unsigned getTauJetSeedRank() { return static_cast<unsigned>(tauJetEtSeed_/rgnEtLsb_); }
-  unsigned getTauIsoThreshRank() { return static_cast<unsigned>(tauIsoEtThreshold_/rgnEtLsb_); }
-  unsigned getHtJetThreshRank() { return static_cast<unsigned>(htJetEtThreshold_/htLsb_); }
-  unsigned getMHtJetThreshRank() { return static_cast<unsigned>(mhtJetEtThreshold_/htLsb_); }
+  unsigned getCenJetEtSeedGct() { return static_cast<unsigned>(cenJetEtSeed_/rgnEtLsb_); }
+  unsigned getForJetEtSeedGct() { return static_cast<unsigned>(forJetEtSeed_/rgnEtLsb_); }
+  unsigned getTauJetEtSeedGct() { return static_cast<unsigned>(tauJetEtSeed_/rgnEtLsb_); }
+  unsigned getTauIsoEtThresholdGct() { return static_cast<unsigned>(tauIsoEtThreshold_/rgnEtLsb_); }
+  unsigned getHtJetEtThresholdGct() { return static_cast<unsigned>(htJetEtThreshold_/htLsb_); }
+  unsigned getMHtJetEtThresholdGct() { return static_cast<unsigned>(mhtJetEtThreshold_/htLsb_); }
 
 
  private:
