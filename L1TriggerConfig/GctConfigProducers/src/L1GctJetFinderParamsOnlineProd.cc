@@ -17,17 +17,28 @@ L1GctJetFinderParamsOnlineProd::newObject( const std::string& objectKey )
 {
    // Execute SQL queries to get data from OMDS (using key) and make C++ object
    // Example: SELECT A_PARAMETER FROM CMS_XXX.XXX_CONF WHERE XXX_CONF.XXX_KEY = objectKey
-   l1t::OMDSReader::QueryResults results =
-       m_omdsReader.basicQuery(
-         "A_DATUM",
-         "CMS_XXX",
-         "XXX_CONF",
-         "XXX_CONF.XXX_KEY",
-         m_omdsReader.singleAttribute( objectKey ) ) ;
+
+  std::vector< std::string > columns;
+  columns.push_back( "GCT_RGN_ET_LSB" );
+  columns.push_back( "GCT_HT_LSB" );
+  columns.push_back( "GCT_JET_SEED_ET_THRESHOLD" );
+  columns.push_back( "GCT_TAU_SEED_ET_THRESHOLD" );
+  columns.push_back( "GCT_HT_JET_ET_THRESHOLD" );
+  columns.push_back( "GCT_MHT_JET_ET_THRESHOLD" );
+  columns.push_back( "GCT_TAU_ISO_ET_THRESHOLD" );
+  columns.push_back( "GCT_CEN_JET_ETA_MAX" );
+  
+  l1t::OMDSReader::QueryResults results =
+    m_omdsReader.basicQuery(
+			    columns,
+			    "CMS_GCT",
+			    "GCT_PHYS_PARAMS",
+			    "GCT_PHYS_PARAMS.CONFIG_KEY",
+			    m_omdsReader.singleAttribute( objectKey ) ) ;
 
    if( results.queryFailed() ) // check if query was successful
    {
-      edm::LogError( "L1-O2O" ) << "Problem with L1RCTParameters key." ;
+      edm::LogError( "L1-O2O" ) << "Problem with L1GctJetFinderParams key." ;
       return boost::shared_ptr< L1GctJetFinderParams >() ;
    }
 
@@ -41,7 +52,15 @@ L1GctJetFinderParamsOnlineProd::newObject( const std::string& objectKey )
    double mhtJetEtThresh=0.;
    unsigned etaBoundary=7;
 
-   // how to get data out of results???
+   results.fillVariable( "GCT_RGN_ET_LSB", rgnEtLsb );
+   //   results.fillVariable( "GCT_HT_LSB", htLsb );  // does not exist in OMDS yet
+   results.fillVariable( "GCT_JET_SEED_ET_THRESHOLD", cJetSeed );
+   results.fillVariable( "GCT_TAU_SEED_ET_THRESHOLD", tJetSeed );
+   results.fillVariable( "GCT_JET_SEED_ET_THRESHOLD", fJetSeed );  // no separate forward jet seed in OMDS
+   results.fillVariable( "GCT_TAU_ISO_ET_THRESHOLD", tauIsoEtThresh );
+   results.fillVariable( "GCT_HT_JET_ET_THRESHOLD", htJetEtThresh );
+   results.fillVariable( "GCT_MHT_JET_ET_THRESHOLD", mhtJetEtThresh );
+   results.fillVariable( "GCT_CEN_JET_ETA_MAX", etaBoundary );
 
    return boost::shared_ptr< L1GctJetFinderParams >( 
 						    new L1GctJetFinderParams( rgnEtLsb,
