@@ -53,6 +53,10 @@ class HcalDeadCellClient : public HcalBaseClient {
   void resetAllME();
   void createTests();
 
+  // Introduce temporary error/warning checks
+  bool hasErrors_Temp();
+  bool hasWarnings_Temp();
+  bool hasOther_Temp() {return false;}
 private:
   
   vector <std::string> subdets_;

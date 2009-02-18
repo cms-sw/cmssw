@@ -61,6 +61,12 @@ class HcalPedestalClient : public HcalBaseClient {
   void resetAllME();
   void createTests();
 
+  // Introduce temporary error/warning checks
+  bool hasErrors_Temp();
+  bool hasWarnings_Temp();
+  bool hasOther_Temp()  {return false;}
+
+
 private:
   
   //void generateBadChanList(string dir);
@@ -81,6 +87,7 @@ private:
   double maxPedMeanDiffADC_;
   double maxPedWidthDiffADC_; // specify maximum width of pedestal (in ADC)
   double minErrorFlag_;  // minimum error rate which causes problem cells to be dumped in client
+  bool makeDiagnostics_;
   TH2F* MeanMapByDepth[6];
   TH2F* RMSMapByDepth[6];
 
@@ -93,6 +100,10 @@ private:
   TH2F* ADC_WidthFromDBByDepth[6];
   TH2F* fC_PedestalFromDBByDepth[6];
   TH2F* fC_WidthFromDBByDepth[6];
+  TH1F* ADC_PedestalFromDBByDepth_1D[6];
+  TH1F* ADC_WidthFromDBByDepth_1D[6];
+  TH1F* fC_PedestalFromDBByDepth_1D[6];
+  TH1F* fC_WidthFromDBByDepth_1D[6];
 
   // Raw pedestals in ADC
   TH2F* rawADCPedestalMean[6];
@@ -107,18 +118,16 @@ private:
   TH1F* subADCPedestalRMS_1D[6];
   
   // Raw pedestals in FC
-  TH2F* rawFCPedestalMean[6];
-  TH2F* rawFCPedestalRMS[6];
-  TH1F* rawFCPedestalMean_1D[6];
-  TH1F* rawFCPedestalRMS_1D[6];
+  TH2F* rawfCPedestalMean[6];
+  TH2F* rawfCPedestalRMS[6];
+  TH1F* rawfCPedestalMean_1D[6];
+  TH1F* rawfCPedestalRMS_1D[6];
   
   // subtracted pedestals in FC
-  TH2F* subFCPedestalMean[6];
-  TH2F* subFCPedestalRMS[6];
-  TH1F* subFCPedestalMean_1D[6];
-  TH1F* subFCPedestalRMS_1D[6];
-  
-
+  TH2F* subfCPedestalMean[6];
+  TH2F* subfCPedestalRMS[6];
+  TH1F* subfCPedestalMean_1D[6];
+  TH1F* subfCPedestalRMS_1D[6];
 
 };
 

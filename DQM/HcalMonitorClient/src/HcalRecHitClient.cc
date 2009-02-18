@@ -1075,3 +1075,80 @@ void HcalRecHitClient::loadHistograms(TFile* infile)
 } // void HcalRecHitClient::loadHistograms(...)
 
 
+
+
+
+
+bool HcalRecHitClient::hasErrors_Temp()
+{
+  int problemcount=0;
+
+  int etabins  = ProblemRecHits->GetNbinsX();
+  int phibins  = ProblemRecHits->GetNbinsY();
+  float etaMin = ProblemRecHits->GetXaxis()->GetXmin();
+  float phiMin = ProblemRecHits->GetYaxis()->GetXmin();
+  int eta,phi;
+
+  for (int depth=0;depth<6; ++depth)
+    {
+      for (int ieta=1;ieta<=etabins;++ieta)
+        {
+          for (int iphi=1; iphi<=phibins;++iphi)
+            {
+              eta=ieta+int(etaMin)-1;
+              phi=iphi+int(phiMin)-1;
+	      int mydepth=depth+1;
+	      if (mydepth>4) mydepth-=4; // last two depth values are for HE depth 1,2
+	      if (ProblemRecHitsByDepth[depth]==0)
+		{
+		  continue;
+		}
+	      if (ProblemRecHitsByDepth[depth]->GetBinContent(ieta,iphi)>minErrorFlag_)
+		{
+		  problemcount++;
+		}
+	    } // for (int iphi=1;...)
+	} // for (int ieta=1;...)
+    } // for (int depth=0;...)
+
+  if (problemcount>=100) return true;
+  return false;
+
+} // bool HcalRecHitClient::hasErrors_Temp()
+
+bool HcalRecHitClient::hasWarnings_Temp()
+{
+  int problemcount=0;
+
+  int etabins  = ProblemRecHits->GetNbinsX();
+  int phibins  = ProblemRecHits->GetNbinsY();
+  float etaMin = ProblemRecHits->GetXaxis()->GetXmin();
+  float phiMin = ProblemRecHits->GetYaxis()->GetXmin();
+  int eta,phi;
+ 
+  for (int depth=0;depth<6; ++depth)
+    {
+      for (int ieta=1;ieta<=etabins;++ieta)
+        {
+          for (int iphi=1; iphi<=phibins;++iphi)
+            {
+              eta=ieta+int(etaMin)-1;
+              phi=iphi+int(phiMin)-1;
+	      int mydepth=depth+1;
+	      if (mydepth>4) mydepth-=4; // last two depth values are for HE depth 1,2
+	      if (ProblemRecHitsByDepth[depth]==0)
+		{
+		  continue;
+		}
+	      if (ProblemRecHitsByDepth[depth]->GetBinContent(ieta,iphi)>minErrorFlag_)
+		{
+		  problemcount++;
+		}
+	    } // for (int iphi=1;...)
+	} // for (int ieta=1;...)
+    } // for (int depth=0;...)
+
+  if (problemcount>0) return true;
+  return false;
+
+} // bool HcalRecHitClient::hasWarnings_Temp()

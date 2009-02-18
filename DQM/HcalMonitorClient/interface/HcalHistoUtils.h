@@ -372,17 +372,18 @@ void htmlAnyHisto(int runNo, myHist *hist,
       // Add thumbnail image to html code, linked to full-sized image
       if (imgName.size() != 0 )
 	{
-	htmlFile << "<td align=\"center\"><a href=\"" <<  imgName << "\"><img src=\"" <<  imgNameTMB << "\"></a></td>" << endl;
+	  // Always make width = 100% ?
+	  htmlFile << "<td align=\"center\"><a href=\"" <<  imgName << "\"><img src=\"" <<  imgNameTMB << "\" width = \"100%\"></a></td>" << endl;
 	}
       else
 	{
-	  htmlFile << "<td aling=\"center\"><img src=\"" << " " << "\"></td>" << endl;
+	  htmlFile << "<td align=\"center\"><img src=\"" << " " << "\"></td>" << endl;
 	}
     } // (hist != NULL)
 
   else  // if no image found, make a blank table entry (maybe improve on this later? -- write an error message?)
     {
-       htmlFile<<"<td align=\"center\"><br><br> Histogram does not exist in ROOT file!<br>Diagnostic flag may be off.<br>(This is normal in online running.)</td>"<<endl;
+       htmlFile<<"<td align=\"center\"><br><br> Histogram does not exist in ROOT file!<br>Diagnostic flag may be off.<br>(This may be normal in online running.)</td>"<<endl;
        //htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
     }
   return;

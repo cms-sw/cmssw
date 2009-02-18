@@ -786,3 +786,78 @@ void HcalDeadCellClient::loadHistograms(TFile* infile)
 } // void HcalDeadCellClient::loadHistograms(...)
 
 
+
+
+bool HcalDeadCellClient::hasErrors_Temp()
+{
+  int problemcount=0;
+
+  int etabins  = ProblemDeadCells->GetNbinsX();
+  int phibins  = ProblemDeadCells->GetNbinsY();
+  float etaMin = ProblemDeadCells->GetXaxis()->GetXmin();
+  float phiMin = ProblemDeadCells->GetYaxis()->GetXmin();
+  int eta,phi;
+
+  for (int depth=0;depth<6; ++depth)
+    {
+      for (int ieta=1;ieta<=etabins;++ieta)
+        {
+          for (int iphi=1; iphi<=phibins;++iphi)
+            {
+              eta=ieta+int(etaMin)-1;
+              phi=iphi+int(phiMin)-1;
+	      int mydepth=depth+1;
+	      if (mydepth>4) mydepth-=4; // last two depth values are for HE depth 1,2
+	      if (ProblemDeadCellsByDepth[depth]==0)
+		{
+		  continue;
+		}
+	      if (ProblemDeadCellsByDepth[depth]->GetBinContent(ieta,iphi)>minErrorFlag_)
+		{
+		  problemcount++;
+		}
+	    } // for (int iphi=1;...)
+	} // for (int ieta=1;...)
+    } // for (int depth=0;...)
+
+  if (problemcount>=100) return true;
+  return false;
+
+} // bool HcalDeadCellClient::hasErrors_Temp()
+
+bool HcalDeadCellClient::hasWarnings_Temp()
+{
+  int problemcount=0;
+
+  int etabins  = ProblemDeadCells->GetNbinsX();
+  int phibins  = ProblemDeadCells->GetNbinsY();
+  float etaMin = ProblemDeadCells->GetXaxis()->GetXmin();
+  float phiMin = ProblemDeadCells->GetYaxis()->GetXmin();
+  int eta,phi;
+ 
+  for (int depth=0;depth<6; ++depth)
+    {
+      for (int ieta=1;ieta<=etabins;++ieta)
+        {
+          for (int iphi=1; iphi<=phibins;++iphi)
+            {
+              eta=ieta+int(etaMin)-1;
+              phi=iphi+int(phiMin)-1;
+	      int mydepth=depth+1;
+	      if (mydepth>4) mydepth-=4; // last two depth values are for HE depth 1,2
+	      if (ProblemDeadCellsByDepth[depth]==0)
+		{
+		  continue;
+		}
+	      if (ProblemDeadCellsByDepth[depth]->GetBinContent(ieta,iphi)>minErrorFlag_)
+		{
+		  problemcount++;
+		}
+	    } // for (int iphi=1;...)
+	} // for (int ieta=1;...)
+    } // for (int depth=0;...)
+
+  if (problemcount>0) return true;
+  return false;
+
+} // bool HcalDeadCellClient::hasWarnings_Temp()

@@ -5,8 +5,8 @@
  * \file HcalSummaryClient.h
  *
  * Code ported from DQM/EcalBarrelMonitorClient/interface/EBSummaryClient.h
- * $Date: 2008/11/03 09:40:03 $
- * $Revision: 1.14 $
+ * $Date: 2009/01/21 15:04:11 $
+ * $Revision: 1.15 $
  * \author Jeff Temple
  *
 */
@@ -89,6 +89,10 @@ class HcalSummaryClient : public HcalBaseClient {
   inline int getEvtPerJob() { return ievt_; }
   inline int getEvtPerRun() { return jevt_; }
 
+ // Introduce temporary error/warning checks
+  bool hasErrors_Temp();
+  bool hasWarnings_Temp();
+  bool hasOther_Temp() {return false;}
 
  private:
 

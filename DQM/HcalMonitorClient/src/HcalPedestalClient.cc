@@ -20,28 +20,28 @@ void HcalPedestalClient::init(const ParameterSet& ps, DQMStore* dbe,string clien
   startingTimeSlice_        = ps.getUntrackedParameter<int>("PedestalClient_startingTimeSlice",0);
   endingTimeSlice_          = ps.getUntrackedParameter<int>("PedestalClient_endingTimgSlice",1);
   minErrorFlag_             = ps.getUntrackedParameter<double>("PedestalClient_minErrorFlag",0.05);
-
+  makeDiagnostics_          = ps.getUntrackedParameter<bool>("PedestalMonitor_makeDiagnosticPlots",false);
   // Set individual pointers to NULL
   ProblemPedestals=0;
 
   for (int i=0;i<6;++i)
     {
       // Set each array's pointers to NULL
+      // Basic Pedestal plots
       ProblemPedestalsByDepth[i]=0;
       MeanMapByDepth[i]=0;
       RMSMapByDepth[i]=0;
-
-      // Basic Pedestal plots
-      ADC_PedestalFromDBByDepth[i]=0;
-      ADC_WidthFromDBByDepth[i]=0;
-      fC_PedestalFromDBByDepth[i]=0;
-      fC_WidthFromDBByDepth[i]=0;
 
       // Pedestals from Database
       ADC_PedestalFromDBByDepth[i]=0;
       ADC_WidthFromDBByDepth[i]=0;
       fC_PedestalFromDBByDepth[i]=0;
       fC_WidthFromDBByDepth[i]=0;
+
+      ADC_PedestalFromDBByDepth_1D[i]=0;
+      ADC_WidthFromDBByDepth_1D[i]=0;
+      fC_PedestalFromDBByDepth_1D[i]=0;
+      fC_WidthFromDBByDepth_1D[i]=0;
 
       // Raw pedestals in ADC
       rawADCPedestalMean[i]=0;
@@ -56,16 +56,16 @@ void HcalPedestalClient::init(const ParameterSet& ps, DQMStore* dbe,string clien
       subADCPedestalRMS_1D[i]=0;
       
       // Raw pedestals in FC
-      rawFCPedestalMean[i]=0;
-      rawFCPedestalRMS[i]=0;
-      rawFCPedestalMean_1D[i]=0;
-      rawFCPedestalRMS_1D[i]=0;
+      rawfCPedestalMean[i]=0;
+      rawfCPedestalRMS[i]=0;
+      rawfCPedestalMean_1D[i]=0;
+      rawfCPedestalRMS_1D[i]=0;
       
       // Subtracted pedestals in FC
-      subFCPedestalMean[i]=0;
-      subFCPedestalRMS[i]=0;
-      subFCPedestalMean_1D[i]=0;
-      subFCPedestalRMS_1D[i]=0;
+      subfCPedestalMean[i]=0;
+      subfCPedestalRMS[i]=0;
+      subfCPedestalMean_1D[i]=0;
+      subfCPedestalRMS_1D[i]=0;
     }  
 
   subdets_.push_back("HB HF Depth 1 ");
@@ -151,7 +151,11 @@ void HcalPedestalClient::cleanup(void)
 	  if (ADC_WidthFromDBByDepth[i]) delete ADC_WidthFromDBByDepth[i];
 	  if (fC_PedestalFromDBByDepth[i]) delete fC_PedestalFromDBByDepth[i];
 	  if (fC_WidthFromDBByDepth[i]) delete fC_WidthFromDBByDepth[i];
-	  
+	  if (ADC_PedestalFromDBByDepth_1D[i]) delete ADC_PedestalFromDBByDepth_1D[i];
+	  if (ADC_WidthFromDBByDepth_1D[i]) delete ADC_WidthFromDBByDepth_1D[i];
+	  if (fC_PedestalFromDBByDepth_1D[i]) delete fC_PedestalFromDBByDepth_1D[i];
+	  if (fC_WidthFromDBByDepth_1D[i]) delete fC_WidthFromDBByDepth_1D[i];
+
 	  // Raw pedestals in ADC
 	  if (rawADCPedestalMean[i]) delete rawADCPedestalMean[i];
 	  if (rawADCPedestalRMS[i]) delete rawADCPedestalRMS[i];
@@ -165,16 +169,16 @@ void HcalPedestalClient::cleanup(void)
 	  if (subADCPedestalRMS_1D[i]) delete subADCPedestalRMS_1D[i];
   
 	  // Raw pedestals in FC
-	  if (rawFCPedestalMean[i]) delete rawFCPedestalMean[i];
-	  if (rawFCPedestalRMS[i]) delete rawFCPedestalRMS[i];
-	  if (rawFCPedestalMean_1D[i]) delete rawFCPedestalMean_1D[i];
-	  if (rawFCPedestalRMS_1D[i]) delete rawFCPedestalRMS_1D[i];
+	  if (rawfCPedestalMean[i]) delete rawfCPedestalMean[i];
+	  if (rawfCPedestalRMS[i]) delete rawfCPedestalRMS[i];
+	  if (rawfCPedestalMean_1D[i]) delete rawfCPedestalMean_1D[i];
+	  if (rawfCPedestalRMS_1D[i]) delete rawfCPedestalRMS_1D[i];
 	  
 	  // Subtracted pedestals in FC
-	  if (subFCPedestalMean[i]) delete subFCPedestalMean[i];
-	  if (subFCPedestalRMS[i]) delete subFCPedestalRMS[i];
-	  if (subFCPedestalMean_1D[i]) delete subFCPedestalMean_1D[i];
-	  if (subFCPedestalRMS_1D[i]) delete subFCPedestalRMS_1D[i];
+	  if (subfCPedestalMean[i]) delete subfCPedestalMean[i];
+	  if (subfCPedestalRMS[i]) delete subfCPedestalRMS[i];
+	  if (subfCPedestalMean_1D[i]) delete subfCPedestalMean_1D[i];
+	  if (subfCPedestalRMS_1D[i]) delete subfCPedestalRMS_1D[i];
 	}
     }
 
@@ -191,6 +195,10 @@ void HcalPedestalClient::cleanup(void)
       ADC_WidthFromDBByDepth[i]=0;
       fC_PedestalFromDBByDepth[i]=0;
       fC_WidthFromDBByDepth[i]=0;
+      ADC_PedestalFromDBByDepth_1D[i]=0;
+      ADC_WidthFromDBByDepth_1D[i]=0;
+      fC_PedestalFromDBByDepth_1D[i]=0;
+      fC_WidthFromDBByDepth_1D[i]=0;
       // Raw pedestals in ADC
       rawADCPedestalMean[i]=0;
       rawADCPedestalRMS[i]=0;
@@ -204,16 +212,16 @@ void HcalPedestalClient::cleanup(void)
       subADCPedestalRMS_1D[i]=0;
       
       // Raw pedestals in FC
-      rawFCPedestalMean[i]=0;
-      rawFCPedestalRMS[i]=0;
-      rawFCPedestalMean_1D[i]=0;
-      rawFCPedestalRMS_1D[i]=0;
+      rawfCPedestalMean[i]=0;
+      rawfCPedestalRMS[i]=0;
+      rawfCPedestalMean_1D[i]=0;
+      rawfCPedestalRMS_1D[i]=0;
       
       // Raw pedestals in FC
-      subFCPedestalMean[i]=0;
-      subFCPedestalRMS[i]=0;
-      subFCPedestalMean_1D[i]=0;
-      subFCPedestalRMS_1D[i]=0;
+      subfCPedestalMean[i]=0;
+      subfCPedestalRMS[i]=0;
+      subfCPedestalMean_1D[i]=0;
+      subfCPedestalRMS_1D[i]=0;
     }
 
   dqmReportMapErr_.clear(); 
@@ -291,27 +299,31 @@ void HcalPedestalClient::getHistograms()
       getSJ6histos("PedestalMonitor_Hcal/reference_pedestals/adc/","Pedestal Widths from DataBase ADC",ADC_WidthFromDBByDepth);
       getSJ6histos("PedestalMonitor_Hcal/reference_pedestals/fc/","Pedestal Values from DataBase fC",fC_PedestalFromDBByDepth);
       getSJ6histos("PedestalMonitor_Hcal/reference_pedestals/fc/","Pedestal Widths from DataBase fC",fC_WidthFromDBByDepth);
+      getSJ6histos("PedestalMonitor_Hcal/reference_pedestals/adc/","1D Reference Pedestal Values ADC",ADC_PedestalFromDBByDepth_1D);
+      getSJ6histos("PedestalMonitor_Hcal/reference_pedestals/adc/","1D Reference Pedestal Widths ADC",ADC_WidthFromDBByDepth_1D);
+      getSJ6histos("PedestalMonitor_Hcal/reference_pedestals/fc/","1D Reference Pedestal Values fC",fC_PedestalFromDBByDepth_1D);
+      getSJ6histos("PedestalMonitor_Hcal/reference_pedestals/fc/","1D Reference Pedestal Widths fC",fC_WidthFromDBByDepth_1D);
 
 
       // Raw, sub Pedestals in ADC
       getSJ6histos("PedestalMonitor_Hcal/adc/raw/","Pedestal Values Map ADC", rawADCPedestalMean);
       getSJ6histos("PedestalMonitor_Hcal/adc/raw/","Pedestal Widths Map ADC", rawADCPedestalRMS);
-      getSJ6histos("PedestalMonitor_Hcal/adc/subtracted__beta_testing/","Subtracted Pedestal Values Map ADC", subADCPedestalMean);
-      getSJ6histos("PedestalMonitor_Hcal/adc/subtracted__beta_testing/","Subtracted Pedestal Widths Map ADC", subADCPedestalRMS);
+      getSJ6histos("PedestalMonitor_Hcal/adc/subtracted/","Subtracted Pedestal Values Map ADC", subADCPedestalMean);
+      getSJ6histos("PedestalMonitor_Hcal/adc/subtracted/","Subtracted Pedestal Widths Map ADC", subADCPedestalRMS);
       getSJ6histos("PedestalMonitor_Hcal/adc/raw/","1D Pedestal Values ADC",rawADCPedestalMean_1D);
       getSJ6histos("PedestalMonitor_Hcal/adc/raw/","1D Pedestal Widths ADC",rawADCPedestalRMS_1D);
-      getSJ6histos("PedestalMonitor_Hcal/adc/subtracted__beta_testing/","1D Subtracted Pedestal Values ADC", subADCPedestalMean_1D);
-      getSJ6histos("PedestalMonitor_Hcal/adc/subtracted__beta_testing/","1D Subtracted Pedestal Widths ADC", subADCPedestalRMS_1D);
+      getSJ6histos("PedestalMonitor_Hcal/adc/subtracted/","1D Subtracted Pedestal Values ADC", subADCPedestalMean_1D);
+      getSJ6histos("PedestalMonitor_Hcal/adc/subtracted/","1D Subtracted Pedestal Widths ADC", subADCPedestalRMS_1D);
 
       // Raw, sub Pedestals in fC
-      getSJ6histos("PedestalMonitor_Hcal/fc/raw/","Pedestal Values Map fC", rawFCPedestalMean);
-      getSJ6histos("PedestalMonitor_Hcal/fc/raw/","Pedestal Widths Map fC", rawFCPedestalRMS);
-      getSJ6histos("PedestalMonitor_Hcal/fc/subtracted__beta_testing/","Subtracted Pedestal Values Map fC", subFCPedestalMean);
-      getSJ6histos("PedestalMonitor_Hcal/fc/subtracted__beta_testing/","Subtracted Pedestal Widths Map fC", subFCPedestalRMS);
-      getSJ6histos("PedestalMonitor_Hcal/fc/raw/","1D Pedestal Values fC",rawFCPedestalMean_1D);
-      getSJ6histos("PedestalMonitor_Hcal/fc/raw/","1D Pedestal Widths fC",rawFCPedestalRMS_1D);
-      getSJ6histos("PedestalMonitor_Hcal/fc/subtracted__beta_testing/","1D Subtracted Pedestal Values fC", subFCPedestalMean_1D);
-      getSJ6histos("PedestalMonitor_Hcal/fc/subtracted__beta_testing/","1D Subtracted Pedestal Widths fC", subFCPedestalRMS_1D);
+      getSJ6histos("PedestalMonitor_Hcal/fc/raw/","Pedestal Values Map fC", rawfCPedestalMean);
+      getSJ6histos("PedestalMonitor_Hcal/fc/raw/","Pedestal Widths Map fC", rawfCPedestalRMS);
+      getSJ6histos("PedestalMonitor_Hcal/fc/subtracted/","Subtracted Pedestal Values Map fC", subfCPedestalMean);
+      getSJ6histos("PedestalMonitor_Hcal/fc/subtracted/","Subtracted Pedestal Widths Map fC", subfCPedestalRMS);
+      getSJ6histos("PedestalMonitor_Hcal/fc/raw/","1D Pedestal Values fC",rawfCPedestalMean_1D);
+      getSJ6histos("PedestalMonitor_Hcal/fc/raw/","1D Pedestal Widths fC",rawfCPedestalRMS_1D);
+      getSJ6histos("PedestalMonitor_Hcal/fc/subtracted/","1D Subtracted Pedestal Values fC", subfCPedestalMean_1D);
+      getSJ6histos("PedestalMonitor_Hcal/fc/subtracted/","1D Subtracted Pedestal Widths fC", subfCPedestalRMS_1D);
 
     } // for (int i=0;i<6;++i)
 
@@ -395,10 +407,10 @@ void HcalPedestalClient::resetAllME()
       name<<process_.c_str()<<"PedestalMonitor_Hcal/adc/raw/"<<subdets_[i]<<"Pedestal Widths Map ADC";
       resetME(name.str().c_str(),dbe_);
       name.str("");
-      name<<process_.c_str()<<"PedestalMonitor_Hcal/adc/subtracted__beta_testing/"<<subdets_[i]<<"Subtracted Pedestal Values Map ADC";
+      name<<process_.c_str()<<"PedestalMonitor_Hcal/adc/subtracted/"<<subdets_[i]<<"Subtracted Pedestal Values Map ADC";
       resetME(name.str().c_str(),dbe_);
       name.str("");
-      name<<process_.c_str()<<"PedestalMonitor_Hcal/adc/subtracted__beta_testing/"<<subdets_[i]<<"Subtracted Pedestal Widths Map ADC";
+      name<<process_.c_str()<<"PedestalMonitor_Hcal/adc/subtracted/"<<subdets_[i]<<"Subtracted Pedestal Widths Map ADC";
   
       name.str("");
       name<<process_.c_str()<<"PedestalMonitor_Hcal/adc/raw/"<<subdets_[i]<<"1D Pedestal Values ADC";
@@ -407,10 +419,10 @@ void HcalPedestalClient::resetAllME()
       name<<process_.c_str()<<"PedestalMonitor_Hcal/adc/raw/"<<subdets_[i]<<"1D Pedestal Widths ADC";
       resetME(name.str().c_str(),dbe_);
       name.str("");
-      name<<process_.c_str()<<"PedestalMonitor_Hcal/adc/subtracted__beta_testing/"<<subdets_[i]<<"1D Subtracted Pedestal Values ADC";
+      name<<process_.c_str()<<"PedestalMonitor_Hcal/adc/subtracted/"<<subdets_[i]<<"1D Subtracted Pedestal Values ADC";
       resetME(name.str().c_str(),dbe_);
       name.str("");
-      name<<process_.c_str()<<"PedestalMonitor_Hcal/adc/subtracted__beta_testing/"<<subdets_[i]<<"1D Subtracted Pedestal Widths ADC";
+      name<<process_.c_str()<<"PedestalMonitor_Hcal/adc/subtracted/"<<subdets_[i]<<"1D Subtracted Pedestal Widths ADC";
       resetME(name.str().c_str(),dbe_);
       name.str("");
 
@@ -421,10 +433,10 @@ void HcalPedestalClient::resetAllME()
       name<<process_.c_str()<<"PedestalMonitor_Hcal/fc/raw/"<<subdets_[i]<<"Pedestal Widths Map fC";
       resetME(name.str().c_str(),dbe_);
       name.str("");
-      name<<process_.c_str()<<"PedestalMonitor_Hcal/fc/subtracted__beta_testing/"<<subdets_[i]<<"Subtracted Pedestal Values Map fC";
+      name<<process_.c_str()<<"PedestalMonitor_Hcal/fc/subtracted/"<<subdets_[i]<<"Subtracted Pedestal Values Map fC";
       resetME(name.str().c_str(),dbe_);
       name.str("");
-      name<<process_.c_str()<<"PedestalMonitor_Hcal/fc/subtracted__beta_testing/"<<subdets_[i]<<"Subtracted Pedestal Widths Map fC";
+      name<<process_.c_str()<<"PedestalMonitor_Hcal/fc/subtracted/"<<subdets_[i]<<"Subtracted Pedestal Widths Map fC";
       resetME(name.str().c_str(),dbe_);
       name.str("");
       name<<process_.c_str()<<"PedestalMonitor_Hcal/fc/raw/"<<subdets_[i]<<"1D Pedestal Values fC";
@@ -433,10 +445,10 @@ void HcalPedestalClient::resetAllME()
       name<<process_.c_str()<<"PedestalMonitor_Hcal/fc/raw/"<<subdets_[i]<<"1D Pedestal Widths fC";
       resetME(name.str().c_str(),dbe_);
       name.str("");
-      name<<process_.c_str()<<"PedestalMonitor_Hcal/fc/subtracted__beta_testing/"<<subdets_[i]<<"1D Subtracted Pedestal Values fC";
+      name<<process_.c_str()<<"PedestalMonitor_Hcal/fc/subtracted/"<<subdets_[i]<<"1D Subtracted Pedestal Values fC";
       resetME(name.str().c_str(),dbe_);
       name.str("");
-      name<<process_.c_str()<<"PedestalMonitor_Hcal/fc/subtracted__beta_testing/"<<subdets_[i]<<"1D Subtracted Pedestal Widths fC";
+      name<<process_.c_str()<<"PedestalMonitor_Hcal/fc/subtracted/"<<subdets_[i]<<"1D Subtracted Pedestal Widths fC";
       resetME(name.str().c_str(),dbe_);
       name.str("");
 
@@ -569,6 +581,8 @@ void HcalPedestalClient::htmlOutput(int runNo, string htmlDir, string htmlName)
 } //void HcalPedestalClient::htmlOutput(int runNo, ...) 
 
 
+/////////////////////////////////////////////////////////////////////////////////////
+
 void HcalPedestalClient::htmlExpertOutput(int runNo, string htmlDir, string htmlName)
 {
   if (showTiming_)
@@ -610,128 +624,159 @@ ofstream htmlFile;
 
   htmlFile << "<table width=100%  border = 1>"<<endl;
   htmlFile << "<tr><td align=\"center\" colspan=2><a href=\"#OVERALL_PEDS\">Pedestal Mean and RMS Maps </a></td></tr>"<<endl;
-  htmlFile << "<tr><td align=\"center\">Pedestals in ADC counts<br><a href=\"#RAW_ADC\">Raw Pedestals</a><br><a href=\"#SUB_ADC\">Subtracted Pedestals</a><br></td>"<<endl;
-  htmlFile << "<td align=\"center\">Pedestals in femtoCoulombs<br><a href=\"#RAW_fC\">Raw Pedestals</a><br><a href=\"#SUB_fC\">Subtracted Pedestals</a><br></td></tr>"<<endl;
+  htmlFile << "<tr><td align=\"center\"><a href=\"#RAW_ADC\">Pedestals in ADC counts</a></td>"<<endl;
+  htmlFile << "<td align=\"center\"><a href=\"#RAW_fC\">Pedestals in femtoCoulombs</a></td></tr>"<<endl;
   htmlFile << "<tr><td align=\"center\" colspan=2><a href=\"#PROBLEM_PEDS\">Problem Pedestals</a></td></tr>"<<endl;
-  htmlFile << "<td align=\"center\"><a href=\"#REF_ADC\">Reference Pedestals <br>from database (ADC)</a><br></td><td align=\"center\"><a href=\"#REF_fC\"> Reference Pedestals <br>from database (fC)</a><br></td></tr>"<<endl;
   htmlFile <<"</table>"<<endl;
   htmlFile <<"<br><br>"<<endl;
 
 
-  // Plot Pedestal Mean and RMS values
   htmlFile << "<h2><strong><a name=\"OVERALL_PEDS\">2D Maps of Pedestal Means and RMS Values</strong></h2>"<<endl;
   htmlFile <<"<a href= \"#EXPERT_PEDESTAL_TOP\" > Back to Top</a><br>"<<endl;
-  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\"> " << endl;
-  gStyle->SetPalette(1); // set back to normal rainbow color
-  
-
+  htmlFile <<"These plots show the calculated Mean and RMS of each cell in eta-phi space.<br>"<<endl;
+  htmlFile <<"These plots are used for determining problem pedestals."<<endl;
+  htmlFile <<"A pedestal is considered to be a problem if its mean is outside the range "<<nominalPedMeanInADC_<<" +/- "<<maxPedMeanDiffADC_<<" ADC counts, <br>"<<endl;
+  htmlFile <<"or if its RMS value is outside the range "<<nominalPedWidthInADC_<<" +/- "<<maxPedWidthDiffADC_<<" ADC counts.<br>"<<endl;
   // Depths are stored as:  0:  HB/HF depth 1, 1:  HB/HF 2, 2:  HE 3, 3:  HO/ZDC, 4: HE 1, 5:  HE2
   // remap so that HE depths are plotted consecutively
   int mydepth[6]={0,1,4,5,2,3};
+
+  htmlFile << "<table \align=\"center\" border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\"> " << endl;
+  htmlFile <<"<tr><td> Pedestal Mean </td><td> Pedestal RMS </td></tr>"<<endl;
+  gStyle->SetPalette(1);
   for (int i=0;i<6;++i)
     {
       htmlFile << "<tr align=\"left\">" << endl;
+      MeanMapByDepth[mydepth[i]]->SetMinimum(0);
+      MeanMapByDepth[mydepth[i]]->SetMaximum(2*nominalPedMeanInADC_);
       htmlAnyHisto(runNo,MeanMapByDepth[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      RMSMapByDepth[mydepth[i]]->SetMinimum(0);
+      RMSMapByDepth[mydepth[i]]->SetMaximum(2*nominalPedMeanInADC_);
       htmlAnyHisto(runNo,RMSMapByDepth[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlFile <<"</tr>"<<endl;
     }
   htmlFile <<"</table>"<<endl;
   htmlFile <<"<br><hr><br>"<<endl;
   
-  // Raw Pedestals (ADC)
-  htmlFile << "<h2><strong><a name=\"RAW_ADC\">Raw Pedestals from database (ADC)</strong></h2>"<<endl;
-  htmlFile <<"<a href= \"#EXPERT_PEDESTAL_TOP\" > Back to Top</a><br>"<<endl;
+  // Plot Pedestal Mean and RMS values
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\"> " << endl;
+  gStyle->SetPalette(1); // set back to normal rainbow color
+  
+  // Pedestals (ADC)
+  htmlFile << "<h2><strong><a name=\"RAW_ADC\">Pedestals in ADC</strong></h2>"<<endl;
+  htmlFile <<"<a href= \"#EXPERT_PEDESTAL_TOP\" > Back to Top</a><br>"<<endl;
+  htmlFile <<" Measured Pedestal means come directly from ADC values in cell digis.<br>"<<endl;
+  htmlFile <<" Reference pedestal values from the database are converted from fC.<br>"<<endl;
+  htmlFile <<" The conversion of database widths from fC to ADC is still being checked, and may not be correct.<br><br>"<<endl;
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" style = \"width: 100%\" " << endl;
+  htmlFile << "cellpadding=\"10\"> " << endl;
+
   gStyle->SetPalette(1); //set back to normal rainbow color
+  htmlFile <<"<tr align=\"center\"><td>Calculated Pedestal Mean</td><td>Mean from Database</td>"<<endl;
+  htmlFile<<"<td>Subtracted (Calculated-Database)</td></tr>"<<endl;
   for (int i=0;i<6;++i)
     {
       htmlFile << "<tr align=\"left\">" << endl;
       htmlAnyHisto(runNo,rawADCPedestalMean[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlAnyHisto(runNo,rawADCPedestalRMS[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,ADC_PedestalFromDBByDepth[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,subADCPedestalMean[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlFile <<"</tr>"<<endl;
     }
+  htmlFile <<"<tr align=\"center\"><td>Calculated Pedestal Width</td><td>Width from Database</td>"<<endl;
+  htmlFile<<"<td>Subtracted (Calculated-Database)</td></tr>"<<endl;
+  for (int i=0;i<6;++i)
+    {
+      htmlFile << "<tr align=\"left\">" << endl;
+      htmlAnyHisto(runNo,rawADCPedestalRMS[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,ADC_WidthFromDBByDepth[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,subADCPedestalRMS[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlFile <<"</tr>"<<endl;
+    }
+
+  // Draw 1-D histograms
+  htmlFile <<"</table><br>"<<endl;
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\"> " << endl;
+  htmlFile <<"<tr align=\"center\"><td>1D Pedestal Means (calculated)</td><td>1D Pedestal Means (from Database)</td>"<<endl;
+  htmlFile <<"<td>Subtracted Means (Calculated - Database)</td></tr>"<<endl;
   for (int i=0;i<6;++i)
     {
       htmlFile << "<tr align=\"left\">" << endl;
       htmlAnyHisto(runNo,rawADCPedestalMean_1D[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlAnyHisto(runNo,rawADCPedestalRMS_1D[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlFile <<"</tr>"<<endl;
-    }
-  htmlFile <<"</table>"<<endl;
-  htmlFile <<"<br><hr><br>"<<endl;
-
-  // Subtracted Pedestals (ADC)
-  htmlFile << "<h2><strong><a name=\"SUB_ADC\">Subtracted Pedestals from database (ADC)</strong></h2>"<<endl;
-  htmlFile <<"<a href= \"#EXPERT_PEDESTAL_TOP\" > Back to Top</a><br>"<<endl;
-  htmlFile <<"Plots of (computed pedestal values) - (reference pedestal values).<br>"<<endl;
-  htmlFile <<"(If the database stores values in fC, the subtracted pedestal widths in ADC may not be plotted correctly here.)<br>"<<endl;
-  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\"> " << endl;
-  gStyle->SetPalette(1); //set back to normal rainbow color
-  for (int i=0;i<6;++i)
-    {
-      htmlFile << "<tr align=\"left\">" << endl;
-      htmlAnyHisto(runNo,subADCPedestalMean[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlAnyHisto(runNo,subADCPedestalRMS[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlFile <<"</tr>"<<endl;
-    }
-  for (int i=0;i<6;++i)
-    {
-      htmlFile << "<tr align=\"left\">" << endl;
+      htmlAnyHisto(runNo,ADC_PedestalFromDBByDepth_1D[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlAnyHisto(runNo,subADCPedestalMean_1D[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlFile <<"</tr>"<<endl;
+    }
+  htmlFile <<"<tr align=\"center\"><td>1D Pedestal Widths (calculated)</td><td>1D Pedestal Widths (from Database)</td>"<<endl;
+  htmlFile <<"<td>Subtracted Widths (Calculated - Database)</td></tr>"<<endl;
+  for (int i=0;i<6;++i)
+    {
+      htmlFile << "<tr align=\"left\">" << endl;
+      htmlAnyHisto(runNo,rawADCPedestalRMS_1D[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,ADC_WidthFromDBByDepth_1D[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlAnyHisto(runNo,subADCPedestalRMS_1D[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlFile <<"</tr>"<<endl;
     }
   htmlFile <<"</table>"<<endl;
+  htmlFile <<"<br><hr><br>"<<endl;
 
    // Raw Pedestals (fC)
-  htmlFile << "<h2><strong><a name=\"RAW_fC\">Raw Pedestals from database (fC)</strong></h2>"<<endl;
+  htmlFile << "<h2><strong><a name=\"RAW_fC\">Pedestals in femtoCoulombs (fC)</strong></h2>"<<endl;
   htmlFile <<"<a href= \"#EXPERT_PEDESTAL_TOP\" > Back to Top</a><br>"<<endl;
+  htmlFile <<" Measured Pedestal means and widths are calculated from fC values converted from the ADC counts stored in cell digis.<br>"<<endl;
+  htmlFile <<" Reference pedestal values are read directly from the database values (in fC).<br>"<<endl;
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\"> " << endl;
   gStyle->SetPalette(1); //set back to normal rainbow color
+  htmlFile <<"<tr align=\"center\"><td>Calculated Pedestal Mean</td><td>Mean from Database</td>"<<endl;
+  htmlFile<<"<td>Subtracted (Calculated-Database)</td></tr>"<<endl;
   for (int i=0;i<6;++i)
     {
       htmlFile << "<tr align=\"left\">" << endl;
-      htmlAnyHisto(runNo,rawFCPedestalMean[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlAnyHisto(runNo,rawFCPedestalRMS[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,rawfCPedestalMean[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,fC_PedestalFromDBByDepth[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,subfCPedestalMean[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlFile <<"</tr>"<<endl;
     }
+  htmlFile <<"<tr align=\"center\"><td>Calculated Pedestal Width</td><td>Width from Database</td>"<<endl;
+  htmlFile<<"<td>Subtracted (Calculated-Database)</td></tr>"<<endl;
   for (int i=0;i<6;++i)
     {
       htmlFile << "<tr align=\"left\">" << endl;
-      htmlAnyHisto(runNo,rawFCPedestalMean_1D[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlAnyHisto(runNo,rawFCPedestalRMS_1D[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,rawfCPedestalRMS[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,fC_WidthFromDBByDepth[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,subfCPedestalRMS[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlFile <<"</tr>"<<endl;
+    }
+
+  // Draw 1-D histograms
+  htmlFile <<"</table><br>"<<endl;
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\"> " << endl;
+  htmlFile <<"<tr align=\"center\"><td>1D Pedestal Means (calculated)</td><td>1D Pedestal Means (from Database)</td>"<<endl;
+  htmlFile <<"<td>Subtracted Means (Calculated - Database)</td></tr>"<<endl;
+  for (int i=0;i<6;++i)
+    {
+      htmlFile << "<tr align=\"left\">" << endl;
+      htmlAnyHisto(runNo,rawfCPedestalMean_1D[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,fC_PedestalFromDBByDepth_1D[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,subfCPedestalMean_1D[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlFile <<"</tr>"<<endl;
+    }
+  htmlFile <<"<tr align=\"center\"><td>1D Pedestal Widths (calculated)</td><td>1D Pedestal Widths (from Database)</td>"<<endl;
+  htmlFile <<"<td>Subtracted Widths (Calculated - Database)</td></tr>"<<endl;
+  for (int i=0;i<6;++i)
+    {
+      htmlFile << "<tr align=\"left\">" << endl;
+      htmlAnyHisto(runNo,rawfCPedestalRMS_1D[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,fC_WidthFromDBByDepth_1D[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,subfCPedestalRMS_1D[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlFile <<"</tr>"<<endl;
     }
   htmlFile <<"</table>"<<endl;
   htmlFile <<"<br><hr><br>"<<endl;
-
-  // Subtracted Pedestals (fC)
-  htmlFile << "<h2><strong><a name=\"SUB_fC\">Subtracted Pedestals from database (fC)</strong></h2>"<<endl;
-  htmlFile <<"<a href= \"#EXPERT_PEDESTAL_TOP\" > Back to Top</a><br>"<<endl; 
-  htmlFile <<"Plots of (computed pedestal values) - (reference pedestal values).<br>"<<endl;
-  htmlFile <<"(If the database stores values in ADC, the subtracted pedestal widths in fC may not be plotted correctly here.)<br>"<<endl;
-  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\"> " << endl;
-  gStyle->SetPalette(1); //set back to normal rainbow color
-  for (int i=0;i<6;++i)
-    {
-      htmlFile << "<tr align=\"left\">" << endl;
-      htmlAnyHisto(runNo,subFCPedestalMean[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlAnyHisto(runNo,subFCPedestalRMS[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlFile <<"</tr>"<<endl;
-    }
-  for (int i=0;i<6;++i)
-    {
-      htmlFile << "<tr align=\"left\">" << endl;
-      htmlAnyHisto(runNo,subFCPedestalMean_1D[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlAnyHisto(runNo,subFCPedestalRMS_1D[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlFile <<"</tr>"<<endl;
-    }
-  htmlFile <<"</table>"<<endl;
 
 
   // Plot Pedestal Plot Errors 
@@ -750,41 +795,7 @@ ofstream htmlFile;
   htmlFile <<"</table>"<<endl;
   htmlFile <<"<br><hr><br>"<<endl;
 
-  //Plot Reference Pedestals
-  // Reference Pedestals in ADC
-  htmlFile << "<h2><strong><a name=\"REF_ADC\">Reference Pedestals from database (ADC)</strong></h2>"<<endl;
-  htmlFile <<"<a href= \"#EXPERT_PEDESTAL_TOP\" > Back to Top</a><br>"<<endl;
-  htmlFile <<"(If the database stores values in fC, the pedestal widths in ADC may not be plotted correctly here.)<br>"<<endl;
-  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\"> " << endl;
-  gStyle->SetPalette(1); //set back to normal rainbow color
-  for (int i=0;i<6;++i)
-    {
-      htmlFile << "<tr align=\"left\">" << endl;
-      htmlAnyHisto(runNo,ADC_PedestalFromDBByDepth[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlAnyHisto(runNo,ADC_WidthFromDBByDepth[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlFile <<"</tr>"<<endl;
-    }
-  htmlFile <<"</table>"<<endl;
-
-  htmlFile <<"<br><hr><br>"<<endl;
-
-  // Reference Pedestals in fC
-  htmlFile << "<h2><strong><a name=\"REF_fC\">Reference Pedestals from database (fC)</strong></h2>"<<endl;
-  htmlFile <<"<a href= \"#EXPERT_PEDESTAL_TOP\" > Back to Top</a><br>"<<endl;
-  htmlFile <<"(If the database stores values in ADC, the pedestal widths in fC may not be plotted correctly here.)<br>"<<endl;
-  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\"> " << endl;
-  gStyle->SetPalette(1); //set back to normal rainbow color
-  for (int i=0;i<6;++i)
-    {
-      htmlFile << "<tr align=\"left\">" << endl;
-      htmlAnyHisto(runNo,fC_PedestalFromDBByDepth[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlAnyHisto(runNo,fC_WidthFromDBByDepth[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlFile <<"</tr>"<<endl;
-    }
-  htmlFile <<"</table>"<<endl;
-
+  // html file footer
   htmlFile <<"<br><hr><br><a href= \"#EXPERT_PEDESTAL_TOP\" > Back to Top of Page </a><br>"<<endl;
   htmlFile <<"<a href = \".\"> Back to Main HCAL DQM Page </a><br>"<<endl;
   htmlFile <<"<a href= \""<<htmlName.c_str()<<"\" > Back to Pedestal Status Page </a><br>"<<endl;
@@ -859,10 +870,10 @@ void HcalPedestalClient::loadHistograms(TFile* infile)
       name<<process_.c_str()<<"PedestalMonitor_Hcal/adc/raw/"<<subdets_[i]<<"Pedestal Widths Map ADC";
       rawADCPedestalRMS[i] = (TH2F*)infile->Get(name.str().c_str());
       name.str("");
-      name<<process_.c_str()<<"PedestalMonitor_Hcal/adc/subtracted__beta_testing/"<<subdets_[i]<<"Subtracted Pedestal Values Map ADC";
+      name<<process_.c_str()<<"PedestalMonitor_Hcal/adc/subtracted/"<<subdets_[i]<<"Subtracted Pedestal Values Map ADC";
       subADCPedestalMean[i] = (TH2F*)infile->Get(name.str().c_str());
       name.str("");
-      name<<process_.c_str()<<"PedestalMonitor_Hcal/adc/subtracted__beta_testing/"<<subdets_[i]<<"Subtracted Pedestal Widths Map ADC";
+      name<<process_.c_str()<<"PedestalMonitor_Hcal/adc/subtracted/"<<subdets_[i]<<"Subtracted Pedestal Widths Map ADC";
       subADCPedestalRMS[i] = (TH2F*)infile->Get(name.str().c_str());
       name.str("");
       name<<process_.c_str()<<"PedestalMonitor_Hcal/adc/raw/"<<subdets_[i]<<"1D Pedestal Values ADC";
@@ -871,39 +882,113 @@ void HcalPedestalClient::loadHistograms(TFile* infile)
       name<<process_.c_str()<<"PedestalMonitor_Hcal/adc/raw/"<<subdets_[i]<<"1D Pedestal Widths ADC";
       rawADCPedestalRMS_1D[i] =(TH1F*)infile->Get(name.str().c_str());
       name.str("");
-      name<<process_.c_str()<<"PedestalMonitor_Hcal/adc/subtracted__beta_testing/"<<subdets_[i]<<"1D Subtracted Pedestal Values ADC";
+      name<<process_.c_str()<<"PedestalMonitor_Hcal/adc/subtracted/"<<subdets_[i]<<"1D Subtracted Pedestal Values ADC";
       subADCPedestalMean_1D[i] =(TH1F*)infile->Get(name.str().c_str());
       name.str("");
-      name<<process_.c_str()<<"PedestalMonitor_Hcal/adc/subtracted__beta_testing/"<<subdets_[i]<<"1D Subtracted Pedestal Widths ADC";
+      name<<process_.c_str()<<"PedestalMonitor_Hcal/adc/subtracted/"<<subdets_[i]<<"1D Subtracted Pedestal Widths ADC";
       subADCPedestalRMS_1D[i] =(TH1F*)infile->Get(name.str().c_str());
       name.str("");
 
       // Raw, sub Pedestals in fC
       name<<process_.c_str()<<"PedestalMonitor_Hcal/fc/raw/"<<subdets_[i]<<"Pedestal Values Map fC";
-      rawFCPedestalMean[i] = (TH2F*)infile->Get(name.str().c_str());
+      rawfCPedestalMean[i] = (TH2F*)infile->Get(name.str().c_str());
       name.str("");
       name<<process_.c_str()<<"PedestalMonitor_Hcal/fc/raw/"<<subdets_[i]<<"Pedestal Widths Map fC";
-      rawFCPedestalRMS[i] = (TH2F*)infile->Get(name.str().c_str());
+      rawfCPedestalRMS[i] = (TH2F*)infile->Get(name.str().c_str());
       name.str("");
-      name<<process_.c_str()<<"PedestalMonitor_Hcal/fc/subtracted__beta_testing/"<<subdets_[i]<<"Subtracted Pedestal Values Map fC";
-      subFCPedestalMean[i] = (TH2F*)infile->Get(name.str().c_str());
+      name<<process_.c_str()<<"PedestalMonitor_Hcal/fc/subtracted/"<<subdets_[i]<<"Subtracted Pedestal Values Map fC";
+      subfCPedestalMean[i] = (TH2F*)infile->Get(name.str().c_str());
       name.str("");
-      name<<process_.c_str()<<"PedestalMonitor_Hcal/fc/subtracted__beta_testing/"<<subdets_[i]<<"Subtracted Pedestal Widths Map fC";
-      subFCPedestalRMS[i] = (TH2F*)infile->Get(name.str().c_str());
+      name<<process_.c_str()<<"PedestalMonitor_Hcal/fc/subtracted/"<<subdets_[i]<<"Subtracted Pedestal Widths Map fC";
+      subfCPedestalRMS[i] = (TH2F*)infile->Get(name.str().c_str());
       name.str("");
       name<<process_.c_str()<<"PedestalMonitor_Hcal/fc/raw/"<<subdets_[i]<<"1D Pedestal Values fC";
-      rawFCPedestalMean_1D[i] =(TH1F*)infile->Get(name.str().c_str());
+      rawfCPedestalMean_1D[i] =(TH1F*)infile->Get(name.str().c_str());
       name.str("");
       name<<process_.c_str()<<"PedestalMonitor_Hcal/fc/raw/"<<subdets_[i]<<"1D Pedestal Widths fC";
-      rawFCPedestalRMS_1D[i] =(TH1F*)infile->Get(name.str().c_str());
+      rawfCPedestalRMS_1D[i] =(TH1F*)infile->Get(name.str().c_str());
       name.str("");
-      name<<process_.c_str()<<"PedestalMonitor_Hcal/fc/subtracted__beta_testing/"<<subdets_[i]<<"1D Subtracted Pedestal Values fC";
-      subFCPedestalMean_1D[i] =(TH1F*)infile->Get(name.str().c_str());
+      name<<process_.c_str()<<"PedestalMonitor_Hcal/fc/subtracted/"<<subdets_[i]<<"1D Subtracted Pedestal Values fC";
+      subfCPedestalMean_1D[i] =(TH1F*)infile->Get(name.str().c_str());
       name.str("");
-      name<<process_.c_str()<<"PedestalMonitor_Hcal/fc/subtracted__beta_testing/"<<subdets_[i]<<"1D Subtracted Pedestal Widths fC";
-      subFCPedestalRMS_1D[i] =(TH1F*)infile->Get(name.str().c_str());
+      name<<process_.c_str()<<"PedestalMonitor_Hcal/fc/subtracted/"<<subdets_[i]<<"1D Subtracted Pedestal Widths fC";
+      subfCPedestalRMS_1D[i] =(TH1F*)infile->Get(name.str().c_str());
       name.str("");
     } //for (int i=0;i<6;++i)
   return;
 } // void HcalPedestalClient::loadHistograms(...)
 
+
+bool HcalPedestalClient::hasErrors_Temp()
+{
+  int problemcount=0;
+
+  int etabins  = ProblemPedestals->GetNbinsX();
+  int phibins  = ProblemPedestals->GetNbinsY();
+  float etaMin = ProblemPedestals->GetXaxis()->GetXmin();
+  float phiMin = ProblemPedestals->GetYaxis()->GetXmin();
+  int eta,phi;
+
+  for (int depth=0;depth<6; ++depth)
+    {
+      for (int ieta=1;ieta<=etabins;++ieta)
+        {
+          for (int iphi=1; iphi<=phibins;++iphi)
+            {
+              eta=ieta+int(etaMin)-1;
+              phi=iphi+int(phiMin)-1;
+	      int mydepth=depth+1;
+	      if (mydepth>4) mydepth-=4; // last two depth values are for HE depth 1,2
+	      if (ProblemPedestalsByDepth[depth]==0)
+		{
+		  continue;
+		}
+	      if (ProblemPedestalsByDepth[depth]->GetBinContent(ieta,iphi)>minErrorFlag_)
+		{
+		  problemcount++;
+		}
+	    } // for (int iphi=1;...)
+	} // for (int ieta=1;...)
+    } // for (int depth=0;...)
+
+  if (problemcount>=100) return true;
+  return false;
+
+} // bool HcalPedestalClient::hasErrors_Temp()
+
+bool HcalPedestalClient::hasWarnings_Temp()
+{
+  int problemcount=0;
+
+  int etabins  = ProblemPedestals->GetNbinsX();
+  int phibins  = ProblemPedestals->GetNbinsY();
+  float etaMin = ProblemPedestals->GetXaxis()->GetXmin();
+  float phiMin = ProblemPedestals->GetYaxis()->GetXmin();
+  int eta,phi;
+ 
+  for (int depth=0;depth<6; ++depth)
+    {
+      for (int ieta=1;ieta<=etabins;++ieta)
+        {
+          for (int iphi=1; iphi<=phibins;++iphi)
+            {
+              eta=ieta+int(etaMin)-1;
+              phi=iphi+int(phiMin)-1;
+	      int mydepth=depth+1;
+	      if (mydepth>4) mydepth-=4; // last two depth values are for HE depth 1,2
+	      if (ProblemPedestalsByDepth[depth]==0)
+		{
+		  continue;
+		}
+	      if (ProblemPedestalsByDepth[depth]->GetBinContent(ieta,iphi)>minErrorFlag_)
+		{
+		  problemcount++;
+		}
+	    } // for (int iphi=1;...)
+	} // for (int ieta=1;...)
+    } // for (int depth=0;...)
+
+  if (problemcount>0) return true;
+  return false;
+
+} // bool HcalPedestalClient::hasWarnings_Temp()

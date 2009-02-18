@@ -57,6 +57,12 @@ class HcalBaseClient{
   bool hasErrors() const { return dqmReportMapErr_.size(); }
   bool hasWarnings() const { return dqmReportMapWarn_.size(); }
   bool hasOther() const { return dqmReportMapOther_.size(); }
+
+  // Introduce temporary error/warning checks
+  bool hasErrors_Temp()  {return false;}
+  bool hasWarnings_Temp()  {return false;}
+  bool hasOther_Temp()  {return false;}
+
   bool validDetId(HcalSubdetector sd, int ies, int ip, int dp);
   
   void getSJ6histos( char* dir, char* name, TH2F* h[6]);

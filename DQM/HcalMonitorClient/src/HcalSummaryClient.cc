@@ -1054,3 +1054,26 @@ void HcalSummaryClient::htmlOutput(int& run, time_t& mytime, int& minlumi, int& 
   htmlFile <<"  OVERALL STATUS:  "<<status_global_<<endl;
   htmlFile.close();
 } // void htmlOutput(...)
+
+
+bool HcalSummaryClient::hasErrors_Temp()
+{
+  float error=0.8;
+  if (status_HB_<error && status_HB_>-1) return true;
+  if (status_HE_<error && status_HE_>-1) return true;
+  if (status_HO_<error && status_HO_>-1) return true;
+  if (status_HF_<error && status_HF_>-1) return true;
+  if (status_ZDC_<error && status_ZDC_>-1) return true;
+  return false;
+} // bool HcalSummaryClient::hasErrors_Temp()
+
+bool HcalSummaryClient::hasWarnings_Temp()
+{
+  float error=0.95;
+  if (status_HB_<error && status_HB_>-1) return true;
+  if (status_HE_<error && status_HE_>-1) return true;
+  if (status_HO_<error && status_HO_>-1) return true;
+  if (status_HF_<error && status_HF_>-1) return true;
+  if (status_ZDC_<error && status_ZDC_>-1) return true;
+  return false;
+} // bool HcalSummaryClient::hasWarnings_Temp()

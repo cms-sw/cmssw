@@ -862,3 +862,77 @@ void HcalHotCellClient::loadHistograms(TFile* infile)
   return;
 } // void HcalHotCellClient::loadHistograms(...)
 
+
+bool HcalHotCellClient::hasErrors_Temp()
+{
+  int problemcount=0;
+
+  int etabins  = ProblemHotCells->GetNbinsX();
+  int phibins  = ProblemHotCells->GetNbinsY();
+  float etaMin = ProblemHotCells->GetXaxis()->GetXmin();
+  float phiMin = ProblemHotCells->GetYaxis()->GetXmin();
+  int eta,phi;
+
+  for (int depth=0;depth<6; ++depth)
+    {
+      for (int ieta=1;ieta<=etabins;++ieta)
+        {
+          for (int iphi=1; iphi<=phibins;++iphi)
+            {
+              eta=ieta+int(etaMin)-1;
+              phi=iphi+int(phiMin)-1;
+	      int mydepth=depth+1;
+	      if (mydepth>4) mydepth-=4; // last two depth values are for HE depth 1,2
+	      if (ProblemHotCellsByDepth[depth]==0)
+		{
+		  continue;
+		}
+	      if (ProblemHotCellsByDepth[depth]->GetBinContent(ieta,iphi)>minErrorFlag_)
+		{
+		  problemcount++;
+		}
+	    } // for (int iphi=1;...)
+	} // for (int ieta=1;...)
+    } // for (int depth=0;...)
+
+  if (problemcount>=100) return true;
+  return false;
+
+} // bool HcalHotCellClient::hasErrors_Temp()
+
+bool HcalHotCellClient::hasWarnings_Temp()
+{
+  int problemcount=0;
+
+  int etabins  = ProblemHotCells->GetNbinsX();
+  int phibins  = ProblemHotCells->GetNbinsY();
+  float etaMin = ProblemHotCells->GetXaxis()->GetXmin();
+  float phiMin = ProblemHotCells->GetYaxis()->GetXmin();
+  int eta,phi;
+ 
+  for (int depth=0;depth<6; ++depth)
+    {
+      for (int ieta=1;ieta<=etabins;++ieta)
+        {
+          for (int iphi=1; iphi<=phibins;++iphi)
+            {
+              eta=ieta+int(etaMin)-1;
+              phi=iphi+int(phiMin)-1;
+	      int mydepth=depth+1;
+	      if (mydepth>4) mydepth-=4; // last two depth values are for HE depth 1,2
+	      if (ProblemHotCellsByDepth[depth]==0)
+		{
+		  continue;
+		}
+	      if (ProblemHotCellsByDepth[depth]->GetBinContent(ieta,iphi)>minErrorFlag_)
+		{
+		  problemcount++;
+		}
+	    } // for (int iphi=1;...)
+	} // for (int ieta=1;...)
+    } // for (int depth=0;...)
+
+  if (problemcount>0) return true;
+  return false;
+
+} // bool HcalHotCellClient::hasWarnings_Temp()
