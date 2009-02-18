@@ -98,12 +98,12 @@ template<class digiIter>
 inline bool
 ThreeThresholdStripClusterizer::
 clusterEdgeCondition(digiIter back, digiIter test, digiIter end) const {
+  if(test == end) return true;
   uint16_t Nbetween = std::abs( test->strip() - back->strip()) - 1;
-  return ( test == end
-	   || ( Nbetween > digiInfo->maxSequentialHoles()                                
-		&& ( Nbetween > digiInfo->maxSequentialBad()                             
-		     || digiInfo->anyGoodBetween( back->strip(),test->strip() ) )        
-		));
+  return ( Nbetween > digiInfo->maxSequentialHoles()                                
+	   && ( Nbetween > digiInfo->maxSequentialBad()                             
+		|| digiInfo->anyGoodBetween( back->strip(),test->strip() ) )
+	   );
 }
 
 inline bool
