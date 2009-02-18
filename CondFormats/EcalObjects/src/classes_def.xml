@@ -19,6 +19,9 @@
 <class name="EcalIntercalibConstants"/>
 <class name="EcalIntercalibErrors"/>
 
+<class name="EcalTimeCalibConstants"/>
+<class name="EcalTimeCalibErrors"/>
+
 <class name="EcalClusterLocalContCorrParameters"/>
 <class name="EcalClusterCrackCorrParameters"/>
 

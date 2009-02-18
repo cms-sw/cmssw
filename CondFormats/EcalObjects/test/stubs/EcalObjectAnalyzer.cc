@@ -34,6 +34,11 @@ simple analyzer to dump information about ECAL cond objects
 #include "CondFormats/EcalObjects/interface/EcalIntercalibErrors.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibErrorsRcd.h"
 
+#include "CondFormats/EcalObjects/interface/EcalTimeCalibConstants.h"
+#include "CondFormats/DataRecord/interface/EcalTimeCalibConstantsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalTimeCalibErrors.h"
+#include "CondFormats/DataRecord/interface/EcalTimeCalibErrorsRcd.h"
+
 #include "CondFormats/EcalObjects/interface/EcalMGPAGainRatio.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
 #include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
@@ -183,6 +188,35 @@ EcalObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context)
   for(icalerrit = icalerr->endcapItems().begin(); icalerrit != icalerr->endcapItems().end(); ++icalerrit) {
       std::cout << "EcalIntercalibConstant:  error: " << (*icalerrit) << std::endl;
   } 
+
+  // Time calibration constants
+  {
+  edm::ESHandle<EcalTimeCalibConstants> pIcal;
+  context.get<EcalTimeCalibConstantsRcd>().get(pIcal);
+  const EcalTimeCalibConstants* ical = pIcal.product();
+  EcalTimeCalibConstantMap::const_iterator icalit;
+  // Barrel loop
+  for(icalit = ical->barrelItems().begin(); icalit != ical->barrelItems().end(); ++icalit) {
+      std::cout << "EcalTimeCalibConstant:  icalconst: " << (*icalit) << std::endl;
+  } 
+  // Endcap loop
+  for(icalit = ical->endcapItems().begin(); icalit != ical->endcapItems().end(); ++icalit) {
+      std::cout << "EcalTimeCalibConstant:  icalconst: " << (*icalit) << std::endl;
+  } 
+
+  edm::ESHandle<EcalTimeCalibErrors> pIcalError;
+  context.get<EcalTimeCalibErrorsRcd>().get(pIcalError);
+  const EcalTimeCalibErrors* icalerr = pIcalError.product();
+  EcalTimeCalibErrorMap::const_iterator icalerrit;
+  // Barrel loop
+  for(icalerrit = icalerr->barrelItems().begin(); icalerrit != icalerr->barrelItems().end(); ++icalerrit) {
+      std::cout << "EcalTimeCalibConstant:  error: " << (*icalerrit) << std::endl;
+  } 
+  // Endcap loop
+  for(icalerrit = icalerr->endcapItems().begin(); icalerrit != icalerr->endcapItems().end(); ++icalerrit) {
+      std::cout << "EcalTimeCalibConstant:  error: " << (*icalerrit) << std::endl;
+  } 
+  }
 
   // fetch TB weights
   edm::ESHandle<EcalTBWeights> pWgts;
