@@ -122,7 +122,7 @@ void LRHelpFunctions::fillToSignalHists(int obsNbr, double obsVal, double weight
 // member function to add observable values to the signal histograms
 void LRHelpFunctions::fillToSignalCorrelation(int obsNbr1, double obsVal1, int obsNbr2,
 	double obsVal2, double weight){
-  TString hcorr  = "Corr_Obs"; hcorr  += (obsNbr1 <? obsNbr2) ; hcorr += "_Obs";  hcorr  += (obsNbr1 >? obsNbr2);
+  TString hcorr  = "Corr_Obs"; hcorr  += min(obsNbr1,obsNbr2) ; hcorr += "_Obs";  hcorr  += max(obsNbr1, obsNbr2);
   for(size_t i=0; i<hObsCorr.size(); i++) {
     if(((TString)(hObsCorr[i]->GetName())) == hcorr) {
       if (obsNbr1 < obsNbr2) {
@@ -384,7 +384,7 @@ double LRHelpFunctions::calcPtdrLRval(std::vector<double> vals, bool useCorrelat
       for(size_t j=0; j<fObsSoverSplusB.size(); j++){
         if (o==j) ++corr;
 	else {
-	  TString hcorr  = "Corr_Obs"; hcorr  += (obsNumbers[o]<?obsNumbers[j]) ; hcorr += "_Obs";  hcorr  += (obsNumbers[o]>?obsNumbers[j]);
+	  TString hcorr  = "Corr_Obs"; hcorr  += min(obsNumbers[o],obsNumbers[j]) ; hcorr += "_Obs";  hcorr  += max(obsNumbers[o],obsNumbers[j]);
 	  for(size_t i=0; i<hObsCorr.size(); i++) {
 	    if(((TString)(hObsCorr[i]->GetName())) == hcorr)
 	      corr += fabs(hObsCorr[i]->GetCorrelationFactor());
