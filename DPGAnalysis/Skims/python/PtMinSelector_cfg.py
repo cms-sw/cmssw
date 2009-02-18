@@ -1,15 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("TEST")
+process = cms.Process("SKIM")
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-'/store/data/Commissioning08/Cosmics/RECO/CRAFT_ALL_V9_225-v1/0002/0A12CE23-D7F9-DD11-819E-00E081348D21.root',
+'/store/data/Commissioning08/Cosmics/RECO/CRAFT_ALL_V9_225-v1/0002/0A12CE23-D7F9-DD11-819E-00E081348D21.root'
     )
 )                            
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/PtMinSelector_cfg.py,v $'),
     annotation = cms.untracked.string('CRAFT Muon Pt 50 skim')
 )
@@ -66,7 +66,7 @@ process.cosmicMuons1LegPath = cms.Path(process.cosmicMuons1LegPtFilter)
 
 
 process.out = cms.OutputModule("PoolOutputModule",
-                               outputCommands = cms.untracked.vstring('keep *'
+                               outputCommands = cms.untracked.vstring('keep *',
                                'drop *_cosmictrackfinderP5PtFilter_*_*',
                                'drop *_globalCosmicMuonsPtFilter_*_*',
                                'drop *_globalCosmicMuons1LegPtFilter_*_*',
