@@ -64,16 +64,16 @@ static void doPrint(const std::string&iName,const Reflex::Object& iObject, const
 }
 
 template<>
-static void doPrint<char>(const std::string&iName,const Reflex::Object& iObject, const std::string& iIndent) {
+void doPrint<char>(const std::string&iName,const Reflex::Object& iObject, const std::string& iIndent) {
    std::cout << iIndent<< iName <<kNameValueSep<<static_cast<int>(*reinterpret_cast<char*>(iObject.Address()))<<"\n";
 }
 template<>
-static void doPrint<unsigned char>(const std::string&iName,const Reflex::Object& iObject, const std::string& iIndent) {
+void doPrint<unsigned char>(const std::string&iName,const Reflex::Object& iObject, const std::string& iIndent) {
    std::cout << iIndent<< iName <<kNameValueSep<<static_cast<unsigned int>(*reinterpret_cast<unsigned char*>(iObject.Address()))<<"\n";
 }
 
 template<>
-static void doPrint<bool>(const std::string&iName,const Reflex::Object& iObject, const std::string& iIndent) {
+void doPrint<bool>(const std::string&iName,const Reflex::Object& iObject, const std::string& iIndent) {
    std::cout << iIndent<< iName <<kNameValueSep<<((*reinterpret_cast<bool*>(iObject.Address()))?"true":"false")<<"\n";
 }
 
