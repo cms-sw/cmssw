@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialObjectAnalyzer.cc,v 1.17 2008/02/19 11:33:52 ferriff Exp $
+// $Id: EcalTrivialObjectAnalyzer.cc,v 1.18 2008/12/10 16:33:31 ferriff Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -31,6 +31,12 @@
 
 #include "CondFormats/EcalObjects/interface/EcalIntercalibErrors.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibErrorsRcd.h"
+
+#include "CondFormats/EcalObjects/interface/EcalTimeCalibConstants.h"
+#include "CondFormats/DataRecord/interface/EcalTimeCalibConstantsRcd.h"
+
+#include "CondFormats/EcalObjects/interface/EcalTimeCalibErrors.h"
+#include "CondFormats/DataRecord/interface/EcalTimeCalibErrorsRcd.h"
 
 #include "CondFormats/EcalObjects/interface/EcalMGPAGainRatio.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
@@ -167,6 +173,48 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
     } else {
      std::cout << "No intercalib const found for this xtal! something wrong with EcalIntercalibErrors in your DB? "
                << std::endl;
+    }
+
+
+
+    { // quick and dirty for cut and paste ;) it is a test program...
+            // TimeCalib constants
+            edm::ESHandle<EcalTimeCalibConstants> pIcal;
+            context.get<EcalTimeCalibConstantsRcd>().get(pIcal);
+            const EcalTimeCalibConstants* ical = pIcal.product();
+
+            EcalTimeCalibConstantMap::const_iterator icalit=ical->getMap().find(ebid.rawId());
+            EcalTimeCalibConstant icalconst;
+            if( icalit!=ical->getMap().end() ){
+                    icalconst = (*icalit);
+
+                    std::cout << "EcalTimeCalibConstant: "
+                            <<std::setprecision(6)
+                            << icalconst
+                            << std::endl;
+            } else {
+                    std::cout << "No intercalib const found for this xtal! something wrong with EcalTimeCalibConstants in your DB? "
+                            << std::endl;
+            }
+
+            // TimeCalib errors
+            edm::ESHandle<EcalTimeCalibErrors> pIcalErr;
+            context.get<EcalTimeCalibErrorsRcd>().get(pIcalErr);
+            const EcalTimeCalibErrors* icalErr = pIcalErr.product();
+
+            EcalTimeCalibErrorMap::const_iterator icalitErr=icalErr->getMap().find(ebid.rawId());
+            EcalTimeCalibError icalconstErr;
+            if( icalitErr!=icalErr->getMap().end() ){
+                    icalconstErr = (*icalitErr);
+
+                    std::cout << "EcalTimeCalibError: "
+                            <<std::setprecision(6)
+                            << icalconstErr
+                            << std::endl;
+            } else {
+                    std::cout << "No intercalib const found for this xtal! something wrong with EcalTimeCalibErrors in your DB? "
+                            << std::endl;
+            }
     }
 
 

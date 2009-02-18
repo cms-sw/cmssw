@@ -10,6 +10,7 @@ EcalTrivialConditionRetriever = cms.ESSource("EcalTrivialConditionRetriever",
     producedEcalWeights = cms.untracked.bool(True),
     EEpedRMSX12 = cms.untracked.double(2.87),
     producedEcalIntercalibConstants = cms.untracked.bool(True),
+    producedEcalTimeCalibConstants = cms.untracked.bool(True),
     producedEcalGainRatios = cms.untracked.bool(True),
     producedEcalADCToGeVConstant = cms.untracked.bool(True)
 )

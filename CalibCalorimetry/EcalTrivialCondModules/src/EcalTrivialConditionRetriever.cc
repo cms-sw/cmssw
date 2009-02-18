@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.32 2008/08/01 10:07:49 meridian Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.33 2008/12/10 16:33:27 ferriff Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -31,8 +31,11 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
 
   intercalibConstantMean_ = ps.getUntrackedParameter<double>("intercalibConstantMean",1.0);
   intercalibConstantSigma_ = ps.getUntrackedParameter<double>("intercalibConstantSigma",0.0);
-
   intercalibErrorMean_ = ps.getUntrackedParameter<double>("IntercalibErrorMean",0.0);
+
+  timeCalibConstantMean_ = ps.getUntrackedParameter<double>("timeCalibConstantMean",1.0);
+  timeCalibConstantSigma_ = ps.getUntrackedParameter<double>("timeCalibConstantSigma",0.0);
+  timeCalibErrorMean_ = ps.getUntrackedParameter<double>("timeCalibErrorMean",0.0);
 
   laserAlphaMean_  = ps.getUntrackedParameter<double>("laserAlphaMean",1.55);
   laserAlphaSigma_ = ps.getUntrackedParameter<double>("laserAlphaSigma",0);
@@ -168,6 +171,32 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
         setWhatProduced (this, &EcalTrivialConditionRetriever::produceEcalIntercalibErrors ) ;
     }
     findingRecord<EcalIntercalibErrorsRcd> () ;
+  }
+
+  // time calibration constants
+  producedEcalTimeCalibConstants_ = ps.getUntrackedParameter<bool>("producedEcalTimeCalibConstants",true);
+  timeCalibConstantsFile_ = ps.getUntrackedParameter<std::string>("timeCalibConstantsFile","") ;
+
+  if (producedEcalTimeCalibConstants_) { // user asks to produce constants
+    if(timeCalibConstantsFile_ != "") {  // if file provided read constants
+        setWhatProduced (this, &EcalTrivialConditionRetriever::getTimeCalibConstantsFromConfiguration ) ;
+    } else { // set all constants to 1. or smear as specified by user
+        setWhatProduced (this, &EcalTrivialConditionRetriever::produceEcalTimeCalibConstants ) ;
+    }
+    findingRecord<EcalTimeCalibConstantsRcd> () ;
+  }
+
+  // time calibration constants
+  producedEcalTimeCalibErrors_ = ps.getUntrackedParameter<bool>("producedEcalTimeCalibErrors",true);
+  timeCalibErrorsFile_ = ps.getUntrackedParameter<std::string>("timeCalibErrorsFile","") ;
+
+  if (producedEcalTimeCalibErrors_) { // user asks to produce constants
+    if(timeCalibErrorsFile_ != "") {  // if file provided read constants
+        setWhatProduced (this, &EcalTrivialConditionRetriever::getTimeCalibErrorsFromConfiguration ) ;
+    } else { // set all constants to 1. or smear as specified by user
+        setWhatProduced (this, &EcalTrivialConditionRetriever::produceEcalTimeCalibErrors ) ;
+    }
+    findingRecord<EcalTimeCalibErrorsRcd> () ;
   }
 
   // cluster corrections
@@ -395,6 +424,81 @@ EcalTrivialConditionRetriever::produceEcalIntercalibErrors( const EcalIntercalib
         {
 	  EEDetId eedetidneg(iX,iY,-1);
 	  ical->setValue( eedetidneg.rawId(), intercalibErrorMean_ );
+	}
+    }
+  }
+  
+  return ical;
+}
+
+std::auto_ptr<EcalTimeCalibConstants>
+EcalTrivialConditionRetriever::produceEcalTimeCalibConstants( const EcalTimeCalibConstantsRcd& )
+{
+  std::auto_ptr<EcalTimeCalibConstants>  ical = std::auto_ptr<EcalTimeCalibConstants>( new EcalTimeCalibConstants() );
+
+  for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA ;++ieta) {
+    if(ieta==0) continue;
+    for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
+      // make an EBDetId since we need EBDetId::rawId() to be used as the key for the pedestals
+      if (EBDetId::validDetId(ieta,iphi))
+	{
+	  EBDetId ebid(ieta,iphi);
+	  double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
+	  ical->setValue( ebid.rawId(), timeCalibConstantMean_ + r*timeCalibConstantSigma_ );
+	}
+    }
+  }
+
+  for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
+    for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
+      // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
+      if (EEDetId::validDetId(iX,iY,1))
+	{
+	  double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
+	  EEDetId eedetidpos(iX,iY,1);
+	  ical->setValue( eedetidpos.rawId(), timeCalibConstantMean_ + r*timeCalibConstantSigma_ );
+	}
+      if(EEDetId::validDetId(iX,iY,-1))
+        {
+	  double r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );
+	  EEDetId eedetidneg(iX,iY,-1);
+	  ical->setValue( eedetidneg.rawId(), timeCalibConstantMean_ + r1*timeCalibConstantSigma_ );
+	}
+    }
+  }
+  
+  return ical;
+}
+
+std::auto_ptr<EcalTimeCalibErrors>
+EcalTrivialConditionRetriever::produceEcalTimeCalibErrors( const EcalTimeCalibErrorsRcd& )
+{
+  std::auto_ptr<EcalTimeCalibErrors>  ical = std::auto_ptr<EcalTimeCalibErrors>( new EcalTimeCalibErrors() );
+
+  for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA ;++ieta) {
+    if(ieta==0) continue;
+    for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
+      // make an EBDetId since we need EBDetId::rawId() to be used as the key for the pedestals
+      if (EBDetId::validDetId(ieta,iphi))
+	{
+	  EBDetId ebid(ieta,iphi);
+	  ical->setValue( ebid.rawId(), timeCalibErrorMean_);
+	}
+    }
+  }
+
+  for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
+    for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
+      // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
+      if (EEDetId::validDetId(iX,iY,1))
+	{
+	  EEDetId eedetidpos(iX,iY,1);
+	  ical->setValue( eedetidpos.rawId(), timeCalibErrorMean_ );
+	}
+      if(EEDetId::validDetId(iX,iY,-1))
+        {
+	  EEDetId eedetidneg(iX,iY,-1);
+	  ical->setValue( eedetidneg.rawId(), timeCalibErrorMean_ );
 	}
     }
   }
@@ -1625,6 +1729,244 @@ EcalTrivialConditionRetriever::getIntercalibErrorsFromConfiguration
 
   fclose (inpFile) ;           // close inp. file
   edm::LogInfo ("EcalTrivialConditionRetriever") << "Read intercalibrations for " << ii << " xtals " ; 
+  if (ii!=1700) edm::LogWarning ("StoreEcalCondition") 
+                << "Some crystals missing, set to 1" << std::endl ;
+
+  // Transfer the data to the inter-calibration coefficients container
+  // -----------------------------------------------------------------
+
+  // DB supermodule always set to 1 for the TestBeam FIXME
+  int sm_db=1 ;
+  // loop over channels 
+  for (int i=0 ; i<1700 ; i++)
+    {
+      //if (EBDetId::validDetId(iEta,iPhi)) {
+      // CANNOT be used -- validDetId only checks ETA PHI method
+      // doing a check by hand, here is the only place in CMSSW 
+      // outside TB code and EcalRawToDigi where needed
+      // => no need for changing the DetId interface
+      //
+      // checking only sm_db -- guess can change with the above FIXME
+      if (sm_db >= EBDetId::MIN_SM && sm_db <= EBDetId::MAX_SM) {
+        EBDetId ebid (sm_db,i+1,EBDetId::SMCRYSTALMODE) ;
+        if (calib_status[i]) ical->setValue (ebid.rawId (), calib[i]) ;
+        else ical->setValue (ebid.rawId (), 1.) ;
+      }
+      //}
+    } // loop over channels 
+	
+//  edm::LogInfo ("EcalTrivialConditionRetriever") << "INTERCALIBRATION DONE" ; 
+  return ical;
+}
+
+// --------------------------------------------------------------------------------
+
+
+std::auto_ptr<EcalTimeCalibConstants> 
+EcalTrivialConditionRetriever::getTimeCalibConstantsFromConfiguration 
+( const EcalTimeCalibConstantsRcd& )
+{
+  std::auto_ptr<EcalTimeCalibConstants>  ical = 
+      std::auto_ptr<EcalTimeCalibConstants>( new EcalTimeCalibConstants() );
+
+  // Read the values from a txt file
+  // -------------------------------
+
+  edm::LogInfo("EcalTrivialConditionRetriever") << "Reading time calibration constants from file "
+                                                << timeCalibConstantsFile_.c_str() ;
+
+  FILE *inpFile ;
+  inpFile = fopen (timeCalibConstantsFile_.c_str (),"r") ;
+  if (!inpFile) 
+    {
+      edm::LogError ("EcalTrivialConditionRetriever") 
+         << "*** Can not open file: " << timeCalibConstantsFile_ ;
+      throw cms::Exception ("Cannot open inter-calibration coefficients txt file") ;
+    }
+
+  char line[256] ;
+  std::ostringstream str ;
+  fgets (line,255,inpFile) ;
+  int sm_number=atoi (line) ;
+  str << "sm: " << sm_number ;  
+
+  fgets (line,255,inpFile) ;
+  //int nevents=atoi (line) ; // not necessary here just for online conddb
+
+  fgets (line,255,inpFile) ;
+  std::string gen_tag = line ;
+  str << "gen tag: " << gen_tag ;  // should I use this? 
+
+  fgets (line,255,inpFile) ;
+  std::string cali_method = line ;
+  str << "cali method: " << cali_method << std::endl ; // not important 
+
+  fgets (line,255,inpFile) ;
+  std::string cali_version = line ;
+  str << "cali version: " << cali_version << std::endl ; // not important 
+
+  fgets (line,255,inpFile) ;
+  std::string cali_type = line ;
+  str << "cali type: " << cali_type ; // not important
+
+  edm::LogInfo("EcalTrivialConditionRetriever")
+            << "TimeCalibration file - " 
+            << str.str () << std::endl ;
+
+  float calib[1700]={1} ;
+  float calib_rms[1700]={0} ;
+  int calib_nevents[1700]={0} ;
+  int calib_status[1700]={0} ;
+
+  int ii = 0 ;
+
+  while (fgets (line,255,inpFile)) 
+    {
+      ii++;
+      int dmy_num = 0 ;
+      float dmy_calib = 0. ;
+      float dmy_RMS = 0. ;
+      int dmy_events = 0 ;
+      int dmy_status = 0 ;
+      sscanf (line, "%d %f %f %d %d", &dmy_num, &dmy_calib,
+                                      &dmy_RMS, &dmy_events,
+                                      &dmy_status) ;
+      assert (dmy_num >= 1) ;
+      assert (dmy_num <= 1700) ;
+      calib[dmy_num-1] = dmy_calib ; 
+      calib_rms[dmy_num-1] = dmy_RMS  ;
+      calib_nevents[dmy_num-1] = dmy_events ;
+      calib_status[dmy_num-1] = dmy_status ;
+
+//       edm::LogInfo ("EcalTrivialConditionRetriever")
+//                 << "[PIETRO] cry = " << dmy_num 
+//                 << " calib = " << calib[dmy_num-1] 
+//                 << " RMS = " << calib_rms[dmy_num-1] 
+//                 << " events = " << calib_nevents[dmy_num-1] 
+//                 << " status = " << calib_status[dmy_num-1] 
+//                 << std::endl ;
+    }
+
+  fclose (inpFile) ;           // close inp. file
+  edm::LogInfo ("EcalTrivialConditionRetriever") << "Read timeCalibrations for " << ii << " xtals " ; 
+  if (ii!=1700) edm::LogWarning ("StoreEcalCondition") 
+                << "Some crystals missing, set to 1" << std::endl ;
+
+  // Transfer the data to the inter-calibration coefficients container
+  // -----------------------------------------------------------------
+
+  // DB supermodule always set to 1 for the TestBeam FIXME
+  int sm_db=1 ;
+  // loop over channels 
+  for (int i=0 ; i<1700 ; i++)
+    {
+      //if (EBDetId::validDetId(iEta,iPhi)) {
+      // CANNOT be used -- validDetId only checks ETA PHI method
+      // doing a check by hand, here is the only place in CMSSW 
+      // outside TB code and EcalRawToDigi where needed
+      // => no need for changing the DetId interface
+      //
+      // checking only sm_db -- guess can change with the above FIXME
+      if (sm_db >= EBDetId::MIN_SM && sm_db <= EBDetId::MAX_SM) {
+        EBDetId ebid (sm_db,i+1,EBDetId::SMCRYSTALMODE) ;
+        if (calib_status[i]) ical->setValue (ebid.rawId (), calib[i]) ;
+        else ical->setValue (ebid.rawId (), 1.) ;
+      }
+      //}
+    } // loop over channels 
+	
+//  edm::LogInfo ("EcalTrivialConditionRetriever") << "INTERCALIBRATION DONE" ; 
+  return ical;
+}
+
+
+std::auto_ptr<EcalTimeCalibErrors> 
+EcalTrivialConditionRetriever::getTimeCalibErrorsFromConfiguration 
+( const EcalTimeCalibErrorsRcd& )
+{
+  std::auto_ptr<EcalTimeCalibErrors>  ical = 
+      std::auto_ptr<EcalTimeCalibErrors>( new EcalTimeCalibErrors() );
+
+  // Read the values from a txt file
+  // -------------------------------
+
+  edm::LogInfo("EcalTrivialConditionRetriever") << "Reading timeCalibration constants from file "
+                                                << timeCalibErrorsFile_.c_str() ;
+
+  FILE *inpFile ;
+  inpFile = fopen (timeCalibErrorsFile_.c_str (),"r") ;
+  if (!inpFile) 
+    {
+      edm::LogError ("EcalTrivialConditionRetriever") 
+         << "*** Can not open file: " << timeCalibErrorsFile_ ;
+      throw cms::Exception ("Cannot open inter-calibration coefficients txt file") ;
+    }
+
+  char line[256] ;
+  std::ostringstream str ;
+  fgets (line,255,inpFile) ;
+  int sm_number=atoi (line) ;
+  str << "sm: " << sm_number ;  
+
+  fgets (line,255,inpFile) ;
+  //int nevents=atoi (line) ; // not necessary here just for online conddb
+
+  fgets (line,255,inpFile) ;
+  std::string gen_tag = line ;
+  str << "gen tag: " << gen_tag ;  // should I use this? 
+
+  fgets (line,255,inpFile) ;
+  std::string cali_method = line ;
+  str << "cali method: " << cali_method << std::endl ; // not important 
+
+  fgets (line,255,inpFile) ;
+  std::string cali_version = line ;
+  str << "cali version: " << cali_version << std::endl ; // not important 
+
+  fgets (line,255,inpFile) ;
+  std::string cali_type = line ;
+  str << "cali type: " << cali_type ; // not important
+
+  edm::LogInfo("EcalTrivialConditionRetriever")
+            << "TimeCalibration file - " 
+            << str.str () << std::endl ;
+
+  float calib[1700]={1} ;
+  float calib_rms[1700]={0} ;
+  int calib_nevents[1700]={0} ;
+  int calib_status[1700]={0} ;
+
+  int ii = 0 ;
+
+  while (fgets (line,255,inpFile)) 
+    {
+      ii++;
+      int dmy_num = 0 ;
+      float dmy_calib = 0. ;
+      float dmy_RMS = 0. ;
+      int dmy_events = 0 ;
+      int dmy_status = 0 ;
+      sscanf (line, "%d %f %f %d %d", &dmy_num, &dmy_calib,
+                                      &dmy_RMS, &dmy_events,
+                                      &dmy_status) ;
+      assert (dmy_num >= 1) ;
+      assert (dmy_num <= 1700) ;
+      calib[dmy_num-1] = dmy_calib ; 
+      calib_rms[dmy_num-1] = dmy_RMS  ;
+      calib_nevents[dmy_num-1] = dmy_events ;
+      calib_status[dmy_num-1] = dmy_status ;
+
+//       edm::LogInfo ("EcalTrivialConditionRetriever")
+//                 << "[PIETRO] cry = " << dmy_num 
+//                 << " calib = " << calib[dmy_num-1] 
+//                 << " RMS = " << calib_rms[dmy_num-1] 
+//                 << " events = " << calib_nevents[dmy_num-1] 
+//                 << " status = " << calib_status[dmy_num-1] 
+//                 << std::endl ;
+    }
+
+  fclose (inpFile) ;           // close inp. file
+  edm::LogInfo ("EcalTrivialConditionRetriever") << "Read time calibrations for " << ii << " xtals " ; 
   if (ii!=1700) edm::LogWarning ("StoreEcalCondition") 
                 << "Some crystals missing, set to 1" << std::endl ;
 

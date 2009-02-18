@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.h,v 1.17 2008/03/06 14:25:36 meridian Exp $
+// $Id: EcalTrivialConditionRetriever.h,v 1.18 2008/12/10 16:33:21 ferriff Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -30,6 +30,12 @@
 
 #include "CondFormats/EcalObjects/interface/EcalIntercalibErrors.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibErrorsRcd.h"
+
+#include "CondFormats/EcalObjects/interface/EcalTimeCalibConstants.h"
+#include "CondFormats/DataRecord/interface/EcalTimeCalibConstantsRcd.h"
+
+#include "CondFormats/EcalObjects/interface/EcalTimeCalibErrors.h"
+#include "CondFormats/DataRecord/interface/EcalTimeCalibErrorsRcd.h"
 
 #include "CondFormats/EcalObjects/interface/EcalMGPAGainRatio.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
@@ -79,11 +85,15 @@ public:
   virtual std::auto_ptr<EcalWeightXtalGroups> produceEcalWeightXtalGroups( const EcalWeightXtalGroupsRcd& );
   virtual std::auto_ptr<EcalIntercalibConstants> produceEcalIntercalibConstants( const EcalIntercalibConstantsRcd& );
   virtual std::auto_ptr<EcalIntercalibErrors> produceEcalIntercalibErrors( const EcalIntercalibErrorsRcd& );
+  virtual std::auto_ptr<EcalTimeCalibConstants> produceEcalTimeCalibConstants( const EcalTimeCalibConstantsRcd& );
+  virtual std::auto_ptr<EcalTimeCalibErrors> produceEcalTimeCalibErrors( const EcalTimeCalibErrorsRcd& );
   virtual std::auto_ptr<EcalGainRatios> produceEcalGainRatios( const EcalGainRatiosRcd& );
   virtual std::auto_ptr<EcalADCToGeVConstant> produceEcalADCToGeVConstant( const EcalADCToGeVConstantRcd& );
   virtual std::auto_ptr<EcalTBWeights> produceEcalTBWeights( const EcalTBWeightsRcd& );
   virtual std::auto_ptr<EcalIntercalibConstants>  getIntercalibConstantsFromConfiguration ( const EcalIntercalibConstantsRcd& ) ;
   virtual std::auto_ptr<EcalIntercalibErrors>  getIntercalibErrorsFromConfiguration ( const EcalIntercalibErrorsRcd& ) ;
+  virtual std::auto_ptr<EcalTimeCalibConstants>  getTimeCalibConstantsFromConfiguration ( const EcalTimeCalibConstantsRcd& ) ;
+  virtual std::auto_ptr<EcalTimeCalibErrors>  getTimeCalibErrorsFromConfiguration ( const EcalTimeCalibErrorsRcd& ) ;
 
   virtual std::auto_ptr<EcalLaserAlphas> produceEcalLaserAlphas( const EcalLaserAlphasRcd& );
   virtual std::auto_ptr<EcalLaserAPDPNRatiosRef> produceEcalLaserAPDPNRatiosRef( const EcalLaserAPDPNRatiosRefRcd& );
@@ -118,6 +128,10 @@ private:
                                   // Gaussian used to generate intercalib constants for
                                   // each channel. no smearing if sigma=0.0 (default)
   double intercalibErrorMean_;  // mean of intercalib constant error
+
+  double timeCalibConstantMean_;
+  double timeCalibConstantSigma_;
+  double timeCalibErrorMean_;
 
   // cluster corrections
   std::vector<double> localContCorrParameters_;
@@ -170,6 +184,8 @@ private:
   std::string chi2MatrixAftFile_;
   std::string intercalibConstantsFile_ ;
   std::string intercalibErrorsFile_ ;
+  std::string timeCalibConstantsFile_ ;
+  std::string timeCalibErrorsFile_ ;
   std::string channelStatusFile_ ;
   std::string mappingFile_ ;
 
@@ -181,6 +197,8 @@ private:
   bool producedEcalWeights_;
   bool producedEcalIntercalibConstants_;
   bool producedEcalIntercalibErrors_;
+  bool producedEcalTimeCalibConstants_;
+  bool producedEcalTimeCalibErrors_;
   bool producedEcalGainRatios_;
   bool producedEcalADCToGeVConstant_;
   bool producedEcalLaserCorrection_;
