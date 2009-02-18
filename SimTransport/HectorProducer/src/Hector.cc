@@ -229,20 +229,36 @@ void Hector::add( const HepMC::GenEvent * evt ,const edm::EventSetup & iSetup) {
 	  //	  H_BeamParticle myparticle(mass,charge);
 	  h_p = new H_BeamParticle(mass,charge);
 
-	  double px,py,pz,pt;
+	  double px,py,pz;
+	  //	  double pptot  ;
+	  //	  double pt;
 	  px = (*eventParticle)->momentum().px();	  
 	  py = (*eventParticle)->momentum().py();	  
 	  pz = (*eventParticle)->momentum().pz();	  
+	  //	  pptot = (*eventParticle)->momentum().mag();	  
 	  
 	  h_p->set4Momentum( px, py, pz, (*eventParticle)->momentum().e() );
+	  //  h_p->set4Momentum( px, py, pz, pptot );// but energy must be used
 	  
-	  pt = sqrt( (px*px) + (py*py) );
+	  //  pt = sqrt( (px*px) + (py*py) );
+	  //  pt = (*eventParticle)->momentum().pt();	  
+	  //  pt = (*eventParticle)->momentum().perp();	  
+	  
+
+	  //	    double XforPosition = 0.0, YforPosition = 0.0, ZforPosition = 0.0, TXforPosition=0.0, TYforPosition=0.0;
+	  //old//	  double TXforPosition=1000000.*std::atan2( px,pptot );//urad
+	  //old//	  double TYforPosition=1000000.*std::atan2( py,pptot );//urad
+	  // from mm to um	  
+	  double XforPosition = (*eventParticle)->production_vertex()->position().x()*1000.;//um
+	  double YforPosition = (*eventParticle)->production_vertex()->position().y()*1000.;//um
+	  double ZforPosition = (*eventParticle)->production_vertex()->position().z()*0.001;//m
+	  // crossing angle (beam tilt) is not known a priory; keep now 0.0 but, in principle, can be entered as parameters
+	  double TXforPosition=0.0, TYforPosition=0.0;//urad
 	  
 	  // Clears H_BeamParticle::positions and sets the initial one
-	  h_p->setPosition( (*eventParticle)->production_vertex()->position().x(), (*eventParticle)->production_vertex()->position().y(), std::atan2( px, pt ), std::atan2( py, pt ), (*eventParticle)->production_vertex()->position().z() );
+	  h_p->setPosition(XforPosition, YforPosition, TXforPosition, TYforPosition, ZforPosition );
 	  
  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 	  m_beamPart[line] = h_p;
 	  m_direct[line] = 0;
@@ -291,10 +307,12 @@ void Hector::filterFP420(){
       if ( (*m_isCharged.find( line )).second ) {
 	direction = (*m_direct.find( line )).second;
 	if (m_smearAng) {
+	  // the beam transverse direction is centered on (TXforPosition, TYforPosition) at IP
 	  if ( m_sigmaSTX>0. && m_sigmaSTY>0.) {
 	    part->smearAng(m_sigmaSTX,m_sigmaSTY);
 	  }
 	  else {
+	    // for smearAng() in urad, default are (STX=30.23, STY=30.23)
 	    part->smearAng(); 
 	  }
 	}
@@ -303,7 +321,7 @@ void Hector::filterFP420(){
 	    part->smearE(m_sig_e);
 	  }
 	  else {
-	    part->smearE(); 
+	    part->smearE();  // in GeV, default is SBE=0.79
 	  }
 	}
 	if ( direction == 1 ) {
@@ -372,9 +390,11 @@ void Hector::filterZDC(){
 	if(m_verbosity) cout << "filterZDC:direction=" << direction << endl;
 	if (m_smearAng) {
 	  if ( m_sigmaSTX>0. && m_sigmaSTY>0.) {
+	    // the beam transverse direction is centered on (TXforPosition, TYforPosition) at IP
 	    part->smearAng(m_sigmaSTX,m_sigmaSTY);
 	  }
 	  else {
+	    // for smearAng() in urad, default are (STX=30.23, STY=30.23)
 	    part->smearAng(); 
 	  }
 	}
@@ -383,7 +403,7 @@ void Hector::filterZDC(){
 	    part->smearE(m_sig_e);
 	  }
 	  else {
-	    part->smearE(); 
+	    part->smearE();  // in GeV, default is SBE=0.79
 	  }
 	}
 	if ( direction == 1 ) {
@@ -441,9 +461,11 @@ void Hector::filterD1(){
 	if(m_verbosity) cout << "filterD1:direction=" << direction << endl;
 	if (m_smearAng) {
 	  if ( m_sigmaSTX>0. && m_sigmaSTY>0.) {
+	    // the beam transverse direction is centered on (TXforPosition, TYforPosition) at IP
 	    part->smearAng(m_sigmaSTX,m_sigmaSTY);
 	  }
 	  else {
+	    // for smearAng() in urad, default are (STX=30.23, STY=30.23)
 	    part->smearAng(); 
 	  }
 	}
@@ -452,7 +474,7 @@ void Hector::filterD1(){
 	    part->smearE(m_sig_e);
 	  }
 	  else {
-	    part->smearE(); 
+	    part->smearE();  // in GeV, default is SBE=0.79
 	  }
 	}
 	if ( direction == 1 ) {
