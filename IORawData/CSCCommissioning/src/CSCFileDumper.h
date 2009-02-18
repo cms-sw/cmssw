@@ -13,8 +13,10 @@
 class CSCFileDumper: public edm::EDAnalyzer {
 public:
 	std::map<int,FILE*> dump_files;
+	std::set<unsigned long> eventsToDump;
+//	std::??? rangesToDump; to be implemented
 
-	std::string output;
+	std::string output, events;
 	int fedID_first, fedID_last;
 
 	CSCFileDumper(const edm::ParameterSet & pset);
