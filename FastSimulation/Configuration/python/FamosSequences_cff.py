@@ -177,6 +177,7 @@ from FastSimulation.EgammaElectronAlgos.electronGSGsfTrackCandidates_cff import 
 from RecoEgamma.EgammaElectronProducers.pixelMatchGsfElectrons_cff import *
 from TrackingTools.GsfTracking.GsfElectronFit_cff import *
 from TrackingTools.GsfTracking.CkfElectronCandidateMaker_cff import *
+from TrackingTools.GsfTracking.FwdElectronPropagator_cfi import *
 import TrackingTools.GsfTracking.GsfElectronFit_cfi
 
 electronGsfTracks = TrackingTools.GsfTracking.GsfElectronFit_cfi.GsfGlobalElectronTest.clone()
