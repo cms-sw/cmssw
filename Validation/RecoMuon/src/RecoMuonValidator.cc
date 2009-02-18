@@ -351,6 +351,8 @@ struct RecoMuonValidator::CommonME {
   MEP hNSimHits_;
 
   MEP hTrkToGlbDiffNTrackerHits_, hStaToGlbDiffNMuonHits_;
+  MEP hTrkToGlbDiffNTrackerHitsEta_, hStaToGlbDiffNMuonHitsEta_;
+  MEP hTrkToGlbDiffNTrackerHitsPt_, hStaToGlbDiffNMuonHitsPt_;
 };
 
 RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
@@ -472,11 +474,17 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
   commonME_->hNSim_  = theDQM->book1D("NSim" , "Number of particles per event", hDim.nTrks, 0, hDim.nTrks);
   commonME_->hNMuon_ = theDQM->book1D("NMuon", "Number of muons per event"    , hDim.nTrks, 0, hDim.nTrks);
 
-  const int nHits = 40;
-  commonME_->hNSimHits_ = theDQM->book1D("NSimHits", "Number of simHits", nHits, 0, nHits);
+  const int nHits = 201;
+  commonME_->hNSimHits_ = theDQM->book1D("NSimHits", "Number of simHits", nHits, -100.5, 100.5);
 
-  commonME_->hTrkToGlbDiffNTrackerHits_ = theDQM->book1D("TrkGlbDiffNTrackerHits", "Difference of number of tracker hits (tkMuon - globalMuon)", nHits/4, 0, nHits);
-  commonME_->hStaToGlbDiffNMuonHits_ = theDQM->book1D("StaGlbDiffNMuonHits", "Difference of number of muon hits (staMuon - globalMuon", nHits/4, 0, nHits);
+  commonME_->hTrkToGlbDiffNTrackerHits_ = theDQM->book1D("TrkGlbDiffNTrackerHits", "Difference of number of tracker hits (tkMuon - globalMuon)", nHits, -100.5, 100.5);
+  commonME_->hStaToGlbDiffNMuonHits_ = theDQM->book1D("StaGlbDiffNMuonHits", "Difference of number of muon hits (staMuon - globalMuon)", nHits, -100.5, 100.5);
+
+  commonME_->hTrkToGlbDiffNTrackerHitsEta_ = theDQM->book2D("TrkGlbDiffNTrackerHitsEta", "Difference of number of tracker hits (tkMuon - globalMuon)",   hDim.nBinEta, hDim.minEta, hDim.maxEta,nHits, -100.5, 100.5);
+  commonME_->hStaToGlbDiffNMuonHitsEta_ = theDQM->book2D("StaGlbDiffNMuonHitsEta", "Difference of number of muon hits (staMuon - globalMuon)",   hDim.nBinEta, hDim.minEta, hDim.maxEta,nHits, -100.5, 100.5);
+
+  commonME_->hTrkToGlbDiffNTrackerHitsPt_ = theDQM->book2D("TrkGlbDiffNTrackerHitsPt", "Difference of number of tracker hits (tkMuon - globalMuon)",  hDim.nBinPt, hDim.minPt, hDim.maxPt,nHits, -100.5, 100.5);
+  commonME_->hStaToGlbDiffNMuonHitsPt_ = theDQM->book2D("StaGlbDiffNMuonHitsPt", "Difference of number of muon hits (staMuon - globalMuon)",  hDim.nBinPt, hDim.minPt, hDim.maxPt,nHits, -100.5, 100.5);
 
   // - histograms on tracking variables
   theDQM->setCurrentFolder(subDir_+"/Trk");
@@ -627,7 +635,7 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
     if ( iMuon->isTrackerMuon() ) {
       const TrackRef trkTrack = iMuon->track();
 
-      trkNTrackerHits = trkTrack->hitPattern().numberOfValidTrackerHits();
+      trkNTrackerHits = countTrackerHits(*trkTrack);
 
       trkMuME_->hNTrackerHits_->Fill(trkNTrackerHits);
       trkMuME_->hNTrackerHits_vs_Pt_->Fill(trkTrack->pt(), trkNTrackerHits);
@@ -637,7 +645,7 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
     if ( iMuon->isStandAloneMuon() ) {
       const TrackRef staTrack = iMuon->standAloneMuon();
 
-      staNMuonHits = staTrack->recHitsSize();
+      staNMuonHits = countMuonHits(*staTrack);
 
       staMuME_->hNMuonHits_->Fill(staNMuonHits);
       staMuME_->hNMuonHits_vs_Pt_->Fill(staTrack->pt(), staNMuonHits);
@@ -651,8 +659,8 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
     if ( iMuon->isGlobalMuon() ) {
       const TrackRef glbTrack = iMuon->combinedMuon();
 
-      glbNTrackerHits = glbTrack->hitPattern().numberOfValidTrackerHits();
-      glbNMuonHits = glbTrack->hitPattern().numberOfValidMuonHits();
+      glbNTrackerHits = countTrackerHits(*glbTrack);
+      glbNMuonHits = countMuonHits(*glbTrack);
 
       glbMuME_->hNTrackerHits_->Fill(glbNTrackerHits);
       glbMuME_->hNTrackerHits_vs_Pt_->Fill(glbTrack->pt(), glbNTrackerHits);
@@ -665,10 +673,17 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
       glbMuME_->hNTrksEta_->Fill(glbTrack->eta());
       glbMuME_->hNTrksPt_->Fill(glbTrack->pt());
       
+      commonME_->hTrkToGlbDiffNTrackerHitsEta_->Fill(glbTrack->eta(),trkNTrackerHits-glbNTrackerHits);
+      commonME_->hStaToGlbDiffNMuonHitsEta_->Fill(glbTrack->eta(),staNMuonHits-glbNMuonHits);
+      
+      commonME_->hTrkToGlbDiffNTrackerHitsPt_->Fill(glbTrack->pt(),trkNTrackerHits-glbNTrackerHits);
+      commonME_->hStaToGlbDiffNMuonHitsPt_->Fill(glbTrack->pt(),staNMuonHits-glbNMuonHits);
+      
+      commonME_->hTrkToGlbDiffNTrackerHits_->Fill(trkNTrackerHits-glbNTrackerHits);
+      commonME_->hStaToGlbDiffNMuonHits_->Fill(staNMuonHits-glbNMuonHits);
+
     }
 
-    commonME_->hTrkToGlbDiffNTrackerHits_->Fill(trkNTrackerHits-glbNTrackerHits);
-    commonME_->hStaToGlbDiffNMuonHits_->Fill(staNMuonHits-glbNMuonHits);
   }
 
   // Analyzer reco::Track
@@ -730,4 +745,35 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
     }
   }
 }
+
+int
+RecoMuonValidator::countMuonHits(const reco::Track& track) const {
+  TransientTrackingRecHit::ConstRecHitContainer result;
+  
+  int count = 0;
+
+  for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit) {
+    if((*hit)->isValid()) {
+      DetId recoid = (*hit)->geographicalId();
+      if ( recoid.det() == DetId::Muon ) count++;
+    }
+  }
+  return count;
+}
+
+int
+RecoMuonValidator::countTrackerHits(const reco::Track& track) const {
+  TransientTrackingRecHit::ConstRecHitContainer result;
+  
+  int count = 0;
+
+  for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit) {
+    if((*hit)->isValid()) {
+      DetId recoid = (*hit)->geographicalId();
+      if ( recoid.det() == DetId::Tracker ) count++;
+    }
+  }
+  return count;
+}
+
 /* vim:set ts=2 sts=2 sw=2 expandtab: */

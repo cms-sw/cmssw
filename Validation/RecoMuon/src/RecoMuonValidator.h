@@ -10,6 +10,7 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "PhysicsTools/RecoAlgos/interface/TrackingParticleSelector.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 
 class DQMStore;
 class MonitorElement;
@@ -25,6 +26,8 @@ class RecoMuonValidator : public edm::EDAnalyzer
   virtual void beginJob(const edm::EventSetup& eventSetup);
   virtual void endJob();
   virtual void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
+  virtual int countMuonHits(const reco::Track& track) const;
+  virtual int countTrackerHits(const reco::Track& track) const;
 
  protected:
   unsigned int verbose_;
