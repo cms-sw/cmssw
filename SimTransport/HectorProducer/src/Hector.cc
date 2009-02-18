@@ -271,7 +271,7 @@ void Hector::add( const HepMC::GenEvent * evt ,const edm::EventSetup & iSetup) {
 	  
 	  if(m_verbosity) {
 	    cout << "=== Hector:add:            pz=  "<< pz << endl;
-	    cout << "=== Hector:add:            pt=  "<<pt  << endl;
+	    //	    cout << "=== Hector:add:            pt=  "<<pt  << endl;
 	    cout << "=== Hector:add:   m_isCharged[line]=  "<< m_isCharged[line]  << endl;
 	  } 
 	}// if find line
