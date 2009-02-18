@@ -39,8 +39,9 @@ namespace edmtest
     std::ofstream DBNoiseMatrixFile("dbmatrix.dat",std::ios::out);
     int counter=0;
     using namespace edm::eventsetup;
-    std::cout <<" I AM IN RUN NUMBER "<<e.id().run() <<std::endl;
-    std::cout <<" ---EVENT NUMBER "<<e.id().event() <<std::endl;
+    std::cout <<" Run# "<<e.id().run() <<std::endl;
+    std::cout <<" Event# "<<e.id().event() <<std::endl;
+    std::cout << " Matrix values are written to file dbmatrix.dat & errors are written to cerr." << std::endl;
     edm::ESHandle<CSCDBNoiseMatrix> pNoiseMatrix;
     context.get<CSCDBNoiseMatrixRcd>().get(pNoiseMatrix);
 
@@ -52,11 +53,12 @@ namespace edmtest
       DBNoiseMatrixFile<<counter<<"  "<<it->elem33<<"  "<<it->elem34<<"  "<<it->elem44<<
       "  "<<it->elem35<<"  "<<it->elem45<<"  "<<it->elem55<<"  "<<it->elem46<<"  "<<it->elem56<<
       "  "<<it->elem66<<"  "<<it->elem57<<"  "<<it->elem67<<"  "<<it->elem77<<std::endl;
-      if(it->elem33<0){DBNoiseMatrixFile<<" 33(1) negative"<<std::endl;}
-      if(it->elem44<0){DBNoiseMatrixFile<<" 44(3) negative"<<std::endl;}
-      if(it->elem55<0){DBNoiseMatrixFile<<" 55(6) negative"<<std::endl;}
-      if(it->elem66<0){DBNoiseMatrixFile<<" 66(9) negative"<<std::endl;}
-      if(it->elem77<0){DBNoiseMatrixFile<<" 77(12) negative"<<std::endl;}
+      if(it->elem33<0){std::cerr<<" 33(1) negative: " << it->elem33 << std::endl;}
+      if(it->elem44<0){std::cerr<<" 44(3) negative: " << it->elem44 << std::endl;}
+      if(it->elem55<0){std::cerr<<" 55(6) negative: " << it->elem55 << std::endl;}
+      if(it->elem66<0){std::cerr<<" 66(9) negative: " << it->elem66 << std::endl;}
+      if(it->elem77<0){std::cerr<<" 77(12) negative: " << it->elem77 << std::endl;}
+
     }
   }
   DEFINE_FWK_MODULE(CSCNoiseMatrixDBReadAnalyzer);
