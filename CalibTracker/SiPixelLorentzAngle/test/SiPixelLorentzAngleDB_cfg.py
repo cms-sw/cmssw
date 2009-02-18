@@ -14,7 +14,7 @@ process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
 # process.load("Configuration.StandardSequences.FakeConditions_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'IDEAL_V6::All'
+#process.GlobalTag.globaltag = 'IDEAL_V6::All'
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
@@ -24,7 +24,9 @@ process.source = cms.Source("EmptyIOVSource",
 	timetype = cms.string("runnumber"),
 	firstRun = cms.untracked.uint32(1),
 	lastRun = cms.untracked.uint32(1),
-	interval = cms.uint32(1)
+	firstValue = cms.uint64(1),
+	lastValue = cms.uint64(1),
+	interval = cms.uint64(1)
 )
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
@@ -46,8 +48,8 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 
 process.lorentzAngle = cms.EDAnalyzer("SiPixelLorentzAngleDB",
 	magneticField = cms.double(3.8),
-	bPixLorentzAnglePerTesla = cms.double(0.122),
-	fPixLorentzAnglePerTesla = cms.double(0.091),
+	bPixLorentzAnglePerTesla = cms.double(0.106),
+	fPixLorentzAnglePerTesla = cms.double(0.054),
 # 	in case lorentz angle values for bpix should be read from file -> not implemented yet
 	useFile = cms.bool(False),
 	fileName = cms.string('lorentzFit.txt')					
