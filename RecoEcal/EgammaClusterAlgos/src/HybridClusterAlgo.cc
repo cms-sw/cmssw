@@ -2,7 +2,6 @@
 #include "RecoCaloTools/Navigation/interface/EcalBarrelNavigator.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/CaloTopology/interface/EcalBarrelHardcodedTopology.h"
 #include <iostream>
 #include <map>
 #include <vector>
@@ -35,6 +34,8 @@ HybridClusterAlgo::HybridClusterAlgo(double eb_str,
 
    //if (dynamicPhiRoad_) phiRoadAlgo_ = new BremRecoveryPhiRoadAlgo(bremRecoveryPset);
    posCalculator_ = posCalculator;
+   topo_ = new EcalBarrelHardcodedTopology();
+
 }
 
 // Return a vector of clusters from a collection of EcalRecHits:
@@ -91,10 +92,16 @@ void HybridClusterAlgo::makeClusters(const EcalRecHitCollection*recColl,
       }
       
       if (!regional || withinRegion) {
-	float ET = it->energy() * sin(position.theta());
 
-	//Must pass seed threshold.
-	if (ET > eb_st){
+	//Must pass seed threshold
+	// - make an additional check that the seed is able to
+	// make a seed basic cluster as well
+        EcalBarrelNavigator navigator(it->id(), topo_);
+        std::vector <EcalRecHit> initialdomino;
+        double e_init = makeDomino(navigator, initialdomino);
+	//
+        float ET = it->energy() * sin(position.theta());
+	if (ET > eb_st && e_init > Eseed){
 	  seeds.push_back(*it);
 	  if ( debugLevel_ == pDEBUG ){
 	    std::cout << "Seed ET: " << ET << std::endl;
@@ -154,7 +161,6 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
   std::vector<EcalRecHit>::iterator it;
   int clustercounter=0;
 
-  EcalBarrelHardcodedTopology *topo = new EcalBarrelHardcodedTopology();
   for (it = seeds.begin(); it != seeds.end(); it++){
     std::vector <reco::BasicCluster> thisseedClusters;
     DetId itID = it->id();
@@ -174,7 +180,7 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
     }
 
     //Make a navigator, and set it to the seed cell.
-    EcalBarrelNavigator navigator(itID, topo);
+    EcalBarrelNavigator navigator(itID, topo_);
 
     //Now use the navigator to start building dominoes.
     
@@ -193,13 +199,6 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
     //First, the domino about the seed:
     std::vector <EcalRecHit> initialdomino;
     double e_init = makeDomino(navigator, initialdomino);
-    // to eventually form a valid basic cluster
-    // the central domino should be a local maxima with energy
-    // greater than Eseed. If this is not true for the seed crystal
-    // it can never seed a basic cluster and is not a valid seed crystal. 
-    // in this case, continue. Do not mark the seed as used because
-    // it could still be used (not as a seed) in another cluster at this stage.
-    if (e_init <= Eseed ) continue;
 
     if ( debugLevel_ == pDEBUG )
       {
@@ -226,7 +225,7 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
 	{
 	  std::cout << "Step ++" << i << " @ " << EBDetId(centerD) << std::endl;
 	}
-      EcalBarrelNavigator dominoNav(centerD, topo);
+      EcalBarrelNavigator dominoNav(centerD, topo_);
       
       //Go get the new domino.
       std::vector <EcalRecHit> dcells;
@@ -253,7 +252,7 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
 	{
 	  std::cout << "Step --" << i << " @ " << EBDetId(centerD) << std::endl;
 	}
-      EcalBarrelNavigator dominoNav(centerD, topo);
+      EcalBarrelNavigator dominoNav(centerD, topo_);
       
       //Go get the new domino.
       std::vector <EcalRecHit> dcells;
@@ -431,7 +430,7 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
        clustercounter++;
     }
 }//Seed loop
-  delete topo;
+
 }
 
 reco::SuperClusterCollection HybridClusterAlgo::makeSuperClusters(const reco::BasicClusterRefVector& clustersCollection)

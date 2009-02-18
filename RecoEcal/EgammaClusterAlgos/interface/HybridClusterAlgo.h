@@ -10,6 +10,7 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloTopology/interface/EcalBarrelHardcodedTopology.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
@@ -72,9 +73,8 @@ class HybridClusterAlgo
   // colection of all rechits
   const EcalRecHitCollection *recHits_;
 
-
-  // geometry
-  const CaloSubdetectorGeometry* geometry;
+  // topology
+  EcalBarrelHardcodedTopology *topo_;
 
   //  SuperClusterShapeAlgo* SCShape_;
 
@@ -120,7 +120,8 @@ class HybridClusterAlgo
   ~HybridClusterAlgo() 
   {
      if (dynamicPhiRoad_) delete phiRoadAlgo_;
-     //     delete SCShape_;
+     delete topo_; 
+    //     delete SCShape_;
   } 
 
   void setDynamicPhiRoad(const edm::ParameterSet &bremRecoveryPset)
