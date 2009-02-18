@@ -12,7 +12,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 using namespace std;
@@ -72,19 +71,13 @@ namespace edm {
     bunchSpace_(pset.getParameter<int>("bunchspace")),
     checktof_(pset.getParameter<bool>("checktof")),
     minBunch_((pset.getParameter<int>("minBunch")*25)/pset.getParameter<int>("bunchspace")),
-    maxBunch_((pset.getParameter<int>("maxBunch")*25)/pset.getParameter<int>("bunchspace")),
+    maxBunch_((pset.getParameter<int>("maxBunch")*25)/pset.getParameter<int>("bunchspace"))
+//     ,
 //     input_(maybeMakePileUp(pset,"input",minBunch_,maxBunch_)),
 //     cosmics_(maybeMakePileUp(pset,"cosmics",minBunch_,maxBunch_)),
 //     beamHalo_p_(maybeMakePileUp(pset,"beamhalo_plus",minBunch_,maxBunch_)),
 //     beamHalo_m_(maybeMakePileUp(pset,"beamhalo_minus",minBunch_,maxBunch_)),
-    md_()
   {
-    md_.parameterSetID_ = pset.id();
-    md_.moduleName_ = pset.getParameter<std::string>("@module_type");
-    md_.moduleLabel_ = pset.getParameter<std::string>("@module_label");
-    //#warning process name is hard coded, for now.  Fix this.
-    //#warning the parameter set ID passed should be the one for the full process.  Fix this.
-    md_.processConfigurationPtr_ = boost::shared_ptr<ProcessConfiguration>(new ProcessConfiguration("PILEUP", pset.id(), getReleaseVersion(), getPassID()));
     // FIXME: temporary to keep bwds compatibility for cfg files
     vector<string> names = pset.getParameterNames();
     if (find(names.begin(), names.end(),"playback")
@@ -207,18 +200,16 @@ namespace edm {
     put(e,setup);
   }
 
- 
   void BMixingModule::merge(const int bcr, const EventPrincipalVector& vec, unsigned int worker, const edm::EventSetup& setup) {
     //
     // main loop: loop over events and merge 
     //
     eventId_=0;
-    LogDebug("MixingModule") <<"For bunchcrossing "<<bcr<<", "<<vec.size()<< " events will be merged";
+    LogDebug("MixingModule") <<"For bunchcrossing "<<bcr<<", "<<vec.size()<<" events will be merged";
     vertexoffset=0;
     for (EventPrincipalVector::const_iterator it = vec.begin(); it != vec.end(); ++it) {
-      Event e(**it, md_);
-      LogDebug("MixingModule") <<" merging Event:  id " << e.id();
-      addPileups(bcr, &e, ++eventId_,worker,setup);
+      LogDebug("MixingModule") <<" merging Event:  id " << (*it)->id();
+      addPileups(bcr, &(**it), ++eventId_,worker,setup);
     }// end main loop
   }
 
@@ -229,4 +220,5 @@ namespace edm {
       if (beamHalo_m_) beamHalo_m_->dropUnwantedBranches(wantedBranches);
       if (fwdDet_) fwdDet_->dropUnwantedBranches(wantedBranches);
   }
+
 } //edm

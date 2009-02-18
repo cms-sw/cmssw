@@ -82,7 +82,6 @@ namespace edm {
       boost::shared_ptr<PileUp> beamHalo_p_;
       boost::shared_ptr<PileUp> beamHalo_m_;
       boost::shared_ptr<PileUp> fwdDet_;
-      ModuleDescription md_;
 
       unsigned int eventId_;
   };
