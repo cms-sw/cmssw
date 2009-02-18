@@ -1,16 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("TEST")
+process = cms.Process("SKIM")
+
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-       '/store/data/Commissioning08/Cosmics/RECO/v1/000/067/122/D424EBA5-55A0-DD11-A8BF-000423D9853C.root',
-       '/store/data/Commissioning08/Cosmics/RECO/v1/000/067/122/C67EDF0D-49A0-DD11-9403-001617DBD332.root'),
+  '/store/data/Commissioning08/Cosmics/RECO/CRAFT_ALL_V9_225-v1/0002/0A12CE23-D7F9-DD11-819E-00E081348D21.root'),
                             secondaryFileNames = cms.untracked.vstring(
-       '/store/data/Commissioning08/Cosmics/RAW/v1/000/067/122/6E2601EC-3FA0-DD11-BA50-000423D986A8.root',
-       '/store/data/Commissioning08/Cosmics/RAW/v1/000/067/122/C240B0B2-47A0-DD11-A6AD-001617C3B654.root') 
-)                            
-                            
+        '/store/data/Commissioning08/Cosmics/RAW/v1/000/069/578/085EFED4-E5AB-DD11-9ACA-001617C3B6FE.root')
+)
+
 
 process.configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.9 $'),
@@ -62,7 +61,7 @@ process.rsWithMaterialTracksP5TkCntPath = cms.Path(process.rsWithMaterialTracksP
 
 
 process.out = cms.OutputModule("PoolOutputModule",
-                               outputCommands = cms.untracked.vstring('keep *'),
+                               outputCommands = cms.untracked.vstring('keep *','drop *_MEtoEDMConverter_*_*'),
                                SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('cosmicMuonsBarrelOnlyTkPath',
                                                                                             'cosmictrackfinderP5TkCntPath',
                                                                                             'ctfWithMaterialTracksP5TkCntPath',
