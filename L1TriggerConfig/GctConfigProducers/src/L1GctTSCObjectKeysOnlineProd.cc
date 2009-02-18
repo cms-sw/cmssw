@@ -1,18 +1,18 @@
 #include "CondTools/L1Trigger/interface/L1ObjectKeysOnlineProdBase.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-class GctObjectKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
+class L1GctTSCObjectKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
    public:
-      L1GctObjectKeysOnlineProd(const edm::ParameterSet& iConfig)
+      L1L1GctTSCObjectKeysOnlineProd(const edm::ParameterSet& iConfig)
          : L1ObjectKeysOnlineProdBase( iConfig ) {}
-      ~L1GctObjectKeysOnlineProd() {}
+      ~L1L1GctTSCObjectKeysOnlineProd() {}
 
       virtual void fillObjectKeys( ReturnType pL1TriggerKey ) ;
    private:
 };
 
 void
-GctObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
+L1GctTSCObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
 {
       // kMYSUBSYSTEM = kCSCTF, kDTTF, kRPC, kGMT, kRCT, mkGCT, kGT, or kTSP0
       // subsystemKey = TRIGGERSUP_CONF.{CSCTF_KEY, DTTF_KEY, RPC_KEY, GMT_KEY, RCT_KEY, GCT_KEY, GT_KEY}
@@ -55,4 +55,4 @@ GctObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
       }
 }
 
-DEFINE_FWK_EVENTSETUP_MODULE(GctObjectKeysOnlineProd);
+DEFINE_FWK_EVENTSETUP_MODULE(L1GctTSCObjectKeysOnlineProd);
