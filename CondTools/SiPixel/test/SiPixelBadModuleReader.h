@@ -15,6 +15,14 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "TROOT.h"
+#include "TFile.h"
+#include "TTree.h"
+#include "TBranch.h"
+#include "TH2F.h"
+
+
+
 
 class SiPixelBadModuleReader : public edm::EDAnalyzer {
 
@@ -26,5 +34,12 @@ class SiPixelBadModuleReader : public edm::EDAnalyzer {
     
  private:
   uint32_t printdebug_;
+  TH2F *_TH2F_dead_modules_BPIX_lay1;
+  TH2F *_TH2F_dead_modules_BPIX_lay2;
+  TH2F *_TH2F_dead_modules_BPIX_lay3;
+  TH2F *_TH2F_dead_modules_FPIX_minusZ_disk1;
+  TH2F *_TH2F_dead_modules_FPIX_minusZ_disk2;
+  TH2F *_TH2F_dead_modules_FPIX_plusZ_disk1;
+  TH2F *_TH2F_dead_modules_FPIX_plusZ_disk2;
 };
 #endif

@@ -11,16 +11,25 @@ process.source = cms.Source("EmptySource",
     interval = cms.uint32(1)
 )
 
+
+process.TFileService = cms.Service("TFileService",
+                                   fileName = cms.string("histo.root")
+                                   )
+
+
 process.MessageLogger = cms.Service("MessageLogger",
     cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO')
+        threshold = cms.untracked.string('WARNING')
     ),
     destinations = cms.untracked.vstring('cout')
 )
 
 process.Timing = cms.Service("Timing")
 
-process.PoolDBESSource = cms.ESSource("PoolDBESSource",
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.GeometryIdeal_cff")
+
+process.QualityReader = cms.ESSource("PoolDBESSource",
     BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
     DBParameters = cms.PSet(
         messageLevel = cms.untracked.int32(0),
@@ -34,13 +43,13 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     connect = cms.string('sqlite_file:test.db')
 )
 
-process.prod = cms.EDFilter("SiPixelBadModuleReader",
-    printDebug = cms.untracked.uint32(1)
+process.es_prefer_QualityReader = cms.ESPrefer("PoolDBESSource","QualityReader")
+
+process.BadModuleReader = cms.EDFilter("SiPixelBadModuleReader",
+    printDebug = cms.untracked.uint32(0)
 )
 
-#process.print = cms.OutputModule("AsciiOutputModule")
+process.p = cms.Path(process.BadModuleReader)
 
-process.p = cms.Path(process.prod)
-#process.ep = cms.EndPath(process.print)
 
 
