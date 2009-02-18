@@ -22,12 +22,12 @@
 using namespace std;
 
 
-void fillRandom(int N, TH1F *pdf, TH1F * histo){
+void fillRandom(int N, TH1F *pdf, TH1F * histo, double _min, double _max){
   double m =0;
   int i=0; 
   do{
     m=pdf->GetRandom();
-    if(m>=60 && m<=120){
+    if(m>=_min && m<=_max){
       histo->Fill(m);
       i++;
     }
@@ -96,15 +96,20 @@ int main(int argc, char * argv[]){
   int o;
   char* endPtr;
   char* pdf("analysis_Z_133pb_trackIso_3.root");
-  double yield(50550.0), effTrk(.998364), effSa(.989626),effHlt(.915496), effIso(.978575),factor(1.0);
-  double slopeMuTk(.015556), a0MuTk(.00035202), a1MuTk(2.99663), a2MuTk(-0.0211138);
-  double slopeMuMuNonIso(.0246876),a0MuMuNonIso(.884777), a1MuMuNonIso(6.67684), a2MuMuNonIso(-0.0523693);
-  BkgShape zMuTkBkgPdf(60., 120., slopeMuTk, a0MuTk, a1MuTk, a2MuTk);
-  BkgShape zMuMuNonIsoBkgPdf(60., 120., slopeMuMuNonIso, a0MuMuNonIso, a1MuMuNonIso, a2MuMuNonIso);
+  double yield(50550.0), effTrk(.998364), effSa(.989626),effHlt(.915496), effIso(.978575),factor(1.0),MIN(60.),MAX(120.);
+  double slopeMuTk(0.035041), a0MuTk(1.97659), a1MuTk(5.88979), a2MuTk(0.0);
+  double slopeMuMuNonIso(0.0527677),a0MuMuNonIso(0.231399), a1MuMuNonIso(21.0121), a2MuMuNonIso(0.0);
+  // double yield(50550.0), effTrk(.998364), effSa(.989626),effHlt(.915496), effIso(.978575),factor(1.0);
+  // double slopeMuTk(.015556), a0MuTk(.00035202), a1MuTk(2.99663), a2MuTk(-0.0211138);
+  // double slopeMuMuNonIso(.0246876),a0MuMuNonIso(.884777), a1MuMuNonIso(6.67684), a2MuMuNonIso(-0.0523693);
+  // BkgShape zMuTkBkgPdf(60., 120., slopeMuTk, a0MuTk, a1MuTk, a2MuTk);
+  // BkgShape zMuMuNonIsoBkgPdf(60., 120., slopeMuMuNonIso, a0MuMuNonIso, a1MuMuNonIso, a2MuMuNonIso);
+  BkgShape zMuTkBkgPdf(MIN, MAX, slopeMuTk, a0MuTk, a1MuTk, a2MuTk);
+  BkgShape zMuMuNonIsoBkgPdf(MIN, MAX, slopeMuMuNonIso, a0MuMuNonIso, a1MuMuNonIso, a2MuMuNonIso);
  
   int expt(1), seed(1);
 
-  while ((o = getopt(argc, argv,"p:n:s:y:f:T:S:H:I:h"))!=EOF) {
+  while ((o = getopt(argc, argv,"p:n:s:y:m:M:f:T:S:H:I:h"))!=EOF) {
     switch(o) {
     case 'p':
       pdf  = optarg;
@@ -117,6 +122,12 @@ int main(int argc, char * argv[]){
       break;
     case 'y':
       yield = strtoul(optarg,&endPtr,0);
+      break;
+    case 'm':
+      MIN = strtoul(optarg,&endPtr,0);
+      break;
+    case 'M':
+      MAX = strtoul(optarg,&endPtr,0);
       break;
     case 'f':
       factor = strtoul(optarg,&endPtr,0);
@@ -134,7 +145,7 @@ int main(int argc, char * argv[]){
       effIso  = strtod(optarg,&endPtr);
       break;
     case 'h':
-      cout<< " -p : input root file for pdf"<<endl <<" -n : number of experiment (default 1)"<<endl <<" -s : seed for generator (default 1)"<<endl <<" -T : efficiency of track (default 0.9984)"<<endl <<" -S : efficiency of standAlone(default 0.9896)"<< endl <<" -I : efficiency of Isolation (default 0.9786)" << endl << " -H : efficiency of HLT (default 0.9155)" <<endl << " -y : yield (default 50550)"<<" -f : scaling_factor for bkg (default 1.0)"<<endl;
+      cout<< " -p : input root file for pdf"<<endl <<" -n : number of experiment (default 1)"<<endl <<" -s : seed for generator (default 1)"<<endl <<" -T : efficiency of track (default 0.9984)"<<endl <<" -S : efficiency of standAlone(default 0.9896)"<< endl <<" -I : efficiency of Isolation (default 0.9786)" << endl << " -H : efficiency of HLT (default 0.9155)" <<endl << " -y : yield (default 50550)"<<" -f : scaling_factor for bkg (default 1.0)"<<endl<< " -m : Min (60)"<< endl<< " -M : Max (120)"<<endl;
       break;
     default:
       break;
@@ -202,12 +213,12 @@ int main(int argc, char * argv[]){
   
     //Fill signal Histo
    
-    fillRandom(Nmumu,pdfzmm,zMuMu);
-    fillRandom(N2HLT, pdfzmm,zMuMu2HLT);
-    fillRandom(N1HLT, pdfzmm,zMuMu1HLT);
-    fillRandom(NISO,pdfzmm,zMuMuNotIso);
-    fillRandom(NSa,pdfzmsa,zMuSa);
-    fillRandom(NTk, pdfzmm,zMuTk);
+    fillRandom(Nmumu,pdfzmm,zMuMu,MIN,MAX);
+    fillRandom(N2HLT, pdfzmm,zMuMu2HLT,MIN,MAX);
+    fillRandom(N1HLT, pdfzmm,zMuMu1HLT,MIN,MAX);
+    fillRandom(NISO,pdfzmm,zMuMuNotIso,MIN,MAX);
+    fillRandom(NSa,pdfzmsa,zMuSa,MIN,MAX);
+    fillRandom(NTk, pdfzmm,zMuTk,MIN,MAX);
         
     //output	
     char head[30];
