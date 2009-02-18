@@ -5,17 +5,52 @@ class L1GctJetFinderParams
 {
  public:
 
-  const unsigned CENTRAL_JET_SEED;
-  const unsigned FORWARD_JET_SEED;
-  const unsigned TAU_JET_SEED;
-  const unsigned CENTRAL_FORWARD_ETA_BOUNDARY;
-
-  L1GctJetFinderParams(unsigned cJetSeed=1,
-                       unsigned fJetSeed=1,
-                       unsigned tJetSeed=1,
-                       unsigned etaBoundary=7);
+  L1GctJetFinderParams(double rgnEtLsb,
+		       double htLsb,
+		       double cJetSeed,
+                       double fJetSeed,
+                       double tJetSeed,
+		       double tauIsoEtThresh,
+		       double htJetEtThresh,
+		       double mhtJetEtThresh,
+                       unsigned etaBoundary);
 
   ~L1GctJetFinderParams();
+
+  // get methods
+  double getRgnEtLsb() { return rgnEtLsb_; }
+  double getHtLsb() { return htLsb_; }
+  double getCenJetEtSeed() { return cenJetEtSeed_; }
+  double getForJetEtSeed() { return forJetEtSeed_; }
+  double getTauJetEtSeed() { return tauJetEtSeed_; }
+  double getTauIsoEtThreshold() { return tauIsoEtThreshold_; }
+  double getHtJetEtThreshold() { return htJetEtThreshold_; }
+  double getMHtJetEtThreshold() { return mhtJetEtThreshold_; }
+  unsigned getCenForJetEtaBoundary() { return cenForJetEtaBoundary_; }
+
+  // get integers
+  unsigned getCenJetSeedRank() { return static_cast<unsigned>(cenJetSeed_/rgnEtLsb_); }
+  unsigned getForJetSeedRank() { return static_cast<unsigned>(forJetSeed_/rgnEtLsb_); }
+  unsigned getTauJetSeedRank() { return static_cast<unsigned>(tauJetSeed_/rgnEtLsb_); }
+  unsigned getTauIsoThreshRank() { return static_cast<unsigned>(tauIsoEtThreshold_/rgnEtLsb_); }
+  unsigned getHtJetThreshRank() { return static_cast<unsigned>(htJetEtThreshold_/htLsb_); }
+  unsigned getMHtJetThreshRank() { return static_cast<unsigned>(mhtJetEtThreshold_/htLsb_); }
+
+
+ private:
+
+  // internal scale LSBs
+  double rgnEtLsb_;
+  double htLsb_;
+
+  // parameters
+  double cenJetEtSeed_;
+  double forJetEtSeed_;
+  double tauJetEtSeed_;
+  double tauIsoEtThreshold_;
+  double htJetEtThreshold_;
+  double mhtJetEtThreshold_;
+  unsigned cenForJetEtaBoundary_;
 
 };
 
