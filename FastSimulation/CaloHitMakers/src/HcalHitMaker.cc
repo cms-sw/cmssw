@@ -35,11 +35,7 @@ HcalHitMaker::addHit(double r,double phi,unsigned layer)
   // Watch out !!!! (Point) is a real point in the MathCore terminology (not a redefined a XYZPoint which
   // is actually a XYZVector in the MatchCore terminology). Therefore, the Transform3D is correctly applied
   point = locToGlobal_((Point)point);
-  return addHit(point,layer);
-}
 
-bool HcalHitMaker::addHit(const XYZPoint& point, unsigned layer)
-{
   // Temporary nasty hacks to avoid misbehaviour of not-intended-for-that
   //  getClosestCell in case of large (eta beyond HF ...)  and in EM showers 
   if(fabs(point.Z())>2000 || fabs(point.X())>2000 || fabs(point.Y())>2000) 
@@ -47,10 +43,7 @@ bool HcalHitMaker::addHit(const XYZPoint& point, unsigned layer)
       if(EMSHOWER) 
 	edm::LogWarning("HcalHitMaker") << "received a hit very far from the detector " << point << " coming from an electromagnetic shower. - Ignoring it" << std::endl;
       else
-	if(HADSHOWER)
-	  edm::LogWarning("HcalHitMaker") << "received a hit very far from the detector " << point << " coming from an hadron shower. - Ignoring it" << std::endl;
-	else
-	  edm::LogWarning("HcalHitMaker") << "received a hit very far from the detector " << point << " coming from a muon. - Ignoring it" << std::endl;
+	edm::LogWarning("HcalHitMaker") << "received a hit very far from the detector " << point << " coming from an hadron shower. - Ignoring it" << std::endl;
       return false; 
     } 
 
@@ -110,9 +103,6 @@ bool HcalHitMaker::addHit(const XYZPoint& point, unsigned layer)
     }
   return false;
 }
-
-
-
 
 bool 
 HcalHitMaker::setDepth(double depth)

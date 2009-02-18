@@ -51,7 +51,6 @@ class CaloHitMaker
 
   bool EMSHOWER;
   bool HADSHOWER;
-  bool MIP;
 
  private:
   DetId::Detector base_;
