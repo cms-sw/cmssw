@@ -11,11 +11,12 @@
  *         David Dagenhart
  *
  * \version   1st Version June 7 2007
- * $Id: LumiSummary.h,v 1.4 2008/10/23 21:38:25 wdd Exp $
+ * $Id: LumiSummary.h,v 1.5 2008/11/22 05:39:42 wmtan Exp $
  *
  ************************************************************/
  
 #include <vector>
+#include <iosfwd>
 
 class LumiSummary {
   public:

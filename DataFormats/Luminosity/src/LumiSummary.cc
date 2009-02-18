@@ -1,9 +1,10 @@
 
-// $Id: LumiSummary.cc,v 1.3 2008/10/23 21:38:25 wdd Exp $
+// $Id: LumiSummary.cc,v 1.4 2008/11/22 05:39:42 wmtan Exp $
 
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
 
 #include <iomanip>
+#include <ostream>
 
 using namespace std;
 
