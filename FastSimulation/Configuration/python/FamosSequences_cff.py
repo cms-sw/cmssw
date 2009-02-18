@@ -53,30 +53,12 @@ from RecoParticleFlow.PFTracking.particleFlowTrack_cff import *
 from RecoParticleFlow.PFBlockProducer.particleFlowSimParticle_cff import *
 from RecoParticleFlow.PFBlockProducer.particleFlowBlock_cff import *
 from RecoParticleFlow.PFProducer.particleFlow_cff import *
+from RecoParticleFlow.PFTracking.trackerDrivenElectronSeeds_cff import *
 
 particleFlowSimParticle.sim = 'famosSimHits'
-elecpreid.NHitsInSeed = 1
-
-import FastSimulation.Tracking.TrackCandidateProducer_cfi
-fsGsfElCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
-fsGsfElCandidates.SeedProducer = cms.InputTag("elecpreid","SeedsForGsf")
-fsGsfElCandidates.TrackProducers = []
-fsGsfElCandidates.MinNumberOfCrossedLayers = 5
-
-import TrackingTools.GsfTracking.GsfElectronFit_cfi
-fsgsfPFtracks = TrackingTools.GsfTracking.GsfElectronFit_cfi.GsfGlobalElectronTest.clone()
-fsgsfPFtracks.src = 'fsGsfElCandidates'
-fsgsfPFtracks.TTRHBuilder = 'WithoutRefit'
-fsgsfPFtracks.TrajectoryInEvent = True
-
-pfTrackElec.GsfTrackModuleLabel = 'fsgsfPFtracks'
 
 famosParticleFlowSequence = cms.Sequence(
     caloTowersRec+
-    particleFlowCluster+
-    elecpreid+
-    fsGsfElCandidates+
-    fsgsfPFtracks+
     pfTrackElec+
     particleFlowBlock+
     particleFlow
@@ -190,27 +172,31 @@ famosMuonIdAndIsolationSequence = cms.Sequence(
 
 # Electron reconstruction
 from FastSimulation.Tracking.globalCombinedSeeds_cfi import *
-from FastSimulation.EgammaElectronAlgos.fastElectronSeeds_cfi import *
+from FastSimulation.EgammaElectronAlgos.ecalDrivenElectronSeeds_cfi import *
 from FastSimulation.EgammaElectronAlgos.electronGSGsfTrackCandidates_cff import *
 from RecoEgamma.EgammaElectronProducers.pixelMatchGsfElectrons_cff import *
 from TrackingTools.GsfTracking.GsfElectronFit_cff import *
+from TrackingTools.GsfTracking.CkfElectronCandidateMaker_cff import *
 import TrackingTools.GsfTracking.GsfElectronFit_cfi
 
-pixelMatchGsfFit = TrackingTools.GsfTracking.GsfElectronFit_cfi.GsfGlobalElectronTest.clone()
-pixelMatchGsfFit.src = 'electronGSGsfTrackCandidates'
-pixelMatchGsfFit.TTRHBuilder = 'WithoutRefit'
-pixelMatchGsfFit.TrajectoryInEvent = True
+electronGsfTracks = TrackingTools.GsfTracking.GsfElectronFit_cfi.GsfGlobalElectronTest.clone()
+electronGsfTracks.src = 'electronGSGsfTrackCandidates'
+electronGsfTracks.TTRHBuilder = 'WithoutRefit'
+electronGsfTracks.TrajectoryInEvent = True
 pixelMatchGsfElectrons.barrelSuperClusters = cms.InputTag("correctedHybridSuperClusters","fastElectronSeeds")
 pixelMatchGsfElectrons.endcapSuperClusters = cms.InputTag("correctedEndcapSuperClustersWithPreshower","fastElectronSeeds")
 
+from RecoParticleFlow.PFTracking.mergedElectronSeeds_cfi import *
 from RecoEgamma.ElectronIdentification.electronIdSequence_cff import *
 
 famosElectronSequence = cms.Sequence(
     iterativeFirstSeeds+
     newCombinedSeeds+
-    fastElectronSeeds+
+    ecalDrivenElectronSeeds+
+    trackerDrivenElectronSeeds+
+    electronMergedSeeds+
     electronGSGsfTrackCandidates+
-    pixelMatchGsfFit+
+    electronGsfTracks+
     pixelMatchGsfElectrons+
     eIdSequence
 )
@@ -311,7 +297,8 @@ famosWithCaloHits = cms.Sequence(
 
 famosWithEcalClusters = cms.Sequence(
     famosWithCaloHits+
-    ecalClusters
+    ecalClusters+
+    particleFlowCluster
 )
 
 famosWithTracksAndCaloHits = cms.Sequence(
@@ -321,7 +308,8 @@ famosWithTracksAndCaloHits = cms.Sequence(
 
 famosWithTracksAndEcalClusters = cms.Sequence(
     famosWithTracksAndCaloHits+
-    ecalClusters
+    ecalClusters+
+    particleFlowCluster
 )
 
 famosWithParticleFlow = cms.Sequence(
@@ -376,6 +364,7 @@ famosWithElectrons = cms.Sequence(
     famosWithTracks+
     caloRecHits+
     ecalClusters+ 
+    particleFlowCluster+
     famosElectronSequence+
     interestingEleIsoDetIdEB+
     interestingEleIsoDetIdEE+
@@ -441,6 +430,7 @@ reconstructionWithFamos = cms.Sequence(
     vertexreco+
     caloTowersRec+
     ecalClusters+
+    particleFlowCluster+
     famosElectronSequence+
     famosPhotonSequence+
     egammaIsolationSequence+
