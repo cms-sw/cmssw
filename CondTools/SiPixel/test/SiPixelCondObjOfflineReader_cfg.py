@@ -18,7 +18,7 @@ process.TFileService = cms.Service("TFileService",
                                    )
 
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = 'sqlite_file:provaOUT.db'
+process.CondDBCommon.connect = 'sqlite_file:provaIN.db'
 process.CondDBCommon.DBParameters.authenticationPath = '.' #'/afs/cern.ch/cms/DB/conddb'
 process.CondDBCommon.DBParameters.messageLevel = 10
 
@@ -41,7 +41,7 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('SiPixelGainCalibrationOfflineRcd'),
-        tag = cms.string('GainCalib_TEST')
+        tag = cms.string('GainCalib_TEST_offline')
     ))
 )
 
@@ -55,6 +55,3 @@ process.SiPixelCondObjOfflineReader = cms.EDFilter("SiPixelCondObjOfflineReader"
 
 process.p = cms.Path(process.SiPixelCondObjOfflineReader)
 #process.ep = cms.EndPath(process.print)
-
-
-

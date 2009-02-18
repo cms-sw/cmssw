@@ -1,11 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PixelDBReader")
-process.load("Geometry.TrackerSimData.trackerSimGeometryXML_cfi")
+process.load("FWCore.MessageService.MessageLogger_cfi")
 
+#process.load("Geometry.TrackerSimData.trackerSimGeometryXML_cfi")
+process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
+process.load("Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+#process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 
 process.load("CondTools.SiPixel.SiPixelGainCalibrationService_cfi")
 
@@ -14,7 +18,7 @@ process.TFileService = cms.Service("TFileService",
                                    )
 
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = 'sqlite_file:prova.db'
+process.CondDBCommon.connect = 'sqlite_file:provaIN.db'
 process.CondDBCommon.DBParameters.messageLevel = 2
 process.CondDBCommon.DBParameters.authenticationPath = ''
 
@@ -43,13 +47,12 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
 
 process.prefer("PoolDBESSource")
 process.SiPixelCondObjForHLTReader = cms.EDFilter("SiPixelCondObjForHLTReader",
-    process.SiPixelGainCalibrationServiceParameters
+    process.SiPixelGainCalibrationServiceParameters,
+    maxRangeDeadPixHist = cms.untracked.double(0.001)
+
 )
 
 #process.print = cms.OutputModule("AsciiOutputModule")
 
 process.p = cms.Path(process.SiPixelCondObjForHLTReader)
 #process.ep = cms.EndPath(process.print)
-
-
-

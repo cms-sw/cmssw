@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo CHIOCHIA
 //         Created:  Tue Oct 17 17:40:56 CEST 2006
-// $Id: SiPixelCondObjReader.h,v 1.5 2008/03/25 22:11:55 fblekman Exp $
+// $Id: SiPixelCondObjReader.h,v 1.6 2008/11/12 14:13:06 heyburn Exp $
 //
 //
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -56,10 +56,21 @@ private:
 
   std::map< uint32_t, TH1F* >  _TH1F_Pedestals_m;
   std::map< uint32_t, TH1F* >  _TH1F_Gains_m;
+  std::map< uint32_t, double >  _deadfrac_m;
+  std::map< uint32_t, double >  _noisyfrac_m;
+
+  TH1F *_TH1F_Dead_sum;
+  TH1F *_TH1F_Noisy_sum;
   TH1F *_TH1F_Gains_sum;
-  TH1F *_TH1F_Pedestals_sum;
+  TH1F *_TH1F_Pedestals_sum; 
+  TH1F *_TH1F_Dead_all; 
+  TH1F *_TH1F_Noisy_all;
   TH1F *_TH1F_Gains_all;
   TH1F *_TH1F_Pedestals_all;
+  TH1F *_TH1F_Gains_bpix;
+  TH1F *_TH1F_Gains_fpix;
+  TH1F *_TH1F_Pedestals_bpix;
+  TH1F *_TH1F_Pedestals_fpix;
 
 };
 }

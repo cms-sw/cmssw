@@ -3,11 +3,13 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PixelDBReader")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-process.load("Geometry.TrackerSimData.trackerSimGeometryXML_cfi")
-
+#process.load("Geometry.TrackerSimData.trackerSimGeometryXML_cfi")
+process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
+process.load("Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+#process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 
 process.load("CondTools.SiPixel.SiPixelGainCalibrationService_cfi")
 
@@ -49,7 +51,8 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
 
 process.prefer("PoolDBESSource")
 process.SiPixelCondObjReader = cms.EDFilter("SiPixelCondObjReader",
-    process.SiPixelGainCalibrationServiceParameters
+    process.SiPixelGainCalibrationServiceParameters,
+    maxRangeDeadPixHist = cms.untracked.double(0.001)
 )
 
 #process.print = cms.OutputModule("AsciiOutputModule")

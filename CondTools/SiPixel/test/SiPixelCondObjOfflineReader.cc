@@ -34,7 +34,7 @@ SiPixelCondObjOfflineReader::analyze(const edm::Event& iEvent, const edm::EventS
   // Get the calibration data
   SiPixelGainCalibrationService_.setESObjects(iSetup);
   edm::LogInfo("SiPixelCondObjOfflineReader") << "[SiPixelCondObjOfflineReader::beginJob] End Reading CondObjOfflineects" << std::endl;
-
+ 
   // Get the Geometry
   iSetup.get<TrackerDigiGeometryRecord>().get( tkgeom );     
   edm::LogInfo("SiPixelCondObjOfflineReader") <<" There are "<<tkgeom->dets().size() <<" detectors"<<std::endl;
@@ -57,7 +57,6 @@ SiPixelCondObjOfflineReader::analyze(const edm::Event& iEvent, const edm::EventS
   _TH1F_Gains_fpix = fs->make<TH1F>("GainsFpix", "fpix Gains", 100, 0, 10);
 
 
-
   // Loop over DetId's
   int ibin = 1;
   for (std::vector<uint32_t>::const_iterator detid_iter=vdetId_.begin();detid_iter!=vdetId_.end();detid_iter++){
@@ -67,7 +66,6 @@ SiPixelCondObjOfflineReader::analyze(const edm::Event& iEvent, const edm::EventS
      _TH1F_Pedestals_m[detid] = subDirPed.make<TH1F>(name,name,350,-100.,250.);    
      sprintf(name,"Gains_%d",detid);
      _TH1F_Gains_m[detid] = subDirGain.make<TH1F>(name,name,100,0.,10.); 
-
 
     DetId detIdObject(detid);
     const PixelGeomDetUnit* _PixelGeomDetUnit = dynamic_cast<const PixelGeomDetUnit*>(tkgeom->idToDetUnit(DetId(detid)));
@@ -154,6 +152,12 @@ SiPixelCondObjOfflineReader::analyze(const edm::Event& iEvent, const edm::EventS
   std::cout<<" ---> SUMMARY :"<<std::endl;
   std::cout<<"Encounted "<<ndead<<" dead pixels"<<std::endl;
   std::cout<<"Encounted "<<nnoisy<<" noisy pixels"<<std::endl;
+  std::cout<<"The Gain Mean is "<<_TH1F_Gains_all->GetMean()<<" with rms "<<_TH1F_Gains_all->GetRMS()<<std::endl;
+  std::cout<<"         in BPIX "<<_TH1F_Gains_bpix->GetMean()<<" with rms "<<_TH1F_Gains_bpix->GetRMS()<<std::endl;
+  std::cout<<"         in FPIX "<<_TH1F_Gains_fpix->GetMean()<<" with rms "<<_TH1F_Gains_fpix->GetRMS()<<std::endl;
+  std::cout<<"The Ped Mean is "<<_TH1F_Pedestals_all->GetMean()<<" with rms "<<_TH1F_Pedestals_all->GetRMS()<<std::endl;
+  std::cout<<"         in BPIX "<<_TH1F_Pedestals_bpix->GetMean()<<" with rms "<<_TH1F_Pedestals_bpix->GetRMS()<<std::endl;
+  std::cout<<"         in FPIX "<<_TH1F_Pedestals_fpix->GetMean()<<" with rms "<<_TH1F_Pedestals_fpix->GetRMS()<<std::endl;
     
     
 }
