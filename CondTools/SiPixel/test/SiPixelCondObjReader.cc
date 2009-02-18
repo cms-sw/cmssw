@@ -56,16 +56,24 @@ SiPixelCondObjReader::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   _TH1F_Gains_bpix = fs->make<TH1F>("GainsBpix", "bpix Gains", 100, 0, 10);
   _TH1F_Gains_fpix = fs->make<TH1F>("GainsFpix", "fpix Gains", 100, 0, 10);
 
+  TTree *tree = new TTree("tree","tree");
+  uint32_t detid;
+  double gainmeanfortree, gainrmsfortree, pedmeanfortree, pedrmsfortree;
+  tree->Branch("detid",&detid,"detid/I");
+  tree->Branch("ped_mean",&pedmeanfortree,"ped_mean/D");
+  tree->Branch("ped_rms",&pedrmsfortree,"ped_rms/D");
+  tree->Branch("gain_mean",&gainmeanfortree,"gain_mean/D");
+  tree->Branch("gain_rms",&gainrmsfortree,"gain_rms/D");
 
   // Loop over DetId's
   int ibin = 1;
   for (std::vector<uint32_t>::const_iterator detid_iter=vdetId_.begin();detid_iter!=vdetId_.end();detid_iter++){
-    uint32_t detid = *detid_iter;
+    detid = *detid_iter;
 
-     sprintf(name,"Pedestals_%d",detid);
-     _TH1F_Pedestals_m[detid] = subDirPed.make<TH1F>(name,name,350,-100.,250.);    
-     sprintf(name,"Gains_%d",detid);
-     _TH1F_Gains_m[detid] = subDirGain.make<TH1F>(name,name,100,0.,10.);
+    sprintf(name,"Pedestals_%d",detid);
+    _TH1F_Pedestals_m[detid] = subDirPed.make<TH1F>(name,name,350,-100.,250.);    
+    sprintf(name,"Gains_%d",detid);
+    _TH1F_Gains_m[detid] = subDirGain.make<TH1F>(name,name,100,0.,10.);
 
     DetId detIdObject(detid);
     const PixelGeomDetUnit* _PixelGeomDetUnit = dynamic_cast<const PixelGeomDetUnit*>(tkgeom->idToDetUnit(DetId(detid)));
@@ -141,11 +149,17 @@ SiPixelCondObjReader::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     _TH1F_Pedestals_sum->SetBinContent(ibin,_TH1F_Pedestals_m[detid]->GetMean());
     _TH1F_Pedestals_sum->SetBinError(ibin,_TH1F_Pedestals_m[detid]->GetRMS());
 
+    gainmeanfortree = _TH1F_Gains_m[detid]->GetMean();
+    gainrmsfortree  = _TH1F_Gains_m[detid]->GetRMS();
+    pedmeanfortree  = _TH1F_Pedestals_m[detid]->GetMean();
+    pedrmsfortree   = _TH1F_Pedestals_m[detid]->GetRMS();
+    std::cout<<"DetId "<<detid<<"       GainMean "<<gainmeanfortree<<" RMS "<<gainrmsfortree<<"      PedMean "<<pedmeanfortree<<" RMS "<<pedrmsfortree<<std::endl;
+    tree->Fill();
+    
     ibin++;
    
   }
 
-  
   edm::LogInfo("SiPixelCondObjReader") <<"[SiPixelCondObjReader::analyze] ---> PIXEL Modules  " << nmodules  << std::endl;
   edm::LogInfo("SiPixelCondObjReader") <<"[SiPixelCondObjReader::analyze] ---> PIXEL Channels " << nchannels << std::endl;
   
