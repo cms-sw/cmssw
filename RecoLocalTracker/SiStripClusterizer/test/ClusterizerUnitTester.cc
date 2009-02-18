@@ -4,6 +4,7 @@
 #include <numeric>
 #include <vector>
 #include <iostream>
+#include <sstream>
 
 void 
 ClusterizerUnitTester::
@@ -37,22 +38,33 @@ testTheGroup(const PSet& group) {
   PSet params = group.getParameter<PSet>("ClusterizerParameters");
   VPSet tests = group.getParameter<VPSet>("Tests");
 
+  std::cout << "\nTesting group: \"" << label << "\"\n               " << printParams(params) << std::endl;
   for(iter_t test = tests.begin();  test < tests.end();  test++) {
-    try {runTheTest(*test);}
-    catch(cms::Exception& e) { 
-      throw e << std::endl << "Failure in group: " << label << std::endl
-	      << "with clusterizer parameters:\n"  << params << std::endl;
-    }
+    runTheTest(*test);
     detId++;
   }
+}
+
+std::string
+ClusterizerUnitTester::
+printParams(const PSet& params) {
+  std::stringstream s;
+  s << "Channel(" << params.getParameter<double>("Channel") <<") "
+    << "Seed("    << params.getParameter<double>("Seed")    <<") "
+    << "Cluster(" << params.getParameter<double>("Cluster") <<") "
+    << "MaxSequentialHoles("<< params.getParameter<unsigned>("MaxSequentialHoles") <<") "
+    << "MaxSequentialBad("<< params.getParameter<unsigned>("MaxSequentialBad") <<") "
+    << "MaxAdjacentBad("<< params.getParameter<unsigned>("MaxAdjacentBad") <<")\n";
+  return s.str();
 }
 
 void 
 ClusterizerUnitTester::
 runTheTest(const PSet& test) {
-  std::cout << "Running test: " << test.getParameter<std::string>("Label") << std::endl;
+  std::string label =  test.getParameter<std::string>("Label");
   VPSet clusterset = test.getParameter<VPSet>("Clusters");
   VPSet digiset    = test.getParameter<VPSet>("Digis");
+  std::cout << "Testing: \"" << label << "\"\n";
 
   edm::DetSet<SiStripDigi> digis(detId); 
   edmNew::DetSetVector<SiStripCluster> expected;
@@ -62,21 +74,18 @@ runTheTest(const PSet& test) {
 
   constructDigis(digiset, digis);
   constructClusters(clusterset, expectedFF);  
-  if(expectedFF.empty()) 
-    expectedFF.abort();
+  if(expectedFF.empty()) expectedFF.abort();
   
   try { 
     clusterizer->clusterizeDetUnit(digis, resultFF); 
-    if(resultFF.empty()) 
-      resultFF.abort();
+    if(resultFF.empty()) resultFF.abort();
     assertIdentical(expected, result);
   }
-  
   catch(ThreeThresholdStripClusterizer::InvalidChargeException e) {
     if(!test.getParameter<bool>("InvalidCharge")) throw e;
   }
   catch(cms::Exception e) {
-    throw e << "Failure in test: " << test << std::endl; 
+    std::cout << ( e << "Input:\n" << printDigis(digiset));
   }
 }
 
@@ -87,6 +96,22 @@ constructDigis(const VPSet& stripset, edm::DetSet<SiStripDigi>& digis) {
     digis.data.push_back( SiStripDigi(strip->getParameter<unsigned>("Strip"),
 				      strip->getParameter<unsigned>("ADC") ));
   }
+}
+
+std::string
+ClusterizerUnitTester::
+printDigis(const VPSet& stripset){
+  std::stringstream s;
+  for(iter_t strip = stripset.begin(); strip < stripset.end(); strip++) {
+    s << "\t(" 
+      <<  strip->getParameter<unsigned>("Strip") << ", "
+      <<  strip->getParameter<unsigned>("ADC")   << ", "
+      <<  strip->getParameter<double>("Noise")   << ", "
+      <<  strip->getParameter<double>("Gain")    << ", "
+      << ( strip->getParameter<bool>("Quality")  ? "good" : "bad")
+      << " )\n";
+  }
+  return s.str();
 }
 
 void
@@ -106,9 +131,8 @@ ClusterizerUnitTester::
 assertIdentical(const edmNew::DetSetVector<SiStripCluster>& L, 
 		const edmNew::DetSetVector<SiStripCluster>& R) {
   if(!clusterDSVsIdentical(L,R))
-    throw cms::Exception("Mismatch") << std::endl << printDSV(L) 
-				     << std::endl << printDSV(R) 
-				     << std::endl;
+    throw cms::Exception("Failed") << "Expected:\n" << printDSV(L) 
+				   << "Actual:\n"   << printDSV(R);
 }
 
 bool
@@ -141,3 +165,29 @@ clustersIdentical(const SiStripCluster& L, const SiStripCluster& R) {
     && inner_product(L.amplitudes().begin(), L.amplitudes().end(), R.amplitudes().begin(), 
 					 bool(true), std::logical_and<bool>(), std::equal_to<uint16_t>() );
 }
+
+
+std::string 
+ClusterizerUnitTester::
+printDSV(const edmNew::DetSetVector<SiStripCluster>& dsv) {
+  std::stringstream s;
+  for(edmNew::DetSetVector<SiStripCluster>::const_iterator 
+	it = dsv.begin(); it<dsv.end(); it++)
+    for(edmNew::DetSet<SiStripCluster>::const_iterator
+	  cluster = it->begin(); cluster < it->end() ; cluster++)
+      s << printCluster(*cluster);
+  return s.str();
+}
+
+std::string 
+ClusterizerUnitTester::
+printCluster(const SiStripCluster & cluster) {
+  std::stringstream s;
+  s  << "\t" << cluster.firstStrip() << " [ ";
+  for(unsigned i=0; i<cluster.amplitudes().size(); i++) {
+    s << static_cast<int>(cluster.amplitudes().at(i)) << " ";
+  }
+  s << "]" << std::endl;
+  return s.str();
+}
+

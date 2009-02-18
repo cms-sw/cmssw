@@ -59,6 +59,8 @@ setNoises(uint32_t detId, std::vector<std::pair<uint16_t, float> >& digiNoises )
     detnoise.resize(digi->first,1); //pad with default noise 1
     detnoise.push_back(digi->second);
   }
+  if(detnoise.size() > 768) throw cms::Exception("Faulty noise construction") << "No strip numbers greater than 767 please" << std::endl;
+  detnoise.resize(768,1.0);
   
   SiStripNoises::InputVector theSiStripVector;
   for(uint16_t strip=0; strip<detnoise.size(); strip++) {

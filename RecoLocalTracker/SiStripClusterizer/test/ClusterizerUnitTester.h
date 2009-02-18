@@ -34,7 +34,10 @@ private:
   static bool clusterDetSetsIdentical( const edmNew::DetSet<SiStripCluster>&, 
 				       const edmNew::DetSet<SiStripCluster>&);
   static bool clustersIdentical(const SiStripCluster&, const SiStripCluster&);
-  static std::string printDSV(const edmNew::DetSetVector<SiStripCluster>&) {return "";}
+  static std::string printDSV(const edmNew::DetSetVector<SiStripCluster>&);
+  static std::string printCluster(const SiStripCluster&);
+  static std::string printDigis(const VPSet&);
+  static std::string printParams(const PSet&);
 
   VPSet testGroups;
   ThreeThresholdStripClusterizer* clusterizer;
