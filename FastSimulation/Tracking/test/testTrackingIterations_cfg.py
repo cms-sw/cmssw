@@ -21,6 +21,7 @@ process.source = cms.Source(
     debugFlag = cms.untracked.bool(True),
     debugVebosity = cms.untracked.uint32(10),
     fileNames = cms.untracked.vstring(
+    'file:fevt.root'
 ##    'file:test.root'
 ##        #'file:SinglePion_FastFull_0.root',
 ##        #'file:SinglePion_FastFull_1.root',
@@ -31,25 +32,25 @@ process.source = cms.Source(
 ##        #'file:SinglePion_FastFull_6.root',
 ##        #'file:SinglePion_FastFull_7.root'
 ##        'file:SinglePion_FastFull_All.root'
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW300pre6/fevt_SinglePion_E0_1.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW300pre6/fevt_SinglePion_E1_1.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW300pre6/fevt_SinglePion_E2_1.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW300pre6/fevt_SinglePion_E3_1.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW300pre6/fevt_SinglePion_E3_2.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW300pre6/fevt_SinglePion_E4_1.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW300pre6/fevt_SinglePion_E4_2.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW300pre6/fevt_SinglePion_E5_1.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW300pre6/fevt_SinglePion_E5_2.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW300pre6/fevt_SinglePion_E5_3.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW300pre6/fevt_SinglePion_E5_4.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW300pre6/fevt_SinglePion_E6_1.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW300pre6/fevt_SinglePion_E6_2.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW300pre6/fevt_SinglePion_E6_3.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW300pre6/fevt_SinglePion_E6_4.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW300pre6/fevt_SinglePion_E7_1.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW300pre6/fevt_SinglePion_E7_2.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW300pre6/fevt_SinglePion_E7_3.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW300pre6/fevt_SinglePion_E7_4.root'
+##        'rfio:/castor/cern.ch/user/a/azzi/CMSSW300pre6/fevt_SinglePion_E0_1.root',
+##        'rfio:/castor/cern.ch/user/a/azzi/CMSSW300pre6/fevt_SinglePion_E1_1.root',
+##        'rfio:/castor/cern.ch/user/a/azzi/CMSSW300pre6/fevt_SinglePion_E2_1.root',
+##        'rfio:/castor/cern.ch/user/a/azzi/CMSSW300pre6/fevt_SinglePion_E3_1.root',
+##        'rfio:/castor/cern.ch/user/a/azzi/CMSSW300pre6/fevt_SinglePion_E3_2.root',
+##        'rfio:/castor/cern.ch/user/a/azzi/CMSSW300pre6/fevt_SinglePion_E4_1.root',
+##        'rfio:/castor/cern.ch/user/a/azzi/CMSSW300pre6/fevt_SinglePion_E4_2.root',
+##        'rfio:/castor/cern.ch/user/a/azzi/CMSSW300pre6/fevt_SinglePion_E5_1.root',
+##        'rfio:/castor/cern.ch/user/a/azzi/CMSSW300pre6/fevt_SinglePion_E5_2.root',
+##        'rfio:/castor/cern.ch/user/a/azzi/CMSSW300pre6/fevt_SinglePion_E5_3.root',
+##        'rfio:/castor/cern.ch/user/a/azzi/CMSSW300pre6/fevt_SinglePion_E5_4.root',
+##        'rfio:/castor/cern.ch/user/a/azzi/CMSSW300pre6/fevt_SinglePion_E6_1.root',
+##        'rfio:/castor/cern.ch/user/a/azzi/CMSSW300pre6/fevt_SinglePion_E6_2.root',
+##        'rfio:/castor/cern.ch/user/a/azzi/CMSSW300pre6/fevt_SinglePion_E6_3.root',
+##        'rfio:/castor/cern.ch/user/a/azzi/CMSSW300pre6/fevt_SinglePion_E6_4.root',
+##        'rfio:/castor/cern.ch/user/a/azzi/CMSSW300pre6/fevt_SinglePion_E7_1.root',
+##        'rfio:/castor/cern.ch/user/a/azzi/CMSSW300pre6/fevt_SinglePion_E7_2.root',
+##        'rfio:/castor/cern.ch/user/a/azzi/CMSSW300pre6/fevt_SinglePion_E7_3.root',
+##        'rfio:/castor/cern.ch/user/a/azzi/CMSSW300pre6/fevt_SinglePion_E7_4.root'
     ),
     noEventSort=cms.untracked.bool(True)
 )
@@ -77,6 +78,8 @@ process.testTK = cms.EDFilter(
     thirdFast = cms.InputTag("thStep","","TKAN"),
     fourthFull = cms.InputTag("pixellessStep","","PROD"),
     fourthFast = cms.InputTag("fouStep","","TKAN"),
+    fifthFull = cms.InputTag("tobtecStep","","PROD"),
+    fifthFast = cms.InputTag("fifthStep","","TKAN"),
 )
 
 # Famos SimHits 

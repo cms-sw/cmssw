@@ -99,40 +99,49 @@ process.MessageLogger = cms.Service("MessageLogger",
    destinations = cms.untracked.vstring('reco')
 )
 
+##from Kevin
+process.firstStepHighPurity = cms.EDFilter("QualityFilter",
+                                           TrackQuality = cms.string('highPurity'),
+                                           recTracks = cms.InputTag("firstStepTracksWithQuality")
+                                           )
 process.fevt = cms.OutputModule(
     "PoolOutputModule",
     fileName = cms.untracked.string("fevt.root"),
     outputCommands = cms.untracked.vstring(
       'drop *',
-      ###---these are the collection used in inpyut to the "general tracks"
-      # zero step high purity
-      'keep *_zeroStepTracksWithQuality*_*_*',
-      # step one high purity
+      ###---these are the collection used in input to the "general tracks"
+      # zero step 
+      'keep *_zeroStep*_*_*',
+      # step one
       'keep *_preMergingFirstStepTracksWithQuality*_*_*',
-      # first(merged 0+1)  iterative step high purity
-      'keep *_firstStepTracksWithQuality*_*_*',
-      # this should be the same as above (but not used in the merger). I see it empty
-      'keep *_firstfilter_*_*',
+      # first(merged 0+1)  iterative step
+      'keep *_firstStep*_*_*',
       # second step high quality
       'keep *_secStep_*_*',
       #third step  high quality
       'keep *_thStep_*_*',
       #fourth step high quality
       'keep *_pixellessStep*_*_*',
+      #fifth step high quality
+      'keep *_tobtecStep*_*_*',
       # merge of secStep+thStep 
       'keep *_merge2nd3rdTracks*_*_*',
       # merge of merge2nd3rd+pixelless
       'keep *_iterTracks*_*_*',
+      # merge of pixellessStep+tobtecStep 
+      'keep *_merge4th5thTracks*_*_*',
       #merge of firstStepTracksWithQuality+iterTracks
       "keep *_generalTracks_*_*",      
       'keep *_*Seed*_*_*',
       'keep *_sec*_*_*',
       'keep *_th*_*_*',
+      'keep *_fou*_*_*',
+      'keep *_fifth*_*_*',
       'keep *_newTrackCandidateMaker_*_*',
       "keep SimTracks_*_*_*",
       "keep SimVertexs_*_*_*",
       "keep edmHepMCProduct_*_*_*"
-    )
+      )
 )
 
 process.p0 = cms.Path(process.pgen)
@@ -141,7 +150,9 @@ process.p2 = cms.Path(process.pdigi)
 process.p3 = cms.Path(process.L1Emulator)
 process.p4 = cms.Path(process.DigiToRaw)
 process.p5= cms.Path(process.RawToDigi)
-process.p6= cms.Path(process.reconstruction)
+process.p6= cms.Path(process.reconstruction+
+  #select only High purity step 1 fullsim tracks
+                     process.firstStepHighPurity)
 process.outpath = cms.EndPath(process.fevt)
 process.schedule = cms.Schedule(process.p0,process.p1,process.p2,process.p3,process.p4,process.p5,process.p6,process.outpath)
 
