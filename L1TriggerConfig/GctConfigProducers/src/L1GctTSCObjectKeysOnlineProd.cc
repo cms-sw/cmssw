@@ -22,36 +22,37 @@ L1GctTSCObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
       {
          // Execute SQL queries to get data from OMDS (using key) and make C++ object.
          // Example: SELECT A_PARAMETER FROM CMS_XXX.XXX_CONF WHERE XXX_CONF.XXX_KEY = subsystemKey
-         l1t::OMDSReader::QueryResults objectKeyResults =
-         m_omdsReader.basicQuery(
-            "CONFIG_KEY",
-            "CMS_GCT",
-            "XXX_CONF",
-            "XXX_CONF.CONFIG_KEY",
-            m_omdsReader.singleAttribute( subsystemKey  ) );
-
-         std::string objectKey ;
-
+         l1t::OMDSReader::QueryResults physParamsKeyResults =
+	   m_omdsReader.basicQuery(
+				   "CONFIG_KEY",
+				   "CMS_GCT",
+				   "GCT_CONFIG",
+				   "GCT_CONFIG.GCT_PHYS_PARAMS_KEY",
+				   m_omdsReader.singleAttribute( subsystemKey  ) );
+	 
+         std::string physParamsKey ;
+	 
          // check if query was successful
-         if( objectKeyResults.queryFailed() )
-         {
+         if( physParamsKeyResults.queryFailed() )
+	   {
              edm::LogError("L1-O2O")
-                     << "Problem with key for record L1GctJetFinderParamsRcd: query failed ";
-         }
-         else if( objectKeyResults.numberRows() != 1 )
-         {
+	       << "Problem with key for record L1GctJetFinderParamsRcd: query failed ";
+	   }
+         else if( physParamsKeyResults.numberRows() != 1 )
+	   {
              edm::LogError("L1-O2O")
-                     << "Problem with key for record L1GctJetFinderParamsRcd: "
-                     << (objectKeyResults.numberRows()) << " rows were returned";
-         }
+	       << "Problem with key for record L1GctJetFinderParamsRcd: "
+	       << (physParamsKeyResults.numberRows()) << " rows were returned";
+	   }
          else
-         {
-            objectKeyResults.fillVariable( objectKey ) ;
-         }
-
-         pL1TriggerKey->add( "L1GctJetFinderParamsRcd", "L1GctJetFinderParams", objectKey ) ;
-
-         // Repeat for additional object keys for this subsystem.
+	   {
+	     physParamsKeyResults.fillVariable( physParamsKey ) ;
+	   }
+	 
+         pL1TriggerKey->add( "L1GctJetFinderParamsRcd", "L1GctJetFinderParams", physParamsKey ) ;
+         pL1TriggerKey->add( "L1GctJetEtCalibrationFunctionRcd", "L1GctJetEtCalibrationFunction", physParamsKey ) ;
+         pL1TriggerKey->add( "L1GctHfLutSetupRcd", "L1GctHfLutSetup", physParamsKey ) ;
+	 
       }
 }
 
