@@ -63,6 +63,12 @@ Propagator::propagate (const TrajectoryStateOnSurface& tsos,
   return propagate( *tsos.freeState(), sur);
 }
 
+FreeTrajectoryState 
+Propagator::propagate(const FreeTrajectoryState& ftsStart, 
+    const reco::BeamSpot& beamSpot) const{
+  throw cms::Exception("Propagator::propagate(FTS,beamSpot) not implemented");
+}
+
 
 std::pair< TrajectoryStateOnSurface, double> 
 Propagator::propagateWithPath (const FreeTrajectoryState& state, 
