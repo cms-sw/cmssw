@@ -3,9 +3,9 @@
 
 class L1GctTSCObjectKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
    public:
-      L1L1GctTSCObjectKeysOnlineProd(const edm::ParameterSet& iConfig)
+      L1GctTSCObjectKeysOnlineProd(const edm::ParameterSet& iConfig)
          : L1ObjectKeysOnlineProdBase( iConfig ) {}
-      ~L1L1GctTSCObjectKeysOnlineProd() {}
+      ~L1GctTSCObjectKeysOnlineProd() {}
 
       virtual void fillObjectKeys( ReturnType pL1TriggerKey ) ;
    private:
@@ -14,9 +14,9 @@ class L1GctTSCObjectKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
 void
 L1GctTSCObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
 {
-      // kMYSUBSYSTEM = kCSCTF, kDTTF, kRPC, kGMT, kRCT, mkGCT, kGT, or kTSP0
+      // kMYSUBSYSTEM = kCSCTF, kDTTF, kRPC, kGMT, kRCT, kGCT, kGT, or kTSP0
       // subsystemKey = TRIGGERSUP_CONF.{CSCTF_KEY, DTTF_KEY, RPC_KEY, GMT_KEY, RCT_KEY, GCT_KEY, GT_KEY}
-      std::string subsystemKey = pL1TriggerKey->subsystemKey( L1TriggerKey::kGct ) ;
+      std::string subsystemKey = pL1TriggerKey->subsystemKey( L1TriggerKey::kGCT ) ;
 
       if( !subsystemKey.empty() )
       {

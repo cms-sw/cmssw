@@ -5,6 +5,8 @@ class L1GctJetFinderParams
 {
  public:
 
+  L1GctJetFinderParams();
+
   L1GctJetFinderParams(double rgnEtLsb,
 		       double htLsb,
 		       double cJetSeed,
