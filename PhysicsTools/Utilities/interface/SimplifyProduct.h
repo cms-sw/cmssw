@@ -100,9 +100,6 @@ namespace funct {
   PROD_RULE(TYPT3, RATIO_S(A, B), C,
 	     RATIO(PROD(A, C), B), (_1._1 * _2) / _1._2);
 
-  // 1 * n/m = n/m ( avoid template ambiguity)
-  PROD_RULE(TYPN2, NUM(1), FRACT(n, m), FRACT(n, m), _2);
-
   // 0 * 1 = 0  ( avoid template ambiguity )
   PROD_RULE(TYP0, NUM(0), NUM(1), NUM(0), num<0>());
     
