@@ -17,6 +17,7 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
+#include "DataFormats/Provenance/interface/FileIndex.h"
 
 #include "CLHEP/Random/RandFlat.h"
 #include "TFile.h"
@@ -155,6 +156,8 @@ namespace edm {
         rootFile_->close(primary());
       }
       logFileAction("  Closed file ", rootFile_->file());
+      // The next step is necessary for the duplicate checking to work properly
+      if (noEventSort_) rootFile_->fileIndexSharedPtr()->sortBy_Run_Lumi_Event();
       rootFile_.reset();
       if (duplicateChecker_.get() != 0) duplicateChecker_->inputFileClosed();
     }
@@ -178,6 +181,7 @@ namespace edm {
     }
     if (filePtr && !filePtr->IsZombie()) {
       logFileAction("  Successfully opened file ", fileIter_->fileName());
+      std::vector<boost::shared_ptr<FileIndex> >::size_type currentFileIndex = fileIter_ - fileIterBegin_;
       rootFile_ = RootFileSharedPtr(new RootFile(fileIter_->fileName(), catalog_.url(),
 	  processConfiguration(), fileIter_->logicalFileName(), filePtr,
 	  startAtRun_, startAtLumi_, startAtEvent_, eventsToSkip_,
@@ -187,8 +191,9 @@ namespace edm {
 	  forcedRunOffset_,
 	  whichLumisToProcess_, whichEventsToProcess_,
 	  noEventSort_,
-	  groupSelectorRules_, !primarySequence_, duplicateChecker_, dropDescendants_));
-      fileIndexes_[fileIter_ - fileIterBegin_] = rootFile_->fileIndexSharedPtr();
+	  groupSelectorRules_, !primarySequence_, duplicateChecker_, dropDescendants_,
+          fileIndexes_, currentFileIndex));
+          fileIndexes_[currentFileIndex] = rootFile_->fileIndexSharedPtr();
     } else {
       if (!skipBadFiles) {
 	throw edm::Exception(edm::errors::FileOpenError) <<
@@ -453,7 +458,6 @@ namespace edm {
     randomAccess_ = false;
     firstFile_ = true;
     fileIter_ = fileIterBegin_;
-    if (duplicateChecker_.get() != 0) duplicateChecker_->rewind();
   }
 
   // Rewind to the beginning of the current file

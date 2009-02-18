@@ -147,7 +147,9 @@ namespace edm {
 		     GroupSelectorRules const& groupSelectorRules,
                      bool dropMergeable,
                      boost::shared_ptr<DuplicateChecker> duplicateChecker,
-                     bool dropDescendants) :
+                     bool dropDescendants,
+                     std::vector<boost::shared_ptr<FileIndex> > const& fileIndexes,
+                     std::vector<boost::shared_ptr<FileIndex> >::size_type currentFileIndex) :
       file_(fileName),
       logicalFile_(logicalFileName),
       catalog_(catalogName),
@@ -345,7 +347,7 @@ namespace edm {
     }
     fileIndex_.erase(std::remove(fileIndex_.begin(), fileIndex_.end(), FileIndex::Element()), fileIndex_.end());
 
-    initializeDuplicateChecker();
+    initializeDuplicateChecker(fileIndexes, currentFileIndex);
     if (noEventSort_) fileIndex_.sortBy_Run_Lumi_EventEntry();
     fileIndexIter_ = fileIndexBegin_ = fileIndex_.begin();
     fileIndexEnd_ = fileIndex_.end();
@@ -492,6 +494,11 @@ namespace edm {
       ++it;
     }
     if (it == fileIndexEnd_) return false;
+    if (duplicateChecker_.get() != 0) {
+      if (!duplicateChecker_->fastCloningOK()) {
+	return false; 
+      }
+    }
     return true;
   }
 
@@ -1058,12 +1065,16 @@ namespace edm {
   }
 
   void
-  RootFile::initializeDuplicateChecker() {
+  RootFile::initializeDuplicateChecker(
+    std::vector<boost::shared_ptr<FileIndex> > const& fileIndexes,
+    std::vector<boost::shared_ptr<FileIndex> >::size_type currentFileIndex) {
     if (duplicateChecker_.get() != 0) {
       if (eventTree_.next()) {
         fillEventAuxiliary();
-        duplicateChecker_->init(eventAux_.isRealData(),
-                                fileIndex_);
+        duplicateChecker_->inputFileOpened(eventAux_.isRealData(),
+                                           fileIndex_,
+                                           fileIndexes,
+                                           currentFileIndex);
       }
       eventTree_.setEntryNumber(-1);
     }

@@ -7,7 +7,7 @@
 IOPool/Input/src/DuplicateChecker.h
 
 Used by PoolSource to detect events with
-the same run and event number.  It is configurable
+the same run, lumi, and event number.  It is configurable
 whether it checks for duplicates within the scope
 of each single input file or all input files or
 not at all.
@@ -16,26 +16,33 @@ not at all.
 
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
+#include "DataFormats/Provenance/interface/FileIndex.h"
 
+#include "boost/shared_ptr.hpp"
+
+#include <vector>
 #include <set>
 #include <string>
+
 
 namespace edm {
 
   class ParameterSet;
-  class FileIndex;
 
   class DuplicateChecker {
   public:
 
     DuplicateChecker(ParameterSet const& pset);
 
-    void init(bool realData,
-              FileIndex const& fileIndex);
+    void inputFileOpened(
+      bool realData,
+      FileIndex const& fileIndex,
+      std::vector<boost::shared_ptr<FileIndex> > const& fileIndexes,
+      std::vector<boost::shared_ptr<FileIndex> >::size_type currentFileIndex);
 
     void inputFileClosed();
 
-    void rewind();
+    bool fastCloningOK() const;
 
     bool isDuplicateAndCheckActive(EventID const& eventID,
                                    LuminosityBlockNumber_t const& lumi,
@@ -51,7 +58,12 @@ namespace edm {
 
     DataType dataType_;
 
-    std::set<EventID> eventIDs_;
+    // If checking the entire input for duplicates, then this holds
+    // events from previous files that duplicate events in the
+    // the current file.  Plus it holds events that have been already
+    // processed in the current file.  It is not used if there are
+    // no duplicates or duplicate checking has been disabled.
+    std::set<FileIndex::Element> relevantPreviousEvents_;
 
     bool itIsKnownTheFileHasNoDuplicates_;
   };

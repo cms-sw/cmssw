@@ -253,7 +253,7 @@ namespace edm {
     std::string defaultString("permissive");
     desc.addOptionalUntracked<std::string>("fileMatchMode", defaultString);
 
-    defaultString = "checkEachRealDataFile";
+    defaultString = "checkAllFilesOpened";
     desc.addOptionalUntracked<std::string>("duplicateCheckMode", defaultString);
 
     defaultStrings.clear();

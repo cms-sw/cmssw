@@ -78,7 +78,9 @@ namespace edm {
 	     GroupSelectorRules const& groupSelectorRules,
              bool dropMergeable,
              boost::shared_ptr<DuplicateChecker> duplicateChecker,
-             bool dropDescendantsOfDroppedProducts);
+             bool dropDescendantsOfDroppedProducts,
+             std::vector<boost::shared_ptr<FileIndex> > const& fileIndexes,
+             std::vector<boost::shared_ptr<FileIndex> >::size_type currentFileIndex);
     ~RootFile();
     void reportOpened();
     void close(bool reallyClose);
@@ -146,7 +148,8 @@ namespace edm {
     void readEntryDescriptionTree();
     void readEventHistoryTree();
 
-    void initializeDuplicateChecker();
+    void initializeDuplicateChecker(std::vector<boost::shared_ptr<FileIndex> > const& fileIndexes,
+                                    std::vector<boost::shared_ptr<FileIndex> >::size_type currentFileIndex);
 
     template <typename T>
     boost::shared_ptr<BranchMapper> makeBranchMapper(RootTree & rootTree, BranchType const& type) const;

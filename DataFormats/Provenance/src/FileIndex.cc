@@ -56,45 +56,6 @@ namespace edm {
     return allInEntryOrder();
   }
 
-  bool FileIndex::eventsUniqueAndOrdered() const {
-
-    const_iterator it = begin();
-    const_iterator itEnd = end();
-
-    // Set up the iterators to point to first two events
-    // (In the trivial case where there is zero or one event,
-    // the set must be unique and ordered) 
-
-    if (it == itEnd) return true;
-
-    // Step to first event
-    while (it->getEntryType() != kEvent) {
-      ++it;
-      if (it == itEnd) return true;
-    }
-    const_iterator itPrevious = it;
-
-    // Step to second event
-    ++it;
-    if (it == itEnd) return true;
-    while (it->getEntryType() != kEvent) {
-      ++it;
-      if (it == itEnd) return true;
-    }
-
-    for ( ; it != itEnd; ++it) {
-      if (it->getEntryType() == kEvent) {
-        if (it->run_ < itPrevious->run_) return false;  // not ordered
-        else if (it->run_ == itPrevious->run_) {
-          if (it->event_ < itPrevious->event_) return false; // not ordered
-          if (it->event_ == itPrevious->event_) return false; // found duplicate
-        }
-        itPrevious = it;
-      }
-    }
-    return true; // finished and found no duplicates
-  }
-
   FileIndex::const_iterator
   FileIndex::findPosition(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) const {
 
