@@ -1,102 +1,89 @@
 #ifndef RECOLOCALTRACKER_SISTRIPCLUSTERIZER_THREETHRESHOLDSTRIPCLUSTERIZER_H
 #define RECOLOCALTRACKER_SISTRIPCLUSTERIZER_THREETHRESHOLDSTRIPCLUSTERIZER_H
 
-#include "FWCore/Framework/interface/EventSetup.h"
+//Data Formats
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-#include <string>
-#include <vector>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-class ThreeThresholdStripClusterizer {
- public:
-  ThreeThresholdStripClusterizer(float strip_thr, float seed_thr,float clust_thr, int max_holes, int max_bad=0, int max_adj=1);
-  ~ThreeThresholdStripClusterizer();
-  void init(const edm::EventSetup& es, std::string qualityLabel="", std::string thresholdLabel=""); 
-  void clusterizeDetUnit(const edm::DetSet<SiStripDigi> &,    edmNew::DetSetVector<SiStripCluster>::FastFiller & output);
-  void clusterizeDetUnit(const edmNew::DetSet<SiStripDigi> &, edmNew::DetSetVector<SiStripCluster>::FastFiller & output);
-  
-  struct InvalidChargeException : public cms::Exception { public: InvalidChargeException(const SiStripDigi&); };
- private:
-  struct isSeed;
-  struct thresholdGroup;
-  struct DigiInfo;
-
-  template<class T> void clusterizeDetUnitTemplate(const T & digis, edmNew::DetSetVector<SiStripCluster>::FastFiller& output);
-
-  template<class T> T findClusterEdge(T,T) const;
-  template<class T> bool clusterEdgeCondition(T,T,T) const;
-  template<class T> bool aboveClusterThreshold(T,T) const;
-  template<class T> SiStripCluster* clusterize(T,T);
-
-  thresholdGroup* thresholds;
-  DigiInfo* digiInfo;
-  std::vector<uint16_t> amplitudes;
-};
-
-
-
-struct ThreeThresholdStripClusterizer::isSeed {
-  bool operator()(const SiStripDigi& digi);
-  isSeed(DigiInfo* i) : digiInfo(i) {}
-  private: DigiInfo* digiInfo;
-};
-  
-
-//This structure is planned to move into the event setup
-struct ThreeThresholdStripClusterizer::thresholdGroup {
-  thresholdGroup(float strip_thr, float seed_thr,float clust_thr, int max_holes, int max_bad=0, int max_adj=1)
-    : strip(strip_thr), seed(seed_thr), cluster(clust_thr), holes(max_holes), bad(max_bad),adj(max_adj) {}
-  uint8_t getMaxSequentialHoles(uint32_t) {return holes;}
-  uint8_t getMaxSequentialBad(uint32_t) {return bad;}
-  uint8_t getMaxAdjacentBad(uint32_t) {return adj;}
-  float getClusterThreshold(uint32_t) {return cluster;}
-  float getSeedThreshold(uint32_t, uint16_t) {return seed;}
-  float getChannelThreshold(uint32_t,uint16_t) {return strip;}
-  private:
-  float strip, seed, cluster;
-  uint8_t holes, bad, adj;
-};
-
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
+#include "CalibTracker/Records/interface/SiStripGainRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
+#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 
-struct ThreeThresholdStripClusterizer::DigiInfo {
-  DigiInfo(const edm::EventSetup&, thresholdGroup* thresholds, std::string qualityLabel);
-  bool isModuleUsable(uint32_t id) const {return qualityHandle->IsModuleUsable(id);}
-  void setFastAccessDetId(uint32_t);
-  uint32_t detId() const {return currentDetId;}
-  uint8_t maxSequentialHoles() const {return thresholdHandle->getMaxSequentialHoles(currentDetId);}
-  uint8_t maxSequentialBad()   const {return thresholdHandle->getMaxSequentialBad(currentDetId);}
-  uint8_t maxAdjacentBad()     const {return thresholdHandle->getMaxAdjacentBad(currentDetId);}
-  float clusterThreshold()     const {return thresholdHandle->getClusterThreshold(currentDetId);}
-  float channelThreshold(const SiStripDigi& digi)const {return thresholdHandle->getChannelThreshold(currentDetId,digi.strip());}
-  float seedThreshold(const SiStripDigi& digi)   const {return thresholdHandle->getSeedThreshold(currentDetId,digi.strip());}
-  float noise(const SiStripDigi& digi)           const {return noiseHandle->getNoise(digi.strip(),noiseRange);}
-  float gain(const SiStripDigi& digi)            const {return gainHandle->getStripGain(digi.strip(),gainRange);}
-  bool isGoodStrip(const SiStripDigi& digi)      const {return !qualityHandle->IsStripBad(qualityRange, digi.strip());}
-  bool isAboveSeed(const SiStripDigi& digi)      const {return digi.adc() >= static_cast<uint16_t>( noise(digi)*seedThreshold(digi) );}
-  bool isAboveChannel(const SiStripDigi& digi)   const {return digi.adc() >= static_cast<uint16_t>( noise(digi)*channelThreshold(digi) );}
-  bool includeInCluster(const SiStripDigi& digi) const {return isAboveChannel(digi) && isGoodStrip(digi);}
-  bool anyGoodBetween(uint16_t,uint16_t) const;
-  uint8_t nBadBeforeUpToMaxAdjacent(const SiStripDigi&) const;
-  uint8_t nBadAfterUpToMaxAdjacent(const SiStripDigi&) const;
-  uint16_t correctedCharge(const SiStripDigi&) const;
+#include <vector>
+#include <algorithm>
+#include <cmath>
+#include <string>
+
+class ThreeThresholdStripClusterizer {
+public:
+
+  ThreeThresholdStripClusterizer(float strip_thr, float seed_thr,float clust_thr, int max_holes, int max_bad=0, int max_adj=1) :
+    theChannelThreshold(strip_thr), 
+    theSeedThreshold(seed_thr),
+    theClusterThreshold(clust_thr),
+    max_holes_(max_holes){}
   
-  private:
-  edm::ESHandle<SiStripGain> gainHandle;
-  edm::ESHandle<SiStripNoises> noiseHandle;
-  edm::ESHandle<SiStripQuality> qualityHandle;
-  thresholdGroup* thresholdHandle;
+  //  void setSiStripNoiseService( SiStripNoiseService* in ){ SiStripNoiseService_=in;}
+  void clusterizeDetUnit(const edm::DetSet<SiStripDigi>    & digis, edmNew::DetSetVector<SiStripCluster>::FastFiller & output);
+  void clusterizeDetUnit(const edmNew::DetSet<SiStripDigi> & digis, edmNew::DetSetVector<SiStripCluster>::FastFiller & output);
+
+  void init(const edm::EventSetup& es, std::string qualityLabel="", std::string thresholdLabel=""); 
+
+  float channelThresholdInNoiseSigma() const { return theChannelThreshold;}
+  float seedThresholdInNoiseSigma()    const { return theSeedThreshold;}
+  float clusterThresholdInNoiseSigma() const { return theClusterThreshold;}
   
-  uint32_t currentDetId;
-  SiStripApvGain::Range gainRange;
-  SiStripNoises::Range  noiseRange;
-  SiStripQuality::Range qualityRange;
-    
+  struct InvalidChargeException : public cms::Exception { public: InvalidChargeException(const SiStripDigi&); };
+private:
+  //  SiStripNoiseService* SiStripNoiseService_; 
+  template<typename InputDetSet>
+  void clusterizeDetUnit_(const InputDetSet & digis, edmNew::DetSetVector<SiStripCluster>::FastFiller & output);
+
+  float theChannelThreshold;
+  float theSeedThreshold;
+  float theClusterThreshold;
+  int max_holes_;
+  std::string qualityLabel_;
+
+  edm::ESHandle<SiStripGain> gainHandle_;
+  edm::ESHandle<SiStripNoises> noiseHandle_;
+  edm::ESHandle<SiStripQuality> qualityHandle_;
+
+  std::vector<SiStripDigi> cluster_digis_;  // so it's not recreated for each det for each event!
+};
+
+class AboveSeed {
+ public:
+
+
+  //  AboveSeed(float aseed,SiStripNoiseService* noise,const uint32_t& detID) : seed(aseed), noise_(noise),detID_(detID) {};
+
+  AboveSeed(float aseed, const edm::ESHandle<SiStripNoises> & noiseHandle, const SiStripNoises::Range & noiseRange, const edm::ESHandle<SiStripQuality> & qualityHandle, const SiStripQuality::Range & qualityRange) 
+    : seed(aseed), noise_(noiseHandle), noiseRange_(noiseRange),quality_(qualityHandle), qualityRange_(qualityRange)
+    {};
+	   //,detID_(detID) {};
+
+  inline bool operator()(const SiStripDigi& digi) { 
+    return ( 
+	    !quality_->IsStripBad(qualityRange_,digi.strip()) 
+	    && 
+	    digi.adc() >= seed * noise_->getNoise(digi.strip(), noiseRange_)
+	    );
+  }
+ private:
+  float seed;
+  const edm::ESHandle<SiStripNoises> & noise_;
+  const SiStripNoises::Range & noiseRange_;
+  const edm::ESHandle<SiStripQuality> & quality_;
+  const SiStripQuality::Range & qualityRange_;
 };
 
 #endif
