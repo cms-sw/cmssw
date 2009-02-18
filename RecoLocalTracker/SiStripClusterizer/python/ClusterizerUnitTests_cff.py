@@ -5,47 +5,164 @@ from RecoLocalTracker.SiStripClusterizer.ClusterizerUnitTestFunctions_cff import
 ClusterizerDefaultGroup = ClusterizerTest( "Default Clusterizer Settings",
                                            dict( channel=2, seed=3, cluster=5, hole=0, nBad=0, nAdj=1),
                                            [
-    DetUnit( "Zero digis",
+    DetUnit( "[] = []",
              [  ],
-             [ #zero clusters
+             [ #none
                ] ),
-    DetUnit( "One digi below cluster threshold",
+    DetUnit( "(4/1) = []",
              [ digi(  10, 4,  noise1, gain1, good)  ],
-             [ #zero clusters
+             [ #none
                ] ),
-    DetUnit( "One digi above cluster threshold",
-             [ digi(  10, 110,  noise1, gain1, good)  ],
-             [ cluster(  10, [110])
+    DetUnit( "(5/1) = [5]",
+             [ digi(    10, 5,  noise1, gain1, good)  ],
+             [ cluster( 10, [5])
                ] ),
-    DetUnit( "Two digis",
+    DetUnit( "(110/1) = [110]",
+             [ digi(    10, 110,  noise1, gain1, good)  ],
+             [ cluster( 10, [110])
+               ] ),
+    DetUnit( "(24/5) = []",
+             [ digi(  10, 24,  5*noise1, gain1, good)  ],
+             [ #none
+               ] ),
+    DetUnit( "(25/5) = [25]",
+             [ digi(    10, 25,  5*noise1, gain1, good)  ],
+             [ cluster( 10, [25])
+               ] ),
+    DetUnit( "(111/5) = [111]",
+             [ digi(    10, 111,  5*noise1, gain1, good)  ],
+             [ cluster( 10, [111])
+               ] ),
+    DetUnit( "(25/5)(9/5) = [25]    <---------------|",
+             [ digi(    10, 25,  5*noise1, gain1, good),
+               digi(    11, 9,  5*noise1, gain1, good)  ],
+             [ cluster( 10, [25])
+               ] ),
+    DetUnit( "(25/5)(10/5) =  []    <---------------| Strange",
+             [ digi(    10, 25,  5*noise1, gain1, good),
+               digi(    11, 10,  5*noise1, gain1, good)  ],
+             [ #none
+               ] ),
+    DetUnit( "(25/5)(11/5) = [25,11]    <-----------|",
+             [ digi(    10, 25,  5*noise1, gain1, good),
+               digi(    11, 11,  5*noise1, gain1, good)  ],
+             [ cluster(10, [25,11])
+               ] ),
+    DetUnit( "(7/1)(4/2) =  []  <------ Additional noise from neighbor nullifies good cluster! Reconsider!",
+             [ digi(  10, 7,   noise1, gain1, good),
+               digi(  11, 4,  2*noise1, gain1, good) ],
+             [ #none
+               ] ),
+    DetUnit( "(3/1)(3/1) = []",
+             [ digi(  10, 3,  noise1, gain1, good),
+               digi(  11, 3,  noise1, gain1, good) ],
+             [ #none
+               ] ),
+    DetUnit( "(2/1)(6/2) = []",
+             [ digi(  10, 2,  noise1, gain1, good),
+               digi(  11, 6,  2*noise1, gain1, good) ],
+             [ #none
+               ] ),
+    DetUnit( "(16/5)(11/4) = []",
+             [ digi(  10, 16,  5*noise1, gain1, good),
+               digi(  11, 11,  5*noise1, gain1, good) ],
+             [ #none
+               ] ),
+    DetUnit( "(2/1)(3/1)(2/1)(3/1)(2/1) = [2,3,2,3,2]",
+             [ digi(  10, 2,  noise1, gain1, good),
+               digi(  11, 3,  noise1, gain1, good),
+               digi(  12, 2,  noise1, gain1, good),
+               digi(  13, 3,  noise1, gain1, good),
+               digi(  14, 2,  noise1, gain1, good) ],
+             [ cluster(10,[2,3,2,3,2,])
+               ] ),
+    DetUnit( "(2/1)(3/1)(2/1)(3/1)(2/1)(2/2) = [2,3,2,3,2]",
+             [ digi(  10, 2,  noise1, gain1, good),
+               digi(  11, 3,  noise1, gain1, good),
+               digi(  12, 2,  noise1, gain1, good),
+               digi(  13, 3,  noise1, gain1, good),
+               digi(  14, 2,  noise1, gain1, good),
+               digi(  15, 2,  2*noise1, gain1, good) ],
+             [ cluster(10,[2,3,2,3,2,])
+               ] ),
+    DetUnit( "(110/1)(100/1) = [110,100]",
              [ digi(  10, 110,  noise1, gain1, good),
                digi(  11, 100,  noise1, gain1, good) ],
              [ cluster(  10, [110, 100])
                ] ),
-    DetUnit( "Two gains",
-             [ digi(  127, 110,  noise1, gain1, good),
-               digi(  128, 110,  noise1, 1.1, good) ],
-             [ cluster(  127, [110, 100])
+    DetUnit( "(110/1)X = [110,0]",
+             [ digi(  10, 110,  noise1, gain1, good),
+               digi(  11, 110,  noise1, gain1,  bad) ],
+             [ cluster(  10, [110, 0])
                ] ),
-    DetUnit( "Three digis, middle is bad",
+    DetUnit( "X(110/1) = [0,110]",
+             [ digi(  10, 110,  noise1, gain1, bad),
+               digi(  11, 110,  noise1, gain1,  good) ],
+             [ cluster(  10, [0, 110])
+               ] ),
+    DetUnit( "XX(110/1) = [0,110]",
+             [ digi(  9, 110,  noise1, gain1, bad),
+               digi(  10, 110,  noise1, gain1, bad),
+               digi(  11, 110,  noise1, gain1,  good) ],
+             [ cluster(  10, [0, 110])
+               ] ),
+    DetUnit( "(110/1)X(100/1) = [110,0],[0,100]",
              [ digi(  10, 110,  noise1, gain1, good),
                digi(  11, 110,  noise1, gain1,  bad),
                digi(  12, 100,  noise1, gain1, good) ],
              [ cluster(  10, [110, 0]),
                cluster(  11, [0, 100])
                ] ),
-    DetUnit( "Three digis, middle is below channel",
+    DetUnit( "(110/1)x(100/1) = [110,0],[0,100]",
+             [ digi(  10, 110,  noise1, gain1, good),
+               digi(  11,   0,  noise1, gain1,  bad),
+               digi(  12, 100,  noise1, gain1, good) ],
+             [ cluster(  10, [110, 0]),
+               cluster(  11, [0, 100])
+               ] ),
+    DetUnit( "X(110/1)x(100/1)X = [0,110,0],[0,100,0]",
+             [ digi(  9, 110,  noise1, gain1, bad),
+               digi(  10, 110,  noise1, gain1, good),
+               digi(  11,   0,  noise1, gain1,  bad),
+               digi(  12, 100,  noise1, gain1,  good),
+               digi(  13, 100,  noise1, gain1, bad) ],
+             [ cluster(  9, [0,110, 0]),
+               cluster(  11, [0, 100,0])
+               ] ),
+    DetUnit( "(110/1)_(100/1) = [110],[100]",
              [ digi(  10, 110,  noise1, gain1, good),
                digi(  11,   0,  noise1, gain1, good),
                digi(  12, 100,  noise1, gain1, good) ],
              [ cluster(  10, [110]),
                cluster(  12, [100])
                ] ),
-    DetUnit( "Cluster threshold test",
-             [ digi(  10, 5,   noise1, gain1, good),
-               digi(  11, 4,  2*noise1, gain1, good) ],
-             [ #no cluster expected
+    DetUnit( "Two gains (apv boundary)",
+             [ digi(  127, 110,  noise1, gain1, good),
+               digi(  128, 110,  noise1, 1.1, good) ],
+             [ cluster(  127, [110, 100])
                ] ),
+    DetUnit( "Left edge",
+             [ digi(  0, 100,   noise1, gain1, good),],
+             [ cluster(0,[100])
+               ] ),
+    DetUnit( "Right edge",
+             [ digi(  767, 100,   noise1, gain1, good),],
+             [ cluster(767,[100])
+               ] ),
+    DetUnit( "Left edge two strips",
+             [ digi(  0, 100,   noise1, gain1, good),
+               digi(  1, 100,   noise1, gain1, good),],
+             [ cluster(0,[100,100])
+               ] ),
+    DetUnit( "Right edge two strips",
+             [ digi(  766, 100,   noise1, gain1, good),
+               digi(  767, 100,   noise1, gain1, good),],
+             [ cluster(766,[100,100])
+               ] ),
+#    DetUnit( "Throw InvalidChargeException",
+#             [ digi(  19, 256,   noise1, gain1, good) ],
+#             [ cluster(766,[100,100])
+#               ] ),
     DetUnit( "Wide cluster",
              [ digi(  10, 110,  noise1, gain1, good),
                digi(  11, 110,  noise1, gain1, good),
