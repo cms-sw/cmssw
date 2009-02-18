@@ -38,8 +38,10 @@ extractNoiseGainQualityForDetId(uint32_t detId, const VPSet& digiset) {
   std::vector<unsigned> detBadStrips;
   for(iter_t digi = digiset.begin(); digi<digiset.end(); digi++) {
     uint16_t strip = digi->getParameter<unsigned>("Strip");
-    detNoises.push_back(std::make_pair(strip, digi->getParameter<double>("Noise") ));
-    detGains.push_back(std::make_pair(strip, digi->getParameter<double>("Gain") ));
+    if(digi->getParameter<unsigned>("ADC") != 0) {
+      detNoises.push_back(std::make_pair(strip, digi->getParameter<double>("Noise") ));
+      detGains.push_back(std::make_pair(strip, digi->getParameter<double>("Gain") ));
+    }
     if(!digi->getParameter<bool>("Quality") )
       detBadStrips.push_back(quality->encode(strip,1));
   }
@@ -82,6 +84,7 @@ setGains(uint32_t detId, std::vector<std::pair<uint16_t, float> >& digiGains) {
       throw cms::Exception("Faulty gain construction.") << "  Only one gain setting per APV please.\n";
     }
   }
+  detApvGains.resize(6,1.);
   
   SiStripApvGain::Range range(detApvGains.begin(),detApvGains.end());
   if ( ! apvGain->put(detId,range) ) 
