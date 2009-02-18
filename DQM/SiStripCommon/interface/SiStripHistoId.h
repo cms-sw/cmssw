@@ -16,7 +16,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Wed Feb 22 16:07:51 CET 2006
-// $Id: SiStripHistoId.h,v 1.1 2006/03/08 12:55:11 dkcira Exp $
+// $Id: SiStripHistoId.h,v 1.2 2008/03/03 11:50:41 maborgia Exp $
 //
 
 #include <string>
@@ -31,6 +31,7 @@ class SiStripHistoId
       // generally: histoid = description + separator1 + id_type + separator2 + component_id
       std::string createHistoId(std::string description, std::string id_type, uint32_t component_id);
       std::string createHistoLayer(std::string description, std::string id_type,std::string path, std::string flag);
+      std::string getSubdetid(uint32_t id,bool flag_ring);
       // extract the component_id and the id_type from a histogram id
       uint32_t    getComponentId(std::string histoid);
       std::string getComponentType(std::string histoid);

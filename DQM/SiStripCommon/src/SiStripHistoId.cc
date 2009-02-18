@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Wed Feb 22 16:07:58 CET 2006
-// $Id: SiStripHistoId.cc,v 1.7 2008/03/03 11:50:42 maborgia Exp $
+// $Id: SiStripHistoId.cc,v 1.8 2008/07/23 16:48:17 maborgia Exp $
 //
 
 #include<iostream>
@@ -16,6 +16,11 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 
 using namespace std;
 using namespace edm;
@@ -82,6 +87,47 @@ std::string SiStripHistoId::createHistoLayer(std::string description, std::strin
   }
 }
 
+std::string SiStripHistoId::getSubdetid(uint32_t id,bool flag_ring){
+  char rest[1024];
+
+  StripSubdetector subdet(id);
+  if( subdet.subdetId() == StripSubdetector::TIB){
+  // ---------------------------  TIB  --------------------------- //
+    TIBDetId tib1 = TIBDetId(id);
+    sprintf(rest,"TIB__layer__%d",tib1.layer());
+  }else if( subdet.subdetId() == StripSubdetector::TID){
+  // ---------------------------  TID  --------------------------- //
+    TIDDetId tid1 = TIDDetId(id);
+    sprintf(rest,"TID__side__%d__wheel__%d",tid1.side(),tid1.wheel());
+  }else if(subdet.subdetId() == StripSubdetector::TOB){ 
+  // ---------------------------  TOB  --------------------------- //
+    TOBDetId tob1 = TOBDetId(id);
+    sprintf(rest,"TOB__layer__%d",tob1.layer());
+  }else if(subdet.subdetId() == StripSubdetector::TEC){
+  // ---------------------------  TEC  --------------------------- //
+    TECDetId tec1 = TECDetId(id);
+    sprintf(rest,"TEC__side__%d__wheel__%d",tec1.side(),tec1.wheel());
+  }else{
+  // ---------------------------  ???  --------------------------- //
+    edm::LogError("SiStripTkDQM|WrongInput")<<"no such subdetector type :"<<subdet.subdetId()<<" no folder set!"<<std::endl;
+    return 0;
+  }
+  
+  if(flag_ring){
+    if(subdet.subdetId() == StripSubdetector::TID){
+      // ---------------------------  TID  --------------------------- //
+      TIDDetId tid1 = TIDDetId(id);
+      sprintf(rest,"TID__side__%d__ring__%d",tid1.side(),tid1.ring());
+    }else if( subdet.subdetId() == StripSubdetector::TEC){
+      // ---------------------------  TEC  --------------------------- //
+      TECDetId tec1 = TECDetId(id);
+      sprintf(rest,"TEC__side__%d__ring__%d",tec1.side(),tec1.ring());
+    }
+  }
+
+  std::string rest1(rest);
+  return rest1;
+}
 
 uint32_t SiStripHistoId::getComponentId(std::string histoid){
   uint32_t local_component_id;
