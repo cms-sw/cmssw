@@ -808,10 +808,10 @@ void PlotMaker::bookHistos(DQMStore * dbe_, std::vector<int>* l1bits, std::vecto
   hL1TauJetMult = dbe_->book1D("JetMult", "Jet Multiplicity", 10, 0, 10);
   hL1TauJet1Pt  = dbe_->book1D("Jet1Pt",  "Jet 1 Pt ",        100, 0, 1000);
   hL1TauJet2Pt  = dbe_->book1D("Jet2Pt",  "Jet 2 Pt ",        100, 0, 1000);
-  hL1TauJet1Eta  = dbe_->book1D("Jet1Eta",  "Jet 1 Eta ",        100, -3, -3);
-  hL1TauJet2Eta  = dbe_->book1D("Jet2Eta",  "Jet 2 Eta ",        100, -3, -3);
-  hL1TauJet1Phi  = dbe_->book1D("Jet1Phi",  "Jet 1 Phi ",        100, -3.2, -3.2);
-  hL1TauJet2Phi  = dbe_->book1D("Jet2Phi",  "Jet 2 Phi ",        100, -3.2, -3.2);
+  hL1TauJet1Eta  = dbe_->book1D("Jet1Eta",  "Jet 1 Eta ",        100, -3, 3);
+  hL1TauJet2Eta  = dbe_->book1D("Jet2Eta",  "Jet 2 Eta ",        100, -3, 3);
+  hL1TauJet1Phi  = dbe_->book1D("Jet1Phi",  "Jet 1 Phi ",        100, -3.2, 3.2);
+  hL1TauJet2Phi  = dbe_->book1D("Jet2Phi",  "Jet 2 Phi ",        100, -3.2, 3.2);
 
   dbe_->setCurrentFolder(dirname_+"/L1Jets/Tau/L1");
   for(unsigned int i=0; i<l1bits_->size(); i++){
