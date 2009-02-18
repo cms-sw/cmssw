@@ -21,8 +21,8 @@
  *  BeamSpotPositionErrors[2] = sigma(z)
  *
  *
- *  $Date: 2008/08/11 13:13:28 $
- *  $Revision: 1.19 $
+ *  $Date: 2009/02/18 18:21:55 $
+ *  $Revision: 1.20 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -48,11 +48,6 @@ public:
 
   // Operations
   
-/*   /// Propagate the state to the 3D-PCA */
-/*   std::pair<bool,FreeTrajectoryState> */
-/*     propagate(const TrajectoryStateOnSurface &tsos,  */
-/* 	      const GlobalPoint &vtxPosition) const; */
-  
   /// Propagate the state to the 2D-PCA
   std::pair<bool,FreeTrajectoryState>
     propagate(const TrajectoryStateOnSurface &tsos, const reco::BeamSpot & beamSpot) const;
@@ -65,12 +60,6 @@ public:
   std::pair<bool,FreeTrajectoryState>
     update(const FreeTrajectoryState& ftsAtVtx, const reco::BeamSpot & beamSpot) const;
 
-/*   /// Propagate to the 3D-PCA and apply the vertex constraint */
-/*   std::pair<bool,FreeTrajectoryState> */
-/*     propagateWithUpdate(const TrajectoryStateOnSurface &tsos,  */
-/* 			const GlobalPoint &vtxPosition, */
-/* 			const reco::BeamSpot & beamSpot) const; */
-  
   /// Propagate to the 2D-PCA and apply the vertex constraint
   std::pair<bool,FreeTrajectoryState>
     propagateWithUpdate(const TrajectoryStateOnSurface &tsos,

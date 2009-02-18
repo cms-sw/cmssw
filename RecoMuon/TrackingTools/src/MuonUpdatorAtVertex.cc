@@ -3,8 +3,8 @@
  *  method, the vertex constraint. The vertex constraint is applyed using the Kalman Filter tools used for 
  *  the vertex reconstruction.
  *
- *  $Date: 2008/08/11 13:13:29 $
- *  $Revision: 1.35 $
+ *  $Date: 2009/02/18 18:22:26 $
+ *  $Revision: 1.36 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -72,30 +72,6 @@ MuonUpdatorAtVertex::MuonUpdatorAtVertex(const edm::ParameterSet& pset,
 MuonUpdatorAtVertex::~MuonUpdatorAtVertex(){}
 
 // Operations
-
-// /// Propagate the state to the vertex
-// pair<bool,FreeTrajectoryState>
-// MuonUpdatorAtVertex::propagate(const TrajectoryStateOnSurface &tsos, 
-// 			       const GlobalPoint &vtxPosition) const{
-
-//   const string metname = "Muon|RecoMuon|MuonUpdatorAtVertex";
-
-//   pair<FreeTrajectoryState,double> 
-//     result = theService->propagator(thePropagatorName)->propagateWithPath(*tsos.freeState(),vtxPosition);
-
-//   LogTrace(metname) << "MuonUpdatorAtVertex::propagate, path: "
-// 		    << result.second << " parameters: " << result.first.parameters();
-
-//   if( result.first.hasError()) 
-//     return pair<bool,FreeTrajectoryState>(true,result.first);
-//   else{
-//     edm::LogInfo(metname) << "Propagation to the PCA failed!";
-    
-//     // FIXME: returns FreeTrajectoryState() instead of result.first?
-//     return pair<bool,FreeTrajectoryState>(false,result.first);
-//   }
-// }
-
 
 /// Propagate the state to the PCA in 2D, i.e. to the beam line
 pair<bool,FreeTrajectoryState>
@@ -169,25 +145,6 @@ MuonUpdatorAtVertex::update(const FreeTrajectoryState& ftsAtVtx, const reco::Bea
   
   return update(theTransientTrackFactory.build(ftsAtVtx),beamSpot);
 }
-
-
-
-// pair<bool,FreeTrajectoryState>
-// MuonUpdatorAtVertex::propagateWithUpdate(const TrajectoryStateOnSurface &tsos, 
-// 					 const GlobalPoint &vtxPosition,
-// 					 const reco::BeamSpot & beamSpot) const{
-  
-//   pair<bool,FreeTrajectoryState>
-//     propagationResult = propagate(tsos,vtxPosition);
-
-//   if(propagationResult.first){
-//      return update(propagationResult.second, beamSpot);
-//   }
-//   else{
-//     edm::LogInfo("Muon|RecoMuon|MuonUpdatorAtVertex") << "Constraint at vertex failed";
-//     return pair<bool,FreeTrajectoryState>(false,FreeTrajectoryState());
-//   }
-// }
 
 
 pair<bool,FreeTrajectoryState>
