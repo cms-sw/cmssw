@@ -22,13 +22,21 @@ L1GctTSCObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
       {
          // Execute SQL queries to get data from OMDS (using key) and make C++ object.
          // Example: SELECT A_PARAMETER FROM CMS_XXX.XXX_CONF WHERE XXX_CONF.XXX_KEY = subsystemKey
-         l1t::OMDSReader::QueryResults physParamsKeyResults =
+         l1t::OMDSReader::QueryResults mainCrateKeyResults =
 	   m_omdsReader.basicQuery(
 				   "CONFIG_KEY",
 				   "CMS_GCT",
 				   "GCT_CONFIG",
-				   "GCT_CONFIG.GCT_PHYS_PARAMS_KEY",
+				   "GCT_CONFIG.GCT_MAIN_CRATE_KEY",
 				   m_omdsReader.singleAttribute( subsystemKey  ) );
+
+         l1t::OMDSReader::QueryResults physParamsKeyResults =
+	   m_omdsReader.basicQuery(
+				   "CONFIG_KEY",
+				   "CMS_GCT",
+				   "GCT_MAIN_CRATE",
+				   "GCT_MAIN_CRATE.GCT_PHYS_PARAMS_KEY",
+				   mainCrateKeyResults );
 	 
          std::string physParamsKey ;
 	 
