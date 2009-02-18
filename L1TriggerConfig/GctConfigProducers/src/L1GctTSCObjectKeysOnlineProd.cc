@@ -51,7 +51,6 @@ L1GctTSCObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
 	 
          pL1TriggerKey->add( "L1GctJetFinderParamsRcd", "L1GctJetFinderParams", physParamsKey ) ;
          pL1TriggerKey->add( "L1GctJetEtCalibrationFunctionRcd", "L1GctJetEtCalibrationFunction", physParamsKey ) ;
-         pL1TriggerKey->add( "L1GctHfLutSetupRcd", "L1GctHfLutSetup", physParamsKey ) ;
 	 
       }
 }

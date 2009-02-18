@@ -2,8 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 from L1TriggerConfig.GctConfigProducers.l1GctJetCounterConfig_cfi import *
 L1GctConfigProducers = cms.ESProducer("L1GctConfigProducers",
-    JetFinderCentralJetSeed = cms.uint32(1),
+    JetFinderCentralJetSeed = cms.double32(0.5),
+    JetFinderForwardJetSeed = cms.double32(0.5),
     L1CaloJetZeroSuppressionThresholdInGeV = cms.double(5.0),
+    TauIsoEtThreshold = cms.double(1.0),
+    HtJetEtThreshold = cms.double(5.0),
+    MHtJetEtThreshold = cms.double(5.0),
+    GctHtLSB = cms.double(1.0),
     HfLutEtSumThresholds = cms.vuint32(2,4,6,8,10,12,14),
     HfLutBitCountThresholds = cms.vuint32(1,2,3,4,5,6,7),
     # The CalibrationStyle should be either "PowerSeries", "ORCAStyle" or "PiecewiseCubic"
