@@ -60,8 +60,6 @@ class CalorimetryManager{
 
   void reconstructHCAL(const FSimTrack& myTrack);
 
-  void MuonMipSimulation(const FSimTrack & myTrack);
- 
   /// Hadronic Shower Simulation
   void HDShowerSimulation(const FSimTrack& myTrack);
 

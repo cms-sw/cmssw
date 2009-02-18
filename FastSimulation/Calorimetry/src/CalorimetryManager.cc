@@ -204,16 +204,12 @@ void CalorimetryManager::reconstruct()
 	    reconstructHCAL(myTrack);
 	   
       } // electron or photon
-      else if (pid==13)
-	{
-	  MuonMipSimulation(myTrack);
-	}
       // Simulate energy smearing for hadrons (i.e., everything 
       // but muons... and SUSY particles that deserve a special 
       // treatment.
       else if ( pid < 1000000 ) {
 	if ( myTrack.onHcal() || myTrack.onVFcal() ) 	  
-	  if(optionHDSim_ == 0 )  reconstructHCAL(myTrack);
+	  if(optionHDSim_ == 0 || pid == 13)  reconstructHCAL(myTrack);
 	  else HDShowerSimulation(myTrack);
 	    
       } // pid < 1000000 
@@ -546,7 +542,6 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack)
   double emeas = 0.;
 
   if(pid == 13) { 
-    std::cout << " We should not be here " << std::endl;
     std::pair<double,double> response =
       myHDResponse_->responseHCAL(0, EGen, pathEta, 2); // 2=muon 
     emeas  = response.first;
@@ -820,186 +815,6 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
 	 << std::endl;
 }
 
-
-void CalorimetryManager::MuonMipSimulation(const FSimTrack& myTrack)
-{
-  //  TimeMe t(" FASTEnergyReconstructor::HDShower");
-  XYZTLorentzVector moment = myTrack.momentum();
-
-  if(debug_)
-    LogDebug("FastCalorimetry") << "CalorimetryManager::MuonMipSimulation - track param."
-         << std::endl
-	 << "  eta = " << moment.eta() << std::endl
-         << "  phi = " << moment.phi() << std::endl
-         << "   et = " << moment.Et()  << std::endl;
-
-  int hit;
-  //  int pid = abs(myTrack.type());
-
-  XYZTLorentzVector trackPosition;
-  if ( myTrack.onEcal() ) {
-    trackPosition=myTrack.ecalEntrance().vertex();
-    hit = myTrack.onEcal()-1;                               //
-    myPart = myTrack.ecalEntrance();
-  } else if ( myTrack.onVFcal()) {
-    trackPosition=myTrack.vfcalEntrance().vertex();
-    hit = 2;
-    myPart = myTrack.vfcalEntrance();
-  }
-  else
-    {
-      LogDebug("FastCalorimetry") << " The particle is not in the acceptance " << std::endl;
-      return;
-    }
-
-  // int onHCAL = hit + 1; - specially for myCalorimeter->hcalProperties(onHCAL)
-  // (below) to get VFcal properties ...
-  int onHCAL = hit + 1;
-  int onECAL = myTrack.onEcal();
-  
-  //  double pathEta   = trackPosition.eta();
-  //  double pathPhi   = trackPosition.phi();	
-  //  double pathTheta = trackPosition.theta();
-  
-  //===========================================================================
-
-  // ECAL and HCAL properties to get
-      
-  //Making ECAL Grid (and segments calculation)
-  XYZPoint caloentrance;
-  XYZVector direction;
-  if(myTrack.onEcal()) 
-    {	
-      caloentrance = myTrack.ecalEntrance().vertex().Vect();
-      direction = myTrack.ecalEntrance().Vect().Unit();
-    }
-  else if(myTrack.onHcal())
-    {
-      caloentrance = myTrack.hcalEntrance().vertex().Vect();
-      direction = myTrack.hcalEntrance().Vect().Unit();
-    }
-  else
-    {
-      caloentrance = myTrack.vfcalEntrance().vertex().Vect();
-      direction = myTrack.vfcalEntrance().Vect().Unit();
-    }
-  
-  DetId pivot;
-  if(myTrack.onEcal())
-    {
-      pivot=myCalorimeter_->getClosestCell(caloentrance,
-					   true, myTrack.onEcal()==1);
-    }
-  else if(myTrack.onHcal())
-    {
-      //	std::cout << " CalorimetryManager onHcal " <<  myTrack.onHcal() << " caloentrance" << caloentrance  << std::endl;
-      pivot=myCalorimeter_->getClosestCell(caloentrance,					     
-					   false, false);
-    }
-  
-  EcalHitMaker myGrid(myCalorimeter_,caloentrance,pivot,
-		      pivot.null()? 0 : myTrack.onEcal(),hdGridSize_,0,
-		      random);
-  // 0 =EM shower -> Unit = X0
-  
-  myGrid.setTrackParameters(direction,0,myTrack);
-  
-  // Now get the path in the Preshower, ECAL and HCAL along a straight line extrapolation 
-  // but only those in the ECAL are used 
- 
-  const std::vector<CaloSegment>& segments=myGrid.getSegments();
-  unsigned nsegments=segments.size();
-  
-  float totalX0Ecal=myGrid.ecalTotalX0();
-  int ifirstHcal=-1;
-  int ilastEcal=-1;
-  for(unsigned iseg=0;iseg<nsegments&&ifirstHcal<0;++iseg)
-    {
-      
-      // in the ECAL, there are two types of segments: PbWO4 and GAP
-      float segmentSizeinX0=segments[iseg].X0length();
-      // Martijn - insert your computations here
-      float energy=0.1;
-      
-      // Save the hit only if it is a crystal
-      if(segments[iseg].material()==CaloSegment::PbWO4)
-	{
-	  myGrid.getPads(segments[iseg].sX0Entrance()+segmentSizeinX0*0.5);
-	  myGrid.setSpotEnergy(energy);
-	  myGrid.addHit(0.,0.);
-	  ilastEcal=iseg;
-	}
-      
-      if(segments[iseg].material()==CaloSegment::HCAL)
-	{
-	  ifirstHcal=iseg;
-	}
-    }
-
-  // Position of Ecal Exit
-  if(ilastEcal>=0)
-    math::XYZVector ecalExit=segments[ilastEcal].exit();
-  
-  // Position of HCAL entrance
-  math::XYZVector hcalEntrance;
-  if(ifirstHcal>=0)
-    hcalEntrance=segments[ifirstHcal].entrance();
-
-
-  // Build the FAMOS HCAL 
-  HcalHitMaker myHcalHitMaker(myGrid,(unsigned)2);     
-  float mipenergy=0.1;
-  // Create the helix with the stepping helix propagator
-  // to add a hit, just do
-  myHcalHitMaker.setSpotEnergy(mipenergy);
-  myHcalHitMaker.addHit(hcalEntrance);
-  
-
-  
-
-  // no need to change below this line
-  std::map<unsigned,float>::const_iterator mapitr;
-  std::map<unsigned,float>::const_iterator endmapitr;
-  if(myTrack.onEcal() > 0) {
-    // Save ECAL hits 
-    endmapitr=myGrid.getHits().end();
-    for(mapitr=myGrid.getHits().begin(); mapitr!=endmapitr; ++mapitr) {
-      double energy = mapitr->second;
-      if(onECAL==1)
-	{
-	  updateMap(EBDetId(mapitr->first).hashedIndex(),energy,myTrack.id(),EBMapping_,firedCellsEB_);
-	  std::cout << " Putting hit in ECAL Barrel " << energy << std::endl;
-	}      
-      else if(onECAL==2)
-	{
-	  updateMap(EEDetId(mapitr->first).hashedIndex(),energy,myTrack.id(),EEMapping_,firedCellsEE_);
-	  std::cout << " Putting hit in ECAL Endcap " << energy << std::endl;
-	}
-      
-      if(debug_)
-	LogDebug("FastCalorimetry") << " ECAL cell " << mapitr->first << " added,  E = " 
-				    << energy << std::endl;  
-    }
-  }
-      
-  // Save HCAL hits
-  endmapitr=myHcalHitMaker.getHits().end();
-  for(mapitr=myHcalHitMaker.getHits().begin(); mapitr!=endmapitr; ++mapitr) {
-    double energy = mapitr->second;
-    {
-      updateMap(HcalDetId(mapitr->first).hashed_index(),energy,myTrack.id(),HMapping_,firedCellsHCAL_);
-      std::cout << " Putting hit in HCAL " << energy << std::endl;
-    }
-    if(debug_)
-      LogDebug("FastCalorimetry") << " HCAL cell "  
-				  << mapitr->first << " added    E = " 
-				  << mapitr->second << std::endl;  
-  }
-  
-  if(debug_)
-    LogDebug("FastCalorimetry") << std::endl << " FASTEnergyReconstructor::MipShowerSimulation  finished "
-	 << std::endl;
-}
 
 
 void CalorimetryManager::readParameters(const edm::ParameterSet& fastCalo) {
