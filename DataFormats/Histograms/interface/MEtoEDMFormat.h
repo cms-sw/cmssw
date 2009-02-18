@@ -6,8 +6,8 @@
  *  DataFormat class to hold the information from a ME tranformed into
  *  ROOT objects as appropriate
  *
- *  $Date: 2008/09/22 21:01:04 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/10/15 13:44:42 $
+ *  $Revision: 1.9 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -80,7 +80,28 @@ class MEtoEDM
              (strcmp(MEtoEdmObject[i].name.c_str(),
                      newMEtoEDMObject[j].name.c_str()) != 0)) ++j;
       if (j < newMEtoEDMObject.size()) {
-        MEtoEdmObject[i].object.Add(&newMEtoEDMObject[j].object);
+        if (MEtoEdmObject[i].object.GetNbinsX() == newMEtoEDMObject[j].object.GetNbinsX() &&
+            MEtoEdmObject[i].object.GetXaxis()->GetXmin() == newMEtoEDMObject[j].object.GetXaxis()->GetXmin() &&
+            MEtoEdmObject[i].object.GetXaxis()->GetXmax() == newMEtoEDMObject[j].object.GetXaxis()->GetXmax() &&
+            MEtoEdmObject[i].object.GetNbinsY() == newMEtoEDMObject[j].object.GetNbinsY() &&
+            MEtoEdmObject[i].object.GetYaxis()->GetXmin() == newMEtoEDMObject[j].object.GetYaxis()->GetXmin() &&
+            MEtoEdmObject[i].object.GetYaxis()->GetXmax() == newMEtoEDMObject[j].object.GetYaxis()->GetXmax() &&
+            MEtoEdmObject[i].object.GetNbinsZ() == newMEtoEDMObject[j].object.GetNbinsZ() &&
+            MEtoEdmObject[i].object.GetZaxis()->GetXmin() == newMEtoEDMObject[j].object.GetZaxis()->GetXmin() &&
+            MEtoEdmObject[i].object.GetZaxis()->GetXmax() == newMEtoEDMObject[j].object.GetZaxis()->GetXmax()) {
+          MEtoEdmObject[i].object.Add(&newMEtoEDMObject[j].object);
+        } else {
+	  std::cout << "ERROR MEtoEDM::mergeProducts(): different axis limits - DQM ME '" << MEtoEdmObject[i].name << "' not merged" <<  std::endl;
+          //std::cout << MEtoEdmObject[i].object.GetNbinsX() << " " << newMEtoEDMObject[j].object.GetNbinsX() << std::endl;
+          //std::cout << MEtoEdmObject[i].object.GetXaxis()->GetXmin() << " " << newMEtoEDMObject[j].object.GetXaxis()->GetXmin() << std::endl;
+          //std::cout << MEtoEdmObject[i].object.GetXaxis()->GetXmax() << " " << newMEtoEDMObject[j].object.GetXaxis()->GetXmax() << std::endl;
+          //std::cout << MEtoEdmObject[i].object.GetNbinsY() << " " << newMEtoEDMObject[j].object.GetNbinsY() << std::endl;
+          //std::cout << MEtoEdmObject[i].object.GetYaxis()->GetXmin() << " " << newMEtoEDMObject[j].object.GetYaxis()->GetXmin() << std::endl;
+          //std::cout << MEtoEdmObject[i].object.GetYaxis()->GetXmax() << " " << newMEtoEDMObject[j].object.GetYaxis()->GetXmax() << std::endl;
+          //std::cout << MEtoEdmObject[i].object.GetNbinsZ() << " " << newMEtoEDMObject[j].object.GetNbinsZ() << std::endl;
+          //std::cout << MEtoEdmObject[i].object.GetZaxis()->GetXmin() << " " << newMEtoEDMObject[j].object.GetZaxis()->GetXmin() << std::endl;
+          //std::cout << MEtoEdmObject[i].object.GetZaxis()->GetXmax() << " " << newMEtoEDMObject[j].object.GetZaxis()->GetXmax() << std::endl;
+        }
         tmp[j] = true;
       } else {
         warn = true;
@@ -93,7 +114,7 @@ class MEtoEDM
       }
     }
     if (warn) {
-      std::cout << "WARNING: problem found in MEtoEDM::mergeProducts()" << std::endl;
+      std::cout << "WARNING MEtoEDM::mergeProducts(): problem found" << std::endl;
     }
     return true;
   }
