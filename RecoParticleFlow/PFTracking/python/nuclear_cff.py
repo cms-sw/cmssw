@@ -12,7 +12,7 @@ import RecoVertex.NuclearInteractionProducer.NuclearInteraction_cfi
 firstnuclearInteractionMaker = RecoVertex.NuclearInteractionProducer.NuclearInteraction_cfi.nuclearInteractionMaker.clone()
 nuclear = cms.Sequence(firstnuclearSeed*firstnuclearTrackCandidates*firstnuclearWithMaterialTracks*firstnuclearInteractionMaker)
 firstnuclearSeed.producer = 'generalTracks'
-firstnuclearTrackCandidates.SeedProducer = 'firstnuclearSeed'
+firstnuclearTrackCandidates.src = 'firstnuclearSeed'
 firstnuclearTrackCandidates.TrajectoryBuilder = 'nuclearCkfTrajectoryBuilder'
 firstnuclearTrackCandidates.RedundantSeedCleaner = 'none'
 firstnuclearWithMaterialTracks.src = 'firstnuclearTrackCandidates'

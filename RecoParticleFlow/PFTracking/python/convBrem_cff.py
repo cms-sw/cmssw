@@ -26,7 +26,7 @@ gsStripRecHits.ClusterProducer = 'gsClusters'
 ##TK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 convTkCand = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
-convTkCand.SeedProducer = 'convBremSeeds'
+convTkCand.src = 'convBremSeeds'
 convTkCand.TrajectoryBuilder = 'convTrajectoryBuilder'
 
 
