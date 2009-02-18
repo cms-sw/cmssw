@@ -9,7 +9,7 @@ namespace TtSemiLepDaughter{
   static const std::string HadQ="HadQ", HadP="HadP", HadW="HadW", HadB="HadB", HadTop="HadTop"; 
 }
 
-namespace TtSemiLepEvtPartons{
+namespace TtSemiLepEvtPartonsFwd{
   // semileptonic parton names
   enum { LightQ, LightQBar, HadB, LepB, Lepton };
 }

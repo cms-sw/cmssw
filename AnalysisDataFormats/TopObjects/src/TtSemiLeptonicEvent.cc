@@ -33,11 +33,11 @@ TtSemiLeptonicEvent::print()
   log << " - JetLepComb: ";
   for(unsigned idx = 0; idx < 5; idx++) {
     switch(idx) {
-    case TtSemiLepEvtPartons::LightQ    : log << "LightP "; break;
-    case TtSemiLepEvtPartons::LightQBar : log << "LightQ "; break;
-    case TtSemiLepEvtPartons::HadB      : log << " HadB  "; break;
-    case TtSemiLepEvtPartons::LepB      : log << " LepB  "; break;
-    case TtSemiLepEvtPartons::Lepton    : log << "Lepton "; break;
+    case TtSemiLepEvtPartonsFwd::LightQ    : log << "LightP "; break;
+    case TtSemiLepEvtPartonsFwd::LightQBar : log << "LightQ "; break;
+    case TtSemiLepEvtPartonsFwd::HadB      : log << " HadB  "; break;
+    case TtSemiLepEvtPartonsFwd::LepB      : log << " LepB  "; break;
+    case TtSemiLepEvtPartonsFwd::Lepton    : log << "Lepton "; break;
     }
   }
   log << "\n";
