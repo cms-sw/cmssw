@@ -3,8 +3,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2009/02/11 22:12:41 $
- *  $Revision: 1.60 $
+ *  $Date: 2009/02/17 15:15:57 $
+ *  $Revision: 1.61 $
  */
 
 
@@ -33,16 +33,15 @@ using namespace l1extra;
 
 typedef std::vector< edm::ParameterSet > Parameters;
 
-const int numCones = 3;
-double coneSizes[] = { 0.20, 0.24, 0.30 };
+const int numCones     = 3;
 const int numMinPtCuts = 1;
+double coneSizes[] = { 0.20, 0.24, 0.30 };
 double minPtCuts[] = { 0. };
 
 
 /// Constructor
-HLTMuonGenericRate::HLTMuonGenericRate( const ParameterSet& pset, 
-					string triggerName,
-					vector<string> moduleNames )
+HLTMuonGenericRate::HLTMuonGenericRate
+( const ParameterSet& pset, string triggerName, vector<string> moduleNames )
 {
 
   theHltProcessName  = pset.getParameter<string>("HltProcessName");
@@ -153,8 +152,8 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
 {
   
   eventNumber++;
-  LogTrace( "HLTMuonVal" ) << "In analyze for L1 trigger " << 
-    theL1CollectionLabel << " Event:" << eventNumber;  
+  LogTrace( "HLTMuonVal" ) << "In analyze for trigger path " << 
+    theTriggerName << ", Event:" << eventNumber;
 
   // Update event numbers
   meNumberOfEvents->Fill(eventNumber); 
@@ -194,7 +193,7 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
     iEvent.getByLabel(theRecoLabel, muTracks);    
     reco::TrackCollection::const_iterator muon;
     if  ( muTracks.failedToGet() ) {
-      LogDebug("HLTMuonVal") << "No reco tracks to compare to";
+      LogTrace("HLTMuonVal") << "No reco tracks to compare to";
       useMuonFromReco = false;
     } else {
       for ( muon = muTracks->begin(); muon != muTracks->end(); ++muon ) {
@@ -207,64 +206,55 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
 	  recMuonPt = pt;
   } } } 
   
-  if ( genMuonPt > 0 ) hPassMaxPtGen[0]->Fill(genMuonPt);
-  if ( recMuonPt > 0 ) hPassMaxPtRec[0]->Fill(recMuonPt);
-
   LogTrace("HLTMuonVal") << "genMuonPt: " << genMuonPt << ", "  
                          << "recMuonPt: " << recMuonPt;
 
   //////////////////////////////////////////////////////////////////////////
   // Get the L1 and HLT trigger collections
 
-  edm::Handle<trigger::TriggerEventWithRefs> triggerEventRaw;
-  edm::Handle<trigger::TriggerEvent>         triggerEventAod;
+  edm::Handle<trigger::TriggerEventWithRefs> rawTriggerEvent;
+  edm::Handle<trigger::TriggerEvent>         aodTriggerEvent;
   vector<LorentzVector>                      l1Particles;
   vector< vector<LorentzVector> >            hltParticles(numHltLabels);
   vector< vector<RecoChargedCandidateRef> >  hltCands(numHltLabels);
-  InputTag                                   tag;
-  size_t                                     filterIndex;
+  InputTag collectionTag;
+  size_t   filterIndex;
 
 
   //// Get the candidates from the RAW trigger summary
 
   if ( !useAod ) {
 
-    if ( !iEvent.getByLabel("hltTriggerSummaryRAW", triggerEventRaw) ) { 
+    iEvent.getByLabel( "hltTriggerSummaryRAW", rawTriggerEvent );
+    if ( !rawTriggerEvent.isValid() ) { 
       LogError("HLTMuonVal") << "No RAW trigger summary found! "
 			     << "Change UseAod to ""True"" in configuration";
-      return; 
+      return;
     }
 
-    tag         = InputTag( theL1CollectionLabel, "", theHltProcessName );
-    filterIndex = triggerEventRaw->filterIndex(tag);
+    collectionTag = InputTag( theL1CollectionLabel, "", theHltProcessName );
+    filterIndex   = rawTriggerEvent->filterIndex(collectionTag);
     vector<L1MuonParticleRef> l1Cands;
 
-    LogTrace("HLTMuonVal") << "TriggerObject Size=" << triggerEventRaw->size();
-    LogTrace("HLTMuonVal") << "filterIndex = " << filterIndex;
-
-    if ( filterIndex < triggerEventRaw->size() ) {
-      triggerEventRaw->getObjects( filterIndex, TriggerL1Mu, l1Cands );
-    }
-    else {
-      LogTrace("HLTMuonVal") << "No L1 Collection with label " << tag;
-      return;
-    } 
+    if ( filterIndex < rawTriggerEvent->size() ) 
+      rawTriggerEvent->getObjects( filterIndex, TriggerL1Mu, l1Cands );
+    else LogTrace("HLTMuonVal") << "No L1 Collection with label " 
+				<< collectionTag;
     
     for ( size_t i = 0; i < l1Cands.size(); i++ ) 
       l1Particles.push_back( l1Cands[i]->p4() );
     
     for ( size_t i = 0; i < numHltLabels; i++ ) {
 
-      tag         = InputTag(theHltCollectionLabels[i],"",theHltProcessName);
-      filterIndex = triggerEventRaw->filterIndex(tag);
+      collectionTag = InputTag( theHltCollectionLabels[i], 
+				"", theHltProcessName );
+      filterIndex   = rawTriggerEvent->filterIndex(collectionTag);
 
-      if ( filterIndex < triggerEventRaw->size() )
-	triggerEventRaw->getObjects( filterIndex, TriggerMuon, hltCands[i]);
-      else {
-	LogTrace("HLTMuonVal") <<"No HLT Collection with label "<< tag;
-	return;
-      }
-      
+      if ( filterIndex < rawTriggerEvent->size() )
+	rawTriggerEvent->getObjects( filterIndex, TriggerMuon, hltCands[i]);
+      else LogTrace("HLTMuonVal") << "No HLT Collection with label " 
+				  << collectionTag;
+
       for ( size_t j = 0; j < hltCands[i].size(); j++ )
 	hltParticles[i].push_back( hltCands[i][j]->p4() );
 
@@ -277,45 +267,49 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
 
   if ( useAod ) {
 
-    if ( !iEvent.getByLabel("hltTriggerSummaryAOD", triggerEventAod) ) { 
-      LogDebug("HLTMuonVal") << "No AOD trigger summary found! Returning..."; 
+    iEvent.getByLabel("hltTriggerSummaryAOD", aodTriggerEvent);
+    if ( !aodTriggerEvent.isValid() ) { 
+      LogError("HLTMuonVal") << "No AOD trigger summary found! Returning..."; 
       return; 
     }
 
-    const TriggerObjectCollection objects = triggerEventAod->getObjects();
+    const TriggerObjectCollection objects = aodTriggerEvent->getObjects();
 
-    tag         = InputTag( theAodL1Label, "", theHltProcessName );
-    filterIndex = triggerEventAod->filterIndex( tag );
-    if ( filterIndex < triggerEventAod->sizeFilters() ) {
-      const Keys &keys = triggerEventAod->filterKeys( filterIndex );
+    collectionTag = InputTag( theAodL1Label, "", theHltProcessName );
+    filterIndex   = aodTriggerEvent->filterIndex( collectionTag );
+    if ( filterIndex < aodTriggerEvent->sizeFilters() ) {
+      const Keys &keys = aodTriggerEvent->filterKeys( filterIndex );
       for ( size_t j = 0; j < keys.size(); j++ )
 	l1Particles.push_back( objects[keys[j]].particle().p4() );
     } 
 
-    tag         = InputTag( theAodL2Label, "", theHltProcessName );
-    filterIndex = triggerEventAod->filterIndex( tag );
-    if ( filterIndex < triggerEventAod->sizeFilters() ) {
-      const Keys &keys = triggerEventAod->filterKeys( filterIndex );
+    collectionTag = InputTag( theAodL2Label, "", theHltProcessName );
+    filterIndex   = aodTriggerEvent->filterIndex( collectionTag );
+    if ( filterIndex < aodTriggerEvent->sizeFilters() ) {
+      const Keys &keys = aodTriggerEvent->filterKeys( filterIndex );
       for ( size_t j = 0; j < keys.size(); j++ )
 	hltParticles[0].push_back( objects[keys[j]].particle().p4() );
     } 
 
-    tag = InputTag( theHltCollectionLabels.back(), "", theHltProcessName );
-    filterIndex = triggerEventAod->filterIndex( tag );
-    if ( filterIndex < triggerEventAod->sizeFilters() ) {
-      const Keys &keys = triggerEventAod->filterKeys( filterIndex );
+    collectionTag = InputTag( theHltCollectionLabels.back(), "", 
+			      theHltProcessName );
+    filterIndex   = aodTriggerEvent->filterIndex( collectionTag );
+    if ( filterIndex < aodTriggerEvent->sizeFilters() ) {
+      const Keys &keys = aodTriggerEvent->filterKeys( filterIndex );
       for ( size_t j = 0; j < keys.size(); j++ )
 	hltParticles[1].push_back( objects[keys[j]].particle().p4() );
     } 
 
-   if ( l1Particles.size() == 0 || hltParticles[0].size() == 0 ) 
-     { LogDebug("HLTMuonVal"); return; }
-
+    // At this point, we should check whether the prescaled L1 and L2
+    // triggers actually fired, and exit if not.
+    if ( l1Particles.size() == 0 || hltParticles[0].size() == 0 ) 
+      { LogTrace("HLTMuonVal") << "L1 or L2 didn't fire"; return; }
+    
   } // Done getting AOD trigger summary
-
+  
   hNumObjects->getTH1()->AddBinContent( 3, l1Particles.size() );
 
-  for ( unsigned int i = 0; i < numHltLabels; i++ ) 
+  for ( size_t i = 0; i < numHltLabels; i++ ) 
     hNumObjects->getTH1()->AddBinContent( i + 4, hltParticles[i].size() );
 
   //////////////////////////////////////////////////////////////////////////
@@ -345,8 +339,8 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
     LorentzVector l1Cand = l1Particles[i];
     double eta           = l1Cand.eta();
     double phi           = l1Cand.phi();
-    // double ptLUT = l1Cand->pt();  // L1 pt is taken from a lookup table
-    // double pt    = ptLUT + 0.001; 
+    // L1 pt is taken from a lookup table
+    // double ptLUT      = l1Cand->pt();  
 
     double maxDeltaR = theL1DrCut;
     numL1Cands++;
@@ -367,17 +361,15 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
 
   } // End loop over l1Particles
 
-  if ( numL1Cands >= theNumberOfObjects ){
-    if ( genMuonPt > 0 ) hPassMaxPtGen[1]->Fill(genMuonPt);
-    if ( recMuonPt > 0 ) hPassMaxPtRec[1]->Fill(recMuonPt);
-  }
+  LogTrace("HLTMuonVal") << "Number of L1 Cands: " << numL1Cands;
 
   //////////////////////////////////////////////////////////////////////////
   // Loop through HLT candidates, matching to gen/reco muons
 
-  for ( size_t  i = 0; i < numHltLabels; i++ ) { 
+  vector<unsigned int> numHltCands( numHltLabels, 0) ;
 
-    unsigned int numFound = 0;
+  for ( size_t i = 0; i < numHltLabels; i++ ) { 
+
     int triggerLevel      = ( i < ( numHltLabels / 2 ) ) ? 2 : 3;
     double maxDeltaR      = ( triggerLevel == 2 ) ? theL2DrCut : theL3DrCut;
 
@@ -387,7 +379,7 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
       double eta            = hltCand.eta();
       double phi            = hltCand.phi();
 
-      numFound++;
+      numHltCands[i]++;
 
       if ( useMuonFromGenerator ){
 	int match = findGenMatch( eta, phi, maxDeltaR, genMatches );
@@ -407,14 +399,11 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
 	else hNumOrphansRec->getTH1F()->AddBinContent( i + 2 );
       }
 
-    }
+      LogTrace("HLTMuonVal") << "Number of L1 Cands: " << numHltCands[i];
 
-    if ( numFound >= theNumberOfObjects ){
-      if ( genMuonPt > 0 ) hPassMaxPtGen[i+2]->Fill( genMuonPt );
-      if ( recMuonPt > 0 ) hPassMaxPtRec[i+2]->Fill( recMuonPt );
-    }
+    } // End loop over HLT particles
 
-  } // End of loop over hltParticles
+  } // End loop over HLT labels
 
   //////////////////////////////////////////////////////////////////////////
   // Fill ntuple
@@ -486,6 +475,19 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
   //////////////////////////////////////////////////////////////////////////
   // Fill histograms
 
+  if ( genMuonPt > 0 ) hPassMaxPtGen[0]->Fill( genMuonPt );
+  if ( recMuonPt > 0 ) hPassMaxPtRec[0]->Fill( recMuonPt );
+  if ( numL1Cands >= theNumberOfObjects ) {
+    if ( genMuonPt > 0 ) hPassMaxPtGen[1]->Fill( genMuonPt );
+    if ( recMuonPt > 0 ) hPassMaxPtRec[1]->Fill( recMuonPt );
+  }
+  for ( size_t i = 0; i < numHltLabels; i++ ) {
+    if ( numHltCands[i] >= theNumberOfObjects ) {
+      if ( genMuonPt > 0 ) hPassMaxPtGen[i+2]->Fill( genMuonPt );
+      if ( recMuonPt > 0 ) hPassMaxPtRec[i+2]->Fill( recMuonPt );
+    }
+  }
+
   for ( size_t i = 0; i < genMatches.size(); i++ ) {
     double pt  = genMatches[i].genCand->pt();
     double eta = genMatches[i].genCand->eta();
@@ -528,8 +530,8 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
 
 
 
-const reco::Candidate* 
-HLTMuonGenericRate::findMother( const reco::Candidate* p ) 
+const reco::Candidate* HLTMuonGenericRate::
+findMother( const reco::Candidate* p ) 
 {
   const reco::Candidate* mother = p->mother();
   if ( mother ) {
@@ -541,9 +543,8 @@ HLTMuonGenericRate::findMother( const reco::Candidate* p )
 
 
 
-int 
-HLTMuonGenericRate::findGenMatch( double eta, double phi, double maxDeltaR,
-				  vector<MatchStruct> matches )
+int HLTMuonGenericRate::findGenMatch
+( double eta, double phi, double maxDeltaR, vector<MatchStruct> matches )
 {
   double bestDeltaR = maxDeltaR;
   int bestMatch = -1;
@@ -561,9 +562,8 @@ HLTMuonGenericRate::findGenMatch( double eta, double phi, double maxDeltaR,
 
 
 
-int 
-HLTMuonGenericRate::findRecMatch( double eta, double phi,  double maxDeltaR,
-				  vector<MatchStruct> matches )
+int HLTMuonGenericRate::findRecMatch
+( double eta, double phi,  double maxDeltaR, vector<MatchStruct> matches )
 {
   double bestDeltaR = maxDeltaR;
   int bestMatch = -1;
@@ -581,8 +581,7 @@ HLTMuonGenericRate::findRecMatch( double eta, double phi,  double maxDeltaR,
 
 
 
-void 
-HLTMuonGenericRate::begin() 
+void HLTMuonGenericRate::begin() 
 {
 
   TString myLabel, newFolder;
@@ -678,14 +677,14 @@ HLTMuonGenericRate::begin()
 
 
 
-MonitorElement* 
-HLTMuonGenericRate::bookIt(TString name, TString title, vector<double> params)
+MonitorElement* HLTMuonGenericRate::bookIt
+( TString name, TString title, vector<double> parameters )
 {
-  LogDebug("HLTMuonVal") << "Directory " << dbe_->pwd() << " Name " << 
+  LogTrace("HLTMuonVal") << "Directory " << dbe_->pwd() << " Name " << 
                             name << " Title:" << title;
-  int nBins  = (int)params[0];
-  double min = params[1];
-  double max = params[2];
+  int nBins  = (int)parameters[0];
+  double min = parameters[1];
+  double max = parameters[2];
   TH1F *h = new TH1F( name, title, nBins, min, max );
   h->Sumw2();
   return dbe_->book1D( name.Data(), h );
