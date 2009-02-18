@@ -46,11 +46,18 @@ void HcalExpertMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 
   
   if(fVerbosity) cout << "About to pushback fedUnpackList_" << endl;
-  firstFED_ = FEDNumbering::MINHCALFEDID;
-  cout <<"FIRST FED = "<<firstFED_<<endl;
 
-  for (int i=FEDNumbering::MINHCALFEDID; 
-       i<=FEDNumbering::MAXHCALFEDID; ++i) 
+  // Use this in CMSSW_2_2_X
+  firstFED_ = FEDNumbering::getHcalFEDIds().first;   
+  cout <<"FIRST FED = "<<firstFED_<<endl;
+  for (int i=FEDNumbering::getHcalFEDIds().first; i<=FEDNumbering::getHcalFEDIds().second; i++)
+
+    // Use this in CMSSW_3_0_X and above
+    //firstFED_ = FEDNumbering::MINHCALFEDID;
+    //cout <<"FIRST FED = "<<firstFED_<<endl;
+
+    //for (int i=FEDNumbering::MINHCALFEDID; 
+    //   i<=FEDNumbering::MAXHCALFEDID; ++i) 
     {
       if(fVerbosity) cout << "<HcalExpertMonitor::setup>:Pushback for fedUnpackList_: " << i <<endl;
       fedUnpackList_.push_back(i);

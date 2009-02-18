@@ -1,5 +1,6 @@
 #include "DQM/HcalMonitorTasks/interface/HcalDataFormatMonitor.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -101,11 +102,16 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
   baseFolder_ = rootFolder_+"DataFormatMonitor";
 
   if(fVerbosity) cout << "About to pushback fedUnpackList_" << endl;
-  firstFED_ = FEDNumbering::MINHCALFEDID;
-  for (int i=FEDNumbering::MINHCALFEDID; i<=FEDNumbering::MAXHCALFEDID; i++) {
-    if(fVerbosity) cout << "[DFMon:]Pushback for fedUnpackList_: " << i <<endl;
-    fedUnpackList_.push_back(i);
-  }
+  // Use this in CMSSW_2_2:
+  firstFED_ = FEDNumbering::getHcalFEDIds().first; 	  
+  for (int i=FEDNumbering::getHcalFEDIds().first; i<=FEDNumbering::getHcalFEDIds().second; i++)
+  // Use this in CMSSW_3_0 and above:
+  //firstFED_ = FEDNumbering::MINHCALFEDID;
+  //for (int i=FEDNumbering::MINHCALFEDID; i<=FEDNumbering::MAXHCALFEDID; i++) 
+    {
+      if(fVerbosity) cout << "[DFMon:]Pushback for fedUnpackList_: " << i <<endl;
+      fedUnpackList_.push_back(i);
+    }
 
   prtlvl_ = ps.getUntrackedParameter<int>("dfPrtLvl");
   dfmon_checkNevents = ps.getUntrackedParameter<int>("DataFormatMonitor_checkNevents",checkNevents_);
