@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoLocalTracker.SiStripClusterizer.ClusterizerUnitTestFunctions_cff import *
 
 ClusterizerDefaultGroup = ClusterizerTest( "Default Clusterizer Settings",
-                                           dict( channel=2, seed=3, cluster=5, hole=0, nBad=1, nAdj=0),
+                                           dict( channel=2, seed=3, cluster=5, hole=0, nBad=0, nAdj=1),
                                            [
     DetUnit( "Zero digis",
              [  ],
@@ -31,13 +31,8 @@ ClusterizerDefaultGroup = ClusterizerTest( "Default Clusterizer Settings",
              [ digi(  10, 110,  noise1, gain1, good),
                digi(  11, 110,  noise1, gain1,  bad),
                digi(  12, 100,  noise1, gain1, good) ],
-             [ cluster(  10, [110, 0, 100])
-               ] ),
-    DetUnit( "Three digis, middle is bad and below channel",
-             [ digi(  10, 110,  noise1, gain1, good),
-               digi(  11,   0,  noise1, gain1,  bad),
-               digi(  12, 100,  noise1, gain1, good) ],
-             [ cluster(  10, [110, 0, 100])
+             [ cluster(  10, [110, 0]),
+               cluster(  11, [0, 100])
                ] ),
     DetUnit( "Three digis, middle is below channel",
              [ digi(  10, 110,  noise1, gain1, good),
