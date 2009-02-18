@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 import DPGAnalysis.Skims.HCALHighEnergyCombinedPath_cff
 
-process = cms.Process("USER")
+process = cms.Process("SKIM")
 
 process.extend(DPGAnalysis.Skims.HCALHighEnergyCombinedPath_cff)
 
@@ -25,7 +25,7 @@ process.maxEvents = cms.untracked.PSet(
     )
 
 process.out = cms.OutputModule("PoolOutputModule",
-                               outputCommands = cms.untracked.vstring('keep *'),
+                               outputCommands = cms.untracked.vstring('keep *','drop *_MEtoEDMConverter_*_*'),
                                SelectEvents = cms.untracked.PSet(
     SelectEvents = cms.vstring("HCALHighEnergyPath")
     ),

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("USER")
+process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.5 $'),
@@ -14,12 +14,10 @@ process.configurationMetadata = cms.untracked.PSet(
 #
 #
 process.source = cms.Source("PoolSource",
-                           fileNames = cms.untracked.vstring(
-           '/store/data/Commissioning08/Cosmics/RECO/v1/000/067/122/D424EBA5-55A0-DD11-A8BF-000423D9853C.root',
-                  '/store/data/Commissioning08/Cosmics/RECO/v1/000/067/122/C67EDF0D-49A0-DD11-9403-001617DBD332.root'),
-                           secondaryFileNames = cms.untracked.vstring(
-           '/store/data/Commissioning08/Cosmics/RAW/v1/000/067/122/6E2601EC-3FA0-DD11-BA50-000423D986A8.root',
-                  '/store/data/Commissioning08/Cosmics/RAW/v1/000/067/122/C240B0B2-47A0-DD11-A6AD-001617C3B654.root')
+                            fileNames = cms.untracked.vstring(
+  '/store/data/Commissioning08/Cosmics/RECO/CRAFT_ALL_V9_225-v1/0002/0A12CE23-D7F9-DD11-819E-00E081348D21.root'),
+                            secondaryFileNames = cms.untracked.vstring(
+        '/store/data/Commissioning08/Cosmics/RAW/v1/000/069/578/085EFED4-E5AB-DD11-9ACA-001617C3B6FE.root')
                             )
 
 process.maxEvents = cms.untracked.PSet(
@@ -33,7 +31,7 @@ process.maxEvents = cms.untracked.PSet(
 process.load("Configuration/StandardSequences/Geometry_cff")
 process.load("Configuration/StandardSequences/MagneticField_cff")
 process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'CRAFT_V4P::All' 
+process.GlobalTag.globaltag = 'CRAFT_ALL_V9::All' 
 process.prefer("GlobalTag")
 process.load("Configuration/StandardSequences/RawToDigi_Data_cff")
 process.load("Configuration/StandardSequences/ReconstructionCosmics_cff")
@@ -52,7 +50,7 @@ process.mySkim = cms.Path(process.cscSkim)
 #### output 
 process.outputSkim = cms.OutputModule(
     "PoolOutputModule",
-    outputCommands = cms.untracked.vstring('keep *'),
+    outputCommands = cms.untracked.vstring('keep *','drop *_MEtoEDMConverter_*_*'),
     fileName = cms.untracked.string("cscskimEvents.root"),
     dataset = cms.untracked.PSet(
       dataTier = cms.untracked.string('RAW-RECO'),
@@ -63,4 +61,3 @@ process.outputSkim = cms.OutputModule(
 
 process.outpath = cms.EndPath(process.outputSkim)
 
-#
