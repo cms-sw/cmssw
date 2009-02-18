@@ -3,15 +3,13 @@
  *  method, the vertex constraint. The vertex constraint is applyed using the Kalman Filter tools used for 
  *  the vertex reconstruction.
  *
- *  $Date: 2008/08/08 14:34:54 $
- *  $Revision: 1.34 $
+ *  $Date: 2008/08/11 13:13:29 $
+ *  $Revision: 1.35 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
 #include "RecoMuon/TrackingTools/interface/MuonUpdatorAtVertex.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
-
-#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
@@ -31,20 +29,9 @@ using namespace std;
 /// Constructor
 MuonUpdatorAtVertex::MuonUpdatorAtVertex(const edm::ParameterSet& pset,
 					 const MuonServiceProxy *service):theService(service){
-  
-  // FIXME
-  // The SteppingHelixPropagator must be used explicitly since the method propagate(TSOS,GlobalPoint)
-  // is only in its specific interface. Once the interface of the Propagator base class  will be
-  // updated, then thePropagator will become generic. The string and the MuonServiceProxy are used
-  // in order to make more simpler and faster the future transition.
-  
+   
   thePropagatorName = pset.getParameter<string>("Propagator");
-  thePropagator = 0;
-  
-  // FIXME
-  // remove the flag as the Propagator base class will gains the propagate(TSOS,Position) method
-  theFirstTime = true;
-  
+    
   // Position of the beam spot
   vector<double> position = pset.getParameter< vector<double> >("BeamSpotPosition");
   if(position.size() != 3) 
@@ -82,68 +69,40 @@ MuonUpdatorAtVertex::MuonUpdatorAtVertex(const edm::ParameterSet& pset,
 }
 
 /// Destructor
-MuonUpdatorAtVertex::~MuonUpdatorAtVertex(){
-  if (thePropagator) delete thePropagator;
-}
+MuonUpdatorAtVertex::~MuonUpdatorAtVertex(){}
 
 // Operations
 
+// /// Propagate the state to the vertex
+// pair<bool,FreeTrajectoryState>
+// MuonUpdatorAtVertex::propagate(const TrajectoryStateOnSurface &tsos, 
+// 			       const GlobalPoint &vtxPosition) const{
 
-/////////
-// FIXME!!! remove this method as the Propagator will gains the propagate(TSOS,Position) method
-// remove the flag as well
-void MuonUpdatorAtVertex::setPropagator(){
-  const string metname = "Muon|RecoMuon|MuonUpdatorAtVertex";
-  
-  if(theFirstTime ||
-     theService->isTrackingComponentsRecordChanged()){
-    if(thePropagator) delete thePropagator;
-    Propagator *propagator = &*theService->propagator(thePropagatorName)->clone();
-    thePropagator = dynamic_cast<SteppingHelixPropagator*>(propagator);  
-    theFirstTime = false;
+//   const string metname = "Muon|RecoMuon|MuonUpdatorAtVertex";
 
-    LogTrace(metname) << " MuonUpdatorAtVertex::setPropagator: propagator changed!";
-  }
-  
-}
-///////////
+//   pair<FreeTrajectoryState,double> 
+//     result = theService->propagator(thePropagatorName)->propagateWithPath(*tsos.freeState(),vtxPosition);
 
-/// Propagate the state to the vertex
-// FIXME it is const. It will be when setPropagator() will be removed
-pair<bool,FreeTrajectoryState>
-MuonUpdatorAtVertex::propagate(const TrajectoryStateOnSurface &tsos, 
-			       const GlobalPoint &vtxPosition){
+//   LogTrace(metname) << "MuonUpdatorAtVertex::propagate, path: "
+// 		    << result.second << " parameters: " << result.first.parameters();
 
-  const string metname = "Muon|RecoMuon|MuonUpdatorAtVertex";
-
-  setPropagator();
-  //  return thePropagator->propagate(*tsos.freeState(),vtxPosition);
-  pair<FreeTrajectoryState,double> 
-    result = thePropagator->propagateWithPath(*tsos.freeState(),vtxPosition);
-
-  LogTrace(metname) << "MuonUpdatorAtVertex::propagate, path: "
-		    << result.second << " parameters: " << result.first.parameters();
-
-  if( result.first.hasError()) 
-    return pair<bool,FreeTrajectoryState>(true,result.first);
-  else{
-    edm::LogInfo(metname) << "Propagation to the PCA failed!";
+//   if( result.first.hasError()) 
+//     return pair<bool,FreeTrajectoryState>(true,result.first);
+//   else{
+//     edm::LogInfo(metname) << "Propagation to the PCA failed!";
     
-    // FIXME: returns FreeTrajectoryState() instead of result.first?
-    return pair<bool,FreeTrajectoryState>(false,result.first);
-  }
-}
+//     // FIXME: returns FreeTrajectoryState() instead of result.first?
+//     return pair<bool,FreeTrajectoryState>(false,result.first);
+//   }
+// }
 
 
 /// Propagate the state to the PCA in 2D, i.e. to the beam line
-// FIXME it is const. It will be when setPropagator() will be removed
 pair<bool,FreeTrajectoryState>
-MuonUpdatorAtVertex::propagate(const TrajectoryStateOnSurface &tsos, const reco::BeamSpot & beamSpot){
+MuonUpdatorAtVertex::propagate(const TrajectoryStateOnSurface &tsos, const reco::BeamSpot & beamSpot) const{
 
   const string metname = "Muon|RecoMuon|MuonUpdatorAtVertex";
-
-  setPropagator();
-  
+ 
   if(TrackerBounds::isInside(tsos.globalPosition())){
     LogTrace(metname) << "Trajectory inside the Tracker";
 
@@ -161,7 +120,7 @@ MuonUpdatorAtVertex::propagate(const TrajectoryStateOnSurface &tsos, const reco:
     LogTrace(metname) << "Trajectory inside the muon system";
 
     FreeTrajectoryState
-      result = thePropagator->propagate(*tsos.freeState(),beamSpot);
+      result =  theService->propagator(thePropagatorName)->propagate(*tsos.freeState(),beamSpot);
     
     LogTrace(metname) << "MuonUpdatorAtVertex::propagate, path: "
 		      << result << " parameters: " << result.parameters();
@@ -175,15 +134,12 @@ MuonUpdatorAtVertex::propagate(const TrajectoryStateOnSurface &tsos, const reco:
 }
 
 
-// FIXME it is const. It will be when setPropagator() will be removed
 pair<bool,FreeTrajectoryState>
-MuonUpdatorAtVertex::update(const reco::TransientTrack & track, const reco::BeamSpot & beamSpot){
+MuonUpdatorAtVertex::update(const reco::TransientTrack & track, const reco::BeamSpot & beamSpot) const{
 
   const std::string metname = "Muon|RecoMuon|MuonUpdatorAtVertex";
     
-  // FIXME
-  setPropagator();
-
+  
   pair<bool,FreeTrajectoryState> result(false,FreeTrajectoryState());
   
   SingleTrackVertexConstraint::TrackFloatPair constrainedTransientTrack;
@@ -209,42 +165,38 @@ MuonUpdatorAtVertex::update(const reco::TransientTrack & track, const reco::Beam
 }
 
 pair<bool,FreeTrajectoryState>
-MuonUpdatorAtVertex::update(const FreeTrajectoryState& ftsAtVtx, const reco::BeamSpot & beamSpot){
+MuonUpdatorAtVertex::update(const FreeTrajectoryState& ftsAtVtx, const reco::BeamSpot & beamSpot) const{
   
   return update(theTransientTrackFactory.build(ftsAtVtx),beamSpot);
 }
 
 
 
-pair<bool,FreeTrajectoryState>
-MuonUpdatorAtVertex::propagateWithUpdate(const TrajectoryStateOnSurface &tsos, 
-					 const GlobalPoint &vtxPosition,
-					 const reco::BeamSpot & beamSpot){
+// pair<bool,FreeTrajectoryState>
+// MuonUpdatorAtVertex::propagateWithUpdate(const TrajectoryStateOnSurface &tsos, 
+// 					 const GlobalPoint &vtxPosition,
+// 					 const reco::BeamSpot & beamSpot) const{
   
-  pair<bool,FreeTrajectoryState>
-    propagationResult = propagate(tsos,vtxPosition);
+//   pair<bool,FreeTrajectoryState>
+//     propagationResult = propagate(tsos,vtxPosition);
 
-  if(propagationResult.first){
-    // FIXME!!!
-    // This is very very temporary! Waiting for the changes in the KalmanVertexFitter interface
-    return update(propagationResult.second, beamSpot);
-  }
-  else{
-    edm::LogInfo("Muon|RecoMuon|MuonUpdatorAtVertex") << "Constraint at vertex failed";
-    return pair<bool,FreeTrajectoryState>(false,FreeTrajectoryState());
-  }
-}
+//   if(propagationResult.first){
+//      return update(propagationResult.second, beamSpot);
+//   }
+//   else{
+//     edm::LogInfo("Muon|RecoMuon|MuonUpdatorAtVertex") << "Constraint at vertex failed";
+//     return pair<bool,FreeTrajectoryState>(false,FreeTrajectoryState());
+//   }
+// }
 
 
 pair<bool,FreeTrajectoryState>
-MuonUpdatorAtVertex::propagateWithUpdate(const TrajectoryStateOnSurface &tsos, const reco::BeamSpot & beamSpot){
+MuonUpdatorAtVertex::propagateWithUpdate(const TrajectoryStateOnSurface &tsos, const reco::BeamSpot & beamSpot) const{
   
   pair<bool,FreeTrajectoryState>
     propagationResult = propagate(tsos,beamSpot);
 
   if(propagationResult.first){
-    // FIXME!!!
-    // This is very very temporary! Waiting for the changes in the KalmanVertexFitter interface
     return update(propagationResult.second, beamSpot);
   }
   else{
@@ -255,11 +207,9 @@ MuonUpdatorAtVertex::propagateWithUpdate(const TrajectoryStateOnSurface &tsos, c
 
 
  std::pair<bool,FreeTrajectoryState>
- MuonUpdatorAtVertex::propagateToNominalLine(const TrajectoryStateOnSurface &tsos){
+ MuonUpdatorAtVertex::propagateToNominalLine(const TrajectoryStateOnSurface &tsos) const{
    
    const string metname = "Muon|RecoMuon|MuonUpdatorAtVertex";
-   
-   setPropagator();
    
    if(TrackerBounds::isInside(tsos.globalPosition())){
      LogTrace(metname) << "Trajectory inside the Tracker";
@@ -268,8 +218,7 @@ MuonUpdatorAtVertex::propagateWithUpdate(const TrajectoryStateOnSurface &tsos, c
      TrajectoryStateClosestToPoint tscp = tscpBuilder(*(tsos.freeState()),
 						     GlobalPoint(0.,0.,0.));
     
-    // FIXME: check if the tscp is valid or not!!
-    if(tscp.hasError())
+    if(tscp.isValid())
       return pair<bool,FreeTrajectoryState>(true,tscp.theState());
     else
       edm::LogWarning(metname) << "Propagation to the PCA using TSCPBuilderNoMaterial failed!"
@@ -283,7 +232,7 @@ MuonUpdatorAtVertex::propagateWithUpdate(const TrajectoryStateOnSurface &tsos, c
     GlobalPoint p2(0.,0.,1500);
     
     pair<FreeTrajectoryState,double> 
-      result = thePropagator->propagateWithPath(*tsos.freeState(),p1,p2);
+      result = theService->propagator(thePropagatorName)->propagateWithPath(*tsos.freeState(),p1,p2);
     
     LogTrace(metname) << "MuonUpdatorAtVertex::propagate, path: "
 		      << result.second << " parameters: " << result.first.parameters();
@@ -293,12 +242,10 @@ MuonUpdatorAtVertex::propagateWithUpdate(const TrajectoryStateOnSurface &tsos, c
     else
       edm::LogInfo(metname) << "Propagation to the PCA failed! Path: "<<result.second;
   }
-  return pair<bool,FreeTrajectoryState>(false,FreeTrajectoryState());
-
-   
+  return pair<bool,FreeTrajectoryState>(false,FreeTrajectoryState());  
 }
 
 std::pair<bool,FreeTrajectoryState>
-MuonUpdatorAtVertex::propagate(const TrajectoryStateOnSurface &tsos){
+MuonUpdatorAtVertex::propagate(const TrajectoryStateOnSurface &tsos) const{
   return propagateToNominalLine(tsos);
 }
