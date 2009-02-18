@@ -96,7 +96,7 @@ int main(int argc, char * argv[]){
   int o;
   char* endPtr;
   char* pdf("analysis_Z_133pb_trackIso_3.root");
-  double yield(50550.0), effTrk(.998364), effSa(.989626),effHlt(.915496), effIso(.978575);
+  double yield(50550.0), effTrk(.998364), effSa(.989626),effHlt(.915496), effIso(.978575),factor(1.0);
   double slopeMuTk(.015556), a0MuTk(.00035202), a1MuTk(2.99663), a2MuTk(-0.0211138);
   double slopeMuMuNonIso(.0246876),a0MuMuNonIso(.884777), a1MuMuNonIso(6.67684), a2MuMuNonIso(-0.0523693);
   BkgShape zMuTkBkgPdf(60., 120., slopeMuTk, a0MuTk, a1MuTk, a2MuTk);
@@ -104,7 +104,7 @@ int main(int argc, char * argv[]){
  
   int expt(1), seed(1);
 
-  while ((o = getopt(argc, argv,"p:n:s:y:T:S:H:I:h"))!=EOF) {
+  while ((o = getopt(argc, argv,"p:n:s:y:f:T:S:H:I:h"))!=EOF) {
     switch(o) {
     case 'p':
       pdf  = optarg;
@@ -117,6 +117,9 @@ int main(int argc, char * argv[]){
       break;
     case 'y':
       yield = strtoul(optarg,&endPtr,0);
+      break;
+    case 'f':
+      factor = strtoul(optarg,&endPtr,0);
       break;
     case 'T':
       effTrk  = strtod(optarg,&endPtr);
@@ -131,7 +134,7 @@ int main(int argc, char * argv[]){
       effIso  = strtod(optarg,&endPtr);
       break;
     case 'h':
-      cout<< " -p : input root file for pdf"<<endl <<" -n : number of experiment (default 1)"<<endl <<" -s : seed for generator (default 1)"<<endl <<" -T : efficiency of track (default 0.9984)"<<endl <<" -S : efficiency of standAlone(default 0.9896)"<< endl <<" -I : efficiency of Isolation (default 0.9786)" << endl << " -H : efficiency of HLT (default 0.9155)" <<endl << " -y : yield (default 50550)"<<endl;
+      cout<< " -p : input root file for pdf"<<endl <<" -n : number of experiment (default 1)"<<endl <<" -s : seed for generator (default 1)"<<endl <<" -T : efficiency of track (default 0.9984)"<<endl <<" -S : efficiency of standAlone(default 0.9896)"<< endl <<" -I : efficiency of Isolation (default 0.9786)" << endl << " -H : efficiency of HLT (default 0.9155)" <<endl << " -y : yield (default 50550)"<<" -f : scaling_factor for bkg (default 1.0)"<<endl;
       break;
     default:
       break;
@@ -144,13 +147,13 @@ int main(int argc, char * argv[]){
   TFile *inputfile = new TFile(pdf);
   TH1F *pdfzmm = (TH1F*)inputfile->Get("goodZToMuMuPlots/zMass");//pdf signal Zmumu(1hlt,2hlt), ZMuMunotIso, ZmuTk
   TH1F *pdfzmsa = (TH1F*)inputfile->Get("zmumuSaMassHistogram/zMass");//pdf signal ZmuSa
-  double NzMumuNoIsobkg = zMuMuNonIsoBkgPdf.integral();
-  double NzMutkbkg = zMuTkBkgPdf.integral();
+  double IntegralzmumuNoIsobkg =factor * ( zMuMuNonIsoBkgPdf.integral());
+  double Integralzmutkbkg =factor * (zMuTkBkgPdf.integral());
 
   for(int j = 1; j <=expt; ++j){//loop on number of experiments  
     int N0 = eventGenerator->Poisson(yield);
-    int nMuTkBkg = eventGenerator->Poisson(NzMutkbkg);
-    int nMuMuNonIsoBkg = eventGenerator->Poisson(NzMumuNoIsobkg);
+    int nMuTkBkg = eventGenerator->Poisson(Integralzmutkbkg);
+    int nMuMuNonIsoBkg = eventGenerator->Poisson(IntegralzmumuNoIsobkg);
     int Nmumu = 0;
     int N2HLT = 0;
     int N1HLT = 0;
