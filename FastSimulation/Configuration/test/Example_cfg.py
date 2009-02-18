@@ -48,7 +48,7 @@ process.famosSimHits.SimulateTracking = True
 # process.famosSimHits.SimulateMuons = False
 
 # Produce Tracks and Clusters
-process.p1 = cms.Path(process.famosWithTracksAndEcalClusters)
+process.p1 = cms.Path(process.famosWithElectrons)
 
 # To write out events (not need: FastSimulation _is_ fast!)
 process.o1 = cms.OutputModule(
@@ -61,9 +61,10 @@ process.o1 = cms.OutputModule(
 process.outpath = cms.EndPath(process.o1)
 
 # Keep the logging output to a nice level #
-# process.Timing =  cms.Service("Timing")
-# process.load("FWCore/MessageService/MessageLogger_cfi")
-# process.MessageLogger.destinations = cms.untracked.vstring("pyDetailedInfo.txt")
+
+process.Timing =  cms.Service("Timing")
+process.load("FWCore/MessageService/MessageLogger_cfi")
+process.MessageLogger.destinations = cms.untracked.vstring("pyDetailedInfo.txt")
 
 # Make the job crash in case of missing product
 process.options = cms.untracked.PSet( Rethrow = cms.untracked.vstring('ProductNotFound') )
