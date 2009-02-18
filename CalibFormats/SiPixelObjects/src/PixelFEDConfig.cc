@@ -58,6 +58,7 @@ PixelFEDConfig::PixelFEDConfig(std::vector<std::vector<std::string> >& tableMat 
 	     }
 	 }
      }//end for
+   /*
    for(unsigned int n=0; n<colNames.size(); n++)
      {
        if(colM.find(colNames[n]) == colM.end())
@@ -66,7 +67,8 @@ PixelFEDConfig::PixelFEDConfig(std::vector<std::vector<std::string> >& tableMat 
 	   assert(0);
 	 }
      }
-   
+   */
+
    std::string fedname = "";
    unsigned int fednum = 0;
    fedconfig_.clear();

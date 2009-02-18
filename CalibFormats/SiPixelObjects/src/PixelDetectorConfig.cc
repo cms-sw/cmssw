@@ -51,13 +51,15 @@ PixelDetectorConfig::PixelDetectorConfig(std::vector< std::vector < std::string>
       }
     }
   }//end for
+
+  /*
   for(unsigned int n=0; n<colNames.size(); n++){
     if(colM.find(colNames[n]) == colM.end()){
       std::cerr << __LINE__ << mthn << "Couldn't find in the database the column with name " << colNames[n] << std::endl;
       assert(0);
     }
   }
-  
+  */
 
   modules_.clear();
   rocs_.clear() ;
@@ -79,7 +81,6 @@ PixelDetectorConfig::PixelDetectorConfig(std::vector< std::vector < std::string>
       }
       rocs_[roc]=rocstatus;
       if (!rocstatus.get(PixelROCStatus::noInit)){
-
         PixelModuleName module(tableMat[r][colM["ROC_NAME"]]);
         if (!containsModule(module)) {
           modules_.push_back(module);
@@ -87,7 +88,7 @@ PixelDetectorConfig::PixelDetectorConfig(std::vector< std::vector < std::string>
       }
   }//end for r
 
-  std::cout << __LINE__ << mthn << "Number of Modules in Detector Configuration Class: " << getNModules() << std::endl;
+//   std::cout << __LINE__ << mthn << "Number of Modules in Detector Configuration Class: " << getNModules() << std::endl;
 
 }//end constructor
 

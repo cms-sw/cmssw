@@ -55,6 +55,7 @@ PixelFECConfig::PixelFECConfig(std::vector<std::vector<std::string> >& tableMat 
 	 }
        }
    }//end for
+ /*
  for(unsigned int n=0; n<colNames.size(); n++)
    {
      if(colM.find(colNames[n]) == colM.end()){
@@ -62,6 +63,7 @@ PixelFECConfig::PixelFECConfig(std::vector<std::vector<std::string> >& tableMat 
        assert(0);
      }
    }
+ */
 
  fecconfig_.clear();
  for(unsigned int r = 1 ; r < tableMat.size() ; r++)    //Goes to every row of the Matrix

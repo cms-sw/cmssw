@@ -65,6 +65,7 @@ PixelPortcardMap::PixelPortcardMap(std::vector< std::vector < std::string> > &ta
 	    }
 	}
     }//end for
+  /*
   for(unsigned int n=0; n<colNames.size(); n++)
     {
       if(colM.find(colNames[n]) == colM.end())
@@ -74,7 +75,7 @@ PixelPortcardMap::PixelPortcardMap(std::vector< std::vector < std::string> > &ta
 	  assert(0);
 	}
     }
-  
+  */
 	
 	
   std::string portcardname;

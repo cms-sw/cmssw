@@ -63,6 +63,7 @@ PixelTKFECConfig::PixelTKFECConfig(std::vector<std::vector<std::string> >& table
 	    }
 	}
     }//end for
+  /*
   for(unsigned int n=0; n<colNames.size(); n++)
     {
       if(colM.find(colNames[n]) == colM.end())
@@ -71,7 +72,8 @@ PixelTKFECConfig::PixelTKFECConfig(std::vector<std::vector<std::string> >& table
 	  assert(0);
 	}
     }
-  
+  */
+
   for(unsigned int r = 1 ; r < tableMat.size() ; r++)    //Goes to every row of the Matrix
     {
       std::string TKFECID  = tableMat[r][colM["TRKFEC_NAME"]] ;
@@ -81,7 +83,7 @@ PixelTKFECConfig::PixelTKFECConfig(std::vector<std::vector<std::string> >& table
       PixelTKFECParameters tmp;
       tmp.setTKFECParameters(TKFECID , crate , type, address);
       TKFECconfig_.push_back(tmp);
-      cout << "[PixelTKFECConfig::PixelTKFECConfig()]\tID: " << TKFECID << " crate: " << crate << " address: " << address << endl;
+      //      cout << "[PixelTKFECConfig::PixelTKFECConfig()]\tID: " << TKFECID << " crate: " << crate << " address: " << address << endl;
     }
 }// end contructor
 
