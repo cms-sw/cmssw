@@ -852,10 +852,12 @@ static bool hwgive(const std::string &paramString)
 	else if (!std::strncmp(param, "VTOCDK(", 7)){
 		// we find the index ...
 		int ind = std::atoi(&param[7]);
-		hwprop.VTOCDK[ind] = std::atoi(&param[std::strcspn(param, "=") + 1]);} else if (!std::strncmp(param, "VTORDK(", 7)){
+		hwprop.VTOCDK[ind] = std::atoi(&param[std::strcspn(param, "=") + 1]);
+	} else if (!std::strncmp(param, "VTORDK(", 7)){
 		// we find the index ...
 		int ind = std::atoi(&param[7]);
-		hwprop.VTORDK[ind] = std::atoi(&param[std::strcspn(param, "=") + 1]);} else if (!std::strncmp(param, "PIPSMR", 6))
+		hwprop.VTORDK[ind] = std::atoi(&param[std::strcspn(param, "=") + 1]);
+	} else if (!std::strncmp(param, "PIPSMR", 6))
 		hwdist.PIPSMR = std::atoi(&param[std::strcspn(param, "=") + 1]);
 	else if (!std::strncmp(param, "VIPWID(1)", 9))
 		hw6202.VIPWID[0] = std::atof(&param[std::strcspn(param, "=") + 1]);
