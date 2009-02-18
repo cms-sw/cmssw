@@ -68,7 +68,8 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            PedestalMonitor_endingTimeSlice              = cms.untracked.int32(1),
                            PedestalMonitor_minErrorFlag                 = cms.untracked.double(0.05),
                            PedestalMonitor_checkNevents                 = cms.untracked.int32(1000),
-                           PedestalMonitor_minEntriesPerPed = cms.untracked.uint32(10),
+                           PedestalMonitor_minEntriesPerPed             = cms.untracked.uint32(100),
+                           PedestalMonitor_makeDiagnosticPlots          = cms.untracked.bool(False),
 
                            # DEAD CELL MONITOR
                            DeadCellMonitor                              = cms.untracked.bool(True),
@@ -353,6 +354,8 @@ def setHcalTaskValues(process):
     process.HotCellMonitor_makeDiagnosticPlots  = makeDiagnosticPlots
     process.RecHitMonitor_makeDiagnosticPlots   = makeDiagnosticPlots
     process.TrigPrimMonitor_makeDiagnosticPlots = makeDiagnosticPlots
+    process.PedestalMonitor_makeDiagnosticPlots = makeDiagnosticPlots
+
     return
 
 
