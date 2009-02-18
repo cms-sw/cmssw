@@ -29,9 +29,9 @@ class L1GctJetFinderParams
   unsigned getCenForJetEtaBoundary() { return cenForJetEtaBoundary_; }
 
   // get integers
-  unsigned getCenJetSeedRank() { return static_cast<unsigned>(cenJetSeed_/rgnEtLsb_); }
-  unsigned getForJetSeedRank() { return static_cast<unsigned>(forJetSeed_/rgnEtLsb_); }
-  unsigned getTauJetSeedRank() { return static_cast<unsigned>(tauJetSeed_/rgnEtLsb_); }
+  unsigned getCenJetSeedRank() { return static_cast<unsigned>(cenJetEtSeed_/rgnEtLsb_); }
+  unsigned getForJetSeedRank() { return static_cast<unsigned>(forJetEtSeed_/rgnEtLsb_); }
+  unsigned getTauJetSeedRank() { return static_cast<unsigned>(tauJetEtSeed_/rgnEtLsb_); }
   unsigned getTauIsoThreshRank() { return static_cast<unsigned>(tauIsoEtThreshold_/rgnEtLsb_); }
   unsigned getHtJetThreshRank() { return static_cast<unsigned>(htJetEtThreshold_/htLsb_); }
   unsigned getMHtJetThreshRank() { return static_cast<unsigned>(mhtJetEtThreshold_/htLsb_); }
