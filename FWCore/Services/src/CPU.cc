@@ -30,33 +30,34 @@
 
 namespace edm {
   namespace service {
+    namespace {
 
-    static std::string i2str(int i){
+      std::string i2str(int i){
 	std::ostringstream t;
 	t << i;
 	return t.str();
-    }
+      }
 
-    static std::string d2str(double d){
+      std::string d2str(double d){
 	std::ostringstream t;
 	t << d;
 	return t.str();
-    }
+      }
 
-    static double str2d(std::string s){
+      double str2d(std::string s){
 	return atof(s.c_str());
-    }
+      }
 
-    static int str2i(std::string s){
+      int str2i(std::string s){
 	return atoi(s.c_str());
-    }
+      }
 
-    static void trim(std::string& s, const std::string& drop = " \t") {
+      void trim(std::string& s, const std::string& drop = " \t") {
         s = s.erase(s.find_last_not_of(drop)+1);
         s = s.erase(0, s.find_first_not_of(drop));
-    }
+      }
 
-    static std::string eraseExtraSpaces(std::string s) {
+      std::string eraseExtraSpaces(std::string s) {
 	bool founded = false; 
 	std::string aux;
         for(std::string::const_iterator iter = s.begin(); iter != s.end(); iter++){
@@ -73,7 +74,8 @@ namespace edm {
 		}
 	}
 	return aux;
-    }
+      }
+    } // namespace {}
 
 
     CPU::CPU(const ParameterSet& iPS, ActivityRegistry&iRegistry):
