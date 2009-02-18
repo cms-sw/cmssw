@@ -77,8 +77,7 @@ private:
   void RecHitInfo(const SiStripRecHit2D* tkrecHit, LocalVector LV,reco::TrackRef track_ref, const edm::EventSetup&);
   // fill monitorables 
   void fillModMEs(SiStripClusterInfo*,TString,float);
-  void fillTrendMEs(SiStripClusterInfo*,std::string,float,std::string);
-  void fillTrend(MonitorElement* ME,float value1);
+  void fillMEs(SiStripClusterInfo*,std::string,float,std::string);
   inline void fillME(MonitorElement* ME,float value1){if (ME!=0)ME->Fill(value1);}
   inline void fillME(MonitorElement* ME,float value1,float value2){if (ME!=0)ME->Fill(value1,value2);}
   inline void fillME(MonitorElement* ME,float value1,float value2,float value3){if (ME!=0)ME->Fill(value1,value2,value3);}
@@ -92,7 +91,8 @@ private:
   std::string histname; 
   TString name;
   LocalVector LV;
-
+  float iOrbitSec;
+  
   struct ModMEs{
     ModMEs():  
       ClusterStoN(0),

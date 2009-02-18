@@ -4,6 +4,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
+#include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
@@ -85,6 +86,7 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
   countOn=0;
   countOff=0;
   
+  iOrbitSec = e.orbitNumber()/11223.0;
   e.getByLabel( Cluster_src_, dsv_SiStripCluster); 
   
   // track input  
@@ -137,8 +139,9 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
 	}else if(flags[j]=="OffTrack"){
 	  fillME(   iLayerME->second.nClusters,      NClus[i][j]);
 	}
-	if(Trend_On_)
-	  fillTrend(iLayerME->second.nClustersTrend, NClus[i][j]);
+	if(Trend_On_){
+	  fillME(iLayerME->second.nClustersTrend,iOrbitSec,NClus[i][j]);
+	}
       }
       nTot+=NClus[i][j];
       NClus[i][j]=0;
@@ -149,7 +152,9 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
     if(iME!=MEMap.end() && nTot) iME->second->Fill(nTot);
     if(Trend_On_){
       iME = MEMap.find(name+"Trend");
-      if(iME!=MEMap.end()) fillTrend(iME->second,nTot);
+      if(iME!=MEMap.end()){
+	fillME(iME->second,iOrbitSec,nTot);
+      }
     }
   } // loop over ontrack, offtrack
   
@@ -158,7 +163,6 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
 //------------------------------------------------------------------------  
 void SiStripMonitorTrack::book() 
 {
-  
   std::vector<uint32_t> vdetId_;
   SiStripDetCabling_->addActiveDetectorsRawIds(vdetId_);
   //Histos for each detector, layer and module
@@ -266,44 +270,9 @@ void SiStripMonitorTrack::bookModMEs(TString name, uint32_t id)//Histograms at M
 
 void SiStripMonitorTrack::bookTrendMEs(TString name,int32_t layer,uint32_t id,std::string flag)//Histograms and Trends at LAYER LEVEL
 {
-  char rest[1024];
-  int subdetid = ((id>>25)&0x7);
-  if(       subdetid==3 ){
-  // ---------------------------  TIB  --------------------------- //
-    TIBDetId tib1 = TIBDetId(id);
-    sprintf(rest,"TIB__layer__%d",tib1.layer());
-  }else if( subdetid==4){
-  // ---------------------------  TID  --------------------------- //
-    TIDDetId tid1 = TIDDetId(id);
-    sprintf(rest,"TID__side__%d__wheel__%d",tid1.side(),tid1.wheel());
-  }else if( subdetid==5){
-  // ---------------------------  TOB  --------------------------- //
-    TOBDetId tob1 = TOBDetId(id);
-    sprintf(rest,"TOB__layer__%d",tob1.layer());
-  }else if( subdetid==6){
-  // ---------------------------  TEC  --------------------------- //
-    TECDetId tec1 = TECDetId(id);
-    sprintf(rest,"TEC__side__%d__wheel__%d",tec1.side(),tec1.wheel());
-  }else{
-  // ---------------------------  ???  --------------------------- //
-    edm::LogError("SiStripTkDQM|WrongInput")<<"no such subdetector type :"<<subdetid<<" no folder set!"<<std::endl;
-    return;
-  }
-  
-  if(flag_ring){
-    if( subdetid==4){
-      // ---------------------------  TID  --------------------------- //
-      TIDDetId tid1 = TIDDetId(id);
-      sprintf(rest,"TID__side__%d__ring__%d",tid1.side(),tid1.ring());
-    }else if( subdetid==6){
-      // ---------------------------  TEC  --------------------------- //
-      TECDetId tec1 = TECDetId(id);
-      sprintf(rest,"TEC__side__%d__ring__%d",tec1.side(),tec1.ring());
-    }
-  }
-
 
   SiStripHistoId hidmanager;
+  std::string rest = hidmanager.getSubdetid(id,flag_ring);
   std::string hid = hidmanager.createHistoLayer("",name.Data(),rest,flag);
   std::map<TString, LayerMEs>::iterator iLayerME  = LayerMEsMap.find(TString(hid));
   if(iLayerME==LayerMEsMap.end()){
@@ -526,10 +495,10 @@ MonitorElement* SiStripMonitorTrack::bookMETrend(const char* ParameterSetLabel, 
 					Parameters.getParameter<double>("xmin"),
 					Parameters.getParameter<double>("xmax"),
 					"" );
+  if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) me->getTH1()->SetBit(TH1::kCanRebin);
+
   if(!me) return me;
-  char buffer[256];
-  sprintf(buffer,"EventId/%d",ParametersTrend.getParameter<int32_t>("Steps"));
-  me->setAxisTitle(std::string(buffer),1);
+  me->setAxisTitle("Event Time in Seconds",1);
   return me;
 }
 
@@ -728,50 +697,13 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster, const uint32
   // Filling SubDet Plots (on Track + off Track)
   std::pair<std::string,int32_t> SubDetAndLayer = folder_organizer.GetSubDetAndLayer(detid,flag_ring);
   name=flag+"_in_"+SubDetAndLayer.first;
-  fillTrendMEs(cluster,name,cosRZ,flag);
+  fillMEs(cluster,name,cosRZ,flag);
   
-  char rest[1024];
-  int subdetid = ((detid>>25)&0x7);
-  if(       subdetid==3 ){
-    // ---------------------------  TIB  --------------------------- //
-    TIBDetId tib1 = TIBDetId(detid);
-    sprintf(rest,"TIB__layer__%d",tib1.layer());
-  }else if( subdetid==4){
-    // ---------------------------  TID  --------------------------- //
-    TIDDetId tid1 = TIDDetId(detid);
-    sprintf(rest,"TID__side__%d__wheel__%d",tid1.side(),tid1.wheel());
-  }else if( subdetid==5){
-    // ---------------------------  TOB  --------------------------- //
-    TOBDetId tob1 = TOBDetId(detid);
-    sprintf(rest,"TOB__layer__%d",tob1.layer());
-  }else if( subdetid==6){
-    // ---------------------------  TEC  --------------------------- //
-    TECDetId tec1 = TECDetId(detid);
-    sprintf(rest,"TEC__side__%d__wheel__%d",tec1.side(),tec1.wheel());
-  }else{
-    // ---------------------------  ???  --------------------------- //
-    edm::LogError("SiStripTkDQM|WrongInput")<<"no such subdetector type :"<<subdetid<<" no folder set!"<<std::endl;
-    return 0;
-  }
-
-  if(flag_ring){
-    if( subdetid==4){
-      // ---------------------------  TID  --------------------------- //
-      TIDDetId tid1 = TIDDetId(detid);
-      sprintf(rest,"TID__side__%d__ring__%d",tid1.side(),tid1.ring());
-    }else if( subdetid==6){
-      // ---------------------------  TEC  --------------------------- //
-      TECDetId tec1 = TECDetId(detid);
-      sprintf(rest,"TEC__side__%d__ring__%d",tec1.side(),tec1.ring());
-    }
-  }
-
   // Filling Layer Plots
-
   SiStripHistoId hidmanager1;
-  
+  std::string rest = hidmanager1.getSubdetid(detid,flag_ring);   
   name= hidmanager1.createHistoLayer("","layer",rest,flag);
-  fillTrendMEs(cluster,name,cosRZ,flag);
+  fillMEs(cluster,name,cosRZ,flag);
   
   // Module plots filled only for onTrack Clusters
   if(Mod_On_){
@@ -782,78 +714,6 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster, const uint32
     }
   }
   return true;
-}
-
-//--------------------------------------------------------------------------------
-void SiStripMonitorTrack::fillTrend(MonitorElement* me ,float value)
-{
-  if(!me) return;
-  //check the origin and check options
-  int option = conf_.getParameter<edm::ParameterSet>("Trending").getParameter<int32_t>("UpdateMode");
-  if(firstEvent==-1) firstEvent = eventNb;
-  int CurrentStep = atoi(me->getAxisTitle(1).c_str()+8);
-  int firstEventUsed = firstEvent;
-  int presentOverflow = (int)me->getBinEntries(me->getNbinsX()+1);
-  if(option==2) firstEventUsed += CurrentStep * int(me->getBinEntries(me->getNbinsX()+1));
-  else if(option==3) firstEventUsed += CurrentStep * int(me->getBinEntries(me->getNbinsX()+1)) * me->getNbinsX();
-  //fill
-  me->Fill((eventNb-firstEventUsed)/CurrentStep,value);
-  if(eventNb-firstEvent<1) return;
-  // check if we reached the end
-  if(presentOverflow == me->getBinEntries(me->getNbinsX()+1)) return;
-  switch(option) {
-  case 1:
-    {
-      // mode 1: rebin and change X scale
-      int NbinsX = me->getNbinsX();
-      float entries = 0.;
-      float content = 0.;
-      float error = 0.;
-      int bin = 1;
-      int totEntries = int(me->getEntries());
-      for(;bin<=NbinsX/2;++bin) {
-	content = (me->getBinContent(2*bin-1) + me->getBinContent(2*bin))/2.; 
-	error   = pow((me->getBinError(2*bin-1)*me->getBinError(2*bin-1)) + (me->getBinError(2*bin)*me->getBinError(2*bin)),0.5)/2.; 
-	entries = me->getBinEntries(2*bin-1) + me->getBinEntries(2*bin);
-	me->setBinContent(bin,content*entries);
-	me->setBinError(bin,error);
-	me->setBinEntries(bin,entries);
-      }
-      for(;bin<=NbinsX+1;++bin) {
-	me->setBinContent(bin,0);
-	me->setBinError(bin,0);
-	me->setBinEntries(bin,0); 
-      }
-      me->setEntries(totEntries);
-      char buffer[256];
-      sprintf(buffer,"EventId/%d",CurrentStep*2);
-      me->setAxisTitle(std::string(buffer),1);
-      break;
-    }
-  case 2:
-    {
-      // mode 2: slide
-      int bin=1;
-      int NbinsX = me->getNbinsX();
-      for(;bin<=NbinsX;++bin) {
-	me->setBinContent(bin,me->getBinContent(bin+1)*me->getBinEntries(bin+1));
-	me->setBinError(bin,me->getBinError(bin+1));
-	me->setBinEntries(bin,me->getBinEntries(bin+1));
-      }
-      break;
-    }
-  case 3:
-    {
-      // mode 3: reset
-      int NbinsX = me->getNbinsX();
-      for(int bin=0;bin<=NbinsX;++bin) {
-	me->setBinContent(bin,0);
-	me->setBinError(bin,0);
-	me->setBinEntries(bin,0); 
-      }
-      break;
-    }
-  }
 }
 
 //--------------------------------------------------------------------------------
@@ -883,24 +743,24 @@ void SiStripMonitorTrack::fillModMEs(SiStripClusterInfo* cluster,TString name,fl
 }
 
 //------------------------------------------------------------------------
-void SiStripMonitorTrack::fillTrendMEs(SiStripClusterInfo* cluster,std::string name,float cos, std::string flag)
+void SiStripMonitorTrack::fillMEs(SiStripClusterInfo* cluster,std::string name,float cos, std::string flag)
 { 
   std::map<TString, LayerMEs>::iterator iLayerME  = LayerMEsMap.find(name);
   if(iLayerME!=LayerMEsMap.end()){
     if(flag=="OnTrack"){
       fillME(iLayerME->second.ClusterStoNCorr,(cluster->signalOverNoise())*cos);
-      fillTrend(iLayerME->second.ClusterStoNCorrTrend,(cluster->signalOverNoise())*cos);
+      fillME(iLayerME->second.ClusterStoNCorrTrend,iOrbitSec,(cluster->signalOverNoise())*cos);
       fillME(iLayerME->second.ClusterChargeCorr,cluster->charge()*cos);
-      fillTrend(iLayerME->second.ClusterChargeCorrTrend,cluster->charge()*cos);
+      fillME(iLayerME->second.ClusterChargeCorrTrend,iOrbitSec,cluster->charge()*cos);
     }
     fillME(iLayerME->second.ClusterStoN  ,cluster->signalOverNoise());
-    fillTrend(iLayerME->second.ClusterStoNTrend,cluster->signalOverNoise());
+    fillME(iLayerME->second.ClusterStoNTrend,iOrbitSec,cluster->signalOverNoise());
     fillME(iLayerME->second.ClusterCharge,cluster->charge());
-    fillTrend(iLayerME->second.ClusterChargeTrend,cluster->charge());
+    fillME(iLayerME->second.ClusterChargeTrend,iOrbitSec,cluster->charge());
     fillME(iLayerME->second.ClusterNoise ,cluster->noiseRescaledByGain());
-    fillTrend(iLayerME->second.ClusterNoiseTrend,cluster->noiseRescaledByGain());
+    fillME(iLayerME->second.ClusterNoiseTrend,iOrbitSec,cluster->noiseRescaledByGain());
     fillME(iLayerME->second.ClusterWidth ,cluster->width());
-    fillTrend(iLayerME->second.ClusterWidthTrend,cluster->width());
+    fillME(iLayerME->second.ClusterWidthTrend,iOrbitSec,cluster->width());
     fillME(iLayerME->second.ClusterPos   ,cluster->baryStrip());
   }
 }
