@@ -4,25 +4,22 @@ process = cms.Process("TEST")
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-#    'file:/afs/cern.ch/user/g/goys/scratch0/CMSSW_2_2_4/src/DPGAnalysis/Skims/python/superPointing_newdata.root'
-    '/store/data/Commissioning08/Cosmics/RECO/CRAFT_ALL_V8_ReReco-fnal-bigrun-TEST-v3/0000/0015445A-46F4-DD11-9697-00304867901A.root',
-    '/store/data/Commissioning08/Cosmics/RECO/CRAFT_ALL_V8_ReReco-fnal-bigrun-TEST-v3/0000/027AF0D3-40F4-DD11-8D9A-003048679294.root'
+'/store/data/Commissioning08/Cosmics/RECO/CRAFT_ALL_V9_225-v1/0002/0A12CE23-D7F9-DD11-819E-00E081348D21.root',
     )
 )                            
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.0 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/PtMinSelector_cfg.py,v $'),
-    annotation = cms.untracked.string('CRAFT Pt skim')
+    annotation = cms.untracked.string('CRAFT Muon Pt 50 skim')
 )
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
-#process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(4000))
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'CRAFT_ALL_V8::All' 
+process.GlobalTag.globaltag = 'CRAFT_ALL_V9::All' 
 process.prefer("GlobalTag")
 
 process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
@@ -69,7 +66,14 @@ process.cosmicMuons1LegPath = cms.Path(process.cosmicMuons1LegPtFilter)
 
 
 process.out = cms.OutputModule("PoolOutputModule",
-                               outputCommands = cms.untracked.vstring('keep *'),
+                               outputCommands = cms.untracked.vstring('keep *'
+                               'drop *_cosmictrackfinderP5PtFilter_*_*',
+                               'drop *_globalCosmicMuonsPtFilter_*_*',
+                               'drop *_globalCosmicMuons1LegPtFilter_*_*',
+                               'drop *_ctfWithMaterialTracksP5PtFilter_*_*',
+                               'drop *_cosmicMuons1LegPtFilter_*_*',
+                               'drop *_MEtoEDMConverter_*_*' 
+                               ),
                                SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('cosmictrackfinderP5Path',
                                                                                             'globalCosmicMuonsPath',
                                                                                             'globalCosmicMuons1LegPath',
@@ -77,7 +81,7 @@ process.out = cms.OutputModule("PoolOutputModule",
                                                                                             'cosmicMuons1LegPath')),                               
                                dataset = cms.untracked.PSet(
 			                 dataTier = cms.untracked.string('RECO'),
-                                         filterName = cms.untracked.string('Pt')),
+                                         filterName = cms.untracked.string('MuonPt50')),
                                fileName = cms.untracked.string('PtMinSelector.root')
                                )
 
