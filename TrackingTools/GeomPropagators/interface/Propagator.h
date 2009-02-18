@@ -118,6 +118,10 @@ public:
   virtual std::pair< TrajectoryStateOnSurface, double> 
   propagateWithPath (const TrajectoryStateOnSurface&, const Cylinder&) const;
 
+  virtual std::pair<FreeTrajectoryState, double> 
+    propagateWithPath(const FreeTrajectoryState&, 
+                      const GlobalPoint&, const GlobalPoint&) const;
+
   /** The propagation direction can now be set for every propagator.
    *  There is no more distinction between unidirectional and bidirectional 
    *  at class level. The value "anyDiriction" for PropagationDirection

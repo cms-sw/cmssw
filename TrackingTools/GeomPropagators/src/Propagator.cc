@@ -123,3 +123,9 @@ Propagator::propagateWithPath (const TrajectoryStateOnSurface& tsos,
 {
   return propagateWithPath( *tsos.freeState(), sur);
 }
+
+std::pair<FreeTrajectoryState, double> 
+Propagator::propagateWithPath(const FreeTrajectoryState& ftsStart, 
+			      const GlobalPoint& pDest1, const GlobalPoint& pDest2) const{
+  throw cms::Exception("Propagator::propagate(FTS,GlobalPoint,GlobalPoint) not implemented");
+}
