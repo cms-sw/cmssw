@@ -12,7 +12,7 @@ process.source = cms.Source("PoolSource",
 
 process.configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.1 $'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/PtMuFilter_cfg.py,v $'),
+    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/PtMuFilterNoSAMu_cfg.py,v $'),
     annotation = cms.untracked.string('CRAFT Pt skim')
 )
 
@@ -29,23 +29,23 @@ process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
 
 
 
-process.cosmictrackfinderP5PtFilter = cms.EDFilter("HLTMuonPtFilter",
+process.cosmictrackfinderP5PtFilter = cms.EDFilter("MuonPtFilter",
                                                    SALabel = cms.string("cosmictrackfinderP5"),
                                                    minPt= cms.double(50.0)
                                                    )
 
-process.globalCosmicMuonsPtFilter = cms.EDFilter("HLTMuonPtFilter",
+process.globalCosmicMuonsPtFilter = cms.EDFilter("MuonPtFilter",
                                                  SALabel = cms.string("globalCosmicMuons"),
                                                  minPt= cms.double(50.0)
                                                  )
 
 
-process.globalCosmicMuons1LegPtFilter = cms.EDFilter("HLTMuonPtFilter",
+process.globalCosmicMuons1LegPtFilter = cms.EDFilter("MuonPtFilter",
                                                      SALabel = cms.string("globalCosmicMuons1Leg"),
                                                      minPt= cms.double(50.0)
                                                      )
 
-process.ctfWithMaterialTracksP5PtFilter = cms.EDFilter("HLTMuonPtFilter",
+process.ctfWithMaterialTracksP5PtFilter = cms.EDFilter("MuonPtFilter",
                                                        SALabel = cms.string("ctfWithMaterialTracksP5"),
                                                        minPt= cms.double(50.0)
                                                        )
