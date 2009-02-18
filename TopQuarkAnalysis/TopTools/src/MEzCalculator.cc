@@ -5,6 +5,7 @@
 MEzCalculator::MEzCalculator() 
 {
 	isComplex_ = false;
+	isMuon_ = true;
 }
 
 /// destructor
@@ -18,6 +19,10 @@ MEzCalculator::Calculate(int type)
 {  
   double M_W  = 80.4;
   double M_mu =  0.10566;
+  double M_e = 0.511e-3;
+  double M_lepton = M_mu;
+  if (! isMuon_ ) M_lepton = M_e;
+  
   double emu = lepton_.energy();
   double pxmu = lepton_.px();
   double pymu = lepton_.py();
@@ -26,7 +31,7 @@ MEzCalculator::Calculate(int type)
   double pynu = MET_.py();
   double pznu = 0.;
   
-  double a = M_W*M_W - M_mu*M_mu + 2.0*pxmu*pxnu + 2.0*pymu*pynu;
+  double a = M_W*M_W - M_lepton*M_lepton + 2.0*pxmu*pxnu + 2.0*pymu*pynu;
   double A = 4.0*(emu*emu - pzmu*pzmu);
   double B = -4.0*a*pzmu;
   double C = 4.0*emu*emu*(pxnu*pxnu + pynu*pynu) - a*a;
@@ -35,7 +40,7 @@ MEzCalculator::Calculate(int type)
   
   if (tmproot<0) {
     isComplex_= true;
-    if (type==0) pznu = - B/(2*A); // take real part of complex roots
+    pznu = - B/(2*A); // take real part of complex roots
   }
   else {
     isComplex_ = false;
@@ -62,6 +67,24 @@ MEzCalculator::Calculate(int type)
       if (TMath::Abs(tmpsol1)<TMath::Abs(tmpsol2) ) pznu = tmpsol1;
       else pznu = tmpsol2;
     }
+	if (type == 3 ) {
+		// pick the largest value of the cosine
+		TVector3 p3w, p3mu;
+		p3w.SetXYZ(pxmu+pxnu, pymu+pynu, pzmu+ tmpsol1);
+		p3mu.SetXYZ(pxmu, pymu, pzmu );
+		
+		double sinthcm1 = 2.*(p3mu.Perp(p3w))/M_W;
+		p3w.SetXYZ(pxmu+pxnu, pymu+pynu, pzmu+ tmpsol2);
+		double sinthcm2 = 2.*(p3mu.Perp(p3w))/M_W;
+		
+		double costhcm1 = TMath::Sqrt(1. - sinthcm1*sinthcm1);
+		double costhcm2 = TMath::Sqrt(1. - sinthcm2*sinthcm2);
+		
+		if ( costhcm1 > costhcm2 ) pznu = tmpsol1;
+		else pznu = tmpsol2;
+	}
+		
+
   }
   
   //Particle neutrino;
