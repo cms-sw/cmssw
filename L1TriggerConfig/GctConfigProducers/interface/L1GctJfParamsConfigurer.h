@@ -49,10 +49,15 @@ class L1GctJfParamsConfigurer {
 
   // PARAMETERS TO BE STORED IN THE JetFinderParameters
   /// seed thresholds and eta boundary
-  unsigned m_CenJetSeed;
-  unsigned m_FwdJetSeed;
-  unsigned m_TauJetSeed;
-  unsigned m_EtaBoundry;
+      double m_rgnEtLsb;
+      double m_htLsb;
+      double m_CenJetSeed;
+      double m_FwdJetSeed;
+      double m_TauJetSeed;
+      double m_tauIsoThresh;
+      double m_htJetThresh;
+      double m_mhtJetThresh;
+      unsigned m_EtaBoundry;
 
 };
 
