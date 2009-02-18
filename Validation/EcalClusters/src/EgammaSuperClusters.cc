@@ -17,7 +17,7 @@
 EgammaSuperClusters::EgammaSuperClusters( const edm::ParameterSet& ps )
 {
 	outputFile_ = ps.getUntrackedParameter<std::string>("outputFile", "");
-	CMSSW_Version_ = ps.getUntrackedParameter<std::string>("CMSSW_Version", "");
+	//CMSSW_Version_ = ps.getUntrackedParameter<std::string>("CMSSW_Version", "");
 
 	verboseDBE_ = ps.getUntrackedParameter<bool>("verboseDBE", false);
 
@@ -96,7 +96,8 @@ void EgammaSuperClusters::beginJob(edm::EventSetup const&)
 	else 
 		dbe_->setVerbose(0);
 
-	dbe_->setCurrentFolder("Ecal/CMSSW_"+CMSSW_Version_+"/EcalClusters/SuperClusters/");
+	//dbe_->setCurrentFolder("Ecal/CMSSW_"+CMSSW_Version_+"/EcalClusters/SuperClusters/");
+	dbe_->setCurrentFolder("EcalClusterV/EcalSuperClusters/");
 
 	// Number of SuperClusters
 	//
@@ -161,7 +162,7 @@ void EgammaSuperClusters::beginJob(edm::EventSetup const&)
 		= dbe_->book1D("hist_EE_RawSC_Eta_","Eta of Raw SuperClusters in Endcap",
 			hist_bins_Eta_,hist_min_Eta_,hist_max_Eta_);
         hist_EB_CorSC_Eta_
-                = dbe_->book1D("hist_EE_CorSC_Eta_","Eta of Corrected SuperClusters in Endcap",
+                = dbe_->book1D("hist_EB_CorSC_Eta_","Eta of Corrected SuperClusters in Barrel",
                         hist_bins_Eta_,hist_min_Eta_,hist_max_Eta_);
         hist_EE_CorSC_Eta_
                 = dbe_->book1D("hist_EE_CorSC_Eta_","Eta of Corrected SuperClusters in Endcap",
@@ -179,7 +180,7 @@ void EgammaSuperClusters::beginJob(edm::EventSetup const&)
                 = dbe_->book1D("hist_EE_RawSC_Phi_","Phi of Raw SuperClusters in Endcap",
                         hist_bins_Phi_,hist_min_Phi_,hist_max_Phi_);
         hist_EB_CorSC_Phi_
-                = dbe_->book1D("hist_EE_CorSC_Phi_","Phi of Corrected SuperClusters in Endcap",
+                = dbe_->book1D("hist_EB_CorSC_Phi_","Phi of Corrected SuperClusters in Barrel",
                         hist_bins_Phi_,hist_min_Phi_,hist_max_Phi_);
         hist_EE_CorSC_Phi_
                 = dbe_->book1D("hist_EE_CorSC_Phi_","Phi of Corrected SuperClusters in Endcap",
@@ -197,7 +198,7 @@ void EgammaSuperClusters::beginJob(edm::EventSetup const&)
 		= dbe_->book1D("hist_EE_RawSC_S1toS9_","S1/S9 of Raw Super Clusters in Endcap",
 			hist_bins_S1toS9_,hist_min_S1toS9_,hist_max_S1toS9_);
         hist_EB_CorSC_S1toS9_
-                = dbe_->book1D("hist_EE_CorSC_S1toS9_","S1/S9 of Corrected SuperClusters in Endcap",
+                = dbe_->book1D("hist_EB_CorSC_S1toS9_","S1/S9 of Corrected SuperClusters in Barrel",
                         hist_bins_S1toS9_,hist_min_S1toS9_,hist_max_S1toS9_);
         hist_EE_CorSC_S1toS9_
                 = dbe_->book1D("hist_EE_CorSC_S1toS9_","S1/S9 of Corrected SuperClusters in Endcap",
@@ -215,7 +216,7 @@ void EgammaSuperClusters::beginJob(edm::EventSetup const&)
 		= dbe_->book1D("hist_EE_RawSC_S25toE_","S25/E of Raw Super Clusters in Endcap",
 			hist_bins_S25toE_,hist_min_S25toE_,hist_max_S25toE_);
         hist_EB_CorSC_S25toE_
-                = dbe_->book1D("hist_EE_CorSC_S25toE_","S25/E of Corrected SuperClusters in Endcap",
+                = dbe_->book1D("hist_EB_CorSC_S25toE_","S25/E of Corrected SuperClusters in Barrel",
                         hist_bins_S25toE_,hist_min_S25toE_,hist_max_S25toE_);
         hist_EE_CorSC_S25toE_
                 = dbe_->book1D("hist_EE_CorSC_S25toE_","S25/E of Corrected SuperClusters in Endcap",

@@ -9,7 +9,7 @@
      \\\author: Michael A. Balazs, Nov 2006
 */
 //
-// $Id: EgammaBasicClusters.h,v 1.4 2008/02/29 20:48:23 ksmith Exp $
+// $Id: EgammaBasicClusters.h,v 1.5 2008/06/17 12:27:24 ferriff Exp $
 //
 #include <string>
 
@@ -34,7 +34,7 @@ class EgammaBasicClusters : public edm::EDAnalyzer
 
 	private:
 	std::string outputFile_;
-	std::string CMSSW_Version_;
+	//std::string CMSSW_Version_;
 
 	bool verboseDBE_;
 	DQMStore* dbe_;

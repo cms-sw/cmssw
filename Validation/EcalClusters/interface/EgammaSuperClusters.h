@@ -9,7 +9,7 @@
      \\\author: Michael A. Balazs, Nov 2006
 */
 //
-// $Id: EgammaSuperClusters.h,v 1.8 2008/06/30 18:38:51 dlevans Exp $
+// $Id: EgammaSuperClusters.h,v 1.10 2009/01/09 10:23:25 saout Exp $
 //
 #include <string>
 
@@ -37,7 +37,7 @@ class EgammaSuperClusters : public edm::EDAnalyzer
 
 	private:
 	std::string outputFile_;
-	std::string CMSSW_Version_;
+	//std::string CMSSW_Version_;
 
 	bool verboseDBE_;
 	DQMStore* dbe_;

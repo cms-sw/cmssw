@@ -12,7 +12,7 @@
 EgammaBasicClusters::EgammaBasicClusters( const edm::ParameterSet& ps )
 {
 	outputFile_ = ps.getUntrackedParameter<std::string>("outputFile", "");
-	CMSSW_Version_ = ps.getUntrackedParameter<std::string>("CMSSW_Version", "");
+	//CMSSW_Version_ = ps.getUntrackedParameter<std::string>("CMSSW_Version", "");
 
 	verboseDBE_ = ps.getUntrackedParameter<bool>("verboseDBE", false);
 
@@ -54,7 +54,8 @@ void EgammaBasicClusters::beginJob(edm::EventSetup const&)
 	else 
 		dbe_->setVerbose(0);
 
-	dbe_->setCurrentFolder("Ecal/CMSSW_"+CMSSW_Version_+"/EcalClusters/BasicClusters/");
+	//dbe_->setCurrentFolder("Ecal/CMSSW_"+CMSSW_Version_+"/EcalClusters/BasicClusters/");
+	dbe_->setCurrentFolder("EcalClusterV/EcalBasicClusters/");
 
 	hist_EB_BC_Size_ 
 		= dbe_->book1D("hist_EB_BC_Size_","# Basic Clusters in Barrel",
