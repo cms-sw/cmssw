@@ -16,12 +16,12 @@ FlatRandomEThetaGunProducer::FlatRandomEThetaGunProducer(const edm::ParameterSet
 
   edm::ParameterSet defpset ;
   edm::ParameterSet pgun_params = 
-    pset.getUntrackedParameter<edm::ParameterSet>("PGunParameters",defpset) ;
+    pset.getParameter<edm::ParameterSet>("PGunParameters") ;
   
   // doesn't seem necessary to check if pset is empty - if this
   // is the case, default values will be taken for params
-  fMinE = pgun_params.getUntrackedParameter<double>("MinE",0.99);
-  fMaxE = pgun_params.getUntrackedParameter<double>("MaxE",1.01); 
+  fMinE = pgun_params.getParameter<double>("MinE");
+  fMaxE = pgun_params.getParameter<double>("MaxE"); 
   
   produces<HepMCProduct>();
   produces<GenEventInfoProduct>();

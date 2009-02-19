@@ -39,22 +39,18 @@ FlatBaseThetaGunProducer::FlatBaseThetaGunProducer(const edm::ParameterSet& pset
    fRandomEngine(getEngineReference()),
    fRandomGenerator(0) {
 
-  edm::ParameterSet defpset ;
-  edm::ParameterSet pgun_params = 
-    pset.getUntrackedParameter<edm::ParameterSet>("PGunParameters", defpset ) ;
+  edm::ParameterSet pgun_params = pset.getParameter<edm::ParameterSet>("PGunParameters") ;
   
-  std::vector<int> defids ;
-  defids.push_back(13) ;
-  fPartIDs  = pgun_params.getUntrackedParameter<std::vector<int> >("PartID",defids);  
-  fMinTheta = pgun_params.getUntrackedParameter<double>("MinTheta",0.0);
-  fMaxTheta = pgun_params.getUntrackedParameter<double>("MaxTheta",3.14159265358979323846);
-  fMinPhi   = pgun_params.getUntrackedParameter<double>("MinPhi",-3.14159265358979323846);
-  fMaxPhi   = pgun_params.getUntrackedParameter<double>("MaxPhi", 3.14159265358979323846);
+  fPartIDs  = pgun_params.getParameter<std::vector<int> >("PartID");  
+  fMinTheta = pgun_params.getParameter<double>("MinTheta");
+  fMaxTheta = pgun_params.getParameter<double>("MaxTheta");
+  fMinPhi   = pgun_params.getParameter<double>("MinPhi");
+  fMaxPhi   = pgun_params.getParameter<double>("MaxPhi");
   fVerbosity = pset.getUntrackedParameter<int>( "Verbosity",0 ) ;
 
   // The Service has already instantiated an engine.  Use it.
    fRandomGenerator = new RandFlat(fRandomEngine) ;
-   fAddAntiParticle = pset.getUntrackedParameter("AddAntiParticle", false) ;
+   fAddAntiParticle = pset.getParameter<bool>("AddAntiParticle") ;
 
    produces<GenRunInfoProduct, InRun>();
 }

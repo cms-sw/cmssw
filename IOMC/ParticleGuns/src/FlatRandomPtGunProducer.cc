@@ -1,6 +1,6 @@
 /*
- *  $Date: 2009/01/09 10:45:16 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/02/17 11:03:48 $
+ *  $Revision: 1.3 $
  *  \author Julia Yarba
  */
 
@@ -25,10 +25,10 @@ FlatRandomPtGunProducer::FlatRandomPtGunProducer(const ParameterSet& pset) :
 
    ParameterSet defpset ;
    ParameterSet pgun_params = 
-      pset.getUntrackedParameter<ParameterSet>("PGunParameters",defpset) ;
+      pset.getParameter<ParameterSet>("PGunParameters") ;
   
-   fMinPt = pgun_params.getUntrackedParameter<double>("MinPt",0.99);
-   fMaxPt = pgun_params.getUntrackedParameter<double>("MaxPt",1.01);
+   fMinPt = pgun_params.getParameter<double>("MinPt");
+   fMaxPt = pgun_params.getParameter<double>("MaxPt");
   
   produces<HepMCProduct>();
   produces<GenEventInfoProduct>();

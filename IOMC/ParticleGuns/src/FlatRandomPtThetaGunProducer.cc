@@ -16,10 +16,10 @@ FlatRandomPtThetaGunProducer::FlatRandomPtThetaGunProducer(const edm::ParameterS
 {
   edm::ParameterSet defpset ;
   edm::ParameterSet pgun_params = 
-    pset.getUntrackedParameter<edm::ParameterSet>("PGunParameters",defpset) ;
+    pset.getParameter<edm::ParameterSet>("PGunParameters") ;
   
-  fMinPt = pgun_params.getUntrackedParameter<double>("MinPt",0.99);
-  fMaxPt = pgun_params.getUntrackedParameter<double>("MaxPt",1.01);
+  fMinPt = pgun_params.getParameter<double>("MinPt");
+  fMaxPt = pgun_params.getParameter<double>("MaxPt");
   
   produces<HepMCProduct>();
   produces<GenEventInfoProduct>();

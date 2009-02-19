@@ -1,6 +1,6 @@
 /*
- *  $Date: 2008/04/16 19:50:05 $
- *  $Revision: 1.16 $
+ *  $Date: 2009/01/09 10:45:16 $
+ *  $Revision: 1.17 $
  *  \author Julia Yarba
  */
 
@@ -94,7 +94,7 @@ BaseFlatGunSource::BaseFlatGunSource( const ParameterSet& pset,
 
 // The Service has already instantiated an engine.  Use it.
    fRandomGenerator = new RandFlat(fRandomEngine) ;
-   fAddAntiParticle = pset.getUntrackedParameter("AddAntiParticle", false) ;
+   fAddAntiParticle = pset.getUntrackedParameter<bool>("AddAntiParticle") ;
    
 }
 

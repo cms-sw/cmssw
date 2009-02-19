@@ -1,6 +1,6 @@
 /*
- *  $Date: 2009/01/09 10:45:16 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/02/17 11:03:48 $
+ *  $Revision: 1.3 $
  *  \author Julia Yarba
  */
 
@@ -24,12 +24,12 @@ FlatRandomEGunProducer::FlatRandomEGunProducer(const ParameterSet& pset) :
    ParameterSet defpset ;
    // ParameterSet pgun_params = pset.getParameter<ParameterSet>("PGunParameters") ;
    ParameterSet pgun_params = 
-      pset.getUntrackedParameter<ParameterSet>("PGunParameters",defpset) ;
+      pset.getParameter<ParameterSet>("PGunParameters") ;
   
    // doesn't seem necessary to check if pset is empty - if this
    // is the case, default values will be taken for params
-   fMinE = pgun_params.getUntrackedParameter<double>("MinE",0.99);
-   fMaxE = pgun_params.getUntrackedParameter<double>("MaxE",1.01); 
+   fMinE = pgun_params.getParameter<double>("MinE");
+   fMaxE = pgun_params.getParameter<double>("MaxE"); 
   
    produces<HepMCProduct>();
    produces<GenEventInfoProduct>();

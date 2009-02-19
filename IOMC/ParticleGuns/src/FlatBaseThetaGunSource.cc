@@ -56,7 +56,7 @@ FlatBaseThetaGunSource::FlatBaseThetaGunSource(const edm::ParameterSet& pset,
 
   // The Service has already instantiated an engine.  Use it.
    fRandomGenerator = new RandFlat(fRandomEngine) ;
-   fAddAntiParticle = pset.getUntrackedParameter("AddAntiParticle", false) ;
+   fAddAntiParticle = pset.getUntrackedParameter<bool>("AddAntiParticle") ;
 }
 
 FlatBaseThetaGunSource::~FlatBaseThetaGunSource() {

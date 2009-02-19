@@ -1,6 +1,6 @@
 /*
- *  $Date: 2009/01/09 10:45:16 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/02/17 11:03:48 $
+ *  $Revision: 1.3 $
  *  \author Jean-Roch Vlimant
  */
 
@@ -28,22 +28,22 @@ MultiParticleInConeGunProducer::MultiParticleInConeGunProducer(const ParameterSe
 
    ParameterSet defpset ;
    ParameterSet pgun_params = 
-      pset.getUntrackedParameter<ParameterSet>("PGunParameters",defpset) ;
+      pset.getParameter<ParameterSet>("PGunParameters") ;
   
-   fMinPt = pgun_params.getUntrackedParameter<double>("MinPt",0.99);
-   fMaxPt = pgun_params.getUntrackedParameter<double>("MaxPt",1.01);
+   fMinPt = pgun_params.getParameter<double>("MinPt");
+   fMaxPt = pgun_params.getParameter<double>("MaxPt");
 
-   fInConeIds = pgun_params.getUntrackedParameter< vector<int> >("InConeID",vector<int>());
-   fMinDeltaR = pgun_params.getUntrackedParameter<double>("MinDeltaR",0.0);
-   fMaxDeltaR = pgun_params.getUntrackedParameter<double>("MaxDeltaR",0.1);
-   fMinMomRatio = pgun_params.getUntrackedParameter<double>("MinMomRatio",0.99);
-   fMaxMomRatio = pgun_params.getUntrackedParameter<double>("MaxMomRatio",1.01);
+   fInConeIds = pgun_params.getParameter< vector<int> >("InConeID");
+   fMinDeltaR = pgun_params.getParameter<double>("MinDeltaR");
+   fMaxDeltaR = pgun_params.getParameter<double>("MaxDeltaR");
+   fMinMomRatio = pgun_params.getParameter<double>("MinMomRatio");
+   fMaxMomRatio = pgun_params.getParameter<double>("MaxMomRatio");
 
-   fInConeMinEta = pgun_params.getUntrackedParameter<double>("InConeMinEta",-5.5);
-   fInConeMaxEta = pgun_params.getUntrackedParameter<double>("InConeMaxEta",5.5);
-   fInConeMinPhi = pgun_params.getUntrackedParameter<double>("InConeMinPhi",-3.14159265358979323846);
-   fInConeMaxPhi = pgun_params.getUntrackedParameter<double>("InConeMaxPhi",3.14159265358979323846);
-   fInConeMaxTry = pgun_params.getUntrackedParameter<uint>("InConeMaxTry",100);
+   fInConeMinEta = pgun_params.getParameter<double>("InConeMinEta");
+   fInConeMaxEta = pgun_params.getParameter<double>("InConeMaxEta");
+   fInConeMinPhi = pgun_params.getParameter<double>("InConeMinPhi");
+   fInConeMaxPhi = pgun_params.getParameter<double>("InConeMaxPhi");
+   fInConeMaxTry = pgun_params.getParameter<uint>("InConeMaxTry");
    
    produces<HepMCProduct>();
    produces<GenEventInfoProduct>();

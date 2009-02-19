@@ -1,6 +1,6 @@
 /*
- *  $Date: 2009/01/09 10:45:16 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/02/17 11:03:48 $
+ *  $Revision: 1.4 $
  *  \author Julia Yarba
  */
 
@@ -53,22 +53,17 @@ BaseFlatGunProducer::BaseFlatGunProducer( const ParameterSet& pset ) :
    // fPDGTable( new DefaultConfig::ParticleDataTable("PDG Table") )
 {
 
-   ParameterSet defpset ;
-   //ParameterSet pgun_params = pset.getParameter<ParameterSet>("PGunParameters") ;
-   ParameterSet pgun_params = 
-      pset.getUntrackedParameter<ParameterSet>("PGunParameters", defpset ) ;
+   ParameterSet pgun_params = pset.getParameter<ParameterSet>("PGunParameters") ;
   
    // although there's the method ParameterSet::empty(),  
    // it looks like it's NOT even necessary to check if it is,
    // before trying to extract parameters - if it is empty,
    // the default values seem to be taken
-   vector<int> defids ;
-   defids.push_back(13) ;
-   fPartIDs    = pgun_params.getUntrackedParameter< vector<int> >("PartID",defids);  
-   fMinEta     = pgun_params.getUntrackedParameter<double>("MinEta",-5.5);
-   fMaxEta     = pgun_params.getUntrackedParameter<double>("MaxEta",5.5);
-   fMinPhi     = pgun_params.getUntrackedParameter<double>("MinPhi",-3.14159265358979323846);
-   fMaxPhi     = pgun_params.getUntrackedParameter<double>("MaxPhi", 3.14159265358979323846);
+   fPartIDs    = pgun_params.getParameter< vector<int> >("PartID");  
+   fMinEta     = pgun_params.getParameter<double>("MinEta");
+   fMaxEta     = pgun_params.getParameter<double>("MaxEta");
+   fMinPhi     = pgun_params.getParameter<double>("MinPhi");
+   fMaxPhi     = pgun_params.getParameter<double>("MaxPhi");
 
   //
   //fPDGTablePath = "/afs/cern.ch/sw/lcg/external/clhep/1.9.2.1/slc3_ia32_gcc323/data/HepPDT/" ;
@@ -94,7 +89,7 @@ BaseFlatGunProducer::BaseFlatGunProducer( const ParameterSet& pset ) :
 
 // The Service has already instantiated an engine.  Use it.
    fRandomGenerator = new RandFlat(fRandomEngine) ;
-   fAddAntiParticle = pset.getUntrackedParameter("AddAntiParticle", false) ;
+   fAddAntiParticle = pset.getParameter<bool>("AddAntiParticle") ;
 
    produces<GenRunInfoProduct, InRun>();
 }
