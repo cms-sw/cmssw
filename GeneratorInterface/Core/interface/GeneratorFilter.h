@@ -95,13 +95,7 @@ namespace edm
   GeneratorFilter<HAD>::filter(Event& ev, EventSetup const& /* es */)
   {
     
-    // hadronizer_.generatePartons();
-    // hadronizer_.hadronize();
     if ( !hadronizer_.generatePartonsAndHadronize() ) return false;
-
-// some things are done internally, so don't require a complex GenEvent already
-//    // check gen event validity
-//    if ( !hadronizer_.getGenEvent() ) return false;
 
     //  this is a "fake" stuff
     // in principle, decays are done as part of full event generation,
@@ -124,9 +118,14 @@ namespace edm
     if ( !event ) return false;
 
     // check and perform if there're any unstable particles after 
-    // running external decay packges
+    // running external decay packages
+    //
+    // fisrt of all, put back modified event tree (after external decay)
     //
     hadronizer_.resetEvent( event );
+    //
+    // now run residual decays
+    //
     if ( !hadronizer_.residualDecay() ) return false;
 
     hadronizer_.finalizeEvent();
@@ -134,6 +133,9 @@ namespace edm
     event = hadronizer_.getGenEvent() ;
     if ( !event ) return false;
 
+    //
+    // tutto bene - finally, form up EDM products !
+    //
     std::auto_ptr<HepMCProduct> bare_product(new HepMCProduct());
     bare_product->addHepMCData( event );
     ev.put(bare_product);
