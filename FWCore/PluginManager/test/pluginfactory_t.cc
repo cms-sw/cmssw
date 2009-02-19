@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  4 13:38:29 EDT 2007
-// $Id: pluginfactory_t.cc,v 1.4 2007/09/28 20:29:26 chrjones Exp $
+// $Id: pluginfactory_t.cc,v 1.6 2008/01/22 22:10:36 wmtan Exp $
 //
 
 // system include files
@@ -36,7 +36,7 @@ public:
     void setUp() {   
       if (!alreadySetup_) {
         alreadySetup_=true;
-        edmplugin::PluginManager& db = edmplugin::PluginManager::configure(edmplugin::standard::config());
+        edmplugin::PluginManager::configure(edmplugin::standard::config());
       }
     }
     void tearDown() {}

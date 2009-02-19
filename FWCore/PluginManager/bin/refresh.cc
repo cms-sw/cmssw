@@ -60,8 +60,8 @@ int main (int argc, char **argv)
   
   static const char* const kPathsOpt = "paths";
   static const char* const kPathsCommandOpt = "paths,p";
-  static const char* const kAllOpt = "all";
-  static const char* const kAllCommandOpt = "all,a";
+  //static const char* const kAllOpt = "all";
+  //static const char* const kAllCommandOpt = "all,a";
   static const char* const kHelpOpt = "help";
   static const char* const kHelpCommandOpt = "help,h";
   
