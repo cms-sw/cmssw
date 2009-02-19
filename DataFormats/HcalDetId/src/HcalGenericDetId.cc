@@ -1,7 +1,7 @@
 /** \class HcalGenericDetId
     \author F.Ratnikov, UMd
    Generic HCAL detector ID suitable for all Hcal subdetectors
-   $Id: HcalGenericDetId.cc,v 1.8 2008/07/22 15:31:31 mansj Exp $
+   $Id: HcalGenericDetId.cc,v 1.10 2009/01/23 16:29:13 rofierzy Exp $
 */
 
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
@@ -98,8 +98,9 @@ int HcalGenericDetId::hashedId(bool h2mode_) const {
   int HFhalf = 864;
   int HThalf = 2088;
   int ZDChalf = 11;
+  int CASTORhalf = 224;
 
-  int zside=0, ietaAbs=0, ieta=0, iphi=0, depth=0, channel=0;
+  int zside=0, ietaAbs=0, ieta=0, iphi=0, depth=0, channel=0, sector=0, module=0;
 
   // HB valid DetIds: phi=1-72,eta=1-14,depth=1; phi=1-72,eta=15-16,depth=1-2
   if (genericSubdet() == HcalGenericDetId::HcalGenBarrel )
@@ -211,10 +212,17 @@ int HcalGenericDetId::hashedId(bool h2mode_) const {
       if (zside == -1) index += ZDChalf;
     }
 
-  // Castor: ???
+  // Castor: zside +-1, sector (phi-segmentation) 1..16, module (z segm.) 1..14
+  // total: 14*16=224 per zside
   if (genericSubdet() == HcalGenericDetId::HcalGenCastor )
     {
       HcalCastorDetId tid(rawId() ); 
+      zside = tid.zside();
+      sector = tid.sector();
+      module = tid.module();
+
+      index = 16*(sector-1) + (module-1);
+      if (zside == -1) index += CASTORhalf;
 
     }
 
