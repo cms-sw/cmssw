@@ -12,17 +12,17 @@
 
 <library file="*Filter.cc,Pythia6Hadronizer.cc,*.f" name=GeneratorInterfacePythia6Filters>
   <use name=GeneratorInterface/PartonShowerVeto>
-  <use name=GeneratorInterface/ExternalDecays>
+  <lib name=GeneratorInterfaceExternalDecays>
   <lib name=GeneratorInterfacePythia6Service>
   <flags FFLAGS=-w>
   <flags EDM_PLUGIN=1>
 </library>
 
-#<library file="Pythia6*Gun.cc" name=GeneratorInterfacePythia6Guns>
+<library file="Pythia6*Gun.cc" name=GeneratorInterfacePythia6Guns>
 #  #<use name=SimGeneral/HepPDTRecord>
 #  # <use name=heppdt>
-#  <lib name=GeneratorInterfacePythia6Service>
-#  <flags FFLAGS=-w>
-#  <flags EDM_PLUGIN=1>
-#</library>
+  <lib name=GeneratorInterfacePythia6Service>
+  <flags FFLAGS=-w>
+  <flags EDM_PLUGIN=1>
+</library>
 
