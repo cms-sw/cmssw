@@ -992,19 +992,13 @@ fillSeedSets(std::vector <MuonRecHitContainer> & allValidSets){
 	  }
 	} 
       }
-      // no 2 good measurements
-      if(lastMeasurement<0){
-	lastMeasurement = firstMeasurement;
+
+      // only 2D measurements (it should have been already abandoned)
+      if(-1==lastMeasurement && -1==firstMeasurement){
+        firstMeasurement = 0; 
+        lastMeasurement = allValidSets[iSet].size()-1;
       }
       
-      // only one 4D-measurement; use a 2D as well
-      // ... or no 4D at all (both equal to -1 )
-      if(lastMeasurement == firstMeasurement){
-	firstMeasurement = 0;
-	if(lastMeasurement == firstMeasurement || -1==lastMeasurement){
-	  lastMeasurement = allValidSets[iSet].size()-1;
-	}
-      }
       firstHit = allValidSets[iSet][firstMeasurement];
       secondHit = allValidSets[iSet][lastMeasurement];
       if(firstHit->isRPC() && secondHit->isRPC()){ // remove all RPCs from here?
