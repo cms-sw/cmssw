@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.29 2009/01/09 17:37:47 auterman Exp $
+// $Id: PATJetProducer.cc,v 1.30 2009/01/16 22:24:06 srappocc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -206,12 +206,14 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
     // Add Jet Energy Scale Corrections
     if (addJetCorrFactors_) {
-      // In case only one set of jet correction factors is used, clear the string
+      // in case only one set of jet correction factors is used, clear the string
       // that contains the name of the jcf-module, to save storage per jet:
       if (jetCorrFactorsSrc_.size()<=1)
         jetCorrs.front()[jetRef].clearLabel();
-      // The default jet correction is the first in the vector
+      // the default jet correction is the first in the vector
       const JetCorrFactors & jcf = jetCorrs.front()[jetRef];
+      // uncomment for debugging
+      // jcf.print();
       //attach first (default) jet correction factors set to the jet
       ajet.setCorrFactors(jcf);
       // set current default which is JetCorrFactors::L3, change P4 of ajet 
@@ -323,7 +325,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   }
 
   // sort jets in Et
-  std::sort(patJets->begin(), patJets->end(), pTComparator_);
+  std::sort(patJets->begin(), patJets->end(), eTComparator_);
 
   // put genEvt  in Event
   std::auto_ptr<std::vector<Jet> > myJets(patJets);

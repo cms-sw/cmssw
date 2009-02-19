@@ -1,5 +1,5 @@
 //
-// $Id: JetCorrFactorsProducer.h,v 1.2 2008/03/10 14:38:57 lowette Exp $
+// $Id: JetCorrFactorsProducer.h,v 1.3 2008/11/04 14:12:58 auterman Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_JetCorrFactorsProducer_h
@@ -18,17 +18,20 @@
    created in the PAT Layer-1.
 
   \author   Steven Lowette
-  \version  $Id: JetCorrFactorsProducer.h,v 1.2 2008/03/10 14:38:57 lowette Exp $
+  \version  $Id: JetCorrFactorsProducer.h,v 1.3 2008/11/04 14:12:58 auterman Exp $
 */
 
-
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/PatCandidates/interface/JetCorrFactors.h"
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/JetReco/interface/Jet.h"
+
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/PatCandidates/interface/JetCorrFactors.h"
+#include "CondFormats/JetMETObjects/interface/CombinedJetCorrector.h"
 
 #include <string>
 
@@ -48,28 +51,37 @@ namespace pat {
       virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
 
     private:
+      /// configure the constructor strings for the CombinedJetCorrector
+      void configure(std::string level, std::string tag);
+      /// evaluate the jet correction foactor according to level and corrector type
+      double evaluate(edm::View<reco::Jet>::const_iterator& jet, CombinedJetCorrector* corrector, int& idx);
 
-      // configurables
+    private:
+
+      /// configurables
+      bool useEMF_;
       edm::InputTag jetsSrc_;
-      std::string L1JetCorrService_;
-      std::string L2JetCorrService_;
-      std::string L3JetCorrService_;
-      std::string L4JetCorrService_;
-      std::string L6JetCorrService_;
-      std::string L5udsJetCorrService_;
-      std::string L5gluJetCorrService_;
-      std::string L5cJetCorrService_;
-      std::string L5bJetCorrService_;
-      std::string L7udsJetCorrService_;
-      std::string L7gluJetCorrService_;
-      std::string L7cJetCorrService_;
-      std::string L7bJetCorrService_;
-      
-      bool bl1_,bl2_,bl3_,bl4_,bl6_,bl5uds_,bl5g_,bl5c_,bl5b_,bl7uds_,bl7g_,bl7c_,bl7b_;
 
+      /// constructor strings for 
+      /// the CombinedJetCorrector
+      std::string tags_;
+      std::string levels_;
+
+      /// module label name 
+      std::string moduleLabel_;      
+
+
+      /// CombinedJetCorrector: common
+      CombinedJetCorrector* jetCorrector_;
+      /// CombinedJetCorrector: glu
+      CombinedJetCorrector* jetCorrectorGlu_;
+      /// CombinedJetCorrector: uds
+      CombinedJetCorrector* jetCorrectorUds_;
+      /// CombinedJetCorrector: c
+      CombinedJetCorrector* jetCorrectorC_;
+      /// CombinedJetCorrector: b
+      CombinedJetCorrector* jetCorrectorB_;
   };
-
-
 }
 
 #endif

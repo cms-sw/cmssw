@@ -2,27 +2,18 @@ import FWCore.ParameterSet.Config as cms
 
 # module to produce jet correction factors associated in a valuemap
 jetCorrFactors = cms.EDProducer("JetCorrFactorsProducer",
-     jetSource = cms.InputTag("iterativeCone5CaloJets"),
- 
-     L1JetCorrector      = cms.string('none'),
-     
-     L2JetCorrector      = cms.string('L2RelativeJetCorrectorIC5Calo'),
-     
-     L3JetCorrector      = cms.string('L3AbsoluteJetCorrectorIC5Calo'),
+     useEMF    = cms.bool(False),                         ## the use of emf in the JEC
+                                                          ## is not yet implemented here 
+     jetSource = cms.InputTag("iterativeCone5CaloJets"),  ## input collection of jets 
 
-     L4JetCorrector      = cms.string('none'),
-     
-     L5udsJetCorrector   = cms.string('none'),
-     L5gluonJetCorrector = cms.string('none'),
-     L5cJetCorrector     = cms.string('none'),
-     L5bJetCorrector     = cms.string('none'),
-     
-     L6JetCorrector      = cms.string('none'),
-                           
-     L7udsJetCorrector   = cms.string('L7PartonJetCorrectorIC5qJet'),
-     L7gluonJetCorrector = cms.string('L7PartonJetCorrectorIC5gJet'),
-     L7cJetCorrector     = cms.string('L7PartonJetCorrectorIC5cJet'),
-     L7bJetCorrector     = cms.string('L7PartonJetCorrectorIC5bJet')
-  )
+     ## tags for the jet correctors; when not available the string should be set to 'none' 
+     L1Offset  = cms.string('none'),
+     L2Relative= cms.string('Summer08_L2Relative_IC5Calo'),
+     L3Absolute= cms.string('Summer08Redigi_L3Absolute_IC5Calo'),
+     L4EMF     = cms.string('none'),
+     L5Flavor  = cms.string('L5Flavor_fromQCD_iterativeCone5'),
+     L6UE      = cms.string('none'),                           
+     L7Parton  = cms.string('L7parton_IC5_080921')
+)
 
 
