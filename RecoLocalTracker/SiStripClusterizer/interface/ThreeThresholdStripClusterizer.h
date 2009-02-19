@@ -28,7 +28,7 @@ class ThreeThresholdStripClusterizer {
   template<class T> T findClusterEdge(T,T) const;
   template<class T> bool clusterEdgeCondition(T,T,T) const;
   template<class T> bool aboveClusterThreshold(T,T) const;
-  template<class T> SiStripCluster* clusterize(T,T);
+  template<class T> void clusterize(T,T, edmNew::DetSetVector<SiStripCluster>::FastFiller& output);
 
   thresholdGroup* thresholds;
   DigiInfo* digiInfo;

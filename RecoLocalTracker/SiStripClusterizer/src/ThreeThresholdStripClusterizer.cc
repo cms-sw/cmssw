@@ -73,7 +73,7 @@ clusterizeDetUnitTemplate(const digiDetSet & digis, edmNew::DetSetVector<SiStrip
     right = findClusterEdge( seed, digis.end() );
     left  = findClusterEdge( riter_t(seed+1), riter_t(digis.begin()) ).base();
     if( aboveClusterThreshold(left,right) )
-      output.push_back( *clusterize(left,right) );
+      clusterize(left,right,output);
   }
 }
 
@@ -130,9 +130,9 @@ aboveClusterThreshold(digiIter left, digiIter right) const {
 }
 
 template<class digiIter>
-SiStripCluster*
+void
 ThreeThresholdStripClusterizer::
-clusterize(digiIter left, digiIter right) {
+clusterize(digiIter left, digiIter right, edmNew::DetSetVector<SiStripCluster>::FastFiller& output) {
   uint8_t preBad  = digiInfo->nBadBeforeUpToMaxAdjacent(*left);
   uint8_t postBad = digiInfo->nBadAfterUpToMaxAdjacent(*(right-1));
   
@@ -144,10 +144,10 @@ clusterize(digiIter left, digiIter right) {
   }
   amplitudes.resize( postBad + amplitudes.size(), 0);
 
-  return new SiStripCluster( digiInfo->detId(), 
-			     left->strip() - preBad,
-			     amplitudes.begin(),
-			     amplitudes.end() );
+  output.push_back(SiStripCluster( digiInfo->detId(), 
+				   left->strip() - preBad,
+				   amplitudes.begin(),
+				   amplitudes.end() ));
 }
 
 inline uint8_t
