@@ -5,7 +5,6 @@ source = cms.Source("EmptySource")
 
 from Configuration.Generator.PythiaUESettings_cfi import *
 
-
 generator = cms.EDFilter("Pythia6GeneratorFilter",
     pythiaPylistVerbosity = cms.untracked.int32(1),
     filterEfficiency = cms.untracked.double(1.0),

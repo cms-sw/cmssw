@@ -135,16 +135,16 @@ def _generate_PGUN(step, evt_type, energy, evtnumber):
         generator = cms.EDProducer("FlatRandomPtGunProducer",
                             psethack = cms.string(id_string),
                             firstRun = cms.untracked.uint32(1),
-                            PGunParameters = cms.untracked.PSet\
-                                (PartID = part_id,
-                                MinEta = cms.untracked.double(ETA_MAX),
-                                MaxEta = cms.untracked.double(ETA_MIN),
-                                MinPhi = cms.untracked.double(-PI),
-                                MaxPhi = cms.untracked.double(PI),
-                                MinPt  = cms.untracked.double(lower_energy),
-                                MaxPt  = cms.untracked.double(upper_energy) 
-                                ),
-                            AddAntiParticle=cms.untracked.bool(antip_flag),
+                            PGunParameters = cms.PSet(
+                                PartID = part_id,
+                                MinEta = cms.double(ETA_MAX),
+                                MaxEta = cms.double(ETA_MIN),
+                                MinPhi = cms.double(-PI),
+                                MaxPhi = cms.double(PI),
+                                MinPt  = cms.double(lower_energy),
+                                MaxPt  = cms.double(upper_energy) 
+                            ),
+                            AddAntiParticle=cms.bool(antip_flag),
                             Verbosity = cms.untracked.int32(0)
                         )
     else:
@@ -152,16 +152,16 @@ def _generate_PGUN(step, evt_type, energy, evtnumber):
         generator = cms.EDProducer("FlatRandomEGunProducer",
                             psethack = cms.string(id_string),
                             firstRun = cms.untracked.uint32(1),
-                            PGunParameters = cms.untracked.PSet\
-                                (PartID = part_id,
-                                MinEta = cms.untracked.double(ETA_MAX),
-                                MaxEta = cms.untracked.double(ETA_MIN),
-                                MinPhi = cms.untracked.double(-PI),
-                                MaxPhi = cms.untracked.double(PI),
-                                MinE = cms.untracked.double(lower_energy),
-                                MaxE = cms.untracked.double(upper_energy) 
-                                ),
-                            AddAntiParticle=cms.untracked.bool(antip_flag),
+                            PGunParameters = cms.PSet(
+                                PartID = part_id,
+                                MinEta = cms.double(ETA_MAX),
+                                MaxEta = cms.double(ETA_MIN),
+                                MinPhi = cms.double(-PI),
+                                MaxPhi = cms.double(PI),
+                                MinE = cms.double(lower_energy),
+                                MaxE = cms.double(upper_energy) 
+                            ),
+                            AddAntiParticle=cms.bool(antip_flag),
                             Verbosity = cms.untracked.int32(0)
                         )       
                         

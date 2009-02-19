@@ -26,6 +26,4 @@ generator = cms.EDProducer("CosMuoGenProducer",
     Verbosity = cms.bool(False)
 )
 
-
-
 ProductionFilterSequence = cms.Sequence(generator)
