@@ -204,13 +204,7 @@ void HtrXmlPatternTool::createHists() {
     return;
   }
 
-  //TDirectory* dp=new TDirectory("perfect","perfect");
-  //TDirectory* dq=new TDirectory("quantized","quantized");
-  TDirectory* da=new TDirectory("adc","adc");
-
-  //dp->Write(); delete dp;
-  //dq->Write(); delete dq;
-  da->Write(); delete da;
+  of.mkdir("adc");
 
   for (int crate=0; crate<ChannelPattern::NUM_CRATES; crate++) {
     CrateData* cd=m_patternSet->getCrate(crate);
