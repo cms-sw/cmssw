@@ -6,6 +6,9 @@
 <library file=LuminosityPopConAnalyzer.cc name=CondToolsLuminosityPopConAnalyzer>
    <flags EDM_PLUGIN=1>
 </library>
+<library file=HLTScalerPopConAnalyzer.cc name=CondToolsHLTScalerPopConAnalyzer>
+   <flags EDM_PLUGIN=1>
+</library>
 <library file=LumiDummyReader.cc name=CondToolsLumiDummyReader>
    <flags EDM_PLUGIN=1>
 </library>
@@ -15,5 +18,6 @@
 <library file=LuminosityInfoAnalyzer.cc name=LuminosityInfoAnalyzer>
         <flags EDM_PLUGIN=1>
 </library>
+
 
  

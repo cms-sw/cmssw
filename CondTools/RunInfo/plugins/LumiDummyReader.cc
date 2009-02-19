@@ -28,12 +28,6 @@ lumi::LumiDummyReader::fill(int startRun,
       l->setBunchCrossingData(bxinfo,lumi::ET);
       l->setBunchCrossingData(bxinfo,lumi::OCCD1);
       l->setBunchCrossingData(bxinfo,lumi::OCCD2);
-      std::vector<lumi::HLTInfo> hltdata;
-      for(int h=0; h<100; ++h){
-	lumi::HLTInfo hltinfo(12+h,10+h,2+h);
-	hltdata.push_back(hltinfo);
-      }
-      l->setHLTData(hltdata);
       std::cout<<"current "<<current<<std::endl;
       result.push_back(std::make_pair<lumi::LuminosityInfo*,cond::Time_t>(l,current));
     }
