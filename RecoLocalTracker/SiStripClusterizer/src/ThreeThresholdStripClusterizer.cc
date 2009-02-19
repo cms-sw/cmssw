@@ -81,10 +81,10 @@ inline bool
 ThreeThresholdStripClusterizer::
 clusterEdgeCondition(digiIter back, digiIter test, digiIter end) const {
   if(test == end) return true;
-  uint16_t Nbetween = std::abs( test->strip - back->strip) - 1;
+  uint16_t Nbetween = std::abs( test->strip() - back->strip()) - 1;
   return ( Nbetween > thresholds->MaxSequentialHoles                            
 	   && ( Nbetween > thresholds->MaxSequentialBad                             
-		|| esinfo->anyGoodBetween( back->strip,test->strip ) )
+		|| esinfo->anyGoodBetween( back->strip(),test->strip() ) )
 	   );
 }
 
@@ -104,7 +104,7 @@ aboveClusterThreshold(iter_t left, iter_t right) const {
   for(iter_t it = left; it < right; it++) {
     if( it->aboveChannel ) {
       noise2 += it->noise * it->noise;
-      charge += it->adc;
+      charge += it->adc();
     }
   }
   return charge*charge  >=  noise2 * thresholds->Cluster * thresholds->Cluster;
@@ -113,19 +113,19 @@ aboveClusterThreshold(iter_t left, iter_t right) const {
 void
 ThreeThresholdStripClusterizer::
 clusterize(iter_t left, iter_t right, edmNew::DetSetVector<SiStripCluster>::FastFiller& output) {
-  uint8_t preBad  = esinfo->badAdjacent( left->strip,      thresholds->MaxAdjacentBad, -1);
-  uint8_t postBad = esinfo->badAdjacent( (right-1)->strip, thresholds->MaxAdjacentBad, +1);
+  uint8_t preBad  = esinfo->badAdjacent( left->strip(),      thresholds->MaxAdjacentBad, -1);
+  uint8_t postBad = esinfo->badAdjacent( (right-1)->strip(), thresholds->MaxAdjacentBad, +1);
   
   amplitudes.clear();
   amplitudes.resize(preBad,0);
   for(iter_t it = left; it<right; it++) {
-    amplitudes.resize( it->strip - left->strip + preBad, 0 ); //pad with 0 any zero-supressed holes
-    amplitudes.push_back( it->correctedCharge() );
+    amplitudes.resize( it->strip() - left->strip() + preBad, 0 ); //pad with 0 any zero-supressed holes
+    amplitudes.push_back( it->correctedCharge(esinfo) );
   }
   amplitudes.resize( postBad + amplitudes.size(), 0);
 
   output.push_back(SiStripCluster( esinfo->detId(), 
-				   left->strip - preBad,
+				   left->strip() - preBad,
 				   amplitudes.begin(),
 				   amplitudes.end() ));
 }
@@ -142,21 +142,21 @@ ESinfo::badAdjacent(const uint16_t& strip, const uint8_t& maxAdjacentBad, const 
 
 inline uint16_t 
 ThreeThresholdStripClusterizer::
-SiStripExtendedDigi::correctedCharge() const { 
+SiStripExtendedDigi::correctedCharge(ESinfo* es) const { 
   if( !aboveChannel ) return 0;
-  if(adc > 255) throw InvalidChargeException(strip,adc);
-  uint16_t stripCharge = static_cast<uint16_t>( adc/gain + 0.5 ); //adding 0.5 turns truncation into rounding
-  if(stripCharge>511) return 255;
-  if(stripCharge>253) return 254;
-  return stripCharge;
+  if(adc() > 255) throw InvalidChargeException(digi);
+  uint16_t charge = static_cast<uint16_t>( adc()/es->gain(strip()) + 0.5 ); //adding 0.5 turns truncation into rounding
+  if(charge>511) return 255;
+  if(charge>253) return 254;
+  return charge;
 }
 
 ThreeThresholdStripClusterizer::
-InvalidChargeException::InvalidChargeException(uint16_t strip, uint16_t adc)
+InvalidChargeException::InvalidChargeException(const SiStripDigi& digi)
   : cms::Exception("Invalid Charge") {
   std::stringstream s;
-  s << "Digi charge of " << adc << " ADC "
-    << "is out of range on strip " << strip << ".  "
+  s << "Digi charge of " << digi.adc() << " ADC "
+    << "is out of range on strip " << digi.strip() << ".  "
     << "The ThreeThresholdStripClusterizer algorithm only works "
     << "with input charges less than 256 ADC counts." << std::endl;
   this->append(s.str());

@@ -20,7 +20,8 @@ class ThreeThresholdStripClusterizer {
   void clusterizeDetUnit(const edm::DetSet<SiStripDigi> &digis, edmNew::DetSetVector<SiStripCluster>::FastFiller & output);
   void clusterizeDetUnit(const edmNew::DetSet<SiStripDigi> &digis, edmNew::DetSetVector<SiStripCluster>::FastFiller & output);
   
-  struct InvalidChargeException : public cms::Exception { public: InvalidChargeException(uint16_t, uint16_t); };
+  struct InvalidChargeException : public cms::Exception { public: InvalidChargeException(const SiStripDigi&); };
+
  private:
   struct isSeed;
   struct extDigiConstructor;
@@ -47,15 +48,17 @@ class ThreeThresholdStripClusterizer {
 
 
 struct ThreeThresholdStripClusterizer::SiStripExtendedDigi {
-  SiStripExtendedDigi() : strip(0), adc(0), noise(1), gain(1), aboveSeed(false), aboveChannel(false) {}
-  SiStripExtendedDigi(uint16_t strip_, uint16_t adc_, float noise_, float gain_, bool bad, float channel, float seed) 
-    :  strip(strip_), adc(adc_), noise(noise_), gain(gain_), 
-       aboveChannel(!bad && adc_ >= static_cast<uint16_t>(noise_*channel)) 
-  { aboveSeed =  aboveChannel && adc >= static_cast<uint16_t>(noise*seed);}
-  uint16_t strip, adc;
-  float noise, gain;
+  SiStripExtendedDigi(const SiStripDigi& digi_, float noise_, bool bad, float channel, float seed) 
+    :  digi(digi_), noise(noise_), 
+    aboveChannel(  !bad && digi_.adc() >= static_cast<uint16_t>(noise_*channel)) 
+  { aboveSeed =  aboveChannel && adc() >= static_cast<uint16_t>(noise*seed);}
+  const SiStripDigi& digi;
+  float noise;
   bool aboveSeed, aboveChannel;
-  uint16_t correctedCharge() const;
+  uint16_t correctedCharge(ESinfo*) const;
+  uint16_t strip() const {return digi.strip();}
+  uint16_t adc() const {return digi.adc();}
+  const SiStripExtendedDigi& operator=(const SiStripExtendedDigi& d) {return d;} //hack, to store in std::vector
 };
 
 
@@ -115,10 +118,8 @@ struct ThreeThresholdStripClusterizer::ESinfo {
 
 struct ThreeThresholdStripClusterizer::extDigiConstructor {
   const SiStripExtendedDigi& operator()(const SiStripDigi& digi) {
-    return *(new SiStripExtendedDigi( digi.strip(), 
-				      digi.adc(), 
+    return *(new SiStripExtendedDigi( digi, 
 				      e->noise(digi.strip()), 
-				      e->gain(digi.strip()), 
 				      e->IsBad(digi.strip()), 
 				      t->Channel, 
 				      t->Seed));}
