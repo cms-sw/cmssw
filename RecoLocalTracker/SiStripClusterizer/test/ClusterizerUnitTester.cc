@@ -9,6 +9,7 @@
 void 
 ClusterizerUnitTester::
 analyze(const edm::Event&, const edm::EventSetup& es) {
+  detId=0;
   for(iter_t group = testGroups.begin(); group < testGroups.end(); group++) {
     initializeTheGroup(*group,es);
     testTheGroup(*group);

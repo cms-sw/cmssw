@@ -15,8 +15,7 @@ class ClusterizerUnitTester : public edm::EDAnalyzer {
 public:
   ClusterizerUnitTester(const PSet& conf) :
     testGroups(conf.getParameter<VPSet>("ClusterizerTestGroups")),
-    clusterizer(0),
-    detId(0) {}
+    clusterizer(0) {}
   ~ClusterizerUnitTester() { if(clusterizer) delete clusterizer; clusterizer=0;}
 private:
   void analyze(const edm::Event&, const edm::EventSetup&);
