@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre2/1E31_V91/V1 (CMSSW_3_1_X_2009-02-12-1600_HLT1)
+# /dev/CMSSW_3_1_0/pre2/1E31_V98/V2 (CMSSW_3_1_X_2009-02-19-0000_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/1E31_V91/V1')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/1E31_V98/V2')
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -85,10 +85,14 @@ CkfTrajectoryBuilder = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
   maxCand = cms.int32( 5 ),
   lostHitPenalty = cms.double( 30.0 ),
   intermediateCleaning = cms.bool( True ),
-  alwaysUseInvalidHits = cms.bool( True )
+  alwaysUseInvalidHits = cms.bool( True ),
+  appendToDataLabel = cms.string( "" )
 )
-EcalRegionCablingESProducer = cms.ESProducer( "EcalRegionCablingESProducer" )
+EcalRegionCablingESProducer = cms.ESProducer( "EcalRegionCablingESProducer",
+  appendToDataLabel = cms.string( "" )
+)
 EcalUnpackerWorkerESProducer = cms.ESProducer( "EcalUnpackerWorkerESProducer",
+  appendToDataLabel = cms.string( "" ),
   DCCDataUnpacker = cms.PSet( 
     tccUnpacking = cms.bool( True ),
     orderedDCCIdList = cms.vint32( 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54 ),
@@ -149,7 +153,8 @@ GroupedCkfTrajectoryBuilder = cms.ESProducer( "GroupedCkfTrajectoryBuilderESProd
   lockHits = cms.bool( True ),
   bestHitOnly = cms.bool( True ),
   requireSeedHitsInRebuild = cms.bool( True ),
-  minNrOfHitsForRebuild = cms.int32( 5 )
+  minNrOfHitsForRebuild = cms.int32( 5 ),
+  appendToDataLabel = cms.string( "" )
 )
 KFFitterForRefitInsideOut = cms.ESProducer( "KFTrajectoryFitterESProducer",
   ComponentName = cms.string( "KFFitterForRefitInsideOut" ),
@@ -484,7 +489,8 @@ bJetRegionalTrajectoryBuilder = cms.ESProducer( "CkfTrajectoryBuilderESProducer"
   maxCand = cms.int32( 1 ),
   lostHitPenalty = cms.double( 30.0 ),
   intermediateCleaning = cms.bool( True ),
-  alwaysUseInvalidHits = cms.bool( False )
+  alwaysUseInvalidHits = cms.bool( False ),
+  appendToDataLabel = cms.string( "" )
 )
 bJetRegionalTrajectoryFilter = cms.ESProducer( "TrajectoryFilterESProducer",
   ComponentName = cms.string( "bJetRegionalTrajectoryFilter" ),
@@ -528,7 +534,8 @@ hltCkfTrajectoryBuilderMumu = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
   maxCand = cms.int32( 3 ),
   lostHitPenalty = cms.double( 30.0 ),
   intermediateCleaning = cms.bool( True ),
-  alwaysUseInvalidHits = cms.bool( False )
+  alwaysUseInvalidHits = cms.bool( False ),
+  appendToDataLabel = cms.string( "" )
 )
 hltCkfTrajectoryBuilderMumuk = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
   ComponentName = cms.string( "hltCkfTrajectoryBuilderMumuk" ),
@@ -542,7 +549,8 @@ hltCkfTrajectoryBuilderMumuk = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
   maxCand = cms.int32( 3 ),
   lostHitPenalty = cms.double( 30.0 ),
   intermediateCleaning = cms.bool( True ),
-  alwaysUseInvalidHits = cms.bool( False )
+  alwaysUseInvalidHits = cms.bool( False ),
+  appendToDataLabel = cms.string( "" )
 )
 hltCkfTrajectoryFilterMumu = cms.ESProducer( "TrajectoryFilterESProducer",
   ComponentName = cms.string( "hltCkfTrajectoryFilterMumu" ),
@@ -703,7 +711,8 @@ trajBuilderL3 = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
   maxCand = cms.int32( 5 ),
   lostHitPenalty = cms.double( 30.0 ),
   intermediateCleaning = cms.bool( True ),
-  alwaysUseInvalidHits = cms.bool( False )
+  alwaysUseInvalidHits = cms.bool( False ),
+  appendToDataLabel = cms.string( "" )
 )
 trajFilterL3 = cms.ESProducer( "TrajectoryFilterESProducer",
   ComponentName = cms.string( "trajFilterL3" ),
@@ -731,19 +740,7 @@ PrescaleService = cms.Service( "PrescaleService",
   lvl1Labels = cms.vstring( 'prescale1',
     'prescale2' ),
   prescaleTable = cms.VPSet( 
-    cms.PSet(  pathName = cms.string( "HLT_L1Jet6U" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
     cms.PSet(  pathName = cms.string( "HLT_L1Jet15" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_Jet15U" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_Jet30U" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_Jet50U" ),
       prescales = cms.vuint32( 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_Jet30" ),
@@ -759,12 +756,6 @@ PrescaleService = cms.Service( "PrescaleService",
       prescales = cms.vuint32( 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_Jet180" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_Jet250" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_FwdJet20U" ),
       prescales = cms.vuint32( 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_FwdJet20" ),
@@ -785,25 +776,7 @@ PrescaleService = cms.Service( "PrescaleService",
     cms.PSet(  pathName = cms.string( "HLT_DiJetAve130U" ),
       prescales = cms.vuint32( 1, 2 )
     ),
-    cms.PSet(  pathName = cms.string( "HLT_DoubleJet150" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_DoubleJet125_Aco" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_DoubleFwdJet50" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_TripleJet85" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_QuadJet15U" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
     cms.PSet(  pathName = cms.string( "HLT_QuadJet30" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_QuadJet60" ),
       prescales = cms.vuint32( 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_SumET120" ),
@@ -815,109 +788,22 @@ PrescaleService = cms.Service( "PrescaleService",
     cms.PSet(  pathName = cms.string( "HLT_MET25" ),
       prescales = cms.vuint32( 1, 2 )
     ),
-    cms.PSet(  pathName = cms.string( "HLT_MET35" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
     cms.PSet(  pathName = cms.string( "HLT_MET50" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_MET65" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_MET75" ),
       prescales = cms.vuint32( 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_MET100" ),
       prescales = cms.vuint32( 1, 2 )
     ),
-    cms.PSet(  pathName = cms.string( "HLT_MET65_HT350" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_Jet180_MET60" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_Jet60_MET70_Aco" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_Jet100_MET60_Aco" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_DoubleJet125_MET60" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_DoubleFwdJet40_MET60" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_DoubleJet60_MET60_Aco" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_DoubleJet50_MET70_Aco" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_DoubleJet40_MET70_Aco" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_TripleJet60_MET60" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_QuadJet35_MET60" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_IsoEle15_L1I" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
     cms.PSet(  pathName = cms.string( "HLT_IsoEle18_L1R" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_IsoEle15_LW_L1I" ),
       prescales = cms.vuint32( 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_LooseIsoEle15_LW_L1R" ),
       prescales = cms.vuint32( 1, 2 )
     ),
-    cms.PSet(  pathName = cms.string( "HLT_Ele10_SW_L1R" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_Ele15_SW_L1R" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
     cms.PSet(  pathName = cms.string( "HLT_Ele15_LW_L1R" ),
       prescales = cms.vuint32( 1, 2 )
     ),
-    cms.PSet(  pathName = cms.string( "HLT_EM80" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_EM200" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_DoubleIsoEle10_L1I" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_DoubleIsoEle12_L1R" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_DoubleIsoEle10_LW_L1I" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_DoubleIsoEle12_LW_L1R" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_DoubleEle5_SW_L1R" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
     cms.PSet(  pathName = cms.string( "HLT_DoubleEle10_LW_OnlyPixelM_L1R" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_DoubleEle10_Z" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_DoubleEle6_Exclusive" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_IsoPhoton30_L1I" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_IsoPhoton10_L1R" ),
       prescales = cms.vuint32( 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_IsoPhoton15_L1R" ),
@@ -926,25 +812,13 @@ PrescaleService = cms.Service( "PrescaleService",
     cms.PSet(  pathName = cms.string( "HLT_IsoPhoton20_L1R" ),
       prescales = cms.vuint32( 1, 2 )
     ),
-    cms.PSet(  pathName = cms.string( "HLT_IsoPhoton25_L1R" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_IsoPhoton40_L1R" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
     cms.PSet(  pathName = cms.string( "HLT_Photon15_L1R" ),
       prescales = cms.vuint32( 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_Photon25_L1R" ),
       prescales = cms.vuint32( 1, 2 )
     ),
-    cms.PSet(  pathName = cms.string( "HLT_DoubleIsoPhoton20_L1I" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
     cms.PSet(  pathName = cms.string( "HLT_DoubleIsoPhoton20_L1R" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_DoublePhoton10_Exclusive" ),
       prescales = cms.vuint32( 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_L1MuOpen" ),
@@ -956,37 +830,16 @@ PrescaleService = cms.Service( "PrescaleService",
     cms.PSet(  pathName = cms.string( "HLT_L1Mu20" ),
       prescales = cms.vuint32( 1, 2 )
     ),
-    cms.PSet(  pathName = cms.string( "HLT_L2Mu9" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
     cms.PSet(  pathName = cms.string( "HLT_L2Mu11" ),
       prescales = cms.vuint32( 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_L2Mu15" ),
       prescales = cms.vuint32( 1, 2 )
     ),
-    cms.PSet(  pathName = cms.string( "HLT_IsoMu3" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
     cms.PSet(  pathName = cms.string( "HLT_IsoMu9" ),
       prescales = cms.vuint32( 1, 2 )
     ),
-    cms.PSet(  pathName = cms.string( "HLT_IsoMu11" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_IsoMu13" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_IsoMu15" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_Mu3" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
     cms.PSet(  pathName = cms.string( "HLT_Mu5" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_Mu7" ),
       prescales = cms.vuint32( 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_Mu9" ),
@@ -995,103 +848,16 @@ PrescaleService = cms.Service( "PrescaleService",
     cms.PSet(  pathName = cms.string( "HLT_Mu11" ),
       prescales = cms.vuint32( 1, 2 )
     ),
-    cms.PSet(  pathName = cms.string( "HLT_Mu13" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
     cms.PSet(  pathName = cms.string( "HLT_Mu15" ),
       prescales = cms.vuint32( 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_L1DoubleMuOpen" ),
       prescales = cms.vuint32( 1, 2 )
     ),
-    cms.PSet(  pathName = cms.string( "HLT_DoubleIsoMu3" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
     cms.PSet(  pathName = cms.string( "HLT_DoubleMu0" ),
       prescales = cms.vuint32( 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_DoubleMu3" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_DoubleMu3_Vtx2mm" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_DoubleMu3_JPsi" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_DoubleMu3_Upsilon" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_DoubleMu7_Z" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_DoubleMu3_SameSign" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_DoubleMu3_Psi2S" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_BTagIP_Jet180" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_BTagIP_Jet120_Relaxed" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_BTagIP_DoubleJet120" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_BTagIP_DoubleJet60_Relaxed" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_BTagIP_TripleJet70" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_BTagIP_TripleJet40_Relaxed" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_BTagIP_QuadJet40" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_BTagIP_QuadJet30_Relaxed" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_BTagIP_HT470" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_BTagIP_HT320_Relaxed" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_BTagMu_DoubleJet120" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_BTagMu_DoubleJet60_Relaxed" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_BTagMu_TripleJet70" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_BTagMu_TripleJet40_Relaxed" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_BTagMu_QuadJet40" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_BTagMu_QuadJet30_Relaxed" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_BTagMu_HT370" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_BTagMu_HT250_Relaxed" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_DoubleMu3_BJPsi" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_DoubleMu4_BJPsi" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_TripleMu3_TauTo3Mu" ),
       prescales = cms.vuint32( 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_SingleLooseIsoTau20" ),
@@ -1106,79 +872,10 @@ PrescaleService = cms.Service( "PrescaleService",
     cms.PSet(  pathName = cms.string( "HLT_DoubleLooseIsoTau15_Trk5" ),
       prescales = cms.vuint32( 1, 2 )
     ),
-    cms.PSet(  pathName = cms.string( "HLT_IsoEle8_IsoMu7" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_IsoEle10_Mu10_L1R" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_IsoEle12_IsoTau15_Trk3" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_IsoEle12_IsoTau15_Trk3_NoL1" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_IsoEle12_LooseIsoTau15_NoL25" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_IsoEle12_LooseIsoTau15_Trk3_NoL2" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_IsoEle10_BTagIP_Jet35" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_IsoEle12_Jet40" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_IsoEle12_DoubleJet80" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_IsoEle5_TripleJet30" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_IsoEle12_TripleJet60" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_IsoEle12_QuadJet35" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_IsoMu7_BTagIP_Jet35" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_IsoMu7_BTagMu_Jet20" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_IsoMu7_Jet40" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_IsoMu14_IsoTau15_Trk3" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_IsoMu14_IsoTau15_Trk3_NoL1" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_IsoMu14_LooseIsoTau15_NoL25" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_IsoMu14_LooseIsoTau15_Trk3_NoL2" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_NoL2IsoMu8_Jet40" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_Mu14_Jet50" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_Mu5_TripleJet30" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
     cms.PSet(  pathName = cms.string( "HLT_BTagMu_Jet20_Calib" ),
       prescales = cms.vuint32( 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_ZeroBias" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_MinBias" ),
       prescales = cms.vuint32( 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_MinBiasHcal" ),
@@ -1218,9 +915,6 @@ PrescaleService = cms.Service( "PrescaleService",
       prescales = cms.vuint32( 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "AlCa_EcalPhiSym" ),
-      prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "AlCa_HcalPhiSym" ),
       prescales = cms.vuint32( 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "AlCa_EcalPi0" ),
@@ -2351,8 +2045,7 @@ hltL1NonIsoSingleElectronPixelMatchFilter = cms.EDFilter( "HLTElectronPixelMatch
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
 hltCkfL1IsoTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
-    SeedProducer = cms.string( "hltL1IsoElectronPixelSeeds" ),
-    SeedLabel = cms.string( "" ),
+    src = cms.InputTag( "hltL1IsoElectronPixelSeeds" ),
     TrajectoryBuilder = cms.string( "GroupedCkfTrajectoryBuilder" ),
     TrajectoryCleaner = cms.string( "TrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
@@ -2382,8 +2075,7 @@ hltPixelMatchElectronsL1Iso = cms.EDProducer( "EgammaHLTPixelMatchElectronProduc
     BSProducer = cms.InputTag( "hltOfflineBeamSpot" )
 )
 hltCkfL1NonIsoTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
-    SeedProducer = cms.string( "hltL1NonIsoElectronPixelSeeds" ),
-    SeedLabel = cms.string( "" ),
+    src = cms.InputTag( "hltL1NonIsoElectronPixelSeeds" ),
     TrajectoryBuilder = cms.string( "GroupedCkfTrajectoryBuilder" ),
     TrajectoryCleaner = cms.string( "TrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
@@ -2438,8 +2130,7 @@ hltL1IsoElectronsRegionalPixelSeedGenerator = cms.EDProducer( "EgammaHLTRegional
     )
 )
 hltL1IsoElectronsRegionalCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
-    SeedProducer = cms.string( "hltL1IsoElectronsRegionalPixelSeedGenerator" ),
-    SeedLabel = cms.string( "" ),
+    src = cms.InputTag( "hltL1IsoElectronsRegionalPixelSeedGenerator" ),
     TrajectoryBuilder = cms.string( "CkfTrajectoryBuilder" ),
     TrajectoryCleaner = cms.string( "TrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
@@ -2481,8 +2172,7 @@ hltL1NonIsoElectronsRegionalPixelSeedGenerator = cms.EDProducer( "EgammaHLTRegio
     )
 )
 hltL1NonIsoElectronsRegionalCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
-    SeedProducer = cms.string( "hltL1NonIsoElectronsRegionalPixelSeedGenerator" ),
-    SeedLabel = cms.string( "" ),
+    src = cms.InputTag( "hltL1NonIsoElectronsRegionalPixelSeedGenerator" ),
     TrajectoryBuilder = cms.string( "CkfTrajectoryBuilder" ),
     TrajectoryCleaner = cms.string( "TrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
@@ -2663,8 +2353,7 @@ hltL1NonIsoHLTLooseIsoSingleElectronLWEt15PixelMatchFilter = cms.EDFilter( "HLTE
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
 hltCkfL1IsoLargeWindowTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
-    SeedProducer = cms.string( "hltL1IsoLargeWindowElectronPixelSeeds" ),
-    SeedLabel = cms.string( "" ),
+    src = cms.InputTag( "hltL1IsoLargeWindowElectronPixelSeeds" ),
     TrajectoryBuilder = cms.string( "GroupedCkfTrajectoryBuilder" ),
     TrajectoryCleaner = cms.string( "TrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
@@ -2694,8 +2383,7 @@ hltPixelMatchElectronsL1IsoLargeWindow = cms.EDProducer( "EgammaHLTPixelMatchEle
     BSProducer = cms.InputTag( "hltOfflineBeamSpot" )
 )
 hltCkfL1NonIsoLargeWindowTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
-    SeedProducer = cms.string( "hltL1NonIsoLargeWindowElectronPixelSeeds" ),
-    SeedLabel = cms.string( "" ),
+    src = cms.InputTag( "hltL1NonIsoLargeWindowElectronPixelSeeds" ),
     TrajectoryBuilder = cms.string( "GroupedCkfTrajectoryBuilder" ),
     TrajectoryCleaner = cms.string( "TrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
@@ -2750,8 +2438,7 @@ hltL1IsoLargeWindowElectronsRegionalPixelSeedGenerator = cms.EDProducer( "Egamma
     )
 )
 hltL1IsoLargeWindowElectronsRegionalCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
-    SeedProducer = cms.string( "hltL1IsoLargeWindowElectronsRegionalPixelSeedGenerator" ),
-    SeedLabel = cms.string( "" ),
+    src = cms.InputTag( "hltL1IsoLargeWindowElectronsRegionalPixelSeedGenerator" ),
     TrajectoryBuilder = cms.string( "CkfTrajectoryBuilder" ),
     TrajectoryCleaner = cms.string( "TrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
@@ -2793,8 +2480,7 @@ hltL1NonIsoLargeWindowElectronsRegionalPixelSeedGenerator = cms.EDProducer( "Ega
     )
 )
 hltL1NonIsoLargeWindowElectronsRegionalCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
-    SeedProducer = cms.string( "hltL1NonIsoLargeWindowElectronsRegionalPixelSeedGenerator" ),
-    SeedLabel = cms.string( "" ),
+    src = cms.InputTag( "hltL1NonIsoLargeWindowElectronsRegionalPixelSeedGenerator" ),
     TrajectoryBuilder = cms.string( "CkfTrajectoryBuilder" ),
     TrajectoryCleaner = cms.string( "TrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
@@ -3078,8 +2764,7 @@ hltL1IsoEgammaRegionalPixelSeedGenerator = cms.EDProducer( "EgammaHLTRegionalPix
     )
 )
 hltL1IsoEgammaRegionalCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
-    SeedProducer = cms.string( "hltL1IsoEgammaRegionalPixelSeedGenerator" ),
-    SeedLabel = cms.string( "" ),
+    src = cms.InputTag( "hltL1IsoEgammaRegionalPixelSeedGenerator" ),
     TrajectoryBuilder = cms.string( "CkfTrajectoryBuilder" ),
     TrajectoryCleaner = cms.string( "TrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
@@ -3121,8 +2806,7 @@ hltL1NonIsoEgammaRegionalPixelSeedGenerator = cms.EDProducer( "EgammaHLTRegional
     )
 )
 hltL1NonIsoEgammaRegionalCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
-    SeedProducer = cms.string( "hltL1NonIsoEgammaRegionalPixelSeedGenerator" ),
-    SeedLabel = cms.string( "" ),
+    src = cms.InputTag( "hltL1NonIsoEgammaRegionalPixelSeedGenerator" ),
     TrajectoryBuilder = cms.string( "CkfTrajectoryBuilder" ),
     TrajectoryCleaner = cms.string( "TrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
@@ -5080,8 +4764,7 @@ hltL25TauPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
     TTRHBuilder = cms.string( "WithTrackAngle" )
 )
 hltL25TauCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
-    SeedProducer = cms.string( "hltL25TauPixelSeeds" ),
-    SeedLabel = cms.string( "" ),
+    src = cms.InputTag( "hltL25TauPixelSeeds" ),
     TrajectoryBuilder = cms.string( "trajBuilderL3" ),
     TrajectoryCleaner = cms.string( "TrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
@@ -5173,8 +4856,7 @@ hltL3TauPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
     TTRHBuilder = cms.string( "WithTrackAngle" )
 )
 hltL3TauCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
-    SeedProducer = cms.string( "hltL3TauPixelSeeds" ),
-    SeedLabel = cms.string( "" ),
+    src = cms.InputTag( "hltL3TauPixelSeeds" ),
     TrajectoryBuilder = cms.string( "trajBuilderL3" ),
     TrajectoryCleaner = cms.string( "TrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
@@ -5685,48 +5367,71 @@ hltEcalRegionalPi0RecHit = cms.EDProducer( "EcalRawToRecHitProducer",
 hltAlCaPi0RegRecHits = cms.EDFilter( "HLTPi0RecHitsFilter",
     barrelHits = cms.InputTag( 'hltEcalRegionalPi0RecHit','EcalRecHitsEB' ),
     endcapHits = cms.InputTag( 'hltEcalRegionalPi0RecHit','EcalRecHitsEE' ),
-    pi0BarrelHitCollection = cms.string( "pi0EcalRecHitsEB" ),
-    pi0EndcapHitCollection = cms.string( "pi0EcalRecHitsEE" ),
     clusSeedThr = cms.double( 0.5 ),
     clusSeedThrEndCap = cms.double( 1.0 ),
     clusEtaSize = cms.int32( 3 ),
     clusPhiSize = cms.int32( 3 ),
-    selePtGammaOne = cms.double( 0.9 ),
-    selePtGammaTwo = cms.double( 0.9 ),
+    seleNRHMax = cms.int32( 1000 ),
+    seleXtalMinEnergy = cms.double( -0.15 ),
+    seleXtalMinEnergyEndCap = cms.double( -0.75 ),
+    doSelForPi0Barrel = cms.bool( True ),
+    selePtGamma = cms.double( 1.0 ),
     selePtPi0 = cms.double( 2.0 ),
     seleMinvMaxPi0 = cms.double( 0.22 ),
     seleMinvMinPi0 = cms.double( 0.06 ),
-    seleXtalMinEnergy = cms.double( 0.0 ),
-    seleNRHMax = cms.int32( 1000 ),
-    seleS4S9GammaOne = cms.double( 0.8 ),
-    seleS4S9GammaTwo = cms.double( 0.8 ),
-    selePi0Iso = cms.double( 1.0 ),
+    seleS4S9Gamma = cms.double( 0.83 ),
+    selePi0Iso = cms.double( 0.5 ),
+    ptMinForIsolation = cms.double( 1.0 ),
     selePi0BeltDR = cms.double( 0.2 ),
     selePi0BeltDeta = cms.double( 0.05 ),
+    storeIsoClusRecHitPi0EB = cms.bool( True ),
+    pi0BarrelHitCollection = cms.string( "pi0EcalRecHitsEB" ),
+    doSelForPi0Endcap = cms.bool( True ),
     selePtGammaEndCap = cms.double( 0.8 ),
-    selePtPi0EndCap = cms.double( 2.0 ),
-    seleS4S9GammaEndCap = cms.double( 0.85 ),
+    selePtPi0EndCap = cms.double( 3.0 ),
+    seleS4S9GammaEndCap = cms.double( 0.9 ),
     seleMinvMaxPi0EndCap = cms.double( 0.3 ),
     seleMinvMinPi0EndCap = cms.double( 0.05 ),
     ptMinForIsolationEndCap = cms.double( 0.5 ),
-    selePi0IsoEndCap = cms.double( 1.0 ),
+    selePi0BeltDREndCap = cms.double( 0.2 ),
+    selePi0BeltDetaEndCap = cms.double( 0.05 ),
+    selePi0IsoEndCap = cms.double( 0.5 ),
+    storeIsoClusRecHitPi0EE = cms.bool( True ),
+    pi0EndcapHitCollection = cms.string( "pi0EcalRecHitsEE" ),
     doSelForEtaBarrel = cms.bool( False ),
     selePtGammaEta = cms.double( 1.2 ),
     selePtEta = cms.double( 4.0 ),
     seleS4S9GammaEta = cms.double( 0.9 ),
-    seleMinvMaxEta = cms.double( 0.7 ),
-    seleMinvMinEta = cms.double( 0.35 ),
+    seleS9S25GammaEta = cms.double( 0.8 ),
+    seleMinvMaxEta = cms.double( 0.8 ),
+    seleMinvMinEta = cms.double( 0.3 ),
     ptMinForIsolationEta = cms.double( 1.0 ),
-    seleIsoEta = cms.double( 0.2 ),
+    seleEtaIso = cms.double( 0.5 ),
     seleEtaBeltDR = cms.double( 0.3 ),
     seleEtaBeltDeta = cms.double( 0.1 ),
-    storeIsoClusRecHitEta = cms.bool( True ),
+    storeIsoClusRecHitEtaEB = cms.bool( True ),
     removePi0CandidatesForEta = cms.bool( True ),
-    massLowPi0Cand = cms.double( 0.114 ),
-    massHighPi0Cand = cms.double( 0.154 ),
+    massLowPi0Cand = cms.double( 0.104 ),
+    massHighPi0Cand = cms.double( 0.163 ),
+    etaBarrelHitCollection = cms.string( "etaEcalRecHitsEB" ),
+    store5x5RecHitEtaEB = cms.bool( True ),
+    doSelForEtaEndcap = cms.bool( False ),
+    selePtGammaEtaEndCap = cms.double( 1.5 ),
+    selePtEtaEndCap = cms.double( 5.0 ),
+    seleS4S9GammaEtaEndCap = cms.double( 0.9 ),
+    seleS9S25GammaEtaEndCap = cms.double( 0.85 ),
+    seleMinvMaxEtaEndCap = cms.double( 0.8 ),
+    seleMinvMinEtaEndCap = cms.double( 0.3 ),
+    ptMinForIsolationEtaEndCap = cms.double( 0.5 ),
+    seleEtaIsoEndCap = cms.double( 0.5 ),
+    seleEtaBeltDREndCap = cms.double( 0.3 ),
+    seleEtaBeltDetaEndCap = cms.double( 0.1 ),
+    storeIsoClusRecHitEtaEE = cms.bool( True ),
+    etaEndcapHitCollection = cms.string( "etaEcalRecHitsEE" ),
+    store5x5RecHitEtaEE = cms.bool( True ),
     ParameterLogWeighted = cms.bool( True ),
     ParameterX0 = cms.double( 0.89 ),
-    ParameterT0_barl = cms.double( 5.7 ),
+    ParameterT0_barl = cms.double( 7.4 ),
     ParameterT0_endc = cms.double( 3.1 ),
     ParameterT0_endcPresh = cms.double( 1.2 ),
     ParameterW0 = cms.double( 4.2 ),
@@ -5734,8 +5439,7 @@ hltAlCaPi0RegRecHits = cms.EDFilter( "HLTPi0RecHitsFilter",
     l1NonIsolatedTag = cms.InputTag( 'hltL1extraParticles','NonIsolated' ),
     l1SeedFilterTag = cms.InputTag( "hltL1sAlCaEcalPi0" ),
     debugLevel = cms.int32( 0 ),
-    storeIsoClusRecHit = cms.bool( True ),
-    ptMinForIsolation = cms.double( 0.9 ),
+    RegionalMatch = cms.untracked.bool( False ),
     ptMinEMObj = cms.double( 2.0 ),
     EMregionEtaMargin = cms.double( 0.25 ),
     EMregionPhiMargin = cms.double( 0.4 )
