@@ -140,7 +140,7 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 	// separated. 
 	double energy = ct.hadEnergy();
 	double energyEM = ct.emEnergy(); // For HF !
-	if( energy + energyEM < 1e-9 ) continue;  
+	if( energy < 1e-9 ) continue;  
 	  
 	  
 	  
