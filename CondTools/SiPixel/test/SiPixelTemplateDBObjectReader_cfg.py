@@ -4,6 +4,10 @@ process = cms.Process("SiPixelTemplateDBReaderTest")
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
+#Change to True if you would like a more detailed error output
+wantDetailedOutput = False
+#Change to True if you would like to output the full template database object
+wantFullOutput = False
 
 process.source = cms.Source("EmptySource")
 
@@ -31,14 +35,16 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
                                       connect = cms.string('sqlite_file:siPixelTemplates.db')
                                       )
 
-process.reader = cms.EDFilter("SiPixelTemplateDBObjectReader")
+process.reader = cms.EDFilter("SiPixelTemplateDBObjectReader",
+                              siPixelTemplateCalibrationLocation = cms.string(
+                             "CalibTracker/SiPixelESProducers"),
+                              wantDetailedTemplateDBErrorOutput = cms.bool(wantDetailedOutput),
+                              wantFullTemplateDBOutput = cms.bool(wantFullOutput))
 
 process.myprint = cms.OutputModule("AsciiOutputModule")
 
-#process.Timing = cms.Service("Timing")
-
 process.p = cms.Path(process.reader)
-#process.ep = cms.EndPath(process.myprint)
+
 
 
 

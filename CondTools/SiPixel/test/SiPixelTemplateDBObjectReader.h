@@ -20,12 +20,19 @@ class SiPixelTemplateDBObjectReader : public edm::EDAnalyzer {
       explicit SiPixelTemplateDBObjectReader(const edm::ParameterSet&);
       ~SiPixelTemplateDBObjectReader();
 
-   private:
+			//		typedef std::vector<std::string> vstring;
+
+private:
       virtual void beginJob(const edm::EventSetup&) ;
-			virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 		
-			edm::ESWatcher<SiPixelTemplateDBObjectRcd> SiPixelTemplateDBObjectWatcher_;
+      edm::ESWatcher<SiPixelTemplateDBObjectRcd> SiPixelTemplateDBObjectWatcher_;
+
+      std::string theTemplateCalibrationLocation;
+      bool theDetailedTemplateDBErrorOutput;
+      bool theFullTemplateDBOutput;
+
 };
 
 #endif
