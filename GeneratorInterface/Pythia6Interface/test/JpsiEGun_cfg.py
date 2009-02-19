@@ -41,16 +41,15 @@ process.generator = cms.EDProducer("Pythia6EGun",
     MaxEventsToPrint = cms.untracked.int32(5),
     PylistVerbosity = cms.untracked.int32(1),
     HepMCVerbosity = cms.untracked.int32(1),
-    Verbosity = cms.untracked.int32(1),
-    PGunParameters = cms.untracked.PSet(
-       ParticleID = cms.untracked.vint32(443,443),
-       AddAntiParticle = cms.untracked.bool(False),
-       MinPhi = cms.untracked.double(0.0),
-       MaxPhi = cms.untracked.double(360.0),
-       MinE = cms.untracked.double(0.0),
-       MaxE = cms.untracked.double(50.0),
-       MinEta = cms.untracked.double(0.0),
-       MaxEta = cms.untracked.double(2.4)
+    PGunParameters = cms.PSet(
+       ParticleID = cms.vint32(443,443),
+       AddAntiParticle = cms.bool(False),
+       MinPhi = cms.double(-3.14159265359),
+       MaxPhi = cms.double(3.14159265359),
+       MinE = cms.double(0.0),
+       MaxE = cms.double(50.0),
+       MinEta = cms.double(0.0),
+       MaxEta = cms.double(2.4)
     ),
     PythiaParameters = cms.PSet(
         process.pythiaUESettingsBlock,
