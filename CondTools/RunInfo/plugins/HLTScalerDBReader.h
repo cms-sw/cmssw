@@ -2,7 +2,7 @@
 #define CondTools_RunInfo_HLTSCalerDBReader_h
 #include <vector>
 #include <string>
-#include "CondTools/RunInfo/interface/LumiReaderBase.h"
+#include "CondTools/RunInfo/interface/HLTScalerReaderBase.h"
 namespace edm{
   class ParameterSet;
 }
@@ -11,7 +11,7 @@ namespace cond{
 }
 namespace lumi{
   class HLTScaler;
-  class HLTScalerDBReader:public LumiReaderBase{
+  class HLTScalerDBReader:public HLTScalerReaderBase{
   public:
     explicit HLTScalerDBReader(const edm::ParameterSet& pset);
     virtual ~HLTScalerDBReader();

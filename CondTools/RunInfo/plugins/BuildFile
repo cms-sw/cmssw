@@ -9,6 +9,12 @@
 <library file=HLTScalerPopConAnalyzer.cc name=CondToolsHLTScalerPopConAnalyzer>
    <flags EDM_PLUGIN=1>
 </library>
+<library file=HLTScalerDummyReader.cc name=CondToolsHLTScalerDummyReader>
+   <flags EDM_PLUGIN=1>
+</library>
+<library file=HLTScalerDBReader.cc name=CondToolsHLTScalerDBReader>
+   <flags EDM_PLUGIN=1>
+</library>
 <library file=LumiDummyReader.cc name=CondToolsLumiDummyReader>
    <flags EDM_PLUGIN=1>
 </library>
