@@ -59,8 +59,8 @@ void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS,const std::
   
   MEzCalculator *Mez = new MEzCalculator();
   Mez->SetMET(TS.getNeutrino());
-  if(TS.getDecay() == "muon") Mez->SetMuon(TS.getMuon());
-  else Mez->SetMuon(TS.getElectron());
+  if(TS.getDecay() == "muon") Mez->SetLepton(TS.getMuon());
+  else Mez->SetLepton(TS.getElectron(), false);
   double MEZ = Mez->Calculate();
   Lepn->SetPz(MEZ);
   
