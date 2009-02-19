@@ -1,12 +1,20 @@
 <use name=FWCore/ParameterSet>
+<use name=GeneratorInterface/EvtGenInterface>
 <use name=hepmc> 
 <use name=tauola>
 <use name=photos>
+<use name=pythia6>
+<use name=clhep> 
+<use name=evtgenlhc>
 
 <export>
  <use name=FWCore/ParameterSet>
+ <use name=GeneratorInterface/EvtGenInterface>
  <use name=hepmc> 
  <use name=tauola>
  <use name=photos>
+ <use name=pythia6>
+ <use name=evtgenlhc>
+ <use name=clhep>
  <lib name=GeneratorInterfaceExternalDecays>
 </export>

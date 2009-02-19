@@ -40,17 +40,18 @@ ExternalDecayDriver::~ExternalDecayDriver()
 
 HepMC::GenEvent* ExternalDecayDriver::decay( HepMC::GenEvent* evt )
 {
+   if ( fEvtGenInterface )
+   {  
+      evt = fEvtGenInterface->decay( evt ); 
+      if ( !evt ) return 0;
+   }
+
    if ( fTauolaInterface ) 
    {
       evt = fTauolaInterface->decay( evt ); 
       if ( !evt ) return 0;
    }
          
-   if ( fEvtGenInterface )
-   {
-      if ( !fEvtGenInterface->decay( evt ) ) return 0;
-   }
-   
    return evt;
 }
 
