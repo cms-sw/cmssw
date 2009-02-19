@@ -1053,15 +1053,15 @@ def perfreport(perftype,file1,file2,outdir,IgProfMemopt=""):
     else:               # Callgrind
         proftype = "-ff"
 
-    cmssw_base = ""
+    cmssw_release_base = ""
     cmssw_data = ""
     try:
-        cmssw_base = os.environ['CMSSW_BASE']
+        cmssw_release_base = os.environ['CMSSW__RELEASE_BASE']
         cmssw_data = os.environ['CMSSW_DATA_PATH']
     except KeyError, detail:
         raise PerfReportErr
 
-    xmlfile = os.path.join(cmssw_base,"src","Validation","Performance","doc","regress.xml")
+    xmlfile = os.path.join(cmssw_release_base,"src","Validation","Performance","doc","regress.xml")
 
     prRoot = "/afs/cern.ch/user/g/gbenelli/public/PerfReport2/2.0.1"
 
