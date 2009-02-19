@@ -48,10 +48,10 @@ class ThreeThresholdStripClusterizer {
 
 struct ThreeThresholdStripClusterizer::SiStripExtendedDigi {
   SiStripExtendedDigi() : strip(0), adc(0), noise(1), gain(1), aboveSeed(false), aboveChannel(false) {}
-  SiStripExtendedDigi(uint16_t strip, uint16_t adc, float noise, float gain, bool bad, float channel, float seed) 
-    :  strip(strip), adc(adc), noise(noise), gain(gain), 
-       aboveSeed(   !bad && adc >= static_cast<uint16_t>(noise*seed)), 
-       aboveChannel(!bad && adc >= static_cast<uint16_t>(noise*channel)) {}
+  SiStripExtendedDigi(uint16_t strip_, uint16_t adc_, float noise_, float gain_, bool bad, float channel, float seed) 
+    :  strip(strip_), adc(adc_), noise(noise_), gain(gain_), 
+       aboveChannel(!bad && adc_ >= static_cast<uint16_t>(noise_*channel)) 
+  { aboveSeed =  aboveChannel && adc >= static_cast<uint16_t>(noise*seed);}
   uint16_t strip, adc;
   float noise, gain;
   bool aboveSeed, aboveChannel;
