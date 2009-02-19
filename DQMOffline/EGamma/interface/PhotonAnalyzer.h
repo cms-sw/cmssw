@@ -1,6 +1,7 @@
 #ifndef PhotonAnalyzer_H
 #define PhotonAnalyzer_H
 
+#include "PhysicsTools/Utilities/interface/deltaR.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 //
@@ -26,8 +27,7 @@
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+
 /// EgammaCoreTools
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
@@ -74,7 +74,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2009/01/28 14:03:10 $ 
+ **  $Date: 2009/02/13 14:17:19 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -116,28 +116,18 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   void dividePlots(MonitorElement* dividend, MonitorElement* numerator, MonitorElement* denominator);
   void dividePlots(MonitorElement* dividend, MonitorElement* numerator, double denominator); 
       
-      
-  std::string fName_;
-  DQMStore *dbe_;
-  int verbosity_;
 
-  int nEvt_;
-  int nEntry_;
+  //////////
+
+  std::string fName_;
+  int verbosity_;
 
   unsigned int prescaleFactor_;
 
-
-  edm::ParameterSet parameters_;
-           
   std::string photonProducer_;       
   std::string photonCollection_;
 
-  edm::InputTag triggerSummary_;
-  edm::InputTag triggerResultsHLT_;
-  edm::InputTag triggerResultsFU_;
-
-  HLTConfigProvider hltConfig_;
-
+  edm::InputTag triggerEvent_;
 
   double minPhoEtCut_;
 
@@ -151,12 +141,45 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   int isolationStrength_; 
 
 
+  edm::ParameterSet parameters_;
+           
+  ////////
+
+  DQMStore *dbe_;
   std::stringstream currentFolder_;
+
+  int nEvt_;
+  int nEntry_;
+
    
-  MonitorElement*  h_triggers_;
+  //////////
+
+  MonitorElement*  h_filters_;
+  MonitorElement*  h_deltaR_;
+  MonitorElement*  h_failedPhoEta_;
+  MonitorElement*  h_failedPhoEt_;
+
+  MonitorElement* h_phoEta_Loose_;
+  MonitorElement* h_phoEta_Tight_;
+  MonitorElement* h_phoEta_HLT_;
+  MonitorElement* h_phoEt_Loose_;
+  MonitorElement* h_phoEt_Tight_;
+  MonitorElement* h_phoEt_HLT_;
+
+  MonitorElement* p_efficiencyVsEtaLoose_;
+  MonitorElement* p_efficiencyVsEtLoose_;
+  MonitorElement* p_efficiencyVsEtaTight_;
+  MonitorElement* p_efficiencyVsEtTight_;
+  MonitorElement* p_efficiencyVsEtaHLT_;
+  MonitorElement* p_efficiencyVsEtHLT_;
+
+  MonitorElement* p_convFractionVsEta_;
+  MonitorElement* p_convFractionVsEt_;
 
 
 
+
+ ////////2D vectors of histograms
 
   std::vector<MonitorElement*> h_nTrackIsolSolidVsEta_isol_;
   std::vector<MonitorElement*> h_trackPtSumSolidVsEta_isol_;
@@ -201,19 +224,54 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   std::vector<std::vector<MonitorElement*> > h_hcalSum_;
 
 
-  MonitorElement* h_phoEta_Loose_;
-  MonitorElement* h_phoEta_Tight_;
-  MonitorElement* h_phoEt_Loose_;
-  MonitorElement* h_phoEt_Tight_;
+  std::vector<MonitorElement*> h_phoEta_isol_;
+  std::vector<std::vector<MonitorElement*> > h_phoEta_;
+  std::vector<MonitorElement*> h_phoPhi_isol_;
+  std::vector<std::vector<MonitorElement*> > h_phoPhi_;
 
-  MonitorElement* p_efficiencyVsEtaLoose_;
-  MonitorElement* p_efficiencyVsEtLoose_;
-  MonitorElement* p_efficiencyVsEtaTight_;
-  MonitorElement* p_efficiencyVsEtTight_;
+  std::vector<MonitorElement*> h_phoConvEta_isol_;
+  std::vector<std::vector<MonitorElement*> > h_phoConvEta_;
+  std::vector<MonitorElement*> h_phoConvPhi_isol_;
+  std::vector<std::vector<MonitorElement*> > h_phoConvPhi_;
 
-  MonitorElement* p_convFractionVsEta_;
-  MonitorElement* p_convFractionVsEt_;
+  std::vector<MonitorElement*> h_convVtxRvsZ_isol_;
+  std::vector<std::vector<MonitorElement*> > h_convVtxRvsZ_;
+  std::vector<MonitorElement*> h_convVtxRvsZLowEta_isol_;
+  std::vector<std::vector<MonitorElement*> > h_convVtxRvsZLowEta_;
+  std::vector<MonitorElement*> h_convVtxRvsZHighEta_isol_;
+  std::vector<std::vector<MonitorElement*> > h_convVtxRvsZHighEta_;
 
+  std::vector<MonitorElement*> h_r9VsEt_isol_;
+  std::vector<std::vector<MonitorElement*> > h_r9VsEt_;
+  std::vector<MonitorElement*> p_r9VsEt_isol_;
+  std::vector<std::vector<MonitorElement*> > p_r9VsEt_;
+
+  std::vector<MonitorElement*> h_phoSigmaIetaIeta_isol_;
+  std::vector<std::vector<MonitorElement*> > h_phoSigmaIetaIeta_;
+
+  std::vector<MonitorElement*> h_phoSigmaEtaEta_isol_;
+  std::vector<std::vector<MonitorElement*> > h_phoSigmaEtaEta_;
+
+  std::vector<MonitorElement*> h_sigmaIetaIetaVsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > h_sigmaIetaIetaVsEta_;
+  std::vector<MonitorElement*> p_sigmaIetaIetaVsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > p_sigmaIetaIetaVsEta_;
+
+  std::vector<MonitorElement*> h_sigmaEtaEtaVsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > h_sigmaEtaEtaVsEta_;
+  std::vector<MonitorElement*> p_sigmaEtaEtaVsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > p_sigmaEtaEtaVsEta_;
+
+
+  std::vector<MonitorElement*> h_tkChi2_isol_;
+  std::vector<std::vector<MonitorElement*> > h_tkChi2_;
+
+  std::vector<MonitorElement*> h_nHitsVsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > h_nHitsVsEta_;
+  std::vector<MonitorElement*> p_nHitsVsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > p_nHitsVsEta_;
+
+  ////////3D vectors of histograms
 
   std::vector<MonitorElement*> h_phoE_part_;
   std::vector<std::vector<MonitorElement*> > h_phoE_isol_;
@@ -268,6 +326,10 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   std::vector<std::vector<MonitorElement*> > h_eOverPTracks_isol_;
   std::vector<std::vector<std::vector<MonitorElement*> > > h_eOverPTracks_;
 
+  std::vector<MonitorElement*> h_pOverETracks_part_;
+  std::vector<std::vector<MonitorElement*> > h_pOverETracks_isol_;
+  std::vector<std::vector<std::vector<MonitorElement*> > > h_pOverETracks_;
+
   std::vector<MonitorElement*> h_dCotTracks_part_;
   std::vector<std::vector<MonitorElement*> > h_dCotTracks_isol_;
   std::vector<std::vector<std::vector<MonitorElement*> > > h_dCotTracks_;
@@ -285,44 +347,6 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   std::vector<std::vector<std::vector<MonitorElement*> > > h_dEtaTracksAtEcal_;
 
 
-  std::vector<MonitorElement*> h_phoEta_isol_;
-  std::vector<std::vector<MonitorElement*> > h_phoEta_;
-  std::vector<MonitorElement*> h_phoPhi_isol_;
-  std::vector<std::vector<MonitorElement*> > h_phoPhi_;
-
-  std::vector<MonitorElement*> h_phoConvEta_isol_;
-  std::vector<std::vector<MonitorElement*> > h_phoConvEta_;
-  std::vector<MonitorElement*> h_phoConvPhi_isol_;
-  std::vector<std::vector<MonitorElement*> > h_phoConvPhi_;
-
-  std::vector<MonitorElement*> h_convVtxRvsZ_isol_;
-  std::vector<std::vector<MonitorElement*> > h_convVtxRvsZ_;
-  std::vector<MonitorElement*> h_convVtxRvsZLowEta_isol_;
-  std::vector<std::vector<MonitorElement*> > h_convVtxRvsZLowEta_;
-  std::vector<MonitorElement*> h_convVtxRvsZHighEta_isol_;
-  std::vector<std::vector<MonitorElement*> > h_convVtxRvsZHighEta_;
-
-  std::vector<MonitorElement*> h_r9VsEt_isol_;
-  std::vector<std::vector<MonitorElement*> > h_r9VsEt_;
-  std::vector<MonitorElement*> p_r9VsEt_isol_;
-  std::vector<std::vector<MonitorElement*> > p_r9VsEt_;
-
-  std::vector<MonitorElement*> h_phoSigmaIetaIeta_isol_;
-  std::vector<std::vector<MonitorElement*> > h_phoSigmaIetaIeta_;
-
-  std::vector<MonitorElement*> h_sigmaIetaIetaVsEta_isol_;
-  std::vector<std::vector<MonitorElement*> > h_sigmaIetaIetaVsEta_;
-  std::vector<MonitorElement*> p_sigmaIetaIetaVsEta_isol_;
-  std::vector<std::vector<MonitorElement*> > p_sigmaIetaIetaVsEta_;
-
-
-  std::vector<MonitorElement*> h_tkChi2_isol_;
-  std::vector<std::vector<MonitorElement*> > h_tkChi2_;
-
-  std::vector<MonitorElement*> h_nHitsVsEta_isol_;
-  std::vector<std::vector<MonitorElement*> > h_nHitsVsEta_;
-  std::vector<MonitorElement*> p_nHitsVsEta_isol_;
-  std::vector<std::vector<MonitorElement*> > p_nHitsVsEta_;
 
   //
   //
