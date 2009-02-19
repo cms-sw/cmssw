@@ -191,7 +191,7 @@ int PixelThresholdClusterizer::calibrate(int adc, int col, int row) {
   if(doMissCalibrate) {
     // do not perform calibration if pixel is dead!
 
-      if(!theSiPixelGainCalibrationService_->isDead(detid_,col,row)){
+      if(!theSiPixelGainCalibrationService_->isDead(detid_,col,row) && !theSiPixelGainCalibrationService_->isNoisy(detid_,col,row)){
 
       // Linear approximation of the TANH response
       // Pixel(0,0,0)
@@ -246,7 +246,7 @@ PixelThresholdClusterizer::make_cluster( const SiPixelCluster::PixelPos& pix, ed
   int seed_adc;
   stack<SiPixelCluster::PixelPos, vector<SiPixelCluster::PixelPos> > pixel_stack;
   stack<SiPixelCluster::PixelPos, vector<SiPixelCluster::PixelPos> > dead_pixel_stack;
-  if(theSiPixelGainCalibrationService_->isDead(detid_,pix.col(),pix.row())){
+  if(theSiPixelGainCalibrationService_->isDead(detid_,pix.col(),pix.row()) || theSiPixelGainCalibrationService_->isNoisy(detid_,pix.col(),pix.row())){
   seed_adc = 0;
   theBuffer.set_adc(pix, 13);}
   else{
@@ -268,7 +268,7 @@ PixelThresholdClusterizer::make_cluster( const SiPixelCluster::PixelPos& pix, ed
 	      pixel_stack.push( newpix);
 	    }
 	    //	    if(1 == 0){
-	 if(theSiPixelGainCalibrationService_->isDead(detid_,c,r) && theBuffer(r,c) != 13 && doSplitClusters){
+	 if((theSiPixelGainCalibrationService_->isDead(detid_,c,r) || theSiPixelGainCalibrationService_->isNoisy(detid_,c,r)) && theBuffer(r,c) != 13 && doSplitClusters){
 //	   cout << "Dead cluster here" << endl;
 	      SiPixelCluster::PixelPos newpix(r,c);
 	      cluster.add(newpix, theBuffer(r,c));
