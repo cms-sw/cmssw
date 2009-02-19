@@ -2,11 +2,22 @@
 import FWCore.ParameterSet.Config as cms
 
 import HLTrigger.HLTfilters.hltHighLevel_cfi
-ALCARECOTkAlMinBiasHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
+#Note the MinBias selection should contain as many tracks as possible but no overlaps. So the HLT selection selects any event that is not selected in another TkAl* selector.
+ALCARECOTkAlMinBiasNOTHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
     andOr = True, ## choose logical OR between Triggerbits
-    HLTPaths = ['HLT_MinBiasEcal', 'HLT_MinBiasHcal', 'HLT_MinBiasPixel'],
+    HLTPaths = [
+        #TkAlMuonIsolated
+        "HLT_L1MuOpen", "HLT_L1Mu", "HLT_L2Mu9",
+        "HLT_Mu3", "HLT_Mu5", "HLT_Mu9", "HLT_Mu11",
+        "HLT_DoubleMu3",
+        #TkAl[Z,Jpsi,Upsilon]MuMu
+        'HLT DoubleMu3',
+        #TkAlCosmics{0T}HLT
+        'HLT_TrackerCosmics_CTF','HLT_TrackerCosmics_CoTF','HLT_TrackerCosmics_RS'
+        ],
     throw = False # tolerate triggers stated above, but not available
     )
+
 
 import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 ALCARECOTkAlMinBias = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone()
@@ -24,4 +35,4 @@ ALCARECOTkAlMinBias.TwoBodyDecaySelector.applyMassrangeFilter = False
 ALCARECOTkAlMinBias.TwoBodyDecaySelector.applyChargeFilter = False
 ALCARECOTkAlMinBias.TwoBodyDecaySelector.applyAcoplanarityFilter = False
 
-seqALCARECOTkAlMinBias = cms.Sequence(ALCARECOTkAlMinBiasHLT+ALCARECOTkAlMinBias)
+seqALCARECOTkAlMinBias = cms.Sequence(~ALCARECOTkAlMinBiasNOTHLT+ALCARECOTkAlMinBias)

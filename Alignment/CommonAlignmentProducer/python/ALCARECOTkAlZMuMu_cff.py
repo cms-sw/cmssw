@@ -4,7 +4,7 @@ import HLTrigger.HLTfilters.hltHighLevel_cfi
 # AlCaReco for track based alignment using ZMuMu events
 ALCARECOTkAlZMuMuHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
     andOr = True, ## choose logical OR between Triggerbits
-    HLTPaths = ['HLT_DoubleMu7_Z'],
+    HLTPaths = ['HLT_DoubleMu3'],
     throw = False # tolerate triggers stated above, but not available
     )
 
