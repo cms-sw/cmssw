@@ -4,7 +4,7 @@
 /** \class PyquenProducer
  *
  * Generates PYTHIA+PYQUEN ==> HepMC events
- * $Id: PyquenProducer.h,v 1.1 2008/04/09 19:02:37 marafino Exp $
+ * $Id: PyquenProducer.h,v 1.11 2009/01/30 22:08:20 yilmaz Exp $
  *
  * Camelia Mironov                                  
  *   for the Generator Interface. March 2007
@@ -19,7 +19,7 @@
 #include "HepMC/GenEvent.h"
 
 namespace CLHEP {
-class HepRandomEngine;
+   class HepRandomEngine;
 }
 
 namespace edm
@@ -39,21 +39,26 @@ namespace edm
     virtual void     produce(Event & e, const EventSetup& es);
     bool	     pyqpythia_init(const ParameterSet &pset);
     bool	     pyquen_init(const ParameterSet &pset);
+    char*            nucleon();
+    void             rotateEvtPlane(HepMC::GenEvent* evt, double angle);
 
-    HepMC::GenEvent *evt;
     double           abeamtarget_;            //! beam/target atomic mass number 
     unsigned int     angularspecselector_;    //! angular emitted gluon  spectrum selection 
                                               //! DEFAULT= 0 -- small angular emitted gluon spectrum
                                               //!        = 1 -- broad angular emitted gluon spectrum
                                               //!        = 2 -- collinear angular emitted gluon spectrum
-    double           bmin_;    
-    double           bmax_;
+    double           bmin_;                   //! min impact param (fm); valid only if cflag_!=0       
+    double           bmax_;                   //! max impact param (fm); valid only if cflag_!=0       
     double           bfixed_;                 //! fixed impact param (fm); valid only if cflag_=0
     int              cflag_;                  //! centrality flag =0 fixed impact param, <>0 minbias
     double           comenergy;               //! collision energy  
     bool             doquench_;               //! if true perform quenching (default = true)
     bool             doradiativeenloss_;      //! DEFAULT = true
     bool             docollisionalenloss_;    //! DEFAULT = true       
+    bool             doIsospin_;              //! Run n&p with proper ratios; if false, only p+p collisions
+    bool             embedding_;
+    double           pfrac_;                  //! Proton fraction in the nucleus
+
     unsigned int     nquarkflavor_;           //! number of active quark flavors in qgp
                                               //! DEFAULT=0; allowed values: 0,1,2,3.
     double           qgpt0_;                  //! initial temperature of QGP
@@ -63,9 +68,10 @@ namespace edm
     unsigned int     maxEventsToPrint_;       //! Events to print if verbosity  
     bool             pythiaHepMCVerbosity_;   //! HepMC verbosity flag
     unsigned int     pythiaPylistVerbosity_;  //! Pythia PYLIST Verbosity flag 
-    int 	     eventNumber_;
 
+    int            eventNumber_;
     CLHEP::HepRandomEngine* fRandomEngine;
+
   };
 } /*end namespace*/ 
 

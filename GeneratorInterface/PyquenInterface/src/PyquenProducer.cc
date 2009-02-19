@@ -3,15 +3,15 @@
  * Generates PYQUEN HepMC events
  *
  * Original Author: Camelia Mironov
- * $Id: PyquenProducer.cc,v 1.4 2008/12/19 17:51:50 yilmaz Exp $
+ * $Id: PyquenProducer.cc,v 1.22 2009/02/03 22:02:00 yilmaz Exp $
 */
 
 #include <iostream>
 #include "time.h"
 
 #include "GeneratorInterface/PyquenInterface/interface/PyquenProducer.h"
-#include "GeneratorInterface/PyquenInterface/interface/PyquenWrapper.h"
 #include "GeneratorInterface/PyquenInterface/interface/PYR.h"
+#include "GeneratorInterface/PyquenInterface/interface/PyquenWrapper.h"
 #include "GeneratorInterface/CommonInterface/interface/PythiaCMS.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/GenInfoProduct.h"
@@ -21,10 +21,12 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "CLHEP/Random/RandomEngine.h"
 
 #include "HepMC/IO_HEPEVT.h"
 #include "HepMC/PythiaWrapper.h"
+
+#include "CLHEP/Random/RandomEngine.h"
+
 
 using namespace edm;
 using namespace std;
@@ -32,7 +34,7 @@ using namespace std;
 HepMC::IO_HEPEVT hepevtio2;
 
 PyquenProducer :: PyquenProducer(const ParameterSet & pset):
-EDProducer(), evt(0), 
+EDProducer(),
 abeamtarget_(pset.getParameter<double>("aBeamTarget")),
 angularspecselector_(pset.getParameter<int>("angularSpectrumSelector")),
 bmin_(pset.getParameter<double>("bMin")),
@@ -43,6 +45,8 @@ comenergy(pset.getParameter<double>("comEnergy")),
 doquench_(pset.getParameter<bool>("doQuench")),
 doradiativeenloss_(pset.getParameter<bool>("doRadiativeEnLoss")),
 docollisionalenloss_(pset.getParameter<bool>("doCollisionalEnLoss")),
+doIsospin_(pset.getParameter<bool>("doIsospin")),
+embedding_(pset.getParameter<bool>("embeddingMode")),
 nquarkflavor_(pset.getParameter<int>("numQuarkFlavor")),
 qgpt0_(pset.getParameter<double>("qgpInitialTemperature")),
 qgptau0_(pset.getParameter<double>("qgpProperTimeFormation")),
@@ -52,7 +56,6 @@ pythiaPylistVerbosity_(pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0
 eventNumber_(0)
 {
   // Default constructor
-
   // Verbosity Level
   // Valid PYLIST arguments are: 1, 2, 3, 5, 7, 11, 12, 13
   pythiaPylistVerbosity_ = pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0);
@@ -66,6 +69,9 @@ eventNumber_(0)
   maxEventsToPrint_ = pset.getUntrackedParameter<int>("maxEventsToPrint",0);
   LogDebug("Events2Print") << "Number of events to be printed = " << maxEventsToPrint_ << endl;
 
+  //Proton to Nucleon fraction
+  pfrac_ = 1./(1.98+0.015*pow(abeamtarget_,2./3));
+
   //initialize pythia
   pyqpythia_init(pset);
 
@@ -75,8 +81,6 @@ eventNumber_(0)
   // Call PYTHIA
   call_pyinit("CMS", "p", "p", comenergy);  
   
-  cout<<endl;
-
   produces<HepMCProduct>();
   produces<GenInfoProduct, edm::InRun>();
 }
@@ -113,6 +117,7 @@ void PyquenProducer::add_heavy_ion_rec(HepMC::GenEvent *evt)
   );
 
   evt->set_heavy_ion(*hi);
+
   delete hi;
 }
 
@@ -141,15 +146,43 @@ void PyquenProducer::clear()
 //_____________________________________________________________________
 void PyquenProducer::produce(Event & e, const EventSetup& es)
 {
-  edm::LogInfo("PYQUENabeamtarget") << "##### PYQUEN: beam/target A = "                     << abeamtarget_;
-  edm::LogInfo("PYQUENcflag")       << "##### PYQUEN: centrality flag cflag_ = "            << cflag_;
-  edm::LogInfo("PYQUENbfixed")      << "##### PYQUEN: fixed impact parameter bFixed = "     << bfixed_;
-  edm::LogInfo("PYQUENinNFlav")     << "##### PYQUEN: No active quark flavor nf = "         << pyqpar.nfu;
-  edm::LogInfo("PYQUENinTemp")      << "##### PYQUEN: Initial temperature of QGP, T0 = "    << pyqpar.T0u;
-  edm::LogInfo("PYQUENinTau")       << "##### PYQUEN: Proper formation time of QGP, tau0 =" << pyqpar.tau0u;
 
-  // Generate PYQUEN event
+   //Get Parameters from the background Pb+Pb event if necessary
+   HepMC::FourVector* vtx_;
+   double evtPlane = 0;
+   if(embedding_){
+      Handle<HepMCProduct> input;
+      e.getByLabel("source",input);
+      const HepMC::GenEvent * inev = input->GetEvent();
+      HepMC::HeavyIon* hi = inev->heavy_ion();
+      if(hi){
+	 bfixed_ = hi->impact_parameter();
+	 evtPlane = hi->event_plane_angle();
+      }else{
+	 LogWarning("EventEmbedding")<<"Background event does not have heavy ion record!";
+      }
+
+      HepMC::GenVertex* genvtx = inev->signal_process_vertex();
+      if(!genvtx){
+	 cout<<"No Signal Process Vertex!"<<endl;
+	 HepMC::GenEvent::particle_const_iterator pt=inev->particles_begin();
+	 HepMC::GenEvent::particle_const_iterator ptend=inev->particles_end();
+         while(!genvtx || ( genvtx->particles_in_size() == 1 && pt != ptend ) ){
+	    if(!genvtx) cout<<"No Gen Vertex!"<<endl;
+            ++pt;
+	    if(pt == ptend) cout<<"End reached!"<<endl;
+	    genvtx = (*pt)->production_vertex();
+	 }
+      }
+      vtx_ = &(genvtx->position());
+      cout<<"Vertex is at : "<<vtx_->z()<<" cm"<<endl;
+   }
+   
+   // Generate PYQUEN event
   // generate single partonic PYTHIA jet event
+
+  // Take into account whether it's a nn or pp or pn interaction
+  if(doIsospin_) call_pyinit("CMS", nucleon(), nucleon(), comenergy);
   call_pyevnt();
 
   // call PYQUEN to apply parton rescattering and energy loss 
@@ -170,14 +203,18 @@ void PyquenProducer::produce(Event & e, const EventSetup& es)
   // event information
   HepMC::GenEvent* evt = hepevtio2.read_next_event();
   evt->set_signal_process_id(pypars.msti[0]);      // type of the process
+
   evt->set_event_scale(pypars.pari[16]);           // Q^2
+
   ++eventNumber_;
   evt->set_event_number(eventNumber_);
-
+  if(embedding_) rotateEvtPlane(evt,evtPlane);
   add_heavy_ion_rec(evt);
 
   auto_ptr<HepMCProduct> bare_product(new HepMCProduct());
   bare_product->addHepMCData(evt );
+
+  if(embedding_) bare_product->applyVtxGen(vtx_);
   e.put(bare_product); 
 
   // verbosity
@@ -288,5 +325,54 @@ bool PyquenProducer::pyquen_init(const ParameterSet &pset)
   return true;
 }
 
+char* PyquenProducer::nucleon(){
+  int* dummy;
+  double random = pyr_(dummy);
+  char* nuc;
+  if(random > pfrac_) nuc = "n";
+  else nuc = "p";
+  
+  return nuc;
+}
+
+void PyquenProducer::rotateEvtPlane(HepMC::GenEvent* evt, double angle){
+
+   double sinphi0 = sin(angle);
+   double cosphi0 = cos(angle);
+
+   for ( HepMC::GenEvent::vertex_iterator vt=evt->vertices_begin();
+	 vt!=evt->vertices_end(); ++vt )
+      {
+	 
+	 double x0 = (*vt)->position().x();
+	 double y0 = (*vt)->position().y();
+	 double z = (*vt)->position().z();
+	 double t = (*vt)->position().t();
+
+	 double x = x0*cosphi0-y0*sinphi0;
+	 double y = y0*cosphi0+x0*sinphi0;
+
+	 (*vt)->set_position( HepMC::FourVector(x,y,z,t) ) ;      
+      }
+
+   for ( HepMC::GenEvent::particle_iterator vt=evt->particles_begin();
+         vt!=evt->particles_end(); ++vt )
+      {
+
+         double x0 = (*vt)->momentum().x();
+         double y0 = (*vt)->momentum().y();
+         double z = (*vt)->momentum().z();
+         double t = (*vt)->momentum().t();
+
+         double x = x0*cosphi0-y0*sinphi0;
+         double y = y0*cosphi0+x0*sinphi0;
+
+         (*vt)->set_momentum( HepMC::FourVector(x,y,z,t) ) ;
+      }
+
+
+
+
+}
 
 //____________________________________________________________________
