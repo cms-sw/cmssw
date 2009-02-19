@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/21 11:30:35 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/10/31 08:49:53 $
+ *  $Revision: 1.9 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -290,7 +290,7 @@ DTCalibValidation::recHitDistFromWire(const DTRecHit1D& recHit, const DTLayer* l
   GlobalPoint recHitPosGlob = layer->toGlobal(recHit.localPosition());
   LocalPoint recHitPosInChamber = chamber->toLocal(recHitPosGlob);
   float wireX = layer->specificTopology().wirePosition(recHit.wireId().wire());
-  LocalPoint wirePosInLay(wireX,0,0);
+  LocalPoint wirePosInLay(wireX,recHit.localPosition().y(),0);
   GlobalPoint wirePosGlob = layer->toGlobal(wirePosInLay);
   LocalPoint wirePosInChamber = chamber->toLocal(wirePosGlob);
   
@@ -420,7 +420,8 @@ void DTCalibValidation::compute(const DTGeometry *dtGeom,
       
       // Extrapolate the segment to the z of the wire
       // Get wire position in chamber RF
-      LocalPoint wirePosInLay(wireX,0,0);
+      // (y and z must be those of the hit to be coherent in the transf. of RF in case of rotations of the layer alignment)
+      LocalPoint wirePosInLay(wireX,(*recHit1D).localPosition().y(),(*recHit1D).localPosition().z());
       GlobalPoint wirePosGlob = layer->toGlobal(wirePosInLay);
       const DTChamber* chamber = dtGeom->chamber((*recHit1D).wireId().layerId().chamberId());
       LocalPoint wirePosInChamber = chamber->toLocal(wirePosGlob);
