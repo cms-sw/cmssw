@@ -62,10 +62,13 @@ namespace edmtest
     std::cout<<"got context"<<std::endl;
     const lumi::LuminosityInfo* myped=pPeds.product();
     std::cout<<"lumi::LuminosityInfo* "<<myped<<std::endl;
-    std::cout<<myped->lumiAverage(lumi::ET).value<<std::endl;
-    std::cout<<myped->lumiAverage(lumi::ET).error<<std::endl;
-    std::cout<<myped->lumiAverage(lumi::ET).quality<<std::endl;
-    std::cout<<myped->lumiAverage(lumi::ET).normalization<<std::endl;
+    std::cout<<"lumiid "<<myped->lumisectionID()<<std::endl;
+    std::cout<<"deadtime norm  "<<myped->deadTimeNormalization()<<std::endl;
+    std::cout<<"nBunchCrossing  "<<myped->nBunchCrossing()<<std::endl;
+    //std::cout<<myped->lumiAverage(lumi::ET).value<<std::endl;
+    //std::cout<<myped->lumiAverage(lumi::ET).error<<std::endl;
+    //std::cout<<myped->lumiAverage(lumi::ET).quality<<std::endl;
+    //std::cout<<myped->lumiAverage(lumi::ET).normalization<<std::endl;
   }
   DEFINE_FWK_MODULE(LuminosityInfoAnalyzer);
 }
