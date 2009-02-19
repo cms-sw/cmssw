@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.33 2008/12/10 16:33:27 ferriff Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.34 2009/02/18 18:55:26 ferriff Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -33,7 +33,7 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   intercalibConstantSigma_ = ps.getUntrackedParameter<double>("intercalibConstantSigma",0.0);
   intercalibErrorMean_ = ps.getUntrackedParameter<double>("IntercalibErrorMean",0.0);
 
-  timeCalibConstantMean_ = ps.getUntrackedParameter<double>("timeCalibConstantMean",1.0);
+  timeCalibConstantMean_ = ps.getUntrackedParameter<double>("timeCalibConstantMean",0.0);
   timeCalibConstantSigma_ = ps.getUntrackedParameter<double>("timeCalibConstantSigma",0.0);
   timeCalibErrorMean_ = ps.getUntrackedParameter<double>("timeCalibErrorMean",0.0);
 
