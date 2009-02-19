@@ -2,9 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
 from RecoMuon.TrackingTools.MuonTrackLoader_cff import *
-from TrackingTools.GeomPropagators.StraightLinePropagator_cfi import *
-
-MuonServiceProxy.ServiceParameters.Propagators.append('StraightLinePropagator')
 
 cosmicMuons = cms.EDProducer("CosmicMuonProducer",
     MuonTrackLoaderForCosmic,
