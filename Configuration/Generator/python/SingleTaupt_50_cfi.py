@@ -3,15 +3,15 @@ import FWCore.ParameterSet.Config as cms
 source = cms.Source("EmptySource")
 
 generator = cms.EDProducer("Pythia6PtGun",
-    PGunParameters = cms.untracked.PSet(
-        ParticleID = cms.untracked.vint32(-15),
-        AddAntiParticle = cms.untracked.bool(False),
-        MinPhi = cms.untracked.double(0),
-        MaxPhi = cms.untracked.double(360),
-        MinPt = cms.untracked.double(50.0),
-        MaxPt = cms.untracked.double(50.0001),
-        MinEta = cms.untracked.double(-2.4),
-        MaxEta = cms.untracked.double(2.4)
+    PGunParameters = cms.PSet(
+        ParticleID = cms.vint32(-15),
+        AddAntiParticle = cms.bool(False),
+        MinPhi = cms.double((-3.14159265359),
+        MaxPhi = cms.double((3.14159265359),
+        MinPt = cms.double(50.0),
+        MaxPt = cms.double(50.0001),
+        MinEta = cms.double(-2.4),
+        MaxEta = cms.double(2.4)
     ),
     PythiaParameters = cms.PSet(
         pythiaTauJets = cms.vstring(
