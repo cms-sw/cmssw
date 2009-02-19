@@ -170,8 +170,15 @@ bool HLTDisplacedmumuFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
 			if (t_tks.size()!=2) continue;
 			
 			KalmanVertexFitter kvf;
-			TransientVertex tv = kvf.vertex(t_tks);
-					
+			TransientVertex tv; // = kvf.vertex(t_tks);
+
+			try{
+			  tv = kvf.vertex(t_tks);
+			}catch( TrajectoryStateException e ){
+			  cout << "HLTDisplacedMumuFilter dirty fix using try/catch:" << std::endl << e << std::endl;
+			  continue;
+			}
+
 			if (!tv.isValid()) continue;
 			Vertex vertex = tv;
 			 
