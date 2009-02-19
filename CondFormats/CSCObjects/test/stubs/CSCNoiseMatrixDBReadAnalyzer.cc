@@ -46,6 +46,8 @@ namespace edmtest
     context.get<CSCDBNoiseMatrixRcd>().get(pNoiseMatrix);
 
     const CSCDBNoiseMatrix* myNoiseMatrix=pNoiseMatrix.product();
+    std::cout << " Scale factor for conversion to int was " << myNoiseMatrix->factor_noise << std::endl;
+
     std::vector<CSCDBNoiseMatrix::Item>::const_iterator it;
 
     for( it=myNoiseMatrix->matrix.begin();it!=myNoiseMatrix->matrix.end(); ++it ){
