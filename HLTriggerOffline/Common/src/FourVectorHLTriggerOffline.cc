@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTriggerOffline.cc,v 1.5 2009/02/11 22:59:27 berryhil Exp $
+// $Id: FourVectorHLTriggerOffline.cc,v 1.6 2009/02/12 15:43:54 berryhil Exp $
 // See header file for information. 
 #include "TMath.h"
 
@@ -85,7 +85,7 @@ FourVectorHLTriggerOffline::FourVectorHLTriggerOffline(const edm::ParameterSet& 
   // plotting paramters
   ptMin_ = iConfig.getUntrackedParameter<double>("ptMin",0.);
   ptMax_ = iConfig.getUntrackedParameter<double>("ptMax",1000.);
-  nBins_ = iConfig.getUntrackedParameter<unsigned int>("Nbins",40);
+  nBins_ = iConfig.getUntrackedParameter<unsigned int>("Nbins",20);
   
   plotAll_ = iConfig.getUntrackedParameter<bool>("plotAll", false);
      // this is the list of paths to look at.
@@ -407,8 +407,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
           if (abs(p.pdgId()) == 13 && p.status() == 3 && fabs(p.eta()) <= muonEtaMax_ && p.pt() >= muonEtMin_){
             NMc++;
 	    v->getMcEtMcHisto()->Fill(p.pt());
-	    v->getMcEtaMcHisto()->Fill(p.eta());
-	    v->getMcPhiMcHisto()->Fill(p.phi());
 	    v->getMcEtaVsMcPhiMcHisto()->Fill(p.eta(),p.phi());
 	  }
 	 }
@@ -421,8 +419,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if (fabs((*muonIter).eta()) <= muonEtaMax_ && (*muonIter).pt() >= muonEtMin_){
 	  NOff++;
 	  v->getOffEtOffHisto()->Fill((*muonIter).pt());
-	  v->getOffEtaOffHisto()->Fill((*muonIter).eta());
-	  v->getOffPhiOffHisto()->Fill((*muonIter).phi());
 	  v->getOffEtaVsOffPhiOffHisto()->Fill((*muonIter).eta(),(*muonIter).phi());
 	   }
          }
@@ -434,8 +430,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if (fabs((*l1MuonIter).eta()) <= muonEtaMax_ && (*l1MuonIter).pt() >= muonEtMin_){
 	  NL1++;
 	  v->getL1EtL1Histo()->Fill((*l1MuonIter).pt());
-	  v->getL1EtaL1Histo()->Fill((*l1MuonIter).eta());
-	  v->getL1PhiL1Histo()->Fill((*l1MuonIter).phi());
 	  v->getL1EtaVsL1PhiL1Histo()->Fill((*l1MuonIter).eta(),(*l1MuonIter).phi());
 	   }
 
@@ -446,8 +440,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if (reco::deltaR((*muonIter).eta(),(*muonIter).phi(),(*l1MuonIter).eta(),(*l1MuonIter).phi()) < 0.3 && fabs((*muonIter).eta()) <= muonEtaMax_ && (*muonIter).pt() >= muonEtMin_ ){
 	  NL1Off++;
 	  v->getOffEtL1OffHisto()->Fill((*muonIter).pt());
-	  v->getOffEtaL1OffHisto()->Fill((*muonIter).eta());
-	  v->getOffPhiL1OffHisto()->Fill((*muonIter).phi());
 	  v->getOffEtaVsOffPhiL1OffHisto()->Fill((*muonIter).eta(),(*muonIter).phi());
 	   }
 	  }
@@ -460,8 +452,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if (reco::deltaR(p.eta(),p.phi(),(*l1MuonIter).eta(),(*l1MuonIter).phi()) < 0.3){
 	    NL1Mc++;
 	    v->getMcEtL1McHisto()->Fill(p.pt());
-	    v->getMcEtaL1McHisto()->Fill(p.eta());
-	    v->getMcPhiL1McHisto()->Fill(p.phi());
 	    v->getMcEtaVsMcPhiL1McHisto()->Fill(p.eta(),p.phi());
 	   }
 	  }
@@ -480,8 +470,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
           if (abs(p.pdgId()) == 11 && p.status() == 3 && fabs(p.eta()) <= electronEtaMax_ && p.pt() >= electronEtMin_ ){
             NMc++;
 	    v->getMcEtMcHisto()->Fill(p.pt());
-	    v->getMcEtaMcHisto()->Fill(p.eta());
-	    v->getMcPhiMcHisto()->Fill(p.phi());
 	    v->getMcEtaVsMcPhiMcHisto()->Fill(p.eta(),p.phi());
 	  }
 	 }
@@ -495,8 +483,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if (fabs(gsfIter->eta()) <= electronEtaMax_ && gsfIter->pt() >= electronEtMin_ ){
 	  NOff++;
 	  v->getOffEtOffHisto()->Fill(gsfIter->pt());
-	  v->getOffEtaOffHisto()->Fill(gsfIter->eta());
-	  v->getOffPhiOffHisto()->Fill(gsfIter->phi());
 	  v->getOffEtaVsOffPhiOffHisto()->Fill(gsfIter->eta(), gsfIter->phi());
 	   }
          }
@@ -510,8 +496,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	     if (fabs((*l1ElectronIter).eta()) <= electronEtaMax_ && (*l1ElectronIter).pt() >= electronEtMin_ ){
 	  NL1++;
      	  v->getL1EtL1Histo()->Fill((*l1ElectronIter).pt());
-     	  v->getL1EtaL1Histo()->Fill((*l1ElectronIter).eta());
-          v->getL1PhiL1Histo()->Fill((*l1ElectronIter).phi());
      	  v->getL1EtaVsL1PhiL1Histo()->Fill((*l1ElectronIter).eta(),(*l1ElectronIter).phi());
 	     }    
 	  if (gsfElectrons.isValid()){
@@ -520,8 +504,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if (reco::deltaR(gsfIter->eta(),gsfIter->phi(),(*l1ElectronIter).eta(),(*l1ElectronIter).phi()) < 0.3 && fabs(gsfIter->eta()) <= electronEtaMax_ && gsfIter->pt() >= electronEtMin_ ){
 	  NL1Off++;
 	  v->getOffEtL1OffHisto()->Fill(gsfIter->pt());
-	  v->getOffEtaL1OffHisto()->Fill(gsfIter->eta());
-	  v->getOffPhiL1OffHisto()->Fill(gsfIter->phi());
 	  v->getOffEtaVsOffPhiL1OffHisto()->Fill(gsfIter->eta(), gsfIter->phi());}
 	 }
          }
@@ -533,8 +515,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if (reco::deltaR(p.eta(),p.phi(),(*l1ElectronIter).eta(),(*l1ElectronIter).phi()) < 0.3){
 	    NL1Mc++;
 	    v->getMcEtL1McHisto()->Fill(p.pt());
-	    v->getMcEtaL1McHisto()->Fill(p.eta());
-	    v->getMcPhiL1McHisto()->Fill(p.phi());
 	    v->getMcEtaVsMcPhiL1McHisto()->Fill(p.eta(),p.phi());
 	   }
 	  }
@@ -557,8 +537,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
           if (abs(p.pdgId()) == 15 && p.status() == 3 && fabs(p.eta()) <= tauEtaMax_ && p.pt() >= tauEtMin_){
             NMc++; 
 	    v->getMcEtMcHisto()->Fill(p.pt());
-	    v->getMcEtaMcHisto()->Fill(p.eta());
-	    v->getMcPhiMcHisto()->Fill(p.phi());
 	    v->getMcEtaVsMcPhiMcHisto()->Fill(p.eta(),p.phi());
 	  }
 	 }
@@ -571,8 +549,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if (fabs((*tauIter).eta()) <= tauEtaMax_ && (*tauIter).pt() >= tauEtMin_ ){
 	  NOff++;
 	  v->getOffEtOffHisto()->Fill((*tauIter).pt());
-	  v->getOffEtaOffHisto()->Fill((*tauIter).eta());
-	  v->getOffPhiOffHisto()->Fill((*tauIter).phi());
 	  v->getOffEtaVsOffPhiOffHisto()->Fill((*tauIter).eta(),(*tauIter).phi());
 	   }
          }
@@ -592,8 +568,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	     if (fabs((*l1TauIter).eta()) <= tauEtaMax_ && (*l1TauIter).pt() >= tauEtMin_ ){
 	  NL1++;
      	  v->getL1EtL1Histo()->Fill((*l1TauIter).pt());
-     	  v->getL1EtaL1Histo()->Fill((*l1TauIter).eta());
-          v->getL1PhiL1Histo()->Fill((*l1TauIter).phi());
      	  v->getL1EtaVsL1PhiL1Histo()->Fill((*l1TauIter).eta(),(*l1TauIter).phi());
 	     }
 
@@ -604,8 +578,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if (reco::deltaR((*tauIter).eta(),(*tauIter).phi(),(*l1TauIter).eta(),(*l1TauIter).phi()) < 0.3 && fabs((*tauIter).eta()) <= tauEtaMax_ && (*tauIter).pt() >= tauEtMin_ ){
 	  NL1Off++;
 	  v->getOffEtL1OffHisto()->Fill((*tauIter).pt());
-	  v->getOffEtaL1OffHisto()->Fill((*tauIter).eta());
-	  v->getOffPhiL1OffHisto()->Fill((*tauIter).phi());
 	  v->getOffEtaVsOffPhiL1OffHisto()->Fill((*tauIter).eta(),(*tauIter).phi());}
          }}
 
@@ -616,8 +588,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if (reco::deltaR(p.eta(),p.phi(),(*l1TauIter).eta(),(*l1TauIter).phi()) < 0.3){
 	    NL1Mc++;
 	    v->getMcEtL1McHisto()->Fill(p.pt());
-	    v->getMcEtaL1McHisto()->Fill(p.eta());
-	    v->getMcPhiL1McHisto()->Fill(p.phi());
 	    v->getMcEtaVsMcPhiL1McHisto()->Fill(p.eta(),p.phi());
 	   }
 	  }
@@ -640,8 +610,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
           if ((abs(p.pdgId()) == 21 || (abs(p.pdgId()) <= 5 && abs(p.pdgId()) >=1)) && p.status() == 3 && fabs(p.eta()) <= jetEtaMax_ && p.pt() >= jetEtMin_ ){
             NMc++; 
 	    v->getMcEtMcHisto()->Fill(p.pt());
-	    v->getMcEtaMcHisto()->Fill(p.eta());
-	    v->getMcPhiMcHisto()->Fill(p.phi());
 	    v->getMcEtaVsMcPhiMcHisto()->Fill(p.eta(),p.phi());
 	  }
 	 }
@@ -654,8 +622,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if (fabs((*jetIter).eta()) <= jetEtaMax_ && (*jetIter).pt() >= jetEtMin_ ){
 	  NOff++;
 	  v->getOffEtOffHisto()->Fill((*jetIter).pt());
-	  v->getOffEtaOffHisto()->Fill((*jetIter).eta());
-	  v->getOffPhiOffHisto()->Fill((*jetIter).phi());
 	  v->getOffEtaVsOffPhiOffHisto()->Fill((*jetIter).eta(),(*jetIter).phi());
 	   }
          }
@@ -675,8 +641,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	     if (fabs((*l1JetIter).eta()) <= jetEtaMax_ && (*l1JetIter).pt() >= jetEtMin_ ){
 	  NL1++;
      	  v->getL1EtL1Histo()->Fill((*l1JetIter).pt());
-     	  v->getL1EtaL1Histo()->Fill((*l1JetIter).eta());
-          v->getL1PhiL1Histo()->Fill((*l1JetIter).phi());
      	  v->getL1EtaVsL1PhiL1Histo()->Fill((*l1JetIter).eta(),(*l1JetIter).phi());
 	     }
 
@@ -687,8 +651,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if (reco::deltaR((*jetIter).eta(),(*jetIter).phi(),(*l1JetIter).eta(),(*l1JetIter).phi()) < 0.3 && fabs((*jetIter).eta()) <= jetEtaMax_ && (*jetIter).pt() >= jetEtMin_ ){
 	  NL1Off++;
 	  v->getOffEtL1OffHisto()->Fill((*jetIter).pt());
-	  v->getOffEtaL1OffHisto()->Fill((*jetIter).eta());
-	  v->getOffPhiL1OffHisto()->Fill((*jetIter).phi());
 	  v->getOffEtaVsOffPhiL1OffHisto()->Fill((*jetIter).eta(),(*jetIter).phi());}
          }}
 
@@ -699,8 +661,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if (reco::deltaR(p.eta(),p.phi(),(*l1JetIter).eta(),(*l1JetIter).phi()) < 0.3){
 	    NL1Mc++;
 	    v->getMcEtL1McHisto()->Fill(p.pt());
-	    v->getMcEtaL1McHisto()->Fill(p.eta());
-	    v->getMcPhiL1McHisto()->Fill(p.phi());
 	    v->getMcEtaVsMcPhiL1McHisto()->Fill(p.eta(),p.phi());
 	   }
 	  }
@@ -723,8 +683,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
  	   if (fabs(BRefJet->eta()) <= bjetEtaMax_ && BRefJet->pt() >= bjetEtMin_ ){
 	      NOff++;
 	      v->getOffEtOffHisto()->Fill(BRefJet->pt());
-	      v->getOffEtaOffHisto()->Fill(BRefJet->eta());
-	      v->getOffPhiOffHisto()->Fill(BRefJet->phi());
 	      v->getOffEtaVsOffPhiOffHisto()->Fill(BRefJet->eta(),BRefJet->phi());
 	   }
 	  }
@@ -737,8 +695,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
  	   if (fabs(BRefJet->eta()) <= bjetEtaMax_ && BRefJet->pt() >= bjetEtMin_ ){
 	      NOff++;
 	      v->getOffEtOffHisto()->Fill(BRefJet->pt());
-	      v->getOffEtaOffHisto()->Fill(BRefJet->eta());
-	      v->getOffPhiOffHisto()->Fill(BRefJet->phi());
 	      v->getOffEtaVsOffPhiOffHisto()->Fill(BRefJet->eta(),BRefJet->phi());
 	   }
 	  }
@@ -752,8 +708,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
           if (abs(p.pdgId()) == 5 && p.status() == 3 && fabs(p.eta()) <= bjetEtaMax_ && p.pt() >= bjetEtMin_){
             NMc++; 
 	    v->getMcEtMcHisto()->Fill(p.pt());
-	    v->getMcEtaMcHisto()->Fill(p.eta());
-	    v->getMcPhiMcHisto()->Fill(p.phi());
 	    v->getMcEtaVsMcPhiMcHisto()->Fill(p.eta(),p.phi());
 	   }
 	  }
@@ -775,8 +729,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	     if (fabs((*l1JetIter).eta()) <= bjetEtaMax_ && (*l1JetIter).pt() >= bjetEtMin_ ){
 	  NL1++;
      	  v->getL1EtL1Histo()->Fill((*l1JetIter).pt());
-     	  v->getL1EtaL1Histo()->Fill((*l1JetIter).eta());
-          v->getL1PhiL1Histo()->Fill((*l1JetIter).phi());
      	  v->getL1EtaVsL1PhiL1Histo()->Fill((*l1JetIter).eta(),(*l1JetIter).phi());
 	    }
 
@@ -790,8 +742,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if (reco::deltaR(BRefJet->eta(),BRefJet->phi(),(*l1JetIter).eta(),(*l1JetIter).phi()) < 0.3){
 	      NL1Off++;
 	      v->getOffEtL1OffHisto()->Fill(BRefJet->pt());
-	      v->getOffEtaL1OffHisto()->Fill(BRefJet->eta());
-	      v->getOffPhiL1OffHisto()->Fill(BRefJet->phi());
 	      v->getOffEtaVsOffPhiL1OffHisto()->Fill(BRefJet->eta(),BRefJet->phi());
 	    }
 	   }
@@ -808,8 +758,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if (reco::deltaR(BRefJet->eta(),BRefJet->phi(),(*l1JetIter).eta(),(*l1JetIter).phi()) < 0.3){
 	      NL1Off++;
 	      v->getOffEtL1OffHisto()->Fill(BRefJet->pt());
-	      v->getOffEtaL1OffHisto()->Fill(BRefJet->eta());
-	      v->getOffPhiL1OffHisto()->Fill(BRefJet->phi());
 	      v->getOffEtaVsOffPhiL1OffHisto()->Fill(BRefJet->eta(),BRefJet->phi());
 	    }
 	   }
@@ -824,8 +772,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if (reco::deltaR(p.eta(),p.phi(),(*l1JetIter).eta(),(*l1JetIter).phi()) < 0.3){
 	    NL1Mc++;
 	    v->getMcEtL1McHisto()->Fill(p.pt());
-	    v->getMcEtaL1McHisto()->Fill(p.eta());
-	    v->getMcPhiL1McHisto()->Fill(p.phi());
 	    v->getMcEtaVsMcPhiL1McHisto()->Fill(p.eta(),p.phi());
 	   }
 	  }
@@ -858,8 +804,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
             if (met >= metEtMin_){
 	    NMc++;
             v->getMcEtMcHisto()->Fill(met);
-	    v->getMcEtaMcHisto()->Fill(0.0);
-	    v->getMcPhiMcHisto()->Fill(atan2(mety,metx));
 	    v->getMcEtaVsMcPhiMcHisto()->Fill(0.0,atan2(mety,metx));
 	    }
 	}
@@ -871,8 +815,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if ((*metIter).pt() >= metEtMin_){
 	  NOff++;
 	  v->getOffEtOffHisto()->Fill((*metIter).pt());
-	  v->getOffEtaOffHisto()->Fill((*metIter).eta());
-	  v->getOffPhiOffHisto()->Fill((*metIter).phi());
 	  v->getOffEtaVsOffPhiOffHisto()->Fill((*metIter).eta(),(*metIter).phi());
 	   }
          }
@@ -885,8 +827,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if ((*l1MetIter).pt() >= metEtMin_){
 	  NL1++;
 	  v->getL1EtL1Histo()->Fill((*l1MetIter).pt());
-	  v->getL1EtaL1Histo()->Fill((*l1MetIter).eta());
-	  v->getL1PhiL1Histo()->Fill((*l1MetIter).phi());
 	  v->getL1EtaVsL1PhiL1Histo()->Fill((*l1MetIter).eta(),(*l1MetIter).phi());
 	   }
 
@@ -897,8 +837,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if (reco::deltaR((*metIter).eta(),(*metIter).phi(),(*l1MetIter).eta(),(*l1MetIter).phi()) < 0.3 && (*metIter).pt() >= metEtMin_){
 	  NL1Off++;
 	  v->getOffEtL1OffHisto()->Fill((*metIter).pt());
-	  v->getOffEtaL1OffHisto()->Fill((*metIter).eta());
-	  v->getOffPhiL1OffHisto()->Fill((*metIter).phi());
 	  v->getOffEtaVsOffPhiL1OffHisto()->Fill((*metIter).eta(),(*metIter).phi());}
          }}
 
@@ -916,8 +854,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	 if (met >= metEtMin_){
 	 NL1Mc++;
 	 v->getMcEtL1McHisto()->Fill(met);
-	 v->getMcEtaL1McHisto()->Fill(0.0);
-	 v->getMcPhiL1McHisto()->Fill(atan2(mety,metx));
 	 v->getMcEtaVsMcPhiL1McHisto()->Fill(0.0,atan2(mety,metx));
 	 }
 	}
@@ -938,8 +874,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
           if (abs(p.pdgId()) == 22 && p.status() == 3 && fabs(p.eta()) <= photonEtaMax_ && p.pt() >= photonEtMin_){
             NMc++; 
 	    v->getMcEtMcHisto()->Fill(p.pt());
-	    v->getMcEtaMcHisto()->Fill(p.eta());
-	    v->getMcPhiMcHisto()->Fill(p.phi());
 	    v->getMcEtaVsMcPhiMcHisto()->Fill(p.eta(),p.phi());
 	  }
 	 }
@@ -952,8 +886,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if (fabs((*photonIter).eta()) <= photonEtaMax_ && (*photonIter).pt() >= photonEtMin_ ){
 	  NOff++;
 	  v->getOffEtOffHisto()->Fill((*photonIter).pt());
-	  v->getOffEtaOffHisto()->Fill((*photonIter).eta());
-	  v->getOffPhiOffHisto()->Fill((*photonIter).phi());
 	  v->getOffEtaVsOffPhiOffHisto()->Fill((*photonIter).eta(),(*photonIter).phi());
 	   }
          }
@@ -973,8 +905,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	     if ((*l1PhotonIter).eta() <= photonEtaMax_ && (*l1PhotonIter).pt() >= photonEtMin_ ){
 	  NL1++;
      	  v->getL1EtL1Histo()->Fill((*l1PhotonIter).pt());
-     	  v->getL1EtaL1Histo()->Fill((*l1PhotonIter).eta());
-          v->getL1PhiL1Histo()->Fill((*l1PhotonIter).phi());
      	  v->getL1EtaVsL1PhiL1Histo()->Fill((*l1PhotonIter).eta(),(*l1PhotonIter).phi());
 	     }
 
@@ -985,8 +915,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if (reco::deltaR((*photonIter).eta(),(*photonIter).phi(),(*l1PhotonIter).eta(),(*l1PhotonIter).phi()) < 0.3 && fabs((*photonIter).eta()) <= photonEtaMax_ && (*photonIter).pt() >= photonEtMin_ ){
 	  NL1Off++;
 	  v->getOffEtL1OffHisto()->Fill((*photonIter).pt());
-	  v->getOffEtaL1OffHisto()->Fill((*photonIter).eta());
-	  v->getOffPhiL1OffHisto()->Fill((*photonIter).phi());
 	  v->getOffEtaVsOffPhiL1OffHisto()->Fill((*photonIter).eta(),(*photonIter).phi());}
          }}
 
@@ -997,8 +925,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if (reco::deltaR(p.eta(),p.phi(),(*l1PhotonIter).eta(),(*l1PhotonIter).phi()) < 0.3){
 	    NL1Mc++;
 	    v->getMcEtL1McHisto()->Fill(p.pt());
-	    v->getMcEtaL1McHisto()->Fill(p.eta());
-	    v->getMcPhiL1McHisto()->Fill(p.phi());
 	    v->getMcEtaVsMcPhiL1McHisto()->Fill(p.eta(),p.phi());
 	   }
 	  }
@@ -1096,8 +1022,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	  {
 	NOn++;    
         v->getOnEtOnHisto()->Fill(toc[*ki].pt());
-	v->getOnEtaOnHisto()->Fill(toc[*ki].eta());
-	v->getOnPhiOnHisto()->Fill(toc[*ki].phi());
 	v->getOnEtaVsOnPhiOnHisto()->Fill(toc[*ki].eta(), toc[*ki].phi());
 	  }
 	//	  cout << "pdgId "<<toc[*ki].id() << endl;
@@ -1112,8 +1036,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if (reco::deltaR((*muonIter).eta(),(*muonIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3 && fabs((*muonIter).eta())<= muonEtaMax_ && (*muonIter).pt() >= muonEtMin_){
 	  NOnOff++;
 	  v->getOffEtOnOffHisto()->Fill((*muonIter).pt());
-	  v->getOffEtaOnOffHisto()->Fill((*muonIter).eta());
-	  v->getOffPhiOnOffHisto()->Fill((*muonIter).phi());
 	  v->getOffEtaVsOffPhiOnOffHisto()->Fill((*muonIter).eta(),(*muonIter).phi());
 	   }
          }
@@ -1125,8 +1047,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if (reco::deltaR((*l1MuonIter).eta(),(*l1MuonIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3 && fabs((*l1MuonIter).eta()) <= muonEtaMax_ && (*l1MuonIter).pt() >= muonEtMin_ ){
 	  NL1On++;
 	  v->getL1EtL1OnHisto()->Fill((*l1MuonIter).pt());
-	  v->getL1EtaL1OnHisto()->Fill((*l1MuonIter).eta());
-	  v->getL1PhiL1OnHisto()->Fill((*l1MuonIter).phi());
 	  v->getL1EtaVsL1PhiL1OnHisto()->Fill((*l1MuonIter).eta(),(*l1MuonIter).phi());
 	   }
          }
@@ -1138,8 +1058,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if (reco::deltaR(p.eta(),p.phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3){
 	    NOnMc++;
 	    v->getMcEtOnMcHisto()->Fill(p.pt());
-	    v->getMcEtaOnMcHisto()->Fill(p.eta());
-	    v->getMcPhiOnMcHisto()->Fill(p.phi());
 	    v->getMcEtaVsMcPhiOnMcHisto()->Fill(p.eta(),p.phi());
 	   }
 	  }
@@ -1160,8 +1078,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if (reco::deltaR((*gsfIter).eta(),(*gsfIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3 && fabs((*gsfIter).eta()) <= electronEtaMax_ && (*gsfIter).pt() >= electronEtMin_ ){
 	  NOnOff++;
 	  v->getOffEtOnOffHisto()->Fill(gsfIter->pt());
-	  v->getOffEtaOnOffHisto()->Fill(gsfIter->eta());
-	  v->getOffPhiOnOffHisto()->Fill(gsfIter->phi());
 	  v->getOffEtaVsOffPhiOnOffHisto()->Fill(gsfIter->eta(), gsfIter->phi());
 	   }
          }}
@@ -1173,8 +1089,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if (reco::deltaR((*l1ElectronIter).eta(),(*l1ElectronIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3 && fabs((*l1ElectronIter).eta()) <= electronEtaMax_ && (*l1ElectronIter).pt() >= electronEtMin_ ){
 	  NL1On++;
      	  v->getL1EtL1OnHisto()->Fill((*l1ElectronIter).pt());
-     	  v->getL1EtaL1OnHisto()->Fill((*l1ElectronIter).eta());
-          v->getL1PhiL1OnHisto()->Fill((*l1ElectronIter).phi());
      	  v->getL1EtaVsL1PhiL1OnHisto()->Fill((*l1ElectronIter).eta(),(*l1ElectronIter).phi());
 	   }
 	   }
@@ -1188,8 +1102,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if (reco::deltaR(p.eta(),p.phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3){
 	    NOnMc++;
 	    v->getMcEtOnMcHisto()->Fill(p.pt());
-	    v->getMcEtaOnMcHisto()->Fill(p.eta());
-	    v->getMcPhiOnMcHisto()->Fill(p.phi());
 	    v->getMcEtaVsMcPhiOnMcHisto()->Fill(p.eta(),p.phi());
 	   }
 	  }
@@ -1210,8 +1122,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if (reco::deltaR((*tauIter).eta(),(*tauIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3 && fabs((*tauIter).eta()) <= tauEtaMax_ && (*tauIter).pt() >= tauEtMin_ ){
 	  NOnOff++;
 	  v->getOffEtOnOffHisto()->Fill((*tauIter).pt());
-	  v->getOffEtaOnOffHisto()->Fill((*tauIter).eta());
-	  v->getOffPhiOnOffHisto()->Fill((*tauIter).phi());
 	  v->getOffEtaVsOffPhiOnOffHisto()->Fill((*tauIter).eta(),(*tauIter).phi());
 	   }
          }}
@@ -1229,8 +1139,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if (reco::deltaR((*l1TauIter).eta(),(*l1TauIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3 && fabs((*l1TauIter).eta()) <= tauEtaMax_ && (*l1TauIter).pt() >= tauEtMin_ ){
 	  NL1On++;
      	  v->getL1EtL1OnHisto()->Fill((*l1TauIter).pt());
-     	  v->getL1EtaL1OnHisto()->Fill((*l1TauIter).eta());
-          v->getL1PhiL1OnHisto()->Fill((*l1TauIter).phi());
      	  v->getL1EtaVsL1PhiL1OnHisto()->Fill((*l1TauIter).eta(),(*l1TauIter).phi());
 	   }
 	  }
@@ -1244,8 +1152,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if (reco::deltaR(p.eta(),p.phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3 ){
 	    NOnMc++;
 	    v->getMcEtOnMcHisto()->Fill(p.pt());
-	    v->getMcEtaOnMcHisto()->Fill(p.eta());
-	    v->getMcPhiOnMcHisto()->Fill(p.phi());
 	    v->getMcEtaVsMcPhiOnMcHisto()->Fill(p.eta(),p.phi());
 	   }
 	  }
@@ -1266,8 +1172,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if (reco::deltaR((*jetIter).eta(),(*jetIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3 && fabs((*jetIter).eta()) <= jetEtaMax_ && (*jetIter).pt() >= jetEtMin_ ){
 	  NOnOff++;
 	  v->getOffEtOnOffHisto()->Fill((*jetIter).pt());
-	  v->getOffEtaOnOffHisto()->Fill((*jetIter).eta());
-	  v->getOffPhiOnOffHisto()->Fill((*jetIter).phi());
 	  v->getOffEtaVsOffPhiOnOffHisto()->Fill((*jetIter).eta(),(*jetIter).phi());
 	   }
          }}
@@ -1284,8 +1188,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if (reco::deltaR((*l1JetIter).eta(),(*l1JetIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3 && fabs((*l1JetIter).eta()) <= jetEtaMax_ && (*l1JetIter).pt() >= jetEtMin_ ){
 	  NL1On++;
      	  v->getL1EtL1OnHisto()->Fill((*l1JetIter).pt());
-     	  v->getL1EtaL1OnHisto()->Fill((*l1JetIter).eta());
-          v->getL1PhiL1OnHisto()->Fill((*l1JetIter).phi());
      	  v->getL1EtaVsL1PhiL1OnHisto()->Fill((*l1JetIter).eta(),(*l1JetIter).phi());
 	   }
 	   }
@@ -1299,8 +1201,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if (reco::deltaR(p.eta(),p.phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3){
 	    NOnMc++;
 	    v->getMcEtOnMcHisto()->Fill(p.pt());
-	    v->getMcEtaOnMcHisto()->Fill(p.eta());
-	    v->getMcPhiOnMcHisto()->Fill(p.phi());
 	    v->getMcEtaVsMcPhiOnMcHisto()->Fill(p.eta(),p.phi());
 	   }
 	  }
@@ -1322,8 +1222,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if (reco::deltaR(BRefJet->eta(),BRefJet->phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3){
 	      NOnOff++;
 	      v->getOffEtOnOffHisto()->Fill(BRefJet->pt());
-	      v->getOffEtaOnOffHisto()->Fill(BRefJet->eta());
-	      v->getOffPhiOnOffHisto()->Fill(BRefJet->phi());
 	      v->getOffEtaVsOffPhiOnOffHisto()->Fill(BRefJet->eta(),BRefJet->phi());
 	    }
 	   }
@@ -1340,8 +1238,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if (reco::deltaR(BRefJet->eta(),BRefJet->phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3){
 	      NOnOff++;
 	      v->getOffEtOnOffHisto()->Fill(BRefJet->pt());
-	      v->getOffEtaOnOffHisto()->Fill(BRefJet->eta());
-	      v->getOffPhiOnOffHisto()->Fill(BRefJet->phi());
 	      v->getOffEtaVsOffPhiOnOffHisto()->Fill(BRefJet->eta(),BRefJet->phi());
 	    }
 	   }
@@ -1360,8 +1256,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if (reco::deltaR((*l1JetIter).eta(),(*l1JetIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3 && fabs((*l1JetIter).eta()) <= bjetEtaMax_ && (*l1JetIter).pt() >= bjetEtMin_ ){
 	  NL1On++;
      	  v->getL1EtL1OnHisto()->Fill((*l1JetIter).pt());
-     	  v->getL1EtaL1OnHisto()->Fill((*l1JetIter).eta());
-          v->getL1PhiL1OnHisto()->Fill((*l1JetIter).phi());
      	  v->getL1EtaVsL1PhiL1OnHisto()->Fill((*l1JetIter).eta(),(*l1JetIter).phi());
 	   }
 	  }
@@ -1375,8 +1269,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if (reco::deltaR(p.eta(),p.phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3){
 	    NOnMc++;
 	    v->getMcEtOnMcHisto()->Fill(p.pt());
-	    v->getMcEtaOnMcHisto()->Fill(p.eta());
-	    v->getMcPhiOnMcHisto()->Fill(p.phi());
 	    v->getMcEtaVsMcPhiOnMcHisto()->Fill(p.eta(),p.phi());
 	   }
 	  }
@@ -1395,8 +1287,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if (reco::deltaR((*metIter).eta(),(*metIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3 && (*metIter).pt() >= metEtMin_ ){
 	  NOnOff++;
 	  v->getOffEtOnOffHisto()->Fill((*metIter).pt());
-	  v->getOffEtaOnOffHisto()->Fill((*metIter).eta());
-	  v->getOffPhiOnOffHisto()->Fill((*metIter).phi());
 	  v->getOffEtaVsOffPhiOnOffHisto()->Fill((*metIter).eta(),(*metIter).phi());
 	   }
          }}
@@ -1406,8 +1296,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if (reco::deltaR((*l1MetIter).eta(),(*l1MetIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3 && (*l1MetIter).pt() >= metEtMin_ ){
 	  NL1On++;
 	  v->getL1EtL1OnHisto()->Fill((*l1MetIter).pt());
-	  v->getL1EtaL1OnHisto()->Fill((*l1MetIter).eta());
-	  v->getL1PhiL1OnHisto()->Fill((*l1MetIter).phi());
 	  v->getL1EtaVsL1PhiL1OnHisto()->Fill((*l1MetIter).eta(),(*l1MetIter).phi());
 	   }
          }
@@ -1426,8 +1314,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
          if (met > metEtMin_){
 	 NOnMc++;  
 	 v->getMcEtOnMcHisto()->Fill(met);
-	 v->getMcEtaOnMcHisto()->Fill(0.0);
-	 v->getMcPhiOnMcHisto()->Fill(atan2(mety,metx));
 	 v->getMcEtaVsMcPhiOnMcHisto()->Fill(0.0,atan2(mety,metx));
 	 }
 	}
@@ -1447,8 +1333,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if (reco::deltaR((*photonIter).eta(),(*photonIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3 && fabs((*photonIter).eta()) <= photonEtaMax_ && (*photonIter).pt() >= photonEtMin_ ){
 	  NOnOff++;
 	  v->getOffEtOnOffHisto()->Fill((*photonIter).pt());
-	  v->getOffEtaOnOffHisto()->Fill((*photonIter).eta());
-	  v->getOffPhiOnOffHisto()->Fill((*photonIter).phi());
 	  v->getOffEtaVsOffPhiOnOffHisto()->Fill((*photonIter).eta(),(*photonIter).phi());
 	   }
          }}
@@ -1466,8 +1350,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if (reco::deltaR((*l1PhotonIter).eta(),(*l1PhotonIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3 && fabs((*l1PhotonIter).eta()) <= photonEtaMax_ && (*l1PhotonIter).pt() >= photonEtMin_ ){
 	  NL1On++;
      	  v->getL1EtL1OnHisto()->Fill((*l1PhotonIter).pt());
-     	  v->getL1EtaL1OnHisto()->Fill((*l1PhotonIter).eta());
-          v->getL1PhiL1OnHisto()->Fill((*l1PhotonIter).phi());
      	  v->getL1EtaVsL1PhiL1OnHisto()->Fill((*l1PhotonIter).eta(),(*l1PhotonIter).phi());
 	   }
 	   
@@ -1482,8 +1364,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   if (reco::deltaR(p.eta(),p.phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3){
 	    NOnMc++;
 	    v->getMcEtOnMcHisto()->Fill(p.pt());
-	    v->getMcEtaOnMcHisto()->Fill(p.eta());
-	    v->getMcPhiOnMcHisto()->Fill(p.phi());
 	    v->getMcEtaVsMcPhiOnMcHisto()->Fill(p.eta(),p.phi());
 	   }
 	  }
@@ -1803,15 +1683,15 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
     // now set up all of the histos for each path
     for(PathInfoCollection::iterator v = hltPaths_.begin();
 	  v!= hltPaths_.end(); ++v ) {
-    	MonitorElement *NOn, *onEtOn, *onEtaOn, *onPhiOn, *onEtavsonPhiOn=0;
-    	MonitorElement *NMc, *mcEtMc, *mcEtaMc, *mcPhiMc, *mcEtavsmcPhiMc=0;
-	MonitorElement *NOff, *offEtOff, *offEtaOff, *offPhiOff, *offEtavsoffPhiOff=0;
-	MonitorElement *NL1, *l1EtL1, *l1EtaL1, *l1PhiL1, *l1Etavsl1PhiL1=0;
-    	MonitorElement *NL1On, *l1EtL1On, *l1EtaL1On, *l1PhiL1On, *l1Etavsl1PhiL1On=0;
-	MonitorElement *NL1Off, *offEtL1Off, *offEtaL1Off, *offPhiL1Off, *offEtavsoffPhiL1Off=0;
-	MonitorElement *NOnOff, *offEtOnOff, *offEtaOnOff, *offPhiOnOff, *offEtavsoffPhiOnOff=0;
-	MonitorElement *NL1Mc, *mcEtL1Mc, *mcEtaL1Mc, *mcPhiL1Mc, *mcEtavsmcPhiL1Mc=0;
-	MonitorElement *NOnMc, *mcEtOnMc, *mcEtaOnMc, *mcPhiOnMc, *mcEtavsmcPhiOnMc=0;
+    	MonitorElement *NOn, *onEtOn, *onEtavsonPhiOn=0;
+    	MonitorElement *NMc, *mcEtMc, *mcEtavsmcPhiMc=0;
+	MonitorElement *NOff, *offEtOff, *offEtavsoffPhiOff=0;
+	MonitorElement *NL1, *l1EtL1, *l1Etavsl1PhiL1=0;
+    	MonitorElement *NL1On, *l1EtL1On, *l1Etavsl1PhiL1On=0;
+	MonitorElement *NL1Off, *offEtL1Off, *offEtavsoffPhiL1Off=0;
+	MonitorElement *NOnOff, *offEtOnOff, *offEtavsoffPhiOnOff=0;
+	MonitorElement *NL1Mc, *mcEtL1Mc, *mcEtavsmcPhiL1Mc=0;
+	MonitorElement *NOnMc, *mcEtOnMc, *mcEtavsmcPhiOnMc=0;
 	std::string labelname("dummy");
         labelname = v->getPath() + "_wrt_" + v->getDenomPath();
 	std::string histoname(labelname+"_NOn");
@@ -1938,74 +1818,35 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
                            v->getPtMin(),
 			   v->getPtMax());
 
-	histoname = labelname+"_mcEtaMc";
-	title = labelname+" mc#eta Mc";
-	mcEtaMc =  dbe->book1D(histoname.c_str(),
-			   title.c_str(),nBins_,-histEtaMax,histEtaMax);
-
-	histoname = labelname+"_onEtaOn";
-	title = labelname+" on#eta online";
-	onEtaOn =  dbe->book1D(histoname.c_str(),
-			   title.c_str(),nBins_,-histEtaMax,histEtaMax);
-
-	histoname = labelname+"_offEtaOff";
-	title = labelname+" off#eta offline";
-	offEtaOff =  dbe->book1D(histoname.c_str(),
-			   title.c_str(),nBins_,-histEtaMax,histEtaMax);
-
-	histoname = labelname+"_l1EtaL1";
-	title = labelname+" l1#eta L1";
-	l1EtaL1 =  dbe->book1D(histoname.c_str(),
-			   title.c_str(),nBins_,-histEtaMax,histEtaMax);
-
-	histoname = labelname+"_mcPhiMc";
-	title = labelname+" mc#phi Mc";
-	mcPhiMc =  dbe->book1D(histoname.c_str(),
-			   histoname.c_str(),nBins_,-TMath::Pi(),TMath::Pi());
-
-	histoname = labelname+"_onPhiOn";
-	title = labelname+" on#phi online";
-	onPhiOn =  dbe->book1D(histoname.c_str(),
-			   histoname.c_str(),nBins_,-TMath::Pi(),TMath::Pi());
-
-	histoname = labelname+"_offPhiOff";
-	title = labelname+" off#phi offline";
-	offPhiOff =  dbe->book1D(histoname.c_str(),
-			   histoname.c_str(),nBins_,-TMath::Pi(),TMath::Pi());
-
-	histoname = labelname+"_l1PhiL1";
-	title = labelname+" l1#phi L1";
-	l1PhiL1 =  dbe->book1D(histoname.c_str(),
-			   histoname.c_str(),nBins_,-TMath::Pi(),TMath::Pi());
- 
+        int nBins2D = 10;
 
 	histoname = labelname+"_mcEtamcPhiMc";
 	title = labelname+" mc#eta vs mc#phi Mc";
 	mcEtavsmcPhiMc =  dbe->book2D(histoname.c_str(),
 				title.c_str(),
-				nBins_,-histEtaMax,histEtaMax,
-				nBins_,-TMath::Pi(), TMath::Pi());
+				nBins2D,-histEtaMax,histEtaMax,
+				nBins2D,-TMath::Pi(), TMath::Pi());
 
 	histoname = labelname+"_onEtaonPhiOn";
 	title = labelname+" on#eta vs on#phi online";
 	onEtavsonPhiOn =  dbe->book2D(histoname.c_str(),
 				title.c_str(),
-				nBins_,-histEtaMax,histEtaMax,
-				nBins_,-TMath::Pi(), TMath::Pi());
+				nBins2D,-histEtaMax,histEtaMax,
+				nBins2D,-TMath::Pi(), TMath::Pi());
 
 	histoname = labelname+"_offEtaoffPhiOff";
 	title = labelname+" off#eta vs off#phi offline";
 	offEtavsoffPhiOff =  dbe->book2D(histoname.c_str(),
 				title.c_str(),
-				nBins_,-histEtaMax,histEtaMax,
-				nBins_,-TMath::Pi(), TMath::Pi());
+				nBins2D,-histEtaMax,histEtaMax,
+				nBins2D,-TMath::Pi(), TMath::Pi());
 
 	histoname = labelname+"_l1Etal1PhiL1";
 	title = labelname+" l1#eta vs l1#phi L1";
 	l1Etavsl1PhiL1 =  dbe->book2D(histoname.c_str(),
 				title.c_str(),
-				nBins_,-histEtaMax,histEtaMax,
-				nBins_,-TMath::Pi(), TMath::Pi());
+				nBins2D,-histEtaMax,histEtaMax,
+				nBins2D,-TMath::Pi(), TMath::Pi());
 
 	histoname = labelname+"_l1EtL1On";
 	title = labelname+" l1E_t L1+online";
@@ -2042,93 +1883,42 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
                            v->getPtMin(),
 			   v->getPtMax());
 
-	histoname = labelname+"_l1EtaL1On";
-	title = labelname+" l1#eta L1+online";
-	l1EtaL1On =  dbe->book1D(histoname.c_str(),
-			   title.c_str(),nBins_,-histEtaMax,histEtaMax);
-
-	histoname = labelname+"_offEtaL1Off";
-	title = labelname+" off#eta L1+offline";
-	offEtaL1Off =  dbe->book1D(histoname.c_str(),
-			   title.c_str(),nBins_,-histEtaMax,histEtaMax);
-
-	histoname = labelname+"_offEtaOnOff";
-	title = labelname+" off#eta online+offline";
-	offEtaOnOff =  dbe->book1D(histoname.c_str(),
-			   title.c_str(),nBins_,-histEtaMax,histEtaMax);
-
-	histoname = labelname+"_mcEtaL1Mc";
-	title = labelname+" mc#eta L1+MC truth";
-	mcEtaL1Mc =  dbe->book1D(histoname.c_str(),
-			   title.c_str(),nBins_,-histEtaMax,histEtaMax);
-
-	histoname = labelname+"_mcEtaOnMc";
-	title = labelname+" mc#eta online+MC truth";
-	mcEtaOnMc =  dbe->book1D(histoname.c_str(),
-			   title.c_str(),nBins_,-histEtaMax,histEtaMax);
-
-	histoname = labelname+"_l1PhiL1On";
-	title = labelname+" l1#phi L1+online";
-	l1PhiL1On =  dbe->book1D(histoname.c_str(),
-			   histoname.c_str(),nBins_,-TMath::Pi(),TMath::Pi());
-
-	histoname = labelname+"_offPhiL1Off";
-	title = labelname+" off#phi L1+offline";
-	offPhiL1Off =  dbe->book1D(histoname.c_str(),
-			   histoname.c_str(),nBins_,-TMath::Pi(),TMath::Pi());
-
-	histoname = labelname+"_offPhiOnOff";
-	title = labelname+" off#phi online+offline";
-	offPhiOnOff =  dbe->book1D(histoname.c_str(),
-			   histoname.c_str(),nBins_,-TMath::Pi(),TMath::Pi());
- 
-	histoname = labelname+"_mcPhiL1Mc";
-	title = labelname+" mc#phi L1+MC truth";
-	mcPhiL1Mc =  dbe->book1D(histoname.c_str(),
-			   histoname.c_str(),nBins_,-TMath::Pi(),TMath::Pi());
-
-	histoname = labelname+"_mcPhiOnMc";
-	title = labelname+" mc#phi online+MC truth";
-	mcPhiOnMc =  dbe->book1D(histoname.c_str(),
-			   histoname.c_str(),nBins_,-TMath::Pi(),TMath::Pi());
- 
-
 	histoname = labelname+"_l1Etal1PhiL1On";
 	title = labelname+" l1#eta vs l1#phi L1+online";
 	l1Etavsl1PhiL1On =  dbe->book2D(histoname.c_str(),
 				title.c_str(),
-				nBins_,-histEtaMax,histEtaMax,
-				nBins_,-TMath::Pi(), TMath::Pi());
+				nBins2D,-histEtaMax,histEtaMax,
+				nBins2D,-TMath::Pi(), TMath::Pi());
 
 	histoname = labelname+"_offEtaoffPhiL1Off";
 	title = labelname+" off#eta vs off#phi L1+offline";
 	offEtavsoffPhiL1Off =  dbe->book2D(histoname.c_str(),
 				title.c_str(),
-				nBins_,-histEtaMax,histEtaMax,
-				nBins_,-TMath::Pi(), TMath::Pi());
+				nBins2D,-histEtaMax,histEtaMax,
+				nBins2D,-TMath::Pi(), TMath::Pi());
 
 	histoname = labelname+"_offEtaoffPhiOnOff";
 	title = labelname+" off#eta vs off#phi online+offline";
 	offEtavsoffPhiOnOff =  dbe->book2D(histoname.c_str(),
 				title.c_str(),
-				nBins_,-histEtaMax,histEtaMax,
-				nBins_,-TMath::Pi(), TMath::Pi());
+				nBins2D,-histEtaMax,histEtaMax,
+				nBins2D,-TMath::Pi(), TMath::Pi());
 
 	histoname = labelname+"_mcEtamcPhiL1Mc";
 	title = labelname+" mc#eta vs mc#phi L1+MC truth";
 	mcEtavsmcPhiL1Mc =  dbe->book2D(histoname.c_str(),
 				title.c_str(),
-				nBins_,-histEtaMax,histEtaMax,
-				nBins_,-TMath::Pi(), TMath::Pi());
+				nBins2D,-histEtaMax,histEtaMax,
+				nBins2D,-TMath::Pi(), TMath::Pi());
 
 	histoname = labelname+"_mcEtamcPhiOnMc";
 	title = labelname+" mc#eta vs mc#phi online+MC truth";
 	mcEtavsmcPhiOnMc =  dbe->book2D(histoname.c_str(),
 				title.c_str(),
-				nBins_,-histEtaMax,histEtaMax,
-				nBins_,-TMath::Pi(), TMath::Pi());
+				nBins2D,-histEtaMax,histEtaMax,
+				nBins2D,-TMath::Pi(), TMath::Pi());
 
-	v->setHistos( NMc, mcEtMc, mcEtaMc, mcPhiMc, mcEtavsmcPhiMc, NOn, onEtOn, onEtaOn, onPhiOn, onEtavsonPhiOn, NOff, offEtOff, offEtaOff, offPhiOff, offEtavsoffPhiOff, NL1, l1EtL1, l1EtaL1, l1PhiL1, l1Etavsl1PhiL1, NL1On, l1EtL1On, l1EtaL1On, l1PhiL1On, l1Etavsl1PhiL1On, NL1Off, offEtL1Off, offEtaL1Off, offPhiL1Off, offEtavsoffPhiL1Off, NOnOff, offEtOnOff, offEtaOnOff, offPhiOnOff, offEtavsoffPhiOnOff, NL1Mc, mcEtL1Mc, mcEtaL1Mc, mcPhiL1Mc, mcEtavsmcPhiL1Mc, NOnMc, mcEtOnMc, mcEtaOnMc, mcPhiOnMc, mcEtavsmcPhiOnMc);
+	v->setHistos( NMc, mcEtMc, mcEtavsmcPhiMc, NOn, onEtOn, onEtavsonPhiOn, NOff, offEtOff, offEtavsoffPhiOff, NL1, l1EtL1, l1Etavsl1PhiL1, NL1On, l1EtL1On, l1Etavsl1PhiL1On, NL1Off, offEtL1Off, offEtavsoffPhiL1Off, NOnOff, offEtOnOff, offEtavsoffPhiOnOff, NL1Mc, mcEtL1Mc, mcEtavsmcPhiL1Mc, NOnMc, mcEtOnMc, mcEtavsmcPhiOnMc);
 
 
     }
