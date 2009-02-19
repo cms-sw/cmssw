@@ -83,7 +83,7 @@ BeamHaloSource::BeamHaloSource( const ParameterSet & pset,
 
 // -- Seed for randomnumbers
     Service<RandomNumberGenerator> rng;
-    randomEngine = &(rng->getEngine());
+    _BeamHalo_randomEngine = &(rng->getEngine());
     long seed = (long)(rng->mySeed());
 
 

@@ -2,10 +2,10 @@
 #define PYR_h
 #include "CLHEP/Random/RandomEngine.h"
 
-extern CLHEP::HepRandomEngine* randomEngine;
+extern CLHEP::HepRandomEngine* _BeamHalo_randomEngine;
 
 extern "C" {
-  double pyr_(int*);
+  double bhgpyr_(int*);
 }
 
 #endif

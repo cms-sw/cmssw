@@ -1,12 +1,11 @@
-#include "GeneratorInterface/AlpgenInterface/interface/PYR.h"
 #include "CLHEP/Random/RandomEngine.h"
 
-CLHEP::HepRandomEngine* randomEngine;
+CLHEP::HepRandomEngine* _BeamHalo_randomEngine;
 
 extern "C" {
-  double pyr_(int* idummy)
+  double bhgpyr_(int* idummy)
   {
-    return randomEngine->flat();
+    return _BeamHalo_randomEngine->flat();
   }
 }
 

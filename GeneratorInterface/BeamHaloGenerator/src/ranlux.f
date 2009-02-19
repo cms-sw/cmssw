@@ -113,7 +113,7 @@ C
 *     I24 = NEXT(I24)
 *     J24 = NEXT(J24)
 *     RVEC(IVEC) = UNI
-      uni = pyr(idummy)
+      uni = BHGPYR(idummy)
       rvec(ivec) = uni
 C  small numbers (with less than 12 "significant" bits) are "padded".
 *     IF (UNI .LT. TWOM12)  THEN

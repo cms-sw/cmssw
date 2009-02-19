@@ -2,9 +2,13 @@ CCC
 CCC from http://cernlib.web.cern.ch/cernlib/download/2005_source/src/mathlib/gen/v/rm48.F
 CCC
 *
-* $Id: rm48.f,v 1.1 2007/02/06 14:40:25 eperez Exp $
+* $Id: rm48.f,v 1.2 2008/04/09 14:11:58 marafino Exp $
 *
 * $Log: rm48.f,v $
+* Revision 1.2  2008/04/09 14:11:58  marafino
+* Insert new and changed files to accomodate running this code as a producer
+* or as a source.
+*
 * Revision 1.1  2007/02/06 14:40:25  eperez
 * first version
 *
@@ -139,7 +143,7 @@ C          Modified 13 Marcch '08 to use the CLHEP engines
 *     UNI = UNI-C
 *     IF (UNI .LT. ZERO) UNI=UNI+ONE
 *     RVEC(IVEC) = UNI
-      UNI = PYR(IDUMMY)
+      UNI = BHGPYR(IDUMMY)
       RVEC(IVEC) = UNI
 C             Replace exact zeros by 2**-49
 *        IF (UNI .EQ. ZERO)  THEN
