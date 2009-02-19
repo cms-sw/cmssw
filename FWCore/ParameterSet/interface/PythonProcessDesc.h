@@ -1,9 +1,9 @@
-#ifndef PythonProcessDesc_h
-#define PythonProcessDesc_h
+#ifndef FWCore_ParameterSet_PythonProcessDesc_h
+#define FWCore_ParameterSet_PythonProcessDesc_h
 
+#include "FWCore/ParameterSet/interface/BoostPython.h"
 #include "FWCore/ParameterSet/interface/PythonParameterSet.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
-#include <boost/python.hpp>
 
 class PythonProcessDesc
 {

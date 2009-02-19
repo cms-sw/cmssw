@@ -1,8 +1,8 @@
-#ifndef PythonParameterSet_h
-#define PythonParameterSet_h
+#ifndef FWCore_ParameterSet_PythonParameterSet_h
+#define FWCore_ParameterSet_PythonParameterSet_h
 
+#include "FWCore/ParameterSet/interface/BoostPython.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <boost/python.hpp>
 #include "FWCore/ParameterSet/src/PythonWrapper.h"
 
 class PythonParameterSet
