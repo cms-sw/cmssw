@@ -4,7 +4,6 @@
 lumi::LuminosityInfo::LuminosityInfo(){
   m_bx.reserve(lumi::BXMAX*LUMIALGOMAX);
   m_summaryinfo.reserve(lumi::LUMIALGOMAX);
-  m_hltinfo.reserve(100);//hardcoded guess
 }
 int
 lumi::LuminosityInfo::lumisectionID()const{
@@ -17,18 +16,6 @@ lumi::LuminosityInfo::deadTimeNormalization()const{
 size_t
 lumi::LuminosityInfo::nBunchCrossing()const{
   return m_bx.size()/lumi::LUMIALGOMAX;
-}
-size_t
-lumi::LuminosityInfo::nHLTtrigger()const{
-  return m_hltinfo.size();
-}
-lumi::HLTIterator 
-lumi::LuminosityInfo::hltBegin()const{
-  return m_hltinfo.begin();
-}
-lumi::HLTIterator
-lumi::LuminosityInfo::hltEnd()const{
-  return m_hltinfo.end();
 }
 lumi::LumiAverage
 lumi::LuminosityInfo::lumiAverage(const lumi::LumiAlgoType lumialgotype)const{
@@ -51,10 +38,6 @@ lumi::LuminosityInfo::bunchCrossingEnd( const LumiAlgoType lumialgotype )const{
 void
 lumi::LuminosityInfo::setLumiSectionId(int sectionid){
   m_sectionid=sectionid;
-}
-void 
-lumi::LuminosityInfo::setHLTData(const std::vector<HLTInfo>& hltdetail){
-  std::copy(hltdetail.begin(),hltdetail.end(),std::back_inserter(m_hltinfo));
 }
 void 
 lumi::LuminosityInfo::setDeadtimeNormalization(float dtimenorm){

@@ -1,6 +1,5 @@
-#ifndef CondFormats_LuminosityObjects_LuminosityInfo_h
-#define CondFormats_LuminosityObjects_LuminosityInfo_h
- 
+#ifndef CondFormats_RunInfo_LuminosityInfo_h
+#define CondFormats_RunInfo_LuminosityInfo_h
 /** 
  *
  * BunchCrossingInfo holds Details information the lumi value, the error on this value 
@@ -9,7 +8,7 @@
  * each event will occur at one of these BX. BX is defined to be the number of the
  * bunch crossing where this event occurred.
  *
- * $Id: LuminosityInfo.h,v 1.1 2008/11/27 19:35:26 xiezhen Exp $
+ * $Id: LuminosityInfo.h,v 1.1 2009/02/17 11:05:53 xiezhen Exp $
  *
  ************************************************************/
  
@@ -21,18 +20,6 @@ namespace lumi{
 
   static const int LUMIALGOMAX=3;
   typedef enum { ET=0,OCCD1=1,OCCD2=2} LumiAlgoType;
-  
-  //persistable class
-  struct HLTInfo {
-    HLTInfo(){}
-    HLTInfo(int i,int a,int p):
-      inputcount(i),acceptcount(a),prescalefactor(p){}
-    int inputcount;
-    int acceptcount;
-    int prescalefactor;
-  };
-  static const HLTInfo HLTNULL=HLTInfo(0,0,0);  
-  typedef std::vector<HLTInfo>::const_iterator HLTIterator;
 
   //persistable class
   struct BunchCrossingInfo {
@@ -70,10 +57,6 @@ namespace lumi{
     int lumisectionID()const;
     float deadTimeNormalization()const;
     size_t nBunchCrossing()const;
-    size_t nHLTtrigger()const;
-    //sequential access to HLTInfo
-    HLTIterator hltBegin()const;
-    HLTIterator hltEnd()const;
     //radom access to LumiAverage by algorithm
     LumiAverage lumiAverage( const LumiAlgoType lumialgotype )const;
     //random access to bunchCrossingInfo by index
@@ -87,7 +70,6 @@ namespace lumi{
     ///
     void setLumiSectionId(int sectionid);
     void setDeadtimeNormalization(float dtimenorm);
-    void setHLTData(const std::vector<HLTInfo>& hltdetail);
     void setLumiAverage(const LumiAverage& avg,
 			const LumiAlgoType algotype);
     void setBunchCrossingData(const std::vector<BunchCrossingInfo>& BXs,
@@ -97,7 +79,6 @@ namespace lumi{
     int m_sectionid; 
     float m_deadtime_normalization;
     std::vector<LumiAverage> m_summaryinfo;
-    std::vector<HLTInfo> m_hltinfo;
   }; 
 }//ns lumi
 #endif 
