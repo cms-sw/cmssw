@@ -1,13 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
+source = cms.Source("EmptySource")
+
 from Configuration.Generator.PythiaUESettings_cfi import *
-source = cms.Source("PythiaSource",
+generator = cms.EDFilter("Pythia6GeneratorFilter",
     #untracked int32 maxEvents = 10
     pythiaPylistVerbosity = cms.untracked.int32(0),
     filterEfficiency = cms.untracked.double(0.0154),
     pythiaHepMCVerbosity = cms.untracked.bool(False),
     crossSection = cms.untracked.double(354400000.0),
-    comEnergy = cms.untracked.double(10000.0),
+    comEnergy = cms.double(10000.0),
     maxEventsToPrint = cms.untracked.int32(0),
     PythiaParameters = cms.PSet(
         pythiaUESettingsBlock,
@@ -75,6 +77,4 @@ mumugenfilter = cms.EDFilter("MCParticlePairFilter",
     ParticleID2 = cms.untracked.vint32(13)
 )
 
-ProductionFilterSequence = cms.Sequence(oniafilter*mumugenfilter)
-
-
+ProductionFilterSequence = cms.Sequence(generator*oniafilter*mumugenfilter)

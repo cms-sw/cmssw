@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+source = cms.Source("EmptySource")
+
 mumugenfilter = cms.EDFilter("MCParticlePairFilter",
     Status = cms.untracked.vint32(1, 1),
     MinPt = cms.untracked.vdouble(2.0, 2.0),
@@ -9,5 +11,3 @@ mumugenfilter = cms.EDFilter("MCParticlePairFilter",
     ParticleID1 = cms.untracked.vint32(13),
     ParticleID2 = cms.untracked.vint32(13)
 )
-
-

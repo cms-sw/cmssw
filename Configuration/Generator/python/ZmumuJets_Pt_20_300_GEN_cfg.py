@@ -1,9 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
+source = cms.Source("EmptySource")
+
 from Configuration.GenProduction.PythiaUESettings_cfi import *
 # Input source
-source = cms.Source(
-    "PythiaSource",
+generator = cms.EDFilter("Pythia6GeneratorFilter",
     pythiaHepMCVerbosity = cms.untracked.bool(False),
     maxEventsToPrint = cms.untracked.int32(0),
     pythiaPylistVerbosity = cms.untracked.int32(0),
@@ -16,7 +17,7 @@ source = cms.Source(
     # at 10 TeV it scales down to 426
     #
     crossSection = cms.untracked.double(425.6),
-    comEnergy = cms.untracked.double(10000.0),
+    comEnergy = cms.double(10000.0),
     PythiaParameters = cms.PSet(
     pythiaUESettingsBlock,
 
@@ -47,6 +48,8 @@ source = cms.Source(
 
 configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.1 $'),
-    name = cms.untracked.string('$Source: /local/projects/CMSSW/rep/CMSSW/Configuration/GenProduction/python/ZmumuJets_Pt_20_300_GEN_cfg.py,v $'),
+    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/Generator/python/ZmumuJets_Pt_20_300_GEN_cfg.py,v $'),
     annotation = cms.untracked.string('ZmumuJets pt hat 20-300')
 )
+
+ProductionFilterSequence = cms.Sequence(generator)

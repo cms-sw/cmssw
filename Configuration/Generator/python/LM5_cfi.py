@@ -1,14 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 
+source = cms.Source("EmptySource")
+
 from Configuration.Generator.PythiaUESettings_cfi import *
-source = cms.Source("PythiaSource",
+generator = cms.EDFilter("Pythia6GeneratorFilter",
     pythiaPylistVerbosity = cms.untracked.int32(0),
     # put here the efficiency of your filter (1. if no filter)
     filterEfficiency = cms.untracked.double(1.0),
     pythiaHepMCVerbosity = cms.untracked.bool(False),
     # put here the cross section of your process (in pb)
     crossSection = cms.untracked.double(6.01),
-    comEnergy = cms.untracked.double(10000.0),
+    comEnergy = cms.double(10000.0),
     maxEventsToPrint = cms.untracked.int32(0),
     PythiaParameters = cms.PSet(
         pythiaUESettingsBlock,
@@ -24,4 +26,4 @@ source = cms.Source("PythiaSource",
     )
 )
 
-
+ProductionFilterSequence = cms.Sequence(generator)

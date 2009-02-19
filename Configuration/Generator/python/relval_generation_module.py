@@ -37,37 +37,37 @@ def generate(step, evt_type, energy, evtnumber):
     
     # Particle Gun
     if evt_type in ("MU+","MU-","E","DIE","GAMMA","TAU","PI0","PI+","PI-"):
-       source=_generate_PGUN\
+       generator = _generate_PGUN\
          (step, evt_type, energy, evtnumber)
      
     elif evt_type in ("HZZMUMUMUMU", "HZZEEEE", "HZZTTTT", "HZZLLLL","HGG"):
-       source=_generate_Higgs\
+       generator = _generate_Higgs\
          (step, evt_type, energy, evtnumber)
      
     elif evt_type in ("B_JETS", "C_JETS"):
-       source=_generate_udscb_jets\
+       generator = _generate_udscb_jets\
          (step, evt_type, energy, evtnumber)        
     
     elif evt_type in ("QCD","TTBAR","ZPJJ","MINBIAS","RS1GG","HpT"):
-        source=eval("_generate_"+evt_type+"(step, evt_type, energy, evtnumber)") 
+        generator = eval("_generate_"+evt_type+"(step, evt_type, energy, evtnumber)") 
     
     elif evt_type in ("ZEE","ZTT","ZMUMU"):
-        source=_generate_Zll\
+        generator = _generate_Zll\
          (step, evt_type, energy, evtnumber)
 
     elif evt_type in ("ZPEE","ZPTT","ZPMUMU"):
-        source=_generate_ZPll\
+        generator = _generate_ZPll\
          (step, evt_type, energy, evtnumber)         
              
     elif evt_type in ("WE","WM","WT"):
-        source=_generate_Wl(step, evt_type, energy, evtnumber)
+        generator = _generate_Wl(step, evt_type, energy, evtnumber)
          
     else:
       raise "Event type","Type not yet implemented."
              
-    common.log( func_id+" Returning Source")
+    common.log( func_id+" Returning Generator")
     
-    return source
+    return generator
 
 #------------------------------       
 
@@ -132,7 +132,7 @@ def _generate_PGUN(step, evt_type, energy, evtnumber):
     
     if pt_flag:        
         common.log( func_id+ "This is a pt particle gun ..." )
-        source = cms.Source("FlatRandomPtGunSource",
+        generator = cms.EDProducer("FlatRandomPtGunProducer",
                             psethack = cms.string(id_string),
                             firstRun = cms.untracked.uint32(1),
                             PGunParameters = cms.untracked.PSet\
@@ -149,7 +149,7 @@ def _generate_PGUN(step, evt_type, energy, evtnumber):
                         )
     else:
         common.log( func_id+ " This is an Energy particle gun ..." )
-        source = cms.Source("FlatRandomEGunSource",
+        generator = cms.EDProducer("FlatRandomEGunProducer",
                             psethack = cms.string(id_string),
                             firstRun = cms.untracked.uint32(1),
                             PGunParameters = cms.untracked.PSet\
@@ -165,9 +165,9 @@ def _generate_PGUN(step, evt_type, energy, evtnumber):
                             Verbosity = cms.untracked.int32(0)
                         )       
                         
-    common.log( func_id+" Returning source...")
+    common.log( func_id+" Returning Generator...")
         
-    return source 
+    return generator 
    
 #---------------------------
     
@@ -182,7 +182,7 @@ def _generate_QCD(step, evt_type, energy, evtnumber):
     upper_energy, lower_energy = energy_split(energy)
     
     # Build the process source   
-    source = cms.Source("PythiaSource",
+    generator = cms.EDFilter("Pythia6GeneratorFilter",
                         pythiaPylistVerbosity=cms.untracked.int32(0),
                         pythiaHepMCVerbosity=cms.untracked.bool(False),
                         maxEventsToPrint = cms.untracked.int32(0), 
@@ -197,8 +197,8 @@ def _generate_QCD(step, evt_type, energy, evtnumber):
                                                 "CKIN(4)="+lower_energy))
                         )
      
-    common.log( func_id+" Returning Source...")                 
-    return source
+    common.log( func_id+" Returning Generator...")                 
+    return generator
  
 #---------------------------------
 
@@ -211,7 +211,7 @@ def _generate_MINBIAS(step, evt_type, energy, evtnumber):
     common.log( func_id+" Entering... ")     
     
     # Build the process source   
-    source = cms.Source("PythiaSource",
+    generator = cms.EDFilter("Pythia6GeneratorFilter",
                       pythiaPylistVerbosity=cms.untracked.int32(0),
                       pythiaHepMCVerbosity=cms.untracked.bool(False),
                       maxEventsToPrint = cms.untracked.int32(0), 
@@ -234,9 +234,9 @@ def _generate_MINBIAS(step, evt_type, energy, evtnumber):
                                                 "MSUB(94)=1",
                                                 "MSUB(95)=1"))
                         )
-    common.log( func_id+" Returning Source...")                 
+    common.log( func_id+" Returning Generator...")                 
     
-    return source   
+    return generator   
     
 #---------------------------------
 
@@ -327,7 +327,7 @@ def _generate_Higgs(step, evt_type, energy, evtnumber):
         ) 
 
     # Build the process source   
-    source=cms.Source('PythiaSource',
+    generator = cms.EDFilter('Pythia6GeneratorFilter',
                       pythiaPylistVerbosity=cms.untracked.int32(0),
                       pythiaHepMCVerbosity=cms.untracked.bool(False),
                       maxEventsToPrint = cms.untracked.int32(0), 
@@ -340,9 +340,9 @@ def _generate_Higgs(step, evt_type, energy, evtnumber):
                        )     
                      )
 
-    common.log( func_id+" Returning Source...")
+    common.log( func_id+" Returning Generator...")
      
-    return source      
+    return generator      
 
 #---------------------------------
 
@@ -382,7 +382,7 @@ def _generate_udscb_jets\
     pythia_jet_settings+=pythia_common
     
     # Build the process source
-    source=cms.Source('PythiaSource',
+    generator = cms.EDFilter('Pythia6GeneratorFilter',
                       pythiaVerbosity =cms.untracked.bool(True),
                       PythiaParameters = cms.PSet\
                                (parameterSets = cms.vstring\
@@ -392,9 +392,9 @@ def _generate_udscb_jets\
                                )
                      )                       
    
-    common.log(func_id+" Returning Source...")
+    common.log(func_id+" Returning Generator...")
      
-    return source
+    return generator
 
 #-----------------------------------
     
@@ -407,7 +407,7 @@ def _generate_TTBAR(step, evt_type, energy, evtnumber):
     common.log(func_id+" Entering... ")      
     
     # Build the process source    
-    source=cms.Source('PythiaSource',
+    generator = cms.EDFilter('Pythia6GeneratorFilter',
                       pythiaPylistVerbosity=cms.untracked.int32(0),
                       pythiaHepMCVerbosity=cms.untracked.bool(False),
                       maxEventsToPrint = cms.untracked.int32(0), 
@@ -430,9 +430,9 @@ def _generate_TTBAR(step, evt_type, energy, evtnumber):
                                 ) 
                       )  
 
-    common.log(func_id+" Returning Source...")
+    common.log(func_id+" Returning Generator...")
      
-    return source   
+    return generator   
  
 #---------------------------------
 
@@ -494,7 +494,7 @@ def _generate_Zll(step, evt_type, energy, evtnumber):
                  )     
                  
     # Build the process source
-    source=cms.Source('PythiaSource', 
+    generator = cms.EDFilter('Pythia6GeneratorFilter', 
                       pythiaPylistVerbosity=cms.untracked.int32(0),
                       pythiaHepMCVerbosity=cms.untracked.bool(False),
                       maxEventsToPrint = cms.untracked.int32(0), 
@@ -505,9 +505,9 @@ def _generate_Zll(step, evt_type, energy, evtnumber):
                                 processParameters=pythia_param_sets )
                      )
 
-    common.log(func_id+" Returning Source...")
+    common.log(func_id+" Returning Generator...")
      
-    return source   
+    return generator   
 #---------------------------------
 
 def _generate_Wl(step, evt_type, energy, evtnumber):
@@ -531,7 +531,7 @@ def _generate_Wl(step, evt_type, energy, evtnumber):
         tau_flag = "1"    
         
     # Build the process source
-    source=cms.Source('PythiaSource', 
+    generator = cms.EDFilter('Pythia6GeneratorFilter', 
                       pythiaPylistVerbosity=cms.untracked.int32(0),
                       pythiaHepMCVerbosity=cms.untracked.bool(False),
                       maxEventsToPrint = cms.untracked.int32(0), 
@@ -558,9 +558,9 @@ def _generate_Wl(step, evt_type, energy, evtnumber):
                               )
                      )
 
-    common.log(func_id+" Returning Source...")
+    common.log(func_id+" Returning Generator...")
      
-    return source       
+    return generator       
                                    
 #---------------------------------
 
@@ -572,7 +572,7 @@ def _generate_ZPJJ(step, evt_type, energy, evtnumber):
     
     func_id=mod_id+"["+sys._getframe().f_code.co_name+"]"
     common.log(func_id+" Entering... ")            
-    common.log( func_id+" Returning Source...")
+    common.log( func_id+" Returning Generator...")
     # You might wonder why this time it's not pythonised..Me too: due to the excessive fragmentation of the 
     # cfgs it's not worth to do that at the moment. It also obliges to have two functions for the ZP instead of one.
     return common.include_files('Configuration/JetMET/data/calorimetry-gen-Zprime_Dijets_700.cff')[0].source                                   
@@ -602,7 +602,7 @@ def _generate_ZPll(step, evt_type, energy, evtnumber):
         electron_flag=muon_flag=tau_flag= "1"    
     
     # Build the process source
-    source=cms.Source('PythiaSource', 
+    generator = cms.EDFilter('Pythia6GeneratorFilter', 
                       pythiaPylistVerbosity=cms.untracked.int32(0),
                       pythiaHepMCVerbosity=cms.untracked.bool(False),
                       maxEventsToPrint = cms.untracked.int32(0), 
@@ -642,9 +642,9 @@ def _generate_ZPll(step, evt_type, energy, evtnumber):
                                )
                      )
 
-    common.log(func_id+" Returning Source...")
+    common.log(func_id+" Returning Generator...")
      
-    return source                   
+    return generator                   
                                       
 #-----------------------------------
 
@@ -657,7 +657,7 @@ def _generate_RS1GG(step, evt_type, energy, evtnumber):
     common.log( func_id+" Entering... ")         
     
     # Build the process source
-    source=cms.Source('PythiaSource', 
+    generator = cms.EDFilter('Pythia6GeneratorFilter', 
                       pythiaPylistVerbosity=cms.untracked.int32(0),
                       pythiaHepMCVerbosity=cms.untracked.bool(False),
                       maxEventsToPrint = cms.untracked.int32(0), 
@@ -699,9 +699,9 @@ def _generate_RS1GG(step, evt_type, energy, evtnumber):
                                )
                      )
 
-    common.log(func_id+" Returning Source...")
+    common.log(func_id+" Returning Generator...")
      
-    return source                     
+    return generator                     
 #-----------------------------------
 
 def _generate_HpT(step, evt_type, energy, evtnumber):
@@ -713,7 +713,7 @@ def _generate_HpT(step, evt_type, energy, evtnumber):
     common.log( func_id+" Entering... ")         
     
     # Build the process source
-    source=cms.Source("PythiaSource",
+    generator = cms.EDFilter("Pythia6GeneratorFilter",
                       pythiaPylistVerbosity = cms.untracked.int32(0),
                       pythiaHepMCVerbosity = cms.untracked.bool(False),
                       maxEventsToPrint = cms.untracked.int32(0),
@@ -776,9 +776,9 @@ def _generate_HpT(step, evt_type, energy, evtnumber):
                      )
 
 
-    common.log(func_id+" Returning Source...")
+    common.log(func_id+" Returning Generator...")
      
-    return source     
+    return generator     
     
 #---------------------------------    
 

@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-source = cms.Source("CosMuoGenSource",
+source = cms.Source("EmptySource")
+
+generator = cms.EDProducer("CosMuoGenProducer",
     MinP = cms.double(10.0),
     MinP_CMS = cms.double(-1.0), ##negative means MinP_CMS = MinP. Only change this if you know what you are doing!
     MaxP = cms.double(3000.0),
@@ -10,6 +12,10 @@ source = cms.Source("CosMuoGenSource",
     MaxPhi = cms.double(360.0),
     MinT0 = cms.double(-12.5),
     MaxT0 = cms.double(12.5),
+    PlugVx = cms.double(0.0),
+    PlugVz = cms.double(-14000.0),                
+    MinEnu = cms.double(10.),                
+    MaxEnu = cms.double(10000.),                
     ElossScaleFactor = cms.double(1.0),
     RadiusOfTarget = cms.double(8000.0),
     ZDistOfTarget = cms.double(15000.0),
@@ -21,3 +27,5 @@ source = cms.Source("CosMuoGenSource",
 )
 
 
+
+ProductionFilterSequence = cms.Sequence(generator)

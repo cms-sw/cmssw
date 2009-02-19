@@ -1,9 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
+source = cms.Source("EmptySource")
+
 from GeneratorInterface.Pythia6Interface.pythiaDefault_cff import *
-source = cms.Source("PythiaSource",
+generator = cms.EDFilter("Pythia6GeneratorFilter",
     pythiaVerbosity = cms.untracked.bool(False),
-    comEnergy = cms.untracked.double(10000.0),
+    comEnergy = cms.double(10000.0),
     PythiaParameters = cms.PSet(
         # Default (mostly empty - to keep PYTHIA default) card file
         # Name of the set is "pythiaDefault"
@@ -60,4 +62,4 @@ source = cms.Source("PythiaSource",
     )
 )
 
-
+ProductionFilterSequence = cms.Sequence(generator)

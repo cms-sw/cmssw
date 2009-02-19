@@ -4,13 +4,15 @@
 
 import FWCore.ParameterSet.Config as cms
 
+source = cms.Source("EmptySource")
+
 from Configuration.Generator.PythiaUESettings_cfi import *
-source = cms.Source("PythiaSource",
+generator = cms.EDFilter("Pythia6GeneratorFilter",
     pythiaPylistVerbosity = cms.untracked.int32(1),
     UseTauola = cms.untracked.bool(False),
     # put here the efficiency of your filter (1. if no filter)
     filterEfficiency = cms.untracked.double(1.0),
-    comEnergy = cms.untracked.double(10000.0),
+    comEnergy = cms.double(10000.0),
     UseTauolaPolarization = cms.untracked.bool(False),
     pythiaHepMCVerbosity = cms.untracked.bool(False),
 #    GeneratorParameters = cms.PSet(
@@ -50,4 +52,4 @@ source = cms.Source("PythiaSource",
     )
 )
 
-
+ProductionFilterSequence = cms.Sequence(generator)

@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+source = cms.Source("EmptySource")
+
 # Disclaimer :
 #
 # This set of Pythia configuration cards has been copied 
@@ -10,13 +12,13 @@ import FWCore.ParameterSet.Config as cms
 # the only change is MSTP(128)=2 - this option takes decay 
 # products out of doc section; decay products point at parents
 # in the main section (Julia Yarba, FNAL).
-source = cms.Source("PythiaSource",
+generator = cms.EDFilter("Pythia6GeneratorFilter",
     # to printout HepMC::GenEvent record (HepMC::GenEvent::print())
     pythiaHepMCVerbosity = cms.untracked.bool(False),
     maxEventsToPrint = cms.untracked.int32(0),
     # to printout pythia event record (call pylist)
     pythiaPylistVerbosity = cms.untracked.int32(0),
-    comEnergy = cms.untracked.double(10000.0),
+    comEnergy = cms.double(10000.0),
     PythiaParameters = cms.PSet(
         pythiaHZZmumumumu = cms.vstring('PMAS(25,1)=190.0        !mass of Higgs', 
             'MSEL=0                  !(D=1) to select between full user control (0, then use MSUB) and some preprogrammed alternative: QCD hight pT processes (1, then ISUB=11, 12, 13, 28, 53, 68), QCD low pT processes (2, then ISUB=11, 12, 13, 28, 53, 68, 91, 92, 94, 95)', 
@@ -73,4 +75,4 @@ source = cms.Source("PythiaSource",
     )
 )
 
-
+ProductionFilterSequence = cms.Sequence(generator)

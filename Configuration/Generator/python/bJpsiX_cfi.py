@@ -1,31 +1,16 @@
-# The following comments couldn't be translated into the new config version:
-
-# 511 B0 decay channels
-
-# 521 B+ decay channels
-
-# 531 Bs decay channels
-
-# 541 Bc 
-
-# 5122  Lambda_b0       Lambda_bbar0   
-
-# Change of b->Chi_1c and Force Chi_1c decay to J/psi  
-
-# Force J/Psi decays to mumu
-#
-
 import FWCore.ParameterSet.Config as cms
 
+source = cms.Source("EmptySource")
+
 from Configuration.Generator.PythiaUESettings_cfi import *
-source = cms.Source("PythiaSource",
+generator = cms.EDFilter("Pythia6GeneratorFilter",
     #untracked int32 maxEvents = 30000
     pythiaPylistVerbosity = cms.untracked.int32(0),
     filterEfficiency = cms.untracked.double(0.00013),
     pythiaHepMCVerbosity = cms.untracked.bool(False),
     crossSection = cms.untracked.double(54710000000.0),
     maxEventsToPrint = cms.untracked.int32(0),
-    comEnergy = cms.untracked.double(10000.0),
+    comEnergy = cms.double(10000.0),
     PythiaParameters = cms.PSet(
         pythiaUESettingsBlock,
         processParameters = cms.vstring('MSEL        = 1        ! user defined subprocess', 
@@ -232,4 +217,4 @@ mumugenfilter = cms.EDFilter("MCParticlePairFilter",
     ParticleID2 = cms.untracked.vint32(13)
 )
 
-ProductionFilterSequence = cms.Sequence(bfilter*jpsifilter*mumugenfilter)
+ProductionFilterSequence = cms.Sequence(generator*bfilter*jpsifilter*mumugenfilter)

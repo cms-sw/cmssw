@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+source = cms.Source("EmptySource")
+
 pythiaUESettingsBlock = cms.PSet(
     pythiaUESettings = cms.vstring('MSTJ(11)=3     ! Choice of the fragmentation function', 
         'MSTJ(22)=2     ! Decay those unstable particles', 
@@ -25,4 +27,3 @@ pythiaUESettingsBlock = cms.PSet(
         'PARP(91)=2.1   ! kt distribution', 
         'PARP(93)=15.0  ! ')
 )
-

@@ -8,7 +8,9 @@
 # MSEL=1 (hard QCD dijets in) + hydjet needed initializations
 import FWCore.ParameterSet.Config as cms
 
-source = cms.Source("HydjetSource",
+source = cms.Source("EmptySource")
+
+generator = cms.EDProducer("HydjetProducer",
     shadowingSwitch = cms.int32(1),
     maxTransverseRapidity = cms.double(1.5),
     comEnergy = cms.double(5500.0),
@@ -41,19 +43,16 @@ source = cms.Source("HydjetSource",
 )
 
 # whatever parameters from the hydjetSourceDefault you want to modify, do it following the exampels
-# whatever parameters from the hydjetSourceDefault you want to modify, do it following the exampels
-source.bFixed = 0.
-# replace source.bMax          = 0.               # max impact param (fm)
-# replace source.bMin          = 0.               # min impact param (fm)
-source.cFlag = 0 ## centrality flag
+generator.bFixed = 0.
+
+# replace generator.bMin          = 0.               # min impact param (fm)
+generator.cFlag = 0 ## centrality flag
 
 # =  0 fixed impact param
 # <> 0 between bmin and bmax
-# =  0 fixed impact param
-# <> 0 between bMin and bMax
-source.nMultiplicity = 26000
-#automatically calculated for other centralities and beams
-#automatically calculated for other centralities and beams
-source.hydjetMode = 'kHydroQJets'
+generator.nMultiplicity = 26000
 
+#automatically calculated for other centralities and beams
+generator.hydjetMode = 'kHydroQJets'
 
+ProductionFilterSequence = cms.Sequence(generator)

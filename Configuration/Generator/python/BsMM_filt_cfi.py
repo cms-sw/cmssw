@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+source = cms.Source("EmptySource")
+
 MuMuFilter = cms.EDFilter("MCParticlePairFilter",
     Status = cms.untracked.vint32(1, 1),
     MinPt = cms.untracked.vdouble(2.5, 2.5),
@@ -21,5 +23,3 @@ MuFilter = cms.EDFilter("PythiaFilter",
     MaxEta = cms.untracked.double(2.5),
     MinEta = cms.untracked.double(-2.5)
 )
-
-
