@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 27 17:58:10 EDT 2006
-// $Id: TFWLiteSelectorBasic.cc,v 1.42 2008/11/28 17:44:31 wmtan Exp $
+// $Id: TFWLiteSelectorBasic.cc,v 1.43 2008/12/18 06:19:37 wmtan Exp $
 //
 
 // system include files
@@ -44,7 +44,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
-#include "DataFormats/Provenance/interface/ModuleDescriptionRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
@@ -348,10 +347,8 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
   typedef std::map<edm::ParameterSetID, edm::ParameterSetBlob> PsetMap;
   PsetMap psetMap;
   edm::ProcessHistoryMap pHistMap;
-  edm::ModuleDescriptionMap mdMap;
   PsetMap *psetMapPtr = &psetMap;
   edm::ProcessHistoryMap *pHistMapPtr = &pHistMap;
-  edm::ModuleDescriptionMap *mdMapPtr = &mdMap;
   edm::FileFormatVersion* fftPtr = &(m_->fileFormatVersion_);
    
   TTree* metaDataTree = dynamic_cast<TTree*>(iFile.Get(edm::poolNames::metaDataTreeName().c_str()) );
@@ -359,7 +356,6 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
     metaDataTree->SetBranchAddress(edm::poolNames::productDescriptionBranchName().c_str(), &(pReg) );
     metaDataTree->SetBranchAddress(edm::poolNames::parameterSetMapBranchName().c_str(), &psetMapPtr);
     metaDataTree->SetBranchAddress(edm::poolNames::processHistoryMapBranchName().c_str(), &pHistMapPtr);
-    // metaDataTree->SetBranchAddress(edm::poolNames::moduleDescriptionMapBranchName().c_str(), &mdMapPtr); // kludge to allow compilation
     metaDataTree->SetBranchAddress(edm::poolNames::fileFormatVersionBranchName().c_str(), &fftPtr);
     metaDataTree->GetEntry(0);
     m_->reg_->setFrozen();
@@ -386,12 +382,6 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
       j != jEnd; ++j) {
     processNameListRegistry.insertMapped(j->second);
   } 
-  edm::ModuleDescriptionRegistry & moduleDescriptionRegistry = *edm::ModuleDescriptionRegistry::instance();
-  for (edm::ModuleDescriptionMap::const_iterator k = mdMap.begin(), kEnd = mdMap.end();
-      k != kEnd; ++k) {
-    moduleDescriptionRegistry.insertMapped(k->second);
-  } 
-  
   m_->productMap_.erase(m_->productMap_.begin(),m_->productMap_.end());
   m_->pointerToBranchBuffer_.erase(m_->pointerToBranchBuffer_.begin(),
                                    m_->pointerToBranchBuffer_.end());
@@ -410,7 +400,7 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
       m_->productMap_.insert(std::make_pair(it->second.oldProductID(), it->second));
       //std::cout <<"id "<<it->second.oldProductID()<<" branch "<<it->second.branchName()<<std::endl;
       m_->pointerToBranchBuffer_.push_back( & (*itB));
-      void* tmp = &(m_->pointerToBranchBuffer_.back());
+      //void* tmp = &(m_->pointerToBranchBuffer_.back());
       //edm::EventEntryDescription* tmp = & (*itB);
       //CDJ need to fix provenance and be backwards compatible, for now just don't read the branch
       //m_->metaTree_->SetBranchAddress( prod.branchName().c_str(), tmp);
