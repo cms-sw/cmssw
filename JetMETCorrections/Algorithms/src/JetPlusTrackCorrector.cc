@@ -196,19 +196,18 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
    if(fabs(fJet.eta())>2.1) {return NewResponse/fJet.energy();}
 
    // Get muons
-   //   edm::Handle<reco::MuonCollection> muons;
-   //   reco::MuonCollection::const_iterator muon;
-   
-   
-   edm::Handle<reco::TrackCollection> muons;
-   
-   //edm::Handle<edm::View<reco::Muon> > muons;
-   
+   edm::Handle<reco::MuonCollection> muons;
    iEvent.getByLabel(m_muonsSrc, muons);
+   reco::MuonCollection::const_iterator muon;
    
-   //edm::View<reco::Muon>::const_iterator muon;
    
-   reco::TrackCollection::const_iterator muon;
+   //   edm::Handle<reco::TrackCollection> muons;
+   //   iEvent.getByLabel(m_muonsSrc, muons);
+   //   reco::TrackCollection::const_iterator muon;
+   
+   //   edm::Handle<edm::View<reco::Muon> > muons;
+   //   iEvent.getByLabel(m_muonsSrc, muons);
+   //   edm::View<reco::Muon>::const_iterator muon;
    
    if(debug){
    cout <<" muon collection size = " << muons->size() << endl;   
@@ -313,17 +312,13 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
 	 if(muons.isValid())
 	   {
 	     for (muon = muons->begin(); muon != muons->end(); ++muon) {
-	     ismuon = 0;
+	       ismuon = 0;
 	     
-	       /*
-		 double deta = (*it)->eta() - muon->eta();
-		 double dphi = fabs((*it)->phi() - muon->phi());
-		 if (dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
-		 double dr = sqrt(dphi*dphi+deta*deta);
-		 if(dr < 0.015) ismuon = 1;
-	       */
-	       double dpt = fabs((*it)->pt()-muon->pt())/(*it)->pt();
-	       double p_mu = sqrt(muon->pt()*muon->pt() + muon->pz()*muon->pz());
+	       double dpt = fabs((*it)->pt() - muon->innerTrack()->pt())/(*it)->pt();
+	       double p_mu = sqrt(muon->innerTrack()->pt()*muon->innerTrack()->pt() + 
+				  muon->innerTrack()->pz()*muon->innerTrack()->pz());
+	       //	       double dpt = fabs((*it)->pt()-muon->pt())/(*it)->pt();
+	       //	       double p_mu = sqrt(muon->pt()*muon->pt() + muon->pz()*muon->pz());
 	       double p_track = sqrt((*it)->pt()*(*it)->pt() + (*it)->pz()*(*it)->pz());
 	       double dp = fabs((p_mu-p_track)/p_track);
 	       if(dpt < 0.01 && dp < 0.01 ) {
@@ -350,15 +345,9 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
 	     for (muon = muons->begin(); muon != muons->end(); ++muon) {
 	        ismuon = 0;
 		
-	       /*
-		 double deta = (*itV)->eta() - muon->eta();
-		 double dphi = fabs((*itV)->phi() - muon->phi());
-		 if (dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
-		 double dr = sqrt(dphi*dphi+deta*deta);
-		 if(dr < 0.015) ismuon = 1;
-	       */
-	       double dpt = fabs((*itV)->pt()-muon->pt())/(*itV)->pt();
-	       double p_mu = sqrt(muon->pt()*muon->pt() + muon->pz()*muon->pz());
+	       double dpt = fabs((*itV)->pt() - muon->innerTrack()->pt())/(*itV)->pt();
+	       double p_mu = sqrt(muon->innerTrack()->pt()*muon->innerTrack()->pt() + 
+				  muon->innerTrack()->pz()*muon->innerTrack()->pz());
 	       double p_track = sqrt((*itV)->pt()*(*itV)->pt() + (*itV)->pz()*(*itV)->pz());
 	       double dp = fabs((p_mu-p_track)/p_track);
 	       
@@ -407,8 +396,9 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
 		       double dr = sqrt(dphi*dphi+deta*deta);
 		       if(dr < 0.015) ismuon = 1;
 		     */
-		     double dpt = fabs((*itC)->pt()-muon->pt())/(*itC)->pt();
-	             double p_mu = sqrt(muon->pt()*muon->pt() + muon->pz()*muon->pz());
+		     double dpt = fabs((*itC)->pt() - muon->innerTrack()->pt())/(*itC)->pt();
+	             double p_mu = sqrt(muon->innerTrack()->pt()*muon->innerTrack()->pt() + 
+					muon->innerTrack()->pz()*muon->innerTrack()->pz());
 	             double p_track = sqrt((*itC)->pt()*(*itC)->pt() + (*itC)->pz()*(*itC)->pz());
 	             double dp = fabs((p_mu-p_track)/p_track);
 		     
