@@ -31,22 +31,22 @@ public:
 
   void setHTR(int crate, int slot, int tb);
   int fiberChanId() const { return castorElectronicsId_&0x3; }
-  int fiberIndex() const { return ((castorElectronicsId_>>2)&0x7)+1; }
+  int fiberIndex() const { return ((castorElectronicsId_>>2)&0xf)+1; }
   int slbChannelIndex() const { return castorElectronicsId_&0x3; }
-  int slbSiteNumber() const { return ((castorElectronicsId_>>2)&0x7)+1; }
+  int slbSiteNumber() const { return ((castorElectronicsId_>>2)&0xf)+1; }
 
   std::string slbChannelCode() const;
 
   int htrChanId() const { return (fiberChanId()+1)+((fiberIndex()-1)*3); }
-  int spigot() const { return (castorElectronicsId_>>5)&0xF; }
-  int dccid() const { return (castorElectronicsId_>>9)&0x1F; }
+  int spigot() const { return (castorElectronicsId_>>6)&0xF; }
+  int dccid() const { return (castorElectronicsId_>>10)&0xF; }
   int htrSlot() const { return (castorElectronicsId_>>14)&0x1F; }
   int htrTopBottom() const { return (castorElectronicsId_>>19)&0x1; }
   int readoutVMECrateId() const { return (castorElectronicsId_>>20)&0x1F; }
   int linearIndex() const { return (castorElectronicsId_)&0x3FFF; }
 
   static const int maxLinearIndex = 0x3FFF;
-  static const int maxDCCId = 31;
+  static const int maxDCCId = 15;
   
   /** operators */
   int operator==(const CastorElectronicsId& id) const { return id.castorElectronicsId_==castorElectronicsId_; }
