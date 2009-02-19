@@ -12,7 +12,7 @@
 ThreeThresholdStripClusterizer::
 ThreeThresholdStripClusterizer(float strip_thr, float seed_thr,float clust_thr, int max_holes, int max_bad, int max_adj)
   : esinfo(0) {
-  thresholds = new thresholdGroup(strip_thr,seed_thr,clust_thr,max_holes,max_bad,max_adj);
+  thresholds = new Thresholds(strip_thr,seed_thr,clust_thr,max_holes,max_bad,max_adj);
 }
 
 ThreeThresholdStripClusterizer::
@@ -53,7 +53,7 @@ clusterizeDetUnit_(const digiDetSet & digis, edmNew::DetSetVector<SiStripCluster
   if( !esinfo->isModuleUsable( digis.detId() )) return;
   esinfo->setDetId( digis.detId() );
   extDigis.clear();  transform( digis.begin(), digis.end(), 
-				back_inserter(extDigis), extDigiConstructor(esinfo,thresholds) );
+				back_inserter(extDigis), ExtendedDigiFactory(esinfo,thresholds) );
 
   iter_t left, seed, right = extDigis.begin();
   while( (seed = std::find_if<iter_t>(right,extDigis.end(), isSeed() ))
@@ -75,7 +75,7 @@ findClusterEdge(digiIter seed, digiIter end) const {
       back = test;
   return back+1;
 }
- 
+
 template<class digiIter>
 inline bool
 ThreeThresholdStripClusterizer::
@@ -142,7 +142,7 @@ ESinfo::badAdjacent(const uint16_t& strip, const uint8_t& maxAdjacentBad, const 
 
 inline uint16_t 
 ThreeThresholdStripClusterizer::
-SiStripExtendedDigi::correctedCharge(ESinfo* es) const { 
+ExtendedDigi::correctedCharge(ESinfo* es) const { 
   if( !aboveChannel ) return 0;
   if(adc() > 255) throw InvalidChargeException(digi);
   uint16_t charge = static_cast<uint16_t>( adc()/es->gain(strip()) + 0.5 ); //adding 0.5 turns truncation into rounding
