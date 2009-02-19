@@ -5,14 +5,27 @@
 // see header for documentation and CMS internal note 2007 "Improved Parametrization of the Cosmic Muon Flux for the generator CMSCGEN" by Biallass + Hebbeker
 //
 
+#include <CLHEP/Random/RandomEngine.h>
+#include <CLHEP/Random/JamesRandom.h>
 
 #include "GeneratorInterface/CosmicMuonGenerator/interface/CMSCGEN.h"
  
-int CMSCGEN::initialize(double pmin_in, double pmax_in, double thetamin_in, double thetamax_in, int RanSeed, bool TIFOnly_constant, bool TIFOnly_linear)  
+CMSCGEN::CMSCGEN() : initialization(0), RanGen2(0), delRanGen(false)
 {
+}
 
-  //set seed for Random Generator (seed can be controled by config-file), P.Biallass 2006
-  RanGen2.SetSeed(RanSeed);
+CMSCGEN::~CMSCGEN()
+{
+  if (delRanGen)
+    delete RanGen2;
+}
+
+int CMSCGEN::initialize(double pmin_in, double pmax_in, double thetamin_in, double thetamax_in, CLHEP::HepRandomEngine *rnd, bool TIFOnly_constant, bool TIFOnly_linear)  
+{
+  if (delRanGen)
+    delete RanGen2;
+  RanGen2 = rnd;
+  delRanGen = false;
 
   //set bools for TIFOnly options (E<2GeV with unphysical energy dependence)
   TIFOnly_const = TIFOnly_constant;
@@ -229,6 +242,14 @@ int CMSCGEN::initialize(double pmin_in, double pmax_in, double thetamin_in, doub
   return initialization;
 }
 
+int CMSCGEN::initialize(double pmin_in, double pmax_in, double thetamin_in, double thetamax_in, int RanSeed, bool TIFOnly_constant, bool TIFOnly_linear)
+{
+  CLHEP::HepRandomEngine *rnd = new CLHEP::HepJamesRandom;
+  //set seed for Random Generator (seed can be controled by config-file), P.Biallass 2006
+  rnd->setSeed(RanSeed, 0);
+  delRanGen = true;
+  return initialize(pmin_in, pmax_in, thetamin_in, thetamax_in, rnd, TIFOnly_constant, TIFOnly_linear);
+}
 
 int CMSCGEN::generate()
 {
@@ -263,9 +284,9 @@ int CMSCGEN::generate()
   
   while (1)
     {
-      prob = RanGen2.Rndm();
+      prob = RanGen2->flat();
       r1 = double(prob);
-      prob = RanGen2.Rndm();
+      prob = RanGen2->flat();
       r2 = double(prob);
       
       xe = xemin+r1*(xemax-xemin);
@@ -346,7 +367,7 @@ int CMSCGEN::generate()
   //
   // +++ charge ratio 1.280
   //
-  prob = RanGen2.Rndm();
+  prob = RanGen2->flat();
   r3 = double(prob);
   
   double charg = 1.;
@@ -407,9 +428,9 @@ int CMSCGEN::generate()
   
   while (1)
     {
-      prob = RanGen2.Rndm();
+      prob = RanGen2->flat();
       r1 = double(prob);
-      prob = RanGen2.Rndm();
+      prob = RanGen2->flat();
       r2 = double(prob);
       c = cmin + (c_cut-cmin)*r1;    
       z = b0 + b1 * c + b2 * c*c;
@@ -469,9 +490,12 @@ double CMSCGEN::flux()
 
 
 
-int CMSCGEN::initializeNuMu(double pmin_in, double pmax_in, double thetamin_in, double thetamax_in, double Enumin_in, double Enumax_in, double Phimin_in, double Phimax_in, int RanSeed) {
-    
-  RanGen2.SetSeed(RanSeed);
+int CMSCGEN::initializeNuMu(double pmin_in, double pmax_in, double thetamin_in, double thetamax_in, double Enumin_in, double Enumax_in, double Phimin_in, double Phimax_in, CLHEP::HepRandomEngine *rnd)
+{
+  if (delRanGen)
+    delete RanGen2;
+  RanGen2 = rnd;
+  delRanGen = false;
   
   Rnunubar = 1.2;
   ProdAlt = 7.5e6; //mm
@@ -497,9 +521,9 @@ int CMSCGEN::initializeNuMu(double pmin_in, double pmax_in, double thetamin_in, 
   negfrac = 0.;
   int trials = 100000;
   for (int i=0; i<trials; ++i) {
-    double ctheta = cmin + (cmax-cmin)*RanGen2.Rndm();
-    double Emu = pmin + (pmax-pmin)*RanGen2.Rndm();
-    double Enu = enumin + (enumax-enumin)*RanGen2.Rndm();
+    double ctheta = cmin + (cmax-cmin)*RanGen2->flat();
+    double Emu = pmin + (pmax-pmin)*RanGen2->flat();
+    double Enu = enumin + (enumax-enumin)*RanGen2->flat();
     double rate =  dNdEmudEnu(Enu, Emu, ctheta);
     //std::cout << "trial=" << i << " ctheta=" << ctheta << " Emu=" << Emu << " Enu=" << Enu 
     //      << " rate=" << rate << std::endl;
@@ -537,6 +561,14 @@ int CMSCGEN::initializeNuMu(double pmin_in, double pmax_in, double thetamin_in, 
 
 } 
 
+int CMSCGEN::initializeNuMu(double pmin_in, double pmax_in, double thetamin_in, double thetamax_in, double Enumin_in, double Enumax_in, double Phimin_in, double Phimax_in, int RanSeed)
+{
+  CLHEP::HepRandomEngine *rnd = new CLHEP::HepJamesRandom;
+  //set seed for Random Generator (seed can be controled by config-file), P.Biallass 2006
+  rnd->setSeed(RanSeed, 0);
+  delRanGen = true;
+  return initializeNuMu(pmin_in, pmax_in, thetamin_in, thetamax_in, Enumin_in, Enumax_in, Phimin_in, Phimax_in, rnd);
+}
 
 
 double CMSCGEN::dNdEmudEnu(double Enu, double Emu, double ctheta) {
@@ -558,11 +590,11 @@ int CMSCGEN::generateNuMu() {
   
   double ctheta, Emu;
   while (1) {
-    ctheta = cmin + (cmax-cmin)*RanGen2.Rndm();
-    Emu = pmin + (pmax-pmin)*RanGen2.Rndm();
-    double Enu = enumin + (enumax-enumin)*RanGen2.Rndm();
+    ctheta = cmin + (cmax-cmin)*RanGen2->flat();
+    Emu = pmin + (pmax-pmin)*RanGen2->flat();
+    double Enu = enumin + (enumax-enumin)*RanGen2->flat();
     double rate = dNdEmudEnu(Enu, Emu, ctheta);
-    if (rate > dNdEmudEnuMax*RanGen2.Rndm()) break;
+    if (rate > dNdEmudEnuMax*RanGen2->flat()) break;
   }
 
   c = -ctheta; //historical sign convention
@@ -572,7 +604,7 @@ int CMSCGEN::generateNuMu() {
   // +++ nu/nubar ratio (~1.2)
   //
   double charg = 1.; //nubar -> mu+
-  if (RanGen2.Rndm() > Rnunubar/(1.+Rnunubar))
+  if (RanGen2->flat() > Rnunubar/(1.+Rnunubar))
     charg = -1.; //neutrino -> mu-
 
   pq = pq*charg;

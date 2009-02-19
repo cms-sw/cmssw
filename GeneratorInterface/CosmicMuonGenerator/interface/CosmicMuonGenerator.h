@@ -6,74 +6,24 @@
 //
 
 // include files
+#include <iostream>
+
 #include "GeneratorInterface/CosmicMuonGenerator/interface/CMSCGENnorm.h"
 #include "GeneratorInterface/CosmicMuonGenerator/interface/CMSCGEN.h"
 #include "GeneratorInterface/CosmicMuonGenerator/interface/CosmicMuonParameters.h"
 #include "GeneratorInterface/CosmicMuonGenerator/interface/SingleParticleEvent.h"
-#include <iostream>
-#include "TRandom2.h"
 
-
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 // class definitions
 class CosmicMuonGenerator{
 public:
   // constructor
-  CosmicMuonGenerator(){
-    //initialize class which normalizes flux (added by P.Biallass 29.3.2006)
-    Norm = new CMSCGENnorm();
-    //initialize class which produces the cosmic muons  (modified by P.Biallass 29.3.2006)
-    Cosmics = new CMSCGEN();
-    // set default control parameters
-    NumberOfEvents = 100;
-    RanSeed = 135799468;
-    MinP =     3.;
-    MinP_CMS =     MinP;
-    MaxP =   3000.;
-    MinTheta =  0.*Deg2Rad;
-    MaxTheta = 84.26*Deg2Rad;
-    MinPhi =    0.*Deg2Rad;
-    MaxPhi =  360.*Deg2Rad;
-    MinT0  = -12.5;
-    MaxT0  =  12.5;
-    ElossScaleFactor = 1.0;
-    RadiusOfTarget = 8000.;
-    ZDistOfTarget = 15000.;
-    TrackerOnly = false;
-    TIFOnly_constant = false;
-    TIFOnly_linear = false;
-    MTCCHalf = false;
-    EventRate = 0.;
-    rateErr_stat = 0.;
-    rateErr_syst = 0.;
-
-    SumIntegrals = 0.;
-    Ngen = 0.;
-    Nsel = 0.;
-    Ndiced = 0.;
-    NotInitialized = true;
-    Target3dRadius = 0.;
-    SurfaceRadius = 0.;
-    //set plug as default onto PX56 shaft
-    PlugVx = PlugOnShaftVx;
-    PlugVz = PlugOnShaftVz;
-
-
-    std::cout << std::endl;
-    std::cout << "*********************************************************" << std::endl;
-    std::cout << "*********************************************************" << std::endl;
-    std::cout << "***                                                   ***" << std::endl;
-    std::cout << "***  C O S M I C  M U O N  G E N E R A T O R  (vC++)  ***" << std::endl;
-    std::cout << "***                                                   ***" << std::endl;
-    std::cout << "*********************************************************" << std::endl;
-    std::cout << "*********************************************************" << std::endl;
-    std::cout << std::endl;
-  }
+  CosmicMuonGenerator();
   // destructor
-  ~CosmicMuonGenerator(){
-    delete Norm; 
-    delete Cosmics;
-  }
+  ~CosmicMuonGenerator();
   // event with one particle
   //SingleParticleEvent OneMuoEvt;
   SingleParticleEvent OneMuoEvt;
@@ -122,9 +72,9 @@ private:
   double MinEnu;
   double MaxEnu;
 
-
-  // random number generator (periodicity > 10**14)
-  TRandom2 RanGen; 
+  // random number generator
+  CLHEP::HepRandomEngine *RanGen;
+  bool delRanGen;
   // check user input
   bool NotInitialized;
   void checkIn();
@@ -160,7 +110,7 @@ public:
   void setMaxEnu(double MaxEn);
 
   // initialize the generator
-  void initialize();
+  void initialize(CLHEP::HepRandomEngine *rng = 0);
    // prints rate + statistics
   void terminate();
   // initialize, generate and terminate the Cosmic Muon Generator

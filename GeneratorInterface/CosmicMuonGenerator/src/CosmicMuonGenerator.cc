@@ -3,7 +3,69 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 04.12.2008 sonne: replaced Min/MaxE by Min/MaxP to get cos_sf/ug scripts working again
 
+#include <CLHEP/Random/RandomEngine.h>
+#include <CLHEP/Random/JamesRandom.h>
+
 #include "GeneratorInterface/CosmicMuonGenerator/interface/CosmicMuonGenerator.h"
+
+CosmicMuonGenerator::CosmicMuonGenerator() : delRanGen(false)
+{
+  //initialize class which normalizes flux (added by P.Biallass 29.3.2006)
+  Norm = new CMSCGENnorm();
+  //initialize class which produces the cosmic muons  (modified by P.Biallass 29.3.2006)
+  Cosmics = new CMSCGEN();
+  // set default control parameters
+  NumberOfEvents = 100;
+  RanSeed = 135799468;
+  MinP =     3.;
+  MinP_CMS =     MinP;
+  MaxP =   3000.;
+  MinTheta =  0.*Deg2Rad;
+  MaxTheta = 84.26*Deg2Rad;
+  MinPhi =    0.*Deg2Rad;
+  MaxPhi =  360.*Deg2Rad;
+  MinT0  = -12.5;
+  MaxT0  =  12.5;
+  ElossScaleFactor = 1.0;
+  RadiusOfTarget = 8000.;
+  ZDistOfTarget = 15000.;
+  TrackerOnly = false;
+  TIFOnly_constant = false;
+  TIFOnly_linear = false;
+  MTCCHalf = false;
+  EventRate = 0.;
+  rateErr_stat = 0.;
+  rateErr_syst = 0.;
+
+  SumIntegrals = 0.;
+  Ngen = 0.;
+  Nsel = 0.;
+  Ndiced = 0.;
+  NotInitialized = true;
+  Target3dRadius = 0.;
+  SurfaceRadius = 0.;
+  //set plug as default onto PX56 shaft
+  PlugVx = PlugOnShaftVx;
+  PlugVz = PlugOnShaftVz;
+
+  std::cout << std::endl;
+  std::cout << "*********************************************************" << std::endl;
+  std::cout << "*********************************************************" << std::endl;
+  std::cout << "***                                                   ***" << std::endl;
+  std::cout << "***  C O S M I C  M U O N  G E N E R A T O R  (vC++)  ***" << std::endl;
+  std::cout << "***                                                   ***" << std::endl;
+  std::cout << "*********************************************************" << std::endl;
+  std::cout << "*********************************************************" << std::endl;
+  std::cout << std::endl;
+}
+
+CosmicMuonGenerator::~CosmicMuonGenerator()
+{
+  if (delRanGen)
+    delete RanGen;
+  delete Norm; 
+  delete Cosmics;
+}
 
 void CosmicMuonGenerator::runCMG(){
   initialize();
@@ -11,10 +73,19 @@ void CosmicMuonGenerator::runCMG(){
   terminate();
 }
 
-void CosmicMuonGenerator::initialize(){
+void CosmicMuonGenerator::initialize(CLHEP::HepRandomEngine *rng){
+  if (delRanGen)
+    delete RanGen;
+  if (!rng) {
+    RanGen = new CLHEP::HepJamesRandom;
+    RanGen->setSeed(RanSeed, 0); //set seed for Random Generator (seed can be controled by config-file)
+    delRanGen = true;
+  } else {
+    RanGen = rng;
+    delRanGen = false;
+  }
   checkIn();
   if (NumberOfEvents > 0){
-    RanGen.SetSeed(RanSeed); //set seed for Random Generator (seed can be controled by config-file)
     // set up "surface geometry" dimensions
     double RadiusTargetEff = RadiusOfTarget; //get this from cfg-file
     double Z_DistTargetEff = ZDistOfTarget;  //get this from cfg-file
@@ -73,7 +144,7 @@ void CosmicMuonGenerator::nextEvent(){
 	  Theta = TMath::ACos( Cosmics->cos_theta() ) ; //angle has to be in RAD here
 	  Ngen+=1.;   //count number of initial cosmic events (in surface area), vertices will be added later
 	  badMomentumGenerated = false;
-	  Phi = RanGen.Rndm()*(MaxPhi-MinPhi) + MinPhi;
+	  Phi = RanGen->flat()*(MaxPhi-MinPhi) + MinPhi;
 	}
 	Norm->events_n100cos(E, Theta); //test if this muon is in normalization range
 	Ndiced += 1; //one more cosmic is diced
@@ -82,8 +153,8 @@ void CosmicMuonGenerator::nextEvent(){
     double Nver = 0.;
     bool   badVertexGenerated = true;
     while (badVertexGenerated){
-      RxzV = sqrt(RanGen.Rndm())*SurfaceRadius;
-      PhiV = RanGen.Rndm()*TwoPi;
+      RxzV = sqrt(RanGen->flat())*SurfaceRadius;
+      PhiV = RanGen->flat()*TwoPi;
       // check phi range (for a sphere with Target3dRadius around the target)
       double dPhi = Pi; if (RxzV > Target3dRadius) dPhi = asin(Target3dRadius/RxzV);
       double rotPhi = PhiV + Pi; if (rotPhi > TwoPi) rotPhi -= TwoPi;
@@ -111,7 +182,7 @@ void CosmicMuonGenerator::nextEvent(){
       Vy = SurfaceOfEarth + PlugWidth;  // [mm]
 
     double Vz = RxzV*cos(PhiV);  // [mm]
-    double T0 = (RanGen.Rndm()*(MaxT0-MinT0) + MinT0)*SpeedOfLight; // [mm/c];
+    double T0 = (RanGen->flat()*(MaxT0-MinT0) + MinT0)*SpeedOfLight; // [mm/c];
     //std::cout << "Vx=" << Vx << " Vy=" << Vy << " Vz=" << Vz << std::endl;
     OneMuoEvt.create(id, Px, Py, Pz, E, MuonMass, Vx, Vy, Vz, T0); 
     // if angles are ok, propagate to target

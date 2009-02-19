@@ -1,6 +1,7 @@
 <use name=boost>
 <use name=FWCore/Framework>
 <use name=SimDataFormats/GeneratorProducts>
+<use name=clhep>
 <use name=hepmc> 
 <use name=root>
 <flags EDM_PLUGIN=1>

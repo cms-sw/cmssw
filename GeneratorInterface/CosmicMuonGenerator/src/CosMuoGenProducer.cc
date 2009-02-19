@@ -1,3 +1,5 @@
+#include <CLHEP/Random/RandomEngine.h>
+
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -7,7 +9,6 @@
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 #include "GeneratorInterface/CosmicMuonGenerator/interface/CosMuoGenProducer.h"
-
 
 edm::CosMuoGenProducer::CosMuoGenProducer( const ParameterSet & pset ) :
   //RanS(pset.getParameter<int>("RanSeed", 123456)), //get seed now from Framework
@@ -38,18 +39,12 @@ edm::CosMuoGenProducer::CosMuoGenProducer( const ParameterSet & pset ) :
     //if not specified (i.e. negative) then use MinP also for MinP_CMS
     if(MinP_CMS < 0) MinP_CMS = MinP;
 
-#ifdef NOTYET
-    //In the future, we will get the random number seed on each event and tell 
-    // the cosmic muon generator to use that new seed
-    // The random engine has already been initialized.  DO NOT do it again!
     edm::Service<RandomNumberGenerator> rng;
-    uint32_t seed = rng->mySeed();
-    RanS = seed;
-#else
-    //get seed now from Framework
-    edm::Service<edm::RandomNumberGenerator> rng;
-    RanS = rng->mySeed();
-#endif
+    if (!rng.isAvailable())
+      throw cms::Exception("Configuration")
+         << "The RandomNumberProducer module requires the RandomNumberGeneratorService\n"
+            "which appears to be absent.  Please add that service to your configuration\n"
+            "or remove the modules that require it." << std::endl;
 
     // set up the generator
     CosMuoGen = new CosmicMuonGenerator();
@@ -78,7 +73,7 @@ edm::CosMuoGenProducer::CosMuoGenProducer( const ParameterSet & pset ) :
     CosMuoGen->setPlugVz(PlugVtz);    
     CosMuoGen->setMinEnu(MinEn);
     CosMuoGen->setMaxEnu(MaxEn);    
-    CosMuoGen->initialize();
+    CosMuoGen->initialize(&rng->getEngine());
     produces<HepMCProduct>();
     produces<GenEventInfoProduct>();
     produces<GenRunInfoProduct, edm::InRun>();
