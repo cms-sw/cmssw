@@ -25,7 +25,8 @@ muonTriggerRateTimeAnalyzer = cms.EDAnalyzer("MuonTriggerRateTimeAnalyzer",
     PhiParameters      = cms.vdouble(50,-3.15,3.15),
 
     # Set cuts placed on the generated muons and matching criteria
-    MinPtCut           = cms.untracked.double(10.0),
+    # Use pt cut just below 10 to allow through SingleMuPt10 muons  
+    MinPtCut           = cms.untracked.double(9.9),
     MaxEtaCut          = cms.untracked.double(2.1),
     MotherParticleId   = cms.untracked.uint32(0),
     L1DrCut            = cms.untracked.double(0.4),
