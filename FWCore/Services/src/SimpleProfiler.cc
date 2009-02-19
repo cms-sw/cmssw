@@ -233,8 +233,16 @@ int stacktrace (void *addresses[], int nmax)
     siginfo_t	*info;
     ucontext_t	*ctx;
   };
-  register frame      *ebp __asm__ ("ebp");
-  register frame      *esp __asm__ ("esp");
+  // register frame      *ebp __asm__ ("ebp");
+  // register frame      *esp __asm__ ("esp");
+  // use macros to avoid compiler warning.
+#define getBP(X)  asm ( "movl %%ebp,%0" : "=m" (X) )
+#define getSP(X)  asm ( "movl %%esp,%0" : "=m" (X) )
+  register frame* ebp = 0;
+  getBP(ebp);
+  register frame* esp = 0;
+  getSP(esp);
+
   frame               *fp = ebp;
   int			depth = 0;
 
