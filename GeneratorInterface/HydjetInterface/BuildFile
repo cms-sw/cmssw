@@ -4,9 +4,7 @@
 <use name=SimDataFormats/GeneratorProducts>
 <use name=SimDataFormats/HiGenData>
 <use name=GeneratorInterface/PyquenInterface>
-
-<lib name=g2c></lib>
-<lib name=m></lib>
+<use name=f77compiler>
 
 <export>
  <lib name=GeneratorInterfaceHydjetInterface>

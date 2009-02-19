@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Tue Dec 18 09:44:41 EST 2007
-// $Id: HydjetAnalyzer.cc,v 1.11 2009/02/03 00:37:41 yilmaz Exp $
+// $Id: HydjetAnalyzer.cc,v 1.12 2009/02/03 22:02:00 yilmaz Exp $
 //
 //
 
@@ -116,7 +116,7 @@ class HydjetAnalyzer : public edm::EDAnalyzer {
    TTree* hydjetTree_;
    HydjetEvent hev_;
 
-   TNtuple *ntpart;
+   TNtuple *nt;
 
    std::string output;           // Output filename
  
@@ -197,28 +197,35 @@ HydjetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    double vz = -99;
    double vr = -99;
    const GenEvent* evt;
+   const GenEvent* evt2;
   
+   int nmix = -1;
+   int np = 0;
+   int sig = -1;
+   int src = -1;
+
    if(doCF_){
 
      Handle<CrossingFrame<HepMCProduct> > cf;
      iEvent.getByLabel(InputTag("mix","source"),cf);
 
-     /*
 
      MixCollection<HepMCProduct> mix(cf.product());
 
-     int mixsize = mix.size();
+     nmix = mix.size();
 
-     cout<<"Mix Collection Size: "<<mixsize<<endl;
-     evt = mix.getObject(mixsize-1).GetEvent();
+     cout<<"Mix Collection Size: "<<mix<<endl;
 
-     MixCollection<HepMCProduct>::iterator begin = mix.begin();
-     MixCollection<HepMCProduct>::iterator end = mix.end();
+     MixCollection<HepMCProduct>::iterator mbegin = mix.begin();
+     MixCollection<HepMCProduct>::iterator mend = mix.end();
      
-     for(MixCollection<HepMCProduct>::iterator mixit = begin; mixit != end; ++mixit){
+     for(MixCollection<HepMCProduct>::iterator mixit = mbegin; mixit != mend; ++mixit){
 
        const GenEvent* subevt = (*mixit).GetEvent();
        int all = subevt->particles_size();
+       np += all;
+
+       /*
        HepMC::GenEvent::particle_const_iterator begin = subevt->particles_begin();
        HepMC::GenEvent::particle_const_iterator end = subevt->particles_end();
        for(HepMC::GenEvent::particle_const_iterator it = begin; it != end; ++it){
@@ -231,82 +238,90 @@ HydjetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   }
 	 }
        }
+
+       */
        
      }     
 
-     */
-
-   }else{
+   }
+   
       
-      Handle<HepMCProduct> mc;
-      iEvent.getByLabel("source",mc);
-      evt = mc->GetEvent();
-
-      const HeavyIon* hi = evt->heavy_ion();
-      if(hi){
-	 b = hi->impact_parameter();
-	 npart = hi->Npart_proj()+hi->Npart_targ();
-	 ncoll = hi->Ncoll();
-	 nhard = hi->Ncoll_hard();
-	 phi0 = hi->event_plane_angle();
-
-	 if(printLists_){
-	    out_b<<b<<endl;
-	    out_n<<npart<<endl;
-	 }
-      }
-
-      int all = evt->particles_size();
-      HepMC::GenEvent::particle_const_iterator begin = evt->particles_begin();
-      HepMC::GenEvent::particle_const_iterator end = evt->particles_end();
-      for(HepMC::GenEvent::particle_const_iterator it = begin; it != end; ++it){
-	if((*it)->status() == 1){
-	   int pdg_id = (*it)->pdg_id();
-	   float eta = (*it)->momentum().eta();
-           float phi = (*it)->momentum().phi();
-	   float pt = (*it)->momentum().perp();
-	  const ParticleData * part = pdt->particle(pdg_id );
-	  int charge = part->charge();
-
-	  hev_.pt[hev_.mult] = pt;
-          hev_.eta[hev_.mult] = eta;
-          hev_.phi[hev_.mult] = phi;
-          hev_.pdg[hev_.mult] = pdg_id;
-          hev_.chg[hev_.mult] = charge;
-
-	  eta = fabs(eta);
-	  int etabin = 0;
-	  if(eta > 0.5) etabin = 1; 
-	  if(eta > 1.) etabin = 2;
-	  if(eta < 2.){
-	     hev_.ptav[etabin] += pt;
-	     ++(hev_.n[etabin]);
-	  }
-	  ++(hev_.mult);
-	}
+   Handle<HepMCProduct> mc;
+   iEvent.getByLabel("source",mc);
+   evt = mc->GetEvent();
+      
+      Handle<HepMCProduct> mc2;
+      iEvent.getByLabel("signal",mc2);
+      evt2 = mc2->GetEvent();
+   
+   const HeavyIon* hi = evt->heavy_ion();
+   if(hi){
+      b = hi->impact_parameter();
+      npart = hi->Npart_proj()+hi->Npart_targ();
+      ncoll = hi->Ncoll();
+      nhard = hi->Ncoll_hard();
+      phi0 = hi->event_plane_angle();
+      
+      if(printLists_){
+	 out_b<<b<<endl;
+	 out_n<<npart<<endl;
       }
    }
+   
+   src = evt->particles_size();
+   sig = evt2->particles_size();
+   
+   
+   HepMC::GenEvent::particle_const_iterator begin = evt->particles_begin();
+   HepMC::GenEvent::particle_const_iterator end = evt->particles_end();
+   for(HepMC::GenEvent::particle_const_iterator it = begin; it != end; ++it){
+      if((*it)->status() == 1){
+	 int pdg_id = (*it)->pdg_id();
+	 float eta = (*it)->momentum().eta();
+	 float phi = (*it)->momentum().phi();
+	 float pt = (*it)->momentum().perp();
+	 const ParticleData * part = pdt->particle(pdg_id );
+	 int charge = part->charge();
 
+	 hev_.pt[hev_.mult] = pt;
+	 hev_.eta[hev_.mult] = eta;
+	 hev_.phi[hev_.mult] = phi;
+	 hev_.pdg[hev_.mult] = pdg_id;
+	 hev_.chg[hev_.mult] = charge;
+	 
+	 eta = fabs(eta);
+	 int etabin = 0;
+	 if(eta > 0.5) etabin = 1; 
+	 if(eta > 1.) etabin = 2;
+	 if(eta < 2.){
+	    hev_.ptav[etabin] += pt;
+	    ++(hev_.n[etabin]);
+	 }
+	 ++(hev_.mult);
+      }
+   }
+   //   }
+   
    if(doVertex_){
-     edm::Handle<edm::SimVertexContainer> simVertices;
-     iEvent.getByType<edm::SimVertexContainer>(simVertices);
-     
-     if (! simVertices.isValid() ) throw cms::Exception("FatalError") << "No vertices found\n";
-     int inum = 0;
-
-     edm::SimVertexContainer::const_iterator it=simVertices->begin();
-     SimVertex vertex = (*it);
-     cout<<" Vertex position "<< inum <<" " << vertex.position().rho()<<" "<<vertex.position().z()<<endl;
-     vx = vertex.position().x();
-     vy = vertex.position().y();
-     vz = vertex.position().z();
-     vr = vertex.position().rho();
+      edm::Handle<edm::SimVertexContainer> simVertices;
+      iEvent.getByType<edm::SimVertexContainer>(simVertices);
+      
+      if (! simVertices.isValid() ) throw cms::Exception("FatalError") << "No vertices found\n";
+      int inum = 0;
+      
+      edm::SimVertexContainer::const_iterator it=simVertices->begin();
+      SimVertex vertex = (*it);
+      cout<<" Vertex position "<< inum <<" " << vertex.position().rho()<<" "<<vertex.position().z()<<endl;
+      vx = vertex.position().x();
+      vy = vertex.position().y();
+      vz = vertex.position().z();
+      vr = vertex.position().rho();
    }
    
    for(int i = 0; i<3; ++i){
       hev_.ptav[i] = hev_.ptav[i]/hev_.n[i];
    }
-
+   
    hev_.b = b;
    hev_.npart = npart;
    hev_.ncoll = ncoll;
@@ -316,6 +331,8 @@ HydjetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    hev_.vy = vy;
    hev_.vz = vz;
    hev_.vr = vr;
+
+   nt->Fill(nmix,np,src,sig);
 
    hydjetTree_->Fill();
 
@@ -341,6 +358,8 @@ HydjetAnalyzer::beginJob(const edm::EventSetup& iSetup)
    }   
    
    if(doAnalysis_){
+      nt = f->make<TNtuple>("nt","Mixing Analysis","mix:np:src:sig");
+
       hydjetTree_ = f->make<TTree>("hi","Tree of Hydjet Events");
       hydjetTree_->Branch("event",&hev_.event,"event/I");
       hydjetTree_->Branch("b",&hev_.b,"b/F");

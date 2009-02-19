@@ -1,5 +1,5 @@
 /*
- * $Id: HydjetSource.cc,v 1.25 2009/02/03 00:37:40 yilmaz Exp $
+ * $Id: HydjetSource.cc,v 1.26 2009/02/03 22:02:00 yilmaz Exp $
  *
  * Interface to the HYDJET generator, produces HepMC events
  *
@@ -237,6 +237,8 @@ bool HydjetSource::get_hard_particles(HepMC::GenEvent *evt, vector<SubEvent>& su
 
       sub_vertices[isub] = new HepMC::GenVertex(HepMC::FourVector(0,0,0,0),isub);
       evt->add_vertex(sub_vertices[isub]);
+      if(!evt->signal_process_vertex()) evt->set_signal_process_vertex(sub_vertices[isub]);
+
       subs.push_back(SubEvent(isub));
 
       while(ihy<nhard && hyjets.khj[2][ihy] < sub_up){
@@ -304,6 +306,7 @@ bool HydjetSource::get_soft_particles(HepMC::GenEvent *evt, vector<SubEvent>& su
       soft_vertex->add_particle_out( hyj_entries[i2] ) ;
    } 
    evt->add_vertex( soft_vertex );
+   evt->set_signal_process_vertex(soft_vertex);
 
    return true;
 }
