@@ -36,7 +36,7 @@
 
 namespace cscdqm {
 
-  /** Chamber MO List object definition */
+  /** @brief Chamber MO List object definition */
   typedef struct CSCHistoKeyType {
     HistoId id;
     HwId addId;
@@ -58,7 +58,7 @@ namespace cscdqm {
     >
   > CSCHistoMapType;
 
-  /** Chamber List object definition */
+  /** @brief Chamber List object definition */
   typedef struct CSCKeyType {
     HwId crateId;
     HwId dmbId;

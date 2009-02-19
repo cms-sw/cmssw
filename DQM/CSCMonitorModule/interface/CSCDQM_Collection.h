@@ -77,6 +77,7 @@ namespace cscdqm {
     public:
 
       Collection(Configuration* const p_config);
+      void load();
 
       void bookEMUHistos() const;
       void bookDDUHistos(const HwId dduId) const;
@@ -97,7 +98,6 @@ namespace cscdqm {
       static int&         getHistoValue(const CoHistoProps& h, const std::string& name, int& value, const int& def_value = 0);
       static double&      getHistoValue(const CoHistoProps& h, const std::string name, double& value, const int def_value = 0.0);
       
-      void load();
       void book(const HistoDef& h, const CoHistoProps& p, const std::string& folder) const;
       static const int ParseAxisLabels(const std::string& s, std::map<int, std::string>& labels);
       static void getNodeProperties(DOMNode*& node, CoHistoProps& hp);

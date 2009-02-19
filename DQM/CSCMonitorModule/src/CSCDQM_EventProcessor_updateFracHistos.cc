@@ -53,11 +53,11 @@ namespace cscdqm {
       if (getCSCHisto(h::CSC_BINCHECK_DATAFLOW_PROBLEMS_TABLE, crateId, dmbId, mo) && 
           getCSCHisto(h::CSC_BINCHECK_DATAFLOW_PROBLEMS_FREQUENCY, crateId, dmbId, mof)) {
         
+        LockType lock(mof->mutex);
         TH1* th = mof->getTH1Lock();
         th->Reset();
         th->Add(mo->getTH1());
         th->Scale(1. / dmbEvents);
-        mof->unlock();
         mof->SetMaximum(1.);
         mof->SetEntries(dmbEvents);
         mo->SetEntries(dmbEvents);
@@ -65,11 +65,11 @@ namespace cscdqm {
 
       if (getCSCHisto(h::CSC_BINCHECK_ERRORSTAT_TABLE, crateId, dmbId, mo) && 
           getCSCHisto(h::CSC_BINCHECK_ERRORS_FREQUENCY, crateId, dmbId, mof)) {
+        LockType lock(mof->mutex);
         TH1* th = mof->getTH1Lock();
         th->Reset();
         th->Add(mo->getTH1());
         th->Scale(1. / dmbEvents);
-        mof->unlock();
         mof->SetMaximum(1.);
         mof->SetEntries(dmbEvents);
         mo->SetEntries(dmbEvents);
@@ -90,10 +90,10 @@ namespace cscdqm {
     MonitorObject *mo = 0, *mo1 = 0, *mo2 = 0;
 
     if (getEMUHisto(result, mo) && getEMUHisto(set, mo2) && getEMUHisto(subset, mo1)) {
+      LockType lock(mo->mutex);
       TH1* th = mo->getTH1Lock();
       th->Reset();
       th->Divide(mo1->getTH1(), mo2->getTH1());
-      mo->unlock();
       mo->SetMaximum(1.);
     }
 

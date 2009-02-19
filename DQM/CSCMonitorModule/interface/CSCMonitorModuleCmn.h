@@ -71,7 +71,7 @@ class CSCMonitorModuleCmn: public edm::EDAnalyzer, public cscdqm::MonitorObjectP
   private:
 
     cscdqm::Configuration     config;
-    cscdqm::Dispatcher        dispatcher;
+    cscdqm::Dispatcher       *dispatcher;
     DQMStore                 *dbe;
     edm::InputTag             inputTag;
 

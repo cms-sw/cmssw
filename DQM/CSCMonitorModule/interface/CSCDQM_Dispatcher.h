@@ -61,7 +61,7 @@ namespace cscdqm {
        * @return 
        */
       void updateFractionAndEfficiencyHistos() {
-        lock();
+        LockType lock(mutex);
         config->updateFraTimer(true);
         processor.updateFractionHistos();
         config->updateFraTimer(false);
@@ -70,7 +70,6 @@ namespace cscdqm {
           processor.updateEfficiencyHistos();
           config->updateEffTimer(false);
         }
-        unlock();
       }
 
   };

@@ -59,6 +59,7 @@ namespace cscdqm {
    * @return 
    */
   void Dispatcher::init() {
+    collection.load();
     collection.bookEMUHistos();
     processor.init();
   }
@@ -120,13 +121,12 @@ namespace cscdqm {
    * @return 
    */
   void Dispatcher::updateFractionAndEfficiencyHistos() {
-    if (!processorFract.isLockedByOther()) {
-      if (config->getFRAEFF_SEPARATE_THREAD()) { 
-        boost::function<void ()> fnUpdate = boost::bind(&EventProcessorMutex::updateFractionAndEfficiencyHistos, &processorFract);
-        threads.create_thread(boost::ref(fnUpdate));
-      } else {
-        processorFract.updateFractionAndEfficiencyHistos();
-      }
+    LockType lock(processorFract.mutex);
+    if (config->getFRAEFF_SEPARATE_THREAD()) { 
+      boost::function<void ()> fnUpdate = boost::bind(&EventProcessorMutex::updateFractionAndEfficiencyHistos, &processorFract);
+      threads.create_thread(boost::ref(fnUpdate));
+    } else {
+      processorFract.updateFractionAndEfficiencyHistos();
     }
   }
 

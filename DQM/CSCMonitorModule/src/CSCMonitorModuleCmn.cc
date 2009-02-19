@@ -18,13 +18,20 @@
 
 #include "DQM/CSCMonitorModule/interface/CSCMonitorModuleCmn.h"
 
-CSCMonitorModuleCmn::CSCMonitorModuleCmn(const edm::ParameterSet& ps) : 
-dispatcher(&config, const_cast<CSCMonitorModuleCmn*>(this)), inputTag(INPUT_TAG_LABEL) {
+CSCMonitorModuleCmn::CSCMonitorModuleCmn(const edm::ParameterSet& ps) : inputTag(INPUT_TAG_LABEL) {
+
+  edm::FileInPath fp;
 
   edm::ParameterSet params = ps.getUntrackedParameter<edm::ParameterSet>("EventProcessor");
   config.load(params);
-   
+
+  fp = ps.getParameter<edm::FileInPath>("BOOKING_XML_FILE");
+  config.setBOOKING_XML_FILE(fp.fullPath());
+    
   dbe = edm::Service<DQMStore>().operator->();
+
+  dispatcher = new cscdqm::Dispatcher(&config, const_cast<CSCMonitorModuleCmn*>(this));
+  dispatcher->init();
 
   //dispatcher.getCollection()->printCollection();
   //throw cscdqm::Exception("End of game");
@@ -32,6 +39,7 @@ dispatcher(&config, const_cast<CSCMonitorModuleCmn*>(this)), inputTag(INPUT_TAG_
 }
 
 CSCMonitorModuleCmn::~CSCMonitorModuleCmn() {
+  if (dispatcher) delete dispatcher;
 }
 
 void CSCMonitorModuleCmn::beginJob(const edm::EventSetup& c) {
@@ -50,7 +58,7 @@ void CSCMonitorModuleCmn::analyze(const edm::Event& e, const edm::EventSetup& c)
   c.get<CSCCrateMapRcd>().get(hcrate);
   pcrate = hcrate.product();
     
-  dispatcher.processEvent(e, inputTag);
+  dispatcher->processEvent(e, inputTag);
 
 }
 

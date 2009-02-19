@@ -25,7 +25,6 @@ namespace cscdqm {
    */
   Collection::Collection(Configuration* const p_config) {
     config = p_config;
-    load();
   }
 
   
@@ -388,11 +387,13 @@ namespace cscdqm {
     std::string name = h.getName(), type, title, s;
 
     /** Check if this histogram is included in booking by filters */
+    /*
     if (!config->needBookMO(name)) {
       LOG_INFO << "MOFilter excluded " << name << " from booking"; 
       config->fnPutHisto(h, me);
       return;
     }
+    */
 
     int i1, i2, i3;
     double d1, d2, d3, d4, d5, d6;
@@ -463,6 +464,7 @@ namespace cscdqm {
 
     if(me != NULL) {
 
+      LockType lock(me->mutex);
       TH1 *th = me->getTH1Lock();
 
       if(checkHistoValue(p, "XTitle", s)) {
@@ -538,7 +540,7 @@ namespace cscdqm {
       if(checkHistoValue(p, "SetLabelSizeZ", d1)) th->SetLabelSize(d1, "Z");
       if(checkHistoValue(p, "SetErrorOption", s)) reinterpret_cast<TProfile*>(th)->SetErrorOption(s.c_str());
 
-      me->unlock();
+      lock.unlock();
 
     }
 

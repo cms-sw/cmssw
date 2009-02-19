@@ -23,11 +23,20 @@
 		</xs:complexContent>
 	</xs:complexType>
 	
+	<xs:complexType name="NameType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="from" type="xs:integer" use="optional"/>
+        <xs:attribute name="to" type="xs:integer" use="optional"/>
+      </xs:extension>
+    </xs:simpleContent>
+	</xs:complexType>
+
 	<xs:complexType name="HistogramType">
 		<xs:complexContent>
 			<xs:extension base="BaseHistogramType">
 				<xs:sequence>
-					<xs:element name="Name" type="xs:string"/>
+					<xs:element name="Name" type="NameType"/>
 				</xs:sequence>
 				<xs:attribute name="ref" type="xs:IDREF" use="optional"/>
 			</xs:extension>

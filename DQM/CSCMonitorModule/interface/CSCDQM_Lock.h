@@ -20,9 +20,10 @@
 #define CSCDQM_Lock_H
 
 #include <boost/thread.hpp>
-#include <boost/thread/recursive_mutex.hpp>
 
 namespace cscdqm {
+
+  typedef boost::recursive_mutex::scoped_lock LockType;
 
   /**
    * @class Lock
@@ -30,67 +31,20 @@ namespace cscdqm {
    */
   class Lock {
   
-    private:
+    public:
 
-      /** Mutex object */
-      boost::recursive_mutex lckMutex;
-
-      /** Lock object */
-      boost::recursive_mutex::scoped_lock lckLock;
-     
-      /** Flag to mark a locked state */
-      bool lockedByOther; 
-
-    public: 
+      /** Mutual exclusion object */
+      boost::recursive_mutex mutex;
 
       /**
        * @brief  Constructor.
        */
-      Lock() : lckLock(lckMutex) { 
-        unlock(); 
-        lockedByOther = false;
-      }
+      Lock() { }
 
       /**
        * @brief  Destructor.
        */
       virtual ~Lock() { }
-
-      /**
-       * @brief  Lock object.
-       */
-      void lock() { 
-        if (!isLocked()) {
-          lckLock.lock(); 
-          lockedByOther = true;
-        }
-      }
-
-      /**
-       * @brief  Unlock object.
-       */
-      void unlock() { 
-        if (isLocked()) {
-          lckLock.unlock(); 
-          lockedByOther = false;
-        }
-      }
-
-      /**
-       * @brief  If I (this thread) have locked this object?
-       * @return true if the object have locked this object, false - otherwise.
-       */
-      const bool isLocked() const { 
-        return lckLock.locked(); 
-      }
-
-      /**
-       * @brief  If someone else (another thread) have locked this object?
-       * @return true if the object have locked another thread, false - otherwise.
-       */
-      const bool isLockedByOther() const {
-        return lockedByOther;
-      }
 
   };
 

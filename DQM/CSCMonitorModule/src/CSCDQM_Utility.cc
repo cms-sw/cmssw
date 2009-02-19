@@ -112,7 +112,6 @@ namespace cscdqm {
   /**
    * @brief  Trim string
    * @param  str string to trim
-   * @return 
    */
   void Utility::trimString(std::string& str) {
     std::string::size_type pos = str.find_last_not_of(' ');
@@ -126,14 +125,41 @@ namespace cscdqm {
   }
   
   
+  /**
+   * @brief  Match RegExp expression against string message and return result
+   * @param  re_expression RegExp expression to match
+   * @param  message value to check
+   * @return true if message matches RegExp expression
+   */
   const bool Utility::regexMatch(const TPRegexp& re_expression, const std::string& message) {
     TPRegexp *re = const_cast<TPRegexp*>(&re_expression);
     return re->MatchB(message);
   }
 
+  /**
+   * @brief  Match RegExp expression string against string message and return result
+   * @param  expression RegExp expression in string to match
+   * @param  message value to check
+   * @return true if message matches RegExp expression
+   */
   const bool Utility::regexMatch(const std::string& expression, const std::string& message) {
     return regexMatch(TPRegexp(expression), message);
   }
+
+  /**
+   * @brief  Replace string part that matches RegExp expression with some
+   * string
+   * @param  expression RegExp expression in string to match
+   * @param  message value to check
+   * @param  replace string to replace matched part 
+   */
+  void Utility::regexReplace(const std::string& expression, std::string& message, const std::string replace) {
+    TString s(message); 
+    TPRegexp(expression).Substitute(s, replace);
+    message = s;
+  }
+
+
 
 #undef get16bits
 #if (defined(__GNUC__) && defined(__i386__)) || defined(__WATCOMC__) || defined(_MSC_VER) || defined (__BORLANDC__) || defined (__TURBOC__)
@@ -145,8 +171,7 @@ namespace cscdqm {
 #endif
 
   /**
-  * @brief  Calculate super fast hash (from
-  * http://www.azillionmonkeys.com/qed/hash.html)
+  * @brief  Calculate super fast hash (from http://www.azillionmonkeys.com/qed/hash.html)
   * @param  data Source Data 
   * @param  length of data
   * @return hash result
