@@ -8,9 +8,8 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
     phoProducer = cms.string('photons'),
     photonCollection = cms.string(''),
 
-    triggerResultsHLT = cms.InputTag("TriggerResults","","HLT"),
-    triggerResultsFU = cms.InputTag("TriggerResults","","FU"),
-                                
+
+    triggerEvent = cms.InputTag("hltTriggerSummaryAOD",""),                            
     prescaleFactor = cms.untracked.int32(1),
 
     useBinning = cms.bool(False),
@@ -32,7 +31,9 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
                                 # 0 => Loose Photon
                                 # 1 => Tight Photon
 
- 
+
+
+    ##### Histogram Ranges and Bins                               
 
     eBin = cms.int32(200),
     eMin = cms.double(0.0),
@@ -44,13 +45,17 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
 
     sumBin = cms.int32(200),
     sumMin = cms.double(0.0),
-    sumMax = cms.double(50.0),
+    sumMax = cms.double(20.0),
                                 
     etaBin = cms.int32(100),                               
     etaMin = cms.double(-2.5),
     etaMax = cms.double(2.5),
+    barrelEtaBin = cms.int32(170),                               
+    barrelEtaMin = cms.double(-1.5),
+    barrelEtaMax = cms.double(1.5),                                
 
-    phiBin = cms.int32(100),                               
+    phiBin = cms.int32(100),
+    barrelPhiBin = cms.int32(360),                               
     phiMin = cms.double(-3.14),
     phiMax = cms.double(3.14),
                                 
@@ -85,6 +90,21 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
     dPhiTracksBin = cms.int32(100),
     dPhiTracksMin = cms.double(-0.5),
     dPhiTracksMax = cms.double(0.5),
+
+    dRBin = cms.int32(300),
+    dRMin = cms.double(0.0),
+    dRMax = cms.double(0.1),
+
+    sigmaIetaBin = cms.int32(200),
+    sigmaIetaMin = cms.double(0.0),
+    sigmaIetaMax = cms.double(0.05),
+
+    eOverPBin = cms.int32(100),
+    eOverPMin = cms.double(0.0),
+    eOverPMax = cms.double(5.0),                                
+
+    ######
+                                
                 
     OutputMEsInRootFile = cms.bool(False),
  
