@@ -1,6 +1,6 @@
 /*
- *  $Date: 2009/01/09 10:45:16 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/02/19 00:29:21 $
+ *  $Revision: 1.1 $
  *  \author Julia Yarba
  */
 
@@ -30,27 +30,24 @@ Pythia6Gun::Pythia6Gun( const ParameterSet& pset ) :
    // fPDGTable( new DefaultConfig::ParticleDataTable("PDG Table") )
 {
 
-   ParameterSet defpset ;
+   // ParameterSet defpset ;
    //ParameterSet pgun_params = pset.getParameter<ParameterSet>("PGunParameters") ;
    ParameterSet pgun_params = 
-      pset.getUntrackedParameter<ParameterSet>("PGunParameters", defpset ) ;
-  
+      //pset.getUntrackedParameter<ParameterSet>("PGunParameters", defpset ) ;
+      pset.getParameter<ParameterSet>("PGunParameters");
+      
    // although there's the method ParameterSet::empty(),  
    // it looks like it's NOT even necessary to check if it is,
    // before trying to extract parameters - if it is empty,
    // the default values seem to be taken
    //
-   std::vector<int> defids ;
-   defids.push_back(13) ;
-   fPartIDs    = pgun_params.getUntrackedParameter< std::vector<int> >("ParticleID",defids);  
-   fMinEta     = pgun_params.getUntrackedParameter<double>("MinEta",0.);
-   fMaxEta     = pgun_params.getUntrackedParameter<double>("MaxEta",2.2);
-   fMinPhi     = pgun_params.getUntrackedParameter<double>("MinPhi",-3.14159265358979323846);
-   fMaxPhi     = pgun_params.getUntrackedParameter<double>("MaxPhi", 3.14159265358979323846);
-   //fMinPt      = pgun_params.getUntrackedParameter<double>("MinPt", 20.);
-   //fMaxPt      = pgun_params.getUntrackedParameter<double>("MaxPt", 420.);
-   //fMinE       = pgun_params.getUntrackedParameter<double>("MinE",  0.);
-   //fMaxE       = pgun_params.getUntrackedParameter<double>("MaxE",  0.);
+   //std::vector<int> defids ;
+   //defids.push_back(13) ;
+   fPartIDs    = pgun_params.getParameter< std::vector<int> >("ParticleID"); //,defids);  
+   fMinEta     = pgun_params.getParameter<double>("MinEta"); // ,-2.2);
+   fMaxEta     = pgun_params.getParameter<double>("MaxEta"); // , 2.2);
+   fMinPhi     = pgun_params.getParameter<double>("MinPhi"); // ,-3.14159265358979323846);
+   fMaxPhi     = pgun_params.getParameter<double>("MaxPhi"); // , 3.14159265358979323846);
    
    fHepMCVerbosity   = pset.getUntrackedParameter<int>( "HepMCVerbosity", 0 ) ;
    fPylistVerbosity  = pset.getUntrackedParameter<int>( "PylistVerbosity", 0 ) ;
@@ -73,7 +70,12 @@ Pythia6Gun::Pythia6Gun( const ParameterSet& pset ) :
 }
 
 Pythia6Gun::~Pythia6Gun()
-{  
+{ 
+   if ( fPy6Service ) delete fPy6Service; 
+   //
+   // note that GenEvent or any undelaying (GenVertex, GenParticle) do NOT
+   // need to be cleaned, as it'll be done automatically by HepMCProduct
+   //
 }
 
 
@@ -167,6 +169,47 @@ void Pythia6Gun::attachPy6DecaysToGenEvent()
       }
    }
 
+   return;
+
+}
+
+void Pythia6Gun::produce( edm::Event& evt, const edm::EventSetup& )
+{
+
+   generateEvent() ;
+   
+   fEvt->set_beam_particles(0,0);
+   fEvt->set_event_number(evt.id().event()) ;
+   fEvt->set_signal_process_id(pypars.msti[0]) ;  
+   fEvt->set_event_scale(pypars.pari[16]);
+
+   attachPy6DecaysToGenEvent();
+
+   if ( evt.id().event() <= fMaxEventsToPrint )
+   {
+      if ( fPylistVerbosity )
+      {
+         call_pylist(fPylistVerbosity);
+      }
+      if ( fHepMCVerbosity )
+      {
+         if ( fEvt ) fEvt->print();
+      }
+   }
+    
+   loadEvent( evt );
+}
+
+void Pythia6Gun::loadEvent( edm::Event& evt )
+{
+
+   std::auto_ptr<HepMCProduct> bare_product(new HepMCProduct());  
+   
+   if(fEvt)  bare_product->addHepMCData( fEvt );
+
+   evt.put(bare_product);
+
+   
    return;
 
 }

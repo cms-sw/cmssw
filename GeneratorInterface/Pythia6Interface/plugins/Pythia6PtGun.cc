@@ -1,7 +1,7 @@
 
 #include <iostream>
 
-#include "Pythia6EGun.h"
+#include "Pythia6PtGun.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -17,24 +17,24 @@
 using namespace edm;
 using namespace gen;
 
-Pythia6EGun::Pythia6EGun( const ParameterSet& pset ) :
+Pythia6PtGun::Pythia6PtGun( const ParameterSet& pset ) :
    Pythia6Gun(pset)
 {
    
    // ParameterSet defpset ;
    ParameterSet pgun_params = 
-      pset.getParameter<ParameterSet>("PGunParameters"); // , defpset ) ;
-   fMinE       = pgun_params.getParameter<double>("MinE"); // ,  0.);
-   fMaxE       = pgun_params.getParameter<double>("MaxE"); // ,  0.);
+      pset.getParameter<ParameterSet>("PGunParameters"); //, defpset ) ;
+   fMinPt       = pgun_params.getParameter<double>("MinPt"); // ,  20.);
+   fMaxPt       = pgun_params.getParameter<double>("MaxPt"); // , 420.);
    fAddAntiParticle = pgun_params.getParameter<bool>("AddAntiParticle"); //, false) ;  
 
 }
 
-Pythia6EGun::~Pythia6EGun()
+Pythia6PtGun::~Pythia6PtGun()
 {
 }
 
-void Pythia6EGun::generateEvent()
+void Pythia6PtGun::generateEvent()
 {
    
    // now actualy, start cooking up the event gun 
@@ -53,27 +53,23 @@ void Pythia6EGun::generateEvent()
    {
 	 int particleID = fPartIDs[i]; // this is PDG - need to convert to Py6 !!!
          int dum = 0;
-	 double ee=0,the=0,eta=0;
+	 double pt=0, mom=0, ee=0, the=0, eta=0;
 	 double mass = pymass_(particleID);
 	 double phi = (fMaxPhi-fMinPhi)*pyr_(&dum)+fMinPhi;
-	 ee   = (fMaxE-fMinE)*pyr_(&dum)+fMinE;
+
 	 eta  = (fMaxEta-fMinEta)*pyr_(&dum)+fMinEta;                                                      
+
 	 the  = 2.*atan(exp(-eta));                                                                          
 	 
+	 pt = (fMaxPt-fMinPt)*pyr_(&dum)+fMinPt;
+	 
+	 mom = pt/sin(the);
+	 ee = sqrt(mom*mom+mass*mass);
+
 	 py1ent_(ip, particleID, ee, the, phi);
 	 
-         double mom2   = ee*ee - mass*mass ;
-         double mom    = 0. ;
-         if (mom2 > 0.) 
-         {
-            mom = sqrt(mom2) ;
-         }
-         else
-         {
-            mom = 0. ;
-         }
-         double px     = mom*sin(the)*cos(phi) ;
-         double py     = mom*sin(the)*sin(phi) ;
+         double px     = pt*cos(phi) ;
+         double py     = pt*sin(phi) ;
          double pz     = mom*cos(the) ;
          
 	 HepMC::FourVector p(px,py,pz,ee) ;
@@ -111,4 +107,4 @@ void Pythia6EGun::generateEvent()
    return;
 }
 
-DEFINE_FWK_MODULE(Pythia6EGun);
+DEFINE_FWK_MODULE(Pythia6PtGun);

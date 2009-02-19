@@ -38,11 +38,13 @@ namespace gen
     void endJob();
     void beginRun( edm::Run &, edm::EventSetup const& );
     void endRun( edm::Run &, edm::EventSetup const& );
-    // void produce( edm::Event&, const edm::EventSetup& ) ;
+    void produce( edm::Event&, const edm::EventSetup& ) ;
 
   protected:
    
     void attachPy6DecaysToGenEvent();
+    void loadEvent( edm::Event& );
+    virtual void generateEvent() = 0;
     
     Pythia6Service*  fPy6Service;
     

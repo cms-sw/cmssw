@@ -10,9 +10,12 @@ namespace gen {
    
       public:
       
-      Pythia6EGun( const edm::ParameterSet& );
-      virtual ~Pythia6EGun();
-      void produce( edm::Event&, const edm::EventSetup& ) ;
+        Pythia6EGun( const edm::ParameterSet& );
+        virtual ~Pythia6EGun();
+        // void produce( edm::Event&, const edm::EventSetup& ) ;
+      
+      protected:
+         void generateEvent();
       
       private:
       
