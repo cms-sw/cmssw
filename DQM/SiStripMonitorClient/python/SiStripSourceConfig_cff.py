@@ -11,13 +11,6 @@ PedsMon.OutputMEsInRootFile = False
 PedsMon.StripQualityLabel = ''
 PedsMon.RunTypeFlag = 'CalculatedPlotsOnly'
 
-# Condition DB Monitor ###
-from DQM.SiStripMonitorSummary.SiStripMonitorCondData_cfi import *
-
-# SiStripQuality Monitor####
-from DQM.SiStripMonitorPedestals.SiStripMonitorQuality_cfi import *
-QualityMon.StripQualityLabel = ''
-
 # Digi Monitor #####
 from DQM.SiStripMonitorDigi.SiStripMonitorDigi_cfi import *
 SiStripMonitorDigi.SelectAllDetectors = True
@@ -95,8 +88,8 @@ TrackMonColl.AlgoName = 'CKFTk'
 
 # Sequences
 SiStripSourcesSimData = cms.Sequence(SiStripMonitorDigi*SiStripMonitorCluster*SiStripMonitorTrackSim*MonitorTrackResidualsSim*TrackMonSim)
-SiStripSourcesRealData = cms.Sequence(CondDataMonitoring*QualityMon*SiStripMonitorDigi*SiStripMonitorCluster*SiStripMonitorTrackReal*MonitorTrackResidualsReal*TrackMonReal)
-SiStripSourcesRealDataCollision = cms.Sequence(CondDataMonitoring*QualityMon*SiStripMonitorDigi*SiStripMonitorCluster*SiStripMonitorTrackColl*MonitorTrackResidualsColl*TrackMonColl)
+SiStripSourcesRealData = cms.Sequence(SiStripMonitorDigi*SiStripMonitorCluster*SiStripMonitorTrackReal*MonitorTrackResidualsReal*TrackMonReal)
+SiStripSourcesRealDataCollision = cms.Sequence(SiStripMonitorDigi*SiStripMonitorCluster*SiStripMonitorTrackColl*MonitorTrackResidualsColl*TrackMonColl)
 
 
 

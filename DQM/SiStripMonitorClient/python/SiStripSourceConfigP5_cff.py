@@ -4,9 +4,6 @@ from DQM.SiStripMonitorHardware.buffer_hack_cfi import *
 HardwareMonitor.rootFile = ''
 HardwareMonitor.buildAllHistograms = False
 
-# Condition DB Monitoring ###
-from DQM.SiStripMonitorSummary.SiStripMonitorCondData_cfi import *
-
 # SiStripMonitorDigi ####
 from DQM.SiStripMonitorDigi.SiStripMonitorDigi_cfi import *
 SiStripMonitorDigi.SelectAllDetectors = True
@@ -110,4 +107,25 @@ TrackMon_gentk.TrackProducer    = 'generalTracks'
 TrackMon_gentk.AlgoName         = 'CKFTk'
 TrackMon_gentk.FolderName       = 'SiStrip/Tracks'
 
+# Tracking Efficiency
+# Clone for CKF Tracks
+import DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi
+TrackEffMon_ckf = DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi.TrackEffMon.clone()
+TrackEffMon_ckf.TKTrackCollection                  = 'ctfWithMaterialTracksP5'
+TrackEffMon_ckf.AlgoName                           = 'CKFTk'
+TrackEffMon_ckf.FolderName                         = 'SiStrip/Tracks/Efficiencies'
+
+# Clone for RS Tracks
+import DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi
+TrackEffMon_rs = DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi.TrackEffMon.clone()
+TrackEffMon_rs.TKTrackCollection                   = 'rsWithMaterialTracksP5'
+TrackEffMon_rs.AlgoName                            = 'RSTk'
+TrackEffMon_rs.FolderName                          = 'SiStrip/Tracks/Efficiencies'
+
+# Clone for Beam Halo  Tracks
+import DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi
+TrackEffMon_bhmuon = DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi.TrackEffMon.clone()
+TrackEffMon_bhmuon.TKTrackCollection               = 'ctfWithMaterialTracksBeamHaloMuon'
+TrackEffMon_bhmuon.AlgoName                        = 'BHMuonTk'
+TrackEffMon_bhmuon.FolderName                      = 'SiStrip/Tracks/Efficiencies'
 

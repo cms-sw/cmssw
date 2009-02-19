@@ -492,8 +492,11 @@ RequestHistos.DrawModuleCondDBHisto = function()
   var obj      = $('module_number_edit');
   var value    = obj.value;
   queryString += '&ModId='+value;
-  var option = 'PedestalFromCondDB,NoiseFromCondDB,GainFromCondDB';
+  var option = 'NoiseFromCondDB';
   queryString += '&option='+option;  
+  queryString += '&width='+IMGC.BASE_IMAGE_WIDTH+
+                 '&height='+IMGC.BASE_IMAGE_HEIGHT;
+
   url += queryString;
   var getMEURLS = new Ajax.Request(url,                    
  	 		         {			  
@@ -513,8 +516,10 @@ RequestHistos.DrawLayerCondDBHisto = function()
   var obj      = $('summ_struc_name');
   var sname    = obj.options[obj.selectedIndex].value;
   queryString += '&StructureName='+sname;
-  var option = 'PedestalFromCondDB,NoiseFromCondDB,GainFromCondDB';
+  var option = 'NoiseFromCondDB';
   queryString += '&option='+option;  
+  queryString += '&width='+IMGC.BASE_IMAGE_WIDTH+
+                 '&height='+IMGC.BASE_IMAGE_HEIGHT;
   url += queryString;
   var getMEURLS = new Ajax.Request(url,                    
  	 		         {			  

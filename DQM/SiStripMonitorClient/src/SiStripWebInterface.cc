@@ -1,3 +1,4 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripWebInterface.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripInformationExtractor.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -39,7 +40,7 @@ void SiStripWebInterface::handleAnalyserRequest(xgi::Input* in,xgi::Output* out,
   reader.read_form(requestMap_);
   std::string requestID = get_from_multimap(requestMap_, "RequestID");
   // get the string that identifies the request:
-  std::cout << " requestID " << requestID << std::endl;
+  edm::LogInfo ("SiStripWebInterface") << "SiStripWebInterface::handleAnalyserRequest RequestID = " << requestID ;
   if (requestID == "IsReady") {
     theActionFlag = NoAction;    
     if (niter > 0) {
@@ -129,9 +130,10 @@ void SiStripWebInterface::handleAnalyserRequest(xgi::Input* in,xgi::Output* out,
     local_par.detId   = detId;
     local_par.type    = "";
     local_par.side    = 999;
-    local_par.layer   = 999;
-    condDBRequestList_.push_back(local_par);
-    infoExtractor_->getCondDBHistos(dqmStore_, requestMap_, out);      
+    local_par.layer   = 999;   
+    bool create_plot;   
+    infoExtractor_->getCondDBHistos(dqmStore_, create_plot, requestMap_, out);      
+    if (create_plot)  condDBRequestList_.push_back(local_par);
   }
   else if (requestID == "PlotLayerCondDBHistos") {
 
@@ -144,9 +146,9 @@ void SiStripWebInterface::handleAnalyserRequest(xgi::Input* in,xgi::Output* out,
             local_par.side = atoi((sname.substr(sname.find("side_")+5,1)).c_str());
     else local_par.side = 999;
     local_par.layer   = atoi((sname.substr(sname.find_last_of("_")+1)).c_str());
-    condDBRequestList_.push_back(local_par);
-
-    infoExtractor_->getCondDBHistos(dqmStore_, requestMap_, out);      
+    bool create_plot;
+    infoExtractor_->getCondDBHistos(dqmStore_, create_plot, requestMap_, out);      
+    if (create_plot)  condDBRequestList_.push_back(local_par);
   }
   performAction();
 }

@@ -10,6 +10,7 @@
 <use name=CalibTracker/Records>
 <use name=DQM/TrackerCommon>
 <use name=DQM/SiStripCommon>
+<use name=DQM/SiStripMonitorSummary>
 <use name=boost>
 <use name=root>
 

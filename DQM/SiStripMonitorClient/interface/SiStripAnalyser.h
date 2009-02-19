@@ -4,8 +4,8 @@
 /** \class SiStripAnalyser
  * *
  *  SiStrip SiStripAnalyser
- *  $Date: 2008/12/12 20:26:48 $
- *  $Revision: 1.26 $
+ *  $Date: 2008/12/26 09:05:28 $
+ *  $Revision: 1.27 $
  *  \author  S. Dutta INFN-Pisa
  *   
  */
@@ -29,7 +29,7 @@ class SiStripWebInterface;
 class SiStripFedCabling;
 class SiStripDetCabling;
 class SiStripActionExecutor;
- 
+class SiStripClassToMonitorCondData;
 class SiStripAnalyser: public edm::EDAnalyzer, public evf::ModuleWeb{
 
 public:
@@ -72,6 +72,7 @@ private:
 
 private:
 
+  SiStripClassToMonitorCondData* condDataMon_;  
   void checkTrackerFEDs(edm::Event const& e);
 
   DQMStore* dqmStore_;

@@ -365,33 +365,60 @@ void SiStripInformationExtractor::getTrackerMapHistos(DQMStore* dqm_store, const
 //
 // -- Select Histograms for a given module
 //
-void SiStripInformationExtractor::getCondDBHistos(DQMStore * dqm_store, const std::multimap<std::string, std::string>& req_map, xgi::Output * out){
+void SiStripInformationExtractor::getCondDBHistos(DQMStore * dqm_store, bool& plot_flag, const std::multimap<std::string, std::string>& req_map,xgi::Output * out){
 
+  plot_flag = true;
   string sname = getItemValue(req_map,"StructureName");
   int width  = atoi(getItemValue(req_map, "width").c_str());
   int height = atoi(getItemValue(req_map, "height").c_str());
 
-  string path;
+  string path = "dummy_path";
   uint32_t detId;
   if (hasItem(req_map,string("ModId"))) {
     detId = atoi(getItemValue(req_map,"ModId").c_str());
-    SiStripFolderOrganizer folder_organizer;
-    folder_organizer.getFolderName(detId,path);
+    if (detId != 0) {
+      SiStripFolderOrganizer folder_organizer;
+      folder_organizer.getFolderName(detId,path);
+      cout << " Path " << path << endl;
+    }
   } else {
-    path = "SiStrip/" + sname;
+    if (sname.size() > 0) path = "SiStrip/" + sname;
   }
-  string opt = getItemValue(req_map,"option");
-  vector<string> htypes;
-  SiStripUtility::split(opt, htypes, ",");
-
-  histoPlotter_->setNewCondDBPlot(path, opt, width, height);
+  
   setHTMLHeader(out);
   *out << path << " ";
-
-  for (vector<string>::const_iterator ih = htypes.begin();
-       ih != htypes.end(); ih++) {
-    if ((*ih).size() > 0) {
-      *out << (*ih)  << " " ;
+  
+  if (path == "dummy_path") {
+    *out << "Dummy " ;
+    plot_flag = false;
+  } else {
+    string opt = getItemValue(req_map,"option");
+    vector<string> htypes;
+    SiStripUtility::split(opt, htypes, ",");
+    // Check if CondDB histograms already exists
+    vector<MonitorElement*> all_mes = dqm_store->getContents(path);
+    for (vector<string>::const_iterator ih = htypes.begin();
+	 ih!= htypes.end(); ih++) {
+      string type = (*ih);
+      if (type.size() == 0) continue;
+      for (vector<MonitorElement *>::const_iterator it = all_mes.begin();
+	   it!= all_mes.end(); it++) {
+	MonitorElement * me = (*it);
+	if (!me) continue;
+	string hname = me->getName();
+	if (hname.find(type) != string::npos) {
+	  plot_flag = false;
+	  break;
+	} 
+      }  
+      if (plot_flag == false) break;
+    } 
+    histoPlotter_->setNewCondDBPlot(path, opt, width, height);
+    for (vector<string>::const_iterator ih = htypes.begin();
+	 ih != htypes.end(); ih++) {
+      if ((*ih).size() > 0) {
+	*out << (*ih)  << " " ;
+      }
     }
   }
 }

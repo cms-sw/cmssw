@@ -107,15 +107,23 @@ void SiStripHistoPlotter::makePlot(DQMStore* dqm_store, const PlotParameter& par
 // -- Get Named Image buffer
 //
 void SiStripHistoPlotter::getNamedImageBuffer(const string& path, string& image) {
-  map<string, string>::iterator cPos = namedPictureBuffer_.find(path);
-  if (cPos != namedPictureBuffer_.end()) {
-    image = cPos->second;
-    if (namedPictureBuffer_.size() > 99 ) namedPictureBuffer_.erase(cPos);
-  } else {
+  map<string, string>::iterator cPos;
+  if (path == "dummy_path") {
     cout << " Sending Dummy Image for : "
-	 <<  path << endl;
+         <<  path << endl;
     cPos = namedPictureBuffer_.find("Dummy");
     image = cPos->second;
+  } else {
+    cPos = namedPictureBuffer_.find(path);
+    if (cPos != namedPictureBuffer_.end()) {
+      image = cPos->second;
+      if (namedPictureBuffer_.size() > 99 ) namedPictureBuffer_.erase(cPos);
+    } else {
+      cout << " Sending Dummy Image for : "
+	   <<  path << endl;
+      cPos = namedPictureBuffer_.find("Dummy");
+      image = cPos->second;
+    }
   }
 }
 /*! \brief (Documentation under construction).
@@ -134,7 +142,7 @@ void SiStripHistoPlotter::fillNamedImageBuffer(TCanvas * c1, const std::string& 
 //        << c1->GetName() 
 //        << endl ;
   c1->Update();
-  c1->Modified();  
+  c1->Modified(); 
   TImageDump imgdump("tmp.png", 114);
   c1->Paint();
 
@@ -302,6 +310,7 @@ void SiStripHistoPlotter::createCondDBPlots(DQMStore* dqm_store) {
   if (condDBPlotList_.size() == 0) return;
   string name = "Dummy";
   if (!hasNamedImage(name)) createDummyImage(name);
+
   for (vector<PlotParameter>::iterator it = condDBPlotList_.begin(); 
        it != condDBPlotList_.end(); it++) {
     makeCondDBPlots(dqm_store, (*it));
@@ -325,7 +334,7 @@ void SiStripHistoPlotter::makeCondDBPlots(DQMStore* dqm_store, const PlotParamet
        ih!= htypes.end(); ih++) {
     string type = (*ih);
     if (type.size() == 0) continue;
-    string tag = par.Path + type;;
+    string tag = par.Path + "/";
     for (vector<MonitorElement *>::const_iterator it = all_mes.begin();
 	 it!= all_mes.end(); it++) {  
       MonitorElement * me = (*it);
@@ -334,8 +343,9 @@ void SiStripHistoPlotter::makeCondDBPlots(DQMStore* dqm_store, const PlotParamet
       if (hname.find(type) != string::npos) {
 	TH1* histo = me->getTH1();
 	histo->Draw();
-	canvas->Clear();
+        tag += type;
 	fillNamedImageBuffer(canvas, tag);
+	canvas->Clear();        
       } 
     }
   }

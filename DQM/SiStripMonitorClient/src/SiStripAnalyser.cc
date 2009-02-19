@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2008/10/16 09:45:45 $
- * $Revision: 1.41 $
+ * $Date: 2008/12/26 09:05:29 $
+ * $Revision: 1.42 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -42,6 +42,7 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripWebInterface.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripActionExecutor.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
+#include "DQM/SiStripMonitorSummary/interface/SiStripClassToMonitorCondData.h"
 
 #include "xgi/Method.h"
 #include "xgi/Utils.h"
@@ -100,7 +101,7 @@ SiStripAnalyser::SiStripAnalyser(edm::ParameterSet const& ps) :
   // instantiate web interface
   sistripWebInterface_ = new SiStripWebInterface(dqmStore_);
   actionExecutor_ = new SiStripActionExecutor();
-
+  condDataMon_    = new SiStripClassToMonitorCondData(ps);
   trackerFEDsFound_ = false;
 }
 //
@@ -153,6 +154,7 @@ void SiStripAnalyser::beginRun(Run const& run, edm::EventSetup const& eSetup) {
     eSetup.get<SiStripFedCablingRcd>().get(fedCabling_);
     eSetup.get<SiStripDetCablingRcd>().get(detCabling_);
   } 
+  if (condDataMon_) condDataMon_->beginRun(eSetup);
 }
 //
 // -- Begin Luminosity Block
@@ -185,11 +187,13 @@ void SiStripAnalyser::analyze(edm::Event const& e, edm::EventSetup const& eSetup
       uint32_t subdet_side;
       uint32_t layer_number;
       sistripWebInterface_->getConDBPlotParameters(ival, det_id, subdet_type, subdet_side, layer_number);
-      cout << " DetId " << det_id << " type " << subdet_type  
-	   << " side "  << subdet_side << " layer " << layer_number << endl;
+      if (condDataMon_) {
+        if (det_id == 999) condDataMon_->getLayerMEsOnDemand(eSetup,subdet_type, subdet_side,layer_number);
+        else if (layer_number == 999 && subdet_side == 999) condDataMon_->getModMEsOnDemand(eSetup,det_id);
+      }
     }
     sistripWebInterface_->clearConDBPlotRequests();
-   }
+  }
   sistripWebInterface_->setActionFlag(SiStripWebInterface::CreatePlots);
   sistripWebInterface_->performAction();
 }
@@ -286,7 +290,7 @@ void SiStripAnalyser::defaultWebPage(xgi::Input *in, xgi::Output *out)
     *out << html_out_.str() << std::endl;
   }  else {
     // Handles all HTTP requests of the form
-    int iter = nEvents_/100;
+    int iter = nEvents_/10;
     sistripWebInterface_->handleAnalyserRequest(in, out, detCabling_, iter);
   }
 }
