@@ -3,11 +3,13 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PEDESTALS")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
-process.load("Geometry.TrackerSimData.trackerSimGeometryXML_cfi")
-
+#process.load("Geometry.TrackerSimData.trackerSimGeometryXML_cfi")
+process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
+process.load("Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+#process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 
 process.load("CondTools.SiPixel.SiPixelGainCalibrationService_cfi")
 
@@ -26,6 +28,7 @@ process.SiPixelCondObjOfflineBuilder = cms.EDFilter("SiPixelCondObjOfflineBuilde
     process.SiPixelGainCalibrationServiceParameters,
     numberOfModules = cms.int32(2000),
     deadFraction = cms.double(0.0002),
+    noisyFraction = cms.double(0.0002),
     appendMode = cms.untracked.bool(False),
     rmsGain = cms.double(0.14),
     meanGain = cms.double(2.8),

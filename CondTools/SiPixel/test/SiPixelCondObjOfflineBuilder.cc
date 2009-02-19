@@ -33,6 +33,7 @@ SiPixelCondObjOfflineBuilder::SiPixelCondObjOfflineBuilder(const edm::ParameterS
       meanGainFPix_(conf_.getUntrackedParameter<double>("meanGainFPix",meanGain_)),
       rmsGainFPix_(conf_.getUntrackedParameter<double>("rmsGainFPix",rmsGain_)),
       deadFraction_(conf_.getParameter<double>("deadFraction")),
+      noisyFraction_(conf_.getParameter<double>("noisyFraction")),
       secondRocRowGainOffset_(conf_.getParameter<double>("secondRocRowGainOffset")),
       secondRocRowPedOffset_(conf_.getParameter<double>("secondRocRowPedOffset")),
       numberOfModules_(conf_.getParameter<int>("numberOfModules")),
@@ -107,6 +108,7 @@ SiPixelCondObjOfflineBuilder::analyze(const edm::Event& iEvent, const edm::Event
 	 for(int j=0; j<nrows; j++) {
 	   nchannels++;
 	   bool isDead=false;
+	   bool isNoisy=false;
 	   float ped = 0.0, gain = 0.0;
 
 	   if( fromFile_ ) {
@@ -126,11 +128,16 @@ SiPixelCondObjOfflineBuilder::analyze(const edm::Event& iEvent, const edm::Event
 	   else{
 	     if(deadFraction_>0){
 	       double val= RandFlat::shoot();
-	       
 	       if( val < deadFraction_){
 		 isDead=true;
 		 //		 std::cout << "dead pixel " << detid << " " << i << "," << j << " " << val << std::endl;
-		 
+	       }
+	     }
+	     if(deadFraction_>0 && !isDead){
+	       double val= RandFlat::shoot();
+	       if( val < noisyFraction_){
+		 isNoisy=true;
+		 //		 std::cout << "noisy pixel " << detid << " " << i << "," << j << " " << val << std::endl;
 	       }
 	     }
 
@@ -178,12 +185,15 @@ SiPixelCondObjOfflineBuilder::analyze(const edm::Event& iEvent, const edm::Event
 
            totalGain    += gain;
 
-	   if(!isDead){
+	   if(!isDead && !isNoisy){
 	     SiPixelGainCalibration_->setDataPedestal( ped , theSiPixelGainCalibration);
 	   }
-	   else // dead pixel
+	   else if(isDead) // dead pixel
 	     //	     std::cout << "filling pixel as dead for detid " << detid <<", col " << i << ", row" << j <<  std::endl;
 	     SiPixelGainCalibration_->setDeadPixel(theSiPixelGainCalibration);
+	   else if(isNoisy) // dead pixel
+	     //	     std::cout << "filling pixel as dead for detid " << detid <<", col " << i << ", row" << j <<  std::endl;
+	     SiPixelGainCalibration_->setNoisyPixel(theSiPixelGainCalibration);
            if ((j + 1)  % 80 == 0) // fill the column average after ever ROC!
            {
               float averageGain      = totalGain/static_cast<float>(80);
