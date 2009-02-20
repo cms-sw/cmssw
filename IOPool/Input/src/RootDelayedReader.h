@@ -14,6 +14,7 @@ RootDelayedReader.h // used by ROOT input sources
 #include "boost/shared_ptr.hpp"
 
 #include "DataFormats/Provenance/interface/BranchKey.h"
+#include "DataFormats/Provenance/interface/FileFormatVersion.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "Inputfwd.h"
 
@@ -33,7 +34,7 @@ namespace edm {
     RootDelayedReader(EntryNumber const& entry,
       boost::shared_ptr<BranchMap const> bMap,
       boost::shared_ptr<TFile const> filePtr,
-      bool oldFormat);
+      FileFormatVersion const& fileFormatVersion);
 
     virtual ~RootDelayedReader();
 
@@ -50,8 +51,7 @@ namespace edm {
     // the TFile containing the branch from being reclaimed.
     boost::shared_ptr<TFile const> filePtr_;
     boost::shared_ptr<DelayedReader> nextReader_;
-    bool customStreamers_;
-    bool oldFormat_;
+    FileFormatVersion fileFormatVersion_;
   }; // class RootDelayedReader
   //------------------------------------------------------------
 }

@@ -200,7 +200,7 @@ namespace edm {
     if (fileFormatVersion_.value_ < 8) {
       return makeBranchMapperInOldRelease(rootTree, type);
     } 
-    boost::shared_ptr<BranchMapper> bm = rootTree.makeBranchMapper<T>();
+    boost::shared_ptr<BranchMapper> bm = rootTree.makeBranchMapper<T>(fileFormatVersion_);
     return bm;
   }
 

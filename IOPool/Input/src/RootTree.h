@@ -49,9 +49,9 @@ namespace edm {
     std::vector<std::string> const& branchNames() const {return branchNames_;}
     template <typename T>
     void fillGroups(T& item);
-    boost::shared_ptr<DelayedReader> makeDelayedReader(bool oldFormat = false) const;
+    boost::shared_ptr<DelayedReader> makeDelayedReader(FileFormatVersion const& fileFormatVersion) const;
     template <typename T>
-    boost::shared_ptr<BranchMapper> makeBranchMapper() const;
+    boost::shared_ptr<BranchMapper> makeBranchMapper(FileFormatVersion const& fileFormatVersion) const;
     //TBranch *auxBranch() {return auxBranch_;}
     template <typename T>
     void fillAux(T *& pAux) const {
@@ -107,9 +107,9 @@ namespace edm {
 
   template <typename T>
   boost::shared_ptr<BranchMapper>
-  RootTree::makeBranchMapper() const {
+  RootTree::makeBranchMapper(FileFormatVersion const& fileFormatVersion) const {
     assert (branchEntryInfoBranch_);
-    boost::shared_ptr<BranchMapper> mapper(new BranchMapperWithReader<T>(branchEntryInfoBranch_, entryNumber_));
+    boost::shared_ptr<BranchMapper> mapper(new BranchMapperWithReader<T>(branchEntryInfoBranch_, entryNumber_, fileFormatVersion));
     return mapper;
   }
 

@@ -196,8 +196,6 @@ namespace edm {
     treePointers_[InLumi]  = &lumiTree_;
     treePointers_[InRun]   = &runTree_;
 
-    setRefCoreStreamer(0, true); // backward compatibility
-
     // Read the metadata tree.
     TTree *metaDataTree = dynamic_cast<TTree *>(filePtr_->Get(poolNames::metaDataTreeName().c_str()));
     if (!metaDataTree)
@@ -208,7 +206,16 @@ namespace edm {
     // We don't pay attention to which branches exist in which file format versions
 
     FileFormatVersion *fftPtr = &fileFormatVersion_;
-    metaDataTree->SetBranchAddress(poolNames::fileFormatVersionBranchName().c_str(), &fftPtr);
+    if (metaDataTree->FindBranch(poolNames::fileFormatVersionBranchName().c_str()) != 0) {
+      TBranch *fft = metaDataTree->GetBranch(poolNames::fileFormatVersionBranchName().c_str());
+      fft->SetAddress(&fftPtr);
+      input::getEntry(fft, 0);
+      metaDataTree->SetBranchAddress(poolNames::fileFormatVersionBranchName().c_str(), &fftPtr);
+    }
+
+    bool oldFormat = fileFormatVersion_.value_ < 11;
+    bool productIDwasLong = fileFormatVersion_.value_ < 2;
+    setRefCoreStreamer(0, oldFormat, productIDwasLong); // backward compatibility
 
     FileID *fidPtr = &fid_;
     if (metaDataTree->FindBranch(poolNames::fileIdentifierBranchName().c_str()) != 0) {
@@ -275,8 +282,6 @@ namespace edm {
 
     // Here we read the metadata tree
     input::getEntry(metaDataTree, 0);
-
-    setRefCoreStreamer(true);  // backward compatibility
 
     ProvenanceAdaptor::ParameterSetIdConverter psetIdConverter;
     if (fileFormatVersion_.value_ < 12) {
@@ -409,6 +414,7 @@ namespace edm {
 
     // Determine if this file is fast clonable.
     fastClonable_ = fastClonable_ && setIfFastClonable(remainingEvents, remainingLumis);
+    setRefCoreStreamer(true);  // backward compatibility
 
     reportOpened();
   }
@@ -874,7 +880,7 @@ namespace edm {
 		processConfiguration_,
 		history_,
 		mapper,
-		eventTree_.makeDelayedReader(fileFormatVersion_.value_ < 11)));
+		eventTree_.makeDelayedReader(fileFormatVersion_)));
 
     // Create a group in the event for each product
     eventTree_.fillGroups(*thisEvent);
@@ -935,7 +941,7 @@ namespace edm {
 		         fileFormatVersion().value_ <= 10 && fileFormatVersion().value_ >= 8 ?
 		         makeBranchMapper<RunLumiEntryInfo>(runTree_, InRun) :
 		         makeBranchMapper<ProductProvenance>(runTree_, InRun),
-			 runTree_.makeDelayedReader()));
+			 runTree_.makeDelayedReader(fileFormatVersion_)));
     // Create a group in the run for each product
     runTree_.fillGroups(*thisRun);
     // Read in all the products now.
@@ -991,7 +997,7 @@ namespace edm {
 				     fileFormatVersion().value_ <= 10 && fileFormatVersion().value_ >= 8 ?
 				     makeBranchMapper<RunLumiEntryInfo>(lumiTree_, InLumi) :
 				     makeBranchMapper<ProductProvenance>(lumiTree_, InLumi),
-				     lumiTree_.makeDelayedReader()));
+				     lumiTree_.makeDelayedReader(fileFormatVersion_)));
     // Create a group in the lumi for each product
     lumiTree_.fillGroups(*thisLumi);
     // Read in all the products now.
@@ -1155,7 +1161,7 @@ namespace edm {
 	 << " written in CMSSW_1_8_4 or prior releases in releaseCMSSW_3_0_0.\n";
     }
     if (type == InEvent) {
-      boost::shared_ptr<BranchMapperWithReader<EventEntryInfo> > mapper(new BranchMapperWithReader<EventEntryInfo>(0, 0));
+      boost::shared_ptr<BranchMapperWithReader<EventEntryInfo> > mapper(new BranchMapperWithReader<EventEntryInfo>(0, 0, fileFormatVersion_));
       mapper->setDelayedRead(false);
       for(ProductRegistry::ProductList::const_iterator it = productRegistry_->productList().begin(),
           itEnd = productRegistry_->productList().end(); it != itEnd; ++it) {
@@ -1186,7 +1192,7 @@ namespace edm {
       }
       return mapper;
     } else {
-      boost::shared_ptr<BranchMapperWithReader<ProductProvenance> > mapper(new BranchMapperWithReader<ProductProvenance>(0, 0));
+      boost::shared_ptr<BranchMapperWithReader<ProductProvenance> > mapper(new BranchMapperWithReader<ProductProvenance>(0, 0, fileFormatVersion_));
       mapper->setDelayedRead(false);
       for(ProductRegistry::ProductList::const_iterator it = productRegistry_->productList().begin(),
           itEnd = productRegistry_->productList().end(); it != itEnd; ++it) {

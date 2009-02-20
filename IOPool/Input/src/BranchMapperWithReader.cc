@@ -9,7 +9,7 @@ BranchMapperWithReader:
 namespace edm {
   void
   BranchMapperWithReader<EventEntryInfo>::readProvenance_() const {
-    setRefCoreStreamer(0, true);
+    setRefCoreStreamer(0, fileFormatVersion_.value_ < 11, fileFormatVersion_.value_ < 2);
     branchPtr_->SetAddress(&pInfoVector_);
     input::getEntry(branchPtr_, entryNumber_);
     setRefCoreStreamer(true);

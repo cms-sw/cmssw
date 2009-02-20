@@ -9,6 +9,7 @@ BranchMapperWithReader:
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/BranchMapper.h"
 #include "DataFormats/Provenance/interface/EventEntryInfo.h"
+#include "DataFormats/Provenance/interface/FileFormatVersion.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "Inputfwd.h"
 
@@ -20,7 +21,9 @@ namespace edm {
   template <typename T>
   class BranchMapperWithReader : public BranchMapper {
   public:
-    BranchMapperWithReader(TBranch * branch, input::EntryNumber entryNumber);
+    BranchMapperWithReader(TBranch * branch,
+                           input::EntryNumber entryNumber,
+                           FileFormatVersion const& fileFormatVersion);
 
     virtual ~BranchMapperWithReader() {}
 
@@ -29,15 +32,22 @@ namespace edm {
 
     TBranch * branchPtr_; 
     input::EntryNumber entryNumber_;
+    FileFormatVersion fileFormatVersion_;
     std::vector<T> infoVector_;
     mutable std::vector<T> * pInfoVector_;
   };
   
   template <typename T>
-  BranchMapperWithReader<T>::BranchMapperWithReader(TBranch * branch, input::EntryNumber entryNumber) :
+  BranchMapperWithReader<T>::BranchMapperWithReader(
+    TBranch * branch,
+    input::EntryNumber entryNumber,
+    FileFormatVersion const& fileFormatVersion) :
 	 BranchMapper(true),
-	 branchPtr_(branch), entryNumber_(entryNumber),
-	 infoVector_(), pInfoVector_(&infoVector_)
+	 branchPtr_(branch),
+	 entryNumber_(entryNumber),
+	 fileFormatVersion_(fileFormatVersion),
+	 infoVector_(),
+	 pInfoVector_(&infoVector_)
   { }
 
   template <typename T>
@@ -56,9 +66,14 @@ namespace edm {
   template <>
   class BranchMapperWithReader<EventEntryInfo> : public BranchMapper {
   public:
-    BranchMapperWithReader(TBranch * branch, input::EntryNumber entryNumber) :
+    BranchMapperWithReader(
+      TBranch * branch,
+      input::EntryNumber entryNumber,
+      FileFormatVersion const& fileFormatVersion) :
 	 BranchMapper(true),
-	 branchPtr_(branch), entryNumber_(entryNumber),
+	 branchPtr_(branch),
+         entryNumber_(entryNumber),
+	 fileFormatVersion_(fileFormatVersion),
 	 infoVector_(), pInfoVector_(&infoVector_), oldProductIDToBranchIDMap_()
   { }
 
@@ -72,6 +87,7 @@ namespace edm {
 
     TBranch * branchPtr_; 
     input::EntryNumber entryNumber_;
+    FileFormatVersion fileFormatVersion_;
     std::vector<EventEntryInfo> infoVector_;
     mutable std::vector<EventEntryInfo> * pInfoVector_;
     std::map<unsigned int, BranchID> oldProductIDToBranchIDMap_;

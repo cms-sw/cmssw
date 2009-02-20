@@ -111,9 +111,9 @@ namespace edm {
   }
 
   boost::shared_ptr<DelayedReader>
-  RootTree::makeDelayedReader(bool oldFormat) const {
+  RootTree::makeDelayedReader(FileFormatVersion const& fileFormatVersion) const {
     boost::shared_ptr<DelayedReader>
-        store(new RootDelayedReader(entryNumber_, branches_, filePtr_, oldFormat));
+        store(new RootDelayedReader(entryNumber_, branches_, filePtr_, fileFormatVersion));
     return store;
   }
 
