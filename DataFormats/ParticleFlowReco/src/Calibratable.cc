@@ -61,6 +61,11 @@ void Calibratable::recompute() {
 	cand_eta_ = cands_mean_.eta_;
 	cand_phi_ = cands_mean_.phi_;
 	cand_type_ = cands_mean_.type_ * cands_num_;
+	
+	std::sort(rechits_ecal_.begin(), rechits_ecal_.end());
+	std::sort(rechits_hcal_.begin(), rechits_hcal_.end());
+	std::sort(cluster_ecal_.begin(), cluster_ecal_.end());
+	std::sort(cluster_hcal_.begin(), cluster_hcal_.end());
 
 }
 
@@ -114,6 +119,8 @@ void Calibratable::reset() {
 	calibrations_.clear();
 
 	sim_energyEvent_ = 0;
+	sim_energyEcal_ = 0;
+	sim_energyHcal_ = 0;
 	sim_eta_ = 0;
 	sim_phi_ = 0;
 	sim_numEvent_ = 0;

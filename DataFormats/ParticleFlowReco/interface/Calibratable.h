@@ -38,6 +38,12 @@ public:
 		phi_ = 0.0;
 		layer_ = 0;
 	}
+	bool operator<(const CalibratableElement& em) const {
+		if(em.energy_ < energy_)
+			return true;
+		return false;
+	}
+
 };
 
 /**
@@ -108,6 +114,7 @@ public:
 	 */
 	//truth first
 	double sim_energyEvent_, sim_eta_, sim_phi_;
+	double sim_energyEcal_, sim_energyHcal_;
 	double sim_etaEcal_, sim_etaHcal_, sim_phiEcal_, sim_phiHcal_;
 	int sim_numEvent_;
 	//set to true if this event is not real data
