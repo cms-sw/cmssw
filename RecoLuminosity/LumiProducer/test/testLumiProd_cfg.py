@@ -25,11 +25,11 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
         record = cms.string('LuminosityInfoRcd'),
         tag = cms.string('lumitest')
     )),
-    #connect = cms.string('sqlite_file:offlinelumi.db'),
-    connect = cms.string('oracle://cms_orcoff_prep/CMS_COND_RUN_INFO'),                                  
+    connect = cms.string('sqlite_file:offlinelumi.db'),
+    #connect = cms.string('oracle://cms_orcoff_prep/CMS_COND_RUN_INFO'),                                  
     BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService')                          
 )
-
+process.lumiProducer=cms.EDProducer("LumiProducer")
 process.test = cms.EDAnalyzer("TestLumiProducer")
 
 process.out = cms.OutputModule("PoolOutputModule",
