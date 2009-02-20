@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorDigi.h,v 1.15 2009/02/16 16:15:44 borrell Exp $
+// $Id: SiStripMonitorDigi.h,v 1.16 2009/02/17 10:05:53 wilkenka Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -81,7 +81,6 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   void createLayerMEs(std::string label, int ndet);
   void createSubDetMEs(std::string label);
   void createSubDetTH2(std::string label);
-  void getLayerLabel(uint32_t detid, std::string& label, int& subdetid, int& subsubdetid);
   int getDigiSource(uint32_t id, edm::DetSet<SiStripDigi>& digi_detset);
       
  private:

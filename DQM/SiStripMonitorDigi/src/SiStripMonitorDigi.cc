@@ -3,7 +3,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.37 2009/02/16 16:12:00 borrell Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.38 2009/02/17 10:05:54 wilkenka Exp $
 #include<fstream>
 #include "TNamed.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -179,10 +179,8 @@ void SiStripMonitorDigi::createMEs(const edm::EventSetup& es){
           if (SubDetMEsMap.find("TEC") == SubDetMEsMap.end()) createSubDetMEs("TEC");
         }
 
-	int subdetid;
-	int subsubdetid;
-	std::string label;
-	getLayerLabel(detid, label, subdetid, subsubdetid);
+        SiStripHistoId hidmanager;
+	std::string label = hidmanager.getSubdetid(detid, false);
         LayerDetMap[label] = layerDetIds;
 
         // book Layer plots      
@@ -276,10 +274,8 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
       
 
       // Check if these parameters are really needed
-      int subdetid;
-      int subsubdetid;
-      std::string label;
-      getLayerLabel(detid, label, subdetid, subsubdetid);
+      SiStripHistoId hidmanager;
+      std::string label = hidmanager.getSubdetid(detid, false);
       float det_occupancy = 0.0;
       
       for(edm::DetSet<SiStripDigi>::const_iterator digiIter = digi_detset.data.begin(); 
@@ -555,11 +551,11 @@ void SiStripMonitorDigi::createSubDetMEs(std::string label) {
   if(iSubDetME==SubDetMEsMap.end()){
     SubDetMEs subdetMEs; 
     std::string HistoName;
-    dqmStore_->cd("SiStrip/MechanicalView/"+label);
 
     // Total Number of Digi - Profile
     if(subdetswitchtotdigiprofon){
       edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TProfTotalNumberOfDigis");
+      dqmStore_->setCurrentFolder("SiStrip/MechanicalView/"+label);
       HistoName = "TotalNumberOfDigiProfile__" + label;
       subdetMEs.SubDetTotDigiProf=dqmStore_->bookProfile(HistoName,HistoName,
 					      Parameters.getParameter<int32_t>("Nbins"),
@@ -576,6 +572,7 @@ void SiStripMonitorDigi::createSubDetMEs(std::string label) {
     // Number of Digi vs Bx - Profile
     if(subdetswitchapvcycleprofon){
       edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TProfDigiApvCycle");
+      dqmStore_->setCurrentFolder("SiStrip/MechanicalView/"+label);
       HistoName = "Digi_vs_Bx_2_" + label;
       subdetMEs.SubDetDigiApvProf=dqmStore_->bookProfile(HistoName,HistoName,
 					      Parameters.getParameter<int32_t>("Nbins"),
@@ -590,46 +587,6 @@ void SiStripMonitorDigi::createSubDetMEs(std::string label) {
     }
   SubDetMEsMap[label]=subdetMEs;
   }
-}
-//-------------------------------------------------------------------------------------------
-void SiStripMonitorDigi::getLayerLabel(uint32_t detid, std::string& label, int& subdetid, int& subsubdetid) {
-  StripSubdetector subdet(detid);
-  std::ostringstream label_str;
-
-  //subdetid = ((detid>>25)&0x7);
-  //This is the id of the layer or of the wheel
-  subsubdetid = 14;
-  
-  if(subdet.subdetId() == StripSubdetector::TIB ){
-    // ---------------------------  TIB  --------------------------- //
-    TIBDetId tib1 = TIBDetId(detid);
-    label_str << "TIB__layer__" << tib1.layer();
-    subdetid = 3;
-    subsubdetid = tib1.layer()-1;
-  }else if(subdet.subdetId() == StripSubdetector::TID){
-    // ---------------------------  TID  --------------------------- //
-    TIDDetId tid1 = TIDDetId(detid);
-    label_str << "TID__side__" << tid1.side() << "__wheel__" << tid1.wheel();
-    subdetid = 4;
-    subsubdetid = (tid1.wheel()-1)+3*(tid1.side()-1);
-  }else if(subdet.subdetId() == StripSubdetector::TOB){
-    // ---------------------------  TOB  --------------------------- //
-    TOBDetId tob1 = TOBDetId(detid);
-    label_str << "TOB__layer__" << tob1.layer();
-    subdetid = 5;
-    subsubdetid = tob1.layer()-1;
-  }else if(subdet.subdetId() == StripSubdetector::TEC) {
-    // ---------------------------  TEC  --------------------------- //
-    TECDetId tec1 = TECDetId(detid);
-    label_str << "TEC__side__"<<tec1.side() << "__wheel__" << tec1.wheel();
-    subdetid = 6;
-    subsubdetid = (tec1.wheel()-1)+9*(tec1.side()-1);
-  }else{
-    // ---------------------------  ???  --------------------------- //
-    edm::LogError("SiStripTkDQM|WrongInput")<<"no such subdetector type :"<<subdet.subdetId()<<" no folder set!"<<std::endl;
-    label_str << "";
-  }
-  label = label_str.str();
 }
 //
 // -- Get DetSet vector for a given Detector
