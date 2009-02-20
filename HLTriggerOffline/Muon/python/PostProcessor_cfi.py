@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-HLTMuonPostVal = cms.EDAnalyzer("PostProcessor",
+HLTMuonPostProcessor = cms.EDAnalyzer("PostProcessor",
     subDirs        = cms.untracked.vstring('HLT/Muon/Distributions/*'),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     outputFileName = cms.untracked.string(''),
