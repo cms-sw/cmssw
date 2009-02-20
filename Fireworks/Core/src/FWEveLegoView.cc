@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.31 2009/01/22 16:05:12 amraktad Exp $
+// $Id: FWEveLegoView.cc,v 1.32 2009/01/23 21:35:42 amraktad Exp $
 //
 
 // system include files
@@ -76,6 +76,8 @@ FWEveLegoView::FWEveLegoView(TGFrame* iParent, TEveElementList* list) :
    //m_minHcalEnergy(this,"HCAL energy threshold (GeV)",1.,0.,100.),
    //m_ecalSlice(0),
    //m_hcalSlice(0),
+   m_lego(0),
+   m_autoRebin(this,"Auto rebin on zoom",true),
    m_cameraMatrix(0),
    m_cameraMatrixBase(0),
    m_cameraMatrixRef(0),
@@ -87,6 +89,7 @@ FWEveLegoView::FWEveLegoView(TGFrame* iParent, TEveElementList* list) :
    m_topView(false),
    m_cameraSet(false)
 {
+   m_autoRebin.changed_.connect(boost::bind(&FWEveLegoView::setAutoRebin,this));
    m_pad = new TEvePad;
    TGLEmbeddedViewer* ev = new TGLEmbeddedViewer(iParent, m_pad, 0);
    m_embeddedViewer=ev;
@@ -151,15 +154,15 @@ FWEveLegoView::FWEveLegoView(TGFrame* iParent, TEveElementList* list) :
    //m_minHcalEnergy.changed_.connect(boost::bind(&FWEveLegoView::setMinHcalEnergy,this,_1));
    if (list->HasChildren())
    {
-      TEveCaloLego* lego =  dynamic_cast<TEveCaloLego*>( list->FirstChild());
-      if (lego) {
+      m_lego =  dynamic_cast<TEveCaloLego*>( list->FirstChild());
+      if (m_lego) {
          TEveLegoOverlay* overlay = new TEveLegoOverlay();
          overlay->SetShowPlane(kFALSE);
          overlay->SetShowPerspective(kFALSE);
          overlay->RefAxisAttrib().SetLabelSize(0.02);
          overlay->RefAxisAttrib().SetLabelColor(kWhite);
          ev->AddOverlayElement(overlay);
-         overlay->SetCaloLego(lego);
+         overlay->SetCaloLego(m_lego);
          gEve->AddElement(overlay, ns);
       }
    }
@@ -362,6 +365,16 @@ FWEveLegoView::setFrom(const FWConfiguration& iFrom)
       s >> m_topView;
    }
 }
+
+void 
+FWEveLegoView::setAutoRebin()
+{
+   if(m_lego) {
+      m_lego->SetAutoRebin(m_autoRebin.value());
+      m_lego->ElementChanged(kTRUE,kTRUE);
+   }
+}
+
 
 //
 // const member functions
