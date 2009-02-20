@@ -1,18 +1,18 @@
-#ifndef EVENTFILTER_CASTORRAWTODIGI_CASTORPACKER_H
-#define EVENTFILTER_CASTORRAWTODIGI_CASTORPACKER_H 1
+#ifndef EVENTFILTER_CASTORRAWTODIGI_CASTORCTDCPACKER_H
+#define EVENTFILTER_CASTORRAWTODIGI_CASTORCTDCPACKER_H 1
 
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "CondFormats/CastorObjects/interface/CastorElectronicsMap.h"
 #include "EventFilter/CastorRawToDigi/interface/CastorCollections.h"
 
-/** \class CastorPacker
+/** \class CastorCtdcPacker
   *  
   * $Date: 2008/06/19 09:03:17 $
   * $Revision: 1.1 $
-  * \author J. Mans - Minnesota
+  * \author A. Campbell - DESY
   */
-class CastorPacker {
+class CastorCtdcPacker {
 public:
 
   void pack(int fedid, int dccnumber,

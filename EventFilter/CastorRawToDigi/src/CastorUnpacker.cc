@@ -55,7 +55,7 @@ CastorUnpacker::CastorUnpacker(int sourceIdOffset, int beg, int end) : sourceIdO
 
 
 void CastorUnpacker::unpack(const FEDRawData& raw, const CastorElectronicsMap& emap,
-			  Collections& colls, HcalUnpackerReport& report) {
+			  CastorRawCollections& colls, HcalUnpackerReport& report) {
 
   if (raw.size()<16) {
     edm::LogWarning("Invalid Data") << "Empty/invalid DCC data, size = " << raw.size();
@@ -111,9 +111,6 @@ void CastorUnpacker::unpack(const FEDRawData& raw, const CastorElectronicsMap& e
     int ncurr=0;
     bool valid=false;
 
-//     bool tpgSOIbitInUse=htr.getFormatVersion()>=3; // version 3 and later
-//     int npre=0;
-
     qie_begin=(HcalQIESample*)daq_first;
     qie_end=(HcalQIESample*)(daq_last+1); // one beyond last..
 
@@ -151,18 +148,4 @@ void CastorUnpacker::unpack(const FEDRawData& raw, const CastorElectronicsMap& e
     }
   }
 }
-
-CastorUnpacker::Collections::Collections() {
-  castorCont=0;
-  tpCont=0;
-  calibCont=0;
-}
-
-// void CastorUnpacker::unpack(const FEDRawData& raw, const CastorElectronicsMap& emap, std::vector<CastorDataFrame>& container, std::vector<HcalTriggerPrimitiveDigi>& tp) {
-//   Collections c;
-//   c.castorCont=&container;
-//   c.tpCont=&tp;
-//   HcalUnpackerReport r;
-//   unpack(raw,emap,c,r);
-// }
 

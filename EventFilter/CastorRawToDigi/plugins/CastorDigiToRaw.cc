@@ -7,16 +7,17 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
-
+#include "EventFilter/CastorRawToDigi/interface/CastorCollections.h"
 #include "EventFilter/CastorRawToDigi/plugins/CastorDigiToRaw.h"
 
 using namespace std;
 
-
 CastorDigiToRaw::CastorDigiToRaw(edm::ParameterSet const& conf) :
   castorTag_(conf.getUntrackedParameter("CASTOR",edm::InputTag())),
   calibTag_(conf.getUntrackedParameter("CALIB",edm::InputTag())),
-  trigTag_(conf.getUntrackedParameter("TRIG",edm::InputTag()))
+  trigTag_(conf.getUntrackedParameter("TRIG",edm::InputTag())),
+  usingctdc_(conf.getUntrackedParameter<bool>("CastorCtdc",false))
+
 {
   produces<FEDRawDataCollection>();
 }
@@ -27,14 +28,13 @@ CastorDigiToRaw::~CastorDigiToRaw() { }
 // Functions that gets called by framework every event
 void CastorDigiToRaw::produce(edm::Event& e, const edm::EventSetup& es)
 {
-  CastorPacker::Collections colls;
-
-  
+  CastorCollections colls;
+ 
   // Step A: Get Inputs 
   edm::Handle<CastorDigiCollection> castor;
   if (!castorTag_.label().empty()) {
     e.getByLabel(castorTag_,castor);
-    colls.castorCont=castor.product();
+    colls.castorCont=castor.product();	
   }
   // get the mapping
   edm::ESHandle<CastorDbService> pSetup;
@@ -43,11 +43,8 @@ void CastorDigiToRaw::produce(edm::Event& e, const edm::EventSetup& es)
   // Step B: Create empty output
   std::auto_ptr<FEDRawDataCollection> raw=std::auto_ptr<FEDRawDataCollection>(new FEDRawDataCollection());
 
-// change to this when MINCastorFEDID/MAXCastorFEDID are added to FEDNumbering
-//  const int ifed_first=FEDNumbering::MINCastorFEDID;
-//  const int ifed_last=FEDNumbering::MAXCastorFEDID;
-  const int ifed_first=690;
-  const int ifed_last=693;
+  const int ifed_first=FEDNumbering::MINCASTORFEDID;  //690
+  const int ifed_last=FEDNumbering::MAXCASTORFEDID;   //693
 
   int orbitN=e.id().event();
   int bcnN=2000;
@@ -56,8 +53,12 @@ void CastorDigiToRaw::produce(edm::Event& e, const edm::EventSetup& es)
   for (int ifed=ifed_first; ifed<=ifed_last; ++ifed) {
     FEDRawData& fed = raw->FEDData(ifed);
     try {
-      packer_.pack(ifed,ifed-ifed_first, e.id().event(),
+		if ( usingctdc_ ) {
+      ctdcpacker_.pack(ifed,ifed-ifed_first, e.id().event(),
 		   orbitN, bcnN, colls, *readoutMap, fed);
+		 } else {
+      packer_.pack(ifed,ifed-ifed_first, e.id().event(),
+		   orbitN, bcnN, colls, *readoutMap, fed);	 }
     } catch (cms::Exception& e) {
       edm::LogWarning("Unpacking error") << e.what();
     } catch (...) {

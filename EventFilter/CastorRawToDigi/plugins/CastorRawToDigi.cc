@@ -8,26 +8,27 @@ using namespace std;
 #include "CalibFormats/CastorObjects/interface/CastorDbRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
+#include "EventFilter/CastorRawToDigi/interface/CastorRawCollections.h"
 
 CastorRawToDigi::CastorRawToDigi(edm::ParameterSet const& conf):
   dataTag_(conf.getParameter<edm::InputTag>("InputLabel")),
-  unpacker_(conf.getUntrackedParameter<int>("CastorFirstFED",FEDNumbering::MINHCALFEDID),conf.getParameter<int>("firstSample"),conf.getParameter<int>("lastSample")),
-  // unpacker_(conf.getUntrackedParameter<int>("CastorFirstFED",FEDNumbering::MINCastorFEDID),conf.getParameter<int>("firstSample"),conf.getParameter<int>("lastSample")),
+  unpacker_(conf.getUntrackedParameter<int>("CastorFirstFED",FEDNumbering::MINCASTORFEDID),conf.getParameter<int>("firstSample"),conf.getParameter<int>("lastSample")),
+  ctdcunpacker_(conf.getUntrackedParameter<int>("CastorFirstFED",FEDNumbering::MINCASTORFEDID),conf.getParameter<int>("firstSample"),conf.getParameter<int>("lastSample")),
   filter_(conf.getParameter<bool>("FilterDataQuality"),conf.getParameter<bool>("FilterDataQuality"),
 	  false,
 	  0, 0, 
 	  -1),
   fedUnpackList_(conf.getUntrackedParameter<std::vector<int> >("FEDs", std::vector<int>())),
-  firstFED_(conf.getUntrackedParameter<int>("CastorFirstFED",FEDNumbering::MINHCALFEDID)),
-//  firstFED_(conf.getUntrackedParameter<int>("CastorFirstFED",FEDNumbering::MINCastorFEDID)),
-//  unpackCalib_(conf.getUntrackedParameter<bool>("UnpackCalib",false)),
+  firstFED_(conf.getUntrackedParameter<int>("CastorFirstFED",FEDNumbering::MINCASTORFEDID)),
 
-  complainEmptyData_(conf.getUntrackedParameter<bool>("ComplainEmptyData",false))
+//  unpackCalib_(conf.getUntrackedParameter<bool>("UnpackCalib",false)),
+  complainEmptyData_(conf.getUntrackedParameter<bool>("ComplainEmptyData",false)),
+  usingctdc_(conf.getUntrackedParameter<bool>("CastorCtdc",false))
+
 {
   if (fedUnpackList_.empty()) {
-    for (int i=FEDNumbering::MINHCALFEDID; i<=FEDNumbering::MAXHCALFEDID; i++)
-    // for (int i=FEDNumbering::MINCastorFEDID; i<=FEDNumbering::MAXCastorFEDID; i++)
-      fedUnpackList_.push_back(i);
+    for (int i=FEDNumbering::MINCASTORFEDID; i<=FEDNumbering::MAXCASTORFEDID; i++)
+     fedUnpackList_.push_back(i);
   } 
   
   std::ostringstream ss;
@@ -60,12 +61,9 @@ void CastorRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   
   // Step B: Create empty output  : three vectors for three classes...
   std::vector<CastorDataFrame> castor;
-  //std::vector<CastorTriggerPrimitiveDigi> htp;
-  //std::vector<CastorCalibDataFrame> hc;
-  //std::auto_ptr<CastorUnpackerReport> report(new CastorUnpackerReport);
   std::auto_ptr<HcalUnpackerReport> report(new HcalUnpackerReport);
 
-  CastorUnpacker::Collections colls;
+  CastorRawCollections colls;
   colls.castorCont=&castor;
   //colls.tpCont=&htp;
   //colls.calibCont=&hc;
@@ -83,8 +81,12 @@ void CastorRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
       report->addError(*i);
     } else {
       try {
-	unpacker_.unpack(fed,*readoutMap,colls, *report);
-	report->addUnpacked(*i);
+		  if ( usingctdc_ ) { 
+			  ctdcunpacker_.unpack(fed,*readoutMap,colls, *report);
+		  } else {
+			  unpacker_.unpack(fed,*readoutMap,colls, *report);
+	      }
+	      report->addUnpacked(*i);
       } catch (cms::Exception& e) {
 	edm::LogWarning("Unpacking error") << e.what();
 	report->addError(*i);
@@ -109,7 +111,6 @@ void CastorRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
     castor_prod->swap(filtered_castor);
   }
 
-
   // Step D: Put outputs into event
   // just until the sorting is proven
   castor_prod->sort();
@@ -125,8 +126,6 @@ void CastorRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
 //    hc_prod->sort();
 //    e.put(hc_prod);
 //  }
-
-  /// zdc
 
   e.put(report);
 }

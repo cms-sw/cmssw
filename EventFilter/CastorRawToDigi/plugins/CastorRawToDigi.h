@@ -22,6 +22,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "EventFilter/CastorRawToDigi/interface/CastorUnpacker.h"
+#include "EventFilter/CastorRawToDigi/interface/CastorCtdcUnpacker.h"
 #include "EventFilter/CastorRawToDigi/interface/CastorDataFrameFilter.h"
 
 class CastorRawToDigi : public edm::EDProducer
@@ -33,11 +34,13 @@ public:
 private:
   edm::InputTag dataTag_;
   CastorUnpacker unpacker_;
+  CastorCtdcUnpacker ctdcunpacker_;
   CastorDataFrameFilter filter_;
   std::vector<int> fedUnpackList_;
   int firstFED_;
   bool unpackCalib_;
   bool complainEmptyData_;
+  bool usingctdc_;
 };
 
 #endif
