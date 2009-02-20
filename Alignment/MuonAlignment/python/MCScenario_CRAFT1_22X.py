@@ -26,6 +26,9 @@
 import random, os
 from math import *
 
+# set the initial seed for reproducibility!
+random.seed(12345)
+
 # # useful, but not currently used
 # def mean(xlist):
 #   s, n = 0., 0.
