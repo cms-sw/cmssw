@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Wed Feb  1 16:47:14 CET 2006
-// $Id: SiStripMonitorCluster.h,v 1.20 2008/11/01 18:24:58 dutta Exp $
+// $Id: SiStripMonitorCluster.h,v 1.21 2008/11/06 10:39:23 giordano Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -38,6 +38,7 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
 
     MonitorElement* NumberOfClusters;
     MonitorElement* ClusterPosition;
+    MonitorElement* ClusterDigiPosition;
     MonitorElement* ClusterWidth;
     MonitorElement* ClusterCharge;
     MonitorElement* ClusterNoise;
@@ -67,6 +68,7 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
   struct ClusterProperties { // Cluster Properties
     float charge;
     float position;
+    short start;
     short width;
     float noise;
   };
@@ -120,6 +122,7 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
   bool layerswitchcluschargeon;
   bool layerswitchclusstonon;
   bool layerswitchclusposon;
+  bool layerswitchclusdigiposon;
   bool layerswitchclusnoiseon;
   bool layerswitchcluswidthon;
   bool layerswitchlocaloccupancy;
@@ -132,6 +135,7 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
   bool moduleswitchclusstonon;
   bool moduleswitchclusstonVsposon;
   bool moduleswitchclusposon;
+  bool moduleswitchclusdigiposon;
   bool moduleswitchclusnoiseon;
   bool moduleswitchcluswidthon;
   bool moduleswitchlocaloccupancy;

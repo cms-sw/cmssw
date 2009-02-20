@@ -5,7 +5,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.48 2008/11/21 19:21:47 dutta Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.49 2008/11/25 17:15:09 dutta Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -65,6 +65,10 @@ SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig) :
   edm::ParameterSet ParametersClusterPos =  conf_.getParameter<edm::ParameterSet>("TH1ClusterPos");
   layerswitchclusposon = ParametersClusterPos.getParameter<bool>("layerswitchon");
   moduleswitchclusposon = ParametersClusterPos.getParameter<bool>("moduleswitchon");
+
+  edm::ParameterSet ParametersClusterDigiPos =  conf_.getParameter<edm::ParameterSet>("TH1ClusterDigiPos");
+  layerswitchclusdigiposon = ParametersClusterDigiPos.getParameter<bool>("layerswitchon");
+  moduleswitchclusdigiposon = ParametersClusterDigiPos.getParameter<bool>("moduleswitchon");
   
   edm::ParameterSet ParametersClusterNoise =  conf_.getParameter<edm::ParameterSet>("TH1ClusterNoise");
   layerswitchclusnoiseon = ParametersClusterNoise.getParameter<bool>("layerswitchon");
@@ -322,6 +326,8 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 	const std::vector<uint8_t>& ampls = clusterIter->amplitudes();
 	// cluster position
 	float cluster_position = clusterIter->barycenter();
+	// start defined as nr. of first strip beloning to the cluster
+	short cluster_start    = clusterIter->firstStrip();
 	// width defined as nr. of strips that belong to cluster
 	short cluster_width    = ampls.size(); 
 	// add nr of strips of this cluster to total nr. of clusterized strips
@@ -360,6 +366,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 	ClusterProperties cluster_properties;
 	cluster_properties.charge    = cluster_signal;
 	cluster_properties.position  = cluster_position;
+	cluster_properties.start     = cluster_start;
 	cluster_properties.width     = cluster_width;
 	cluster_properties.noise     = cluster_noise;
 	
@@ -426,6 +433,7 @@ void SiStripMonitorCluster::ResetModuleMEs(uint32_t idet){
 
   if (moduleswitchncluson)            mod_me.NumberOfClusters->Reset();
   if (moduleswitchclusposon)          mod_me.ClusterPosition->Reset();
+  if (moduleswitchclusdigiposon)            mod_me.ClusterDigiPosition->Reset();
   if (moduleswitchclusstonVsposon)    mod_me.ClusterSignalOverNoiseVsPos->Reset();
   if (moduleswitchcluswidthon)        mod_me.ClusterWidth->Reset();
   if (moduleswitchcluschargeon)       mod_me.ClusterCharge->Reset();
@@ -459,6 +467,15 @@ void SiStripMonitorCluster::createModuleMEs(ModMEs& mod_single, uint32_t detid) 
     mod_single.ClusterPosition = dqmStore_->book1D(hid, hid, total_nr_strips, 0.5, total_nr_strips+0.5);
     dqmStore_->tag(mod_single.ClusterPosition, detid);
     mod_single.ClusterPosition->setAxisTitle("cluster position [strip number +0.5]");
+  }
+
+  //ClusterDigiPosition
+  if(moduleswitchclusdigiposon) {
+    short total_nr_strips = SiStripDetCabling_->nApvPairs(detid) * 2 * 128; // get correct # of avp pairs    
+    hid = hidmanager.createHistoId("ClusterDigiPosition","det",detid);
+    mod_single.ClusterDigiPosition = dqmStore_->book1D(hid, hid, total_nr_strips, 0.5, total_nr_strips+0.5);
+    dqmStore_->tag(mod_single.ClusterDigiPosition, detid);
+    mod_single.ClusterDigiPosition->setAxisTitle("digi in cluster position [strip number +0.5]");
   }
   
   //ClusterWidth
@@ -612,6 +629,13 @@ void SiStripMonitorCluster::fillModuleMEs(ModMEs& mod_mes, ClusterProperties& cl
   
   if(moduleswitchclusposon && (mod_mes.ClusterPosition)) // position of cluster
     (mod_mes.ClusterPosition)->Fill(cluster.position);
+  
+  // position of digis in cluster
+  if(moduleswitchclusdigiposon && (mod_mes.ClusterDigiPosition)) {
+    for(uint ipos=cluster.start+1; ipos<=cluster.start+cluster.width; ipos++){
+      (mod_mes.ClusterDigiPosition)->Fill(ipos);
+    }
+  }
 
   if(moduleswitchcluswidthon && (mod_mes.ClusterWidth)) // width of cluster
     (mod_mes.ClusterWidth)->Fill(static_cast<float>(cluster.width));
