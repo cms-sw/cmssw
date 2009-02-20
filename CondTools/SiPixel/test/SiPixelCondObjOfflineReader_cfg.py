@@ -18,7 +18,7 @@ process.TFileService = cms.Service("TFileService",
                                    )
 
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = 'sqlite_file:provaIN.db'
+process.CondDBCommon.connect = 'sqlite_file:prova.db'
 process.CondDBCommon.DBParameters.authenticationPath = '.' #'/afs/cern.ch/cms/DB/conddb'
 process.CondDBCommon.DBParameters.messageLevel = 10
 

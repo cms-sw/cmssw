@@ -15,7 +15,7 @@ process.readfileOffline = cms.EDFilter("SiPixelGainCalibrationReadDQMFile",
 #    supportedProtocols = cms.vstring('rfio'),
     inputrootfile = cms.untracked.string('file:///tmp/rougny/test.root'),
     record = cms.untracked.string('SiPixelGainCalibrationOfflineRcd'),
-    useMeanWhenEmpty = cms.untracked.bool(True),
+    useMeanWhenEmpty = cms.untracked.bool(False),
     badChi2Prob = cms.untracked.double(0.00001)                                       
 )
 
@@ -23,7 +23,7 @@ process.readfileHLT = cms.EDFilter("SiPixelGainCalibrationReadDQMFile",
 #    supportedProtocols = cms.vstring('rfio'),
     inputrootfile = cms.untracked.string('file:///tmp/rougny/test.root'),
     record = cms.untracked.string('SiPixelGainCalibrationForHLTRcd'),
-    useMeanWhenEmpty = cms.untracked.bool(True),  
+    useMeanWhenEmpty = cms.untracked.bool(False),  
     badChi2Prob = cms.untracked.double(0.00001)                             
 )
 

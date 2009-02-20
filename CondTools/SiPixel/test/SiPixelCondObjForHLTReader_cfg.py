@@ -18,7 +18,7 @@ process.TFileService = cms.Service("TFileService",
                                    )
 
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = 'sqlite_file:provaIN.db'
+process.CondDBCommon.connect = 'sqlite_file:prova.db'
 process.CondDBCommon.DBParameters.messageLevel = 2
 process.CondDBCommon.DBParameters.authenticationPath = ''
 
@@ -41,7 +41,7 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('SiPixelGainCalibrationForHLTRcd'),
-        tag = cms.string('V2_trivial_TBuffer_hlt')
+        tag = cms.string('GainCalib_TEST_hlt')
     ))
 )
 

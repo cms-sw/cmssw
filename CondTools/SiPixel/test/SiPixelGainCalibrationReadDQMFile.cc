@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya BLEKMAN
 //         Created:  Tue Aug  5 16:22:46 CEST 2008
-// $Id: SiPixelGainCalibrationReadDQMFile.cc,v 1.2 2009/02/10 17:51:53 rougny Exp $
+// $Id: SiPixelGainCalibrationReadDQMFile.cc,v 1.3 2009/02/19 22:23:45 rougny Exp $
 //
 //
 
@@ -156,7 +156,7 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup& iSet
     //if(detid!=344076812) continue;
     int badDetId=0;
     //if(detid==302123296||detid==302126596) badDetId=1;; 
-    //if(detid==302055684) badDetId=1;
+    //if(detid!=302058516) continue;
     ntimes=0;
     useddefaultfortree=0;
        std::cout << "now creating database object for detid " << detid <<std::endl;//<< " " << bookkeeper_[detid]["gain_2d"] << " " << bookkeeper_[detid]["ped_2d"] << std::endl; //std::cout<< " nrows:" << nrows << " ncols: " << ncols << std::endl;
@@ -340,7 +340,7 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup& iSet
 	  theGainCalibrationDbInputOffline_->setDataPedestal(ped, theSiPixelGainCalibrationGainPerColPedPerPixel);
 	}
 	else {
-	  //theGainCalibrationDbInput_->setDeadPixel(theSiPixelGainCalibrationPerPixel);
+	  theGainCalibrationDbInput_->setDeadPixel(theSiPixelGainCalibrationPerPixel);
 	  theGainCalibrationDbInputOffline_->setDeadPixel(theSiPixelGainCalibrationGainPerColPedPerPixel);
 	}
 

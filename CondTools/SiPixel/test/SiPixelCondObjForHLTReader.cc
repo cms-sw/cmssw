@@ -153,7 +153,7 @@ SiPixelCondObjForHLTReader::analyze(const edm::Event& iEvent, const edm::EventSe
     gainrmsfortree  = _TH1F_Gains_m[detid]->GetRMS();
     pedmeanfortree  = _TH1F_Pedestals_m[detid]->GetMean();
     pedrmsfortree   = _TH1F_Pedestals_m[detid]->GetRMS();
-    std::cout<<"DetId "<<detid<<"       GainMean "<<gainmeanfortree<<" RMS "<<gainrmsfortree<<"      PedMean "<<pedmeanfortree<<" RMS "<<pedrmsfortree<<std::endl;
+    //std::cout<<"DetId "<<detid<<"       GainMean "<<gainmeanfortree<<" RMS "<<gainrmsfortree<<"      PedMean "<<pedmeanfortree<<" RMS "<<pedrmsfortree<<std::endl;
     tree->Fill();
 
     ibin++;

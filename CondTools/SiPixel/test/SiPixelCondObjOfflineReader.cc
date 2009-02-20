@@ -156,6 +156,8 @@ SiPixelCondObjOfflineReader::analyze(const edm::Event& iEvent, const edm::EventS
     std::cout<<"DetId "<<detid<<"       GainMean "<<gainmeanfortree<<" RMS "<<gainrmsfortree<<"      PedMean "<<pedmeanfortree<<" RMS "<<pedrmsfortree<<std::endl;
     tree->Fill();
 
+    if(pedmeanfortree==0) std::cout<<detid<<std::endl;
+
     ibin++;
    
   }
