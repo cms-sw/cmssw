@@ -6,7 +6,6 @@
      <Primitive column="DEADTIME_NORM" name="m_deadtime_normalization" />
      <Primitive column="SECTIONID" name="m_sectionid" />
      <Blob column="BUNCHCXINFO" name="m_bx" />
-     <Blob column="HLTINFO" name="m_hltinfo" />
      <Blob column="LUMISUMMARY" name="m_summaryinfo" />
    </Class >
   </PoolContainer >
