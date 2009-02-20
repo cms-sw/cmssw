@@ -87,19 +87,45 @@ TrackMon_bhmuon.TrackProducer                      = 'ctfWithMaterialTracksBeamH
 TrackMon_bhmuon.AlgoName                           = 'BHMuonTk'
 TrackMon_bhmuon.FolderName                         = 'SiStrip/Tracks'
 
+# Tracking Efficiency
+# Clone for Cosmic Tracks
+import DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi
+TrackEffMon_cosmicTk = DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi.TrackEffMon.clone()
+TrackEffMon_cosmicTk.TKTrackCollection             = 'cosmictrackfinderP5'
+TrackEffMon_cosmicTk.AlgoName                      = 'CosmicTk'
+TrackEffMon_cosmicTk.FolderName                    = 'SiStrip/Tracks/Efficiencies'
+
+# Clone for CKF Tracks
+import DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi
+TrackEffMon_ckf = DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi.TrackEffMon.clone()
+TrackEffMon_ckf.TKTrackCollection                  = 'ctfWithMaterialTracksP5'
+TrackEffMon_ckf.AlgoName                           = 'CKFTk'
+TrackEffMon_ckf.FolderName                         = 'SiStrip/Tracks/Efficiencies'
+
+# Clone for RS Tracks
+import DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi
+TrackEffMon_rs = DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi.TrackEffMon.clone()
+TrackEffMon_rs.TKTrackCollection                   = 'rsWithMaterialTracksP5'
+TrackEffMon_rs.AlgoName                            = 'RSTk'
+TrackEffMon_rs.FolderName                          = 'SiStrip/Tracks/Efficiencies'
+
+# Clone for Beam Halo  Tracks
+import DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi
+TrackEffMon_bhmuon = DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi.TrackEffMon.clone()
+TrackEffMon_bhmuon.TKTrackCollection               = 'ctfWithMaterialTracksBeamHaloMuon'
+TrackEffMon_bhmuon.AlgoName                        = 'BHMuonTk'
+TrackEffMon_bhmuon.FolderName                      = 'SiStrip/Tracks/Efficiencies'
+
 # DQM Services
 dqmInfoSiStrip = cms.EDFilter("DQMEventInfo",
      subSystemFolder = cms.untracked.string('SiStrip')
 )
 
-
 # Sequences 
-SiStripDQMTier0_cosmicTk = cms.Sequence(SiStripMonitorTrack_cosmicTk*MonitorTrackResiduals_cosmicTk*TrackMon_cosmicTk)
+SiStripDQMTier0_cosmicTk = cms.Sequence(SiStripMonitorTrack_cosmicTk*MonitorTrackResiduals_cosmicTk*TrackMon_cosmicTk*TrackEffMon_cosmicTk)
 
-SiStripDQMTier0_ckf = cms.Sequence(SiStripMonitorTrack_ckf*MonitorTrackResiduals_ckf*TrackMon_ckf)
+SiStripDQMTier0_ckf = cms.Sequence(SiStripMonitorTrack_ckf*MonitorTrackResiduals_ckf*TrackMon_ckf*TrackEffMon_ckf)
 
-SiStripDQMTier0_rs = cms.Sequence(SiStripMonitorTrack_rs*MonitorTrackResiduals_rs*TrackMon_rs)
+SiStripDQMTier0_rs = cms.Sequence(SiStripMonitorTrack_rs*MonitorTrackResiduals_rs*TrackMon_rs*TrackEffMon_rs)
 
-SiStripDQMTier0 = cms.Sequence(siStripFEDCheck*SiStripMonitorDigi*SiStripMonitorCluster*SiStripMonitorTrack_ckf*MonitorTrackResiduals_ckf*TrackMon_cosmicTk*TrackMon_ckf*TrackMon_rs*dqmInfoSiStrip)
-
-
+SiStripDQMTier0 = cms.Sequence(siStripFEDCheck*SiStripMonitorDigi*SiStripMonitorCluster*SiStripMonitorTrack_ckf*MonitorTrackResiduals_ckf*TrackMon_cosmicTk*TrackMon_ckf*TrackMon_rs*TrackEffMon_ckf*dqmInfoSiStrip)

@@ -31,12 +31,19 @@ TrackMon.TrackProducer = 'generalTracks'
 TrackMon.AlgoName = 'CKFTk'
 TrackMon.FolderName = 'SiStrip/Tracks'
 
+# Tracking Efficiency
+import DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi
+TrackEffMon = DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi.TrackEffMon.clone()
+TrackEffMon.TKTrackCollection             = 'generalTracks'
+TrackEffMon.AlgoName                      = 'CKFTk'
+TrackEffMon.FolderName                    = 'SiStrip/Tracks/Efficiencies'
+
 # DQM Services
 dqmInfoSiStrip = cms.EDFilter("DQMEventInfo",
     subSystemFolder = cms.untracked.string('SiStrip')
 )
 
 # Sequence
-SiStripDQMTier0 = cms.Sequence(siStripFEDCheck*SiStripMonitorDigi*SiStripMonitorTrack*MonitorTrackResiduals*TrackMon*dqmInfoSiStrip)
+SiStripDQMTier0 = cms.Sequence(siStripFEDCheck*SiStripMonitorDigi*SiStripMonitorTrack*MonitorTrackResiduals*TrackMon*TrackEffMon*dqmInfoSiStrip)
 
 

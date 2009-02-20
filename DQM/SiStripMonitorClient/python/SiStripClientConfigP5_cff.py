@@ -12,7 +12,7 @@ SiStripAnalyser = cms.EDFilter("SiStripAnalyser",
     TkmapParameters = cms.PSet(
         loadFedCabling = cms.untracked.bool(True),
         trackerdatPath = cms.untracked.string('CommonTools/TrackerMap/data/'),
-        trackermaptxtPath = cms.untracked.string('DQM/SiStripMonitorClient/scripts/TkMap/')
+        trackermaptxtPath = cms.untracked.string('DQM/Integration/test/TkMap/')
     ),
 
 # Parameters for On Demand Monitoring   

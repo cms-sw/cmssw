@@ -13,6 +13,10 @@ siStripQTester = cms.EDFilter("QualityTester",
     getQualityTestsFromFile = cms.untracked.bool(True)
 )
 
+from DQM.TrackingMonitor.TrackEfficiencyClient_cfi import *
+TrackEffClient.FolderName = 'SiStrip/Tracks/Efficiencies'
+TrackEffClient.AlgoName   = 'CKFTk'
+
 # Sequence
-SiStripOfflineDQMClient = cms.Sequence(siStripQTester*siStripOfflineAnalyser)
+SiStripOfflineDQMClient = cms.Sequence(siStripQTester*siStripOfflineAnalyser*TrackEffClient)
 

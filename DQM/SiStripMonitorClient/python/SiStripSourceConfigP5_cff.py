@@ -108,6 +108,13 @@ TrackMon_gentk.AlgoName         = 'CKFTk'
 TrackMon_gentk.FolderName       = 'SiStrip/Tracks'
 
 # Tracking Efficiency
+# Clone for Cosmic Tracks
+import DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi
+TrackEffMon_cosmicTk = DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi.TrackEffMon.clone()
+TrackEffMon_cosmicTk.TKTrackCollection             = 'cosmictrackfinderP5'
+TrackEffMon_cosmicTk.AlgoName                      = 'CosmicTk'
+TrackEffMon_cosmicTk.FolderName                    = 'SiStrip/Tracks/Efficiencies'
+
 # Clone for CKF Tracks
 import DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi
 TrackEffMon_ckf = DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi.TrackEffMon.clone()
