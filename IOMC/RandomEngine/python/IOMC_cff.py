@@ -5,6 +5,10 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
         initialSeed = cms.untracked.uint32(123456789),
         engineName = cms.untracked.string('HepJamesRandom')
     ),
+    generator = cms.PSet(
+        initialSeed = cms.untracked.uint32(123456789),
+        engineName = cms.untracked.string('HepJamesRandom')
+    ),
     evtgenproducer = cms.PSet( 
         initialSeed = cms.untracked.uint32(93278151),
         engineName = cms.untracked.string('HepJamesRandom') 
