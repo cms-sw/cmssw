@@ -1,4 +1,5 @@
 <use name=FWCore/Utilities>
+<use name=CommonTools/Utils>
 <use name=Utilities/General>
 <use name=rootrflx>
 <use name=rootminuit>
@@ -10,6 +11,7 @@
 <export>
   <lib name=PhysicsToolsUtilities>
   <use name=FWCore/Utilities>
+  <use name=CommonTools/Utils>
   <use name=Utilities/General>
   <use name=rootrflx>
   <use name=rootminuit>
