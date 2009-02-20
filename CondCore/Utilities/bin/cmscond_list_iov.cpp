@@ -173,7 +173,7 @@ int main( int argc, char** argv ){
                 <<"\nPayloadContainerName "<<payloadContainer<<"\n"
                 <<"since \t till \t payloadToken"<<std::endl;
        for (cond::IOVProxy::const_iterator ioviterator=iov.begin(); ioviterator!=iov.end(); ioviterator++) {
-	 std::cout<<ioviterator->since()" \t "<<ioviterator->till() <<" \t "<<ioviterator->wrapperToken();
+	 std::cout<<ioviterator->since() << " \t "<<ioviterator->till() <<" \t "<<ioviterator->wrapperToken();
 	 if (details) {
 	   cond::TypedRef<cond::PayloadWrapper> wrapper(pooldb,ioviterator->wrapperToken());
 	   std::cout << " \t "<< wrapper->summary();
