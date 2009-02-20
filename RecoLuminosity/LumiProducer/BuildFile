@@ -2,6 +2,8 @@
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/Provenance>
 <use name=DataFormats/Luminosity>
+<use name=CondFormats/RunInfo>
+<use name=CondFormats/DataRecord>
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=RecoLuminosityLumiProducer>
