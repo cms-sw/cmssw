@@ -172,20 +172,23 @@ def define_scenario():
 
     sector_xshifts = {}
     sector_yshifts = {}
-    for sector in 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14:
-        sector_xshifts[sector] = random.gauss(0, 0.1)
-        sector_yshifts[sector] = random.gauss(0, 0.1)
+    for wheel in -2, -1, 0, 1, 2:
+        for sector in 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14:
+            sector_xshifts[wheel, sector] = random.gauss(0, 0.1)
+            sector_yshifts[wheel, sector] = random.gauss(0, 0.1)
 
     for dtchamber in DTnominal:
         if dtchamber.nominalx is None:
             errx = random.gauss(0, 0.45)
         else:
-            errx = random.gauss(dtchamber.nominalx, 0.1) + sector_xshifts[dtchamber.sector]
+            # careful of unit conversions: nominal values were written down in millimeters, but this script does everything else in centimeters
+            errx = random.gauss(dtchamber.nominalx/10., 0.1) + sector_xshifts[dtchamber.wheel, dtchamber.sector]
 
         if dtchamber.nominaly is None:
             erry = random.gauss(0, 0.23)
         else:
-            erry = random.gauss(dtchamber.nominaly, 0.1) + sector_yshifts[dtchamber.sector]
+            # careful of unit conversions: nominal values were written down in millimeters, but this script does everything else in centimeters
+            erry = random.gauss(dtchamber.nominaly/10., 0.1) + sector_yshifts[dtchamber.wheel, dtchamber.sector]
 
         # 0.25 cm in Z would correspond to the scale of the z residuals vs z slopes in the plots
         errz = random.gauss(0, 0.25)
@@ -293,6 +296,7 @@ def define_scenario():
 # the actual values are derived from a Gaussian with these means
 # "None" means that there wasn't even enough data to determine a nominal position
 # this is a complete list of chambers
+# NOTE: these nominal values are in MILLIMETERS, not CENTIMETERS!
 class DTChamber:
     def __init__(self, **location):
         self.__dict__.update(location)
@@ -696,6 +700,7 @@ def get_DTaligned():
 # exact photogrammetry data for the CSCs, which have not been uploaded to the database yet
 # they are therefore, unfortunately, a known error, rather than an alignment correction (that will change with the next reprocessing)
 # this is not a complete list!  missing chambers (most notably ME1/1) should get a random value
+# these are in centimeters
 class CSCChamber:
     def __init__(self, **location):
         self.__dict__.update(location)
