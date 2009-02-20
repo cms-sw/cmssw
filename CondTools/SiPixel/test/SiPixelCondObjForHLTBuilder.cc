@@ -9,9 +9,13 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/DetId/interface/DetId.h"
+
 
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CLHEP/Random/RandGauss.h"
+#include "CLHEP/Random/RandFlat.h"
 
 namespace cms{
 SiPixelCondObjForHLTBuilder::SiPixelCondObjForHLTBuilder(const edm::ParameterSet& iConfig) :
@@ -24,6 +28,12 @@ SiPixelCondObjForHLTBuilder::SiPixelCondObjForHLTBuilder(const edm::ParameterSet
       rmsPed_(conf_.getParameter<double>("rmsPed")),
       meanGain_(conf_.getParameter<double>("meanGain")),
       rmsGain_(conf_.getParameter<double>("rmsGain")),
+      meanPedFPix_(conf_.getUntrackedParameter<double>("meanPedFPix",meanPed_)),
+      rmsPedFPix_(conf_.getUntrackedParameter<double>("rmsPedFPix",rmsPed_)),
+      meanGainFPix_(conf_.getUntrackedParameter<double>("meanGainFPix",meanGain_)),
+      rmsGainFPix_(conf_.getUntrackedParameter<double>("rmsGainFPix",rmsGain_)),
+      deadFraction_(conf_.getParameter<double>("deadFraction")),
+      noisyFraction_(conf_.getParameter<double>("noisyFraction")),
       secondRocRowGainOffset_(conf_.getParameter<double>("secondRocRowGainOffset")),
       secondRocRowPedOffset_(conf_.getParameter<double>("secondRocRowPedOffset")),
       numberOfModules_(conf_.getParameter<int>("numberOfModules")),
@@ -48,6 +58,8 @@ SiPixelCondObjForHLTBuilder::analyze(const edm::Event& iEvent, const edm::EventS
    //
    // Instantiate Gain calibration offset and define pedestal/gain range
    //
+   // note: the hard-coded range values are also used in random generation. That is why they're defined here
+
    float mingain=0;
    float maxgain=10;
    float minped=0;
@@ -73,7 +85,19 @@ SiPixelCondObjForHLTBuilder::analyze(const edm::Event& iEvent, const edm::EventS
        int nrows = topol.nrows();      // rows in x
        int ncols = topol.ncolumns();   // cols in y
        //std::cout << " ---> PIXEL DETID " << detid << " Cols " << ncols << " Rows " << nrows << std::endl;
-
+       
+       double meanPedWork = meanPed_;
+       double rmsPedWork = rmsPed_;
+       double meanGainWork = meanGain_;
+       double rmsGainWork = rmsGain_;
+       DetId detId(detid);
+       if(detId.subdetId()==2){// FPIX
+	 meanPedWork = meanPedFPix_;
+	 rmsPedWork = rmsPedFPix_;
+	 meanGainWork = meanGainFPix_;
+	 rmsGainWork = rmsGainFPix_;
+       }
+       
        PixelIndices pIndexConverter( ncols , nrows );
 
        std::vector<char> theSiPixelGainCalibration;
@@ -84,7 +108,8 @@ SiPixelCondObjForHLTBuilder::analyze(const edm::Event& iEvent, const edm::EventS
          float totalGain = 0.0;
 	 for(int j=0; j<nrows; j++) {
 	   nchannels++;
-	   
+	   bool isDead=false;
+	   bool isNoisy=false;
 	   float ped = 0.0, gain = 0.0;
 
 	   if( fromFile_ ) {
@@ -102,10 +127,25 @@ SiPixelCondObjForHLTBuilder::analyze(const edm::Event& iEvent, const edm::EventS
 
 	   } 
 	   else{
+	     if(deadFraction_>0){
+	       double val= RandFlat::shoot();
+	       if( val < deadFraction_){
+		 isDead=true;
+		 //		 std::cout << "dead pixel " << detid << " " << i << "," << j << " " << val << std::endl;
+	       }
+	     }
+	     if(deadFraction_>0 && !isDead){
+	       double val= RandFlat::shoot();
+	       if( val < noisyFraction_){
+		 isNoisy=true;
+		 //		 std::cout << "noisy pixel " << detid << " " << i << "," << j << " " << val << std::endl;
+	       }
+	     }
+	     
 	     if(rmsPed_>0) {
 	       ped  = RandGauss::shoot( meanPed_  , rmsPed_  );
 	       while(ped<minped || ped>maxped)
-		 ped  = RandGauss::shoot( meanPed_  , rmsPed_  );
+		 ped= RandGauss::shoot( meanPed_  , rmsPed_  );
 	     }
 	     else
 	       ped = meanPed_;
@@ -150,7 +190,13 @@ SiPixelCondObjForHLTBuilder::analyze(const edm::Event& iEvent, const edm::EventS
               float averagePed       = totalPed/static_cast<float>(80);
               float averageGain      = totalGain/static_cast<float>(80);
               //only fill by column after each roc
-              SiPixelGainCalibration_->setData( averagePed , averageGain , theSiPixelGainCalibration);
+	      if(!isDead && !isNoisy)
+                SiPixelGainCalibration_->setData( averagePed , averageGain , theSiPixelGainCalibration);
+              else if(isDead)
+                SiPixelGainCalibration_->setDeadColumn(  80, theSiPixelGainCalibration);
+              else if(isNoisy)
+                SiPixelGainCalibration_->setNoisyColumn( 80, theSiPixelGainCalibration);
+	        
               totalPed = 0;
               totalGain = 0;
            }

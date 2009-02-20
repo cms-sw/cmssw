@@ -3,11 +3,13 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PEDESTALS")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
-process.load("Geometry.TrackerSimData.trackerSimGeometryXML_cfi")
-
+#process.load("Geometry.TrackerSimData.trackerSimGeometryXML_cfi")
+process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
+process.load("Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+#process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 
 process.load("CondTools.SiPixel.SiPixelGainCalibrationService_cfi")
 
@@ -25,14 +27,22 @@ process.source = cms.Source("EmptyIOVSource",
 process.SiPixelCondObjForHLTBuilder = cms.EDFilter("SiPixelCondObjForHLTBuilder",
     process.SiPixelGainCalibrationServiceParameters,
     numberOfModules = cms.int32(2000),
+    deadFraction = cms.double(0.0002),
+    noisyFraction = cms.double(0.0002),
     appendMode = cms.untracked.bool(False),
     rmsGain = cms.double(0.0),
     meanGain = cms.double(0.4),
     meanPed = cms.double(50.0),
+    rmsPed = cms.double(0.0),
+# separate input for the FPIX. If not entered the default values are used.
+    rmsGainFPix = cms.untracked.double(0.14),
+    meanGainFPix = cms.untracked.double(2.8),
+    meanPedFPix = cms.untracked.double(28.2),
+    rmsPedFPix = cms.untracked.double(2.75),
+    
     fileName = cms.string('../macros/phCalibrationFit_C0.dat'),
     record = cms.string('SiPixelGainCalibrationForHLTRcd'),
     secondRocRowGainOffset = cms.double(0.0),
-    rmsPed = cms.double(0.0),
     fromFile = cms.bool(False),
     secondRocRowPedOffset = cms.double(0.0)
 )
@@ -45,7 +55,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     ),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('SiPixelGainCalibrationForHLTRcd'),
-        tag = cms.string('SiPixelGainCalibration_TBuffer_hlt_const')
+        tag = cms.string('GainCalib_TEST_hlt')
     )),
     connect = cms.string('sqlite_file:prova.db')
 )

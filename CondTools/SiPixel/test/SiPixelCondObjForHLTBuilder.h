@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo CHIOCHIA
 //         Created:  Tue Oct 17 17:40:56 CEST 2006
-// $Id: SiPixelCondObjForHLTBuilder.h,v 1.2 2008/02/14 16:09:28 friis Exp $
+// $Id: SiPixelCondObjForHLTBuilder.h,v 1.3 2008/04/21 08:15:28 friis Exp $
 //
 //
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -24,7 +24,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationForHLT.h"
+//#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationForHLT.h"
 #include "CondTools/SiPixel/interface/SiPixelGainCalibrationForHLTService.h"
 #include "CondFormats/SiPixelObjects/interface/PixelIndices.h"
 #include <string>
@@ -54,6 +54,12 @@ private:
   double rmsPed_;
   double meanGain_;
   double rmsGain_;
+  double meanPedFPix_;
+  double rmsPedFPix_;
+  double meanGainFPix_;
+  double rmsGainFPix_;
+  double deadFraction_;
+  double noisyFraction_;
   double secondRocRowGainOffset_;
   double secondRocRowPedOffset_;
   int numberOfModules_;
