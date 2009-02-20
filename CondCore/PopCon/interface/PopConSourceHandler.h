@@ -142,7 +142,7 @@ namespace popcon {
     
     // make sure to create a new one each time...
     Summary * dummySummary( OldContainer::value_type const &) const {
-      return new cond::GenericSummary("not supplied")
+      return new cond::GenericSummary("not supplied");
     }
     
     void convertFromOld() {
