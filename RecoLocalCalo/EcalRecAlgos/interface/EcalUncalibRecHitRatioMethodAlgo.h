@@ -5,9 +5,9 @@
  *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
  *  using a ratio method
  *
- *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.1 2009/02/19 22:16:18 franzoni Exp $
- *  $Date: 2009/02/19 22:16:18 $
- *  $Revision: 1.1 $
+ *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.2 2009/02/19 22:57:06 franzoni Exp $
+ *  $Date: 2009/02/19 22:57:06 $
+ *  $Revision: 1.2 $
  *  \author A. Ledovskoy (Design) - M. Balazs (Implementation)
  */
 
@@ -35,6 +35,10 @@ template<class C> class EcalUncalibRecHitRatioMethodAlgo
   std::vector<double> amplitudes_;
   std::vector<Ratio> ratios_;
   std::vector<Tmax> times_;
+ 
+  double pedestal_;
+ 
+  CalculatedRechit calculatedRechit_;
 
 };
 
@@ -45,8 +49,10 @@ EcalUncalibRecHitRatioMethodAlgo<C>::makeRecHit(const C& dataFrame, const double
 						std::vector<double>& amplitudeFitParameters,
 						std::pair<double,double>& timeFitLimits)
 {
-  CalculatedRechit calculatedRechit = {0,0,0};
 
+  calculatedRechit_.timeMax = 0;
+  calculatedRechit_.amplitudeMax = 0;
+  calculatedRechit_.timeError = 0;
   amplitudes_.clear();       amplitudes_.reserve(C::MAXSAMPLES);
   ratios_.clear();           ratios_.reserve(C::MAXSAMPLES);
   times_.clear();            times_.reserve(C::MAXSAMPLES);
@@ -85,10 +91,12 @@ EcalUncalibRecHitRatioMethodAlgo<C>::makeRecHit(const C& dataFrame, const double
   //     gainID==1, correct pedestal values for other gainIDs if there
   //     is gain switching in this event
   //
-  // USE THIS ONE FOR TESTBEAM
 
+  // fix
+  // use presamples for gain12 and plain db-values for gain6 and gain1 (no correction needed) 
+
+  /*
   double pedestalCorrection = 0.0;
-
   // pedestal correction based on 1st datasample
   if(dataFrame.sample(0).gainId()==1){
     pedestalCorrection = double(dataFrame.sample(0).adc()) - pedestals[0];
@@ -107,7 +115,32 @@ EcalUncalibRecHitRatioMethodAlgo<C>::makeRecHit(const C& dataFrame, const double
     amplitudes_.push_back(amplitude);
 
   }
+  */
 
+
+  // pedestal obgained from presamples
+  pedestal_ = 0;
+  short num = 0;
+  if(dataFrame.sample(0).gainId()==1){
+    pedestal_ += double(dataFrame.sample(0).adc()); num++;  }
+  if(dataFrame.sample(1).gainId()==1){
+    pedestal_ += double(dataFrame.sample(0).adc()); num++;  }
+  if(dataFrame.sample(2).gainId()==1){
+    pedestal_ += double(dataFrame.sample(0).adc()); num++;  }
+
+  if(num !=0) pedestal_ /= num;
+  else pedestal_ = 200;
+  
+  // ped-subtracted and gain-renormalized samples
+  double sample; int GainId;
+  for(int iSample = 0; iSample < C::MAXSAMPLES; iSample++) {
+    GainId =  dataFrame.sample(iSample).gainId();
+    
+    if(GainId==1)       sample = double(dataFrame.sample(iSample).adc() - pedestal_);
+    else    sample = (double(dataFrame.sample(iSample).adc() - pedestals[GainId-1]))*gainRatios[GainId-1];
+    amplitudes_.push_back(sample);
+  }
+  
 
   // Initial guess for Tmax using "Sum Of Three" method
   
@@ -120,11 +153,11 @@ EcalUncalibRecHitRatioMethodAlgo<C>::makeRecHit(const C& dataFrame, const double
       tMax = i;
     }
   }
-  calculatedRechit.timeMax = double(tMax);
+  calculatedRechit_.timeMax = double(tMax);
   double fraction = 0;
   if(SumOfThreeSamples>0) fraction = (amplitudes_[tMax+1]-amplitudes_[tMax-1])/SumOfThreeSamples;
-  if(fraction>-1.0 && fraction<1.0) calculatedRechit.timeMax  = calculatedRechit.timeMax + fraction;
-  calculatedRechit.amplitudeMax = SumOfThreeSamples/2.72;
+  if(fraction>-1.0 && fraction<1.0) calculatedRechit_.timeMax  = calculatedRechit_.timeMax + fraction;
+  calculatedRechit_.amplitudeMax = SumOfThreeSamples/2.72;
 
 
 
@@ -160,7 +193,7 @@ EcalUncalibRecHitRatioMethodAlgo<C>::makeRecHit(const C& dataFrame, const double
       double err2 = (1.0-Rtmp)/amplitudes_[i+1];
 
       if(    Aeff > 5.0 
-	     && (i-calculatedRechit.timeMax)>-3.1 && (i-calculatedRechit.timeMax)<1.5
+	     && (i-calculatedRechit_.timeMax)>-3.1 && (i-calculatedRechit_.timeMax)<1.5
 	     &&  Rtmp >= timeFitLimits.first && Rtmp <= timeFitLimits.second 
 	     ){ 
 
@@ -214,8 +247,8 @@ EcalUncalibRecHitRatioMethodAlgo<C>::makeRecHit(const C& dataFrame, const double
 
   // calculate weighted average of all Tmax measurements
   if(time_wgt > 0){
-    calculatedRechit.timeMax = time_max/time_wgt;
-    calculatedRechit.timeError = 1.0/sqrt(time_wgt);
+    calculatedRechit_.timeMax = time_max/time_wgt;
+    calculatedRechit_.timeError = 1.0/sqrt(time_wgt);
   }
 
   // calculate chisquared of all Tmax measurements. These are internal
@@ -224,9 +257,9 @@ EcalUncalibRecHitRatioMethodAlgo<C>::makeRecHit(const C& dataFrame, const double
   double chi2one = 0;
   double chi2two = 0;
   for(unsigned int i=0; i<times_.size(); i++){
-    double dummy = (times_[i].value - calculatedRechit.timeMax)/times_[i].error;
+    double dummy = (times_[i].value - calculatedRechit_.timeMax)/times_[i].error;
     chi2one += dummy*dummy;
-    chi2two += (times_[i].value - calculatedRechit.timeMax)*(times_[i].value - calculatedRechit.timeMax);
+    chi2two += (times_[i].value - calculatedRechit_.timeMax)*(times_[i].value - calculatedRechit_.timeMax);
   }
   if(times_.size()>1){
     chi2one = chi2one/(times_.size()-1);
@@ -249,15 +282,15 @@ EcalUncalibRecHitRatioMethodAlgo<C>::makeRecHit(const C& dataFrame, const double
   for(unsigned int i = 0; i < amplitudes_.size()-1; i++){
   
     double f = 0;
-    double termOne = 1 + (i-calculatedRechit.timeMax)/(alpha*beta);
-    if(termOne>1.e-5) f =  exp(alpha*log(termOne))*exp(-(i-calculatedRechit.timeMax)/beta);
-    if( (f>0.6 && i<=calculatedRechit.timeMax) || (f>0.4 && i>=calculatedRechit.timeMax) ){
+    double termOne = 1 + (i-calculatedRechit_.timeMax)/(alpha*beta);
+    if(termOne>1.e-5) f =  exp(alpha*log(termOne))*exp(-(i-calculatedRechit_.timeMax)/beta);
+    if( (f>0.6 && i<=calculatedRechit_.timeMax) || (f>0.4 && i>=calculatedRechit_.timeMax) ){
       sum1 += amplitudes_[i]*f;
       sum2 += f*f;
     }
 
   }
-  if(sum2>0) calculatedRechit.amplitudeMax = sum1/sum2;
+  if(sum2>0) calculatedRechit_.amplitudeMax = sum1/sum2;
 
 
   // 1st parameters is id
@@ -282,7 +315,6 @@ EcalUncalibRecHitRatioMethodAlgo<C>::makeRecHit(const C& dataFrame, const double
   // ans Tmax. For now we can return TmaxErr. The quality of Tmax and
   // Amax can be judged from the magnitude of TmaxErr
 
-  return EcalUncalibratedRecHit(dataFrame.id(),calculatedRechit.amplitudeMax,0,calculatedRechit.timeMax-5,calculatedRechit.timeError);
+  return EcalUncalibratedRecHit(dataFrame.id(),calculatedRechit_.amplitudeMax,pedestal_,calculatedRechit_.timeMax-5,calculatedRechit_.timeError);
 }
-
 #endif
