@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from L1TriggerConfig.GctConfigProducers.l1GctJetCounterConfig_cfi import *
 L1GctConfigProducers = cms.ESProducer("L1GctConfigProducers",
-    JetFinderCentralJetSeed = cms.double32(0.5),
-    JetFinderForwardJetSeed = cms.double32(0.5),
+    JetFinderCentralJetSeed = cms.double(0.5),
+    JetFinderForwardJetSeed = cms.double(0.5),
     L1CaloJetZeroSuppressionThresholdInGeV = cms.double(5.0),
     TauIsoEtThreshold = cms.double(1.0),
     HtJetEtThreshold = cms.double(5.0),
@@ -34,7 +34,6 @@ L1GctConfigProducers = cms.ESProducer("L1GctConfigProducers",
         tauJetCalib5 = cms.vdouble( 1.0 ),
         tauJetCalib6 = cms.vdouble( 1.0 ),
     ),
-    JetFinderForwardJetSeed = cms.uint32(1),
     PiecewiseCubicCoefficients = cms.PSet(
         nonTauJetCalib10 = cms.vdouble(150.0, 80.0, 1.70475, -0.142171, 0.00104963, 
             -1.62214e-05, 5.0, 1.70475, -0.142171, 0.00104963, 
