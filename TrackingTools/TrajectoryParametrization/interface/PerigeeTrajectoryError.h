@@ -37,27 +37,28 @@ public:
 
   /**
    * The weight matrix (inverse of the covariance matrix)
+   * The error variable is 0 in case of success.
    */
-  const AlgebraicSymMatrix weightMatrix_old() const {
+  const AlgebraicSymMatrix weightMatrix_old(int & error) const {
     if (!weightIsAvailable) calculateWeightMatrix();
+    error = inverseError;
     return asHepMatrix(thePerigeeWeight);
   }
   /**
    * The weight matrix (inverse of the covariance matrix)
+   * The error variable is 0 in case of success.
    */
  
-  const AlgebraicSymMatrix55 &weightMatrix() const
+  const AlgebraicSymMatrix55 &weightMatrix(int & error) const
   {
     if (!weightIsAvailable) calculateWeightMatrix();
+    error = inverseError;
     return thePerigeeWeight;
   }
 
   void calculateWeightMatrix() const
   {
-    int error;
-    thePerigeeWeight = thePerigeeError.Inverse(error);
-    if (error != 0 ) throw TrajectoryStateException(
-      "PerigeeTrajectoryError::Unable to inverse covariance matrix"); 
+    thePerigeeWeight = thePerigeeError.Inverse(inverseError);
     weightIsAvailable = true;
   }
 
@@ -91,6 +92,7 @@ public:
 private:
   AlgebraicSymMatrix55 thePerigeeError;
   mutable AlgebraicSymMatrix55 thePerigeeWeight;
+  mutable int inverseError;
   mutable bool weightIsAvailable;
 
 };
