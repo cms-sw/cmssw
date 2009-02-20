@@ -241,13 +241,21 @@ def define_scenario():
             position = Position(x = random.gauss(0, 0.0092), y = 0, z = 0, phix = 0, phiy = 0, phiz = 0)
             scenario.append(Operation(alignable, position))
 
+    # Next, the ring errors from DCOPS (derived from comparison with photogrammetry)
+    CSCrings = []
+    for endcap in 1, 2:
+        for station, ring in (1, 1), (1, 2), (1, 3), (1, 4), (2, 1), (2, 2), (3, 1), (3, 2), (4, 1):
+            CSCrings.append(CSCChamber(endcap = endcap, station = station, ring = ring, z = random.gauss(0, 0.17), phix = random.gauss(0, 0.00068)))
+
     # Next, the chamber errors: we actually know these from
     # photogrammetry (next time, photogrammetry will be a starting
     # point for the alignment we upload)
     for chamber in CSCchambers:
-        # the z and phix values come from DCOPS measurements, however
-        errz = random.gauss(0, 0.17)
-        errphix = random.gauss(0, 0.00068)
+        for ring in CSCrings:
+            if ring.endcap == chamber.endcap and ring.station == chamber.station and ring.ring == chamber.ring:
+                errz = ring.z
+                errphix = ring.phix
+                break
 
         # the phiy values can't be measured by DCOPS or
         # photogrammetry, but some values were measured by the
@@ -263,10 +271,10 @@ def define_scenario():
         alignable = Alignable("CSCChamber", endcap = chamber.endcap, station = chamber.station, ring = chamber.ring, chamber = chamber.chamber)
 
         if photogrammetry is not None:
-            position = Position(x = photogrammetry.x, y = photogrammetry.y, z = errz, phix = errphix, phiy = errphiy, phiz = photogrammetry.phiz)
+            position = Position(x = photogrammetry.x, y = photogrammetry.y, z = photogrammetry.z + errz, phix = photogrammetry.phix + errphix, phiy = errphiy, phiz = photogrammetry.phiz)
         else:
             # when we don't have explicit PG for a chamber, the uncertainty comes from the RMS of the ones we do have
-            position = Position(x = random.gauss(0, 0.12), y = random.gauss(0, 0.10), z = errz, phix = errphix, phiy = errphiy, phiz = random.gauss(0, 0.00056))
+            position = Position(x = random.gauss(0, 0.12), y = random.gauss(0, 0.10), z = random.gauss(0, 0.12) + errz, phix = random.gauss(0, 0.0011) + errphix, phiy = errphiy, phiz = random.gauss(0, 0.00056))
 
         scenario.append(Operation(alignable, position))
 
