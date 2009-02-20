@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/08/11 14:54:49 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/11/11 08:01:24 $
+ *  $Revision: 1.5 $
  *  \author D. Trocino - University and INFN Torino
  */
 
@@ -111,6 +111,11 @@ vector<Trajectory> SeedTransformer::seedTransform(const TrajectorySeed& aSeed) c
   } // end for(TrajectorySeed::recHitContainer::const_iterator itRecHits=aSeed.recHits().first; itRecHits!=aSeed.recHits().second; ++itRecHits, ++countRH)
 
   TrajectoryStateOnSurface aInitTSOS = thePropagator->propagate(aTSOS, recHits.front()->det()->surface());
+
+  if(!aInitTSOS.isValid()) {
+    LogTrace(metname) << "    --- Initial state for refit not valid! ---" << endl;
+    return vector<Trajectory>();
+  }
 
   vector<Trajectory> refittedSeed = theFitter->fit(aSeed, recHits, aInitTSOS);
 
