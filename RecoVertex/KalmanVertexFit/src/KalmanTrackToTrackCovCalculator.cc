@@ -26,7 +26,7 @@ KalmanTrackToTrackCovCalculator<N>::operator()
   {        
     const AlgebraicMatrixN3 & leftA = (*i)->linearizedTrack()->positionJacobian();
     const AlgebraicMatrixNM & leftB = (*i)->linearizedTrack()->momentumJacobian();
-    AlgebraicSymMatrixNN leftG = (*i)->linearizedTrack()->predictedStateWeight();
+    AlgebraicSymMatrixNN leftG = (*i)->linearizedTrack()->predictedStateWeight(ifail);
     AlgebraicSymMatrixMM leftW = ROOT::Math::SimilarityT(leftB,leftG);
 
     ifail = ! leftW.Invert();
@@ -42,7 +42,7 @@ KalmanTrackToTrackCovCalculator<N>::operator()
 
 	const AlgebraicMatrixN3 & rightA = (*j)->linearizedTrack()->positionJacobian();
         const AlgebraicMatrixNM & rightB = (*j)->linearizedTrack()->momentumJacobian();
-        AlgebraicSymMatrixNN rightG = (*j)->linearizedTrack()->predictedStateWeight();
+        AlgebraicSymMatrixNN rightG = (*j)->linearizedTrack()->predictedStateWeight(ifail);
         AlgebraicSymMatrixMM rightW = ROOT::Math::SimilarityT(rightB,rightG);
 
         ifail = ! rightW.Invert();

@@ -59,12 +59,13 @@ KalmanVertexTrackUpdator<N>::trackRefit(const VertexState & vertex,
 //   AlgebraicVectorN trackParameters = 
 //   	linTrackState->predictedStateParameters();
 
+  int ifail;
   AlgebraicSymMatrixNN trackParametersWeight = 
-  	linTrackState->predictedStateWeight();
+  	linTrackState->predictedStateWeight(ifail);
 
   AlgebraicSymMatrixMM s = ROOT::Math::SimilarityT(b,trackParametersWeight);
   
-  int ifail = ! s.Invert();
+  ifail = ! s.Invert();
   if(ifail !=0) throw VertexException
   	("KalmanVertexTrackUpdator::S matrix inversion failed");
    

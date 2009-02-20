@@ -96,7 +96,7 @@ KalmanVertexUpdator<N>::positionUpdate (const VertexState & oldVertex,
 	 const RefCountedLinearizedTrackState linearizedTrack, 
 	 const float weight, int sign) const
 {
-  int ifail;
+  int error;
 
   const AlgebraicMatrixN3 & a = linearizedTrack->positionJacobian();
   const AlgebraicMatrixNM & b = linearizedTrack->momentumJacobian();
@@ -105,7 +105,11 @@ KalmanVertexUpdator<N>::positionUpdate (const VertexState & oldVertex,
 //   	linearizedTrack->predictedStateParameters();
 
   AlgebraicSymMatrixNN trackParametersWeight = 
-  	linearizedTrack->predictedStateWeight();
+  	linearizedTrack->predictedStateWeight(error);
+  if(error != 0) {
+    edm::LogWarning("KalmanVertexUpdator") << "predictedState error matrix inversion failed. An invalid vertex will be returned.";
+    return VertexState();
+  }
 
 
   // Jacobians
@@ -115,9 +119,9 @@ KalmanVertexUpdator<N>::positionUpdate (const VertexState & oldVertex,
   //vertex information
 //   AlgebraicSymMatrix33 oldVertexWeight = oldVertex.weight().matrix_new();
   AlgebraicSymMatrixMM s = ROOT::Math::SimilarityT(b,trackParametersWeight);
-  ifail = ! s.Invert(); 
-  if(ifail != 0) {
-    edm::LogWarning("KalmanVertexUpdator") << "S matrix inversion failed";
+  error = ! s.Invert(); 
+  if(error != 0) {
+    edm::LogWarning("KalmanVertexUpdator") << "S matrix inversion failed. An invalid vertex will be returned.";
     return VertexState();
   }
 
@@ -153,6 +157,7 @@ pair <bool, double>  KalmanVertexUpdator<N>::chi2Increment(const VertexState & o
 	const RefCountedLinearizedTrackState linearizedTrack, 
 	float weight) const 
 {
+  int error;
   GlobalPoint newVertexPosition = newVertexState.position();
 
   AlgebraicVector3 newVertexPositionV;
@@ -167,12 +172,16 @@ pair <bool, double>  KalmanVertexUpdator<N>::chi2Increment(const VertexState & o
   	linearizedTrack->predictedStateParameters();
 
   AlgebraicSymMatrixNN trackParametersWeight = 
-  	linearizedTrack->predictedStateWeight();
+  	linearizedTrack->predictedStateWeight(error);
+  if(error!=0) {
+    edm::LogWarning("KalmanVertexUpdator") << "predictedState error matrix inversion failed. An invalid vertex will be returned.";
+    return pair <bool, double> (false, -1.);
+  }
 
   AlgebraicSymMatrixMM s = ROOT::Math::SimilarityT(b,trackParametersWeight);
-  bool ret = s.Invert(); 
-  if(!ret) {
-    edm::LogWarning("KalmanVertexUpdator") << "S matrix inversion failed";
+  error = ! s.Invert();
+  if(error!=0) {
+    edm::LogWarning("KalmanVertexUpdator") << "S matrix inversion failed. An invalid vertex will be returned.";
     return pair <bool, double> (false, -1.);
   }
 
