@@ -163,26 +163,26 @@ int main( int argc, char** argv ){
        token=metadata_svc.getToken(tag);
        coraldb.commit();
        cond::PoolTransaction& pooldb = myconnection.poolTransaction();
-       cond::IOVProxy iov( pooldb, token, false);
-       cond::IOVService iovservice(pooldb);
-       pooldb.start(true);
-       unsigned int counter=0;
-       std::string payloadContainer=iovservice.payloadContainerName(token);
-       std::cout<<"Tag "<<tag
-       	        <<"\nTimeType " << cond::timeTypeSpecs[iov.timetype()].name
-                <<"\nPayloadContainerName "<<payloadContainer<<"\n"
-                <<"since \t till \t payloadToken"<<std::endl;
-       for (cond::IOVProxy::const_iterator ioviterator=iov.begin(); ioviterator!=iov.end(); ioviterator++) {
-	 std::cout<<ioviterator->since() << " \t "<<ioviterator->till() <<" \t "<<ioviterator->wrapperToken();
-	 if (details) {
-	   cond::TypedRef<cond::PayloadWrapper> wrapper(pooldb,ioviterator->wrapperToken());
-	   std::cout << " \t "<< wrapper->summary();
+       {
+	 cond::IOVProxy iov( pooldb, token, false);
+	 cond::IOVService iovservice(pooldb);
+	 unsigned int counter=0;
+	 std::string payloadContainer=iovservice.payloadContainerName(token);
+	 std::cout<<"Tag "<<tag
+		  <<"\nTimeType " << cond::timeTypeSpecs[iov.timetype()].name
+		  <<"\nPayloadContainerName "<<payloadContainer<<"\n"
+		  <<"since \t till \t payloadToken"<<std::endl;
+	 for (cond::IOVProxy::const_iterator ioviterator=iov.begin(); ioviterator!=iov.end(); ioviterator++) {
+	   std::cout<<ioviterator->since() << " \t "<<ioviterator->till() <<" \t "<<ioviterator->wrapperToken();
+	   if (details) {
+	     cond::TypedRef<cond::PayloadWrapper> wrapper(pooldb,ioviterator->wrapperToken());
+	     std::cout << " \t "<< wrapper->summary();
+	   }
+	   std::cout<<std::endl;	
+	   ++counter;
 	 }
-	 std::cout<<std::endl;	
-	 ++counter;
+	 std::cout<<"Total # of payload objects: "<<counter<<std::endl;
        }
-       std::cout<<"Total # of payload objects: "<<counter<<std::endl;
-       pooldb.commit();
        myconnection.disconnect();
      }catch(cond::Exception& er){
        std::cout<<er.what()<<std::endl;
