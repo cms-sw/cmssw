@@ -399,7 +399,7 @@ ProvenanceDumper::work_() {
 
   edm::ProcessHistoryVector* pPhv=&phv_;
   if (meta->FindBranch(edm::poolNames::processHistoryBranchName().c_str()) != 0) {
-    meta->SetBranchAddress(edm::poolNames::processHistoryMapBranchName().c_str(),&pPhv);
+    meta->SetBranchAddress(edm::poolNames::processHistoryBranchName().c_str(),&pPhv);
   }
 
   edm::ProcessHistoryMap phm;
