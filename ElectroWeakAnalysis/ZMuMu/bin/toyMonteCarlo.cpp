@@ -21,25 +21,30 @@
 #include <cmath>
 using namespace std;
 
-
-void fillRandom(int N, TH1F *pdf, TH1F * histo, double _min, double _max){
-  double m =0;
-  int i=0; 
+void fillRandom(int N, TH1F *pdf, TH1F * histo, double min, double max, TRandom3 * rndm){
+  int i=0;
+  double m=0;
+  const double maxY = pdf->GetMaximum();
+  const double nBins = pdf->GetNbinsX();
+  const double xMin = pdf->GetXaxis()->GetXmin();
+  const double xMax = pdf->GetXaxis()->GetXmax();
   do{
-    m=pdf->GetRandom();
-    if(m>=_min && m<=_max){
+    m = rndm->Uniform(min, max);
+    int n = (int)((m - xMin)/(xMax - xMin)*nBins) + 1;
+    double y = pdf->GetBinContent(n);
+    if(rndm->Uniform() < y/maxY){
       histo->Fill(m);
       i++;
     }
-  }while( i< N);
+  }while(i<N);
 } 
 
 
 enum MuTag { globalMu, trackerMu, standaloneMu, undefinedMu };
 
-MuTag mu(double effTrk, double effSa, TRandom3 * eventGenerator) {
-  double _isTraker     = eventGenerator->Rndm();
-  double _isStandAlone = eventGenerator->Rndm();
+MuTag mu(double effTrk, double effSa, TRandom3 * rndm) {
+  double _isTraker     = rndm->Rndm();
+  double _isStandAlone = rndm->Rndm();
   if((_isTraker< effTrk)   && (_isStandAlone< effSa)) return globalMu;
   if((_isStandAlone< effSa)&& (_isTraker >effTrk)) return standaloneMu;
   if((_isTraker < effTrk)  && (_isStandAlone > effSa)) return trackerMu;
@@ -47,8 +52,8 @@ MuTag mu(double effTrk, double effSa, TRandom3 * eventGenerator) {
 }
 
 
-bool efficiencyTag(double eff, TRandom3 * eventGenerator ){
- return (eventGenerator->Rndm()< eff);
+bool efficiencyTag(double eff, TRandom3 * rndm ){
+ return (rndm->Rndm()< eff);
 }
 
 
@@ -63,12 +68,12 @@ public:
     if(x < min_ || x > max_) return 0;
     return exp(-slope_*x)*(a0_ + (a1_ + a2_*x)*x);
   }
-  double rndm(TRandom3 * eventGenerator) const {
+  double rndm(TRandom3 * rndm) const {
     double x, f;
     do {
-      x = eventGenerator->Uniform(min_, max_);
+      x = rndm->Uniform(min_, max_);
       f = operator()(x);
-    } while(eventGenerator->Uniform(0, fmax_) > f);
+    } while(rndm->Uniform(0, fmax_) > f);
     return x;
   }
   double integral() const { return norm_; }
@@ -92,7 +97,7 @@ private:
 };
 
 int main(int argc, char * argv[]){
-  TRandom3 *eventGenerator = new TRandom3();
+  TRandom3 *rndm = new TRandom3();
   int o;
   char* endPtr;
   char* pdf("analysis_Z_133pb_trackIso_3.root");
@@ -104,9 +109,7 @@ int main(int argc, char * argv[]){
   // double slopeMuMuNonIso(.0246876),a0MuMuNonIso(.884777), a1MuMuNonIso(6.67684), a2MuMuNonIso(-0.0523693);
   // BkgShape zMuTkBkgPdf(60., 120., slopeMuTk, a0MuTk, a1MuTk, a2MuTk);
   // BkgShape zMuMuNonIsoBkgPdf(60., 120., slopeMuMuNonIso, a0MuMuNonIso, a1MuMuNonIso, a2MuMuNonIso);
-  BkgShape zMuTkBkgPdf(MIN, MAX, slopeMuTk, a0MuTk, a1MuTk, a2MuTk);
-  BkgShape zMuMuNonIsoBkgPdf(MIN, MAX, slopeMuMuNonIso, a0MuMuNonIso, a1MuMuNonIso, a2MuMuNonIso);
- 
+
   int expt(1), seed(1);
 
   while ((o = getopt(argc, argv,"p:n:s:y:m:M:f:T:S:H:I:h"))!=EOF) {
@@ -145,14 +148,16 @@ int main(int argc, char * argv[]){
       effIso  = strtod(optarg,&endPtr);
       break;
     case 'h':
-      cout<< " -p : input root file for pdf"<<endl <<" -n : number of experiment (default 1)"<<endl <<" -s : seed for generator (default 1)"<<endl <<" -T : efficiency of track (default 0.9984)"<<endl <<" -S : efficiency of standAlone(default 0.9896)"<< endl <<" -I : efficiency of Isolation (default 0.9786)" << endl << " -H : efficiency of HLT (default 0.9155)" <<endl << " -y : yield (default 50550)"<<" -f : scaling_factor for bkg (default 1.0)"<<endl<< " -m : Min (60)"<< endl<< " -M : Max (120)"<<endl;
+      cout<< " -p : input root file for pdf"<<endl <<" -n : number of experiment (default 1)"<<endl <<" -s : seed for generator (default 1)"<<endl <<" -T : efficiency of track (default 0.9984)"<<endl <<" -S : efficiency of standAlone(default 0.9896)"<< endl <<" -I : efficiency of Isolation (default 0.9786)" << endl << " -H : efficiency of HLT (default 0.9155)" <<endl << " -y : yield (default 50550)"<<endl<<" -f : scaling_factor for bkg (default 1.0)"<<endl<< " -m : Min (60)"<< endl<< " -M : Max (120)"<<endl;
       break;
     default:
       break;
     }
   }
+  BkgShape zMuTkBkgPdf(MIN, MAX, slopeMuTk, a0MuTk, a1MuTk, a2MuTk);
+  BkgShape zMuMuNonIsoBkgPdf(MIN, MAX, slopeMuMuNonIso, a0MuMuNonIso, a1MuMuNonIso, a2MuMuNonIso);
   MuTag mu1,mu2;
-  eventGenerator->SetSeed(seed);
+  rndm->SetSeed(seed);
   int count = 0; 
   //PDF
   TFile *inputfile = new TFile(pdf);
@@ -162,9 +167,9 @@ int main(int argc, char * argv[]){
   double Integralzmutkbkg =factor * (zMuTkBkgPdf.integral());
 
   for(int j = 1; j <=expt; ++j){//loop on number of experiments  
-    int N0 = eventGenerator->Poisson(yield);
-    int nMuTkBkg = eventGenerator->Poisson(Integralzmutkbkg);
-    int nMuMuNonIsoBkg = eventGenerator->Poisson(IntegralzmumuNoIsobkg);
+    int N0 = rndm->Poisson(yield);
+    int nMuTkBkg = rndm->Poisson(Integralzmutkbkg);
+    int nMuMuNonIsoBkg = rndm->Poisson(IntegralzmumuNoIsobkg);
     int Nmumu = 0;
     int N2HLT = 0;
     int N1HLT = 0;
@@ -172,12 +177,12 @@ int main(int argc, char * argv[]){
     int NSa = 0;
     int NTk = 0;
     for(int i = 0; i < N0; ++i){//loop on Z Yield
-      mu1=mu(effTrk,effSa, eventGenerator);
-      mu2=mu(effTrk,effSa, eventGenerator);
-      bool iso1 =  efficiencyTag(effIso,eventGenerator);
-      bool iso2 =  efficiencyTag(effIso,eventGenerator);
-      bool trig1 = efficiencyTag(effHlt,eventGenerator);
-      bool trig2 = efficiencyTag(effHlt,eventGenerator);
+      mu1=mu(effTrk,effSa, rndm);
+      mu2=mu(effTrk,effSa, rndm);
+      bool iso1 =  efficiencyTag(effIso,rndm);
+      bool iso2 =  efficiencyTag(effIso,rndm);
+      bool trig1 = efficiencyTag(effHlt,rndm);
+      bool trig2 = efficiencyTag(effHlt,rndm);
    
       if(mu1 == globalMu && mu2 == globalMu){
 	 if(iso1 && iso2){//two global mu isolated
@@ -213,12 +218,12 @@ int main(int argc, char * argv[]){
   
     //Fill signal Histo
    
-    fillRandom(Nmumu,pdfzmm,zMuMu,MIN,MAX);
-    fillRandom(N2HLT, pdfzmm,zMuMu2HLT,MIN,MAX);
-    fillRandom(N1HLT, pdfzmm,zMuMu1HLT,MIN,MAX);
-    fillRandom(NISO,pdfzmm,zMuMuNotIso,MIN,MAX);
-    fillRandom(NSa,pdfzmsa,zMuSa,MIN,MAX);
-    fillRandom(NTk, pdfzmm,zMuTk,MIN,MAX);
+    fillRandom(Nmumu,pdfzmm,zMuMu,MIN,MAX, rndm);
+    fillRandom(N2HLT, pdfzmm,zMuMu2HLT,MIN,MAX, rndm);
+    fillRandom(N1HLT, pdfzmm,zMuMu1HLT,MIN,MAX, rndm);
+    fillRandom(NISO,pdfzmm,zMuMuNotIso,MIN,MAX, rndm);
+    fillRandom(NSa,pdfzmsa,zMuSa,MIN,MAX, rndm);
+    fillRandom(NTk, pdfzmm,zMuTk,MIN,MAX, rndm);
         
     //output	
     char head[30];
@@ -286,10 +291,10 @@ int main(int argc, char * argv[]){
     
     //Fill >Bkg Histograms 
     for(int i = 0; i < nMuTkBkg; ++i) {
-      zMuTkBkg->Fill(zMuTkBkgPdf.rndm(eventGenerator));
+      zMuTkBkg->Fill(zMuTkBkgPdf.rndm(rndm));
     }
     for(int i = 0; i < nMuMuNonIsoBkg; ++i) {
-      zMuMuNotIsoBkg->Fill(zMuMuNonIsoBkgPdf.rndm(eventGenerator));
+      zMuMuNotIsoBkg->Fill(zMuMuNonIsoBkgPdf.rndm(rndm));
     }
     
     char head2[30];
