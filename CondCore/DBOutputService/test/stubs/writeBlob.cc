@@ -4,7 +4,10 @@
 #include <boost/random/linear_congruential.hpp>
 #include <boost/random/uniform_real.hpp>
 #include <boost/random/variate_generator.hpp>
+#include "CondFormats/Common/interface/GenericSummary.h"
+
 #include "writeBlob.h"
+
 typedef boost::minstd_rand base_generator_type;
 writeBlob::writeBlob(const edm::ParameterSet& iConfig):
   m_StripRecordName("mySiStripNoisesRcd")
@@ -44,7 +47,7 @@ writeBlob::analyze( const edm::Event& evt, const edm::EventSetup& evtSetup)
       me->put(detid,theSiStripVector);
     }
 
-    mydbservice->writeOne(me,new std::string("100*256"),
+    mydbservice->writeOne(me,new cond::GenericSummary("100*256"),
 			  mydbservice->currentTime(),
 			  m_StripRecordName);
   }catch(const std::exception& er){

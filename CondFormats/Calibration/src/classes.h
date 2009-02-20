@@ -50,7 +50,7 @@ namespace {
   struct wrappers {
     pool::Ptr<mySiStripNoises> p0;
     cond::DataWrapper<mySiStripNoises> d0;
-    pool::Ptr<Pedestals> d1;
+    pool::Ptr<Pedestals> p1;
     cond::DataWrapper<Pedestals> d1;
   };
 }

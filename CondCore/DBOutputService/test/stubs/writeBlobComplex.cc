@@ -4,6 +4,9 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/Calibration/interface/BlobComplex.h"
 #include "writeBlobComplex.h"
+#include "CondFormats/Common/interface/GenericSummary.h"
+
+
 writeBlobComplex::writeBlobComplex(const edm::ParameterSet& iConfig):
   m_RecordName("BlobComplexRcd")
 {
@@ -27,7 +30,7 @@ writeBlobComplex::analyze( const edm::Event& evt, const edm::EventSetup& evtSetu
     BlobComplex* me = new BlobComplex;
     unsigned int serial = 123;
     me->fill(serial);
-    mydbservice->writeOne(me,new std::string("123"),mydbservice->currentTime(),m_RecordName);
+    mydbservice->writeOne(me,new cond::GenericSummary("123"),mydbservice->currentTime(),m_RecordName);
   }catch(const std::exception& er){
     std::cout<<"caught std::exception "<<er.what()<<std::endl;
     throw er;

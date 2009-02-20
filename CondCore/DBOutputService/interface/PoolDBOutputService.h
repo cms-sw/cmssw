@@ -122,7 +122,7 @@ namespace cond{
 			   const std::string& EventSetupRecordName,
 			   bool withlogging=false){
 
-	createNewIOV( GetTokenFromPointer<T,S>(firstPayloadObj, summary),
+	createNewIOV( GetTokenFromPointer<T>(firstPayloadObj, summary),
 		      firstSinceTime, 
 		      firstTillTime,
 		      EventSetupRecordName,
@@ -149,7 +149,7 @@ namespace cond{
 			   const std::string& EventSetupRecordName,
 			   bool withlogging=false){
 	add(false,
-	    GetTokenFromPointer<T,S>(payloadObj,summary),
+	    GetTokenFromPointer<T>(payloadObj,summary),
 	    tillTime, 
 	    EventSetupRecordName,
 	    withlogging);
@@ -175,7 +175,7 @@ namespace cond{
 			      const std::string& EventSetupRecordName,
 			      bool withlogging=false){
 	add(true,
-	    GetTokenFromPointer<T,S>(payloadObj,summary),
+	    GetTokenFromPointer<T>(payloadObj,summary),
 	    sinceTime, 
 	    EventSetupRecordName,
 	    withlogging);
@@ -204,14 +204,14 @@ namespace cond{
 		    Time_t time, const std::string& recordName, 
 		    bool withlogging=false, bool since=true) {
 	if (isNewTagRequest(recordName) ){
-	  createNewIOV<T,S>(payload, summary,
+	  createNewIOV<T>(payload, summary,
 			  since ? time : beginOfTime(),
 			  since ?  endOfTime() : time, 
 			  recordName, withlogging);
 	}
 	else{
 	  if (since){ 
-	    appendSinceTime<T,S>(payload, summary, time, recordName, withlogging);
+	    appendSinceTime<T>(payload, summary, time, recordName, withlogging);
 	  } 
 	  else { 
 	    appendTillTime<T>(payload, summary, time, recordName, withlogging);

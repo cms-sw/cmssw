@@ -8,3 +8,6 @@ namespace cond {
   typedef Summary GenericSummary;
 
 }
+
+
+#endif
