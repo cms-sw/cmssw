@@ -53,9 +53,8 @@ void popcon::ExPedestalSource::getNewObjects() {
   if (tagInfo().size>0) {
     Ref payload = lastPayload();
     edm::LogInfo   ("ExPedestalsSource")<<"size of last payload  "<< 
-      payload->m_pedestals.size()<<std::endl;
+      payload->data().m_pedestals.size()<<std::endl;
  
-
  }
 
 
