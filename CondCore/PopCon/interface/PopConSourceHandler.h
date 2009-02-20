@@ -15,7 +15,7 @@
 
 namespace cond {
   class Summary;
-};
+}
 
 #include "CondFormats/Common/interface/PayloadWrapper.h"
 #include "CondFormats/Common/interface/GenericSummary.h"
@@ -170,7 +170,7 @@ namespace popcon {
     
     //vector of payload objects and iovinfo to be transferred
     //class looses ownership of payload object
-    oldContainer m_to_transfer;
+    OldContainer m_to_transfer;
 
     private:
     Container m_triplets;

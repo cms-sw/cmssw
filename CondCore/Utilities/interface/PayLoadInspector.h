@@ -87,7 +87,7 @@ namespace cond {
     PayLoadInspector() {}
     PayLoadInspector(const cond::IOVElementProxy & elem) : 
       PoolTransactionSentry(*elem.db()),
-      object(*elem.db(),elem.wrapperToken()){}
+      wrapper(*elem.db(),elem.wrapperToken()){}
 
     std::string dump() const { return ""; }
 
