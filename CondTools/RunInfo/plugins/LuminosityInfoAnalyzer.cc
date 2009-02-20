@@ -57,18 +57,25 @@ namespace edmtest
       std::cout <<"Record \"LuminosityInfoRcd"<<"\" does not exist "<<std::endl;
     }
     edm::ESHandle<lumi::LuminosityInfo> pPeds;
-    std::cout<<"got eshandle"<<std::endl;
     context.get<LuminosityInfoRcd>().get(pPeds);
-    std::cout<<"got context"<<std::endl;
     const lumi::LuminosityInfo* myped=pPeds.product();
-    std::cout<<"lumi::LuminosityInfo* "<<myped<<std::endl;
-    std::cout<<"lumiid "<<myped->lumisectionID()<<std::endl;
-    std::cout<<"deadtime norm  "<<myped->deadTimeNormalization()<<std::endl;
-    std::cout<<"nBunchCrossing  "<<myped->nBunchCrossing()<<std::endl;
-    //std::cout<<myped->lumiAverage(lumi::ET).value<<std::endl;
-    //std::cout<<myped->lumiAverage(lumi::ET).error<<std::endl;
-    //std::cout<<myped->lumiAverage(lumi::ET).quality<<std::endl;
-    //std::cout<<myped->lumiAverage(lumi::ET).normalization<<std::endl;
+    std::cout<<"\n Dumping summary info lumi::LuminosityInfo* "<<myped<<"\n";
+    std::cout<<"lum section number "<<myped->lumisectionID()<<"\n";
+    std::cout<<"nBunchCrossing  "<<myped->nBunchCrossing()<<"\n";
+    std::cout<<"deadtime norm  "<<myped->deadTimeNormalization()<<"\n";
+    std::cout<<"lumi average value (ET) "<<myped->lumiAverage(lumi::ET).value<<"\n";
+    std::cout<<"lumi average error (ET) "<<myped->lumiAverage(lumi::ET).error<<"\n";
+    std::cout<<"lumi average quality (ET) "<<myped->lumiAverage(lumi::ET).quality<<"\n";
+    std::cout<<"lumi normalization (ET) "<<myped->lumiAverage(lumi::ET).normalization<<std::endl;
+    std::cout<<"\n Dumping detail info of BX 1 "<<myped<<"\n";
+    std::cout<<"ET lumi value  "<<myped->bunchCrossingInfo(1,lumi::ET).lumivalue<<"\n";
+    std::cout<<"ET lumi error "<<myped->bunchCrossingInfo(1,lumi::ET).lumierr<<"\n";
+    std::cout<<"ET lumi quality "<<myped->bunchCrossingInfo(1,lumi::ET).lumiquality<<"\n";
+    std::cout<<"ET lumi normalization "<<myped->bunchCrossingInfo(1,lumi::ET).normalization<<"\n\n";
+    std::cout<<"OCCD1 lumi value  "<<myped->bunchCrossingInfo(1,lumi::OCCD1).lumivalue<<"\n";
+    std::cout<<"OCCD1 lumi error "<<myped->bunchCrossingInfo(1,lumi::OCCD1).lumierr<<"\n";
+    std::cout<<"OCCD1 lumi quality "<<myped->bunchCrossingInfo(1,lumi::OCCD1).lumiquality<<"\n";
+    std::cout<<"OCCD1 lumi normalization "<<myped->bunchCrossingInfo(1,lumi::OCCD1).normalization<<std::endl;
   }
   DEFINE_FWK_MODULE(LuminosityInfoAnalyzer);
 }
