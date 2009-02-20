@@ -176,7 +176,7 @@ void L1GctHardwareJetFinder::findProtoClusters()
     unsigned phi = m_localMaxima.at(j).gctPhi();
     int16_t  bx  = m_localMaxima.at(j).bx();
 
-    L1GctRegion temp(etCluster, ovrFlowOr, tauVetoOr, eta, phi, bx);
+    L1GctRegion temp(L1GctRegion::makeProtoJetRegion(etCluster, ovrFlowOr, tauVetoOr, false, eta, phi, bx));
     if (localPhi==0) {
     // Store "top edge" jets
       topJets.at(numberOfTopJets) = temp;
@@ -285,7 +285,7 @@ void L1GctHardwareJetFinder::findFinalClusters()
 			  unsigned phi = m_rcvdProtoJets.at(j).gctPhi();
 			  int16_t  bx  = m_rcvdProtoJets.at(j).bx();
 
-			  L1GctRegion temp(etCluster, ovrFlowOr, tauVetoOr, eta, phi, bx);
+			  L1GctRegion temp(L1GctRegion::makeFinalJetRegion(etCluster, ovrFlowOr, tauVetoOr, eta, phi, bx));
 			  m_clusters.at(j) = temp;
 			}
 

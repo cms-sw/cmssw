@@ -93,10 +93,11 @@ void L1GctJetFinderBase::setNeighbourJetFinders(std::vector<L1GctJetFinderBase*>
 /// Set pointer to parameters - needed to complete the setup
 void L1GctJetFinderBase::setJetFinderParams(const L1GctJetFinderParams* jfpars)
 {
-  m_CenJetSeed = jfpars->CENTRAL_JET_SEED;
-  m_FwdJetSeed = jfpars->FORWARD_JET_SEED;
-  m_TauJetSeed = jfpars->TAU_JET_SEED;
-  m_EtaBoundry = jfpars->CENTRAL_FORWARD_ETA_BOUNDARY;
+  m_CenJetSeed = jfpars->getCenJetEtSeedGct();
+  m_FwdJetSeed = jfpars->getForJetEtSeedGct();
+  m_TauJetSeed = jfpars->getTauJetEtSeedGct();
+  m_EtaBoundry = jfpars->getCenForJetEtaBoundary();
+  m_tauIsolationThreshold = jfpars->getTauIsoEtThresholdGct();
   m_gotJetFinderParams = true;
 }
 

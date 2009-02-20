@@ -87,6 +87,11 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
     nextLut.reset ( new L1GctJetEtCalibrationLut() );
   }
 
+  // Setup the tau algorithm parameters
+  bool useImprovedTauAlgo            = ps.getParameter<bool>("useImprovedTauAlgorithm");
+  bool ignoreTauVetoBitsForIsolation = ps.getParameter<bool>("ignoreRCTTauVetoBitsForIsolation");
+  m_gct->setupTauAlgo(useImprovedTauAlgo, ignoreTauVetoBitsForIsolation);
+
   // set verbosity (not implemented yet!)
   //  m_gct->setVerbose(m_verbose);
 
@@ -175,7 +180,6 @@ int L1GctEmulator::configureGct(const edm::EventSetup& c)
 	m_jetEtCalibLuts.at(ieta)->setFunction(calibFun.product());
 	m_jetEtCalibLuts.at(ieta)->setOutputEtScale(etScale.product());
       }
-
 
       // pass all the setup info to the gct
       m_gct->setJetEtCalibrationLuts(m_jetEtCalibLuts);

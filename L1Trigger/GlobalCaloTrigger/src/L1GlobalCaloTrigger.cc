@@ -306,8 +306,8 @@ void L1GlobalCaloTrigger::bxProcess(const int bx) {
 void L1GlobalCaloTrigger::setJetFinderParams(const L1GctJetFinderParams* jfpars) {
 
   // Some parameters not (yet?) implemented
-  if ((jfpars->CENTRAL_FORWARD_ETA_BOUNDARY==7) &&
-      (jfpars->CENTRAL_JET_SEED==jfpars->TAU_JET_SEED)) { 
+  if ((jfpars->getCenForJetEtaBoundary()==7) &&
+      (jfpars->getCenJetEtSeedGct()==jfpars->getTauJetEtSeedGct())) { 
 
     m_jetFinderParams = jfpars;
     // Need to propagate the new parameters to all the JetFinders
@@ -328,6 +328,17 @@ void L1GlobalCaloTrigger::setJetEtCalibrationLuts(const L1GlobalCaloTrigger::lut
     theJetLeafCards.at(i)->getJetFinderA()->setJetEtCalibrationLuts(jfluts);
     theJetLeafCards.at(i)->getJetFinderB()->setJetEtCalibrationLuts(jfluts);
     theJetLeafCards.at(i)->getJetFinderC()->setJetEtCalibrationLuts(jfluts);
+  }
+}
+
+/// Setup the tau algorithm parameters
+void L1GlobalCaloTrigger::setupTauAlgo(const bool useImprovedAlgo, const bool ignoreVetoBitsForIsolation)
+{
+  // Need to propagate the new parameters to all the JetFinders
+  for (int i=0; i<N_JET_LEAF_CARDS; i++) {
+    theJetLeafCards.at(i)->getJetFinderA()->setupTauAlgo(useImprovedAlgo, ignoreVetoBitsForIsolation);
+    theJetLeafCards.at(i)->getJetFinderB()->setupTauAlgo(useImprovedAlgo, ignoreVetoBitsForIsolation);
+    theJetLeafCards.at(i)->getJetFinderC()->setupTauAlgo(useImprovedAlgo, ignoreVetoBitsForIsolation);
   }
 }
 
