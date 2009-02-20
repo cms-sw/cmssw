@@ -95,7 +95,7 @@ void CSCTFAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c){
 				int sector = 6*(trk->first.endcap()-1)+trk->first.sector()-1;
 				int tbin   = trk->first.BX();
 				edm::LogInfo("CSCTFAnalyzer") << "   Track sector: "<<(sector+1)<<"  tbin: "<<tbin<<" "<<
-					"TRK(mode="<<((trk->first.ptLUTAddress()>>16)&0xF)<<",eta="<<trk->first.eta_packed()<<",phi="<<trk->first.phi_packed()<<")";
+					"TRK(mode="<<((trk->first.ptLUTAddress()>>16)&0xF)<<",eta="<<trk->first.eta_packed()<<",phi="<<trk->first.localPhi()<<")";
 			}
 		} else edm::LogInfo("CSCTFAnalyzer")<<"  No valid L1CSCTrackCollection products found";
 	}
