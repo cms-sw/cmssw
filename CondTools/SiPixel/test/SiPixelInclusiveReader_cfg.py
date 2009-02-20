@@ -2,23 +2,25 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("SiPixelInclusiveReader")
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
-
-process.load("CalibTracker.Configuration.TrackerAlignment.TrackerAlignment_Fake_cff")
-
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
-
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-
 process.load("CondTools.SiPixel.SiPixelGainCalibrationService_cfi")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
+
+
+###### OUTPUT HISTOGRAM FILE NAME #######
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string("histo.root")
                                    )
 
 
+
+
+##### DATABASE CONNECTION INFO ######
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = 'oracle://cms_orcoff_prep/CMS_COND_PIXEL_COMM_21X'
-process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
+process.CondDBCommon.connect = 'sqlite_file:test.db'
+process.CondDBCommon.DBParameters.authenticationPath = '.'
 process.CondDBCommon.DBParameters.messageLevel = 1
 
 process.maxEvents = cms.untracked.PSet(
@@ -35,28 +37,51 @@ process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
     ignoreTotal = cms.untracked.int32(0)
 )
 
-process.PoolDBESSource = cms.ESSource("PoolDBESSource",
+
+
+###### TAGS TO READ ######
+process.PoolDBESSourceForReader = cms.ESSource("PoolDBESSource",
     process.CondDBCommon,
     BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
     toGet = cms.VPSet(cms.PSet(
-        record = cms.string('SiPixelFedCablingMapRcd'),
-        tag = cms.string('SiPixelFedCablingMap_v14')
-    ), 
+           record = cms.string('SiPixelFedCablingMapRcd'),
+           tag = cms.string('SiPixelFedCablingMap_v14')
+        ), 
         cms.PSet(
             record = cms.string('SiPixelLorentzAngleRcd'),
-            tag = cms.string('SiPixelLorentzAngle_v01')
+            tag = cms.string('SiPixelLorentzAngle_v02')
+        ),
+        cms.PSet(
+            record = cms.string('SiPixelTemplateDBObjectRcd'),
+            tag = cms.string('SiPixelTemplateDBObject')
+        ),
+        cms.PSet(
+            record = cms.string('SiPixelQualityRcd'),
+            tag = cms.string('SiPixelQuality_ideal')
         ), 
         cms.PSet(
             record = cms.string('SiPixelGainCalibrationOfflineRcd'),
-            tag = cms.string('SiPixelGainCalibration_TBuffer_const')
-        ), 
+            tag = cms.string('V2_trivial_31X_TBuffer_startup_mc')
+        ),
         cms.PSet(
             record = cms.string('SiPixelGainCalibrationForHLTRcd'),
-            tag = cms.string('SiPixelGainCalibration_TBuffer_hlt_const')
+            tag = cms.string('V2_trivial_31X_TBuffer_startup_hlt_mc')
         ))
 )
 
-process.prefer("PoolDBESSource")
+
+
+
+
+
+###### PREFER ABOVE TAGS #######
+process.esprefer_DBReaders = cms.ESPrefer("PoolDBESSource", "PoolDBESSourceForReader")
+
+
+
+
+
+####### GAIN READERS ######
 process.SiPixelCondObjOfflineReader = cms.EDFilter("SiPixelCondObjOfflineReader",
     process.SiPixelGainCalibrationServiceParameters
 )
@@ -65,13 +90,39 @@ process.SiPixelCondObjForHLTReader = cms.EDFilter("SiPixelCondObjForHLTReader",
     process.SiPixelGainCalibrationServiceParameters
 )
 
+
+
+####### LORENTZ ANGLE READER ######
 process.SiPixelLorentzAngleReader = cms.EDFilter("SiPixelLorentzAngleReader")
 
+
+
+####### CABLING MAP READER ######
 process.SiPixelFedCablingMapAnalyzer = cms.EDAnalyzer("SiPixelFedCablingMapAnalyzer")
 
-#process.print = cms.OutputModule("AsciiOutputModule")
 
-process.p = cms.Path(process.SiPixelCondObjOfflineReader*process.SiPixelLorentzAngleReader*process.SiPixelFedCablingMapAnalyzer*process.SiPixelCondObjForHLTReader)
-#process.ep = cms.EndPath(process.print)
+#######  QUALITY READER #######
+process.SiPixelBadModuleReader = cms.EDAnalyzer("SiPixelBadModuleReader")
+
+
+####### TEMPLATE OBJECT READER ######
+#Change to True if you would like a more detailed error output
+wantDetailedOutput = False
+#Change to True if you would like to output the full template database object
+wantFullOutput = False
+
+process.SiPixelTemplateDBObjectReader = cms.EDFilter("SiPixelTemplateDBObjectReader",
+                              siPixelTemplateCalibrationLocation = cms.string(
+                             "CalibTracker/SiPixelESProducers"),
+                              wantDetailedTemplateDBErrorOutput = cms.bool(wantDetailedOutput),
+                              wantFullTemplateDBOutput = cms.bool(wantFullOutput))
+
+
+
+
+
+####### DO ALL READERS (OR SELECT ONE YOU WANT) ########
+process.p = cms.Path(process.SiPixelCondObjOfflineReader*process.SiPixelLorentzAngleReader*process.SiPixelFedCablingMapAnalyzer*process.SiPixelCondObjForHLTReader*process.SiPixelTemplateDBObjectReader*process.SiPixelBadModuleReader)
+
 
 
