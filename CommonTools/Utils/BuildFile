@@ -1,0 +1,19 @@
+<use name=FWCore/Utilities>
+<use name=Utilities/General>
+<use name=rootrflx>
+<use name=rootminuit>
+<use name=rootminuit2>
+<use name=rootgraphics>
+<use name=boost>
+<use name=DataFormats/Math>
+<export>
+  <lib name=CommonToolsUtils>
+  <use name=FWCore/Utilities>
+  <use name=Utilities/General>
+  <use name=rootrflx>
+  <use name=rootminuit>
+  <use name=rootminuit2>
+  <use name=rootgraphics>
+  <use name=boost>
+  <use name=DataFormats/Math>
+</export>
