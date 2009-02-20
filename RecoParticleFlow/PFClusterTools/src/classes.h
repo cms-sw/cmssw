@@ -11,9 +11,10 @@
 #include "RecoParticleFlow/PFClusterTools/interface/ParticleDeposit.h"  
 #include "RecoParticleFlow/PFClusterTools/interface/SpaceVoxel.h"    
 #include "RecoParticleFlow/PFClusterTools/interface/TreeUtility.h"
-#include "RecoParticleFlow/PFClusterTools/interface/Exercises2.h"
 #include "RecoParticleFlow/PFClusterTools/interface/Exercises3.h"
 #include "RecoParticleFlow/PFClusterTools/interface/IO.h"
 #include "RecoParticleFlow/PFClusterTools/interface/Utils.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFClusterCalibration.h"
+#include "RecoParticleFlow/PFClusterTools/interface/Erl_mlp.h"
+#include "RecoParticleFlow/PFClusterTools/interface/CalibCompare.h"
 

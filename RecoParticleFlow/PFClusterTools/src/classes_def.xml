@@ -8,11 +8,12 @@
   <class name="pftools::PFToolsException"/> 
   <class name="pftools::ParticleDeposit"/>
   <class name="pftools::SpaceVoxel"/>
-  <class name="pftools::Exercises2"/>
   <class name="pftools::Exercises3"/>
   <class name="pftools::CandidateWrapper" />
   <class name="pftools::IO" />
   <class name="pftools::PFClusterCalibration" />
+  <class name="pftools::Erl_mlp" />
+  <class name="pftools::CalibCompare" />
   <class name="std::vector<pftools::ParticleDeposit*>"/>
   <class name="std::vector<boost::shared_ptr<pftools::DetectorElement> >"/>
   <class name="std::vector<boost::shared_ptr<pftools::ParticleDeposit> >"/>
