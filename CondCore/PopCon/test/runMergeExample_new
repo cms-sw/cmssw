@@ -39,15 +39,15 @@ rm tmp_PopConExample.py
 
 
 echo "inspect db"
-cmscond_list_iov -c sqlite_file:pop_test.db
+cmscond_list_iov -c sqlite_file:pop_test.db 
 cmscond_list_iov -c sqlite_file:pop_test1.db
 cmscond_list_iov -c sqlite_file:pop_test2.db
 
 echo "get iov details"
-cmscond_list_iov -c sqlite_file:pop_test.db -t Example_tag
-cmscond_list_iov -c sqlite_file:pop_test1.db -t Example_tag
-cmscond_list_iov -c sqlite_file:pop_test2.db -t Example_tag
-cmscond_list_iov -c sqlite_file:pop_test3.db -t Example_tag2
+cmscond_list_iov -c sqlite_file:pop_test.db -t Example_tag -s
+cmscond_list_iov -c sqlite_file:pop_test1.db -t Example_tag -s
+cmscond_list_iov -c sqlite_file:pop_test2.db -t Example_tag -s
+cmscond_list_iov -c sqlite_file:pop_test3.db -t Example_tag2 -s
 
 
 echo "import"
@@ -55,7 +55,7 @@ cmscond_export_iov -s sqlite_file:pop_test1.db -t Example_tag -d sqlite_file:pop
 cmscond_export_iov -s sqlite_file:pop_test2.db -t Example_tag -d sqlite_file:pop_test.db  -l sqlite_file:log.db
 cmscond_export_iov -s sqlite_file:pop_test3.db -i Example_tag2 -b 64 -e 89 -t Example_tag -d sqlite_file:pop_test.db -l sqlite_file:log.db
 
-cmscond_list_iov -c sqlite_file:pop_test.db -t Example_tag
+cmscond_list_iov -c sqlite_file:pop_test.db -t Example_tag -s
 echo "duplicate"
 cmscond_duplicate_iov -c sqlite_file:pop_test.db -t Example_tag -f 65 -s 92  -l sqlite_file:log.db
 cmscond_duplicate_iov -c sqlite_file:pop_test.db -t Example_tag -f 45 -s 95  -l sqlite_file:log.db
@@ -67,7 +67,7 @@ echo "rename"
 cmscond_list_iov -c sqlite_file:pop_test.db -t Example_tag > Example_tag.dump
 sed -i 's/Example_tag/Example_tag_renamed/' Example_tag.dump
 cmscond_load_iov -c sqlite_file:pop_test.db Example_tag.dump
-cmscond_list_iov -c sqlite_file:pop_test.db -t Example_tag_renamed
+cmscond_list_iov -c sqlite_file:pop_test.db -t Example_tag_renamed -s
 
 
 #note: tag-name, log-name and db-name must be the same as in the cfg file  
