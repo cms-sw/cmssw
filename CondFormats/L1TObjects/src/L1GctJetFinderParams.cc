@@ -9,7 +9,7 @@ L1GctJetFinderParams::L1GctJetFinderParams() :
   tauIsoEtThreshold_(0.),
   htJetEtThreshold_(0.),
   mhtJetEtThreshold_(0.),
-  cenForJetEtaBoundary_(0.)
+  cenForJetEtaBoundary_(0)
 { }
 
 L1GctJetFinderParams::L1GctJetFinderParams(double rgnEtLsb,
