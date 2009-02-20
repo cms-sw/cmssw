@@ -324,13 +324,13 @@ void Hector::filterFP420(){
 	    part->smearE();  // in GeV, default is SBE=0.79
 	  }
 	}
-	if ( direction == 1 ) {
-	  part->computePath( m_beamlineFP4201, 1 );
+	if ( direction == 1 && m_beamlineFP4201 != 0 ) {
+	  part->computePath( m_beamlineFP4201 );
 	  is_stop = part->stopped( m_beamlineFP4201 );
 	  if(m_verbosity) cout << "=== Hector:filterFP420:   pos          is_stop=  "<< is_stop << endl;
 	}
-	else if ( direction == -1 ){
-	  part->computePath( m_beamlineFP4202, -1 );
+	else if ( direction == -1 && m_beamlineFP4202 != 0 ){
+	  part->computePath( m_beamlineFP4202 );
 	  is_stop = part->stopped( m_beamlineFP4202 );
 	  if(m_verbosity) cout << "=== Hector:filterFP420:   neg          is_stop=  "<< is_stop << endl;
 	}
@@ -406,14 +406,14 @@ void Hector::filterZDC(){
 	    part->smearE();  // in GeV, default is SBE=0.79
 	  }
 	}
-	if ( direction == 1 ) {
-	  part->computePath( m_beamlineZDC1, 1 );
+	if ( direction == 1 && m_beamlineZDC1 != 0 ){
+	  part->computePath( m_beamlineZDC1 );
 	  is_stop_zdc = part->stopped( m_beamlineZDC1 );
   	  m_isStoppedzdc[line] = is_stop_zdc;
 	  if(m_verbosity) cout << "=== Hector:filterZDC:     pos        is_stop_zdc=  "<< is_stop_zdc << endl;
 	}
-	else if ( direction == -1 ){
-	  part->computePath( m_beamlineZDC2, -1 );
+	else if ( direction == -1 && m_beamlineZDC2 != 0 ){
+	  part->computePath( m_beamlineZDC2 );
 	  is_stop_zdc = part->stopped( m_beamlineZDC2 );
 	  m_isStoppedzdc[line] = is_stop_zdc;
 	  if(m_verbosity) cout << "=== Hector:filterZDC:    neg         is_stop_zdc=  "<< is_stop_zdc << endl;
@@ -477,14 +477,14 @@ void Hector::filterD1(){
 	    part->smearE();  // in GeV, default is SBE=0.79
 	  }
 	}
-	if ( direction == 1 ) {
-	  part->computePath( m_beamlineD11, 1 );
+	if ( direction == 1 && m_beamlineD11 != 0 ) {
+	  part->computePath( m_beamlineD11 );
 	  is_stop_d1 = part->stopped( m_beamlineD11 );
 	  m_isStoppedd1[line] = is_stop_d1;
 	  if(m_verbosity) cout << "=== Hector:filterD1:    pos         is_stop_d1=  "<< is_stop_d1 << endl;
 	}
-	else  if ( direction == -1 ){
-	  part->computePath( m_beamlineD12, -1 );
+	else  if ( direction == -1 && m_beamlineD12 != 0 ){
+	  part->computePath( m_beamlineD12 );
 	  is_stop_d1 = part->stopped( m_beamlineD12 );
 	  m_isStoppedd1[line] = is_stop_d1;
 	  if(m_verbosity) cout << "=== Hector:filterD1:    neg         is_stop_d1=  "<< is_stop_d1 << endl;
