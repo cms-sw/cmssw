@@ -59,7 +59,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 
 process.validation = cms.Path(
     process.hltvalidation
-   # process.muonTriggerRateTimeAnalyzer
+   # process.HLTMuonVal
    #+process.HLTTauVal
    #+process.EcalPi0Mon
    #+process.EcalPhiSymMon

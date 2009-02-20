@@ -53,6 +53,7 @@ process.source.fileNames = cms.untracked.vstring(
 )
 process.validation = cms.Path(
     process.hltvalidation
+    # process.HLTMuonVal
     # process.muonTriggerRateTimeAnalyzer
     #+process.HLTTauVal
     #+process.EcalPi0Mon
