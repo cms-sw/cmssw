@@ -30,7 +30,7 @@ SiPixelGainCalibrationOffline::SiPixelGainCalibrationOffline(float minPed, float
   minGain_(minGain),
   maxGain_(maxGain),
   numberOfRowsToAverageOver_(80),
-  nBinsToUseForEncoding_(254),
+  nBinsToUseForEncoding_(253),
   deadFlag_(255),
   noisyFlag_(254)
 {
@@ -101,7 +101,9 @@ void SiPixelGainCalibrationOffline::getDetIds(std::vector<uint32_t>& DetIds_) co
 
 void SiPixelGainCalibrationOffline::setDataGain(float gain, const int& nRows, std::vector<char>& vped, bool thisColumnIsDead, bool thisColumnIsNoisy){
   
-  float theEncodedGain  = encodeGain(gain);
+  float theEncodedGain;
+  if(!thisColumnIsDead && !thisColumnIsNoisy)
+    theEncodedGain = encodeGain(gain);
 
   unsigned int gain_  = (static_cast<unsigned int>(theEncodedGain)) & 0xFF;
 

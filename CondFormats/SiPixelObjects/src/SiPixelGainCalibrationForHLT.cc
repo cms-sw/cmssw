@@ -96,8 +96,12 @@ void SiPixelGainCalibrationForHLT::getDetIds(std::vector<uint32_t>& DetIds_) con
 
 void SiPixelGainCalibrationForHLT::setData(float ped, float gain, std::vector<char>& vped, bool thisColumnIsDead, bool thisColumnIsNoisy){
   
-  float theEncodedGain  = encodeGain(gain);
-  float theEncodedPed   = encodePed (ped);
+  float theEncodedGain;
+  float theEncodedPed;
+  if(!thisColumnIsDead && !thisColumnIsNoisy){
+    theEncodedPed = encodeGain(gain);
+    theEncodedPed = encodePed (ped);
+  }
 
   unsigned int ped_   = (static_cast<unsigned int>(theEncodedPed))  & 0xFF; 
   unsigned int gain_  = (static_cast<unsigned int>(theEncodedGain)) & 0xFF;

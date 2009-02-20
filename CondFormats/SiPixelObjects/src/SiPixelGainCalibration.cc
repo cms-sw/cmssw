@@ -95,8 +95,12 @@ void SiPixelGainCalibration::getDetIds(std::vector<uint32_t>& DetIds_) const {
 
 void SiPixelGainCalibration::setData(float ped, float gain, std::vector<char>& vped, bool isDeadPixel, bool isNoisyPixel){
   
-  float theEncodedGain  = encodeGain(gain);
-  float theEncodedPed   = encodePed (ped);
+  float theEncodedGain;
+  float theEncodedPed;
+  if(!isDeadPixel && !isNoisyPixel){
+    theEncodedPed = encodeGain(gain);
+    theEncodedPed = encodePed (ped);
+  }
 
   unsigned int ped_   = (static_cast<unsigned int>(theEncodedPed))  & 0xFF; 
   unsigned int gain_  = (static_cast<unsigned int>(theEncodedGain)) & 0xFF;
