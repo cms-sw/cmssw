@@ -27,6 +27,9 @@
 
 #include<iostream>
 
+namespace cond {
+  class Summary;
+};
 
 
 
@@ -39,6 +42,7 @@ namespace popcon {
   class PopCon {
   public:
     typedef cond::Time_t Time_t;
+    typedef cond::Summary Summary;
 
     PopCon(const edm::ParameterSet& pset);
      
@@ -86,56 +90,49 @@ namespace popcon {
 
 
   template<typename T>
-  void PopCon::writeOne(T * payload, Time_t time) {
-    m_dbService->writeOne(payload, time, m_record, m_LoggingOn, m_since);
+  void PopCon::writeOne(T * payload, Summary * summary, Time_t time) {
+    m_dbService->writeOne(payload, summary, time, m_record, m_LoggingOn, m_since);
   }
 
+  
   template<typename Container>
   void displayHelper(Container const & payloads, bool sinceAppend) {
     typename Container::const_iterator it;
-        for (it = payloads.begin(); it != payloads.end(); it++){
-      edm::LogInfo ("PopCon")<< (sinceAppend ? "Since " :" Till ") << (*it).second << std::endl;
-     }
+    for (it = payloads.begin(); it != payloads.end(); it++)
+      edm::LogInfo ("PopCon")<< (sinceAppend ? "Since " :" Till ") << (*it).time << std::endl;
   }     
   
- 
+  
   template<typename Container>
-    const std::string displayIovHelper(Container const & payloads, bool sinceAppend) {
-    typename Container::const_iterator it;
-    size_t i =0, j=0;
-    std::ostringstream s; std::ostringstream ss; 
+  const std::string displayIovHelper(Container const & payloads, bool sinceAppend) {
+    std::ostringstream s;
     // when only 1 payload is transferred; 
-    for (it = payloads.begin(); it != payloads.end(); it++){
-      i++; 
-      if (i ==1)   s <<(sinceAppend ? "Since " :" Till ") << (*it).second <<  "; " ;
-    }
-    // when more than one payload are transferred;  
-    if (i>1) {
-      ss << "\ntransferred " << i << " payloads:\n"  ;
-      for (it = payloads.begin(); it != payloads.end(); it++){
-	j++;
-	if (j==1) ss <<   "first payload " << (sinceAppend ? "Since " :" Till ") << (*it).second <<  ";\n" ;
-	if (j==i) ss<< "last payload " << (sinceAppend ? "Since " :" Till ") << (*it).second <<  ";\n" ;  
-      }  
-    } 
-    return ( (i ==1)  ?  s.str(): ss.str() ) ; 
-  }            
+    if ( payloads.size()==1)  
+      s <<(sinceAppend ? "Since " :" Till ") << (*payloads.begin()).time <<  "; " ;
+    else{
+      // when more than one payload are transferred;  
+      ss <<   "first payload " << (sinceAppend ? "Since " :" Till ") <<  (*payloads.begin()).time <<  ";\n" ;
+      ss<< "last payload " << (sinceAppend ? "Since " :" Till ") << (*payloads.rbegin()).time <<  ";\n" ;  
+    }  
+    return s.str();
+  }
   
- 
- 
   
-    template<typename Source>
-      void PopCon::write(Source const & source) {
-      typedef typename Source::value_type value_type;
-      typedef typename Source::Container Container;
-      
-      initialize();
-      std::pair<Container const *, std::string const> ret = source(&m_dbService->connection(),
-								   m_tagInfo,m_logDBEntry); 
-     Container const & payloads = *ret.first;
-     
-
-  // adding info about the popcon user
+  
+  
+  
+  template<typename Source>
+  void PopCon::write(Source const & source) {
+    typedef typename Source::value_type value_type;
+    typedef typename Source::Container Container;
+    
+    initialize();
+    std::pair<Container const *, std::string const> ret = source(&m_dbService->connection(),
+								 m_tagInfo,m_logDBEntry); 
+    Container const & payloads = *ret.first;
+    
+    
+    // adding info about the popcon user
     std::ostringstream user_info;
     char * user= ::getenv("USER");
     char * hostname= ::getenv("HOSTNAME");
@@ -150,12 +147,14 @@ namespace popcon {
      
      
      displayHelper(payloads,m_since);
+     
      std::for_each(payloads.begin(),payloads.end(),
-		    boost::bind(&popcon::PopCon::writeOne<value_type>,this,
-				boost::bind(&Container::value_type::first,_1),
-				boost::bind(&Container::value_type::second,_1)
-				)
-		    );
+		   boost::bind(&popcon::PopCon::writeOne<value_type>,this,
+			       boost::bind(&Container::value_type::payload,_1),
+			       boost::bind(&Container::value_type::summary,_1),
+			       boost::bind(&Container::value_type::time,_1)
+			       )
+		   );
      
      
       finalize();
