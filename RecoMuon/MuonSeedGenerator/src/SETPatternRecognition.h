@@ -9,21 +9,21 @@ class SETPatternRecognition: public MuonSeedVPatternRecognition
 {
 public:
   explicit SETPatternRecognition(const edm::ParameterSet & pset);
-
-  //FIXME deal with ServiceProxy destrction
+  virtual ~SETPatternRecognition() {}
+  /** Output is a cluster, with possibly more than one hit per layer */
   virtual void produce(const edm::Event& event, const edm::EventSetup& eSetup,
                        std::vector<MuonRecHitContainer> & result);
 
+  void setServiceProxy(MuonServiceProxy * service) {theService = service;}
+
 private:
-  bool useSegmentsInTrajectory;
-  bool useRPCs;
+  bool useRPCs; 
 
   edm::InputTag DTRecSegmentLabel;
   edm::InputTag CSCRecSegmentLabel;
   edm::InputTag RPCRecSegmentLabel;
 
-  MuonServiceProxy *theService;
-
+  MuonServiceProxy * theService;
 };
 
 #endif

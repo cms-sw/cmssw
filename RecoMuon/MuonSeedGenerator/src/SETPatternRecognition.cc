@@ -22,13 +22,9 @@ using namespace std;
 SETPatternRecognition::SETPatternRecognition(const ParameterSet& parameterSet)
 : MuonSeedVPatternRecognition(parameterSet.getParameter<ParameterSet>("SETTrajBuilderParameters").getParameter<ParameterSet>("FilterParameters"))
 {
-  const string metname = "Muon|RecoMuon|SETMuonSeedSeed";  
-  //std::cout<<" The SET SEED"<<std::endl;
+  const string metname = "Muon|RecoMuon|SETPatternRecognition";  
   // Parameter set for the Builder
   ParameterSet trajectoryBuilderParameters = parameterSet.getParameter<ParameterSet>("SETTrajBuilderParameters");
-  ParameterSet serviceParameters = parameterSet.getParameter<ParameterSet>("ServiceParameters");
-  theService        = new MuonServiceProxy(serviceParameters);
-
   // The inward-outward fitter (starts from seed state)
   ParameterSet filterPSet = trajectoryBuilderParameters.getParameter<ParameterSet>("FilterParameters");
 
@@ -391,6 +387,7 @@ void SETPatternRecognition::produce(const edm::Event& event, const edm::EventSet
     //std::cout<<"Next Cluster..."<<std::endl;
     segments_clusters.push_back(seeds[NNN]);
   }
-
 }
+
+
 
