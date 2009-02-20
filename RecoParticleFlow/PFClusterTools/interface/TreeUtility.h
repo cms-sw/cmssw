@@ -27,6 +27,11 @@ public:
 	
 	TreeUtility();
 	virtual ~TreeUtility();
+	
+	unsigned getParticleDepositsDirectly(TChain& sourceChain,
+			std::vector<ParticleDepositPtr>& toBeFilled,
+			CalibrationTarget target, DetectorElementPtr offset,
+			DetectorElementPtr ecal, DetectorElementPtr hcal, bool includeOffset = false);
 
 	unsigned getCalibratablesFromRootFile(TChain& tree,
 			std::vector<Calibratable>& toBeFilled);
@@ -36,6 +41,8 @@ public:
 			std::vector<ParticleDepositPtr>& toBeFilled,
 			CalibrationTarget target, DetectorElementPtr offset,
 			DetectorElementPtr ecal, DetectorElementPtr hcal, bool includeOffset = false);
+			
+	void dumpCaloDataToCSV(TChain& chain, std::string csvFilename, double range);
 
 	
 private:
