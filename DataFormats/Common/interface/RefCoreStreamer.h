@@ -39,7 +39,10 @@ namespace edm {
 
   class ProductIDStreamer : public TClassStreamer {
   public:
-    explicit ProductIDStreamer(EDProductGetter const* ep) : cl_("edm::ProductID"), prodGetter_(ep) {}
+    ProductIDStreamer(EDProductGetter const* ep, bool productIDwasLong) :
+    cl_("edm::ProductID"),
+    prodGetter_(ep),
+    productIDwasLong_(productIDwasLong) {}
 
     void setProductGetter(EDProductGetter const* ep) {
 	prodGetter_ = ep;
@@ -49,9 +52,10 @@ namespace edm {
   private:
     TClassRef cl_;
     EDProductGetter const* prodGetter_;
+    bool productIDwasLong_;
   };
 
-  void setRefCoreStreamer(bool oldFormat = false);
-  void setRefCoreStreamer(EDProductGetter const* ep, bool oldFormat = false);
+  void setRefCoreStreamer(bool resetAll = false);
+  void setRefCoreStreamer(EDProductGetter const* ep, bool oldFormat = false, bool productIDwasLong = false);
 } 
 #endif

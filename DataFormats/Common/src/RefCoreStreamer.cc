@@ -11,10 +11,16 @@ namespace edm {
     if (R__b.IsReading()) {
       UInt_t i0, i1;
       R__b.ReadVersion(&i0, &i1, cl_);
-      unsigned int id;
-      R__b >> id;
       ProductID pid;
-      pid.oldID() = id;
+      if (productIDwasLong_) {
+        unsigned long id;
+        R__b >> id;
+        pid.oldID() = id;
+      } else {
+        unsigned int id;
+        R__b >> id;
+        pid.oldID() = id;
+      }
       ProductID* obj = static_cast<ProductID *>(objp);
       *obj = (prodGetter_ ? prodGetter_->oldToNewProductID(pid) : pid);
     } else {
@@ -52,7 +58,7 @@ namespace edm {
     }
   }
 
-  void setRefCoreStreamer(bool oldFormat) {
+  void setRefCoreStreamer(bool resetAll) {
     {
       TClass *cl = gROOT->GetClass("edm::RefCore::RefCoreTransients");
       RefCoreTransientStreamer *st = static_cast<RefCoreTransientStreamer *>(cl->GetStreamer());
@@ -62,13 +68,13 @@ namespace edm {
         st->setProductGetter(0);
       }
     }
-    if (oldFormat) {
+    if (resetAll) {
       TClass *cl = gROOT->GetClass("edm::RefCore");
       if (cl->GetStreamer() != 0) {
         cl->AdoptStreamer(0);
       }
     }
-    if (oldFormat) {
+    if (resetAll) {
       TClass *cl = gROOT->GetClass("edm::ProductID");
       if (cl->GetStreamer() != 0) {
         cl->AdoptStreamer(0);
@@ -76,7 +82,7 @@ namespace edm {
     }
   }
 
-  void setRefCoreStreamer(EDProductGetter const* ep, bool oldFormat) {
+  void setRefCoreStreamer(EDProductGetter const* ep, bool oldFormat, bool productIDwasLong) {
     if (ep != 0) {
       if (oldFormat) {
         TClass *cl = gROOT->GetClass("edm::RefCore");
@@ -100,7 +106,7 @@ namespace edm {
       TClass *cl = gROOT->GetClass("edm::ProductID");
       ProductIDStreamer *st = static_cast<ProductIDStreamer *>(cl->GetStreamer());
       if (st == 0) {
-        cl->AdoptStreamer(new ProductIDStreamer(ep));
+        cl->AdoptStreamer(new ProductIDStreamer(ep, productIDwasLong));
       } else {
         st->setProductGetter(ep);
       }
