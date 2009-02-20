@@ -41,13 +41,9 @@ class SETMuonSeedProducer : public edm::EDProducer {
   
   
   // Returns a vector of measurements sets (for later trajectory seed building)
-  std::vector < std::pair < TrajectoryStateOnSurface, 
-    TransientTrackingRecHit::ConstRecHitContainer > > trajectories(const edm::Event&, const edm::EventSetup& eventSetup);
-
   /// pre-filter
   SETFilter* filter() const {return theFilter;}
   
-  std::vector <seedSet>  fillSeedSets(std::vector <MuonRecHitContainer> & allValidSets);
   //----
 
   //private:
