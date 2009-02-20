@@ -454,7 +454,7 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
                  }
                  unsigned rescaled_phi = unsigned(24*(bestStub->phiPacked()>>5)/128.);
                  unsigned unscaled_phi =              bestStub->phiPacked()>>7       ;
-				 track.setPhiPacked(rescaleSinglesPhi?rescaled_phi:unscaled_phi);
+				 track.setLocalPhi(rescaleSinglesPhi?rescaled_phi:unscaled_phi);
                  track.setEtaPacked((bestStub->etaPacked()>>2)&0x1f);
                  //   singles.insertDigi(CSCDetId(st_iter->getDetId().rawId()),*st_iter);
                  //tracksFromSingles.push_back(L1CSCTrack(track,singles));
