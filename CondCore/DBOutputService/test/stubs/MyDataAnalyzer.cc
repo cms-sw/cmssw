@@ -9,6 +9,9 @@
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/TypedRef.h"
 #include "CondFormats/Calibration/interface/Pedestals.h"
+
+#include "CondFormats/Common/interface/GenericSummary.h"
+
 #include "MyDataAnalyzer.h"
 #include <cstdlib>
 MyDataAnalyzer::MyDataAnalyzer(const edm::ParameterSet& iConfig ):
@@ -46,7 +49,7 @@ void MyDataAnalyzer::endJob(){
       cond::Time_t firstSinceTime=mydbservice->beginOfTime();
       std::cout<<"firstSinceTime is begin of time "<<firstSinceTime<<std::endl;
       std::cout<<"firstTillTime is end of time "<<firstTillTime<<std::endl;
-      mydbservice->writeOne(myped,new std::string("first"),firstSinceTime,m_record,m_LoggingOn);
+      mydbservice->writeOne(myped,new std::string@("first"),firstSinceTime,m_record,m_LoggingOn);
     }else{
       //append 
       std::cout<<"appending payload"<<std::endl;

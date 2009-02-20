@@ -4,7 +4,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/Calibration/interface/Pedestals.h"
+
+#include "CondFormats/Common/interface/GenericSummary.h"
+
+
 #include "IOVPayloadAnalyzer.h"
+
+
 IOVPayloadAnalyzer::IOVPayloadAnalyzer(const edm::ParameterSet& iConfig ):
   m_record(iConfig.getParameter< std::string >("record")){
   std::cout<<"IOVPayloadAnalyzer::IOVPayloadAnalyzer"<<std::endl;
@@ -34,7 +40,7 @@ void IOVPayloadAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& 
   
   std::cout<<"currentTime "<<mydbservice->currentTime()<<std::endl;
   if(mydbservice->currentTime()%5==0){
-    mydbservice->writeOne(myped,new std::string("5"),
+    mydbservice->writeOne(myped,new cond::GenericSummary("5"),
 			  mydbservice->currentTime(),
 			  m_record,false);
   }

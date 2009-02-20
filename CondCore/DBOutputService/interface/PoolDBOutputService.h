@@ -60,11 +60,11 @@ namespace cond{
       std::string m_token;
     };
 
-    template<typename T, typename S>
+    template<typename T>
     struct GetTokenFromPointer : public GetToken {
-      typedef cond::DataAndSummaryWrapper<T,S> Wrapper;
-      
-      GetTokenFromPointer(T * p, S * s) : 
+      typedef cond::DataWrapper<T> Wrapper;
+
+      GetTokenFromPointer(T * p, Summary * s) : 
 	m_w(new Wrapper(p,s)){}
       
       virtual std::string operator()(cond::PoolTransaction& pooldb) const {
@@ -115,8 +115,8 @@ namespace cond{
       // Note: user looses the ownership of the pointer to the payloadObj
       // The payload object will be stored as well
       // 
-      template<typename T, typename S>
-	void createNewIOV( T* firstPayloadObj,  S* summary,
+      template<typename T>
+	void createNewIOV( T* firstPayloadObj,  Summary * summary,
 			   cond::Time_t firstSinceTime,
 			   cond::Time_t firstTillTime,
 			   const std::string& EventSetupRecordName,
@@ -143,8 +143,8 @@ namespace cond{
 		      withlogging);
       }
 
-      template<typename T, typename S>
-      void appendTillTime( T* payloadObj,  S* summary,
+      template<typename T>
+      void appendTillTime( T* payloadObj,  Summary * summary,
 			   cond::Time_t tillTime,
 			   const std::string& EventSetupRecordName,
 			   bool withlogging=false){
@@ -169,8 +169,8 @@ namespace cond{
       }
 
       
-      template<typename T, typename S>
-      void appendSinceTime( T* payloadObj, S* summary,
+      template<typename T>
+      void appendSinceTime( T* payloadObj, Summary * summary,
 			      cond::Time_t sinceTime,
 			      const std::string& EventSetupRecordName,
 			      bool withlogging=false){
@@ -199,8 +199,8 @@ namespace cond{
 
 
       // write one (either create or append
-      template<typename T, typename S>
-      void writeOne(T * payload, S* summary, 
+      template<typename T>
+      void writeOne(T * payload, Summary * summary, 
 		    Time_t time, const std::string& recordName, 
 		    bool withlogging=false, bool since=true) {
 	if (isNewTagRequest(recordName) ){
