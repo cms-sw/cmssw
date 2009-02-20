@@ -1,0 +1,14 @@
+<lcgdict>
+
+    <class name="ExclusionBandPlot"/>
+    <class name="LEPBandPlot"/>
+    <class name="LimitPlot"/>
+    <class name="PLScanPlot"/>
+    <class name="PLScanResults"/>
+    <class name="LimitResults"/>
+    <class name="RatioFinderPlot"/>
+    <function name="Rsc::getHistoCenter"/>
+    <function name="Rsc::getMedian"/>
+    <function name="Rsc::getHistoPvals"/>
+
+</lcgdict>
