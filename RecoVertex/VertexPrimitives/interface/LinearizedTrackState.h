@@ -93,8 +93,9 @@ public:
 
   /** Method returning the weight matrix of the track state at the
    *  linearization point.
+   * The error variable is 0 in case of success.
    */
-  virtual AlgebraicSymMatrixNN predictedStateWeight() const = 0;
+  virtual AlgebraicSymMatrixNN predictedStateWeight(int & error) const = 0;
 
   /** Method returning the momentum covariance matrix of the track state at the
    *  transverse impact point.

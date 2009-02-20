@@ -64,41 +64,13 @@ const TrajectoryStateClosestToPoint & PerigeeLinearizedTrackState::predictedStat
 void PerigeeLinearizedTrackState::computeJacobians() const
 {
   GlobalPoint paramPt(theLinPoint);
-//change to allow multiple state:  thePredState = builder(theTrack.innermostState(), paramPt); 
 
-//   TransverseImpactPointExtrapolator extr;
-//   FastTimer buildTimer, extrTimer, allTimer;
-// for (int i=0;i<50000;++i){
-//   {
-//     FastTimeMe<FastTimer> bTimer(allTimer);
-//   TrajectoryStateOnSurface tsos = extr.extrapolate(theTSOS, paramPt);
-//   thePredState = builder(tsos, paramPt); 
-// //  cout << "Track position from Extrapolator: "<<tsos.globalPosition()<<endl;
-//   }
-//   {
-//     FastTimeMe<FastTimer> aTimer(buildTimer);
-// //  cout << "Track position from TSCP builder: "<<thePredState.theState().position()<<endl;
-//   }
-// 
-//   {
-//     FastTimeMe<FastTimer> bTimer(extrTimer);
-//   TrajectoryStateOnSurface tsos = extr.extrapolate(theTSOS, paramPt);
-// //  cout << "Track position from Extrapolator: "<<tsos.globalPosition()<<endl;
-//   }
-// 
-// }
-//   cout << endl << buildTimer.average().ticks() 
-//        << " TSCP builder time per event (in clock ticks)" << endl;
-//   cout << endl << extrTimer.average().ticks() 
-//        << " Extrapolator time per event (in clock ticks)" << endl;
-//   cout << endl << allTimer.average().ticks() 
-//        << " All          time per event (in clock ticks)" << endl;
-
-//   edm::LogInfo("RecoVertex/PerigeeLTS") 
-//     << "about to build predstate" << "\n";
-//   edm::LogInfo("RecoVertex/PerigeeLTS") 
-//     << "initial state validity:" << theTSOS.isValid() << "\n";
+//   std::cout << "Track "
+//   << "\n Param    " << theTSOS.globalParameters ()
+//   << "\n Dir      " << theTSOS.globalDirection ()
+//    << "\n";
   thePredState = builder(theTSOS, paramPt); 
+//   std::cout << "thePredState " << thePredState.theState().position()<<std::endl;
 //   edm::LogInfo("RecoVertex/PerigeeLTS") 
 //     << "predstate built" << "\n";
   if (std::abs(theCharge)<1e-5) {
@@ -147,10 +119,10 @@ AlgebraicVector3 PerigeeLinearizedTrackState::predictedStateMomentumParameters()
   return momentum;
 }
   
-AlgebraicSymMatrix55 PerigeeLinearizedTrackState::predictedStateWeight() const
+AlgebraicSymMatrix55 PerigeeLinearizedTrackState::predictedStateWeight(int & error) const
 {
   if (!jacobiansAvailable) computeJacobians();
-  return thePredState.perigeeError().weightMatrix();
+  return thePredState.perigeeError().weightMatrix(error);
 }
   
 AlgebraicSymMatrix55 PerigeeLinearizedTrackState::predictedStateError() const

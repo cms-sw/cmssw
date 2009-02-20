@@ -94,8 +94,9 @@ public:
 
   /** Method returning the weight matrix of the track state at the
    *  transverse impact point.
+   * The error variable is 0 in case of success.
    */
-  AlgebraicSymMatrix55 predictedStateWeight() const;
+  AlgebraicSymMatrix55 predictedStateWeight(int & error) const;
 
   /** Method returning the covariance matrix of the track state at the
    *  transverse impact point.
