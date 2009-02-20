@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: RatioFinderPlot.cc,v 1.1 2008/11/17 11:54:45 dpiparo Exp $
+// @(#)root/hist:$Id: RatioFinderPlot.cc,v 1.1 2009/01/06 12:22:44 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 #include "assert.h"
@@ -7,7 +7,7 @@
 #include "TString.h"
 #include "TFile.h"
 
-#include "RatioFinderPlot.h"
+#include "PhysicsTools/RooStatsCms/interface/RatioFinderPlot.h"
 
 /*----------------------------------------------------------------------------*/
 
@@ -86,4 +86,4 @@ void RatioFinderPlot::dumpToFile(const char* RootFileName, const char* options){
 /*----------------------------------------------------------------------------*/
 
 /// To build the cint dictionaries
-ClassImp(RatioFinderPlot)
+//ClassImp(RatioFinderPlot)

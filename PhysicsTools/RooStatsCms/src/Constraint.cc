@@ -1,9 +1,9 @@
-// @(#)root/hist:$Id: Constraint.cc,v 1.17 2008/11/10 17:10:33 dpiparo Exp $
+// @(#)root/hist:$Id: Constraint.cc,v 1.1 2009/01/06 12:22:43 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 #include "TRandom.h"
 
-#include "Constraint.h"
+#include "PhysicsTools/RooStatsCms/interface/Constraint.h"
 
 #include "RooGaussian.h"
 #include "RooGenericPdf.h"
@@ -267,7 +267,7 @@ void Constraint::fluctuate(){
         std::cout << "[Constraint::fluctuate] "
                   << getVal() << " --> " << newval << std::endl;
     this->setVal(newval);
-    };
+    }
 
 /*----------------------------------------------------------------------------*/
 
@@ -352,6 +352,6 @@ Constraint::~Constraint(){
 /*----------------------------------------------------------------------------*/
 
 /// To build the cint dictionaries
-ClassImp(Constraint)
+//ClassImp(Constraint)
 
 /*----------------------------------------------------------------------------*/

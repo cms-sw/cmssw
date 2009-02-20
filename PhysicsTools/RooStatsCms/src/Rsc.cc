@@ -5,7 +5,7 @@
 
 #include "math.h"
 
-#include "Rsc.h"
+#include "PhysicsTools/RooStatsCms/interface/Rsc.h"
 
 #include "TF1.h"
 #include "TAxis.h"

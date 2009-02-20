@@ -4,8 +4,8 @@
 
 /**
 \class LimitResults
-$Revision: 1.5 $
-$Date: 2008/11/10 08:06:39 $
+$Revision: 1.1 $
+$Date: 2009/01/06 12:18:37 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 The objects of this class store and access with lightweight methods the 
@@ -24,8 +24,8 @@ TConfidenceLevel class (http://root.cern.ch/root/html/TConfidenceLevel.html).
 #include "TH1F.h"
 #include "TLatex.h"
 
-#include "StatisticalMethod.h"
-#include "LimitPlot.h"
+#include "PhysicsTools/RooStatsCms/interface/StatisticalMethod.h"
+#include "PhysicsTools/RooStatsCms/interface/LimitPlot.h"
 
 class LimitResults : public StatisticalMethod {
 
@@ -112,7 +112,7 @@ class LimitResults : public StatisticalMethod {
     /// Calculate rms of the vector
     double m_getRMS(std::vector<float>& vals);
 */
-   ClassDef(LimitResults,1) //Collection of Limit calculations results
+   //ClassDef(LimitResults,1) //Collection of Limit calculations results
 
 };
 

@@ -2,8 +2,8 @@
 
 /**
 \class ConstrBlock2
-$Revision: 1.2 $
-$Date: 2008/10/06 12:32:41 $
+$Revision: 1.1 $
+$Date: 2009/01/06 12:18:36 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 This class represents the block of two correlated constraints. 
@@ -19,7 +19,7 @@ NOTE: only gaussian constraints are possible ate the moment.
 
 #include "RooArgList.h"
 
-#include "Constraint.h"
+#include "PhysicsTools/RooStatsCms/interface/Constraint.h"
 
 class ConstrBlock2 : public TNamed, public NLLPenalty {
 
@@ -75,7 +75,7 @@ class ConstrBlock2 : public TNamed, public NLLPenalty {
     TString m_NLL_string;
 
     // For Cint
-    ClassDef(ConstrBlock2,1) 
+    //ClassDef(ConstrBlock2,1) 
  };
 
 #endif

@@ -2,8 +2,8 @@
 
 /**
 \class PLScan
-$Revision: 1.3 $
-$Date: 2008/10/24 11:33:18 $
+$Revision: 1.1 $
+$Date: 2009/01/06 12:18:37 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 Implements the scan of the likelihood with respect to one parameter.
@@ -28,8 +28,8 @@ The object returned from the doScan method is a PLScanResults.
 
 #include "RooFormulaVar.h"
 
-#include "StatisticalMethod.h"
-#include "PLScanResults.h"
+#include "PhysicsTools/RooStatsCms/interface/StatisticalMethod.h"
+#include "PhysicsTools/RooStatsCms/interface/PLScanResults.h"
 
 class PLScan : public StatisticalMethod {
 
@@ -92,7 +92,7 @@ class PLScan : public StatisticalMethod {
     RooFormulaVar* m_nll;
 
     // For Cint
-    ClassDef(PLScan,1)
+    //ClassDef(PLScan,1)
  };
 
 #endif

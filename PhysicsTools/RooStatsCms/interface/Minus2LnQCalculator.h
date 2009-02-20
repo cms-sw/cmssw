@@ -2,8 +2,8 @@
 
 /**
 \class Minus2LnQCalculator
-$Revision: 1.3 $
-$Date: 2008/11/10 08:08:05 $
+$Revision: 1.1 $
+$Date: 2009/01/06 12:18:37 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 This class eases the calculation of a likelihood ratios taking into account 
@@ -14,7 +14,7 @@ NOTE: in future a multithreaded version is foreseen.
 #ifndef __Minus2LnQCalculator__
 #define __Minus2LnQCalculator__
 
-#include "LikelihoodCalculator.h"
+#include "PhysicsTools/RooStatsCms/interface/LikelihoodCalculator.h"
 
 #include "RooAbsPdf.h"
 #include "RooAbsData.h"
@@ -79,7 +79,7 @@ class Minus2LnQCalculator : public TNamed {
     bool m_verbose;
 
     // For Cint
-    ClassDef(Minus2LnQCalculator,1) //Calculate Limit using the CLs method (A. Read)
+    //ClassDef(Minus2LnQCalculator,1) //Calculate Limit using the CLs method (A. Read)
  };
 
 #endif

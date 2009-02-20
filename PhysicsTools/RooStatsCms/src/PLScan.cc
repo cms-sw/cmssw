@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: PLScan.cc,v 1.5 2008/10/24 11:33:18 dpiparo Exp $
+// @(#)root/hist:$Id: PLScan.cc,v 1.1 2009/01/06 12:22:44 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 #include "assert.h"
@@ -10,10 +10,10 @@
 
 #include "TIterator.h"
 
-#include "PLScan.h"
+#include "PhysicsTools/RooStatsCms/interface/PLScan.h"
 
 /// To build the cint dictionaries
-ClassImp(PLScan)
+//ClassImp(PLScan)
 
 /*----------------------------------------------------------------------------*/
 

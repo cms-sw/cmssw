@@ -2,8 +2,8 @@
 
 /**
 \class PLScanResults
-$Revision: 1.3 $
-$Date: 2008/10/24 11:33:18 $
+$Revision: 1.1 $
+$Date: 2009/01/06 12:18:37 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 The results of the likelihood scan.
@@ -20,8 +20,8 @@ The results of the likelihood scan.
 #include "TString.h"
 #include "TGraph.h"
 
-#include "StatisticalMethod.h"
-#include "PLScanPlot.h"
+#include "PhysicsTools/RooStatsCms/interface/StatisticalMethod.h"
+#include "PhysicsTools/RooStatsCms/interface/PLScanPlot.h"
 
 #define DUMMY_VALUE 12345e-50
 
@@ -154,7 +154,7 @@ class PLScanResults : public StatisticalMethod {
     TString m_scanned_parameter_name;
 
     // For Cint
-    ClassDef(PLScanResults,1)
+    //ClassDef(PLScanResults,1)
  };
 
 #endif

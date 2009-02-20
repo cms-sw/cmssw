@@ -2,8 +2,8 @@
 
 /**
 \class PLScanPlot
-$Revision: 1.2 $
-$Date: 2008/10/06 12:32:41 $
+$Revision: 1.1 $
+$Date: 2009/01/06 12:18:37 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 **/
 
@@ -13,7 +13,7 @@ $Date: 2008/10/06 12:32:41 $
 #include <vector>
 #include <iostream>
 
-#include "StatisticalPlot.h"
+#include "PhysicsTools/RooStatsCms/interface/StatisticalPlot.h"
 
 #include "TGraph.h"
 #include "TLine.h"
@@ -106,7 +106,7 @@ class PLScanPlot : public StatisticalPlot {
 
 
     // For Cint
-    ClassDef(PLScanPlot,1) 
+    //ClassDef(PLScanPlot,1) 
  };
 
 #endif

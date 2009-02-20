@@ -2,7 +2,7 @@
 /**
 \class RatioFinderResults
 $Revision: 1.1 $
-$Date: 2008/11/17 11:54:44 $
+$Date: 2009/01/06 12:18:37 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 Collect the info out of a RatioFinder instance.
@@ -16,9 +16,9 @@ Collect the info out of a RatioFinder instance.
 #include "RooAbsPdf.h"
 #include "RooArgList.h"
 
-#include "StatisticalMethod.h"
-#include "ConstrBlockArray.h"
-#include "RatioFinderPlot.h"
+#include "PhysicsTools/RooStatsCms/interface/StatisticalMethod.h"
+#include "PhysicsTools/RooStatsCms/interface/ConstrBlockArray.h"
+#include "PhysicsTools/RooStatsCms/interface/RatioFinderPlot.h"
 
 
 class RatioFinderResults : public StatisticalMethod {
@@ -94,7 +94,7 @@ class RatioFinderResults : public StatisticalMethod {
     double m_CL_level;
 
     // For Cint
-    ClassDef(RatioFinderResults,1)
+    //ClassDef(RatioFinderResults,1)
  };
 
 #endif

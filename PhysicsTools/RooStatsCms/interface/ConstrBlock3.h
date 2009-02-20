@@ -2,8 +2,8 @@
 
 /**
 \class ConstrBlock3
-$Revision: 1.2 $
-$Date: 2008/10/06 12:32:41 $
+$Revision: 1.1 $
+$Date: 2009/01/06 12:18:36 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 This class represents the block of three correlated constraints. 
@@ -19,7 +19,7 @@ NOTE: only gaussian constraints are possible ate the moment.
 
 #include "RooArgList.h"
 
-#include "Constraint.h"
+#include "PhysicsTools/RooStatsCms/interface/Constraint.h"
 
 class ConstrBlock3 : public TNamed, public NLLPenalty {
 
@@ -87,7 +87,7 @@ class ConstrBlock3 : public TNamed, public NLLPenalty {
     void m_getBkgConstraints(Constraint** c,int* n, double* corr);
 
     // For Cint
-    ClassDef(ConstrBlock3,1) 
+    //ClassDef(ConstrBlock3,1) 
  };
 
 #endif

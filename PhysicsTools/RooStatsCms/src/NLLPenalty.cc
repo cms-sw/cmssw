@@ -1,8 +1,8 @@
-// @(#)root/hist:$Id: NLLPenalty.cc,v 1.1 2008/06/06 17:37:48 dpiparo Exp $
+// @(#)root/hist:$Id: NLLPenalty.cc,v 1.1 2009/01/06 12:22:44 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 
-#include "NLLPenalty.h"
+#include "PhysicsTools/RooStatsCms/interface/NLLPenalty.h"
 
 /*----------------------------------------------------------------------------*/
 
@@ -19,6 +19,6 @@ bool NLLPenalty::is_verbose(){
 /*----------------------------------------------------------------------------*/
 
 /// To build the cint dictionaries
-ClassImp(NLLPenalty)
+//ClassImp(NLLPenalty)
 
 /*----------------------------------------------------------------------------*/

@@ -2,8 +2,8 @@
 
 /**
 \class NLLPenalty
-$Revision: 1.4 $
-$Date: 2008/11/10 08:10:46 $
+$Revision: 1.1 $
+$Date: 2009/01/06 12:18:37 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 This class is the base for the blocks of correlations and constraints
@@ -59,7 +59,7 @@ class NLLPenalty {
     /// Get NLL terms in a list only for background (keyword _sig)
     virtual RooArgList getBkgNLLterms() = 0;
 
-    ///// Virtual destructor
+    /// Virtual destructor
     //virtual ~NLLPenalty() = 0;
 
     /// The random generator
@@ -72,7 +72,7 @@ class NLLPenalty {
     bool m_verbose;
 
     // For Cint
-    ClassDef(NLLPenalty,1) 
+    //ClassDef(NLLPenalty,1) 
  };
 
 #endif

@@ -2,8 +2,8 @@
 
 /**
 \class LimitCalculator
-$Revision: 1.3 $
-$Date: 2008/10/24 11:33:18 $
+$Revision: 1.1 $
+$Date: 2009/01/06 12:18:36 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 The class is born from the need to have an implementation of the CLs 
@@ -53,9 +53,9 @@ see also the following interesting references:
 #include "RooDataSet.h"
 #include "RooArgList.h"
 
-#include "StatisticalMethod.h"
-#include "ConstrBlockArray.h"
-#include "LimitResults.h"
+#include "PhysicsTools/RooStatsCms/interface/StatisticalMethod.h"
+#include "PhysicsTools/RooStatsCms/interface/ConstrBlockArray.h"
+#include "PhysicsTools/RooStatsCms/interface/LimitResults.h"
 
 
 class LimitCalculator : public StatisticalMethod {
@@ -131,7 +131,7 @@ class LimitCalculator : public StatisticalMethod {
     float m_m2lnQ_data;
 
     // For Cint
-    ClassDef(LimitCalculator,1) //Calculate Limit using the CLs method (A. Read)
+    //ClassDef(LimitCalculator,1) //Calculate Limit using the CLs method (A. Read)
  };
 
 #endif

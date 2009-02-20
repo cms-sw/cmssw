@@ -70,7 +70,7 @@ private:
   static Bool_t isDataFlag; // Should we initiate Pdfs with blind variables ?
   static Bool_t isVerboseFlag;
 
-  ClassDef(RscAbsPdfBuilder,1) // Abstract Pdf Builder mechanism
+  //ClassDef(RscAbsPdfBuilder,1) // Abstract Pdf Builder mechanism
 };
 
 #endif

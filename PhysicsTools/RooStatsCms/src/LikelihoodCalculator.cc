@@ -1,11 +1,11 @@
-// @(#)root/hist:$Id: LikelihoodCalculator.cc,v 1.9 2009/01/06 12:03:28 dpiparo Exp $
+// @(#)root/hist:$Id: LikelihoodCalculator.cc,v 1.1 2009/01/06 12:22:43 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 
 #include "assert.h"
 #include <iostream>
 
-#include "LikelihoodCalculator.h"
+#include "PhysicsTools/RooStatsCms/interface/LikelihoodCalculator.h"
 
 #include "RooMinuit.h"
 #include "RooFitResult.h"
@@ -17,7 +17,7 @@
 
 
 /// To build the cint dictionaries
-ClassImp(LikelihoodCalculator)
+//ClassImp(LikelihoodCalculator)
 
 /*----------------------------------------------------------------------------*/
 

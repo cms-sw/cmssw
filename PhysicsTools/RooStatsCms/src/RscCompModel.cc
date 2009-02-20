@@ -5,12 +5,12 @@
 #include "RooExponential.h"
 #include "RooGaussian.h"
 
-#include "RscCompModel.h"
-#include "RscBaseModel.h"
-#include "RscMultiModel.h"
+#include "PhysicsTools/RooStatsCms/interface/RscCompModel.h"
+#include "PhysicsTools/RooStatsCms/interface/RscBaseModel.h"
+#include "PhysicsTools/RooStatsCms/interface/RscMultiModel.h"
 
 
-ClassImp(RscCompModel);
+//ClassImp(RscCompModel);
 
 /*----------------------------------------------------------------------------*/
 
@@ -105,7 +105,7 @@ void RscCompModel::buildPdf()
     At the end all the single formulas are summed together.
     */
     RooArgList tot_yield_components;
-    TString yield_formulas[(int)number_components.getVal()];
+    TString* yield_formulas = new TString[(int)number_components.getVal()];
     TIter next(pdfs);
     int index=0;
     while (TObject *obj = next()) {
@@ -159,6 +159,7 @@ void RscCompModel::buildPdf()
     //_thePdf = new RooAddPdf(_name,"composite PDF",pdfList,coefList);
     _thePdf = new RooAddPdf(_name,"composite PDF",pdfList);
 
+    delete yield_formulas;
   }
 }
 

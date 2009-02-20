@@ -1,11 +1,11 @@
-// @(#)root/hist:$Id: LimitCalculator.cc,v 1.20 2009/01/06 12:04:05 dpiparo Exp $
+// @(#)root/hist:$Id: LimitCalculator.cc,v 1.1 2009/01/06 12:22:44 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 #include "assert.h"
 #include <iostream>
 
-#include "LimitCalculator.h"
-#include "Minus2LnQCalculator.h"
+#include "PhysicsTools/RooStatsCms/interface/LimitCalculator.h"
+#include "PhysicsTools/RooStatsCms/interface/Minus2LnQCalculator.h"
 
 #include "RooDataHist.h"
 #include "RooDataSet.h"
@@ -13,10 +13,10 @@
 
 #include "RooRandom.h"
 
-#include "Rsc.h" // the Rsc Namespace
+#include "PhysicsTools/RooStatsCms/interface/Rsc.h" // the Rsc Namespace
 
 /// To build the cint dictionaries
-ClassImp(LimitCalculator)
+//ClassImp(LimitCalculator)
 
 /*----------------------------------------------------------------------------*/
 

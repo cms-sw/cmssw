@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: RscConstrArrayFiller.cc,v 1.6 2008/11/10 08:12:12 dpiparo Exp $
+// @(#)root/hist:$Id: RscConstrArrayFiller.cc,v 1.1 2009/01/06 12:22:44 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 #include "assert.h"
@@ -7,11 +7,11 @@
 
 #include "TIterator.h"
 
-#include "ConstrBlock2.h"
-#include "ConstrBlock3.h"
+#include "PhysicsTools/RooStatsCms/interface/ConstrBlock2.h"
+#include "PhysicsTools/RooStatsCms/interface/ConstrBlock3.h"
 
 
-#include "RscConstrArrayFiller.h"
+#include "PhysicsTools/RooStatsCms/interface/RscConstrArrayFiller.h"
 
 
 /*----------------------------------------------------------------------------*/
@@ -311,4 +311,4 @@ NLLPenalty* RscConstrArrayFiller::m_fill_single_block (TString block_name){
 
 
 /// To build the cint dictionaries
-ClassImp(RscConstrArrayFiller)
+//ClassImp(RscConstrArrayFiller)

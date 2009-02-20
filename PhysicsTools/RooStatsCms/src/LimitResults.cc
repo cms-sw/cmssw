@@ -1,11 +1,11 @@
-// @(#)root/hist:$Id: LimitResults.cc,v 1.10 2008/11/10 08:15:28 dpiparo Exp $
+// @(#)root/hist:$Id: LimitResults.cc,v 1.1 2009/01/06 12:22:44 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 #include "assert.h"
-#include "LimitResults.h"
+#include "PhysicsTools/RooStatsCms/interface/LimitResults.h"
 
 /// To build the cint dictionaries
-ClassImp(LimitResults)
+//ClassImp(LimitResults)
 
 /*----------------------------------------------------------------------------*/
 

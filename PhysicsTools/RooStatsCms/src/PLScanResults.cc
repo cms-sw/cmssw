@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: PLScanResults.cc,v 1.12 2008/10/24 11:33:18 dpiparo Exp $
+// @(#)root/hist:$Id: PLScanResults.cc,v 1.1 2009/01/06 12:22:44 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 
@@ -14,10 +14,10 @@
 #include "TF1.h"
 #include "TGraphErrors.h"
 
-#include "PLScanResults.h"
+#include "PhysicsTools/RooStatsCms/interface/PLScanResults.h"
 
 /// To build the cint dictionaries
-ClassImp(PLScanResults)
+//ClassImp(PLScanResults)
 
 /*----------------------------------------------------------------------------*/
 

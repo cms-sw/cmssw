@@ -1,16 +1,16 @@
-// @(#)root/hist:$Id: LEPBandPlot.cc,v 1.5 2008/09/24 09:18:54 dpiparo Exp $
+// @(#)root/hist:$Id: LEPBandPlot.cc,v 1.1 2009/01/06 12:22:43 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 #include "assert.h"
 #include "math.h"
 
-#include "LEPBandPlot.h"
+#include "PhysicsTools/RooStatsCms/interface/LEPBandPlot.h"
 #include "TGraphAsymmErrors.h"
 #include "TStyle.h"
 #include "TAxis.h"
 
 /// To build the cint dictionaries
-ClassImp(LEPBandPlot)
+//ClassImp(LEPBandPlot)
 
 /*----------------------------------------------------------------------------*/
 
@@ -39,7 +39,7 @@ LEPBandPlot::LEPBandPlot(const char* name,
     m_b_band_graph_1sigma->SetMarkerColor(kGreen);
 
     // Make the band 2 times wider:
-    double b_2rms[n_points];
+    double* b_2rms = new double[n_points];
     for (int i=0;i<n_points;++i)
         b_2rms[i]=2*b_rms[i];
 

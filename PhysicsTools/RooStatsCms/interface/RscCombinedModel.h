@@ -1,12 +1,12 @@
-// @(#)root/hist:$Id: RscCombinedModel.h,v 1.3 2008/10/24 11:33:18 dpiparo Exp $
+// @(#)root/hist:$Id: RscCombinedModel.h,v 1.1 2009/01/06 12:18:37 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch, Gregory.Schott@cern.ch   05/04/2008
 
 /// RscCombinedModel : a class to combine models described by RscTotModel instances.
 
 /**
 \class RscCombinedModel
-$Revision: 1.3 $
-$Date: 2008/10/24 11:33:18 $
+$Revision: 1.1 $
+$Date: 2009/01/06 12:18:37 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott (grgory.schott<at>cern.ch) - Universitaet Karlsruhe 
 
 This class is meant to represent the combination of models.
@@ -210,9 +210,9 @@ correlation_value1 = 0.99 C
 #include "TString.h"
 #include "TList.h"
 
-#include "RscTotModel.h"
-#include "ConstrBlockArray.h"
-#include "PdfCombiner.h"
+#include "PhysicsTools/RooStatsCms/interface/RscTotModel.h"
+#include "PhysicsTools/RooStatsCms/interface/ConstrBlockArray.h"
+#include "PhysicsTools/RooStatsCms/interface/PdfCombiner.h"
 
 #include "RooAbsPdf.h"
 #include "RooCategory.h"
@@ -342,7 +342,7 @@ class RscCombinedModel : public TNamed  {
     RooWorkspace* m_workspace;
 
     // For Cint
-    ClassDef(RscCombinedModel,1)
+    //ClassDef(RscCombinedModel,1)
 };
 
 #endif

@@ -1,14 +1,14 @@
-// @(#)root/hist:$Id: RatioFinderResults.cc,v 1.1 2008/11/17 11:54:45 dpiparo Exp $
+// @(#)root/hist:$Id: RatioFinderResults.cc,v 1.1 2009/01/06 12:22:44 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   07/10/2008
 
 #include "assert.h"
 
 #include <iostream>
 
-#include "RatioFinderResults.h"
+#include "PhysicsTools/RooStatsCms/interface/RatioFinderResults.h"
 
 /// To build the cint dictionaries
-ClassImp(RatioFinderResults)
+//ClassImp(RatioFinderResults)
 
 /*----------------------------------------------------------------------------*/
 RatioFinderResults::RatioFinderResults(const char* name,

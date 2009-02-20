@@ -2,10 +2,10 @@
 #include "RooFormulaVar.h"
 #include "RooExtendPdf.h"
 
-#include "RscMultiModel.h"
-#include "RscBaseModel.h"
+#include "PhysicsTools/RooStatsCms/interface/RscMultiModel.h"
+#include "PhysicsTools/RooStatsCms/interface/RscBaseModel.h"
 
-ClassImp(RscMultiModel);
+//ClassImp(RscMultiModel);
 
 /*----------------------------------------------------------------------------*/
 

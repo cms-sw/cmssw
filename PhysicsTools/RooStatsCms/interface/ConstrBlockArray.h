@@ -2,8 +2,8 @@
 
 /**
 \class ConstrBlockArray
-$Revision: 1.2 $
-$Date: 2008/10/06 12:32:41 $
+$Revision: 1.1 $
+$Date: 2009/01/06 12:18:36 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 This class is a container for the contraints and correlations.
@@ -16,7 +16,7 @@ This class is a container for the contraints and correlations.
 #include "TNamed.h"
 #include "TString.h"
 
-#include "Constraint.h"
+#include "PhysicsTools/RooStatsCms/interface/Constraint.h"
 
 const int MAX_LENGHT=50;
 
@@ -87,7 +87,7 @@ class ConstrBlockArray : public TNamed,public NLLPenalty {
     bool m_owns_content;
 
     // For Cint
-    ClassDef(ConstrBlockArray,1)
+    //ClassDef(ConstrBlockArray,1)
  };
 
 #endif

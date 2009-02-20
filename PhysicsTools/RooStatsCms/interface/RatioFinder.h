@@ -3,7 +3,7 @@
 /**
 \class RatioFinder
 $Revision: 1.2 $
-$Date: 2009/01/06 11:57:53 $
+$Date: 2009/01/21 10:10:34 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 Find the production cross section to exclude at a fixed confidence level.
@@ -17,10 +17,10 @@ term called "ratio" appears.
 #include "RooAbsPdf.h"
 #include "RooArgList.h"
 
-#include "StatisticalMethod.h"
-#include "ConstrBlockArray.h"
-#include "LimitCalculator.h"
-#include "RatioFinderResults.h"
+#include "PhysicsTools/RooStatsCms/interface/StatisticalMethod.h"
+#include "PhysicsTools/RooStatsCms/interface/ConstrBlockArray.h"
+#include "PhysicsTools/RooStatsCms/interface/LimitCalculator.h"
+#include "PhysicsTools/RooStatsCms/interface/RatioFinderResults.h"
 
 
 class RatioFinder : public StatisticalMethod {
@@ -100,7 +100,7 @@ class RatioFinder : public StatisticalMethod {
     int m_nbins;
 
     // For Cint
-    ClassDef(RatioFinder,1)
+    //ClassDef(RatioFinder,1)
  };
 
 #endif

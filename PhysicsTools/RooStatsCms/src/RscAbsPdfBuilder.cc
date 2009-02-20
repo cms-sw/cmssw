@@ -27,10 +27,10 @@
 
 #include "RooStringVar.h"
 
-#include "RscAbsPdfBuilder.h"
-#include "Constraint.h"
+#include "PhysicsTools/RooStatsCms/interface/RscAbsPdfBuilder.h"
+#include "PhysicsTools/RooStatsCms/interface/Constraint.h"
 
-ClassImp(RscAbsPdfBuilder);
+//ClassImp(RscAbsPdfBuilder);
 
 RooArgSet RscAbsPdfBuilder::globalConfig;
 

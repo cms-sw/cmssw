@@ -1,12 +1,12 @@
-// @(#)root/hist:$Id: RscTool.h,v 1.2 2008/10/06 12:32:41 dpiparo Exp $
+// @(#)root/hist:$Id: RscTool.h,v 1.1 2009/01/06 12:18:38 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch, Gregory.Schott@cern.ch   05/04/2008
 
 /// RscTool : The mother class of the RooStatsCms Tools
 
 /**
 \class RscTool
-$Revision: 1.2 $
-$Date: 2008/10/06 12:32:41 $
+$Revision: 1.1 $
+$Date: 2009/01/06 12:18:38 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott (grgory.schott<at>cern.ch) - Universitaet Karlsruhe 
 The mother class of the RooStatsCms Tools.
 **/
@@ -34,7 +34,7 @@ class RscTool : public TNamed  {
     bool m_verbose;
 
     // For Cint
-    ClassDef(RscTool,1) 
+    //ClassDef(RscTool,1) 
 
 };
 

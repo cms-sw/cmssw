@@ -1,21 +1,21 @@
-// @(#)root/hist:$Id: ExclusionBandPlot.cc,v 1.1 2008/09/17 13:09:45 dpiparo Exp $
+// @(#)root/hist:$Id: ExclusionBandPlot.cc,v 1.1 2009/01/06 12:22:43 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 #include "assert.h"
 #include "math.h"
 
-#include "ExclusionBandPlot.h"
+#include "PhysicsTools/RooStatsCms/interface/ExclusionBandPlot.h"
 #include "TGraphAsymmErrors.h"
 #include "TStyle.h"
 #include "TAxis.h"
 
 /// To build the cint dictionaries
-ClassImp(ExclusionBandPlot)
+//ClassImp(ExclusionBandPlot)
 
 /*----------------------------------------------------------------------------*/
 ExclusionBandPlot::ExclusionBandPlot(const char* name,
                                      const char* title,
-                                     int n_points,
+                                     const int n_points,
                                      double* x_vals,
                                      double* y_vals,
                                      double* y_up_points1,
@@ -25,10 +25,10 @@ ExclusionBandPlot::ExclusionBandPlot(const char* name,
                     StatisticalPlot(name,title,false){
 
     // Prepare errorbars
-    double y_down_bars2[n_points];
-    double y_down_bars1[n_points];
-    double y_up_bars1[n_points];
-    double y_up_bars2[n_points];
+    double* y_down_bars2 = new double[n_points];
+    double* y_down_bars1 = new double[n_points];
+    double* y_up_bars1 = new double[n_points];
+    double* y_up_bars2 = new double[n_points];
 
     for (int i=0;i<n_points;++i){
         y_down_bars2[i]=y_vals[i]-y_down_points2[i];

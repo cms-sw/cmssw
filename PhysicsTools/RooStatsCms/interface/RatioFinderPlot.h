@@ -2,7 +2,7 @@
 /**
 \class RatioFinderPlot
 $Revision: 1.1 $
-$Date: 2008/11/17 11:54:44 $
+$Date: 2009/01/06 12:18:37 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 Collect the info out of a RatioFinder instance.
@@ -17,7 +17,7 @@ Collect the info out of a RatioFinder instance.
 #include "TLine.h"
 #include "TAxis.h"
 
-#include "StatisticalPlot.h"
+#include "PhysicsTools/RooStatsCms/interface/StatisticalPlot.h"
 
 
 class RatioFinderPlot : public StatisticalPlot {
@@ -57,7 +57,7 @@ class RatioFinderPlot : public StatisticalPlot {
     TLine* m_CL_line;
 
     // For Cint
-    ClassDef(RatioFinderPlot,1)
+    //ClassDef(RatioFinderPlot,1)
  };
 
 #endif

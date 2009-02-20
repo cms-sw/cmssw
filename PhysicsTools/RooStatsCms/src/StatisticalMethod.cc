@@ -1,8 +1,8 @@
-// @(#)root/hist:$Id: StatisticalMethod.cc,v 1.1 2008/06/05 20:05:39 dpiparo Exp $
+// @(#)root/hist:$Id: StatisticalMethod.cc,v 1.1 2009/01/06 12:22:44 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 
-#include "StatisticalMethod.h"
+#include "PhysicsTools/RooStatsCms/interface/StatisticalMethod.h"
 
 /*----------------------------------------------------------------------------*/
 
@@ -26,4 +26,4 @@ bool StatisticalMethod::is_verbose(){
     }
 
 /// To build the cint dictionaries
-ClassImp(StatisticalMethod)
+//ClassImp(StatisticalMethod)

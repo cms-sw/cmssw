@@ -2,9 +2,9 @@
 #include "RooExponential.h"
 #include "RooGaussian.h"
 
-#include "RscTotModel.h"
+#include "PhysicsTools/RooStatsCms/interface/RscTotModel.h"
 
-ClassImp(RscTotModel);
+//ClassImp(RscTotModel);
 
 /// The Constructor
 

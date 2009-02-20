@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: RatioFinder.cc,v 1.2 2009/01/06 11:57:54 dpiparo Exp $
+// @(#)root/hist:$Id: RatioFinder.cc,v 1.2 2009/01/21 10:10:34 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   07/10/2008
 
 #include "assert.h"
@@ -9,13 +9,13 @@
 
 #include "RooRealVar.h"
 
-#include "Rsc.h"
-#include "RatioFinder.h"
+#include "PhysicsTools/RooStatsCms/interface/Rsc.h"
+#include "PhysicsTools/RooStatsCms/interface/RatioFinder.h"
 
 
 
 /// To build the cint dictionaries
-ClassImp(RatioFinder)
+//ClassImp(RatioFinder)
 
 /*----------------------------------------------------------------------------*/
 

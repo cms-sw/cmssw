@@ -1,14 +1,14 @@
-// @(#)root/hist:$Id: Minus2LnQCalculator.cc,v 1.6 2008/11/10 08:14:39 dpiparo Exp $
+// @(#)root/hist:$Id: Minus2LnQCalculator.cc,v 1.1 2009/01/06 12:22:44 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 
 #include "assert.h"
 #include <iostream>
 
-#include "Minus2LnQCalculator.h"
+#include "PhysicsTools/RooStatsCms/interface/Minus2LnQCalculator.h"
 
 /// To build the cint dictionaries
-ClassImp(Minus2LnQCalculator)
+//ClassImp(Minus2LnQCalculator)
 
 /*----------------------------------------------------------------------------*/
 

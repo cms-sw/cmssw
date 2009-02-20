@@ -3,8 +3,8 @@
 
 /**
 \class RscCompModel
-$Revision: 1.2 $
-$Date: 2008/10/06 12:32:41 $
+$Revision: 1.1 $
+$Date: 2009/01/06 12:18:37 $
 \author G. Schott (gregory.Schott<at>cern.ch) - Universitaet Karlsruhe
 **/
 
@@ -12,7 +12,7 @@ $Date: 2008/10/06 12:32:41 $
 #include "RooCategory.h"
 #include "RooFormulaVar.h"
 
-#include "RscAbsPdfBuilder.h"
+#include "PhysicsTools/RooStatsCms/interface/RscAbsPdfBuilder.h"
 
 class RscCompModel : public RscAbsPdfBuilder {
 
@@ -47,7 +47,7 @@ private:
 
   void buildPdf();
   #ifndef SWIG
-  ClassDef(RscCompModel,1)
+  //ClassDef(RscCompModel,1)
   #endif /*SWIG */
 };
 

@@ -5,8 +5,8 @@
 
 /**
 \class RscBaseModel
-$Revision: 1.1 $
-$Date: 2009/01/06 12:18:37 $
+$Revision: 1.2 $
+$Date: 2009/02/17 14:19:17 $
 \author G. Schott (gregory.Schott<at>cern.ch), Danilo Piparo - Universitaet Karlsruhe
 
 The distribution is defined in the datacard. An example for a Gaussian 
@@ -59,7 +59,7 @@ experiments and situation where a continuous distribution is at our disposal.
 #include "RooCategory.h"
 #include "RooStringVar.h"
 
-#include "RscAbsPdfBuilder.h"
+#include "PhysicsTools/RooStatsCms/interface/RscAbsPdfBuilder.h"
 
 class RscBaseModel : public RscAbsPdfBuilder {
 
@@ -161,7 +161,7 @@ private:
   void buildPdf();
 
   #ifndef SWIG
-  ClassDef(RscBaseModel,1)
+  //ClassDef(RscBaseModel,1)
   #endif /*SWIG */
 };
 

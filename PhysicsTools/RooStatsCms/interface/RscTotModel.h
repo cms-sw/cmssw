@@ -5,12 +5,12 @@
 
 /**
 \class RscTotModel
-$Revision: 1.2 $
-$Date: 2008/10/06 12:32:41 $
+$Revision: 1.1 $
+$Date: 2009/01/06 12:18:38 $
 \author G. Schott (gregory.Schott<at>cern.ch), Danilo Piparo - Universitaet Karlsruhe
 **/
 
-#include "RscCompModel.h"
+#include "PhysicsTools/RooStatsCms/interface/RscCompModel.h"
 
 #include "RooExtendPdf.h"
 #include "RooStringVar.h"
@@ -56,7 +56,7 @@ private:
   void buildConstraints();
 
   #ifndef SWIG
-  ClassDef(RscTotModel,1)
+  //ClassDef(RscTotModel,1)
   #endif /*SWIG */
 };
 

@@ -1,10 +1,10 @@
 
-// @(#)root/hist:$Id: ConstrBlockArray.cc,v 1.5 2008/10/24 11:33:18 dpiparo Exp $
+// @(#)root/hist:$Id: ConstrBlockArray.cc,v 1.1 2009/01/06 12:22:43 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 #include "assert.h"
 
-#include "ConstrBlockArray.h"
+#include "PhysicsTools/RooStatsCms/interface/ConstrBlockArray.h"
 
 /*----------------------------------------------------------------------------*/
 
@@ -179,6 +179,6 @@ ConstrBlockArray::~ConstrBlockArray(){
 /*----------------------------------------------------------------------------*/
 
 /// To build the cint dictionaries
-ClassImp(ConstrBlockArray)
+//ClassImp(ConstrBlockArray)
 
 /*----------------------------------------------------------------------------*/

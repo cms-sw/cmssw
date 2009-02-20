@@ -2,8 +2,8 @@
 
 /**
 \class FCResults
-$Revision: 1.3 $
-$Date: 2008/10/24 11:33:18 $
+$Revision: 1.1 $
+$Date: 2009/01/06 12:18:36 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 In the following the procedure to collect the results of the FCCalculator and 
@@ -34,7 +34,7 @@ big advantages:
 #include "RooAbsPdf.h"
 #include "RooArgList.h"
 
-#include "StatisticalMethod.h"
+#include "PhysicsTools/RooStatsCms/interface/StatisticalMethod.h"
 
 #define MAX_SCAN_POINTS 100
 
@@ -105,7 +105,7 @@ class FCResults : public StatisticalMethod {
     int contains(std::vector<double>& vec, double val);
 
     // For Cint
-    ClassDef(FCResults,1) //Calculate Limit using the Feldman Cousins Method
+    //ClassDef(FCResults,1) //Calculate Limit using the Feldman Cousins Method
  };
 
 #endif

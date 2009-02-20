@@ -1,11 +1,11 @@
-// @(#)root/hist:$Id: ConstrBlock2.cc,v 1.6 2008/09/24 09:18:54 dpiparo Exp $
+// @(#)root/hist:$Id: ConstrBlock2.cc,v 1.1 2009/01/06 12:22:43 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 #include "assert.h"
 
 #include "RooFormulaVar.h"
 
-#include "ConstrBlock2.h"
+#include "PhysicsTools/RooStatsCms/interface/ConstrBlock2.h"
 
 
 /*----------------------------------------------------------------------------*/
@@ -293,6 +293,6 @@ ConstrBlock2::~ConstrBlock2(){
 /*----------------------------------------------------------------------------*/
 
 /// To build the cint dictionaries
-ClassImp(ConstrBlock2)
+//ClassImp(ConstrBlock2)
 
 /*----------------------------------------------------------------------------*/

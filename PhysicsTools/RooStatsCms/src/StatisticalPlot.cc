@@ -1,8 +1,8 @@
-// @(#)root/hist:$Id: StatisticalPlot.cc,v 1.5 2008/06/11 16:35:49 dpiparo Exp $
+// @(#)root/hist:$Id: StatisticalPlot.cc,v 1.1 2009/01/06 12:22:45 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 
-#include "StatisticalPlot.h"
+#include "PhysicsTools/RooStatsCms/interface/StatisticalPlot.h"
 #include "TROOT.h"
 
 /*----------------------------------------------------------------------------*/
@@ -37,4 +37,5 @@ StatisticalPlot::~StatisticalPlot(){
 /*----------------------------------------------------------------------------*/
 
 /// To build the cint dictionaries
-ClassImp(StatisticalPlot)
+//ClassImp(StatisticalPlot)
+

@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: PLScanPlot.cc,v 1.9 2008/09/15 12:15:07 dpiparo Exp $
+// @(#)root/hist:$Id: PLScanPlot.cc,v 1.1 2009/01/06 12:22:44 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 #include "assert.h"
@@ -7,7 +7,7 @@
 #include "TAxis.h"
 #include "TMath.h"
 
-#include "PLScanPlot.h"
+#include "PhysicsTools/RooStatsCms/interface/PLScanPlot.h"
 
 #define TEXT_SIZE  0.035
 
@@ -363,4 +363,4 @@ void PLScanPlot::print(const char* options){
 
 
 /// To build the cint dictionaries
-ClassImp(PLScanPlot)
+//ClassImp(PLScanPlot)

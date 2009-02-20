@@ -2,8 +2,8 @@
 
 /**
 \class ExclusionBandPlot
-$Revision: 1.2 $
-$Date: 2008/10/06 12:32:41 $
+$Revision: 1.1 $
+$Date: 2009/01/06 12:18:36 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 Yet another band plot, this time for sm exclusion, following the examples of 
@@ -16,7 +16,7 @@ the Tevatron Higgs WG.
 
 #include <iostream>
 
-#include "StatisticalPlot.h"
+#include "PhysicsTools/RooStatsCms/interface/StatisticalPlot.h"
 
 #include "TGraphErrors.h"
 #include "TLine.h"
@@ -29,7 +29,7 @@ class ExclusionBandPlot : public StatisticalPlot {
     /// Constructor
     ExclusionBandPlot(const char* name,
                       const char* title,
-                      int n_points,
+                      const int n_points,
                       double* x_vals,
                       double* y_vals,
                       double* y_up_bars1,
@@ -78,7 +78,7 @@ class ExclusionBandPlot : public StatisticalPlot {
 
 
     // For Cint
-    ClassDef(ExclusionBandPlot,1) 
+    //ClassDef(ExclusionBandPlot,1) 
  };
 
 #endif

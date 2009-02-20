@@ -2,8 +2,8 @@
 
 /**
 \class LEPBandPlot
-$Revision: 1.2 $
-$Date: 2008/10/06 12:32:41 $
+$Revision: 1.1 $
+$Date: 2009/01/06 12:18:36 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 This class allows to produce plots like the ones of the 
@@ -28,7 +28,7 @@ plot are:
 
 #include <iostream>
 
-#include "StatisticalPlot.h"
+#include "PhysicsTools/RooStatsCms/interface/StatisticalPlot.h"
 
 #include "TGraphErrors.h"
 #include "TLine.h"
@@ -105,7 +105,7 @@ class LEPBandPlot : public StatisticalPlot {
 
 
     // For Cint
-    ClassDef(LEPBandPlot,1) 
+    //ClassDef(LEPBandPlot,1) 
  };
 
 #endif

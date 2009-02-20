@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: RscCombinedModel.cc,v 1.20 2008/11/10 08:13:53 dpiparo Exp $
+// @(#)root/hist:$Id: RscCombinedModel.cc,v 1.1 2009/01/06 12:22:44 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch, Gregory.Schott@cern.ch   05/04/2008
 
 #include <assert.h>
@@ -7,14 +7,14 @@
 #include "TObjArray.h"
 #include "TObjString.h"
 
-#include "RscCombinedModel.h"
+#include "PhysicsTools/RooStatsCms/interface/RscCombinedModel.h"
 
 #include "RooFormulaVar.h"
 #include "RooArgSet.h"
 #include "RooGlobalFunc.h" // for RooFit::Extended()
 
 /// For the Cint dictionaries
-ClassImp(RscCombinedModel)
+//ClassImp(RscCombinedModel)
 
 /*----------------------------------------------------------------------------*/
 

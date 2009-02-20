@@ -2,8 +2,8 @@
 
 /**
 \class FCCalculator
-$Revision: 1.3 $
-$Date: 2008/10/24 11:33:18 $
+$Revision: 1.1 $
+$Date: 2009/01/06 12:18:36 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 The full Neyman construction was introduced to HEP by Feldman and Cousins in 
@@ -65,9 +65,9 @@ present as an example.
 #include "RooAbsPdf.h"
 #include "RooArgList.h"
 
-#include "ConstrBlockArray.h"
+#include "PhysicsTools/RooStatsCms/interface/ConstrBlockArray.h"
 
-#include "StatisticalMethod.h"
+#include "PhysicsTools/RooStatsCms/interface/StatisticalMethod.h"
 
 
 class FCCalculator : public StatisticalMethod {
@@ -124,7 +124,7 @@ class FCCalculator : public StatisticalMethod {
     std::vector<double> m_params_vals;
 
     // For Cint
-    ClassDef(FCCalculator,1) //Calculate Limit using the Feldman Cousins Method
+    //ClassDef(FCCalculator,1) //Calculate Limit using the Feldman Cousins Method
  };
 
 #endif
