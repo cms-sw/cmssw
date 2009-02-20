@@ -34,11 +34,11 @@ TracksToTrajectories::TracksToTrajectories(const ParameterSet& parameterSet):the
   else if(type == "CosmicMuonsForAlignment") theTrackTransformer = new TrackTransformerForCosmicMuons(trackTransformerParam);
   else{
     throw cms::Exception("TracksToTrajectories") 
-      <<"The selected algorithme does not exist"
+      <<"The selected algorithm does not exist"
       << "\n"
       << "Possible choices are:"
       << "\n"
-      << "Type = [Default, GlobalCosmicMuonsForAlignment]";
+      << "Type = [Default, GlobalCosmicMuonsForAlignment, CosmicMuonsForAlignment]";
   }
 
   produces<vector<Trajectory> >("Refitted");

@@ -15,7 +15,7 @@
  *
  *
  *  $Date: 2009/01/15
- *  $Revision: 1.1 $
+ *  $Revision: 1.3 $
  *  \original author R. Bellan - CERN <riccardo.bellan@cern.ch>
  *  modified for zed ordering by N. Kypreos - UF <nicholas.theodore.kypreos@cern.ch> 
  */
@@ -49,17 +49,6 @@ class TrackTransformerForCosmicMuons: public TrackTransformerBase{
 
 public:
 
-	struct ZedComparatorInOut{    bool operator()( const TransientTrackingRecHit::ConstRecHitPointer &a,
-			   const TransientTrackingRecHit::ConstRecHitPointer &b) const{
-//		return fabs(a->globalPosition().z()) < fabs(b->globalPosition().z());
-		return (fabs(b->globalPosition().z()) - fabs(a->globalPosition().z())) > 1e-3;
-	  }
-	};
-	struct ZedComparatorMinusPlus{    bool operator()( const TransientTrackingRecHit::ConstRecHitPointer &a,
-			   const TransientTrackingRecHit::ConstRecHitPointer &b) const{
-		return a->globalPosition().z() < b->globalPosition().z();
-	  }
-	};
   /// Constructor
   TrackTransformerForCosmicMuons(const edm::ParameterSet&);
 
@@ -80,20 +69,19 @@ public:
   /// set the services needed by the TrackTransformer
   virtual void setServices(const edm::EventSetup&);
 
+  ///calculate the sum of slopes for the track
+  bool SlopeSum(TransientTrackingRecHit::ConstRecHitContainer) const;
+  float SumDy(TransientTrackingRecHit::ConstRecHitContainer) const;
+
   /// the refitter used to refit the reco::Track
-  edm::ESHandle<TrajectoryFitter> fitter(bool,float,float,bool) const;
+  edm::ESHandle<TrajectoryFitter> fitter(bool, int, float) const;
   
   /// the smoother used to smooth the trajectory which came from the refitting step
-  edm::ESHandle<TrajectorySmoother> smoother(bool,float,float,bool) const;
+  edm::ESHandle<TrajectorySmoother> smoother(bool, int, float) const;
 
   TransientTrackingRecHit::ConstRecHitContainer
     getTransientRecHits(const reco::TransientTrack& track) const;
   
-  TransientTrackingRecHit::ConstRecHitContainer 
-	getRidOfSelectStationHits(TransientTrackingRecHit::ConstRecHitContainer hits) const;
-
-	bool TrackerKeep(DetId id) const;
-	bool MuonKeep(DetId id) const;
  protected:
   
  private:
@@ -101,23 +89,14 @@ public:
   edm::ESHandle<Propagator> thePropagatorIO;
   edm::ESHandle<Propagator> thePropagatorOI;
 
-  edm::ESHandle<Propagator> propagator(bool,float,float,bool) const;
+  edm::ESHandle<Propagator> propagator(bool, int, float) const;
 
-  
   unsigned long long theCacheId_TC;
   unsigned long long theCacheId_GTG;
   unsigned long long theCacheId_MG;
   unsigned long long theCacheId_TRH;
   
   bool theRPCInTheFit;
-
- // enum subDetector { PXB = 1, PXF = 2, TIB = 3, TID = 4, TOB = 5, TEC = 6 };
- // int	  theSkipStation;
- // int	  theKeepDTWheel;
- // int   theTrackerSkipSystem;
- // int   theTrackerSkipSection;
-
-
 
   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   edm::ESHandle<MagneticField> theMGField;
