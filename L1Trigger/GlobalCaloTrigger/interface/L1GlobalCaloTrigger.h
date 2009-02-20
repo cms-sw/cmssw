@@ -84,6 +84,9 @@ public:
   /// setup the Jet Calibration Luts
   void setJetEtCalibrationLuts(const lutPtrVector& jfluts);
 
+  /// Setup the tau algorithm parameters
+  void setupTauAlgo(const bool useImprovedAlgo, const bool ignoreVetoBitsForIsolation);
+
   /// setup Jet Counter LUTs
   void setupJetCounterLuts(const L1GctJetCounterSetup* jcPosPars,
                            const L1GctJetCounterSetup* jcNegPars);

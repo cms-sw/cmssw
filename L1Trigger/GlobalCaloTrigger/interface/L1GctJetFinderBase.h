@@ -124,6 +124,12 @@ public:
   /// Set pointer to calibration Lut - needed to complete the setup
   void setJetEtCalibrationLuts(const lutPtrVector& jfluts);
 
+  /// Setup the tau algorithm parameters
+  void setupTauAlgo(const bool useImprovedAlgo, const bool ignoreVetoBitsForIsolation) {
+    m_useImprovedTauAlgo            = useImprovedAlgo;
+    m_ignoreTauVetoBitsForIsolation = ignoreVetoBitsForIsolation;
+  }
+
   /// Check setup is Ok
   bool setupOk() const { return m_idInRange
 			   && m_gotNeighbourPointers
@@ -210,8 +216,24 @@ public:
   unsigned m_TauJetSeed;
   unsigned m_EtaBoundry;
 
+  // In the improved tau algorithm, we require no more than one tower energy to be 
+  // above the isolation threshold, in the eight regions surrounding the central one. 
+  unsigned m_tauIsolationThreshold;
+
   /// Jet Et Conversion LUT pointer
   lutPtrVector m_jetEtCalLuts;
+
+  /// Setup parameters for the tau jet algorithm
+  // If the following parameter is set to false, the tau identification
+  // is just based on the RCT tau veto bits from the nine regions
+  bool m_useImprovedTauAlgo;
+
+  // If useImprovedTauAlgo is true, these two parameters affect
+  // the operation of the algorithm.
+
+  // We can require the tau veto bits to be off in all nine regions,
+  // or just in the central region.
+  bool m_ignoreTauVetoBitsForIsolation;
     
   /// input data required for jet finding
   RegionsVector m_inputRegions;
