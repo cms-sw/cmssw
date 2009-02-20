@@ -17,8 +17,8 @@ namespace cond {
   class Summary;
 };
 
-#include "CondFormats/Common/interface/PayloadWrapper"
-#include "CondFormats/Common/interface/GenericSummary"
+#include "CondFormats/Common/interface/PayloadWrapper.h"
+#include "CondFormats/Common/interface/GenericSummary.h"
 
 
 

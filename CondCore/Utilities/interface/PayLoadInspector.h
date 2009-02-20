@@ -9,7 +9,7 @@
 // to be moved in src
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
 
-#include "CondFormats/Common/interface/PayloadWrapper"
+#include "CondFormats/Common/interface/PayloadWrapper.h"
 
 namespace cond {
   // to be moved elsewhere
