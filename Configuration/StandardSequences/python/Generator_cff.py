@@ -4,10 +4,6 @@ import FWCore.ParameterSet.Config as cms
 # generator level info
 #
 from PhysicsTools.HepMCCandAlgos.genParticles_cfi import *
-from PhysicsTools.HepMCCandAlgos.genEventWeight_cfi import *
-from PhysicsTools.HepMCCandAlgos.genEventScale_cfi import *
-from PhysicsTools.HepMCCandAlgos.genEventPdfInfo_cfi import *
-from PhysicsTools.HepMCCandAlgos.genEventProcID_cfi import *
 from RecoJets.Configuration.RecoGenJets_cff import *
 from RecoMET.Configuration.RecoGenMET_cff import *
 from RecoJets.Configuration.GenJetParticles_cff import *
@@ -50,7 +46,7 @@ from RecoMET.Configuration.GenMETParticles_cff import *
 #   }
 # }
 VertexSmearing = cms.Sequence(cms.SequencePlaceholder("VtxSmeared"))
-GeneInfo = cms.Sequence(genParticles+genEventWeight+genEventScale+genEventPdfInfo+genEventProcID)
+GeneInfo = cms.Sequence(genParticles)
 genJetMET = cms.Sequence(genJetParticles*recoGenJets+genMETParticles*recoGenMET)
 pgen = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+VertexSmearing+GeneInfo+genJetMET)
 
