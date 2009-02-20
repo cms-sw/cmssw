@@ -421,6 +421,32 @@ void SETSeedFinder::prune(SETSeedFinder::MuonRecHitContainer & validSet) const
 }
 
 
+std::vector <seedSet> SETSeedFinder::
+fillSeedSets(std::vector <MuonRecHitContainer> & allValidSets){
+  //---- we have the valid sets constructed; transform the information in an
+  //---- apropriate form; meanwhile - estimate the momentum for a given set
+
+  // RPCs should not be used (no parametrization)
+  std::vector <seedSet> seedSets_inCluster;
+  // calculate and fill the inputs needed
+  // loop over all valid sets
+  for(unsigned int iSet = 0;iSet<allValidSets.size();++iSet){
+    Hep3Vector momEstimate;
+    int chargeEstimate;
+    estimateMomentum(allValidSets[iSet], momEstimate, chargeEstimate);
+    MuonRecHitContainer MuonRecHitContainer_theSet_prep;
+    // currently hardcoded - will be in proper loop of course:
+
+    seedSet seedSets_inCluster_prep;
+    seedSets_inCluster_prep.theSet   = allValidSets[iSet];
+    seedSets_inCluster_prep.momentum = momEstimate;
+    seedSets_inCluster_prep.charge   = chargeEstimate;
+    seedSets_inCluster.push_back(seedSets_inCluster_prep);
+    // END estimateMomentum
+  }
+  return seedSets_inCluster;
+}
+
 void SETSeedFinder::estimateMomentum(const MuonRecHitContainer & validSet,
                                      Hep3Vector & momEstimate, int & charge) const
 {

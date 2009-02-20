@@ -4,6 +4,7 @@
 #include "RecoMuon/MuonSeedGenerator/src/MuonSeedVFinder.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoMuon/MuonSeedGenerator/src/MuonSeedPtExtractor.h"
+#include "RecoMuon/MuonSeedGenerator/src/SETFilter.h"
 #include "CLHEP/Matrix/Vector.h"
 #include "CLHEP/Vector/ThreeVector.h"
 
@@ -39,7 +40,12 @@ public:
   std::pair <int, int> checkAngleDeviation(double dPhi_1, double dPhi_2) const;
 
   void validSetsPrePruning(std::vector<MuonRecHitContainer> & allValidSets);
+
   void prune(MuonRecHitContainer & validSet) const;
+
+  std::vector <seedSet>
+  fillSeedSets(std::vector <MuonRecHitContainer> & allValidSets);
+
   void estimateMomentum(const MuonRecHitContainer & validSet, 
                         Hep3Vector & momentum, int & charge) const;
 
