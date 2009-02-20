@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 postProcessorMuonMultiTrackHLT = cms.EDAnalyzer("PostProcessor",
-    subDirs = cms.untracked.vstring("HLTMuonV/MultiTrack/*"),
+    subDirs = cms.untracked.vstring("HLT/Muon/MultiTrack/*"),
     efficiency = cms.vstring(
     "effic 'Efficiency vs #eta' num_assoc(simToReco)_eta num_simul_eta",
     "efficPt 'Efficiency vs p_{T}' num_assoc(simToReco)_pT num_simul_pT",
@@ -34,7 +34,7 @@ postProcessorMuonMultiTrackHLT = cms.EDAnalyzer("PostProcessor",
 
 postProcessorMuonMultiTrackHLTComp = cms.EDAnalyzer(
     "PostProcessor",
-    subDirs = cms.untracked.vstring("HLTMuonV/MultiTrack/"), 
+    subDirs = cms.untracked.vstring("HLT/Muon/MultiTrack/"), 
     efficiency = cms.vstring(
     "Eff_GlbTk_Eta 'Eff_{GLB,TK} vs #eta' hltL3Muons_tpToL3Association/effic hltL3TkFromL2_tpToL3TkTrackAssociation/effic",
     "Eff_GlbTk_Pt 'Eff_{GLB,TK} vs p_{T}' hltL3Muons_tpToL3Association/efficPt hltL3TkFromL2_tpToL3TkTrackAssociation/efficPt",
@@ -56,7 +56,7 @@ postProcessorMuonMultiTrackHLTComp = cms.EDAnalyzer(
 
 
 postProcessorRecoMuonHLT = cms.EDAnalyzer("PostProcessor",
-    subDirs = cms.untracked.vstring("HLTMuonV/RecoMuon_*"),
+    subDirs = cms.untracked.vstring("HLT/Muon/RecoMuon_*"),
 
     efficiency = cms.vstring("Trk/EffP   'Efficiency vs p'     Trk/P   Muons/SimP  ",
                              "Trk/EffPt  'Efficiency vs p_{T}' Trk/Pt  Muons/SimPt ",
