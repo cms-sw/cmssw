@@ -193,7 +193,7 @@ namespace pos{
       if(!first)
 	{
 	  //	  std::cout << "[pos::PixelConfigFile::getConfig()] Reloading configurations.txt"<< std::endl ;
-	  //	  configs.reload(filename) ;
+	  configs.reload(filename) ;
 //	  std::cout << "[pos::PixelConfigFile::getConfig()] Size reloaded: " << configs.size() << std::endl ;
 	}
       if (first) 
