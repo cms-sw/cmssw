@@ -7,7 +7,7 @@
 //
 // Original Author:  Dong Ho Moon
 //         Created:  Wed May  9 06:22:36 CEST 2007
-// $Id: TestMuL1L2FilterSTASTA.cc,v 1.4 2009/02/11 15:42:33 kodolova Exp $
+// $Id: TestMuL1L2FilterSTA.cc,v 1.5 2009/02/11 16:54:57 kodolova Exp $
 //
 //
 // Comment: Dimuon reconstruction need primary vertex
@@ -68,7 +68,7 @@ bool TestMuL1L2FilterSTA::filter(edm::Event& e1, const edm::EventSetup& es1)
 // Start track finder
 
    bool dimuon = theTrackVertexMaker->produceTracks(e1,es1,theHICConst,theFmpConst);
-   if(dimuon) cout<<" The vertex is found : "<<endl; 
+//   if(dimuon) cout<<" The vertex is found : "<<endl; 
    return dimuon;
    
 } 
