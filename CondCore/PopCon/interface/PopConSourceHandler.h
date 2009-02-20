@@ -118,7 +118,7 @@ namespace popcon {
       getNewObjects();
       if (!m_to_transfer.empty()) convertFromOld();
       sort();
-      return m_to_transfer;
+      return m_triplets;
     }
     
     std::string const & userTextLog() const { return m_userTextLog; }
@@ -131,7 +131,7 @@ namespace popcon {
     virtual std::string id() const=0;
     
     void sort() {
-      std::sort(m_triplets.begin(),m_tiplets.end(),
+      std::sort(m_triplets.begin(),m_triplets.end(),
 		boost::bind(std::less<cond::Time_t>(),
 			    boost::bind(&Container::value_type::time,_1),
 			    boost::bind(&Container::value_type::time,_2)
