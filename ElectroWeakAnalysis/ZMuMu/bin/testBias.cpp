@@ -28,7 +28,7 @@ int main() {
   TH1F hEffPull("effPull", "eff - pull", 100, -10, 10);
   TH1F hBkg1Pull("bkg1Pull", "bkg1 - pull", 100, -10, 10);
   TH1F hBkg2Pull("bkg2Pull", "bkg1 - pull", 100, -10, 10);
-  for(size_t n=0; n < 10000; ++n) {
+  for(size_t n=0; n < 1000; ++n) {
     const char * kSig = "Sig";
     const char * kEff = "Eff";
     const char * kBkg1 = "Bkg1";
@@ -37,7 +37,7 @@ int main() {
     const char * kGamma = "Gamma";
     const char * kLambda1 = "Lambda1";
     const char * kLambda2 = "Lambda2";
-    double sig_true = 1000;
+    double sig_true = 10000;
     double eff_true = 0.95;
     double bkg1_true = 100;
     double bkg2_true = 40;
@@ -54,7 +54,8 @@ int main() {
     funct::Parameter gamma(kGamma, gamma_true);
     funct::Parameter lambda1(kLambda1, lambda1_true);
     funct::Parameter lambda2(kLambda2, lambda2_true);
-    
+    funct::Parameter rebin("rebin", 0.5);
+
     funct::Numerical<2> _2;
     funct::Numerical<1> _1;
     funct::BreitWigner bw(mass, gamma);
@@ -63,15 +64,13 @@ int main() {
     Expr fSig = sig * bw;
     Expr fBkg1 = bkg1 * expo1;
     Expr fBkg2 = bkg2 * expo2;
-    Expr f1 = _2 * eff * (_1 - eff) * fSig + fBkg1;
-    Expr f2 = (eff ^ _2) * fSig + fBkg2;
+    Expr f1 = rebin*(_2 * eff * (_1 - eff) * fSig + fBkg1);
+    Expr f2 = rebin*((eff ^ _2) * fSig + fBkg2);
     TF1 funSig = root::tf1_t<sig_tag, Expr>("fSig", fSig, 0, 200, sig, mass, gamma);
     TF1 funBkg1 = root::tf1_t<bkg1_tag, Expr>("fBkg1", fBkg1, 0, 200, bkg1, lambda1);
     TF1 funBkg2 = root::tf1_t<bkg2_tag, Expr>("fBkg2", fBkg2, 0, 200, bkg2, lambda2);
-    //    TF1 fun1 = root::tf1("fun1", f1, 0, 200, sig, bkg1, bkg2, mass, gamma, lambda1, lambda2);
-    //    TF1 fun2 = root::tf1("fun2", f2, 0, 200, sig, bkg1, bkg2, mass, gamma, lambda1, lambda2);
-    TH1D histo1("histo1", "Z mass (GeV/c)", 200, 0, 200);
-    TH1D histo2("histo2", "Z mass (GeV/c)", 200, 0, 200);
+    TH1D histo1("histo1", "Z mass (GeV/c)", int(200/rebin()), 0, 200);
+    TH1D histo2("histo2", "Z mass (GeV/c)", int(200/rebin()), 0, 200);
     double areaBkg1 = funBkg1.Integral(0,200);
     double areaBkg2 = funBkg2.Integral(0,200);
     histo1.FillRandom("fBkg1", int(rndm.Poisson(areaBkg1)));
@@ -99,16 +98,16 @@ int main() {
     minuit.minimize();
     minuit.migrad();
     
-    double sigPull = (sig_true - sig()) / minuit.getParameterError(kSig);
+    double sigPull = (sig() - sig_true) / minuit.getParameterError(kSig);
     cout << "sig pull: " << sigPull << endl;
-    double effPull = (eff_true - eff()) / minuit.getParameterError(kEff);
+    double effPull = (eff() - eff_true) / minuit.getParameterError(kEff);
     cout << "eff pull: " << effPull << endl;
-    double bkg1Pull = (bkg1_true - bkg1()) / minuit.getParameterError(kBkg1);
+    double bkg1Pull = (bkg1() - bkg1_true) / minuit.getParameterError(kBkg1);
     cout << "bkg1Pull: " << bkg1Pull << endl;
-    double bkg2Pull = (bkg2_true - bkg2()) / minuit.getParameterError(kBkg2);
+    double bkg2Pull = (bkg2() - bkg2_true) / minuit.getParameterError(kBkg2);
     cout << "bkg2Pull: " << bkg2Pull << endl;
     hSigPull.Fill(sigPull);
-    hEffPull.Fill(sigPull);
+    hEffPull.Fill(effPull);
     hBkg1Pull.Fill(bkg1Pull);
     hBkg2Pull.Fill(bkg2Pull);
   }
