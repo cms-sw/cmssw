@@ -169,7 +169,7 @@ int main( int argc, char** argv ){
        unsigned int counter=0;
        std::string payloadContainer=iovservice.payloadContainerName(token);
        std::cout<<"Tag "<<tag
-       	        <<"\nTimeType " << cond::timeTypeSpecs[ioviterator->timetype()].name
+       	        <<"\nTimeType " << cond::timeTypeSpecs[iov.timetype()].name
                 <<"\nPayloadContainerName "<<payloadContainer<<"\n"
                 <<"since \t till \t payloadToken"<<std::endl;
        for (cond::IOVProxy::const_iterator ioviterator=iov.begin(); ioviterator!=iov.end(); ioviterator++) {
@@ -183,7 +183,6 @@ int main( int argc, char** argv ){
        }
        std::cout<<"Total # of payload objects: "<<counter<<std::endl;
        pooldb.commit();
-       delete ioviterator;
        myconnection.disconnect();
      }catch(cond::Exception& er){
        std::cout<<er.what()<<std::endl;
