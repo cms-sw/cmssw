@@ -17,8 +17,6 @@
 
 <use name=CondCore/DBOutputService>
 
-<flags EDM_PLUGIN=1>
-
 <export>
    <lib name=DQMSiStripMonitorSummary>
    <use name=FWCore/Framework>
