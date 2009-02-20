@@ -87,7 +87,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
     Generator = cms.PSet(
         HectorEtaCut,
         # string HepMCProductLabel = "VtxSmeared"
-        HepMCProductLabel = cms.string('source'),
+        HepMCProductLabel = cms.string('generator'),
         ApplyPCuts = cms.bool(True),
         MinPCut = cms.double(0.04), ## the pt-cut is in GeV (CMS conventions)
         MaxPCut = cms.double(99999.0), ## the ptmax=99.TeV in this case
