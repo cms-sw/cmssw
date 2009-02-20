@@ -48,28 +48,28 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     timetype = cms.untracked.string('runnumber'),
     connect = cms.string('sqlite_file:test.db'),
     toPut = cms.VPSet(cms.PSet(
-#        record = cms.string('SiPixelFedCablingMapRcd'),
-#        tag = cms.string('SiPixelFedCablingMap_v14')
-#    ), 
-#        cms.PSet(
-#            record = cms.string('SiPixelLorentzAngleRcd'),
-#            tag = cms.string('SiPixelLorentzAngle_v01')
-#        ),
-#       cms.PSet(
-#            record = cms.string('SiPixelTemplateDBObjectRcd'),
-#            tag = cms.string('SiPixelTemplateDBObject')
-#        ),
-#       cms.PSet(
-            record = cms.string('SiPixelQualityRcd'),
-            tag = cms.string('SiPixelQuality_test')
-#        ),
-#        cms.PSet(
-#            record = cms.string('SiPixelGainCalibrationOfflineRcd'),
-#            tag = cms.string('SiPixelGainCalibration_TBuffer_const')
-#        ), 
-#        cms.PSet(
-#            record = cms.string('SiPixelGainCalibrationForHLTRcd'),
-#            tag = cms.string('SiPixelGainCalibration_TBuffer_hlt_const')
+        record = cms.string('SiPixelFedCablingMapRcd'),
+        tag = cms.string('SiPixelFedCablingMap_v14')
+    ), 
+        cms.PSet(
+            record = cms.string('SiPixelLorentzAngleRcd'),
+            tag = cms.string('SiPixelLorentzAngle_v01')
+        ),
+       cms.PSet(
+            record = cms.string('SiPixelTemplateDBObjectRcd'),
+            tag = cms.string('SiPixelTemplateDBObject')
+        ),
+       cms.PSet(
+           record = cms.string('SiPixelQualityRcd'),
+           tag = cms.string('SiPixelQuality_test')
+        ),
+        cms.PSet(
+            record = cms.string('SiPixelGainCalibrationOfflineRcd'),
+            tag = cms.string('SiPixelGainCalibration_TBuffer_const')
+        ), 
+        cms.PSet(
+            record = cms.string('SiPixelGainCalibrationForHLTRcd'),
+            tag = cms.string('SiPixelGainCalibration_TBuffer_hlt_const')
         ))
 )
 
@@ -182,4 +182,4 @@ process.SiPixelCondObjForHLTBuilder = cms.EDFilter("SiPixelCondObjForHLTBuilder"
 
 
 process.p = cms.Path(process.SiPixelLorentzAngle*process.MapWriter*process.SiPixelCondObjOfflineBuilder*process.SiPixelCondObjForHLTBuilder*process.TemplateUploader*process.QualityObjectMaker)
-process.p = cms.Path(process.QualityObjectMaker)
+
