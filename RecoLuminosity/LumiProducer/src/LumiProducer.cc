@@ -18,7 +18,7 @@ from the configuration file, the DB is not implemented yet)
 //                   David Dagenhart
 //       
 //         Created:  Tue Jun 12 00:47:28 CEST 2007
-// $Id: LumiProducer.cc,v 1.5 2009/02/20 09:14:05 xiezhen Exp $
+// $Id: LumiProducer.cc,v 1.6 2009/02/20 10:16:09 xiezhen Exp $
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -136,13 +136,28 @@ void LumiProducer::beginLuminosityBlock(edm::LuminosityBlock &iLBlock, edm::Even
      lumioccerr, lumi occ errors
      lumioccerr, lumi occ qualities
    */
+  std::vector<lumi::BunchCrossingInfo> resultET;
+  myLumi->bunchCrossingInfo(lumi::ET,resultET);
   std::vector<float> lumietsum;
   std::vector<float> lumietsumerr;
   std::vector<int> lumietsumqual;
-
+  for(std::vector<lumi::BunchCrossingInfo>::iterator it=resultET.begin();
+      it!=resultET.end();++it){
+    lumietsum.push_back(it->lumivalue);
+    lumietsumerr.push_back(it->lumierr);
+    lumietsumqual.push_back(it->lumiquality);
+  }
+  std::vector<lumi::BunchCrossingInfo> resultOCCD1;
+  myLumi->bunchCrossingInfo(lumi::OCCD1,resultOCCD1);
   std::vector<float> lumiocc;
   std::vector<float> lumioccerr;
   std::vector<int> lumioccqual;
+  for(std::vector<lumi::BunchCrossingInfo>::iterator it=resultOCCD1.begin();
+      it!=resultOCCD1.end();++it){
+    lumiocc.push_back(it->lumivalue);
+    lumioccerr.push_back(it->lumierr);
+    lumioccqual.push_back(it->lumiquality);
+  }
   LumiDetails* pIn2=new LumiDetails(lumietsum,lumietsumerr,lumietsumqual,lumiocc, lumioccerr,lumioccqual);
   std::auto_ptr<LumiDetails> pOut2(pIn2);
   iLBlock.put(pOut2);
