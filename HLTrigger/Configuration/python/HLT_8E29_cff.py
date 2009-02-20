@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre2/8E29_V98/V2 (CMSSW_3_1_X_2009-02-19-0000_HLT2)
+# /dev/CMSSW_3_1_0/pre2/8E29_V100/V2 (CMSSW_3_1_X_2009-02-19-0000_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/8E29_V98/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/8E29_V100/V2')
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -3430,8 +3430,7 @@ hltL3TrajectorySeed = cms.EDProducer( "TSGFromL2Muon",
 )
 hltL3TrackCandidateFromL2 = cms.EDProducer( "CkfTrajectoryMaker",
     trackCandidateAlso = cms.bool( True ),
-    SeedProducer = cms.string( "hltL3TrajectorySeed" ),
-    SeedLabel = cms.string( "" ),
+    src = cms.InputTag( "hltL3TrajectorySeed" ),
     TrajectoryBuilder = cms.string( "muonCkfTrajectoryBuilder" ),
     TrajectoryCleaner = cms.string( "TrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
