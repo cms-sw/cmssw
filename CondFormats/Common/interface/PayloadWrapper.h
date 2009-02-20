@@ -9,10 +9,10 @@ namespace cond {
 
   /** base class of IOV payload wapper
       the final class will include ptrs for payload and its summary
-   */
+  */
   class  PayloadWrapper {
   public:
-     
+    
     // load DOES NOT throw!
     virtual void loadAll() const {
       loadData();
@@ -60,27 +60,27 @@ namespace cond {
     typedef Object value_type; 
     typedef DataWrapper<value_type> self;
     typedef base::summary_type summary_type;
-
+    
     
     explicit DataWrapper(Object * obj=0, Summary * sum=0) : 
       base(sum), m_data(obj){}
-
+    
     virtual ~DataWrapper() {
       if (m_data.isLoaded()) delete m_data.get();
     }    
-
+    
     
     Object const & data() const { return *m_data;}
-
+    
     bool loadData() const {
       return m_data.get();
     }
-
+    
   private:
-
+    
     pool::Ptr<Object> m_data;
   };
-
+  
 } // ns
 
 #endif //Cond_PayloadWrapper_h

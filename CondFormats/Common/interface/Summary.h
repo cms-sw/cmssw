@@ -5,7 +5,7 @@
 #include <iosfwd>
 
 namespace cond {
-
+  
   /** Short summary of condition payoad
       FIXME in future polymorfic
   */
@@ -25,7 +25,7 @@ namespace cond {
     virtual void longMessage(std::ostream & os) const;
     
     
-private:
+  private:
     
     std::string m_me;
     
@@ -34,7 +34,7 @@ private:
 }
 
 inline std::ostream & operator<<(std::ostream & os, cond::Summary const & s) {
-  return s.shortMessage(os);
+  s.shortMessage(os); return os;
 }
 
 #endif
