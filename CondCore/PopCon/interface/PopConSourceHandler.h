@@ -155,6 +155,7 @@ namespace popcon {
 
     int add(value_type * payload, Summary * summary, Time_t time) {
       m_triplets.push_back({payload,summary,time});
+      return m_triplets.size();
     }
 
   private:

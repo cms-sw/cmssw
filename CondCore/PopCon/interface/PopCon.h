@@ -29,8 +29,7 @@
 
 namespace cond {
   class Summary;
-};
-
+}
 
 
 namespace popcon {
@@ -52,7 +51,7 @@ namespace popcon {
        void write(Source const & source);
 
      template<typename T>
-       void writeOne(T * payload, Time_t time);
+     void writeOne(T * payload, Summary * summary, Time_t time);
 
    
     
@@ -111,8 +110,8 @@ namespace popcon {
       s <<(sinceAppend ? "Since " :" Till ") << (*payloads.begin()).time <<  "; " ;
     else{
       // when more than one payload are transferred;  
-      ss <<   "first payload " << (sinceAppend ? "Since " :" Till ") <<  (*payloads.begin()).time <<  ";\n" ;
-      ss<< "last payload " << (sinceAppend ? "Since " :" Till ") << (*payloads.rbegin()).time <<  ";\n" ;  
+      s <<   "first payload " << (sinceAppend ? "Since " :" Till ") <<  (*payloads.begin()).time <<  ";\n" ;
+      s<< "last payload " << (sinceAppend ? "Since " :" Till ") << (*payloads.rbegin()).time <<  ";\n" ;  
     }  
     return s.str();
   }
