@@ -21,6 +21,10 @@
 #include "CondCore/IOVService/interface/IOVIterator.h"
 #include "CondCore/Utilities/interface/CommonOptions.h"
 
+#include "CondFormats/Common/interface/PayloadWrapper.h"
+#include "CondCore/DBCommon/interface/TypedRef.h"
+
+
 #include <boost/program_options.hpp>
 #include <iterator>
 #include <iostream>
@@ -32,6 +36,7 @@ int main( int argc, char** argv ){
   myopt.visibles().add_options()
     ("all,a","list all tags(default mode)")
     ("tag,t",boost::program_options::value<std::string>(),"list info of the specified tag")
+    ("summary,s","print also the summary for each payload")
     ;
   myopt.description().add( myopt.visibles() );
   boost::program_options::variables_map vm;
@@ -53,6 +58,8 @@ int main( int argc, char** argv ){
   std::string pass("");
   bool listAll=true;
   bool debug=false;
+  bool details=false;
+
   std::string tag;
   if(!vm.count("connect")){
     std::cerr <<"[Error] no connect[c] option given \n";
@@ -73,7 +80,10 @@ int main( int argc, char** argv ){
   if(vm.count("tag")){
     tag=vm["tag"].as<std::string>();
     listAll=false;
+    if(vm.count("summary")){
+      details=true;
   }
+  
   if(vm.count("debug")){
     debug=true;
   }
@@ -161,7 +171,12 @@ int main( int argc, char** argv ){
                 <<"\nPayloadContainerName "<<payloadContainer<<"\n"
                 <<"since \t till \t payloadToken"<<std::endl;
        while( ioviterator->next() ){
-	 std::cout<<ioviterator->validity().first<<" \t "<<ioviterator->validity().second<<" \t "<<ioviterator->payloadToken()<<std::endl;	
+	 std::cout<<ioviterator->validity().first<<" \t "<<ioviterator->validity().second<<" \t "<<ioviterator->payloadToken();
+	 if (details) {
+	   cond::TypedRef<cond::PayloadWrapper> wrapper(pooldb,ioviterator->payloadToken());
+	   std::cout << " \t "<< wrapper->summary();
+	 }
+	 std::cout<<std::endl;	
 	 ++counter;
        }
        std::cout<<"Total # of payload objects: "<<counter<<std::endl;
