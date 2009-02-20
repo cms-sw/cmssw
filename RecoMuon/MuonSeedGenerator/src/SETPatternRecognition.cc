@@ -46,9 +46,6 @@ void SETPatternRecognition::produce(const edm::Event& event, const edm::EventSet
 
   MuonPatternRecoDumper debug;
 
-  //Get the CSC Geometry :
-  theService->update(eventSetup);
-
   //---- Build collection of all segments
   MuonRecHitContainer muonRecHits;
   MuonRecHitContainer muonRecHits_DT2D_hasPhi;
