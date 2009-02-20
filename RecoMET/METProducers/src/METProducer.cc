@@ -66,8 +66,6 @@ namespace cms
       produces<CaloMETCollection>().setBranchAlias(alias.c_str()); 
     else if( METtype == "GenMET" )  
       produces<GenMETCollection>().setBranchAlias(alias.c_str());
-    else if (METtype == "CaloMETSignif")
-      produces<CaloMETCollection>().setBranchAlias(alias.c_str());
     else if( METtype == "PFMET" )
       produces<PFMETCollection>().setBranchAlias(alias.c_str()); 
     else if (METtype == "TCMET" )
@@ -185,19 +183,6 @@ namespace cms
       genmetcoll->push_back( gen.addInfo(input, output) );
       event.put( genmetcoll );
     }
-    //-----------------------------------
-    else if( METtype == "CaloMETSignif" ) 
-    {
-      alg_.run(input, &output, globalThreshold); 
-      SignCaloSpecificAlgo calo;
-      // first calculate all standard info. Then over-write the values used by the significance:
-      std::auto_ptr<CaloMETCollection> calometcoll; 
-      calometcoll.reset(new CaloMETCollection);
-      metsig::SignAlgoResolutions resolutions(conf_);
-      calometcoll->push_back( calo.addInfo(input, output, resolutions, noHF, globalThreshold) );
-      event.put( calometcoll );
-    }
-    //-----------------------------------
     else
     {
       alg_.run(input, &output, globalThreshold); 
