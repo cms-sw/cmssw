@@ -22,6 +22,8 @@
 #include "CondTools/SiPixel/interface/SiPixelGainCalibrationService.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondTools/SiPixel/interface/SiPixelGainCalibrationOfflineService.h"
+#include "CondTools/SiPixel/interface/SiPixelGainCalibrationForHLTService.h"
+#include "CondTools/SiPixel/interface/SiPixelGainCalibrationServiceBase.h"
 
 
 #include "TH2F.h"
@@ -40,14 +42,20 @@ class SiPixelGainCalibrationRejectNoisyAndDead : public edm::EDAnalyzer {
 
    private:
       edm::ParameterSet conf_;
-      SiPixelGainCalibrationOfflineService SiPixelGainCalibrationService_;
+      SiPixelGainCalibrationOfflineService SiPixelGainCalibrationOfflineService_;
+      //SiPixelGainCalibrationForHLTService SiPixelGainCalibrationService_;
       SiPixelGainCalibrationOffline *theGainCalibrationDbInputOffline_;
+      
+      SiPixelGainCalibrationForHLTService SiPixelGainCalibrationForHLTService_;
+      SiPixelGainCalibrationForHLT *theGainCalibrationDbInputForHLT_;
 
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       
       std::map < int,std::vector < std::pair < int,int > > > noisypixelkeeper;
+      std::map < int,std::vector < std::pair < int,int > > > insertednoisypixel;
+      int nnoisyininput;
       
       void fillDatabase(const edm::EventSetup&);
       void getNoisyPixels();
@@ -58,6 +66,8 @@ class SiPixelGainCalibrationRejectNoisyAndDead : public edm::EDAnalyzer {
       
       std::string noisypixellist_;
       bool insertnoisypixelsindb_;
+      std::string record_;
+      bool DEBUG;
       float pedlow_;
       float pedhi_;
       float gainlow_;

@@ -8,11 +8,11 @@ process.load("Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.globaltag = "CRAFT_ALL_V5::All"
 
-#process.readfileOffline = cms.EDFilter("SiPixelGainCalibrationRejectNoisyAndDead",
-#    inputrootfile = cms.untracked.string('file:///tmp/rougny/test.root'),
-#    record = cms.untracked.string('SiPixelGainCalibrationOfflineRcd'),
-#    useMeanWhenEmpty = cms.untracked.bool(True)  ,                                     
-#)
+process.insertNoisyandDead = cms.EDFilter("SiPixelGainCalibrationRejectNoisyAndDead",
+    #record = cms.untracked.string('SiPixelGainCalibrationOfflineRcd'),                
+    record = cms.untracked.string('SiPixelGainCalibrationForHLTRcd'),                  
+    debug = cms.untracked.bool(False)              
+)
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
@@ -35,10 +35,11 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
         authenticationPath = cms.untracked.string('.')
     ),
     toGet = cms.VPSet(cms.PSet(
-        record = cms.string('SiPixelGainCalibrationOfflineRcd'),
-        tag = cms.string('GainCalib_TEST_offline')
+        #record = cms.string('SiPixelGainCalibrationOfflineRcd'),
+        record = cms.string('SiPixelGainCalibrationForHLTRcd'),
+        tag = cms.string('SiPixelGainCalibration_TBuffer_hlt_const')
     )),
-    connect = cms.string('sqlite_file:provaIN.db')
+    connect = cms.string('sqlite_file:prova_HLT.db')
 
 )
 
@@ -51,11 +52,12 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     ),
     toPut = cms.VPSet(
         cms.PSet(
-            record = cms.string('SiPixelGainCalibrationOfflineRcd'),
-            tag = cms.string('GainCalib_TEST')
+            #record = cms.string('SiPixelGainCalibrationOfflineRcd'),
+            record = cms.string('SiPixelGainCalibrationForHLTRcd'),
+            tag = cms.string('GainCalib_TEST_hlt')
     )),
     connect = cms.string('sqlite_file:provaOUT.db')
 )
 
 process.prefer("PoolDBESSource")
-process.p = cms.Path(process.readfileOffline)
+process.p = cms.Path(process.insertNoisyandDead)
