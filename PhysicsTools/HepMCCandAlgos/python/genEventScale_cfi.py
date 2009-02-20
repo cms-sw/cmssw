@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 genEventScale = cms.EDProducer("GenEventScaleProducer",
-    src = cms.InputTag("source")
+    src = cms.InputTag("generator")
 )
 
 
