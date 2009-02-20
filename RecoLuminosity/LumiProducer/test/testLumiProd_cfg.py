@@ -15,7 +15,13 @@ process.maxEvents = cms.untracked.PSet(
   input = cms.untracked.int32(3)
 )
 
-process.source = cms.Source("EmptySource")
+process.source = cms.Source("EmptyIOVSource",
+    timetype = cms.string('lumiid'),
+    firstValue = cms.uint64(42949672962),
+    lastValue = cms.uint64(42949672964),
+    interval = cms.uint64(1)
+)
+
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     DBParameters = cms.PSet(
         messageLevel = cms.untracked.int32(0),

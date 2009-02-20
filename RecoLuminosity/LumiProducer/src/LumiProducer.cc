@@ -18,7 +18,7 @@ from the configuration file, the DB is not implemented yet)
 //                   David Dagenhart
 //       
 //         Created:  Tue Jun 12 00:47:28 CEST 2007
-// $Id: LumiProducer.cc,v 1.4 2008/02/06 20:57:29 wdd Exp $
+// $Id: LumiProducer.cc,v 1.5 2009/02/20 09:14:05 xiezhen Exp $
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -82,18 +82,24 @@ LumiProducer::~LumiProducer()
 // member functions
 //
 
-void LumiProducer::produce(edm::Event&, const edm::EventSetup&)
-{ }
+void LumiProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
+{ 
+  std::cout<<"produce"<<std::endl;
+  
+}
 
 void LumiProducer::beginLuminosityBlock(edm::LuminosityBlock &iLBlock, edm::EventSetup const &iSetup) {
-  unsigned int lumiNumber = iLBlock.id().luminosityBlock();
-  std::stringstream ss;
-  ss << "LS" << lumiNumber;
-  std::string psetName = ss.str();
+  std::cout<<"beginLuminosityBlock"<<std::endl;
+  edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("LuminosityInfoRcd"));
+  if( recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag()) {
+    //record not found
+    std::cout <<"Record \"LuminosityInfoRcd"<<"\" does not exist "<<std::endl;
+  }
   edm::ESHandle<lumi::LuminosityInfo> pLumi;
+  std::cout<<"got eshandle"<<std::endl;
   iSetup.get<LuminosityInfoRcd>().get(pLumi);
   const lumi::LuminosityInfo* myLumi=pLumi.product();
-
+  std::cout<<" payload pointer "<<myLumi<<std::endl;
   /**summary information
      avginsdellumi: average instante lumi value 
      avginsdellumierr:  average instante lumi error
@@ -110,7 +116,7 @@ void LumiProducer::beginLuminosityBlock(edm::LuminosityBlock &iLBlock, edm::Even
   float avginsdellumierr=myLumi->lumiAverage(lumi::ET).error;
   int lumisecqual=myLumi->lumiAverage(lumi::ET).quality;
   float deadfrac=myLumi->deadTimeNormalization();
-  int lsnumber=1; //isn't it the same as the above lumiNumber??
+  int lsnumber=myLumi->lumisectionID();
   std::vector<int> l1ratecounter;
   std::vector<int> l1scaler;
   std::vector<int> hltratecounter;
