@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDbParams.h,v 1.11 2008/06/04 14:11:34 bainbrid Exp $
+// Last commit: $Id: SiStripDbParams.h,v 1.12 2008/06/06 14:45:23 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripDbParams_h
 #define OnlineDB_SiStripConfigDb_SiStripDbParams_h
@@ -45,6 +45,8 @@ class SiStripDbParams {
   // ---------- typedefs ----------
   
   typedef std::map< std::string, SiStripPartition > SiStripPartitions;
+
+  typedef SiStripPartitions::size_type size_type;
   
   typedef boost::iterator_range<SiStripPartitions::const_iterator> const_iterator_range;
 
@@ -96,6 +98,9 @@ class SiStripDbParams {
   
   /** Construct string from (non-zero) partition names. */
   std::string partitionNames( const std::vector<std::string>& ) const;
+
+  /** Return the number of partitions. */
+  size_type partitionsSize() const;
   
   // ---------- setters ----------
 
@@ -182,6 +187,8 @@ inline SiStripDbParams::const_iterator_range SiStripDbParams::partitions() const
 														partitions_.end() ); }
 inline SiStripDbParams::iterator_range SiStripDbParams::partitions() { return iterator_range( partitions_.begin(), 
 											      partitions_.end() ); }
+
+inline SiStripDbParams::size_type SiStripDbParams::partitionsSize() const { return partitions_.size(); }
 
 inline std::string SiStripDbParams::outputModuleXml() const { return outputModuleXml_; }
 inline std::string SiStripDbParams::outputDcuInfoXml() const { return outputDcuInfoXml_; }

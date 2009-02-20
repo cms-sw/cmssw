@@ -1,4 +1,4 @@
-// Last commit: $Id: testSiStripConfigDb.cc,v 1.14 2008/05/16 09:53:48 bainbrid Exp $
+// Last commit: $Id: testSiStripConfigDb.cc,v 1.15 2008/05/29 13:11:24 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/test/plugins/testSiStripConfigDb.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -96,7 +96,7 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
 
   // -------------------- COPY CONSTRUCTORS AND OPERATORS  --------------------
 
-  if ( db_->dbParams().partitions().size() < 1 ) {
+  if ( db_->dbParams().partitionsSize() < 1 ) {
     LogTrace(mlCabling_) 
       << "[testSiStripConfigDb::" << __func__ << "]"
       << " Cannot test copy constructors as less than 2 partitions!";

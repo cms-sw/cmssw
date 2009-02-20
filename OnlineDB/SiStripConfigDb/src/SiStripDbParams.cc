@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDbParams.cc,v 1.11 2008/06/06 14:48:53 bainbrid Exp $
+// Last commit: $Id: SiStripDbParams.cc,v 1.12 2008/07/03 09:29:21 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripDbParams.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -79,15 +79,16 @@ bool SiStripDbParams::operator== ( const SiStripDbParams& input ) const {
 	  outputDcuInfoXml_ == input.outputDcuInfoXml() &&
 	  outputFecXml_ == input.outputFecXml() && 
 	  outputFedXml_ == input.outputFedXml() ) ) { return false; }
-  if ( partitions_.size() != input.partitions().size() ) { return false; }
-  SiStripPartitions::const_iterator ii = input.partitions().begin();
-  SiStripPartitions::const_iterator jj = input.partitions().end();
-  SiStripPartitions::const_iterator iter = partitions_.begin();
-  for ( ; ii != jj; ++ii ) {
-    if ( ii->first != iter->first || ii->second != iter->second ) { return false; }
-    iter++;
-  }
-  return true;
+  if ( partitionsSize() != input.partitionsSize() ) { return false; }
+//   SiStripPartitions::const_iterator ii = input.partitions().begin();
+//   SiStripPartitions::const_iterator jj = input.partitions().end();
+//   SiStripPartitions::const_iterator iter = partitions_.begin();
+//   for ( ; ii != jj; ++ii ) {
+//     if ( ii->first != iter->first || ii->second != iter->second ) { return false; }
+//     iter++;
+//   }
+//   return true;
+  return partitions_ == input.partitions_;
 }
 
 // -----------------------------------------------------------------------------
