@@ -11,6 +11,8 @@ using namespace std;
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
 
 #include <iostream>
 
@@ -67,26 +69,12 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
     std::cout << "HcalHitReconstructor is not associated with a specific subdetector!" << std::endl;
   }       
   
-  // set ignoreMask_ values -- use HcalDataValidationWorkflow bit assignments
-  ignoreMask_=0;
-  if (std::find(channelStatusToDrop_.begin(),channelStatusToDrop_.end(),std::string("ChannelOff"))!=channelStatusToDrop_.end())
-    ignoreMask_|=(1<<0);
-  if (std::find(channelStatusToDrop_.begin(),channelStatusToDrop_.end(),std::string("ChannelDead"))!=channelStatusToDrop_.end())
-    ignoreMask_|=(1<<5);
-  if (std::find(channelStatusToDrop_.begin(),channelStatusToDrop_.end(),std::string("ChannelHot"))!=channelStatusToDrop_.end())
-    ignoreMask_|=(1<<6);
-  if (std::find(channelStatusToDrop_.begin(),channelStatusToDrop_.end(),std::string("ChannelStabErr"))!=channelStatusToDrop_.end())
-    ignoreMask_|=(1<<7);
-  if (std::find(channelStatusToDrop_.begin(),channelStatusToDrop_.end(),std::string("ChannelTimErr"))!=channelStatusToDrop_.end())
-    ignoreMask_|=(1<<8);
-  ignoreCells_=new HcalIgnoreCellsAlgo(ignoreMask_);
 }
 
 HcalHitReconstructor::~HcalHitReconstructor() {
   if (hbheFlagSetter_)  delete hbheFlagSetter_;
   if (hfdigibit_)       delete hfdigibit_;
   if (hfrechitbit_)     delete hfrechitbit_;
-  if (ignoreCells_)     delete ignoreCells_;
 }
 
 void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
@@ -99,6 +87,11 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
   edm::ESHandle<HcalChannelQuality> p;
   eventSetup.get<HcalChannelQualityRcd>().get(p);
   HcalChannelQuality* myqual = new HcalChannelQuality(*p.product());
+
+  edm::ESHandle<HcalSeverityLevelComputer> mycomputer;
+  eventSetup.get<HcalSeverityLevelComputerRcd>().get(mycomputer);
+  const HcalSeverityLevelComputer* mySeverity = mycomputer.product();
+
   
   if (det_==DetId::Hcal) {
     if (subdet_==HcalBarrel || subdet_==HcalEndcap) {
@@ -115,7 +108,10 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
       for (i=digi->begin(); i!=digi->end(); i++) {
 	HcalDetId cell = i->id();
 	DetId detcell=(DetId)cell;
-	if (ignoreCells_->ignoreBadCells(detcell,myqual)) continue;
+	// check on cells to be ignored and dropped: (rof,20.Feb.09)
+	const HcalChannelStatus* mydigistatus=myqual->getValues(detcell.rawId());
+	if (mySeverity->dropChannel(mydigistatus->getValue() ) ) continue;
+
 	const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
 	HcalCoderDb coder (*channelCoder, *shape);
@@ -138,7 +134,10 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
       for (i=digi->begin(); i!=digi->end(); i++) {
 	HcalDetId cell = i->id();
 	DetId detcell=(DetId)cell;
-	if (ignoreCells_->ignoreBadCells(detcell,myqual)) continue;
+	// check on cells to be ignored and dropped: (rof,20.Feb.09)
+	const HcalChannelStatus* mydigistatus=myqual->getValues(detcell.rawId());
+	if (mySeverity->dropChannel(mydigistatus->getValue() ) ) continue;
+
 	const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
 	HcalCoderDb coder (*channelCoder, *shape);
@@ -160,7 +159,10 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
       for (i=digi->begin(); i!=digi->end(); i++) {
 	HcalDetId cell = i->id();
 	DetId detcell=(DetId)cell;
-	if (ignoreCells_->ignoreBadCells(detcell,myqual)) continue;
+	// check on cells to be ignored and dropped: (rof,20.Feb.09)
+	const HcalChannelStatus* mydigistatus=myqual->getValues(detcell.rawId());
+	if (mySeverity->dropChannel(mydigistatus->getValue() ) ) continue;
+
 	const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
 	HcalCoderDb coder (*channelCoder, *shape);
@@ -186,7 +188,10 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
       for (i=digi->begin(); i!=digi->end(); i++) {
 	HcalCalibDetId cell = i->id();
 	DetId detcell=(DetId)cell;
-	if (ignoreCells_->ignoreBadCells(detcell,myqual)) continue;
+	// check on cells to be ignored and dropped: (rof,20.Feb.09)
+	const HcalChannelStatus* mydigistatus=myqual->getValues(detcell.rawId());
+	if (mySeverity->dropChannel(mydigistatus->getValue() ) ) continue;
+
 	const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
 	HcalCoderDb coder (*channelCoder, *shape);
@@ -208,7 +213,10 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
     for (i=digi->begin(); i!=digi->end(); i++) {
       HcalZDCDetId cell = i->id();
       DetId detcell=(DetId)cell;
-      if (ignoreCells_->ignoreBadCells(detcell,myqual)) continue;
+      // check on cells to be ignored and dropped: (rof,20.Feb.09)
+      const HcalChannelStatus* mydigistatus=myqual->getValues(detcell.rawId());
+      if (mySeverity->dropChannel(mydigistatus->getValue() ) ) continue;
+
       const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
       const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
       HcalCoderDb coder (*channelCoder, *shape);

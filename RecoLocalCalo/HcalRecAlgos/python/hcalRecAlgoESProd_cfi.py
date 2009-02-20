@@ -9,6 +9,13 @@ import FWCore.ParameterSet.Config as cms
 #  If a defined bit vector is empty, the corresponding flag is not checked.
 #  This means that the highest level that has two empty vectors will be always the default level.
 # 
+# RecoveredRecHitBits: this is a mask for the determination of whether a particular RecHit is recovered
+#                      empty mask means that no flag is assigned to the recovered status
+#
+# DropChannelStatus: this is a mask for the determination of whether a digi should be/is dropped
+#                    during reconstruction because of the channelstatus of its cell
+#                    empty mask means that no digi should be/is dropped
+#
 
 essourceSev =  cms.ESSource("EmptyESSource",
                    recordName = cms.string("HcalSeverityLevelComputerRcd"),
@@ -32,5 +39,7 @@ hcalRecAlgos = cms.ESProducer("HcalRecAlgoESProducer",
                                             'HFDigiTime', 'HFLongShort', 'ZDCBit', 'CalibrationBit'),
                   ChannelStatus = cms.vstring('HcalCellOff', 'HcalCellDead')
                 )
-        )
+        ),
+    RecoveredRecHitBits = cms.vstring(''),
+    DropChannelStatusBits = cms.vstring('HcalCellOff', 'HcalCellDead')
 )

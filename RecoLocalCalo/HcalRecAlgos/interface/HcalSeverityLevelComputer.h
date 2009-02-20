@@ -31,6 +31,12 @@ class HcalSeverityLevelComputer
   
   // gives back severity level based on evaluation of the RecHit flag and cell's channel status
   int getSeverityLevel(const DetId& myid, const uint32_t& myflag, const uint32_t& mystatus) const;
+
+  // gives back boolean whether the RecHit is a recovered one, based on RecHit flag
+  bool recoveredRecHit(const DetId& myid, const uint32_t& myflag) const;
+
+  // gives back whether channel should be / is dropped, based on channel status
+  bool dropChannel(const uint32_t& mystatus) const;
   
  private:
   class HcalSeverityDefinition
@@ -47,7 +53,11 @@ class HcalSeverityLevelComputer
   };
 
   std::vector<HcalSeverityDefinition> SevDef;
-
+  HcalSeverityDefinition* RecoveredRecHit_;
+  HcalSeverityDefinition* DropChannel_;
+ 
+  void getChStBit(HcalSeverityDefinition& mydef, const std::string& mybit);
+  void getRecHitFlag(HcalSeverityDefinition& mydef, const std::string& mybit);
   void setBit (const unsigned bitnumber, uint32_t& where);
 
   friend std::ostream& operator<<(std::ostream& s, const HcalSeverityLevelComputer::HcalSeverityDefinition& def);

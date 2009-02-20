@@ -6,6 +6,59 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
+void HcalSeverityLevelComputer::getChStBit(HcalSeverityDefinition& mydef, 
+					   const std::string& mybit)
+{
+  if (mybit == "HcalCellOff") setBit(HcalChannelStatus::HcalCellOff, mydef.chStatusMask);
+  else if (mybit == "HcalCellL1Mask") setBit(HcalChannelStatus::HcalCellL1Mask, mydef.chStatusMask);
+  else if (mybit == "HcalCellDead") setBit(HcalChannelStatus::HcalCellDead, mydef.chStatusMask);
+  else if (mybit == "HcalCellHot") setBit(HcalChannelStatus::HcalCellHot, mydef.chStatusMask);
+  else if (mybit == "HcalCellStabErr") setBit(HcalChannelStatus::HcalCellStabErr, mydef.chStatusMask);
+  else if (mybit == "HcalCellTimErr") setBit(HcalChannelStatus::HcalCellTimErr, mydef.chStatusMask);
+  else 
+    { // error: unrecognized channel status name
+      edm::LogWarning  ("HcalSeverityLevelComputer") 
+	<< "HcalSeverityLevelComputer: Error: ChannelStatusFlag >>" << mybit 
+	<< "<< unknown. Ignoring.";
+    }
+}
+
+void HcalSeverityLevelComputer::getRecHitFlag(HcalSeverityDefinition& mydef, 
+					      const std::string& mybit)
+{
+  // HB, HE ++++++++++++++++++++
+  if (mybit == "HBHEHpdHitMultiplicity")
+    setBit(HcalCaloFlagLabels::HBHEHpdHitMultiplicity, mydef.HBHEFlagMask);
+  else if (mybit == "HBHEPulseShape")
+    setBit(HcalCaloFlagLabels::HBHEPulseShape, mydef.HBHEFlagMask);
+
+  // HO ++++++++++++++++++++
+  else if (mybit == "HOBit")
+    setBit(HcalCaloFlagLabels::HOBit, mydef.HOFlagMask);
+  
+  // HF ++++++++++++++++++++
+  else if (mybit == "HFDigiTime")
+    setBit(HcalCaloFlagLabels::HFDigiTime, mydef.HFFlagMask);
+  else if (mybit == "HFLongShort")
+    setBit(HcalCaloFlagLabels::HFLongShort, mydef.HFFlagMask);
+  
+  // ZDC ++++++++++++++++++++
+  else if (mybit == "ZDCBit")
+    setBit(HcalCaloFlagLabels::ZDCBit, mydef.ZDCFlagMask);
+  
+  // Calib ++++++++++++++++++++
+  else if (mybit == "CalibrationBit")
+    setBit(HcalCaloFlagLabels::CalibrationBit, mydef.CalibFlagMask);
+
+  else
+    {
+      // error: unrecognized flag name
+      edm::LogWarning  ("HcalSeverityLevelComputer") 
+	<< "HcalSeverityLevelComputer: Error: RecHitFlag >>" << mybit 
+	<< "<< unknown. Ignoring.";
+    }
+}
+
 HcalSeverityLevelComputer::HcalSeverityLevelComputer( const edm::ParameterSet& iConfig)
 {
   std::cout << "HcalSeverityLevelComputer - initializing" << std::endl;
@@ -36,63 +89,14 @@ HcalSeverityLevelComputer::HcalSeverityLevelComputer( const edm::ParameterSet& i
       for (unsigned k=0; k < myChStatuses.size(); k++)
 	{
 	  if (myChStatuses[k].empty()) break;
-	  if (myChStatuses[k] == "HcalCellOff") 
-	    setBit(HcalChannelStatus::HcalCellOff, mydef.chStatusMask);
-	  else if (myChStatuses[k] == "HcalCellL1Mask") 
-	    setBit(HcalChannelStatus::HcalCellL1Mask, mydef.chStatusMask);
-	  else if (myChStatuses[k] == "HcalCellDead") 
-	    setBit(HcalChannelStatus::HcalCellDead, mydef.chStatusMask);
-	  else if (myChStatuses[k] == "HcalCellHot") 
-	    setBit(HcalChannelStatus::HcalCellHot, mydef.chStatusMask);
-	  else if (myChStatuses[k] == "HcalCellStabErr") 
-	    setBit(HcalChannelStatus::HcalCellStabErr, mydef.chStatusMask);
-	  else if (myChStatuses[k] == "HcalCellTimErr") 
-	    setBit(HcalChannelStatus::HcalCellTimErr, mydef.chStatusMask);
-	  else 
-	    {
-	      // error: unrecognized channel status name
-	      edm::LogWarning  ("HcalSeverityLevelComputer") 
-		<< "HcalSeverityLevelComputer: Error: ChannelStatusFlag >>" << myChStatuses[k] 
-		<< "<< unknown. Ignoring.";
-	    }
+	  getChStBit(mydef, myChStatuses[k]);
 	}
       // RecHitFlag:
       //      HBHEStatusFlag, HOStatusFlag, HFStatusFlag, ZDCStatusFlag, CalibrationFlag
       for (unsigned k=0; k < myRecHitFlags.size(); k++)
 	{
 	  if (myRecHitFlags[k].empty()) break;
-        // HB, HE ++++++++++++++++++++
-	  if (myRecHitFlags[k] == "HBHEHpdHitMultiplicity")
-	    setBit(HcalCaloFlagLabels::HBHEHpdHitMultiplicity, mydef.HBHEFlagMask);
-	  else
-          if (myRecHitFlags[k] == "HBHEPulseShape")
-            setBit(HcalCaloFlagLabels::HBHEPulseShape, mydef.HBHEFlagMask);
-          else
-        // HO ++++++++++++++++++++
-          if (myRecHitFlags[k] == "HOBit")
-            setBit(HcalCaloFlagLabels::HOBit, mydef.HOFlagMask);
-	  else
-        // HF ++++++++++++++++++++
-	  if (myRecHitFlags[k] == "HFDigiTime")
-	    setBit(HcalCaloFlagLabels::HFDigiTime, mydef.HFFlagMask);
-	  else
-	  if (myRecHitFlags[k] == "HFLongShort")
-	    setBit(HcalCaloFlagLabels::HFLongShort, mydef.HFFlagMask);
-	  else
-        // ZDC ++++++++++++++++++++
-	  if (myRecHitFlags[k] == "ZDCBit")
-	    setBit(HcalCaloFlagLabels::ZDCBit, mydef.ZDCFlagMask);
-	  else
-        // Calib ++++++++++++++++++++
-	  if (myRecHitFlags[k] == "CalibrationBit")
-	    setBit(HcalCaloFlagLabels::CalibrationBit, mydef.CalibFlagMask);
-	  else
-	    {
-	      // error: unrecognized flag name
-	      edm::LogWarning  ("HcalSeverityLevelComputer") 
-		<< "HcalSeverityLevelComputer: Error: RecHitFlag >>" << myRecHitFlags[k] 
-		<< "<< unknown. Ignoring.";
-	    }
+	  getRecHitFlag(mydef, myRecHitFlags[k]);
 	}
 
       //      std::cout << "Made Severity Level:" << std::endl;
@@ -135,17 +139,48 @@ HcalSeverityLevelComputer::HcalSeverityLevelComputer( const edm::ParameterSet& i
 	<< (*it) << std::endl;
     }
 
+  //
+  // Now make the definition for recoveredRecHit
+  //
+  std::vector<std::string> myRecovered = 
+	iConfig.getParameter<std::vector <std::string> > ("RecoveredRecHitBits");
+  RecoveredRecHit_ = new HcalSeverityDefinition();
+  for (unsigned k=0; k < myRecovered.size(); k++)
+    {
+      if (myRecovered[k].empty()) break;
+      getRecHitFlag( (*RecoveredRecHit_), myRecovered[k]);
+    }
+
+  //
+  // Now make the definition for dropChannel
+  //
+  std::vector<std::string> myDrop = 
+	iConfig.getParameter<std::vector <std::string> > ("DropChannelStatusBits");
+  DropChannel_ = new HcalSeverityDefinition();
+  for (unsigned k=0; k < myDrop.size(); k++)
+    {
+      if (myDrop[k].empty()) break;
+      getChStBit( (*DropChannel_), myDrop[k]);
+    }
+
+  edm::LogInfo("HcalSeverityLevelComputer")
+    << "HcalSeverityLevelComputer - Summary for Recovered RecHit bits: \n"
+    << (*RecoveredRecHit_) << std::endl
+    << "HcalSeverityLevelComputer - Summary for Drop the Channel bits: \n"
+    << (*DropChannel_) << std::endl;
+
+
 } // HcalSeverityLevelComputer::HcalSeverityLevelComputer
 
 
 HcalSeverityLevelComputer::~HcalSeverityLevelComputer() {}
 
   
-int HcalSeverityLevelComputer::getSeverityLevel(const DetId& mydetid, const uint32_t& myflag, 
+int HcalSeverityLevelComputer::getSeverityLevel(const DetId& myid, const uint32_t& myflag, 
 						const uint32_t& mystatus) const
 {
   uint32_t myRecHitMask;
-  HcalGenericDetId myId(mydetid);
+  HcalGenericDetId myId(myid);
   HcalGenericDetId::HcalGenericSubdetector mysubdet = myId.genericSubdet();
 
   for (unsigned i=(SevDef.size()-1); i >= 0; i--)
@@ -185,6 +220,36 @@ int HcalSeverityLevelComputer::getSeverityLevel(const DetId& mydetid, const uint
   return -1;  
 }
   
+bool HcalSeverityLevelComputer::recoveredRecHit(const DetId& myid, const uint32_t& myflag) const
+{
+  uint32_t myRecHitMask;
+  HcalGenericDetId myId(myid);
+  HcalGenericDetId::HcalGenericSubdetector mysubdet = myId.genericSubdet();
+
+  switch (mysubdet)
+    {
+    case HcalGenericDetId::HcalGenBarrel : case HcalGenericDetId::HcalGenEndcap : 
+      myRecHitMask = RecoveredRecHit_->HBHEFlagMask; break;
+    case HcalGenericDetId::HcalGenOuter : myRecHitMask = RecoveredRecHit_->HOFlagMask; break;
+    case HcalGenericDetId::HcalGenForward : myRecHitMask = RecoveredRecHit_->HFFlagMask; break;
+    case HcalGenericDetId::HcalGenZDC : myRecHitMask = RecoveredRecHit_->ZDCFlagMask; break;
+    case HcalGenericDetId::HcalGenCalibration : myRecHitMask = RecoveredRecHit_->CalibFlagMask; break;
+    default: myRecHitMask = 0;
+    }
+
+  if (myRecHitMask & myflag) 
+    return true;
+
+  return false;
+}
+
+bool HcalSeverityLevelComputer::dropChannel(const uint32_t& mystatus) const
+{
+  if (DropChannel_->chStatusMask & mystatus)
+    return true;
+
+  return false;
+}
 
 void HcalSeverityLevelComputer::setBit(const unsigned bitnumber, uint32_t& where) 
 {

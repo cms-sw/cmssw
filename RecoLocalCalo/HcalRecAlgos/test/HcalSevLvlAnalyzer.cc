@@ -13,7 +13,7 @@
 //
 // Original Author:  Radek Ofierzynski
 //         Created:  Wed Jan 21 13:46:27 CET 2009
-// $Id: HcalSevLvlAnalyzer.cc,v 1.1 2009/01/22 12:43:22 rofierzy Exp $
+// $Id: HcalSevLvlAnalyzer.cc,v 1.2 2009/02/09 16:52:34 rofierzy Exp $
 //
 //
 
@@ -136,6 +136,17 @@ HcalSevLvlAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		   << ") and ChStFlag " << std::dec << sampleHBChSt[k] 
 		   << " (" << std::hex << sampleHBChSt[k] << std::dec << ") is: " << theLevel;
 	 std::cout << std::endl;
+
+	 bool dropchannel = myProd->dropChannel(sampleHBChSt[k]);
+	 bool recovered = myProd->recoveredRecHit(myIdHB, sampleHBRHFlag[i]);
+	 
+	 std::cout << "DropChannel status for " << myIdHB 
+		   << " with RHFlag " << sampleHBRHFlag[i] << " (" << std::hex << sampleHBRHFlag[i] 
+		   << ") and ChStFlag " << std::dec << sampleHBChSt[k] 
+		   << " (" << std::hex << sampleHBChSt[k] << std::dec << ") is: " << dropchannel
+		   << ", recovered status is: " << recovered << std::endl;
+	 std::cout << std::endl;
+
        }
    std::cout << std::endl;
 

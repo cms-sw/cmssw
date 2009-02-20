@@ -13,15 +13,14 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalHFStatusBitFromRecHits.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalHFStatusBitFromDigis.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalIgnoreCellsAlgo.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HBHEStatusBitSetter.h"
 
     /** \class HcalHitReconstructor
 	
-    $Date: 2008/11/28 20:28:42 $
-    $Revision: 1.2 $
+    $Date: 2009/02/10 14:56:16 $
+    $Revision: 1.1 $
     \author J. Temple & E. Yazgan
     ** Based on HcalSimpleReconstructor.h by J. Mans
     */
@@ -35,10 +34,8 @@
       HBHEStatusBitSetter* hbheFlagSetter_;
       HcalHFStatusBitFromRecHits* hfrechitbit_;
       HcalHFStatusBitFromDigis*   hfdigibit_;
-      HcalIgnoreCellsAlgo*        ignoreCells_;
       DetId::Detector det_;
       int subdet_;
-      int ignoreMask_;
       HcalOtherSubdetector subdetOther_;
       edm::InputTag inputLabel_;
       std::vector<std::string> channelStatusToDrop_;
