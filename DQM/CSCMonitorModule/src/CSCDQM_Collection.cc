@@ -387,13 +387,11 @@ namespace cscdqm {
     std::string name = h.getName(), type, title, s;
 
     /** Check if this histogram is included in booking by filters */
-    /*
-    if (!config->needBookMO(name)) {
+    if (!config->needBookMO(h.getFullPath())) {
       LOG_INFO << "MOFilter excluded " << name << " from booking"; 
       config->fnPutHisto(h, me);
       return;
     }
-    */
 
     int i1, i2, i3;
     double d1, d2, d3, d4, d5, d6;
