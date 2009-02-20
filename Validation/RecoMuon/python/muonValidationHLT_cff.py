@@ -18,6 +18,7 @@ l2MuonTrackV.beamSpot = 'hltOfflineBeamSpot'
 l2MuonTrackV.nintHit = 35
 l2MuonTrackV.maxHit = 35.0
 l2MuonTrackV.maxpT = 1100.0
+l2MuonTrackV.ignoremissingtrackcollection=True
 
 l3MuonTrackV = Validation.RecoMuon.MultiTrackValidator_cfi.multiTrackValidator.clone()
 
@@ -30,6 +31,7 @@ l3MuonTrackV.beamSpot = 'hltOfflineBeamSpot'
 l3MuonTrackV.nintHit = 35
 l3MuonTrackV.maxHit = 35.0
 l3MuonTrackV.maxpT = 1100.0
+l3MuonTrackV.ignoremissingtrackcollection=True
 
 l3TkMuonTrackV = Validation.RecoMuon.MultiTrackValidator_cfi.multiTrackValidator.clone()
 
@@ -43,6 +45,7 @@ l3TkMuonTrackV.beamSpot = 'hltOfflineBeamSpot'
 l3TkMuonTrackV.nintHit = 35
 l3TkMuonTrackV.maxHit = 35.0
 l3TkMuonTrackV.maxpT = 1100.0
+l3TkMuonTrackV.ignoremissingtrackcollection=True
 
 l3TkMuonMuTrackV = Validation.RecoMuon.MultiTrackValidator_cfi.multiTrackValidator.clone()
 
@@ -55,6 +58,7 @@ l3TkMuonMuTrackV.beamSpot = 'hltOfflineBeamSpot'
 l3TkMuonMuTrackV.nintHit = 35
 l3TkMuonMuTrackV.maxHit = 35.0
 l3TkMuonMuTrackV.maxpT = 1100.0
+l3TkMuonMuTrackV.ignoremissingtrackcollection=True
 
 l2MuonMuTrackV = Validation.RecoMuon.MultiTrackValidator_cfi.multiTrackValidator.clone()
 
@@ -67,6 +71,7 @@ l2MuonMuTrackV.beamSpot = 'hltOfflineBeamSpot'
 l2MuonMuTrackV.nintHit = 35
 l2MuonMuTrackV.maxHit = 35.0
 l2MuonMuTrackV.maxpT = 1100.0
+l2MuonMuTrackV.ignoremissingtrackcollection=True
 
 l3MuonMuTrackV = Validation.RecoMuon.MultiTrackValidator_cfi.multiTrackValidator.clone()
 
@@ -79,6 +84,7 @@ l3MuonMuTrackV.beamSpot = 'hltOfflineBeamSpot'
 l3MuonMuTrackV.nintHit = 35
 l3MuonMuTrackV.maxHit = 35.0
 l3MuonMuTrackV.maxpT = 1100.0
+l3MuonMuTrackV.ignoremissingtrackcollection=True
 
 ## from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
 ## from Validation.RecoMuon.RecoMuonValidator_cfi import *

@@ -46,26 +46,28 @@ tpToGlbTrackAssociation = cms.EDProducer('TrackAssociatorEDProducer',
 )
 
 tpToL2TrackAssociation = cms.EDProducer('TrackAssociatorEDProducer',
-
+    ignoremissingtrackcollection=cms.untracked.bool(True),
     associator = cms.string('TrackAssociatorByDeltaR'),
     label_tp = cms.InputTag('mergedtruth', 'MergedTrackTruth'),
     label_tr = cms.InputTag('hltL2Muons','UpdatedAtVtx')
 )
 
 tpToL3TrackAssociation = cms.EDProducer("TrackAssociatorEDProducer",
-
+    ignoremissingtrackcollection=cms.untracked.bool(True),
     associator = cms.string('TrackAssociatorByDeltaR'),
     label_tp = cms.InputTag('mergedtruth', 'MergedTrackTruth'),
     label_tr = cms.InputTag('hltL3Muons')
 )
 
 tpToL3TkTrackTrackAssociation = cms.EDProducer("TrackAssociatorEDProducer",
+    ignoremissingtrackcollection=cms.untracked.bool(True),
     associator = cms.string('TrackAssociatorByHits'),
     label_tp = cms.InputTag('mergedtruth','MergedTrackTruth'),
     label_tr = cms.InputTag('hltL3TkTracksFromL2','')
 )
 
 tpToL3L2TrackTrackAssociation = cms.EDProducer("TrackAssociatorEDProducer",
+    ignoremissingtrackcollection=cms.untracked.bool(True),
     associator = cms.string('TrackAssociatorByHits'),
     label_tp = cms.InputTag('mergedtruth','MergedTrackTruth'),
     label_tr = cms.InputTag('hltL3Muons:L2Seeded')
@@ -112,6 +114,7 @@ tpToL3TkMuonAssociation.UseTracker = True
 tpToL3TkMuonAssociation.UseMuon = False
 tpToL3TkMuonAssociation.EfficiencyCut_track = 0.5
 tpToL3TkMuonAssociation.PurityCut_track = 0.75
+tpToL3TkMuonAssociation.ignoreMissingTrackCollection = True
 
 tpToL2MuonAssociation.tpTag = 'mergedtruth:MergedTrackTruth'
 tpToL2MuonAssociation.tracksTag = 'hltL2Muons:UpdatedAtVtx'
@@ -120,6 +123,7 @@ tpToL2MuonAssociation.UseTracker = False
 tpToL2MuonAssociation.UseMuon = True
 tpToL2MuonAssociation.EfficiencyCut_muon = 0.5
 tpToL2MuonAssociation.PurityCut_muon = 0.5
+tpToL2MuonAssociation.ignoreMissingTrackCollection = True
 
 tpToL3MuonAssociation.tpTag = 'mergedtruth:MergedTrackTruth'
 tpToL3MuonAssociation.tracksTag = 'hltL3Muons'
@@ -130,6 +134,7 @@ tpToL3MuonAssociation.EfficiencyCut_muon = 0.5
 tpToL3MuonAssociation.PurityCut_muon = 0.5
 tpToL3MuonAssociation.EfficiencyCut_track = 0.5
 tpToL3MuonAssociation.PurityCut_track = 0.75
+tpToL3MuonAssociation.ignoreMissingTrackCollection = True
 
 muonAssociation_seq = cms.Sequence((tpToTkMuonAssociation+tpToStaMuonAssociation+tpToGlbMuonAssociation)
                                   +(tpToTkmuTrackAssociation+tpToStaTrackAssociation+tpToGlbTrackAssociation))
