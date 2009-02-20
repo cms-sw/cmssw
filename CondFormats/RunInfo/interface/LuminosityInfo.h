@@ -8,7 +8,7 @@
  * each event will occur at one of these BX. BX is defined to be the number of the
  * bunch crossing where this event occurred.
  *
- * $Id: LuminosityInfo.h,v 1.1 2009/02/17 11:05:53 xiezhen Exp $
+ * $Id: LuminosityInfo.h,v 1.2 2009/02/19 15:58:59 xiezhen Exp $
  *
  ************************************************************/
  
@@ -17,7 +17,6 @@
 namespace lumi{
   static const int BXMIN=1;
   static const int BXMAX=3564;
-
   static const int LUMIALGOMAX=3;
   typedef enum { ET=0,OCCD1=1,OCCD2=2} LumiAlgoType;
 
@@ -59,12 +58,16 @@ namespace lumi{
     size_t nBunchCrossing()const;
     //radom access to LumiAverage by algorithm
     LumiAverage lumiAverage( const LumiAlgoType lumialgotype )const;
-    //random access to bunchCrossingInfo by index
+    //get all bunchCrossingInfo by algorithm
+    void bunchCrossingInfo(  const LumiAlgoType lumialgotype, 
+			     std::vector<BunchCrossingInfo>& result )const ;
+    //random access to bunchCrossingInfo by bunchcrossing index
     const BunchCrossingInfo bunchCrossingInfo( const int BXIndex,
 					 const LumiAlgoType lumialgotype )const;
     //sequential access to bunchCrossingInfo
     BunchCrossingIterator bunchCrossingBegin( const LumiAlgoType lumialgotype )const;
     BunchCrossingIterator bunchCrossingEnd( const LumiAlgoType lumialgotype )const;
+    
     ///
     ///setter methods. 
     ///
