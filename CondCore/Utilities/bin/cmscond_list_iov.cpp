@@ -21,6 +21,8 @@
 #include "CondCore/IOVService/interface/IOVIterator.h"
 #include "CondCore/Utilities/interface/CommonOptions.h"
 
+
+#include "CondCore/IOVService/interface/IOVProxy.h"
 #include "CondFormats/Common/interface/PayloadWrapper.h"
 #include "CondCore/DBCommon/interface/TypedRef.h"
 
@@ -161,8 +163,8 @@ int main( int argc, char** argv ){
        token=metadata_svc.getToken(tag);
        coraldb.commit();
        cond::PoolTransaction& pooldb = myconnection.poolTransaction();
+       cond::IOVProxy iov( pooldb, token, false);
        cond::IOVService iovservice(pooldb);
-       cond::IOVIterator* ioviterator=iovservice.newIOVIterator(token);
        pooldb.start(true);
        unsigned int counter=0;
        std::string payloadContainer=iovservice.payloadContainerName(token);
@@ -170,10 +172,10 @@ int main( int argc, char** argv ){
        	        <<"\nTimeType " << cond::timeTypeSpecs[ioviterator->timetype()].name
                 <<"\nPayloadContainerName "<<payloadContainer<<"\n"
                 <<"since \t till \t payloadToken"<<std::endl;
-       while( ioviterator->next() ){
-	 std::cout<<ioviterator->validity().first<<" \t "<<ioviterator->validity().second<<" \t "<<ioviterator->payloadToken();
+       for (cond::IOVProxy::const_iterator ioviterator=iov.begin(); ioviterator!=iov.end(); ioviterator++) {
+	 std::cout<<ioviterator->since()" \t "<<ioviterator->till() <<" \t "<<ioviterator->wrapperToken();
 	 if (details) {
-	   cond::TypedRef<cond::PayloadWrapper> wrapper(pooldb,ioviterator->payloadToken());
+	   cond::TypedRef<cond::PayloadWrapper> wrapper(pooldb,ioviterator->wrapperToken());
 	   std::cout << " \t "<< wrapper->summary();
 	 }
 	 std::cout<<std::endl;	
