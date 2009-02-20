@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/18 15:51:42 $
- *  $Revision: 1.31 $
+ *  $Date: 2009/02/10 16:22:22 $
+ *  $Revision: 1.32 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -399,7 +399,7 @@ void DTResolutionTest::endJob(){
   bool outputMEsInRootFile = parameters.getParameter<bool>("OutputMEsInRootFile");
   if(outputMEsInRootFile){
 	std::string outputFileName = parameters.getParameter<std::string>("OutputFileName");
-	dbe->save(outputFileName,"DT");	
+	dbe->save(outputFileName,"DT/CalibrationSummary");	
   }	
 
 }
