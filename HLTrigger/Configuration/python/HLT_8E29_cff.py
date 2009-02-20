@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre2/8E29_V100/V2 (CMSSW_3_1_X_2009-02-19-0000_HLT3)
+# /dev/CMSSW_3_1_0/pre2/8E29_V108/V2 (CMSSW_3_1_X_2009-02-19-0000_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/8E29_V100/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/8E29_V108/V2')
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -882,6 +882,9 @@ PrescaleService = cms.Service( "PrescaleService",
       prescales = cms.vuint32( 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "AlCa_EcalPi0" ),
+      prescales = cms.vuint32( 1, 2 )
+    ),
+    cms.PSet(  pathName = cms.string( "AlCa_EcalEta" ),
       prescales = cms.vuint32( 1, 2 )
     )
   )
@@ -3272,116 +3275,12 @@ hltL3TrajectorySeed = cms.EDProducer( "TSGFromL2Muon",
       beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
       directionCleaner = cms.bool( True )
     ),
-    TSGFromMixedPairs = cms.PSet( 
-      ComponentName = cms.string( "TSGFromOrderedHits" ),
-      OrderedHitsFactoryPSet = cms.PSet( 
-        ComponentName = cms.string( "StandardHitPairGenerator" ),
-        SeedingLayers = cms.string( "MixedLayerPairs" )
-      ),
-      TTRHBuilder = cms.string( "WithTrackAngle" )
-    ),
-    TSGFromPixelTriplets = cms.PSet( 
-      ComponentName = cms.string( "TSGFromOrderedHits" ),
-      OrderedHitsFactoryPSet = cms.PSet( 
-        ComponentName = cms.string( "StandardHitTripletGenerator" ),
-        GeneratorPSet = cms.PSet( 
-          useBending = cms.bool( True ),
-          useFixedPreFiltering = cms.bool( False ),
-          phiPreFiltering = cms.double( 0.3 ),
-          extraHitRPhitolerance = cms.double( 0.06 ),
-          useMultScattering = cms.bool( True ),
-          ComponentName = cms.string( "PixelTripletHLTGenerator" ),
-          extraHitRZtolerance = cms.double( 0.06 )
-        ),
-        SeedingLayers = cms.string( "PixelLayerTriplets" )
-      ),
-      TTRHBuilder = cms.string( "WithTrackAngle" )
-    ),
-    TSGFromPixelPairs = cms.PSet( 
-      ComponentName = cms.string( "TSGFromOrderedHits" ),
-      OrderedHitsFactoryPSet = cms.PSet( 
-        ComponentName = cms.string( "StandardHitPairGenerator" ),
-        SeedingLayers = cms.string( "PixelLayerPairs" )
-      ),
-      TTRHBuilder = cms.string( "WithTrackAngle" )
-    ),
-    TSGForRoadSearchOI = cms.PSet( 
-      manySeeds = cms.bool( False ),
-      option = cms.uint32( 3 ),
-      maxChi2 = cms.double( 40.0 ),
-      errorMatrixPset = cms.PSet( 
-        atIP = cms.bool( True ),
-        action = cms.string( "use" ),
-        assignError = cms.bool( False ),
-        errorMatrixValuesPSet = cms.PSet( 
-          pf3_V12 = cms.PSet(  values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ) ),
-          pf3_V13 = cms.PSet(  values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ) ),
-          pf3_V11 = cms.PSet(  values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 4.593, 5.253, 1.895, 1.985, 2.344, 5.37, 2.059, 2.423, 1.985, 2.054, 2.071, 2.232, 2.159, 2.1, 2.355, 3.862, 1.855, 2.311, 1.784, 1.766, 1.999, 2.18, 2.071, 2.03, 2.212, 2.266, 1.693, 1.984, 1.664, 1.602, 1.761, 2.007, 1.985, 1.982, 2.118, 1.734, 1.647, 1.705, 1.56, 1.542, 1.699, 2.058, 2.037, 1.934, 2.067, 1.555, 1.566, 1.638, 1.51, 1.486, 1.635, 1.977, 1.944, 1.865, 1.925, 1.415, 1.542, 1.571, 1.499, 1.468, 1.608, 1.899, 1.893, 1.788, 1.851, 1.22, 1.49, 1.54, 1.493, 1.457, 1.572, 1.876, 1.848, 1.751, 1.827, 1.223, 1.51, 1.583, 1.486, 1.431, 1.534, 1.79, 1.802, 1.65, 1.755, 1.256, 1.489, 1.641, 1.464, 1.438, 1.48, 1.888, 1.839, 1.657, 1.903, 1.899 ) ),
-          pf3_V14 = cms.PSet(  values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ) ),
-          yAxis = cms.vdouble( 0.0, 0.2, 0.3, 0.7, 0.9, 1.15, 1.35, 1.55, 1.75, 2.2, 2.5 ),
-          pf3_V34 = cms.PSet(  values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ) ),
-          pf3_V15 = cms.PSet(  values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ) ),
-          pf3_V33 = cms.PSet(  values = cms.vdouble( 1.0, 1.0, 6.174, 56.89, 1.019, 2.206, 1.694, 1.698, 1.776, 3.563, 2.141, 2.432, 1.898, 1.834, 1.763, 1.797, 1.944, 1.857, 2.068, 2.894, 1.76, 2.185, 1.664, 1.656, 1.761, 1.964, 1.925, 1.89, 2.012, 2.014, 1.651, 1.825, 1.573, 1.534, 1.634, 1.856, 1.962, 1.879, 1.95, 1.657, 1.556, 1.639, 1.481, 1.433, 1.605, 1.943, 1.99, 1.885, 1.916, 1.511, 1.493, 1.556, 1.445, 1.457, 1.543, 1.897, 1.919, 1.884, 1.797, 1.394, 1.489, 1.571, 1.436, 1.425, 1.534, 1.796, 1.845, 1.795, 1.763, 1.272, 1.472, 1.484, 1.452, 1.412, 1.508, 1.795, 1.795, 1.773, 1.741, 1.207, 1.458, 1.522, 1.437, 1.399, 1.485, 1.747, 1.739, 1.741, 1.716, 1.187, 1.463, 1.589, 1.411, 1.404, 1.471, 1.92, 1.86, 1.798, 1.867, 1.436 ) ),
-          pf3_V45 = cms.PSet(  values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ) ),
-          pf3_V44 = cms.PSet(  values = cms.vdouble( 1.0, 1.0, 1.622, 2.139, 2.08, 1.178, 1.044, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.01, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.002, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.001, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.001, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.001, 1.0, 1.0, 1.011, 1.001, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.002, 1.0, 1.002, 1.013, 1.0, 1.0, 1.0, 1.0, 1.0, 1.005, 1.0, 1.004, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.009, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ) ),
-          xAxis = cms.vdouble( 0.0, 3.16, 6.69, 10.695, 15.319, 20.787, 27.479, 36.106, 48.26, 69.03, 200.0 ),
-          pf3_V23 = cms.PSet(  values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ) ),
-          pf3_V22 = cms.PSet(  values = cms.vdouble( 1.0, 1.0, 66.152, 3.219, 66.051, 1.298, 1.186, 1.197, 1.529, 2.807, 1.056, 1.092, 1.15, 1.158, 1.163, 1.05, 1.191, 1.287, 1.371, 2.039, 1.02, 1.059, 1.048, 1.087, 1.087, 1.041, 1.072, 1.118, 1.097, 1.229, 1.042, 1.07, 1.071, 1.063, 1.039, 1.038, 1.061, 1.052, 1.058, 1.188, 1.099, 1.075, 1.082, 1.055, 1.084, 1.024, 1.058, 1.069, 1.022, 1.184, 1.117, 1.105, 1.093, 1.082, 1.086, 1.053, 1.097, 1.07, 1.044, 1.125, 1.141, 1.167, 1.136, 1.133, 1.146, 1.089, 1.081, 1.117, 1.085, 1.075, 1.212, 1.199, 1.186, 1.212, 1.168, 1.125, 1.127, 1.119, 1.114, 1.062, 1.273, 1.229, 1.272, 1.293, 1.172, 1.124, 1.141, 1.123, 1.158, 1.115, 1.419, 1.398, 1.425, 1.394, 1.278, 1.132, 1.132, 1.115, 1.26, 1.096 ) ),
-          pf3_V55 = cms.PSet(  values = cms.vdouble( 1.0, 1.0, 27.275, 15.167, 13.818, 1.0, 1.0, 1.0, 1.037, 1.129, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.023, 1.028, 1.063, 1.08, 1.077, 1.054, 1.068, 1.065, 1.047, 1.025, 1.046, 1.064, 1.082, 1.078, 1.137, 1.12, 1.163, 1.158, 1.112, 1.072, 1.054, 1.095, 1.101, 1.092, 1.219, 1.167, 1.186, 1.203, 1.144, 1.096, 1.095, 1.109, 1.111, 1.105, 1.236, 1.187, 1.203, 1.262, 1.2, 1.086, 1.106, 1.112, 1.138, 1.076, 1.287, 1.255, 1.241, 1.334, 1.244, 1.112, 1.083, 1.111, 1.127, 1.025, 1.309, 1.257, 1.263, 1.393, 1.23, 1.091, 1.075, 1.078, 1.135, 1.042, 1.313, 1.303, 1.295, 1.436, 1.237, 1.064, 1.078, 1.075, 1.149, 1.037, 1.329, 1.509, 1.369, 1.546, 1.269, 1.079, 1.084, 1.047, 1.183, 1.008 ) ),
-          zAxis = cms.vdouble( -3.14159, 3.14159 ),
-          pf3_V35 = cms.PSet(  values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ) ),
-          pf3_V25 = cms.PSet(  values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ) ),
-          pf3_V24 = cms.PSet(  values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ) )
-        )
-      ),
-      propagatorName = cms.string( "SteppingHelixPropagatorAlong" ),
-      propagatorCompatibleName = cms.string( "SteppingHelixPropagatorAny" ),
-      copyMuonRecHit = cms.bool( False ),
-      ComponentName = cms.string( "TSGForRoadSearch" )
-    ),
-    TSGForRoadSearchIOpxl = cms.PSet( 
-      manySeeds = cms.bool( False ),
-      option = cms.uint32( 4 ),
-      maxChi2 = cms.double( 40.0 ),
-      errorMatrixPset = cms.PSet( 
-        atIP = cms.bool( True ),
-        action = cms.string( "use" ),
-        assignError = cms.bool( False ),
-        errorMatrixValuesPSet = cms.PSet( 
-          pf3_V12 = cms.PSet(  values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ) ),
-          pf3_V13 = cms.PSet(  values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ) ),
-          pf3_V11 = cms.PSet(  values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 4.593, 5.253, 1.895, 1.985, 2.344, 5.37, 2.059, 2.423, 1.985, 2.054, 2.071, 2.232, 2.159, 2.1, 2.355, 3.862, 1.855, 2.311, 1.784, 1.766, 1.999, 2.18, 2.071, 2.03, 2.212, 2.266, 1.693, 1.984, 1.664, 1.602, 1.761, 2.007, 1.985, 1.982, 2.118, 1.734, 1.647, 1.705, 1.56, 1.542, 1.699, 2.058, 2.037, 1.934, 2.067, 1.555, 1.566, 1.638, 1.51, 1.486, 1.635, 1.977, 1.944, 1.865, 1.925, 1.415, 1.542, 1.571, 1.499, 1.468, 1.608, 1.899, 1.893, 1.788, 1.851, 1.22, 1.49, 1.54, 1.493, 1.457, 1.572, 1.876, 1.848, 1.751, 1.827, 1.223, 1.51, 1.583, 1.486, 1.431, 1.534, 1.79, 1.802, 1.65, 1.755, 1.256, 1.489, 1.641, 1.464, 1.438, 1.48, 1.888, 1.839, 1.657, 1.903, 1.899 ) ),
-          pf3_V14 = cms.PSet(  values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ) ),
-          yAxis = cms.vdouble( 0.0, 0.2, 0.3, 0.7, 0.9, 1.15, 1.35, 1.55, 1.75, 2.2, 2.5 ),
-          pf3_V34 = cms.PSet(  values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ) ),
-          pf3_V15 = cms.PSet(  values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ) ),
-          pf3_V33 = cms.PSet(  values = cms.vdouble( 1.0, 1.0, 6.174, 56.89, 1.019, 2.206, 1.694, 1.698, 1.776, 3.563, 2.141, 2.432, 1.898, 1.834, 1.763, 1.797, 1.944, 1.857, 2.068, 2.894, 1.76, 2.185, 1.664, 1.656, 1.761, 1.964, 1.925, 1.89, 2.012, 2.014, 1.651, 1.825, 1.573, 1.534, 1.634, 1.856, 1.962, 1.879, 1.95, 1.657, 1.556, 1.639, 1.481, 1.433, 1.605, 1.943, 1.99, 1.885, 1.916, 1.511, 1.493, 1.556, 1.445, 1.457, 1.543, 1.897, 1.919, 1.884, 1.797, 1.394, 1.489, 1.571, 1.436, 1.425, 1.534, 1.796, 1.845, 1.795, 1.763, 1.272, 1.472, 1.484, 1.452, 1.412, 1.508, 1.795, 1.795, 1.773, 1.741, 1.207, 1.458, 1.522, 1.437, 1.399, 1.485, 1.747, 1.739, 1.741, 1.716, 1.187, 1.463, 1.589, 1.411, 1.404, 1.471, 1.92, 1.86, 1.798, 1.867, 1.436 ) ),
-          pf3_V45 = cms.PSet(  values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ) ),
-          pf3_V44 = cms.PSet(  values = cms.vdouble( 1.0, 1.0, 1.622, 2.139, 2.08, 1.178, 1.044, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.01, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.002, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.001, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.001, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.001, 1.0, 1.0, 1.011, 1.001, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.002, 1.0, 1.002, 1.013, 1.0, 1.0, 1.0, 1.0, 1.0, 1.005, 1.0, 1.004, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.009, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ) ),
-          xAxis = cms.vdouble( 0.0, 3.16, 6.69, 10.695, 15.319, 20.787, 27.479, 36.106, 48.26, 69.03, 200.0 ),
-          pf3_V23 = cms.PSet(  values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ) ),
-          pf3_V22 = cms.PSet(  values = cms.vdouble( 1.0, 1.0, 66.152, 3.219, 66.051, 1.298, 1.186, 1.197, 1.529, 2.807, 1.056, 1.092, 1.15, 1.158, 1.163, 1.05, 1.191, 1.287, 1.371, 2.039, 1.02, 1.059, 1.048, 1.087, 1.087, 1.041, 1.072, 1.118, 1.097, 1.229, 1.042, 1.07, 1.071, 1.063, 1.039, 1.038, 1.061, 1.052, 1.058, 1.188, 1.099, 1.075, 1.082, 1.055, 1.084, 1.024, 1.058, 1.069, 1.022, 1.184, 1.117, 1.105, 1.093, 1.082, 1.086, 1.053, 1.097, 1.07, 1.044, 1.125, 1.141, 1.167, 1.136, 1.133, 1.146, 1.089, 1.081, 1.117, 1.085, 1.075, 1.212, 1.199, 1.186, 1.212, 1.168, 1.125, 1.127, 1.119, 1.114, 1.062, 1.273, 1.229, 1.272, 1.293, 1.172, 1.124, 1.141, 1.123, 1.158, 1.115, 1.419, 1.398, 1.425, 1.394, 1.278, 1.132, 1.132, 1.115, 1.26, 1.096 ) ),
-          pf3_V55 = cms.PSet(  values = cms.vdouble( 1.0, 1.0, 27.275, 15.167, 13.818, 1.0, 1.0, 1.0, 1.037, 1.129, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.023, 1.028, 1.063, 1.08, 1.077, 1.054, 1.068, 1.065, 1.047, 1.025, 1.046, 1.064, 1.082, 1.078, 1.137, 1.12, 1.163, 1.158, 1.112, 1.072, 1.054, 1.095, 1.101, 1.092, 1.219, 1.167, 1.186, 1.203, 1.144, 1.096, 1.095, 1.109, 1.111, 1.105, 1.236, 1.187, 1.203, 1.262, 1.2, 1.086, 1.106, 1.112, 1.138, 1.076, 1.287, 1.255, 1.241, 1.334, 1.244, 1.112, 1.083, 1.111, 1.127, 1.025, 1.309, 1.257, 1.263, 1.393, 1.23, 1.091, 1.075, 1.078, 1.135, 1.042, 1.313, 1.303, 1.295, 1.436, 1.237, 1.064, 1.078, 1.075, 1.149, 1.037, 1.329, 1.509, 1.369, 1.546, 1.269, 1.079, 1.084, 1.047, 1.183, 1.008 ) ),
-          zAxis = cms.vdouble( -3.14159, 3.14159 ),
-          pf3_V35 = cms.PSet(  values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ) ),
-          pf3_V25 = cms.PSet(  values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ) ),
-          pf3_V24 = cms.PSet(  values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ) )
-        )
-      ),
-      propagatorName = cms.string( "SteppingHelixPropagatorAlong" ),
-      propagatorCompatibleName = cms.string( "SteppingHelixPropagatorAny" ),
-      copyMuonRecHit = cms.bool( False ),
-      ComponentName = cms.string( "TSGForRoadSearch" )
-    ),
-    TSGFromPropagation = cms.PSet( 
-      ErrorRescaling = cms.double( 3.0 ),
-      MaxChi2 = cms.double( 15.0 ),
-      UpdateState = cms.bool( False ),
-      UseSecondMeasurements = cms.bool( False ),
-      ComponentName = cms.string( "TSGFromPropagation" ),
-      UseVertexState = cms.bool( True ),
-      Propagator = cms.string( "SmartPropagatorAnyOpposite" )
-    ),
+    TSGFromMixedPairs = cms.PSet(  ),
+    TSGFromPixelTriplets = cms.PSet(  ),
+    TSGFromPixelPairs = cms.PSet(  ),
+    TSGForRoadSearchOI = cms.PSet(  ),
+    TSGForRoadSearchIOpxl = cms.PSet(  ),
+    TSGFromPropagation = cms.PSet(  ),
     TSGFromCombinedHits = cms.PSet( 
       firstTSG = cms.PSet( 
         ComponentName = cms.string( "TSGFromOrderedHits" ),
@@ -4461,32 +4360,9 @@ hltL1sAlCaEcalPhiSym = cms.EDFilter( "HLTLevel1GTSeed",
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" )
 )
 hltPreAlCaEcalPhiSym = cms.EDFilter( "HLTPrescaler" )
-hltEcalDigis = cms.EDProducer( "EcalRawToDigi",
-    syncCheck = cms.untracked.bool( False ),
-    eventPut = cms.untracked.bool( True ),
-    InputLabel = cms.untracked.string( "rawDataCollector" ),
-    silentMode = cms.untracked.bool( True ),
-    orderedFedList = cms.untracked.vint32( 601, 602, 603, 604, 605, 606, 607, 608, 609, 610, 611, 612, 613, 614, 615, 616, 617, 618, 619, 620, 621, 622, 623, 624, 625, 626, 627, 628, 629, 630, 631, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647, 648, 649, 650, 651, 652, 653, 654 ),
-    orderedDCCIdList = cms.untracked.vint32( 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54 )
-)
-hltEcalWeightUncalibRecHit = cms.EDProducer( "EcalUncalibRecHitProducer",
-    EBdigiCollection = cms.InputTag( 'hltEcalDigis','ebDigis' ),
-    EEdigiCollection = cms.InputTag( 'hltEcalDigis','eeDigis' ),
-    EBhitCollection = cms.string( "EcalUncalibRecHitsEB" ),
-    EEhitCollection = cms.string( "EcalUncalibRecHitsEE" ),
-    algo = cms.string( "EcalUncalibRecHitWorkerWeights" )
-)
-hltEcalRecHit = cms.EDProducer( "EcalRecHitProducer",
-    EBuncalibRecHitCollection = cms.InputTag( 'hltEcalWeightUncalibRecHit','EcalUncalibRecHitsEB' ),
-    EEuncalibRecHitCollection = cms.InputTag( 'hltEcalWeightUncalibRecHit','EcalUncalibRecHitsEE' ),
-    EBrechitCollection = cms.string( "EcalRecHitsEB" ),
-    EErechitCollection = cms.string( "EcalRecHitsEE" ),
-    algo = cms.string( "EcalRecHitWorkerSimple" ),
-    ChannelStatusToBeExcluded = cms.vint32(  )
-)
 hltAlCaPhiSymStream = cms.EDFilter( "HLTEcalPhiSymFilter",
-    barrelHitCollection = cms.InputTag( 'hltEcalRecHit','EcalRecHitsEB' ),
-    endcapHitCollection = cms.InputTag( 'hltEcalRecHit','EcalRecHitsEE' ),
+    barrelHitCollection = cms.InputTag( 'hltEcalRecHitAll','EcalRecHitsEB' ),
+    endcapHitCollection = cms.InputTag( 'hltEcalRecHitAll','EcalRecHitsEE' ),
     phiSymBarrelHitCollection = cms.string( "phiSymEcalRecHitsEB" ),
     phiSymEndcapHitCollection = cms.string( "phiSymEcalRecHitsEE" ),
     eCut_barrel = cms.double( 0.15 ),
@@ -4494,7 +4370,7 @@ hltAlCaPhiSymStream = cms.EDFilter( "HLTEcalPhiSymFilter",
 )
 hltL1sAlCaEcalPi0 = cms.EDFilter( "HLTLevel1GTSeed",
     L1TechTriggerSeeding = cms.bool( False ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleIsoEG5 OR L1_SingleIsoEG8 OR L1_SingleIsoEG10 OR L1_SingleIsoEG12 OR L1_SingleIsoEG15 OR L1_SingleIsoEG20 OR L1_SingleIsoEG25 OR L1_SingleEG5 OR L1_SingleEG8 OR L1_SingleEG10 OR L1_SingleEG12 OR L1_SingleEG15 OR L1_SingleEG20 OR L1_SingleEG25 OR L1_SingleJet15 OR L1_SingleJet30 OR L1_SingleJet50 OR L1_SingleJet70 OR L1_SingleJet100 OR L1_SingleJet150 OR L1_SingleJet200 OR L1_DoubleJet70 OR L1_DoubleJet100 OR L1_SingleEG2 OR L1_DoubleEG1 OR L1_DoubleEG5 OR L1_DoubleEG10 OR L1_DoubleEG15 OR L1_ZeroBias_HTT0" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleIsoEG5 OR L1_SingleIsoEG8 OR L1_SingleIsoEG10 OR L1_SingleIsoEG12 OR L1_SingleIsoEG15 OR L1_SingleIsoEG20 OR L1_SingleIsoEG25 OR L1_SingleEG5 OR L1_SingleEG8 OR L1_SingleEG10 OR L1_SingleEG12 OR L1_SingleEG15 OR L1_SingleEG20 OR L1_SingleEG25 OR L1_SingleJet15 OR L1_SingleJet30 OR L1_SingleJet50 OR L1_SingleJet70 OR L1_SingleJet100 OR L1_SingleJet150 OR L1_SingleJet200 OR L1_DoubleJet70 OR L1_DoubleJet100 OR L1_SingleEG2 OR L1_DoubleEG5 OR L1_DoubleEG10 OR L1_DoubleEG15" ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
     L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
@@ -4609,6 +4485,123 @@ hltAlCaPi0RegRecHits = cms.EDFilter( "HLTPi0RecHitsFilter",
     EMregionEtaMargin = cms.double( 0.25 ),
     EMregionPhiMargin = cms.double( 0.4 )
 )
+hltL1sAlCaEcalEta = cms.EDFilter( "HLTLevel1GTSeed",
+    L1TechTriggerSeeding = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleIsoEG5 OR L1_SingleIsoEG8 OR L1_SingleIsoEG10 OR L1_SingleIsoEG12 OR L1_SingleIsoEG15 OR L1_SingleIsoEG20 OR L1_SingleIsoEG25 OR L1_SingleEG5 OR L1_SingleEG8 OR L1_SingleEG10 OR L1_SingleEG12 OR L1_SingleEG15 OR L1_SingleEG20 OR L1_SingleEG25 OR L1_SingleJet15 OR L1_SingleJet30 OR L1_SingleJet50 OR L1_SingleJet70 OR L1_SingleJet100 OR L1_SingleJet150 OR L1_SingleJet200 OR L1_DoubleJet70 OR L1_DoubleJet100 OR L1_SingleEG2 OR L1_DoubleEG5 OR L1_DoubleEG10 OR L1_DoubleEG15" ),
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
+    L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
+    L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" )
+)
+hltPreAlCaEcalEta = cms.EDFilter( "HLTPrescaler" )
+hltEcalRegionalEtaFEDs = cms.EDProducer( "EcalRawToRecHitRoI",
+    sourceTag = cms.InputTag( "hltEcalRawToRecHitFacility" ),
+    type = cms.string( "egamma" ),
+    MuJobPSet = cms.PSet(  ),
+    JetJobPSet = cms.VPSet( 
+    ),
+    EmJobPSet = cms.VPSet( 
+      cms.PSet(  Source = cms.InputTag( 'hltL1extraParticles','Isolated' ),
+        regionPhiMargin = cms.double( 0.4 ),
+        Ptmin = cms.double( 2.0 ),
+        regionEtaMargin = cms.double( 0.25 )
+      ),
+      cms.PSet(  Source = cms.InputTag( 'hltL1extraParticles','NonIsolated' ),
+        regionPhiMargin = cms.double( 0.4 ),
+        Ptmin = cms.double( 2.0 ),
+        regionEtaMargin = cms.double( 0.25 )
+      )
+    ),
+    CandJobPSet = cms.VPSet( 
+    )
+)
+hltEcalRegionalEtaRecHit = cms.EDProducer( "EcalRawToRecHitProducer",
+    lazyGetterTag = cms.InputTag( "hltEcalRawToRecHitFacility" ),
+    sourceTag = cms.InputTag( "hltEcalRegionalEtaFEDs" ),
+    splitOutput = cms.bool( True ),
+    EBrechitCollection = cms.string( "EcalRecHitsEB" ),
+    EErechitCollection = cms.string( "EcalRecHitsEE" )
+)
+hltAlCaEtaRegRecHits = cms.EDFilter( "HLTPi0RecHitsFilter",
+    barrelHits = cms.InputTag( 'hltEcalRegionalEtaRecHit','EcalRecHitsEB' ),
+    endcapHits = cms.InputTag( 'hltEcalRegionalEtaRecHit','EcalRecHitsEE' ),
+    clusSeedThr = cms.double( 0.5 ),
+    clusSeedThrEndCap = cms.double( 1.0 ),
+    clusEtaSize = cms.int32( 3 ),
+    clusPhiSize = cms.int32( 3 ),
+    seleNRHMax = cms.int32( 1000 ),
+    seleXtalMinEnergy = cms.double( -0.15 ),
+    seleXtalMinEnergyEndCap = cms.double( -0.75 ),
+    doSelForPi0Barrel = cms.bool( False ),
+    selePtGamma = cms.double( 1.0 ),
+    selePtPi0 = cms.double( 2.0 ),
+    seleMinvMaxPi0 = cms.double( 0.22 ),
+    seleMinvMinPi0 = cms.double( 0.06 ),
+    seleS4S9Gamma = cms.double( 0.83 ),
+    selePi0Iso = cms.double( 0.5 ),
+    ptMinForIsolation = cms.double( 1.0 ),
+    selePi0BeltDR = cms.double( 0.2 ),
+    selePi0BeltDeta = cms.double( 0.05 ),
+    storeIsoClusRecHitPi0EB = cms.bool( True ),
+    pi0BarrelHitCollection = cms.string( "pi0EcalRecHitsEB" ),
+    doSelForPi0Endcap = cms.bool( False ),
+    selePtGammaEndCap = cms.double( 0.8 ),
+    selePtPi0EndCap = cms.double( 3.0 ),
+    seleS4S9GammaEndCap = cms.double( 0.9 ),
+    seleMinvMaxPi0EndCap = cms.double( 0.3 ),
+    seleMinvMinPi0EndCap = cms.double( 0.05 ),
+    ptMinForIsolationEndCap = cms.double( 0.5 ),
+    selePi0BeltDREndCap = cms.double( 0.2 ),
+    selePi0BeltDetaEndCap = cms.double( 0.05 ),
+    selePi0IsoEndCap = cms.double( 0.5 ),
+    storeIsoClusRecHitPi0EE = cms.bool( True ),
+    pi0EndcapHitCollection = cms.string( "pi0EcalRecHitsEE" ),
+    doSelForEtaBarrel = cms.bool( True ),
+    selePtGammaEta = cms.double( 1.2 ),
+    selePtEta = cms.double( 4.0 ),
+    seleS4S9GammaEta = cms.double( 0.9 ),
+    seleS9S25GammaEta = cms.double( 0.8 ),
+    seleMinvMaxEta = cms.double( 0.8 ),
+    seleMinvMinEta = cms.double( 0.3 ),
+    ptMinForIsolationEta = cms.double( 1.0 ),
+    seleEtaIso = cms.double( 0.5 ),
+    seleEtaBeltDR = cms.double( 0.3 ),
+    seleEtaBeltDeta = cms.double( 0.1 ),
+    storeIsoClusRecHitEtaEB = cms.bool( True ),
+    removePi0CandidatesForEta = cms.bool( True ),
+    massLowPi0Cand = cms.double( 0.104 ),
+    massHighPi0Cand = cms.double( 0.163 ),
+    etaBarrelHitCollection = cms.string( "etaEcalRecHitsEB" ),
+    store5x5RecHitEtaEB = cms.bool( True ),
+    doSelForEtaEndcap = cms.bool( True ),
+    selePtGammaEtaEndCap = cms.double( 1.5 ),
+    selePtEtaEndCap = cms.double( 5.0 ),
+    seleS4S9GammaEtaEndCap = cms.double( 0.9 ),
+    seleS9S25GammaEtaEndCap = cms.double( 0.85 ),
+    seleMinvMaxEtaEndCap = cms.double( 0.8 ),
+    seleMinvMinEtaEndCap = cms.double( 0.3 ),
+    ptMinForIsolationEtaEndCap = cms.double( 0.5 ),
+    seleEtaIsoEndCap = cms.double( 0.5 ),
+    seleEtaBeltDREndCap = cms.double( 0.3 ),
+    seleEtaBeltDetaEndCap = cms.double( 0.1 ),
+    storeIsoClusRecHitEtaEE = cms.bool( True ),
+    etaEndcapHitCollection = cms.string( "etaEcalRecHitsEE" ),
+    store5x5RecHitEtaEE = cms.bool( True ),
+    ParameterLogWeighted = cms.bool( True ),
+    ParameterX0 = cms.double( 0.89 ),
+    ParameterT0_barl = cms.double( 7.4 ),
+    ParameterT0_endc = cms.double( 3.1 ),
+    ParameterT0_endcPresh = cms.double( 1.2 ),
+    ParameterW0 = cms.double( 4.2 ),
+    l1IsolatedTag = cms.InputTag( 'hltL1extraParticles','Isolated' ),
+    l1NonIsolatedTag = cms.InputTag( 'hltL1extraParticles','NonIsolated' ),
+    l1SeedFilterTag = cms.InputTag( "hltL1sAlCaEcalEta" ),
+    debugLevel = cms.int32( 0 ),
+    RegionalMatch = cms.untracked.bool( False ),
+    ptMinEMObj = cms.double( 2.0 ),
+    EMregionEtaMargin = cms.double( 0.25 ),
+    EMregionPhiMargin = cms.double( 0.4 )
+)
 hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
     processName = cms.string( "@" )
 )
@@ -4667,6 +4660,7 @@ HLTPixelTrackingForMinBiasSequence = cms.Sequence( hltPixelTracksForMinBias )
 HLTL3PixelIsolFilterSequence = cms.Sequence( HLTDoLocalPixelSequence + hltPixelTracks + hltPixelVertices + hltIsolPixelTrackProd + hltIsolPixelTrackFilter )
 HLTIsoTrRegFEDSelection = cms.Sequence( hltSiStripRegFED + hltEcalRegFED + hltSubdetFED )
 HLTDoRegionalPi0EcalSequence = cms.Sequence( hltEcalPreshowerDigis + hltEcalRawToRecHitFacility + hltEcalRegionalPi0FEDs + hltEcalRegionalPi0RecHit + hltEcalPreshowerRecHit )
+HLTDoRegionalEtaEcalSequence = cms.Sequence( hltEcalPreshowerDigis + hltEcalRawToRecHitFacility + hltEcalRegionalEtaFEDs + hltEcalRegionalEtaRecHit + hltEcalPreshowerRecHit )
 
 HLTriggerFirstPath = cms.Path( HLTBeginSequence + hltGetRaw + hltPreFirstPath + hltBoolFirstPath )
 HLT_L1Jet6U = cms.Path( HLTBeginSequence + hltL1sL1Jet6U + hltPreL1Jet6U + HLTEndSequence )
@@ -4715,10 +4709,11 @@ HLT_CSCBeamHaloOverlapRing2 = cms.Path( HLTBeginSequence + hltL1sCSCBeamHaloOver
 HLT_CSCBeamHaloRing2or3 = cms.Path( HLTBeginSequence + hltL1sCSCBeamHaloRing2or3 + hltPreCSCBeamHaloRing2or3 + hltMuonCSCDigis + hltCsc2DRecHits + hltFilter23HLTCSCBeamHaloRing2or3 + HLTEndSequence )
 HLT_TrackerCosmics = cms.Path( HLTBeginSequence + hltL1sTrackerCosmics + hltPreTrackerCosmics + HLTEndSequence )
 AlCa_IsoTrack = cms.Path( HLTBeginSequence + hltL1sAlCaIsoTrack + hltPreAlCaIsoTrack + HLTL3PixelIsolFilterSequence + HLTIsoTrRegFEDSelection + HLTEndSequence )
-AlCa_EcalPhiSym = cms.Path( HLTBeginSequence + hltL1sAlCaEcalPhiSym + hltPreAlCaEcalPhiSym + hltEcalDigis + hltEcalWeightUncalibRecHit + hltEcalRecHit + hltAlCaPhiSymStream + HLTEndSequence )
+AlCa_EcalPhiSym = cms.Path( HLTBeginSequence + hltL1sAlCaEcalPhiSym + hltPreAlCaEcalPhiSym + hltEcalRawToRecHitFacility + hltEcalRegionalRestFEDs + hltEcalRecHitAll + hltAlCaPhiSymStream + HLTEndSequence )
 AlCa_EcalPi0 = cms.Path( HLTBeginSequence + hltL1sAlCaEcalPi0 + hltPreAlCaEcalPi0 + HLTDoRegionalPi0EcalSequence + hltAlCaPi0RegRecHits + HLTEndSequence )
+AlCa_EcalEta = cms.Path( HLTBeginSequence + hltL1sAlCaEcalEta + hltPreAlCaEcalEta + HLTDoRegionalEtaEcalSequence + hltAlCaEtaRegRecHits + HLTEndSequence )
 HLTriggerFinalPath = cms.Path( hltTriggerSummaryAOD + hltPreTriggerSummaryRAW + hltTriggerSummaryRAW + hltBoolFinalPath )
 HLTAnalyzerEndpath = cms.EndPath( hltL1gtTrigReport + hltTrigReport )
 
 
-HLTSchedule = cms.Schedule( HLTriggerFirstPath, HLT_L1Jet6U, HLT_Jet15U, HLT_Jet30U, HLT_Jet50U, HLT_FwdJet20U, HLT_DiJetAve15U, HLT_DiJetAve30U, HLT_QuadJet15U, HLT_L1MET20, HLT_MET35, HLT_MET100, HLT_Ele10_SW_L1R, HLT_Ele15_SW_L1R, HLT_DoubleEle5_SW_L1R, HLT_DoubleEle10_LW_OnlyPixelM_L1R, HLT_IsoPhoton10_L1R, HLT_Photon15_L1R, HLT_L1MuOpen, HLT_L1Mu, HLT_L1Mu20, HLT_L2Mu9, HLT_L2Mu11, HLT_L2Mu15, HLT_IsoMu3, HLT_Mu3, HLT_Mu5, HLT_Mu9, HLT_Mu15, HLT_L1DoubleMuOpen, HLT_DoubleMu0, HLT_DoubleMu3, HLT_SingleLooseIsoTau20, HLT_DoubleLooseIsoTau15, HLT_ZeroBias, HLT_MinBiasHcal, HLT_MinBiasEcal, HLT_MinBiasPixel, HLT_MinBiasPixel_Trk5, HLT_BackwardBSC, HLT_ForwardBSC, HLT_CSCBeamHalo, HLT_CSCBeamHaloOverlapRing1, HLT_CSCBeamHaloOverlapRing2, HLT_CSCBeamHaloRing2or3, HLT_TrackerCosmics, AlCa_IsoTrack, AlCa_EcalPhiSym, AlCa_EcalPi0, HLTriggerFinalPath, HLTAnalyzerEndpath )
+HLTSchedule = cms.Schedule( HLTriggerFirstPath, HLT_L1Jet6U, HLT_Jet15U, HLT_Jet30U, HLT_Jet50U, HLT_FwdJet20U, HLT_DiJetAve15U, HLT_DiJetAve30U, HLT_QuadJet15U, HLT_L1MET20, HLT_MET35, HLT_MET100, HLT_Ele10_SW_L1R, HLT_Ele15_SW_L1R, HLT_DoubleEle5_SW_L1R, HLT_DoubleEle10_LW_OnlyPixelM_L1R, HLT_IsoPhoton10_L1R, HLT_Photon15_L1R, HLT_L1MuOpen, HLT_L1Mu, HLT_L1Mu20, HLT_L2Mu9, HLT_L2Mu11, HLT_L2Mu15, HLT_IsoMu3, HLT_Mu3, HLT_Mu5, HLT_Mu9, HLT_Mu15, HLT_L1DoubleMuOpen, HLT_DoubleMu0, HLT_DoubleMu3, HLT_SingleLooseIsoTau20, HLT_DoubleLooseIsoTau15, HLT_ZeroBias, HLT_MinBiasHcal, HLT_MinBiasEcal, HLT_MinBiasPixel, HLT_MinBiasPixel_Trk5, HLT_BackwardBSC, HLT_ForwardBSC, HLT_CSCBeamHalo, HLT_CSCBeamHaloOverlapRing1, HLT_CSCBeamHaloOverlapRing2, HLT_CSCBeamHaloRing2or3, HLT_TrackerCosmics, AlCa_IsoTrack, AlCa_EcalPhiSym, AlCa_EcalPi0, AlCa_EcalEta, HLTriggerFinalPath, HLTAnalyzerEndpath )
