@@ -50,11 +50,11 @@ process.DQMStore = cms.Service("DQMStore",
 process.p = cms.Path(process.myOnDemandExample*process.qTester)
 process.myOnDemandExample.OutputMEsInRootFile = True
 
-process.myOnDemandExample.MonitorSiStripPedestal      = True
-process.myOnDemandExample.MonitorSiStripNoise         = True
+process.myOnDemandExample.MonitorSiStripPedestal      = False
+process.myOnDemandExample.MonitorSiStripNoise         = False
 process.myOnDemandExample.MonitorSiStripApvGain       = False ## to be tested on REAL data
 
-process.myOnDemandExample.MonitorSiStripQuality      = False
+process.myOnDemandExample.MonitorSiStripQuality      = True
 process.myOnDemandExample.MonitorSiStripLorentzAngle = False
 process.myOnDemandExample.MonitorSiStripCabling      = False
 
