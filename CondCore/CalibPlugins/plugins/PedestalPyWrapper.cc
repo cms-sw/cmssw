@@ -96,14 +96,15 @@ namespace cond {
     return p.ss.str();
   }
 
-   template<>
-   std::string PayLoadInspector<Pedestals>::summary() const {
-     std::stringstream ss;
-     ss << "size="<<object->m_pedestals.size() <<";";
-     ss << std::endl;
-     return ss.str();
+  /* use default....
+    template<>
+    std::string PayLoadInspector<Pedestals>::summary() const {
+    std::stringstream ss;
+    ss << "size="<<object->m_pedestals.size() <<";";
+    ss << std::endl;
+    return ss.str();
    }
-  
+  */
 }
 
 namespace condPython {

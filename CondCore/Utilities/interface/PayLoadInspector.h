@@ -4,10 +4,12 @@
 #include "CondCore/IOVService/interface/IOVProxy.h"
 #include <string>
 #include <vector>
+#include<sstream>
 
 // to be moved in src
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
 
+#include "CondFormats/Common/interface/PayloadWrapper"
 
 namespace cond {
   // to be moved elsewhere
@@ -80,25 +82,34 @@ namespace cond {
   public:
     typedef T Class;
     typedef ValueExtractor<T> Extractor;
-        
+    typedef cond::DataWrapper<T> Wrapper;
+
     PayLoadInspector() {}
-    PayLoadInspector(const cond::IOVElement & elem) : 
+    PayLoadInspector(const cond::IOVElementProxy & elem) : 
       PoolTransactionSentry(*elem.db()),
-      object(*elem.db(),elem.payloadToken()){}
+      object(*elem.db(),elem.wrapperToken()){}
 
     std::string dump() const { return ""; }
 
-    std::string summary() const {return ""; }
+    std::string summary() const {
+      std::ostringstream os;
+      os << wrapper->summary();
+      os << std::endl;
+      return os.str();
+    }
 
     // return the real name of the file including extension...
     std::string plot(std::string const & /* filename */,
 		     std::string const &, 
 		     std::vector<int> const&, std::vector<float> const& ) const {return "";}
 
-    void extract(Extractor & extractor) const {extractor.computeW(*object); }
+    void extract(Extractor & extractor) const {extractor.computeW(object()); }
+
+    Class const & object() const { return wrapper->data();}     
+
 
   private:
-    cond::TypedRef<Class> object;    
+    cond::TypedRef<Wrapper> wrapper;
 
   };
 
