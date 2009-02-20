@@ -80,7 +80,7 @@ int main( int argc, char** argv ){
   if(vm.count("tag")){
     tag=vm["tag"].as<std::string>();
     listAll=false;
-    if(vm.count("summary")){
+    if(vm.count("summary"))
       details=true;
   }
   
