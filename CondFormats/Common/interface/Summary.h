@@ -33,7 +33,7 @@ private:
   
 }
 
-inline std:ostream & operator<<(std:ostream & os, cond::Summary const & s) {
+inline std::ostream & operator<<(std::ostream & os, cond::Summary const & s) {
   return s.shortMessage(os);
 }
 

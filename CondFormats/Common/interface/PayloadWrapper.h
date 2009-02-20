@@ -12,50 +12,44 @@ namespace cond {
    */
   class  PayloadWrapper {
   public:
-    virtual ~PayloadWrapper(){}
-    
-
+     
     // load DOES NOT throw!
     virtual void loadAll() const {
       loadData();
       loadSummary();
     }
-
+    
     virtual bool loadData() const =0;
-
-
+    
+    
     //    virtual bool loadSummary() const =0;
-
-
+    
+    
     //-- summary part (concrete)
     typedef cond::Summary summary_type;
     
-
+    
     PayloadWrapper(Summary * sum=0) :
       m_summary(sum){}
-
+    
     virtual ~PayloadWrapper() {
       if (m_summary.isLoaded()) delete m_summary.get();
     }    
-
+    
     
     Summary const & summary() const { return *m_summary;}
-
+    
     bool loadSummary() const {
       return m_summary.get();
     }
-
+    
   private:
-
+    
     pool::Ptr<Summary> m_summary;
-
-
-
-
-
+    
   };
-
-
+  
+  
   /** base class of IOV payload wrapper (no summary)
    */
   template<typename O> 
@@ -86,8 +80,6 @@ namespace cond {
 
     pool::Ptr<Object> m_data;
   };
-
-
 
 } // ns
 
