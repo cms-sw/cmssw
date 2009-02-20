@@ -20,23 +20,23 @@ class L1GctJetFinderParams
   ~L1GctJetFinderParams();
 
   // get methods
-  double getRgnEtLsbGeV() { return rgnEtLsb_; }
-  double getHtLsbGeV() { return htLsb_; }
-  double getCenJetEtSeedGeV() { return cenJetEtSeed_; }
-  double getForJetEtSeedGeV() { return forJetEtSeed_; }
-  double getTauJetEtSeedGeV() { return tauJetEtSeed_; }
-  double getTauIsoEtThresholdGeV() { return tauIsoEtThreshold_; }
-  double getHtJetEtThresholdGeV() { return htJetEtThreshold_; }
-  double getMHtJetEtThresholdGeV() { return mhtJetEtThreshold_; }
-  unsigned getCenForJetEtaBoundary() { return cenForJetEtaBoundary_; }
+  double getRgnEtLsbGeV() const { return rgnEtLsb_; }
+  double getHtLsbGeV() const { return htLsb_; }
+  double getCenJetEtSeedGeV() const { return cenJetEtSeed_; }
+  double getForJetEtSeedGeV() const { return forJetEtSeed_; }
+  double getTauJetEtSeedGeV() const { return tauJetEtSeed_; }
+  double getTauIsoEtThresholdGeV() const { return tauIsoEtThreshold_; }
+  double getHtJetEtThresholdGeV() const { return htJetEtThreshold_; }
+  double getMHtJetEtThresholdGeV() const { return mhtJetEtThreshold_; }
+  unsigned getCenForJetEtaBoundary() const { return cenForJetEtaBoundary_; }
 
   // get integers
-  unsigned getCenJetEtSeedGct() { return static_cast<unsigned>(cenJetEtSeed_/rgnEtLsb_); }
-  unsigned getForJetEtSeedGct() { return static_cast<unsigned>(forJetEtSeed_/rgnEtLsb_); }
-  unsigned getTauJetEtSeedGct() { return static_cast<unsigned>(tauJetEtSeed_/rgnEtLsb_); }
-  unsigned getTauIsoEtThresholdGct() { return static_cast<unsigned>(tauIsoEtThreshold_/rgnEtLsb_); }
-  unsigned getHtJetEtThresholdGct() { return static_cast<unsigned>(htJetEtThreshold_/htLsb_); }
-  unsigned getMHtJetEtThresholdGct() { return static_cast<unsigned>(mhtJetEtThreshold_/htLsb_); }
+  unsigned getCenJetEtSeedGct() const { return static_cast<unsigned>(cenJetEtSeed_/rgnEtLsb_); }
+  unsigned getForJetEtSeedGct() const { return static_cast<unsigned>(forJetEtSeed_/rgnEtLsb_); }
+  unsigned getTauJetEtSeedGct() const { return static_cast<unsigned>(tauJetEtSeed_/rgnEtLsb_); }
+  unsigned getTauIsoEtThresholdGct() const { return static_cast<unsigned>(tauIsoEtThreshold_/rgnEtLsb_); }
+  unsigned getHtJetEtThresholdGct() const { return static_cast<unsigned>(htJetEtThreshold_/htLsb_); }
+  unsigned getMHtJetEtThresholdGct() const { return static_cast<unsigned>(mhtJetEtThreshold_/htLsb_); }
 
 
  private:
