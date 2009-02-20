@@ -123,7 +123,7 @@ namespace popcon {
     
     std::string const & userTextLog() const { return m_userTextLog; }
     
-   //Implement to fill m_to_transfer vector and  m_userTextLog
+    //Implement to fill m_to_transfer vector and  m_userTextLog
     //use getOfflineInfo to get the contents of offline DB
     virtual void getNewObjects()=0;
     
@@ -141,22 +141,22 @@ namespace popcon {
     
     
     // make sure to create a new one each time...
-    Summary * dummySummary( OldContainer::value_type const &) const {
+    Summary * dummySummary(typename OldContainer::value_type const &) const {
       return new cond::GenericSummary("not supplied");
     }
     
     void convertFromOld() {
-     std::for_each( m_to_transfer.begin(), m_to_transfer.end(),
-		   boost::bind(&self::add, this,
-			       boost::bind(&OldContainer::value_type::first,_1),
-			       boost::bind(&self::dummySummary, this, _1),
-			       boost::bind(&OldContainer::value_type::second,_1)
-			       ));
+      std::for_each( m_to_transfer.begin(), m_to_transfer.end(),
+		     boost::bind(&self::add, this,
+				 boost::bind(&OldContainer::value_type::first,_1),
+				 boost::bind(&self::dummySummary, this, _1),
+				 boost::bind(&OldContainer::value_type::second,_1)
+				 ));
     }
-
+    
   protected:
-
-
+    
+    
     int add(value_type * payload, Summary * summary, Time_t time) {
       Triplet t = {payload,summary,time};
       m_triplets.push_back(t);
