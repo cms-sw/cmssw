@@ -140,12 +140,16 @@ namespace popcon {
     }
     
     
+    // make sure to create a new one each time...
+    Summary * dummySummary( OldContainer::value_type const &) const {
+      return new cond::GenericSummary("not supplied")
+    }
     
     void convertFromOld() {
      std::for_each( m_to_transfer.begin(), m_to_transfer.end(),
 		   boost::bind(&self::add, this,
 			       boost::bind(&OldContainer::value_type::first,_1),
-			       new cond::GenericSummary("not supplied"),
+			       boost::bind(&self::dummySummary, this, _1)
 			       boost::bind(&OldContainer::value_type::second,_1)
 			       ));
     }
