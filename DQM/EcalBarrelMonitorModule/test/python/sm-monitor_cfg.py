@@ -37,7 +37,7 @@ process.dqmInfoEB = cms.EDAnalyzer("DQMEventInfo",
     subSystemFolder = cms.untracked.string('EcalBarrel')
 )
 
-process.printAscii = cms.OutputModule("AsciiOutputModule'
+process.printAscii = cms.OutputModule("AsciiOutputModule')
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
