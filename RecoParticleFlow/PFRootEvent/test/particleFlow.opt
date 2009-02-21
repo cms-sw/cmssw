@@ -62,6 +62,12 @@ root recPFJetBranchName 	recoPFJets_iterativeCone5PFJets__PROD.obj
 // Calo Jets read from root file
 root recCaloJetBranchName	recoCaloJets_iterativeCone5CaloJets__PROD.obj
 
+// Gen Jets read from root file
+root genParticlesforMETBranchName 	recoGenParticles_genParticles__PROD.obj
+// PF Jets read from root file
+root recPFMETBranchName 	recoPFMETs_pfMet__PROD.obj
+// Calo Jets read from root file
+root recCaloMETBranchName	recoCaloMETs_met__PROD.obj
 
 // GenParticleCandidates
 root genParticleforJets_branch	recoGenParticlesRefs_genParticlesForJets__PROD.obj
@@ -257,7 +263,8 @@ particle_flow   nsigma_ECAL    3
 particle_flow   nsigma_HCAL    1.0
 
 particle_flow   mergedPhotons_mvaCut 		0.5
-particle_flow	mergedPhotons_mvaWeightFile ${CMSSW_DATA_PATH}/data-RecoParticleFlow-PFProducer/1/RecoParticleFlow/PFProducer/data/MVAnalysis_MLP.weights.txt
+//particle_flow	mergedPhotons_mvaWeightFile ${CMSSW_DATA_PATH}/data-RecoParticleFlow-PFProducer/1/RecoParticleFlow/PFProducer/data/MVAnalysis_MLP.weights.txt
+particle_flow	mergedPhotons_mvaWeightFile	../../PFProducer/data/MVAnalysis_MLP.weights.txt
 particle_flow   mergedPhotons_PSCut  0.001   
 
 // PFElectrons

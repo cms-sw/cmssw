@@ -59,6 +59,11 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
+#include "DataFormats/METReco/interface/PFMETCollection.h"
+#include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
+#include "DataFormats/METReco/interface/CaloMET.h"
+
 #include <TObject.h>
 #include "TEllipse.h"
 #include "TBox.h"
@@ -450,6 +455,14 @@ class PFRootEventManager {
   ///CMSSW  PF Jet branch
   TBranch*   recPFBranch_;
 
+  ///CMSSW  GenParticles branch
+  TBranch*   genParticlesforMETBranch_;
+  
+  ///CMSSW  Calo MET branch
+  TBranch*   recCaloMETBranch_;
+
+  ///CMSSW  PF MET branch
+  TBranch*   recPFMETBranch_;
   
   
   /// rechits ECAL
@@ -548,6 +561,16 @@ class PFRootEventManager {
 
   /// calo Jets
   std::vector<reco::CaloJet> caloJetsCMSSW_;
+
+  /// GenParticles
+  reco::GenParticleCollection genParticlesCMSSW_;
+
+  /// Calo MET
+  reco::CaloMETCollection caloMetsCMSSW_;
+
+  /// PF MET
+  reco::PFMETCollection pfMetsCMSSW_;
+
   /// input file
   TFile*     file_; 
 

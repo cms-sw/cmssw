@@ -1102,6 +1102,35 @@ void PFRootEventManager::connect( const char* infilename ) {
           <<recPFBranchName<< endl;
     }
   }
+
+  string recPFMETBranchName; 
+  options_->GetOpt("root","recPFMETBranchName", recPFMETBranchName);
+  if(!recPFMETBranchName.empty() ) {
+    recPFMETBranch_= tree_->GetBranch(recPFMETBranchName.c_str()); 
+    if(!recPFMETBranch_) {
+      cerr<<"PFRootEventManager::ReadOptions :recPFMETBranch_ not found : "
+          <<recPFMETBranchName<< endl;
+    }
+  }
+  string recCaloMETBranchName; 
+  options_->GetOpt("root","recCaloMETBranchName", recCaloMETBranchName);
+  if(!recCaloMETBranchName.empty() ) {
+    recCaloMETBranch_= tree_->GetBranch(recCaloMETBranchName.c_str()); 
+    if(!recCaloMETBranch_) {
+      cerr<<"PFRootEventManager::ReadOptions :recCaloMETBranch_ not found : "
+          <<recCaloMETBranchName<< endl;
+    }
+  }
+  string genParticlesforMETBranchName; 
+  options_->GetOpt("root","genParticlesforMETBranchName", genParticlesforMETBranchName);
+  if(!genParticlesforMETBranchName.empty() ) {
+    genParticlesforMETBranch_= tree_->GetBranch(genParticlesforMETBranchName.c_str()); 
+    if(!genParticlesforMETBranch_) {
+      cerr<<"PFRootEventManager::ReadOptions :genParticlesforMETBranch_ not found : "
+          <<genParticlesforMETBranchName<< endl;
+    }
+  }
+
   setAddresses();
 
 }
@@ -1139,6 +1168,10 @@ void PFRootEventManager::setAddresses() {
   if (genJetBranch_) genJetBranch_->SetAddress(&genJetsCMSSW_);
   if (recCaloBranch_) recCaloBranch_->SetAddress(&caloJetsCMSSW_);
   if (recPFBranch_) recPFBranch_->SetAddress(&pfJetsCMSSW_); 
+
+  if (recCaloMETBranch_) recCaloMETBranch_->SetAddress(&caloMetsCMSSW_);
+  if (recPFMETBranch_) recPFMETBranch_->SetAddress(&pfMetsCMSSW_); 
+  if (genParticlesforMETBranch_) genParticlesforMETBranch_->SetAddress(&genParticlesCMSSW_); 
 }
 
 

@@ -3,6 +3,7 @@
   <class name="PFRootEventManager">
     <field name="pdgTable_" transient="true"/>
   </class>
+  <class name="PFMETRootEventManager"/>
   <class name="PFRootEventManagerColin"/>
   <class name="TauEvent"/>
   <class name="NeutralEvent"/>
