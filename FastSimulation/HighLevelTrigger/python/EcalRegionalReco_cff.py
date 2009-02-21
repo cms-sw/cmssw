@@ -14,6 +14,8 @@ import FastSimulation.CaloRecHitsProducer.CaloRecHitCopy_cfi
 # From here on simply cloning ecalLocalRecoSequence.cff
 #   with updated InputTags
 #
+hltEcalRegionalEtaRecHit = FastSimulation.CaloRecHitsProducer.CaloRecHitCopy_cfi.caloRecHitCopy.clone()
+import FastSimulation.CaloRecHitsProducer.CaloRecHitCopy_cfi
 hltEcalRegionalEgammaRecHit = FastSimulation.CaloRecHitsProducer.CaloRecHitCopy_cfi.caloRecHitCopy.clone()
 import FastSimulation.CaloRecHitsProducer.CaloRecHitCopy_cfi
 hltEcalRegionalMuonsRecHit = FastSimulation.CaloRecHitsProducer.CaloRecHitCopy_cfi.caloRecHitCopy.clone()

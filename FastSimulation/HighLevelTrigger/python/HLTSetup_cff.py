@@ -9,6 +9,10 @@ hltEcalPreshowerDigis = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyMod
 import FastSimulation.HighLevelTrigger.DummyModule_cfi
 hltEcalRawToRecHitFacility = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 import FastSimulation.HighLevelTrigger.DummyModule_cfi
+hltEcalRegionalEtaFEDs = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+import FastSimulation.HighLevelTrigger.DummyModule_cfi
+hltEcalRegionalEtaRecHit = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+import FastSimulation.HighLevelTrigger.DummyModule_cfi
 hltEcalRegionalJetsFEDs = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 import FastSimulation.HighLevelTrigger.DummyModule_cfi
 hltEcalRegionalJetsDigis = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
