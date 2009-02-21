@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.cc,v 1.18 2008/10/16 13:18:04 veelken Exp $
+// $Id: PATTauProducer.cc,v 1.19 2008/11/28 22:05:56 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATTauProducer.h"
@@ -20,20 +20,15 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 
-// #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
-// #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
-// #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-
 #include "PhysicsTools/PatUtils/interface/ObjectResolutionCalc.h"
 
 #include <vector>
 #include <memory>
 
-
 using namespace pat;
 
-
 PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig):
+  isolator_(iConfig.exists("isolation") ? iConfig.getParameter<edm::ParameterSet>("isolation") : edm::ParameterSet(), false) ,
   userDataHelper_ ( iConfig.getParameter<edm::ParameterSet>("userData") )
 {
   // initialize the configurables
@@ -94,6 +89,27 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig):
       "\t}\n";
   }
 
+  // IsoDeposit configurables
+  if (iConfig.exists("isoDeposits")) {
+    edm::ParameterSet depconf = iConfig.getParameter<edm::ParameterSet>("isoDeposits");
+    if ( depconf.exists("tracker")         ) isoDepositLabels_.push_back(std::make_pair(TrackerIso, depconf.getParameter<edm::InputTag>("tracker")));
+    if ( depconf.exists("ecal")            ) isoDepositLabels_.push_back(std::make_pair(ECalIso, depconf.getParameter<edm::InputTag>("ecal")));
+    if ( depconf.exists("hcal")            ) isoDepositLabels_.push_back(std::make_pair(HCalIso, depconf.getParameter<edm::InputTag>("hcal")));
+    if ( depconf.exists("pfAllParticles")  ) isoDepositLabels_.push_back(std::make_pair(ParticleIso, depconf.getParameter<edm::InputTag>("pfAllParticles")));
+    if ( depconf.exists("pfChargedHadron") ) isoDepositLabels_.push_back(std::make_pair(ChargedParticleIso, depconf.getParameter<edm::InputTag>("pfChargedHadron")));
+    if ( depconf.exists("pfNeutralHadron") ) isoDepositLabels_.push_back(std::make_pair(NeutralParticleIso,depconf.getParameter<edm::InputTag>("pfNeutralHadron")));
+    if ( depconf.exists("pfGamma")         ) isoDepositLabels_.push_back(std::make_pair(GammaParticleIso, depconf.getParameter<edm::InputTag>("pfGamma")));
+    
+    if ( depconf.exists("user") ) {
+      std::vector<edm::InputTag> userdeps = depconf.getParameter<std::vector<edm::InputTag> >("user");
+      std::vector<edm::InputTag>::const_iterator it = userdeps.begin(), ed = userdeps.end();
+      int key = UserBaseIso;
+      for ( ; it != ed; ++it, ++key) {
+	isoDepositLabels_.push_back(std::make_pair(IsolationKeys(key), *it));
+      }
+    }
+  }
+
   // construct resolution calculator
   if (addResolutions_) {
     theResoCalc_ = new ObjectResolutionCalc(edm::FileInPath(tauResoFile_).fullPath(), useNNReso_);
@@ -114,37 +130,45 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig):
   produces<std::vector<Tau> >();
 }
 
-
-PATTauProducer::~PATTauProducer() {
+PATTauProducer::~PATTauProducer() 
+{
   if (addResolutions_) delete theResoCalc_;
 }
 
-
-void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {     
-
-  if (efficiencyLoader_.enabled()) efficiencyLoader_.newEvent(iEvent);
-
-  std::auto_ptr<std::vector<Tau> > patTaus(new std::vector<Tau>()); 
-
+void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) 
+{ 
+  // Get the collection of taus from the event
   edm::Handle<edm::View<reco::BaseTau> > anyTaus;
   try {
     iEvent.getByLabel(tauSrc_, anyTaus);
   } catch (const edm::Exception &e) {
     edm::LogWarning("DataSource") << "WARNING! No Tau collection found. This missing input will not block the job. Instead, an empty tau collection is being be produced.";
+    std::auto_ptr<std::vector<Tau> > patTaus(new std::vector<Tau>()); 
     iEvent.put(patTaus);
     return;
   }
+
+  if (isolator_.enabled()) isolator_.beginEvent(iEvent,iSetup);
+
+  if (efficiencyLoader_.enabled()) efficiencyLoader_.newEvent(iEvent);
    
+  std::vector<edm::Handle<edm::ValueMap<IsoDeposit> > > deposits(isoDepositLabels_.size());
+  for (size_t j = 0, nd = deposits.size(); j < nd; ++j) {
+    iEvent.getByLabel(isoDepositLabels_[j].second, deposits[j]);
+  }
+
   // prepare the MC matching
   std::vector<edm::Handle<edm::Association<reco::GenParticleCollection> > > genMatches(genMatchSrc_.size());
   if (addGenMatch_) {
-        for (size_t j = 0, nd = genMatchSrc_.size(); j < nd; ++j) {
-            iEvent.getByLabel(genMatchSrc_[j], genMatches[j]);
-        }
+    for (size_t j = 0, nd = genMatchSrc_.size(); j < nd; ++j) {
+      iEvent.getByLabel(genMatchSrc_[j], genMatches[j]);
+    }
   }
 
   edm::Handle<edm::Association<reco::GenJetCollection> > genJetMatch;  
   if (addGenJetMatch_) iEvent.getByLabel(genJetMatchSrc_, genJetMatch); 
+
+  std::auto_ptr<std::vector<Tau> > patTaus(new std::vector<Tau>()); 
 
   for (size_t idx = 0, ntaus = anyTaus->size(); idx < ntaus; ++idx) {
     edm::RefToBase<reco::BaseTau> tausRef = anyTaus->refAt(idx);
@@ -223,13 +247,28 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       aTau.setTauIDs(ids);
     }
 
+    // Isolation
+    if (isolator_.enabled()) {
+      isolator_.fill(*anyTaus, idx, isolatorTmpStorage_);
+      typedef pat::helper::MultiIsolator::IsolationValuePairs IsolationValuePairs;
+      // better to loop backwards, so the vector is resized less times
+      for ( IsolationValuePairs::const_reverse_iterator it = isolatorTmpStorage_.rbegin(), 
+	      ed = isolatorTmpStorage_.rend(); it != ed; ++it) {
+	aTau.setIsolation(it->first, it->second);
+      }
+    }
+    
+    for (size_t j = 0, nd = deposits.size(); j < nd; ++j) {
+      aTau.setIsoDeposit(isoDepositLabels_[j].first, (*deposits[j])[tausRef]);
+    }
+
     // add resolution info if demanded
     if (addResolutions_) {
       (*theResoCalc_)(aTau);
     }
 
     if (efficiencyLoader_.enabled()) {
-        efficiencyLoader_.setEfficiencies( aTau, tausRef );
+      efficiencyLoader_.setEfficiencies( aTau, tausRef );
     }
 
     if ( useUserData_ ) {
@@ -244,6 +283,9 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
   // put genEvt object in Event
   iEvent.put(patTaus);
+
+  // clean up
+  if (isolator_.enabled()) isolator_.endEvent();
 }
 
 template <typename TauCollectionType, typename TauDiscrType>
