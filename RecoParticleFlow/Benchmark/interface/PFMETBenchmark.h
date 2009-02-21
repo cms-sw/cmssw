@@ -49,7 +49,24 @@ class PFMETBenchmark {
 	     DQMStore * dbe_store = NULL
 	     );
   void process(const reco::PFMETCollection& , const reco::GenParticleCollection&, const reco::CaloMETCollection& );
-//  void save();	
+  void calculateQuantities(const reco::PFMETCollection&, const reco::GenParticleCollection&, const reco::CaloMETCollection& );
+  float getTrueMET(){return true_met;}
+  float getTruePhi(){return true_phi;}
+  float getTrueSET(){return true_set;}
+  float getPFMET(){return rec_met;}
+  float getPFMEX(){return rec_mex;}
+  float getPFPhi(){return rec_phi;}
+  float getPFSET(){return rec_set;}
+  float getCaloMET(){return calo_met;}
+  float getCaloMEX(){return calo_mex;}
+  float getCaloPhi(){return calo_phi;}
+  float getCaloSET(){return calo_set;}
+  float getDeltaPFMET(){return rec_met - true_met;}
+  float getDeltaPFPhi(){return rec_phi - true_phi;}
+  float getDeltaPFSET(){return rec_set - true_set;}
+  float getDeltaCaloMET(){return calo_met - true_met;}
+  float getDeltaCaloPhi(){return calo_phi - true_phi;}
+  float getDeltaCaloSET(){return calo_set - true_set;}
   void analyse();
   void FitSlicesInY(TH2F*, TH1F*, TH1F*, bool, int);
   void write();
@@ -86,6 +103,19 @@ class PFMETBenchmark {
   TH1F *hrmsCalo;  
 
   std::string outputFile_;	
+
+  double true_set;
+  double true_met;
+  double true_phi;
+  double rec_met;
+  double rec_mex;
+  double rec_phi;
+  double rec_set;
+  double calo_met;
+  double calo_mex;
+  double calo_phi;
+  double calo_set;
+
  protected:
 		
   PFBenchmarkAlgo *algo_;

@@ -132,16 +132,43 @@ void PFMETBenchmark::setup(
 
 
 //void PFMETBenchmark::process(const reco::PFMETCollection& pfMets, const reco::GenMETCollection& genMets) {
-void PFMETBenchmark::process( const reco::PFMETCollection& pfMets, const reco::GenParticleCollection& genParticleList, const reco::CaloMETCollection& caloMets ) {
-	
+void PFMETBenchmark::process( const reco::PFMETCollection& pfMets, const reco::GenParticleCollection& genParticleList, const reco::CaloMETCollection& caloMets ) 
+{
+  calculateQuantities(pfMets, genParticleList, caloMets);
+  if (debug_) {
+    cout << "  =========PFMET  " << rec_met  << ", " << rec_phi  << endl;
+    cout << "  =========GenMET " << true_met << ", " << true_phi << endl;
+  }			
+  // fill histograms
+  // delta Pt or E quantities
+  hDeltaMET->Fill( rec_met - true_met );
+  hMEX->Fill( rec_mex );
+  hDeltaPhi->Fill( rec_phi - true_phi );
+  hDeltaSET->Fill( rec_set - true_set );
+  if( true_met > 5.0 ) hSETvsDeltaMET->Fill( rec_set, rec_met - true_met );
+  else                 hSETvsDeltaMET->Fill( rec_set, rec_mex );
+  hSETvsDeltaSET->Fill( rec_set, rec_set - true_set );
+  if( true_met > 5.0 ) profileMETvsMETresp->Fill(true_met, (rec_met-true_met)/true_met);
+  profileSETvsSETresp->Fill(true_set, (rec_set-true_set)/true_set);
+  hDeltaCaloMET->Fill( calo_met - true_met );
+  hCaloMEX->Fill( calo_mex );
+  hDeltaCaloPhi->Fill( calo_phi - true_phi );
+  hDeltaCaloSET->Fill( calo_set - true_set );
+  if( true_met > 5.0 ) hCaloSETvsDeltaCaloMET->Fill( calo_set, calo_met - true_met );
+  else                 hCaloSETvsDeltaCaloMET->Fill( calo_set, calo_mex );
+  hCaloSETvsDeltaCaloSET->Fill( calo_set, calo_set - true_set );
+  if( true_met > 5.0 ) profileCaloMETvsCaloMETresp->Fill(true_met, (calo_met-true_met)/true_met);
+  profileCaloSETvsCaloSETresp->Fill(true_set, (calo_set-true_set)/true_set);
+}
+
+void PFMETBenchmark::calculateQuantities( const reco::PFMETCollection& pfMets, const reco::GenParticleCollection& genParticleList, const reco::CaloMETCollection& caloMets ) 
+{
   const reco::PFMET&    pfm = pfMets[0];
   const reco::CaloMET&  cm  = caloMets[0];
-  //const reco::GenMET& truth = genMets[0];
-  //const reco::GenParticleCollection::const_iterator genParticle;
 
   double trueMEY  = 0.0;
   double trueMEX  = 0.0;;
-  double true_set  = 0.0;;
+  true_set  = 0.0;;
 
   //  for( genParticle = genParticleList.begin(); genParticle != genParticleList.end(); genParticle++ )
   for( unsigned i = 0; i < genParticleList.size(); i++ )
@@ -159,39 +186,21 @@ void PFMETBenchmark::process( const reco::PFMETCollection& pfMets, const reco::G
 	    true_set += genParticleList[i].pt();
 	  }
     }
-  double true_met = sqrt( trueMEX*trueMEX + trueMEY*trueMEY );
-  double true_phi = atan2(trueMEY,trueMEX);
-  double rec_met  = pfm.pt();
-  double rec_phi  = pfm.phi();
-  double rec_set  = pfm.sumEt();
-  double calo_met = cm.pt();
-  double calo_phi = cm.phi();
-  double calo_set = cm.sumEt();
+  true_met = sqrt( trueMEX*trueMEX + trueMEY*trueMEY );
+  true_phi = atan2(-trueMEY,-trueMEX);
+  rec_met  = pfm.pt();
+  rec_mex  = pfm.px();
+  rec_phi  = pfm.phi();
+  rec_set  = pfm.sumEt();
+  calo_met = cm.pt();
+  calo_mex = cm.px();
+  calo_phi = cm.phi();
+  calo_set = cm.sumEt();
 
   if (debug_) {
     cout << "  =========PFMET  " << rec_met  << ", " << rec_phi  << endl;
-    cout << "  =========GenMET " << true_met << ", " << true_phi << endl;
+    cout << "  =========trueMET " << true_met << ", " << true_phi << endl;
   }			
-  // fill histograms
-  // delta Pt or E quantities
-  hDeltaMET->Fill( rec_met - true_met );
-  hMEX->Fill( pfm.px() );
-  hDeltaPhi->Fill( rec_phi - true_phi );
-  hDeltaSET->Fill( rec_set - true_set );
-  if( true_met > 5.0 ) hSETvsDeltaMET->Fill( rec_set, rec_met - true_met );
-  else                 hSETvsDeltaMET->Fill( rec_set, pfm.px() );
-  hSETvsDeltaSET->Fill( rec_set, rec_set - true_set );
-  if( true_met > 5.0 ) profileMETvsMETresp->Fill(true_met, (rec_met-true_met)/true_met);
-  profileSETvsSETresp->Fill(true_set, (rec_set-true_set)/true_set);
-  hDeltaCaloMET->Fill( calo_met - true_met );
-  hCaloMEX->Fill( cm.px() );
-  hDeltaCaloPhi->Fill( calo_phi - true_phi );
-  hDeltaCaloSET->Fill( calo_set - true_set );
-  if( true_met > 5.0 ) hCaloSETvsDeltaCaloMET->Fill( calo_set, calo_met - true_met );
-  else                 hCaloSETvsDeltaCaloMET->Fill( calo_set, cm.px() );
-  hCaloSETvsDeltaCaloSET->Fill( calo_set, calo_set - true_set );
-  if( true_met > 5.0 ) profileCaloMETvsCaloMETresp->Fill(true_met, (calo_met-true_met)/true_met);
-  profileCaloSETvsCaloSETresp->Fill(true_set, (calo_set-true_set)/true_set);
 }
 
 double fitf(double *x, double *par)
