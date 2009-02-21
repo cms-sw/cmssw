@@ -94,7 +94,13 @@ public:
     return edm::InputTag(label, instance, process);
   }
 
-  edm::EventID newEventID(unsigned int run, unsigned int event)
+   edm::ESInputTag newESInputTag(std::string const& module,
+                             std::string const& data)
+   {
+      return edm::ESInputTag(module, data);
+   }
+   
+   edm::EventID newEventID(unsigned int run, unsigned int event)
   {
     return edm::EventID(run, event);
   }
