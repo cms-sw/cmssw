@@ -58,9 +58,13 @@ using the 'setEventSetup' and 'clearEventSetup' functions.
 // forward declarations
 namespace edm {
    class EventSetup;
+   class ESInputTag;
+   
    namespace eventsetup {
       class DataProxy;
       class EventSetupRecordKey;
+      class ComponentDescription;
+      
 class EventSetupRecord
 {
 
@@ -111,6 +115,8 @@ class EventSetupRecord
       EventSetup const& eventSetup() const {
          return *eventSetup_;
       }
+   
+      void validate(const ComponentDescription*, const ESInputTag&) const;
    private:
       EventSetupRecord(const EventSetupRecord&); // stop default
 

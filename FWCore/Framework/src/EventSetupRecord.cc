@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"
+#include "FWCore/Utilities/interface/ESInputTag.h"
 
 namespace edm {
    namespace eventsetup {
@@ -147,6 +148,27 @@ EventSetupRecord::fillRegisteredDataKeys(std::vector<DataKey>& oToFill) const
     oToFill.push_back(it->first);
   }
   
+}
+
+void 
+EventSetupRecord::validate(const ComponentDescription* iDesc, const ESInputTag& iTag) const
+{
+   if(iDesc && iTag.module().size()) {
+      bool matched = false;
+      if(iDesc->label_.empty()) {
+         matched = iDesc->type_ == iTag.module();
+      } else {
+         matched = iDesc->label_ == iTag.module();
+      }
+      if(!matched) {
+         throw cms::Exception("EventSetupWrongModule") <<"EventSetup data was retrieved using an ESInputTag with the values\n"
+         <<"  moduleLabel = '"<<iTag.module()<<"'\n"
+         <<"  dataLabel = '"<<iTag.data()<<"'\n"
+         <<"but the data matching the C++ class type and dataLabel comes from module type="<<iDesc->type_<<" label='"<<iDesc->label_
+         <<"'.\n Please either change the ESInputTag's 'module' label to be "<<( iDesc->label_.empty()? iDesc->type_:iDesc->label_)
+         <<"\n or add the EventSetup module "<<iTag.module()<<" to the configuration.";
+      }
+   }
 }
 
 //
