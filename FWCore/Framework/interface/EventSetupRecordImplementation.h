@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr  1 16:50:49 EST 2005
-// $Id: EventSetupRecordImplementation.h,v 1.10 2006/08/16 13:42:44 chrjones Exp $
+// $Id: EventSetupRecordImplementation.h,v 1.11 2007/06/14 17:52:15 wmtan Exp $
 //
 
 // system include files
@@ -26,6 +26,7 @@
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/DataProxy.h"
+#include "FWCore/Utilities/interface/ESInputTag.h"
 
 // forward declarations
 namespace edm {
@@ -64,6 +65,15 @@ class EventSetupRecordImplementation : public EventSetupRecord
          iHolder = HolderT(value,desc);
       }
       
+      template< typename HolderT>
+      void get(const edm::ESInputTag& iTag, HolderT& iHolder) const {
+         const typename HolderT::value_type* value;
+         const ComponentDescription* desc;
+         this->getImplementation(value, iTag.data().c_str(),desc);
+         validate(desc,iTag);
+         iHolder = HolderT(value,desc);
+      }
+   
       virtual EventSetupRecordKey key() const {
          return EventSetupRecordKey::makeKey<T>();
       }
