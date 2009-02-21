@@ -61,19 +61,8 @@ void EBDaqInfoTask::beginJob(const EventSetup& c){
 
     sprintf(histo, "DAQSummaryMap");
     meEBDaqActiveMap_ = dqmStore_->book2D(histo,histo, 72, 0., 72., 34, 0., 34.);
-    for ( int iettx = 0; iettx < 34; iettx++ ) {
-      for ( int ipttx = 0; ipttx < 72; ipttx++ ) {
-        meEBDaqActiveMap_->setBinContent( ipttx+1, iettx+1, 0.0 );
-      }
-    }
     meEBDaqActiveMap_->setAxisTitle("jphi", 1);
     meEBDaqActiveMap_->setAxisTitle("jeta", 2);
-
-    for( int iesm=1; iesm<=18; iesm++ ) {
-      for( int ipsm=1; ipsm<=2; ipsm++ ) {
-        meEBDaqActiveMap_->setBinContent(iesm, ipsm, 0.0);
-      }
-    }
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/DAQSummaryContents");
 
@@ -96,6 +85,12 @@ void EBDaqInfoTask::endJob(void) {
 void EBDaqInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const  edm::EventSetup& iSetup){
 
   this->reset();
+
+  for ( int iettx = 0; iettx < 34; iettx++ ) {
+    for ( int ipttx = 0; ipttx < 72; ipttx++ ) {
+      meEBDaqActiveMap_->setBinContent( ipttx+1, iettx+1, 0.0 );
+    }
+  }
 
   edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
 
