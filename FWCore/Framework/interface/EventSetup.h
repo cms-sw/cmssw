@@ -33,6 +33,8 @@
 // forward declarations
 
 namespace edm {
+   class ESInputTag;
+   
    namespace eventsetup {
       class EventSetupProvider;
       class EventSetupRecord;
@@ -74,7 +76,15 @@ class EventSetup
             const RecordT& rec = this->get<RecordT>();
             rec.get(iLabel,iHolder);
          }
-      
+
+      template< typename T>
+        void getData(const edm::ESInputTag& iTag, T& iHolder) const {
+           typedef typename T::value_type data_type;
+           typedef typename eventsetup::data_default_record_trait<data_type>::type RecordT;
+           const RecordT& rec = this->get<RecordT>();
+           rec.get(iTag,iHolder);
+        }
+   
       const IOVSyncValue& iovSyncValue() const { return syncValue_;}
 
       const eventsetup::EventSetupRecord* find(const eventsetup::EventSetupRecordKey&) const;
