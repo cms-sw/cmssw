@@ -13,7 +13,7 @@ hltpostvalidation = cms.Sequence(
     +EgammaPostVal
     +HLTTopPostVal
    #+SusyExoPostVal
-    +hltFourVectorClient
+    +HLTriggerOfflineFourVectorClient
     +heavyFlavorValidationHarvestingSequence
    #+ExamplePostVal
     )
