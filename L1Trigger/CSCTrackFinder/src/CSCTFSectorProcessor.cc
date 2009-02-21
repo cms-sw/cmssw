@@ -430,6 +430,7 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
                  track.setQualityPacked((singlesTrackPt&0x60)>>5);
                  track.setChargeValidPacked((singlesTrackPt&0x80)>>7);
                  track.setPtLUTAddress(11<<16);
+                 track.m_output_link = singlesTrackOutput;
                  //CSCCorrelatedLCTDigiCollection singles;
                  std::vector<csctf::TrackStub> stubs = myStubContainer[bx].get();
                  // Select best quality stub, and assign its eta/phi coordinates to the track
