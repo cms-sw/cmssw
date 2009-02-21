@@ -28,6 +28,11 @@ RandomNumberGeneratorService = cms.Service(
         engineName = cms.untracked.string('TRandom3')
     ),
 
+    generator = cms.PSet(
+        initialSeed = cms.untracked.uint32(123456789),
+        engineName = cms.untracked.string('HepJamesRandom')
+    ),
+
     # This is to initialize the random engines used for  Famos
     VtxSmeared = cms.PSet(
         initialSeed = cms.untracked.uint32(123456789),
