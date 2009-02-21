@@ -5,6 +5,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
+#include <DataFormats/EcalDetId/interface/EEDetId.h>
+
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 #include "CondFormats/RunInfo/interface/RunSummary.h"
 #include "CondFormats/RunInfo/interface/RunInfo.h"
@@ -62,17 +64,10 @@ void EEDaqInfoTask::beginJob(const EventSetup& c){
     meEEDaqFraction_->Fill(0.0);
 
     sprintf(histo, "DAQSummaryMap");
-    meEEDaqActiveMap_ = dqmStore_->book2D(histo,histo, 40, 0., 40., 20, 0., 20.);
-    for ( int jxdcc = 0; jxdcc < 20; jxdcc++ ) {
-      for ( int jydcc = 0; jydcc < 20; jydcc++ ) {
-        for ( int iside = 0; iside < 2; iside++ ) {
-          meEEDaqActiveMap_->setBinContent( 20*iside+jxdcc+1, jydcc+1, 0.0 );
-        }
-      }
-    }
+    meEEDaqActiveMap_ = dqmStore_->book2D(histo,histo, 200, 0., 200., 100, 0., 100.);
     meEEDaqActiveMap_->setAxisTitle("jx", 1);
     meEEDaqActiveMap_->setAxisTitle("jy", 2);
-
+    
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/DAQSummaryContents");
 
     for (int i = 0; i < 18; i++) {
@@ -94,6 +89,17 @@ void EEDaqInfoTask::endJob(void) {
 void EEDaqInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const  edm::EventSetup& iSetup){
 
   this->reset();
+  
+  for ( int iz = -1; iz < 2; iz+=2 ) {
+    for ( int ix = 1; ix <= 100; ix++ ) {
+      for ( int iy = 1; iy <= 100; iy++ ) {
+        int jx = (iz==1) ? 100 + ix : ix;
+        int jy = iy;
+        if( EEDetId::validDetId(ix, iy, iz) ) meEEDaqActiveMap_->setBinContent( jx, jy, 0.0 );
+        else meEEDaqActiveMap_->setBinContent( jx, jy, -1.0 );
+      }
+    }
+  }
 
   edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
 
@@ -105,36 +111,6 @@ void EEDaqInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
     std::vector<int> FedsInIds= sumFED->m_fed_in;   
 
     float EEFedCount = 0.;
-
-    // find the coordinates within EE geometry
-    bool withinGeometry[100][100];
-    for( int jx = 0; jx <100; jx++ ) {
-      for( int jy = 0; jy < 100; jy++ ) {
-        withinGeometry[jx][jy] = false;
-      }
-    }
-
-    for( int jx = 0; jx <100; jx++ ) {
-      for( int jy = 0; jy < 100; jy++ ) {
-        for(int ism = 1; ism<=18; ism++ ) {
-          int ic = Numbers::icEE( ism, jx, jy );
-          if( ic > -1 ) withinGeometry[jx][jy] = true;
-        }
-      }
-    }
-
-    // make the crystals outside EE geometry out-of-scale
-    for( int jx = 0; jx <100; jx++ ) { 
-      for( int jy = 0; jy < 100; jy++ ) {
-        if( !withinGeometry[jx][jy] ) {
-          for( int iside = 0; iside<2; iside++ ) {
-            int matrix5x5x = 20*iside + jx/5 + 1;
-            int matrix5x5y = jy/5 + 1;
-            meEEDaqActiveMap_->setBinContent( matrix5x5x, matrix5x5y, -1.0 );
-          }
-        }
-      }
-    }
 
     for( unsigned int fedItr=0; fedItr<FedsInIds.size(); ++fedItr ) {
 
@@ -159,17 +135,12 @@ void EEDaqInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
         
         if( meEEDaqActiveMap_ ) {
 
-          for( int jx = 0; jx <100; jx++ ) {
-            for( int jy = 0; jy < 100; jy++ ) {
-              int ic = Numbers::icEE( ism, jx, jy );
-              if( ic > -1 ) {
-
-                int matrix5x5x = 20*iside + jx/5 + 1;
-                int matrix5x5y = jy/5 + 1;
-                
-                meEEDaqActiveMap_->setBinContent( matrix5x5x, matrix5x5y, 1.0 );
-
-              }
+          for( int ix = 1; ix <=100; ix++ ) {
+            for( int iy = 1; iy <= 100; iy++ ) {
+              int ic = Numbers::icEE( ism, ix, iy );
+              int jx = (iside==1) ? 100 + ix : ix;
+              int jy = iy;
+              if( ic > -1 ) meEEDaqActiveMap_->setBinContent( jx, jy, 1.0 );
             }
           }
 
