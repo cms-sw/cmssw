@@ -406,6 +406,75 @@ class InputTag(_ParameterTypeBase):
     def insertInto(self, parameterSet, myname):
         parameterSet.addInputTag(self.isTracked(), myname, self.cppTag(parameterSet))
 
+class ESInputTag(_ParameterTypeBase):
+    def __init__(self,module='',data=''):
+        super(ESInputTag,self).__init__()
+        self._setValues(module, data)
+    def getModuleLabel(self):
+        return self.__moduleLabel
+    def setModuleLabel(self,label):
+        self.__moduleLabel = label
+    moduleLabel = property(getModuleLabel,setModuleLabel,"module label for the product")
+    def getDataLabel(self):
+        return self.__data
+    def setDataLabel(self,label):
+        self.__data = label
+    dataLabel = property(getDataLabel,setDataLabel,"data label for the product")
+    def configValue(self, options=PrintOptions()):
+        result = self.__moduleLabel
+        if self.__data != "":
+            result += ':' + self.__data
+        if result == "":
+            result = '\"\"'
+        return result;
+    def pythonValue(self, options=PrintOptions()):
+        cfgValue = self.configValue(options)
+        # empty strings already have quotes
+        if cfgValue == '\"\"':
+            return cfgValue
+        colonedValue = "\""+cfgValue+"\""
+        # change label:instance:process to "label","instance","process"
+        return colonedValue.replace(":","\",\"")
+    @staticmethod
+    def _isValid(value):
+        return True
+    def __cmp__(self,other):
+        v = self.__moduleLabel <> other.__moduleLabel
+        if not v:
+            v= self.__data <> other.__data
+        return v
+    def value(self):
+        "Return the string rep"
+        return self.configValue()
+    @staticmethod
+    def formatValueForConfig(value):
+        return value.configValue()
+    @staticmethod
+    def _valueFromString(string):
+        parts = string.split(":")
+        return ESInputTag(*parts)
+    def setValue(self,v):
+        self._setValues(v)
+    def _setValues(self,moduleLabel='',dataLabel=''):
+        self.__moduleLabel = moduleLabel
+        self.__data = dataLabel
+        if -1 != moduleLabel.find(":"):
+        #    raise RuntimeError("the module label '"+str(moduleLabel)+"' contains a ':'. If you want to specify more than one label, please pass them as separate arguments.")
+        # tolerate it, at least for the translation phase
+            toks = moduleLabel.split(":")
+            self.__moduleLabel = toks[0]
+            if len(toks) > 1:
+               self.__data = toks[1]
+            if len(toks) > 2:
+               raise RuntimeError("an ESInputTag was passed the value'"+moduleLabel+"' which contains more than one ':'")
+
+    # convert to the wrapper class for C++ ESInputTags
+    def cppTag(self, parameterSet):
+        return parameterSet.newESInputTag(self.getModuleLabel(),
+                                        self.getDataLabel())
+    def insertInto(self, parameterSet, myname):
+        parameterSet.addESInputTag(self.isTracked(), myname, self.cppTag(parameterSet))
+
 class FileInPath(_SimpleParameterTypeBase):
     def __init__(self,value):
         super(FileInPath,self).__init__(value)
@@ -653,6 +722,36 @@ class VInputTag(_ValidatingParameterListBase):
             cppTags.append(item.cppTag(parameterSet))
         parameterSet.addVInputTag(self.isTracked(), myname, cppTags)
 
+class VESInputTag(_ValidatingParameterListBase):
+    def __init__(self,*arg,**args):
+        super(VESInputTag,self).__init__(*arg,**args)
+    @staticmethod
+    def _itemIsValid(item):
+        return ESInputTag._isValid(item)
+    def configValueForItem(self,item,options):
+       # we tolerate strings as members
+       if isinstance(item, str):
+         return '"'+item+'"'
+       else:
+         return ESInputTag.formatValueForConfig(item)
+    def pythonValueForItem(self,item, options):
+        # we tolerate strings as members
+        if isinstance(item, str):
+            return '"'+item+'"'
+        else:
+            return item.dumpPython(options)
+    @staticmethod
+    def _valueFromString(value):
+        return VESInputTag(*_ValidatingParameterListBase._itemsFromStrings(value,ESInputTag._valueFromString))
+    def insertInto(self, parameterSet, myname):
+        cppTags = list()
+        for i in self:
+            item = i
+            if isinstance(item, str):
+                item = ESInputTag(i)
+            cppTags.append(item.cppTag(parameterSet))
+        parameterSet.addVESInputTag(self.isTracked(), myname, cppTags)
+
 class VEventID(_ValidatingParameterListBase):
     def __init__(self,*arg,**args):
         super(VEventID,self).__init__(*arg,**args)
@@ -870,6 +969,21 @@ if __name__ == "__main__":
             self.assertEqual(repr(vit), "cms.VInputTag(cms.InputTag(\"label1\"), cms.InputTag(\"label2\"))")
             vit = VInputTag("label1", "label2:label3")
             self.assertEqual(repr(vit), "cms.VInputTag(\"label1\", \"label2:label3\")")
+        def testESInputTag(self):
+            it = ESInputTag._valueFromString("label:data")
+            print it.pythonValue()
+            self.assertEqual(it.getModuleLabel(), "label")
+            self.assertEqual(it.getDataLabel(), "data")
+            # tolerate, at least for translation phase
+            #self.assertRaises(RuntimeError, InputTag,'foo:bar')
+            it=ESInputTag(data='data')
+            self.assertEqual(it.getModuleLabel(), "")
+            self.assertEqual(it.getDataLabel(), "data")
+            self.assertEqual(repr(it), "cms.ESInputTag(\"\",\"data\")")
+            vit = VESInputTag(ESInputTag("label1"), ESInputTag("label2"))
+            self.assertEqual(repr(vit), "cms.VESInputTag(cms.ESInputTag(\"label1\"), cms.ESInputTag(\"label2\"))")
+            vit = VESInputTag("label1", "label2:label3")
+            self.assertEqual(repr(vit), "cms.VESInputTag(\"label1\", \"label2:label3\")")
 
         def testPSet(self):
             p1 = PSet(anInt = int32(1), a = PSet(b = int32(1)))
