@@ -931,6 +931,24 @@ namespace edm {
     return retrieve(name).getVInputTag();
   }
 
+   // ----------------------------------------------------------------------
+   // ESInputTag
+   
+   template <>
+   ESInputTag
+   ParameterSet::getParameter<ESInputTag>(std::string const& name) const {
+      return retrieve(name).getESInputTag();      
+   }
+   
+   // ----------------------------------------------------------------------
+   // VESInputTag
+   
+   template <>
+   std::vector<ESInputTag>
+   ParameterSet::getParameter<std::vector<ESInputTag> >(std::string const& name) const {
+      return retrieve(name).getVESInputTag();
+   }
+   
   // ----------------------------------------------------------------------
   // EventID
 
@@ -1255,6 +1273,36 @@ namespace edm {
     return getEntryPointerOrThrow_(name)->getVInputTag();
   }
 
+   // ----------------------------------------------------------------------
+   // ESInputTag, VESInputTag
+   
+   template<>
+   ESInputTag
+   ParameterSet::getUntrackedParameter<ESInputTag>(std::string const& name, ESInputTag const& defaultValue) const {
+      Entry const* entryPtr = retrieveUntracked(name);
+      return entryPtr == 0 ? defaultValue : entryPtr->getESInputTag();
+   }
+   
+   template<>
+   ESInputTag
+   ParameterSet::getUntrackedParameter<ESInputTag>(std::string const& name) const {
+      return getEntryPointerOrThrow_(name)->getESInputTag();
+   }
+   
+   template<>
+   std::vector<ESInputTag>
+   ParameterSet::getUntrackedParameter<std::vector<ESInputTag> >(std::string const& name, 
+                                                               std::vector<ESInputTag> const& defaultValue) const {
+      Entry const* entryPtr = retrieveUntracked(name);
+      return entryPtr == 0 ? defaultValue : entryPtr->getVESInputTag();
+   }
+   
+   template<>
+   std::vector<ESInputTag>
+   ParameterSet::getUntrackedParameter<std::vector<ESInputTag> >(std::string const& name) const {
+      return getEntryPointerOrThrow_(name)->getVESInputTag();
+   }
+   
   // ----------------------------------------------------------------------
   // EventID, VEventID
 
@@ -1513,6 +1561,25 @@ namespace edm {
     return retrieve(name).getVInputTag();
   }
 
+   // ----------------------------------------------------------------------
+   // ESInputTag
+   
+   template <>
+   ESInputTag
+   ParameterSet::getParameter<ESInputTag>(char const* name) const {
+      return retrieve(name).getESInputTag();
+   }
+   
+   // ----------------------------------------------------------------------
+   // VESInputTag
+   
+   template <>
+   std::vector<ESInputTag>
+   ParameterSet::getParameter<std::vector<ESInputTag> >(char const* name) const {
+      return retrieve(name).getVESInputTag();
+   }
+   
+   
   // ----------------------------------------------------------------------
   // EventID
 
@@ -1837,6 +1904,36 @@ namespace edm {
     return getEntryPointerOrThrow_(name)->getVInputTag();
   }
 
+   // ----------------------------------------------------------------------
+   // ESInputTag, VESInputTag
+   
+   template<>
+   ESInputTag
+   ParameterSet::getUntrackedParameter<ESInputTag>(char const* name, ESInputTag const& defaultValue) const {
+      Entry const* entryPtr = retrieveUntracked(name);
+      return entryPtr == 0 ? defaultValue : entryPtr->getESInputTag();
+   }
+   
+   template<>
+   ESInputTag
+   ParameterSet::getUntrackedParameter<ESInputTag>(char const* name) const {
+      return getEntryPointerOrThrow_(name)->getESInputTag();
+   }
+   
+   template<>
+   std::vector<ESInputTag>
+   ParameterSet::getUntrackedParameter<std::vector<ESInputTag> >(char const* name, 
+                                                               std::vector<ESInputTag> const& defaultValue) const {
+      Entry const* entryPtr = retrieveUntracked(name);
+      return entryPtr == 0 ? defaultValue : entryPtr->getVESInputTag();
+   }
+   
+   template<>
+   std::vector<ESInputTag>
+   ParameterSet::getUntrackedParameter<std::vector<ESInputTag> >(char const* name) const {
+      return getEntryPointerOrThrow_(name)->getVESInputTag();
+   }
+   
   // ----------------------------------------------------------------------
   // EventID, VEventID
 

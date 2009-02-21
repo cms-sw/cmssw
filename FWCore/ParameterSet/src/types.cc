@@ -724,6 +724,61 @@ bool
 
 
 // ----------------------------------------------------------------------
+// ESInputTag
+// ----------------------------------------------------------------------
+
+bool
+edm::decode(ESInputTag& to, std::string const& from)
+{
+   to = ESInputTag(from);
+   return true;
+}  // decode to InputTag
+
+
+
+bool
+edm::encode(std::string& to, const ESInputTag& from)
+{
+   to = from.encode();
+   return true;
+}
+
+
+// ----------------------------------------------------------------------
+// VESInputTag
+// ----------------------------------------------------------------------
+
+bool
+edm::decode(std::vector<ESInputTag>& to, std::string const& from)
+{
+   std::vector<std::string> strings;
+   decode(strings, from);
+   
+   for(std::vector<std::string>::const_iterator stringItr = strings.begin(), stringItrEnd = strings.end();
+       stringItr != stringItrEnd; ++stringItr)
+   {
+      to.push_back(ESInputTag(*stringItr));
+   }
+   return true;
+}  // decode to VInputTag
+
+
+
+bool
+edm::encode(std::string& to, const std::vector<ESInputTag>& from)
+{
+   std::vector<std::string> strings;
+   for(std::vector<ESInputTag>::const_iterator tagItr = from.begin(), tagItrEnd = from.end();
+       tagItr != tagItrEnd; ++tagItr)
+   {
+      strings.push_back(tagItr->encode());
+   }
+   encode(to, strings);
+   return true;
+}
+
+
+// ----------------------------------------------------------------------
 // EventID
 // ----------------------------------------------------------------------
 

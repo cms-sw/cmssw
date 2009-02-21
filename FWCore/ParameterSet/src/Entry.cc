@@ -18,6 +18,11 @@
 #include <assert.h>
 #include <iostream>
 
+enum {
+   kTESInputTag  = 'g',
+   kTVESInputTag = 'G'
+};
+
 namespace edm {
   namespace pset {
 
@@ -50,6 +55,8 @@ namespace edm {
       table_['F'] = "FileInPath";
       table_['t'] = "InputTag";
       table_['v'] = "VInputTag";
+      table_[kTESInputTag] = "ESInputTag";
+      table_[kTVESInputTag] = "VESInputTag";
       table_['e'] = "VEventID";
       table_['E'] = "EventID";
       table_['m'] = "VLuminosityBlockID";
@@ -160,6 +167,16 @@ namespace edm {
         std::vector<edm::InputTag> val;
         if(!decode(val, rep)) throwEntryError("VInputTag", rep);
         break;
+      }
+      case kTESInputTag: { //ESInputTag
+         edm::ESInputTag val;
+         if(!decode(val,rep)) throwEntryError("ESInputTag", rep);
+         break;
+      }
+      case kTVESInputTag: { //ESInputTag
+         std::vector<edm::ESInputTag> val;
+         if(!decode(val,rep)) throwEntryError("VESInputTag", rep);
+         break;
       }
       case 'E':  {  // EventID
         edm::EventID val; 
@@ -397,6 +414,27 @@ namespace edm {
   }
 
 
+// ----------------------------------------------------------------------
+// ESInputTag
+   
+   Entry::Entry(std::string const& name, edm::ESInputTag const& val, bool is_tracked) :
+   name_(name), rep(), type(kTESInputTag), tracked(is_tracked ? '+' : '-')
+   {
+      if (!encode(rep, val)) throwEncodeError("InputTag");
+      validate();
+   }
+
+// ----------------------------------------------------------------------
+// VESInputTag
+   
+   Entry::Entry(std::string const& name, std::vector<edm::ESInputTag> const& val, bool is_tracked) :
+   name_(name), rep(), type(kTVESInputTag), tracked(is_tracked ? '+' : '-')
+   {
+      if (!encode(rep, val)) throwEncodeError("VESInputTag");
+      validate();
+   }
+   
+   
 // ----------------------------------------------------------------------
 //  EventID
 
@@ -814,11 +852,37 @@ namespace edm {
   {
     if(type != 'v') throwValueError("VInputTag");
     std::vector<edm::InputTag> val;
-    if(!decode(val, rep)) throwEntryError("InputTag", rep);
+    if(!decode(val, rep)) throwEntryError("VInputTag", rep);
     return val;
   }
 
 
+// ----------------------------------------------------------------------
+// ESInputTag
+   
+   edm::ESInputTag
+   Entry::getESInputTag() const
+   {
+      if(type != kTESInputTag) throwValueError("ESInputTag");
+      edm::ESInputTag val;
+      if(!decode(val, rep)) throwEntryError("ESInputTag", rep);
+      return val;
+   }
+   
+
+// ----------------------------------------------------------------------
+// VESInputTag
+   
+   std::vector<edm::ESInputTag>
+   Entry::getVESInputTag() const
+   {
+      if(type != kTVESInputTag) throwValueError("VESInputTag");
+      std::vector<edm::ESInputTag> val;
+      if(!decode(val, rep)) throwEntryError("VESInputTag", rep);
+      return val;
+   }
+   
+      
 // ----------------------------------------------------------------------
 // EventID
 
@@ -1024,7 +1088,24 @@ namespace edm {
         os << "}";
         break;
       }
-      default:
+       case kTVESInputTag:
+       {
+          //VESInputTag needs to be treated seperately because it is encode like
+          // vector<string> rather than using the individual encodings of each ESInputTag
+          os << "{";
+          std::string start = "";
+          std::string const between(",");
+          std::vector<ESInputTag> tags = entry.getVESInputTag();
+          for(std::vector<ESInputTag>::const_iterator it = tags.begin(), itEnd = tags.end();
+              it != itEnd;
+              ++it) {
+             os << start << it->encode();
+             start = between;
+          }
+          os << "}";
+          break;
+       }
+       default:
       {
         os << entry.rep;
         break;

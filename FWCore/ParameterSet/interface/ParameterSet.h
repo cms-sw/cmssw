@@ -390,6 +390,20 @@ namespace edm {
   std::vector<InputTag>
   ParameterSet::getParameter<std::vector<InputTag> >(std::string const& name) const;
 
+   // ----------------------------------------------------------------------
+   // ESInputTag
+   
+   template <>
+   ESInputTag
+   ParameterSet::getParameter<ESInputTag>(std::string const& name) const;
+   
+   // ----------------------------------------------------------------------
+   // VESInputTag
+   
+   template <>
+   std::vector<ESInputTag>
+   ParameterSet::getParameter<std::vector<ESInputTag> >(std::string const& name) const;
+   
   // ----------------------------------------------------------------------
   // EventID
 

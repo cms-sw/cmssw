@@ -17,6 +17,7 @@
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESInputTag.h"
 //@@ not needed, but there might be trouble if we take it out
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/EventRange.h"
@@ -100,6 +101,14 @@ namespace edm {
     // InputTag
     Entry(std::string const& name, std::vector<edm::InputTag> const & vtag, bool is_tracked);
     std::vector<edm::InputTag> getVInputTag() const;
+
+    // ESInputTag
+    Entry(std::string const& name, edm::ESInputTag const & tag, bool is_tracked);
+    edm::ESInputTag getESInputTag() const;
+
+    // VESInputTag
+    Entry(std::string const& name, std::vector<edm::ESInputTag> const & vtag, bool is_tracked);
+    std::vector<edm::ESInputTag> getVESInputTag() const;
 
     // EventID
     Entry(std::string const& name, edm::EventID const & tag, bool is_tracked);
