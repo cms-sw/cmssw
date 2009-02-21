@@ -205,6 +205,10 @@ void testEventsetupRecord::getTest()
 
    Dummy myDummy;
    WorkingDummyProxy workingProxy(&myDummy);
+   ComponentDescription cd;
+   cd.label_ = "";
+   cd.type_ = "DummyProd";
+   workingProxy.setProviderDescription(&cd);
    
    const DataKey workingDataKey(DataKey::makeTypeTag<WorkingDummyProxy::value_type>(),
                               "working");
@@ -220,6 +224,27 @@ void testEventsetupRecord::getTest()
    
    dummyRecord.get(workingString,dummyPtr);
    CPPUNIT_ASSERT(&(*dummyPtr) == &myDummy);
+   
+   edm::ESInputTag it_working("","working");
+   dummyRecord.get(it_working,dummyPtr);
+   CPPUNIT_ASSERT(&(*dummyPtr) == &myDummy);
+   
+   edm::ESInputTag it_prov("DummyProd","working");
+   dummyRecord.get(it_prov,dummyPtr);
+   CPPUNIT_ASSERT(&(*dummyPtr) == &myDummy);
+
+   edm::ESInputTag it_bad("SmartProd","working");
+   CPPUNIT_ASSERT_THROW(dummyRecord.get(it_bad,dummyPtr), cms::Exception);
+   
+   //check if label is set
+   cd.label_ = "foo";
+   edm::ESInputTag it_label("foo","working");
+   dummyRecord.get(it_label,dummyPtr);
+   CPPUNIT_ASSERT(&(*dummyPtr) == &myDummy);
+
+   edm::ESInputTag it_prov_bad("DummyProd","working");
+   CPPUNIT_ASSERT_THROW(dummyRecord.get(it_prov_bad,dummyPtr), cms::Exception);
+   
 }
 
 void testEventsetupRecord::getNodataExpTest()
