@@ -7,6 +7,7 @@
 #include "IOVEditorImpl.h"
 #include "POOLCore/Token.h"
 
+#include "CondFormats/Common/interface/PayloadWrapper.h"
 
 
 cond::IOVSequence const & cond::IOVServiceImpl::iovSeq(const std::string& iovToken) const {
@@ -148,6 +149,7 @@ cond::IOVServiceImpl::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
 
 
   cond::IOVSequence const & iov=iovSeq(iovToken);
+  since = std::max(since, iov.firstSince());
   IOVSequence::const_iterator ifirstTill=iov.find(since);
   IOVSequence::const_iterator isecondTill=iov.find(till);
   if( isecondTill!=iov.iovs().end() ) isecondTill++;
@@ -177,6 +179,9 @@ cond::IOVServiceImpl::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
   cond::IOVSequence & newiov = *newiovref;
   for( IOVSequence::const_iterator it=ifirstTill;
        it!=isecondTill; ++it){
+    // FIXME need option to load Ptr unconditionally....
+    cond::TypedRef<cond::PayloadWrapper> payloadTRef(*m_pooldb,it->wrapperToken());
+    payloadTRef_>loadAll();
     cond::GenericRef payloadRef(*m_pooldb,it->wrapperToken());
     std::string newPtoken=payloadRef.exportTo(destDB);
     newiov.add(it->sinceTime(), newPtoken);
