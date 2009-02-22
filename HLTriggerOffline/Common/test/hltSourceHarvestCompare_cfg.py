@@ -72,7 +72,7 @@ process.post_validation = cms.Path(
     #+process.EgammaPostVal
     #+process.HLTTopPostVal
     #+process.SusyExoPostVal
-    #+process.hltFourVectorClient
+    #+process.HLTriggerOfflineFourVectorClient
     #+process.heavyFlavorValidationHarvestingSequence
     )
 
