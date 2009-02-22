@@ -28,7 +28,7 @@
 //static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
 
 namespace {
-  std::string dsw("DataAndSummaryWrapper");
+  std::string dsw("DataWrapper");
 }
 
 unsigned int cond::service::GetToken::sizeDSW() {
