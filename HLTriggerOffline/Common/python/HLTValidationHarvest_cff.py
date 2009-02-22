@@ -1,5 +1,5 @@
 from HLTriggerOffline.Tau.Validation.HLTTauPostValidation_cfi import *
-from HLTriggerOffline.Muon.HLTMuonPostVal_cff import *
+from HLTriggerOffline.Muon.PostProcessor_cfi import *
 from HLTriggerOffline.Egamma.EgammaPostProcessor_cfi import *
 from HLTriggerOffline.Top.PostProcessor_cfi import *
 #from HLTriggerOffline.SUSYBSM.SUSYBSM_postProcessor_cff import *
