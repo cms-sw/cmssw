@@ -343,6 +343,7 @@ BTagDifferentialPlot::getMistag(double fixedBEfficiency, TH1F * effPurHist)
       edm::LogWarning("BTagDifferentialPlot")<<"Fit failed to hisogram " << effPurHist->GetTitle() << " , perhaps because too few entries = " << effPurHist->GetEntries() <<". This bin will be missing in plots at fixed b efficiency.";
       //    } else {
       //      edm::LogInfo("BTagDifferentialPlot")<<"Fit OK to hisogram " << effPurHist->GetTitle() << " entries = " << effPurHist->GetEntries();
+      return pair<double, double>(effForBEff, effForBEffErr);
     }
     TF1 *myfunc = effPurHist->GetFunction("pol4");
     effForBEff = myfunc->Eval(fixedBEfficiency);
