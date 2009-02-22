@@ -20,7 +20,7 @@ standAloneMuons = cms.EDProducer("StandAloneMuonProducer",
                                                                                                           MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
                                                                                                           Propagator = cms.string('SteppingHelixPropagatorAny'),
                                                                                                           NMinRecHits = cms.uint32(2),
-                                                                                                          UseSubRecHits = cms.bool(True)
+                                                                                                          UseSubRecHits = cms.bool(False)
                                                                                                           ),
     
                                                                      FilterParameters = cms.PSet(FitDirection = cms.string('insideOut'),
