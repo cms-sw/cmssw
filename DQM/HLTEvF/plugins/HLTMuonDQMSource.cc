@@ -133,7 +133,7 @@ void HLTMuonDQMSource::beginJob(const EventSetup& context)
     
     
     /// book some histograms here
-    int NBINS = 100; XMIN = 0; XMAX = 50;
+    int NBINS = 50; XMIN = 0; XMAX = 50;
     
     // create and cd into new folder
     char name[512], title[512];
@@ -174,7 +174,7 @@ void HLTMuonDQMSource::beginJob(const EventSetup& context)
 	  sprintf(title,"L%i Muon #phi",level);
 	  hphi[trig][level-1] = dbe_->book1D(name,title, NBINS, -3.15, 3.15);
 	  hphi[trig][level-1]->setAxisTitle("#phi", 1);
-	  if( level == 1 ) NBINS = 100; // back to normal
+	  if( level == 1 ) NBINS = 50; // back to normal
 	  sprintf(name,"HLTMuonL%i_etaphi",level);
 	  sprintf(title,"L%i Muon #eta vs #phi",level);
 	  hetaphi[trig][level-1] = dbe_->book2D(name,title, NBINS, -3.15, 3.15,NBINS,-2.5, 2.5);
@@ -341,18 +341,18 @@ void HLTMuonDQMSource::beginJob(const EventSetup& context)
 	  sprintf(title,"(1/PtL%i - 1/PtL%i)/err",level,level+1);         
 	  hptpullpt[trig]->setAxisTitle(title, 2);
 	  hptpullpt[trig]->setAxisTitle("Pt", 1);
-	  sprintf(name,"HLTMuonL%itoL%i_phipullphi",level,level+1);
-	  sprintf(title,"L%i Muon #Delta#phi/err vs #phi ",level);         
-	  hphipullphi[trig] =dbe_->bookProfile(name,title, NBINS, -3.15, 3.15,1,-999.,999.,"s");
-	  sprintf(title,"(L%i #phi - L%i #phi)/err",level,level+1);         
-	  hphipullphi[trig]->setAxisTitle(title, 2);
-	  hphipullphi[trig]->setAxisTitle("#phi", 1);
 	  sprintf(name,"HLTMuonL%itoL%i_etapulleta",level,level+1);
 	  sprintf(title,"L%i Muon #Delta#eta/err vs #eta ",level);         
 	  hetapulleta[trig] =dbe_->bookProfile(name,title, NBINS,-2.5, 2.5,1,-999.,999.,"s");
 	  sprintf(title,"(L%i #eta - L%i #eta)/err",level,level+1);         
 	  hetapulleta[trig]->setAxisTitle(title, 2);
 	  hetapulleta[trig]->setAxisTitle("#eta", 1);
+	  sprintf(name,"HLTMuonL%itoL%i_phipullphi",level,level+1);
+	  sprintf(title,"L%i Muon #Delta#phi/err vs #phi ",level);         
+	  hphipullphi[trig] =dbe_->bookProfile(name,title, NBINS, -3.15, 3.15,1,-999.,999.,"s");
+	  sprintf(title,"(L%i #phi - L%i #phi)/err",level,level+1);         
+	  hphipullphi[trig]->setAxisTitle(title, 2);
+	  hphipullphi[trig]->setAxisTitle("#phi", 1);
 	}
 	if (level < 3 ) {
 	  sprintf(name,"HLTMuonL%itoL%i_ptres",level,level+1);
@@ -794,10 +794,6 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	    hptpull[ntrig]->Fill((1/l2tk->pt() - 1/tk->pt())/tk->ptError());
 	    hptpullpt[ntrig]->Fill(tk->pt(), (1/l2tk->pt() - 1/tk->pt())/tk->ptError());
 	  }
-	  hetares[ntrig][1]->Fill(l2tk->eta()-tk->eta());
-	  hetareseta[ntrig][1]->Fill(tk->eta(),l2tk->eta()-tk->eta());
-	  hetapull[ntrig]->Fill((l2tk->eta()-tk->eta())/tk->etaError());
-	  hetapulleta[ntrig]->Fill(tk->eta(),(l2tk->eta()-tk->eta())/tk->etaError());
 	  hphires[ntrig][1]->Fill(l2tk->phi()-tk->phi());
 	  double dphi=l2tk->phi()-tk->phi();
 	  if (dphi>TMath::TwoPi())dphi-=2*TMath::TwoPi();
@@ -805,6 +801,10 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	  hphiresphi[ntrig][1]->Fill(tk->phi(),dphi);
 	  hphipull[ntrig]->Fill(dphi/tk->phiError());
 	  hphipullphi[ntrig]->Fill(tk->phi(), dphi/tk->phiError());
+	  hetares[ntrig][1]->Fill(l2tk->eta()-tk->eta());
+	  hetareseta[ntrig][1]->Fill(tk->eta(),l2tk->eta()-tk->eta());
+	  hetapull[ntrig]->Fill((l2tk->eta()-tk->eta())/tk->etaError());
+	  hetapulleta[ntrig]->Fill(tk->eta(),(l2tk->eta()-tk->eta())/tk->etaError());
 	  // charge conversion
 	  int chargeconv = -1;
 	  int l2charge = l2tk->charge();
