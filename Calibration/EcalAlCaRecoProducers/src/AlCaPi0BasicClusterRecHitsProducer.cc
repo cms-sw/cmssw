@@ -121,7 +121,7 @@ AlCaPi0BasicClusterRecHitsProducer::produce(edm::Event& iEvent, const edm::Event
     float theta = 2. * atan(exp(-aClus->position().eta()));
     float p0x = aClus->energy() * sin(theta) * cos(aClus->position().phi());
     float p0y = aClus->energy() * sin(theta) * sin(aClus->position().phi());
-    float p0z = aClus->energy() * cos(theta);
+    //float p0z = aClus->energy() * cos(theta);
     float et = sqrt( p0x*p0x + p0y*p0y);
 
     //cout << " island Basic Cluster E,Et,px,py,pz: "<<aClus->energy()<<" "<<et<<" "<<p0x<<" "<<p0y<<" "<<p0z<<endl; 

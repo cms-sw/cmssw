@@ -218,7 +218,7 @@ AlCaPi0RecHitsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	    float theta_s = 2. * atan(exp(-clus_pos.eta()));
 	    float p0x_s = simple_energy * sin(theta_s) * cos(clus_pos.phi());
 	    float p0y_s = simple_energy * sin(theta_s) * sin(clus_pos.phi());
-	    float p0z_s = simple_energy * cos(theta_s);
+	    //float p0z_s = simple_energy * cos(theta_s);
 	    float et_s = sqrt( p0x_s*p0x_s + p0y_s*p0y_s);
 
 	    //cout << "       Simple Clustering: E,Et,px,py,pz: "<<simple_energy<<" "<<et_s<<" "<<p0x_s<<" "<<p0y_s<<" "<<p0z_s<<endl;
@@ -379,7 +379,7 @@ AlCaPi0RecHitsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
       //Put selected information in the event
       //      if (npi0>0) iEvent.put( pi0EBRecHitCollection, pi0BarrelHits_);
-      if ( pi0EBRecHitCollection->size() > seleNRHMax_ )
+      if ( pi0EBRecHitCollection->size() > size_t(seleNRHMax_) )
 	{
 	  //	  pi0EBRecHitCollection->clear();
 	  cout<< "   Max RH limit exceeded: "<<pi0EBRecHitCollection->size()<<" Max RH: "<<seleNRHMax_<<endl;
