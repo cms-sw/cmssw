@@ -33,6 +33,8 @@ dtDigiMonitor = cms.EDAnalyzer("DTDigiTask",
     testPulseMode = cms.untracked.bool(False),
     # switch for filtering on synch noise events (threshold on # of digis per chamber)
     filterSyncNoise = cms.untracked.bool(False),
+    # look for synch noise events
+    lookForSyncNoise = cms.untracked.bool(False),
     # threshold on # of digis per chamber to define sync noise
     maxTDCHitsPerChamber = cms.untracked.int32(50)
 )
