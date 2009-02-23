@@ -1,7 +1,7 @@
 #include "Geometry/ForwardGeometry/interface/ZdcTopology.h"
 #include <cmath>
 #include <iostream>
-
+#include <algorithm>
 
 static const int ICH_EM_MAX = 5;
 static const int ICH_HAD_MAX = 4;
