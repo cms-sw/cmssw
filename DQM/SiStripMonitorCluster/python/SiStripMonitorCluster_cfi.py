@@ -9,7 +9,6 @@ SiStripMonitorCluster = cms.EDFilter("SiStripMonitorCluster",
     OutputMEsInRootFile = cms.bool(False),
     OutputFileName = cms.string('SiStripMonitorCluster.root'),
                                      
-    CreateTrendMEs = cms.bool(False),
     ResetMEsEachRun = cms.bool(False),
 
     StripQualityLabel = cms.string(''),
@@ -18,15 +17,14 @@ SiStripMonitorCluster = cms.EDFilter("SiStripMonitorCluster",
     ShowMechanicalStructureView = cms.bool(True),
 
     ClusterLabel = cms.string(''),
-
+                                     
+    CreateTrendMEs = cms.bool(False),
     Trending = cms.PSet(
-        UpdateMode = cms.int32(1),
-        Nbins      = cms.int32(10),
-        ymax       = cms.double(10000.0),
-        Steps      = cms.int32(10),
-        xmax       = cms.double(10.0),
-        xmin       = cms.double(0.0),
-        ymin       = cms.double(0.0)
+        Nbins = cms.int32(600),
+        xmin = cms.double(0.0),
+        xmax = cms.double(1.0*60*60),
+        ymin = cms.double(0.0),
+        ymax = cms.double(100000.0)
     ),
     TH1ClusterNoise = cms.PSet(
         Nbinx          = cms.int32(20),
@@ -135,14 +133,6 @@ SiStripMonitorCluster = cms.EDFilter("SiStripMonitorCluster",
         subdetswitchon = cms.bool(False)
     ),
                                      
-    #select detectors
-    detectorson = cms.PSet(
-        tidon = cms.bool(True),
-        tibon = cms.bool(True),
-        tecon = cms.bool(True),
-        tobon = cms.bool(True)
-    ),
-
     Mod_On = cms.bool(True),
 
     ShowControlView = cms.bool(False),
