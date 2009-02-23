@@ -51,6 +51,9 @@ DEFINE_ANOTHER_FWK_MODULE(SiStripFedCablingBuilder);
 #include "CondTools/SiStrip/plugins/SiStripFedCablingReader.h"
 DEFINE_ANOTHER_FWK_MODULE(SiStripFedCablingReader);
 
-//#include "CondTools/SiStrip/plugins/SiStripSummaryReader.h"
-//DEFINE_ANOTHER_FWK_MODULE(SiStripSummaryReader);
+#include "CondTools/SiStrip/plugins/SiStripSummaryReader.h"
+DEFINE_ANOTHER_FWK_MODULE(SiStripSummaryReader);
+
+#include "CondTools/SiStrip/plugins/SiStripSummaryBuilder.h"
+DEFINE_ANOTHER_FWK_MODULE(SiStripSummaryBuilder);
 
