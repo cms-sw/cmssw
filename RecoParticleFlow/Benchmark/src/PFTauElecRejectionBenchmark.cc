@@ -222,7 +222,7 @@ void PFTauElecRejectionBenchmark::process(Handle<HepMCProduct> mcevt, Handle<rec
   HepMC::GenEvent * generated_event = new HepMC::GenEvent(*(mcevt->GetEvent()));
   _GenObjects.clear();
   
-  TLorentzVector taunet,;
+  TLorentzVector taunet;
   HepMC::GenEvent::particle_iterator p;
   for (p = generated_event->particles_begin(); p != generated_event->particles_end(); p++) {
     if(abs((*p)->pdg_id()) == 15&&(*p)->status()==2) { 
