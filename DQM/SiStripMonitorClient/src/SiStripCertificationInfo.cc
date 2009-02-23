@@ -40,9 +40,7 @@ SiStripCertificationInfo::~SiStripCertificationInfo() {
 //
 void SiStripCertificationInfo::beginJob( const edm::EventSetup &eSetup) {
  
-
   dqmStore_->setCurrentFolder("SiStrip/EventInfo/CertificationContents");
-
   // Book MEs for SiStrip DAQ fractions
   CertificationBit_= dqmStore_->bookFloat("SiStripDcsFraction");  
   CertificationBitTIB_ = dqmStore_->bookFloat("SiStripDcsFraction_TIB");  
@@ -50,7 +48,7 @@ void SiStripCertificationInfo::beginJob( const edm::EventSetup &eSetup) {
   CertificationBitTIDF_= dqmStore_->bookFloat("SiStripDcsFraction_TIDF");  
   CertificationBitTIDB_= dqmStore_->bookFloat("SiStripDcsFraction_TIDB");  
   CertificationBitTECF_= dqmStore_->bookFloat("SiStripDcsFraction_TECF");  
-  CertificationBitTECF_= dqmStore_->bookFloat("SiStripDcsFraction_TECB");
+  CertificationBitTECB_= dqmStore_->bookFloat("SiStripDcsFraction_TECB");
 
   // Fill them with -1 to start with
   CertificationBit_->Fill(-1.0);
@@ -60,7 +58,6 @@ void SiStripCertificationInfo::beginJob( const edm::EventSetup &eSetup) {
   CertificationBitTIDB_->Fill(-1.0);
   CertificationBitTECF_->Fill(-1.0);
   CertificationBitTECB_->Fill(-1.0);
- 
 }
 //
 // -- Begin Run
