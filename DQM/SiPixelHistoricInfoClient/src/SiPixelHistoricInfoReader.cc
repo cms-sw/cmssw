@@ -25,22 +25,25 @@ SiPixelHistoricInfoReader::SiPixelHistoricInfoReader(const edm::ParameterSet& pS
   parameterSet_ = pSet;  
 
   variables_ = parameterSet_.getUntrackedParameter<vstring>("variables");
-  for (int i=0; i<15; i++) variable_[i] = false; 
+  for (int i=0; i<20; i++) variable_[i] = false; 
   for (vector<string>::const_iterator variable = variables_.begin(); variable!=variables_.end(); ++variable) {
-    if (variable->compare("errorType")==0)   variable_[ 0] = true; 
-    if (variable->compare("ndigis")==0)      variable_[ 1] = true; 
-    if (variable->compare("adc")==0)         variable_[ 2] = true; 
-    if (variable->compare("nclusters")==0)   variable_[ 3] = true; 
-    if (variable->compare("charge")==0)      variable_[ 4] = true; 
-    if (variable->compare("size")==0)        variable_[ 5] = true; 
-    if (variable->compare("sizeX")==0)       variable_[ 6] = true; 
-    if (variable->compare("sizeY")==0)       variable_[ 7] = true; 
-    if (variable->compare("nRecHits")==0)    variable_[ 8] = true; 
-    if (variable->compare("residualX")==0)   variable_[ 9] = true; 
-    if (variable->compare("residualY")==0)   variable_[10] = true; 
-    if (variable->compare("nPixHitsTrk")==0) variable_[11] = true; 
-    if (variable->compare("nNoisPixels")==0) variable_[12] = true; 
-    if (variable->compare("nDeadPixels")==0) variable_[13] = true; 
+    if (variable->compare("errorType")==0)    	  variable_[ 0] = true;
+    if (variable->compare("ndigis")==0)       	  variable_[ 1] = true;
+    if (variable->compare("adc")==0)          	  variable_[ 2] = true;
+    if (variable->compare("nclusters")==0)    	  variable_[ 3] = true;
+    if (variable->compare("charge")==0)       	  variable_[ 4] = true;
+    if (variable->compare("size")==0)         	  variable_[ 5] = true;
+    if (variable->compare("sizeX")==0)        	  variable_[ 6] = true;
+    if (variable->compare("sizeY")==0)        	  variable_[ 7] = true;
+    if (variable->compare("nRecHits")==0)     	  variable_[ 8] = true;
+    if (variable->compare("residualX")==0)    	  variable_[ 9] = true;
+    if (variable->compare("residualY")==0)    	  variable_[10] = true;
+    if (variable->compare("nPixHitsTrk")==0)  	  variable_[11] = true;
+    if (variable->compare("nNoisPixels")==0)  	  variable_[12] = true;
+    if (variable->compare("nDeadPixels")==0)  	  variable_[13] = true;
+    if (variable->compare("tracks")==0)       	  variable_[14] = true;
+    if (variable->compare("onTrackClusters")==0)  variable_[15] = true; 
+    if (variable->compare("offTrackClusters")==0) variable_[16] = true; 
   }
   normEvents_ = parameterSet_.getUntrackedParameter<bool>("normEvents",false);  
   printDebug_ = parameterSet_.getUntrackedParameter<bool>("printDebug",false); 
@@ -67,6 +70,8 @@ string SiPixelHistoricInfoReader::getMEregionString(uint32_t detID) const {
   TString regionStr; 
        if (localMEdetID>100000000) { regionStr = "det"; regionStr += localMEdetID; }
   else if (localMEdetID<40)        { regionStr = "FED"; regionStr += localMEdetID; }
+  else if (localMEdetID==80) regionStr = "Barrel"; 
+  else if (localMEdetID==81) regionStr = "Endcap"; 
   else if (localMEdetID>99 && localMEdetID<120) { 
     localMEdetID -= 100; 
     if (localMEdetID<12) { 
@@ -268,6 +273,44 @@ void SiPixelHistoricInfoReader::beginRun(const edm::Run& run, const edm::EventSe
         AllDetHistograms->Add(new TH1F(hisID, title, 1, 0, 1)); 	        
         ((TH1F*)AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);  
       } 
+      if (variable_[14] && (*iDet==80 || *iDet==81)) {
+        hisID = "trkFrac_"; hisID += *iDet; 	        
+	title = "Track Fraction - "; title += detRegion; title += "/All";
+        AllDetHistograms->Add(new TH1F(hisID, title, 1, 0, 1)); 	        
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);  
+      } 
+      if (variable_[15] && (*iDet==80 || *iDet==81)) {
+        hisID = "nOnTrackClusters_"; hisID += *iDet;         
+        title = "nOnTrackClusters "; title += detRegion; 	        
+        AllDetHistograms->Add(new TH1F(hisID, title, 1, 0, 1)); 	        
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);  
+
+        hisID = "onTrackClusterCharge_"; hisID += *iDet; 	        
+        title = "onTrackClusterCharge "; title += detRegion; 	        
+        AllDetHistograms->Add(new TH1F(hisID, title, 1, 0, 1)); 	        
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);  
+
+        hisID = "onTrackClusterSize_"; hisID += *iDet; 	       
+        title = "onTrackClusterSize "; title += detRegion;	       
+        AllDetHistograms->Add(new TH1F(hisID, title, 1, 0, 1)); 	        
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);  
+      } 
+      if (variable_[16] && (*iDet==80 || *iDet==81)) {
+        hisID = "nOffTrackClusters_"; hisID += *iDet;         
+        title = "nOffTrackClusters "; title += detRegion; 	        
+        AllDetHistograms->Add(new TH1F(hisID, title, 1, 0, 1)); 	        
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);  
+
+        hisID = "offTrackClusterCharge_"; hisID += *iDet; 	        
+        title = "offTrackClusterCharge "; title += detRegion; 	        
+        AllDetHistograms->Add(new TH1F(hisID, title, 1, 0, 1)); 	        
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);  
+
+        hisID = "offTrackClusterSize_"; hisID += *iDet; 	       
+        title = "offTrackClusterSize "; title += detRegion;	       
+        AllDetHistograms->Add(new TH1F(hisID, title, 1, 0, 1)); 	        
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);  
+      } 
     }
   }
   if (pSummary->getRunNumber()==run.run()) { // pSummary's run changes only when the table is newly retrieved 
@@ -397,6 +440,42 @@ void SiPixelHistoricInfoReader::beginRun(const edm::Run& run, const edm::EventSe
 	  int iBin = ((TH1F*)AllDetHistograms->FindObject(hisID))->GetXaxis()->FindBin(sRun);
           ((TH1F*)AllDetHistograms->FindObject(hisID))->SetBinError(iBin, sqrt(performances[47])/sqrt(nEvents));	    
       	} 
+      }
+      if (*iDet==80 || *iDet==81) {
+        if (variable_[14]) {
+      	  hisID = "trkFrac_"; hisID += *iDet;       
+      	  ((TH1F*)AllDetHistograms->FindObject(hisID))->Fill(sRun, performances[48]);
+      	  int iBin = ((TH1F*)AllDetHistograms->FindObject(hisID))->GetXaxis()->FindBin(sRun);
+          ((TH1F*)AllDetHistograms->FindObject(hisID))->SetBinError(iBin, performances[49]);    
+	}
+        if (variable_[15]) {
+          hisID = "nOnTrackClusters_"; hisID += *iDet;         
+      	  ((TH1F*)AllDetHistograms->FindObject(hisID))->Fill(sRun, performances[50]*SF);
+
+          hisID = "onTrackClusterCharge_"; hisID += *iDet; 	        
+      	  ((TH1F*)AllDetHistograms->FindObject(hisID))->Fill(sRun, performances[52]*SF);
+      	  int iBin = ((TH1F*)AllDetHistograms->FindObject(hisID))->GetXaxis()->FindBin(sRun);
+          ((TH1F*)AllDetHistograms->FindObject(hisID))->SetBinError(iBin, performances[53]*SF);    
+
+          hisID = "onTrackClusterSize_"; hisID += *iDet; 	       
+      	  ((TH1F*)AllDetHistograms->FindObject(hisID))->Fill(sRun, performances[56]*SF);
+      	  int jBin = ((TH1F*)AllDetHistograms->FindObject(hisID))->GetXaxis()->FindBin(sRun);
+          ((TH1F*)AllDetHistograms->FindObject(hisID))->SetBinError(jBin, performances[57]*SF);    
+	}
+        if (variable_[16]) {
+          hisID = "nOffTrackClusters_"; hisID += *iDet;         
+      	  ((TH1F*)AllDetHistograms->FindObject(hisID))->Fill(sRun, performances[51]*SF);
+
+          hisID = "offTrackClusterCharge_"; hisID += *iDet; 	        
+      	  ((TH1F*)AllDetHistograms->FindObject(hisID))->Fill(sRun, performances[54]*SF);
+      	  int iBin = ((TH1F*)AllDetHistograms->FindObject(hisID))->GetXaxis()->FindBin(sRun);
+          ((TH1F*)AllDetHistograms->FindObject(hisID))->SetBinError(iBin, performances[55]*SF);    
+
+          hisID = "offTrackClusterSize_"; hisID += *iDet; 	       
+      	  ((TH1F*)AllDetHistograms->FindObject(hisID))->Fill(sRun, performances[58]*SF);
+      	  int jBin = ((TH1F*)AllDetHistograms->FindObject(hisID))->GetXaxis()->FindBin(sRun);
+          ((TH1F*)AllDetHistograms->FindObject(hisID))->SetBinError(jBin, performances[59]*SF);    
+	}
       }
     }    
   }
@@ -528,6 +607,39 @@ void SiPixelHistoricInfoReader::endJob() {
         ((TH1F*)AllDetHistograms->FindObject(hisID))->Write();   		       
       }
     } 
+    if (*iDet==80 || *iDet==81) {
+      if (variable_[14]) {
+    	hisID = "trkFrac_"; hisID += *iDet;	  
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");   		       
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->Write();   		       
+      }
+      if (variable_[15]) {
+    	hisID = "nOnTrackClusters_"; hisID += *iDet;	     
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");   		       
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->Write();   		       
+
+    	hisID = "onTrackClusterCharge_"; hisID += *iDet;	      
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");   		       
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->Write();   		       
+
+    	hisID = "onTrackClusterSize_"; hisID += *iDet;  	     
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");   		       
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->Write();   		       
+      }
+      if (variable_[16]) {
+    	hisID = "nOffTrackClusters_"; hisID += *iDet;	      
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");   		       
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->Write();   		       
+
+    	hisID = "offTrackClusterCharge_"; hisID += *iDet;	      
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");   		       
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->Write();   		       
+
+    	hisID = "offTrackClusterSize_"; hisID += *iDet; 	     
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");   		       
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->Write();   		       
+      }
+    }
   } 
   outputDirFile_->Write(); if (makePlots_) plot(); 
   outputDirFile_->Close(); 
@@ -576,6 +688,88 @@ void SiPixelHistoricInfoReader::plot() {
 	}								  	   		       
       } 
     } 
+    if (*iDet==80 || *iDet==81) {
+      if (variable_[14]) {
+    	hisID = "trkFrac_"; hisID += *iDet;	  
+        TH1F* trkFrac = (TH1F*)AllDetHistograms->FindObject(hisID);		      
+	      trkFrac->SetMinimum(0.0); 
+	      trkFrac->SetMarkerStyle(8); 
+	      trkFrac->SetMarkerSize(0.2); 
+	      trkFrac->GetXaxis()->SetLabelSize(0.08); 
+	      trkFrac->GetYaxis()->SetLabelSize(0.06); 
+	      trkFrac->Draw(); 
+	title = outputDir_; title += "/"; title += hisID; title += "."; title += typePlots_; 
+	c1->SaveAs(title); 
+      }
+      if (variable_[15]) {
+    	hisID = "nOnTrackClusters_"; hisID += *iDet;	     
+        TH1F* nOnTrackClusters = (TH1F*)AllDetHistograms->FindObject(hisID);		      
+	      nOnTrackClusters->SetMinimum(0.0); 
+	      nOnTrackClusters->SetMarkerStyle(8); 
+	      nOnTrackClusters->SetMarkerSize(0.2); 
+	      nOnTrackClusters->GetXaxis()->SetLabelSize(0.08); 
+	      nOnTrackClusters->GetYaxis()->SetLabelSize(0.06); 
+	      nOnTrackClusters->Draw(); 
+	title = outputDir_; title += "/"; title += hisID; title += "."; title += typePlots_; 
+	c1->SaveAs(title); 
+
+    	hisID = "onTrackClusterCharge_"; hisID += *iDet;	      
+        TH1F* onTrackClusterCharge = (TH1F*)AllDetHistograms->FindObject(hisID);		      
+	      onTrackClusterCharge->SetMinimum(0.0); 
+	      onTrackClusterCharge->SetMarkerStyle(8); 
+	      onTrackClusterCharge->SetMarkerSize(0.2); 
+	      onTrackClusterCharge->GetXaxis()->SetLabelSize(0.08); 
+	      onTrackClusterCharge->GetYaxis()->SetLabelSize(0.06); 
+	      onTrackClusterCharge->Draw(); 
+	title = outputDir_; title += "/"; title += hisID; title += "."; title += typePlots_; 
+	c1->SaveAs(title); 
+
+    	hisID = "onTrackClusterSize_"; hisID += *iDet;  	     
+        TH1F* onTrackClusterSize = (TH1F*)AllDetHistograms->FindObject(hisID);		      
+	      onTrackClusterSize->SetMinimum(0.0); 
+	      onTrackClusterSize->SetMarkerStyle(8); 
+	      onTrackClusterSize->SetMarkerSize(0.2); 
+	      onTrackClusterSize->GetXaxis()->SetLabelSize(0.08); 
+	      onTrackClusterSize->GetYaxis()->SetLabelSize(0.06); 
+	      onTrackClusterSize->Draw(); 
+	title = outputDir_; title += "/"; title += hisID; title += "."; title += typePlots_; 
+	c1->SaveAs(title); 
+      }
+      if (variable_[16]) {
+    	hisID = "nOffTrackClusters_"; hisID += *iDet;	      
+        TH1F* nOffTrackClusters = (TH1F*)AllDetHistograms->FindObject(hisID);		      
+	      nOffTrackClusters->SetMinimum(0.0); 
+	      nOffTrackClusters->SetMarkerStyle(8); 
+	      nOffTrackClusters->SetMarkerSize(0.2); 
+	      nOffTrackClusters->GetXaxis()->SetLabelSize(0.08); 
+	      nOffTrackClusters->GetYaxis()->SetLabelSize(0.06); 
+	      nOffTrackClusters->Draw(); 
+	title = outputDir_; title += "/"; title += hisID; title += "."; title += typePlots_; 
+	c1->SaveAs(title); 
+
+    	hisID = "offTrackClusterCharge_"; hisID += *iDet;	      
+        TH1F* offTrackClusterCharge = (TH1F*)AllDetHistograms->FindObject(hisID);		      
+	      offTrackClusterCharge->SetMinimum(0.0); 
+	      offTrackClusterCharge->SetMarkerStyle(8); 
+	      offTrackClusterCharge->SetMarkerSize(0.2); 
+	      offTrackClusterCharge->GetXaxis()->SetLabelSize(0.08); 
+	      offTrackClusterCharge->GetYaxis()->SetLabelSize(0.06); 
+	      offTrackClusterCharge->Draw(); 
+	title = outputDir_; title += "/"; title += hisID; title += "."; title += typePlots_; 
+	c1->SaveAs(title); 
+
+    	hisID = "offTrackClusterSize_"; hisID += *iDet; 	     
+        TH1F* offTrackClusterSize = (TH1F*)AllDetHistograms->FindObject(hisID);		      
+	      offTrackClusterSize->SetMinimum(0.0); 
+	      offTrackClusterSize->SetMarkerStyle(8); 
+	      offTrackClusterSize->SetMarkerSize(0.2); 
+	      offTrackClusterSize->GetXaxis()->SetLabelSize(0.08); 
+	      offTrackClusterSize->GetYaxis()->SetLabelSize(0.06); 
+	      offTrackClusterSize->Draw(); 
+	title = outputDir_; title += "/"; title += hisID; title += "."; title += typePlots_; 
+	c1->SaveAs(title); 
+      }
+    }
     if (*iDet>99) {
       if (variable_[1]) {
         hisID = "nDigis_"; hisID += *iDet;				       
