@@ -52,8 +52,8 @@ void TkHistoMap::createTkHistoMap(std::string& path, std::string& MapName, float
 
     //initialize bin content for the not assigned bins
     if(baseline!=0){
-      for(size_t ix=1;ix<=nchX;++ix)
-	for(size_t iy=1;iy<=nchY;++iy)
+      for(size_t ix = 1; ix <= (unsigned int) nchX; ++ix)
+	for(size_t iy = 1;iy <= (unsigned int) nchY; ++iy)
 	  if(!tkdetmap_->getDetFromBin(layer,ix,iy))
 	    h->Fill(1.*(lowX+ix-.5),1.*(lowY+iy-.5),baseline);	  
     }
