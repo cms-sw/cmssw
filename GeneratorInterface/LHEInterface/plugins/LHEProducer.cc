@@ -15,7 +15,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "SimDataFormats/GeneratorProducts/interface/GenInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
@@ -91,7 +92,8 @@ LHEProducer::LHEProducer(const edm::ParameterSet &params) :
 	}
 
 	produces<edm::HepMCProduct>();
-	produces<edm::GenInfoProduct, edm::InRun>();
+	produces<GenEventInfoProduct>();
+	produces<GenRunInfoProduct, edm::InRun>();
 
 	if (jetMatching.get()) {
 		if (params.getUntrackedParameter<bool>(
@@ -155,13 +157,15 @@ bool LHEProducer::endRun(edm::Run &run, const edm::EventSetup &es)
 		runInfo->statistics();
 	}
 
-	std::auto_ptr<edm::GenInfoProduct> genInfoProd(new edm::GenInfoProduct);
+	std::auto_ptr<GenRunInfoProduct> runInfo(new GenRunInfoProduct);
 
-	genInfoProd->set_cross_section(crossSection.value);
-	genInfoProd->set_external_cross_section(extCrossSect);
-	genInfoProd->set_filter_efficiency(extFilterEff);
+	runInfo->setInternalXSec(
+			GenRunInfoProduct::XSec(crossSection.value,
+			                        crossSection.error));
+	runInfo->setExternalXSecLO(extCrossSect);
+	runInfo->setFilterEfficiency(extFilterEff);
 
-	run.put(genInfoProd);
+	run.put(runInfo);
 
 	runInfo.reset();
 
@@ -220,6 +224,9 @@ bool LHEProducer::filter(edm::Event &event, const edm::EventSetup &es)
 
 	if (!hadronLevel.get()) {
 		event.put(result);
+		std::auto_ptr<GenEventInfoProduct> info(
+						new GenEventInfoProduct);
+		event.put(info);
 		return false;
 	}
 
@@ -232,8 +239,11 @@ bool LHEProducer::filter(edm::Event &event, const edm::EventSetup &es)
 		hadronLevel->print();
 	}
 
+	std::auto_ptr<GenEventInfoProduct> info(
+				new GenEventInfoProduct(hadronLevel.get()));
 	result->addHepMCData(hadronLevel.release());
 	event.put(result);
+	event.put(info);
 
 	if (jetMatching.get() && matchSummary) {
 		std::auto_ptr< std::vector<double> > matchDeltaR(

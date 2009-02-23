@@ -55,14 +55,6 @@ process.p0 = cms.Path(
 
 process.load("Configuration.StandardSequences.VtxSmearedGauss_cff")
 
-process.VtxSmeared.src = 'generator'
-process.genEventWeight.src = 'generator'
-process.genEventScale.src = 'generator'
-process.genEventPdfInfo.src = 'generator'
-process.genEventProcID.src = 'generator'
-process.genParticles.src = 'generator'
-process.genParticleCandidates.src = 'generator'
-
 process.genParticles.abortOnUnknownPDGCode = False
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
@@ -95,7 +87,6 @@ process.GEN = cms.OutputModule("PoolOutputModule",
 	SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('p0')),
 	fileName = cms.untracked.string('test.root')
 )
-process.GEN.outputCommands.append('keep *_generator_*_*')
 
 process.outpath = cms.EndPath(process.GEN)
 

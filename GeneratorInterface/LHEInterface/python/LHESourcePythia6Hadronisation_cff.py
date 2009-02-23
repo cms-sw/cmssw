@@ -16,4 +16,4 @@ generator = cms.EDProducer("LHEProducer",
 	)
 )
 
-ProducerSourceSequence = cms.Sequence(generator)
+ProducerFilterSequence = cms.Sequence(generator)

@@ -51,14 +51,6 @@ process.p0 = cms.Path(
 
 process.load("Configuration.StandardSequences.VtxSmearedGauss_cff")
 
-process.VtxSmeared.src = 'generator'
-process.genEventWeight.src = 'generator'
-process.genEventScale.src = 'generator'
-process.genEventPdfInfo.src = 'generator'
-process.genEventProcID.src = 'generator'
-process.genParticles.src = 'generator'
-process.genParticleCandidates.src = 'generator'
-
 process.genParticles.abortOnUnknownPDGCode = False
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
