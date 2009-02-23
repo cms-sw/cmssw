@@ -1299,6 +1299,7 @@ void FamosRecHitAnalysis::rootMacroStrip( std::vector<TH1F*>& histos_x      , st
 #ifdef rrDEBUG
     std::cout << "\tFit " << iHist << std::endl;
 #endif
+/*
     TF1* gaussianFit_histos_x = new TF1("gaussianFit_histos_x","gaus",
 					histos_x[iHist]->GetMean() - 5. * histos_x[iHist]->GetRMS() ,
 					histos_x[iHist]->GetMean() + 5. * histos_x[iHist]->GetRMS() );
@@ -1308,6 +1309,7 @@ void FamosRecHitAnalysis::rootMacroStrip( std::vector<TH1F*>& histos_x      , st
 					histos_y[iHist]->GetMean() - 2. * histos_y[iHist]->GetRMS() ,
 					histos_y[iHist]->GetMean() + 2. * histos_y[iHist]->GetRMS() );
     histos_y[iHist]->Fit("constantFit_histos_y","R");
+*/
     /*
       TF1* gaussianFit_histos_z = new TF1("gaussianFit_histos_z","gaus",
       histos_z[iHist]->GetMean() - 5. * histos_z[iHist]->GetRMS() ,
