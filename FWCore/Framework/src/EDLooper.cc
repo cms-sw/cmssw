@@ -5,7 +5,7 @@
 // 
 // Author:      Valentin Kuznetsov
 // Created:     Wed Jul  5 11:44:26 EDT 2006
-// $Id: EDLooper.cc,v 1.11 2008/03/19 22:02:36 wdd Exp $
+// $Id: EDLooper.cc,v 1.12 2008/12/20 18:51:38 wmtan Exp $
 
 #include "FWCore/Framework/interface/EDLooper.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -67,7 +67,8 @@ namespace edm {
                   esp, _1));
   }
 
-  void EDLooper::beginOfJob(const edm::EventSetup&) { }
+  void EDLooper::beginOfJob(const edm::EventSetup&) { beginOfJob();}
+  void EDLooper::beginOfJob() { }
 
   void EDLooper::endOfJob() { }
 

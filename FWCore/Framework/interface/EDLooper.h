@@ -12,7 +12,7 @@
 //
 // Author:      Valentin Kuznetsov
 // Created:     Wed Jul  5 11:42:17 EDT 2006
-// $Id: EDLooper.h,v 1.7 2008/01/09 23:45:24 wdd Exp $
+// $Id: EDLooper.h,v 1.8 2008/03/19 22:02:36 wdd Exp $
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -40,7 +40,9 @@ namespace edm {
       Status doEndOfLoop(const edm::EventSetup& es);
       void prepareForNextLoop(eventsetup::EventSetupProvider* esp);
 
+      //This interface is depricated
       virtual void beginOfJob(const edm::EventSetup&); 
+      virtual void beginOfJob();
       virtual void startingNewLoop(unsigned int ) = 0; 
       virtual Status duringLoop(const edm::Event&, const edm::EventSetup&) = 0; 
       virtual Status endOfLoop(const edm::EventSetup&, unsigned int iCounter) = 0; 

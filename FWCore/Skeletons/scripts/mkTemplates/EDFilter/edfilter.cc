@@ -40,7 +40,7 @@ class fltrname : public edm::EDFilter {
       ~fltrname();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual bool filter(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       
@@ -97,7 +97,7 @@ fltrname::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-fltrname::beginJob(const edm::EventSetup&)
+fltrname::beginJob()
 {
 }
 

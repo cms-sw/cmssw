@@ -51,7 +51,9 @@ namespace edm {
     void registerAnyProducts(boost::shared_ptr<EDAnalyzer>const&, ProductRegistry const*) {}
 
     virtual void analyze(Event const&, EventSetup const&) = 0;
-    virtual void beginJob(EventSetup const&){}
+    //This interface is depricated
+    virtual void beginJob(EventSetup const&){ beginJob(); }
+    virtual void beginJob(){}
     virtual void endJob(){}
     virtual void beginRun(Run const&, EventSetup const&){}
     virtual void endRun(Run const&, EventSetup const&){}

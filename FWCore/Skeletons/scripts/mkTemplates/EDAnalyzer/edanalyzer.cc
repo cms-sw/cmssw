@@ -46,7 +46,7 @@ class anlzrname : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
@@ -123,7 +123,7 @@ anlzrname::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-anlzrname::beginJob(const edm::EventSetup&)
+anlzrname::beginJob()
 {
 }
 

@@ -44,7 +44,7 @@ class loopername : public edm::ESProducerLooper {
 
       ReturnType produce(const recordname&);
 
-      virtual void beginOfJob(const edm::EventSetup&); 
+      virtual void beginOfJob(); 
       virtual void startingNewLoop(unsigned int ) ; 
       virtual Status duringLoop(const edm::Event&, const edm::EventSetup&) ; 
       virtual Status endOfLoop(const edm::EventSetup&); 

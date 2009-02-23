@@ -59,7 +59,9 @@ namespace edm {
     std::string workerType() const {return "WorkerT<EDProducer>";}
 
     virtual void produce(Event &, EventSetup const&) = 0;
-    virtual void beginJob(EventSetup const&){}
+    //This interface is depricated
+    virtual void beginJob(EventSetup const&){beginJob();}
+    virtual void beginJob() {}
     virtual void endJob(){}
     virtual void beginRun(Run &, EventSetup const&){}
     virtual void endRun(Run &, EventSetup const&){}

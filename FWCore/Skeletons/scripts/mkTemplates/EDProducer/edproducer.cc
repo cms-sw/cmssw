@@ -46,7 +46,7 @@ class prodname : public edm::EDProducer {
       ~prodname();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       
@@ -166,7 +166,7 @@ prodname::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-prodname::beginJob(const edm::EventSetup&)
+prodname::beginJob()
 {
 }
 

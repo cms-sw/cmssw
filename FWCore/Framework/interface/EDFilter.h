@@ -62,7 +62,9 @@ namespace edm {
     std::string workerType() const {return "WorkerT<EDFilter>";}
 
     virtual bool filter(Event&, EventSetup const&) = 0;
-    virtual void beginJob(EventSetup const&){}
+    //This interface is depricated
+    virtual void beginJob(EventSetup const&){beginJob();}
+    virtual void beginJob(){}
     virtual void endJob(){}
     virtual bool beginRun(Run &, EventSetup const&){return true;}
     virtual bool endRun(Run &, EventSetup const&){return true;}
