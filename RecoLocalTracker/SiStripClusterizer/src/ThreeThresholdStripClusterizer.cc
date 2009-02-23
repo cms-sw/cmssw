@@ -12,7 +12,7 @@
 ThreeThresholdStripClusterizer::
 ThreeThresholdStripClusterizer(float strip_thr, float seed_thr,float clust_thr, int max_holes, int max_bad, int max_adj) : 
   info(new ESinfo(strip_thr,seed_thr,clust_thr,max_holes,max_bad,max_adj)) {
-  amp.reserve(128); //largest possible cluster after median common mode noise subtraction
+  adc.reserve(128); //largest possible cluster after median common mode noise subtraction (64+64 over 2 apv)
 }
 
 ThreeThresholdStripClusterizer::
@@ -47,43 +47,43 @@ clusterizeDetUnit_(const digiDetSet & digis, output_t& output) {
     clear(); 
     while( scan != end  && !edgeCondition( scan->strip() )  )   
       record(*scan++);
-    if( found() ) {
-      transform( amp.begin(), amp.end(), amp.begin(), applyGain(info, first()) );
+    if( foundCluster() ) {
+      transform( adc.begin(), adc.end(), adc.begin(), applyGain(info, firstStrip()) );
       appendBadNeighbors();
-      output.push_back( SiStripCluster( digis.detId(), first(), amp.begin(), amp.end()) );
+      output.push_back( SiStripCluster( digis.detId(), firstStrip(), adc.begin(), adc.end()) );
     }
   }
 }
 
 inline 
 bool ThreeThresholdStripClusterizer::
-edgeCondition(uint16_t test) const {
-  uint16_t Nbetween = test - last - 1;
-  return ( !amp.empty()                                        //  exists a current cluster
-	   && ( Nbetween > info->MaxSequentialHoles            //  AND too many holes
-		&& ( Nbetween > info->MaxSequentialBad         //      AND ( too many bad holes
-		     || info->anyGoodBetween( last, test )))); //             OR  not all holes bad )
+edgeCondition(uint16_t testStrip) const {
+  uint16_t Nbetween = testStrip - lastStrip - 1;
+  return ( !adc.empty()                                                  //  exists a current cluster
+	   && ( Nbetween > info->MaxSequentialHoles                      //  AND too many holes
+		&& ( Nbetween > info->MaxSequentialBad                   //      AND ( too many bad holes
+		     || info->anyGoodBetween( lastStrip, testStrip )))); //             OR  not all holes bad )
 }
 
 inline 
 void ThreeThresholdStripClusterizer::
 record(const SiStripDigi& digi) { 
   float noise = info->noise(digi.strip());
-  if( !info->bad(digi.strip()) && digi.adc() >= static_cast<uint16_t>( noise * info->Channel)) {
-    foundSeed = foundSeed      || digi.adc() >= static_cast<uint16_t>( noise * info->Seed);
-    noise2 += noise*noise;
-    if( amp.empty() ) last = digi.strip() - 1;
-    while( ++last < digi.strip() )  amp.push_back(0); //pad holes
-    amp.push_back(digi.adc());
+  if( !info->bad(digi.strip()) && digi.adc() >= static_cast<uint16_t>( noise * info->ChannelThreshold)) {
+    foundSeed = foundSeed      || digi.adc() >= static_cast<uint16_t>( noise * info->SeedThreshold);
+    noiseSquared += noise*noise;
+    if( adc.empty() ) lastStrip = digi.strip() - 1;
+    while( ++lastStrip < digi.strip() ) adc.push_back(0); //pad holes
+    adc.push_back(digi.adc());
   }
 }
 
 inline 
 bool ThreeThresholdStripClusterizer::
-found() const {
+foundCluster() const {
   return ( foundSeed &&
-	   noise2 * info->Cluster2  
-	   <=  std::pow( std::accumulate(amp.begin(),amp.end(),float(0)), 2));
+	   noiseSquared * info->ClusterThresholdSquared
+	   <=  std::pow( std::accumulate(adc.begin(),adc.end(),float(0)), 2));
 }
 
 inline 
@@ -100,8 +100,8 @@ void ThreeThresholdStripClusterizer::
 appendBadNeighbors() {
   uint8_t max = info->MaxAdjacentBad;
   while(0 < max--) {
-    if(info->bad(first()-1)) { reverse(amp.begin(),amp.end()); amp.push_back(0); reverse(amp.begin(),amp.end()); }
-    if(info->bad( last + 1)) {                                 amp.push_back(0); last++;}
+    if(info->bad(firstStrip()-1)) { reverse(adc.begin(),adc.end()); adc.push_back(0); reverse(adc.begin(),adc.end()); }
+    if(info->bad( lastStrip + 1)) {                                 adc.push_back(0); lastStrip++;}
   }
 }
 
