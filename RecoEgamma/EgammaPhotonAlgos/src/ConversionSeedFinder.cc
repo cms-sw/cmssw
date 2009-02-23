@@ -151,12 +151,12 @@ void ConversionSeedFinder::findLayers(const FreeTrajectoryState & traj) const {
 void ConversionSeedFinder::printLayer(int i) const {
   const DetLayer * layer = theLayerList_[i];
   if (layer->location() == GeomDetEnumerators::barrel ) {
-    const BarrelDetLayer * barrelLayer = dynamic_cast<const BarrelDetLayer*>(layer);
+    //    const BarrelDetLayer * barrelLayer = dynamic_cast<const BarrelDetLayer*>(layer);
     //float r = barrelLayer->specificSurface().radius();
     //    std::cout   <<  " barrel layer radius " << r << " " << barrelLayer->specificSurface().bounds().length()/2. << "\n";
 
   } else {
-    const ForwardDetLayer * forwardLayer = dynamic_cast<const ForwardDetLayer*>(layer);
+    //    const ForwardDetLayer * forwardLayer = dynamic_cast<const ForwardDetLayer*>(layer);
     // float z =  fabs(forwardLayer->surface().position().z());
     //    std::cout   << " forward layer position " << z << " " << forwardLayer->specificSurface().innerRadius() << " " << forwardLayer->specificSurface().outerRadius() << "\n";
   }

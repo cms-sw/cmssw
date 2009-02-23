@@ -173,10 +173,10 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
 	printLayer(ilayer);	
 	
 	if ( (myLayers[0])->location() == GeomDetEnumerators::barrel ) {
-	  const BarrelDetLayer * barrelLayer = dynamic_cast<const BarrelDetLayer*>(myLayers[0]);
+	  //	  const BarrelDetLayer * barrelLayer = dynamic_cast<const BarrelDetLayer*>(myLayers[0]);
 	 //std::cout << " InOutConversionSeedFinder::fillClusterSeeds  **** firstHit found in Barrel on layer " << ilayer  << " R= " << barrelLayer->specificSurface().radius() <<   "\n";
 	} else {
-	  const ForwardDetLayer * forwardLayer = dynamic_cast<const ForwardDetLayer*>(myLayers[0]);
+	  //const ForwardDetLayer * forwardLayer = dynamic_cast<const ForwardDetLayer*>(myLayers[0]);
 	 //std::cout << " InOutwardConversionSeedFinder::fillClusterSeeds  **** firstHit found in Forw on layer " << ilayer  << " Z= " << forwardLayer->specificSurface().position().z() <<  "\n";
 	}
 	
@@ -190,10 +190,10 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
 	
 	//std::cout << "Layer " << ilayer << "  contains the first innermost  valid measurement " << "\n"; 	
 	if ( (myLayers[1])->location() == GeomDetEnumerators::barrel ) {
-	  const BarrelDetLayer * barrelLayer = dynamic_cast<const BarrelDetLayer*>(myLayers[1]);
+	  //	  const BarrelDetLayer * barrelLayer = dynamic_cast<const BarrelDetLayer*>(myLayers[1]);
 	 //std::cout << " InOutConversionSeedFinder::fillClusterSeeds  **** 2ndHit found in Barrel on layer " << ilayer  << " R= " << barrelLayer->specificSurface().radius() <<   "\n"; 
 	} else {
-	  const ForwardDetLayer * forwardLayer = dynamic_cast<const ForwardDetLayer*>(myLayers[1]);
+	  //const ForwardDetLayer * forwardLayer = dynamic_cast<const ForwardDetLayer*>(myLayers[1]);
 	 //std::cout << " InOutwardConversionSeedFinder::fillClusterSeeds  ****  2ndHitfound on forw layer " << ilayer  << " Z= " << forwardLayer->specificSurface().position().z() <<  "\n";
 	}
 	
@@ -217,17 +217,17 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
    //std::cout << " InOutConversionSeedFinder::fillClusterSeeds First FTS charge " << fts->charge() << " Position " << fts->position() << " momentum " << fts->momentum() << " R " << sqrt(fts->position().x()*fts->position().x() + fts->position().y()* fts->position().y() ) << " Z " << fts->position().z() << " phi " << fts->position().phi() << " fts parameters " << fts->parameters() << "\n";
     
     
-   while (ilayer > 0) {
-     
-     //std::cout << " InOutConversionSeedFinder::fillClusterSeeds looking for 2nd seed from layer " << ilayer << "\n";
-     
-     if ( (allLayers[ilayer])->location() == GeomDetEnumerators::barrel ) {const BarrelDetLayer * barrelLayer = dynamic_cast<const BarrelDetLayer*>(allLayers[ilayer]);
-     //std::cout <<  " InOutConversionSeedFinder::fillClusterSeeds  ****  Barrel on layer " << ilayer  << " R= " << barrelLayer->specificSurface().radius() <<  "\n";     
-     } else {
-       const ForwardDetLayer * forwardLayer = dynamic_cast<const ForwardDetLayer*>(allLayers[ilayer]);
-       //std::cout <<  " InOutConversionSeedFinder::fillClusterSeeds  ****  Forw on layer " << ilayer  << " Z= " << forwardLayer->specificSurface().position().z() << "\n";
-     }
-     
+    while (ilayer > 0) {
+      
+      //std::cout << " InOutConversionSeedFinder::fillClusterSeeds looking for 2nd seed from layer " << ilayer << "\n";
+      
+      //   if ( (allLayers[ilayer])->location() == GeomDetEnumerators::barrel ) {const BarrelDetLayer * barrelLayer = dynamic_cast<const BarrelDetLayer*>(allLayers[ilayer]);
+      //std::cout <<  " InOutConversionSeedFinder::fillClusterSeeds  ****  Barrel on layer " << ilayer  << " R= " << barrelLayer->specificSurface().radius() <<  "\n";     
+      // } else {
+	//const ForwardDetLayer * forwardLayer = dynamic_cast<const ForwardDetLayer*>(allLayers[ilayer]);
+	//std::cout <<  " InOutConversionSeedFinder::fillClusterSeeds  ****  Forw on layer " << ilayer  << " Z= " << forwardLayer->specificSurface().position().z() << "\n";
+      //      }
+      
      
      const DetLayer * previousLayer = allLayers[ilayer];
      TrajectoryStateOnSurface  stateAtPreviousLayer;
@@ -278,17 +278,17 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
      
      --ilayer;
      
-   }
-   
-   if ( ilayer == 0) {
+    }
+    
+    if ( ilayer == 0) {
+      
 
-
-     if ( (allLayers[ilayer])->location() == GeomDetEnumerators::barrel ) {const BarrelDetLayer * barrelLayer = dynamic_cast<const BarrelDetLayer*>(allLayers[ilayer]);
-     //std::cout <<  " InOutConversionSeedFinder::fillClusterSeeds  ****  Barrel on layer " << ilayer  << " R= " << barrelLayer->specificSurface().radius() <<  "\n";     
-     } else {
-       const ForwardDetLayer * forwardLayer = dynamic_cast<const ForwardDetLayer*>(allLayers[ilayer]);
+      //     if ( (allLayers[ilayer])->location() == GeomDetEnumerators::barrel ) {const BarrelDetLayer * barrelLayer = dynamic_cast<const BarrelDetLayer*>(allLayers[ilayer]);
+      // //std::cout <<  " InOutConversionSeedFinder::fillClusterSeeds  ****  Barrel on layer " << ilayer  << " R= " << barrelLayer->specificSurface().radius() <<  "\n";     
+      // } else {
+      //const ForwardDetLayer * forwardLayer = dynamic_cast<const ForwardDetLayer*>(allLayers[ilayer]);
        //std::cout <<  " InOutConversionSeedFinder::fillClusterSeeds  ****  Forw on layer " << ilayer  << " Z= " << forwardLayer->specificSurface().position().z() << "\n";
-     }
+      // }
      const DetLayer * previousLayer = allLayers[ilayer];
      TrajectoryStateOnSurface  stateAtPreviousLayer;
      stateAtPreviousLayer= thePropagatorOppositeToMomentum_->propagate(*fts, previousLayer->surface() );
@@ -447,13 +447,13 @@ void InOutConversionSeedFinder::findSeeds(const TrajectoryStateOnSurface & start
     
     
     ///// debug
-    if ( layer->location() == GeomDetEnumerators::barrel ) {const BarrelDetLayer * barrelLayer = dynamic_cast<const BarrelDetLayer*>(layer);
-    //std::cout << "InOutConversionSeedFinder::findSeeds  ****  Barrel on layer " << ilayer  << " R= " << barrelLayer->specificSurface().radius() <<  "\n";     
-    } else {
-     const ForwardDetLayer * forwardLayer = dynamic_cast<const ForwardDetLayer*>(layer);
-    //std::cout << "InOutConversionSeedFinder::findSeeds  ****  Forw on layer " << ilayer  << " Z= " << forwardLayer->specificSurface().position().z() <<  "\n"; 
-     }
-    // end debug
+    //    if ( layer->location() == GeomDetEnumerators::barrel ) {const BarrelDetLayer * barrelLayer = dynamic_cast<const BarrelDetLayer*>(layer);
+    // //std::cout << "InOutConversionSeedFinder::findSeeds  ****  Barrel on layer " << ilayer  << " R= " << barrelLayer->specificSurface().radius() <<  "\n";     
+    // } else {
+    // const ForwardDetLayer * forwardLayer = dynamic_cast<const ForwardDetLayer*>(layer);
+    ////std::cout << "InOutConversionSeedFinder::findSeeds  ****  Forw on layer " << ilayer  << " Z= " << forwardLayer->specificSurface().position().z() <<  "\n"; 
+    // }
+    // // end debug
     
     
 
@@ -608,13 +608,13 @@ void InOutConversionSeedFinder::completeSeed(const TrajectoryMeasurement & m1,
   const DetLayer * layer = allLayers[ilayer];
   
   ///// debug
-  if ( layer->location() == GeomDetEnumerators::barrel ) {const BarrelDetLayer * barrelLayer = dynamic_cast<const BarrelDetLayer*>(layer);
-  //std::cout << "InOutConversionSeedFinder::completeSeed  ****  Barrel on layer " << ilayer  << " R= " << barrelLayer->specificSurface().radius() <<  "\n";     
-  } else {
-    const ForwardDetLayer * forwardLayer = dynamic_cast<const ForwardDetLayer*>(layer);
-    //std::cout << "InOutConversionSeedFinder::completeSeed ****  Forw on layer " << ilayer  << " Z= " << forwardLayer->specificSurface().position().z() <<  "\n"; 
-     }
-  // end debug
+  //  if ( layer->location() == GeomDetEnumerators::barrel ) {const BarrelDetLayer * barrelLayer = dynamic_cast<const BarrelDetLayer*>(layer);
+  // //std::cout << "InOutConversionSeedFinder::completeSeed  ****  Barrel on layer " << ilayer  << " R= " << barrelLayer->specificSurface().radius() <<  "\n";     
+  // } else {
+  // const ForwardDetLayer * forwardLayer = dynamic_cast<const ForwardDetLayer*>(layer);
+  //  //std::cout << "InOutConversionSeedFinder::completeSeed ****  Forw on layer " << ilayer  << " Z= " << forwardLayer->specificSurface().position().z() <<  "\n"; 
+  ///  }
+  //// end debug
   
   
 
