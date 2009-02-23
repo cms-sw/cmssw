@@ -1,5 +1,4 @@
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexTrackCompatibilityEstimator.h"
-#include "RecoVertex/VertexPrimitives/interface/ConvertError.h"
 #include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
 #include "RecoVertex/VertexTools/interface/LinearizedTrackStateFactory.h"
 #include <algorithm>
@@ -42,7 +41,7 @@ float KalmanVertexTrackCompatibilityEstimator<N>::estimate(const reco::Vertex & 
   LinearizedTrackStateFactory lTrackFactory;
   RefCountedLinearizedTrackState linTrack = 
   			lTrackFactory.linearizedTrackState(linP, track);
-  GlobalError err(RecoVertex::convertError(vertex.covariance()));
+  GlobalError err(vertex.covariance());
   VertexState vState(linP, err);
   RefCountedVertexTrack vertexTrack = vTrackFactory.vertexTrack(linTrack, vState);
 

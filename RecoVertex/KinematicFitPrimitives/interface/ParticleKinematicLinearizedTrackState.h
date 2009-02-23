@@ -75,7 +75,7 @@ public:
 /**
  * Full predicted weight matrix
  */  
- AlgebraicSymMatrix66 predictedStateWeight() const;
+ AlgebraicSymMatrix66 predictedStateWeight(int & error) const;
   
 /**
  * Full predicted error matrix

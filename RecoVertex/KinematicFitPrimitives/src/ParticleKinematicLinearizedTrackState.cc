@@ -33,10 +33,10 @@ AlgebraicVector6 ParticleKinematicLinearizedTrackState::predictedStateParameters
  return thePredState.perigeeParameters().vector();
 }
   
-AlgebraicSymMatrix66  ParticleKinematicLinearizedTrackState::predictedStateWeight() const
+AlgebraicSymMatrix66  ParticleKinematicLinearizedTrackState::predictedStateWeight(int & error) const
 {
  if(!jacobiansAvailable) computeJacobians();
- return thePredState.perigeeError().weightMatrix();
+ return thePredState.perigeeError().weightMatrix(error);
 }
   
 AlgebraicSymMatrix66  ParticleKinematicLinearizedTrackState::predictedStateError() const
@@ -125,15 +125,16 @@ AlgebraicVector4  ParticleKinematicLinearizedTrackState::predictedStateMomentumP
  
 AlgebraicSymMatrix44  ParticleKinematicLinearizedTrackState::predictedStateMomentumError() const
 { 
+ int error;
  if(!jacobiansAvailable) computeJacobians();
  AlgebraicSymMatrix44 res;
  AlgebraicSymMatrix33 m3 = 
- 	thePredState.perigeeError().weightMatrix().Sub<AlgebraicSymMatrix33>(0,0);
+ 	thePredState.perigeeError().weightMatrix(error).Sub<AlgebraicSymMatrix33>(0,0);
  res.Place_at(m3,0,0);
- res(3,0) = thePredState.perigeeError().weightMatrix()(5,5);
- res(3,1) = thePredState.perigeeError().weightMatrix()(5,0);
- res(3,2) = thePredState.perigeeError().weightMatrix()(5,1);
- res(3,3) = thePredState.perigeeError().weightMatrix()(5,2);
+ res(3,0) = thePredState.perigeeError().weightMatrix(error)(5,5);
+ res(3,1) = thePredState.perigeeError().weightMatrix(error)(5,0);
+ res(3,2) = thePredState.perigeeError().weightMatrix(error)(5,1);
+ res(3,3) = thePredState.perigeeError().weightMatrix(error)(5,2);
  return res;
 }						   
 						   

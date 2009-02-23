@@ -1,7 +1,6 @@
 #include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
-#include "RecoVertex/VertexPrimitives/interface/ConvertError.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <cfloat>
 

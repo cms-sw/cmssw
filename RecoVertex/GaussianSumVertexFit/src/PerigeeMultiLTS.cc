@@ -102,10 +102,10 @@ AlgebraicVector3 PerigeeMultiLTS::predictedStateMomentumParameters() const
   return collapsedStateLT->predictedStateMomentumParameters();
 }
 
-AlgebraicSymMatrix55 PerigeeMultiLTS::predictedStateWeight() const
+AlgebraicSymMatrix55 PerigeeMultiLTS::predictedStateWeight(int & error) const
 {
   if (!collapsedStateAvailable) prepareCollapsedState();
-  return collapsedStateLT->predictedStateWeight() ;
+  return collapsedStateLT->predictedStateWeight(error) ;
 }
 
 AlgebraicSymMatrix55 PerigeeMultiLTS::predictedStateError() const

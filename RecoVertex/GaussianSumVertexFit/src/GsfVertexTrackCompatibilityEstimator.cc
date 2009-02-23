@@ -1,5 +1,4 @@
 #include "RecoVertex/GaussianSumVertexFit/interface/GsfVertexTrackCompatibilityEstimator.h"
-#include "RecoVertex/VertexPrimitives/interface/ConvertError.h"
 #include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
 #include <algorithm>
 using namespace reco;
@@ -54,7 +53,7 @@ GsfVertexTrackCompatibilityEstimator::estimate(const reco::Vertex & vertex,
 
   RefCountedLinearizedTrackState linTrack = 
   			lTrackFactory.linearizedTrackState(linP, track);
-  GlobalError err(RecoVertex::convertError(vertex.covariance()));
+  GlobalError err(vertex.covariance());
   VertexState vState(linP, err);
   RefCountedVertexTrack vertexTrack = vTrackFactory.vertexTrack(linTrack, vState);
 

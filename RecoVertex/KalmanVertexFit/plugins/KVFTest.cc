@@ -14,7 +14,6 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
-#include "RecoVertex/VertexPrimitives/interface/ConvertError.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 

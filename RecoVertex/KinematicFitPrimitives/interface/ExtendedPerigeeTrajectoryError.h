@@ -28,7 +28,7 @@ public:
  const AlgebraicSymMatrix66 & covarianceMatrix()const
  {return cov;}
  
- const AlgebraicSymMatrix66 & weightMatrix()const
+ const AlgebraicSymMatrix66 & weightMatrix(int & error)const
  {
   if(! weightIsAvailable())
   {

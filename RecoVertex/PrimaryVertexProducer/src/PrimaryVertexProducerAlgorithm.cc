@@ -3,7 +3,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "RecoVertex/VertexPrimitives/interface/ConvertError.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 #include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
 #include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"

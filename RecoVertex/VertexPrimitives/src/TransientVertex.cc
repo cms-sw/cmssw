@@ -1,6 +1,5 @@
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
-#include "RecoVertex/VertexPrimitives/interface/ConvertError.h"
 #include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
 #include <algorithm>
 
@@ -16,8 +15,6 @@ TransientVertex::TransientVertex() : theVertexState(), theOriginalTracks(),
 
 TransientVertex::TransientVertex(const GlobalPoint & pos, const GlobalError & posError,
 		     const vector<TransientTrack> & tracks, float chi2) :
-//     Vertex(Vertex::Point(pos), RecoVertex::convertError(posError), 
-// 	    chi2, (2.*theOriginalTracks.size() - 3.), tracks.size() ),
     theVertexState(pos, posError), theOriginalTracks(tracks),
     theChi2(chi2), theNDF(0), vertexValid(true), withPrior(false),
   theWeightMapIsAvailable(false), theCovMapAvailable(false), 
@@ -30,7 +27,6 @@ TransientVertex::TransientVertex(const GlobalPoint & pos, const GlobalError & po
 
 TransientVertex::TransientVertex(const GlobalPoint & pos, const GlobalError & posError,
 		     const vector<TransientTrack> & tracks, float chi2, float ndf) :
-//     Vertex( Vertex::Point(pos), RecoVertex::convertError(posError), chi2, ndf, tracks.size() ),
     theVertexState(pos, posError), theOriginalTracks(tracks),
     theChi2(chi2), theNDF(ndf), vertexValid(true), withPrior(false),
     theWeightMapIsAvailable(false), theCovMapAvailable(false), 
@@ -43,8 +39,6 @@ TransientVertex::TransientVertex(const GlobalPoint & pos, const GlobalError & po
 TransientVertex::TransientVertex(const GlobalPoint & priorPos, const GlobalError & priorErr,
 		     const GlobalPoint & pos, const GlobalError & posError,
 		     const vector<TransientTrack> & tracks, float chi2) :
-//     Vertex( Vertex::Point(pos), RecoVertex::convertError(posError), 
-// 	    chi2, (2.*theOriginalTracks.size() - 3.), tracks.size() ),
     thePriorVertexState(priorPos, priorErr), theVertexState(pos, posError),
     theOriginalTracks(tracks), theChi2(chi2), theNDF(0), vertexValid(true),
     withPrior(true), theWeightMapIsAvailable(false), theCovMapAvailable(false),
@@ -58,7 +52,6 @@ TransientVertex::TransientVertex(const GlobalPoint & priorPos, const GlobalError
 TransientVertex::TransientVertex(const GlobalPoint & priorPos, const GlobalError & priorErr,
 		     const GlobalPoint & pos, const GlobalError & posError,
 		     const vector<TransientTrack> & tracks, float chi2, float ndf) :
-//     Vertex( Vertex::Point(pos), RecoVertex::convertError(posError), chi2, ndf, tracks.size() ),
     thePriorVertexState(priorPos, priorErr), theVertexState(pos, posError),
     theOriginalTracks(tracks), theChi2(chi2), theNDF(ndf), vertexValid(true),
     withPrior(true), theWeightMapIsAvailable(false), theCovMapAvailable(false),
@@ -70,8 +63,6 @@ TransientVertex::TransientVertex(const GlobalPoint & priorPos, const GlobalError
 
 TransientVertex::TransientVertex(const VertexState & state, 
 		     const vector<TransientTrack> & tracks, float chi2) : 
-//     Vertex( Vertex::Point(state.position()), RecoVertex::convertError(state.error()), 
-// 	    chi2, (2.*theOriginalTracks.size() - 3.), tracks.size() ),
   theVertexState(state), theOriginalTracks(tracks),
   theChi2(chi2), theNDF(0), vertexValid(true), withPrior(false),
   theWeightMapIsAvailable(false), theCovMapAvailable(false), 
@@ -83,7 +74,6 @@ TransientVertex::TransientVertex(const VertexState & state,
 
 TransientVertex::TransientVertex(const VertexState & state, 
 		     const vector<TransientTrack> & tracks, float chi2, float ndf) : 
-//     Vertex( Vertex::Point(state.position()), RecoVertex::convertError(state.error()), chi2, ndf, tracks.size() ),
     theVertexState(state), theOriginalTracks(tracks),
     theChi2(chi2), theNDF(ndf), vertexValid(true), withPrior(false),
     theWeightMapIsAvailable(false), theCovMapAvailable(false), 
@@ -97,8 +87,6 @@ TransientVertex::TransientVertex(const VertexState & prior,
 				     const VertexState & state, 
 				     const vector<TransientTrack> & tracks, 
 				     float chi2) :
-//     Vertex( Vertex::Point(state.position()), RecoVertex::convertError(state.error()), 
-// 	    chi2, (2.*theOriginalTracks.size() - 3.), tracks.size() ),
     thePriorVertexState(prior), theVertexState(state),
     theOriginalTracks(tracks), theChi2(chi2), theNDF(0), vertexValid(true),
     withPrior(true), theWeightMapIsAvailable(false), theCovMapAvailable(false),
@@ -113,7 +101,6 @@ TransientVertex::TransientVertex(const VertexState & prior,
 		     const VertexState & state, 
 		     const vector<TransientTrack> & tracks, 
 		     float chi2, float ndf) :
-//     Vertex( Vertex::Point(state.position()), RecoVertex::convertError(state.error()), chi2, ndf, tracks.size() ),
     thePriorVertexState(prior), theVertexState(state),
     theOriginalTracks(tracks), theChi2(chi2), theNDF(ndf), vertexValid(true),
     withPrior(true), theWeightMapIsAvailable(false),
@@ -222,7 +209,8 @@ TransientVertex::operator reco::Vertex() const
   if (!isValid()) return Vertex();
 
   Vertex vertex(Vertex::Point(theVertexState.position()),
-	RecoVertex::convertError(theVertexState.error()), 
+// 	RecoVertex::convertError(theVertexState.error()), 
+	theVertexState.error().matrix_new(), 
 	totalChiSquared(), degreesOfFreedom(), theOriginalTracks.size() );
   for (vector<TransientTrack>::const_iterator i = theOriginalTracks.begin();
        i != theOriginalTracks.end(); ++i) {
