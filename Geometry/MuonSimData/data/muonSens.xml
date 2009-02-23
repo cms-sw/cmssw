@@ -39,6 +39,7 @@
       <PartSelector path="//ME31_ActiveGasVol" />
       <PartSelector path="//ME32_ActiveGasVol" />
       <PartSelector path="//ME41_ActiveGasVol" />
+      <PartSelector path="//ME42_ActiveGasVol" />
       <Parameter name="SensitiveDetector" value="MuonSensitiveDetector" />
       <Parameter name="ReadOutName" value="MuonCSCHits" />
   </SpecPar>    
