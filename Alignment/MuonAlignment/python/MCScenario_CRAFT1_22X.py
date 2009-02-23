@@ -251,7 +251,7 @@ def define_scenario():
     CSCrings = []
     for endcap in 1, 2:
         for station, ring in (1, 1), (1, 2), (1, 3), (1, 4), (2, 1), (2, 2), (3, 1), (3, 2), (4, 1):
-            CSCrings.append(CSCChamber(endcap = endcap, station = station, ring = ring, z = random.gauss(0, 0.17), phix = random.gauss(0, 0.00068)))
+            CSCrings.append(CSCChamber(endcap = endcap, station = station, ring = ring, z = random.gauss(0, 0.1438), phix = random.gauss(0, 0.00057)))
 
     # Next, the chamber errors: we actually know these from
     # photogrammetry (next time, photogrammetry will be a starting
