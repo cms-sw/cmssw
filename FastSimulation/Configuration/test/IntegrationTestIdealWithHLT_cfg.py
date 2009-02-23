@@ -95,7 +95,7 @@ process.hfreco.RecHitsFactory.HCAL.Refactor_mean = 1.0
 # To write out events 
 process.load("FastSimulation.Configuration.EventContent_cff")
 process.o1 = cms.OutputModule("PoolOutputModule",
-    process.AODSIMEventContent,
+#    process.AODSIMEventContent,
     fileName = cms.untracked.string('AODIntegrationTestWithHLT.root')
 )
 process.outpath = cms.EndPath(process.o1)
