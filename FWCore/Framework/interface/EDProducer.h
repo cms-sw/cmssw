@@ -59,7 +59,7 @@ namespace edm {
     std::string workerType() const {return "WorkerT<EDProducer>";}
 
     virtual void produce(Event &, EventSetup const&) = 0;
-    //This interface is depricated
+    //This interface is deprecated
     virtual void beginJob(EventSetup const&){beginJob();}
     virtual void beginJob() {}
     virtual void endJob(){}

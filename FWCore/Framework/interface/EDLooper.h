@@ -12,7 +12,7 @@
 //
 // Author:      Valentin Kuznetsov
 // Created:     Wed Jul  5 11:42:17 EDT 2006
-// $Id: EDLooper.h,v 1.8 2008/03/19 22:02:36 wdd Exp $
+// $Id: EDLooper.h,v 1.9 2009/02/23 20:12:23 chrjones Exp $
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -40,7 +40,7 @@ namespace edm {
       Status doEndOfLoop(const edm::EventSetup& es);
       void prepareForNextLoop(eventsetup::EventSetupProvider* esp);
 
-      //This interface is depricated
+      //This interface is deprecated
       virtual void beginOfJob(const edm::EventSetup&); 
       virtual void beginOfJob();
       virtual void startingNewLoop(unsigned int ) = 0; 
