@@ -23,29 +23,35 @@ class ThreeThresholdStripClusterizer {
   struct InvalidChargeException : public cms::Exception { public: InvalidChargeException(const SiStripDigi&); };
  private:
   template<class T> void clusterizeDetUnit_(const T &, output_t&);
-  struct ESinfo; 
-  struct applyGain;
 
-  bool found() const;
+  //state of the clusterizer
+  std::vector<uint16_t> adc;  
+  uint16_t lastStrip;
+  float noiseSquared;
+  bool foundSeed;
+
+  //constant methods with state information
+  uint16_t firstStrip() const {return lastStrip - adc.size() + 1;}
+  bool foundCluster() const;
   bool edgeCondition(uint16_t) const;
 
-  void clear() { foundSeed = false;  noise2 = 0;  amp.clear();}
+  //state modification methods
+  void clear() { foundSeed = false;  noiseSquared = 0;  adc.clear();}
   void record(const SiStripDigi&);
   void appendBadNeighbors();  
+  class applyGain; //functor
 
-  uint16_t first() const {return last - amp.size() + 1;}
-  uint16_t last;
-  float noise2;
-  std::vector<uint16_t> amp;  
-  bool foundSeed;
-  ESinfo* info;
+  class ESinfo; ESinfo* info;
 };
 
 
-struct ThreeThresholdStripClusterizer::applyGain {
+class ThreeThresholdStripClusterizer::applyGain {
+ public:
   uint16_t operator()(uint16_t);
   applyGain(const ESinfo* es, uint16_t firststrip) : info(es), strip(firststrip) {}
-  private: const ESinfo* info; uint16_t strip;
+ private: 
+  const ESinfo* info; 
+  uint16_t strip;
 };
 
 
@@ -55,29 +61,28 @@ struct ThreeThresholdStripClusterizer::applyGain {
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
-struct ThreeThresholdStripClusterizer::ESinfo {
+class ThreeThresholdStripClusterizer::ESinfo {
+ public:
   ESinfo(float chan, float seed, float clust, uint8_t holes, uint8_t bad, uint8_t adj) :
-    Channel(chan), Seed(seed), Cluster2(clust*clust),
+    ChannelThreshold(chan), SeedThreshold(seed), ClusterThresholdSquared(clust*clust),
        MaxSequentialHoles(holes), MaxSequentialBad(bad), MaxAdjacentBad(adj)
   {}
+  const float ChannelThreshold, SeedThreshold, ClusterThresholdSquared;
+  const uint8_t MaxSequentialHoles, MaxSequentialBad, MaxAdjacentBad;
   
-  void setDetId(uint32_t);
-  bool isModuleUsable(uint32_t id)  const {return qualityHandle->IsModuleUsable(id);}
   float noise(const uint16_t strip) const {return noiseHandle->getNoise(strip,noiseRange);}
   float gain(const uint16_t strip)  const {return gainHandle->getStripGain(strip,gainRange);}
   bool bad(const uint16_t strip)    const {return qualityHandle->IsStripBad(qualityRange, strip);}
-  bool anyGoodBetween(uint16_t a,uint16_t b) const {while(a<b && bad(a)) a++; return a!=b;}
-
-  edm::ESHandle<SiStripGain> gainHandle;
-  edm::ESHandle<SiStripNoises> noiseHandle;
-  edm::ESHandle<SiStripQuality> qualityHandle;
+  bool anyGoodBetween(uint16_t a,uint16_t b) const {while(++a<b && bad(a)); return a!=b;}
+  bool isModuleUsable(uint32_t id)  const {return qualityHandle->IsModuleUsable(id);}
   
+  void setDetId(uint32_t);
   SiStripApvGain::Range gainRange;
   SiStripNoises::Range  noiseRange;
   SiStripQuality::Range qualityRange;
-
-  const float Channel, Seed, Cluster2;
-  const uint8_t MaxSequentialHoles, MaxSequentialBad, MaxAdjacentBad;
+  edm::ESHandle<SiStripGain> gainHandle;
+  edm::ESHandle<SiStripNoises> noiseHandle;
+  edm::ESHandle<SiStripQuality> qualityHandle;
 };
 
 #endif
