@@ -2,8 +2,8 @@
  *
  * Digi for CLCT trigger primitives.
  *
- * $Date: 2007/07/23 12:08:20 $
- * $Revision: 1.12 $
+ * $Date: 2008/10/29 18:34:40 $
+ * $Revision: 1.13 $
  *
  * \author N. Terentiev, CMU
  */
@@ -62,13 +62,15 @@ bool CSCCLCTDigi::operator > (const CSCCLCTDigi& rhs) const {
   */
   int quality      = getQuality();
   int rhsQuality   = rhs.getQuality();
-  int stripType    = getStripType();
-  int rhsStripType = rhs.getStripType();
 
 #ifdef TB
   // Test beams' implementation.
+
 #ifdef TBs
   // This algo below was used in 2003 and 2004 test beams, but not in MTCC.
+  int stripType    = getStripType();
+  int rhsStripType = rhs.getStripType();
+
   if (stripType == rhsStripType) { // both di-strip or half-strip
     if      (quality >  rhsQuality) {returnValue = true;}
 #ifdef LATER
@@ -96,6 +98,10 @@ bool CSCCLCTDigi::operator > (const CSCCLCTDigi& rhs) const {
 #endif
 
 #else
+#ifndef TBs
+  int stripType    = getStripType();
+  int rhsStripType = rhs.getStripType();
+#endif
   // Hack to preserve old behaviour; needs to be clarified.
   quality    -= 3;
   rhsQuality -= 3;
