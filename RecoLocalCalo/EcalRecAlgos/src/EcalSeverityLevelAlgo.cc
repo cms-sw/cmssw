@@ -16,13 +16,13 @@ int EcalSeverityLevelAlgo::severityLevel( const DetId id,
                 // at the moment the DB is binary: 0 = good, 1 = bad
                 // FIXME: change 1 to the dead channel flag, when it will be defined
                 if ( dbStatus == 1 ) {
-                        return 3;
+                        return kBad;
                 } else if ( dbStatus > 0 && dbStatus != 1 ) { // FIXME: at the moment useless because of binary DB
                         // zero-suppressed and originally problematic
-                        return 1;
+                        return kProblematic;
                 } else if ( dbStatus == 0 ) {
                         // zero-suppressed and originally good
-                        return 0;
+                        return kGood;
                 }
         } else {
                 // the channel is in the recHit collection
@@ -36,16 +36,23 @@ int EcalSeverityLevelAlgo::severityLevel( const EcalRecHit &recHit,
 {
         // the channel is there, check its flags
         // and combine with DB (not needed at the moment)
-        uint32_t recHitFlags = recHit.flags();
-        if ( recHitFlags > 0 && recHitFlags <= 4 ) {
+        uint32_t rhFlag = recHit.flags();
+        uint16_t dbStatus = retrieveDBStatus( recHit.id(), chStatus );
+        return severityLevel( rhFlag, dbStatus );
+}
+
+int EcalSeverityLevelAlgo::severityLevel( uint32_t rhFlag, uint16_t chStatus ) const
+{
+        // DB info currently not used at this level
+        if ( rhFlag > 0 && rhFlag <= 4 ) {
                 // problematic
-                return 1;
-        } else if ( recHitFlags > 4 && recHitFlags <= 6 ) {
+                return kProblematic;
+        } else if ( rhFlag > 4 && rhFlag <= 6 ) {
                 // recovered
-                return 2;
-        } else if ( recHitFlags == 7 ) {
+                return kRecovered;
+        } else if ( rhFlag == 7 ) {
                 // recovering failed
-                return 3;
+                return kBad;
         }
         // good
         return 0;
