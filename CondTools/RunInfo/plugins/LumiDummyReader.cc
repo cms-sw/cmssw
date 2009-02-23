@@ -7,13 +7,16 @@
 void
 lumi::LumiDummyReader::fill(int startRun, 
 			    int numberOfRuns, 
-    std::vector< std::pair<lumi::LuminosityInfo*,cond::Time_t> >& result){
+    std::vector< std::pair<lumi::LuminosityInfo*,cond::Time_t> >& result,
+			    int lumiVersionNumber){
   //fake 10 runs with 30 lumisection each with 3564 bunchcrossing,100 hlt trigger
+  int lumiversion=lumiVersionNumber;
   for(int i=startRun; i<=startRun+numberOfRuns; ++i){
     for(int j=1; j<30; ++j){
       edm::LuminosityBlockID lu(i,j);
       cond::Time_t current=(cond::Time_t)(lu.value());
       lumi::LuminosityInfo* l=new lumi::LuminosityInfo;
+      l->setLumiVersionNumber(1);
       l->setLumiSectionId(j);
       l->setDeadtimeNormalization(0.5);
       lumi::LumiAverage avg(1.1,0.2,1,5);

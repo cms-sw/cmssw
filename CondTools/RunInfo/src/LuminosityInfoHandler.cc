@@ -5,10 +5,11 @@
 #include "CondTools/RunInfo/interface/LumiReaderFactory.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 //#include <iostream>
-lumi::LuminosityInfoHandler::LuminosityInfoHandler(const edm::ParameterSet& pset):m_name(pset.getParameter<std::string>("lumiReaderName")),m_startRun(0),m_numberOfRuns(0){
+lumi::LuminosityInfoHandler::LuminosityInfoHandler(const edm::ParameterSet& pset):m_name(pset.getParameter<std::string>("lumiReaderName")),m_startRun(0),m_numberOfRuns(0),m_lumiversionNumber(0){
   m_to_transfer.reserve(100);
   m_startRun=pset.getUntrackedParameter<int>("startRun");
   m_numberOfRuns=pset.getUntrackedParameter<int>("numberOfRuns");
+  m_lumiversionNumber=pset.getParameter<int>("lumiVersionNumber");
   m_datareader=lumi::LumiReaderFactory::get()->create(m_name,pset);
 }
 
@@ -21,7 +22,7 @@ void
 lumi::LuminosityInfoHandler::getNewObjects(){
   //edm::LuminosityBlockID lumiblockID(m_startRun,1);  
   std::vector< std::pair<lumi::LuminosityInfo*,cond::Time_t> > result;
-  m_datareader->fill(m_startRun,m_numberOfRuns,result);
+  m_datareader->fill(m_startRun,m_numberOfRuns,result,m_lumiversionNumber);
   std::vector< std::pair<lumi::LuminosityInfo*,cond::Time_t> >::const_iterator iBeg=result.begin();
   std::vector< std::pair<lumi::LuminosityInfo*,cond::Time_t> >::const_iterator iEnd=result.end();
   std::copy(result.begin(),result.end(),std::back_inserter(m_to_transfer));

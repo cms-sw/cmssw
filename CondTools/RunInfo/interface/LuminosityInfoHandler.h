@@ -15,12 +15,13 @@ namespace lumi{
     std::string id() const;
     ~LuminosityInfoHandler();
     explicit LuminosityInfoHandler(const edm::ParameterSet& pset); 
-    
   private:
     std::string m_name;
     int m_startRun;
     int m_numberOfRuns;
     LumiReaderBase* m_datareader;
+    int m_lumiversionNumber;
+    std::string m_lumiversionName;
   };
 }//ns lumi
 #endif

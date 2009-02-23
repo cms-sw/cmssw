@@ -51,7 +51,7 @@ lumi::LumiOMDSReader::~LumiOMDSReader(){
 }
 void lumi::LumiOMDSReader::fill(int startRun,
 				int numberOfRuns,
-				std::vector< std::pair<lumi::LuminosityInfo*,cond::Time_t> >& result){
+				std::vector< std::pair<lumi::LuminosityInfo*,cond::Time_t> >& result, int lumiVersionNumber){
   //fill lumisummary registry
   //select summary.DEADTIME_NORMALIZATION, summary.NORMALIZATION,summary.INSTANT_LUMI,summary.INSTANT_LUMI_ERR,summary.INSTANT_LUMI_QLTY, summary.NORMALIZATION_ET,summary.INSTANT_ET_LUMI,summary.INSTANT_ET_LUMI_ERR,summary.INSTANT_ET_LUMI_QLTY,summary.NORMALIZATION_OCC_D1,summary.INSTANT_OCC_LUMI_D1,summary.INSTANT_OCC_LUMI_D1_ERR,summary.INSTANT_OCC_LUMI_D1_QLTY,summary.NORMALIZATION_OCC_D2,summary.INSTANT_OCC_LUMI_D2_ERR, summary.INSTANT_OCC_LUMI_D2_QLTY, sect.LUMI_SECTION_NUMBER from CMS_LUMI.LUMI_SUMMARIES summary, CMS_LUMI.LUMI_SECTIONS sect WHERE sect.SECTION_ID=summary.SECTION_ID AND sect.RUN_NUMBER=70674 ORDER BY sect.LUMI_SECTION_NUMBER ;
   //select summary.DEADTIME_NORMALIZATION, summary.NORMALIZATION,summary.INSTANT_LUMI,summary.INSTANT_LUMI_ERR,summary.INSTANT_LUMI_QLTY, summary.NORMALIZATION_ET,summary.INSTANT_ET_LUMI,summary.INSTANT_ET_LUMI_ERR,summary.INSTANT_ET_LUMI_QLTY,summary.NORMALIZATION_OCC_D1,summary.INSTANT_OCC_LUMI_D1,summary.INSTANT_OCC_LUMI_D1_ERR,summary.INSTANT_OCC_LUMI_D1_QLTY,summary.NORMALIZATION_OCC_D2,summary.INSTANT_OCC_LUMI_D2_ERR, summary.INSTANT_OCC_LUMI_D2_QLTY, sect.LUMI_SECTION_NUMBER, bx.BUNCH_X_NUMBER,bx.NORMALIZATION_ET,bx.ET_LUMI,bx.ET_LUMI_ERR,bx.ET_LUMI_QLTY,bx.NORMALIZATION_OCC_D1,bx.OCC_LUMI_D1,bx.OCC_LUMI_D1_ERR,bx.OCC_LUMI_D1_QLTY,bx.NORMALIZATION_OCC_D2,bx.OCC_LUMI_D2,bx.OCC_LUMI_D2_ERR,bx.OCC_LUMI_D2_QLTY from CMS_LUMI.LUMI_SUMMARIES summary, CMS_LUMI.LUMI_DETAILS bx, CMS_LUMI.LUMI_SECTIONS sect WHERE sect.SECTION_ID=summary.SECTION_ID AND sect.SECTION_ID=bx.SECTION_ID AND sect.RUN_NUMBER=70674 ORDER BY sect.LUMI_SECTION_NUMBER
@@ -62,6 +62,8 @@ void lumi::LumiOMDSReader::fill(int startRun,
     cond::CoralTransaction& transaction=con.coralTransaction();
     coral::AttributeList bindVariableList;
     bindVariableList.extend("runnumber",typeid(int));
+    bindVariableList.extend("lumiversion",typeid(int));
+    bindVariableList["lumiversion"].data<int>()=lumiVersionNumber;
     transaction.start(true); 
     int stopRun=startRun+numberOfRuns;
     for( int currentRun=startRun;currentRun<stopRun;++currentRun){
@@ -69,6 +71,7 @@ void lumi::LumiOMDSReader::fill(int startRun,
       coral::IQuery* query1= transaction.nominalSchema().newQuery();
       query1->addToOutputList("sect.LUMI_SECTION_NUMBER","lumisectionid");
       query1->addToOutputList("summary.DEADTIME_NORMALIZATION","deadtime_norm");
+      query1->addToOutputList("summary.LUMI_VERSION","lumi_version");
       /*comment out until meaning is clear
       query1->addToOutputList("summary.NORMALIZATION","norm");
       query1->addToOutputList("summary.INSTANT_LUMI","value");
@@ -110,7 +113,7 @@ void lumi::LumiOMDSReader::fill(int startRun,
       query1->addToTableList( "LUMI_SECTIONS","sect");
       query1->addToTableList( "LUMI_DETAILS","bx" );
 
-      query1->setCondition( "sect.SECTION_ID=summary.SECTION_ID AND sect.SECTION_ID=bx.SECTION_ID AND sect.RUN_NUMBER =:runnumber", bindVariableList );
+      query1->setCondition( "sect.SECTION_ID=summary.SECTION_ID AND sect.SECTION_ID=bx.SECTION_ID AND sect.RUN_NUMBER =:runnumber AND summary.LUMI_VERSION =:lumi_version", bindVariableList );
       query1->addToOrderList( "sect.LUMI_SECTION_NUMBER" );
       query1->addToOrderList( "bx.BUNCH_X_NUMBER" );
       query1->setRowCacheSize( 10692 );

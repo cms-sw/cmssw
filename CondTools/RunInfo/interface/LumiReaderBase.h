@@ -10,7 +10,7 @@ namespace lumi{
   public:
     explicit LumiReaderBase(const edm::ParameterSet& pset):m_pset(pset){}
     virtual ~LumiReaderBase(){}
-    virtual void fill(int startRun,int numberOfRuns,std::vector< std::pair<lumi::LuminosityInfo*,cond::Time_t> >& result)=0;
+    virtual void fill(int startRun,int numberOfRuns,std::vector< std::pair<lumi::LuminosityInfo*,cond::Time_t> >& result, int lumiversionid)=0;
   protected:
     const edm::ParameterSet& m_pset;
   };

@@ -12,7 +12,7 @@ namespace lumi{
     explicit LumiDummyReader(const edm::ParameterSet& pset):LumiReaderBase(pset){}
     virtual ~LumiDummyReader(){}
     void fill(int startRun, int numberOfRuns, 
-	      std::vector< std::pair<lumi::LuminosityInfo*,cond::Time_t> >& result);
+	      std::vector< std::pair<lumi::LuminosityInfo*,cond::Time_t> >& result, int lumiversionid);
   };
 }//ns lumi
 #endif
