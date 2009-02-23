@@ -181,3 +181,59 @@ ClusterizerDefaultGroup = ClusterizerTest( "Default Clusterizer Settings",
                                            )
 
 
+
+ClusterizerProposedGroup = ClusterizerTest( "New Clusterizer Settings",
+                                            dict( channel=2, seed=3, cluster=5, hole=0, nBad=1, nAdj=1),
+                                            [
+    DetUnit( "(110/1)(100/1) = [110,100]",
+             [ digi(  10, 110,  noise1, gain1, good),
+               digi(  11, 100,  noise1, gain1, good) ],
+             [ cluster(  10, [110, 100])
+               ] ),
+    DetUnit( "(110/1)X = [110,0]",
+             [ digi(  10, 110,  noise1, gain1, good),
+               digi(  11, 110,  noise1, gain1,  bad) ],
+             [ cluster(  10, [110, 0])
+               ] ),
+    DetUnit( "X(110/1) = [0,110]",
+             [ digi(  10, 110,  noise1, gain1, bad),
+               digi(  11, 110,  noise1, gain1,  good) ],
+             [ cluster(  10, [0, 110])
+               ] ),
+    DetUnit( "XX(110/1) = [0,110]",
+             [ digi(  9, 110,  noise1, gain1, bad),
+               digi(  10, 110,  noise1, gain1, bad),
+               digi(  11, 110,  noise1, gain1,  good) ],
+             [ cluster(  10, [0, 110])
+               ] ),
+    DetUnit( "(110/1)X(100/1) = [110,0,100]",
+             [ digi(  10, 110,  noise1, gain1, good),
+               digi(  11, 110,  noise1, gain1,  bad),
+               digi(  12, 100,  noise1, gain1, good) ],
+             [ cluster(  10, [110,0,100])
+               ] ),
+    DetUnit( "(110/1)x(100/1) = [110,0,100]",
+             [ digi(  10, 110,  noise1, gain1, good),
+               digi(  11,   0,  noise1, gain1,  bad),
+               digi(  12, 100,  noise1, gain1, good) ],
+             [ cluster(  10, [110, 0,100])
+               ] ),
+    DetUnit( "X(110/1)x(100/1)X = [0,110,0,100,0]",
+             [ digi(  9, 110,  noise1, gain1, bad),
+               digi(  10, 110,  noise1, gain1, good),
+               digi(  11,   0,  noise1, gain1,  bad),
+               digi(  12, 100,  noise1, gain1,  good),
+               digi(  13, 100,  noise1, gain1, bad) ],
+             [ cluster(  9, [0,110,0,100,0])
+               ] ),
+    DetUnit( "(110/1)_(100/1) = [110],[100]",
+             [ digi(  10, 110,  noise1, gain1, good),
+               digi(  11,   0,  noise1, gain1, good),
+               digi(  12, 100,  noise1, gain1, good) ],
+             [ cluster(  10, [110]),
+               cluster(  12, [100])
+               ] )
+    ]
+                                           )
+
+
