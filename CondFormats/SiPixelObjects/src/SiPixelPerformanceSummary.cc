@@ -149,6 +149,33 @@ bool SiPixelPerformanceSummary::setNumberOfPixelHitsInTrackFit(uint32_t detId, f
   return  setValue(detId, 47, nPixelHits); 
 }
 
+bool SiPixelPerformanceSummary::setFractionOfTracks(uint32_t detId, float mean, float rms) {
+  return (setValue(detId, 48, mean) && setValue(detId, 49, rms)); 
+}
+
+bool SiPixelPerformanceSummary::setNumberOfOnTrackClusters(uint32_t detId, float nClusters) {
+  return setValue(detId, 50, nClusters); 
+}
+
+bool SiPixelPerformanceSummary::setNumberOfOffTrackClusters(uint32_t detId, float nClusters) {
+  return setValue(detId, 51, nClusters); 
+}
+
+bool SiPixelPerformanceSummary::setClusterChargeOnTrack(uint32_t detId, float mean, float rms) {
+  return (setValue(detId, 52, mean) && setValue(detId, 53, rms)); 
+}
+
+bool SiPixelPerformanceSummary::setClusterChargeOffTrack(uint32_t detId, float mean, float rms) {
+  return (setValue(detId, 54, mean) && setValue(detId, 55, rms)); 
+}
+
+bool SiPixelPerformanceSummary::setClusterSizeOnTrack(uint32_t detId, float mean, float rms) {
+  return (setValue(detId, 56, mean) && setValue(detId, 57, rms)); 
+}
+
+bool SiPixelPerformanceSummary::setClusterSizeOffTrack(uint32_t detId, float mean, float rms) {
+  return (setValue(detId, 58, mean) && setValue(detId, 59, rms)); 
+}
 
 vector<uint32_t> SiPixelPerformanceSummary::getAllDetIds() const {
   vector<uint32_t> allDetIds; 

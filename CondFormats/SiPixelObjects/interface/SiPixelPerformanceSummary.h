@@ -83,6 +83,14 @@ public:
   bool setNumberOfNoisCells(uint32_t detId, float nNpixCells); // N=4,1..
   bool setNumberOfDeadCells(uint32_t detId, float nNpixCells); // N=4,1..
   bool setNumberOfPixelHitsInTrackFit(uint32_t detId, float nPixelHits); 
+  // Track
+  bool setFractionOfTracks(uint32_t detId, float mean, float rms); 
+  bool setNumberOfOnTrackClusters(uint32_t detId, float nClusters); 
+  bool setNumberOfOffTrackClusters(uint32_t detId, float nClusters); 
+  bool setClusterChargeOnTrack(uint32_t detId, float mean, float rms); 
+  bool setClusterChargeOffTrack(uint32_t detId, float mean, float rms);  
+  bool setClusterSizeOnTrack(uint32_t detId, float mean, float rms); 
+  bool setClusterSizeOffTrack(uint32_t detId, float mean, float rms);  
 
 private:
   std::pair<bool, std::vector<DetSummary>::iterator> initDet(const uint32_t detId); 
