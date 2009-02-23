@@ -16,6 +16,7 @@ from DQM.EcalBarrelMonitorTasks.EBClusterTask_cfi import *
 from DQM.EcalBarrelMonitorTasks.EBSelectiveReadoutTask_cfi import *
 from DQM.EcalBarrelMonitorTasks.EBRawDataTask_cfi import *
 from DQM.EcalBarrelMonitorTasks.EBDaqInfoTask_cfi import *
+from DQM.EcalBarrelMonitorTasks.EBDcsInfoTask_cfi import *
 
 ecalBarrelDefaultTasksSequence = cms.Sequence(ecalBarrelOccupancyTask*ecalBarrelIntegrityTask*ecalBarrelStatusFlagsTask*ecalBarrelSelectiveReadoutTask*ecalBarrelRawDataTask*ecalBarrelLaserTask*ecalBarrelPedestalOnlineTask*ecalBarrelPedestalTask*ecalBarrelTestPulseTask*ecalBarrelTriggerTowerTask*ecalBarrelTimingTask)
 
