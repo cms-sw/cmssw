@@ -15,6 +15,7 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
 #include "Calibration/EcalCalibAlgos/interface/MatrixFillMap.h"
 #include "Calibration/EcalCalibAlgos/interface/ClusterFillMap.h"
@@ -298,9 +299,14 @@ InvRingCalib::duringLoop (const edm::Event& iEvent,
       pSubtract =0;
       pTk=eleIt->trackMomentumAtVtx().R();
       std::map<int , double> xtlMap;
-      DetId Max = m_MapFiller->fillMap(eleIt->superCluster ()->hitsAndFractions (), 
+      DetId Max=0; 
+      if (fabs(eleIt->eta()<1.49))
+	     Max = EcalClusterTools::getMaximum(eleIt->superCluster()->hitsAndFractions(),barrelHitsCollection).first;
+      else 
+	     Max = EcalClusterTools::getMaximum(eleIt->superCluster()->hitsAndFractions(),endcapHitsCollection).first;
+      if (Max.det()==0) continue;
+       m_MapFiller->fillMap(eleIt->superCluster ()->hitsAndFractions (),Max, 
                            barrelHitsCollection,endcapHitsCollection, xtlMap,pSubtract);
-      if (Max.det()==0) continue;			
       if (m_xtalRegionId[Max.rawId()]==-1) continue;
       pSubtract += eleIt->superCluster()->preshowerEnergy() ;
       ++m_RingNumOfHits[m_xtalRing[Max.rawId()]];

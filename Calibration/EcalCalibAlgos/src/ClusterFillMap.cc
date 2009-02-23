@@ -21,15 +21,14 @@ ClusterFillMap::~ClusterFillMap()
 {
 }
 
-DetId 
+void 
 ClusterFillMap::fillMap (const std::vector<std::pair<DetId,float> > & v1,
+		const DetId Max,
                 const EcalRecHitCollection * barrelHitsCollection,
 		const EcalRecHitCollection * endcapHitsCollection,
                 std::map<int,double> & xtlMap,
                 double & pSubtract )
 {
- 
-  DetId Max = findMaxHit (v1, barrelHitsCollection, endcapHitsCollection);
   for (std::vector<std::pair<DetId,float> >::const_iterator idsIt = v1.begin();
        idsIt != v1.end () ;
        ++idsIt)
@@ -61,6 +60,5 @@ ClusterFillMap::fillMap (const std::vector<std::pair<DetId,float> > & v1,
       xtlMap[m_IndexInRegion[ID]] += dummy;
    else pSubtract +=dummy; 
  }
- return Max;
 }
 

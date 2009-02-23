@@ -22,15 +22,14 @@ MatrixFillMap::~MatrixFillMap ()
 	}
 
 
-DetId
+void
 MatrixFillMap::fillMap (const std::vector<std::pair<DetId,float> >  & v1,
+	const DetId Max,
 	 const EcalRecHitCollection * barrelHitsCollection,
 	 const EcalRecHitCollection * endcapHitsCollection,
 	 std::map<int, double> & xtlMap,
 	 double & pSubtract)
 {
-	DetId Max = findMaxHit (v1, barrelHitsCollection, endcapHitsCollection);
-        if (Max.det()==0) return Max; 
 	if (Max.subdetId() == EcalBarrel ){
 		EBDetId EBMax = Max;
                 fillEBMap (EBMax, barrelHitsCollection, xtlMap,
@@ -41,7 +40,6 @@ MatrixFillMap::fillMap (const std::vector<std::pair<DetId,float> >  & v1,
                fillEEMap (EEMax, endcapHitsCollection, xtlMap,
                      m_xtalRegionId[Max.rawId()],pSubtract ) ;
 	}
-	return Max;
 }
 
 

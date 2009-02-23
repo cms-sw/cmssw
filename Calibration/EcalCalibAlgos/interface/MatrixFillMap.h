@@ -18,7 +18,8 @@ class MatrixFillMap : public VFillMap
 			EcalIntercalibConstantMap *);
 	//! dtor
 	~MatrixFillMap ();
-        DetId fillMap (const std::vector<std::pair<DetId,float> > &, 
+        void fillMap (const std::vector<std::pair<DetId,float> > &, 
+			const DetId,
 			const EcalRecHitCollection *, 
 			const EcalRecHitCollection *,
 			std::map<int,double> & xtlMap,
