@@ -13,12 +13,13 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 
+#include "GeneratorInterface/Core/interface/BaseHadronizer.h"
 #include "GeneratorInterface/Core/interface/GeneratorFilter.h"
 #include "GeneratorInterface/Core/interface/HadronizerFilter.h"
 
 #include "GeneratorInterface/ThePEGInterface/interface/ThePEGInterface.h"
 
-class ThePEGHadronizer : public ThePEGInterface {
+class ThePEGHadronizer : public ThePEGInterface, public gen::BaseHadronizer {
     public:
 	ThePEGHadronizer(const edm::ParameterSet &params);
 	virtual ~ThePEGHadronizer();
@@ -31,14 +32,9 @@ class ThePEGHadronizer : public ThePEGInterface {
 
 	bool generatePartonsAndHadronize();
 //	bool hadronize();
-
 	bool decay();
-	void resetEvent(HepMC::GenEvent *e) { genEvent.reset(e); } // WTF
 	bool residualDecay();
 	void finalizeEvent();
-
-	const GenRunInfoProduct &getGenRunInfo() const { return genRunInfo; }
-	HepMC::GenEvent *getGenEvent() { return genEvent.release(); }
 
 	const char *classname() const { return "ThePEGHadronizer"; }
 
@@ -46,9 +42,7 @@ class ThePEGHadronizer : public ThePEGInterface {
 	unsigned int			eventsToPrint;
 	unsigned int			index;
 
-	GenRunInfoProduct		genRunInfo;
 	ThePEG::EventPtr		thepegEvent;
-	std::auto_ptr<HepMC::GenEvent>	genEvent;
 };
 
 ThePEGHadronizer::ThePEGHadronizer(const edm::ParameterSet &pset) :
@@ -58,9 +52,9 @@ ThePEGHadronizer::ThePEGHadronizer(const edm::ParameterSet &pset) :
 {  
 	initRepository(pset);
 
-	genRunInfo.setExternalXSecLO(
+	runInfo().setExternalXSecLO(
 		pset.getUntrackedParameter<double>("crossSection", -1.0));
-	genRunInfo.setFilterEfficiency(
+	runInfo().setFilterEfficiency(
 		pset.getUntrackedParameter<double>("filterEfficiency", -1.0));
 }
 
@@ -81,7 +75,7 @@ bool ThePEGHadronizer::declareStableParticles(const std::vector<int> &pdgIds)
 
 void ThePEGHadronizer::statistics()
 {
-	genRunInfo.setInternalXSec(GenRunInfoProduct::XSec(
+	runInfo().setInternalXSec(GenRunInfoProduct::XSec(
 				eg_->integratedXSec() / ThePEG::picobarn));
 }
 
@@ -97,8 +91,8 @@ bool ThePEGHadronizer::generatePartonsAndHadronize()
 		return false;
 	}
 
-	genEvent = convert(thepegEvent);
-	if (!genEvent.get()) {
+	event() = convert(thepegEvent);
+	if (!event().get()) {
 		edm::LogWarning("Generator|ThePEGHadronizer") << "genEvent not initialized";
 		return false;
 	}
@@ -109,18 +103,18 @@ bool ThePEGHadronizer::generatePartonsAndHadronize()
 void ThePEGHadronizer::finalizeEvent()
 {
 	HepMC::PdfInfo pdf;
-	clearAuxiliary(genEvent.get(), &pdf);
-	genEvent->set_event_number(++index);
-	fillAuxiliary(genEvent.get(), &pdf, thepegEvent);
-	genEvent->set_pdf_info(pdf);
+	clearAuxiliary(event().get(), &pdf);
+	event()->set_event_number(++index);
+	fillAuxiliary(event().get(), &pdf, thepegEvent);
+	event()->set_pdf_info(pdf);
 
 	if (eventsToPrint) {
 		eventsToPrint--;
-		genEvent->print();
+		event()->print();
 	}
 
 	if (iobc_.get())
-		iobc_->write_event(genEvent.get());
+		iobc_->write_event(event().get());
 
 	edm::LogInfo("Generator|ThePEGHadronizer") << "Event produced";
 }
