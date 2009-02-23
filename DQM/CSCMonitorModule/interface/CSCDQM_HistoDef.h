@@ -99,7 +99,7 @@ namespace cscdqm {
        */
       const std::string getFullPath() const {
         std::string path(getPath());
-        path.append("/");
+        if (path.size() > 0) path.append("/");
         path.append(getName());
         return path;
       }

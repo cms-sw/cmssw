@@ -13,58 +13,10 @@ process.load("DQM.CSCMonitorModule.test.csc_hlt_dqm_sourceclient_cfi")
 #-----------------------------
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
-process.source = cms.Source("NewEventStreamFileReader",
-  fileNames = cms.untracked.vstring(
-    'file:/tmp/valdo/GlobalCruzet4MW36.00061169.0001.A.storageManager.0.0000.dat',
-    'file:/tmp/valdo/GlobalCruzet4MW36.00061169.0001.A.storageManager.1.0000.dat',
-    'file:/tmp/valdo/GlobalCruzet4MW36.00061169.0001.A.storageManager.2.0000.dat',
-    'file:/tmp/valdo/GlobalCruzet4MW36.00061169.0001.A.storageManager.3.0000.dat',
-    'file:/tmp/valdo/GlobalCruzet4MW36.00061169.0002.A.storageManager.0.0000.dat',
-    'file:/tmp/valdo/GlobalCruzet4MW36.00061169.0002.A.storageManager.1.0000.dat',
-    'file:/tmp/valdo/GlobalCruzet4MW36.00061169.0002.A.storageManager.2.0000.dat',
-    'file:/tmp/valdo/GlobalCruzet4MW36.00061169.0002.A.storageManager.3.0000.dat',
-    'file:/tmp/valdo/GlobalCruzet4MW36.00061169.0003.A.storageManager.0.0000.dat',
-    'file:/tmp/valdo/GlobalCruzet4MW36.00061169.0003.A.storageManager.1.0000.dat',
-    'file:/tmp/valdo/GlobalCruzet4MW36.00061169.0003.A.storageManager.2.0000.dat',
-    'file:/tmp/valdo/GlobalCruzet4MW36.00061169.0003.A.storageManager.3.0000.dat',
-    'file:/tmp/valdo/GlobalCruzet4MW36.00061169.0004.A.storageManager.0.0000.dat',
-    'file:/tmp/valdo/GlobalCruzet4MW36.00061169.0004.A.storageManager.1.0000.dat',
-    'file:/tmp/valdo/GlobalCruzet4MW36.00061169.0004.A.storageManager.2.0000.dat',
-    'file:/tmp/valdo/GlobalCruzet4MW36.00061169.0004.A.storageManager.3.0000.dat',
-    'file:/tmp/valdo/GlobalCruzet4MW36.00061169.0005.A.storageManager.0.0000.dat',
-    'file:/tmp/valdo/GlobalCruzet4MW36.00061169.0005.A.storageManager.1.0000.dat',
-    'file:/tmp/valdo/GlobalCruzet4MW36.00061169.0005.A.storageManager.2.0000.dat',
-    'file:/tmp/valdo/GlobalCruzet4MW36.00061169.0005.A.storageManager.3.0000.dat',
-    'file:/tmp/valdo/GlobalCruzet4MW36.00061169.0006.A.storageManager.0.0000.dat',
-    'file:/tmp/valdo/GlobalCruzet4MW36.00061169.0006.A.storageManager.1.0000.dat',
-    'file:/tmp/valdo/GlobalCruzet4MW36.00061169.0006.A.storageManager.2.0000.dat',
-    'file:/tmp/valdo/GlobalCruzet4MW36.00061169.0006.A.storageManager.3.0000.dat',
-    'file:/tmp/valdo/GlobalCruzet4MW36.00061169.0007.A.storageManager.0.0000.dat',
-    'file:/tmp/valdo/GlobalCruzet4MW36.00061169.0007.A.storageManager.1.0000.dat',
-    'file:/tmp/valdo/GlobalCruzet4MW36.00061169.0007.A.storageManager.2.0000.dat',
-    'file:/tmp/valdo/GlobalCruzet4MW36.00061169.0007.A.storageManager.3.0000.dat',
-    'file:/tmp/valdo/GlobalCruzet4MW36.00061169.0008.A.storageManager.0.0000.dat',
-    'file:/tmp/valdo/GlobalCruzet4MW36.00061169.0008.A.storageManager.1.0000.dat',
-    'file:/tmp/valdo/GlobalCruzet4MW36.00061169.0008.A.storageManager.2.0000.dat',
-    'file:/tmp/valdo/GlobalCruzet4MW36.00061169.0008.A.storageManager.3.0000.dat',
-    'file:/tmp/valdo/GlobalCruzet4MW36.00061169.0009.A.storageManager.0.0000.dat',
-    'file:/tmp/valdo/GlobalCruzet4MW36.00061169.0009.A.storageManager.1.0000.dat',
-    'file:/tmp/valdo/GlobalCruzet4MW36.00061169.0009.A.storageManager.1.0001.dat',
-    'file:/tmp/valdo/GlobalCruzet4MW36.00061169.0009.A.storageManager.2.0000.dat',
-    'file:/tmp/valdo/GlobalCruzet4MW36.00061169.0009.A.storageManager.3.0000.dat',
-    'file:/tmp/valdo/GlobalCruzet4MW36.00061169.0009.A.storageManager.3.0001.dat',
-    'file:/tmp/valdo/GlobalCruzet4MW36.00061169.0010.A.storageManager.1.0000.dat',
-    'file:/tmp/valdo/GlobalCruzet4MW36.00061169.0010.A.storageManager.3.0000.dat',
-  )
+process.source = cms.Source("PoolSource",
+    fileNames  = cms.untracked.vstring('/store/data/Commissioning08/Cosmics/RAW/v1/000/066/910/8CA64FCF-259F-DD11-B86D-000423D99BF2.root'),
+    skipEvents = cms.untracked.uint32(25900)
 )
-
-#process.source = cms.Source("PoolSource",
-#  fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/cms/store/data/CRUZET4_v1/Cosmics/RECO/CRZT210_V1_CSCSkim_trial_v1/0000/EC61736B-5873-DD11-9580-001A92971AA4.root'),
-# fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/cms/store/data/CRUZET3/Cosmics/RAW/v4/000/051/552/524A4381-4255-DD11-8FD6-001617E30F4C.root'),
-# fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/cms/store/data/CRUZET2/Cosmics/RAW/v1/000/046/873/04D28BCA-1F39-DD11-A6C1-001617C3B65A.root'),
-#  debugVebosity = cms.untracked.uint32(1),
-#  debugFlag = cms.untracked.bool(1)
-#)
 
 #-------------------------------------------------
 # Global Tag
@@ -140,6 +92,5 @@ MessageLogger = cms.Service("MessageLogger",
 # Sequences
 #--------------------------
 
-process.p = cms.Path(process.dqmCSCClient+process.dqmEnv+process.dqmSaver)
-
+process.p = cms.Path(process.cscDQMEvF+process.dqmEnv+process.dqmSaver)
 

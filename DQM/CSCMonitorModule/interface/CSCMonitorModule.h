@@ -3,160 +3,106 @@
  *
  *       Filename:  CSCMonitorModule.h
  *
- *    Description: Main object of CSC DQM Monitor 
+ *    Description:  Updated CSC Monitor module
  *
  *        Version:  1.0
- *        Created:  04/18/2008 02:19:16 PM
+ *        Created:  11/13/2008 01:36:45 PM
  *       Revision:  none
  *       Compiler:  gcc
  *
- *         Author:  Valdas Rapsevicius (VR), Valdas.Rapsevicius@cern.ch
+ *         Author:  Valdas Rapsevicius (VR), valdas.rapsevicius@cern.ch
  *        Company:  CERN, CH
  *
  * =====================================================================================
  */
 
+
 #ifndef CSCMonitorModule_H
 #define CSCMonitorModule_H
 
-/**
- * Include Section
- */
-
-#include <memory>
+/// Global stuff
 #include <iostream>
-#include <sstream>
-#include <fstream>
-#include <string>
+#include <cstring>
 #include <vector>
 #include <map>
-#include <math.h>
-#include <bitset>
+#include <set>
 
+/// DQM Framework stuff
 #include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <DQMServices/Core/interface/DQMStore.h>
 #include <DQMServices/Core/interface/MonitorElement.h>
 #include <FWCore/ServiceRegistry/interface/Service.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
+#include <FWCore/Framework/interface/ESHandle.h>
+#include <FWCore/Framework/interface/EventSetup.h>
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "DataFormats/FEDRawData/interface/FEDRawData.h"
-#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCDCCEventData.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCDCCExaminer.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCCFEBData.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCCFEBTimeSlice.h"
-
+/// CSC Framework stuff
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "CondFormats/CSCObjects/interface/CSCCrateMap.h"
 #include "CondFormats/DataRecord/interface/CSCCrateMapRcd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "DQM/CSCMonitorModule/interface/CSCDQM_Summary.h"
-#include "DQM/CSCMonitorModule/interface/CSCUtility.h"
 
-/**
- * Macro Section
- */
+/// CSCDQM Framework stuff
+#include "DQM/CSCMonitorModule/interface/CSCDQM_Logger.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_Configuration.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_Dispatcher.h"
 
-#define LOGERROR(cat)      edm::LogError (cat)
-#define LOGWARNING(cat)    edm::LogWarning (cat)
-#define LOGINFO(cat)       edm::LogInfo (cat)
-#define LOGDEBUG(cat)      LogDebug (cat)
+/// Local stuff
+#include "DQM/CSCMonitorModule/interface/CSCMonitorObject.h"
 
-#define SUMMARY_FOLDER     "Summary/"
-#define DDU_FOLDER         "DDUs/"
-#define EVENTINFO_FOLDER   "EventInfo/"
-#define SUMCONTENTS_FOLDER "EventInfo/reportSummaryContents/"
+/// Local Constants
+static const char INPUT_TAG_LABEL[]      = "source";
+static const char DIR_EVENTINFO[]        = "CSC/EventInfo/";
 
 /**
  * @class CSCMonitorModule
- * @brief Online CSC DQM module
+ * @brief Common CSC DQM Module that uses CSCDQM Framework  
  */
-class CSCMonitorModule: public edm::EDAnalyzer {
+class CSCMonitorModule: public edm::EDAnalyzer, public cscdqm::MonitorObjectProvider {
+ 
+  /**
+   * Global stuff
+   */
 
   public:
 
     CSCMonitorModule(const edm::ParameterSet& ps);
     virtual ~CSCMonitorModule();
 
-  protected:
-
-    void beginJob(const edm::EventSetup& c);
-    void beginRun(const edm::Run& r, const edm::EventSetup& c);
-    void setup();
-    void analyze(const edm::Event& e, const edm::EventSetup& c) ;
-    void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) ;
-    void endRun(const edm::Run& r, const edm::EventSetup& c);
-    void endJob();
-
   private:
 
-    int loadCollection();    
-    void printCollection();
-    void book(const std::string prefix);
-    const bool isMEValid(const std::string name, MonitorElement*& me);
-    const bool getCSCFromMap(const int crate, const int slot, int& csctype, int& cscposition) const;
-
-    /** Histogram filling and calculation methods */
-    void monitorEvent(const edm::Event& e) ;
-    void monitorDCC(const CSCDCCEventData& dccEvent);
-    void monitorDDU(const CSCDDUEventData& dduEvent);
-    void monitorCSC(const CSCEventData&    cscEvent, const int32_t& dduID);
-    bool monitorExaminer(CSCDCCExaminer& examiner);
-    void updateFracHistos();
-
-    /** Global Module-wide parameters  */
-    edm::ParameterSet  parameters;
-    edm::ParameterSet  effParameters;
-    DQMStore*          dbe;
-    std::string        monitorName;
-    std::string        rootDir;
-    std::string        bookingFile;
-
-    /** If histos have been initialized? **/
-    bool init;
-
-    /** List of loaded (preloaded) DDU's */
-    bool            hitBookDDU;
-
-    /** Fractional histograms update stuff */
-    Bitset32        fractUpdateKey;
-    uint32_t        fractUpdateEvF;
-    
-    /** Source related stuff */
-    edm::InputTag   inputObjectsTag;
-
-    /** Examiner and its stuff */
-    unsigned int    examinerMask;
-    bool            examinerForce;
-    bool            examinerOutput;
-    Bitset32        examinerCRCKey;
+    cscdqm::Configuration     config;
+    cscdqm::Dispatcher       *dispatcher;
+    DQMStore                 *dbe;
+    edm::InputTag             inputTag;
 
     /** Pointer to crate mapping from database **/
     const CSCCrateMap* pcrate;
 
-    /** Histogram collection */
-    HistoDefMap collection;
+  /**
+   * MonitorObjectProvider Implementation
+   */
 
-    /** Histogram mapping, increments, etc. */
-    uint32_t                     nEvents;
-    uint32_t                     nCSCEvents;
-    bool                         bCSCEventCounted;
-    uint32_t                     L1ANumber;
-    std::map<uint32_t,uint32_t>  L1ANumbers;
+  public:
 
-    /** Find histograms (aka previous macros) **/ 
-    const bool MEEMU(const std::string name, MonitorElement*& me);
-    const bool MEDDU(const unsigned int dduId, const std::string name, MonitorElement*& me);
-    const bool MEEventInfo(const std::string name, MonitorElement*& me);
-    const bool MEReportSummaryContents(const std::string name, MonitorElement*& me);
+    const CSCDetId getCSCDetId(const unsigned int crateId, const unsigned int dmbId) const { 
+      return pcrate->detId(crateId, dmbId, 0, 0); 
+    }
+    cscdqm::MonitorObject *bookMonitorObject (const cscdqm::HistoBookRequest& p_req); 
 
-    /** CSC summary map */
-    cscdqm::Summary summary;
-    
+  /** 
+   * EDAnalyzer Implementation
+   */ 
+
+  protected:
+
+    void beginJob(const edm::EventSetup& c) { }
+    void beginRun(const edm::Run& r, const edm::EventSetup& c) { }
+    void setup() { }
+    void analyze(const edm::Event& e, const edm::EventSetup& c);
+    void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) { }
+    void endRun(const edm::Run& r, const edm::EventSetup& c) { }
+    void endJob() { }
+
 };
 
 #endif
