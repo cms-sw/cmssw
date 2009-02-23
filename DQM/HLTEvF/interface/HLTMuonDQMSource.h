@@ -5,8 +5,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2009/02/17 11:47:38 $
- *  $Revision: 1.9 $
+ *  $Date: 2009/02/17 15:11:56 $
+ *  $Revision: 1.10 $
  *  \author  M. Vander Donckt CERN
  *   
  */
@@ -75,30 +75,32 @@ private:
 
   // ----------member data ---------------------------
   bool verbose_;
-  static const int NTRIG = 5;
+  static const int NTRIG = 20;
   int nTrigs;
 
-  MonitorElement * hNMu[NTRIG][4];
-  MonitorElement * hcharge[NTRIG][4];
+  MonitorElement * hNMu[NTRIG][5];
+  MonitorElement * hcharge[NTRIG][5];
   MonitorElement * hchargeconv[NTRIG][3];
-  MonitorElement * hpt[NTRIG][4];
-  MonitorElement * heta[NTRIG][4];
-  MonitorElement * hphi[NTRIG][4];
-  MonitorElement * hptphi[NTRIG][4];
-  MonitorElement * hpteta[NTRIG][4];
+  MonitorElement * hpt[NTRIG][5];
+  MonitorElement * heta[NTRIG][5];
+  MonitorElement * hphi[NTRIG][5];
+  MonitorElement * hptphi[NTRIG][5];
+  MonitorElement * hpteta[NTRIG][5];
   MonitorElement * hptres[NTRIG][3];
   MonitorElement * hptrespt[NTRIG][3];
   MonitorElement * hetares[NTRIG][3];
   MonitorElement * hetareseta[NTRIG][3];
   MonitorElement * hphires[NTRIG][3];
   MonitorElement * hphiresphi[NTRIG][3];
-  MonitorElement * hetaphi[NTRIG][4];
+  MonitorElement * hetaphi[NTRIG][5];
   MonitorElement * hdr[NTRIG][2];
   MonitorElement * hd0[NTRIG][2];
   MonitorElement * hdz[NTRIG][2];
+  MonitorElement * hdz0[NTRIG][2];
   MonitorElement * hdrphi[NTRIG][2];
   MonitorElement * hd0phi[NTRIG][2];
   MonitorElement * hdzeta[NTRIG][2];
+  MonitorElement * hdz0eta[NTRIG][2];
   MonitorElement * herr0[NTRIG][2];
   MonitorElement * hnHits[NTRIG][4];
   MonitorElement * hnValidHits[NTRIG];
@@ -110,6 +112,16 @@ private:
   MonitorElement * hptfrac[NTRIG][2];
   MonitorElement * hetafrac[NTRIG][2];
   MonitorElement * hphifrac[NTRIG][2];
+  MonitorElement * hseedptres[NTRIG][2];
+  MonitorElement * hseedetares[NTRIG][2];
+  MonitorElement * hseedphires[NTRIG][2];
+  MonitorElement * hptpull[NTRIG];
+  MonitorElement * hptpullpt[NTRIG];
+  MonitorElement * hetapull[NTRIG];
+  MonitorElement * hetapulleta[NTRIG];
+  MonitorElement * hphipull[NTRIG];
+  MonitorElement * hphipullphi[NTRIG];
+  MonitorElement * hseedNMuper[NTRIG][2];
   float XMIN; float XMAX;
 
   TH1D *_hpt1[NTRIG][2], *_hpt2[NTRIG][2];
