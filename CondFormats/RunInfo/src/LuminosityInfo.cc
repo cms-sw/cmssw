@@ -1,11 +1,11 @@
 #include "CondFormats/RunInfo/interface/LuminosityInfo.h"
 //#include "FWCore/Utilities/Exception.h"
-#include <iostream>
+//#include <iostream>
 lumi::LuminosityInfo::LuminosityInfo(){
   m_bx.reserve(lumi::BXMAX*LUMIALGOMAX);
   m_summaryinfo.reserve(lumi::LUMIALGOMAX);
 }
-int 
+short
 lumi::LuminosityInfo::lumiVersionNumber()const{
   return m_sectionid; 
 }
@@ -48,7 +48,7 @@ lumi::LuminosityInfo::bunchCrossingEnd( const LumiAlgoType lumialgotype )const{
   return m_bx.end()-(lumi::BXMAX)*lumialgotype;
 }
 void 
-lumi::LuminosityInfo::setLumiVersionNumber(int versionid){
+lumi::LuminosityInfo::setLumiVersionNumber(short versionid){
   m_versionid=versionid;
 }
 void
