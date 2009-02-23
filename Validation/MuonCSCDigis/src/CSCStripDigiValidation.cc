@@ -91,8 +91,10 @@ void CSCStripDigiValidation::analyze(const edm::Event& e,
         }
       }
     }
-    int detId = (*j).first.rawId();
+
 /*
+    int detId = (*j).first.rawId();
+
     edm::PSimHitContainer simHits = theSimHitMap->hits(detId);
 
     if(simHits.size() == 1)
