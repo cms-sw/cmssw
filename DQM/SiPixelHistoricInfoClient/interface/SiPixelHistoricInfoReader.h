@@ -38,7 +38,7 @@ private:
   bool firstBeginRun_; 
   bool printDebug_;
 
-  bool variable_[15]; 
+  bool variable_[20]; 
   std::vector<std::string> variables_; 
 
   std::vector<uint32_t> allDetIds; 
