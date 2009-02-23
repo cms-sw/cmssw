@@ -144,9 +144,7 @@ AlCaElectronsProducer::produce (edm::Event& iEvent,
           if (curr_eta * maxHit.ieta() <= 0) {if (maxHit.ieta() > 0) curr_eta--; else curr_eta++; }  // JUMP over 0
           if (curr_phi < 1) curr_phi += 360;
           if (curr_phi > 360) curr_phi -= 360;
-          
-          try
-        {
+          if (!(EBDetId::validDetId(curr_eta,curr_phi))) continue; 
           EBDetId det = EBDetId(curr_eta,curr_phi,EBDetId::ETAPHIMODE);
           std::vector<EBDetId>::const_iterator usedIds;
           
@@ -161,9 +159,6 @@ AlCaElectronsProducer::produce (edm::Event& iEvent,
           if(!HitAlreadyUsed)
             if (barrelHitsCollection->find(det) != barrelHitsCollection->end())
               miniEBRecHitCollection->push_back(*(barrelHitsCollection->find(det)));
-        }
-          catch (...)
-        {edm::LogWarning ("shape") << "In Barrel DetId not built Eta "<<curr_eta<<" Phi "<<curr_phi ;}
         }
       } //PG barrel
     else //PG endcap
@@ -213,22 +208,11 @@ AlCaElectronsProducer::produce (edm::Event& iEvent,
           int curr_phi = maxHit.iy () + row - (side/2);
           if (   curr_eta <= 0 || curr_phi <= 0
               || curr_eta > 100 || curr_phi > 100 ) continue ;
-          
-          
-          try
-            {
+	  if (!(EEDetId::validDetId(curr_eta,curr_phi,iz))) continue;
               EEDetId det = EEDetId (curr_eta,curr_phi,iz,EEDetId::XYMODE) ; 
               if (find (scXtals.begin (), scXtals.end (), det) != scXtals.end ())
                 if (endcapHitsCollection->find (det) != endcapHitsCollection->end ())
                   miniEERecHitCollection->push_back (*(endcapHitsCollection->find (det))) ;
-            }
-          catch (...)
-            {
-              edm::LogWarning ("shape") << "DetId (" 
-                                        << curr_eta << "," << curr_phi 
-                                        << ") not built" ;
-//PG              m_failMap->Fill (curr_eta,curr_phi) ;
-            }
         }
       } //PG endcap
       
