@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: perf_SiStripFecKey.cc,v 1.1 2008/05/20 13:57:03 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/test/plugins/perf_SiStripFecKey.h"
 #include "FWCore/Framework/interface/Event.h" 
@@ -88,7 +88,7 @@ void perfSiStripFecKey::build( const std::vector<Value>& input ) const {
 void perfSiStripFecKey::build( const std::vector<uint32_t>& input ) const {
   std::vector<uint32_t>::const_iterator iter = input.begin();
   std::vector<uint32_t>::const_iterator jter = input.end();
-  for ( ; iter != jter; ++iter ) { SiStripFecKey( *iter ); }
+  for ( ; iter != jter; ++iter ) { SiStripFecKey key( *iter ); }
 }
 
 // -----------------------------------------------------------------------------
@@ -96,7 +96,7 @@ void perfSiStripFecKey::build( const std::vector<uint32_t>& input ) const {
 void perfSiStripFecKey::build( const std::vector<std::string>& input ) const { 
   std::vector<std::string>::const_iterator iter = input.begin();
   std::vector<std::string>::const_iterator jter = input.end();
-  for ( ; iter != jter; ++iter ) { SiStripFecKey( *iter ); }
+  for ( ; iter != jter; ++iter ) { SiStripFecKey key( *iter ); }
 }
 
 // -----------------------------------------------------------------------------
@@ -104,7 +104,7 @@ void perfSiStripFecKey::build( const std::vector<std::string>& input ) const {
 void perfSiStripFecKey::build( const std::vector<SiStripFecKey>& input ) const { 
   std::vector<SiStripFecKey>::const_iterator iter = input.begin();
   std::vector<SiStripFecKey>::const_iterator jter = input.end();
-  for ( ; iter != jter; ++iter ) { SiStripFecKey( *iter ); }
+  for ( ; iter != jter; ++iter ) { SiStripFecKey key( *iter ); }
 }
 
 // -----------------------------------------------------------------------------
@@ -112,7 +112,7 @@ void perfSiStripFecKey::build( const std::vector<SiStripFecKey>& input ) const {
 void perfSiStripFecKey::build( const std::vector<SiStripKey>& input ) const { 
   std::vector<SiStripKey>::const_iterator iter = input.begin();
   std::vector<SiStripKey>::const_iterator jter = input.end();
-  for ( ; iter != jter; ++iter ) { SiStripFecKey( *iter ); }
+  for ( ; iter != jter; ++iter ) { SiStripFecKey key( *iter ); }
 }
 
 // -----------------------------------------------------------------------------
