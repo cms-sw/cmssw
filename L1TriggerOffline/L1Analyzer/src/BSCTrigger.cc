@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Wed Jul 16 16:11:05 CEST 2008
-// $Id: BSCTrigger.cc,v 1.3 2009/01/30 18:23:10 boudoul Exp $
+// $Id: BSCTrigger.cc,v 1.4 2009/02/01 15:26:48 boudoul Exp $
 //
 //
 
@@ -32,7 +32,7 @@ Implementation:
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtTechnicalTrigger.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtTechnicalTriggerRecord.h"
-
+#include "FWCore/ParameterSet/interface/InputTag.h"
 //
 // class declaration
 //
@@ -51,7 +51,6 @@ private:
   bool  isZplus(int id);
     // ----------member data ---------------------------
   std::vector<unsigned> ttBits_;
-  std::vector<unsigned> prescales_;
   std::vector<std::string> names_;
   unsigned nEvt_;
   float theCoincidence_;
@@ -59,8 +58,7 @@ private:
   int theNinner_;
   int theNouter_;      
   int nevt_;
-  std::string TheSimHits_;
-  std::string TheBSCSimHits_;
+  edm::InputTag TheHits_tag_;
 };
 
 //
@@ -78,15 +76,12 @@ private:
 BSCTrigger::BSCTrigger(const edm::ParameterSet& iConfig)
 {
   ttBits_=iConfig.getParameter< std::vector<unsigned> >("bitNumbers");
-  prescales_= iConfig.getParameter< std::vector<unsigned> >("bitPrescales");
   names_= iConfig.getParameter< std::vector<std::string> >("bitNames");
   theCoincidence_= iConfig.getParameter<double>("coincidence");
   theResolution_= iConfig.getParameter<double>("resolution");
   theNinner_=iConfig.getParameter<int>("minbiasInnerMin");
   theNouter_=iConfig.getParameter<int>("minbiasOuterMin");
-  TheSimHits_= iConfig.getParameter<std::string>("simHits");
-  TheBSCSimHits_= iConfig.getParameter<std::string>("bscHits");
-  
+  TheHits_tag_= iConfig.getParameter<edm::InputTag>("theHits");
   produces<L1GtTechnicalTriggerRecord>();  
   nevt_=0;
 }
@@ -120,7 +115,8 @@ BSCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   float MipEnergy=0.0027;
   float theThreshold=MipFraction*MipEnergy;
   edm::Handle<edm::PSimHitContainer> theBSCHitContainer;
-  iEvent.getByLabel(TheSimHits_,TheBSCSimHits_,theBSCHitContainer);
+  iEvent.getByLabel(TheHits_tag_,theBSCHitContainer);
+  
   if (!theBSCHitContainer.failedToGet()) {
     for ( int c=0;c<32;++c){
       EnergyBX[c]=0;
@@ -163,13 +159,8 @@ BSCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     //halo 
     for ( unsigned i=0; i< ttBits_.size();++i ){
-      bool bit=false;
-      if ( nevt_ % prescales_[i] != 0 ) {
-	ttVec.at(i)=L1GtTechnicalTrigger(names_.at(i), ttBits_.at(i), 0, false) ;
-	continue ;
-      }
-      
-      else if ( names_.at(i) == names_[0] ) {
+      bool bit=false;      
+      if ( names_.at(i) == names_[0] ) {
 	if ( EnergyBX[8] > theThreshold && EnergyBXMinusDt[27] > theThreshold ) bit=true;  
 	if ( EnergyBX[9] > theThreshold && EnergyBXMinusDt[26] > theThreshold ) bit=true;  
 	if ( EnergyBX[10] > theThreshold && EnergyBXMinusDt[25] > theThreshold ) bit=true;  
