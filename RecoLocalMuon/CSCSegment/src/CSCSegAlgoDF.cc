@@ -719,8 +719,8 @@ void CSCSegAlgoDF::orderSecondSeed( GlobalPoint gp1,
   ChamberHitContainerCIt ib = rechits.begin();
   ChamberHitContainerCIt ie = rechits.end();
 
-  int layer1 = layerIndex[i1-ib];
-  int layer2 = layerIndex[i2-ib];
+  //  int layer1 = layerIndex[i1-ib];
+  //  int layer2 = layerIndex[i2-ib];
 
 
   // Now fill vector of rechits closest to center of mass:
