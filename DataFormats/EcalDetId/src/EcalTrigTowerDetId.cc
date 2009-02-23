@@ -1,5 +1,6 @@
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include <cassert>
 
 EcalTrigTowerDetId::EcalTrigTowerDetId() {
 }
