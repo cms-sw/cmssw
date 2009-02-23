@@ -5,7 +5,7 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2009/02/23 12:59:24 $
+ *  $Date: 2009/02/23 10:37:11 $
  *  $Revision: 1.1 $
  *  \author Andreas Meyer CERN
  *   
@@ -72,6 +72,11 @@ private:
   int statsdepth_ ;
   std::string pathnamematch_ ;
   int verbose_ ;
+
+  bool runonendrun_ ;
+  bool runonendjob_ ;
+  bool runonendlumi_ ;
+  bool runineventloop_ ;
 
   // ---------- member data ----------
 

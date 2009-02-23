@@ -2,7 +2,7 @@
  * \file DQMStoreStats.cc
  * \author Andreas Meyer
  * Last Update:
- * $Date: 2009/02/23 12:50:46 $
+ * $Date: 2009/02/23 10:37:11 $
  * $Revision: 1.1 $
  * $Author: ameyer $
  *
@@ -37,7 +37,10 @@ DQMStoreStats::DQMStoreStats( const edm::ParameterSet& ps )
   pathnamematch_ = ps.getUntrackedParameter<std::string>("pathNameMatch", pathnamematch_);
   statsdepth_ = ps.getUntrackedParameter<int>("statsDepth", statsdepth_);
   verbose_ = ps.getUntrackedParameter<int>("verbose", verbose_);
-  
+  runonendrun_    = ps.getUntrackedParameter<bool>("runOnEndRun",true);
+  runonendjob_    = ps.getUntrackedParameter<bool>("runOnEndJob",false);
+  runonendlumi_   = ps.getUntrackedParameter<bool>("runOnEndLumi",false);
+  runineventloop_ = ps.getUntrackedParameter<bool>("runInEventLoop",false);
 }
 
 DQMStoreStats::~DQMStoreStats(){
@@ -58,11 +61,17 @@ int DQMStoreStats::calcstats() {
   std::string subfoldername = "";
   int xbins=0,ybins=0,zbins=0;  
   
-  std::cout << "DQMStoreStats::calcstats ==============================" << std::endl;  
-  if (verbose_) { 
-    cout << "pathNameMatch = " pathnamematch_ << endl;
-    cout << "statsDepth = " statsdepth_ << endl;
-  }
+  std::cout << " DQMStoreStats::calcstats ==============================" << std::endl;  
+    cout << "  running " ; 
+    if (runonendrun_) cout << "on run end " << endl;
+    if (runonendlumi_) cout << "on lumi end " << endl;
+    if (runonendjob_) cout << "on job end " << endl;
+    if (runineventloop_) cout << "in event loop " << endl;
+
+    if (verbose_) { 
+      cout << "  pathNameMatch = " << pathnamematch_ << endl;
+      cout << "  statsDepth = " << statsdepth_ << endl;
+    }
 
   std::vector<MonitorElement*> melist;
   melist = dbe_->getMatchingContents(pathnamematch_);
@@ -198,8 +207,7 @@ void DQMStoreStats::beginLuminosityBlock(const LuminosityBlock& lumiSeg,
 //==================== analyse (takes each event) ==================//
 //==================================================================//
 void DQMStoreStats::analyze(const Event& iEvent, const EventSetup& iSetup) {
-
-
+   if (runineventloop_) calcstats();
 }
 
 //==================================================================//
@@ -207,22 +215,19 @@ void DQMStoreStats::analyze(const Event& iEvent, const EventSetup& iSetup) {
 //==================================================================//
 void DQMStoreStats::endLuminosityBlock(const LuminosityBlock& lumiSeg,
 					  const EventSetup& context) {
-
+   if (runonendlumi_) calcstats();
 }
 
 //==================================================================//
 //============================= endRun =============================//
 //==================================================================//
 void DQMStoreStats::endRun(const Run& r, const EventSetup& context) {
-
-//  dbe_->showDirStructure();
-  calcstats();
-
+   if (runonendrun_) calcstats();
 }
 
 //==================================================================//
 //============================= endJob =============================//
 //==================================================================//
 void DQMStoreStats::endJob() {
- 
+   if (runonendjob_) calcstats();
 }
