@@ -89,7 +89,7 @@ KVFTrackUpdate::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
     SingleTrackVertexConstraint stvc;
-    for (int i = 0; i<t_tks.size();i++) {
+    for (unsigned int i = 0; i<t_tks.size();i++) {
       SingleTrackVertexConstraint::TrackFloatPair a = 
       	stvc.constrain(t_tks[i], glbPos, glbErrPos);
       std::cout << "Chi2: "<< a.second<<std::endl;

@@ -58,7 +58,7 @@ DummyPrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
    reco::Vertex::Point pos(-1, -1, -1);
    reco::Vertex::Error err;
-   double chi2 = -1; double ndof = 1; double ntks = 0;
+   double chi2 = -1; double ndof = 1; int ntks = 0;
 
    
    std::auto_ptr<reco::VertexCollection> result(new reco::VertexCollection); // empty vertex collection,on the heap ??

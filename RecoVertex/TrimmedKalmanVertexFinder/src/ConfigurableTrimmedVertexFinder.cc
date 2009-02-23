@@ -112,7 +112,7 @@ vector<TransientVertex> ConfigurableTrimmedVertexFinder::vertexCandidates(
 
     // when max number of vertices reached, stop
     if (theMaxNbOfVertices != 0) {
-      if (cand.size() >= theMaxNbOfVertices) break;
+      if (cand.size() >= (unsigned int) theMaxNbOfVertices) break;
     }
   }
 
