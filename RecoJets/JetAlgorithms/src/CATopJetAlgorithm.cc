@@ -1,6 +1,6 @@
 // Original author: Brock Tweedie (JHU)
 // Ported to CMSSW by: Sal Rappoccio (JHU)
-// $Id: CATopJetAlgorithm.cc,v 1.1 2008/10/31 19:00:23 srappocc Exp $
+// $Id: CATopJetAlgorithm.cc,v 1.2 2008/11/14 18:56:33 srappocc Exp $
 
 #include "RecoJets/JetAlgorithms/interface/CATopJetAlgorithm.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -93,7 +93,7 @@ void CATopJetAlgorithm::run( const vector<fastjet::PseudoJet> & cell_particles,
   // Find the transient central jets
   vector<fastjet::PseudoJet> centralJets;
   for (unsigned int i = 0; i < inclusiveJets.size(); i++) {
-    if (inclusiveJets[i].perp() > ptMin_ && fabs(inclusiveJets[i].eta()) < centralEtaCut_) {
+    if (inclusiveJets[i].perp() > ptMin_ && fabs(inclusiveJets[i].rapidity()) < centralEtaCut_) {
       centralJets.push_back(inclusiveJets[i]);
     }
   }
@@ -156,18 +156,17 @@ void CATopJetAlgorithm::run( const vector<fastjet::PseudoJet> & cell_particles,
 
     int nBreak2 = 0;
     fastjet::PseudoJet hardA = blankJet, hardB = blankJet, hardC = blankJet, hardD = blankJet;
-    if ( hardBreak2a && !hardBreak2b) { nBreak2 = 1; hardA = jaa; hardB = jab; hardC = jb;  hardD = blankJet; }
-    if (!hardBreak2a &&  hardBreak2b) { nBreak2 = 1; hardA = jba; hardB = jbb; hardC = ja;  hardD = blankJet;}
-    if ( hardBreak2a &&  hardBreak2b) { nBreak2 = 2; hardA = jaa; hardB = jab; hardC = jba; hardD = jbb; }
+    if (!hardBreak2a && !hardBreak2b) { nBreak2 = 0; hardA = ja;  hardB = jb;  hardC = blankJet; hardD = blankJet; }
+    if ( hardBreak2a && !hardBreak2b) { nBreak2 = 1; hardA = jaa; hardB = jab; hardC = jb;       hardD = blankJet; }
+    if (!hardBreak2a &&  hardBreak2b) { nBreak2 = 1; hardA = jba; hardB = jbb; hardC = ja;       hardD = blankJet;}
+    if ( hardBreak2a &&  hardBreak2b) { nBreak2 = 2; hardA = jaa; hardB = jab; hardC = jba;      hardD = jbb; }
 
     // check if we are left with >= 3 hard subjets
     fastjet::PseudoJet subjet1 = blankJet;
     fastjet::PseudoJet subjet2 = blankJet;
     fastjet::PseudoJet subjet3 = blankJet;
     fastjet::PseudoJet subjet4 = blankJet;
-    if (nBreak2 >= 1) {
-      subjet1 = hardA; subjet2 = hardB; subjet3 = hardC; subjet4 = hardD;
-    }
+    subjet1 = hardA; subjet2 = hardB; subjet3 = hardC; subjet4 = hardD;
 
     // record the hard subjets
     vector<fastjet::PseudoJet> hardSubjets;
