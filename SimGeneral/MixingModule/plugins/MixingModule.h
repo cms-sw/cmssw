@@ -54,10 +54,10 @@ namespace edm
  
     private:
       virtual bool verifyRegistry(std::string object, std::string subdet,InputTag &tag,std::string &label);
-      virtual void put(edm::Event &e,const edm::EventSetup& e);
+      virtual void put(edm::Event &e,const edm::EventSetup& es);
       virtual void createnewEDProduct();
-      virtual void addSignals(const edm::Event &e, const edm::EventSetup& e); 
-      virtual void doPileUp(edm::Event &e, const edm::EventSetup& e);
+      virtual void addSignals(const edm::Event &e, const edm::EventSetup& es); 
+      virtual void doPileUp(edm::Event &e, const edm::EventSetup& es);
       virtual void addPileups(const int bcr, EventPrincipal*,unsigned int EventId,unsigned int worker, const edm::EventSetup& e);
       virtual void setEventStartInfo(const unsigned int s); // set in CF-s
       virtual void getEventStartInfo(edm::Event & e, const unsigned int s); // fill in in base class
