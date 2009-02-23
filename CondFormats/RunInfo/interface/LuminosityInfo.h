@@ -8,7 +8,7 @@
  * each event will occur at one of these BX. BX is defined to be the number of the
  * bunch crossing where this event occurred.
  *
- * $Id: LuminosityInfo.h,v 1.2 2009/02/19 15:58:59 xiezhen Exp $
+ * $Id: LuminosityInfo.h,v 1.3 2009/02/20 13:38:41 xiezhen Exp $
  *
  ************************************************************/
  
@@ -53,6 +53,7 @@ namespace lumi{
     ///
     ///getter methods
     ///
+    int lumiVersionNumber()const;
     int lumisectionID()const;
     float deadTimeNormalization()const;
     size_t nBunchCrossing()const;
@@ -71,6 +72,7 @@ namespace lumi{
     ///
     ///setter methods. 
     ///
+    void setLumiVersionNumber(int versiondid);
     void setLumiSectionId(int sectionid);
     void setDeadtimeNormalization(float dtimenorm);
     void setLumiAverage(const LumiAverage& avg,
@@ -82,6 +84,7 @@ namespace lumi{
     int m_sectionid; 
     float m_deadtime_normalization;
     std::vector<LumiAverage> m_summaryinfo;
+    int m_versionid;
   }; 
 }//ns lumi
 #endif 

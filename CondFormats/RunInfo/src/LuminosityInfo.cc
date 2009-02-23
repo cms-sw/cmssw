@@ -5,6 +5,10 @@ lumi::LuminosityInfo::LuminosityInfo(){
   m_bx.reserve(lumi::BXMAX*LUMIALGOMAX);
   m_summaryinfo.reserve(lumi::LUMIALGOMAX);
 }
+int 
+lumi::LuminosityInfo::lumiVersionNumber()const{
+  return m_sectionid; 
+}
 int
 lumi::LuminosityInfo::lumisectionID()const{
   return m_sectionid;
@@ -42,6 +46,10 @@ lumi::LuminosityInfo::bunchCrossingBegin( const LumiAlgoType lumialgotype )const
 lumi::BunchCrossingIterator 
 lumi::LuminosityInfo::bunchCrossingEnd( const LumiAlgoType lumialgotype )const{
   return m_bx.end()-(lumi::BXMAX)*lumialgotype;
+}
+void 
+lumi::LuminosityInfo::setLumiVersionNumber(int versionid){
+  m_versionid=versionid;
 }
 void
 lumi::LuminosityInfo::setLumiSectionId(int sectionid){
