@@ -11,15 +11,15 @@
 using namespace cms;
 
 SiStripLorentzAngleReader::SiStripLorentzAngleReader( const edm::ParameterSet& iConfig ):
-  printdebug_(iConfig.getUntrackedParameter<uint32_t>("printDebug",5)){}
-
+  printdebug_(iConfig.getUntrackedParameter<uint32_t>("printDebug",5)),
+  label_(iConfig.getUntrackedParameter<std::string>("label","")){}
 SiStripLorentzAngleReader::~SiStripLorentzAngleReader(){}
 
 void SiStripLorentzAngleReader::analyze( const edm::Event& e, const edm::EventSetup& iSetup){
   
   edm::ESHandle<SiStripLorentzAngle> SiStripLorentzAngle_;
-  iSetup.get<SiStripLorentzAngleRcd>().get(SiStripLorentzAngle_);
-  edm::LogInfo("SiStripLorentzAngleReader") << "[SiStripLorentzAngleReader::analyze] End Reading SiStripLorentzAngle" << std::endl;
+  iSetup.get<SiStripLorentzAngleRcd>().get(label_,SiStripLorentzAngle_);
+  edm::LogInfo("SiStripLorentzAngleReader") << "[SiStripLorentzAngleReader::analyze] End Reading SiStripLorentzAngle with label " << label_<< std::endl;
   
   std::map<unsigned int,float> detid_la= SiStripLorentzAngle_->getLorentzAngles();
   std::map<unsigned int,float>::const_iterator it;

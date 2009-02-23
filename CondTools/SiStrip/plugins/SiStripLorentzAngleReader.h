@@ -29,6 +29,7 @@
 
   private:
     uint32_t printdebug_;
+    std::string label_;
   };
 
 #endif
