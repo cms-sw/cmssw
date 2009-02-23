@@ -122,7 +122,7 @@ void CustomPhysicsList::setupRHadronPhycis(G4ParticleDefinition* particle){
 
 void CustomPhysicsList::setupSUSYPhycis(G4ParticleDefinition* particle){
 
-  CustomParticle* cp = dynamic_cast<CustomParticle*>(particle);
+//  CustomParticle* cp = dynamic_cast<CustomParticle*>(particle);
   G4ProcessManager* pmanager = particle->GetProcessManager();
   if(pmanager){
     pmanager->AddProcess(new G4Decay,1, 1,1);

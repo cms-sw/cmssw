@@ -86,11 +86,11 @@ G4VParticleChange* ToyModelHadronicProcess::PostStepDoIt(const G4Track& track,
   m_particleChange.Initialize(track);
   //  G4DynamicParticle* incidentRHadron = const_cast<G4DynamicParticle*>(track.GetDynamicParticle()); //This will contain RHadron Def + RHad momentum
   const G4DynamicParticle* incidentRHadron = track.GetDynamicParticle(); //This will contain RHadron Def + RHad momentum
-  double E_0 = incidentRHadron->GetKineticEnergy();
-  const G4int theIncidentPDG = incidentRHadron->GetDefinition()->GetPDGEncoding();
+//  double E_0 = incidentRHadron->GetKineticEnergy();
+//  const G4int theIncidentPDG = incidentRHadron->GetDefinition()->GetPDGEncoding();
   const G4ThreeVector aPosition = track.GetPosition();
 
-  double gamma = incidentRHadron->GetTotalEnergy()/incidentRHadron->GetDefinition()->GetPDGMass();
+//  double gamma = incidentRHadron->GetTotalEnergy()/incidentRHadron->GetDefinition()->GetPDGMass();
 
   CustomParticle* CustomIncident = dynamic_cast<CustomParticle*>(incidentRHadron->GetDefinition());
   G4DynamicParticle* cloudParticle =  new G4DynamicParticle(); //This will contain Cloud Def + scaled momentum
@@ -291,7 +291,7 @@ G4VParticleChange* ToyModelHadronicProcess::PostStepDoIt(const G4Track& track,
 	      //	  fourMomenta[ip]=G4LorentzVector(momentum,sqrt(momentum.mag2()+rhMass*rhMass));
 	      fourMomenta[ip].setVectM(momentum,rhMass);
 
-	      double virt=(p4_new-fourMomenta[ip]).m()/MeV;
+//	      double virt=(p4_new-fourMomenta[ip]).m()/MeV;
 
 	      if(m_verboseLevel >= 3)
 		std::cout <<  " = " << fourMomenta[ip]/GeV <<"(m="<< fourMomenta[ip].m() / GeV<<") vs. "<<rhMass/GeV 
@@ -313,7 +313,7 @@ G4VParticleChange* ToyModelHadronicProcess::PostStepDoIt(const G4Track& track,
 	      //	      productDynParticle->SetMomentum(fourMomenta[ip].vect()+gluinoMomentum.vect());  
 	      productDynParticle->Set4Momentum(p4_new);  
 
-	      double virt=(gluinoMomentum+fourMomenta[ip]-p4_new).m()/MeV;
+//	      double virt=(gluinoMomentum+fourMomenta[ip]-p4_new).m()/MeV;
 
 	      if(m_verboseLevel >= 3)
 		std::cout  << "ToyModelHadronicProcess::PostStepDoIt   Add gluino momentum " <<

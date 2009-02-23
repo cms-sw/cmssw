@@ -86,10 +86,10 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
   G4bool IncidentSurvives = false;
   G4bool TargetSurvives = false;
   G4Nucleus targetNucleus(aTrack.GetMaterial());
-  G4ParticleDefinition* outgoingRhadron;
-  G4ParticleDefinition* outgoingCloud;
+  G4ParticleDefinition* outgoingRhadron=0;
+  G4ParticleDefinition* outgoingCloud=0;
   G4ParticleDefinition* outgoingTarget=0;
-  double gamma = IncidentRhadron->GetTotalEnergy()/IncidentRhadron->GetDefinition()->GetPDGMass();
+//  double gamma = IncidentRhadron->GetTotalEnergy()/IncidentRhadron->GetDefinition()->GetPDGMass();
 
 
   G4ThreeVector p_0 = IncidentRhadron->GetMomentum();
@@ -427,7 +427,7 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
   //    G4cout<<"Check aParticleChange.GetNumberOfSecondaries(): "<<aParticleChange.GetNumberOfSecondaries()<<G4endl;
 
   aParticleChange.SetNumberOfSecondaries(vecLen+NumberOfSecondaries);
-  G4double e_kin;
+  G4double e_kin=0;
   G4LorentzVector cloud_p4_new; //Cloud 4-momentum in lab after collision
   //  n++;
   //  G4cout << n << G4endl;
@@ -461,7 +461,6 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
     //    p4_new = cloud_p4_new + gluinoMomentum;
   p4_new.setVectM( cloud_p4_new.v() + gluinoMomentum.v(), outgoingRhadron->GetPDGMass() );
   //  G4cout<<"P4-diff: "<<(p4_new-cloud_p4_new-gluinoMomentum)/GeV<<", magnitude: "<<(p4_new-cloud_p4_new-gluinoMomentum).m()/MeV<<" MeV" <<G4endl;
-  double virt=(p4_new-cloud_p4_new-gluinoMomentum).m()/MeV;
 
   G4ThreeVector p_new;
   p_new = p4_new.vect();
@@ -560,10 +559,8 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
       pa = new G4DynamicParticle();
       pa->SetDefinition( vec[i]->GetDefinition() );
       pa->SetMomentum( vec[i]->GetMomentum() );
-      double evec0 = pa->Get4Momentum().e();
       pa->Set4Momentum(trans*(pa->Get4Momentum()));
       G4ThreeVector pvec = pa->GetMomentum();
-      double evec = pa->Get4Momentum().e();
       G4Track* Trackn = new G4Track(pa,
 				    aTrack.GetGlobalTime(),
 				    aPosition);
@@ -611,6 +608,7 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
       p4_cloud.boost(trafo_cloud_cms);
 
       
+      /*
       G4double dtheta_fullcms = p4_full.vect().angle(p4_old_full.vect());
       G4double dtheta_cloudcms = p4_cloud.vect().angle(p4_old_cloud.vect());
       G4double dtheta_lab = p_new.angle(p_0);//acos(p_0*p_new/(p_0.mag()*p_new.mag())); 
@@ -618,7 +616,6 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
       G4double cloud_dtheta_fullcms = cloud_p4_full.vect().angle(cloud_p4_old_full.vect());
       G4double cloud_dtheta_cloudcms = cloud_p4_cloud.vect().angle(p4_old_cloud.vect());
       G4double cloud_dtheta_lab = cloud_p4_new.vect().angle(p_0);
-      /*
       //Writing out momenta for manual check of boosts:
       G4cout<<"******************************************"<<G4endl;
 

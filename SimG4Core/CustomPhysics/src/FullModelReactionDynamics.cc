@@ -2314,8 +2314,8 @@
     static const G4double expxl = -expxu;         // lower bound for arg. of exp
     
     const G4double ekOriginal = modifiedOriginal.GetKineticEnergy()/GeV;
-    const G4double etOriginal = modifiedOriginal.GetTotalEnergy()/GeV;
-    const G4double mOriginal = modifiedOriginal.GetMass()/GeV;
+//    const G4double etOriginal = modifiedOriginal.GetTotalEnergy()/GeV;
+//    const G4double mOriginal = modifiedOriginal.GetMass()/GeV;
     const G4double pOriginal = modifiedOriginal.GetMomentum().mag()/GeV;
     G4double currentMass = currentParticle.GetMass()/GeV;
     G4double targetMass = targetParticle.GetDefinition()->GetPDGMass()/GeV;
@@ -2440,9 +2440,9 @@
       //
       // Calculate slope b for elastic scattering on proton/neutron
       //
+      /*
       G4ParticleTable* theParticleTable = G4ParticleTable::GetParticleTable();
       G4double ptemp=0;
-      /*
       if(modifiedOriginal.GetDefinition()->GetParticleType()=="rhadron"){
 	//	G4cout<<"Rescaling energy by gluino mass"<<G4endl;
 	//Getting the mass of the bare gluino:
