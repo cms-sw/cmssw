@@ -1,13 +1,21 @@
 import FWCore.ParameterSet.Config as cms
 
-source = cms.Source("Pythia8Source",
+generator = cms.EDFilter("Pythia8GeneratorFilter",
+    comEnergy = cms.double(10000.),
+
     maxEventsToPrint = cms.untracked.int32(1),
     pythiaPylistVerbosity = cms.untracked.int32(1),
-    filterEfficiency = cms.untracked.double(1.0),
     pythiaHepMCVerbosity = cms.untracked.bool(False),
+
+    filterEfficiency = cms.untracked.double(1.0),
+
     PythiaParameters = cms.PSet(
-        pythia8_example01 = cms.vstring('HardQCD:all = on',
-                                        'PhaseSpace:pTHatMin = 20.'),
-        parameterSets = cms.vstring('pythia8_example01')
+        parameterSets = cms.vstring(
+            'pythia8_example01'
+        ),
+        pythia8_example01 = cms.vstring(
+            'HardQCD:all = on',
+            'PhaseSpace:pTHatMin = 20.'
+        )
     )
 )

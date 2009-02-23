@@ -3,38 +3,94 @@
  *  04/12/08
  */
 
-#include "GeneratorInterface/Pythia8Interface/interface/Pythia8Source.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "SimDataFormats/GeneratorProducts/interface/GenInfoProduct.h"
+#include <iostream>
+#include <string>
+#include <map>
+#include <time.h>
+
+#include <CLHEP/Random/JamesRandom.h>
+
+#include <HepMC/GenEvent.h>
+
+#include <Basics.h>
+#include <Pythia.h>
+#include <HepMCInterface.h>
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/GeneratedInputSource.h"
+#include "FWCore/Framework/interface/InputSourceMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "CLHEP/Random/JamesRandom.h"
-#include "CLHEP/Random/RandFlat.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include <iostream>
-#include "time.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenInfoProduct.h"
 
-#include "Basics.h"
 
 using namespace edm;
 using namespace std;
 
-//#define TXGIVE txgive_
-//extern "C" {
-//  void TXGIVE(const char*,int length);
-//}
-
-//#define TXGIVE_INIT txgive_init_
-//extern "C" {
-//  void TXGIVE_INIT();
-//}
-
-
 //used for defaults
-  static const unsigned long kNanoSecPerSec = 1000000000;
-  static const unsigned long kAveEventPerSec = 200;
+static const unsigned long kNanoSecPerSec = 1000000000;
+static const unsigned long kAveEventPerSec = 200;
+
+/** \class Pythia8Source
+ *
+ * Generates Pythia8 HepMC events
+ *
+ * Hector Naves                                  
+ *   for the Generator Interface. 26/10/05 
+ * Patrick Janot
+ *   read all possible cards for Pythia8 Setup. 26/02/06
+ *   ( port from FAMOS )
+ ***************************************/
+
+namespace edm
+{
+  class Pythia8Source : public GeneratedInputSource {
+  public:
+
+    /// Constructor
+    Pythia8Source(const ParameterSet &, const InputSourceDescription &);
+    /// Destructor
+    virtual ~Pythia8Source();
+
+    void endRun( Run& r);
+
+  private:
+
+    virtual bool produce(Event & e);
+    void clear();
+    
+    /// Pythia PYLIST Verbosity flag
+    unsigned int pythiaPylistVerbosity_;
+    /// HepMC verbosity flag
+    bool pythiaHepMCVerbosity_;
+    /// Events to print if verbosity
+    unsigned int maxEventsToPrint_;    
+    
+    Pythia8::Pythia* pythia;
+    Pythia8::Event* pythia8event;
+    HepMC::I_Pythia8* ToHepMC;
+
+    // external cross section and filter efficiency
+    double extCrossSect;
+    double extFilterEff;
+ 
+    // for single particle generation in pythia
+    int    particleID;
+    bool   doubleParticle;
+    double ptmin, ptmax;
+    double etamin, etamax;
+    double phimin, phimax;
+    double comenergy;
+    
+    CLHEP::HepRandomEngine* fRandomEngine;
+
+  };
+} 
+
 
 Pythia8Source::Pythia8Source( const ParameterSet & pset, 
 			    InputSourceDescription const& desc ) :
@@ -80,7 +136,7 @@ Pythia8Source::Pythia8Source( const ParameterSet & pset,
 
   // Set PYTHIA parameters in a single ParameterSet
   ParameterSet pythia_params =
-    pset.getParameter<ParameterSet>("PythiaParameters") ;
+    pset.getParameter<ParameterSet>("Pythiaarameters") ;
 
   // The parameter sets to be read (default, min bias, user ...) in the
   // proper order.
@@ -223,34 +279,4 @@ bool Pythia8Source::produce(Event & e) {
     return true;
 }
 
-//bool 
-//Pythia8Source::call_pygive(const std::string& iParm ) {
-
-//  int numWarn = pydat1.mstu[26]; //# warnings
-//  int numErr = pydat1.mstu[22];// # errors
-  
-//call the fortran routine pygive with a fortran string
-//  PYGIVE( iParm.c_str(), iParm.length() );  
-  //  PYGIVE( iParm );  
-//if an error or warning happens it is problem
-//  return pydat1.mstu[26] == numWarn && pydat1.mstu[22] == numErr;   
- 
-//}
-
-bool 
-Pythia8Source::call_txgive(const std::string& iParm ) {
-  
-//   TXGIVE( iParm.c_str(), iParm.length() );
-//   cout << "     " <<  iParm.c_str() << endl; 
-
-	return 1;  
-}
-
-bool 
-Pythia8Source::call_txgive_init() {
-  
-//   TXGIVE_INIT();
-//   cout << "  Setting CSA defaults.   "   << endl; 
-
-	return 1;  
-}
+DEFINE_ANOTHER_FWK_INPUT_SOURCE(Pythia8Source);
