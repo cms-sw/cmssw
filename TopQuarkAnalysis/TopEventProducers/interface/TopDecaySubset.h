@@ -12,6 +12,12 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
+
+//3 different status are kept for each partons (top and its descendants)
+// status 2 -> after all radiations (top & other particles' radiations) : stable (came be compare to previous versions of TopDecaySubset)
+// status 3 -> before radiation : unfrag (intermediate state - directly coming from genParticles collection)
+// status 4 -> resum the quark status 2 with its own radiations (taking properly into account top radiation) (New Version)
+
 class TopDecaySubset : public edm::EDProducer {
  public:
   explicit TopDecaySubset(const edm::ParameterSet&);
@@ -28,15 +34,17 @@ class TopDecaySubset : public edm::EDProducer {
   void clearReferences();
   /// fill references for output vector
   void fillReferences(const reco::GenParticleRefProd&, reco::GenParticleCollection&);
-  /// calculate lorentz vector from input with additional mass constraint
-  reco::Particle::LorentzVector getP4(const reco::GenParticle::const_iterator, 
-				      const reco::GenParticle::const_iterator, int pdgId, double mass);
+  /// calculate lorentz vector from input - dedicated to top reconstruction
+  reco::Particle::LorentzVector getP4Top(const reco::GenParticle::const_iterator, 
+				      const reco::GenParticle::const_iterator, int pdgId, bool RadIncluded);
   /// calculate lorentz vector from input
   reco::Particle::LorentzVector getP4(const reco::GenParticle::const_iterator, 
-				      const reco::GenParticle::const_iterator, int pdgId);
+				      const reco::GenParticle::const_iterator, int pdgId, bool RadIncluded);
  protected:
   /// fill vector recursively for all further decay particles of a tau
   void fillTree(int& index, const reco::GenParticle::const_iterator, reco::GenParticleCollection&);
+  /// fill vector  for all radiations from quarks coming from W/top
+  void fillTreeRadiation(int& index, const reco::GenParticle::const_iterator, reco::GenParticleCollection&);
   /// print the whole decay chain if particle with pdgId is contained in the top decay chain
   void printTarget(reco::GenParticleCollection&, const int& pdgId);
   /// print the whole listing if particle with pdgId is contained in the top decay chain
