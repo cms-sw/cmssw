@@ -83,7 +83,7 @@ void OutInConversionSeedFinder::makeSeeds( const edm::Handle<edm::View<reco::Cal
     theBCPosition_ = GlobalPoint(allBC->ptrAt(i)->position().x(), allBC->ptrAt(i)->position().y(), allBC->ptrAt(i)->position().z() ) ;
     float theBcEta=  theBCPosition_.eta();
     float theBcPhi=  theBCPosition_.phi();
-    float  dPhi= theBcPhi-theSCPhi;
+    //    float  dPhi= theBcPhi-theSCPhi;
 
     //    std::cout << "  OutInConversionSeedFinder::makeSeeds() BC eta  " << theBcEta << " phi " <<  theBcPhi << " BC energy " << theBCEnergy_ << " dPhi " << fabs(theBcPhi-theSCPhi) << " dEta " <<  fabs(theBcEta-theSCEta) << "\n";
     
@@ -157,7 +157,7 @@ void OutInConversionSeedFinder::makeSeeds( const reco::CaloClusterPtr&  aBC )  c
   theBCPosition_ = GlobalPoint(aBC->position().x(), aBC->position().y(), aBC->position().z() ) ;
   float theBcEta=  theBCPosition_.eta();
   float theBcPhi=  theBCPosition_.phi();
-  float  dPhi= theBcPhi-theSCPhi;
+  //  float  dPhi= theBcPhi-theSCPhi;
 
   if ( theBCEnergy_ < 1.5 ) return;
 
