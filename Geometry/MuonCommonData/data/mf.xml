@@ -397,7 +397,7 @@ RE3/1 stage volumes -->
  <Trd1 name="ME_DeadGas_1_ME41_ActiveGasVol" dz="1.25*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="52.296*cm " dx2="52.762*cm " />
  <Trd1 name="ME_DeadGas_2_ME41_ActiveGasVol" dz="1.25*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="43.32*cm " dx2="43.8*cm " />
 
-<!-- Remove this line and matching comment ending line below to restore ME42
+
  <Tubs name="ME42Space" rMin="3.555*m  " rMax="7.01*m  " dz="125.3*mm" startPhi="0*deg" deltaPhi="360*deg"/>
  <Trd1 name="ME42" dz="1.690*m  " dy1="125.3*mm" dy2="125.3*mm" dx1="45.519*cm " dx2="76.34*cm " />
 
@@ -427,7 +427,7 @@ RE3/1 stage volumes -->
  <Trd1 name="ME_DeadGas_2_ME42_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="52.18*cm " dx2="52.42*cm " />
  <Trd1 name="ME_DeadGas_3_ME42_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="46.67*cm " dx2="46.9*cm " />
  <Trd1 name="ME_DeadGas_4_ME42_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="41.16*cm " dx2="41.38*cm " />
--->
+
 
 <!-- RE4 staged volumes
  <Tubs name="RR4X" rMin="2.644*m  " rMax="6.99*m  " dz="4.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
@@ -1250,7 +1250,7 @@ RE4 staged volumes -->
  </LogicalPart>
 RE4/1 staged volumes -->
 
-<!-- Remove this line and comment ending line below to restore ME42
+
  <LogicalPart name="ME42Space" category="unspecified">
   <rSolid name="ME42Space"/>
   <rMaterial name="materials:ME_free_space"/>
@@ -1307,7 +1307,7 @@ RE4/1 staged volumes -->
   <rSolid name="ME_DeadGas_4_ME42_ActiveGasVol"/>
   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
  </LogicalPart>
--->
+
 
  <LogicalPart name="ShieldingBoronPoly_1_ME" category="unspecified">
   <rSolid name="ShieldingBoronPoly_1_ME"/>
@@ -1536,14 +1536,14 @@ RE4/1 staged volumes -->
   <Translation x="0*fm " y="-10.0234*cm " z="0*fm " />
  </PosPart>
 
-<!-- Remove this line and comment ending line below to restore ME42
+
 <PosPart copyNumber="1">
    <rParent name="mf:ME42"/>
    <rChild name="mf:MEEQ"/>
   <rRotation name="rotations:000D"/>
   <Translation x="0*fm " y="-10.0234*cm " z="0*fm " />
  </PosPart>
--->
+
 
  <PosPart copyNumber="1">
    <rParent name="mf:ME12"/>
@@ -1630,7 +1630,7 @@ RE4/1 staged volumes -->
   <Translation x="0*fm " y="-9.4034*cm " z="769.4*mm" />
  </PosPart>
 
-<!-- Remove this line and comment ending line below to restore ME42
+
 <PosPart copyNumber="1">
    <rParent name="mf:ME42"/>
    <rChild name="mf:AlgPinNarrowEnd"/>
@@ -1643,7 +1643,7 @@ RE4/1 staged volumes -->
   <rRotation name="RotYZaroundX90"/>
   <Translation x="0*fm " y="-9.4034*cm " z="1636.05*mm" />
  </PosPart>
--->
+
 
 <!-- RE1/1 stage volumes
  <PosPart copyNumber="1">
@@ -3920,7 +3920,7 @@ RE3/1 staged volumes -->
   <Translation x="0*fm " y="0*fm " z="-25.45*cm " />
  </PosPart>
 
-<!-- Remove this line and comment ending line below to restore ME42
+
  <PosPart copyNumber="1">
    <rParent name="mf:ME4Ring"/>
    <rChild name="mf:ME42Space"/>
@@ -4011,7 +4011,7 @@ RE3/1 staged volumes -->
   <rRotation name="rotations:000D"/>
   <Translation x="0*fm " y="0*fm " z="-80.92*cm " />
  </PosPart>
--->
+
 
 
 <!-- RE4/1 staged volume

@@ -12,6 +12,7 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
       <PartSelector path="//ME31AlumFrame"/>
       <PartSelector path="//ME32AlumFrame"/>
       <PartSelector path="//ME41AlumFrame"/>
+      <PartSelector path="//ME42AlumFrame"/>
       <Parameter name="MuStructure" value="MuonEndcapCSC"/>
     </SpecPar>
  </SpecParSection>

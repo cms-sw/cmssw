@@ -4,9 +4,12 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
 <SpecParSection  xmlns="http://www.cern.ch/cms/DDL" label="Try1" eval="true">
 <!-- p o r t e d  f r o m  ORCA/Data/MuonData/EndcapData Tim Cox-->
 <!-- converted for just physical chambers - ME1a & ME1b params part of ME11 - Tim Cox 02.04.2007-->
+<!-- added ME42 section copied from ME32 - Tim Cox 13.11.2007-->
+<!-- updated to match current non-ME42 version - Tim Cox 27.01.2009-->
 <!-- # =========================================================== -->
 <!-- # Parameters for Cathode Strip Chambers: ME11AlumFrame        -->
 <!-- # =========================================================== -->
+
 <SpecPar name="ChamberSpecs_ME11">
 <PartSelector path="//ME11AlumFrame"/>
 <Parameter name="NoOfAnonParams" value="35"/>
@@ -196,6 +199,7 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
 <Parameter name="NumWiresPerGrp" value="43"/>
 
 </SpecPar>
+
 <!--# ========================================================-->
 <!--# Parameters for Cathode Strip Chambers: ME12AlumFrame    -->
 <!--# ========================================================-->
@@ -318,6 +322,7 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
 <Parameter name="NumWiresPerGrp" value="13"/>
 
 </SpecPar>
+
 <!--# ========================================================-->
 <!--# Parameters for Cathode Strip Chambers: ME13AlumFrame    -->
 <!--# ========================================================-->
@@ -436,6 +441,7 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
 <Parameter name="NumWiresPerGrp" value="18"/>
 
 </SpecPar>
+
 <!--# ========================================================-->
 <!--# Parameters for Cathode Strip Chambers: ME21AlumFrame    -->
 <!--# ========================================================-->
@@ -554,6 +560,7 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
 <Parameter name="NumWiresPerGrp" value="8"/>
 
 </SpecPar>
+
 <!--# ========================================================-->
 <!--# Parameters for Cathode Strip Chambers: ME31AlumFrame    -->
 <!--# ========================================================-->
@@ -670,6 +677,7 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
 <Parameter name="NumWiresPerGrp" value="8"/>
 
 </SpecPar>
+
 <!--# ========================================================-->
 <!--# Parameters for Cathode Strip Chambers: ME41AlumFrame    -->
 <!--# ========================================================-->
@@ -785,6 +793,7 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
 <Parameter name="NumWiresPerGrp" value="6"/>
 
 </SpecPar>
+
 <!--# ========================================================-->
 <!--# Parameters for Cathode Strip Chambers: ME22AlumFrame    -->
 <!--# ========================================================-->
@@ -915,6 +924,7 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
 <Parameter name="NumWiresPerGrp" value="16"/>
 
 </SpecPar>
+
 <!--# ========================================================-->
 <!--# Parameters for Cathode Strip Chambers: ME32AlumFrame    -->
 <!--# ========================================================-->
@@ -1045,5 +1055,137 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
 <Parameter name="NumWiresPerGrp" value="16"/>
 
 </SpecPar>
+
+<!--# ========================================================-->
+<!--# Parameters for Cathode Strip Chambers: ME42AlumFrame    -->
+<!--# ========================================================-->
+<SpecPar name="ChamberSpecs_ME42">
+<PartSelector path="//ME42AlumFrame"/>
+<Parameter name="upar" value="0.03"/>
+<!--# 0 - strip resolution-->
+<Parameter name="upar" value="1.4722"/>
+<!--# 1 - wire resolution-->
+<Parameter name="upar" value="1"/>
+<!--# 2 - efficiency-->
+<Parameter name="upar" value="10"/>
+<!--# 3 - time window (bx)-->
+<Parameter name="upar" value="0.00"/>
+<!--# 4 - neutron hit rate per CSC layer per event-->
+<Parameter name="upar" value="80"/>
+<!--# 5 - number of strips in each layer of chamber-->
+<Parameter name="upar" value="2"/>
+<!--# 6 - number of strips 2*nnodes+1 around hit-->
+<Parameter name="upar" value="16"/>
+<!--# 7 - No. of wires in group-->
+<Parameter name="upar" value="0."/>
+<!--# 8 - No. of floating strips-->
+<Parameter name="upar" value="0.47625"/>
+<!--# 9 - "h" - Anode - Cathode spacing-->
+<Parameter name="upar" value="1.33"/>
+<!--# 10 - gas gain-->
+<Parameter name="upar" value="4000"/>
+<!--# 11 - CSC Voltage-->
+<Parameter name="upar" value="0.00000E+00"/>
+<!--# 12 - tilt angle for CSC wire slope (+z)-->
+<Parameter name="upar" value="0.01"/>
+<!--# 13 - calibration error-->
+<Parameter name="upar" value="0.5"/>
+<!--# 14 - e- attraction in gas-->
+<Parameter name="upar" value="0.0779"/>
+<!--# 15 - f_ind = 0.41 * f_sh = 0.19-->
+<Parameter name="upar" value="0.5"/>
+<!--# 16 - ADC count (fC)-->
+<Parameter name="upar" value="0.0025"/>
+<!--# 17 - Anode wire radius-->
+<Parameter name="upar" value="50"/>
+<!--# 18 - Fast shaper peaking time (ns)-->
+<Parameter name="upar" value="120"/>
+<!--# 19 - Peaking Time of Amplifier & Shaped Chamber signal (ns)-->
+
+<!--# 20 & 21 - strip offset in strip widths (alternate layers)-->
+<Parameter name="upar" value="-0.25"/>
+<Parameter name="upar" value="0.25"/>
+<!--# 22 & 23 - (700e + 25 e/pF * 75 pF/m)/sqrt (time/100 [ns])(T.Y.)-->
+<Parameter name="upar" value="700"/>
+<Parameter name="upar" value="25"/>
+
+<!--# 24 - global nominal radial position of alignment pin (cm) -->
+<Parameter name="upar" value="360.99"/>
+<!--# 25 - distance from bottom edge of frame to alignment pin (cm) -->
+<Parameter name="upar" value="3.49"/>
+<!--# 26 - length of chamber from outer edges of frame (cm) -->
+<Parameter name="upar" value="338.0"/>
+<!--# 27 - distance from end of strip to alignment pin (cm) -->
+<Parameter name="upar" value="3.03"/>
+<!--# 28 - length of (sensitive region of) strip along local y axis (cm) -->
+<Parameter name="upar" value="323.06"/>
+
+<!--# 29 - strip deltaPhi (mrad) -->
+<Parameter name="upar" value="2.327105"/>
+<!--# 30 - ctiOffset - possible future use -->
+<Parameter name="upar" value="0.0"/>
+<!--# 31 - chamber frame thickness (mm) -->
+<Parameter name="upar" value="6.096"/>
+<!--# 32 - gas gap thickness (mm) -->
+<Parameter name="upar" value="9.525"/>
+<!--# 33 - panel thickness (mm) -->
+<Parameter name="upar" value="15.875"/>
+<!--# 34 - zlocal offset between AF and average AGV centre (mm) -->
+<Parameter name="upar" value="1.71"/>
+
+<!-- Wire group specs. 
+     The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 
+     The elements of NumGroups specify the number of consecutive groups of wires of a specific size, 
+     with this size (i.e. number of wires) specified in the corresponding element of NumWiresPerGrp.
+     A dead region (or where there are no wires) is specified by a 0 in the appropriate position
+     in NumGroups, and the corresponding element in NumWiresPerGrp contains the number of 'virtual'
+     wires to define the extent of the dead region.     
+     
+     e.g. ME42: 15 groups of 16 wires, 1 group of 13, dead region of 6 wire-spacings, etc.
+-->
+<Parameter name="WireSpacing" value="3.16108*mm"/>
+<Parameter name="AlignmentPinToFirstWire" value="28.7*mm"/>
+<Parameter name="LengthOfFirstWire" value="664.6*mm"/>
+<Parameter name="LengthOfLastWire" value="1271.5*mm"/>
+<Parameter name="RadialExtentOfWirePlane" value="3233.8*mm"/>
+<Parameter name="TotNumWireGroups" value="64"/>
+<Parameter name="NumGroups" value="15"/>
+<Parameter name="NumGroups" value="1"/>
+<Parameter name="NumGroups" value="0"/>
+<Parameter name="NumGroups" value="1"/>
+<Parameter name="NumGroups" value="10"/>
+<Parameter name="NumGroups" value="1"/>
+<Parameter name="NumGroups" value="0"/>
+<Parameter name="NumGroups" value="1"/>
+<Parameter name="NumGroups" value="10"/>
+<Parameter name="NumGroups" value="1"/>
+<Parameter name="NumGroups" value="0"/>
+<Parameter name="NumGroups" value="1"/>
+<Parameter name="NumGroups" value="10"/>
+<Parameter name="NumGroups" value="1"/>
+<Parameter name="NumGroups" value="0"/>
+<Parameter name="NumGroups" value="1"/>
+<Parameter name="NumGroups" value="11"/>
+
+<Parameter name="NumWiresPerGrp" value="16"/>
+<Parameter name="NumWiresPerGrp" value="13"/>
+<Parameter name="NumWiresPerGrp" value="6"/>
+<Parameter name="NumWiresPerGrp" value="13"/>
+<Parameter name="NumWiresPerGrp" value="16"/>
+<Parameter name="NumWiresPerGrp" value="13"/>
+<Parameter name="NumWiresPerGrp" value="6"/>
+<Parameter name="NumWiresPerGrp" value="13"/>
+<Parameter name="NumWiresPerGrp" value="16"/>
+<Parameter name="NumWiresPerGrp" value="13"/>
+<Parameter name="NumWiresPerGrp" value="6"/>
+<Parameter name="NumWiresPerGrp" value="13"/>
+<Parameter name="NumWiresPerGrp" value="16"/>
+<Parameter name="NumWiresPerGrp" value="13"/>
+<Parameter name="NumWiresPerGrp" value="6"/>
+<Parameter name="NumWiresPerGrp" value="13"/>
+<Parameter name="NumWiresPerGrp" value="16"/>
+
+</SpecPar>
+
 </SpecParSection>
 </DDDefinition>

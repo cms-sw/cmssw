@@ -365,6 +365,7 @@
    <PartSelector path="//ME31Space"/>
    <PartSelector path="//ME32Space"/>
    <PartSelector path="//ME41Space"/>
+   <PartSelector path="//ME42Space"/>
    <Parameter name="CopyNoTag" value="[me_subring]"/>
  </SpecPar>  
  <SpecPar name="MuonEndcapSectors">
@@ -376,6 +377,7 @@
    <PartSelector path="//ME31SpaceDivision"/>
    <PartSelector path="//ME32SpaceDivision"/>
    <PartSelector path="//ME41SpaceDivision"/>
+   <PartSelector path="//ME42SpaceDivision"/>
    <Parameter name="CopyNoTag" value="[me_sector]"/>
  </SpecPar>  
  <SpecPar name="MuonEndcapLayers">
@@ -387,6 +389,7 @@
    <PartSelector path="//ME31Layer"/>
    <PartSelector path="//ME32Layer"/>
    <PartSelector path="//ME41Layer"/>
+   <PartSelector path="//ME42Layer"/>
    <Parameter name="CopyNoTag" value="[me_layer]"/>
  </SpecPar>  
 
@@ -402,6 +405,7 @@
    <PartSelector path="//ME12AlumFrame"/>
    <PartSelector path="//ME22AlumFrame"/>
    <PartSelector path="//ME32AlumFrame"/>
+   <PartSelector path="//ME42AlumFrame"/>
    <Parameter name="CopyNoTag" value="[me_ring]"/>
    <Parameter name="CopyNoOffset" value="2*[super]"/>
  </SpecPar>  
