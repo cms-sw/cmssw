@@ -11,7 +11,7 @@ process.maxEvents = cms.untracked.PSet(
 process.load("FastSimulation.Configuration.RandomServiceInitialization_cff")
 
 # Generate ttbar events
-process.load("FastSimulation.Configuration.ttbar_cfi")
+process.load("Configuration.Generator.TTbar_cfi")
 
 # Famos sequences (NO HLT)
 process.load("FastSimulation.Configuration.CommonInputs_cff")
@@ -48,7 +48,7 @@ process.misalignedTrackerGeometry.applyAlignment = True
 #process.caloRecHits.RecHitsFactory.HCAL.fileNameHcal = "hcalmiscalib_0.0.xml"
 
 # Famos with everything !
-process.p1 = cms.Path(process.famosWithEverything)
+process.p1 = cms.Path(process.ProductionFilterSequence*process.famosWithEverything)
 
 # To write out events
 process.load("FastSimulation.Configuration.EventContent_cff")

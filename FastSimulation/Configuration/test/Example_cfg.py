@@ -15,8 +15,8 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 # Include the RandomNumberGeneratorService definition
 process.load("FastSimulation/Configuration/RandomServiceInitialization_cff")
 
-# Generate H -> ZZ -> l+l- l'+l'- (l,l'=e or mu), with mH=180GeV/c2
-process.load("FastSimulation/Configuration/HZZllll_cfi")
+# Generate H -> ZZ -> l+l- l'+l'- (l,l'=e or mu), with mH=200GeV/c2
+process.load("Configuration.Generator.H200ZZ4L_cfi")
 # Generate ttbar events
 #  process.load("FastSimulation/Configuration/ttbar_cfi")
 # Generate multijet events with different ptHAT bins
@@ -48,7 +48,7 @@ process.famosSimHits.SimulateTracking = True
 # process.famosSimHits.SimulateMuons = False
 
 # Produce Tracks and Clusters
-process.p1 = cms.Path(process.famosWithElectrons)
+process.p1 = cms.Path(process.ProductionFilterSequence*process.famosWithElectrons)
 
 # To write out events (not need: FastSimulation _is_ fast!)
 process.o1 = cms.OutputModule(

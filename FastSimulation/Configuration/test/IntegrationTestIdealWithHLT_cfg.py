@@ -11,7 +11,7 @@ process.maxEvents = cms.untracked.PSet(
 process.load("FastSimulation.Configuration.RandomServiceInitialization_cff")
 
 # Generate ttbar events
-process.load("FastSimulation.Configuration.ttbar_cfi")
+process.load("Configuration.Generator.TTbar_cfi")
 
 # L1 Menu and prescale factors : useful for testing all L1 paths
 process.load("Configuration.StandardSequences.L1TriggerDefaultMenu_cff")
@@ -59,7 +59,7 @@ process.reconstruction = cms.Path(process.reconstructionWithFamos)
 process.schedule.append(process.reconstruction)
 
 # Simulation sequence
-process.simulation = cms.Sequence(process.simulationWithFamos)
+process.simulation = cms.Sequence(process.ProductionFilterSequence*process.simulationWithFamos)
 # You many not want to simulate everything
 process.famosSimHits.SimulateCalorimetry = True
 process.famosSimHits.SimulateTracking = True
