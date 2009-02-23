@@ -37,7 +37,11 @@ process.qTester    = cms.EDFilter("QualityTester",
 process.stats = cms.EDFilter("DQMStoreStats",
     statsDepth = cms.untracked.int32(2),
     pathNameMatch = cms.untracked.string('*'),
-    verbose = cms.untracked.int32(0)
+    verbose = cms.untracked.int32(0),
+    runInEventLoop = cms.untracked.bool(False),
+    runOnEndLumi = cms.untracked.bool(False),
+    runOnEndRun = cms.untracked.bool(True),
+    runOnEndJob = cms.untracked.bool(False)
 )
 
 ### DQM Client program (in DQMServices/Examples/src/DQMClientExample.cc)
