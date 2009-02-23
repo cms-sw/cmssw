@@ -3,7 +3,6 @@
 #include <iostream>
 #include <algorithm>
 
-
 static const int MODULE_EM_MAX = 2;
 static const int MODULE_HAD_MAX = 12;
 
@@ -14,8 +13,8 @@ CastorTopology::CastorTopology() :
   excludeZN_(false),
   firstEMModule_(1),
   lastEMModule_(2),
-  firstHADModule_(1),
-  lastHADModule_(12)
+  firstHADModule_(3),
+  lastHADModule_(14)
 {
 }
 
