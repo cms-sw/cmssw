@@ -46,7 +46,7 @@ private:
 
   const MagneticField* pMF_;
   const TrackerInteractionGeometry* geometry_;
-  int bins;
+  unsigned bins;
   std::vector<std::vector<double> > fieldBarrelHistos;
   std::vector<std::vector<double> > fieldEndcapHistos;
   std::vector<double> fieldBarrelBinWidth;

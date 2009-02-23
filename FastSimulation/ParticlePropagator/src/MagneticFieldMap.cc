@@ -143,7 +143,7 @@ MagneticFieldMap::inTeslaZ(const TrackerLayer& aLayer, double coord, int success
     // Find the relevant bin
     double x = fabs(coord);
     unsigned bin = (unsigned) ((x-theXMin)/theBinWidth);
-    if ( bin+1 == bins ) bin -= 1; // Add a protection against coordinates near the layer edge
+    if ( bin+1 == (unsigned)bins ) bin -= 1; // Add a protection against coordinates near the layer edge
     double x1 = theXMin + (bin-0.5)*theBinWidth;
     double x2 = x1+theBinWidth;      
 
