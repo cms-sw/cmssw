@@ -74,7 +74,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2009/02/13 14:17:19 $ 
+ **  $Date: 2009/02/19 16:28:31 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -110,6 +110,16 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   //
 
   float  phiNormalization( float& a);
+
+  void book3DHistoVector();
+  void book2DHistoVector();
+  void book1DHistoVector();
+
+  void fill3DHistoVector(std::vector<std::vector<std::vector<MonitorElement*> > >& histoVector,double x, int cut, int type, int part);
+  void fill2DHistoVector(std::vector<std::vector<MonitorElement*> >& histoVector,double x, double y, int cut, int type);
+  void fill2DHistoVector(std::vector<std::vector<MonitorElement*> >& histoVector,double x, int cut, int type);
+  void fill1DHistoVector();
+
 
   void doProfileX(TH2 * th2, MonitorElement* me);
   void doProfileX(MonitorElement * th2m, MonitorElement* me);
