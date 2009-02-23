@@ -15,22 +15,33 @@ namespace TopDecayID{
   static const int tauID  = 15;
 }
 
+// Now you can access to each generated particle for differents status
+// status 2 -> after all radiations (top & other particles' radiations) : stable (came be compare to previous versions of TopDecaySubset)
+// status 3 -> before radiation : unfrag (intermediate state - directly coming from genParticles collection)
+// status 4 -> resum the quark status 2 with its own radiations (taking properly into account top radiation) (New Version)
+// To change the default status (which is 4) you just have to do setDefaultStatus(new_status)
+
 class TopGenEvent {
 
  public:
 
   TopGenEvent(){};
-  TopGenEvent(reco::GenParticleRefProd&, reco::GenParticleRefProd&);
+  TopGenEvent(reco::GenParticleRefProd&, reco::GenParticleRefProd&, int status=4);
   virtual ~TopGenEvent(){};
 
+  void setDefaultStatus(int status=4){ defaultStatus_=status;};
   void dumpEventContent() const;
   const reco::GenParticleCollection& particles() const { return *parts_; }
   const reco::GenParticleCollection& initialPartons() const { return *initPartons_;}
   std::vector<const reco::GenParticle*> lightQuarks(bool plusB=false) const;
-  const reco::GenParticle* candidate(int) const;
+  const reco::GenParticle* candidate(int pdgId) const;
 
   int numberOfLeptons() const;
+  int numberOfLeptonsFromW() const;
   int numberOfBQuarks() const;
+  int numberOfBQuarksFromTop() const;
+  int numberOfISR() const {return ((int) ISR().size());};
+  int numberOfTopsRadiation() const {return ((int) (topRadiation().size()+topBarRadiation().size()));};
 
   const reco::GenParticle* singleLepton() const;
   const reco::GenParticle* singleNeutrino() const;
@@ -47,9 +58,13 @@ class TopGenEvent {
   const reco::GenParticle* topBar() const   { return candidate( -6 );}
   const reco::GenParticle* b() const        { return candidate(  5 );}
   const reco::GenParticle* bBar() const     { return candidate( -5 );}
+  const std::vector<const reco::GenParticle*> topRadiation() const;
+  const std::vector<const reco::GenParticle*> topBarRadiation() const;
 
+  const std::vector<const reco::GenParticle*> ISR() const;
  protected:
 
+  int defaultStatus_; // default status for the reco::GenParticle* return (expect leptons where status == 3)
   reco::GenParticleRefProd parts_;       //top decay chain
   reco::GenParticleRefProd initPartons_; //initial partons
 };

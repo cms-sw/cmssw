@@ -12,8 +12,9 @@ class TtGenEvent: public TopGenEvent {
  public:
   
   TtGenEvent();
-  TtGenEvent(reco::GenParticleRefProd&, reco::GenParticleRefProd&);
+  TtGenEvent(reco::GenParticleRefProd&, reco::GenParticleRefProd&, int defaultStatus_ = 4);
   virtual ~TtGenEvent();
+
 
   bool isTtBar() const {return (top() && topBar());}
   bool isFullHadronic() const { return isTtBar() ? numberOfLeptons()==0 : false;}
@@ -33,8 +34,10 @@ class TtGenEvent: public TopGenEvent {
   const reco::GenParticle* hadronicDecayW() const;
   const reco::GenParticle* hadronicDecayB() const;
   const reco::GenParticle* hadronicDecayTop() const;
-  const reco::GenParticle* hadronicDecayQuark() const;
-  const reco::GenParticle* hadronicDecayQuarkBar() const;
+  const reco::GenParticle* hadronicDecayQuark(bool invert=false ) const;
+  const reco::GenParticle* hadronicDecayQuarkBar() const {return hadronicDecayQuark(true); };
+  const std::vector<const reco::GenParticle*> leptonicDecayTopRadiation() const;
+  const std::vector<const reco::GenParticle*> hadronicDecayTopRadiation() const;
   
   //full-leptonic getters
   const reco::GenParticle* lepton() const;
@@ -49,7 +52,6 @@ class TtGenEvent: public TopGenEvent {
   const reco::GenParticle* quarkFromAntiTopBar() const;
   
  private:
-  
 };
 
 #endif
