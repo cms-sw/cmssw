@@ -24,21 +24,21 @@ class ThreeThresholdStripClusterizer {
  private:
   template<class T> void clusterizeDetUnit_(const T &, output_t&);
 
-  //state of the clusterizer
-  std::vector<uint16_t> adc;  
+  //state of the candidate cluster
+  std::vector<uint16_t> ADCs;  
   uint16_t lastStrip;
   float noiseSquared;
-  bool foundSeed;
+  bool candidateHasSeed;
 
   //constant methods with state information
-  uint16_t firstStrip() const {return lastStrip - adc.size() + 1;}
-  bool foundCluster() const;
-  bool edgeCondition(uint16_t) const;
+  uint16_t firstStrip() const {return lastStrip - ADCs.size() + 1;}
+  bool candidateEnded(uint16_t) const;
+  bool candidateAccepted() const;
 
   //state modification methods
-  void clear() { foundSeed = false;  noiseSquared = 0;  adc.clear();}
-  void record(const SiStripDigi&);
-  void appendBadNeighbors();  
+  void clearCandidate() { candidateHasSeed = false;  noiseSquared = 0;  ADCs.clear();}
+  void addToCandidate(const SiStripDigi&);
+  void appendBadNeighborsToCandidate();
   class applyGain; //functor
 
   class ESinfo; ESinfo* info;
