@@ -917,7 +917,7 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 
   edm::Handle<edm::HepMCProduct> evtMC;
   //  ev.getByLabel("VtxSmeared",evtMC);
-  ev.getByLabel("source",evtMC);
+  ev.getByLabel("generator",evtMC);
   if (!evtMC.isValid()) {
     std::cout << "no HepMCProduct found" << std::endl;    
   } else {
