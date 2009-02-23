@@ -29,7 +29,11 @@
 // Accessing dead modules via DB is tested using GlobalTag STARTUP_30X (jan 2009). Ok
 // Split Fpix and Bpix threshold and use official numbers (fev 2009)
 // ThresholdInElectrons_FPix = 2870 and ThresholdInElectrons_BPix = 3700
-// update the electron to VCAL conversion using: VCAL_electrons = VCAL * 65.5 - 414 
+// update the electron to VCAL conversion using: VCAL_electrons = VCAL * 65.5 - 414
+// Threshold gaussian smearing: (fev. 2009)
+// Fpix: Mean=2870 and RMS=200 
+// Bpix: Mean=3700 and RMS=410
+ 
 
 #include <vector>
 #include <iostream>
@@ -122,7 +126,7 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
 
   alpha2Order = conf_.getParameter<bool>("Alpha2Order");   // switch on/off of E.B effect   
 
-  //get external parameters:
+  // get external parameters:
   // ADC calibration 1adc count = 135e.
   // Corresponds to 2adc/kev, 270[e/kev]/135[e/adc]=2[adc/kev]
   // Be carefull, this parameter is also used in SiPixelDet.cc to 
@@ -140,8 +144,10 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   theThresholdInE_FPix=conf_.getParameter<double>("ThresholdInElectrons_FPix");
   theThresholdInE_BPix=conf_.getParameter<double>("ThresholdInElectrons_BPix");
 
-  // Add threshold smearing
+  // Add threshold gaussian smearing:
   addThresholdSmearing = conf_.getParameter<bool>("AddThresholdSmearing");
+  theThresholdSmearing_FPix = conf_.getParameter<double>("ThresholdSmearing_FPix");
+  theThresholdSmearing_BPix = conf_.getParameter<double>("ThresholdSmearing_BPix");
 
   // electrons to VCAL conversion needed in misscalibrate()
   electronsPerVCAL = conf_.getParameter<double>("ElectronsPerVcal");
@@ -276,11 +282,11 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
       fluctuate = new SiG4UniversalFluctuation(engine);
     }
 
-    // Test about threshold smearing with gaussian distribution:
-    //    if(addThresholdSmearing) {
-    //      smearThreshold_FPix_ = new CLHEP::RandGaussQ(engine, theThresholdInE_FPix, theThresholdSmearing_FPix);
-    //      smearThreshold_BPix_ = new CLHEP::RandGaussQ(engine, theThresholdInE_BPix, theThresholdSmearing_BPix);
-    //    }
+    // Threshold smearing with gaussian distribution:
+    if(addThresholdSmearing) {
+      smearedThreshold_FPix_ = new CLHEP::RandGaussQ(engine, theThresholdInE_FPix , theThresholdSmearing_FPix);
+      smearedThreshold_BPix_ = new CLHEP::RandGaussQ(engine, theThresholdInE_BPix , theThresholdSmearing_BPix);
+    }
 
     } //end Init the random number services
 
@@ -370,8 +376,8 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   } // end if missCalibration 
 
   LogInfo ("PixelDigitizer ") <<"SiPixelDigitizerAlgorithm constructed"
-			       <<"Configuration parameters:" 
-			       << "Threshold/Gain = "  
+			      <<"Configuration parameters:" 
+			      << "Threshold/Gain = "  
 			      << "threshold in electron FPix = " 
 			      << theThresholdInE_FPix
 			      << "threshold in electron BPix = " 
@@ -392,17 +398,14 @@ SiPixelDigitizerAlgorithm::~SiPixelDigitizerAlgorithm() {
   delete flatDistribution_;
   delete theSiPixelGainCalibrationService_;
 
-  // Test for threshold smearing:
-  //  if(addThresholdSmearing) {
-  //    delete smearThreshold_FPix_;
-  //    delete smearThreshold_BPix_;
-  //  }
+  // Threshold gaussian smearing:
+  if(addThresholdSmearing) {
+    delete smearedThreshold_FPix_;
+    delete smearedThreshold_BPix_;
+  }
 
-  
   if(addNoise) delete theNoiser;
   if(fluctuateCharge) delete fluctuate;
-
-
   
 }
 
@@ -449,8 +452,7 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
     numColumns = topol->ncolumns();  // det module number of cols&rows
     numRows = topol->nrows();
     
-    
-    // full detector thicness
+    // full detector thickness
     moduleThickness = det->specificSurface().bounds().thickness(); 
     
     // The index converter is only needed when inefficiencies or misscalibration
@@ -465,25 +467,33 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
 
   unsigned int Sub_detid=DetId(detID).subdetId();
     
-    if(theNoiseInElectrons>0.){
-      if(Sub_detid == PixelSubdetector::PixelBarrel){
-	thePixelThresholdInE = theThresholdInE_BPix;
-	thePixelThreshold = theThresholdInE_BPix/theNoiseInElectrons;
-
-	//std::cout << "digitize(): theNoiseInElectrons>0 and BPix: threshold is: " << thePixelThreshold << thePixelThresholdInE << std::endl;
-
+  if(theNoiseInElectrons>0.){
+    if(Sub_detid == PixelSubdetector::PixelBarrel){ // Barrel modules
+      if(addThresholdSmearing) { 
+	thePixelThresholdInE = smearedThreshold_BPix_->fire(); // gaussian smearing 
       } else {
-	thePixelThresholdInE = theThresholdInE_FPix;
-	thePixelThreshold = theThresholdInE_FPix/theNoiseInElectrons;
-
-	//std::cout << "digitize(): theNoiseInElectrons>0 and FPix: threshold is: " << thePixelThreshold << thePixelThresholdInE << std::endl;
-
-
+	thePixelThresholdInE = theThresholdInE_BPix; // no smearing
       }
-    } else {
-      thePixelThreshold = 0.;
+      
+      thePixelThreshold = thePixelThresholdInE/theNoiseInElectrons; 
+      
+      //      std::cout << "digitize(): theNoiseInElectrons>0 and BPix: threshold in electrons is: " << thePixelThresholdInE << std::endl;
+      
+    } else { // Forward disks modules 
+      if(addThresholdSmearing) {
+	thePixelThresholdInE = smearedThreshold_FPix_->fire(); // gaussian smearing
+      } else {
+	thePixelThresholdInE = theThresholdInE_FPix; // no smearing
+      }
+      
+      thePixelThreshold = thePixelThresholdInE/theNoiseInElectrons;
+      
+      //      std::cout << "digitize(): theNoiseInElectrons>0 and FPix: threshold in electrons is: " << thePixelThresholdInE << std::endl;
     }
-
+  } else {
+    thePixelThreshold = 0.;
+  }
+  
 #ifdef TP_DEBUG
     LogDebug ("PixelDigitizer") 
       << " PixelDigitizer "  
@@ -517,10 +527,10 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
       } //  end if 
     } // end for 
 
-    if(use_module_killing_ && use_deadmodule_DB_) // remove dead modules via DB
+    if(use_module_killing_ && use_deadmodule_DB_) // remove dead modules using DB
       module_killing_DB();
 
-    if(use_module_killing_ && !use_deadmodule_DB_) // remove dead modules via cfg
+    if(use_module_killing_ && !use_deadmodule_DB_) // remove dead modules using the list in cfg file
       module_killing_conf();
   
     if(addNoise) add_noise();  // generate noise
@@ -533,6 +543,7 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
       pixel_inefficiency_db();
 
     delete pIndexConverter;
+
   }
 
   make_digis();
@@ -1028,6 +1039,8 @@ void SiPixelDigitizerAlgorithm::make_digis() {
 #endif  
   
 
+  //  std::cout << "make_digis(): we enter the make_digis.... " << std::endl;
+
   // Loop over hit pixels
 
   for ( signal_map_iterator i = _signal.begin(); i != _signal.end(); i++) {
@@ -1038,9 +1051,12 @@ void SiPixelDigitizerAlgorithm::make_digis() {
 
     // Do only for pixels above threshold
 
+    //    std::cout << "make_digis(): signalInElectrons is " << signalInElectrons << std::endl;
+
     if ( signalInElectrons >= thePixelThresholdInE) { // check threshold
       
-      //      std::cout << "thePixelThresholdInE is " << thePixelThresholdInE << std::endl;
+      //      unsigned int Sub_detid=DetId(detID).subdetId();
+      //      std::cout << "make_digis(): For (Sub_detid, detID) = (" << Sub_detid << ", "<< detID << ") " << "thePixelThresholdInE vaut " << thePixelThresholdInE << std::endl;
 
       int chan =  (*i).first;  // channel number
       pair<int,int> ip = PixelDigi::channelToPixel(chan);
@@ -1121,8 +1137,8 @@ void SiPixelDigitizerAlgorithm::add_noise() {
   map<int,float, less<int> > otherPixels;
   map<int,float, less<int> >::iterator mapI;
 
-  //    unsigned int Sub_detid=DetId(detID).subdetId();
-    //  std::cout << "add_noise: " << "Subdetid = " << Sub_detid << "detID " << detID << "threshold = " << thePixelThreshold << "threshold in electrons = " << thePixelThresholdInE << std::endl;
+  //      unsigned int Sub_detid=DetId(detID).subdetId();
+      //      std::cout << "add_noise: " << "Subdetid = " << Sub_detid << " and detID " << detID << " the threshold is " << thePixelThreshold << " and the threshold in electrons = " << thePixelThresholdInE << std::endl;
 
 
   theNoiser->generate(numberOfPixels, 
@@ -1303,6 +1319,8 @@ float SiPixelDigitizerAlgorithm::missCalibrate(int col,int row,
   // Convert electrons to VCAL units
   float signal = (signalInElectrons-electronsPerVCAL_Offset)/electronsPerVCAL;
 
+  //  std::cout << "electronsPerVCAL = " << electronsPerVCAL << " and electronsPerVCAL_Offset = " << electronsPerVCAL_Offset << std::endl;
+
   //
   // Simulate the analog response with fixed parametrization
   newAmp = p3 + p2 * tanh(p0*signal - p1);
@@ -1409,7 +1427,7 @@ LocalVector SiPixelDigitizerAlgorithm::DriftDirection(){
 	else {
 	  alpha2 = 0.0;
 	} 
-	//std::cout << "detID is: " << it->first << "The LA per tesla is: " << it->second << std::endl;
+	//	std::cout << "detID is: " << it->first << "The LA per tesla is: " << it->second << std::endl;
 	dir_x = -( it->second * Bfield.y() + alpha2 * Bfield.z()* Bfield.x() );
 	dir_y = +( it->second * Bfield.x() - alpha2 * Bfield.z()* Bfield.y() );
 	dir_z = -(1 + alpha2 * Bfield.z()*Bfield.z() );

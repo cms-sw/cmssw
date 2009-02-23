@@ -245,6 +245,9 @@ class SiPixelDigitizerAlgorithm  {
     float theThresholdInE_FPix;  // Pixel threshold in electrons FPix.
     float theThresholdInE_BPix;  // Pixel threshold in electrons BPix.
 
+    double theThresholdSmearing_FPix;
+    double theThresholdSmearing_BPix;
+
     double electronsPerVCAL;          // for electrons - VCAL conversion
     double electronsPerVCAL_Offset;   // in misscalibrate()
 
@@ -358,9 +361,9 @@ class SiPixelDigitizerAlgorithm  {
     CLHEP::RandFlat *flatDistribution_;
     CLHEP::RandGaussQ *gaussDistribution_;
 
-    // Test for threshold smearing:
-    //    CLHEP::RandGaussQ *smearThreshold_FPix_;
-    //    CLHEP::RandGaussQ *smearThreshold_BPix_;
+    // Threshold gaussian smearing:
+    CLHEP::RandGaussQ *smearedThreshold_FPix_;
+    CLHEP::RandGaussQ *smearedThreshold_BPix_;
 
 
   // the random generator
