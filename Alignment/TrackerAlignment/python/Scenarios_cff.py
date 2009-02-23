@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import copy # for deepcopy used below
 
 #
 # This file contains all scenarios as blocks
@@ -28,7 +29,6 @@ import FWCore.ParameterSet.Config as cms
 # -----------------------------------------------------------------------
 # General settings common to all scenarios
 MisalignmentScenarioSettings = cms.PSet(
-    saveToDbase = cms.untracked.bool(False),
     setRotations = cms.bool(True),
     setTranslations = cms.bool(True),
     seed = cms.int32(1234567),
@@ -464,6 +464,7 @@ Tracker100pbScenario = cms.PSet(
             )
         ),
         TOBRods = cms.PSet(
+
             dZlocal = cms.double(0.004),
             phiXlocal = cms.double(1.5e-05),
             dYlocal = cms.double(0.004),
@@ -1890,3 +1891,16 @@ TrackerNoKnowledgeScenario = cms.PSet(
 
 
 
+# -----------------------------------------------------------------------
+# TrackerAfterCRAFTScenario
+# ----------------------------------------
+# ----------------- NOTE -----------------
+# This scenario is a simple merge of the 10 pb^-1 and 100 pb^-1 scenarios:
+# It seems that after CRAFT alignment we have aligned TIB and TOB
+# as good as foreseen after 100 pb^-1 (at least what concerns residuals),
+# while the rest of the tracker is at the level of the 10 pb^-1 scneario.
+# ------------- NOTE ends ----------------
+# ----------------------------------------
+TrackerCRAFTScenario = copy.deepcopy(Tracker10pbScenario)
+TrackerCRAFTScenario.TIBs = copy.deepcopy(Tracker100pbScenario.TIBs)
+TrackerCRAFTScenario.TOBs = copy.deepcopy(Tracker100pbScenario.TOBs)
