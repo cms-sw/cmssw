@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1Region.cc,v 1.20 2008/04/24 20:10:35 chinhan Exp $
+// $Id: FastL1Region.cc,v 1.21 2008/05/27 16:45:16 heltsley Exp $
 //
 
 // No BitInfos for release versions
@@ -168,7 +168,7 @@ FastL1Region::FillEMCrystals(const CaloTowerConstituentsMap* theTowerConstituent
     for(int i=0;i<16;i++) {
       //int hiphi = m_RMap->convertFromECal_to_HCal_iphi(detId.tower_iphi());
       //int hiphi = m_RMap->convertFromHCal_to_ECal_iphi(detId.tower_iphi());
-      int hiphi = detId.tower_iphi();
+      //      int hiphi = detId.tower_iphi();
       if ( !Towers[i].id().iphi()==hiphi ||  !Towers[i].id().ieta()==hieta ) continue;
       EMCrystalEnergy[i][crIeta + 5*crIphi] = ecItr->energy();
     }  
