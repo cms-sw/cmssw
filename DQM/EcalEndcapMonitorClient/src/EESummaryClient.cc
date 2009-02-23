@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/12/04 13:54:56 $
- * $Revision: 1.153 $
+ * $Date: 2009/02/12 11:27:42 $
+ * $Revision: 1.154 $
  * \author G. Della Ricca
  *
 */
@@ -17,6 +17,8 @@
 #include "TStyle.h"
 #include "TGraph.h"
 #include "TLine.h"
+
+#include <DataFormats/EcalDetId/interface/EEDetId.h>
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -188,12 +190,10 @@ void EESummaryClient::beginJob(DQMStore* dqmStore) {
   if ( me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo) ) {
     dqmStore_->removeElement(me->getName());
   }
-  me = dqmStore_->book2D(histo, histo, 40, 0., 40., 20, 0., 20);
-  for ( int jxdcc = 0; jxdcc < 20; jxdcc++ ) {
-    for ( int jydcc = 0; jydcc < 20; jydcc++ ) {
-      for ( int iside = 0; iside < 2; iside++ ) {
-        me->setBinContent( 20*iside+jxdcc+1, jydcc+1, -1.0 );
-      }
+  me = dqmStore_->book2D(histo, histo, 200, 0., 200., 100, 0., 100);
+  for ( int jx = 1; jx <= 200; jx++ ) {
+    for ( int jy = 1; jy <= 100; jy++ ) {
+      me->setBinContent( jx, jy, -1.0 );
     }
   }
   me->setAxisTitle("jx", 1);
@@ -1854,6 +1854,8 @@ void EESummaryClient::analyze(void) {
       }
     }
 
+    int ttx[200][100];
+    int tty[200][100];
     for ( int jx = 1; jx <= 100; jx++ ) {
       for ( int jy = 1; jy <= 100; jy++ ) {
         for ( int iside = 0; iside < 2; iside++ ) {
@@ -1870,25 +1872,55 @@ void EESummaryClient::analyze(void) {
             nOutOfGeometryTT[iside][jxdcc-1][jydcc-1]++;
           }
 
+          int ix = (iside==0) ? jx-1 : jx-1+100;
+          int iy = jy-1;
+          ttx[ix][iy] = jxdcc-1;
+          tty[ix][iy] = jydcc-1;
         }
       }
     }
 
-    for ( int jxdcc = 0; jxdcc < 20; jxdcc++ ) {
-      for ( int jydcc = 0; jydcc < 20; jydcc++ ) {
-        for ( int iside = 0; iside < 2; iside++ ) {
+    for ( int iz = -1; iz < 2; iz+=2 ) {
+      for ( int ix = 1; ix <= 100; ix++ ) {
+        for ( int iy = 1; iy <= 100; iy++ ) {
 
-          float xval = -1.0;
-          if ( nOutOfGeometryTT[iside][jxdcc][jydcc] < 25 ) {
-            if ( nValidChannelsTT[iside][jxdcc][jydcc] != 0 )
-              xval = 1.0 - float(nGlobalErrorsTT[iside][jxdcc][jydcc])/float(nValidChannelsTT[iside][jxdcc][jydcc]);
+          int jx = (iz==1) ? 100 + ix : ix;
+          int jy = iy;
+
+          float xval = -1;
+
+          if( EEDetId::validDetId(ix, iy, iz) ) {
+            
+            int TTx = ttx[jx-1][jy-1];
+            int TTy = tty[jx-1][jy-1];
+
+            int iside = (iz==1) ? 1 : 0;
+
+            if( nValidChannelsTT[iside][TTx][TTy] != 0 ) 
+              xval = 1.0 - float(nGlobalErrorsTT[iside][TTx][TTy])/float(nValidChannelsTT[iside][TTx][TTy]);
+            
+            me->setBinContent( jx, jy, xval );
+
           }
-
-          me->setBinContent( 20*iside+jxdcc+1, jydcc+1, xval );
-
         }
       }
     }
+
+//     for ( int jxdcc = 0; jxdcc < 20; jxdcc++ ) {
+//       for ( int jydcc = 0; jydcc < 20; jydcc++ ) {
+//         for ( int iside = 0; iside < 2; iside++ ) {
+
+//           float xval = -1.0;
+//           if ( nOutOfGeometryTT[iside][jxdcc][jydcc] < 25 ) {
+//             if ( nValidChannelsTT[iside][jxdcc][jydcc] != 0 )
+//               xval = 1.0 - float(nGlobalErrorsTT[iside][jxdcc][jydcc])/float(nValidChannelsTT[iside][jxdcc][jydcc]);
+//           }
+
+//           me->setBinContent( 20*iside+jxdcc+1, jydcc+1, xval );
+
+//         }
+//       }
+//     }
 
   }
 
