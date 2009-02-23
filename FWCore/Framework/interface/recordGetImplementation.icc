@@ -11,7 +11,7 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr  1 15:29:14 EST 2005
-// $Id: recordGetImplementation.icc,v 1.9 2006/08/31 23:26:24 wmtan Exp $
+// $Id: recordGetImplementation.icc,v 1.10 2007/12/20 00:26:03 chrjones Exp $
 //
 
 // system include files
@@ -49,22 +49,12 @@ namespace edm {
 	       iDesc = proxy->providerDescription();
 	       
 	    } catch(cms::Exception& e) {
-	       e<<"cms::Exception going through EventSetup component "
-		<<proxy->providerDescription()->type_
-		<<"/\""<<proxy->providerDescription()->label_<<"\"\n"
-		<<"  while making data "<< dataKey.type().name()<<"/\""<<iName
-		<<" in record \""<<this->key().type().name()<<"\"\n";
-	       throw;
-	       
+               addTraceInfoToCmsException(e,iName,proxy->providerDescription(), dataKey);
+               //NOTE: the above function can't do the 'throw' since it causes the C++ class type
+               // of the throw to be changed, a 'rethrow' does not have that problem
+               throw;
 	    } catch(std::exception& e){
-	       cms::Exception changedException("StdException");
-	       changedException
-		  << "std::exception going through EventSetup component "
-		  <<proxy->providerDescription()->type_<<"/\""<<proxy->providerDescription()->label_<<"\"\n"
-		  <<"  while making data "<< dataKey.type().name()<<"/\""<<iName<<" in record \""<<this->key().type().name()<<"\"\n"
-		  <<"  Previous information:\n  \"" << e.what()<<"\"\n";
-	       throw changedException;
-	       
+               changeStdExceptionToCmsException(e.what(),iName,proxy->providerDescription(),dataKey);
 	    }
 	 }else{
 	    throw NoProxyException<DataT>(*this, dataKey);

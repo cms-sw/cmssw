@@ -56,6 +56,10 @@ using the 'setEventSetup' and 'clearEventSetup' functions.
 #include "FWCore/Framework/interface/DataKey.h"
 
 // forward declarations
+namespace cms {
+   class Exception;
+}
+
 namespace edm {
    class EventSetup;
    class ESInputTag;
@@ -117,6 +121,10 @@ class EventSetupRecord
       }
    
       void validate(const ComponentDescription*, const ESInputTag&) const;
+   
+      void addTraceInfoToCmsException(cms::Exception& iException, const char* iName, const ComponentDescription*, const DataKey&) const;
+      void changeStdExceptionToCmsException(const char* iExceptionWhatMessage, const char* iName, const ComponentDescription*, const DataKey&) const;
+      
    private:
       EventSetupRecord(const EventSetupRecord&); // stop default
 

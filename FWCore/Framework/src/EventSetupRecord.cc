@@ -20,6 +20,8 @@
 #include "FWCore/Framework/interface/ComponentDescription.h"
 #include "FWCore/Utilities/interface/ESInputTag.h"
 
+#include "FWCore/Utilities/interface/Exception.h"
+
 namespace edm {
    namespace eventsetup {
 //
@@ -170,6 +172,32 @@ EventSetupRecord::validate(const ComponentDescription* iDesc, const ESInputTag& 
       }
    }
 }
+
+void 
+EventSetupRecord::addTraceInfoToCmsException(cms::Exception& iException, const char* iName, const ComponentDescription* iDescription, const DataKey& iKey) const
+{
+   iException<<"cms::Exception going through EventSetup component "
+   <<iDescription->type_
+   <<"/\""<<iDescription->label_<<"\"\n"
+   <<"  while making data "<< iKey.type().name()<<"/\""<<iName
+   <<" in record \""<<this->key().type().name()<<"\"\n";
+}         
+      
+void 
+EventSetupRecord::changeStdExceptionToCmsException(const char* iExceptionWhatMessage, 
+                                                   const char* iName, 
+                                                   const ComponentDescription* iDescription, 
+                                                   const DataKey& iKey) const
+{
+   cms::Exception changedException("StdException");
+   changedException
+   << "std::exception going through EventSetup component "
+   <<iDescription->type_<<"/\""<<iDescription->label_<<"\"\n"
+   <<"  while making data "<< iKey.type().name()<<"/\""<<iName<<" in record \""<<this->key().type().name()<<"\"\n"
+   <<"  Previous information:\n  \"" << iExceptionWhatMessage<<"\"\n";
+   throw changedException;
+   
+}         
 
 //
 // static member functions
