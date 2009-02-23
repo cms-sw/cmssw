@@ -2,6 +2,7 @@
 #define ECAL_FENIX_AMPLITUDE_FILTER_H
 
 #include <vector>
+#include <stdint.h>
 
 class EcalTPGWeightIdMap;
 class EcalTPGWeightGroup;
