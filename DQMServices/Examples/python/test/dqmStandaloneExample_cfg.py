@@ -20,7 +20,7 @@ process.DQMStore.verbose = 0
 
 ###  DQM Source program (in DQMServices/Examples/src/DQMSourceExample.cc)
 process.dqmSource   = cms.EDFilter("DQMSourceExample",
-        monitorName = cms.untracked.string('YourSubsystemName'),
+        monitorName = cms.untracked.string('YourSubsystemName1'),
         prescaleEvt = cms.untracked.int32(1),
         prescaleLS  =  cms.untracked.int32(1)                    
 )
@@ -34,11 +34,16 @@ process.qTester    = cms.EDFilter("QualityTester",
     verboseQT =  cms.untracked.bool(True)                 
 )
 
+process.stats = cms.EDFilter("DQMStoreStats",
+    statsDepth = cms.untracked.int32(2),
+    pathNameMatch = cms.untracked.string('*'),
+    verbose = cms.untracked.int32(0)
+)
 
 ### DQM Client program (in DQMServices/Examples/src/DQMClientExample.cc)
 ### by default: the client runs at the end of each lumisection
 process.dqmClient = cms.EDFilter("DQMClientExample",
-    monitorName   = cms.untracked.string('YourSubsystemName'),
+    monitorName   = cms.untracked.string('YourSubsystemName2'),
     QTestName     = cms.untracked.string('YRange'),                     
     prescaleEvt   = cms.untracked.int32(1),
     prescaleLS    =  cms.untracked.int32(1),                   
@@ -60,7 +65,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 ### replace YourSubsystemName by the name of your source ###
 ### use it for dqmEnv, dqmSaver
 process.load("DQMServices.Components.DQMEnvironment_cfi")
-#process.DQM.collectorHost = 'srv-c2d05-XX'
+process.DQM.collectorHost = ''
 #process.DQM.collectorPort = 9190
 
 ### path where to save the output file
@@ -81,5 +86,5 @@ process.dqmEnv.subSystemFolder = 'YourSubsystemName'
 #process.dqmSaver.saveByRun         =  1
 
 ### FIX YOUR  PATH TO INCLUDE dqmEnv and dqmSaver
-process.p = cms.Path(process.dqmSource*process.qTester*process.dqmClient*process.dqmEnv*process.dqmSaver)
+process.p = cms.Path(process.dqmSource*process.qTester*process.stats*process.dqmClient*process.dqmEnv*process.dqmSaver)
 
