@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: TrackIPProducer.cc,v 1.16 2008/05/28 14:08:42 jandrea Exp $
+// $Id: TrackIPProducer.cc,v 1.17 2008/10/29 16:27:34 saout Exp $
 //
 //
 
@@ -224,7 +224,7 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         last--;
         int second=last->second;
        
-        for(int n=0;n< ipData.size();n++)
+        for(size_t n=0;n< ipData.size();n++)
         {
                int use;
                if(n==first) use = second; else use = first;
