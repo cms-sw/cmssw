@@ -153,17 +153,19 @@ TrajectoryManager::reconstruct()
   thePSimHits.clear();
 
   // The new event
-  XYZTLorentzVector myBeamPipe = XYZTLorentzVector(0.,25., 9999999.,0.);
+  XYZTLorentzVector myBeamPipe = XYZTLorentzVector(0.,2.5, 9999999.,0.);
 
   std::list<TrackerLayer>::const_iterator cyliter;
 
-  //  bool debug = mySimEvent->id().event() == 3;
+  // bool debug = mySimEvent->id().event() == 8;
 
   // Loop over the particles (watch out: increasing upper limit!)
   for( int fsimi=0; fsimi < (int) mySimEvent->nTracks(); ++fsimi) {
 
     // If the particle has decayed inside the beampipe, or decays 
     // immediately, there is nothing to do
+    //if ( debug ) std::cout << mySimEvent->track(fsimi) << std::endl;
+    //if ( debug ) std::cout << "Not yet at end vertex ? " << mySimEvent->track(fsimi).notYetToEndVertex(myBeamPipe) << std::endl;
     if( !mySimEvent->track(fsimi).notYetToEndVertex(myBeamPipe) ) continue;
     mySimEvent->track(fsimi).setPropagate();
 
@@ -254,8 +256,10 @@ TrajectoryManager::reconstruct()
 
       // The particle may have decayed on its way... in which the daughters
       // have to be added to the event record
-      if ( PP.hasDecayed() || PP.PDGcTau()<1E-3 ) updateWithDaughters(PP,fsimi);
-      if ( PP.hasDecayed() || PP.PDGcTau()<1E-3 ) break;
+      if ( PP.hasDecayed() || (!mySimEvent->track(fsimi).nDaughters() && PP.PDGcTau()<1E-3 ) ) { 
+	updateWithDaughters(PP,fsimi);
+	break;
+      }
 
       // Exit by the endcaps or innermost cylinder :
       // Positive cylinder increment
@@ -446,39 +450,90 @@ TrajectoryManager::propagateToLayer(ParticlePropagator& PP, unsigned layer) {
 void
 TrajectoryManager::updateWithDaughters(ParticlePropagator& PP, int fsimi) {
 
-  // Decays are not activated : do nothing
-  if ( !myDecayEngine ) return;
 
-  // Invoke PYDECY to decay the particle and get the daughters
-  const DaughterParticleList& daughters = myDecayEngine->particleDaughters(PP);
-  
-  // Update the FSimEvent with an end vertex and with the daughters
-  if ( daughters.size() ) { 
-    double distMin = 1E99;
-    int theClosestChargedDaughterId = -1;
-    DaughterParticleIterator daughter = daughters.begin();
+  // The particle was already decayed in the GenEvent, but still the particle was 
+  // allowed to propagate (for magnetic field bending, for material effects, etc...)
+  // Just modify the momentum of the daughters in that case 
+  unsigned nDaugh = mySimEvent->track(fsimi).nDaughters();
+  if ( nDaugh ) {
+
+    // Move the vertex
+    unsigned vertexId = mySimEvent->track(fsimi).endVertex().id();
+    mySimEvent->vertex(vertexId).setPosition(PP.vertex());
+
+    // Before-propagation and after-propagation momentum and vertex position
+    XYZTLorentzVector momentumBefore = mySimEvent->track(fsimi).momentum();
+    XYZTLorentzVector momentumAfter = PP.momentum();
+    double magBefore = std::sqrt(momentumBefore.Vect().mag2());
+    double magAfter = std::sqrt(momentumAfter.Vect().mag2());
+    // Rotation to be applied
+    XYZVector axis = momentumBefore.Vect().Cross(momentumAfter.Vect());
+    double angle = std::acos(momentumBefore.Vect().Dot(momentumAfter.Vect())/(magAfter*magBefore));
+    Rotation r(axis,angle);
+    // Rescaling to be applied
+    double rescale = magAfter/magBefore;
+
+    // Move, rescale and rotate daugthers, grand-daughters, etc. 
+    moveAllDaughters(fsimi,r,rescale);
+
+  // The particle is not decayed in the GenEvent, decay it with PYTHIA 
+  } else { 
+
+    // Decays are not activated : do nothing
+    if ( !myDecayEngine ) return;
     
-    int ivertex = mySimEvent->addSimVertex(daughter->vertex(),fsimi);
-
-    if ( ivertex != -1 ) {
-      for ( ; daughter != daughters.end(); ++daughter) {
-	int theDaughterId = mySimEvent->addSimTrack(&(*daughter), ivertex);
-	// Find the closest charged daughter (if charged mother)
-	if ( PP.charge() * daughter->charge() > 1E-10 ) {
-	  double dist = (daughter->Vect().Unit().Cross(PP.Vect().Unit())).R();
-	  if ( dist < distCut && dist < distMin ) { 
-	    distMin = dist;
-	    theClosestChargedDaughterId = theDaughterId;
+    // Invoke PYDECY to decay the particle and get the daughters
+    const DaughterParticleList& daughters = myDecayEngine->particleDaughters(PP);
+    
+    // Update the FSimEvent with an end vertex and with the daughters
+    if ( daughters.size() ) { 
+      double distMin = 1E99;
+      int theClosestChargedDaughterId = -1;
+      DaughterParticleIterator daughter = daughters.begin();
+      
+      int ivertex = mySimEvent->addSimVertex(daughter->vertex(),fsimi);
+      
+      if ( ivertex != -1 ) {
+	for ( ; daughter != daughters.end(); ++daughter) {
+	  int theDaughterId = mySimEvent->addSimTrack(&(*daughter), ivertex);
+	  // Find the closest charged daughter (if charged mother)
+	  if ( PP.charge() * daughter->charge() > 1E-10 ) {
+	    double dist = (daughter->Vect().Unit().Cross(PP.Vect().Unit())).R();
+	    if ( dist < distCut && dist < distMin ) { 
+	      distMin = dist;
+	      theClosestChargedDaughterId = theDaughterId;
+	    }
 	  }
 	}
       }
+      // Attach mother and closest daughter sp as to cheat tracking ;-)
+      if ( theClosestChargedDaughterId >=0 ) 
+	mySimEvent->track(fsimi).setClosestDaughterId(theClosestChargedDaughterId);
     }
-    // Attach mother and closest daughter sp as to cheat tracking ;-)
-    if ( theClosestChargedDaughterId >=0 ) 
-      mySimEvent->track(fsimi).setClosestDaughterId(theClosestChargedDaughterId);
+
   }
+
 }
 
+
+void
+TrajectoryManager::moveAllDaughters(int fsimi, const Rotation& r, double rescale) { 
+
+  //
+  for ( unsigned idaugh=0; idaugh < (unsigned)(mySimEvent->track(fsimi).nDaughters()); ++idaugh) { 
+    // Initial momentum of the daughter
+    XYZTLorentzVector daughMomentum (mySimEvent->track(fsimi).daughter(idaugh).momentum()); 
+    // Rotate and rescale
+    XYZVector newMomentum (r * daughMomentum.Vect()); 
+    newMomentum *= rescale;
+    double newEnergy = std::sqrt(newMomentum.mag2() + daughMomentum.mag2());
+    // Set the new momentum
+    mySimEvent->track(fsimi).setMomentum(XYZTLorentzVector(newMomentum.X(),newMomentum.Y(),newMomentum.Z(),newEnergy));
+    // Watch out : recursive call to get all grand-daughters
+    int fsimDaug = mySimEvent->track(fsimi).daughter(idaugh).id();
+    moveAllDaughters(fsimDaug,r,rescale);
+  }
+}
 
 void
 TrajectoryManager::createPSimHits(const TrackerLayer& layer,

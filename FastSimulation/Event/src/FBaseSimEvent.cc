@@ -94,8 +94,8 @@ FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& vtx,
 
   // Initialize the distance from (0,0,0) after which *generated* particles are 
   // no longer considered - because the mother could have interacted before.
-  // unit : cm x cm (so 10. corresponds to 3.1 cm)
-  lateVertexPosition = 10.;
+  // unit : cm x cm
+  lateVertexPosition = 2.5*2.5;
 
   // Initialize the vectors of particles and vertices
   theGenParticles = new std::vector<HepMC::GenParticle*>(); 
@@ -498,7 +498,7 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 			      productionVertex->position().t()/10.) + smearedVertex;
       }
     }
-    if ( productionVertexPosition.Perp2() > lateVertexPosition ) continue;
+    if ( !myFilter->accept(productionVertexPosition) ) continue;
 
 
     // Keep only: 
@@ -587,7 +587,7 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 	  !p->end_vertex() ||
 	  // This one deals with particles that have a pre-defined
 	  // decay proper time, but have not decayed yet
-	   ( testStable && p->end_vertex() ) 
+	  ( testStable && p->end_vertex() &&  !p->end_vertex()->particles_out_size() ) 
 	  // In both case, just don't add a end vertex in the FSimEvent 
 	  ) continue; 
       
@@ -675,7 +675,7 @@ FBaseSimEvent::addParticles(const reco::GenParticleCollection& myGenParticles) {
       if ( abs(motherId) < 1000000 )
 	productionVertexPosition = XYZTLorentzVector(p.vx(), p.vy(), p.vz(), 0.) + smearedVertex;
     }
-    if ( productionVertexPosition.Perp2() > lateVertexPosition ) continue;
+    if ( !myFilter->accept(productionVertexPosition) ) continue;
 
     // Keep only: 
     // 1) Stable particles

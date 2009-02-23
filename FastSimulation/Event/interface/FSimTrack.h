@@ -164,8 +164,11 @@ class FSimTrack : public SimTrack {
   /// Get the index of the closest charged daughter
   inline int closestDaughterId() const { return closestDaughterId_; }
 
-  /// Temporary (until move of SimTrack to Mathcore)
+  /// Temporary (until move of SimTrack to Mathcore) - No! Actually very useful
   const XYZTLorentzVector& momentum() const { return momentum_; }
+
+  /// Reset the momentum (to be used with care)
+  inline void setMomentum(const math::XYZTLorentzVector& newMomentum) {momentum_ = newMomentum; }
 
   /// Simply returns the SimTrack
   inline const SimTrack& simTrack() const { return *this; }

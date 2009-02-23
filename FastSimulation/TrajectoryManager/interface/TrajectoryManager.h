@@ -8,6 +8,8 @@
 //FAMOS Headers
 #include "FastSimulation/MaterialEffects/interface/MaterialEffects.h"
 
+#include "Math/GenVector/AxisAngle.h"
+
 /**
  * This class takes all the particles of a FSimEvent with no end vertex, 
  * and propagate them from their parent vertex through the tracker 
@@ -59,6 +61,8 @@ class TrajectoryManager
 {
  public:
 
+  typedef ROOT::Math::AxisAngle Rotation;
+
   /// Default Constructor
   TrajectoryManager() {;}
 
@@ -108,6 +112,9 @@ class TrajectoryManager
 
   /// Decay the particle and update the SimEvent with daughters 
   void updateWithDaughters(ParticlePropagator& PP, int fsimi);
+
+  /// Move, rescale and rotate all daughters after propagation, material effects and decay of the mother.
+  void moveAllDaughters(int fsimi, const Rotation& r, double rescale);
 
   /// Initialize correspondence map between Famos interaction geometry and tracker reco geometry
   void initializeLayerMap();
