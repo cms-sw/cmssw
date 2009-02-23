@@ -4,152 +4,107 @@
 #include "CalibTracker/Records/interface/SiStripGainRcd.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 
-#include <functional>
-#include <algorithm>
-#include <cmath>
 #include <sstream>
+#include <cmath>
+#include <numeric>
+#include <algorithm>
 
 ThreeThresholdStripClusterizer::
-ThreeThresholdStripClusterizer(float strip_thr, float seed_thr,float clust_thr, int max_holes, int max_bad, int max_adj)
-  : esinfo(0) {
-  thresholds = new Thresholds(strip_thr,seed_thr,clust_thr,max_holes,max_bad,max_adj);
+ThreeThresholdStripClusterizer(float strip_thr, float seed_thr,float clust_thr, int max_holes, int max_bad, int max_adj) : 
+  info(new ESinfo(strip_thr,seed_thr,clust_thr,max_holes,max_bad,max_adj)) {
+  amp.reserve(128); //largest possible cluster after median common mode noise subtraction
 }
 
 ThreeThresholdStripClusterizer::
-~ThreeThresholdStripClusterizer()   {
-  delete thresholds;
-  if(esinfo) delete esinfo;
+~ThreeThresholdStripClusterizer() {
+  delete info;
 }
 
-void
-ThreeThresholdStripClusterizer::
+void ThreeThresholdStripClusterizer::
 init(const edm::EventSetup& es, std::string qualityLabel, std::string thresholdLabel) {
-  if(esinfo) delete esinfo;
-  esinfo = new ESinfo(es, qualityLabel);
-  amplitudes.reserve(80);
-  extDigis.reserve(300);
+  es.get<SiStripGainRcd>().get(info->gainHandle);
+  es.get<SiStripNoisesRcd>().get(info->noiseHandle);
+  es.get<SiStripQualityRcd>().get(qualityLabel,info->qualityHandle);
 }
 
-ThreeThresholdStripClusterizer::
-ESinfo::ESinfo(const edm::EventSetup& es, std::string qualityLabel)  {
-  es.get<SiStripGainRcd>().get(gainHandle);
-  es.get<SiStripNoisesRcd>().get(noiseHandle);
-  es.get<SiStripQualityRcd>().get(qualityLabel,qualityHandle);
-}
-
-void
-ThreeThresholdStripClusterizer::
+inline 
+void ThreeThresholdStripClusterizer::
 ESinfo::setDetId(uint32_t id) {
-  currentDetId = id;
   gainRange =  gainHandle->getRange(id); 
   noiseRange = noiseHandle->getRange(id);
   qualityRange = qualityHandle->getRange(id);
 }
 
 template<class digiDetSet>
-void 
-ThreeThresholdStripClusterizer::
-clusterizeDetUnit_(const digiDetSet & digis, edmNew::DetSetVector<SiStripCluster>::FastFiller & output) {
-  if( !esinfo->isModuleUsable( digis.detId() )) return;
-  esinfo->setDetId( digis.detId() );
-  extDigis.clear();  transform( digis.begin(), digis.end(), 
-				back_inserter(extDigis), ExtendedDigiFactory(esinfo,thresholds) );
-
-  iter_t left, seed, right = extDigis.begin();
-  while( (seed = std::find_if<iter_t>(right,extDigis.end(), isSeed() ))
-	 != extDigis.end()  )  {
-    right = findClusterEdge<iter_t>( seed, extDigis.end() );
-    left  = findClusterEdge<riter_t>( riter_t(seed+1), riter_t(extDigis.begin()) ).base();
-    if( aboveClusterThreshold(left,right) )
-      clusterize(left,right,output);
-  }
-}
-
-template<class digiIter>
-inline digiIter
-ThreeThresholdStripClusterizer::
-findClusterEdge(digiIter seed, digiIter end) const {
-  digiIter back(seed), test(seed);
-  while( !clusterEdgeCondition(back,++test,end) )
-    if( test->aboveChannel )
-      back = test;
-  return back+1;
-}
-
-template<class digiIter>
-inline bool
-ThreeThresholdStripClusterizer::
-clusterEdgeCondition(digiIter back, digiIter test, digiIter end) const {
-  if(test == end) return true;
-  uint16_t Nbetween = std::abs( test->strip() - back->strip()) - 1;
-  return ( Nbetween > thresholds->MaxSequentialHoles                            
-	   && ( Nbetween > thresholds->MaxSequentialBad                             
-		|| esinfo->anyGoodBetween( back->strip(),test->strip() ) )
-	   );
-}
-
-inline bool
-ThreeThresholdStripClusterizer::
-ESinfo::anyGoodBetween(uint16_t a, uint16_t b) const {
-  uint16_t strip = 1 + std::min(a,b) ;  
-  while( strip < std::max(a,b)  &&  qualityHandle->IsStripBad(qualityRange,strip) )
-    ++strip;
-  return strip != std::max(a,b);
-}
-
-inline bool
-ThreeThresholdStripClusterizer::
-aboveClusterThreshold(iter_t left, iter_t right) const {
-  float charge(0), noise2(0);
-  for(iter_t it = left; it < right; it++) {
-    if( it->aboveChannel ) {
-      noise2 += it->noise * it->noise;
-      charge += it->adc();
+inline
+void ThreeThresholdStripClusterizer::
+clusterizeDetUnit_(const digiDetSet & digis, output_t& output) {
+  if( !info->isModuleUsable( digis.detId() )) return;
+  info->setDetId( digis.detId() );
+  
+  typename digiDetSet::const_iterator   scan(digis.begin()), end(digis.end());
+  while( scan != end ) {
+    clear(); 
+    while( scan != end  && !edgeCondition( scan->strip() )  )   
+      record(*scan++);
+    if( found() ) {
+      transform( amp.begin(), amp.end(), amp.begin(), applyGain(info, first()) );
+      appendBadNeighbors();
+      output.push_back( SiStripCluster( digis.detId(), first(), amp.begin(), amp.end()) );
     }
   }
-  return charge*charge  >=  noise2 * thresholds->Cluster * thresholds->Cluster;
 }
 
-void
-ThreeThresholdStripClusterizer::
-clusterize(iter_t left, iter_t right, edmNew::DetSetVector<SiStripCluster>::FastFiller& output) {
-  uint8_t preBad  = esinfo->badAdjacent( left->strip(),      thresholds->MaxAdjacentBad, -1);
-  uint8_t postBad = esinfo->badAdjacent( (right-1)->strip(), thresholds->MaxAdjacentBad, +1);
-  
-  amplitudes.clear();
-  amplitudes.resize(preBad,0);
-  for(iter_t it = left; it<right; it++) {
-    amplitudes.resize( it->strip() - left->strip() + preBad, 0 ); //pad with 0 any zero-supressed holes
-    amplitudes.push_back( it->correctedCharge(esinfo) );
+inline 
+bool ThreeThresholdStripClusterizer::
+edgeCondition(uint16_t test) const {
+  uint16_t Nbetween = test - last - 1;
+  return ( !amp.empty()                                        //  exists a current cluster
+	   && ( Nbetween > info->MaxSequentialHoles            //  AND too many holes
+		&& ( Nbetween > info->MaxSequentialBad         //      AND ( too many bad holes
+		     || info->anyGoodBetween( last, test )))); //             OR  not all holes bad )
+}
+
+inline 
+void ThreeThresholdStripClusterizer::
+record(const SiStripDigi& digi) { 
+  float noise = info->noise(digi.strip());
+  if( !info->bad(digi.strip()) && digi.adc() >= static_cast<uint16_t>( noise * info->Channel)) {
+    foundSeed = foundSeed      || digi.adc() >= static_cast<uint16_t>( noise * info->Seed);
+    noise2 += noise*noise;
+    if( amp.empty() ) last = digi.strip() - 1;
+    while( ++last < digi.strip() )  amp.push_back(0); //pad holes
+    amp.push_back(digi.adc());
   }
-  amplitudes.resize( postBad + amplitudes.size(), 0);
-
-  output.push_back(SiStripCluster( esinfo->detId(), 
-				   left->strip() - preBad,
-				   amplitudes.begin(),
-				   amplitudes.end() ));
 }
 
-inline uint8_t
-ThreeThresholdStripClusterizer::
-ESinfo::badAdjacent(const uint16_t& strip, const uint8_t& maxAdjacentBad, const int8_t direction) const {
-  uint8_t count=0;
-  while(count < maxAdjacentBad 
-	&& qualityHandle->IsStripBad(qualityRange, strip + direction*(1+count) ))
-    ++count;
-  return count;
+inline 
+bool ThreeThresholdStripClusterizer::
+found() const {
+  return ( foundSeed &&
+	   noise2 * info->Cluster2  
+	   <=  std::pow( std::accumulate(amp.begin(),amp.end(),float(0)), 2));
 }
 
-inline uint16_t 
-ThreeThresholdStripClusterizer::
-ExtendedDigi::correctedCharge(ESinfo* es) const { 
-  if( !aboveChannel ) return 0;
-  if(adc() > 255) throw InvalidChargeException(digi);
-  uint16_t charge = static_cast<uint16_t>( adc()/es->gain(strip()) + 0.5 ); //adding 0.5 turns truncation into rounding
-  if(charge>511) return 255;
-  if(charge>253) return 254;
-  return charge;
+inline 
+uint16_t ThreeThresholdStripClusterizer::
+applyGain::operator()(uint16_t adc) {
+  if(adc > 255) throw InvalidChargeException(SiStripDigi(adc,strip));
+  uint16_t charge = static_cast<uint16_t>( adc/info->gain(strip++) + 0.5 ); //adding 0.5 turns truncation into rounding
+  return  ( charge > 511 ? 255 : 
+	  ( charge > 253 ? 254 : charge ));
 }
+
+inline 
+void ThreeThresholdStripClusterizer::
+appendBadNeighbors() {
+  uint8_t max = info->MaxAdjacentBad;
+  while(0 < max--) {
+    if(info->bad(first()-1)) { reverse(amp.begin(),amp.end()); amp.push_back(0); reverse(amp.begin(),amp.end()); }
+    if(info->bad( last + 1)) {                                 amp.push_back(0); last++;}
+  }
+}
+
 
 ThreeThresholdStripClusterizer::
 InvalidChargeException::InvalidChargeException(const SiStripDigi& digi)
@@ -162,15 +117,12 @@ InvalidChargeException::InvalidChargeException(const SiStripDigi& digi)
   this->append(s.str());
 }
 
-
-
-void 
-ThreeThresholdStripClusterizer::
-clusterizeDetUnit(const edm::DetSet<SiStripDigi> & digis, edmNew::DetSetVector<SiStripCluster>::FastFiller & output) {
+void ThreeThresholdStripClusterizer::
+clusterizeDetUnit(const edm::DetSet<SiStripDigi>& digis, output_t& output) {
   clusterizeDetUnit_(digis,output);
 }
-void 
-ThreeThresholdStripClusterizer::
-clusterizeDetUnit(const edmNew::DetSet<SiStripDigi> & digis, edmNew::DetSetVector<SiStripCluster>::FastFiller & output) {
+
+void ThreeThresholdStripClusterizer::
+clusterizeDetUnit(const edmNew::DetSet<SiStripDigi>& digis, output_t& output) {
   clusterizeDetUnit_(digis,output);
 }
