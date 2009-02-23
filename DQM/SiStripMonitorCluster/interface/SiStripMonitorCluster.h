@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Wed Feb  1 16:47:14 CET 2006
-// $Id: SiStripMonitorCluster.h,v 1.21 2008/11/06 10:39:23 giordano Exp $
+// $Id: SiStripMonitorCluster.h,v 1.22 2009/02/20 09:59:19 wilkenka Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -81,13 +81,9 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
   void createSubDetMEs(std::string label);
 
   void fillModuleMEs(ModMEs& mod_mes, ClusterProperties& cluster);
-  void fillLayerMEs(LayerMEs&, ClusterProperties& cluster);
+  void fillLayerMEs(LayerMEs&, ClusterProperties& cluster, float timeinorbit);
 
   void ResetModuleMEs(uint32_t idet);
-
-  void fillTrend(MonitorElement* me ,float value);
-
-  void getLayerLabel(uint32_t idetid, std::string& label);
 
   inline void fillME(MonitorElement* ME,float value1){if (ME!=0)ME->Fill(value1);}
   inline void fillME(MonitorElement* ME,float value1,float value2){if (ME!=0)ME->Fill(value1,value2);}
@@ -103,6 +99,7 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
   std::map<std::string, LayerMEs> LayerMEMap;
   std::map<std::string, std::vector< uint32_t > > LayerDetMap;
   std::map<std::string, MonitorElement* > SubDetMEsMap;
+  float iOrbitSec;
 
   // flags
   bool show_mechanical_structure_view, show_readout_view, show_control_view, select_all_detectors, reset_each_run;
@@ -142,11 +139,6 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
   bool moduleswitchnrclusterizedstrip;
   bool subdetswitchtotclusterprofon;
 
-
-  bool tibon;
-  bool tidon;
-  bool tobon;
-  bool tecon;
   
   bool createTrendMEs;
 
