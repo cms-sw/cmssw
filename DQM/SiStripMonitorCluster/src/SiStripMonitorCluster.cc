@@ -5,7 +5,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.49 2008/11/25 17:15:09 dutta Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.50 2009/02/20 09:59:19 wilkenka Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -95,12 +95,6 @@ SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig) :
   edm::ParameterSet ParametersTotDigiProf = conf_.getParameter<edm::ParameterSet>("TProfTotalNumberOfClusters");
   subdetswitchtotclusterprofon = ParametersTotDigiProf.getParameter<bool>("subdetswitchon");
 
-  edm::ParameterSet ParametersDetsOn =  conf_.getParameter<edm::ParameterSet>("detectorson");
-  tibon = ParametersDetsOn.getParameter<bool>("tibon");
-  tidon = ParametersDetsOn.getParameter<bool>("tidon");
-  tobon = ParametersDetsOn.getParameter<bool>("tobon");
-  tecon = ParametersDetsOn.getParameter<bool>("tecon");
-
   createTrendMEs = conf_.getParameter<bool>("CreateTrendMEs");
   Mod_On_ = conf_.getParameter<bool>("Mod_On");
 } 
@@ -139,29 +133,18 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es){
     std::vector<uint32_t> activeDets;
     SiStripDetCabling_->addActiveDetectorsRawIds(activeDets);
     
-    std::vector<uint32_t> SelectedDetIds;
     SiStripSubStructure substructure;
-    if(select_all_detectors){
-      // select all detectors if appropriate flag is set,  for example for the mtcc
-      SelectedDetIds = activeDets;
-    }else{
-      // use SiStripSubStructure for selecting certain regions
-      if(tibon) substructure.getTIBDetectors(activeDets, SelectedDetIds, 0, 0, 0, 0); // this adds rawDetIds to SelectedDetIds
-      if(tobon) substructure.getTOBDetectors(activeDets, SelectedDetIds, 0, 0, 0);    // this adds rawDetIds to SelectedDetIds
-      if(tidon) substructure.getTIDDetectors(activeDets, SelectedDetIds, 0, 0, 0, 0); // this adds rawDetIds to SelectedDetIds
-      if(tecon) substructure.getTECDetectors(activeDets, SelectedDetIds, 0, 0, 0, 0, 0, 0); // this adds rawDetIds to SelectedDetIds
-      
-    }
+
     SiStripFolderOrganizer folder_organizer;
     folder_organizer.setSiStripFolder();
 
     // loop over detectors and book MEs
-    edm::LogInfo("SiStripTkDQM|SiStripMonitorCluster")<<"nr. of SelectedDetIds:  "<<SelectedDetIds.size();
-    for(std::vector<uint32_t>::iterator detid_iterator = SelectedDetIds.begin(); detid_iterator!=SelectedDetIds.end(); detid_iterator++){
+    edm::LogInfo("SiStripTkDQM|SiStripMonitorCluster")<<"nr. of activeDets:  "<<activeDets.size();
+    for(std::vector<uint32_t>::iterator detid_iterator = activeDets.begin(); detid_iterator!=activeDets.end(); detid_iterator++){
       uint32_t detid = (*detid_iterator);
       // remove any eventual zero elements - there should be none, but just in case
       if(detid == 0) {
-	SelectedDetIds.erase(detid_iterator);
+	activeDets.erase(detid_iterator);
         continue;
       }
 
@@ -183,27 +166,27 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es){
         int32_t lnumber = det_layer_pair.second;
 	std::vector<uint32_t> layerDetIds;
         if (det_layer_pair.first == "TIB") {
-          substructure.getTIBDetectors(SelectedDetIds,layerDetIds,lnumber,0,0,0);
+          substructure.getTIBDetectors(activeDets,layerDetIds,lnumber,0,0,0);
           if (subdetswitchtotclusterprofon && SubDetMEsMap.find("TIB") == SubDetMEsMap.end()) createSubDetMEs("TIB");
         } else if (det_layer_pair.first == "TOB") {
-          substructure.getTOBDetectors(SelectedDetIds,layerDetIds,lnumber,0,0);
+          substructure.getTOBDetectors(activeDets,layerDetIds,lnumber,0,0);
           if (subdetswitchtotclusterprofon && SubDetMEsMap.find("TOB") == SubDetMEsMap.end()) createSubDetMEs("TOB");
         } else if (det_layer_pair.first == "TID" && lnumber > 0) {
-          substructure.getTIDDetectors(SelectedDetIds,layerDetIds,2,abs(lnumber),0,0);
+          substructure.getTIDDetectors(activeDets,layerDetIds,2,abs(lnumber),0,0);
           if (subdetswitchtotclusterprofon && SubDetMEsMap.find("TID") == SubDetMEsMap.end()) createSubDetMEs("TID");
         } else if (det_layer_pair.first == "TID" && lnumber < 0) {
-          substructure.getTIDDetectors(SelectedDetIds,layerDetIds,1,abs(lnumber),0,0);
+          substructure.getTIDDetectors(activeDets,layerDetIds,1,abs(lnumber),0,0);
           if (subdetswitchtotclusterprofon && SubDetMEsMap.find("TID") == SubDetMEsMap.end()) createSubDetMEs("TID");
         } else if (det_layer_pair.first == "TEC" && lnumber > 0) {
-          substructure.getTECDetectors(SelectedDetIds,layerDetIds,2,abs(lnumber),0,0,0,0);
+          substructure.getTECDetectors(activeDets,layerDetIds,2,abs(lnumber),0,0,0,0);
           if (subdetswitchtotclusterprofon && SubDetMEsMap.find("TEC") == SubDetMEsMap.end()) createSubDetMEs("TEC");
         } else if (det_layer_pair.first == "TEC" && lnumber < 0) {
-          substructure.getTECDetectors(SelectedDetIds,layerDetIds,1,abs(lnumber),0,0,0,0);
+          substructure.getTECDetectors(activeDets,layerDetIds,1,abs(lnumber),0,0,0,0);
           if (subdetswitchtotclusterprofon && SubDetMEsMap.find("TEC") == SubDetMEsMap.end()) createSubDetMEs("TEC");
         }
 
-	std::string label;
-        getLayerLabel(detid, label);
+	SiStripHistoId hidmanager;
+	std::string label = hidmanager.getSubdetid(detid,false);
         LayerDetMap[label] = layerDetIds;
 
         // book Layer plots
@@ -228,9 +211,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
   runNb   = iEvent.id().run();
   //   eventNb = iEvent.id().event();
   eventNb++;
-  float iOrbit = iEvent.orbitNumber()/11223.0;
-
-  //std::cout << " run " << iEvent.id().run() << runNb << " event " << iEvent.id().event() << eventNb << std::endl;
+  float iOrbitSec = iEvent.orbitNumber()/11223.0;
 
   edm::ESHandle<SiStripNoises> noiseHandle;
   iSetup.get<SiStripNoisesRcd>().get(noiseHandle);
@@ -375,7 +356,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 	
 	// Fill Layer Level MEs
 	if (found_layer_me) {
-          fillLayerMEs(layer_single, cluster_properties);
+          fillLayerMEs(layer_single, cluster_properties, iOrbitSec);
 	  if (layerswitchclusterwidthprofon) 
 	    layer_single.LayerClusterWidthProfile->Fill(iDet, cluster_width);
 	}
@@ -394,7 +375,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
       }
       if (layerswitchlocaloccupancy && found_layer_me && layer_single.LayerLocalOccupancy) {
 	fillME(layer_single.LayerLocalOccupancy,local_occupancy);
-	if (createTrendMEs) fillTrend(layer_single.LayerLocalOccupancyTrend,local_occupancy);
+	if (createTrendMEs) fillME(layer_single.LayerLocalOccupancyTrend,iOrbitSec,local_occupancy);
       }
     }
     if (layer_label.find("TIB") != std::string::npos)      nTotClusterTIB += ncluster_layer;
@@ -407,10 +388,10 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 	 it != SubDetMEsMap.end(); it++) {
       MonitorElement* me = it->second;
       if (!me) continue;
-      if (it->first == "TIB") me->Fill(iOrbit,nTotClusterTIB);
-      else if (it->first == "TOB") me->Fill(iOrbit,nTotClusterTOB);
-      else if (it->first == "TID") me->Fill(iOrbit,nTotClusterTID);
-      else if (it->first == "TEC") me->Fill(iOrbit,nTotClusterTEC);      
+      if (it->first == "TIB") me->Fill(iOrbitSec,nTotClusterTIB);
+      else if (it->first == "TOB") me->Fill(iOrbitSec,nTotClusterTOB);
+      else if (it->first == "TID") me->Fill(iOrbitSec,nTotClusterTID);
+      else if (it->first == "TEC") me->Fill(iOrbitSec,nTotClusterTEC);      
     }
   }    
 }
@@ -580,7 +561,7 @@ void SiStripMonitorCluster::createLayerMEs(std::string label, int ndets) {
     //Cluster Occupancy
     if(layerswitchlocaloccupancy) {
       layerMEs.LayerLocalOccupancy=bookME1D("TH1ModuleLocalOccupancy", hidmanager.createHistoLayer("Summary_ClusterLocalOccupancy","layer",label,"").c_str());  
-      if (createTrendMEs) layerMEs.LayerLocalOccupancyTrend=bookME1D("TH1ModuleLocalOccupancy", hidmanager.createHistoLayer("Trend_ClusterLocalOccupancy","layer",label,"").c_str());  
+      if (createTrendMEs) layerMEs.LayerLocalOccupancyTrend=bookMETrend("TH1ModuleLocalOccupancy", hidmanager.createHistoLayer("Trend_ClusterLocalOccupancy","layer",label,"").c_str());  
       
     }
 
@@ -606,7 +587,7 @@ void SiStripMonitorCluster::createLayerMEs(std::string label, int ndets) {
 void SiStripMonitorCluster::createSubDetMEs(std::string label) {
   edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TProfTotalNumberOfClusters");
   std::string HistoName;
-  dqmStore_->cd("SiStrip/MechanicalView/"+label);
+  dqmStore_->setCurrentFolder("SiStrip/MechanicalView/"+label);
   HistoName = "TotalNumberOfClusterProfile__" + label;
   MonitorElement* me = dqmStore_->bookProfile(HistoName,HistoName,
 					      Parameters.getParameter<int32_t>("Nbins"),
@@ -660,102 +641,29 @@ void SiStripMonitorCluster::fillModuleMEs(ModMEs& mod_mes, ClusterProperties& cl
 //
 // -- Fill Layer Level MEs
 //
-void SiStripMonitorCluster::fillLayerMEs(LayerMEs& layerMEs, ClusterProperties& cluster) { 
+void SiStripMonitorCluster::fillLayerMEs(LayerMEs& layerMEs, ClusterProperties& cluster, float timeinorbit) { 
   if(layerswitchclusstonon) {
     fillME(layerMEs.LayerClusterStoN  ,cluster.charge/cluster.noise);
-    if (createTrendMEs) fillTrend(layerMEs.LayerClusterStoNTrend,cluster.charge/cluster.noise);
+    if (createTrendMEs) fillME(layerMEs.LayerClusterStoNTrend,timeinorbit,cluster.charge/cluster.noise);
   }
   
   if(layerswitchcluschargeon) {
     fillME(layerMEs.LayerClusterCharge,cluster.charge);
-    if (createTrendMEs) fillTrend(layerMEs.LayerClusterChargeTrend,cluster.charge);
+    if (createTrendMEs) fillME(layerMEs.LayerClusterChargeTrend,timeinorbit,cluster.charge);
   }
   
   if(layerswitchclusnoiseon) {
     fillME(layerMEs.LayerClusterNoise ,cluster.noise);
-    if (createTrendMEs) fillTrend(layerMEs.LayerClusterNoiseTrend,cluster.noise);
+    if (createTrendMEs) fillME(layerMEs.LayerClusterNoiseTrend,timeinorbit,cluster.noise);
   }
   
   if(layerswitchcluswidthon) {
     fillME(layerMEs.LayerClusterWidth ,cluster.width);
-    if (createTrendMEs) fillTrend(layerMEs.LayerClusterWidthTrend,cluster.width);
+    if (createTrendMEs) fillME(layerMEs.LayerClusterWidthTrend,timeinorbit,cluster.width);
   }
   
 }
-//
-// -- Fill Trend
-//
-void SiStripMonitorCluster::fillTrend(MonitorElement* me ,float value)
-{
-  if(!me) return;
-  //check the origin and check options
-  int option = conf_.getParameter<edm::ParameterSet>("Trending").getParameter<int32_t>("UpdateMode");
-  if(firstEvent==-1) firstEvent = eventNb;
-  int CurrentStep = atoi(me->getAxisTitle(1).c_str()+8);
-  int firstEventUsed = firstEvent;
-  int presentOverflow = (int)me->getBinEntries(me->getNbinsX()+1);
-  if(option==2) firstEventUsed += CurrentStep * int(me->getBinEntries(me->getNbinsX()+1));
-  else if(option==3) firstEventUsed += CurrentStep * int(me->getBinEntries(me->getNbinsX()+1)) * me->getNbinsX();
-  //fill
-  me->Fill((eventNb-firstEventUsed)/CurrentStep,value);
-
-  if(eventNb-firstEvent<1) return;
-  // check if we reached the end
-  if(presentOverflow == me->getBinEntries(me->getNbinsX()+1)) return;
-  switch(option) {
-  case 1:
-    {
-      // mode 1: rebin and change X scale
-      int NbinsX = me->getNbinsX();
-      float entries = 0.;
-      float content = 0.;
-      float error = 0.;
-      int bin = 1;
-      int totEntries = int(me->getEntries());
-      for(;bin<=NbinsX/2;++bin) {
-	content = (me->getBinContent(2*bin-1) + me->getBinContent(2*bin))/2.; 
-	error   = pow((me->getBinError(2*bin-1)*me->getBinError(2*bin-1)) + (me->getBinError(2*bin)*me->getBinError(2*bin)),0.5)/2.; 
-	entries = me->getBinEntries(2*bin-1) + me->getBinEntries(2*bin);
-	me->setBinContent(bin,content*entries);
-	me->setBinError(bin,error);
-	me->setBinEntries(bin,entries);
-      }
-      for(;bin<=NbinsX+1;++bin) {
-	me->setBinContent(bin,0);
-	me->setBinError(bin,0);
-	me->setBinEntries(bin,0); 
-      }
-      me->setEntries(totEntries);
-      char buffer[256];
-      sprintf(buffer,"EventId/%d",CurrentStep*2);
-      me->setAxisTitle(std::string(buffer),1);
-      break;
-    }
-  case 2:
-    {
-      // mode 2: slide
-      int bin=1;
-      int NbinsX = me->getNbinsX();
-      for(;bin<=NbinsX;++bin) {
-	me->setBinContent(bin,me->getBinContent(bin+1)*me->getBinEntries(bin+1));
-	me->setBinError(bin,me->getBinError(bin+1));
-	me->setBinEntries(bin,me->getBinEntries(bin+1));
-      }
-      break;
-    }
-  case 3:
-    {
-      // mode 3: reset
-      int NbinsX = me->getNbinsX();
-      for(int bin=0;bin<=NbinsX;++bin) {
-	me->setBinContent(bin,0);
-	me->setBinError(bin,0);
-	me->setBinEntries(bin,0); 
-      }
-      break;
-    }
-  }
-}
+//------------------------------------------------------------------------------------------
 MonitorElement* SiStripMonitorCluster::bookMETrend(const char* ParameterSetLabel, const char* HistoName)
 {
   Parameters =  conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
@@ -771,9 +679,8 @@ MonitorElement* SiStripMonitorCluster::bookMETrend(const char* ParameterSetLabel
 					      ParametersTrend.getParameter<double>("ymax"),
 					      "" );
   if(!me) return me;
-  char buffer[256];
-  sprintf(buffer,"EventId/%d",ParametersTrend.getParameter<int32_t>("Steps"));
-  me->setAxisTitle(std::string(buffer),1);
+  me->setAxisTitle("Event Time in Seconds",1);
+  if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) me->getTH1()->SetBit(TH1::kCanRebin);
   return me;
 }
 
@@ -787,33 +694,6 @@ MonitorElement* SiStripMonitorCluster::bookME1D(const char* ParameterSetLabel, c
 			   Parameters.getParameter<double>("xmax")
 			   );
 }
-//-------------------------------------------------------------------------------------------
-void SiStripMonitorCluster::getLayerLabel(uint32_t detid, std::string& label) {
-  StripSubdetector subdet(detid);
-  std::ostringstream label_str;
 
-  if(subdet.subdetId() == StripSubdetector::TIB ){
-    // ---------------------------  TIB  --------------------------- //
-    TIBDetId tib1 = TIBDetId(detid);
-    label_str << "TIB__layer__" << tib1.layer();
-  }else if(subdet.subdetId() == StripSubdetector::TID){
-    // ---------------------------  TID  --------------------------- //
-    TIDDetId tid1 = TIDDetId(detid);
-    label_str << "TID__side__" << tid1.side() << "__wheel__" << tid1.wheel();
-  }else if(subdet.subdetId() == StripSubdetector::TOB){
-    // ---------------------------  TOB  --------------------------- //
-    TOBDetId tob1 = TOBDetId(detid);
-    label_str << "TOB__layer__" << tob1.layer();
-  }else if(subdet.subdetId() == StripSubdetector::TEC) {
-    // ---------------------------  TEC  --------------------------- //
-    TECDetId tec1 = TECDetId(detid);
-    label_str << "TEC__side__"<<tec1.side() << "__wheel__" << tec1.wheel();
-  }else{
-    // ---------------------------  ???  --------------------------- //
-    edm::LogError("SiStripTkDQM|WrongInput")<<"no such subdetector type :"<<subdet.subdetId()<<" no folder set!"<<std::endl;
-    label_str << "";
-  }
-  label = label_str.str();
-}
 
     
