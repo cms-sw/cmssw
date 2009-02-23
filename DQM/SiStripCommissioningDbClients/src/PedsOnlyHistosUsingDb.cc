@@ -1,4 +1,4 @@
-// Last commit: $Id: PedsOnlyHistosUsingDb.cc,v 1.2 2008/05/06 12:38:07 bainbrid Exp $
+// Last commit: $Id: PedsOnlyHistosUsingDb.cc,v 1.3 2008/11/10 14:32:50 delaer Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/PedsOnlyHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/PedsOnlyAnalysis.h"
@@ -124,7 +124,8 @@ void PedsOnlyHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange feds )
         // Determine the pedestal shift to apply
         uint32_t pedshift = 127;
         for ( uint16_t iapv = 0; iapv < sistrip::APVS_PER_FEDCH; iapv++ ) {
-          pedshift = anal->pedsMin()[iapv] < pedshift ? anal->pedsMin()[iapv] : pedshift;
+          uint32_t pedmin = (uint32_t) anal->pedsMin()[iapv];
+          pedshift = pedmin < pedshift ? pedmin : pedshift;
         }
 
 	// Iterate through APVs and strips
