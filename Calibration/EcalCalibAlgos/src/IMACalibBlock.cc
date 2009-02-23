@@ -1,7 +1,7 @@
 /**
-    $Date: 2008/11/14 11:41:32 $
-    $Revision: 1.7 $
-    $Id: IMACalibBlock.cc,v 1.7 2008/11/14 11:41:32 presotto Exp $ 
+    $Date: 2008/11/14 11:57:40 $
+    $Revision: 1.8 $
+    $Id: IMACalibBlock.cc,v 1.8 2008/11/14 11:57:40 presotto Exp $ 
     \author $Author: presotto $
 */
 
@@ -161,8 +161,8 @@ IMACalibBlock::riempiMtr (const std::vector<double> & piena,
     unsigned int max = m_numberOfElements ;
 
     assert (piena.size () == max * max) ; 
-    assert (vuota.num_row () == max) ;
-    assert (vuota.num_col () == max) ;
+    assert (vuota.num_row () == int(max)) ;
+    assert (vuota.num_col () == int(max)) ;
     for (unsigned int i = 0 ; i < max ; ++i)
      for (unsigned int j = 0 ; j < max ; ++j)
          if (isnan (piena[i*max + j])) vuota[i][j] = 0. ;

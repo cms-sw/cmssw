@@ -413,7 +413,7 @@ ZeeCalibration::endOfJob() {
   h1_seedOverSC_ ->Write();
   h1_preshowerOverSC_ ->Write();
    
-  for(int i =0; i<25; i++){
+  for(unsigned int i =0; i<25; i++){
     if( i < theMaxLoops ){
       
       h_ESCEtrueVsEta_[i]->Write();
@@ -1536,7 +1536,7 @@ ZeeCalibration::endOfLoop(const edm::EventSetup& iSetup, unsigned int iLoop)
 
   const std::vector<float>& optimizedCoefficients = theAlgorithm_->getOptimizedCoefficients();
   const std::vector<float>& optimizedCoefficientsError = theAlgorithm_->getOptimizedCoefficientsError();
-  const std::vector<float>& weightSum = theAlgorithm_->getWeightSum();
+  //const std::vector<float>& weightSum = theAlgorithm_->getWeightSum();
   const std::vector<float>& optimizedChi2 = theAlgorithm_->getOptimizedChiSquare();
   const std::vector<int>& optimizedIterations = theAlgorithm_->getOptimizedIterations();
 
@@ -2178,7 +2178,7 @@ std::pair<DetId, double> ZeeCalibration::getHottestDetId(std::vector<std::pair< 
   
 
   double maxEnergy = -9999.;
-  const EcalRecHit* hottestRecHit;
+  const EcalRecHit* hottestRecHit=0;
   
   std::pair<DetId, double> myPair (DetId(0), -9999.);
 
