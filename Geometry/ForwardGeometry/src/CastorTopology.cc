@@ -1,6 +1,7 @@
 #include "Geometry/ForwardGeometry/interface/CastorTopology.h"
 #include <cmath>
 #include <iostream>
+#include <algorithm>
 
 
 static const int MODULE_EM_MAX = 2;
@@ -13,8 +14,8 @@ CastorTopology::CastorTopology() :
   excludeZN_(false),
   firstEMModule_(1),
   lastEMModule_(2),
-  firstHADModule_(3),
-  lastHADModule_(14)
+  firstHADModule_(1),
+  lastHADModule_(12)
 {
 }
 
