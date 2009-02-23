@@ -3,7 +3,7 @@
 //Include 'a' term when computing calibrations (leave as false; it doesn't work well).
 exercises		withOffset				false
 //How many particles required to create a calibration?
-exercises		threshold				30
+exercises		threshold				5
 
 exercises		debug					5
 
@@ -20,10 +20,11 @@ correction		lowEP0					3.249189e-01
 correction		lowEP1					7.907990e-01
 correction		allowNegativeEnergy		0
 correction		maxEToCorrect			-1.0
-
+correction		mlpOffset				3.2
+correction		mlpSlope				0.9
 //Auto fit evolution function to data
 evolution		autoFit					0
-evolution		basePlots				1
+evolution		basePlots				0
 evolution		basePlotsUseTruth		1
 
 evolution		ecalECut				0.0
