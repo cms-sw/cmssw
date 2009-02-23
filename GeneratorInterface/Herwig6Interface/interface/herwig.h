@@ -11,7 +11,7 @@
      & VTOCDK(0:NMXRES),VTORDK(0:NMXRES),
      & QORQQB(0:NMXRES),QBORQQ(0:NMXRES) */
 
-const int nmxres = 500+1; // we need NMXRES+1 entries ...
+static const int nmxres = 500+1; // we need NMXRES+1 entries ...
 extern "C" {
   extern struct {
     double RLTIM[nmxres], RMASS[nmxres], RSPIN[nmxres];
@@ -27,7 +27,7 @@ C (NMXSUD= max no of entries in lookup table)
       COMMON/HWUSUD/ACCUR,QEV(NMXSUD,6),SUD(NMXSUD,6),INTER,NQEV,NSUD,
       & SUDORD*/
 
-const int nmxsud = 1024;
+static const int nmxsud = 1024;
 extern "C" {
   extern struct {
     double ACCUR, QEV[6][nmxsud],SUD[6][nmxsud];
@@ -90,7 +90,7 @@ extern "C" {
       COMMON/HWUCLU/CLDKWT(NMXCDK),CTHRPW(12,12),PRECO,RESN(12,12),
       & RMIN(12,12),LOCN(12,12),NCLDK(NMXCDK),NRECO,CLRECO  */
 
-const int nmxcdk=4000;
+static const int nmxcdk=4000;
 extern "C" {
   extern struct {
     double CLDKWT[nmxcdk],CTHRPW[12][12],PRECO,RESN[12][12], RMIN[12][12];
@@ -129,8 +129,8 @@ extern "C" {
       COMMON/HWBOSC/ALPFAC,BRHIG(12),ENHANC(12),GAMMAX,RHOHEP(3,NMXHEP),
       & IOPHIG,MODBOS(MODMAX)  */
 
-const int hepevt_size = 4000; // check in HerwigWrapper
-const int modmax = 50;
+static const int hepevt_size = 4000; // check in HerwigWrapper
+static const int modmax = 50;
 extern "C" {
   extern struct {
     double ALPFAC, BRHIG[12], ENHANC[12], GAMMAX, RHOHEP[hepevt_size][3];
@@ -233,7 +233,7 @@ C
       COMMON /HWGUPR/LHWGT,LHWGTS,LHXSCT,LHXERR,LHXMAX,LHMXSM,LHIWGT,
       &     LHNEVT,ITYPLH,LHSOFT,LHGLSF  */
 
-const int maxhrp = 100;
+static const int maxhrp = 100;
 extern "C" {
   extern struct {
     double LHWGT[maxhrp],LHWGTS[maxhrp],LHMXSM,LHXSCT[maxhrp],LHXERR[maxhrp],LHXMAX[maxhrp];
@@ -250,7 +250,7 @@ extern "C" {
       LOGICAL OPTM,CHON(IMAXCH)
       COMMON/HW6300/MJJMIN,CHNPRB,IOPSTP,IOPSH,OPTM,CHON   */
 
-const int imaxch = 20;
+static const int imaxch = 20;
 extern "C" {
   extern struct {
     double MJJMIN,CHNPRB[imaxch];
@@ -286,10 +286,10 @@ C                                 intervals (must be even)
      &,        JMVETO(2,13), NSCAT
 */
 
-const int NPROC = 117;
-const int MAXMS = 100;
-const int NPSIMP = 16;
-const double SMALL = 0.00000000000000000001;
+static const int NPROC = 117;
+static const int MAXMS = 100;
+static const int NPSIMP = 16;
+static const double SMALL = 0.00000000000000000001;
 
 extern "C" {
   extern struct {
@@ -309,16 +309,16 @@ extern "C" {
 #define jmevnt jmevnt_
 
 //------------------------------ JIMMY functions -------------------------------------------------
-extern"C" {
+extern "C" {
   void jimmin_(void);
   void jminit_(void);
-  double hwmsct_dummy_(double);
+  double hwmsct_(int*);
   void jmefin_(void);
 }
 
 #define jimmin jimmin_
 #define jminit jminit_
-#define hwmsct_dummy hwmsct_dummy_
+#define hwmsct hwmsct_
 #define jmefin jmefin_
 
 
