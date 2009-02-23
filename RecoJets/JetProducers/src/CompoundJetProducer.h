@@ -97,7 +97,22 @@ namespace cms
 			std::vector<reco::CandidatePtr> const & constituents,
 			edm::EventSetup const & c  )
     {
-      jet = reco::CaloJet( p4, point, reco::CaloJet::Specific(), constituents);  
+      // Get geometry
+      edm::ESHandle<CaloGeometry> geometry;
+      c.get<CaloGeometryRecord>().get(geometry);
+      const CaloSubdetectorGeometry* towerGeometry = 
+	geometry->getSubdetectorGeometry(DetId::Calo, CaloTowerDetId::SubdetId);
+      // Switch to IndexedCandidate
+      JetReco::InputCollection out_constituents;
+      std::vector<reco::CandidatePtr>::const_iterator constituents_begin = constituents.begin(),
+	constituents_end = constituents.end(), iconstituent = constituents_begin;
+      for ( ; iconstituent != constituents_end; ++iconstituent) {
+	out_constituents.push_back( JetReco::InputItem( iconstituent->get(), iconstituent->key() ) );
+      }
+      // Make the specific
+      reco::CaloJet::Specific specific;
+      JetMaker::makeSpecific (out_constituents, *towerGeometry, &specific);
+      jet = reco::CaloJet( p4, point, specific, constituents);  
     }
     
     // BasicJet
@@ -117,7 +132,19 @@ namespace cms
 			std::vector<reco::CandidatePtr> const & constituents,
 			edm::EventSetup const & c  )
     {
-      jet = reco::GenJet( p4, point, reco::GenJet::Specific(), constituents);  
+
+
+      // Switch to IndexedCandidate
+      JetReco::InputCollection out_constituents;
+      std::vector<reco::CandidatePtr>::const_iterator constituents_begin = constituents.begin(),
+	constituents_end = constituents.end(), iconstituent = constituents_begin;
+      for ( ; iconstituent != constituents_end; ++iconstituent) {
+	out_constituents.push_back( JetReco::InputItem( iconstituent->get(), iconstituent->key() ) );
+      }
+      // Make the specific
+      reco::GenJet::Specific specific;
+      JetMaker::makeSpecific (out_constituents, &specific);
+      jet = reco::GenJet( p4, point, specific, constituents);  
     }
     
     // PFJet
@@ -127,7 +154,17 @@ namespace cms
 			std::vector<reco::CandidatePtr> const & constituents,
 			edm::EventSetup const & c  )
     {
-      jet = reco::PFJet( p4, point, reco::PFJet::Specific(), constituents);  
+      // Switch to IndexedCandidate
+      JetReco::InputCollection out_constituents;
+      std::vector<reco::CandidatePtr>::const_iterator constituents_begin = constituents.begin(),
+	constituents_end = constituents.end(), iconstituent = constituents_begin;
+      for ( ; iconstituent != constituents_end; ++iconstituent) {
+	out_constituents.push_back( JetReco::InputItem( iconstituent->get(), iconstituent->key() ) );
+      }
+      // Make the specific
+      reco::PFJet::Specific specific;
+      JetMaker::makeSpecific (out_constituents, &specific);
+      jet = reco::PFJet( p4, point, specific, constituents);  
     }
     
     
