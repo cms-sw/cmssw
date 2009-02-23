@@ -8,9 +8,10 @@ void
 lumi::LumiDummyReader::fill(int startRun, 
 			    int numberOfRuns, 
     std::vector< std::pair<lumi::LuminosityInfo*,cond::Time_t> >& result,
-			    int lumiVersionNumber){
+			    short lumiVersionNumber){
   //fake 10 runs with 30 lumisection each with 3564 bunchcrossing,100 hlt trigger
-  int lumiversion=lumiVersionNumber;
+  short lumiversion=lumiVersionNumber;
+  std::cout<<"lumiversion "<<lumiversion<<std::endl;
   for(int i=startRun; i<=startRun+numberOfRuns; ++i){
     for(int j=1; j<30; ++j){
       edm::LuminosityBlockID lu(i,j);

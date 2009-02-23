@@ -20,7 +20,7 @@ namespace lumi{
     int m_startRun;
     int m_numberOfRuns;
     LumiReaderBase* m_datareader;
-    int m_lumiversionNumber;
+    short m_lumiversionNumber;
     std::string m_lumiversionName;
   };
 }//ns lumi

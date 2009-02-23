@@ -9,7 +9,7 @@ lumi::LuminosityInfoHandler::LuminosityInfoHandler(const edm::ParameterSet& pset
   m_to_transfer.reserve(100);
   m_startRun=pset.getUntrackedParameter<int>("startRun");
   m_numberOfRuns=pset.getUntrackedParameter<int>("numberOfRuns");
-  m_lumiversionNumber=pset.getParameter<int>("lumiVersionNumber");
+  m_lumiversionNumber=(short)pset.getParameter<int>("lumiVersionNumber");
   m_datareader=lumi::LumiReaderFactory::get()->create(m_name,pset);
 }
 

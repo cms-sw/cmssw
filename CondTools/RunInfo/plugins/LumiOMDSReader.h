@@ -16,7 +16,7 @@ namespace lumi{
     explicit LumiOMDSReader(const edm::ParameterSet& pset);
     virtual ~LumiOMDSReader();
     virtual void fill(int startRun, int numberOfRuns, 
-		      std::vector< std::pair<lumi::LuminosityInfo*,cond::Time_t> >& result, int lumiversionid);
+		      std::vector< std::pair<lumi::LuminosityInfo*,cond::Time_t> >& result, short lumiversionid);
   private:
     cond::DBSession* m_session;
     std::string m_constr;
