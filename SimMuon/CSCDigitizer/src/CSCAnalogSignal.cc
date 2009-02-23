@@ -1,5 +1,6 @@
 #include "SimMuon/CSCDigitizer/src/CSCAnalogSignal.h"
 #include <iostream>
+#include <algorithm>
 
 // =================================
 float CSCAnalogSignal::peakTime() const {
