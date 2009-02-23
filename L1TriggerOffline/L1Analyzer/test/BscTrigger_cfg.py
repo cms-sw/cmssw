@@ -6,13 +6,12 @@ process.load('Configuration/EventContent/EventContent_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-'rfio:/castor/cern.ch/user/b/boudoul/220/BH/BSCTrigger/Reco/step2_TrackerHaloMuon_1.root',
-'rfio:/castor/cern.ch/user/b/boudoul/220/BH/BSCTrigger/Reco/step2_TrackerHaloMuon_2.root',
-'rfio:/castor/cern.ch/user/b/boudoul/220/BH/BSCTrigger/Reco/step2_TrackerHaloMuon_3.root'
+'/store/relval/CMSSW_2_2_4/RelValBeamHalo/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V8_v1/0000/4059446C-1FF3-DD11-9570-001D09F241B4.root',
+'/store/relval/CMSSW_2_2_4/RelValBeamHalo/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V8_v1/0000/60D8AF30-91F3-DD11-81A6-001D09F29597.root'
 
 )
 )
-process.GlobalTag.globaltag = 'STARTUP_V7::All'
+process.GlobalTag.globaltag = 'STARTUP_V8::All'
 # BSC Trigger simulation 
 process.load("L1TriggerOffline.L1Analyzer.bscTrigger_cfi")
 
@@ -97,7 +96,7 @@ process.load('Configuration/StandardSequences/Services_cff')
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(3000)
 )
 
 process.options = cms.untracked.PSet(
@@ -110,8 +109,7 @@ process.options = cms.untracked.PSet(
 # Event output
 
 process.FEVT = cms.OutputModule("PoolOutputModule",
-    process.FEVTSIMEventContent,
-    fileName = cms.untracked.string('BSCTrigger.root'),
+    fileName = cms.untracked.string('BSCTrigger_relval.root'),
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('trigger_step')
     )
