@@ -344,7 +344,7 @@ SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup)
    tmp  = dqmStore_->book1D ("APV_Eta"        , "APV_Eta"        , 72785,0,72784); APV_Eta = tmp->getTH1F();
    tmp  = dqmStore_->book1D ("APV_R"          , "APV_R"          , 72785,0,72784); APV_R = tmp->getTH1F();
    tmp  = dqmStore_->book1D ("APV_SubDet"     , "APV_SubDet"     , 72785,0,72784); APV_SubDet = tmp->getTH1F();
-   tmp  = dqmStore_->book2D ("APV_Momentum"   , "APV_Momentum"   , 72785,0,72784, 100,0,100); APV_Momentum = tmp->getTH2F();
+   tmp  = dqmStore_->book2D ("APV_Momentum"   , "APV_Momentum"   , 72785,0,72784, 50,0,200); APV_Momentum = tmp->getTH2F();
    tmp  = dqmStore_->book2D ("APV_Charge"     , "APV_Charge"     , 72785,0,72784, 1000,0,2000); APV_Charge = tmp->getTH2F();
    tmp  = dqmStore_->book2D ("APV_PathLength" , "APV_PathLength" , 72785,0,72784, 100,0.2,1.4); APV_PathLength = tmp->getTH2F();
    tmp  = dqmStore_->book1D ("APV_PathLengthM", "APV_PathLengthM", 72785,0,72784); APV_PathLengthM = tmp->getTH1F();
@@ -355,15 +355,15 @@ SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup)
    tmp  = dqmStore_->book1D ("APV_Thickness"  , "APV_Thicknes"   , 72785,0,72784); APV_Thickness = tmp->getTH1F();
 
 
-   tmp  = dqmStore_->book2D ("Tracks_P_Vs_Eta"   , "Tracks_P_Vs_Eta" , 30, 0,3,100,0,100); Tracks_P_Vs_Eta = tmp->getTH2F();
-   tmp  = dqmStore_->book2D ("Tracks_Pt_Vs_Eta"  , "Tracks_Pt_Vs_Eta", 30, 0,3,100,0,100); Tracks_Pt_Vs_Eta = tmp->getTH2F();
+   tmp  = dqmStore_->book2D ("Tracks_P_Vs_Eta"   , "Tracks_P_Vs_Eta" , 30, 0,3,50,0,200); Tracks_P_Vs_Eta = tmp->getTH2F();
+   tmp  = dqmStore_->book2D ("Tracks_Pt_Vs_Eta"  , "Tracks_Pt_Vs_Eta", 30, 0,3,50,0,200); Tracks_Pt_Vs_Eta = tmp->getTH2F();
 
-   tmp  = dqmStore_->book2D ("Charge_Vs_PathTIB" , "Charge_Vs_PathTIB" ,250,0.2,1.4, 500,0,2000); Charge_Vs_PathTIB = tmp->getTH2F();
-   tmp  = dqmStore_->book2D ("Charge_Vs_PathTID" , "Charge_Vs_PathTID" ,250,0.2,1.4, 500,0,2000); Charge_Vs_PathTID = tmp->getTH2F();
-   tmp  = dqmStore_->book2D ("Charge_Vs_PathTOB" , "Charge_Vs_PathTOB" ,250,0.2,1.4, 500,0,2000); Charge_Vs_PathTOB = tmp->getTH2F();
-   tmp  = dqmStore_->book2D ("Charge_Vs_PathTEC" , "Charge_Vs_PathTEC" ,250,0.2,1.4, 500,0,2000); Charge_Vs_PathTEC = tmp->getTH2F();
-   tmp  = dqmStore_->book2D ("Charge_Vs_PathTEC1", "Charge_Vs_PathTEC1",250,0.2,1.4, 500,0,2000); Charge_Vs_PathTEC1 = tmp->getTH2F();
-   tmp  = dqmStore_->book2D ("Charge_Vs_PathTEC2", "Charge_Vs_PathTEC2",250,0.2,1.4, 500,0,2000); Charge_Vs_PathTEC2 = tmp->getTH2F();
+   tmp  = dqmStore_->book2D ("Charge_Vs_PathTIB" , "Charge_Vs_PathTIB" ,100,0.2,1.4, 500,0,2000); Charge_Vs_PathTIB = tmp->getTH2F();
+   tmp  = dqmStore_->book2D ("Charge_Vs_PathTID" , "Charge_Vs_PathTID" ,100,0.2,1.4, 500,0,2000); Charge_Vs_PathTID = tmp->getTH2F();
+   tmp  = dqmStore_->book2D ("Charge_Vs_PathTOB" , "Charge_Vs_PathTOB" ,100,0.2,1.4, 500,0,2000); Charge_Vs_PathTOB = tmp->getTH2F();
+   tmp  = dqmStore_->book2D ("Charge_Vs_PathTEC" , "Charge_Vs_PathTEC" ,100,0.2,1.4, 500,0,2000); Charge_Vs_PathTEC = tmp->getTH2F();
+   tmp  = dqmStore_->book2D ("Charge_Vs_PathTEC1", "Charge_Vs_PathTEC1",100,0.2,1.4, 500,0,2000); Charge_Vs_PathTEC1 = tmp->getTH2F();
+   tmp  = dqmStore_->book2D ("Charge_Vs_PathTEC2", "Charge_Vs_PathTEC2",100,0.2,1.4, 500,0,2000); Charge_Vs_PathTEC2 = tmp->getTH2F();
 
 
    tmp  = dqmStore_->book1D ("Charge_TIB" , "Charge_TIB" ,1000,0,2000); Charge_TIB = tmp->getTH1F();
@@ -385,9 +385,9 @@ SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup)
    tmp  = dqmStore_->book2D ("Charge_Vs_PathLength_CS4", "Charge_Vs_PathLength_CS4"  , 250,0.2,1.4, 500,0,2000); Charge_Vs_PathLength_CS4 = tmp->getTH2F();
    tmp  = dqmStore_->book2D ("Charge_Vs_PathLength_CS5", "Charge_Vs_PathLength_CS5"  , 250,0.2,1.4, 500,0,2000); Charge_Vs_PathLength_CS5 = tmp->getTH2F();
 */
-   tmp  = dqmStore_->book2D ("Charge_Vs_PathLength"    , "Charge_Vs_PathLength"      , 250,0.2,1.4, 1000,0,2000); Charge_Vs_PathLength = tmp->getTH2F();
-   tmp  = dqmStore_->book2D ("Charge_Vs_PathLength320" , "Charge_Vs_PathLength"      , 250,0.2,1.4, 1000,0,2000); Charge_Vs_PathLength320 = tmp->getTH2F();
-   tmp  = dqmStore_->book2D ("Charge_Vs_PathLength500" , "Charge_Vs_PathLength"      , 250,0.2,1.4, 1000,0,2000); Charge_Vs_PathLength500 = tmp->getTH2F();
+   tmp  = dqmStore_->book2D ("Charge_Vs_PathLength"    , "Charge_Vs_PathLength"      , 100,0.2,1.4, 500,0,2000); Charge_Vs_PathLength = tmp->getTH2F();
+   tmp  = dqmStore_->book2D ("Charge_Vs_PathLength320" , "Charge_Vs_PathLength"      , 100,0.2,1.4, 500,0,2000); Charge_Vs_PathLength320 = tmp->getTH2F();
+   tmp  = dqmStore_->book2D ("Charge_Vs_PathLength500" , "Charge_Vs_PathLength"      , 100,0.2,1.4, 500,0,2000); Charge_Vs_PathLength500 = tmp->getTH2F();
 
    tmp  = dqmStore_->book2D ("Charge_Vs_TransversAngle" , "Charge_Vs_TransversAngle" , 220,-20,200, 500,0,2000); Charge_Vs_TransversAngle = tmp->getTH2F();
    tmp  = dqmStore_->book2D ("Charge_Vs_Alpha"          , "Charge_Vs_Alpha"          , 220,-20,200, 500,0,2000); Charge_Vs_Alpha = tmp->getTH2F();
@@ -406,31 +406,31 @@ SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup)
 
    if( strcmp(AlgoMode.c_str(),"MultiJob")!=0 ){
 
-      tmp  = dqmStore_->book2D ("MPV_Vs_EtaTIB"     , "MPV_Vs_EtaTIB" , 50, -3.0, 3.0, 600, 0, 600); MPV_Vs_EtaTIB = tmp->getTH2F();
-      tmp  = dqmStore_->book2D ("MPV_Vs_EtaTID"     , "MPV_Vs_EtaTID" , 50, -3.0, 3.0, 600, 0, 600); MPV_Vs_EtaTID = tmp->getTH2F();
-      tmp  = dqmStore_->book2D ("MPV_Vs_EtaTOB"     , "MPV_Vs_EtaTOB" , 50, -3.0, 3.0, 600, 0, 600); MPV_Vs_EtaTOB = tmp->getTH2F();
-      tmp  = dqmStore_->book2D ("MPV_Vs_EtaTEC"     , "MPV_Vs_EtaTEC" , 50, -3.0, 3.0, 600, 0, 600); MPV_Vs_EtaTEC = tmp->getTH2F();
-      tmp  = dqmStore_->book2D ("MPV_Vs_EtaTEC1"    , "MPV_Vs_EtaTEC1", 50, -3.0, 3.0, 600, 0, 600); MPV_Vs_EtaTEC1 = tmp->getTH2F();
-      tmp  = dqmStore_->book2D ("MPV_Vs_EtaTEC2"    , "MPV_Vs_EtaTEC2", 50, -3.0, 3.0, 600, 0, 600); MPV_Vs_EtaTEC2 = tmp->getTH2F();
+      tmp  = dqmStore_->book2D ("MPV_Vs_EtaTIB"     , "MPV_Vs_EtaTIB" , 50, -3.0, 3.0, 300, 0, 600); MPV_Vs_EtaTIB = tmp->getTH2F();
+      tmp  = dqmStore_->book2D ("MPV_Vs_EtaTID"     , "MPV_Vs_EtaTID" , 50, -3.0, 3.0, 300, 0, 600); MPV_Vs_EtaTID = tmp->getTH2F();
+      tmp  = dqmStore_->book2D ("MPV_Vs_EtaTOB"     , "MPV_Vs_EtaTOB" , 50, -3.0, 3.0, 300, 0, 600); MPV_Vs_EtaTOB = tmp->getTH2F();
+      tmp  = dqmStore_->book2D ("MPV_Vs_EtaTEC"     , "MPV_Vs_EtaTEC" , 50, -3.0, 3.0, 300, 0, 600); MPV_Vs_EtaTEC = tmp->getTH2F();
+      tmp  = dqmStore_->book2D ("MPV_Vs_EtaTEC1"    , "MPV_Vs_EtaTEC1", 50, -3.0, 3.0, 300, 0, 600); MPV_Vs_EtaTEC1 = tmp->getTH2F();
+      tmp  = dqmStore_->book2D ("MPV_Vs_EtaTEC2"    , "MPV_Vs_EtaTEC2", 50, -3.0, 3.0, 300, 0, 600); MPV_Vs_EtaTEC2 = tmp->getTH2F();
 
-      tmp  = dqmStore_->book2D ("MPV_Vs_PhiTIB"     , "MPV_Vs_PhiTIB" , 50, -3.2, 3.2, 600, 0, 600); MPV_Vs_PhiTIB = tmp->getTH2F();
-      tmp  = dqmStore_->book2D ("MPV_Vs_PhiTID"     , "MPV_Vs_PhiTID" , 50, -3.2, 3.2, 600, 0, 600); MPV_Vs_PhiTID = tmp->getTH2F();
-      tmp  = dqmStore_->book2D ("MPV_Vs_PhiTOB"     , "MPV_Vs_PhiTOB" , 50, -3.2, 3.2, 600, 0, 600); MPV_Vs_PhiTOB = tmp->getTH2F();
-      tmp  = dqmStore_->book2D ("MPV_Vs_PhiTEC"     , "MPV_Vs_PhiTEC" , 50, -3.2, 3.2, 600, 0, 600); MPV_Vs_PhiTEC = tmp->getTH2F();
-      tmp  = dqmStore_->book2D ("MPV_Vs_PhiTEC1"    , "MPV_Vs_PhiTEC1", 50, -3.2, 3.2, 600, 0, 600); MPV_Vs_PhiTEC1 = tmp->getTH2F();
-      tmp  = dqmStore_->book2D ("MPV_Vs_PhiTEC2"    , "MPV_Vs_PhiTEC2", 50, -3.2, 3.2, 600, 0, 600); MPV_Vs_PhiTEC2 = tmp->getTH2F();
+      tmp  = dqmStore_->book2D ("MPV_Vs_PhiTIB"     , "MPV_Vs_PhiTIB" , 50, -3.2, 3.2, 300, 0, 600); MPV_Vs_PhiTIB = tmp->getTH2F();
+      tmp  = dqmStore_->book2D ("MPV_Vs_PhiTID"     , "MPV_Vs_PhiTID" , 50, -3.2, 3.2, 300, 0, 600); MPV_Vs_PhiTID = tmp->getTH2F();
+      tmp  = dqmStore_->book2D ("MPV_Vs_PhiTOB"     , "MPV_Vs_PhiTOB" , 50, -3.2, 3.2, 300, 0, 600); MPV_Vs_PhiTOB = tmp->getTH2F();
+      tmp  = dqmStore_->book2D ("MPV_Vs_PhiTEC"     , "MPV_Vs_PhiTEC" , 50, -3.2, 3.2, 300, 0, 600); MPV_Vs_PhiTEC = tmp->getTH2F();
+      tmp  = dqmStore_->book2D ("MPV_Vs_PhiTEC1"    , "MPV_Vs_PhiTEC1", 50, -3.2, 3.2, 300, 0, 600); MPV_Vs_PhiTEC1 = tmp->getTH2F();
+      tmp  = dqmStore_->book2D ("MPV_Vs_PhiTEC2"    , "MPV_Vs_PhiTEC2", 50, -3.2, 3.2, 300, 0, 600); MPV_Vs_PhiTEC2 = tmp->getTH2F();
 
 
-      tmp  = dqmStore_->book1D ("MPV_Vs_PathTIB"    , "MPV_Vs_PathTIB"    ,250,0.2,1.4); MPV_Vs_PathTIB = tmp->getTH1F();
-      tmp  = dqmStore_->book1D ("MPV_Vs_PathTID"    , "MPV_Vs_PathTID"    ,250,0.2,1.4); MPV_Vs_PathTID = tmp->getTH1F();
-      tmp  = dqmStore_->book1D ("MPV_Vs_PathTOB"    , "MPV_Vs_PathTOB"    ,250,0.2,1.4); MPV_Vs_PathTOB = tmp->getTH1F();
-      tmp  = dqmStore_->book1D ("MPV_Vs_PathTEC"    , "MPV_Vs_PathTEC"    ,250,0.2,1.4); MPV_Vs_PathTEC = tmp->getTH1F();
-      tmp  = dqmStore_->book1D ("MPV_Vs_PathTEC1"   , "MPV_Vs_PathTEC1"   ,250,0.2,1.4); MPV_Vs_PathTEC1 = tmp->getTH1F();
-      tmp  = dqmStore_->book1D ("MPV_Vs_PathTEC2"   , "MPV_Vs_PathTEC2"   ,250,0.2,1.4); MPV_Vs_PathTEC2 = tmp->getTH1F();
+      tmp  = dqmStore_->book1D ("MPV_Vs_PathTIB"    , "MPV_Vs_PathTIB"    ,100,0.2,1.4); MPV_Vs_PathTIB = tmp->getTH1F();
+      tmp  = dqmStore_->book1D ("MPV_Vs_PathTID"    , "MPV_Vs_PathTID"    ,100,0.2,1.4); MPV_Vs_PathTID = tmp->getTH1F();
+      tmp  = dqmStore_->book1D ("MPV_Vs_PathTOB"    , "MPV_Vs_PathTOB"    ,100,0.2,1.4); MPV_Vs_PathTOB = tmp->getTH1F();
+      tmp  = dqmStore_->book1D ("MPV_Vs_PathTEC"    , "MPV_Vs_PathTEC"    ,100,0.2,1.4); MPV_Vs_PathTEC = tmp->getTH1F();
+      tmp  = dqmStore_->book1D ("MPV_Vs_PathTEC1"   , "MPV_Vs_PathTEC1"   ,100,0.2,1.4); MPV_Vs_PathTEC1 = tmp->getTH1F();
+      tmp  = dqmStore_->book1D ("MPV_Vs_PathTEC2"   , "MPV_Vs_PathTEC2"   ,100,0.2,1.4); MPV_Vs_PathTEC2 = tmp->getTH1F();
 
-      tmp  = dqmStore_->book2D ("MPV_Vs_Phi", "MPV_Vs_Phi", 50, -3.2, 3.2  , 600, 0, 600); MPV_Vs_Phi = tmp->getTH2F();
-      tmp  = dqmStore_->book2D ("MPV_Vs_Eta", "MPV_Vs_Eta", 50, -3.0, 3.0  , 600, 0, 600); MPV_Vs_Eta = tmp->getTH2F();
-      tmp  = dqmStore_->book2D ("MPV_Vs_R"  , "MPV_Vs_R"  , 150, 0.0, 150.0, 600, 0, 600); MPV_Vs_R = tmp->getTH2F();
+      tmp  = dqmStore_->book2D ("MPV_Vs_Phi", "MPV_Vs_Phi", 50, -3.2, 3.2  , 300, 0, 600); MPV_Vs_Phi = tmp->getTH2F();
+      tmp  = dqmStore_->book2D ("MPV_Vs_Eta", "MPV_Vs_Eta", 50, -3.0, 3.0  , 300, 0, 600); MPV_Vs_Eta = tmp->getTH2F();
+      tmp  = dqmStore_->book2D ("MPV_Vs_R"  , "MPV_Vs_R"  , 150, 0.0, 150.0, 300, 0, 600); MPV_Vs_R = tmp->getTH2F();
 /*   
       tmp  = dqmStore_->book1D ("MPV_Vs_PathLength_CS1"   , "MPV_Vs_PathLength_CS1" , 250, 0.2, 1.4); MPV_Vs_PathLength_CS1 = tmp->getTH1F();
       tmp  = dqmStore_->book1D ("MPV_Vs_PathLength_CS2"   , "MPV_Vs_PathLength_CS2" , 250, 0.2, 1.4); MPV_Vs_PathLength_CS2 = tmp->getTH1F();
@@ -444,29 +444,29 @@ SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup)
       tmp  = dqmStore_->book1D ("FWHM_Vs_PathLength_CS4"  , "FWHM_Vs_PathLength_CS4", 250, 0.2, 1.4); FWHM_Vs_PathLength_CS4 = tmp->getTH1F();
       tmp  = dqmStore_->book1D ("FWHM_Vs_PathLength_CS5"  , "FWHM_Vs_PathLength_CS5", 250, 0.2, 1.4); FWHM_Vs_PathLength_CS5 = tmp->getTH1F();
 */
-      tmp  = dqmStore_->book1D ("MPV_Vs_PathLength"       , "MPV_Vs_PathLength"     , 250, 0.2, 1.4); MPV_Vs_PathLength = tmp->getTH1F();
-      tmp  = dqmStore_->book1D ("MPV_Vs_PathLength320"    , "MPV_Vs_PathLength"     , 250, 0.2, 1.4); MPV_Vs_PathLength320 = tmp->getTH1F();
-      tmp  = dqmStore_->book1D ("MPV_Vs_PathLength500"    , "MPV_Vs_PathLength"     , 250, 0.2, 1.4); MPV_Vs_PathLength500 = tmp->getTH1F();
+      tmp  = dqmStore_->book1D ("MPV_Vs_PathLength"       , "MPV_Vs_PathLength"     , 100, 0.2, 1.4); MPV_Vs_PathLength = tmp->getTH1F();
+      tmp  = dqmStore_->book1D ("MPV_Vs_PathLength320"    , "MPV_Vs_PathLength"     , 100, 0.2, 1.4); MPV_Vs_PathLength320 = tmp->getTH1F();
+      tmp  = dqmStore_->book1D ("MPV_Vs_PathLength500"    , "MPV_Vs_PathLength"     , 100, 0.2, 1.4); MPV_Vs_PathLength500 = tmp->getTH1F();
 
-      tmp  = dqmStore_->book1D ("FWHM_Vs_PathLength"      , "FWHM_Vs_PathLength"    , 250, 0.2, 1.4); FWHM_Vs_PathLength = tmp->getTH1F();
-      tmp  = dqmStore_->book1D ("FWHM_Vs_PathLength320"   , "FWHM_Vs_PathLength"    , 250, 0.2, 1.4); FWHM_Vs_PathLength320 = tmp->getTH1F();
-      tmp  = dqmStore_->book1D ("FWHM_Vs_PathLength500"   , "FWHM_Vs_PathLength"    , 250, 0.2, 1.4); FWHM_Vs_PathLength500 = tmp->getTH1F();
+      tmp  = dqmStore_->book1D ("FWHM_Vs_PathLength"      , "FWHM_Vs_PathLength"    , 100, 0.2, 1.4); FWHM_Vs_PathLength = tmp->getTH1F();
+      tmp  = dqmStore_->book1D ("FWHM_Vs_PathLength320"   , "FWHM_Vs_PathLength"    , 100, 0.2, 1.4); FWHM_Vs_PathLength320 = tmp->getTH1F();
+      tmp  = dqmStore_->book1D ("FWHM_Vs_PathLength500"   , "FWHM_Vs_PathLength"    , 100, 0.2, 1.4); FWHM_Vs_PathLength500 = tmp->getTH1F();
 
       tmp  = dqmStore_->book1D ("MPV_Vs_TransversAngle"   , "MPV_Vs_TransversAngle" , 220, -20, 200); MPV_Vs_TransversAngle = tmp->getTH1F();
       tmp  = dqmStore_->book1D ("MPV_Vs_Alpha"            , "MPV_Vs_Alpha"          , 220, -20, 200); MPV_Vs_Alpha = tmp->getTH1F();
       tmp  = dqmStore_->book1D ("MPV_Vs_Beta"             , "MPV_Vs_Beta"           , 220, -20, 200); MPV_Vs_Beta = tmp->getTH1F();
 
-      tmp  = dqmStore_->book2D ("Error_Vs_MPV"   , "Error_Vs_MPV"    ,600,0,600     ,500 ,0   ,50); Error_Vs_MPV = tmp->getTH2F();
-      tmp  = dqmStore_->book2D ("Error_Vs_Entries","Error_Vs_Entries",1000,0,10000  ,500 ,0   ,50);  Error_Vs_Entries = tmp->getTH2F();
-      tmp  = dqmStore_->book2D ("Error_Vs_Eta"   , "Error_Vs_Eta"    ,50  ,-3.0,3.0 ,500 ,0   ,50 ); Error_Vs_Eta = tmp->getTH2F();
-      tmp  = dqmStore_->book2D ("Error_Vs_Phi"   , "Error_Vs_Phi"    ,50  ,-3.2,3.2 ,500 ,0   ,50); Error_Vs_Phi = tmp->getTH2F();
+      tmp  = dqmStore_->book2D ("Error_Vs_MPV"   , "Error_Vs_MPV"    ,600,0,600     ,100 ,0   ,50); Error_Vs_MPV = tmp->getTH2F();
+      tmp  = dqmStore_->book2D ("Error_Vs_Entries","Error_Vs_Entries",500,0,10000   ,100 ,0   ,50);  Error_Vs_Entries = tmp->getTH2F();
+      tmp  = dqmStore_->book2D ("Error_Vs_Eta"   , "Error_Vs_Eta"    ,50  ,-3.0,3.0 ,100 ,0   ,50 ); Error_Vs_Eta = tmp->getTH2F();
+      tmp  = dqmStore_->book2D ("Error_Vs_Phi"   , "Error_Vs_Phi"    ,50  ,-3.2,3.2 ,100 ,0   ,50); Error_Vs_Phi = tmp->getTH2F();
 
 
       tmp  = dqmStore_->book2D ("NoMPV_Vs_EtaPhi" , "NoMPV_Vs_EtaPhi" ,50,-3.0,3.0   ,50  ,-3.2,3.2); NoMPV_Vs_EtaPhi = tmp->getTH2F();
 
 
 
-      tmp  = dqmStore_->book1D ("NumberOfEntriesByAPV"   , "NumberOfEntriesByAPV"   , 10000, 0,10000); NumberOfEntriesByAPV = tmp->getTH1F();
+      tmp  = dqmStore_->book1D ("NumberOfEntriesByAPV"   , "NumberOfEntriesByAPV"   , 1000, 0,10000); NumberOfEntriesByAPV = tmp->getTH1F();
       tmp  = dqmStore_->book1D ("Chi2OverNDF","Chi2OverNDF", 500, 0,25); HChi2OverNDF = tmp->getTH1F();
 
       tmp  = dqmStore_->book1D ("MPVs", "MPVs", 600,0,600); MPVs = tmp->getTH1F();
@@ -556,7 +556,6 @@ SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup)
 
 void 
 SiStripGainFromData::algoEndJob() {
-    cout << "START algoEndJobt\n";
 
 
    unsigned int I=0;
@@ -721,10 +720,19 @@ SiStripGainFromData::algoEndJob() {
             if(APV->Side==1)			    Charge_TECM->Add(Proj,1);
             if(APV->Side==2)                        Charge_TECP->Add(Proj,1);
             }
+         }
 
-
-//            double Eta_R = (APV->R*20.0)+APV->Eta;
-//            MPV_vs_10RplusEta ->Fill(Eta_R,APV->MPV);           
+         if(APV->SubDet==StripSubdetector::TIB)  Charge_TIB ->Add(Proj,1);
+         if(APV->SubDet==StripSubdetector::TID){ Charge_TID ->Add(Proj,1);
+         if(APV->Side==1)                        Charge_TIDM->Add(Proj,1);
+         if(APV->Side==2)                        Charge_TIDP->Add(Proj,1);
+         }
+         if(APV->SubDet==StripSubdetector::TOB)  Charge_TOB ->Add(Proj,1);
+         if(APV->SubDet==StripSubdetector::TEC){ Charge_TEC ->Add(Proj,1);
+         if(APV->Thickness<0.04)                 Charge_TEC1->Add(Proj,1);
+         if(APV->Thickness>0.04)                 Charge_TEC2->Add(Proj,1);
+         if(APV->Side==1)                        Charge_TECM->Add(Proj,1);
+         if(APV->Side==2)                        Charge_TECP->Add(Proj,1);
          }
 
          if(FitResults[0]!=-0.5){
@@ -950,21 +958,13 @@ SiStripGainFromData::algoEndJob() {
 //      delete Proj;
    }
 
-    cout << "START savingDQM\n";
-
-
    dqmStore_->cd();
    dqmStore_->save(OutputHistos.c_str());
 
-    cout << "END savingDQM\n";
-
-
-   cout << "END algoEndJob\n";
 }
 
 
 void SiStripGainFromData::algoBeginRun(const edm::Run &, const edm::EventSetup &iSetup){
-    cout << "START algoBeginRun\n";
 
     edm::ESHandle<SiStripGain> gainHandle;
     if((strcmp(AlgoMode.c_str(),"MultiJob")!=0 && !FirstSetOfConstants) || Validation){
@@ -987,7 +987,6 @@ void SiStripGainFromData::algoBeginRun(const edm::Run &, const edm::EventSetup &
        }
     }
 
-    cout << "END algoBeginRun\n";
 
 }
 
@@ -1014,6 +1013,7 @@ SiStripGainFromData::algoAnalyze(const edm::Event& iEvent, const edm::EventSetup
    Handle<TrajTrackAssociationCollection> trajTrackAssociationHandle;
    iEvent.getByLabel(TrajToTrackProducer, TrajToTrackLabel, trajTrackAssociationHandle);
    const TrajTrackAssociationCollection TrajToTrackMap = *trajTrackAssociationHandle.product();
+
 
    for(TrajTrackAssociationCollection::const_iterator it = TrajToTrackMap.begin(); it!=TrajToTrackMap.end(); ++it) {
       const Track      track = *it->val;   
