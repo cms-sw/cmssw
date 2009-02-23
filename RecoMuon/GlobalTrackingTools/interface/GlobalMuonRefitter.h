@@ -4,8 +4,8 @@
 /** \class GlobalMuonRefitter
  *  class to build muon trajectory
  *
- *  $Date: 2008/11/07 16:29:51 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/11/12 09:40:01 $
+ *  $Revision: 1.4 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -22,6 +22,8 @@
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
+#include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
+#include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 
 namespace edm {class Event;}
 namespace reco {class TransientTrack;}
@@ -108,9 +110,6 @@ class GlobalMuonRefitter {
     float thePtCut;
 
   private:
-
-    MuonDetLayerMeasurements* theLayerMeasurements;
-    const MuonServiceProxy* theService;
   
     int   theMuonHitsOption;
     float theProbCut;
@@ -118,7 +117,12 @@ class GlobalMuonRefitter {
     float theDTChi2Cut;
     float theCSCChi2Cut;
     float theRPCChi2Cut;
- 
+
+    edm::InputTag theDTRecHitLabel;
+    edm::InputTag theCSCRecHitLabel;
+    edm::Handle<DTRecHitCollection>    theDTRecHits;
+    edm::Handle<CSCRecHit2DCollection> theCSCRecHits;
+
     int	  theSkipStation;
     int   theTrackerSkipSystem;
     int   theTrackerSkipSection;
@@ -143,5 +147,6 @@ class GlobalMuonRefitter {
     std::string theMuonRecHitBuilderName;
     edm::ESHandle<TransientTrackingRecHitBuilder> theMuonRecHitBuilder;
 
+    const MuonServiceProxy* theService;
 };
 #endif

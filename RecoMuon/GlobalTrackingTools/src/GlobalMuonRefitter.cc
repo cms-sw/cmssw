@@ -4,8 +4,8 @@
  *  Description:
  *
  *
- *  $Date: 2008/11/07 16:29:31 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/11/12 09:39:47 $
+ *  $Revision: 1.5 $
  *
  *  Authors :
  *  P. Traczyk, SINS Warsaw
@@ -38,10 +38,15 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
+
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/DTGeometry/interface/DTLayer.h"
+#include <Geometry/CSCGeometry/interface/CSCLayer.h>
+#include <DataFormats/CSCRecHit/interface/CSCRecHit2D.h>
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
@@ -68,14 +73,12 @@ using namespace edm;
 
 GlobalMuonRefitter::GlobalMuonRefitter(const edm::ParameterSet& par,
 				       const MuonServiceProxy* service) : 
+  theDTRecHitLabel(par.getParameter<InputTag>("DTRecSegmentLabel")),
+  theCSCRecHitLabel(par.getParameter<InputTag>("CSCRecSegmentLabel")),
   theService(service) {
 
   theCategory = par.getUntrackedParameter<string>("Category", "Muon|RecoMuon|GlobalMuon|GlobalMuonRefitter");
 
-  theLayerMeasurements = new MuonDetLayerMeasurements(par.getParameter<InputTag>("DTRecSegmentLabel"),
-						      par.getParameter<InputTag>("CSCRecSegmentLabel"),
-						      par.getParameter<InputTag>("RPCRecSegmentLabel"));
-  
   theHitThreshold = par.getParameter<int>("HitThreshold");
   theDTChi2Cut  = par.getParameter<double>("Chi2CutDT");
   theCSCChi2Cut = par.getParameter<double>("Chi2CutCSC");
@@ -115,21 +118,20 @@ GlobalMuonRefitter::GlobalMuonRefitter(const edm::ParameterSet& par,
 //--------------
 
 GlobalMuonRefitter::~GlobalMuonRefitter() {
-
-  if (theLayerMeasurements) delete theLayerMeasurements;
-  
 }
+
 
 //
 // set Event
 //
 void GlobalMuonRefitter::setEvent(const edm::Event& event) {
-  theLayerMeasurements->setEvent(event);  
+
+  event.getByLabel(theDTRecHitLabel, theDTRecHits);
+  event.getByLabel(theCSCRecHitLabel, theCSCRecHits);
 }
 
 
-
-void GlobalMuonRefitter::setServices(const EventSetup& setup){
+void GlobalMuonRefitter::setServices(const EventSetup& setup) {
 
   theService->eventSetup().get<TrackingComponentsRecord>().get(theFitterName,theFitter);
 
@@ -231,11 +233,9 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
 
   LogTrace(theCategory) << " GlobalMuonRefitter::checkMuonHits " << endl;
 
+  float coneSize = 20.0;
   int dethits[4];
   for ( int i=0; i<4; i++ ) hits[i]=dethits[i]=0;
-
-  MuonRecHitContainer dRecHits;
-  DetLayer* oldlayer = 0;
 
   // loop through all muon hits and calculate the maximum # of hits in each chamber
   for (ConstRecHitContainer::const_iterator imrh = all.begin(); imrh != all.end(); imrh++ ) {
@@ -244,100 +244,57 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
   
     int station = 0;
     int detRecHits = 0;
+    MuonRecHitContainer dRecHits;
       
     DetId id = (*imrh)->geographicalId();
 
     // Skip tracker hits
     if (id.det()!=DetId::Muon) continue;
-      
-    const DetLayer* layer = theService->detLayerGeometry()->idToLayer(id);
-    
-//    if (layer!=oldlayer
-    dRecHits = theLayerMeasurements->recHits(layer);
-      
-    // get station of hit if it is in DT
+
     if ( id.subdetId() == MuonSubdetId::DT ) {
       DTChamberId did(id.rawId());
+      DTLayerId lid(id.rawId());
       station = did.station();
-      float coneSize = 10.0;
-	
-      bool hitUnique = false;
-      ConstRecHitContainer all2dRecHits;
-      for (MuonRecHitContainer::const_iterator ir = dRecHits.begin(); ir != dRecHits.end(); ir++ ) {
-	if ( (**ir).dimension() == 2 ) {
-	  hitUnique = true;
-	  if ( all2dRecHits.size() > 0 ) {
-	    for (ConstRecHitContainer::const_iterator iir = all2dRecHits.begin(); iir != all2dRecHits.end(); iir++ ) 
-	      if (((*iir)->localPosition()-(*ir)->localPosition()).mag()<0.01) hitUnique = false;
-	  } //end of if ( all2dRecHits.size() > 0 )
-	  if ( hitUnique ) all2dRecHits.push_back((*ir).get()); //FIXME!!
-	} else {
-	  ConstRecHitContainer sRecHits = (**ir).transientHits();
-	  for (ConstRecHitContainer::const_iterator iir = sRecHits.begin(); iir != sRecHits.end(); iir++ ) {
-	    if ( (*iir)->dimension() == 2 ) {
-	      hitUnique = true;
-	      if ( !all2dRecHits.empty() ) {
-		for (ConstRecHitContainer::const_iterator iiir = all2dRecHits.begin(); iiir != all2dRecHits.end(); iiir++ ) 
-		  if (((*iiir)->localPosition()-(*iir)->localPosition()).mag()<0.01) hitUnique = false;
-	      }//end of if ( all2dRecHits.size() > 0 )
-	    }//end of if ( (*iir).dimension() == 2 ) 
-	    if ( hitUnique )
-	      all2dRecHits.push_back(*iir);
-	    break;
-	  }//end of for sRecHits
-	}// end of else
-      }// end of for loop over dRecHits
-      for (ConstRecHitContainer::const_iterator ir = all2dRecHits.begin(); ir != all2dRecHits.end(); ir++ ) {
-	double rhitDistance = ((*ir)->localPosition()-(**imrh).localPosition()).mag();
+
+      // Get the 1d DT RechHits from this layer
+      DTRecHitCollection::range dRecHits = theDTRecHits->get(lid);
+
+      for (DTRecHitCollection::const_iterator ir = dRecHits.first; ir != dRecHits.second; ir++ ) {
+	double rhitDistance = fabs(ir->localPosition().x()-(**imrh).localPosition().x());
 	if ( rhitDistance < coneSize ) detRecHits++;
-	//	  LogTrace(theCategory) << " Station " << station << " DT "<<(*ir)->dimension()<<" " << (*ir)->localPosition()
-	//				<< " Distance: " << rhitDistance << " recHits: " << detRecHits;
-      }// end of for all2dRecHits
+        LogTrace(theCategory)	<< "       " << (ir)->localPosition() << "  " << (**imrh).localPosition()
+               << " Distance: " << rhitDistance << " recHits: " << detRecHits << endl;
+      }
     }// end of if DT
-    // get station of hit if it is in CSC
     else if ( id.subdetId() == MuonSubdetId::CSC ) {
+    
       CSCDetId did(id.rawId());
       station = did.station();
-	
-      float coneSize = 10.0;
-	
-      for (MuonRecHitContainer::const_iterator ir = dRecHits.begin(); ir != dRecHits.end(); ir++ ) {
-	double rhitDistance = ((**ir).localPosition()-(**imrh).localPosition()).mag();
+
+      // Get the CSC Rechits from this layer
+      CSCRecHit2DCollection::range dRecHits = theCSCRecHits->get(did);      
+
+      for (CSCRecHit2DCollection::const_iterator ir = dRecHits.first; ir != dRecHits.second; ir++ ) {
+	double rhitDistance = (ir->localPosition()-(**imrh).localPosition()).mag();
 	if ( rhitDistance < coneSize ) detRecHits++;
-	//	  LogTrace(theCategory) << " Station " << station << " CSC "<<(**ir).dimension()<<" "<<(**ir).localPosition()
-	//                              << " Distance: " << rhitDistance << " recHits: " << detRecHits;
-      }
-    }
-    // get station of hit if it is in RPC
-    else if ( id.subdetId() == MuonSubdetId::RPC ) {
-      RPCDetId rpcid(id.rawId());
-      station = rpcid.station();
-      float coneSize = 100.0;
-      for (MuonRecHitContainer::const_iterator ir = dRecHits.begin(); ir != dRecHits.end(); ir++ ) {
-	double rhitDistance = ((**ir).localPosition()-(**imrh).localPosition()).mag();
-	if ( rhitDistance < coneSize ) detRecHits++;
-	//	  LogTrace(theCategory) << " Station " << station << " RPC "<<(**ir).dimension()<<" "<< (**ir).localPosition()
-	//				<< " Distance: " << rhitDistance << " recHits: " << detRecHits;
+        LogTrace(theCategory)	<< ir->localPosition() << "  " << (**imrh).localPosition()
+	       << " Distance: " << rhitDistance << " recHits: " << detRecHits << endl;
       }
     }
     else {
-      LogError(theCategory)<<" Wrong Hit Type ";
+      if ( id.subdetId() != MuonSubdetId::RPC ) LogError(theCategory)<<" Wrong Hit Type ";
       continue;      
     }
       
     if ( (station > 0) && (station < 5) ) {
-      int detHits = dRecHits.size();
-      dethits[station-1] += detHits;
       if ( detRecHits > hits[station-1] ) hits[station-1] = detRecHits;
     }
 
-    //    all.push_back((*imrh).get()); //FIXME: may need fast assignment on above
-
   } // end of loop over muon rechits
 
-  for ( int i = 0; i < 4; i++ ) {
-    LogTrace(theCategory) <<"Station "<<i+1<<": "<<hits[i]<<" "<<dethits[i] <<endl; 
-  }     
+  for ( int i = 0; i < 4; i++ ) 
+    LogTrace(theCategory) <<" Station "<<i+1<<": "<<hits[i]<<" "<<dethits[i] <<endl; 
+
   LogTrace(theCategory) << "CheckMuonHits: "<<all.size();
   
   // check order of muon measurements
