@@ -5,7 +5,7 @@ ecalPreshowerSimHitsValidation = cms.EDFilter("EcalPreshowerSimHitsValidation",
     ESHitsCollection = cms.string('EcalHitsES'),
     moduleLabelG4 = cms.string('g4SimHits'),
     verbose = cms.untracked.bool(False),
-    moduleLabelMC = cms.string('source')
+    moduleLabelMC = cms.string('generator')
 )
 
 
