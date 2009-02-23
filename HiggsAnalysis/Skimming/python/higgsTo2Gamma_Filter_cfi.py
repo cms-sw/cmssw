@@ -6,12 +6,12 @@ import FWCore.ParameterSet.Config as cms
 #
 higgsTo2GammaFilter = cms.EDFilter("HiggsTo2GammaSkim",
     # Collection to be accessed
-    PhotonCollectionLabel = cms.InputTag("correctedPhotons"),
+    PhotonCollectionLabel = cms.InputTag("photons"),
     DebugHiggsTo2GammaSkim = cms.bool(False),
     # Minimum number of identified photons above pt threshold
     nPhotonMinimum = cms.int32(2),
     # Pt threshold for photons
-    photon1MinimumPt = cms.double(15.0)
+    photon1MinimumPt = cms.double(10.0)
 )
 
 
