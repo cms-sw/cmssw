@@ -26,6 +26,8 @@
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
+
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -51,23 +53,26 @@ reco::Track* PixelFitterByHelixProjections::run(
   vector<GlobalError> errors;
   vector<bool> isBarrel;
   
-  if (!theField || !theTracker || !theTTRecHitBuilder) {
-
+  static edm::ESWatcher<TrackerDigiGeometryRecord> watcherTrackerDigiGeometryRecord;
+  if (!theTracker || watcherTrackerDigiGeometryRecord.check(es)) {
     edm::ESHandle<TrackerGeometry> trackerESH;
     es.get<TrackerDigiGeometryRecord>().get(trackerESH);
     theTracker = trackerESH.product();
+  }
 
+  static edm::ESWatcher<IdealMagneticFieldRecord>  watcherIdealMagneticFieldRecord;
+  if (!theField || watcherIdealMagneticFieldRecord.check(es)) {
     edm::ESHandle<MagneticField> fieldESH;
     es.get<IdealMagneticFieldRecord>().get(fieldESH);
     theField = fieldESH.product();
+  }
 
+  static edm::ESWatcher<TransientRecHitRecord> watcherTransientRecHitRecord;
+  if (!theTTRecHitBuilder || watcherTransientRecHitRecord.check(es)) {
     edm::ESHandle<TransientTrackingRecHitBuilder> ttrhbESH;
-//    std::string builderName = "WithoutRefit";
-//    std::string builderName = "TTRHBuilder4PixelTriplets";
     std::string builderName = theConfig.getParameter<std::string>("TTRHBuilder");
     es.get<TransientRecHitRecord>().get(builderName,ttrhbESH);
     theTTRecHitBuilder = ttrhbESH.product();
-
   }
 
   for ( vector<const TrackingRecHit*>::const_iterator ih = hits.begin(); ih != hits.end(); ih++) {
