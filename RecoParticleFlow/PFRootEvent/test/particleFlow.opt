@@ -406,7 +406,7 @@ pfmet_benchmark	on/off	1
 pfmet_benchmark debug 0
 	
 //pfjet benchmark outputfile
-pfmet_benchmark outjetfile pfmetBenchmark.root
+pfmet_benchmark outmetfile pfmetBenchmark.root
 
 //PlotagainstReco  yes/no
 pfmet_benchmark PlotAgainstReco 0

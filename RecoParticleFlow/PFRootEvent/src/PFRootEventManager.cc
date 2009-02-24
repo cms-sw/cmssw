@@ -199,7 +199,7 @@ void PFRootEventManager::readOptions(const char* file,
   
   if (doPFMETBenchmark_) {
     string outmetfilename;
-    options_->GetOpt("pfmet_benchmark", "outjetfile", outmetfilename);
+    options_->GetOpt("pfmet_benchmark", "outmetfile", outmetfilename);
         
     bool pfmetBenchmarkDebug;
     options_->GetOpt("pfmet_benchmark", "debug", pfmetBenchmarkDebug);
@@ -1228,6 +1228,7 @@ PFRootEventManager::~PFRootEventManager() {
 void PFRootEventManager::write() {
 
   if(doPFJetBenchmark_) PFJetBenchmark_.write();
+  if(doPFMETBenchmark_) PFMETBenchmark_.write();
 
   if(!outFile_) return;
   else {
