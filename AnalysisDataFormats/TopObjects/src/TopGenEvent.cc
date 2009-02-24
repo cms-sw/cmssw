@@ -61,7 +61,7 @@ TopGenEvent::numberOfLeptonsFromW() const
   int lep=0;
   const reco::GenParticleCollection & partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
-    if (reco::isLepton(partsColl[i])&&(partsColl[i].status()==3) && 
+    if (reco::isLepton(partsColl[i])&&(partsColl[i].status()==4) && 
     // Leptons are coming from W decay 
      partsColl[i].mother() &&  abs(partsColl[i].mother()->pdgId())==24  ) {
       ++lep;
@@ -105,7 +105,7 @@ TopGenEvent::singleLepton() const
   if (numberOfLeptonsFromW() == 1) {
     const reco::GenParticleCollection & partsColl = *parts_;
     for (unsigned int i = 0; i < partsColl.size(); ++i) {
-     if (reco::isLepton(partsColl[i])&&(partsColl[i].status()==defaultStatus_)&&(partsColl[i].mother())&&(partsColl[i].mother()->pdgId())==24) {
+     if (reco::isLepton(partsColl[i])&&(partsColl[i].status()==defaultStatus_)&&(partsColl[i].mother())&&( abs(partsColl[i].mother()->pdgId()))==24) {
         cand = &partsColl[i];
       }
     }
