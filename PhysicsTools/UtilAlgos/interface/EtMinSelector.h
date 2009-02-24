@@ -1,7 +1,7 @@
 #ifndef UtilAlgos_EtMinSelector_h
 #define UtilAlgos_EtMinSelector_h
 #include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
-#include "PhysicsTools/Utilities/interface/EtMinSelector.h"
+#include "CommonTools/Utils/interface/EtMinSelector.h"
 
 namespace reco {
   namespace modules {

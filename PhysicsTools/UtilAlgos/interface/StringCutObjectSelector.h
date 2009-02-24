@@ -1,7 +1,7 @@
 #ifndef UtilAlgos_StringCutObjectSelector_h
 #define UtilAlgos_StringCutObjectSelector_h
 #include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
-#include "PhysicsTools/Utilities/interface/StringCutObjectSelector.h"
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 namespace reco {
   namespace modules {

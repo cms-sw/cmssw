@@ -1,7 +1,7 @@
 #ifndef UtilAlgos_DeltaRMinPairSelector_h
 #define UtilAlgos_DeltaRMinPairSelector_h
 #include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
-#include "PhysicsTools/Utilities/interface/DeltaRMinPairSelector.h"
+#include "CommonTools/Utils/interface/DeltaRMinPairSelector.h"
 
 namespace reco {
   namespace modules {

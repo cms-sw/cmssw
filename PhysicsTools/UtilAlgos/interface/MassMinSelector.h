@@ -1,7 +1,7 @@
 #ifndef UtilAlgos_MassMinSelector_h
 #define UtilAlgos_MassMinSelector_h
 #include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
-#include "PhysicsTools/Utilities/interface/MassMinSelector.h"
+#include "CommonTools/Utils/interface/MassMinSelector.h"
 
 namespace reco {
   namespace modules {

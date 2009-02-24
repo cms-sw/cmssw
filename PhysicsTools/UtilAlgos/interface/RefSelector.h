@@ -1,7 +1,7 @@
 #ifndef UtilAlgos_RefSelector_h
 #define UtilAlgos_RefSelector_h
 #include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
-#include "PhysicsTools/Utilities/interface/RefSelector.h"
+#include "CommonTools/Utils/interface/RefSelector.h"
 
 namespace reco {
   namespace modules {

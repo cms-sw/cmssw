@@ -14,7 +14,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
-#include "PhysicsTools/Utilities/interface/StringObjectFunction.h"
+#include "CommonTools/Utils/interface/StringObjectFunction.h"
 
 template<typename C>
 class NtpProducer : public edm::EDProducer {

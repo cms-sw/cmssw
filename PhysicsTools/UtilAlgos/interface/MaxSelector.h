@@ -1,7 +1,7 @@
 #ifndef UtilAlgos_MaxSelector_h
 #define UtilAlgos_MaxSelector_h
 #include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
-#include "PhysicsTools/Utilities/interface/MaxSelector.h"
+#include "CommonTools/Utils/interface/MaxSelector.h"
 
 namespace reco {
   namespace modules {

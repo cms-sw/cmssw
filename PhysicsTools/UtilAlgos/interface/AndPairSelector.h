@@ -1,7 +1,7 @@
 #ifndef UtilAlgos_AndPairSelector_h
 #define UtilAlgos_AndPairSelector_h
 #include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
-#include "PhysicsTools/Utilities/interface/AndPairSelector.h"
+#include "CommonTools/Utils/interface/AndPairSelector.h"
 
 namespace reco {
   namespace modules {

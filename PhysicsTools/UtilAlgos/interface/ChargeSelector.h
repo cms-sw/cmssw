@@ -1,7 +1,7 @@
 #ifndef UtilAlgos_ChargeSelector_h
 #define UtilAlgos_ChargeSelector_h
 #include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
-#include "PhysicsTools/Utilities/interface/ChargeSelector.h"
+#include "CommonTools/Utils/interface/ChargeSelector.h"
 
 namespace reco {
   namespace modules {

@@ -1,7 +1,7 @@
 #ifndef UtilAlgos_NonNullNumberSelector_h
 #define UtilAlgos_NonNullNumberSelector_h
 #include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
-#include "PhysicsTools/Utilities/interface/NonNullNumberSelector.h"
+#include "CommonTools/Utils/interface/NonNullNumberSelector.h"
 
 namespace reco {
   namespace modules {

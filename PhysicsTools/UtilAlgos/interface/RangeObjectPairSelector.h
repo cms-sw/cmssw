@@ -1,6 +1,6 @@
 #ifndef UtilAlgos_RangeObjectPairSelector_h
 #define UtilAlgos_RangeObjectPairSelector_h
-#include "PhysicsTools/Utilities/interface/RangeObjectPairSelector.h"
+#include "CommonTools/Utils/interface/RangeObjectPairSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
 
 namespace reco {

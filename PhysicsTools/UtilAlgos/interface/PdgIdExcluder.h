@@ -1,7 +1,7 @@
 #ifndef PhysicsTools_UtilAlgos_PdgIdSelector_h
 #define PhysicsTools_UtilAlgos_PdgIdSelector_h
 #include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
-#include "PhysicsTools/Utilities/interface/PdgIdExcluder.h"
+#include "CommonTools/Utils/interface/PdgIdExcluder.h"
 
 namespace reco {
   namespace modules {

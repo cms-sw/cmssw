@@ -1,7 +1,7 @@
 #ifndef UtilAlgos_MassRangeSelector_h
 #define UtilAlgos_MassRangeSelector_h
 #include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
-#include "PhysicsTools/Utilities/interface/MassRangeSelector.h"
+#include "CommonTools/Utils/interface/MassRangeSelector.h"
 
 namespace reco {
   namespace modules {

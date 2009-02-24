@@ -1,7 +1,7 @@
 #ifndef UtilAlgos_EtaRangeSelector_h
 #define UtilAlgos_EtaRangeSelector_h
 #include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
-#include "PhysicsTools/Utilities/interface/EtaRangeSelector.h"
+#include "CommonTools/Utils/interface/EtaRangeSelector.h"
 
 namespace reco {
   namespace modules {

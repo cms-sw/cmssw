@@ -1,7 +1,7 @@
 #ifndef UtilAlgos_OrSelector_h
 #define UtilAlgos_OrSelector_h
 #include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
-#include "PhysicsTools/Utilities/interface/OrSelector.h"
+#include "CommonTools/Utils/interface/OrSelector.h"
 
 namespace reco {
   namespace modules {

@@ -1,7 +1,7 @@
 #ifndef UtilAlgos_AnySelector_h
 #define UtilAlgos_AnySelector_h
 #include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
-#include "PhysicsTools/Utilities/interface/AnySelector.h"
+#include "CommonTools/Utils/interface/AnySelector.h"
 
 namespace reco {
   namespace modules {

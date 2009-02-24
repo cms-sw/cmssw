@@ -3,7 +3,7 @@
 
 #include "PhysicsTools/UtilAlgos/interface/EventSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/InputTagDistributor.h"
-#include "PhysicsTools/Utilities/interface/StringCutObjectSelector.h"
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 template<typename Object>

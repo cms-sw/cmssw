@@ -16,7 +16,7 @@
 //
 // Original Author: Benedikt HEGNER
 //         Created:  Fri Jun  1 14:35:22 CEST 2007
-// $Id: ExpressionHisto.h,v 1.4 2007/10/31 14:13:19 llista Exp $
+// $Id: ExpressionHisto.h,v 1.5 2007/11/13 08:49:25 gpetrucc Exp $
 //
 
 // system include files
@@ -25,7 +25,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
-#include "PhysicsTools/Utilities/interface/StringObjectFunction.h"
+#include "CommonTools/Utils/interface/StringObjectFunction.h"
 
 #include "TFile.h"
 #include "TH1F.h"

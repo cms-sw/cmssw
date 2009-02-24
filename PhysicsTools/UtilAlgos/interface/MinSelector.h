@@ -1,7 +1,7 @@
 #ifndef UtilAlgos_MinSelector_h
 #define UtilAlgos_MinSelector_h
 #include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
-#include "PhysicsTools/Utilities/interface/MinSelector.h"
+#include "CommonTools/Utils/interface/MinSelector.h"
 
 namespace reco {
   namespace modules {
