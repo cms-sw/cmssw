@@ -5,7 +5,8 @@ root outtree 1
 //colin	mode 1
 
 
-root file ../../Configuration/test/display_QCDForPF_Full_000.root
+//root file ../../Configuration/test/display_QCDForPF_Full_000.root
+root file ../../Configuration/test/display.root
 
 // filter ------------------------------------------------------------
 
@@ -397,6 +398,18 @@ pfjet_benchmark onlyTwoJets 1
 //minimum deltaR distance for matching pfjets/genjets
 pfjet_benchmark deltaRMax 0.1
 
+//PFMET benchmark options ---------------------------------------------------
+
+pfmet_benchmark	on/off	1
+
+//debug yes/no
+pfmet_benchmark debug 0
+	
+//pfjet benchmark outputfile
+pfmet_benchmark outjetfile pfmetBenchmark.root
+
+//PlotagainstReco  yes/no
+pfmet_benchmark PlotAgainstReco 0
 
 
 // FWLITE CMSSW Jet Algorithm options --------------------------------------

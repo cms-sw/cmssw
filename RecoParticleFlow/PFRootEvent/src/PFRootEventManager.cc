@@ -28,6 +28,9 @@
 #include "RecoParticleFlow/PFClusterTools/interface/PFClusterCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h" 
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "FWCore/FWLite/interface/AutoLibraryLoader.h"
 
@@ -179,7 +182,6 @@ void PFRootEventManager::readOptions(const char* file,
     double deltaRMax=0.1;
     options_->GetOpt("pfjet_benchmark", "deltaRMax", deltaRMax);
 
-
     fastsim_=true;
     options_->GetOpt("Simulation","Fast",fastsim_);
  
@@ -188,6 +190,35 @@ void PFRootEventManager::readOptions(const char* file,
                            plotAgainstReco,
 			   onlyTwoJets,
                            deltaRMax );
+  }
+
+// PFMET benchmark options and output jetfile to be open before input file!!!--
+
+  doPFMETBenchmark_ = false;
+  options_->GetOpt("pfmet_benchmark", "on/off", doPFMETBenchmark_);
+  
+  if (doPFMETBenchmark_) {
+    string outmetfilename;
+    options_->GetOpt("pfmet_benchmark", "outjetfile", outmetfilename);
+        
+    bool pfmetBenchmarkDebug;
+    options_->GetOpt("pfmet_benchmark", "debug", pfmetBenchmarkDebug);
+    
+    bool plotAgainstReco=0;
+    options_->GetOpt("pfmet_benchmark", "plotAgainstReco", plotAgainstReco);
+    
+    fastsim_=true;
+    options_->GetOpt("Simulation","Fast",fastsim_);
+
+    std::string xbenchmarkLabel_ = "ParticleFlow";
+    DQMStore* xdbe_;
+    xdbe_ = 0; //edm::Service<DQMStore>().operator->();
+
+    PFMETBenchmark_.setup( outmetfilename, 
+                           pfmetBenchmarkDebug,
+                           plotAgainstReco,
+			   xbenchmarkLabel_, 
+			   xdbe_);
   }
 
 
@@ -1298,6 +1329,31 @@ bool PFRootEventManager::processEntry(int entry) {
     //   if (resNeutralEmEnergy>0.5) return true;
     //   else return false;
   }// end PFJet Benchmark
+
+  if(doPFMETBenchmark_) { // start PFJet Benchmark
+          
+    PFMETBenchmark_.process( pfMetsCMSSW_, genParticlesCMSSW_, caloMetsCMSSW_ );
+    float deltaPFMET = PFMETBenchmark_.getDeltaPFMET();
+    float deltaPFPhi = PFMETBenchmark_.getDeltaPFPhi();
+    if( verbosity_ == VERBOSE ){ //start debug print
+
+      cout << " =====================PFMETBenchmark =================" << endl;
+    } // end debug print
+
+    // PJ : printout for bad events (selected by the "if")
+    if ( deltaPFMET > 50.0 ) { 
+      cout << " =====================PFMETBenchmark =================" << endl;
+      cout<<"process entry "<< entry << endl;
+      cout << "Delta PFMET = " << deltaPFMET 
+	   << "Delta PHPhi = " << deltaPFPhi
+	   << endl;
+      // return true;
+    } else { 
+      // return false;
+    }
+    //   if (resNeutralEmEnergy>0.5) return true;
+    //   else return false;
+  }// end PFMET Benchmark
     
   // evaluate tau Benchmark   
   if( goodevent && doTauBenchmark_) { // start tau Benchmark
