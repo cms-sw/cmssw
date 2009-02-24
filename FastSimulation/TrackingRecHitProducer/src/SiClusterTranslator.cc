@@ -131,7 +131,7 @@ SiClusterTranslator::produce(edm::Event& e, const edm::EventSetup& es)
     int sim_counter = 0;
     for (std::vector<std::pair<PSimHit,int> >::const_iterator 
 	   simcount = theNewSimHitList.begin() ; simcount != theNewSimHitList.end(); simcount ++){
-      if((aCluster->simtrackId() == (*simcount).first.trackId())&&(det.rawId() == (*simcount).first.detUnitId())&&(aCluster->eeId() == (*simcount).first.eventId().rawId()))
+      if((aCluster->simtrackId() == (int)(*simcount).first.trackId())&&(det.rawId() == (*simcount).first.detUnitId())&&(aCluster->eeId() == (*simcount).first.eventId().rawId()))
 	sim_counter = (*simcount).second;
     }
     if (sim_counter == 0)  throw cms::Exception("SiClusterTranslator") << "No Matching SimHit found.";
