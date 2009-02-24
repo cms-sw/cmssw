@@ -51,9 +51,14 @@ L1GctJetFinderParamsOnlineProd::newObject( const std::string& objectKey )
    double htJetEtThresh=0.;
    double mhtJetEtThresh=0.;
    unsigned etaBoundary=7;
+   unsigned corrType=0;
+   std::vector< std::vector<double> > jetCorrCoeffs;
+   std::vector< std::vector<double> > tauCorrCoeffs;
+   bool convertToEnergy=false;            // Not in OMDS
+   std::vector<double> energyConvCoeffs;  // Not in OMDS
 
    results.fillVariable( "GCT_RGN_ET_LSB", rgnEtLsb );
-   //   results.fillVariable( "GCT_HT_LSB", htLsb );  // does not exist in OMDS yet
+   results.fillVariable( "GCT_HT_LSB", htLsb );
    results.fillVariable( "GCT_JET_SEED_ET_THRESHOLD", cJetSeed );
    results.fillVariable( "GCT_TAU_SEED_ET_THRESHOLD", tJetSeed );
    results.fillVariable( "GCT_JET_SEED_ET_THRESHOLD", fJetSeed );  // no separate forward jet seed in OMDS
@@ -71,7 +76,14 @@ L1GctJetFinderParamsOnlineProd::newObject( const std::string& objectKey )
 									      tauIsoEtThresh,
 									      htJetEtThresh,
 									      mhtJetEtThresh,
-									      etaBoundary )
+									      etaBoundary,
+									      corrType,
+									      jetCorrCoeffs,
+									      tauCorrCoeffs,
+									      convertToEnergy,
+									      energyConvCoeffs
+
+ )
 						    );
 
 }

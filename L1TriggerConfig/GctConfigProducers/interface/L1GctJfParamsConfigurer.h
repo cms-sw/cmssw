@@ -31,33 +31,50 @@
 
 #include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
 
+class L1CaloGeometry;
+
 //
 // class declaration
 //
 
 class L1GctJfParamsConfigurer {
-   public:
-      L1GctJfParamsConfigurer(const edm::ParameterSet&);
-      ~L1GctJfParamsConfigurer();
+ public:
+  L1GctJfParamsConfigurer(const edm::ParameterSet&);
+  ~L1GctJfParamsConfigurer();
+  
+  typedef boost::shared_ptr<L1GctJetFinderParams>          JfParamsReturnType;
+  
+  JfParamsReturnType produceJfParams(const L1CaloGeometry* geom);
+  
+ private:  // methods
+  
+  /// member functions to set up the ORCA-style calibrations (if needed)
+  void setOrcaStyleParams();
+  void setOrcaStyleParamsForBin(std::vector<double>& paramsForBin);
 
-      typedef boost::shared_ptr<L1GctJetFinderParams>          JfParamsReturnType;
+  /// member functions to set up the piecewise cubic calibrations (if needed)
+  void setPiecewiseCubicParams();
+  void setPiecewiseCubicParamsForBin(std::vector<double>& paramsForBin);
 
-      JfParamsReturnType produceJfParams();
+  std::vector<double> etToEnergyConversion( const L1CaloGeometry* geom) const;
 
-   private:
-      // ----------member data ---------------------------
+ private:   // data
 
-  // PARAMETERS TO BE STORED IN THE JetFinderParameters
-  /// seed thresholds and eta boundary
-      double m_rgnEtLsb;
-      double m_htLsb;
-      double m_CenJetSeed;
-      double m_FwdJetSeed;
-      double m_TauJetSeed;
-      double m_tauIsoThresh;
-      double m_htJetThresh;
-      double m_mhtJetThresh;
-      unsigned m_EtaBoundry;
+  // parameters to be stored in L1GctJetFinderParams
+  double m_rgnEtLsb;
+  double m_htLsb;
+  double m_CenJetSeed;
+  double m_FwdJetSeed;
+  double m_TauJetSeed;
+  double m_tauIsoThresh;
+  double m_htJetThresh;
+  double m_mhtJetThresh;
+  unsigned m_EtaBoundry;
+  unsigned m_corrFunType;
+  bool m_convertToEnergy;
+
+  std::vector< std::vector<double> > m_jetCalibFunc;
+  std::vector< std::vector<double> > m_tauCalibFunc;
 
 };
 
