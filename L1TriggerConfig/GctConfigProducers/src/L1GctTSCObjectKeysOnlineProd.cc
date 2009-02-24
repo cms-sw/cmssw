@@ -24,18 +24,18 @@ L1GctTSCObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
          // Example: SELECT A_PARAMETER FROM CMS_XXX.XXX_CONF WHERE XXX_CONF.XXX_KEY = subsystemKey
          l1t::OMDSReader::QueryResults mainCrateKeyResults =
 	   m_omdsReader.basicQuery(
-				   "CONFIG_KEY",
+				   "GCT_MAIN_CRATE_KEY",
 				   "CMS_GCT",
 				   "GCT_CONFIG",
-				   "GCT_CONFIG.GCT_MAIN_CRATE_KEY",
+				   "GCT_CONFIG.CONFIG_KEY",
 				   m_omdsReader.singleAttribute( subsystemKey  ) );
 
          l1t::OMDSReader::QueryResults physParamsKeyResults =
 	   m_omdsReader.basicQuery(
-				   "CONFIG_KEY",
+				   "GCT_PHYS_PARAMS_KEY",
 				   "CMS_GCT",
 				   "GCT_MAIN_CRATE",
-				   "GCT_MAIN_CRATE.GCT_PHYS_PARAMS_KEY",
+				   "GCT_MAIN_CRATE.CONFIG_KEY",
 				   mainCrateKeyResults );
 	 
          std::string physParamsKey ;
