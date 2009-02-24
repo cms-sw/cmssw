@@ -35,9 +35,7 @@ def sectionNofTotal (inputList, currentSection, numSections):
     else:
         start += extra
     stop = start + num
-    retval = inputList [start : stop + 1]
-    return retval
-    
+    return inputList [start : stop + 1]
 
 
 ##############################################################################
