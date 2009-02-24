@@ -883,6 +883,14 @@ if __name__ == "__main__":
             pass
         def newVEventRange(self,*pargs,**kargs):
             pass
+        def addLuminosityBlockRange(self,*pargs,**kargs):
+            pass
+        def newLuminosityBlockRange(self,*pargs,**kargs):
+            pass
+        def addVLuminosityBlockRange(self,*pargs,**kargs):
+            pass
+        def newVLuminosityBlockRange(self,*pargs,**kargs):
+            pass
     class testTypes(unittest.TestCase):
         def testint32(self):
             i = int32(1)
@@ -1059,6 +1067,22 @@ if __name__ == "__main__":
             v1 = VEventRange(EventRange(1, 2, 3, 4))
             v2 = VEventRange("1:2-3:4", "5:MIN-7:MAX")
             self.assertEqual( repr(v1[0]), "cms.EventRange(1, 2, 3, 4)" )
+            pset = PSetTester()
+            v2.insertInto(pset,'foo')
+
+        def testLuminosityBlockRange(self):
+            range1 = LuminosityBlockRange(1, 2, 3, 4)
+            range2 = LuminosityBlockRange._valueFromString("1:2 - 3:4")
+            range3 = LuminosityBlockRange._valueFromString("1:MIN - 3:MAX")
+            self.assertEqual(repr(range1), repr(range1))
+            self.assertEqual(repr(range3), "cms.LuminosityBlockRange(1, 1, 3, 0)")
+            pset = PSetTester()
+            range1.insertInto(pset,'foo')
+            range2.insertInto(pset,'bar')
+        def testVLuminosityBlockRange(self):
+            v1 = VLuminosityBlockRange(LuminosityBlockRange(1, 2, 3, 4))
+            v2 = VLuminosityBlockRange("1:2-3:4", "5:MIN-7:MAX")
+            self.assertEqual( repr(v1[0]), "cms.LuminosityBlockRange(1, 2, 3, 4)" )
             pset = PSetTester()
             v2.insertInto(pset,'foo')
 
