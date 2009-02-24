@@ -2,7 +2,7 @@
 #define CommonTools_Utils_Exception_h
 // -*- C++ -*-
 //
-// Package:     Utilities
+// Package:     CommonTools/Utils
 // Class  :     Exception
 // 
 /**\class Exception Exception.h CommonTools/Utils/interface/Exception.h
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Aug 14 17:09:42 EDT 2008
-// $Id: Exception.h,v 1.1 2008/08/15 17:42:46 chrjones Exp $
+// $Id: Exception.h,v 1.1 2009/02/24 14:10:19 llista Exp $
 //
 
 // system include files
