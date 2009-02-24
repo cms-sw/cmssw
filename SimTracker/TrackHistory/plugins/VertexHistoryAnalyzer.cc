@@ -1,8 +1,7 @@
 /*
- *  SimpleVHA.C
+ *  VertexHistoryAnalyzer.C
  *
  *  Created by Victor Eduardo Bazterra on 5/31/07.
- *  Copyright 2007 __MyCompanyName__. All rights reserved.
  *
  */
 
@@ -33,12 +32,12 @@
 // class decleration
 //
 
-class SimpleVHA : public edm::EDAnalyzer
+class VertexHistoryAnalyzer : public edm::EDAnalyzer
 {
 public:
 
-    explicit SimpleVHA(const edm::ParameterSet&);
-    ~SimpleVHA();
+    explicit VertexHistoryAnalyzer(const edm::ParameterSet&);
+    ~VertexHistoryAnalyzer();
 
 private:
 
@@ -69,16 +68,16 @@ private:
 };
 
 
-SimpleVHA::SimpleVHA(const edm::ParameterSet& config) : tracer_(config)
+VertexHistoryAnalyzer::VertexHistoryAnalyzer(const edm::ParameterSet& config) : tracer_(config)
 {
     vertexProducer_ = config.getUntrackedParameter<edm::InputTag> ( "vertexProducer" );
 }
 
 
-SimpleVHA::~SimpleVHA() { }
+VertexHistoryAnalyzer::~VertexHistoryAnalyzer() { }
 
 
-void SimpleVHA::analyze(const edm::Event& event, const edm::EventSetup& setup)
+void VertexHistoryAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup)
 {
     // Track collection
     edm::Handle<reco::VertexCollection> vertexCollection;
@@ -90,7 +89,7 @@ void SimpleVHA::analyze(const edm::Event& event, const edm::EventSetup& setup)
     // Loop over the track collection.
     for (std::size_t index = 0; index < vertexCollection->size(); index++)
     {
-        std::cout << std::endl << "History for track #" << index << " : " << std::endl;
+        std::cout << std::endl << "History for vertex #" << index << " : " << std::endl;
 
         if ( !tracer_.evaluate( reco::VertexRef(vertexCollection, index) ) ) continue;
 
@@ -161,14 +160,14 @@ void SimpleVHA::analyze(const edm::Event& event, const edm::EventSetup& setup)
 
 
 void
-SimpleVHA::beginJob(const edm::EventSetup& setup)
+VertexHistoryAnalyzer::beginJob(const edm::EventSetup& setup)
 {
     // Get the particles table.
     setup.getData( pdt_ );
 }
 
 
-std::string SimpleVHA::particleString(int pdgId) const
+std::string VertexHistoryAnalyzer::particleString(int pdgId) const
 {
     ParticleData const * pid;
 
@@ -191,7 +190,7 @@ std::string SimpleVHA::particleString(int pdgId) const
 }
 
 
-std::string SimpleVHA::vertexString(
+std::string VertexHistoryAnalyzer::vertexString(
     TrackingParticleRefVector in,
     TrackingParticleRefVector out
 ) const
@@ -248,7 +247,7 @@ std::string SimpleVHA::vertexString(
 }
 
 
-std::string SimpleVHA::vertexString(
+std::string VertexHistoryAnalyzer::vertexString(
     HepMC::GenVertex::particles_in_const_iterator in_begin,
     HepMC::GenVertex::particles_in_const_iterator in_end,
     HepMC::GenVertex::particles_out_const_iterator out_begin,
@@ -318,4 +317,4 @@ std::string SimpleVHA::vertexString(
 }
 
 
-DEFINE_ANOTHER_FWK_MODULE(SimpleVHA);
+DEFINE_ANOTHER_FWK_MODULE(VertexHistoryAnalyzer);
