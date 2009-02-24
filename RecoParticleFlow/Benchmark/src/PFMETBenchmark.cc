@@ -187,7 +187,7 @@ void PFMETBenchmark::calculateQuantities( const reco::PFMETCollection& pfMets, c
 	  }
     }
   true_met = sqrt( trueMEX*trueMEX + trueMEY*trueMEY );
-  true_phi = atan2(-trueMEY,-trueMEX);
+  true_phi = atan2(trueMEY,trueMEX);
   rec_met  = pfm.pt();
   rec_mex  = pfm.px();
   rec_phi  = pfm.phi();
