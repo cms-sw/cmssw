@@ -72,7 +72,7 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
   trigger_on_MB1d = -1;
   singlesTrackPt  = -1;
   singlesTrackOutput = -1;
-  rescaleSinglesPhi  = -1;
+  rescaleSinglesPhi  = 0; // Avoid adding new parameters to default .py configuration -> set default here (to be removed in future releases)
 
   if(initializeFromPSet) readParameters(pset);
 
@@ -187,7 +187,7 @@ void CSCTFSectorProcessor::readParameters(const edm::ParameterSet& pset){
       trigger_on_MB1d = pset.getParameter<bool>("trigger_on_MB1d");
       singlesTrackPt = pset.getParameter<unsigned int>("singlesTrackPt");
       singlesTrackOutput = pset.getParameter<unsigned int>("singlesTrackOutput");
-      rescaleSinglesPhi  = pset.getParameter<bool>("rescaleSinglesPhi");
+//      rescaleSinglesPhi  = pset.getParameter<bool>("rescaleSinglesPhi");
       QualityEnableME1a = pset.getParameter<unsigned int>("QualityEnableME1a");
       QualityEnableME1b = pset.getParameter<unsigned int>("QualityEnableME1b");
       QualityEnableME1c = pset.getParameter<unsigned int>("QualityEnableME1c");
@@ -455,8 +455,16 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
                  }
                  unsigned rescaled_phi = unsigned(24*(bestStub->phiPacked()>>5)/128.);
                  unsigned unscaled_phi =              bestStub->phiPacked()>>7       ;
-				 track.setLocalPhi(rescaleSinglesPhi?rescaled_phi:unscaled_phi);
+                 track.setLocalPhi(rescaleSinglesPhi?rescaled_phi:unscaled_phi);
                  track.setEtaPacked((bestStub->etaPacked()>>2)&0x1f);
+                 switch( bestStub->station() ){
+                    case 1: track.setStationIds(bestStub->getMPCLink(),0,0,0,0); break;
+                    case 2: track.setStationIds(0,bestStub->getMPCLink(),0,0,0); break;
+                    case 3: track.setStationIds(0,0,bestStub->getMPCLink(),0,0); break;
+                    case 4: track.setStationIds(0,0,0,bestStub->getMPCLink(),0); break;
+                    case 5: track.setStationIds(0,0,0,0,bestStub->getMPCLink()); break;
+                    default: edm::LogError("CSCTFSectorProcessor::run()") << "Illegal LCT link="<<bestStub->station()<<"\n"; break;
+                 }
                  //   singles.insertDigi(CSCDetId(st_iter->getDetId().rawId()),*st_iter);
                  //tracksFromSingles.push_back(L1CSCTrack(track,singles));
                  tracksFromSingles.push_back(track);
