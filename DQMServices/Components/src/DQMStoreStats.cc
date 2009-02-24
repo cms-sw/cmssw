@@ -2,8 +2,8 @@
  * \file DQMStoreStats.cc
  * \author Andreas Meyer
  * Last Update:
- * $Date: 2009/02/23 10:37:11 $
- * $Revision: 1.1 $
+ * $Date: 2009/02/23 10:52:59 $
+ * $Revision: 1.2 $
  * $Author: ameyer $
  *
  * Description: Print out statistics of histograms in DQMStore
@@ -47,7 +47,7 @@ DQMStoreStats::~DQMStoreStats(){
 }
 
 //==================================================================//
-//======================= Initialise ===============================//
+//======================= calcstats  ===============================//
 //==================================================================//
 int DQMStoreStats::calcstats() {
 
@@ -165,6 +165,8 @@ int DQMStoreStats::calcstats() {
   return 0;
   
 }
+
+// -----------------------------------------------------------------//
 
 void DQMStoreStats::print(){
   // subsystem info printout
