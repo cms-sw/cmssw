@@ -5,7 +5,7 @@
 <use name=f77compiler>
 
 
-<library file="Pythia6Service.cc,PYR.cc,txgive.F" name=GeneratorInterfacePythia6Service>
+<library file="Pythia6Service.cc,PYR.cc,txgive.F,PythiaFortranGlue.F" name=GeneratorInterfacePythia6Service>
    <flags FFLAGS=-w>
    <flags EDM_PLUGIN=0>
 </library>

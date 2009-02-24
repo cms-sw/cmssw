@@ -21,11 +21,16 @@ namespace gen
          void setGeneralParams();
          void setCSAParams();
          void setSLHAParams();
-     
+	 void setSLHAFromHeader( const std::vector<std::string> &lines );
+	 
+	 void openSLHA( const char* );
+	 void closeSLHA();
+	      
      private:
-        std::vector<std::string> paramGeneral;
-        std::vector<std::string> paramCSA;
-        std::vector<std::string> paramSLHA;  
+        std::vector<std::string> fParamGeneral;
+        std::vector<std::string> fParamCSA;
+        std::vector<std::string> fParamSLHA; 
+	int  fUnitSLHA;
    };
 
 }

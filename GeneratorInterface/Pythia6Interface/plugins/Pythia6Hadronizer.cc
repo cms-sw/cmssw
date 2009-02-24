@@ -270,10 +270,20 @@ bool Pythia6Hadronizer::initializeForExternalPartons()
    // note: CSA mode is NOT supposed to woirk with external partons !!!
    
    fPy6Service->setGeneralParams();
-   fPy6Service->setSLHAParams();
+
       
    call_pyinit("USER", "", "", 0.0);
       
+   std::vector<std::string> slha = fRunInfo->findHeader("slha");
+   if (!slha.empty()) {
+		edm::LogInfo("Generator|LHEInterface")
+			<< "Pythia6 hadronisation found an SLHA header, "
+			<< "will be passed on to Pythia." << std::endl;
+      fPy6Service->setSLHAFromHeader(slha);   
+      fPy6Service->closeSLHA();
+   }
+
+
    if ( fJetMatching != NULL ) 
    {
       fJetMatching->init( fRunInfo );
@@ -283,7 +293,7 @@ bool Pythia6Hadronizer::initializeForExternalPartons()
 	      (wantsShoweredEvent() ? "1" : "0"));
 */
    }
-   
+
    return true;
 }
 
@@ -295,6 +305,9 @@ bool Pythia6Hadronizer::initializeForInternalPartons()
    fPy6Service->setSLHAParams();
    
    call_pyinit("CMS", "p", "p", fCOMEnergy);
+   
+   fPy6Service->closeSLHA();
+   
    return true;
 }
 
