@@ -1,11 +1,19 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2008/10/28 14:16:16 $
- * $Revision: 1.36 $
+ * $Date: 2008/11/11 13:20:32 $
+ * $Revision: 1.37 $
  * \author J. Berryhill
  *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.37  2008/11/11 13:20:32  tapper
+ * A whole list of house keeping:
+ * 1. New shifter histogram with central and forward jets together.
+ * 2. Relabelled Ring 0 and Ring 1 to Ring 1 and Ring 2 for HF rings.
+ * 3. Tidied up some histograms names to make all consistent.
+ * 4. Switched eta and phi in 2D plots to match RCT.
+ * 5. Removed 1D eta and phi plots. Will not be needed for Qtests in future.
+ *
  * Revision 1.36  2008/10/28 14:16:16  tapper
  * Tidied up and removed some unnecessary code.
  *
@@ -290,7 +298,7 @@ void L1TGCT::beginJob(const edm::EventSetup & c)
 
     // Energy sums
     l1GctEtMiss_    = dbe->book1D("EtMiss", "MISSING E_{T}", R12BINS, R12MIN, R12MAX);
-    l1GctEtMissPhi_ = dbe->book1D("EtMissPhi", "MISSING E_{T} #phi", METPHIBINS, PHIMIN, PHIMAX);
+    l1GctEtMissPhi_ = dbe->book1D("EtMissPhi", "MISSING E_{T} #phi", METPHIBINS, METPHIMIN, METPHIMAX);
     l1GctEtTotal_   = dbe->book1D("EtTotal", "TOTAL E_{T}", R12BINS, R12MIN, R12MAX);
     l1GctEtHad_     = dbe->book1D("EtHad", "TOTAL HAD E_{T}", R12BINS, R12MIN, R12MAX);
 
