@@ -57,7 +57,7 @@ process.generator = cms.EDFilter("Pythia6HadronizerFilter",
 )
 
 process.GEN = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('TestTTbar.root')
+    fileName = cms.untracked.string('TestTTbar_MGmatch.root')
 )
 
 process.p = cms.Path(process.generator)
