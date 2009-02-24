@@ -210,19 +210,19 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 
 						track.first.m_lphi      = iter->phi();
 						track.first.m_ptAddress = iter->ptLUTaddress();
-						//track.first.m_fr        = iter->f_r();
+						track.first.m_fr        = iter->f_r();
 						track.first.m_ptAddress|=(iter->f_r() << 21);
 
 						track.first.setStationIds(iter->ME1_id(),iter->ME2_id(),iter->ME3_id(),iter->ME4_id(),iter->MB_id());
-						//track.first.setTbins(iter->ME1_tbin(), iter->ME2_tbin(), iter->ME3_tbin(), iter->ME4_tbin(), iter->MB_tbin() );
+						track.first.setTbins(iter->ME1_tbin(), iter->ME2_tbin(), iter->ME3_tbin(), iter->ME4_tbin(), iter->MB_tbin() );
 						track.first.setBx(iter->tbin()-central_sp_bx);
-						//track.first.setBits(iter->syncErr(), iter->bx0(), iter->bc0());
+						track.first.setBits(iter->syncErr(), iter->bx0(), iter->bc0());
 
 						track.first.setLocalPhi(iter->phi());
 						track.first.setEtaPacked(iter->eta());
 						track.first.setChargePacked((~iter->charge())&0x1);
 
-						track.first.m_output_link = iter->id();//sp->record(tbin).ptSpyTrack();
+						track.first.m_output_link = iter->id();
 						if( track.first.m_output_link ){
 							track.first.m_rank = (iter->f_r()?sp->record(tbin).ptSpy()&0x1F:(sp->record(tbin).ptSpy()&0x1F00)>>8);
 							track.first.setChargeValidPacked((iter->f_r()?(sp->record(tbin).ptSpy()&0x80)>>8:(sp->record(tbin).ptSpy()&0x8000)>>15));
