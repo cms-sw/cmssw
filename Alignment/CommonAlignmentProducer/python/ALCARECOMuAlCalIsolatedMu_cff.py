@@ -14,7 +14,8 @@ import Alignment.CommonAlignmentProducer.AlignmentMuonSelector_cfi
 ALCARECOMuAlCalIsolatedMu = Alignment.CommonAlignmentProducer.AlignmentMuonSelector_cfi.AlignmentMuonSelector.clone(
     src = cms.InputTag("muons"),
     filter = True, # not strictly necessary, but provided for symmetry with MuAlStandAloneCosmics
-    nHitMinGB = 1, # muon collections now merge globalMuons, standAlone, and trackerMuons: this stream has always assumed globalMuons
+# DT calibration needs as many muons with DIGIs as possible, which in cosmic ray runs means standAloneMuons
+#    nHitMinGB = 1, # muon collections now merge globalMuons, standAlone, and trackerMuons: this stream has always assumed globalMuons
     )
 
 seqALCARECOMuAlCalIsolatedMu = cms.Sequence(ALCARECOMuAlCalIsolatedMuHLT + ALCARECOMuAlCalIsolatedMu)
