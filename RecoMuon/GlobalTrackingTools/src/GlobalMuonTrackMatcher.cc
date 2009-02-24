@@ -2,8 +2,8 @@
  *  Class: GlobalMuonTrackMatcher
  *
  * 
- *  $Date: 2008/12/15 19:19:58 $
- *  $Revision: 1.16.2.1 $
+ *  $Date: 2009/02/24 07:05:54 $
+ *  $Revision: 1.17 $
  *  
  *  \author Chang Liu - Purdue University
  *  \author Norbert Neumeister - Purdue University
@@ -54,7 +54,8 @@ GlobalMuonTrackMatcher::GlobalMuonTrackMatcher(const edm::ParameterSet& par,
   theService(service) {
   theMinP = par.getParameter<double>("MinP");
   theMinPt = par.getParameter<double>("MinPt");
-  thePt_threshold = par.getParameter<double>("Pt_threshold");
+  thePt_threshold1 = par.getParameter<double>("Pt_threshold1");
+  thePt_threshold2 = par.getParameter<double>("Pt_threshold2");
   theEta_threshold= par.getParameter<double>("Eta_threshold");
   theChi2_1= par.getParameter<double>("Chi2Cut_1");
   theChi2_2= par.getParameter<double>("Chi2Cut_2");
@@ -66,6 +67,9 @@ GlobalMuonTrackMatcher::GlobalMuonTrackMatcher(const edm::ParameterSet& par,
   theDeltaR_1= par.getParameter<double>("DeltaRCut_1");
   theDeltaR_2= par.getParameter<double>("DeltaRCut_2");
   theDeltaR_3= par.getParameter<double>("DeltaRCut_3");
+  theQual_1= par.getParameter<double>("Quality_1");
+  theQual_2= par.getParameter<double>("Quality_2");
+  theQual_3= par.getParameter<double>("Quality_3");
   theOutPropagatorName = par.getParameter<string>("Propagator");
 }
 
@@ -157,11 +161,11 @@ GlobalMuonTrackMatcher::matchOne(const TrackCand& sta,
       minChi2 = chi2;
       result = is;
     }
-
+    
   }
-
+  
   return result;
-
+  
 }
 
 
@@ -192,57 +196,125 @@ GlobalMuonTrackMatcher::match(const TrackCand& sta,
     cands.push_back(TrackCandWithTSOS(*is,tsosPair.second));
   }
   
-  // try various matching criteria
-  LogDebug(category) << "start matching selection ";
-  for (vector<TrackCandWithTSOS>::const_iterator ii = cands.begin(); ii != cands.end(); ++ii) {
-    // tracks that are able not able propagate to a common surface 
+  // initialize variables
+  double min_chisq = 999999;
+  double min_d = 999999;
+  double min_de= 999999;
+  double min_r_pos = 999999;
+  bool passes[1000] = {false};
+  int jj=0;
+  
+  
+  for (vector<TrackCandWithTSOS>::const_iterator ii = cands.begin(); ii != cands.end(); ++ii,jj++) {
+    
+    // tracks that are able not able propagate to a common surface
     if(!muonTSOS.isValid() || !(*ii).second.isValid()) continue;
     
-    // calculate matching variables 
+    // calculate matching variables
     double distance = match_d(muonTSOS,(*ii).second);
     double chi2 = match_Chi2(muonTSOS,(*ii).second);
     double loc_chi2 = match_dist(muonTSOS,(*ii).second);
-    double deltaR = match_Rpos(muonTSOS,(*ii).second); 
+    double deltaR = match_Rpos(muonTSOS,(*ii).second);
     
-    if( (*ii).second.globalMomentum().perp()<thePt_threshold){
-      if( ( abs((*ii).second.globalMomentum().eta())<theEta_threshold && chi2<theChi2_1 ) || ( distance<theDeltaD_1 && chi2<theChi2_1 ) )
+    
+    if( (*ii).second.globalMomentum().perp()<thePt_threshold1){
+      if( ( chi2>0 && abs((*ii).second.globalMomentum().eta())<1.2 && chi2<theChi2_1 ) || (distance>0 && distance<theDeltaD_1 && loc_chi2>0 && loc_chi2<theLocChi2) ){
+        result.push_back((*ii).first);
+        passes[jj]=true;
+      }
+    }else if((*ii).second.globalMomentum().perp()<thePt_threshold2){
+      if( ( chi2>0 && chi2< theChi2_2 ) || (distance>0 && distance<theDeltaD_2) ){
 	result.push_back((*ii).first);
-    }else if( distance<theDeltaD_2 || deltaR<theDeltaR_1)
-      result.push_back((*ii).first);
-  }
-  
-  // second try 
-  if ( result.empty() ) {
-    LogDebug(category) << "use wider selection ";
-    for (vector<TrackCandWithTSOS>::const_iterator ii = cands.begin(); ii != cands.end(); ++ii) {
-      
-      // tracks that are able not able propagate to a common surface 
-      if(!muonTSOS.isValid() || !(*ii).second.isValid()) continue;
-      
-      double distance = match_d(muonTSOS,(*ii).second);
-      double chi2 = match_Chi2(muonTSOS,(*ii).second);
-      double loc_chi2 = match_dist(muonTSOS,(*ii).second);
-      double deltaR = match_Rpos(muonTSOS,(*ii).second); 
-      
-      if( (*ii).second.globalMomentum().perp()<thePt_threshold)
-	if(  deltaR<theDeltaR_2 || distance<theDeltaD_3 || chi2<theChi2_3 )
-	  result.push_back((*ii).first);
-    }
-  }  
-  // safety net 
-  if ( result.empty() ) {
-    LogDebug(category) << "using safety net cut ";
-    for (vector<TrackCandWithTSOS>::const_iterator ii = cands.begin(); ii != cands.end(); ++ii) {
-      
-      double deltaR = match_Rpos(muonTSOS,(*ii).second);
-      if ( deltaR > 0. && deltaR < theDeltaR_3) {
+	passes[jj] = true;
+      }
+    }else{
+      if( distance>0 && distance<theDeltaD_3 && deltaR>0 && deltaR<theDeltaR_1){
 	result.push_back((*ii).first);
+        passes[jj]=true;
       }
     }
+    
+    if(passes[jj]){
+      if(distance<min_d) min_d = distance;
+      if(loc_chi2<min_de) min_de = loc_chi2;
+      if(deltaR<min_r_pos) min_r_pos = deltaR;
+      if(chi2<min_chisq) min_chisq = chi2;
+    }
+
   }
   
-  return result;
+  // re-initialize mask counter
+  jj=0;
   
+  if ( result.empty() ) {
+    LogDebug(category) << "First cuts returned 0 results";
+    for (vector<TrackCandWithTSOS>::const_iterator is = cands.begin(); is != cands.end(); ++is,jj++) {
+      
+      double deltaR = match_Rpos(muonTSOS,(*is).second);
+      if ( deltaR > 0. && deltaR < theDeltaR_2) {
+        result.push_back((*is).first);
+        passes[jj]=true;
+      }
+      
+      if(passes[jj]){
+        double distance = match_d(muonTSOS,(*is).second);
+        double chi2 = match_Chi2(muonTSOS,(*is).second);
+        double loc_chi2 = match_dist(muonTSOS,(*is).second);
+        if(distance<min_d) min_d = distance;
+        if(loc_chi2<min_de) min_de = loc_chi2;
+        if(deltaR<min_r_pos) min_r_pos = deltaR;
+        if(chi2<min_chisq) min_chisq = chi2;
+	
+      }
+      
+    }
+    
+  }  
+
+
+  if(result.size()<2)
+    return result;
+  else
+    result.clear();
+  
+  // re-initialize mask counter
+  jj=0;
+  
+  
+  for (vector<TrackCandWithTSOS>::const_iterator is = cands.begin(); is != cands.end(); ++is,jj++) {
+    
+    if(!passes[jj]) continue;
+    
+    double distance = match_d(muonTSOS,(*is).second);
+    double chi2 = match_Chi2(muonTSOS,(*is).second);
+    double loc_chi2 = match_dist(muonTSOS,(*is).second);
+    double deltaR = match_Rpos(muonTSOS,(*is).second);
+    
+    // compute quality as the relative ratio to the minimum found for each variable
+    
+    int qual = chi2/min_chisq + distance/min_d + deltaR/min_r_pos;
+    int n_min = ((chi2/min_chisq==1)?1:0) + ((distance/min_d==1)?1:0) + ((deltaR/min_r_pos==1)?1:0);
+    
+    if(n_min == 3){
+      result.push_back((*is).first);
+    }
+    
+    if(n_min == 2 && qual < theQual_1 ){
+      result.push_back((*is).first);
+    }
+    
+    if(n_min == 1 && qual < theQual_2 ){
+      result.push_back((*is).first);
+    }
+    
+    if(n_min == 0 && qual < theQual_3 ){
+      result.push_back((*is).first);
+    }
+    
+  }
+
+ 
+  return result;
 }
 
 

@@ -15,8 +15,8 @@
  * matches, then it makes a comparison of the TSOS local direction.
  *
  *
- *  $Date: 2008/05/09 20:20:38 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/12/15 08:46:09 $
+ *  $Revision: 1.8 $
  *
  *  \author Edwin Antillon      Purdue University
  *  \author Chang Liu           Purdue University
@@ -86,7 +86,8 @@ class GlobalMuonTrackMatcher {
     
     double theMinP;
     double theMinPt;
-    double thePt_threshold;
+    double thePt_threshold1;
+    double thePt_threshold2;
     double theEta_threshold;
     double theChi2_1;
     double theChi2_2;
@@ -98,6 +99,9 @@ class GlobalMuonTrackMatcher {
     double theDeltaR_1;
     double theDeltaR_2;
     double theDeltaR_3;
+    double theQual_1;
+    double theQual_2;
+    double theQual_3;
 
     const MuonServiceProxy* theService;
     std::string theOutPropagatorName;
