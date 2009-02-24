@@ -20,6 +20,26 @@ def loadListFromFile (filename):
     return retval
 
 
+def sectionNofTotal (inputList, currentSection, numSections):
+    """Returns the appropriate sublist given the current section
+    (1..numSections)"""
+    currentSection -= 1 # we want 0..N-1, not 1..N
+    size       = len (inputList)
+    perSection = size // numSections
+    extra      = size %  numSections
+    start      = perSection * currentSection
+    num        = perSection - 1
+    if currentSection < extra:
+        start += currentSection
+        num   += 1
+    else:
+        start += extra
+    stop = start + num
+    retval = inputList [start : stop + 1]
+    return retval
+    
+
+
 ##############################################################################
 ## ######################################################################## ##
 ## ##                                                                    ## ##
