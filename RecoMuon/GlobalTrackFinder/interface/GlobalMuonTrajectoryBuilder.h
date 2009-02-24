@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2008/02/14 20:38:35 $
- *  $Revision: 1.63 $
+ *  $Date: 2008/04/02 06:37:11 $
+ *  $Revision: 1.64 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -45,12 +45,8 @@ class GlobalMuonTrajectoryBuilder : public GlobalTrajectoryBuilderBase {
   private:
   
     edm::InputTag theTkTrackLabel;
-    bool theTkTrajsAvailableFlag;
-    bool theFirstEvent;
 
     edm::Handle<reco::TrackCollection> allTrackerTracks;
-    edm::Handle<TrajTrackAssociationCollection> tkAssoMap;
-    const std::vector<Trajectory>* allTrackerTrajs;
 
 };
 #endif

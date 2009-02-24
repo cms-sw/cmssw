@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2008/10/23 19:00:53 $
- *  $Revision: 1.12 $
+ *  $Date: 2008/12/16 15:04:05 $
+ *  $Revision: 1.13.2.4 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -44,6 +44,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeed.h"
+#include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonCandidate.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
@@ -69,10 +71,6 @@ using namespace edm;
 L3MuonTrajectoryBuilder::L3MuonTrajectoryBuilder(const edm::ParameterSet& par,
 							 const MuonServiceProxy* service) : GlobalTrajectoryBuilderBase(par, service) {
 
-  theFirstEvent = true;
-    
-  theTkBuilderName = par.getParameter<std::string>("TkTrackBuilder");
-
   theTrajectoryCleaner = new TrajectoryCleanerBySharedHits();    
 
   theTkCollName = par.getParameter<edm::InputTag>("tkTrajLabel");
@@ -94,22 +92,14 @@ L3MuonTrajectoryBuilder::~L3MuonTrajectoryBuilder() {
 void L3MuonTrajectoryBuilder::setEvent(const edm::Event& event) {
   
   const std::string category = "Muon|RecoMuon|L3MuonTrajectoryBuilder|setEvent";
-    
+  
   GlobalTrajectoryBuilderBase::setEvent(event);
-    
-    
-  if (theFirstEvent) {
       
-    theFirstEvent = false;
-    LogInfo(category) << "Constructing a Tk Trajectory Builder";
-    GlobalTrajectoryBuilderBase::service()->eventSetup().get<CkfComponentsRecord>().get(theTkBuilderName,theTkBuilder);  
-  }
-    
-  theTkBuilder->setEvent(event);
-    
-  theTrajsAvailable = event.getByLabel(theTkCollName,theTkTrajCollection);
-  LogDebug(category)<<"theTrajsAvailableFlag " << theTrajsAvailable ;
-  theTkCandsAvailable = event.getByLabel(theTkCollName,theTkTrackCandCollection);
+  // get tracker TrackCollection from Event
+  event.getByLabel(theTkCollName,allTrackerTracks);
+  LogInfo(category) 
+      << "Found " << allTrackerTracks->size() 
+      << " tracker Tracks with label "<< theTkCollName;  
   
 }
 
@@ -119,16 +109,15 @@ void L3MuonTrajectoryBuilder::setEvent(const edm::Event& event) {
 MuonCandidate::CandidateContainer L3MuonTrajectoryBuilder::trajectories(const TrackCand& staCandIn) {
 
   const std::string category = "Muon|RecoMuon|L3MuonTrajectoryBuilder|trajectories";
-
+  
   // cut on muons with low momenta
   if ( (staCandIn).second->pt() < thePtCut || (staCandIn).second->innerMomentum().Rho() < thePtCut || (staCandIn).second->innerMomentum().R() < 2.5 ) return CandidateContainer();
-
+  
   // convert the STA track into a Trajectory if Trajectory not already present
   TrackCand staCand(staCandIn);
-  addTraj(staCand);
-
+  
   vector<TrackCand> trackerTracks;
-
+  
   vector<TrackCand> regionalTkTracks = makeTkCandCollection(staCand);
   LogInfo(category) << "Found " << regionalTkTracks.size() << " tracks within region of interest";  
   
@@ -146,14 +135,17 @@ MuonCandidate::CandidateContainer L3MuonTrajectoryBuilder::trajectories(const Tr
   CandidateContainer tkTrajs;
   for (vector<TrackCand>::const_iterator tkt = trackerTracks.begin(); tkt != trackerTracks.end(); tkt++) {
     if ((*tkt).first != 0 && (*tkt).first->isValid()) {
-
+      //
       MuonCandidate* muonCand = new MuonCandidate( 0 ,staCand.second,(*tkt).second, new Trajectory(*(*tkt).first));
       tkTrajs.push_back(muonCand);
-      LogTrace(category) << "tpush";
-
+      //      LogTrace(category) << "tpush";
+      //
+    } else {
+      MuonCandidate* muonCand = new MuonCandidate( 0 ,staCand.second,(*tkt).second, 0);
+      tkTrajs.push_back(muonCand);
     }
   }
-  
+    
   if ( tkTrajs.empty() )  {
     LogInfo(category) << "tkTrajs empty";
     return CandidateContainer();
@@ -187,21 +179,23 @@ vector<L3MuonTrajectoryBuilder::TrackCand> L3MuonTrajectoryBuilder::makeTkCandCo
 
   const std::string category = "Muon|RecoMuon|L3MuonTrajectoryBuilder|makeTkCandCollection";
 
-  vector<TrackCand> tkCandColl;  
-
-  if (theTrajsAvailable) {
-    LogDebug(category) << "Found " << theTkTrajCollection->size() <<" tkCands";
-    for (TC::const_iterator tt=theTkTrajCollection->begin();tt!=theTkTrajCollection->end();++tt){
-      tkCandColl.push_back(TrackCand(new Trajectory(*tt),reco::TrackRef()));
-      LogDebug(category)<< "seedRef " << tkCandColl.back().first->seedRef().isNonnull();
-    } 
-    LogTrace(category) << "Found " << tkCandColl.size() << " tkCands from seeds";
-    return tkCandColl;
-  } else {
-    LogDebug(category) << "theTrajsAvailable is FALSE";
+  vector<TrackCand> tkCandColl;
+  
+  vector<TrackCand> tkTrackCands;
+  
+  for ( unsigned int position = 0; position != allTrackerTracks->size(); ++position ) {
+    reco::TrackRef tkTrackRef(allTrackerTracks,position);
+    TrackCand tkCand = TrackCand(0,tkTrackRef);
+    tkCandColl.push_back(tkCand);
   }
 
-  return tkCandColl;
-}
+  for(vector<TrackCand>::const_iterator tk = tkCandColl.begin(); tk != tkCandColl.end() ; ++tk) { 
+    edm::Ref<L3MuonTrajectorySeedCollection> l3seedRef = (*tk).second->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >() ;
+    reco::TrackRef staTrack = l3seedRef->l2Track();
+    if(staTrack == (staCand.second) ) tkTrackCands.push_back(*tk);
+  }
 
+  return tkTrackCands;
+  
+}
 

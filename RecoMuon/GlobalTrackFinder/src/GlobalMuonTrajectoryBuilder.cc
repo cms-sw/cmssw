@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/12/19 16:24:14 $
- *  $Revision: 1.113 $
+ *  $Date: 2008/12/16 04:21:15 $
+ *  $Revision: 1.114.2.2 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -58,11 +58,10 @@ using namespace edm;
 //----------------
 
 GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet& par,
-							 const MuonServiceProxy* service) : GlobalTrajectoryBuilderBase(par, service),
-											    theTkTrajsAvailableFlag(false)
+							 const MuonServiceProxy* service) : GlobalTrajectoryBuilderBase(par, service)
+	   
 {
 
-  theFirstEvent = true;
   theTkTrackLabel = par.getParameter<edm::InputTag>("TrackerCollectionLabel");
 }
 
@@ -84,20 +83,10 @@ void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
   GlobalTrajectoryBuilderBase::setEvent(event);
 
   // get tracker TrackCollection from Event
-  edm::Handle<std::vector<Trajectory> > handleTrackerTrajs;
   event.getByLabel(theTkTrackLabel,allTrackerTracks);
   LogInfo(category) 
       << "Found " << allTrackerTracks->size() 
       << " tracker Tracks with label "<< theTkTrackLabel;  
-  if (event.getByLabel(theTkTrackLabel,handleTrackerTrajs) && event.getByLabel(theTkTrackLabel,tkAssoMap)) {
-    theTkTrajsAvailableFlag = true;
-    allTrackerTrajs = &*handleTrackerTrajs;  
-    
-    if ( theFirstEvent ) {
-      LogInfo(category) << "Tk Trajectories Found! ";
-      theFirstEvent = false;
-    }
-  }
 
 }
 
@@ -113,7 +102,6 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(cons
   
   // convert the STA track into a Trajectory if Trajectory not already present
   TrackCand staCand(staCandIn);
-  addTraj(staCand);
 
   vector<TrackCand> regionalTkTracks = makeTkCandCollection(staCand);
   LogInfo(category) << "Found " << regionalTkTracks.size() << " tracks within region of interest";  
@@ -123,11 +111,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(cons
   LogInfo(category) << "Found " << trackerTracks.size() << " matching tracker tracks within region of interest";
   if ( trackerTracks.empty() ) {
     if ( staCandIn.first == 0) delete staCand.first;
-    if ( !theTkTrajsAvailableFlag ) {
-        for ( vector<TrackCand>::const_iterator is = regionalTkTracks.begin(); is != regionalTkTracks.end(); ++is) {
-            delete (*is).first;   
-        }
-    }
+
     return CandidateContainer();
   }
 
@@ -138,21 +122,15 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(cons
   LogInfo(category) << "turn tkMatchedTracks into MuonCandidates";
   CandidateContainer tkTrajs;
   for (vector<TrackCand>::const_iterator tkt = trackerTracks.begin(); tkt != trackerTracks.end(); tkt++) {
-    if ((*tkt).first != 0 && (*tkt).first->isValid()) {
-      MuonCandidate* muonCand = new MuonCandidate( 0 ,staCand.second,(*tkt).second, new Trajectory(*(*tkt).first));
+
+      MuonCandidate* muonCand = new MuonCandidate( 0 ,staCand.second,(*tkt).second, 0);
       tkTrajs.push_back(muonCand);
-      LogTrace(category) << "tpush";
-    }
   }
 
   if ( tkTrajs.empty() )  {
     LogTrace(category) << "tkTrajs empty";
     if ( staCandIn.first == 0) delete staCand.first;
-    if ( !theTkTrajsAvailableFlag ) {
-        for ( vector<TrackCand>::const_iterator is = regionalTkTracks.begin(); is != regionalTkTracks.end(); ++is) {
-            delete (*is).first;   
-        }
-    }
+
     return CandidateContainer();
   }
 
@@ -161,11 +139,6 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(cons
 
   // free memory
   if ( staCandIn.first == 0) delete staCand.first;
-  if ( !theTkTrajsAvailableFlag ) {
-    for ( vector<TrackCand>::const_iterator is = regionalTkTracks.begin(); is != regionalTkTracks.end(); ++is) {
-      delete (*is).first;   
-    }
-  }
 
   for( CandidateContainer::const_iterator it = tkTrajs.begin(); it != tkTrajs.end(); ++it) {
     if ( (*it)->trajectory() ) delete (*it)->trajectory();
@@ -189,22 +162,13 @@ vector<GlobalMuonTrajectoryBuilder::TrackCand> GlobalMuonTrajectoryBuilder::make
   vector<TrackCand> tkCandColl;
   
   vector<TrackCand> tkTrackCands;
-  
-  if ( theTkTrajsAvailableFlag ) {
-    for(TrajTrackAssociationCollection::const_iterator it = tkAssoMap->begin(); it != tkAssoMap->end(); ++it){	
-      const Ref<vector<Trajectory> > traj = it->key;
-      const reco::TrackRef tk = it->val;
-      TrackCand tkCand = TrackCand(0,tk);
-      if( traj->isValid() ) tkCand.first = &*traj ;
-      tkTrackCands.push_back(tkCand);
-    }
-  } else {
-    for ( unsigned int position = 0; position != allTrackerTracks->size(); ++position ) {
-      reco::TrackRef tkTrackRef(allTrackerTracks,position);
-      TrackCand tkCand = TrackCand(0,tkTrackRef);
-      tkTrackCands.push_back(tkCand); 
-    }
+    
+  for ( unsigned int position = 0; position != allTrackerTracks->size(); ++position ) {
+    reco::TrackRef tkTrackRef(allTrackerTracks,position);
+    TrackCand tkCand = TrackCand(0,tkTrackRef);
+    tkTrackCands.push_back(tkCand); 
   }
+  
   
   tkCandColl = chooseRegionalTrackerTracks(staCand,tkTrackCands);
   

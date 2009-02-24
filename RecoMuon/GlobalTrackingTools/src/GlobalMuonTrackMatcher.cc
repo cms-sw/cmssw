@@ -2,8 +2,8 @@
  *  Class: GlobalMuonTrackMatcher
  *
  * 
- *  $Date: 2008/12/15 19:56:43 $
- *  $Revision: 1.16 $
+ *  $Date: 2008/12/15 19:19:58 $
+ *  $Revision: 1.16.2.1 $
  *  
  *  \author Chang Liu - Purdue University
  *  \author Norbert Neumeister - Purdue University
@@ -267,11 +267,6 @@ GlobalMuonTrackMatcher::convertToTSOSTk(const TrackCand& staCand,
       TrajectoryStateTransform tsTransform;
       outerTkTsos = tsTransform.outerStateOnSurface(*tkCand.second,*theService->trackingGeometry(),&*theService->magneticField());
     }
-  } else {
-    const GlobalVector& mom = tkCand.first->firstMeasurement().updatedState().globalMomentum();
-    if ( !(mom.mag() < theMinP || mom.perp() < theMinPt)) {
-      outerTkTsos = tkCand.first->lastMeasurement().updatedState();
-    }
   }
   
   if ( !impactMuTSOS.isValid() || !outerTkTsos.isValid() ) return pair<TrajectoryStateOnSurface,TrajectoryStateOnSurface>(empty,empty);
@@ -332,14 +327,8 @@ GlobalMuonTrackMatcher::convertToTSOSMuHit(const TrackCand& staCand,
 	outerTkTsos = innerTkTsos;
       
     }
-  } else {
-
-    const GlobalVector& mom = tkCand.first->lastMeasurement().updatedState().globalMomentum();
-    if  ( !(mom.mag() < theMinP || mom.perp() < theMinPt) ) {
-      outerTkTsos = tkCand.first->lastMeasurement().updatedState();
-    }
   }
-
+    
   if ( !innerMuTSOS.isValid() || !outerTkTsos.isValid() ) {
     LogDebug(category) << "A TSOS validity problem! MuTSOS " << innerMuTSOS.isValid() << " TkTSOS " << outerTkTsos.isValid();
     return pair<TrajectoryStateOnSurface,TrajectoryStateOnSurface>(empty,empty);
@@ -385,11 +374,6 @@ GlobalMuonTrackMatcher::convertToTSOSTkHit(const TrackCand& staCand,
       if ( (innerMuTSOS.globalPosition() -  outerTkTsos.globalPosition()).mag() > (innerMuTSOS.globalPosition() -  innerTkTsos.globalPosition()).mag() )
 	outerTkTsos = innerTkTsos;
       
-    }
-  } else {
-    const GlobalVector& mom = tkCand.first->lastMeasurement().updatedState().globalMomentum();
-    if (!(mom.mag() < theMinP || mom.perp() < theMinPt)) {
-      outerTkTsos = tkCand.first->lastMeasurement().updatedState();
     }
   }
 
@@ -478,10 +462,6 @@ GlobalMuonTrackMatcher::match_R_IP(const TrackCand& staCand,
   if (tkCand.second.isNonnull()) {
     dR = (deltaR<double>(staCand.second->eta(),staCand.second->phi(),
 			 tkCand.second->eta(),tkCand.second->phi()));
-  } else {
-    dR = (deltaR<double>(staCand.second->eta(),staCand.second->phi(),
-			 tkCand.first->firstMeasurement().updatedState().globalMomentum().eta(),
-			 tkCand.first->firstMeasurement().updatedState().globalMomentum().phi()));
   }
 
   return dR;

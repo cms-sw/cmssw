@@ -4,8 +4,8 @@
 /** \class L3MuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2008/02/26 05:15:32 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/12/15 18:22:55 $
+ *  $Revision: 1.8.2.1 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -17,6 +17,7 @@
 
 #include "RecoMuon/GlobalTrackingTools/interface/GlobalTrajectoryBuilderBase.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryBuilder.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 
@@ -49,18 +50,10 @@ class L3MuonTrajectoryBuilder : public GlobalTrajectoryBuilderBase {
 
   private:
   
-    bool theFirstEvent;
-    bool theTrajsAvailable;    
-    bool theTkCandsAvailable;    
-
     TrajectoryCleaner* theTrajectoryCleaner;
     
-    std::string theTkBuilderName;
-    edm::ESHandle<TrajectoryBuilder> theTkBuilder;
-    
     edm::InputTag theTkCollName;
-    edm::Handle<TC> theTkTrajCollection;
-    edm::Handle<TrackCandidateCollection> theTkTrackCandCollection;
+    edm::Handle<reco::TrackCollection> allTrackerTracks;
     
 };
 #endif
