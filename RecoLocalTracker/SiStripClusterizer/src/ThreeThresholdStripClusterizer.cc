@@ -98,6 +98,7 @@ inline
 uint16_t ThreeThresholdStripClusterizer::
 applyGain::operator()(uint16_t adc) {
   if(adc > 255) throw InvalidChargeException(SiStripDigi(adc,strip));
+  if(adc > 253) return adc; //saturated, do not scale
   uint16_t charge = static_cast<uint16_t>( adc/info->gain(strip++) + 0.5 ); //adding 0.5 turns truncation into rounding
   return  ( charge > 511 ? 255 : 
 	  ( charge > 253 ? 254 : charge ));
