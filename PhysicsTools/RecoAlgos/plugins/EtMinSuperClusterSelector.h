@@ -2,7 +2,7 @@
 #define UtilAlgos_FunctionMinSelector_h
 
 #include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
-#include "PhysicsTools/Utilities/interface/FunctionMinSelector.h"
+#include "CommonTools/Utils/interface/FunctionMinSelector.h"
 #include "PhysicsTools/RecoAlgos/plugins/SuperClusterEt.h"
 
 namespace reco {
