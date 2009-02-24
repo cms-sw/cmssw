@@ -843,6 +843,7 @@ class VPSet(_ValidatingParameterListBase,_ConfigureComponent,_Labelable):
     def pythonValueForItem(self,item, options):
         return PSet.dumpPython(item,options)
     def copy(self):
+        print "VPSET COPY"
         return copy.copy(self)
     def _place(self,name,proc):
         proc._placeVPSet(name,self)
@@ -874,13 +875,13 @@ if __name__ == "__main__":
             pass
         def addVLuminosityBlockID(self,*pargs,**kargs):
             pass
-        def addCmsRange(self,*pargs,**kargs):
+        def addEventRange(self,*pargs,**kargs):
             pass
-        def newCmsRange(self,*pargs,**kargs):
+        def newEventRange(self,*pargs,**kargs):
             pass
-        def addVCmsRange(self,*pargs,**kargs):
+        def addVEventRange(self,*pargs,**kargs):
             pass
-        def newVCmsRange(self,*pargs,**kargs):
+        def newVEventRange(self,*pargs,**kargs):
             pass
     class testTypes(unittest.TestCase):
         def testint32(self):
@@ -1045,19 +1046,19 @@ if __name__ == "__main__":
             pset = PSetTester()
             vlid.insertInto(pset,'foo')
 
-        def testCmsRange(self):
-            range1 = CmsRange(1, 2, 3, 4)
-            range2 = CmsRange._valueFromString("1:2 - 3:4")
-            range3 = CmsRange._valueFromString("1:MIN - 3:MAX")
+        def testEventRange(self):
+            range1 = EventRange(1, 2, 3, 4)
+            range2 = EventRange._valueFromString("1:2 - 3:4")
+            range3 = EventRange._valueFromString("1:MIN - 3:MAX")
             self.assertEqual(repr(range1), repr(range1))
-            self.assertEqual(repr(range3), "cms.CmsRange(1, 1, 3, 0)")
+            self.assertEqual(repr(range3), "cms.EventRange(1, 1, 3, 0)")
             pset = PSetTester()
             range1.insertInto(pset,'foo')
             range2.insertInto(pset,'bar')
-        def testVCmsRange(self):
-            v1 = VCmsRange(CmsRange(1, 2, 3, 4))
-            v2 = VCmsRange("1:2-3:4", "5:MIN-7:MAX")
-            self.assertEqual( repr(v1[0]), "cms.CmsRange(1, 2, 3, 4)" )
+        def testVEventRange(self):
+            v1 = VEventRange(EventRange(1, 2, 3, 4))
+            v2 = VEventRange("1:2-3:4", "5:MIN-7:MAX")
+            self.assertEqual( repr(v1[0]), "cms.EventRange(1, 2, 3, 4)" )
             pset = PSetTester()
             v2.insertInto(pset,'foo')
 
