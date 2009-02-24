@@ -72,7 +72,7 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
   trigger_on_MB1d = -1;
   singlesTrackPt  = -1;
   singlesTrackOutput = -1;
-  rescaleSinglesPhi  = 0; // Avoid adding new parameters to default .py configuration -> set default here (to be removed in future releases)
+  rescaleSinglesPhi  = -1;
 
   if(initializeFromPSet) readParameters(pset);
 
@@ -187,7 +187,7 @@ void CSCTFSectorProcessor::readParameters(const edm::ParameterSet& pset){
       trigger_on_MB1d = pset.getParameter<bool>("trigger_on_MB1d");
       singlesTrackPt = pset.getParameter<unsigned int>("singlesTrackPt");
       singlesTrackOutput = pset.getParameter<unsigned int>("singlesTrackOutput");
-//      rescaleSinglesPhi  = pset.getParameter<bool>("rescaleSinglesPhi");
+      rescaleSinglesPhi  = pset.getParameter<bool>("rescaleSinglesPhi");
       QualityEnableME1a = pset.getParameter<unsigned int>("QualityEnableME1a");
       QualityEnableME1b = pset.getParameter<unsigned int>("QualityEnableME1b");
       QualityEnableME1c = pset.getParameter<unsigned int>("QualityEnableME1c");
