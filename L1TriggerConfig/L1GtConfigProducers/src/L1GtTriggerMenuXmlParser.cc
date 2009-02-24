@@ -1014,6 +1014,7 @@ bool L1GtTriggerMenuXmlParser::insertConditionIntoMap(L1GtCondition& cond, const
 bool L1GtTriggerMenuXmlParser::insertAlgorithmIntoMap(const L1GtAlgorithm& alg) {
 
     std::string algName = alg.algoName();
+    std::string algAlias = alg.algoAlias();
     //LogTrace("L1GtTriggerMenuXmlParser")
     //<< "    Trying to insert algorithm \"" << algName << "\" in the algorithm map." ;
 
@@ -1021,6 +1022,12 @@ bool L1GtTriggerMenuXmlParser::insertAlgorithmIntoMap(const L1GtAlgorithm& alg) 
     if (m_algorithmMap.count(algName) != 0) {
         LogTrace("L1GtTriggerMenuXmlParser") << "      Algorithm \"" << algName
             << "\"already exists in the algorithm map- not inserted!" << std::endl;
+        return false;
+    }
+
+    if (m_algorithmAliasMap.count(algAlias) != 0) {
+        LogTrace("L1GtTriggerMenuXmlParser") << "      Algorithm alias \"" << algAlias
+            << "\"already exists in the algorithm alias map- not inserted!" << std::endl;
         return false;
     }
 
@@ -1084,6 +1091,7 @@ bool L1GtTriggerMenuXmlParser::insertAlgorithmIntoMap(const L1GtAlgorithm& alg) 
 
     // insert algorithm
     m_algorithmMap[algName] = alg;
+    m_algorithmAliasMap[algAlias] = alg;
 
     //LogTrace("L1GtTriggerMenuXmlParser")
     //<< "      OK - algorithm inserted!"

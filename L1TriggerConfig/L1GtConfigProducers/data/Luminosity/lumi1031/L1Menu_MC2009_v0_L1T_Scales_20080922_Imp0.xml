@@ -2,10 +2,10 @@
 <def>
 <header>
     <MenuInterface>L1Menu_MC2009_v0</MenuInterface>
-    <MenuInterface_CreationDate>2009-02-16</MenuInterface_CreationDate>
+    <MenuInterface_CreationDate>2009-02-24</MenuInterface_CreationDate>
     <MenuInterface_CreationAuthor>V. M. Ghete</MenuInterface_CreationAuthor>
     <MenuInterface_Description>L1 menu for MC production 2009</MenuInterface_Description>
-    <Menu_CreationDate>2009-02-16</Menu_CreationDate>
+    <Menu_CreationDate>2009-02-24</Menu_CreationDate>
     <Menu_CreationAuthor>V. M. Ghete</Menu_CreationAuthor>
     <Menu_Description>L1 menu for MC production 2009</Menu_Description>
     <AlgImplementation>Imp0</AlgImplementation>
@@ -45,14 +45,14 @@
         ( NOT ( SingleForJet_0x01_pEta AND SingleForJet_0x01_nEta ) ) AND SingleIsoEG_0x0A AND ( SingleCenJet_0x04 OR SingleTauJet_0x04 )
         <output_pin nr="30" pin="a" />
       </L1_IsoEG10_Jet15_ForJet10>
-      <L1_Mu3_EG5 algAlias="L1_Mu3_EG5">
-        SingleMu_0x05 AND ( SingleIsoEG_0x05 OR SingleNoIsoEG_0x05 )
+      <L1_Mu3QE8_EG5 algAlias="L1_Mu3_EG5">
+        SingleMu_0x05_E8 AND ( SingleIsoEG_0x05 OR SingleNoIsoEG_0x05 )
         <output_pin nr="17" pin="a" />
-      </L1_Mu3_EG5>
-      <L1_Mu5_Jet15 algAlias="L1_Mu5_Jet15">
-        SingleMu_0x09 AND ( SingleCenJet_0x04 OR SingleForJet_0x04 OR SingleTauJet_0x04 )
+      </L1_Mu3QE8_EG5>
+      <L1_Mu5QE8_Jet15 algAlias="L1_Mu5_Jet15">
+        SingleMu_0x09_E8 AND ( SingleCenJet_0x04 OR SingleForJet_0x04 OR SingleTauJet_0x04 )
         <output_pin nr="21" pin="a" />
-      </L1_Mu5_Jet15>
+      </L1_Mu5QE8_Jet15>
       <L1_QuadJet15 algAlias="L1_QuadJet15">
         QuadCenJet_0x04 OR QuadForJet_0x04 OR QuadTauJet_0x04 OR ( TripleCenJet_0x04 AND ( SingleForJet_0x04 OR SingleTauJet_0x04 ) ) OR ( TripleForJet_0x04 AND ( SingleCenJet_0x04 OR SingleTauJet_0x04 ) ) OR ( TripleTauJet_0x04 AND ( SingleCenJet_0x04 OR SingleForJet_0x04 ) ) OR ( DoubleCenJet_0x04 AND DoubleForJet_0x04 ) OR ( DoubleCenJet_0x04 AND DoubleTauJet_0x04 ) OR ( DoubleForJet_0x04 AND DoubleTauJet_0x04 ) OR ( DoubleCenJet_0x04 AND SingleForJet_0x04 AND SingleTauJet_0x04 ) OR ( DoubleForJet_0x04 AND SingleCenJet_0x04 AND SingleTauJet_0x04 ) OR ( DoubleTauJet_0x04 AND SingleCenJet_0x04 AND SingleForJet_0x04 )
         <output_pin nr="14" pin="a" />
@@ -953,7 +953,7 @@
       </value>
       </phi>
     </SingleIsoEG_0x0C>
-    <SingleMu_0x05 condition="muon" particle="muon" type="1_s">
+    <SingleMu_0x05_E8 condition="muon" particle="muon" type="1_s">
       <pt_h_threshold max="1f" min="00">
       <ge_eq mode="bit">
         1
@@ -992,11 +992,11 @@
       </charge_correlation>
             <quality max="ff" min="00">
       <value>
-        f0
+        e8
       </value>
       </quality>
-    </SingleMu_0x05>
-    <SingleMu_0x09 condition="muon" particle="muon" type="1_s">
+    </SingleMu_0x05_E8>
+    <SingleMu_0x09_E8 condition="muon" particle="muon" type="1_s">
       <pt_h_threshold max="1f" min="00">
       <ge_eq mode="bit">
         1
@@ -1035,10 +1035,10 @@
       </charge_correlation>
             <quality max="ff" min="00">
       <value>
-        f0
+        e8
       </value>
       </quality>
-    </SingleMu_0x09>
+    </SingleMu_0x09_E8>
     <SingleNoIsoEG_0x01 condition="calo" particle="eg" type="1_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
