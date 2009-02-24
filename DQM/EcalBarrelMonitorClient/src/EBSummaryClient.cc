@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/12/04 13:54:25 $
- * $Revision: 1.170 $
+ * $Date: 2009/02/12 11:27:42 $
+ * $Revision: 1.171 $
  * \author G. Della Ricca
  *
 */
@@ -738,7 +738,10 @@ void EBSummaryClient::analyze(void) {
 
           }
 
-          if ( hpot01_[ism-1] ) {
+          float num01, mean01, rms01;
+          bool update01 = UtilsClient::getBinStatistics(hpot01_[ism-1], ie, ip, num01, mean01, rms01);
+
+          if ( update01 ) {
             
             int iex;
             int ipx;
@@ -750,10 +753,6 @@ void EBSummaryClient::analyze(void) {
               iex = 85+ie;
               ipx = 1+(20-ip)+20*(ism-19);
             }
-
-            float num01, mean01, rms01;
-            bool update01;
-            update01 = UtilsClient::getBinStatistics(hpot01_[ism-1], ie, ip, num01, mean01, rms01);
             
             mePedestalOnlineRMSMap_->setBinContent( ipx, iex, rms01 );
             
