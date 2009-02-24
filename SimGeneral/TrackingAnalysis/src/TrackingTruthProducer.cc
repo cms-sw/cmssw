@@ -58,7 +58,7 @@ TrackingTruthProducer::TrackingTruthProducer(const edm::ParameterSet & config)
     edm::LogInfo (MessageCategory_) << "Vertex distance cut set to " << distanceCut_  << " mm";
     edm::LogInfo (MessageCategory_) << "Volume radius set to "       << volumeRadius_ << " mm";
     edm::LogInfo (MessageCategory_) << "Volume Z      set to "       << volumeZ_      << " mm";
-    edm::LogInfo (MessageCategory_) << "Discard out of volume? "     << discardOutVolume_;
+    //    edm::LogInfo (MessageCategory_) << "Discard out of volume? "     << discardOutVolume_;
 
     if (!mergedBremsstrahlung_)
     {

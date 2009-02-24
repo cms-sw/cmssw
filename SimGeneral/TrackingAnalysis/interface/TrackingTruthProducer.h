@@ -48,7 +48,7 @@ private:
     std::vector<std::string> hitLabelsVector_;
     double                   volumeRadius_;
     double                   volumeZ_;
-    bool                     discardOutVolume_;
+    //    bool                     discardOutVolume_;
     bool					   mergedBremsstrahlung_;
     bool                     discardHitsFromDeltas_;
     std::string              simHitLabel_;
