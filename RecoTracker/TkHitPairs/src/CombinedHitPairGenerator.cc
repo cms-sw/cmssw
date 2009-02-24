@@ -4,6 +4,7 @@
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSetsBuilder.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 
@@ -62,7 +63,8 @@ void CombinedHitPairGenerator::hitPairs(
    const TrackingRegion& region, OrderedHitPairs  & result,
    const edm::Event& ev, const edm::EventSetup& es)
 {
-  if (!initialised) init(theConfig,es);
+  static edm::ESWatcher<TrackerDigiGeometryRecord> watcherTrackerDigiGeometryRecord;
+  if (!initialised || watcherTrackerDigiGeometryRecord.check(es)) init(theConfig,es);
 
   Container::const_iterator i;
   for (i=theGenerators.begin(); i!=theGenerators.end(); i++) {
