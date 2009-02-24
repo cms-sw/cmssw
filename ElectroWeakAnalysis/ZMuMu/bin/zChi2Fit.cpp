@@ -69,7 +69,7 @@ int main(int ac, char *av[]) {
     typedef funct::FunctExpression Expr;
     typedef fit::MultiHistoChiSquare<Expr, Expr, Expr, Expr, Expr> ChiSquared;
     double fMin, fMax;
-    string ext;
+    string ext, region;
     po::options_description desc("Allowed options");
     desc.add_options()
       ("help,h", "produce help message")
@@ -77,8 +77,8 @@ int main(int ac, char *av[]) {
       ("min,m", po::value<double>(&fMin)->default_value(60), "minimum value for fit range")
       ("max,M", po::value<double>(&fMax)->default_value(120), "maximum value for fit range")
       ("plot-format,p", po::value<string>(&ext)->default_value("eps"), 
-       "output plot format");
-    
+       "output plot format")
+      ("detectorRegion,r",po::value<string> (&region)->default_value("all"), "detector region in which muons are detected" );   
     po::positional_options_description p;
     p.add("input-file", -1);
     
@@ -109,14 +109,57 @@ int main(int ac, char *av[]) {
       for(vector<string>::const_iterator it = v_file.begin(); 
 	  it != v_file.end(); ++it) {
 	TFile * root_file = new TFile(it->c_str(), "read");
+
 	
-	TH1 * histoZMuMuNoIso = getHisto(root_file, "nonIsolatedZToMuMuPlots/zMass",rebinMuMuNoIso);
-	TH1 * histoZMuMu = getHisto(root_file, "goodZToMuMuPlots/zMass",rebinMuMu);
-	TH1 * histoZMuMu1HLT = getHisto(root_file, "goodZToMuMu1HLTPlots/zMass", rebinMuMu1HLT);
+	// default when region==all
+        TH1 * histoZMuMuNoIso = getHisto(root_file, "nonIsolatedZToMuMuPlots/zMass",rebinMuMuNoIso);
+        TH1 * histoZMuMu = getHisto(root_file, "goodZToMuMuPlots/zMass",rebinMuMu);
+        TH1 * histoZMuMu1HLT = getHisto(root_file, "goodZToMuMu1HLTPlots/zMass", rebinMuMu1HLT);
 	TH1 * histoZMuMu2HLT = getHisto(root_file, "goodZToMuMu2HLTPlots/zMass", rebinMuMu2HLT);
 	TH1 * histoZMuTk = getHisto(root_file, "goodZToMuMuOneTrackPlots/zMass", rebinMuTk);
 	TH1 * histoZMuSa = getHisto(root_file, "goodZToMuMuOneStandAloneMuonPlots/zMass", rebinMuSa);
 	TH1 * histoZMuSaFromMuMu = getHisto(root_file, "zmumuSaMassHistogram/zMass", rebinMuSa);
+  
+
+ if (region=="barrel"){
+ 	histoZMuMuNoIso = getHisto(root_file, "nonIsolatedZToMuMuPlotsBarrel/zMass",rebinMuMuNoIso);
+	histoZMuMu = getHisto(root_file, "goodZToMuMuPlotsBarrel/zMass",rebinMuMu);
+	histoZMuMu1HLT = getHisto(root_file, "goodZToMuMu1HLTPlotsBarrel/zMass", rebinMuMu1HLT);
+	histoZMuMu2HLT = getHisto(root_file, "goodZToMuMu2HLTPlotsBarrel/zMass", rebinMuMu2HLT);
+	histoZMuTk = getHisto(root_file, "goodZToMuMuOneTrackPlotsBarrel/zMass", rebinMuTk);
+	histoZMuSa = getHisto(root_file, "goodZToMuMuOneStandAloneMuonPlotsBarrel/zMass", rebinMuSa);
+	histoZMuSaFromMuMu = getHisto(root_file, "zmumuSaMassHistogramBarrel/zMass", rebinMuSa);
+  }
+
+if (region=="endcap"){
+ 	histoZMuMuNoIso = getHisto(root_file, "nonIsolatedZToMuMuPlotsEndCap/zMass",rebinMuMuNoIso);
+	histoZMuMu = getHisto(root_file, "goodZToMuMuPlotsEndCap/zMass",rebinMuMu);
+	histoZMuMu1HLT = getHisto(root_file, "goodZToMuMu1HLTPlotsEndCap/zMass", rebinMuMu1HLT);
+	histoZMuMu2HLT = getHisto(root_file, "goodZToMuMu2HLTPlotsEndCap/zMass", rebinMuMu2HLT);
+	histoZMuTk = getHisto(root_file, "goodZToMuMuOneTrackPlotsEndCap/zMass", rebinMuTk);
+	histoZMuSa = getHisto(root_file, "goodZToMuMuOneStandAloneMuonPlotsEndCap/zMass", rebinMuSa);
+	histoZMuSaFromMuMu = getHisto(root_file, "zmumuSaMassHistogramEndCap/zMass", rebinMuSa);
+  }
+
+
+if (region=="barrend"){
+ 	histoZMuMuNoIso = getHisto(root_file, "nonIsolatedZToMuMuPlotsBarrEnd/zMass",rebinMuMuNoIso);
+	histoZMuMu = getHisto(root_file, "goodZToMuMuPlotsBarrEnd/zMass",rebinMuMu);
+	histoZMuMu1HLT = getHisto(root_file, "goodZToMuMu1HLTPlotsBarrEnd/zMass", rebinMuMu1HLT);
+	histoZMuMu2HLT = getHisto(root_file, "goodZToMuMu2HLTPlotsBarrEnd/zMass", rebinMuMu2HLT);
+	histoZMuTk = getHisto(root_file, "goodZToMuMuOneTrackPlotsBarrEnd/zMass", rebinMuTk);
+	histoZMuSa = getHisto(root_file, "goodZToMuMuOneStandAloneMuonPlotsBarrEnd/zMass", rebinMuSa);
+	histoZMuSaFromMuMu = getHisto(root_file, "zmumuSaMassHistogramBarrEnd/zMass", rebinMuSa);
+  }
+
+
+
+ if (region!="endcap" && region!="barrel" && region!="barrend" && region!="all"  ){
+   cout<< "not a valid region selected"<< endl;
+   cout << "possible choises are: all, barrel, endcap, barrend " << endl;
+   return 0;
+ }
+
 
 	cout << ">>> histogram loaded\n";
 	string f_string = *it;
