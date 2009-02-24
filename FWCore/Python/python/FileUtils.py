@@ -23,19 +23,20 @@ def loadListFromFile (filename):
 def sectionNofTotal (inputList, currentSection, numSections):
     """Returns the appropriate sublist given the current section
     (1..numSections)"""
-    currentSection -= 1 # we want 0..N-1, not 1..N
+    currentSection -= 1 # internally, we want 0..N-1, not 1..N
     size       = len (inputList)
     perSection = size // numSections
     extra      = size %  numSections
     start      = perSection * currentSection
-    num        = perSection - 1
+    num        = perSection
     if currentSection < extra:
+        # the early sections get an extra item
         start += currentSection
         num   += 1
     else:
         start += extra
     stop = start + num
-    return inputList [start : stop + 1]
+    return inputList[ start:stop ]
 
 
 ##############################################################################
