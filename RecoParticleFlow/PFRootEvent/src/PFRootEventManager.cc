@@ -207,6 +207,12 @@ void PFRootEventManager::readOptions(const char* file,
     bool plotAgainstReco=0;
     options_->GetOpt("pfmet_benchmark", "plotAgainstReco", plotAgainstReco);
     
+    DeltaMETcut = 50.0;
+    options_->GetOpt("pfmet_benchmark", "deltametcut", DeltaMETcut);
+    
+    DeltaPhicut = 0.1;
+    options_->GetOpt("pfmet_benchmark", "deltaphicut", DeltaPhicut);
+    
     fastsim_=true;
     options_->GetOpt("Simulation","Fast",fastsim_);
 
@@ -1333,6 +1339,7 @@ bool PFRootEventManager::processEntry(int entry) {
   if(doPFMETBenchmark_) { // start PFJet Benchmark
           
     PFMETBenchmark_.process( pfMetsCMSSW_, genParticlesCMSSW_, caloMetsCMSSW_ );
+    float pfMET = PFMETBenchmark_.getPFMET();
     float deltaPFMET = PFMETBenchmark_.getDeltaPFMET();
     float deltaPFPhi = PFMETBenchmark_.getDeltaPFPhi();
     if( verbosity_ == VERBOSE ){ //start debug print
@@ -1340,12 +1347,13 @@ bool PFRootEventManager::processEntry(int entry) {
       cout << " =====================PFMETBenchmark =================" << endl;
     } // end debug print
 
-    // PJ : printout for bad events (selected by the "if")
-    if ( deltaPFMET > 50.0 ) { 
+    // printout for bad events (selected by the "if")
+    if ( deltaPFMET > DeltaMETcut || fabs(deltaPFPhi) > DeltaPhicut ) { 
       cout << " =====================PFMETBenchmark =================" << endl;
       cout<<"process entry "<< entry << endl;
-      cout << "Delta PFMET = " << deltaPFMET 
-	   << "Delta PHPhi = " << deltaPFPhi
+      cout << "PFMET = " << pfMET
+	   << "; Delta PFMET = " << deltaPFMET 
+	   << "; Delta PFphi = " << deltaPFPhi
 	   << endl;
       // return true;
     } else { 

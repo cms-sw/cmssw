@@ -608,6 +608,8 @@ class PFRootEventManager {
 
   /// PFMET Benchmark
   PFMETBenchmark PFMETBenchmark_;
+  double DeltaMETcut;
+  double DeltaPhicut;
 
   /// native jet algorithm 
   /// \todo make concrete
