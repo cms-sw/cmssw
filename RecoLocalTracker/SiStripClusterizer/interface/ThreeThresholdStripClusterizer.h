@@ -73,7 +73,7 @@ class ThreeThresholdStripClusterizer::ESinfo {
   float noise(const uint16_t strip) const {return noiseHandle->getNoise(strip,noiseRange);}
   float gain(const uint16_t strip)  const {return gainHandle->getStripGain(strip,gainRange);}
   bool bad(const uint16_t strip)    const {return qualityHandle->IsStripBad(qualityRange, strip);}
-  bool anyGoodBetween(uint16_t a,uint16_t b) const {while(++a<b && bad(a)); return a!=b;}
+  bool allBadBetween(uint16_t a,uint16_t b) const {while(++a<b && bad(a)); return a==b;}
   bool isModuleUsable(uint32_t id)  const {return qualityHandle->IsModuleUsable(id);}
   
   void setDetId(uint32_t);
