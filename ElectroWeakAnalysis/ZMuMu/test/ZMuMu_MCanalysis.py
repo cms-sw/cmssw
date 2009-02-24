@@ -4,11 +4,22 @@ process = cms.Process("ZMuMuMCanalysis")
 process.load("ElectroWeakAnalysis.ZReco.mcTruthForDimuons_cff")
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/scratch1/cms/data/summer08/skim_reprocessed/dimuons_skim_zmumu.root')
+    fileNames = cms.untracked.vstring(
+'rfio:/dpm/na.infn.it/home/cms/store/user/degruttola/zToMuMuWithoutFilter/degrutto/Zmumu/zToMuMuWithoutFilter/49ffac29c1b9792022f4be1caf28e358/dimuons_1.root', 
+        'rfio:/dpm/na.infn.it/home/cms/store/user/degruttola/zToMuMuWithoutFilter/degrutto/Zmumu/zToMuMuWithoutFilter/49ffac29c1b9792022f4be1caf28e358/dimuons_2.root', 
+        'rfio:/dpm/na.infn.it/home/cms/store/user/degruttola/zToMuMuWithoutFilter/degrutto/Zmumu/zToMuMuWithoutFilter/49ffac29c1b9792022f4be1caf28e358/dimuons_3.root', 
+        'rfio:/dpm/na.infn.it/home/cms/store/user/degruttola/zToMuMuWithoutFilter/degrutto/Zmumu/zToMuMuWithoutFilter/49ffac29c1b9792022f4be1caf28e358/dimuons_4.root', 
+        'rfio:/dpm/na.infn.it/home/cms/store/user/degruttola/zToMuMuWithoutFilter/degrutto/Zmumu/zToMuMuWithoutFilter/49ffac29c1b9792022f4be1caf28e358/dimuons_6.root', 
+        'rfio:/dpm/na.infn.it/home/cms/store/user/degruttola/zToMuMuWithoutFilter/degrutto/Zmumu/zToMuMuWithoutFilter/49ffac29c1b9792022f4be1caf28e358/dimuons_7.root', 
+        'rfio:/dpm/na.infn.it/home/cms/store/user/degruttola/zToMuMuWithoutFilter/degrutto/Zmumu/zToMuMuWithoutFilter/49ffac29c1b9792022f4be1caf28e358/dimuons_8.root', 
+        'rfio:/dpm/na.infn.it/home/cms/store/user/degruttola/zToMuMuWithoutFilter/degrutto/Zmumu/zToMuMuWithoutFilter/49ffac29c1b9792022f4be1caf28e358/dimuons_9.root', 
+        'rfio:/dpm/na.infn.it/home/cms/store/user/degruttola/zToMuMuWithoutFilter/degrutto/Zmumu/zToMuMuWithoutFilter/49ffac29c1b9792022f4be1caf28e358/dimuons_10.root'
+
+    )
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(3000)
+    input = cms.untracked.int32(-1)
 )
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string('zMuMu_MCanalysis.root')
@@ -52,6 +63,7 @@ process.zMuMu_MCanalyzer = cms.EDFilter("ZMuMu_MCanalyzer",
     zMassMin = cms.untracked.double(20.0),
     zMassMax = cms.untracked.double(200.0),
     isomax = cms.untracked.double(3.0),
+    etamin = cms.untracked.double(0.0),                                        
     etamax = cms.untracked.double(2.0),
     ptmin = cms.untracked.double(20.0),
 )
