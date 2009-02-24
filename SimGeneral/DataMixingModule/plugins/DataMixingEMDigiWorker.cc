@@ -316,7 +316,7 @@ namespace edm
       currentID = iEB->first; 
 
       if (currentID == formerID) { // we have to add these digis together
-
+	
 	//loop over digi samples in each DataFrame
 	uint sizenew = (iEB->second).size();
 	uint sizeold = EB_old.size();
@@ -354,19 +354,21 @@ namespace edm
 		
 	
 		float ratio = gainRatios[gain_new-1]/gainRatios[gain_old-1];
-		adc_old = (int) round ((adc_old - pedeStals[gain_old-1]) * ratio + pedeStals[gain_new-1] );  
+		adc_old = (int) round ((adc_old - pedeStals[gain_old-1]) / ratio + pedeStals[gain_new-1] );  
 		gain_consensus = gain_new;
 	      }
 	      else { // scale to old (lower) gain
 		float ratio = gainRatios[gain_old-1]/gainRatios[gain_new-1];
-		adc_new = (int) round ( (adc_new - pedeStals[gain_new-1]) * ratio+ pedeStals[gain_old-1] );
+		adc_new = (int) round ( (adc_new - pedeStals[gain_new-1]) / ratio+ pedeStals[gain_old-1] );
 		gain_consensus = gain_old;
 	      } 
 	    }
 	  }
 
-	  // add values
-	  adc_sum = adc_new + adc_old;
+	 
+	  // add values, but don't count pedestals twice
+	  adc_sum = adc_new + adc_old - (int) round (pedeStals[gain_consensus-1]);
+
 
 	  // if we are now saturating that gain, switch to the next
 	  if (adc_sum> 4096) {
@@ -380,12 +382,12 @@ namespace edm
 		
 	  } 
 
+	  EcalMGPASample sample(adc_sum, gain_consensus);
+	  EB_old.setSample(isamp,sample);  // overwrite old sample, adding new info
+	} // for sample
 
-	  data = adc_sum+gain_consensus<<12; // data is 14 bit word with gain as MSBs
-	  EB_old.setSample(isamp,data);  // overwrite old sample, adding new info
-	}
 
-      }
+      } // if current = former
       else {
 	  if(formerID>0) {
 	    EBdigis->push_back( formerID, EB_old.frame().begin() );
@@ -393,7 +395,9 @@ namespace edm
 	  //save pointers for next iteration
 	  formerID = currentID;
 	  EB_old = iEB->second;
+
       }
+
 
       iEBchk = iEB;
       if((++iEBchk) == EBDigiStorage_.end()) {  //make sure not to lose the last one
@@ -456,7 +460,7 @@ namespace edm
 	      }
 	      else { // scale to old (lower) gain
 		float ratio = gainRatios[gain_old-1]/gainRatios[gain_new-1];
-		adc_new = (int) round ( (adc_new - pedeStals[gain_new-1]) * ratio+ pedeStals[gain_old-1] );
+		adc_new = (int) round ( (adc_new - pedeStals[gain_new-1]) / ratio+ pedeStals[gain_old-1] );
 		gain_consensus = gain_old;
 	      } 
 	    }
@@ -472,27 +476,28 @@ namespace edm
 	    if (gain_consensus<3){
 	      
 	      double ratio = gainRatios[gain_consensus]/gainRatios[gain_consensus-1];
-	      adc_sum = (int) round ((adc_sum - pedeStals[gain_consensus-1])* ratio + pedeStals[gain_consensus]  )  ;
+	      adc_sum = (int) round ((adc_sum - pedeStals[gain_consensus-1])/ ratio + pedeStals[gain_consensus]  )  ;
 	      ++gain_consensus;
 	    }
 	    else adc_sum = 4096;
 	    
 	  } 
 	  
-	  data = adc_sum+gain_consensus<<12; // data is 14 bit word with gain as MSBs
-	  EE_old.setSample(isamp,data);
+	  EcalMGPASample sample(adc_sum, gain_consensus);
+	  EE_old.setSample(isamp,sample);
 	}
 
       }
       else {
 	  if(formerID>0) {
 	    EEdigis->push_back(formerID, EE_old.frame().begin() );
+	     
 	  }
 	  //save pointers for next iteration
 	  formerID = currentID;
 	  EE_old = iEE->second;
       }
-
+     
       iEEchk = iEE;
       if((++iEEchk) == EEDigiStorage_.end()) {  //make sure not to lose the last one
 	    EEdigis->push_back(currentID, (iEE->second).frame().begin());
