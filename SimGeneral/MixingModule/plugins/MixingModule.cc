@@ -53,7 +53,7 @@ namespace edm
             InputTag tag;
 	    if (tags.size()>0) tag=tags[0];
             std::string label;
-            if (verifyRegistry(object,std::string(""),tag,label));
+            if (verifyRegistry(object,std::string(""),tag,label))
 	    {
 	      workers_.push_back(new MixingWorker<SimTrack>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,maxNbSources_,tag,checktof_));  
 	      produces<CrossingFrame<SimTrack> >(label);
