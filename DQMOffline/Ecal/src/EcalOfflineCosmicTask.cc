@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Sean Patrick Lynch
 //         Created:  Thu Nov  6 16:44:17 CET 2008
-// $Id: EcalOfflineCosmicTask.cc,v 1.2 2008/12/04 12:40:26 slynch Exp $
+// $Id: EcalOfflineCosmicTask.cc,v 1.1 2009/02/01 19:38:46 slynch Exp $
 //
 //
 
@@ -43,6 +43,7 @@ Implementation:
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
+using namespace std;
 
 //
 // constructors and destructor
@@ -537,14 +538,15 @@ void EcalOfflineCosmicTask::analyzeSuperClusters(const reco::SuperClusterCollect
    for(reco::SuperClusterCollection::const_iterator scItr = scCollection->begin();
 	 scItr != scCollection->end(); ++scItr) {
 
-      std::vector<DetId> scDetIds = scItr->getHitsByDetId();
+     vector< pair<DetId,float> > scDetIds = scItr->hitsAndFractions();
       
       EcalRecHitCollection::const_iterator seedItr = recHitCollection->begin();
       EcalRecHitCollection::const_iterator secondItr = recHitCollection->begin();
 
-      for(std::vector<DetId>::const_iterator detItr = scDetIds.begin(); detItr != scDetIds.end(); ++detItr) {
-	 if(detItr->det() != DetId::Ecal) { continue; }
-	 EcalRecHitCollection::const_iterator hitItr = recHitCollection->find((*detItr));
+      for(vector< pair<DetId,float> >::const_iterator detItr = scDetIds.begin(); detItr != scDetIds.end(); ++detItr) {
+        DetId id = detItr->first;
+	 if(id.det() != DetId::Ecal) { continue; }
+	 EcalRecHitCollection::const_iterator hitItr = recHitCollection->find(id);
 	 if(hitItr == recHitCollection->end()) { continue; }
 	 if(hitItr->energy() > secondItr->energy()) { secondItr = hitItr; }
 	 if(hitItr->energy() > seedItr->energy()) { std::swap(seedItr,secondItr); }
@@ -755,8 +757,8 @@ int EcalOfflineCosmicTask::getFedId(DetId detId) {
 ///****************************** Begin Filling Functions ***************************************************///
 void EcalOfflineCosmicTask::fillClusterHists(int ecalSubDet, reco::SuperClusterCollection::const_iterator scItr)
 {
-   h1f_NumXtalsInCluster_[ecalSubDet]->Fill(scItr->getHitsByDetId().size());
-   h2f_NumXtalsVsEnergy_[ecalSubDet]->Fill(scItr->energy(),scItr->getHitsByDetId().size());
+   h1f_NumXtalsInCluster_[ecalSubDet]->Fill(scItr->size());
+   h2f_NumXtalsVsEnergy_[ecalSubDet]->Fill(scItr->energy(),scItr->size());
    h1f_NumBCinSC_[ecalSubDet]->Fill(scItr->clustersSize());
    if(ecalSubDet == EB)
       h2f_NumBCinSCphi_->Fill(scItr->phi(),scItr->clustersSize());
@@ -774,7 +776,7 @@ void EcalOfflineCosmicTask::fillEnergyHists(reco::SuperClusterCollection::const_
    h2f_energyvsE1_[ecalSubDet]->Fill(scE1,scItr->energy());
    h1f_energy_[ecalSubDet]->Fill(scItr->energy());
    h1f_energyHigh_[ecalSubDet]->Fill(scItr->energy());
-   if(scItr->getHitsByDetId().size() == 1)
+   if(scItr->size() == 1)
       h1f_energy_SingleXtalClusters_[ecalSubDet]->Fill(scItr->energy());
 }
 
@@ -791,7 +793,7 @@ EcalOfflineCosmicTask::fillOccupancyHists(reco::SuperClusterCollection::const_it
       h2f_OccupancyHighEnergyEvents_[ecalSubDet]->Fill(seedPos.first,seedPos.second);
       h2f_OccupancyHighEnergyEventsCoarse_[ecalSubDet]->Fill(seedPos.first,seedPos.second);
    }
-   if(scItr->getHitsByDetId().size() == 1) {
+   if(scItr->size() == 1) {
       h2f_OccupancySingleXtal_[ecalSubDet]->Fill(seedPos.first,seedPos.second);
    }
 
