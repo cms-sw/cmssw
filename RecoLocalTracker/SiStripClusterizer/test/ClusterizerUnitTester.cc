@@ -81,6 +81,8 @@ runTheTest(const PSet& test) {
     clusterizer->clusterizeDetUnit(digis, resultFF); 
     if(resultFF.empty()) resultFF.abort();
     assertIdentical(expected, result);
+    if(test.getParameter<bool>("InvalidCharge")) 
+      throw cms::Exception("Failed") << "Charges are valid, contrary to expectation.\n";
   }
   catch(ThreeThresholdStripClusterizer::InvalidChargeException e) {
     if(!test.getParameter<bool>("InvalidCharge")) throw e;
