@@ -10,9 +10,9 @@
 ///
 /// Basic class for management of alignment parameters and correlations 
 ///
-///  $Date: 2008/09/02 15:23:22 $
-///  $Revision: 1.15 $
-/// (last update by $Author: flucke $)
+///  $Date: 2009/01/08 17:58:59 $
+///  $Revision: 1.16 $
+/// (last update by $Author: ewidl $)
 
 namespace edm { class ParameterSet; }
 class AlignmentUserVariables;
@@ -121,19 +121,21 @@ public:
   typedef std::pair<Alignable*, unsigned int> ParameterId;
   /// Assuming aliMaster has (sub-)components aliComps with (up to) 6 rigid body parameters
   /// (cf. Alignable::firstParamComponents), paramIdsVecOut and factorsVecOut will be filled
-  /// (in parallel) with constraints on the alignment parameters of aliMaster to get rid of the
-  /// additionally introduced degrees of freedom:
+  /// (in parallel) with constraints on the selected alignment parameters of aliMaster to
+  /// get rid of the additionally introduced degrees of freedom:
   /// The 'vector product' of the parameters identified by ParameterId in std::vector<ParameterId>
-  /// and the factors in std::vector<float> has to vanish (i.e. == 0.),
+  /// and the factors in std::vector<double> has to vanish (i.e. == 0.),
   /// |factor| < epsilon will be treated as 0.
   /// If all6 == false, skip constraint on aliMaster's degree of freedom 'i' if 'i'th alignment
   /// parameter of aliMaster is not selected, i.e. constrain only for otherwise doubled d.o.f.
   /// If all6 == true, produce all 6 rigid body constraints irrespective of the aliMaster's
   /// parameters.
+  /// paramIdsVecOut and factorsVecOut contain exactly one std::vector per selected alignment
+  /// parameter of aliMaster, but in principle these can be empty...
   bool hierarchyConstraints(const Alignable *aliMaster, const align::Alignables &aliComps,
 			    std::vector<std::vector<ParameterId> > &paramIdsVecOut,
-			    std::vector<std::vector<float> > &factorsVecOut,
-			    bool all6, float epsilon = 1.e-15) const;
+			    std::vector<std::vector<double> > &factorsVecOut,
+			    bool all6, double epsilon) const;
 
 protected:
 

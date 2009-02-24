@@ -1,9 +1,9 @@
 /**
  * \file AlignmentParameterStore.cc
  *
- *  $Revision: 1.23 $
- *  $Date: 2008/09/02 15:31:23 $
- *  (last update by $Author: flucke $)
+ *  $Revision: 1.24 $
+ *  $Date: 2009/01/08 17:58:59 $
+ *  (last update by $Author: ewidl $)
  */
 
 // This class's header should be first
@@ -633,8 +633,8 @@ void AlignmentParameterStore::setAlignmentPositionError( const align::Alignables
 bool AlignmentParameterStore
 ::hierarchyConstraints(const Alignable *ali, const align::Alignables &aliComps,
 		       std::vector<std::vector<ParameterId> > &paramIdsVecOut,
-		       std::vector<std::vector<float> > &factorsVecOut,
-		       bool all6, float epsilon) const
+		       std::vector<std::vector<double> > &factorsVecOut,
+		       bool all6, double epsilon) const
 {
   // Weak point if all6 = false:
   // Ignores constraints between non-subsequent levels in case the parameter is not considered in
@@ -666,11 +666,11 @@ bool AlignmentParameterStore
       if (!all6 && !aliSel[iParMast]) continue;// no higher level parameter & constraint deselected
       if (firstComp) { // fill output with empty arrays 
 	paramIdsVecOut.push_back(std::vector<ParameterId>());
-	factorsVecOut.push_back(std::vector<float>());
+	factorsVecOut.push_back(std::vector<double>());
       }
       for (int iParComp = 0; iParComp < f2fDeriv.num_col(); ++iParComp) {
 	if (aliCompSel[iParComp]) {
-	  const float factor = f2fDeriv[iParMast][iParComp]; // switch col/row? GF: Should be fine.
+	  const double factor = f2fDeriv[iParMast][iParComp]; // switch col/row? GF: Should be fine.
 	  if (fabs(factor) > epsilon) {
 	    paramIdsVecOut[iParMastUsed].push_back(ParameterId(*iComp, iParComp));
 	    factorsVecOut[iParMastUsed].push_back(factor);
