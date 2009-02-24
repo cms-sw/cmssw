@@ -1,51 +1,37 @@
 #ifndef RPCMultiplicityTest_H
 #define RPCMultiplicityTest_H
 
-
-/** \class RPCDeadChannelTest
+/** \class  RPCMultiplicityTest
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/03/08 19:15:10 $
- *  $Revision: 1.2 $
- *  \author 
- *   
+ *  $Date: 2008/12/15 16:28:30 $
+ *  $Revision: 1.6 $
+ *  \author   
  */
 
-//#include "DataFormats/Common/interface/Handle.h"
-#include <FWCore/Framework/interface/Run.h>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/Event.h>
+#include <FWCore/Framework/interface/Run.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
-//#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
-#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-//#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include <DataFormats/MuonDetId/interface/RPCDetId.h>
 
-#include "DQM/RPCMonitorClient/interface/RPCClient.h"
-
+#include <map>
 #include <memory>
-#include <iostream>
-#include <fstream>
 #include <string>
 #include <vector>
-#include <map>
 
-class QTestHandle;
-class DQMOldReceiver;
-class DQMStore;
-class RPCDetId;
+class  RPCMultiplicityTest:public edm::EDAnalyzer{
 
-
-class RPCMultiplicityTest: public RPCClient {
 public:
 
   /// Constructor
@@ -55,60 +41,40 @@ public:
   virtual ~RPCMultiplicityTest();
 
   /// BeginJob
-  void beginJob( DQMStore * dbe);
+  void beginJob(const edm::EventSetup& );
 
   //Begin Run
-   void beginRun(const edm::Run& r, const edm::EventSetup& c);
+   void beginRun(const edm::Run& , const edm::EventSetup& );
   
   
   /// Begin Lumi block 
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
+  void beginLuminosityBlock(edm::LuminosityBlock const& , edm::EventSetup const& ) ;
 
   /// Analyze  
-  void analyze(const edm::Event& iEvent, const edm::EventSetup& c);
+  void analyze(const edm::Event& , const edm::EventSetup& );
 
   /// End Lumi Block
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
+  void endLuminosityBlock(edm::LuminosityBlock const& , edm::EventSetup const& );
  
   //End Run
-  void endRun(const edm::Run& r, const edm::EventSetup& c); 		
+  void endRun(const edm::Run& , const edm::EventSetup& ); 		
   
   /// Endjob
   void endJob();
 
-
  protected:
+  void fillGlobalME(RPCDetId & detId, MonitorElement * myMe,  edm::EventSetup const& iSetup);
 
-   /// Get the ME name
-   MonitorElement*getMEs(RPCDetId & detId);
- 
-
-private:
-
-  int nevents;
-  unsigned int nLumiSegs;
-   int prescaleFactor;
-  int run; 
-  int lumiBlock;
-  char dateTime[32];
-
-  //configurable in cfg file
-  bool referenceOldChannels;
-  bool getQualityTestsFromFile;
-  std::ifstream referenceFile_;
   
-  std::ofstream myfile; 
-
+ private:
+  int prescaleFactor_;
+  std::string globalFolder_;
+ std::string prefixDir_;
+  std::vector<MonitorElement *>  myNumDigiMe_;
+  std::vector<RPCDetId>   myDetIds_;
+  std::vector<std::string>    myRollNames_;
   DQMStore* dbe_;
-  //  QTestHandle *qtHandler;
-  // DQMOldReceiver * mui_;
-
-  edm::ParameterSet parameters;
-  edm::ESHandle<RPCGeometry> muonGeom;
-  //edm::ESHandle<DTTtrig> tTrigMap;
-
-  // std::map< std::string , MonitorElement* > OccupancyHistos;
-  std::map<RPCDetId,MonitorElement*>  meCollection;
+  std:: map<int, std::map< int ,  std::pair<float,float> > >  barrelMap_, endcapMap_;
+  
 };
-
 #endif

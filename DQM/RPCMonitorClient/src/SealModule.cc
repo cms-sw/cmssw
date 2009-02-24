@@ -20,3 +20,9 @@ DEFINE_ANOTHER_FWK_MODULE(RPCOccupancyTest);
 DEFINE_ANOTHER_FWK_MODULE(RPCClusterSizeTest);
 #include <DQM/RPCMonitorClient/interface/ReadMeFromFile.h>
 DEFINE_ANOTHER_FWK_MODULE(ReadMeFromFile);
+#include <DQM/RPCMonitorClient/interface/RPCChamberQuality.h>
+DEFINE_ANOTHER_FWK_MODULE(RPCChamberQuality);
+#include <DQM/RPCMonitorClient/interface/RPCDCSDataSimulator.h>
+DEFINE_ANOTHER_FWK_MODULE(RPCDCSDataSimulator);
+#include <DQM/RPCMonitorClient/interface/RPCMultiplicityTest.h>
+DEFINE_ANOTHER_FWK_MODULE(RPCMultiplicityTest);

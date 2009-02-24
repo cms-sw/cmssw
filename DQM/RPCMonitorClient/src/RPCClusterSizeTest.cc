@@ -81,7 +81,7 @@ void RPCClusterSizeTest::beginRun(const Run& r, const EventSetup& c){
     
     
     histoName.str("");
-    histoName<<"MeanClusterSize_Roll_vs_Sector_Wheel"<<w;       // Avarage ClusterSize (2D Roll vs Sector)   
+    histoName<<"ClusterSizeMean_Roll_vs_Sector_Wheel"<<w;       // Avarage ClusterSize (2D Roll vs Sector)   
     if ( me = dbe_->get(prefixDir_ + histoName.str()) ) {
       dbe_->removeElement(me->getName());
     }
@@ -94,7 +94,7 @@ void RPCClusterSizeTest::beginRun(const Run& r, const EventSetup& c){
     
     
     histoName.str("");
-    histoName<<"MeanClusterSize_Distribution_Wheel"<<w;       //  Avarage ClusterSize Distribution
+    histoName<<"ClusterSizeMean_Distribution_Wheel"<<w;       //  Avarage ClusterSize Distribution
     if ( me = dbe_->get(prefixDir_ + histoName.str()) ) {
       dbe_->removeElement(me->getName());
     }
@@ -173,7 +173,7 @@ void RPCClusterSizeTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
 	    CLSD->Reset();
 	    	    	    
 	    meName.str("");
-	    meName<<prefixDir_<<"MeanClusterSize_Roll_vs_Sector_Wheel"<<detId.ring();  
+	    meName<<prefixDir_<<"ClusterSizeMean_Roll_vs_Sector_Wheel"<<detId.ring();  
 	    MEAN= dbe_->get(meName.str());
 	    if(MEAN) {
 	      MEAN -> setBinContent(detId.sector(), nr, meanCLS);
@@ -182,7 +182,7 @@ void RPCClusterSizeTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
 	    
 	    
 	    meName.str("");
-	    meName<<prefixDir_<<"MeanClusterSize_Distribution_Wheel"<<detId.ring();
+	    meName<<prefixDir_<<"ClusterSizeMean_Distribution_Wheel"<<detId.ring();
 	    MEAND = dbe_->get(meName.str());
 	    MEAND->Reset();
 	    if (MEAND) {

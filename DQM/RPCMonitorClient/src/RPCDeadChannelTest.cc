@@ -8,15 +8,14 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //DataFormats
-#include <DataFormats/MuonDetId/interface/RPCDetId.h>
 #include "DataFormats/RPCDigi/interface/RPCDigi.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 
 // Geometry
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
-#include <map>
 #include <sstream>
 
 using namespace edm;
@@ -49,51 +48,57 @@ void RPCDeadChannelTest::beginRun(const Run& r, const EventSetup& iSetup){
  MonitorElement* me;
  dbe_->setCurrentFolder( prefixDir_+"/"+globalFolder_);
  
- stringstream histoName, histoTitle;
+ stringstream histoName;
 
- for (int i = -4; i<=4;i++ ){
+ for (int i = -4; i<=4;i++ ){//loop on wheels and disks
    if (i>-3 && i<3){//wheels
      histoName.str("");
-     histoName<<"DeadChannels_Roll_vs_Sector_Wheel"<<i;
-     histoTitle.str("");
-     histoTitle<<"DeadChannels_Roll_vs_Sector_Wheel "<<i;
-     if ( me = dbe_->get(prefixDir_+"/"+globalFolder_ +"/"+ histoName.str()) ) {
-       dbe_->removeElement(me->getName());
-     }
-  
-     me = dbe_->book2D(histoName.str().c_str(), histoTitle.str().c_str(), 12, 0.5, 12.5, 21, 0.5, 21.5);
-     for(int bin =1; bin<13;bin++) {
-       histoName.str("");
-       histoName<<"Sec"<<bin;
-       me->setBinLabel(bin,histoName.str().c_str(),1);
-     }
-     histoName.str("");
-     histoName<<"ClusterSize_AliveStrips_Roll_vs_Sector_Wheel"<<i;
-     histoTitle.str("");
-     histoTitle<<"ClusterSize_AliveStrips_Roll_vs_Sector_Wheel "<<i;
+     histoName<<"DeadChannelFraction_Roll_vs_Sector_Wheel"<<i;
      if ( me = dbe_->get(prefixDir_+"/"+globalFolder_ +"/"+ histoName.str()) ) {
        dbe_->removeElement(me->getName());
      }
      
-     me = dbe_->book2D(histoName.str().c_str(), histoTitle.str().c_str(), 12, 0.5, 12.5, 21, 0.5, 21.5);
+     me = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(), 12, 0.5, 12.5, 21, 0.5, 21.5);
+     
+     for(int bin =1; bin<13;bin++) {
+       histoName.str("");
+       histoName<<"Sec"<<bin;
+       me->setBinLabel(bin,histoName.str().c_str(),1);
+     }
 
+     histoName.str("");
+     histoName<<"ClusterSize_AliveStrips_Roll_vs_Sector_Wheel"<<i;
+     if ( me = dbe_->get(prefixDir_+"/"+globalFolder_ +"/"+ histoName.str()) ) {
+       dbe_->removeElement(me->getName());
+     }
+     
+     me = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(), 12, 0.5, 12.5, 21, 0.5, 21.5);
 
      for(int bin =1; bin<13;bin++) {
        histoName.str("");
        histoName<<"Sec"<<bin;
        me->setBinLabel(bin,histoName.str().c_str(),1);
      }
+ histoName.str("");
+     histoName<<"ClusterSize_AliveStrips_Distribution_Wheel"<<i;
+     if ( me = dbe_->get(prefixDir_+"/"+globalFolder_ +"/"+ histoName.str()) ) {
+       dbe_->removeElement(me->getName());
+     }
+     
+     me = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),40, 0.5, 20.5 );
+
+
+
    }//end wheels
 
+   if (i ==0 )continue;
 
    histoName.str("");
-   histoName<<"DeadChannels_Roll_vs_Sector_Disk"<<i;
-   histoTitle.str("");
-   histoTitle<<"DeadChannels_Roll_vs_Sector_Disk "<<i;
+   histoName<<"DeadChannelFraction_Roll_vs_Sector_Disk"<<i;
    if ( me = dbe_->get(prefixDir_+"/"+globalFolder_ +"/"+ histoName.str()) ) {
      dbe_->removeElement(me->getName());
    }
-   me = dbe_->book2D(histoName.str().c_str(), histoTitle.str().c_str(), 6, 0.5, 6.5, 54, 0.5, 54.5);
+   me = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(), 6, 0.5, 6.5, 54, 0.5, 54.5);
    
    for(int bin =1; bin<7;bin++) {
      histoName.str("");
@@ -102,78 +107,84 @@ void RPCDeadChannelTest::beginRun(const Run& r, const EventSetup& iSetup){
    }
 
    histoName.str("");
-   histoName<<"ClusterSize_vs_AliveStrips_Disk"<<i;
-   histoTitle.str("");
-   histoTitle<<"ClusterSize vs AliveStrips Disk "<<i;
+   histoName<<"ClusterSize_AliveStrips_Roll_vs_Sector__Disk"<<i;
    if ( me = dbe_->get(prefixDir_+"/"+globalFolder_ +"/"+ histoName.str()) ) {
      dbe_->removeElement(me->getName());
    }
-
-   me = dbe_->book2D(histoName.str().c_str(), histoTitle.str().c_str(), 6, 0.5, 6.5, 54, 0.5, 54.5);
- 
+   me = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(), 6, 0.5, 6.5, 54, 0.5, 54.5);
    
    for(int bin =1; bin<7;bin++) {
      histoName.str("");
      histoName<<"Sec"<<bin;
      me->setBinLabel(bin,histoName.str().c_str(),1);
    }
- }
- 
  histoName.str("");
- histoName<<"DeadChannelPercentageBarrel";
+ histoName<<"ClusterSize_AliveStrips_Distribution_Disk"<<i;
+     if ( me = dbe_->get(prefixDir_+"/"+globalFolder_ +"/"+ histoName.str()) ) {
+       dbe_->removeElement(me->getName());
+     }
+     
+     me = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),40, 0.5, 20.5 );
+
+
+
+
+ }//end loop on wheels and disks
+
+ //Start booking global histos
+ histoName.str("");
+ histoName<<"DeadChannelPercentage_Barrel";
  if ( me = dbe_->get(prefixDir_+"/"+globalFolder_ +"/"+ histoName.str()) ) {
        dbe_->removeElement(me->getName());
  }
  me = dbe_->book2D(histoName.str().c_str(), "Dead Channel Fraction in Barrel", 12, 0.5, 12.5, 5, -2.5, 2.5);
 
- for(int xbin =1; xbin<13; xbin++) {
+ for(int bin =1; bin<13; bin++) {//set labels
    histoName.str("");
-   histoName<<"Sec"<<xbin;
-   me->setBinLabel(xbin,histoName.str().c_str(),1);
- }
- for(int ybin =1; ybin<5; ybin++) {
-   histoName.str("");
-   histoName<<"Wheel"<<(ybin-3);
-   me->setBinLabel(ybin,histoName.str().c_str(),2);
+   histoName<<"Sec"<< bin;
+   me->setBinLabel( bin,histoName.str().c_str(),1);
+   if(bin<5) {
+     histoName.str("");
+     histoName<<"Wheel"<<bin-3;
+     me->setBinLabel(bin,histoName.str().c_str(),2);
+   }
  }
  
  histoName.str("");
- histoName<<"DeadChannelPercentageEndcapPositive";
+ histoName<<"DeadChannelPercentage_EndcapPositive";
  if ( me = dbe_->get(prefixDir_+"/"+globalFolder_ +"/"+ histoName.str()) ) {
    dbe_->removeElement(me->getName());
  }
  me = dbe_->book2D(histoName.str().c_str(), "Dead Channel Fraction in Endcap+", 6, 0.5, 6.5, 4, -2, 2);
 
- for(int xbin =1; xbin<7; xbin++) {
+ for(int bin =1; bin<7; bin++) {//set labels
    histoName.str("");
-   histoName<<"Sec"<< xbin;
-   me->setBinLabel( xbin,histoName.str().c_str(),1);
- }
- for(int ybin =1; ybin<5; ybin++) {
-   histoName.str("");
-   histoName<<"Disk"<<ybin;
-   me->setBinLabel(ybin,histoName.str().c_str(),2);
+   histoName<<"Sec"<< bin;
+   me->setBinLabel( bin,histoName.str().c_str(),1);
+   if(bin<5) {
+     histoName.str("");
+     histoName<<"Disk"<<bin;
+     me->setBinLabel(bin,histoName.str().c_str(),2);
+   }
  }
  
  histoName.str("");
- histoName<<"DeadChannelPercentageEndcapNegative";
+ histoName<<"DeadChannelPercentage_EndcapNegative";
  if ( me = dbe_->get(prefixDir_+"/"+globalFolder_ +"/"+ histoName.str()) ) {
    dbe_->removeElement(me->getName());
  }
  me = dbe_->book2D(histoName.str().c_str(), "Dead Channel Fraction in Endcap-", 6, 0.5, 6.5,4, -2, 2); 
 
- for(int xbin =1; xbin<7; xbin++) {
+ for(int bin =1; bin<7; bin++) {//set labels
    histoName.str("");
-   histoName<<"Sec"<< xbin;
-   me->setBinLabel( xbin,histoName.str().c_str(),1);
+   histoName<<"Sec"<< bin;
+   me->setBinLabel( bin,histoName.str().c_str(),1);
+   if(bin<5) {
+     histoName.str("");
+     histoName<<"Disk"<<bin;
+     me->setBinLabel(bin,histoName.str().c_str(),2);
+   }
  }
- for(int ybin =1; ybin<5; ybin++) {
-   histoName.str("");
-   histoName<<"Disk-"<<ybin;
-   me->setBinLabel(ybin,histoName.str().c_str(),2);
- } 
-
-
 
  ESHandle<RPCGeometry> rpcGeo;
  iSetup.get<MuonGeometryRecord>().get(rpcGeo);
@@ -204,9 +215,7 @@ void RPCDeadChannelTest::beginRun(const Run& r, const EventSetup& iSetup){
 
 void RPCDeadChannelTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {}
 
-//called at each event
 void RPCDeadChannelTest::analyze(const edm::Event& iEvent, const edm::EventSetup& c){}
-
 
 void RPCDeadChannelTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& iSetup) {
  
@@ -218,88 +227,96 @@ void RPCDeadChannelTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
   //check some statements and prescale Factor
   if(nLumiSegs%prescaleFactor_ == 0) {
 
-    edm::ESHandle<RPCGeometry> rpcgeo;
-    iSetup.get<MuonGeometryRecord>().get(rpcgeo);
-
-    map<int, map< int ,  pair<float,float> > >  barrelMap, endcapMap;
-    stringstream meName;
     //Loop on chambers
     for (unsigned int  i = 0 ; i<myOccupancyMe_.size();i++){
-      
-      MonitorElement * myMe =myOccupancyMe_[i];
-      RPCDetId detId = myDetIds_[i];
-      
-      
-      const RPCRoll * rpcRoll = rpcgeo->roll(detId);      
-
-      unsigned int nstrips =rpcRoll->nstrips();
-
-      MonitorElement * myGlobalMe;
-      MonitorElement * myGlobalMe2;
-      
-      const QReport * theOccupancyQReport = myMe->getQReport("DeadChannel_0");  
-      if(!theOccupancyQReport) continue;
-      
-      vector<dqm::me_util::Channel> badChannels = theOccupancyQReport->getBadChannels();
-      
-      if (detId.region()==0) {
-	barrelMap[detId.ring()][detId.sector()].first += badChannels.size();
-	barrelMap[detId.ring()][detId.sector()].second += nstrips ;
-	meName.str("");
-	meName<<prefixDir_+"/"+ globalFolder_+"/DeadChannels_Roll_vs_Sector_Wheel"<<detId.ring();
-      }else{
-	endcapMap[detId.region()*detId.station()][detId.sector()].first +=  badChannels.size();
-	endcapMap[detId.region()*detId.station()][detId.sector()].second+=nstrips;
-	meName.str("");
-	meName<<prefixDir_+"/"+ globalFolder_+"/DeadChannels_Roll_vs_Sector_Disk"<<detId.region()*detId.station();
-      }
-      myGlobalMe = dbe_->get(meName.str());
-      if (!myGlobalMe)continue;
-      rpcdqm::utils rollNumber;
-      int nr = rollNumber.detId2RollNr(detId);
-      myGlobalMe->setBinContent(detId.sector(),nr, badChannels.size()*100/nstrips );
-
-      RPCGeomServ RPCname(detId);	  
-      string YLabel = RPCname.shortname();
-      myGlobalMe->setBinLabel(nr, YLabel, 2);
-      
-      if (detId.region()==0){
-	
-	meName.str("");
-	meName<<prefixDir_+"/"+ globalFolder_+"/ClusterSize_AliveStrips_Roll_vs_Sector_Wheel"<<detId.ring();
-	
-	myGlobalMe = dbe_->get(meName.str());
-	
-	
-	meName.str("");
-	meName<<prefixDir_+"/"+ globalFolder_+"/ClusterSizeMeanValue_Roll_vs_Sector_Wheel_"<<detId.ring();
-	
-	myGlobalMe2 = dbe_->get(meName.str());
-	
-	
-	if (!myGlobalMe || !myGlobalMe2) continue;
-	
-	int goodCh =nstrips-badChannels.size();
-	
-	if(badChannels.size()<nstrips)	 myGlobalMe->setBinContent(detId.sector(),nr, myGlobalMe2->getBinContent(detId.sector(),nr)/goodCh );
-	else  myGlobalMe->setBinContent(detId.sector(),nr, 1 ); 
-	
-      }
-      
-      myGlobalMe->setBinLabel(nr,YLabel , 2);
+      this->CalculateDeadChannelPercentage(myDetIds_[i],myOccupancyMe_[i],iSetup);
     }//End loop on rolls in given chambers
 
-    this->fillDeadChannelHisto(barrelMap, 0);
-    
-    this->fillDeadChannelHisto(endcapMap, 1);
+    this->fillDeadChannelHisto(barrelMap_, 0);
+    this->fillDeadChannelHisto(endcapMap_, 1);
+    // this->fillDeadChannelHisto(endcapMap_, -1);
   }
 }
-
-
  
 void RPCDeadChannelTest::endRun(const Run& r, const EventSetup& c){}
 
 void RPCDeadChannelTest::endJob(){}
+
+//
+//User Defined methods
+//
+void  RPCDeadChannelTest::CalculateDeadChannelPercentage(RPCDetId & detId, MonitorElement * myMe, EventSetup const& iSetup){
+ 
+  edm::ESHandle<RPCGeometry> rpcgeo;
+  iSetup.get<MuonGeometryRecord>().get(rpcgeo); 
+
+  const RPCRoll * rpcRoll = rpcgeo->roll(detId);      
+
+  unsigned int nstrips =rpcRoll->nstrips();
+  
+  MonitorElement * myGlobalMe;
+  MonitorElement * myGlobalMe2;
+  
+   stringstream meName;
+
+  const QReport * theOccupancyQReport = myMe->getQReport("DeadChannel_0");  
+  if(theOccupancyQReport) {
+  
+  vector<dqm::me_util::Channel> badChannels = theOccupancyQReport->getBadChannels();
+  
+  if (detId.region()==0) {
+    barrelMap_[detId.ring()][detId.sector()].first += badChannels.size();
+    barrelMap_[detId.ring()][detId.sector()].second += nstrips ;
+    meName.str("");
+    meName<<prefixDir_+"/"+ globalFolder_+"/DeadChannelFraction_Roll_vs_Sector_Wheel"<<detId.ring();
+  }else{
+    endcapMap_[detId.region()*detId.station()][detId.sector()].first +=  badChannels.size();
+    endcapMap_[detId.region()*detId.station()][detId.sector()].second+=nstrips;
+    meName.str("");
+    meName<<prefixDir_+"/"+ globalFolder_+"/DeadChannelsFractionRoll_vs_Sector_Disk"<<detId.region()*detId.station();
+  }
+  myGlobalMe = dbe_->get(meName.str());
+  
+  if (myGlobalMe){
+
+  rpcdqm::utils rollNumber;
+  int nr = rollNumber.detId2RollNr(detId);
+  float badchanfrac = badChannels.size()*100/nstrips;
+  if(badchanfrac==0) badchanfrac = 0.001;
+  myGlobalMe->setBinContent(detId.sector(),nr, badchanfrac );
+  
+  RPCGeomServ RPCname(detId);	  
+  string YLabel = RPCname.shortname();
+  myGlobalMe->setBinLabel(nr, YLabel, 2);
+  
+  meName.str("");
+  meName<<prefixDir_+"/"+ globalFolder_+"/ClusterSize_AliveStrips_Roll_vs_Sector_Wheel"<<detId.ring();
+  myGlobalMe = dbe_->get(meName.str());
+
+  meName.str("");
+  meName<<prefixDir_+"/"+ globalFolder_+"/ClusterSizeMean_Roll_vs_Sector_Wheel"<<detId.ring();	
+  myGlobalMe2 = dbe_->get(meName.str());
+     
+  if ( myGlobalMe &&  myGlobalMe2){        	
+
+  int goodCh =nstrips-badChannels.size();
+  if(badChannels.size()<nstrips) myGlobalMe->setBinContent(detId.sector(),nr, myGlobalMe2->getBinContent(detId.sector(),nr)/goodCh );
+  else  myGlobalMe->setBinContent(detId.sector(),nr, 1 ); 
+
+  myGlobalMe->setBinLabel(nr,YLabel , 2);
+  meName.str("");
+  meName<<prefixDir_+"/"+ globalFolder_+"/ClusterSize_AliveStrips_Distribution_Wheel"<<detId.ring();
+  myGlobalMe = dbe_->get(meName.str());
+  
+  if ( myGlobalMe) myGlobalMe->Fill( myGlobalMe2->getBinContent(detId.sector(),nr)/goodCh);
+
+  }
+
+}
+  }
+}
+
+
 
 //Fill report summary
 void  RPCDeadChannelTest::fillDeadChannelHisto(const map<int,map<int,pair<float,float> > > & sumMap, int region){
@@ -312,13 +329,13 @@ void  RPCDeadChannelTest::fillDeadChannelHisto(const map<int,map<int,pair<float,
     for (itr=sumMap.begin(); itr!=sumMap.end(); itr++){
       for (map< int ,  pair<float,float> >::const_iterator meItr = (*itr).second.begin(); meItr!=(*itr).second.end();meItr++){
 	  if (region==0){
-	    regionME = dbe_->get(prefixDir_+"/"+globalFolder_ +"/DeadChannelPercentageBarrel");
+	    regionME = dbe_->get(prefixDir_+"/"+globalFolder_ +"/DeadChannelPercentage_Barrel");
 	    regionME->setBinContent((*meItr).first, (*itr).first + 3,(*meItr).second.first/(*meItr).second.second );
 	  }else {
-	    regionME = dbe_->get(prefixDir_+"/"+globalFolder_ +"/DeadChannelPercentageEndcapPositive");  
+	    regionME = dbe_->get(prefixDir_+"/"+globalFolder_ +"/DeadChannelPercentage_EndcapPositive");  
 	    regionME->setBinContent((*meItr).first, (*itr).first ,(*meItr).second.first/(*meItr).second.second );
 
-	    regionME = dbe_->get(prefixDir_+"/"+globalFolder_ +"/DeadChannelPercentageEndcapNegative");  
+	    regionME = dbe_->get(prefixDir_+"/"+globalFolder_ +"/DeadChannelPercentage_EndcapNegative");  
 	    regionME->setBinContent((*meItr).first, (-1*(*itr).first ),(*meItr).second.first/(*meItr).second.second );
 	  }
       }    
