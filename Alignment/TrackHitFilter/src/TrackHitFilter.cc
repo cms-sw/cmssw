@@ -13,7 +13,7 @@
 //
 // Original Author:  Roberto Covarelli
 //         Created:  Mon Jan 15 10:39:42 CET 2007
-// $Id: TrackHitFilter.cc,v 1.10 2008/10/13 12:42:15 ntran Exp $
+// $Id: TrackHitFilter.cc,v 1.12 2009/02/17 15:00:31 castello Exp $
 //
 //
 
@@ -238,14 +238,14 @@ bool TrackHitFilter::keepThisHit(DetId id, int type, int layer, const TrackingRe
     const SiPixelRecHit* pixelhit = dynamic_cast<const SiPixelRecHit*>(therechit);
     const SiPixelCluster* pixelcluster = &*(pixelhit->cluster());
     if(pixelcluster->size()==1 && pixelcluster->charge()<thePixelClusterthreshold){keepthishit = false;}
- }
+  }
 
 
- // ****************        
+  // ****************        
   // Reject hits with bad S/N
   if (rejectBadStoNHits && (abs(type)>2) ) { //apply it only to Strip hits
-
-    const uint32_t& recHitDetId = id.rawId();
+    /*** RC ****/ 
+    //   const uint32_t& recHitDetId = id.rawId();
     const SiStripMatchedRecHit2D* matchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>(therechit);
     const SiStripRecHit2D* hit = dynamic_cast<const SiStripRecHit2D*>(therechit);
     const ProjectedSiStripRecHit2D* unmatchedhit = dynamic_cast<const ProjectedSiStripRecHit2D*>(therechit);
@@ -256,30 +256,30 @@ bool TrackHitFilter::keepThisHit(DetId id, int type, int layer, const TrackingRe
 
       const SiStripRecHit2D* monohit=matchedhit->monoHit();    
       const SiStripCluster* monocluster = &*(monohit->cluster());
-      SiStripClusterInfo monoclusterInfo = SiStripClusterInfo( recHitDetId, *monocluster, iSetup, theCMNSubtractionMode);    //  if (monoclusterInfo.signalOverNoise() < theStoNthreshold ) keepmonohit = false;
-      if (monoclusterInfo.getSignalOverNoise() < theStoNthreshold ) keepmonohit = false;	
+      SiStripClusterInfo monoclusterInfo = SiStripClusterInfo( *monocluster, iSetup); 
+      if (monoclusterInfo.signalOverNoise() < theStoNthreshold ) keepmonohit = false;
+	
 
       const SiStripRecHit2D* stereohit=matchedhit->stereoHit();   
       const SiStripCluster* stereocluster = &*(stereohit->cluster());
-      SiStripClusterInfo stereoclusterInfo = SiStripClusterInfo( recHitDetId, *stereocluster, iSetup, theCMNSubtractionMode);   
-      //if (stereoclusterInfo.signalOverNoise() < theStoNthreshold ) keepstereohit = false;
-      if (stereoclusterInfo.getSignalOverNoise() < theStoNthreshold ) keepstereohit = false;	
-      
+      SiStripClusterInfo stereoclusterInfo = SiStripClusterInfo(*stereocluster, iSetup);   
+      if (stereoclusterInfo.signalOverNoise() < theStoNthreshold )keepstereohit = false;
+           
       if (!keepmonohit || !keepstereohit) keepthishit = false;    
     }
     else if (hit) {
       const SiStripCluster* cluster = &*(hit->cluster());
-      SiStripClusterInfo clusterInfo = SiStripClusterInfo( recHitDetId, *cluster, iSetup, theCMNSubtractionMode);     
-      // if (clusterInfo.signalOverNoise() < theStoNthreshold ) keepthishit = false;    
-      if (clusterInfo.getSignalOverNoise() < theStoNthreshold ) keepthishit = false;    
+      SiStripClusterInfo clusterInfo = SiStripClusterInfo(*cluster, iSetup);     
+       if (clusterInfo.signalOverNoise() < theStoNthreshold )keepthishit = false;
+     
     }
     else if (unmatchedhit) {
       const SiStripRecHit2D &orighit = unmatchedhit->originalHit(); 
       const SiStripCluster* origcluster = &*(orighit.cluster());
-      SiStripClusterInfo clusterInfo = SiStripClusterInfo( recHitDetId, *origcluster, iSetup, theCMNSubtractionMode);     
+      SiStripClusterInfo clusterInfo = SiStripClusterInfo(*origcluster, iSetup);     
 
-      //if (clusterInfo.signalOverNoise() < theStoNthreshold ) keepthishit = false;    
-       if (clusterInfo.getSignalOverNoise() < theStoNthreshold ) keepthishit = false;    
+      if (clusterInfo.signalOverNoise() < theStoNthreshold ) keepthishit = false;   
+         
     }
   } // end reject bad S/N
 
