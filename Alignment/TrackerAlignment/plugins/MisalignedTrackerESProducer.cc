@@ -2,7 +2,9 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // Conditions database
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -11,6 +13,8 @@
 // Geometry
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 // Alignment
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
@@ -18,23 +22,53 @@
 #include "Alignment/TrackerAlignment/interface/TrackerScenarioBuilder.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h" 
 
-
-#include "Alignment/TrackerAlignment/plugins/MisalignedTrackerESProducer.h"
+// C++
+#include <boost/shared_ptr.hpp>
+#include <memory>
+#include <algorithm>
 
 ///
 /// An ESProducer that fills the TrackerDigiGeometryRcd with a misaligned tracker
 /// 
 /// This should replace the standard TrackerDigiGeometryESModule when producing
 /// Misalignment scenarios.
+///
 
-#include <memory>
-#include <algorithm>
+class MisalignedTrackerESProducer: public edm::ESProducer
+{
+public:
+
+  /// Constructor 
+  MisalignedTrackerESProducer(const edm::ParameterSet & p);
+  
+  /// Destructor
+  virtual ~MisalignedTrackerESProducer(); 
+  
+  /// Produce the misaligned tracker geometry and store it
+  boost::shared_ptr<TrackerGeometry> produce(const TrackerDigiGeometryRecord& iRecord);
+
+private:
+  const bool theSaveToDB; /// whether or not writing to DB
+  const edm::ParameterSet theScenario; /// misalignment scenario
+
+  const std::string theAlignRecordName, theErrorRecordName;
+  
+  boost::shared_ptr<TrackerGeometry> theTracker;
+
+};
+
+//__________________________________________________________________________________________________
+//__________________________________________________________________________________________________
+//__________________________________________________________________________________________________
+
+
 
 //__________________________________________________________________________________________________
 MisalignedTrackerESProducer::MisalignedTrackerESProducer(const edm::ParameterSet& p) :
-  theParameterSet( p ),
-  theAlignRecordName( "TrackerAlignmentRcd" ),
-  theErrorRecordName( "TrackerAlignmentErrorRcd" )
+  theSaveToDB(p.getUntrackedParameter<bool>("saveToDbase")),
+  theScenario(p.getParameter<edm::ParameterSet>("scenario")),
+  theAlignRecordName("TrackerAlignmentRcd"),
+  theErrorRecordName("TrackerAlignmentErrorRcd")
 {
   
   setWhatProduced(this);
@@ -64,7 +98,7 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
 
   // Create misalignment scenario, apply to geometry
   TrackerScenarioBuilder scenarioBuilder( &(*theAlignableTracker) );
-  scenarioBuilder.applyScenario( theParameterSet );
+  scenarioBuilder.applyScenario( theScenario );
   Alignments* alignments =  theAlignableTracker->alignments();
   AlignmentErrors* alignmentErrors = theAlignableTracker->alignmentErrors();
   
@@ -74,7 +108,7 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
                                             AlignTransform()); // dummy global position
 
   // Write alignments to DB: have to sort beforhand!
-  if (theParameterSet.getUntrackedParameter<bool>("saveToDbase")) {
+  if (theSaveToDB) {
 
       // Call service
       edm::Service<cond::service::PoolDBOutputService> poolDbService;
