@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTriggerOffline.cc,v 1.6 2009/02/12 15:43:54 berryhil Exp $
+// $Id: FourVectorHLTriggerOffline.cc,v 1.7 2009/02/19 21:44:36 berryhil Exp $
 // See header file for information. 
 #include "TMath.h"
 
@@ -1451,12 +1451,12 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
     const unsigned int n(hltConfig_.size());
     if (plotAll_){
     for (unsigned int j=0; j!=n; ++j) {
+    std::string pathname = hltConfig_.triggerName(j);  
+    std::string l1pathname = "dummy";
     for (unsigned int i=0; i!=n; ++i) {
       // cout << hltConfig_.triggerName(i) << endl;
     
-    std::string denompathname = hltConfig_.triggerName(j);  
-    std::string pathname = hltConfig_.triggerName(i);  
-    std::string l1pathname = "dummy";
+    std::string denompathname = hltConfig_.triggerName(i);  
     int objectType = 0;
     int denomobjectType = 0;
     //parse pathname to guess object type
@@ -1591,10 +1591,10 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
     std::string filtername("dummy");
     float ptMin = 0.0;
     float ptMax = 100.0;
-    if (pathname.find("HLT_") != std::string::npos && objectType != 0)
+    if (pathname.find("HLT_") != std::string::npos && objectType != 0){
     hltPaths_.push_back(PathInfo(denompathname, pathname, l1pathname, filtername, processname_, objectType, ptMin, ptMax));
-
-    
+      //create folder for pathname
+     }
     }
     // now loop over denom/num path pairs specified in cfg, 
     // recording the off-diagonal ones
@@ -1728,6 +1728,9 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
 	  {
 	    histEtaMax = photonEtaMax_; 
 	  }
+
+        TString pathfolder = dirname_ + TString("/") + v->getPath();
+        dbe_->setCurrentFolder(pathfolder.Data());
 
 	NOn =  dbe->book1D(histoname.c_str(),
 			  title.c_str(),10,
