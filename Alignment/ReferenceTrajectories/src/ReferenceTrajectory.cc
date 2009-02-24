@@ -1,7 +1,9 @@
 //  Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
 //  date       : 2006/09/17
-//  last update: $Date: 2008/10/10 17:03:37 $
+//  last update: $Date: 2008/10/20 12:59:39 $
 //  by         : $Author: flucke $
+
+#include <memory>
 
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectory.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h" 
@@ -73,8 +75,10 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
 				    const PropagationDirection propDir, const MagneticField *magField)
 {
   const SurfaceSide surfaceSide = this->surfaceSide(propDir);
-  MaterialEffectsUpdator *aMaterialEffectsUpdator = this->createUpdator(materialEffects, mass);
-  if (!aMaterialEffectsUpdator) return false;
+  // auto_ptr to avoid memory leaks in case of not reaching delete at end of method:
+  std::auto_ptr<MaterialEffectsUpdator> aMaterialEffectsUpdator
+    (this->createUpdator(materialEffects, mass));
+  if (!aMaterialEffectsUpdator.get()) return false; // empty auto_ptr
 
   AlgebraicMatrix                 fullJacobian(theParameters.num_row(), theParameters.num_row());
   std::vector<AlgebraicMatrix>    allJacobians; 
@@ -115,7 +119,7 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
       if (!this->propagate(previousHitPtr->det()->surface(), previousTsos,
 			   hitPtr->det()->surface(), nextTsos,
 			   nextJacobian, propDir, magField)) {
-	return false; // stop if problem...
+	return false; // stop if problem...// no delete aMaterialEffectsUpdator needed
       }
 
       allJacobians.push_back(nextJacobian);
@@ -129,7 +133,7 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
 					   theTsosVec.back().surface(), magField, surfaceSide);
     const TrajectoryStateOnSurface updatedTsos = aMaterialEffectsUpdator->updateState(tmpTsos, propDir);
 
-    if ( !updatedTsos.isValid() ) return false;
+    if ( !updatedTsos.isValid() ) return false;// no delete aMaterialEffectsUpdator needed
 
     if ( theTsosVec.back().localParameters().charge() )
     {
@@ -171,7 +175,7 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
     theTrajectoryPositionCov = AlgebraicSymMatrix(theDerivatives.num_row(), 1);
   }
 
-  delete aMaterialEffectsUpdator;
+  // delete aMaterialEffectsUpdator; // not needed since auto_ptr
 
   return true;
 }

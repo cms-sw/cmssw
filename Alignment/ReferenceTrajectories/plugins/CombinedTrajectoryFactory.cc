@@ -1,6 +1,8 @@
 // Do not include .h from plugin directory, but locally:
 #include "CombinedTrajectoryFactory.h"
 
+#include <memory>
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryPlugin.h"
 
@@ -17,7 +19,8 @@ CombinedTrajectoryFactory::CombinedTrajectoryFactory( const edm::ParameterSet & 
   vector<string>::iterator itFactoryName;
   for ( itFactoryName = factoryNames.begin(); itFactoryName != factoryNames.end(); ++itFactoryName )
   {
-    TObjArray *namePset = TString((*itFactoryName).c_str()).Tokenize(",");
+    // auto_ptr to avoid missing a delete due to throw...
+    std::auto_ptr<TObjArray> namePset(TString((*itFactoryName).c_str()).Tokenize(","));
     if (namePset->GetEntriesFast() != 2) {
       throw cms::Exception("BadConfig") << "@SUB=CombinedTrajectoryFactory"
                                         << "TrajectoryFactoryNames must contain 2 comma "
@@ -26,9 +29,7 @@ CombinedTrajectoryFactory::CombinedTrajectoryFactory( const edm::ParameterSet & 
     const edm::ParameterSet factoryCfg 
       = config.getParameter<edm::ParameterSet>(namePset->At(1)->GetName());
     theFactories.push_back(TrajectoryFactoryPlugin::get()->create(namePset->At(0)->GetName(),
-                                                                  factoryCfg));
-
-    delete namePset;
+								  factoryCfg));
   }
 }
 
