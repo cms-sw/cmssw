@@ -26,7 +26,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 # CMS Service
 #-------------------------------------------------
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string('AfterLat/TIB/ClusterThr_TIBTestDebug.root'),
+                                   fileName = cms.string('ClusterThr_TIBTestDebug.root'),
                                    closeFileFast = cms.untracked.bool(True)
                                    )
                                  
@@ -34,8 +34,7 @@ process.TFileService = cms.Service("TFileService",
 # Calibration
 #-------------------------------------------------
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "CRAFT_ALL_V4::All"
+process.GlobalTag.globaltag = "CRAFT_30X::All"
 #"CRUZET4_V2P::All"
 #CRAFT_ALL_V4::All"
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')

@@ -235,25 +235,12 @@ namespace cms{
     if (tracksCollection_in_EventTree && trackAssociatorCollection_in_EventTree) trackStudy(es);
 
     OffTrackClusters(es);       
-    //       if (dsv_SiStripCluster.isValid()){ 
-    // 	for ( edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter=dsv_SiStripCluster->begin(); DSViter!=dsv_SiStripCluster->end();DSViter++){
-    // 	  uint32_t detid=DSViter->id(); 
-    // 	  edmNew::DetSet<SiStripCluster>::const_iterator ClusIter = DSViter->begin();
-    // 	  for(; ClusIter!=DSViter->end(); ClusIter++) {
-    // 	    SiStripClusterInfo* SiStripClusterInfo_= new SiStripClusterInfo(detid,*ClusIter,es);   
-    
-    // 	    if (std::find(ModulesToBeExcluded_.begin(),ModulesToBeExcluded_.end(),detid)!=ModulesToBeExcluded_.end()){
-    // 	      LogDebug("ClusterThr") << "skipping module " << detid << std::endl;
-    // 	      continue;
-    // 	    }
-    
-    
     
     // 	  //Perform quality discrimination      
     // 	  const  edm::ParameterSet ps_b = conf_.getParameter<edm::ParameterSet>("BadModuleStudies");
     // 	  if  ( ps_b.getParameter<bool>("Bad") ) {//it will perform Bad modules discrimination
     // 	    short n_Apv;
-    // 	    switch((int)SiStripClusterInfo_.getFirstStrip()/128){
+    // 	    switch((int)SiStripClusterInfo_.firstStrip()/128){
     // 	    case 0:
     // 	      n_Apv=0;
     // 	      break;
@@ -414,7 +401,7 @@ namespace cms{
     if ( tkrecHit != NULL ){
       edm::LogInfo("ClusterThr") << "GOOD hit" << std::endl;
       const SiStripCluster* SiStripCluster_ = &*(tkrecHit->cluster());
-      SiStripClusterInfo* SiStripClusterInfo_ = new SiStripClusterInfo(detid,*SiStripCluster_,es);
+      SiStripClusterInfo* SiStripClusterInfo_ = new SiStripClusterInfo(*SiStripCluster_,es);
  
       SiStripDetId a(detid);
       if (a.det()!=DetId::Tracker)
@@ -505,7 +492,7 @@ void ClusterThr::OffTrackClusters( const edm::EventSetup& es)
     edm::LogInfo("ClusterThr") << "on detid "<< detid << " N Cluster= " << DSViter->size();
     edmNew::DetSet<SiStripCluster>::const_iterator ClusIter = DSViter->begin();
     for(; ClusIter!=DSViter->end(); ClusIter++) {
-      SiStripClusterInfo* SiStripClusterInfo_= new SiStripClusterInfo(detid,*ClusIter,es);
+      SiStripClusterInfo* SiStripClusterInfo_= new SiStripClusterInfo(*ClusIter,es);
 	LogDebug("ClusterThr") << "ClusIter " << &*ClusIter << "\t " 
 	                                << std::find(vPSiStripCluster.begin(),vPSiStripCluster.end(),&*ClusIter)-vPSiStripCluster.begin();
 	if (std::find(vPSiStripCluster.begin(),vPSiStripCluster.end(),&*ClusIter) == vPSiStripCluster.end()){
@@ -556,12 +543,12 @@ void ClusterThr::OffTrackClusters( const edm::EventSetup& es)
       double StoNSmin_ = StoNThr_.getParameter<double>("StoNSmin");
       
       //takes the noises of the strips involved in the cluster   
-      const std::vector<float>&  stripNoises_ = siStripClusterInfo->getStripNoisesRescaledByGain();
+      const std::vector<float>&  stripNoises_ = siStripClusterInfo->stripNoisesRescaledByGain();
       
       //Clusterizer Selection
       
       // if the max charge of the cluster is less than the SeedThr*NoiseOfTheMaxChargeStrip, it goes out of the loop
-      if(siStripClusterInfo->getMaxCharge()<Ths*stripNoises_[siStripClusterInfo->getMaxPosition()-siStripClusterInfo->getFirstStrip()]){
+      if(siStripClusterInfo->maxCharge()<Ths*stripNoises_[siStripClusterInfo->maxStrip()-siStripClusterInfo->firstStrip()]){
 	passedSeed=false;
 	edm::LogInfo("ClusterThr") << "Exit from loop due to Seed at " << Thc << " " << Ths << " " << Thn << std::endl;
 	return false;
@@ -576,7 +563,7 @@ void ClusterThr::OffTrackClusters( const edm::EventSetup& es)
       float Pos=0;
 
       //takes the amplitudes of the strips of the cluster
-      const std::vector<uint8_t>&  stripAmplitudes_ = siStripClusterInfo->getStripAmplitudes();
+      const std::vector<uint8_t>&  stripAmplitudes_ = siStripClusterInfo->stripCharges();
      
       for (size_t istrip=0;istrip<stripAmplitudes_.size();istrip++){
 
@@ -600,7 +587,7 @@ void ClusterThr::OffTrackClusters( const edm::EventSetup& es)
 	NoiseNorm=Noise/sqrt(Nstrip);
       }else{
 	Noise=sqrt(Noise);
-	NoiseNorm=stripNoises_[siStripClusterInfo->getMaxPosition()-siStripClusterInfo->getFirstStrip()];
+	NoiseNorm=stripNoises_[siStripClusterInfo->maxStrip()-siStripClusterInfo->firstStrip()];
       }
 
       float cosRZ = -2;
@@ -613,7 +600,7 @@ void ClusterThr::OffTrackClusters( const edm::EventSetup& es)
       float StoN=Signal/NoiseNorm;
       float StoNCorr=StoN*cosRZ;
       Pos/=Signal;
-      Pos+=siStripClusterInfo->getFirstStrip();
+      Pos+=siStripClusterInfo->firstStrip();
       //Cluster
       if (Signal < Thc * Noise){
 	passedClus=false;
