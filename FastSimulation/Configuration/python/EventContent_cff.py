@@ -10,44 +10,27 @@ from Configuration.EventContent.EventContent_cff import *
 # The simHits part is definitely different in FastSim
 #####################################################################
 
-#Full Event content 
+
+
 FastSimCoreFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_famosPileUp_*_*', 
-        'keep *_famosSimHits_*_*', 
-        'keep edmHepMCProduct_source_*_*', 
-        'keep edmGenInfoProduct_source_*_*', 
-        'keep *_genParticles_*_*', 
-        'keep *_genEventWeight_*_*', 
-        'keep *_genEventScale_*_*', 
-        'keep *_genEventProcID_*_*', 
-        'keep *_genEventRunInfo_*_*', 
-        'keep edmAlpgenInfoProduct_source_*_*')
+        'keep *_famosSimHits_*_*')
 )
+FastSimCoreFEVT.outputCommands.extend(GeneratorInterfaceRAW.outputCommands)
+
 
 #RECO content
 FastSimCoreRECO = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_genParticles_*_*', 
-        'keep *_genEventWeight_*_*', 
-        'keep *_genEventScale_*_*', 
-        'keep edmHepMCProduct_source_*_*', 
-        'keep edmGenInfoProduct_source_*_*', 
-        'keep SimTracks_famosSimHits_*_*', 
-        'keep SimVertexs_famosSimHits_*_*', 
-        'keep *_genEventProcID_*_*', 
-        'keep *_genEventRunInfo_*_*', 
-        'keep edmAlpgenInfoProduct_source_*_*')
+    outputCommands = cms.untracked.vstring('keep SimTracks_famosSimHits_*_*', 
+        'keep SimVertexs_famosSimHits_*_*')
 )
+FastSimCoreRECO.outputCommands.extend(GeneratorInterfaceRECO.outputCommands)
 
 #AOD content
 FastSimCoreAOD = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep edmGenInfoProduct_source_*_*', 
-        'keep *_genParticles_*_*', 
-        'keep *_genEventWeight_*_*', 
-        'keep *_genEventScale_*_*', 
-        'keep *_genEventProcID_*_*', 
-        'keep *_genEventRunInfo_*_*', 
-        'keep edmAlpgenInfoProduct_source_*_*')
+    outputCommands = cms.untracked.vstring()
 )
+FastSimCoreAOD.outputCommands.extend(GeneratorInterfaceAOD.outputCommands)
 
 #####################################################################
 # The Tracker RecHits are also different
