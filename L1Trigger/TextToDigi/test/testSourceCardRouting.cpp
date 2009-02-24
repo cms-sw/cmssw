@@ -1,6 +1,7 @@
 #include "L1Trigger/TextToDigi/src/SourceCardRouting.h"
 #include <sstream>
 #include <iostream>
+#include <cstdlib>
 using namespace std;
 
 int main(void){
