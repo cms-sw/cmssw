@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2008/08/13 08:30:24 $
+// last change    : $Date: 2009/01/20 20:21:38 $
 // by             : $Author: flucke $
 
 #include "CompareMillePede.h"
@@ -532,7 +532,16 @@ void CompareMillePede::DrawNumHits(Option_t *option)
   const TString nDiffYvs1(m->Unique("deltaHitsYvs1"));
   TH2 *hDiffYvs1 = fPlotMp1->CreateHist2D(diffY, fPlotMp1->HitsY(), sel, nDiffXvs1);
 
-
+  const TString nDiffXvsR(m->Unique("deltaHitsXvsR"));
+  TH2 *hDiffXvsR = fPlotMp1->CreateHist2D(diffX, fPlotMp1->RPos(fPlotMp1->OrgPosT()),
+                                          sel, nDiffXvsR, "BOX");
+  const TString nDiffXvsPhi(m->Unique("deltaHitsXvsPhi"));
+  TH2 *hDiffXvsPhi = fPlotMp1->CreateHist2D(diffX, fPlotMp1->Phi(fPlotMp1->OrgPosT()),
+                                            sel, nDiffXvsPhi, "BOX");
+  const TString nDiffXvsZ(m->Unique("deltaHitsXvsZ"));
+  TH2 *hDiffXvsZ = fPlotMp1->CreateHist2D(diffX, fPlotMp1->OrgPosT() += fPlotMp1->ZPos(),
+                                          sel, nDiffXvsZ, "BOX");
+  
   hX1vs2->SetTitle("#hits_{x};N_{hit,x}^{1};N_{hit,x}^{2}");
   hY1vs2->SetTitle("#hits_{y};N_{hit,y}^{1};N_{hit,y}^{2}");
 
@@ -541,12 +550,20 @@ void CompareMillePede::DrawNumHits(Option_t *option)
   hDiffXvs1->SetTitle("#Delta#hits_{x} vs #hits_{x}^{1};N_{hit,x}^{2} - N_{hit,x}^{1};N_{hit,x}^{1}");
   hDiffYvs1->SetTitle("#Delta#hits_{y} vs #hits_{y}^{1};N_{hit,y}^{2} - N_{hit,y}^{1};N_{hit,y}^{1}");
 
+  hDiffXvsR->SetTitle("#Delta#hits_{x} vs r;N_{hit,x}^{2} - N_{hit,x}^{1};r[cm]");
+  hDiffXvsPhi->SetTitle("#Delta#hits_{x} vs #phi;N_{hit,x}^{2} - N_{hit,x}^{1};#phi");
+  hDiffXvsZ->SetTitle("#Delta#hits_{x} vs z;N_{hit,x}^{2} - N_{hit,x}^{1};z[cm]");
+
   fHistManager->AddHist(hX1vs2, layer);
   fHistManager->AddHist(hDiffX, layer);
   fHistManager->AddHist(hDiffXvs1, layer);
   fHistManager->AddHist(hY1vs2, layer);
   fHistManager->AddHist(hDiffY, layer);
   fHistManager->AddHist(hDiffYvs1, layer);
+
+  fHistManager->AddHist(hDiffXvsR, layer+1);
+  fHistManager->AddHist(hDiffXvsPhi, layer+1);
+  fHistManager->AddHist(hDiffXvsZ, layer+1);
 
   fHistManager->Draw();
 }
