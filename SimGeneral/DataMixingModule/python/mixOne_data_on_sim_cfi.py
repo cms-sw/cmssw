@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
+from SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi import hcalSimBlock
 
 mix = cms.EDFilter("DataMixingModule",
+                   hcalSimBlock,
     input = cms.SecSource("PoolRASource",
         nbPileupEvents = cms.PSet(
             averageNumber = cms.double(1.0)
@@ -8,7 +10,8 @@ mix = cms.EDFilter("DataMixingModule",
         seed = cms.int32(1234567),
         type = cms.string('fixed'),
 #        fileNames = cms.untracked.vstring('dcap://cmsdca.fnal.gov:24137/pnfs/fnal.gov/usr/cms/WAX/11/store/mc/CSA08/JetET30/GEN-SIM-RECO/CSA08_S156_v1/0002/000250F6-A72B-DD11-8904-00145E1D6204.root')
-        fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/m/mikeh/cms/promptreco.root')
+#        fileNames = cms.untracked.vstring('file:/uscms/home/mikeh/work/CMSSW_3_1_0_pre1/src/SimGeneral/DataMixingModule/python/promptrecoCosmicsDigis.root')
+         fileNames = cms.untracked.vstring('file:/uscms_data/d1/mikeh/promptRecoHCalNoise.root')
     ),
     # Mixing Module parameters
     Label = cms.string(''),
@@ -18,6 +21,7 @@ mix = cms.EDFilter("DataMixingModule",
     # Use digis?               
     EcalMergeType = cms.string('Digis'),  # set to "Digis" to merge digis
     HcalMergeType = cms.string('Digis'),
+    HcalDigiMerge = cms.string('FullProd'),
     #
     # Input Specifications:
     #
