@@ -21,8 +21,9 @@ L1GctJetFinderParamsOnlineProd::newObject( const std::string& objectKey )
   std::vector< std::string > columns;
   columns.push_back( "GCT_RGN_ET_LSB" );
   columns.push_back( "GCT_HT_LSB" );
-  columns.push_back( "GCT_JET_SEED_ET_THRESHOLD" );
-  columns.push_back( "GCT_TAU_SEED_ET_THRESHOLD" );
+  columns.push_back( "GCT_CJET_SEED_ET_THRESHOLD" );
+  columns.push_back( "GCT_TJET_SEED_ET_THRESHOLD" );
+  columns.push_back( "GCT_FJET_SEED_ET_THRESHOLD" );
   columns.push_back( "GCT_HT_JET_ET_THRESHOLD" );
   columns.push_back( "GCT_MHT_JET_ET_THRESHOLD" );
   columns.push_back( "GCT_TAU_ISO_ET_THRESHOLD" );
@@ -50,7 +51,7 @@ L1GctJetFinderParamsOnlineProd::newObject( const std::string& objectKey )
    double tauIsoEtThresh=0.;
    double htJetEtThresh=0.;
    double mhtJetEtThresh=0.;
-   unsigned etaBoundary=7;
+   short int etaBoundary=7;
    unsigned corrType=0;
    std::vector< std::vector<double> > jetCorrCoeffs;
    std::vector< std::vector<double> > tauCorrCoeffs;
@@ -59,9 +60,9 @@ L1GctJetFinderParamsOnlineProd::newObject( const std::string& objectKey )
 
    results.fillVariable( "GCT_RGN_ET_LSB", rgnEtLsb );
    results.fillVariable( "GCT_HT_LSB", htLsb );
-   results.fillVariable( "GCT_JET_SEED_ET_THRESHOLD", cJetSeed );
-   results.fillVariable( "GCT_TAU_SEED_ET_THRESHOLD", tJetSeed );
-   results.fillVariable( "GCT_JET_SEED_ET_THRESHOLD", fJetSeed );  // no separate forward jet seed in OMDS
+   results.fillVariable( "GCT_CJET_SEED_ET_THRESHOLD", cJetSeed );
+   results.fillVariable( "GCT_TJET_SEED_ET_THRESHOLD", tJetSeed );
+   results.fillVariable( "GCT_FJET_SEED_ET_THRESHOLD", fJetSeed );
    results.fillVariable( "GCT_TAU_ISO_ET_THRESHOLD", tauIsoEtThresh );
    results.fillVariable( "GCT_HT_JET_ET_THRESHOLD", htJetEtThresh );
    results.fillVariable( "GCT_MHT_JET_ET_THRESHOLD", mhtJetEtThresh );
