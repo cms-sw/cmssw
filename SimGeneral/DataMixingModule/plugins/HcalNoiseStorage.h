@@ -36,13 +36,14 @@ namespace edm
     {
     public:
 
-      HcalNoiseStorage();
+      HcalNoiseStorage() {};
+      ~HcalNoiseStorage() {};
 
      /** standard constructor*/
      // explicit HcalNoiseStorage();
 
       /**Default destructor*/
-      virtual ~HcalNoiseStorage();
+      //virtual ~HcalNoiseStorage();
 
       void fillNoiseSignals() {};
 

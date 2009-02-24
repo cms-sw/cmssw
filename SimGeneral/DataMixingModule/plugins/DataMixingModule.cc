@@ -102,10 +102,10 @@ namespace edm
       HFDigiCollectionDM_   = ps.getParameter<std::string>("HFDigiCollectionDM");
       ZDCDigiCollectionDM_  = ps.getParameter<std::string>("ZDCDigiCollectionDM");
 
-      produces< HBHEDigiCollection >(HBHEDigiCollectionDM_);
-      produces< HODigiCollection >(HODigiCollectionDM_);
-      produces< HFDigiCollection >(HFDigiCollectionDM_);
-      produces< ZDCDigiCollection >(ZDCDigiCollectionDM_);
+      produces< HBHEDigiCollection >();
+      produces< HODigiCollection >();
+      produces< HFDigiCollection >();
+      produces< ZDCDigiCollection >();
 
       MergeHcalDigisProd_ = (ps.getParameter<std::string>("HcalDigiMerge")=="FullProd");
 
@@ -238,7 +238,9 @@ namespace edm
     delete sel_;
     if(MergeEMDigis_){ delete EMDigiWorker_;}
     else {delete EMWorker_;}
-    if(MergeHcalDigis_) { delete HcalDigiWorker_; delete HcalDigiWorkerProd_;}
+    if(MergeHcalDigis_) { 
+      if(MergeHcalDigisProd_) { delete HcalDigiWorkerProd_;}
+      else { delete HcalDigiWorker_; }}
     else {delete HcalWorker_;}
     delete MuonWorker_;
     delete SiStripWorker_;

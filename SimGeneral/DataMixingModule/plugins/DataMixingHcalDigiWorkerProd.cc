@@ -84,8 +84,8 @@ namespace edm
   // Virtual destructor needed.
   DataMixingHcalDigiWorkerProd::~DataMixingHcalDigiWorkerProd() { 
     delete myHcalDigitizer_;
-    delete sel_;
-    sel_=0;
+    //delete sel_;
+    //sel_=0;
   }  
 
   void DataMixingHcalDigiWorkerProd::addHcalSignals(const edm::Event &e,const edm::EventSetup& ES) { 
