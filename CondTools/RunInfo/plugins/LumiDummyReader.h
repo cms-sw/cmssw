@@ -3,7 +3,7 @@
 #include <vector>
 #include "CondTools/RunInfo/interface/LumiReaderBase.h"
 namespace edm{
-  class::ParameterSet;
+  class ParameterSet;
 }
 namespace lumi{
   class LuminosityInfo;
