@@ -412,10 +412,13 @@ pfmet_benchmark outmetfile pfmetBenchmark.root
 pfmet_benchmark PlotAgainstReco 0
 
 //MET cut
-pfmet_benchmark deltametcut = 50.0
+pfmet_benchmark truemetcut = 10.0
+
+//MET cut (absolute value)
+pfmet_benchmark deltametcut = 30.0
 
 //phi cut (absolute value)
-pfmet_benchmark deltaphicut = 0.1
+pfmet_benchmark deltaphicut = 0.8
 
 // FWLITE CMSSW Jet Algorithm options --------------------------------------
 

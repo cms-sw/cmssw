@@ -608,6 +608,7 @@ class PFRootEventManager {
 
   /// PFMET Benchmark
   PFMETBenchmark PFMETBenchmark_;
+  double trueMETcut;
   double DeltaMETcut;
   double DeltaPhicut;
 
