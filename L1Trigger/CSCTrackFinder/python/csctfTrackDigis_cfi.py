@@ -20,7 +20,7 @@ csctfTrackDigis = cms.EDProducer("CSCTFTrackProducer",
         ),
         singlesTrackOutput = cms.uint32(3),
         singlesTrackPt = cms.uint32(255),
-        rescaleSinglesPhi  = cms.bool(False),
+#        rescaleSinglesPhi  = cms.bool(False), #not adding new parameter for 2_2_x release
         trigger_on_MB1a = cms.bool(False),
         EtaMin = cms.vuint32(22, 22, 14, 14, 14,
             10, 10, 10),
