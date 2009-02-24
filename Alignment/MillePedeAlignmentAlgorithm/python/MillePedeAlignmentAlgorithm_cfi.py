@@ -45,7 +45,9 @@ MillePedeAlignmentAlgorithm = cms.PSet(
         # ------------------------------------------------------------------------------
         # All this is determined from what is given as 
         # AlignmentProducer.ParameterBuilder.Selector, cf. Twiki page SWGuideMillepedeIIAlgorithm.
-        Presigmas = cms.VPSet()
+        Presigmas = cms.VPSet(),
+        minHieraConstrCoeff = cms.double(1.e-7), # min abs value of coeff. in hierarchy constr.
+        minHieraParPerConstr = cms.uint32(2) # ignore hierarchy constraints with less params
     ),
 
     pedeReader = cms.PSet(

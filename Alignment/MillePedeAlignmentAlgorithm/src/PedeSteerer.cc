@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.25 $
- *  $Date: 2008/07/31 16:37:13 $
+ *  $Revision: 1.26 $
+ *  $Date: 2008/09/02 17:18:06 $
  *  (last update by $Author: flucke $)
  */
 
@@ -54,6 +54,8 @@ PedeSteerer::PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon,
   myNoSteerFiles(noSteerFiles),
   myIsSteerFileDebug(myConfig.getUntrackedParameter<bool>("steerFileDebug")),
   myParameterSign(myConfig.getUntrackedParameter<int>("parameterSign")),
+  theMinHieraConstrCoeff(myConfig.getParameter<double>("minHieraConstrCoeff")),
+  theMinHieraParPerConstr(myConfig.getParameter<unsigned int>("minHieraParPerConstr")),
   theCoordMaster(0)
 {
   if (myParameterSign != 1 && myParameterSign != -1) {
@@ -461,10 +463,9 @@ void PedeSteerer::hierarchyConstraint(const Alignable *ali,
 				      std::ofstream &file) const
 {
   typedef AlignmentParameterStore::ParameterId ParameterId;
-  typedef std::vector<Alignable*>::size_type IndexType;
 
   std::vector<std::vector<ParameterId> > paramIdsVec;
-  std::vector<std::vector<float> > factorsVec;
+  std::vector<std::vector<double> > factorsVec;
   const bool allConstr = false; // true; // make configurable?
   static bool first = true;
   if (allConstr && first) {
@@ -472,7 +473,8 @@ void PedeSteerer::hierarchyConstraint(const Alignable *ali,
 				 << "changed to use all 6 constraints";
     first = false;
   }
-  if (!myParameterStore->hierarchyConstraints(ali, components, paramIdsVec, factorsVec, allConstr)){
+  if (!myParameterStore->hierarchyConstraints(ali, components, paramIdsVec, factorsVec, allConstr,
+					      theMinHieraConstrCoeff)){
     edm::LogWarning("Alignment") << "@SUB=PedeSteerer::hierarchyConstraint"
 				 << "Problems from store.";
   }
@@ -481,14 +483,15 @@ void PedeSteerer::hierarchyConstraint(const Alignable *ali,
     std::ostringstream aConstr;
 
     const std::vector<ParameterId> &parIds = paramIdsVec[iConstr];
-    const std::vector<float> &factors = factorsVec[iConstr];
+    const std::vector<double> &factors = factorsVec[iConstr];
+    unsigned int nParPerConstr = 0; // keep track of used factor/parId pair
     // parIds.size() == factors.size() granted by myParameterStore->hierarchyConstraints
     for (unsigned int iParam = 0; iParam < parIds.size(); ++iParam) {
       Alignable *aliSubComp = parIds[iParam].first;
       const unsigned int compParNum = parIds[iParam].second;
       if (this->isNoHiera(aliSubComp)) {
-	if (0) aConstr << "* Taken out of hierarchy: "; // conflict with !aConstr.str().empty()
-	else continue;
+	if (myIsSteerFileDebug) aConstr << "* Taken out of hierarchy: ";
+	continue;
       }
       const unsigned int aliLabel = myLabels->alignableLabel(aliSubComp);
       const unsigned int paramLabel = myLabels->parameterLabel(aliLabel, compParNum);
@@ -497,13 +500,15 @@ void PedeSteerer::hierarchyConstraint(const Alignable *ali,
       if (myIsSteerFileDebug) { // debug
 	AlignableObjectId objId; // costly constructor, but only debug here...
 	aConstr << "   ! for param " << compParNum << " of a " 
-		<< objId.typeToName(aliSubComp->alignableObjectId())
-		<< " (label " << aliLabel << ")";
+		<< objId.typeToName(aliSubComp->alignableObjectId()) << " at " 
+		<< aliSubComp->globalPosition() << ", r=" << aliSubComp->globalPosition().perp();
       }
       aConstr << "\n";
+      ++nParPerConstr; // OK, we used one.
     } // end loop on params
 
-    if (!aConstr.str().empty()) {
+    // 
+    if (nParPerConstr && nParPerConstr >= theMinHieraParPerConstr) { // Enough to make sense?
       if (myIsSteerFileDebug) { //debug
 	AlignableObjectId objId; // costly constructor, but only debug here...
 	file << "\n* Nr. " << iConstr << " of a '"
@@ -513,6 +518,10 @@ void PedeSteerer::hierarchyConstraint(const Alignable *ali,
 	     << ", r = " << ali->globalPosition().perp();
       }
       file << "\nConstraint   0.\n" << aConstr.str(); // in future 'Wconstraint'?
+    } else if (nParPerConstr > 0) { // no warning for trivial case...
+      edm::LogWarning("Alignment") << "@SUB=PedeSteerer::hierarchyConstraint"
+				   << "Skip constraint on " << nParPerConstr
+				   << " parameter(s):\n" << aConstr.str();
     }
   } // end loop on constraints
 }
