@@ -136,6 +136,14 @@ ClusterizerDefaultGroup = ClusterizerTest( "Default Clusterizer Settings",
              [ cluster(  10, [110]),
                cluster(  12, [100])
                ] ),
+    DetUnit( "Saturation at 254, gain has no effect",
+             [ digi(  10, 254,  noise1, 1.3*gain1, good) ],
+             [ cluster(  10, [254])
+               ] ),
+    DetUnit( "Saturation at 255, gain has no effect",
+             [ digi(  10, 255,  noise1, 1.3*gain1, good) ],
+             [ cluster(  10, [255])
+               ] ),
     DetUnit( "Gain greater than 1",
              [ digi(  10, 110,  noise1, 1.3*gain1, good) ],
              [ cluster(  10, [85])
@@ -145,11 +153,11 @@ ClusterizerDefaultGroup = ClusterizerTest( "Default Clusterizer Settings",
              [ cluster(  10, [134])
                ] ),
     DetUnit( "Gain less than 1 pushes charge above 511",
-             [ digi(  10, 255,  noise1, 0.4*gain1, good) ],
+             [ digi(  10, 253,  noise1, 0.4*gain1, good) ],
              [ cluster(  10, [255])
                ] ),
     DetUnit( "Gain less than 1 pushes charge above 255, but not above 511",
-             [ digi(  10, 255,  noise1, 0.9*gain1, good) ],
+             [ digi(  10, 253,  noise1, 0.9*gain1, good) ],
              [ cluster(  10, [254])
                ] ),
     DetUnit( "Two gains (apv boundary)",
