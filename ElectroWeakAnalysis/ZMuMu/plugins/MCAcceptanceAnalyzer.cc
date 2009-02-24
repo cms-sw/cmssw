@@ -21,8 +21,8 @@ const Candidate * mcMuDaughter(const Candidate * c) {
 }
 
 struct ZSelector {                  // modify this selector in order to return an integer (0: no eta cut, 1: eta cut ony, 2 eta && pt cut, 3: eta, pt and Mass cut)
-  ZSelector(double ptMin, double etaMax, double massMin, double massMax) :
-    ptMin_(ptMin), etaMax_(etaMax), 
+  ZSelector(double ptMin, double etaMin, double etaMax, double massMin, double massMax) :
+    ptMin_(ptMin), etaMin_(etaMin),etaMax_(etaMax), 
     massMin_(massMin), massMax_(massMax) { }
   int operator()(const Candidate& c) const {
     const Candidate * d0 = c.daughter(0);
@@ -33,7 +33,7 @@ struct ZSelector {                  // modify this selector in order to return a
     }
     int temp_cut= 0;
 
-    if(fabs(d0->eta()) < etaMax_ && fabs(d1->eta()) <etaMax_) {
+    if( fabs(d0->eta()) > etaMin_ && fabs(d1->eta())>etaMin_ && fabs(d0->eta()) < etaMax_ && fabs(d1->eta()) <etaMax_ ) {
       temp_cut=1;
       if(d0->pt() > ptMin_ && d1->pt() > ptMin_) {
 	temp_cut=2;
@@ -44,7 +44,7 @@ struct ZSelector {                  // modify this selector in order to return a
 
     return temp_cut;
   }
-  double ptMin_, etaMax_, massMin_, massMax_;
+  double ptMin_, etaMin_, etaMax_, massMin_, massMax_;
 };
 
 class MCAcceptanceAnalyzer : public EDAnalyzer {
@@ -65,7 +65,7 @@ MCAcceptanceAnalyzer::MCAcceptanceAnalyzer(const ParameterSet& cfg) :
   nZToMuMu_(0), selZToMuMu_(0), 
   nZToMuMuMC_(0), selZToMuMuMC_(0),
   nZToMuMuMCMatched_(0), selZToMuMuMCMatched_(0),
-  select_(cfg.getParameter<double>("ptMin"), cfg.getParameter<double>("etaMax"),
+  select_(cfg.getParameter<double>("ptMin"), cfg.getParameter<double>("etaMin"), cfg.getParameter<double>("etaMax"),
 	  cfg.getParameter<double>("massMin"), cfg.getParameter<double>("massMax")) {
 }
 
