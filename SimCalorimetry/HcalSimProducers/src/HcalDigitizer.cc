@@ -160,21 +160,25 @@ HcalDigitizer::~HcalDigitizer() {
 
 void HcalDigitizer::setHBHENoiseSignalGenerator(CaloVNoiseSignalGenerator * noiseGenerator)
 {
+  theHBHEDigitizer->setNoiseSignalGenerator(noiseGenerator);
   theHBHEAmplifier->setNoiseSignalGenerator(noiseGenerator);
 }
 
 void HcalDigitizer::setHFNoiseSignalGenerator(CaloVNoiseSignalGenerator * noiseGenerator)
 {
+  theHFDigitizer->setNoiseSignalGenerator(noiseGenerator);
   theHFAmplifier->setNoiseSignalGenerator(noiseGenerator);
 }
 
 void HcalDigitizer::setHONoiseSignalGenerator(CaloVNoiseSignalGenerator * noiseGenerator)
 {
+  theHODigitizer->setNoiseSignalGenerator(noiseGenerator);
   theHOAmplifier->setNoiseSignalGenerator(noiseGenerator);
 }
 
 void HcalDigitizer::setZDCNoiseSignalGenerator(CaloVNoiseSignalGenerator * noiseGenerator)
 {
+  theZDCAmplifier->setNoiseSignalGenerator(noiseGenerator);
   theZDCAmplifier->setNoiseSignalGenerator(noiseGenerator);
 }
 
