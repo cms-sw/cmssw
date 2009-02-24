@@ -136,11 +136,32 @@ ClusterizerDefaultGroup = ClusterizerTest( "Default Clusterizer Settings",
              [ cluster(  10, [110]),
                cluster(  12, [100])
                ] ),
+    DetUnit( "Gain greater than 1",
+             [ digi(  10, 110,  noise1, 1.3*gain1, good) ],
+             [ cluster(  10, [85])
+               ] ),
+    DetUnit( "Gain less than 1",
+             [ digi(  10, 110,  noise1, 0.82*gain1, good) ],
+             [ cluster(  10, [134])
+               ] ),
+    DetUnit( "Gain less than 1 pushes charge above 511",
+             [ digi(  10, 255,  noise1, 0.4*gain1, good) ],
+             [ cluster(  10, [255])
+               ] ),
+    DetUnit( "Gain less than 1 pushes charge above 255, but not above 511",
+             [ digi(  10, 255,  noise1, 0.9*gain1, good) ],
+             [ cluster(  10, [254])
+               ] ),
     DetUnit( "Two gains (apv boundary)",
              [ digi(  127, 110,  noise1, gain1, good),
                digi(  128, 110,  noise1, 1.1, good) ],
              [ cluster(  127, [110, 100])
                ] ),
+    DetUnit( "Throws InvalidChargeException",
+             [ digi(  19, 256,   noise1, gain1, good) ],
+             [ 
+               ],
+             Invalid),
     DetUnit( "Left edge",
              [ digi(  0, 100,   noise1, gain1, good),],
              [ cluster(0,[100])
@@ -159,10 +180,6 @@ ClusterizerDefaultGroup = ClusterizerTest( "Default Clusterizer Settings",
                digi(  767, 100,   noise1, gain1, good),],
              [ cluster(766,[100,100])
                ] ),
-#    DetUnit( "Throw InvalidChargeException",
-#             [ digi(  19, 256,   noise1, gain1, good) ],
-#             [ cluster(766,[100,100])
-#               ] ),
     DetUnit( "Wide cluster",
              [ digi(  10, 110,  noise1, gain1, good),
                digi(  11, 110,  noise1, gain1, good),
