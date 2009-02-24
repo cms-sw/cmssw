@@ -1,8 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-source = cms.Source("EmptySource")
-
-PythiaMSSMmhmax = cms.vstring('RMSS(2)= 200.           ! SU(2) gaugino mass ', 
+PythiaMSSMmhmax = cms.vstring(
+    'RMSS(2)= 200.           ! SU(2) gaugino mass ', 
     'RMSS(3)= 800.           ! SU(3) (gluino) mass ', 
     'RMSS(4)= 200.           ! higgsino mass parameter', 
     'RMSS(6)= 1000.          ! left slepton mass', 

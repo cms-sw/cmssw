@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-source = cms.Source("EmptySource")
-
 bfilter = cms.EDFilter("MCSingleParticleFilter",
     MaxEta = cms.untracked.vdouble(20.0, 20.0),
     MinEta = cms.untracked.vdouble(-20.0, -20.0),

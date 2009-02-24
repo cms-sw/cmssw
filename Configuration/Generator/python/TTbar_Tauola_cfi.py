@@ -3,21 +3,13 @@ import FWCore.ParameterSet.Config as cms
 source = cms.Source("EmptySource")
 
 from Configuration.Generator.PythiaUESettings_cfi import *
-from GeneratorInterface.Pythia6Interface.TauolaSettings_cff import *
+
 generator = cms.EDFilter("Pythia6GeneratorFilter",
     pythiaHepMCVerbosity = cms.untracked.bool(False),
     maxEventsToPrint = cms.untracked.int32(0),
     pythiaPylistVerbosity = cms.untracked.int32(0),
     filterEfficiency = cms.untracked.double(1.0),
     comEnergy = cms.double(10000.0),
-    ExternalGenerators = cms.PSet(
-        Tauola = cms.untracked.PSet(
-            TauolaPolar,
-            TauolaDefaultInputCards
-        ),
-        parameterSets = cms.vstring('Tauola')
-    ),
-    UseExternalGenerators = cms.untracked.bool(True),
     PythiaParameters = cms.PSet(
         pythiaUESettingsBlock,
         processParameters = cms.vstring('MSEL      = 0     ! User defined processes', 
@@ -28,6 +20,18 @@ generator = cms.EDFilter("Pythia6GeneratorFilter",
         # This is a vector of ParameterSet names to be read, in this order
         parameterSets = cms.vstring('pythiaUESettings', 
             'processParameters')
+    ),
+    ExternalDecays = cms.PSet(
+        Tauola = cms.untracked.PSet(
+             UseTauolaPolarization = cms.bool(True),
+             InputCards = cms.PSet
+             ( 
+                pjak1 = cms.int32(0),
+                pjak2 = cms.int32(0), 
+                mdtau = cms.int32(0) 
+             )
+        ),
+        parameterSets = cms.vstring('Tauola')
     )
 )
 
