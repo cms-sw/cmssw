@@ -9,35 +9,43 @@ process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 process.load("CalibTracker.Configuration.TrackerAlignment.TrackerAlignment_Fake_cff")
 
-#    // ...or testing geometry from DB/sqlite...
-# process.load("Geometry/TrackerGeometryBuilder/trackerGeometry_cfi")
-# process.load("Alignment/CommonAlignmentProducer/data/GlobalPosition_Frontier_cff")
-# process.TrackerDigiGeometryESModule.applyAlignment = True
+##    // ...or testing geometry from DB/sqlite...
+#process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
+#process.load("Alignment.CommonAlignmentProducer.GlobalPosition_Frontier_cff")
 #
-# from CondCore.DBCommon.CondDBSetup_cfi import *
-# process.PoolDBESSource =
-# cms.ESSource("PoolDBESSource",
-#              CondDBSetup,
-#              connect = cms.string('frontier://FrontierProd/CMS_COND_21X_ALIGNMENT'),
-#              toGet = cms.VPSet(cms.PSet(
-#     record = cms.string('TrackerAlignmentRcd'),
-#     tag = cms.string('TrackerIdealGeometry210_mc') # Tracker10pbScenario210_mc
-#     ), 
-#                                cms.PSet(
-#     record = cms.string('TrackerAlignmentErrorRcd'),
-#     tag = cms.string('TrackerIdealGeometryErrors210_mc') # Tracker10pbScenarioErrors210_mc
-#     ))
-#              )
-#
-# ... or testing any of the scenarios from cff
-# process.load("Alignment.TrackerAlignment.ExampleScenario.cff")
-# process.load("Alignment.TrackerAlignment.NoMovementsScenario.cff")
-# process.load("Alignment.TrackerAlignment.SurveyLASOnlyScenario.cff")
-# process.load("Alignment.TrackerAlignment.SurveyLASCosmicsScenario_cff")
-# process.load("Alignment.TrackerAlignment.Tracker1000pbScenario.cff")
+#from CondCore.DBCommon.CondDBSetup_cfi import *
+#process.PoolDBESSource = cms.ESSource("PoolDBESSource",
+#             CondDBSetup,
+#             #connect = cms.string('frontier://FrontierProd/CMS_COND_21X_ALIGNMENT'),
+#             connect = cms.string('sqlite:Alignments.db'),
+#             toGet = cms.VPSet(cms.PSet(
+#    record = cms.string('TrackerAlignmentRcd'),
+#    tag = cms.string('TrackerCRAFTScenario22X_mc') # TrackerIdealGeometry210_mc Tracker10pbScenario210_mc
+#    ), 
+#                               cms.PSet(
+#    record = cms.string('TrackerAlignmentErrorRcd'),
+#    tag = cms.string('TrackerCRAFTScenarioErrors22X_mc') # TrackerIdealGeometryErrors210_mc Tracker10pbScenarioErrors210_mc
+#    ))
+#             )
+
+## ... or testing any of the scenarios from cff
+#process.load("Alignment.TrackerAlignment.MisalignedTracker_cfi")
+#import Alignment.TrackerAlignment.Scenarios_cff as Scenarios
+##process.MisalignedTracker.scenario = Scenarios.SurveyLASOnlyScenario
+##process.MisalignedTracker.scenario = Scenarios.SurveyLASCosmicsScenario
+#process.MisalignedTracker.scenario = Scenarios.TrackerCRAFTScenario
+##process.MisalignedTracker.scenario = Scenarios.Tracker1000pbScenario
+
 
 # Message logger service
 process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger.cout = cms.untracked.PSet(
+    threshold = cms.untracked.string('INFO'),
+    default = cms.untracked.PSet(
+        limit = cms.untracked.int32(10000000)
+    )
+)
+
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
@@ -50,11 +58,5 @@ process.prod = cms.EDFilter("TestTrackerHierarchy",
 )
 
 process.p1 = cms.Path(process.prod)
-process.MessageLogger.cout = cms.untracked.PSet(
-    threshold = cms.untracked.string('INFO'),
-    default = cms.untracked.PSet(
-        limit = cms.untracked.int32(10000000)
-    )
-)
 
 
