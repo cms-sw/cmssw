@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2009/02/12 11:27:42 $
- * $Revision: 1.154 $
+ * $Date: 2009/02/23 11:34:41 $
+ * $Revision: 1.155 $
  * \author G. Della Ricca
  *
 */
@@ -142,6 +142,14 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps) {
   mePedestalPNErr_      = 0;
   meTestPulseErr_       = 0;
   meTestPulsePNErr_     = 0;
+
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
+
+    hpot01_[ism-1] = 0;
+
+  }
 
 }
 
@@ -625,6 +633,18 @@ void EESummaryClient::cleanup(void) {
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EESummaryClient" );
 
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
+
+    if ( cloneME_ ) {
+      if ( hpot01_[ism-1] ) delete hpot01_[ism-1];
+    }
+
+    hpot01_[ism-1] = 0;
+
+  }
+
   if ( meIntegrity_[0] ) dqmStore_->removeElement( meIntegrity_[0]->getName() );
   meIntegrity_[0] = 0;
 
@@ -1081,11 +1101,10 @@ void EESummaryClient::analyze(void) {
 
           }
 
-          if ( hpot01_[ism-1] ) {
-            
-            float num01, mean01, rms01;
-            bool update01;
-            update01 = UtilsClient::getBinStatistics(hpot01_[ism-1], ix, iy, num01, mean01, rms01);
+          float num01, mean01, rms01;
+          bool update01 = UtilsClient::getBinStatistics(hpot01_[ism-1], ix, iy, num01, mean01, rms01);
+
+          if ( update01 ) {
 
             if ( ism >= 1 && ism <= 9 ) {
               if ( Numbers::validEE(ism, 101 - jx, jy) ) {
@@ -1440,7 +1459,7 @@ void EESummaryClient::analyze(void) {
           int jx = ix + Numbers::ix0EE(ism);
           int jy = iy + Numbers::iy0EE(ism);
           int ic = Numbers::icEE(ism, jx, jy);
-          
+
           if( ic != -1 ) {
 
             int side = ( ism >= 1 && ism <= 9 ) ? 0 : 1;
@@ -1454,7 +1473,7 @@ void EESummaryClient::analyze(void) {
 
               // exclude channels without laser data (yellow in the quality map)
               if( xval != 2 && xval != 5 ) { 
-              
+                
                 int RtHalf = 0;
                 // EE-05
                 if ( ism ==  8 && ix > 50 ) RtHalf = 1;
@@ -1469,7 +1488,7 @@ void EESummaryClient::analyze(void) {
                 if( me && RtHalf == 0 ) {
                   meLaserL1AmplOverPN_[side]->Fill( me->getBinContent( ic ) );
                 }
-          
+
                 // L1B
                 me = eelc->meaopn05_[ism-1];
                 if( me && RtHalf == 0 ) {
@@ -1490,9 +1509,10 @@ void EESummaryClient::analyze(void) {
                 if ( me && RtHalf == 1 ) {
                   meLaserL1Timing_[side]->Fill( me->getBinContent( ic ) );
                 }
-              }
-            }
 
+              }
+              
+            }
 
             if ( eeldc ) {
 
