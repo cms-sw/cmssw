@@ -1,6 +1,6 @@
 *-- AUTHOR :    MICHELANGELO MANGANO
 C----------------------------------------------------------------------
-      SUBROUTINE UPVETO(IPVETO)
+      SUBROUTINE ALVETO(IPVETO)
 C----------------------------------------------------------------------
 C     SUBROUTINE TO IMPLEMENT THE MLM JET MATCHING CRITERION
 C----------------------------------------------------------------------
@@ -123,7 +123,7 @@ C
 C CHECK FOR EVENT ERROR OR ZERO WGT
       I=0
 C     HERWIG/PYTHIA SPECIFIC
-      CALL ALSHER(I)
+C     CALL ALSHER(I)
       IF(I.EQ.1) RETURN
 C
 C     INITIALIZE DEBUG IF NEEDED
@@ -144,6 +144,7 @@ C     INITIALIZE DEBUG IF NEEDED
 C
 C     RECONSTRUCT PARTON-LEVEL EVENT
 C     START FROM THE PARTONIC SYSTEM
+C     NOTICE THAT THIS INFO COMES FROM THE HEPEUP
       DO I=1,NLJETS
         IHEP=I+NJSTART
         DO J=1,4
@@ -159,6 +160,7 @@ C     START FROM THE PARTONIC SYSTEM
       IF(NLJETS.GT.0) CALL ALPSOR(PT,NLJETS,KP,2)  
 C     
 C     DISPLAY EVENT SEEN BY UPVETO:
+C     NOW THIS INFO COMES FROM THE HEPEVT
       IF(IDBG.EQ.1) THEN
         DO I=1,NHEP
           WRITE(1,111) I,ISTHEP(I),IDHEP(I),JMOHEP(1,I),JMOHEP(2,I)
@@ -166,6 +168,11 @@ C     DISPLAY EVENT SEEN BY UPVETO:
         ENDDO
  111    FORMAT(5(I4,1X),3(F12.5,1X))
       ENDIF
+      
+C     PRINT THE INORAD STATUS OF THE PARTICLES.
+C     (UNCOMMENT TO MAKE IT WORK)
+C      CALL DBINRD
+
 C     DISPLAY PYTHIA EVENT:
 C      CALL PYLIST(7)    ! PYTHIA USER PROCESS EVENT DUMP
 C      CALL PYLIST(2)    ! PYTHIA FULL EVENT DUMP
@@ -290,19 +297,14 @@ C     HERWIG/PYTHIA TERMINATION:
 
 
 C----------------------------------------------------------------------
-      SUBROUTINE UPINIT
+      SUBROUTINE ALSETP
 C----------------------------------------------------------------------
-C     HERWIG/PYTHIA UNIVERSAL EVENT INITIALITION ROUTINE
+C     EVENT INITIALITION ROUTINE THAT STARTS OFF FILLED COMMON BLOCKS
 C----------------------------------------------------------------------
       IMPLICIT NONE
 c process code
       integer ihrd
       integer itopprc
-c--event file data
-      integer Nunit,NunitOut,NunitIni
-      character*512 filename,tmpstr
-c total number of input events
-      common/AHio/Nunit,NunitOut,NunitIni,filename
 c inputs for the matching algorithm
       integer iexc,npfst,nplst,nljets,njstart,njlast
      $     ,ickkw
@@ -325,10 +327,6 @@ c total number of partons
      & nw,nz,nh,nph,
      & ihvy,ihvy2,
      & npart,ndns,pdftyp
-c weight information
-      real *8 maxwgt,avgwgt,errwgt,totlum
-      integer unwev
-      common/AHwgts/maxwgt,avgwgt,errwgt,totlum,unwev
 c general parameters
       integer nparam
       parameter (nparam=200)
@@ -349,23 +347,6 @@ c global event cuts
      +        ptphmin,etaphmax,drphjmin,drphmin,drphlmin,
      +        ptlmin,etalmax,drlmin,metmin,mllmin,mllmax
       CHARACTER *3 CSHO
-C--   GUP Event common block
-      INTEGER MAXNUP
-      PARAMETER (MAXNUP=500)
-      INTEGER NUP,IDPRUP,IDUP,ISTUP,MOTHUP,ICOLUP
-      DOUBLE PRECISION XWGTUP,SCALUP,AQEDUP,AQCDUP,PUP,VTIMUP,SPINUP
-      COMMON/HEPEUP/NUP,IDPRUP,XWGTUP,SCALUP,AQEDUP,AQCDUP,
-     &     IDUP(MAXNUP),ISTUP(MAXNUP),MOTHUP(2,MAXNUP),
-     &     ICOLUP(2,MAXNUP),PUP(5,MAXNUP),VTIMUP(MAXNUP),
-     &     SPINUP(MAXNUP)
-C--   GUP common block
-      INTEGER MAXPUP
-      PARAMETER(MAXPUP=100)
-      INTEGER IDBMUP,PDFGUP,PDFSUP,IDWTUP,NPRUP,LPRUP
-      DOUBLE PRECISION EBMUP,XSECUP,XERRUP,XMAXUP
-      COMMON /HEPRUP/ IDBMUP(2),EBMUP(2),PDFGUP(2),PDFSUP(2),
-     &     IDWTUP,NPRUP,XSECUP(MAXPUP),XERRUP(MAXPUP),
-     &     XMAXUP(MAXPUP),LPRUP(MAXPUP)
 C     CALSIM AND JET VARIABLES                             
       INTEGER NCY,NCPHI,NJMAX,JETNO,NCJET
       DOUBLE PRECISION YCMIN,YCMAX,PI,ET,DELPHI,CPHCAL,SPHCAL,DELY,
@@ -376,6 +357,8 @@ C     CALSIM AND JET VARIABLES
      $     CTHCAL(NCY),STHCAL(NCY),CPHCAL(NCPHI),SPHCAL(NCPHI),YCMIN
      $     ,YCMAX
 C     
+      INTEGER MAXNUP
+      PARAMETER (MAXNUP=500)
       INTEGER IEND,INORAD
       COMMON/SHVETO/IEND,INORAD(MAXNUP)
 c     
@@ -383,83 +366,16 @@ C     LOCAL VARIABLES
       CHARACTER*70 STDUMMY
       INTEGER I,NTMP,IHEPMIN
       DOUBLE PRECISION TMP
-      DOUBLE PRECISION PBEAM1,PBEAM2
 C     USER ACCESS TO MATCHING PARAMETERS
       INTEGER IUSRMAT
       PARAMETER (IUSRMAT=1)
-      character*512                           CXpar
-      integer         Ixpar 
-      double precision            RXpar
-      common /EXGPAR/ IXpar(100), RXpar(100), CXpar(100)
-C
-C USER ACCESS TO INPUT PARAMETERS
-c      CHARACTER XXX*500, PROCESS*500
-      CHARACTER PROCESS*500
-      INTEGER FIREVT 
-      WRITE(*,*) 'INPUT NAME OF FILE CONTAINING EVENTS'
-      WRITE(*,*) '(FOR "file.unw" ENTER "file")'
-      FILENAME = CXpar(1) ! 'alpgen'
-      PROCESS = CXpar(2)
-      WRITE(*,*) FILENAME   
-      FIREVT = IXpar(1)
-      WRITE(*,*) ' FIRST EVENT TO READ ', FIREVT
-      IF (FIREVT.LT.1) THEN
-        WRITE(*,*)'Warning: First event parameter in MY-INPARM.DAT file'
-        WRITE(*,*)'         cannot be less than 1. So it was set to 1.'
-        FIREVT=1
-      ENDIF
-      CALL STRCATH(FILENAME,'-pyt.dat',TMPSTR)
-      WRITE(*,*) 'NAME OF TXT FILE CONTAINING GENERATION PARAMETERS', 
-     +     TMPSTR
-      WRITE(*,*) '!!WARNING!!If the file already exists the program' 
-      WRITE(*,*) ' will crash, please rename the file and run again'
-      OPEN(33,FILE=TMPSTR,STATUS='unknown') ! NEW')
-      CALL STRCATH(FILENAME,'.unw',TMPSTR)
-      call GETUNIT(NUNIT)
-      OPEN(UNIT=NUNIT,FILE=TMPSTR,STATUS='OLD')
-      CALL STRCATH(FILENAME,'_unw.par',TMPSTR)
-      CALL GETUNIT(NUNITINI)
-      OPEN(UNIT=NUNITINI,FILE=TMPSTR,STATUS='OLD')
-C     OPEN A LOG FILE
-      CALL ALSHCD(CSHO)
-C      IF(CSHO.EQ.'HER') THEN
-C        CALL STRCATH(FILENAME,'.her-log',TMPSTR)
-C      ELSE 
-C        CALL STRCATH(FILENAME,'.pyt-log',TMPSTR)
-C      ENDIF
-C      CALL GETUNIT(NUNITOUT)
-C      OPEN(UNIT=NUNITOUT,NAME=TMPSTR,STATUS='UNKNOWN')
-C     START READING FILE
-      DO I=1,10000
-        READ(NUNITINI,'(A)') STDUMMY
-        IF(STDUMMY(1:4).EQ.'****') GOTO 10
-        WRITE(*,*) STDUMMY
-        WRITE(33,*) STDUMMY
-      ENDDO
-C     
-C     READ IN INPUT PARAMETERS
- 10   READ(NUNITINI,*) IHRD
-C     
-c     IF(IHRD.EQ.12) THEN
-c     WRITE(*,*) 'HJET PROCESSES NOT AVAILABLE AS YET'
-c     STOP
-c     ENDIF
-      READ(NUNITINI,*) MC,MB,MT,MW,MZ,MH
-      DO I=1,1000
-        READ(NUNITINI,*,ERR=20) NTMP,TMP
-        PARVAL(NTMP)=TMP
-      ENDDO
- 20   CONTINUE
-      READ(NUNITINI,*) AVGWGT,ERRWGT
-      READ(NUNITINI,*) UNWEV,TOTLUM
-      WRITE(33,*) " "
-      WRITE(33,*) "INPUT CROSS SECTION (PB):",AVGWGT," +/-",ERRWGT
-      WRITE(33,*) "NUMBER OF INPUT EVENTS:",UNWEV
-      WRITE(33,*) "INTEGRATED LUMINOSITY:",TOTLUM
+C      character*512                           CXpar
+C      integer         Ixpar 
+C      double precision            RXpar
+C      common /EXGPAR/ IXpar(100), RXpar(100), CXpar(100)
+
 C     WRITE PARAMETER VALUES
       CALL AHSPAR
-      PBEAM1=DBLE(EBEAM)
-      PBEAM2=DBLE(EBEAM)
       IH1=1
 C     CONVERT PDF TYPES
       CALL PDFCONVH(NDNS,NTMP,PDFTYP)
@@ -481,9 +397,8 @@ C     HERWIG: HEPEVT EVENT RECORD FOR FINAL STATE STARTS AT 7=6+1
         NPLST=1
 C     PYTHIA: ALL SHOWERS ORIGINATE FROM IHEP=O
         IEND=0
-C     PYTHIA: HEPEVT EVENT RECORD FOR FINAL STATE STARTS AT 1=0+1
-        IHEPMIN=0
-        IDPRUP=661
+C     PYTHIA: HEPEVT EVENT RECORD FOR FINAL STATE STARTS AT 7=6+1
+        IHEPMIN=6
       ENDIF
       IF(IHRD.LE.2) THEN
 C        NLJETS=NPART-6
@@ -592,21 +507,21 @@ C
 C     INPUT JET MATCHING CRITERIA
 C
       IF(ICKKW.EQ.1) THEN
-        WRITE(*,*) ' '
-        WRITE(*,*) 'INPUT 0 FOR INCLUSIVE JET SAMPLE, 1 FOR EXCLUSIVE'
-        WRITE(*,*) '(SELECT 0 FOR HIGHEST PARTON MULTIPLICITY SAMPLE)' 
-        WRITE(*,*) '(SELECT 1 OTHERWISE)'
+C       WRITE(*,*) ' '
+C       WRITE(*,*) 'INPUT 0 FOR INCLUSIVE JET SAMPLE, 1 FOR EXCLUSIVE'
+C       WRITE(*,*) '(SELECT 0 FOR HIGHEST PARTON MULTIPLICITY SAMPLE)' 
+C       WRITE(*,*) '(SELECT 1 OTHERWISE)'
 C       READ(*,*) IEXC
-	IEXC = IXpar(2)
+C       IEXC = IXpar(2)
         WRITE(*,*) ' IEXC = ',IEXC
         IF(NLJETS.GT.0) THEN
           WRITE(*,*) 'INPUT ET(CLUS), R(CLUS)'
-          ETCLUS=MAX(PTJMIN+5,1.2*PTJMIN)
-          RCLUS=DRJMIN
-          WRITE(*,*) '(SUGGESTED VALUES:',ETCLUS,RCLUS,')'
+C         ETCLUS=MAX(PTJMIN+5,1.2*PTJMIN)
+C         RCLUS=DRJMIN
+C         WRITE(*,*) '(SUGGESTED VALUES:',ETCLUS,RCLUS,')'
 C         READ(*,*) ETCLUS,RCLUS,ETACLMAX
-          ETCLUS = RXpar(1)
-          RCLUS  = RXpar(2)
+C         ETCLUS = RXpar(1)
+C         RCLUS  = RXpar(2)
           ETACLMAX = ETAJMAX
         ELSEIF(NLJETS.EQ.0) THEN
           WRITE(*,*) 'INPUT ET(CLUS), R(CLUS)'
@@ -616,8 +531,8 @@ C         READ(*,*) ETCLUS,RCLUS,ETACLMAX
      +         'ETCLUS=MAX(PTJMIN+5,1.2*PTJMIN) RCLUS=DRJMIN, ',
      +         ' ETACLMAX=ETAJMAX)'
 C         READ(*,*) ETCLUS,RCLUS,ETACLMAX
-          ETCLUS = RXpar(1)
-          RCLUS  = RXpar(2)
+C         ETCLUS = RXpar(1)
+C         RCLUS  = RXpar(2)
           ETACLMAX = ETAJMAX
         ENDIF
         WRITE(*,*) ' '
@@ -630,540 +545,6 @@ C     CALORIMETER ETA RANGE
 C     YCMAX=ETAJMAX+DRJMIN    
       YCMAX=ETACLMAX+RCLUS      ! MLM August 24
       YCMIN=-YCMAX
-C     FROM NOW ON, PROCESS THE INFORMATION READ IN, TO COMPLETE SETTING
-C     UP THE GUP COMMON
-C     
-C--   SET UP THE BEAMS
-C--   ID'S OF BEAM PARTICLES
-      IF(IH1.EQ.1) THEN
-        IDBMUP(1) = 2212
-      ELSEIF(IH1.EQ.-1) THEN
-        IDBMUP(1) =-2212
-      ELSE
-        WRITE(*,*) 'BEAM 1 NOT PROPERLY INITIALISED, STOP'
-        STOP
-      ENDIF
-      IF(IH2.EQ.1) THEN
-        IDBMUP(2) = 2212
-      ELSEIF(IH2.EQ.-1) THEN
-        IDBMUP(2) =-2212
-      ELSE
-        WRITE(*,*) 'BEAM 2 NOT PROPERLY INITIALISED, STOP'
-        STOP
-      ENDIF
-      EBMUP(1) = ABS(PBEAM1)
-      EBMUP(2) = ABS(PBEAM2)
-C--   PDF'S FOR THE BEAMS; WILL BE EVALUATED USING THE NDNS VARIABLE
-C     READ IN EARLIER
-      PDFGUP(1) = -1
-      PDFGUP(2) = -1
-      PDFSUP(1) = -1
-      PDFSUP(2) = -1
-C--   WHAT DO DO WITH THE WEIGHTS(WE ARE GENERATING UNWEIGHTED EVENTS)
-      IDWTUP = 3
-C--   ONLY ONE PROCESS
-      NPRUP  = 1
-C--   CROSS SECTION
-      XSECUP(1) = avgwgt
-C--   ERROR ON THE CROSS SECTION
-      XERRUP(1) = errwgt
-C--   MAXIMUM WEIGHT
-      XMAXUP(1) = avgwgt
-C--   HERWIG/PYTHIA SPECIFIC PART
-      CALL ALSHIN(I)
-      LPRUP(1) = I
-      END
-
-C     DECK  ID>, UPEVNT.
-*     CMZ :-        -13/02/02  07.20.46  by  Peter Richardson
-*--   Author :    Michelangelo Mangano
-C----------------------------------------------------------------------
-      SUBROUTINE UPEVNT
-C----------------------------------------------------------------------
-c     Puts Alpgen event into GUPI common block HEPEU
-c----------------------------------------------------------------------
-      implicit none
-c process code
-      integer ihrd
-      integer itopprc
-c--event file data
-      integer Nunit,NunitOut,NunitIni
-      character*512 filename,tmpstr
-c total number of input events
-      common/AHio/Nunit,NunitOut,NunitIni,filename
-c inputs for the matching algorithm
-      integer iexc,npfst,nplst,nljets,njstart,njlast
-     $     ,ickkw
-      double precision etclus,rclus,etaclmax
-      common/AHopts/etclus,rclus,etaclmax,iexc,npfst
-     $     ,nplst,nljets,njstart,njlast,ickkw
-c process and particles parameters
-      double precision mc,mb,mt,mw,mz,mh
-      double precision ebeam
-      integer ndns,ih1,ih2       
-      integer nw,nz,nh,nph
-      integer ihvy,ihvy2
-c pdf set type
-      character pdftyp*25
-c total number of partons
-      integer npart
-      common/AHppara/mc,mb,mt,mw,mz,mh,
-     & ebeam,ih1,ih2,
-     & ihrd,itopprc,
-     & nw,nz,nh,nph,
-     & ihvy,ihvy2,
-     & npart,ndns,pdftyp
-c weight information
-      real *8 maxwgt,avgwgt,errwgt,totlum
-      integer unwev
-      common/AHwgts/maxwgt,avgwgt,errwgt,totlum,unwev
-c general parameters
-      integer nparam
-      parameter (nparam=200)
-      integer parlen,partyp
-      character chpar*8,chpdes*70
-      double precision parval
-      common/AHpars/parval(nparam),chpar(nparam),chpdes(nparam)
-     $     ,parlen(nparam),partyp(nparam)
-c global event cuts
-      double precision ptjmin,ptjmax,etajmax,drjmin,
-     +     ptbmin,ptbmax,etabmax,drbmin,
-     +     ptcmin,ptcmax,etacmax,drcmin,
-     +     ptphmin,etaphmax,drphjmin,drphmin,drphlmin,
-     +     ptlmin,etalmax,drlmin,metmin,mllmin,mllmax
-      common/AHcuts/ptjmin,ptjmax,etajmax,drjmin,
-     +     ptbmin,ptbmax,etabmax,drbmin,
-     +        ptcmin,ptcmax,etacmax,drcmin,
-     +        ptphmin,etaphmax,drphjmin,drphmin,drphlmin,
-     +        ptlmin,etalmax,drlmin,metmin,mllmin,mllmax
-C--   GUP Event common block
-      INTEGER MAXNUP
-      PARAMETER (MAXNUP=500)
-      INTEGER NUP,IDPRUP,IDUP,ISTUP,MOTHUP,ICOLUP
-      DOUBLE PRECISION XWGTUP,SCALUP,AQEDUP,AQCDUP,PUP,VTIMUP,SPINUP
-      COMMON/HEPEUP/NUP,IDPRUP,XWGTUP,SCALUP,AQEDUP,AQCDUP,
-     &     IDUP(MAXNUP),ISTUP(MAXNUP),MOTHUP(2,MAXNUP),
-     &     ICOLUP(2,MAXNUP),PUP(5,MAXNUP),VTIMUP(MAXNUP),
-     &     SPINUP(MAXNUP)
-C--   GUP Run common block
-      INTEGER MAXPUP
-      PARAMETER(MAXPUP=100)
-      INTEGER IDBMUP,PDFGUP,PDFSUP,IDWTUP,NPRUP,LPRUP
-      DOUBLE PRECISION EBMUP,XSECUP,XERRUP,XMAXUP
-      COMMON /HEPRUP/ IDBMUP(2),EBMUP(2),PDFGUP(2),PDFSUP(2),
-     &     IDWTUP,NPRUP,XSECUP(MAXPUP),XERRUP(MAXPUP),
-     &     XMAXUP(MAXPUP),LPRUP(MAXPUP)
-c     
-c     local variables
-      INTEGER INIT
-      DATA INIT/0/
-      CHARACTER *3 CSHO
-      INTEGER MAXPAR
-      PARAMETER (MAXPAR=100)
-      INTEGER NEV,IPROC,IFL(MAXPAR)
-      REAL SQ,SP(3,MAXPAR),SM(MAXPAR),SWGTRES
-      INTEGER I,IUP,IWCH,IST
-      REAL *8 TMP,WGTRES
-C     LOCAL VARIABLES FOR TOP DECAYS
-      INTEGER IT,ITB,IW,IWDEC,IBUP,IWUP
-C     LOCAL VARIABLES TOP HIGGS DECAYS
-      INTEGER IH
-C     LOCAL VARIABLES FOR GAUGE BOSON  DECAYS
-      INTEGER IVSTART,IVEND,NVB
-C     
-C UPDATE MAXIMUM NMBER OF ALLOWED ERRORS
-      CALL ALSHER(I)
-C
-      IST=0
-C     INPUT EVENT NUMBER, PROCESS TYPE, N PARTONS, SAMPLE'S AVERAGE
-C     WEIGHT AND QSCALE
-      READ(NUNIT,2,END=500,ERR=501) NEV,IPROC,NPART,SWGTRES,SQ
- 2    FORMAT(I8,1X,I4,1X,I2,2(1X,E12.6))
-C     FLAVOUR, COLOUR AND Z-MOMENTUM OF INCOMING PARTONS
-      READ(NUNIT,8) IFL(1),ICOLUP(1,1),ICOLUP(2,1),SP(3,1)
-      READ(NUNIT,8) IFL(2),ICOLUP(1,2),ICOLUP(2,2),SP(3,2)
-C     FLAVOUR, COLOUR, 3-MOMENTUM AND MASS OF OUTGOING PARTONS
-      DO I=3,NPART
-        READ(NUNIT,9) IFL(I),ICOLUP(1,I),ICOLUP(2,I),SP(1,I),SP(2,I)
-     $       ,SP(3,I),SM(I)
-      ENDDO
- 8    FORMAT(I8,1X,2(I4,1X),F10.3)
- 9    FORMAT(I8,1X,2(I4,1X),4(1X,F10.3))
-C     
-C     START PROCESSING INPUT DATA
-C     
-C     SCALES AND WEIGHTS
-      SCALUP=DBLE(SQ)
-      IF(IDWTUP.EQ.3) THEN
-	XWGTUP=DBLE(SWGTRES) !AVGWGT
-      ELSE
-        WRITE(*,*) 'ONLY UNWEIGHTED EVENTS ACCEPTED AS INPUT, STOP'
-        STOP
-      ENDIF
-c     
-c---  incoming lines
-      do 100 i=1,2
-        iup=i
-        idup(iup)=ifl(i)
-        istup(iup)=-1
-        mothup(1,iup)=0
-        mothup(2,iup)=0
-        pup(1,iup)=0.
-        pup(2,iup)=0.
-        pup(3,iup)=dble(Sp(3,iup))
-        pup(4,iup)=abs(pup(3,iup))
-        pup(5,iup)=0d0
- 100  continue
-c---  outgoing lines
-      do 110 i=3,npart
-        iup=i
-        idup(iup)=ifl(i)
-        istup(iup)=1
-        mothup(1,iup)=1
-        mothup(2,iup)=2
-        pup(1,iup)=dble(Sp(1,i))
-        pup(2,iup)=dble(Sp(2,i))
-        pup(3,iup)=dble(Sp(3,i))
-        pup(5,iup)=dble(Sm(i))
-        tmp=(pup(5,iup)**2+pup(1,iup)**2+pup(2,iup)**2+pup(3,iup)**2)
-        pup(4,iup)=sqrt(tmp)
- 110  continue
-c     
-      nup=npart
-c---  set up colour structure labels
-      Do iup=1,nup
-        if(icolup(1,iup).ne.0) icolup(1,iup)=icolup(1,iup)+500
-        if(icolup(2,iup).ne.0) icolup(2,iup)=icolup(2,iup)+500
-      Enddo
-c     
-c     
-c     and now consider assignements specific to individual hard
-C     processes
-c     
-c---  W/Z/gamma b bbar + jets, or W/Z + jets
-      if (ihrd.le.4.or.ihrd.eq.10.OR.IHRD.EQ.14.OR.IHRD.EQ.15) then
-        iwch=0
-        do iup=nup-1,nup
-          mothup(1,iup)=nup+1
-          mothup(2,iup)=0
-          if(ihrd.ne.2) iwch=iwch-mod(idup(iup),2)
-c     electron+nubar -> 11 + (-12) => -(1)+0 = -1  => W-
-c     positron+nu    -> -11+ 12    => -(-1)+0 = -1 => W+
-c     u dbar -> 2 -1  => 0 -(-1) = 1 => W+
-c     c dbar -> 4 -1  => W+
-c etc.
-        enddo
-        iup=nup+1
-        If (iwch.gt.0) then
-          idup(iup)=24
-        Elseif (iwch.lt.0) then
-          idup(iup)=-24
-        Else
-          idup(iup)=23
-        Endif
-        istup(iup)=2
-        mothup(1,iup)=1
-        mothup(2,iup)=2
-        tmp=pup(4,iup-2)+pup(4,iup-1)
-        pup(4,iup)=tmp
-        tmp=tmp**2
-        do i=1,3
-          pup(i,iup)=pup(i,iup-2)+pup(i,iup-1)
-          tmp=tmp-pup(i,iup)**2
-        enddo
-        pup(5,iup)=sqrt(tmp)
-        nup=nup+1
-        icolup(1,nup)=0
-        icolup(2,nup)=0
-c---  nW + mZ + kH + jets
-      elseif (ihrd.eq.5) then
-c     find first gauge bosons
-        ivstart=0
-        ivend=0
-        do i=1,npart
-          if(abs(idup(i)).eq.24.or.idup(i).eq.23) then
-            istup(i)=2
-            if(ivstart.eq.0) ivstart=i
-            ivend=i+1
-          endif
-        enddo
-        nvb=ivend-ivstart
-c     decay products pointers, starting from the end
-        do i=1,nvb
-          mothup(1,npart-2*i+2)=ivend-i
-          mothup(1,npart-2*i+1)=ivend-i
-          mothup(2,npart-2*i+2)=0
-          mothup(2,npart-2*i+1)=0
-        enddo
-c---  t tbar + jets
-c     t tb jets f fbar f fbar W+ b W- bbar
-      elseif (ihrd.eq.6.and.abs(ifl(3)).eq.6) then
-c     reset top status codes
-        istup(3)=2
-        istup(4)=2
-        if(ifl(3).eq.6) then
-          it=3
-          itb=4
-        else
-          it=4
-          itb=3
-        endif
-c     reconstruct W's from decay products
-        do iw=1,2
-          iwdec=nup-5+2*iw
-          iwup=nup+iw
-          ibup=iwup+2
-          iwch=0
-          do iup=iwdec,iwdec+1
-            mothup(1,iup)=iwup
-            mothup(2,iup)=0
-            iwch=iwch-mod(idup(iup),2)
-c     electron+nubar -> 11 + (-12) = -1 => W-
-c     d + ubar -> 1 + (-2) = -1 => W-
-c     positron+nu    -> -11+ 12    =  1 => W+
-c     u + dbar -> 2 + (-1) = 1 => W+
-          enddo
-          If (iwch.gt.0) then
-            idup(iwup)=24
-            idup(ibup)=5
-            mothup(1,iwup)=it
-            mothup(2,iwup)=0
-            mothup(1,ibup)=it
-            mothup(2,ibup)=0
-          Elseif (iwch.lt.0) then
-            idup(iwup)=-24
-            idup(ibup)=-5
-            mothup(1,iwup)=itb
-            mothup(2,iwup)=0
-            mothup(1,ibup)=itb
-            mothup(2,ibup)=0
-          Endif
-          istup(iwup)=2
-          istup(ibup)=1
-c     reconstruct W momentum
-          tmp=pup(4,iwdec)+pup(4,iwdec+1)
-          pup(4,iwup)=tmp
-          tmp=tmp**2
-          do i=1,3
-            pup(i,iwup)=pup(i,iwdec)+pup(i,iwdec+1)
-            tmp=tmp-pup(i,iwup)**2
-          enddo
-          pup(5,iwup)=sqrt(tmp)
-c     reconstruct b momentum
-          tmp=pup(4,mothup(1,iwup))-pup(4,iwup)
-          pup(4,ibup)=tmp 
-          tmp=tmp**2
-          do i=1,3
-            pup(i,ibup)=pup(i,mothup(1,iwup))-pup(i,iwup)
-            tmp=tmp-pup(i,ibup)**2
-          enddo
-          pup(5,ibup)=sqrt(tmp)
-          icolup(1,iwup)=0
-          icolup(2,iwup)=0
-          icolup(1,ibup)=icolup(1,mothup(1,iwup))
-          icolup(2,ibup)=icolup(2,mothup(1,iwup))
-        enddo
-c     stop
-        nup=nup+4
-c---  H t tbar + jets
-c     H t tb jets f fbar f fbar W+ b W- bbar
-      elseif (ihrd.eq.8.and.abs(ifl(4)).eq.6) then
-c     reset top status codes
-        istup(4)=2
-        istup(5)=2
-        if(ifl(4).eq.6) then
-          it=4
-          itb=5
-        else
-          it=5
-          itb=4
-        endif
-c     reconstruct W's from decay products
-        do iw=1,2
-          iwdec=nup-5+2*iw
-          iwup=nup+iw
-          ibup=iwup+2
-          iwch=0
-          do iup=iwdec,iwdec+1
-            mothup(1,iup)=iwup
-            mothup(2,iup)=0
-            iwch=iwch-mod(idup(iup),2)
-c     electron+nubar -> 11 + (-12) = -1 => W-
-c     d + ubar -> 1 + (-2) = -1 => W-
-c     positron+nu    -> -11+ 12    =  1 => W+
-c     u + dbar -> 2 + (-1) = 1 => W+
-          enddo
-          If (iwch.gt.0) then
-            idup(iwup)=24
-            idup(ibup)=5
-            mothup(1,iwup)=it
-            mothup(2,iwup)=0
-            mothup(1,ibup)=it
-            mothup(2,ibup)=0
-          elseif (iwch.lt.0) then
-            idup(iwup)=-24
-            idup(ibup)=-5
-            mothup(1,iwup)=itb
-            mothup(2,iwup)=0
-            mothup(1,ibup)=itb
-            mothup(2,ibup)=0
-          endif
-          istup(iwup)=2
-          istup(ibup)=1
-c     reconstruct W momentum
-          tmp=pup(4,iwdec)+pup(4,iwdec+1)
-          pup(4,iwup)=tmp
-          tmp=tmp**2
-          do i=1,3
-            pup(i,iwup)=pup(i,iwdec)+pup(i,iwdec+1)
-            tmp=tmp-pup(i,iwup)**2
-          enddo
-          pup(5,iwup)=sqrt(tmp)
-c     reconstruct b momentum
-          tmp=pup(4,mothup(1,iwup))-pup(4,iwup)
-          pup(4,ibup)=tmp 
-          tmp=tmp**2
-          do i=1,3
-            pup(i,ibup)=pup(i,mothup(1,iwup))-pup(i,iwup)
-            tmp=tmp-pup(i,ibup)**2
-          enddo
-          pup(5,ibup)=sqrt(tmp)
-          icolup(1,iwup)=0
-          icolup(2,iwup)=0
-          icolup(1,ibup)=icolup(1,mothup(1,iwup))
-          icolup(2,ibup)=icolup(2,mothup(1,iwup))
-        enddo
-c     stop
-        nup=nup+4
-c---  SINGLE TOP
-c     Input: T  
-c     output: jets t b w f fbar t b w f fbar 
-      elseif (ihrd.eq.13) then
-        nw=1
-        if(itopprc.ge.3) nw=2
-c     assign mass to the incoming bottom quark, if required
-        DO I=1,2
-          IF(ABS(IFL(I)).EQ.5) THEN
-            IUP=I
-            PUP(5,IUP)=mb
-            PUP(4,IUP)=SQRT(PUP(3,IUP)**2+PUP(5,IUP)**2)
-          ENDIF
-        ENDDO
-        istup(3)=2
-        it=0
-        itb=0
-        if(ifl(3).eq.6) then
-          it=3
-        elseif(ifl(3).eq.-6) then
-          itb=3
-        else
-          write(*,*) 'wrong assumption about top position, stop'
-          stop
-        endif
-c
-c     TOP DECAY
-c     reconstruct W's from decay products
-c
-c iwdec: 1st W decay product.
-        if(nw.eq.1) then
-          iwdec=nup-1
-        elseif(nw.eq.2) then
-          iwdec=nup-3
-        endif
-c put W and b  at the end
-        iwup=nup+1
-        ibup=iwup+1
-c
-        iwch=0
-        do iup=iwdec,iwdec+1
-          mothup(1,iup)=iwup
-          mothup(2,iup)=0
-          iwch=iwch-mod(idup(iup),2)
-c     electron+nubar -> 11 + (-12) = -1 => W-
-c     d + ubar -> 1 + (-2) = -1 => W-
-c     positron+nu    -> -11+ 12    =  1 => W+
-c     u + dbar -> 2 + (-1) = 1 => W+
-        enddo
-        If (iwch.gt.0) then
-          idup(iwup)=24
-          idup(ibup)=5
-          mothup(1,iwup)=it
-          mothup(2,iwup)=0
-          mothup(1,ibup)=it
-          mothup(2,ibup)=0
-        Elseif (iwch.lt.0) then
-          idup(iwup)=-24
-          idup(ibup)=-5
-          mothup(1,iwup)=itb
-          mothup(2,iwup)=0
-          mothup(1,ibup)=itb
-          mothup(2,ibup)=0
-        Endif
-        istup(iwup)=2
-        istup(ibup)=1
-c     reconstruct W momentum
-        tmp=pup(4,iwdec)+pup(4,iwdec+1)
-        pup(4,iwup)=tmp
-        tmp=tmp**2
-        do i=1,3
-          pup(i,iwup)=pup(i,iwdec)+pup(i,iwdec+1)
-          tmp=tmp-pup(i,iwup)**2
-        enddo
-        pup(5,iwup)=sqrt(tmp)
-c     reconstruct b momentum
-        tmp=pup(4,mothup(1,iwup))-pup(4,iwup)
-        pup(4,ibup)=tmp 
-        tmp=tmp**2
-        do i=1,3
-          pup(i,ibup)=pup(i,mothup(1,iwup))-pup(i,iwup)
-          tmp=tmp-pup(i,ibup)**2
-        enddo
-c        write(*,*) (pup(i,ibup),i=1,4),sqrt((tmp))
-        pup(5,ibup)=sqrt(tmp)
-        icolup(1,iwup)=0
-        icolup(2,iwup)=0
-        icolup(1,ibup)=icolup(1,mothup(1,iwup))
-        icolup(2,ibup)=icolup(2,mothup(1,iwup))
-c     
-        nup=nup+2
-        if(nw.eq.2) then
-c
-c     W DECAY
-c
-c iwdec: 1st W decay product. 
-          iwdec=nup-3
-c iwup: location of the W in the event record
-          iwup=nup-6
-          iwch=0
-          do iup=iwdec,iwdec+1
-            mothup(1,iup)=iwup
-            mothup(2,iup)=0
-            iwch=iwch-mod(idup(iup),2)
-c     electron+nubar -> 11 + (-12) = -1 => W-
-c     d + ubar -> 1 + (-2) = -1 => W-
-c     positron+nu    -> -11+ 12    =  1 => W+
-c     u + dbar -> 2 + (-1) = 1 => W+
-          enddo
-          istup(iwup)=2
-          icolup(1,iwup)=0
-          icolup(2,iwup)=0
-        endif
-      endif
-c     herwig debugging:
-c      call HWUPUP
-      return
-c     
-c     
-c     end of file
- 500  ist=1
-c     error reading file
- 501  if(ist.eq.0) ist=2
-C     RESET CROSS-SECTION INFORMATION FOR END OF RUN AND FINALIZE
-      IF(IST.GT.0) THEN
-        CALL ALSFIN
-      ENDIF
-      close(Nunit)
-      close(NunitOut)
       END
 
 c-------------------------------------------------------------------
@@ -1259,66 +640,6 @@ c
 c
       end
 
-CDECK  ID>, STRNUM.
-*CMZ :-        -13/02/02  07.20.46  by  Peter Richardson
-*-- Author :    Michelangelo Mangano
-C----------------------------------------------------------------------
-      subroutine strnumH(string,num)
-C----------------------------------------------------------------------
-c- writes the number num on the string string starting at the blank
-c- following the last non-blank character
-C----------------------------------------------------------------------
-      character * (*) string
-      character * 20 tmp
-      l = len(string)
-      write(tmp,'(i15)')num
-      j=1
-      dowhile(tmp(j:j).eq.' ')
-        j=j+1
-      enddo
-      ipos = istrlH(string)
-      ito = ipos+1+(15-j)
-      if(ito.gt.l) then
-         write(*,*)'error, string too short'
-         write(*,*) string
-         stop
-      endif
-      string(ipos+1:ito)=tmp(j:)
-      end
-
-      function istrlH(string)
-c returns the position of the last non-blank character in string
-      character * (*) string
-      i = len(string)
-      dowhile(i.gt.0.and.string(i:i).eq.' ')
-         i=i-1
-      enddo
-      istrlH= i
-      end
-CDECK  ID>, STRCATH.
-*CMZ :-        -13/02/02  07.20.46  by  Peter Richardson
-*-- Author :    Michelangelo Mangano
-C----------------------------------------------------------------------
-      subroutine strcatH(str1,str2,str)
-C----------------------------------------------------------------------
-c concatenates str1 and str2 into str. Ignores trailing blanks of str1,str2
-C----------------------------------------------------------------------
-      character *(*) str1,str2,str
-      l1=istrlH(str1)
-      l2=istrlH(str2)
-      l =len(str)
-      if(l.lt.l1+l2) then
-        write(*,*) str1,str2
-          write(*,*) 'error: l1+l2>l in strcatH'
-          write(*,*) 'l1=',l1,' str1=',str1
-          write(*,*) 'l2=',l2,' str2=',str2
-          write(*,*) 'l=',l
-          stop
-      endif
-      if(l1.ne.0) str(1:l1)=str1(1:l1)
-      if(l2.ne.0) str(l1+1:l1+l2)=str2(1:l2)
-      if(l1+l2+1.le.l) str(l1+l2+1:l)= ' '
-      end
 c-------------------------------------------------------------------
       subroutine pdfconvH(nin,nout,type)
 c-------------------------------------------------------------------
@@ -1619,6 +940,11 @@ C     CHECK GRANDMOTHER
         ENDIF
  9      ISTHEP(IHEP)=IST
  10   CONTINUE
+
+C     PRINT PARTICLE STATUS FOR THE CALORIMETER SIMULATION.
+C     (UNCOMMENT TO MAKE IT WORK)
+C      CALL DBCAL
+
       CALL CALSIM
       DO 20 IHEP=1,NHEP
         ISTHEP(IHEP)=ISTOLD(IHEP)
@@ -1779,11 +1105,13 @@ C  30  IF(IOPT.EQ.2) RETURN
       DO 31 I=1,N
   31  A(I)=B(I)
  999  END
+
 C-----------------------------------------------------------------------
       subroutine getunit(n)
       implicit none
       integer n,i
       logical yes
+      WRITE(*,*)'CALLED GETUNIT'
       do i=10,100
         inquire(unit=i,opened=yes)
         if(.not.yes) goto 10
@@ -1791,174 +1119,4 @@ C-----------------------------------------------------------------------
       write(*,*) 'no free units to write to available, stop'
       stop
  10   n=i
-      end
-
-      SUBROUTINE ALSHCD(CSHO)
-      CHARACTER*3 CSHO
-      CSHO='PYT'
-      END
-
-      SUBROUTINE ALSHEN
-C----------------------------------------------------------------------
-C     Subroutine called when an event is vetoed.
-C----------------------------------------------------------------------      
-      END
-
-      SUBROUTINE ALSHER(I)
-      INTEGER I
-      I=0
-      RETURN
-      END
-C----------------------------------------------------------------------
-      SUBROUTINE ALSHIN(I)
-C----------------------------------------------------------------------
-C     subroutine to initialise the events
-C----------------------------------------------------------------------
-      IMPLICIT NONE
-c process code
-      integer ihrd
-      integer itopprc
-c--event file data
-      integer Nunit,NunitOut,NunitIni
-      character*512 filename,tmpstr
-c total number of input events
-      common/AHio/Nunit,NunitOut,NunitIni,filename
-c inputs for the matching algorithm
-      integer iexc,npfst,nplst,nljets,njstart,njlast
-     $     ,ickkw
-      double precision etclus,rclus,etaclmax
-      common/AHopts/etclus,rclus,etaclmax,iexc,npfst
-     $     ,nplst,nljets,njstart,njlast,ickkw
-c process and particles parameters
-      double precision mc,mb,mt,mw,mz,mh
-      double precision ebeam
-      integer ndns,ih1,ih2       
-      integer nw,nz,nh,nph
-      integer ihvy,ihvy2
-c pdf set type
-      character pdftyp*25
-c total number of partons
-      integer npart
-      common/AHppara/mc,mb,mt,mw,mz,mh,
-     & ebeam,ih1,ih2,
-     & ihrd,itopprc,
-     & nw,nz,nh,nph,
-     & ihvy,ihvy2,
-     & npart,ndns,pdftyp
-c weight information
-      real *8 maxwgt,avgwgt,errwgt,totlum
-      integer unwev
-      common/AHwgts/maxwgt,avgwgt,errwgt,totlum,unwev
-c general parameters
-      integer nparam
-      parameter (nparam=200)
-      integer parlen,partyp
-      character chpar*8,chpdes*70
-      double precision parval
-      common/AHpars/parval(nparam),chpar(nparam),chpdes(nparam)
-     $     ,parlen(nparam),partyp(nparam)
-c global event cuts
-      double precision ptjmin,ptjmax,etajmax,drjmin,
-     +     ptbmin,ptbmax,etabmax,drbmin,
-     +     ptcmin,ptcmax,etacmax,drcmin,
-     +     ptphmin,etaphmax,drphjmin,drphmin,drphlmin,
-     +     ptlmin,etalmax,drlmin,metmin,mllmin,mllmax
-      common/AHcuts/ptjmin,ptjmax,etajmax,drjmin,
-     +     ptbmin,ptbmax,etabmax,drbmin,
-     +        ptcmin,ptcmax,etacmax,drcmin,
-     +        ptphmin,etaphmax,drphjmin,drphmin,drphlmin,
-     +        ptlmin,etalmax,drlmin,metmin,mllmin,mllmax
-      INTEGER I
-C--LOCAL VARIABLES
-C     EASY-TEXT
-      CHARACTER*10 CGIVE
-      CHARACTER*12 CGIV2
-      CHARACTER*32 CPASS
-C LOCAL VARIABLES
-      DOUBLE PRECISION MQ
-      INTEGER IQ
-C COMMUNICATION CODE
-      I=661
-C FILL IN PYTHIA SPECIFIC INPUTS
-      IF(MC.NE.0) THEN
-        IQ=4
-        MQ=MC
-        WRITE(CGIVE,'(I5)') IQ
-        WRITE(CGIV2,'(D12.5)') MQ
-        CPASS='PMAS('//CGIVE//',1)='//CGIV2
-        CALL PYGIVE(CPASS)
-C                PMAS(IQ,1)=MQ
-      ENDIF 
-      IF(MB.NE.0) THEN
-        IQ=5
-        MQ=MB
-        WRITE(CGIVE,'(I5)') IQ
-        WRITE(CGIV2,'(D12.5)') MQ
-        CPASS='PMAS('//CGIVE//',1)='//CGIV2
-        CALL PYGIVE(CPASS)
-C                PMAS(IQ,1)=MQ
-      ENDIF 
-      IF(MT.NE.0) THEN
-        IQ=6
-        MQ=MT
-        WRITE(CGIVE,'(I5)') IQ
-        WRITE(CGIV2,'(D12.5)') MQ
-        CPASS='PMAS('//CGIVE//',1)='//CGIV2
-        CALL PYGIVE(CPASS)
-C                PMAS(IQ,1)=MQ
-      ENDIF 
-      IF(MW.NE.0) THEN
-        WRITE(CGIV2,'(D12.5)') MW
-        CPASS='PMAS(24,1)='//CGIV2
-        CALL PYGIVE(CPASS)
-C                PMAS(24,1)=MW
-      ENDIF
-      IF(MZ.NE.0) THEN
-        WRITE(CGIV2,'(D12.5)') MZ
-        CPASS='PMAS(23,1)='//CGIV2
-        CALL PYGIVE(CPASS)
-C                PMAS(23,1)=MZ
-      ENDIF
-      IF(MH.NE.0) THEN
-        WRITE(CGIV2,'(D12.5)') MH
-        CPASS='PMAS(25,1)='//CGIV2
-        CALL PYGIVE(CPASS)
-C                PMAS(25,1)=MH
-      ENDIF
-      END
-
-C-----------------------------------------------------------------------
-      SUBROUTINE ALSFIN
-C-----------------------------------------------------------------------
-C     PYTHIA END OF FILE TREATMENT
-C-----------------------------------------------------------------------
-C--   GUP Event common block
-      INTEGER MAXNUP
-      PARAMETER (MAXNUP=500)
-      INTEGER NUP,IDPRUP,IDUP,ISTUP,MOTHUP,ICOLUP
-      DOUBLE PRECISION XWGTUP,SCALUP,AQEDUP,AQCDUP,PUP,VTIMUP,SPINUP
-      COMMON/HEPEUP/NUP,IDPRUP,XWGTUP,SCALUP,AQEDUP,AQCDUP,
-     &     IDUP(MAXNUP),ISTUP(MAXNUP),MOTHUP(2,MAXNUP),
-     &     ICOLUP(2,MAXNUP),PUP(5,MAXNUP),VTIMUP(MAXNUP),
-     &     SPINUP(MAXNUP)
-      NUP=0
-      END
-
-*---------------------------
-      SUBROUTINE ALPGEN_END 
-      implicit none
-C...Generation and cross section statistics.
-      integer       NGENPD,NGEN
-      double precision                   XSEC
-      COMMON/PYINT5/NGENPD,NGEN(0:500,3),XSEC(0:500,3)
-*
-      write(33,*)'          '
-      write(33,*)'FRACTION OF EVENTS THAT PASS FRAGMENTATION CUTS', 
-     +     DBLE(NGEN(0,3))/MAX(1D0,DBLE(NGEN(0,2)))
-      write(33,*)'          '
-      write(33,*)'CROSS SECTION ', XSEC(0,3),' mb'
-      write(33,*)'          '
-      write(33,*)'WEIGHT EVENTS ', XSEC(0,3)/MAX(1D0,DBLE(NGEN(0,2)))
-      close(33)
-      return
       end
