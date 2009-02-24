@@ -1,22 +1,4 @@
-#ifndef Utilities_FunctionMinSelector_h
-#define Utilities_FunctionMinSelector_h
-/* \class FunctionMinSelector
- *
- * \author Luca Lista, INFN
- *
- * $Id: FunctionMinSelector.h,v 1.5 2007/06/18 18:33:53 llista Exp $
- */
-
-template<typename F>
-struct FunctionMinSelector {
-  explicit FunctionMinSelector( double minCut ) :
-    minCut_( minCut ) { }
-  bool operator()( const typename F::type & t ) const {
-    return f( t ) >= minCut_;
-  }
-private:
-  F f;
-  double minCut_;
-};
-
+#define PhysicsTools_Utilities_FunctionMinSelector_h
+#warning this header is obsolete. Please, use #include "CommonTools/Utils/interface/FunctionMinSelector.h"
+#include "CommonTools/Utils/interface/FunctionMinSelector.h"
 #endif

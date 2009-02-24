@@ -1,19 +1,4 @@
-#ifndef Utilities_MinNumberSelector_h
-#define Utilities_MinNumberSelector_h
-/* \class SizeMinSelector
- *
- * \author Luca Lista, INFN
- *
- * $Id: MinNumberSelector.h,v 1.4 2007/01/31 14:42:59 llista Exp $
- */
-
-struct MinNumberSelector {
-  MinNumberSelector(unsigned int minNumber) : 
-    minNumber_(minNumber) { }
-  bool operator()(unsigned int number) const { return number >= minNumber_; }
-
-private:
-  unsigned int minNumber_;
-};
-
+#define PhysicsTools_Utilities_MinNumberSelector_h
+#warning this header is obsolete. Please, use #include "CommonTools/Utils/interface/MinNumberSelector.h"
+#include "CommonTools/Utils/interface/MinNumberSelector.h"
 #endif

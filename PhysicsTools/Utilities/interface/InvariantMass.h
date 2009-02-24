@@ -1,12 +1,4 @@
-#ifndef RecoAlgos_InvariantMass_h
-#define RecoAlgos_InvariantMass_h
-#include "DataFormats/Math/interface/LorentzVector.h"
-
-template<typename T1, typename T2 = T1>
-struct InvariantMass {
-  double operator()( const T1 & t1, const T2 & t2 ) const {
-    return ( t1.momentum() + t2.momentum() ).mass();
-  }
-};
-
+#define PhysicsTools_Utilities_InvariantMass_h
+#warning this header is obsolete. Please, use #include "CommonTools/Utils/interface/InvariantMass.h"
+#include "CommonTools/Utils/interface/InvariantMass.h"
 #endif

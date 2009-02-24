@@ -1,22 +1,4 @@
-#ifndef RecoAlgos_EtaRangeSelector_h
-#define RecoAlgos_EtaRangeSelector_h
-/* \class EtaRangeSelector
- *
- * \author Luca Lista, INFN
- *
- * $Id: EtaRangeSelector.h,v 1.3 2007/01/31 14:42:59 llista Exp $
- */
-
-struct EtaRangeSelector {
-  EtaRangeSelector( double etaMin, double etaMax ) : 
-    etaMin_( etaMin ), etaMax_( etaMax ) { }
-  template<typename T>
-  bool operator()( const T & t ) const { 
-    double eta = t.eta();
-    return ( eta >= etaMin_ && eta <= etaMax_ ); 
-  }
-private:
-  double etaMin_, etaMax_;
-};
-
+#define PhysicsTools_Utilities_EtaRangeSelector_h
+#warning this header is obsolete. Please, use #include "CommonTools/Utils/interface/EtaRangeSelector.h"
+#include "CommonTools/Utils/interface/EtaRangeSelector.h"
 #endif

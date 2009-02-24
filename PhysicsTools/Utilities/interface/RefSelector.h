@@ -1,15 +1,4 @@
-#ifndef Utilities_RefSelector_h
-#define Utilities_RefSelector_h
-
-template<typename S>
-struct RefSelector {
-  RefSelector( const S & sel ) : sel_( sel ) { }
-  template<typename Ref>
-  bool operator()( const Ref & ref ) const {
-    return sel_( * ref );
-  }
-private:
-  S sel_;
-};
-
+#define PhysicsTools_Utilities_RefSelector_h
+#warning this header is obsolete. Please, use #include "CommonTools/Utils/interface/RefSelector.h"
+#include "CommonTools/Utils/interface/RefSelector.h"
 #endif
