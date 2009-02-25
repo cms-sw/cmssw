@@ -14,7 +14,7 @@
 //
 // Original Author:  Samvel Khalatyan (ksamdev at gmail dot com)
 //         Created:  Wed Oct  5 16:42:34 CET 2006
-// $Id: SiStripOfflineDQM.cc,v 1.21 2008/11/24 17:06:46 dutta Exp $
+// $Id: SiStripOfflineDQM.cc,v 1.22 2009/02/25 17:02:38 dutta Exp $
 //
 //
 
@@ -69,7 +69,7 @@ SiStripOfflineDQM::SiStripOfflineDQM(edm::ParameterSet const& pSet) {
   inputFileName_           = pSet.getUntrackedParameter<std::string>("InputFileName","");
   outputFileName_          = pSet.getUntrackedParameter<std::string>("OutputFileName","");
   globalStatusFilling_     = pSet.getUntrackedParameter<int>("GlobalStatusFilling", 1);
-  printFaultyModuleList_   = pSet.getUntrackedParameter<int>("PrintFaultyModuleList", false);
+  printFaultyModuleList_   = pSet.getUntrackedParameter<bool>("PrintFaultyModuleList", false);
 
   nEvents_  = 0;
 }
