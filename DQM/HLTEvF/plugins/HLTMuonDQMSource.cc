@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Wed Dec 12 09:55:42 CET 2007
-// $Id: HLTMuonDQMSource.cc,v 1.15 2009/02/23 21:55:27 hdyoo Exp $
+// $Id: HLTMuonDQMSource.cc,v 1.16 2009/02/25 16:51:34 hdyoo Exp $
 // Modification:  Hwidong Yoo (Purdue University)
 // contact: hdyoo@cern.ch
 //
@@ -420,7 +420,7 @@ void HLTMuonDQMSource::beginJob(const EventSetup& context)
 	  sprintf(name,"HLTMuonL%itoL%i_ptrelres",level,level+1);
 	  sprintf(title,"(L%iMuon1/Pt - L%iMuon1/Pt)/(L%iMuon1/Pt)",level,level+1,level+1);         
 	  hptrelres[trig][level-1] = dbe_->book1D(name,title, NBINS, -1.0, 1.0);
-	  sprintf(title,"(1/PtL%i - 1/PtL%i)/(1/PtL%i)",level,level+1);         
+	  sprintf(title,"(1/PtL%i - 1/PtL%i)/(1/PtL%i)",level,level+1,level+1);         
 	  hptrelres[trig][level-1]->setAxisTitle(title, 1);
 	  sprintf(name,"HLTMuonL%itoL%i_etarelres",level,level+1);
 	  sprintf(title,"(L%iMuon#eta - L%iMuon#eta)/L%iMuon#eta",level,level+1,level+1);         
@@ -512,7 +512,7 @@ void HLTMuonDQMSource::beginJob(const EventSetup& context)
 
 	    // relres
 	    sprintf(name,"HLTMuonL%itoL3_ptrelres",level);
-	    sprintf(title,"(L%iMuon1/Pt - L%iMuon1/Pt)/(L%iMuon1/Pt)",level,level+2);         
+	    sprintf(title,"(L%iMuon1/Pt - L%iMuon1/Pt)/(L%iMuon1/Pt)",level,level+2,level+2); 
 	    hptrelres[trig][level+1] = dbe_->book1D(name,title, NBINS, -1.0, 1.0);
 	    sprintf(title,"(1/PtL%i - 1/PtL3)/(1/PtL3)",level);         
 	    hptrelres[trig][level+1]->setAxisTitle(title, 1);
@@ -912,8 +912,9 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	    hptrespt[ntrig][1]->Fill(tk->pt(), 1/l2tk->pt() - 1/tk->pt());
 	    hptrelres[ntrig][1]->Fill((1/l2tk->pt() - 1/tk->pt())/(1/tk->pt()));
 	    hptrelrespt[ntrig][1]->Fill(tk->pt(), (1/l2tk->pt() - 1/tk->pt())/(1/tk->pt()));
-	    hptpull[ntrig]->Fill((1/l2tk->pt() - 1/tk->pt())/tk->ptError());
-	    hptpullpt[ntrig]->Fill(tk->pt(), (1/l2tk->pt() - 1/tk->pt())/tk->ptError());
+	    double pterr = (tk->ptError()/(tk->pt()*tk->pt()));
+	    hptpull[ntrig]->Fill((1/l2tk->pt() - 1/tk->pt())/pterr);
+	    hptpullpt[ntrig]->Fill(tk->pt(), (1/l2tk->pt() - 1/tk->pt())/pterr);
 	  }
 	  hphires[ntrig][1]->Fill(l2tk->phi()-tk->phi());
 	  double dphi=l2tk->phi()-tk->phi();
