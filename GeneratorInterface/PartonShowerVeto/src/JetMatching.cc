@@ -27,7 +27,7 @@ void JetMatching::init(const lhef::LHERunInfo* runInfo)
 {
 }
 
-void JetMatching::beforeHadronisation(const LHEEventProduct* event)
+void JetMatching::beforeHadronisation(const lhef::LHEEvent* event)
 {
 }
 

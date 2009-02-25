@@ -246,7 +246,7 @@ void JetMatchingMadgraph::init(const lhef::LHERunInfo* runInfo)
 //void JetMatchingMadgraph::beforeHadronisation(
 //				const boost::shared_ptr<lhef::LHEEvent> &event)
 
-void JetMatchingMadgraph::beforeHadronisation(const LHEEventProduct* event)
+void JetMatchingMadgraph::beforeHadronisation(const lhef::LHEEvent* event)
 {
 	if (!runInitialized)
 		throw cms::Exception("Generator|PartonShowerVeto")
@@ -255,7 +255,7 @@ void JetMatchingMadgraph::beforeHadronisation(const LHEEventProduct* event)
 
 
 	if (uppriv_.ickkw) {
-		std::vector<std::string> comments(event->comments_begin(),event->comments_end());
+		std::vector<std::string> comments = event->getComments();
 		if (comments.size() == 1) {
 			std::istringstream ss(comments[0].substr(1));
 			for(int i = 0; i < 1000; i++) {
@@ -272,12 +272,12 @@ void JetMatchingMadgraph::beforeHadronisation(const LHEEventProduct* event)
 				   "information."
 				<< std::endl;
 
-			const lhef::HEPEUP hepeup = event->hepeup();
-			for(int i = 2; i < hepeup.NUP; i++) {
+			const lhef::HEPEUP *hepeup = event->getHEPEUP();
+			for(int i = 2; i < hepeup->NUP; i++) {
 				double mt2 =
-					hepeup.PUP[i][0] * hepeup.PUP[i][0] +
-					hepeup.PUP[i][1] * hepeup.PUP[i][1] +
-					hepeup.PUP[i][4] * hepeup.PUP[i][4];
+					hepeup->PUP[i][0] * hepeup->PUP[i][0] +
+					hepeup->PUP[i][1] * hepeup->PUP[i][1] +
+					hepeup->PUP[i][4] * hepeup->PUP[i][4];
 				pypart_.ptpart[i - 2] = std::sqrt(mt2);
 			}
 		}

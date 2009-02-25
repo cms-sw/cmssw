@@ -14,7 +14,7 @@ class JetMatchingMadgraph : public JetMatching {
 
     private:
 	void init(const lhef::LHERunInfo* runInfo);
-	void beforeHadronisation(const LHEEventProduct* event);
+	void beforeHadronisation(const lhef::LHEEvent* event);
 	void beforeHadronisationExec();
 
 	int match(const HepMC::GenEvent *partonLevel,

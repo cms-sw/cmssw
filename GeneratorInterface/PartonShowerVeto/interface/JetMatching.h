@@ -54,7 +54,7 @@ class JetMatching {
 	};
 
 	virtual void init(const lhef::LHERunInfo* runInfo);
-	virtual void beforeHadronisation(const LHEEventProduct* event);
+	virtual void beforeHadronisation(const lhef::LHEEvent* event);
 	virtual void beforeHadronisationExec();
 
 	virtual int match(const HepMC::GenEvent *partonLevel,
