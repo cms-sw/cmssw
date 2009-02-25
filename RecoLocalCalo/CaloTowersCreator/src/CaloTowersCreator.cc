@@ -4,6 +4,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "RecoLocalCalo/CaloTowersCreator/interface/EScales.h"
 
+// severity level for ECAL
+//#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
 const std::vector<double>& 
 CaloTowersCreator::getGridValues()
@@ -33,7 +35,11 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf) :
 	      conf.getParameter<double>("HBThreshold"),
 	      conf.getParameter<double>("HESThreshold"),
 	      conf.getParameter<double>("HEDThreshold"),
-	      conf.getParameter<double>("HOThreshold"),
+	conf.getParameter<double>("HOThreshold0"),
+	conf.getParameter<double>("HOThresholdPlus1"),
+	conf.getParameter<double>("HOThresholdMinus1"),
+	conf.getParameter<double>("HOThresholdPlus2"),
+	conf.getParameter<double>("HOThresholdMinus2"),
 	      conf.getParameter<double>("HF1Threshold"),
 	      conf.getParameter<double>("HF2Threshold"),
         conf.getUntrackedParameter<std::vector<double> >("EBGrid",getGridValues() ),
@@ -78,20 +84,11 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf) :
   ecalLabels_(conf.getParameter<std::vector<edm::InputTag> >("ecalInputs")),
   allowMissingInputs_(conf.getUntrackedParameter<bool>("AllowMissingInputs",false)),
 
-  theHbheAcceptSevLevelDb_(conf.getParameter<uint>("HbheAcceptSevLevelDb")),
-  theHfAcceptSevLevelDb_(conf.getParameter<uint>("HfAcceptSevLevelDb")),
-  theHoAcceptSevLevelDb_(conf.getParameter<uint>("HoAcceptSevLevelDb")),
-  theEcalAcceptSevLevelDb_(conf.getParameter<uint>("EcalAcceptSevLevelDb")),
+  theHcalAcceptSeverityLevel_(conf.getParameter<uint>("HcalAcceptSeverityLevel")),
+  theEcalAcceptSeverityLevel_(conf.getParameter<uint>("EcalAcceptSeverityLevel")),
 
-  theHbheAcceptSevLevelRecHit_(conf.getParameter<uint>("HbheAcceptSevLevelRecHit")),
-  theHfAcceptSevLevelRecHit_(conf.getParameter<uint>("HfAcceptSevLevelRecHit")),
-  theHoAcceptSevLevelRecHit_(conf.getParameter<uint>("HoAcceptSevLevelRecHit")),
-  theEcalAcceptSevLevelRecHit_(conf.getParameter<uint>("EcalAcceptSevLevelRecHit")),
-
-  theRecovHbheIsUsed_(conf.getParameter<bool>("UseHbheRecov")),
-  theRecovHoIsUsed_(conf.getParameter<bool>("UseHoRecov")),
-  theRecovHfIsUsed_(conf.getParameter<bool>("UseHfRecov")),
-  theRecovEcalIsUsed_(conf.getParameter<bool>("UseEcalRecov"))
+  theRecoveredHcalHitsAreUsed_(conf.getParameter<bool>("UseHcalRecoveredHits")),
+  theRecoveredEcalHitsAreUsed_(conf.getParameter<bool>("UseEcalRecoveredHits"))
 
 {
   EBEScale=EScales.EBScale; 
@@ -125,6 +122,13 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   c.get<HcalChannelQualityRcd>().get( hcalChStatus );
   const HcalChannelQuality* dbHcalChStatus = hcalChStatus.product();
  
+  // Assignment of severity levels **********************************
+  edm::ESHandle<HcalSeverityLevelComputer> hcalSevLvlComputerHndl;
+  c.get<HcalSeverityLevelComputerRcd>().get(hcalSevLvlComputerHndl);
+  const HcalSeverityLevelComputer* hcalSevLvlComputer = hcalSevLvlComputerHndl.product();
+ 
+  const EcalSeverityLevelAlgo* ecalSevLvlAlgo;
+  
   algo_.setEBEScale(EBEScale);
   algo_.setEEEScale(EEEScale);
   algo_.setHBEScale(HBEScale);
@@ -135,26 +139,19 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   algo_.setHF2EScale(HF2EScale);
   algo_.setGeometry(cttopo.product(),htopo.product(),pG.product());
 
-  // pass channel status information from DB to the algorithm
+  // for treatment of problematic and anomalous cells
+
   algo_.setHcalChStatusFromDB(dbHcalChStatus);
   algo_.setEcalChStatusFromDB(dbEcalChStatus);
    
-  algo_.setHbheAcceptSevLevelDb(theHbheAcceptSevLevelDb_);
-  algo_.setHfAcceptSevLevelDb(theHfAcceptSevLevelDb_);
-  algo_.setHoAcceptSevLevelDb(theHoAcceptSevLevelDb_);
-  algo_.setEcalAcceptSevLevelDb(theEcalAcceptSevLevelDb_);
+  algo_.setHcalAcceptSeverityLevel(theHcalAcceptSeverityLevel_);
+  algo_.setEcalAcceptSeverityLevel(theEcalAcceptSeverityLevel_);
 
-  algo_.setHbheAcceptSevLevelRecHit(theHbheAcceptSevLevelRecHit_);
-  algo_.setHfAcceptSevLevelRecHit(theHfAcceptSevLevelRecHit_);
-  algo_.setHoAcceptSevLevelRecHit(theHoAcceptSevLevelRecHit_);
-  algo_.setEcalAcceptSevLevelRecHit(theEcalAcceptSevLevelRecHit_);
+  algo_.setRecoveredHcalHitsAreUsed(theRecoveredHcalHitsAreUsed_);
+  algo_.setRecoveredEcalHitsAreUsed(theRecoveredEcalHitsAreUsed_);
 
-  algo_.setRecovHbheIsUsed(theRecovHbheIsUsed_);
-  algo_.setRecovHoIsUsed(theRecovHoIsUsed_);
-  algo_.setRecovHfIsUsed(theRecovHfIsUsed_);
-  algo_.setRecovEcalIsUsed(theRecovEcalIsUsed_);
-
-
+  algo_.setHcalSevLvlComputer(hcalSevLvlComputer);
+  algo_.setEcalSevLvlAlgo(ecalSevLvlAlgo);
 
   algo_.begin(); // clear the internal buffer
 

@@ -14,6 +14,13 @@
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 #include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
 
+// severity level assignment for HCAL
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
+
+// severity level assignment for ECAL
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+
 
 #include <map>
 class HcalTopology;
@@ -25,8 +32,8 @@ class DetId;
 
 /** \class CaloTowersCreationAlgo
   *  
-  * $Date: 2008/09/03 20:49:30 $
-  * $Revision: 1.13 $
+  * $Date: 2008/11/16 16:22:47 $
+  * $Revision: 1.14 $
   * \author R. Wilkinson - Caltech
   */
 
@@ -42,7 +49,9 @@ public:
 
   CaloTowersCreationAlgo(double EBthreshold, double EEthreshold, double HcalThreshold,
     double HBthreshold, double HESthreshold, double HEDthreshold,
-    double HOthreshold, double HF1threshold, double HF2threshold,
+    double HOthreshold0, double HOthresholdPlus1, double HOthresholdMinus1,  
+    double HOthresholdPlus2, double HOthresholdMinus2,
+    double HF1threshold, double HF2threshold, 
     double EBweight, double EEweight,
     double HBweight, double HESweight, double HEDweight, 
     double HOweight, double HF1weight, double HF2weight,
@@ -57,7 +66,9 @@ public:
   
   CaloTowersCreationAlgo(double EBthreshold, double EEthreshold, double HcalThreshold,
     double HBthreshold, double HESthreshold, double HEDthreshold,
-    double HOthreshold, double HF1threshold, double HF2threshold,
+    double HOthreshold0, double HOthresholdPlus1, double HOthresholdMinus1,  
+    double HOthresholdPlus2, double HOthresholdMinus2, 
+    double HF1threshold, double HF2threshold,
     std::vector<double> EBGrid, std::vector<double> EBWeights,
     std::vector<double> EEGrid, std::vector<double> EEWeights,
     std::vector<double> HBGrid, std::vector<double> HBWeights,
@@ -116,9 +127,7 @@ public:
   // Assign to categories based on info from DB and RecHit status
   // Called in assignHit to check if the energy should be added to
   // calotower, and how to flag the channel
-  uint hbheChanStatusForCaloTower(const CaloRecHit* hit);
-  uint hfChanStatusForCaloTower(const CaloRecHit* hit);
-  uint hoChanStatusForCaloTower(const CaloRecHit* hit);
+  uint hcalChanStatusForCaloTower(const CaloRecHit* hit);
   uint ecalChanStatusForCaloTower(const CaloRecHit* hit);
 
   // Channel flagging is based on acceptable severity levels specified in the
@@ -126,20 +135,19 @@ public:
   // CaloTowersCreator
   // 
   // from DB
-  void setHbheAcceptSevLevelDb(uint level) {theHbheAcceptSevLevelDb = level;} 
-  void setHfAcceptSevLevelDb(uint level) {theHfAcceptSevLevelDb = level;} 
-  void setHoAcceptSevLevelDb(uint level)  {theHoAcceptSevLevelDb = level;} 
-  void setEcalAcceptSevLevelDb(uint level)  {theEcalAcceptSevLevelDb = level;} 
-  // from the RecHit
-  void setHbheAcceptSevLevelRecHit(uint level) {theHbheAcceptSevLevelRecHit = level; } 
-  void setHfAcceptSevLevelRecHit(uint level) {theHfAcceptSevLevelRecHit = level; } 
-  void setHoAcceptSevLevelRecHit(uint level) {theHoAcceptSevLevelRecHit = level; } 
-  void setEcalAcceptSevLevelRecHit(uint level){theEcalAcceptSevLevelRecHit = level; } 
+  void setHcalAcceptSeverityLevel(uint level) {theHcalAcceptSeverityLevel = level;} 
+  void setEcalAcceptSeverityLevel(uint level) {theEcalAcceptSeverityLevel = level;} 
+
   // flag to use recovered hits
-  void setRecovHbheIsUsed(bool flag) {theRecovHbheIsUsed = flag; };
-  void setRecovHoIsUsed(bool flag) {theRecovHoIsUsed = flag; };
-  void setRecovHfIsUsed(bool flag) {theRecovHfIsUsed = flag; };
-  void setRecovEcalIsUsed(bool flag) {theRecovEcalIsUsed = flag; };
+  void setRecoveredHcalHitsAreUsed(bool flag) {theRecoveredHcalHitsAreUsed = flag; };
+  void setRecoveredEcalHitsAreUsed(bool flag) {theRecoveredEcalHitsAreUsed = flag; };
+
+  //  severety level calculator for HCAL
+  void setHcalSevLvlComputer(const HcalSeverityLevelComputer* c) {theHcalSevLvlComputer = c; };
+
+  // severity level calculator for ECAL
+  void setEcalSevLvlAlgo(const EcalSeverityLevelAlgo* a) { theEcalSevLvlAlgo =  a; }
+
 
 
   // Add methods to get the seperate positions for ECAL/HCAL 
@@ -189,7 +197,8 @@ private:
   
   double theEBthreshold, theEEthreshold, theHcalThreshold;
   double theHBthreshold, theHESthreshold,  theHEDthreshold; 
-  double theHOthreshold, theHF1threshold, theHF2threshold;
+  double theHOthreshold0, theHOthresholdPlus1, theHOthresholdMinus1;
+  double theHOthresholdPlus2, theHOthresholdMinus2, theHF1threshold, theHF2threshold;
   std::vector<double> theEBGrid, theEBWeights;
   std::vector<double> theEEGrid, theEEWeights;
   std::vector<double> theHBGrid, theHBWeights;
@@ -219,25 +228,21 @@ private:
   const EcalChannelStatus* theEcalChStatus;
   const HcalChannelQuality* theHcalChStatus;
 
+  // calculator of severety level for HCAL
+  const HcalSeverityLevelComputer* theHcalSevLvlComputer;
 
+  // calculator for severity level for ECAL
+  const EcalSeverityLevelAlgo* theEcalSevLvlAlgo;
+
+  
   // fields that hold the information passed from the CaloTowersCreator configuration file:
   // controll what is considered bad/recovered/problematic channel for CaloTower purposes 
   //
-  // from DB
-  uint theHbheAcceptSevLevelDb;
-  uint theHfAcceptSevLevelDb;
-  uint theHoAcceptSevLevelDb;
-  uint theEcalAcceptSevLevelDb;
-  // from the RecHit
-  uint theHbheAcceptSevLevelRecHit;
-  uint theHfAcceptSevLevelRecHit;
-  uint theHoAcceptSevLevelRecHit;
-  uint theEcalAcceptSevLevelRecHit;
+  uint theHcalAcceptSeverityLevel;
+  uint theEcalAcceptSeverityLevel;
   // flag to use recovered hits
-  bool theRecovHbheIsUsed;
-  bool theRecovHoIsUsed;
-  bool theRecovHfIsUsed;
-  bool theRecovEcalIsUsed;
+  bool theRecoveredHcalHitsAreUsed;
+  bool theRecoveredEcalHitsAreUsed;
 
 
   /// only affects energy and ET calculation.  HO is still recorded in the tower

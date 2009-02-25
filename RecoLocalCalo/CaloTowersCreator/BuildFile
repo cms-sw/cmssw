@@ -13,7 +13,8 @@
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/EcalObjects>
 <use name=CondFormats/HcalObjects>
-
+<use name=RecoLocalCalo/HcalRecAlgos>
+<use name=RecoLocalCalo/EcalRecAlgos>
 
 <flags EDM_PLUGIN=1>
 <export>
@@ -31,10 +32,11 @@
  <use name=FWCore/Framework>
  <use name=FWCore/ParameterSet>
 
-
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/EcalObjects>
 <use name=CondFormats/HcalObjects>
+<use name=RecoLocalCalo/HcalRecAlgos>
+<use name=RecoLocalCalo/EcalRecAlgos>
 
 
 </export>

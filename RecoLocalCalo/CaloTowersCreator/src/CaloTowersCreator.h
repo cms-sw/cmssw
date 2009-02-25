@@ -16,8 +16,8 @@
 
 /** \class CaloTowersCreator
   *  
-  * $Date: 2007/09/25 16:19:05 $
-  * $Revision: 1.3 $
+  * $Date: 2008/11/16 16:22:48 $
+  * $Revision: 1.4 $
   * \author J. Mans - Minnesota
   */
 class CaloTowersCreator : public edm::EDProducer {
@@ -37,25 +37,15 @@ private:
   std::vector<edm::InputTag> ecalLabels_;
   bool allowMissingInputs_;
 
-  // For treatmaent of bad/anomalous cells
-  // Values set in the configuration file and passed
-  // to CaloTowersCreationAlgo
-  //
-  // from DB
-  uint theHbheAcceptSevLevelDb_;
-  uint theHfAcceptSevLevelDb_;
-  uint theHoAcceptSevLevelDb_;
-  uint theEcalAcceptSevLevelDb_;
-  // from the RecHit
-  uint theHbheAcceptSevLevelRecHit_;
-  uint theHfAcceptSevLevelRecHit_;
-  uint theHoAcceptSevLevelRecHit_;
-  uint theEcalAcceptSevLevelRecHit_;
+
+  // more compact flags: all HCAL are combined
+  
+  uint theHcalAcceptSeverityLevel_;
+  uint theEcalAcceptSeverityLevel_;
+  
   // flag to use recovered hits
-  bool theRecovHbheIsUsed_;
-  bool theRecovHoIsUsed_;
-  bool theRecovHfIsUsed_;
-  bool theRecovEcalIsUsed_;
+  bool theRecoveredHcalHitsAreUsed_;
+  bool theRecoveredEcalHitsAreUsed_;
 
 
 
