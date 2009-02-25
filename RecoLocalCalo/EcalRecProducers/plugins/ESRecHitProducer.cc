@@ -37,23 +37,30 @@ void ESRecHitProducer::produce(edm::Event& e, const edm::EventSetup& es)
         const ESDigiCollection* digi=0;
         //evt.getByLabel( digiProducer_, digiCollection_, pDigis);
         e.getByLabel( digiCollection_, digiHandle);
-        digi=digiHandle.product();
+        if ( digiHandle.isValid() ) {
+                digi = digiHandle.product();
+                LogDebug("ESRecHitInfo") << "total # ESdigis: " << digi->size();
+        } else {
+                edm::LogError("ESRecHitInfo") << "Error! can't get the product " << digiCollection_;
+        }
 
-        edm::LogInfo("ESRecHitInfo") << "total # ESdigis: " << digi->size() ;  
         // Create empty output
         std::auto_ptr<ESRecHitCollection> rec(new ESRecHitCollection );
-        rec->reserve(digi->size()); 
 
-        // when algo parameters will be taken from the DB
-        // the set will retrieve appropriate field from the EventSetup
-        worker_->set( es );
+        if ( digi ) {
+                rec->reserve(digi->size()); 
 
-        // run the algorithm
-        ESDigiCollection::const_iterator i;
-        for (i=digi->begin(); i!=digi->end(); i++) {    
-                //rec->push_back(algo_->reconstruct(*i));
-                worker_->run( e, i, *rec );
+                // when algo parameters will be taken from the DB
+                // the set will retrieve appropriate field from the EventSetup
+                worker_->set( es );
 
+                // run the algorithm
+                ESDigiCollection::const_iterator i;
+                for (i=digi->begin(); i!=digi->end(); i++) {    
+                        //rec->push_back(algo_->reconstruct(*i));
+                        worker_->run( e, i, *rec );
+
+                }
         }
 
         e.put(rec,rechitCollection_);
