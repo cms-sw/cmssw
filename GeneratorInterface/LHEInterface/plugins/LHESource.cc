@@ -81,7 +81,6 @@ void LHESource::beginRun(edm::Run &run)
 		              	product.get(), _1));
 		run.put(product);
 		runInfo.reset();
-
 	}
 }
 

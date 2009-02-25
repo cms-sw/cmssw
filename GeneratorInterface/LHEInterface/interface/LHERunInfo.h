@@ -82,6 +82,8 @@ class LHERunInfo {
 	XSec xsec() const;
 	void statistics() const;
 
+	std::pair<int, int> pdfSetTranslation() const;
+
     private:
 	struct Counter {
 		Counter() : n(0), sum(0.0), sum2(0.0) {}

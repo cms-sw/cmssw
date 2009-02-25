@@ -478,4 +478,19 @@ const DOMNode *LHERunInfo::Header::getXMLNode() const
 	return xmlDoc->getDocumentElement();
 }
 
+std::pair<int, int> LHERunInfo::pdfSetTranslation() const
+{
+	int pdfA = -1, pdfB = -1;
+
+	if (heprup.PDFGUP.first >= 0) {
+		pdfA = heprup.PDFSUP.first;
+	}
+
+	if (heprup.PDFGUP.second >= 0) {
+		pdfB = heprup.PDFSUP.second;
+	}
+
+	return std::make_pair(pdfA, pdfB);
+}
+
 } // namespace lhef
