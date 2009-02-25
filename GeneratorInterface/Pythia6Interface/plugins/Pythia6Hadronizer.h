@@ -8,13 +8,16 @@
 
 #include <memory>
 
+#include <boost/shared_ptr.hpp>
+
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
-#include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
+#include "GeneratorInterface/Core/interface/BaseHadronizer.h"
 
 namespace lhef
 {
 class LHERunInfo;
+class LHEEvent;
 }
 
 class LHEEventProduct;
@@ -36,7 +39,7 @@ namespace gen
 class Pythia6Service;
 class JetMatching;
 
-  class Pythia6Hadronizer 
+  class Pythia6Hadronizer : public BaseHadronizer
   {
   
   public:
@@ -60,31 +63,20 @@ class JetMatching;
 
      const char* classname() const;
      
-     void setLHERunInfo( lhef::LHERunInfo* lheri ) ;
-     void setLHEEventProd( LHEEventProduct* lheep ); 
-     
-     void resetEvent( HepMC::GenEvent* );
-     
-     HepMC::GenEvent* getGenEvent() { return fGenEvent.release(); }
-     const GenRunInfoProduct& getGenRunInfo() const { return fGenRunInfo; }
-             
   private:
      
      Pythia6Service* fPy6Service;
-           
-     // the following 7 params are common for all generators(interfaces)
+
+     // the following 3 params are common for all generators(interfaces)
      // probably better to wrap them up in a class and reuse ?
+     // (the event/run pointers are already moved to BaseHadronizer)
      //
      double fCOMEnergy ;  // this one is irrelevant for setting py6 as hadronizer
-                          // or if anything, it should be picked up from LHERunInfoProduct !   
-     std::auto_ptr<HepMC::GenEvent> fGenEvent; 
-     GenRunInfoProduct              fGenRunInfo;
-     int                            fEventCounter;
-     
-     lhef::LHERunInfo*              fRunInfo;
-     LHEEventProduct*               fEventInfo;
+                          // or if anything, it should be picked up from LHERunInfoProduct !
 
-     static JetMatching*            fJetMatching; 
+     int                               fEventCounter;
+     
+     static JetMatching*               fJetMatching; 
 
      bool            fHepMCVerbosity;
      unsigned int    fMaxEventsToPrint ;

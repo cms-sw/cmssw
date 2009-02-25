@@ -79,8 +79,6 @@ Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps)
    : fPy6Service( new Pythia6Service(ps) ), // this will store py6 params for further settings
      fCOMEnergy(ps.getParameter<double>("comEnergy")),
      fEventCounter(0),
-     fRunInfo(0),
-     fEventInfo(0),
      fHepMCVerbosity(ps.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
      fMaxEventsToPrint(ps.getUntrackedParameter<int>("maxEventsToPrint", 0)),
      fPythiaListVerbosity(ps.getUntrackedParameter<int>("pythiaPylistVerbosity", 0))
@@ -112,14 +110,14 @@ Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps)
       }
    }
    
-   fGenRunInfo.setFilterEfficiency(
+   runInfo().setFilterEfficiency(
       ps.getUntrackedParameter<double>("filterEfficiency", -1.) );
    //
    // fill up later 
    //
-   //fGenRunInfo.setsetExternalXSecLO(
+   //runInfo().setsetExternalXSecLO(
    //   GenRunInfoProduct::XSec(ps.getUntrackedParameter<double>("...", -1.)) );
-   //fGenRunInfo.setsetExternalXSecNLO(
+   //runInfo().setsetExternalXSecNLO(
    //    GenRunInfoProduct::XSec(ps.getUntrackedParameter<double>("...", -1.)) );
 
 
@@ -147,7 +145,6 @@ Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps)
 Pythia6Hadronizer::~Pythia6Hadronizer()
 {
    if ( fPy6Service != 0 ) delete fPy6Service;
-   if ( fRunInfo != 0 ) delete fRunInfo ;
    if ( fJetMatching != 0 ) delete fJetMatching;
 }
 
@@ -160,12 +157,12 @@ void Pythia6Hadronizer::finalizeEvent()
       
    // convert to HepMC
    //
-   //fGenEvent = conv.read_next_event();
+   //event() = conv.read_next_event();
       
-   fGenEvent->set_signal_process_id(pypars.msti[0]);
-   fGenEvent->set_event_scale(pypars.pari[16]);
+   event()->set_signal_process_id(pypars.msti[0]);
+   event()->set_event_scale(pypars.pari[16]);
    // evt->set_event_number(numberEventsInRun() - remainingEvents() - 1);
-   fGenEvent->set_event_number( fEventCounter );
+   event()->set_event_number( fEventCounter );
    
    // get pdf info directly from Pythia6 and set it up into HepMC::GenEvent
    //
@@ -180,9 +177,9 @@ void Pythia6Hadronizer::finalizeEvent()
    pdf1 /= x1 ;
    double pdf2 = pyint1.vint[39];
    pdf2 /= x2 ;
-   fGenEvent->set_pdf_info( HepMC::PdfInfo(id1,id2,x1,x2,Q,pdf1,pdf2) ) ;
+   event()->set_pdf_info( HepMC::PdfInfo(id1,id2,x1,x2,Q,pdf1,pdf2) ) ;
     
-   fGenEvent->weights().push_back( pyint1.vint[96] );
+   event()->weights().push_back( pyint1.vint[96] );
    
    // service printouts, if requested
    //
@@ -194,7 +191,7 @@ void Pythia6Hadronizer::finalizeEvent()
       {
          std::cout << "Event process = " << pypars.msti[0] << std::endl 
 	      << "----------------------" << std::endl;
-         fGenEvent->print();
+         event()->print();
       }
    }
    
@@ -212,7 +209,7 @@ bool Pythia6Hadronizer::generatePartonsAndHadronize()
    
    //formEvent();
    call_pyhepc(1);
-   fGenEvent.reset( conv.read_next_event() );
+   event().reset( conv.read_next_event() );
    
    fEventCounter++;
       
@@ -221,14 +218,14 @@ bool Pythia6Hadronizer::generatePartonsAndHadronize()
 
 bool Pythia6Hadronizer::hadronize()
 {
-   
+   FortranCallback::getInstance()->setLHEEvent( lheEvent() );
    FortranCallback::getInstance()->resetIterationsPerEvent();
    if ( fJetMatching != NULL) 
    {
       fJetMatching->resetMatchingStatus() ;
-      fJetMatching->beforeHadronisation(fEventInfo);
+      fJetMatching->beforeHadronisation( lheEvent() );
    }
-      
+
    // generate event with Pythia6
    //
    call_pyevnt();
@@ -236,7 +233,7 @@ bool Pythia6Hadronizer::hadronize()
    if ( FortranCallback::getInstance()->getIterationsPerEvent() > 1 || 
         hepeup_.nup <= 0 || pypars.msti[0] == 1 )
    {
-      fGenEvent.reset();
+      event().reset();
 /*
       std::cout << " terminating loop inside event because of : " << 
       FortranCallback::getInstance()->getIterationsPerEvent() << " " <<
@@ -247,7 +244,7 @@ bool Pythia6Hadronizer::hadronize()
       
    //formEvent();
    call_pyhepc(1);
-   fGenEvent.reset( conv.read_next_event() );
+   event().reset( conv.read_next_event() );
    
    fEventCounter++;
       
@@ -271,10 +268,11 @@ bool Pythia6Hadronizer::initializeForExternalPartons()
    
    fPy6Service->setGeneralParams();
 
-      
+   FortranCallback::getInstance()->setLHERunInfo( lheRunInfo() );
+
    call_pyinit("USER", "", "", 0.0);
-      
-   std::vector<std::string> slha = fRunInfo->findHeader("slha");
+
+   std::vector<std::string> slha = lheRunInfo()->findHeader("slha");
    if (!slha.empty()) {
 		edm::LogInfo("Generator|LHEInterface")
 			<< "Pythia6 hadronisation found an SLHA header, "
@@ -286,7 +284,7 @@ bool Pythia6Hadronizer::initializeForExternalPartons()
 
    if ( fJetMatching != NULL ) 
    {
-      fJetMatching->init( fRunInfo );
+      fJetMatching->init( lheRunInfo() );
       call_pygive("MSTP(143)=1");
 /*
    call_pygive(std::string("MSTP(143)=") +
@@ -330,7 +328,7 @@ void Pythia6Hadronizer::statistics()
 {
 
   double cs = pypars.pari[0]; // cross section in mb
-  fGenRunInfo.setInternalXSec(GenRunInfoProduct::XSec(cs));
+  runInfo().setInternalXSec(GenRunInfoProduct::XSec(cs));
 
   call_pystat(1);
   
@@ -341,39 +339,6 @@ void Pythia6Hadronizer::statistics()
 const char* Pythia6Hadronizer::classname() const
 {
    return "gen::Pythia6Hadronizer";
-}
-
-void Pythia6Hadronizer::setLHERunInfo( lhef::LHERunInfo* lheri )
-{
-
-   fRunInfo = lheri;
-   
-   FortranCallback::getInstance()->setLHERunInfo(lheri);
-
-   return;
-
-}
-
-void Pythia6Hadronizer::setLHEEventProd( LHEEventProduct* lheep )
-{
-
-   fEventInfo = lheep;
-   
-   FortranCallback::getInstance()->setLHEEventProd(lheep);
-
-   return;
-
-}
-
-void Pythia6Hadronizer::resetEvent( HepMC::GenEvent* e )
-{
-
-   // here I have to reset contents of HEPEVT, for consistency, 
-   // and also of PYJETS !!!
-   //
-   fGenEvent.reset(e);
-
-   return;
 }
 
 } // namespace gen
