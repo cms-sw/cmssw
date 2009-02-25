@@ -80,6 +80,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
   }
 
   bool doNoise = ps.getParameter<bool>("doNoise");
+  bool doEmpty = ps.getParameter<bool>("doEmpty");
   // need to make copies, because they might get different noise generators
   theHBHEAmplifier = new HcalAmplifier(theParameterMap, doNoise);
   theHFAmplifier = new HcalAmplifier(theParameterMap, doNoise);
@@ -91,10 +92,10 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
   theHOElectronicsSim = new HcalElectronicsSim(theHOAmplifier, theCoderFactory);
   theZDCElectronicsSim = new HcalElectronicsSim(theZDCAmplifier, theCoderFactory);
 
-  theHBHEDigitizer = new HBHEDigitizer(theHBHEResponse, theHBHEElectronicsSim, doNoise);
-  theHODigitizer = new HODigitizer(theHOResponse, theHOElectronicsSim, doNoise);
-  theHFDigitizer = new HFDigitizer(theHFResponse, theHFElectronicsSim, doNoise);
-  theZDCDigitizer = new ZDCDigitizer(theZDCResponse, theZDCElectronicsSim, doNoise);
+  theHBHEDigitizer = new HBHEDigitizer(theHBHEResponse, theHBHEElectronicsSim, doEmpty);
+  theHODigitizer = new HODigitizer(theHOResponse, theHOElectronicsSim, doEmpty);
+  theHFDigitizer = new HFDigitizer(theHFResponse, theHFElectronicsSim, doEmpty);
+  theZDCDigitizer = new ZDCDigitizer(theZDCResponse, theZDCElectronicsSim, doEmpty);
 
   bool doHPDNoise = ps.getParameter<bool>("doHPDNoise");
   if(doHPDNoise) {
