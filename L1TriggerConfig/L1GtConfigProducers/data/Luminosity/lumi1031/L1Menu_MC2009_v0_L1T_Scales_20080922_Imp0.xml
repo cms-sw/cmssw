@@ -933,26 +933,6 @@
       </value>
       </phi>
     </SingleIsoEG_0x0A>
-    <SingleIsoEG_0x0C condition="calo" particle="ieg" type="1_s">
-      <et_threshold max="3f" min="00">
-      <ge_eq mode="bit">
-        1
-      </ge_eq>
-      <value>
-        0c
-      </value>
-      </et_threshold>
-      <eta max="7F7F" min="0000">
-      <value>
-        7F7F
-      </value>
-      </eta>
-      <phi max="3ffff" min="00000">
-      <value>
-        3ffff
-      </value>
-      </phi>
-    </SingleIsoEG_0x0C>
     <SingleMu_0x05_E8 condition="muon" particle="muon" type="1_s">
       <pt_h_threshold max="1f" min="00">
       <ge_eq mode="bit">

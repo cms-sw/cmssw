@@ -849,26 +849,6 @@
       </value>
       </phi>
     </SingleForJet_0x07>
-    <SingleForJet_0x0A condition="calo" particle="fwdjet" type="1_s">
-      <et_threshold max="3f" min="00">
-      <ge_eq mode="bit">
-        1
-      </ge_eq>
-      <value>
-        0a
-      </value>
-      </et_threshold>
-      <eta max="0f0f" min="0000">
-      <value>
-        0F0F
-      </value>
-      </eta>
-      <phi max="3ffff" min="00000">
-      <value>
-        3ffff
-      </value>
-      </phi>
-    </SingleForJet_0x0A>
     <SingleForJet_0x0F condition="calo" particle="fwdjet" type="1_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
@@ -889,46 +869,6 @@
       </value>
       </phi>
     </SingleForJet_0x0F>
-    <SingleForJet_0x14 condition="calo" particle="fwdjet" type="1_s">
-      <et_threshold max="3f" min="00">
-      <ge_eq mode="bit">
-        1
-      </ge_eq>
-      <value>
-        14
-      </value>
-      </et_threshold>
-      <eta max="0f0f" min="0000">
-      <value>
-        0F0F
-      </value>
-      </eta>
-      <phi max="3ffff" min="00000">
-      <value>
-        3ffff
-      </value>
-      </phi>
-    </SingleForJet_0x14>
-    <SingleForJet_0x1E condition="calo" particle="fwdjet" type="1_s">
-      <et_threshold max="3f" min="00">
-      <ge_eq mode="bit">
-        1
-      </ge_eq>
-      <value>
-        1e
-      </value>
-      </et_threshold>
-      <eta max="0f0f" min="0000">
-      <value>
-        0F0F
-      </value>
-      </eta>
-      <phi max="3ffff" min="00000">
-      <value>
-        3ffff
-      </value>
-      </phi>
-    </SingleForJet_0x1E>
     <SingleIsoEG_0x02 condition="calo" particle="ieg" type="1_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
@@ -989,26 +929,6 @@
       </value>
       </phi>
     </SingleIsoEG_0x14>
-    <SingleIsoEG_0x18 condition="calo" particle="ieg" type="1_s">
-      <et_threshold max="3f" min="00">
-      <ge_eq mode="bit">
-        1
-      </ge_eq>
-      <value>
-        18
-      </value>
-      </et_threshold>
-      <eta max="7F7F" min="0000">
-      <value>
-        7F7F
-      </value>
-      </eta>
-      <phi max="3ffff" min="00000">
-      <value>
-        3ffff
-      </value>
-      </phi>
-    </SingleIsoEG_0x18>
     <SingleMu_0x05_E8 condition="muon" particle="muon" type="1_s">
       <pt_h_threshold max="1f" min="00">
       <ge_eq mode="bit">
@@ -1135,26 +1055,6 @@
       </value>
       </phi>
     </SingleNoIsoEG_0x0A>
-    <SingleNoIsoEG_0x18 condition="calo" particle="eg" type="1_s">
-      <et_threshold max="3f" min="00">
-      <ge_eq mode="bit">
-        1
-      </ge_eq>
-      <value>
-        18
-      </value>
-      </et_threshold>
-      <eta max="7F7F" min="0000">
-      <value>
-        7F7F
-      </value>
-      </eta>
-      <phi max="3ffff" min="00000">
-      <value>
-        3ffff
-      </value>
-      </phi>
-    </SingleNoIsoEG_0x18>
     <SingleTauJet_0x03 condition="calo" particle="tau" type="1_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
@@ -1973,26 +1873,6 @@
       </value>
       </et_threshold>
     </HfRingEtSums_Ind3_0x6>
-    <SingleCenJet_0x03 condition="calo" particle="jet" type="1_s">
-      <et_threshold max="3f" min="00">
-      <ge_eq mode="bit">
-        1
-      </ge_eq>
-      <value>
-        03
-      </value>
-      </et_threshold>
-      <eta max="7F7F" min="0000">
-      <value>
-        7F7F
-      </value>
-      </eta>
-      <phi max="3ffff" min="00000">
-      <value>
-        3ffff
-      </value>
-      </phi>
-    </SingleCenJet_0x03>
     <SingleCenJet_0x03_Barrel condition="calo" particle="jet" type="1_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
@@ -3140,26 +3020,6 @@
       </value>
       </phi>
     </SingleNoIsoEG_0x28>
-    <SingleTauJet_0x03 condition="calo" particle="tau" type="1_s">
-      <et_threshold max="3f" min="00">
-      <ge_eq mode="bit">
-        1
-      </ge_eq>
-      <value>
-        03
-      </value>
-      </et_threshold>
-      <eta max="7F7F" min="0000">
-      <value>
-        7F7F
-      </value>
-      </eta>
-      <phi max="3ffff" min="00000">
-      <value>
-        3ffff
-      </value>
-      </phi>
-    </SingleTauJet_0x03>
     <SingleTauJet_0x03_Barrel condition="calo" particle="tau" type="1_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
