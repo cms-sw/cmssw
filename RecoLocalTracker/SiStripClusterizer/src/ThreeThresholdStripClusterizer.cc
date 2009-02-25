@@ -23,12 +23,24 @@ ThreeThresholdStripClusterizer::
 
 
 void ThreeThresholdStripClusterizer::
-init(const edm::EventSetup& es, std::string qualityLabel, std::string thresholdLabel) {
-  es.get<SiStripGainRcd>().get(info->gainHandle);
-  es.get<SiStripNoisesRcd>().get(info->noiseHandle);
-  es.get<SiStripQualityRcd>().get(qualityLabel,info->qualityHandle);
-}
+init(const edm::EventSetup& es, std::string qualityLabel) {
+  uint32_t n_cache_id = es.get<SiStripNoisesRcd>().cacheIdentifier();
+  uint32_t g_cache_id = es.get<SiStripGainRcd>().cacheIdentifier();
+  uint32_t q_cache_id = es.get<SiStripQualityRcd>().cacheIdentifier();
 
+  if(n_cache_id != info->noise_cache_id) {
+    es.get<SiStripNoisesRcd>().get(info->noiseHandle);
+    info->noise_cache_id = n_cache_id;
+  }
+  if(g_cache_id != info->gain_cache_id) {
+    es.get<SiStripGainRcd>().get(info->gainHandle);
+    info->gain_cache_id = g_cache_id;
+  }
+  if(q_cache_id != info->quality_cache_id) {
+    es.get<SiStripQualityRcd>().get(qualityLabel,info->qualityHandle);
+    info->quality_cache_id = q_cache_id;
+  }
+}
 
 inline 
 void ThreeThresholdStripClusterizer::

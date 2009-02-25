@@ -11,17 +11,22 @@
 #include <vector>
 
 class ThreeThresholdStripClusterizer {
+
  public:
+
   ThreeThresholdStripClusterizer(float channel, float seed,float cluster, int holes, int bad=0, int adj=1);
   ~ThreeThresholdStripClusterizer();
-  void init(const edm::EventSetup& es, std::string qualityLabel="", std::string thresholdLabel=""); 
+  void init(const edm::EventSetup& es, std::string qualityLabel=""); 
 
   typedef edmNew::DetSetVector<SiStripCluster>::FastFiller output_t;
   void clusterizeDetUnit(const    edm::DetSet<SiStripDigi>&, output_t&);
   void clusterizeDetUnit(const edmNew::DetSet<SiStripDigi>&, output_t&);  
 
   struct InvalidChargeException : public cms::Exception { public: InvalidChargeException(const SiStripDigi&); };
+
+
  private:
+
   template<class T> void clusterizeDetUnit_(const T &, output_t&);
 
   //state of the candidate cluster
@@ -42,7 +47,9 @@ class ThreeThresholdStripClusterizer {
   class applyGain; //functor
 
   class ESinfo; ESinfo* info;
+
 };
+
 
 
 class ThreeThresholdStripClusterizer::applyGain {
@@ -56,16 +63,20 @@ class ThreeThresholdStripClusterizer::applyGain {
 
 
 
+
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
 class ThreeThresholdStripClusterizer::ESinfo {
+
  public:
-  ESinfo(float chan, float seed, float clust, uint8_t holes, uint8_t bad, uint8_t adj) :
+
+  ESinfo(float chan, float seed, float clust, uint8_t holes, uint8_t bad, uint8_t adj) : 
     ChannelThreshold(chan), SeedThreshold(seed), ClusterThresholdSquared(clust*clust),
-       MaxSequentialHoles(holes), MaxSequentialBad(bad), MaxAdjacentBad(adj)
+    MaxSequentialHoles(holes), MaxSequentialBad(bad), MaxAdjacentBad(adj),
+    noise_cache_id(0), gain_cache_id(0), quality_cache_id(0)
   {}
   const float ChannelThreshold, SeedThreshold, ClusterThresholdSquared;
   const uint8_t MaxSequentialHoles, MaxSequentialBad, MaxAdjacentBad;
@@ -83,6 +94,8 @@ class ThreeThresholdStripClusterizer::ESinfo {
   edm::ESHandle<SiStripGain> gainHandle;
   edm::ESHandle<SiStripNoises> noiseHandle;
   edm::ESHandle<SiStripQuality> qualityHandle;
+  uint32_t noise_cache_id, gain_cache_id, quality_cache_id;
+
 };
 
 #endif
