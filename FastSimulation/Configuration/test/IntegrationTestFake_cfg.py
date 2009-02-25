@@ -11,7 +11,7 @@ process.maxEvents = cms.untracked.PSet(
 process.load("FastSimulation.Configuration.RandomServiceInitialization_cff")
 
 # Generate H -> ZZ -> l+l- l'+l'- (l,l'=e or mu), with mH=180GeV/c2
-process.load("FastSimulation.Configuration.HZZllll_cfi")
+process.load("Configuration.Generator.H200ZZ4L_cfi")
 # Generate ttbar events
 #  process.load("FastSimulation/Configuration/ttbar_cfi")
 # Generate multijet events with different ptHAT bins
