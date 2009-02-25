@@ -11,6 +11,7 @@
 #include "DataFormats/Provenance/interface/ProcessConfigurationID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <assert.h>
@@ -411,6 +412,15 @@ ProvenanceDumper::work_() {
   meta->GetEntry(0);
   assert(0!=pReg);
   pReg->setFrozen();
+
+  edm::pset::Registry& psetRegistry = *edm::pset::Registry::instance();
+  for (ParameterSetMap::const_iterator i = psm_.begin(), iEnd = psm_.end(); i != iEnd; ++i) {
+    edm::ParameterSet pset(i->second.pset_);
+    pset.setID(i->first);
+    pset.setFullyTracked();
+    psetRegistry.insertMapped(pset);
+  }
+ 
 
   // backward compatibility
   for (edm::ProcessHistoryMap::const_iterator i = phm.begin(), e = phm.end(); i != e; ++i) {
