@@ -42,14 +42,12 @@ def tagInTrees(dbsession,tagname,pfn=''):
 	   conditionbindDict['pfn'].setData(pfn)
 	invquery.setCondition(condition,conditionbindDict)
 	invquery.addToOutputList('tagid')
-	if len(pfn) !=0 :
-	   invquery.addToOutputList('pfn')
+	invquery.addToOutputList('pfn')
 	cursor = invquery.execute()
 	tagidmap={}
 	while ( cursor.next() ):
 	    tagid=cursor.currentRow()['tagid'].data()
-	    if len(pfn) !=0 :	    
-	       pfn=cursor.currentRow()['pfn'].data()
+	    pfn=cursor.currentRow()['pfn'].data()
 	    tagidmap[pfn]=tagid
 	cursor.close()
 	dbsession.transaction().commit()
