@@ -56,7 +56,7 @@ SiStripBadStrip *SiStripBadStripFromASCIIFile::getNewObject() {
   short tempchannel=0;
   int count =0;
   std::vector<unsigned int> theSiStripVector;
-  uint32_t tempflag=0;
+  short tempflag=0;
   uint32_t tempdetid=0;
 
 

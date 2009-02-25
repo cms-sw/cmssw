@@ -127,7 +127,7 @@ void SiStripDQMProfileToTkMapConverter::beginRun(const edm::Run& run, const edm:
     
     if(layerIdx!=0){
       histo= (TProfile *) (*(*iter)).getTProfile();
-      for(size_t ibin=1;ibin<histo->GetNbinsX();++ibin){
+      for(int ibin=1;ibin<histo->GetNbinsX();++ibin){
 	ssFull << layerIdx << " " << ibin << " " << SelectedDetIds[layerIdx-1][ibin-1] << " " <<  histo->GetBinContent(ibin) << std::endl;
 	tkMap->fill(SelectedDetIds[layerIdx-1][ibin-1],1/(histo->GetBinContent(ibin)+0.0000001));
 	tkhisto->fill(SelectedDetIds[layerIdx-1][ibin-1],1/(histo->GetBinContent(ibin)+0.0000001));

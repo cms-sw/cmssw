@@ -13,7 +13,7 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Wed Oct  3 12:11:10 CEST 2007
-// $Id: SiStripQualityStatistics.cc,v 1.11 2008/12/03 12:05:52 giordano Exp $
+// $Id: SiStripQualityStatistics.cc,v 1.12 2008/12/08 12:24:29 giordano Exp $
 //
 //
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
@@ -168,7 +168,7 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
   for (SiStripBadStrip::RegistryIterator rp=rbegin; rp != rend; ++rp) {
     uint32_t detid=rp->detid;
 
-    int subdet,component;
+    int subdet=-999; int component=-999;
     SiStripDetId a(detid);
     if ( a.subdetId() == 3 ){
       subdet=0;
