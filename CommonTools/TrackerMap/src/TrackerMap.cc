@@ -48,7 +48,7 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const edm::ESHandle<S
  const vector<unsigned short> feds = tkFed->feds();
   cout<<"SiStripFedCabling has "<< feds.size()<<" active FEDS"<<endl;
     int num_board=0;
-    int num_crate;
+    int num_crate=0;
   for(vector<unsigned short>::const_iterator ifed = feds.begin();ifed<feds.end();ifed++){
     const std::vector<FedChannelConnection> theconn = tkFed->connections( *ifed );
     int num_conn=0;
@@ -428,13 +428,13 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
     typedef std::map<int,int> ColorList;
     ColorList colorList;
     ColorList::iterator pos;
-    TColor *col;
+    TColor *col, *c;
     while(!tempfile.eof()) {
       tempfile  >> red >> green  >> blue >> npoints; 
       colindex=red+green*1000+blue*1000000;
       pos=colorList.find(colindex); 
       if(pos == colorList.end()){ colorList[colindex]=ncolor+100; col =gROOT->GetColor(ncolor+100);
-if(col) col->SetRGB((Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.)); else TColor *c = new TColor(ncolor+100,(Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.));ncolor++;}
+      if(col) col->SetRGB((Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.)); else c = new TColor(ncolor+100,(Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.));ncolor++;}
       for (int i=0;i<npoints;i++){
 	tempfile >> x[i] >> y[i];  
       }
@@ -725,7 +725,7 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
     typedef std::map<int,int> ColorList;
     ColorList colorList;
     ColorList::iterator pos;
-    TColor *col;
+    TColor *col,*c;
     while(!tempfile.eof()) {
       tempfile  >> red >> green  >> blue >> npoints; 
       colindex=red+green*1000+blue*1000000;
@@ -736,7 +736,7 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
 	if(col) 
 	  col->SetRGB((Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.)); 
 	else 
-	  TColor *c = new TColor(ncolor+100,(Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.));
+	  c = new TColor(ncolor+100,(Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.));
 	ncolor++;
       }
       for (int i=0;i<npoints;i++){
@@ -797,7 +797,7 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
 void TrackerMap::load(string inputfilename){
   inputfile = new ifstream(inputfilename.c_str(),ios::in);
   string line,value;
-  int ipos,ipos1,ipos2,id,val;
+  int ipos,ipos1,ipos2,id=0,val=0;
   int nline=0;
   while (getline( *inputfile, line ))
         {
@@ -1095,6 +1095,7 @@ void TrackerMap::build(){
 }
 int TrackerMap::getcolor(float value,int palette){
    int red,green,blue;
+   red=0;green=0;blue=0;
    if(palette==1){//palette1 1 - raibow
    float delta=(maxvalue-minvalue);
    float x =(value-minvalue);
@@ -1120,9 +1121,6 @@ void TrackerMap::printonline(){
   std::ostringstream ofname;
   std::string ifname;
   string line;
-  bool print_total = true;
-  float minval = 0.;
-  float maxval = 0.;
   string outputfilename="dqmtmap";
   ifilename=findfile("viewerHeader.xhtml");
   ofname << outputfilename << "viewer.xhtml";
