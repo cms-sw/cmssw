@@ -25,6 +25,7 @@
    <class name="std::vector<EcalPseudoStripInputDigi>"/>
    <class name="std::vector<EcalPnDiodeDigi>"/>
    <class name="std::vector<EcalMatacqDigi>"/>
+   <class name="timeval"/>
 
    <class name="EcalDigiCollection"/>
    <class name="EBDigiCollection"/>
