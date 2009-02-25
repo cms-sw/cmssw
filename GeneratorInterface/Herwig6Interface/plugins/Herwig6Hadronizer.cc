@@ -3,8 +3,12 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <map>
+#include <set>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/split.hpp>
 
 #include <HepMC/GenEvent.h>
 #include <HepMC/GenParticle.h>
@@ -20,9 +24,13 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 
+#include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHECommonBlocks.h"
+
 #include "GeneratorInterface/Core/interface/ParameterCollector.h"
 #include "GeneratorInterface/Core/interface/BaseHadronizer.h"
 #include "GeneratorInterface/Core/interface/GeneratorFilter.h"
+#include "GeneratorInterface/Core/interface/HadronizerFilter.h"
 
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 
@@ -30,9 +38,6 @@
 #include "GeneratorInterface/Herwig6Interface/interface/herwig.h"
 
 extern "C" {
-#ifdef HERWIG_DOES_NOT_CALL_PDFSET
-	void pdfset_(char parm[20][20], double value[20]);
-#endif
 	void hwuidt_(int *iopt, int *ipdg, int *iwig, char nwig[8]);
 }
 
@@ -69,14 +74,19 @@ class Herwig6Hadronizer : public gen::BaseHadronizer,
 	Herwig6Hadronizer(const edm::ParameterSet &params);
 	~Herwig6Hadronizer();
 
-	bool initializeForInternalPartons();
-//	bool initializeForExternalPartons();
+	void setSLHAFromHeader(const std::vector<std::string> &lines);
+	bool initialize(const lhef::HEPRUP *heprup);
+
+	bool initializeForInternalPartons() { return initialize(0); }
+	bool initializeForExternalPartons() { return initialize(lheRunInfo()->getHEPRUP()); }
+
 	bool declareStableParticles(const std::vector<int> &pdgIds);
 
 	void statistics();
 
-	bool generatePartonsAndHadronize();
-//	bool hadronize();
+
+	bool generatePartonsAndHadronize() { return hadronize(); }
+	bool hadronize();
 	bool decay();
 	bool residualDecay();
 	void finalizeEvent();
@@ -89,8 +99,8 @@ class Herwig6Hadronizer : public gen::BaseHadronizer,
 	int pythiaStatusCode(const HepMC::GenParticle *p) const;
 	void pythiaStatusCodes();
 
-//	virtual void upInit();
-//	virtual void upEvnt();
+	virtual void upInit();
+	virtual void upEvnt();
 
 	HepMC::IO_HERWIG		conv;
 	bool				needClear;
@@ -151,15 +161,62 @@ void Herwig6Hadronizer::clear()
 	needClear = false;
 }
 
-bool Herwig6Hadronizer::initializeForInternalPartons()
+void Herwig6Hadronizer::setSLHAFromHeader(
+				const std::vector<std::string> &lines)
+{
+	std::set<std::string> blocks;
+	std::string block;
+	for(std::vector<std::string>::const_iterator iter = lines.begin();
+	    iter != lines.end(); ++iter) {
+		std::string line = *iter;
+		std::transform(line.begin(), line.end(),
+		               line.begin(), (int(*)(int))std::toupper);
+		std::string::size_type pos = line.find('#');
+		if (pos != std::string::npos)
+			line.resize(pos);
+
+		if (line.empty())
+			continue;
+
+		if (!boost::algorithm::is_space()(line[0])) {
+			std::vector<std::string> tokens;
+			boost::split(tokens, line,
+			             boost::algorithm::is_space(),
+			             boost::token_compress_on);
+			if (!tokens.size())
+				continue;
+			block.clear();
+			if (tokens.size() < 2)
+				continue;
+			if (tokens[0] == "BLOCK")
+				block = tokens[1];
+			else if (tokens[0] == "DECAY")
+				block = "DECAY";
+
+			if (block.empty())
+				continue;
+
+			if (!blocks.count(block)) {
+				blocks.insert(block);
+				edm::LogWarning("Generator|Herwig6Hadronzier")
+					<< "Unsupported SLHA block \"" << block
+					<< "\".  It will be ignored."
+					<< std::endl;
+			}
+		}
+	}
+}
+
+bool Herwig6Hadronizer::initialize(const lhef::HEPRUP *heprup)
 {
 	clear();
 
-	externalPartons = false;
+	externalPartons = (heprup != 0);
 
 	std::ostringstream info;
 	info << "---------------------------------------------------\n"; 
-	info << "Initializing Herwig6Hadronizer for internal partons\n";
+	info << "Initializing Herwig6Hadronizer for "
+	     << (externalPartons ? "external" : "internal") << " partons\n";
 	info << "---------------------------------------------------\n";
 
 	info << "   Herwig verbosity level         = " << herwigVerbosity << "\n";
@@ -170,10 +227,17 @@ bool Herwig6Hadronizer::initializeForInternalPartons()
 	hwudat();
 
 	// Setting basic parameters
-	info << "   Center-of-Mass pp energy       = " << comEnergy << " GeV\n";
-	hwproc.PBEAM2 = hwproc.PBEAM1 = 0.5 * comEnergy;
-	std::memcpy(hwbmch.PART1, "P       ", 8);
-	std::memcpy(hwbmch.PART2, "P       ", 8);
+	if (externalPartons) {
+		hwproc.PBEAM1 = heprup->EBMUP.first;
+		hwproc.PBEAM2 = heprup->EBMUP.second;
+		pdgToHerwig(heprup->IDBMUP.first, hwbmch.PART1);
+		pdgToHerwig(heprup->IDBMUP.second, hwbmch.PART2);
+	} else {
+		hwproc.PBEAM1 = 0.5 * comEnergy;
+		hwproc.PBEAM2 = 0.5 * comEnergy;
+		pdgToHerwig(2212, hwbmch.PART1);
+		pdgToHerwig(2212, hwbmch.PART2);
+	}
 
 	if (useJimmy) {
 		info << "   HERWIG will be using JIMMY for UE/MI.\n";
@@ -191,25 +255,18 @@ bool Herwig6Hadronizer::initializeForInternalPartons()
 
 	// init LHAPDF glue
 
-#if HERWIG_DOES_NOT_CALL_PDFSET
-	char parm[20][20];
-	double value[20];
-	std::memset(parm, ' ', sizeof parm);
-	std::memset(value, 0, sizeof value);
-	std::memcpy(parm[0], "HWLHAPDF", 8);
-	pdfset_(parm, value);
-#endif
-
 	std::memset(hwprch.AUTPDF, ' ', sizeof hwprch.AUTPDF);
-	for(unsigned int i = 0; i < 2; i++)
+	for(unsigned int i = 0; i < 2; i++) {
+		hwpram.MODPDF[i] = -1111;
 		std::memcpy(hwprch.AUTPDF[i], "HWLHAPDF", 8);
+	}
 
 	if (useJimmy)
 		call(jimmin);
 
 	hwevnt.MAXPR = maxEventsToPrint;
 	hwpram.IPRINT = herwigVerbosity;
-//	hwprop.RMASS[6] = 175.0;
+//	hwprop.RMASS[6] = 175.0;	//FIXME
 
 	if (printCards) {
 		info << "\n";
@@ -231,11 +288,46 @@ bool Herwig6Hadronizer::initializeForInternalPartons()
 	if (printCards)
 		info << "\n";
 
+	if (externalPartons) {
+		std::vector<std::string> slha =
+				lheRunInfo()->findHeader("slha");
+		if (!slha.empty())
+			setSLHAFromHeader(slha);
+	}
+
 	needClear = true;
+
+	std::pair<int, int> pdfs(-1, -1);
+	if (externalPartons)
+		pdfs = lheRunInfo()->pdfSetTranslation();
+
+	if (hwpram.MODPDF[0] != -111 || hwpram.MODPDF[1] != -111) {
+		for(unsigned int i = 0; i < 2; i++)
+			if (hwpram.MODPDF[i] == -111)
+				hwpram.MODPDF[i] = -1;
+
+		if (pdfs.first != -1 || pdfs.second != -1)
+			edm::LogError("Generator|Herwig6Hadronzier")
+				<< "Both external Les Houches event and "
+			           "config file specify a PDF set.  "
+				   "User PDF will override external one."
+				<< std::endl;
+
+		pdfs.first = hwpram.MODPDF[0] != -111 ? hwpram.MODPDF[0] : -1;
+		pdfs.second = hwpram.MODPDF[1] != -111 ? hwpram.MODPDF[1] : -1;
+	}
+
+	hwpram.MODPDF[0] = pdfs.first;
+	hwpram.MODPDF[1] = pdfs.second;
+
+ 	if (externalPartons)
+		hwproc.IPROC = -1;
 
 	// HERWIG preparations ...
 	call(hwuinc);
-	markStable(111);	//FIXME?
+	markStable(111);	//FIXME?	only pi0?
+	// better: merge with declareStableParticles
+	// and get the list from configuration / Geant4 / Core somewhere
 
 	// initialize HERWIG event generation
 	call(hweini);
@@ -267,7 +359,7 @@ void Herwig6Hadronizer::statistics()
 	runInfo().setInternalXSec(xsec);
 }
 
-bool Herwig6Hadronizer::generatePartonsAndHadronize()
+bool Herwig6Hadronizer::hadronize()
 {
 	// hard process generation, parton shower, hadron formation
 
@@ -306,7 +398,7 @@ bool Herwig6Hadronizer::generatePartonsAndHadronize()
 	}
 
 	if (counter >= numTrials) {
-		edm::LogWarning("Generator|LHEInterface")
+		edm::LogWarning("Generator|Herwig6Hadronizer")
 			<< "JIMMY could not produce MI in "
 			<< numTrials << " trials." << std::endl
 			<< "Event will be skipped to prevent"
@@ -356,13 +448,26 @@ bool Herwig6Hadronizer::residualDecay()
 	return true;
 }
 
+void Herwig6Hadronizer::upInit()
+{
+	lhef::CommonBlocks::fillHEPRUP(lheRunInfo()->getHEPRUP());
+	heprup_.pdfgup[0] = heprup_.pdfgup[1] = -1;
+	heprup_.pdfsup[0] = heprup_.pdfsup[1] = -1;
+	// we set up the PDFs ourselves
+}
+
+void Herwig6Hadronizer::upEvnt()
+{
+	lhef::CommonBlocks::fillHEPEUP(lheEvent()->getHEPEUP());
+}
+
 int Herwig6Hadronizer::pythiaStatusCode(const HepMC::GenParticle *p) const
 {
 	int status = p->status();
 
 	// weird 9922212 particles...
 	if (status == 3 && !p->end_vertex())
-		status = 2;
+		return 2;
 
 	if (status >= 1 && status <= 3)
 		return status;
@@ -370,19 +475,53 @@ int Herwig6Hadronizer::pythiaStatusCode(const HepMC::GenParticle *p) const
 	if (!p->end_vertex())
 		return 1;
 
-	if (externalPartons)
-		return 2;
+	// let's prevent particles having status 3, if the identical
+	// particle downstream is a better status 3 candidate
+	int currentId = p->pdg_id();
+	int orig = status;
+	if (status == 123 || status == 124 ||
+	    status == 155 || status == 156 || status == 160 ||
+	    (status >= 195 && status <= 197)) {
+		for(const HepMC::GenParticle *q = p;;) {
+			const HepMC::GenVertex *vtx = q->end_vertex();
+			if (!vtx)
+				break;
 
+			HepMC::GenVertex::particles_out_const_iterator iter;
+			for(iter = vtx->particles_out_const_begin();
+			    iter != vtx->particles_out_const_end(); ++iter)
+				if ((*iter)->pdg_id() == currentId)
+					break;
+
+			if (iter == vtx->particles_out_const_end())
+				break;
+
+			q = *iter;
+			if (q->status() == 3 ||
+			    (status == 120 || status == 123 ||
+			     status == 124) && orig > 124)
+				return 4;
+		}
+	}
+
+	int nesting = 0;
 	for(;;) {
-		if (p->pdg_id() == 0)
-			break;
+		if (status >= 120 && status <= 122 || status == 3) {
+			// avoid flagging status 3 if there is a
+			// better status 3 candidate upstream
+			if (externalPartons)
+				return (orig >= 121 && orig <= 124 ||
+				        orig == 3) ? 3 : 4;
+			else
+				return (nesting ||
+				        status != 3 && orig <= 124) ? 3 : 4;
+		}
 
-		if (status >= 120 && status <= 122 || status == 3)
-			return 3;
-
-		if (!(status == 123 || status == 124 ||
+		// check whether we are leaving the hard process
+		// including heavy resonance decays
+		if (!(status == 4 || status == 123 || status == 124 ||
 		      status == 155 || status == 156 || status == 160 ||
-		      status >= 195 && status <= 197))
+		      (status >= 195 && status <= 197)))
 			break;
 
 		const HepMC::GenVertex *vtx = p->production_vertex();
@@ -391,6 +530,18 @@ int Herwig6Hadronizer::pythiaStatusCode(const HepMC::GenParticle *p) const
 
 		p = *vtx->particles_in_const_begin();
 		status = p->status();
+
+		int newId = p->pdg_id();
+
+		if (!newId)
+			break;
+
+		// nesting increases if we move to the next-best mother
+		if (newId != currentId) {
+			if (++nesting > 1 && externalPartons)
+				break;
+			currentId = newId;
+		}
 	}
 
 	return 2; 
@@ -402,7 +553,16 @@ void Herwig6Hadronizer::pythiaStatusCodes()
 	    					event()->particles_begin();
 	    iter != event()->particles_end(); iter++)
 		(*iter)->set_status(pythiaStatusCode(*iter));
+
+	for(HepMC::GenEvent::particle_iterator iter =
+	    					event()->particles_begin();
+	    iter != event()->particles_end(); iter++)
+		if ((*iter)->status() == 4)
+			(*iter)->set_status(2);
 }
 
 typedef edm::GeneratorFilter<Herwig6Hadronizer> Herwig6GeneratorFilter;
 DEFINE_FWK_MODULE(Herwig6GeneratorFilter);
+
+typedef edm::HadronizerFilter<Herwig6Hadronizer> Herwig6HadronizerFilter;
+DEFINE_FWK_MODULE(Herwig6HadronizerFilter);
