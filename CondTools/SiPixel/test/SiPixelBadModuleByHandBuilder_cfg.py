@@ -138,10 +138,6 @@ process.prod = cms.EDFilter("SiPixelBadModuleByHandBuilder",
         ), 
         cms.PSet(
             errortype = cms.string('whole'),
-            detid = cms.uint32(344076556)
-        ), 
-        cms.PSet(
-            errortype = cms.string('whole'),
             detid = cms.uint32(344076560)
         ), 
         cms.PSet(
