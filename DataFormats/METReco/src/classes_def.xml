@@ -42,10 +42,29 @@
   <class name="edm::RefVector<std::vector<reco::PFMET>,reco::PFMET,edm::refhelper::FindUsingAdvance<std::vector<reco::PFMET>,reco::PFMET> >"/>
   <class name="edm::Ref<std::vector<reco::PFMET>,reco::PFMET,edm::refhelper::FindUsingAdvance<std::vector<reco::PFMET>,reco::PFMET> >"/>
 
+  <class name="reco::HcalNoiseHPD"/>
+  <class name="reco::DigiArray"/>
+  <class name="reco::EnergySortedHBHERecHits"/>
+  <class name="reco::HBHERecHitEnergyComparison"/>
+  <class name="reco::HcalNoiseHPDCollection"/>
+  <class name="edm::Wrapper<reco::HcalNoiseHPDCollection>"/>
+
+  <class name="reco::HcalNoiseRBX"/>
+  <class name="reco::HcalNoiseHPDArray"/>
+  <class name="reco::HcalNoiseRBXCollection"/>
+  <class name="edm::Wrapper<reco::HcalNoiseRBXCollection>"/>
+
+  <class name="reco::HcalNoiseRBXArray"/>
+  <class name="edm::Wrapper<reco::HcalNoiseRBXArray>"/>
+
+  <class name="HcalHPDRBXMap"/>
 
   <class name="edm::RefProd<std::vector<reco::GenMET> >"/>
   <class name="edm::RefVector<std::vector<reco::GenMET>,reco::GenMET,edm::refhelper::FindUsingAdvance<std::vector<reco::GenMET>,reco::GenMET> >"/>
   <class name="edm::Ref<std::vector<reco::GenMET>,reco::GenMET,edm::refhelper::FindUsingAdvance<std::vector<reco::GenMET>,reco::GenMET> >"/>
+
+
+
 
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::MET>,reco::MET,edm::refhelper::FindUsingAdvance<std::vector<reco::MET>,reco::MET> > >" />
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::CaloMET>,reco::CaloMET,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloMET>,reco::CaloMET> > >" />

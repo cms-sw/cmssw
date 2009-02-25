@@ -19,6 +19,10 @@
 #include "DataFormats/METReco/interface/GenMETFwd.h" 
 #include "DataFormats/METReco/interface/GenMETCollection.h"
 #include "DataFormats/METReco/interface/CommonMETData.h"
+#include "DataFormats/METReco/interface/HcalNoiseHPD.h"
+#include "DataFormats/METReco/interface/HcalNoiseRBX.h"
+#include "DataFormats/METReco/interface/HcalNoiseRBXArray.h"
+#include "DataFormats/METReco/interface/HcalHPDRBXMap.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include <vector>
@@ -66,11 +70,27 @@ namespace {
     std::vector<reco::PFMET> dummy21;
     edm::reftobase::Holder<reco::Candidate,reco::PFMETRef> rtb4;
 
+    reco::HcalNoiseHPD dummy22;
+    reco::DigiArray dummy23;
+    reco::EnergySortedHBHERecHits dummy24;
+    reco::HBHERecHitEnergyComparison dummy25;
+    reco::HcalNoiseHPDCollection dummy26;
+    edm::Wrapper<reco::HcalNoiseHPDCollection> dummy27;
+    
+    reco::HcalNoiseRBX dummy28;
+    reco::HcalNoiseHPDArray dummy29;
+    reco::HcalNoiseRBXCollection dummy30;
+    edm::Wrapper<reco::HcalNoiseRBXCollection> dummy31;
 
-    edm::reftobase::RefHolder<reco::METRef> dummy22;
-    edm::reftobase::RefHolder<reco::CaloMETRef> dummy23;
-    edm::reftobase::RefHolder<reco::GenMETRef> dummy24;
-    edm::reftobase::RefHolder<reco::PFMETRef> dummy25;
+    reco::HcalNoiseRBXArray dummy32;
+    edm::Wrapper<reco::HcalNoiseRBXArray> dummy33;
+
+    HcalHPDRBXMap dummy34;
+
+    edm::reftobase::RefHolder<reco::METRef> dummy35;
+    edm::reftobase::RefHolder<reco::CaloMETRef> dummy36;
+    edm::reftobase::RefHolder<reco::GenMETRef> dummy37;
+    edm::reftobase::RefHolder<reco::PFMETRef> dummy38;
     // used for backward compatibility
     std::vector<CommonMETData> bcv1;
   };
