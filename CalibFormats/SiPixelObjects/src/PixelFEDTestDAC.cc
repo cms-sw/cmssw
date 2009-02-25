@@ -336,32 +336,32 @@ void PixelFEDTestDAC::writeXMLHeader(pos::PixelConfigKey key,
 
   outstream->open(maskFullPath.str().c_str()) ;
   
-  *outstream << "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"                               << std::endl ;
-  *outstream << "<ROOT xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>" 		 	        << std::endl ;
-  *outstream << ""                                                                                      << std::endl ; 
-  *outstream << " <HEADER>"                                                                             << std::endl ; 
-  *outstream << "  <TYPE>"                                                                              << std::endl ; 
-  *outstream << "   <EXTENSION_TABLE_NAME>PIXEL_CALIB_CLOB</EXTENSION_TABLE_NAME>"                      << std::endl ; 
-  *outstream << "   <NAME>Calibration Object Clob</NAME>"                                               << std::endl ; 
-  *outstream << "  </TYPE>"                                                                             << std::endl ; 
-  *outstream << "  <RUN>"                                                                               << std::endl ; 
-  *outstream << "   <RUN_TYPE>PixelFEDTestDAC</RUN_TYPE>"                                               << std::endl ; 
-  *outstream << "   <RUN_NUMBER>1</RUN_NUMBER>"                                                         << std::endl ; 
-  *outstream << "   <RUN_BEGIN_TIMESTAMP>" << PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>" << std::endl ; 
-  *outstream << "   <COMMENT_DESCRIPTION>No comment defined: this class does NOT inherit from PixelCalibBase</COMMENT_DESCRIPTION>"                  << std::endl ;
-  *outstream << "   <LOCATION>CERN TAC</LOCATION>"                                                      << std::endl ; 
-  *outstream << "   <INITIATED_BY_USER>Unknown user</INITIATED_BY_USER>"                                << std::endl ; 
-  *outstream << "  </RUN>"                                                                              << std::endl ; 
-  *outstream << " </HEADER>"                                                                            << std::endl ; 
-  *outstream << ""                                                                                      << std::endl ; 
-  *outstream << " <DATA_SET>"                                                                           << std::endl ;
-  *outstream << ""                                                                                      << std::endl ;
-  *outstream << "  <VERSION>" << version << "</VERSION>"                                                << std::endl ;
-  *outstream << ""                                                                                      << std::endl ;
-  *outstream << "  <PART>"                                                                              << std::endl ;
-  *outstream << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"                                            << std::endl ;      
-  *outstream << "   <KIND_OF_PART>Detector ROOT</KIND_OF_PART>"                                         << std::endl ;         
-  *outstream << "  </PART>"                                                                             << std::endl ;
+  *outstream << "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"                               			   << std::endl ;
+  *outstream << "<ROOT xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>" 		 	        			   << std::endl ;
+  *outstream << ""                                                                                       			   << std::endl ;
+  *outstream << " <HEADER>"                                                                              			   << std::endl ;
+  *outstream << "  <TYPE>"                                                                               			   << std::endl ;
+  *outstream << "   <EXTENSION_TABLE_NAME>PIXEL_CALIB_CLOB</EXTENSION_TABLE_NAME>"                       			   << std::endl ;
+  *outstream << "   <NAME>Calibration Object Clob</NAME>"                                                			   << std::endl ;
+  *outstream << "  </TYPE>"                                                                              			   << std::endl ;
+  *outstream << "  <RUN>"                                                                                			   << std::endl ;
+  *outstream << "   <RUN_TYPE>PixelFEDTestDAC</RUN_TYPE>"                                                			   << std::endl ;
+  *outstream << "   <RUN_NUMBER>1</RUN_NUMBER>"                                                          			   << std::endl ;
+  *outstream << "   <RUN_BEGIN_TIMESTAMP>" << PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>"  			   << std::endl ;
+  *outstream << "   <LOCATION>CERN P5</LOCATION>"                                                                                  << std::endl ; 
+  *outstream << "  </RUN>"                                                                               			   << std::endl ;
+  *outstream << " </HEADER>"                                                                             			   << std::endl ;
+  *outstream << ""                                                                                       			   << std::endl ;
+  *outstream << " <DATA_SET>"                                                                           			   << std::endl ;
+  *outstream << ""                                                                                      			   << std::endl ;
+  *outstream << "  <VERSION>" << version << "</VERSION>"                                                			   << std::endl ;
+  *outstream << "  <COMMENT_DESCRIPTION>No comment defined: this class does NOT inherit from PixelCalibBase</COMMENT_DESCRIPTION>" << std::endl ;
+  *outstream << "  <INITIATED_BY_USER>Unknown user</INITIATED_BY_USER>" 			         			   << std::endl ;
+  *outstream << ""                                                                                      			   << std::endl ;
+  *outstream << "  <PART>"                                                                              			   << std::endl ;
+  *outstream << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"                                                  			   << std::endl ;
+  *outstream << "   <KIND_OF_PART>Detector ROOT</KIND_OF_PART>"                                         	 		   << std::endl ;
+  *outstream << "  </PART>"                                                                             			   << std::endl ;
 
 }
 

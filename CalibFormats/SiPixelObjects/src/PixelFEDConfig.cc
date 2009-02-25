@@ -315,9 +315,7 @@ void PixelFEDConfig::writeXMLHeader(pos::PixelConfigKey key,
   *outstream << "  <RUN>"								         	     << endl ;
   *outstream << "   <RUN_NAME>Pixel FED Crate Configuration</RUN_NAME>" 		                     << endl ;
   *outstream << "   <RUN_BEGIN_TIMESTAMP>" << pos::PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>" << endl ;
-  *outstream << "   <COMMENT_DESCRIPTION>" << getComment() << "</COMMENT_DESCRIPTION>"                       << endl ;
-  *outstream << "   <LOCATION>CERN TAC</LOCATION>"					         	     << endl ;
-  *outstream << "   <INITIATED_BY_USER>"   << getAuthor()  << "</INITIATED_BY_USER>"                         << endl ; 
+  *outstream << "   <LOCATION>CERN P5</LOCATION>"                                                            << endl ; 
   *outstream << "  </RUN>"								         	     << endl ;
   *outstream << " </HEADER>"								         	     << endl ;
   *outstream << "  "								         	             << endl ;
@@ -326,7 +324,9 @@ void PixelFEDConfig::writeXMLHeader(pos::PixelConfigKey key,
   *outstream << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"                                                 << endl ;
   *outstream << "   <KIND_OF_PART>Detector ROOT</KIND_OF_PART>"                                              << endl ;
   *outstream << "  </PART>"                                                                                  << endl ;
-  *outstream << "  <VERSION>" << version << "</VERSION>"				         	     << endl ;
+  *outstream << "  <VERSION>"             << version      << "</VERSION>"				     << endl ;
+  *outstream << "  <COMMENT_DESCRIPTION>" << getComment() << "</COMMENT_DESCRIPTION>"			     << endl ;
+  *outstream << "  <INITIATED_BY_USER>"   << getAuthor()  << "</INITIATED_BY_USER>"			     << endl ;
   *outstream << "  "								         	             << endl ;
 }  
 
