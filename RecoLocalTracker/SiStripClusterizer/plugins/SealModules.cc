@@ -3,7 +3,7 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterizer.h"
+#include "RecoLocalTracker/SiStripClusterizer/plugins/SiStripClusterizer.h"
 
 using cms::SiStripClusterizer;
 

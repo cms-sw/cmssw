@@ -5,7 +5,7 @@
 //
 //--------------------------------------------
 
-#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterizer.h"
+#include "RecoLocalTracker/SiStripClusterizer/plugins/SiStripClusterizer.h"
 
 namespace cms
 {
