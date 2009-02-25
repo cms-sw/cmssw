@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterModule.cc,v 1.17 2008/08/08 14:36:32 merkelp Exp $
+// $Id: SiPixelClusterModule.cc,v 1.18 2008/09/02 13:52:17 merkelp Exp $
 //
 //
 // Updated by: Lukas Wehrli
@@ -87,11 +87,11 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
     // Total cluster charge in MeV
     hid = theHistogramId->setHistoId("charge",id_);
     meCharge_ = theDMBE->book1D(hid,"Cluster charge",500,0.,500.);
-    meCharge_->setAxisTitle("Charge size (MeV)",1);
+    meCharge_->setAxisTitle("Charge [kilo electrons]",1);
     // Total cluster size (in pixels)
     hid = theHistogramId->setHistoId("size",id_);
     meSize_ = theDMBE->book1D(hid,"Total cluster size",100,0.,100.);
-    meSize_->setAxisTitle("Cluster size (in pixels)",1);
+    meSize_->setAxisTitle("Cluster size [number of pixels]",1);
     if(!reducedSet){
     // Lowest cluster row
     hid = theHistogramId->setHistoId("minrow",id_);
@@ -112,19 +112,19 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
     // Cluster barycenter X position
     hid = theHistogramId->setHistoId("x",id_);
     meX_ = theDMBE->book1D(hid,"Cluster barycenter X (row #)",200,0.,200.);
-    meX_->setAxisTitle("Barycenter x-position (row #)",1);
+    meX_->setAxisTitle("Barycenter x-position [row #]",1);
     // Cluster barycenter Y position
     hid = theHistogramId->setHistoId("y",id_);
     meY_ = theDMBE->book1D(hid,"Cluster barycenter Y (column #)",500,0.,500.);
-    meY_->setAxisTitle("Barycenter y-position (column #)",1);
+    meY_->setAxisTitle("Barycenter y-position [column #]",1);
     // Cluster width on the x-axis
     hid = theHistogramId->setHistoId("sizeX",id_);
     meSizeX_ = theDMBE->book1D(hid,"Cluster x-width (rows)",10,0.,10.);
-    meSizeX_->setAxisTitle("Cluster x-size (rows)",1);
+    meSizeX_->setAxisTitle("Cluster x-size [rows]",1);
     // Cluster width on the y-axis
     hid = theHistogramId->setHistoId("sizeY",id_);
     meSizeY_ = theDMBE->book1D(hid,"Cluster y-width (columns)",20,0.,20.);
-    meSizeY_->setAxisTitle("Cluster y-size (columns)",1);
+    meSizeY_->setAxisTitle("Cluster y-size [columns]",1);
     }
     int nbinx = ncols_/2;
     int nbiny = nrows_/2;
@@ -156,22 +156,22 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
     meNClustersLad_->setAxisTitle("Number of Clusters",1);
     // Total cluster charge in MeV
     meChargeLad_ = theDMBE->book1D("charge_" + hid,"Cluster charge",500,0.,500.);
-    meChargeLad_->setAxisTitle("Charge size (MeV)",1);
+    meChargeLad_->setAxisTitle("Charge [kilo electrons]",1);
     // Cluster barycenter X position
     meXLad_ = theDMBE->book1D("x_" + hid,"Cluster barycenter X (row #)",200,0.,200.);
-    meXLad_->setAxisTitle("Barycenter x-position (row #)",1);
+    meXLad_->setAxisTitle("Barycenter x-position [row #]",1);
     // Cluster barycenter Y position
     meYLad_ = theDMBE->book1D("y_" + hid,"Cluster barycenter Y (column #)",500,0.,500.);
-    meYLad_->setAxisTitle("Barycenter y-position (column #)",1);
+    meYLad_->setAxisTitle("Barycenter y-position [column #]",1);
     // Total cluster size (in pixels)
     meSizeLad_ = theDMBE->book1D("size_" + hid,"Total cluster size",100,0.,100.);
-    meSizeLad_->setAxisTitle("Cluster size (in pixels)",1);
+    meSizeLad_->setAxisTitle("Cluster size [number of pixels]",1);
     // Cluster width on the x-axis
     meSizeXLad_ = theDMBE->book1D("sizeX_" + hid,"Cluster x-width (rows)",10,0.,10.);
-    meSizeXLad_->setAxisTitle("Cluster x-size (rows)",1);
+    meSizeXLad_->setAxisTitle("Cluster x-size [rows]",1);
     // Cluster width on the y-axis
     meSizeYLad_ = theDMBE->book1D("sizeY_" + hid,"Cluster y-width (columns)",20,0.,20.);
-    meSizeYLad_->setAxisTitle("Cluster y-size (columns)",1);
+    meSizeYLad_->setAxisTitle("Cluster y-size [columns]",1);
     // Lowest cluster row
     meMinRowLad_ = theDMBE->book1D("minrow_" + hid,"Lowest cluster row",200,0.,200.);
     meMinRowLad_->setAxisTitle("Lowest cluster row",1);
@@ -209,22 +209,22 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
     meNClustersLay_->setAxisTitle("Number of Clusters",1);
     // Total cluster charge in MeV
     meChargeLay_ = theDMBE->book1D("charge_" + hid,"Cluster charge",500,0.,500.);
-    meChargeLay_->setAxisTitle("Charge size (MeV)",1);
+    meChargeLay_->setAxisTitle("Charge [kilo electrons]",1);
     // Cluster barycenter X position
     meXLay_ = theDMBE->book1D("x_" + hid,"Cluster barycenter X (row #)",200,0.,200.);
-    meXLay_->setAxisTitle("Barycenter x-position (row #)",1);
+    meXLay_->setAxisTitle("Barycenter x-position [row #]",1);
     // Cluster barycenter Y position
     meYLay_ = theDMBE->book1D("y_" + hid,"Cluster barycenter Y (column #)",500,0.,500.);
-    meYLay_->setAxisTitle("Barycenter y-position (column #)",1);
+    meYLay_->setAxisTitle("Barycenter y-position [column #]",1);
     // Total cluster size (in pixels)
     meSizeLay_ = theDMBE->book1D("size_" + hid,"Total cluster size",100,0.,100.);
-    meSizeLay_->setAxisTitle("Cluster size (in pixels)",1);
+    meSizeLay_->setAxisTitle("Cluster size [in pixels]",1);
     // Cluster width on the x-axis
     meSizeXLay_ = theDMBE->book1D("sizeX_" + hid,"Cluster x-width (rows)",10,0.,10.);
-    meSizeXLay_->setAxisTitle("Cluster x-size (rows)",1);
+    meSizeXLay_->setAxisTitle("Cluster x-size [rows]",1);
     // Cluster width on the y-axis
     meSizeYLay_ = theDMBE->book1D("sizeY_" + hid,"Cluster y-width (columns)",20,0.,20.);
-    meSizeYLay_->setAxisTitle("Cluster y-size (columns)",1);
+    meSizeYLay_->setAxisTitle("Cluster y-size [columns]",1);
     // Lowest cluster row
     meMinRowLay_ = theDMBE->book1D("minrow_" + hid,"Lowest cluster row",200,0.,200.);
     meMinRowLay_->setAxisTitle("Lowest cluster row",1);
@@ -271,22 +271,22 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
     meNClustersPhi_->setAxisTitle("Number of Clusters",1);
     // Total cluster charge in MeV
     meChargePhi_ = theDMBE->book1D("charge_" + hid,"Cluster charge",500,0.,500.);
-    meChargePhi_->setAxisTitle("Charge size (MeV)",1);
+    meChargePhi_->setAxisTitle("Charge [kilo electrons]",1);
     // Cluster barycenter X position
     meXPhi_ = theDMBE->book1D("x_" + hid,"Cluster barycenter X (row #)",200,0.,200.);
-    meXPhi_->setAxisTitle("Barycenter x-position (row #)",1);
+    meXPhi_->setAxisTitle("Barycenter x-position [row #]",1);
     // Cluster barycenter Y position
     meYPhi_ = theDMBE->book1D("y_" + hid,"Cluster barycenter Y (column #)",500,0.,500.);
-    meYPhi_->setAxisTitle("Barycenter y-position (column #)",1);
+    meYPhi_->setAxisTitle("Barycenter y-position [column #]",1);
     // Total cluster size (in pixels)
     meSizePhi_ = theDMBE->book1D("size_" + hid,"Total cluster size",100,0.,100.);
-    meSizePhi_->setAxisTitle("Cluster size (in pixels)",1);
+    meSizePhi_->setAxisTitle("Cluster size [number of pixels]",1);
     // Cluster width on the x-axis
     meSizeXPhi_ = theDMBE->book1D("sizeX_" + hid,"Cluster x-width (rows)",10,0.,10.);
-    meSizeXPhi_->setAxisTitle("Cluster x-size (rows)",1);
+    meSizeXPhi_->setAxisTitle("Cluster x-size [rows]",1);
     // Cluster width on the y-axis
     meSizeYPhi_ = theDMBE->book1D("sizeY_" + hid,"Cluster y-width (columns)",20,0.,20.);
-    meSizeYPhi_->setAxisTitle("Cluster y-size (columns)",1);
+    meSizeYPhi_->setAxisTitle("Cluster y-size [columns]",1);
     // Lowest cluster row
     meMinRowPhi_ = theDMBE->book1D("minrow_" + hid,"Lowest cluster row",200,0.,200.);
     meMinRowPhi_->setAxisTitle("Lowest cluster row",1);
@@ -334,22 +334,22 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
     meNClustersBlade_->setAxisTitle("Number of Clusters",1);
     // Total cluster charge in MeV
     meChargeBlade_ = theDMBE->book1D("charge_" + hid,"Cluster charge",500,0.,500.);
-    meChargeBlade_->setAxisTitle("Charge size (MeV)",1);
+    meChargeBlade_->setAxisTitle("Charge [kilo electrons]",1);
     // Cluster barycenter X position
     meXBlade_ = theDMBE->book1D("x_" + hid,"Cluster barycenter X (row #)",200,0.,200.);
-    meXBlade_->setAxisTitle("Barycenter x-position (row #)",1);
+    meXBlade_->setAxisTitle("Barycenter x-position [row #]",1);
     // Cluster barycenter Y position
     meYBlade_ = theDMBE->book1D("y_" + hid,"Cluster barycenter Y (column #)",500,0.,500.);
-    meYBlade_->setAxisTitle("Barycenter y-position (column #)",1);
+    meYBlade_->setAxisTitle("Barycenter y-position [column #]",1);
     // Total cluster size (in pixels)
     meSizeBlade_ = theDMBE->book1D("size_" + hid,"Total cluster size",100,0.,100.);
-    meSizeBlade_->setAxisTitle("Cluster size (in pixels)",1);
+    meSizeBlade_->setAxisTitle("Cluster size [number of pixels]",1);
     // Cluster width on the x-axis
     meSizeXBlade_ = theDMBE->book1D("sizeX_" + hid,"Cluster x-width (rows)",10,0.,10.);
-    meSizeXBlade_->setAxisTitle("Cluster x-size (rows)",1);
+    meSizeXBlade_->setAxisTitle("Cluster x-size [rows]",1);
     // Cluster width on the y-axis
     meSizeYBlade_ = theDMBE->book1D("sizeY_" + hid,"Cluster y-width (columns)",20,0.,20.);
-    meSizeYBlade_->setAxisTitle("Cluster y-size (columns)",1);
+    meSizeYBlade_->setAxisTitle("Cluster y-size [columns]",1);
     // Lowest cluster row
     meMinRowBlade_ = theDMBE->book1D("minrow_" + hid,"Lowest cluster row",200,0.,200.);
     meMinRowBlade_->setAxisTitle("Lowest cluster row",1);
@@ -374,22 +374,22 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
     meNClustersDisk_->setAxisTitle("Number of Clusters",1);
     // Total cluster charge in MeV
     meChargeDisk_ = theDMBE->book1D("charge_" + hid,"Cluster charge",500,0.,500.);
-    meChargeDisk_->setAxisTitle("Charge size (MeV)",1);
+    meChargeDisk_->setAxisTitle("Charge [kilo electrons]",1);
     // Cluster barycenter X position
     meXDisk_ = theDMBE->book1D("x_" + hid,"Cluster barycenter X (row #)",200,0.,200.);
-    meXDisk_->setAxisTitle("Barycenter x-position (row #)",1);
+    meXDisk_->setAxisTitle("Barycenter x-position [row #]",1);
     // Cluster barycenter Y position
     meYDisk_ = theDMBE->book1D("y_" + hid,"Cluster barycenter Y (column #)",500,0.,500.);
-    meYDisk_->setAxisTitle("Barycenter y-position (column #)",1);
+    meYDisk_->setAxisTitle("Barycenter y-position [column #]",1);
     // Total cluster size (in pixels)
     meSizeDisk_ = theDMBE->book1D("size_" + hid,"Total cluster size",100,0.,100.);
-    meSizeDisk_->setAxisTitle("Cluster size (in pixels)",1);
+    meSizeDisk_->setAxisTitle("Cluster size [number of pixels]",1);
     // Cluster width on the x-axis
     meSizeXDisk_ = theDMBE->book1D("sizeX_" + hid,"Cluster x-width (rows)",10,0.,10.);
-    meSizeXDisk_->setAxisTitle("Cluster x-size (rows)",1);
+    meSizeXDisk_->setAxisTitle("Cluster x-size [rows]",1);
     // Cluster width on the y-axis
     meSizeYDisk_ = theDMBE->book1D("sizeY_" + hid,"Cluster y-width (columns)",20,0.,20.);
-    meSizeYDisk_->setAxisTitle("Cluster y-size (columns)",1);
+    meSizeYDisk_->setAxisTitle("Cluster y-size [columns]",1);
     // Lowest cluster row
     meMinRowDisk_ = theDMBE->book1D("minrow_" + hid,"Lowest cluster row",200,0.,200.);
     meMinRowDisk_->setAxisTitle("Lowest cluster row",1);
@@ -415,22 +415,22 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
     meNClustersRing_->setAxisTitle("Number of Clusters",1);
     // Total cluster charge in MeV
     meChargeRing_ = theDMBE->book1D("charge_" + hid,"Cluster charge",500,0.,500.);
-    meChargeRing_->setAxisTitle("Charge size (MeV)",1);
+    meChargeRing_->setAxisTitle("Charge [kilo electrons]",1);
     // Cluster barycenter X position
     meXRing_ = theDMBE->book1D("x_" + hid,"Cluster barycenter X (row #)",200,0.,200.);
-    meXRing_->setAxisTitle("Barycenter x-position (row #)",1);
+    meXRing_->setAxisTitle("Barycenter x-position [row #]",1);
     // Cluster barycenter Y position
     meYRing_ = theDMBE->book1D("y_" + hid,"Cluster barycenter Y (column #)",500,0.,500.);
-    meYRing_->setAxisTitle("Barycenter y-position (column #)",1);
+    meYRing_->setAxisTitle("Barycenter y-position [column #]",1);
     // Total cluster size (in pixels)
     meSizeRing_ = theDMBE->book1D("size_" + hid,"Total cluster size",100,0.,100.);
-    meSizeRing_->setAxisTitle("Cluster size (in pixels)",1);
+    meSizeRing_->setAxisTitle("Cluster size [number of pixels]",1);
     // Cluster width on the x-axis
     meSizeXRing_ = theDMBE->book1D("sizeX_" + hid,"Cluster x-width (rows)",10,0.,10.);
-    meSizeXRing_->setAxisTitle("Cluster x-size (rows)",1);
+    meSizeXRing_->setAxisTitle("Cluster x-size [rows]",1);
     // Cluster width on the y-axis
     meSizeYRing_ = theDMBE->book1D("sizeY_" + hid,"Cluster y-width (columns)",20,0.,20.);
-    meSizeYRing_->setAxisTitle("Cluster y-size (columns)",1);
+    meSizeYRing_->setAxisTitle("Cluster y-size [columns]",1);
     // Lowest cluster row
     meMinRowRing_ = theDMBE->book1D("minrow_" + hid,"Lowest cluster row",200,0.,200.);
     meMinRowRing_->setAxisTitle("Lowest cluster row",1);
