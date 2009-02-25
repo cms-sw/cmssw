@@ -60,8 +60,7 @@ void HcalAmplifier::addPedestals(CaloSamples & frame) const
   const HcalCalibrations& calibs = theDbService->getHcalCalibrations(hcalGenDetId);
 
   double noise [32] = {0.}; //big enough
-  //NOTE Will always add noise when adding pedestals, which means addNoise_ is ignored
-  //if(addNoise_)
+  if(addNoise_)
   {
     double gauss [32]; //big enough
     for (int i = 0; i < frame.size(); i++) gauss[i] = theRandGaussQ->fire(0., 1.);
