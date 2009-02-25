@@ -291,6 +291,7 @@ void Pythia6Service::setSLHAFromHeader( const std::vector<std::string> &lines )
 */
 	
 	openSLHA( fname ) ;
+	std::remove( fname );
 	
 	if (model ||
 	    blocks.count("HIGMIX") ||
