@@ -1,0 +1,10 @@
+<flags EDM_PLUGIN=1>
+<use name=DataFormats/METReco>
+<use name=FWCore/Framework>
+<use name=root>
+<export>
+   <lib name=RecoMETMETAnalyzers>
+   <use name=DataFormats/METReco>
+   <use name=FWCore/Framework>
+   <use name=root>
+</export>
