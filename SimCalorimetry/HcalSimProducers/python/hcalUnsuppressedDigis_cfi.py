@@ -6,7 +6,11 @@ from SimCalorimetry.HcalSimProducers.hcalSimParameters_cfi import *
 
 hcalSimBlock = cms.PSet(    
     hcalSimParameters,
+    # whether cells with MC signal get noise added
     doNoise = cms.bool(True),
+    # whether cells with no MC signal get an empty signal created
+    # These empty signals can get noise via the doNoise flag
+    doEmpty = cms.bool(True),
     doHPDNoise = cms.bool(False),
     #HPDNoiseLibrary = cms.PSet(
     #   FileName = cms.FileInPath("SimCalorimetry/HcalSimAlgos/data/hpdNoiseLibrary.root"),
