@@ -49,7 +49,7 @@ SiPixelDigiSource.ringOn = True
 #Cluster
 SiPixelClusterSource.modOn = False
 SiPixelClusterSource.twoDimOn = False
-SiPixelClusterSource.reducedSet = False
+SiPixelClusterSource.reducedSet = True
 SiPixelClusterSource.ladOn = True
 SiPixelClusterSource.layOn = True
 SiPixelClusterSource.phiOn = True
