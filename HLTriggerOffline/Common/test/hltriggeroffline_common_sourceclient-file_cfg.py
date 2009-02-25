@@ -65,7 +65,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         'cout')
 )
 
-process.psource = cms.Path(process.hltResults*process.hltFourVectorClient)
+process.psource = cms.Path(process.hltResults)
 process.p = cms.EndPath(process.dqmSaver)
 process.DQMStore.verbose = 0
 process.DQM.collectorHost = ''

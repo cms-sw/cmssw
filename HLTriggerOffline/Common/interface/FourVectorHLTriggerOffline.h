@@ -16,7 +16,7 @@
 //
 // Original Author:  Jeffrey Berryhill
 //         Created:  June 2008
-// $Id: FourVectorHLTriggerOffline.h,v 1.3 2009/02/11 22:59:26 berryhil Exp $
+// $Id: FourVectorHLTriggerOffline.h,v 1.4 2009/02/19 21:44:36 berryhil Exp $
 //
 //
 
@@ -107,11 +107,7 @@ class FourVectorHLTriggerOffline : public edm::EDAnalyzer {
       int theHLTOutputType;
       edm::InputTag triggerSummaryLabel_;
       edm::InputTag triggerResultsLabel_;
-      edm::InputTag gtObjectMapRecordLabel_;
-      edm::InputTag l1GTRRLabel_;
-      unsigned long long l1GtMenuCacheIDtemp_;
       HLTConfigProvider hltConfig_;
-      const L1GtTriggerMenu* l1GtMenu;
       // data across paths
       MonitorElement* scalersSelect;
       // helper class to store the data path

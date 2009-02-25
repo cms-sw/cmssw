@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: FourVectorHLTriggerOffline_cfi.py,v 1.4 2009/02/06 19:12:15 nuno Exp $
+# $Id: FourVectorHLTriggerOffline_cfi.py,v 1.5 2009/02/16 17:33:49 nuno Exp $
 hltResults = cms.EDFilter("FourVectorHLTriggerOffline",
     dirname = cms.untracked.string("HLT/FourVector/source/"),
     plotAll = cms.untracked.bool(False),
@@ -21,8 +21,6 @@ hltResults = cms.EDFilter("FourVectorHLTriggerOffline",
      # this is I think MC and CRUZET4
     triggerSummaryLabel = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
     triggerResultsLabel = cms.InputTag("TriggerResults","","HLT"),
-    gtObjectMapRecordLabel = cms.InputTag("hltL1GtObjectMap","","HLT"),
-    l1GTRRLabel = cms.InputTag("hltGtDigis","","HLT"),
     processname = cms.string("HLT")
 
     # this is data (CRUZET I or II best guess)
