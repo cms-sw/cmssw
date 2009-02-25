@@ -148,6 +148,39 @@ math::PtEtaPhiMLorentzVector CaloTower::p4(Point v) const {
 }
 
 
+// p4 contribution from HO alone (note: direction is always taken to be the same as used for HB.)
+
+math::PtEtaPhiMLorentzVector CaloTower::p4_HO(Point v) const {
+
+  math::PtEtaPhiMLorentzVector thisP4(0,0,0,0);
+
+  if (ietaAbs()>15 || outerE_<0) return thisP4;
+  
+  GlobalPoint p(v.x(), v.y(), v.z());
+  math::XYZVector dir = math::XYZVector(hadPosition_ - p);
+  thisP4 = math::PtEtaPhiMLorentzVector(outerE_ * sin(dir.theta()), dir.eta(), dir.phi(), 0.0);  
+
+  return thisP4; 
+}
+
+math::PtEtaPhiMLorentzVector CaloTower::p4_HO(double vtxZ) const {
+    Point p(0, 0, vtxZ);
+    return p4_HO(p);
+}
+
+math::PtEtaPhiMLorentzVector CaloTower::p4_HO() const {
+
+  math::PtEtaPhiMLorentzVector thisP4(0,0,0,0);
+
+  if (ietaAbs()>15 || outerE_<0) return thisP4;
+  thisP4 = math::PtEtaPhiMLorentzVector(outerE_ * sin(hadPosition_.theta()), hadPosition_.eta(), hadPosition_.phi(), 0.0);  
+
+  return thisP4;
+}
+
+
+
+
 
 
 void CaloTower::addConstituents( const std::vector<DetId>& ids ) {
@@ -176,18 +209,17 @@ void CaloTower::setCaloTowerStatus(uint numBadHcalChan,uint numBadEcalChan,
 				   uint numRecHcalChan,uint numRecEcalChan,
 				   uint numProbHcalChan,uint numProbEcalChan) {
 
-  // the check that the number of bad channels does not exceed 3(25) for
-  // hcal (ecal) is performed before setting the staus word in the producer.
-  // This is the only place where the flag is set.
+  // The check that the number of bad channels does not exceed 3(25) for
+  // hcal (ecal) is performed before setting the status word in the producer.
 
   twrStatusWord_ = 0x0;
 
-  twrStatusWord_ |= (numBadEcalChan);
-  twrStatusWord_ |= (numRecEcalChan << 5);
-  twrStatusWord_ |= (numProbEcalChan << 10); 
-  twrStatusWord_ |= (numBadHcalChan << 15);
-  twrStatusWord_ |= (numRecHcalChan << 17);
-  twrStatusWord_ |= (numProbHcalChan << 19);
+  twrStatusWord_ |= (  numBadEcalChan  & 0x1F);
+  twrStatusWord_ |= ( (numRecEcalChan  & 0x1F) << 5);
+  twrStatusWord_ |= ( (numProbEcalChan & 0x1F) << 10); 
+  twrStatusWord_ |= ( (numBadHcalChan  & 0x3)  << 15);
+  twrStatusWord_ |= ( (numRecHcalChan  & 0x3)  << 17);
+  twrStatusWord_ |= ( (numProbHcalChan & 0x3)  << 19);
 
   return;
 }

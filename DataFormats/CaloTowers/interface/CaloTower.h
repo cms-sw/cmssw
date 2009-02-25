@@ -13,8 +13,8 @@
 
 /** \class CaloTower
     
-$Date: 2008/09/22 08:43:48 $
-$Revision: 1.12 $
+$Date: 2008/11/10 21:20:28 $
+$Revision: 1.13 $
 \author J. Mans - Minnesota
 */
 
@@ -59,6 +59,8 @@ public:
   void setCaloTowerStatus(uint numBadHcalChan,uint numBadEcalChan, 
 			  uint numRecHcalChan,uint numRecEcalChan,
 			  uint numProbHcalChan,uint numProbEcalChan);
+
+  void setCaloTowerStatus(uint32_t s) { twrStatusWord_ = s; }
 
 
   // getters
@@ -107,6 +109,14 @@ public:
   double hadEt(Point v) const { return  hadE_ * sin(p4(v).theta()); }
   double outerEt(Point v) const { return (id_.ietaAbs()<16)? outerE_ * sin(p4(v).theta()) : 0.0; }
 
+  // Access to p4 comming from HO alone: requested by JetMET to add/subtract HO contributions
+  // to the tower for cases when the tower collection was created without/with HO   
+
+  math::PtEtaPhiMLorentzVector p4_HO() const;  
+  math::PtEtaPhiMLorentzVector p4_HO(double vtxZ) const;
+  math::PtEtaPhiMLorentzVector p4_HO(Point v) const;
+
+
   // the reference poins in ECAL and HCAL for direction determination
   // algorithm and parameters for selecting these points are set in the CaloTowersCreator
   const GlobalPoint& emPosition()  const { return emPosition_ ; }
@@ -135,7 +145,6 @@ public:
   // number of bad/recovered/problematic cells in the tower
   // separately for ECAL and HCAL
 
-
   uint numBadEcalCells() const { return (twrStatusWord_ & 0x1F); }
   uint numRecoveredEcalCells() const { return ((twrStatusWord_ >> 5) & 0x1F); }
   uint numProblematicEcalCells() const { return ((twrStatusWord_ >> 10) & 0x1F); }
@@ -143,6 +152,9 @@ public:
   uint numBadHcalCells() const { return ( (twrStatusWord_ >> 15)& 0x3); }
   uint numRecoveredHcalCells() const { return ((twrStatusWord_ >> 17) & 0x3); }
   uint numProblematicHcalCells() const { return ((twrStatusWord_ >> 19) & 0x3); }
+
+  // the status word itself
+  uint32_t towerStatusWord() const { return twrStatusWord_; }
 
 
 private:
