@@ -22,3 +22,6 @@ DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(EcalUnpackerWorkerESProducer);
 
 #include "EventFilter/EcalRawToDigi/plugins/EcalRawToDigi.h"
 DEFINE_FWK_MODULE(EcalRawToDigi);
+
+#include "EventFilter/EcalRawToDigi/interface/MatacqProducer.h"
+DEFINE_ANOTHER_FWK_MODULE(MatacqProducer);
