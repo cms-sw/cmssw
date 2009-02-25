@@ -1137,8 +1137,8 @@ void SiPixelDigitizerAlgorithm::add_noise() {
   map<int,float, less<int> > otherPixels;
   map<int,float, less<int> >::iterator mapI;
 
-  //      unsigned int Sub_detid=DetId(detID).subdetId();
-      //      std::cout << "add_noise: " << "Subdetid = " << Sub_detid << " and detID " << detID << " the threshold is " << thePixelThreshold << " and the threshold in electrons = " << thePixelThresholdInE << std::endl;
+  //  unsigned int Sub_detid=DetId(detID).subdetId();
+  //  std::cout << "add_noise: " << "Subdetid = " << Sub_detid << " and detID " << detID << " the threshold is " << thePixelThreshold << " and the threshold in electrons = " << thePixelThresholdInE << std::endl;
 
 
   theNoiser->generate(numberOfPixels, 
@@ -1509,8 +1509,10 @@ void SiPixelDigitizerAlgorithm::module_killing_conf(void){
     
     if( Module=="tbmB" && ip.first<=79){
       i->second.set(0.);
+
     }
-  } 
+
+  }
 }
 
 
