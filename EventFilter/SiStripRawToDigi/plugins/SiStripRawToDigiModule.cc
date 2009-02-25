@@ -4,6 +4,7 @@
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/DetId/interface/DetIdCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
@@ -45,6 +46,7 @@ sistrip::RawToDigiModule::RawToDigiModule( const edm::ParameterSet& pset ) :
   produces< edm::DetSetVector<SiStripRawDigi> >("VirginRaw");
   produces< edm::DetSetVector<SiStripRawDigi> >("ProcessedRaw");
   produces< edm::DetSetVector<SiStripDigi> >("ZeroSuppressed");
+  produces<DetIdCollection>("SiStripRawToDigi");
   
 }
 
@@ -90,15 +92,17 @@ void sistrip::RawToDigiModule::produce( edm::Event& event, const edm::EventSetup
   edm::DetSetVector<SiStripRawDigi>* vr = new edm::DetSetVector<SiStripRawDigi>();
   edm::DetSetVector<SiStripRawDigi>* pr = new edm::DetSetVector<SiStripRawDigi>();
   edm::DetSetVector<SiStripDigi>* zs = new edm::DetSetVector<SiStripDigi>();
-
+  DetIdCollection* ids = new DetIdCollection();
+  
   // Create digis
-  if ( rawToDigi_ ) { rawToDigi_->createDigis( *cabling_,*buffers,*summary,*sm,*vr,*pr,*zs ); }
+  if ( rawToDigi_ ) { rawToDigi_->createDigis( *cabling_,*buffers,*summary,*sm,*vr,*pr,*zs,*ids ); }
   
   // Create auto_ptr's of digi products
   std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > sm_dsv(sm);
   std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > vr_dsv(vr);
   std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > pr_dsv(pr);
   std::auto_ptr< edm::DetSetVector<SiStripDigi> > zs_dsv(zs);
+  std::auto_ptr< DetIdCollection > det_ids(ids);
   
   // Add to event
   event.put( summary );
@@ -106,6 +110,7 @@ void sistrip::RawToDigiModule::produce( edm::Event& event, const edm::EventSetup
   event.put( vr_dsv, "VirginRaw" );
   event.put( pr_dsv, "ProcessedRaw" );
   event.put( zs_dsv, "ZeroSuppressed" );
+  event.put( det_ids );
   
 }
 

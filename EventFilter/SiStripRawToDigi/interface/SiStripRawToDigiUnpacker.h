@@ -4,6 +4,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/DetId/interface/DetIdCollection.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
 #include "boost/cstdint.hpp"
@@ -83,7 +84,7 @@ namespace sistrip {
     ~RawToDigiUnpacker();
     
     /// creates digis
-    void createDigis( const SiStripFedCabling&, const FEDRawDataCollection&, SiStripEventSummary&, RawDigis& scope_mode, RawDigis& virgin_raw, RawDigis& proc_raw, Digis& zero_suppr );
+    void createDigis( const SiStripFedCabling&, const FEDRawDataCollection&, SiStripEventSummary&, RawDigis& scope_mode, RawDigis& virgin_raw, RawDigis& proc_raw, Digis& zero_suppr, DetIdCollection& );
     
     /// trigger info
     void triggerFed( const FEDRawDataCollection&, SiStripEventSummary&, const uint32_t& event );

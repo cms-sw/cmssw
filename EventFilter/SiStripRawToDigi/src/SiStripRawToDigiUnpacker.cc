@@ -474,7 +474,7 @@ sistrip::RawToDigiUnpacker::~RawToDigiUnpacker() {
   }
 }
 
-void sistrip::RawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling, const FEDRawDataCollection& buffers, SiStripEventSummary& summary, RawDigis& scope_mode, RawDigis& virgin_raw, RawDigis& proc_raw, Digis& zero_suppr ) {
+void sistrip::RawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling, const FEDRawDataCollection& buffers, SiStripEventSummary& summary, RawDigis& scope_mode, RawDigis& virgin_raw, RawDigis& proc_raw, Digis& zero_suppr, DetIdCollection& detids ) {
 
   // Clear working areas and registries
   cleanupWorkVectors();
@@ -631,8 +631,11 @@ void sistrip::RawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling, 
       if ( !iconn->isConnected() ) { continue; }
       
       // Check FED channel
-      if (!buffer_->channelGood(iconn->fedCh())) continue;
-
+      if (!buffer_->channelGood(iconn->fedCh())) {
+	detids.push_back(iconn->detId());
+	continue;
+      }
+      
       // Check DetId is valid (if to be used as key)
       if ( !useFedKey_ && ( !iconn->detId() || iconn->detId() == sistrip::invalid32_ ) ) { continue; }
 

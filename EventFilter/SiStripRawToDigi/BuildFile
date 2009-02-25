@@ -1,6 +1,7 @@
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/SiStripObjects>
 <use name=DataFormats/Common>
+<use name=DataFormats/DetId>
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/SiStripDigi>
 <use name=DataFormats/SiStripCluster>
@@ -15,6 +16,7 @@
   <lib name=EventFilterSiStripRawToDigi>
   <use name=CondFormats/SiStripObjects>
   <use name=DataFormats/Common>
+  <use name=DataFormats/DetId>
   <use name=DataFormats/FEDRawData>
   <use name=DataFormats/SiStripDigi>
   <use name=DataFormats/SiStripCluster>
