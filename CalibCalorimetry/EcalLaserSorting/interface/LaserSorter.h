@@ -1,5 +1,5 @@
 /*
- * $Id: LaserSorter.h,v 1.5 2009/01/07 11:56:18 pgras Exp $
+ * $Id: LaserSorter.h,v 1.1 2009/02/25 17:34:04 pgras Exp $
  */
 
 #ifndef EVENT_SELECT_H
@@ -9,10 +9,7 @@
 #include <iostream>
 #include <fstream>
 #include <inttypes.h>
-//#include <list>
 #include "boost/ptr_container/ptr_list.hpp"
-
-#include "pgras/PGUtilities/interface/PGHisto.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
