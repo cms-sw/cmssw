@@ -228,11 +228,6 @@ void AlpgenSource::beginRun(edm::Run &run)
   runInfo->addHeader(slha);
   run.put(runInfo);
 
-  // FIXME: check if we can use an SLHA header to make Pythia6Hadronisation
-  //        pass the 6 masses from Alpgen to Pythia6 instead of doing
-  //        it in the matching code, which would be sort of a layering
-  //        violation.
-
   // Open the .unw file in the heap, and set the global pointer to it.
   inputFile_.reset(new std::ifstream((fileName_ + ".unw").c_str()));
   if (!inputFile_->good())
