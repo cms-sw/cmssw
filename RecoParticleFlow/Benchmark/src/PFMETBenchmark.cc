@@ -214,10 +214,10 @@ double fitf(double *x, double *par)
 void PFMETBenchmark::analyse() 
 {
   //Define fit functions and histograms
-  TF1* func1 = new TF1("fit1", fitf, 0, 40, 4);
-  TF1* func2 = new TF1("fit2", fitf, 0, 40, 4);
-  TF1* func3 = new TF1("fit3", fitf, 0, 40, 4);
-  TF1* func4 = new TF1("fit4", fitf, 0, 40, 4);
+  //TF1* func1 = new TF1("fit1", fitf, 0, 40, 4);
+  //TF1* func2 = new TF1("fit2", fitf, 0, 40, 4);
+  //TF1* func3 = new TF1("fit3", fitf, 0, 40, 4);
+  //TF1* func4 = new TF1("fit4", fitf, 0, 40, 4);
 
   //fit gaussian to Delta MET corresponding to different slices in MET, store fit values (mean,sigma) in histos
   FitSlicesInY(hSETvsDeltaMET, hmeanPF, hrmsPF, false, 1); //set option flag for RMS or gaussian
@@ -364,9 +364,9 @@ void PFMETBenchmark::FitSlicesInY(TH2F* h, TH1F* mean, TH1F* sigma, bool doGausF
   //Loop on all bins in X, generate a projection along Y
   Int_t bin;
   Int_t nentries;
-  for( bin = (Int_t) binmin; bin <= (Int_t) binmax; bin += ngroup ) 
+  for( bin = (Int_t) binmin; bin <= (Int_t) binmax; bin += (Int_t)ngroup ) 
     {
-      TH1F *hpy = (TH1F*) h->ProjectionY("_temp", (Int_t) bin, (Int_t) bin + ngroup - 1, "e");
+      TH1F *hpy = (TH1F*) h->ProjectionY("_temp", (Int_t) bin, (Int_t) (bin + ngroup - 1), "e");
       if(hpy == 0) continue;
       nentries = Int_t( hpy->GetEntries() );
       if(nentries == 0 ) {delete hpy; continue;}
@@ -376,7 +376,7 @@ void PFMETBenchmark::FitSlicesInY(TH2F* h, TH1F* mean, TH1F* sigma, bool doGausF
       //cout << "bin = " << bin << "; Npfits = " << npfits << "; npar = " << npar << endl;
       if( npfits > npar ) 
 	{
-	  Int_t biny = bin + ngroup/2;
+	  Int_t biny = bin + (Int_t)ngroup/2;
 	  for( ipar=0; ipar < npar; ipar++ ) 
 	    {
 	      if( doGausFit ) hlist[ipar]->Fill( fXaxis->GetBinCenter(biny), f1->GetParameter(ipar) );
