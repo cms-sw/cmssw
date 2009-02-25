@@ -30,6 +30,16 @@
 #include "G4VProcess.hh"
 #include "G4ParticleDefinition.hh"
 #include <map>
+#include <FWCore/ServiceRegistry/interface/Service.h>
+#include <PhysicsTools/UtilAlgos/interface/TFileService.h>
+
+#include <TROOT.h>
+#include <TTree.h>
+#include <TFile.h>
+#include <TVector.h>
+#include <TString.h>
+#include <TClonesArray.h>
+//#include<TObjString.h>
 
 // forward declarations
 class DDDWorld;
@@ -43,105 +53,108 @@ class EndOfRun;
 class EndOfEvent;
 class EndOfTrack;
 
-//Define a class MyStepID
-class MyStepID {
+//Define a class StepID
+class StepID {
+
  private:
-  //G4 Physical Volume
-  //G4String MyG4PhysicalVolume;
   //G4 Region
-  G4String MyG4RegionName;
+  G4String theG4RegionName;
   //G4 Physical Process
-  G4String MyG4ProcessName;
+  G4String theG4ProcessName;
   //Particle PDG ID
-  G4int MyParticlePDGID;
-  //Particle Name
-  //G4String MyParticleName;
+  G4int theParticlePDGID;
+  //Track Number
+  G4int theTrackID;
+  
  public:
-  MyStepID(const G4Step* MyG4Step)
+  //Constructor using G4Step
+  StepID(const G4Step* theG4Step)
     :
-    //MyG4PhysicalVolume("UNDEFINED"),
-    MyG4RegionName("UNDEFINED"),
-    MyG4ProcessName("UNDEFINED"),
-    MyParticlePDGID(MyG4Step->GetTrack()->GetDefinition()->GetPDGEncoding())
-    //MyParticleName(MyG4Step->GetTrack()->GetDefinition()->GetParticleName())
+    theG4RegionName("UNDEFINED"),
+    theG4ProcessName("UNDEFINED"),
+    theParticlePDGID(theG4Step->GetTrack()->GetDefinition()->GetPDGEncoding()),
+    theTrackID(theG4Step->GetTrack()->GetTrackID())
     {
-      if (MyG4Step->GetPostStepPoint()->GetPhysicalVolume())
-	{
-	  //MyG4PhysicalVolume = MyG4Step->GetPostStepPoint()->GetPhysicalVolume()->GetName();
-	  MyG4RegionName = MyG4Step->GetPostStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetRegion()->GetName();
+      if (theG4Step->GetPostStepPoint()->GetPhysicalVolume()) {
+	  theG4RegionName = theG4Step->GetPostStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetRegion()->GetName();
 	}
-      if (MyG4Step->GetTrack()->GetCreatorProcess())
-	{
-	  MyG4ProcessName = MyG4Step->GetTrack()->GetCreatorProcess()->GetProcessName();
+      if (theG4Step->GetTrack()->GetCreatorProcess()){
+	  theG4ProcessName = theG4Step->GetTrack()->GetCreatorProcess()->GetProcessName();
 	}
+      
     }
-  //Default Constructor:
-  MyStepID()
-    :
-    //MyG4PhysicalVolume("UNDEFINED"),
-    MyG4RegionName("UNDEFINED"),
-    MyG4ProcessName("UNDEFINED"),
-    MyParticlePDGID(-9999999)
-    //MyParticleName(MyG4Step->GetTrack()->GetDefinition()->GetParticleName())
-    {}
+
   //Getters
-  //G4String GetPhysicalVolumeName () const { return MyG4PhysicalVolume; }
-  G4String GetRegionName () const { return MyG4RegionName; }
-  G4String GetProcessName () const { return MyG4ProcessName; }
-  G4int GetParticlePDGID () const { return MyParticlePDGID; }
-  //G4String GetParticleName () const { return MyParticleName; } 
-  //Comparison Operators (necessary in order to use StepID as a key in a map)
-  bool operator==(const MyStepID& id) const 
+  //G4String GetPhysicalVolumeName () const { return theG4PhysicalVolume; }
+  G4String GetRegionName () const { return theG4RegionName; }
+  G4String GetProcessName () const { return theG4ProcessName; }
+  G4int GetParticlePDGID () const { return theParticlePDGID; }
+  G4int GetTrackID () const { return theTrackID; }
+
+  //Comparison Operators (necessary in order to use StepID as a key in a map)                                                                                                                  
+  bool operator==(const StepID& id) const{
+    //std::cout<<"Operator == (StepID)"<<std::endl;
+    //std::cout<<" Present = "<<theG4RegionName<<" New = "<<id.GetRegionName()<<" Comparator = "<<strcmp(theG4RegionName,id.GetRegionName())<<
+    // " Present = "<<theG4ProcessName<<" New = "<<id.GetProcessName()<<" Comparator = "<<strcmp(theG4ProcessName,id.GetProcessName())<<
+    // " Present = "<<theParticlePDGID<<" New = "<<id.GetParticlePDGID()<<std::endl;
+
+    return ( strcmp(theG4RegionName,id.GetRegionName())==0 && strcmp(theG4ProcessName,id.GetProcessName())==0 && theParticlePDGID==id.GetParticlePDGID() && theTrackID==id.GetTrackID() ) ? true : false;
+  }
+
+  bool operator<(const StepID& id) const
     {
-      //std::cout<<"Operator == (MyStepID)"<<std::endl;
-      //std::cout<<MyG4ProcessName<<" "<<id.GetRegionName()<<
-      //MyG4ProcessName<<" "<<id.GetProcessName()<<
-      //MyParticlePDGID<<" "<<id.GetParticlePDGID()<<std::endl;
-      return (MyG4RegionName==id.GetRegionName() && MyG4ProcessName==id.GetProcessName() && MyParticlePDGID==id.GetParticlePDGID());
-    }
-  //bool operator!=(const MyStepID& id) const 
-  //  {
-      //std::cout<<"Operator != (MyStepID)"<<std::endl;
-      //std::cout<<MyG4ProcessName<<" "<<id.GetRegionName()<<
-      //MyG4ProcessName<<" "<<id.GetProcessName()<<
-      //MyParticlePDGID<<" "<<id.GetParticlePDGID()<<std::endl;
-  //    return (MyG4RegionName!=id.GetRegionName() || MyG4ProcessName!=id.GetProcessName() || MyParticlePDGID!=id.GetParticlePDGID());
-  //  }
-  bool operator<(const MyStepID& id) const 
-    {
-      //std::cout<<"Operator < (MyStepID)"<<std::endl;
-      //std::cout<<MyG4ProcessName<<" "<<id.GetRegionName()<<
-      //MyG4ProcessName<<" "<<id.GetProcessName()<<
-      //MyParticlePDGID<<" "<<id.GetParticlePDGID()<<std::endl;
-      if (MyParticlePDGID != id.GetParticlePDGID()){
-	return (MyParticlePDGID > id.GetParticlePDGID());
+      //std::cout<<"Operator < (StepID)"<<std::endl;
+      //std::cout<<" Present = "<<theG4RegionName<<" New = "<<id.GetRegionName()<<" Comparator = "<<strcmp(theG4RegionName,id.GetRegionName())<<
+      // " Present = "<<theG4ProcessName<<" New = "<<id.GetProcessName()<<" Comparator = "<<strcmp(theG4ProcessName,id.GetProcessName())<<
+      // " Present = "<<theParticlePDGID<<" New = "<<id.GetParticlePDGID()<<std::endl;
+
+      if (theParticlePDGID != id.GetParticlePDGID()){
+	//std::cout<<"Return "<<(theParticlePDGID > id.GetParticlePDGID());
+	return (theParticlePDGID > id.GetParticlePDGID());
       }
-      else if (MyG4RegionName != id.GetRegionName()){
-	return (MyG4RegionName > id.GetRegionName());
+      if (theTrackID != id.GetTrackID()){
+	//std::cout<<"Return "<<(theTrackID > id.GetTrackID());
+	return (theTrackID > id.GetTrackID());
       }
-      else if (MyG4ProcessName != id.GetProcessName()){
-	return (MyG4ProcessName > id.GetProcessName());
+      else if (strcmp(theG4RegionName,id.GetRegionName())!=0){
+	//std::cout<<"Return "<<strcmp(theG4RegionName,id.GetRegionName())>0 ? true : false;
+	return strcmp(theG4RegionName,id.GetRegionName())>0 ? true : false;
       }
-    }
-  bool operator>(const MyStepID& id) const 
-    {
-      //std::cout<<"Operator > (MyStepID)"<<std::endl;
-      //std::cout<<MyG4ProcessName<<" "<<id.GetRegionName()<<
-      //MyG4ProcessName<<" "<<id.GetProcessName()<<
-      //MyParticlePDGID<<" "<<id.GetParticlePDGID()<<std::endl;
-      if (MyParticlePDGID != id.GetParticlePDGID()){
-	return (MyParticlePDGID < id.GetParticlePDGID());
+      else if (strcmp(theG4ProcessName,id.GetProcessName())!=0){
+	//std::cout<<"Return "<<strcmp(theG4ProcessName,id.GetProcessName())>0 ? true : false;
+	return strcmp(theG4ProcessName,id.GetProcessName())>0 ? true : false;
       }
-      else if (MyG4RegionName != id.GetRegionName()){
-	return (MyG4RegionName < id.GetRegionName());
-      }
-      else if (MyG4ProcessName != id.GetProcessName()){
-	return (MyG4ProcessName < id.GetProcessName());
+      else {//The case in which they are all equal!
+	//std::cout<<"Return "<< false;
+	return false;
       }
     }
 
+  bool operator>(const StepID& id) const
+    {
+      //std::cout<<"Operator > (StepID)"<<std::endl;
+      //std::cout<<" Present = "<<theG4RegionName<<" New = "<<id.GetRegionName()<<" Comparator = "<<strcmp(theG4RegionName,id.GetRegionName())<<
+      // " Present = "<<theG4ProcessName<<" New = "<<id.GetProcessName()<<" Comparator = "<<strcmp(theG4ProcessName,id.GetProcessName())<<
+      // " Present = "<<theParticlePDGID<<" New = "<<id.GetParticlePDGID()<<std::endl;
+
+      if(theParticlePDGID != id.GetParticlePDGID()){
+        return (theParticlePDGID < id.GetParticlePDGID());
+      }
+      if (theTrackID != id.GetTrackID()){
+	//std::cout<<"Return "<<(theTrackID < id.GetTrackID());
+	return (theTrackID < id.GetTrackID());
+      }
+      else if(strcmp(theG4RegionName,id.GetRegionName())!=0){
+        return strcmp(theG4RegionName,id.GetRegionName())<0 ? true : false;
+      }
+      else if (strcmp(theG4ProcessName,id.GetProcessName())!=0){
+        return strcmp(theG4ProcessName,id.GetProcessName())<0 ? true : false;
+      }
+      else {//The case in which they are all equal!
+	return false;
+      }
+    }
 };
-
 
 #define OBSERVES(type) public Observer<const type*>
 #define UPDATE(type) void update(const type*) { std::cout <<"++ signal " #type<<std::endl; }
@@ -158,8 +171,43 @@ OBSERVES(EndOfTrack)
 {
    public:
    G4StepStatistics(const edm::ParameterSet& pSet) : 
-   m_verbose(pSet.getUntrackedParameter<bool>("verbose",false))  {
-   }
+     m_verbose(pSet.getUntrackedParameter<bool>("verbose",false)),
+     Event(0)
+     {
+       //Adding TFile Service output
+       std::cout<<"Start of the constuctor!!!!!!!!"<<std::endl;
+       G4StepTree = fs->make<TTree>("G4StepTree","G4Step Tree ");
+       G4StepTree->Branch("Event",&Event,"Event/I");
+       std::cout<<"created Branch for Event!"<<std::endl;
+       TrackID = new TClonesArray("UInt_t",100000);
+       std::cout<<"Allocated TrackID!"<<std::endl;
+       G4StepTree->Branch("TrackID","TClonesArray",&TrackID,100000);
+       std::cout<<"Allocated TrackID and created Branch for it!"<<std::endl;
+       PDGID = new TClonesArray("Int_t",100000);
+       G4StepTree->Branch("PDGID","TClonesArray",&PDGID,100000);
+       std::cout<<"Allocated PDGID and created Branch for it!"<<std::endl;
+       Region = new TClonesArray("TObjString",100000);
+       G4StepTree->Branch("Region","TClonesArray",&Region,100000);
+       std::cout<<"Allocated Region and created Branch for it!"<<std::endl;
+       Process = new TClonesArray("TObjString",100000);
+       G4StepTree->Branch("Process","TClonesArray",&Process,100000);
+       std::cout<<"Allocated Process and created Branch for it!"<<std::endl;
+       G4StepFreq = new TClonesArray("UInt_t",100000);
+       G4StepTree->Branch("G4StepFreq","TClonesArray",&G4StepFreq,100000);
+       std::cout<<"Allocated G4StepFreq and created Branch for it!"<<std::endl;
+  // save TClonesArrays of TLorentzVectors
+  // i.e. store 4-vectors of particles and jets
+
+  //MonteCarlo = new TClonesArray("TLorentzVector", 10000);
+  //AnalysisTree->Branch("MonteCarlo", "TClonesArray", &MonteCarlo, 128000, 0);
+
+  //Track = new TClonesArray("TLorentzVector", 10000);
+  //AnalysisTree->Branch("Track", "TClonesArray", &Track, 128000, 0);
+
+  //InclusiveJet = new TClonesArray("TLorentzVector", 10000);
+  //AnalysisTree->Branch("InclusiveJet", "TClonesArray", &InclusiveJet, 128000, 0);
+
+     }
 UPDATE(DDDWorld)
 UPDATE(BeginOfJob)
 UPDATE(BeginOfRun)
@@ -171,115 +219,84 @@ UPDATE(BeginOfTrack)
    void update(const G4Step* iStep) { 
    std::cout <<"++ signal G4Step " ;
    //Dump the relevant information from the G4 step in the object mysteptest
-   MyStepID mysteptest(iStep);
-   //std::pair<MyStepID,int> pippo;
-   std::map<MyStepID,int>::iterator check=G4StatsMap.find(mysteptest);
+   StepID mysteptest(iStep);
    //Add the StepID to the map, or increment if it already exists:
-   if ( check == G4StatsMap.end() )
+   if ( G4StatsMap.find(mysteptest) == G4StatsMap.end() )
      {
-       //pippo.first = mysteptest;
-       //pippo.second = 1;
-       //if (G4StatsMap.insert(std::make_pair(mysteptest,1))){
        // std::cout<<"ADDED STEP!"<<std::endl;
-       //}
-       G4StatsMap[mysteptest]=1;
-	 //else {
-	 //std::cout<<"FAILED TO ADD STEP!"<<std::endl;
-	 //}
-       std::cout << "Added to map StepID "
-	 //		 <<mysteptest.GetPhysicalVolumeName()
-	 	 <<" "
-	 	 <<mysteptest.GetRegionName()
-	 	 <<" "
-	 	 <<mysteptest.GetProcessName()
-	 	 <<" "
-	 	 <<mysteptest.GetParticlePDGID()//;
-		 <<" Number of Steps: "
-		 <<G4StatsMap[mysteptest];
+       //Allocating new memory for a pointer to associate with the key mysteptest
+       //in our map. Initializing it to 1,will be incremented working on the value of the pointer.
+       unsigned int* MyValue = new unsigned int(1);
+       //Inserting the new key,value pair
+       G4StatsMap.insert(std::make_pair(mysteptest, MyValue));
+       //std::cout << "Added to map StepID "
      }
    else
      {
-       //G4StatsMap[mysteptest] += 1;
-       //G4StatsMap.insert(std::make_pair(mysteptest,G4StatsMap[mysteptest]+1));
-       //int c=G4StatsMap[mysteptest]+1;
-       //G4StatsMap.erase(G4StatsMap.find(mysteptest));
-       G4StatsMap[mysteptest]+=1;
-       std::cout << "Incremented already existing StepID "//<<"( c:"<<c<<" "
-	 // <<mysteptest.GetPhysicalVolumeName()
-	 // <<" "
-	 	 <<mysteptest.GetRegionName()
-	 	 <<" "
-	 	 <<mysteptest.GetProcessName()
-	 	 <<" "
-	 	 <<mysteptest.GetParticlePDGID()//;
-		 <<" Number of Steps: "
-		 <<G4StatsMap[mysteptest];
-       //		 <<" "
-       // <<mysteptest.GetParticleName();
-     }
-   //Keep the last step to check the last two steps are not the same... (issue with map.end()?)
-   //laststep=mysteptest;
+       //Incrementing the value of the pointer by 1
+       *G4StatsMap[mysteptest] = *G4StatsMap[mysteptest] + 1;
+       //std::cout << "Incremented already existing StepID "
+        }
+   
    //If the verbose flag is set, then dump the information
-   if(m_verbose) {
- 
-     if (iStep->GetPostStepPoint()->GetPhysicalVolume()) 
-       {
-	 //std::cout << " MyStepID PhysicalVolume: "<< mysteptest.GetPhysicalVolumeName();
-	 std::cout << " MyStepID RegionName: "<< mysteptest.GetRegionName();
-       }
-     if (iStep->GetTrack()->GetCreatorProcess()) 
-       {
-	 std::cout << " MyStepID ProcessName: "<< mysteptest.GetProcessName();
-       }
-     std::cout << " MyStepID ParticlePDGID: "<< mysteptest.GetParticlePDGID();
-     //std::cout << " MyStepID ParticleName: "<< mysteptest.GetParticleName();
+   if (m_verbose) {
+     if (iStep->GetPostStepPoint()->GetPhysicalVolume()) {
+       std::cout << " StepID RegionName: "<< mysteptest.GetRegionName();
+     }
+     if (iStep->GetTrack()->GetCreatorProcess()) {
+       std::cout << " StepID ProcessName: "<< mysteptest.GetProcessName();
+     }
+     std::cout << " StepID ParticlePDGID: "<< mysteptest.GetParticlePDGID();
    }
    std::cout <<std::endl;
- 
 }
 //UPDATE(G4Step)
-//UPDATE(EndOfRun)
-  void update(const EndOfRun* iRun) {
-  std::cout <<"++ signal EndOfRun " <<std::endl;
-  //Test maps
-  //std::map<strin
-  }
+UPDATE(EndOfRun)
+  //  void update(const EndOfRun* iRun) {
+  //std::cout <<"++ signal EndOfRun " <<std::endl;
+  //}
+  
   //UPDATE(EndOfEvent)
   void update(const EndOfEvent* iRun) {
   std::cout <<"++ signal EndOfEvent " <<std::endl;
-  std::cout <<" G4StatsMap size is: "<<G4StatsMap.size()<<std::endl;
-  //std::map<const MyStepID,int>::const_iterator fake;
-  int i=0;
-  for (std::map<const MyStepID,int>::const_iterator step = G4StatsMap.begin(); step != G4StatsMap.end(); ++step){
-    std::cout <<i<<" G4StatsMap step is: "<<step->first.GetRegionName()<<" "<<step->first.GetProcessName()<<" "<<step->first.GetParticlePDGID();
-    std::cout <<" Number of such steps: "<< step->second <<std::endl;
-    i++;
-    //fake=step;
-    //fake++;
-    //if (step->first == fake->first){
-    //  std::cout<<"COMPARISON!"<<std::endl;
-    //} 
-    //else {
-    // std::cout<<"COMPARISON SAYS NOT EQUAL!"<<std::endl;
-    //}
+  Event++;
+  
+  //Dumping the map in the log if verbose is chosen:
+  if(m_verbose) {
+    std::cout <<" G4StatsMap size is: "<<G4StatsMap.size()<<std::endl;
   }
+  int index(0);
+  for (std::map<const StepID,unsigned int*>::const_iterator step = G4StatsMap.begin(); step != G4StatsMap.end(); ++step, ++index){
+    new ((*TrackID)[index]) UInt_t ( step->first.GetTrackID());
+    new ((*PDGID)[index]) Int_t (step->first.GetParticlePDGID());
+    new ((*Region)[index]) TObjString (step->first.GetRegionName());
+    new ((*Process)[index]) TObjString (step->first.GetProcessName());
+    new ((*G4StepFreq)[index]) UInt_t (*step->second);
+    if(m_verbose) {
+      std::cout <<" G4StatsMap step is: "<<step->first.GetRegionName()<<" "<<step->first.GetProcessName()<<" "<<step->first.GetParticlePDGID()<<" "<<step->first.GetTrackID() ;
+      std::cout <<" Number of such steps: "<< *step->second <<std::endl;
+    }
+  }
+  
+  G4StepTree->Fill();
 }
 UPDATE(EndOfTrack)
 
   private:
-
-//SimTracer(const SimTracer&); // stop default
- 
-//const SimTracer& operator=(const SimTracer&); // stop default
- 
-// ---------- member data --------------------------------
  
  bool m_verbose;
+ 
 //Adding the G4StatsMap to keep track of statistics in terms of step information... 
- std::map<const MyStepID,int> G4StatsMap;
- //MyStepID laststep;
+ std::map<const StepID,unsigned int*> G4StatsMap;
+ edm::Service<TFileService> fs;
+ TTree* G4StepTree;
+ unsigned int Event;
+ TClonesArray* TrackID;
+ TClonesArray* PDGID;
+ TClonesArray* Region;
+ TClonesArray* Process;
+ TClonesArray* G4StepFreq;
  
 };
-
 
 #endif

@@ -59,9 +59,9 @@ def customise(process):
         verbose = cms.untracked.bool(True)
         ))
 
-    #process.TFileService = cms.Service("TFileService", 
-    #  fileName = cms.string("G4StepStatistics.root"),
-    #  closeFileFast = cms.untracked.bool(True)
-    #)
+    process.TFileService = cms.Service("TFileService", 
+      fileName = cms.string("G4StepStatistics.root"),
+      closeFileFast = cms.untracked.bool(True)
+    )
     return(process)
     
