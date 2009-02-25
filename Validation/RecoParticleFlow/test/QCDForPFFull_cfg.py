@@ -8,6 +8,7 @@ process.maxEvents = cms.untracked.PSet(
 
 #generation
 process.load("Configuration.Generator.QCDForPF_cfi")
+process.generator.comEnergy = 14000.
 
 # this example configuration offers some minimum 
 # annotation, to help users get through; please
@@ -108,7 +109,7 @@ process.load("RecoParticleFlow.PFBlockProducer.particleFlowSimParticle_cff")
 #process.pfTrackElec.AddGSFTkColl = False
 #process.particleFlowBlock.pf_chi2_ECAL_Track = 900
 
-process.p0 = cms.Path(process.pgen)
+process.p0 = cms.Path(process.generator+process.pgen)
 process.p1 = cms.Path(process.psim)
 process.p2 = cms.Path(process.pdigi)
 process.p3 = cms.Path(process.L1Emulator)
