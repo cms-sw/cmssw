@@ -72,8 +72,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2009/01/09 10:45:20 $ 
- **  $Revision: 1.15 $
+ **  $Date: 2009/02/02 11:19:40 $ 
+ **  $Revision: 1.16 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -1156,7 +1156,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     int type=0;
     const EcalRecHitCollection ecalRecHitCollection = *(ecalRecHitHandle.product());
     float e3x3=   EcalClusterTools::e3x3(  *(  matchingPho.superCluster()->seed()  ), &ecalRecHitCollection, &(*topology)); 
-    float r9 =e3x3/( matchingPho.superCluster()->rawEnergy()+ matchingPho.superCluster()->preshowerEnergy());
+    float r9 =e3x3/( matchingPho.superCluster()->rawEnergy() );
 
     //    float photonE=matchingPho.superCluster()->energy();
     // float photonEt= matchingPho.superCluster()->energy()/cosh( matchingPho.superCluster()->eta()) ;
