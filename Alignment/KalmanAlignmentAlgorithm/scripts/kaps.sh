@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 #
 # This script is part of the Kalman Alignment Production System (KAPS).
 #
