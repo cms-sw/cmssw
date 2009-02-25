@@ -1,5 +1,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "IOMC/RandomEngine/src/TRandomAdaptor.h"
 //Hector
 #include "SimTransport/HectorProducer/interface/Hector.h"
 
@@ -9,6 +12,7 @@
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "HepMC/SimpleVector.h"
 
+#include "H_Parameters.h"
 
 #include <math.h>
 
@@ -17,7 +21,8 @@
 Hector::Hector(const edm::ParameterSet & param, bool verbosity, bool FP420Transport,bool ZDCTransport) : 
   m_verbosity(verbosity), 
   m_FP420Transport(FP420Transport),
-  m_ZDCTransport(ZDCTransport)
+  m_ZDCTransport(ZDCTransport),
+  rootEngine_(0)
 {
   
   edm::LogInfo ("Hector") << "===================================================================\n"  
@@ -42,7 +47,23 @@ Hector::Hector(const edm::ParameterSet & param, bool verbosity, bool FP420Transp
   m_smearE       = hector_par.getParameter<bool>("smearEnergy");
   m_sig_e        = hector_par.getParameter<double>("sigmaEnergy");
   etacut         = hector_par.getParameter<double>("EtaCutForHector" );
-  
+
+  edm::Service<edm::RandomNumberGenerator> rng;
+  if ( ! rng.isAvailable() ) {
+    throw cms::Exception("Configuration")
+      << "LHCTransport (Hector) requires the RandomNumberGeneratorService\n"
+      "which is not present in the configuration file.  You must add the service\n"
+      "in the configuration file or remove the modules that require it.";
+  }
+  if ( (rng->getEngine()).name() == "TRandom3" ) {
+    rootEngine_ = ( (edm::TRandomAdaptor*) &(rng->getEngine()) )->getRootEngine();
+    std::cout << "LHCTransport seed = " << rootEngine_->GetSeed() << std::endl;
+  }
+  else {
+    edm::LogError("Hector") << "The TRandom3 engine must be used, Random Number Generator Service not correctly initialized!"; 
+    rootEngine_ = new TRandom3();
+  }
+
   edm::LogInfo ("Hector") << "Hector parameters: \n" 
 			  << "   lengthfp420:    " << lengthfp420 << "\n"
 			  << "   m_rpp420_f:    " << m_rpp420_f << "\n"
@@ -309,19 +330,19 @@ void Hector::filterFP420(){
 	if (m_smearAng) {
 	  // the beam transverse direction is centered on (TXforPosition, TYforPosition) at IP
 	  if ( m_sigmaSTX>0. && m_sigmaSTY>0.) {
-	    part->smearAng(m_sigmaSTX,m_sigmaSTY);
+	    part->smearAng(m_sigmaSTX,m_sigmaSTY,rootEngine_);
 	  }
 	  else {
 	    // for smearAng() in urad, default are (STX=30.23, STY=30.23)
-	    part->smearAng(); 
+	    part->smearAng(STX,STY,rootEngine_); 
 	  }
 	}
 	if (m_smearE) {
 	  if ( m_sig_e ) {
-	    part->smearE(m_sig_e);
+	    part->smearE(m_sig_e,rootEngine_);
 	  }
 	  else {
-	    part->smearE();  // in GeV, default is SBE=0.79
+	    part->smearE(SBE,rootEngine_);  // in GeV, default is SBE=0.79
 	  }
 	}
 	if ( direction == 1 && m_beamlineFP4201 != 0 ) {
@@ -391,19 +412,19 @@ void Hector::filterZDC(){
 	if (m_smearAng) {
 	  if ( m_sigmaSTX>0. && m_sigmaSTY>0.) {
 	    // the beam transverse direction is centered on (TXforPosition, TYforPosition) at IP
-	    part->smearAng(m_sigmaSTX,m_sigmaSTY);
+	    part->smearAng(m_sigmaSTX,m_sigmaSTY,rootEngine_);
 	  }
 	  else {
 	    // for smearAng() in urad, default are (STX=30.23, STY=30.23)
-	    part->smearAng(); 
+	    part->smearAng(STX,STY,rootEngine_); 
 	  }
 	}
 	if (m_smearE) {
 	  if ( m_sig_e ) {
-	    part->smearE(m_sig_e);
+	    part->smearE(m_sig_e,rootEngine_);
 	  }
 	  else {
-	    part->smearE();  // in GeV, default is SBE=0.79
+	    part->smearE(SBE,rootEngine_);  // in GeV, default is SBE=0.79
 	  }
 	}
 	if ( direction == 1 && m_beamlineZDC1 != 0 ){
@@ -462,19 +483,19 @@ void Hector::filterD1(){
 	if (m_smearAng) {
 	  if ( m_sigmaSTX>0. && m_sigmaSTY>0.) {
 	    // the beam transverse direction is centered on (TXforPosition, TYforPosition) at IP
-	    part->smearAng(m_sigmaSTX,m_sigmaSTY);
+	    part->smearAng(m_sigmaSTX,m_sigmaSTY,rootEngine_);
 	  }
 	  else {
 	    // for smearAng() in urad, default are (STX=30.23, STY=30.23)
-	    part->smearAng(); 
+	    part->smearAng(STX,STY,rootEngine_); 
 	  }
 	}
 	if (m_smearE) {
 	  if ( m_sig_e ) {
-	    part->smearE(m_sig_e);
+	    part->smearE(m_sig_e,rootEngine_);
 	  }
 	  else {
-	    part->smearE();  // in GeV, default is SBE=0.79
+	    part->smearE(SBE,rootEngine_);  // in GeV, default is SBE=0.79
 	  }
 	}
 	if ( direction == 1 && m_beamlineD11 != 0 ) {

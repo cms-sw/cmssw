@@ -31,6 +31,8 @@
 #include "H_BeamParticle.h"
 #include <string>
 
+#include "TRandom3.h"
+
 class Hector {
   
  public:
@@ -124,6 +126,8 @@ class Hector {
     bool m_verbosity;
     bool m_FP420Transport;
     bool m_ZDCTransport;
+
+    TRandom3* rootEngine_;
     
 };
 #endif
