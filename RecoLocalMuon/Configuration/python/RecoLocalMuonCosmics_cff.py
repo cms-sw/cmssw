@@ -59,7 +59,7 @@ muonlocalrecoT0Seg = cms.Sequence(dtlocalrecoT0Seg+csclocalreco+rpcRecHits)
 # all sequences to be used for GR
 muonLocalRecoGR = cms.Sequence(muonlocalreco+muonlocalrecoNoDrift+muonlocalrecoT0Seg)
 #DTLinearDriftAlgo_CosmicData.recAlgoConfig.hitResolution = 0.05
-DTLinearDriftFromDBAlgo_CosmicData.recAlgoConfig.tTrigModeConfig.kFactor = -1.00
+
 #dt1DRecHits.dtDigiLabel = 'muonDTDigis'
 DTCombinatorialPatternReco2DAlgo_LinearDriftFromDB_CosmicData.Reco2DAlgoConfig.segmCleanerMode = 2
 DTCombinatorialPatternReco2DAlgo_LinearDriftFromDB_CosmicData.Reco2DAlgoConfig.MaxAllowedHits = 30
