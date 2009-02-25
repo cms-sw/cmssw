@@ -74,6 +74,9 @@
   <class name="RPCObPVSSmap::Item"/>
   <class name="std::vector<RPCObPVSSmap::Item>"/>
 
+  <class name="RPCObFebmap"/>
+  <class name="RPCObFebmap::Feb_Item"/>
+  <class name="std::vector<RPCObFebmap::Feb_Item>"/>
 
   <class name="RPCTechTriggerConfig"/>
   <class name="RBCBoardSpecs"/>

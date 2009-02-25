@@ -21,6 +21,8 @@
 #include "CondFormats/RPCObjects/interface/RPCTechTriggerConfig.h"
 #include "CondFormats/RPCObjects/interface/RBCBoardSpecs.h"
 #include "CondFormats/RPCObjects/interface/TTUBoardSpecs.h"
+#include "CondFormats/RPCObjects/interface/RPCObFebmap.h"
+
 
 namespace{
   struct dictionary {
