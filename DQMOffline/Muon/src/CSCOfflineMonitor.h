@@ -8,12 +8,8 @@
  *    recHits
  *    segments
  *
- * This program merely unpacks collections and fills
- * a few simple histograms.  The idea is to compare
- * the histograms for one offline release and another
- * and look for unexpected differences.
  *
- * Michael Schmitt, Northwestern University, July 2007
+ * Andrew Kubik, Northwestern University, Oct 2008
  */
 
 
@@ -69,6 +65,7 @@ public:
   void beginJob(edm::EventSetup const& iSetup);
   void endJob(void); 
  
+
   /// Perform the real analysis
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
 
@@ -85,67 +82,107 @@ private:
 
 
   // some useful functions
+
+  // modules:
+  void  doOccupancies(edm::Handle<CSCStripDigiCollection> strips, edm::Handle<CSCWireDigiCollection> wires,
+                      edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments);
+  void  doStripDigis(edm::Handle<CSCStripDigiCollection> strips);
+  void  doWireDigis(edm::Handle<CSCWireDigiCollection> wires);
+  void  doRecHits(edm::Handle<CSCRecHit2DCollection> recHits,edm::Handle<CSCStripDigiCollection> strips,
+                  edm::ESHandle<CSCGeometry> cscGeom);
+  void  doPedestalNoise(edm::Handle<CSCStripDigiCollection> strips);
+  void  doSegments(edm::Handle<CSCSegmentCollection> cscSegments, edm::ESHandle<CSCGeometry> cscGeom);
+  void  doResolution(edm::Handle<CSCSegmentCollection> cscSegments, edm::ESHandle<CSCGeometry> cscGeom);
+  void  doEfficiencies(edm::Handle<CSCWireDigiCollection> wires, edm::Handle<CSCStripDigiCollection> strips,
+                       edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments,
+                       edm::ESHandle<CSCGeometry> cscGeom);
+
+  // used by modules:
   float      fitX(HepMatrix sp, HepMatrix ep);
-  float      getTiming(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);
   float      getSignal(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);
-  int        typeIndex(CSCDetId id);
+  int        typeIndex(CSCDetId id, int flag = 1);
+  int        chamberSerial(CSCDetId id);
+
+  // for efficiency calculation
+  // these functions handle Stoyan's efficiency code
+  void  fillEfficiencyHistos(int bin, int flag);
+  void  getEfficiency(float bin, float Norm, std::vector<float> &eff);
+  void  histoEfficiency(TH1F *readHisto, MonitorElement *writeHisto);
+  double lineParametrization(double z1Position, double z2Position, double z1Direction){
+    double parameterLine = (z2Position-z1Position)/z1Direction;
+    return parameterLine;
+  }
+  double extrapolate1D(double initPosition, double initDirection, double parameterOfTheLine){
+    double extrapolatedPosition = initPosition + initDirection*parameterOfTheLine;
+    return extrapolatedPosition; 
+  }
+  bool withinSensitiveRegion(LocalPoint localPos, const std::vector<float> layerBounds,
+                             int station, int ring, float shiftFromEdge, float shiftFromDeadZone);
+
+
 
   // DQM
   DQMStore* dbe;
 
   // Wire digis
-  MonitorElement *hWireAll;
-  MonitorElement *hWireTBinAll;
   MonitorElement *hWirenGroupsTotal;
-  MonitorElement *hWireCodeBroad;
-  std::vector<MonitorElement*> hWireLayer;
-  std::vector<MonitorElement*> hWireWire;
-  std::vector<MonitorElement*> hWireCodeNarrow;
+  std::vector<MonitorElement*> hWireTBin;
+  std::vector<MonitorElement*> hWireNumber;
 
   // Strip Digis
-  MonitorElement *hStripAll;
   MonitorElement *hStripNFired;
-  MonitorElement *hStripCodeBroad;
-  std::vector<MonitorElement*> hStripCodeNarrow;
-  std::vector<MonitorElement*> hStripLayer;
-  std::vector<MonitorElement*> hStripStrip;
-
-  // Pedestal Noise
-  MonitorElement *hStripPedAll; 
-  std::vector<MonitorElement*> hStripPed; 
-  //MonitorElement *hPedvsStrip;
+  std::vector<MonitorElement*> hStripNumber;
+  std::vector<MonitorElement*> hStripPed;
 
   // recHits
-  MonitorElement *hRHCodeBroad;
   MonitorElement *hRHnrechits;
-  std::vector<MonitorElement*> hRHCodeNarrow;
-  std::vector<MonitorElement*> hRHLayer;
-  std::vector<MonitorElement*> hRHX;
-  std::vector<MonitorElement*> hRHY;
-  //std::vector<MonitorElement*> hRHGlobal;
-  std::vector<MonitorElement*> hRHResid;
-  std::vector<MonitorElement*> hSResid;
+  std::vector<MonitorElement*> hRHGlobal;
   std::vector<MonitorElement*> hRHSumQ;
-  std::vector<MonitorElement*> hRHRatioQ;
   std::vector<MonitorElement*> hRHTiming;
+  std::vector<MonitorElement*> hRHRatioQ;
+  std::vector<MonitorElement*> hRHstpos;
+  std::vector<MonitorElement*> hRHsterr;
 
   // Segments
-  MonitorElement *hSCodeBroad;
-  std::vector<MonitorElement*> hSCodeNarrow;
-  std::vector<MonitorElement*> hSnHits;
-  std::vector<MonitorElement*> hSTheta;
-  //std::vector<MonitorElement*> hSGlobal;
+  MonitorElement *hSnSegments;
   MonitorElement *hSnhitsAll;
-  MonitorElement *hSChiSqProb;
+  std::vector<MonitorElement*> hSnhits;
+  MonitorElement *hSChiSqAll;
+  std::vector<MonitorElement*> hSChiSq;
+  MonitorElement *hSChiSqProbAll;
+  std::vector<MonitorElement*> hSChiSqProb;
   MonitorElement *hSGlobalTheta;
   MonitorElement *hSGlobalPhi;
-  MonitorElement *hSnSegments;
+
+  // Resolution
+  std::vector<MonitorElement*> hSResid;
 
   // occupancy histos
   MonitorElement *hOWires;
   MonitorElement *hOStrips;
   MonitorElement *hORecHits;
   MonitorElement *hOSegments;
+  MonitorElement *hOWireSerial;
+  MonitorElement *hOStripSerial;
+  MonitorElement *hORecHitsSerial;
+  MonitorElement *hOSegmentsSerial;
+  MonitorElement *hCSCOccupancy;
+
+  // Efficiency
+  TH1F *hSSTE;
+  TH1F *hRHSTE;
+  MonitorElement *hSEff;
+  MonitorElement *hRHEff;
+  TH2F *hSSTE2;
+  TH2F *hRHSTE2;
+  TH2F *hStripSTE2;
+  TH2F *hWireSTE2;
+  MonitorElement *hSEff2;
+  MonitorElement *hRHEff2;
+  MonitorElement *hStripEff2;
+  MonitorElement *hWireEff2;
+  TH2F *hEffDenominator;
+  MonitorElement *hSensitiveAreaEvt;
 
 
 
