@@ -6,7 +6,7 @@
 
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctLut.h"
 
-class L1GctJetEtCalibrationFunction;
+class L1GctJetFinderParams;
 class L1CaloEtScale;
 
 /*!
@@ -36,12 +36,12 @@ class L1GctJetEtCalibrationLut : public L1GctLut<JET_ET_CAL_LUT_ADD_BITS,JET_ET_
   virtual ~L1GctJetEtCalibrationLut();
 
   // set components
-  void setFunction(const L1GctJetEtCalibrationFunction * const lutfn);
+  void setFunction(const L1GctJetFinderParams * const lutfn);
   void setOutputEtScale(const L1CaloEtScale * const scale);
   void setEtaBin(const unsigned eta);
 
   // get components
-  const L1GctJetEtCalibrationFunction* getFunction() const { return m_lutFunction; }
+  const L1GctJetFinderParams* getFunction() const { return m_lutFunction; }
   const L1CaloEtScale* getOutputEtScale() const { return m_outputEtScale; }
   unsigned etaBin() const { return static_cast<unsigned>(m_etaBin); }
 
@@ -55,7 +55,7 @@ class L1GctJetEtCalibrationLut : public L1GctLut<JET_ET_CAL_LUT_ADD_BITS,JET_ET_
 
  private:
 
-  const L1GctJetEtCalibrationFunction* m_lutFunction;
+  const L1GctJetFinderParams* m_lutFunction;
   const L1CaloEtScale * m_outputEtScale;
 
   uint8_t m_etaBin;

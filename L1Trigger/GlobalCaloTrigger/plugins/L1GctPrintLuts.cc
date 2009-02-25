@@ -7,12 +7,12 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // Trigger configuration includes
+#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 #include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
-#include "CondFormats/L1TObjects/interface/L1GctJetEtCalibrationFunction.h"
 #include "CondFormats/L1TObjects/interface/L1GctJetCounterSetup.h"
 #include "CondFormats/L1TObjects/interface/L1GctChannelMask.h"
+#include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
-#include "CondFormats/DataRecord/interface/L1GctJetCalibFunRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctJetCounterPositiveEtaRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctJetCounterNegativeEtaRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctChannelMaskRcd.h"
@@ -182,8 +182,6 @@ int L1GctPrintLuts::configureGct(const edm::EventSetup& c)
     c.get< L1GctJetCounterPositiveEtaRcd >().get( jcPosPars ) ; // which record?
     edm::ESHandle< L1GctJetCounterSetup > jcNegPars ;
     c.get< L1GctJetCounterNegativeEtaRcd >().get( jcNegPars ) ; // which record?
-    edm::ESHandle< L1GctJetEtCalibrationFunction > calibFun ;
-    c.get< L1GctJetCalibFunRcd >().get( calibFun ) ; // which record?
     edm::ESHandle< L1GctHfLutSetup > hfLSetup ;
     c.get< L1GctHfLutSetupRcd >().get( hfLSetup ) ; // which record?
     edm::ESHandle< L1GctChannelMask > chanMask ;
@@ -195,12 +193,6 @@ int L1GctPrintLuts::configureGct(const edm::EventSetup& c)
       success = -1;
       edm::LogWarning("L1GctConfigFailure")
 	<< "Failed to find a L1GctJetFinderParamsRcd:L1GctJetFinderParams in EventSetup!" << std::endl;
-    }
-
-    if (calibFun.product() == 0) {
-      success = -1;
-      edm::LogWarning("L1GctConfigFailure")
-	<< "Failed to find a L1GctJetCalibFunRcd:L1GctJetEtCalibrationFunction in EventSetup!" << std::endl;
     }
 
     if (hfLSetup.product() == 0) {
@@ -218,7 +210,7 @@ int L1GctPrintLuts::configureGct(const edm::EventSetup& c)
     if (success==0) {
       // tell the jet Et Luts about the scales
       for (unsigned ieta=0; ieta<m_jetEtCalibLuts.size(); ieta++) {
-	m_jetEtCalibLuts.at(ieta)->setFunction(calibFun.product());
+	m_jetEtCalibLuts.at(ieta)->setFunction(jfPars.product());
 	m_jetEtCalibLuts.at(ieta)->setOutputEtScale(etScale.product());
       }
 

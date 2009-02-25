@@ -7,10 +7,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 
-#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
-#include "CondFormats/L1TObjects/interface/L1GctJetEtCalibrationFunction.h"
-#include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
-#include "CondFormats/DataRecord/interface/L1GctJetCalibFunRcd.h"
+#include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
+#include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
 
 #include <math.h>
 
@@ -40,13 +38,11 @@ L1GctValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   using namespace edm;
 
   // Get the scales from the event setup
-  ESHandle< L1GctJetEtCalibrationFunction > calibFun ;
-  iSetup.get< L1GctJetCalibFunRcd >().get( calibFun ) ; // which record?
-  ESHandle< L1CaloEtScale > etScale ;
-  iSetup.get< L1JetEtScaleRcd >().get( etScale ) ; // which record?
+  ESHandle< L1GctJetFinderParams > jfPars ;
+  iSetup.get< L1GctJetFinderParamsRcd >().get( jfPars ) ; // which record?
 
-  double lsbForEt = etScale.product()->linearLsb();
-  double lsbForHt = calibFun.product()->getHtScaleLSB();
+  double lsbForEt = jfPars.product()->getRgnEtLsbGeV();
+  double lsbForHt = jfPars.product()->getHtLsbGeV();
 
   // Get the Gct energy sums from the event
   Handle< L1GctEtTotalCollection > sumEtColl ;

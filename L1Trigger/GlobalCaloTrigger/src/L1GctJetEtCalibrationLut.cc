@@ -1,7 +1,7 @@
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 
-#include "CondFormats/L1TObjects/interface/L1GctJetEtCalibrationFunction.h"
+#include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 
 //DEFINE STATICS
@@ -19,7 +19,7 @@ L1GctJetEtCalibrationLut::~L1GctJetEtCalibrationLut()
 {
 }
 
-void L1GctJetEtCalibrationLut::setFunction(const L1GctJetEtCalibrationFunction* const lutfn)
+void L1GctJetEtCalibrationLut::setFunction(const L1GctJetFinderParams* const lutfn)
 {
   m_lutFunction = lutfn;
   m_setupOk = (lutfn!=0);
@@ -48,8 +48,8 @@ uint16_t L1GctJetEtCalibrationLut::value (const uint16_t lutAddress) const
     double uncoEt = static_cast<double>(jetEt) * m_outputEtScale->linearLsb();
     bool tauVeto = ((lutAddress & tauBitMask)==0);
   
-    double corrEt = m_lutFunction->correctedEt(uncoEt, etaBin(), tauVeto);
-    return m_lutFunction->calibratedEt(corrEt) | (m_outputEtScale->rank(corrEt) << JET_ENERGY_BITWIDTH);
+    double corrEt = m_lutFunction->correctedEtGeV(uncoEt, etaBin(), tauVeto);
+    return m_lutFunction->correctedEtGct(corrEt) | (m_outputEtScale->rank(corrEt) << JET_ENERGY_BITWIDTH);
   }
 }
 
