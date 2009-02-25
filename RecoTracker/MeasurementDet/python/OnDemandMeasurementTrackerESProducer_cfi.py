@@ -1,20 +1,25 @@
 import FWCore.ParameterSet.Config as cms
 
 OnDemandMeasurementTracker = cms.ESProducer("MeasurementTrackerESProducer",
-    StripCPE = cms.string('StripCPEfromTrackAngle'),
+    ComponentName = cms.string('OnDemandMeasurementTracker'),
+
+    OnDemand = cms.bool(True),
+    Regional = cms.bool(True),
+
+    pixelClusterProducer = cms.string('siPixelClusters'),
+    stripClusterProducer = cms.string('measurementTrackerSiStripRefGetterProducer'),
     #stripLazyGetterProducer label only matters if Regional=true
     stripLazyGetterProducer = cms.string('SiStripRawToClustersFacility'),
-    UseStripNoiseDB = cms.bool(False),
-    OnDemand = cms.bool(True),
-    ComponentName = cms.string('OnDemandMeasurementTracker'),
-    stripClusterProducer = cms.string('measurementTrackerSiStripRefGetterProducer'),
-    Regional = cms.bool(True),
-    UseStripCablingDB = cms.bool(False),
-    pixelClusterProducer = cms.string('siPixelClusters'),
-    # -- use simpleCPE untile the TkGluedMeasurementDet is 
-    #    not corrected to handle properly the track direction
+
+    PixelCPE = cms.string('PixelCPEGeneric'),
+    StripCPE = cms.string('StripCPEfromTrackAngle'),
     HitMatcher = cms.string('StandardMatcher'),
-    PixelCPE = cms.string('PixelCPEGeneric')
+
+    UseStripCablingDB = cms.bool(False),
+    UseStripNoiseDB = cms.bool(False),
+
+    inactivePixelDetectorLabels = cms.VInputTag(),
+    inactiveStripDetectorLabels = cms.VInputTag(),
 )
 
 

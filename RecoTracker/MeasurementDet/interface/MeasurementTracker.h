@@ -96,6 +96,9 @@ public:
   const GeometricSearchTracker*         theGeometricSearchTracker;
   const SiPixelFedCabling*              thePixelCabling;
 
+  const std::vector<edm::InputTag>      theInactivePixelDetectorLabels;
+  const std::vector<edm::InputTag>      theInactiveStripDetectorLabels;
+
   bool isRegional_;
 
   void initialize() const;

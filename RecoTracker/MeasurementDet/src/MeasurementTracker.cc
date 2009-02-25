@@ -11,6 +11,8 @@
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
+#include "DataFormats/DetId/interface/DetIdCollection.h"
+
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
@@ -61,8 +63,10 @@ MeasurementTracker::MeasurementTracker(const edm::ParameterSet&              con
   pset_(conf),
   name_(conf.getParameter<std::string>("ComponentName")),
   thePixelCPE(pixelCPE),theStripCPE(stripCPE),theHitMatcher(hitMatcher),
-  theTrackerGeom(trackerGeom),theGeometricSearchTracker(geometricSearchTracker)
-  ,isRegional_(isRegional)
+  theTrackerGeom(trackerGeom),theGeometricSearchTracker(geometricSearchTracker),
+  theInactivePixelDetectorLabels(conf.getParameter<std::vector<edm::InputTag> >("inactivePixelDetectorLabels")),
+  theInactiveStripDetectorLabels(conf.getParameter<std::vector<edm::InputTag> >("inactiveStripDetectorLabels")),
+  isRegional_(isRegional)
 {
   this->initialize();
   this->initializeStripStatus(stripQuality, stripQualityFlags, stripQualityDebugFlags);
@@ -207,6 +211,17 @@ void MeasurementTracker::updatePixels( const edm::Event& event) const
 
   bool switchOffPixelsIfEmpty = (!pset_.existsAs<bool>("switchOffPixelsIfEmpty")) ||
                                 (pset_.getParameter<bool>("switchOffPixelsIfEmpty") == false);
+
+  std::vector<uint32_t> rawInactiveDetIds; 
+  if (!theInactivePixelDetectorLabels.empty()) {
+    edm::Handle<DetIdCollection> detIds;
+    for (std::vector<edm::InputTag>::const_iterator itt = theInactivePixelDetectorLabels.begin(), edt = theInactivePixelDetectorLabels.end(); 
+            itt != edt; ++itt) {
+        event.getByLabel(*itt, detIds);
+        rawInactiveDetIds.insert(rawInactiveDetIds.end(), detIds->begin(), detIds->end());
+    }
+    if (!rawInactiveDetIds.empty()) std::sort(rawInactiveDetIds.begin(), rawInactiveDetIds.end());
+  }
   // Pixel Clusters
   std::string pixelClusterProducer = pset_.getParameter<std::string>("pixelClusterProducer");
   if( pixelClusterProducer.empty() ) { //clusters have not been produced
@@ -234,6 +249,9 @@ void MeasurementTracker::updatePixels( const edm::Event& event) const
 
       // foreach det get cluster range
       unsigned int id = (**i).geomDet().geographicalId().rawId();
+      if (!rawInactiveDetIds.empty() && std::binary_search(rawInactiveDetIds.begin(), rawInactiveDetIds.end(), id)) {
+        (**i).setActiveThisEvent(false); continue;
+      }
       edmNew::DetSetVector<SiPixelCluster>::const_iterator it = pixelCollection->find( id );
       if ( it != pixelCollection->end() ){            
 	// push cluster range in det
@@ -254,6 +272,17 @@ void MeasurementTracker::updateStrips( const edm::Event& event) const
 
   typedef edmNew::DetSet<SiStripCluster>   StripDetSet;
 
+  std::vector<uint32_t> rawInactiveDetIds;
+  if (!theInactiveStripDetectorLabels.empty()) {
+    edm::Handle<DetIdCollection> detIds;
+    for (std::vector<edm::InputTag>::const_iterator itt = theInactiveStripDetectorLabels.begin(), edt = theInactiveStripDetectorLabels.end(); 
+            itt != edt; ++itt) {
+        event.getByLabel(*itt, detIds);
+        rawInactiveDetIds.insert(rawInactiveDetIds.end(), detIds->begin(), detIds->end());
+    }
+    if (!rawInactiveDetIds.empty()) std::sort(rawInactiveDetIds.begin(), rawInactiveDetIds.end());
+  }
+
   // Strip Clusters
   std::string stripClusterProducer = pset_.getParameter<std::string>("stripClusterProducer");
   if( !stripClusterProducer.compare("") ) { //clusters have not been produced
@@ -273,6 +302,9 @@ void MeasurementTracker::updateStrips( const edm::Event& event) const
 	
 	// foreach det get cluster range
 	unsigned int id = (**i).geomDet().geographicalId().rawId();
+        if (!rawInactiveDetIds.empty() && std::binary_search(rawInactiveDetIds.begin(), rawInactiveDetIds.end(), id)) {
+            (**i).setActiveThisEvent(false); continue;
+        }
 	edmNew::DetSetVector<SiStripCluster>::const_iterator it = clusterCollection->find( id );
 	if ( it != clusterCollection->end() ){
 	  StripDetSet detSet = (*clusterCollection)[ id ];
