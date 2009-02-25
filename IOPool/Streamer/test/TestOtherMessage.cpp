@@ -7,7 +7,7 @@ int main()
 
 {
 
-   char mybuf[20];
+   unsigned char mybuf[20];
 
    std::cout << "Filling the local buffer with 0xee" << std::endl;
    for (unsigned int idx = 0; idx < sizeof(mybuf); ++idx) {

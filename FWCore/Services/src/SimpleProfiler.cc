@@ -135,8 +135,8 @@ namespace
     fprintf(frame_cond, msg);
     fflush(frame_cond);
     return;
-    fprintf(frame_cond, "dumpStack:\n i= %x\n eip[0]= %2.2x\nb= %x\n s= %x\n b[0]= %x\n b[1]= %x\n b[2]= %x\n",
-	    (void*)eip, eip[0], (void*)ebp, (void*)esp, (void*)(ebp[0]), (void*)(ebp[1]), (void*)(ebp[2]));
+    fprintf(frame_cond, "dumpStack:\n i= %p\n eip[0]= %2.2x\nb= %p\n s= %p\n b[0]= %x\n b[1]= %x\n b[2]= %x\n",
+	    eip, eip[0], (void *)ebp, (void *)esp, ebp[0], ebp[1], ebp[2]);
     fflush(frame_cond);
 
 
@@ -150,7 +150,7 @@ namespace
 #else
     while(ucp->uc_link)
       {
-	fprintf(frame_cond, "   %8.8x\n",ucp->uc_link);
+	fprintf(frame_cond, "   %p\n", (void *)ucp->uc_link);
 	ucp = ucp->uc_link;
       }
 #endif
@@ -247,7 +247,7 @@ int stacktrace (void *addresses[], int nmax)
   int			depth = 0;
 
   // Add fake entry to be compatible with other methods
-  if (depth < nmax) addresses[depth++] = (void *) &stacktrace;
+  if (depth < nmax) addresses[depth++] = reinterpret_cast<void *>(reinterpret_cast<unsigned long>(&stacktrace));
 
   // Top-most frame ends with null pointer; check the rest is reasonable
   while (depth < nmax && fp >= esp)

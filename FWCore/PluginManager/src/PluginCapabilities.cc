@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Apr  6 12:36:24 EDT 2007
-// $Id: PluginCapabilities.cc,v 1.3 2007/04/27 19:26:09 chrjones Exp $
+// $Id: PluginCapabilities.cc,v 1.4 2007/07/03 19:19:50 chrjones Exp $
 //
 
 // system include files
@@ -71,7 +71,7 @@ PluginCapabilities::tryToFind(const SharedLibrary& iLoadable)
   const char** names;
   int size;
   //reinterpret_cast<void (*)(const char**&,int&)>(sym)(names,size);
-  ((void (*)(const char**&,int&))(sym))(names,size);
+  reinterpret_cast<void (*)(const char**&,int&)>(reinterpret_cast<unsigned long>(sym))(names,size);
 
   PluginInfo info;
   for(int i=0; i < size; ++i) {

@@ -1,4 +1,4 @@
-// $Id: testOwnVector.cc,v 1.7 2007/07/31 09:13:12 llista Exp $
+// $Id: testOwnVector.cc,v 1.8 2007/08/01 08:45:09 llista Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include <algorithm>
 #include <iterator>
@@ -37,12 +37,14 @@ namespace test {
 
   class a {
   public:
+    virtual ~a() {}
     virtual int f() const = 0;
   };
 
   class ClassB : public a {
   public:
     ClassB(int i) : ii(i) {;}
+    virtual ~ClassB() {}
     virtual int f() const { return ii;  }
     int ii;
   private:
