@@ -50,6 +50,8 @@ class mappingGenerator:
         self.__poolcontainer
         self.__dictionary 
         """
+        self.__poolcontainer="_".join([self.__classname,self.__mappingversion])
+        print "poolcontainer ",self.__poolcontainer
         f=open(os.path.join(self.__path,"classes_def.xml"),'r')
         searchfor="class name=\""+classname+"\""
         for line in f:
@@ -62,8 +64,6 @@ class mappingGenerator:
                         result=field.split("\"")[1]
                         self.__classversion=result
                         print "result",result
-                        self.__poolcontainer="_".join([self.__classname,self.__mappingversion])
-                        print "poolcontainer ",self.__poolcontainer
         f.close()
         
     def parsecmdln(self):
