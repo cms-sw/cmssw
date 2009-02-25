@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: Constraint.cc,v 1.1 2009/01/06 12:22:43 dpiparo Exp $
+// @(#)root/hist:$Id: Constraint.cc,v 1.2 2009/02/20 09:43:00 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 #include "TRandom.h"
@@ -351,6 +351,12 @@ Constraint::~Constraint(){
 
 /*----------------------------------------------------------------------------*/
 
+Constraint& Constraint::operator=(const Constraint& c){
+    *this = c;
+    return *this;
+    }
+
+/*----------------------------------------------------------------------------*/
 /// To build the cint dictionaries
 //ClassImp(Constraint)
 
