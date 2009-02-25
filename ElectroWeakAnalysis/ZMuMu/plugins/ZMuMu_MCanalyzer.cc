@@ -517,7 +517,7 @@ void ZMuMu_MCanalyzer::endJob() {
   cout << "HLT efficiency: " << effHLT_afterIso << " +/- " << err_effHLT_afterIso << endl;
   cout << "eff StandAlone (after Isocut) : " << effSta_afterIso << "+/-" << err_effsta_afterIso << endl;
   cout << "eff Tracker (after Isocut)    : " << effTrk_afterIso << "+/-" << err_efftrk_afterIso << endl;
-  cout << "eff Tracker (after Isocut)    : " << effTrk_afterIso << "+/-" << err_efftrk_afterIso << endl;
+
 }
   
 #include "FWCore/Framework/interface/MakerMacros.h"
