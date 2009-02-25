@@ -22,11 +22,12 @@
 #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 
 // LHE Run
-// #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h" // this comes through LHERunInfo
+#include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
 #include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 
 // LHE Event
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
+#include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
@@ -104,8 +105,10 @@ namespace edm
     //
     edm::Handle<LHEEventProduct> product;
     ev.getByLabel("source", product);
-    
-    hadronizer_.setLHEEventProd( (LHEEventProduct*)(product.product()) ) ;
+
+    lhef::LHEEvent *lheEvent =
+		new lhef::LHEEvent(hadronizer_.getLHERunInfo(), *product);
+    hadronizer_.setLHEEvent( lheEvent );
     
     // hadronizer_.generatePartons();
     if ( !hadronizer_.hadronize() ) return false ;
