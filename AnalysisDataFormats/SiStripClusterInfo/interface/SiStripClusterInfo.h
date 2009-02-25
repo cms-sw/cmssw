@@ -16,7 +16,10 @@
 
 class SiStripClusterInfo {
  public:
-  SiStripClusterInfo(const SiStripCluster& cluster, const edm::EventSetup& es );
+
+  SiStripClusterInfo(const SiStripCluster& cluster, 
+		     const edm::EventSetup& es, 
+		     std::string qualityLabel="");
   ~SiStripClusterInfo() {}
 
   const SiStripCluster * cluster() const {return cluster_;}
@@ -49,6 +52,13 @@ class SiStripClusterInfo {
   bool IsModuleBad() const;
   bool IsModuleUsable() const;
 
+  std::vector<SiStripCluster> reclusterize(float channelThreshold, 
+					   float seedThreshold, 
+					   float clusterThreshold, 
+					   uint8_t maxSequentialHoles,
+					   uint8_t maxSequentialBad,
+					   uint8_t maxAdjacentBad) const;
+
  private:
   float calculate_noise(const std::vector<float>&) const; 
 
@@ -57,6 +67,7 @@ class SiStripClusterInfo {
   edm::ESHandle<SiStripNoises> noiseHandle_;
   edm::ESHandle<SiStripGain> gainHandle_;
   edm::ESHandle<SiStripQuality> qualityHandle_;
+  std::string qualityLabel_;
 };
 
 #endif
