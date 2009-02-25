@@ -13,8 +13,6 @@
 <use name=CondFormats/SiStripObjects>
 <use name=CondFormats/DataRecord>
 
-<use name=CondTools/SiStrip>
-
 <use name=CalibFormats/SiStripObjects>
 <use name=CalibTracker/Records>
 
