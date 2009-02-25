@@ -49,8 +49,8 @@ using namespace edm;
 SiPixelRawDataErrorSource::SiPixelRawDataErrorSource(const edm::ParameterSet& iConfig) :
   conf_(iConfig),
   src_( conf_.getParameter<edm::InputTag>( "src" ) ),
-  isPIB( conf_.getUntrackedParameter<bool>("isPIB",false) ),
   saveFile( conf_.getUntrackedParameter<bool>("saveFile",false) ),
+  isPIB( conf_.getUntrackedParameter<bool>("isPIB",false) ),
   slowDown( conf_.getUntrackedParameter<bool>("slowDown",false) ),
   reducedSet( conf_.getUntrackedParameter<bool>("reducedSet",false) ),
   modOn( conf_.getUntrackedParameter<bool>("modOn",true) ),

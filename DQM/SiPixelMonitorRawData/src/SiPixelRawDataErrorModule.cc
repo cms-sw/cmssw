@@ -1083,7 +1083,7 @@ void SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataEr
 	    int NFe = (errorWord >> DB4_shift) & DataBit_mask;
 	    int NF2 = (errorWord >> DB6_shift) & DataBit_mask;
 	    int L1A = (errorWord >> DB7_shift) & DataBit_mask;
-	    int fullType;
+	    int fullType = 0;
 	    if (NFa==1) fullType = 1; (meFullType_)->Fill((int)fullType);
 	    if (NFb==1) fullType = 2; (meFullType_)->Fill((int)fullType);
 	    if (NFc==1) fullType = 3; (meFullType_)->Fill((int)fullType);
