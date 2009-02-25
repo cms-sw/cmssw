@@ -65,7 +65,7 @@ SiStripProcessedRawDigiProducer::zs_process(const edm::DetSetVector<SiStripDigi>
   for(edm::DetSetVector<SiStripDigi>::const_iterator DSV_it=input.begin(); DSV_it!=input.end(); DSV_it++)  {
     std::vector<float> digis;
     for(edm::DetSet<SiStripDigi>::const_iterator it=DSV_it->begin(); it!=DSV_it->end(); it++) {
-      if(it->strip() +1 > digis.size() ) { digis.resize(it->strip()+1, float(0.0)); }
+      if(it->strip() + unsigned(1) > digis.size() ) { digis.resize(it->strip()+1, float(0.0)); }
       digis.at(it->strip())= static_cast<float>(it->adc());
     }
     common_process(digis, DSV_it->id, output);
