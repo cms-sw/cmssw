@@ -1,6 +1,6 @@
 // File: BasePilupSubtractionJetProducer.cc
 // Author: F.Ratnikov UMd Aug 22, 2006
-// $Id: BasePilupSubtractionJetProducer.cc,v 1.19 2008/05/21 13:12:06 rahatlou Exp $
+// $Id: BasePilupSubtractionJetProducer.cc,v 1.20 2008/07/16 15:01:07 kodolova Exp $
 //--------------------------------------------
 #include <memory>
 #include "DataFormats/Common/interface/EDProduct.h"
@@ -77,7 +77,13 @@ namespace cms
       mEInputCut (conf.getParameter<double>("inputEMin")),
       mEtJetInputCut (conf.getParameter<double>("inputEtJetMin")),
       nSigmaPU (conf.getParameter<double>("nSigmaPU")),
-      radiusPU (conf.getParameter<double>("radiusPU")),geo(0)
+      radiusPU (conf.getParameter<double>("radiusPU")),geo(0),
+      maxBadEcalCells        (9999999),
+      maxRecoveredEcalCells  (9999999),
+      maxProblematicEcalCells(9999999),
+      maxBadHcalCells        (9999999),
+      maxRecoveredHcalCells  (9999999),
+      maxProblematicHcalCells(9999999)
   {
     //    std::cout<<" Number of sigmas "<<nSigmaPU<<std::endl;
     std::string alias = conf.getUntrackedParameter<string>( "alias", conf.getParameter<std::string>("@module_label"));
@@ -85,6 +91,13 @@ namespace cms
       std::cerr << "BasePilupSubtractionJetProducer-> ERROR: wrong jetType '" << mJetType
 		<< "'. The only supported jetType is 'CaloJetPileupSubtraction'" << std::endl;
     }
+    maxBadEcalCells         = conf.getParameter<unsigned int>("maxBadEcalCells");
+    maxRecoveredEcalCells   = conf.getParameter<unsigned int>("maxRecoveredEcalCells");
+    maxProblematicEcalCells = conf.getParameter<unsigned int>("maxProblematicEcalCells");
+    maxBadHcalCells         = conf.getParameter<unsigned int>("maxBadHcalCells");
+    maxRecoveredHcalCells   = conf.getParameter<unsigned int>("maxRecoveredHcalCells");
+    maxProblematicHcalCells = conf.getParameter<unsigned int>("maxProblematicHcalCells");
+    
     produces<CaloJetCollection>().setBranchAlias (alias);
   }
   
@@ -165,7 +178,25 @@ namespace cms
     for (unsigned i = 0; i < inputHandle->size(); ++i) {
       if ((mEtInputCut <= 0 || (*inputHandle)[i].et() > mEtInputCut) &&
 	  (mEInputCut <= 0 || (*inputHandle)[i].energy() > mEInputCut)) {
-	input.push_back (JetReco::InputItem (&((*inputHandle)[i]), i));
+
+
+	// Anomalous cell cuts if this is CaloTower input
+	const CaloTower * tower = dynamic_cast<const CaloTower *>(&(*inputHandle)[i]);
+	if (
+	    // If this is a calo tower, make cuts on anomalous cells
+	    (tower != 0  && 
+	     tower->numBadEcalCells() <= maxBadEcalCells &&
+	     tower->numRecoveredEcalCells() <= maxRecoveredEcalCells &&
+	     tower->numProblematicEcalCells() <= maxProblematicEcalCells &&
+	     tower->numBadHcalCells() <= maxBadHcalCells &&
+	     tower->numRecoveredHcalCells() <= maxRecoveredHcalCells &&
+	     tower->numProblematicHcalCells() <= maxProblematicHcalCells) 
+	    ||
+	    // If this isn't a calo tower, just pass it
+	    tower == 0
+	    ) {
+	  input.push_back (JetReco::InputItem (&((*inputHandle)[i]), i));
+	}
       }
     }
     //
@@ -257,8 +288,8 @@ namespace cms
 	  newtowers.push_back(*it);
 	  jettowers.push_back(*it);
 	  
-	                  int ieta1 = ieta(&(**it));
-	                 int iphi1 = iphi(&(**it));
+// 	                  int ieta1 = ieta(&(**it));
+// 	                 int iphi1 = iphi(&(**it));
 //	       std::cout<<" Take Et of tower inputs, (dr < 0.5), (**it).et()= "<<(**it).et()<<" eta= "<<(**it).eta()
 //	                  <<" phi= "<<(**it).phi()<<" ieta1= "<<ieta1<<" iphi1= "<<iphi1<<std::endl;
 	  
@@ -286,8 +317,8 @@ namespace cms
 	  double dr = sqrt(dphi*dphi+deta*deta);
 	  
 	  if( dr < radiusPU) {        
-	    int ieta_pu1 = ieta(&(**itt));
-	    int iphi_pu1 = iphi(&(**itt));
+// 	    int ieta_pu1 = ieta(&(**itt));
+// 	    int iphi_pu1 = iphi(&(**itt));
 	    
 //	    std::cout<<" Take Et of tower after Subtraction, (**itt).et()= "<<(**itt).et()
 //		     <<" eta= "<<(**itt).eta()<<" phi= "<<(**itt).phi()
@@ -534,7 +565,7 @@ JetReco::InputCollection BasePilupSubtractionJetProducer::subtract_pedestal(cons
 
     JetReco::InputCollection  inputCache;
     
-    Candidate * mycand;
+    Candidate * mycand = 0;
 
     JetReco::InputCollection inputTMP;
     int it = -100;

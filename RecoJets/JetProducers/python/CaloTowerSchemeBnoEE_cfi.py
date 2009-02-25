@@ -8,8 +8,12 @@ towermaker = cms.EDFilter("CaloTowersCreator",
     AllowMissingInputs = cms.untracked.bool(False),
     EESumThreshold = cms.double(0.45), ## GeV, Scheme B
 
-    HOThreshold = cms.double(1.1), ## GeV, Scheme B
-
+    HOThreshold0 = cms.double(1.1),
+    HOThresholdPlus1 = cms.double(1.1),
+    HOThresholdMinus1 = cms.double(1.1),
+    HOThresholdPlus2 = cms.double(1.1),
+    HOThresholdMinus2 = cms.double(1.1),
+                          
     HBThreshold = cms.double(0.9), ## GeV, Scheme B
 
     EBThreshold = cms.double(0.09), ## GeV, ORCA value w/o selective readout
@@ -38,7 +42,18 @@ towermaker = cms.EDFilter("CaloTowersCreator",
     EcutTower = cms.double(-1000.0), ## GeV, -1000 means cut not used
 
     ecalInputs = cms.VInputTag(cms.InputTag("ecalrechit","EcalRecHitsEB")),
-    HBWeight = cms.double(1.0)
+    HBWeight = cms.double(1.0),
+
+# add new parameters for handling of anomalous cells
+# EXAMPLE 
+# 
+    # acceptable severity level
+    HcalAcceptSeverityLevel = cms.uint32(999),
+    EcalAcceptSeverityLevel = cms.uint32(1),
+
+    # use of recovered hits
+    UseHcalRecoveredHits = cms.bool(True),
+    UseEcalRecoveredHits = cms.bool(True)
 )
 
 

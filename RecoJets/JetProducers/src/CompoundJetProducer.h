@@ -26,6 +26,10 @@
 	 and to use that information to write out the
 	 hard jets to the event record.
 
+Modifications:
+         25Feb09: Updated to use anomalous cells, also 
+	          included corrected CaloTowers for the PV.
+
  ************************************************************/
 
 
@@ -46,6 +50,8 @@
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/JetReco/interface/BasicJetCollection.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "RecoJets/JetAlgorithms/interface/JetRecoTypes.h"
 #include "RecoJets/JetAlgorithms/interface/JetAlgoHelper.h"
 #include "RecoJets/JetAlgorithms/interface/JetMaker.h"
@@ -79,6 +85,26 @@ namespace cms
     edm::InputTag            src_;         /// Input constituents
     std::string              jetType_;     /// Jet type for the subjets
     std::string              subjetColl_;  /// Subjet collection name
+
+
+
+    // input 4-vector cuts
+    double mEtInputCut;
+    double mEInputCut;
+    double mJetPtMin;
+    // PV corrected stuff
+    reco::Particle::Point vertex;
+    bool mVertexCorrectedInput;
+    //should be: 0 (none), 1 (correct constituents), 2 (correct final jets), 3 (use built-in method of CaloTowers)
+    edm::InputTag mPVCollection;
+
+    // Including anomalous cell cuts
+    uint maxBadEcalCells;
+    uint maxRecoveredEcalCells;
+    uint maxProblematicEcalCells;
+    uint maxBadHcalCells;
+    uint maxRecoveredHcalCells;
+    uint maxProblematicHcalCells;
 
   private:
     /// function template to write out the outputs

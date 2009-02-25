@@ -6,7 +6,12 @@ towerMaker = cms.EDFilter("CaloTowersCreator",
     EBWeight = cms.double(1.0),
     hfInput = cms.InputTag("hfreco"),
     EESumThreshold = cms.double(0.45),
-    HOThreshold = cms.double(1.1),
+    # Energy threshold for HO cell inclusion [GeV]
+    HOThreshold0 = cms.double(1.1),
+    HOThresholdPlus1 = cms.double(1.1),
+    HOThresholdMinus1 = cms.double(1.1),
+    HOThresholdPlus2 = cms.double(1.1),
+    HOThresholdMinus2 = cms.double(1.1),
     HBThreshold = cms.double(0.9),
     HF1Threshold = cms.double(1.2),
     HEDWeight = cms.double(1.0),
@@ -31,5 +36,16 @@ towerMaker = cms.EDFilter("CaloTowersCreator",
     MomHBDepth = cms.double(0.2),
     MomHEDepth = cms.double(0.4),
     MomEBDepth = cms.double(0.3),
-    MomEEDepth = cms.double(0.0)
+    MomEEDepth = cms.double(0.0),
+
+# add new parameters for handling of anomalous cells
+# EXAMPLE 
+# 
+    # acceptable severity level
+    HcalAcceptSeverityLevel = cms.uint32(999),
+    EcalAcceptSeverityLevel = cms.uint32(1),
+
+    # use of recovered hits
+    UseHcalRecoveredHits = cms.bool(True),
+    UseEcalRecoveredHits = cms.bool(True)
 )

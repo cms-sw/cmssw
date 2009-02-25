@@ -7,8 +7,10 @@
  * It handles generic manipulations of input and output collections
  *
  * \author Fedor Ratnikov (UMd) Aug. 22, 2006
- * $Id: BasePilupSubtractionJetProducer.h,v 1.4 2007/08/20 17:53:34 fedor Exp $
+ * $Id: BasePilupSubtractionJetProducer.h,v 1.5 2008/07/16 15:01:07 kodolova Exp $
  *
+ * Modifications:
+ *   Sal Rappoccio (JHU): Added anomalous cell cuts
  ************************************************************/
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -76,6 +78,14 @@ namespace cms
     const CaloGeometry* geo;
     int ietamax;
     int ietamin;
+    // Including anomalous cell cuts
+    uint maxBadEcalCells;
+    uint maxRecoveredEcalCells;
+    uint maxProblematicEcalCells;
+    uint maxBadHcalCells;
+    uint maxRecoveredHcalCells;
+    uint maxProblematicHcalCells;
+
   };
 }
 

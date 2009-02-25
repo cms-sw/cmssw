@@ -1,6 +1,6 @@
 // File: BaseJetProducer.cc
 // Author: F.Ratnikov UMd Aug 22, 2006
-// $Id: BaseJetProducer.cc,v 1.39 2008/10/03 18:47:36 oehler Exp $
+// $Id: BaseJetProducer.cc,v 1.40 2008/11/07 14:11:53 oehler Exp $
 //--------------------------------------------
 #include <memory>
 #include <algorithm>
@@ -94,7 +94,13 @@ namespace cms
       mEtInputCut (conf.getParameter<double>("inputEtMin")),
       mEInputCut (conf.getParameter<double>("inputEMin")),
       mJetPtMin (conf.getParameter<double>("jetPtMin")),
-      mVertexCorrectedInput(false)
+      mVertexCorrectedInput(false),
+      maxBadEcalCells        (9999999),
+      maxRecoveredEcalCells  (9999999),
+      maxProblematicEcalCells(9999999),
+      maxBadHcalCells        (9999999),
+      maxRecoveredHcalCells  (9999999),
+      maxProblematicHcalCells(9999999)
   {
     jetTypeE=JetType::byName(mJetType);
     std::string alias = conf.getUntrackedParameter<string>( "alias", conf.getParameter<std::string>("@module_label"));
@@ -104,6 +110,13 @@ namespace cms
       if (mVertexCorrectedInput){
 	mPVCollection=conf.getParameter<edm::InputTag>("pvCollection");
       }
+      // Add anomalous cell cuts
+      maxBadEcalCells         = conf.getParameter<unsigned int>("maxBadEcalCells");
+      maxRecoveredEcalCells   = conf.getParameter<unsigned int>("maxRecoveredEcalCells");
+      maxProblematicEcalCells = conf.getParameter<unsigned int>("maxProblematicEcalCells");
+      maxBadHcalCells         = conf.getParameter<unsigned int>("maxBadHcalCells");
+      maxRecoveredHcalCells   = conf.getParameter<unsigned int>("maxRecoveredHcalCells");
+      maxProblematicHcalCells = conf.getParameter<unsigned int>("maxProblematicHcalCells");
     }
     else if (makePFJet (jetTypeE)) produces<PFJetCollection>().setBranchAlias (alias);
     else if (makeGenJet (jetTypeE)) produces<GenJetCollection>().setBranchAlias (alias);
@@ -151,14 +164,40 @@ namespace cms
 	tmpCandidate->setP4(correctedP4);
 	tmpInput.setBase(tmpCandidate);
       }
-      if ((mEtInputCut <= 0 || tmpInput->et() > mEtInputCut) &&
-        (mEInputCut <= 0 || tmpInput->energy() > mEInputCut)) {
-	input.push_back (tmpInput);
+      if (
+	  // 4-vector cuts
+	  (mEtInputCut <= 0 || tmpInput->et() > mEtInputCut) &&
+	  (mEInputCut <= 0 || tmpInput->energy() > mEInputCut)) {
+
+	// Anomalous cell cuts if this is CaloTower input
+	const CaloTower * tower = dynamic_cast<const CaloTower *>(&(*inputHandle)[i]);
+	if (
+	    // If this is a calo tower, make cuts on anomalous cells
+	    (tower != 0  && 
+	     tower->numBadEcalCells() <= maxBadEcalCells &&
+	     tower->numRecoveredEcalCells() <= maxRecoveredEcalCells &&
+	     tower->numProblematicEcalCells() <= maxProblematicEcalCells &&
+	     tower->numBadHcalCells() <= maxBadHcalCells &&
+	     tower->numRecoveredHcalCells() <= maxRecoveredHcalCells &&
+	     tower->numProblematicHcalCells() <= maxProblematicHcalCells) 
+	    ||
+	    // If this isn't a calo tower, just pass it
+	    tower == 0
+	    ) {
+	  input.push_back (tmpInput);
+	}
       }
     }
     if (mVerbose) {
       std::cout << "BaseJetProducer::produce-> INPUT COLLECTION selected from" << mSrc 
-		<< " with ET > " << mEtInputCut << " and/or E > " << mEInputCut << std::endl;
+		<< " with ET > " << mEtInputCut << " and/or E > " << mEInputCut 
+		<< " numBadEcalCells < " << maxBadEcalCells
+		<< " numRecoveredEcalCells < " << maxRecoveredEcalCells
+		<< " numProblematicEcalCells < " << maxProblematicEcalCells
+		<< " numBadHcalCells < " << maxBadHcalCells
+		<< " numRecoveredHcalCells < " << maxRecoveredHcalCells
+		<< " numProblematicHcalCells < " << maxProblematicHcalCells
+		<< std::endl;
       std::cout << "correct input to vertex: "<<mVertexCorrectedInput<<std::endl;
       for (unsigned index = 0; index < input.size(); ++index) {
 	std::cout << "  Input " << index << ", px/py/pz/pt/e: "

@@ -7,8 +7,10 @@
  * It handles generic manipulations of input and output collections
  *
  * \author Fedor Ratnikov (UMd) Aug. 22, 2006
- * $Id: BaseJetProducer.h,v 1.7 2008/09/20 17:49:54 oehler Exp $
+ * $Id: BaseJetProducer.h,v 1.8 2008/10/03 18:47:36 oehler Exp $
  *
+ * Modifications:
+ *   Sal Rappoccio (JHU): Added cuts for anomalous cells.
  ************************************************************/
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -76,6 +78,14 @@ namespace cms
     bool mVertexCorrectedInput;
     //should be: 0 (none), 1 (correct constituents), 2 (correct final jets), 3 (use built-in method of CaloTowers)
     edm::InputTag mPVCollection;
+    // Including anomalous cell cuts
+    uint maxBadEcalCells;
+    uint maxRecoveredEcalCells;
+    uint maxProblematicEcalCells;
+    uint maxBadHcalCells;
+    uint maxRecoveredHcalCells;
+    uint maxProblematicHcalCells;
+    
   };
 }
 
