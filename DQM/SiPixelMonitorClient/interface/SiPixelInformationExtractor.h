@@ -216,6 +216,7 @@ class SiPixelInformationExtractor {
   
   MonitorElement * SummaryReport;
   MonitorElement * SummaryReportMap;
+  MonitorElement * SummaryPixel;
   MonitorElement * SummaryBarrel;
   MonitorElement * SummaryShellmI;
   MonitorElement * SummaryShellmO;

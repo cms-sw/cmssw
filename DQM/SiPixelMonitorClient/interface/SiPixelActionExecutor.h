@@ -16,7 +16,8 @@ class SiPixelActionExecutor {
 
  public:
 
-  SiPixelActionExecutor(            bool                           offlineXMLfile);
+  SiPixelActionExecutor(            bool                           offlineXMLfile,
+                                    bool                           Tier0Flag);
  ~SiPixelActionExecutor();
 
  void createSummary(    	    DQMStore    		 * bei);
@@ -88,6 +89,7 @@ private:
   int calib_type_;  
   int ndet_;
   bool offlineXMLfile_;
+  bool Tier0Flag_;
   
   QTestHandle* qtHandler_;
   

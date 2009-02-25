@@ -1377,16 +1377,17 @@ void SiPixelInformationExtractor::bookGlobalQualityFlag(DQMStore * bei, float no
     SummaryReportMap->setBinLabel(7,"Endcap_Disk_2 +z",1);
   }
   bei->setCurrentFolder("Pixel/EventInfo/reportSummaryContents");
-  SummaryBarrel = bei->bookFloat("Pixel_Barrel");
-  SummaryShellmI = bei->bookFloat("Pixel_Shell_mI");
-  SummaryShellmO = bei->bookFloat("Pixel_Shell_mO");
-  SummaryShellpI = bei->bookFloat("Pixel_Shell_pI");
-  SummaryShellpO = bei->bookFloat("Pixel_Shell_pO");
-  SummaryEndcap = bei->bookFloat("Pixel_Endcap");
-  SummaryHCmI = bei->bookFloat("Pixel_HalfCylinder_mI");
-  SummaryHCmO = bei->bookFloat("Pixel_HalfCylinder_mO");
-  SummaryHCpI = bei->bookFloat("Pixel_HalfCylinder_pI");
-  SummaryHCpO = bei->bookFloat("Pixel_HalfCylinder_pO");
+  SummaryPixel = bei->bookFloat("PixelDqmFraction");
+  SummaryBarrel = bei->bookFloat("PixelBarrelDqmFraction");
+  SummaryShellmI = bei->bookFloat("PixelShellmIDqmFraction");
+  SummaryShellmO = bei->bookFloat("PixelShellmODqmFraction");
+  SummaryShellpI = bei->bookFloat("PixelShellpIDqmFraction");
+  SummaryShellpO = bei->bookFloat("PixelShellpODqmFraction");
+  SummaryEndcap = bei->bookFloat("PixelEndcapDqmFraction");
+  SummaryHCmI = bei->bookFloat("PixelHalfCylindermIDqmFraction");
+  SummaryHCmO = bei->bookFloat("PixelHalfCylindermODqmFraction");
+  SummaryHCpI = bei->bookFloat("PixelHalfCylinderpIDqmFraction");
+  SummaryHCpO = bei->bookFloat("PixelHalfCylinderpODqmFraction");
   bei->cd();  
   if(noiseRate_>=0.){
     bei->setCurrentFolder("Pixel/Barrel");
@@ -1427,25 +1428,27 @@ void SiPixelInformationExtractor::computeGlobalQualityFlag(DQMStore * bei,
     if(nFEDs==0){
       SummaryReport = bei->get("Pixel/EventInfo/reportSummary");
       if(SummaryReport) SummaryReport->Fill(-1.);
-      SummaryBarrel = bei->get("Pixel/EventInfo/reportSummaryContents/Pixel_Barrel");
+      SummaryPixel = bei->get("Pixel/EventInfo/reportSummaryContents/PixelDqmFraction");
       if(SummaryBarrel) SummaryBarrel->Fill(-1.);
-      SummaryShellmI = bei->get("Pixel/EventInfo/reportSummaryContents/Pixel_Shell_mI");
+      SummaryBarrel = bei->get("Pixel/EventInfo/reportSummaryContents/PixelBarrelDqmFraction");
+      if(SummaryBarrel) SummaryBarrel->Fill(-1.);
+      SummaryShellmI = bei->get("Pixel/EventInfo/reportSummaryContents/PixelShellmIDqmFraction");
       if(SummaryShellmI) SummaryShellmI->Fill(-1.);
-      SummaryShellmO = bei->get("Pixel/EventInfo/reportSummaryContents/Pixel_Shell_mO");
+      SummaryShellmO = bei->get("Pixel/EventInfo/reportSummaryContents/PixelShellmODqmFraction");
       if(SummaryShellmO)   SummaryShellmO->Fill(-1.);
-      SummaryShellpI = bei->get("Pixel/EventInfo/reportSummaryContents/Pixel_Shell_pI");
+      SummaryShellpI = bei->get("Pixel/EventInfo/reportSummaryContents/PixelShellpIDqmFraction");
       if(SummaryShellpI)   SummaryShellpI->Fill(-1.);
-      SummaryShellpO = bei->get("Pixel/EventInfo/reportSummaryContents/Pixel_Shell_pO");
+      SummaryShellpO = bei->get("Pixel/EventInfo/reportSummaryContents/PixelShellpODqmFraction");
       if(SummaryShellpO)   SummaryShellpO->Fill(-1.);
-      SummaryEndcap = bei->get("Pixel/EventInfo/reportSummaryContents/Pixel_Endcap");
+      SummaryEndcap = bei->get("Pixel/EventInfo/reportSummaryContents/PixelEndcapDqmFraction");
       if(SummaryEndcap)   SummaryEndcap->Fill(-1.);
-      SummaryHCmI = bei->get("Pixel/EventInfo/reportSummaryContents/Pixel_HalfCylinder_mI");
+      SummaryHCmI = bei->get("Pixel/EventInfo/reportSummaryContents/PixelHalfCylindermIDqmFraction");
       if(SummaryHCmI)   SummaryHCmI->Fill(-1.);
-      SummaryHCmO = bei->get("Pixel/EventInfo/reportSummaryContents/Pixel_HalfCylinder_mO");
+      SummaryHCmO = bei->get("Pixel/EventInfo/reportSummaryContents/PixelHalfCylindermODqmFraction");
       if(SummaryHCmO)   SummaryHCmO->Fill(-1.);
-      SummaryHCpI = bei->get("Pixel/EventInfo/reportSummaryContents/Pixel_HalfCylinder_pI");
+      SummaryHCpI = bei->get("Pixel/EventInfo/reportSummaryContents/PixelHalfCylinderpIDqmFraction");
       if(SummaryHCpI)   SummaryHCpI->Fill(-1.);
-      SummaryHCpO = bei->get("Pixel/EventInfo/reportSummaryContents/Pixel_HalfCylinder_pO");
+      SummaryHCpO = bei->get("Pixel/EventInfo/reportSummaryContents/PixelHalfCylinderpODqmFraction");
       if(SummaryHCpO)   SummaryHCpO->Fill(-1.);
     }
     init=false;
@@ -1562,25 +1565,27 @@ void SiPixelInformationExtractor::computeGlobalQualityFlag(DQMStore * bei,
   }
   SummaryReport = bei->get("Pixel/EventInfo/reportSummary");
   if(SummaryReport) SummaryReport->Fill(qflag_);
-  SummaryBarrel = bei->get("Pixel/EventInfo/reportSummaryContents/Pixel_Barrel");
+  SummaryPixel = bei->get("Pixel/EventInfo/reportSummaryContents/PixelDqmFraction");
+  if(SummaryPixel) SummaryPixel->Fill(qflag_);
+  SummaryBarrel = bei->get("Pixel/EventInfo/reportSummaryContents/PixelBarrelDqmFraction");
   if(SummaryBarrel) SummaryBarrel->Fill(bpix_flag_);
-  SummaryShellmI = bei->get("Pixel/EventInfo/reportSummaryContents/Pixel_Shell_mI");
+  SummaryShellmI = bei->get("Pixel/EventInfo/reportSummaryContents/PixelShellmIDqmFraction");
   if(SummaryShellmI) SummaryShellmI->Fill(shellmI_flag_);
-  SummaryShellmO = bei->get("Pixel/EventInfo/reportSummaryContents/Pixel_Shell_mO");
+  SummaryShellmO = bei->get("Pixel/EventInfo/reportSummaryContents/PixelShellmODqmFraction");
   if(SummaryShellmO)   SummaryShellmO->Fill(shellmO_flag_);
-  SummaryShellpI = bei->get("Pixel/EventInfo/reportSummaryContents/Pixel_Shell_pI");
+  SummaryShellpI = bei->get("Pixel/EventInfo/reportSummaryContents/PixelShellpIDqmFraction");
   if(SummaryShellpI)   SummaryShellpI->Fill(shellpI_flag_);
-  SummaryShellpO = bei->get("Pixel/EventInfo/reportSummaryContents/Pixel_Shell_pO");
+  SummaryShellpO = bei->get("Pixel/EventInfo/reportSummaryContents/PixelShellpODqmFraction");
   if(SummaryShellpO)   SummaryShellpO->Fill(shellpO_flag_);
-  SummaryEndcap = bei->get("Pixel/EventInfo/reportSummaryContents/Pixel_Endcap");
+  SummaryEndcap = bei->get("Pixel/EventInfo/reportSummaryContents/PixelEndcapDqmFraction");
   if(SummaryEndcap)   SummaryEndcap->Fill(fpix_flag_);
-  SummaryHCmI = bei->get("Pixel/EventInfo/reportSummaryContents/Pixel_HalfCylinder_mI");
+  SummaryHCmI = bei->get("Pixel/EventInfo/reportSummaryContents/PixelHalfCylindermIDqmFraction");
   if(SummaryHCmI)   SummaryHCmI->Fill(hcylmI_flag_);
-  SummaryHCmO = bei->get("Pixel/EventInfo/reportSummaryContents/Pixel_HalfCylinder_mO");
+  SummaryHCmO = bei->get("Pixel/EventInfo/reportSummaryContents/PixelHalfCylindermODqmFraction");
   if(SummaryHCmO)   SummaryHCmO->Fill(hcylmO_flag_);
-  SummaryHCpI = bei->get("Pixel/EventInfo/reportSummaryContents/Pixel_HalfCylinder_pI");
+  SummaryHCpI = bei->get("Pixel/EventInfo/reportSummaryContents/PixelHalfCylinderpIDqmFraction");
   if(SummaryHCpI)   SummaryHCpI->Fill(hcylpI_flag_);
-  SummaryHCpO = bei->get("Pixel/EventInfo/reportSummaryContents/Pixel_HalfCylinder_pO");
+  SummaryHCpO = bei->get("Pixel/EventInfo/reportSummaryContents/PixelHalfCylinderpODqmFraction");
   if(SummaryHCpO)   SummaryHCpO->Fill(hcylpO_flag_);
 
 }
@@ -1618,7 +1623,6 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
   
   if(rx.search(dname)!=-1 || rxb.search(dname)!=-1 || rxe.search(dname)!=-1){
     vector<string> meVec = bei->getMEs();
-    bool first=true; bool once=true;
     int detId=-1; int fedId=-1; int linkId=-1;
     for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
       //checking for any digis or FED errors to decide if this module is in DAQ:  
@@ -1859,37 +1863,34 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore * bei, bool init, flo
 	if(currDir.find("HalfCylinder_mI/Disk_1/Blade_12/Panel_2/Module_3")!=string::npos) continue;
         MonitorElement * me = bei->get(full_path);
         if (!me) continue;
-	float noiseRate = (me->getEntries())/float(nevents_);
-//        if(noiseRate > noiseRate_){
-	  int detid=getDetId(me); int pixcol=-1; int pixrow=-1; 
-	  std::vector<std::pair<std::pair<int, int>, float> > noisyPixelsInModule;
-	  TH2F * hothisto = me->getTH2F();
-	  if(hothisto){
-	    for(int i=1; i!=hothisto->GetNbinsX()+1; i++){
-	      for(int j=1; j!=hothisto->GetNbinsY()+1; j++){
-	        float value = (hothisto->GetBinContent(i,j))/float(nevents_);
-		if(me->getPathname().find("Barrel")!=string::npos){
-                  EventRateBarrelPixels = bei->get("Pixel/Barrel/barrelEventRate");
-                  if(EventRateBarrelPixels) EventRateBarrelPixels->Fill(value);
-		}else if(me->getPathname().find("Endcap")!=string::npos){
-                  EventRateEndcapPixels = bei->get("Pixel/Endcap/endcapEventRate");
-                  if(EventRateEndcapPixels) EventRateEndcapPixels->Fill(value);
-		}
-		if(value > noiseRate_){
-		  pixcol = i-1;
-		  pixrow = j-1;
-	          //cout<<"pixcol= "<<pixcol<<" , pixrow= "<<pixrow<<endl;
+	int detid=getDetId(me); int pixcol=-1; int pixrow=-1; 
+	std::vector<std::pair<std::pair<int, int>, float> > noisyPixelsInModule;
+	TH2F * hothisto = me->getTH2F();
+	if(hothisto){
+	  for(int i=1; i!=hothisto->GetNbinsX()+1; i++){
+	    for(int j=1; j!=hothisto->GetNbinsY()+1; j++){
+	      float value = (hothisto->GetBinContent(i,j))/float(nevents_);
+	      if(me->getPathname().find("Barrel")!=string::npos){
+        	EventRateBarrelPixels = bei->get("Pixel/Barrel/barrelEventRate");
+        	if(EventRateBarrelPixels) EventRateBarrelPixels->Fill(value);
+	      }else if(me->getPathname().find("Endcap")!=string::npos){
+        	EventRateEndcapPixels = bei->get("Pixel/Endcap/endcapEventRate");
+        	if(EventRateEndcapPixels) EventRateEndcapPixels->Fill(value);
+	      }
+	      if(value > noiseRate_){
+	        pixcol = i-1;
+	        pixrow = j-1;
+		//cout<<"pixcol= "<<pixcol<<" , pixrow= "<<pixrow<<endl;
  
-		  std::pair<int, int> address(pixcol, pixrow);
-		  std::pair<std::pair<int, int>, float>  PixelStats(address, value);
-		  noisyPixelsInModule.push_back(PixelStats);
-		}
-              }
-	    }
+	        std::pair<int, int> address(pixcol, pixrow);
+	        std::pair<std::pair<int, int>, float>  PixelStats(address, value);
+	        noisyPixelsInModule.push_back(PixelStats);
+	      }
+            }
 	  }
-	  noisyDetIds_[detid] = noisyPixelsInModule;
-	  //if(noisyPixelsInModule.size()>=20) cout<<"This module has 20 or more hot pixels: "<<detid<<","<<bei->pwd()<<","<<noisyPixelsInModule.size()<<endl;
-//	}
+	}
+	noisyDetIds_[detid] = noisyPixelsInModule;
+	//if(noisyPixelsInModule.size()>=20) cout<<"This module has 20 or more hot pixels: "<<detid<<","<<bei->pwd()<<","<<noisyPixelsInModule.size()<<endl;
       }
     }
   }
@@ -1913,7 +1914,7 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore * bei, bool init, flo
     std::map<uint32_t,int> myfedmap;
     std::map<uint32_t,std::string> mynamemap;
     int realfedID = -1;
-    int Nnoisies = noisyDetIds_.size();
+    //int Nnoisies = noisyDetIds_.size();
     //cout<<"Number of noisy modules: "<<Nnoisies<<endl;
     int counter = 0;
     int n_noisyrocs_all = 0;

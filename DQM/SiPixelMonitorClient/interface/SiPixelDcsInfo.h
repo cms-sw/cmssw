@@ -1,5 +1,5 @@
-#ifndef DQM_SiPixelMonitorClient_SiPixelDaqInfo_H
-#define DQM_SiPixelMonitorClient_SiPixelDaqInfo_H
+#ifndef DQM_SiPixelMonitorClient_SiPixelDcsInfo_H
+#define DQM_SiPixelMonitorClient_SiPixelDcsInfo_H
 
 // system include files
 #include <memory>
@@ -22,10 +22,10 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 
-class SiPixelDaqInfo : public edm::EDAnalyzer {
+class SiPixelDcsInfo : public edm::EDAnalyzer {
 public:
-  explicit SiPixelDaqInfo(const edm::ParameterSet&);
-  ~SiPixelDaqInfo();
+  explicit SiPixelDcsInfo(const edm::ParameterSet&);
+  ~SiPixelDcsInfo();
   
 
 private:
@@ -37,21 +37,21 @@ private:
   
   DQMStore *dbe_;  
   
-  MonitorElement*  DaqFraction_;
-  MonitorElement*  DaqFractionBarrel_;
-  MonitorElement*  DaqFractionEndcap_;
-  MonitorElement*  DaqFractionShellmI_;
-  MonitorElement*  DaqFractionShellmO_;
-  MonitorElement*  DaqFractionShellpI_;
-  MonitorElement*  DaqFractionShellpO_;
-  MonitorElement*  DaqFractionHalfCylindermI_;
-  MonitorElement*  DaqFractionHalfCylindermO_;
-  MonitorElement*  DaqFractionHalfCylinderpI_;
-  MonitorElement*  DaqFractionHalfCylinderpO_;
+  MonitorElement*  DcsFraction_;
+  MonitorElement*  DcsFractionBarrel_;
+  MonitorElement*  DcsFractionEndcap_;
+  MonitorElement*  DcsFractionShellmI_;
+  MonitorElement*  DcsFractionShellmO_;
+  MonitorElement*  DcsFractionShellpI_;
+  MonitorElement*  DcsFractionShellpO_;
+  MonitorElement*  DcsFractionHalfCylindermI_;
+  MonitorElement*  DcsFractionHalfCylindermO_;
+  MonitorElement*  DcsFractionHalfCylinderpI_;
+  MonitorElement*  DcsFractionHalfCylinderpO_;
 
-  std::pair<int,int> FEDRange_;
+  std::pair<int,int> DCSPixelRange_;
 
-  int  NumberOfFeds_;
+  int  NumberOfDcsChannels_;
  
 };
 

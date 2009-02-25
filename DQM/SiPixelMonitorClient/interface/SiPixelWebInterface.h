@@ -31,7 +31,8 @@ public:
 			 Occupancy    	          = 13};
 			 
   SiPixelWebInterface(DQMStore* bei,
-                      bool      offlineXMLfile);
+                      bool      offlineXMLfile,
+		      bool      Tier0Flag);
   ~SiPixelWebInterface();
 
   void handleEDARequest(xgi::Input* in,
@@ -65,6 +66,7 @@ private:
   std::multimap<std::string, std::string> requestMap_;
   DQMStore* bei_;
   bool offlineXMLfile_;
+  bool Tier0Flag_;
 
 protected:
 

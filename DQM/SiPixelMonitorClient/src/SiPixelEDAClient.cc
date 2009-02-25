@@ -34,8 +34,6 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelInformationExtractor.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelUtility.h"
 
-#include <SealBase/Callback.h>
-
 #include "xgi/Method.h"
 #include "xgi/Utils.h"
 
@@ -95,10 +93,10 @@ SiPixelEDAClient::SiPixelEDAClient(const edm::ParameterSet& ps) :
   }
   
   // instantiate web interface
-  sipixelWebInterface_ = new SiPixelWebInterface(bei_,offlineXMLfile_);
+  sipixelWebInterface_ = new SiPixelWebInterface(bei_,offlineXMLfile_,Tier0Flag_);
   //instantiate the two work horses of the client:
   sipixelInformationExtractor_ = new SiPixelInformationExtractor(offlineXMLfile_);
-  sipixelActionExecutor_ = new SiPixelActionExecutor(offlineXMLfile_);
+  sipixelActionExecutor_ = new SiPixelActionExecutor(offlineXMLfile_, Tier0Flag_);
   
 // cout<<"...leaving  SiPixelEDAClient::SiPixelEDAClient. "<<endl;
 }

@@ -7,7 +7,6 @@
 #include "DQM/TrackerCommon/interface/CgiWriter.h"
 #include "DQM/TrackerCommon/interface/CgiReader.h"
 
-#include <SealBase/Callback.h>
 #include <map>
 #include <iostream>
 #include <sstream>
@@ -18,7 +17,12 @@ using namespace std ;
 
 
 //____________________________________________________________________________________________________
-SiPixelWebInterface::SiPixelWebInterface(DQMStore* bei, bool offlineXMLfile) : bei_(bei), offlineXMLfile_(offlineXMLfile) {
+SiPixelWebInterface::SiPixelWebInterface(DQMStore* bei, 
+                                         bool offlineXMLfile, 
+					 bool Tier0Flag) : 
+					 bei_(bei), 
+					 offlineXMLfile_(offlineXMLfile), 
+					 Tier0Flag_(Tier0Flag) {
   
   theActionFlag = NoAction;
   actionExecutor_ = 0;
@@ -26,7 +30,7 @@ SiPixelWebInterface::SiPixelWebInterface(DQMStore* bei, bool offlineXMLfile) : b
   tkMapOptions_.push_back("Persistant");
   tkMapOptions_.push_back("Temporary");
   tkMapCreated = false;
-  if (actionExecutor_ == 0) actionExecutor_ = new SiPixelActionExecutor(offlineXMLfile_);
+  if (actionExecutor_ == 0) actionExecutor_ = new SiPixelActionExecutor(offlineXMLfile_, Tier0Flag_);
   if (infoExtractor_ == 0) infoExtractor_ = new SiPixelInformationExtractor(offlineXMLfile_);
 }
 
@@ -277,6 +281,10 @@ void SiPixelWebInterface::performAction() {
   case SiPixelWebInterface::dumpModIds  :
     {
       actionExecutor_->dumpModIds(bei_);
+      break;
+    }
+  case SiPixelWebInterface::ComputeGlobalQualityFlag :
+    {
       break;
     }
   case SiPixelWebInterface::NoAction :

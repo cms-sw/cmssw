@@ -1,5 +1,5 @@
-#ifndef DQM_SiPixelMonitorClient_SiPixelDaqInfo_H
-#define DQM_SiPixelMonitorClient_SiPixelDaqInfo_H
+#ifndef DQM_SiPixelMonitorClient_SiPixelCertification_H
+#define DQM_SiPixelMonitorClient_SiPixelCertification_H
 
 // system include files
 #include <memory>
@@ -22,10 +22,10 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 
-class SiPixelDaqInfo : public edm::EDAnalyzer {
+class SiPixelCertification : public edm::EDAnalyzer {
 public:
-  explicit SiPixelDaqInfo(const edm::ParameterSet&);
-  ~SiPixelDaqInfo();
+  explicit SiPixelCertification(const edm::ParameterSet&);
+  ~SiPixelCertification();
   
 
 private:
@@ -37,22 +37,18 @@ private:
   
   DQMStore *dbe_;  
   
-  MonitorElement*  DaqFraction_;
-  MonitorElement*  DaqFractionBarrel_;
-  MonitorElement*  DaqFractionEndcap_;
-  MonitorElement*  DaqFractionShellmI_;
-  MonitorElement*  DaqFractionShellmO_;
-  MonitorElement*  DaqFractionShellpI_;
-  MonitorElement*  DaqFractionShellpO_;
-  MonitorElement*  DaqFractionHalfCylindermI_;
-  MonitorElement*  DaqFractionHalfCylindermO_;
-  MonitorElement*  DaqFractionHalfCylinderpI_;
-  MonitorElement*  DaqFractionHalfCylinderpO_;
+  MonitorElement * CertificationPixel;
+  MonitorElement * CertificationBarrel;
+  MonitorElement * CertificationShellmI;
+  MonitorElement * CertificationShellmO;
+  MonitorElement * CertificationShellpI;
+  MonitorElement * CertificationShellpO;
+  MonitorElement * CertificationEndcap;
+  MonitorElement * CertificationHalfCylindermI;
+  MonitorElement * CertificationHalfCylindermO;
+  MonitorElement * CertificationHalfCylinderpI;
+  MonitorElement * CertificationHalfCylinderpO;
 
-  std::pair<int,int> FEDRange_;
-
-  int  NumberOfFeds_;
- 
 };
 
 #endif

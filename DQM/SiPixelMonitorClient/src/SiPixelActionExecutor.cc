@@ -21,7 +21,10 @@ using namespace std;
 //
 // -- Constructor
 // 
-SiPixelActionExecutor::SiPixelActionExecutor(bool offlineXMLfile) : offlineXMLfile_(offlineXMLfile) {
+SiPixelActionExecutor::SiPixelActionExecutor(bool offlineXMLfile, 
+                                             bool Tier0Flag) : 
+                                             offlineXMLfile_(offlineXMLfile), 
+					     Tier0Flag_(Tier0Flag) {
 	edm::LogInfo("SiPixelActionExecutor") << 
     " Creating SiPixelActionExecutor " << "\n" ;
 	configParser_ = 0;
@@ -398,7 +401,7 @@ void SiPixelActionExecutor::fillSummary(DQMStore* bei, string dir_name, vector<s
 							}else if(sname.find("ALLMODS_adcCOMB_")!=string::npos){
 								(*isum)->setAxisTitle("Digi charge [ADC]",1);
 							}else if(sname.find("ALLMODS_chargeCOMB_")!=string::npos){
-								(*isum)->setAxisTitle("Digi charge [kElectrons]",1);
+								(*isum)->setAxisTitle("Cluster charge [kilo electrons]",1);
 							}else{
 								(*isum)->setAxisTitle("Modules",1);
 							}
@@ -413,8 +416,10 @@ void SiPixelActionExecutor::fillSummary(DQMStore* bei, string dir_name, vector<s
 								title = "Number of pixels with neg. fit result " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
 							}else if (sname.find("FREQ_")!=string::npos){
 								title = "NEvents with digis per module"; 
-							}else if (sname.find("ALLMODS_adcCOMB_")!=string::npos || sname.find("ALLMODS_chargeCOMB_")!=string::npos){
+							}else if (sname.find("ALLMODS_adcCOMB_")!=string::npos){
 								title = "NDigis";
+							}else if (sname.find("ALLMODS_chargeCOMB_")!=string::npos){
+								title = "NClusters";
 							}else{
 								if(prefix=="SUMOFF") title = "Mean " + sname.substr(7,(sname.find("_",7)-7)) + (isbarrel?" per Ladder":"per Blade"); 
 								else title = "Mean " + sname.substr(7,(sname.find("_",7)-7)) + " per Module"; 
@@ -726,12 +731,13 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
 							// if printing cout<<"\t \t C: iterating over "<<(*igm)->getName()<<" now:"<<endl;
 							if(prefix=="SUMOFF") (*igm)->setAxisTitle("Ladders",1);
 							else if((*igm)->getName().find("adcCOMB_")!=string::npos) (*igm)->setAxisTitle("Digi charge [ADC]",1);
-							else if((*igm)->getName().find("chargeCOMB_")!=string::npos) (*igm)->setAxisTitle("Digi charge [MeV]",1);
+							else if((*igm)->getName().find("chargeCOMB_")!=string::npos) (*igm)->setAxisTitle("Cluster charge [kilo electrons]",1);
 							else (*igm)->setAxisTitle("Modules",1);
 							string title="";
 							if(prefix=="SUMOFF") title = "mean " + (*iv) + " per Ladder"; 
 							else if((*igm)->getName().find("FREQ_") != string::npos) title = "NEvents with digis per Module"; 
-							else if((*igm)->getName().find("COMB_") != string::npos) title = "NDigis";
+							else if((*igm)->getName().find("adcCOMB_") != string::npos) title = "NDigis";
+							else if((*igm)->getName().find("chargeCOMB_") != string::npos) title = "NClusters";
 							else title = "mean " + (*iv) + " per Module"; 
 							(*igm)->setAxisTitle(title,2);
 							if((*igm)->getName().find("ALLMODS_adcCOMB_")!=string::npos){
@@ -914,12 +920,13 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
 						if ((*igm)->getName().find(var) != string::npos) {
 							if(prefix=="SUMOFF") (*igm)->setAxisTitle("Blades",1);
 							else if((*igm)->getName().find("adcCOMB_")!=string::npos) (*igm)->setAxisTitle("Digi charge [ADC]",1);
-							else if((*igm)->getName().find("chargeCOMB_")!=string::npos) (*igm)->setAxisTitle("Digi charge [MeV]",1);
+							else if((*igm)->getName().find("chargeCOMB_")!=string::npos) (*igm)->setAxisTitle("Cluster charge [kilo electrons]",1);
 							else (*igm)->setAxisTitle("Modules",1);
 							string title="";
 							if(prefix=="SUMOFF") title = "mean " + (*iv) + " per Blade"; 
 							else if((*igm)->getName().find("FREQ_") != string::npos) title = "NEvents with digis per Module"; 
-							else if((*igm)->getName().find("COMB_")!=string::npos) title = "NDigis";
+							else if((*igm)->getName().find("adcCOMB_")!=string::npos) title = "NDigis";
+							else if((*igm)->getName().find("chargeCOMB_")!=string::npos) title = "NClusters";
 							else title = "mean " + (*iv) + " per Module"; 
 							(*igm)->setAxisTitle(title,2);
 							nbin_i=0; 
@@ -1099,7 +1106,7 @@ MonitorElement* SiPixelActionExecutor::getFEDSummaryME(DQMStore* bei,
 //=============================================================================================================
 void SiPixelActionExecutor::bookOccupancyPlots(DQMStore* bei, bool hiRes, bool isbarrel) // Polymorphism
 {
-	
+	if(Tier0Flag_) return;
 	vector<string> subdirs = bei->getSubdirs();
 	for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++)
 	{
@@ -1129,6 +1136,7 @@ void SiPixelActionExecutor::bookOccupancyPlots(DQMStore* bei, bool hiRes, bool i
 //=============================================================================================================
 void SiPixelActionExecutor::bookOccupancyPlots(DQMStore* bei, bool hiRes) {
 	
+	if(Tier0Flag_) return;
 	// Barrel
 	bei->cd();
 	bei->setCurrentFolder("Pixel");
@@ -1143,6 +1151,7 @@ void SiPixelActionExecutor::bookOccupancyPlots(DQMStore* bei, bool hiRes) {
 
 void SiPixelActionExecutor::createOccupancy(DQMStore* bei) {
 	//std::cout<<"entering SiPixelActionExecutor::createOccupancy..."<<std::endl;
+	if(Tier0Flag_) return;
 	bei->cd();
 	fillOccupancy(bei, true);
 	bei->cd();
@@ -1156,6 +1165,7 @@ void SiPixelActionExecutor::createOccupancy(DQMStore* bei) {
 void SiPixelActionExecutor::fillOccupancy(DQMStore* bei, bool isbarrel)
 {
 	//occupancyprinting cout<<"entering SiPixelActionExecutor::fillOccupancy..."<<std::endl;
+	if(Tier0Flag_) return;
 	string currDir = bei->pwd();
 	string dname = currDir.substr(currDir.find_last_of("/")+1);
 	QRegExp rx("Module_");
