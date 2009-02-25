@@ -1,6 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-source = cms.Source("PythiaSource",
+source = cms.Source("EmptySource")
+
+generator = cms.EDFilter("Pythia6GeneratorFilter",
+    comEnergy = cms.double(14000.),
     PythiaParameters = cms.PSet(
         #
         # Default cards for minimum bias events (unfiltered)
@@ -54,4 +57,4 @@ source = cms.Source("PythiaSource",
     )
 )
 
-
+ProductionFilterSequence = cms.Sequence(generator)

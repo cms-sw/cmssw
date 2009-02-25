@@ -1,6 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-source = cms.Source("PythiaSource",
+source = cms.Source("EmptySource")
+
+generator = cms.EDFilter("Pythia6GeneratorFilter",
+    comEnergy = cms.double(14000.),
     pythiaVerbosity = cms.untracked.bool(False),
     PythiaParameters = cms.PSet(
         pythiaZtt = cms.vstring('MSEL = 11 ', 
@@ -36,4 +39,4 @@ source = cms.Source("PythiaSource",
     )
 )
 
-
+ProductionFilterSequence = cms.Sequence(generator)

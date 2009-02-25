@@ -1,21 +1,22 @@
 import FWCore.ParameterSet.Config as cms
 
+source = cms.Source("EmptySource")
+
 from Configuration.Generator.PythiaUESettings_cfi import *
-source = cms.Source(
-    "PythiaSource",
+generator = cms.EDProducer("Pythia6PtGun",
     pythiaVerbosity = cms.untracked.bool(False),
-    #  possibility to run single or double back-to-back particles with PYTHIA
-    # if ParticleID = 0, run PYTHIA
-    ParticleID = cms.untracked.int32(1),
-    DoubleParticle = cms.untracked.bool(True),
-    Ptmin = cms.untracked.double(20.0),
-    Ptmax = cms.untracked.double(700.0),
-#    Emin = cms.untracked.double(10.0),
-#    Emax = cms.untracked.double(10.0),
-    Etamin = cms.untracked.double(0.0),
-    Etamax = cms.untracked.double(1.0),
-    Phimin = cms.untracked.double(0.0),
-    Phimax = cms.untracked.double(360.0),
+    PGunParameters = cms.PSet(
+        ParticleID = cms.vint32(1),
+        AddAntiParticle = cms.bool(True),
+        MinPt = cms.double(20.0),
+        MaxPt = cms.double(700.0),
+#        MinE = cms.double(10.0),
+#        MaxE = cms.double(10.0),
+        MinEta = cms.double(-1.0),
+        MaxEta = cms.double(1.0),
+        MinPhi = cms.double(-3.1415926535897931),
+        MaxPhi = cms.double(3.1415926535897931)
+    ),
     PythiaParameters = cms.PSet(
         pythiaUESettingsBlock,
         # Tau jets only
@@ -25,11 +26,7 @@ source = cms.Source(
             'pythiaUESettings',
             'pythiaJets'
         )
-
     )
-    
 )
 
-
-
-
+ProductionFilterSequence = cms.Sequence(generator)
