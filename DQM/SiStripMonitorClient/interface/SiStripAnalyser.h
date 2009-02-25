@@ -4,8 +4,8 @@
 /** \class SiStripAnalyser
  * *
  *  SiStrip SiStripAnalyser
- *  $Date: 2008/12/26 09:05:28 $
- *  $Revision: 1.27 $
+ *  $Date: 2009/02/19 22:36:22 $
+ *  $Revision: 1.28 $
  *  \author  S. Dutta INFN-Pisa
  *   
  */
@@ -99,6 +99,7 @@ private:
   int nLumiSecs_;
   int nEvents_;
   bool trackerFEDsFound_;
+  bool printFaultyModuleList_;
 
   std::ostringstream html_out_;
 

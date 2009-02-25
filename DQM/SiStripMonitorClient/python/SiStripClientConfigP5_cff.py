@@ -9,6 +9,7 @@ SiStripAnalyser = cms.EDFilter("SiStripAnalyser",
     SummaryCreationFrequency = cms.untracked.int32(1),
     ShiftReportFrequency     = cms.untracked.int32(1),
     SummaryConfigPath        = cms.untracked.string("DQM/SiStripMonitorClient/data/sistrip_monitorelement_config.xml"),
+    PrintFaultyModuleList    = cms.untracked.bool(False),                                
     RawDataTag               = cms.untracked.InputTag("source"),                              
     TkmapParameters = cms.PSet(
         loadFedCabling = cms.untracked.bool(True),

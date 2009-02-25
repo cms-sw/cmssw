@@ -94,6 +94,8 @@ SiStripAnalyser::SiStripAnalyser(edm::ParameterSet const& ps) :
   globalStatusFilling_   = ps.getUntrackedParameter<int>("GlobalStatusFilling", 1);
   shiftReportFrequency_  = ps.getUntrackedParameter<int>("ShiftReportFrequency", 1);   
   rawDataTag_            = ps.getUntrackedParameter<edm::InputTag>("RawDataTag"); 
+  printFaultyModuleList_ = ps.getUntrackedParameter<bool>("PrintFaultyModuleList", true);
+
   // get back-end interface
   dqmStore_ = Service<DQMStore>().operator->();
 
@@ -250,6 +252,11 @@ void SiStripAnalyser::endRun(edm::Run const& run, edm::EventSetup const& eSetup)
 //
 void SiStripAnalyser::endJob(){
   edm::LogInfo("SiStripAnalyser") <<"SiStripAnalyser:: endjob called!";
+  if (printFaultyModuleList_) {
+    std::ostringstream str_val;
+    actionExecutor_->printFaultyModuleList(dqmStore_, str_val);
+    std::cout << str_val.str() << std::endl;
+  }
 }
 //
 // Check Tracker FEDs
