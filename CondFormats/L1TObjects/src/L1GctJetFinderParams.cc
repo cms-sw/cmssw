@@ -1,5 +1,7 @@
 #include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
 
+#include <iostream>
+#include <iomanip>
 #include <math.h>
 
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
@@ -58,6 +60,86 @@ L1GctJetFinderParams::L1GctJetFinderParams(double rgnEtLsb,
 
 L1GctJetFinderParams::~L1GctJetFinderParams() {}
 
+//---------------------------------------------------------------------------------------------
+//
+// set methods
+//
+
+void L1GctJetFinderParams::setRegionEtLsb (const double rgnEtLsb)
+{
+  rgnEtLsb_ = rgnEtLsb;
+}
+
+void L1GctJetFinderParams::setSlidingWindowParams(const double cJetSeed,
+						  const double fJetSeed,
+						  const double tJetSeed,
+						  const unsigned etaBoundary)
+{
+  cenJetEtSeed_ = cJetSeed;
+  forJetEtSeed_ = fJetSeed;
+  tauJetEtSeed_ = tJetSeed;
+  cenForJetEtaBoundary_ = etaBoundary;
+}
+
+void L1GctJetFinderParams::setJetEtCalibrationParams(const unsigned corrType,
+						     const std::vector< std::vector<double> >& jetCorrCoeffs,
+						     const std::vector< std::vector<double> >& tauCorrCoeffs)
+{
+  corrType_ = corrType;
+  jetCorrCoeffs_ = jetCorrCoeffs;
+  tauCorrCoeffs_ = tauCorrCoeffs;
+}
+
+void L1GctJetFinderParams::setJetEtConvertToEnergyOn(const std::vector<double>& energyConvCoeffs)
+{
+  convertToEnergy_ = true;
+  energyConversionCoeffs_ = energyConvCoeffs;
+}
+
+void L1GctJetFinderParams::setJetEtConvertToEnergyOff()
+{
+  convertToEnergy_ = false;
+  energyConversionCoeffs_.clear();
+}
+
+void L1GctJetFinderParams::setHtSumParams(const double htLsb,
+					  const double htJetEtThresh,
+					  const double mhtJetEtThresh)
+{
+  htLsb_ = htLsb;
+  htJetEtThreshold_ = htJetEtThresh;
+  mhtJetEtThreshold_ = mhtJetEtThresh;
+}
+
+void L1GctJetFinderParams::setTauAlgorithmParams(const double tauIsoEtThresh)
+{
+  tauIsoEtThreshold_ = tauIsoEtThresh;
+}
+
+void L1GctJetFinderParams::setParams(const double rgnEtLsb,
+				     const double htLsb,
+				     const double cJetSeed,
+				     const double fJetSeed,
+				     const double tJetSeed,
+				     const double tauIsoEtThresh,
+				     const double htJetEtThresh,
+				     const double mhtJetEtThresh,
+				     const unsigned etaBoundary,
+				     const unsigned corrType,
+				     const std::vector< std::vector<double> >& jetCorrCoeffs,
+				     const std::vector< std::vector<double> >& tauCorrCoeffs)
+{
+  setRegionEtLsb (rgnEtLsb);
+  setSlidingWindowParams(cJetSeed, fJetSeed, tJetSeed, etaBoundary);
+  setJetEtCalibrationParams(corrType, jetCorrCoeffs, tauCorrCoeffs);
+  setHtSumParams(htLsb, htJetEtThresh, mhtJetEtThresh);
+  setTauAlgorithmParams(tauIsoEtThresh);
+}
+
+//---------------------------------------------------------------------------------------------
+//
+// Jet Et correction methods
+//
 
 double L1GctJetFinderParams::correctedEtGeV(const double et, 
 					 const unsigned eta, 
@@ -180,4 +262,61 @@ double L1GctJetFinderParams::piecewiseCubicCorrect(const double Et, const std::v
   }
   return etOut;
 }
+
+std::ostream& operator << (std::ostream& os, const L1GctJetFinderParams& fn)
+{
+  os << "=== Level-1 GCT : Jet Et Calibration Function  ===" << std::endl;
+  os << std::setprecision(2);
+  os << "LSB for Ht scale is " << std::fixed << fn.getHtLsbGeV();
+  if (fn.getCorrType() == 0) {
+    os << "No jet energy corrections applied" << std::endl;
+  } else { 
+    switch (fn.getCorrType())
+    {
+      case 1:
+        os << "Power series energy correction for jets is enabled" << std::endl;
+        break;
+      case 2:
+        os << "ORCA-style energy correction for jets is enabled" << std::endl;
+        break;
+      case 3:
+        os << "Piecewise 3rd-order polynomial energy correction for jets is enabled" << std::endl;
+        break;
+      default:
+        os << "Unrecognised calibration function type" << std::endl;
+        break; 
+    }
+    std::vector< std::vector<double> > jetCoeffs = fn.getJetCorrCoeffs();
+    std::vector< std::vector<double> > tauCoeffs = fn.getTauCorrCoeffs();
+
+    os << "Non-tau jet correction coefficients" << std::endl;
+    for (unsigned i=0; i<jetCoeffs.size(); i++){
+      os << "Eta =" << std::setw(2) << i;
+      if (jetCoeffs.at(i).empty()) {
+        os << ", no non-linear correction.";
+      } else {
+        os << " Coefficients = ";
+        for (unsigned j=0; j<jetCoeffs.at(i).size();j++){
+          os << jetCoeffs.at(i).at(j) << " "; 
+        }
+      }
+      os << std::endl;
+    }
+    os << "Tau jet correction coefficients" << std::endl;
+    for (unsigned i=0; i<tauCoeffs.size(); i++){
+      os << "Eta =" << std::setw(2) << i;
+      if (tauCoeffs.at(i).empty()) {
+        os << ", no non-linear correction.";
+      } else {
+        os << " Coefficients = ";
+        for (unsigned j=0; j<tauCoeffs.at(i).size();j++){
+          os << tauCoeffs.at(i).at(j) << " "; 
+        }
+      }
+      os << std::endl;
+    }
+  }
+  return os;
+}
+
 

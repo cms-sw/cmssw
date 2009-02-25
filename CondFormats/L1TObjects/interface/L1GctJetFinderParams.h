@@ -41,7 +41,6 @@ class L1GctJetFinderParams
   unsigned getCenForJetEtaBoundary() const { return cenForJetEtaBoundary_; }
   bool getConvertToEnergy() const { return convertToEnergy_; }
 
-
   // get integers
   unsigned getCenJetEtSeedGct() const { return static_cast<unsigned>(cenJetEtSeed_/rgnEtLsb_); }
   unsigned getForJetEtSeedGct() const { return static_cast<unsigned>(forJetEtSeed_/rgnEtLsb_); }
@@ -50,12 +49,45 @@ class L1GctJetFinderParams
   unsigned getHtJetEtThresholdGct() const { return static_cast<unsigned>(htJetEtThreshold_/htLsb_); }
   unsigned getMHtJetEtThresholdGct() const { return static_cast<unsigned>(mhtJetEtThreshold_/htLsb_); }
 
+  // set methods
+  void setRegionEtLsb (const double rgnEtLsb);
+  void setSlidingWindowParams(const double cJetSeed,
+			      const double fJetSeed,
+			      const double tJetSeed,
+			      const unsigned etaBoundary);
+  void setJetEtCalibrationParams(const unsigned corrType,
+				 const std::vector< std::vector<double> >& jetCorrCoeffs,
+				 const std::vector< std::vector<double> >& tauCorrCoeffs);
+  void setJetEtConvertToEnergyOn(const std::vector<double>& energyConvCoeffs);
+  void setJetEtConvertToEnergyOff();
+  void setHtSumParams(const double htLsb,
+		      const double htJetEtThresh,
+		      const double mhtJetEtThresh);
+  void setTauAlgorithmParams(const double tauIsoEtThresh);
+  void setParams(const double rgnEtLsb,
+		 const double htLsb,
+		 const double cJetSeed,
+		 const double fJetSeed,
+		 const double tJetSeed,
+		 const double tauIsoEtThresh,
+		 const double htJetEtThresh,
+		 const double mhtJetEtThresh,
+		 const unsigned etaBoundary,
+		 const unsigned corrType,
+		 const std::vector< std::vector<double> >& jetCorrCoeffs,
+		 const std::vector< std::vector<double> >& tauCorrCoeffs);
+
   // correct jet Et
   /// Eta takes a value from 0-10, corresponding to jet regions running from eta=0.0 to eta=5.0
   double correctedEtGeV(const double et, const unsigned eta, const bool tauVeto) const;
   
   /// Convert the corrected Et value to a linear Et for Ht summing
   uint16_t correctedEtGct(const double correctedEt) const;
+  
+  /// Access to jet Et calibration parameters
+  unsigned getCorrType() const { return corrType_; }
+  std::vector< std::vector<double> > getJetCorrCoeffs() const { return jetCorrCoeffs_; }
+  std::vector< std::vector<double> > getTauCorrCoeffs() const { return tauCorrCoeffs_; }
 
  private:
 
@@ -93,6 +125,9 @@ class L1GctJetFinderParams
   std::vector<double> energyConversionCoeffs_;
 
 };
+
+/// Overload << operator
+std::ostream& operator << (std::ostream& os, const L1GctJetFinderParams& fn);
 
 #endif /*L1GCTJETPARAMS_H_*/
 
