@@ -1,14 +1,33 @@
 <lcgdict>
-
+    <class name="Constraint"/>
+    <class name="ConstrBlock2"/>
+    <class name="ConstrBlock3"/>
+    <class name="ConstrBlockArray"/>
     <class name="ExclusionBandPlot"/>
+    <class name="FCCalculator"/>
+    <class name="FCResults"/>
     <class name="LEPBandPlot"/>
+    <class name="LikelihoodCalculator"/>
+    <class name="LimitCalculator"/>
     <class name="LimitPlot"/>
+    <class name="LimitResults"/>
+    <class name="Minus2LnQCalculator"/>
+    <class name="PdfCombiner"/>
+    <class name="PLScan"/>
     <class name="PLScanPlot"/>
     <class name="PLScanResults"/>
-    <class name="LimitResults"/>
+    <class name="RatioFinder"/>
     <class name="RatioFinderPlot"/>
-    <function name="Rsc::getHistoCenter"/>
-    <function name="Rsc::getMedian"/>
-    <function name="Rsc::getHistoPvals"/>
+    <class name="RatioFinderResults"/>
+    <class name="RscAbsPdfBuilder"/>
+    <class name="RscCombinedModel"/>
+    <class name="RscConstrArrayFiller"/>
+    
+    <!--        <class name="RscBaseModel"/>
 
-</lcgdict>
+    <class name="RscCompModel"/>
+
+    <class name="RscMultiModel"/>
+    <class name="RscTotModel"/>-->
+
+<lcgdict>
