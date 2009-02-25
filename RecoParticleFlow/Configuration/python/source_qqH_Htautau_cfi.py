@@ -4,14 +4,18 @@
 
 import FWCore.ParameterSet.Config as cms
 
+source = cms.Source("EmptySource")
+
 from Configuration.Generator.PythiaUESettings_cfi import *
-source = cms.Source("PythiaSource",
+generator = cms.EDFilter("Pythia6GeneratorFilter",
     pythiaHepMCVerbosity = cms.untracked.bool(False),
     maxEventsToPrint = cms.untracked.int32(0),
     pythiaPylistVerbosity = cms.untracked.int32(0),
+    comEnergy = cms.double(10000.0),
     PythiaParameters = cms.PSet(
         pythiaUESettingsBlock,
-        processParameters = cms.vstring('PMAS(25,1)=125.0        !mass of Higgs', 
+        processParameters = cms.vstring(
+            'PMAS(25,1)=125.0        !mass of Higgs', 
             'MSEL=0                  !user selection for process', 
             'MSUB(123)=1             !ZZ fusion to H', 
             'MSUB(124)=1             !WW fusion to H', 
@@ -32,10 +36,14 @@ source = cms.Source("PythiaSource",
             'MDME(224,1)=0           !Higgs decay into gam Z', 
             'MDME(225,1)=0           !Higgs decay into Z Z', 
             'MDME(226,1)=0           !Higgs decay into W W'),
-        parameterSets = cms.vstring('pythiaUESettings', 
-            'processParameters')
+        parameterSets = cms.vstring(
+            'pythiaUESettings', 
+            'processParameters'
+        )
     )
 )
+
+ProductionFilterSequence = cms.Sequence(generator)
 
 
 

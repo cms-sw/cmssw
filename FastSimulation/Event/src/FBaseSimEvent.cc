@@ -489,7 +489,7 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
     if ( productionVertex ) { 
       unsigned productionMother = productionVertex->particles_in_size();
       if ( productionMother ) {
-	unsigned motherId = (*(primaryVertex->particles_in_const_begin()))->pdg_id();
+	unsigned motherId = (*(productionVertex->particles_in_const_begin()))->pdg_id();
 	if ( abs(motherId) < 1000000 ) 
 	  productionVertexPosition = 
 	    XYZTLorentzVector(productionVertex->position().x()/10.,
@@ -499,7 +499,6 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
       }
     }
     if ( !myFilter->accept(productionVertexPosition) ) continue;
-
 
     // Keep only: 
     // 1) Stable particles (watch out! New status code = 1001!)
