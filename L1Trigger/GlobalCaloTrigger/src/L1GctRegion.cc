@@ -1,4 +1,4 @@
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctRegion.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctRegion.h" 
 
 L1GctRegion::L1GctRegion() : L1CaloRegion() {}
 
@@ -6,9 +6,7 @@ L1GctRegion::L1GctRegion(const L1CaloRegion& r) :
   L1CaloRegion( L1CaloRegion::makeGctJetRegion( (r.overFlow() ? kGctRegionMaxValue : r.et()),
 						r.overFlow(), r.fineGrain(), r.gctEta(), r.gctPhi(), r.bx()) ) {}
 
-L1GctRegion::~L1GctRegion()
-{
-}
+L1GctRegion::~L1GctRegion() {}
 
 L1GctRegion L1GctRegion::makeProtoJetRegion(const unsigned et, const bool overFlow, const bool fineGrain, const bool tauIsolationVeto,
                                             const unsigned ieta, const unsigned iphi, const int16_t bx)
@@ -36,7 +34,7 @@ void L1GctRegion::setBit(const unsigned bitNum, const bool onOff)
   if ((bitNum==14) || (bitNum==15)) { 
     uint16_t data = raw();
     uint16_t mask = 1 << bitNum;
-    data &= !mask;
+    data &= ~mask;
     if (onOff) data |= mask;
     setRawData(data);
   } 

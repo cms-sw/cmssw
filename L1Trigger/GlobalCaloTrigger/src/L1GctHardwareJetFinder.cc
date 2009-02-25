@@ -129,7 +129,6 @@ void L1GctHardwareJetFinder::findLocalMaxima()
       }
       if (localMax) {
         if (jetNum < MAX_JETS_OUT) {
-                
 	  m_localMaxima.at(jetNum) = m_inputRegions.at(centreIndex);
 	  ++jetNum;
 	}
