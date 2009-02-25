@@ -15,71 +15,55 @@
 
 namespace IPTools
 {
-using namespace std;
-using namespace reco;
+  using namespace std;
+  using namespace reco;
 
 
-/** 
- *  Returns life time signed transverse impact parameter
- *  The track is extrapolated to the closest point to the primary vertex in transverse plane
- *  then the impact parameter and its error are computed
- */
+  /** 
+   *  Returns life time signed transverse impact parameter
+   *  The track is extrapolated to the closest point to the primary vertex in transverse plane
+   *  then the impact parameter and its error are computed
+   */
 
-pair<bool,Measurement1D> signedTransverseImpactParameter(const TransientTrack & track,
- const GlobalVector & direction, const  Vertex & vertex)
-  {
-    GlobalPoint vertexPosition(vertex.x(),vertex.y(),vertex.z());
+  pair<bool,Measurement1D> signedTransverseImpactParameter(const TransientTrack & track,
+                                                           const GlobalVector & direction, const  Vertex & vertex){
 
-   //Extrapolate to closest point on transverse plane
+    GlobalPoint vertexPosition    = RecoVertex::convertPos(vertex.position());
+    GlobalError vertexPositionErr = RecoVertex::convertError(vertex.error());
+
+    //Extrapolate to closest point on transverse plane
     TrajectoryStateOnSurface closestOnTransversePlaneState = transverseExtrapolate(track.impactPointState(),vertexPosition,track.field());
-  
-   //Check if extrapolation has been successfull
+
+    //Check if extrapolation has been successfull
     if(!closestOnTransversePlaneState.isValid()) {
       //TODO: throw instead?
-      return pair<bool,Measurement1D>(false,Measurement1D(0.,0.)) ; 
-     }
+      return pair<bool,Measurement1D>(false,Measurement1D(0.,0.)) ;
+    }
+
+    GlobalPoint impactPoint    = closestOnTransversePlaneState.globalPosition();
+    GlobalError impactPointErr = closestOnTransversePlaneState.cartesianError().position();
+
+    ///calculate the distance of the PV to the refPoint on the track
+    VertexDistanceXY distanceComputer;
+    Measurement1D mess1D = distanceComputer.distance(VertexState(vertexPosition, vertexPositionErr), VertexState(impactPoint, impactPointErr));
 
 
-    GlobalPoint impactPoint=closestOnTransversePlaneState.globalPosition();
-    GlobalVector transverseIP(impactPoint.x()-vertex.x(),impactPoint.y()-vertex.y(),0.);
+    GlobalVector IPVec(impactPoint.x()-vertex.x(),impactPoint.y()-vertex.y(),0.);
+    double prod = IPVec.dot(direction);
+    double sign = (prod!=0) ? prod/fabs(prod) : 1.;
 
-    double ps = transverseIP.dot(direction);
-    double signedIP = transverseIP.mag()*((ps!=0)?ps/abs(ps):1.);
-    GlobalVector ipDirection = transverseIP.unit();//check
-
-    //error calculation
-    
-    AlgebraicVector3 deriv_v;
-    deriv_v[0] = ipDirection.x();
-    deriv_v[1] = ipDirection.y();
-    deriv_v[2] = ipDirection.z();
-    
-    AlgebraicVector6 deriv;
-    deriv[0] = ipDirection.x();
-    deriv[1] = ipDirection.y();
-    deriv[2] = ipDirection.z();
-    deriv[3] =  0.;
-    deriv[4] =  0.;
-    deriv[5] =  0.;
-   
-    double trackError2 = ROOT::Math::Similarity(deriv,closestOnTransversePlaneState.cartesianError().matrix());
-    double vertexError2 = ROOT::Math::Similarity(deriv_v,vertex.covariance());
-    double ipError = sqrt(trackError2+vertexError2);
-
-  
-    return pair<bool,Measurement1D>(true,Measurement1D(signedIP,ipError));
-
-}
+    return pair<bool,Measurement1D>(true,Measurement1D(sign*mess1D.value(), mess1D.error()));
+  }
 
 
-pair<bool,Measurement1D> signedDecayLength3D(const   TrajectoryStateOnSurface & closestToJetState,
-                 const GlobalVector & direction, const  Vertex & vertex)  {
+  pair<bool,Measurement1D> signedDecayLength3D(const   TrajectoryStateOnSurface & closestToJetState,
+					       const GlobalVector & direction, const  Vertex & vertex)  {
 
-  //Check if extrapolation has been successfull
+    //Check if extrapolation has been successfull
     if(!closestToJetState.isValid()) {
       //TODO: throw instead?
       return pair<bool,Measurement1D>(false,Measurement1D(0.,0.));
-     }
+    }
 
     GlobalVector jetDirection = direction.unit();
     GlobalPoint vertexPosition(vertex.x(),vertex.y(),vertex.z());
@@ -108,18 +92,18 @@ pair<bool,Measurement1D> signedDecayLength3D(const   TrajectoryStateOnSurface & 
     
     return pair<bool,Measurement1D>(true,Measurement1D(decayLen,decayLenError));
 
-}
+  }
 
 
     
-pair<bool,Measurement1D> signedImpactParameter3D(const   TrajectoryStateOnSurface & closestToJetState ,
-                 const GlobalVector & direction, const  Vertex & vertex)
+  pair<bool,Measurement1D> signedImpactParameter3D(const   TrajectoryStateOnSurface & closestToJetState ,
+						   const GlobalVector & direction, const  Vertex & vertex)
   {
-  //Check if extrapolation has been successfull
+    //Check if extrapolation has been successfull
     if(!closestToJetState.isValid()) {
       //TODO: throw instead?
       return pair<bool,Measurement1D>(false,Measurement1D(0.,0.));
-     }
+    }
 
 
     GlobalPoint vertexPosition(vertex.x(),vertex.y(),vertex.z());
@@ -154,52 +138,52 @@ pair<bool,Measurement1D> signedImpactParameter3D(const   TrajectoryStateOnSurfac
     double ipError = sqrt(trackError2+vertexError2);
 
     return pair<bool,Measurement1D>(true,Measurement1D(signedIP,ipError));
-}
-
-
-
-TrajectoryStateOnSurface closestApproachToJet(const TrajectoryStateOnSurface & state,const Vertex & vertex, const GlobalVector& direction,const MagneticField * field) {
-  
-  Line::PositionType pos(GlobalPoint(vertex.x(),vertex.y(),vertex.z()));
-  Line::DirectionType dir(direction.unit());
-  Line jetLine(pos,dir);
-  
-  AnalyticalTrajectoryExtrapolatorToLine extrapolator(field);
-
-  return extrapolator.extrapolate(state, jetLine);
-}
-
-/**
- * Compute the impact parameter of a track, linearized from the given state, with respect to a given point 
- */
-GlobalVector linearImpactParameter(const TrajectoryStateOnSurface & state, const GlobalPoint & point)  {
-
-  Line::PositionType pos(state.globalPosition());
-  Line::DirectionType dir((state.globalMomentum()).unit());
-  Line trackLine(pos,dir);
-  GlobalPoint  tmp=point; 
-  return  trackLine.distance(tmp);
-}
-
-pair<double,Measurement1D> jetTrackDistance(const TransientTrack & track, const GlobalVector & direction, const Vertex & vertex) {
-  double  theLDist_err(0.);
-  
-//FIXME
-  float weight=0.;//vertex.trackWeight(track);
-
-  TrajectoryStateOnSurface stateAtOrigin = track.impactPointState(); 
-  if(!stateAtOrigin.isValid())
-  {
-    //TODO: throw instead?
-      return pair<bool,Measurement1D>(false,Measurement1D(0.,0.));
   }
+
+
+
+  TrajectoryStateOnSurface closestApproachToJet(const TrajectoryStateOnSurface & state,const Vertex & vertex, const GlobalVector& direction,const MagneticField * field) {
+  
+    Line::PositionType pos(GlobalPoint(vertex.x(),vertex.y(),vertex.z()));
+    Line::DirectionType dir(direction.unit());
+    Line jetLine(pos,dir);
+  
+    AnalyticalTrajectoryExtrapolatorToLine extrapolator(field);
+
+    return extrapolator.extrapolate(state, jetLine);
+  }
+
+  /**
+   * Compute the impact parameter of a track, linearized from the given state, with respect to a given point 
+   */
+  GlobalVector linearImpactParameter(const TrajectoryStateOnSurface & state, const GlobalPoint & point)  {
+
+    Line::PositionType pos(state.globalPosition());
+    Line::DirectionType dir((state.globalMomentum()).unit());
+    Line trackLine(pos,dir);
+    GlobalPoint  tmp=point; 
+    return  trackLine.distance(tmp);
+  }
+
+  pair<double,Measurement1D> jetTrackDistance(const TransientTrack & track, const GlobalVector & direction, const Vertex & vertex) {
+    double  theLDist_err(0.);
+  
+    //FIXME
+    float weight=0.;//vertex.trackWeight(track);
+
+    TrajectoryStateOnSurface stateAtOrigin = track.impactPointState(); 
+    if(!stateAtOrigin.isValid())
+      {
+	//TODO: throw instead?
+	return pair<bool,Measurement1D>(false,Measurement1D(0.,0.));
+      }
    
     //get the Track line at origin
     Line::PositionType posTrack(stateAtOrigin.globalPosition());
     Line::DirectionType dirTrack((stateAtOrigin.globalMomentum()).unit());
     Line trackLine(posTrack,dirTrack);
     // get the Jet  line 
-   // Vertex vertex(vertex);
+    // Vertex vertex(vertex);
     GlobalVector jetVector = direction.unit();    
     Line::PositionType posJet(GlobalPoint(vertex.x(),vertex.y(),vertex.z()));
     Line::DirectionType dirJet(jetVector);
@@ -220,36 +204,36 @@ pair<double,Measurement1D> jetTrackDistance(const TransientTrack & track, const 
     // get the covariance matrix of the vertex and compute the error on theDistanceToJetAxis
     //
     
-////AlgebraicSymMatrix vertexError = vertex.positionError().matrix();
+    ////AlgebraicSymMatrix vertexError = vertex.positionError().matrix();
 
     // build the vector of closest approach between lines
 
 
-//FIXME: error not computed.
+    //FIXME: error not computed.
     GlobalVector H((jetVector.cross(dirTrack).unit()));
     HepVector Hh(3);
     Hh[0] = H.x();
     Hh[1] = H.y();
     Hh[2] = H.z();
     
-  //  theLDist_err = sqrt(vertexError.similarity(Hh));
+    //  theLDist_err = sqrt(vertexError.similarity(Hh));
 
     //    cout << "distance to jet axis : "<< theDistanceToJetAxis <<" and error : "<< theLDist_err<<endl;
     // Now the impact parameter ...
 
-/*    GlobalPoint T0 = track.position();
-    GlobalVector D = (T0-V)- (T0-V).dot(dir) * dir;
-    double IP = D.mag();    
-    GlobalVector Dold = distance(aTSOS, aJet.vertex(), jetDirection);
-    double IPold = Dold.mag();
-*/
+    /*    GlobalPoint T0 = track.position();
+	  GlobalVector D = (T0-V)- (T0-V).dot(dir) * dir;
+	  double IP = D.mag();    
+	  GlobalVector Dold = distance(aTSOS, aJet.vertex(), jetDirection);
+	  double IPold = Dold.mag();
+    */
 
 
 
   
-  Measurement1D DTJA(theDistanceToJetAxis,theLDist_err);
+    Measurement1D DTJA(theDistanceToJetAxis,theLDist_err);
   
-  return pair<double,Measurement1D> (theDistanceAlongJetAxis,DTJA);
-}
+    return pair<double,Measurement1D> (theDistanceAlongJetAxis,DTJA);
+  }
 
 }
