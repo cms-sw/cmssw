@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre2/8E29_V113/V2 (CMSSW_3_1_X_2009-02-20-1900_HLT1)
+# /dev/CMSSW_3_1_0/pre2/8E29_V115/V2 (CMSSW_3_1_X_2009-02-20-1900_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/8E29_V113/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/8E29_V115/V2')
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -1825,7 +1825,9 @@ hltCkfL1IsoStartUpTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
     ),
-    cleanTrajectoryAfterInOut = cms.bool( False )
+    cleanTrajectoryAfterInOut = cms.bool( False ),
+    SeedLabel = cms.string( "" ),
+    SeedProducer = cms.string( "hltL25TauPixelSeeds" )
 )
 hltCtfL1IsoStartUpWithMaterialTracks = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
@@ -1855,7 +1857,9 @@ hltCkfL1NonIsoStartUpTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
     ),
-    cleanTrajectoryAfterInOut = cms.bool( False )
+    cleanTrajectoryAfterInOut = cms.bool( False ),
+    SeedLabel = cms.string( "" ),
+    SeedProducer = cms.string( "hltL25TauPixelSeeds" )
 )
 hltCtfL1NonIsoStartUpWithMaterialTracks = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( False ),
@@ -1910,7 +1914,9 @@ hltL1IsoStartUpElectronsRegionalCkfTrackCandidates = cms.EDProducer( "CkfTrackCa
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
     ),
-    cleanTrajectoryAfterInOut = cms.bool( False )
+    cleanTrajectoryAfterInOut = cms.bool( False ),
+    SeedLabel = cms.string( "" ),
+    SeedProducer = cms.string( "hltL25TauPixelSeeds" )
 )
 hltL1IsoStartUpElectronsRegionalCTFFinalFitWithMaterial = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( False ),
@@ -1952,7 +1958,9 @@ hltL1NonIsoStartUpElectronsRegionalCkfTrackCandidates = cms.EDProducer( "CkfTrac
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
     ),
-    cleanTrajectoryAfterInOut = cms.bool( False )
+    cleanTrajectoryAfterInOut = cms.bool( False ),
+    SeedLabel = cms.string( "" ),
+    SeedProducer = cms.string( "hltL25TauPixelSeeds" )
 )
 hltL1NonIsoStartUpElectronsRegionalCTFFinalFitWithMaterial = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( False ),
@@ -2374,7 +2382,9 @@ hltL1IsoEgammaRegionalCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMak
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
     ),
-    cleanTrajectoryAfterInOut = cms.bool( False )
+    cleanTrajectoryAfterInOut = cms.bool( False ),
+    SeedLabel = cms.string( "" ),
+    SeedProducer = cms.string( "hltL25TauPixelSeeds" )
 )
 hltL1IsoEgammaRegionalCTFFinalFitWithMaterial = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( False ),
@@ -2416,7 +2426,9 @@ hltL1NonIsoEgammaRegionalCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidate
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
     ),
-    cleanTrajectoryAfterInOut = cms.bool( False )
+    cleanTrajectoryAfterInOut = cms.bool( False ),
+    SeedLabel = cms.string( "" ),
+    SeedProducer = cms.string( "hltL25TauPixelSeeds" )
 )
 hltL1NonIsoEgammaRegionalCTFFinalFitWithMaterial = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( False ),
@@ -3153,7 +3165,7 @@ hltSingleMuIsoL2PreFiltered3 = cms.EDFilter( "HLTMuonL2PreFilter",
 )
 hltEcalRegionalMuonsFEDs = cms.EDProducer( "EcalRawToRecHitRoI",
     sourceTag = cms.InputTag( "hltEcalRawToRecHitFacility" ),
-    type = cms.string( "muon" ),
+    type = cms.string( "candidate" ),
     MuJobPSet = cms.PSet( 
       regionEtaMargin = cms.double( 1.0 ),
       regionPhiMargin = cms.double( 1.0 ),
@@ -3165,6 +3177,15 @@ hltEcalRegionalMuonsFEDs = cms.EDProducer( "EcalRawToRecHitRoI",
     EmJobPSet = cms.VPSet( 
     ),
     CandJobPSet = cms.VPSet( 
+      cms.PSet(  bePrecise = cms.bool( False ),
+        propagatorNameToBePrecise = cms.string( "" ),
+        epsilon = cms.double( 0.01 ),
+        regionPhiMargin = cms.double( 0.3 ),
+        regionEtaMargin = cms.double( 0.3 ),
+        cType = cms.string( "chargedcandidate" ),
+        Source = cms.InputTag( "hltL2MuonCandidates" ),
+        Ptmin = cms.double( 0.0 )
+      )
     )
 )
 hltEcalRegionalMuonsRecHit = cms.EDProducer( "EcalRawToRecHitProducer",
