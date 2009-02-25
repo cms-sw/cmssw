@@ -105,7 +105,7 @@ namespace edm {
       LogDebug("MixingModule") <<" adding HepMCProduct from signal event  with "<<tag_;
       crFrame_->addSignals(result_t.product(),e.id());  
     }
-    else	  LogWarning("MixingModule") <<"!!!!!!! Did not get any signal data for HepMCProduct with "<<tag_;
+    else	  LogInfo("MixingModule") <<"!!!!!!! Did not get any signal data for HepMCProduct with "<<tag_;
   }
 
   template <>
