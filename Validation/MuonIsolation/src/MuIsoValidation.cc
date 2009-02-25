@@ -227,7 +227,7 @@ void MuIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	edm::LogInfo("Tutorial") << "\nInvestigating event #" << nEvents<<"\n";
 
 	// Get Muon Collection 
-	edm::Handle<reco::MuonCollection> muonsHandle; //this is an instance of std:vector<muon> . It has methods begin(), end(), size(), etc.
+	edm::Handle<edm::View<reco::Muon> > muonsHandle; // 
 	iEvent.getByLabel(Muon_Tag, muonsHandle);
 
 	// Get IsoDeposit Collection 
@@ -254,7 +254,7 @@ void MuIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	    if (muon->combinedMuon().isNull()) continue;
 	  }
 	  ++nCombinedMuons;
-	  reco::MuonRef muRef(muonsHandle,iMuon);
+	  MuonBaseRef muRef = muonsHandle->refAt(iMuon);
 	  MuIsoDepRef& tkDep  = ( *tkIsoHandle)[muRef];
 	  MuIsoDepRef& ecalDep = (*ecalIsoHandle)[muRef];
 	  MuIsoDepRef& hcalDep = (*hcalIsoHandle)[muRef];
