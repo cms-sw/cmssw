@@ -516,7 +516,7 @@ RequestHistos.DrawLayerCondDBHisto = function()
   var obj      = $('summ_struc_name');
   var sname    = obj.options[obj.selectedIndex].value;
   queryString += '&StructureName='+sname;
-  var option = 'NoiseFromCondDB';
+  var option = 'NoiseFromCondDB,FractionOfBadStripsFromCondDB';
   queryString += '&option='+option;  
   queryString += '&width='+IMGC.BASE_IMAGE_WIDTH+
                  '&height='+IMGC.BASE_IMAGE_HEIGHT;

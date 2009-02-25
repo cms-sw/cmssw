@@ -24,12 +24,11 @@ class SiStripActionExecutor {
 
  public:
 
-  SiStripActionExecutor();
+  SiStripActionExecutor(edm::ParameterSet const& ps);
   virtual ~SiStripActionExecutor();
 
 
  bool readConfiguration();
- bool readConfiguration(int& sum_freq);
  bool readTkMapConfiguration();
 
  void saveMEs(DQMStore * dqm_store, std::string fname);
@@ -49,15 +48,17 @@ class SiStripActionExecutor {
  void printReportSummary(MonitorElement* me, std::ostringstream& str_val, std::string name);
  void printShiftHistoParameters(DQMStore * dqm_store,
              std::map<std::string, std::vector<std::string> >&layout_map,std::ostringstream& str_val);
+ void printFaultyModuleList(DQMStore * dqm_store, std::ostringstream& str_val);
+
 
  private:
 
- void fillSubDetStatusFromModule(DQMStore* dqm_store, std::string& dname, int& tot_me_subdet,
-		       int& error_me_subdet, unsigned int xbin);
- void fillSubDetStatusFromLayer(DQMStore* dqm_store, std::string& dname, int& tot_me_subdet,
+  void fillSubDetStatusFromModule(DQMStore* dqm_store, std::string& dname, int& tot_me_subdet,
+				  int& error_me_subdet, unsigned int xbin);
+  void fillSubDetStatusFromLayer(DQMStore* dqm_store, std::string& dname, int& tot_me_subdet,
 		       int& error_me_subdet, unsigned int xbin);
   void fillClusterReport(DQMStore* dqm_store, std::string& dname, int xbin);
- bool goToDir(DQMStore * dqm_store, std::string name);
+  bool goToDir(DQMStore * dqm_store, std::string name);
 
 
   std::vector<std::string> tkMapMENames;
@@ -78,5 +79,8 @@ class SiStripActionExecutor {
 
   bool bookedGlobalStatus_;
   SiStripConfigWriter* configWriter_;
+
+  edm::ParameterSet pSet_;
+
 };
 #endif

@@ -29,11 +29,10 @@ SiStripSummaryCreator::~SiStripSummaryCreator() {
 //
 // -- Read Configuration
 //
-bool SiStripSummaryCreator::readConfiguration() {
+bool SiStripSummaryCreator::readConfiguration(string& file_path) {
     summaryMEMap.clear();
   SiStripConfigParser config_parser;
-  string localPath = string("DQM/SiStripMonitorClient/data/sistrip_monitorelement_config.xml");
-  config_parser.getDocument(edm::FileInPath(localPath).fullPath());
+  config_parser.getDocument(edm::FileInPath(file_path).fullPath());
   if (!config_parser.getFrequencyForSummary(summaryFrequency_)){
     cout << "SiStripSummaryCreator::readConfiguration: Failed to read Summary configuration parameters!! ";
     summaryFrequency_ = -1;

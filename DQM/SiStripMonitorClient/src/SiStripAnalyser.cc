@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2008/12/26 09:05:29 $
- * $Revision: 1.42 $
+ * $Date: 2009/02/19 22:36:22 $
+ * $Revision: 1.43 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -100,7 +100,7 @@ SiStripAnalyser::SiStripAnalyser(edm::ParameterSet const& ps) :
 
   // instantiate web interface
   sistripWebInterface_ = new SiStripWebInterface(dqmStore_);
-  actionExecutor_ = new SiStripActionExecutor();
+  actionExecutor_ = new SiStripActionExecutor(ps);
   condDataMon_    = new SiStripClassToMonitorCondData(ps);
   trackerFEDsFound_ = false;
 }
@@ -250,7 +250,6 @@ void SiStripAnalyser::endRun(edm::Run const& run, edm::EventSetup const& eSetup)
 //
 void SiStripAnalyser::endJob(){
   edm::LogInfo("SiStripAnalyser") <<"SiStripAnalyser:: endjob called!";
-
 }
 //
 // Check Tracker FEDs

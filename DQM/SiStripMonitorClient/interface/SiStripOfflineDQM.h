@@ -82,5 +82,6 @@ private:
   bool usedWithEDMtoMEConverter_;
   int nEvents_;
   bool trackerFEDsFound_;
+  bool printFaultyModuleList_;
 };
 #endif

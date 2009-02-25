@@ -4,7 +4,9 @@ import FWCore.ParameterSet.Config as cms
 siStripOfflineAnalyser = cms.EDFilter("SiStripOfflineDQM",
     GlobalStatusFilling      = cms.untracked.int32(2),
     SummaryCreationFrequency = cms.untracked.int32(-1),
-    UsedWithEDMtoMEConverter = cms.untracked.bool(True)
+    SummaryConfigPath        = cms.untracked.string("DQM/SiStripMonitorClient/data/sistrip_monitorelement_config.xml"),
+    UsedWithEDMtoMEConverter = cms.untracked.bool(True),
+    PrintFaultyModuleList    = cms.untracked.bool(False)
 )
 
 siStripQTester = cms.EDFilter("QualityTester",

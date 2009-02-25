@@ -324,13 +324,6 @@ void SiStripInformationExtractor::plotHistosFromLayout(DQMStore * dqm_store){
 //
 void SiStripInformationExtractor::getTrackerMapHistos(DQMStore* dqm_store, const std::multimap<std::string, std::string>& req_map, xgi::Output * out) {
 
-  vector<string> hlist;
-  string tkmap_name;
-  SiStripConfigParser config_parser;
-  string localPath = string("DQM/SiStripMonitorClient/data/sistrip_monitorelement_config.xml");
-  config_parser.getDocument(edm::FileInPath(localPath).fullPath());
-  if (!config_parser.getMENamesForTrackerMap(tkmap_name, hlist)) return;
-  if (hlist.size() == 0) return;
 
   uint32_t detId = atoi(getItemValue(req_map,"ModId").c_str());
  
@@ -346,20 +339,15 @@ void SiStripInformationExtractor::getTrackerMapHistos(DQMStore* dqm_store, const
   vector<MonitorElement*> all_mes = dqm_store->getContents(path);
   setHTMLHeader(out);
   *out << path << " ";
-  for (vector<string>::iterator ih = hlist.begin();
-       ih != hlist.end(); ih++) {
-    for (vector<MonitorElement *>::const_iterator it = all_mes.begin();
-	 it!= all_mes.end(); it++) {
-      MonitorElement * me = (*it);
-      if (!me) continue;
-      string hname = me->getName(); 
-      string name = hname.substr(0, hname.find("__det__"));
-      if (name == (*ih)) {	
-	string full_path = path + "/" + hname;
-	histoPlotter_->setNewPlot(full_path, opt, width, height);
-	*out << hname << " " ;
-      }      
-    }
+  for (vector<MonitorElement *>::const_iterator it = all_mes.begin();
+       it!= all_mes.end(); it++) {
+    MonitorElement * me = (*it);
+    if (!me) continue;
+    if (me->getQReports().size() == 0) continue;
+    string hname = me->getName(); 
+    string full_path = path + "/" + hname;
+    histoPlotter_->setNewPlot(full_path, opt, width, height);
+    *out << hname << " " ;
   }   
 }
 //
@@ -754,7 +742,6 @@ void SiStripInformationExtractor::readQTestSummary(DQMStore* dqm_store, string t
     int ndet    = 0;
     int errdet  = 0;       
     int warndet = 0;
-    SiStripFolderOrganizer folder_organizer;
     vector<string> subDirVec = dqm_store->getSubdirs();
     for (vector<string>::const_iterator ic = subDirVec.begin();
 	 ic != subDirVec.end(); ic++) {
@@ -776,17 +763,23 @@ void SiStripInformationExtractor::readQTestSummary(DQMStore* dqm_store, string t
 	  MonitorElement * me = (*it);     
 	  if (!me) continue;
 	  if (me->getQReports().size() == 0) continue;
+          string me_name = me->getName();
+          me_name = me_name.substr(0,me_name.find("__det__"));
 	  int istat =  SiStripUtility::getMEStatus((*it));
-	  qtest_summary << " Module Id " << detId << " : "<< endl;
+          if (istat == dqm::qstatus::STATUS_OK) continue; 
+	  if (err_me == 0 && warn_me == 0) qtest_summary << " Module Id " << detId << " : "<< endl;
 	  if (istat == dqm::qstatus::ERROR) {
 	    err_me++;
-	    qtest_summary << me->getName() << " ==> Error " << endl; 
+	    qtest_summary << me_name << " ==> Error  "; 
 	  } else if (istat == dqm::qstatus::WARNING) {
 	    warn_me++;
-	    qtest_summary << me->getName() << " ==> Warning " << endl; 
+	    qtest_summary << me_name << " ==> Warning  "; 
+	  } else if (istat == dqm::qstatus::OTHER) {
+	    qtest_summary << me_name << " ==> Other  "; 
 	  }
 	}
 	if (err_me > 0 || warn_me >0) {
+          qtest_summary << endl;
 	  if (err_me > 0) {
 	    errdet++;
 	    nTotalError += err_me;

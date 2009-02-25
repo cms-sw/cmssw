@@ -17,7 +17,7 @@ class SiStripSummaryCreator {
 
   SiStripSummaryCreator();
   virtual ~SiStripSummaryCreator();
-  bool readConfiguration();
+  bool readConfiguration(std::string & file_path);
 
   void createSummary(DQMStore* dqm_store);
 

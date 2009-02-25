@@ -26,17 +26,11 @@ class SiStripTrackerMapCreator {
 	      const edm::ESHandle<SiStripFedCabling>& fedcabling, 
               DQMStore* dwm_store);
 
-  int getFrequency() { return tkMapFrequency_;}
-  int getMENames(std::vector< std::string>& me_names);
-
-
  private:
 
   void paintTkMap(int det_id, std::map<MonitorElement*, int>& me_map);
 
   TrackerMap* trackerMap_;
-  std::vector<std::string> meNames_;
   std::string tkMapName_;
-  int tkMapFrequency_;
 };
 #endif

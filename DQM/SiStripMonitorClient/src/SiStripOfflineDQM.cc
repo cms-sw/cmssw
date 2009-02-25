@@ -14,7 +14,7 @@
 //
 // Original Author:  Samvel Khalatyan (ksamdev at gmail dot com)
 //         Created:  Wed Oct  5 16:42:34 CET 2006
-// $Id: SiStripOfflineDQM.cc,v 1.20 2008/09/27 18:20:58 dutta Exp $
+// $Id: SiStripOfflineDQM.cc,v 1.21 2008/11/24 17:06:46 dutta Exp $
 //
 //
 
@@ -59,7 +59,7 @@ SiStripOfflineDQM::SiStripOfflineDQM(edm::ParameterSet const& pSet) {
   edm::LogInfo( "SiStripOfflineDQM") << "SiStripOfflineDQM::Deleting SiStripOfflineDQM ";
 
   // Action Executor
-  actionExecutor_ = new SiStripActionExecutor();
+  actionExecutor_ = new SiStripActionExecutor(pSet);
 
   // get back-end interface
   dqmStore_ = edm::Service<DQMStore>().operator->();
@@ -69,6 +69,7 @@ SiStripOfflineDQM::SiStripOfflineDQM(edm::ParameterSet const& pSet) {
   inputFileName_           = pSet.getUntrackedParameter<std::string>("InputFileName","");
   outputFileName_          = pSet.getUntrackedParameter<std::string>("OutputFileName","");
   globalStatusFilling_     = pSet.getUntrackedParameter<int>("GlobalStatusFilling", 1);
+  printFaultyModuleList_   = pSet.getUntrackedParameter<int>("PrintFaultyModuleList", false);
 
   nEvents_  = 0;
 }
@@ -186,6 +187,11 @@ void SiStripOfflineDQM::endJob() {
     dqmStore_->cd();
     dqmStore_->save(outputFileName_, "","","");
   }
+  if (!usedWithEDMtoMEConverter_ && printFaultyModuleList_) {
+    std::ostringstream str_val;
+    actionExecutor_->printFaultyModuleList(dqmStore_, str_val);
+    std::cout << str_val.str() << std::endl;
+  }  
 }
 /** 
 * @brief 
