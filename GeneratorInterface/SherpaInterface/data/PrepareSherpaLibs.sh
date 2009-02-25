@@ -8,8 +8,8 @@
 #  author:      Markus Merschmeyer, RWTH Aachen
 #  date:        2009/01/14
 #  version:     2.7
-#
-
+#  changed: 	Martin Niegel, KIT, 2009/02/24
+#		Fix for CMSSW_3X
 
 
 # +-----------------------------------------------------------------------------------------------+
@@ -51,11 +51,12 @@ function build_python_cfi_NEW() {
 
   echo "import FWCore.ParameterSet.Config as cms"             >> ${shpacfifile}
   echo ""                                                     >> ${shpacfifile}
-  echo "source=cms.Source(\"SherpaSource\","                  >> ${shpacfifile}
-  echo "  firstRun  = cms.untracked.uint32(1),"               >> ${shpacfifile}
+  echo "generator = cms.EDFilter(\"SherpaGeneratorFilter\","  >> ${shpacfifile}
+  echo "  maxEventsToPrint = cms.untracked.int32(0),"           >> ${shpacfifile}
+  echo "  filterEfficiency = cms.untracked.double(1.0),"        >> ${shpacfifile}
+  echo "  crossSection = cms.untracked.double(-1),"             >> ${shpacfifile}
   echo "  libDir    = cms.untracked.string('"${MYLIBDIR}"')," >> ${shpacfifile}
   echo "  resultDir = cms.untracked.string('Result'),"        >> ${shpacfifile}
-
   echo "  SherpaParameters = cms.PSet(parameterSets = cms.vstring(" >> ${shpacfifile}
   fcnt=0
   for file in `ls *.dat`; do
@@ -116,10 +117,12 @@ function build_python_cfi() {
 
   echo "import FWCore.ParameterSet.Config as cms"             >> ${shpacfifile}
   echo ""                                                     >> ${shpacfifile}
-  echo "source=cms.Source(\"SherpaSource\","                  >> ${shpacfifile}
-  echo "  firstRun  = cms.untracked.uint32(1),"               >> ${shpacfifile}
+  echo "generator = cms.EDFilter(\"SherpaGeneratorFilter\","  >> ${shpacfifile}
+  echo "  maxEventsToPrint = cms.untracked.int32(0),"           >> ${shpacfifile}
+  echo "  filterEfficiency = cms.untracked.double(1.0),"        >> ${shpacfifile}
+  echo "  crossSection = cms.untracked.double(-1),"             >> ${shpacfifile}
   echo "  libDir    = cms.untracked.string('"${MYLIBDIR}"')," >> ${shpacfifile}
-  echo "  resultDir = cms.untracked.string('Result')"         >> ${shpacfifile}
+  echo "  resultDir = cms.untracked.string('Result'),"        >> ${shpacfifile}
   echo ")"                                                    >> ${shpacfifile}
 
   cat > sherpa_custom.py << EOF
@@ -147,22 +150,24 @@ function build_python_cfg() {
   if [ -e ${shpacfgfile} ]; then rm ${shpacfgfile}; fi
   touch ${shpacfgfile}
 
-  echo "import FWCore.ParameterSet.Config as cms"                                             >> ${shpacfgfile}
-  echo ""                                                                                     >> ${shpacfgfile}
-  echo "process = cms.Process(\"runSherpa\")"                                                 >> ${shpacfgfile}
-  echo "process.load('${shpacfipath}/${shpacfifile}')"                                        >> ${shpacfgfile}
-  echo "process.RandomNumberGeneratorService = cms.Service(\"RandomNumberGeneratorService\"," >> ${shpacfgfile}
-  echo "    sourceSeed = cms.untracked.uint32(98765)"                                         >> ${shpacfgfile}
-  echo ")"                                                                                    >> ${shpacfgfile}
-  echo "process.maxEvents = cms.untracked.PSet("                                              >> ${shpacfgfile}
-  echo "    input = cms.untracked.int32(100)"                                                 >> ${shpacfgfile}
-  echo ")"                                                                                    >> ${shpacfgfile}
-  echo "process.sherpa_out = cms.OutputModule(\"PoolOutputModule\","                          >> ${shpacfgfile}
-  echo "    fileName = cms.untracked.string('"${shpaoutfile}"')"                              >> ${shpacfgfile}
-  echo ")"                                                                                    >> ${shpacfgfile}
-  echo "process.outpath = cms.EndPath(process.sherpa_out)"                                    >> ${shpacfgfile}
-#  echo ""                                                                                     >> ${shpacfgfile}
-#  echo "process.genParticles.abortOnUnknownPDGCode = False"                                   >> ${shpacfgfile}
+  echo "import FWCore.ParameterSet.Config as cms"                                                  >> ${shpacfgfile}
+  echo ""                                                                                          >> ${shpacfgfile}
+  echo "process = cms.Process(\"runSherpa\")"                                                      >> ${shpacfgfile}
+  echo "process.load('${shpacfipath}/${shpacfifile}')"                                             >> ${shpacfgfile}
+  echo "process.load(\"Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff\")">> ${shpacfgfile}
+  echo "process.source = cms.Source(\"EmptySource\")"    				           >> ${shpacfgfile}
+  echo "process.maxEvents = cms.untracked.PSet("                                                   >> ${shpacfgfile}
+  echo "    input = cms.untracked.int32(100)"                                                      >> ${shpacfgfile}
+  echo ")"                                                                                         >> ${shpacfgfile}
+  echo "process.randomEngineStateProducer = cms.EDProducer(\"RandomEngineStateProducer\")"	   >> ${shpacfgfile}
+  echo "process.p1 = cms.Path(process.randomEngineStateProducer)"				   >> ${shpacfgfile}
+  echo "process.path = cms.Path(process.generator)"					           >> ${shpacfgfile}
+  echo "process.sherpa_out = cms.OutputModule(\"PoolOutputModule\","                               >> ${shpacfgfile}
+  echo "    fileName = cms.untracked.string('"${shpaoutfile}"')"                                   >> ${shpacfgfile}
+  echo ")"                                                                                         >> ${shpacfgfile}
+  echo "process.outpath = cms.EndPath(process.sherpa_out)"                                         >> ${shpacfgfile}
+#  echo ""                                                                                         >> ${shpacfgfile}
+#  echo "process.genParticles.abortOnUnknownPDGCode = False"                                       >> ${shpacfgfile}
 }
 
 
