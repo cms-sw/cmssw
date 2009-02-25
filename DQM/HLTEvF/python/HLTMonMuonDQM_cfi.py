@@ -21,6 +21,10 @@ hltMonMuDQM = cms.EDAnalyzer("HLTMuonDQMSource",
 	cms.PSet(
 		HLTCollectionLevel = cms.string("L3"),
 		HLTCollectionLabels = cms.string("HLT_Mu3")
+	),
+	cms.PSet(
+		HLTCollectionLevel = cms.string("L3"),
+		HLTCollectionLabels = cms.string("HLT_IsoMu9")
 	)
     ),
     disableROOToutput = cms.untracked.bool(True)

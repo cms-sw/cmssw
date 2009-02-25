@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Wed Dec 12 09:55:42 CET 2007
-// $Id: HLTMuonDQMSource.cc,v 1.13 2009/02/17 15:11:51 hdyoo Exp $
+// $Id: HLTMuonDQMSource.cc,v 1.15 2009/02/23 21:55:27 hdyoo Exp $
 // Modification:  Hwidong Yoo (Purdue University)
 // contact: hdyoo@cern.ch
 //
@@ -151,10 +151,16 @@ void HLTMuonDQMSource::beginJob(const EventSetup& context)
 	else pt_max = 200;
 	dbe_->setCurrentFolder(monitorName_+dirname+name);
 	if( level == 1 ) hl1quality[trig] = dbe_->book1D("h1L1Quality","GMT quality Flag", 8, 0., 8.);
-	if( level == 2 ) hnValidHits[trig] = dbe_->book1D("HLTMuonL2_nValidHits", "L2 Number of Valid Hits", NBINS, 0., 100.);
+	if( level == 2 ) {
+	    hnHits[trig][level-1] = dbe_->book1D(name,title, NBINS, 0., 100.);
+	    hnValidHits[trig] = dbe_->book1D("HLTMuonL2_nValidHits", "L2 Number of Valid Hits", NBINS, 0., 100.);
+	    hnValidHits[trig]->setAxisTitle("Number of Valid Hits", 1);
+	}
 	if( level == 3 ) {
 	  hnTkValidHits[trig] = dbe_->book1D("HLTMuonL3_nTkValidHits", "L3 Number of Valid Tracker Hits", NBINS, 0., 100.);
+	  hnTkValidHits[trig]->setAxisTitle("Number of Valid Tracker Hits", 1);
 	  hnMuValidHits[trig] = dbe_->book1D("HLTMuonL3_nMuValidHits", "L3 Number of Valid Muon Hits", NBINS, 0., 100.);
+	  hnMuValidHits[trig]->setAxisTitle("Number of Valid Muon Hits", 1);
 	}
 	if( level < 4 ) {
 	  sprintf(name,"HLTMuonL%i_NMu",level);
@@ -243,18 +249,33 @@ void HLTMuonDQMSource::beginJob(const EventSetup& context)
 	  hseedptres[trig][level-4] = dbe_->book1D(name,title, NBINS, -0.1, 0.1);
 	  sprintf(title,"1/PtL%iSeed - 1/PtL%i",level-2,level-3);         
 	  hseedptres[trig][level-4]->setAxisTitle(title, 1);
+	  sprintf(name,"HLTMuonL%iSeedtoL%i_ptrelres",level-2,level-3);
+	  sprintf(title,"(L%iSeed1/Pt - L%iMuon1/Pt)/(L%iMuon1/Pt)",level-2,level-3,level-3);         
+	  hseedptrelres[trig][level-4] = dbe_->book1D(name,title, NBINS, -1.0, 1.0);
+	  sprintf(title,"(1/PtL%iSeed - 1/PtL%i)/(1/PtL%i)",level-2,level-3,level-3);         
+	  hseedptrelres[trig][level-4]->setAxisTitle(title, 1);
 	  // eta
 	  sprintf(name,"HLTMuonL%iSeedtoL%i_etares",level-2,level-3);
 	  sprintf(title,"L%iSeed#eta - L%iMuon#eta",level-2,level-3);         
 	  hseedetares[trig][level-4] =dbe_->book1D(name,title, NBINS, -0.1, 0.1);
 	  sprintf(title,"L%iSeed #eta - L%i #eta",level-2,level-3);         
 	  hseedetares[trig][level-4]->setAxisTitle(title, 1);
+	  sprintf(name,"HLTMuonL%iSeedtoL%i_etarelres",level-2,level-3);
+	  sprintf(title,"(L%iSeed#eta - L%iMuon#eta)/L%iMuon#eta",level-2,level-3,level-3);         
+	  hseedetarelres[trig][level-4] =dbe_->book1D(name,title, NBINS, -1.0, 1.0);
+	  sprintf(title,"(L%iSeed #eta - L%i #eta)/L%i #eta",level-2,level-3,level-3);         
+	  hseedetarelres[trig][level-4]->setAxisTitle(title, 1);
 	  // phi
 	  sprintf(name,"HLTMuonL%iSeedtoL%i_phires",level-2,level-3);
 	  sprintf(title,"L%iSeed#phi - L%iMuon#phi",level-2,level-3);         
 	  hseedphires[trig][level-4] =dbe_->book1D(name,title, NBINS, -0.1, 0.1);
 	  sprintf(title,"L%iSeed #phi - L%i #phi",level-2,level-3);         
 	  hseedphires[trig][level-4]->setAxisTitle(title, 1);
+	  sprintf(name,"HLTMuonL%iSeedtoL%i_phirelres",level-2,level-3);
+	  sprintf(title,"(L%iSeed#phi - L%iMuon#phi)/L%iMuon#phi",level-2,level-3,level-3);         
+	  hseedphirelres[trig][level-4] =dbe_->book1D(name,title, NBINS, -0.1, 0.1);
+	  sprintf(title,"(L%iSeed #phi - L%i #phi)/L%i #phi",level-2,level-3,level-3);         
+	  hseedphirelres[trig][level-4]->setAxisTitle(title, 1);
 
 	  sprintf(name,"HLTMuonL%iSeed_NMuperL%i",level-2,level-3);
 	  sprintf(title,"L%iSeedNMu per L%i",level-2,level-3);         
@@ -293,24 +314,28 @@ void HLTMuonDQMSource::beginJob(const EventSetup& context)
 	  sprintf(title,"L%i Opposite charge DiMuon invariant Mass",level);         
 	  hdimumass[trig][level-2]= dbe_->book1D(name,title, NBINS, 0., 150.);
 	  hdimumass[trig][level-2]->setAxisTitle("Di Muon Invariant Mass (GeV)");
+
 	  sprintf(name,"HLTMuonL%i_drphi",level);
 	  sprintf(title,"L%i #Deltar vs #phi",level);         
 	  hdrphi[trig][level-2] = dbe_->bookProfile(name,title, NBINS, -3.15, 3.15,1,-999.,999.,"s");
 	  hdrphi[trig][level-2]->setAxisTitle("#phi", 1);
 	  sprintf(title,"L%i Muon radial impact vs BeamSpot",level);         
 	  hdrphi[trig][level-2]->setAxisTitle(title, 2);
+
 	  sprintf(name,"HLTMuonL%i_d0phi",level);
 	  sprintf(title,"L%i #Delta0 vs #phi",level);         
 	  hd0phi[trig][level-2] = dbe_->bookProfile(name,title, NBINS, -3.15, 3.15,1,-999.,999.,"s");
 	  hd0phi[trig][level-2]->setAxisTitle("#phi", 1);
 	  sprintf(title,"L%i Muon radial impact vs (0,0)",level);         
-	  hd0phi[trig][level-2]->setAxisTitle("title", 2);
+	  hd0phi[trig][level-2]->setAxisTitle(title, 2);
+
 	  sprintf(name,"HLTMuonL%i_dz0eta",level);
-	  sprintf(title,"L%i #Deltaz vs #eta",level);         
+	  sprintf(title,"L%i #Deltaz0 vs #eta",level);         
 	  hdz0eta[trig][level-2] = dbe_->bookProfile(name,title, NBINS,-2.5, 2.5,1,-999.,999.,"s");
 	  hdz0eta[trig][level-2]->setAxisTitle("#eta", 1);
 	  sprintf(title,"L%i Muon Z impact vs (0)",level);         
 	  hdz0eta[trig][level-2]->setAxisTitle(title, 2);
+
 	  sprintf(name,"HLTMuonL%i_dzeta",level);
 	  sprintf(title,"L%i #Deltaz vs #eta",level);         
 	  hdzeta[trig][level-2] = dbe_->bookProfile(name,title, NBINS,-2.5, 2.5,1,-999.,999.,"s");
@@ -320,41 +345,42 @@ void HLTMuonDQMSource::beginJob(const EventSetup& context)
 	}
 	if(level == 2 ) {
 	  sprintf(name,"HLTMuonL%itoL%i_ptpull",level,level+1);
-	  sprintf(title,"(L%iMuon1/Pt - L%iMuon1/Pt)/err",level,level+1);         
+	  sprintf(title,"(L%iMuon1/Pt - L%iMuon1/Pt)/#sigma_{pt}^{L2}",level,level+1);         
 	  hptpull[trig] = dbe_->book1D(name,title, NBINS, -10.0, 10.0);
-	  sprintf(title,"(1/PtL%i - 1/PtL%i)/err",level,level+1);         
+	  sprintf(title,"(1/PtL%i - 1/PtL%i)/#sigma_{pt}^{L2}",level,level+1);         
 	  hptpull[trig]->setAxisTitle(title, 1);
 	  sprintf(name,"HLTMuonL%itoL%i_etapull",level,level+1);
-	  sprintf(title,"(L%iMuon#eta - L%iMuon#eta)/err",level,level+1);         
+	  sprintf(title,"(L%iMuon#eta - L%iMuon#eta)/#sigma_{#eta}^{L2}",level,level+1);         
 	  hetapull[trig] =dbe_->book1D(name,title, NBINS, -10.0, 10.0);
-	  sprintf(title,"(L%i #eta - L%i #eta)/err",level,level+1);         
+	  sprintf(title,"(L%i #eta - L%i #eta)/#sigma_{#eta}^{L2}",level,level+1);         
 	  hetapull[trig]->setAxisTitle(title, 1);
 	  sprintf(name,"HLTMuonL%itoL%i_phipull",level,level+1);
-	  sprintf(title,"(L%iMuon#phi - L%iMuon#phi)/err",level,level+1);         
+	  sprintf(title,"(L%iMuon#phi - L%iMuon#phi)/#sigma_{#phi}^{L2}",level,level+1);         
 	  hphipull[trig] =dbe_->book1D(name,title, NBINS, -10.0, 10.0);
-	  sprintf(title,"(L%i #phi - L%i #phi)/err",level,level+1);         
+	  sprintf(title,"(L%i #phi - L%i #phi)/#sigma_{#phi}^{L2}",level,level+1);         
 	  hphipull[trig]->setAxisTitle(title, 1);
 
 	  sprintf(name,"HLTMuonL%itoL%i_ptpullpt",level,level+1);
-	  sprintf(title,"L%i Muon #Delta Pt/err vs Pt ",level);         
+	  sprintf(title,"L%i Muon #Delta Pt/#sigma_{pt}^{L2} vs Pt ",level);         
 	  hptpullpt[trig] =dbe_->bookProfile(name,title, NBINS, 0, pt_max,1,-999.,999.,"s");
-	  sprintf(title,"(1/PtL%i - 1/PtL%i)/err",level,level+1);         
+	  sprintf(title,"(1/PtL%i - 1/PtL%i)/#sigma_{pt}^{L2}",level,level+1);         
 	  hptpullpt[trig]->setAxisTitle(title, 2);
 	  hptpullpt[trig]->setAxisTitle("Pt", 1);
 	  sprintf(name,"HLTMuonL%itoL%i_etapulleta",level,level+1);
-	  sprintf(title,"L%i Muon #Delta#eta/err vs #eta ",level);         
+	  sprintf(title,"L%i Muon #Delta#eta/#sigma_{#eta}^{L2} vs #eta ",level);         
 	  hetapulleta[trig] =dbe_->bookProfile(name,title, NBINS,-2.5, 2.5,1,-999.,999.,"s");
-	  sprintf(title,"(L%i #eta - L%i #eta)/err",level,level+1);         
+	  sprintf(title,"(L%i #eta - L%i #eta)/#sigma_{#eta}^{L2}",level,level+1);         
 	  hetapulleta[trig]->setAxisTitle(title, 2);
 	  hetapulleta[trig]->setAxisTitle("#eta", 1);
 	  sprintf(name,"HLTMuonL%itoL%i_phipullphi",level,level+1);
-	  sprintf(title,"L%i Muon #Delta#phi/err vs #phi ",level);         
+	  sprintf(title,"L%i Muon #Delta#phi/#sigma_{#phi}^{L2} vs #phi ",level);         
 	  hphipullphi[trig] =dbe_->bookProfile(name,title, NBINS, -3.15, 3.15,1,-999.,999.,"s");
-	  sprintf(title,"(L%i #phi - L%i #phi)/err",level,level+1);         
+	  sprintf(title,"(L%i #phi - L%i #phi)/#sigma_{#phi}^{L2}",level,level+1);         
 	  hphipullphi[trig]->setAxisTitle(title, 2);
 	  hphipullphi[trig]->setAxisTitle("#phi", 1);
 	}
 	if (level < 3 ) {
+	  // res
 	  sprintf(name,"HLTMuonL%itoL%i_ptres",level,level+1);
 	  sprintf(title,"L%iMuon1/Pt - L%iMuon1/Pt",level,level+1);         
 	  hptres[trig][level-1] = dbe_->book1D(name,title, NBINS, -0.1, 0.1);
@@ -389,6 +415,42 @@ void HLTMuonDQMSource::beginJob(const EventSetup& context)
 	  sprintf(title,"L%i #eta - L%i #eta",level,level+1);         
 	  hetareseta[trig][level-1]->setAxisTitle(title, 2);
 	  hetareseta[trig][level-1]->setAxisTitle("#eta", 1);
+
+	  // relres
+	  sprintf(name,"HLTMuonL%itoL%i_ptrelres",level,level+1);
+	  sprintf(title,"(L%iMuon1/Pt - L%iMuon1/Pt)/(L%iMuon1/Pt)",level,level+1,level+1);         
+	  hptrelres[trig][level-1] = dbe_->book1D(name,title, NBINS, -1.0, 1.0);
+	  sprintf(title,"(1/PtL%i - 1/PtL%i)/(1/PtL%i)",level,level+1);         
+	  hptrelres[trig][level-1]->setAxisTitle(title, 1);
+	  sprintf(name,"HLTMuonL%itoL%i_etarelres",level,level+1);
+	  sprintf(title,"(L%iMuon#eta - L%iMuon#eta)/L%iMuon#eta",level,level+1,level+1);         
+	  hetarelres[trig][level-1] =dbe_->book1D(name,title, NBINS, -1.0, 1.0);
+	  sprintf(title,"(L%i #eta - L%i #eta)/L%i #eta",level,level+1,level+1);         
+	  hetarelres[trig][level-1]->setAxisTitle(title, 1);
+	  sprintf(name,"HLTMuonL%itoL%i_phirelres",level,level+1);
+	  sprintf(title,"(L%iMuon#phi - L%iMuon#phi)/L%iMuon#phi",level,level+1,level+1);         
+	  hphirelres[trig][level-1] =dbe_->book1D(name,title, NBINS, -1.0, 1.0);
+	  sprintf(title,"(L%i #phi - L%i #phi)/L%i #phi",level,level+1,level+1);         
+	  hphirelres[trig][level-1]->setAxisTitle(title, 1);
+
+	  sprintf(name,"HLTMuonL%itoL%i_ptrelrespt",level,level+1);
+	  sprintf(title,"L%i Muon #DeltaPt/Pt vs Pt ",level);         
+	  hptrelrespt[trig][level-1] =dbe_->bookProfile(name,title, NBINS, 0, pt_max,1,-999.,999.,"s");
+	  sprintf(title,"(1/PtL%i - 1/PtL%i)/(1/PtL%i)",level,level+1,level+1);         
+	  hptrelrespt[trig][level-1]->setAxisTitle(title, 2);
+	  hptrelrespt[trig][level-1]->setAxisTitle("Pt", 1);
+	  sprintf(name,"HLTMuonL%itoL%i_phirelresphi",level,level+1);
+	  sprintf(title,"L%i Muon #Delta#phi/#phi vs #phi ",level);         
+	  hphirelresphi[trig][level-1] =dbe_->bookProfile(name,title, NBINS, -3.15, 3.15,1,-999.,999.,"s");
+	  sprintf(title,"(L%i #phi - L%i #phi)/L%i #phi",level,level+1,level+1);         
+	  hphirelresphi[trig][level-1]->setAxisTitle(title, 2);
+	  hphirelresphi[trig][level-1]->setAxisTitle("#phi", 1);
+	  sprintf(name,"HLTMuonL%itoL%i_etarelreseta",level,level+1);
+	  sprintf(title,"L%i Muon #Delta#eta/#eta vs #eta ",level);         
+	  hetarelreseta[trig][level-1] =dbe_->bookProfile(name,title, NBINS,-2.5, 2.5,1,-999.,999.,"s");
+	  sprintf(title,"(L%i #eta - L%i #eta)/L%i #eta",level,level+1,level+1);         
+	  hetarelreseta[trig][level-1]->setAxisTitle(title, 2);
+	  hetarelreseta[trig][level-1]->setAxisTitle("#eta", 1);
 	  // charge conversion
 	  sprintf(name,"HLTMuonL%itoL%i_chargeconvers",level,level+1);
 	  sprintf(title,"L%i Muon charge #rightarrow L%i Muon charge",level,level+1);         
@@ -412,6 +474,7 @@ void HLTMuonDQMSource::beginJob(const EventSetup& context)
 	  hphifrac[trig][level-1] = dbe_->book1D(name,title, 40, -3.15, 3.15);
 	  hphifrac[trig][level-1]->setAxisTitle("#phi", 1);
 	  if (level  == 1 ){
+	    // res
 	    sprintf(name,"HLTMuonL%itoL3_ptres",level);
 	    sprintf(title,"L%iMuon1/Pt - L%iMuon1/Pt",level,level+2);         
 	    hptres[trig][level+1] = dbe_->book1D(name,title, NBINS, -0.1, 0.1);
@@ -446,6 +509,43 @@ void HLTMuonDQMSource::beginJob(const EventSetup& context)
 	    sprintf(title,"L%i #eta - L3 #eta",level);         
 	    hetareseta[trig][level+1]->setAxisTitle(title, 2);
 	    hetareseta[trig][level+1]->setAxisTitle("#eta", 1);
+
+	    // relres
+	    sprintf(name,"HLTMuonL%itoL3_ptrelres",level);
+	    sprintf(title,"(L%iMuon1/Pt - L%iMuon1/Pt)/(L%iMuon1/Pt)",level,level+2);         
+	    hptrelres[trig][level+1] = dbe_->book1D(name,title, NBINS, -1.0, 1.0);
+	    sprintf(title,"(1/PtL%i - 1/PtL3)/(1/PtL3)",level);         
+	    hptrelres[trig][level+1]->setAxisTitle(title, 1);
+	    sprintf(name,"HLTMuonL%itoL3_etarelres",level);
+	    sprintf(title,"(L%iMuon#eta - L3Muon#eta)/L3Muon#eta",level);         
+	    hetarelres[trig][level+1] =dbe_->book1D(name,title, NBINS, -1.0, 1.0);
+	    sprintf(title,"(L%i #eta - L3 #eta)/L3 #eta",level);         
+	    hetarelres[trig][level+1]->setAxisTitle(title, 1);
+	    sprintf(name,"HLTMuonL%itoL3_phirelres",level);
+	    sprintf(title,"(L%iMuon#phi - L3Muon#phi)/L3Muon#phi",level);         
+	    hphirelres[trig][level+1] =dbe_->book1D(name,title, NBINS, -1.0, 1.0);
+	    sprintf(title,"(L%i #phi - L3 #phi)/L3 #phi",level);         
+	    hphirelres[trig][level+1]->setAxisTitle(title, 1);
+
+	    sprintf(name,"HLTMuonL%itoL3_ptrelrespt",level);
+	    sprintf(title,"L%i Muon #DeltaPt/Pt vs Pt (wrt L3) ",level);         
+	    hptrelrespt[trig][level+1] =dbe_->bookProfile(name,title, NBINS, 0, pt_max,1,-999.,999.,"s");
+	    sprintf(title,"(1/PtL%i - 1/PtL3)/(1/PtL3)",level);         
+	    hptrelrespt[trig][level+1]->setAxisTitle(title, 2);
+	    hptrelrespt[trig][level+1]->setAxisTitle("Pt", 1);
+	    sprintf(name,"HLTMuonL%itoL3_phirelresphi",level);
+	    sprintf(title,"L%i Muon #Delta#phi/#phi vs #phi (wrt L3) ",level);         
+	    hphirelresphi[trig][level+1] =dbe_->bookProfile(name,title, NBINS, -3.15, 3.15,1,-999.,999.,"s");
+	    sprintf(title,"(L%i #phi - L3 #phi)/L3 #phi",level);         
+	    hphirelresphi[trig][level+1]->setAxisTitle(title, 2);
+	    hphirelresphi[trig][level+1]->setAxisTitle("#phi", 1);
+	    sprintf(name,"HLTMuonL%itoL3_etarelreseta",level);
+	    sprintf(title,"L%i Muon #Delta#eta/#eta vs #eta (wrt L3) ",level);         
+	    hetarelreseta[trig][level+1] =dbe_->bookProfile(name,title, NBINS,-2.5, 2.5,1,-999.,999.,"s");
+	    sprintf(title,"(L%i #eta - L3 #eta)/L3 #eta",level);         
+	    hetarelreseta[trig][level+1]->setAxisTitle(title, 2);
+	    hetarelreseta[trig][level+1]->setAxisTitle("#eta", 1);
+
 	    sprintf(name,"HLTMuonL%itoL3_chargeconvers",level);
 	    sprintf(title,"L%i Muon charge #rightarrow L3 Muon charge",level);         
 	    hchargeconv[trig][level+1] =dbe_->book1D(name,title, 4, 0, 4);
@@ -544,7 +644,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
   
   for( int ntrig = 0; ntrig < nTrigs+1; ntrig++ ) {
     if( !FiredTriggers[ntrig] ) continue;
-    if (!l2seeds.failedToGet()) {
+    if( !l2seeds.failedToGet() ) {
       hNMu[ntrig][3]->Fill(l2seeds->size());
       L2MuonTrajectorySeedCollection::const_iterator l2seed;
       map<L1MuonParticleRef, int> l1map;
@@ -565,6 +665,10 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	hseedptres[ntrig][0]->Fill(1/pt - 1/l1ref->pt());
 	hseedetares[ntrig][0]->Fill(eta - l1ref->eta());
 	hseedphires[ntrig][0]->Fill(phi - l1ref->phi());
+	hseedptrelres[ntrig][0]->Fill((1/pt - 1/l1ref->pt())/(1/l1ref->pt()));
+	hseedetarelres[ntrig][0]->Fill((eta - l1ref->eta())/l1ref->eta());
+	hseedphirelres[ntrig][0]->Fill((phi - l1ref->phi())/l1ref->phi());
+
 	hcharge[ntrig][0]->Fill(l1ref->charge());
 	hpt[ntrig][0]->Fill(l1ref->pt());
 	hphi[ntrig][0]->Fill(l1ref->phi());
@@ -584,17 +688,23 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	      if(tk->pt()*l1ref->pt() != 0 ) {
 		hptres[ntrig][0]->Fill(1/l1ref->pt() - 1/tk->pt());
 		hptrespt[ntrig][0]->Fill(tk->pt(), 1/l1ref->pt() - 1/tk->pt());
+		hptrelres[ntrig][0]->Fill((1/l1ref->pt() - 1/tk->pt())/(1/tk->pt()));
+		hptrelrespt[ntrig][0]->Fill(tk->pt(), (1/l1ref->pt() - 1/tk->pt())/(1/tk->pt()));
 	      }
 	      _hpt2[ntrig][0]->Fill(l1ref->pt());
 	      _heta2[ntrig][0]->Fill(l1ref->eta());
 	      _hphi2[ntrig][0]->Fill(l1ref->phi());
 	      hetares[ntrig][0]->Fill(l1ref->eta()-tk->eta());
 	      hetareseta[ntrig][0]->Fill(tk->eta(),l1ref->eta()-tk->eta());
+	      hetarelres[ntrig][0]->Fill((l1ref->eta()-tk->eta())/tk->eta());
+	      hetarelreseta[ntrig][0]->Fill(tk->eta(),(l1ref->eta()-tk->eta())/tk->eta());
 	      hphires[ntrig][0]->Fill(l1ref->phi()-tk->phi());
 	      double dphi=l1ref->phi()-tk->phi();
 	      if (dphi>TMath::TwoPi())dphi-=2*TMath::TwoPi();
 	      else if (dphi<-TMath::TwoPi()) dphi+=TMath::TwoPi();
 	      hphiresphi[ntrig][0]->Fill(tk->phi(),dphi);
+	      hphirelres[ntrig][0]->Fill((l1ref->phi()-tk->phi())/tk->phi());
+	      hphirelresphi[ntrig][0]->Fill(tk->phi(),dphi/tk->phi());
 	      // charge conversion
 	      int chargeconv = -1;
 	      int l1charge = l1ref->charge();
@@ -616,14 +726,20 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 		      if(l1ref->pt()*l3tk->pt() != 0 ) {
 			hptres[ntrig][2]->Fill(1/l1ref->pt() - 1/l3tk->pt());
 			hptrespt[ntrig][2]->Fill(l3tk->pt(), 1/l1ref->pt() - 1/l3tk->pt());
+			hptrelres[ntrig][2]->Fill((1/l1ref->pt() - 1/l3tk->pt())/(1/l3tk->pt()));
+			hptrelrespt[ntrig][2]->Fill(l3tk->pt(), (1/l1ref->pt() - 1/l3tk->pt())/(1/l3tk->pt()));
 		      }
 		      hetares[ntrig][2]->Fill(l1ref->eta()-l3tk->eta());
 		      hetareseta[ntrig][2]->Fill(l1ref->eta(),l1ref->eta()-l3tk->eta());
+		      hetarelres[ntrig][2]->Fill((l1ref->eta()-l3tk->eta())/l3tk->eta());
+		      hetarelreseta[ntrig][2]->Fill(l1ref->eta(),(l1ref->eta()-l3tk->eta())/l3tk->eta());
 		      hphires[ntrig][2]->Fill(l1ref->phi()-l3tk->phi());
 		      double dphi=l1ref->phi()-l3tk->phi();
 		      if (dphi>TMath::TwoPi())dphi-=2*TMath::TwoPi();
 		      else if (dphi<-TMath::TwoPi()) dphi+=TMath::TwoPi();
 		      hphiresphi[ntrig][2]->Fill(l3tk->phi(),dphi);
+		      hphirelres[ntrig][2]->Fill((l1ref->phi()-l3tk->phi())/l3tk->phi());
+		      hphirelresphi[ntrig][2]->Fill(l3tk->phi(),(dphi)/l3tk->phi());
 		      // charge conversion
 		      int chargeconv = -1;
 		      int l1charge = l1ref->charge();
@@ -675,6 +791,9 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	hseedptres[ntrig][1]->Fill(1/pt - 1/l2tkRef->pt());
 	hseedetares[ntrig][1]->Fill(eta - l2tkRef->eta());
 	hseedphires[ntrig][1]->Fill(phi - l2tkRef->phi());
+	hseedptrelres[ntrig][1]->Fill((1/pt - 1/l2tkRef->pt())/(1/l2tkRef->pt()));
+	hseedetarelres[ntrig][1]->Fill((eta - l2tkRef->eta())/l2tkRef->eta());
+	hseedphirelres[ntrig][1]->Fill((phi - l2tkRef->phi())/l2tkRef->phi());
       }
       // mapping
       map<TrackRef, int>::iterator it;
@@ -791,6 +910,8 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	  if(tk->pt()*l2tk->pt() != 0 ) {
 	    hptres[ntrig][1]->Fill(1/l2tk->pt() - 1/tk->pt());
 	    hptrespt[ntrig][1]->Fill(tk->pt(), 1/l2tk->pt() - 1/tk->pt());
+	    hptrelres[ntrig][1]->Fill((1/l2tk->pt() - 1/tk->pt())/(1/tk->pt()));
+	    hptrelrespt[ntrig][1]->Fill(tk->pt(), (1/l2tk->pt() - 1/tk->pt())/(1/tk->pt()));
 	    hptpull[ntrig]->Fill((1/l2tk->pt() - 1/tk->pt())/tk->ptError());
 	    hptpullpt[ntrig]->Fill(tk->pt(), (1/l2tk->pt() - 1/tk->pt())/tk->ptError());
 	  }
@@ -799,10 +920,14 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	  if (dphi>TMath::TwoPi())dphi-=2*TMath::TwoPi();
 	  else if (dphi<-TMath::TwoPi()) dphi+=TMath::TwoPi();
 	  hphiresphi[ntrig][1]->Fill(tk->phi(),dphi);
+	  hphirelres[ntrig][1]->Fill((l2tk->phi()-tk->phi())/tk->phi());
+	  hphirelresphi[ntrig][1]->Fill(tk->phi(),dphi/tk->phi());
 	  hphipull[ntrig]->Fill(dphi/tk->phiError());
 	  hphipullphi[ntrig]->Fill(tk->phi(), dphi/tk->phiError());
 	  hetares[ntrig][1]->Fill(l2tk->eta()-tk->eta());
 	  hetareseta[ntrig][1]->Fill(tk->eta(),l2tk->eta()-tk->eta());
+	  hetarelres[ntrig][1]->Fill((l2tk->eta()-tk->eta())/tk->eta());
+	  hetarelreseta[ntrig][1]->Fill(tk->eta(),(l2tk->eta()-tk->eta())/tk->eta());
 	  hetapull[ntrig]->Fill((l2tk->eta()-tk->eta())/tk->etaError());
 	  hetapulleta[ntrig]->Fill(tk->eta(),(l2tk->eta()-tk->eta())/tk->etaError());
 	  // charge conversion

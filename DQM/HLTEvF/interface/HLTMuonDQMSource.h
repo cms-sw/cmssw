@@ -5,8 +5,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2009/02/17 15:11:56 $
- *  $Revision: 1.10 $
+ *  $Date: 2009/02/23 16:03:34 $
+ *  $Revision: 1.11 $
  *  \author  M. Vander Donckt CERN
  *   
  */
@@ -122,6 +122,15 @@ private:
   MonitorElement * hphipull[NTRIG];
   MonitorElement * hphipullphi[NTRIG];
   MonitorElement * hseedNMuper[NTRIG][2];
+  MonitorElement * hptrelres[NTRIG][3];
+  MonitorElement * hptrelrespt[NTRIG][3];
+  MonitorElement * hetarelres[NTRIG][3];
+  MonitorElement * hetarelreseta[NTRIG][3];
+  MonitorElement * hphirelres[NTRIG][3];
+  MonitorElement * hphirelresphi[NTRIG][3];
+  MonitorElement * hseedptrelres[NTRIG][2];
+  MonitorElement * hseedetarelres[NTRIG][2];
+  MonitorElement * hseedphirelres[NTRIG][2];
   float XMIN; float XMAX;
 
   TH1D *_hpt1[NTRIG][2], *_hpt2[NTRIG][2];
