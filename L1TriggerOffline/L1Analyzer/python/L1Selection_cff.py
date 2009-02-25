@@ -39,7 +39,7 @@ SelectL1NonIsoEm = cms.EDFilter("PtMinCandSelector",
 # Cen Jets
 # Clone L1 central jets
 CloneL1ExtraCenJets = cms.EDProducer("L1JetParticleShallowCloneProducer",
-    src = cms.InputTag("l1extraParticles","Central")
+    src = cms.InputTag("hltL1extraParticles","Central")
 )
 
 # Select L1 central jets

@@ -20,7 +20,8 @@ SelectRecoMuons = cms.EDFilter("EtaPtMinCandSelector",
 # Electrons
 # Clone Reco electrons 
 CloneRecoElec = cms.EDProducer("ElectronShallowCloneProducer",
-    src = cms.InputTag("siStripElectronToTrackAssociator","siStripElectrons")
+#    src = cms.InputTag("siStripElectronToTrackAssociator","siStripElectrons")
+     src = cms.InputTag("photons")
 )
 
 # Select Reco electrons
