@@ -23,7 +23,7 @@ CSCTriggerContainer<csctf::TrackStub> CSCTFDTReceiver::process(const L1MuDTChamb
 	{
 	  int wheel = (e == 1) ? 2 : -2;
 	  int sector = 2*s - 1;
-	  int csc_bx = bx;
+	  int csc_bx = bx + 6;//Delay DT stubs by 6 bx.
 
 	  // combine two 30 degree DT sectors into a 60 degree CSC
 	  // sector.
