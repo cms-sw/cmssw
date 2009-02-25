@@ -1,7 +1,7 @@
 #ifndef PLOTMILLEPEDE_H
 #define PLOTMILLEPEDE_H
 // Original Author: Gero Flucke
-// last change    : $Date: 2009/01/20 19:03:46 $
+// last change    : $Date: 2009/01/20 20:21:39 $
 // by             : $Author: flucke $
 //
 // PlotMillePede is a class to interprete the content of the ROOT
@@ -112,7 +112,7 @@ class PlotMillePede : public MillePedeTrees
   void DrawBigPullPos(float minPull, bool addPlots = false);
   void DrawSubDetId(bool addPlots = false);
   void DrawXyArrow(Double_t factor, Option_t *option = ""); // opt. "add", "zcirc"
-  void ScanSelection(const char *sel = 0); // scan tree with selection, if !sel, take basic selection 
+  void ScanSelection(const char *sel = 0, const char *addColumns = 0); // scan tree with selection, if !sel, take basic selection, addColumns like ":ObjId:HitsY" to add columns ObjId and HitsY
   void ScanPedeParAbove(UInt_t iPar, float absMin = 1.e5); // scan tree, selecting large parameters
 
   void DrawCheck();

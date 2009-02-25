@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2009/01/20 19:03:46 $
+// last change    : $Date: 2009/01/20 20:21:39 $
 // by             : $Author: flucke $
 
 #include "PlotMillePede.h"
@@ -1057,7 +1057,7 @@ void PlotMillePede::DrawXyArrow(Double_t factor, Option_t *option)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void PlotMillePede::ScanSelection(const char *sel)
+void PlotMillePede::ScanSelection(const char *sel, const char *addColumns)
 {
   TString realSel;
   if (sel) {
@@ -1070,8 +1070,9 @@ void PlotMillePede::ScanSelection(const char *sel)
 
   const TString mpPar(MpT() += Par());// += this->ToMumMuRad(iPar));
   //  this->GetMainTree()->Scan("Id:Pos:" + mpPar += Form(":HitsX:Sigma[%u]:Label", iPar), sel);
-  this->GetMainTree()->Scan("Id:Pos:" + mpPar 
-                            += ":HitsX:Sigma:Label", sel);
+  TString scan("Id:Pos:" + mpPar += ":HitsX:Sigma:Label");
+  if (addColumns) scan += addColumns;
+  this->GetMainTree()->Scan(scan, sel);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
