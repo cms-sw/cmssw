@@ -16,7 +16,7 @@ process.transport = cms.Path(process.LHCTransport)
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.108 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('SinglePiPt10.cfi nevts:10'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -49,7 +49,7 @@ process.output = cms.OutputModule("PoolOutputModule",
 # Other statements
 
 # Path and EndPath definitions
-process.generation_step = cms.Path(process.pgen)
+process.generation_step = cms.Path(process.ProductionFilterSequence*process.pgen)
 process.out_step = cms.EndPath(process.output)
 
 # Schedule definition
@@ -67,6 +67,7 @@ def customise(process):
     #(needed for TimeReport report)
     process.options = cms.untracked.PSet(
         wantSummary = cms.untracked.bool(True)
+
         )
 
     process.LHCTransport.Verbosity = cms.bool(True)
