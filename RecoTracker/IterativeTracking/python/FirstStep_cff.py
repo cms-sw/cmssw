@@ -17,32 +17,43 @@ from RecoTracker.TkSeedGenerator.GlobalPixelSeeds_cff import *
 
 # seeding
 from RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVertices_cff import *
-newSeedFromTriplets = RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVertices_cff.globalSeedsFromTripletsWithVertices.clone()
-newSeedFromTriplets.RegionFactoryPSet.RegionPSet.ptMin = 0.5
+newSeedFromTriplets = RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVertices_cff.globalSeedsFromTripletsWithVertices.clone(
+    RegionFactoryPSet = RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVertices_cff.globalSeedsFromTripletsWithVertices.RegionFactoryPSet.clone(
+    RegionPSet = RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVertices_cff.globalSeedsFromTripletsWithVertices.RegionFactoryPSet.RegionPSet.clone(
+    ptMin = 0.5
+    )
+    )
+    )
 
 # building
 import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
-newTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone()
-newTrajectoryFilter.ComponentName = 'newTrajectoryFilter'
-newTrajectoryFilter.filterPset.minimumNumberOfHits = 3
-newTrajectoryFilter.filterPset.minPt = 0.3
+newTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone(
+    ComponentName = 'newTrajectoryFilter',
+    filterPset = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.filterPset.clone(
+    minimumNumberOfHits = 3,
+    minPt = 0.3
+    )
+    )
 
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
-newTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone()
-newTrajectoryBuilder.ComponentName = 'newTrajectoryBuilder'
-newTrajectoryBuilder.trajectoryFilterName = 'newTrajectoryFilter'
+newTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone(
+    ComponentName = 'newTrajectoryBuilder',
+    trajectoryFilterName = 'newTrajectoryFilter'
+    )
 
 from RecoTracker.CkfPattern.CkfTrackCandidates_cff import *
-newTrackCandidateMaker = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
-newTrackCandidateMaker.src = cms.InputTag('newSeedFromTriplets')
-newTrackCandidateMaker.TrajectoryBuilder = 'newTrajectoryBuilder'
+newTrackCandidateMaker = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
+    src = cms.InputTag('newSeedFromTriplets'),
+    TrajectoryBuilder = 'newTrajectoryBuilder'
+    )
 
 # fitting
 from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cff import *
-preFilterZeroStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone()
-preFilterZeroStepTracks.src = 'newTrackCandidateMaker'
-preFilterZeroStepTracks.Fitter = 'KFFittingSmootherWithOutliersRejectionAndRK'
-preFilterZeroStepTracks.AlgorithmName = 'ctf'
+preFilterZeroStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
+    src = 'newTrackCandidateMaker',
+    Fitter = 'KFFittingSmootherWithOutliersRejectionAndRK',
+    AlgorithmName = 'ctf'
+    )
 
 ### STEP 1 ###
 
@@ -65,15 +76,18 @@ newClusters = cms.EDFilter("TrackClusterRemover",
 # make corresponding rechits
 import RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi
 import RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi
-newPixelRecHits = RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi.siPixelRecHits.clone()
-newStripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi.siStripMatchedRecHits.clone()
-newPixelRecHits.src = cms.InputTag("newClusters")
-newStripRecHits.ClusterProducer = 'newClusters'
+newPixelRecHits = RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi.siPixelRecHits.clone(
+    src = cms.InputTag("newClusters")
+    )
+newStripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi.siStripMatchedRecHits.clone(
+    ClusterProducer = 'newClusters'
+    )
 
 
 # seeding 
-newMixedLayerPairs = RecoTracker.TkSeedingLayers.MixedLayerPairs_cfi.mixedlayerpairs.clone()
-newMixedLayerPairs.ComponentName = 'newMixedLayerPairs'
+newMixedLayerPairs = RecoTracker.TkSeedingLayers.MixedLayerPairs_cfi.mixedlayerpairs.clone(
+    ComponentName = 'newMixedLayerPairs'
+    )
 newMixedLayerPairs.BPix.HitProducer = 'newPixelRecHits'
 newMixedLayerPairs.FPix.HitProducer = 'newPixelRecHits'
 newMixedLayerPairs.TEC.matchedRecHits = cms.InputTag("newStripRecHits","matchedRecHit")
@@ -86,26 +100,30 @@ newSeedFromPairs.OrderedHitsFactoryPSet.SeedingLayers = cms.string('newMixedLaye
 
 # building 
 import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
-newMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone()
-newMeasurementTracker.ComponentName = 'newMeasurementTracker'
-newMeasurementTracker.pixelClusterProducer = 'newClusters'
-newMeasurementTracker.stripClusterProducer = 'newClusters'
+newMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone(
+    ComponentName = 'newMeasurementTracker',
+    pixelClusterProducer = 'newClusters',
+    stripClusterProducer = 'newClusters'
+    )
 
-stepOneCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone()
-stepOneCkfTrajectoryBuilder.ComponentName = 'stepOneCkfTrajectoryBuilder'
-stepOneCkfTrajectoryBuilder.MeasurementTrackerName = 'newMeasurementTracker'
-stepOneCkfTrajectoryBuilder.trajectoryFilterName = 'newTrajectoryFilter'
+stepOneCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone(
+    ComponentName = 'stepOneCkfTrajectoryBuilder',
+    MeasurementTrackerName = 'newMeasurementTracker',
+    trajectoryFilterName = 'newTrajectoryFilter'
+    )
 
-stepOneTrackCandidateMaker = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
-stepOneTrackCandidateMaker.src = cms.InputTag('newSeedFromPairs')
-stepOneTrackCandidateMaker.TrajectoryBuilder = 'stepOneCkfTrajectoryBuilder'
+stepOneTrackCandidateMaker = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
+    src = cms.InputTag('newSeedFromPairs'),
+    TrajectoryBuilder = 'stepOneCkfTrajectoryBuilder'
+    )
 
 
 # fitting
-preFilterStepOneTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone()
-preFilterStepOneTracks.AlgorithmName = cms.string('ctf')
-preFilterStepOneTracks.src = 'stepOneTrackCandidateMaker'
-preFilterStepOneTracks.clusterRemovalInfo = 'newClusters'
+preFilterStepOneTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
+    AlgorithmName = cms.string('ctf'),
+    src = 'stepOneTrackCandidateMaker',
+    clusterRemovalInfo = 'newClusters'
+    )
 
 ### BOTH STEPS TOGETHER ###
 

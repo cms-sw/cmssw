@@ -33,10 +33,12 @@ fifthClusters = cms.EDFilter("TrackClusterRemover",
 # TRACKER HITS
 import RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi
 import RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi
-fifthPixelRecHits = RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi.siPixelRecHits.clone()
-fifthStripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi.siStripMatchedRecHits.clone()
-fifthPixelRecHits.src = 'fifthClusters'
-fifthStripRecHits.ClusterProducer = 'fifthClusters'
+fifthPixelRecHits = RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi.siPixelRecHits.clone(
+    src = 'fifthClusters'
+    )
+fifthStripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi.siStripMatchedRecHits.clone(
+    ClusterProducer = 'fifthClusters'
+    )
 
 # SEEDING LAYERS
 fifthlayerpairs = cms.ESProducer("TobTecLayerPairsESProducer",
@@ -73,81 +75,95 @@ fifthlayerpairs.TEC.matchedRecHits = 'fifthStripRecHits:matchedRecHit'
 import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff
 fifthSeeds = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff.globalMixedSeeds.clone()
 fifthSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'fifthlayerPairs'
-fifthSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.9
+fifthSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.8
 fifthSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 10.0
 fifthSeeds.RegionFactoryPSet.RegionPSet.originRadius = 5.0
 
 # TRACKER DATA CONTROL
 import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
-fifthMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone()
-fifthMeasurementTracker.ComponentName = 'fifthMeasurementTracker'
-fifthMeasurementTracker.pixelClusterProducer = 'fifthClusters'
-fifthMeasurementTracker.stripClusterProducer = 'fifthClusters'
+fifthMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone(
+    ComponentName = 'fifthMeasurementTracker',
+    pixelClusterProducer = 'fifthClusters',
+    stripClusterProducer = 'fifthClusters'
+    )
 
 # QUALITY CUTS DURING TRACK BUILDING (for inwardss and outwards track building steps)
 import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
 
-fifthCkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone()
-fifthCkfTrajectoryFilter.ComponentName = 'fifthCkfTrajectoryFilter'
-fifthCkfTrajectoryFilter.filterPset.maxLostHits = 0
-fifthCkfTrajectoryFilter.filterPset.minimumNumberOfHits = 6
-fifthCkfTrajectoryFilter.filterPset.minPt = 0.6
-fifthCkfTrajectoryFilter.filterPset.minHitsMinPt = 3
+fifthCkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone(
+    ComponentName = 'fifthCkfTrajectoryFilter',
+    filterPset = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.filterPset.clone(
+    maxLostHits = 0,
+    minimumNumberOfHits = 7,
+    minPt = 0.1,
+    minHitsMinPt = 3
+    )
+    )
 
-fifthCkfInOutTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone()
-fifthCkfInOutTrajectoryFilter.ComponentName = 'fifthCkfInOutTrajectoryFilter'
-fifthCkfInOutTrajectoryFilter.filterPset.maxLostHits = 0
-fifthCkfInOutTrajectoryFilter.filterPset.minimumNumberOfHits = 4
-fifthCkfInOutTrajectoryFilter.filterPset.minPt = 0.6
-fifthCkfInOutTrajectoryFilter.filterPset.minHitsMinPt = 3
+fifthCkfInOutTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone(
+    ComponentName = 'fifthCkfInOutTrajectoryFilter',
+    filterPset = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.filterPset.clone(
+    maxLostHits = 0,
+    minimumNumberOfHits = 4,
+    minPt = 0.1,
+    minHitsMinPt = 3
+    )
+    )
 
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
-fifthCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone()
-fifthCkfTrajectoryBuilder.ComponentName = 'fifthCkfTrajectoryBuilder'
-fifthCkfTrajectoryBuilder.MeasurementTrackerName = 'fifthMeasurementTracker'
-fifthCkfTrajectoryBuilder.trajectoryFilterName = 'fifthCkfTrajectoryFilter'
-fifthCkfTrajectoryBuilder.inOutTrajectoryFilterName = 'fifthCkfInOutTrajectoryFilter'
-fifthCkfTrajectoryBuilder.useSameTrajFilter = False
-fifthCkfTrajectoryBuilder.minNrOfHitsForRebuild = 4
-fifthCkfTrajectoryBuilder.alwaysUseInvalidHits = False
-#fifthCkfTrajectoryBuilder.startSeedHitsInRebuild = True
+fifthCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone(
+    ComponentName = 'fifthCkfTrajectoryBuilder',
+    MeasurementTrackerName = 'fifthMeasurementTracker',
+    trajectoryFilterName = 'fifthCkfTrajectoryFilter',
+    inOutTrajectoryFilterName = 'fifthCkfInOutTrajectoryFilter',
+    useSameTrajFilter = False,
+    minNrOfHitsForRebuild = 4,
+    alwaysUseInvalidHits = False,
+    #startSeedHitsInRebuild = True
+    )
 
 # MAKING OF TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
-fifthTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
-fifthTrackCandidates.src = cms.InputTag('fifthSeeds')
-fifthTrackCandidates.TrajectoryBuilder = 'fifthCkfTrajectoryBuilder'
-fifthTrackCandidates.doSeedingRegionRebuilding = True
-fifthTrackCandidates.useHitsSplitting = True
-fifthTrackCandidates.cleanTrajectoryAfterInOut = True
+fifthTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
+    src = cms.InputTag('fifthSeeds'),
+    TrajectoryBuilder = 'fifthCkfTrajectoryBuilder',
+    doSeedingRegionRebuilding = True,
+    useHitsSplitting = True,
+    cleanTrajectoryAfterInOut = True
+    )
 
 # TRACK FITTING AND SMOOTHING OPTIONS
 import TrackingTools.TrackFitters.KFFittingSmootherWithOutliersRejectionAndRK_cfi
-fifthFittingSmootherWithOutlierRejection = TrackingTools.TrackFitters.KFFittingSmootherWithOutliersRejectionAndRK_cfi.KFFittingSmootherWithOutliersRejectionAndRK.clone()
-fifthFittingSmootherWithOutlierRejection.ComponentName = 'fifthFittingSmootherWithOutlierRejection'
-fifthFittingSmootherWithOutlierRejection.EstimateCut = 20
-fifthFittingSmootherWithOutlierRejection.MinNumberOfHits = 6
-fifthFittingSmootherWithOutlierRejection.Fitter = cms.string('fifthRKFitter')
-fifthFittingSmootherWithOutlierRejection.Smoother = cms.string('fifthRKSmoother')
+fifthFittingSmootherWithOutlierRejection = TrackingTools.TrackFitters.KFFittingSmootherWithOutliersRejectionAndRK_cfi.KFFittingSmootherWithOutliersRejectionAndRK.clone(
+    ComponentName = 'fifthFittingSmootherWithOutlierRejection',
+    EstimateCut = 20,
+    MinNumberOfHits = 7,
+    Fitter = cms.string('fifthRKFitter'),
+    Smoother = cms.string('fifthRKSmoother')
+    )
 
 # Also necessary to specify minimum number of hits after final track fit
 import TrackingTools.TrackFitters.RungeKuttaKFTrajectoryFitterESProducer_cfi
 import TrackingTools.TrackFitters.RungeKuttaKFTrajectorySmootherESProducer_cfi
-fifthRKTrajectoryFitter = TrackingTools.TrackFitters.RungeKuttaKFTrajectoryFitterESProducer_cfi.RKTrajectoryFitter.clone()
-fifthRKTrajectorySmoother = TrackingTools.TrackFitters.RungeKuttaKFTrajectorySmootherESProducer_cfi.RKTrajectorySmoother.clone()
-fifthRKTrajectoryFitter.ComponentName = cms.string('fifthRKFitter')
-fifthRKTrajectorySmoother.ComponentName = cms.string('fifthRKSmoother')
-fifthRKTrajectoryFitter.minHits = 6
-fifthRKTrajectorySmoother.minHits = 6
+fifthRKTrajectoryFitter = TrackingTools.TrackFitters.RungeKuttaKFTrajectoryFitterESProducer_cfi.RKTrajectoryFitter.clone(
+    ComponentName = cms.string('fifthRKFitter'),
+    minHits = 7
+    )
+
+fifthRKTrajectorySmoother = TrackingTools.TrackFitters.RungeKuttaKFTrajectorySmootherESProducer_cfi.RKTrajectorySmoother.clone(
+    ComponentName = cms.string('fifthRKSmoother'),
+    minHits = 7
+    )
 
 # TRACK FITTING
 import RecoTracker.TrackProducer.TrackProducer_cfi
-fifthWithMaterialTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone()
-fifthWithMaterialTracks.src = 'fifthTrackCandidates'
-fifthWithMaterialTracks.clusterRemovalInfo = 'fifthClusters'
-fifthWithMaterialTracks.AlgorithmName = cms.string('iter5')
-fifthWithMaterialTracks.Fitter = 'fifthFittingSmootherWithOutlierRejection'
+fifthWithMaterialTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
+    src = 'fifthTrackCandidates',
+    clusterRemovalInfo = 'fifthClusters',
+    AlgorithmName = cms.string('iter5'),
+    Fitter = 'fifthFittingSmootherWithOutlierRejection',
+    )
 
 # TRACK SELECTION AND QUALITY FLAG SETTING.
 import RecoTracker.FinalTrackSelectors.selectLoose_cfi
@@ -155,44 +171,53 @@ import RecoTracker.FinalTrackSelectors.selectTight_cfi
 import RecoTracker.FinalTrackSelectors.selectHighPurity_cfi
 import RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi
 
-tobtecStepLoose = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.clone()
-tobtecStepLoose.src = 'fifthWithMaterialTracks'
-tobtecStepLoose.keepAllTracks = False
-tobtecStepLoose.copyExtras = True
-tobtecStepLoose.copyTrajectories = True
-tobtecStepLoose.chi2n_par = 0.6
-tobtecStepLoose.res_par = ( 0.003, 0.001 )
-tobtecStepLoose.minNumberLayers = 6
-tobtecStepLoose.d0_par1 = ( 1.8, 4.0 )
-tobtecStepLoose.dz_par1 = ( 1.5, 4.0 )
-tobtecStepLoose.d0_par2 = ( 1.8, 4.0 )
-tobtecStepLoose.dz_par2 = ( 1.5, 4.0 )
+tobtecStepLoose = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.clone(
+    src = 'fifthWithMaterialTracks',
+    keepAllTracks = False,
+    copyExtras = True,
+    copyTrajectories = True,
+    chi2n_par = 0.6,
+    res_par = ( 0.003, 0.001 ),
+    minNumberLayers = 6,
+    maxNumberLostLayers = 1,
+    minNumber3DLayers = 2,
+    d0_par1 = ( 1.8, 4.0 ),
+    dz_par1 = ( 1.5, 4.0 ),
+    d0_par2 = ( 1.8, 4.0 ),
+    dz_par2 = ( 1.5, 4.0 )
+    )
 
-tobtecStepTight = RecoTracker.FinalTrackSelectors.selectTight_cfi.selectTight.clone()
-tobtecStepTight.src = 'tobtecStepLoose'
-tobtecStepTight.keepAllTracks = True
-tobtecStepTight.copyExtras = True
-tobtecStepTight.copyTrajectories = True
-tobtecStepTight.chi2n_par = 0.35
-tobtecStepTight.res_par = ( 0.003, 0.001 )
-tobtecStepTight.minNumberLayers = 6
-tobtecStepTight.d0_par1 = ( 1.3, 4.0 )
-tobtecStepTight.dz_par1 = ( 1.2, 4.0 )
-tobtecStepTight.d0_par2 = ( 1.3, 4.0 )
-tobtecStepTight.dz_par2 = ( 1.2, 4.0 )
+tobtecStepTight = RecoTracker.FinalTrackSelectors.selectTight_cfi.selectTight.clone(
+    src = 'tobtecStepLoose',
+    keepAllTracks = True,
+    copyExtras = True,
+    copyTrajectories = True,
+    chi2n_par = 0.35,
+    res_par = ( 0.003, 0.001 ),
+    minNumberLayers = 6,
+    maxNumberLostLayers = 0,
+    minNumber3DLayers = 2,
+    d0_par1 = ( 1.3, 4.0 ),
+    dz_par1 = ( 1.2, 4.0 ),
+    d0_par2 = ( 1.3, 4.0 ),
+    dz_par2 = ( 1.2, 4.0 )
+    )
 
-tobtecStep = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone()
-tobtecStep.src = 'tobtecStepTight'
-tobtecStep.keepAllTracks = True
-tobtecStep.copyExtras = True
-tobtecStep.copyTrajectories = True
-tobtecStep.chi2n_par = 0.25
-tobtecStep.res_par = ( 0.003, 0.001 )
-tobtecStep.minNumberLayers = 6
-tobtecStep.d0_par1 = ( 1.2, 4.0 )
-tobtecStep.dz_par1 = ( 1.1, 4.0 )
-tobtecStep.d0_par2 = ( 1.2, 4.0 )
-tobtecStep.dz_par2 = ( 1.1, 4.0 )
+tobtecStep = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone(
+    src = 'tobtecStepTight',
+    keepAllTracks = True,
+    copyExtras = True,
+    copyTrajectories = True,
+    chi2n_par = 0.25,
+    res_par = ( 0.003, 0.001 ),
+    minNumberLayers = 6,
+    maxNumberLostLayers = 0,
+    minNumber3DLayers = 2,
+    d0_par1 = ( 1.2, 4.0 ),
+    dz_par1 = ( 1.1, 4.0 ),
+    d0_par2 = ( 1.2, 4.0 ),
+    dz_par2 = ( 1.1, 4.0 )
+    )
 
 fifthStep = cms.Sequence(fourthfilter*fifthClusters*
                           fifthPixelRecHits*fifthStripRecHits*

@@ -74,7 +74,7 @@ import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff
 fourthPLSeeds = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff.globalMixedSeeds.clone()
 import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
 fourthPLSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'FourthLayerPairs'
-fourthPLSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.6
+fourthPLSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.5
 fourthPLSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 10.0
 fourthPLSeeds.RegionFactoryPSet.RegionPSet.originRadius = 2.0
 
@@ -90,8 +90,8 @@ fourthCkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterES
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
 fourthCkfTrajectoryFilter.ComponentName = 'fourthCkfTrajectoryFilter'
 fourthCkfTrajectoryFilter.filterPset.maxLostHits = 0
-fourthCkfTrajectoryFilter.filterPset.minimumNumberOfHits = 5
-fourthCkfTrajectoryFilter.filterPset.minPt = 0.3
+fourthCkfTrajectoryFilter.filterPset.minimumNumberOfHits = 7
+fourthCkfTrajectoryFilter.filterPset.minPt = 0.1
 
 # TRACK BUILDING
 fourthCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone()
@@ -127,6 +127,8 @@ pixellessStepLoose.copyTrajectories = True
 pixellessStepLoose.chi2n_par = 0.6
 pixellessStepLoose.res_par = ( 0.003, 0.001 )
 pixellessStepLoose.minNumberLayers = 5
+pixellessStepLoose.maxNumberLostLayers = 1
+pixellessStepLoose.minNumber3DLayers = 3
 pixellessStepLoose.d0_par1 = ( 1.5, 4.0 )
 pixellessStepLoose.dz_par1 = ( 1.5, 4.0 )
 pixellessStepLoose.d0_par2 = ( 1.5, 4.0 )
@@ -140,10 +142,12 @@ pixellessStepTight.copyTrajectories = True
 pixellessStepTight.chi2n_par = 0.4
 pixellessStepTight.res_par = ( 0.003, 0.001 )
 pixellessStepTight.minNumberLayers = 5
-pixellessStepTight.d0_par1 = ( 1.1, 4.0 )
-pixellessStepTight.dz_par1 = ( 1.1, 4.0 )
-pixellessStepTight.d0_par2 = ( 1.1, 4.0 )
-pixellessStepTight.dz_par2 = ( 1.1, 4.0 )
+pixellessStepTight.maxNumberLostLayers = 0
+pixellessStepTight.minNumber3DLayers = 3
+pixellessStepTight.d0_par1 = ( 1.2, 4.0 )
+pixellessStepTight.dz_par1 = ( 1.2, 4.0 )
+pixellessStepTight.d0_par2 = ( 1.2, 4.0 )
+pixellessStepTight.dz_par2 = ( 1.2, 4.0 )
 
 pixellessStep = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone()
 pixellessStep.src = 'pixellessStepTight'
@@ -152,7 +156,9 @@ pixellessStep.copyExtras = True
 pixellessStep.copyTrajectories = True
 pixellessStep.chi2n_par = 0.3
 pixellessStep.res_par = ( 0.003, 0.001 )
-pixellessStep.minNumberLayers = 5
+pixellessStep.minNumberLayers = 6
+pixellessStep.maxNumberLostLayers = 0
+pixellessStep.minNumber3DLayers = 3
 pixellessStep.d0_par1 = ( 1.0, 4.0 )
 pixellessStep.dz_par1 = ( 1.0, 4.0 )
 pixellessStep.d0_par2 = ( 1.0, 4.0 )

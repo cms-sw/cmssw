@@ -31,33 +31,39 @@ thClusters = cms.EDFilter("TrackClusterRemover",
 
 # TRACKER HITS
 import RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi
-thPixelRecHits = RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi.siPixelRecHits.clone()
+thPixelRecHits = RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi.siPixelRecHits.clone(
+    src = 'thClusters'
+    )
 import RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi
-thStripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi.siStripMatchedRecHits.clone()
-thPixelRecHits.src = 'thClusters'
-thStripRecHits.ClusterProducer = 'thClusters'
+thStripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi.siStripMatchedRecHits.clone(
+    ClusterProducer = 'thClusters'
+    )
 
 # Propagator taking into account momentum uncertainty in multiple scattering calculation.
 
 import TrackingTools.MaterialEffects.MaterialPropagator_cfi
-MaterialPropagatorPtMin03 = TrackingTools.MaterialEffects.MaterialPropagator_cfi.MaterialPropagator.clone()
-MaterialPropagatorPtMin03.ComponentName = 'PropagatorWithMaterialPtMin03'
-MaterialPropagatorPtMin03.ptMin = 0.3
+MaterialPropagatorPtMin035 = TrackingTools.MaterialEffects.MaterialPropagator_cfi.MaterialPropagator.clone(
+    ComponentName = 'PropagatorWithMaterialPtMin035',
+    ptMin = 0.35
+    )
 
 import TrackingTools.MaterialEffects.MaterialPropagator_cfi
-MaterialPropagatorPtMin015 = TrackingTools.MaterialEffects.MaterialPropagator_cfi.MaterialPropagator.clone()
-MaterialPropagatorPtMin015.ComponentName = 'PropagatorWithMaterialPtMin015'
-MaterialPropagatorPtMin015.ptMin = 0.15
+MaterialPropagatorPtMin01 = TrackingTools.MaterialEffects.MaterialPropagator_cfi.MaterialPropagator.clone(
+    ComponentName = 'PropagatorWithMaterialPtMin01',
+    ptMin = 0.1
+    )
 
 import TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi
-OppositeMaterialPropagatorPtMin03 = TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi.OppositeMaterialPropagator.clone()
-OppositeMaterialPropagatorPtMin03.ComponentName = 'PropagatorWithMaterialOppositePtMin03'
-OppositeMaterialPropagatorPtMin03.ptMin = 0.3
+OppositeMaterialPropagatorPtMin035 = TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi.OppositeMaterialPropagator.clone(
+    ComponentName = 'PropagatorWithMaterialOppositePtMin035',
+    ptMin = 0.35
+    )
 
 import TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi
-OppositeMaterialPropagatorPtMin015 = TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi.OppositeMaterialPropagator.clone()
-OppositeMaterialPropagatorPtMin015.ComponentName = 'PropagatorWithMaterialOppositePtMin015'
-OppositeMaterialPropagatorPtMin015.ptMin = 0.15
+OppositeMaterialPropagatorPtMin01 = TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi.OppositeMaterialPropagator.clone(
+    ComponentName = 'PropagatorWithMaterialOppositePtMin01',
+    ptMin = 0.1
+    )
 
 # SEEDING LAYERS
 thlayerpairs = cms.ESProducer("MixedLayerPairsESProducer",
@@ -96,56 +102,60 @@ thlayerpairs = cms.ESProducer("MixedLayerPairsESProducer",
 # SEEDS
 import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff
 thPLSeeds = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff.globalMixedSeeds.clone()
-import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
 thPLSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'ThLayerPairs'
-thPLSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.3
+thPLSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.35
 thPLSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 7.0
 thPLSeeds.RegionFactoryPSet.RegionPSet.originRadius = 1.2
+
 import RecoTracker.TkSeedGenerator.SeedFromConsecutiveHitsStraightLineCreator_cfi
 thPLSeeds.SeedCreatorPSet = RecoTracker.TkSeedGenerator.SeedFromConsecutiveHitsStraightLineCreator_cfi.SeedFromConsecutiveHitsStraightLineCreator.clone(
-    propagator = cms.string('PropagatorWithMaterialPtMin03')
+    propagator = cms.string('PropagatorWithMaterialPtMin035')
 )
 
 # TRACKER DATA CONTROL
-thMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone()
-import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
-thMeasurementTracker.ComponentName = 'thMeasurementTracker'
-thMeasurementTracker.pixelClusterProducer = 'thClusters'
-thMeasurementTracker.stripClusterProducer = 'thClusters'
+import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
+thMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone(
+    ComponentName = 'thMeasurementTracker',
+    pixelClusterProducer = 'thClusters',
+    stripClusterProducer = 'thClusters'
+    )
 
 # QUALITY CUTS DURING TRACK BUILDING
-thCkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone()
-import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
-thCkfTrajectoryFilter.ComponentName = 'thCkfTrajectoryFilter'
-thCkfTrajectoryFilter.filterPset.maxLostHits = 0
-thCkfTrajectoryFilter.filterPset.minimumNumberOfHits = 3
-thCkfTrajectoryFilter.filterPset.minPt = 0.15
-#thCkfTrajectoryFilter.filterPset.minPt = 0.3
+import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
+thCkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone(
+    ComponentName = 'thCkfTrajectoryFilter',
+    filterPset = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.filterPset.clone(
+    maxLostHits = 0,
+    minimumNumberOfHits = 4,
+    minPt = 0.1
+    )
+    )
 
 # TRACK BUILDING
-thCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone()
-import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
-thCkfTrajectoryBuilder.ComponentName = 'thCkfTrajectoryBuilder'
-thCkfTrajectoryBuilder.MeasurementTrackerName = 'thMeasurementTracker'
-thCkfTrajectoryBuilder.trajectoryFilterName = 'thCkfTrajectoryFilter'
-#thCkfTrajectoryBuilder.propagatorAlong = cms.string('PropagatorWithMaterialPtMin03')
-#thCkfTrajectoryBuilder.propagatorOpposite = cms.string('PropagatorWithMaterialOppositePtMin03')
-thCkfTrajectoryBuilder.propagatorAlong = cms.string('PropagatorWithMaterialPtMin015')
-thCkfTrajectoryBuilder.propagatorOpposite = cms.string('PropagatorWithMaterialOppositePtMin015')
+import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
+thCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone(
+    ComponentName = 'thCkfTrajectoryBuilder',
+    MeasurementTrackerName = 'thMeasurementTracker',
+    trajectoryFilterName = 'thCkfTrajectoryFilter',
+    propagatorAlong = cms.string('PropagatorWithMaterialPtMin01'),
+    propagatorOpposite = cms.string('PropagatorWithMaterialOppositePtMin01')
+    )
 
 # MAKING OF TRACK CANDIDATES
-thTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
-import RecoTracker.TrackProducer.TrackProducer_cfi
-thTrackCandidates.src = cms.InputTag('thPLSeeds')
-thTrackCandidates.TrajectoryBuilder = 'thCkfTrajectoryBuilder'
-thTrackCandidates.doSeedingRegionRebuilding = True
-thTrackCandidates.useHitsSplitting = True
-
+import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
+thTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
+    src = cms.InputTag('thPLSeeds'),
+    TrajectoryBuilder = 'thCkfTrajectoryBuilder',
+    doSeedingRegionRebuilding = True,
+    useHitsSplitting = True
+)
 # TRACK FITTING
-thWithMaterialTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone()
-thWithMaterialTracks.AlgorithmName = cms.string('iter3')
-thWithMaterialTracks.src = 'thTrackCandidates'
-thWithMaterialTracks.clusterRemovalInfo = 'thClusters'
+import RecoTracker.TrackProducer.TrackProducer_cfi
+thWithMaterialTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
+    AlgorithmName = cms.string('iter3'),
+    src = 'thTrackCandidates',
+    clusterRemovalInfo = 'thClusters',
+)
 
 # TRACK SELECTION AND QUALITY FLAG SETTING.
 import RecoTracker.FinalTrackSelectors.selectLoose_cfi
@@ -153,94 +163,118 @@ import RecoTracker.FinalTrackSelectors.selectTight_cfi
 import RecoTracker.FinalTrackSelectors.selectHighPurity_cfi
 import RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi
 
-thStepVtxLoose = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.clone()
-thStepVtxLoose.src = 'thWithMaterialTracks'
-thStepVtxLoose.keepAllTracks = False
-thStepVtxLoose.copyExtras = True
-thStepVtxLoose.copyTrajectories = True
-thStepVtxLoose.chi2n_par = 2.0
-thStepVtxLoose.res_par = ( 0.003, 0.001 )
-thStepVtxLoose.d0_par1 = ( 1.2, 3.0 )
-thStepVtxLoose.dz_par1 = ( 1.2, 3.0 )
-thStepVtxLoose.d0_par2 = ( 1.3, 3.0 )
-thStepVtxLoose.dz_par2 = ( 1.3, 3.0 )
+thStepVtxLoose = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.clone(
+    src = 'thWithMaterialTracks',
+    keepAllTracks = False,
+    copyExtras = True,
+    copyTrajectories = True,
+    chi2n_par = 2.0,
+    res_par = ( 0.003, 0.001 ),
+    minNumberLayers = 3,
+    maxNumberLostLayers = 1,
+    minNumber3DLayers = 2,
+    d0_par1 = ( 1.2, 3.0 ),
+    dz_par1 = ( 1.2, 3.0 ),
+    d0_par2 = ( 1.3, 3.0 ),
+    dz_par2 = ( 1.3, 3.0 )
+    )
 
-thStepTrkLoose = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.clone()
-thStepTrkLoose.src = 'thWithMaterialTracks'
-thStepTrkLoose.keepAllTracks = False
-thStepTrkLoose.copyExtras = True
-thStepTrkLoose.copyTrajectories = True
-thStepTrkLoose.chi2n_par = 0.9
-thStepTrkLoose.res_par = ( 0.003, 0.001 )
-thStepTrkLoose.minNumberLayers = 4
-thStepTrkLoose.d0_par1 = ( 1.8, 4.0 )
-thStepTrkLoose.dz_par1 = ( 1.8, 4.0 )
-thStepTrkLoose.d0_par2 = ( 1.8, 4.0 )
-thStepTrkLoose.dz_par2 = ( 1.8, 4.0 )
+thStepTrkLoose = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.clone(
+    src = 'thWithMaterialTracks',
+    keepAllTracks = False,
+    copyExtras = True,
+    copyTrajectories = True,
+    chi2n_par = 0.9,
+    res_par = ( 0.003, 0.001 ),
+    minNumberLayers = 4,
+    maxNumberLostLayers = 1,
+    minNumber3DLayers = 2,
+    d0_par1 = ( 1.8, 4.0 ),
+    dz_par1 = ( 1.8, 4.0 ),
+    d0_par2 = ( 1.8, 4.0 ),
+    dz_par2 = ( 1.8, 4.0 )
+    )
 
-thStepLoose = RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi.ctfrsTrackListMerger.clone()
-thStepLoose.TrackProducer1 = 'thStepVtxLoose'
-thStepLoose.TrackProducer2 = 'thStepTrkLoose'
-
-
-thStepVtxTight = RecoTracker.FinalTrackSelectors.selectTight_cfi.selectTight.clone()
-thStepVtxTight.src = 'thStepVtxLoose'
-thStepVtxTight.keepAllTracks = True
-thStepVtxTight.copyExtras = True
-thStepVtxTight.copyTrajectories = True
-thStepVtxTight.chi2n_par = 0.9
-thStepVtxTight.res_par = ( 0.003, 0.001 )
-thStepVtxTight.d0_par1 = ( 1.0, 3.0 )
-thStepVtxTight.dz_par1 = ( 1.0, 3.0 )
-thStepVtxTight.d0_par2 = ( 1.1, 3.0 )
-thStepVtxTight.dz_par2 = ( 1.1, 3.0 )
-
-thStepTrkTight = RecoTracker.FinalTrackSelectors.selectTight_cfi.selectTight.clone()
-thStepTrkTight.src = 'thStepTrkLoose'
-thStepTrkTight.keepAllTracks = True
-thStepTrkTight.copyExtras = True
-thStepTrkTight.copyTrajectories = True
-thStepTrkTight.chi2n_par = 0.7
-thStepTrkTight.res_par = ( 0.003, 0.001 )
-thStepTrkTight.minNumberLayers = 5
-thStepTrkTight.d0_par1 = ( 1.1, 4.0 )
-thStepTrkTight.dz_par1 = ( 1.1, 4.0 )
-thStepTrkTight.d0_par2 = ( 1.1, 4.0 )
-thStepTrkTight.dz_par2 = ( 1.1, 4.0 )
-
-thStepTight = RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi.ctfrsTrackListMerger.clone()
-thStepTight.TrackProducer1 = 'thStepVtxTight'
-thStepTight.TrackProducer2 = 'thStepTrkTight'
+thStepLoose = RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi.ctfrsTrackListMerger.clone(
+    TrackProducer1 = 'thStepVtxLoose',
+    TrackProducer2 = 'thStepTrkLoose'
+    )
 
 
-thStepVtx = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone()
-thStepVtx.src = 'thStepVtxTight'
-thStepVtx.keepAllTracks = True
-thStepVtx.copyExtras = True
-thStepVtx.copyTrajectories = True
-thStepVtx.chi2n_par = 0.9
-thStepVtx.res_par = ( 0.003, 0.001 )
-thStepVtx.d0_par1 = ( 0.9, 3.0 )
-thStepVtx.dz_par1 = ( 0.9, 3.0 )
-thStepVtx.d0_par2 = ( 1.0, 3.0 )
-thStepVtx.dz_par2 = ( 1.0, 3.0 )
+thStepVtxTight = RecoTracker.FinalTrackSelectors.selectTight_cfi.selectTight.clone(
+    src = 'thStepVtxLoose',
+    keepAllTracks = True,
+    copyExtras = True,
+    copyTrajectories = True,
+    chi2n_par = 0.9,
+    res_par = ( 0.003, 0.001 ),
+    minNumberLayers = 3,
+    maxNumberLostLayers = 1,
+    minNumber3DLayers = 3,
+    d0_par1 = ( 1.0, 3.0 ),
+    dz_par1 = ( 1.0, 3.0 ),
+    d0_par2 = ( 1.1, 3.0 ),
+    dz_par2 = ( 1.1, 3.0 )
+    )
 
-thStepTrk = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone()
-thStepTrk.src = 'thStepTrkTight'
-thStepTrk.keepAllTracks = True
-thStepTrk.copyExtras = True
-thStepTrk.copyTrajectories = True
-thStepTrk.chi2n_par = 0.5
-thStepTrk.res_par = ( 0.003, 0.001 )
-thStepTrk.minNumberLayers = 5
-thStepTrk.d0_par1 = ( 1.0, 4.0 )
-thStepTrk.dz_par1 = ( 1.0, 4.0 )
-thStepTrk.d0_par2 = ( 1.0, 4.0 )
-thStepTrk.dz_par2 = ( 1.0, 4.0 )
+thStepTrkTight = RecoTracker.FinalTrackSelectors.selectTight_cfi.selectTight.clone(
+    src = 'thStepTrkLoose',
+    keepAllTracks = True,
+    copyExtras = True,
+    copyTrajectories = True,
+    chi2n_par = 0.7,
+    res_par = ( 0.003, 0.001 ),
+    minNumberLayers = 5,
+    maxNumberLostLayers = 1,
+    minNumber3DLayers = 3,
+    d0_par1 = ( 1.1, 4.0 ),
+    dz_par1 = ( 1.1, 4.0 ),
+    d0_par2 = ( 1.1, 4.0 ),
+    dz_par2 = ( 1.1, 4.0 )
+)
 
-thStep = RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi.ctfrsTrackListMerger.clone()
-thStep.TrackProducer1 = 'thStepVtx'
-thStep.TrackProducer2 = 'thStepTrk'
+thStepTight = RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi.ctfrsTrackListMerger.clone(
+    TrackProducer1 = 'thStepVtxTight',
+    TrackProducer2 = 'thStepTrkTight'
+    )
+
+
+thStepVtx = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone(
+    src = 'thStepVtxTight',
+    keepAllTracks = True,
+    copyExtras = True,
+    copyTrajectories = True,
+    chi2n_par = 0.9,
+    res_par = ( 0.003, 0.001 ),
+    minNumberLayers = 3,
+    maxNumberLostLayers = 1,
+    minNumber3DLayers = 3,
+    d0_par1 = ( 0.9, 3.0 ),
+    dz_par1 = ( 0.9, 3.0 ),
+    d0_par2 = ( 1.0, 3.0 ),
+    dz_par2 = ( 1.0, 3.0 )
+)
+
+thStepTrk = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone(
+    src = 'thStepTrkTight',
+    keepAllTracks = True,
+    copyExtras = True,
+    copyTrajectories = True,
+    chi2n_par = 0.5,
+    res_par = ( 0.003, 0.001 ),
+    minNumberLayers = 5,
+    maxNumberLostLayers = 1,
+    minNumber3DLayers = 4,
+    d0_par1 = ( 1.0, 4.0 ),
+    dz_par1 = ( 1.0, 4.0 ),
+    d0_par2 = ( 1.0, 4.0 ),
+    dz_par2 = ( 1.0, 4.0 )
+    )
+
+thStep = RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi.ctfrsTrackListMerger.clone(
+    TrackProducer1 = 'thStepVtx',
+    TrackProducer2 = 'thStepTrk'
+    )
 
 thirdStep = cms.Sequence(secfilter*
                          thClusters*
