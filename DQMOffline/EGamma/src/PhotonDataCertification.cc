@@ -7,7 +7,7 @@
 //
 // Original Author:  Louis James Antonelli
 //         Created:  Thu Jan 22 13:42:28CET 2009
-// $Id$
+// $Id: PhotonDataCertification.cc,v 1.1 2009/01/28 14:00:22 lantonel Exp $
 //
 //
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -70,9 +70,9 @@ PhotonDataCertification::beginJob(const edm::EventSetup&)
 void 
 PhotonDataCertification::endJob() {
 
-//   MonitorElement * RefHist = new MonitorElement(*(dbe_->get("Egamma/PhotonAnalyzer/NonisolatedPhotons/Et above 0 GeV/r9AllEcal")));
+  MonitorElement * RefHist = new MonitorElement(*(dbe_->get("Egamma/PhotonAnalyzer/BackgroundPhotons/Et above 0 GeV/r9AllEcal")));
 //   TH1F * RefHistTH1 = RefHist->getTH1F();
-//   MonitorElement * TestHist = new MonitorElement(*(dbe_->get("Egamma/PhotonAnalyzer/IsolatedPhotons/Et above 0 GeV/r9AllEcal")));
+//   MonitorElement * TestHist = new MonitorElement(*(dbe_->get("Egamma/PhotonAnalyzer/GoodCandidatePhotons/Et above 0 GeV/r9AllEcal")));
 //   TH1F * TestHistTH1 = TestHist->getTH1F();
 //   double KolTest;
 
