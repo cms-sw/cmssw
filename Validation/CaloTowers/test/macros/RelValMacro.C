@@ -131,12 +131,18 @@ void ProcessRelValRecHit(TFile &ref_file, TFile &val_file, ifstream &recstr, con
       leg->AddEntry(ref_hist1[nh1],"CMSSW_"+ref_vers,"l");
       leg->AddEntry(val_hist1[nh1],"CMSSW_"+val_vers,"l");
 
-      //Draw and save histograms
-      ref_hist1[nh1]->Draw("hist");   
-      if (StatSwitch == "Statrv") val_hist1[nh1]->Draw("hist sames");   
-      else                        val_hist1[nh1]->Draw("hist same");   
-
       if (Chi2Switch == "Chi2"){
+	//Rebin histograms
+	ref_hist1[nh1]->Rebin(10);
+	val_hist1[nh1]->Rebin(10);
+	
+	//Draw and save histograms
+	ref_hist1[nh1]->SetFillColor(48);
+	ref_hist1[nh1]->Draw("hist");   
+	val_hist1[nh1]->SetLineStyle(1);  
+	if (StatSwitch == "Statrv") val_hist1[nh1]->Draw("hist sames e1");   
+	else                        val_hist1[nh1]->Draw("hist same e1");   
+
 	//Get p-value from chi2 test
 	const float NCHI2MIN = 0.01;
 	
@@ -158,15 +164,21 @@ void ProcessRelValRecHit(TFile &ref_file, TFile &val_file, ifstream &recstr, con
 	ptchi2->AddText(mystream.str().c_str());
 	ptchi2->Draw();
       }
+      else {
+	//Draw and save histograms
+	ref_hist1[nh1]->Draw("hist");   
+	if (StatSwitch == "Statrv") val_hist1[nh1]->Draw("hist sames");   
+	else                        val_hist1[nh1]->Draw("hist same");   
+      }
 
       //Stat Box where required
       if (StatSwitch == "Stat" || StatSwitch == "Statrv"){
 	TPaveStats *ptstats = new TPaveStats(0.85,0.86,0.98,0.98,"brNDC");
-	ptstats->SetTextColor(41);
+	ptstats->SetTextColor(RefCol);
 	ref_hist1[nh1]->GetListOfFunctions()->Add(ptstats);
 	ptstats->SetParent(ref_hist1[nh1]->GetListOfFunctions());
 	TPaveStats *ptstats = new TPaveStats(0.85,0.74,0.98,0.86,"brNDC");
-	ptstats->SetTextColor(43);
+	ptstats->SetTextColor(ValCol);
 	val_hist1[nh1]->GetListOfFunctions()->Add(ptstats);
 	ptstats->SetParent(val_hist1[nh1]->GetListOfFunctions());
 	

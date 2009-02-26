@@ -16,6 +16,9 @@ color->SetRGB(1.0, 0.5, 0.0); // orange-brick
 TColor *color = (TColor*)(gROOT->GetListOfColors()->At(47));
 color->SetRGB(0.8, 0.0, 0.0); // brick 
 //
+TColor *color = (TColor*)(gROOT->GetListOfColors()->At(48));
+color->SetRGB(1.0, 0.8, 0.6); // tan? 
+//
 TColor *color = (TColor*)(gROOT->GetListOfColors()->At(51));
 color->SetRGB(1.0 , 1.0 , 0.8 ); // lightest yellow 
 TColor *color = (TColor*)(gROOT->GetListOfColors()->At(52));

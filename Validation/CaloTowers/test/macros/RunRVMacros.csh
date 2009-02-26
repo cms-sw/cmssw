@@ -28,6 +28,8 @@ endif
 mkdir ${NEW_VERS}_vs_${OLD_VERS}_RelVal
 cd ${NEW_VERS}_vs_${OLD_VERS}_RelVal
 
+cp ../html_indices/TopLevelRelVal.html index.html
+
 #TTbar
 mkdir TTbar
 mkdir TTbar/CalTowHB
@@ -52,8 +54,15 @@ cp ../html_indices/CaloTowers_HB.html      QCD/CalTowHB/index.html
 cp ../html_indices/CaloTowers_HE.html      QCD/CalTowHE/index.html
 cp ../html_indices/CaloTowers_HF.html      QCD/CalTowHF/index.html
 
-
 cd ../
+
+if (-d emean_seq_${NEW_VERS}_vs_${OLD_VERS}) then
+     rm -rf emean_seq_${NEW_VERS}_vs_${OLD_VERS}
+endif
+
+mkdir emean_seq_${NEW_VERS}_vs_${OLD_VERS}
+mkdir emean_seq_${NEW_VERS}_vs_${OLD_VERS}/TTbar
+mkdir emean_seq_${NEW_VERS}_vs_${OLD_VERS}/QCD
 
 #Process TTbar
 root -l -q 'RelValMacro.C("'${OLD_VERS}'","'${NEW_VERS}'","'HcalRecHitValidationRelVal_TTbar_${OLD_VERS}.root'","'HcalRecHitValidationRelVal_TTbar_${NEW_VERS}.root'")'
@@ -61,7 +70,8 @@ root -l -q 'RelValMacro.C("'${OLD_VERS}'","'${NEW_VERS}'","'HcalRecHitValidation
 mv HB_CaloTowers*HB.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbar/CalTowHB/
 mv HE_CaloTowers*HE.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbar/CalTowHE/
 mv HF_CaloTowers*HF.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbar/CalTowHF/
-mv *gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbar/RecHits/
+mv emean_seq_*.gif      emean_seq_${NEW_VERS}_vs_${OLD_VERS}/TTbar
+mv *gif                 ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbar/RecHits/
 
 #Process QCD
 root -l -q 'RelValMacro.C("'${OLD_VERS}'","'${NEW_VERS}'","'HcalRecHitValidationRelVal_QCD_${OLD_VERS}.root'","'HcalRecHitValidationRelVal_QCD_${NEW_VERS}.root'")'
@@ -69,6 +79,7 @@ root -l -q 'RelValMacro.C("'${OLD_VERS}'","'${NEW_VERS}'","'HcalRecHitValidation
 mv HB_CaloTowers*HB.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCD/CalTowHB/
 mv HE_CaloTowers*HE.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCD/CalTowHE/
 mv HF_CaloTowers*HF.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCD/CalTowHF/
-mv *gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCD/RecHits/
+mv emean_seq_*.gif      emean_seq_${NEW_VERS}_vs_${OLD_VERS}/QCD
+mv *gif                 ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCD/RecHits/
 
 exit

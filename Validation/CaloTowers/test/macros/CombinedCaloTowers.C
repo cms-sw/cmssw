@@ -17,7 +17,7 @@ void CombinedCaloTowers(TString ref_vers="210",
   TFile HE_ref_file("HcalRecHitValidationHE_"+ref_vers+".root"); 
   TFile HF_ref_file("HcalRecHitValidationHF_"+ref_vers+".root"); 
 
-  TFile HB_val_file("HcalRecHitValidationHB_"+val_vers+".root"); 
+  TFile HB_val_file("HcalRecHitValidationHB_"+val_vers+".root");
   TFile HE_val_file("HcalRecHitValidationHE_"+val_vers+".root"); 
   TFile HF_val_file("HcalRecHitValidationHF_"+val_vers+".root"); 
   
@@ -99,43 +99,25 @@ void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const in
     
     //Different histo colors and styles
     ref_hist1[nh1]->SetTitle("");
-    ref_hist1[nh1]->SetLineWidth(2); 
+    ref_hist1[nh1]->SetLineWidth(1); 
     ref_hist1[nh1]->SetLineColor(RefCol);
-    ref_hist1[nh1]->SetLineStyle(1); 
+    //    ref_hist1[nh1]->SetLineStyle(1); 
 
     val_hist1[nh1]->SetTitle("");
-    val_hist1[nh1]->SetLineWidth(3); 
+    val_hist1[nh1]->SetLineWidth(1); 
     val_hist1[nh1]->SetLineColor(ValCol);
-    val_hist1[nh1]->SetLineStyle(2);
+    //    val_hist1[nh1]->SetLineStyle(2);
     
-    //StatBox
-    if (StatSwitch == "Stat"){
-      TPaveStats *ptstats = new TPaveStats(0.85,0.86,0.98,0.98,"brNDC");
-      ptstats->SetTextColor(41);
-      ref_hist1[nh1]->GetListOfFunctions()->Add(ptstats);
-      ptstats->SetParent(ref_hist1[nh1]->GetListOfFunctions());
-      
-      TPaveStats *ptstats = new TPaveStats(0.85,0.74,0.98,0.86,"brNDC");
-      ptstats->SetTextColor(43);
-      val_hist1[nh1]->GetListOfFunctions()->Add(ptstats);
-      ptstats->SetParent(val_hist1[nh1]->GetListOfFunctions());
-    }
-    
-    //Create legend
-    TLegend *leg = new TLegend(0.58, 0.91, 0.84, 0.99, "","brNDC");
-    leg->SetBorderSize(2);
-    leg->SetFillStyle(1001); //
-    leg->AddEntry(ref_hist1[nh1],"CMSSW_"+ref_vers,"l");
-    leg->AddEntry(val_hist1[nh1],"CMSSW_"+val_vers,"l");
-    
-    //Draw and save everything
-    ref_hist1[nh1]->Draw("hist"); // "stat"
-    val_hist1[nh1]->Draw("hist sames");
-    
-    leg->Draw();   
-
     //Chi2
     if (Chi2Switch == "Chi2"){
+      //Rebin histograms
+      ref_hist1[nh1]->Rebin(5);
+      val_hist1[nh1]->Rebin(5);
+
+      //Draw histograms
+      ref_hist1[nh1]->SetFillColor(48);
+      ref_hist1[nh1]->Draw("hist"); // "stat"
+      val_hist1[nh1]->Draw("sames e1");
       //Get p-value from chi2 test
       const float NCHI2MIN = 0.01;
       
@@ -157,6 +139,33 @@ void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const in
       ptchi2->AddText(mystream.str().c_str());
       ptchi2->Draw();
     }
+    else {
+      //Draw histograms
+      ref_hist1[nh1]->Draw("hist"); // "stat"
+      val_hist1[nh1]->Draw("hist sames");
+    }
+
+    //StatBox
+    if (StatSwitch == "Stat"){
+      TPaveStats *ptstats = new TPaveStats(0.85,0.86,0.98,0.98,"brNDC");
+      ptstats->SetTextColor(RefCol);
+      ref_hist1[nh1]->GetListOfFunctions()->Add(ptstats);
+      ptstats->SetParent(ref_hist1[nh1]->GetListOfFunctions());
+      
+      TPaveStats *ptstats = new TPaveStats(0.85,0.74,0.98,0.86,"brNDC");
+      ptstats->SetTextColor(ValCol);
+      val_hist1[nh1]->GetListOfFunctions()->Add(ptstats);
+      ptstats->SetParent(val_hist1[nh1]->GetListOfFunctions());
+    }
+    
+    //Create legend
+    TLegend *leg = new TLegend(0.58, 0.91, 0.84, 0.99, "","brNDC");
+    leg->SetBorderSize(2);
+    leg->SetFillStyle(1001); //
+    leg->AddEntry(ref_hist1[nh1],"CMSSW_"+ref_vers,"l");
+    leg->AddEntry(val_hist1[nh1],"CMSSW_"+val_vers,"l");
+
+    leg->Draw();   
 
     myc->SaveAs(OutLabel);
     
