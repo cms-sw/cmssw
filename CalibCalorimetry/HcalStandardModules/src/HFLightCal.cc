@@ -233,7 +233,7 @@ Double_t FitFun(Double_t *x, Double_t *par) {
 
 void HFLightCal::endJob(void)
 {
-  Double_t mean,rms,meanped,rmsped,maxc,npevar,npevarm;
+  Double_t mean,rms,meanped,rmsped,npevar;
   Double_t par[5],dspe=0,dnpe;
   Int_t tsmax,intspe;
   std::cout<<std::endl<<"HFLightCal endJob --> ";
@@ -330,7 +330,7 @@ void HFLightCal::endJob(void)
 	  npevar=(mean-meanped)*(mean-meanped)/(rms*rms-rmsped*rmsped);
 	}
 	else if (mean<100) {
-	  intspe=hspe[i][j][k]->Integral();
+	  intspe=int(hspe[i][j][k]->Integral());
 	  hspe[i][j][k]->SetAxisRange(meanped+rmsped*4,300);
 	  npevar=hspe[i][j][k]->Integral()/intspe;
 	  if (npevar>0.01) npevar=-1;
@@ -421,8 +421,8 @@ void HFLightCal::analyze(const edm::Event& fEvent, const edm::EventSetup& fSetup
 			 << "run/event: "<<runNer<<'/'<<eventNumber<<std::endl;
 
   Double_t buf[20];
-  Double_t maxADC,signal,ped,meant;
-  Int_t ii,maxisample=0,i1=3,i2=6;
+  Double_t maxADC,signal,ped=0,meant;
+  Int_t maxisample=0,i1=3,i2=6;
 
   // HF PIN-diodes
   edm::Handle<HcalCalibDigiCollection> calib;  

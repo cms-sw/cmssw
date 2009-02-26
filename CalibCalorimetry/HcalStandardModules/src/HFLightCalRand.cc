@@ -189,7 +189,7 @@ Double_t Fit3Peak(Double_t *x, Double_t *par) {
 
 void HFLightCalRand::endJob(void)
 {
-  Double_t mean,rms,meanped,rmsped,maxc,npevar;
+  Double_t mean,rms,meanped,rmsped,npevar;
   Double_t par[5],parm[5],dspe=0,dnpe;
   Int_t tsmax,intspe;
   fprintf(tFile,"#RunN %d   Events processed %d",runNumb,EventN);
@@ -288,7 +288,7 @@ void HFLightCalRand::endJob(void)
 	  npevar=(mean-meanped-2)*(mean-meanped-2)/(rms*rms-rmsped*rmsped/0.8836);
 	}
 	else if (mean<100) {
-	  intspe=hspe[i][j][k]->Integral();
+	  intspe=int(hspe[i][j][k]->Integral());
 	  hspe[i][j][k]->SetAxisRange(meanped+2+rmsped*4,300);
 	  npevar=hspe[i][j][k]->Integral()/intspe;
 	  if (npevar>0.01) npevar=-1;
@@ -379,8 +379,8 @@ void HFLightCalRand::analyze(const edm::Event& fEvent, const edm::EventSetup& fS
 			 << "run/event: "<<runNumber<<'/'<<eventNumber<<std::endl;
 
   Double_t buf[20];
-  Double_t maxADC,signal,ped,meant;
-  Int_t ii,maxisample=0,i1=3,i2=6;
+  Double_t maxADC,signal,ped=0,meant;
+  Int_t maxisample=0,i1=3,i2=6;
 
   // HF PIN-diodes
   edm::Handle<HcalCalibDigiCollection> calib;  
