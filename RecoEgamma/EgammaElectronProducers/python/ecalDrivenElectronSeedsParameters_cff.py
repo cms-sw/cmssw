@@ -28,7 +28,7 @@ ecalDrivenElectronSeedsParameters = cms.PSet(
     SizeWindowENeg = cms.double(0.675),
     DeltaPhi1Low = cms.double(0.23),
     DeltaPhi1High = cms.double(0.08),
-    DeltaPhi2 = cms.double(0.004),
+    DeltaPhi2 = cms.double(0.008),
 
     # phi windows (non dynamic, overwritten in case dynamic is selected)
     ePhiMin1 = cms.double(-0.125),
