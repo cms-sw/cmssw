@@ -25,7 +25,7 @@
 
 #include "GeneratorInterface/Pythia6Interface/interface/PYR.h"
 
-#include "GeneratorInterface/PartonShowerVeto/interface/JetMatchingMadgraph.h"
+#include "GeneratorInterface/PartonShowerVeto/interface/JetMatching.h"
 
  
 HepMC::IO_HEPEVT conv;
@@ -66,7 +66,7 @@ extern "C" {
       // NOTE: I'm passing NULL pointers, instead of HepMC::GenEvent, etc.
       //   
       *veto = Pythia6Hadronizer::getJetMatching()->match(0,0,true); 
-   
+
       return; 
    }
 
@@ -78,7 +78,6 @@ JetMatching* Pythia6Hadronizer::fJetMatching = 0;
 Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps) 
    : fPy6Service( new Pythia6Service(ps) ), // this will store py6 params for further settings
      fCOMEnergy(ps.getParameter<double>("comEnergy")),
-     fEventCounter(0),
      fHepMCVerbosity(ps.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
      fMaxEventsToPrint(ps.getUntrackedParameter<int>("maxEventsToPrint", 0)),
      fPythiaListVerbosity(ps.getUntrackedParameter<int>("pythiaPylistVerbosity", 0))
@@ -89,31 +88,14 @@ Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps)
       edm::ParameterSet jmParams =
 			ps.getUntrackedParameter<edm::ParameterSet>(
 								"jetMatching");
-      std::string scheme = jmParams.getParameter<std::string>("scheme");
-      if ( scheme == "Madgraph" )
-      {
-         if ( !fJetMatching) fJetMatching = new JetMatchingMadgraph(jmParams);
-      }
-      else if ( scheme == "MLM" )
-      {
-         throw cms::Exception("InvalidJetMatching")
-			<< "Port of " << scheme << "scheme \"" << "\""
-			   " for parton-shower matching is still in progress."
-			<< std::endl;
-      }
-      else
-      {
-         throw cms::Exception("InvalidJetMatching")
-			<< "Unknown scheme \"" << scheme << "\""
-			   " specified for parton-shower matching."
-			<< std::endl;
-      }
+
+      fJetMatching = JetMatching::create(jmParams).release();
    }
    
    runInfo().setFilterEfficiency(
       ps.getUntrackedParameter<double>("filterEfficiency", -1.) );
    //
-   // fill up later 
+   // fill up later, note C.S. -> for all generators via BaseHadronizer?
    //
    //runInfo().setsetExternalXSecLO(
    //   GenRunInfoProduct::XSec(ps.getUntrackedParameter<double>("...", -1.)) );
@@ -121,14 +103,6 @@ Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps)
    //    GenRunInfoProduct::XSec(ps.getUntrackedParameter<double>("...", -1.)) );
 
 
-/* old stuff 
-   edm::Service<edm::RandomNumberGenerator> rng;
-   int seed = rng->mySeed();
-   std::cout << " seed = " << seed << std::endl;
-   std::ostringstream ss;
-   ss << "MRPY(1)=" << rng->mySeed();
-   paramGeneral.push_back(ss.str());
-*/
    // Initialize the random engine unconditionally
    //
    randomEngine = &getEngineReference();
@@ -150,7 +124,7 @@ Pythia6Hadronizer::~Pythia6Hadronizer()
 
 void Pythia6Hadronizer::finalizeEvent()
 {
-      
+
    // convert to HEPEVT
    //
    //call_pyhepc(1);
@@ -158,14 +132,42 @@ void Pythia6Hadronizer::finalizeEvent()
    // convert to HepMC
    //
    //event() = conv.read_next_event();
-      
-   event()->set_signal_process_id(pypars.msti[0]);
-   event()->set_event_scale(pypars.pari[16]);
-   // evt->set_event_number(numberEventsInRun() - remainingEvents() - 1);
-   event()->set_event_number( fEventCounter );
+
+   HepMC::PdfInfo pdf;
+
+   // if we are in hadronizer mode, we can pass on information from
+   // the LHE input
+   if ( lheEvent() )
+   {
+      lheEvent()->fillEventInfo( event().get() );
+      lheEvent()->fillPdfInfo( &pdf );
+   }
+
+   if (event()->signal_process_id() < 0) event()->set_signal_process_id( pypars.msti[0] );
+// FIXME event scale is *not* pthat.  We now have the binningValue() for that
+// the event scale Q would be pypars.pari[22]
+   if (event()->event_scale() < 0)       event()->set_event_scale( pypars.pari[16] );
    
+// FIXME: alpha qcd, alpha qed
+// FIXME: signal_process_vertex
+
    // get pdf info directly from Pythia6 and set it up into HepMC::GenEvent
    //
+   if (pdf.id1() < 0)      pdf.set_id1( pyint1.mint[14] == 21 ? 0 : pyint1.mint[14] );
+   if (pdf.id2() < 0)      pdf.set_id2( pyint1.mint[15] == 21 ? 0 : pyint1.mint[15] );
+   if (pdf.x1() < 0)       pdf.set_x1( pypars.pari[32] );
+   if (pdf.x2() < 0)       pdf.set_x2( pypars.pari[33] );
+// FIXME: what is the CMS convention?  Make all generators consistent!!!
+// FIXME: check what pypars.pari[30] and pypars.pari[31] contain
+   if (pdf.pdf1() < 0)     pdf.set_pdf1( pypars.pari[28] / pypars.pari[32] );
+   if (pdf.pdf2() < 0)     pdf.set_pdf2( pypars.pari[29] / pypars.pari[33] );
+   if (pdf.scalePDF() < 0) pdf.set_scalePDF( pypars.pari[20] );
+
+   event()->set_pdf_info( pdf ) ;
+
+/* Note: mint/vint are internal interfaces, pari, the official one
+   http://cepa.fnal.gov/psm/simulation/mcgen/lund/pythia_manual/pythia6.3/pythia6301/node126.html#p:PARI
+
    int id1 = pyint1.mint[14];
    int id2 = pyint1.mint[15];
    if ( id1 == 21 ) id1 = 0;
@@ -178,9 +180,11 @@ void Pythia6Hadronizer::finalizeEvent()
    double pdf2 = pyint1.vint[39];
    pdf2 /= x2 ;
    event()->set_pdf_info( HepMC::PdfInfo(id1,id2,x1,x2,Q,pdf1,pdf2) ) ;
-    
+*/
+
+// FIXME similarly... vint -> pari?
    event()->weights().push_back( pyint1.vint[96] );
-   
+
    // service printouts, if requested
    //
    if (fMaxEventsToPrint > 0) 
@@ -211,8 +215,6 @@ bool Pythia6Hadronizer::generatePartonsAndHadronize()
    call_pyhepc(1);
    event().reset( conv.read_next_event() );
    
-   fEventCounter++;
-      
    return true;
 }
 
@@ -233,6 +235,9 @@ bool Pythia6Hadronizer::hadronize()
    if ( FortranCallback::getInstance()->getIterationsPerEvent() > 1 || 
         hepeup_.nup <= 0 || pypars.msti[0] == 1 )
    {
+      // update LHE matching statistics
+      lheEvent()->count( lhef::LHERunInfo::kTried );
+
       event().reset();
 /*
       std::cout << " terminating loop inside event because of : " << 
@@ -241,13 +246,14 @@ bool Pythia6Hadronizer::hadronize()
 */
       return false;
    }
-      
+
+   // update LHE matching statistics
+   lheEvent()->count( lhef::LHERunInfo::kAccepted );
+
    //formEvent();
    call_pyhepc(1);
    event().reset( conv.read_next_event() );
    
-   fEventCounter++;
-      
    return true;
 }
 
@@ -263,7 +269,7 @@ bool Pythia6Hadronizer::residualDecay()
 
 bool Pythia6Hadronizer::initializeForExternalPartons()
 {
-     
+
    // note: CSA mode is NOT supposed to woirk with external partons !!!
    
    fPy6Service->setGeneralParams();
@@ -281,15 +287,11 @@ bool Pythia6Hadronizer::initializeForExternalPartons()
       fPy6Service->closeSLHA();
    }
 
-
-   if ( fJetMatching != NULL ) 
+   if ( fJetMatching )
    {
       fJetMatching->init( lheRunInfo() );
+// FIXME: the jet matching routine might not be interested in PS callback
       call_pygive("MSTP(143)=1");
-/*
-   call_pygive(std::string("MSTP(143)=") +
-	      (wantsShoweredEvent() ? "1" : "0"));
-*/
    }
 
    return true;
@@ -327,8 +329,13 @@ bool Pythia6Hadronizer::declareStableParticles( std::vector<int> pdg )
 void Pythia6Hadronizer::statistics()
 {
 
-  double cs = pypars.pari[0]; // cross section in mb
-  runInfo().setInternalXSec(GenRunInfoProduct::XSec(cs));
+  if ( !runInfo().internalXSec() )
+  {
+     // set xsec if not already done (e.g. from LHE cross section collector)
+     double cs = pypars.pari[0]; // cross section in mb
+     runInfo().setInternalXSec( cs );
+// FIXME: can we get the xsec statistical error somewhere?
+  }
 
   call_pystat(1);
   

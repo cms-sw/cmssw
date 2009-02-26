@@ -43,4 +43,29 @@ std::set<std::string> JetMatching::capabilities() const
 	return result;
 }
 
+std::auto_ptr<JetMatching> JetMatching::create(const edm::ParameterSet &params)
+{
+	std::string scheme = params.getParameter<std::string>("scheme");
+
+	std::auto_ptr<JetMatching> matching;
+
+	if (scheme == "Madgraph")
+        	matching.reset(new JetMatchingMadgraph(params));
+	else if (scheme == "MLM")
+		matching.reset();
+	else
+		throw cms::Exception("InvalidJetMatching")
+			<< "Unknown scheme \"" << scheme << "\""
+			   " specified for parton-shower matching."
+			<< std::endl;
+
+	if (!matching.get())
+		throw cms::Exception("InvalidJetMatching")
+			<< "Port of " << scheme << "scheme \"" << "\""
+			   " for parton-shower matching is still in progress."
+			<< std::endl;
+
+	return matching;
+}
+
 } // namespace gen

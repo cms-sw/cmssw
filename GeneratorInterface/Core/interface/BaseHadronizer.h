@@ -33,7 +33,7 @@ namespace gen {
     ~BaseHadronizer() {}
 
     // GenRunInfo and GenEvent passing
-    const GenRunInfoProduct &getGenRunInfo() const { return genRunInfo_; }
+    GenRunInfoProduct &getGenRunInfo() { return genRunInfo_; }
     HepMC::GenEvent *getGenEvent() { return genEvent_.release(); }
 
     void resetEvent(HepMC::GenEvent *event) { genEvent_.reset(event); }

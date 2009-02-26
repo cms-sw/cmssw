@@ -35,7 +35,8 @@ namespace lhef {
 
 LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
                    std::istream &in) :
-	runInfo(runInfo)
+	runInfo(runInfo),
+	counted(false)
 {
 	hepeup.NUP = 0;
 	hepeup.XPDWUP.first = hepeup.XPDWUP.second = 0.0;
@@ -196,8 +197,15 @@ void LHEEvent::removeResonances(const std::vector<int> &ids)
 void LHEEvent::count(LHERunInfo::CountMode mode,
                      double weight, double matchWeight)
 {
+	if (counted)
+		edm::LogWarning("Generator|LHEInterface")
+			<< "LHEEvent::count called twice on same event!"
+			<< std::endl;
+
 	runInfo->count(hepeup.IDPRUP, mode, hepeup.XWGTUP,
 	               weight, matchWeight);
+
+	counted = true;
 }
 
 void LHEEvent::fillPdfInfo(HepMC::PdfInfo *info) const

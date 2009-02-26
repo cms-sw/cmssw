@@ -74,9 +74,7 @@ class JetMatching;
      double fCOMEnergy ;  // this one is irrelevant for setting py6 as hadronizer
                           // or if anything, it should be picked up from LHERunInfoProduct !
 
-     int                               fEventCounter;
-     
-     static JetMatching*               fJetMatching; 
+     static JetMatching* fJetMatching; 
 
      bool            fHepMCVerbosity;
      unsigned int    fMaxEventsToPrint ;

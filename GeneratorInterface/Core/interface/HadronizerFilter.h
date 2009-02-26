@@ -226,16 +226,25 @@ namespace edm
   bool
   HadronizerFilter<HAD>::endRun(Run& r, EventSetup const&)
   {
+    // Retrieve the LHE run info summary and transfer determined
+    // cross-section into the generator run info
+
+    const lhef::LHERunInfo* lheRunInfo = hadronizer_.getLHERunInfo().get();
+    lhef::LHERunInfo::XSec xsec = lheRunInfo->xsec();
+
+    GenRunInfoProduct& genRunInfo = hadronizer_.getGenRunInfo();
+    genRunInfo.setInternalXSec( GenRunInfoProduct::XSec(xsec.value, xsec.error) );
+
     // If relevant, record the integrated luminosity for this run
     // here.  To do so, we would need a standard function to invoke on
     // the contained hadronizer that would report the integrated
     // luminosity.
-    
+
     hadronizer_.statistics();
-    
     if ( decayer_ ) decayer_->statistics();
-    
-    std::auto_ptr<GenRunInfoProduct> griproduct(new GenRunInfoProduct(hadronizer_.getGenRunInfo()));
+    lheRunInfo->statistics();
+
+    std::auto_ptr<GenRunInfoProduct> griproduct( new GenRunInfoProduct(genRunInfo) );
     r.put(griproduct);
     
     return true;

@@ -73,6 +73,7 @@ class LHEEvent {
 	HEPEUP					hepeup;
 	std::auto_ptr<PDF>			pdf;
 	std::vector<std::string>		comments;
+	bool					counted;
 };
 
 } // namespace lhef

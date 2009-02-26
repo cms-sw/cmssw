@@ -63,12 +63,14 @@ class JetMatching {
 
 	virtual std::set<std::string> capabilities() const;
 	
-	void resetMatchingStatus() { fMatchingStatus=false; return; }
+	void resetMatchingStatus() { fMatchingStatus = false; }
 	bool isMatchingDone() { return fMatchingStatus; }
 
 	const std::vector<JetPartonMatch> &getMatchSummary() const
 	{ return matchSummary; }
 
+	static std::auto_ptr<JetMatching> create(
+					const edm::ParameterSet &params);
 
     protected:
         bool fMatchingStatus;
