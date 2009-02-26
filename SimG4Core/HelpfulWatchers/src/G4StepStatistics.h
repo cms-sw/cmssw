@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Tue Nov 22 16:41:33 EST 2005
-// $Id: SimTracer.h,v 1.2 2005/12/08 21:37:49 chrjones Exp $
+// $Id: G4StepStatistics.h,v 1.2 2009/02/25 16:14:14 gbenelli Exp $
 //
 
 // system include files
@@ -64,7 +64,7 @@ class StepID {
   //Particle PDG ID
   G4int theParticlePDGID;
   //Track Number
-  G4int theTrackID;
+  //G4int theTrackID;
   
  public:
   //Constructor using G4Step
@@ -72,8 +72,8 @@ class StepID {
     :
     theG4RegionName("UNDEFINED"),
     theG4ProcessName("UNDEFINED"),
-    theParticlePDGID(theG4Step->GetTrack()->GetDefinition()->GetPDGEncoding()),
-    theTrackID(theG4Step->GetTrack()->GetTrackID())
+    theParticlePDGID(theG4Step->GetTrack()->GetDefinition()->GetPDGEncoding())//,
+    //theTrackID(theG4Step->GetTrack()->GetTrackID())
     {
       if (theG4Step->GetPostStepPoint()->GetPhysicalVolume()) {
 	  theG4RegionName = theG4Step->GetPostStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetRegion()->GetName();
@@ -89,7 +89,7 @@ class StepID {
   G4String GetRegionName () const { return theG4RegionName; }
   G4String GetProcessName () const { return theG4ProcessName; }
   G4int GetParticlePDGID () const { return theParticlePDGID; }
-  G4int GetTrackID () const { return theTrackID; }
+  //G4int GetTrackID () const { return theTrackID; }
 
   //Comparison Operators (necessary in order to use StepID as a key in a map)                                                                                                                  
   bool operator==(const StepID& id) const{
@@ -98,7 +98,7 @@ class StepID {
     // " Present = "<<theG4ProcessName<<" New = "<<id.GetProcessName()<<" Comparator = "<<strcmp(theG4ProcessName,id.GetProcessName())<<
     // " Present = "<<theParticlePDGID<<" New = "<<id.GetParticlePDGID()<<std::endl;
 
-    return ( strcmp(theG4RegionName,id.GetRegionName())==0 && strcmp(theG4ProcessName,id.GetProcessName())==0 && theParticlePDGID==id.GetParticlePDGID() && theTrackID==id.GetTrackID() ) ? true : false;
+    return ( strcmp(theG4RegionName,id.GetRegionName())==0 && strcmp(theG4ProcessName,id.GetProcessName())==0 && theParticlePDGID==id.GetParticlePDGID() ) ? true : false;//&& theTrackID==id.GetTrackID() ) ? true : false;
   }
 
   bool operator<(const StepID& id) const
@@ -112,10 +112,10 @@ class StepID {
 	//std::cout<<"Return "<<(theParticlePDGID > id.GetParticlePDGID());
 	return (theParticlePDGID > id.GetParticlePDGID());
       }
-      if (theTrackID != id.GetTrackID()){
+      //if (theTrackID != id.GetTrackID()){
 	//std::cout<<"Return "<<(theTrackID > id.GetTrackID());
-	return (theTrackID > id.GetTrackID());
-      }
+	//return (theTrackID > id.GetTrackID());
+      //}
       else if (strcmp(theG4RegionName,id.GetRegionName())!=0){
 	//std::cout<<"Return "<<strcmp(theG4RegionName,id.GetRegionName())>0 ? true : false;
 	return strcmp(theG4RegionName,id.GetRegionName())>0 ? true : false;
@@ -140,10 +140,10 @@ class StepID {
       if(theParticlePDGID != id.GetParticlePDGID()){
         return (theParticlePDGID < id.GetParticlePDGID());
       }
-      if (theTrackID != id.GetTrackID()){
+      //if (theTrackID != id.GetTrackID()){
 	//std::cout<<"Return "<<(theTrackID < id.GetTrackID());
-	return (theTrackID < id.GetTrackID());
-      }
+	//return (theTrackID < id.GetTrackID());
+      //}
       else if(strcmp(theG4RegionName,id.GetRegionName())!=0){
         return strcmp(theG4RegionName,id.GetRegionName())<0 ? true : false;
       }
@@ -178,35 +178,24 @@ OBSERVES(EndOfTrack)
        std::cout<<"Start of the constuctor!!!!!!!!"<<std::endl;
        G4StepTree = fs->make<TTree>("G4StepTree","G4Step Tree ");
        G4StepTree->Branch("Event",&Event,"Event/I");
-       std::cout<<"created Branch for Event!"<<std::endl;
-       TrackID = new TClonesArray("UInt_t",100000);
-       std::cout<<"Allocated TrackID!"<<std::endl;
-       G4StepTree->Branch("TrackID","TClonesArray",&TrackID,100000);
-       std::cout<<"Allocated TrackID and created Branch for it!"<<std::endl;
-       PDGID = new TClonesArray("Int_t",100000);
-       G4StepTree->Branch("PDGID","TClonesArray",&PDGID,100000);
-       std::cout<<"Allocated PDGID and created Branch for it!"<<std::endl;
+       //std::cout<<"created Branch for Event!"<<std::endl;
+       //TrackID = new TArrayI(100000);
+       //std::cout<<"Allocated TrackID!"<<std::endl;
+       //G4StepTree->Branch("TrackID",&TrackID,100000);
+       //std::cout<<"Allocated TrackID and created Branch for it!"<<std::endl;
+       PDGID = new TArrayI(100000);
+       //std::cout<<"Allocated PDGID!"<<std::endl;
+       G4StepTree->Branch("PDGID",&PDGID,100000);
+       //std::cout<<"Allocated PDGID and created Branch for it!"<<std::endl;
        Region = new TClonesArray("TObjString",100000);
-       G4StepTree->Branch("Region","TClonesArray",&Region,100000);
-       std::cout<<"Allocated Region and created Branch for it!"<<std::endl;
+       G4StepTree->Branch("Region",&Region,100000);
+       //std::cout<<"Allocated Region and created Branch for it!"<<std::endl;
        Process = new TClonesArray("TObjString",100000);
-       G4StepTree->Branch("Process","TClonesArray",&Process,100000);
-       std::cout<<"Allocated Process and created Branch for it!"<<std::endl;
-       G4StepFreq = new TClonesArray("UInt_t",100000);
-       G4StepTree->Branch("G4StepFreq","TClonesArray",&G4StepFreq,100000);
-       std::cout<<"Allocated G4StepFreq and created Branch for it!"<<std::endl;
-  // save TClonesArrays of TLorentzVectors
-  // i.e. store 4-vectors of particles and jets
-
-  //MonteCarlo = new TClonesArray("TLorentzVector", 10000);
-  //AnalysisTree->Branch("MonteCarlo", "TClonesArray", &MonteCarlo, 128000, 0);
-
-  //Track = new TClonesArray("TLorentzVector", 10000);
-  //AnalysisTree->Branch("Track", "TClonesArray", &Track, 128000, 0);
-
-  //InclusiveJet = new TClonesArray("TLorentzVector", 10000);
-  //AnalysisTree->Branch("InclusiveJet", "TClonesArray", &InclusiveJet, 128000, 0);
-
+       G4StepTree->Branch("Process",&Process,100000);
+       //std::cout<<"Allocated Process and created Branch for it!"<<std::endl;
+       G4StepFreq = new TArrayI(100000);
+       G4StepTree->Branch("G4StepFreq",&G4StepFreq,100000);
+       //std::cout<<"Allocated G4StepFreq and created Branch for it!"<<std::endl;
      }
 UPDATE(DDDWorld)
 UPDATE(BeginOfJob)
@@ -267,15 +256,21 @@ UPDATE(EndOfRun)
   }
   int index(0);
   for (std::map<const StepID,unsigned int*>::const_iterator step = G4StatsMap.begin(); step != G4StatsMap.end(); ++step, ++index){
-    new ((*TrackID)[index]) UInt_t ( step->first.GetTrackID());
-    new ((*PDGID)[index]) Int_t (step->first.GetParticlePDGID());
-    new ((*Region)[index]) TObjString (step->first.GetRegionName());
-    new ((*Process)[index]) TObjString (step->first.GetProcessName());
-    new ((*G4StepFreq)[index]) UInt_t (*step->second);
     if(m_verbose) {
-      std::cout <<" G4StatsMap step is: "<<step->first.GetRegionName()<<" "<<step->first.GetProcessName()<<" "<<step->first.GetParticlePDGID()<<" "<<step->first.GetTrackID() ;
+      std::cout <<" G4StatsMap step is: "<<step->first.GetRegionName()<<" "<<step->first.GetProcessName()<<" "<<step->first.GetParticlePDGID();//<<" "<<step->first.GetTrackID() ;
       std::cout <<" Number of such steps: "<< *step->second <<std::endl;
     }
+    //Rolling the map into 5 "arrays", containing the StepID information and the G4Step statistics
+    //(*TrackID)[index]=step->first.GetTrackID();
+    //std::cout<<"Assigned TrackID"<<std::endl;
+    (*PDGID)[index]=step->first.GetParticlePDGID();
+    //std::cout<<"Assigned PDGID"<<std::endl;
+    new ((*Region)[index]) TObjString (step->first.GetRegionName());
+    //std::cout<<"Assigned Region"<<std::endl;
+    new ((*Process)[index]) TObjString (step->first.GetProcessName());
+    //std::cout<<"Assigned Process"<<std::endl;
+    (*G4StepFreq)[index]=*step->second;
+    //std::cout<<"Assigned G4StepFreq"<<std::endl;
   }
   
   G4StepTree->Fill();
@@ -291,12 +286,11 @@ UPDATE(EndOfTrack)
  edm::Service<TFileService> fs;
  TTree* G4StepTree;
  unsigned int Event;
- TClonesArray* TrackID;
- TClonesArray* PDGID;
+ //TArrayI* TrackID;
+ TArrayI* PDGID;
  TClonesArray* Region;
  TClonesArray* Process;
- TClonesArray* G4StepFreq;
- 
+ TArrayI* G4StepFreq;
 };
 
 #endif
