@@ -18,6 +18,7 @@ from DQM.EcalEndcapMonitorTasks.EESelectiveReadoutTask_cfi import *
 from DQM.EcalEndcapMonitorTasks.EERawDataTask_cfi import *
 from DQM.EcalEndcapMonitorTasks.EEDaqInfoTask_cfi import *
 from DQM.EcalEndcapMonitorTasks.EEDcsInfoTask_cfi import *
+from DQM.EcalEndcapMonitorTasks.EEDataCertificationTask_cfi import *
 
 ecalEndcapDefaultTasksSequence = cms.Sequence(ecalEndcapOccupancyTask*ecalEndcapIntegrityTask*ecalEndcapStatusFlagsTask*ecalEndcapSelectiveReadoutTask*ecalEndcapRawDataTask*ecalEndcapLaserTask*ecalEndcapLedTask*ecalEndcapPedestalOnlineTask*ecalEndcapPedestalTask*ecalEndcapTestPulseTask*ecalEndcapTriggerTowerTask*ecalEndcapTimingTask)
 
@@ -25,3 +26,4 @@ ecalEndcapCosmicTasksSequence = cms.Sequence(ecalEndcapDefaultTasksSequence*ecal
 
 ecalEndcapTestBeamTasksSequence = cms.Sequence(ecalEndcapDefaultTasksSequence*ecalEndcapBeamHodoTask*ecalEndcapBeamCaloTask)
 
+ecalEndcapCertificationSequence = cms.Sequence(ecalEndcapDaqInfoTask*ecalEndcapDcsInfoTask*ecalEndcapDataCertificationTask)
