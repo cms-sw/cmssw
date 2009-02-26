@@ -25,7 +25,7 @@ HcalDetId MiscalibReaderFromXMLHcal::getCellFromAttributes(int idet, int ieta, i
   catch (...)
     {
       std::cout << "Null coordinates = "<< idet << "," << ieta << "," << iphi << "," << idepth << std::endl;
-      return (HcalDetId) NULL;
+      return HcalDetId(0);
     }
 }
 

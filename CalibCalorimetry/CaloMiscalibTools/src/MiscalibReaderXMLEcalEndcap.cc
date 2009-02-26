@@ -22,7 +22,7 @@ EEDetId MiscalibReaderFromXMLEcalEndcap::getCellFromAttributes(int ix, int iy, i
 	     EEDetId cell(ix,iy,iz);
 	     return cell;
 	   } else {
-	     return (EEDetId) NULL;
+	     return EEDetId(0);
 	   }
          }
     
@@ -30,7 +30,7 @@ EEDetId MiscalibReaderFromXMLEcalEndcap::getCellFromAttributes(int ix, int iy, i
 	  
         {
           std::cout << "Null coordinates = "<< ix << "," << iy << "," << iz << std::endl;
-	  return (EEDetId) NULL;
+	  return EEDetId(0);
         }
 	    
 	    

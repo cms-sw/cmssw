@@ -115,7 +115,7 @@ bool MiscalibReaderFromXML::parseXMLMiscalibFile(std::string configFile){
 		
 		DetId cell = parseCellEntry(attributes);
 		
-		if(cell!= (DetId) NULL) 
+		if(cell!= DetId(0)) 
 		{ 
 		count++;
 		caloMap_.addCell(cell,scalingfactor);
