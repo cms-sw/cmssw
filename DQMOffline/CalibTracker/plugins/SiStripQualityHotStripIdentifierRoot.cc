@@ -172,7 +172,8 @@ void SiStripQualityHotStripIdentifierRoot::bookHistos(){
     gotNentries=false;
   edm::LogInfo("SiStripQualityHotStripIdentifierRoot")<< "[SiStripQualityHotStripIdentifierRoot::bookHistos]  gotNentries flag " << gotNentries 
 						      << " number of " << parameters.getUntrackedParameter<uint32_t>("NumberOfEvents",0)
-						      << " occup " << parameters.getUntrackedParameter<double>("OccupancyThreshold",0)<< std::endl;
+						      << " occup " << parameters.getUntrackedParameter<double>("OccupancyThreshold",0)
+						      << " OccupancyHisto" << parameters.getUntrackedParameter<std::string>("OccupancyHisto") << std::endl;
   
   for (; iter!=iterEnd;++iter) {
     std::string me_name = (*iter)->getName();
@@ -182,7 +183,7 @@ void SiStripQualityHotStripIdentifierRoot::bookHistos(){
       gotNentries=true;
     }
 
-    if (strstr(me_name.c_str(),"ClusterPosition__det__")==NULL)
+    if (strstr(me_name.c_str(),(parameters.getUntrackedParameter<std::string>("OccupancyHisto")).c_str())==NULL)
       continue;
 
     unsigned int detid;

@@ -118,6 +118,7 @@ process.prod = cms.EDFilter("SiStripQualityHotStripIdentifierRoot",
     OccupancyH_Xmax = cms.untracked.double(1.0),
     AlgoParameters = cms.PSet(
         AlgoName = cms.string('SiStripHotStripAlgorithmFromClusterOccupancy'),
+        OccupancyHisto = cms.untracked.string('ClusterPosition__det__'),
         NumberOfEvents = cms.untracked.uint32(0),
         ProbabilityThreshold = cms.untracked.double(1e-07),
         MinNumEntriesPerStrip = cms.untracked.uint32(20),
