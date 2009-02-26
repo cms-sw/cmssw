@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2009/02/26 14:54:45 $
- * $Revision: 1.70 $
+ * $Date: 2009/02/26 16:42:51 $
+ * $Revision: 1.71 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -624,6 +624,9 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
 	  EcalRecHitCollection::const_iterator seedItr = ebRecHits->begin();
 	  EcalRecHitCollection::const_iterator secondItr = ebRecHits->begin();
 
+          // for(std::vector<DetId>::const_iterator idItr = sIds.begin(); idItr != sIds.end(); ++idItr) { < CMSSW_3_X_Y
+          // if(idItr->det() != DetId::Ecal) { continue; }
+          // EcalRecHitCollection::const_iterator hitItr = ebRecHits->find((*idItr));
 	  for(std::vector< std::pair<DetId,float> >::const_iterator idItr = sIds.begin(); idItr != sIds.end(); ++idItr) {
             DetId id = idItr->first;
             if(id.det() != DetId::Ecal) { continue; }

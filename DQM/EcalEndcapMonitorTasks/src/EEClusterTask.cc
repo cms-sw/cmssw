@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2009/02/26 14:54:45 $
- * $Revision: 1.59 $
+ * $Date: 2009/02/26 16:42:51 $
+ * $Revision: 1.60 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -803,6 +803,9 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
           EcalRecHitCollection::const_iterator seedItr = eeRecHits->begin();
           EcalRecHitCollection::const_iterator secondItr = eeRecHits->begin();
 
+          // for(std::vector<DetId>::const_iterator idItr = sIds.begin(); idItr != sIds.end(); ++idItr) {
+          // if(idItr->det() != DetId::Ecal) { continue; }
+          // EcalRecHitCollection::const_iterator hitItr = eeRecHits->find((*idItr));
           for(std::vector< std::pair<DetId,float> >::const_iterator idItr = sIds.begin(); idItr != sIds.end(); ++idItr) {
             DetId id = idItr->first;
             if(id.det() != DetId::Ecal) { continue; }
