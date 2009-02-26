@@ -191,9 +191,13 @@ static bool printAsContainer(const std::string& iName,
 #if ROOT_VERSION_CODE <= ROOT_VERSION(5,19,0)
       sizeObj = iObject.Invoke("size");
 #else
+      size_t temp; //used to hold the memory for the return value
+      sizeObj = Reflex::Object(Reflex::Type::ByTypeInfo(typeid(size_t)),&temp);
       iObject.Invoke("size", &sizeObj);
+      assert(iObject.TypeOf().FunctionMemberByName("size").TypeOf().ReturnType().TypeInfo()==typeid(size_t));
 #endif
-      assert(sizeObj.TypeOf().TypeInfo() == typeid(size_t));
+      //std::cout <<"size of type '"<<sizeObj.TypeOf().Name()<<"' "<<sizeObj.TypeOf().TypeInfo().name()<<std::endl;
+      assert(sizeObj.TypeOf().FinalType().TypeInfo() == typeid(size_t));
       size_t size = *reinterpret_cast<size_t*>(sizeObj.Address());
       Reflex::Member atMember;
       try {
@@ -205,13 +209,39 @@ static bool printAsContainer(const std::string& iName,
       edm::LogAbsolute("EventContent") <<iIndent<<iName<<kNameValueSep<<"[size="<<size<<"]";//"\n";
       Reflex::Object contained;
       std::string indexIndent=iIndent+iIndentDelta;
-      for(size_t index = 0; index != size; ++index) {
+#if ROOT_VERSION_CODE > ROOT_VERSION(5,19,0)
+      Reflex::Type atReturnType = atMember.TypeOf().ReturnType();
+      //std::cout <<"return type "<<atReturnType.Name()<<" size of "<<atReturnType.SizeOf()
+      //<<" pointer? "<<atReturnType.IsPointer()<<" ref? "<<atReturnType.IsReference()<<std::endl;
+
+      //Return by reference must be treated differently since Reflex will not properly create
+      // memory for a ref (which should just be a pointer to the object and not the object itself)
+      //So we will create memory on the stack which can be used to hold a reference
+      const bool isRef = atReturnType.IsReference();
+      void* refMemoryBuffer = 0;
+#endif
+      size_t index = 0;
+      //The argument to the 'at' function is the index. Since the argument list holds pointers to the arguments
+      // we only need to create it once and then when the value of index changes the pointer already
+      // gets the new value
+      std::vector<void*> args;
+      args.push_back(&index);
+      for( ;index != size; ++index) {
          std::ostringstream sizeS;
          sizeS << "["<<index<<"]";
 #if ROOT_VERSION_CODE <= ROOT_VERSION(5,19,0)
-         contained = atMember.Invoke(iObject, Reflex::Tools::MakeVector(static_cast<void*>(&index)));
+         contained = atMember.Invoke(iObject, args);
 #else
-         atMember.Invoke(iObject, &contained, Reflex::Tools::MakeVector(static_cast<void*>(&index)));
+         if(isRef) {
+            Reflex::Object refObject(atReturnType,&refMemoryBuffer);
+            atMember.Invoke(iObject, &refObject, args);
+            //Although to hold the return value from a reference Reflex requires you to pass it a
+            // void** when it tries to call methods on the reference it expects to be given a void*
+            contained = Reflex::Object(atReturnType,refMemoryBuffer);
+         } else {
+            contained = atReturnType.Construct();
+            atMember.Invoke(iObject, &contained, args);
+         }
 #endif
          //edm::LogAbsolute("EventContent") <<"invoked 'at'"<<std::endl;
          try {
@@ -220,6 +250,11 @@ static bool printAsContainer(const std::string& iName,
 	   edm::LogAbsolute("EventContent") <<indexIndent<<iName<<" <exception caught("
 		  <<iEx.what()<<")>\n";
          }
+#if ROOT_VERSION_CODE > ROOT_VERSION(5,19,0)
+         if(!isRef) {
+            contained.Destruct();
+         }
+#endif
       }
       return true;
    } catch(const std::exception& x) {
