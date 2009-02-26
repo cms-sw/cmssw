@@ -258,61 +258,69 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 
   // run over enough clock cycles to get tracks from input stubs.
   for( io = io_.begin(); io != io_.end() && runme; io++)
-    {
-      sp_.wrap
-	(
-	 io->me1aVp, io->me1aQp, io->me1aEtap, io->me1aPhip, io->me1aCSCIdp,
-	 io->me1bVp, io->me1bQp, io->me1bEtap, io->me1bPhip, io->me1bCSCIdp,
-	 io->me1cVp, io->me1cQp, io->me1cEtap, io->me1cPhip, io->me1cCSCIdp,
+  {
+		sp_.wrap
+		(
+	 		io->me1aVp, io->me1aQp, io->me1aEtap, io->me1aPhip, io->me1aCSCIdp,
+	 		io->me1bVp, io->me1bQp, io->me1bEtap, io->me1bPhip, io->me1bCSCIdp,
+	 		io->me1cVp, io->me1cQp, io->me1cEtap, io->me1cPhip, io->me1cCSCIdp,
 
-	 io->me1dVp, io->me1dQp, io->me1dEtap, io->me1dPhip, io->me1dCSCIdp,
-	 io->me1eVp, io->me1eQp, io->me1eEtap, io->me1ePhip, io->me1eCSCIdp,
-	 io->me1fVp, io->me1fQp, io->me1fEtap, io->me1fPhip, io->me1fCSCIdp,
+	 		io->me1dVp, io->me1dQp, io->me1dEtap, io->me1dPhip, io->me1dCSCIdp,
+	 		io->me1eVp, io->me1eQp, io->me1eEtap, io->me1ePhip, io->me1eCSCIdp,
+	 		io->me1fVp, io->me1fQp, io->me1fEtap, io->me1fPhip, io->me1fCSCIdp,
 
-	 io->me2aVp, io->me2aQp, io->me2aEtap, io->me2aPhip,
-	 io->me2bVp, io->me2bQp, io->me2bEtap, io->me2bPhip,
-	 io->me2cVp, io->me2cQp, io->me2cEtap, io->me2cPhip,
+	 		io->me2aVp, io->me2aQp, io->me2aEtap, io->me2aPhip,
+	 		io->me2bVp, io->me2bQp, io->me2bEtap, io->me2bPhip,
+	 		io->me2cVp, io->me2cQp, io->me2cEtap, io->me2cPhip,
 
-	 io->me3aVp, io->me3aQp, io->me3aEtap, io->me3aPhip,
-	 io->me3bVp, io->me3bQp, io->me3bEtap, io->me3bPhip,
-	 io->me3cVp, io->me3cQp, io->me3cEtap, io->me3cPhip,
+	 		io->me3aVp, io->me3aQp, io->me3aEtap, io->me3aPhip,
+	 		io->me3bVp, io->me3bQp, io->me3bEtap, io->me3bPhip,
+	 		io->me3cVp, io->me3cQp, io->me3cEtap, io->me3cPhip,
 
-	 io->me4aVp, io->me4aQp, io->me4aEtap, io->me4aPhip,
-	 io->me4bVp, io->me4bQp, io->me4bEtap, io->me4bPhip,
-	 io->me4cVp, io->me4cQp, io->me4cEtap, io->me4cPhip,
+	 		io->me4aVp, io->me4aQp, io->me4aEtap, io->me4aPhip,
+	 		io->me4bVp, io->me4bQp, io->me4bEtap, io->me4bPhip,
+	 		io->me4cVp, io->me4cQp, io->me4cEtap, io->me4cPhip,
 
-	 io->mb1aVp, io->mb1aQp, io->mb1aPhip,
-	 io->mb1bVp, io->mb1bQp, io->mb1bPhip,
-	 io->mb1cVp, io->mb1cQp, io->mb1cPhip,
-	 io->mb1dVp, io->mb1dQp, io->mb1dPhip,
+	 		io->mb1aVp, io->mb1aQp, io->mb1aPhip,
+	 		io->mb1bVp, io->mb1bQp, io->mb1bPhip,
+	 		io->mb1cVp, io->mb1cQp, io->mb1cPhip,
+	 		io->mb1dVp, io->mb1dQp, io->mb1dPhip,
 
-	 io->ptHp, io->signHp, io->modeMemHp, io->etaPTHp, io->FRHp, io->phiHp,
-	 io->ptMp, io->signMp, io->modeMemMp, io->etaPTMp, io->FRMp, io->phiMp,
-	 io->ptLp, io->signLp, io->modeMemLp, io->etaPTLp, io->FRLp, io->phiLp,
+	 		io->ptHp, io->signHp, io->modeMemHp, io->etaPTHp, io->FRHp, io->phiHp,
+	 		io->ptMp, io->signMp, io->modeMemMp, io->etaPTMp, io->FRMp, io->phiMp,
+	 		io->ptLp, io->signLp, io->modeMemLp, io->etaPTLp, io->FRLp, io->phiLp,
 
-	 io->me1idH, io->me2idH, io->me3idH, io->me4idH, io->mb1idH, io->mb2idH,
-	 io->me1idM, io->me2idM, io->me3idM, io->me4idM, io->mb1idM, io->mb2idM,
-	 io->me1idL, io->me2idL, io->me3idL, io->me4idL, io->mb1idL, io->mb2idL,
+	 		io->me1idH, io->me2idH, io->me3idH, io->me4idH, io->mb1idH, io->mb2idH,
+	 		io->me1idM, io->me2idM, io->me3idM, io->me4idM, io->mb1idM, io->mb2idM,
+	 		io->me1idL, io->me2idL, io->me3idL, io->me4idL, io->mb1idL, io->mb2idL,
 
-	 // Adjustable registers in SP core
-	 etamin1,etamin2,etamin3,etamin4,etamin5,etamin6,etamin7,etamin8,
-	 etamax1,etamax2,etamax3,etamax4,etamax5,etamax6,etamax7,etamax8,
-	 /*
-	 11*2, 11*2, 7*2, 7*2, 7*2, 5*2,  5*2,  5*2,  // etamin
-	 127,  127,  127, 127, 127, 12*2, 12*2, 12*2, // etamax */
-	 //DEA: beam test settings:
-	 //10,  10,  10, 10, 10, 10,              // etawindow
-	 //10, 0, 0, 0,                           // eta offsets - NOTE bug in first offset for June04 beam test
-	 // ORCA settings:
-	 etawin1, etawin2, etawin3, etawin4, etawin5, etawin6,// eta windows
+	 		// Adjustable registers in SP core
+	 		etamin1,etamin2,etamin3,etamin4,etamin5,etamin6,etamin7,etamin8,
+	 		etamax1,etamax2,etamax3,etamax4,etamax5,etamax6,etamax7,etamax8,
+	 		/*
+	 		11*2, 11*2, 7*2, 7*2, 7*2, 5*2,  5*2,  5*2,  // etamin
+	 		127,  127,  127, 127, 127, 12*2, 12*2, 12*2, // etamax */
+	 		//DEA: beam test settings:
+	 		//10,  10,  10, 10, 10, 10,              // etawindow
+	 		//10, 0, 0, 0,                           // eta offsets - NOTE bug in first offset for June04 beam test
+	 		// ORCA settings:
+	 		//Change #1
+	 		etawin1, etawin2, etawin3, etawin4, etawin5, etawin6, 0, // eta windows, last 0 is etawn7p
+			//Change #2
+			15, 15, //mindphip, mindetap
 
-	 mindphip, mindeta_accp, maxdeta_accp, maxdphi_accp,
-	 //70, 4, 16, 128,
+			//Change #3 
+			4, 16, 128, 4, 16, 128, //mindeta_acc0p, maxdeta_acc0p, maxdphi_acc0p, mindeta_acc1p, maxdeta_acc1p, maxdphi_acc1p
+			//Change #4
+	 		mindphip, mindeta_accp,// maxdeta_accp, maxdphi_accp,  these two commented out in favor of change 2 variables
+	 		//70, 4, 16, 128,
+			//Change #5
+			0,0, //straightp, curvedp
 
-	 //((extend << 1) & 0xe)|bxa_on // {reserved[11:0], extend[2:0],BXA_enable}
-	 ///0x144?:
-         (m_preTrigger<<7)|(m_allowCLCTonly<<5)|(m_allowALCTonly<<4)|(m_extend_length<<1)
-	 );
+	 		//((extend << 1) & 0xe)|bxa_on // {reserved[11:0], extend[2:0],BXA_enable}
+	 		///0x144?:
+   		(m_preTrigger<<7)|(m_allowCLCTonly<<5)|(m_allowALCTonly<<4)|(m_extend_length<<1)
+	 	);
       /* // Extremely verbose debug
       LogDebug("CSCTFSPCoreLogic:run()") << std::hex
 					 << "Input:  F1/M1{bx, v, q, e, p, csc} " << std::dec << (int)(bx)<< std::hex << " " << io->me1aVp << " "
