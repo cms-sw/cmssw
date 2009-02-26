@@ -92,7 +92,6 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
      " "<<(**ip).productInstanceName()<<endl;
   }
   
-  bool allowMissingInputs_ = true;
   
   if(nameProd_ == "hoCalibProducer")
   {
