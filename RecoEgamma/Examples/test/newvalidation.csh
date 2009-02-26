@@ -125,6 +125,11 @@ h_ele_PoPtrue_barrel   1
 h_ele_PoPtrue_endcaps   1
 h_scl_EoEtrue_barrel   1
 h_scl_EoEtrue_endcaps   1
+h_scl_EoEtrue_barrel_etagap   1   
+h_scl_EoEtrue_barrel_phigap   1   
+h_scl_EoEtrue_ebeegap   1      
+h_scl_EoEtrue_endcaps_deegap   1
+h_scl_EoEtrue_endcaps_ringgap   1
 h_scl_sigetaeta 1
 h_scl_sigietaieta_barrel 1
 h_scl_sigietaieta_endcaps 1
@@ -151,6 +156,7 @@ h_ele_dPhiCl_propOut 1
 h_ele_dPhiEleCl_propOut 1
 h_ele_dPhiSc_propVtx 1
 h_ele_HoE 1
+h_ele_HoE_fiducial 1
 h_ele_chi2 1
 h_ele_foundHits 1
 h_ele_lostHits 1

@@ -66,6 +66,11 @@ cat > scaledhistos <<EOF
   h_ele_PoPtrue_endcaps   
   h_scl_EoEtrue_barrel   
   h_scl_EoEtrue_endcaps   
+  h_scl_EoEtrue_barrel_etagap   
+  h_scl_EoEtrue_barrel_phigap   
+  h_scl_EoEtrue_ebeegap   
+  h_scl_EoEtrue_endcaps_deegap   
+  h_scl_EoEtrue_endcaps_ringgap   
   h_scl_sigetaeta   
   h_scl_sigietaieta_barrel   
   h_scl_sigietaieta_endcaps
@@ -92,6 +97,7 @@ cat > scaledhistos <<EOF
   h_ele_dPhiEleCl_propOut 
   h_ele_dPhiSc_propVtx 
   h_ele_HoE   
+  h_ele_HoE_fiducial   
   h_ele_chi2 
   h_ele_foundHits 
   h_ele_lostHits 

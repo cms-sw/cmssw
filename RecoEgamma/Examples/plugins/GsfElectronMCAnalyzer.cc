@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.cc,v 1.11 2009/02/12 16:31:26 charlot Exp $
+// $Id: GsfElectronMCAnalyzer.cc,v 1.12 2009/02/14 11:01:56 charlot Exp $
 //
 //
 
@@ -183,7 +183,12 @@ void GsfElectronMCAnalyzer::beginJob(edm::EventSetup const&iSetup){
   // matched electron, superclusters
   histSclEn_ = new TH1F("h_scl_energy","ele supercluster energy",nbinp,0.,pmax);
   histSclEoEtrue_barrel = new TH1F("h_scl_EoEtrue_barrel","ele supercluster energy over true energy, barrel",50,0.2,1.2);
+  histSclEoEtrue_barrel_etagap = new TH1F("h_scl_EoEtrue_barrel_etagap","ele supercluster energy over true energy, barrel etagap",50,0.2,1.2);
+  histSclEoEtrue_barrel_phigap = new TH1F("h_scl_EoEtrue_barrel_phigap","ele supercluster energy over true energy, barrel phigap",50,0.2,1.2);
+  histSclEoEtrue_ebeegap = new TH1F("h_scl_EoEtrue_ebeegap","ele supercluster energy over true energy, ebeegap",50,0.2,1.2);
   histSclEoEtrue_endcaps = new TH1F("h_scl_EoEtrue_endcaps","ele supercluster energy over true energy, endcaps",50,0.2,1.2);
+  histSclEoEtrue_endcaps_deegap = new TH1F("h_scl_EoEtrue_endcaps_deegap","ele supercluster energy over true energy, endcaps deegap",50,0.2,1.2);
+  histSclEoEtrue_endcaps_ringgap = new TH1F("h_scl_EoEtrue_endcaps_ringgap","ele supercluster energy over true energy, endcaps ringgap",50,0.2,1.2);
   histSclEt_ = new TH1F("h_scl_et","ele supercluster transverse energy",nbinpt,0.,ptmax);
   histSclEtVsEta_ = new TH2F("h_scl_etVsEta","ele supercluster transverse energy vs eta",nbineta2D,etamin,etamax,nbinpt,0.,ptmax);
   histSclEtVsPhi_ = new TH2F("h_scl_etVsPhi","ele supercluster transverse energy vs phi",nbinphi2D,phimin,phimax,nbinpt,0.,ptmax);
@@ -275,6 +280,7 @@ void GsfElectronMCAnalyzer::beginJob(edm::EventSetup const&iSetup){
   h_ele_dPhiEleClVsPt_propOut = new TH2F( "h_ele_dPhiSEleClsPt_propOut", "ele #phi_{EleCl} - #phi_{tr} vs pt, prop from out", nbinpt2D,0.,ptmax,nbindphimatch2D,dphimatchmin,dphimatchmax);
   
   h_ele_HoE = new TH1F("h_ele_HoE", "ele H/E", 55,-0.05,0.5) ;
+  h_ele_HoE_fiducial = new TH1F("h_ele_HoE_fiducial", "ele H/E, in fiducial region", 55,-0.05,0.5) ;
   h_ele_HoEVsEta = new TH2F("h_ele_HoEVsEta", "ele H/E vs eta", nbineta,etamin,etamax,55,-0.05,0.5) ;
   h_ele_HoEVsPhi = new TH2F("h_ele_HoEVsPhi", "ele H/E vs phi", nbinphi2D,phimin,phimax,55,-0.05,0.5) ;
   h_ele_HoEVsE = new TH2F("h_ele_HoEVsE", "ele H/E vs E", nbinp, 0.,300.,55,-0.05,0.5) ;
@@ -426,6 +432,11 @@ GsfElectronMCAnalyzer::endJob(){
   histSclEn_->Sumw2();
   histSclEoEtrue_barrel->Sumw2();
   histSclEoEtrue_endcaps->Sumw2();
+  histSclEoEtrue_barrel_etagap->Sumw2();
+  histSclEoEtrue_barrel_phigap->Sumw2();
+  histSclEoEtrue_endcaps_deegap->Sumw2();
+  histSclEoEtrue_endcaps_ringgap->Sumw2();
+  histSclEoEtrue_ebeegap->Sumw2();
   histSclEt_->Sumw2();
   histSclEtVsEta_->Sumw2();
   histSclEtVsPhi_->Sumw2();
@@ -517,6 +528,7 @@ GsfElectronMCAnalyzer::endJob(){
   h_ele_dPhiEleClVsPt_propOut->Sumw2(); 
   
   h_ele_HoE->Sumw2();
+  h_ele_HoE_fiducial->Sumw2();
   h_ele_HoEVsEta->Sumw2();
   h_ele_HoEVsPhi->Sumw2();
   h_ele_HoEVsE->Sumw2();
@@ -1061,6 +1073,12 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         histSclEtVsPhi_->Fill(sclRef->phi(),sclRef->energy()*(Rt/R));
         if (bestGsfElectron.isEB())  histSclEoEtrue_barrel->Fill(sclRef->energy()/pAssSim.t());
         if (bestGsfElectron.isEE())  histSclEoEtrue_endcaps->Fill(sclRef->energy()/pAssSim.t());
+        if (bestGsfElectron.isEB() && bestGsfElectron.isEBEtaGap())  histSclEoEtrue_barrel_etagap->Fill(sclRef->energy()/pAssSim.t());
+        if (bestGsfElectron.isEB() && bestGsfElectron.isEBPhiGap())  histSclEoEtrue_barrel_phigap->Fill(sclRef->energy()/pAssSim.t());
+        if (bestGsfElectron.isEBEEGap())  histSclEoEtrue_ebeegap->Fill(sclRef->energy()/pAssSim.t());
+        if (bestGsfElectron.isEE())  histSclEoEtrue_endcaps->Fill(sclRef->energy()/pAssSim.t());
+        if (bestGsfElectron.isEE() && bestGsfElectron.isEEDeeGap())  histSclEoEtrue_endcaps_deegap->Fill(sclRef->energy()/pAssSim.t());
+        if (bestGsfElectron.isEE() && bestGsfElectron.isEERingGap())  histSclEoEtrue_endcaps_ringgap->Fill(sclRef->energy()/pAssSim.t());
         histSclEta_->Fill(sclRef->eta());
         histSclEtaVsPhi_->Fill(sclRef->phi(),sclRef->eta());
         histSclPhi_->Fill(sclRef->phi());
@@ -1158,6 +1176,8 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	h_ele_dPhiEleClVsPhi_propOut -> Fill(bestGsfElectron.phi(),bestGsfElectron.deltaPhiEleClusterTrackAtCalo()); 
 	h_ele_dPhiEleClVsPt_propOut -> Fill(bestGsfElectron.pt(),bestGsfElectron.deltaPhiEleClusterTrackAtCalo()); 
 	h_ele_HoE -> Fill(bestGsfElectron.hadronicOverEm());
+	if (!bestGsfElectron.isEBEtaGap() && !bestGsfElectron.isEBPhiGap()&& !bestGsfElectron.isEBEEGap() &&
+	    !bestGsfElectron.isEERingGap() && !bestGsfElectron.isEEDeeGap()) h_ele_HoE_fiducial -> Fill(bestGsfElectron.hadronicOverEm());
 	h_ele_HoEVsEta -> Fill( bestGsfElectron.eta(),bestGsfElectron.hadronicOverEm());
 	h_ele_HoEVsPhi -> Fill(bestGsfElectron.phi(),bestGsfElectron.hadronicOverEm());
 	h_ele_HoEVsE -> Fill(bestGsfElectron.caloEnergy(),bestGsfElectron.hadronicOverEm());

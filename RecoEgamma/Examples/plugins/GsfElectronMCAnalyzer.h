@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.h,v 1.4 2008/12/05 17:01:14 charlot Exp $
+// $Id: GsfElectronMCAnalyzer.h,v 1.5 2008/12/11 23:29:35 charlot Exp $
 //
 //
   
@@ -107,6 +107,11 @@ class GsfElectronMCAnalyzer : public edm::EDAnalyzer
   TH1F *histSclEn_ ;
   TH1F *histSclEoEtrue_barrel;
   TH1F *histSclEoEtrue_endcaps;
+  TH1F *histSclEoEtrue_barrel_etagap;
+  TH1F *histSclEoEtrue_barrel_phigap;
+  TH1F *histSclEoEtrue_ebeegap;
+  TH1F *histSclEoEtrue_endcaps_deegap;
+  TH1F *histSclEoEtrue_endcaps_ringgap;
   TH1F *histSclEt_ ;
   TH2F *histSclEtVsEta_ ;
   TH2F *histSclEtVsPhi_ ;
@@ -230,6 +235,7 @@ class GsfElectronMCAnalyzer : public edm::EDAnalyzer
   TH1F *h_ele_eta_shower;
   
   TH1F *h_ele_HoE;
+  TH1F *h_ele_HoE_fiducial;
   TH2F *h_ele_HoEVsEta;
   TH2F *h_ele_HoEVsPhi;
   TH2F *h_ele_HoEVsE;
