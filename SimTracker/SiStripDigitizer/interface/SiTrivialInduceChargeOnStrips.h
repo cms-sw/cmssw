@@ -1,32 +1,33 @@
 #ifndef Tracker_SiTrivialInduceChargeOnStrips_H
 #define Tracker_SiTrivialInduceChargeOnStrips_H
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "SimTracker/SiStripDigitizer/interface/SiInduceChargeOnStrips.h"
-/**
- * Concrete implementation of SiInduceChargeOnStrips.
- * Effects considered are: 
- * - precomputed spread due to diffusion (stored in the SignalPoint)
- * - capacitive coupling (or cross-talk)
- */
 
-class SiTrivialInduceChargeOnStrips: public SiInduceChargeOnStrips{
-public:
-  
+class SiTrivialInduceChargeOnStrips: public SiInduceChargeOnStrips {
+ public:
   SiTrivialInduceChargeOnStrips(const edm::ParameterSet& conf,double g);
   virtual ~SiTrivialInduceChargeOnStrips() {}
-  void induce(SiChargeCollectionDrifter::collection_type, const StripGeomDetUnit&,
-	      std::vector<double>&, unsigned int&, unsigned int&);
+  void  induce(SiChargeCollectionDrifter::collection_type collection_points,
+	       const StripGeomDetUnit& det,
+	       std::vector<double>& localAmplitudes,
+	       unsigned int& recordMinAffectedStrip,
+	       unsigned int& recordMaxAffectedStrip);
   
-private:
-  edm::ParameterSet conf_;
-  bool peak;
-  double clusterWidth;
-  std::vector<double> signalCoupling_TIB; 
-  std::vector<double> signalCoupling_TID; 
-  std::vector<double> signalCoupling_TOB; 
-  std::vector<double> signalCoupling_TEC; 
-  double geVperElectron;
+ private:
+  double chargeDeposited(uint16_t strip, 
+			 uint16_t Nstrips, 
+			 double amplitude, 
+			 double chargeSpread, 
+			 double chargePosition) const;
+  static uint16_t typeOf(const StripGeomDetUnit&);
+  static uint16_t indexOf(const std::string&);
+  static const std::string type[];
+  static const int Ntypes;
+  std::vector<std::vector<double> > signalCoupling; 
+  
+  const double Nsigma;
+  const double geVperElectron;
 };
 
 #endif
