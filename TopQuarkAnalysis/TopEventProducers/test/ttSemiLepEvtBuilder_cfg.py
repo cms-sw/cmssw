@@ -102,10 +102,18 @@ process.EventSelection = cms.PSet(
     )
 )
 
+## define tqaf layer1 event content
+from TopQuarkAnalysis.TopObjectProducers.tqafLayer1_EventContent_cff import *
+makeTqafLayer1EventContent(process)
+## define tqaf layer2 event content
+from TopQuarkAnalysis.TopEventProducers.tqafLayer2_EventContent_cff import *
+makeTqafLayer2EventContent(process)
+
 ## configure output module
 process.out = cms.OutputModule("PoolOutputModule",
     process.EventSelection,                      
-    fileName = cms.untracked.string('ttSemiLepJetCombMVAComputer_muons.root')
+    process.tqafEventContent,
+    fileName = cms.untracked.string('ttSemiLepEvtBuilder.root')
 )
 
 ## output path
