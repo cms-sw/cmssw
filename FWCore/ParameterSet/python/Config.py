@@ -343,6 +343,9 @@ class Process(object):
         seqs = dict()
         labelled = dict()
         for name in dir(other):
+            #'from XX import *' ignores these, and so should we.
+            if name.startswith('_'):
+                continue
             item = getattr(other,name)
             if name == "source" or name == "looper":
                 self.__setattr__(name,item)
