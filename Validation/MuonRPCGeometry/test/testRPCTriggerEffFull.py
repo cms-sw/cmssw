@@ -26,6 +26,8 @@ process.load("L1Trigger.RPCTrigger.rpcTriggerDigis_cfi")
 
 # should I test globalTag?
 process.load("L1TriggerConfig.RPCTriggerConfig.RPCPatSource_cfi")
+process.rpcconf.filedir = cms.untracked.string('L1Trigger/RPCTrigger/data/D30/')
+
 #process.rpcTriggerDigis.buildOwnLinkSystem = cms.bool(True)
 process.rpcTriggerDigis.label = cms.string('simMuonRPCDigis')
 

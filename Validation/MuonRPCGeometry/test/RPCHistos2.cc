@@ -66,7 +66,7 @@ struct SMuonBin {
    SMuonBin(): m_rate(-1) {};
    PTStatistics m_stats;
    std::map<int, PTStatistics> m_qual2stats; // m_stats = sum of m_qual2stats->seconds 
-   double m_rate;
+   long double m_rate;
 };
 
 typedef std::map<SMuonBinPos,SMuonBin> TEffMap;
@@ -108,6 +108,11 @@ int main(int argc, char *argv[]){
         
 
    std::ifstream fIn(fname.c_str());
+   if (!fIn.is_open()) {
+       std::cout << "could not open the file" << std::endl;  
+       return 1;
+   }
+
    double etaGen;
    double phiGen;
    double ptGen;
@@ -115,8 +120,8 @@ int main(int argc, char *argv[]){
    TEffMap effMap;
    TEffMap effMapMC;
    int read = 0;
-   int toRead = 1000000;
-   //int toRead = -1;
+   //int toRead = 1000000;
+   int toRead = -1;
    int ghost = 0;
 //   while (fIn >> etaGen >> phiGen >> ptGen
 //              >> towerRec >> phiRec >> ptCodeRec >> qual 
@@ -141,6 +146,7 @@ int main(int argc, char *argv[]){
 
       if (ghost!=0) continue; // TODO: add ghost histo
       if (std::abs(etaGen)>2.1) continue; 
+      if (ptGen < 1.7)  continue ; 
   
       ++read;
       if (read%100000==0){
@@ -150,8 +156,15 @@ int main(int argc, char *argv[]){
       if (ptCodeRec == 0) { // avoid putting events without muons in tower = 0
          t = eta2tower(etaGen);
       }
+      /* 
+      if (read < 1000) {
+       std::cout << "p "<<  t << " " << std::abs(t) << " " << " " << ptGen << " " << getBinNo(ptGen) << std::endl;
+       std::cout << "pMC "<< etaGen << " " << eta2tower(etaGen) << " " << ptGen << " " << getBinNo(ptGen) << std::endl;
+       std::cout << " qual "  << qual << " ptCodeRec " << ptCodeRec << std::endl;
+      }*/
+
       SMuonBinPos p(std::abs(t), getBinNo(ptGen) );
-      SMuonBinPos pMC(eta2tower(etaGen), getBinNo(ptGen) );
+      SMuonBinPos pMC( eta2tower(etaGen) , getBinNo(ptGen) );
    //   ++(effMap[p].m_stats.at(ptCodeRec)); // ptCodeRec==0 - no muon found
       ++(effMap[p].m_qual2stats[qual].at(ptCodeRec));
       ++(effMapMC[pMC].m_qual2stats[qual].at(ptCodeRec));
@@ -169,14 +182,13 @@ int main(int argc, char *argv[]){
 
    // Draw rate Vs pt cut plots. Plenty of plots 
    ratesVsPtcut(effMap);
-
+   
    // draw rate vs tower for variuos cuts (9,13,...) 
    rateVsTower(effMap,9);
    rateVsTower(effMap,13);
    rateVsTower(effMap,18);
    rateVsTower(effMap,24);
    rateVsTower(effMap,31);
-
    // draw efficiency for various cuts of towers. Plenty of plots
    actCurves(effMap);
  
@@ -204,7 +216,6 @@ int main(int argc, char *argv[]){
    // effciency and purity
    effAndPurity(effMapMC,1,0,8); // barrel
    effAndPurity(effMapMC,1,9,16);// endacp
-         
 
    // save to root file 
    hfile->Write();
@@ -345,8 +356,19 @@ void rateVsTower(TEffMap & effMap,int ptCodeCut){
    
    for(;it!=itend;++it){
       int tower = it->first.m_tower;
+      double oldR = rateVsTower.at(tower);
       rateVsTower.at(tower)+=it->second.m_rate*it->second.m_stats.eff(ptCodeCut);
-      
+      /*
+      if (rateVsTower.at(tower)/oldR > 10 ) {
+           std::cout << oldR << " " << rateVsTower.at(tower) 
+                     << " m_rate " << it->second.m_rate 
+                     << " eff " << it->second.m_stats.eff(ptCodeCut)
+                     << " m_binNo " << it->first.m_binNo
+                     << " m_tower " << it->first.m_tower
+                     << std::endl;
+      }*/
+
+
       std::map<int, PTStatistics>::iterator it1 = it->second.m_qual2stats.begin();
       std::map<int, PTStatistics>::iterator it1end = it->second.m_qual2stats.end();
       for (;it1!=it1end;++it1){
@@ -565,6 +587,11 @@ void initRates(TEffMap & effMap){
       double p2 = -1;
       getBinBounds(it->first.m_binNo,p1,p2);
       it->second.m_rate = binRate(p1,p2,it->first.m_tower);
+      /*
+      if (it->second.m_rate > 1000000) {
+        std::cout << " initRates "<< p1 << " " << p2 << " " << it->first.m_tower << " " << binRate(p1,p2,it->first.m_tower) << std::endl; 
+      }*/
+
 
      //*
       std::map<int, PTStatistics>::iterator it1 = it->second.m_qual2stats.begin();

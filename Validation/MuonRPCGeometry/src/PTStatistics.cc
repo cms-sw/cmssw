@@ -7,7 +7,7 @@
 //  PTStatistics
 //-----------------------------------------------------------------------------
 bool PTStatistics::rateInitilized = false;
-std::vector<double> PTStatistics::m_rates = std::vector<double>(RPCpg::ptBins_s,0);
+std::vector<long double> PTStatistics::m_rates = std::vector<long double>(RPCpg::ptBins_s,0);
 
 PTStatistics::PTStatistics(){
    this->assign(RPCpg::ptBins_s,0);
@@ -21,9 +21,9 @@ PTStatistics::PTStatistics(){
      // bin=0 is used only when calculating efficiencies (for storing muons,that werent found)
      for (unsigned int i = 1;i < this->m_rates.size(); ++i ){
 
-        double low =  RPCpg::pts[i];
-        double high =  RPCpg::pts[i+1];
-        double rt = RPCpg::rate(low)-RPCpg::rate(high);
+        long double low =  RPCpg::pts[i];
+        long double high =  RPCpg::pts[i+1];
+        long double rt = RPCpg::rate(low)-RPCpg::rate(high);
 
        /* std::cout << "PtCode " << i
               << " " << low
@@ -57,7 +57,7 @@ std::string PTStatistics::toString(){
    return ss.str();
 }
 
-double PTStatistics::eff(int ptCut){  // ptCut=0 -> total rate
+long double PTStatistics::eff(int ptCut){  // ptCut=0 -> total rate
    //int eqOrAbovePtCut = 0;
    //for(unsigned int i=ptCut;i<this->size();++i) eqOrAbovePtCut += this->at(i);
    // return double(eqOrAbovePtCut)/this->sum();
@@ -65,10 +65,10 @@ double PTStatistics::eff(int ptCut){  // ptCut=0 -> total rate
 }
 
 
-int PTStatistics::sum(const int & ptCut) const{
+long int PTStatistics::sum(const int & ptCut) const{
 //inline int PTStatistics::sum(const int & ptCut) const{  
    //return std::accumulate(this->begin(),this->end(),0);
-   int eqOrAbovePtCut = 0;
+   long int eqOrAbovePtCut = 0;
    unsigned int size = this->size();
    //for(unsigned int i=ptCut;i<size;++i) eqOrAbovePtCut += this->at(i);
    for(unsigned int i=ptCut;i<size;++i) eqOrAbovePtCut += (*this)[i];
@@ -76,9 +76,9 @@ int PTStatistics::sum(const int & ptCut) const{
 }
 
 //inline int PTStatistics::sum() const{
-int PTStatistics::sum() const{  
+long int PTStatistics::sum() const{  
    //return std::accumulate(this->begin(),this->end(),0);
-   int eqOrAbovePtCut = 0;
+   long int eqOrAbovePtCut = 0;
    //unsigned int size = this->size();
    //for(unsigned int i=ptCut;i<size;++i) eqOrAbovePtCut += this->at(i);
    //for(unsigned int i=ptCut;i<size;++i) eqOrAbovePtCut += (*this)[i];
@@ -89,18 +89,18 @@ int PTStatistics::sum() const{
    return eqOrAbovePtCut;
 }
 
-double PTStatistics::sumR(const int & ptCut) const{ 
+long double PTStatistics::sumR(const int & ptCut) const{ 
    //return std::accumulate(this->begin(),this->end(),0);
-   double eqOrAbovePtCut = 0;
+   long double eqOrAbovePtCut = 0;
    unsigned int size = this->size();
    //for(unsigned int i=ptCut;i<size;++i) eqOrAbovePtCut += this->at(i);
    for(unsigned int i=ptCut;i<size;++i) eqOrAbovePtCut += (*this)[i]*m_rates[i];
    return eqOrAbovePtCut;
 }
 
-double PTStatistics::sumR() const{ 
+long double PTStatistics::sumR() const{ 
    //return std::accumulate(this->begin(),this->end(),0);
-   double eqOrAbovePtCut = 0;
+   long double eqOrAbovePtCut = 0;
    //unsigned int size = this->size();
    //for(unsigned int i=ptCut;i<size;++i) eqOrAbovePtCut += this->at(i);
    //for(unsigned int i=ptCut;i<size;++i) eqOrAbovePtCut += (*this)[i];
