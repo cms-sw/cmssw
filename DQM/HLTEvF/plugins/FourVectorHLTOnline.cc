@@ -1,9 +1,12 @@
-// $Id: FourVectorHLTOnline.cc,v 1.2 2008/10/24 19:38:47 wittich Exp $
+// $Id: FourVectorHLTOnline.cc,v 1.28 2009/02/26 22:30:17 berryhil Exp $
 // See header file for information. 
+#include "TMath.h"
+
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQM/HLTEvF/interface/FourVectorHLTOnline.h"
@@ -14,15 +17,6 @@
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-
-#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
-#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
-#include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
 
 #include "PhysicsTools/Utilities/interface/deltaR.h"
 
@@ -43,49 +37,66 @@ FourVectorHLTOnline::FourVectorHLTOnline(const edm::ParameterSet& iConfig):
     dbe_->setVerbose(0);
   }
   
+  dirname_ = iConfig.getUntrackedParameter("dirname",
+					   std::string("HLT/FourVector/"));
+  //dirname_ +=  iConfig.getParameter<std::string>("@module_label");
   
-  dirname_="HLT/FourVectorHLTOnline";
   if (dbe_ != 0 ) {
     dbe_->setCurrentFolder(dirname_);
   }
   
-  
+  processname_ = iConfig.getParameter<std::string>("processname");
+
   // plotting paramters
   ptMin_ = iConfig.getUntrackedParameter<double>("ptMin",0.);
   ptMax_ = iConfig.getUntrackedParameter<double>("ptMax",1000.);
-  nBins_ = iConfig.getUntrackedParameter<unsigned int>("Nbins",40);
+  nBins_ = iConfig.getUntrackedParameter<unsigned int>("Nbins",20);
   
   plotAll_ = iConfig.getUntrackedParameter<bool>("plotAll", false);
-
-  if (!plotAll_) {
-    // this is the list of paths to look at.
-    std::vector<edm::ParameterSet> paths = 
-      iConfig.getParameter<std::vector<edm::ParameterSet> >("paths");
-    for(std::vector<edm::ParameterSet>::iterator 
-	  pathconf = paths.begin() ; pathconf != paths.end(); 
-	pathconf++) {
-      std::string pathname = pathconf->getParameter<std::string>("pathname");  
-      std::string filtername = pathconf->getParameter<std::string>("filtername");
-      int objectType = pathconf->getParameter<unsigned int>("type");
-      float ptMin = pathconf->getUntrackedParameter<double>("ptMin");
-      float ptMax = pathconf->getUntrackedParameter<double>("ptMax");
-      hltPaths_.push_back(PathInfo(pathname, filtername, objectType, ptMin, 
-				   ptMax));
+     // this is the list of paths to look at.
+     std::vector<edm::ParameterSet> paths = 
+     iConfig.getParameter<std::vector<edm::ParameterSet> >("paths");
+     for(std::vector<edm::ParameterSet>::iterator 
+	pathconf = paths.begin() ; pathconf != paths.end(); 
+      pathconf++) {
+       std::pair<std::string, std::string> custompathnamepair;
+       custompathnamepair.first =pathconf->getParameter<std::string>("pathname"); 
+       custompathnamepair.second = pathconf->getParameter<std::string>("denompathname");   
+       custompathnamepairs_.push_back(custompathnamepair);
+       //    customdenompathnames_.push_back(pathconf->getParameter<std::string>("denompathname"));  
+       // custompathnames_.push_back(pathconf->getParameter<std::string>("pathname"));  
     }
 
-    if (hltPaths_.size() > 0) {
+  if (hltPaths_.size() > 0)
+    {
       // book a histogram of scalers
-      scalersSelect = dbe_->book1D("selectedScalers","Selected Scalers", 
-				   hltPaths_.size(), 0.0, 
-				   (double)hltPaths_.size());
+     scalersSelect = dbe_->book1D("selectedScalers","Selected Scalers", hltPaths_.size(), 0.0, (double)hltPaths_.size());
     }
 
-  }
+ 
   triggerSummaryLabel_ = 
     iConfig.getParameter<edm::InputTag>("triggerSummaryLabel");
   triggerResultsLabel_ = 
     iConfig.getParameter<edm::InputTag>("triggerResultsLabel");
- 
+
+  electronEtaMax_ = iConfig.getUntrackedParameter<double>("electronEtaMax",2.5);
+  electronEtMin_ = iConfig.getUntrackedParameter<double>("electronEtMin",3.0);
+  muonEtaMax_ = iConfig.getUntrackedParameter<double>("muonEtaMax",2.5);
+  muonEtMin_ = iConfig.getUntrackedParameter<double>("muonEtMin",3.0);
+  tauEtaMax_ = iConfig.getUntrackedParameter<double>("tauEtaMax",2.5);
+  tauEtMin_ = iConfig.getUntrackedParameter<double>("tauEtMin",3.0);
+  jetEtaMax_ = iConfig.getUntrackedParameter<double>("jetEtaMax",5.0);
+  jetEtMin_ = iConfig.getUntrackedParameter<double>("jetEtMin",10.0);
+  bjetEtaMax_ = iConfig.getUntrackedParameter<double>("bjetEtaMax",2.5);
+  bjetEtMin_ = iConfig.getUntrackedParameter<double>("bjetEtMin",10.0);
+  photonEtaMax_ = iConfig.getUntrackedParameter<double>("photonEtaMax",2.5);
+  photonEtMin_ = iConfig.getUntrackedParameter<double>("photonEtMin",3.0);
+  trackEtaMax_ = iConfig.getUntrackedParameter<double>("trackEtaMax",2.5);
+  trackEtMin_ = iConfig.getUntrackedParameter<double>("trackEtMin",3.0);
+
+  metMin_ = iConfig.getUntrackedParameter<double>("metMin",10.0);
+  htMin_ = iConfig.getUntrackedParameter<double>("htMin",10.0);
+  sumEtMin_ = iConfig.getUntrackedParameter<double>("sumEtMin",10.0);
   
 }
 
@@ -93,8 +104,8 @@ FourVectorHLTOnline::FourVectorHLTOnline(const edm::ParameterSet& iConfig):
 FourVectorHLTOnline::~FourVectorHLTOnline()
 {
  
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
+   // do anything here that needs to be done at desctruction time
+   // (e.g. close files, deallocate resources etc.)
 
 }
 
@@ -105,12 +116,10 @@ FourVectorHLTOnline::~FourVectorHLTOnline()
 
 // ------------ method called to for each event  ------------
 void
-FourVectorHLTOnline::analyze(const edm::Event& iEvent,
-			     const edm::EventSetup& iSetup)
+FourVectorHLTOnline::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
   using namespace trigger;
-  using namespace l1extra;
   ++nev_;
   LogDebug("FourVectorHLTOnline")<< "FourVectorHLTOnline: analyze...." ;
   
@@ -121,7 +130,9 @@ FourVectorHLTOnline::analyze(const edm::Event& iEvent,
       "skipping event"; 
     return;
   }
-    
+  TriggerNames triggerNames(*triggerResults);  
+  int npath = triggerResults->size();
+
   edm::Handle<TriggerEvent> triggerObj;
   iEvent.getByLabel(triggerSummaryLabel_,triggerObj); 
   if(!triggerObj.isValid()) { 
@@ -132,227 +143,549 @@ FourVectorHLTOnline::analyze(const edm::Event& iEvent,
   
   const trigger::TriggerObjectCollection & toc(triggerObj->getObjects());
 
-  for(PathInfoCollection::iterator v = hltPaths_.begin();
-      v!= hltPaths_.end(); ++v ) { 
-    // fill scaler histograms
-    edm::InputTag filterTag = v->getTag();
-    if (plotAll_) {
-      // loop through indices and see if the filter is on the list of 
-      // filters used by this path
-      
-      if (v->getLabel() == "dummy"){
-	const std::vector<std::string> filterLabels = 
-	  hltConfig_.moduleLabels(v->getPath());
-	// loop over labels
-	for (std::vector<std::string>::const_iterator labelIter = 
-	       filterLabels.begin(); labelIter!=filterLabels.end(); 
-	     labelIter++) {
-	  // cout << v->getPath() << "\t" << *labelIter << endl;
-	  // last match wins...
-	  edm::InputTag testTag(*labelIter,"","HLT");
-	  // cout << v->getPath() << "\t" << testTag.label() << "\t" << testTag.process() << endl;
-	  int testindex = triggerObj->filterIndex(testTag);
-	  if ( !(testindex >= triggerObj->sizeFilters()) ) {
-	    //cout << "found one! " << v->getPath() << "\t" << testTag.label() << endl; 
-	    filterTag = testTag; v->setLabel(*labelIter);}
-	}
-      }
-    }
+ 
+    for(PathInfoCollection::iterator v = hltPaths_.begin();
+	v!= hltPaths_.end(); ++v ) 
+{ 
 
-    const int index = triggerObj->filterIndex(filterTag);
-    if ( index >= triggerObj->sizeFilters() ) {
-      //        cout << "WTF no index "<< index << " of that name "
-      //	     << filterTag << endl;
-      continue; // not in this event
-    }
-    LogDebug("FourVectorHLTOnline") << "filling ... " ;
-    const trigger::Keys & k = triggerObj->filterKeys(index);
-    const trigger::Vids & idtype = triggerObj->filterIds(index);
-    // assume for now the first object type is the same as all objects 
-    // in the collection
-    //    cout << filterTag << "\t" << idtype.size() << "\t" << k.size() << endl;
-    int triggertype = 0;     
-    if (idtype.size() > 0) triggertype = *idtype.begin();
-    //     cout << "path " << v->getPath() << " trigger type "<<triggertype << endl;
-    if (k.size() > 0) v->getNOnHisto()->Fill(k.size());
-    for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
-      v->getEtOnHisto()->Fill(toc[*ki].pt());
-      v->getEtaOnHisto()->Fill(toc[*ki].eta());
-      v->getPhiOnHisto()->Fill(toc[*ki].phi());
-      v->getEtaVsPhiOnHisto()->Fill(toc[*ki].eta(), toc[*ki].phi());
-      //	  cout << "pdgId "<<toc[*ki].id() << endl;
-      // for muon triggers, loop over and fill offline 4-vectors
-      if (triggertype == trigger::TriggerMuon || 
-	  triggertype == trigger::TriggerL1Mu) {
-	edm::Handle<l1extra::L1MuonParticleCollection> l1MuonHandle;
-	iEvent.getByType(l1MuonHandle);
+  int NOn = 0;
+  int NL1 = 0;
+  int NL1On = 0;
 
-	if(!l1MuonHandle.isValid()) { 
-	  edm::LogInfo("FourVectorHLTOnline") << "l1MuonHandle not found, "
-	    "skipping event"; 
-	  return;
-	}
-	const l1extra::L1MuonParticleCollection l1MuonCollection = *(l1MuonHandle.product());
+  // did we pass the denomPath?
+  bool denompassed = false;
+  for(int i = 0; i < npath; ++i) {
+     if (triggerNames.triggerName(i) == v->getDenomPath() && triggerResults->accept(i)) denompassed = true;
+  }
 
-	for (l1extra::L1MuonParticleCollection::const_iterator 
-	       l1MuonIter=l1MuonCollection.begin(); 
-	     l1MuonIter!=l1MuonCollection.end(); l1MuonIter++)
-	  {
-	    if (reco::deltaR((*l1MuonIter).eta(),
-			     (*l1MuonIter).phi(),
-			     toc[*ki].eta(),toc[*ki].phi()) < 0.3){
-	      v->getEtL1Histo()->Fill((*l1MuonIter).pt());
-	      v->getEtaL1Histo()->Fill((*l1MuonIter).eta());
-	      v->getPhiL1Histo()->Fill((*l1MuonIter).phi());
-	      v->getEtaVsPhiL1Histo()->Fill((*l1MuonIter).eta(),
-					    (*l1MuonIter).phi());
-	    }
-	  }
+  if (denompassed)
+    {  
+
+
+      int triggertype = 0;     
+      triggertype = v->getObjectType();
+
+      bool l1accept = false;
+      edm::InputTag l1testTag(v->getl1Path(),"",processname_);
+      const int l1index = triggerObj->filterIndex(l1testTag);
+      if ( l1index >= triggerObj->sizeFilters() ) {
+        edm::LogInfo("FourVectorHLTOnline") << "no index "<< l1index << " of that name " << v->getl1Path() << "\t" << "\t" << l1testTag;
+	continue; // not in this event
       }
 
-      // for electron triggers, loop over and fill offline 4-vectors
-      else if (triggertype == trigger::TriggerElectron) {
-	std::vector<edm::Handle<l1extra::L1EmParticleCollection> > 
-	  l1ElectronHandleList;
-	iEvent.getManyByType(l1ElectronHandleList);        
-	std::vector<edm::Handle<l1extra::L1EmParticleCollection> >::iterator l1ElectronHandle;
+      const trigger::Vids & idtype = triggerObj->filterIds(l1index);
+      const trigger::Keys & l1k = triggerObj->filterKeys(l1index);
+      l1accept = l1k.size() > 0;
+      //if (l1k.size() == 0) cout << v->getl1Path() << endl;
+      //l1accept = true;
 
-	for (l1ElectronHandle=l1ElectronHandleList.begin(); 
-	     l1ElectronHandle!=l1ElectronHandleList.end(); 
-	     l1ElectronHandle++) {
-	  const L1EmParticleCollection l1ElectronCollection = *(l1ElectronHandle->product());
-	  for (L1EmParticleCollection::const_iterator
-		 l1ElectronIter=l1ElectronCollection.begin(); 
-	       l1ElectronIter!=l1ElectronCollection.end(); 
-	       l1ElectronIter++){
-	    if (reco::deltaR((*l1ElectronIter).eta(),(*l1ElectronIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3){
-	      v->getEtL1Histo()->Fill((*l1ElectronIter).pt());
-	      v->getEtaL1Histo()->Fill((*l1ElectronIter).eta());
-	      v->getPhiL1Histo()->Fill((*l1ElectronIter).phi());
-	      v->getEtaVsPhiL1Histo()->Fill((*l1ElectronIter).eta(),(*l1ElectronIter).phi());
-	    }
-	  }
-	}
-      }
-
-
-      // for tau triggers, loop over and fill offline 4-vectors
-      else if (triggertype == trigger::TriggerTau)
-	{
-
-	  std::vector<edm::Handle<l1extra::L1JetParticleCollection> > l1TauHandleList;
-	  iEvent.getManyByType(l1TauHandleList);        
-	  std::vector<edm::Handle<l1extra::L1JetParticleCollection> >::iterator l1TauHandle;
-
-	  for (l1TauHandle=l1TauHandleList.begin(); l1TauHandle!=l1TauHandleList.end(); l1TauHandle++) {
-	    if (!l1TauHandle->isValid()) {
-	      edm::LogInfo("FourVectorHLTOnline") << "photonHandle not found, "
-		"skipping event"; 
-	      return;
-	    } 
-	    const L1JetParticleCollection l1TauCollection = *(l1TauHandle->product());
-	    for (L1JetParticleCollection::const_iterator l1TauIter=l1TauCollection.begin(); l1TauIter!=l1TauCollection.end(); l1TauIter++){
-	      if (reco::deltaR((*l1TauIter).eta(),
-			       (*l1TauIter).phi(),
-			       toc[*ki].eta(),toc[*ki].phi()) < 0.3){
-		v->getEtL1Histo()->Fill((*l1TauIter).pt());
-		v->getEtaL1Histo()->Fill((*l1TauIter).eta());
-		v->getPhiL1Histo()->Fill((*l1TauIter).phi());
-		v->getEtaVsPhiL1Histo()->Fill((*l1TauIter).eta(),
-					      (*l1TauIter).phi());
-	      }
-	    }
-	  }
-	}
-
-
-      // for jet triggers, loop over and fill offline 4-vectors
-      else if (triggertype == trigger::TriggerJet)
-	{
-	  std::vector<edm::Handle<l1extra::L1JetParticleCollection> > l1JetHandleList;
-	  iEvent.getManyByType(l1JetHandleList);        
-	  std::vector<edm::Handle<l1extra::L1JetParticleCollection> >::iterator l1JetHandle;
-
-	  for (l1JetHandle=l1JetHandleList.begin(); l1JetHandle!=l1JetHandleList.end(); l1JetHandle++) {
-	    if (!l1JetHandle->isValid())
+      // for muon triggers, loop over and fill online 4-vectors
+      if (triggertype == trigger::TriggerMuon || triggertype == trigger::TriggerL1Mu){
+        if (l1accept)
+         {
+          trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
+          for (trigger::Keys::const_iterator ki = l1k.begin(); ki !=l1k.end(); ++ki ) {
+	    if (*idtypeiter == trigger::TriggerL1Mu)
 	      {
-		edm::LogInfo("FourVectorHLTOnline") << "photonHandle not found, "
-		  "skipping event"; 
-		return;
-	      } 
-	    const L1JetParticleCollection l1JetCollection = *(l1JetHandle->product());
-	    for (L1JetParticleCollection::const_iterator l1JetIter=l1JetCollection.begin(); l1JetIter!=l1JetCollection.end(); l1JetIter++){
-	      if (reco::deltaR((*l1JetIter).eta(),(*l1JetIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3){
-		v->getEtL1Histo()->Fill((*l1JetIter).pt());
-		v->getEtaL1Histo()->Fill((*l1JetIter).eta());
-		v->getPhiL1Histo()->Fill((*l1JetIter).phi());
-		v->getEtaVsPhiL1Histo()->Fill((*l1JetIter).eta(),(*l1JetIter).phi());
-	      }
+	    //	cout << v->getl1Path() << "\t" << *idtypeiter << "\t" << toc[*ki].pt() << "\t" << toc[*ki].eta() << "\t" << toc[*ki].phi() << endl;
+  	    if (fabs(toc[*ki].eta()) <= muonEtaMax_ && toc[*ki].pt() >= muonEtMin_)
+             { 
+	      NL1++;    
+              v->getL1EtL1Histo()->Fill(toc[*ki].pt());
+	      v->getL1EtaVsL1PhiL1Histo()->Fill(toc[*ki].eta(), toc[*ki].phi());
+	     }
+
+	   }
+            ++idtypeiter;
+	   }
+         }
+      }
+
+      // for electron triggers, loop over and fill online 4-vectors
+     else if (triggertype == trigger::TriggerElectron || triggertype == trigger::TriggerL1NoIsoEG || triggertype == trigger::TriggerL1IsoEG)
+	{
+	  //	  std::cout << "Electron trigger" << std::endl;
+
+        if (l1accept)
+         {
+          trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
+          for (trigger::Keys::const_iterator ki = l1k.begin(); ki !=l1k.end(); ++ki ) {
+            if ( *idtypeiter == trigger::TriggerL1IsoEG || *idtypeiter == trigger::TriggerL1NoIsoEG ) {
+	    //	cout << v->getl1Path() << "\t" << *idtypeiter << "\t" << toc[*ki].pt() << "\t" << toc[*ki].eta() << "\t" << toc[*ki].phi() << endl;
+  	    if (fabs(toc[*ki].eta()) <= electronEtaMax_ && toc[*ki].pt() >= electronEtMin_)
+             { 
+	      NL1++;    
+              v->getL1EtL1Histo()->Fill(toc[*ki].pt());
+	      v->getL1EtaVsL1PhiL1Histo()->Fill(toc[*ki].eta(), toc[*ki].phi());
+	     }
+
 	    }
-	  }
+            ++idtypeiter;
+	   }
+         }
+	}
+    
+
+      // for tau triggers, loop over and fill online 4-vectors
+      else if (triggertype == trigger::TriggerTau || triggertype == trigger::TriggerL1TauJet)
+	{
+
+        if (l1accept)
+         {
+          trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
+          for (trigger::Keys::const_iterator ki = l1k.begin(); ki !=l1k.end(); ++ki ) {
+	    if (*idtypeiter == trigger::TriggerL1TauJet || *idtypeiter == trigger::TriggerL1ForJet)
+	      {
+	    //	cout << v->getl1Path() << "\t" << *idtypeiter << "\t" << toc[*ki].pt() << "\t" << toc[*ki].eta() << "\t" << toc[*ki].phi() << endl;
+  	    if (fabs(toc[*ki].eta()) <= tauEtaMax_ && toc[*ki].pt() >= tauEtMin_)
+             { 
+	      NL1++;    
+              v->getL1EtL1Histo()->Fill(toc[*ki].pt());
+	      v->getL1EtaVsL1PhiL1Histo()->Fill(toc[*ki].eta(), toc[*ki].phi());
+	     }
+
+	   }
+            ++idtypeiter;
+	   }
+         }
+
+    }
+
+
+
+      // for jet triggers, loop over and fill online 4-vectors
+      else if (triggertype == trigger::TriggerJet || triggertype == trigger::TriggerL1CenJet || triggertype == trigger::TriggerL1ForJet)
+	{
+
+        if (l1accept)
+         {
+          trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
+          for (trigger::Keys::const_iterator ki = l1k.begin(); ki !=l1k.end(); ++ki ) {
+	    if (*idtypeiter == trigger::TriggerL1TauJet || *idtypeiter == trigger::TriggerL1ForJet || *idtypeiter == trigger::TriggerL1CenJet)
+	      {
+	    //	cout << v->getl1Path() << "\t" << *idtypeiter << "\t" << toc[*ki].pt() << "\t" << toc[*ki].eta() << "\t" << toc[*ki].phi() << endl;
+  	    if (fabs(toc[*ki].eta()) <= jetEtaMax_ && toc[*ki].pt() >= jetEtMin_)
+             { 
+	      NL1++;    
+              v->getL1EtL1Histo()->Fill(toc[*ki].pt());
+	      v->getL1EtaVsL1PhiL1Histo()->Fill(toc[*ki].eta(), toc[*ki].phi());
+	     }
+
+	   }
+            ++idtypeiter;
+	   }
+         }
+
 	}
 
-      // for bjet triggers, loop over and fill offline 4-vectors
+      // for bjet triggers, loop over and fill online 4-vectors
       else if (triggertype == trigger::TriggerBJet)
-	{
-	}
-      // for met triggers, loop over and fill offline 4-vectors
-      else if (triggertype == trigger::TriggerMET)
-	{
-	  Handle< L1EtMissParticleCollection > l1MetHandle ;
-	  iEvent.getByType(l1MetHandle) ;
+	{ 
 
-	  if(!l1MetHandle.isValid()) { 
-	    edm::LogInfo("FourVectorHLTOnline") << "l1MetHandle not found, "
-	      "skipping event"; 
-	    return;
-	  }
-	  const l1extra::L1EtMissParticleCollection l1MetCollection = *(l1MetHandle.product());
+        if (l1accept)
+         {
+          trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
+          for (trigger::Keys::const_iterator ki = l1k.begin(); ki !=l1k.end(); ++ki ) {
+	    if (*idtypeiter == trigger::TriggerL1TauJet || *idtypeiter == trigger::TriggerL1ForJet || *idtypeiter == trigger::TriggerL1CenJet)
+	      {
+	    //	cout << v->getl1Path() << "\t" << *idtypeiter << "\t" << toc[*ki].pt() << "\t" << toc[*ki].eta() << "\t" << toc[*ki].phi() << endl;
+  	    if (fabs(toc[*ki].eta()) <= bjetEtaMax_ && toc[*ki].pt() >= bjetEtMin_)
+             { 
+	      NL1++;    
+              v->getL1EtL1Histo()->Fill(toc[*ki].pt());
+	      v->getL1EtaVsL1PhiL1Histo()->Fill(toc[*ki].eta(), toc[*ki].phi());
+	     }
 
-	  for (l1extra::L1EtMissParticleCollection::const_iterator l1MetIter=l1MetCollection.begin(); l1MetIter!=l1MetCollection.end(); l1MetIter++)
-	    {
-	      if (reco::deltaR((*l1MetIter).eta(),(*l1MetIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3){
-		v->getEtL1Histo()->Fill((*l1MetIter).pt());
-		v->getEtaL1Histo()->Fill((*l1MetIter).eta());
-		v->getPhiL1Histo()->Fill((*l1MetIter).phi());
-		v->getEtaVsPhiL1Histo()->Fill((*l1MetIter).eta(),(*l1MetIter).phi());
-	      }
-	    }
+	   }
+            ++idtypeiter;
+	   }
+         }
 
 	}
+      // for met triggers, loop over and fill online 4-vectors
+      else if (triggertype == trigger::TriggerMET || triggertype == trigger::TriggerL1ETM)
+	{
 
+        if (l1accept)
+         {
+          trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
+          for (trigger::Keys::const_iterator ki = l1k.begin(); ki !=l1k.end(); ++ki ) {
+	    if (*idtypeiter == trigger::TriggerL1ETM)
+	      {
+	    //	cout << v->getl1Path() << "\t" << *idtypeiter << "\t" << toc[*ki].pt() << "\t" << toc[*ki].eta() << "\t" << toc[*ki].phi() << endl;
+  	    if (toc[*ki].pt() >= metMin_)
+             { 
+	      NL1++;    
+              v->getL1EtL1Histo()->Fill(toc[*ki].pt());
+	      v->getL1EtaVsL1PhiL1Histo()->Fill(toc[*ki].eta(), toc[*ki].phi());
+	     }
 
-      // for photon triggers, loop over and fill offline and L1 4-vectors
+	   }
+            ++idtypeiter;
+	   }
+         }
+
+	}
+      else if (triggertype == trigger::TriggerHT || triggertype == trigger::TriggerL1ETT)
+	{
+
+        if (l1accept)
+         {
+          trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
+          for (trigger::Keys::const_iterator ki = l1k.begin(); ki !=l1k.end(); ++ki ) {
+	    if (*idtypeiter == trigger::TriggerL1ETT)
+	      {
+	    //	cout << v->getl1Path() << "\t" << *idtypeiter << "\t" << toc[*ki].pt() << "\t" << toc[*ki].eta() << "\t" << toc[*ki].phi() << endl;
+  	    if (toc[*ki].pt() >= sumEtMin_)
+             { 
+	      NL1++;    
+              v->getL1EtL1Histo()->Fill(toc[*ki].pt());
+	      v->getL1EtaVsL1PhiL1Histo()->Fill(toc[*ki].eta(), toc[*ki].phi());
+	     }
+
+	   }
+            ++idtypeiter;
+	   }
+         }
+
+	}
+      // for photon triggers, loop over and fill online and L1 4-vectors
       else if (triggertype == trigger::TriggerPhoton)
 	{
-	  std::vector<edm::Handle<l1extra::L1EmParticleCollection> > l1PhotonHandleList;
-	  iEvent.getManyByType(l1PhotonHandleList);        
-	  std::vector<edm::Handle<l1extra::L1EmParticleCollection> >::iterator l1PhotonHandle;
 
-	  for (l1PhotonHandle=l1PhotonHandleList.begin(); l1PhotonHandle!=l1PhotonHandleList.end(); l1PhotonHandle++) {
-	    if (!l1PhotonHandle->isValid())
+        if (l1accept)
+         {
+          trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
+          for (trigger::Keys::const_iterator ki = l1k.begin(); ki !=l1k.end(); ++ki ) {
+	    if (*idtypeiter == trigger::TriggerL1IsoEG || *idtypeiter == trigger::TriggerL1NoIsoEG)
 	      {
-		edm::LogInfo("FourVectorHLTOnline") << "photonHandle not found, "
-		  "skipping event"; 
-		return;
-	      } 
-	    const L1EmParticleCollection l1PhotonCollection = *(l1PhotonHandle->product());
-	    for (L1EmParticleCollection::const_iterator l1PhotonIter=l1PhotonCollection.begin(); l1PhotonIter!=l1PhotonCollection.end(); l1PhotonIter++){
-	      if (reco::deltaR((*l1PhotonIter).eta(),(*l1PhotonIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3){
-		v->getEtL1Histo()->Fill((*l1PhotonIter).pt());
-		v->getEtaL1Histo()->Fill((*l1PhotonIter).eta());
-		v->getPhiL1Histo()->Fill((*l1PhotonIter).phi());
-		v->getEtaVsPhiL1Histo()->Fill((*l1PhotonIter).eta(),
-					      (*l1PhotonIter).phi());
-	      }
-	   
+	    //	cout << v->getl1Path() << "\t" << *idtypeiter << "\t" << toc[*ki].pt() << "\t" << toc[*ki].eta() << "\t" << toc[*ki].phi() << endl;
+  	    if (fabs(toc[*ki].eta()) <= photonEtaMax_ && toc[*ki].pt() >= photonEtMin_)
+             { 
+	      NL1++;    
+              v->getL1EtL1Histo()->Fill(toc[*ki].pt());
+	      v->getL1EtaVsL1PhiL1Histo()->Fill(toc[*ki].eta(), toc[*ki].phi());
+	     }
 
-	    }
-	  }
+	   }
+            ++idtypeiter;
+	   }
+         }
 	}
 
-    }
+      // for IsoTrack triggers, loop over and fill online and L1 4-vectors
+      else if (triggertype == trigger::TriggerTrack)
+	{
+
+        if (l1accept)
+         {
+          trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
+          for (trigger::Keys::const_iterator ki = l1k.begin(); ki !=l1k.end(); ++ki ) {
+	    if (*idtypeiter == trigger::TriggerL1CenJet || *idtypeiter == trigger::TriggerL1ForJet || *idtypeiter == trigger::TriggerL1TauJet)
+	      {
+	    //	cout << v->getl1Path() << "\t" << *idtypeiter << "\t" << toc[*ki].pt() << "\t" << toc[*ki].eta() << "\t" << toc[*ki].phi() << endl;
+  	    if (fabs(toc[*ki].eta()) <= trackEtaMax_ && toc[*ki].pt() >= trackEtMin_)
+             { 
+	      NL1++;    
+              v->getL1EtL1Histo()->Fill(toc[*ki].pt());
+	      v->getL1EtaVsL1PhiL1Histo()->Fill(toc[*ki].eta(), toc[*ki].phi());
+	     }
+
+	   }
+            ++idtypeiter;
+	   }
+         }
+
+	}
+
+    // did we pass the numerator path?
+  bool numpassed = false;
+  for(int i = 0; i < npath; ++i) {
+     if (triggerNames.triggerName(i) == v->getPath() && triggerResults->accept(i)) numpassed = true;
   }
+
+  if (numpassed)
+    { 
+ 
+      if (!l1accept) {
+            edm::LogInfo("FourVectorHLTOnline") << "l1 seed path not accepted for hlt path "<< v->getPath() << "\t" << v->getl1Path();
+      }
+    // ok plot On, L1On, OnOff, and OnMc objects
+
+    // fill scaler histograms
+      edm::InputTag filterTag = v->getTag();
+
+	// loop through indices and see if the filter is on the list of filters used by this path
+      
+    if (v->getLabel() == "dummy"){
+        const std::vector<std::string> filterLabels = hltConfig_.moduleLabels(v->getPath());
+	//loop over labels
+        for (std::vector<std::string>::const_iterator labelIter= filterLabels.begin(); labelIter!=filterLabels.end(); labelIter++)          
+	 {
+	   //cout << v->getPath() << "\t" << *labelIter << endl;
+           // last match wins...
+	   edm::InputTag testTag(*labelIter,"",processname_);
+	   //           cout << v->getPath() << "\t" << testTag.label() << "\t" << testTag.process() << endl;
+           int testindex = triggerObj->filterIndex(testTag);
+           if ( !(testindex >= triggerObj->sizeFilters()) ) {
+	     //cout << "found one! " << v->getPath() << "\t" << testTag.label() << endl; 
+            filterTag = testTag; v->setLabel(*labelIter);}
+	 }
+         }
+	
+      const int index = triggerObj->filterIndex(filterTag);
+      if ( index >= triggerObj->sizeFilters() ) {
+	//        cout << "WTF no index "<< index << " of that name "
+	//	     << filterTag << endl;
+	continue; // not in this event
+      }
+      LogDebug("FourVectorHLTOnline") << "filling ... " ;
+      const trigger::Keys & k = triggerObj->filterKeys(index);
+      //      const trigger::Vids & idtype = triggerObj->filterIds(index);
+      // assume for now the first object type is the same as all objects in the collection
+      //    cout << filterTag << "\t" << idtype.size() << "\t" << k.size() << endl;
+      //     cout << "path " << v->getPath() << " trigger type "<<triggertype << endl;
+      //if (k.size() > 0) v->getNOnHisto()->Fill(k.size());
+      for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
+         
+        double tocEtaMax = 2.5;
+        double tocEtMin = 3.0;
+        if (triggertype == trigger::TriggerMuon || triggertype == trigger::TriggerL1Mu) 
+	  {
+	    tocEtaMax = muonEtaMax_; tocEtMin = muonEtMin_;
+	  }
+        else if (triggertype == trigger::TriggerElectron || triggertype == trigger::TriggerL1NoIsoEG || triggertype == trigger::TriggerL1IsoEG )
+	  {
+	    tocEtaMax = electronEtaMax_; tocEtMin = electronEtMin_;
+	  }
+        else if (triggertype == trigger::TriggerTau || triggertype == trigger::TriggerL1TauJet )
+	  {
+	    tocEtaMax = tauEtaMax_; tocEtMin = tauEtMin_;
+	  }
+        else if (triggertype == trigger::TriggerJet || triggertype == trigger::TriggerL1CenJet || triggertype == trigger::TriggerL1ForJet )
+	  {
+	    tocEtaMax = jetEtaMax_; tocEtMin = jetEtMin_;
+	  }
+        else if (triggertype == trigger::TriggerBJet)
+	  {
+	    tocEtaMax = bjetEtaMax_; tocEtMin = bjetEtMin_;
+	  }
+        else if (triggertype == trigger::TriggerMET || triggertype == trigger::TriggerL1ETM )
+	  {
+	    tocEtaMax = 999.0; tocEtMin = metMin_;
+	  }
+        else if (triggertype == trigger::TriggerPhoton)
+	  {
+	    tocEtaMax = photonEtaMax_; tocEtMin = photonEtMin_;
+	  }
+        else if (triggertype == trigger::TriggerTrack)
+	  {
+	    tocEtaMax = trackEtaMax_; tocEtMin = trackEtMin_;
+	  }
+
+        if (fabs(toc[*ki].eta()) <= tocEtaMax && toc[*ki].pt() >= tocEtMin)
+	  {
+	NOn++;    
+        v->getOnEtOnHisto()->Fill(toc[*ki].pt());
+	v->getOnEtaVsOnPhiOnHisto()->Fill(toc[*ki].eta(), toc[*ki].phi());
+	  }
+	//	  cout << "pdgId "<<toc[*ki].id() << endl;
+      // for muon triggers, loop over and fill online 4-vectors
+      if (triggertype == trigger::TriggerMuon || triggertype == trigger::TriggerL1Mu)
+	{
+
+          trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
+          for (trigger::Keys::const_iterator l1ki = l1k.begin(); l1ki !=l1k.end(); ++l1ki ) {
+	    if (*idtypeiter == trigger::TriggerL1Mu)
+	      {
+	   if (reco::deltaR(toc[*l1ki].eta(),toc[*l1ki].phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3 && fabs(toc[*l1ki].eta()) <= muonEtaMax_ && toc[*l1ki].pt() >= muonEtMin_ )
+            {
+	     NL1On++;
+	     v->getL1EtL1OnHisto()->Fill(toc[*l1ki].pt());
+	     v->getL1EtaVsL1PhiL1OnHisto()->Fill(toc[*l1ki].eta(),toc[*l1ki].phi());
+	    }
+              }
+	    ++idtypeiter;
+	  }
+
+	}
+
+      // for electron triggers, loop over and fill online 4-vectors
+      else if (triggertype == trigger::TriggerElectron || triggertype == trigger::TriggerL1IsoEG || triggertype == trigger::TriggerL1NoIsoEG )
+	{
+	  //	  std::cout << "Electron trigger" << std::endl;
+
+          trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
+          for (trigger::Keys::const_iterator l1ki = l1k.begin(); l1ki !=l1k.end(); ++l1ki ) {
+	    if (*idtypeiter == trigger::TriggerL1IsoEG || *idtypeiter == trigger::TriggerL1NoIsoEG)
+	      {
+	   if (reco::deltaR(toc[*l1ki].eta(),toc[*l1ki].phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3 && fabs(toc[*l1ki].eta()) <= electronEtaMax_ && toc[*l1ki].pt() >= electronEtMin_ )
+            {
+	     NL1On++;
+	     v->getL1EtL1OnHisto()->Fill(toc[*l1ki].pt());
+	     v->getL1EtaVsL1PhiL1OnHisto()->Fill(toc[*l1ki].eta(),toc[*l1ki].phi());
+	    }
+              }
+	    ++idtypeiter;
+	  }
+
+
+      }
+
+
+      // for tau triggers, loop over and fill online 4-vectors
+      else if (triggertype == trigger::TriggerTau || triggertype == trigger::TriggerL1TauJet)
+	{
+
+          trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
+          for (trigger::Keys::const_iterator l1ki = l1k.begin(); l1ki !=l1k.end(); ++l1ki ) {
+	    if (*idtypeiter == trigger::TriggerL1TauJet || *idtypeiter == trigger::TriggerL1ForJet)
+	      {
+	   if (reco::deltaR(toc[*l1ki].eta(),toc[*l1ki].phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3 && fabs(toc[*l1ki].eta()) <= tauEtaMax_ && toc[*l1ki].pt() >= tauEtMin_ )
+            {
+	     NL1On++;
+	     v->getL1EtL1OnHisto()->Fill(toc[*l1ki].pt());
+	     v->getL1EtaVsL1PhiL1OnHisto()->Fill(toc[*l1ki].eta(),toc[*l1ki].phi());
+	    }
+              }
+	    ++idtypeiter;
+	  }
+
+      }
+
+
+      // for jet triggers, loop over and fill online 4-vectors
+      else if (triggertype == trigger::TriggerJet || triggertype == trigger::TriggerL1CenJet || triggertype == trigger::TriggerL1ForJet )
+	{
+
+          trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
+          for (trigger::Keys::const_iterator l1ki = l1k.begin(); l1ki !=l1k.end(); ++l1ki ) {
+	    if (*idtypeiter == trigger::TriggerL1TauJet || *idtypeiter == trigger::TriggerL1ForJet || *idtypeiter == trigger::TriggerL1CenJet)
+	      {
+	   if (reco::deltaR(toc[*l1ki].eta(),toc[*l1ki].phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3 && fabs(toc[*l1ki].eta()) <= jetEtaMax_ && toc[*l1ki].pt() >= jetEtMin_ )
+            {
+	     NL1On++;
+	     v->getL1EtL1OnHisto()->Fill(toc[*l1ki].pt());
+	     v->getL1EtaVsL1PhiL1OnHisto()->Fill(toc[*l1ki].eta(),toc[*l1ki].phi());
+	    }
+              }
+	    ++idtypeiter;
+	  }
+
+      }
+
+      // for bjet triggers, loop over and fill online 4-vectors
+      else if (triggertype == trigger::TriggerBJet)
+	{
+
+          trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
+          for (trigger::Keys::const_iterator l1ki = l1k.begin(); l1ki !=l1k.end(); ++l1ki ) {
+	    if (*idtypeiter == trigger::TriggerL1ForJet || *idtypeiter == trigger::TriggerL1CenJet)
+	      {
+	   if (reco::deltaR(toc[*l1ki].eta(),toc[*l1ki].phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3 && fabs(toc[*l1ki].eta()) <= bjetEtaMax_ && toc[*l1ki].pt() >= bjetEtMin_ )
+            {
+	     NL1On++;
+	     v->getL1EtL1OnHisto()->Fill(toc[*l1ki].pt());
+	     v->getL1EtaVsL1PhiL1OnHisto()->Fill(toc[*l1ki].eta(),toc[*l1ki].phi());
+	    }
+              }
+	    ++idtypeiter;
+	  }
+
+	}
+      // for met triggers, loop over and fill online 4-vectors
+      else if (triggertype == trigger::TriggerMET || triggertype == trigger::TriggerL1ETM )
+	{
+
+          trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
+          for (trigger::Keys::const_iterator l1ki = l1k.begin(); l1ki !=l1k.end(); ++l1ki ) {
+	    if (*idtypeiter == trigger::TriggerL1ETM)
+	      {
+	   if (reco::deltaR(toc[*l1ki].eta(),toc[*l1ki].phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3 && toc[*l1ki].pt() >= metMin_ )
+            {
+	     NL1On++;
+	     v->getL1EtL1OnHisto()->Fill(toc[*l1ki].pt());
+	     v->getL1EtaVsL1PhiL1OnHisto()->Fill(toc[*l1ki].eta(),toc[*l1ki].phi());
+	    }
+              }
+	    ++idtypeiter;
+	  }
+
+      }
+      // for sumet triggers, loop over and fill online 4-vectors
+      else if (triggertype == trigger::TriggerHT || triggertype == trigger::TriggerL1ETT )
+	{
+
+          trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
+          for (trigger::Keys::const_iterator l1ki = l1k.begin(); l1ki !=l1k.end(); ++l1ki ) {
+	    if (*idtypeiter == trigger::TriggerL1ETT)
+	      {
+	   if (toc[*l1ki].pt() >= sumEtMin_ )
+            {
+	     NL1On++;
+	     v->getL1EtL1OnHisto()->Fill(toc[*l1ki].pt());
+	     v->getL1EtaVsL1PhiL1OnHisto()->Fill(toc[*l1ki].eta(),toc[*l1ki].phi());
+	    }
+              }
+	    ++idtypeiter;
+	  }
+
+      }
+
+
+      // for photon triggers, loop over and fill online and L1 4-vectors
+      else if (triggertype == trigger::TriggerPhoton)
+	{
+
+          trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
+          for (trigger::Keys::const_iterator l1ki = l1k.begin(); l1ki !=l1k.end(); ++l1ki ) {
+	    if (*idtypeiter == trigger::TriggerL1IsoEG || *idtypeiter == trigger::TriggerL1NoIsoEG)
+	      {
+	   if (reco::deltaR(toc[*l1ki].eta(),toc[*l1ki].phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3 && fabs(toc[*l1ki].eta()) <= photonEtaMax_ && toc[*l1ki].pt() >= photonEtMin_ )
+            {
+	     NL1On++;
+	     v->getL1EtL1OnHisto()->Fill(toc[*l1ki].pt());
+	     v->getL1EtaVsL1PhiL1OnHisto()->Fill(toc[*l1ki].eta(),toc[*l1ki].phi());
+	    }
+              }
+	    ++idtypeiter;
+	  }
+
+	}// photon trigger type
+
+
+      // for track triggers, loop over and fill online and L1 4-vectors
+      else if (triggertype == trigger::TriggerTrack)
+	{
+
+          trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
+          for (trigger::Keys::const_iterator l1ki = l1k.begin(); l1ki !=l1k.end(); ++l1ki ) {
+	    if (*idtypeiter == trigger::TriggerL1CenJet || *idtypeiter == trigger::TriggerL1ForJet || *idtypeiter == trigger::TriggerL1TauJet)
+	      {
+	   if (reco::deltaR(toc[*l1ki].eta(),toc[*l1ki].phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3 && fabs(toc[*l1ki].eta()) <= trackEtaMax_ && toc[*l1ki].pt() >= trackEtMin_ )
+            {
+	     NL1On++;
+	     v->getL1EtL1OnHisto()->Fill(toc[*l1ki].pt());
+	     v->getL1EtaVsL1PhiL1OnHisto()->Fill(toc[*l1ki].eta(),toc[*l1ki].phi());
+	    }
+              }
+	    ++idtypeiter;
+	  }
+
+	}// track trigger type
+
+      } //online object loop
+
+      v->getNOnHisto()->Fill(NOn);      
+      v->getNL1OnHisto()->Fill(NL1On);      
+
+    } //numpassed
+    
+      v->getNL1Histo()->Fill(NL1);
+
+    } //denompassed
+  } //pathinfo loop
+
 }
 
 
@@ -373,125 +706,424 @@ FourVectorHLTOnline::beginJob(const edm::EventSetup&)
   
   if (dbe) {
     dbe->setCurrentFolder(dirname_);
-  }  
+    }  
 }
 
 // - method called once each job just after ending the event loop  ------------
 void 
 FourVectorHLTOnline::endJob() 
 {
-  LogInfo("FourVectorHLTOnline") << "analyzed " << nev_ << " events";
-  return;
+   LogInfo("FourVectorHLTOnline") << "analyzed " << nev_ << " events";
+   return;
 }
 
 
 // BeginRun
-void FourVectorHLTOnline::beginRun(const edm::Run& run, 
-				   const edm::EventSetup& c)
+void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c)
 {
   LogDebug("FourVectorHLTOnline") << "beginRun, run " << run.id();
-  // HLT config does not change within runs!
-  std::string process_ = "HLT";
-  if (!hltConfig_.init("HLT")) {
-    LogDebug("FourVectorHLTOnline") << "HLTConfigProvider failed to "
-      "initialize.";
+// HLT config does not change within runs!
+ 
+  if (!hltConfig_.init(processname_)) {
+  LogDebug("FourVectorHLTOnline") << "HLTConfigProvider failed to initialize.";
     // check if trigger name in (new) config
     //	cout << "Available TriggerNames are: " << endl;
     //	hltConfig_.dump("Triggers");
+      }
+
+
+  if (1)
+ {
+  DQMStore *dbe = 0;
+  dbe = Service<DQMStore>().operator->();
+  
+  if (dbe) {
+    dbe->setCurrentFolder(dirname_);
   }
 
 
-
-  if (1) {
-    DQMStore *dbe = 0;
-    dbe = Service<DQMStore>().operator->();
-  
-    if (dbe) {
-      dbe->setCurrentFolder(dirname_);
-    }
-
     const unsigned int n(hltConfig_.size());
+    if (plotAll_){
+    for (unsigned int j=0; j!=n; ++j) {
+    std::string pathname = hltConfig_.triggerName(j);  
+    std::string l1pathname = "dummy";
     for (unsigned int i=0; i!=n; ++i) {
       // cout << hltConfig_.triggerName(i) << endl;
     
-      std::string pathname = hltConfig_.triggerName(i);  
-      std::string filtername("dummy");
-      int objectType = 0;
-      float ptMin = 0.0;
-      float ptMax = 100.0;
-      if (pathname.find("HLT_") != std::string::npos && plotAll_)
-	hltPaths_.push_back(PathInfo(pathname, filtername, objectType, 
-				     ptMin, ptMax));
+    std::string denompathname = hltConfig_.triggerName(i);  
+    int objectType = 0;
+    int denomobjectType = 0;
+    //parse pathname to guess object type
+    if (pathname.find("MET") != std::string::npos) 
+      objectType = trigger::TriggerMET;    
+    if (pathname.find("SumET") != std::string::npos) 
+      objectType = trigger::TriggerHT;    
+    if (pathname.find("HT") != std::string::npos) 
+      objectType = trigger::TriggerHT;    
+    if (pathname.find("Jet") != std::string::npos) 
+      objectType = trigger::TriggerJet;    
+    if (pathname.find("BTag") != std::string::npos) 
+      objectType = trigger::TriggerBJet;    
+    if (pathname.find("Mu") != std::string::npos) 
+      objectType = trigger::TriggerMuon;    
+    if (pathname.find("Ele") != std::string::npos) 
+      objectType = trigger::TriggerElectron;    
+    if (pathname.find("Photon") != std::string::npos) 
+      objectType = trigger::TriggerPhoton;    
+    if (pathname.find("Tau") != std::string::npos) 
+      objectType = trigger::TriggerTau;    
+    if (pathname.find("IsoTrack") != std::string::npos) 
+      objectType = trigger::TriggerTrack;    
+
+    //parse denompathname to guess denomobject type
+    if (denompathname.find("MET") != std::string::npos) 
+      denomobjectType = trigger::TriggerMET;    
+    if (denompathname.find("SumET") != std::string::npos) 
+      denomobjectType = trigger::TriggerHT;    
+    if (denompathname.find("HT") != std::string::npos) 
+      denomobjectType = trigger::TriggerHT;    
+    if (denompathname.find("Jet") != std::string::npos) 
+      denomobjectType = trigger::TriggerJet;    
+    if (denompathname.find("BTag") != std::string::npos) 
+      denomobjectType = trigger::TriggerBJet;    
+    if (denompathname.find("Mu") != std::string::npos) 
+      denomobjectType = trigger::TriggerMuon;    
+    if (denompathname.find("Ele") != std::string::npos) 
+      denomobjectType = trigger::TriggerElectron;    
+    if (denompathname.find("Photon") != std::string::npos) 
+      denomobjectType = trigger::TriggerPhoton;    
+    if (denompathname.find("Tau") != std::string::npos) 
+      denomobjectType = trigger::TriggerTau;    
+    if (denompathname.find("IsoTrack") != std::string::npos) 
+      denomobjectType = trigger::TriggerTrack;    
+
+    // find L1 condition for numpath with numpath objecttype 
+
+    // find PSet for L1 global seed for numpath, 
+    // list module labels for numpath
+    std::vector<std::string> numpathmodules = hltConfig_.moduleLabels(pathname);
+
+            for(std::vector<std::string>::iterator numpathmodule = numpathmodules.begin();
+    	  numpathmodule!= numpathmodules.end(); ++numpathmodule ) {
+	      //  cout << pathname << "\t" << *numpathmodule << "\t" << hltConfig_.moduleType(*numpathmodule) << endl;
+	      if (hltConfig_.moduleType(*numpathmodule) == "HLTLevel1GTSeed")
+		{
+		  edm::ParameterSet l1GTPSet = hltConfig_.modulePSet(*numpathmodule);
+		  //                  cout << l1GTPSet.getParameter<std::string>("L1SeedsLogicalExpression") << endl;
+		  //  l1pathname = l1GTPSet.getParameter<std::string>("L1SeedsLogicalExpression");
+                  l1pathname = *numpathmodule; 
+                  break; 
+		}
+    	} 
+   
+    
+
+
+
+    std::string filtername("dummy");
+    float ptMin = 0.0;
+    float ptMax = 100.0;
+    if (plotAll_ && denomobjectType == objectType && objectType != 0)
+    hltPaths_.push_back(PathInfo(denompathname, pathname, l1pathname, filtername, processname_, objectType, ptMin, ptMax));
+
     }
+    }
+
+    }
+    else
+    {
+     // plot all diagonal combinations plus any other specified pairs
+    for (unsigned int i=0; i!=n; ++i) {
+      std::string denompathname = hltConfig_.triggerName(i);  
+      std::string pathname = hltConfig_.triggerName(i);  
+      std::string l1pathname = "dummy";
+      int objectType = 0;
+      int denomobjectType = 0;
+    //parse pathname to guess object type
+    if (pathname.find("MET") != std::string::npos) 
+      objectType = trigger::TriggerMET;    
+    if (pathname.find("SumET") != std::string::npos) 
+      objectType = trigger::TriggerHT;    
+    if (pathname.find("HT") != std::string::npos) 
+      objectType = trigger::TriggerHT;    
+    if (pathname.find("Jet") != std::string::npos) 
+      objectType = trigger::TriggerJet;    
+    if (pathname.find("BTag") != std::string::npos) 
+      objectType = trigger::TriggerBJet;    
+    if (pathname.find("Mu") != std::string::npos) 
+      objectType = trigger::TriggerMuon;    
+    if (pathname.find("Ele") != std::string::npos) 
+      objectType = trigger::TriggerElectron;    
+    if (pathname.find("Photon") != std::string::npos) 
+      objectType = trigger::TriggerPhoton;    
+    if (pathname.find("Tau") != std::string::npos) 
+      objectType = trigger::TriggerTau;    
+    if (pathname.find("IsoTrack") != std::string::npos) 
+      objectType = trigger::TriggerTrack;    
+
+    //parse denompathname to guess denomobject type
+    if (denompathname.find("MET") != std::string::npos) 
+      denomobjectType = trigger::TriggerMET;    
+    if (denompathname.find("SumET") != std::string::npos) 
+      denomobjectType = trigger::TriggerHT;    
+    if (denompathname.find("HT") != std::string::npos) 
+      denomobjectType = trigger::TriggerHT;    
+    if (denompathname.find("Jet") != std::string::npos) 
+      denomobjectType = trigger::TriggerJet;    
+    if (denompathname.find("BTag") != std::string::npos) 
+      denomobjectType = trigger::TriggerBJet;    
+    if (denompathname.find("Mu") != std::string::npos) 
+      denomobjectType = trigger::TriggerMuon;    
+    if (denompathname.find("Ele") != std::string::npos) 
+      denomobjectType = trigger::TriggerElectron;    
+    if (denompathname.find("Photon") != std::string::npos) 
+      denomobjectType = trigger::TriggerPhoton;    
+    if (denompathname.find("Tau") != std::string::npos) 
+      denomobjectType = trigger::TriggerTau;    
+    if (denompathname.find("IsoTrack") != std::string::npos) 
+      denomobjectType = trigger::TriggerTrack;    
+    // find L1 condition for numpath with numpath objecttype 
+
+    // find PSet for L1 global seed for numpath, 
+    // list module labels for numpath
+    std::vector<std::string> numpathmodules = hltConfig_.moduleLabels(pathname);
+
+    for(std::vector<std::string>::iterator numpathmodule = numpathmodules.begin();
+    	  numpathmodule!= numpathmodules.end(); ++numpathmodule ) {
+	      //  cout << pathname << "\t" << *numpathmodule << "\t" << hltConfig_.moduleType(*numpathmodule) << endl;
+	      if (hltConfig_.moduleType(*numpathmodule) == "HLTLevel1GTSeed")
+		{
+		  edm::ParameterSet l1GTPSet = hltConfig_.modulePSet(*numpathmodule);
+		  //                  cout << l1GTPSet.getParameter<std::string>("L1SeedsLogicalExpression") << endl;
+                  //l1pathname = l1GTPSet.getParameter<std::string>("L1SeedsLogicalExpression"); 
+                  l1pathname = *numpathmodule;
+                  break; 
+		}
+    } 
+   
+    
+
+
+
+    std::string filtername("dummy");
+    float ptMin = 0.0;
+    float ptMax = 100.0;
+    if (objectType != 0){
+    hltPaths_.push_back(PathInfo(denompathname, pathname, l1pathname, filtername, processname_, objectType, ptMin, ptMax));
+      //create folder for pathname
+     }
+    }
+    // now loop over denom/num path pairs specified in cfg, 
+    // recording the off-diagonal ones
+    for (std::vector<std::pair<std::string, std::string> >::iterator custompathnamepair = custompathnamepairs_.begin(); custompathnamepair != custompathnamepairs_.end(); ++custompathnamepair)
+    {
+      if (custompathnamepair->first != custompathnamepair->second)
+	{
+
+      std::string denompathname = custompathnamepair->second;  
+      std::string pathname = custompathnamepair->first;  
+     
+      // check that these exist
+      bool foundfirst = false;
+      bool foundsecond = false;
+      for (unsigned int i=0; i!=n; ++i) {
+	if (hltConfig_.triggerName(i) == denompathname) foundsecond = true;
+	if (hltConfig_.triggerName(i) == pathname) foundfirst = true;
+      } 
+      if (!foundfirst)
+	{
+	  edm::LogInfo("FourVectorHLTOnline") << "pathname not found, ignoring " << pathname;
+          continue;
+	}
+      if (!foundsecond)
+	{
+	  edm::LogInfo("FourVectorHLTOnline") << "denompathname not found, ignoring " << pathname;
+          continue;
+	}
+
+     //cout << pathname << "\t" << denompathname << endl;
+      std::string l1pathname = "dummy";
+      int objectType = 0;
+      //int denomobjectType = 0;
+    //parse pathname to guess object type
+    if (pathname.find("MET") != std::string::npos) 
+      objectType = trigger::TriggerMET;    
+    if (pathname.find("SumET") != std::string::npos) 
+      objectType = trigger::TriggerHT;    
+    if (pathname.find("HT") != std::string::npos) 
+      objectType = trigger::TriggerHT;    
+    if (pathname.find("Jet") != std::string::npos) 
+      objectType = trigger::TriggerJet;    
+    if (pathname.find("BTag") != std::string::npos) 
+      objectType = trigger::TriggerBJet;    
+    if (pathname.find("Mu") != std::string::npos) 
+      objectType = trigger::TriggerMuon;    
+    if (pathname.find("Ele") != std::string::npos) 
+      objectType = trigger::TriggerElectron;    
+    if (pathname.find("Photon") != std::string::npos) 
+      objectType = trigger::TriggerPhoton;    
+    if (pathname.find("Tau") != std::string::npos) 
+      objectType = trigger::TriggerTau;    
+    if (pathname.find("IsoTrack") != std::string::npos) 
+      objectType = trigger::TriggerTrack;    
+    // find L1 condition for numpath with numpath objecttype 
+
+    // find PSet for L1 global seed for numpath, 
+    // list module labels for numpath
+  
+    std::vector<std::string> numpathmodules = hltConfig_.moduleLabels(pathname);
+    
+    for(std::vector<std::string>::iterator numpathmodule = numpathmodules.begin();
+    	  numpathmodule!= numpathmodules.end(); ++numpathmodule ) {
+	      //  cout << pathname << "\t" << *numpathmodule << "\t" << hltConfig_.moduleType(*numpathmodule) << endl;
+	      if (hltConfig_.moduleType(*numpathmodule) == "HLTLevel1GTSeed")
+		{
+		  edm::ParameterSet l1GTPSet = hltConfig_.modulePSet(*numpathmodule);
+		  //                  cout << l1GTPSet.getParameter<std::string>("L1SeedsLogicalExpression") << endl;
+		  // l1pathname = l1GTPSet.getParameter<std::string>("L1SeedsLogicalExpression");
+                  l1pathname = *numpathmodule;
+                  //cout << *numpathmodule << endl; 
+                  break; 
+		}
+    }
+    
+    
+
+
+
+    std::string filtername("dummy");
+    float ptMin = 0.0;
+    float ptMax = 100.0;
+    if (objectType != 0)
+    hltPaths_.push_back(PathInfo(denompathname, pathname, l1pathname, filtername, processname_, objectType, ptMin, ptMax));
+    
+	}
+    }
+
+    }
+
+
+
     // now set up all of the histos for each path
     for(PathInfoCollection::iterator v = hltPaths_.begin();
-	v!= hltPaths_.end(); ++v ) {
-      MonitorElement *NOn, *etOn, *etaOn, *phiOn, *etavsphiOn=0;
-      MonitorElement *etL1, *etaL1, *phiL1, *etavsphiL1=0;
-      std::string labelname("dummy");
-      labelname = v->getPath();
-      std::string histoname(labelname+"_NOn");
-      std::string title(labelname+" N online");
-      NOn =  dbe->book1D(histoname.c_str(),
-			 title.c_str(),10,
-			 0.5,
-			 10.5);
-      
-      histoname = labelname+"_etOn";
-      title = labelname+" E_t online";
-      etOn =  dbe->book1D(histoname.c_str(),
-			  title.c_str(),nBins_, 
-			  v->getPtMin(),
-			  v->getPtMax());
+	  v!= hltPaths_.end(); ++v ) {
+    	MonitorElement *NOn, *onEtOn, *onEtavsonPhiOn=0;
+	MonitorElement *NL1, *l1EtL1, *l1Etavsl1PhiL1=0;
+    	MonitorElement *NL1On, *l1EtL1On, *l1Etavsl1PhiL1On=0;
+	std::string labelname("dummy");
+        labelname = v->getPath() + "_wrt_" + v->getDenomPath();
+	std::string histoname(labelname+"_NOn");
+	std::string title(labelname+" N online");
 
-      histoname = labelname+"_etL1";
-      title = labelname+" E_t L1";
-      etL1 =  dbe->book1D(histoname.c_str(),
-			  title.c_str(),nBins_, 
-			  v->getPtMin(),
-			  v->getPtMax());
 
-      histoname = labelname+"_etaOn";
-      title = labelname+" #eta online";
-      etaOn =  dbe->book1D(histoname.c_str(),
-			   title.c_str(),nBins_,-2.7,2.7);
 
-      histoname = labelname+"_etaL1";
-      title = labelname+" #eta L1";
-      etaL1 =  dbe->book1D(histoname.c_str(),
-			   title.c_str(),nBins_,-2.7,2.7);
+        double histEtaMax = 2.5;
+        if (v->getObjectType() == trigger::TriggerMuon || v->getObjectType() == trigger::TriggerL1Mu) 
+	  {
+	    histEtaMax = muonEtaMax_;
+	  }
+        else if (v->getObjectType() == trigger::TriggerElectron || v->getObjectType() == trigger::TriggerL1NoIsoEG || v->getObjectType() == trigger::TriggerL1IsoEG )
+	  {
+	    histEtaMax = electronEtaMax_;
+	  }
+        else if (v->getObjectType() == trigger::TriggerTau || v->getObjectType() == trigger::TriggerL1TauJet )
+	  {
+	    histEtaMax = tauEtaMax_;
+	  }
+        else if (v->getObjectType() == trigger::TriggerJet || v->getObjectType() == trigger::TriggerL1CenJet || v->getObjectType() == trigger::TriggerL1ForJet )
+	  {
+	    histEtaMax = jetEtaMax_; 
+	  }
+        else if (v->getObjectType() == trigger::TriggerBJet)
+	  {
+	    histEtaMax = bjetEtaMax_;
+	  }
+        else if (v->getObjectType() == trigger::TriggerMET || v->getObjectType() == trigger::TriggerL1ETM )
+	  {
+	    histEtaMax = 5.0; 
+	  }
+        else if (v->getObjectType() == trigger::TriggerPhoton)
+	  {
+	    histEtaMax = photonEtaMax_; 
+	  }
+        else if (v->getObjectType() == trigger::TriggerTrack)
+	  {
+	    histEtaMax = trackEtaMax_; 
+	  }
 
-      histoname = labelname+"_phiOn";
-      title = labelname+" #phi online";
-      phiOn =  dbe->book1D(histoname.c_str(),
-			   histoname.c_str(),nBins_,-3.14,3.14);
+        TString pathfolder = dirname_ + TString("/") + v->getPath();
+        dbe_->setCurrentFolder(pathfolder.Data());
 
-      histoname = labelname+"_phiL1";
-      title = labelname+" #phi L1";
-      phiL1 =  dbe->book1D(histoname.c_str(),
-			   histoname.c_str(),nBins_,-3.14,3.14);
- 
-      histoname = labelname+"_etaphiOn";
-      title = labelname+" #eta vs #phi online";
-      etavsphiOn =  dbe->book2D(histoname.c_str(),
+	NOn =  dbe->book1D(histoname.c_str(),
+			  title.c_str(),10,
+			  0.5,
+			  10.5);
+
+	histoname = labelname+"_NL1";
+	title = labelname+" N L1";
+	NL1 =  dbe->book1D(histoname.c_str(),
+			  title.c_str(),10,
+			  0.5,
+			  10.5);
+
+	histoname = labelname+"_NL1On";
+	title = labelname+" N L1On";
+	NL1On =  dbe->book1D(histoname.c_str(),
+			  title.c_str(),10,
+			  0.5,
+			  10.5);
+
+        histoname = labelname+"_onEtOn";
+	title = labelname+" onE_t online";
+	onEtOn =  dbe->book1D(histoname.c_str(),
+			   title.c_str(),nBins_, 
+                           v->getPtMin(),
+			   v->getPtMax());
+
+	histoname = labelname+"_l1EtL1";
+	title = labelname+" l1E_t L1";
+	l1EtL1 =  dbe->book1D(histoname.c_str(),
+			   title.c_str(),nBins_, 
+                           v->getPtMin(),
+			   v->getPtMax());
+
+        int nBins2D = 10;
+
+	histoname = labelname+"_onEtaonPhiOn";
+	title = labelname+" on#eta vs on#phi online";
+	onEtavsonPhiOn =  dbe->book2D(histoname.c_str(),
 				title.c_str(),
-				nBins_,-2.7,2.7,
-				nBins_,-3.14, 3.14);
+				nBins2D,-histEtaMax,histEtaMax,
+				nBins2D,-TMath::Pi(), TMath::Pi());
 
-      histoname = labelname+"_etaphiL1";
-      title = labelname+" #eta vs #phi L1";
-      etavsphiL1 =  dbe->book2D(histoname.c_str(),
+	histoname = labelname+"_l1Etal1PhiL1";
+	title = labelname+" l1#eta vs l1#phi L1";
+	l1Etavsl1PhiL1 =  dbe->book2D(histoname.c_str(),
 				title.c_str(),
-				nBins_,-2.7,2.7,
-				nBins_,-3.14, 3.14);
+				nBins2D,-histEtaMax,histEtaMax,
+				nBins2D,-TMath::Pi(), TMath::Pi());
 
-      v->setHistos(NOn, etOn, etaOn, phiOn, etavsphiOn, etL1, etaL1, phiL1,
-		   etavsphiL1);
+	histoname = labelname+"_l1EtL1On";
+	title = labelname+" l1E_t L1+online";
+	l1EtL1On =  dbe->book1D(histoname.c_str(),
+			   title.c_str(),nBins_, 
+                           v->getPtMin(),
+			   v->getPtMax());
+
+	histoname = labelname+"_l1Etal1PhiL1On";
+	title = labelname+" l1#eta vs l1#phi L1+online";
+	l1Etavsl1PhiL1On =  dbe->book2D(histoname.c_str(),
+				title.c_str(),
+				nBins2D,-histEtaMax,histEtaMax,
+				nBins2D,-TMath::Pi(), TMath::Pi());
+
+
+	v->setHistos( NOn, onEtOn, onEtavsonPhiOn, NL1, l1EtL1, l1Etavsl1PhiL1, NL1On, l1EtL1On, l1Etavsl1PhiL1On);
 
 
     }
-  }
-  return;
+ }
+ return;
 
 
 

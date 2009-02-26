@@ -16,7 +16,7 @@
 //
 // Original Author:  Jeffrey Berryhill
 //         Created:  June 2008
-// $Id: FourVectorHLTOnline.h,v 1.7 2008/10/02 18:43:07 berryhil Exp $
+// $Id: FourVectorHLTOnline.h,v 1.17 2009/02/26 22:30:17 berryhil Exp $
 //
 //
 
@@ -41,13 +41,11 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include <iostream>
 #include <fstream>
 #include <vector>
 
-//
-// class decleration
-//
 
 class FourVectorHLTOnline : public edm::EDAnalyzer {
    public:
@@ -81,7 +79,29 @@ class FourVectorHLTOnline : public edm::EDAnalyzer {
       double ptMin_ ;
       double ptMax_ ;
       
+      double electronEtaMax_;
+      double electronEtMin_;
+      double muonEtaMax_;
+      double muonEtMin_;
+      double tauEtaMax_;
+      double tauEtMin_;
+      double jetEtaMax_;
+      double jetEtMin_;
+      double bjetEtaMax_;
+      double bjetEtMin_;
+      double photonEtaMax_;
+      double photonEtMin_;
+      double trackEtaMax_;
+      double trackEtMin_;
+      double metMin_;
+      double htMin_;
+      double sumEtMin_;
+
+      std::vector<std::pair<std::string, std::string> > custompathnamepairs_;
+
+
       std::string dirname_;
+      std::string processname_;
       bool monitorDaemon_;
       int theHLTOutputType;
       edm::InputTag triggerSummaryLabel_;
@@ -93,55 +113,55 @@ class FourVectorHLTOnline : public edm::EDAnalyzer {
 
       class PathInfo {
 	PathInfo():
-	  pathIndex_(-1), pathName_("unset"), filterName_("unset"), objectType_(-1)
+	  pathIndex_(-1), denomPathName_("unset"), pathName_("unset"), l1pathName_("unset"), filterName_("unset"), processName_("unset"), objectType_(-1)
 	  {};
       public:
 	void setHistos(
                        MonitorElement* const NOn, 
-                       MonitorElement* const etOn, 
-                       MonitorElement* const etaOn, 
-		       MonitorElement* const phiOn, 
-		       MonitorElement* const etavsphiOn,  
-                       MonitorElement* const etL1, 
-                       MonitorElement* const etaL1, 
-		       MonitorElement* const phiL1, 
-		       MonitorElement* const etavsphiL1) {
-	  NOn_ = NOn;
-	  etOn_ = etOn;
-	  etaOn_ = etaOn;
-	  phiOn_ = phiOn;
-	  etavsphiOn_ = etavsphiOn;
-	  etL1_ = etL1;
-	  etaL1_ = etaL1;
-	  phiL1_ = phiL1;
-	  etavsphiL1_ = etavsphiL1;
+                       MonitorElement* const onEtOn, 
+                       MonitorElement* const onEtavsonPhiOn,  
+                       MonitorElement* const NL1, 
+                       MonitorElement* const l1EtL1, 
+		       MonitorElement* const l1Etavsl1PhiL1,
+                       MonitorElement* const NL1On, 
+                       MonitorElement* const l1EtL1On, 
+		       MonitorElement* const l1Etavsl1PhiL1On) {
+          NOn_ = NOn;
+	  onEtOn_ = onEtOn;
+	  onEtavsonPhiOn_ = onEtavsonPhiOn;
+          NL1_ = NL1;
+	  l1EtL1_ = l1EtL1;
+	  l1Etavsl1PhiL1_ = l1Etavsl1PhiL1;
+          NL1On_ = NL1On;
+	  l1EtL1On_ = l1EtL1On;
+	  l1Etavsl1PhiL1On_ = l1Etavsl1PhiL1On;
 	}
 	MonitorElement * getNOnHisto() {
 	  return NOn_;
 	}
-	MonitorElement * getEtOnHisto() {
-	  return etOn_;
+	MonitorElement * getOnEtOnHisto() {
+	  return onEtOn_;
 	}
-	MonitorElement * getEtaOnHisto() {
-	  return etaOn_;
+	MonitorElement * getOnEtaVsOnPhiOnHisto() {
+	  return onEtavsonPhiOn_;
 	}
-	MonitorElement * getPhiOnHisto() {
-	  return phiOn_;
+	MonitorElement * getNL1Histo() {
+	  return NL1_;
 	}
-	MonitorElement * getEtaVsPhiOnHisto() {
-	  return etavsphiOn_;
+	MonitorElement * getL1EtL1Histo() {
+	  return l1EtL1_;
 	}
-	MonitorElement * getEtL1Histo() {
-	  return etL1_;
+	MonitorElement * getL1EtaVsL1PhiL1Histo() {
+	  return l1Etavsl1PhiL1_;
 	}
-	MonitorElement * getEtaL1Histo() {
-	  return etaL1_;
+	MonitorElement * getNL1OnHisto() {
+	  return NL1On_;
 	}
-	MonitorElement * getPhiL1Histo() {
-	  return phiL1_;
+	MonitorElement * getL1EtL1OnHisto() {
+	  return l1EtL1On_;
 	}
-	MonitorElement * getEtaVsPhiL1Histo() {
-	  return etavsphiL1_;
+	MonitorElement * getL1EtaVsL1PhiL1OnHisto() {
+	  return l1Etavsl1PhiL1On_;
 	}
 	const std::string getLabel(void ) const {
 	  return filterName_;
@@ -153,34 +173,49 @@ class FourVectorHLTOnline : public edm::EDAnalyzer {
 	const std::string getPath(void ) const {
 	  return pathName_;
 	}
+	const std::string getl1Path(void ) const {
+	  return l1pathName_;
+	}
+	const std::string getDenomPath(void ) const {
+	  return denomPathName_;
+	}
+	const std::string getProcess(void ) const {
+	  return processName_;
+	}
+	const int getObjectType(void ) const {
+	  return objectType_;
+	}
+
         const edm::InputTag getTag(void) const{
-	  edm::InputTag tagName(filterName_,"","HLT");
+	  edm::InputTag tagName(filterName_,"",processName_);
           return tagName;
 	}
 	~PathInfo() {};
-	PathInfo(std::string pathName, std::string filterName, size_t type, float ptmin, 
+	PathInfo(std::string denomPathName, std::string pathName, std::string l1pathName, std::string filterName, std::string processName, size_t type, float ptmin, 
 		 float ptmax):
-	  pathName_(pathName), filterName_(filterName), objectType_(type),
-	  NOn_(0),etOn_(0), etaOn_(0), phiOn_(0), etavsphiOn_(0),
-	  etL1_(0), etaL1_(0), phiL1_(0), etavsphiL1_(0),
+	  denomPathName_(denomPathName), pathName_(pathName), l1pathName_(l1pathName), filterName_(filterName), processName_(processName), objectType_(type),
+          NOn_(0), onEtOn_(0), onEtavsonPhiOn_(0),
+	  NL1_(0), l1EtL1_(0), l1Etavsl1PhiL1_(0),
+          NL1On_(0), l1EtL1On_(0), l1Etavsl1PhiL1On_(0),
 	  ptmin_(ptmin), ptmax_(ptmax)
 	  {
 	  };
-	  PathInfo(std::string pathName, std::string filterName, size_t type,
+	  PathInfo(std::string denomPathName, std::string pathName, std::string l1pathName, std::string filterName, std::string processName, size_t type,
 		   MonitorElement *NOn,
-		   MonitorElement *etOn,
-		   MonitorElement *etaOn,
-		   MonitorElement *phiOn,
-		   MonitorElement *etavsphiOn,
-		   MonitorElement *etL1,
-		   MonitorElement *etaL1,
-		   MonitorElement *phiL1,
-		   MonitorElement *etavsphiL1,
+		   MonitorElement *onEtOn,
+		   MonitorElement *onEtavsonPhiOn,
+		   MonitorElement *NL1,
+		   MonitorElement *l1EtL1,
+		   MonitorElement *l1Etavsl1PhiL1,
+		   MonitorElement *NL1On,
+		   MonitorElement *l1EtL1On,
+		   MonitorElement *l1Etavsl1PhiL1On,
 		   float ptmin, float ptmax
 		   ):
-	    pathName_(pathName), filterName_(filterName), objectType_(type),
-	    NOn_(NOn), etOn_(etOn), etaOn_(etaOn), phiOn_(phiOn), etavsphiOn_(etavsphiOn),
-	    etL1_(etL1), etaL1_(etaL1), phiL1_(phiL1), etavsphiL1_(etavsphiL1),
+	    denomPathName_(denomPathName), pathName_(pathName), l1pathName_(l1pathName), filterName_(filterName), processName_(processName), objectType_(type),
+            NOn_(NOn), onEtOn_(onEtOn), onEtavsonPhiOn_(onEtavsonPhiOn),
+	    NL1_(NL1), l1EtL1_(l1EtL1), l1Etavsl1PhiL1_(l1Etavsl1PhiL1),
+            NL1On_(NL1On), l1EtL1On_(l1EtL1On), l1Etavsl1PhiL1On_(l1Etavsl1PhiL1On),
 	    ptmin_(ptmin), ptmax_(ptmax)
 	    {};
 	    bool operator==(const std::string v) 
@@ -189,13 +224,17 @@ class FourVectorHLTOnline : public edm::EDAnalyzer {
 	    }
       private:
 	  int pathIndex_;
+	  std::string denomPathName_;
 	  std::string pathName_;
+	  std::string l1pathName_;
 	  std::string filterName_;
+	  std::string processName_;
 	  int objectType_;
 
 	  // we don't own this data
-	  MonitorElement *NOn_, *etOn_, *etaOn_, *phiOn_, *etavsphiOn_;
-	  MonitorElement *etL1_, *etaL1_, *phiL1_, *etavsphiL1_;
+          MonitorElement *NOn_, *onEtOn_, *onEtavsonPhiOn_;
+	  MonitorElement *NL1_, *l1EtL1_, *l1Etavsl1PhiL1_;
+	  MonitorElement *NL1On_, *l1EtL1On_, *l1Etavsl1PhiL1On_;
 
 	  float ptmin_, ptmax_;
 
