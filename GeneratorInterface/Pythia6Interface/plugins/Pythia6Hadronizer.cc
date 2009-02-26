@@ -65,7 +65,7 @@ extern "C" {
       
       // NOTE: I'm passing NULL pointers, instead of HepMC::GenEvent, etc.
       //   
-      *veto = Pythia6Hadronizer::getJetMatching()->match(0,0,true); 
+      *veto = Pythia6Hadronizer::getJetMatching()->match(0, 0, true);
 
       return; 
    }
@@ -222,7 +222,7 @@ bool Pythia6Hadronizer::hadronize()
 {
    FortranCallback::getInstance()->setLHEEvent( lheEvent() );
    FortranCallback::getInstance()->resetIterationsPerEvent();
-   if ( fJetMatching != NULL) 
+   if ( fJetMatching )
    {
       fJetMatching->resetMatchingStatus() ;
       fJetMatching->beforeHadronisation( lheEvent() );
@@ -231,12 +231,12 @@ bool Pythia6Hadronizer::hadronize()
    // generate event with Pythia6
    //
    call_pyevnt();
-      
+
    if ( FortranCallback::getInstance()->getIterationsPerEvent() > 1 || 
         hepeup_.nup <= 0 || pypars.msti[0] == 1 )
    {
       // update LHE matching statistics
-      lheEvent()->count( lhef::LHERunInfo::kTried );
+      lheEvent()->count( lhef::LHERunInfo::kSelected );
 
       event().reset();
 /*
