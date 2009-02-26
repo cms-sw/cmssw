@@ -1,5 +1,5 @@
-#ifndef gen_TauolaInterface_h
-#define gen_TauolaInterface_h
+#ifndef gen_ExternalDecays_TauolaInterface_h
+#define gen_ExternalDecays_TauolaInterface_h
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

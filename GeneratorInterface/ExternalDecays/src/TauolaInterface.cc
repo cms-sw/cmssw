@@ -2,35 +2,12 @@
 #include <iostream>
 
 #include "GeneratorInterface/ExternalDecays/interface/TauolaInterface.h"
+#include "GeneratorInterface/ExternalDecays/interface/TauolaWrapper.h"
 
 #include "HepMC/GenEvent.h"
 #include "HepMC/IO_HEPEVT.h"
 #include "HepMC/HEPEVT_Wrapper.h"
 
-
-extern "C" {
-  void tauola_(int*, int*);
-}
-extern "C" {
-  extern struct {
-    int pjak1;
-    int pjak2;
-    int mdtau;
-  } ki_taumod_;
-}
-#define ki_taumod ki_taumod_
-
-extern "C" {
-   extern struct {
-     int jak1;
-     int jak2;
-     int itdkrc;
-     int ifphot;
-     int ifhadm;
-     int ifhadp;
-   } libra_ ;
-}
-#define libra libra_
 
 using namespace gen;
 using namespace edm;
