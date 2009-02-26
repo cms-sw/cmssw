@@ -7,22 +7,23 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 # DiPions in energy bins
-process.source = cms.Source(
-    "FlatRandomPtGunSource",
+
+process.source = cms.Source("EmptySource")
+process.generator = cms.EDProducer(
+    "FlatRandomPtGunProducer",
     firstRun = cms.untracked.uint32(1),
-    PGunParameters = cms.untracked.PSet(
-        PartID = cms.untracked.vint32(211),
-        MinPt = cms.untracked.double(==MINPT==.0),
-        MaxPt = cms.untracked.double(==MAXPT==.0),
-        MinEta = cms.untracked.double(-2.8),
-        MaxEta = cms.untracked.double(+2.8),
-        MinPhi = cms.untracked.double(-3.14159265359), ## it must be in radians
-        MaxPhi = cms.untracked.double(3.14159265359),
+    PGunParameters = cms.PSet(
+        PartID = cms.vint32(211),
+        MinPt = cms.double(0.0),
+        MaxPt = cms.double(1.0),
+        MinEta = cms.double(-2.8),
+        MaxEta = cms.double(+2.8),
+        MinPhi = cms.double(-3.14159265359), ## it must be in radians
+        MaxPhi = cms.double(3.14159265359),
     ),
-    AddAntiParticle = cms.untracked.bool(False), # back-to-back particles
+    AddAntiParticle = cms.bool(False), # back-to-back particles
     Verbosity = cms.untracked.int32(0) ## for printouts, set it to 1 (or greater)
 )    
-
 
 # this example configuration offers some minimum 
 # annotation, to help users get through; please
@@ -144,7 +145,7 @@ process.fevt = cms.OutputModule(
       )
 )
 
-process.p0 = cms.Path(process.pgen)
+process.p0 = cms.Path(process.generator+process.pgen)
 process.p1 = cms.Path(process.psim)
 process.p2 = cms.Path(process.pdigi)
 process.p3 = cms.Path(process.L1Emulator)
