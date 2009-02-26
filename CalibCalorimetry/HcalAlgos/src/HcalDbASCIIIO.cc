@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.38 2008/03/12 13:11:45 rofierzy Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.40 2008/11/10 10:13:15 rofierzy Exp $
 //
 #include <vector>
 #include <string>
@@ -363,7 +363,6 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalL1TriggerObjects* fObje
 {
   if (!fObject) fObject = new HcalL1TriggerObjects;
   char buffer [1024];
-  bool Tset = false; bool Aset = false;
 
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') 
