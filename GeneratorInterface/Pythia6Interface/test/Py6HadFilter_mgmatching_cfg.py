@@ -23,7 +23,7 @@ process.MessageLogger.destinations = ['cerr']
 process.MessageLogger.statistics = []
 process.MessageLogger.fwkJobReports = []
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(50))
+#process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(50))
 
 process.source = cms.Source("LHESource",
     fileNames = cms.untracked.vstring('file:ttbar_5flavours_xqcut20_10TeV.lhe')
@@ -51,7 +51,7 @@ process.generator = cms.EDFilter("Pythia6HadronizerFilter",
        MEMAIN_etaclmax = cms.double(5.0),
        MEMAIN_qcut = cms.double(30.0),
        MEMAIN_minjets = cms.int32(0),
-       MEMAIN_maxjets = cms.int32(3),
+       MEMAIN_maxjets = cms.int32(2),
        MEMAIN_iexcfile = cms.uint32(0) # only set to 1 if need to perform exclusive matching
     )    
 )
