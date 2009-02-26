@@ -5,7 +5,7 @@
    date of first version: Sept 2008
 
 */
-//$Id: FourVectorHLTClient.cc,v 1.8 2009/01/31 18:11:09 rekovic Exp $
+//$Id: FourVectorHLTClient.cc,v 1.9 2009/02/26 18:02:28 rekovic Exp $
 
 #include "DQMOffline/Trigger/interface/FourVectorHLTClient.h"
 
@@ -345,8 +345,8 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
    
        //reportSummaryMap_ = dbe_->book1D(numHist->Divide(denHist));
        
-       LogDebug("FourVectorHLTClient")<< "Booking efficiency histogram path" << newHistPath << endl;
-       LogDebug("FourVectorHLTClient")<< "Booking efficiency histogram name" << newHistName << endl;
+       LogDebug("FourVectorHLTClient")<< "Booking efficiency histogram path " << newHistPath << endl;
+       LogDebug("FourVectorHLTClient")<< "Booking efficiency histogram name " << newHistName << endl;
        dbe_->book1D(newHistName.Data(), effHist);
  
        
