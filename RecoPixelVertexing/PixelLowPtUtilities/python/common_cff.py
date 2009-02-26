@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 import RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi
-#myBuilder = RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi.ttrhbwr.clone()
 from TrackingTools.GeomPropagators.AnalyticalPropagator_cfi import *
 from RecoPixelVertexing.PixelVertexFinding.PixelVertexes_cff import *
 from RecoLocalTracker.SiPixelRecHits.PixelCPEESProducers_cff import *
@@ -12,8 +11,10 @@ from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cff import *
 GlobalTrackingGeometryESProducer = cms.ESProducer("GlobalTrackingGeometryESProducer")
 
 TransientTrackBuilderESProducer = cms.ESProducer("TransientTrackBuilderESProducer",
-    ComponentName = cms.string('TransientTrackBuilder')
+    ComponentName = cms.string('TransientTrackBuilder'),
 )
+
+#ttrhbwr.ComputeCoarseLocalPositionFromDisk = cms.bool(True)
 
 BPixError = cms.PSet(
     useErrorsFromParam = cms.untracked.bool(True),

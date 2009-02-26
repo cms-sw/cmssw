@@ -1,159 +1,157 @@
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeTrackFilter.h"
 
+#include "RecoPixelVertexing/PixelTrackFitting/src/CircleFromThreePoints.h"
+#include "RecoPixelVertexing/PixelLowPtUtilities/interface/HitInfo.h"
+#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeHitFilter.h"
+
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShape.h"
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterData.h"
-
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
-#include <fstream>
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+
+inline float sqr(float x) { return x*x; }
+
 using namespace std;
 
 /*****************************************************************************/
 ClusterShapeTrackFilter::ClusterShapeTrackFilter
   (const edm::ParameterSet& ps, const edm::EventSetup& es)
 {
-  loadClusterLimits();
-
   // Get tracker geometry
   edm::ESHandle<TrackerGeometry> tracker;
   es.get<TrackerDigiGeometryRecord>().get(tracker);
   theTracker = tracker.product();
+
+  // Get pointer to filter
+  theFilter = ClusterShapeHitFilter::Instance(es, "ClusterShapeTrackFilter");
 }
 
 /*****************************************************************************/
 ClusterShapeTrackFilter::~ClusterShapeTrackFilter()
 {
+  // Destroy filter
+  ClusterShapeHitFilter::Release();
 }
 
 /*****************************************************************************/
-void ClusterShapeTrackFilter::loadClusterLimits()
-{
-  edm::FileInPath
-    fileInPath("RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape.par");
-  ifstream inFile(fileInPath.fullPath().c_str());
-
-  while(inFile.eof() == false)
-  {
-    int part,dx,dy;
-    
-    inFile >> part;
-    inFile >> dx;
-    inFile >> dy;
-    
-    for(int b = 0; b<2 ; b++) // branch
-    for(int d = 0; d<2 ; d++) // direction
-    for(int k = 0; k<2 ; k++) // lower and upper
-      inFile >> limits[part][dx][dy][b][d][k];
-//      inFile >> ClusterShapeTrackFilter::limits[part][dx][dy][b][d][k];
-
-    double f;
-    inFile >> f; // density
-    inFile >> f; 
-    
-    int d;
-    inFile >> d; // points
-  } 
-  
-  inFile.close();
-
-  LogTrace("MinBiasTracking")
-    << "[TrackFilter  ] pixel cluster shape filter loaded";
+float ClusterShapeTrackFilter::areaParallelogram
+  (const Global2DVector& a, const Global2DVector& b) const
+{  
+  return a.x() * b.y() - a.y() * b.x();
 }
 
 /*****************************************************************************/
-bool ClusterShapeTrackFilter::isInside
-  (const double a[2][2], pair<double,double> movement) const
+vector<GlobalVector> ClusterShapeTrackFilter::getGlobalDirs
+  (const vector<GlobalPoint> & g) const
 {
-  if(a[0][0] == a[0][1] && a[1][0] == a[1][1])
-    return true;
-    
-  if(movement.first  > a[0][0] && movement.first  < a[0][1] &&
-     movement.second > a[1][0] && movement.second < a[1][1])
-    return true;
-  else
-    return false;
-}  
+  // Get 2d points
+  vector<Global2DVector> p;
+  for(vector<GlobalPoint>::const_iterator ig = g.begin();
+                                          ig!= g.end(); ig++)
+     p.push_back( Global2DVector(ig->x(), ig->y()) );
+
+  //
+  vector<GlobalVector> globalDirs;
+
+  // Determine circle
+  CircleFromThreePoints circle(g[0],g[1],g[2]);
+
+  if(circle.curvature() != 0.)
+  {
+    Global2DVector c (circle.center().x(), circle.center().y());
+
+    float rad2 = (p[0] - c).mag2();
+    float a12 = asin(fabsf(areaParallelogram(p[0] - c, p[1] - c)) / rad2);
+
+    float slope = (g[1].z() - g[0].z()) / a12;
+
+    float cotTheta = slope * circle.curvature(); // == sinhEta
+    float coshEta  = sqrt(1 + sqr(cotTheta));    // == 1/sinTheta
+
+    // Calculate globalDirs
+    float sinTheta =       1. / coshEta;
+    float cosTheta = cotTheta * sinTheta;
+
+    int dir;
+    if(areaParallelogram(p[0] - c, p[1] - c) > 0) dir = 1; else dir = -1;
+
+    float curvature = circle.curvature();
+
+    for(vector<Global2DVector>::const_iterator ip = p.begin();
+                                               ip!= p.end(); ip++)
+    {
+      Global2DVector v = (*ip - c)*curvature*dir;
+      globalDirs.push_back(GlobalVector(-v.y()*sinTheta,
+                                         v.x()*sinTheta,
+                                               cosTheta));
+    }
+  }
+
+  return globalDirs;
+}
 
 /*****************************************************************************/
-bool ClusterShapeTrackFilter::isCompatible
-  (const SiPixelRecHit *recHit, const LocalVector& dir) const
-{ 
-  ClusterData data;
-  ClusterShape theClusterShape;
+vector<GlobalPoint> ClusterShapeTrackFilter::getGlobalPoss
+  (vector<const TrackingRecHit *> & recHits) const
+{
+  vector<GlobalPoint> globalPoss;
 
-  DetId id = recHit->geographicalId();
-  const PixelGeomDetUnit* pixelDet = 
-    dynamic_cast<const PixelGeomDetUnit*> (theTracker->idToDet(id));
-  theClusterShape.getExtra(*pixelDet, *recHit, data);
-  
-  int dx = data.size.first;
-  int dy = data.size.second;
-  
-  if(data.isStraight && data.isComplete && dx <= MaxSize && abs(dy) <= MaxSize)
+  for(vector<const TrackingRecHit *>::const_iterator recHit = recHits.begin();
+                                                     recHit!= recHits.end();
+                                                     recHit++)
   {
-    int part   = (data.isInBarrel ? 0 : 1);
-    int orient = (data.isNormalOriented ? 1 : -1);
-    
-    pair<double,double> movement;
-    movement.first  = dir.x() / (fabs(dir.z()) * data.tangent.first ) * orient;
-    movement.second = dir.y() / (fabs(dir.z()) * data.tangent.second) * orient;
-    
-    if(dy < 0)
-    { dy = abs(dy); movement.second = - movement.second; }
-    
-    return (isInside(limits[part][dx][dy][0], movement) ||
-            isInside(limits[part][dx][dy][1], movement));
+    DetId detId = (*recHit)->geographicalId();
+
+    GlobalPoint gpos = 
+      theTracker->idToDet(detId)->toGlobal((*recHit)->localPosition());
+
+    globalPoss.push_back(gpos);
   }
-  else
-  {
-    // Shape is not straight or not complete or too wide
-    return true;
-  }
+
+  return globalPoss;
 }
 
 /*****************************************************************************/
 bool ClusterShapeTrackFilter::operator()
-  (const reco::Track* track, std::vector<const TrackingRecHit *> recHits) const
+  (const reco::Track* track, vector<const TrackingRecHit *> recHits) const
 {
-  if(recHits.size() > 2) return true;
+  // Get global positions
+  vector<GlobalPoint>  globalPoss = getGlobalPoss(recHits);
 
-//  LogTrace("MinBiasTracking")
-//    << " ClusterShapeTrackFilter: TRACK " << recHits.size() << endl;
-// !!!!! Now make it a valid hit pair filter
-  
-
-  // !!!!!
-  return true;
-
+  // Get global directions
+  vector<GlobalVector> globalDirs = getGlobalDirs(globalPoss);
 
   bool ok = true;
-//  vector<const TrackingRecHit*> recHits;
-//  vector<LocalVector> localDirs;
 
-//  vector<LocalVector>::const_iterator localDir = localDirs.begin();
-  for(vector<const TrackingRecHit*>::const_iterator recHit = recHits.begin();
-                                                    recHit!= recHits.end();
-                                                    recHit++)
+  // Check whether shape of pixel cluster is compatible
+  // with local track direction
+  for(int i = 0; i < 3; i++)
   {
     const SiPixelRecHit* pixelRecHit =
-      dynamic_cast<const SiPixelRecHit *>(*recHit);
+      dynamic_cast<const SiPixelRecHit *>(recHits[i]);
 
-    LocalVector localDir;
+    if(!pixelRecHit->isValid())
+    { 
+      ok = false; break; 
+    }
 
-    if(!pixelRecHit->isValid())                      { ok = false; break; }
-    if(isCompatible(pixelRecHit, localDir) == false) { ok = false; break; }
-//    localDir++;
+    if(! theFilter->isCompatible(*pixelRecHit, globalDirs[i]) )
+    {
+      LogTrace("MinBiasTracking")
+         << "  [ClusterShapeTrackFilter] clusShape problem"
+         << HitInfo::getInfo(*recHits[i]);
+
+      ok = false; break;
+    }
   }
-
-//cerr << " [TrackFilter$$] ok = " << (ok == true ? 1 : 0) << endl;
 
   return ok;
 }

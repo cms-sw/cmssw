@@ -15,7 +15,7 @@
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 
-#define DBG 0
+#undef Debug
 
 using namespace std;
 using namespace ctfseeding;
@@ -26,15 +26,14 @@ void TripletGenerator::init(const HitPairGenerator & pairs,
       LayerCacheType* layerCache)
 {
   thePairGenerator = pairs.clone();
-  theLayers = layers;
-  theLayerCache = layerCache;
+  theLayers        = layers;
+  theLayerCache    = layerCache;
 
   checkMultipleScattering = ps.getParameter<bool>("checkMultipleScattering");
   nSigMultipleScattering  = ps.getParameter<double>("nSigMultipleScattering");
   checkClusterShape       = ps.getParameter<bool>("checkClusterShape"); 
   rzTolerance             = ps.getParameter<double>("rzTolerance");
   maxAngleRatio           = ps.getParameter<double>("maxAngleRatio");
-
   builderName             = ps.getParameter<string>("TTRHBuilder");
 }
 
@@ -49,6 +48,11 @@ void TripletGenerator::getTracker
     es.get<TrackerDigiGeometryRecord>().get(tracker);
 
     theTracker = tracker.product();
+  }
+
+  if(theFilter == 0)
+  {
+    theFilter = new TripletFilter(es); 
   }
 }
 
@@ -77,9 +81,6 @@ void TripletGenerator::hitTriplets(
 
   int size = theLayers.size(); 
 
-  // Filter 
-  TripletFilter theFilter(es);
-
   // Set aliases
   const LayerHitMap **thirdHitMap = new const LayerHitMap* [size];
   for(int il=0; il<size; il++)
@@ -99,9 +100,10 @@ void TripletGenerator::hitTriplets(
     recHits[0] = (*ip).inner();
     recHits[1] = (*ip).outer();
 
-if(DBG)
-cerr << " RecHits " + HitInfo::getInfo(*recHits[0]) +
-                      HitInfo::getInfo(*recHits[1]) << endl;
+#ifdef Debug
+    cerr << " RecHits " + HitInfo::getInfo(*recHits[0]) +
+                          HitInfo::getInfo(*recHits[1]) << endl;
+#endif
 
     for(int i=0; i<2; i++)
       points[i] = getGlobalPosition(recHits[i]);
@@ -118,8 +120,10 @@ cerr << " RecHits " + HitInfo::getInfo(*recHits[0]) +
       const SeedingLayer & layerwithhits = theLayers[il];
       const DetLayer * layer = layerwithhits.detLayer();
 
-if(DBG)
-cerr << "  check layer " << layer->subDetector() << " " << layer->location() << endl;
+#ifdef Debug
+      cerr << "  check layer " << layer->subDetector()
+                        << " " << layer->location() << endl;
+#endif
 
       // Get ranges for the third hit
       float phi[2],rz[2];
@@ -137,20 +141,23 @@ cerr << "  check layer " << layer->subDetector() << " " << layer->location() << 
         recHits[2] = *th;
         points[2]  = getGlobalPosition(recHits[2]);
 
-if(DBG)
-  cerr << "  third hit " + HitInfo::getInfo(*recHits[2]) << endl;
+#ifdef Debug
+        cerr << "  third hit " + HitInfo::getInfo(*recHits[2]) << endl;
+#endif
 
         // Check if third hit is compatible with multiple scattering
         vector<GlobalVector> globalDirs;
         if(thePrediction.isCompatibleWithMultipleScattering
              (points[2], recHits, globalDirs, es) == false)
         {
-if(DBG)
+#ifdef Debug
           cerr << "  not compatible: multiple scattering" << endl;
+#endif
           if(checkMultipleScattering) continue;
         }
 
         // Convert to localDirs
+/*
         vector<LocalVector> localDirs;
         vector<GlobalVector>::const_iterator globalDir = globalDirs.begin();
         for(vector<const TrackingRecHit *>::const_iterator
@@ -161,14 +168,16 @@ if(DBG)
                              (*recHit)->geographicalId())->toLocal(*globalDir));
           globalDir++;
         }
+*/
 
         // Check if the cluster shapes are compatible with thrusts
         if(checkClusterShape)
         {
-          if(theFilter.checkTrack(recHits,localDirs) == false)
+          if(! theFilter->checkTrack(recHits,globalDirs))
           {
-if(DBG)
+#ifdef Debug
             cerr << "  not compatible: cluster shape" << endl;
+#endif
             continue;
           }
         }

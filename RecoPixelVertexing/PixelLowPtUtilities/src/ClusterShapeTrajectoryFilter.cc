@@ -1,216 +1,40 @@
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeTrajectoryFilter.h"
 
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterData.h"
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShape.h"
+#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeHitFilter.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TempTrajectory.h"
-
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
-#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
-#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-#include "Geometry/CommonTopologies/interface/StripTopology.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "FWCore/ParameterSet/interface/FileInPath.h"
-#include <fstream>
-
+#include <vector>
 using namespace std;
-
-#define Nsigma 5
 
 /*****************************************************************************/
 ClusterShapeTrajectoryFilter::ClusterShapeTrajectoryFilter
- (const TrackingGeometry* theTracker_,
+ (const GlobalTrackingGeometry* theTracker_,
   const MagneticField* theMagneticField_)
-  : theTracker(theTracker_), theMagneticField(theMagneticField_)
+  : theTracker(theTracker_), 
+    theMagneticField(theMagneticField_)
 {
-  // Load pixel
-  {
-  edm::FileInPath
-    fileInPath("RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape.par");
-  ifstream inFile(fileInPath.fullPath().c_str());
-
-  while(inFile.eof() == false)
-  {
-    int part,dx,dy;
-
-    inFile >> part;
-    inFile >> dx;
-    inFile >> dy;
-
-    for(int b = 0; b<2 ; b++) // branch
-    for(int d = 0; d<2 ; d++) // direction
-    for(int k = 0; k<2 ; k++) // lower and upper
-      inFile >> pixelLimits[part][dx][dy][b][d][k];
-
-    double f;
-    inFile >> f; // density
-    inFile >> f;
-
-    int d;
-    inFile >> d; // points
-  }
-
-  inFile.close();
-
-  LogTrace("MinBiasTracking")
-    << "[TrajectFilter] pixel-cluster-shape filter loaded";
-  }
- 
-  {
-  // Load strip
-  edm::FileInPath
-    fileInPath("RecoPixelVertexing/PixelLowPtUtilities/data/stripShape.par");
-  ifstream inFile(fileInPath.fullPath().c_str());
-
-  while(inFile.eof() == false)
-  {
-    int dx; float f;
-
-    inFile >> dx;
-    inFile >> stripLimits[dx][0];
-    inFile >> f;
-    inFile >> stripLimits[dx][1];
-    inFile >> f;
-  }
-
-  inFile.close();
- 
-  LogTrace("MinBiasTracking")
-    << "[TrajectFilter] strip-cluster-width filter loaded";
-  }
+  theFilter = new ClusterShapeHitFilter(theTracker, theMagneticField);
 }
 
 /*****************************************************************************/
-bool ClusterShapeTrajectoryFilter::isInside
-  (const float a[2][2], pair<float,float> movement) const
+ClusterShapeTrajectoryFilter::~ClusterShapeTrajectoryFilter()
 {
-  if(a[0][0] == a[0][1] && a[1][0] == a[1][1])
-    return true;
-
-  if(movement.first  > a[0][0] && movement.first  < a[0][1] &&
-     movement.second > a[1][0] && movement.second < a[1][1])
-    return true;
-  else
-    return false;
-}
-
-/*****************************************************************************/
-bool ClusterShapeTrajectoryFilter::processHit
-  (const GlobalVector gdir, const SiPixelRecHit* recHit) const
-{
-  DetId id = recHit->geographicalId();
-
-  const PixelGeomDetUnit* pixelDet =
-    dynamic_cast<const PixelGeomDetUnit*> (theTracker->idToDet(id));
-
-  LocalVector ldir = pixelDet->toLocal(gdir);
-
-  ClusterData data;
-  ClusterShape theClusterShape;
-  theClusterShape.getExtra(*pixelDet, *recHit, data);
-  
-  int dx = data.size.first;
-  int dy = data.size.second;
-
-  if(data.isStraight && data.isComplete && dx <= MaxSize && abs(dy) <= MaxSize)
-  {
-    int part   = (data.isInBarrel ? 0 : 1);
-    int orient = (data.isNormalOriented ? 1 : -1);
-
-    pair<float,float> movement;
-    movement.first  = ldir.x() / (fabs(ldir.z()) * data.tangent.first )*orient;
-    movement.second = ldir.y() / (fabs(ldir.z()) * data.tangent.second)*orient;
-    
-    if(dy < 0)
-    { dy = abs(dy); movement.second = - movement.second; }
-
-    return (isInside(pixelLimits[part][dx][dy][0], movement) ||
-            isInside(pixelLimits[part][dx][dy][1], movement));
-  }
-  else
-  {
-    // Shape is not straight or not complete or too wide
-    return true;
-  }
-}
-
-/*****************************************************************************/
-bool ClusterShapeTrajectoryFilter::processHit
-  (const GlobalVector gdir, const SiStripRecHit2D* recHit) const
-{
-  DetId id = recHit->geographicalId();
-
-  const StripGeomDetUnit* stripDet =
-    dynamic_cast<const StripGeomDetUnit*> (theTracker->idToDet(id));
-  // !!!!! Problem in case of RadialStriptolopgy  !!!!!
-  float tangent = stripDet->specificTopology().localPitch(LocalPoint(0,0,0))/
-                  stripDet->surface().bounds().thickness();
-
-  LocalVector ldir = stripDet->toLocal(gdir);
-  float pred  = ldir.x() / (fabs(ldir.z()) * tangent);
-
-  const SiStripCluster& cluster = *(recHit->cluster());
-  int meas  = cluster.amplitudes().size(); 
-
-  LocalVector lbfield = (stripDet->surface()).toLocal(theMagneticField->inTesla(stripDet->surface().position()));
-  double theTanLorentzAnglePerTesla = 0.032;
-//  double theTanLorentzAnglePerTesla =
-//        theLorentzAngle->getLorentzAngle(id.rawId());
-
-  float dir_x =  theTanLorentzAnglePerTesla * lbfield.y();
- 
-  float drift = dir_x / tangent;
-
-  bool normal;
-  if(stripDet->type().subDetector() == GeomDetEnumerators::TIB ||
-     stripDet->type().subDetector() == GeomDetEnumerators::TOB)
-  { // barrel
-    float perp0 = stripDet->toGlobal( Local3DPoint(0.,0.,0.) ).perp();
-    float perp1 = stripDet->toGlobal( Local3DPoint(0.,0.,1.) ).perp();
-    normal = (perp1 > perp0);
-  }
-  else
-  { // endcap
-    float rot = stripDet->toGlobal( LocalVector (0.,0.,1.) ).z();
-    float pos = stripDet->toGlobal( Local3DPoint(0.,0.,0.) ).z();
-    normal = (rot * pos > 0);
-  }
-
-  // Correct for ExB
-  pred += (normal ? 1 : -1) * drift;
-
-  if(meas <= 24)
-  {
-    float m = stripLimits[meas][0];
-    float s = stripLimits[meas][1];
-
-    if( (pred >  m - Nsigma * s && pred <  m + Nsigma * s) ||
-        (pred > -m - Nsigma * s && pred < -m + Nsigma * s) )
-      return true;
-    else
-      return false;
-  }
-  else
-  {
-    // Too wide
-    return true;
-  }
+  delete theFilter;
 }
 
 /*****************************************************************************/
@@ -238,8 +62,7 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
            dynamic_cast<const SiPixelRecHit *>(tRecHit);
 
         if(recHit != 0)
-          if(processHit(gdir, recHit) == false)
-            return false;
+          return theFilter->isCompatible(*recHit, gdir);
       }
       else
       { // strip
@@ -250,11 +73,8 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
 
           if(recHit != 0)
           { 
-            if(processHit(gdir, recHit->monoHit()  ) == false)
-              return false;
-
-            if(processHit(gdir, recHit->stereoHit()) == false)
-              return false;
+            return (theFilter->isCompatible(*(recHit->monoHit())  , gdir) &&
+                    theFilter->isCompatible(*(recHit->stereoHit()), gdir));
           }
         }
         else
@@ -265,8 +85,7 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
               dynamic_cast<const SiStripRecHit2D *>(tRecHit);
   
             if(recHit != 0)
-              if(processHit(gdir, recHit) == false)
-                return false;
+              return theFilter->isCompatible(*recHit, gdir);
           }
           else
           { // projected
@@ -274,8 +93,7 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
               dynamic_cast<const ProjectedSiStripRecHit2D *>(tRecHit);
  
             if(recHit != 0)
-              if(processHit(gdir, &(recHit->originalHit())) == false)
-                return false;
+              return theFilter->isCompatible(recHit->originalHit(), gdir);
           }
         }
       }
@@ -310,7 +128,7 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
            dynamic_cast<const SiPixelRecHit *>(tRecHit);
 
         if(recHit != 0)
-          if(processHit(gdir, recHit) == false)
+          if(! theFilter->isCompatible(*recHit, gdir))
           {
             LogTrace("MinBiasTracking")
               << "  [TrajectFilter] fail pixel";
@@ -326,14 +144,14 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
 
           if(recHit != 0)
           { 
-            if(processHit(gdir, recHit->monoHit()  ) == false)
+            if(! theFilter->isCompatible(*(recHit->monoHit()  ), gdir))
             {
               LogTrace("MinBiasTracking")
                << "  [TrajectFilter] fail strip matched 1st";
               return false;
             }
 
-            if(processHit(gdir, recHit->stereoHit()) == false)
+            if(! theFilter->isCompatible(*(recHit->stereoHit()), gdir))
             {
               LogTrace("MinBiasTracking")
                 << "  [TrajectFilter] fail strip matched 2nd";
@@ -349,7 +167,7 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
               dynamic_cast<const SiStripRecHit2D *>(tRecHit);
   
             if(recHit != 0)
-              if(processHit(gdir, recHit) == false)
+              if(! theFilter->isCompatible(*recHit, gdir))
               {
                 LogTrace("MinBiasTracking")
                   << "  [TrajectFilter] fail strip single";
@@ -362,7 +180,7 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
               dynamic_cast<const ProjectedSiStripRecHit2D *>(tRecHit);
  
             if(recHit != 0)
-              if(processHit(gdir, &(recHit->originalHit())) == false)
+              if(! theFilter->isCompatible(recHit->originalHit(), gdir))
               {
                 LogTrace("MinBiasTracking")
                   << "  [TrajectFilter] fail strip projected";
@@ -381,30 +199,13 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
 bool ClusterShapeTrajectoryFilter::qualityFilter
   (const Trajectory& trajectory) const
 {
-return true;
-/*
-  const FreeTrajectoryState * fts =
-    trajectory.lastMeasurement().updatedState().freeTrajectoryState();
-
-  float pt2 = fts->momentum().perp2();
-
-  if(pt2 > 0) return true;
-         else return false;
-*/
+  return true;
 }
 
 /*****************************************************************************/
 bool ClusterShapeTrajectoryFilter::qualityFilter
   (const TempTrajectory& trajectory) const
 {
-return true;
-/*
-  const FreeTrajectoryState * fts =
-    trajectory.lastMeasurement().updatedState().freeTrajectoryState();
-
-  float pt2 = fts->momentum().perp2();
-
-  if(pt2 > 0) return true;
-         else return false;
-*/
+  return true;
 }
+

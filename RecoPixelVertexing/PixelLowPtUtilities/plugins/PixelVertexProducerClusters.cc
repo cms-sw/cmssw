@@ -123,7 +123,7 @@ void PixelVertexProducerClusters::produce
         if(id.subdetId() == int(PixelSubdetector::PixelBarrel))  
         {
           PXBDetId pid(id);
-          int layer = pid.layer() - 1; // 0 - 2
+//          int layer = pid.layer() - 1; // 0 - 2
 
           LocalPoint lpos = LocalPoint(recHit->localPosition().x(),
                                        recHit->localPosition().y(),

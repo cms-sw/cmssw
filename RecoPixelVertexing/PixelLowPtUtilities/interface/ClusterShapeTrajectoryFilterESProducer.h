@@ -17,7 +17,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Fri Sep 28 18:07:52 CEST 2007
-// $Id: ClusterShapeTrajectoryFilterESProducer.h,v 1.1 2007/10/18 01:50:55 vlimant Exp $
+// $Id: ClusterShapeTrajectoryFilterESProducer.h,v 1.1 2007/11/16 13:12:46 sikler Exp $
 //
 //
 
@@ -32,22 +32,26 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeTrajectoryFilter.h"
+//#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeTrajectoryFilter.h"
+
+//class TrajectoryFilter;
+#include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
 
 //
 // class decleration
 //
 
-class ClusterShapeTrajectoryFilterESProducer : public edm::ESProducer {
-public:
+class ClusterShapeTrajectoryFilterESProducer : public edm::ESProducer
+{
+ public:
   ClusterShapeTrajectoryFilterESProducer(const edm::ParameterSet&);
   ~ClusterShapeTrajectoryFilterESProducer();
 
   typedef std::auto_ptr<TrajectoryFilter> ReturnType;
 
   ReturnType produce(const TrajectoryFilter::Record &);
-private:
-  
+
+ private:
   std::string componentName;
   std::string componentType;
   edm::ParameterSet filterPset;

@@ -70,7 +70,7 @@ void TrackListCombiner::produce(edm::Event& ev, const edm::EventSetup& es)
     ev.getByLabel(*trackProducer, theTrajectoryCollection);
     ev.getByLabel(*trackProducer, theAssoMap);
     
-    // The track collection iterators.
+    // The track collection iterators
     TrajTrackAssociationCollection::const_iterator anAssociation;  
     TrajTrackAssociationCollection::const_iterator lastAssociation;
     anAssociation = theAssoMap->begin();
@@ -163,7 +163,7 @@ void TrackListCombiner::produce(edm::Event& ev, const edm::EventSetup& es)
     recoTrajTrackMap->insert(trajRef,tkRef);
   }
   
-  // Save the association map.
+  // Save the association map
   ev.put(recoTrajTrackMap);
 }
 

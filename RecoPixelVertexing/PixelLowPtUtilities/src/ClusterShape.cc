@@ -1,11 +1,14 @@
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShape.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterData.h"
 
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
+
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
+
+#include <vector>
 #include <fstream>
+
 using namespace std;
 
 /*****************************************************************************/
@@ -58,7 +61,7 @@ bool ClusterShape::processColumn(pair<int,int> pos, bool inTheLoop)
   }
   else
   { // Very first column, initialize
-   x[0] = pos.first;
+    x[0] = pos.first;
   }
 
   // Open new column
@@ -94,15 +97,11 @@ void ClusterShape::determineShape
   (const PixelGeomDetUnit& pixelDet,
    const SiPixelRecHit& recHit, ClusterData& data)
 {
- // Dimensions
- int nrows = pixelDet.specificTopology().nrows();
- int ncols = pixelDet.specificTopology().ncolumns();
 
- // Tangents
- data.tangent.first  = pixelDet.specificTopology().pitch().first/
-                       pixelDet.surface().bounds().thickness();    
- data.tangent.second = pixelDet.specificTopology().pitch().second/
-                       pixelDet.surface().bounds().thickness();    
+ // Topology
+ const RectangularPixelTopology * theTopology = 
+   dynamic_cast<const RectangularPixelTopology *>
+     (&(pixelDet.specificTopology())); 
 
  // Initialize
  data.isStraight = true;
@@ -111,49 +110,27 @@ void ClusterShape::determineShape
  x[1]=-1; olow=-2; ohig=-2; odir=0;
  pair<int,int> pos;
 
- // Process channels
- SiPixelRecHit::ClusterRef const& cluster = recHit.cluster();
- vector<SiPixelCluster::Pixel> pixels = (*cluster).pixels();
-
- // Sort pixels
+ // Get a sort pixels
+ vector<SiPixelCluster::Pixel> pixels = recHit.cluster()->pixels();
  sort(pixels.begin(),pixels.end(),lessPixel());
 
- int size = pixels.size();
- for(int i=0; i<size; i++)
+ // Look at all the pixels
+ for(vector<SiPixelCluster::Pixel>::const_iterator pixel = pixels.begin();
+                                                   pixel!= pixels.end();
+                                                   pixel++)
  {
    // Position
-   pos.first  = (int)pixels[i].x;
-   pos.second = (int)pixels[i].y;
+   pos.first  = (int)pixel->x;
+   pos.second = (int)pixel->y;
 
-   // Check if at the edge
-   if(pos.first  == 0 || pos.first  == nrows-1 ||
-      pos.second == 0 || pos.second == ncols-1)
-   { 
-     data.isComplete = false;
-
-     if(pos.first == 0 || pos.first  == nrows-1)
-     {
-       data.isXBorder = true;
-       if(pos.first == 0) data.posBorder = 0;
-                    else data.posBorder = nrows;
-     }
-
-     // overwrite
-     if(pos.second == 0 || pos.second  == ncols-1)
-     {
-       data.isXBorder = false;
-       if(pos.second == 0) data.posBorder = 0;
-                      else data.posBorder = ncols;
-     }
-
-     break;
-   }
-
-   // Check if it is big
-   if(RectangularPixelTopology::isItBigPixelInX(pos.first) ||
-      RectangularPixelTopology::isItBigPixelInY(pos.second))
+   // Check if at the edge or big 
+   if(theTopology->isItEdgePixelInX(pos.first) ||
+      theTopology->isItEdgePixelInY(pos.second) ||
+      theTopology->isItBigPixelInX(pos.first) ||
+      theTopology->isItBigPixelInY(pos.second))
    { data.isComplete = false; break; }
 
+   // Check if straight
    if(pos.first > x[1])
    { // Process column
      if(processColumn(pos, true) == false)
@@ -168,31 +145,9 @@ void ClusterShape::determineShape
    }
  }
 
- // Process last column
+ // Check if straight, process last column
  if(processColumn(pos, false) == false)
    data.isStraight = false;
-}
-
-/*****************************************************************************/
-void ClusterShape::getOrientation
-  (const PixelGeomDetUnit& pixelDet, ClusterData& data)
-{
-  if(pixelDet.type().subDetector() == GeomDetEnumerators::PixelBarrel)
-  {
-    data.isInBarrel = true;
-
-    float perp0 = pixelDet.toGlobal( Local3DPoint(0.,0.,0.) ).perp();
-    float perp1 = pixelDet.toGlobal( Local3DPoint(0.,0.,1.) ).perp();
-    data.isNormalOriented = (perp1 > perp0);
-  }
-  else
-  {
-    data.isInBarrel = false;
-
-    float rot = pixelDet.toGlobal( LocalVector (0.,0.,1.) ).z();
-    float pos = pixelDet.toGlobal( Local3DPoint(0.,0.,0.) ).z();
-    data.isNormalOriented = (rot * pos > 0);
-  }
 }
 
 /*****************************************************************************/
@@ -200,9 +155,6 @@ void ClusterShape::getExtra
   (const PixelGeomDetUnit& pixelDet,
    const SiPixelRecHit& recHit, ClusterData& data)
 {
-  data.isUnlocked = true;
-
-  getOrientation(pixelDet,        data);
   determineShape(pixelDet,recHit, data);
 
   int dx = x[1] - x[0];

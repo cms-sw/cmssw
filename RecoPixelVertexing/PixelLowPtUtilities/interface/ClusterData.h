@@ -6,10 +6,7 @@
 class ClusterData
 {
  public:
-   bool isInBarrel, isNormalOriented, isStraight,isComplete, isUnlocked;
-   bool isXBorder;
-   int posBorder;
-   std::pair<float,float> tangent;
+   bool isStraight,isComplete; 
    std::pair<unsigned short int,short int> size;
 };
 

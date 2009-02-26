@@ -31,11 +31,13 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
+/*
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+*/
 
 #include <vector>
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+//#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/OrderedHitTriplets.h"
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
 //#include "RecoPixelVertexing/PixelTriplets/interface/PixelHitTripletGenerator.h"
@@ -46,22 +48,14 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
+/*
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
-
-
-/*
-class TransientTrackFromFTSFactory {
- public:
-
-    reco::TransientTrack build (const FreeTrajectoryState & fts) const;
-    reco::TransientTrack build (const FreeTrajectoryState & fts,
-        const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
-};
 */
 
-#include "RecoVertex/KalmanVertexFit/interface/SingleTrackVertexConstraint.h"
+
+//#include "RecoVertex/KalmanVertexFit/interface/SingleTrackVertexConstraint.h"
 
 #include <vector>
 using namespace std;
@@ -76,9 +70,9 @@ PixelTrackProducerWithZPos::PixelTrackProducerWithZPos
   : ps(conf), theFitter(0), theFilter(0), theHitsFilter(0), theCleaner(0), theGenerator(0), theRegionProducer(0)
 {
   edm::LogInfo("PixelTrackProducerWithZPos")<<" construction...";
-  produces<reco::TrackCollection>();
+  produces<TrackCollection>();
   produces<TrackingRecHitCollection>();
-  produces<reco::TrackExtraCollection>();
+  produces<TrackExtraCollection>();
 }
 
 
@@ -97,90 +91,33 @@ PixelTrackProducerWithZPos::~PixelTrackProducerWithZPos()
 void PixelTrackProducerWithZPos::beginJob(const edm::EventSetup& es)
 {
   // Region
-  ParameterSet regfactoryPSet = ps.getParameter<ParameterSet>("RegionFactoryPSet");
-  std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
-  theRegionProducer = TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet);
+  ParameterSet regPSet = ps.getParameter<ParameterSet>("RegionFactoryPSet");
+  string regName       = regPSet.getParameter<string>("ComponentName");
+  theRegionProducer = TrackingRegionProducerFactory::get()->create(regName,regPSet);
 
-  // OrderesHits
+  // Ordered hits
   ParameterSet orderedPSet = ps.getParameter<ParameterSet>("OrderedHitsFactoryPSet");
-  std::string orderedName = orderedPSet.getParameter<std::string>("ComponentName");
-  theGenerator = OrderedHitsGeneratorFactory::get()->create( orderedName, orderedPSet);
+  string orderedName       = orderedPSet.getParameter<string>("ComponentName");
+  theGenerator = OrderedHitsGeneratorFactory::get()->create(orderedName, orderedPSet);
 
   // Fitter
   ParameterSet fitterPSet = ps.getParameter<ParameterSet>("FitterPSet");
-  std::string fitterName = fitterPSet.getParameter<std::string>("ComponentName");
-  theFitter = PixelFitterFactory::get()->create( fitterName, fitterPSet);
+  string fitterName       = fitterPSet.getParameter<string>("ComponentName");
+  theFitter = PixelFitterFactory::get()->create(fitterName, fitterPSet);
 
-  // Filter
+  // Filter (ClusterShapeTrackFilter)
   ParameterSet filterPSet = ps.getParameter<ParameterSet>("FilterPSet");
-  std::string  filterName = filterPSet.getParameter<std::string>("ComponentName");
-  theFilter = TrackHitsFilterFactory::get()->create( filterName, filterPSet, es);
+  string filterName       = filterPSet.getParameter<string>("ComponentName");
+  if(filterPSet.getParameter<bool>("useFilter"))
+    theFilter = TrackHitsFilterFactory::get()->create(filterName, filterPSet, es);
 
-  // Cleaner
+  // Filter (ValidHitPairFilter)
   theHitsFilter = TrackHitsFilterFactory::get()->create("ValidHitPairFilter", filterPSet, es);
 
+  // Cleaner
   ParameterSet cleanerPSet = ps.getParameter<ParameterSet>("CleanerPSet");
-  std::string  cleanerName = cleanerPSet.getParameter<std::string>("ComponentName");
-  theCleaner = PixelTrackCleanerFactory::get()->create( cleanerName, cleanerPSet);
-
-  // Get transient track builder
-  edm::ParameterSet regionPSet = regfactoryPSet.getParameter<edm::ParameterSet>("RegionPSet");
-  theUseFoundVertices = regionPSet.getParameter<bool>("useFoundVertices");
-//  theUseChi2Cut       = regionPSet.getParameter<bool>("useChi2Cut");
-  thePtMin            = regionPSet.getParameter<double>("ptMin");
-  theOriginRadius     = regionPSet.getParameter<double>("originRadius");
-
-  if(theUseFoundVertices)
-  {
-  edm::ESHandle<TransientTrackBuilder> builder;
-  es.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
-  theTTBuilder = builder.product();
-  }
-}
-
-/*****************************************************************************/
-pair<float,float> PixelTrackProducerWithZPos::refitWithVertex
-  (const reco::Track & recTrack,
-   const reco::VertexCollection* vertices)
-{
-  TransientTrack theTransientTrack = theTTBuilder->build(recTrack);
-
-  // If there are vertices found
-  if(vertices->size() > 0)
-  {
-    float dzmin = -1.;
-    const reco::Vertex * closestVertex = 0;
-
-    // Look for the closest vertex in z
-    for(reco::VertexCollection::const_iterator
-        vertex = vertices->begin(); vertex!= vertices->end(); vertex++)
-    {
-      float dz = fabs(recTrack.vertex().z() - vertex->position().z());
-      if(vertex == vertices->begin() || dz < dzmin)
-      { dzmin = dz ; closestVertex = &(*vertex); }
-    }
-
-
-    // Get vertex position and error matrix
-    GlobalPoint vertexPosition(closestVertex->position().x(),
-                               closestVertex->position().y(),
-                               closestVertex->position().z());
-
-    float beamSize = 15e-4; // 15 um
-    GlobalError vertexError(beamSize*beamSize, 0,
-                            beamSize*beamSize, 0,
-                            0,closestVertex->covariance(2,2));
-
-    // Refit track with vertex constraint
-    SingleTrackVertexConstraint stvc;
-    pair<TransientTrack, float> result =
-      stvc.constrain(theTransientTrack, vertexPosition, vertexError);
-
-    return pair<float,float>(result.first.impactPointTSCP().pt(),
-                             result.second);
-  }
-  else
-    return pair<float,float>(recTrack.pt(), -9999);
+  string cleanerName       = cleanerPSet.getParameter<string>("ComponentName");
+  theCleaner = PixelTrackCleanerFactory::get()->create(cleanerName, cleanerPSet);
 }
 
 /*****************************************************************************/
@@ -194,17 +131,7 @@ void PixelTrackProducerWithZPos::produce
   
   TracksWithRecHits tracks;
 
-  // Get vertices
-  const reco::VertexCollection* vertices = 0;
-
-  if(theUseFoundVertices)
-  {
-  edm::Handle<reco::VertexCollection> vertexCollection;
-  ev.getByType(vertexCollection);
-  vertices = vertexCollection.product();
-  }
-
-  typedef std::vector<TrackingRegion* > Regions;
+  typedef vector<TrackingRegion* > Regions;
   typedef Regions::const_iterator IR;
   Regions regions = theRegionProducer->regions(ev,es);
 
@@ -219,34 +146,34 @@ void PixelTrackProducerWithZPos::produce
               << " [TrackProducer] number of triplets     : "
               << triplets.size();
 
-    // producing tracks
+    // Produce tracks
     for(unsigned int iTriplet = 0; iTriplet < nTriplets; ++iTriplet)
     { 
       const SeedingHitSet & triplet = triplets[iTriplet]; 
   
-      std::vector<const TrackingRecHit *> hits;
+      vector<const TrackingRecHit *> hits;
       for (unsigned int iHit = 0, nHits = triplet.size(); iHit < nHits; ++iHit)
         hits.push_back( triplet[iHit] );
   
       // Fitter
       reco::Track* track = theFitter->run(es, hits, region);
 
-if(hits.size() == 2)
+      // Filter for pairs (ValidHitPairFilter)
+      if(hits.size() == 2)
       if ( ! (*theHitsFilter)(track, hits) )
-{
+      {
         delete track; 
         continue; 
-}
+      }
   
-      // Filter
+      // Filter for triplets (ClusterShapeTrackFilter)
       if ( ! (*theFilter)(track,hits) )
       { 
-        LogTrace("MinBiasTracking") << " [TrackProducer] track did not pass cluster shape filter";
         delete track; 
         continue; 
       }
 
-      // add tracks 
+      // Add tracks 
       tracks.push_back(TrackWithRecHits(track, hits));
     }
   }
@@ -266,10 +193,11 @@ if(hits.size() == 2)
 void PixelTrackProducerWithZPos::store
   (edm::Event& ev, const TracksWithRecHits & cleanedTracks)
 {
-  std::auto_ptr<reco::TrackCollection> tracks(new reco::TrackCollection);
-  std::auto_ptr<TrackingRecHitCollection> recHits(new TrackingRecHitCollection);
-  std::auto_ptr<reco::TrackExtraCollection> trackExtras(new reco::TrackExtraCollection);
-  typedef std::vector<const TrackingRecHit *> RecHits;
+  auto_ptr<TrackCollection>           tracks(new          TrackCollection);
+  auto_ptr<TrackingRecHitCollection> recHits(new TrackingRecHitCollection);
+  auto_ptr<TrackExtraCollection> trackExtras(new     TrackExtraCollection);
+
+  typedef vector<const TrackingRecHit *> RecHits;
 
   int cc = 0, nTracks = cleanedTracks.size();
 
@@ -295,7 +223,7 @@ void PixelTrackProducerWithZPos::store
 
   for (int k = 0; k < nTracks; k++)
   {
-    reco::TrackExtra* theTrackExtra = new reco::TrackExtra();
+    TrackExtra* theTrackExtra = new TrackExtra();
 
     //fill the TrackExtra with TrackingRecHitRef
     unsigned int nHits = tracks->at(k).numberOfValidHits();
@@ -309,11 +237,11 @@ void PixelTrackProducerWithZPos::store
   }
 
   LogDebug("TrackProducer") << "put the collection of TrackExtra in the event" << "\n";
-  edm::OrphanHandle<reco::TrackExtraCollection> ohTE = ev.put(trackExtras);
+  edm::OrphanHandle<TrackExtraCollection> ohTE = ev.put(trackExtras);
 
   for (int k = 0; k < nTracks; k++)
   {
-    const reco::TrackExtraRef theTrackExtraRef(ohTE,k);
+    const TrackExtraRef theTrackExtraRef(ohTE,k);
     (tracks->at(k)).setExtra(theTrackExtraRef);
   }
 

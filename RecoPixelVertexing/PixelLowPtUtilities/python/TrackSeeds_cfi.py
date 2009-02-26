@@ -5,4 +5,3 @@ pixelTrackSeeds = cms.EDProducer("SeedProducer",
     tripletList = cms.vstring()
 )
 
-

@@ -5,12 +5,16 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/TracksWithHits.h"
 
+/*
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
+*/
 
+/*
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+*/
 
 class PixelFitter;
 class PixelTrackCleaner;
@@ -32,9 +36,10 @@ class PixelTrackProducerWithZPos :  public edm::EDProducer
  
   private:
     void beginJob(const edm::EventSetup& es);
+/*
     std::pair<float,float> refitWithVertex (const reco::Track & recTrack,
                                        const reco::VertexCollection* vertices);
-
+*/
     void store(edm::Event& ev,
                const pixeltrackfitting::TracksWithRecHits & selectedTracks);
 
@@ -47,10 +52,10 @@ class PixelTrackProducerWithZPos :  public edm::EDProducer
           OrderedHitsGenerator * theGenerator;
           TrackingRegionProducer* theRegionProducer;
 
-    const TransientTrackBuilder * theTTBuilder;
+//    const TransientTrackBuilder * theTTBuilder;
     bool theUseFoundVertices;
 //    bool theUseChi2Cut;
 
-   double thePtMin, theOriginRadius;
+//   double thePtMin, theOriginRadius;
 };
 #endif

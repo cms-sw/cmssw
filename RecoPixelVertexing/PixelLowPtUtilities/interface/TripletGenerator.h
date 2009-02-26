@@ -15,7 +15,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayers.h"
 
+#include "RecoPixelVertexing/PixelLowPtUtilities/interface/TripletFilter.h"
+
 class TrackerGeometry;
+class TripletFilter;
 
 #include <vector>
 
@@ -26,9 +29,10 @@ class   TripletGenerator :
 
  public:
    TripletGenerator( const edm::ParameterSet& cfg) 
-    : ps(cfg), thePairGenerator(0), theLayerCache(0) { theTracker = 0; }
+    : ps(cfg), thePairGenerator(0), theLayerCache(0)
+   { theTracker = 0; theFilter = 0; }
 
-   virtual ~TripletGenerator() { delete thePairGenerator; }
+   virtual ~TripletGenerator() { delete thePairGenerator; delete theFilter; }
 
    virtual void init( const HitPairGenerator & pairs,
       const std::vector<ctfseeding::SeedingLayer> & layers, LayerCacheType* layerCache);
@@ -39,15 +43,16 @@ class   TripletGenerator :
    const std::vector<ctfseeding::SeedingLayer> & thirdLayers() const { return theLayers; }
 
  private:
-   void getTracker (const edm::EventSetup& es);
-   GlobalPoint getGlobalPosition(const TrackingRecHit* recHit);
+  void getTracker (const edm::EventSetup& es);
+  GlobalPoint getGlobalPosition(const TrackingRecHit* recHit);
 
-   const TrackerGeometry* theTracker;
+  const TrackerGeometry * theTracker;
+  TripletFilter * theFilter;
 
-   edm::ParameterSet         ps;
-   HitPairGenerator * thePairGenerator;
-   std::vector<ctfseeding::SeedingLayer> theLayers;
-   LayerCacheType * theLayerCache;
+  edm::ParameterSet         ps;
+  HitPairGenerator * thePairGenerator;
+  std::vector<ctfseeding::SeedingLayer> theLayers;
+  LayerCacheType * theLayerCache;
 
   bool checkMultipleScattering;
   double nSigMultipleScattering;

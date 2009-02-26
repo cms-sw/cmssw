@@ -84,7 +84,6 @@ string HitInfo::getInfo(const PSimHit & simHit)
 
   {
     ostringstream o;
-//    o << theTracker->idToDet(id)->subDetector();
     o << id.subdetId();
 
     info += " | " + o.str();

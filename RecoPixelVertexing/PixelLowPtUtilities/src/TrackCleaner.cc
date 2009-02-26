@@ -104,9 +104,6 @@ struct RadiusComparator
 TracksWithRecHits TrackCleaner::cleanTracks
   (const TracksWithRecHits & tracks_)
 {
-  LogTrace("MinBiasTracking")
-    << " [TrackCleaner]";
-
   // Local copy
   TracksWithRecHits tracks = tracks_;
 
@@ -118,7 +115,7 @@ TracksWithRecHits TrackCleaner::cleanTracks
   int changes;
 
   LogTrace("MinBiasTracking")
-    << " [TrackCleaner ] initial tracks : " << tracks.size();
+    << " [TrackCleaner] initial tracks : " << tracks.size();
 
   for(unsigned int i = 0; i < tracks.size(); i++)
   LogTrace("MinBiasTracking")
@@ -206,7 +203,7 @@ TracksWithRecHits TrackCleaner::cleanTracks
             else
               keep[i] = false;
 
-            LogTrace("MinBiasTracking") << "   Merge #" << i << " #" << j << " and keep lower chi2";
+            LogTrace("MinBiasTracking") << "   Clash #" << i << " #" << j << " keep lower chi2";
   
             changes++;
           }
@@ -256,7 +253,7 @@ TracksWithRecHits TrackCleaner::cleanTracks
     else delete tracks_[i].first;
 
   LogTrace("MinBiasTracking")
-    << " [TrackCleaner ] cleaned tracks : " << cleaned.size();
+    << " [TrackCleaner] cleaned tracks : " << cleaned.size();
 
   for(unsigned int i = 0; i < cleaned.size(); i++)
   LogTrace("MinBiasTracking")

@@ -1,34 +1,27 @@
 #ifndef _TripletFilter_h_
 #define _TripletFilter_h_
 
-#include "FWCore/Framework/interface/EventSetup.h"
-
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
 #include <vector>
 
-#define MaxSize 20
+namespace edm { class EventSetup; }
+class TrackingRecHit;
+class ClusterShapeHitFilter;
 
 class TripletFilter 
 {
-  public:
-    TripletFilter(const edm::EventSetup& es);
-    ~TripletFilter();
-    bool checkTrack(std::vector<const TrackingRecHit*> recHits,
-                    std::vector<LocalVector> localDirs);
+ public:
+  TripletFilter(const edm::EventSetup& es);
+  ~TripletFilter();
+  bool checkTrack(std::vector<const TrackingRecHit*> recHits,
+                  std::vector<LocalVector> localDirs);
+  bool checkTrack(std::vector<const TrackingRecHit*> recHits,
+                  std::vector<GlobalVector> globalDirs);
 
-  private:
-    void loadClusterLimits();
-    bool isInside(double a[2][2], std::pair<double,double> movement);
-    bool isCompatible(const SiPixelRecHit *recHit, const LocalVector& dir);
- 
-    const TrackerGeometry* theTracker;
- 
-    static bool isFirst;
-    static double limits[2][MaxSize + 1][MaxSize + 1][2][2][2];
+ private:
+  ClusterShapeHitFilter * theFilter;
 };
 
 #endif
