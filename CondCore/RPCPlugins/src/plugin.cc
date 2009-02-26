@@ -30,6 +30,9 @@
 #include "CondFormats/DataRecord/interface/RPCObPVSSmapRcd.h"
 #include "CondFormats/RPCObjects/interface/RPCObPVSSmap.h"
 
+#include "CondFormats/DataRecord/interface/RPCObFebmapRcd.h"
+#include "CondFormats/RPCObjects/interface/RPCObFebmap.h"
+
 #include "CondFormats/DataRecord/interface/RBCBoardSpecsRcd.h"
 #include "CondFormats/DataRecord/interface/TTUBoardSpecsRcd.h"
 #include "CondFormats/RPCObjects/interface/RBCBoardSpecs.h"
@@ -49,6 +52,8 @@ REGISTER_PLUGIN(RPCObTempRcd,RPCObTemp);
 REGISTER_PLUGIN(RPCObPVSSmapRcd,RPCObPVSSmap);
 REGISTER_PLUGIN(RPCMaskedStripsRcd, RPCMaskedStrips);
 REGISTER_PLUGIN(RPCDeadStripsRcd, RPCDeadStrips);
+REGISTER_PLUGIN(RPCObFebmapRcd, RPCObFebmap);
+
 
 REGISTER_PLUGIN(RBCBoardSpecsRcd,RBCBoardSpecs);
 REGISTER_PLUGIN(TTUBoardSpecsRcd,TTUBoardSpecs);
