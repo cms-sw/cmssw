@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre2/8E29_V115/V2 (CMSSW_3_1_X_2009-02-20-1900_HLT1)
+# /dev/CMSSW_3_1_0/pre2/8E29_V122/V2 (CMSSW_3_1_X_2009-02-25-0700_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/8E29_V115/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/8E29_V122/V2')
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -303,8 +303,15 @@ PixelCPEGenericESProducer = cms.ESProducer( "PixelCPEGenericESProducer",
   eff_charge_cut_highY = cms.double( 1.0 ),
   size_cutX = cms.double( 3.0 ),
   size_cutY = cms.double( 3.0 ),
+  EdgeClusterErrorX = cms.double( 50.0 ),
+  EdgeClusterErrorY = cms.double( 85.0 ),
   inflate_errors = cms.bool( False ),
   inflate_all_errors_no_trk_angle = cms.bool( False ),
+  UseErrorsFromTemplates = cms.bool( True ),
+  TruncatePixelCharge = cms.bool( True ),
+  IrradiationBiasCorrection = cms.bool( False ),
+  DoCosmics = cms.bool( False ),
+  LoadTemplatesFromDB = cms.bool( True ),
   appendToDataLabel = cms.string( "" ),
   TanLorentzAnglePerTesla = cms.double( 0.106 ),
   PixelErrorParametrization = cms.string( "NOTcmsim" ),
@@ -692,6 +699,7 @@ softLeptonByPt = cms.ESProducer( "LeptonTaggerByPtESProducer",
   ipSign = cms.string( "any" )
 )
 trackCounting3D2nd = cms.ESProducer( "TrackCountingESProducer",
+  appendToDataLabel = cms.string( "" ),
   nthTrack = cms.int32( 2 ),
   impactParameterType = cms.int32( 0 ),
   deltaR = cms.double( -1.0 ),
