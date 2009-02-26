@@ -391,7 +391,7 @@ MultiTrajectoryMeasurement SimpleMTFHitCollector::TSOSfinder(const std::map<int,
       //define the rechit
       TransientTrackingRecHit::ConstRecHitPointer rechit = pmeas.recHit();
       
-      const DetLayer* layer = pmeas.layer();
+      //      const DetLayer* layer = pmeas.layer();
       
       uint32_t id = pmeas.recHit()->geographicalId().rawId();
       

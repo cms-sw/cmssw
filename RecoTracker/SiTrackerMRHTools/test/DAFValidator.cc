@@ -118,7 +118,7 @@ void DAFValidator::analyze(const edm::Event& e, const edm::EventSetup& c){
   InputTag tracktag = theConf.getParameter<InputTag>("TrackCollection");
   e.getByLabel(tracktag, trackCollection);
   
-  float RecoTracknum=trackCollection->size();
+  //  float RecoTracknum=trackCollection->size();
   
   e.getByLabel(tracktag, trajectoryCollection);
   //get the association map by label
@@ -131,7 +131,7 @@ void DAFValidator::analyze(const edm::Event& e, const edm::EventSetup& c){
   
   e.getByLabel(trackingParticleTag, trackingParticleCollection);
   
-  float SimTracknum=trackingParticleCollection->size();
+  //  float SimTracknum=trackingParticleCollection->size();
   
   //hit associator
   TrackerHitAssociator hitAssociate(e,theConf.getParameter<ParameterSet>("HitAssociatorPSet"));
@@ -408,7 +408,7 @@ int DAFValidator::fillNotMergedHisto(const vector<SimHitIdpr>& simhitids,
       
       for (TrackingParticle::g4t_iterator g4T = tpref -> g4Track_begin(); g4T !=  tpref -> g4Track_end(); ++g4T){
 	//vector<SimHitIdpr>::const_iterator isimid;
-	int simcount=0;
+	//	int simcount=0;
 	if ((*g4T).trackId()==isimid->trackId()) return 3;
 	
       }
@@ -418,7 +418,7 @@ int DAFValidator::fillNotMergedHisto(const vector<SimHitIdpr>& simhitids,
   else {
     for (TrackingParticle::g4t_iterator g4T = tpref -> g4Track_begin(); g4T !=  tpref -> g4Track_end(); ++g4T){
       //vector<SimHitIdpr>::const_iterator isimid;
-      int simcount=0;
+      //      int simcount=0;
       if ((*g4T).trackId()==isimid->trackId()) return 2;
       
     }
@@ -441,7 +441,7 @@ int DAFValidator::fillMergedHisto(const vector<SimHitIdpr>& simhitids,
   for (TrackingParticle::g4t_iterator g4T = tpref -> g4Track_begin(); g4T !=  tpref -> g4Track_end(); ++g4T){
     //vector<SimHitIdpr>::const_iterator isimid;
     vector<PSimHit>::const_iterator isimid;
-    unsigned int simcount=0;
+    //    unsigned int simcount=0;
     //for (isimid = simhitids.begin(); isimid != simhitids.end(); isimid++){
     //in case of merged hits we have to make a for cicle 
     for(isimid = simhits.begin(); isimid != simhits.end(); isimid++){

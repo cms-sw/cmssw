@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.cc,v 1.33 2008/08/07 02:06:23 dmytro Exp $
+// $Id: TrackDetectorAssociator.cc,v 1.34 2008/10/07 01:49:48 dmytro Exp $
 //
 //
 
@@ -919,7 +919,7 @@ void TrackDetectorAssociator::addTAMuonSegmentMatch(TAMuonChamberMatch& matchedC
       if ( dtseg ) {
         if ( (dtseg->hasPhi()) && (! isDTWithoutY) ) {
   	  int phiHits = dtseg->phiSegment()->specificRecHits().size();
-	  int zHits = dtseg->zSegment()->specificRecHits().size();
+	  //	  int zHits = dtseg->zSegment()->specificRecHits().size();
 	  int hits=0;
 	  double t0=0.;
 	  // TODO: cuts on hit numbers not optimized in any way yet...

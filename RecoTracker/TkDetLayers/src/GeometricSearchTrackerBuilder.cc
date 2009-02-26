@@ -69,7 +69,7 @@ GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
 
   // layers "ids"
   unsigned int layerId[] = {1,3,5,21,22,41,42,61,62};
-  boost::function<void(trackerTrie::Node const &)> fun[9]; 
+  //  boost::function<void(trackerTrie::Node const &)> fun[9]; 
   /*
 	thePxlBarLayers.push_back( aPixelBarrelLayerBuilder.build(*p) );
 	theTIBLayers.push_back( aTIBLayerBuilder.build(*p) );

@@ -10,8 +10,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: burkett $
-// $Date: 2008/11/18 18:59:22 $
-// $Revision: 1.61 $
+// $Date: 2008/11/20 17:21:37 $
+// $Revision: 1.62 $
 //
 
 #include <vector>
@@ -314,7 +314,8 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
       std::vector<const DetLayer*> the_middle_layers;
       RoadSearchCloud::RecHitVector the_recHits_middle;
 
-      bool StartLayers = chooseStartingLayers(RecHitsByLayer,ilyr0,layer_map,the_good_layers,the_middle_layers,the_recHits_middle);
+      //      bool StartLayers = 
+      chooseStartingLayers(RecHitsByLayer,ilyr0,layer_map,the_good_layers,the_middle_layers,the_recHits_middle);
       if (debug_) {
 	std::cout << " From new code... With " << the_good_layers.size() << " useful layers: ";
 	for (std::set<const DetLayer*>::iterator igl = the_good_layers.begin();
@@ -1595,7 +1596,7 @@ TrackCandidateCollection RoadSearchTrackCandidateMakerAlgorithm::PrepareTrackCan
     
     if(debugCosmics_) {
       std::cout << "==========ENTERING COSMIC MODE===========" << std::endl;
-      int t=0;
+      //      int t=0;
       for (std::vector<Trajectory>::iterator it = traj.begin(); it != traj.end(); it++) {
 	std::cout << "Trajectory " << it-traj.begin() << " has "<<it->recHits().size()<<" hits and is valid: " << it->isValid() << std::endl;
 	TransientTrackingRecHit::ConstRecHitContainer itHits = it->recHits();
