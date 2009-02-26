@@ -321,7 +321,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     double photonEnergy=0;
     if (r9>minR9_) {
       caloPosition = unconvPos;
-      photonEnergy=e5x5;
+      photonEnergy=e5x5 + scRef->preshowerEnergy() ;
     } else {
       caloPosition = scRef->position();
       photonEnergy=scRef->energy();
