@@ -133,6 +133,8 @@ namespace edm
     event = hadronizer_.getGenEvent() ;
     if ( !event ) return false;
 
+    event->set_event_number( ev.id().event() );
+
     //
     // tutto bene - finally, form up EDM products !
     //
