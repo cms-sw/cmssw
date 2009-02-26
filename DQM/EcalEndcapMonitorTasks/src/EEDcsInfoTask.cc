@@ -61,7 +61,7 @@ void EEDcsInfoTask::beginJob(const EventSetup& c){
     meEEDcsActiveMap_->setAxisTitle("jx", 1);
     meEEDcsActiveMap_->setAxisTitle("jy", 2);
     
-    dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/DCSSummaryContents");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/DCSContents");
 
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EcalBarrel_%s", Numbers::sEE(i+1).c_str());
@@ -87,6 +87,11 @@ void EEDcsInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
   int nErrorsEE[18];
   int nValidChannels = 0;
   int nValidChannelsEE[18];
+
+  for (int i = 0; i < 18; i++) {
+    nErrorsEE[i] = 0;
+    nValidChannelsEE[i] = 0;
+  }
 
   for ( int iz = -1; iz < 2; iz+=2 ) {
     for ( int ix = 1; ix <= 100; ix++ ) {
@@ -152,7 +157,7 @@ void EEDcsInfoTask::cleanup(void){
 
     if ( meEEDcsActiveMap_ ) dqmStore_->removeElement( meEEDcsActiveMap_->getName() );
 
-    dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/DCSSummaryContents");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/DCSContents");
 
     for (int i = 0; i < 18; i++) {
       if ( meEEDcsActive_[i] ) dqmStore_->removeElement( meEEDcsActive_[i]->getName() );
