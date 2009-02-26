@@ -1,98 +1,65 @@
 import FWCore.ParameterSet.Config as cms
 
+############################################################
+# Large impact parameter Tracking using mixed-pair seeding #
+############################################################
+
+# REMOVE HITS ASSIGNED TO GOOD TRACKS FROM PREVIOUS ITERATIONS
+secfilter = cms.EDFilter("QualityFilter",
+    TrackQuality = cms.string('highPurity'),
+    recTracks = cms.InputTag("secStep")
+)
+
+thClusters = cms.EDFilter("TrackClusterRemover",
+    oldClusterRemovalInfo = cms.InputTag("secClusters"),
+    trajectories = cms.InputTag("secfilter"),
+    pixelClusters = cms.InputTag("secClusters"),
+    stripClusters = cms.InputTag("secClusters"),
+    Common = cms.PSet(
+        maxChi2 = cms.double(30.0)
+    )
+
+# For debug purposes, you can run this iteration not eliminating any hits from previous ones by
+# instead using
+#    trajectories = cms.InputTag("zeroStepFilter"),
+#    pixelClusters = cms.InputTag("siPixelClusters"),
+#    stripClusters = cms.InputTag("siStripClusters"),
+#     Common = cms.PSet(
+#       maxChi2 = cms.double(0.0)
+#    )
+)
+
+# TRACKER HITS
 import RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi
-#TRACKER HITS
 thPixelRecHits = RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi.siPixelRecHits.clone()
 import RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi
 thStripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi.siStripMatchedRecHits.clone()
 thPixelRecHits.src = 'thClusters'
 thStripRecHits.ClusterProducer = 'thClusters'
 
-# Propagator taking into account momentum uncertainty in multiple
-# scattering calculation.
+# Propagator taking into account momentum uncertainty in multiple scattering calculation.
 
 import TrackingTools.MaterialEffects.MaterialPropagator_cfi
 MaterialPropagatorPtMin03 = TrackingTools.MaterialEffects.MaterialPropagator_cfi.MaterialPropagator.clone()
 MaterialPropagatorPtMin03.ComponentName = 'PropagatorWithMaterialPtMin03'
 MaterialPropagatorPtMin03.ptMin = 0.3
 
+import TrackingTools.MaterialEffects.MaterialPropagator_cfi
+MaterialPropagatorPtMin015 = TrackingTools.MaterialEffects.MaterialPropagator_cfi.MaterialPropagator.clone()
+MaterialPropagatorPtMin015.ComponentName = 'PropagatorWithMaterialPtMin015'
+MaterialPropagatorPtMin015.ptMin = 0.15
+
 import TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi
 OppositeMaterialPropagatorPtMin03 = TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi.OppositeMaterialPropagator.clone()
 OppositeMaterialPropagatorPtMin03.ComponentName = 'PropagatorWithMaterialOppositePtMin03'
 OppositeMaterialPropagatorPtMin03.ptMin = 0.3
 
-import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff
-#SEEDS
-thPLSeeds = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff.globalMixedSeeds.clone()
-import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
-thPLSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'ThLayerPairs'
-thPLSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.3
-thPLSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 7.0
-thPLSeeds.RegionFactoryPSet.RegionPSet.originRadius = 1.2
-import RecoTracker.TkSeedGenerator.SeedFromConsecutiveHitsStraightLineCreator_cfi
-thPLSeeds.SeedCreatorPSet = RecoTracker.TkSeedGenerator.SeedFromConsecutiveHitsStraightLineCreator_cfi.SeedFromConsecutiveHitsStraightLineCreator.clone(
-    propagator = cms.string('PropagatorWithMaterialPtMin03')
-    )
+import TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi
+OppositeMaterialPropagatorPtMin015 = TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi.OppositeMaterialPropagator.clone()
+OppositeMaterialPropagatorPtMin015.ComponentName = 'PropagatorWithMaterialOppositePtMin015'
+OppositeMaterialPropagatorPtMin015.ptMin = 0.15
 
-
-#TRAJECTORY MEASUREMENT
-thMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone()
-import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
-thMeasurementTracker.ComponentName = 'thMeasurementTracker'
-thMeasurementTracker.pixelClusterProducer = 'thClusters'
-thMeasurementTracker.stripClusterProducer = 'thClusters'
-
-#TRAJECTORY FILTER
-thCkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone()
-import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
-thCkfTrajectoryFilter.ComponentName = 'thCkfTrajectoryFilter'
-thCkfTrajectoryFilter.filterPset.maxLostHits = 0
-thCkfTrajectoryFilter.filterPset.minimumNumberOfHits = 3
-thCkfTrajectoryFilter.filterPset.minPt = 0.3
-
-#TRAJECTORY BUILDER
-thCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone()
-import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
-thCkfTrajectoryBuilder.ComponentName = 'thCkfTrajectoryBuilder'
-thCkfTrajectoryBuilder.MeasurementTrackerName = 'thMeasurementTracker'
-thCkfTrajectoryBuilder.trajectoryFilterName = 'thCkfTrajectoryFilter'
-thCkfTrajectoryBuilder.propagatorAlong = cms.string('PropagatorWithMaterialPtMin03')
-thCkfTrajectoryBuilder.propagatorOpposite = cms.string('PropagatorWithMaterialOppositePtMin03')
-
-
-#TRACK CANDIDATES
-thTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
-import RecoTracker.TrackProducer.TrackProducer_cfi
-thTrackCandidates.src = cms.InputTag('thPLSeeds')
-thTrackCandidates.TrajectoryBuilder = 'thCkfTrajectoryBuilder'
-thTrackCandidates.doSeedingRegionRebuilding = True
-thTrackCandidates.useHitsSplitting = True
-
-
-#TRACKS
-thWithMaterialTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone()
-thWithMaterialTracks.AlgorithmName = cms.string('iter3')
-thWithMaterialTracks.src = 'thTrackCandidates'
-thWithMaterialTracks.clusterRemovalInfo = 'thClusters'
-
-
-secfilter = cms.EDFilter("QualityFilter",
-    TrackQuality = cms.string('highPurity'),
-    recTracks = cms.InputTag("secStep")
-)
-
-#HIT REMOVAL
-thClusters = cms.EDFilter("TrackClusterRemover",
-    oldClusterRemovalInfo = cms.InputTag("secClusters"),
-    trajectories = cms.InputTag("secfilter"),
-    pixelClusters = cms.InputTag("secClusters"),
-    Common = cms.PSet(
-        maxChi2 = cms.double(30.0)
-    ),
-    stripClusters = cms.InputTag("secClusters")
-)
-
-#SEEDING LAYERS
+# SEEDING LAYERS
 thlayerpairs = cms.ESProducer("MixedLayerPairsESProducer",
     ComponentName = cms.string('ThLayerPairs'),
     layerList = cms.vstring('BPix1+BPix2', 
@@ -126,7 +93,61 @@ thlayerpairs = cms.ESProducer("MixedLayerPairsESProducer",
     )
 )
 
-# track selection
+# SEEDS
+import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff
+thPLSeeds = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff.globalMixedSeeds.clone()
+import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
+thPLSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'ThLayerPairs'
+thPLSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.3
+thPLSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 7.0
+thPLSeeds.RegionFactoryPSet.RegionPSet.originRadius = 1.2
+import RecoTracker.TkSeedGenerator.SeedFromConsecutiveHitsStraightLineCreator_cfi
+thPLSeeds.SeedCreatorPSet = RecoTracker.TkSeedGenerator.SeedFromConsecutiveHitsStraightLineCreator_cfi.SeedFromConsecutiveHitsStraightLineCreator.clone(
+    propagator = cms.string('PropagatorWithMaterialPtMin03')
+)
+
+# TRACKER DATA CONTROL
+thMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone()
+import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
+thMeasurementTracker.ComponentName = 'thMeasurementTracker'
+thMeasurementTracker.pixelClusterProducer = 'thClusters'
+thMeasurementTracker.stripClusterProducer = 'thClusters'
+
+# QUALITY CUTS DURING TRACK BUILDING
+thCkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone()
+import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
+thCkfTrajectoryFilter.ComponentName = 'thCkfTrajectoryFilter'
+thCkfTrajectoryFilter.filterPset.maxLostHits = 0
+thCkfTrajectoryFilter.filterPset.minimumNumberOfHits = 3
+thCkfTrajectoryFilter.filterPset.minPt = 0.15
+#thCkfTrajectoryFilter.filterPset.minPt = 0.3
+
+# TRACK BUILDING
+thCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone()
+import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
+thCkfTrajectoryBuilder.ComponentName = 'thCkfTrajectoryBuilder'
+thCkfTrajectoryBuilder.MeasurementTrackerName = 'thMeasurementTracker'
+thCkfTrajectoryBuilder.trajectoryFilterName = 'thCkfTrajectoryFilter'
+#thCkfTrajectoryBuilder.propagatorAlong = cms.string('PropagatorWithMaterialPtMin03')
+#thCkfTrajectoryBuilder.propagatorOpposite = cms.string('PropagatorWithMaterialOppositePtMin03')
+thCkfTrajectoryBuilder.propagatorAlong = cms.string('PropagatorWithMaterialPtMin015')
+thCkfTrajectoryBuilder.propagatorOpposite = cms.string('PropagatorWithMaterialOppositePtMin015')
+
+# MAKING OF TRACK CANDIDATES
+thTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
+import RecoTracker.TrackProducer.TrackProducer_cfi
+thTrackCandidates.src = cms.InputTag('thPLSeeds')
+thTrackCandidates.TrajectoryBuilder = 'thCkfTrajectoryBuilder'
+thTrackCandidates.doSeedingRegionRebuilding = True
+thTrackCandidates.useHitsSplitting = True
+
+# TRACK FITTING
+thWithMaterialTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone()
+thWithMaterialTracks.AlgorithmName = cms.string('iter3')
+thWithMaterialTracks.src = 'thTrackCandidates'
+thWithMaterialTracks.clusterRemovalInfo = 'thClusters'
+
+# TRACK SELECTION AND QUALITY FLAG SETTING.
 import RecoTracker.FinalTrackSelectors.selectLoose_cfi
 import RecoTracker.FinalTrackSelectors.selectTight_cfi
 import RecoTracker.FinalTrackSelectors.selectHighPurity_cfi
