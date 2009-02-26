@@ -78,7 +78,7 @@ void L1TEventInfoClient::beginJob(const EventSetup& context){
   
   reportSummary_ = dbe_->bookFloat("reportSummary");
 
-  int nSubsystems = 20;
+  int nSubsystems = 13;
 
   //initialize reportSummary to 1
   if (reportSummary_) reportSummary_->Fill(1);
@@ -92,26 +92,19 @@ void L1TEventInfoClient::beginJob(const EventSetup& context){
 
     
     switch(n){
-    case 0 :   sprintf(histo,"L1T_ECAL");    break;
-    case 1 :   sprintf(histo,"L1T_HCAL");    break;
-    case 2 :   sprintf(histo,"L1T_RCT");     break;
-    case 3 :   sprintf(histo,"L1T_GCT");     break;
-    case 4 :   sprintf(histo,"L1T_DTTPG");   break;
-    case 5 :   sprintf(histo,"L1T_DTTF");    break;
-    case 6 :   sprintf(histo,"L1T_CSCTPG");  break;
-    case 7 :   sprintf(histo,"L1T_CSCTF");   break;
-    case 8 :   sprintf(histo,"L1T_RPC");     break;
-    case 9 :   sprintf(histo,"L1T_GMT");     break;
-    case 10 :  sprintf(histo,"L1T_GT");      break;
-    case 11 :  sprintf(histo,"L1T_RPCTG");   break;
-    case 12 :  sprintf(histo,"L1T_EMUL");    break;
-    case 13 :  sprintf(histo,"L1T_Timing");  break;
-    case 14 :  sprintf(histo,"L1T_Test1");   break;
-    case 15 :  sprintf(histo,"L1T_Test2");   break;
-    case 16 :  sprintf(histo,"L1T_Test3");   break;
-    case 17 :  sprintf(histo,"L1T_Test4");   break;
-    case 18 :  sprintf(histo,"L1T_Test5");   break;
-    case 19 :  sprintf(histo,"L1T_Test6");   break;
+    case 0 :   sprintf(histo,"L1T_MET");      break;
+    case 1 :   sprintf(histo,"L1T_NonIsoEM"); break;
+    case 2 :   sprintf(histo,"L1T_IsoEM");    break;
+    case 3 :   sprintf(histo,"L1T_TauJets");  break;
+    case 4 :   sprintf(histo,"L1T_Jets");     break;
+    case 5 :   sprintf(histo,"L1T_Muons");    break;
+    case 6 :   sprintf(histo,"L1T_GT");       break;
+    case 7 :   sprintf(histo,"L1T_Test1");    break;
+    case 8 :   sprintf(histo,"L1T_Test2");    break;
+    case 9 :   sprintf(histo,"L1T_Test3");    break;
+    case 10 :  sprintf(histo,"L1T_Test4");    break;
+    case 11 :  sprintf(histo,"L1T_Test5");    break;
+    case 12 :  sprintf(histo,"L1T_Test6");    break;
     }  
     
   
@@ -140,14 +133,14 @@ void L1TEventInfoClient::beginJob(const EventSetup& context){
   reportSummaryMap_ = dbe_->book2D("reportSummaryMap", "reportSummaryMap", 1, 1, 2, 8, 1, 9);
   reportSummaryMap_->setAxisTitle("", 1);
   reportSummaryMap_->setAxisTitle("", 2);
-  reportSummaryMap_->setBinLabel(1,"DTTF",2);
-  reportSummaryMap_->setBinLabel(2,"CSCTF",2);
-  reportSummaryMap_->setBinLabel(3,"RPC",2);
-  reportSummaryMap_->setBinLabel(4,"GMT",2);
-  reportSummaryMap_->setBinLabel(5,"RCT",2);
-  reportSummaryMap_->setBinLabel(6,"GCT",2);
+  reportSummaryMap_->setBinLabel(1,"MET",2);
+  reportSummaryMap_->setBinLabel(2,"NonIsoEM",2);
+  reportSummaryMap_->setBinLabel(3,"IsoEM",2);
+  reportSummaryMap_->setBinLabel(4,"TauJets",2);
+  reportSummaryMap_->setBinLabel(5,"Jets",2);
+  reportSummaryMap_->setBinLabel(6,"Muons",2);
   reportSummaryMap_->setBinLabel(7,"GT",2);
-  reportSummaryMap_->setBinLabel(8,"Timing",2);
+  reportSummaryMap_->setBinLabel(8,"Empty",2);
   reportSummaryMap_->setBinLabel(1," ",1);
 
 }
@@ -165,19 +158,19 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
                           const edm::EventSetup& c){   
 
 
-  MonitorElement *GCT_QHist = dbe_->get("L1T/L1TGCT/NonIsoEmOccEtaPhi");
-  MonitorElement *RCT_QHist = dbe_->get("L1T/L1TRCT/RctNonIsoEmOccEtaPhi");
   MonitorElement *GMT_QHist = dbe_->get("L1T/L1TGMT/GMT_etaphi");
-  //MonitorElement *CSCTF_QHist = dbe_->get("L1T/L1TCSCTF/CSCTF_occupancies");
-  MonitorElement *CSCTF_QHist = dbe_->get("L1T/L1TCSCTF/CSCTF_Chamber_Occupancies");
-  MonitorElement *DTTF_QHist = dbe_->get("L1T/L1TDTTF/DTTF_TRACKS/INTEG/Occupancy Summary");
-  
-  //MonitorElement *DTTF_QHist_phi = dbe_->get("L1T/L1TDTTF/DTTF_TRACKS/INTEG/Integrated Packed Phi");
-  //MonitorElement *DTTF_QHist_pt = dbe_->get("L1T/L1TDTTF/DTTF_TRACKS/INTEG/Integrated Packed Pt");
-  //MonitorElement *DTTF_QHist_qual = dbe_->get("L1T/L1TDTTF/DTTF_TRACKS/INTEG/Integrated Packed Quality");
+  MonitorElement *GCT_IsoEm_QHist = dbe_->get("L1T/L1TGCT/IsoEmRankEtaPhi");
+  MonitorElement *GCT_NonIsoEm_QHist = dbe_->get("L1T/L1TGCT/NonIsoEmRankEtaPhi");
+  MonitorElement *GCT_AllJets_QHist = dbe_->get("L1T/L1TGCT/AllJetsEtEtaPhi");
+  MonitorElement *GCT_TauJets_QHist = dbe_->get("L1T/L1TGCT/TauJetsEtEtaPhi");
+  MonitorElement *GT_AlgoBits_QHist = dbe_->get("L1T/L1TGT/algo_bits");
+  MonitorElement *GT_TechBits_QHist = dbe_->get("L1T/L1TGT/tt_bits");
+
+  // MET ME
 
 
-  int nSubsystems = 20;
+  bool verbose = verbose_;
+  int nSubsystems = 13;
   for (int k = 0; k < nSubsystems; k++) {
     summaryContent[k] = 1;
     reportSummaryContent_[k]->Fill(1.);
@@ -185,236 +178,352 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   summarySum = 0;
 
   
-  int GCT_nXCh = 0,GCT_nYCh=0,RCT_nXCh=0,RCT_nYCh=0,GMT_nXCh=0,GMT_nYCh=0,CSCTF_nXCh=0,CSCTF_nYCh=0,DTTF_nXCh=0,DTTF_nYCh=0;
+  int GCT_IsoEm_nXCh = 0,GCT_IsoEm_nYCh=0,GCT_NonIsoEm_nXCh = 0,GCT_NonIsoEm_nYCh=0,GCT_AllJets_nXCh = 0,GCT_AllJets_nYCh=0,GCT_TauJets_nXCh = 0,GCT_TauJets_nYCh=0,GMT_nXCh=0,GMT_nYCh=0;
 
-  if(GCT_QHist){
-    GCT_nXCh = GCT_QHist->getNbinsX(); 
-    GCT_nYCh = GCT_QHist->getNbinsY();
+
+  if(GCT_IsoEm_QHist){
+    GCT_IsoEm_nXCh = GCT_IsoEm_QHist->getNbinsX(); 
+    GCT_IsoEm_nYCh = GCT_IsoEm_QHist->getNbinsY();
   }
-  if(RCT_QHist){
-    RCT_nXCh = RCT_QHist->getNbinsX(); 
-    RCT_nYCh = RCT_QHist->getNbinsY();
+  if(GCT_NonIsoEm_QHist){
+    GCT_NonIsoEm_nXCh = GCT_NonIsoEm_QHist->getNbinsX(); 
+    GCT_NonIsoEm_nYCh = GCT_NonIsoEm_QHist->getNbinsY();
+  }
+  if(GCT_AllJets_QHist){
+    GCT_AllJets_nXCh = GCT_AllJets_QHist->getNbinsX(); 
+    GCT_AllJets_nYCh = GCT_AllJets_QHist->getNbinsY();
+  }
+  if(GCT_TauJets_QHist){
+    GCT_TauJets_nXCh = GCT_TauJets_QHist->getNbinsX(); 
+    GCT_TauJets_nYCh = GCT_TauJets_QHist->getNbinsY();
   }
   if(GMT_QHist){
     GMT_nXCh = GMT_QHist->getNbinsX(); 
     GMT_nYCh = GMT_QHist->getNbinsY();
   }
-  if(CSCTF_QHist){
-    CSCTF_nXCh = CSCTF_QHist->getNbinsX(); 
-    CSCTF_nYCh = CSCTF_QHist->getNbinsY();
-  }
-  if(DTTF_QHist){
-    DTTF_nXCh = DTTF_QHist->getNbinsX();  
-    DTTF_nYCh = DTTF_QHist->getNbinsY();
-  } 
 
 
-  int GCT_nCh=0,RCT_nCh=0,GMT_nCh=0,CSCTF_nCh=0,DTTF_nCh=0;
+  int GCT_IsoEm_nCh=0,GCT_NonIsoEm_nCh=0,GCT_AllJets_nCh=0,GCT_TauJets_nCh=0,GMT_nCh=0,GT_AlgoBits_nCh=0,GT_TechBits_nCh=0;
   
-  if(GCT_nYCh) 
-    GCT_nCh = GCT_nXCh*GCT_nYCh;
-  if(RCT_nYCh) 
-    RCT_nCh = RCT_nXCh*RCT_nYCh;
+  if(GCT_IsoEm_nYCh) 
+    GCT_IsoEm_nCh = GCT_IsoEm_nXCh*GCT_IsoEm_nYCh;
+  if(GCT_NonIsoEm_nYCh) 
+    GCT_NonIsoEm_nCh = GCT_NonIsoEm_nXCh*GCT_NonIsoEm_nYCh;
+  if(GCT_AllJets_nYCh) 
+    GCT_AllJets_nCh = GCT_AllJets_nXCh*GCT_AllJets_nYCh;
+  if(GCT_TauJets_nYCh) 
+    GCT_TauJets_nCh = GCT_TauJets_nXCh*GCT_TauJets_nYCh;
   if(GMT_nYCh) 
     GMT_nCh = GMT_nXCh*GMT_nYCh;
-  if(CSCTF_nYCh) 
-    CSCTF_nCh = CSCTF_nXCh*CSCTF_nYCh;
-  if(DTTF_nYCh)
-    DTTF_nCh = DTTF_nXCh*DTTF_nYCh;
-  
+  if(GT_AlgoBits_QHist) GT_AlgoBits_nCh = GT_AlgoBits_QHist->getNbinsX(); 
+  if(GT_TechBits_QHist) GT_TechBits_nCh = GT_TechBits_QHist->getNbinsX(); 
 
-  if (GCT_QHist){
-    const QReport *GCT_QReport = GCT_QHist->getQReport("HotChannels_GCT");
-    if (GCT_QReport) {
-      int GCT_nBadCh = GCT_QReport->getBadChannels().size();
-      //cout << "nBadCh(GCT): "  << GCT_nBadCh << endl;
-      summaryContent[3] =  1 - GCT_nBadCh/GCT_nCh;
-      //cout << "summaryContent[0]-GCT=" << summaryContent[0] << endl;
-      reportSummaryContent_[3]->Fill( summaryContent[3] );
-    } 
-   
-    // //get list of quality tests
-   //     std::vector<QReport *> Qtest_map = NonIsoEmDeadEtaPhiChannels->getQReports();
-   //     cout << "Qtest_map.size() = " << Qtest_map.size() << endl;
-   //     if(Qtest_map.size() > 0) {
-   //       for (std::vector<QReport *>::const_iterator it=Qtest_map.begin(); it!=Qtest_map.end(); it++)
-   // 	{
-   // 	  //cout << endl;
-   // 	  string qt_name = (*it)->getQRName();
-   // 	  int qt_status = (*it)->getStatus();
-   
-   // 	  cout << "qt_name = " << qt_name << endl;
-   // 	  cout << "qt_status = " << qt_status << endl;
-   //	  
-   //	}
- }
 
-  
-  if (RCT_QHist){
-    const QReport *RCT_QReport = RCT_QHist->getQReport("HotChannels_RCT");
-    if (RCT_QReport) {
-      int RCT_nBadCh = RCT_QReport->getBadChannels().size();
-      summaryContent[2]=1-RCT_nBadCh/RCT_nCh;
-      reportSummaryContent_[2]->Fill( summaryContent[2] );
+  GCT_IsoEm_nCh-=252;
+  GCT_NonIsoEm_nCh-=252;
+
+
+
+
+
+  //
+  // 00  MET Quality Tests
+  //
+
+
+
+  //
+  // 01  NonIsoEM Quality Tests
+  //
+  if (GCT_NonIsoEm_QHist){
+    const QReport *GCT_NonIsoEm_DeadCh_QReport = GCT_NonIsoEm_QHist->getQReport("DeadChannels_GCT_2D");
+    const QReport *GCT_NonIsoEm_HotCh_QReport = GCT_NonIsoEm_QHist->getQReport("HotChannels_GCT_2D");
+
+    int GCT_NonIsoEm_nBadCh = 0;
+
+    if (GCT_NonIsoEm_DeadCh_QReport) {
+      int GCT_NonIsoEm_nDeadCh = GCT_NonIsoEm_DeadCh_QReport->getBadChannels().size();
+      GCT_NonIsoEm_nDeadCh-=252;     // Remove uninstrumented regions
+
+      if( verbose ) cout << "  GCT_NonIsoEm_nDeadCh: "  << GCT_NonIsoEm_nDeadCh 
+			 << ", GCT_NonIsoEm_nCh: " << GCT_NonIsoEm_nCh 
+			 << ", GCT_NonIsoEm_DeadCh_efficiency: " << 1 - (float)GCT_NonIsoEm_nDeadCh/(float)GCT_NonIsoEm_nCh << endl;
+      //if( verbose ) std::cout << " GCT_NonIsoEm_DeadCh QTResult = " << GCT_NonIsoEm_DeadCh_QReport->getQTresult() << std::endl;
+
+      GCT_NonIsoEm_nBadCh+=GCT_NonIsoEm_nDeadCh;
     } 
+    else std::cout << "      GCT_NonIsoEm_DeadCh_QReport = False  !! " << std::endl;
+
+    if (GCT_NonIsoEm_HotCh_QReport) {
+      int GCT_NonIsoEm_nHotCh = GCT_NonIsoEm_HotCh_QReport->getBadChannels().size();
+      if( verbose ) cout << "  GCT_NonIsoEm_nHotCh: "  << GCT_NonIsoEm_nHotCh 
+			 << ", GCT_NonIsoEm_nCh: " << GCT_NonIsoEm_nCh 
+			 << ", GCT_NonIsoEm_HotCh_efficiency: " << 1 - (float)GCT_NonIsoEm_nHotCh/(float)GCT_NonIsoEm_nCh << endl;
+      //if( verbose ) std::cout << " GCT_NonIsoEm_HotCh QTResult = " << GCT_NonIsoEm_HotCh_QReport->getQTresult() << std::endl;
+
+      GCT_NonIsoEm_nBadCh+=GCT_NonIsoEm_nHotCh;
+    }
+    else std::cout << "      GCT_NonIsoEm_HotCh_QReport = False  !!" << std::endl;
+
+    if( verbose ) std::cout << "    GCT_NonIsoEm total efficiency = " << 1 - (float)GCT_NonIsoEm_nBadCh/(float)GCT_NonIsoEm_nCh << std::endl;
+
+    summaryContent[1] = 1 - (float)GCT_NonIsoEm_nBadCh/(float)GCT_NonIsoEm_nCh;
+    reportSummaryContent_[1]->Fill( summaryContent[1] );
   }
+  else std::cout << "      GCT_NonIsoEm_QHist = False  !! " << std::endl;
 
+
+
+
+  //
+  // 02  IsoEM Quality Tests
+  //
+  if (GCT_IsoEm_QHist){
+    const QReport *GCT_IsoEm_DeadCh_QReport = GCT_IsoEm_QHist->getQReport("DeadChannels_GCT_2D");
+    const QReport *GCT_IsoEm_HotCh_QReport = GCT_IsoEm_QHist->getQReport("HotChannels_GCT_2D");
+
+    int GCT_IsoEm_nBadCh = 0;
+
+    if (GCT_IsoEm_DeadCh_QReport) {
+      int GCT_IsoEm_nDeadCh = GCT_IsoEm_DeadCh_QReport->getBadChannels().size();
+      GCT_IsoEm_nDeadCh-=252;     // Remove uninstrumented regions
+
+      if( verbose ) cout << "  GCT_IsoEm_nDeadCh: "  << GCT_IsoEm_nDeadCh 
+			 << ", GCT_IsoEm_nCh: " << GCT_IsoEm_nCh 
+			 << ", GCT_IsoEm_DeadCh_efficiency: " << 1 - (float)GCT_IsoEm_nDeadCh/(float)GCT_IsoEm_nCh << endl;
+      //if( verbose ) std::cout << " GCT_IsoEm_DeadCh QTResult = " << GCT_IsoEm_DeadCh_QReport->getQTresult() << std::endl;
+
+      GCT_IsoEm_nBadCh+=GCT_IsoEm_nDeadCh;
+    } 
+    else std::cout << "      GCT_IsoEm_DeadCh_QReport = False  !! " << std::endl;
+
+    if (GCT_IsoEm_HotCh_QReport) {
+      int GCT_IsoEm_nHotCh = GCT_IsoEm_HotCh_QReport->getBadChannels().size();
+      if( verbose ) cout << "  GCT_IsoEm_nHotCh: "  << GCT_IsoEm_nHotCh 
+			 << ", GCT_IsoEm_nCh: " << GCT_IsoEm_nCh 
+			 << ", GCT_IsoEm_HotCh_efficiency: " << 1 - (float)GCT_IsoEm_nHotCh/(float)GCT_IsoEm_nCh << endl;
+      //if( verbose ) std::cout << " GCT_IsoEm_HotCh QTResult = " << GCT_IsoEm_HotCh_QReport->getQTresult() << std::endl;
+
+      GCT_IsoEm_nBadCh+=GCT_IsoEm_nHotCh;
+    }
+    else std::cout << "      GCT_IsoEm_HotCh_QReport = False  !!" << std::endl;
+
+    if( verbose ) std::cout << "    GCT_IsoEm total efficiency = " << 1 - (float)GCT_IsoEm_nBadCh/(float)GCT_IsoEm_nCh << std::endl;
+
+    summaryContent[2] = 1 - (float)GCT_IsoEm_nBadCh/(float)GCT_IsoEm_nCh;
+    reportSummaryContent_[2]->Fill( summaryContent[2] );
+  }
+  else std::cout << "      GCT_IsoEm_QHist = False  !! " << std::endl;
+
+
+
+
+  //
+  // 03  TauJets Quality Tests
+  //
+  if (GCT_TauJets_QHist){
+    const QReport *GCT_TauJets_DeadCh_QReport = GCT_TauJets_QHist->getQReport("DeadChannels_GCT_2D");
+    const QReport *GCT_TauJets_HotCh_QReport = GCT_TauJets_QHist->getQReport("HotChannels_GCT_2D");
+
+    int GCT_TauJets_nBadCh = 0;
+
+    if (GCT_TauJets_DeadCh_QReport) {
+      int GCT_TauJets_nDeadCh = GCT_TauJets_DeadCh_QReport->getBadChannels().size();
+      if( verbose ) cout << "  GCT_TauJets_nDeadCh: "  << GCT_TauJets_nDeadCh 
+			 << ", GCT_TauJets_nCh: " << GCT_TauJets_nCh 
+			 << ", GCT_TauJets_DeadCh_efficiency: " << 1 - (float)GCT_TauJets_nDeadCh/(float)GCT_TauJets_nCh << endl;
+      //if( verbose ) std::cout << " GCT_TauJets_DeadCh QTResult = " << GCT_TauJets_DeadCh_QReport->getQTresult() << std::endl;
+
+      GCT_TauJets_nBadCh+=GCT_TauJets_nDeadCh;
+    } 
+    else std::cout << "      GCT_TauJets_DeadCh_QReport = False  !! " << std::endl;
+
+    if (GCT_TauJets_HotCh_QReport) {
+      int GCT_TauJets_nHotCh = GCT_TauJets_HotCh_QReport->getBadChannels().size();
+      if( verbose ) cout << "  GCT_TauJets_nHotCh: "  << GCT_TauJets_nHotCh 
+			 << ", GCT_TauJets_nCh: " << GCT_TauJets_nCh 
+			 << ", GCT_TauJets_HotCh_efficiency: " << 1 - (float)GCT_TauJets_nHotCh/(float)GCT_TauJets_nCh << endl;
+      //if( verbose ) std::cout << " GCT_TauJets_HotCh QTResult = " << GCT_TauJets_HotCh_QReport->getQTresult() << std::endl;
+
+      GCT_TauJets_nBadCh+=GCT_TauJets_nHotCh;
+    }
+    else std::cout << "      GCT_TauJets_HotCh_QReport = False  !!" << std::endl;
+
+    if( verbose ) std::cout << "    GCT_TauJets total efficiency = " << 1 - (float)GCT_TauJets_nBadCh/(float)GCT_TauJets_nCh << std::endl;
+
+    summaryContent[3] = 1 - (float)GCT_TauJets_nBadCh/(float)GCT_TauJets_nCh;
+    reportSummaryContent_[3]->Fill( summaryContent[3] );
+  }
+  else std::cout << "      GCT_TauJets_QHist = False  !! " << std::endl;
+
+
+
+
+  //
+  // 04  Jets Quality Tests
+  //
+  if (GCT_AllJets_QHist){
+    const QReport *GCT_AllJets_DeadCh_QReport = GCT_AllJets_QHist->getQReport("DeadChannels_GCT_2D");
+    const QReport *GCT_AllJets_HotCh_QReport = GCT_AllJets_QHist->getQReport("HotChannels_GCT_2D");
+
+    int GCT_AllJets_nBadCh = 0;
+
+    if (GCT_AllJets_DeadCh_QReport) {
+      int GCT_AllJets_nDeadCh = GCT_AllJets_DeadCh_QReport->getBadChannels().size();
+      if( verbose ) cout << "  GCT_AllJets_nDeadCh: "  << GCT_AllJets_nDeadCh 
+			 << ", GCT_AllJets_nCh: " << GCT_AllJets_nCh 
+			 << ", GCT_AllJets_DeadCh_efficiency: " << 1 - (float)GCT_AllJets_nDeadCh/(float)GCT_AllJets_nCh << endl;
+      //if( verbose ) std::cout << " GCT_AllJets_DeadCh QTResult = " << GCT_AllJets_DeadCh_QReport->getQTresult() << std::endl;
+
+      GCT_AllJets_nBadCh+=GCT_AllJets_nDeadCh;
+    } 
+    else std::cout << "      GCT_AllJets_DeadCh_QReport = False  !! " << std::endl;
+
+    if (GCT_AllJets_HotCh_QReport) {
+      int GCT_AllJets_nHotCh = GCT_AllJets_HotCh_QReport->getBadChannels().size();
+      if( verbose ) cout << "  GCT_AllJets_nHotCh: "  << GCT_AllJets_nHotCh 
+			 << ", GCT_AllJets_nCh: " << GCT_AllJets_nCh 
+			 << ", GCT_AllJets_HotCh_efficiency: " << 1 - (float)GCT_AllJets_nHotCh/(float)GCT_AllJets_nCh << endl;
+      //if( verbose ) std::cout << " GCT_AllJets_HotCh QTResult = " << GCT_AllJets_HotCh_QReport->getQTresult() << std::endl;
+
+      GCT_AllJets_nBadCh+=GCT_AllJets_nHotCh;
+    }
+    else std::cout << "      GCT_AllJets_HotCh_QReport = False  !!" << std::endl;
+
+    if( verbose ) std::cout << "    GCT_AllJets total efficiency = " << 1 - (float)GCT_AllJets_nBadCh/(float)GCT_AllJets_nCh << std::endl;
+
+    summaryContent[4] = 1 - (float)GCT_AllJets_nBadCh/(float)GCT_AllJets_nCh;
+    reportSummaryContent_[4]->Fill( summaryContent[4] );
+  }
+  else std::cout << "      GCT_AllJets_QHist = False  !! " << std::endl;
+
+
+
+
+  //
+  // 05  Muon Quality Tests
+  //
   if (GMT_QHist){
-    const QReport *GMT_QReport = GMT_QHist->getQReport("HotChannels_GMT");
-    if (GMT_QReport) {
-      int GMT_nBadCh = GMT_QReport->getBadChannels().size();
-      summaryContent[9] = 1 - GMT_nBadCh/GMT_nCh;
-      reportSummaryContent_[9]->Fill( summaryContent[9] );
+    const QReport *GMT_DeadCh_QReport = GMT_QHist->getQReport("DeadChannels_GMT_2D");
+    const QReport *GMT_HotCh_QReport  = GMT_QHist->getQReport("HotChannels_GMT_2D");
+
+    int GMT_nBadCh = 0;
+
+    if (GMT_DeadCh_QReport) {
+      int GMT_nDeadCh = GMT_DeadCh_QReport->getBadChannels().size();
+      if( verbose ) cout << "  GMT_nDeadCh: "  << GMT_nDeadCh 
+			 << ", GMT_nCh: " << GMT_nCh 
+			 << ", GMT_DeadCh_efficiency: " << 1 - (float)GMT_nDeadCh/(float)GMT_nCh << endl;
+      //if( verbose ) std::cout << " GMT_DeadCh QTResult = " << GMT_DeadCh_QReport->getQTresult() << std::endl;
+
+      GMT_nBadCh+=GMT_nDeadCh;
     } 
-  }
+    else std::cout << "      GMT_DeadCh_QReport = False  !! " << std::endl;
 
-  if (CSCTF_QHist){
-//     const QReport *CSCTF_QReport = CSCTF_QHist->getQReport("HotChannels_CSCTF");
-//     if (CSCTF_QReport) {
-//       int CSCTF_nBadCh = CSCTF_QReport->getBadChannels().size();
-//       summaryContent[7] = 1 - CSCTF_nBadCh/CSCTF_nCh;
-//       reportSummaryContent_[7]->Fill( summaryContent[7]);
-//     } 
+    if (GMT_HotCh_QReport) {
+      int GMT_nHotCh = GMT_HotCh_QReport->getBadChannels().size();
+      if( verbose ) cout << "  GMT_nHotCh: "  << GMT_nHotCh 
+			 << ", GMT_nCh: " << GMT_nCh 
+			 << ", GMT_HotCh_efficiency: " << 1 - (float)GMT_nHotCh/(float)GMT_nCh << endl;
+      //if( verbose ) std::cout << " GMT_HotCh QTResult = " << GMT_HotCh_QReport->getQTresult() << std::endl;
 
-    int nFilledBins_CSCTF = 0;
-    int nTotalBins_CSCTF  = 0;
+      GMT_nBadCh+=GMT_nHotCh;
+    }
+    else std::cout << "      GMT_HotCh_QReport = False  !!" << std::endl;
 
-    for(int i=1; i<55; i++)// 54
-      for(int j=1; j<11;j++){ // 10
-	if( (j==1 || j==10) && ((i%9)>3 || (i%9)==0) ) continue;  // Skip uninstrumented regions
-	nTotalBins_CSCTF++;
-	if(CSCTF_QHist->getBinContent(i,j)) nFilledBins_CSCTF++;
-      }
+    if( verbose ) std::cout << "    GMT total efficiency = " << 1 - (float)GMT_nBadCh/(float)GMT_nCh << std::endl;
 
-    summaryContent[7] = (float)nFilledBins_CSCTF / (float)nTotalBins_CSCTF;
-    reportSummaryContent_[7]->Fill( summaryContent[7] );
-  }
-
-  if (DTTF_QHist){
-//      const QReport *DTTF_QReport = DTTF_QHist->getQReport("HotChannels_DTTF_2D");
-//      cout << "DTTF_QReport: " << DTTF_QReport << endl;
-
-//      if (DTTF_QReport) {
-//        int DTTF_nBadCh = DTTF_QReport->getBadChannels().size();
-//        cout << "nBadCh(DTTF): "  << DTTF_nBadCh << endl;
-//        cout << "hotchannel: " << DTTF_QReport->getQRName() << endl;
-//        cout << "hotchannel: " << DTTF_QReport->getMessage() << endl;
-//        cout << "getStatus: " << DTTF_QReport->getStatus() << endl;
-//      } 
-
-//     if (DTTF_QReport) {
-//       int DTTF_nBadCh = DTTF_QReport->getBadChannels().size();
-//       //cout << "nBadCh(DTTF): "  << DTTF_nBadCh << endl;
-//       summaryContent[5] = 1 - DTTF_nBadCh/DTTF_nCh;
-//       //cout << "summaryContent[4]-DTTF=" << summaryContent[4] << endl;
-//       reportSummaryContent_[5]->Fill( summaryContent[5] );
-//    } 
-
-    //summaryContent = fraction of filled bins
-    int nFilledBins = 0;
-    int nTotalBins  = 72;
-    for(int i=1; i<7; i++)//6 logical wheels
-      for(int j=1; j<13;j++){ //12 sectors
-	if(DTTF_QHist->getBinContent(i,j)) nFilledBins++;
-      }
-    summaryContent[5] = (float)nFilledBins / (float)nTotalBins;
+    summaryContent[5] = 1 - (float)GMT_nBadCh/(float)GMT_nCh;
     reportSummaryContent_[5]->Fill( summaryContent[5] );
   }
+  else std::cout << "      GMT_QHist = False  !! " << std::endl;
 
-  //obtain results from Comp2RefChi2 test
-//   if(DTTF_QHist_phi){
-//     const QReport *DTTF_QReport_phi = DTTF_QHist_phi->getQReport("CompareHist");
-//     if (DTTF_QReport_phi){
-//       cout << "phi: " << DTTF_QReport_phi->getQRName() << endl;
-//       cout << "phi: " << DTTF_QReport_phi->getMessage() << endl;
-//       cout << "getStatus: " << DTTF_QReport_phi->getStatus() << endl;
-//     }
-    
-//    const QReport *DTTF_QReport_phi2 = DTTF_QHist_phi->getQReport("HotChannels_DTTF_phi");
-//     cout << "DTTF_QReport_phi2: " << DTTF_QReport_phi2 << endl;
-//     if (DTTF_QReport_phi2) {
-//       int DTTF_nBadCh = DTTF_QReport_phi2->getBadChannels().size();
-//       cout << "nBadCh(DTTF): "  << DTTF_nBadCh << endl;
-//       cout << "hotchannel: " << DTTF_QReport_phi2->getQRName() << endl;
-//       cout << "hotchannel: " << DTTF_QReport_phi2->getMessage() << endl;
-//       cout << "getStatus: " << DTTF_QReport_phi2->getStatus() << endl;
-//     } 
 
-// }
-  
-//   if(DTTF_QHist_pt){
-//     const QReport *DTTF_QReport_pt = DTTF_QHist_pt->getQReport("CompareHist");
-//     if (DTTF_QReport_pt){
-//       cout << "pt: " << DTTF_QReport_pt->getQRName() << endl;
-//       cout << "pt: " << DTTF_QReport_pt->getMessage() << endl;
-//       cout << "getStatus: " << DTTF_QReport_pt->getStatus() << endl;
-//     }
-  
-//     const QReport *DTTF_QReport_pt2 = DTTF_QHist_pt->getQReport("HotChannels_DTTF_pt");
-//     cout << "DTTF_QReport_pt2: " << DTTF_QReport_pt2 << endl;
-//     if (DTTF_QReport_pt2) {
-//       int DTTF_nBadCh = DTTF_QReport_pt2->getBadChannels().size();
-//       cout << "nBadCh(DTTF): "  << DTTF_nBadCh << endl;
-//       cout << "hotchannel: " << DTTF_QReport_pt2->getQRName() << endl;
-//       cout << "hotchannel: " << DTTF_QReport_pt2->getMessage() << endl;
-//       cout << "getStatus: " << DTTF_QReport_pt2->getStatus() << endl;
-//     }
 
-//  }
-  
-//   if(DTTF_QHist_qual){
-//     const QReport *DTTF_QReport_qual = DTTF_QHist_qual->getQReport("CompareHist");
-//     if (DTTF_QReport_qual){
-//       cout << "qual: " << DTTF_QReport_qual->getQRName() << endl;
-//       cout << "qual: " << DTTF_QReport_qual->getMessage() << endl;
-//       cout << "getStatus: " << DTTF_QReport_qual->getStatus() << endl;
-//     }
-//   }
-  
-  
+
+  //
+  // 06  GT Quality Tests
+  //
+  int GT_AlgoBits_nBadCh = -1;
+  int GT_TechBits_nBadCh = -1;
+  if (GT_AlgoBits_QHist){
+    const QReport *GT_AlgoBits_QReport = GT_AlgoBits_QHist->getQReport("CompareHist_GT");
+
+    double gt_algobits_prob = -1;
+    if (GT_AlgoBits_QReport) {
+      GT_AlgoBits_nBadCh = GT_AlgoBits_QReport->getBadChannels().size();
+      if( verbose ) cout << "  GT_AlgoBits_nBadCh: "  << GT_AlgoBits_nBadCh
+			 << ", GT_AlgoBits_nCh: " << GT_AlgoBits_nCh 
+			 << ", GT_AlgoBits_efficiency: " << 1 - (float)GT_AlgoBits_nBadCh/(float)GT_AlgoBits_nCh << endl;
+
+      //if( verbose ) std::cout << " GT_AlgoBits QTResult = " << GT_AlgoBits_QReport->getQTresult() << std::endl;
+      //gt_algobits_prob = GT_AlgoBits_QReport->getQTresult();
+    } 
+    else std::cout << "      GT_AlgoBits_QReport = False  !! " << std::endl;
+
+  }
+  else std::cout << "      GT_AlgoBits_QHist = False  !! " << std::endl;
+
+  if (GT_TechBits_QHist){
+    const QReport *GT_TechBits_QReport = GT_TechBits_QHist->getQReport("CompareHist_GT");
+
+    double gt_techbits_prob = -1;
+    if (GT_TechBits_QReport) {
+      GT_TechBits_nBadCh = GT_TechBits_QReport->getBadChannels().size();
+      if( verbose ) cout << "  GT_TechBits_nBadCh: "  << GT_TechBits_nBadCh
+			 << ", GT_TechBits_nCh: " << GT_TechBits_nCh 
+			 << ", GT_TechBits_efficiency: " << 1 - (float)GT_TechBits_nBadCh/(float)GT_TechBits_nCh << endl;
+
+      //if( verbose ) std::cout << " GT_TechBits QTResult = " << GT_TechBits_QReport->getQTresult() << std::endl;
+      //gt_techbits_prob = GT_TechBits_QReport->getQTresult();
+    } 
+    else std::cout << "      GT_TechBits_QReport = False  !! " << std::endl;
+  }
+  else std::cout << "      GT_TechBits_QHist = False  !! " << std::endl;
+
+  if( GT_AlgoBits_nBadCh!=-1 && GT_AlgoBits_nBadCh!=-1 ){
+    if( verbose ) 
+      std::cout << "    GT total efficiency = " << 1-(float)(GT_AlgoBits_nBadCh+GT_AlgoBits_nBadCh)/(float)(GT_AlgoBits_nCh+GT_AlgoBits_nCh) << std::endl;
+
+    summaryContent[6] = 1-(float)(GT_AlgoBits_nBadCh+GT_TechBits_nBadCh)/(float)(GT_AlgoBits_nCh+GT_TechBits_nCh);
+    reportSummaryContent_[6]->Fill( summaryContent[6] );
+  }
+  else std::cout << "      QT Results for the GT not found  !! " << std::endl;
+
+
+
+
+
+
   for (int m = 0; m < nSubsystems; m++) {    
     summarySum += summaryContent[m];
   }
   
   reportSummary = summarySum / nSubsystems;
-  //cout << "reportSummary " << reportSummary << endl;
   if (reportSummary_) reportSummary_->Fill(reportSummary);
   
 
-    //5x4 summary map", " << 
-//  int jcount=0;
-//    //fill the known systems
-//   for (int i = 0; i < nSubsystems; i++) {
-//     cout << "summaryContent[" << i << "]" << summaryContent[i] << endl;
-//     if(!(i%5))jcount++;
-//     reportSummaryMap_->setBinContent(i%5+1,jcount, summaryContent[i]);
-//   }
-
    //8x1 summary map
-  reportSummaryMap_->setBinContent(1,1,summaryContent[5]);//DTTF
-  reportSummaryMap_->setBinContent(1,2,summaryContent[7]);//CSCTF
-  reportSummaryMap_->setBinContent(1,3,summaryContent[8]);//RPC
-  reportSummaryMap_->setBinContent(1,4,summaryContent[1]);//GMT
-  reportSummaryMap_->setBinContent(1,5,summaryContent[9]);//RCT
-  reportSummaryMap_->setBinContent(1,6,summaryContent[3]);//GCT
-  reportSummaryMap_->setBinContent(1,7,summaryContent[10]);//GT
-  reportSummaryMap_->setBinContent(1,8,summaryContent[13]);//Timing
+  reportSummaryMap_->setBinContent(1,1,summaryContent[0]);//MET
+  reportSummaryMap_->setBinContent(1,2,summaryContent[1]);//NonIsoEM
+  reportSummaryMap_->setBinContent(1,3,summaryContent[2]);//IsoEM
+  reportSummaryMap_->setBinContent(1,4,summaryContent[3]);//TauJets
+  reportSummaryMap_->setBinContent(1,5,summaryContent[4]);//Jets
+  reportSummaryMap_->setBinContent(1,6,summaryContent[5]);//Muons
+  reportSummaryMap_->setBinContent(1,7,summaryContent[6]);//GT
+  reportSummaryMap_->setBinContent(1,8,summaryContent[7]);//Empty
 
-//   //fill for known systems
-//   for(int i = 1; i < 6; i++){
-    
-//     cout << "summaryContent[" << i-1 << "] = " << summaryContent[i-1] << endl;
-//     reportSummaryMap_->setBinContent( i, 1, summaryContent[i-1] );
-//   }
 
-//   //fill the rest
-//   for (int i = 1; i < 6; i++) {    
-//     for (int j = 2; j < 5; j++) {    
-      
-//       reportSummaryMap_->setBinContent( i, j, 1. );
-//     }
-//   }
-
+  if( verbose ){
+    std::cout << "     summary content[0] = MET      = " << summaryContent[0] << std::endl;
+    std::cout << "     summary content[1] = NonIsoEM = " << summaryContent[1] << std::endl;
+    std::cout << "     summary content[2] = IsoEM    = " << summaryContent[2] << std::endl;
+    std::cout << "     summary content[3] = TauJets  = " << summaryContent[3] << std::endl;
+    std::cout << "     summary content[4] = Jets     = " << summaryContent[4] << std::endl;
+    std::cout << "     summary content[5] = Muons    = " << summaryContent[5] << std::endl;
+    std::cout << "     summary content[6] = GT       = " << summaryContent[6] << std::endl;
+    std::cout << "     summary content[7] = Empty    = " << summaryContent[7] << std::endl;
+  }
 
 } 
 
