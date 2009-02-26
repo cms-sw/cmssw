@@ -78,6 +78,6 @@ std::ostream& operator<<(std::ostream& s,const HcalZDCDetId& id) {
   case(HcalZDCDetId::LUM) : s << " LUM "; break;
   default : s <<" UNKNOWN ";
   }
-  return s << id.depth() << ')';
+  return s << id.channel() << "," << id.depth() << ')';
 }
 
