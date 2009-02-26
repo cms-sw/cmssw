@@ -41,10 +41,10 @@ public:
 
   void validSetsPrePruning(std::vector<MuonRecHitContainer> & allValidSets);
 
-  void prune(MuonRecHitContainer & validSet) const;
+  void pre_prune(MuonRecHitContainer & validSet) const;
 
-  std::vector <seedSet>
-  fillSeedSets(std::vector <MuonRecHitContainer> & allValidSets);
+  std::vector <SeedCandidate>
+  fillSeedCandidates(std::vector <MuonRecHitContainer> & allValidSets);
 
   void estimateMomentum(const MuonRecHitContainer & validSet, 
                         Hep3Vector & momentum, int & charge) const;

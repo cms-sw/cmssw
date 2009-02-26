@@ -37,14 +37,11 @@ SETPatternRecognition::SETPatternRecognition(const ParameterSet& parameterSet)
 
 } 
 
-
+//---- it is a "cluster recognition" actually; the pattern recognition is in SETFilter 
 void SETPatternRecognition::produce(const edm::Event& event, const edm::EventSetup& eventSetup,
                          std::vector<MuonRecHitContainer> & segments_clusters)
 {
-  //std::cout<<" start producing..."<<std::endl;  
   const string metname = "Muon|RecoMuon|SETMuonSeedSeed";  
-
-  MuonPatternRecoDumper debug;
 
   //---- Build collection of all segments
   MuonRecHitContainer muonRecHits;
@@ -69,7 +66,7 @@ void SETPatternRecognition::produce(const edm::Event& event, const edm::EventSet
     muonRecHits_DT2D_hasPhi.push_back(MuonTransientTrackingRecHit::specificBuild(theService->trackingGeometry()->idToDet((*rechit).geographicalId()),&*rechit));
     }
     else {
-      std::cout<<"Warning in "<<metname<<": DT segment which claims to have neither phi nor Z."<<std::endl;
+      //std::cout<<"Warning in "<<metname<<": DT segment which claims to have neither phi nor Z."<<std::endl;
     }
   }
   //std::cout<<"DT done"<<std::endl;
@@ -138,10 +135,6 @@ void SETPatternRecognition::produce(const edm::Event& event, const edm::EventSet
   std::vector<float> seed_minY;
   std::vector<float> seed_maxY;
 
-  //std::cout<<"*************************************************************"<<std::endl;
-  //std::cout<<"Called clusterHits in Chamber "<< theChamber->specs()->chamberTypeName()<<std::endl;
-  //std::cout<<"*************************************************************"<<std::endl;
-
   // split rechits into subvectors and return vector of vectors:
   // Loop over rechits 
   // Create one seed per hit
@@ -179,7 +172,7 @@ void SETPatternRecognition::produce(const edm::Event& event, const edm::EventSet
     for(uint MMM = NNN+1; MMM < seeds.size(); ++MMM) {
       if(running_meanX[MMM] == 999999. || running_meanX[NNN] == 999999. ) {
 	//        LogDebug("CSC") << "CSCSegmentST::clusterHits: Warning: Skipping used seeds, this should happen - inform developers!\n";
-        //      std::cout<<"We should never see this line now!!!"<<std::endl;
+	//std::cout<<"We should never see this line now!!!"<<std::endl;
         continue; //skip seeds that have been used 
       }
 

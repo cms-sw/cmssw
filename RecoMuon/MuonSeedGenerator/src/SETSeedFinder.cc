@@ -43,19 +43,8 @@ void SETSeedFinder::seeds(const MuonRecHitContainer & cluster,
 struct sorter{
   bool operator() (MuonTransientTrackingRecHit::MuonRecHitPointer hit_1,
                    MuonTransientTrackingRecHit::MuonRecHitPointer hit_2){
-    //double GlobalPoint ss = hit_1->globalPosition
-    //
-    // globalPosition().mag()?
-    double radius2_1 =
-      pow(hit_1->globalPosition().x(),2) +
-      pow(hit_1->globalPosition().y(),2) +
-      pow(hit_1->globalPosition().z(),2);
+    return (hit_1->globalPosition().mag2()<hit_2->globalPosition().mag2());
 
-    double radius2_2 =
-      pow(hit_2->globalPosition().x(),2) +
-      pow(hit_2->globalPosition().y(),2) +
-      pow(hit_2->globalPosition().z(),2);
-    return (radius2_1<radius2_2);
   }
 } sortSegRadius;// smaller first
 
@@ -93,9 +82,9 @@ SETSeedFinder::sortByLayer(MuonRecHitContainer & cluster) const
 
 
       if(specialCase){
-        if(detId.subdetId() != MuonSubdetId::DT || detId_2.subdetId() != MuonSubdetId::DT) {
-          std::cout<<"IBL ALARM 0000"<<std::endl;
-        }
+        //if(detId.subdetId() != MuonSubdetId::DT || detId_2.subdetId() != MuonSubdetId::DT) {
+	//std::cout<<"IBL ALARM 0000"<<std::endl;
+        //}
         DTChamberId dtCh(detId);
         DTChamberId dtCh_2(detId_2);
         specialCase =  (dtCh.station() == dtCh_2.station());
@@ -318,12 +307,12 @@ void SETSeedFinder::validSetsPrePruning(std::vector<SETSeedFinder::MuonRecHitCon
   //---- no "good" segment is to be lost (otherwise - widen the parameters)
 
   for(unsigned int iSet = 0;iSet<allValidSets.size();++iSet){
-    prune(allValidSets[iSet]);
+    pre_prune(allValidSets[iSet]);
   }
 }
 
 
-void SETSeedFinder::prune(SETSeedFinder::MuonRecHitContainer & validSet) const
+void SETSeedFinder::pre_prune(SETSeedFinder::MuonRecHitContainer & validSet) const
 {
   unsigned nHits = validSet.size();
   if(nHits>3){ // to decide we need at least 4 measurements
@@ -421,30 +410,38 @@ void SETSeedFinder::prune(SETSeedFinder::MuonRecHitContainer & validSet) const
 }
 
 
-std::vector <seedSet> SETSeedFinder::
-fillSeedSets(std::vector <MuonRecHitContainer> & allValidSets){
+std::vector <SeedCandidate> SETSeedFinder::
+fillSeedCandidates(std::vector <MuonRecHitContainer> & allValidSets){
   //---- we have the valid sets constructed; transform the information in an
   //---- apropriate form; meanwhile - estimate the momentum for a given set
 
   // RPCs should not be used (no parametrization)
-  std::vector <seedSet> seedSets_inCluster;
+  std::vector <SeedCandidate> seedCandidates_inCluster;
   // calculate and fill the inputs needed
   // loop over all valid sets
   for(unsigned int iSet = 0;iSet<allValidSets.size();++iSet){
+    //
+    //std::cout<<"  This is SET number : "<<iSet<<std::endl; 
+    //for(unsigned int iHit = 0;iHit<allValidSets[iSet].size();++iHit){
+    //std::cout<<"   measurements in the SET:  iHit = "<<iHit<<" pos = "<<allValidSets[iSet][iHit]->globalPosition()<<
+    //" dim = "<<allValidSets[iSet][iHit]->dimension()<<std::endl;
+    //}
+
+
     Hep3Vector momEstimate;
     int chargeEstimate;
     estimateMomentum(allValidSets[iSet], momEstimate, chargeEstimate);
     MuonRecHitContainer MuonRecHitContainer_theSet_prep;
     // currently hardcoded - will be in proper loop of course:
 
-    seedSet seedSets_inCluster_prep;
-    seedSets_inCluster_prep.theSet   = allValidSets[iSet];
-    seedSets_inCluster_prep.momentum = momEstimate;
-    seedSets_inCluster_prep.charge   = chargeEstimate;
-    seedSets_inCluster.push_back(seedSets_inCluster_prep);
+    SeedCandidate seedCandidates_inCluster_prep;
+    seedCandidates_inCluster_prep.theSet   = allValidSets[iSet];
+    seedCandidates_inCluster_prep.momentum = momEstimate;
+    seedCandidates_inCluster_prep.charge   = chargeEstimate;
+    seedCandidates_inCluster.push_back(seedCandidates_inCluster_prep);
     // END estimateMomentum
   }
-  return seedSets_inCluster;
+  return seedCandidates_inCluster;
 }
 
 void SETSeedFinder::estimateMomentum(const MuonRecHitContainer & validSet,
@@ -452,7 +449,9 @@ void SETSeedFinder::estimateMomentum(const MuonRecHitContainer & validSet,
 {
   int firstMeasurement = -1;
   int lastMeasurement = -1;
-  // don't use 2D measurements for momentum estimation (except there are no others)
+
+  // don't use 2D measurements for momentum estimation 
+
   //if( 4==allValidSets[iSet].front()->dimension() &&
   //(allValidSets[iSet].front()->isCSC() || allValidSets[iSet].front()->isDT())){
   //firstMeasurement = 0;
@@ -514,6 +513,8 @@ void SETSeedFinder::estimateMomentum(const MuonRecHitContainer & validSet,
         secondHit  = firstHit;
       }
       //---- estimate pT given two hits
+      //std::cout<<"   hits for initial pT estimate: first -> dim = "<<firstHit->dimension()<<" pos = "<<firstHit->globalPosition()<<
+      //" , second -> "<<" dim = "<<secondHit->dimension()<<" pos = "<<secondHit->globalPosition()<<std::endl;
       momentum_estimate = thePtExtractor->pT_extract(firstHit, secondHit);
     }
     pT = fabs(momentum_estimate[0]);
@@ -539,7 +540,7 @@ void SETSeedFinder::estimateMomentum(const MuonRecHitContainer & validSet,
       pT= -3000;
     }
   }
-  //std::cout<<" THE pT from the parametrization: "<<momentum_estimate[0]<<std::endl;
+  //std::cout<<"  THE pT from the parametrization: "<<momentum_estimate[0]<<std::endl;
   // estimate the charge of the track candidate from the delta phi of two segments:
   //int charge      = dPhi > 0 ? 1 : -1; // what we want is: dphi < 0 => charge = -1
   charge =  momentum_estimate[0]> 0 ? 1 : -1;
@@ -607,12 +608,14 @@ TrajectorySeed SETSeedFinder::makeSeed(const TrajectoryStateOnSurface & firstTSO
   tsTransform.persistentState( firstTSOS, hits.at(0)->geographicalId().rawId());
   TrajectorySeed seed(*seedTSOS,recHitsContainer,dir);
   TrajectorySeed::range range = seed.recHits();
+
+  //MuonPatternRecoDumper debug;
   //std::cout<<" firstTSOS = "<<debug.dumpTSOS(firstTSOS)<<std::endl;
-  //std::cout<<" iTraj = "<<iTraj<<" hits = "<<range.second-range.first<<std::endl;
+  //std::cout<<" iTraj = ???"<<" hits = "<<range.second-range.first<<std::endl;
   //std::cout<<" nhits = "<<hits.size()<<std::endl;
-  for(unsigned int iRH=0;iRH<hits.size();++iRH){
-    //std::cout<<" RH = "<<iRH+1<<" globPos = "<<hits.at(iRH)->globalPosition()<<std::endl;
-  }
+  //for(unsigned int iRH=0;iRH<hits.size();++iRH){
+  //std::cout<<" RH = "<<iRH+1<<" globPos = "<<hits.at(iRH)->globalPosition()<<std::endl;
+  //}
   return seed;
 }
 

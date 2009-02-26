@@ -31,12 +31,12 @@
 
 
 // used in the SET algorithm
-struct seedSet{
+struct SeedCandidate{
   MuonTransientTrackingRecHit::MuonRecHitContainer theSet;
   Hep3Vector momentum;
   int charge;
   double weight;
-  std::vector <TrajectoryMeasurement> trajectoryMeasurementsInTheSet;
+  Trajectory::DataContainer trajectoryMeasurementsInTheSet;
 };
 
 class DetLayer;
@@ -67,8 +67,12 @@ class SETFilter {
   TrajectoryStateOnSurface lastUpdatedTSOS() const {return theLastUpdatedTSOS;}
 
   /// Perform the SET inner-outward fitting
-  bool fwfit_SET( std::vector < seedSet> & validSegmentsSet,
-                  std::vector < TrajectoryMeasurement > & trajectoryMeasurementsInTheSet);
+  bool fwfit_SET( std::vector < SeedCandidate> & validSegmentsSet_in,
+                           std::vector < SeedCandidate> & validSegmentsSet_out);
+  
+  ///  from SeedCandidate to DataContainer only
+  bool buildTrajectoryMeasurements( SeedCandidate * validSegmentsSet,
+				    Trajectory::DataContainer & finalCandidate);
 
 
   ///  transforms "segment trajectory" to "rechit container"  
@@ -135,27 +139,27 @@ private:
   // chi2 functions (calculate chi2)
   double findChi2(double pX, double pY, double pZ,
                     const Hep3Vector& r3T,
-                    seedSet & muonCandidate,
+                    SeedCandidate & muonCandidate,
                     TrajectoryStateOnSurface  &lastUpdatedTSOS,
-                    std::vector < TrajectoryMeasurement > & trajectoryMeasurementsInTheSet,
+                    Trajectory::DataContainer & trajectoryMeasurementsInTheSet,
                     bool detailedOutput);
 
   double findMinChi2(unsigned int iSet, const Hep3Vector& r3T,
-                 seedSet & muonCandidate,
+                 SeedCandidate & muonCandidate,
                  std::vector < TrajectoryStateOnSurface > &lastUpdatedTSOS_Vect,
-                 std::vector < TrajectoryMeasurement > & trajectoryMeasurementsInTheSet);
+                 Trajectory::DataContainer & trajectoryMeasurementsInTheSet);
 
   double chi2AtSpecificStep(Hep3Vector &foot,
                             const Hep3Vector& r3T,
-                            seedSet & muonCandidate,
+                            SeedCandidate & muonCandidate,
                             TrajectoryStateOnSurface  &lastUpdatedTSOS,
-                            std::vector < TrajectoryMeasurement > & trajectoryMeasurementsInTheSet,
+                            Trajectory::DataContainer & trajectoryMeasurementsInTheSet,
                             bool detailedOutput);
 
   // find initial points for the SIMPLEX minimization
   std::vector <Hep3Vector> find3MoreStartingPoints(Hep3Vector &key_foot,
                                                    const Hep3Vector& r3T,
-                                                   seedSet & muonCandidate);
+                                                   SeedCandidate & muonCandidate);
 
   std::pair <double,double> findParabolaMinimum(std::vector <double> &quadratic_var,
                                                 std::vector <double> &quadratic_chi2);

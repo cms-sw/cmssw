@@ -30,22 +30,18 @@ struct sorter {
   //bigger first!
   bool operator() (TransientTrackingRecHit::ConstRecHitPointer hit_1,
                    TransientTrackingRecHit::ConstRecHitPointer hit_2){
-    //double GlobalPoint ss = hit_1->globalPosition
-    //
-    // globalPosition().mag()?
-    double radius2_1 =
-      pow(hit_1->globalPosition().x(),2) +
-      pow(hit_1->globalPosition().y(),2) +
-      pow(hit_1->globalPosition().z(),2);
-
-    double radius2_2 =
-      pow(hit_2->globalPosition().x(),2) +
-      pow(hit_2->globalPosition().y(),2) +
-      pow(hit_2->globalPosition().z(),2);
-    return (radius2_1>radius2_2);
+    if(hit_1->det()->subDetector() != GeomDetEnumerators::CSC ||
+       hit_2->det()->subDetector() != GeomDetEnumerators::CSC){
+      // this is a piculiar "fix" for CSCs
+      return (hit_1->globalPosition().mag2()>hit_2->globalPosition().mag2());
+    }
+    else{
+      return (fabs(hit_1->globalPosition().z())>fabs(hit_2->globalPosition().z()));
+    }
   }
-
 } sortRadius;// bigger first
+
+
 
 using namespace edm;
 using namespace std;
@@ -97,29 +93,28 @@ void SETFilter::incrementChamberCounters(const DetLayer *layer){
   totalChambers++;
 }
 
-//---- the SET FW-fitter
-bool SETFilter::fwfit_SET(std::vector < seedSet> & validSegmentsSet,
-			   std::vector < TrajectoryMeasurement > & trajectoryMeasurementsInTheSet){
+//---- the SET FW-fitter within a cluster 
+bool SETFilter::fwfit_SET(std::vector < SeedCandidate> & validSegmentsSet_in,
+				   std::vector < SeedCandidate> & validSegmentsSet_out){
   // this is the SET algorithm fit
+  validSegmentsSet_out.clear();
 
-  // reset the fitter 
-  reset();
   //---- It is supposed to be called within a loop over "segment clusters"; 
-  //---- so std::vector < seedSet> consists of "valid" combinations (sets) within a "cluster"
+  //---- so std::vector < SeedCandidate> consists of "valid" combinations (sets) within a "cluster"
   //---- "seed" above has nothing to do with the "Seed" in the STA code
  
   // a trajectory is not really build but a TSOS is build and is checked (below)
-  bool validTrajectory = true;
-  std::vector <double> chi2AllCombinations(validSegmentsSet.size());
-  std::vector < TrajectoryStateOnSurface > lastUpdatedTSOS_Vect(validSegmentsSet.size());
+  bool validStep = true;
+  std::vector <double> chi2AllCombinations(validSegmentsSet_in.size());
+  std::vector < TrajectoryStateOnSurface > lastUpdatedTSOS_Vect(validSegmentsSet_in.size());
   // loop over all valid sets
-  for(unsigned int iSet = 0; iSet<validSegmentsSet.size(); ++iSet){
-    //std::cout<<" iSet = "<<iSet<<std::endl;
+  for(unsigned int iSet = 0; iSet<validSegmentsSet_in.size(); ++iSet){
+    //std::cout<<"   iSET = "<<iSet<<std::endl;
     //---- start fit from the origin
     Hep3Vector origin (0.,0.,0.);
-    std::vector < TrajectoryMeasurement > trajectoryMeasurementsInTheSet_tmp;
+    Trajectory::DataContainer trajectoryMeasurementsInTheSet_tmp;
     //---- Find minimum chi2 (corresponding to a specific 3D-momentum)    
-    chi2AllCombinations[iSet]  = findMinChi2(iSet, origin, validSegmentsSet[iSet], lastUpdatedTSOS_Vect,
+    chi2AllCombinations[iSet]  = findMinChi2(iSet, origin, validSegmentsSet_in[iSet], lastUpdatedTSOS_Vect,
                                              trajectoryMeasurementsInTheSet_tmp);
   }
   //---- Find the best muon candidate (min chi2) in the cluster; find more candidates?
@@ -127,27 +122,38 @@ bool SETFilter::fwfit_SET(std::vector < seedSet> & validSegmentsSet,
 
   int positionMin = itMin - chi2AllCombinations.begin();
 
-  // "the best" set 
-  seedSet * theBestCandidate = & validSegmentsSet[positionMin];
+  // "the best" set; have to find reasonable conditions to include more than one set   
+  validSegmentsSet_out.push_back(validSegmentsSet_in[positionMin]);
+
+  return validStep;
+}
+
+//---- the SET FW-fitter
+bool SETFilter::buildTrajectoryMeasurements(SeedCandidate * finalMuon, Trajectory::DataContainer & finalCandidate){
+  // this is the SET algorithm fit
+  bool validTrajectory = true;
+  // reset the fitter 
+  reset(); // the layer counters
+  finalCandidate.clear();
 
   //---- Check if (only last?) TSOS is valid and build a trajectory (for the backward filter) 
 
-  if(theBestCandidate->trajectoryMeasurementsInTheSet.size() &&
-     theBestCandidate->trajectoryMeasurementsInTheSet.back().forwardPredictedState().isValid()){
+  if(finalMuon->trajectoryMeasurementsInTheSet.size() &&
+     finalMuon->trajectoryMeasurementsInTheSet.back().forwardPredictedState().isValid()){
     // loop over all measurements in the set
-    for(unsigned int iMeas =0; iMeas<theBestCandidate->trajectoryMeasurementsInTheSet.size();++iMeas){
+    for(unsigned int iMeas =0; iMeas<finalMuon->trajectoryMeasurementsInTheSet.size();++iMeas){
       // strore the measurements 
-      trajectoryMeasurementsInTheSet.push_back(theBestCandidate->trajectoryMeasurementsInTheSet[iMeas]);
-      const DetLayer *layer = theBestCandidate->trajectoryMeasurementsInTheSet[iMeas].layer();
+      finalCandidate.push_back(finalMuon->trajectoryMeasurementsInTheSet[iMeas]);
+      const DetLayer *layer = finalMuon->trajectoryMeasurementsInTheSet[iMeas].layer();
 
       incrementChamberCounters(layer);
 
       theDetLayers.push_back(layer);
 
     }
-    theLastUpdatedTSOS = trajectoryMeasurementsInTheSet.at(trajectoryMeasurementsInTheSet.size()-1).forwardPredictedState();
-    //std::cout<<" THE OUTPUT FROM FW FILTER: |P| = "<<theBestCandidate->momentum.mag()<<
-    //" theta = "<<theBestCandidate->momentum.theta()<<" phi = "<<theBestCandidate->momentum.phi()<<std::endl;
+    theLastUpdatedTSOS = finalMuon->trajectoryMeasurementsInTheSet.at(finalMuon->trajectoryMeasurementsInTheSet.size()-1).forwardPredictedState();
+    //std::cout<<"  THE OUTPUT FROM FW FILTER: |P| = "<<finalMuon->momentum.mag()<<
+    //" theta = "<<finalMuon->momentum.theta()<<" phi = "<<finalMuon->momentum.phi()<<std::endl;
   }
   else{
     validTrajectory = false;
@@ -156,11 +162,12 @@ bool SETFilter::fwfit_SET(std::vector < seedSet> & validSegmentsSet,
   return validTrajectory;
 }
 
+//
 bool SETFilter::transform(Trajectory::DataContainer &measurements_segments, 
 			  TransientTrackingRecHit::ConstRecHitContainer & hitContainer, 
 			  TrajectoryStateOnSurface & firstTSOS){
-// transforms "segment trajectory" to "rechit container"
-
+  // transforms "segment trajectory" to "rechit container"
+  //sort(measurements_segments.begin(),measurements_segments.end(),sortRadius);
   bool success = true;
   // loop over all segments in the trajectory
   for(int iMeas = measurements_segments.size() - 1; iMeas>-1;--iMeas){
@@ -180,7 +187,7 @@ bool SETFilter::transform(Trajectory::DataContainer &measurements_segments,
         sortedHits = measurements_segments[iMeas].recHit()->transientHits();
       }
     }
-    // sort the rechits by radius and put them in a container
+    // sort the rechits by radius (or z) and put them in a container
     sort(sortedHits.begin(),sortedHits.end(),sortRadius);
     hitContainer.insert(hitContainer.end(),sortedHits.begin(),sortedHits.end());    
   }
@@ -264,9 +271,9 @@ FreeTrajectoryState SETFilter::getFromCLHEP(const Hep3Vector& p3, const Hep3Vect
 
 double SETFilter::findChi2(double pX, double pY, double pZ,
                                       const Hep3Vector& r3T,
-                                      seedSet & muonCandidate,
+                                      SeedCandidate & muonCandidate,
                                       TrajectoryStateOnSurface  &lastUpdatedTSOS,
-                                      std::vector < TrajectoryMeasurement > & trajectoryMeasurementsInTheSet,
+			   Trajectory::DataContainer & trajectoryMeasurementsInTheSet,
                                       bool detailedOutput){
   //---- actual chi2 calculations; only the measurement error is taken into accout!
   //---- chi2 is to compare an extrapolated point to various measurements so
@@ -305,7 +312,7 @@ double SETFilter::findChi2(double pX, double pY, double pZ,
       ftsStart = *tSOSDest.freeState();
       //getFromFTS(ftsStart, p3_propagated, r3_propagated, charge, cov_propagated);
     } else{
-      std::cout<<"... not valid TSOS"<<std::endl;
+      //std::cout<<"... not valid TSOS"<<std::endl;
       chi2_loc = 9999999999.;
       break;
     }
@@ -344,7 +351,7 @@ double SETFilter::findChi2(double pX, double pY, double pZ,
     //---- Invert covariance matrix
     IC.invert(ierr);
     //if (ierr != 0) {
-      //std::cout << "failed to invert covariance matrix (2x2) =\n" << IC << std::endl;;
+    //std::cout << "failed to invert covariance matrix (2x2) =\n" << IC << std::endl;;
     //}
     chi2_intermed = pow(dist(1,1),2.)*IC(1,1) + 2.*dist(1,1)*dist(1,2)*IC(1,2) + pow(dist(1,2),2.)*IC(2,2);
     if(chi2_intermed<0){// should we check?
@@ -356,7 +363,7 @@ double SETFilter::findChi2(double pX, double pY, double pZ,
     if(detailedOutput){
       DetId detId = muonRecHit->hit()->geographicalId();
       const DetLayer *layer = theService->detLayerGeometry()->idToLayer( detId);
-      //std::cout<<" seg pos in traj : "<<lastUpdatedTSOS.globalPosition()<<std::endl;
+      //std::cout<<"    seg pos in traj : "<<lastUpdatedTSOS.globalPosition()<<std::endl;
       // put the measurement into the set
       trajectoryMeasurementsInTheSet.push_back( TrajectoryMeasurement
 						( lastUpdatedTSOS,
@@ -369,9 +376,9 @@ double SETFilter::findChi2(double pX, double pY, double pZ,
 }
 
 double SETFilter::findMinChi2(unsigned int iSet, const Hep3Vector& r3T,
-                                         seedSet & muonCandidate,
+                                         SeedCandidate & muonCandidate,
                                          std::vector < TrajectoryStateOnSurface > &lastUpdatedTSOS_Vect,// delete 
-                                         std::vector < TrajectoryMeasurement > & trajectoryMeasurementsInTheSet){
+                                         Trajectory::DataContainer & trajectoryMeasurementsInTheSet){
   // a chi2 minimization procedure 
 
   //---- Which three variables to use? 
@@ -392,14 +399,14 @@ double SETFilter::findMinChi2(unsigned int iSet, const Hep3Vector& r3T,
   if(pMag<10.){// hardcoded - remove it! 
     pMag = 10.;// GeV
   }
-  // This offset helps the minimization to go faster (in the specific case)
+  //---- This offset helps the minimization to go faster (in the specific case)
   pMag *=1.2;
   double invP = 1./pMag;
-  //std::cout<<"INIT pMag = "<<pMag<<" invP = "<<invP<<" theta = "<<theta<<" phi = "<<phi<<std::endl;
+  //std::cout<<"    INIT pMag = "<<pMag<<" invP = "<<invP<<" theta = "<<theta<<" phi = "<<phi<<std::endl;
 
   //---- apply downhill SIMPLEX minimization (also "amoeba" method; thus the "feet" below are  amoeba's feet)
 
-  //std::cout<<"SIMPLEX minimization"<<std::endl;
+  //std::cout<<"    SIMPLEX minimization"<<std::endl;
   //---- parameters ; the should be hardcoded   
   const double reflect = 1;
   const double expand = -0.5;
@@ -504,17 +511,17 @@ double SETFilter::findMinChi2(unsigned int iSet, const Hep3Vector& r3T,
   // do we need that?
   lastUpdatedTSOS_Vect[iSet]= *(lastUpdatedTSOS_pointer[bestFitElement]);
 
-  //std::cout<<"FINAL:  P = "<<muonCandidate.momentum.mag()<<" theta = "<<muonCandidate.momentum.theta()<<" phi = "<<muonCandidate.momentum.phi()<<std::endl;
-  //std::cout<<"    chi = "<<chi2Feet[bestFitElement]<<std::endl;
+  //std::cout<<"   FINAL:  P = "<<muonCandidate.momentum.mag()<<" theta = "<<muonCandidate.momentum.theta()<<
+  //" phi = "<<muonCandidate.momentum.phi()<<"   chi = "<<chi2Feet[bestFitElement]<<std::endl;
   return minChi2;
 }
 
 double SETFilter::
 chi2AtSpecificStep(Hep3Vector &foot,
                    const Hep3Vector& r3T,
-                   seedSet & muonCandidate,
+                   SeedCandidate & muonCandidate,
                    TrajectoryStateOnSurface  &lastUpdatedTSOS,
-                   std::vector < TrajectoryMeasurement > & trajectoryMeasurementsInTheSet,
+                   Trajectory::DataContainer & trajectoryMeasurementsInTheSet,
                    bool detailedOutput){
   // specific input parameters - find chi2
   double chi2 = 999999999999.;
@@ -538,7 +545,7 @@ chi2AtSpecificStep(Hep3Vector &foot,
 std::vector <Hep3Vector> SETFilter::
 find3MoreStartingPoints(Hep3Vector &key_foot,
                    const Hep3Vector& r3T,
-                   seedSet & muonCandidate){
+                   SeedCandidate & muonCandidate){
   // SIMPLEX uses nDim + 1 starting points; 
   // so here we need 3 more (one we already have)
   std::vector <Hep3Vector> morePoints;// again - Hep3Vector is not a good choice here
@@ -560,7 +567,7 @@ find3MoreStartingPoints(Hep3Vector &key_foot,
     //---- Then these points ("minima") are probably better starting points for the real minimization
 
     TrajectoryStateOnSurface  lastUpdatedTSOS;// fake here
-    std::vector < TrajectoryMeasurement > trajectoryMeasurementsInTheSet;// fake here
+    Trajectory::DataContainer trajectoryMeasurementsInTheSet;// fake here
     bool detailedOutput = false;// fake here
 
 
@@ -739,7 +746,7 @@ Hep3Vector SETFilter::reflectFoot(std::vector <Hep3Vector> & feet,
   // a SIMPLEX function
   Hep3Vector newPosition(0.,0.,0.);
   if(scale==0.5){
-    std::cout<<" STA muon: scale parameter for simplex method incorrect : "<<scale<<std::endl;
+    //std::cout<<" STA muon: scale parameter for simplex method incorrect : "<<scale<<std::endl;
     return newPosition;
   }
   Hep3Vector centroid(0,0,0);

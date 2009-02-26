@@ -4,6 +4,11 @@
 /** \class SETMuonSeedProducer 
      I. Bloch, E. James, S. Stoynev
   */
+//---- Despite its name SET is not a Seed producer in a sense that it is supposed to
+//---- give the final answer about the STA muon (no pattern recognition needed 
+//---- hereafter). For exact parameters (including chi2 estimation) the measurements 
+//---- provided need to be fitted properly (starting from the initial estimates also provided).
+//---- Technically all this information is stored as a TrajectorySeed. SS 
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "RecoMuon/TrackingTools/interface/RecoMuonEnumerators.h"
@@ -34,11 +39,10 @@ class SETMuonSeedProducer : public edm::EDProducer {
   
   // Operations
   virtual void produce(edm::Event&, const edm::EventSetup&);
-  
+
  protected:
 
  private:
-  
   
   // Returns a vector of measurements sets (for later trajectory seed building)
   /// pre-filter
