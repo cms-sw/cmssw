@@ -10,7 +10,8 @@ def makeTqafLayer2EventContent(process):
                                                'keep *_genEvt_*_*',                        ## genEvent info
                                                'keep *_kinFitTtSemiLepEventSelection_*_*', ## kin fit result for event selection
                                                'keep *_findTtSemiLepSignalSelMVA_*_*',     ## mva result for event selection
-                                               'keep *_ttSemiLepEvent_*_*',                ## jet parton association 
+                                               'keep *_ttSemiLepHyp*_*_*',                 ## event hypotheses 
+                                               'keep *_ttSemiLepEvent_*_*',                ## ttSemiLeptonicEvent
                                                'keep *_solutions_*_*'                      ## event solutions (legacy)
                                                )
     )
