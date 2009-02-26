@@ -255,7 +255,7 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 	  unsigned short nSOI = (unsigned short) ( ecal_it->
 						   sampleOfInterest() );
 	  if (digiSize < nSamples || nSOI < preSamples
-	      || ((digiSize - nSOI) < (nSamples - preSamples)))
+	      || ((int)(digiSize - nSOI) < (int)(nSamples - preSamples)))
 	    {
 	      // log error -- should not happen!
 	      if (tooLittleDataEcal == false)
@@ -269,8 +269,8 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 		}
 	      unsigned short preLoopsZero = (unsigned short) (preSamples) 
 		- nSOI;
-	      unsigned short postLoopsZero = (unsigned short) (postSamples)
-		- (digiSize - nSOI - 1);
+	      //unsigned short postLoopsZero = (unsigned short) (postSamples)
+	      //- (digiSize - nSOI - 1);
 	      
 	      // fill extra bx's at beginning with zeros
 	      for (int sample = 0; sample < preLoopsZero; sample++)
@@ -338,7 +338,7 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 		}
 	      
 	      // fill extra bx's at end with zeros
-	      for (int sample = (preLoopsZero + digiSize); 
+	      for (unsigned int sample = (preLoopsZero + digiSize); 
 		   sample < nSamples; sample++)
 		{
 		  // fill zeros!
@@ -422,7 +422,7 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 	  // (size of each digi must be no less than nSamples)
 	  unsigned short nSOI = (unsigned short) (hcal_it->presamples());
 	  if (digiSize < nSamples || nSOI < preSamples
-	      || ((digiSize - nSOI) < (nSamples - preSamples)))
+	      || ((int)(digiSize - nSOI) < (int)(nSamples - preSamples)))
 	    {
 	      // log error -- should not happen!
 	      if (tooLittleDataHcal == false)
@@ -436,8 +436,8 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 		}
 	      unsigned short preLoopsZero = (unsigned short) (preSamples) 
 		- nSOI;
-	      unsigned short postLoopsZero = (unsigned short) (postSamples)
-		- (digiSize - nSOI - 1);
+	      //unsigned short postLoopsZero = (unsigned short) (postSamples)
+	      //- (digiSize - nSOI - 1);
 	      
 	      // fill extra bx's at beginning with zeros
 	      for (int sample = 0; sample < preLoopsZero; sample++)
@@ -513,7 +513,7 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 		}
 	      
 	      // fill extra bx's at end with zeros
-	      for (int sample = (preLoopsZero + digiSize); 
+	      for (unsigned int sample = (preLoopsZero + digiSize); 
 		   sample < nSamples; sample++)
 		{
 		  // fill zeros!

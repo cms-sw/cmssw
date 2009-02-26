@@ -265,8 +265,8 @@ MaskedRctInputDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
        for (int nSample = 0; nSample < nEcalSamples; nSample++)
 	 {
 	   
-	   int energy;
-	   bool fineGrain;
+	   int energy = 0;
+	   bool fineGrain = false;
 	   
 	   if (sign < 0)
 	     {
@@ -316,8 +316,8 @@ MaskedRctInputDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
        for (int nSample = 0; nSample < nHcalSamples; nSample++)
 	 {
 	   
-	   int energy;
-	   bool fineGrain;
+	   int energy = 0;
+	   bool fineGrain = false;
 	   
 	   if (absIeta < 29)
 	     {
