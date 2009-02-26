@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2009/02/26 16:42:51 $
- * $Revision: 1.60 $
+ * $Date: 2009/02/26 17:38:38 $
+ * $Revision: 1.61 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -796,16 +796,20 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
           BasicClusterRef theSeed = sCluster->seed();
 
           // Find the seed rec hit
-          // std::vector<DetId> sIds = sCluster->getHitsByDetId(); // < CMSSW_3_X_Y
+          // < CMSSW_3_X_Y
+          // std::vector<DetId> sIds = sCluster->getHitsByDetId();
+          // >= CMSSW_3_X_Y
           std::vector< std::pair<DetId,float> > sIds = sCluster->hitsAndFractions();
 
           float eMax, e2nd;
           EcalRecHitCollection::const_iterator seedItr = eeRecHits->begin();
           EcalRecHitCollection::const_iterator secondItr = eeRecHits->begin();
 
+          // < CMSSW_3_X_Y
           // for(std::vector<DetId>::const_iterator idItr = sIds.begin(); idItr != sIds.end(); ++idItr) {
           // if(idItr->det() != DetId::Ecal) { continue; }
           // EcalRecHitCollection::const_iterator hitItr = eeRecHits->find((*idItr));
+          // >= CMSSW_3_X_Y
           for(std::vector< std::pair<DetId,float> >::const_iterator idItr = sIds.begin(); idItr != sIds.end(); ++idItr) {
             DetId id = idItr->first;
             if(id.det() != DetId::Ecal) { continue; }
