@@ -59,3 +59,6 @@ DEFINE_ANOTHER_FWK_MODULE(EEDaqInfoTask);
 
 #include <DQM/EcalEndcapMonitorTasks/interface/EEDcsInfoTask.h>
 DEFINE_ANOTHER_FWK_MODULE(EEDcsInfoTask);
+
+#include <DQM/EcalEndcapMonitorTasks/interface/EEDataCertificationTask.h>
+DEFINE_ANOTHER_FWK_MODULE(EEDataCertificationTask);
