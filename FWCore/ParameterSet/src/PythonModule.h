@@ -2,7 +2,7 @@
 #include "FWCore/ParameterSet/interface/PythonProcessDesc.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockRange.h"
 #include "DataFormats/Provenance/interface/EventRange.h"
-#include <boost/python.hpp>
+#include "FWCore/ParameterSet/interface/BoostPython.h"
 #include <boost/cstdint.hpp>
 
 using namespace boost::python;

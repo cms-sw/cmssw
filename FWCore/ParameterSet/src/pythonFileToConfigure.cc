@@ -7,7 +7,7 @@
  *
  */
 
-#include <boost/python.hpp>
+#include "FWCore/ParameterSet/interface/BoostPython.h"
 #include "FWCore/ParameterSet/interface/pythonFileToConfigure.h"
 #include "FWCore/ParameterSet/src/PythonWrapper.h"
 

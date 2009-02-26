@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <string>
-#include <boost/python.hpp>
+#include "FWCore/ParameterSet/interface/BoostPython.h"
 namespace edm {
 void
 pythonToCppException(const std::string& iType);
