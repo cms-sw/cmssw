@@ -1,6 +1,6 @@
 /*
- *  $Date: 2009/02/19 00:29:21 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/02/19 20:52:43 $
+ *  $Revision: 1.2 $
  *  \author Julia Yarba
  */
 
@@ -181,7 +181,6 @@ void Pythia6Gun::produce( edm::Event& evt, const edm::EventSetup& )
    fEvt->set_beam_particles(0,0);
    fEvt->set_event_number(evt.id().event()) ;
    fEvt->set_signal_process_id(pypars.msti[0]) ;  
-   fEvt->set_event_scale(pypars.pari[16]);
 
    attachPy6DecaysToGenEvent();
 
