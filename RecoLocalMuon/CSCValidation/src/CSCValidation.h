@@ -121,6 +121,7 @@ private:
   void  doSimHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<edm::PSimHitContainer> simHits);
   void  doPedestalNoise(edm::Handle<CSCStripDigiCollection> strips);
   void  doSegments(edm::Handle<CSCSegmentCollection> cscSegments, edm::ESHandle<CSCGeometry> cscGeom);
+  void  doResolution(edm::Handle<CSCSegmentCollection> cscSegments, edm::ESHandle<CSCGeometry> cscGeom);
   void  doEfficiencies(edm::Handle<CSCWireDigiCollection> wires, edm::Handle<CSCStripDigiCollection> strips,
                        edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments,
                        edm::ESHandle<CSCGeometry> cscGeom);
@@ -196,6 +197,7 @@ private:
   bool makeRecHitPlots;
   bool makeSimHitPlots;
   bool makeSegmentPlots;
+  bool makeResolutionPlots;
   bool makePedNoisePlots;
   bool makeEfficiencyPlots;
   bool makeGasGainPlots;

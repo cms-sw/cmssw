@@ -41,6 +41,7 @@ CSCValidation::CSCValidation(const ParameterSet& pset){
   makeRecHitPlots      = pset.getUntrackedParameter<bool>("makeRecHitPlots",true);
   makeSimHitPlots      = pset.getUntrackedParameter<bool>("makeSimHitPlots",true);
   makeSegmentPlots     = pset.getUntrackedParameter<bool>("makeSegmentPlots",true);
+  makeResolutionPlots  = pset.getUntrackedParameter<bool>("makeResolutionPlots",true);
   makePedNoisePlots    = pset.getUntrackedParameter<bool>("makePedNoisePlots",true);
   makeEfficiencyPlots  = pset.getUntrackedParameter<bool>("makeEfficiencyPlots",true);
   makeGasGainPlots     = pset.getUntrackedParameter<bool>("makeGasGainPlots",true);
@@ -219,6 +220,9 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
   // general look at Segments
   if (makeSegmentPlots) doSegments(cscSegments,cscGeom);
 
+  // look at hit resolution
+  if (makeResolutionPlots) doResolution(cscSegments,cscGeom);
+
   // look at Pedestal Noise
   if (makePedNoisePlots && useDigis) doPedestalNoise(strips);
   
@@ -360,12 +364,12 @@ void CSCValidation::doOccupancies(edm::Handle<CSCStripDigiCollection> strips, ed
   }
 
   // overall CSC occupancy (events with CSC data compared to total)
-  histos->fill1DHist(0,"hCSCOccupancy","overall CSC occupancy",6,-0.5,5.5,"GeneralHists");
-  if (hasWires) histos->fill1DHist(1,"hCSCOccupancy","overall CSC occupancy",6,-0.5,5.5,"GeneralHists");
-  if (hasStrips) histos->fill1DHist(2,"hCSCOccupancy","overall CSC occupancy",6,-0.5,5.5,"GeneralHists");
-  if (hasWires && hasStrips) histos->fill1DHist(3,"hCSCOccupancy","overall CSC occupancy",6,-0.5,5.5,"GeneralHists");
-  if (hasRecHits) histos->fill1DHist(4,"hCSCOccupancy","overall CSC occupancy",6,-0.5,5.5,"GeneralHists");
-  if (hasSegments) histos->fill1DHist(5,"hCSCOccupancy","overall CSC occupancy",6,-0.5,5.5,"GeneralHists");
+  histos->fill1DHist(1,"hCSCOccupancy","overall CSC occupancy",13,-0.5,12.5,"GeneralHists");
+  if (hasWires) histos->fill1DHist(3,"hCSCOccupancy","overall CSC occupancy",13,-0.5,12.5,"GeneralHists");
+  if (hasStrips) histos->fill1DHist(5,"hCSCOccupancy","overall CSC occupancy",13,-0.5,12.5,"GeneralHists");
+  if (hasWires && hasStrips) histos->fill1DHist(7,"hCSCOccupancy","overall CSC occupancy",13,-0.5,12.5,"GeneralHists");
+  if (hasRecHits) histos->fill1DHist(9,"hCSCOccupancy","overall CSC occupancy",13,-0.5,12.5,"GeneralHists");
+  if (hasSegments) histos->fill1DHist(11,"hCSCOccupancy","overall CSC occupancy",13,-0.5,12.5,"GeneralHists");
 
 }
 
@@ -562,7 +566,7 @@ void CSCValidation::doWireDigis(edm::Handle<CSCWireDigiCollection> wires){
   // this way you can zero suppress but still store info on # events with no digis
   if (nWireGroupsTotal == 0) nWireGroupsTotal = -1;
 
-  histos->fill1DHist(nWireGroupsTotal,"hWirenGroupsTotal","Wires Fired Per Event",41,-0.5,40.5,"Digis");
+  histos->fill1DHist(nWireGroupsTotal,"hWirenGroupsTotal","Wires Fired Per Event",61,-0.5,60.5,"Digis");
   
 }
 
@@ -603,7 +607,7 @@ void CSCValidation::doStripDigis(edm::Handle<CSCStripDigiCollection> strips){
 
   if (nStripsFired == 0) nStripsFired = -1;
 
-  histos->fill1DHist(nStripsFired,"hStripNFired","Fired Strips per Event",101,-0.5,100.5,"Digis");
+  histos->fill1DHist(nStripsFired,"hStripNFired","Fired Strips per Event",121,-0.5,120.5,"Digis");
 
 }
 
@@ -763,7 +767,7 @@ void CSCValidation::doRecHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::H
 
   if (nRecHits == 0) nRecHits = -1;
 
-  histos->fill1DHist(nRecHits,"hRHnrechits","recHits per Event (all chambers)",41,-0.5,40.5,"recHits");
+  histos->fill1DHist(nRecHits,"hRHnrechits","recHits per Event (all chambers)",61,-0.5,60.5,"recHits");
 
 }
 
@@ -846,6 +850,71 @@ void CSCValidation::doSegments(edm::Handle<CSCSegmentCollection> cscSegments, ed
     LocalVector segDir = (*dSiter).localDirection();
     double theta   = segDir.theta();
 
+    // global transformation
+    float globX = 0.;
+    float globY = 0.;
+    float globZ = 0.;
+    float globpPhi = 0.;
+    float globR = 0.;
+    float globTheta = 0.;
+    float globPhi   = 0.;
+    const CSCChamber* cscchamber = cscGeom->chamber(id);
+    if (cscchamber) {
+      GlobalPoint globalPosition = cscchamber->toGlobal(localPos);
+      globX = globalPosition.x();
+      globY = globalPosition.y();
+      globZ = globalPosition.z();
+      globpPhi =  globalPosition.phi();
+      globR   =  sqrt(globX*globX + globY*globY);
+      GlobalVector globalDirection = cscchamber->toGlobal(segDir);
+      globTheta = globalDirection.theta();
+      globPhi   = globalDirection.phi();
+    }
+
+
+    // Fill segment position branch
+    if (writeTreeToFile && segTreeCount < 1500000){
+      histos->fillSegmentTree(segX, segY, globX, globY, kEndcap, kStation, kRing, kChamber);
+      segTreeCount++;
+    }
+
+    // Fill histos
+    histos->fill2DHistByStation(globX,globY,"hSGlobal","Segment Global Positions;global x (cm)",id,100,-800.,800.,100,-800.,800.,"Segments");
+    histos->fill1DHistByType(nhits,"hSnHits","N hits on Segments",id,8,-0.5,7.5,"Segments");
+    histos->fill1DHistByType(theta,"hSTheta","local theta segments",id,128,-3.2,3.2,"Segments");
+    histos->fill1DHistByType((chisq/nDOF),"hSChiSq","segments chi-squared/ndof",id,110,-0.05,10.5,"Segments");
+    histos->fill1DHistByType(chisqProb,"hSChiSqProb","segments chi-squared probability",id,110,-0.05,1.05,"Segments");
+    histos->fill1DHist(globTheta,"hSGlobalTheta","segment global theta",128,0,3.2,"Segments");
+    histos->fill1DHist(globPhi,"hSGlobalPhi","segment global phi",128,-3.2,3.2,"Segments");
+    histos->fillProfile(chamberSerial(id),nhits,"hSnHitsProfile","N hits on Segments",601,-0.5,600.5,-0.5,7.5,"Segments");
+    if (detailedAnalysis){
+      histos->fill1DHistByChamber(nhits,"hSnHits","N hits on Segments",id,8,-0.5,7.5,"HitsOnSegmentByChamber");
+      histos->fill1DHistByChamber(theta,"hSTheta","local theta segments",id,128,-3.2,3.2,"DetailedSegments");
+      histos->fill1DHistByChamber((chisq/nDOF),"hSChiSq","segments chi-squared/ndof",id,110,-0.05,10.5,"SegChi2ByChamber");
+      histos->fill1DHistByChamber(chisqProb,"hSChiSqProb","segments chi-squared probability",id,110,-0.05,1.05,"SegChi2ByChamber");
+    }
+
+  } // end segment loop
+
+  if (nSegments == 0) nSegments = -1;
+
+  histos->fill1DHist(nSegments,"hSnSegments","Segments per Event",13,-0.5,12.5,"Segments");
+
+}
+
+// ==============================================
+//
+// look at hit Resolution
+//
+// ===============================================
+
+void CSCValidation::doResolution(edm::Handle<CSCSegmentCollection> cscSegments, edm::ESHandle<CSCGeometry> cscGeom){
+
+
+  for(CSCSegmentCollection::const_iterator dSiter=cscSegments->begin(); dSiter != cscSegments->end(); dSiter++) {
+
+    CSCDetId id  = (CSCDetId)(*dSiter).cscDetId();
+
     //
     // try to get the CSC recHits that contribute to this segment.
     std::vector<CSCRecHit2D> theseRecHits = (*dSiter).specificRecHits();
@@ -887,58 +956,15 @@ void CSCValidation::doSegments(edm::Handle<CSCSegmentCollection> cscSegments, ed
       residual = expected - sp(3,1);
     }
 
-    // global transformation
-    float globX = 0.;
-    float globY = 0.;
-    float globZ = 0.;
-    float globpPhi = 0.;
-    float globR = 0.;
-    float globTheta = 0.;
-    float globPhi   = 0.;
-    const CSCChamber* cscchamber = cscGeom->chamber(id);
-    if (cscchamber) {
-      GlobalPoint globalPosition = cscchamber->toGlobal(localPos);
-      globX = globalPosition.x();
-      globY = globalPosition.y();
-      globZ = globalPosition.z();
-      globpPhi =  globalPosition.phi();
-      globR   =  sqrt(globX*globX + globY*globY);
-      GlobalVector globalDirection = cscchamber->toGlobal(segDir);
-      globTheta = globalDirection.theta();
-      globPhi   = globalDirection.phi();
-    }
-
-
-    // Fill segment position branch
-    if (writeTreeToFile && segTreeCount < 1500000){
-      histos->fillSegmentTree(segX, segY, globX, globY, kEndcap, kStation, kRing, kChamber);
-      segTreeCount++;
-    }
-
     // Fill histos
-    histos->fill2DHistByStation(globX,globY,"hSGlobal","Segment Global Positions;global x (cm)",id,100,-800.,800.,100,-800.,800.,"Segments");
-    histos->fill1DHistByType(nhits,"hSnHits","N hits on Segments",id,8,-0.5,7.5,"Segments");
-    histos->fill1DHistByType(theta,"hSTheta","local theta segments",id,128,-3.2,3.2,"Segments");
     histos->fill1DHistByType(residual,"hSResid","Fitted Position on Strip - Reconstructed for Layer 3",id,100,-0.5,0.5,"Resolution");
-    histos->fill1DHistByType((chisq/nDOF),"hSChiSq","segments chi-squared/ndof",id,110,-0.05,1.05,"Segments");
-    histos->fill1DHistByType(chisqProb,"hSChiSqProb","segments chi-squared probability",id,110,-0.05,1.05,"Segments");
-    histos->fill1DHist(globTheta,"hSGlobalTheta","segment global theta",64,0,1.6,"Segments");
-    histos->fill1DHist(globPhi,"hSGlobalPhi","segment global phi",128,-3.2,3.2,"Segments");
-    histos->fillProfile(chamberSerial(id),nhits,"hSnHitsProfile","N hits on Segments",601,-0.5,600.5,-0.5,7.5,"Segments");
     histos->fillProfile(chamberSerial(id),residual,"hSResidProfile","Fitted Position on Strip - Reconstructed for Layer 3",601,-0.5,600.5,-0.5,0.5,"Resolution");
     if (detailedAnalysis){
-      histos->fill1DHistByChamber(nhits,"hSnHits","N hits on Segments",id,8,-0.5,7.5,"HitsOnSegmentByChamber");
-      histos->fill1DHistByChamber(theta,"hSTheta","local theta segments",id,128,-3.2,3.2,"DetailedSegments");
       histos->fill1DHistByChamber(residual,"hSResid","Fitted Position on Strip - Reconstructed for Layer 3",id,100,-0.5,0.5,"DetailedResolution");
-      histos->fill1DHistByChamber((chisq/nDOF),"hSChiSq","segments chi-squared probability",id,110,-0.05,1.05,"SegChi2ByChamber");
-      histos->fill1DHistByChamber(chisqProb,"hSChiSqProb","segments chi-squared probability",id,110,-0.05,1.05,"SegChi2ByChamber");
     }
 
-  } // end segment loop
 
-  if (nSegments == 0) nSegments = -1;
-
-  histos->fill1DHist(nSegments,"hSnSegments","Segments per Event",11,-0.5,10.5,"Segments");
+  }
 
 }
 
