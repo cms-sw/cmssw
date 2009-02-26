@@ -202,10 +202,10 @@ int TrajectoryCleanerMerger::getLayer(const DetId & id)const
   // TID wheel, ring
   // TEC wheel, ring
 
-  if(id.subdetId() == PixelSubdetector::PixelBarrel)
+  if(id.subdetId() == (uint) PixelSubdetector::PixelBarrel)
   { PXBDetId pid(id); return (100 * id.subdetId()+ (pid.layer() - 1)<<1 + (pid.ladder() - 1)%2); }
 
-  if(id.subdetId() == PixelSubdetector::PixelEndcap)
+  if(id.subdetId() == (uint) PixelSubdetector::PixelEndcap)
   { PXFDetId pid(id); return (100 * id.subdetId()+ (pid.disk()  - 1)<<1 + (pid.panel()  - 1)%2); }
 
   if(id.subdetId() == StripSubdetector::TIB)
