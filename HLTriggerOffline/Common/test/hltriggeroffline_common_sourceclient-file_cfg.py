@@ -18,7 +18,7 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.load("HLTriggerOffline.Common.FourVectorHLTriggerOffline_cfi")
 process.load("HLTriggerOffline.Common.FourVectorHLTriggerOfflineClient_cfi")
 process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
-
+#process.load("HLTrigger.HLTcore.triggerSummaryAnalyzerAOD_cfi")
 
 
 process.maxEvents = cms.untracked.PSet(
@@ -51,6 +51,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         'cout')
 )
 
+#process.psource = cms.Path(process.hltResults*process.triggerSummaryAnalyzerAOD)
 process.psource = cms.Path(process.hltResults)
 process.p = cms.EndPath(process.dqmSaver)
 process.DQMStore.verbose = 0

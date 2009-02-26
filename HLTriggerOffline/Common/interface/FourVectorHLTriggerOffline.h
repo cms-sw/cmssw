@@ -16,7 +16,7 @@
 //
 // Original Author:  Jeffrey Berryhill
 //         Created:  June 2008
-// $Id: FourVectorHLTriggerOffline.h,v 1.5 2009/02/25 23:13:38 berryhil Exp $
+// $Id: FourVectorHLTriggerOffline.h,v 1.6 2009/02/26 15:47:22 berryhil Exp $
 //
 //
 
@@ -94,11 +94,13 @@ class FourVectorHLTriggerOffline : public edm::EDAnalyzer {
       double jetEtMin_;
       double bjetEtaMax_;
       double bjetEtMin_;
-      double metEtMin_;
       double photonEtaMax_;
       double photonEtMin_;
       double trackEtaMax_;
       double trackEtMin_;
+      double metMin_;
+      double htMin_;
+      double sumEtMin_;
 
       std::vector<std::pair<std::string, std::string> > custompathnamepairs_;
 
