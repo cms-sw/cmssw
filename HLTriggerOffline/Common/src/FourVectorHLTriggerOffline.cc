@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTriggerOffline.cc,v 1.8 2009/02/24 15:48:03 berryhil Exp $
+// $Id: FourVectorHLTriggerOffline.cc,v 1.9 2009/02/25 23:13:39 berryhil Exp $
 // See header file for information. 
 #include "TMath.h"
 
@@ -21,6 +21,9 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
@@ -107,6 +110,8 @@ FourVectorHLTriggerOffline::FourVectorHLTriggerOffline(const edm::ParameterSet& 
   metEtMin_ = iConfig.getUntrackedParameter<double>("metEtMin",10.0);
   photonEtaMax_ = iConfig.getUntrackedParameter<double>("photonEtaMax",2.5);
   photonEtMin_ = iConfig.getUntrackedParameter<double>("photonEtMin",3.0);
+  trackEtaMax_ = iConfig.getUntrackedParameter<double>("trackEtaMax",2.5);
+  trackEtMin_ = iConfig.getUntrackedParameter<double>("trackEtMin",3.0);
 
   
 }
@@ -228,6 +233,14 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
       //"skipping event"; 
       //return;
   }
+
+  edm::Handle<reco::TrackCollection> trackHandle;
+  iEvent.getByLabel("pixelTracks",trackHandle);
+  if(!trackHandle.isValid()) { 
+    edm::LogInfo("FourVectorHLTriggerOffline") << "trackHandle not found, ";
+      //"skipping event"; 
+      //return;
+  }
  
     for(PathInfoCollection::iterator v = hltPaths_.begin();
 	v!= hltPaths_.end(); ++v ) 
@@ -267,7 +280,8 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
       const trigger::Vids & idtype = triggerObj->filterIds(l1index);
       const trigger::Keys & l1k = triggerObj->filterKeys(l1index);
       l1accept = l1k.size() > 0;
-      
+      //if (l1k.size() == 0) cout << v->getl1Path() << endl;
+      //l1accept = true;
 
       // for muon triggers, loop over and fill offline 4-vectors
       if (triggertype == trigger::TriggerMuon || triggertype == trigger::TriggerL1Mu){
@@ -840,6 +854,83 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
             ++idtypeiter;
 	   }
          }
+	}
+
+      // for IsoTrack triggers, loop over and fill offline and L1 4-vectors
+      else if (triggertype == trigger::TriggerTrack)
+	{
+
+	if (genParticles.isValid()){
+           for(size_t i = 0; i < genParticles->size(); ++ i) {
+          const GenParticle & p = (*genParticles)[i];
+          if (abs(p.charge()) > 0 && p.status() == 3 && fabs(p.eta()) <= trackEtaMax_ && p.pt() >= trackEtMin_){
+            NMc++; 
+	    v->getMcEtMcHisto()->Fill(p.pt());
+	    v->getMcEtaVsMcPhiMcHisto()->Fill(p.eta(),p.phi());
+	  }
+	 }
+	}
+
+	  if (trackHandle.isValid()){
+          const reco::TrackCollection trackCollection = *(trackHandle.product());
+         for (reco::TrackCollection::const_iterator trackIter=trackCollection.begin(); trackIter!=trackCollection.end(); trackIter++)
+         {
+	   if (fabs((*trackIter).eta()) <= trackEtaMax_ && (*trackIter).pt() >= trackEtMin_ ){
+	  NOff++;
+	  v->getOffEtOffHisto()->Fill((*trackIter).pt());
+	  v->getOffEtaVsOffPhiOffHisto()->Fill((*trackIter).eta(),(*trackIter).phi());
+	   }
+         }
+	  }
+
+
+
+        if (l1accept)
+         {
+          trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
+          for (trigger::Keys::const_iterator ki = l1k.begin(); ki !=l1k.end(); ++ki ) {
+	    if (*idtypeiter == trigger::TriggerL1CenJet || *idtypeiter == trigger::TriggerL1ForJet || *idtypeiter == trigger::TriggerL1TauJet)
+	      {
+	    //	cout << v->getl1Path() << "\t" << *idtypeiter << "\t" << toc[*ki].pt() << "\t" << toc[*ki].eta() << "\t" << toc[*ki].phi() << endl;
+  	    if (fabs(toc[*ki].eta()) <= trackEtaMax_ && toc[*ki].pt() >= trackEtMin_)
+             { 
+	      NL1++;    
+              v->getL1EtL1Histo()->Fill(toc[*ki].pt());
+	      v->getL1EtaVsL1PhiL1Histo()->Fill(toc[*ki].eta(), toc[*ki].phi());
+	     }
+
+	    if (trackHandle.isValid())
+             {
+              const reco::TrackCollection trackCollection = *(trackHandle.product());
+              for (reco::TrackCollection::const_iterator trackIter=trackCollection.begin(); trackIter!=trackCollection.end(); trackIter++)
+               { 
+	        if (reco::deltaR((*trackIter).eta(),(*trackIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3 && fabs((*trackIter).eta()) <= trackEtaMax_ && (*trackIter).pt() >= trackEtMin_ )
+                 {
+	          NL1Off++;
+	          v->getOffEtL1OffHisto()->Fill((*trackIter).pt());
+	          v->getOffEtaVsOffPhiL1OffHisto()->Fill((*trackIter).eta(),(*trackIter).phi());
+	         }
+	       }
+	     }
+
+
+	    if (genParticles.isValid()){
+               for(size_t i = 0; i < genParticles->size(); ++ i) {
+              const GenParticle & p = (*genParticles)[i];
+              if (abs(p.charge()) > 0 && p.status() == 3 && fabs(p.eta()) <= trackEtaMax_ && p.pt() >= trackEtMin_ ){
+	       if (reco::deltaR(p.eta(),p.phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3){
+	        NL1Mc++;
+	        v->getMcEtL1McHisto()->Fill(p.pt());
+	        v->getMcEtaVsMcPhiL1McHisto()->Fill(p.eta(),p.phi());
+    	       }
+	      }
+             }
+	    } 
+
+	   }
+            ++idtypeiter;
+	   }
+         }
 
 	}
 
@@ -922,6 +1013,10 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
         else if (triggertype == trigger::TriggerPhoton)
 	  {
 	    tocEtaMax = photonEtaMax_; tocEtMin = photonEtMin_;
+	  }
+        else if (triggertype == trigger::TriggerTrack)
+	  {
+	    tocEtaMax = trackEtaMax_; tocEtMin = trackEtMin_;
 	  }
 
         if (fabs(toc[*ki].eta()) <= tocEtaMax && toc[*ki].pt() >= tocEtMin)
@@ -1274,6 +1369,53 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 
 	}// photon trigger type
 
+
+      // for track triggers, loop over and fill offline and L1 4-vectors
+      else if (triggertype == trigger::TriggerTrack)
+	{
+
+	  if (trackHandle.isValid()){
+          const reco::TrackCollection trackCollection = *(trackHandle.product());
+         for (reco::TrackCollection::const_iterator trackIter=trackCollection.begin(); trackIter!=trackCollection.end(); trackIter++)
+         {
+	   if (reco::deltaR((*trackIter).eta(),(*trackIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3 && fabs((*trackIter).eta()) <= trackEtaMax_ && (*trackIter).pt() >= trackEtMin_ ){
+	  NOnOff++;
+	  v->getOffEtOnOffHisto()->Fill((*trackIter).pt());
+	  v->getOffEtaVsOffPhiOnOffHisto()->Fill((*trackIter).eta(),(*trackIter).phi());
+	   }
+         }}
+	
+
+          trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
+          for (trigger::Keys::const_iterator l1ki = l1k.begin(); l1ki !=l1k.end(); ++l1ki ) {
+	    if (*idtypeiter == trigger::TriggerL1CenJet || *idtypeiter == trigger::TriggerL1ForJet || *idtypeiter == trigger::TriggerL1TauJet)
+	      {
+	   if (reco::deltaR(toc[*l1ki].eta(),toc[*l1ki].phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3 && fabs(toc[*l1ki].eta()) <= trackEtaMax_ && toc[*l1ki].pt() >= trackEtMin_ )
+            {
+	     NL1On++;
+	     v->getL1EtL1OnHisto()->Fill(toc[*l1ki].pt());
+	     v->getL1EtaVsL1PhiL1OnHisto()->Fill(toc[*l1ki].eta(),toc[*l1ki].phi());
+	    }
+              }
+	    ++idtypeiter;
+	  }
+
+	if (genParticles.isValid()){
+           for(size_t i = 0; i < genParticles->size(); ++ i) {
+          const GenParticle & p = (*genParticles)[i];
+          if (abs(p.charge()) > 0 && p.status() == 3 && fabs(p.eta()) <= trackEtaMax_ && p.pt() >= trackEtMin_ ){ 
+	   if (reco::deltaR(p.eta(),p.phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3){
+	    NOnMc++;
+	    v->getMcEtOnMcHisto()->Fill(p.pt());
+	    v->getMcEtaVsMcPhiOnMcHisto()->Fill(p.eta(),p.phi());
+	   }
+	  }
+	 }
+	}
+       
+
+	}// track trigger type
+
       } //online object loop
 
       v->getNOnHisto()->Fill(NOn);      
@@ -1375,6 +1517,9 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
       objectType = trigger::TriggerPhoton;    
     if (pathname.find("Tau") != std::string::npos) 
       objectType = trigger::TriggerTau;    
+    if (pathname.find("IsoTrack") != std::string::npos) 
+      objectType = trigger::TriggerTrack;    
+
 
 
     //parse denompathname to guess denomobject type
@@ -1392,7 +1537,8 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
       denomobjectType = trigger::TriggerPhoton;    
     if (denompathname.find("Tau") != std::string::npos) 
       denomobjectType = trigger::TriggerTau;    
-
+    if (denompathname.find("IsoTrack") != std::string::npos) 
+      denomobjectType = trigger::TriggerTrack;    
 
     // find L1 condition for numpath with numpath objecttype 
 
@@ -1407,7 +1553,8 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
 		{
 		  edm::ParameterSet l1GTPSet = hltConfig_.modulePSet(*numpathmodule);
 		  //                  cout << l1GTPSet.getParameter<std::string>("L1SeedsLogicalExpression") << endl;
-                  l1pathname = l1GTPSet.getParameter<std::string>("L1SeedsLogicalExpression"); 
+		  //  l1pathname = l1GTPSet.getParameter<std::string>("L1SeedsLogicalExpression");
+                  l1pathname = *numpathmodule; 
                   break; 
 		}
     	} 
@@ -1419,7 +1566,7 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
     std::string filtername("dummy");
     float ptMin = 0.0;
     float ptMax = 100.0;
-    if (pathname.find("HLT_") != std::string::npos && plotAll_ && denomobjectType == objectType && objectType != 0)
+    if (plotAll_ && denomobjectType == objectType && objectType != 0)
     hltPaths_.push_back(PathInfo(denompathname, pathname, l1pathname, filtername, processname_, objectType, ptMin, ptMax));
 
     }
@@ -1450,7 +1597,8 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
       objectType = trigger::TriggerPhoton;    
     if (pathname.find("Tau") != std::string::npos) 
       objectType = trigger::TriggerTau;    
-
+    if (pathname.find("IsoTrack") != std::string::npos) 
+      objectType = trigger::TriggerTrack;    
 
     //parse denompathname to guess denomobject type
     if (denompathname.find("Jet") != std::string::npos) 
@@ -1467,7 +1615,8 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
       denomobjectType = trigger::TriggerPhoton;    
     if (denompathname.find("Tau") != std::string::npos) 
       denomobjectType = trigger::TriggerTau;    
-
+    if (denompathname.find("IsoTrack") != std::string::npos) 
+      denomobjectType = trigger::TriggerTrack;    
     // find L1 condition for numpath with numpath objecttype 
 
     // find PSet for L1 global seed for numpath, 
@@ -1494,7 +1643,7 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
     std::string filtername("dummy");
     float ptMin = 0.0;
     float ptMax = 100.0;
-    if (pathname.find("HLT_") != std::string::npos && objectType != 0){
+    if (objectType != 0){
     hltPaths_.push_back(PathInfo(denompathname, pathname, l1pathname, filtername, processname_, objectType, ptMin, ptMax));
       //create folder for pathname
      }
@@ -1546,7 +1695,8 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
       objectType = trigger::TriggerPhoton;    
     if (pathname.find("Tau") != std::string::npos) 
       objectType = trigger::TriggerTau;    
-
+    if (pathname.find("IsoTrack") != std::string::npos) 
+      objectType = trigger::TriggerTrack;    
     // find L1 condition for numpath with numpath objecttype 
 
     // find PSet for L1 global seed for numpath, 
@@ -1575,7 +1725,7 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
     std::string filtername("dummy");
     float ptMin = 0.0;
     float ptMax = 100.0;
-    if (pathname.find("HLT_") != std::string::npos && objectType != 0)
+    if (objectType != 0)
     hltPaths_.push_back(PathInfo(denompathname, pathname, l1pathname, filtername, processname_, objectType, ptMin, ptMax));
     
 	}
@@ -1632,6 +1782,10 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
         else if (v->getObjectType() == trigger::TriggerPhoton)
 	  {
 	    histEtaMax = photonEtaMax_; 
+	  }
+        else if (v->getObjectType() == trigger::TriggerTrack)
+	  {
+	    histEtaMax = trackEtaMax_; 
 	  }
 
         TString pathfolder = dirname_ + TString("/") + v->getPath();
