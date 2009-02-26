@@ -28,8 +28,25 @@ calotoweroptmaker = cms.EDProducer(
     hfInput = cms.InputTag("hfreco"),
     # Energy threshold for EE crystals-in-tower inclusion [GeV]
     EESumThreshold = cms.double(0.45),
-    # Energy threshold for HO cell inclusion [GeV]
-    HOThreshold = cms.double(0.5),
+
+    ###### NEW PARAMETERS FOR 31X #########
+    
+    #Energy threshold for HO cell inclusion [GeV]
+    HOThreshold0 = cms.double(0.5),
+    HOThresholdPlus1 = cms.double(0.5),
+    HOThresholdMinus1 = cms.double(0.5),
+    HOThresholdPlus2 = cms.double(0.5),
+    HOThresholdMinus2 = cms.double(0.5),
+
+    HcalAcceptSeverityLevel = cms.uint32(999),
+    EcalAcceptSeverityLevel = cms.uint32(1),
+
+    # use of recovered hits
+    UseHcalRecoveredHits = cms.bool(True),
+    UseEcalRecoveredHits = cms.bool(True),
+
+    ##########################################
+
     HBGrid = cms.untracked.vdouble(-1.0, 1.0, 10.0, 100.0, 1000.0),
     # Energy threshold for HB cell inclusion [GeV]
     HBThreshold = cms.double(0.5),
