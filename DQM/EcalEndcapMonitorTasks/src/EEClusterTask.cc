@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2009/02/05 15:09:07 $
- * $Revision: 1.58 $
+ * $Date: 2009/02/26 14:54:45 $
+ * $Revision: 1.59 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -796,15 +796,17 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
           BasicClusterRef theSeed = sCluster->seed();
 
           // Find the seed rec hit
-          std::vector<DetId> sIds = sCluster->getHitsByDetId();
+          // std::vector<DetId> sIds = sCluster->getHitsByDetId(); // < CMSSW_3_X_Y
+          std::vector< std::pair<DetId,float> > sIds = sCluster->hitsAndFractions();
 
           float eMax, e2nd;
           EcalRecHitCollection::const_iterator seedItr = eeRecHits->begin();
           EcalRecHitCollection::const_iterator secondItr = eeRecHits->begin();
 
-          for(std::vector<DetId>::const_iterator idItr = sIds.begin(); idItr != sIds.end(); ++idItr) {
-            if(idItr->det() != DetId::Ecal) { continue; }
-            EcalRecHitCollection::const_iterator hitItr = eeRecHits->find((*idItr));
+          for(std::vector< std::pair<DetId,float> >::const_iterator idItr = sIds.begin(); idItr != sIds.end(); ++idItr) {
+            DetId id = idItr->first;
+            if(id.det() != DetId::Ecal) { continue; }
+            EcalRecHitCollection::const_iterator hitItr = eeRecHits->find(id);
             if(hitItr == eeRecHits->end()) { continue; }
             if(hitItr->energy() > secondItr->energy()) { secondItr = hitItr; }
             if(hitItr->energy() > seedItr->energy()) { std::swap(seedItr,secondItr); }

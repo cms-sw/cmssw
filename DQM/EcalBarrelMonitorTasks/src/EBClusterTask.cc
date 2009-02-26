@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2008/12/03 12:55:49 $
- * $Revision: 1.68 $
+ * $Date: 2009/02/26 14:54:45 $
+ * $Revision: 1.70 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -555,7 +555,7 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
     for ( BasicClusterCollection::const_iterator bCluster = pBasicClusters->begin(); bCluster != pBasicClusters->end(); ++bCluster ) {
 
       meBCEne_->Fill(bCluster->energy());
-      meBCSiz_->Fill(float(bCluster->getHitsByDetId().size()));
+      meBCSiz_->Fill(float(bCluster->size()));
 
       float xphi = bCluster->phi();
       if ( xphi > M_PI*(9-1.5)/9 ) xphi = xphi - M_PI*2;
@@ -568,9 +568,9 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
       meBCNumMapProjEta_->Fill(bCluster->eta());
       meBCNumMapProjPhi_->Fill(xphi);
 
-      meBCSizMap_->Fill(xphi, bCluster->eta(), float(bCluster->getHitsByDetId().size()));
-      meBCSizMapProjEta_->Fill(bCluster->eta(), float(bCluster->getHitsByDetId().size()));
-      meBCSizMapProjPhi_->Fill(xphi, float(bCluster->getHitsByDetId().size()));
+      meBCSizMap_->Fill(xphi, bCluster->eta(), float(bCluster->size()));
+      meBCSizMapProjEta_->Fill(bCluster->eta(), float(bCluster->size()));
+      meBCSizMapProjPhi_->Fill(xphi, float(bCluster->size()));
 
       meBCETMap_->Fill(xphi, bCluster->eta(), float(bCluster->energy()) * sin(bCluster->position().theta()));
       meBCETMapProjEta_->Fill(bCluster->eta(), float(bCluster->energy()) * sin(bCluster->position().theta()));
@@ -617,18 +617,20 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
           BasicClusterRef theSeed = sCluster->seed();
 
 	  // Find the seed rec hit
-	  std::vector<DetId> sIds = sCluster->getHitsByDetId();
+          // std::vector<DetId> sIds = sCluster->getHitsByDetId(); // < CMSSW_3_X_Y
+          std::vector< std::pair<DetId,float> > sIds = sCluster->hitsAndFractions();
 
 	  float eMax, e2nd;
 	  EcalRecHitCollection::const_iterator seedItr = ebRecHits->begin();
 	  EcalRecHitCollection::const_iterator secondItr = ebRecHits->begin();
 
-	  for(std::vector<DetId>::const_iterator idItr = sIds.begin(); idItr != sIds.end(); ++idItr) {
-	     if(idItr->det() != DetId::Ecal) { continue; }
-	     EcalRecHitCollection::const_iterator hitItr = ebRecHits->find((*idItr));
-	     if(hitItr == ebRecHits->end()) { continue; }
-	     if(hitItr->energy() > secondItr->energy()) { secondItr = hitItr; }
-	     if(hitItr->energy() > seedItr->energy()) { std::swap(seedItr,secondItr); }
+	  for(std::vector< std::pair<DetId,float> >::const_iterator idItr = sIds.begin(); idItr != sIds.end(); ++idItr) {
+            DetId id = idItr->first;
+            if(id.det() != DetId::Ecal) { continue; }
+            EcalRecHitCollection::const_iterator hitItr = ebRecHits->find(id);
+            if(hitItr == ebRecHits->end()) { continue; }
+            if(hitItr->energy() > secondItr->energy()) { secondItr = hitItr; }
+            if(hitItr->energy() > seedItr->energy()) { std::swap(seedItr,secondItr); }
 	  }
 
 	  eMax = seedItr->energy();
