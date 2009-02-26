@@ -56,3 +56,6 @@ DEFINE_ANOTHER_FWK_MODULE(EBDaqInfoTask);
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBDcsInfoTask.h>
 DEFINE_ANOTHER_FWK_MODULE(EBDcsInfoTask);
+ 
+#include <DQM/EcalBarrelMonitorTasks/interface/EBDataCertificationTask.h>
+DEFINE_ANOTHER_FWK_MODULE(EBDataCertificationTask);
