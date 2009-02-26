@@ -37,7 +37,7 @@ void PlotUtils::printHelix
               -1 : 1);
     if(dp.x()*v2.x() + dp.y()*v2.y() < 0) charge = -charge;
 
-    outFile << ", Line[{{"<<P0.x()<<","<<P0.y()<<","<<P0.z()<<"*z}" ;
+    outFile << ", Line[{{"<<P0.x()<<","<<P0.y()<<",("<<P0.z()<<"-zs)*mz}" ;
 
     for(int i = 0; i < nstep; i++)
     {
@@ -49,7 +49,7 @@ void PlotUtils::printHelix
 
       P1 = GlobalPoint(x,y,z);
 
-      outFile << ", {"<<P1.x()<<","<<P1.y()<<","<<P1.z()<<"*z}";
+      outFile << ", {"<<P1.x()<<","<<P1.y()<<",("<<P1.z()<<"-zs)*mz}";
       P0 = P1;
     }
     outFile << "}]" << endl;
@@ -59,7 +59,7 @@ void PlotUtils::printHelix
     GlobalPoint P0 = p1;
     GlobalPoint P1 = p2;
 
-    outFile << ", Line[{{"<<P0.x()<<","<<P0.y()<<","<<P0.z()<<"*z}"
-                  << ", {"<<P1.x()<<","<<P1.y()<<","<<P1.z()<<"*z}}]" << endl;
+    outFile << ", Line[{{"<<P0.x()<<","<<P0.y()<<",("<<P0.z()<<"-zs)*mz}"
+                  << ", {"<<P1.x()<<","<<P1.y()<<",("<<P1.z()<<"-zs)*mz}}]" << endl;
   }
 }

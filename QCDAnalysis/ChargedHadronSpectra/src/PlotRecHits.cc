@@ -47,11 +47,11 @@ void PlotRecHits::printPixelRecHit(const SiPixelRecHit * recHit)
   GlobalPoint p11 =  theTracker->idToDet(id)->toGlobal(LocalPoint( x, y,z));
 
   file << ", If[sd, {RGBColor[0.4,0.4,0.4], "
-                 <<"Line[{{"<< p00.x()<<","<<p00.y()<<","<<p00.z()<<"*z}, "
-                       <<"{"<< p01.x()<<","<<p01.y()<<","<<p01.z()<<"*z}, "
-                       <<"{"<< p11.x()<<","<<p11.y()<<","<<p11.z()<<"*z}, "
-                       <<"{"<< p10.x()<<","<<p10.y()<<","<<p10.z()<<"*z}, "
-                       <<"{"<< p00.x()<<","<<p00.y()<<","<<p00.z()<<"*z}}]}]"
+                 <<"Line[{{"<< p00.x()<<","<<p00.y()<<",("<<p00.z()<<"-zs)*mz}, "
+                       <<"{"<< p01.x()<<","<<p01.y()<<",("<<p01.z()<<"-zs)*mz}, "
+                       <<"{"<< p11.x()<<","<<p11.y()<<",("<<p11.z()<<"-zs)*mz}, "
+                       <<"{"<< p10.x()<<","<<p10.y()<<",("<<p10.z()<<"-zs)*mz}, "
+                       <<"{"<< p00.x()<<","<<p00.y()<<",("<<p00.z()<<"-zs)*mz}}]}]"
        << endl;
   
   // RecHit
@@ -62,24 +62,24 @@ void PlotRecHits::printPixelRecHit(const SiPixelRecHit * recHit)
                     recHit->localPosition().z());
 
   p = theTracker->idToDet(id)->toGlobal(lpos);
-  file << ", Point[{"<<p.x()<<","<<p.y()<<","<<p.z()<<"*z}]" << endl;
+  file << ", Point[{"<<p.x()<<","<<p.y()<<",("<<p.z()<<"-zs)*mz}]" << endl;
 
   // Cluster details
   SiPixelRecHit::ClusterRef const& cluster = recHit->cluster();
   vector<SiPixelCluster::Pixel> pixels = cluster->pixels();
 
-  file << ", Text[StyleForm[\"r\", FontFamily->\"Helvetica\", URL -> \"";
+  file << ", Text[StyleForm[\"r\", FontFamily->\"Helvetica\", URL -> \"RecHit |";
   for(vector<SiPixelCluster::Pixel>::const_iterator
     pixel = pixels.begin(); pixel!= pixels.end(); pixel++)
   {
-    file << "[" << int(pixel->x)
+    file << " [" << int(pixel->x)
          << " " << int(pixel->y)
          << " " << int(pixel->adc/135) << "]";
   }
   file << "\"]";
 
-  file << ", {"<< p.x()<<","<<p.y()<<","<<p.z()<<"*z}"
-       << ", {0,1}]" << endl;
+  file << ", {"<< p.x()<<","<<p.y()<<",("<<p.z()<<"-zs)*mz}"
+       << ", {-1,1}]" << endl;
 }
 
 /*****************************************************************************/
@@ -98,11 +98,11 @@ void PlotRecHits::printStripRecHit(const SiStripRecHit2D * recHit)
   GlobalPoint p11 =  theTracker->idToDet(id)->toGlobal(LocalPoint( x, y,z));
 
   file << ", If[sd, {RGBColor[0.6,0.6,0.6], "
-                 <<"Line[{{"<<p00.x()<<","<<p00.y()<<","<<p00.z()<<"*z}, "
-                       <<"{"<<p01.x()<<","<<p01.y()<<","<<p01.z()<<"*z}, "
-                       <<"{"<<p11.x()<<","<<p11.y()<<","<<p11.z()<<"*z}, "
-                       <<"{"<<p10.x()<<","<<p10.y()<<","<<p10.z()<<"*z}, "
-                       <<"{"<<p00.x()<<","<<p00.y()<<","<<p00.z()<<"*z}}]}]"
+                 <<"Line[{{"<<p00.x()<<","<<p00.y()<<",("<<p00.z()<<"-zs)*mz}, "
+                       <<"{"<<p01.x()<<","<<p01.y()<<",("<<p01.z()<<"-zs)*mz}, "
+                       <<"{"<<p11.x()<<","<<p11.y()<<",("<<p11.z()<<"-zs)*mz}, "
+                       <<"{"<<p10.x()<<","<<p10.y()<<",("<<p10.z()<<"-zs)*mz}, "
+                       <<"{"<<p00.x()<<","<<p00.y()<<",("<<p00.z()<<"-zs)*mz}}]}]"
        << endl;
 
   // RecHit
@@ -111,12 +111,12 @@ void PlotRecHits::printStripRecHit(const SiStripRecHit2D * recHit)
   lpos = LocalPoint(recHit->localPosition().x(),
                  y, recHit->localPosition().z());
   p = theTracker->idToDet(id)->toGlobal(lpos);
-  file << ", Line[{{"<<p.x()<<","<<p.y()<<","<<p.z()<<"*z}, {";
+  file << ", Line[{{"<<p.x()<<","<<p.y()<<",("<<p.z()<<"-zs)*mz}, {";
 
   lpos = LocalPoint(recHit->localPosition().x(),
                 -y, recHit->localPosition().z());
   p = theTracker->idToDet(id)->toGlobal(lpos);
-  file << ""<<p.x()<<","<<p.y()<<","<<p.z()<<"*z}}]" << endl;
+  file << ""<<p.x()<<","<<p.y()<<",("<<p.z()<<"-zs)*mz}}]" << endl;
 }
 
 /*****************************************************************************/
@@ -187,7 +187,7 @@ void PlotRecHits::printStripRecHits(const edm::Event& ev)
         LocalPoint lpos = recHit->localPosition();
         GlobalPoint p = theTracker->idToDet(id)->toGlobal(lpos);
 
-        file << ", Point[{"<< p.x()<<","<<p.y()<<","<<p.z()<<"*z}]" << endl;
+        file << ", Point[{"<< p.x()<<","<<p.y()<<",("<<p.z()<<"-zs)*mz}]" << endl;
       }
     }
   }

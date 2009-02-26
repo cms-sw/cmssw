@@ -8,6 +8,10 @@ namespace edm { class Event; class EventSetup; }
 class TrackingRecHit;
 class TrackerGeometry;
 class TrackerHitAssociator;
+class FreeTrajectoryState;
+class MagneticField;
+class Propagator;
+namespace reco { class Track; }
 
 class PlotRecTracks
 {
@@ -24,11 +28,16 @@ class PlotRecTracks
     std::string getStripInfo(const TrackingRecHit* recHit,
                              const std::ostringstream& o,
                              const std::ostringstream& d);
- 
+    FreeTrajectoryState getTrajectoryAtOuterPoint(const reco::Track& track);
+
     const edm::EventSetup& es;
     std::string trackProducer;
     std::ofstream& file;
+
     const TrackerGeometry* theTracker;
+    const MagneticField* theMagField;
+    const Propagator*  thePropagator;
+
     TrackerHitAssociator * theHitAssociator;
 };
 

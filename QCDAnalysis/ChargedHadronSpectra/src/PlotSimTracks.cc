@@ -20,6 +20,20 @@
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
+// Ecal
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/ESDetId.h"
+
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+
 using namespace std;
 
 /*****************************************************************************/
@@ -48,6 +62,11 @@ PlotSimTracks::PlotSimTracks
   edm::ESHandle<TrackerGeometry> trackerHandle;
   es.get<TrackerDigiGeometryRecord>().get(trackerHandle);
   theTracker = trackerHandle.product();
+ 
+  // Get calorimetry
+  edm::ESHandle<CaloGeometry> calo;
+  es.get<CaloGeometryRecord>().get(calo);
+  theCaloGeometry = (const CaloGeometry*)calo.product();
 }
 
 /*****************************************************************************/
@@ -58,10 +77,24 @@ PlotSimTracks::~PlotSimTracks()
 /*****************************************************************************/
 void PlotSimTracks::printSimTracks(const edm::Event& ev)
 {
+  // Tracker
   edm::Handle<TrackingParticleCollection> simTrackHandle;
   ev.getByLabel("mergedtruth",            simTrackHandle);
   const TrackingParticleCollection* simTracks = simTrackHandle.product();
 
+  // Ecal
+  edm::Handle<edm::PCaloHitContainer>      simHitsBarrel;
+  ev.getByLabel("g4SimHits", "EcalHitsEB", simHitsBarrel);
+   
+//  edm::Handle<edm::PCaloHitContainer>      simHitsPreshower;
+//  ev.getByLabel("g4SimHits", "EcalHitsES", simHitsPreshower);
+
+  edm::Handle<edm::PCaloHitContainer>      simHitsEndcap;
+  ev.getByLabel("g4SimHits", "EcalHitsEE", simHitsEndcap);
+
+  const CaloSubdetectorGeometry* geom;
+
+  // Utilities
   PlotUtils plotUtils;
 
   file << ", If[st, {RGBColor[0.5,0.5,0.5]";
@@ -82,20 +115,23 @@ void PlotSimTracks::printSimTracks(const edm::Event& ev)
     {
       DetId id = DetId(simHit->detUnitId());
 
+      if(theTracker->idToDetUnit(id) != 0)
+      {  
       GlobalPoint  p1 =
         theTracker->idToDetUnit(id)->toGlobal(simHit->localPosition()); 
       GlobalVector v1 =
         theTracker->idToDetUnit(id)->toGlobal(simHit->localDirection());
 
       // simHit
-      file << ", Point[{" << p1.x() << "," << p1.y() << "," << p1.z() << "*z}]"
+      file << ", Point[{" << p1.x() << "," << p1.y() << ",(" << p1.z() << "-zs)*mz}]"
            << endl;
-      file << ", Text[StyleForm[\"s\", URL->\"Ekin=" << simTrack->energy() -
-simTrack->mass()
-           << " GeV | parent: source=" << simTrack->parentVertex()->nSourceTracks() 
-           << "daughter=" << simTrack->parentVertex()->nDaughterTracks()
+      file << ", Text[StyleForm[\"s\", URL->\"SimHit | Ekin="
+           << simTrack->energy() - simTrack->mass()
+           << " GeV | parent: source="
+           << simTrack->parentVertex()->nSourceTracks() 
+           << " daughter=" << simTrack->parentVertex()->nDaughterTracks()
            << HitInfo::getInfo(*simHit) << "\"], {"
-           << p1.x() << "," << p1.y() << "," << p1.z() << "*z}, {0,1}]"
+           << p1.x() << "," << p1.y() << ",(" << p1.z() << "-zs)*mz}, {1,1}]"
            << endl;
 
       // det
@@ -116,11 +152,11 @@ simTrack->mass()
       else
         file << ", If[sd, {RGBColor[0.8,0.8,0.8], ";
 
-      file       <<"Line[{{"<< p00.x()<<","<<p00.y()<<","<<p00.z()<<"*z}, "
-                       <<"{"<< p01.x()<<","<<p01.y()<<","<<p01.z()<<"*z}, "
-                       <<"{"<< p11.x()<<","<<p11.y()<<","<<p11.z()<<"*z}, "
-                       <<"{"<< p10.x()<<","<<p10.y()<<","<<p10.z()<<"*z}, "
-                       <<"{"<< p00.x()<<","<<p00.y()<<","<<p00.z()<<"*z}}]}]"
+      file       <<"Line[{{"<< p00.x()<<","<<p00.y()<<",("<<p00.z()<<"-zs)*mz}, "
+                       <<"{"<< p01.x()<<","<<p01.y()<<",("<<p01.z()<<"-zs)*mz}, "
+                       <<"{"<< p11.x()<<","<<p11.y()<<",("<<p11.z()<<"-zs)*mz}, "
+                       <<"{"<< p10.x()<<","<<p10.y()<<",("<<p10.z()<<"-zs)*mz}, "
+                       <<"{"<< p00.x()<<","<<p00.y()<<",("<<p00.z()<<"-zs)*mz}}]}]"
         << endl;
 
       if(simHit == simHits.begin()) // vertex to first point
@@ -140,6 +176,59 @@ simTrack->mass()
           theTracker->idToDetUnit(id)->toGlobal((simHit+1)->localDirection());
 
         plotUtils.printHelix(p1,p2,v2, file, simTrack->charge());
+      }
+
+      // Continue to Ecal
+      if(simHit+1 == simHits.end()) // if last
+      {
+        DetId id = DetId(simHit->detUnitId());
+        GlobalPoint p =
+          theTracker->idToDetUnit(id)->toGlobal(simHit->localPosition());
+
+        // EB
+        geom = theCaloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
+
+        for(edm::PCaloHitContainer::const_iterator
+              simHit = simHitsBarrel->begin();
+              simHit!= simHitsBarrel->end(); simHit++)
+        if(simHit->geantTrackId() == simTrack->g4Track_begin()->trackId() &&
+           simHit->energy() > 0.060)
+        {
+          EBDetId detId(simHit->id());
+          const CaloCellGeometry* cell = geom->getGeometry(detId);
+
+          if(cell != 0)
+          file << ", Line[{{" << p.x()
+                       << "," << p.y()
+                       << ",(" << p.z() <<"-zs)*mz}"
+               << ", {" << cell->getPosition().x() << ","
+                        << cell->getPosition().y() << ",("
+                        << cell->getPosition().z() << "-zs)*mz}}]" << endl;
+        }
+
+        // ES
+
+        // EE
+        geom = theCaloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
+
+        for(edm::PCaloHitContainer::const_iterator
+              simHit = simHitsEndcap->begin();
+              simHit!= simHitsEndcap->end(); simHit++)
+        if(simHit->geantTrackId() == simTrack->g4Track_begin()->trackId() &&
+           simHit->energy() > 0.060)
+        {
+          EEDetId detId(simHit->id());
+          const CaloCellGeometry* cell = geom->getGeometry(detId);
+
+          if(cell != 0)
+          file << ", Line[{{" << p.x()
+                       << "," << p.y()
+                       << ",(" << p.z() << "-zs)*mz}"
+               << ", {" << cell->getPosition().x() << ","
+                        << cell->getPosition().y() << ",("
+                        << cell->getPosition().z() << "-zs)*mz}}]" << endl;
+        }
+      }
       }
     }
   }

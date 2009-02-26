@@ -29,6 +29,16 @@
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+
+#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
+
+#include "DataFormats/GeometrySurface/interface/Cylinder.h"
+
 using namespace std;
 
 /*****************************************************************************/
@@ -40,6 +50,17 @@ PlotRecTracks::PlotRecTracks
   edm::ESHandle<TrackerGeometry> trackerHandle;
   es.get<TrackerDigiGeometryRecord>().get(trackerHandle);
   theTracker = trackerHandle.product();
+
+  // Get magnetic field
+  edm::ESHandle<MagneticField> magField;
+  es.get<IdealMagneticFieldRecord>().get(magField);
+  theMagField = magField.product();
+
+  // Get propagator
+  edm::ESHandle<Propagator> thePropagatorHandle;
+  es.get<TrackingComponentsRecord>().get("PropagatorWithMaterial",
+                                          thePropagatorHandle);
+  thePropagator = thePropagatorHandle.product();
 }
 
 /*****************************************************************************/
@@ -86,7 +107,7 @@ string PlotRecTracks::getPixelInfo
 
   {
   ostringstream o;
-  o << ", {" << p.x() << "," << p.y() << "," << p.z() << "*z},"
+  o << ", {" << p.x() << "," << p.y() << ",(" << p.z() << "-zs)*mz},"
     << " {" << 0 << "," << -1 << "}]";
 
   info += o.str();
@@ -103,6 +124,8 @@ string PlotRecTracks::getStripInfo
   LocalPoint lpos = recHit->localPosition();
   GlobalPoint p = theTracker->idToDet(id)->toGlobal(lpos);
 
+  vector<PSimHit> simHits = theHitAssociator->associateHit(*recHit);
+
   string info = ", Text[StyleForm[\"" + o.str() + "\", URL->\"Track " + o.str() + d.str(); 
   const SiStripMatchedRecHit2D* stripMatchedRecHit =
     dynamic_cast<const SiStripMatchedRecHit2D *>(recHit);
@@ -113,10 +136,19 @@ string PlotRecTracks::getStripInfo
 
   {
   ostringstream o;
+  o << "simTrackId=" << simHits[0].trackId() ;
+
+  info += " | " + o.str();
+  }
+
+  {
+  ostringstream o;
   o << theTracker->idToDet(id)->subDetector();
 
   info += " | " + o.str();
   }
+
+  info += HitInfo::getInfo(*recHit);
 
   if(stripMatchedRecHit != 0)   info += " matched";
   if(stripProjectedRecHit != 0) info += " projected";
@@ -127,7 +159,7 @@ string PlotRecTracks::getStripInfo
 
   {
   ostringstream o;
-  o << ", {" << p.x() << "," << p.y() << "," << p.z() << "*z},"
+  o << ", {" << p.x() << "," << p.y() << ",(" << p.z() << "-zs)*mz},"
     << " {" << 0 << "," << -1 << "}]";
 
   info += o.str();
@@ -137,30 +169,42 @@ string PlotRecTracks::getStripInfo
 }
 
 /*****************************************************************************/
+FreeTrajectoryState PlotRecTracks::getTrajectoryAtOuterPoint
+  (const reco::Track& track)
+{
+  GlobalPoint position(track.outerX(),
+                       track.outerY(),
+                       track.outerZ());
+
+  GlobalVector momentum(track.outerPx(),
+                        track.outerPy(),
+                        track.outerPz());
+
+  GlobalTrajectoryParameters gtp(position,momentum,
+                                 track.charge(),theMagField);
+
+  FreeTrajectoryState fts(gtp,track.outerStateCovariance());
+
+  return fts;
+}
+
+/*****************************************************************************/
 void PlotRecTracks::printRecTracks(const edm::Event& ev)
 {
   theHitAssociator = new TrackerHitAssociator::TrackerHitAssociator(ev);
 
   file << ", If[rt, {AbsolutePointSize[6]";
 
-/*
-  for(vector<string>::iterator label = trackCollections.begin();
-                               label!= trackCollections.end(); label++, j++)
-*/
-  { 
   edm::Handle<reco::TrackCollection> recTrackHandle;
-//  ev.getByLabel(*label, recTrackHandle);
   ev.getByLabel(trackProducer, recTrackHandle);
 
   edm::Handle<vector<Trajectory> > trajectoryHandle;
-//  ev.getByLabel(*label, trajectoryHandle);
   ev.getByLabel(trackProducer, trajectoryHandle);
 
   const reco::TrackCollection* recTracks    =   recTrackHandle.product();
   const vector<Trajectory>*    trajectories = trajectoryHandle.product(); 
 
   edm::LogVerbatim("MinBiasTracking") 
-//       << " [EventPlotter] recTracks (" << *label << ") "
        << " [EventPlotter] recTracks (" << trackProducer << ") "
        << recTracks->size();
 
@@ -187,7 +231,8 @@ void PlotRecTracks::printRecTracks(const edm::Event& ev)
 
     ostringstream d; d << fixed << setprecision(2)
                        << " | d0=" << recTrack->d0() << " cm"
-                       << " | pt=" << recTrack->pt();
+                       << " | z0=" << recTrack->dz() << " cm"
+                       << " | pt=" << recTrack->pt() << " GeV/c";
 
     const Trajectory* trajectory = &(*it);
 
@@ -237,7 +282,7 @@ void PlotRecTracks::printRecTracks(const edm::Event& ev)
           LocalPoint lpos = stripMatchedRecHit->localPosition();
           GlobalPoint p = theTracker->idToDet(id)->toGlobal(lpos);
 
-          file << ", Point[{"<< p.x()<<","<<p.y()<<","<<p.z()<<"*z}]" << endl;
+          file << ", Point[{"<< p.x()<<","<<p.y()<<",("<<p.z()<<"-zs)*mz}]" << endl;
         }
 
         if(stripProjectedRecHit != 0)
@@ -302,7 +347,53 @@ void PlotRecTracks::printRecTracks(const edm::Event& ev)
         plotUtils.printHelix(p1,p2,v2, file, recTrack->charge());
       }
     }
-  }
+
+    // Ecal
+    GlobalPoint p1 = (*(meas.rend()-1)).forwardPredictedState().globalPosition();
+    FreeTrajectoryState fts = getTrajectoryAtOuterPoint(*recTrack);
+    Surface::RotationType rot;
+    TrajectoryStateOnSurface tsos;
+
+    // Ecal Barrel
+    Cylinder::ConstCylinderPointer theCylinder =
+        Cylinder::build(Surface::PositionType(0.,0.,0), rot, 129.);
+    tsos = thePropagator->propagate(fts,*theCylinder);
+
+    if(tsos.isValid() &&
+       fabs(tsos.globalPosition().z()) < 320.9)
+    {
+      GlobalPoint  p2 = tsos.globalPosition();
+      GlobalVector v2 = tsos.globalDirection();
+      plotUtils.printHelix(p1,p2,v2, file, recTrack->charge());
+    }
+    else
+    { 
+      // ECAL Endcap
+      Plane::ConstPlanePointer thePlanePos =
+          Plane::build(Surface::PositionType(0.,0.,320.9), rot);
+      tsos = thePropagator->propagate(fts,*thePlanePos);
+  
+      if(tsos.isValid())
+      {
+        GlobalPoint  p2 = tsos.globalPosition();
+        GlobalVector v2 = tsos.globalDirection();
+        plotUtils.printHelix(p1,p2,v2, file, recTrack->charge());
+      }
+      else
+      {
+        // ECAL Endcap
+        Plane::ConstPlanePointer thePlaneNeg =
+            Plane::build(Surface::PositionType(0.,0.,-320.9), rot);
+        tsos = thePropagator->propagate(fts,*thePlaneNeg);
+
+        if(tsos.isValid())
+        {
+          GlobalPoint  p2 = tsos.globalPosition();
+          GlobalVector v2 = tsos.globalDirection();
+          plotUtils.printHelix(p1,p2,v2, file, recTrack->charge());
+        }
+      }
+    }
   }
 
   file << "}]";

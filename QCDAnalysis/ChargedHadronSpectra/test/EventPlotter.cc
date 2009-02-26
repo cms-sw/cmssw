@@ -12,6 +12,8 @@
 #include "QCDAnalysis/ChargedHadronSpectra/interface/PlotRecTracks.h"
 #include "QCDAnalysis/ChargedHadronSpectra/interface/PlotSimTracks.h"
 
+#include "QCDAnalysis/ChargedHadronSpectra/interface/PlotEcalRecHits.h"
+
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "DataFormats/VZero/interface/VZero.h"
@@ -98,10 +100,10 @@ void EventPlotter::printVZeros(const edm::Event& ev, ofstream& file)
 
     file << ", Line[{{" << vZero->vertex().position().x()
                  << "," << vZero->vertex().position().y()
-                 << "," << vZero->vertex().position().z()
-                 << "*z}, {" << b.x()
+                 << ",(" << vZero->vertex().position().z()
+                 << "-zs)*mz}, {" << b.x()
                       << "," << b.y()
-                      << "," << b.z() << "*z}}]" << endl;
+                      << ",(" << b.z() << "-zs)*mz}}]" << endl;
   }
 
   file << "}]";
@@ -123,12 +125,12 @@ void EventPlotter::printVertices(const edm::Event& ev, ofstream& file)
   {
     file << ", Point[{" << vertex->position().x()
                  << "," << vertex->position().y()
-                 << "," << vertex->position().z() << "*z}]" << endl;
+                 << ",(" << vertex->position().z() << "-zs)*mz}]" << endl;
     file << ", Text[StyleForm[\"V\", URL->\"Vertex z="<<vertex->position().z()<<" cm | Tracks="
          << vertex->tracksSize() << "\"]"
          << ", {" << vertex->position().x()
            << "," << vertex->position().y()
-           << "," << vertex->position().z() << "*z}, {0,-1}]" << endl;
+           << ",(" << vertex->position().z() << "-zs)*mz}, {0,-1}]" << endl;
   }
 }
 
@@ -155,6 +157,9 @@ void EventPlotter::analyze(const edm::Event& ev, const edm::EventSetup& es)
   PlotSimTracks theSimTracks(es,file);
   theSimTracks.printSimTracks(ev);
 
+  PlotEcalRecHits theEcalRecHits(es,file);
+  theEcalRecHits.printEcalRecHits(ev);
+
   printVZeros  (ev,file);
   printVertices(ev,file);
 
@@ -174,32 +179,33 @@ void EventPlotter::analyze(const edm::Event& ev, const edm::EventSetup& es)
   file << ", RGBColor[0.7,0.7,0.7]";
 
   for(int z = -mz; z < mz; z += mz/30)
-    file << ", Line[{{0,0,"<<z<<"*z}, {0,0,"<<z+mz/30<<"*z}}]" << endl;
+    file << ", Line[{{0,0,("<<z<<"-zs)*mz}, {0,0,("<<z+mz/30<<"-zs)*mz}}]" << endl;
 
   // box
   file << ", RGBColor[0,0,0]";
   for(int iz = -1; iz <= 1; iz+=2)
   {
     file << ", Line[{";
-    file << "{"<<-mx<<","<<-my<<","<<iz*mz<<"*z}, ";
-    file << "{"<< mx<<","<<-my<<","<<iz*mz<<"*z}, ";
-    file << "{"<< mx<<","<< my<<","<<iz*mz<<"*z}, ";
-    file << "{"<<-mx<<","<< my<<","<<iz*mz<<"*z}, ";
-    file << "{"<<-mx<<","<<-my<<","<<iz*mz<<"*z}";
+    file << "{"<<-mx<<","<<-my<<",("<<iz*mz<<"-zs)*mz}, ";
+    file << "{"<< mx<<","<<-my<<",("<<iz*mz<<"-zs)*mz}, ";
+    file << "{"<< mx<<","<< my<<",("<<iz*mz<<"-zs)*mz}, ";
+    file << "{"<<-mx<<","<< my<<",("<<iz*mz<<"-zs)*mz}, ";
+    file << "{"<<-mx<<","<<-my<<",("<<iz*mz<<"-zs)*mz}";
     file << "}]";
   }
 
   for(int ix = -1; ix <= 1; ix+=2)
   for(int iy = -1; iy <= 1; iy+=2)
   {
-    file << ", Line[{{"<<ix*mx<<","<<iy*my<<","<<-mz<<"*z},";
-    file <<         "{"<<ix*mx<<","<<iy*my<<","<< mz<<"*z}}]";
+    file << ", Line[{{"<<ix*mx<<","<<iy*my<<",("<<-mz<<"-zs)*mz},";
+    file <<         "{"<<ix*mx<<","<<iy*my<<",("<< mz<<"-zs)*mz}}]";
   }
 
   // stop physics
   file << "}";
 
   // options
+  // FIXME
   file << ", PlotRange->{{"<<-mx<<","<<mx<<"}, {"
                            <<-my<<","<<my<<"}, {"
                            <<-mz<<"*z,"<<mz<<"*z}}";

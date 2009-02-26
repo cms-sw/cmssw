@@ -116,8 +116,8 @@ class QCDTrackAnalyzer : public edm::EDAnalyzer
 
    void processVZeros();
 
-   int processRecTracks(
-     edm::Handle<reco::DeDxDataValueMap> elossCollection);
+   int processRecTracks();
+//     edm::Handle<reco::DeDxDataValueMap> elossCollection);
 
    const TrackerGeometry * theTracker;
    const TrackAssociatorByHits * theAssociatorByHits;
@@ -520,13 +520,12 @@ int QCDTrackAnalyzer::processSimTracks()
       }
 
 #ifndef DEBUG
-     if(s.prim && nRec == 0)
+     if(s.prim && fabs(s.etas) < 3 && nRec == 0)
        LogTrace("MinBiasTracking")
          << " \033[22;32m" << "[TrackAnalyzer] not reconstructed: #" << i
          << " (eta=" << s.etas << ", pt="  << s.pts << ")"
          << "\033[22;0m" << endl;
 #endif
-
     } 
     else
     {
@@ -544,6 +543,7 @@ int QCDTrackAnalyzer::processSimTracks()
         edm::RefToBase<reco::Track> aRecTrack_1 =
           getAssociatedRecTrack(daughters.at(1), nRec_2, false);
 
+if(0)
         if(nRec_1 >= 1 && nRec_2 >= 1) // FIXME
         {
           edm::RefToBase<reco::Track> posRecTrack;
@@ -732,8 +732,8 @@ void QCDTrackAnalyzer::processVZeros()
 }
 
 /*****************************************************************************/
-int QCDTrackAnalyzer::processRecTracks
-  (edm::Handle<reco::DeDxDataValueMap> elossCollection)
+int QCDTrackAnalyzer::processRecTracks()
+//  (edm::Handle<reco::DeDxDataValueMap> elossCollection)
 {
   int ntrk = 0;
 
@@ -753,16 +753,17 @@ int QCDTrackAnalyzer::processRecTracks
     r.phir   = recTrack->phi();            // phir
 
     r.logpr = log(recTrack->p());
-    r.nhitr = (*elossCollection.product())[recTrack.castTo<reco::TrackRef>()].numberOfMeasurements();
+//    r.nhitr = (*elossCollection.product())[recTrack.castTo<reco::TrackRef>()].numberOfMeasurements();
 
 
-//    r.nhitr = recTrack->numberOfValidHits();           // nhitr
+    r.nhitr = recTrack->numberOfValidHits();           // nhitr
 
     r.prim  = isPrimary(recTrack);
 
     r.zr    = recTrack->dz(theBeamSpot->position());  // dzr
 
-    r.logde = log((*elossCollection.product())[recTrack.castTo<reco::TrackRef>()].dEdx()); // log(dedx)
+//    r.logde = log((*elossCollection.product())[recTrack.castTo<reco::TrackRef>()].dEdx()); // log(dedx)
+     r.logde = 0.;
 
     if(r.prim && fabs(r.etas) < 2.4)
       ntrk++;
@@ -821,6 +822,8 @@ void QCDTrackAnalyzer::analyze
   LogTrace("MinBiasTracking") << " [TrackAnalyzer] process = " << proc;
 
   ev.getByLabel("mergedtruth", simCollection);
+  LogTrace("MinBiasTracking") << " [TrackAnalyzer] simTracks    = "
+    << simCollection.product()->size();
   }
   else proc = 0;
 
@@ -846,14 +849,18 @@ void QCDTrackAnalyzer::analyze
   edm::View<reco::Track> rTrackCollection = *(recCollection.product());
 
   // Get reconstructed dE/dx
-  edm::Handle<reco::DeDxDataValueMap>   elossCollection;
+//  edm::Handle<reco::DeDxDataValueMap>   elossCollection;
+/*
   ev.getByLabel("energyLoss", "energyLossStrHits", elossCollection);
   energyLoss = elossCollection.product();
+*/
 
   // Get reconstructed V0s
+/*
   edm::Handle<reco::VZeroCollection> vZeroCollection;
   ev.getByLabel("pixelVZeros",vZeroCollection);
   vZeros = vZeroCollection.product();
+*/
 
   // Get beamSpot
   edm::Handle<reco::BeamSpot>      beamSpotHandle;
@@ -861,9 +868,13 @@ void QCDTrackAnalyzer::analyze
   theBeamSpot = beamSpotHandle.product();
 
   LogTrace("MinBiasTracking")
-    << " [TrackAnalyzer] beamSpot at " << theBeamSpot->position() 
-    << " sigmaZ = "    << theBeamSpot->sigmaZ()
-    << " BeamWidth = " << theBeamSpot->BeamWidth() << endl;
+    << fixed << setprecision(4)
+    << " [TrackAnalyzer] beamSpot at " << theBeamSpot->position();
+
+  LogTrace("MinBiasTracking")
+    << fixed << setprecision(4)
+    << " [TrackAnalyzer] beamSpot sigmaZ = " << theBeamSpot->sigmaZ()
+                         << ", BeamWidth = " << theBeamSpot->BeamWidth();
 
   // Get vertices
   edm::Handle<reco::VertexCollection> vertexCollection;
@@ -895,13 +906,15 @@ void QCDTrackAnalyzer::analyze
   }
 
   LogTrace("MinBiasTracking") << " [TrackAnalyzer] processRecTracks";
-  int prim_r_tracks = processRecTracks(elossCollection);
+  int prim_r_tracks = processRecTracks();//elossCollection);
 
   histograms->fillEventInfo(proc, prim_s_tracks,
                                   prim_r_tracks);
 
+/*
   LogTrace("MinBiasTracking") << " [TrackAnalyzer] processVZeros";
   processVZeros();
+*/
 }
 
 DEFINE_FWK_MODULE(QCDTrackAnalyzer);

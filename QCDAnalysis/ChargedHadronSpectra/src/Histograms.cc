@@ -217,8 +217,11 @@ void Histograms::declareHistograms()
   /////////////////////////////
   // Number of recontructed tracks
   static float ntrkMin   =  0.5;
-  static float ntrkMax   = 200.;
-  static float ntrkWidth =   5.;
+// FIXME
+//  static float ntrkMax   = 200.;
+//  static float ntrkWidth =   5.;
+  static float ntrkMax   = 1000.;
+  static float ntrkWidth =   10.;
   
   for(double ntrk = ntrkMin; ntrk < ntrkMax + ntrkWidth; ntrk += ntrkWidth)
     ntrkBins.push_back(ntrk);
@@ -541,8 +544,11 @@ void Histograms::fillSimHistograms(const SimTrack_t & s)
     {
                      hsim[part]->Fill(s.etas, s.pts, s.ntrkr);
       if(s.acc)      hacc[part]->Fill(s.etas, s.pts, s.ntrkr);
+if(s.acc)
+{
       if(s.nrec > 0) href[part]->Fill(s.etas, s.pts, s.ntrkr);
       if(s.nrec > 1) hmul[part]->Fill(s.etas, s.pts, s.ntrkr);
+}
   
       if(partCharge[part] == pos || partCharge[part] == neg)
       {
@@ -551,8 +557,11 @@ void Histograms::fillSimHistograms(const SimTrack_t & s)
   
                        hsim[part]->Fill(s.etas, s.pts, s.ntrkr);
         if(s.acc)      hacc[part]->Fill(s.etas, s.pts, s.ntrkr);
+if(s.acc)
+{
         if(s.nrec > 0) href[part]->Fill(s.etas, s.pts, s.ntrkr);
         if(s.nrec > 1) hmul[part]->Fill(s.etas, s.pts, s.ntrkr);
+}
       }
     }
   }

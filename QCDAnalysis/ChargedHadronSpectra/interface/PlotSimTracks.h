@@ -6,6 +6,7 @@
 namespace edm { class Event; class EventSetup; }
 class TrackingRecHit;
 class TrackerGeometry;
+class CaloGeometry;
 class PSimHit;
 
 class PlotSimTracks
@@ -18,6 +19,7 @@ class PlotSimTracks
   private:
     std::ofstream& file;
     const TrackerGeometry* theTracker;
+    const CaloGeometry* theCaloGeometry;
 };
 
 #endif
