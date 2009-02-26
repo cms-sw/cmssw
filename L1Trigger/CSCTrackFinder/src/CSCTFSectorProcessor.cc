@@ -72,7 +72,6 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
   trigger_on_MB1d = -1;
   singlesTrackPt  = -1;
   singlesTrackOutput = -1;
-  rescaleSinglesPhi  = -1;
 
   if(initializeFromPSet) readParameters(pset);
 
@@ -138,7 +137,6 @@ void CSCTFSectorProcessor::initialize(const edm::EventSetup& c){
       trigger_on_ME3>0  || trigger_on_ME4>0  ||trigger_on_MB1a>0 ||trigger_on_MB1d>0 ){
       if(singlesTrackPt<0) throw cms::Exception("CSCTFTrackBuilder")<<"singlesTrackPt parameter left uninitialized";
       if(singlesTrackOutput<0) throw cms::Exception("CSCTFTrackBuilder")<<"singlesTrackOutput parameter left uninitialized";
-      if(rescaleSinglesPhi<0)  throw cms::Exception("CSCTFTrackBuilder")<<"rescaleSinglesPhi parameter left uninitialized";
   }
   if(QualityEnableME1a<0) throw cms::Exception("CSCTFTrackBuilder")<<"QualityEnableME1a parameter left uninitialized";
   if(QualityEnableME1b<0) throw cms::Exception("CSCTFTrackBuilder")<<"QualityEnableME1b parameter left uninitialized";
@@ -187,7 +185,6 @@ void CSCTFSectorProcessor::readParameters(const edm::ParameterSet& pset){
       trigger_on_MB1d = pset.getParameter<bool>("trigger_on_MB1d");
       singlesTrackPt = pset.getParameter<unsigned int>("singlesTrackPt");
       singlesTrackOutput = pset.getParameter<unsigned int>("singlesTrackOutput");
-      rescaleSinglesPhi  = pset.getParameter<bool>("rescaleSinglesPhi");
       QualityEnableME1a = pset.getParameter<unsigned int>("QualityEnableME1a");
       QualityEnableME1b = pset.getParameter<unsigned int>("QualityEnableME1b");
       QualityEnableME1c = pset.getParameter<unsigned int>("QualityEnableME1c");
@@ -411,7 +408,7 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
     //   if there were no tracks from the core in this endcap/sector/bx
     CSCTriggerContainer<csc::L1Track> tracksFromSingles;
     for(int bx=0; bx<7; bx++)
-       if( myStubContainer[bx].get().size() ){ // VP in this bx
+       if( myStubContainer[bx].get().size() ){ // VP this bx
           bool coreTrackExists = false;
           // tracks are not ordered to be accessible by bx => loop them all
           std::vector<csc::L1Track> tracks = l1_tracks.get();
@@ -429,42 +426,11 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
                  track.setPtPacked(singlesTrackPt);
                  track.setQualityPacked((singlesTrackPt&0x60)>>5);
                  track.setChargeValidPacked((singlesTrackPt&0x80)>>7);
-                 track.setPtLUTAddress(11<<16);
-                 track.m_output_link = singlesTrackOutput;
+                 track.setPtLUTAddress(15<<16);
                  //CSCCorrelatedLCTDigiCollection singles;
-                 std::vector<csctf::TrackStub> stubs = myStubContainer[bx].get();
-                 // Select best quality stub, and assign its eta/phi coordinates to the track
-                 int qualityME=0, qualityMB=0, ME=100, MB=100;
-                 std::vector<csctf::TrackStub>::const_iterator bestStub=stubs.end();
-                 for(std::vector<csctf::TrackStub>::const_iterator st_iter=stubs.begin(); st_iter!=stubs.end(); st_iter++){
-                     int station = st_iter->station()-1;
-                     int subSector = CSCTriggerNumbering::triggerSubSectorFromLabels(CSCDetId(st_iter->getDetId().rawId()));
-                     int mpc = ( subSector ? subSector-1 : station+1 );
-                     // Sort MB stubs first (priority: quality OR MB1a > MB1b for the same quality)
-                     if( mpc==5 && (st_iter->getQuality()>qualityMB || (st_iter->getQuality()==qualityMB&&subSector<MB)) ){
-                         qualityMB = st_iter->getQuality();
-                         MB        = subSector;
-                         if(ME>4) bestStub = st_iter; // do not select this stub if ME already had any candidate
-                     }
-                     // Sort ME stubs (priority: quality OR ME1a > ME1b > ME2 > ME3 > ME4 for the same quality)
-                     if( mpc<5  && (st_iter->getQuality()>qualityME || (st_iter->getQuality()==qualityME && mpc<ME)) ) {
-                         qualityME = st_iter->getQuality();
-                         ME        = mpc;
-                         bestStub  = st_iter;
-                     }
-                 }
-                 unsigned rescaled_phi = unsigned(24*(bestStub->phiPacked()>>5)/128.);
-                 unsigned unscaled_phi =              bestStub->phiPacked()>>7       ;
-                 track.setLocalPhi(rescaleSinglesPhi?rescaled_phi:unscaled_phi);
-                 track.setEtaPacked((bestStub->etaPacked()>>2)&0x1f);
-                 switch( bestStub->station() ){
-                    case 1: track.setStationIds(bestStub->getMPCLink(),0,0,0,0); break;
-                    case 2: track.setStationIds(0,bestStub->getMPCLink(),0,0,0); break;
-                    case 3: track.setStationIds(0,0,bestStub->getMPCLink(),0,0); break;
-                    case 4: track.setStationIds(0,0,0,bestStub->getMPCLink(),0); break;
-                    case 5: track.setStationIds(0,0,0,0,bestStub->getMPCLink()); break;
-                    default: edm::LogError("CSCTFSectorProcessor::run()") << "Illegal LCT link="<<bestStub->station()<<"\n"; break;
-                 }
+                 //std::vector<csctf::TrackStub> stubs = myStubContainer[bx].get();
+                 //for(std::vector<csctf::TrackStub>::const_iterator st_iter=stubs.begin();
+                 //    st_iter!=stubs.end(); st_iter++)
                  //   singles.insertDigi(CSCDetId(st_iter->getDetId().rawId()),*st_iter);
                  //tracksFromSingles.push_back(L1CSCTrack(track,singles));
                  tracksFromSingles.push_back(track);
