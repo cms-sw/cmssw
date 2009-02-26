@@ -1,8 +1,8 @@
 /** 
-    $Date: 2008/02/25 17:42:41 $
-    $Revision: 1.2 $
-    $Id: InvMatrixUtils.cc,v 1.2 2008/02/25 17:42:41 malberti Exp $ 
-    \author $Author: malberti $
+    $Date: 2008/03/10 13:54:05 $
+    $Revision: 1.3 $
+    $Id: InvMatrixUtils.cc,v 1.3 2008/03/10 13:54:05 elmer Exp $ 
+    \author $Author: elmer $
 */
 
 #include "Calibration/Tools/interface/InvMatrixUtils.h"
@@ -763,7 +763,7 @@ double effectiveSigma (TH1F & histogram, int vSteps)
 {
   double totInt = histogram.Integral () ;
   int maxBin = histogram.GetMaximumBin () ;
-  int maxBinVal = histogram.GetBinContent (maxBin) ;
+  int maxBinVal = int(histogram.GetBinContent (maxBin)) ;
   int totBins = histogram.GetNbinsX () ;
   double area = totInt ;
   double threshold = 0 ;

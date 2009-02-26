@@ -331,7 +331,6 @@ int main (int argc, char* argv[])
       if (rad < EEradStart || rad > EEradEnd) continue ;
       double phiTemp = atan2 (iy - 50, ix - 50) ;
       if (phiTemp < 0) phiTemp += 2 * PI_GRECO ;
-      int phi = static_cast<int> ( phiTemp * 180 / PI_GRECO) ;
       if (!EEDetId::validDetId (ix,iy,-1)) continue ;
       EEDetId det = EEDetId (ix, iy, -1, EEDetId::XYMODE) ;
       double factor = *(iEEcalibMap.find (det.rawId ())) *

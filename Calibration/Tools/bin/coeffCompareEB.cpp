@@ -321,8 +321,6 @@ int main (int argc, char* argv[])
           else if (abs(ieta) < 66) EBCompareCoeffDistr_M3.Fill (factor) ;
           else EBCompareCoeffDistr_M4.Fill (factor) ;
       } //PG loop over phi
-      double phiMean = phiSum / N ;
-      double phiRMS = sqrt (phiSumSq / N - phiMean * phiMean) ;        
   } //PG loop over eta
 
   // trend vs eta FIXME to be renormalized

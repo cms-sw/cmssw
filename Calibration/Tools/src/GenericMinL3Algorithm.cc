@@ -1,8 +1,8 @@
 
 /** \file GenericMinL3Algorithm.cc
  *
- * $Date: 2006/08/25 08:53:19 $
- * $Revision: 1.2 $
+ * $Date: 2006/10/13 14:34:19 $
+ * $Revision: 1.1 $
  *
  * \author R.Ofierzynski, CERN
  */
@@ -65,7 +65,7 @@ vector<float> GenericMinL3Algorithm::iterate(const vector<vector<float> >& event
   int Nchannels = eventMatrix[0].size(); // Number of channel coefficients
 
   // Sanity check
-  if (Nevents != myEnergyVector.size()) 
+  if (Nevents != int(myEnergyVector.size())) 
     {
       cout << "GenericMinL3Algorithm::iterate(): Error: bad matrix dimensions. Dropping out." << endl;
       return solution; // empty vector !

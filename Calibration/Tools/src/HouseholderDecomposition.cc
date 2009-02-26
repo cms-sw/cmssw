@@ -1,7 +1,7 @@
 /** \file HouseholderDecomposition.cc
  *
- * $Date: 2007/03/14 13:55:41 $
- * $Revision: 1.4 $
+ * $Date: 2009/02/06 10:19:11 $
+ * $Revision: 1.5 $
  *
  * \author Lorenzo Agostino, R.Ofierzynski, CERN
  */
@@ -12,7 +12,7 @@
 #include <cstdlib>
 
 HouseholderDecomposition::HouseholderDecomposition(int squareMode_, int mineta_, int maxeta_, int minphi_, int maxphi_)
-  :squareMode(squareMode_), mineta(mineta_), maxeta(maxeta_), minphi(minphi_), maxphi(maxphi_), countEvents(0)
+  :squareMode(squareMode_), countEvents(0),mineta(mineta_), maxeta(maxeta_), minphi(minphi_), maxphi(maxphi_)
 {
   Neta = maxeta - mineta + 1;
   if (mineta * maxeta < 0) Neta--; // there's no eta index = 0
@@ -44,13 +44,11 @@ vector<float> HouseholderDecomposition::runRegional(const vector<vector<float> >
   vector<vector<float> > myEventMatrix(eventMatrix);
   vector<float> myEnergyVector(energyVector);
 
-  int i, j;
-
   // loop over nIter
   for (int iter=1;iter<=nIter;iter++) 
     {
       // loop over regions
-      for (int ireg=0; ireg<regMinEta.size(); ireg++)
+      for (unsigned int ireg=0; ireg<regMinEta.size(); ireg++)
 	{
 	  vector<float> regIterSolution, regEnergyVector;
 	  vector<int> regVmaxCeta, regVmaxCphi;
@@ -60,7 +58,7 @@ vector<float> HouseholderDecomposition::runRegional(const vector<vector<float> >
 	  HouseholderDecomposition regionalHH(squareMode,regMinEta[ireg],regMaxEta[ireg],regMinPhi[ireg],regMaxPhi[ireg]);
 
 	  // copy all events in region into new eventmatrix, energyvector, VmaxCeta, VmaxCphi
-	  for (int ia=0; ia<VmaxCeta.size(); ia++)
+	  for (unsigned int ia=0; ia<VmaxCeta.size(); ia++)
 	    {
 	      if ((VmaxCeta[ia] >= regMinEta[ireg]) && (VmaxCeta[ia] <= regMaxEta[ireg])
 		  && (VmaxCphi[ia] >= regMinPhi[ireg]) && (VmaxCphi[ia] <= regMaxPhi[ireg]))
@@ -93,10 +91,9 @@ vector<float> HouseholderDecomposition::runRegional(const vector<vector<float> >
 
 	  // save solution into global iterSolution
 	  // don't forget to delete the ones that are on the border !
-	  for (int i1=0; i1<regIterSolution.size(); i1++)
+	  for (unsigned int i1=0; i1<regIterSolution.size(); i1++)
 	    {
 	      int regFrame = regLength/2;
-	      int currRegEtaRange = regMaxEta[ireg] - regMinEta[ireg] + 1;
 	      int currRegPhiRange = regMaxPhi[ireg] - regMinPhi[ireg] + 1;
 	      int currRegEta = i1 / currRegPhiRange + regMinEta[ireg];
 	      int currRegPhi = i1 % currRegPhiRange + regMinPhi[ireg];

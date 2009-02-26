@@ -405,7 +405,7 @@ void ZIterativeAlgorithmWithFit::gausfit(TH1F * histoou,double* par,double* errp
       fitFunc = new TF1("FitFunc"+TString(suffix),"gaus",xmin_fit,xmax_fit);
       fitFunc->SetParameters(nor,p1,sigma);
       fitFunc->SetLineColor((int)(iter+1));
-      fitFunc->SetLineWidth(1.);
+      fitFunc->SetLineWidth(1);
       //histoou->Fit("FitFunc","lR+","");
       histoou->Fit("FitFunc"+TString(suffix),"qR0+","");
       

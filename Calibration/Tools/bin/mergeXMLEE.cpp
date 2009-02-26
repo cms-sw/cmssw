@@ -80,7 +80,6 @@ int main (int argc, char* argv[])
   int IMAEEradWidth = static_cast<int> (configParams.getVal ("IMAEEradWidth")) ;
   int IMAEEphiStart = static_cast<int> (configParams.getVal ("IMAEEphiStart")) ;
   int IMAEEphiEnd = static_cast<int> (configParams.getVal ("IMAEEphiEnd")) ;
-  int IMAEEphiWidth = static_cast<int> (configParams.getVal ("IMAEEphiWidth")) ;
 
 //  std::cerr << "[PG] IMAEEradStart = " << IMAEEradStart << std::endl ;
 //  std::cerr << "[PG] IMAEEradEnd = " << IMAEEradEnd << std::endl ;
@@ -94,7 +93,6 @@ int main (int argc, char* argv[])
   std::map<int, EcalIntercalibConstantMap> recalibrators ; 
   //PG FIXME  c'e' il copy ctor della CaloMiscalibMapEcal?
  
-  int alreadySwitched = 0 ;
   //PG loop on EB rad indexes
   for (int radIndex = IMAEEradStart ; 
        radIndex < IMAEEradEnd ; 

@@ -149,7 +149,7 @@ std::vector<DetId> EcalRingCalibrationTools::getDetIdsInModule(short moduleIndex
       ////////////////////////////nuovo ciclo
       short sm, moduleInSm, zsm;
 
-      short minModuleiphi, maxModuleiphi, minModuleieta, maxModuleieta;
+      short minModuleiphi, maxModuleiphi, minModuleieta=360,maxModuleieta=0;
 
       //	if(moduleIndex%4 != 0 )
 	  sm = moduleIndex / 4 + 1;
@@ -267,9 +267,6 @@ void EcalRingCalibrationTools::initializeFromGeometry()
 	}
   }
 
-  //EB
-  const CaloSubdetectorGeometry *barrelGeometry = caloGeometry_->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-
   std::vector<DetId> m_barrelCells= caloGeometry_->getValidDetIds(DetId::Ecal, EcalBarrel);
 
   for (std::vector<DetId>::const_iterator barrelIt = m_barrelCells.begin();
@@ -277,11 +274,6 @@ void EcalRingCalibrationTools::initializeFromGeometry()
        ++barrelIt)
     {
       EBDetId eb(*barrelIt);
-      const CaloCellGeometry *cellGeometry2 = barrelGeometry->getGeometry(*barrelIt) ;
-     
-      //std::cout<<fabs(cellGeometry2->getPosition().eta())<<" "<<eb.ieta()<<std::endl;
-
-
     }
 
 

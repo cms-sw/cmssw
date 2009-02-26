@@ -44,7 +44,6 @@ int main (int argc, char* argv[])
   int IMAEBetaWidth = static_cast<int> (configParams.getVal ("IMAEBetaWidth")) ;
   int IMAEBphiStart = static_cast<int> (configParams.getVal ("IMAEBphiStart")) ;
   int IMAEBphiEnd = static_cast<int> (configParams.getVal ("IMAEBphiEnd")) ;
-  int IMAEBphiWidth = static_cast<int> (configParams.getVal ("IMAEBphiWidth")) ;
 
 //  std::cerr << "[PG] IMAEBetaStart = " << IMAEBetaStart << std::endl ;
 //  std::cerr << "[PG] IMAEBetaEnd = " << IMAEBetaEnd << std::endl ;

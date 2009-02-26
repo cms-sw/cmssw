@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/01/03 01:09:42 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/01/22 19:00:30 $
+ *  $Revision: 1.3 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -167,6 +167,7 @@ vector<TF1*>  DTMeanTimerPlotter::fitTMaxes(vector<TH1D*> hTMaxes){
 
       // Fit each Tmax (*ith)gram with a Gaussian in a restricted interval
       TF1 *rGaus = new TF1("rGaus","gaus",peak-range,peak+range);
+      rGaus->SetMarkerSize(); //to stop gcc complain about unused var
       (*ith)->Fit("rGaus","R0");
       functions.push_back((*ith)->GetFunction("rGaus"));
       
