@@ -19,3 +19,16 @@ hltvalidation = cms.Sequence(
     +heavyFlavorValidationSequence
     )
 
+
+
+hltvalidation_fastsim = cms.Sequence(
+    HLTMuonVal_FastSim
+    +HLTTauVal
+    +EcalPi0Mon
+    +EcalPhiSymMon
+    +egammaValidationSequence
+    +HLTTopVal
+    +HLTFourVector
+    +heavyFlavorValidationSequence
+    )
+
