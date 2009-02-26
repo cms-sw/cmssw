@@ -10,23 +10,9 @@ process.load("DQMServices.Core.DQM_cfg")
 #  DQM SOURCES
 #
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
-
 #process.load("Configuration.GlobalRuns.ForceZeroTeslaField_cff")
-
 #process.load("Configuration.GlobalRuns.ReconstructionGR_cff")
-
 process.load("Configuration.StandardSequences.Geometry_cff")
-
-#process.load("L1Trigger.Configuration.L1Config_cff")
-process.load("L1TriggerConfig.L1ScalesProducers.L1MuTriggerScalesConfig_cff")
-process.load("L1TriggerConfig.L1ScalesProducers.L1MuTriggerPtScaleConfig_cff")
-process.load("L1TriggerConfig.L1GtConfigProducers.L1GtBoardMapsConfig_cff")
-process.load("L1TriggerConfig.L1GtConfigProducers.L1GtConfig_cff")
-#process.load("L1TriggerConfig.L1GtConfigProducers.Luminosity.lumi1030.L1Menu2008_2E30_Unprescaled_cff")
-process.load("L1TriggerConfig.L1GtConfigProducers.Luminosity.lumi1030.L1Menu_2008MC_2E30_Unprescaled_cff")
-
-#process.load("L1Trigger.HardwareValidation.L1HardwareValidation_cff")
-
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 
 process.load("HLTriggerOffline.Common.FourVectorHLTriggerOffline_cfi")

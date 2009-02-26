@@ -9,8 +9,6 @@
 <use name=DataFormats/EgammaReco>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/TrajectorySeed>
-<use name=DataFormats/L1GlobalTrigger>
-<use name=DataFormats/L1Trigger>
 <use name=DataFormats/BTauReco>
 <use name=DataFormats/TauReco>
 <use name=DataFormats/METReco>
@@ -18,7 +16,6 @@
 <use name=Geometry/CaloEventSetup>
 <use name=RecoEcal/EgammaCoreTools>
 <use name=HLTrigger/HLTcore>
-<use name=CondFormats/L1TObjects>
 <use name=CondFormats/DataRecord>
 <use name=SimGeneral/HepPDTRecord>
 <use name=heppdt>
@@ -41,15 +38,12 @@
   <use name=DataFormats/EgammaReco>
   <use name=DataFormats/TrackReco>
   <use name=DataFormats/TrajectorySeed>
-  <use name=DataFormats/L1GlobalTrigger>
-  <use name=DataFormats/L1Trigger>
   <use name=DataFormats/TauReco>  
   <use name=DataFormats/METReco>
   <use name=DataFormats/JetReco>
   <use name=Geometry/CaloEventSetup>
   <use name=RecoEcal/EgammaCoreTools>
   <use name=HLTrigger/HLTcore>
-  <use name=CondFormats/L1TObjects>
   <use name=CondFormats/DataRecord>
   <use name=SimGeneral/HepPDTRecord>
   <use name=heppdt>
