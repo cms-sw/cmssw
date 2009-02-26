@@ -1,16 +1,24 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: pixelMatchGsfElectronSequence_cff.py,v 1.6.2.1 2009/02/16 00:33:52 chamont Exp $
-# create a sequence with all required modules and sources needed to make
-# Gsf electron sequence
-#
+#==============================================================================
+# Sequence to make final electrons.
+# In the past, this was including the seeding, but this one is directly
+# imported in the reco sequences since the integration with pflow.
+#==============================================================================
+
+from RecoEgamma.EgammaElectronProducers.pixelMatchGsfElectrons_cff import *
+pixelMatchGsfElectronSequence = cms.Sequence(pixelMatchGsfElectrons)
+
+
+#==============================================================================
+# OBSOLETE
+#==============================================================================
+
 # module to make seeds
-from RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeedsModules_cff import *
+#from RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeedsModules_cff import *
 # module to make track candidates
 #from RecoEgamma.EgammaElectronProducers.gsfElectronCkfTrackCandidateMaker_cff import *
 # module to make gsf tracks (track fit)
 #from RecoEgamma.EgammaElectronProducers.gsfElectronGsfFit_cff import *
-# module to make electrons
-from RecoEgamma.EgammaElectronProducers.pixelMatchGsfElectrons_cff import *
-pixelMatchGsfElectronSequence = cms.Sequence(pixelMatchGsfElectrons)
+
 

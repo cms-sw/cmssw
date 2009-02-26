@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoEgamma.EgammaElectronProducers.electronSequence_cff import *
+from RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeedsModules_cff import *
 
 ecalDrivenElectronSeeds.barrelSuperClusters = cms.InputTag('cosmicSuperClusters','CosmicBarrelSuperClusters')
 ecalDrivenElectronSeeds.endcapSuperClusters = cms.InputTag('cosmicSuperClusters','CosmicEndcapSuperClusters')

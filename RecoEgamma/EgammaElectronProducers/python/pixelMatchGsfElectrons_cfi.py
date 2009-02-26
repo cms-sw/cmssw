@@ -1,20 +1,22 @@
 import FWCore.ParameterSet.Config as cms
 
-# module to produce gsf electrons
-#
+#==============================================================================
+# Producer of gsf electrons
+#==============================================================================
+
 pixelMatchGsfElectrons = cms.EDProducer("GsfElectronProducer",
 
     # input collections
-    barrelSuperClusters = cms.InputTag("correctedHybridSuperClusters","ecalDrivenElectronSeeds"),
-    endcapSuperClusters = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower","ecalDrivenElectronSeeds"),
     tracks = cms.InputTag("electronGsfTracks"),
     ctfTracks = cms.InputTag("generalTracks"),
     hcalTowers = cms.InputTag("towerMaker"),
     reducedBarrelRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
     reducedEndcapRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
+    
     # steering
     applyEtaCorrection = cms.bool(False),
-    applyAmbResolution = cms.bool(True),    
+    applyAmbResolution = cms.bool(True),
+    
     # preselection parameters
     minEOverPBarrel = cms.double(0.0),
     maxEOverPBarrel = cms.double(10000.0),
@@ -36,8 +38,7 @@ pixelMatchGsfElectrons = cms.EDProducer("GsfElectronProducer",
     isBarrel = cms.bool(False),
     isEndcaps = cms.bool(False),
     isFiducial = cms.bool(False),
-    # electron algo
-    ElectronType = cms.string(''),
+    
     # nested parameter set for TransientInitialStateEstimator
     TransientInitialStateEstimatorParameters = cms.PSet(
         propagatorAlongTISE = cms.string('PropagatorWithMaterial'),
