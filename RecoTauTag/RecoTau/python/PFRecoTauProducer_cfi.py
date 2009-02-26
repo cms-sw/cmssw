@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 pfRecoTauProducer = cms.EDProducer("PFRecoTauProducer",
                                    PFTauTagInfoProducer = cms.InputTag("pfRecoTauTagInfoProducer"),
-                                   PVProducer = cms.string('offlinePrimaryVertices'), ## ***    
+                                   PVProducer = cms.InputTag('offlinePrimaryVertices'), ## ***    
                                    JetPtMin = cms.double(0.0),
 
                                    #Parameters for leading track/charged/neutral pion finding

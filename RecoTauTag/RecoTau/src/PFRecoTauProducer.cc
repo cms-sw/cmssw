@@ -3,7 +3,7 @@
 PFRecoTauProducer::PFRecoTauProducer(const ParameterSet& iConfig){
   PFTauTagInfoProducer_   = iConfig.getParameter<InputTag>("PFTauTagInfoProducer");
   ElectronPreIDProducer_  = iConfig.getParameter<InputTag>("ElectronPreIDProducer");
-  PVProducer_             = iConfig.getParameter<string>("PVProducer");
+  PVProducer_             = iConfig.getParameter<InputTag>("PVProducer");
   smearedPVsigmaX_        = iConfig.getParameter<double>("smearedPVsigmaX");
   smearedPVsigmaY_        = iConfig.getParameter<double>("smearedPVsigmaY");
   smearedPVsigmaZ_        = iConfig.getParameter<double>("smearedPVsigmaZ");	

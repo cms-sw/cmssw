@@ -29,7 +29,7 @@ using namespace reco;
 class CaloRecoTauDiscriminationAgainstElectron : public EDProducer {
  public:
   explicit CaloRecoTauDiscriminationAgainstElectron(const ParameterSet& iConfig){   
-    CaloTauProducer_                            = iConfig.getParameter<string>("CaloTauProducer");
+    CaloTauProducer_                            = iConfig.getParameter<InputTag>("CaloTauProducer");
     leadTrack_HCAL3x3hitsEtSumOverPt_minvalue_  = iConfig.getParameter<double>("leadTrack_HCAL3x3hitsEtSumOverPt_minvalue");  
     ApplyCut_maxleadTrackHCAL3x3hottesthitDEta_ = iConfig.getParameter<bool>("ApplyCut_maxleadTrackHCAL3x3hottesthitDEta");
     maxleadTrackHCAL3x3hottesthitDEta_          = iConfig.getParameter<double>("maxleadTrackHCAL3x3hottesthitDEta");
@@ -40,7 +40,7 @@ class CaloRecoTauDiscriminationAgainstElectron : public EDProducer {
   ~CaloRecoTauDiscriminationAgainstElectron(){} 
   virtual void produce(Event&, const EventSetup&);
  private:  
-  string CaloTauProducer_;
+  InputTag CaloTauProducer_;
   double leadTrack_HCAL3x3hitsEtSumOverPt_minvalue_;   
   bool ApplyCut_maxleadTrackHCAL3x3hottesthitDEta_;
   double maxleadTrackHCAL3x3hottesthitDEta_;

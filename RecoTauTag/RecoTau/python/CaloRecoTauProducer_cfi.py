@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 caloRecoTauProducer = cms.EDProducer("CaloRecoTauProducer",
                                      LeadTrack_minPt = cms.double(5.0),
                                      #string PVProducer                         = "pixelVertices"      # ***  
-                                     PVProducer = cms.string('offlinePrimaryVertices'),
+                                     PVProducer = cms.InputTag('offlinePrimaryVertices'),
                                      ECALSignalConeSizeFormula = cms.string('0.15'), ## **       
                                      
                                      TrackerIsolConeMetric = cms.string('DR'), ## *  

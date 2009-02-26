@@ -40,7 +40,7 @@ class PFRecoTauProducer : public EDProducer {
  private:
   InputTag PFTauTagInfoProducer_;
   InputTag ElectronPreIDProducer_;
-  string PVProducer_;
+  InputTag PVProducer_;
   double smearedPVsigmaX_;
   double smearedPVsigmaY_;
   double smearedPVsigmaZ_;

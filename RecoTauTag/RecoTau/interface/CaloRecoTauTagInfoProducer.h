@@ -42,8 +42,8 @@ class CaloRecoTauTagInfoProducer : public EDProducer {
   virtual void produce(Event&,const EventSetup&);
  private:
   CaloRecoTauTagInfoAlgorithm* CaloRecoTauTagInfoAlgo_;
-  string CaloJetTracksAssociatorProducer_;
-  string PVProducer_;
+  InputTag CaloJetTracksAssociatorProducer_;
+  InputTag PVProducer_;
   double smearedPVsigmaX_;
   double smearedPVsigmaY_;
   double smearedPVsigmaZ_;  

@@ -39,7 +39,7 @@ class CaloRecoTauProducer : public EDProducer {
   virtual void produce(Event&,const EventSetup&);
  private:
   InputTag CaloRecoTauTagInfoProducer_;
-  string PVProducer_;
+  InputTag PVProducer_;
   double smearedPVsigmaX_;
   double smearedPVsigmaY_;
   double smearedPVsigmaZ_;

@@ -3,8 +3,8 @@
 
 
 CaloRecoTauTagInfoProducer::CaloRecoTauTagInfoProducer(const ParameterSet& iConfig){
-  CaloJetTracksAssociatorProducer_ = iConfig.getParameter<string>("CaloJetTracksAssociatorProducer");
-  PVProducer_                    = iConfig.getParameter<string>("PVProducer");
+  CaloJetTracksAssociatorProducer_ = iConfig.getParameter<InputTag>("CaloJetTracksAssociatorProducer");
+  PVProducer_                    = iConfig.getParameter<InputTag>("PVProducer");
   smearedPVsigmaX_               = iConfig.getParameter<double>("smearedPVsigmaX");
   smearedPVsigmaY_               = iConfig.getParameter<double>("smearedPVsigmaY");
   smearedPVsigmaZ_               = iConfig.getParameter<double>("smearedPVsigmaZ");	
