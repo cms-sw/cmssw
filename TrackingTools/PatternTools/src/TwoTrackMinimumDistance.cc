@@ -28,6 +28,7 @@ double TwoTrackMinimumDistance::firstAngle() const
    case (hl): return theTTMDhl.firstAngle(); break;
    case (ll): return theTTMDll.firstAngle(); break;
   }
+  return 0;
 }
 
 double TwoTrackMinimumDistance::secondAngle() const
@@ -39,6 +40,7 @@ double TwoTrackMinimumDistance::secondAngle() const
    case (hl): return theTTMDhl.secondAngle(); break;
    case (ll): return theTTMDll.secondAngle(); break;
   }
+  return 0;
 }
 
 
@@ -51,6 +53,7 @@ pair <double, double> TwoTrackMinimumDistance::pathLength() const
    case (hl): return theTTMDhl.pathLength(); break;
    case (ll): return theTTMDll.pathLength(); break;
   }
+  return std::pair<double,double>(0,0);
 }
 
 pair<GlobalPoint, GlobalPoint> TwoTrackMinimumDistance::points() const

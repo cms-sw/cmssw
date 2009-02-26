@@ -3,6 +3,7 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "DataFormats/TrackingRecHit/interface/KfComponentsHolder.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 TrajectoryStateOnSurface KFUpdator::update(const TrajectoryStateOnSurface& tsos,
 				           const TransientTrackingRecHit& aRecHit) const {
@@ -55,7 +56,11 @@ TrajectoryStateOnSurface KFUpdator::update(const TrajectoryStateOnSurface& tsos,
   //SMatDD V = asSMatrix<D>(aRecHit.parametersError());
   //SMatDD R = V + me.measuredError<D>(aRecHit);
   SMatDD R = V + VMeas;
-  int ierr = ! R.Invert(); // if (ierr != 0) throw exception;
+  int ierr = ! R.Invert(); 
+  if (ierr != 0) {
+    edm::LogError("KFUpdator")<<" could not invert martix:\n"<< (V+VMeas);
+    return TrajectoryStateOnSurface();
+  }
   //R.Invert();
 
   // Compute Kalman gain matrix

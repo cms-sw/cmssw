@@ -166,10 +166,10 @@ PixelRecoRange<float> InnerDeltaPhi::phiRange(const Point2D& hitXY,float hitZ,fl
   
   double alphaHit = asin( dHitmag/(2*theRCurvature));
   double deltaPhi = fabs( alphaHit - asin( dLayer/(2*theRCurvature)));
-        deltaPhi *= (dLayer/rLayer/cosCross);  
+  deltaPhi *= (dLayer/rLayer/cosCross);  
 
   // additinal angle due to not perpendicular stright line crossing  (for displaced beam)
-  double dPhiCrossing = (cosCross > 0.9999) ? 0 : dL *  sqrt(1-sqr(cosCross))/ rLayer;
+  //  double dPhiCrossing = (cosCross > 0.9999) ? 0 : dL *  sqrt(1-sqr(cosCross))/ rLayer;
   Point2D crossing2 = theVtx + dHit.unit()* (dLayer+dL);
   double phicross2 = crossing2.phi();  
   double phicross1 = crossing.phi();

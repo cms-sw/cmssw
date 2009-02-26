@@ -2,6 +2,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 
@@ -47,7 +48,12 @@ Chi2StripEstimator::estimate(const TrajectoryStateOnSurface& state,
 
   AlgebraicVector2 r(m - x);
   AlgebraicSymMatrix22 R(V + C);
-  int ierr = ! R.Invert(); // if (ierr != 0) throw exception;
+  int ierr = ! R.Invert();
+  if (ierr != 0) {
+    edm::LogError("Chi2StripEstimator")<<" could not invert matrix:\n"<<(V+C);
+    return returnIt( 0.0 );
+  }
+
   double est = max(ROOT::Math::Similarity(r, R), 0.000001); // avoid exact zero
 
   return returnIt( est);
