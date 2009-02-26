@@ -22,7 +22,7 @@
 #include "CondFormats/RPCObjects/interface/RBCBoardSpecs.h"
 #include "CondFormats/RPCObjects/interface/TTUBoardSpecs.h"
 #include "CondFormats/RPCObjects/interface/RPCObFebmap.h"
-
+#include "CondFormats/RPCObjects/interface/RPCObGasmap.h"
 
 namespace{
   struct dictionary {

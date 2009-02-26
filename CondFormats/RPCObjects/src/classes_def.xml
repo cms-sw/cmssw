@@ -78,6 +78,10 @@
   <class name="RPCObFebmap::Feb_Item"/>
   <class name="std::vector<RPCObFebmap::Feb_Item>"/>
 
+  <class name="RPCObGasmap"/>
+  <class name="RPCObGasmap::GasMap_Item"/>
+  <class name="std::vector<RPCObGasmap::GasMap_Item>"/>
+
   <class name="RPCTechTriggerConfig"/>
   <class name="RBCBoardSpecs"/>
   <class name="RBCBoardSpecs::RBCBoardConfig"/>
