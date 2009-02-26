@@ -94,6 +94,46 @@ void make1DPlot(std::string histoname, TFile* f1, std::string histotitle, int st
 
 }
 
+void makeCSCOccupancy(std::string histoname, TFile* f1, std::string histotitle, std::string savename){
+
+  TH1F *h1 = (TH1F*)f1->Get(histoname.c_str());
+
+  TCanvas *c = new TCanvas("c","my canvas",1);
+
+  if (h1){
+    gStyle->SetOptStat(kFALSE);
+    gStyle->SetHistFillColor(92);
+    gStyle->SetFrameFillColor(4000);
+    gStyle->SetTitleW(0.7);
+    gStyle->SetTitleH(0.07);
+    gPad->SetFillColor(4000);
+    c->SetFillStyle(4000);
+    gStyle->SetStatColor(0);
+    gStyle->SetTitleFillColor(0);
+    h1->UseCurrentStyle();
+
+    h1->SetTitle(histotitle.c_str());
+    h1->GetXaxis()->SetLabelSize(0.04);
+    h1->GetYaxis()->SetLabelSize(0.04);
+    h1->GetXaxis()->SetTitleOffset(0.7);
+    h1->GetXaxis()->SetTitleSize(0.06);
+    h1->GetXaxis()->SetNdivisions(208,kTRUE);
+
+    h1->GetXaxis()->SetBinLabel(2,"Total Events");
+    h1->GetXaxis()->SetBinLabel(4,"# Events with Wires");
+    h1->GetXaxis()->SetBinLabel(6,"# Events with Strips");
+    h1->GetXaxis()->SetBinLabel(8,"# Events with Wires&Strips");
+    h1->GetXaxis()->SetBinLabel(10,"# Events with Rechits");
+    h1->GetXaxis()->SetBinLabel(12,"# Events with Segments");
+
+    h1->Draw();
+
+    c->Update();
+    c->Print(savename.c_str(),"png");
+  }
+
+}
+
 void make1DPlot2(std::string histoname1, std::string histoname2, int statoption, TFile* f1, std::string t1, std::string t2, std::string savename){
 
   // use this if you want two plots on one canvas 
@@ -291,24 +331,24 @@ void Draw2DTempPlot(std::string histo, TFile* f1, bool includeME11, std::string 
     plot->GetYaxis()->SetBinLabel(20,"ME+ 4/2");
   }
   else {
-    plot->GetYaxis()->SetBinLabel(1,"ME- 4/2");
-    plot->GetYaxis()->SetBinLabel(2,"ME- 4/1");
-    plot->GetYaxis()->SetBinLabel(3,"ME- 3/2");
-    plot->GetYaxis()->SetBinLabel(4,"ME- 3/1");
-    plot->GetYaxis()->SetBinLabel(5,"ME- 2/2");
-    plot->GetYaxis()->SetBinLabel(6,"ME- 2/1");
-    plot->GetYaxis()->SetBinLabel(7,"ME- 1/3");
-    plot->GetYaxis()->SetBinLabel(8,"ME- 1/2");
-    plot->GetYaxis()->SetBinLabel(9,"ME- 1/1");
-    plot->GetYaxis()->SetBinLabel(10,"ME+ 1/1");
-    plot->GetYaxis()->SetBinLabel(11,"ME+ 1/2");
-    plot->GetYaxis()->SetBinLabel(12,"ME+ 1/3");
-    plot->GetYaxis()->SetBinLabel(13,"ME+ 2/1");
-    plot->GetYaxis()->SetBinLabel(14,"ME+ 2/2");
-    plot->GetYaxis()->SetBinLabel(15,"ME+ 3/1");
-    plot->GetYaxis()->SetBinLabel(16,"ME+ 3/2");
-    plot->GetYaxis()->SetBinLabel(17,"ME+ 4/1");
-    plot->GetYaxis()->SetBinLabel(18,"ME+ 4/2");
+    plot->GetYaxis()->SetBinLabel(1,"ME- 4/1");
+    plot->GetYaxis()->SetBinLabel(2,"ME- 3/2");
+    plot->GetYaxis()->SetBinLabel(3,"ME- 3/1");
+    plot->GetYaxis()->SetBinLabel(4,"ME- 2/2");
+    plot->GetYaxis()->SetBinLabel(5,"ME- 2/1");
+    plot->GetYaxis()->SetBinLabel(6,"ME- 1/3");
+    plot->GetYaxis()->SetBinLabel(7,"ME- 1/2");
+    plot->GetYaxis()->SetBinLabel(8,"ME- 1/1b");
+    plot->GetYaxis()->SetBinLabel(9,"ME- 1/1a");
+    plot->GetYaxis()->SetBinLabel(10,"ME+ 1/1a");
+    plot->GetYaxis()->SetBinLabel(11,"ME+ 1/1b");
+    plot->GetYaxis()->SetBinLabel(12,"ME+ 1/2");
+    plot->GetYaxis()->SetBinLabel(13,"ME+ 1/3");
+    plot->GetYaxis()->SetBinLabel(14,"ME+ 2/1");
+    plot->GetYaxis()->SetBinLabel(15,"ME+ 2/2");
+    plot->GetYaxis()->SetBinLabel(16,"ME+ 3/1");
+    plot->GetYaxis()->SetBinLabel(17,"ME+ 3/2");
+    plot->GetYaxis()->SetBinLabel(18,"ME+ 4/1");
   }
 
   for (int i = 1; i < 37; i++){
