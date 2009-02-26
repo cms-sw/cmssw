@@ -16,7 +16,7 @@
 //
 // Original Author:  Jeffrey Berryhill
 //         Created:  June 2008
-// $Id: FourVectorHLTriggerOffline.h,v 1.6 2009/02/26 15:47:22 berryhil Exp $
+// $Id: FourVectorHLTriggerOffline.h,v 1.7 2009/02/26 21:59:00 berryhil Exp $
 //
 //
 
@@ -41,16 +41,10 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
 
 #include <iostream>
 #include <fstream>
 #include <vector>
-
-class L1GtTriggerMenu;
-//
-// class declaration
-//
 
 class FourVectorHLTriggerOffline : public edm::EDAnalyzer {
    public:
