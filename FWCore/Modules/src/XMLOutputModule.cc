@@ -323,7 +323,7 @@ static bool printContentsOfStdContainer(std::ostream& oStream,
     std::vector<void*> compareArgs = Reflex::Tools::MakeVector((iEnd.Address()));
     std::vector<void*> incrArgs = Reflex::Tools::MakeVector(static_cast<void*>(&dummy));
 #if ROOT_VERSION_CODE <= ROOT_VERSION(5,19,0)
-    for(;  *reinterpret_cast<bool*>(compare.Invoke(iBegin, compareArgs).Address()); incr.Invoke(iBegin, incrArgs,++size) {
+    for(;  *reinterpret_cast<bool*>(compare.Invoke(iBegin, compareArgs).Address()); incr.Invoke(iBegin, incrArgs),++size) {
       //std::cerr <<"going to print"<<std::endl;
       printObject(sStream,kObjectOpen,kObjectClose,deref.Invoke(iBegin),indexIndent,iIndentDelta);                  
       //std::cerr <<"printed"<<std::endl;
