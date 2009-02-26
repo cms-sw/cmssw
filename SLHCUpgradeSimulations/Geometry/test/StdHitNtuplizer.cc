@@ -104,13 +104,16 @@ void StdHitNtuplizer::beginJob(const edm::EventSetup& es)
 
   //Common Branch
   pixeltree_->Branch("evt",    &evt_,      "run/I:evtnum/I", bufsize);
-  pixeltree_->Branch("pixel_recHit", &recHit_, "x/F:y:xx:xy:yy:row:col:gx:gy:gz:subid/I", bufsize);
+  pixeltree_->Branch("pixel_recHit", &recHit_, 
+    "x/F:y:xx:xy:yy:row:col:gx:gy:gz:subid/I:layer:nsimhit:hx/F:hy:tx:ty:theta:phi", bufsize);
   pixeltree2_->Branch("evt",    &evt_,      "run/I:evtnum/I", bufsize);
-  pixeltree2_->Branch("pixel_recHit", &recHit_, "x/F:y:xx:xy:yy:row:col:gx:gy:gz:subid/I", bufsize);
+  pixeltree2_->Branch("pixel_recHit", &recHit_, 
+    "x/F:y:xx:xy:yy:row:col:gx:gy:gz:subid/I:layer:nsimhit:hx/F:hy:tx:ty:theta:phi", bufsize);
   
   // Strip Branches 
   striptree_->Branch("evt",    &evt_,      "run/I:evtnum/I", bufsize);
-  striptree_->Branch("strip_recHit", &striprecHit_, "x/F:y:xx:xy:yy:row:col:gx:gy:gz:subid/I", bufsize);
+  striptree_->Branch("strip_recHit", &striprecHit_,
+    "x/F:y:xx:xy:yy:row:col:gx:gy:gz:subid/I:layer:nsimhit:hx/F:hy:tx:ty:theta:phi", bufsize);
 
   // geometry setup
   edm::ESHandle<TrackerGeometry>        geometry;
@@ -132,6 +135,9 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
   edm::Handle<SiPixelRecHitCollection> recHitColl;
   e.getByLabel( src_, recHitColl);
 
+  // for finding matched simhit
+  TrackerHitAssociator associate( e, conf_ );
+
   //std::cout << " Step A: Standard RecHits found " << recHitColl->size() << std::endl;
   if(recHitColl->size() > 0) {
     //Loop over all rechits in SiPixelRecHitCollection (can also loop only over DetId)
@@ -140,6 +146,8 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
     SiPixelRecHitCollection::const_iterator iterRecHit;
 
     std::string detname ;
+    std::vector<PSimHit> matched;
+    std::vector<PSimHit>::const_iterator closest_simhit;
 
     for ( iterRecHit = theRecHitRangeIteratorBegin; 
           iterRecHit != theRecHitRangeIteratorEnd; ++iterRecHit) {
@@ -184,6 +192,35 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
 	layerNumber = pxfid.disk();
 	stereo = 1;
       }
+      // get matched simhit
+      matched.clear();
+      matched = associate.associateHit(*iterRecHit);
+      if ( !matched.empty() ) {
+        float closest = 9999.9;
+        std::vector<PSimHit>::const_iterator closestit = matched.begin();
+        LocalPoint lp = iterRecHit->localPosition();
+        float rechit_x = lp.x();
+        float rechit_y = lp.y();
+        //loop over simhits and find closest
+        for (std::vector<PSimHit>::const_iterator m = matched.begin(); m<matched.end(); m++) 
+        {
+          float sim_x1 = (*m).entryPoint().x();
+          float sim_x2 = (*m).exitPoint().x();
+          float sim_xpos = 0.5*(sim_x1+sim_x2);
+          float sim_y1 = (*m).entryPoint().y();
+          float sim_y2 = (*m).exitPoint().y();
+          float sim_ypos = 0.5*(sim_y1+sim_y2);
+            
+          float x_res = fabs(sim_xpos - rechit_x);
+          float y_res = fabs(sim_ypos - rechit_y);
+          float dist = sqrt(x_res*x_res + y_res*y_res);
+          if ( dist < closest ) {
+                closest = dist;
+                closestit = m;
+          }
+        } // end of simhit loop
+        closest_simhit = closestit;
+      } // end matched emtpy
 /////comment out begin
 //      std::cout << "Found SiPixelRecHit in " << detname << " from detid " << detId.rawId()
 //		<< " subdet = " << subdetId
@@ -197,9 +234,18 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
 //                 << geomDet->surface().toGlobal(iterRecHit->localPosition()).perp() << std::endl;
 //comment out end
       unsigned int subid = detId.subdetId();
+      int layer_num = 0;
       if ( (subid==1)||(subid==2) ) {
         // 1 = PXB, 2 = PXF
-        fillPRecHit(subid, iterRecHit, geomDet);
+        if ( subid ==  PixelSubdetector::PixelBarrel ) {
+	  PXBDetId pxbid(detId.rawId());
+	  layer_num   = pxbid.layer();
+        } else if ( subid ==  PixelSubdetector::PixelEndcap ) {
+	  PXFDetId pxfid(detId.rawId());
+	  layer_num   = pxfid.disk();
+        }
+        int num_simhit = matched.size();
+        fillPRecHit(subid, layer_num, iterRecHit, num_simhit, closest_simhit, geomDet);
         fillEvt(e);
         pixeltree_->Fill();
         init();
@@ -316,95 +362,9 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
 */
           }
         }
-      } //end of loop on rechits
+      } //end of loop on tracking rechits
   } // end of loop on recotracks
             
-
-  
-/*
-  //std::cout << " Step A: Full GS RecHits found " << theGSRecHits->size() << std::endl;
-  if(theGSRecHits->size() == 0) return;
-
-//For each SiTrackerGSRecHit2D*
-  SiTrackerGSRecHit2DCollection::const_iterator theRecHitRangeIteratorBegin = theGSRecHits->begin();
-  SiTrackerGSRecHit2DCollection::const_iterator theRecHitRangeIteratorEnd   = theGSRecHits->end();
-  SiTrackerGSRecHit2DCollection::const_iterator iterRecHit;
-
-  std::string detname ;
-
-  for ( iterRecHit = theRecHitRangeIteratorBegin; 
-        iterRecHit != theRecHitRangeIteratorEnd; ++iterRecHit) {
-
-       const DetId& detId =  iterRecHit->geographicalId();
-       const GeomDet* geomDet( theGeometry->idToDet(detId) );
-
-       unsigned int subdetId = detId.subdetId();
-       int layerNumber=0;
-       int ringNumber = 0;
-       int stereo = 0;
-       if ( subdetId == StripSubdetector::TIB) {
-          detname = "TIB";
-	  TIBDetId tibid(detId.rawId());
-	  layerNumber = tibid.layer();
-	  stereo = tibid.stereo();
-       } else if ( subdetId ==  StripSubdetector::TOB ) {
-          detname = "TOB";
-	  TOBDetId tobid(detId.rawId());
-	  layerNumber = tobid.layer();
-	  stereo = tobid.stereo();
-       } else if ( subdetId ==  StripSubdetector::TID) {
-          detname = "TID";
-	  TIDDetId tidid(detId.rawId());
-	  layerNumber = tidid.wheel();
-	  ringNumber = tidid.ring();
-	  stereo = tidid.stereo();
-       } else if ( subdetId ==  StripSubdetector::TEC ) {
-          detname = "TEC";
-	  TECDetId tecid(detId.rawId());
-	  layerNumber = tecid.wheel();
-	  ringNumber = tecid.ring();
-	  stereo = tecid.stereo();
-       } else if ( subdetId ==  PixelSubdetector::PixelBarrel ) {
-          detname = "PXB";
-	  PXBDetId pxbid(detId.rawId());
-	  layerNumber = pxbid.layer();
-	  stereo = 1;
-       } else if ( subdetId ==  PixelSubdetector::PixelEndcap ) {
-          detname = "PXF";
-	  PXFDetId pxfid(detId.rawId());
-	  layerNumber = pxfid.disk();
-	  stereo = 1;
-       }
-/////comment out begin
-       std::cout << "Found RecHit in " << detname << " from detid " << detId.rawId()
-		<< " subdet = " << subdetId
-		<< " layer = " << layerNumber
-		<< " ring = " << ringNumber
-		<< " Stereo = " << stereo
-		<< std::endl;
-       std::cout << "Rechit global x/y/z/r : "
-                 << geomDet->surface().toGlobal(iterRecHit->localPosition()).x() << " " 
-                 << geomDet->surface().toGlobal(iterRecHit->localPosition()).y() << " " 
-                 << geomDet->surface().toGlobal(iterRecHit->localPosition()).z() << " " 
-                 << geomDet->surface().toGlobal(iterRecHit->localPosition()).perp() << std::endl;
-//comment out end
-    unsigned int subid = detId.subdetId();
-    if ( (subid==1)||(subid==2) ) {
-      // 1 = PXB, 2 = PXF
-      fillPRecHit(subid, iterRecHit, geomDet);
-      fillEvt(e);
-      pixeltree_->Fill();
-      init();
-    } else { //end of Pixel and start of Strip
-      //TIB=3,TID=4,TOB=5,TEC=6
-      fillEvt(e);
-      fillSRecHit(subid, iterRecHit, geomDet);
-      striptree_->Fill();
-      init();
-    }
-  } // end of fastsim rechit loop
-*/
- 
 } // end analyze function
 
 void StdHitNtuplizer::fillSRecHit(const int subid, 
@@ -429,8 +389,11 @@ void StdHitNtuplizer::fillSRecHit(const int subid,
   striprecHit_.subid = subid;
 }
 void StdHitNtuplizer::fillPRecHit(const int subid, 
-                                   SiPixelRecHitCollection::const_iterator pixeliter,
-                                   const GeomDet* PixGeom)
+                                  const int layer_num,
+                                  SiPixelRecHitCollection::const_iterator pixeliter,
+                                  const int num_simhit,
+                                  std::vector<PSimHit>::const_iterator closest_simhit,
+                                  const GeomDet* PixGeom)
 {
   LocalPoint lp = pixeliter->localPosition();
   LocalError le = pixeliter->localPositionError();
@@ -448,6 +411,18 @@ void StdHitNtuplizer::fillPRecHit(const int subid,
   recHit_.gy = GP.y();
   recHit_.gz = GP.z();
   recHit_.subid = subid;
+  recHit_.layer = layer_num;
+  recHit_.nsimhit = num_simhit;
+  //std::cout << "num_simhit = " << num_simhit << std::endl;
+  if(num_simhit > 0) {
+    float sim_x1 = (*closest_simhit).entryPoint().x();
+    float sim_x2 = (*closest_simhit).exitPoint().x();
+    recHit_.hx = 0.5*(sim_x1+sim_x2);
+    float sim_y1 = (*closest_simhit).entryPoint().y();
+    float sim_y2 = (*closest_simhit).exitPoint().y();
+    recHit_.hy = 0.5*(sim_y1+sim_y2);
+    //std::cout << "num_simhit x, y = " << 0.5*(sim_x1+sim_x2) << " " << 0.5*(sim_y1+sim_y2) << std::endl;
+  }
 /*
        std::cout << "Found RecHit in " << subid
                  << " global x/y/z : "
@@ -457,8 +432,8 @@ void StdHitNtuplizer::fillPRecHit(const int subid,
 */
 }
 void StdHitNtuplizer::fillPRecHit(const int subid, 
-                                   trackingRecHit_iterator ih,
-                                   const GeomDet* PixGeom)
+                                  trackingRecHit_iterator ih,
+                                  const GeomDet* PixGeom)
 {
   TrackingRecHit * pixeliter = (*ih)->clone();
   LocalPoint lp = pixeliter->localPosition();
@@ -511,6 +486,14 @@ void StdHitNtuplizer::RecHit::init()
   gx = dummy_float;
   gy = dummy_float;
   gz = dummy_float;
+  layer = 0;
+  nsimhit = 0;
+  hx = dummy_float;
+  hy = dummy_float;
+  tx = dummy_float;
+  ty = dummy_float;
+  theta = dummy_float;
+  phi = dummy_float;
 }
 
 //define this as a plug-in

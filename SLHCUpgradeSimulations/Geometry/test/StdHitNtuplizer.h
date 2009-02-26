@@ -54,9 +54,12 @@ class StdHitNtuplizer : public edm::EDAnalyzer
   void fillEvt(const edm::Event& );
   void fillSRecHit(const int subid, SiTrackerGSRecHit2DCollection::const_iterator pixeliter,
                    const GeomDet* theGeom);
-  void fillPRecHit(const int subid, SiTrackerGSRecHit2DCollection::const_iterator pixeliter,
-                   const GeomDet* PixGeom);
-  void fillPRecHit(const int subid, SiPixelRecHitCollection::const_iterator pixeliter,
+  //void fillPRecHit(const int subid, SiPixelRecHitCollection::const_iterator pixeliter,
+  //                 const GeomDet* PixGeom);
+  void fillPRecHit(const int subid, const int layer_num,
+                   SiPixelRecHitCollection::const_iterator pixeliter,
+                   const int num_simhit,
+                   std::vector<PSimHit>::const_iterator closest_simhit,
                    const GeomDet* PixGeom);
   void fillPRecHit(const int subid, trackingRecHit_iterator pixeliter,
                    const GeomDet* PixGeom);
@@ -90,6 +93,12 @@ class StdHitNtuplizer : public edm::EDAnalyzer
     float gy;
     float gz;
     int subid;
+    int layer;
+    int nsimhit;
+    float hx, hy;
+    float tx, ty;
+    float theta, phi;
+    
 
     void init();
   } recHit_, striprecHit_;
