@@ -514,7 +514,6 @@ void HistoPhoton::fill( const Photon * photon, uint iE, double weight )
 
 ///////////////////a little bit corrections
     float etaPho=aPho.eta();
-    float phiPho=aPho.phi();
     if ( fabs(etaPho) <  1.479 ) {
       phoIsInBarrel=true;
     } else {
@@ -534,12 +533,6 @@ void HistoPhoton::fill( const Photon * photon, uint iE, double weight )
     else
       scIsInEndcap=true;
 
-
-
-    int nTracks=0;
-    double ptSum=0.;
-    double ecalSum=0.;
-    double hcalSum=0.;
 
 
 
@@ -790,7 +783,6 @@ void HistoPhoton::fill( const reco::ShallowClonePtrCandidate * pshallow, uint iE
 
 ///////////////////a little bit corrections
     float etaPho=aPho.eta();
-    float phiPho=aPho.phi();
     if ( fabs(etaPho) <  1.479 ) {
       phoIsInBarrel=true;
     } else {
@@ -809,13 +801,6 @@ void HistoPhoton::fill( const reco::ShallowClonePtrCandidate * pshallow, uint iE
       scIsInBarrel=true;
     else
       scIsInEndcap=true;
-
-
-
-    int nTracks=0;
-    double ptSum=0.;
-    double ecalSum=0.;
-    double hcalSum=0.;
 
 
 

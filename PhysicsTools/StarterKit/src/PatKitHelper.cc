@@ -5,9 +5,9 @@ using namespace pat;
 using namespace std;
 
 PatKitHelper::PatKitHelper( const edm::ParameterSet & iConfig )  :
+  verboseLevel_(0),
   parameters_( iConfig ),
-  physHistos_(0),
-  verboseLevel_(0)
+  physHistos_(0)
 {
 }
 

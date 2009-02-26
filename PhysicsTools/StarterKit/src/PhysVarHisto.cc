@@ -140,7 +140,7 @@ fill( double x, unsigned int imulti, double weight )
   } 
   else {
     
-    std::vector<int>::const_iterator ifound = find( indices_.begin(), indices_.end(), imulti );
+    std::vector<int>::const_iterator ifound = find( indices_.begin(), indices_.end(), static_cast<int>(imulti) );
     if ( ifound == indices_.end() ) {
       makeTH1(imulti);
     } else {

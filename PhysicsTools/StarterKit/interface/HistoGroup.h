@@ -178,10 +178,11 @@ namespace pat {
     verboseLevel_(0),       //! verbosity: turned off by hand
     currDir_(0),
     parentDir_(parentDir),
-    isMC_(isMC),
-    nBins_(20), pt1_(pt1), pt2_(pt2), m1_(m1), m2_(m2),
+    nBins_(20),
+    pt1_(pt1), pt2_(pt2), m1_(m1), m2_(m2),
     h_size_(0),
-    h_pt_(0), h_eta_(0), h_phi_(0), h_mass_(0)
+    h_pt_(0), h_eta_(0), h_phi_(0), h_mass_(0),
+    isMC_(isMC)
   {
     if ( verboseLevel_ > 10) {
       std::cout << "HistoGroup(" << dir_ << "/" << prepend_ << ")::in constructor"

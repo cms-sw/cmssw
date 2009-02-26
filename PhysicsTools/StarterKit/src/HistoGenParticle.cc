@@ -76,7 +76,7 @@ void HistoGenParticle::clearVec()
 }
 
 
-int HistoGenParticle::getKey( reco::Particle const * p ) 
+int HistoGenParticle::getKey( reco::Candidate const * p ) 
 {
   int status = p->status();
   int pdgId = abs(p->pdgId());

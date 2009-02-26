@@ -9,8 +9,8 @@ using namespace pat;
 //
 PatAnalyzerKit::PatAnalyzerKit(const edm::ParameterSet& iConfig)
   :
-  verboseLevel_(0),
-  helper_(iConfig)
+  helper_(iConfig),
+  verboseLevel_(0) 
 {
   helper_.bookHistos(this);
 }

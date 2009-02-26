@@ -73,7 +73,7 @@ namespace pat {
 
   protected:
     // break down pdg ids into a few categories
-    int   getKey( reco::Particle const * p );
+    int   getKey( reco::Candidate const * p );
 
   };
 
