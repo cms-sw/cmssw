@@ -68,7 +68,7 @@ void EEDaqInfoTask::beginJob(const EventSetup& c){
     meEEDaqActiveMap_->setAxisTitle("jx", 1);
     meEEDaqActiveMap_->setAxisTitle("jy", 2);
     
-    dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/DAQSummaryContents");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/DAQContents");
 
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EcalBarrel_%s", Numbers::sEE(i+1).c_str());
@@ -187,7 +187,7 @@ void EEDaqInfoTask::cleanup(void){
 
     if ( meEEDaqActiveMap_ ) dqmStore_->removeElement( meEEDaqActiveMap_->getName() );
 
-    dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/DAQSummaryContents");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/DAQContents");
 
     for (int i = 0; i < 18; i++) {
       if ( meEEDaqActive_[i] ) dqmStore_->removeElement( meEEDaqActive_[i]->getName() );

@@ -64,7 +64,7 @@ void EBDaqInfoTask::beginJob(const EventSetup& c){
     meEBDaqActiveMap_->setAxisTitle("jphi", 1);
     meEBDaqActiveMap_->setAxisTitle("jeta", 2);
 
-    dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/DAQSummaryContents");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/DAQContents");
 
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EcalBarrel_%s", Numbers::sEB(i+1).c_str());
@@ -170,7 +170,7 @@ void EBDaqInfoTask::cleanup(void){
 
     if ( meEBDaqActiveMap_ ) dqmStore_->removeElement( meEBDaqActiveMap_->getName() );
 
-    dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/DAQSummaryContents");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/DAQContents");
 
     for (int i = 0; i < 36; i++) {
       if ( meEBDaqActive_[i] ) dqmStore_->removeElement( meEBDaqActive_[i]->getName() );
