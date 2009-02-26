@@ -10,6 +10,7 @@
 //         Created:  Fri Aug  4 20:45:44 EDT 2006
 //
 
+
 // system include files
 #include <iomanip>
 #include <map>
@@ -33,6 +34,26 @@
 // constants, enums and typedefs
 //
 using namespace edm;
+static void doNotDelete(void*) {}
+static void callDestruct(Reflex::Object* iObj) {
+   iObj->Destruct();
+}
+//Handle memory for calls to Reflex Invoke
+// We handle Ref's by using an external void* buffer (which we do not delete) while everything else
+// we ask Reflex to create the proper object (and therefore must ask Reflex to delete it)
+boost::shared_ptr<Reflex::Object> initReturnValue(const Reflex::Member& iMember,
+                                                  Reflex::Object* iObj,
+                                                  void** iRefBuffer)
+{
+   Reflex::Type returnType = iMember.TypeOf().ReturnType();
+   if(returnType.IsReference()) {
+      *iObj = Reflex::Object(returnType,iRefBuffer);
+      return boost::shared_ptr<Reflex::Object>(iObj,doNotDelete);
+   }
+   *iObj = returnType.Construct();
+   return boost::shared_ptr<Reflex::Object>(iObj,callDestruct);
+}
+
 
 //remove characters from a string which are not allowed to be used in XML
 static
@@ -299,21 +320,31 @@ static bool printContentsOfStdContainer(std::ostream& oStream,
     int dummy=0;
     //std::cerr<<"going to loop using iterator "<<iBegin.TypeOf().Name(Reflex::SCOPED)<<std::endl;
     
+    std::vector<void*> compareArgs = Reflex::Tools::MakeVector((iEnd.Address()));
+    std::vector<void*> incrArgs = Reflex::Tools::MakeVector(static_cast<void*>(&dummy));
 #if ROOT_VERSION_CODE <= ROOT_VERSION(5,19,0)
-    for(;  *reinterpret_cast<bool*>(compare.Invoke(iBegin, Reflex::Tools::MakeVector((iEnd.Address()))).Address()); incr.Invoke(iBegin, Reflex::Tools::MakeVector(static_cast<void*>(&dummy))),++size) {
+    for(;  *reinterpret_cast<bool*>(compare.Invoke(iBegin, compareArgs).Address()); incr.Invoke(iBegin, incrArgs,++size) {
       //std::cerr <<"going to print"<<std::endl;
       printObject(sStream,kObjectOpen,kObjectClose,deref.Invoke(iBegin),indexIndent,iIndentDelta);                  
       //std::cerr <<"printed"<<std::endl;
     }
 #else
-    Reflex::Object iCompare;
-    Reflex::Object iIncr;
+    bool compareResult;
+    Reflex::Object objCompareResult(Reflex::Type::ByTypeInfo(typeid(bool)),&compareResult);
+    Reflex::Object objIncr;
+    void* objIncrRefBuffer;
+    boost::shared_ptr<Reflex::Object> incrMemHolder = initReturnValue(incr,&objIncr,&objIncrRefBuffer);
     for(;
-	 compare.Invoke(iBegin, &iCompare, Reflex::Tools::MakeVector((iEnd.Address()))), *reinterpret_cast<bool*>(iCompare.Address());
-	 incr.Invoke(iBegin, &iIncr, Reflex::Tools::MakeVector(static_cast<void*>(&dummy))), ++size) {
+	 compare.Invoke(iBegin, &objCompareResult, compareArgs), compareResult;
+	 incr.Invoke(iBegin, &objIncr, incrArgs), ++size) {
       //std::cerr <<"going to print"<<std::endl;
       Reflex::Object iTemp;
+      void* derefRefBuffer;
+      boost::shared_ptr<Reflex::Object> derefMemHolder = initReturnValue(deref,&iTemp,&derefRefBuffer);
       deref.Invoke(iBegin, &iTemp);
+      if(iTemp.TypeOf().IsReference()) {
+        iTemp = Reflex::Object(iTemp.TypeOf(),derefRefBuffer);
+      }
       printObject(sStream,kObjectOpen,kObjectClose,iTemp,indexIndent,iIndentDelta);                  
       //std::cerr <<"printed"<<std::endl;
     }
@@ -340,6 +371,8 @@ static bool printAsContainer(std::ostream& oStream,
 #if ROOT_VERSION_CODE <= ROOT_VERSION(5,19,0)
     sizeObj = iObject.Invoke("size");
 #else
+    size_t temp; //used to hold the memory for the return value
+    sizeObj = Reflex::Object(Reflex::Type::ByTypeInfo(typeid(size_t)),&temp);
     iObject.Invoke("size", &sizeObj);
 #endif
     
@@ -365,7 +398,13 @@ static bool printAsContainer(std::ostream& oStream,
 #if ROOT_VERSION_CODE <= ROOT_VERSION(5,19,0)
       contained = atMember.Invoke(iObject, Reflex::Tools::MakeVector(static_cast<void*>(&index)));
 #else
+      void* atRefBuffer;
+      boost::shared_ptr<Reflex::Object> atMemHolder = initReturnValue(atMember,&contained,&atRefBuffer);
+
       atMember.Invoke(iObject, &contained, Reflex::Tools::MakeVector(static_cast<void*>(&index)));
+      if(contained.TypeOf().IsReference()) {
+        contained = Reflex::Object(contained.TypeOf(),atRefBuffer);
+      }
 #endif
       //std::cout <<"invoked 'at'"<<std::endl;
       try {
@@ -386,11 +425,18 @@ static bool printAsContainer(std::ostream& oStream,
       if(typeName.empty()){
         typeName="{unknown}";
       }
-      Reflex::Object iObjBegin;
-      Reflex::Object iObjEnd;
 #if ROOT_VERSION_CODE > ROOT_VERSION(5,19,0)
-      iObject.Invoke("begin", &iObjBegin);
-      iObject.Invoke("end", &iObjEnd);
+      Reflex::Object iObjBegin;
+      void* beginRefBuffer;
+      Reflex::Member beginMember = iObject.TypeOf().MemberByName("begin");
+      boost::shared_ptr<Reflex::Object> beginMemHolder = initReturnValue(beginMember,&iObjBegin,&beginRefBuffer);
+      Reflex::Object iObjEnd;
+      void* endRefBuffer;
+      Reflex::Member endMember = iObject.TypeOf().MemberByName("end");
+      boost::shared_ptr<Reflex::Object> endMemHolder = initReturnValue(endMember,&iObjEnd,&endRefBuffer);
+
+      beginMember.Invoke(iObject,&iObjBegin);
+      endMember.Invoke(iObject,&iObjEnd);
 #endif
       if( printContentsOfStdContainer(oStream,
                                       iIndent+iPrefix+formatXML(typeName)+"\">\n",
@@ -415,6 +461,7 @@ static bool printAsContainer(std::ostream& oStream,
   }
   return false;
 }
+
 static void printObject(std::ostream& oStream,
                         edm::Event const& iEvent,
                         std::string const& iClassName,
