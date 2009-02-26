@@ -152,7 +152,7 @@ void TkLayerMap::initialize(int layer){
     nchX=12;
     lowX=-6.;
     highX=6.;
-    nchY=2.*(Nrod+1.);
+    nchY=int(2.*(Nrod+1.));
     lowY=-1.*(Nrod+1.);
     highY=(Nrod+1.);
     
@@ -377,7 +377,7 @@ TkLayerMap::XYbin TkLayerMap::getXY_TID(uint32_t& detid, int layerEnumNb){
   xybin.ix=D.isZMinusSide()?-3*D.ring()+10:3*D.ring()+7;
   if(D.isStereo())
     xybin.ix+=(D.isZMinusSide()?-1:1);
-  xybin.iy=2. * D.moduleNumber() - (D.isBackRing()?0.:1.);
+  xybin.iy= int(2. * D.moduleNumber() - (D.isBackRing()?0.:1.));
 
   xybin.x=lowX+xybin.ix-0.5;
   xybin.y=lowY+xybin.iy-0.5;
