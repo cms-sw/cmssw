@@ -316,7 +316,16 @@ namespace edm
       currentID = iEB->first; 
 
       if (currentID == formerID) { // we have to add these digis together
-	
+	/*	
+	cout<< " Adding signals " << EBDetId(currentID).ieta() << " " 
+	                          << EBDetId(currentID).iphi() << endl;
+
+	cout << 1 << " " ; 
+	for (int i=0; i<10;++i)  cout << EB_old[i].adc()<< "["<<EB_old[i].gainId()<< "] " ; cout << endl;
+ 
+	cout << 2 << " " ; 
+	for (int i=0; i<10;++i)  cout << (iEB->second)[i].adc()<< "["<<(iEB->second)[i].gainId()<< "] " ; cout << endl;
+	*/
 	//loop over digi samples in each DataFrame
 	uint sizenew = (iEB->second).size();
 	uint sizeold = EB_old.size();
@@ -326,6 +335,9 @@ namespace edm
 	// samples from different events can be of different lengths - sum all
 	// that overlap.
 	// check to see if gains match - if not, scale smaller cell down.
+
+	int sw_gain_consensus=0;
+
 
 	for(uint isamp = 0; isamp<max_samp; isamp++) {
 	  if(isamp < sizenew) {
@@ -375,12 +387,21 @@ namespace edm
 	    if (gain_consensus<3){
 
 	      double ratio = gainRatios[gain_consensus]/gainRatios[gain_consensus-1];
-	      adc_sum = (int) round ((adc_sum - pedeStals[gain_consensus-1])* ratio + pedeStals[gain_consensus]  )  ;
-	      ++gain_consensus;
+	      adc_sum = (int) round ((adc_sum - pedeStals[gain_consensus-1])/ ratio + pedeStals[gain_consensus]  )  ;
+	      sw_gain_consensus=++gain_consensus;	      
 	    }
 	    else adc_sum = 4096;
 		
 	  } 
+
+	  // furthermore, make sure we don't decrease our gain once we've switched up
+	  // in case go back 
+	  if (gain_consensus<sw_gain_consensus){
+
+	    double ratio = gainRatios[sw_gain_consensus-1]/gainRatios[gain_consensus-1];
+ 	    adc_sum = (int) round((adc_sum - pedeStals[gain_consensus-1] )/ratio + pedeStals[sw_gain_consensus-1]);
+	    gain_consensus = sw_gain_consensus;
+	  }
 
 	  EcalMGPASample sample(adc_sum, gain_consensus);
 	  EB_old.setSample(isamp,sample);  // overwrite old sample, adding new info
@@ -455,7 +476,7 @@ namespace edm
 		
 		
 		float ratio = gainRatios[gain_new-1]/gainRatios[gain_old-1];
-		adc_old = (int) round ((adc_old - pedeStals[gain_old-1]) * ratio + pedeStals[gain_new-1] );  
+		adc_old = (int) round ((adc_old - pedeStals[gain_old-1]) / ratio + pedeStals[gain_new-1] );  
 		gain_consensus = gain_new;
 	      }
 	      else { // scale to old (lower) gain
