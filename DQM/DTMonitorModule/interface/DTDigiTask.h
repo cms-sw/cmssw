@@ -4,8 +4,8 @@
 /*
  * \file DTDigiTask.h
  *
- * $Date: 2008/12/13 10:02:28 $
- * $Revision: 1.27 $
+ * $Date: 2009/02/23 14:53:55 $
+ * $Revision: 1.28 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -142,7 +142,9 @@ private:
   bool tpMode;
   bool lookForSyncNoise;
   bool filterSyncNoise;
-  
+
+  bool doLayerTimeBoxes;
+
   std::map<DTChamberId, int> nSynchNoiseEvents;
   MonitorElement* nEventMonitor;
 

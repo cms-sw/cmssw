@@ -1,8 +1,8 @@
  /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2008/12/13 10:02:29 $
- * $Revision: 1.55 $
+ * $Date: 2009/02/23 14:53:55 $
+ * $Revision: 1.56 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -86,6 +86,9 @@ DTDigiTask::DTDigiTask(const edm::ParameterSet& ps){
   filterSyncNoise = ps.getUntrackedParameter<bool>("filterSyncNoise", false);
   // look for synch noisy events, produce histograms but do not filter them
   lookForSyncNoise = ps.getUntrackedParameter<bool>("lookForSyncNoise", false);
+  // switch on production of time-boxes with layer granularity
+  doLayerTimeBoxes = ps.getUntrackedParameter<bool>("doLayerTimeBoxes", false);
+
   dbe = edm::Service<DQMStore>().operator->();
 
   syncNumTot = 0;
@@ -221,8 +224,8 @@ void DTDigiTask::bookHistos(const DTSuperLayerId& dtSL, string folder, string hi
   stringstream sector; sector << dtSL.sector();	
   stringstream superLayer; superLayer << dtSL.superlayer();
   dbe->setCurrentFolder(topFolder() + "Wheel" + wheel.str() +
-			"/Station" + station.str() +
-			"/Sector" + sector.str());
+			"/Sector" + sector.str() +
+			"/Station" + station.str());
 
   // Build the histo name
   string histoName = histoTag 
@@ -252,32 +255,34 @@ void DTDigiTask::bookHistos(const DTSuperLayerId& dtSL, string folder, string hi
       int maxTDCCounts = 6400 * tdcRescale;
       (digiHistos[histoTag])[dtSL.rawId()] = 
 	dbe->book1D(histoName,histoTitle, maxTDCCounts/timeBoxGranularity, 0, maxTDCCounts);
-      // Book TimeBoxes per layer
-      for(int layer = 1; layer != 5; ++layer) {
-	DTLayerId layerId(dtSL, layer);
-	stringstream layerHistoName; layerHistoName << histoName << "_L" << layer;
-	(digiHistos[histoTag])[layerId.rawId()] =
-			       dbe->book1D(layerHistoName.str(),layerHistoName.str(), maxTDCCounts/timeBoxGranularity, 0, maxTDCCounts);
+      if(doLayerTimeBoxes) {      // Book TimeBoxes per layer
+	for(int layer = 1; layer != 5; ++layer) {
+	  DTLayerId layerId(dtSL, layer);
+	  stringstream layerHistoName; layerHistoName << histoName << "_L" << layer;
+	  (digiHistos[histoTag])[layerId.rawId()] =
+	    dbe->book1D(layerHistoName.str(),layerHistoName.str(), maxTDCCounts/timeBoxGranularity, 0, maxTDCCounts);
+	}
       }
     }    
     else {
       (digiHistos[histoTag])[dtSL.rawId()] = 
 	dbe->book1D(histoName,histoTitle, 3*tMax/timeBoxGranularity, tTrig-tMax, tTrig+2*tMax);
-      // Book TimeBoxes per layer
-      for(int layer = 1; layer != 5; ++layer) {
-	DTLayerId layerId(dtSL, layer);
-	stringstream layerHistoName; layerHistoName << histoName << "_L" << layer;
-	(digiHistos[histoTag])[layerId.rawId()] =
-			       dbe->book1D(layerHistoName.str(),layerHistoName.str(), 3*tMax/timeBoxGranularity, tTrig-tMax, tTrig+2*tMax);
+      if(doLayerTimeBoxes) {
+	// Book TimeBoxes per layer
+	for(int layer = 1; layer != 5; ++layer) {
+	  DTLayerId layerId(dtSL, layer);
+	  stringstream layerHistoName; layerHistoName << histoName << "_L" << layer;
+	  (digiHistos[histoTag])[layerId.rawId()] =
+	    dbe->book1D(layerHistoName.str(),layerHistoName.str(), 3*tMax/timeBoxGranularity, tTrig-tMax, tTrig+2*tMax);
+	}
       }
-
     }
   }
 
   if ( folder == "CathodPhotoPeaks" ) {
     dbe->setCurrentFolder(topFolder() + "Wheel" + wheel.str() +
-			  "/Station" + station.str() +
-			  "/Sector" + sector.str() + "/" + folder);
+			  "/Sector" + sector.str() + 
+			  "/Station" + station.str() + "/" + folder);
     (digiHistos[histoTag])[dtSL.rawId()] = dbe->book1D(histoName,histoName,500,0,1000);
   }
   
@@ -292,9 +297,9 @@ void DTDigiTask::bookHistos(const DTChamberId& dtCh, string folder, string histo
   stringstream station; station << dtCh.station();	
   stringstream sector; sector << dtCh.sector();
   dbe->setCurrentFolder(topFolder() + "Wheel" + wheel.str() +
-			"/Station" + station.str() +
-			"/Sector" + sector.str());
-
+			"/Sector" + sector.str() + 
+			"/Station" + station.str());
+  
   // build the histo name
   string histoName = histoTag 
     + "_W" + wheel.str() 
@@ -573,7 +578,8 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
 	  if (digiHistos[histoTag].find(indexSL) == digiHistos[histoTag].end())
 	    bookHistos( dtSLId, string("TimeBoxes"), histoTag );
 	  (digiHistos.find(histoTag)->second).find(indexSL)->second->Fill(tdcTime);
-	  (digiHistos.find(histoTag)->second).find((*dtLayerId_It).first.rawId())->second->Fill(tdcTime);
+	  if(doLayerTimeBoxes)
+	    (digiHistos.find(histoTag)->second).find((*dtLayerId_It).first.rawId())->second->Fill(tdcTime);
 	  // FIXME: remove the time distribution for the after-pulses	  
 	  // 2nd - 1st (CathodPhotoPeak) per SL
 	  // 	  if ( (*digiIt).number() == 1 ) {

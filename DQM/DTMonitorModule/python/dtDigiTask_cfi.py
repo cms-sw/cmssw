@@ -36,7 +36,9 @@ dtDigiMonitor = cms.EDAnalyzer("DTDigiTask",
     # look for synch noise events
     lookForSyncNoise = cms.untracked.bool(False),
     # threshold on # of digis per chamber to define sync noise
-    maxTDCHitsPerChamber = cms.untracked.int32(50)
+    maxTDCHitsPerChamber = cms.untracked.int32(50),
+    # switch for time boxes with layer granularity (commissioning only)                           
+    doLayerTimeBoxes = cms.untracked.bool(False)
 )
 
 
