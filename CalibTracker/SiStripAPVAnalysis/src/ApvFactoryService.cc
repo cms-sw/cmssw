@@ -86,7 +86,7 @@ void ApvFactoryService::postProcessEvent(const edm::Event& ie, const edm::EventS
 // 
 
 int ApvFactoryService::getEventInitNumber() {
-
+  return 0;
 }
 // -----------------------------------------------------------------------------
 

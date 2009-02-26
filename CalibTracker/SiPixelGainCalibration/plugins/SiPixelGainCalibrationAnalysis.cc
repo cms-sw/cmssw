@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.35 2008/10/15 14:56:36 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.36 2008/11/18 12:21:23 fblekman Exp $
 //
 //
 
@@ -39,6 +39,8 @@ SiPixelGainCalibrationAnalysis::SiPixelGainCalibrationAnalysis(const edm::Parame
   bookkeeper_pixels_(),
   nfitparameters_(iConfig.getUntrackedParameter<int>("numberOfFitParameters",2)),
   fitfunction_(iConfig.getUntrackedParameter<std::string>("fitFunctionRootFormula","pol1")),
+   listofdetids_(conf_.getUntrackedParameter<std::vector<uint32_t> >("listOfDetIDs")),
+  ignoreMode_(conf_.getUntrackedParameter<bool>("ignoreMode",false)),
   reject_plateaupoints_(iConfig.getUntrackedParameter<bool>("suppressPlateauInFit",true)),
   reject_single_entries_(iConfig.getUntrackedParameter<bool>("suppressPointsWithOneEntryOrLess",true)),
   plateau_max_slope_(iConfig.getUntrackedParameter<double>("plateauSlopeMax",1.0)),
@@ -51,12 +53,13 @@ SiPixelGainCalibrationAnalysis::SiPixelGainCalibrationAnalysis(const edm::Parame
   maxGainInHist_(iConfig.getUntrackedParameter<double>("maxGainInHist",10)),
   maxChi2InHist_(iConfig.getUntrackedParameter<double>("maxChi2InHist",25)),
   saveALLHistograms_(iConfig.getUntrackedParameter<bool>("saveAllHistograms",false)),
+ 
+
   filldb_(iConfig.getUntrackedParameter<bool>("writeDatabase",false)),
   writeSummary_(iConfig.getUntrackedParameter<bool>("writeSummary",true)),
   recordName_(conf_.getParameter<std::string>("record")),
+
   appendMode_(conf_.getUntrackedParameter<bool>("appendMode",true)),
-  listofdetids_(conf_.getUntrackedParameter<std::vector<uint32_t> >("listOfDetIDs")),
-  ignoreMode_(conf_.getUntrackedParameter<bool>("ignoreMode",false)),
   theGainCalibrationDbInput_(0),
   theGainCalibrationDbInputOffline_(0),
   theGainCalibrationDbInputHLT_(0),
