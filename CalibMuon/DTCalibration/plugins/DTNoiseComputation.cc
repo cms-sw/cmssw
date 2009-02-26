@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/11/06 15:08:20 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/02/06 10:31:32 $
+ *  $Revision: 1.4 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -218,9 +218,10 @@ void DTNoiseComputation::beginJob(const edm::EventSetup& context){
 void DTNoiseComputation::endJob(){
 
   cout << "[DTNoiseComputation] endjob called!" <<endl;
-  TH1F *hEvtDistance;
+  TH1F *hEvtDistance=0;
   TF1 *ExpoFit = new TF1("ExpoFit","expo", 0.5, 1000.5);
-  TF1 *funct;
+  ExpoFit->SetMarkerColor();//just silence gcc complaining about unused vars
+  TF1 *funct=0;
   TProfile *theNoiseHisto = new TProfile("theNoiseHisto","Time Constant versus Average Noise",100000,0,100000);
   
 

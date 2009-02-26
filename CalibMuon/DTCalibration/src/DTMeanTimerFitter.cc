@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/09/19 14:23:26 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/09/19 17:32:46 $
+ *  $Revision: 1.7 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -206,6 +206,7 @@ TF1* DTMeanTimerFitter::fitTMax(TH1F* histo){
 
       // Fit each Tmax histogram with a Gaussian in a restricted interval
       TF1 *rGaus = new TF1("rGaus","gaus",peak-range,peak+range);
+      rGaus->SetMarkerSize();// just silence gcc complainining about unused var
       try{	
         histo->Fit("rGaus","R");
       } catch(...){
