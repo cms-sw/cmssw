@@ -29,10 +29,14 @@
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "DataFormats/Math/interface/Point3D.h"
+#include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
+#include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
 
 #include <DQM/EcalCommon/interface/Numbers.h>
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBClusterTask.h>
+
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
 
 #include "TLorentzVector.h"
 
@@ -83,6 +87,18 @@ EBClusterTask::EBClusterTask(const ParameterSet& ps){
   meSCNum_ = 0;
   meSCSiz_ = 0;
 
+  meSCCrystalSiz_ = 0;
+  meSCSeedEne_ = 0;
+  meSCEne2_ = 0;
+  meSCEneVsEMax_ = 0;
+  meSCEneLowScale_ = 0;
+  meSCSeedMapOcc_ = 0;
+  meSCMapSingleCrystal_ = 0;
+  meSCSeedTimingSummary_ = 0;
+  meSCSeedTimingMap_ = 0;
+  for(int i=0;i<36;++i)
+     meSCSeedTiming_[i] = 0;
+  
   mes1s9_  = 0;
   mes9s25_  = 0;
  
@@ -157,6 +173,27 @@ void EBClusterTask::reset(void) {
   if ( meSCNum_ ) meSCNum_->Reset();
 
   if ( meSCSiz_ ) meSCSiz_->Reset();
+
+  if ( meSCCrystalSiz_ ) meSCCrystalSiz_->Reset();
+
+  if ( meSCSeedEne_ ) meSCSeedEne_->Reset();
+  
+  if ( meSCEne2_ ) meSCEne2_->Reset();
+
+  if ( meSCEneVsEMax_ ) meSCEneVsEMax_->Reset();
+
+  if ( meSCEneLowScale_ ) meSCEneLowScale_->Reset();
+  
+  if ( meSCSeedMapOcc_ ) meSCSeedMapOcc_->Reset();
+
+  if ( meSCMapSingleCrystal_ ) meSCMapSingleCrystal_->Reset();
+
+  if ( meSCSeedTimingSummary_ ) meSCSeedTimingSummary_->Reset();
+
+  if ( meSCSeedTimingMap_ ) meSCSeedTimingMap_->Reset();
+
+  for(int i=0;i<36;++i)
+     if( meSCSeedTiming_[i] ) meSCSeedTiming_[i]->Reset();
 
   if ( mes1s9_ ) mes1s9_->Reset();
 
@@ -265,6 +302,53 @@ void EBClusterTask::setup(void){
     meSCSiz_ = dqmStore_->book1D(histo, histo, 50, 0., 50.);
     meSCSiz_->setAxisTitle("cluster size", 1);
 
+    sprintf(histo, "EBCLT SC size (crystal)");
+    meSCCrystalSiz_ = dqmStore_->book1D(histo, histo, 150, 0, 150);
+    meSCCrystalSiz_->setAxisTitle("cluster size in crystals", 1);
+
+    sprintf(histo, "EBCLT SC seed crystal energy");
+    meSCSeedEne_ = dqmStore_->book1D(histo, histo, 200, 0, 1.8);
+    meSCSeedEne_->setAxisTitle("seed crystal energy (GeV)", 1);
+
+    sprintf(histo, "EBCLT SC e2");
+    meSCEne2_ = dqmStore_->book1D(histo, histo, 200, 0, 1.8);
+    meSCEne2_->setAxisTitle("seed + highest neighbor crystal energy (GeV)", 1);
+
+    sprintf(histo, "EBCLT SC energy vs seed crystal energy");
+    meSCEneVsEMax_ = dqmStore_->book2D(histo, histo, 200, 0, 1.8, 200, 0, 1.8);
+    meSCEneVsEMax_->setAxisTitle("seed crystal energy (GeV)", 1);
+    meSCEneVsEMax_->setAxisTitle("cluster energy (GeV)", 2);
+
+    sprintf(histo, "EBCLT SC energy (low scale)");
+    meSCEneLowScale_ = dqmStore_->book1D(histo, histo, 200, 0, 1.8);
+    meSCEneLowScale_->setAxisTitle("cluster energy (GeV)", 1);
+
+    sprintf(histo, "EBCLT SC seed occupancy map");
+    meSCSeedMapOcc_ = dqmStore_->book2D(histo, histo, 72, 0., 360., 34, -85, 85);
+    meSCSeedMapOcc_->setAxisTitle("jphi", 1);
+    meSCSeedMapOcc_->setAxisTitle("jeta", 2);
+
+    sprintf(histo, "EBCLT SC single crystal cluster seed occupancy map");
+    meSCMapSingleCrystal_ = dqmStore_->book2D(histo, histo, 72, 0., 360., 34, -85, 85);
+    meSCMapSingleCrystal_->setAxisTitle("jphi", 1);
+    meSCMapSingleCrystal_->setAxisTitle("jeta", 2);
+
+    sprintf(histo, "EBCLT SC seed crystal timing");
+    meSCSeedTimingSummary_ = dqmStore_->book1D(histo, histo, 78, 0, 10);
+    meSCSeedTimingSummary_->setAxisTitle("seed crystal timing", 1);
+
+    sprintf(histo, "EBCLT SC seed crystal timing map");
+    meSCSeedTimingMap_ = dqmStore_->bookProfile2D(histo, histo, 72, 0., 360., 34, -85, 85, 78, 0., 10., "s");
+    meSCSeedTimingMap_->setAxisTitle("jphi", 1);
+    meSCSeedTimingMap_->setAxisTitle("jeta", 2);
+
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBClusterTask/Timing");
+    for(int i = 0; i<36; i++) {
+      sprintf(histo,"EBCLT timing %s", Numbers::sEB(i+1).c_str());
+      meSCSeedTiming_[i] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+    }
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBClusterTask");
+
     sprintf(histo, "EBCLT s1s9");
     mes1s9_ = dqmStore_->book1D(histo, histo, 50, 0., 1.5);
     mes1s9_->setAxisTitle("s1/s9", 1);
@@ -354,6 +438,40 @@ void EBClusterTask::cleanup(void){
     if ( meSCSiz_ ) dqmStore_->removeElement( meSCSiz_->getName() );
     meSCSiz_ = 0;
 
+    if ( meSCCrystalSiz_ ) dqmStore_->removeElement( meSCCrystalSiz_->getName() );
+    meSCCrystalSiz_ = 0;
+
+    if ( meSCSeedEne_ ) dqmStore_->removeElement( meSCSeedEne_->getName() );
+    meSCSeedEne_ = 0;
+
+    if ( meSCEne2_ ) dqmStore_->removeElement( meSCEne2_->getName() );
+    meSCEne2_ = 0;
+
+    if ( meSCEneVsEMax_ ) dqmStore_->removeElement( meSCEneVsEMax_->getName() );
+    meSCEneVsEMax_ = 0;
+
+    if ( meSCEneLowScale_ ) dqmStore_->removeElement( meSCEneLowScale_->getName() );
+    meSCEneLowScale_ = 0;
+
+    if ( meSCSeedMapOcc_ ) dqmStore_->removeElement( meSCSeedMapOcc_->getName() );
+    meSCSeedMapOcc_ = 0;
+
+    if ( meSCMapSingleCrystal_ ) dqmStore_->removeElement( meSCMapSingleCrystal_->getName() );
+    meSCMapSingleCrystal_ = 0;
+
+    if ( meSCSeedTimingSummary_ ) dqmStore_->removeElement( meSCSeedTimingSummary_->getName() );
+    meSCSeedTimingSummary_ = 0;
+
+    if ( meSCSeedTimingMap_ ) dqmStore_->removeElement( meSCSeedTimingMap_->getName() );
+    meSCSeedTimingMap_ = 0;
+
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBClusterTask/Timing");
+    for(int i = 0; i < 36; i++) {
+       if ( meSCSeedTiming_[i] ) dqmStore_->removeElement( meSCSeedTiming_[i]->getName() );
+       meSCSeedTiming_[i] = 0;
+    }
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBClusterTask");
+
     if ( mes1s9_ ) dqmStore_->removeElement( mes1s9_->getName() );
     mes1s9_ = 0;
 
@@ -437,7 +555,7 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
     for ( BasicClusterCollection::const_iterator bCluster = pBasicClusters->begin(); bCluster != pBasicClusters->end(); ++bCluster ) {
 
       meBCEne_->Fill(bCluster->energy());
-      meBCSiz_->Fill(float(bCluster->size()));
+      meBCSiz_->Fill(float(bCluster->getHitsByDetId().size()));
 
       float xphi = bCluster->phi();
       if ( xphi > M_PI*(9-1.5)/9 ) xphi = xphi - M_PI*2;
@@ -450,9 +568,9 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
       meBCNumMapProjEta_->Fill(bCluster->eta());
       meBCNumMapProjPhi_->Fill(xphi);
 
-      meBCSizMap_->Fill(xphi, bCluster->eta(), float(bCluster->size()));
-      meBCSizMapProjEta_->Fill(bCluster->eta(), float(bCluster->size()));
-      meBCSizMapProjPhi_->Fill(xphi, float(bCluster->size()));
+      meBCSizMap_->Fill(xphi, bCluster->eta(), float(bCluster->getHitsByDetId().size()));
+      meBCSizMapProjEta_->Fill(bCluster->eta(), float(bCluster->getHitsByDetId().size()));
+      meBCSizMapProjPhi_->Fill(xphi, float(bCluster->getHitsByDetId().size()));
 
       meBCETMap_->Fill(xphi, bCluster->eta(), float(bCluster->energy()) * sin(bCluster->position().theta()));
       meBCETMapProjEta_->Fill(bCluster->eta(), float(bCluster->energy()) * sin(bCluster->position().theta()));
@@ -497,9 +615,62 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
           const CaloTopology *topology = pTopology.product();
 
           BasicClusterRef theSeed = sCluster->seed();
-          float eMax = EcalClusterTools::eMax( *theSeed, ebRecHits );
+
+	  // Find the seed rec hit
+	  std::vector<DetId> sIds = sCluster->getHitsByDetId();
+
+	  float eMax, e2nd;
+	  EcalRecHitCollection::const_iterator seedItr = ebRecHits->begin();
+	  EcalRecHitCollection::const_iterator secondItr = ebRecHits->begin();
+
+	  for(std::vector<DetId>::const_iterator idItr = sIds.begin(); idItr != sIds.end(); ++idItr) {
+	     if(idItr->det() != DetId::Ecal) { continue; }
+	     EcalRecHitCollection::const_iterator hitItr = ebRecHits->find((*idItr));
+	     if(hitItr == ebRecHits->end()) { continue; }
+	     if(hitItr->energy() > secondItr->energy()) { secondItr = hitItr; }
+	     if(hitItr->energy() > seedItr->energy()) { std::swap(seedItr,secondItr); }
+	  }
+
+	  eMax = seedItr->energy();
+	  e2nd = secondItr->energy();
+	  EBDetId seedId = (EBDetId) seedItr->id();
+
           float e3x3 = EcalClusterTools::e3x3( *theSeed, ebRecHits, topology );
           float e5x5 = EcalClusterTools::e5x5( *theSeed, ebRecHits, topology );
+
+	  meSCCrystalSiz_->Fill(sIds.size());
+	  meSCSeedEne_->Fill(eMax);
+	  meSCEne2_->Fill(eMax+e2nd);
+	  meSCEneVsEMax_->Fill(eMax,sCluster->energy());
+	  meSCEneLowScale_->Fill(sCluster->energy());
+	  
+	  // Prepare to fill maps
+	  int ism = Numbers::iSM(seedId);
+	  int ebeta = seedId.ieta();
+	  int ebphi = seedId.iphi();
+	  float xebeta = ebeta - 0.5 * seedId.zside();
+	  float xebphi = ebphi - 0.5;
+	  meSCSeedMapOcc_->Fill(xebphi,xebeta);
+	  if(sIds.size() == 1)
+	     meSCMapSingleCrystal_->Fill(xebphi,xebeta);
+
+          float time = seedItr->time() + 5.0;
+
+          edm::ESHandle<EcalADCToGeVConstant> pAgc;
+          c.get<EcalADCToGeVConstantRcd>().get(pAgc);
+          if(pAgc.isValid()) {
+            const EcalADCToGeVConstant* agc = pAgc.product();
+            
+            if(seedItr->energy() / agc->getEBValue() > 12) {
+
+              meSCSeedTimingSummary_->Fill( time );
+              meSCSeedTiming_[ism-1]->Fill( time );
+              meSCSeedTimingMap_->Fill( xebphi, xebeta, time );
+
+            }
+          } else {
+            LogWarning("EBClusterTask") << "EcalADCToGeVConstant not valid";
+          }
 
           mes1s9_->Fill( eMax/e3x3 );
           mes9s25_->Fill( e3x3/e5x5 );

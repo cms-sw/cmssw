@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2008/12/03 12:55:49 $
- * $Revision: 1.57 $
+ * $Date: 2009/02/05 15:09:07 $
+ * $Revision: 1.58 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -29,6 +29,9 @@
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
+#include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
 
 #include <DQM/EcalCommon/interface/Numbers.h>
 
@@ -95,6 +98,21 @@ EEClusterTask::EEClusterTask(const ParameterSet& ps){
   meSCEne_ = 0;
   meSCNum_ = 0;
   meSCSiz_ = 0;
+
+  meSCCrystalSiz_ = 0;
+  meSCSeedEne_ = 0;
+  meSCEne2_ = 0;
+  meSCEneVsEMax_ = 0;
+  meSCEneLowScale_ = 0;
+  meSCSeedMapOcc_[0] = 0;
+  meSCSeedMapOcc_[1] = 0;
+  meSCMapSingleCrystal_[0] = 0;
+  meSCMapSingleCrystal_[1] = 0;
+  meSCSeedTimingSummary_ = 0;
+  meSCSeedTimingMap_[0] = 0;
+  meSCSeedTimingMap_[1] = 0;
+  for(int i=0;i<18;++i)
+    meSCSeedTiming_[i] = 0;
 
   mes1s9_ = 0;
   mes9s25_ = 0;
@@ -194,6 +212,33 @@ void EEClusterTask::reset(void) {
   if ( meSCNum_ ) meSCNum_->Reset();
 
   if ( meSCSiz_ ) meSCSiz_->Reset();
+
+  if ( meSCCrystalSiz_ ) meSCCrystalSiz_->Reset();
+
+  if ( meSCSeedEne_ ) meSCSeedEne_->Reset();
+
+  if ( meSCEne2_ ) meSCEne2_->Reset();
+
+  if ( meSCEneVsEMax_ ) meSCEneVsEMax_->Reset();
+
+  if ( meSCEneLowScale_ ) meSCEneLowScale_->Reset();
+
+  if ( meSCSeedMapOcc_[0] ) meSCSeedMapOcc_[0]->Reset();
+
+  if ( meSCSeedMapOcc_[1] ) meSCSeedMapOcc_[1]->Reset();
+
+  if ( meSCMapSingleCrystal_[0] ) meSCMapSingleCrystal_[0]->Reset();
+
+  if ( meSCMapSingleCrystal_[1] ) meSCMapSingleCrystal_[1]->Reset();
+
+  if ( meSCSeedTimingSummary_ ) meSCSeedTimingSummary_->Reset();
+
+  if ( meSCSeedTimingMap_[0] ) meSCSeedTimingMap_[0]->Reset();
+
+  if ( meSCSeedTimingMap_[1] ) meSCSeedTimingMap_[1]->Reset();
+
+  for(int i=0; i<18; ++i)
+    if ( meSCSeedTiming_[i] ) meSCSeedTiming_[i]->Reset();
 
   if ( mes1s9_ ) mes1s9_->Reset();
 
@@ -362,6 +407,68 @@ void EEClusterTask::setup(void){
     meSCSiz_ = dqmStore_->book1D(histo, histo, 50, 0., 50.);
     meSCSiz_->setAxisTitle("cluster size", 1);
 
+    sprintf(histo, "EECLT SC size (crystal)");
+    meSCCrystalSiz_ = dqmStore_->book1D(histo, histo, 150, 0, 150);
+    meSCCrystalSiz_->setAxisTitle("cluster size in crystals", 1);
+
+    sprintf(histo, "EECLT SC seed crystal energy");
+    meSCSeedEne_ = dqmStore_->book1D(histo, histo, 200, 0, 1.8);
+    meSCSeedEne_->setAxisTitle("seed crystal energy (GeV)", 1);
+
+    sprintf(histo, "EECLT SC e2");
+    meSCEne2_ = dqmStore_->book1D(histo, histo, 200, 0, 1.8);
+    meSCEne2_->setAxisTitle("seed + highest neighbor crystal energy (GeV)", 1);
+
+    sprintf(histo, "EECLT SC energy vs seed crystal energy");
+    meSCEneVsEMax_ = dqmStore_->book2D(histo, histo, 200, 0, 1.8, 200, 0, 1.8);
+    meSCEneVsEMax_->setAxisTitle("seed crystal energy (GeV)", 1);
+    meSCEneVsEMax_->setAxisTitle("cluster energy (GeV)", 2);
+
+    sprintf(histo, "EECLT SC energy (low scale)");
+    meSCEneLowScale_ = dqmStore_->book1D(histo, histo, 200, 0, 1.8);
+    meSCEneLowScale_->setAxisTitle("cluster energy (GeV)", 1);
+
+    sprintf(histo, "EECLT SC seed occupancy map EE -");
+    meSCSeedMapOcc_[0] = dqmStore_->book2D(histo, histo, 20, 0., 100., 20, 0., 100.);
+    meSCSeedMapOcc_[0]->setAxisTitle("jx", 1);
+    meSCSeedMapOcc_[0]->setAxisTitle("jy", 2);
+
+    sprintf(histo, "EECLT SC seed occupancy map EE +");
+    meSCSeedMapOcc_[1] = dqmStore_->book2D(histo, histo, 20, 0., 100., 20, 0., 100.);
+    meSCSeedMapOcc_[1]->setAxisTitle("jx", 1);
+    meSCSeedMapOcc_[1]->setAxisTitle("jy", 2);
+
+    sprintf(histo, "EECLT SC single crystal cluster seed occupancy map EE -");
+    meSCMapSingleCrystal_[0] = dqmStore_->book2D(histo, histo, 20, 0., 100., 20, 0., 100.);
+    meSCMapSingleCrystal_[0]->setAxisTitle("jx", 1);
+    meSCMapSingleCrystal_[0]->setAxisTitle("jy", 2);
+
+    sprintf(histo, "EECLT SC single crystal cluster seed occupancy map EE +");
+    meSCMapSingleCrystal_[1] = dqmStore_->book2D(histo, histo, 20, 0., 100., 20, 0., 100.);
+    meSCMapSingleCrystal_[1]->setAxisTitle("jx", 1);
+    meSCMapSingleCrystal_[1]->setAxisTitle("jy", 2);
+
+    sprintf(histo, "EECLT SC seed crystal timing");
+    meSCSeedTimingSummary_ = dqmStore_->book1D(histo, histo, 78, 0., 10.);
+    meSCSeedTimingSummary_->setAxisTitle("seed crystal timing", 1);
+
+    sprintf(histo, "EECLT SC seed crystal timing map EE -");
+    meSCSeedTimingMap_[0] = dqmStore_->bookProfile2D(histo, histo, 20, 0., 100., 20, 0., 100., 78, 0., 10., "s");
+    meSCSeedTimingMap_[0]->setAxisTitle("jx", 1);
+    meSCSeedTimingMap_[0]->setAxisTitle("jy", 2);
+
+    sprintf(histo, "EECLT SC seed crystal timing map EE +");
+    meSCSeedTimingMap_[1] = dqmStore_->bookProfile2D(histo, histo, 20, 0., 100., 20, 0., 100., 78, 0., 10., "s");
+    meSCSeedTimingMap_[1]->setAxisTitle("jx", 1);
+    meSCSeedTimingMap_[1]->setAxisTitle("jy", 2);
+
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEClusterTask/Timing");
+    for(int i = 0; i < 18; i++) {
+      sprintf(histo, "EECLT timing %s", Numbers::sEE(i+1).c_str());
+      meSCSeedTiming_[i] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+    }
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEClusterTask");
+
     sprintf(histo, "EECLT s1s9");
     mes1s9_ = dqmStore_->book1D(histo, histo, 50, 0., 1.5);
     mes1s9_->setAxisTitle("s1/s9", 1);
@@ -486,6 +593,49 @@ void EEClusterTask::cleanup(void){
 
     if ( meSCSiz_ ) dqmStore_->removeElement( meSCSiz_->getName() );
     meSCSiz_ = 0;
+
+    if ( meSCCrystalSiz_ ) dqmStore_->removeElement( meSCCrystalSiz_->getName() );
+    meSCCrystalSiz_ = 0;
+
+    if ( meSCSeedEne_ ) dqmStore_->removeElement( meSCSeedEne_->getName() );
+    meSCSeedEne_ = 0;
+
+    if ( meSCEne2_ ) dqmStore_->removeElement( meSCEne2_->getName() );
+    meSCEne2_ = 0;
+
+    if ( meSCEneVsEMax_ ) dqmStore_->removeElement( meSCEneVsEMax_->getName() );
+    meSCEneVsEMax_ = 0;
+
+    if ( meSCEneLowScale_ ) dqmStore_->removeElement( meSCEneLowScale_->getName() );
+    meSCEneLowScale_ = 0;
+
+    if ( meSCSeedMapOcc_[0] ) dqmStore_->removeElement( meSCSeedMapOcc_[0]->getName() );
+    meSCSeedMapOcc_[0] = 0;
+
+    if ( meSCSeedMapOcc_[1] ) dqmStore_->removeElement( meSCSeedMapOcc_[1]->getName() );
+    meSCSeedMapOcc_[1] = 0;
+
+    if ( meSCMapSingleCrystal_[0] ) dqmStore_->removeElement( meSCMapSingleCrystal_[0]->getName() );
+    meSCMapSingleCrystal_[0] = 0;
+
+    if ( meSCMapSingleCrystal_[1] ) dqmStore_->removeElement( meSCMapSingleCrystal_[1]->getName() );
+    meSCMapSingleCrystal_[1] = 0;
+
+    if ( meSCSeedTimingSummary_ ) dqmStore_->removeElement( meSCSeedTimingSummary_->getName() );
+    meSCSeedTimingSummary_ = 0;
+
+    if ( meSCSeedTimingMap_[0] ) dqmStore_->removeElement( meSCSeedTimingMap_[0]->getName() );
+    meSCSeedTimingMap_[0] = 0;
+
+    if ( meSCSeedTimingMap_[1] ) dqmStore_->removeElement( meSCSeedTimingMap_[1]->getName() );
+    meSCSeedTimingMap_[1] = 0;
+
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEClusterTask/Timing");
+    for(int i=0;i<18;++i) {
+      if ( meSCSeedTiming_[i] ) dqmStore_->removeElement( meSCSeedTiming_[i]->getName() );
+      meSCSeedTiming_[i] = 0;
+    }
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEClusterTask");
 
     if ( mes1s9_ ) dqmStore_->removeElement( mes1s9_->getName() );
     mes1s9_ = 0;
@@ -644,10 +794,70 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
           const CaloTopology *topology = pTopology.product();
           
           BasicClusterRef theSeed = sCluster->seed();
-          float eMax = EcalClusterTools::eMax( *theSeed, eeRecHits );
+
+          // Find the seed rec hit
+          std::vector<DetId> sIds = sCluster->getHitsByDetId();
+
+          float eMax, e2nd;
+          EcalRecHitCollection::const_iterator seedItr = eeRecHits->begin();
+          EcalRecHitCollection::const_iterator secondItr = eeRecHits->begin();
+
+          for(std::vector<DetId>::const_iterator idItr = sIds.begin(); idItr != sIds.end(); ++idItr) {
+            if(idItr->det() != DetId::Ecal) { continue; }
+            EcalRecHitCollection::const_iterator hitItr = eeRecHits->find((*idItr));
+            if(hitItr == eeRecHits->end()) { continue; }
+            if(hitItr->energy() > secondItr->energy()) { secondItr = hitItr; }
+            if(hitItr->energy() > seedItr->energy()) { std::swap(seedItr,secondItr); }
+          }
+
+          eMax = seedItr->energy();
+          e2nd = secondItr->energy();
+          EEDetId seedId = (EEDetId) seedItr->id();
+
           float e3x3 = EcalClusterTools::e3x3( *theSeed, eeRecHits, topology );
           float e5x5 = EcalClusterTools::e5x5( *theSeed, eeRecHits, topology );
+
+          meSCCrystalSiz_->Fill(sIds.size());
+          meSCSeedEne_->Fill(eMax);
+          meSCEne2_->Fill(eMax+e2nd);
+          meSCEneVsEMax_->Fill(eMax,sCluster->energy());
+          meSCEneLowScale_->Fill(sCluster->energy());
+
+          // Prepare to fill maps
+          int ism = Numbers::iSM(seedId);
+          int eeSide;
+          if( ism >= 1 && ism <= 9)
+            eeSide = 0;
+          else
+            eeSide = 1;
+          int eex = seedId.ix();
+          int eey = seedId.iy();
+          float xeex = eex - 0.5;
+          float xeey = eey - 0.5;
+
+          meSCSeedMapOcc_[eeSide]->Fill(xeex, xeey);
+
+          if(sIds.size() == 1)
+            meSCMapSingleCrystal_[eeSide]->Fill(xeex, xeey);
+
+          edm::ESHandle<EcalADCToGeVConstant> pAgc;
+          c.get<EcalADCToGeVConstantRcd>().get(pAgc);
+          const EcalADCToGeVConstant* agc = pAgc.product();
           
+          if(pAgc.isValid()) {
+            if(seedItr->energy() / agc->getEEValue() > 16) {
+              
+              float time = seedItr->time() + 5.0;
+              
+              meSCSeedTimingSummary_->Fill( time );
+              meSCSeedTiming_[ism-1]->Fill( time );
+              meSCSeedTimingMap_[eeSide]->Fill(xeex, xeey, time);
+
+            }
+          } else {
+            LogWarning("EEClusterTask") << "EcalADCToGeVConstant not valid";
+          }
+
           mes1s9_->Fill( eMax/e3x3 );
           mes9s25_->Fill( e3x3/e5x5 );
         }

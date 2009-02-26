@@ -15,6 +15,7 @@
 <use name=TBDataFormats/EcalTBObjects>
 <use name=RecoEcal/EgammaCoreTools>
 <use name=CondFormats/RunInfo>
+<use name=CondFormats/EcalObjects>
 <use name=CondFormats/DataRecord>
 <use name=rootphysics>
 <export>
@@ -35,6 +36,7 @@
   <use name=TBDataFormats/EcalTBObjects>
   <use name=RecoEcal/EgammaCoreTools>
   <use name=CondFormats/RunInfo>
+  <use name=CondFormats/EcalObjects>
   <use name=CondFormats/DataRecord>
   <use name=rootphysics>
   <lib name=DQMEcalEndcapMonitorTasks>
