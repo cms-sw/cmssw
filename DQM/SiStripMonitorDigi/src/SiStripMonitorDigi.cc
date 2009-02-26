@@ -3,7 +3,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.38 2009/02/17 10:05:54 wilkenka Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.39 2009/02/20 21:28:52 dutta Exp $
 #include<fstream>
 #include "TNamed.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -57,7 +57,7 @@ SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) : dqmSt
   edm::ParameterSet ParametersDigiADCs =  conf_.getParameter<edm::ParameterSet>("TH1DigiADCs");
   layerswitchdigiadcson = ParametersDigiADCs.getParameter<bool>("layerswitchon");
   moduleswitchdigiadcson = ParametersDigiADCs.getParameter<bool>("moduleswitchon");
-  
+   
   edm::ParameterSet ParametersStripOccupancy =  conf_.getParameter<edm::ParameterSet>("TH1StripOccupancy");
   layerswitchstripoccupancyon = ParametersStripOccupancy.getParameter<bool>("layerswitchon");
   moduleswitchstripoccupancyon = ParametersStripOccupancy.getParameter<bool>("moduleswitchon");
@@ -209,8 +209,8 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
   eventNb++;
   float iOrbitSec = iEvent.orbitNumber()/11223.0;
   int bx = iEvent.bunchCrossing();
-  unsigned long long tbx = (iEvent.orbitNumber())*3564+bx; 
-  
+  long long tbx = (long long)iEvent.orbitNumber() * 3564+bx; 
+
   // get all digi collections
   //edm::Handle< edm::DetSetVector<SiStripDigi> > digi_detsetvektor;
   typedef std::vector<edm::ParameterSet> Parameters;
@@ -573,7 +573,7 @@ void SiStripMonitorDigi::createSubDetMEs(std::string label) {
     if(subdetswitchapvcycleprofon){
       edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TProfDigiApvCycle");
       dqmStore_->setCurrentFolder("SiStrip/MechanicalView/"+label);
-      HistoName = "Digi_vs_Bx_2_" + label;
+      HistoName = "Digi_vs_Bx_" + label;
       subdetMEs.SubDetDigiApvProf=dqmStore_->bookProfile(HistoName,HistoName,
 					      Parameters.getParameter<int32_t>("Nbins"),
 					      Parameters.getParameter<double>("xmin"),
