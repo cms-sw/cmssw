@@ -39,6 +39,19 @@ class RecoIdealGeometry {
     return true;
   }
 
+  bool insert( DetId id, const std::vector<double>& trans, const std::vector<double>& rot, const std::vector<double>& pars, const std::vector<std::string>& spars ) {
+    if ( trans.size() != 3 || rot.size() != 9 ) return false;
+    pDetIds.push_back(id);
+    pNumShapeParms.push_back(pars.size()); // number of shape specific parameters.
+    pParsIndex.push_back(pPars.size()); // start of this guys "blob"
+    pPars.reserve(pPars.size() + trans.size() + rot.size() + pars.size());
+    std::copy ( trans.begin(), trans.end(), std::back_inserter(pPars));
+    std::copy ( rot.begin(), rot.end(), std::back_inserter(pPars));
+    std::copy ( pars.begin(), pars.end(), std::back_inserter(pPars));
+    std::copy ( spars.begin(), spars.end(), std::back_inserter(strPars));
+    return true;
+  }
+
   size_t size() { 
     assert ( (pDetIds.size() == pNumShapeParms.size()) && (pNumShapeParms.size() == pParsIndex.size()) );
     return pDetIds.size(); 
@@ -54,6 +67,10 @@ class RecoIdealGeometry {
   // }
   const std::vector<DetId>& detIds () const {
     return pDetIds;
+  }
+
+  const std::vector<std::string>& stringParams () const {
+    return strPars;
   }
 
   std::vector<double> translation( size_t ind ) const {
@@ -98,6 +115,7 @@ class RecoIdealGeometry {
  private:    
   // translation always 3; rotation 9 for now; pars depends on shape_type.
   std::vector<DetId> pDetIds;
+  std::vector<std::string> strPars;
   std::vector<double> pPars;  // trans, rot then shape parms.
   // 0 for first pDetId, 3 + 9 + number of shape parameters for second & etc.
   // just save pPars size BEFORE adding next stuff.
