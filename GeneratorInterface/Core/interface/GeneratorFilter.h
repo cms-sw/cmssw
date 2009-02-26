@@ -97,7 +97,7 @@ namespace edm
     
     if ( !hadronizer_.generatePartonsAndHadronize() ) return false;
 
-    //  this is a "fake" stuff
+    //  this is "fake" stuff
     // in principle, decays are done as part of full event generation,
     // except for particles that are marked as to be kept stable
     // but we currently keep in it the design, because we might want

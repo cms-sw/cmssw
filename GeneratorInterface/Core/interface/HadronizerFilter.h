@@ -113,14 +113,7 @@ namespace edm
     // hadronizer_.generatePartons();
     if ( !hadronizer_.hadronize() ) return false ;
 
-    // When the external decay driver is added to the system, it
-    // should be called here.
-
-// some things are done internally, so don't require a complex GenEvent already
-//    // check gen event validity
-//    if ( !hadronizer_.getGenEvent() ) return false;
-
-    //  this is a "fake" stuff
+    //  this is "fake" stuff
     // in principle, decays are done as part of full event generation,
     // except for particles that are marked as to be kept stable
     // but we currently keep in it the design, because we might want
@@ -196,11 +189,11 @@ namespace edm
     
     // this is run-specific
     
-    // get LHE stuff and pass to hadronizer !
+    // get LHE stuff and pass to hadronizer!
 
     edm::Handle<LHERunInfoProduct> product;
     run.getByLabel("source", product);
-            
+
     hadronizer_.setLHERunInfo( new lhef::LHERunInfo(*product) ) ;
    
     if (! hadronizer_.initializeForExternalPartons())
