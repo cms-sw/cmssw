@@ -102,6 +102,8 @@ class EventTree(object):
           return cppCode
       def getListOfAliases(self):
           return self._aliases
+      def SetAlias (self, alias, fullName):
+          self.tree().SetAlias(alias, fullName)
       def index(self):
           return self._index
       def tree(self):
