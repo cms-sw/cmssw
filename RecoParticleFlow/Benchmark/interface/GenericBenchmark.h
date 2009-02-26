@@ -22,11 +22,23 @@ public:
   virtual ~GenericBenchmark();
 
   void setup(DQMStore *DQM = NULL, bool PlotAgainstReco_=true); // CMSSW_2_X_X
-  //void setup(DaqMonitorBEInterface *DQM = NULL); // CMSSW_1_X_X
-  void fill(const edm::View<reco::Candidate> *RecoCollection, const edm::View<reco::Candidate> *GenCollection, bool PlotAgainstReco =true, bool onlyTwoJets = false, double recPt_cut = -1., double maxEta_cut = -1., double deltaR_cut = -1.);
+
+  void fill(const edm::View<reco::Candidate> *RecoCollection, 
+	    const edm::View<reco::Candidate> *GenCollection,
+	    bool PlotAgainstReco =true, 
+	    bool onlyTwoJets = false, 
+	    double recPt_cut = -1., 
+	    double maxEta_cut = -1., 
+	    double deltaR_cut = -1.);
+
   void write(std::string Filename);
 
 private:
+  
+  bool accepted(const reco::Candidate* particle,
+		double ptCut,
+		double etaCut ) const;
+    
 
   TFile *file_;
 
@@ -42,24 +54,24 @@ private:
 
   TH1F *hDeltaEta;
   TH2F *hDeltaEtavsEt;
-  TH2F *hDeltaEtaOverEtavsEt; // ms: propose remove
   TH2F *hDeltaEtavsEta;
-  TH2F *hDeltaEtaOverEtavsEta; // ms: propose remove
-  TH2F *hDeltaEtavsPhi; // ms: propose remove
-  TH2F *hDeltaEtaOverEtavsPhi; // ms: propose remove
 
   TH1F *hDeltaPhi;
   TH2F *hDeltaPhivsEt;
-  TH2F *hDeltaPhiOverPhivsEt; // ms: propose remove
   TH2F *hDeltaPhivsEta;
-  TH2F *hDeltaPhiOverPhivsEta; // ms: propose remove
-  TH2F *hDeltaPhivsPhi; // ms: propose remove
-  TH2F *hDeltaPhiOverPhivsPhi; // ms: propose remove
 
   TH1F *hDeltaR;
   TH2F *hDeltaRvsEt;
   TH2F *hDeltaRvsEta;
-  TH2F *hDeltaRvsPhi; // ms: propose remove
+
+  TH1F *hEtGen;
+  TH1F *hEtaGen;
+  TH1F *hPhiGen;
+
+  TH1F *hEtSeen;
+  TH1F *hEtaSeen;
+  TH1F *hPhiSeen;
+  
 
 protected:
 
