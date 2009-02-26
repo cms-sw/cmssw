@@ -11,7 +11,7 @@
  **  
  **
  **  $Id: PhotonOfflineClient
- **  $Date: 2009/02/17 13:34:10 $ 
+ **  $Date: 2009/02/19 16:33:22 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -158,6 +158,7 @@ void PhotonOfflineClient::doProfileX(TH2 * th2, MonitorElement* me){
       me->setBinContent(bin+1,h1->GetBinContent(bin+1));
       me->setBinError(bin+1,h1->GetBinError(bin+1));
     }
+    me->setEntries(h1->GetEntries());
     delete h1;
   } else {
     throw cms::Exception("PhotonOfflineClient") << "Different number of bins!";
@@ -184,6 +185,7 @@ void  PhotonOfflineClient::dividePlots(MonitorElement* dividend, MonitorElement*
     else {
       dividend->setBinContent(j, 0);
     }
+    dividend->setEntries(numerator->getEntries());
   }
 }
 
