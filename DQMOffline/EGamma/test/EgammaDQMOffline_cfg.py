@@ -11,7 +11,7 @@ DQMStore = cms.Service("DQMStore")
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(100)
 )
 
 
@@ -21,7 +21,7 @@ from DQMOffline.EGamma.piZeroAnalyzer_cfi import *
 photonAnalysis.OutputMEsInRootFile = cms.bool(True)
 photonAnalysis.OutputFileName = cms.string('DQMOfflineRelValGammaJets_Pt_80_120.root')
 photonAnalysis.standAlone = cms.bool(True)
-photonAnalysis.useTriggerFiltering = cms.bool(False)
+photonAnalysis.useTriggerFiltering = cms.bool(True)
 
 piZeroAnalysis.standAlone = cms.bool(True)
 piZeroAnalysis.OutputMEsInRootFile = cms.bool(True)
@@ -31,13 +31,10 @@ piZeroAnalysis.useTriggerFiltering = cms.bool(False)
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
 
-
-
-    '/store/relval/CMSSW_3_0_0_pre6/RelValGammaJets_Pt_80_120/GEN-SIM-RECO/STARTUP_30X_v1/0005/60FEA65F-2DDE-DD11-A12E-001617E30F56.root',
-    '/store/relval/CMSSW_3_0_0_pre6/RelValGammaJets_Pt_80_120/GEN-SIM-RECO/STARTUP_30X_v1/0005/C0E99B59-34DE-DD11-9194-000423D174FE.root',
-    '/store/relval/CMSSW_3_0_0_pre6/RelValGammaJets_Pt_80_120/GEN-SIM-RECO/STARTUP_30X_v1/0005/F41CD6A5-41DE-DD11-8049-000423D99AAA.root',
-    '/store/relval/CMSSW_3_0_0_pre6/RelValGammaJets_Pt_80_120/GEN-SIM-RECO/STARTUP_30X_v1/0005/FCFD0B48-2BDE-DD11-97C8-000423D99B3E.root'
-    
+          '/store/relval/CMSSW_3_1_0_pre1/RelValGammaJets_Pt_80_120/GEN-SIM-RECO/STARTUP_30X_v1/0001/0CAA1EC0-F7F7-DD11-911D-000423D9970C.root',
+         '/store/relval/CMSSW_3_1_0_pre1/RelValGammaJets_Pt_80_120/GEN-SIM-RECO/STARTUP_30X_v1/0001/58AF1BC2-06F8-DD11-91E3-000423D985B0.root',
+         '/store/relval/CMSSW_3_1_0_pre1/RelValGammaJets_Pt_80_120/GEN-SIM-RECO/STARTUP_30X_v1/0001/DE195AF6-F8F7-DD11-A490-001617E30F56.root',
+          '/store/relval/CMSSW_3_1_0_pre1/RelValGammaJets_Pt_80_120/GEN-SIM-RECO/STARTUP_30X_v1/0001/E4EDF9CD-F7F7-DD11-825B-00304879FA4A.root'
 
 ))
 
@@ -49,7 +46,7 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
 )
 
 
-#process.p1 = cms.Path(process.photonAnalysis*process.MEtoEDMConverter)
+#process.p1 = cms.Path(process.egammaDQMOffline*process.MEtoEDMConverter*process.FEVT)
 process.p1 = cms.Path(process.egammaDQMOffline)
 process.schedule = cms.Schedule(process.p1)
 
