@@ -7,3 +7,8 @@ HLTMuonVal = cms.Sequence(
     recoMuonValidationHLT_seq + 
     muonTriggerRateTimeAnalyzer
     )
+
+HLTMuonVal_FastSim = cms.Sequence(
+    muonTriggerRateTimeAnalyzer
+    )
+
