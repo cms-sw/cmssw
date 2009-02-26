@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<!DOCTYPE PoolDatabase SYSTEM "InMemory">
+ <PoolDatabase >
+  <PoolContainer name="L1CaloHcalScaleRcd" >
+   <Class table="L1CALOHCALSCALE" id_columns="ID" name="L1CaloHcalScale" mapping_version="L1CaloHcalScale_basic" >
+     <Blob column="L1CALOHCALSCALE_M__1_BLOB" name="m_scale" />
+   </Class >
+  </PoolContainer >
+ </PoolDatabase >

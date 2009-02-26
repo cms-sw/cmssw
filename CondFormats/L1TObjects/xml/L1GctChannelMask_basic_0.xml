@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<!DOCTYPE PoolDatabase SYSTEM "InMemory">
+ <PoolDatabase >
+  <PoolContainer name="L1GctChannelMaskRcd" >
+   <Class table="L1GCTCHANNELMASK" id_columns="ID" name="L1GctChannelMask" mapping_version="L1GctChannelMask_basic" >
+     <CArray table="L1GCTCHANNELMASK_E_1" id_columns="ID_ID" name="emCrateMask_" position_column="POS" >
+       <Primitive column="EMCRATEMASK__BOOL" name="bool" />
+     </CArray >
+     <Blob column="L1GCTCHANNELMASK_R_1_BLOB" name="regionMask_" />
+   </Class >
+  </PoolContainer >
+ </PoolDatabase >

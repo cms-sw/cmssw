@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<!DOCTYPE PoolDatabase SYSTEM "InMemory">
+ <PoolDatabase >
+  <PoolContainer name="L1RCTChannelMaskRcd" >
+   <Class table="L1RCTCHANNELMASK" id_columns="ID" name="L1RCTChannelMask" mapping_version="L1RCTChannelMask_basic" >
+     <Blob column="L1RCTCHANNELMASK_E_1_BLOB" name="ecalMask" />
+     <Blob column="L1RCTCHANNELMASK_H_1_BLOB" name="hcalMask" />
+     <Blob column="L1RCTCHANNELMASK_H_4_BLOB" name="hfMask" />
+   </Class >
+  </PoolContainer >
+ </PoolDatabase >
