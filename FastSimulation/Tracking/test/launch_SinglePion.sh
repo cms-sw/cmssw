@@ -1,14 +1,15 @@
 #!/bin/sh
 
-castorDir=/castor/cern.ch/user/a/azzi/CMSSW310pre1/
-cmsswDir=/afs/cern.ch/user/a/azzi/scratch0/CMSSW_3_1_0_pre1/src/
+castorDir=/castor/cern.ch/user/a/azzi/CMSSW310pre2/
+cmsswDir=/afs/cern.ch/user/a/azzi/scratch0/CMSSW_3_1_0_pre2/src/
 
 njobs=0
 nevt=0
 #for ((energy=0; energy<=27; energy++));
 #1 -> 23 faits 
 #24->27 fait
-  for ((energy=0; energy<=7; energy++));
+
+ for ((energy=0; energy<=7; energy++));
   do
   case $energy in
       0)
