@@ -5,8 +5,6 @@
 #include <limits>
 #include <boost/cstdint.hpp>
 
-// to be fixed
-#include "CondCore/DBCommon/interface/Exception.h"
 
 
 namespace cond{
@@ -85,22 +83,9 @@ namespace cond{
     }
   };
 
-  const TimeTypeSpecs timeTypeSpecs[] = {
-    TimeTypeTraits<runnumber>::specs(),
-    TimeTypeTraits<timestamp>::specs(),
-    TimeTypeTraits<lumiid>::specs(),
-    TimeTypeTraits<userid>::specs(),
-  };
+  extern const TimeTypeSpecs timeTypeSpecs[];
 
   // find spec by name
-  inline const TimeTypeSpecs & findSpecs(std::string const & name) {
-    size_t i=0;
-    for (; i<TIMETYPE_LIST_MAX; i++)
-      if (name==timeTypeSpecs[i].name) return timeTypeSpecs[i];
-    throw cond::Exception("invalid timetype: "+name);
-    return timeTypeSpecs[0]; // compiler happy
-  }
-
-}
+  const TimeTypeSpecs & findSpecs(std::string const & name);
 
 #endif
