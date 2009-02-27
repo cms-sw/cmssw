@@ -684,7 +684,7 @@ void HcalDataFormatClient::htmlOutput(int runNo, string htmlDir, string htmlName
   
   htmlFile << "<tr align=\"left\">" << endl;
   histoHTML(runNo,fedErrMap_,"DCC Id","# Errors", 92, htmlFile,htmlDir);
-  histoHTML2(runNo,FWVerbyCrate_,"Crate #","Firmware Version", 100, htmlFile,htmlDir);
+  histoHTML2(runNo,FWVerbyCrate_,"Crate #","Firmware Version", 100, htmlFile,htmlDir,true);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
