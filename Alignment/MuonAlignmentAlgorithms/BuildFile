@@ -1,9 +1,8 @@
-<use name=clhep>
-<use name=root>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/PluginManager>
 <use name=FWCore/ServiceRegistry>
+<use name=PhysicsTools/UtilAlgos>
 <use name=FWCore/Utilities>
 <use name=Alignment/CommonAlignment>
 <use name=Geometry/CommonDetUnit>
@@ -19,6 +18,9 @@
 <use name=Geometry/CSCGeometry>
 <use name=Geometry/CSCGeometryBuilder>
 <use name=RecoMuon/TrackingTools>
+<use name=clhep>
+<use name=root>
+<use name=rootminuit>
 <export>
    <lib name=AlignmentMuonAlignmentAlgorithms>
    <use name=root>
@@ -26,7 +28,3 @@
    <use name=FWCore/PluginManager>
    <use name=FWCore/Framework>
 </export>
-
-
-
-

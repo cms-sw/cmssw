@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonResidualsFromTrack_H
 
 /** \class MuonResidualsFromTrack
- *  $Date: Sat Jan 24 16:32:25 CST 2009 $
- *  $Revision: 1.0 $
+ *  $Date: 2009/02/02 13:46:01 $
+ *  $Revision: 1.1 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -22,11 +22,13 @@
 #include <map>
 
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonChamberResidual.h"
-#include "Alignment/MuonAlignmentAlgorithms/interface/MuonDTChamberResidual.h"
+#include "Alignment/MuonAlignmentAlgorithms/interface/MuonDT13ChamberResidual.h"
+#include "Alignment/MuonAlignmentAlgorithms/interface/MuonDT2ChamberResidual.h"
+#include "Alignment/MuonAlignmentAlgorithms/interface/MuonCSCChamberResidual.h"
 
 class MuonResidualsFromTrack {
 public:
-  MuonResidualsFromTrack(edm::ESHandle<GlobalTrackingGeometry> globalGeometry, const Trajectory *traj, AlignableNavigator *navigator);
+  MuonResidualsFromTrack(edm::ESHandle<GlobalTrackingGeometry> globalGeometry, const Trajectory *traj, AlignableNavigator *navigator, double maxResidual);
   ~MuonResidualsFromTrack();
 
   int trackerNumHits() const { return m_tracker_numHits; };
@@ -38,9 +40,9 @@ public:
 
   bool contains_TIDTEC() const { return m_contains_TIDTEC; };
 
-  const std::vector<DetId> chamberIds() const { return m_chamberIds; };
+  const std::vector<unsigned int> indexes() const { return m_indexes; };
 
-  MuonChamberResidual *chamberResidual(DetId chamberId) {
+  MuonChamberResidual *chamberResidual(unsigned int chamberId) {
     if (m_chamberResiduals.find(chamberId) == m_chamberResiduals.end()) return NULL;
     return m_chamberResiduals[chamberId];
   };
@@ -52,8 +54,8 @@ private:
   double m_tracker_chi2;
   bool m_contains_TIDTEC;
 
-  std::vector<DetId> m_chamberIds;
-  std::map<DetId,MuonChamberResidual*> m_chamberResiduals;
+  std::vector<unsigned int> m_indexes;
+  std::map<unsigned int,MuonChamberResidual*> m_chamberResiduals;
 };
 
 #endif // Alignment_MuonAlignmentAlgorithms_MuonResidualsFromTrack_H

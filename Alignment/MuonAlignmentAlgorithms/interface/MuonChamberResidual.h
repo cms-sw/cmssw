@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonChamberResidual_H
 
 /** \class MuonChamberResidual
- *  $Date: Sat Jan 24 16:32:25 CST 2009 $
- *  $Revision: 1.0 $
+ *  $Date: 2009/02/02 13:46:01 $
+ *  $Revision: 1.1 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -18,6 +18,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
+#include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
 class MuonChamberResidual {
@@ -27,42 +28,130 @@ public:
     , m_navigator(navigator)
     , m_chamberId(chamberId)
     , m_chamberAlignable(chamberAlignable)
+    , m_numHits(0)
+    , m_residual_1(0.)
+    , m_residual_x(0.)
+    , m_residual_y(0.)
+    , m_residual_xx(0.)
+    , m_residual_xy(0.)
+    , m_trackx_1(0.)
+    , m_trackx_x(0.)
+    , m_trackx_y(0.)
+    , m_trackx_xx(0.)
+    , m_trackx_xy(0.)
+    , m_tracky_1(0.)
+    , m_tracky_x(0.)
+    , m_tracky_y(0.)
+    , m_tracky_xx(0.)
+    , m_tracky_xy(0.)
   {};
 
-  virtual ~MuonChamberResidual() {};
-
-  AlignableDetOrUnitPtr chamberAlignable() const { return m_chamberAlignable; };
-  
   virtual void addResidual(const TrajectoryStateOnSurface *tsos, const TransientTrackingRecHit *hit) = 0;
+  virtual double signConvention(const unsigned int rawId=0) const = 0;
 
-  virtual bool isRphiValid() = 0;
-  virtual bool isZValid() = 0;
-  virtual bool isRValid() = 0;
-  virtual int rphiHits() = 0;
-  virtual int zHits() = 0;
-  virtual int rHits() = 0;
+  DetId chamberId() const { return m_chamberId; };
+  AlignableDetOrUnitPtr chamberAlignable() const { return m_chamberAlignable; };
 
-  virtual double globalRphiResidual() = 0;
-  virtual double globalZResidual() = 0;
-  virtual double globalRResidual() = 0;
-  virtual double x_residual() = 0;
-  virtual double y_residual() = 0;
-  virtual double z_residual() = 0;
-  virtual double phix_residual() = 0;
-  virtual double phiy_residual() = 0;
-  virtual double phiz_residual() = 0;
+  int numHits() const { return m_numHits; };
 
-  virtual double phi_position(int which) = 0;
-  virtual double z_position(int which) = 0;
-  virtual double R_position(int which) = 0;
-  virtual double localx_position(int which) = 0;
-  virtual double localy_position(int which) = 0;
+  double residual() const {
+    assert(m_numHits > 0);
+    double delta = m_residual_1*m_residual_xx - m_residual_x*m_residual_x;
+    return (m_residual_xx*m_residual_y - m_residual_x*m_residual_xy) / delta;
+  };
+
+  double resslope() const {
+    assert(m_numHits > 0);
+    double delta = m_residual_1*m_residual_xx - m_residual_x*m_residual_x;
+    return (m_residual_1*m_residual_xy - m_residual_x*m_residual_y) / delta;
+  };
+
+  double trackdxdz() const {
+    assert(m_numHits > 0);
+    double delta = m_trackx_1*m_trackx_xx - m_trackx_x*m_trackx_x;
+    return (m_trackx_1*m_trackx_xy - m_trackx_x*m_trackx_y) / delta;
+  };
+
+  double trackdydz() const {
+    assert(m_numHits > 0);
+    double delta = m_tracky_1*m_tracky_xx - m_tracky_x*m_tracky_x;
+    return (m_tracky_1*m_tracky_xy - m_tracky_x*m_tracky_y) / delta;
+  };
+
+  double trackx() const {
+    assert(m_numHits > 0);
+    double delta = m_trackx_1*m_trackx_xx - m_trackx_x*m_trackx_x;
+    return (m_trackx_xx*m_trackx_y - m_trackx_x*m_trackx_xy) / delta;
+  };
+
+  double tracky() const {
+    assert(m_numHits > 0);
+    double delta = m_tracky_1*m_tracky_xx - m_tracky_x*m_tracky_x;
+    return (m_tracky_xx*m_tracky_y - m_tracky_x*m_tracky_xy) / delta;
+  };
+
+  GlobalPoint global_trackpos() {
+    return chamberAlignable()->surface().toGlobal(LocalPoint(trackx(), tracky(), 0.));
+  };
+
+  double hitresid(int i) const {
+    assert(0 <= i  &&  i < int(m_localIDs.size()));
+    return m_localResids[i];
+  }
+
+  double global_hitresid(int i) const {
+    return hitresid(i) * signConvention(m_localIDs[i].rawId());
+  };
+
+  int hitlayer(int i) const {  // only difference between DTs and CSCs is the DetId subclass
+    assert(0 <= i  &&  i < int(m_localIDs.size()));
+    if (m_chamberId.subdetId() == MuonSubdetId::DT) {
+      DTLayerId layerId(m_localIDs[i].rawId());
+      return layerId.layer();
+    }
+    else if (m_chamberId.subdetId() == MuonSubdetId::CSC) {
+      CSCDetId layerId(m_localIDs[i].rawId());
+      return layerId.layer();
+    }
+    else assert(false);
+  };
+
+  double hitposition(int i) const {
+    assert(0 <= i  &&  i < int(m_localIDs.size()));
+    if (m_chamberId.subdetId() == MuonSubdetId::DT) {
+      GlobalPoint pos = m_globalGeometry->idToDet(m_localIDs[i])->position();
+      return sqrt(pow(pos.x(), 2) + pow(pos.y(), 2));                   // R for DTs
+    }
+    else if (m_chamberId.subdetId() == MuonSubdetId::CSC) {
+      return m_globalGeometry->idToDet(m_localIDs[i])->position().z();  // Z for CSCs
+    }
+    else assert(false);
+  };
 
 protected:
   edm::ESHandle<GlobalTrackingGeometry> m_globalGeometry;
   AlignableNavigator *m_navigator;
   DetId m_chamberId;
   AlignableDetOrUnitPtr m_chamberAlignable;
+
+  int m_numHits;
+  double m_residual_1;
+  double m_residual_x;
+  double m_residual_y;
+  double m_residual_xx;
+  double m_residual_xy;
+  double m_trackx_1;
+  double m_trackx_x;
+  double m_trackx_y;
+  double m_trackx_xx;
+  double m_trackx_xy;
+  double m_tracky_1;
+  double m_tracky_x;
+  double m_tracky_y;
+  double m_tracky_xx;
+  double m_tracky_xy;
+  std::vector<DetId> m_localIDs;
+  std::vector<double> m_localResids;
 };
 
 #endif // Alignment_MuonAlignmentAlgorithms_MuonChamberResidual_H
