@@ -2,18 +2,21 @@
 #define CASTOR_KTALGORITHM_H
 
 #include "DataFormats/CastorReco/interface/CastorTower.h"
-#include "DataFormats/CastorReco/interface/CastorJet.h"
+#include "DataFormats/CastorReco/interface/CastorCluster.h"
+
+// typedefs
+typedef math::XYZPointD Point;
 
 using namespace reco;
 
 class KtAlgorithm {
     double phiangle (double testphi);
-    CastorJet calcRecom (CastorJet a, CastorJet b, int recom);
-    double calcDistanceDeltaR (CastorJet a, CastorJet b);
-    std::vector<std::vector<double> > calcdPairs (CastorJetCollection protojets, std::vector<std::vector<double> > dPairs);
-    std::vector<double> calcddi (CastorJetCollection protojets, std::vector<double> ddi);
+    CastorCluster calcRecom (CastorCluster a, CastorCluster b, int recom);
+    double calcDistanceDeltaR (CastorCluster a, CastorCluster b);
+    std::vector<std::vector<double> > calcdPairs (CastorClusterCollection protoclusters, std::vector<std::vector<double> > dPairs);
+    std::vector<double> calcddi (CastorClusterCollection protoclusters, std::vector<double> ddi);
   public:
-    CastorJetCollection runKtAlgo (const CastorTowerCollection inputtowers, const int recom, const double rParameter);
+    CastorClusterCollection runKtAlgo (const CastorTowerRefVector& InputTowers, const int recom, const double rParameter);
 };
 
 #endif /* KTALGORITHM_H */
