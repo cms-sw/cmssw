@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre2/8E29_V122/V2 (CMSSW_3_1_X_2009-02-25-0700_HLT1)
+# /dev/CMSSW_3_1_0/pre2/8E29_V123/V2 (CMSSW_3_1_X_2009-02-25-0700_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/8E29_V122/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/8E29_V123/V2')
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -253,7 +253,9 @@ MeasurementTracker = cms.ESProducer( "MeasurementTrackerESProducer",
   pixelClusterProducer = cms.string( "hltSiPixelClusters" ),
   stripClusterProducer = cms.string( "hltSiStripClusters" ),
   stripLazyGetterProducer = cms.string( "hltSiStripRawToClustersFacility" ),
-  appendToDataLabel = cms.string( "" )
+  appendToDataLabel = cms.string( "" ),
+  inactivePixelDetectorLabels = cms.VInputTag(  ),
+  inactiveStripDetectorLabels = cms.VInputTag(  )
 )
 MuonCkfTrajectoryBuilder = cms.ESProducer( "MuonCkfTrajectoryBuilderESProducer",
   ComponentName = cms.string( "muonCkfTrajectoryBuilder" ),
