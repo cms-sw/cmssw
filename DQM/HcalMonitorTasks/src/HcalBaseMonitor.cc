@@ -569,9 +569,9 @@ void HcalBaseMonitor::FillUnphysicalHEHFBins(std::vector<MonitorElement*> &hh)
 	      hh[0]->setBinContent(eta+2,phi+3,hh[0]->getBinContent(eta+2,phi+2));
 	      hh[0]->setBinContent(eta+2,phi+1,hh[0]->getBinContent(eta+2,phi+2));
 	      hh[0]->setBinContent(eta+2,phi,hh[0]->getBinContent(eta+2,phi+2));
-	      hh[1]->setBinContent(eta+2,phi+3,hh[0]->getBinContent(eta+2,phi+2));
-              hh[1]->setBinContent(eta+2,phi+1,hh[0]->getBinContent(eta+2,phi+2));
-              hh[1]->setBinContent(eta+2,phi,hh[0]->getBinContent(eta+2,phi+2));
+	      hh[1]->setBinContent(eta+2,phi+3,hh[1]->getBinContent(eta+2,phi+2));
+              hh[1]->setBinContent(eta+2,phi+1,hh[1]->getBinContent(eta+2,phi+2));
+              hh[1]->setBinContent(eta+2,phi,hh[1]->getBinContent(eta+2,phi+2));
 
 	    } // else if (abs(ieta)>39 ...)
 	} // for (int phi=0;phi<72;++phi)
