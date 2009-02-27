@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Tue Nov 22 16:41:33 EST 2005
-// $Id: G4StepStatistics.h,v 1.3 2009/02/26 14:55:09 gbenelli Exp $
+// $Id: G4StepStatistics.h,v 1.4 2009/02/27 12:34:40 gbenelli Exp $
 //
 
 // system include files
@@ -178,24 +178,24 @@ OBSERVES(EndOfTrack)
        std::cout<<"Start of the constuctor!!!!!!!!"<<std::endl;
        G4StepTree = fs->make<TTree>("G4StepTree","G4Step Tree ");
        G4StepTree->Branch("Event",&Event,"Event/I");
-       //std::cout<<"created Branch for Event!"<<std::endl;
+       std::cout<<"created Branch for Event!"<<std::endl;
        //TrackID = new TArrayI(100000);
        //std::cout<<"Allocated TrackID!"<<std::endl;
        //G4StepTree->Branch("TrackID",&TrackID,100000);
        //std::cout<<"Allocated TrackID and created Branch for it!"<<std::endl;
-       PDGID = new TArrayI(100000);
+       //PDGID = new TArrayI(100000);
        //std::cout<<"Allocated PDGID!"<<std::endl;
-       G4StepTree->Branch("PDGID",&PDGID,1);
-       //std::cout<<"Allocated PDGID and created Branch for it!"<<std::endl;
+       G4StepTree->Branch("PDGID",&PDGID,"PDGID[100000]/I");
+       std::cout<<"Allocated PDGID and created Branch for it!"<<std::endl;
        Region = new TClonesArray("TObjString",100000);
        G4StepTree->Branch("Region",&Region);
-       //std::cout<<"Allocated Region and created Branch for it!"<<std::endl;
+       std::cout<<"Allocated Region and created Branch for it!"<<std::endl;
        Process = new TClonesArray("TObjString",100000);
        G4StepTree->Branch("Process",&Process);
-       //std::cout<<"Allocated Process and created Branch for it!"<<std::endl;
-       G4StepFreq = new TArrayI(100000);
-       G4StepTree->Branch("G4StepFreq",&G4StepFreq);
-       //std::cout<<"Allocated G4StepFreq and created Branch for it!"<<std::endl;
+       std::cout<<"Allocated Process and created Branch for it!"<<std::endl;
+       //G4StepFreq = new TArrayI(100000);
+       G4StepTree->Branch("G4StepFreq",&G4StepFreq,"G4StepFreq[100000]/I");
+       std::cout<<"Allocated G4StepFreq and created Branch for it!"<<std::endl;
      }
 UPDATE(DDDWorld)
 UPDATE(BeginOfJob)
@@ -263,13 +263,13 @@ UPDATE(EndOfRun)
     //Rolling the map into 5 "arrays", containing the StepID information and the G4Step statistics
     //(*TrackID)[index]=step->first.GetTrackID();
     //std::cout<<"Assigned TrackID"<<std::endl;
-    (*PDGID)[index]=step->first.GetParticlePDGID();
+    PDGID[index]=step->first.GetParticlePDGID();
     //std::cout<<"Assigned PDGID"<<std::endl;
     new ((*Region)[index]) TObjString (step->first.GetRegionName());
     //std::cout<<"Assigned Region"<<std::endl;
     new ((*Process)[index]) TObjString (step->first.GetProcessName());
     //std::cout<<"Assigned Process"<<std::endl;
-    (*G4StepFreq)[index]=*step->second;
+    G4StepFreq[index]=*step->second;
     //std::cout<<"Assigned G4StepFreq"<<std::endl;
   }
   
@@ -287,10 +287,10 @@ UPDATE(EndOfTrack)
  TTree* G4StepTree;
  unsigned int Event;
  //TArrayI* TrackID;
- TArrayI* PDGID;
+ Int_t PDGID[100000];
  TClonesArray* Region;
  TClonesArray* Process;
- TArrayI* G4StepFreq;
+ Int_t G4StepFreq[100000];
 };
 
 #endif
