@@ -29,14 +29,13 @@ void SiStripNoisesBuilder::analyze(const edm::Event& evt, const edm::EventSetup&
 
       float MeanNoise = 5;
       float RmsNoise  = 1;
-      
       float noise =  RandGauss::shoot(MeanNoise,RmsNoise);
       
       //double badStripProb = .5;
       //bool disable = (RandFlat::shoot(1.) < badStripProb ? true:false);
 	
       obj->setData(noise,theSiStripVector);
-      if (count<printdebug_)
+      if (count<static_cast<int>(printdebug_))
 	edm::LogInfo("SiStripNoisesBuilder") << "detid " << it->first << " \t"
 					     << " strip " << strip << " \t"
 					     << noise     << " \t" 

@@ -39,7 +39,7 @@ void SiStripBadChannelBuilder::algoAnalyze(const edm::Event & event, const edm::
     std::vector<unsigned int> theSiStripVector;
     unsigned int NStrips=reader.getNumberOfApvsAndStripLength(BadModule_).first*128;   
     
-    unsigned short lastBad=999;
+    uint32_t lastBad=999;
     unsigned short firstBadStrip=0, NconsecutiveBadStrips=0;
     unsigned int theBadStripRange;
 
