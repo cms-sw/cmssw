@@ -251,13 +251,70 @@
      <var name="OutlierAngle4"/>
   </output>
 </processor>
+
+<processor id="splitChargedOutliers" name="ProcSplitter">
+  <input>
+     <var source="input" name="ChargedOutlierPt"/>
+     <var source="input" name="ChargedOutlierAngle"/>
+  </input>
+  <config>
+     <select first="4"/>
+  </config>
+  <output>
+     <var name="ChargedOutlierPt1"/>
+     <var name="ChargedOutlierPt2"/>
+     <var name="ChargedOutlierPt3"/>
+     <var name="ChargedOutlierPt4"/>
+     <var name="ChargedOutlierPt"/>
+     <var name="ChargedOutlierAngle1"/>
+     <var name="ChargedOutlierAngle2"/>
+     <var name="ChargedOutlierAngle3"/>
+     <var name="ChargedOutlierAngle4"/>
+     <var name="ChargedOutlierAngle"/>
+  </output>
+</processor>
+
+<processor id="ChargedOutlierDefault" name="ProcOptional">
+  <input>
+     <var source="splitChargedOutliers" name="ChargedOutlierPt1"/>
+     <var source="splitChargedOutliers" name="ChargedOutlierPt2"/>
+     <var source="splitChargedOutliers" name="ChargedOutlierPt3"/>
+     <var source="splitChargedOutliers" name="ChargedOutlierPt4"/>
+     <var source="splitChargedOutliers" name="ChargedOutlierAngle1"/>
+     <var source="splitChargedOutliers" name="ChargedOutlierAngle2"/>
+     <var source="splitChargedOutliers" name="ChargedOutlierAngle3"/>
+     <var source="splitChargedOutliers" name="ChargedOutlierAngle4"/>
+  </input>
+  <config>
+     <neutral pos="0"/>
+     <neutral pos="0"/>
+     <neutral pos="0"/>
+     <neutral pos="0"/>
+     <neutral pos="1.57"/>
+     <neutral pos="1.57"/>
+     <neutral pos="1.57"/>
+     <neutral pos="1.57"/>
+  </config>
+  <output>
+     <var name="ChargedOutlierPt1"/>
+     <var name="ChargedOutlierPt2"/>
+     <var name="ChargedOutlierPt3"/>
+     <var name="ChargedOutlierPt4"/>
+     <var name="ChargedOutlierAngle1"/>
+     <var name="ChargedOutlierAngle2"/>
+     <var name="ChargedOutlierAngle3"/>
+     <var name="ChargedOutlierAngle4"/>
+  </output>
+</processor>
 <!-- Default MVA configuration for three prong, 0 pi0 taus -->
         <processor id="runMVA" name="ProcTMVA">
            <input>
+              <var source="input" name="Eta"/>
               <var source="input" name="MainTrackPt"/>
               <var source="input" name="MainTrackAngle"/>
               <var source="input" name="InvariantMassOfSignal"/>
               <var source="input" name="OutlierNCharged"/>
+              <var source="input" name="OutlierSumPt"/>
 
               <!--- Gives invariant mass of the track paired with the first and second tracks, respectively -->
               <var source="DalitzDefault" name="Dalitz1"/>
@@ -268,20 +325,17 @@
               <var source="TrackDefault"  name="TrackAngle1"/>
               <var source="TrackDefault"  name="TrackAngle2"/>
 
-              <var source="OutlierDefault" name="OutlierPt1"/>
-              <var source="OutlierDefault" name="OutlierPt2"/>
-              <var source="OutlierDefault" name="OutlierPt3"/>
-              <var source="OutlierDefault" name="OutlierPt4"/>
-              <var source="OutlierDefault" name="OutlierAngle1"/>
-              <var source="OutlierDefault" name="OutlierAngle2"/>
+              <var source="ChargedOutlierDefault" name="ChargedOutlierPt1"/>
+              <var source="ChargedOutlierDefault" name="ChargedOutlierPt2"/>
+              <var source="ChargedOutlierDefault" name="ChargedOutlierPt3"/>
+              <var source="ChargedOutlierDefault" name="ChargedOutlierPt4"/>
+              <var source="ChargedOutlierDefault" name="ChargedOutlierAngle1"/>
+              <var source="ChargedOutlierDefault" name="ChargedOutlierAngle2"/>
 
            </input>
            <config>
-              <method type="MLP" name="MLP">V:NCycles=600:HiddenLayers=N+1,N:TestRate=10</method>
-              <!--  Features not yet implemented in CVS
-              <setup cuts="" options="NSigTrain=8000:NBkgTrain=8000"/>
-              <trainVar>DecayMode</trainVar>
-              -->
+              <method type="MLP" name="MLP">V:NCycles=700:HiddenLayers=19,37:TestRate=10</method>
+              <setup cuts="" options="NSigTrain=120000:NBkgTrain=120000"/>
            </config>
            <output>
               <var name="MVAOutput"/>
