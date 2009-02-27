@@ -6,11 +6,17 @@
  *
  * \author Hans Van Haevermaet, University of Antwerp
  *
- * \version $Id: CastorCell.h,v 1.1.2.1 2008/08/29 14:29:10 hvanhaev Exp $
+ * \version $Id: CastorCell.h,v 1.2 2008/11/24 22:19:22 hvanhaev Exp $
  *
  */
+
 #include <vector>
+#include <memory>
 #include "DataFormats/Math/interface/Point3D.h"
+
+#include "DataFormats/Common/interface/RefProd.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/RefVector.h"
 
 namespace reco {
 
@@ -46,8 +52,22 @@ namespace reco {
 
     /// z coordinate of cell centroid
     double z() const { return position_.z(); }
+
     /// azimuthal angle of cell centroid
     double phi() const { return position_.phi(); }
+
+    /// x coordinate of cell centroid
+    double x() const { return position_.x(); }
+
+    /// y coordinate of cell centroid
+    double y() const { return position_.y(); }
+
+    /// rho coordinate of cell centroid
+    double rho() const { return position_.rho(); }
+
+    /// eta coordinate of cell centroid
+    double eta() const { return position_.eta(); }
+
   private:
 
     /// cell energy
@@ -57,9 +77,17 @@ namespace reco {
     ROOT::Math::XYZPoint position_;
   };
   
-  // define CastorCellCollection
+  /// collection of CastorCell objects
   typedef std::vector<CastorCell> CastorCellCollection;
-  
+
+  // persistent reference to CastorCell objects
+  typedef edm::Ref<CastorCellCollection> CastorCellRef;
+ 
+  /// vector of references to CastorCell objects all in the same collection
+  typedef edm::RefVector<CastorCellCollection> CastorCellRefVector;
+ 
+  /// iterator over a vector of references to CastorCell objects all in the same collection
+  typedef CastorCellRefVector::iterator CastorCell_iterator;
 }
 
 #endif

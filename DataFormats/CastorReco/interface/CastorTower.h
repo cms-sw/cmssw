@@ -6,25 +6,31 @@
  *
  * \author Hans Van Haevermaet, University of Antwerp
  *
- * \version $Id: CastorTower.h,v 1.1.2.1 2008/08/29 14:29:10 hvanhaev Exp $
+ * \version $Id: CastorTower.h,v 1.2 2008/11/24 22:19:10 hvanhaev Exp $
  *
  */
 #include <vector>
+#include <memory>
 #include "DataFormats/Math/interface/Point3D.h"
+
+#include "DataFormats/Common/interface/RefProd.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/RefVector.h"
+
 #include "DataFormats/CastorReco/interface/CastorCell.h"
-   
+
 namespace reco {
 
   class CastorTower {
   public:
 
-    /// default constructor. Sets energy and position to zero
-    CastorTower() : energy_(0.), position_(ROOT::Math::XYZPoint(0.,0.,0.)), emEnergy_(0.), hadEnergy_(0.), emtotRatio_(0.),
-    width_(0.), depth_(0.), usedCells_(0) { }
+    // default constructor. Set energy and position to zero
+ 
+    CastorTower() : energy_(0.), position_(ROOT::Math::XYZPoint(0.,0.,0.)), emEnergy_(0.), hadEnergy_(0.), fem_(0.), depth_(0.), fhot_(0.) { }
 
-    /// constructor from values
-    CastorTower(const double energy, const ROOT::Math::XYZPoint& position, const double emEnergy, const double hadEnergy, const double emtotRatio, const double width,
-    const double depth, const std::vector<CastorCell> usedCells);
+    // constructor from values
+    CastorTower(const double energy, const ROOT::Math::XYZPoint& position, const double emEnergy, const double hadEnergy, const double fem,
+		const double depth, const double fhot, const CastorCellRefVector& usedCells);
 
     /// destructor
     virtual ~CastorTower();
@@ -42,16 +48,28 @@ namespace reco {
     double hadEnergy() const { return hadEnergy_; }
     
     /// tower em/tot ratio
-    double emtotRatio() const { return emtotRatio_; }
-    
-    /// tower width in phi
-    double width() const { return width_; }
+    double fem() const { return fem_; }
     
     /// tower depth in z
     double depth() const { return depth_; }
     
-    /// vector of usedCells
-    std::vector<CastorCell> getUsedCells() const { return usedCells_; }
+    /// tower  hotcell/tot ratio
+    double fhot() const { return fhot_; }
+
+    /// vector of used Cells
+    CastorCellRefVector getUsedCells() const { return usedCells_; }
+
+    /// fist iterator over CastorCell constituents
+    CastorCell_iterator cellsBegin() const { return usedCells_.begin(); }
+
+    /// last iterator over CastorCell constituents
+    CastorCell_iterator cellsEnd() const { return usedCells_.end(); }
+
+    /// number of CastorCell constituents
+    size_t cellsSize() const { return usedCells_.size(); }
+
+    /// add reference to constituent CastorCell
+    void add( const CastorCellRef & cell ) { usedCells_.push_back( cell ); }
 
     /// comparison >= operator
     bool operator >=(const CastorTower& rhs) const { return (energy_>=rhs.energy_); }
@@ -67,8 +85,19 @@ namespace reco {
 
     /// pseudorapidity of tower centroid
     double eta() const { return position_.eta(); }
+
     /// azimuthal angle of tower centroid
     double phi() const { return position_.phi(); }
+
+    /// x of tower centroid
+    double x() const { return position_.x(); }
+
+    /// y of tower centroid
+    double y() const { return position_.y(); }
+
+    /// rho of tower centroid
+    double rho() const { return position_.rho(); }
+
   private:
 
     /// tower energy
@@ -84,21 +113,29 @@ namespace reco {
     double hadEnergy_;
     
     /// tower em/tot Ratio
-    double emtotRatio_;
-    
-    /// tower width
-    double width_;
+    double fem_;
     
     /// tower depth
     double depth_;
 
-    /// used CastorCells
-    std::vector<CastorCell> usedCells_;
+    /// tower  hotcell/tot ratio
+    double fhot_;
 
+    /// references to CastorCell constituents
+    CastorCellRefVector usedCells_;
   };
   
-  // define CastorTowerCollection
+  /// collection of CastorTower objects
   typedef std::vector<CastorTower> CastorTowerCollection;
+
+  // persistent reference to CastorTower objects
+  typedef edm::Ref<CastorTowerCollection> CastorTowerRef;
+
+  /// vector of references to CastorTower objects all in the same collection
+  typedef edm::RefVector<CastorTowerCollection> CastorTowerRefVector;
+
+  /// iterator over a vector of references to CastorTower objects all in the same collection
+  typedef CastorTowerRefVector::iterator CastorTower_iterator;
 
 }
 
