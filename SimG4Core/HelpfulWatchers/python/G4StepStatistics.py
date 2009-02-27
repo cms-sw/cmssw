@@ -54,6 +54,7 @@ def customise(process):
     process.options = cms.untracked.PSet(
         wantSummary = cms.untracked.bool(True)
         )
+
     process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
         type = cms.string('G4StepStatistics'),
         verbose = cms.untracked.bool(True)
