@@ -11,7 +11,7 @@
 		  "DQMData/PFTask/Benchmarks/iterativeCone5CaloJets/Gen");
   comp.SetStyles(s1, s2);
 
-  Comparator::Mode mode = Comparator::SCALE;
+  Comparator::Mode mode = Comparator::NORMAL;
   
   TCanvas c1("c1", "Tau benchmark");
   FormatPad( &c1, false ); 
@@ -28,7 +28,7 @@
   comp.Draw("DeltaPhi", mode);
   gPad->SaveAs("deltaPhi.png");
 
-  TCanvas c4("c4", "Efficiency");
+  TCanvas c4("c4", "Efficiency PF");
   FormatPad( &c4, false );
   unsigned rebin = 10;
 
@@ -38,5 +38,16 @@
 		   "DQMData/PFTask/Benchmarks/iterativeCone5PFJets/Gen" ); 
   comp2.SetStyles(s1, s2);
   comp2.Draw("EtSeen","EtGen", Comparator::EFF);
-  gPad->SaveAs("efficiency_vs_pT.png");
+  gPad->SaveAs("efficiency_vs_pT_pf.png");
+
+  TCanvas c5("c5", "Efficiency Calo");
+  FormatPad( &c5, false );
+
+  Comparator comp3("benchmark.root",
+		   "DQMData/PFTask/Benchmarks/iterativeCone5CaloJets/Gen",
+		   "benchmark.root",
+		   "DQMData/PFTask/Benchmarks/iterativeCone5CaloJets/Gen" ); 
+  comp3.SetStyles(s1, s2);
+  comp3.Draw("EtSeen","EtGen", Comparator::EFF);
+  gPad->SaveAs("efficiency_vs_pT_calo.png");
 }

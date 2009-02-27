@@ -1,1 +1,3 @@
 tauBenchmarkGeneric.png		"The tau benchmark! E_T(rec) - E_T(true)"
+deltaEta.png			"eta resolution"
+deltaPhi.png			"phi resolution"
