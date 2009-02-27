@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2008/12/08 08:01:51 $
- * $Revision: 1.46 $
+ * $Date: 2009/02/27 12:31:33 $
+ * $Revision: 1.47 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -159,7 +159,7 @@ void EETriggerTowerTask::setup( const char* nameext,
   sprintf(histo, "EETTT Flags %s", nameext);
   string flagsName = histo;
   string emulErrorName = "EETTT EmulError";
-  string emulMatchName = "EBTTT EmulMatch";
+  string emulMatchName = "EETTT EmulMatch";
   string emulFineGrainVetoErrorName = "EETTT EmulFineGrainVetoError";
   string emulFlagErrorName = "EETTT EmulFlagError";
 
