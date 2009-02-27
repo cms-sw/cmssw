@@ -195,6 +195,9 @@ namespace edm {
 	ParameterSetID const& processParameterSetID = i->parameterSetID();
 	ParameterSet processParameterSet;
 	pset::Registry::instance()->getMapped(processParameterSetID, processParameterSet);
+        if (processParameterSet.empty()) {
+          continue;
+        }
 	for (ProductRegistry::ProductList::iterator
 	    it = productRegistry.productListUpdator().begin(),
 	    itEnd = productRegistry.productListUpdator().end();
