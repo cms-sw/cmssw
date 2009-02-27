@@ -1,10 +1,12 @@
 <!-- Default MVA configuration for One prong, 2 pi 0 taus -->
         <processor id="runMVA" name="ProcTMVA">
            <input>
+              <var source="input" name="Eta"/>
               <var source="input" name="MainTrackPt"/>
               <var source="input" name="MainTrackAngle"/>
               <var source="input" name="InvariantMassOfSignal"/>
               <var source="input" name="OutlierNCharged"/>
+              <var source="input" name="OutlierSumPt"/>
 
               <!--- Gives invariant mass of the track paired with the first and second pi0s, respectively -->
               <var source="DalitzDefault" name="Dalitz1"/>
@@ -15,20 +17,17 @@
               <var source="PiZeroDefault" name="PiZeroAngle1"/>
               <var source="PiZeroDefault" name="PiZeroAngle2"/>
 
-              <var source="OutlierDefault" name="OutlierPt1"/>
-              <var source="OutlierDefault" name="OutlierPt2"/>
-              <var source="OutlierDefault" name="OutlierPt3"/>
-              <var source="OutlierDefault" name="OutlierPt4"/>
-              <var source="OutlierDefault" name="OutlierAngle1"/>
-              <var source="OutlierDefault" name="OutlierAngle2"/>
+              <var source="ChargedOutlierDefault" name="ChargedOutlierPt1"/>
+              <var source="ChargedOutlierDefault" name="ChargedOutlierPt2"/>
+              <var source="ChargedOutlierDefault" name="ChargedOutlierPt3"/>
+              <var source="ChargedOutlierDefault" name="ChargedOutlierPt4"/>
+              <var source="ChargedOutlierDefault" name="ChargedOutlierAngle1"/>
+              <var source="ChargedOutlierDefault" name="ChargedOutlierAngle2"/>
 
            </input>
            <config>
-              <method type="MLP" name="MLP">V:NCycles=600:HiddenLayers=N+1,N:TestRate=10</method>
-              <!--  Features not yet implemented in CVS
-              <setup cuts="" options="NSigTrain=8000:NBkgTrain=8000"/>
-              <trainVar>DecayMode</trainVar>
-              -->
+              <method type="MLP" name="MLP">V:NCycles=700:HiddenLayers=19,37:TestRate=10</method>
+              <setup cuts="" options="NSigTrain=100000:NBkgTrain=100000"/>
            </config>
            <output>
               <var name="MVAOutput"/>
