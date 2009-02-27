@@ -13,7 +13,7 @@
 //
 // Original Author:  Nhan Tran
 //         Created:  Mon Jul 16m 16:56:34 CDT 2007
-// $Id: CosmicSplitterValidation.cc,v 1.2 2008/11/05 14:01:00 ntran Exp $
+// $Id: CosmicSplitterValidation.cc,v 1.3 2009/01/27 13:57:09 ntran Exp $
 //
 //
 
@@ -206,12 +206,12 @@ private:
 // constructors and destructor
 //
 CosmicSplitterValidation::CosmicSplitterValidation(const edm::ParameterSet& iConfig):
-	checkIfGolden_(iConfig.getParameter<bool>("checkIfGolden")),
-	splitMuons_(iConfig.getParameter<bool> ("ifSplitMuons")),
 	splitTracks_(iConfig.getParameter<edm::InputTag>("splitTracks")),
 	splitGlobalMuons_(iConfig.getParameter<edm::InputTag>("splitGlobalMuons")),
+	originalTracks_(iConfig.getParameter<edm::InputTag>("originalTracks")),
 	originalGlobalMuons_(iConfig.getParameter<edm::InputTag>("originalGlobalMuons")),
-	originalTracks_(iConfig.getParameter<edm::InputTag>("originalTracks"))
+	checkIfGolden_(iConfig.getParameter<bool>("checkIfGolden")),
+	splitMuons_(iConfig.getParameter<bool> ("ifSplitMuons"))
 {
 	
 }
