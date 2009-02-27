@@ -4,8 +4,8 @@
 /*
  * \file EESummaryClient.h
  *
- * $Date: 2008/12/04 13:54:56 $
- * $Revision: 1.31 $
+ * $Date: 2009/02/12 11:27:42 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  *
 */
@@ -140,6 +140,7 @@ MonitorElement* meTriggerTowerTiming_[2];
 MonitorElement* meGlobalSummary_[2];
 
 TProfile2D* hpot01_[18];
+TProfile2D* httt01_[18];
 
 };
 

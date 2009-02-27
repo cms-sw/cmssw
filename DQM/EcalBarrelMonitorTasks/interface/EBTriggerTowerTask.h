@@ -4,8 +4,8 @@
 /*
  * \file EBTriggerTowerTask.h
  *
- * $Date: 2008/12/04 13:53:05 $
- * $Revision: 1.21 $
+ * $Date: 2009/02/08 23:59:42 $
+ * $Revision: 1.22 $
  * \author C. Bernet
  *
 */
@@ -78,7 +78,7 @@ class EBTriggerTowerTask : public edm::EDAnalyzer {
   /// process a collection of digis, either real or emulated
   void processDigis( const edm::Event& e, 
                      const edm::Handle<EcalTrigPrimDigiCollection>& digis, 
-		     MonitorElement* meEtMap,
+		     array1& meEtMap,
 		     array1& meVeto,
 		     array1& meFlags,
 		     const edm::Handle<EcalTrigPrimDigiCollection>& compDigis
@@ -94,8 +94,8 @@ class EBTriggerTowerTask : public edm::EDAnalyzer {
   /// local event counter
   int ievt_;
 
-  /// Et vs TT index
-  MonitorElement* meEtMapReal_;
+  /// Et vs ix vs iy, for each SM 
+  array1 meEtMapReal_;
 
   /// fine grain veto vs iphi vs ieta, for each SM 
   array1 meVetoReal_;
@@ -103,8 +103,8 @@ class EBTriggerTowerTask : public edm::EDAnalyzer {
   /// flag vs iphi vs ieta, for each SM   
   array1 meFlagsReal_;
   
-  /// Emulated Et vs TT index
-  MonitorElement* meEtMapEmul_;
+  /// Emulated Et vs ix vs iy, for each SM 
+  array1 meEtMapEmul_;
 
   /// Emulated fine grain veto vs iphi vs ieta, for each SM 
   array1 meVetoEmul_;

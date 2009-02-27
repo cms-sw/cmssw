@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2009/02/12 11:27:42 $
- * $Revision: 1.171 $
+ * $Date: 2009/02/24 11:49:52 $
+ * $Revision: 1.172 $
  * \author G. Della Ricca
  *
 */
@@ -109,7 +109,8 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps) {
     int ism = superModules_[i];
 
     hpot01_[ism-1] = 0;
-
+    httt01_[ism-1] = 0;
+    
   }
 
 }
@@ -414,10 +415,12 @@ void EBSummaryClient::cleanup(void) {
 
     if ( cloneME_ ) {
       if ( hpot01_[ism-1] ) delete hpot01_[ism-1];
+      if ( httt01_[ism-1] ) delete httt01_[ism-1]; 
     }
 
     hpot01_[ism-1] = 0;
-
+    httt01_[ism-1] = 0;
+    
   }
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EBSummaryClient" );
@@ -660,6 +663,10 @@ void EBSummaryClient::analyze(void) {
       sprintf(histo, (prefixME_ + "/EBPedestalOnlineTask/Gain12/EBPOT pedestal %s G12").c_str(), Numbers::sEB(ism).c_str());
       me = dqmStore_->get(histo);
       hpot01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hpot01_[ism-1] );
+
+      sprintf(histo, (prefixME_ + "/EBTriggerTowerTask/EBTTT Et map Real Digis %s").c_str(), Numbers::sEB(ism).c_str());
+      me = dqmStore_->get(histo);
+      httt01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, httt01_[ism-1] );
 
       for ( int ie = 1; ie <= 85; ie++ ) {
         for ( int ip = 1; ip <= 20; ip++ ) {
@@ -988,23 +995,13 @@ void EBSummaryClient::analyze(void) {
 
           }
 
+          float num01, mean01, rms01;
+          bool update01 = UtilsClient::getBinStatistics(httt01_[ism-1], ie, ip, num01, mean01, rms01);
+
+          if ( update01 ) meTriggerTowerEt_->setBinContent( ipx, iex, mean01 );
+          
           if ( ebtttc ) {
-
-            me = ebtttc->me_h01_[ism-1];
-
-            bool hasRealDigi = false;
-
-            if ( me ) {
-
-              float xval = me->getBinContent( ie, ip );
-
-              TProfile2D* obj = UtilsClient::getHisto<TProfile2D*>( me );
-              if(obj && obj->GetBinEntries(obj->GetBin( ie, ip ))!=0) hasRealDigi = true;
-
-              meTriggerTowerEt_->setBinContent( ipx, iex, xval );
-
-            }
-
+              
             me = ebtttc->me_o01_[ism-1];
 
             if ( me ) {
@@ -1016,7 +1013,7 @@ void EBSummaryClient::analyze(void) {
             }
 
             float xval = 6;
-            if(!hasRealDigi) xval = 2;
+            if( mean01 <= 0 ) xval = 2;
             else {
 
               h2 = ebtttc->l01_[ism-1];

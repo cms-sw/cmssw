@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2009/02/23 11:34:41 $
- * $Revision: 1.155 $
+ * $Date: 2009/02/24 11:49:17 $
+ * $Revision: 1.156 $
  * \author G. Della Ricca
  *
 */
@@ -148,6 +148,7 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps) {
     int ism = superModules_[i];
 
     hpot01_[ism-1] = 0;
+    httt01_[ism-1] = 0;
 
   }
 
@@ -639,9 +640,11 @@ void EESummaryClient::cleanup(void) {
 
     if ( cloneME_ ) {
       if ( hpot01_[ism-1] ) delete hpot01_[ism-1];
+      if ( httt01_[ism-1] ) delete httt01_[ism-1];
     }
 
     hpot01_[ism-1] = 0;
+    httt01_[ism-1] = 0;
 
   }
 
@@ -1038,6 +1041,10 @@ void EESummaryClient::analyze(void) {
       me = dqmStore_->get(histo);
       hpot01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hpot01_[ism-1] );
 
+      sprintf(histo, (prefixME_ + "/EETriggerTowerTask/EETTT Et map Real Digis %s").c_str(), Numbers::sEE(ism).c_str());
+      me = dqmStore_->get(histo);
+      httt01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, httt01_[ism-1] );
+
       for ( int ix = 1; ix <= 50; ix++ ) {
         for ( int iy = 1; iy <= 50; iy++ ) {
 
@@ -1333,30 +1340,15 @@ void EESummaryClient::analyze(void) {
 
           }
 
+          float num01, mean01, rms01;
+          bool update01 = UtilsClient::getBinStatistics(httt01_[ism-1], jx, jy, num01, mean01, rms01);
+
+          if ( update01 ) {
+            if ( ism >= 1 && ism <= 9 ) meTriggerTowerEt_[0]->setBinContent( 101 - jx, jy, mean01 );
+            else meTriggerTowerEt_[1]->setBinContent( jx, jy, mean01 );
+          }
+
           if ( eetttc ) {
-
-            me = eetttc->me_h01_[ism-1];
-
-            bool hasRealDigi = false;
-
-            if ( me ) {
-
-              float xval = me->getBinContent( ix, iy );
-
-              TProfile2D* obj = UtilsClient::getHisto<TProfile2D*>( me );
-              if(obj && obj->GetBinEntries(obj->GetBin( ix, iy ))!=0) hasRealDigi = true;
-
-              if ( ism >= 1 && ism <= 9 ) {
-                if ( xval > 0 ) {
-                  meTriggerTowerEt_[0]->setBinContent( 101 - jx, jy, xval );
-                }
-              } else {
-                if ( xval > 0 ) {
-                  meTriggerTowerEt_[1]->setBinContent( jx, jy, xval );
-                }
-              }
-
-            }
 
             me = eetttc->me_o01_[ism-1];
 
@@ -1373,7 +1365,7 @@ void EESummaryClient::analyze(void) {
             }
 
             float xval = 6;
-            if(!hasRealDigi) xval = 2;
+            if( mean01 <= 0 ) xval = 2;
             else {
 
               h2 = eetttc->l01_[ism-1];

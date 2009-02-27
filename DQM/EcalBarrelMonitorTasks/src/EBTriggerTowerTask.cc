@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2008/12/04 15:49:43 $
- * $Revision: 1.81 $
+ * $Date: 2008/12/08 08:01:50 $
+ * $Revision: 1.82 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -40,18 +40,17 @@ EBTriggerTowerTask::EBTriggerTowerTask(const ParameterSet& ps) {
 
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
-  meEtMapReal_ = 0;
-  meEtMapEmul_ = 0;
-
+  reserveArray(meEtMapReal_);
   reserveArray(meVetoReal_);
   reserveArray(meFlagsReal_);
+  reserveArray(meEtMapEmul_);
   reserveArray(meVetoEmul_);
   reserveArray(meFlagsEmul_);
   reserveArray(meEmulError_);
   reserveArray(meEmulMatch_);
   reserveArray(meVetoEmulError_);
   reserveArray(meFlagEmulError_);
-
+  
   realCollection_ =  ps.getParameter<InputTag>("EcalTrigPrimDigiCollectionReal");
   emulCollection_ =  ps.getParameter<InputTag>("EcalTrigPrimDigiCollectionEmul");
   EBDigiCollection_ = ps.getParameter<InputTag>("EBDigiCollection");
@@ -99,13 +98,12 @@ void EBTriggerTowerTask::endRun(const Run& r, const EventSetup& c) {
 
 void EBTriggerTowerTask::reset(void) {
 
-  if( meEtMapReal_ ) meEtMapReal_->Reset();
-  if( meEtMapEmul_ ) meEtMapEmul_->Reset();
-
   for (int i = 0; i < 36; i++) {
 
+    if ( meEtMapReal_[i] ) meEtMapReal_[i]->Reset();
     if ( meVetoReal_[i] ) meVetoReal_[i]->Reset();
     if ( meFlagsReal_[i] ) meFlagsReal_[i]->Reset();
+    if ( meEtMapEmul_[i] ) meEtMapEmul_[i]->Reset();
     if ( meVetoEmul_[i] ) meVetoEmul_[i]->Reset();
     if ( meFlagsEmul_[i] ) meFlagsEmul_[i]->Reset();
     if ( meEmulError_[i] ) meEmulError_[i]->Reset();
@@ -137,10 +135,12 @@ void EBTriggerTowerTask::setup( const char* nameext,
                                 const char* folder,
                                 bool emulated ) {
 
+  array1*  meEtMap = &meEtMapReal_;
   array1*  meVeto = &meVetoReal_;
   array1*  meFlags = &meFlagsReal_;
 
   if( emulated ) {
+    meEtMap = &meEtMapEmul_;
     meVeto = &meVetoEmul_;
     meFlags= &meFlagsEmul_;
   }
@@ -161,24 +161,20 @@ void EBTriggerTowerTask::setup( const char* nameext,
   string emulFineGrainVetoErrorName = "EBTTT EmulFineGrainVetoError";
   string emulFlagErrorName = "EBTTT EmulFlagError";
 
-  if ( !emulated ) {
-    meEtMapReal_ = dqmStore_->book2D(etMapName.c_str(), etMapName.c_str(),
-                                     68*36, 0, 68*36,
-                                     256, 0, 256.);
-    meEtMapReal_->setAxisTitle("iTT", 1);
-    meEtMapReal_->setAxisTitle("compressed E_{T}", 2);
-  }
-
-  if ( emulated ) {
-    meEtMapEmul_ = dqmStore_->book2D(etMapName.c_str(), etMapName.c_str(),
-                                     68*36, 0, 68*36,
-                                     256, 0, 256.);
-    meEtMapEmul_->setAxisTitle("iTT", 1);
-    meEtMapEmul_->setAxisTitle("compressed E_{T}", 2);
-  }
 
   for (int i = 0; i < 36; i++) {
+    
+    string etMapNameSM = etMapName;
+    etMapNameSM += " " + Numbers::sEB(i+1);
 
+    (*meEtMap)[i] = dqmStore_->bookProfile2D(etMapNameSM.c_str(), etMapNameSM.c_str(),
+                                               nTTEta, 0, nTTEta,
+                                               nTTPhi, 0, nTTPhi,
+                                               256, 0, 256.);
+    (*meEtMap)[i]->setAxisTitle("ieta'", 1);
+    (*meEtMap)[i]->setAxisTitle("iphi'", 2);
+    dqmStore_->tag((*meEtMap)[i], i+1);
+    
     string fineGrainVetoNameSM = fineGrainVetoName;
     fineGrainVetoNameSM += " " + Numbers::sEB(i+1);
 
@@ -321,12 +317,10 @@ void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
 
 void
 EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiCollection>& digis,
-                                  MonitorElement* meEtMap,
+                                  array1& meEtMap,
                                   array1& meVeto,
                                   array1& meFlags,
                                   const Handle<EcalTrigPrimDigiCollection>& compDigis ) {
-
-//  LogDebug("EBTriggerTowerTask") << "processing " << meEtMapReal_->getName();
 
   map<EcalTrigTowerDetId, int> crystalsInTower;
 
@@ -360,11 +354,6 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
 
     int ismt = Numbers::iSM( tpdigiItr->id() );
 
-    int itt = Numbers::iTT( tpdigiItr->id() );
-    int itcc = Numbers::TCCid( tpdigiItr->id() );
-
-    int xitt = 68*(itcc-37)+itt-1;
-
     int iet = abs(tpdigiItr->id().ieta());
     int ipt = tpdigiItr->id().iphi();
 
@@ -389,7 +378,7 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
     float xval;
 
     xval = tpdigiItr->compressedEt();
-    if ( meEtMap ) meEtMap->Fill(xitt, xval);
+    if ( meEtMap[ismt-1] ) meEtMap[ismt-1]->Fill(xiet, xipt, xval);
 
     xval = 0.5 + tpdigiItr->fineGrain();
     if ( meVeto[ismt-1] ) meVeto[ismt-1]->Fill(xiet, xipt, xval);
