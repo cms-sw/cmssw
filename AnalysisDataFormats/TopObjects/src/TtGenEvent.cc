@@ -282,16 +282,16 @@ TtGenEvent::quarkFromAntiTopBar() const
   return cand;
 }
 
-const std::vector<const reco::GenParticle*> TtGenEvent::leptonicDecayTopRadiation() const{
-  if(leptonicDecayTop()->pdgId()==6) return (topRadiation());
-  if(leptonicDecayTop()->pdgId()==-6) return (topBarRadiation());
-  const std::vector<const reco::GenParticle*> rad;
+std::vector<const reco::GenParticle*> TtGenEvent::leptonicDecayTopRadiation() const{
+  if(leptonicDecayTop() && leptonicDecayTop()->pdgId()==6) return (topRadiation());
+  if(leptonicDecayTop() && leptonicDecayTop()->pdgId()==-6) return (topBarRadiation());
+  std::vector<const reco::GenParticle*> rad;
   return (rad);
 }
 
-const std::vector<const reco::GenParticle*> TtGenEvent::hadronicDecayTopRadiation() const{
-  if(hadronicDecayTop()->pdgId()==6) return (topRadiation());
-  if(hadronicDecayTop()->pdgId()==-6) return (topBarRadiation());
-  const std::vector<const reco::GenParticle*> rad;
+std::vector<const reco::GenParticle*> TtGenEvent::hadronicDecayTopRadiation() const{
+  if(hadronicDecayTop() && hadronicDecayTop()->pdgId()==6) return (topRadiation());
+  if(hadronicDecayTop() && hadronicDecayTop()->pdgId()==-6) return (topBarRadiation());
+  std::vector<const reco::GenParticle*> rad;
   return (rad);
 }
