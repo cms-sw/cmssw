@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms    
 
-from RecoLocalTracker.SiStripClusterizer.ClusterizerUnitTestFunctions_cff import *
+from RecoLocalTracker.SiStripClusterizer.test.ClusterizerUnitTestFunctions_cff import *
 
 ClusterizerDefaultGroup = ClusterizerTest( "Default Clusterizer Settings",
                                            dict( channel=2, seed=3, cluster=5, hole=0, nBad=0, nAdj=1),
