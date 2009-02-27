@@ -186,7 +186,7 @@
 	    it=theAlignables.begin(); it!=theAlignables.end(); it++) {
 	    Alignable* ali=(*it);
 	    // Alignment parameters
-	    AlignmentParameters* par = ali->alignmentParameters();
+	    // AlignmentParameters* par = ali->alignmentParameters();
 	    edm::LogInfo("Alignment") << "now apply params";
 	    theAlignmentParameterStore->applyParameters(ali);
 	    // set these parameters 'valid'
