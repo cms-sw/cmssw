@@ -130,6 +130,7 @@ void testExpressionParser::checkAll() {
     checkTrack("hitPattern.numberOfValidHits", trk.hitPattern().numberOfValidHits());
     checkTrack("extra.outerPhi", trk.extra()->outerPhi());
     checkTrack("referencePoint.R", trk.referencePoint().R());
+    checkTrack("parameters.At(0)", trk.parameters().At(0));
   }
   reco::Candidate::LorentzVector p1(1, 2, 3, 4);
   reco::Candidate::LorentzVector p2(1.1, 2.2, 3.3, 4.4);
