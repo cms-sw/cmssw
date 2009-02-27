@@ -13,7 +13,7 @@
 //
 // Original Author:  Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronAnalyzer.cc,v 1.6 2008/09/17 18:05:39 nancy Exp $
+// $Id: ElectronAnalyzer.cc,v 1.7 2008/09/17 19:39:34 nancy Exp $
 //
 //
 
@@ -113,10 +113,10 @@ void ElectronAnalyzer::beginJob(edm::EventSetup const&iSetup){
   std::string::size_type locSC = matchingObjectCollection_.label().find( "SuperCluster", 0 );
   std::string type_;
   if ( locSC != std::string::npos ) {
-    std::cout << "Matching objects are SuperClusters "<< std::endl;
+    //std::cout << "Matching objects are SuperClusters "<< std::endl;
     type_ = "SC";
   } else {
-    std::cout << "Didn't recognize input matching objects!! " << std::endl; 
+    //std::cout << "Didn't recognize input matching objects!! " << std::endl; 
   }
   
   if (dbe_) {
