@@ -6,6 +6,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 
+#include <algorithm>
 
 using namespace std;
 
@@ -198,4 +199,12 @@ TrajectoryMeasurement const & Trajectory::closestMeasurement(GlobalPoint point) 
   vector<TrajectoryMeasurement>::const_iterator iter = std::min_element(measurements().begin(), measurements().end(), LessMag(point) );
 
   return (*iter);
+}
+
+void Trajectory::reverse() {
+    // reverse the direction (without changing it if it's not along or opposite)
+    if (theDirection == alongMomentum)           theDirection = oppositeToMomentum;
+    else if (theDirection == oppositeToMomentum) theDirection = alongMomentum;
+    // reverse the order of the hits
+    std::reverse(theData.begin(), theData.end());
 }

@@ -207,6 +207,9 @@ public:
 
   TrajectoryMeasurement const & closestMeasurement(GlobalPoint) const; 
 
+  /// Reverse the propagation direction and the order of the trajectory measurements.
+  /// It doesn't reverse the forward and backward predicted states within each trajectory measurement
+  void reverse() ;
 private:
 
   /// used to determine closest measurement to given point
