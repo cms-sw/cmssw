@@ -1,4 +1,5 @@
 #include "CondCore/DBCommon/interface/Time.h"
+#include "CondCore/DBCommon/interface/Exception.h"
 
 
 #include <iostream>
