@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2009/02/27 12:31:33 $
- * $Revision: 1.82 $
+ * $Date: 2009/02/27 13:54:09 $
+ * $Revision: 1.83 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -191,7 +191,7 @@ void EETriggerTowerClient::setup(void) {
       me_m01_[ism-1][j]->setAxisTitle("jy", 2);
     }
     if ( me_o01_[ism-1] ) dqmStore_->removeElement( me_o01_[ism-1]->getName() );
-    sprintf(histo, "EETTT Trigger Primitives Timing %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EETTT Trigger Primitives Timing %s", Numbers::sEE(ism).c_str());
     me_o01_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
     me_o01_[ism-1]->setAxisTitle("jx", 1);
     me_o01_[ism-1]->setAxisTitle("jy", 2);
