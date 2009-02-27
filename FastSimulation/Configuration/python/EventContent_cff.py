@@ -14,8 +14,10 @@ from Configuration.EventContent.EventContent_cff import *
 
 FastSimCoreFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_famosPileUp_*_*', 
-        'keep *_famosSimHits_*_*')
+        'keep *_famosSimHits_*_*',
+        'keep *_MuonSimHits_*_*')
 )
+
 FastSimCoreFEVT.outputCommands.extend(GeneratorInterfaceRAW.outputCommands)
 
 
