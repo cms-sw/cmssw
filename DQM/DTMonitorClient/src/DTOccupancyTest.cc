@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/03 14:20:32 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/11/24 09:23:27 $
+ *  $Revision: 1.12 $
  *  \author G. Cerminara - University and INFN Torino
  */
 
@@ -230,8 +230,8 @@ string DTOccupancyTest::getMEName(string histoTag, const DTChamberId& chId) {
 
 
   string folderRoot = topFolder() + "Wheel" + wheel.str() +
-    "/Station" + station.str() +
-    "/Sector" + sector.str() + "/";
+    "/Sector" + sector.str() +
+    "/Station" + station.str() + "/";
 
   string folder = "Occupancies/";
   
