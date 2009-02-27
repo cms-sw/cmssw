@@ -41,6 +41,9 @@ class FastTrackMerger : public edm::EDProducer
   unsigned minHits;
   unsigned trackAlgo;
   std::string qualityStr;
+  unsigned theMinimumNumberOfHits;
+  unsigned theMaxLostHits;
+  unsigned theMaxConsecutiveLostHits;
 
 };
 

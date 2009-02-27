@@ -5,7 +5,7 @@ process = cms.Process("TKAN")
 
 # The number of events to be processed.
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10000)
+    input = cms.untracked.int32(5000)
 )
 
 

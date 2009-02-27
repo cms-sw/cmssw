@@ -204,6 +204,7 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf) :t
       << " WARNING : zVertexConstraint does not have the proper size "
       << std::endl;
 
+
 }
 
   
@@ -430,7 +431,8 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	if ( isInside ) continue;
 
 	// Check if on requested detectors
-	bool isOndet =  theSeedHits0.isOnRequestedDet(firstHitSubDetectors[ialgo]);
+	//	bool isOndet =  theSeedHits0.isOnRequestedDet(firstHitSubDetectors[ialgo]);
+	bool isOndet =  theSeedHits0.isOnRequestedDet(firstHitSubDetectors[ialgo], seedingAlgo[ialgo]);
 	if ( !isOndet ) break;
 
 #ifdef FAMOS_DEBUG
@@ -449,7 +451,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	  if ( isInside ) continue;
 
 	  // Check if on requested detectors
-	  isOndet =  theSeedHits1.isOnRequestedDet(secondHitSubDetectors[ialgo]);
+	  isOndet =  theSeedHits1.isOnRequestedDet(secondHitSubDetectors[ialgo], seedingAlgo[ialgo]);
 	  if ( !isOndet ) break;
 
 	  // Check if on the same layer as previous hit
@@ -514,7 +516,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	    if ( isInside ) continue;
 	    
 	    // Check if on requested detectors
-	    isOndet =  theSeedHits2.isOnRequestedDet(thirdHitSubDetectors[ialgo]);
+	    isOndet =  theSeedHits2.isOnRequestedDet(thirdHitSubDetectors[ialgo], seedingAlgo[ialgo]);
 	    if ( !isOndet ) break;
 
 	    // Check if on the same layer as previous hit

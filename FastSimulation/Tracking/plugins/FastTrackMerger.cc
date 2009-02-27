@@ -59,6 +59,19 @@ FastTrackMerger::FastTrackMerger(const edm::ParameterSet& conf)
   // optional trackAlgo (iter1/2/3/4)
   trackAlgo = conf.getUntrackedParameter<unsigned>("trackAlgo",0);
 
+  //new parameters for Trajectory filtering
+
+  // The minimum number of hits
+  theMinimumNumberOfHits = conf.getUntrackedParameter<unsigned>("MinNumberOfTrajHits",0);
+
+  // The maximum number of Lost Hits
+  theMaxLostHits = conf.getUntrackedParameter<unsigned>("MaxLostTrajHits",99);
+
+  // the max number of consecutive Lost Hits 
+  theMaxConsecutiveLostHits = conf.getUntrackedParameter<unsigned>("MaxConsecutiveLostTrajHits",3);
+
+  //======================
+
   if ( !tracksOnly ) { 
     produces<reco::TrackExtraCollection>();
     produces<TrackingRecHitCollection>();
@@ -84,6 +97,7 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
   case 2:  algo = reco::TrackBase::iter2; break;
   case 3:  algo = reco::TrackBase::iter3; break;
   case 4:  algo = reco::TrackBase::iter4; break;
+  case 5:  algo = reco::TrackBase::iter5; break;
   default: algo = reco::TrackBase::undefAlgorithm;
   }
 
@@ -193,6 +207,11 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
 #endif
 
 	// Ignore tracks with too small a pT
+#ifdef FAMOS_DEBUG
+	if ( aTrack->innerMomentum().Perp2() < pTMin2 ) 
+	  std::cout << "PTMIN CUT APPLIED = " <<  aTrack->innerMomentum().Perp2() << std::endl;
+#endif
+
 	if ( aTrack->innerMomentum().Perp2() < pTMin2 ) continue;
 	
 	// Ignore tracks with too small a pT
@@ -255,7 +274,7 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
 	if( iA != alreadyAddedTracks.end() ) continue;
 	
 #ifdef FAMOS_DEBUG
-	std::cout << recoTrackId << " Newly Added ";
+	std::cout << recoTrackId << " Newly Added " << std::endl;
 #endif
 	//if it is not there then add it! 
 	alreadyAddedTracks.insert(recoTrackId);
@@ -266,6 +285,40 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
 	// Ignore tracks with too few hits
 	if ( aTrackRef->recHitsSize() < minHits ) continue;
 	
+	//==== add more cuts on the trajectory (emulate the Trajectory Filter) 
+
+#ifdef FAMOS_DEBUG
+	if(aTrajectoryRef->lostHits() > theMaxLostHits )
+	  std::cout << "\tmaxLostHits= " << aTrajectoryRef->lostHits() << "\tCUT =" << theMaxLostHits << std::endl;
+#endif
+
+	if(aTrajectoryRef->lostHits() > theMaxLostHits ) continue;
+
+#ifdef FAMOS_DEBUG
+	if(aTrajectoryRef->foundHits() < theMinimumNumberOfHits )
+	  std::cout << "\tMinimumNumberOfHits = " <<  aTrajectoryRef->foundHits() << "\tCUT = " <<theMinimumNumberOfHits <<  std::endl;
+#endif
+	
+	if(aTrajectoryRef->foundHits() < theMinimumNumberOfHits ) continue;
+	//calculate the consecutive Lost Hits
+	int consecLostHits = 0;
+	const std::vector<TrajectoryMeasurement> tms = aTrajectoryRef->measurements();
+	for(int itm= tms.size();itm!=0; --itm){
+	  if(tms[itm-1].recHit()->isValid())break;
+	  else if (Trajectory::lost(*tms[itm-1].recHit())) consecLostHits++;
+	}
+
+#ifdef FAMOS_DEBUG
+	if( consecLostHits > theMaxConsecutiveLostHits ) 
+	  std::cout << "\tconsecLostHits = " << consecLostHits << std::endl;
+#endif
+
+	if( consecLostHits > theMaxConsecutiveLostHits ) continue;
+
+
+	//=============end new filters
+
+
 	// A copy of the track
 	reco::Track aRecoTrack(*aTrackRef);
 	recoTracks->push_back(aRecoTrack);      
