@@ -17,7 +17,7 @@ process.load("FastSimulation.Configuration.RandomServiceInitialization_cff")
 process.load("FastSimulation.Configuration.CommonInputs_cff")
 process.load("FastSimulation.Configuration.FamosSequences_cff")
 
-process.RandomNumberGeneratorService.theSource.initialSeed= ==SEED==
+process.RandomNumberGeneratorService.generator.initialSeed= ==SEED==
 process.famosSimHits.SimulateCalorimetry = True
 process.famosSimHits.SimulateTracking = True
 process.famosPileUp.PileUpSimulator.averageNumber = 0.0
