@@ -4,8 +4,8 @@
 /*
  * \file EBClusterTaskExtras.h
  *
- * $Date: 2008/08/05 15:37:23 $
- * $Revision: 1.21 $
+ * $Date: 2009/02/27 13:53:37 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
  */
@@ -14,7 +14,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#define DQMOffline
+#define EBCLUSTERTASKEXTRAS_DQMOFFLINE
 
 class MonitorElement;
 class DQMStore;
@@ -86,7 +86,7 @@ edm::InputTag l1GMTReadoutRecTag_;
 edm::InputTag l1GTReadoutRecTag_;
 std::vector<std::string> meList_;
 
-#ifndef DQMOffline
+#ifndef EBCLUSTERTASKEXTRAS_DQMOFFLINE
 MonitorElement* meSCSizXtal_;
 MonitorElement* meSCXtalsVsEne_;
 MonitorElement* meSCSizBC_;
