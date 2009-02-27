@@ -422,7 +422,7 @@ void MuonAlignmentFromReference::terminate() {
 	     << "        self.chamberId, self.postal_address, self.name = chamberId, postal_address, name" << std::endl
 	     << "" << std::endl
 	     << "    def rphiFit(self, position, zpos, phiz, bfield, sigma, gamma, redchi2):" << std::endl
-	     << "        seld.rphiFit_status = \"PASS\"" << std::endl
+	     << "        self.rphiFit_status = \"PASS\"" << std::endl
 	     << "        self.rphiFit_position = position" << std::endl
 	     << "        self.rphiFit_zpos = zpos" << std::endl
 	     << "        self.rphiFit_phiz = phiz" << std::endl
@@ -432,7 +432,7 @@ void MuonAlignmentFromReference::terminate() {
 	     << "        self.rphiFit_redchi2 = redchi2" << std::endl
 	     << "" << std::endl
 	     << "    def zFit(self, position, zpos, phiz, bfield, sigma, gamma, redchi2):" << std::endl
-	     << "        seld.zFit_status = \"PASS\"" << std::endl
+	     << "        self.zFit_status = \"PASS\"" << std::endl
 	     << "        self.zFit_position = position" << std::endl
 	     << "        self.zFit_zpos = zpos" << std::endl
 	     << "        self.zFit_phiz = phiz" << std::endl
@@ -442,7 +442,7 @@ void MuonAlignmentFromReference::terminate() {
 	     << "        self.zFit_redchi2 = redchi2" << std::endl
 	     << "" << std::endl
 	     << "    def phixFit(self, angle, bfield, sigma, gamma, redchi2):" << std::endl
-	     << "        seld.phixFit_status = \"PASS\"" << std::endl
+	     << "        self.phixFit_status = \"PASS\"" << std::endl
 	     << "        self.phixFit_angle = angle" << std::endl
 	     << "        self.phixFit_bfield = bfield" << std::endl
 	     << "        self.phixFit_sigma = sigma" << std::endl
@@ -450,7 +450,7 @@ void MuonAlignmentFromReference::terminate() {
 	     << "        self.phixFit_redchi2 = redchi2" << std::endl
 	     << "" << std::endl
 	     << "    def phiyFit(self, angle, bfield, sigma, gamma, redchi2):" << std::endl
-	     << "        seld.phiyFit_status = \"PASS\"" << std::endl
+	     << "        self.phiyFit_status = \"PASS\"" << std::endl
 	     << "        self.phiyFit_angle = angle" << std::endl
 	     << "        self.phiyFit_bfield = bfield" << std::endl
 	     << "        self.phiyFit_sigma = sigma" << std::endl
@@ -523,7 +523,7 @@ void MuonAlignmentFromReference::terminate() {
 	name << "st" << chamberId.station() << "sec" << chamberId.sector();
 
 	if (writeReport) {
-	  report << "reports.append(Report(" << id.rawId() << ", (\"DT\", " << chamberId.wheel() << ", " << chamberId.station() << ", " << chamberId.sector() << "), " << name.str() << "))" << std::endl;
+	  report << "reports.append(Report(" << id.rawId() << ", (\"DT\", " << chamberId.wheel() << ", " << chamberId.station() << ", " << chamberId.sector() << "), \"" << name.str() << "\"))" << std::endl;
 	}
       }
       else if (id.subdetId() == MuonSubdetId::CSC) {
@@ -531,7 +531,7 @@ void MuonAlignmentFromReference::terminate() {
 	name << "ME" << (chamberId.endcap() == 1 ? "p" : "m") << abs(chamberId.station()) << chamberId.ring() << "_" << chamberId.chamber();
 
 	if (writeReport) {
-	  report << "reports.append(Report(" << id.rawId() << ", (\"CSC\", " << (chamberId.endcap() == 1 ? 1 : -1)*abs(chamberId.station()) << ", " << chamberId.ring() << ", " << chamberId.chamber() << "), " << name.str() << "))" << std::endl;
+	  report << "reports.append(Report(" << id.rawId() << ", (\"CSC\", " << (chamberId.endcap() == 1 ? 1 : -1)*abs(chamberId.station()) << ", " << chamberId.ring() << ", " << chamberId.chamber() << "), \"" << name.str() << "\"))" << std::endl;
 	}
       }
 
