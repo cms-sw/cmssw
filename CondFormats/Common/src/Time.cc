@@ -1,7 +1,6 @@
 #include "CondFormats/Common/interface/Time.h"
 
 
-// to be fixed
 #include "CondCore/DBCommon/interface/Exception.h"
 
 namespace cond{

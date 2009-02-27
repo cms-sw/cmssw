@@ -5,6 +5,7 @@
 <use name=rootrflx>
 <export>
   <use name=boost>
+ <use name=FWCore/Framework>
   <use name=POOLCore>
   <lib name=CondFormatsCommon>
 </export>
