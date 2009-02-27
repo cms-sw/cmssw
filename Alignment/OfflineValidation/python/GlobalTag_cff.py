@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # the following is needed for non PoolDBESSources (fake calibrations)
 #
 ##from CalibTracker.SiStripESProducers.SiStripPedestalsFakeSource_cfi import *
-from CalibTracker.SiStripESProducers.SiStripQualityFakeESSource_cfi import *
+from CalibTracker.SiStripESProducers.fake.SiStripQualityFakeESSource_cfi import *
 from CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cfi import *
 from CalibTracker.SiStripESProducers.SiStripGainESProducer_cfi import *
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
