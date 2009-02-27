@@ -2,7 +2,7 @@
 //
 // Package:    SVTagInfoVertexAdapter
 // Class:      SVTagInfoVertexAdapter
-// 
+//
 /**\class SVTagInfoVertexAdapter SVTagInfoVertexAdapter.cc SimTracker/SVTagInfoVertexAdapter/src/SVTagInfoVertexAdapter.cc
 
  Description: <one line class summary>
@@ -13,7 +13,7 @@
 //
 // Original Author:  Victor Bazterra, Maria Aldaya
 //         Created:  Tue Feb 24 09:42:18 CST 2009
-// $Id$
+// $Id: SVTagInfoVertexAdapter.cc,v 1.1 2009/02/24 18:43:34 bazterra Exp $
 //
 //
 
@@ -37,14 +37,15 @@
 // class decleration
 //
 
-class SVTagInfoVertexAdapter : public edm::EDProducer {
-   public:
-      explicit SVTagInfoVertexAdapter(const edm::ParameterSet&);
+class SVTagInfoVertexAdapter : public edm::EDProducer
+{
+public:
+    explicit SVTagInfoVertexAdapter(const edm::ParameterSet&);
 
-   private:
-      virtual void produce(edm::Event&, const edm::EventSetup&);      
+private:
+    virtual void produce(edm::Event&, const edm::EventSetup&);
 
-      edm::InputTag svTagInfoCollection_;
+    edm::InputTag svTagInfoCollection_;
 };
 
 SVTagInfoVertexAdapter::SVTagInfoVertexAdapter(const edm::ParameterSet& config)
@@ -61,22 +62,22 @@ void SVTagInfoVertexAdapter::produce(edm::Event& event, const edm::EventSetup& s
     // Vertex collection
     edm::Handle<reco::SecondaryVertexTagInfoCollection> svTagInfoCollection;
     event.getByLabel(svTagInfoCollection_, svTagInfoCollection);
-    
+
     // Auto pointer to the collection to be added to the event
     std::auto_ptr<reco::VertexCollection> results (new reco::VertexCollection);
-    
+
     // Loop over SecondaryVertexTagInfo collection
     for (
-       reco::SecondaryVertexTagInfoCollection::const_iterator svTagInfo = svTagInfoCollection->begin(); 
-       svTagInfo != svTagInfoCollection->end();
-       ++svTagInfo
+        reco::SecondaryVertexTagInfoCollection::const_iterator svTagInfo = svTagInfoCollection->begin();
+        svTagInfo != svTagInfoCollection->end();
+        ++svTagInfo
     )
     {
-    	// Loop over the vertexes and add them to the new collection
-    	for (unsigned int index = 0; index < svTagInfo->nVertices(); ++index)
-    	    results->push_back( svTagInfo->secondaryVertex(index) );
+        // Loop over the vertexes and add them to the new collection
+        for (unsigned int index = 0; index < svTagInfo->nVertices(); ++index)
+            results->push_back( svTagInfo->secondaryVertex(index) );
     }
-    
+
     // Adding the collection to the event
     event.put(results);
 }

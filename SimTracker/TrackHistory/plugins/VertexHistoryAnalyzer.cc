@@ -26,7 +26,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-#include "SimTracker/TrackHistory/interface/VertexHistory.h"
+#include "SimTracker/TrackHistory/interface/VertexClassifier.h"
 
 //
 // class decleration
@@ -52,7 +52,7 @@ private:
 
     std::string particleString(int) const;
 
-    VertexHistory tracer_;
+    VertexClassifier classifier_;
 
     std::string vertexString(
         TrackingParticleRefVector,
@@ -68,7 +68,7 @@ private:
 };
 
 
-VertexHistoryAnalyzer::VertexHistoryAnalyzer(const edm::ParameterSet& config) : tracer_(config)
+VertexHistoryAnalyzer::VertexHistoryAnalyzer(const edm::ParameterSet& config) : classifier_(config)
 {
     vertexProducer_ = config.getUntrackedParameter<edm::InputTag> ( "vertexProducer" );
 }
@@ -84,17 +84,21 @@ void VertexHistoryAnalyzer::analyze(const edm::Event& event, const edm::EventSet
     event.getByLabel(vertexProducer_, vertexCollection);
 
     // Set the classifier for a new event
-    tracer_.newEvent(event, setup);
+    classifier_.newEvent(event, setup);
+
+    // Get a constant reference to the track history associated to the classifier
+    VertexHistory const & tracer = classifier_.history();
 
     // Loop over the track collection.
     for (std::size_t index = 0; index < vertexCollection->size(); index++)
     {
         std::cout << std::endl << "History for vertex #" << index << " : " << std::endl;
 
-        if ( !tracer_.evaluate( reco::VertexRef(vertexCollection, index) ) ) continue;
-
+        // Classify the track and detect for fakes
+        if ( !classifier_.evaluate( reco::VertexRef(vertexCollection, index) ).is(VertexCategories::Fake) )
+        {
             // Get the list of TrackingParticles associated to
-            VertexHistory::SimParticleTrail simParticles(tracer_.simParticleTrail());
+            VertexHistory::SimParticleTrail simParticles(tracer.simParticleTrail());
 
             // Loop over all simParticles
             for (std::size_t hindex=0; hindex<simParticles.size(); hindex++)
@@ -105,7 +109,7 @@ void VertexHistoryAnalyzer::analyze(const edm::Event& event, const edm::EventSet
             }
 
             // Get the list of TrackingVertexes associated to
-            VertexHistory::SimVertexTrail simVertexes(tracer_.simVertexTrail());
+            VertexHistory::SimVertexTrail simVertexes(tracer.simVertexTrail());
 
             // Loop over all simVertexes
             if ( !simVertexes.empty() )
@@ -124,7 +128,7 @@ void VertexHistoryAnalyzer::analyze(const edm::Event& event, const edm::EventSet
                 std::cout << "  simVertex no found" << std::endl;
 
             // Get the list of GenParticles associated to
-            VertexHistory::GenParticleTrail genParticles(tracer_.genParticleTrail());
+            VertexHistory::GenParticleTrail genParticles(tracer.genParticleTrail());
 
             // Loop over all genParticles
             for (std::size_t hindex=0; hindex<genParticles.size(); hindex++)
@@ -135,7 +139,7 @@ void VertexHistoryAnalyzer::analyze(const edm::Event& event, const edm::EventSet
             }
 
             // Get the list of TrackingVertexes associated to
-            VertexHistory::GenVertexTrail genVertexes(tracer_.genVertexTrail());
+            VertexHistory::GenVertexTrail genVertexes(tracer.genVertexTrail());
 
             // Loop over all simVertexes
             if ( !genVertexes.empty() )
@@ -154,7 +158,12 @@ void VertexHistoryAnalyzer::analyze(const edm::Event& event, const edm::EventSet
             }
             else
                 std::cout << "  genVertex no found" << std::endl;
-         std::cout << std::endl;
+        }
+        else
+            std::cout << "  fake vertex" << std::endl;
+
+        std::cout << "  vertex categories : " << classifier_;
+        std::cout << std::endl;
     }
 }
 

@@ -305,12 +305,13 @@ void TrackQuality::evaluate(SimParticleTrail const &spt,
                                  matchedHit);
 
             // if it does, check for being a shared hit (was Misassoc before)
-            if (pos != range.second) {
+            if (pos != range.second)
+            {
                 if (range.second - range.first > 1) // more than one SimHit
                     pos->state = Layer::Shared;
                 else
                     pos->state = Layer::Good; // only hit -> good hit
-	    }
+            }
         }
     }
 

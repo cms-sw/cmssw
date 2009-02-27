@@ -65,7 +65,7 @@ private:
 
     reco::VertexRecoToSimCollection association_;
 
-    TrackingVertexRef match ( reco::VertexRef );  
+    TrackingVertexRef match ( reco::VertexRef );
 };
 
 #endif

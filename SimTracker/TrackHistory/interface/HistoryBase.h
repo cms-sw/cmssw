@@ -1,6 +1,8 @@
 #ifndef HistoryBase_h
 #define HistoryBase_h
 
+#include <set>
+
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
@@ -18,6 +20,9 @@ public:
     //! GenVertex trail type.
     typedef std::vector<const HepMC::GenVertex *> GenVertexTrail;
 
+    //! GenVertex trail helper type.
+    typedef std::set<const HepMC::GenVertex *> GenVertexTrailHelper;
+
     //! SimParticle trail type.
     typedef std::vector<TrackingParticleRef> SimParticleTrail;
 
@@ -27,8 +32,8 @@ public:
     // Default constructor
     HistoryBase()
     {
-    	// Default depth
-    	depth_ = -1;
+        // Default depth
+        depth_ = -1;
     }
 
     //! Set the depth of the history.
@@ -86,7 +91,7 @@ public:
         if ( genParticleTrail_.empty() ) return 0;
         return genParticleTrail_[genParticleTrail_.size()-1];
     }
-   
+
 protected:
 
     // History cointainers
@@ -94,6 +99,9 @@ protected:
     GenParticleTrail genParticleTrail_;
     SimVertexTrail simVertexTrail_;
     SimParticleTrail simParticleTrail_;
+
+    // Helper function to speedup search
+    GenVertexTrailHelper genVertexTrailHelper_;
 
     //! Evaluate track history using a TrackingParticleRef.
     /* Return false when the history cannot be determined upto a given depth.
@@ -122,7 +130,7 @@ protected:
         resetTrails();
         return traceSimHistory(tvr, depth_);
     }
-        
+
 private:
 
     int depth_;
@@ -146,12 +154,13 @@ private:
         simVertexTrail_.clear();
         genVertexTrail_.clear();
         genParticleTrail_.clear();
-    }            
+        genVertexTrailHelper_.clear();
+    }
 
     void resetTrails(TrackingParticleRef tpr)
     {
-    	resetTrails();
-    	simParticleTrail_.push_back(tpr);
+        resetTrails();
+        simParticleTrail_.push_back(tpr);
     }
 };
 

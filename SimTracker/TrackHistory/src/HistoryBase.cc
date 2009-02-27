@@ -1,3 +1,4 @@
+#include <algorithm>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -12,7 +13,7 @@ void HistoryBase::traceGenHistory(HepMC::GenParticle const * genParticle)
     {
         genParticleTrail_.push_back(genParticle);
         // Get the producer vertex and trace it history
-        traceGenHistory( genParticle->production_vertex() ); 
+        traceGenHistory( genParticle->production_vertex() );
     }
 }
 
@@ -22,7 +23,12 @@ void HistoryBase::traceGenHistory(HepMC::GenVertex const * genVertex)
     // Verify if has a vertex associated
     if (genVertex)
     {
+        // Skip if already exist in the collection
+        if ( genVertexTrailHelper_.find(genVertex) != genVertexTrailHelper_.end() )
+            return;
+        // Add vertex to the history
         genVertexTrail_.push_back(genVertex);
+        genVertexTrailHelper_.insert(genVertex);
         // Verify if the vertex has incoming particles
         if ( genVertex->particles_in_size() )
             traceGenHistory( *(genVertex->particles_in_const_begin()) );
@@ -97,8 +103,14 @@ bool HistoryBase::traceSimHistory(TrackingVertexRef const & trackingVertex, int 
         }
         else if ( !trackingVertex->genVertices().empty() )
         {
-            LogDebug("TrackHistory") << "Vertex has a GenVertex image." << std::endl;
-            traceGenHistory(&(**(trackingVertex->genVertices_begin())));
+            // navigate over all the associated generated vertexes
+            LogDebug("TrackHistory") << "Vertex has " << trackingVertex->genVertices().size() << "GenVertex image." << std::endl;
+            for (
+                TrackingVertex::genv_iterator ivertex = trackingVertex->genVertices_begin();
+                ivertex != trackingVertex->genVertices_end();
+                ++ivertex
+            )
+                traceGenHistory(&(**(ivertex)));
             return true;
         }
         else
@@ -111,6 +123,6 @@ bool HistoryBase::traceSimHistory(TrackingVertexRef const & trackingVertex, int 
         LogDebug("TrackHistory") << " WARNING: Vertex cannot be found.";
     }
 
-    return false;   
+    return false;
 }
 

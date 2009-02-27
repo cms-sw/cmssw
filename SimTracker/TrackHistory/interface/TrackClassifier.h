@@ -189,4 +189,7 @@ private:
 
 };
 
+// Operation overload for printing the categories
+std::ostream & operator<< (std::ostream & os, TrackClassifier const &);
+
 #endif

@@ -24,29 +24,3 @@ const char * TrackCategories::Names[] =
     "SharedInnerHits",
     "Unknown"
 };
-
-
-std::ostream & operator<< (std::ostream & os, TrackCategories::Flags const & flags)
-{
-    bool init = true;
-
-    // Print out the classification for the track
-    for (std::size_t index = 0; index < flags.size(); ++index)
-    {
-        if (flags[index])
-        {
-            if (init)
-            {
-                os << TrackCategories::Names[index];
-                init = false;
-            }
-            else
-                os << "::" << TrackCategories::Names[index];
-        }
-    }
-    os << std::endl;
-
-    return os;
-}
-
-

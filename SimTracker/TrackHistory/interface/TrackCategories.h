@@ -47,7 +47,4 @@ struct TrackCategories
 
 };
 
-std::ostream & operator<< (std::ostream & os, TrackCategories::Flags const &);
-
 #endif
-

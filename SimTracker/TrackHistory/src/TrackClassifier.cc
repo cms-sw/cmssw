@@ -14,8 +14,8 @@
 #define update(a, b) do { (a) = (a) | (b); } while(0)
 
 TrackClassifier::TrackClassifier(edm::ParameterSet const & pset) :
-        hepMCLabel_(pset.getUntrackedParameter<edm::InputTag>("hepMC")),
-        beamSpotLabel_(pset.getUntrackedParameter<edm::InputTag>("beamSpot")),
+        hepMCLabel_( pset.getUntrackedParameter<edm::InputTag>("hepMC") ),
+        beamSpotLabel_( pset.getUntrackedParameter<edm::InputTag>("beamSpot") ),
         tracer_(pset),
         quality_(pset)
 {
@@ -607,4 +607,30 @@ void TrackClassifier::genPrimaryVertices()
     }
 
     std::sort(genpvs_.begin(), genpvs_.end());
+}
+
+
+std::ostream & operator<< (std::ostream & os, TrackClassifier const & classifier)
+{
+    bool init = true;
+
+    const TrackCategories::Flags & flags = classifier.flags();
+
+    // Print out the classification for the track
+    for (std::size_t index = 0; index < flags.size(); ++index)
+    {
+        if (flags[index])
+        {
+            if (init)
+            {
+                os << TrackCategories::Names[index];
+                init = false;
+            }
+            else
+                os << "::" << TrackCategories::Names[index];
+        }
+    }
+    os << std::endl;
+
+    return os;
 }
