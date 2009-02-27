@@ -1,11 +1,11 @@
 <use name=FWCore/Framework>
 <use name=CondFormats/SiStripObjects>
-<use name=qt>
+<use name=qt3>
 <use name=rootgraphics>
 <export>
   <lib name=CommonToolsTrackerMap>
   <use name=FWCore/Framework>
   <use name=CondFormats/SiStripObjects>
-  <use name=qt>
+  <use name=qt3>
   <use name=rootgraphics>
 </export>
