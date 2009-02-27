@@ -16,7 +16,7 @@
 //
 // Original Author:  d.k.
 //         Created:  Jan CET 2006
-// $Id: PixelDigisTest.cc,v 1.16 2007/06/05 09:51:11 dkotlins Exp $
+// $Id: PixelDigisTest.cc,v 1.17 2008/10/30 13:46:58 dkotlins Exp $
 //
 //
 // system include files
@@ -361,7 +361,6 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
     double detR = theGeomDet->surface().position().perp();
     //const BoundPlane plane = theGeomDet->surface(); // does not work
     
-    double detThick = theGeomDet->specificSurface().bounds().thickness();
     int cols = theGeomDet->specificTopology().ncolumns();
     int rows = theGeomDet->specificTopology().nrows();
     float pitchX = theGeomDet->specificTopology().pitch().first;
@@ -411,8 +410,6 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
 #endif
       
       PXBDetId pdetId = PXBDetId(detid);
-      unsigned int detTypeP=pdetId.det();
-      unsigned int subidP=pdetId.subdetId();
       // Barell layer = 1,2,3
       layer=pdetId.layer();
       // Barrel ladder id 1-20,32,44.
