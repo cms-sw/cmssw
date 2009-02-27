@@ -5,7 +5,7 @@ process = cms.Process("TKAN")
 
 # The number of events to be processed.
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(10000)
 )
 
 
@@ -21,7 +21,7 @@ process.source = cms.Source(
     debugFlag = cms.untracked.bool(True),
     debugVebosity = cms.untracked.uint32(10),
     fileNames = cms.untracked.vstring(
-    'file:fevt.root'
+##    'file:fevt.root'
 ##    'file:test.root'
 ##        #'file:SinglePion_FastFull_0.root',
 ##        #'file:SinglePion_FastFull_1.root',
@@ -32,27 +32,28 @@ process.source = cms.Source(
 ##        #'file:SinglePion_FastFull_6.root',
 ##        #'file:SinglePion_FastFull_7.root'
 ##        'file:SinglePion_FastFull_All.root'
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW310pre1/fevt_SinglePion_E0_1.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW310pre1/fevt_SinglePion_E1_1.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW310pre1/fevt_SinglePion_E2_1.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW310pre1/fevt_SinglePion_E3_1.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW310pre1/fevt_SinglePion_E3_2.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW310pre1/fevt_SinglePion_E4_1.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW310pre1/fevt_SinglePion_E4_2.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW310pre1/fevt_SinglePion_E5_1.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW310pre1/fevt_SinglePion_E5_2.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW310pre1/fevt_SinglePion_E5_3.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW310pre1/fevt_SinglePion_E5_4.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW310pre1/fevt_SinglePion_E6_1.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW310pre1/fevt_SinglePion_E6_2.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW310pre1/fevt_SinglePion_E6_3.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW310pre1/fevt_SinglePion_E6_4.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW310pre1/fevt_SinglePion_E7_1.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW310pre1/fevt_SinglePion_E7_2.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW310pre1/fevt_SinglePion_E7_3.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW310pre1/fevt_SinglePion_E7_4.root'
+        'rfio:/castor/cern.ch/user/a/azzi/CMSSW310pre2/fevt_SinglePion_E0_1.root',
+        'rfio:/castor/cern.ch/user/a/azzi/CMSSW310pre2/fevt_SinglePion_E1_1.root',
+        'rfio:/castor/cern.ch/user/a/azzi/CMSSW310pre2/fevt_SinglePion_E2_1.root',
+        'rfio:/castor/cern.ch/user/a/azzi/CMSSW310pre2/fevt_SinglePion_E3_1.root',
+        'rfio:/castor/cern.ch/user/a/azzi/CMSSW310pre2/fevt_SinglePion_E3_2.root',
+        'rfio:/castor/cern.ch/user/a/azzi/CMSSW310pre2/fevt_SinglePion_E4_1.root',
+        'rfio:/castor/cern.ch/user/a/azzi/CMSSW310pre2/fevt_SinglePion_E4_2.root',
+        'rfio:/castor/cern.ch/user/a/azzi/CMSSW310pre2/fevt_SinglePion_E5_1.root',
+        'rfio:/castor/cern.ch/user/a/azzi/CMSSW310pre2/fevt_SinglePion_E5_2.root',
+        'rfio:/castor/cern.ch/user/a/azzi/CMSSW310pre2/fevt_SinglePion_E5_3.root',
+        'rfio:/castor/cern.ch/user/a/azzi/CMSSW310pre2/fevt_SinglePion_E5_4.root',
+        'rfio:/castor/cern.ch/user/a/azzi/CMSSW310pre2/fevt_SinglePion_E6_1.root',
+        'rfio:/castor/cern.ch/user/a/azzi/CMSSW310pre2/fevt_SinglePion_E6_2.root',
+        'rfio:/castor/cern.ch/user/a/azzi/CMSSW310pre2/fevt_SinglePion_E6_3.root',
+        'rfio:/castor/cern.ch/user/a/azzi/CMSSW310pre2/fevt_SinglePion_E6_4.root',
+        'rfio:/castor/cern.ch/user/a/azzi/CMSSW310pre2/fevt_SinglePion_E7_1.root',
+        'rfio:/castor/cern.ch/user/a/azzi/CMSSW310pre2/fevt_SinglePion_E7_2.root',
+        'rfio:/castor/cern.ch/user/a/azzi/CMSSW310pre2/fevt_SinglePion_E7_3.root',
+        'rfio:/castor/cern.ch/user/a/azzi/CMSSW310pre2/fevt_SinglePion_E7_4.root'
     ),
-    noEventSort=cms.untracked.bool(True)
+    noEventSort=cms.untracked.bool(True),
+    duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
 )
 
 

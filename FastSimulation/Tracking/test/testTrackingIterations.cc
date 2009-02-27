@@ -93,11 +93,11 @@ private:
   std::vector<MonitorElement*> fourthLayersvsEta;
   std::vector<MonitorElement*> fifthLayersvsEta;
 
-  std::vector<MonitorElement*> firstNumvsEtaP;
-  std::vector<MonitorElement*> secondNumvsEtaP;
-  std::vector<MonitorElement*> thirdNumvsEtaP;
-  std::vector<MonitorElement*> fourthNumvsEtaP;
-  std::vector<MonitorElement*> fifthNumvsEtaP;
+  std::vector<MonitorElement*> firstNum;
+  std::vector<MonitorElement*> secondNum;
+  std::vector<MonitorElement*> thirdNum;
+  std::vector<MonitorElement*> fourthNum;
+  std::vector<MonitorElement*> fifthNum;
 
 
   std::string outputFileName;
@@ -142,11 +142,11 @@ testTrackingIterations::testTrackingIterations(const edm::ParameterSet& p) :
   fourthLayersvsEta(2,static_cast<MonitorElement*>(0)),
   fifthLayersvsEta(2,static_cast<MonitorElement*>(0)),
 
-  firstNumvsEtaP(2,static_cast<MonitorElement*>(0)),
-  secondNumvsEtaP(2,static_cast<MonitorElement*>(0)),
-  thirdNumvsEtaP(2,static_cast<MonitorElement*>(0)),
-  fourthNumvsEtaP(2,static_cast<MonitorElement*>(0)),
-  fifthNumvsEtaP(2,static_cast<MonitorElement*>(0)),
+  firstNum(2,static_cast<MonitorElement*>(0)),
+  secondNum(2,static_cast<MonitorElement*>(0)),
+  thirdNum(2,static_cast<MonitorElement*>(0)),
+  fourthNum(2,static_cast<MonitorElement*>(0)),
+  fifthNum(2,static_cast<MonitorElement*>(0)),
 
   totalNEvt(0)
 {
@@ -238,16 +238,16 @@ testTrackingIterations::testTrackingIterations(const edm::ParameterSet& p) :
   fifthLayersvsEta[0] = dbe->book2D("Layers5EtaFull","Layers vs Eta 5th Full",28,-2.8,2.8,30,0,30.);
   fifthLayersvsEta[1] = dbe->book2D("Layers5EtaFast","Layers vs Eta 5th Fast",28,-2.8,2.8,30,0,30.);
 
-  firstNumvsEtaP[0] = dbe->book2D("Num1Full","Num Tracks 1st Full",28,-2.8,2.8,100,0,10.);								
-  firstNumvsEtaP[1] = dbe->book2D("Num1Fast","Num Tracks 1st Fast",28,-2.8,2.8,100,0,10.);								
-  secondNumvsEtaP[0] = dbe->book2D("Num2Full","Num Tracks 2nd Full",28,-2.8,2.8,100,0,10.);								
-  secondNumvsEtaP[1] = dbe->book2D("Num2Fast","Num Tracks 12nd Fast",28,-2.8,2.8,100,0,10.);								
-  thirdNumvsEtaP[0] = dbe->book2D("Num3Full","Num Tracks 3rd Full",28,-2.8,2.8,100,0,10.);								
-  thirdNumvsEtaP[1] = dbe->book2D("Num3Fast","Num Tracks 3rd Fast",28,-2.8,2.8,100,0,10.);								
-  fourthNumvsEtaP[0] = dbe->book2D("Num4Full","Num Tracks 4th Full",28,-2.8,2.8,100,0,10.);								
-  fourthNumvsEtaP[1] = dbe->book2D("Num4Fast","Num Tracks 4th Fast",28,-2.8,2.8,100,0,10.);								
-  fifthNumvsEtaP[0] = dbe->book2D("Num5Full","Num Tracks 5th Full",28,-2.8,2.8,100,0,10.);								
-  fifthNumvsEtaP[1] = dbe->book2D("Num5Fast","Num Tracks 5th Fast",28,-2.8,2.8,100,0,10.);								
+  firstNum[0]  = dbe->book1D("Num1Full","Num 1st Full",10, 0., 10.);
+  firstNum[1]  = dbe->book1D("Num1Fast","Num 1st Fast",10, 0., 10.);
+  secondNum[0] = dbe->book1D("Num2Full","Num 2nd Full",10, 0., 10.);
+  secondNum[1] = dbe->book1D("Num2Fast","Num 2nd Fast",10, 0., 10.);
+  thirdNum[0]  = dbe->book1D("Num3Full","Num 3rd Full",10, 0., 10.);
+  thirdNum[1]  = dbe->book1D("Num3Fast","Num 3rd Fast",10, 0., 10.);
+  fourthNum[0] = dbe->book1D("Num4Full","Num 4th Full",10, 0., 10.);
+  fourthNum[1] = dbe->book1D("Num4Fast","Num 4th Fast",10, 0., 10.);
+  fifthNum[0]  = dbe->book1D("Num5Full","Num 5th Full",10, 0., 10.);
+  fifthNum[1]  = dbe->book1D("Num5Fast","Num 5th Fast",10, 0., 10.);
 
 }
 
@@ -360,11 +360,11 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       num5fast +=  tkColl[4]->size();
     }
      
-    firstNumvsEtaP[ievt]->Fill(etaGen,pGen,tkColl[0]->size());
-    secondNumvsEtaP[ievt]->Fill(etaGen,pGen,tkColl[1]->size());
-    thirdNumvsEtaP[ievt]->Fill(etaGen,pGen,tkColl[2]->size());
-    fourthNumvsEtaP[ievt]->Fill(etaGen,pGen,tkColl[3]->size());
-    fifthNumvsEtaP[ievt]->Fill(etaGen,pGen,tkColl[4]->size());
+    firstNum[ievt]->Fill(tkColl[0]->size());
+    secondNum[ievt]->Fill(tkColl[1]->size());
+    thirdNum[ievt]->Fill(tkColl[2]->size());
+    fourthNum[ievt]->Fill(tkColl[3]->size());
+    fifthNum[ievt]->Fill(tkColl[4]->size());
 
     //    if ( tkColl[0]->size() == 1 ) { 
     reco::TrackCollection::const_iterator itk1 = tkColl[0]->begin();

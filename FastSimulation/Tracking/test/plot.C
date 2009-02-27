@@ -100,6 +100,7 @@ void Efficiency(unsigned int iter) {
     c->cd(imom);
     PlotGraphs(full,fast);
   }  
+
   
   TH1F* fast;
   TH1F* full;
@@ -248,57 +249,6 @@ void Hits(unsigned int iter) {
     PlotGraphs(fullEta,fastEta);
   }  
   
-  /*
-  TH1F* fast;
-  TH1F* full;
-  TH1F* gen;
-  TH1F* fastp;
-  TH1F* fullp;
-  TH1F* genp;
-  genPlot->ProjectionX();
-  effFull->ProjectionX();
-  effFast->ProjectionX();
-  genPlot->ProjectionY();
-  effFull->ProjectionY();
-  effFast->ProjectionY();
-  if ( iter == 1 ) { 
-    fast = (TH1F*) gDirectory->Get("eff1Fast_px");
-    full = (TH1F*) gDirectory->Get("eff1Full_px");
-    fastp = (TH1F*) gDirectory->Get("eff1Fast_py");
-    fullp = (TH1F*) gDirectory->Get("eff1Full_py");
-  } else if ( iter == 2 ) { 
-    fast = (TH1F*) gDirectory->Get("eff2Fast_px");
-    full = (TH1F*) gDirectory->Get("eff2Full_px");
-    fastp = (TH1F*) gDirectory->Get("eff2Fast_py");
-    fullp = (TH1F*) gDirectory->Get("eff2Full_py");
-  } else if ( iter == 3 ) { 
-    fast = (TH1F*) gDirectory->Get("eff3Fast_px");
-    full = (TH1F*) gDirectory->Get("eff3Full_px");
-    fastp = (TH1F*) gDirectory->Get("eff3Fast_py");
-    fullp = (TH1F*) gDirectory->Get("eff3Full_py");
-  } else if ( iter == 11 ) { 
-    fast = (TH1F*) gDirectory->Get("eff1Fast1_px");
-    full = (TH1F*) gDirectory->Get("eff1Full1_px");
-    fastp = (TH1F*) gDirectory->Get("eff1Fast1_py");
-    fullp = (TH1F*) gDirectory->Get("eff1Full1_py");
-  } else if ( iter == 12 ) { 
-    fast = (TH1F*) gDirectory->Get("eff1Fast2_px");
-    full = (TH1F*) gDirectory->Get("eff1Full2_px");
-    fastp = (TH1F*) gDirectory->Get("eff1Fast2_py");
-    fullp = (TH1F*) gDirectory->Get("eff1Full2_py");
-  }
-  gen = (TH1F*) gDirectory->Get("genEtaP_px");
-  fast->Divide(gen);
-  full->Divide(gen);
-  c->cd(11);
-  PlotGraphs(fullt,fast);
-
-  genp = (TH1F*) gDirectory->Get("genEtaP_py");
-  fastp->Divide(genp);
-  fullp->Divide(genp);
-  c->cd(12);
-  PlotGraphs(fullp,fastp);
-  */
 }
 
 void Layers(unsigned int iter) {
@@ -521,3 +471,4 @@ void totalEfficiency(unsigned int iter) {
   PlotGraphs(fullp1,fastp1);
 
 }
+
