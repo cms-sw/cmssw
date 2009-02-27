@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2009/02/27 12:31:33 $
- * $Revision: 1.157 $
+ * $Date: 2009/02/27 13:54:09 $
+ * $Revision: 1.158 $
  * \author G. Della Ricca
  *
 */
@@ -119,6 +119,8 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps) {
   meTiming_[1]         = 0;
   meTriggerTowerEt_[0]        = 0;
   meTriggerTowerEt_[1]        = 0;
+  meTriggerTowerEtSpectrum_[0] = 0;
+  meTriggerTowerEtSpectrum_[1] = 0;
   meTriggerTowerEmulError_[0] = 0;
   meTriggerTowerEmulError_[1] = 0;
   meTriggerTowerTiming_[0] = 0;
@@ -585,6 +587,16 @@ void EESummaryClient::setup(void) {
   meTriggerTowerEt_[1]->setAxisTitle("jx", 1);
   meTriggerTowerEt_[1]->setAxisTitle("jy", 2);
 
+  if( meTriggerTowerEtSpectrum_[0] ) dqmStore_->removeElement( meTriggerTowerEtSpectrum_[0]->getName() );
+  sprintf(histo, "EETTT EE - Et trigger tower spectrum");
+  meTriggerTowerEtSpectrum_[0] = dqmStore_->book1D(histo, histo, 256, 1., 256.);
+  meTriggerTowerEtSpectrum_[0]->setAxisTitle("transverse energy (GeV)", 1);
+
+  if( meTriggerTowerEtSpectrum_[1] ) dqmStore_->removeElement( meTriggerTowerEtSpectrum_[1]->getName() );
+  sprintf(histo, "EETTT EE + Et trigger tower spectrum");
+  meTriggerTowerEtSpectrum_[1] = dqmStore_->book1D(histo, histo, 256, 1., 256.);
+  meTriggerTowerEtSpectrum_[1]->setAxisTitle("transverse energy (GeV)", 1);
+
   if( meTriggerTowerEmulError_[0] ) dqmStore_->removeElement( meTriggerTowerEmulError_[0]->getName() );
   sprintf(histo, "EETTT EE - emulator error quality summary");
   meTriggerTowerEmulError_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
@@ -829,6 +841,12 @@ void EESummaryClient::cleanup(void) {
   if ( meTriggerTowerEt_[1] ) dqmStore_->removeElement( meTriggerTowerEt_[1]->getName() );
   meTriggerTowerEt_[1] = 0;
 
+  if ( meTriggerTowerEtSpectrum_[0] ) dqmStore_->removeElement( meTriggerTowerEtSpectrum_[0]->getName() );
+  meTriggerTowerEtSpectrum_[0] = 0;
+
+  if ( meTriggerTowerEtSpectrum_[1] ) dqmStore_->removeElement( meTriggerTowerEtSpectrum_[1]->getName() );
+  meTriggerTowerEtSpectrum_[1] = 0;
+
   if ( meTriggerTowerEmulError_[0] ) dqmStore_->removeElement( meTriggerTowerEmulError_[0]->getName() );
   meTriggerTowerEmulError_[0] = 0;
 
@@ -986,6 +1004,8 @@ void EESummaryClient::analyze(void) {
   meTiming_[1]->setEntries( 0 );
   meTriggerTowerEt_[0]->setEntries( 0 );
   meTriggerTowerEt_[1]->setEntries( 0 );
+  meTriggerTowerEtSpectrum_[0]->Reset();
+  meTriggerTowerEtSpectrum_[1]->Reset();
   meTriggerTowerEmulError_[0]->setEntries( 0 );
   meTriggerTowerEmulError_[1]->setEntries( 0 );
   meTriggerTowerTiming_[0]->setEntries( 0 );
@@ -1335,15 +1355,21 @@ void EESummaryClient::analyze(void) {
 
           }
 
-          float num01, mean01, rms01;
-          bool update01 = UtilsClient::getBinStatistics(httt01_[ism-1], jx, jy, num01, mean01, rms01);
-
-          if ( update01 ) {
-            if ( ism >= 1 && ism <= 9 ) meTriggerTowerEt_[0]->setBinContent( 101 - jx, jy, mean01 );
-            else meTriggerTowerEt_[1]->setBinContent( jx, jy, mean01 );
-          }
-
           if ( eetttc ) {
+
+            float num01, mean01, rms01;
+            bool update01 = UtilsClient::getBinStatistics(httt01_[ism-1], jx, jy, num01, mean01, rms01);
+            
+            if ( update01 ) {
+              if ( ism >= 1 && ism <= 9 ) {
+                if ( meTriggerTowerEt_[0] ) meTriggerTowerEt_[0]->setBinContent( 101 - jx, jy, mean01 );
+                if ( meTriggerTowerEtSpectrum_[0] ) meTriggerTowerEtSpectrum_[0]->Fill( mean01 );
+              }
+              else {
+                if ( meTriggerTowerEt_[1] ) meTriggerTowerEt_[1]->setBinContent( jx, jy, mean01 );
+                if ( meTriggerTowerEtSpectrum_[1] ) meTriggerTowerEtSpectrum_[1]->Fill( mean01 );
+              }
+            }
 
             me = eetttc->me_o01_[ism-1];
 

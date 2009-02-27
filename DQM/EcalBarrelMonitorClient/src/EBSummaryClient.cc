@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2009/02/27 12:31:29 $
- * $Revision: 1.173 $
+ * $Date: 2009/02/27 13:54:06 $
+ * $Revision: 1.174 $
  * \author G. Della Ricca
  *
 */
@@ -85,6 +85,7 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps) {
   meCosmic_         = 0;
   meTiming_         = 0;
   meTriggerTowerEt_        = 0;
+  meTriggerTowerEtSpectrum_ = 0;
   meTriggerTowerEmulError_ = 0;
   meTriggerTowerTiming_ = 0;
 
@@ -382,6 +383,11 @@ void EBSummaryClient::setup(void) {
   meTriggerTowerEt_->setAxisTitle("jphi'", 1);
   meTriggerTowerEt_->setAxisTitle("jeta'", 2);
 
+  if( meTriggerTowerEtSpectrum_ ) dqmStore_->removeElement( meTriggerTowerEtSpectrum_->getName() );
+  sprintf(histo, "EBTTT Et trigger tower spectrum");
+  meTriggerTowerEtSpectrum_ = dqmStore_->book1D(histo, histo, 256, 0., 256.);
+  meTriggerTowerEtSpectrum_->setAxisTitle("transverse energy (GeV)", 1);
+
   if( meTriggerTowerEmulError_ ) dqmStore_->removeElement( meTriggerTowerEmulError_->getName() );
   sprintf(histo, "EBTTT emulator error quality summary");
   meTriggerTowerEmulError_ = dqmStore_->book2D(histo, histo, 72, 0., 72., 34, -17., 17.);
@@ -515,6 +521,9 @@ void EBSummaryClient::cleanup(void) {
   if ( meTriggerTowerEt_ ) dqmStore_->removeElement( meTriggerTowerEt_->getName() );
   meTriggerTowerEt_ = 0;
 
+  if ( meTriggerTowerEtSpectrum_ ) dqmStore_->removeElement( meTriggerTowerEtSpectrum_->getName() );
+  meTriggerTowerEtSpectrum_ = 0;
+
   if ( meTriggerTowerEmulError_ ) dqmStore_->removeElement( meTriggerTowerEmulError_->getName() );
   meTriggerTowerEmulError_ = 0;
 
@@ -616,6 +625,7 @@ void EBSummaryClient::analyze(void) {
   meCosmic_->setEntries( 0 );
   meTiming_->setEntries( 0 );
   meTriggerTowerEt_->setEntries( 0 );
+  meTriggerTowerEtSpectrum_->Reset();
   meTriggerTowerEmulError_->setEntries( 0 );
   meTriggerTowerTiming_->setEntries( 0 );
 
@@ -641,6 +651,7 @@ void EBSummaryClient::analyze(void) {
     //    MonitorElement *me_f[6], *me_fg[2];
     TH2F* h2;
     TProfile2D* h2d;
+
 
     // fill the gain value priority map<id,priority>
     map<float,float> priority;
@@ -992,12 +1003,15 @@ void EBSummaryClient::analyze(void) {
 
           }
 
-          float num01, mean01, rms01;
-          bool update01 = UtilsClient::getBinStatistics(httt01_[ism-1], ie, ip, num01, mean01, rms01);
-
-          if ( update01 ) meTriggerTowerEt_->setBinContent( ipx, iex, mean01 );
-          
           if ( ebtttc ) {
+
+            float num01, mean01, rms01;
+            bool update01 = UtilsClient::getBinStatistics(httt01_[ism-1], ie, ip, num01, mean01, rms01);
+            
+            if ( update01 ) { 
+              if ( meTriggerTowerEt_ ) meTriggerTowerEt_->setBinContent( ipx, iex, mean01 );
+              if ( meTriggerTowerEtSpectrum_ ) meTriggerTowerEtSpectrum_->Fill( mean01 );
+            }
               
             me = ebtttc->me_o01_[ism-1];
 
@@ -1008,7 +1022,7 @@ void EBSummaryClient::analyze(void) {
               meTriggerTowerTiming_->setBinContent( ipx, iex, xval );
 
             }
-
+            
             float xval = 6;
             if( mean01 <= 0 ) xval = 2;
             else {
