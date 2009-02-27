@@ -37,7 +37,6 @@ class VertexHistoryAnalyzer : public edm::EDAnalyzer
 public:
 
     explicit VertexHistoryAnalyzer(const edm::ParameterSet&);
-    ~VertexHistoryAnalyzer();
 
 private:
 
@@ -46,13 +45,13 @@ private:
 
     // Member data
 
+    VertexClassifier classifier_;
+
     edm::InputTag vertexProducer_;
 
     edm::ESHandle<ParticleDataTable> pdt_;
 
     std::string particleString(int) const;
-
-    VertexClassifier classifier_;
 
     std::string vertexString(
         TrackingParticleRefVector,
@@ -70,21 +69,18 @@ private:
 
 VertexHistoryAnalyzer::VertexHistoryAnalyzer(const edm::ParameterSet& config) : classifier_(config)
 {
-    vertexProducer_ = config.getUntrackedParameter<edm::InputTag> ( "vertexProducer" );
+    vertexProducer_ = config.getUntrackedParameter<edm::InputTag> ("vertexProducer");
 }
-
-
-VertexHistoryAnalyzer::~VertexHistoryAnalyzer() { }
 
 
 void VertexHistoryAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup)
 {
-    // Track collection
-    edm::Handle<reco::VertexCollection> vertexCollection;
-    event.getByLabel(vertexProducer_, vertexCollection);
-
     // Set the classifier for a new event
     classifier_.newEvent(event, setup);
+
+    // Vertex collection
+    edm::Handle<reco::VertexCollection> vertexCollection;
+    event.getByLabel(vertexProducer_, vertexCollection);
 
     // Get a constant reference to the track history associated to the classifier
     VertexHistory const & tracer = classifier_.history();
