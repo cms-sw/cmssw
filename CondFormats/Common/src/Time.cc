@@ -1,7 +1,8 @@
 #include "CondFormats/Common/interface/Time.h"
 
 
-#include "CondCore/DBCommon/interface/Exception.h"
+
+#include "FWCore/Utilities/interface/Exception.h"
 
 namespace cond{
 
@@ -20,7 +21,7 @@ namespace cond{
     size_t i=0;
     for (; i<TIMETYPE_LIST_MAX; i++)
       if (name==timeTypeSpecs[i].name) return timeTypeSpecs[i];
-    throw cond::Exception("invalid timetype: "+name);
+    throw cms::Exception("invalid timetype: "+name);
     return timeTypeSpecs[0]; // compiler happy
   }
 
