@@ -515,7 +515,9 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 
 
     // New ALCT data format:
-    if( buf0[0]==0xDB0A && (buf0[1]&0xF000)==0xD000 && (buf0[2]&0xF000)==0xD000 && (buf0[3]&0xF000)==0xD000){
+    if( ( buf0[0]==0xDB0A && (buf0[1]&0xF000)==0xD000 && (buf0[2]&0xF000)==0xD000 && (buf0[3]&0xF000)==0xD000)
+	&&
+        ( (buf_1[0]&0xF000)==0xA000 && (buf_1[1]&0xF000)==0xA000 && (buf_1[2]&0xF000)==0xA000 && (buf_1[3]&0xF000)==0xA000 ) ){
         fALCT_Header              = true;
         fALCT_Format2007          = true;
         ALCT_CRC                  = 0;
