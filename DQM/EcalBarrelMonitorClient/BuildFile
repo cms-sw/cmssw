@@ -9,7 +9,6 @@
 <use name=FWCore/ServiceRegistry>
 <use name=OnlineDB/EcalCondDB>
 <use name=rootcore>
-<use name=rootgraphics>
 <use name=xdaq>
 <export>
   <use name=DQM/EcalCommon>
@@ -23,7 +22,6 @@
   <use name=FWCore/ServiceRegistry>
   <use name=OnlineDB/EcalCondDB>
   <use name=rootcore>
-  <use name=rootgraphics>
   <use name=xdaq>
   <lib name=DQMEcalBarrelMonitorClient>
 </export>

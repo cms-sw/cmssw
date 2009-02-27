@@ -230,6 +230,5 @@ process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHit
 
 process.ecalBarrelMonitorClient.maskFile = ''
 process.ecalBarrelMonitorClient.location = 'H4'
-process.ecalBarrelMonitorClient.baseHtmlDir = '.'
 process.ecalBarrelMonitorClient.superModules = [19]
 

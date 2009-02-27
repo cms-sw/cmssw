@@ -4,8 +4,8 @@
 /*
  * \file EEPedestalClient.h
  *
- * $Date: 2008/06/25 15:08:19 $
- * $Revision: 1.25 $
+ * $Date: 2008/10/08 10:27:50 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -63,9 +63,6 @@ void cleanup(void);
 
 /// SoftReset
 void softReset(bool flag);
-
-// HtmlOutput
-void htmlOutput(int run, std::string& htmlDir, std::string& htmlName);
 
 // WriteDB
 bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag);

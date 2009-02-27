@@ -4,8 +4,8 @@
 /*
  * \file EBClusterClient.h
  *
- * $Date: 2008/06/25 14:16:15 $
- * $Revision: 1.31 $
+ * $Date: 2008/06/25 15:08:17 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -64,9 +64,6 @@ void cleanup(void);
 
 /// SoftReset
 void softReset(bool flag);
-
-/// HtmlOutput
-void htmlOutput(int run, std::string& htmlDir, std::string& htmlName);
 
 /// WriteDB
 bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag);

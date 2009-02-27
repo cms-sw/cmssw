@@ -205,7 +205,6 @@ process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHit
 
 process.ecalBarrelMonitorClient.maskFile = ''
 process.ecalBarrelMonitorClient.location = 'H4B'
-process.ecalBarrelMonitorClient.baseHtmlDir = '.'
 process.ecalBarrelMonitorClient.enabledClients = ['Integrity', 'Occupancy', 'StatusFlags', 'PedestalOnline', 'Pedestal', 'TestPulse', 'Laser', 'Timing', 'BeamCalo', 'BeamHodo', 'Cluster', 'Summary']
 process.ecalBarrelMonitorClient.superModules = [19]
 

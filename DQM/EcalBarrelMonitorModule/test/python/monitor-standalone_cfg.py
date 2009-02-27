@@ -230,7 +230,6 @@ process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHit
 
 process.ecalBarrelMonitorClient.maskFile = '../data/maskfile.dat'
 process.ecalBarrelMonitorClient.location = 'H4'
-process.ecalBarrelMonitorClient.baseHtmlDir = '.'
 process.ecalBarrelMonitorClient.superModules = [19]
 
 process.DQM.collectorHost = ''

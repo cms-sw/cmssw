@@ -4,8 +4,8 @@
 /*
  * \file EEOccupancyClient.h
  *
- * $Date: 2008/06/25 14:16:16 $
- * $Revision: 1.14 $
+ * $Date: 2008/06/25 15:08:19 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -63,9 +63,6 @@ void cleanup(void);
 
 /// SoftReset
 void softReset(bool flag);
-
-/// HtmlOutput
-void htmlOutput(int run, std::string& htmlDir, std::string& htmlName);
 
 /// WriteDB
 bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag);

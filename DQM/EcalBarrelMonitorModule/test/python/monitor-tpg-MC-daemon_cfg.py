@@ -144,7 +144,6 @@ process.ecalBarrelTriggerTowerTask.EBDigiCollection = 'simEcalDigis:ebDigis'
 process.ecalBarrelMonitorClient.maskFile = '../data/maskfile-EB.dat'
 process.ecalBarrelMonitorClient.mergeRuns = True
 process.ecalBarrelMonitorClient.location = 'H4'
-process.ecalBarrelMonitorClient.baseHtmlDir = '.'
 
 process.ecalBarrelMonitorClient.enabledClients = ['Integrity', 'Occupancy', 'PedestalOnline', 'Timing', 'TriggerTower', 'Cluster', 'Summary']
 

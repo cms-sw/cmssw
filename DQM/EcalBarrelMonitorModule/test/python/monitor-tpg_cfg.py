@@ -231,7 +231,6 @@ process.ecalBarrelMonitorModule.EcalTrigPrimDigiCollection = 'simEcalTriggerPrim
 process.ecalBarrelOccupancyTask.EcalTrigPrimDigiCollection = 'simEcalTriggerPrimitiveDigis2'
 
 process.ecalBarrelMonitorClient.location = 'H4B'
-process.ecalBarrelMonitorClient.baseHtmlDir = '.'
 process.ecalBarrelMonitorClient.enabledClients = ['Integrity', 'Occupancy', 'StatusFlags', 'PedestalOnline', 'Timing', 'TriggerTower', 'Summary']
 process.ecalBarrelMonitorClient.superModules = [19]
 

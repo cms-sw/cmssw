@@ -226,7 +226,6 @@ process.ecalBarrelTimingTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit2
 
 process.ecalBarrelMonitorClient.maskFile = '../data/maskfile-EB.dat'
 process.ecalBarrelMonitorClient.location = 'P5_Co'
-process.ecalBarrelMonitorClient.baseHtmlDir = '.'
 #process.ecalBarrelMonitorClient.superModules = [34]
 
 process.DQM.collectorHost = ''

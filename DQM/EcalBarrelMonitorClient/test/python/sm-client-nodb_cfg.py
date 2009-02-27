@@ -35,7 +35,6 @@ process.p = cms.Path(process.ecalBarrelMonitorClient)
 
 process.ecalBarrelMonitorClient.maskFile = 'maskfile-EB.dat'
 process.ecalBarrelMonitorClient.location = 'H4'
-process.ecalBarrelMonitorClient.baseHtmlDir = '.'
 
 process.DQM.collectorHost = ''
 

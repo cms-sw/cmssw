@@ -228,7 +228,6 @@ process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHit
 
 process.ecalEndcapMonitorClient.maskFile = ''
 process.ecalEndcapMonitorClient.location = 'H4B'
-process.ecalEndcapMonitorClient.baseHtmlDir = '.'
 #process.ecalEndcapMonitorClient.superModules = [10]
 process.ecalEndcapMonitorClient.superModules = [4, 5, 6]
 

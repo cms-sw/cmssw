@@ -1,11 +1,11 @@
-// $Id: EEClient.h,v 1.14 2008/06/25 14:16:16 dellaric Exp $
+// $Id: EEClient.h,v 1.15 2008/06/25 15:08:19 dellaric Exp $
 
 /*!
   \file EEClient.h
   \brief Ecal Barrel Monitor Client mom class
   \author B. Gobbo
-  \version $Revision: 1.14 $
-  \date $Date: 2008/06/25 14:16:16 $
+  \version $Revision: 1.15 $
+  \date $Date: 2008/06/25 15:08:19 $
 */
 
 
@@ -63,15 +63,6 @@ class EEClient {
     \param flag on/off switch
   */
   virtual void softReset(bool flag)    = 0;
-
-  /*! \fn virtual void htmlOutput(int run, std::string& htmlDir, std::string& htmlName);
-    \brief create HTML page
-    \param run run number
-    \param htmlDir path to HTML file
-    \param htmlName HTML file name
-
-  */
-  virtual void htmlOutput(int run, std::string& htmlDir, std::string& htmlName) = 0;
 
   /*! \fn virtual bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag);
     \brief Write data to DataBase

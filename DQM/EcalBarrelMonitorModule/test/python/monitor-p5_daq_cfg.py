@@ -231,7 +231,6 @@ process.ecalBarrelTimingTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit2
 
 process.ecalBarrelMonitorClient.maskFile = '../data/maskfile-EB.dat'
 process.ecalBarrelMonitorClient.location = 'P5'
-process.ecalBarrelMonitorClient.baseHtmlDir = '.'
 
 # GREA
 process.ecalBarrelMonitorClient.superModules = [32]

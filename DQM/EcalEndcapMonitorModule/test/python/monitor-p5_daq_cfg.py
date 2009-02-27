@@ -224,7 +224,6 @@ process.ecalEndcapTimingTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit2
 
 process.ecalEndcapMonitorClient.maskFile = '../data/maskfile-EE.dat'
 process.ecalEndcapMonitorClient.location = 'P5_Co'
-process.ecalEndcapMonitorClient.baseHtmlDir = '.'
 #process.ecalEndcapMonitorClient.superModules = [34]
 
 process.DQM.collectorHost = ''

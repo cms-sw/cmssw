@@ -122,7 +122,6 @@ process.ecalBarrelTriggerTowerTask.EBDigiCollection = 'simEcalDigis:ebDigis'
 process.ecalBarrelMonitorClient.maskFile = '../data/maskfile-EB.dat'
 process.ecalBarrelMonitorClient.mergeRuns = True
 process.ecalBarrelMonitorClient.location = 'H4'
-process.ecalBarrelMonitorClient.baseHtmlDir = 'HTML_EB'
 process.ecalBarrelMonitorClient.enabledClients = ['Integrity', 'Occupancy', 'PedestalOnline', 'Timing', 'Cluster', 'Summary']
 
 process.ecalEndcapMonitorModule.mergeRuns = True
@@ -140,7 +139,6 @@ process.ecalEndcapTriggerTowerTask.EEDigiCollection = 'simEcalDigis:eeDigis'
 process.ecalEndcapMonitorClient.maskFile = '../data/maskfile-EE.dat'
 process.ecalEndcapMonitorClient.mergeRuns = True
 process.ecalEndcapMonitorClient.location = 'H4'
-process.ecalEndcapMonitorClient.baseHtmlDir = 'HTML_EE'
 process.ecalEndcapMonitorClient.enabledClients = ['Integrity', 'Occupancy', 'PedestalOnline', 'Timing', 'Cluster', 'Summary']
 
 process.DQM.collectorHost = ''

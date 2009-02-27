@@ -128,7 +128,6 @@ process.ecalEndcapTriggerTowerTask.EEDigiCollection = 'simEcalDigis:eeDigis'
 process.ecalEndcapMonitorClient.maskFile = '../data/maskfile-EE.dat'
 process.ecalEndcapMonitorClient.mergeRuns = True
 process.ecalEndcapMonitorClient.location = 'H4'
-process.ecalEndcapMonitorClient.baseHtmlDir = '.'
 process.ecalEndcapMonitorClient.enabledClients = ['Integrity', 'Occupancy', 'PedestalOnline', 'Cosmic', 'Timing', 'TriggerTower', 'Cluster', 'Summary']
 
 process.DQM.collectorHost = ''

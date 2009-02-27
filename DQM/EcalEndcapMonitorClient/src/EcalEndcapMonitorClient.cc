@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/10/07 12:10:11 $
- * $Revision: 1.199 $
+ * $Date: 2008/11/10 10:13:57 $
+ * $Revision: 1.200 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -65,7 +65,6 @@
 #include "cgicc/HTMLClasses.h"
 
 #include "TStyle.h"
-#include "TGaxis.h"
 #include "TColor.h"
 
 using namespace cms;
@@ -157,33 +156,12 @@ EcalEndcapMonitorClient::EcalEndcapMonitorClient(const ParameterSet& ps) : Modul
     cout << " dbUpdateTime is " << dbUpdateTime_ << " minute(s)" << endl;
   }
 
-  // htmlUpdateTime
-
-  htmlUpdateTime_  = ps.getUntrackedParameter<int>("htmlUpdateTime", 0);
-
-  if ( verbose_ ) {
-    cout << " htmlUpdateTime is " << htmlUpdateTime_ << " minute(s)" << endl;
-  }
-
   // location
 
   location_ =  ps.getUntrackedParameter<string>("location", "H4");
 
   if ( verbose_ ) {
     cout << " location is '" << location_ << "'" << endl;
-  }
-
-  // base Html output directory
-
-  baseHtmlDir_ = ps.getUntrackedParameter<string>("baseHtmlDir", "");
-
-  if ( verbose_ ) {
-    if ( baseHtmlDir_.size() != 0 ) {
-      cout << " HTML output will go to"
-           << " baseHtmlDir = '" << baseHtmlDir_ << "'" << endl;
-    } else {
-      cout << " HTML output is OFF" << endl;
-    }
   }
 
   // cloneME switch
@@ -325,8 +303,6 @@ EcalEndcapMonitorClient::EcalEndcapMonitorClient(const ParameterSet& ps) : Modul
   gStyle->SetFillColor(10);
   gStyle->SetStatColor(10);
   gStyle->SetTitleFillColor(10);
-
-  TGaxis::SetMaxDigits(4);
 
   gStyle->SetOptTitle(kTRUE);
   gStyle->SetTitleX(0.01);
@@ -762,7 +738,6 @@ void EcalEndcapMonitorClient::beginJob(const EventSetup &c) {
   current_time_ = time(NULL);
   last_time_update_ = current_time_;
   last_time_db_ = current_time_;
-  last_time_html_ = current_time_;
 
   if ( enableMonitorDaemon_ ) {
 
@@ -813,7 +788,6 @@ void EcalEndcapMonitorClient::beginRun(void) {
   current_time_ = time(NULL);
   last_time_update_ = current_time_;
   last_time_db_ = current_time_;
-  last_time_html_ = current_time_;
 
   this->setup();
 
@@ -896,8 +870,6 @@ void EcalEndcapMonitorClient::endRun(void) {
   end_run_   = true;
 
   if ( debug_ ) cout << "EcalEndcapMonitorClient: endRun, jevt = " << jevt_ << endl;
-
-  if ( baseHtmlDir_.size() != 0 ) this->htmlOutput();
 
   if ( subrun_ != -1 ) {
 
@@ -1591,13 +1563,6 @@ void EcalEndcapMonitorClient::analyze(void) {
 
       forced_update_ = false;
 
-      if ( htmlUpdateTime_ > 0 ) {
-        if ( (current_time_ - last_time_html_) > 60 * htmlUpdateTime_ ) {
-          last_time_html_ = current_time_;
-          this->htmlOutput( true );
-        }
-      }
-
       if ( dbUpdateTime_ > 0 ) {
         if ( (current_time_ - last_time_db_) > 60 * dbUpdateTime_ ) {
           if ( runType_ == EcalDCCHeaderBlock::COSMIC ||
@@ -1740,108 +1705,6 @@ void EcalEndcapMonitorClient::softReset(bool flag) {
    }
 
    summaryClient_->softReset(flag);
-
-}
-
-void EcalEndcapMonitorClient::htmlOutput( bool current ) {
-
-  time_t start = time(NULL);
-
-  if ( verbose_ ) {
-    cout << endl;
-    cout << "Preparing EcalEndcapMonitorClient html output ..." << endl;
-  }
-
-  char tmp[10];
-
-  sprintf(tmp, "%09d", run_);
-
-  string htmlDir;
-  if( current ) {
-    htmlDir = baseHtmlDir_ + "/current/";
-  }
-  else {
-    htmlDir = baseHtmlDir_ + "/" + tmp + "/";
-  }
-
-  system(("/bin/mkdir -p " + htmlDir).c_str());
-
-  ofstream htmlFile;
-
-  htmlFile.open((htmlDir + "index.html").c_str());
-
-  // html page header
-  htmlFile << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">  " << endl;
-  htmlFile << "<html>  " << endl;
-  htmlFile << "<head>  " << endl;
-  htmlFile << "  <meta content=\"text/html; charset=ISO-8859-1\"  " << endl;
-  htmlFile << " http-equiv=\"content-type\">  " << endl;
-  htmlFile << "  <title>Monitor:Executed Tasks index</title> " << endl;
-  htmlFile << "</head>  " << endl;
-  htmlFile << "<body>  " << endl;
-  htmlFile << "<br>  " << endl;
-  htmlFile << "<h2>Executed tasks for run:&nbsp&nbsp&nbsp" << endl;
-  htmlFile << "<span style=\"color: rgb(0, 0, 153);\">" << run_ <<"</span></h2> " << endl;
-  htmlFile << "<h2>Run Type:&nbsp&nbsp&nbsp" << endl;
-  htmlFile << "<span style=\"color: rgb(0, 0, 153);\">" << this->getRunType() <<"</span></h2> " << endl;
-  htmlFile << "<hr>" << endl;
-
-  htmlFile << "<ul>" << endl;
-
-  string htmlName;
-
-  for ( int i=0; i<int(clients_.size()); i++ ) {
-    bool done = false;
-    for ( multimap<EEClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
-      if ( h_ && runType_ != -1 && runType_ == (*j).second && !done ) {
-        if ( strcmp(clientsNames_[i].c_str(), "Cosmic") == 0 && runType_ != EcalDCCHeaderBlock::COSMIC && runType_ != EcalDCCHeaderBlock::COSMICS_LOCAL && runType_ != EcalDCCHeaderBlock::COSMICS_GLOBAL && runType_ != EcalDCCHeaderBlock::PHYSICS_GLOBAL && runType_ != EcalDCCHeaderBlock::PHYSICS_LOCAL && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMIC) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMICS_LOCAL) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMICS_GLOBAL) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PHYSICS_GLOBAL) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PHYSICS_LOCAL) == 0 ) continue;
-        if ( strcmp(clientsNames_[i].c_str(), "Laser") == 0 && runType_ != EcalDCCHeaderBlock::LASER_STD && runType_ != EcalDCCHeaderBlock::LASER_GAP && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_GAP) == 0 ) continue;
-        if ( strcmp(clientsNames_[i].c_str(), "Led") == 0 && runType_ != EcalDCCHeaderBlock::LED_STD && runType_ != EcalDCCHeaderBlock::LED_GAP && h_->GetBinContent(2+EcalDCCHeaderBlock::LED_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::LED_GAP) == 0 ) continue;
-        if ( strcmp(clientsNames_[i].c_str(), "Pedestal") == 0 && runType_ != EcalDCCHeaderBlock::PEDESTAL_STD && runType_ != EcalDCCHeaderBlock::PEDESTAL_GAP && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_GAP) == 0 ) continue;
-        if ( strcmp(clientsNames_[i].c_str(), "TestPulse") == 0 && runType_ != EcalDCCHeaderBlock::TESTPULSE_MGPA && runType_ != EcalDCCHeaderBlock::TESTPULSE_GAP && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_MGPA) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_GAP) == 0 ) continue;
-        done = true;
-        htmlName = "EE" + clientsNames_[i] + "Client.html";
-        clients_[i]->htmlOutput(run_, htmlDir, htmlName);
-        htmlFile << "<li><a href=\"" << htmlName << "\">Data " << clientsNames_[i] << "</a></li>" << endl;
-      }
-    }
-  }
-
-  if ( summaryClient_ ) {
-
-    htmlName = "EESummaryClient.html";
-    summaryClient_->htmlOutput(run_, htmlDir, htmlName);
-    htmlFile << "<li><a href=\"" << htmlName << "\">Data " << "Summary" << "</a></li>" << endl;
-
-    htmlFile << "<br>" << endl;
-
-    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-    htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
-    htmlFile << "<tr align=\"center\">" << endl;
-
-    htmlFile << "<td><img src=\"EE_global_summary_EE_-.png\" border=0></td>" << endl;
-    htmlFile << "<td><img src=\"EE_global_summary_EE_+.png\" border=0></td>" << endl;
-
-    htmlFile << "</tr>" << endl;
-    htmlFile << "</table>" << endl;
-    htmlFile << "<br>" << endl;
-
-  }
-
-  htmlFile << "</ul>" << endl;
-
-  // html page footer
-  htmlFile << "</body> " << endl;
-  htmlFile << "</html> " << endl;
-
-  htmlFile.close();
-
-  if ( verbose_ ) cout << endl;
-
-  if( current ) {
-    time_t elapsed = time(NULL) - start;
-    if ( verbose_ ) cout << "==========> htmlOutput Elapsed Time: " << elapsed << endl;
-  }
 
 }
 

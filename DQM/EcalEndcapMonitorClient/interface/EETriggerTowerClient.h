@@ -4,8 +4,8 @@
 /*
  * \file EETriggerTowerClient.h
  *
- * $Date: 2008/09/06 08:01:50 $
- * $Revision: 1.29 $
+ * $Date: 2008/12/04 13:54:56 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -65,9 +65,6 @@ void cleanup(void);
 
 /// SoftReset
 void softReset(bool flag);
-
-/// HtmlOutput
-void htmlOutput(int run, std::string& htmlDir, std::string& htmlName);
 
 /// WriteDB
 bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag);

@@ -230,7 +230,6 @@ process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHit
 
 process.ecalEndcapMonitorClient.maskFile = ''
 process.ecalEndcapMonitorClient.location = 'H4B'
-process.ecalEndcapMonitorClient.baseHtmlDir = '.'
 process.ecalEndcapMonitorClient.enabledClients = ['Integrity', 'Occupancy', 'StatusFlags', 'PedestalOnline', 'Pedestal', 'TestPulse', 'Laser', 'Timing', 'Led', 'BeamCalo', 'BeamHodo', 'Cluster', 'Summary']
 #process.ecalEndcapMonitorClient.superModules = [10]
 process.ecalEndcapMonitorClient.superModules = [4, 5, 6]

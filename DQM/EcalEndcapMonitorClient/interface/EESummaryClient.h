@@ -4,8 +4,8 @@
 /*
  * \file EESummaryClient.h
  *
- * $Date: 2009/02/12 11:27:42 $
- * $Revision: 1.32 $
+ * $Date: 2009/02/27 12:31:32 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  *
 */
@@ -61,9 +61,6 @@ void cleanup(void);
 /// SoftReset
 void softReset(bool flag);
 
-/// HtmlOutput
-void htmlOutput(int run, std::string& htmlDir, std::string& htmlName);
-
 /// WriteDB
 bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag);
 
@@ -75,8 +72,6 @@ inline int getEvtPerRun() { return jevt_; }
 inline void setFriends(std::vector<EEClient*> clients) { clients_ = clients; }
 
 private:
-
-void writeMap( std::ofstream& hf, const char* mapname );
 
 int ievt_;
 int jevt_;

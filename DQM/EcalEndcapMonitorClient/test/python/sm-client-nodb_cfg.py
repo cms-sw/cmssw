@@ -35,7 +35,6 @@ process.p = cms.Path(process.ecalEndcapMonitorClient)
 
 process.ecalEndcapMonitorClient.maskFile = 'maskfile-EE.dat'
 process.ecalEndcapMonitorClient.location = 'H4'
-process.ecalEndcapMonitorClient.baseHtmlDir = '.'
 
 process.DQM.collectorHost = ''
 

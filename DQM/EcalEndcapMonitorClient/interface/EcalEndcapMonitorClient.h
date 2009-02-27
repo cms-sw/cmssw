@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2008/07/23 06:18:01 $
- * $Revision: 1.48 $
+ * $Date: 2008/11/10 10:13:57 $
+ * $Revision: 1.49 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -83,9 +83,6 @@ void cleanup(void);
 /// SoftReset
 void softReset(bool flag);
 
-/// HtmlOutput
-void htmlOutput(bool current=false);
-
 /// XDAQ web page
 void defaultWebPage(xgi::Input *in, xgi::Output *out);
 void publish(xdata::InfoSpace *){};
@@ -148,13 +145,9 @@ time_t current_time_;
 
 time_t last_time_update_;
 time_t last_time_db_;
-time_t last_time_html_;
 
 time_t updateTime_;
 time_t dbUpdateTime_;
-time_t htmlUpdateTime_; 
-
-std::string baseHtmlDir_;
 
 std::vector<int> superModules_;
 
