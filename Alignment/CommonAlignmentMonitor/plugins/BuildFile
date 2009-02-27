@@ -28,6 +28,16 @@
  <flags EDM_PLUGIN=1>
 </library>
 
+<library name="AlignmentMonitorMuonSystemMap" file="AlignmentMonitorMuonSystemMap.cc">
+ <use name=Alignment/CommonAlignmentMonitor>
+ <use name=FWCore/ParameterSet>
+ <use name=TrackingTools/TrackFitters>
+ <use name=Alignment/MuonAlignment>
+ <use name=Alignment/MuonAlignmentAlgorithms>
+ <use name=DataFormats/MuonDetId>
+ <flags EDM_PLUGIN=1>
+</library>
+
 <library name="AlignmentMonitorHIPNtuple" file="AlignmentMonitorHIPNtuple.cc">
  <use name=Alignment/CommonAlignmentMonitor>
  <use name=FWCore/ParameterSet>
