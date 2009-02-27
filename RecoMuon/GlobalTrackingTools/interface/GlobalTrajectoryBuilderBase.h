@@ -14,8 +14,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2008/12/15 22:12:57 $
- *  $Revision: 1.12.2.1 $
+ *  $Date: 2009/02/24 07:05:54 $
+ *  $Revision: 1.13 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -120,6 +120,9 @@ class GlobalTrajectoryBuilderBase : public MuonTrajectoryBuilder {
 
     /// print all RecHits of a trajectory
     void printHits(const ConstRecHitContainer&) const;
+
+    /// if TrackCand has only a TrackRef, attempt to add Trajectory*
+    void addTraj(TrackCand&){} ///This does nothing now
 
     /// check order of RechIts on a trajectory
     RefitDirection checkRecHitsOrdering(const ConstRecHitContainer&) const;
