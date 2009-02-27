@@ -1,4 +1,4 @@
-#include "PhysicsTools/Utilities/src/Abort.h"
+#include "CommonTools/Utils/src/Abort.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 using namespace reco::parser;
