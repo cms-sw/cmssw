@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.54 2008/07/03 09:28:19 bainbrid Exp $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.55 2008/07/09 17:03:33 bainbrid Exp $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
@@ -667,11 +667,12 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices( SiStripConfigDb
 	  break;
 	}
 
-	uint32_t key = SiStripFecKey( fecCrate( module ), 
-				      fecSlot( module ), 
-				      fecRing( module ), 
-				      ccuAddr( module ), 
-				      ccuChan( module ) ).key();
+	// commented because key is not used
+	//uint32_t key = SiStripFecKey( fecCrate( module ), 
+	//			      fecSlot( module ), 
+	//			      fecRing( module ), 
+	//			      ccuAddr( module ), 
+	//			      ccuChan( module ) ).key();
 	
 	//if ( std::find( used_keys.begin(), used_keys.end(), key ) != used_keys.end() ) { break; }
 	
