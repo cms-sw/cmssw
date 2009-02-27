@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDMonitor.cc,v 1.4 2008/11/06 19:40:01 nc302 Exp $
+// $Id: SiStripFEDMonitor.cc,v 1.5 2009/02/17 16:25:56 muzaffar Exp $
 //
 //
 
@@ -63,8 +63,10 @@ class SiStripFEDMonitorPlugin : public edm::EDAnalyzer
   void bookFEDHistograms(unsigned int fedId, bool fullDebugMode = false);
   void bookAllFEDHistograms();
   //return true if there were no errors at the level they are analysing
-  bool analyzeFED(const FEDRawData& rawData, unsigned int fedId);
-  bool analyzeFEUnits(const sistrip::FEDBufferBase* buffer, unsigned int fedId);
+  bool analyzeFED(const FEDRawData& rawData, unsigned int fedId,
+                  unsigned int* nDaqProblems, unsigned int* nCorruptBuffers, unsigned int* nBadActiveChannels,
+                  unsigned int* nFEOverflows, unsigned int* nFEBadMajorityAddresses);
+  bool analyzeFEUnits(const sistrip::FEDBufferBase* buffer, unsigned int fedId, unsigned int* nFEOverflows, unsigned int* nFEBadMajorityAddresses);
   bool analyzeChannels(const sistrip::FEDBuffer* buffer, unsigned int fedId,
                        std::list<unsigned int>* badChannelList,
                        std::list<unsigned int>* activeBadChannelList);
@@ -76,9 +78,13 @@ class SiStripFEDMonitorPlugin : public edm::EDAnalyzer
   bool fillAllHistograms_;
   bool disableGlobalExpertHistograms_;
   bool disableFEDHistograms_;
+  bool disableErrorCountHistograms_;
   DQMStore* dqm_;
   uint32_t cablingCacheId_;
   const SiStripFedCabling* cabling_;
+  //counting histograms (histogram of number of problems per event)
+  MonitorElement *nChannelErrors_, *nChannelDaqProblems_, *nChannelCorruptBuffers_, *nBadActiveChannelStatusBits_,
+                 *nChannelFEOverflows_, *nChannelFEBadMajorityAddresses_;
   //top level histograms
   MonitorElement *anyErrors_, *anyDaqProblems_, *corruptBuffers_, *invalidBuffers_, *badIDs_, *badChannelStatusBits_, *badActiveChannelStatusBits_,
                  *badDAQCRCs_, *badFEDCRCs_, *daqProblems_, *feOverflows_, *badMajorityAddresses_;
@@ -103,6 +109,7 @@ SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfi
     fillAllHistograms_(iConfig.getUntrackedParameter<bool>("FillAllHistograms",true)),
     disableGlobalExpertHistograms_(iConfig.getUntrackedParameter<bool>("DisableGlobalExpertHistograms",true)),
     disableFEDHistograms_(iConfig.getUntrackedParameter<bool>("DisableFEDHistograms",true)),
+    disableErrorCountHistograms_(iConfig.getUntrackedParameter<bool>("DisableErrorCountHistograms",true)),
     cablingCacheId_(0)
 {
 }
@@ -133,8 +140,27 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent, const edm::EventSetup
     const FEDRawData& fedData = rawDataCollection.FEDData(fedId);
     //check data exists
     if (!fedData.size() || !fedData.data()) continue;
-    bool anyErrors = !analyzeFED(fedData,fedId);
+    //counters
+    unsigned int nDaqProblems = 0;
+    unsigned int nCorruptBuffers = 0;
+    unsigned int nBadActiveChannels = 0;
+    unsigned int nFEOverflows = 0;
+    unsigned int nFEBadMajorityAddresses = 0;
+    //check for problems and fill detailed histograms
+    bool anyErrors = !analyzeFED(fedData,fedId,&nDaqProblems,&nCorruptBuffers,&nBadActiveChannels,&nFEOverflows,&nFEBadMajorityAddresses);
     if (anyErrors) fillHistogram(anyErrors_,fedId);
+    //fill count histograms
+    if (!disableErrorCountHistograms_ || fillAllHistograms_) {
+      const unsigned int nChannelErrors = ((nDaqProblems+nCorruptBuffers)*sistrip::FEDCH_PER_FED) +
+                                          ((nFEOverflows+nFEBadMajorityAddresses)*sistrip::FEDCH_PER_FEUNIT) +
+                                          nBadActiveChannels;
+      fillHistogram(nChannelErrors_,nChannelErrors*sistrip::FEDCH_PER_FED);
+      fillHistogram(nChannelDaqProblems_,nDaqProblems*sistrip::FEDCH_PER_FED);
+      fillHistogram(nChannelCorruptBuffers_,nCorruptBuffers*sistrip::FEDCH_PER_FED);
+      fillHistogram(nBadActiveChannelStatusBits_,nBadActiveChannels);
+      fillHistogram(nChannelFEOverflows_,nFEOverflows*sistrip::FEDCH_PER_FEUNIT);
+      fillHistogram(nChannelFEBadMajorityAddresses_,nFEBadMajorityAddresses*sistrip::FEDCH_PER_FEUNIT);
+    }
   }//loop over FED IDs
 }
 
@@ -184,7 +210,9 @@ inline void SiStripFEDMonitorPlugin::fillHistogram(MonitorElement* histogram, do
   if (histogram) histogram->Fill(value);
 }
 
-bool SiStripFEDMonitorPlugin::analyzeFED(const FEDRawData& rawData, unsigned int fedId)
+bool SiStripFEDMonitorPlugin::analyzeFED(const FEDRawData& rawData, unsigned int fedId,
+                                         unsigned int* nDaqProblems, unsigned int* nCorruptBuffers, unsigned int* nBadActiveChannels,
+                                         unsigned int* nFEOverflows, unsigned int* nFEBadMajorityAddresses)
 {
   //try to construct the basic buffer object (do not check payload)
   //if this fails then count it as an invalid buffer and stop checks since we can't understand things like buffer ordering
@@ -194,6 +222,7 @@ bool SiStripFEDMonitorPlugin::analyzeFED(const FEDRawData& rawData, unsigned int
   } catch (const cms::Exception& e) {
     fillHistogram(invalidBuffers_,fedId);
     fillHistogram(anyDaqProblems_,fedId);
+    (*nDaqProblems)++;
     //don't check anything else if the buffer is invalid
     return false;
   }
@@ -202,10 +231,12 @@ bool SiStripFEDMonitorPlugin::analyzeFED(const FEDRawData& rawData, unsigned int
   if (!bufferBase->checkNoSlinkCRCError()) {
     fillHistogram(badFEDCRCs_,fedId);
     fillHistogram(anyDaqProblems_,fedId);
+    (*nDaqProblems)++;
     return false;
   } else if (!bufferBase->checkCRC()) {
     fillHistogram(badDAQCRCs_,fedId);
     fillHistogram(anyDaqProblems_,fedId);
+    (*nDaqProblems)++;
     return false;
   }
   //next check that it is a SiStrip buffer
@@ -213,6 +244,7 @@ bool SiStripFEDMonitorPlugin::analyzeFED(const FEDRawData& rawData, unsigned int
   if (!bufferBase->checkSourceIDs() || !bufferBase->checkNoUnexpectedSourceID()) {
     fillHistogram(badIDs_,fedId);
     fillHistogram(anyDaqProblems_,fedId);
+    (*nDaqProblems)++;
     return false;
   } 
   //if so then do DAQ header/trailer checks
@@ -220,6 +252,7 @@ bool SiStripFEDMonitorPlugin::analyzeFED(const FEDRawData& rawData, unsigned int
   else if (!bufferBase->doDAQHeaderAndTrailerChecks()) {
     fillHistogram(daqProblems_,fedId);
     fillHistogram(anyDaqProblems_,fedId);
+    (*nDaqProblems)++;
     return false;
   }
   
@@ -229,6 +262,7 @@ bool SiStripFEDMonitorPlugin::analyzeFED(const FEDRawData& rawData, unsigned int
   if (!bufferBase->doTrackerSpecialHeaderChecks() && bufferBase->checkNoFEOverflows()) {
     fillHistogram(invalidBuffers_,fedId);
     fillHistogram(anyDaqProblems_,fedId);
+    (*nDaqProblems)++;
     foundError = true;
   }
   //FE unit overflows
@@ -237,7 +271,7 @@ bool SiStripFEDMonitorPlugin::analyzeFED(const FEDRawData& rawData, unsigned int
   }
   //if FEs overflowed or tracker special header is invalid then don't bother to check payload
   bool checkPayload = !foundError;
-  bool feUnitsGood = analyzeFEUnits(bufferBase.get(),fedId);
+  bool feUnitsGood = analyzeFEUnits(bufferBase.get(),fedId,nFEOverflows,nFEBadMajorityAddresses);
   if (!feUnitsGood) foundError = true;
   
   //payload checks
@@ -250,6 +284,7 @@ bool SiStripFEDMonitorPlugin::analyzeFED(const FEDRawData& rawData, unsigned int
     //corrupt buffer checks
     if (!buffer->doCorruptBufferChecks()) {
       fillHistogram(corruptBuffers_,fedId);
+      (*nCorruptBuffers)++;
       foundError = true;
     }
     //channel checks
@@ -259,6 +294,7 @@ bool SiStripFEDMonitorPlugin::analyzeFED(const FEDRawData& rawData, unsigned int
     }
     if (activeBadChannels.size()) {
       foundError = true;
+      (*nBadActiveChannels) += activeBadChannels.size();
     }
   }
   
@@ -295,7 +331,8 @@ bool SiStripFEDMonitorPlugin::analyzeFED(const FEDRawData& rawData, unsigned int
   return !foundError;
 }
 
-bool SiStripFEDMonitorPlugin::analyzeFEUnits(const sistrip::FEDBufferBase* buffer, unsigned int fedId)
+bool SiStripFEDMonitorPlugin::analyzeFEUnits(const sistrip::FEDBufferBase* buffer, unsigned int fedId,
+                                             unsigned int* nFEOverflows, unsigned int* nFEBadMajorityAddresses)
 {
   bool foundOverflow = false;
   bool foundBadMajority = false;
@@ -304,6 +341,7 @@ bool SiStripFEDMonitorPlugin::analyzeFEUnits(const sistrip::FEDBufferBase* buffe
       bookFEDHistograms(fedId);
       fillHistogram(feOverflowDetailed_[fedId],iFE);
       foundOverflow = true;
+      (*nFEOverflows)++;
       //if FE overflowed then address isn't valid
       continue;
     }
@@ -312,6 +350,7 @@ bool SiStripFEDMonitorPlugin::analyzeFEUnits(const sistrip::FEDBufferBase* buffe
       bookFEDHistograms(fedId);
       fillHistogram(badMajorityAddressDetailed_[fedId],iFE);
       foundBadMajority = true;
+      (*nFEBadMajorityAddresses)++;
     }
   }
   if (foundOverflow) {
@@ -505,6 +544,32 @@ void SiStripFEDMonitorPlugin::bookTopLevelHistograms()
                                          siStripFedIdMax-siStripFedIdMin+1,
                                          siStripFedIdMin-0.5,siStripFedIdMax+0.5);
     badMajorityAddresses_->setAxisTitle("FED-ID",1);
+  }
+  if (!disableErrorCountHistograms_ || fillAllHistograms_) {
+    nChannelErrors_ = dqm_->book1D("nChannelErrors",
+                                   "Number of channels in error per event",
+                                   (siStripFedIdMax-siStripFedIdMin+1)*sistrip::FEDCH_PER_FED,
+                                   0,(siStripFedIdMax-siStripFedIdMin+1)*sistrip::FEDCH_PER_FED);
+    nChannelDaqProblems_ = dqm_->book1D("nChannelDaqProblems",
+                                        "Number of channels on FEDs with DAQ problems per event",
+                                        (siStripFedIdMax-siStripFedIdMin+1)*sistrip::FEDCH_PER_FED,
+                                        0,(siStripFedIdMax-siStripFedIdMin+1)*sistrip::FEDCH_PER_FED);
+    nChannelCorruptBuffers_ = dqm_->book1D("nChannelCorruptBuffers",
+                                           "Number of channels on FEDs with corrupt buffers per event",
+                                           (siStripFedIdMax-siStripFedIdMin+1)*sistrip::FEDCH_PER_FED,
+                                           0,(siStripFedIdMax-siStripFedIdMin+1)*sistrip::FEDCH_PER_FED);
+    nBadActiveChannelStatusBits_ = dqm_->book1D("nBadActiveChannelStatusBits",
+                                                "Number of active channels with bad status bits per event",
+                                                (siStripFedIdMax-siStripFedIdMin+1)*sistrip::FEDCH_PER_FED,
+                                                0,(siStripFedIdMax-siStripFedIdMin+1)*sistrip::FEDCH_PER_FED);
+    nChannelFEOverflows_ = dqm_->book1D("nChannelFEOverflows",
+                                        "Number of channels on FE units which overflowed per event",
+                                        (siStripFedIdMax-siStripFedIdMin+1)*sistrip::FEDCH_PER_FED,
+                                        0,(siStripFedIdMax-siStripFedIdMin+1)*sistrip::FEDCH_PER_FED);
+    nChannelFEBadMajorityAddresses_ = dqm_->book1D("nChannelFEBadMajorityAddresses",
+                                                   "Number of channels on FE units with a bad majority address per event",
+                                                   (siStripFedIdMax-siStripFedIdMin+1)*sistrip::FEDCH_PER_FED,
+                                                   0,(siStripFedIdMax-siStripFedIdMin+1)*sistrip::FEDCH_PER_FED);
   }
 }
 

@@ -12,10 +12,12 @@ siStripFEDMonitor = cms.EDAnalyzer("SiStripFEDMonitorPlugin",
   #Write the DQM store to a file (DQMStore.root) at the end of the run
   WriteDQMStore = cms.untracked.bool(False),
   
-  #Do not book expert histograms at global level unless PreBookAllHistos is set
+  #Do not book expert histograms at global level if set to true
   DisableGlobalExpertHistograms = cms.untracked.bool(False),
-  #Disable the FED level histograms
+  #Disable the FED level histograms if set to true
   DisableFEDHistograms = cms.untracked.bool(False),
-  #Override previous two option and book and fill all histograms (so that files can be merged)
+  #Disable the error count histograms used for historic DQM if set to true
+  DisableErrorCountHistograms = cms.untracked.bool(False),
+  #Override previous three options and book and fill all histograms (so that files can be merged)
   FillAllHistograms = cms.untracked.bool(False)
 )
