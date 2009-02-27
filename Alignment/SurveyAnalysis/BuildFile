@@ -1,5 +1,6 @@
 <use name=root>
 <use name=Alignment/CommonAlignment>
+<use name=Alignment/CommonAlignmentParametrization>
 <use name=DataFormats/MuonDetId>
 <use name=DataFormats/SiStripDetId>
 <use name=FWCore/Framework>

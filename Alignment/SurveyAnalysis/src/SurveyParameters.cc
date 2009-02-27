@@ -1,4 +1,5 @@
 #include "Alignment/SurveyAnalysis/interface/SurveyParameters.h"
+#include "Alignment/CommonAlignmentParametrization/interface/AlignmentParametersFactory.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 SurveyParameters::SurveyParameters(Alignable* object,
@@ -16,7 +17,7 @@ void SurveyParameters::apply()
 
 int SurveyParameters::type() const
 {
-
+  return AlignmentParametersFactory::kSurvey;
 }
 
 AlignmentParameters* SurveyParameters::clone(const AlgebraicVector&,
