@@ -61,7 +61,7 @@ process.load("Configuration.StandardSequences.Generator_cff")
 #
 process.load("Configuration.StandardSequences.Simulation_cff")
 
-process.RandomNumberGeneratorService.theSource.initialSeed= ==seed1==
+process.RandomNumberGeneratorService.generator.initialSeed= ==seed1==
 #process.RandomNumberGeneratorService.theSource.initialSeed= 1414
 
 # please note the IMPORTANT: 
