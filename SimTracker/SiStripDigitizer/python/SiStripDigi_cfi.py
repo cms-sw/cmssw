@@ -8,10 +8,10 @@ simSiStripDigis = cms.EDFilter("SiStripDigitizer",
                                chargeDivisionsPerStrip = cms.int32(10),
                                CosmicDelayShift        = cms.untracked.double(0.0), # also SiStripDigitizerAlgorithm
                                #---SiHitDigitizer
-                               DepletionVoltage        = cms.double(140.0),
-                               AppliedVoltage          = cms.double(150.0),
-                               ChargeMobility          = cms.double(480.0),
-                               Temperature             = cms.double(263.0),
+                               DepletionVoltage        = cms.double(170.0),
+                               AppliedVoltage          = cms.double(300.0),
+                               ChargeMobility          = cms.double(310.0),
+                               Temperature             = cms.double(273.0),
                                GevPerElectron          = cms.double(3.61e-09),
                                ChargeDistributionRMS   = cms.double(6.5e-10),
                                noDiffusion             = cms.bool(False),
@@ -64,7 +64,7 @@ simSiStripDigis = cms.EDFilter("SiStripDigitizer",
                                Gain                       = cms.string('fake'),
                                #-----SiStripDigitizerAlgorithm
                                NoiseSigmaThreshold        = cms.double(2.0),
-                               electronPerAdc             = cms.double(250.0),
+                               electronPerAdc             = cms.double(274.0),
                                FedAlgorithm               = cms.int32(4),
                                Noise                      = cms.bool(True), ## NOTE : turning Noise ON/OFF will make a big change
                                TOFCutForDeconvolution     = cms.double(50.0),
