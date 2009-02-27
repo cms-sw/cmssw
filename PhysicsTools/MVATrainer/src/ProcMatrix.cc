@@ -141,8 +141,15 @@ void ProcMatrix::trainData(const std::vector<double> *values,
 	if (!(target ? fillSignal : fillBackground))
 		return;
 
-	for(unsigned int i = 0; i < ls->getSize(); i++, values++)
+	for(unsigned int i = 0; i < ls->getSize(); i++, values++) {
+		if (values->empty())
+			throw cms::Exception("ProcMatrix")
+				<< "Variable \""
+				<< (const char*)getInputs().get()[i]->getName()
+				<< "\" is not set in ProcMatrix trainer."
+				<< std::endl;
 		vars[i] = values->front();
+	}
 
 	ls->add(vars, target, weight);
 }

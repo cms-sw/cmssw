@@ -18,8 +18,8 @@ namespace PhysicsTools {
 class TreeTrainer {
     public:
 	TreeTrainer();
-	TreeTrainer(TTree *tree);
-	TreeTrainer(TTree *signal, TTree *background);
+	TreeTrainer(TTree *tree, double weight = -1.0);
+	TreeTrainer(TTree *signal, TTree *background, double weight = -1.0);
 	~TreeTrainer();
 
 	Calibration::MVAComputer *train(const std::string &trainDescription,
