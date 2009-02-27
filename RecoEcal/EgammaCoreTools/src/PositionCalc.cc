@@ -4,199 +4,168 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
 
-PositionCalc::PositionCalc(std::map<std::string,double> providedParameters)
+PositionCalc::PositionCalc( std::map<std::string,double> providedParameters ) :
+   param_LogWeighted_  ( providedParameters.find("LogWeighted")->second ) ,
+   param_T0_barl_      ( providedParameters.find("T0_barl")->second     ) , 
+   param_T0_endc_      ( providedParameters.find("T0_endc")->second     ) , 
+   param_T0_endcPresh_ ( providedParameters.find("T0_endcPresh")->second ) , 
+   param_W0_           ( providedParameters.find("W0")->second           ) ,
+   param_X0_           ( providedParameters.find("X0")->second           ) ,
+   m_esGeom            ( 0 ) ,
+   m_esPlus            ( false ) ,
+   m_esMinus           ( false )
 {
-  param_LogWeighted_ = providedParameters.find("LogWeighted")->second;
-  param_T0_barl_ = providedParameters.find("T0_barl")->second; 
-  param_T0_endc_ = providedParameters.find("T0_endc")->second; 
-  param_T0_endcPresh_ = providedParameters.find("T0_endcPresh")->second; 
-  param_W0_ = providedParameters.find("W0")->second;
-  param_X0_ = providedParameters.find("X0")->second;
-
-  //storedRecHitsMap_ = passedRecHitsMap;
-  //storedSubdetectorGeometry_ = passedGeometry;
 }
 
-const PositionCalc& PositionCalc::operator=(const PositionCalc& rhs) {
-  param_LogWeighted_ = rhs.param_LogWeighted_;
-  param_T0_barl_ = rhs.param_T0_barl_;
-  param_T0_endc_ = rhs.param_T0_endc_;
-  param_T0_endcPresh_ = rhs.param_T0_endcPresh_;
-  param_W0_ = rhs.param_W0_;
-  param_X0_ = rhs.param_X0_;
-  return *this;
-}
-math::XYZPoint PositionCalc::Calculate_Location(std::vector< DetId > passedDetIds,
-                                                EcalRecHitCollection const * storedRecHitsMap_,
-                                                const CaloSubdetectorGeometry * storedSubdetectorGeometry_,
-						const CaloSubdetectorGeometry * storedESGeometry_)
+const PositionCalc& PositionCalc::operator=( const PositionCalc& rhs ) 
 {
- std::vector< std::pair<DetId, float> > withTrivialFraction;
- for(size_t i=0; i < passedDetIds.size();  i++) withTrivialFraction.push_back(std::pair<DetId, float>( passedDetIds[i] ,1.) );
+   param_LogWeighted_ = rhs.param_LogWeighted_;
+   param_T0_barl_ = rhs.param_T0_barl_;
+   param_T0_endc_ = rhs.param_T0_endc_;
+   param_T0_endcPresh_ = rhs.param_T0_endcPresh_;
+   param_W0_ = rhs.param_W0_;
+   param_X0_ = rhs.param_X0_;
 
- return  Calculate_Location(withTrivialFraction,storedRecHitsMap_,storedSubdetectorGeometry_,storedESGeometry_);
-   
-  
- 
+   m_esGeom = rhs.m_esGeom ;
+   m_esPlus = rhs.m_esPlus ;
+   m_esMinus = rhs.m_esMinus ;
+   return *this;
 }
 
-math::XYZPoint PositionCalc::Calculate_Location(std::vector< std::pair<DetId, float> > passedDetIds,
-                                                EcalRecHitCollection const * storedRecHitsMap_,
-                                                const CaloSubdetectorGeometry * storedSubdetectorGeometry_,
-						const CaloSubdetectorGeometry * storedESGeometry_)
+math::XYZPoint 
+PositionCalc::Calculate_Location( const std::vector<DetId>&      iDetIds  ,
+				  const EcalRecHitCollection*    iRecHits ,
+				  const CaloSubdetectorGeometry* iSubGeom ,
+				  const CaloSubdetectorGeometry* iESGeom   )
 {
+   math::XYZPoint returnValue ( 0, 0, 0 ) ;
 
-  // Throw an error if the cluster was not initialized properly
+   // Throw an error if the cluster was not initialized properly
 
-  if(storedRecHitsMap_ == NULL || storedSubdetectorGeometry_ == NULL)
-    throw(std::runtime_error("\n\nPositionCalc::Calculate_Location called uninitialized or wrong initialization.\n\n"));
+   if( 0 == iRecHits || 
+       0 == iSubGeom    )
+   {
+      throw(std::runtime_error("\n\nPositionCalc::Calculate_Location called uninitialized or wrong initialization.\n\n"));
+   }
 
-  std::vector< std::pair<DetId,float> > validDetIds;
+   if( 0 != iDetIds.size()   &&
+       0 != iRecHits->size()     )
+   {
+      typedef std::vector<DetId> DetIdVec ;
 
-  // Check that DetIds are nonzero
-  std::vector< std::pair<DetId, float> >::iterator n;
-  for (n = passedDetIds.begin(); n != passedDetIds.end(); ++n) {
-    if (((*n).first != DetId(0)) 
-	&& (storedRecHitsMap_->find( (*n).first ) != storedRecHitsMap_->end()))
-      validDetIds.push_back( *n );
-  }
+      DetIdVec detIds ;
+      detIds.reserve( iDetIds.size() ) ;
 
-  passedDetIds.clear();
-  passedDetIds = validDetIds;
+      double eTot  ( 0 ) ;
+      double eMax  ( 0 ) ;
+      DetId  maxId ;
 
-  // Figure out what the central crystal is and also calculate the 
-  // total energy
+      // Check that DetIds are nonzero
+      EcalRecHitCollection::const_iterator endRecHits ( iRecHits->end() ) ;
+      for( DetIdVec::const_iterator n ( iDetIds.begin() ) ; n != iDetIds.end() ; ++n ) 
+      {
+	 const DetId dId ( *n ) ;
+	 if( !dId.null() )
+	 {
+	    EcalRecHitCollection::const_iterator iHit ( iRecHits->find( dId ) ) ;
+	    if( iHit != endRecHits )
+	    {
+	       detIds.push_back( dId );
 
-  double eTot = 0;
+	       const double energy ( iHit->energy() ) ;
 
-  DetId maxId_ = (*(passedDetIds.begin())).first;
-  EcalRecHitCollection::const_iterator itm = storedRecHitsMap_->find(maxId_);
+	       if( 0 < energy ) // only save positive energies
+	       {
+		  if( eMax < energy )
+		  {
+		     eMax  = energy ;
+		     maxId = dId    ;
+		  }
+		  eTot += energy ;
+	       }
+	    }
+	 }
+      }
 
-  double eMax = itm->energy();
+      if( 0 >= eTot )
+      {
+	 LogDebug("ZeroClusterEnergy") << "cluster with 0 energy: " << eTot
+				       << ", returning (0,0,0)";
+      }
+      else
+      {
+	 // first time or when es geom changes set flags
+	 if( 0        != iESGeom &&
+	     m_esGeom != iESGeom    )
+	 {
+	    m_esGeom = iESGeom ;
+	    const CaloSubdetectorGeometry::CellCont& cells ( iESGeom->cellGeometries() ) ;
+	    for( CaloSubdetectorGeometry::CellCont::const_iterator ic ( cells.begin() ) ;
+		 ic != cells.end() && ( (!m_esPlus) || (!m_esMinus) ) ; ++ic )
+	    {
+	       const double z ( (*ic)->getPosition().z() ) ;
+	       m_esPlus  = m_esPlus  || ( 0 < z ) ;
+	       m_esMinus = m_esMinus || ( 0 > z ) ;
+	    }
+	 }
 
-  DetId id_;
-  double e_i = 0;
+	 //Select the correct value of the T0 parameter depending on subdetector
 
-  std::vector< std::pair<DetId, float> >::iterator i;
-  for (i = passedDetIds.begin(); i !=  passedDetIds.end(); i++) {
-    id_ = (*i).first;
-    EcalRecHitCollection::const_iterator itt = storedRecHitsMap_->find(id_);
+	 const CaloCellGeometry* center_cell ( iSubGeom->getGeometry( maxId ) ) ;
+	 const double ctreta ( center_cell->getPosition().eta() ) ;
 
-    e_i = itt->energy();
-    if (e_i > eMax) {
-      eMax = e_i;
-      maxId_ = id_;
-    }
+	 // for barrel, use barrel T0; 
+	 // for endcap: if preshower present && in preshower fiducial, use preshower T0
+	 //             else use endcap only T0
+
+	 const Double32_t T0 ( 1.479 > fabs( ctreta ) ? param_T0_barl_ :
+			       ( ( ( 1.653 < fabs( ctreta ) ) &&
+				   ( ( ( 0 < ctreta ) && 
+				       m_esPlus          ) ||
+				     ( ( 0 > ctreta ) &&
+				       m_esMinus         )   )    ) ?
+				 param_T0_endcPresh_ : param_T0_endc_ ) ) ;
+
+	 // Calculate shower depth
+	 const float maxDepth ( param_X0_ * ( T0 + log( eTot ) ) ) ;
+
+	 const float maxToFront ( center_cell->getPosition().mag() ) ; // to front face
+
+	 // Loop over hits and get weights
+	 double total_weight = 0;
+
+	 double xw ( 0 ) ;
+	 double yw ( 0 ) ;
+	 double zw ( 0 ) ;
+
+	 for( DetIdVec::const_iterator j ( detIds.begin() ) ; j != detIds.end() ; ++j ) 
+	 {
+	    const DetId dId ( *j ) ;
+	    EcalRecHitCollection::const_iterator iR ( iRecHits->find( dId ) ) ;
+	    const double e_j ( iR->energy() ) ;
+
+	    const double weight ( param_LogWeighted_ ? 
+				  std::max( 0., param_W0_ + log( e_j/eTot) ) :
+				  e_j/eTot ) ;
     
-    eTot += e_i;
-  }
-  
-  //Select the correct value of the T0 parameter depending on subdetector
-  float T0;
-  const CaloCellGeometry* center_cell = storedSubdetectorGeometry_->getGeometry(maxId_);
-  GlobalPoint p = center_cell->getPosition();
-  if (fabs(p.eta())<1.479) {
-    //barrel
-    T0 = param_T0_barl_;
-  } else {
-    DetId preshDet;
-    if (storedESGeometry_) {
-      preshDet = (dynamic_cast<const EcalPreshowerGeometry*>(storedESGeometry_))->getClosestCell(p);
-    }
-    if (preshDet.null()) {
-      //endcap, not behind preshower
-      T0 = param_T0_endc_;
-    } else {
-      //endcap, behind preshower
-      T0 = param_T0_endcPresh_;
-    }
-  }
+	    const CaloCellGeometry* cell ( iSubGeom->getGeometry( dId ) ) ;
 
-  // Calculate shower depth
-  float depth = 0.;
-  if(eTot<=0.) {
-    LogDebug("NegativeClusterEnergy") << "cluster with negative energy: " << eTot
-					   << " setting depth to 0.";
-  } else {
-    depth = param_X0_ * (T0 + log(eTot));
-  }
+	    const float depth ( maxDepth + maxToFront - cell->getPosition().mag() ) ;
 
-  // Get position of center cell from shower depth
-  GlobalPoint center_pos = 
-    (dynamic_cast<const TruncatedPyramid*>(center_cell))->getPosition(depth);
-  
+	    const GlobalPoint pos (
+	       dynamic_cast<const TruncatedPyramid*>( cell )->getPosition( depth ) );
 
-  // Loop over hits and get weights
-  double weight = 0;
-  double total_weight = 0;
-
-  double center_phi = center_pos.phi();
-  double center_theta = center_pos.theta();
-
-  double delta_theta = 0;
-  double delta_phi = 0;
-
-  double dphi = 0;
-
-  std::vector< std::pair<DetId, float> >::iterator j;
-  for (j = passedDetIds.begin(); j != passedDetIds.end(); j++) {
-    id_ = (*j).first;
-    EcalRecHitCollection::const_iterator itj = storedRecHitsMap_->find(id_);
-    double e_j = itj->energy();
-
-    if (param_LogWeighted_) {
-       if(eTot<=0.) {
-         weight = 0.;
-       } else {
-	 if (e_j > 0.)
-	   weight = std::max(0., param_W0_ + log( e_j/eTot) );
-	 else
-	   weight = 0.;
-       }
-    } else {
-      weight = e_j/eTot;
-    }
-    
-    total_weight += weight;
-  
-    const CaloCellGeometry* jth_cell = 
-      storedSubdetectorGeometry_->getGeometry(id_);
-    GlobalPoint jth_pos = 
-      dynamic_cast<const TruncatedPyramid*>(jth_cell)->getPosition(depth);
-
-    delta_theta += weight * (jth_pos.theta() - center_theta);
-    dphi = (jth_pos.phi() - center_phi);
-
-    // Check the 2*pi problem for delta_phi
-    if (dphi > M_PI)
-      dphi -= 2.*M_PI;
-    if (dphi < -M_PI)
-      dphi += 2.*M_PI;
-
-    delta_phi += dphi*weight;    
-  }
-
-  delta_theta /= total_weight;
-  delta_phi /= total_weight;
-  
-  double cluster_theta = center_theta + delta_theta;
-  double cluster_phi = center_phi + delta_phi;
-
-  // Check the 2*pi problem for cluster_phi
-  if (cluster_phi > M_PI)
-    cluster_phi -= 2.*M_PI;
-  if (cluster_phi < -M_PI)
-    cluster_phi += 2.*M_PI;
-
-  double radius = sqrt(center_pos.x()*center_pos.x()
-		       + center_pos.y()*center_pos.y()
-		       + center_pos.z()*center_pos.z());
-
-  double xpos = radius*cos(cluster_phi)*sin(cluster_theta);
-  double ypos = radius*sin(cluster_phi)*sin(cluster_theta);
-  double zpos = radius*cos(cluster_theta);
-
-  return math::XYZPoint(xpos, ypos, zpos);
-  
+	    xw += weight*pos.x() ;
+	    yw += weight*pos.y() ;
+	    zw += weight*pos.z() ;
+      
+	    total_weight += weight ;
+	 }
+	 returnValue = math::XYZPoint( xw/total_weight, 
+				       yw/total_weight, 
+				       zw/total_weight ) ;
+      }
+   }
+   return returnValue ;
 }
 

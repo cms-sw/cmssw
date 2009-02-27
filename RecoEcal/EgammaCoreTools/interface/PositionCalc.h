@@ -37,15 +37,10 @@ class PositionCalc
   // weighted average position of a vector of DetIds, which should be
   // a subset of the map used to Initialize.
 
-  math::XYZPoint Calculate_Location(std::vector< DetId > passedDetIds,
-                                    const EcalRecHitCollection *passedRecHitsMap,
-                                    const CaloSubdetectorGeometry *passedGeometry,
-                                    const CaloSubdetectorGeometry *passedGeometryES=0);
- 
- math::XYZPoint Calculate_Location(std::vector< std::pair<DetId, float> > passedDetIds,
-                                    const EcalRecHitCollection *passedRecHitsMap,
-                                    const CaloSubdetectorGeometry *passedGeometry,
-                                    const CaloSubdetectorGeometry *passedGeometryES=0);
+  math::XYZPoint Calculate_Location( const std::vector<DetId>&      iDetIds  ,
+				     const EcalRecHitCollection*    iRecHits ,
+				     const CaloSubdetectorGeometry* iSubGeom ,
+				     const CaloSubdetectorGeometry* iESGeom = 0 ) ;
 
  private:
   bool        param_LogWeighted_;
@@ -54,8 +49,10 @@ class PositionCalc
   Double32_t  param_T0_endcPresh_;
   Double32_t  param_W0_;
   Double32_t  param_X0_;
-  //const EcalRecHitCollection  *storedRecHitsMap_;
-  //const CaloSubdetectorGeometry *storedSubdetectorGeometry_;
+
+      const CaloSubdetectorGeometry* m_esGeom ;
+      bool m_esPlus ;
+      bool m_esMinus ;
 
 };
 
