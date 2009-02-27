@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTaskExtras.cc
  *
- * $Date: 2008/12/03 12:55:49 $
- * $Revision: 1.68 $
+ * $Date: 2009/02/27 13:53:10 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -71,7 +71,7 @@ EEClusterTaskExtras::EEClusterTaskExtras(const ParameterSet& ps){
    l1GMTReadoutRecTag_ = ps.getParameter<edm::InputTag>("l1GlobalMuonReadoutRecord");
 
    // histograms...
-#ifndef DQMOffline
+#ifndef EECLUSTERTASKEXTRAS_DQMOFFLINE
    meSCSizXtal_ = 0;
    meSCXtalsVsEne_ = 0;
    meSCSizBC_ = 0;
@@ -141,7 +141,7 @@ void EEClusterTaskExtras::endRun(const Run& r, const EventSetup& c) {
 }
 
 void EEClusterTaskExtras::reset(void) {
-#ifndef DQMOffline
+#ifndef EECLUSTERTASKEXTRAS_DQMOFFLINE
    if ( meSCSizXtal_ ) meSCSizXtal_->Reset();
    if ( meSCXtalsVsEne_ ) meSCXtalsVsEne_->Reset();
    if ( meSCSizBC_ ) meSCSizBC_->Reset(); 
@@ -193,7 +193,7 @@ void EEClusterTaskExtras::setup(void){
    if ( dqmStore_ ) {
       dqmStore_->setCurrentFolder(prefixME_ + "/EEClusterTaskExtras");
 
-#ifndef DQMOffline
+#ifndef EECLUSTERTASKEXTRAS_DQMOFFLINE
       // Cluster hists
       sprintf(histo, "EECLTE SC size (xtals)");
       meSCSizXtal_ = dqmStore_->book1D(histo,histo,150,0,150);
@@ -578,7 +578,7 @@ void EEClusterTaskExtras::cleanup(void){
    if ( dqmStore_ ) {
       dqmStore_->setCurrentFolder(prefixME_ + "/EEClusterTaskExtras");
 
-#ifndef DQMOffline
+#ifndef EECLUSTERTASKEXTRAS_DQMOFFLINE
       if ( meSCSizXtal_ ) dqmStore_->removeElement( meSCSizXtal_->getName() );
       meSCSizXtal_ = 0;
       if ( meSCXtalsVsEne_ ) dqmStore_->removeElement( meSCXtalsVsEne_->getName() );
@@ -688,23 +688,30 @@ void EEClusterTaskExtras::analyze(const Event& e, const EventSetup& c) {
 	 edm::Handle< EcalRecHitCollection > pEERecHits;
 	 e.getByLabel( EcalRecHitCollection_, pEERecHits );
 	 if ( pEERecHits.isValid() ) {
-	    const EcalRecHitCollection *ebRecHits = pEERecHits.product();
+	    const EcalRecHitCollection *eeRecHits = pEERecHits.product();
 
-	    edm::ESHandle<CaloTopology> pTopology;
-	    c.get<CaloTopologyRecord>().get(pTopology);
 	    BasicClusterRef theSeed = sCluster->seed();
 
 	    // Find the seed rec hit
-	    std::vector<DetId> sIds = sCluster->getHitsByDetId();
+	    // <= CMSSW_3_0_X
+	    //std::vector<DetId> sIds = sCluster->getHitsByDetId();
+	    // >= CMSSW_3_1_X
+	    std::vector< std::pair<DetId,float> > sIds = sCluster->hitsAndFractions();
 
 	    float eMax, e2nd;
-	    EcalRecHitCollection::const_iterator seedItr = ebRecHits->begin();
-	    EcalRecHitCollection::const_iterator secondItr = ebRecHits->begin();
+	    EcalRecHitCollection::const_iterator seedItr = eeRecHits->begin();
+	    EcalRecHitCollection::const_iterator secondItr = eeRecHits->begin();
 
-	    for(std::vector<DetId>::const_iterator idItr = sIds.begin(); idItr != sIds.end(); ++idItr) {
-	       if(idItr->det() != DetId::Ecal) { continue; }
-	       EcalRecHitCollection::const_iterator hitItr = ebRecHits->find((*idItr));
-	       if(hitItr == ebRecHits->end()) { continue; }
+	    // <= CMSSW_3_0_X
+	    //for(std::vector<DetId>::const_iterator idItr = sIds.begin(); idItr != sIds.end(); ++idItr) {
+	       //if(idItr->det() != DetId::Ecal) { continue; }
+	       //EcalRecHitCollection::const_iterator hitItr = eeRecHits->find((*idItr));
+	    // >= CMSSW_3_1_X
+	    for(std::vector< std::pair<DetId,float> >::const_iterator idItr = sIds.begin(); idItr != sIds.end(); ++idItr) {
+	       DetId id = idItr->first;
+	       if(id.det() != DetId::Ecal) { continue; }
+	       EcalRecHitCollection::const_iterator hitItr = eeRecHits->find(id);
+	       if(hitItr == eeRecHits->end()) { continue; }
 	       if(hitItr->energy() > secondItr->energy()) { secondItr = hitItr; }
 	       if(hitItr->energy() > seedItr->energy()) { std::swap(seedItr,secondItr); }
 	    }
@@ -727,7 +734,7 @@ void EEClusterTaskExtras::analyze(const Event& e, const EventSetup& c) {
 
 	    vector<bool> triggers = determineTriggers(e,c);
 
-#ifndef DQMOffline
+#ifndef EECLUSTERTASKEXTRAS_DQMOFFLINE
 	    // energy, size
 	    if(meSCEneLow_) meSCEneLow_->Fill( sCluster->energy() );
 	    if(meSCEneHigh_) meSCEneHigh_->Fill( sCluster->energy() );

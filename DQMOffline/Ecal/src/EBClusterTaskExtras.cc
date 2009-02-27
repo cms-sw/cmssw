@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTaskExtras.cc
  *
- * $Date: 2008/12/03 12:55:49 $
- * $Revision: 1.68 $
+ * $Date: 2009/02/27 13:52:48 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -72,7 +72,7 @@ EBClusterTaskExtras::EBClusterTaskExtras(const ParameterSet& ps){
    l1GMTReadoutRecTag_ = ps.getParameter<edm::InputTag>("l1GlobalMuonReadoutRecord");
 
    // histograms...
-#ifndef DQMOffline
+#ifndef EBCLUSTERTASKEXTRAS_DQMOFFLINE
    meSCSizXtal_ = 0;
    meSCXtalsVsEne_ = 0;
    meSCSizBC_ = 0;
@@ -151,7 +151,7 @@ void EBClusterTaskExtras::endRun(const Run& r, const EventSetup& c) {
 }
 
 void EBClusterTaskExtras::reset(void) {
-#ifndef DQMOffline
+#ifndef EBCLUSTERTASKEXTRAS_DQMOFFLINE
    if ( meSCSizXtal_ ) meSCSizXtal_->Reset();
    if ( meSCXtalsVsEne_ ) meSCXtalsVsEne_->Reset();
    if ( meSCSizBC_ ) meSCSizBC_->Reset(); 
@@ -214,7 +214,7 @@ void EBClusterTaskExtras::setup(void){
    if ( dqmStore_ ) {
       dqmStore_->setCurrentFolder(prefixME_ + "/EBClusterTaskExtras");
 
-#ifndef DQMOffline
+#ifndef EBCLUSTERTASKEXTRAS_DQMOFFLINE
       // Cluster hists
       sprintf(histo, "EBCLTE SC size (xtals)");
       meSCSizXtal_ = dqmStore_->book1D(histo,histo,150,0,150);
@@ -530,7 +530,7 @@ void EBClusterTaskExtras::cleanup(void){
    if ( dqmStore_ ) {
       dqmStore_->setCurrentFolder(prefixME_ + "/EBClusterTaskExtras");
 
-#ifndef DQMOffline
+#ifndef EBCLUSTERTASKEXTRAS_DQMOFFLINE
       if ( meSCSizXtal_ ) dqmStore_->removeElement( meSCSizXtal_->getName() );
       meSCSizXtal_ = 0;
 
@@ -679,15 +679,24 @@ void EBClusterTaskExtras::analyze(const Event& e, const EventSetup& c) {
 	    BasicClusterRef theSeed = sCluster->seed();
 
 	    // Find the seed rec hit
-	    std::vector<DetId> sIds = sCluster->getHitsByDetId();
+	    // <= CMSSW_3_0_X
+	    //std::vector<DetId> sIds = sCluster->getHitsByDetId();
+	    // >= CMSSW_3_1_X
+	    std::vector< std::pair<DetId,float> > sIds = sCluster->hitsAndFractions();
 
 	    float eMax, e2nd;
 	    EcalRecHitCollection::const_iterator seedItr = ebRecHits->begin();
 	    EcalRecHitCollection::const_iterator secondItr = ebRecHits->begin();
 
-	    for(std::vector<DetId>::const_iterator idItr = sIds.begin(); idItr != sIds.end(); ++idItr) {
-	       if(idItr->det() != DetId::Ecal) { continue; }
-	       EcalRecHitCollection::const_iterator hitItr = ebRecHits->find((*idItr));
+	    // <= CMSSW_3_0_X
+	    //for(std::vector<DetId>::const_iterator idItr = sIds.begin(); idItr != sIds.end(); ++idItr) {
+	       //if(idItr->det() != DetId::Ecal) { continue; }
+	       //EcalRecHitCollection::const_iterator hitItr = ebRecHits->find((*idItr));
+	       // <= CMSSW_3_1_X
+	       for(std::vector< std::pair<DetId,float> >::const_iterator idItr = sIds.begin(); idItr != sIds.end(); ++idItr) {
+	        DetId id = idItr->first;
+	       if(id.det() != DetId::Ecal) { continue; }
+	       EcalRecHitCollection::const_iterator hitItr = ebRecHits->find(id);
 	       if(hitItr == ebRecHits->end()) { continue; }
 	       if(hitItr->energy() > secondItr->energy()) { secondItr = hitItr; }
 	       if(hitItr->energy() > seedItr->energy()) { std::swap(seedItr,secondItr); }
@@ -709,7 +718,7 @@ void EBClusterTaskExtras::analyze(const Event& e, const EventSetup& c) {
 
 	    vector<bool> triggers = determineTriggers(e,c);
 
-#ifndef DQMOffline
+#ifndef EBCLUSTERTASKEXTRAS_DQMOFFLINE
 	    int ism = Numbers::iSM(seedId);
 
 	    // energy, size
