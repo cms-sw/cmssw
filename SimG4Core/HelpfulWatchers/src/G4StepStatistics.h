@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Tue Nov 22 16:41:33 EST 2005
-// $Id: G4StepStatistics.h,v 1.2 2009/02/25 16:14:14 gbenelli Exp $
+// $Id: G4StepStatistics.h,v 1.3 2009/02/26 14:55:09 gbenelli Exp $
 //
 
 // system include files
@@ -185,16 +185,16 @@ OBSERVES(EndOfTrack)
        //std::cout<<"Allocated TrackID and created Branch for it!"<<std::endl;
        PDGID = new TArrayI(100000);
        //std::cout<<"Allocated PDGID!"<<std::endl;
-       G4StepTree->Branch("PDGID",&PDGID,100000);
+       G4StepTree->Branch("PDGID",&PDGID,1);
        //std::cout<<"Allocated PDGID and created Branch for it!"<<std::endl;
        Region = new TClonesArray("TObjString",100000);
-       G4StepTree->Branch("Region",&Region,100000);
+       G4StepTree->Branch("Region",&Region);
        //std::cout<<"Allocated Region and created Branch for it!"<<std::endl;
        Process = new TClonesArray("TObjString",100000);
-       G4StepTree->Branch("Process",&Process,100000);
+       G4StepTree->Branch("Process",&Process);
        //std::cout<<"Allocated Process and created Branch for it!"<<std::endl;
        G4StepFreq = new TArrayI(100000);
-       G4StepTree->Branch("G4StepFreq",&G4StepFreq,100000);
+       G4StepTree->Branch("G4StepFreq",&G4StepFreq);
        //std::cout<<"Allocated G4StepFreq and created Branch for it!"<<std::endl;
      }
 UPDATE(DDDWorld)
