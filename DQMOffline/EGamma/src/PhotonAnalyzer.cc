@@ -12,7 +12,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2009/02/19 16:31:20 $ 
+ **  $Date: 2009/02/23 14:00:48 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -196,11 +196,11 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
     
     //Triggers passed
     
-    h_filters_ = dbe_->book1D("Filters","Filters Passed;;Fraction of Events Passing",11,0,11);
+    h_filters_ = dbe_->book1D("Filters","Filters Passed;;Fraction of Photons Passing",11,0,11);
 
     h_deltaR_ = dbe_->book1D("DeltaR","Minimum #deltaR between Photon and nearest TriggerObject;#deltaR",dRBin,dRMin,dRMax);
-    h_failedPhoEta_ = dbe_->book1D("FailedPhoEta","Failed Photon Eta;#eta",etaBin,etaMin, etaMax);
-    h_failedPhoEt_ = dbe_->book1D("FailedPhoEt","Failed Photon Et;Et (GeV)",etBin,etMin, etMax);
+    h_failedPhoEta_ = dbe_->book1D("FailedPhoEta","#eta of reconstructed photons failing all HLT photon triggers;#eta",etaBin,etaMin, etaMax);
+    h_failedPhoEt_ = dbe_->book1D("FailedPhoEt","Et of reconstructed photons failing all HLT photon triggers;Et (GeV)",etBin,etMin, etMax);
 
 
     for(int cut = 0; cut != numberOfSteps_; ++cut){   //looping over Et cut values
@@ -263,18 +263,18 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
 
 	// Isolation Variable infos
 
-	h_nTrackIsolSolidVsEta_isol_.push_back(dbe_->book2D("nIsoTracksSolidVsEta2D","Avg Number Of Tracks in the Solid Iso Cone vs. #eta;#eta;# tracks",etaBin,etaMin, etaMax,numberBin,numberMin,numberMax));
+	h_nTrackIsolSolidVsEta_isol_.push_back(dbe_->book2D("nIsoTracksSolidVsEta2D","Avg Number Of Tracks in the Solid Iso Cone vs.  #eta;#eta;# tracks",etaBin,etaMin, etaMax,numberBin,numberMin,numberMax));
 	h_trackPtSumSolidVsEta_isol_.push_back(dbe_->book2D("isoPtSumSolidVsEta2D","Avg Tracks Pt Sum in the Solid Iso Cone",etaBin,etaMin, etaMax,sumBin,sumMin,sumMax));
-	h_nTrackIsolHollowVsEta_isol_.push_back(dbe_->book2D("nIsoTracksHollowVsEta2D","Avg Number Of Tracks in the Hollow Iso Cone vs. #eta;#eta;# tracks",etaBin,etaMin, etaMax,numberBin,numberMin,numberMax));
+	h_nTrackIsolHollowVsEta_isol_.push_back(dbe_->book2D("nIsoTracksHollowVsEta2D","Avg Number Of Tracks in the Hollow Iso Cone vs.  #eta;#eta;# tracks",etaBin,etaMin, etaMax,numberBin,numberMin,numberMax));
 	h_trackPtSumHollowVsEta_isol_.push_back(dbe_->book2D("isoPtSumHollowVsEta2D","Avg Tracks Pt Sum in the Hollow Iso Cone",etaBin,etaMin, etaMax,sumBin,sumMin,sumMax));
 	h_ecalSumVsEta_isol_.push_back(dbe_->book2D("ecalSumVsEta2D","Avg Ecal Sum in the Iso Cone",etaBin,etaMin, etaMax,sumBin,sumMin,sumMax));
 	h_hcalSumVsEta_isol_.push_back(dbe_->book2D("hcalSumVsEta2D","Avg Hcal Sum in the Iso Cone",etaBin,etaMin, etaMax,sumBin,sumMin,sumMax));
-	p_nTrackIsolSolidVsEta_isol_.push_back(dbe_->book1D("nIsoTracksSolidVsEta","Avg Number Of Tracks in the Solid Iso Cone vs. #eta;#eta;# tracks",etaBin,etaMin, etaMax));
-	p_trackPtSumSolidVsEta_isol_.push_back(dbe_->book1D("isoPtSumSolidVsEta","Avg Tracks Pt Sum in the Solid Iso Cone vs. #eta;#eta;Pt (GeV)",etaBin,etaMin, etaMax));
-	p_nTrackIsolHollowVsEta_isol_.push_back(dbe_->book1D("nIsoTracksHollowVsEta","Avg Number Of Tracks in the Hollow Iso Cone vs. #eta;#eta;# tracks",etaBin,etaMin, etaMax));
-	p_trackPtSumHollowVsEta_isol_.push_back(dbe_->book1D("isoPtSumHollowVsEta","Avg Tracks Pt Sum in the Hollow Iso Cone vs. #eta;#eta;Pt (GeV)",etaBin,etaMin, etaMax));
-	p_ecalSumVsEta_isol_.push_back(dbe_->book1D("ecalSumVsEta","Avg Ecal Sum in the Iso Cone vs. #eta;#eta;E (GeV)",etaBin,etaMin, etaMax));
-	p_hcalSumVsEta_isol_.push_back(dbe_->book1D("hcalSumVsEta","Avg Hcal Sum in the Iso Cone vs. #eta;#eta;E (GeV)",etaBin,etaMin, etaMax));
+	p_nTrackIsolSolidVsEta_isol_.push_back(dbe_->book1D("nIsoTracksSolidVsEta","Avg Number Of Tracks in the Solid Iso Cone vs.  #eta;#eta;# tracks",etaBin,etaMin, etaMax));
+	p_trackPtSumSolidVsEta_isol_.push_back(dbe_->book1D("isoPtSumSolidVsEta","Avg Tracks Pt Sum in the Solid Iso Cone vs.  #eta;#eta;Pt (GeV)",etaBin,etaMin, etaMax));
+	p_nTrackIsolHollowVsEta_isol_.push_back(dbe_->book1D("nIsoTracksHollowVsEta","Avg Number Of Tracks in the Hollow Iso Cone vs.  #eta;#eta;# tracks",etaBin,etaMin, etaMax));
+	p_trackPtSumHollowVsEta_isol_.push_back(dbe_->book1D("isoPtSumHollowVsEta","Avg Tracks Pt Sum in the Hollow Iso Cone vs.  #eta;#eta;Pt (GeV)",etaBin,etaMin, etaMax));
+	p_ecalSumVsEta_isol_.push_back(dbe_->book1D("ecalSumVsEta","Avg Ecal Sum in the Iso Cone vs.  #eta;#eta;E (GeV)",etaBin,etaMin, etaMax));
+	p_hcalSumVsEta_isol_.push_back(dbe_->book1D("hcalSumVsEta","Avg Hcal Sum in the Iso Cone vs.  #eta;#eta;E (GeV)",etaBin,etaMin, etaMax));
 
 	h_nTrackIsolSolid_isol_.push_back(dbe_->book1D("nIsoTracksSolid","Avg Number Of Tracks in the Solid Iso Cone;# tracks",numberBin,numberMin,numberMax));
 	h_trackPtSumSolid_isol_.push_back(dbe_->book1D("isoPtSumSolid","Avg Tracks Pt Sum in the Solid Iso Cone;Pt (GeV)",sumBin,sumMin,sumMax));
@@ -425,8 +425,8 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
 	h_phoConvEta_isol_.push_back(dbe_->book1D("phoConvEta",types[type]+" Converted Photon Eta;#eta ",etaBin,etaMin, etaMax)) ;
 	h_phoConvPhi_isol_.push_back(dbe_->book1D("phoConvPhi",types[type]+" Converted Photon Phi;#phi ",phiBin,phiMin,phiMax)) ;
 	h_convVtxRvsZ_isol_.push_back(dbe_->book2D("convVtxRvsZ",types[type]+" Photon Reco conversion vtx position;Z (cm);R (cm)",zBin,zMin,zMax,rBin,rMin,rMax));
-	h_convVtxRvsZLowEta_isol_.push_back(dbe_->book2D("convVtxRvsZLowEta",types[type]+" Photon Reco conversion vtx position: #eta < 1;Z (cm);R (cm)",zBin,zMin,zMax,rBin,rMin,rMax));
-	h_convVtxRvsZHighEta_isol_.push_back(dbe_->book2D("convVtxRvsZHighEta",types[type]+" Photon Reco conversion vtx position: #eta > 1;Z (cm);R (cm)",zBin,zMin,zMax,rBin,rMin,rMax));
+	h_convVtxRvsZLowEta_isol_.push_back(dbe_->book2D("convVtxRvsZLowEta",types[type]+" Photon Reco conversion vtx position:  #eta < 1;Z (cm);R (cm)",zBin,zMin,zMax,rBin,rMin,rMax));
+	h_convVtxRvsZHighEta_isol_.push_back(dbe_->book2D("convVtxRvsZHighEta",types[type]+" Photon Reco conversion vtx position:  #eta > 1;Z (cm);R (cm)",zBin,zMin,zMax,rBin,rMin,rMax));
 	h_nHitsVsEta_isol_.push_back(dbe_->book2D("nHitsVsEta2D",types[type]+" Photons: Tracks from conversions: Mean Number of  Hits vs Eta;#eta;# hits",etaBin,etaMin, etaMax,etaBin,0, 16));
 	p_nHitsVsEta_isol_.push_back(dbe_->book1D("nHitsVsEta",types[type]+" Photons: Tracks from conversions: Mean Number of  Hits vs Eta;#eta;# hits",etaBin,etaMin, etaMax));	
 	h_tkChi2_isol_.push_back(dbe_->book1D("tkChi2",types[type]+" Photons: Tracks from conversions: #chi^{2} of all tracks;#chi^{2}", 100, 0., 20.0));
@@ -869,7 +869,7 @@ void PhotonAnalyzer::endJob()
     currentFolder_.str("");
     currentFolder_ << "Et above 0 GeV/";
     
-    dividePlots(dbe_->get(EffPath+"Filters"),dbe_->get(EffPath+"Filters"),nEvt_);   
+    dividePlots(dbe_->get(EffPath+"Filters"),dbe_->get(EffPath+"Filters"),dbe_->get(AllPath+currentFolder_.str() + "DistributionAllEcal")->getTH2F()->GetEntries());   
     //making efficiency plots
     
     dividePlots(dbe_->get(EffPath+"EfficiencyVsEtaLoose"),dbe_->get(EffPath+ "phoEtaLoose"),dbe_->get(AllPath+currentFolder_.str() + "phoEta"));
