@@ -5,12 +5,17 @@
 
 
 
+TrimmedVertexFitter::TrimmedVertexFitter()
+{
+  theRector.setMaxNbOfVertices(1);
+  setPtCut(0.);
+}
+
 TrimmedVertexFitter::TrimmedVertexFitter(const edm::ParameterSet & pSet)
 {
   theRector.setMaxNbOfVertices(1);
   setPtCut(pSet.getParameter<double>("minPt"));
 }
-
 
 CachingVertex<5> 
 TrimmedVertexFitter::vertex(const std::vector<reco::TransientTrack> & tracks) const

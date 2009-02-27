@@ -16,6 +16,7 @@ public:
   typedef CachingVertex<5>::RefCountedVertexTrack RefCountedVertexTrack;
   typedef ReferenceCountingPointer<LinearizedTrackState<5> > RefCountedLinearizedTrackState;
 
+  TrimmedVertexFitter();
   TrimmedVertexFitter(const edm::ParameterSet & pSet);
 
   virtual ~TrimmedVertexFitter(){}
