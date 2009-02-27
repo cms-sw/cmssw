@@ -745,10 +745,10 @@ namespace edm {
       eventHistoryBranch->SetAddress(&pHistory);
       input::getEntry(eventHistoryTree_, eventTree_.entryNumber());
     } else {
-      // for backward compatibility.  If we could figure out how many
-      // processes this event has been through, we should fill in
-      // history_ with that many default-constructed IDs.
-      if (!eventProcessHistoryIDs_.empty()) {
+      // for backward compatibility.
+      if (eventProcessHistoryIDs_.empty()) {
+	history_->setProcessHistoryID(eventAux_.processHistoryID());
+      } else {
         if (eventProcessHistoryIter_->eventID_ != eventAux_.id()) {
           EventProcessHistoryID target(eventAux_.id(), ProcessHistoryID());
           eventProcessHistoryIter_ = lower_bound_all(eventProcessHistoryIDs_, target);	
