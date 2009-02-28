@@ -240,11 +240,11 @@ particle_flow DPtoverPt_Cut  1. 1. 0.8 0.5
 particle_flow NHit_Cut 3 3 3 6
 
 // chi2 maximum limit for ECAL/Track association
-particle_flow chi2_ECAL_Track  100
+particle_flow chi2_ECAL_Track  0
 // chi2 maximum limit for HCAL/Track association
-particle_flow chi2_HCAL_Track  100
+particle_flow chi2_HCAL_Track  0
 // chi2 maximum limit for ECAL/HCAL assoiation
-particle_flow chi2_ECAL_HCAL   50
+particle_flow chi2_ECAL_HCAL   0
 
 // chi2 maximum limit for PS/ECAL association
 particle_flow chi2_PS_ECAL	0
