@@ -124,5 +124,5 @@ gr12->SetMarkerSize(0.5);
 gr12->SetLineColor(kViolet);
 gr12->Draw("CP");
 //c2->Print("mean.gif");
-c1->Print("resolution.gif");
+c1->Print("resolutionBarrel.png");
 }
