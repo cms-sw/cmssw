@@ -16,14 +16,15 @@
  *
  *  Original author: Gero Flucke, April 2007
  *
- *  $Date: 2007/04/30 11:33:56 $
- *  $Revision: 1.1.2.1 $
+ *  $Date: 2007/04/30 13:13:58 $
+ *  $Revision: 1.2 $
  *  (last update by $Author: flucke $)
  */
 
 class Alignable;
 class AlignableDet;
 class AlignableDetUnit;
+class AlignmentPositionError;
 
 class AlignableDetOrUnitPtr 
 {  
@@ -57,7 +58,13 @@ class AlignableDetOrUnitPtr
   inline AlignableDetUnit* alignableDetUnit() { return theAliDetUnit;}
   inline const AlignableDetUnit* alignableDetUnit() const { return theAliDetUnit;}
 
+  /// check for empty pointer
   inline bool isNull() const { return (!theAliDet && !theAliDetUnit);}
+
+  // interface to methods specific for AlignableDet(Unit),
+  // slightly breaking idea of 'pointerness' of this class
+  /// alignment position error (see comments in specific classes)
+  const AlignmentPositionError* alignmentPositionError() const;
 
 private:
   AlignableDet     *theAliDet;      ///< Pointer to Alignable if it is a Det

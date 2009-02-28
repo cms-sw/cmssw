@@ -2,8 +2,8 @@
  *
  *  Original author: Gero Flucke, April 2007
  *
- *  $Date: 2007/04/30 11:33:57 $
- *  $Revision: 1.1.2.1 $
+ *  $Date: 2007/04/30 13:13:59 $
+ *  $Revision: 1.2 $
  *  (last update by $Author: flucke $)
  */
 
@@ -27,5 +27,13 @@ AlignableDetOrUnitPtr::operator const Alignable* () const
 {
   if (theAliDet) return theAliDet;
   else           return theAliDetUnit;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+const AlignmentPositionError* AlignableDetOrUnitPtr::alignmentPositionError() const
+{
+  if (theAliDetUnit)  return theAliDetUnit->alignmentPositionError();
+  else if (theAliDet) return theAliDet->alignmentPositionError();
+  else                return 0;
 }
 
