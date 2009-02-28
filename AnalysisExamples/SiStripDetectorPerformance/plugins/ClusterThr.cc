@@ -151,7 +151,7 @@ namespace cms{
 	  sprintf(cappSOff,"_S_Th_%2.1f_%2.1f_%2.1f_Off",Tc,Ts,Tn);
 	  sprintf(cappBOff,"_B_Th_%2.1f_%2.1f_%2.1f_Off",Tc,Ts,Tn);
 	  TString appSOn(cappSOn), appSOff(cappSOff);
-	  TString appBOn(cappBOn), appBOff(cappBOff),;
+	  TString appBOn(cappBOn), appBOff(cappBOff);
 	  
 	  values[0]=Tc;
 	  values[1]=Ts;
