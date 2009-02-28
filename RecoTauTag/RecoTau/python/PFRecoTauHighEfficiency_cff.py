@@ -1,19 +1,19 @@
 import FWCore.ParameterSet.Config as cms
 import copy
 
-from RecoTauTag.RecoTau.PFRecoTauTagInfoProducer_cfi import *
-from RecoTauTag.RecoTau.PFRecoTauProducer_cfi import *
-from RecoTauTag.RecoTau.PFRecoTauDiscriminationByIsolation_cfi import *
-from RecoTauTag.RecoTau.PFRecoTauDiscriminationByIsolationUsingLeadingPion_cfi import *
-from RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingTrackFinding_cfi import *
-from RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingTrackPtCut_cfi import *
-from RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingPionPtCut_cfi import *
-from RecoTauTag.RecoTau.PFRecoTauDiscriminationByTrackIsolation_cfi import *
+from RecoTauTag.RecoTau.PFRecoTauTagInfoProducer_cfi                                import *
+from RecoTauTag.RecoTau.PFRecoTauProducer_cfi                                       import *
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationByIsolation_cfi                      import *
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationByIsolationUsingLeadingPion_cfi      import *
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingTrackFinding_cfi            import *
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingTrackPtCut_cfi              import *
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingPionPtCut_cfi               import *
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationByTrackIsolation_cfi                 import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByTrackIsolationUsingLeadingPion_cfi import *
-from RecoTauTag.RecoTau.PFRecoTauDiscriminationByECALIsolation_cfi import *
-from RecoTauTag.RecoTau.PFRecoTauDiscriminationByECALIsolationUsingLeadingPion_cfi import *
-from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectron_cfi import *
-from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstMuon_cfi import *
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationByECALIsolation_cfi                  import *
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationByECALIsolationUsingLeadingPion_cfi  import *
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectron_cfi                  import *
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstMuon_cfi                      import *
 
 #copying the PFTau producer and select the shrinkingCone
 pfRecoTauProducerHighEfficiency                              = copy.deepcopy(pfRecoTauProducer)
