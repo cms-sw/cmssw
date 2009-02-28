@@ -17,20 +17,22 @@ void makeTauPlotChain(const char* pattern,
 
 void makeTauPlotTree(const char* filename, 
 		     const char* label, 
-		     int relative = 0 ) {
+		     int relative = 0,
+		     int hmax = 600. ) {
 
   TChain chain("Eff");
   chain.Add( filename );
   
 
-  makeTauPlot( &chain, label, relative );
+  makeTauPlot( &chain, label, relative, hmax );
 }
 
 
 
 void makeTauPlot(TTree *tree, 
 		 const char* label,
-		 int relative) {
+		 int relative,
+		 int hmax) {
 
   
   
@@ -66,7 +68,7 @@ void makeTauPlot(TTree *tree,
   TH1F* h_deltaETvisible_MCPF = new TH1F(pfhname.c_str(),title.c_str(),
 					 nbins, min , max);
   
-  
+  h_deltaETvisible_MCPF->SetMaximum(hmax);
   h_deltaETvisible_MCPF->SetStats(1); 
   h_deltaETvisible_MCPF->SetLineWidth(2);
 
@@ -109,7 +111,7 @@ void makeTauPlot(TTree *tree,
   leg->AddEntry(h_deltaETvisible_MCEHT,"caloTower Jets","l");
   leg->Draw();
   
-  string eps = label; eps += ".eps";
+  string eps = label; eps += ".png";
   c1->Print(eps.c_str());
   //c1->Print("tauBenchmark.gif");
 //   gApplication->Terminate();
