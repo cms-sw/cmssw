@@ -63,11 +63,11 @@ parser.add_option("-t", "--title", dest="title",
                   help="Benchmark title",
                   default="")
 parser.add_option("-g", "--gensource", dest="pyGenSource",
-                  help="python file for the source of the generated events",
+                  help="python file for the CMSSW source of the generated events, which is used in input to your simulation and reconstruction process",
                   default="None")
 
 parser.add_option("-s", "--simulation", dest="pySim",
-                  help="python file for the simulation",
+                  help="python file for your CMSSW simulation and/or reconstruction process.",
                   default="None")
 
 #parser.add_option("-b", "--benchmark", dest="pyBenchmark",
