@@ -165,7 +165,7 @@ void SimpleTHA::analyze(const edm::Event& event, const edm::EventSetup& setup)
         else
             std::cout << "  fake track" << std::endl;
 
-        std::cout << "  track categories : " << classifier_.flags();
+        std::cout << "  track categories : " << classifier_;
         std::cout << std::endl;
     }
 }
