@@ -6,31 +6,23 @@ import FWCore.ParameterSet.Config as cms
 # Get MVA configuration defintions (edit MVAs here)
 from RecoTauTag.TauTagTools.TauMVAConfigurations_cfi import *
 
-# Define vectors of the DecayMode->MVA implementaions associations you want to use
-# Note: any decay mode not associated to an MVA will be marked as failing the MVA!
-DecayModeBasedTauID = cms.VPSet(
-      OneProngNoPiZero,
-      OneProngOnePiZero,
-      OneProngTwoPiZero,
-      ThreeProngNoPiZero,
-      ThreeProngOnePiZero
-      )
-
-SingleNetBasedTauID = cms.VPSet(
-      SingleNet
-)
 
 pfRecoTauDiscriminationByMVAHighEfficiency = cms.EDProducer("TauMVADiscriminator",
     pfTauDecayModeSrc = cms.InputTag("pfTauDecayModeHighEfficiency"),
-    preDiscriminants  = cms.VInputTag("pfRecoTauDiscriminationByLeadingTrackPtCutHighEfficiency"),
-    computers         = DecayModeBasedTauID,
-    prefailValue      = cms.double(-2.0)    #specifies the value to set if one of the preDiscriminats fails (should match the minimum MVA output)
+    preDiscriminants  = cms.VInputTag("pfRecoTauDiscriminationByLeadingPionCutHighEfficiency"),
+    computers         = TaNC,
+    prefailValue      = cms.double(-2.0),    #specifies the value to set if one of the preDiscriminats fails (should be lower than minimum MVA output, -1)
+    MakeBinaryDecision = cms.bool(False)     #If this is enabled, the discriminator will test whether the output satisifies the cut defined in the neural net configuration,
+                                             # and sets the output as 0. or 1. respecitively.
+                                             # for example, if TaNC.OneProngOnePiZero.cut = 0.7 and this is enabled,
+                                             # any one prongs with NN output < 0.7 will fail with discriminator value 0
 )
 
 pfRecoTauDiscriminationByMVAInsideOut = cms.EDProducer("TauMVADiscriminator",
     pfTauDecayModeSrc = cms.InputTag("pfTauDecayModeInsideOut"),
-    preDiscriminants  = cms.VInputTag("pfRecoTauDiscriminationByLeadingTrackPtCutInsideOut"),
-    computers         = DecayModeBasedTauID,
-    prefailValue      = cms.double(-2.0)    #specifies the value to set if one of the preDiscriminats fails (should match the minimum MVA output)
+    preDiscriminants  = cms.VInputTag("pfRecoTauDiscriminationByLeadingPionCutInsideOut"),
+    computers         = TaNC,
+    prefailValue      = cms.double(-2.0),    
+    MakeBinaryDecision = cms.bool(False)
 )
 

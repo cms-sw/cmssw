@@ -13,7 +13,7 @@
 //
 // Original Author:  Evan K. Friis, UC Davis (friis@physics.ucdavis.edu)
 //         Created:  Fri Aug 15 11:22:14 PDT 2008
-// $Id: TauMVADiscriminator.cc,v 1.7 2008/12/04 22:56:38 friis Exp $
+// $Id: TauMVADiscriminator.cc,v 1.8 2009/01/27 23:18:35 friis Exp $
 //
 //
 
@@ -56,8 +56,9 @@ class TauMVADiscriminator : public edm::EDProducer {
       ~TauMVADiscriminator();
 
       struct  MVAComputerFromDB {
-         string computerName;
+         string                     computerName;
          PhysicsTools::MVAComputer* computer;
+         double                     userCut; 
       };
 
       typedef vector<MVAComputerFromDB>    MVAList;
@@ -70,13 +71,15 @@ class TauMVADiscriminator : public edm::EDProducer {
       virtual void beginRun( const edm::Run& run, const edm::EventSetup& );
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void endJob();
       InputTag                  pfTauDecayModeSrc_;
-      std::vector<InputTag>     preDiscriminants_; //these must pass for the MVA value to be computed
-      double                    failValue_;        //specifies discriminant output when the object fails one of the preDiscriminants
-      DecayModeToMVAMap         computerMap_;        //maps decay mode to MVA implementation
+      bool                      applyCut_;         //Specify whether to output the MVA value, or whether to use 
+                                                   // the cuts specified in the DecayMode VPSet specified in the cfg file 
+      std::vector<InputTag>     preDiscriminants_; //These must pass for the MVA value to be computed
+      double                    failValue_;        //Specifies discriminant output when the object fails one of the preDiscriminants
+      DecayModeToMVAMap         computerMap_;      //Maps decay mode to MVA implementation
       MVAList                   computers_;
-      DiscriminantList          myDiscriminants_;  //collection of functions to compute the discriminants
+      DiscriminantList          myDiscriminants_;  // collection of functions to compute the discriminants
       PFTauDiscriminantManager  discriminantManager_;
 
       std::vector<PhysicsTools::Variable::Value>        mvaComputerInput_;
@@ -84,6 +87,7 @@ class TauMVADiscriminator : public edm::EDProducer {
 
 TauMVADiscriminator::TauMVADiscriminator(const edm::ParameterSet& iConfig):
                    pfTauDecayModeSrc_(iConfig.getParameter<InputTag>("pfTauDecayModeSrc")),
+                   applyCut_(iConfig.getParameter<bool>("MakeBinaryDecision")),
                    preDiscriminants_(iConfig.getParameter<std::vector<InputTag> >("preDiscriminants")),
                    failValue_(iConfig.getParameter<double>("prefailValue"))
 {
@@ -98,6 +102,7 @@ TauMVADiscriminator::TauMVADiscriminator(const edm::ParameterSet& iConfig):
    {
       MVAComputerFromDB toInsert;
       toInsert.computerName = iComputer->getParameter<string>("computerName");
+      toInsert.userCut      = iComputer->getParameter<double>("cut");
       toInsert.computer     = NULL;
       MVAList::iterator computerJustAdded = computers_.insert(computers_.end(), toInsert); //add this computer to the end of the list
 
@@ -212,11 +217,15 @@ TauMVADiscriminator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             //applies associated discriminants (see ctor) and constructs the appropriate MVA framework input
             discriminantManager_.buildMVAComputerLink(mvaComputerInput_);
             output = mvaComputer->eval(mvaComputerInput_);
-#undef EK_MVA_DEBUG
-#ifdef EK_MVA_DEBUG
-            std::cout << "Passed PreDisc. DecayMode: " << theTauDecayMode.getDecayMode() <<  " Pt " << theTauDecayMode.pt() 
-               << " eta: " << theTauDecayMode.eta() << " neutral Pt: " << theTauDecayMode.neutralPions().pt() << " MVA: " << output << std::endl; 
-#endif
+            if (applyCut_)
+            {
+               //If the user desires a yes or no decision, 
+               // use the supplied cut to make a decision
+               if (output > iterToComputer->second->userCut) 
+                  output = 1.0;
+               else 
+                  output = 0.0;
+            }
          }
       }
 
