@@ -1,6 +1,3 @@
-/*
- *  TrackClassifier.C
- */
 
 #include <math.h>
 #include <cstdlib>
@@ -10,18 +7,14 @@
 
 #include "SimTracker/TrackHistory/interface/TrackClassifier.h"
 
-
 #define update(a, b) do { (a) = (a) | (b); } while(0)
 
-TrackClassifier::TrackClassifier(edm::ParameterSet const & pset) :
+TrackClassifier::TrackClassifier(edm::ParameterSet const & pset) : TrackCategories(),
         hepMCLabel_( pset.getUntrackedParameter<edm::InputTag>("hepMC") ),
         beamSpotLabel_( pset.getUntrackedParameter<edm::InputTag>("beamSpot") ),
         tracer_(pset),
         quality_(pset)
 {
-    // Initialize flags
-    reset();
-
     // Set the history depth after hadronization
     tracer_.depth(-2);
 
@@ -104,7 +97,7 @@ TrackClassifier const & TrackClassifier::evaluate (reco::TrackBaseRef const & tr
         unknownTrack();
     }
     else
-        flags_[TrackCategories::Fake] = true;
+        flags_[Fake] = true;
 
     return *this;
 }
@@ -180,7 +173,7 @@ void TrackClassifier::reconstructionInformation(reco::TrackBaseRef const & track
     double d0Pull = std::abs(-track->dxy(beamSpot_) - d0Sim) / track->d0Error();
 
     // Return true if d0Pull > badD0Pull sigmas
-    flags_[TrackCategories::Bad] = (d0Pull > badD0Pull_);
+    flags_[Bad] = (d0Pull > badD0Pull_);
 }
 
 
@@ -189,7 +182,7 @@ void TrackClassifier::simulationInformation()
     // Get the event id for the initial TP.
     EncodedEventId eventId = tracer_.simParticle()->eventId();
     // Check for signal events
-    flags_[TrackCategories::SignalEvent] = !eventId.bunchCrossing() && !eventId.event();
+    flags_[SignalEvent] = !eventId.bunchCrossing() && !eventId.event();
 }
 
 
@@ -214,9 +207,9 @@ void TrackClassifier::qualityInformation(reco::TrackBaseRef const & track)
             // In those cases the bad hit was used by track reconstruction
             if (hit.state == TrackQuality::Layer::Noise ||
                     hit.state == TrackQuality::Layer::Misassoc)
-                flags_[TrackCategories::BadInnerHits] = true;
+                flags_[BadInnerHits] = true;
             else if (hit.state == TrackQuality::Layer::Shared)
-                flags_[TrackCategories::SharedInnerHits] = true;
+                flags_[SharedInnerHits] = true;
         }
     }
 }
@@ -231,9 +224,9 @@ void TrackClassifier::hadronFlavor()
     if (particle)
     {
         HepPDT::ParticleID pid(particle->pdg_id());
-        flags_[TrackCategories::Bottom] = pid.hasBottom();
-        flags_[TrackCategories::Charm] =  pid.hasCharm();
-        flags_[TrackCategories::Light] = !pid.hasCharm() && !pid.hasBottom();
+        flags_[Bottom] = pid.hasBottom();
+        flags_[Charm] =  pid.hasCharm();
+        flags_[Light] = !pid.hasCharm() && !pid.hasBottom();
     }
 }
 
@@ -274,21 +267,21 @@ void TrackClassifier::decayProcesses()
                     if ( particleData->lifetime() > longLivedDecayLength_ )
                     {
                         // Check for B, C weak decays and long lived decays
-                        update(flags_[TrackCategories::BWeakDecay], particleID.hasBottom());
-                        update(flags_[TrackCategories::CWeakDecay], particleID.hasCharm());
+                        update(flags_[BWeakDecay], particleID.hasBottom());
+                        update(flags_[CWeakDecay], particleID.hasCharm());
                         longlived = true;
                     }
                     // Check Tau, Ks and Lambda decay
-                    update(flags_[TrackCategories::TauDecay], pdgid == 15);
-                    update(flags_[TrackCategories::KsDecay], pdgid == 310);
-                    update(flags_[TrackCategories::LambdaDecay], pdgid == 3122);
+                    update(flags_[TauDecay], pdgid == 15);
+                    update(flags_[KsDecay], pdgid == 310);
+                    update(flags_[LambdaDecay], pdgid == 3122);
                     update(
-                        flags_[TrackCategories::LongLivedDecay],
-                        !flags_[TrackCategories::BWeakDecay] &&
-                        !flags_[TrackCategories::CWeakDecay] &&
-                        !flags_[TrackCategories::TauDecay] &&
-                        !flags_[TrackCategories::KsDecay] &&
-                        !flags_[TrackCategories::LambdaDecay] &&
+                        flags_[LongLivedDecay],
+                        !flags_[BWeakDecay] &&
+                        !flags_[CWeakDecay] &&
+                        !flags_[TauDecay] &&
+                        !flags_[KsDecay] &&
+                        !flags_[LambdaDecay] &&
                         longlived
                     );
                 }
@@ -346,7 +339,7 @@ void TrackClassifier::conversionInteraction()
             unsigned short process = (*iparticle)->pSimHit_begin()->processType();
 
             // Look for conversion process
-            flags_[TrackCategories::Conversion] = (process == G4::Conversions);
+            flags_[Conversion] = (process == G4::Conversions);
 
             // Special treatment for decays
             if (process == G4::Decay)
@@ -366,39 +359,39 @@ void TrackClassifier::conversionInteraction()
                         if ( particleDataTable_->particle(particleID)->lifetime() > longLivedDecayLength_ )
                         {
                             // Check for B, C weak decays and long lived decays
-                            update(flags_[TrackCategories::BWeakDecay], particleID.hasBottom());
-                            update(flags_[TrackCategories::CWeakDecay], particleID.hasCharm());
+                            update(flags_[BWeakDecay], particleID.hasBottom());
+                            update(flags_[CWeakDecay], particleID.hasCharm());
                             longlived = true;
                         }
                         // Check Tau, Ks and Lambda decay
-                        update(flags_[TrackCategories::TauDecay], pdgid == 15);
-                        update(flags_[TrackCategories::KsDecay], pdgid == 310);
-                        update(flags_[TrackCategories::LambdaDecay], pdgid == 3122);
+                        update(flags_[TauDecay], pdgid == 15);
+                        update(flags_[KsDecay], pdgid == 310);
+                        update(flags_[LambdaDecay], pdgid == 3122);
                         update(
-                            flags_[TrackCategories::LongLivedDecay],
-                            !flags_[TrackCategories::BWeakDecay] &&
-                            !flags_[TrackCategories::CWeakDecay] &&
-                            !flags_[TrackCategories::TauDecay] &&
-                            !flags_[TrackCategories::KsDecay] &&
-                            !flags_[TrackCategories::LambdaDecay] &&
+                            flags_[LongLivedDecay],
+                            !flags_[BWeakDecay] &&
+                            !flags_[CWeakDecay] &&
+                            !flags_[TauDecay] &&
+                            !flags_[KsDecay] &&
+                            !flags_[LambdaDecay] &&
                             longlived
                         );
                     }
                 }
                 update(
-                    flags_[TrackCategories::Interaction],
-                    !flags_[TrackCategories::BWeakDecay] &&
-                    !flags_[TrackCategories::CWeakDecay] &&
-                    !flags_[TrackCategories::LongLivedDecay] &&
-                    !flags_[TrackCategories::TauDecay] &&
-                    !flags_[TrackCategories::KsDecay] &&
-                    !flags_[TrackCategories::LambdaDecay]
+                    flags_[Interaction],
+                    !flags_[BWeakDecay] &&
+                    !flags_[CWeakDecay] &&
+                    !flags_[LongLivedDecay] &&
+                    !flags_[TauDecay] &&
+                    !flags_[KsDecay] &&
+                    !flags_[LambdaDecay]
                 );
             }
             else
             {
                 update(
-                    flags_[TrackCategories::Interaction],
+                    flags_[Interaction],
                     process != G4::Undefined &&
                     process != G4::Unknown &&
                     process != G4::Primary &&
@@ -486,11 +479,11 @@ void TrackClassifier::vertexInformation()
     }
 
     if ( !counter )
-        flags_[TrackCategories::PrimaryVertex] = true;
+        flags_[PrimaryVertex] = true;
     else if ( counter == 1 )
-        flags_[TrackCategories::SecondaryVertex] = true;
+        flags_[SecondaryVertex] = true;
     else
-        flags_[TrackCategories::TertiaryVertex] = true;
+        flags_[TertiaryVertex] = true;
 }
 
 
@@ -500,7 +493,7 @@ void TrackClassifier::unknownTrack()
     for (std::size_t index = 0; index < flags_.size() - 1; ++index)
         if (flags_[index]) return;
     // If all of them are down then it is a unkown track.
-    flags_[TrackCategories::Unknown] = true;
+    flags_[Unknown] = true;
 }
 
 
@@ -607,30 +600,4 @@ void TrackClassifier::genPrimaryVertices()
     }
 
     std::sort(genpvs_.begin(), genpvs_.end());
-}
-
-
-std::ostream & operator<< (std::ostream & os, TrackClassifier const & classifier)
-{
-    bool init = true;
-
-    const TrackCategories::Flags & flags = classifier.flags();
-
-    // Print out the classification for the track
-    for (std::size_t index = 0; index < flags.size(); ++index)
-    {
-        if (flags[index])
-        {
-            if (init)
-            {
-                os << TrackCategories::Names[index];
-                init = false;
-            }
-            else
-                os << "::" << TrackCategories::Names[index];
-        }
-    }
-    os << std::endl;
-
-    return os;
 }

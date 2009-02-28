@@ -31,7 +31,7 @@
 
 
 //! Get track history and classify it in function of their .
-class TrackClassifier
+class TrackClassifier : public TrackCategories
 {
 
 public:
@@ -52,18 +52,6 @@ public:
     TrackClassifier const & evaluate (reco::TrackRef const & track)
     {
         return evaluate( reco::TrackBaseRef(track) );
-    }
-
-    //! Returns track flag for a given category.
-    bool is(TrackCategories::Category category) const
-    {
-        return flags_[category];
-    }
-
-    //! Returns track flags with the categories description.
-    const TrackCategories::Flags & flags() const
-    {
-        return flags_;
     }
 
     //! Returns a reference to the track history used in the classification.
@@ -112,8 +100,6 @@ private:
         };
     };
 
-    TrackCategories::Flags flags_;
-
     TrackHistory tracer_;
 
     TrackQuality quality_;
@@ -127,12 +113,6 @@ private:
     edm::ESHandle<TransientTrackBuilder> transientTrackBuilder_;
 
     reco::TrackBase::Point beamSpot_;
-
-    //! Reset the categories flags.
-    void reset()
-    {
-        flags_ = TrackCategories::Flags(TrackCategories::Unknown + 1, false);
-    }
 
     //! Classify all the tracks by their association and reconstruction information
     void reconstructionInformation(reco::TrackBaseRef const &);
@@ -188,8 +168,5 @@ private:
     void genPrimaryVertices();
 
 };
-
-// Operation overload for printing the categories
-std::ostream & operator<< (std::ostream & os, TrackClassifier const &);
 
 #endif

@@ -11,6 +11,7 @@
 <use name=MagneticField/Records>
 <use name=MagneticField/Engine>
 <use name=PhysicsTools/UtilAlgos>
+<use name=PhysicsTools/Utilities>
 <use name=RecoVertex/PrimaryVertexProducer>
 <use name=SimDataFormats/TrackingAnalysis>
 <use name=SimGeneral/HepPDTRecord>
@@ -33,6 +34,7 @@
    <use name=MagneticField/Records>
    <use name=MagneticField/Engine>
    <use name=PhysicsTools/UtilAlgos>
+   <use name=PhysicsTools/Utilities>   
    <use name=RecoBTag/Analysis>
    <use name=RecoVertex/PrimaryVertexProducer>
    <use name=SimDataFormats/TrackingAnalysis>

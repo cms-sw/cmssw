@@ -97,7 +97,7 @@ void TrackHistoryAnalyzer::analyze(const edm::Event& event, const edm::EventSetu
         std::cout << std::endl << "History for track #" << index << " : " << std::endl;
 
         // Classify the track and detect for fakes
-        if ( ! classifier_.evaluate( edm::RefToBase<reco::Track>(trackCollection, index) ).is(TrackCategories::Fake) )
+        if ( ! classifier_.evaluate( edm::RefToBase<reco::Track>(trackCollection, index) ).is(TrackClassifier::Fake) )
         {
             // Get the list of TrackingParticles associated to
             TrackHistory::SimParticleTrail simParticles(tracer.simParticleTrail());

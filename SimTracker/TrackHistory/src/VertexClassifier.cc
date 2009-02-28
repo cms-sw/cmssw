@@ -13,12 +13,10 @@
 
 #define update(a, b) do { (a) = (a) | (b); } while(0)
 
-VertexClassifier::VertexClassifier(edm::ParameterSet const & pset) : tracer_(pset),
+
+VertexClassifier::VertexClassifier(edm::ParameterSet const & pset) : VertexCategories(), tracer_(pset),
         hepMCLabel_( pset.getUntrackedParameter<edm::InputTag>("hepMC") )
 {
-    // Initialize flags
-    reset();
-
     // Set the history depth after hadronization
     tracer_.depth(-2);
 
@@ -57,9 +55,6 @@ VertexClassifier const & VertexClassifier::evaluate (reco::VertexRef const & ver
         // Get all the information related to the simulation details
         simulationInformation();
 
-        // Get hadron flavor of the initial hadron
-        // hadronFlavor();
-
         // Get all the information related to decay process
         processesAtGenerator();
 
@@ -73,7 +68,7 @@ VertexClassifier const & VertexClassifier::evaluate (reco::VertexRef const & ver
         unknownVertex();
     }
     else
-        flags_[VertexCategories::Fake] = true;
+        flags_[Fake] = true;
 
     return *this;
 }
@@ -114,7 +109,7 @@ void VertexClassifier::simulationInformation()
     // Get the event id for the initial TP.
     EncodedEventId eventId = tracer_.simVertex()->eventId();
     // Check for signal events
-    flags_[VertexCategories::SignalEvent] = !eventId.bunchCrossing() && !eventId.event();
+    flags_[SignalEvent] = !eventId.bunchCrossing() && !eventId.event();
 }
 
 
@@ -158,21 +153,21 @@ void VertexClassifier::processesAtGenerator()
                     if ( particleData->lifetime() > longLivedDecayLength_ )
                     {
                         // Check for B, C weak decays and long lived decays
-                        update(flags_[VertexCategories::BWeakDecay], particleID.hasBottom());
-                        update(flags_[VertexCategories::CWeakDecay], particleID.hasCharm());
+                        update(flags_[BWeakDecay], particleID.hasBottom());
+                        update(flags_[CWeakDecay], particleID.hasCharm());
                         longlived = true;
                     }
                     // Check Tau, Ks and Lambda decay
-                    update(flags_[VertexCategories::TauDecay], pdgid == 15);
-                    update(flags_[VertexCategories::KsDecay], pdgid == 310);
-                    update(flags_[VertexCategories::LambdaDecay], pdgid == 3122);
+                    update(flags_[TauDecay], pdgid == 15);
+                    update(flags_[KsDecay], pdgid == 310);
+                    update(flags_[LambdaDecay], pdgid == 3122);
                     update(
-                        flags_[VertexCategories::LongLivedDecay],
-                        !flags_[VertexCategories::BWeakDecay] &&
-                        !flags_[VertexCategories::CWeakDecay] &&
-                        !flags_[VertexCategories::TauDecay] &&
-                        !flags_[VertexCategories::KsDecay] &&
-                        !flags_[VertexCategories::LambdaDecay] &&
+                        flags_[LongLivedDecay],
+                        !flags_[BWeakDecay] &&
+                        !flags_[CWeakDecay] &&
+                        !flags_[TauDecay] &&
+                        !flags_[KsDecay] &&
+                        !flags_[LambdaDecay] &&
                         longlived
                     );
                 }
@@ -230,7 +225,7 @@ void VertexClassifier::processesAtSimulation()
                 unsigned short process = (*iparticle)->pSimHit_begin()->processType();
 
                 // Look for conversion process
-                flags_[VertexCategories::Conversion] = (process == G4::Conversions);
+                flags_[Conversion] = (process == G4::Conversions);
 
                 // Special treatment for decays
                 if (process == G4::Decay)
@@ -250,39 +245,39 @@ void VertexClassifier::processesAtSimulation()
                             if ( particleDataTable_->particle(particleID)->lifetime() > longLivedDecayLength_ )
                             {
                                 // Check for B, C weak decays and long lived decays
-                                update(flags_[VertexCategories::BWeakDecay], particleID.hasBottom());
-                                update(flags_[VertexCategories::CWeakDecay], particleID.hasCharm());
+                                update(flags_[BWeakDecay], particleID.hasBottom());
+                                update(flags_[CWeakDecay], particleID.hasCharm());
                                 longlived = true;
                             }
                             // Check Tau, Ks and Lambda decay
-                            update(flags_[VertexCategories::TauDecay], pdgid == 15);
-                            update(flags_[VertexCategories::KsDecay], pdgid == 310);
-                            update(flags_[VertexCategories::LambdaDecay], pdgid == 3122);
+                            update(flags_[TauDecay], pdgid == 15);
+                            update(flags_[KsDecay], pdgid == 310);
+                            update(flags_[LambdaDecay], pdgid == 3122);
                             update(
-                                flags_[VertexCategories::LongLivedDecay],
-                                !flags_[VertexCategories::BWeakDecay] &&
-                                !flags_[VertexCategories::CWeakDecay] &&
-                                !flags_[VertexCategories::TauDecay] &&
-                                !flags_[VertexCategories::KsDecay] &&
-                                !flags_[VertexCategories::LambdaDecay] &&
+                                flags_[LongLivedDecay],
+                                !flags_[BWeakDecay] &&
+                                !flags_[CWeakDecay] &&
+                                !flags_[TauDecay] &&
+                                !flags_[KsDecay] &&
+                                !flags_[LambdaDecay] &&
                                 longlived
                             );
                         }
                     }
                     update(
-                        flags_[VertexCategories::Interaction],
-                        !flags_[VertexCategories::BWeakDecay] &&
-                        !flags_[VertexCategories::CWeakDecay] &&
-                        !flags_[VertexCategories::LongLivedDecay] &&
-                        !flags_[VertexCategories::TauDecay] &&
-                        !flags_[VertexCategories::KsDecay] &&
-                        !flags_[VertexCategories::LambdaDecay]
+                        flags_[Interaction],
+                        !flags_[BWeakDecay] &&
+                        !flags_[CWeakDecay] &&
+                        !flags_[LongLivedDecay] &&
+                        !flags_[TauDecay] &&
+                        !flags_[KsDecay] &&
+                        !flags_[LambdaDecay]
                     );
                 }
                 else
                 {
                     update(
-                        flags_[VertexCategories::Interaction],
+                        flags_[Interaction],
                         process != G4::Undefined &&
                         process != G4::Unknown &&
                         process != G4::Primary &&
@@ -416,11 +411,11 @@ void VertexClassifier::vertexInformation()
     }
 
     if ( clusters.size() == 1 )
-        flags_[VertexCategories::PrimaryVertex] = true;
+        flags_[PrimaryVertex] = true;
     else if ( clusters.size() == 2 )
-        flags_[VertexCategories::SecondaryVertex] = true;
+        flags_[SecondaryVertex] = true;
     else
-        flags_[VertexCategories::TertiaryVertex] = true;
+        flags_[TertiaryVertex] = true;
 }
 
 
@@ -430,7 +425,7 @@ void VertexClassifier::unknownVertex()
     for (std::size_t index = 0; index < flags_.size() - 1; ++index)
         if (flags_[index]) return;
     // If all of them are down then it is a unkown track.
-    flags_[VertexCategories::Unknown] = true;
+    flags_[Unknown] = true;
 }
 
 
@@ -537,30 +532,4 @@ void VertexClassifier::genPrimaryVertices()
     }
 
     std::sort(genpvs_.begin(), genpvs_.end());
-}
-
-
-std::ostream & operator<< (std::ostream & os, VertexClassifier const & classifier)
-{
-    bool init = true;
-
-    const VertexCategories::Flags & flags = classifier.flags();
-
-    // Print out the classification for the track
-    for (std::size_t index = 0; index < flags.size(); ++index)
-    {
-        if (flags[index])
-        {
-            if (init)
-            {
-                os << VertexCategories::Names[index];
-                init = false;
-            }
-            else
-                os << "::" << VertexCategories::Names[index];
-        }
-    }
-    os << std::endl;
-
-    return os;
 }

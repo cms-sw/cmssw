@@ -32,7 +32,7 @@ private:
 
     VertexClassifier classifier_;
 
-    Int_t numberVertexCategories_;
+    Int_t numberVertexClassifier_;
 
     edm::InputTag vertexProducer_;
 
@@ -49,20 +49,20 @@ VertexValidationAnalyzer::VertexValidationAnalyzer(const edm::ParameterSet& conf
     edm::Service<TFileService> fs;
 
     // Number of track categories
-    numberVertexCategories_ = VertexCategories::Unknown+1;
+    numberVertexClassifier_ = VertexCategories::Unknown+1;
 
     // Define a histogram
-    TH1Index_["VertexCategories"] = fs->make<TH1D>(
-                                        "VertexCategories",
+    TH1Index_["VertexClassifier"] = fs->make<TH1D>(
+                                        "VertexClassifier",
                                         "Frequency for the different track categories",
-                                        numberVertexCategories_,
+                                        numberVertexClassifier_,
                                         -0.5,
-                                        numberVertexCategories_ - 0.5
+                                        numberVertexClassifier_ - 0.5
                                     );
 
     // Set the proper categories names
-    for (Int_t i = 0; i < numberVertexCategories_; ++i)
-        TH1Index_["VertexCategories"]->GetXaxis()->SetBinLabel(i+1, VertexCategories::Names[i]);
+    for (Int_t i = 0; i < numberVertexClassifier_; ++i)
+        TH1Index_["VertexClassifier"]->GetXaxis()->SetBinLabel(i+1, VertexCategories::Names[i]);
 
     // Define histograms
     TH1Index_["VertexPullx"] = fs->make<TH1D>(
@@ -129,11 +129,11 @@ void VertexValidationAnalyzer::analyze(const edm::Event& event, const edm::Event
         classifier_.evaluate(vertex);
 
         // Fill the histogram with the categories
-        for (Int_t i = 0; i != numberVertexCategories_; ++i)
+        for (Int_t i = 0; i != numberVertexClassifier_; ++i)
             if (
                 classifier_.is( (VertexCategories::Category) i )
             )
-                TH1Index_["VertexCategories"]->Fill(i);
+                TH1Index_["VertexClassifier"]->Fill(i);
 
         if ( !classifier_.is(VertexCategories::Fake) )
         {

@@ -1,21 +1,15 @@
-/*
- *  TrackCategories.h
- *
- *  Created by Victor Eduardo Bazterra on 5/29/07.
- *  Copyright 2007 __MyCompanyName__. All rights reserved.
- *
- */
 
 #ifndef TrackCategories_h
 #define TrackCategories_h
 
-#include <iostream>
-#include <string>
 #include <vector>
 
-struct TrackCategories
+class TrackCategories
 {
 
+public:
+
+    //! Categories available to vertex
     enum Category
     {
         Fake = 0,
@@ -41,10 +35,44 @@ struct TrackCategories
         Unknown
     };
 
+    //! Name of the different categories
     static const char * Names[];
 
+    //! Main types associated to the class
     typedef std::vector<bool> Flags;
 
+    //! Void constructor
+    TrackCategories()
+    {
+        reset();
+    }
+
+    //! Returns track flag for a given category
+    bool is(Category category) const
+    {
+        return flags_[category];
+    }
+
+    //! Returns flags with the category descriptions
+    const Flags & flags() const
+    {
+        return flags_;
+    }
+
+protected:
+
+    //! Reset the categories flags
+    void reset()
+    {
+        flags_ = Flags(Unknown + 1, false);
+    }
+
+    //! Flag containers
+    Flags flags_;
+
 };
+
+// Operation overload for printing the categories
+std::ostream & operator<< (std::ostream &, TrackCategories const &);
 
 #endif

@@ -402,18 +402,18 @@ OptTOA::LoopOverJetTracksAssociation(
             classifier_.evaluate( edm::RefToBase<reco::Track>(tracks[index]) );
 
             // Check for the different categories
-            if ( classifier_.is(TrackCategories::Fake) )
+            if ( classifier_.is(TrackClassifier::Fake) )
                 histogram_data_[5].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
-            else if ( classifier_.is(TrackCategories::BWeakDecay) )
+            else if ( classifier_.is(TrackClassifier::BWeakDecay) )
                 histogram_data_[0].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
-            else if ( classifier_.is(TrackCategories::Bad) )
+            else if ( classifier_.is(TrackClassifier::Bad) )
                 histogram_data_[4].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
             else if (
-                !classifier_.is(TrackCategories::CWeakDecay) &&
-                !classifier_.is(TrackCategories::PrimaryVertex)
+                !classifier_.is(TrackClassifier::CWeakDecay) &&
+                !classifier_.is(TrackClassifier::PrimaryVertex)
             )
                 histogram_data_[3].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
-            else if ( classifier_.is(TrackCategories::CWeakDecay) )
+            else if ( classifier_.is(TrackClassifier::CWeakDecay) )
                 histogram_data_[1].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
             else
                 histogram_data_[2].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));

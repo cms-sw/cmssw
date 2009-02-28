@@ -13,7 +13,7 @@
 #include "SimTracker/TrackHistory/interface/VertexHistory.h"
 
 //! Get track history and classify it in function of their .
-class VertexClassifier
+class VertexClassifier : public VertexCategories
 {
 
 public:
@@ -29,18 +29,6 @@ public:
 
     //! Classify the TrackingVertex in categories.
     VertexClassifier const & evaluate (TrackingVertexRef const &);
-
-    //! Returns track flag for a given category.
-    bool is(VertexCategories::Category category) const
-    {
-        return flags_[category];
-    }
-
-    //! Returns vertex flags with the categories description.
-    const VertexCategories::Flags & flags() const
-    {
-        return flags_;
-    }
 
     //! Returns a reference to the vertex history used in the classification.
     VertexHistory const & history() const
@@ -81,26 +69,15 @@ private:
         };
     };
 
-    VertexCategories::Flags flags_;
-
     edm::Handle<edm::HepMCProduct> mcInformation_;
 
     edm::ESHandle<ParticleDataTable> particleDataTable_;
-
-    //! Reset the categories flags.
-    void reset()
-    {
-        flags_ = VertexCategories::Flags(VertexCategories::Unknown + 1, false);
-    }
 
     //! Get reconstruction information
     void reconstructionInformation(reco::TrackBaseRef const &);
 
     //! Get all the information related to the simulation details
     void simulationInformation();
-
-    //! Get hadron flavor of the initial hadron
-    // void hadronFlavor();
 
     //! Get all the information related to decay process
     void processesAtGenerator();
@@ -143,8 +120,5 @@ private:
     void genPrimaryVertices();
 
 };
-
-// Operation overload for printing the categories
-std::ostream & operator<< (std::ostream &, VertexClassifier const &);
 
 #endif

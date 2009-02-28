@@ -91,7 +91,7 @@ void VertexHistoryAnalyzer::analyze(const edm::Event& event, const edm::EventSet
         std::cout << std::endl << "History for vertex #" << index << " : " << std::endl;
 
         // Classify the track and detect for fakes
-        if ( !classifier_.evaluate( reco::VertexRef(vertexCollection, index) ).is(VertexCategories::Fake) )
+        if ( !classifier_.evaluate( reco::VertexRef(vertexCollection, index) ).is(VertexClassifier::Fake) )
         {
             // Get the list of TrackingParticles associated to
             VertexHistory::SimParticleTrail simParticles(tracer.simParticleTrail());
