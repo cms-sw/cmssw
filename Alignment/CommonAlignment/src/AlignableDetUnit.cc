@@ -1,5 +1,7 @@
 #include "Alignment/CommonAlignment/interface/AlignableDetUnit.h"
 
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
 #include "CLHEP/Vector/RotationInterfaces.h" 
@@ -9,10 +11,14 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 //__________________________________________________________________________________________________
-AlignableDetUnit::AlignableDetUnit(align::ID id, const AlignableSurface& surf):
-  Alignable(id, surf),
+AlignableDetUnit::AlignableDetUnit(const GeomDetUnit *geomDetUnit) : // rely on non-NULL pointer!
+  Alignable(geomDetUnit->geographicalId().rawId(), geomDetUnit->surface()),
   theAlignmentPositionError(0)
 {
+  if (geomDetUnit->alignmentPositionError()) { // take over APE from geometry
+    this->setAlignmentPositionError(*(geomDetUnit->alignmentPositionError()));
+  }
+
   theDeepComponents.push_back(this);
 }
 

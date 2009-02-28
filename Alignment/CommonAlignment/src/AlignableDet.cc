@@ -4,9 +4,11 @@
 #include "CLHEP/Vector/RotationInterfaces.h" 
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 
 #include "Alignment/CommonAlignment/interface/AlignableDet.h"
 
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
@@ -16,25 +18,27 @@ AlignableDet::AlignableDet( const GeomDet* geomDet, bool addComponents ) :
   theAlignmentPositionError(0)
 {
   if (addComponents) {
+    if ( geomDet->components().size() == 0 ) { // Is a DetUnit
+      throw cms::Exception("BadHierarchy") << "[AlignableDet] GeomDet with DetId " 
+                                           << geomDet->geographicalId().rawId() 
+                                           << " has no components, use AlignableDetUnit.\n";
+    } else { // Push back all components
+      if (geomDet->alignmentPositionError()) { // take over APE from geometry
+        // Set before daughters are created, otherwise would overwrite their APEs!
+        this->setAlignmentPositionError(*(geomDet->alignmentPositionError()));
+      }
       
-    // Behaviour depends on level of components:
-    // Check if the AlignableDet is a CompositeDet or a DetUnit
-    
-    if ( geomDet->components().size() == 0 ) // Is a DetUnit
-    {
-      edm::LogError("Alignment") << "@SUB=AlignableDet"
-				   << "No components, will become exception!";
-      addComponent( new AlignableDetUnit( id(), geomDet->surface() ) );
-    }
-    else // Is a compositeDet: push back all components
-    {
       const std::vector<const GeomDet*>& geomDets = geomDet->components();
-      for ( std::vector<const GeomDet*>::const_iterator idet=geomDets.begin(); 
-            idet != geomDets.end(); ++idet )
-        {
-          addComponent( new AlignableDetUnit( (*idet)->geographicalId().rawId(),
-                                              (*idet)->surface() ) );
+      for (std::vector<const GeomDet*>::const_iterator idet = geomDets.begin(); 
+            idet != geomDets.end(); ++idet) {
+        const GeomDetUnit *unit = dynamic_cast<const GeomDetUnit*>(*idet);
+        if (!unit) {
+          throw cms::Exception("BadHierarchy") 
+            << "[AlignableDet] component not GeomDetUnit, call with addComponents==false" 
+            << " and build hierarchy yourself.\n";  // e.g. AlignableDTChamber
         }
+        this->addComponent(new AlignableDetUnit(unit));
+      }
     }
     // Ensure that the surface is not screwed up by addComponent, it must stay the GeomDet's one:
     theSurface = AlignableSurface(geomDet->surface());

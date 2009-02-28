@@ -3,6 +3,8 @@
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 
+class GeomDetUnit;
+
 /// A concrete class that allows to (mis)align a DetUnit.
 ///
 /// Typically all AlignableComposites have (directly or
@@ -13,8 +15,8 @@ class AlignableDetUnit : public Alignable
 
 public:
   
-  /// Constructor from id and surface
-  AlignableDetUnit( align::ID, const AlignableSurface& );
+  /// Constructor from GeomDetUnit - must not be NULL pointer!
+  AlignableDetUnit(const GeomDetUnit *geomDetUnit);
   
   /// Destructor
   virtual ~AlignableDetUnit();
@@ -59,6 +61,9 @@ public:
 
   /// Return vector of alignment errors
   virtual AlignmentErrors* alignmentErrors() const;
+ 
+  /// alignment position error - for checking only, otherwise use alignmentErrors() above!  
+  const AlignmentPositionError* alignmentPositionError() const { return theAlignmentPositionError;}
 
 private:
 
