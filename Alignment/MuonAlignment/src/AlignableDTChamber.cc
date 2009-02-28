@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/03/26 21:59:25 $
- *  $Revision: 1.10 $
+ *  $Date: 2009/02/08 02:20:49 $
+ *  $Revision: 1.11 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
@@ -15,8 +15,8 @@ AlignableDTChamber::AlignableDTChamber(const GeomDet *geomDet)
    // have two different claims about the structure type
    theStructureType = align::AlignableDTChamber;
 
-   // set the APE of this chamber and all its superlayers and layers
-   // then re-set the APEs of the superlayers and layers in the loop that follows
+   // set the APE of this chamber,
+   // does not yet have components to which APE could be (erroneously) propagated
    if (geomDet->alignmentPositionError() != NULL) {
       setAlignmentPositionError(*geomDet->alignmentPositionError());
    }
