@@ -1,13 +1,14 @@
 //  \file AlignableNavigator.cc
 //
-//   $Revision: 1.19 $
-//   $Date: 2007/06/21 16:18:28 $
-//   (last update by $Author: flucke $)
+//   $Revision: 1.20 $
+//   $Date: 2007/10/08 13:21:29 $
+//   (last update by $Author: cklae $)
 
 #include "Alignment/CommonAlignment/interface/AlignableDet.h"
 #include "Alignment/CommonAlignment/interface/AlignableDetUnit.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
 
@@ -208,6 +209,19 @@ AlignableNavigator::alignableDetsFromHits
   for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator it
          = hitVec.begin(), iEnd = hitVec.end(); it != iEnd; ++it) {
     result.push_back(this->alignableDetFromDetId((*it)->geographicalId()));
+  }
+
+  return result;
+}
+
+//_____________________________________________________________________________
+std::vector<AlignableDetOrUnitPtr> AlignableNavigator::alignableDetOrUnits()
+{
+  std::vector<AlignableDetOrUnitPtr> result;
+  result.reserve(theMap.size());
+
+  for (MapType::const_iterator iIdAli = theMap.begin(); iIdAli != theMap.end(); ++iIdAli) {
+    result.push_back(iIdAli->second);
   }
 
   return result;

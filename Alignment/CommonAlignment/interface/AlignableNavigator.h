@@ -1,5 +1,5 @@
-//   $Revision: 1.12.2.2 $
-//   $Date: 2007/05/11 14:07:30 $
+//   $Revision: 1.14 $
+//   $Date: 2007/05/11 19:10:01 $
 //   (last update by $Author: flucke $)
 
 #ifndef Alignment_CommonAlignment_AlignableNavigator_h
@@ -67,6 +67,9 @@ public:
   /// For backward compatibility, use alignablesFromHits (cf. alignableDetFromDetId).
   std::vector<AlignableDet*> 
     alignableDetsFromHits(const std::vector<const TransientTrackingRecHit*>& hitvec);
+
+  /// return all AlignableDetOrUnitPtrs
+  std::vector<AlignableDetOrUnitPtr> alignableDetOrUnits();
 
   /// Returns number of elements in map
   int size( void ) { return theMap.size(); }
