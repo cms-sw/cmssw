@@ -25,6 +25,8 @@
    <var name="OutlierN"                          multiple="false"  optional="false"/>
    <var name="OutlierSumPt"                      multiple="false"  optional="false"/>
    <var name="OutlierMass"                       multiple="false"  optional="false"/>
+   <var name="ChargedOutlierSumPt"               multiple="false"  optional="false"/>
+   <var name="NeutralOutlierSumPt"               multiple="false"  optional="false"/>
    <!--helper variables-->
    <var name="__PREPASS__"      multiple="false" optional="false"/>
    <var name="__PREFAIL__"      multiple="false" optional="false"/>

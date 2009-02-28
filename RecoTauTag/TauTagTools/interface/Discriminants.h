@@ -23,6 +23,8 @@
  * Note on adding discriminants: If you get weird vtable errors during linking, make sure that you have implemented the destructor! 
  * i.e. ~DecayMode(){}; versus ~DecayMode();
  *
+ * TODO: make these macros...
+ *
  */
 
 namespace PFTauDiscriminants {
@@ -226,6 +228,14 @@ class ChargedOutlierPt : public DiscriminantBase<double> {
       void doComputation(PFTauDiscriminantManager* input, vector<double>& result);
 };
 
+class ChargedOutlierSumPt : public DiscriminantBase<double> {
+   public:
+      ChargedOutlierSumPt():DiscriminantBase<double>("ChargedOutlierPt", "D", true, false, 0.0){};
+      ~ChargedOutlierSumPt(){};
+   protected:
+      void doComputation(PFTauDiscriminantManager* input, vector<double>& result);
+};
+
 class ChargedOutlierAngle : public DiscriminantBase<double> {
    public:
       ChargedOutlierAngle():DiscriminantBase<double>("ChargedOutlierAngle", "vector<double>", false, true, 0.0){};
@@ -238,6 +248,14 @@ class NeutralOutlierPt : public DiscriminantBase<double> {
    public:
       NeutralOutlierPt():DiscriminantBase<double>("NeutralOutlierPt", "vector<double>", false, true, 0.0){};
       ~NeutralOutlierPt(){};
+   protected:
+      void doComputation(PFTauDiscriminantManager* input, vector<double>& result);
+};
+
+class NeutralOutlierSumPt : public DiscriminantBase<double> {
+   public:
+      NeutralOutlierSumPt():DiscriminantBase<double>("NeutralOutlierPt", "D", true, false, 0.0){};
+      ~NeutralOutlierSumPt(){};
    protected:
       void doComputation(PFTauDiscriminantManager* input, vector<double>& result);
 };

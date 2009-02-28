@@ -340,6 +340,22 @@ ChargedOutlierPt::doComputation(PFTauDiscriminantManager* input, vector<double>&
 }
 
 void
+ChargedOutlierSumPt::doComputation(PFTauDiscriminantManager* input, vector<double>& result)
+{
+   const vector<const reco::Candidate*>& theOutlierObjects = input->outlierObjectsSortedByPt();
+   double output = 0.0;
+   for(vector<const reco::Candidate*>::const_iterator iObject  = theOutlierObjects.begin();
+         iObject != theOutlierObjects.end();
+         ++iObject)
+   {
+      const reco::Candidate* currentObject = *iObject;
+      if (currentObject && currentObject->charge())
+         output += currentObject->pt();
+   }
+   result.push_back(output);
+}
+
+void
 ChargedOutlierAngle::doComputation(PFTauDiscriminantManager* input, vector<double>& result)
 {
    const vector<const reco::Candidate*>& theoutlierObjects = input->outlierObjectsSortedByPt();
@@ -367,6 +383,22 @@ NeutralOutlierPt::doComputation(PFTauDiscriminantManager* input, vector<double>&
       if (currentObject && !currentObject->charge())
          result.push_back(currentObject->pt());
    }
+}
+
+void
+NeutralOutlierSumPt::doComputation(PFTauDiscriminantManager* input, vector<double>& result)
+{
+   const vector<const reco::Candidate*>& theOutlierObjects = input->outlierObjectsSortedByPt();
+   double output = 0.0;
+   for(vector<const reco::Candidate*>::const_iterator iObject  = theOutlierObjects.begin();
+         iObject != theOutlierObjects.end();
+         ++iObject)
+   {
+      const reco::Candidate* currentObject = *iObject;
+      if (currentObject && !currentObject->charge())
+         output += currentObject->pt();
+   }
+   result.push_back(output);
 }
 
 void
