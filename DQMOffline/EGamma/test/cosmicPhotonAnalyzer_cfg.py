@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 process = cms.Process("TestPhotonValidator")
 
-process.load("RecoEcal.EgammaClusterProducers.geometryForClustering_cff")
+process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 process.load("DQMOffline.EGamma.cosmicPhotonAnalyzer_cfi")
 process.load("DQMServices.Components.MEtoEDMConverter_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")

@@ -6,7 +6,6 @@ process = cms.Process("TestPhotonValidator")
 
 
 process.load('Configuration/StandardSequences/GeometryPilot2_cff')
-process.load("RecoEcal.EgammaClusterProducers.geometryForClustering_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 #process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")

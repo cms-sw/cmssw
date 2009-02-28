@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-#include "RecoEcal/EgammaClusterProducers/data/geometryForClustering.cff"
 # analyzer to make histos from basic clusters
 from Validation.EcalClusters.egammaBCAnalyzer_cfi import *
 # analyzer to make histos from super clusters

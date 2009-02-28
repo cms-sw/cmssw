@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("egammaAnalysis")
 process.load("DQMServices.Core.DQM_cfg")
 
-process.load("RecoEcal.EgammaClusterProducers.geometryForClustering_cff")
+process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 process.load("Validation.EcalClusters.egammaBCAnalyzer_cfi")
 process.load("Validation.EcalClusters.egammaSCAnalyzer_cfi")
 

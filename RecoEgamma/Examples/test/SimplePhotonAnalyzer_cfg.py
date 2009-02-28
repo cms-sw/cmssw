@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("simplePhotonAnalyzer")
 
-process.load("RecoEcal.EgammaClusterProducers.geometryForClustering_cff")
 process.load("Configuration.StandardSequences.MagneticField_40T_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")

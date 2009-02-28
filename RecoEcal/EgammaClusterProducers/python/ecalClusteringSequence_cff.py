@@ -1,12 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-# $Id: ecalClusteringSequence.cff,v 1.4 2008/04/29 15:51:48 dlevans Exp $
+# $Id: ecalClusteringSequence_cff.py,v 1.3 2008/05/22 11:13:25 hegner Exp $
 # complete sequence of clustering in ecal barrel & endcap + preshower
 # Shahram Rahatlou, University of Rome & INFN, 3 Aug 2006
 #
-# geometry needed for clustering
-from RecoEcal.EgammaClusterProducers.geometryForClustering_cff import *
 # create sequence for island clustering
 from RecoEcal.EgammaClusterProducers.islandClusteringSequence_cff import *
 # hybrid clustering sequence

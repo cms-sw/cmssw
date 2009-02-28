@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ContainmentCorrectionAnalysis")
-process.load("RecoEcal.EgammaClusterProducers.geometryForClustering_cff")
+process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
