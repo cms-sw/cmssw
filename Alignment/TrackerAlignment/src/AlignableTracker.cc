@@ -4,6 +4,7 @@
  
 // Geometry
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
@@ -60,12 +61,12 @@ void AlignableTracker::detsToAlignables( const TrackingGeometry::DetContainer& d
     const unsigned int subdetId = dets[i]->geographicalId().subdetId();//don't check det()==Tracker
     if (subdetId == PixelSubdetector::PixelBarrel || subdetId == PixelSubdetector::PixelEndcap) {
       // Treat all pixel dets in same way with one AlignableDetUnit.
-      if (dets[i]->components().size()) { // GeomDetUnit does not have any components!
-        throw cms::Exception("LogicError") 
-          << "[AlignableTracker] Pixel GeomDet (subdetector " << subdetId << ") with " 
-          << dets[i]->components().size() << "components.\n";
+      const GeomDetUnit *detUnit = dynamic_cast<const GeomDetUnit*>(dets[i]);
+      if (!detUnit) {
+        throw cms::Exception("BadHierarchy") 
+          << "[AlignableTracker] Pixel GeomDet (subdetector " << subdetId << ") not GeomDetUnit.\n";
       }
-      alis.push_back(new AlignableDetUnit(dets[i]->geographicalId().rawId(), dets[i]->surface()));
+      alis.push_back(new AlignableDetUnit(detUnit));
     } else if (subdetId == SiStripDetId::TIB || subdetId == SiStripDetId::TID
 	       || subdetId == SiStripDetId::TOB || subdetId == SiStripDetId::TEC) {
       // In strip we have:
@@ -79,7 +80,7 @@ void AlignableTracker::detsToAlignables( const TrackingGeometry::DetContainer& d
 	  const GluedGeomDet *gluedDet = dynamic_cast<GluedGeomDet*>(dets[i]);
 	  if (!gluedDet) {
 	    throw cms::Exception("LogicError") 
-	      << "[AlignableTracker]" << "dynamic_cast<GluedGeomDet*> failed";
+	      << "[AlignableTracker]" << "dynamic_cast<GluedGeomDet*> failed.\n";
 	  }
           alis.push_back(new AlignableSiStripDet(gluedDet)); // components constructed within
           const align::Alignables detUnits(alis.back()->components());
@@ -90,7 +91,12 @@ void AlignableTracker::detsToAlignables( const TrackingGeometry::DetContainer& d
 	  }
 	  aliUnits->insert(aliUnits->end(), detUnits.begin(), detUnits.end()); // only 2...
 	} else { // no components: pure 1D-module
-          alis.push_back(new AlignableDetUnit(dets[i]->geographicalId().rawId(), dets[i]->surface()));
+          const GeomDetUnit *detUnit = dynamic_cast<const GeomDetUnit*>(dets[i]);
+          if (!detUnit) {
+            throw cms::Exception("BadHierarchy") 
+              << "[AlignableTracker] pure 1D GeomDet (subdetector " << subdetId << ") not GeomDetUnit.\n";
+          }
+          alis.push_back(new AlignableDetUnit(detUnit));
         }
       } // no else: glued components of AlignableDet constructed within AlignableDet, see above
     } else {
