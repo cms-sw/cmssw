@@ -76,72 +76,75 @@ PFEnergyCalibration::initializeCalibrationFunctions() {
   faBarrel = new TF1("faBarrel","[0]+([1]+[2]/sqrt(x))*exp(-x/[3])-[4]*exp(-x*x/[5])",1.,1000.);
   fbBarrel = new TF1("fbBarrel","[0]+([1]+[2]/sqrt(x))*exp(-x/[3])-[4]*exp(-x*x/[5])",1.,1000.);
   fcBarrel = new TF1("fcBarrel","[0]+([1]+[2]/sqrt(x))*exp(-x/[3])-[4]*exp(-x*x/[5])",1.,1000.);
-  faEtaBarrel = new TF1("faEtaBarrel","[0]+[1]*x+[2]*exp(-x/[3])",1.,1000.);
-  fbEtaBarrel = new TF1("fbEtaBarrel","[0]+[1]*x+[2]*exp(-x/[3])",1.,1000.);
-  faBarrel->SetParameter(0,1.14914);
-  fbBarrel->SetParameter(0,1.19731);
-  fcBarrel->SetParameter(0,1.10223);
-  faEtaBarrel->SetParameter(0,-0.0217954);
-  fbEtaBarrel->SetParameter(0,0.0223437);
-  faBarrel->SetParameter(1,0.189136);
-  fbBarrel->SetParameter(1,0.631813);
-  fcBarrel->SetParameter(1,0.755928);
-  faEtaBarrel->SetParameter(1,-6.9812e-06);
-  fbEtaBarrel->SetParameter(1,2.90376e-05);
-  faBarrel->SetParameter(2,-1.13943);
-  fbBarrel->SetParameter(2,-2.18954);
-  fcBarrel->SetParameter(2,-4.28162);
-  faEtaBarrel->SetParameter(2,-0.0369375);
-  fbEtaBarrel->SetParameter(2,0.0650036);
-  faBarrel->SetParameter(3,86.646);
-  fbBarrel->SetParameter(3,37.6879);
-  fcBarrel->SetParameter(3,30.6577);
-  faEtaBarrel->SetParameter(3,89.0204);
-  fbEtaBarrel->SetParameter(3,158.081);
-  faBarrel->SetParameter(4,0.882693);
-  fbBarrel->SetParameter(4,1.14462);
-  fcBarrel->SetParameter(4,-0.507811);
-  faBarrel->SetParameter(5,73.7661);
-  fbBarrel->SetParameter(5,31.9055);
-  fcBarrel->SetParameter(5,274.662);
-
+  faEtaBarrel = new TF1("faEtaBarrel","[0]+[1]*x+[2]*exp(-x/[3])+[4]*[4]*exp(-x*x/([5]*[5]))",1.,1000.);
+  fbEtaBarrel = new TF1("fbEtaBarrel","[0]+[1]*x+[2]*exp(-x/[3])+[4]*[4]*exp(-x*x/([5]*[5]))",1.,1000.);
+  faBarrel->SetParameter(0,1.15309);
+  fbBarrel->SetParameter(0,1.19895);
+  fcBarrel->SetParameter(0,1.11196);
+  faEtaBarrel->SetParameter(0,-0.0256919);
+  fbEtaBarrel->SetParameter(0,0.0146432);
+  faBarrel->SetParameter(1,0.226959);
+  fbBarrel->SetParameter(1,0.753035);
+  fcBarrel->SetParameter(1,-6.73237);
+  faEtaBarrel->SetParameter(1,-8.38756e-06);
+  fbEtaBarrel->SetParameter(1,4.0299e-05);
+  faBarrel->SetParameter(2,-1.39758);
+  fbBarrel->SetParameter(2,-2.74344);
+  fcBarrel->SetParameter(2,4.50325);
+  faEtaBarrel->SetParameter(2,-0.0317213);
+  fbEtaBarrel->SetParameter(2,0.0755531);
+  faBarrel->SetParameter(3,75.2206);
+  fbBarrel->SetParameter(3,34.3497);
+  fcBarrel->SetParameter(3,1.50692);
+  faEtaBarrel->SetParameter(3,67.6775);
+  fbEtaBarrel->SetParameter(3,170.008);
+  faBarrel->SetParameter(4,0.782845);
+  fbBarrel->SetParameter(4,0.958257);
+  fcBarrel->SetParameter(4,0.600588);
+  faEtaBarrel->SetParameter(4,0.272048);
+  fbEtaBarrel->SetParameter(4,0.0188758);
+  faBarrel->SetParameter(5,73.1521);
+  fbBarrel->SetParameter(5,29.5569);
+  fcBarrel->SetParameter(5,55.0853);
+  faEtaBarrel->SetParameter(5,8.38255);
+  fbEtaBarrel->SetParameter(5,687.811);
 
   // Endcap : 1.48 -> 3.0
   faEndcap = new TF1("faEndcap","[0]+([1]+[2]/sqrt(x))*exp(-x/[3])-[4]*exp(-x*x/[5])",1.,1000.);
   fbEndcap = new TF1("fbEndcap","[0]+([1]+[2]/sqrt(x))*exp(-x/[3])-[4]*exp(-x*x/[5])",1.,1000.);
   fcEndcap = new TF1("fcEndcap","[0]+([1]+[2]/sqrt(x))*exp(-x/[3])-[4]*exp(-x*x/[5])",1.,1000.);
-  faEtaEndcap = new TF1("faEtaEndcap","[0]+[1]*x+[2]*exp(-x/[3])+[4]*exp(-x*x/([5]*[5]))",1.,1000.);
-  fbEtaEndcap = new TF1("fbEtaEndcap","[0]+[1]*x+[2]*exp(-x/[3])+[4]*exp(-x*x/([5]*[5]))",1.,1000.);
-  faEndcap->SetParameter(0,1.0502);
-  fbEndcap->SetParameter(0,1.1154);
-  fcEndcap->SetParameter(0,1.04597);
-  faEtaEndcap->SetParameter(0,-0.0199504);
-  fbEtaEndcap->SetParameter(0,0.064799);
-  faEndcap->SetParameter(1,0.649512);
-  fbEndcap->SetParameter(1,1.35135);
-  fcEndcap->SetParameter(1,0.590172);
-  faEtaEndcap->SetParameter(1,-4.38763e-06);
-  fbEtaEndcap->SetParameter(1,-3.45818e-05);
-  faEndcap->SetParameter(2,-2.0343);
-  fbEndcap->SetParameter(2,-3.76997);
-  fcEndcap->SetParameter(2,-0.577637);
-  faEtaEndcap->SetParameter(2,-0.235372);
-  fbEtaEndcap->SetParameter(2,0.374605);
-  faEndcap->SetParameter(3,106.332);
-  fbEndcap->SetParameter(3,57.3433);
-  fcEndcap->SetParameter(3,54.7831);
-  faEtaEndcap->SetParameter(3,95.6925);
-  fbEtaEndcap->SetParameter(3,79.9324);
-  faEndcap->SetParameter(4,0.739811);
-  fbEndcap->SetParameter(4,0.615289);
-  fcEndcap->SetParameter(4,1.6319);
-  faEtaEndcap->SetParameter(4,0.129587);
-  fbEtaEndcap->SetParameter(4,-0.222852);
-  faEndcap->SetParameter(5,137.362);
-  fbEndcap->SetParameter(5,88.5182);
-  fcEndcap->SetParameter(5,28.3985);
-  faEtaEndcap->SetParameter(5,-16.2754);
-  fbEtaEndcap->SetParameter(5,15.0901);
+  faEtaEndcap = new TF1("faEtaEndcap","[0]+[1]*x+[2]*exp(-x/[3])+[4]*[4]*exp(-x*x/([5]*[5]))",1.,1000.);
+  fbEtaEndcap = new TF1("fbEtaEndcap","[0]+[1]*x+[2]*exp(-x/[3])+[4]*[4]*exp(-x*x/([5]*[5]))",1.,1000.);
+  faEndcap->SetParameter(0,1.06481);
+  fbEndcap->SetParameter(0,1.11709);
+  fcEndcap->SetParameter(0,1.04283);
+  faEtaEndcap->SetParameter(0,-0.0255354);
+  fbEtaEndcap->SetParameter(0,0.0829951);
+  faEndcap->SetParameter(1,0.732961);
+  fbEndcap->SetParameter(1,1.53397);
+  fcEndcap->SetParameter(1,0.546371);
+  fbEtaEndcap->SetParameter(1,-5.67805e-05);
+  faEndcap->SetParameter(2,-2.5607);
+  fbEndcap->SetParameter(2,-4.6737);
+  fcEndcap->SetParameter(2,-0.520532);
+  faEtaEndcap->SetParameter(2,-0.21397);
+  fbEtaEndcap->SetParameter(2,-0.132007);
+  faEndcap->SetParameter(3,98.8825);
+  fbEndcap->SetParameter(3,58.2102);
+  fcEndcap->SetParameter(3,56.6954);
+  faEtaEndcap->SetParameter(3,104.107);
+  fbEtaEndcap->SetParameter(3,9.83749);
+  faEndcap->SetParameter(4,0.541617);
+  fbEndcap->SetParameter(4,0.353856);
+  fcEndcap->SetParameter(4,1.50827);
+  faEtaEndcap->SetParameter(4,0.409695);
+  fbEtaEndcap->SetParameter(4,-0.445026);
+  faEndcap->SetParameter(5,115.071);
+  fbEndcap->SetParameter(5,42.9888);
+  fcEndcap->SetParameter(5,33.2449);
+  faEtaEndcap->SetParameter(5,17.9615);
+  fbEtaEndcap->SetParameter(5,110.727);
+
 }
 
 void 
@@ -152,19 +155,19 @@ PFEnergyCalibration::energyEmHad(double t, double& e, double&h, double eta, doub
   double tt = t;
   //double ee = e;
   //double hh = h;
-  t = max(tt,e+h);
+  t = min(1000.,max(tt,e+h));
 
   // Barrel calibration
   if ( fabs(eta) < 1.48 ) { 
 
     // Two fudge factors to make the fit converge better
+    /*
     if ( fabs(eta) > 1.45 ) { 
-      e *= 1.50;
       h *= 1.50;
     } else if ( fabs(eta) > 1.40 ) {  
-      e /= 1.12;
       h /= 1.12;
     }
+    */
 
     // The energy correction
     double a = faBarrel->Eval(t);
@@ -179,14 +182,25 @@ PFEnergyCalibration::energyEmHad(double t, double& e, double&h, double eta, doub
     }
 
     // The new estimate of the true energy
-    t = max(tt, thresh+a*e+b*h);
-
+    t = min(1000.,max(tt, thresh+a*e+b*h));
+    /*
+    double ratio = (thresh+a*e+b*h)/(e+h);
+    if ( ratio > 2. || ratio < 0.5 ) 
+      std::cout << "Warning : Energy correction ! " << std::endl
+		<< "thresh,a,b,e+h,ratio*(e+h),eta = " << a << " " << b << " " 
+		<< e+h << " " << ratio*(e+h) << " " << eta << std::endl;
+    */
     // The angular correction
     double etaCorr = 1. + faEtaBarrel->Eval(t) + fbEtaBarrel->Eval(t)*eta*eta;
     t = max(tt, thresh+etaCorr*a*e+etaCorr*b*h);
 
-    if ( e > 0. && thresh > 0. ) e = threshE-threshH + etaCorr * a * e;
+    if ( e > 0. && thresh > 0. ) 
+      e = h > 0. ? threshE-threshH + etaCorr * a * e : threshE + etaCorr * a * e;
     if ( h > 0. && thresh > 0. ) h = threshH + etaCorr * b * h;
+
+    if ( etaCorr > 2. || etaCorr < 0.5 ) 
+      std::cout << "Warning : Angular correction ! " << std::endl
+		<< "etaCorr,eta,t = " << etaCorr << " " << eta << " " << t << std::endl;
 
   // Endcap calibration   
   } else {
@@ -204,13 +218,17 @@ PFEnergyCalibration::energyEmHad(double t, double& e, double&h, double eta, doub
     }
 
     // The new estimate of the true energy
-    t = max(tt, thresh+a*e+b*h);
+    t = min(1000.,max(tt, thresh+a*e+b*h));
     
     // The angular correction
     double etaCorr = 1. + faEtaEndcap->Eval(t) + fbEtaEndcap->Eval(t)*(fabs(eta)-1.48)*(fabs(eta)-1.48);
-    t = max(tt, thresh+etaCorr*a*e+etaCorr*b*h);
-    if ( e > 0  && thresh > 0. ) e = threshE-threshH + etaCorr * a * e;
+
+    t = min(1000.,max(tt, thresh+etaCorr*a*e+etaCorr*b*h));
+
+    if ( e > 0. && thresh > 0. ) 
+      e = h > 0. ? threshE-threshH + etaCorr * a * e : threshE + etaCorr * a * e;
     if ( h > 0. && thresh > 0. ) h = threshH + etaCorr * b * h;
+
 
   }
 
