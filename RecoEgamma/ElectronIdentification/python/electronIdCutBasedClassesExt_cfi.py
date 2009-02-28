@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoEcal.EgammaClusterProducers.geometryForClustering_cff import *
 eidCutBasedClassesExt = cms.EDProducer("EleIdCutBasedExtProducer",
 
     src = cms.InputTag("pixelMatchGsfElectrons"),

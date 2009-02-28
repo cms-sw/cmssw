@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoEcal.EgammaClusterProducers.geometryForClustering_cff import *
 from RecoEgamma.ElectronIdentification.likelihoodPdfsDB_cfi import *
 from RecoEgamma.ElectronIdentification.likelihoodESetup_cfi import *
 eidLikelihood = cms.EDFilter("EleIdLikelihoodRef",

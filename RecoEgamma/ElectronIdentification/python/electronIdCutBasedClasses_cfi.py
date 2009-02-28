@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoEcal.EgammaClusterProducers.geometryForClustering_cff import *
 eidCutBasedClasses = cms.EDFilter("EleIdCutBasedRef",
 
     filter = cms.bool(False),

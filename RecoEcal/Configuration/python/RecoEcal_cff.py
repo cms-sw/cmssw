@@ -1,8 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 # Sequence for clustering in ecal barrel & endcap + preshower
-# geometry needed for clustering
-from RecoEcal.EgammaClusterProducers.geometryForClustering_cff import *
 # hybrid clustering sequence
 from RecoEcal.EgammaClusterProducers.hybridClusteringSequence_cff import *
 # multi5x5 clusters
