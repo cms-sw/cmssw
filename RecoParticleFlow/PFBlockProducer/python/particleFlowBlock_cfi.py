@@ -9,10 +9,10 @@ particleFlowBlock = cms.EDProducer("PFBlockProducer",
     pf_resolution_map_ECAL_phi = cms.string('RecoParticleFlow/PFBlockProducer/data/resmap_ECAL_phi.dat'),
                                    
     # max chi2 for element associations in PFBlocks
-    pf_chi2_ECAL_Track = cms.double(100.0),
-    pf_chi2_HCAL_Track = cms.double(100.0),
+    pf_chi2_ECAL_Track = cms.double(0.0),
+    pf_chi2_HCAL_Track = cms.double(0.0),
     pf_chi2_PS_Track = cms.double(100.0),
-    pf_chi2_ECAL_HCAL = cms.double(50.0),
+    pf_chi2_ECAL_HCAL = cms.double(0.0),
     pf_chi2_PSH_PSV = cms.double(5.0),
     pf_chi2_ECAL_PS = cms.double(0.0),
     pf_chi2_ECAL_GSF = cms.double(900.0),
