@@ -24,6 +24,7 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 process.source = cms.Source("EmptySource")
 
 from Configuration.Generator.PythiaUESettings_cfi import *
+from GeneratorInterface.ExternalDecays.TauolaSettings_cff import *
 
 process.generator = cms.EDFilter("Pythia6GeneratorFilter",
     pythiaHepMCVerbosity = cms.untracked.bool(True),
@@ -32,14 +33,16 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
     comEnergy = cms.double(10000.0),
     ExternalDecays = cms.PSet(
         Tauola = cms.untracked.PSet(
-	     UseTauolaPolarization = cms.bool(True),
-	     InputCards = cms.PSet
-	     ( 
-	        pjak1 = cms.int32(0),
-		pjak2 = cms.int32(0), 
-		mdtau = cms.int32(0) 
-	     )
-        ),
+#	     UseTauolaPolarization = cms.bool(True),
+#	     InputCards = cms.PSet
+#	     ( 
+#	        pjak1 = cms.int32(0),
+#		pjak2 = cms.int32(0), 
+#		mdtau = cms.int32(0) 
+#	     )
+           TauolaDefaultInputCards,
+	   TauolaPolar
+	),
         parameterSets = cms.vstring('Tauola')
     ),
     PythiaParameters = cms.PSet(
