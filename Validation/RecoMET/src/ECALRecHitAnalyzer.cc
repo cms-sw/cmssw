@@ -12,8 +12,6 @@ ECALRecHitAnalyzer::ECALRecHitAnalyzer(const edm::ParameterSet& iConfig)
 {
   
   // Retrieve Information from the Configuration File
-  geometryFile_      = iConfig.getUntrackedParameter<std::string>("GeometryFile");
-  //outputFile_        = iConfig.getUntrackedParameter<std::string>("OutputFile");
   EBRecHitsLabel_  = iConfig.getParameter<edm::InputTag>("EBRecHitsLabel");
   EERecHitsLabel_    = iConfig.getParameter<edm::InputTag>("EERecHitsLabel");
 
@@ -131,43 +129,87 @@ void ECALRecHitAnalyzer::BookHistos()
   me["hEB_Occ_ieta_iphi"] = dbe_->book2D("hEB_Occ_ieta_iphi","",171, -85, 86, 360, 1, 361);   
 
   // Integrated Histograms
-  me["hEEpZ_energyvsir"] = dbe_->book2D("hEEpZ_energyvsir","", 100,1,101, 20110,-10,201);
-  me["hEEmZ_energyvsir"] = dbe_->book2D("hEEmZ_energyvsir","", 100,1,101, 20110,-10,201);
-  me["hEB_energyvsieta"] = dbe_->book2D("hEB_energyvsieta","", 171, -85, 86, 20110, -10, 201);   
-  
-  me["hEEpZ_Maxenergyvsir"] = dbe_->book2D("hEEpZ_Maxenergyvsir","", 100,1,101, 20110,-10,201);
-  me["hEEmZ_Maxenergyvsir"] = dbe_->book2D("hEEmZ_Maxenergyvsir","", 100,1,101, 20110,-10,201);
-  me["hEB_Maxenergyvsieta"] = dbe_->book2D("hEB_Maxenergyvsieta","", 171, -85, 86, 20110, -10, 201);   
+  if(finebinning_)
+    {
+      me["hEEpZ_energyvsir"] = dbe_->book2D("hEEpZ_energyvsir","", 100,1,101, 20110,-10,201);
+      me["hEEmZ_energyvsir"] = dbe_->book2D("hEEmZ_energyvsir","", 100,1,101, 20110,-10,201);
+      me["hEB_energyvsieta"] = dbe_->book2D("hEB_energyvsieta","", 171, -85, 86, 20110, -10, 201);   
+      
+      me["hEEpZ_Maxenergyvsir"] = dbe_->book2D("hEEpZ_Maxenergyvsir","", 100,1,101, 20110,-10,201);
+      me["hEEmZ_Maxenergyvsir"] = dbe_->book2D("hEEmZ_Maxenergyvsir","", 100,1,101, 20110,-10,201);
+      me["hEB_Maxenergyvsieta"] = dbe_->book2D("hEB_Maxenergyvsieta","", 171, -85, 86, 20110, -10, 201);   
+      
+      me["hEEpZ_Minenergyvsir"] = dbe_->book2D("hEEpZ_Minenergyvsir","", 100,1,101, 20110,-10,201);
+      me["hEEmZ_Minenergyvsir"] = dbe_->book2D("hEEmZ_Minenergyvsir","", 100,1,101, 20110,-10,201);
+      me["hEB_Minenergyvsieta"] = dbe_->book2D("hEB_Minenergyvsieta","", 171, -85, 86, 20110, -10, 201);   
+      
+      me["hEEpZ_SETvsir"] = dbe_->book2D("hEEpZ_SETvsir","", 50,1,51, 20010,0,201);
+      me["hEEmZ_SETvsir"] = dbe_->book2D("hEEmZ_SETvsir","", 50,1,51, 20010,0,201);
+      me["hEB_SETvsieta"] = dbe_->book2D("hEB_SETvsieta","", 171, -85, 86, 20010, 0, 201);   
+      
+      me["hEEpZ_METvsir"] = dbe_->book2D("hEEpZ_METvsir","", 50,1,51, 20010,0,201);
+      me["hEEmZ_METvsir"] = dbe_->book2D("hEEmZ_METvsir","", 50,1,51, 20010,0,201);
+      me["hEB_METvsieta"] = dbe_->book2D("hEB_METvsieta","", 171, -85, 86, 20010, 0, 201);   
+      
+      me["hEEpZ_METPhivsir"] = dbe_->book2D("hEEpZ_METPhivsir","", 50,1,51, 80,-4,4);
+      me["hEEmZ_METPhivsir"] = dbe_->book2D("hEEmZ_METPhivsir","", 50,1,51, 80,-4,4);
+      me["hEB_METPhivsieta"] = dbe_->book2D("hEB_METPhivsieta","", 171, -85, 86, 80,-4,4);   
+      
+      me["hEEpZ_MExvsir"] = dbe_->book2D("hEEpZ_MExvsir","", 50,1,51, 10010,-50,51);
+      me["hEEmZ_MExvsir"] = dbe_->book2D("hEEmZ_MExvsir","", 50,1,51, 10010,-50,51);
+      me["hEB_MExvsieta"] = dbe_->book2D("hEB_MExvsieta","", 171, -85, 86, 10010,-50,51);   
+      
+      me["hEEpZ_MEyvsir"] = dbe_->book2D("hEEpZ_MEyvsir","", 50,1,51, 10010,-50,51);
+      me["hEEmZ_MEyvsir"] = dbe_->book2D("hEEmZ_MEyvsir","", 50,1,51, 10010,-50,51);
+      me["hEB_MEyvsieta"] = dbe_->book2D("hEB_MEyvsieta","", 171, -85, 86, 10010,-50,51);   
+      
+      me["hEEpZ_Occvsir"] = dbe_->book2D("hEEpZ_Occvsir","", 50,1,51, 1000,0,1000);
+      me["hEEmZ_Occvsir"] = dbe_->book2D("hEEmZ_Occvsir","", 50,1,51, 1000,0,1000);
+      me["hEB_Occvsieta"] = dbe_->book2D("hEB_Occvsieta","", 171, -85, 86, 400,0,400);   
+    }
+  else 
+    {
+      me["hEEpZ_energyvsir"] = dbe_->book2D("hEEpZ_energyvsir","", 100,1,101, 510,-10,100);
+      me["hEEmZ_energyvsir"] = dbe_->book2D("hEEmZ_energyvsir","", 100,1,101, 510,-10,100);
+      me["hEB_energyvsieta"] = dbe_->book2D("hEB_energyvsieta","", 171, -85, 86, 510, -10, 100);
+      
+      me["hEEpZ_Maxenergyvsir"] = dbe_->book2D("hEEpZ_Maxenergyvsir","", 100,1,101, 510,-10,100);
+      me["hEEmZ_Maxenergyvsir"] = dbe_->book2D("hEEmZ_Maxenergyvsir","", 100,1,101, 510,-10,100);
+      me["hEB_Maxenergyvsieta"] = dbe_->book2D("hEB_Maxenergyvsieta","", 171, -85, 86, 510, -10, 100);
 
-  me["hEEpZ_Minenergyvsir"] = dbe_->book2D("hEEpZ_Minenergyvsir","", 100,1,101, 20110,-10,201);
-  me["hEEmZ_Minenergyvsir"] = dbe_->book2D("hEEmZ_Minenergyvsir","", 100,1,101, 20110,-10,201);
-  me["hEB_Minenergyvsieta"] = dbe_->book2D("hEB_Minenergyvsieta","", 171, -85, 86, 20110, -10, 201);   
+      me["hEEpZ_Minenergyvsir"] = dbe_->book2D("hEEpZ_Minenergyvsir","", 100,1,101, 510,-10,100);
+      me["hEEmZ_Minenergyvsir"] = dbe_->book2D("hEEmZ_Minenergyvsir","", 100,1,101, 510,-10,100);
+      me["hEB_Minenergyvsieta"] = dbe_->book2D("hEB_Minenergyvsieta","", 171, -85, 86, 510, -10, 100);
 
-  me["hEEpZ_SETvsir"] = dbe_->book2D("hEEpZ_SETvsir","", 50,1,51, 20010,0,201);
-  me["hEEmZ_SETvsir"] = dbe_->book2D("hEEmZ_SETvsir","", 50,1,51, 20010,0,201);
-  me["hEB_SETvsieta"] = dbe_->book2D("hEB_SETvsieta","", 171, -85, 86, 20010, 0, 201);   
+      me["hEEpZ_SETvsir"] = dbe_->book2D("hEEpZ_SETvsir","", 50,1,51, 510,0,100);
+      me["hEEmZ_SETvsir"] = dbe_->book2D("hEEmZ_SETvsir","", 50,1,51, 510,0,100);
+      me["hEB_SETvsieta"] = dbe_->book2D("hEB_SETvsieta","", 171, -85, 86, 510, 0, 100);
 
-  me["hEEpZ_METvsir"] = dbe_->book2D("hEEpZ_METvsir","", 50,1,51, 20010,0,201);
-  me["hEEmZ_METvsir"] = dbe_->book2D("hEEmZ_METvsir","", 50,1,51, 20010,0,201);
-  me["hEB_METvsieta"] = dbe_->book2D("hEB_METvsieta","", 171, -85, 86, 20010, 0, 201);   
+      me["hEEpZ_METvsir"] = dbe_->book2D("hEEpZ_METvsir","", 50,1,51, 510,0,100);
+      me["hEEmZ_METvsir"] = dbe_->book2D("hEEmZ_METvsir","", 50,1,51, 510,0,100);
+      me["hEB_METvsieta"] = dbe_->book2D("hEB_METvsieta","", 171, -85, 86, 510, 0, 100);
 
-  me["hEEpZ_METPhivsir"] = dbe_->book2D("hEEpZ_METPhivsir","", 50,1,51, 80,-4,4);
-  me["hEEmZ_METPhivsir"] = dbe_->book2D("hEEmZ_METPhivsir","", 50,1,51, 80,-4,4);
-  me["hEB_METPhivsieta"] = dbe_->book2D("hEB_METPhivsieta","", 171, -85, 86, 80,-4,4);   
+      me["hEEpZ_METPhivsir"] = dbe_->book2D("hEEpZ_METPhivsir","", 50,1,51, 80,-4,4);
+      me["hEEmZ_METPhivsir"] = dbe_->book2D("hEEmZ_METPhivsir","", 50,1,51, 80,-4,4);
+      me["hEB_METPhivsieta"] = dbe_->book2D("hEB_METPhivsieta","", 171, -85, 86, 80,-4,4);
 
-  me["hEEpZ_MExvsir"] = dbe_->book2D("hEEpZ_MExvsir","", 50,1,51, 10010,-50,51);
-  me["hEEmZ_MExvsir"] = dbe_->book2D("hEEmZ_MExvsir","", 50,1,51, 10010,-50,51);
-  me["hEB_MExvsieta"] = dbe_->book2D("hEB_MExvsieta","", 171, -85, 86, 10010,-50,51);   
+      me["hEEpZ_MExvsir"] = dbe_->book2D("hEEpZ_MExvsir","", 50,1,51, 510,-50,51);
+      me["hEEmZ_MExvsir"] = dbe_->book2D("hEEmZ_MExvsir","", 50,1,51, 510,-50,51);
+      me["hEB_MExvsieta"] = dbe_->book2D("hEB_MExvsieta","", 171, -85, 86, 510,-50,51);
 
-  me["hEEpZ_MEyvsir"] = dbe_->book2D("hEEpZ_MEyvsir","", 50,1,51, 10010,-50,51);
-  me["hEEmZ_MEyvsir"] = dbe_->book2D("hEEmZ_MEyvsir","", 50,1,51, 10010,-50,51);
-  me["hEB_MEyvsieta"] = dbe_->book2D("hEB_MEyvsieta","", 171, -85, 86, 10010,-50,51);   
+      me["hEEpZ_MEyvsir"] = dbe_->book2D("hEEpZ_MEyvsir","", 50,1,51, 510,-50,51);
+      me["hEEmZ_MEyvsir"] = dbe_->book2D("hEEmZ_MEyvsir","", 50,1,51, 510,-50,51);
+      me["hEB_MEyvsieta"] = dbe_->book2D("hEB_MEyvsieta","", 171, -85, 86, 510,-50,51);
 
-  me["hEEpZ_Occvsir"] = dbe_->book2D("hEEpZ_Occvsir","", 50,1,51, 1000,0,1000);
-  me["hEEmZ_Occvsir"] = dbe_->book2D("hEEmZ_Occvsir","", 50,1,51, 1000,0,1000);
-  me["hEB_Occvsieta"] = dbe_->book2D("hEB_Occvsieta","", 171, -85, 86, 400,0,400);   
+      me["hEEpZ_Occvsir"] = dbe_->book2D("hEEpZ_Occvsir","", 50,1,51, 1000,0,1000);
+      me["hEEmZ_Occvsir"] = dbe_->book2D("hEEmZ_Occvsir","", 50,1,51, 1000,0,1000);
+      me["hEB_Occvsieta"] = dbe_->book2D("hEB_Occvsieta","", 171, -85, 86, 400,0,400);
 
-  }
+    }
+
+
+
+}
 }
 
 void ECALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
@@ -541,7 +583,3 @@ void ECALRecHitAnalyzer::WriteECALRecHits(const edm::Event& iEvent, const edm::E
 
 
 
-void ECALRecHitAnalyzer::DumpGeometry()
-{
- 
-}
