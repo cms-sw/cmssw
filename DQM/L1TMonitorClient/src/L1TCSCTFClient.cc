@@ -53,6 +53,8 @@ void L1TCSCTFClient::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const 
 }
 
 void L1TCSCTFClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c){
+   dbe->setCurrentFolder(input_dir);
+
    vector<string> meVec = dbe->getMEs();
    for(vector<string>::const_iterator it=meVec.begin(); it!=meVec.end(); it++){
      string full_path = input_dir + "/" + (*it);
@@ -102,6 +104,8 @@ void L1TCSCTFClient::analyze(const Event& e, const EventSetup& context){
    counterEvt++;
    if (prescaleEvt<1) return;
    if (prescaleEvt>0 && counterEvt%prescaleEvt!=0) return;
+   
+   dbe->setCurrentFolder(input_dir);
 
    // The code below duplicates one from endLuminosityBlock function
    vector<string> meVec = dbe->getMEs();
