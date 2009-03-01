@@ -34,7 +34,7 @@ particleFlow = cms.EDProducer("PFProducer",
     pf_mergedPhotons_mvaWeightFile = cms.string('RecoParticleFlow/PFProducer/data/MVAnalysis_MLP.weights.txt'),
 
     # number of sigmas for neutral energy detection
-    pf_nsigma_ECAL = cms.double(3.0),
+    pf_nsigma_ECAL = cms.double(0.0),
     pf_nsigma_HCAL = cms.double(1.0),
 
     # Naive cluster calibration
