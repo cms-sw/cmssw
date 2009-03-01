@@ -201,7 +201,7 @@ void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	  //math::RhoEtaPhiVector Momentum = calotower->momentum();
 	  double Tower_ET = calotower->et();
 	  double Tower_Energy  = calotower->energy();
-	  double Tower_Eta = calotower->eta();
+	  //	  double Tower_Eta = calotower->eta();
 	  double Tower_Phi = calotower->phi();
 	  double Tower_EMEnergy = calotower->emEnergy();
 	  double Tower_HadEnergy = calotower->hadEnergy();
