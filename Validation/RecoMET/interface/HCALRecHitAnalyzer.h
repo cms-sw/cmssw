@@ -1,3 +1,4 @@
+
 #ifndef HCALRECHITANALYZER_H
 #define HCALRECHITANALYZER_H
 
@@ -32,17 +33,13 @@ private:
   std::map<std::string, MonitorElement*> me;
 
   // Inputs from Configuration
-  std::string outputFile_;
-  std::string geometryFile_;
   edm::InputTag hBHERecHitsLabel_;
   edm::InputTag hFRecHitsLabel_;
   edm::InputTag hORecHitsLabel_;
   bool debug_;
-  bool dumpGeometry_;
   bool finebinning_;
   // Helper Functions
   void FillGeometry(const edm::EventSetup&);
-  void DumpGeometry();
 
   int Nevents;
 };

@@ -90,7 +90,6 @@ public:
 
   void WriteECALRecHits(const edm::Event&, const edm::EventSetup&);
   void FillGeometry(const edm::EventSetup&);
-  void DumpGeometry();
   void BookHistos();
  
  private:
@@ -98,12 +97,9 @@ public:
   DQMStore* dbe_;
   std::map<std::string, MonitorElement*> me;
   // Inputs from Configuration
-  std::string outputFile_;
-  std::string geometryFile_;
   edm::InputTag EBRecHitsLabel_;
   edm::InputTag EERecHitsLabel_;
   bool debug_;
-  bool dumpGeometry_;
   bool finebinning_;
   int CurrentEvent;
 };
