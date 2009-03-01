@@ -65,6 +65,6 @@ process.outpath = cms.EndPath(process.aod)
 EOF
 cmsRun TEST_cfg.py
 
-rfcp aod_QCDForPF_Full_002.root /castor/cern.ch/user/p/pjanot/CMSSW310pre2/aod_QCDForPF_Full_002.root
-#rm aod_QCDForPF_Full_001.root
+rfcp aod_QCDForPF_Full_003.root /castor/cern.ch/user/p/pjanot/CMSSW310pre2/aod_QCDForPF_Full_003.root
+#rm aod_QCDForPF_Full_003.root
 

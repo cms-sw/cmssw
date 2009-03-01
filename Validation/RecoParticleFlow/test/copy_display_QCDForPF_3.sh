@@ -65,6 +65,6 @@ process.outpath = cms.EndPath(process.display)
 EOF
 cmsRun TEST_cfg.py
 
-rfcp display_QCDForPF_Full_002.root /castor/cern.ch/user/p/pjanot/CMSSW310pre2/display_QCDForPF_Full_002.root
-#rm display_QCDForPF_Full_001.root
+rfcp display_QCDForPF_Full_003.root /castor/cern.ch/user/p/pjanot/CMSSW310pre2/display_QCDForPF_Full_003.root
+#rm display_QCDForPF_Full_003.root
 
