@@ -32,16 +32,10 @@ private:
   std::map<std::string, MonitorElement*> me;
 
   // Inputs from Configuration
-  std::string outputFile_;
-  std::string geometryFile_;
   edm::InputTag caloTowersLabel_;
   bool debug_;
-  bool dumpGeometry_;
   double energyThreshold_;
   bool finebinning_;
-  // Helper Functions
-  void FillGeometry(const edm::EventSetup&);
-  void DumpGeometry();
 
   int Nevents;
 };

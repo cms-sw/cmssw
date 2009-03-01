@@ -7,46 +7,40 @@ import FWCore.ParameterSet.Config as cms
 # Fill validation histograms for MET.
 genMetAnalyzer = cms.EDFilter(
     "METTester",
-    OutputFile = cms.untracked.string('METTester_genMet.root'),
     InputMETLabel = cms.InputTag("genMet"),
     METType = cms.untracked.string('GenMET'),
-    FineBinning = cms.untracked.bool(False)                             
+    FineBinning = cms.untracked.bool(True)                            
 )
 
 genMetNoNuBSMAnalyzer = cms.EDFilter(
     "METTester",
-    OutputFile = cms.untracked.string('METTester_genMetNoNuBSM.root'),
     InputMETLabel = cms.InputTag("genMetNoNuBSM"),
     METType = cms.untracked.string('GenMET'),
-    FineBinning = cms.untracked.bool(False)                                                              
+    FineBinning = cms.untracked.bool(True)                                                              
 )
 
 
 
 genMetTrueAnalyzer = cms.EDAnalyzer(
     "METTester",
-    OutputFile = cms.untracked.string("METTester_genMetTrue.root"),
     InputMETLabel = cms.InputTag("genMetTrue"),
     METType = cms.InputTag("GenMet"),
-    FineBinning = cms.untracked.bool(False)                             
+    FineBinning = cms.untracked.bool(True)                             
     )
 
 genMetCaloAnalyzer = cms.EDAnalyzer(
     "METTester",
-    OutputFile = cms.untracked.string("METTester_genMetCalo.root"),
     InputMETLabel = cms.InputTag("genMetCalo"),
     METType = cms.InputTag("GenMet"),
-    FineBinning = cms.untracked.bool(False)                             
+    FineBinning = cms.untracked.bool(True)                             
     )
-
 
 
 genMetCaloAndNonPromptAnalyzer = cms.EDAnalyzer(
     "METTester",
-    OutputFile = cms.untracked.string("METTester_genMetCaloAndNonPrompt.root"),
     InputMETLabel = cms.InputTag("genMetCaloAndNonPrompt"),
     METType = cms.InputTag("GenMet"),
-    FineBinning = cms.untracked.bool(False)                             
+    FineBinning = cms.untracked.bool(True)                             
     )
 
 
