@@ -8,22 +8,14 @@ import FWCore.ParameterSet.Config as cms
 towerSchemeBAnalyzer = cms.EDAnalyzer(
     "CaloTowerAnalyzer",
     Debug = cms.bool(False),
-    #CaloTowersLabel = cms.InputTag("caloTowers"),
     CaloTowersLabel = cms.InputTag("towerMaker"),
-    OutputFile = cms.untracked.string('CaloTowerAnalyzer_SchemeB.root'),
-    DumpGeometry = cms.bool(False),
-    GeometryFile = cms.untracked.string('CaloTowerAnalyzer_geometry.dat'),
-    FineBinning = cms.untracked.bool(False)
+    FineBinning = cms.untracked.bool(True)
     )
 
 towerOptAnalyzer = cms.EDAnalyzer(
     "CaloTowerAnalyzer",
     Debug = cms.bool(False),
-    # CaloTowersLabel = cms.InputTag("caloTowersOpt"),
     CaloTowersLabel = cms.InputTag("calotoweroptmaker"),
-    OutputFile = cms.untracked.string('CaloTowerAnalyzer_Opt.root'),
-    DumpGeometry = cms.bool(False),
-    GeometryFile = cms.untracked.string('CaloTowerAnalyzer_geometry.dat'),
-    FineBinning = cms.untracked.bool(False)
+    FineBinning = cms.untracked.bool(True)
 )
 
