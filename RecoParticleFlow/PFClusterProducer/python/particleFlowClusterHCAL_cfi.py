@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 particleFlowClusterHCAL = cms.EDProducer("PFClusterProducer",
     # seed threshold in HCAL endcap 
-    thresh_Seed_Endcap = cms.double(0.0),
+    thresh_Seed_Endcap = cms.double(1.4),
     # verbosity 
     verbose = cms.untracked.bool(False),
     # sigma of the shower in HCAL     
@@ -31,7 +31,7 @@ particleFlowClusterHCAL = cms.EDProducer("PFClusterProducer",
     # in mode 2, depth correction = A 
     depthCor_A = cms.double(0.89),
     # cell threshold in HCAL endcap 
-    thresh_Endcap = cms.double(0.0),
+    thresh_Endcap = cms.double(0.8),
     # p1 for position calculation in HCAL 
     posCalcP1 = cms.double(1.0)
 )

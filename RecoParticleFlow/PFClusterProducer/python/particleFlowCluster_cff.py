@@ -12,8 +12,15 @@ pfClusteringECAL = cms.Sequence(particleFlowRecHitECAL*particleFlowClusterECAL)
 pfClusteringHCAL = cms.Sequence(particleFlowRecHitHCAL*particleFlowClusterHCAL)
 pfClusteringPS = cms.Sequence(particleFlowRecHitPS*particleFlowClusterPS)
 
+towerMakerPF = RecoJets.JetProducers.CaloTowerSchemeB_cfi.towerMaker.clone()
+towerMakerPF.HBThreshold = 0.4
+towerMakerPF.HESThreshold = 0.4
+towerMakerPF.HEDThreshold = 0.4
+
+
 particleFlowCluster = cms.Sequence(
     caloTowersRec*
+    towerMakerPF*
     pfClusteringECAL*
     pfClusteringHCAL*
     pfClusteringPS
