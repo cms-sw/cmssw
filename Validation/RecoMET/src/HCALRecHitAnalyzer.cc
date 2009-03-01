@@ -681,7 +681,7 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
                                                                                                                                                              
     HcalDetId det = horechit->id();
     double Energy = horechit->energy();
-    Int_t depth = det.depth(); //always 4
+    ///Int_t depth = det.depth(); //always 4
     Int_t ieta = det.ieta();
     Int_t iphi = det.iphi();
     int EtaRing = 41+ieta; // this counts from 0    
