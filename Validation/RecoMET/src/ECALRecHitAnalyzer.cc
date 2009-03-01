@@ -259,7 +259,7 @@ void ECALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
     int Crystal_iy = EcalID.iy();
     Float_t ix_ = Crystal_ix-50.5;
     Float_t iy_ = Crystal_iy-50.5;
-    Int_t ir = sqrt(ix_*ix_ + iy_*iy_);
+    Int_t ir = (Int_t)sqrt(ix_*ix_ + iy_*iy_);
 
     //double Crystal_eta = cell->getPosition().eta();
     //double Crystal_phi = cell->getPosition().phi();
@@ -350,8 +350,8 @@ void ECALRecHitAnalyzer::WriteECALRecHits(const edm::Event& iEvent, const edm::E
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<CaloGeometryRecord>().get(pG);
   const CaloGeometry cG = *pG;
-  const CaloSubdetectorGeometry* EBgeom=cG.getSubdetectorGeometry(DetId::Ecal,1);
-  const CaloSubdetectorGeometry* EEgeom=cG.getSubdetectorGeometry(DetId::Ecal,2);
+  //const CaloSubdetectorGeometry* EBgeom=cG.getSubdetectorGeometry(DetId::Ecal,1);
+  //const CaloSubdetectorGeometry* EEgeom=cG.getSubdetectorGeometry(DetId::Ecal,2);
   DEBUG( "Got Geometry");
 
   TLorentzVector vEBMET_EtaRing[171];
@@ -375,7 +375,7 @@ void ECALRecHitAnalyzer::WriteECALRecHits(const edm::Event& iEvent, const edm::E
   edm::LogInfo("OutputInfo") << "Looping over EB" << endl;
 
   EBRecHitCollection::const_iterator ebrechit;
-  int nEBrechit = 0;
+  //int nEBrechit = 0;
 
   for (ebrechit = EBRecHits->begin(); ebrechit != EBRecHits->end(); ebrechit++) {
     
@@ -463,15 +463,15 @@ void ECALRecHitAnalyzer::WriteECALRecHits(const edm::Event& iEvent, const edm::E
 
   edm::LogInfo("OutputInfo") << "Looping over EE" << endl;
   EERecHitCollection::const_iterator eerechit;
-  int nEErechit = 0;
+  //int nEErechit = 0;
   for (eerechit = EERecHits->begin(); eerechit != EERecHits->end(); eerechit++) {
     
     EEDetId det = eerechit->id();
     double Energy = eerechit->energy();
     Int_t ix = det.ix();
     Int_t iy = det.iy();
-    Float_t ix_ = -999;
-    Float_t iy_ = -999;
+    //Float_t ix_ = (Float_t)-999;
+    //Float_t iy_ = (Float_t)-999;
     Int_t ir = -999;
     //    edm::LogInfo("OutputInfo") << ix << " " << iy << " " << ix_ << " " << iy_ << " " << ir << endl;
 
@@ -486,14 +486,14 @@ void ECALRecHitAnalyzer::WriteECALRecHits(const edm::Event& iEvent, const edm::E
 
     if (Crystal_zside == -1)
       {
-	ir = me["hEEmZ_ix_iy_irMap"]->getBinContent(ix,iy);
+	ir = (Int_t)me["hEEmZ_ix_iy_irMap"]->getBinContent(ix,iy);
 	x = me["hEEmZ_ix_iy_xMap"]->getBinContent(ix,iy);
 	y = me["hEEmZ_ix_iy_yMap"]->getBinContent(ix,iy);
 	z = me["hEEmZ_ix_iy_zMap"]->getBinContent(ix,iy);
       }
     if (Crystal_zside == 1)
       {
-	ir = me["hEEpZ_ix_iy_irMap"]->getBinContent(ix,iy);
+	ir = (Int_t)me["hEEpZ_ix_iy_irMap"]->getBinContent(ix,iy);
 	x = me["hEEpZ_ix_iy_xMap"]->getBinContent(ix,iy);
 	y = me["hEEpZ_ix_iy_yMap"]->getBinContent(ix,iy);
 	z = me["hEEpZ_ix_iy_zMap"]->getBinContent(ix,iy);
