@@ -115,13 +115,13 @@ void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_) {
   SETAXES(DeltaRvsEt,ET,"#DeltaR");
   SETAXES(DeltaRvsEta,ETA,"#DeltaR");
   
-  SETAXES(EtaSeen,"","seen #eta");
-  SETAXES(PhiSeen,"","seen #phi [rad]");
-  SETAXES(EtSeen,"","seen E_{T}");
+  SETAXES(EtaSeen,"seen #eta","");
+  SETAXES(PhiSeen,"seen #phi [rad]","");
+  SETAXES(EtSeen,"seen E_{T} [GeV]","");
 
-  SETAXES(EtaGen,"","generated #eta");
-  SETAXES(PhiGen,"","generated #phi [rad]");
-  SETAXES(EtGen,"","generated E_{T}");
+  SETAXES(EtaGen,"generated #eta","");
+  SETAXES(PhiGen,"generated #phi [rad]","");
+  SETAXES(EtGen,"generated E_{T} [GeV]","");
 
 
 }
