@@ -6,27 +6,10 @@
  */
  
 #include "Alignment/MuonAlignment/interface/AlignableDTSuperLayer.h"
-#include "Alignment/CommonAlignment/interface/AlignableDetUnit.h"
 
-AlignableDTSuperLayer::AlignableDTSuperLayer(const GeomDet *geomDet): AlignableDet(geomDet, false)  // addComponents loop is performed below
+AlignableDTSuperLayer::AlignableDTSuperLayer(const GeomDet *geomDet): AlignableDet(geomDet)
 {
    theStructureType = align::AlignableDTSuperLayer;
-
-   // set the APE of this chamber and all its superlayers and layers
-   // then re-set the APEs of the superlayers and layers in the loop that follows
-   if (geomDet->alignmentPositionError() != NULL) {
-      setAlignmentPositionError(*geomDet->alignmentPositionError());
-   }
-
-   const std::vector<const GeomDet*>& geomDets = geomDet->components();
-   for (std::vector<const GeomDet*>::const_iterator idet = geomDets.begin();  idet != geomDets.end();  ++idet) {
-      AlignableDetUnit *layer = new AlignableDetUnit((*idet)->geographicalId().rawId(), (*idet)->surface());
-      if ((*idet)->alignmentPositionError() != NULL) {
-	 layer->setAlignmentPositionError(*((*idet)->alignmentPositionError()));
-      }
-      addComponent(layer);
-   }
-
    // DO NOT let the chamber position become an average of the layers
    this->theSurface = geomDet->surface();
 }
