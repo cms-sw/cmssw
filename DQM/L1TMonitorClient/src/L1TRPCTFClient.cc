@@ -127,7 +127,7 @@ void L1TRPCTFClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
           m_noisyChannels->setBinContent((*channel).getBinX(), 100);
         } // for(badchannels)
       } //if (qreport)
-      else std::cout << "dupa" << std::endl;
+//      else std::cout << "dupa" << std::endl;
     } // if (me)
   
 
