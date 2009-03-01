@@ -15,6 +15,9 @@
 // date:  04.03.2007
 // note:  Eliminated automated resolution fitting. This is now done in a ROOT script.
 
+// date:  02.04.2009 
+// note:  Added option to use fine binning or course binning for histos
+
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -47,15 +50,9 @@
 
 METTester::METTester(const edm::ParameterSet& iConfig)
 {
-
-  //outputFile_              = iConfig.getUntrackedParameter<std::string>("OutputFile");
   inputMETLabel_           = iConfig.getParameter<edm::InputTag>("InputMETLabel");
   METType_                 = iConfig.getUntrackedParameter<std::string>("METType");
-  
-  //if (outputFile_.size() > 0)
-  //  edm::LogInfo("OutputInfo") << " MET Task histograms will be saved to '" << outputFile_.c_str() << "'";
-  //else edm::LogInfo("OutputInfo") << " MET Task histograms will NOT be saved";
-  
+  finebinning_                 = iConfig.getUntrackedParameter<bool>("FineBinning");
 }
 
 void METTester::beginJob(const edm::EventSetup& iSetup)
@@ -65,7 +62,8 @@ void METTester::beginJob(const edm::EventSetup& iSetup)
   dbe_ = edm::Service<DQMStore>().operator->();
   
   if (dbe_) {
-    TString dirName = "RecoMETV/METTask/MET/";
+    //    TString dirName = "RecoMETV/METTask/MET/";
+    TString dirName = "JetMET/EventInfo/CertificationSummary/MET_Global/";
     TString label(inputMETLabel_.label());
     dirName += label;
     dbe_->setCurrentFolder((string)dirName);
@@ -73,68 +71,148 @@ void METTester::beginJob(const edm::EventSetup& iSetup)
     if (METType_ == "CaloMET")
       { 
 	// CaloMET Histograms
-	me["hNevents"]                = dbe_->book1D("METTask_Nevents","METTask_Nevents",1,0,1);
-	me["hCaloMEx"]                = dbe_->book1D("METTask_CaloMEx","METTask_CaloMEx",4001,-1000,1001);
-	me["hCaloMEy"]                = dbe_->book1D("METTask_CaloMEy","METTask_CaloMEy",4001,-1000,1001);
-	me["hCaloEz"]                 = dbe_->book1D("METTask_CaloEz","METTask_CaloEz",2001,-500,501);
-	me["hCaloMETSig"]             = dbe_->book1D("METTask_CaloMETSig","METTask_CaloMETSig",51,0,51);
-	me["hCaloMET"]                = dbe_->book1D("METTask_CaloMET","METTask_CaloMET",2001,0,2001);
-	me["hCaloMETPhi"]             = dbe_->book1D("METTask_CaloMETPhi","METTask_CaloMETPhi",80,-4,4);
-	me["hCaloSumET"]              = dbe_->book1D("METTask_CaloSumET","METTask_CaloSumET",10001,0,10001);
-	me["hCaloMaxEtInEmTowers"]    = dbe_->book1D("METTask_CaloMaxEtInEmTowers","METTask_CaloMaxEtInEmTowers",4001,0,4001);
-	me["hCaloMaxEtInHadTowers"]   = dbe_->book1D("METTask_CaloMaxEtInHadTowers","METTask_CaloMaxEtInHadTowers",4001,0,4001);
-	me["hCaloEtFractionHadronic"] = dbe_->book1D("METTask_CaloEtFractionHadronic","METTask_CaloEtFractionHadronic",100,0,1);
-	me["hCaloEmEtFraction"]       = dbe_->book1D("METTask_CaloEmEtFraction","METTask_CaloEmEtFraction",100,0,1);
-	me["hCaloHadEtInHB"]          = dbe_->book1D("METTask_CaloHadEtInHB","METTask_CaloHadEtInHB",8001,0,8001);
-	me["hCaloHadEtInHO"]          = dbe_->book1D("METTask_CaloHadEtInHO","METTask_CaloHadEtInHO",4001,0,4001);
-	me["hCaloHadEtInHE"]          = dbe_->book1D("METTask_CaloHadEtInHE","METTask_CaloHadEtInHE",4001,0,4001);
-	me["hCaloHadEtInHF"]          = dbe_->book1D("METTask_CaloHadEtInHF","METTask_CaloHadEtInHF",4001,0,4001);
-	me["hCaloHadEtInEB"]          = dbe_->book1D("METTask_CaloHadEtInEB","METTask_CaloHadEtInEB",8001,0,8001);
-	me["hCaloHadEtInEE"]          = dbe_->book1D("METTask_CaloHadEtInEE","METTask_CaloHadEtInEE",4001,0,4001);
-	me["hCaloEmEtInHF"]           = dbe_->book1D("METTask_CaloEmEtInHF","METTask_CaloEmEtInHF",4001,0,4001);
-	me["hCaloEmEtInEE"]           = dbe_->book1D("METTask_CaloEmEtInEE","METTask_CaloEmEtInEE",4001,0,4001);
-	me["hCaloEmEtInEB"]           = dbe_->book1D("METTask_CaloEmEtInEB","METTask_CaloEmEtInEB",8001,0,8001);
+	if(!finebinning_)
+	  {
+	    me["hNevents"]                = dbe_->book1D("METTask_Nevents","METTask_Nevents",1,0,1); 
+	    me["hCaloMEx"]                = dbe_->book1D("METTask_CaloMEx","METTask_CaloMEx",1000,-999.5,999.5); 
+	    me["hCaloMEy"]                = dbe_->book1D("METTask_CaloMEy","METTask_CaloMEy",1000,-999.5,999.5);
+	    //        me["hCaloEz"]                 = dbe_->book1D("METTask_CaloEz","METTask_CaloEz",2001,-500,501);
+	    me["hCaloMETSig"]             = dbe_->book1D("METTask_CaloMETSig","METTask_CaloMETSig",50,-0.5,49.5);
+	    me["hCaloMET"]                = dbe_->book1D("METTask_CaloMET","METTask_CaloMET",2000,-0.5,1999.5);
+	    me["hCaloMETPhi"]             = dbe_->book1D("METTask_CaloMETPhi","METTask_CaloMETPhi",80,-4,4);
+	    me["hCaloSumET"]              = dbe_->book1D("METTask_CaloSumET","METTask_CaloSumET",1000,-0.5,9999.5);   //10GeV
+	    me["hCaloMaxEtInEmTowers"]    = dbe_->book1D("METTask_CaloMaxEtInEmTowers","METTask_CaloMaxEtInEmTowers",800,-0.5,3999.5);   //5GeV
+	    me["hCaloMaxEtInHadTowers"]   = dbe_->book1D("METTask_CaloMaxEtInHadTowers","METTask_CaloMaxEtInHadTowers",800,-.05,3999.5);  //5GeV
+	    me["hCaloEtFractionHadronic"] = dbe_->book1D("METTask_CaloEtFractionHadronic","METTask_CaloEtFractionHadronic",100,0,1);
+	    me["hCaloEmEtFraction"]       = dbe_->book1D("METTask_CaloEmEtFraction","METTask_CaloEmEtFraction",100,0,1);
+	    me["hCaloHadEtInHB"]          = dbe_->book1D("METTask_CaloHadEtInHB","METTask_CaloHadEtInHB",1600, -0.5, 7999.5);  //5GeV  
+	    me["hCaloHadEtInHO"]          = dbe_->book1D("METTask_CaloHadEtInHO","METTask_CaloHadEtInHO",800, -0.5, 3999.5);  //5GeV
+	    me["hCaloHadEtInHE"]          = dbe_->book1D("METTask_CaloHadEtInHE","METTask_CaloHadEtInHE",800, -0.5, 3999.5);  //5GeV
+	    me["hCaloHadEtInHF"]          = dbe_->book1D("METTask_CaloHadEtInHF","METTask_CaloHadEtInHF",800, -0.5, 3999.5);  //5GeV
+	    me["hCaloHadEtInEB"]          = dbe_->book1D("METTask_CaloHadEtInEB","METTask_CaloHadEtInEB",1600, -0.5, 7999.5);   //5GeV
+	    me["hCaloHadEtInEE"]          = dbe_->book1D("METTask_CaloHadEtInEE","METTask_CaloHadEtInEE",800, -0.5, 3999.5);  //5GeV
+	    me["hCaloEmEtInHF"]           = dbe_->book1D("METTask_CaloEmEtInHF","METTask_CaloEmEtInHF",800, -0.5, 3999.5);   //5GeV
+	    me["hCaloEmEtInEE"]           = dbe_->book1D("METTask_CaloEmEtInEE","METTask_CaloEmEtInEE",800,0,3999.5);    //5GeV
+	    me["hCaloEmEtInEB"]           = dbe_->book1D("METTask_CaloEmEtInEB","METTask_CaloEmEtInEB",1600,0, 7999.5);   //5GeV
+	  }
+	else
+	  {
+	    //FineBinnning
+	    me["hNevents"]                = dbe_->book1D("METTask_Nevents","METTask_Nevents",1,0,1);
+	    me["hCaloMEx"]                = dbe_->book1D("METTask_CaloMEx","METTask_CaloMEx",4001,-1000,1001);
+	    me["hCaloMEy"]                = dbe_->book1D("METTask_CaloMEy","METTask_CaloMEy",4001,-1000,1001);
+	    me["hCaloEz"]                 = dbe_->book1D("METTask_CaloEz","METTask_CaloEz",2001,-500,501);
+	    me["hCaloMETSig"]             = dbe_->book1D("METTask_CaloMETSig","METTask_CaloMETSig",51,0,51);
+	    me["hCaloMET"]                = dbe_->book1D("METTask_CaloMET","METTask_CaloMET",2001,0,2001);
+	    me["hCaloMETPhi"]             = dbe_->book1D("METTask_CaloMETPhi","METTask_CaloMETPhi",80,-4,4);
+	    me["hCaloSumET"]              = dbe_->book1D("METTask_CaloSumET","METTask_CaloSumET",10001,0,10001);
+	    me["hCaloMaxEtInEmTowers"]    = dbe_->book1D("METTask_CaloMaxEtInEmTowers","METTask_CaloMaxEtInEmTowers",4001,0,4001);
+	    me["hCaloMaxEtInHadTowers"]   = dbe_->book1D("METTask_CaloMaxEtInHadTowers","METTask_CaloMaxEtInHadTowers",4001,0,4001);
+	    me["hCaloEtFractionHadronic"] = dbe_->book1D("METTask_CaloEtFractionHadronic","METTask_CaloEtFractionHadronic",100,0,1);
+	    me["hCaloEmEtFraction"]       = dbe_->book1D("METTask_CaloEmEtFraction","METTask_CaloEmEtFraction",100,0,1);
+	    me["hCaloHadEtInHB"]          = dbe_->book1D("METTask_CaloHadEtInHB","METTask_CaloHadEtInHB",8001,0,8001);
+	    me["hCaloHadEtInHO"]          = dbe_->book1D("METTask_CaloHadEtInHO","METTask_CaloHadEtInHO",4001,0,4001);
+	    me["hCaloHadEtInHE"]          = dbe_->book1D("METTask_CaloHadEtInHE","METTask_CaloHadEtInHE",4001,0,4001);
+	    me["hCaloHadEtInHF"]          = dbe_->book1D("METTask_CaloHadEtInHF","METTask_CaloHadEtInHF",4001,0,4001);
+	    me["hCaloHadEtInEB"]          = dbe_->book1D("METTask_CaloHadEtInEB","METTask_CaloHadEtInEB",8001,0,8001);
+	    me["hCaloHadEtInEE"]          = dbe_->book1D("METTask_CaloHadEtInEE","METTask_CaloHadEtInEE",4001,0,4001);
+	    me["hCaloEmEtInHF"]           = dbe_->book1D("METTask_CaloEmEtInHF","METTask_CaloEmEtInHF",4001,0,4001);
+	    me["hCaloEmEtInEE"]           = dbe_->book1D("METTask_CaloEmEtInEE","METTask_CaloEmEtInEE",4001,0,4001);
+	    me["hCaloEmEtInEB"]           = dbe_->book1D("METTask_CaloEmEtInEB","METTask_CaloEmEtInEB",8001,0,8001);
+	  }
       }
-
+    
     else if (METType_ == "GenMET")
       {
 	// GenMET Histograms
-	me["hNevents"]                = dbe_->book1D("METTask_Nevents","METTask_Nevents",1,0,1);
-	me["hGenMEx"]                 = dbe_->book1D("METTask_GenMEx","METTask_GenMEx",4001,-1000,1001);
-	me["hGenMEy"]                 = dbe_->book1D("METTask_GenMEy","METTask_GenMEy",4001,-1000,1001);
-	me["hGenEz"]                  = dbe_->book1D("METTask_GenEz","METTask_GenEz",2001,-500,501);
-	me["hGenMETSig"]              = dbe_->book1D("METTask_GenMETSig","METTask_GenMETSig",51,0,51);
-	me["hGenMET"]                 = dbe_->book1D("METTask_GenMET","METTask_GenMET",2001,0,2001);
-	me["hGenMETPhi"]              = dbe_->book1D("METTask_GenMETPhi","METTask_GenMETPhi",80,-4,4);
-	me["hGenSumET"]               = dbe_->book1D("METTask_GenSumET","METTask_GenSumET",10001,0,10001);
-	me["hGenEmEnergy"]            = dbe_->book1D("METTask_GenEmEnergy","METTask_GenEmEnergy",4001,0,4001);
-	me["hGenHadEnergy"]           = dbe_->book1D("METTask_GenHadEnergy","METTask_GenHadEnergy",4001,0,4001);
-	me["hGenInvisibleEnergy"]     = dbe_->book1D("METTask_GenInvisibleEnergy","METTask_GenInvisibleEnergy",4001,0,4001);
-	me["hGenAuxiliaryEnergy"]     = dbe_->book1D("METTask_GenAuxiliaryEnergy","METTask_GenAuxiliaryEnergy",4001,0,4001);
+	
+	if(!finebinning_)
+	  {
+	    me["hNevents"]                = dbe_->book1D("METTask_Nevents","METTask_Nevents",1,0,1); 
+	    me["hGenMEx"]                 = dbe_->book1D("METTask_GenMEx","METTask_GenMEx",1000,-999.5,999.5);
+	    me["hGenMEy"]                 = dbe_->book1D("METTask_GenMEy","METTask_GenMEy",1000,-999.5,999.5);
+	    //        me["hGenEz"]                  = dbe_->book1D("METTask_GenEz","METTask_GenEz",2001,-500,501);
+	    //        me["hGenMETSig"]              = dbe_->book1D("METTask_GenMETSig","METTask_GenMETSig",51,0,51);
+	    me["hGenMET"]                 = dbe_->book1D("METTask_GenMET","METTask_GenMET", 2000,-0.5,1999.5);
+	    me["hGenMETPhi"]              = dbe_->book1D("METTask_GenMETPhi","METTask_GenMETPhi",80,-4,4);
+	    me["hGenSumET"]               = dbe_->book1D("METTask_GenSumET","METTask_GenSumET",1000,-0.5,9999.5);
+	    me["hGenEmEnergy"]            = dbe_->book1D("METTask_GenEmEnergy","METTask_GenEmEnergy",800,-0.5,3999.5);
+	    me["hGenHadEnergy"]           = dbe_->book1D("METTask_GenHadEnergy","METTask_GenHadEnergy",800,-0.5,3999.5);
+	    me["hGenInvisibleEnergy"]     = dbe_->book1D("METTask_GenInvisibleEnergy","METTask_GenInvisibleEnergy",800,-0.5,3999.5);
+	    me["hGenAuxiliaryEnergy"]     = dbe_->book1D("METTask_GenAuxiliaryEnergy","METTask_GenAuxiliaryEnergy",800,-0.5,3999.5);    
+	    
+	  }
+	else
+	  {
+	       me["hNevents"]                = dbe_->book1D("METTask_Nevents","METTask_Nevents",1,0,1);
+	       me["hGenMEx"]                 = dbe_->book1D("METTask_GenMEx","METTask_GenMEx",4001,-1000,1001);
+	       me["hGenMEy"]                 = dbe_->book1D("METTask_GenMEy","METTask_GenMEy",4001,-1000,1001);
+	       me["hGenEz"]                  = dbe_->book1D("METTask_GenEz","METTask_GenEz",2001,-500,501);
+	       me["hGenMETSig"]              = dbe_->book1D("METTask_GenMETSig","METTask_GenMETSig",51,0,51);
+	       me["hGenMET"]                 = dbe_->book1D("METTask_GenMET","METTask_GenMET",2001,0,2001);
+	       me["hGenMETPhi"]              = dbe_->book1D("METTask_GenMETPhi","METTask_GenMETPhi",80,-4,4);
+	       me["hGenSumET"]               = dbe_->book1D("METTaskq_GenSumET","METTask_GenSumET",10001,0,10001);
+	       me["hGenEmEnergy"]            = dbe_->book1D("METTask_GenEmEnergy","METTask_GenEmEnergy",4001,0,4001);
+	       me["hGenHadEnergy"]           = dbe_->book1D("METTask_GenHadEnergy","METTask_GenHadEnergy",4001,0,4001);
+	       me["hGenInvisibleEnergy"]     = dbe_->book1D("METTask_GenInvisibleEnergy","METTask_GenInvisibleEnergy",4001,0,4001);
+	       me["hGenAuxiliaryEnergy"]     = dbe_->book1D("METTask_GenAuxiliaryEnergy","METTask_GenAuxiliaryEnergy",4001,0,4001);
+	  }
       }
     else if (METType_ == "MET")
       {
 	// MET Histograms
-	me["hNevents"]                = dbe_->book1D("METTask_Nevents","METTask_Nevents",1,0,1);
-	me["hMEx"]                = dbe_->book1D("METTask_MEx","METTask_MEx",2001,-500,501);
-	me["hMEy"]                = dbe_->book1D("METTask_MEy","METTask_MEy",2001,-500,501);
-	me["hEz"]                 = dbe_->book1D("METTask_Ez","METTask_Ez",2001,-500,501);
-	me["hMETSig"]             = dbe_->book1D("METTask_METSig","METTask_METSig",51,0,51);
-	me["hMET"]                = dbe_->book1D("METTask_MET","METTask_MET",2001,0,2001);
-	me["hMETPhi"]             = dbe_->book1D("METTask_METPhi","METTask_METPhi",80,-4,4);
-	me["hSumET"]              = dbe_->book1D("METTask_SumET","METTask_SumET",4001,0,4001);
+	if(!finebinning_)
+	  {
+	    me["hNevents"]                = dbe_->book1D("METTask_Nevents","METTask_Nevents",1,0,1); 
+	    me["hMEx"]                = dbe_->book1D("METTask_MEx","METTask_MEx",1000,-999.5,999.5);
+	    me["hMEy"]                = dbe_->book1D("METTask_MEy","METTask_MEy",1000,-999.5,999.5);
+	    //        me["hEz"]                 = dbe_->book1D("METTask_Ez","METTask_Ez",1000,-999.5,999.5);
+	    //        me["hMETSig"]             = dbe_->book1D("METTask_METSig","METTask_METSig",50,-0.5,49.5);
+	    me["hMET"]                = dbe_->book1D("METTask_MET","METTask_MET",2000,-0.5,1999.5);
+	    me["hMETPhi"]             = dbe_->book1D("METTask_METPhi","METTask_METPhi",80,-4,4);
+	    me["hSumET"]              = dbe_->book1D("METTask_SumET","METTask_SumET",1000,0,9999.5);   
+	    
+	  }
+	else
+	  {
+	      me["hNevents"]                = dbe_->book1D("METTask_Nevents","METTask_Nevents",1,0,1);
+	      me["hMEx"]                = dbe_->book1D("METTask_MEx","METTask_MEx",2001,-500,501);
+	      me["hMEy"]                = dbe_->book1D("METTask_MEy","METTask_MEy",2001,-500,501);
+	      //me["hEz"]                 = dbe_->book1D("METTask_Ez","METTask_Ez",2001,-500,501);
+	      //me["hMETSig"]             = dbe_->book1D("METTask_METSig","METTask_METSig",51,0,51);
+	      me["hMET"]                = dbe_->book1D("METTask_MET","METTask_MET",2001,0,2001);
+	      me["hMETPhi"]             = dbe_->book1D("METTask_METPhi","METTask_METPhi",80,-4,4);
+	      me["hSumET"]              = dbe_->book1D("METTask_SumET","METTask_SumET",4001,0,4001);
+
+	  }
       }
     else if (METType_ == "PFMET")
       {
 	// PFMET Histograms                                                                                                                  
-        me["hNevents"]                = dbe_->book1D("METTask_Nevents","METTask_Nevents",1,0,1);
-        me["hMEx"]                = dbe_->book1D("METTask_MEx","METTask_MEx",2001,-500,501);
-        me["hMEy"]                = dbe_->book1D("METTask_MEy","METTask_MEy",2001,-500,501);
-        me["hEz"]                 = dbe_->book1D("METTask_Ez","METTask_Ez",2001,-500,501);
-        me["hMETSig"]             = dbe_->book1D("METTask_METSig","METTask_METSig",51,0,51);
-        me["hMET"]                = dbe_->book1D("METTask_MET","METTask_MET",2001,0,2001);
-        me["hMETPhi"]             = dbe_->book1D("METTask_METPhi","METTask_METPhi",80,-4,4);
-        me["hSumET"]              = dbe_->book1D("METTask_SumET","METTask_SumET",4001,0,4001);
+	if(!finebinning_)
+	  {
+	    me["hNevents"]                = dbe_->book1D("METTask_Nevents","METTask_Nevents",1,0,1);   
+	    me["hMEx"]                = dbe_->book1D("METTask_MEx","METTask_MEx",1000,-999.5,999.5);
+	    me["hMEy"]                = dbe_->book1D("METTask_MEy","METTask_MEy",1000,-999.5,999.5);
+	    //        me["hEz"]                 = dbe_->book1D("METTask_Ez","METTask_Ez",2001,-500,501);
+	    //        me["hMETSig"]             = dbe_->book1D("METTask_METSig","METTask_METSig",51,0,51);
+	    me["hMET"]                = dbe_->book1D("METTask_MET","METTask_MET",2000,-0.5,1999.5);
+	    me["hMETPhi"]             = dbe_->book1D("METTask_METPhi","METTask_METPhi",80,-4,4);
+	    me["hSumET"]              = dbe_->book1D("METTask_SumET","METTask_SumET",1000,-0.50,9999.5);     
+	    
+	   } else
+	     {
+	       //FineBin
+	       me["hNevents"]                = dbe_->book1D("METTask_Nevents","METTask_Nevents",1,0,1);
+	       me["hMEx"]                = dbe_->book1D("METTask_MEx","METTask_MEx",2001,-500,501);
+	       me["hMEy"]                = dbe_->book1D("METTask_MEy","METTask_MEy",2001,-500,501);
+	       //me["hEz"]                 = dbe_->book1D("METTask_Ez","METTask_Ez",2001,-500,501);
+	       //me["hMETSig"]             = dbe_->book1D("METTask_METSig","METTask_METSig",51,0,51);
+	       me["hMET"]                = dbe_->book1D("METTask_MET","METTask_MET",2001,0,2001);
+	       me["hMETPhi"]             = dbe_->book1D("METTask_METPhi","METTask_METPhi",80,-4,4);
+	       me["hSumET"]              = dbe_->book1D("METTask_SumET","METTask_SumET",4001,0,4001);
+	       
+	  }
       }
     else
       {
@@ -221,8 +299,6 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       // ==========================================================
       // Genenerated MET Information  
       double genSumET = genmet->sumEt();
-      double genMETSig = genmet->mEtSig();
-      double genEz = genmet->e_longitudinal();
       double genMET = genmet->pt();
       double genMEx = genmet->px();
       double genMEy = genmet->py();
@@ -238,8 +314,8 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       me["hGenMET"]->Fill(genMET);
       me["hGenMETPhi"]->Fill(genMETPhi);
       me["hGenSumET"]->Fill(genSumET);
-      me["hGenMETSig"]->Fill(genMETSig);
-      me["hGenEz"]->Fill(genEz);
+      //      me["hGenMETSig"]->Fill(genMETSig);
+      //      me["hGenEz"]->Fill(genEz);
       me["hGenEmEnergy"]->Fill(genEmEnergy);
       me["hGenHadEnergy"]->Fill(genHadEnergy);
       me["hGenInvisibleEnergy"]->Fill(genInvisibleEnergy);
@@ -263,8 +339,6 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       // Reconstructed MET Information                                                                                                     
       double SumET = pfmet->sumEt();
-      double METSig = pfmet->mEtSig();
-      double Ez = pfmet->e_longitudinal();
       double MET = pfmet->pt();
       double MEx = pfmet->px();
       double MEy = pfmet->py();
@@ -275,8 +349,7 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       me["hMET"]->Fill(MET);
       me["hMETPhi"]->Fill(METPhi);
       me["hSumET"]->Fill(SumET);
-      me["hMETSig"]->Fill(METSig);
-      me["hEz"]->Fill(Ez);
+
     }
       else if (METType_ == "MET")
     {
@@ -295,8 +368,6 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       // Reconstructed MET Information
       double SumET = met->sumEt();
-      double METSig = met->mEtSig();
-      double Ez = met->e_longitudinal();
       double MET = met->pt();
       double MEx = met->px();
       double MEy = met->py();
@@ -307,8 +378,8 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       me["hMET"]->Fill(MET);
       me["hMETPhi"]->Fill(METPhi);
       me["hSumET"]->Fill(SumET);
-      me["hMETSig"]->Fill(METSig);
-      me["hEz"]->Fill(Ez);
+      //      me["hMETSig"]->Fill(METSig);
+      //      me["hEz"]->Fill(Ez);
     }
 
 
@@ -316,9 +387,5 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 void METTester::endJob() 
 {
-
-  // Store the DAQ Histograms
-  //if (outputFile_.size() > 0 && dbe_)
-  //  dbe_->save(outputFile_);
-
+ 
 }
