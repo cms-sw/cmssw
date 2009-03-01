@@ -258,7 +258,7 @@ particle_flow chi2_PSH_PSV	5
 particle_flow multilink 1
 
 // number of sigmas for neutral energy detection
-particle_flow   nsigma_ECAL    3
+particle_flow   nsigma_ECAL    0.0
 particle_flow   nsigma_HCAL    1.0
 
 particle_flow   mergedPhotons_mvaCut 		0.5
