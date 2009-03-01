@@ -7,14 +7,19 @@ process = cms.Process("TEST")
 process.load("DQMServices.Core.DQM_cfg")
 
 
-process.source = cms.Source("PoolSource",
-fileNames = cms.untracked.vstring(
-'file:aod.root'
-)
-)
+
+#process.load("Validation.RecoParticleFlow.ztt_cfi")
+process.load("Validation.RecoParticleFlow.singletau_cfi")
+
+#process.source = cms.Source("PoolSource",
+#                            fileNames = cms.untracked.vstring('file:aod.root'
+#                                                              )
+#                            )
+
+
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(-1)
 )
 
 
@@ -55,4 +60,5 @@ process.options = cms.untracked.PSet(
 
 
 
+process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
