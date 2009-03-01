@@ -20,7 +20,7 @@ L1HLTJetsMatching::L1HLTJetsMatching(const edm::ParameterSet& iConfig)
   tauTrigger = iConfig.getParameter<InputTag>("L1TauTrigger");
   mEt_Min = iConfig.getParameter<double>("EtMin");
   
-  produces<std::vector<reco::LeafCandidate> >();
+  //  produces<std::vector<reco::LeafCandidate> >("LeafCandidate");
   produces<reco::CaloJetCollection>();
 }
 
@@ -67,10 +67,10 @@ void L1HLTJetsMatching::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 	       const Candidate &  myJet = (*tauJets)[iJet];
 	       deltaR = ROOT::Math::VectorUtil::DeltaR(myJet.p4().Vect(), (tauCandRefVec[iL1Tau]->p4()).Vect());
 	       if(deltaR < matchingR ) {
-		 LeafCandidate myLC(myJet);
+		 //		 LeafCandidate myLC(myJet);
 		 CaloJet myCaloJet(myJet.p4(),a,f);
 		if(myJet.pt() > mEt_Min) {
-		  tauL2LC->push_back(myLC);
+		  //		  tauL2LC->push_back(myLC);
 		  tauL2jets->push_back(myCaloJet);
 		}
 		break;
@@ -86,10 +86,10 @@ void L1HLTJetsMatching::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 	       //Find the relative L2TauJets, to see if it has been reconstructed
 	       deltaR = ROOT::Math::VectorUtil::DeltaR(myJet.p4().Vect(), (jetCandRefVec[iL1Tau]->p4()).Vect());
 	       if(deltaR < matchingR ) {
-		 LeafCandidate myLC(myJet);
+		 //		 LeafCandidate myLC(myJet);
 		 CaloJet myCaloJet(myJet.p4(),a,f);
 		 if(myJet.pt() > mEt_Min) {
-		   tauL2LC->push_back(myLC);
+		   //tauL2LC->push_back(myLC);
 		   tauL2jets->push_back(myCaloJet);
 		 }
 		break;
@@ -103,6 +103,6 @@ void L1HLTJetsMatching::produce(edm::Event& iEvent, const edm::EventSetup& iES)
  //  cout <<"Size of L2 jets "<<tauL2jets->size()<<endl;
 
  iEvent.put(tauL2jets);
- iEvent.put(tauL2LC);
+ // iEvent.put(tauL2LC);
 
 }
