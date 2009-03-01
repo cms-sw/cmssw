@@ -1,11 +1,11 @@
-// $Id: Numbers.h,v 1.23 2008/04/07 11:30:23 dellaric Exp $
+// $Id: Numbers.h,v 1.24 2008/09/05 13:39:13 emanuele Exp $
 
 /*!
   \file Numbers.h
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.23 $
-  \date $Date: 2008/04/07 11:30:23 $
+  \version $Revision: 1.24 $
+  \date $Date: 2008/09/05 13:39:13 $
 */
 
 #ifndef Numbers_H
@@ -100,11 +100,6 @@ class Numbers {
   static int iy0EE( const int ism );
 
   static bool validEE( const int ism, const int ix, const int iy );
-
-  static int ixSectorsEE[202];
-  static int iySectorsEE[202];
-
-  static int inTowersEE[400];
 
 private:
 
