@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/11/10 10:13:57 $
- * $Revision: 1.200 $
+ * $Date: 2009/02/27 13:54:09 $
+ * $Revision: 1.201 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -34,7 +34,6 @@
 #include "OnlineDB/EcalCondDB/interface/RunDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonRunDat.h"
 
-#include "DQM/EcalCommon/interface/ColorPalette.h"
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include <DQM/EcalCommon/interface/UtilsClient.h>
 #include <DQM/EcalCommon/interface/Numbers.h>
@@ -63,9 +62,6 @@
 #include "cgicc/Cgicc.h"
 #include "cgicc/FormEntry.h"
 #include "cgicc/HTMLClasses.h"
-
-#include "TStyle.h"
-#include "TColor.h"
 
 using namespace cms;
 using namespace edm;
@@ -292,58 +288,6 @@ EcalEndcapMonitorClient::EcalEndcapMonitorClient(const ParameterSet& ps) : Modul
       cout << " " << enabledClients_[i];
     }
     cout << endl;
-  }
-
-  // global ROOT style
-
-  gStyle->Reset("Default");
-
-  gStyle->SetCanvasColor(10);
-  gStyle->SetPadColor(10);
-  gStyle->SetFillColor(10);
-  gStyle->SetStatColor(10);
-  gStyle->SetTitleFillColor(10);
-
-  gStyle->SetOptTitle(kTRUE);
-  gStyle->SetTitleX(0.01);
-  gStyle->SetTitleY(1.00);
-  gStyle->SetTitleW(0.00);
-  gStyle->SetTitleH(0.05);
-  gStyle->SetTitleBorderSize(0);
-  gStyle->SetTitleFont(43, "c");
-  gStyle->SetTitleFontSize(11);
-
-  gStyle->SetOptStat(kFALSE);
-  gStyle->SetStatX(0.99);
-  gStyle->SetStatY(0.99);
-  gStyle->SetStatW(0.25);
-  gStyle->SetStatH(0.20);
-  gStyle->SetStatBorderSize(1);
-  gStyle->SetStatFont(43);
-  gStyle->SetStatFontSize(10);
-
-  gStyle->SetOptFit(kFALSE);
-
-  gROOT->ForceStyle();
-
-  // Define new color palette
-
-  for( int i=0; i<7; i++ ) {
-    TColor* color = gROOT->GetColor( 301+i );
-    if ( ! color ) color = new TColor( 301+i, 0, 0, 0, "");
-    color->SetRGB( ecdqm::rgb[i][0], ecdqm::rgb[i][1], ecdqm::rgb[i][2] );
-  }
-
-  for( int i=0; i<10; i++ ) {
-    TColor* color = gROOT->GetColor( 401+i );
-    if ( ! color ) color = new TColor( 401+i, 0, 0, 0, "");
-    color->SetRGB( ecdqm::rgb2[i][0], ecdqm::rgb2[i][1], ecdqm::rgb2[i][2] );
-  }
-
-  for( int i=0; i<10; i++ ) {
-    TColor* color = gROOT->GetColor( 501+i );
-    if ( ! color ) color = new TColor( 501+i, 0, 0, 0, "");
-    color->SetRGB( ecdqm::rgb2[i][1], 0, 0 );
   }
 
   // set runTypes (use resize() on purpose!)
