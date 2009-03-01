@@ -8,11 +8,9 @@ import FWCore.ParameterSet.Config as cms
 
 tcMetAnalyzer = cms.EDAnalyzer(
     "METTester",
-    OutputFile = cms.untracked.string('output.root'),
     InputMETLabel = cms.InputTag("tcMet"),
     METType = cms.untracked.string('MET'),
-    FineBinning = cms.untracked.bool(False)
-
+    FineBinning = cms.untracked.bool(True)
     ) 
 
 
