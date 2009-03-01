@@ -637,48 +637,54 @@ void AlignmentMonitorMuonSystemMap::event(const edm::Event &iEvent, const edm::E
 
 	    int bin_vsphi = hist_vsphi->FindBin(trackpos.phi());
 
-	    std::map<std::pair<TH1F*,int>,MuonResidualsPositionFitter*>::const_iterator positionFitter_vsz = m_positionFitters.find(std::pair<TH1F*,int>(hist_vszr, bin_vszr));
-	    std::map<std::pair<TH1F*,int>,MuonResidualsAngleFitter*>::const_iterator angleFitter_vsz = m_angleFitters.find(std::pair<TH1F*,int>(hist_vszr, bin_vszr));
-	    std::map<std::pair<TH1F*,int>,MuonResidualsPositionFitter*>::const_iterator positionFitter_vsphi = m_positionFitters.find(std::pair<TH1F*,int>(hist_vsphi, bin_vsphi));
-	    std::map<std::pair<TH1F*,int>,MuonResidualsAngleFitter*>::const_iterator angleFitter_vsphi = m_angleFitters.find(std::pair<TH1F*,int>(hist_vsphi, bin_vsphi));
+	    if (1 <= bin_vszr  &&  bin_vszr <= hist_vszr->GetNbinsX()) {
+	      std::map<std::pair<TH1F*,int>,MuonResidualsPositionFitter*>::const_iterator positionFitter_vsz = m_positionFitters.find(std::pair<TH1F*,int>(hist_vszr, bin_vszr));
+	      std::map<std::pair<TH1F*,int>,MuonResidualsAngleFitter*>::const_iterator angleFitter_vsz = m_angleFitters.find(std::pair<TH1F*,int>(hist_vszr, bin_vszr));
 
-	    if (positionFitter_vsz != m_positionFitters.end()) {
-	      double *residdata = new double[MuonResidualsPositionFitter::kNData];
-	      residdata[MuonResidualsPositionFitter::kResidual] = residual * signConvention;
-	      residdata[MuonResidualsPositionFitter::kQoverPt] = qoverpt * signConvention;
-	      residdata[MuonResidualsPositionFitter::kTrackAngle] = trackangle * signConvention;
-	      residdata[MuonResidualsPositionFitter::kTrackPosition] = trackposition * signConvention;
-	      positionFitter_vsz->second->fill(residdata);
-	      // the MuonResidualsFitter will delete the array when it is destroyed
-	    }
-	    else assert(false);  // to catch programming errors
+	      if (positionFitter_vsz != m_positionFitters.end()) {
+		double *residdata = new double[MuonResidualsPositionFitter::kNData];
+		residdata[MuonResidualsPositionFitter::kResidual] = residual * signConvention;
+		residdata[MuonResidualsPositionFitter::kQoverPt] = qoverpt * signConvention;
+		residdata[MuonResidualsPositionFitter::kTrackAngle] = trackangle * signConvention;
+		residdata[MuonResidualsPositionFitter::kTrackPosition] = trackposition * signConvention;
+		positionFitter_vsz->second->fill(residdata);
+		// the MuonResidualsFitter will delete the array when it is destroyed
+	      }
+	      else assert(false);  // to catch programming errors
 
-	    if (angleFitter_vsz != m_angleFitters.end()) {
-	      double *residdata = new double[MuonResidualsAngleFitter::kNData];
-	      residdata[MuonResidualsAngleFitter::kResidual] = resslope * signConvention;
-	      residdata[MuonResidualsAngleFitter::kQoverPt] = qoverpt * signConvention;
-	      angleFitter_vsz->second->fill(residdata);
+	      if (angleFitter_vsz != m_angleFitters.end()) {
+		double *residdata = new double[MuonResidualsAngleFitter::kNData];
+		residdata[MuonResidualsAngleFitter::kResidual] = resslope * signConvention;
+		residdata[MuonResidualsAngleFitter::kQoverPt] = qoverpt * signConvention;
+		angleFitter_vsz->second->fill(residdata);
+	      }
+	      else assert(false);
 	    }
-	    else assert(false);
 
-	    if (positionFitter_vsphi != m_positionFitters.end()) {
-	      double *residdata = new double[MuonResidualsPositionFitter::kNData];
-	      residdata[MuonResidualsPositionFitter::kResidual] = residual * signConvention;
-	      residdata[MuonResidualsPositionFitter::kQoverPt] = qoverpt * signConvention;
-	      residdata[MuonResidualsPositionFitter::kTrackAngle] = trackangle * signConvention;
-	      residdata[MuonResidualsPositionFitter::kTrackPosition] = trackposition * signConvention;
-	      positionFitter_vsphi->second->fill(residdata);
-	      // this record must be separate because both MuonResidualsFitters will delete their contents
-	    }
-	    else assert(false);
+	    if (1 <= bin_vsphi  &&  bin_vsphi <= hist_vsphi->GetNbinsX()) {
+	      std::map<std::pair<TH1F*,int>,MuonResidualsPositionFitter*>::const_iterator positionFitter_vsphi = m_positionFitters.find(std::pair<TH1F*,int>(hist_vsphi, bin_vsphi));
+	      std::map<std::pair<TH1F*,int>,MuonResidualsAngleFitter*>::const_iterator angleFitter_vsphi = m_angleFitters.find(std::pair<TH1F*,int>(hist_vsphi, bin_vsphi));
 
-	    if (angleFitter_vsphi != m_angleFitters.end()) {
-	      double *residdata = new double[MuonResidualsAngleFitter::kNData];
-	      residdata[MuonResidualsAngleFitter::kResidual] = resslope * signConvention;
-	      residdata[MuonResidualsAngleFitter::kQoverPt] = qoverpt * signConvention;
-	      angleFitter_vsphi->second->fill(residdata);
+	      if (positionFitter_vsphi != m_positionFitters.end()) {
+		double *residdata = new double[MuonResidualsPositionFitter::kNData];
+		residdata[MuonResidualsPositionFitter::kResidual] = residual * signConvention;
+		residdata[MuonResidualsPositionFitter::kQoverPt] = qoverpt * signConvention;
+		residdata[MuonResidualsPositionFitter::kTrackAngle] = trackangle * signConvention;
+		residdata[MuonResidualsPositionFitter::kTrackPosition] = trackposition * signConvention;
+		positionFitter_vsphi->second->fill(residdata);
+		// this record must be separate because both MuonResidualsFitters will delete their contents
+	      }
+	      else assert(false);
+
+	      if (angleFitter_vsphi != m_angleFitters.end()) {
+		double *residdata = new double[MuonResidualsAngleFitter::kNData];
+		residdata[MuonResidualsAngleFitter::kResidual] = resslope * signConvention;
+		residdata[MuonResidualsAngleFitter::kQoverPt] = qoverpt * signConvention;
+		angleFitter_vsphi->second->fill(residdata);
+	      }
+	      else assert(false);
 	    }
-	    else assert(false);
+
 	  } // end if okay
 
 	} // end loop over chamberIds
