@@ -47,41 +47,89 @@ void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_) {
 
   // Book Histograms
 
+  int nbinsEt = 1000;
+  float minEt = 0;
+  float maxEt = 1000;
+
+  float minDeltaEt = -100;
+  float maxDeltaEt = 50;
+
+  int nbinsEta = 200;
+  float minEta = -5;
+  float maxEta = 5;
+
+  int nbinsDeltaEta = 1000;
+  float minDeltaEta = -0.5;
+  float maxDeltaEta = 0.5;
+
+  int nbinsDeltaPhi = 1000;
+  float minDeltaPhi = -0.5;
+  float maxDeltaPhi = 0.5;
+
+
   // delta et quantities
-  BOOK1D(DeltaEt,"#DeltaE_{T}",1000,-60,40);
-  BOOK2D(DeltaEtvsEt,"#DeltaE_{T} vs E_{T}",1000,0,1000,1000,-100,100);
-  BOOK2D(DeltaEtOverEtvsEt,"#DeltaE_{T}/E_{T} vsE_{T}",1000,0,1000,100,-1,1);
-  BOOK2D(DeltaEtvsEta,"#DeltaE_{T} vs #eta",200,-5,5,1000,-100,100);
-  BOOK2D(DeltaEtOverEtvsEta,"#DeltaE_{T}/E_{T} vs #eta",200,-5,5,100,-1,1);
-  BOOK2D(DeltaEtvsPhi,"#DeltaE_{T} vs #phi",200,-M_PI,M_PI,1000,-100,100);
-  BOOK2D(DeltaEtOverEtvsPhi,"#DeltaE_{T}/E_{T} vs #Phi",200,-M_PI,M_PI,100,-1,1);
-  BOOK2D(DeltaEtvsDeltaR,"#DeltaE_{T} vs #DeltaR",100,0,1,1000,-100,100);
-  BOOK2D(DeltaEtOverEtvsDeltaR,"#DeltaE_{T}/E_{T} vs #DeltaR",100,0,1,100,-1,1);
+  BOOK1D(DeltaEt,"#DeltaE_{T}", nbinsEt, minDeltaEt, maxDeltaEt);
+  BOOK2D(DeltaEtvsEt,"#DeltaE_{T} vs E_{T}",
+	 nbinsEt, minEt, maxEt,
+	 nbinsEt,minDeltaEt, maxDeltaEt);
+  BOOK2D(DeltaEtOverEtvsEt,"#DeltaE_{T}/E_{T} vsE_{T}",
+	 nbinsEt, minEt, maxEt,
+	 nbinsEt,-1,1);
+  BOOK2D(DeltaEtvsEta,"#DeltaE_{T} vs #eta",
+	 nbinsEta, minEta, maxEta,
+	 nbinsEt,minDeltaEt, maxDeltaEt);
+  BOOK2D(DeltaEtOverEtvsEta,"#DeltaE_{T}/E_{T} vs #eta",
+	 nbinsEta, minEta, maxEta,
+	 100,-1,1);
+  BOOK2D(DeltaEtvsPhi,"#DeltaE_{T} vs #phi",
+	 200,-M_PI,M_PI,
+	 nbinsEt,minDeltaEt, maxDeltaEt);
+  BOOK2D(DeltaEtOverEtvsPhi,"#DeltaE_{T}/E_{T} vs #Phi",
+	 200,-M_PI,M_PI,
+	 100,-1,1);
+  BOOK2D(DeltaEtvsDeltaR,"#DeltaE_{T} vs #DeltaR",
+	 100,0,1,
+	 nbinsEt,minDeltaEt, maxDeltaEt);
+  BOOK2D(DeltaEtOverEtvsDeltaR,"#DeltaE_{T}/E_{T} vs #DeltaR",
+	 100,0,1,
+	 100,-1,1);
 
   // delta eta quantities
-  BOOK1D(DeltaEta,"#Delta#eta",100,-0.2,0.2);
-  BOOK2D(DeltaEtavsEt,"#Delta#eta vs E_{T}",250,0,500,1000,-0.5,0.5);
-  BOOK2D(DeltaEtavsEta,"#Delta#eta vs #eta",200,-5,5,100,-3,3);
+  BOOK1D(DeltaEta,"#Delta#eta",nbinsDeltaEta,minDeltaEta,maxDeltaEta);
+  BOOK2D(DeltaEtavsEt,"#Delta#eta vs E_{T}",
+	 nbinsEt, minEt, maxEt,
+	 nbinsDeltaEta,minDeltaEta,maxDeltaEta);
+  BOOK2D(DeltaEtavsEta,"#Delta#eta vs #eta",
+	 nbinsEta, minEta, maxEta,
+	 nbinsDeltaEta,minDeltaEta,maxDeltaEta);
 
   // delta phi quantities
-  BOOK1D(DeltaPhi,"#Delta#phi",100,-0.2,0.2);
-  BOOK2D(DeltaPhivsEt,"#Delta#phi vs E_{T}",250,0,500,1000,-0.5,0.5);
-  BOOK2D(DeltaPhivsEta,"#Delta#phi vs #eta",200,-5,5,100,-M_PI_2,M_PI_2);
+  BOOK1D(DeltaPhi,"#Delta#phi",nbinsDeltaPhi,minDeltaPhi,maxDeltaPhi);
+  BOOK2D(DeltaPhivsEt,"#Delta#phi vs E_{T}",
+	 nbinsEt, minEt, maxEt,
+	 nbinsDeltaPhi,minDeltaPhi,maxDeltaPhi);
+  BOOK2D(DeltaPhivsEta,"#Delta#phi vs #eta",
+	 nbinsEta, minEta, maxEta,
+	 nbinsDeltaPhi,minDeltaPhi,maxDeltaPhi);
 
   // delta R quantities
   BOOK1D(DeltaR,"#DeltaR",100,0,1);
-  BOOK2D(DeltaRvsEt,"#DeltaR vs E_{T}",1000,0,1000,100,0,1);
-  BOOK2D(DeltaRvsEta,"#DeltaR vs #eta",200,-5,5,100,0,1);
+  BOOK2D(DeltaRvsEt,"#DeltaR vs E_{T}",
+	 nbinsEt, minEt, maxEt,
+	 100,0,1);
+  BOOK2D(DeltaRvsEta,"#DeltaR vs #eta",
+	 nbinsEta, minEta, maxEta,
+	 100,0,1);
 
 
   // seen and gen distributions, for efficiency computation
   BOOK1D(EtaSeen,"seen #eta",100,-5,5);
   BOOK1D(PhiSeen,"seen #phi",100,-3.5,3.5);
-  BOOK1D(EtSeen,"seen E_{T}",1000,0,1000);
+  BOOK1D(EtSeen,"seen E_{T}",nbinsEt, minEt, maxEt);
   
   BOOK1D(EtaGen,"generated #eta",100,-5,5);
   BOOK1D(PhiGen,"generated #phi",100,-3.5,3.5);
-  BOOK1D(EtGen,"generated E_{T}",1000,0,1000);
+  BOOK1D(EtGen,"generated E_{T}",nbinsEt, minEt, maxEt);
   
 
   // number of truth particles found within given cone radius of reco
