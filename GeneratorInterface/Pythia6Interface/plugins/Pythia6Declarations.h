@@ -17,9 +17,10 @@ extern "C"
    void   pyglrhad_();
    void   pystlfr_();
    void   pystrhad_();
-   void   pygive_(const char *line, int length);
+   void   pygive_(const char* line, int length);
+   void   pydecy_( int& ip ) ;
    
-   void   txgive_(const char *line, int length);
+   void   txgive_(const char* line, int length);
    void   txgive_init_(void);
     
    static bool call_pygive(const std::string &line)

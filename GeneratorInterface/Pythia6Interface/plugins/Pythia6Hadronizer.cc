@@ -153,34 +153,32 @@ void Pythia6Hadronizer::finalizeEvent()
 
    // get pdf info directly from Pythia6 and set it up into HepMC::GenEvent
    //
+
+/* Note-1: mint/vint are internal interfaces, pari, the official one
+   http://cepa.fnal.gov/psm/simulation/mcgen/lund/pythia_manual/pythia6.3/pythia6301/node126.html#p:PARI
+   
+   Note-2: No, per explicit suggestions of Pythia6 developers, mint/vint are planned for the long run
+   
+*/
    if (pdf.id1() < 0)      pdf.set_id1( pyint1.mint[14] == 21 ? 0 : pyint1.mint[14] );
    if (pdf.id2() < 0)      pdf.set_id2( pyint1.mint[15] == 21 ? 0 : pyint1.mint[15] );
-   if (pdf.x1() < 0)       pdf.set_x1( pypars.pari[32] );
-   if (pdf.x2() < 0)       pdf.set_x2( pypars.pari[33] );
+   // if (pdf.x1() < 0)       pdf.set_x1( pypars.pari[32] );
+   // if (pdf.x2() < 0)       pdf.set_x2( pypars.pari[33] );
+   if (pdf.x1() < 0)       pdf.set_x1( pyint1.vint[40] );
+   if (pdf.x2() < 0)       pdf.set_x2( pyint1.vint[41] );
+//
 // FIXME: what is the CMS convention?  Make all generators consistent!!!
 // FIXME: check what pypars.pari[30] and pypars.pari[31] contain
-   if (pdf.pdf1() < 0)     pdf.set_pdf1( pypars.pari[28] / pypars.pari[32] );
-   if (pdf.pdf2() < 0)     pdf.set_pdf2( pypars.pari[29] / pypars.pari[33] );
-   if (pdf.scalePDF() < 0) pdf.set_scalePDF( pypars.pari[20] );
-
+//
+// Note: the convention (not just in CMS but wherever) is to use pdf/x
+//
+   // if (pdf.pdf1() < 0)     pdf.set_pdf1( pypars.pari[28] / pypars.pari[32] );
+   if (pdf.pdf1() < 0)     pdf.set_pdf1( pyint1.vint[38] / pyint1.vint[40] );
+   if (pdf.pdf2() < 0)     pdf.set_pdf2( pyint1.vint[39] / pyint1.vint[39] );
+   //if (pdf.scalePDF() < 0) pdf.set_scalePDF( pypars.pari[20] );
+   if (pdf.scalePDF() < 0) pdf.set_scalePDF( pyint1.vint[50] );
+   
    event()->set_pdf_info( pdf ) ;
-
-/* Note: mint/vint are internal interfaces, pari, the official one
-   http://cepa.fnal.gov/psm/simulation/mcgen/lund/pythia_manual/pythia6.3/pythia6301/node126.html#p:PARI
-
-   int id1 = pyint1.mint[14];
-   int id2 = pyint1.mint[15];
-   if ( id1 == 21 ) id1 = 0;
-   if ( id2 == 21 ) id2 = 0; 
-   double x1 = pyint1.vint[40];
-   double x2 = pyint1.vint[41];  
-   double Q  = pyint1.vint[50];
-   double pdf1 = pyint1.vint[38];
-   pdf1 /= x1 ;
-   double pdf2 = pyint1.vint[39];
-   pdf2 /= x2 ;
-   event()->set_pdf_info( HepMC::PdfInfo(id1,id2,x1,x2,Q,pdf1,pdf2) ) ;
-*/
 
 // FIXME similarly... vint -> pari?
    event()->weights().push_back( pyint1.vint[96] );
@@ -264,6 +262,155 @@ bool Pythia6Hadronizer::decay()
 
 bool Pythia6Hadronizer::residualDecay()
 {
+   
+   // int nDocLines = pypars.msti[3];
+   
+   // because the counter in HEPEVT might have been reset already, 
+   // get the Npart directly from pyjets
+   
+   int NPartsBeforeDecays = pyjets.n ;
+   int NPartsAfterDecays = event()->particles_size();
+   
+/* This is attempt to add to pyjets directly from GenEvent
+   rather than via HEPEVT;
+   apparently, I've scewed something up - will fix later...
+*/
+
+   std::vector<int> part_idx_to_decay;
+   
+   //
+   // here put additional info back to pyjets BY HANDS
+   //
+   
+   for ( int ipart=NPartsBeforeDecays+1; ipart<=NPartsAfterDecays; ipart++ )
+   {
+      HepMC::GenParticle* part = event()->barcode_to_particle( ipart );
+      int status = part->status();
+      int pdgid = part->pdg_id();
+      // add part to pyjets, with proper links/pointers
+      if ( status == 1 )
+      {
+         pyjets.k[0][ipart-1] = 1;
+      }
+      else if ( status = 2 )
+      {
+         pyjets.k[0][ipart-1] = 11;
+      }
+      else if ( status == 3 )
+      {
+         pyjets.k[0][ipart-1] = 21;
+      }
+      int py6id = pycomp_( pdgid );
+      pyjets.k[1][ipart-1] = pdgid;
+      HepMC::GenVertex* prod_vtx = part->production_vertex();
+      assert ( prod_vtx->particles_in_size() == 1 );
+      HepMC::GenParticle* mother = (*prod_vtx->particles_in_const_begin());      
+      int mother_id = mother->barcode();
+      pyjets.k[2][ipart-1] = mother_id;
+      //
+      // here also reset dauthters for this mother, if needs be
+      //
+      if ( mother->end_vertex() )
+      {
+         pyjets.k[3][mother_id-1] = ipart;
+         pyjets.k[4][mother_id-1] = ipart + mother->end_vertex()->particles_out_size();
+      }
+      //
+      //
+      HepMC::GenVertex* end_vtx = part->end_vertex();      
+      if ( end_vtx )
+      {
+        pyjets.k[3][ipart-1] = (*end_vtx->particles_out_const_begin())->barcode();
+        pyjets.k[4][ipart-1] = pyjets.k[3][ipart-1] + end_vtx->particles_out_size();
+      }
+      else
+      {
+         pyjets.k[3][ipart-1] = 0;
+         pyjets.k[4][ipart-1] = 0;
+      }
+      pyjets.p[0][ipart-1] = part->momentum().x();
+      pyjets.p[1][ipart-1] = part->momentum().y();
+      pyjets.p[2][ipart-1] = part->momentum().z();
+      pyjets.p[3][ipart-1] = part->momentum().t();
+      pyjets.p[4][ipart-1] = part->generated_mass();
+      //
+      // should I make any vtx adjustments, like in pyhepc(2) ???
+      //
+      pyjets.v[0][ipart-1] = prod_vtx->position().x();
+      pyjets.v[1][ipart-1] = prod_vtx->position().y();
+      pyjets.v[2][ipart-1] = prod_vtx->position().z();
+      pyjets.v[3][ipart-1] = prod_vtx->position().t();
+      pyjets.v[4][ipart-1] = 0.;
+      //
+      // here also fill in missing info on colour connection in jet systems
+      // see pyhep(2) as an example !!!
+      //
+/*
+          IF(ISTHEP(I).EQ.2.AND.PHEP(4,I).GT.PHEP(5,I)) THEN
+            I1=JDAHEP(1,I)
+            IF(I1.GT.0.AND.I1.LE.NHEP) V(I,5)=(VHEP(4,I1)-VHEP(4,I))*
+     &      PHEP(5,I)/PHEP(4,I)
+          ENDIF
+
+*/
+      if ( status == 2 && part->momentum().t() > part->generated_mass() )
+      {
+	 HepMC::GenParticle* daughter1 = event()->barcode_to_particle( pyjets.k[3][ipart-1] );
+	 if ( daughter1 ) 
+	 {
+	    pyjets.v[4][ipart-1] = (daughter1->production_vertex()->position()).t() 
+	                         - pyjets.v[3][ipart-1];
+	    pyjets.v[4][ipart-1] *= ( pyjets.p[4][ipart-1] / pyjets.p[3][ipart-1] );
+	 }
+      }
+      // check particle status and whether should be further decayed
+      pyjets.n++;
+      if ( status == 2 || status == 3 ) continue;
+      if ( abs(pdgid) < 100 ) continue;
+      if ( abs(pdgid) == 211 || abs(pdgid) == 321 || abs(pdgid) == 130 || abs(pdgid) == 310 ) continue;
+      // 
+      // now mark for  decay
+      //
+      part_idx_to_decay.push_back(ipart);
+      // etc.
+   }
+   
+   for ( size_t ip=0; ip<part_idx_to_decay.size(); ip++ )
+   {         
+      pydecy_(part_idx_to_decay[ip]);
+   }
+
+
+
+   // this will work with Tauola ONLY - the right scheme is above; 
+   // I think I've fixed it but am still double checking... 
+/*
+   call_pyhepc(2);
+   
+   for ( int iParticle=NPartsBeforeDecays+1; iParticle<=NPartsAfterDecays; iParticle++ )
+   {
+      int particleStatus = pyjets.k[0][iParticle - 1];
+      if ( particleStatus > 0 &&
+	   particleStatus < 10 ) {
+	int particleType = abs(pyjets.k[1][iParticle - 1]);
+	
+	if ( particleType >= 100 ) {
+	  if ( particleType != 211 &&   // PI+- 
+	       particleType != 321 &&   // K+- 
+	       particleType != 130 &&   // KL 
+	       particleType != 310 ) {  // KS
+	    pydecy_(iParticle);
+	  }
+	}
+      }
+
+   }
+*/
+        
+   call_pyhepc(1);
+   
+   event().reset( conv.read_next_event() );
+   
    return true;
 }
 
