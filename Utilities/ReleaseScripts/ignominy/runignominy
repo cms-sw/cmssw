@@ -651,6 +651,9 @@ mkdiag() {
   sel=$1; shift
   title=$1; shift
   restrict=$1; shift
+  if [ "X$dot" = "X" ]; then
+    exit 1
+  fi
 
   R= res_title=
   if [ X"$restrict" != X ]; then
