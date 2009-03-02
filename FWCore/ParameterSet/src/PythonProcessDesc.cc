@@ -43,15 +43,16 @@ PythonProcessDesc::PythonProcessDesc(std::string const& config, int argc, char *
 
 void PythonProcessDesc::prepareToRead()
 {
-  PyImport_AppendInittab( "libFWCoreParameterSet", &initlibFWCoreParameterSet );
+  char *libFWCoreParameterSet = const_cast<char *>("libFWCoreParameterSet");
+  PyImport_AppendInittab(libFWCoreParameterSet, &initlibFWCoreParameterSet );
   Py_Initialize();
   if(!initialized_)
   {
-    PyImport_ImportModule("libFWCoreParameterSet");
+    PyImport_ImportModule(libFWCoreParameterSet);
     initialized_ = true;
   }
 
-  theMainModule = object(handle<>(borrowed(PyImport_AddModule("__main__"))));
+  theMainModule = object(handle<>(borrowed(PyImport_AddModule(const_cast<char *>("__main__")))));
 
   theMainNamespace = theMainModule.attr("__dict__");
   theMainNamespace["processDesc"] = ptr(this);

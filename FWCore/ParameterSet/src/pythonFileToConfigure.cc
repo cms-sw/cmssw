@@ -24,7 +24,7 @@ std::string edm::pythonFileToConfigure(const std::string& iPythonFileName)
   using namespace boost::python;
   
   object main_module((
-                      boost::python::handle<PyObject>(borrowed(PyImport_AddModule("__main__")))));
+                      boost::python::handle<PyObject>(borrowed(PyImport_AddModule(const_cast<char *>("__main__"))))));
   object main_namespace = main_module.attr("__dict__");
   try {
     try {

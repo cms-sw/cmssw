@@ -42,8 +42,8 @@ void dumpInitHeader(const InitMsgView* view)
   view->pset(vpset); 
 
   //Lets convert it to printable hex form
-  vpset[16]='\0';
-  std::string pset_str((char*) &vpset[0]);
+  std::string pset_str(vpset, vpset+sizeof(vpset));
+  pset_str += '\0';
   cms::Digest dig(pset_str);
   cms::MD5Result r1 = dig.digest();
   std::string hexy = r1.toString();
