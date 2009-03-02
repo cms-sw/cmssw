@@ -11,9 +11,9 @@ particleFlowBlock = cms.EDProducer("PFBlockProducer",
     # max chi2 for element associations in PFBlocks
     pf_chi2_ECAL_Track = cms.double(0.0),
     pf_chi2_HCAL_Track = cms.double(0.0),
-    pf_chi2_PS_Track = cms.double(100.0),
+    pf_chi2_PS_Track = cms.double(0.0),
     pf_chi2_ECAL_HCAL = cms.double(0.0),
-    pf_chi2_PSH_PSV = cms.double(5.0),
+    pf_chi2_PSH_PSV = cms.double(0.0),
     pf_chi2_ECAL_PS = cms.double(0.0),
     pf_chi2_ECAL_GSF = cms.double(900.0),
     pf_multilink = cms.bool(True),
@@ -51,7 +51,10 @@ particleFlowBlock = cms.EDProducer("PFBlockProducer",
     pf_DPtoverPt_Cut = cms.vdouble(1.0,1.0,0.80,0.50),
     pf_NHit_Cut = cms.vuint32(3,3,3,6),
                                    
+    # Run particle flow at HLT (hence no RecMuons, no GSF tracks)
+    usePFatHLT = cms.bool(False),
 
+    # Debug flag
     debug = cms.untracked.bool(False)
 )
 

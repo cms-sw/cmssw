@@ -72,6 +72,8 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
   bool debug_ = 
     iConfig.getUntrackedParameter<bool>("debug",false);
 
+  usePFatHLT_ = iConfig.getParameter<bool>("usePFatHLT");
+
   useNuclear_ = iConfig.getParameter<bool>("useNuclear");
 
   useConversions_ = iConfig.getParameter<bool>("useConversions");
@@ -199,17 +201,21 @@ void PFBlockProducer::produce(Event& iEvent,
 
   // get GsfTracks 
   Handle< reco::GsfPFRecTrackCollection > GsfrecTracks;
-  found = iEvent.getByLabel(inputTagGsfRecTracks_,GsfrecTracks);
-  if(!found )
-    LogError("PFBlockProducer")<<" cannot get Gsfrectracks: "
-			       << inputTagGsfRecTracks_ <<endl;
- 
+
+  if(!usePFatHLT_) {
+    found = iEvent.getByLabel(inputTagGsfRecTracks_,GsfrecTracks);
+
+    if(!found )
+      LogError("PFBlockProducer")<<" cannot get Gsfrectracks: "
+				 << inputTagGsfRecTracks_ <<endl;
+  }
   // get recmuons
 
   Handle< reco::MuonCollection > recMuons;
 
   // LogDebug("PFBlockProducer")<<"get reco muons"<<endl;
-  found = iEvent.getByLabel(inputTagRecMuons_, recMuons);
+  if(usePFatHLT_) {
+    found = iEvent.getByLabel(inputTagRecMuons_, recMuons);
   
   //if(!found )
   //  LogError("PFBlockProducer")<<" cannot get recmuons: "
@@ -217,7 +223,7 @@ void PFBlockProducer::produce(Event& iEvent,
 
 
   // get PFNuclearInteractions
-
+  }
   Handle< reco::PFNuclearInteractionCollection > pfNuclears;
   if( useNuclear_ ) {
     found = iEvent.getByLabel(inputTagPFNuclear_, pfNuclears);
@@ -280,16 +286,22 @@ void PFBlockProducer::produce(Event& iEvent,
     LogError("PFBlockProducer")<<" cannot get PS clusters: "
 			       <<inputTagPFClustersPS_<<endl;
     
-  
-  pfBlockAlgo_.setInput( recTracks, 
-			 GsfrecTracks,
-			 recMuons, 
-                         pfNuclears,
-                         pfConversions,
-			 pfV0,
-			 clustersECAL,
-			 clustersHCAL,
-			 clustersPS );
+  if( usePFatHLT_  ) {
+     pfBlockAlgo_.setInput( recTracks, 			   
+			   clustersECAL,
+			   clustersHCAL,
+			   clustersPS );
+  } else { 
+    pfBlockAlgo_.setInput( recTracks, 
+			   GsfrecTracks,
+			   recMuons, 
+			   pfNuclears,
+			   pfConversions,
+			   pfV0,
+			   clustersECAL,
+			   clustersHCAL,
+			   clustersPS );
+  }
   pfBlockAlgo_.findBlocks();
   
   if(verbose_) {
