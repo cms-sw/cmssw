@@ -1,9 +1,14 @@
-/** \file
- *
- *  $Date: 2008/06/17 18:28:56 $
- *  $Revision: 1.7 $
- *  \author Andre Sznajder - UERJ(Brazil)
- */
+///
+/// An ESProducer that fills the MuonDigiGeometryRcd with a misaligned Muon
+/// 
+/// This should replace the standard DTGeometry and CSCGeometry producers 
+/// when producing Misalignment scenarios.
+///
+/// \file
+/// $Date: 2008/06/17 18:28:56 $
+/// $Revision: 1.7 $
+/// \author Andre Sznajder - UERJ(Brazil)
+///
  
 
 // Framework
@@ -11,6 +16,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducts.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // Conditions database
@@ -23,17 +30,58 @@
 #include "Alignment/MuonAlignment/interface/MuonScenarioBuilder.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h" 
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
-#include "Alignment/MuonAlignment/plugins/MisalignedMuonESProducer.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/DTGeometryBuilder/src/DTGeometryBuilderFromDDD.h"
+#include "Geometry/CSCGeometryBuilder/src/CSCGeometryBuilderFromDDD.h"
 
-///
-/// An ESProducer that fills the MuonDigiGeometryRcd with a misaligned Muon
-/// 
+#include <boost/shared_ptr.hpp>
 #include <memory>
+
+
+class MisalignedMuonESProducer: public edm::ESProducer
+{
+public:
+
+  /// Constructor
+  MisalignedMuonESProducer( const edm::ParameterSet & p );
+  
+  /// Destructor
+  virtual ~MisalignedMuonESProducer(); 
+  
+  /// Produce the misaligned Muon geometry and store it
+  edm::ESProducts< boost::shared_ptr<DTGeometry>,
+ 				   boost::shared_ptr<CSCGeometry> > produce( const MuonGeometryRecord&  );
+
+  /// Save alignemnts and error to database
+  void saveToDB();
+  
+private:
+  const bool theSaveToDB; /// whether or not writing to DB
+  const edm::ParameterSet theScenario;  /// misalignment scenario
+
+  std::string theDTAlignRecordName, theDTErrorRecordName;
+  std::string theCSCAlignRecordName, theCSCErrorRecordName;
+  
+  boost::shared_ptr<DTGeometry> theDTGeometry;
+  boost::shared_ptr<CSCGeometry> theCSCGeometry;
+
+  Alignments*      dt_Alignments;
+  AlignmentErrors* dt_AlignmentErrors;
+  Alignments*      csc_Alignments;
+  AlignmentErrors* csc_AlignmentErrors;
+
+};
+
+//__________________________________________________________________________________________________
+//__________________________________________________________________________________________________
+//__________________________________________________________________________________________________
 
 
 //__________________________________________________________________________________________________
 MisalignedMuonESProducer::MisalignedMuonESProducer(const edm::ParameterSet& p) :
-  theParameterSet( p ),
+  theSaveToDB(p.getUntrackedParameter<bool>("saveToDbase")),
+  //  theScenario(p.getParameter<edm::ParameterSet>("scenario")), // does not yet work...
+  theScenario(p),
   theDTAlignRecordName( "DTAlignmentRcd" ),
   theDTErrorRecordName( "DTAlignmentErrorRcd" ),
   theCSCAlignRecordName( "CSCAlignmentRcd" ),
@@ -67,8 +115,7 @@ MisalignedMuonESProducer::produce( const MuonGeometryRecord& iRecord )
   DTGeometryBuilderFromDDD  DTGeometryBuilder;
   CSCGeometryBuilderFromDDD CSCGeometryBuilder;
 
-  theDTGeometry = boost::shared_ptr<DTGeometry>(new DTGeometry );
-  DTGeometryBuilder.build(theDTGeometry,  &(*cpv), *mdc );
+  theDTGeometry   = boost::shared_ptr<DTGeometry>(  DTGeometryBuilder.build( &(*cpv), *mdc ) );
   //theCSCGeometry  = boost::shared_ptr<CSCGeometry>( CSCGeometryBuilder.build( &(*cpv), *mdc ) );
   theCSCGeometry  = boost::shared_ptr<CSCGeometry>( new CSCGeometry );
   CSCGeometryBuilder.build( theCSCGeometry,  &(*cpv), *mdc );
@@ -79,7 +126,7 @@ MisalignedMuonESProducer::produce( const MuonGeometryRecord& iRecord )
 
   // Create misalignment scenario
   MuonScenarioBuilder scenarioBuilder( theAlignableMuon );
-  scenarioBuilder.applyScenario( theParameterSet );
+  scenarioBuilder.applyScenario( theScenario );
   
   // Get alignments and errors
   dt_Alignments = theAlignableMuon->dtAlignments() ;
@@ -101,7 +148,7 @@ MisalignedMuonESProducer::produce( const MuonGeometryRecord& iRecord )
 					AlignTransform() );  
 
   // Write alignments to DB
-  if ( theParameterSet.getUntrackedParameter<bool>("saveToDbase", false) ) saveToDB();
+  if (theSaveToDB) this->saveToDB();
 
   edm::LogInfo("MisalignedMuon") << "Producer done";
 
