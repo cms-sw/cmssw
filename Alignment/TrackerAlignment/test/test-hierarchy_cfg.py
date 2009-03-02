@@ -30,12 +30,11 @@ process.load("CalibTracker.Configuration.TrackerAlignment.TrackerAlignment_Fake_
 
 ## ... or testing any of the scenarios from cff
 #process.load("Alignment.TrackerAlignment.MisalignedTracker_cfi")
-#import Alignment.TrackerAlignment.Scenarios_cff as Scenarios
-##process.MisalignedTracker.scenario = Scenarios.SurveyLASOnlyScenario
-##process.MisalignedTracker.scenario = Scenarios.SurveyLASCosmicsScenario
-#process.MisalignedTracker.scenario = Scenarios.TrackerCRAFTScenario
-##process.MisalignedTracker.scenario = Scenarios.Tracker1000pbScenario
-
+#import Alignment.TrackerAlignment.Scenarios_cff as _Scenarios
+##process.MisalignedTracker.scenario = _Scenarios.TrackerSurveyLASOnlyScenario
+##process.MisalignedTracker.scenario = _Scenarios.TrackerSurveyLASCosmicsScenario
+#process.MisalignedTracker.scenario = _Scenarios.TrackerCRAFTScenario
+##process.MisalignedTracker.scenario = _Scenarios.Tracker1000pbScenario
 
 # Message logger service
 process.load("FWCore.MessageService.MessageLogger_cfi")
