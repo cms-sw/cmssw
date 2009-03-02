@@ -1,0 +1,70 @@
+#!/bin/sh
+
+cd $DEPDIR
+
+rm -f index*.html
+{ echo "<HEAD><TITLE>$APP Dependency Information</TITLE></HEAD>"
+  echo "<FRAMESET BORDER=1 ROWS='50%, *'>"
+  echo "  <FRAME SRC='index-links.html' NAME='DIAGRAMS'>"
+  echo "  <FRAME SRC='dependencies.txt' NAME='GIF'>"
+  echo "</FRAMESET>"
+  echo "</HTML>"
+} > index.html
+
+{ echo "<HEAD><TITLE>$APP Dependency Information</TITLE></HEAD>"
+  echo "<BODY BGCOLOR='#ffffff'>"
+  echo "<H1>$APP Dependency Information</H1>"
+  echo "<P><A TARGET='GIF' HREF='dependencies.txt'>Dependency data</A></P>"
+  echo "<P><A TARGET='GIF' HREF='xdeps.html'>Dependency statistics</A></P>"
+  echo "<P><A TARGET='GIF' HREF='metrics'>Metrics</A></P>"
+  echo "<P><A TARGET='GIF' HREF='log.gz'>Log</A> | <A TARGET='GIF' HREF='logwarnings'>Warnings only</A></P>"
+  echo "<P>Extra detail: <A TARGET='GIF' HREF='xdeps.all'>All</A> |"
+  echo "<A TARGET='GIF' HREF='xdeps.inc'>Includes</A> | <A TARGET='GIF' HREF='xdeps.incdetail'>Includes (detailed)</A> |"
+  echo "<A TARGET='GIF' HREF='xdeps.lib'>Libraries</A> | <A TARGET='GIF' HREF='xdeps.lib-raw'>Libraries (raw)</A></P>"
+  echo "<P><HR BORDER='1'>"
+  echo "<P>C: Concentrated; L: Logical; M: Maximial Logical; R: Restricted to Domain<BR>"
+  echo "B: Binary Only; PP: PACKAGE Dependencies<BR>"
+  echo "P: By Package Purpose; O: By Package Origin<BR>"
+  echo "S: Only longest edges kept</P>"
+  echo "<TABLE BORDER='0'>"
+  echo "<TR BGCOLOR='#ffff00'><TH COLSPAN='2'>Diagram</TH><TH COLSPAN='5'>Plots</TH></TR>"
+  for f in *.gif; do
+    [ -f $f ] || continue
+    base=`echo $f | sed 's/\.[^.]*$//'`
+    ps=$base.ps
+    gif=$base.gif
+    name="`echo $base|sed 's/^[A-Z0-9]*-//;s/^0[012]-//;s/-/ /g'`"
+    namebeg="`echo $base|sed 's/^[A-Z0-9]*-//;s/^0[012]-//;s/-[A-Z]*$//;s/-/ /g'`"
+    nametrail="`echo $base|sed 's/.*-\([A-Z]*\)$/\1/'`"
+    [ $nametrail = $base ] && nametrail='&nbsp;'
+
+    echo "<TR>"
+    echo "  <TD>$nametrail</TD>"
+    echo "  <TD><A NAME='$base'>$namebeg</A></TD>"
+    echo "  <TD><A TARGET="GIF" HREF='$gif.html'>GIF</A></TD>"
+    echo "  <TD>| <A HREF='$ps.gz'>PS</A></TD>"
+    if [ -f A4-$ps ]; then
+      echo "  <TD>| <A HREF='A4-$ps.gz'>PS (A4 scaled)</A></TD>"
+    else
+      echo "  <TD>| PS (A4 scaled)</TD>"
+    fi
+    if [ -f $base.hpgl ]; then
+      echo "  <TD>| <A HREF='$base.hpgl'>HPGL</A></TD>"
+    else
+      echo "  <TD>| HPGL</TD>"
+    fi
+
+    echo "  <TD>| <A HREF='$base.dot'>DOT</A></TD>"
+    echo "</TR>"
+
+    { echo "<HEAD><TITLE>$APP Dependency Information: $name</TITLE></HEAD>"
+      echo "<BODY BGCOLOR='#ffffff'>"
+      echo "<H1>$APP Dependency Information: $name</H1>"
+      echo "<P><IMG BORDER='0' SRC='$f' USEMAP='#MAP-${base}'>"
+      ps2map --target=DIAGRAMS `grep "^$base " .scales | sed 's/^/MAP-/'` $ps
+     } > $gif.html
+  done
+  echo "</TABLE>"
+} > index-links.html
+
+gzip --best log *.ps

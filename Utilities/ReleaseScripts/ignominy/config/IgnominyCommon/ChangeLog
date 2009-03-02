@@ -1,0 +1,60 @@
+2006-01-12  Shahzad Muzaffar  <Shahzad.Muzaffar@cern.ch>
+
+	* iggnuplot.conf, IgGNUPlotTemplate_CMS.gnu: Newly added config files
+	for iggunplot script.
+
+2005-06-03  Shahzad Muzaffar  <Shahzad.Muzaffar@cern.ch>
+
+	* path.conf: Added "option match pre-gen".
+
+2005-05-02  Shahzad Muzaffar  <Shahzad.Muzaffar@cern.ch>
+
+	* exclude-graphs, group-domain.conf, group-origin.conf,
+	group-purpose.conf, rename-origin.conf, rename-short.conf,
+	skip-graphs-packages, skip-graphs-subsystems: Moved to IgnominySCRAM.
+	* IgnominyConf, searchPath, setEnv: Aded new scripts, to provide
+	additional ignominy configuration, src/bin search rules and setting
+	environment.
+
+2005-03-08  Shahzad Muzaffar  <Shahzad.Muzaffar@cern.ch>
+
+	* *: Changed LHC++ to LHCxx.
+
+2004-04-19  Shahzad Muzaffar  <Shahzad.Muzaffar@cern.ch>
+
+	* path.conf: Moved common stuff from different projects in here.
+
+2004-04-15  Shahzad Muzaffar  <Shahzad.Muzaffar@cern.ch>
+
+	* exclude-graphs, group-*.conf, path.conf, rename-*.conf, skip-graphs-*,
+	url.conf: Added new rules, moved common stuff in here.
+	
+2004-03-18  Shahzad Muzaffar  <Shahzad.Muzaffar@cern.ch>
+
+	* path.conf: more rules added for rejecting the PI/libTest*.so
+
+2004-01-14  Shahzad Muzaffar  <Shahzad.Muzaffar@cern.ch>
+
+	* path.conf: libglib-*.so and libgts-*.so libraries ignored.
+	
+2003-11-12  Shahzad Muzaffar  <Shahzad.Muzaffar@cern.ch>
+
+	* exclude-graphs: Newly added file.
+	
+	* group-domain.conf, group-origin.conf, group-purpose.conf: coloring
+	for different externals updated.
+	
+	* path.conf: Updated for missing seal libs.
+	
+	* skip-graphs-packages, skip-graphs-subsystems: Updated to skip different
+	subsystems/packages.
+	
+	* url.conf: undefine all externals and lcg projects.
+	
+	* rename-origin.conf: Updated to rename all externals.
+	
+2003-10-15  Shahzad Muzaffar  <Shahzad.Muzaffar@cern.ch>
+
+	* group-domain.conf, group-origin.conf, group-purpose.conf,
+	path.conf, rename-origin.conf, rename-short.conf, skip-graphs-packages,
+	skip-graphs-subsystems, url.conf: Newly added configuration files.

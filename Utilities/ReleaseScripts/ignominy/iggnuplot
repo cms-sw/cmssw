@@ -1,0 +1,332 @@
+#!/usr/bin/env perl
+use File::Basename;
+use Getopt::Long;
+$|=1;
+
+local $SCRIPT_DIR=dirname($0);
+&GetOptions(
+            "config=s",\$config,
+	    "xscale=f",\$xscale,
+	    "yscale=f",\$yscale,
+	    "cols=i",\$cols,
+	    "field=s",\@fields,
+	    "key=s",\%KEYS,
+	    "help",\$help,
+	    "eps",\$eps,
+	    "sfile=s",\$sfile,
+          );
+
+my $tmp="";
+my %KEYS_INT=();
+local %IKEYS=();
+$IKEYS{FIELD}=1;
+
+local %KEYS_EXTRA=();
+$KEYS_INT{SCRIPT_DIR}=$SCRIPT_DIR;
+$tmp=`whoami`; chomp $tmp; $KEYS_INT{USER}=$tmp;
+$tmp=`/bin/pwd`; chomp $tmp; $KEYS_INT{PWD}=$tmp;
+$KEYS_INT{TIME}=time;
+$KEYS_INT{PID}=$$;
+$KEYS_INT{PPID}=getppid();
+$KEYS_INT{INSTALL_DIR}=$SCRIPT_DIR;
+$KEYS_INT{THIS_DIR}="";
+
+if(defined $help){&IGGNUPlot::help();}
+
+foreach my $k (keys %KEYS)
+{
+  if(exists $KEYS_INT{$k}){print "WARNING: \"$k\" is an internal key and you should not be passing it via command-line.\n";}
+  $KEYS{$k}=&IGGNUPlot::expandValue($KEYS{$k});
+}
+
+if((!defined $config) || ($config=~/^\s*$/)){$config="${SCRIPT_DIR}/iggnuplot.conf";}
+if(!-f $config){die "Can not find the configuration file \"$config\".";}
+$KEYS_INT{THIS_DIR}=dirname($config);
+
+if((defined $sfile) && (!-f $sfile))
+{die "Specific search file \"$file\" does not exist.";}
+
+if((!defined $xscale) || ($xscale=~/^\s*$/) || ($xscale<=0)){$xscale=1;}
+if((!defined $yscale) || ($yscale=~/^\s*$/) || ($yscale<=0)){$yscale=1;}
+if((!defined $cols)   || ($cols=~/^\s*$/)   || ($cols<=0)){$cols=1;}
+if(defined $eps){$eps=1;}
+else{$eps=0;}
+
+if((defined @fields) && (@fields > 0))
+{
+  my %fields1=();
+  my @fields2=();
+  foreach my $d (@fields)
+  {
+    foreach my $d1 (split /,/, $d)
+    {
+      if($d1=~/^\s*([^\s]+)\s*$/)
+      {
+        $d1=$1;
+	if(!exists $fields1{$d1}){$fields1{$d1}=1; push @fields2,$d1;}
+      }
+    }
+  }
+  @fields=@fields2;
+}
+
+if(@fields==0){die "You must atleast use one --field <field> command-line option.";}
+
+&IGGNUPlot::readConfig($config);
+if(!exists $KEYS{FILTER})
+{die "Missing FILTER key(s) in \"$config\" file.";}
+elsif((!exists $KEYS{FILES}) || ($KEYS{FILES}=~/^\s*$/))
+{die "Missing \"FILES\" keys in the \"$config\" file.";}
+elsif((!exists $KEYS{XTAG}) || ($KEYS{XTAG}=~/^\s*$/))
+{die "Missing \"XTAG\" key in the \"$config\" file.";}
+
+my $template="";
+if((!exists $KEYS{TEMPLATE}) || ($KEYS{TEMPLATE}=~/^\s*$/))
+{$template="${SCRIPT_DIR}/Template.gnu";}
+else{$template=$KEYS{TEMPLATE};}
+if(!-f $template)
+{die "Missing gnuplot template file for common.";}
+
+my $searchFunction="IGGNUPlot::fileSearchFunc";
+if($sfile)
+{
+  require $sfile;
+  $searchFunction="specialSearchFunction";
+}
+
+my %cache=();
+my @sorted=();
+foreach my $file (`ls $KEYS{FILES}`)
+{
+  chomp $file;
+  my $xtag=$KEYS{XTAG};
+  $file=~/$xtag/;
+  my $ver=$1;
+  if($ver eq ""){next;}
+  foreach my $k (@fields)
+  {$cache{$ver}{$k}=0;}
+  push @sorted, $ver;
+  foreach my $f (@fields)
+  {
+    foreach my $filter (keys %{$KEYS{FILTER}})
+    {
+      $KEYS_EXTRA{FIELD}=$f;
+      $filter=&IGGNUPlot::expandValue("$filter", 1);
+      my $value=&$searchFunction($file,$filter);
+      if(defined $value)
+      {$cache{$ver}{$f}=$value;last;}
+      delete $KEYS_EXTRA{FIELD};
+    }
+  }
+}
+
+my $count=scalar(@sorted);
+if($count==0)
+{print "Nothing to plot for $PROJECT release.\n"; exit 0;}
+else
+{ 
+  my $maxVersions=$KEYS{MAX_XCOUNT} || 10;
+  my $xscale1=1+($count-($count%$maxVersions))/$maxVersions;
+  $xscale*=$xscale1;
+  open(GNUFILE, ">common.gnu") || die "Can not open common.gnu for writing.";
+  open(DATAFILE, ">common.data") || die "Can not open common.data for writing.";
+  print GNUFILE "set xtics (  \\\n";
+  print DATAFILE "#Tag_Index ".join(" ", @fields)."\n";
+  my $i=0;
+  for($i=0;$i<$count-1;$i++)
+  {
+    my $ver=$sorted[$i];
+    print GNUFILE  "\t\"$ver\" $i, \\\n";
+    print DATAFILE "$i ";
+    foreach my $k (@fields)
+    {print DATAFILE $cache{$ver}{$k}." ";}
+    print DATAFILE "\n";
+  }
+  my $ver=$sorted[$i];
+  print GNUFILE  "\t\"$ver\" $i )\n";
+  print DATAFILE "$i ";
+  foreach my $k (@fields)
+  {print DATAFILE $cache{$ver}{$k}." ";}
+  print DATAFILE "\n";
+  print GNUFILE "set size $xscale,$yscale\n";
+  print GNUFILE "set grid\n";
+  print GNUFILE "set term postscript eps color solid\n";
+  print GNUFILE "set data style linespoints\n";
+  close(GNUFILE);
+  close(DATAFILE);
+}
+
+if(@fields>1)
+{
+  open(ALLINONEFILE, ">AllInOne.gnu") || die "Can not open AllInOne.gnu for writing.";
+  my $ydiv=1;
+  my $total=@fields-1;
+  if(($total%$cols)==0){$ydiv=0;}
+  my $ydiv=@fields;
+  if($cols>1)
+  {$ydiv=(@fields+($cols-(@fields%$cols)))/$cols;}
+  my $delta=0.1;
+
+  print ALLINONEFILE "load \"common.gnu\"\n";
+  print ALLINONEFILE "set size ",$cols*$xscale,",",($ydiv+$delta)*$yscale,"\n";
+  print ALLINONEFILE "set output 'AllInOne.eps'\n";
+  print ALLINONEFILE "set multiplot\n";
+  my $label="Results";
+  if(exists $KEYS{ALLINONE_LABEL}){$label=$KEYS{ALLINONE_LABEL};}
+  print ALLINONEFILE "set label \"$label\" at screen ",$xscale*$cols/2,",",$yscale*$delta/2," center\n";
+  print ALLINONEFILE "set size $xscale,$yscale\n\n";
+
+  for(my $i=0; $i<@fields; $i++)
+  {
+    my $k=$fields[$i];
+    my $index=$i+2;
+    $KEYS_EXTRA{FIELD}=$k;
+    $KEYS_EXTRA{INDEX}=$index;
+    
+    print ALLINONEFILE "set origin ",($i%$cols)*$xscale,",",($ydiv-1)-$yscale*(($i-$i%$cols)/$cols)+$delta,"\n";
+    print ALLINONEFILE "plot 'common.data' using 1:$index title \"$k\"\n\n";
+  
+    open(XFILE, ">$k.gnu") || die "Can not open $k.gnu file for writing.";
+    foreach my $line (`cat $template`)
+    {
+      chomp $line;
+      $line=&IGGNUPlot::expandValue($line,1);
+      print XFILE "$line\n";
+    }
+    close("$k.gnu");
+    delete $KEYS_EXTRA{FIELD};
+    delete $KEYS_EXTRA{INDEX};
+    if($eps)
+    {system("gnuplot $k.gnu"); print "$k.eps Done\n";}
+  }
+  print ALLINONEFILE "exit\n";
+  close(ALLINONEFILE);
+  if($eps)
+  {system("gnuplot AllInOne.gnu");print "AllInOne.eps Done\n";}
+}
+else
+{
+  for(my $i=0; $i<@fields; $i++)
+  {
+    my $k=$fields[$i];
+    my $index=$i+2;
+    $KEYS_EXTRA{FIELD}=$k;
+    $KEYS_EXTRA{INDEX}=$index;
+    open(XFILE, ">$k.gnu") || die "Can not open $k.gnu file for writing.";
+    foreach my $line (`cat $template`)
+    {
+      chomp $line;
+      $line=&IGGNUPlot::expandValue($line,1);
+      print XFILE "$line\n";
+    }
+    close("$k.gnu");
+    delete $KEYS_EXTRA{FIELD};
+    delete $KEYS_EXTRA{INDEX};
+    if($eps)
+    {system("gnuplot $k.gnu");print "$k.eps Done\n";}
+  }
+}
+
+
+sub IGGNUPlot::readConfig ()
+{
+  my $config=shift || return;
+  foreach my $line (`cat $config`)
+  {
+    chomp $line;
+    if($line=~/^\s*(#.*|)$/){next;}
+    if($line=~/^\s*FILTER\s*=(.+)$/)
+    {$KEYS{FILTER}{&IGGNUPlot::expandValue($1)}=1;}
+    elsif($line=~/^\s*(.+?)\s*=\s*(.+?)\s*$/)
+    {
+      my $k=&IGGNUPlot::expandValue($1);
+      if(exists $KEYS{$k}){next;}
+      my $v=&IGGNUPlot::expandValue($2);
+      $KEYS{$k}=$v;
+    }
+  }
+}
+
+sub IGGNUPlot::expandValue ()
+{
+  my $value=shift || return "";
+  my $noikeys=shift;
+  my $error=0;
+  my $newvalue="";
+  while($value=~/^(.*?)\$\{(.+?)\}(.*)$/)
+  {
+    $value=$3;
+    $newvalue="${newvalue}$1";
+    my $key=$2;
+    if((!defined $noikeys) && (exists $IKEYS{$key}))
+    {$newvalue="${newvalue}\$\{$key\}";}
+    elsif(exists $KEYS_EXTRA{$key}){$newvalue="${newvalue}".&IGGNUPlot::expandValue($KEYS_EXTRA{$key},$noikeys);}
+    elsif(exists $KEYS_INT{$key})  {$newvalue="${newvalue}".&IGGNUPlot::expandValue($KEYS_INT{$key},$noikeys);}
+    elsif(exists $KEYS{$key})      {$newvalue="${newvalue}".&IGGNUPlot::expandValue($KEYS{$key},$noikeys);}
+    elsif(exists $ENV{$key})       {$newvalue="${newvalue}".&IGGNUPlot::expandValue($ENV{$key},$noikeys);}
+    else
+    {
+      while($value=~s/\$\{$key\}//){}
+      print "ERROR: The variable \"$key\" is not passed using \"--key $key=value\" and also not available in your environment variables.\n";
+      $error=1;
+    }
+  }
+  $newvalue="${newvalue}${value}";
+  if($error){exit 1;}
+  return $newvalue;
+}
+
+sub IGGNUPlot::fileSearchFunc ()
+{
+  my $file=shift || return undef;
+  my $filter=shift || return undef;
+  if(!-f $file){return undef;}
+  foreach my $line (`cat $file`)
+  {
+    chomp $line;
+    if($line=~/$filter/)
+    {return $1;}
+  }
+  return undef;
+}
+
+sub IGGNUPlot::usage ()
+{
+  print "$0 \\\n";
+  print "\t[--help] [--eps] [--config <configfile>] \\\n";
+  print "\t[--xscale <xscale>] [--yscale <yscale>] \\\n";
+  print "\t[--cols <number of graphs per row>] \\\n";
+  print "\t[--field <comma separated list> [--field <comma separated list> [...]]] \\\n";
+  print "\t[--key <key=value> [--key <key=value> [...]]]\\\n";
+  print "\t[--sfile <file>]\n\n";
+}
+
+sub IGGNUPlot::help()
+{
+  &IGGNUPlot::usage();
+  print "This script is to help you to generate grapghs using gnuplot. Idea is that you have many files\n";
+  print "in different directories and you want to search all these files and plot it. e.g. you have \n";
+  print "/home/dir1/file, /home/dir2/file, /home/dir3/file.../home/dirn/file and each file contains a field\n";
+  print "  \"MyData <some number>\"\nNow you want to generate a plot b/w dirname and MyData then this script\n";
+  print "will search all the files and generate plots. (filters for file names, field search hould be\n";
+  print "available in the configuration file. for this example your configuration file should look like\n\n";
+  print "TEMPLATE=\${THIS_DIR}/IgGNUPlotTemplate_CMS.gnu\n";
+  print "FILES=/home/dir*/file\n";
+  print "FILTER=^\\s*\${FIELD}\\s+(\\d+(\\.\\d+|))\\s*\$\n";
+  print "XTAG=\\/home\\/(dir\\d+)\\/.+\n";
+  print "ALLINONE_LABEL=My test data results\n";
+  print "TEMPLATE_XLABEL=Version(s)\n";
+  print "TEMPLATE_TITLE=Version(s) vs \${FIELD}\n\n";
+  print "Command-line argument keys override the keys defined in the configuration file.\n\n"; 
+  print "One can write a perl script with specialSearchFunction(file, filter); sub-routine in it to\n";
+  print "implement a special search method. e.g. if you want to plot the size of same file exist in different\n";
+  print "version then your sfile could have some thing like\n";
+  print "  sub specialSearchFunction(){\n";
+  print "    my \$file=shift;\n";
+  print "    my \$filter=shift;\n";
+  print "    my \@data=stat \$file;\n";
+  print "    return \$data[7];\n";
+  print "  }\n";
+  print "  1;\n\n";
+  exit 0;
+}

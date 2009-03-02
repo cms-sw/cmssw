@@ -1,0 +1,45 @@
+2007-06-07  Shahzad Muzaffar  <Shahzad.Muzaffar@cern.ch>
+
+	* path.conf: Added library-name options for ignominy.
+	* searchPath: Searching of plugins directory also add, more configuration
+	options added. 
+
+2007-01-31  Shahzad Muzaffar  <Shahzad.Muzaffar@cern.ch>
+
+	* searchPath: Package finding option for ignominy fix, added
+	CORAL as LCG project, bug fixed due to which libdir for an external
+	tool changed if the actual library in that directory is a symbolic link.
+
+2006-04-18  Shahzad Muzaffar  <Shahzad.Muzaffar@cern.ch>
+
+	* searchPath: Now ignores all the libs and bins from the test/bin area. 
+
+2005-12-16  Shahzad Muzaffar  <Shahzad.Muzaffar@cern.ch>
+
+	* searchPath: Search and match path for <subsystem>/<package>/python
+	added.
+	
+2005-12-05  Shahzad Muzaffar  <Shahzad.Muzaffar@cern.ch>
+
+	* : Added DAQTools and CalibTools information in the configuration
+	files.
+
+2005-09-09  Shahzad Muzaffar  <Shahzad.Muzaffar@cern.ch>
+	* path.conf: Added "scan reject BuildFile|CVS|doc|.admin|ChangeLog|html"
+	for all scram based projects.
+	* searchPath: Fixed the paths for test directories.
+
+2005-08-18  Shahzad Muzaffar  <Shahzad.Muzaffar@cern.ch>
+
+	* searchPath: For each individual lib and sources used generate
+	unique name.
+
+2005-06-03  Shahzad Muzaffar  <Shahzad.Muzaffar@cern.ch>
+
+	* path.conf: Added CMSSW as CMS projects.
+	* searchPath: Added CMSSw as CMS project, also added
+	"option match pre-gen" for path-SCRAM.conf file.
+
+2005-05-02  Shahzad Muzaffar  <Shahzad.Muzaffar@cern.ch>
+
+	* Newly added package to have the scram dependent configuration.

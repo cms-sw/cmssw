@@ -1,0 +1,2 @@
+<use name=graphviz>
+<Flags INSTALL_SCRIPTS="runignominy deps2dot deps2metrics eps2gif ignominy map2html ps2map rescale xmerge mindeps iggnuplot">

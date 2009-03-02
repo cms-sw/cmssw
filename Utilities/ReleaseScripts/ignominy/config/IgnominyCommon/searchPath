@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+echo "# No automatically generated src/bin rules."
