@@ -69,9 +69,9 @@ void KineExample::endJob() {
 void
 KineExample::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  try {
 
-  edm::LogInfo("RecoVertex/KineExample")
-    << "Reconstructing event number: " << iEvent.id() << "\n";
+  cout << "Reconstructing event number: " << iEvent.id() << "\n";
   
   // get RECO tracks from the event
   // `tks` can be used as a ptr to a reco::TrackCollection
@@ -79,7 +79,7 @@ KineExample::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel(trackLabel_, tks);
   if (!tks.isValid()) {
     cout
-      << "Exception during event number: " << iEvent.id()
+      << "Couln't find track collection: " << iEvent.id()
       << "\n";
   } else {
 
@@ -88,15 +88,13 @@ KineExample::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     cout << "got " << (*tks).size() << " tracks " << endl;
     
     // Transform Track to TransientTrack
-    
     //get the builder:
     edm::ESHandle<TransientTrackBuilder> theB;
     iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
     //do the conversion:
     vector<TransientTrack> t_tks = (*theB).build(tks);
     
-    edm::LogInfo("RecoVertex/KineExample")
-      << "Found: " << t_tks.size() << " reconstructed tracks" << "\n";
+     cout  << "Found: " << t_tks.size() << " reconstructed tracks" << "\n";
     
     // Do a KindFit, if >= 4 tracks.
     if (t_tks.size() > 3) {
@@ -113,24 +111,24 @@ KineExample::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       KalmanVertexFitter kvf(false);
       TransientVertex tv = kvf.vertex(ttv);
       
-      std::cout << "Position: " << Vertex::Point(tv.position()) << "\n";
+      std::cout << "KVF fit Position: " << Vertex::Point(tv.position()) << "\n";
       
       
       TransientTrack ttMuPlus = t_tks[0];
       TransientTrack ttMuMinus = t_tks[1];
       TransientTrack ttKPlus = t_tks[2];
       TransientTrack ttKMinus = t_tks[3];
-      
+
       //the final state muons and kaons from the Bs->J/PsiPhi->mumuKK decay
       //Creating a KinematicParticleFactory
       KinematicParticleFactoryFromTransientTrack pFactory;
-      
+
       //The mass of a muon and the insignificant mass sigma to avoid singularities in the covariance matrix.
       ParticleMass muon_mass = 0.1056583;
       ParticleMass kaon_mass = 0.493677;
-      float muon_sigma = 0.0000000001;
+      float muon_sigma = 0.0000001;
       float kaon_sigma = 0.000016;
-      
+
       //initial chi2 and ndf before kinematic fits. The chi2 of the reconstruction is not considered
       float chi = 0.;
       float ndf = 0.;
@@ -148,15 +146,16 @@ KineExample::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       phiParticles.push_back(pFactory.particle (ttKMinus,kaon_mass,chi,ndf,kaon_sigma));
       allParticles.push_back(pFactory.particle (ttKPlus,kaon_mass,chi,ndf,kaon_sigma));
       allParticles.push_back(pFactory.particle (ttKMinus,kaon_mass,chi,ndf,kaon_sigma));
-      
+
       /* Example of a simple vertex fit, without other constraints
        * The reconstructed decay tree is a result of the kinematic fit
        * The KinematicParticleVertexFitter fits the final state particles to their vertex and
        * reconstructs the decayed state
        */
       KinematicParticleVertexFitter fitter;
+      cout <<"Simple vertex fit with KinematicParticleVertexFitter:\n";
       RefCountedKinematicTree vertexFitTree = fitter.fit(allParticles);
-      
+     
       printout(vertexFitTree);
       
       /////Example of global fit:
@@ -173,7 +172,7 @@ KineExample::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	//obtaining the resulting tree
 	RefCountedKinematicTree myTree = kcvFitter.fit(allParticles, j_psi_c);
 	
-	cout << "Global fit done:\n";
+	cout << "\nGlobal fit done:\n";
 	printout(myTree);
 	
 	//creating the vertex fitter
@@ -221,6 +220,13 @@ KineExample::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     }
   }  
+
+  }
+  catch (std::exception & err) {
+    cout  << "Exception during event number: " << iEvent.id() 
+      << "\n" << err.what() << "\n";
+  }
+
 }
 
 void KineExample::printout(const RefCountedKinematicVertex& myVertex) const
