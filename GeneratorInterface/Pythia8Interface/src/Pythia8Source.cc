@@ -136,7 +136,7 @@ Pythia8Source::Pythia8Source( const ParameterSet & pset,
 
   // Set PYTHIA parameters in a single ParameterSet
   ParameterSet pythia_params =
-    pset.getParameter<ParameterSet>("Pythiaarameters") ;
+    pset.getParameter<ParameterSet>("PythiaParameters") ;
 
   // The parameter sets to be read (default, min bias, user ...) in the
   // proper order.
