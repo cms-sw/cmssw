@@ -1,5 +1,8 @@
 <lcgdict>
 
+  <class name="std::map <int, std::pair<double,double> > "/> 
+  <class name="edm::Wrapper<std::map <int,std::pair<double,double> > >"/> 
+
   <class name="reco::IsolatedPixelTrackCandidate"/>
   <class name="reco::IsolatedPixelTrackCandidateCollection"/>
   <class name="reco::IsolatedPixelTrackCandidateRef"/>

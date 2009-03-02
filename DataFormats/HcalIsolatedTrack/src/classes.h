@@ -3,6 +3,9 @@
 #include "DataFormats/HcalIsolatedTrack/interface/EcalIsolatedParticleCandidate.h"
 namespace {
   struct dictionary {
+    std::map< int, std::pair<double,double> > w1;
+    edm::Wrapper<std::map< int, std::pair<double,double> > > w2;
+ 
 
     reco::IsolatedPixelTrackCandidate                                          ptc1;
     reco::IsolatedPixelTrackCandidateCollection                                ptc_c1;

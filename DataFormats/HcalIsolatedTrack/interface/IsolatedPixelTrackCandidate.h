@@ -12,6 +12,10 @@
 
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
 
+#include <vector>
+#include <map>
+#include <utility>
+
 namespace reco {
 
   class IsolatedPixelTrackCandidate: public RecoCandidate {
@@ -48,9 +52,11 @@ namespace reco {
     virtual reco::TrackRef track() const;
     /// highest Pt of other pixel tracks in the cone around the candidate
     double maxPtPxl() const {return maxPtPxl_;}
+    void SetMaxPtPxl(double mptpxl) {maxPtPxl_=mptpxl;}
     /// Pt sum of other pixel tracks in the cone around the candidate
     double sumPtPxl() const {return sumPtPxl_;}
-    
+    void SetSumPtPxl(double sumptpxl) {sumPtPxl_=sumptpxl;}
+
     /// set reference to a Track
     void setTrack( const reco::TrackRef & tr ) { track_ = tr; }
 
@@ -76,6 +82,8 @@ namespace reco {
     /// set reference to l1 tau jet
     void setL1TauJet( const l1extra::L1JetParticleRef & tauRef ) { l1tauJet_ = tauRef; }
 
+    std::pair<int,int> towerIndex() const;
+
   private:
     /// check overlap with another candidate
     virtual bool overlap( const Candidate & ) const;
@@ -95,7 +103,7 @@ namespace reco {
     int nhitIn_;
     /// number of hits in inner cone
     int nhitOut_;
-    
+
   };
 
 
