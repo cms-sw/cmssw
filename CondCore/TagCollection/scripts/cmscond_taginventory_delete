@@ -85,12 +85,12 @@ class tagInventoryDelete:
         try:
             if self.__all is True:
                 inv.deleteAllEntries()
-                entrycomment=entryComment(session)
+                entrycomment=entryComment.entryComment(session)
                 if entrycomment.existCommentTable() is True:
                     entrycomment.clearAllEntriesForTable(CommonUtils.inventoryTableName())
             else:
                 inv.deleteEntryByName(self.__tag)
-                entrycomment=entryComment(session)
+                entrycomment=entryComment.entryComment(session)
                 if entrycomment.existCommentTable() is True:
                     ids=inv.getIDsByName(self.__tag)
                     for id in id:

@@ -141,7 +141,7 @@ class tagInventoryBuilder:
                         tagentry.labelname=''
                     tagid=inv.addEntry(tagentry)
                     if item.has_key('comment'):
-                        entrycomment=entryComment(session)
+                        entrycomment=entryComment.entryComment(session)
                         if entrycomment.existCommentTable() is False:
                             entrycomment.createEntryCommentTable()
                         entrycomment.insertComment(CommonUtils.inventoryTableName(),tagid,item['comment'])

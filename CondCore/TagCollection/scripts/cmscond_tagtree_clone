@@ -12,7 +12,7 @@ def stripws(myinput):
     return result
 
 def copycomments(session,sourcetreename,desttreename):
-    entrycomment=entryComment(session)
+    entrycomment=entryComment.entryComment(session)
     if entrycomment.existCommentTable() is False:
         entrycomment.createEntryCommentTable()
     session.transaction().start(False)

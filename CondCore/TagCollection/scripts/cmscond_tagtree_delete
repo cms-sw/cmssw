@@ -119,7 +119,7 @@ class tagTreeDelete:
             for treename in treelist:
                 tree=TagTree.tagTree(session,treename)
                 tree.deleteSubtree( 'ROOT' )
-                entrycomment=entryComment(session)
+                entrycomment=entryComment.entryComment(session)
                 if entrycomment.existCommentTable() is True:
                   entrycomment.clearAllEntriesForTable(CommonUtils.treeTableName(treename))
             del session
@@ -127,14 +127,14 @@ class tagTreeDelete:
         tree=TagTree.tagTree(session,self.__treename)
         if self.__branch=='' and self.__node=='':
             tree.deleteSubtree( 'ROOT' )
-            entrycomment=entryComment(session)
+            entrycomment=entryComment.entryComment(session)
                 if entrycomment.existCommentTable() is True:
                   entrycomment.clearAllEntriesForTable(CommonUtils.treeTableName(self.__treename))
         else:
             if self.__branch != '':
                 print self.__branch
                 tree.deleteSubtree(self.__branch)
-                entrycomment=entryComment(session)
+                entrycomment=entryComment.entryComment(session)
                 if entrycomment.existCommentTable() is True:
                   nodes=tree.getSubtree(self.__branch)
                   for node in nodes:  

@@ -175,11 +175,10 @@ class tagTreeBuilder:
                     raise KeyError,'no parent parameter for'+mynode.nodelabel
                 mytree.insertNode(mynode,item['parent'])
                 if item.has_key('comment'):
-                  entrycomment=entryComment(session)
+                  entrycomment=entryComment.entryComment(session)
                   if entrycomment.existCommentTable() is False:
                       entrycomment.createEntryCommentTable()
                   entrycomment.insertComment(CommonUtils.treeTableName(self.__treename),mynode.nodeid ,item['comment'])
-                        
             if len(self.__leafcollection)!=0:
                 inv=tagInventory.tagInventory(session)
                 for leafdata in self.__leafcollection:
@@ -204,7 +203,7 @@ class tagTreeBuilder:
                         raise KeyError,'no parent parameter for'+myleaf.nodelabel
                     mytree.insertNode(myleaf,leafdata['parent'])
                     if leafdata.has_key('comment'):
-                        entrycomment=entryComment(session)
+                        entrycomment=entryComment.entryComment(session)
                         if entrycomment.existCommentTable() is False:
                             entrycomment.createEntryCommentTable()
                         entrycomment.insertComment(CommonUtils.treeTableName(self.__treename),myleaf.nodeid ,item['comment'])
