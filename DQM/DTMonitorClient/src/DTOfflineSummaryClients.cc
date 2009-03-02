@@ -1,11 +1,9 @@
-
-
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/06 16:57:53 $
- *  $Revision: 1.3 $
- *  \author G. Mila - INFN Torino
+ *  $Date: 2009/02/04 10:02:45 $
+ *  $Revision: 1.1 $
+ *  \author M. Pelliccioni - INFN Torino
  */
 
 
@@ -22,6 +20,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <string>
+#include <cmath>
 
 using namespace edm;
 using namespace std;
@@ -110,37 +109,7 @@ void DTOfflineSummaryClients::endLuminosityBlock(LuminosityBlock const& lumiSeg,
     theSummaryContents[ii]->Reset();
   }
 
-//   bool noDTData = false;
-
-  // Check if DT data in each ROS have been read out and set the SummaryContents and the ErrorSummary
-  // accordignly
-  /*MonitorElement * dataIntegritySummary = dbe->get("DT/00-DataIntegrity/DataIntegritySummary");
-  if(dataIntegritySummary != 0) {
-  int nDisabledFED = 0;
-  for(int wheel = 1; wheel != 6; ++wheel) { // loop over the wheels
-    int nDisablesROS = 0;
-    for(int sect = 1; sect != 13; ++sect) { // loop over sectors
-      if(dataIntegritySummary->getBinContent(sect,wheel) == 1) {
-	nDisablesROS++;
-      }
-    }
-    if(nDisablesROS == 12) {
-      nDisabledFED++;
-      theSummaryContents[wheel-1]->Fill(0);
-    }
-  }
-  
-  if(nDisabledFED == 5) {
-    noDTData = true;
-    summaryReport->Fill(-1);
-  }
-  
-  } else {
-    LogError("DTDQM|DTMonitorClient|DTSummaryClients")
-      << "Data Integrity Summary not found with name: DT/00-DataIntegrity/DataIntegritySummary" <<endl;
-      }*/
-
-  double totalStatus = 0;
+  double totalStatus = 0.;
   // protection 
   bool efficiencyFound = true;
 
@@ -149,49 +118,52 @@ void DTOfflineSummaryClients::endLuminosityBlock(LuminosityBlock const& lumiSeg,
   for(int wheel=-2; wheel<=2; wheel++) { // loop over wheels
     // retrieve the chamber efficiency summary
     stringstream str;
-    str << "DT/02-Segments/segmentSummary_W" << wheel;
+    str << "DT/05-ChamberEff/EfficiencyMap_All_W" << wheel;
     MonitorElement * segmentWheelSummary =  dbe->get(str.str());
     if(segmentWheelSummary != 0) {
-      int nFailingChambers = 0;
+
+      float nFailingChambers = 0.;
+
       for(int sector=1; sector<=12; sector++) { // loop over sectors
+
+	double meaneff = 0.;
+	double errorsum = 0.;
+
 	for(int station = 1; station != 5; ++station) { // loop over stations
-	  double chamberStatus = segmentWheelSummary->getBinContent(sector, station);
-	  LogTrace("DTDQM|DTMonitorClient|DTOfflineSummaryClients")
-	    << "Wheel: " << wheel << " Stat: " << station << " Sect: " << sector << " status: " << chamberStatus << endl;
-	  if(chamberStatus == 0 || chamberStatus == 1) {
-	    summaryReportMap->Fill(sector, wheel, 0.25);
-	  } else {
+
+	  const double tmpefficiency = segmentWheelSummary->getBinContent(sector, station);
+	  const double tmpvariance = pow(segmentWheelSummary->getBinError(sector, station),2);
+
+	  if(tmpefficiency == 0 || tmpvariance == 0){
 	    nFailingChambers++;
+	    continue;
 	  }
-	  LogTrace("DTDQM|DTMonitorClient|DTOfflineSummaryClients") << " sector (" << sector << ") status on the map is: "
-							     << summaryReportMap->getBinContent(sector, wheel+3) << endl;
+
+	  meaneff += tmpefficiency/tmpvariance;
+	  errorsum += 1./tmpvariance;
+
+	  if(tmpefficiency < 0.2) nFailingChambers++;
+
+	  LogTrace("DTDQM|DTMonitorClient|DTOfflineSummaryClients")
+	    << "Wheel: " << wheel << " Stat: " << station << " Sect: " << sector << " status: " << meaneff/errorsum << endl;
 	}
+
+	const double eff_result = meaneff/errorsum;
+
+	if(eff_result > 0.7) summaryReportMap->Fill(sector,wheel,1.);
+	else if(eff_result < 0.7 && eff_result > 0.5) summaryReportMap->Fill(sector,wheel,0.6);
+	else if(eff_result < 0.5 && eff_result > 0.3) summaryReportMap->Fill(sector,wheel,0.4);
+	else if(eff_result < 0.3 && eff_result > 0.) summaryReportMap->Fill(sector,wheel,0.15);
 
       }
       theSummaryContents[wheel+2]->Fill((48.-nFailingChambers)/48.);
-      totalStatus += (48.-nFailingChambers)/48.;
+
     } else {
       efficiencyFound = false;
       LogWarning("DTDQM|DTMonitorClient|DTOfflineSummaryClients")
 	<< " [DTOfflineSummaryClients] Segment Summary not found with name: " << str.str() << endl;
     }
   }
-
-
-  //if(efficiencyFound && !noDTData)
-//   if(efficiencyFound)
-//     summaryReport->Fill(totalStatus/5.);
-
-//   cout << "-----------------------------------------------------------------------------" << endl;
-//   cout << " In the endLuminosityBlock: " << endl;
-//   for(int wheel = -2; wheel != 3; ++wheel) {
-//     for(int sector = 1; sector != 13; sector++) {
-//       cout << " wheel: " << wheel << " sector: " << sector << " status on the map is: "
-// 	   << summaryReportMap->getBinContent(sector, wheel+3) << endl;
-//     }
-//   }
-//   cout << "-----------------------------------------------------------------------------" << endl;
-
 
 }
 
