@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 pfRecoTauProducer = cms.EDProducer("PFRecoTauProducer",
       PFCand_minPt         = cms.double(0.5),  #general pt cut on objects
 
-      LeadPFCand_mintPt    = cms.double(5.0),  #cut on lead object (can be track, or gamma)
+      LeadPFCand_minPt     = cms.double(5.0),  #cut on lead object (can be track, or gamma)
 
       #Pt cuts applied to PF constituents
       ChargedHadrCand_minPt = cms.double(1.0),
