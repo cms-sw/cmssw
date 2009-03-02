@@ -186,6 +186,7 @@ class tagTree(object):
                                   tabrowValueDict)
                 generator.incrementNextID(self.__tagTreeIDs)
             transaction.commit()
+            return nodeid
         except coral.Exception, er:
             transaction.rollback()
             raise Exception, str(er)
