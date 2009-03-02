@@ -29,6 +29,7 @@ else
   igdir=$igdir/src/Utilities/ReleaseScripts/ignominy
 fi
 if [ -d $igdir ]; then
+  export PATH=${igdir}:${PATH}
   $igdir/runignominy  $@
   exit $?
 else
