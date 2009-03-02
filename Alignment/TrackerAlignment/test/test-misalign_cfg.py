@@ -21,11 +21,11 @@ process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 # Misalignment example scenario producer
 process.load("Alignment.TrackerAlignment.MisalignedTracker_cfi")
 process.MisalignedTracker.saveToDbase = True # to store to DB
-import Alignment.TrackerAlignment.Scenarios_cff as Scenarios
-process.MisalignedTracker.scenario = Scenarios.Tracker10pbScenario
-#process.MisalignedTracker.scenario = Scenarios.SurveyLASOnlyScenario
-#process.MisalignedTracker.scenario = Scenarios.SurveyLASCosmicsScenario
-#process.MisalignedTracker.scenario = Scenarios.TrackerCRAFTScenario
+import Alignment.TrackerAlignment.Scenarios_cff as _Scenarios
+process.MisalignedTracker.scenario = _Scenarios.Tracker10pbScenario
+#process.MisalignedTracker.scenario = _Scenarios.SurveyLASOnlyScenario
+#process.MisalignedTracker.scenario = _Scenarios.SurveyLASCosmicsScenario
+#process.MisalignedTracker.scenario = _Scenarios.TrackerCRAFTScenario
 
 # the module
 process.prod = cms.EDAnalyzer("TestAnalyzer",
@@ -49,13 +49,11 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     connect = cms.string('sqlite_file:Alignments.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('TrackerAlignmentRcd'),
-#        tag = cms.string('Tracker10pbScenario210_mc')
-        tag = cms.string('TrackerCRAFTScenario22X_mc')
+        tag = cms.string('Tracker10pbScenario210_mc')
     ), 
         cms.PSet(
             record = cms.string('TrackerAlignmentErrorRcd'),
-#        tag = cms.string('Tracker10pbScenarioErrors210_mc')
-            tag = cms.string('TrackerCRAFTScenarioErrors22X_mc')
+            tag = cms.string('Tracker10pbScenarioErrors210_mc')
         ))
 )
 process.PoolDBOutputService.DBParameters.messageLevel = 2
