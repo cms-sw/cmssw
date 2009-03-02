@@ -138,69 +138,68 @@ bool AlignableModifier::modify( Alignable* alignable, const edm::ParameterSet& p
   // Decode distribution
   this->setDistribution( distribution_ );
 
-  if ( scale_ ) {
+  //if (scale_) { NO! Different random sequence if only parts scale to zero!
 
-    // Apply displacements
+  // Apply displacements
+  if ( std::abs(dX_) + std::abs(dY_) + std::abs(dZ_) > 0 && setTranslations_ )
+    this->moveAlignable( alignable, random_, gaussian_, scale_*dX_, scale_*dY_, scale_*dZ_ );
+  
+  // Apply local displacements
+  if ( std::abs(dXlocal_) + std::abs(dYlocal_) + std::abs(dZlocal_) > 0 && setTranslations_ )
+    this->moveAlignableLocal( alignable, random_, gaussian_, 
+			      scale_*dXlocal_, scale_*dYlocal_, scale_*dZlocal_ );
+  
+  // Apply rotations
+  if ( std::abs(phiX_) + std::abs(phiY_) + std::abs(phiZ_) > 0 && setRotations_ )
+    this->rotateAlignable( alignable, random_, gaussian_,
+			   scale_*phiX_, scale_*phiY_, scale_*phiZ_ );
+  
+  // Apply local rotations
+  if ( std::abs(phiXlocal_) + std::abs(phiYlocal_) + std::abs(phiZlocal_) > 0 && setRotations_ )
+    this->rotateAlignableLocal( alignable, random_, gaussian_, 
+				scale_*phiXlocal_, scale_*phiYlocal_, scale_*phiZlocal_ );
+  
+  // Apply twist
+  if ( std::abs(twist_) > 0 )
+    edm::LogError("NotImplemented") << "Twist is not implemented yet";
+  
+  // Apply shear
+  if ( std::abs(shear_) > 0 )
+    edm::LogError("NotImplemented") << "Shear is not implemented yet";
+  
+  // Apply error - first add scale_ to error
+  scaleError_ *= scale_;
+  if ( setError_ && scaleError_ ) {
+    // Alignment Position Error for flat distribution: 1 sigma
+    if ( !gaussian_ ) scaleError_ *= 0.68;
+    
+    
+    // Error on displacement
     if ( std::abs(dX_) + std::abs(dY_) + std::abs(dZ_) > 0 && setTranslations_ )
-      this->moveAlignable( alignable, random_, gaussian_, scale_*dX_, scale_*dY_, scale_*dZ_ );
-
-    // Apply local displacements
+      this->addAlignmentPositionError( alignable, 
+				       scaleError_*dX_, scaleError_*dY_, scaleError_*dZ_ );
+    
+    // Error on local displacements
     if ( std::abs(dXlocal_) + std::abs(dYlocal_) + std::abs(dZlocal_) > 0 && setTranslations_ )
-      this->moveAlignableLocal( alignable, random_, gaussian_, 
-				scale_*dXlocal_, scale_*dYlocal_, scale_*dZlocal_ );
-
-    // Apply rotations
+      this->addAlignmentPositionErrorLocal( alignable,
+					    scaleError_*dXlocal_, scaleError_*dYlocal_, 
+					    scaleError_*dZlocal_ );
+    
+    // Error on rotations
     if ( std::abs(phiX_) + std::abs(phiY_) + std::abs(phiZ_) > 0 && setRotations_ )
-      this->rotateAlignable( alignable, random_, gaussian_,
-			     scale_*phiX_, scale_*phiY_, scale_*phiZ_ );
-
-    // Apply local rotations
-    if ( std::abs(phiXlocal_) + std::abs(phiYlocal_) + std::abs(phiZlocal_) > 0 && setRotations_ )
-      this->rotateAlignableLocal( alignable, random_, gaussian_, 
-				  scale_*phiXlocal_, scale_*phiYlocal_, scale_*phiZlocal_ );
-
-    // Apply twist
-    if ( std::abs(twist_) > 0 )
-      edm::LogError("NotImplemented") << "Twist is not implemented yet";
-
-    // Apply shear
-    if ( std::abs(shear_) > 0 )
-      edm::LogError("NotImplemented") << "Shear is not implemented yet";
-
-    // Apply error
-    if ( setError_ && scaleError_ ) {
-      // Alignment Position Error for flat distribution: 1 sigma
-      if ( !gaussian_ ) scaleError_ *= 0.68;
-
-      // Add scale to error
-      scaleError_ *= scale_;
-
-      // Error on displacement
-      if ( std::abs(dX_) + std::abs(dY_) + std::abs(dZ_) > 0 && setTranslations_ )
-	this->addAlignmentPositionError( alignable, 
-					 scaleError_*dX_, scaleError_*dY_, scaleError_*dZ_ );
-
-      // Error on local displacements
-      if ( std::abs(dXlocal_) + std::abs(dYlocal_) + std::abs(dZlocal_) > 0 && setTranslations_ )
-	this->addAlignmentPositionErrorLocal( alignable,
-					      scaleError_*dXlocal_, scaleError_*dYlocal_, 
-					      scaleError_*dZlocal_ );
-
-      // Error on rotations
-      if ( std::abs(phiX_) + std::abs(phiY_) + std::abs(phiZ_) > 0 && setRotations_ )
-	this->addAlignmentPositionErrorFromRotation( alignable, 
-						     scaleError_*phiX_, scaleError_*phiY_, 
-						     scaleError_*phiZ_ );
-
-      // Error on local rotations
-      if ( std::abs(phiXlocal_) + std::abs(phiYlocal_) + std::abs(phiZlocal_) > 0
-	   && setRotations_ )
-	this->addAlignmentPositionErrorFromLocalRotation( alignable, 
-							  scaleError_*phiXlocal_, 
-							  scaleError_*phiYlocal_, 
-							  scaleError_*phiZlocal_ );
-    }
-  } // end if (scale_)
+      this->addAlignmentPositionErrorFromRotation( alignable, 
+						   scaleError_*phiX_, scaleError_*phiY_, 
+						   scaleError_*phiZ_ );
+    
+    // Error on local rotations
+    if ( std::abs(phiXlocal_) + std::abs(phiYlocal_) + std::abs(phiZlocal_) > 0
+	 && setRotations_ )
+      this->addAlignmentPositionErrorFromLocalRotation( alignable, 
+							scaleError_*phiXlocal_, 
+							scaleError_*phiYlocal_, 
+							scaleError_*phiZlocal_ );
+  }
+  // } // end if (scale_)
 
   return ( m_modified > 0 );
   
