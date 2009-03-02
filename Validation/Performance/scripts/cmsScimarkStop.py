@@ -7,7 +7,7 @@
 import subprocess,os
 
 #Use ps -ef to look for cmsScimarkLaunch processes
-ps_stdouterr=subprocess.Popen("ps -ef|grep cmsScimarkLaunch|grep -v grep",shell=True,stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout
+ps_stdouterr=subprocess.Popen("ps -ef|grep cmsScimarkLaunch|grep -v grep|grep -v 'sh -c'",shell=True,stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout
 if ps_stdouterr:
     ps_lines=ps_stdouterr.readlines()
     #print ps_lines
