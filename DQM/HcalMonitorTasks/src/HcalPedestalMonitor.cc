@@ -709,17 +709,14 @@ void HcalPedestalMonitor::fillPedestalHistos(void)
 
   // Individual capid plots
 
-  for (unsigned int i=0;i<ADC_PedestalFromDBByDepth_bycapid.size();++i)
+  for (unsigned int capid=0;capid<ADCPedestalMean_bycapid.size();++capid)
     {
-      for (unsigned int capid=0;capid<ADC_PedestalFromDBByDepth_bycapid[i].size();++capid)
-	{
       // Why doesn't this work here?
-
-	  FillUnphysicalHEHFBins(ADCPedestalMean_bycapid[capid]);
-	  FillUnphysicalHEHFBins(ADCPedestalRMS_bycapid[capid]);
-	  FillUnphysicalHEHFBins(fCPedestalMean_bycapid[capid]);
-	  FillUnphysicalHEHFBins(fCPedestalRMS_bycapid[capid]);
-	}
+      
+      FillUnphysicalHEHFBins(ADCPedestalMean_bycapid[capid]);
+      FillUnphysicalHEHFBins(ADCPedestalRMS_bycapid[capid]);
+      FillUnphysicalHEHFBins(fCPedestalMean_bycapid[capid]);
+      FillUnphysicalHEHFBins(fCPedestalRMS_bycapid[capid]);
     }
 
   // Overall plots by depth
@@ -879,17 +876,14 @@ void HcalPedestalMonitor::fillDBValues(const HcalDbService& cond)
   FillUnphysicalHEHFBins(fC_PedestalFromDBByDepth);
   FillUnphysicalHEHFBins(fC_WidthFromDBByDepth);
 
-  for (unsigned int i=0;i<ADC_PedestalFromDBByDepth_bycapid.size();++i)
+  for (unsigned int capid=0;capid<ADC_PedestalFromDBByDepth_bycapid.size();++capid)
     {
-      for (unsigned int capid=0;capid<ADC_PedestalFromDBByDepth_bycapid[i].size();++capid)
-	{
-	  // Why does this crash here, but not in lxplus?
-	  FillUnphysicalHEHFBins(ADC_PedestalFromDBByDepth_bycapid[capid]);
-	  FillUnphysicalHEHFBins(ADC_WidthFromDBByDepth_bycapid[capid]);
-	  FillUnphysicalHEHFBins(fC_PedestalFromDBByDepth_bycapid[capid]);
-	  FillUnphysicalHEHFBins(fC_WidthFromDBByDepth_bycapid[capid]);
-	  
-	}
+      // Why does this crash here, but not in lxplus?
+      FillUnphysicalHEHFBins(ADC_PedestalFromDBByDepth_bycapid[capid]);
+      FillUnphysicalHEHFBins(ADC_WidthFromDBByDepth_bycapid[capid]);
+      FillUnphysicalHEHFBins(fC_PedestalFromDBByDepth_bycapid[capid]);
+      FillUnphysicalHEHFBins(fC_WidthFromDBByDepth_bycapid[capid]);
+
     }
   if (showTiming)
     {
