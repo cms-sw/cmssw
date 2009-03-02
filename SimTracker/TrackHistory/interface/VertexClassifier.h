@@ -18,11 +18,16 @@ class VertexClassifier : public VertexCategories
 
 public:
 
+    //! Type to the associate category
+    typedef VertexCategories Categories;
+
     //! Constructor by ParameterSet
     VertexClassifier(edm::ParameterSet const & pset);
 
+    virtual ~VertexClassifier() {}
+
     //! Pre-process event information (for accessing reconstraction information)
-    void newEvent(edm::Event const &, edm::EventSetup const &);
+    virtual void newEvent(edm::Event const &, edm::EventSetup const &);
 
     //! Classify the RecoVertex in categories.
     VertexClassifier const & evaluate (reco::VertexRef const &);
@@ -87,9 +92,6 @@ private:
 
     //! Get geometrical information about the vertices
     void vertexInformation();
-
-    // Check for unkown classification
-    void unknownVertex();
 
     //! Auxiliary class holding simulated primary vertices
     struct GeneratedPrimaryVertex

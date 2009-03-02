@@ -67,6 +67,9 @@ protected:
         flags_ = Flags(Unknown + 1, false);
     }
 
+    // Check for unkown classification
+    void unknownTrack();
+
     //! Flag containers
     Flags flags_;
 

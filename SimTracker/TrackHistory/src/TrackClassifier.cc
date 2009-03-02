@@ -487,16 +487,6 @@ void TrackClassifier::vertexInformation()
 }
 
 
-void TrackClassifier::unknownTrack()
-{
-    // Check for all flags down
-    for (std::size_t index = 0; index < flags_.size() - 1; ++index)
-        if (flags_[index]) return;
-    // If all of them are down then it is a unkown track.
-    flags_[Unknown] = true;
-}
-
-
 bool TrackClassifier::isFinalstateParticle(const HepMC::GenParticle * p)
 {
     return !p->end_vertex() && p->status() == 1;

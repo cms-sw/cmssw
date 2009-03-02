@@ -10,7 +10,7 @@
 /**
  Selector to select only tracking particles originating from a given category.
 */
-template <typename Collection, typename Classifier, typename Categories>
+template <typename Collection, typename Classifier>
 class CategoryCriteria
 {
 
@@ -31,7 +31,7 @@ public:
     // Constructor from parameter set configurability
     CategoryCriteria(const edm::ParameterSet & config) :
             classifier_(config),
-            evaluate_( config.getUntrackedParameter<std::string>("select") ) {}
+            evaluate_( config.getParameter<std::string>("cut") ) {}
 
     // Select object from a collection and possibly event content
     void select(const edm::Handle<collection> & collectionHandler, const edm::Event & event, const edm::EventSetup & setup)
@@ -79,7 +79,7 @@ private:
 
     Classifier classifier_;
 
-    StringCutObjectSelector<Categories> evaluate_;
+    StringCutObjectSelector<typename Classifier::Categories> evaluate_;
 
 };
 

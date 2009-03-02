@@ -22,6 +22,16 @@ const char * VertexCategories::Names[] =
 };
 
 
+void VertexCategories::unknownVertex()
+{
+    // Check for all flags down
+    for (std::size_t index = 0; index < flags_.size() - 1; ++index)
+        if (flags_[index]) return;
+    // If all of them are down then it is a unkown track.
+    flags_[Unknown] = true;
+}
+
+
 std::ostream & operator<< (std::ostream & os, VertexCategories const & classifier)
 {
     bool init = true;

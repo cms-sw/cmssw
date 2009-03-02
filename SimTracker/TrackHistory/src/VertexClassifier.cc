@@ -14,17 +14,17 @@
 #define update(a, b) do { (a) = (a) | (b); } while(0)
 
 
-VertexClassifier::VertexClassifier(edm::ParameterSet const & pset) : VertexCategories(), tracer_(pset),
-        hepMCLabel_( pset.getUntrackedParameter<edm::InputTag>("hepMC") )
+VertexClassifier::VertexClassifier(edm::ParameterSet const & config) : VertexCategories(), tracer_(config),
+        hepMCLabel_( config.getUntrackedParameter<edm::InputTag>("hepMC") )
 {
     // Set the history depth after hadronization
     tracer_.depth(-2);
 
     // Set the minimum decay length for detecting long decays
-    longLivedDecayLength_ = pset.getUntrackedParameter<double>("longLivedDecayLength");
+    longLivedDecayLength_ = config.getUntrackedParameter<double>("longLivedDecayLength");
 
     // Set the distance for clustering vertices
-    vertexClusteringDistance_ = pset.getUntrackedParameter<double>("vertexClusteringDistance");
+    vertexClusteringDistance_ = config.getUntrackedParameter<double>("vertexClusteringDistance");
 }
 
 
@@ -416,16 +416,6 @@ void VertexClassifier::vertexInformation()
         flags_[SecondaryVertex] = true;
     else
         flags_[TertiaryVertex] = true;
-}
-
-
-void VertexClassifier::unknownVertex()
-{
-    // Check for all flags down
-    for (std::size_t index = 0; index < flags_.size() - 1; ++index)
-        if (flags_[index]) return;
-    // If all of them are down then it is a unkown track.
-    flags_[Unknown] = true;
 }
 
 

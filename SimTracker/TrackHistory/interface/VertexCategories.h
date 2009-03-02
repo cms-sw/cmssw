@@ -61,6 +61,9 @@ protected:
         flags_ = Flags(Unknown + 1, false);
     }
 
+    // Check for unkown classification
+    void unknownVertex();
+
     //! Flag containers
     Flags flags_;
 

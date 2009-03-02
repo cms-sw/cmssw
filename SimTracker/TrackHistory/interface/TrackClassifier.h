@@ -1,11 +1,3 @@
-/*
- *  TrackClassifier.h
- *
- *  Created by Victor Eduardo Bazterra on 5/29/07.
- *  Minor additions by Christophe Saout on 9/26/08.
- *  Copyright 2007 __MyCompanyName__. All rights reserved.
- *
- */
 
 #ifndef TrackClassifier_h
 #define TrackClassifier_h
@@ -36,8 +28,11 @@ class TrackClassifier : public TrackCategories
 
 public:
 
+    //! Type to the associate category
+    typedef TrackCategories Categories;
+
     //! Constructor by ParameterSet
-    TrackClassifier( edm::ParameterSet const & pset);
+    TrackClassifier(edm::ParameterSet const &);
 
     //! Pre-process event information (for accessing reconstraction information)
     void newEvent(edm::Event const &, edm::EventSetup const &);
@@ -134,9 +129,6 @@ private:
 
     //! Get geometrical information about the vertices
     void vertexInformation();
-
-    // Check for unkown classification
-    void unknownTrack();
 
     //! Auxiliary class holding simulated primary vertices
     struct GeneratedPrimaryVertex
