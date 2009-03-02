@@ -3,7 +3,7 @@
  <use name="FWCore/ParameterSet"/>
  <use name="GeneratorInterface/AlpgenInterface"/>
  <use name="GeneratorInterface/LHEInterface"/>
- <use name="SimDataFormats/HepMCProduct"/>
+ <use name="SimDataFormats/GeneratorProducts"/>
  <use name="hepmc"/>
  <use name="pythia6"/>
  <flags FFLAGS="-O -Wno-unused"/>
