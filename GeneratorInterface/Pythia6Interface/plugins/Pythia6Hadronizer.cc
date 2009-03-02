@@ -133,34 +133,37 @@ void Pythia6Hadronizer::finalizeEvent()
    //
    //event() = conv.read_next_event();
 
+   bool lhe = lheEvent() != 0;
+
    HepMC::PdfInfo pdf;
 
    // if we are in hadronizer mode, we can pass on information from
    // the LHE input
-   if ( lheEvent() )
+   if (lhe)
    {
       lheEvent()->fillEventInfo( event().get() );
       lheEvent()->fillPdfInfo( &pdf );
    }
 
-   if (event()->signal_process_id() < 0) event()->set_signal_process_id( pypars.msti[0] );
-// FIXME event scale is *not* pthat.  We now have the binningValue() for that
-// the event scale Q would be pypars.pari[22]
-   if (event()->event_scale() < 0)       event()->set_event_scale( pypars.pari[16] );
+   if (!lhe || event()->signal_process_id() < 0) event()->set_signal_process_id( pypars.msti[0] );
+   if (!lhe || event()->event_scale() < 0)       event()->set_event_scale( pypars.pari[16] );
    
+// FIXME event scale is *not* pthat.  We now have the binningValue() for that
+//     -> the event scale Q would be pypars.pari[22]
+//        If we change this, we need to announce it!!!
 // FIXME: alpha qcd, alpha qed
 // FIXME: signal_process_vertex
 
    // get pdf info directly from Pythia6 and set it up into HepMC::GenEvent
    // S. Mrenna: Prefer vint block
    //
-   if (pdf.id1() < 0)      pdf.set_id1( pyint1.mint[14] == 21 ? 0 : pyint1.mint[14] );
-   if (pdf.id2() < 0)      pdf.set_id2( pyint1.mint[15] == 21 ? 0 : pyint1.mint[15] );
-   if (pdf.x1() < 0)       pdf.set_x1( pyint1.vint[40] );
-   if (pdf.x2() < 0)       pdf.set_x2( pyint1.vint[41] );
-   if (pdf.pdf1() < 0)     pdf.set_pdf1( pyint1.vint[38] / pyint1.vint[40] );
-   if (pdf.pdf2() < 0)     pdf.set_pdf2( pyint1.vint[39] / pyint1.vint[41] );
-   if (pdf.scalePDF() < 0) pdf.set_scalePDF( pyint1.vint[50] );
+   if (!lhe || pdf.id1() < 0)      pdf.set_id1( pyint1.mint[14] == 21 ? 0 : pyint1.mint[14] );
+   if (!lhe || pdf.id2() < 0)      pdf.set_id2( pyint1.mint[15] == 21 ? 0 : pyint1.mint[15] );
+   if (!lhe || pdf.x1() < 0)       pdf.set_x1( pyint1.vint[40] );
+   if (!lhe || pdf.x2() < 0)       pdf.set_x2( pyint1.vint[41] );
+   if (!lhe || pdf.pdf1() < 0)     pdf.set_pdf1( pyint1.vint[38] / pyint1.vint[40] );
+   if (!lhe || pdf.pdf2() < 0)     pdf.set_pdf2( pyint1.vint[39] / pyint1.vint[41] );
+   if (!lhe || pdf.scalePDF() < 0) pdf.set_scalePDF( pyint1.vint[50] );
 
    event()->set_pdf_info( pdf ) ;
 
