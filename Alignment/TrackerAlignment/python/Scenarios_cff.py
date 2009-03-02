@@ -1895,12 +1895,14 @@ TrackerNoKnowledgeScenario = cms.PSet(
 # TrackerAfterCRAFTScenario
 # ----------------------------------------
 # ----------------- NOTE -----------------
-# This scenario is a simple merge of the 10 pb^-1 and 100 pb^-1 scenarios:
+# This scenario is a simple merge of scenarios above:
 # It seems that after CRAFT alignment we have aligned TIB and TOB
-# as good as foreseen after 100 pb^-1 (at least what concerns residuals),
-# while the rest of the tracker is at the level of the 10 pb^-1 scneario.
+# as good as foreseen after 100 pb^-1 (at least what concerns residuals [DMR]),
+# while the rest of the tracker is at the level of the 10 pb^-1 scenario
+# or even still at that of SurveyLASOnlyScenario.
 # ------------- NOTE ends ----------------
 # ----------------------------------------
 TrackerCRAFTScenario = copy.deepcopy(Tracker10pbScenario)
 TrackerCRAFTScenario.TIBs = copy.deepcopy(Tracker100pbScenario.TIBs)
 TrackerCRAFTScenario.TOBs = copy.deepcopy(Tracker100pbScenario.TOBs)
+TrackerCRAFTScenario.TPEs = copy.deepcopy(TrackerSurveyLASOnlyScenario.TPEs)
