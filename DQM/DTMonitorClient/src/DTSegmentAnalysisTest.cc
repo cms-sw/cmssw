@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/28 11:11:48 $
- *  $Revision: 1.24 $
+ *  $Date: 2008/12/05 10:14:21 $
+ *  $Revision: 1.25 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -106,13 +106,13 @@ void DTSegmentAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, E
   for (; ch_it != ch_end; ++ch_it) {
     DTChamberId chID = (*ch_it)->id();
     
-    MonitorElement * segm_histo = dbe->get(getMEName(chID, "h4DSegmNHits"));
-    MonitorElement * summary_histo = dbe->get(getMEName(chID, "numberOfSegments"));
+    MonitorElement * hNHits = dbe->get(getMEName(chID, "h4DSegmNHits"));
+    MonitorElement * hSegmOcc = dbe->get(getMEName(chID, "numberOfSegments"));
    
-    if (segm_histo && summary_histo) {
+    if (hNHits && hSegmOcc) {
       
-      TH1F * segmHit_histo_root = segm_histo->getTH1F();
-      TH2F * segm_histo_root = summary_histo->getTH2F();
+      TH1F * hNHits_root = hNHits->getTH1F();
+      TH2F * hSegmOcc_root = hSegmOcc->getTH2F();
       TH2F * summary_histo_root = summaryHistos[3]->getTH2F();
       
       int sector = chID.sector();
@@ -120,8 +120,8 @@ void DTSegmentAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, E
       if(sector == 14) sector=10;
       
       
-      if((chID.station()!=4 && segmHit_histo_root->GetMaximumBin() != 12)||
-	 (chID.station()==4 &&  segmHit_histo_root->GetMaximumBin() != 8)){
+      if((chID.station()!=4 && hNHits_root->GetMaximumBin() != 12)||
+	 (chID.station()==4 &&  hNHits_root->GetMaximumBin() != 8)){
 	summaryHistos[chID.wheel()]->setBinContent(sector, chID.station(),1);
 	if(summary_histo_root->GetBinContent(sector, chID.wheel()+3)<1)
 	  summaryHistos[3]->setBinContent(sector, chID.wheel()+3,1);  
@@ -131,14 +131,14 @@ void DTSegmentAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, E
     
       if(detailedAnalysis) {
 	if(chID.station()!=4)
-	  segmRecHitHistos[make_pair(chID.wheel(),chID.sector())]->Fill(chID.station(),abs(12-segmHit_histo_root->GetMaximumBin()));
+	  segmRecHitHistos[make_pair(chID.wheel(),chID.sector())]->Fill(chID.station(),abs(12-hNHits_root->GetMaximumBin()));
 	else
-	   segmRecHitHistos[make_pair(chID.wheel(),chID.sector())]->Fill(chID.station(),abs(8-segmHit_histo_root->GetMaximumBin()));
+	   segmRecHitHistos[make_pair(chID.wheel(),chID.sector())]->Fill(chID.station(),abs(8-hNHits_root->GetMaximumBin()));
       }
 
       TH2F * summary2_histo_root = summaryHistos[3]->getTH2F();
       
-      if(segm_histo_root->GetBinContent(sector,chID.station())==0){
+      if(hSegmOcc_root->GetBinContent(sector,chID.station())==0){
 	summaryHistos[chID.wheel()]->setBinContent(sector, chID.station(),2);
 	if(summary2_histo_root->GetBinContent(sector, chID.wheel()+3)<2)
 	  summaryHistos[3]->setBinContent(sector, chID.wheel()+3,2);
