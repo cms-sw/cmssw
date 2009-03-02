@@ -132,13 +132,13 @@ void ClusterShape::determineShape
 
    // Check if straight
    if(pos.first > x[1])
-   { // Process column
+   { // column ready
      if(processColumn(pos, true) == false)
      { data.isStraight = false; break; }
    }
    else
-   { // Increasing row
-     if(pos.second > hig+1)
+   { // increasing column
+     if(pos.second > hig+1) // at least a pixel is missing
      { data.isStraight = false; break; }
 
      hig = pos.second;

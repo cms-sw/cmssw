@@ -5,18 +5,10 @@ from RecoPixelVertexing.PixelLowPtUtilities.firstStep_cff  import *
 from RecoPixelVertexing.PixelLowPtUtilities.secondStep_cff import *
 from RecoPixelVertexing.PixelLowPtUtilities.thirdStep_cff  import *
 
-ckfBaseTrajectoryFilterForMinBias.filterPset.minimumNumberOfHits = 3
-ckfBaseTrajectoryFilterForMinBias.filterPset.minPt           = 0.075
-
 from RecoVZero.VZeroFinding.VZeros_cff import *
 
-######################
-# Tracklist combiner
-allTracks = cms.EDFilter("TrackListCombiner",
-    trackProducers = cms.vstring('globalPrimTracks', 
-        'globalSecoTracks')
-)
-
+###################################
+# First step, triplets, r=0.2 cm
 firstStep  = cms.Sequence(pixel3ProtoTracks
                         * pixelVertices
                         * pixel3PrimTracks
@@ -24,6 +16,8 @@ firstStep  = cms.Sequence(pixel3ProtoTracks
                         * primTrackCandidates
                         * globalPrimTracks)
 
+###################################
+# Second step, triplets, r=3.5 cm
 secondStep = cms.Sequence(secondClusters
                         * secondPixelRecHits
                         * secondStripRecHits
@@ -32,6 +26,8 @@ secondStep = cms.Sequence(secondClusters
                         * secoTrackCandidates
                         * globalSecoTracks)
 
+###################################
+# Third step, pairs, not used
 thirdStep  = cms.Sequence( thirdClusters
                          * thirdPixelRecHits
                          * thirdStripRecHits
@@ -40,6 +36,15 @@ thirdStep  = cms.Sequence( thirdClusters
                          * tertTrackCandidates
                          * globalTertTracks)
 
+###################################
+# Tracklist combiner
+allTracks = cms.EDFilter("TrackListCombiner",
+    trackProducers = cms.vstring('globalPrimTracks',
+                                 'globalSecoTracks')
+)
+
+###################################
+# Minimum bias tracking
 minBiasTracking = cms.Sequence(firstStep
                              * secondStep
                              * allTracks)

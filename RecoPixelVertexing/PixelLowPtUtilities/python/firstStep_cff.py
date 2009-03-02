@@ -37,7 +37,7 @@ primSeeds.tripletList = ['pixel3PrimTracks']
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 primTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
 primTrackCandidates.TrajectoryCleaner    = 'TrajectoryCleanerBySharedSeeds'
-primTrackCandidates.SeedProducer         = 'primSeeds'
+primTrackCandidates.src                  = 'primSeeds'
 primTrackCandidates.RedundantSeedCleaner = 'none'
 primTrackCandidates.useHitsSplitting          = cms.bool(False)
 primTrackCandidates.doSeedingRegionRebuilding = cms.bool(False)

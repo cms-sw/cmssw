@@ -82,7 +82,7 @@ import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 secoTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
 secoTrackCandidates.TrajectoryBuilder    = 'secondCkfTrajectoryBuilder'
 secoTrackCandidates.TrajectoryCleaner    = 'TrajectoryCleanerBySharedSeeds'
-secoTrackCandidates.SeedProducer         = 'secoSeeds'
+secoTrackCandidates.src                  = 'secoSeeds'
 secoTrackCandidates.RedundantSeedCleaner = 'none'
 secoTrackCandidates.useHitsSplitting          = cms.bool(False)
 secoTrackCandidates.doSeedingRegionRebuilding = cms.bool(False)
