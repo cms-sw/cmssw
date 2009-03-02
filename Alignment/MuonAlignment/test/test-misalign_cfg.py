@@ -10,10 +10,15 @@ process.load("Geometry.MuonCommonData.muonIdealGeometryXML_cfi")
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 
 # Misalignment example scenario producer
-from Alignment.MuonAlignment.Scenarios_cff import *
+import Alignment.MuonAlignment.Scenarios_cff as _MuonScenarios
+# Does not yet work like that:
+#process.load("Alignment.MuonAlignment.MisalignedMuon_cfi")
+#process.MisalignedMuon.saveToDbase = True # to store to DB
+#process.MisalignedMuon.scenario = _MuonScenarios.Muon0inversePbScenario2008
 process.MisalignedMuon = cms.ESProducer("MisalignedMuonESProducer",
-    ExampleScenario #MuonNoMovementsScenario #  from Scenarios_cff
-)
+                                        _MuonScenarios.ExampleScenario,
+                                        saveToDbase = cms.untracked.bool(True)
+                                        )
 
 # or standard stuff 
 # Reco geometry producer
@@ -26,7 +31,6 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("EmptySource")
 
 # Database output service if you want to store soemthing in MisalignedMuon
-process.MisalignedMuon.saveToDbase = True
 from CondCore.DBCommon.CondDBSetup_cfi import CondDBSetup
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     CondDBSetup,
