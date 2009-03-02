@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from TrackingTools.Configuration.TrackingTools_cff import *
+
 process = cms.Process("electrons")
 
 process.load("Configuration.StandardSequences.Services_cff")
@@ -9,6 +11,7 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 
 process.load("Configuration.StandardSequences.RawToDigi_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
+
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 
@@ -35,11 +38,12 @@ process.out = cms.OutputModule("PoolOutputModule",
 
 process.Timing = cms.Service("Timing")
 
-process.mylocalreco =  cms.Sequence(process.trackerlocalreco*process.calolocalreco)
-process.myglobalreco = cms.Sequence(process.offlineBeamSpot+process.recopixelvertexing*process.ckftracks+process.ecalClusters+process.caloTowersRec*process.vertexreco*process.pixelMatchGsfElectronSequence)
+process.mylocalreco =  cms.Sequence(process.trackerlocalreco*process.calolocalreco+process.particleFlowCluster)
+process.myglobalreco = cms.Sequence(process.offlineBeamSpot+process.recopixelvertexing*process.ckftracks+process.ecalClusters+process.caloTowersRec*process.vertexreco*electronGsfTracking*process.pixelMatchGsfElectronSequence) # 
 process.p = cms.Path(process.RawToDigi*process.mylocalreco*process.myglobalreco)
 
 process.outpath = cms.EndPath(process.out)
 process.GlobalTag.globaltag = 'IDEAL_30X::All'
+
 
 
