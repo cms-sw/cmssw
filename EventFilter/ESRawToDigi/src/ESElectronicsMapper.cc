@@ -3,6 +3,12 @@
 ESElectronicsMapper::ESElectronicsMapper(const ParameterSet& ps) {
 
   lookup_ = ps.getUntrackedParameter<FileInPath>("LookupTable");
+
+  for (int i=0; i<2; ++i) 
+    for (int j=0; j<2; ++j) 
+      for (int k=0; k<40; ++k) 
+	for (int m=0; m<40; ++m) 
+	  fed_[i][j][k][m] = -1; 
  
   // read in look-up table
   int nLines, z, iz, ip, ix, iy, fed, kchip, pace, bundle, fiber, optorx;
@@ -18,7 +24,7 @@ ESElectronicsMapper::ESElectronicsMapper(const ParameterSet& ps) {
       if (iz==-1) z = 2;
       else z = iz;
       
-      fed_[z-1][ip-1][ix-1][iy-1] = fed;
+      fed_[z-1][ip-1][ix-1][iy-1] = fed + 519;
     }
 
   } else {
