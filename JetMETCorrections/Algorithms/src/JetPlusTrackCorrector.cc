@@ -197,17 +197,8 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
 
    // Get muons
    edm::Handle<reco::MuonCollection> muons;
-   iEvent.getByLabel(m_muonsSrc, muons);
    reco::MuonCollection::const_iterator muon;
-   
-   
-   //   edm::Handle<reco::TrackCollection> muons;
-   //   iEvent.getByLabel(m_muonsSrc, muons);
-   //   reco::TrackCollection::const_iterator muon;
-   
-   //   edm::Handle<edm::View<reco::Muon> > muons;
-   //   iEvent.getByLabel(m_muonsSrc, muons);
-   //   edm::View<reco::Muon>::const_iterator muon;
+   iEvent.getByLabel(m_muonsSrc, muons);
    
    if(debug){
    cout <<" muon collection size = " << muons->size() << endl;   
@@ -300,74 +291,42 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
    for( reco::TrackRefVector::iterator itV = trAtVertex.begin(); itV != trAtVertex.end(); itV++)
      {
        if(theUseQuality && (!(**itV).quality(trackQuality_))) continue;
-       double ptV = sqrt((**itV).momentum().x()*(**itV).momentum().x()+(**itV).momentum().y()*(**itV).momentum().y());
+       double ptV = (*itV)->pt();
+       // check if it is muon
+       bool ismuon(false);
+       for (muon = muons->begin(); muon != muons->end(); ++muon) {
+	 // muon id here
+	 // track quality requirements are general and should be done elsewhere
+	 if (! muon->isGood(reco::Muon::TMLastStationTight) || 
+	     muon->innerTrack()->pt()<3.0 ) continue;
+	 if (itV->id() != muon->innerTrack().id())
+	     throw cms::Exception("FatalError") 
+	       << "Product id of the tracks associated to the jet " << itV->id() 
+	       <<" is different from the product id of the inner track used for muons " << muon->innerTrack().id()
+	       << "\nCannot compare tracks from different collection. Configuration Error\n";
+	   if (*itV == muon->innerTrack()) {
+	     ismuon = true;
+	     break;
+	   }
+       }
+
        reco::TrackRefVector::iterator it = find(trAtCalo.begin(),trAtCalo.end(),(*itV));
        if(it != trAtCalo.end()) {
 	 if(debug)  cout<<" Track in cone at Calo in Vertex "<<
 		      ptV << " " <<(**itV).momentum().eta()<<
 		      " "<<(**itV).momentum().phi()<<endl;
-	 // check if it is muon
-	 int ismuon = 0;
-	 
-	 if(muons.isValid())
-	   {
-	     for (muon = muons->begin(); muon != muons->end(); ++muon) {
-	       ismuon = 0;
-	     
-	       double dpt = fabs((*it)->pt() - muon->innerTrack()->pt())/(*it)->pt();
-	       double p_mu = sqrt(muon->innerTrack()->pt()*muon->innerTrack()->pt() + 
-				  muon->innerTrack()->pz()*muon->innerTrack()->pz());
-	       //	       double dpt = fabs((*it)->pt()-muon->pt())/(*it)->pt();
-	       //	       double p_mu = sqrt(muon->pt()*muon->pt() + muon->pz()*muon->pz());
-	       double p_track = sqrt((*it)->pt()*(*it)->pt() + (*it)->pz()*(*it)->pz());
-	       double dp = fabs((p_mu-p_track)/p_track);
-	       if(dpt < 0.01 && dp < 0.01 ) {
-	       ismuon = 1;
-	       if(debug) std::cout<<" muInCaloInVertex::Muon selected or not "<<ismuon<<" "<<muon->pt()<<" "<<muon->eta()<<" "<<muon->phi()<<std::endl;
-	       break;
-	       }
-	     }
-	   } // muons collection valid
-	 
-	 if (ismuon == 1) { // muons
+	 if (ismuon) 
 	   muInCaloInVertex.push_back(*it);
-	 } else { 
-	   //
+	 else 
 	   trInCaloInVertex.push_back(*it);
-	 }// no muons
-	 
        } else { // trAtCalo.end()
-	 // check if it is muon
-	 int ismuon = 0;
-	 
-	 if(muons.isValid())
-	   {
-	     for (muon = muons->begin(); muon != muons->end(); ++muon) {
-	        ismuon = 0;
-		
-	       double dpt = fabs((*itV)->pt() - muon->innerTrack()->pt())/(*itV)->pt();
-	       double p_mu = sqrt(muon->innerTrack()->pt()*muon->innerTrack()->pt() + 
-				  muon->innerTrack()->pz()*muon->innerTrack()->pz());
-	       double p_track = sqrt((*itV)->pt()*(*itV)->pt() + (*itV)->pz()*(*itV)->pz());
-	       double dp = fabs((p_mu-p_track)/p_track);
-	       
-	       if(dpt < 0.01 && dp < 0.01 ) {
-	       ismuon = 1;
-	       if(debug) std::cout<<" muOutOfCaloInVertex::Muon selected or not "<<ismuon<<" "<<muon->pt()<<" "<<muon->eta()<<" "<<muon->phi()<<std::endl;
-	       break;
-	       }
-	     }
-	   } // muons collection is valid
-	 
-	 if (ismuon == 1) { // muons
+	 if (ismuon)
 	   muOutOfCaloInVertex.push_back(*itV);
-	 } else { 
+	 else 
 	   trOutOfCaloInVertex.push_back(*itV);
-	 }// no muons
 	 
 	 if(debug) cout<<" Track out of cone at Calo in Vertex "<<ptV << " " <<(**itV).momentum().eta()<<
 		     " "<<(**itV).momentum().phi()<<endl;
-		       
        } // trAtCalo.end()
      } // in Vertex
    
@@ -384,40 +343,30 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
 	   if( it == trInCaloInVertex.end() && im == muInCaloInVertex.end())
 	     {
 	       // check if it is muon
-	       int ismuon = 0;
-	       if(muons.isValid())
-		 {
-		   for (muon = muons->begin(); muon != muons->end(); ++muon) {
-		     ismuon = 0;
-		     /*
-		       double deta = (*itC)->eta() - muon->eta();
-		       double dphi = fabs((*itC)->phi() - muon->phi());
-		       if (dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
-		       double dr = sqrt(dphi*dphi+deta*deta);
-		       if(dr < 0.015) ismuon = 1;
-		     */
-		     double dpt = fabs((*itC)->pt() - muon->innerTrack()->pt())/(*itC)->pt();
-	             double p_mu = sqrt(muon->innerTrack()->pt()*muon->innerTrack()->pt() + 
-					muon->innerTrack()->pz()*muon->innerTrack()->pz());
-	             double p_track = sqrt((*itC)->pt()*(*itC)->pt() + (*itC)->pz()*(*itC)->pz());
-	             double dp = fabs((p_mu-p_track)/p_track);
-		     
-		     if(dpt < 0.01 && dp < 0.01 ) { 
-		     ismuon = 1;
-		     if(debug) std::cout<<"muInCaloOutOfVertex::Muon selected or not "<<ismuon<<" "<<muon->pt()<<" "<<muon->eta()<<" "<<muon->phi()<<std::endl;
-                     break;
-		     }
-		   }
-		 }  // muons collection is valid
+	       bool ismuon(false);
+	       for (muon = muons->begin(); muon != muons->end(); ++muon) {
+		 // muon id here
+		 // track quality requirements are general and should be done elsewhere
+		 if (! muon->isGood(reco::Muon::TMLastStationTight) || 
+		     muon->innerTrack()->pt()<3.0 ) continue;
+		 if (itC->id() != muon->innerTrack().id())
+		   throw cms::Exception("FatalError") 
+		     << "Product id of the tracks associated to the jet " << itC->id() 
+		     <<" is different from the product id of the inner track used for muons " << muon->innerTrack().id()
+		     << "\nCannot compare tracks from different collection. Configuration Error\n";
+		 if (*itC == muon->innerTrack()) {
+		   ismuon = true;
+		   break;
+		 }
+	       }
 	     
-	       if (ismuon == 1) { // muons
+	       if (ismuon)
 		 muInCaloOutOfVertex.push_back(*itC);
-	       } else { 
+	       else 
 		 trInCaloOutOfVertex.push_back(*itC);
-	       } // no muons
 	     }
-	 } 
-     }
+	 }
+     } 
    
    if(debug) {
      std::cout<<" Size of theRecoTracksInConeInVertex " << trInCaloInVertex.size()<<std::endl;  
