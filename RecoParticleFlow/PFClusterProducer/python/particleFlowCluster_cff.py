@@ -19,7 +19,7 @@ towerMakerPF.HEDThreshold = 0.4
 
 
 particleFlowCluster = cms.Sequence(
-    caloTowersRec*
+    #caloTowersRec*
     towerMakerPF*
     pfClusteringECAL*
     pfClusteringHCAL*
