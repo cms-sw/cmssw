@@ -17,17 +17,18 @@ AlignableDet::AlignableDet( const GeomDet* geomDet, bool addComponents ) :
   AlignableComposite( geomDet ), 
   theAlignmentPositionError(0)
 {
+  // Take over APE from geometry _before_ creating daughters,
+  // otherwise would overwrite their APEs!
+  if (geomDet->alignmentPositionError()) {
+    this->setAlignmentPositionError(*(geomDet->alignmentPositionError()));
+  }
+
   if (addComponents) {
     if ( geomDet->components().size() == 0 ) { // Is a DetUnit
       throw cms::Exception("BadHierarchy") << "[AlignableDet] GeomDet with DetId " 
                                            << geomDet->geographicalId().rawId() 
                                            << " has no components, use AlignableDetUnit.\n";
     } else { // Push back all components
-      if (geomDet->alignmentPositionError()) { // take over APE from geometry
-        // Set before daughters are created, otherwise would overwrite their APEs!
-        this->setAlignmentPositionError(*(geomDet->alignmentPositionError()));
-      }
-      
       const std::vector<const GeomDet*>& geomDets = geomDet->components();
       for (std::vector<const GeomDet*>::const_iterator idet = geomDets.begin(); 
             idet != geomDets.end(); ++idet) {
