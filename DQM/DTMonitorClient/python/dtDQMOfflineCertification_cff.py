@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQM.DTMonitorClient.dtDAQInfo_cfi import *
+from DQM.DTMonitorClient.dtDCSSummary_cfi import *
+from DQM.DTMonitorClient.dtCertificationSummary_cfi import *
 
-dtCertification = cms.Sequence(dtDAQInfo)
+dtCertification = cms.Sequence(dtDAQInfo + dtDCSSummary + dtCertificationSummary)
 
