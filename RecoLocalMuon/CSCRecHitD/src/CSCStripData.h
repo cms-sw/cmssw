@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <functional>
 #include <vector>
+#include <iosfwd>
 
 class CSCStripData
 {	
