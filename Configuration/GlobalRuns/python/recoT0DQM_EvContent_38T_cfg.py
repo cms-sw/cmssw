@@ -7,11 +7,12 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
 
-process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(100) )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    '/store/data/Commissioning08/Cosmics/RAW-RECO/CRAFT_ALL_V4_TrackingPointing_TrackerPointing_v3/0272/78C097C9-4EF1-DD11-ADC8-0019B9E8B3CD.root')
+        '/store/data/Commissioning08/Cosmics/RAW/v1/000/067/838/006945C8-40A5-DD11-BD7E-001617DBD556.root'
+    )
 )
 
 # output module
@@ -21,10 +22,9 @@ process.load("Configuration.EventContent.EventContentCosmics_cff")
 process.FEVT = cms.OutputModule("PoolOutputModule",
     process.RECOEventContent,
     dataset = cms.untracked.PSet(dataTier = cms.untracked.string('RECO')),
-    fileName = cms.untracked.string('promptrecoCosmics.root')
+    fileName = cms.untracked.string('promptrecoCosmics_38T.root')
 )
 
-process.FEVT.outputCommands.append('keep *_eventAuxiliaryHistoryProducer_*_*')
 process.FEVT.outputCommands.append('keep CaloTowersSorted_calotoweroptmaker_*_*')
 process.FEVT.outputCommands.append('keep CSCDetIdCSCALCTDigiMuonDigiCollection_muonCSCDigis_MuonCSCALCTDigi_*')
 process.FEVT.outputCommands.append('keep CSCDetIdCSCCLCTDigiMuonDigiCollection_muonCSCDigis_MuonCSCCLCTDigi_*')
@@ -46,7 +46,7 @@ process.FEVT.outputCommands.append('keep recoCandidatesOwned_caloTowersOpt_*_*')
 process.FEVT.outputCommands.append('keep RPCDetIdRPCDigiMuonDigiCollection_muonRPCDigis_*_*')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.25 $'),
+    version = cms.untracked.string('$Revision: 1.26 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/GlobalRuns/python/recoT0DQM_EvContent_38T_cfg.py,v $'),
     annotation = cms.untracked.string('CRUZET Prompt Reco with DQM with Mag field at 3.8T')
 )
@@ -55,7 +55,7 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) ) #
 
 # Conditions (Global Tag is used here):
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "CRAFT_ALL_V9::All"
+process.GlobalTag.globaltag = "CRAFT_30X::All"
 process.prefer("GlobalTag")
 
 # Magnetic fiuld: force mag field to be 3.8 tesla
@@ -81,7 +81,6 @@ process.load("L1Trigger.Configuration.L1Config_cff")
 #process.load("L1TriggerConfig.CSCTFConfigProducers.L1MuCSCTFConfigurationRcdSrc_cfi")
 
 #Paths
-process.load("FWCore.Modules.eventAuxiliaryHistoryProducer_cfi")
-process.allPath = cms.Path( process.RawToDigi * process.reconstructionCosmics * process.L1HardwareValidation_woGT * process.DQMOfflineCosmics * process.MEtoEDMConverter * process.eventAuxiliaryHistoryProducer)
+process.allPath = cms.Path( process.RawToDigi * process.reconstructionCosmics * process.L1HardwareValidation_woGT * process.DQMOfflineCosmics * process.MEtoEDMConverter)
 
 process.outpath = cms.EndPath(process.FEVT)
