@@ -13,7 +13,7 @@
 //
 // Original Author:  Suchandra Dutta
 //      Created:  Thu Oct 19 09:02:32 CEST 2006
-// $Id: InvariantMass.cc,v 1.11 2007/10/07 13:05:27 fwyzard Exp $
+// $Id: InvariantMass.cc,v 1.12 2007/10/08 10:49:25 fwyzard Exp $
 //
 //
 
@@ -83,11 +83,9 @@ InvariantMass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // Island basic cluster collection
    Handle<BasicClusterCollection> barrelBasicClusterHandle;
    iEvent.getByLabel(m_ecalBClSrc, "islandBarrelBasicClusters", barrelBasicClusterHandle);
-   const reco::BasicClusterCollection & barrelClusters = *(barrelBasicClusterHandle.product());
 
    Handle<BasicClusterCollection> endcapBasicClusterHandle;
    iEvent.getByLabel(m_ecalBClSrc, "islandEndcapBasicClusters", endcapBasicClusterHandle);
-   const reco::BasicClusterCollection & endcapClusters = *(endcapBasicClusterHandle.product());
 
    if (isolatedTaus->empty()) {
      tagCollection.reset( new JetTagCollection() );
