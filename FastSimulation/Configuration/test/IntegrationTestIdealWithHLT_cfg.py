@@ -11,7 +11,8 @@ process.maxEvents = cms.untracked.PSet(
 process.load("FastSimulation.Configuration.RandomServiceInitialization_cff")
 
 # Generate ttbar events
-process.load("Configuration.Generator.TTbar_cfi")
+process.load("Configuration.Generator.QCD_Pt_80_120_cfi")
+#process.load("FastSimulation.Configuration.DiElectrons_cfi")
 
 # L1 Menu and prescale factors : useful for testing all L1 paths
 process.load("Configuration.StandardSequences.L1TriggerDefaultMenu_cff")
@@ -38,6 +39,7 @@ process.load("FastSimulation.HighLevelTrigger.HLTSetup_cff")
 # Famos sequences
 process.load("FastSimulation.Configuration.FamosSequences_cff")
 
+#process.famosSimHits.ActivateDecays.ActivateDecays = False
 # Parametrized magnetic field (new mapping, 4.0 and 3.8T)
 #process.load("Configuration.StandardSequences.MagneticField_40T_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
@@ -46,6 +48,8 @@ process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 # HLT paths - defined by configDB
 # This one is created on the fly by FastSimulation/Configuration/test/IntegrationTestWithHLT_py.csh
 process.load("FastSimulation.Configuration.HLT_cff")
+
+
 
 # Only event accepted by L1 + HLT are reconstructed
 process.HLTEndSequence = cms.Sequence(process.reconstructionWithFamos)
@@ -57,6 +61,11 @@ process.schedule.extend(process.HLTSchedule)
 # If uncommented : All events are reconstructed, including those rejected at L1/HLT
 process.reconstruction = cms.Path(process.reconstructionWithFamos)
 process.schedule.append(process.reconstruction)
+
+process.dummy = cms.EDAnalyzer("DummyHepMCAnalyzer",
+                               src = cms.InputTag("generator"),
+                               dumpHepMC = cms.untracked.bool(True)
+                               )
 
 # Simulation sequence
 process.simulation = cms.Sequence(process.ProductionFilterSequence*process.simulationWithFamos)
@@ -106,7 +115,12 @@ process.schedule.append(process.outpath)
 # Keep the logging output to a nice level #
 # process.Timing =  cms.Service("Timing")
 # process.load("FWCore/MessageService/MessageLogger_cfi")
-# process.MessageLogger.destinations = cms.untracked.vstring("pyDetailedInfo.txt")
+# process.MessageLogger.destinations = cms.untracked.vstring("pyDetailedInfo.txt","cout")
+# process.MessageLogger.categories.append("FamosManager")
+# process.MessageLogger.cout = cms.untracked.PSet(threshold=cms.untracked.string("INFO"),
+#                                                 default=cms.untracked.PSet(limit=cms.untracked.int32(0)),
+#                                                 FamosManager=cms.untracked.PSet(limit=cms.untracked.int32(100000)))
+
 
 # Make the job crash in case of missing product
 process.options = cms.untracked.PSet( Rethrow = cms.untracked.vstring('ProductNotFound') )
