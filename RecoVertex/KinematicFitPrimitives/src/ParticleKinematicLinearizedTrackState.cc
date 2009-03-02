@@ -35,8 +35,12 @@ AlgebraicVector6 ParticleKinematicLinearizedTrackState::predictedStateParameters
   
 AlgebraicSymMatrix66  ParticleKinematicLinearizedTrackState::predictedStateWeight(int & error) const
 {
- if(!jacobiansAvailable) computeJacobians();
- return thePredState.perigeeError().weightMatrix(error);
+  if(!jacobiansAvailable) computeJacobians();
+  int i = 0;
+  AlgebraicSymMatrix66 z = thePredState.perigeeError().weightMatrix(i);
+  error = i;
+  return z;  
+//   return thePredState.perigeeError().weightMatrix(error);
 }
   
 AlgebraicSymMatrix66  ParticleKinematicLinearizedTrackState::predictedStateError() const
@@ -79,8 +83,6 @@ void  ParticleKinematicLinearizedTrackState::computeJacobians() const
 {
  GlobalPoint paramPt(theLinPoint);
  thePredState = builder(part->currentState(), paramPt); 
- 
- 
  if (abs(theCharge)<1e-5) {
 
 //neutral track
