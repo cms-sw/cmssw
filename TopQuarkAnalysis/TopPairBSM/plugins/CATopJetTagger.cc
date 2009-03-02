@@ -12,6 +12,13 @@ using namespace edm;
 // static data member definitions
 //
 
+struct GreaterByPtCandPtr {
+  bool operator()( const edm::Ptr<reco::Candidate> & t1, const edm::Ptr<reco::Candidate> & t2 ) const {
+    return t1->pt() > t2->pt();
+  }
+};
+
+
 //
 // constructors and destructor
 //
@@ -85,16 +92,19 @@ CATopJetTagger::produce( edm::Event& iEvent, const edm::EventSetup& iSetup)
      // Require at least three subjets in all cases, if not, untagged
      if ( verbose_ ) cout << "nSubJets = " << properties.nSubJets << endl;
      if ( properties.nSubJets >= 3 ) {
+
+       // Take the highest 3 pt subjets for cuts
+       sort ( subjets.begin(), subjets.end(), GreaterByPtCandPtr() );
        
        // Now look at the subjets that were formed
-       for ( int isub = 0; isub < properties.nSubJets - 1; ++isub ) {
+       for ( int isub = 0; isub < 2; ++isub ) {
 
 	 // Get this subjet
 	 Jet::Constituent icandJet = subjets[isub];
 
 	 // Now look at the "other" subjets than this one, form the minimum invariant mass
 	 // pairing, as well as the "closest" combination to the W mass
-	 for ( int jsub = isub + 1; jsub < properties.nSubJets; ++jsub ) {
+	 for ( int jsub = isub + 1; jsub < 3; ++jsub ) {
 
 	   // Get the second subjet
 	   Jet::Constituent jcandJet = subjets[jsub];
