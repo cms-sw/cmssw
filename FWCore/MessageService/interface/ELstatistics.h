@@ -35,14 +35,14 @@
 #include <set>
 
 namespace edm {       
-namespace service {       
 
 
 // ----------------------------------------------------------------------
 // prerequisite classes:
 // ----------------------------------------------------------------------
 
-class edm::ErrorObj;
+class ErrorObj;
+namespace service {       
 class ELadministrator;
 class ELdestControl;
 

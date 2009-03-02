@@ -17,14 +17,14 @@
 #include "FWCore/MessageLogger/interface/ELextendedID.h"
 
 namespace edm {       
-namespace service {       
 
 
 // ----------------------------------------------------------------------
 // prerequisite classes:
 // ----------------------------------------------------------------------
 
-class edm::ErrorObj;
+class ErrorObj;
+namespace service {       
 class ELdestControl;
 
 

@@ -46,8 +46,8 @@ typedef std::vector<Bools> VBools;
 // Name all our paths. We have as many paths as there are trigger
 // bits.
 
-const size_t num_trig_paths = 8;
-boost::array<char*,num_trig_paths> cpaths = 
+size_t const num_trig_paths = 8;
+boost::array<char const*, num_trig_paths> cpaths = 
       {{      
               "ap1", "ap2", "aq1", "aq2", 
               "bp1", "bp2", "bq1", "bq2",

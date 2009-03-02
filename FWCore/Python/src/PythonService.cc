@@ -32,7 +32,7 @@ PythonService::PythonService(const edm::ParameterSet& iConfig, edm::ActivityRegi
     using namespace boost::python;
 	
     command_ = "from "+fileName + " import *\n";
-    object main_module(( boost::python::handle<>(borrowed(PyImport_AddModule("__main__"))) ));
+    object main_module(( boost::python::handle<>(borrowed(PyImport_AddModule(const_cast<char *>("__main__"))))));
     object main_namespace = main_module.attr("__dict__");
     try {
       object result((boost::python::handle<>(PyRun_String(command_.c_str(),
@@ -67,7 +67,7 @@ PythonService::~PythonService()
 void PythonService::postBeginJob()
 {
 	using namespace boost::python;
-    object main_module((boost::python::handle<>(borrowed(PyImport_AddModule("__main__")))));   
+    object main_module((boost::python::handle<>(borrowed(PyImport_AddModule(const_cast<char *>("__main__"))))));   
     object main_namespace = main_module.attr("__dict__");
     main_namespace["tempService"] = service_;
 
@@ -85,7 +85,7 @@ void PythonService::postBeginJob()
 void PythonService::postEndJob()
 {
     using namespace boost::python;
-    object main_module((boost::python::handle<>(borrowed(PyImport_AddModule("__main__")))));   
+    object main_module((boost::python::handle<>(borrowed(PyImport_AddModule(const_cast<char *>("__main__"))))));   
     object main_namespace = main_module.attr("__dict__");
     main_namespace["tempService"] = service_;
 
@@ -109,7 +109,7 @@ void PythonService::preProcessEvent(const edm::EventID& iID, const edm::Timestam
 void PythonService::postProcessEvent(const edm::Event&, const edm::EventSetup&)
 {
     using namespace boost::python;
-    object main_module((boost::python::handle<>(borrowed(PyImport_AddModule("__main__")))));   
+    object main_module((boost::python::handle<>(borrowed(PyImport_AddModule(const_cast<char *>("__main__"))))));   
     object main_namespace = main_module.attr("__dict__");
     main_namespace["tempService"] = service_;
 

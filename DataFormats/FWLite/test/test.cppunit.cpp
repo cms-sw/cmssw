@@ -2,7 +2,7 @@
 
 Test program for edm::Ref use in ROOT.
 
-$Id: test.cppunit.cpp,v 1.7 2008/09/23 16:59:37 chrjones Exp $
+$Id: test.cppunit.cpp,v 1.8 2008/11/11 15:57:34 dsr Exp $
  ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -19,6 +19,8 @@ $Id: test.cppunit.cpp,v 1.7 2008/09/23 16:59:37 chrjones Exp $
 static char* gArgV = 0;
 
 extern "C" char** environ;
+
+#define CHARSTAR(x) const_cast<char *>(x)
 
 class testRefInROOT: public CppUnit::TestFixture
 {
@@ -47,7 +49,10 @@ public:
       gSystem->Load("libFWCoreFWLite.so");
       AutoLibraryLoader::enable();
       
-      char* argv[] = {"TestRunnerDataFormatsFWLite","/bin/bash","DataFormats/FWLite/test","RefTest.sh"};
+      char* argv[] = {CHARSTAR("TestRunnerDataFormatsFWLite"),
+		      CHARSTAR("/bin/bash"),
+		      CHARSTAR("DataFormats/FWLite/test"),
+		      CHARSTAR("RefTest.sh")};
       argv[0] = gArgV;
       if(0!=ptomaine(sizeof(argv)/sizeof(const char*), argv, environ) ) {
         std::cerr <<"could not run script needed to make test files\n";

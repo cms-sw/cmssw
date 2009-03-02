@@ -179,7 +179,7 @@ namespace edm {
       if (j != s && j->second.produced()) {
 	// Ignore branches just produced (i.e. not in input file).
 	++j;
-      } else if (j == s || i != e && i->first < j->first) {
+      } else if (j == s || (i != e && i->first < j->first)) {
 	if (i->second.present()) {
 	  differences << "Branch '" << i->second.branchName() << "' is in file '" << fileName << "'\n";
 	  differences << "    but not in previous files.\n";
@@ -187,7 +187,7 @@ namespace edm {
 	  productList_.insert(*i);
 	}
 	++i;
-      } else if (i == e || j != s && j->first < i->first) {
+      } else if (i == e || (j != s && j->first < i->first)) {
 	if (j->second.present() && branchesMustMatch == BranchDescription::Strict) {
 	  differences << "Branch '" << j->second.branchName() << "' is in previous files\n";
 	  differences << "    but not in file '" << fileName << "'.\n";

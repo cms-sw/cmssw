@@ -10,6 +10,6 @@ namespace edm {
 
   bool operator<(ProductID const& lh, ProductID const& rh) {
     return lh.processIndex() < rh.processIndex() ||
-      lh.processIndex() == rh.processIndex() && lh.productIndex() < rh.productIndex();
+      (lh.processIndex() == rh.processIndex() && lh.productIndex() < rh.productIndex());
   }
 }

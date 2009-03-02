@@ -175,7 +175,7 @@ int main()
   // Name all our paths. We have as many paths as there are trigger
   // bits.
 
-  boost::array<char*,numBits> cpaths = 
+  boost::array<char const*, numBits> cpaths = 
   	{{	
 		"HLTx1",   "HLTx2",   "HLTy1",   "HLTy2", 
 		"CALIBx1", "CALIBx2", "CALIBy1", "CALIBy2",

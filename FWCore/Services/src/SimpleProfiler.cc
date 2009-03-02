@@ -359,7 +359,9 @@ extern "C"
 namespace
 {
   
+#if USE_SIGALTSTACK
   stack_t ss_area;
+#endif
 
   void setupTimer();
 

@@ -60,7 +60,7 @@ PythonFilter::PythonFilter(const edm::ParameterSet& iConfig) :
    //}
 
    object main_module((
-			 handle<>(borrowed(PyImport_AddModule("__main__")))));
+			 handle<>(borrowed(PyImport_AddModule(const_cast<char *>("__main__"))))));
    
    object main_namespace = main_module.attr("__dict__");
 
@@ -101,7 +101,7 @@ PythonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace boost::python;
    object main_module((
-			 handle<>(borrowed(PyImport_AddModule("__main__")))));
+			 handle<>(borrowed(PyImport_AddModule(const_cast<char *>("__main__"))))));
    
    object main_namespace = main_module.attr("__dict__");
 

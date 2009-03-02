@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Wed Nov 30 14:55:01 EST 2005
-// $Id: RootAutoLibraryLoader.cc,v 1.15 2008/11/28 17:44:31 wmtan Exp $
+// $Id: RootAutoLibraryLoader.cc,v 1.16 2009/01/13 21:47:18 wmtan Exp $
 //
 
 // system include files
@@ -270,7 +270,7 @@ void registerTypes() {
       if (className[pos] == '<') {break;}
       if (className.size() <= pos+1 || className[pos+1] != ':') {break;}
       //should check to see if this is a class or not
-      G__set_class_autoloading_table(const_cast<char*>(className.substr(0,pos).c_str()),"");
+      G__set_class_autoloading_table(const_cast<char*>(className.substr(0,pos).c_str()),const_cast<char *>(""));
       //std::cout <<"namespace "<<className.substr(0,pos).c_str()<<std::endl;
       pos += 2;
     }

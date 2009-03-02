@@ -172,22 +172,22 @@ int main()
 
   // Name all our paths. We have as many paths as there are trigger
   // bits.
-  boost::array<char*,numBits> cpaths = {{"a1","a2","a3","a4","a5"}};
+  boost::array<char const*, numBits> cpaths = {{"a1","a2","a3","a4","a5"}};
   Strings paths(cpaths.begin(),cpaths.end());
 
   // 
 
-  boost::array<char*,2> cw1 = {{ "a1","a2" }};
-  boost::array<char*,2> cw2 = {{ "!a1","!a2" }};
-  boost::array<char*,2> cw3 = {{ "a1","!a2" }};
-  boost::array<char*,1> cw4 = {{ "*" }};
-  boost::array<char*,1> cw5 = {{ "!*" }};
-  boost::array<char*,2> cw6 = {{ "*","!*" }};
-  boost::array<char*,2> cw7 = {{ "*","!a2" }};
-  boost::array<char*,2> cw8 = {{ "!*","a2" }};
-  boost::array<char*,3> cw9 = {{ "a1","a2","a5" }};
-  boost::array<char*,2> cwA = {{ "a3","a4" }};
-  boost::array<char*,1> cwB = {{ "!a5" }};
+  boost::array<char const*, 2> cw1 = {{ "a1","a2" }};
+  boost::array<char const*, 2> cw2 = {{ "!a1","!a2" }};
+  boost::array<char const*, 2> cw3 = {{ "a1","!a2" }};
+  boost::array<char const*, 1> cw4 = {{ "*" }};
+  boost::array<char const*, 1> cw5 = {{ "!*" }};
+  boost::array<char const*, 2> cw6 = {{ "*","!*" }};
+  boost::array<char const*, 2> cw7 = {{ "*","!a2" }};
+  boost::array<char const*, 2> cw8 = {{ "!*","a2" }};
+  boost::array<char const*, 3> cw9 = {{ "a1","a2","a5" }};
+  boost::array<char const*, 2> cwA = {{ "a3","a4" }};
+  boost::array<char const*, 1> cwB = {{ "!a5" }};
 
   VStrings patterns(numPatterns);
   patterns[0].insert(patterns[0].end(),cw1.begin(),cw1.end());
