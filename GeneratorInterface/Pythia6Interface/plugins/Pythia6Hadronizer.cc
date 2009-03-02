@@ -152,35 +152,18 @@ void Pythia6Hadronizer::finalizeEvent()
 // FIXME: signal_process_vertex
 
    // get pdf info directly from Pythia6 and set it up into HepMC::GenEvent
+   // S. Mrenna: Prefer vint block
    //
-
-/* Note-1: mint/vint are internal interfaces, pari, the official one
-   http://cepa.fnal.gov/psm/simulation/mcgen/lund/pythia_manual/pythia6.3/pythia6301/node126.html#p:PARI
-   
-   Note-2: No, per explicit suggestions of Pythia6 developers, mint/vint are planned for the long run
-   
-*/
    if (pdf.id1() < 0)      pdf.set_id1( pyint1.mint[14] == 21 ? 0 : pyint1.mint[14] );
    if (pdf.id2() < 0)      pdf.set_id2( pyint1.mint[15] == 21 ? 0 : pyint1.mint[15] );
-   // if (pdf.x1() < 0)       pdf.set_x1( pypars.pari[32] );
-   // if (pdf.x2() < 0)       pdf.set_x2( pypars.pari[33] );
    if (pdf.x1() < 0)       pdf.set_x1( pyint1.vint[40] );
    if (pdf.x2() < 0)       pdf.set_x2( pyint1.vint[41] );
-//
-// FIXME: what is the CMS convention?  Make all generators consistent!!!
-// FIXME: check what pypars.pari[30] and pypars.pari[31] contain
-//
-// Note: the convention (not just in CMS but wherever) is to use pdf/x
-//
-   // if (pdf.pdf1() < 0)     pdf.set_pdf1( pypars.pari[28] / pypars.pari[32] );
    if (pdf.pdf1() < 0)     pdf.set_pdf1( pyint1.vint[38] / pyint1.vint[40] );
-   if (pdf.pdf2() < 0)     pdf.set_pdf2( pyint1.vint[39] / pyint1.vint[39] );
-   //if (pdf.scalePDF() < 0) pdf.set_scalePDF( pypars.pari[20] );
+   if (pdf.pdf2() < 0)     pdf.set_pdf2( pyint1.vint[39] / pyint1.vint[41] );
    if (pdf.scalePDF() < 0) pdf.set_scalePDF( pyint1.vint[50] );
-   
+
    event()->set_pdf_info( pdf ) ;
 
-// FIXME similarly... vint -> pari?
    event()->weights().push_back( pyint1.vint[96] );
 
    // service printouts, if requested
