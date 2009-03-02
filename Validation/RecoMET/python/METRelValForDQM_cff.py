@@ -1,8 +1,7 @@
 import FWCore.ParameterSet.Config as cms
-# File: CaloMET.cfi
-# Author: B. Scurlock & R. Remington
-# Date: 03.04.2008
-#
+# File: METRelValForDQM.cfi
+# Author:  R. Remington
+# Date: 03.01.09
 # Fill validation histograms for MET.
 
 from Validation.RecoMET.CaloMET_cfi import *
