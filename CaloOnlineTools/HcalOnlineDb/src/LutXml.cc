@@ -8,17 +8,39 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Mar 18 14:30:20 CDT 2008
-// $Id: LutXml.cc,v 1.4 2008/05/28 12:07:01 kukartse Exp $
+// $Id: LutXml.cc,v 1.5 2008/06/03 10:35:18 kukartse Exp $
 //
 
 #include <iostream>
 #include <string>
 #include <vector>
 #include <sstream>
+#include <iconv.h>
+#include <sys/time.h>
 
 #include "CaloOnlineTools/HcalOnlineDb/interface/LutXml.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/XMLProcessor.h"
 #include "FWCore/Utilities/interface/md5.h"
+
+// xalan-c init
+#include <xalanc/Include/PlatformDefinitions.hpp>
+#include <xalanc/XPath/XPathEvaluator.hpp>
+#include <xercesc/framework/LocalFileInputSource.hpp>
+XALAN_USING_XERCES(XMLPlatformUtils)
+#include <xalanc/XSLT/XSLTInputSource.hpp>
+#include <xalanc/PlatformSupport/XSLException.hpp>
+
+#include <xalanc/DOMSupport/XalanDocumentPrefixResolver.hpp>
+#include <xalanc/XPath/XObject.hpp>
+#include <xalanc/XalanSourceTree/XalanSourceTreeDOMSupport.hpp>
+#include <xalanc/XalanSourceTree/XalanSourceTreeInit.hpp>
+#include <xalanc/XalanSourceTree/XalanSourceTreeParserLiaison.hpp>  
+
+#include "CaloOnlineTools/HcalOnlineDb/interface/LMap.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
+
+using namespace xalanc;
 
 using namespace std;
 
@@ -76,17 +98,100 @@ LutXml::LutXml(InputSource & _source ) : XMLDOMBlock( _source )
 }
 
 
+LutXml::LutXml( std::string filename ) : XMLDOMBlock( filename )
+{
+  init();
+}
+
+
 LutXml::~LutXml()
 {
-
+  delete brickElem;
+  XMLString::release(&root);
+  XMLString::release(&brick);
+  delete lut_map;
 }
 
 
 void LutXml::init( void )
 {
-  brickElem = NULL;
+  root  = XMLString::transcode("CFGBrickSet");
+  brick = XMLString::transcode("CFGBrick");
+  brickElem = 0;
+  lut_map = 0;
 }
 
+
+std::vector<unsigned int> * LutXml::getLutFast( uint32_t det_id ){
+  if (lut_map){
+    return &(*lut_map)[det_id];
+  }
+  else{
+    cerr << "LUT not found, null pointer is returned" << endl;
+    return 0;
+  }
+}
+
+std::vector<unsigned int> LutXml::getLut( int lut_type, int crate, int slot, int topbottom, int fiber, int fiber_channel ){
+  std::vector<unsigned int> _lut;
+  //write();
+
+  std::string _context = "/CFGBrickSet";
+  char buf[1024];
+  sprintf(buf,
+	  "CFGBrick[Parameter[@name='LUT_TYPE']=%d and Parameter[@name='CRATE']=%d and Parameter[@name='SLOT']=%d and Parameter[@name='TOPBOTTOM']=%d and Parameter[@name='FIBER']=%d and Parameter[@name='FIBERCHAN']=%d]/Data",
+	  lut_type, crate, slot, topbottom, fiber, fiber_channel);
+  std::string _expression(buf);
+
+  cout << _expression << endl;
+
+  const XObjectPtr theResult = eval_xpath(_context,_expression);
+
+  if(theResult.null() == false){
+    cout << endl << theResult->str() << endl;
+  }
+
+  const XalanDOMString & _string = theResult->str();
+  int _string_length = _string.length();
+  XalanVector<char> _str;
+  _string.transcode(_str);
+  unsigned int _base = 16;
+  unsigned int _item=0;
+  for (int i=0; i!=_string_length; i++){
+    bool _range;
+    char ch_cur = _str[i];
+    if (_base==16) _range = (ch_cur>='0' and ch_cur<='9') || (ch_cur>='a' and ch_cur<='f') || (ch_cur>='A' and ch_cur<='F');
+    else if (_base==10) _range = (ch_cur>='0' and ch_cur<='9');
+    if ( _range ){
+      if ( ch_cur>='a' and ch_cur<='f' ) ch_cur += 10-'a';
+      else if ( ch_cur>='A' and ch_cur<='F' ) ch_cur += 10-'A';
+      else if ( ch_cur>='0' and ch_cur<='9' ) ch_cur += -'0';
+      _item = _item*_base;
+      _item += ch_cur;
+      bool last_digit = false;
+      if ( (i+1)==_string_length ) last_digit=true;
+      else{
+	char ch_next = _str[i+1];
+	bool _range_next;
+	if (_base==16) _range_next = (ch_next>='0' and ch_next<='9') || (ch_next>='a' and ch_next<='f') || (ch_next>='A' and ch_next<='F');
+	else if (_base==10) _range_next = (ch_next>='0' and ch_next<='9');
+	if ( !_range_next ) last_digit=true;
+      }
+      if (last_digit){
+	_lut.push_back(_item);
+	_item=0;
+      }
+    }
+  }
+
+  cout << "### ";
+  for (vector<unsigned int>::const_iterator l=_lut.begin(); l!=_lut.end(); l++){
+    cout << *l << " ";
+  }
+  cout << endl << endl;
+
+  return _lut;
+}
 
 
 
@@ -254,4 +359,210 @@ std::string LutXml::get_checksum( std::vector<unsigned int> & lut )
   //cout << endl;
 
   return result . str();
+}
+
+
+int LutXml::test_access( std::string filename ){
+  //create_lut_map();
+  cout << "Created map size: " << lut_map->size() << endl;
+
+  struct timeval _t;
+  gettimeofday( &_t, NULL );
+  double _time =(double)(_t . tv_sec) + (double)(_t . tv_usec)/1000000.0;
+
+  EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.04_080905.txt");
+  std::vector<EMap::EMapRow> & _map = _emap.get_map();
+  cout << "EMap contains " << _map . size() << " entries" << endl;
+
+  int _counter=0;
+  for (std::vector<EMap::EMapRow>::const_iterator row=_map.begin(); row!=_map.end(); row++){
+    if (row->subdet=="HB"){
+      HcalDetId det_id(HcalBarrel,row->ieta,row->iphi,row->idepth);
+      uint32_t raw_id = det_id.rawId();
+      std::vector<unsigned int> * l = getLutFast(raw_id);
+      if (l) _counter++;
+    }
+    if (row->subdet=="HE"){
+      HcalDetId det_id(HcalEndcap,row->ieta,row->iphi,row->idepth);
+      uint32_t raw_id = det_id.rawId();
+      std::vector<unsigned int> * l = getLutFast(raw_id);
+      if (l) _counter++;
+    }
+    if (row->subdet=="HF"){
+      HcalDetId det_id(HcalForward,row->ieta,row->iphi,row->idepth);
+      uint32_t raw_id = det_id.rawId();
+      std::vector<unsigned int> * l = getLutFast(raw_id);
+      if (l) _counter++;
+    }
+    if (row->subdet=="HO"){
+      HcalDetId det_id(HcalOuter,row->ieta,row->iphi,row->idepth);
+      uint32_t raw_id = det_id.rawId();
+      std::vector<unsigned int> * l = getLutFast(raw_id);
+      if (l) _counter++;
+    }
+  }
+  gettimeofday( &_t, NULL );
+  cout << "access to " << _counter << " HCAL channels took: " << (double)(_t . tv_sec) + (double)(_t . tv_usec)/1000000.0 - _time << "sec" << endl;
+
+  //cout << endl;
+  //for (std::vector<unsigned int>::const_iterator i=l->begin();i!=l->end();i++){
+  //  cout << *i << " ";
+  //}
+  //cout << endl;
+
+  return 0;
+}
+
+int LutXml::test_xpath( std::string filename ){
+  // http://svn.apache.org/repos/asf/xalan/c/tags/Xalan-C_1_10_0/samples/SimpleXPathAPI/SimpleXPathAPI.cpp
+  
+  XMLProcessor::getInstance();
+
+  read_xml_file_xalan( filename );
+
+  std::string _context = "/CFGBrickSet";
+  //std::string _expression = "CFGBrick[Parameter[@name='IETA']=-1 and Parameter[@name='IPHI']=19]/Data";
+  std::string _expression = "CFGBrick[Parameter[@name='IETA']=-1]/Data";
+  cout << _expression << endl;
+
+  const XObjectPtr theResult = eval_xpath(_context,_expression);
+
+  if(theResult.null() == false){
+    cout << "Number of nodes: " << theResult->nodeset().getLength() << endl;
+    
+    cout << "The string value of the result is:"
+	 << endl
+	 << theResult->str()
+	 << endl
+	 << endl;
+  }
+  return 0;
+}
+
+
+HcalSubdetector LutXml::subdet_from_crate(int crate, int eta, int depth){
+  HcalSubdetector result;
+  // HBHE: 0,1,4,5,10,11,14,15,17
+  // HF: 2,9,12
+  // HO: 3,6,7,13
+
+  if (crate==2 || crate==9 || crate==12) result=HcalForward;
+  else if (crate==3 || crate==6 || crate==7 || crate==13) result=HcalOuter;
+  else if (crate==0 || crate==1 || crate==4 || crate==5 || crate==10 || crate==11 || crate==14 || crate==15 || crate==17){
+    if (eta<16) result=HcalBarrel;
+    else if (eta>16) result=HcalEndcap;
+    else if (eta==16 && depth!=3) result=HcalBarrel;
+    else if (eta==16 && depth==3) result=HcalEndcap;
+    else{
+      cerr << "Impossible to determine HCAL subdetector!!!" << endl;
+      exit(-1);
+    }
+  }
+  else{
+    cerr << "Impossible to determine HCAL subdetector!!!" << endl;
+    exit(-1);
+  }
+
+  return result;
+}
+
+
+int LutXml::a_to_i(char * inbuf){
+  int result;
+  sscanf(inbuf,"%d",&result);
+  return result;
+}
+
+// organize all LUTs in XML into a map for fast access
+//
+// FIXME: uses hardcoded CRATE-to-subdetector mapping
+// FIXME: it would be better to use some official map
+//
+int LutXml::create_lut_map( void ){
+  delete lut_map;
+  lut_map = new map<uint32_t,vector<unsigned int> >();
+
+  if (document){
+    //DOMElement * rootElem = 
+    DOMNodeList * brick_list = document->getDocumentElement()->getElementsByTagName(brick);
+    int n_of_bricks = brick_list->getLength();
+    for(int i=0; i!=n_of_bricks; i++){
+      DOMElement * aBrick = (DOMElement *)(brick_list->item(i));
+      DOMNodeList * par_list = aBrick->getElementsByTagName(XMLString::transcode("Parameter"));
+      int n_of_par = par_list->getLength();
+      int ieta=-99;
+      int iphi=-99;
+      int depth=-99;
+      int crate=-99;
+      int lut_type=-99;
+      HcalSubdetector subdet;
+      for(int j=0; j!=n_of_par; j++){
+	//cout << "DEBUG: i,j: " << i << ", " << j << endl;
+	DOMElement * aPar = (DOMElement *)(par_list->item(j));
+	char * aName = XMLString::transcode( aPar->getAttribute(XMLProcessor::_toXMLCh("name")) );
+	if ( strcmp(aName, "IETA")==0 ) ieta=a_to_i(XMLString::transcode(aPar->getFirstChild()->getNodeValue()));
+	if ( strcmp(aName, "IPHI")==0 ) iphi=a_to_i(XMLString::transcode(aPar->getFirstChild()->getNodeValue()));
+	if ( strcmp(aName, "DEPTH")==0 ) depth=a_to_i(XMLString::transcode(aPar->getFirstChild()->getNodeValue()));
+	if ( strcmp(aName, "CRATE")==0 ) crate=a_to_i(XMLString::transcode(aPar->getFirstChild()->getNodeValue()));
+	if ( strcmp(aName, "LUT_TYPE")==0 ) lut_type=a_to_i(XMLString::transcode(aPar->getFirstChild()->getNodeValue()));
+      }
+      subdet=subdet_from_crate(crate,abs(ieta),depth);
+      //cerr << "DEBUG: eta,phi,depth,crate,type,subdet: " << ieta << ", " << iphi << ", " << depth << ", " << crate << ", " << lut_type << ", " << subdet << endl;
+      DOMElement * _data = (DOMElement *)(aBrick->getElementsByTagName(XMLString::transcode("Data"))->item(0));
+      char * _str = XMLString::transcode(_data->getFirstChild()->getNodeValue());
+      //cout << _str << endl;
+      //
+      // get the LUT vector
+      int _string_length = strlen(_str);
+      vector<unsigned int> _lut;
+      unsigned int _base = 16;
+      unsigned int _item=0;
+      for (int i=0; i!=_string_length; i++){
+	bool _range;
+	char ch_cur = _str[i];
+	if (_base==16) _range = (ch_cur>='0' and ch_cur<='9') || (ch_cur>='a' and ch_cur<='f') || (ch_cur>='A' and ch_cur<='F');
+	else if (_base==10) _range = (ch_cur>='0' and ch_cur<='9');
+	if ( _range ){
+	  if ( ch_cur>='a' and ch_cur<='f' ) ch_cur += 10-'a';
+	  else if ( ch_cur>='A' and ch_cur<='F' ) ch_cur += 10-'A';
+	  else if ( ch_cur>='0' and ch_cur<='9' ) ch_cur += -'0';
+	  _item = _item*_base;
+	  _item += ch_cur;
+	  bool last_digit = false;
+	  if ( (i+1)==_string_length ) last_digit=true;
+	  else{
+	    char ch_next = _str[i+1];
+	    bool _range_next;
+	    if (_base==16) _range_next = (ch_next>='0' and ch_next<='9') || (ch_next>='a' and ch_next<='f') || (ch_next>='A' and ch_next<='F');
+	    else if (_base==10) _range_next = (ch_next>='0' and ch_next<='9');
+	    if ( !_range_next ) last_digit=true;
+	  }
+	  if (last_digit){
+	    _lut.push_back(_item);
+	    _item=0;
+	  }
+	}
+      }
+      ////
+      //cout << _lut[127] << endl;
+      // filling the map
+      uint32_t _key;
+      if (lut_type==1){
+	HcalDetId _id(subdet,ieta,iphi,depth);
+	_key = _id.rawId();
+      }
+      else if (lut_type==2){
+	HcalTrigTowerDetId _id(ieta,iphi);
+	_key = _id.rawId();
+      }
+      lut_map->insert(pair<uint32_t,vector<unsigned int> >(_key,_lut));
+    }
+  }
+  else{
+    cerr << "XML file with LUTs is not loaded, cannot create map!" << endl;
+  }
+
+
+
+  return 0;
 }

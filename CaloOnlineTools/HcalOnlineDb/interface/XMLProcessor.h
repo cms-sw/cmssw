@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Sun Sep 23 16:57:06 CEST 2007
-// $Id: XMLProcessor.h,v 1.2 2008/03/13 20:44:14 kukartse Exp $
+// $Id: XMLProcessor.h,v 1.3 2008/04/10 21:12:09 kukartse Exp $
 //
 
 // system include files
@@ -209,7 +209,7 @@ inline XMLCh* XMLProcessor::_toXMLCh( time_t temp )
   int status = strftime( buf, 50, "%c", gmtime( &temp ) );
   if ( status == 0 )
     {
-      cout << "XMLProcessor::_toXMLCh(int temp): buffer overflow, the string is indeterminate!" << endl;
+      cout << "XML  Processor::_toXMLCh(int temp): buffer overflow, the string is indeterminate!" << endl;
     }
   XMLCh* buff = XMLString::transcode( buf );    
   return  buff;

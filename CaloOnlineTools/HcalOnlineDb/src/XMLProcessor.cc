@@ -8,12 +8,16 @@
 //
 // Original Author:  
 //         Created:  Fri Sep 21 15:56:27 CEST 2007
-// $Id: XMLProcessor.cc,v 1.3 2008/04/10 21:12:09 kukartse Exp $
+// $Id: XMLProcessor.cc,v 1.4 2008/04/22 22:08:01 kukartse Exp $
 //
 
 // system include files
 #include <vector>
 #include <string>
+#include <iostream>
+#include <sys/types.h>
+#include <pwd.h>
+#include <unistd.h>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/sax/HandlerBase.hpp>
@@ -22,19 +26,15 @@
 #include <xercesc/dom/DOMNode.hpp>
 #include <xercesc/framework/StdOutFormatTarget.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
-//#include <xercesc/framework/MemBufFormatTarget.hpp>
-#include <sys/types.h>
-#include <pwd.h>
-#include <unistd.h>
 
-#if defined(XERCES_NEW_IOSTREAMS)
-#include <iostream>
-#else
-#include <iostream.h>
-#endif
+// xalan-c init
+#include <xalanc/Include/PlatformDefinitions.hpp>
+#include <xalanc/XPath/XPathEvaluator.hpp>
+//#include <xalanc/XalanTransformer/XalanTransformer.hpp>
 
-XERCES_CPP_NAMESPACE_USE 
 using namespace std;
+XERCES_CPP_NAMESPACE_USE 
+using namespace xalanc;
 
 // user include files
 #include "CaloOnlineTools/HcalOnlineDb/interface/XMLProcessor.h"
@@ -298,9 +298,10 @@ XMLCh * XMLProcessor::serializeDOM(DOMNode* node, string target)
 
 int XMLProcessor::init( void )
 {
-  cout << "Intializing Xerces...";
+  cout << "Intializing Xerces-c and Xalan-c...";
   try {
     XMLPlatformUtils::Initialize();
+    XPathEvaluator::initialize();
   }
   catch (const XMLException& toCatch) {
     cout << " FAILED! Exiting..." << endl;
@@ -313,12 +314,18 @@ int XMLProcessor::init( void )
 
 int XMLProcessor::terminate( void )
 {
-  cout << "Terminating Xerces...";
+  cout << "Terminating Xalan-c...";
+  XPathEvaluator::terminate();
+  cout << " done" << endl;
+
+  cout << "Terminating Xerces-c...";
   XMLPlatformUtils::Terminate();
   cout << " done" << endl;
+
 
   // Other terminations and cleanup.
 
   return 0;
 }
+
 

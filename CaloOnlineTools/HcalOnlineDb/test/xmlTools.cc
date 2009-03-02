@@ -75,6 +75,7 @@ int main( int argc, char **argv )
     ("test-qie", po::value<string>(), "test QIE procedure elements")
     ("test-lut-manager", po::value<string>(), "test LUT functionality")
     ("test-lut-xml-access", "test and benchmark LUT reading from local XML file")
+    ("test-lut-xml-file-access", "test and benchmark LUT reading from local XML file")
     ("test-lut-checksum", "test LUT MD5 checksum calculation")
     ("tag-name", po::value<string>(), "tag name")
     ("prefix-name", po::value<string>(), "prefix for file names and such")
@@ -113,7 +114,34 @@ int main( int argc, char **argv )
       cout << general << "\n";
       return 1;
     }
-    
+
+
+    if (vm.count("test-lut-xml-file-access")) {
+      cout << "Testing reading LUTs from local XML file..." << "\n";
+      std::string in_ = vm["input-file"].as<string>();
+      cout << "LUT XML file: " << in_ << "\n";
+      //LutXml _xml(in_);
+      //_xml . test_xpath(in_);
+      //
+      //LutXml _xml;
+      //_xml.read_xml_file_xalan(in_);
+      //_xml.test_access("noname");
+      //
+      //evaluate timing
+      struct timeval _t;
+      gettimeofday( &_t, NULL );
+      double _time =(double)(_t . tv_sec) + (double)(_t . tv_usec)/1000000.0;
+      LutXml * _xml = new LutXml(in_);
+      gettimeofday( &_t, NULL );
+      cout << "Initialization took: " << (double)(_t . tv_sec) + (double)(_t . tv_usec)/1000000.0 - _time << "sec" << endl;
+      _xml->create_lut_map();
+      _xml->test_access("noname");
+      delete _xml;
+      XMLProcessor::getInstance()->terminate();
+      return 0;
+    }
+
+
     if (vm.count("test-string")) {
       cout << "Test: "
 	   << vm["test-string"].as<string>() << ".\n";
@@ -790,10 +818,11 @@ int main( int argc, char **argv )
       //cout << "Nothing to do!" << endl;
     }
   
-  cout << "xmlTools ...done" << endl;
 
-  exit (0);
-  
+  delete XMLProcessor::getInstance();
+
+  cout << "xmlTools ...done" << endl;
+  exit (0);  
 }
 
 

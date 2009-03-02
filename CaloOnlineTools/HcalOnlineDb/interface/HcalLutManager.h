@@ -116,6 +116,7 @@ class HcalLutManager_test{
  public:
   
   static int getLutXml_test( std::vector<unsigned int> & _lut ){return 0;}
+
   static int getLutSetFromFile_test( string _filename );
 
   static int getInt_test( string number );
@@ -125,4 +126,5 @@ class HcalLutManager_test{
   LutXml * lut_xml;
 
 };
+
 #endif

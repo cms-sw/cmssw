@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Thu Sep 27 01:46:46 CEST 2007
-// $Id: XMLDOMBlock.h,v 1.6 2008/08/31 20:40:21 kukartse Exp $
+// $Id: XMLDOMBlock.h,v 1.7 2008/10/01 13:34:22 kukartse Exp $
 //
 
 
@@ -25,6 +25,16 @@
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/sax/HandlerBase.hpp>
 #include <xercesc/dom/DOM.hpp>
+
+#include <xalanc/DOMSupport/XalanDocumentPrefixResolver.hpp>
+//#include <xalanc/XPath/XObject.hpp>
+#include <xalanc/XalanSourceTree/XalanSourceTreeDOMSupport.hpp>
+#include <xalanc/XalanSourceTree/XalanSourceTreeInit.hpp>
+#include <xalanc/XalanSourceTree/XalanSourceTreeParserLiaison.hpp>  
+#include <xercesc/framework/LocalFileInputSource.hpp>
+#include <xalanc/XPath/XPathEvaluator.hpp>
+
+using namespace xalanc;
 
 XERCES_CPP_NAMESPACE_USE 
 using namespace std;
@@ -64,6 +74,10 @@ class XMLDOMBlock
 
   XMLDOMBlock & operator+=( const XMLDOMBlock & other);
 
+  //===> Xalan-c (XPath) stuff
+  int read_xml_file_xalan( std::string filename );
+  const XObjectPtr eval_xpath( std::string context, std::string expression );
+
  protected:
 
   int init( string _root );
@@ -73,8 +87,17 @@ class XMLDOMBlock
   ErrorHandler * errHandler;
   DOMDocument * document;
   string theFileName;
-  //boost::shared_ptr<std::string> the_string;
   std::string * the_string;
+
+  // xalan objects for XPath
+  XalanSourceTreeInit * theSourceTreeInit;
+  XalanSourceTreeDOMSupport * theDOMSupport;
+  XalanSourceTreeParserLiaison * theLiaison;
+  const LocalFileInputSource * theInputSource;
+  XalanDocument * theDocument;
+  XalanDocumentPrefixResolver * thePrefixResolver;
+  XPathEvaluator * theEvaluator;
+
 };
 
 

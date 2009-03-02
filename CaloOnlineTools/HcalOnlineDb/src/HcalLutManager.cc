@@ -1027,45 +1027,7 @@ std::vector<unsigned int> HcalLutManager::getLutFromXml( string tag, uint32_t _r
 
   std::vector<unsigned int> result;
 
-  /* FIXME: implement with emap and output LUT sipport
-  if ( !emap ){
-    cout << "HcalLutManager: cannot find LUT without EMAP, exiting..." << endl;
-    exit(-1);
-  }
-  if ( !db ){
-    cout << "HcalLutManager: cannot find LUT, no source (local XML file), exiting..." << endl;
-    exit(-1);
-  }
 
-  std::vector<EMap::EMapRow> & _map = _emap.get_map();
-
-  HcalDetId _id( _rawid );
-    
-  unsigned int _crate, _slot, _fiber, _channel;
-  string _fpga;
-  int topbottom, luttype;
-
-  // FIXME: check validity of _rawid
-  if ( _map . find(_rawid) != _map.end() ){
-    _crate   = _map[_rawid] . crate;
-    _slot    = _map[_rawid] . htr;
-    _fiber   = _map[_rawid] . htr_fi;
-    _channel = _map[_rawid] . fi_ch;
-    _fpga    = _map[_rawid] . fpga;
-    
-    if ( _fpga . find("top") != string::npos ) topbottom = 1;
-    else if ( _fpga . find("bot") != string::npos ) topbottom = 0;
-    else{
-      cout << "HcalLutManager: irregular LMAP fpga value... do not know what to do - exiting" << endl;
-      exit(-1);
-    }
-    if ( _lt == hcal::ConfigurationDatabase::LinearizerLUT ) luttype = 1;
-    else luttype = 2;
-    
-    result = db -> getOnlineLUT( tag, _crate, _slot, topbottom, _fiber, _channel, luttype );
-  }
-  
-  */
 
   return result;
 }

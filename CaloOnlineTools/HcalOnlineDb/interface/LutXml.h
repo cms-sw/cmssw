@@ -16,14 +16,13 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Mar 18 14:30:33 CDT 2008
-// $Id: LutXml.h,v 1.3 2008/05/28 12:07:00 kukartse Exp $
+// $Id: LutXml.h,v 1.4 2008/06/03 10:35:18 kukartse Exp $
 //
 
 #include <vector>
+#include <map>
 #include "CaloOnlineTools/HcalOnlineDb/interface/XMLDOMBlock.h"
-
-
-
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
 class LutXml : public XMLDOMBlock
 {
@@ -44,18 +43,31 @@ class LutXml : public XMLDOMBlock
   
   LutXml();
   LutXml( InputSource & _source );
+  LutXml( std::string filename );
   virtual ~LutXml();
   
   void init( void );
   void addLut( Config & _config, XMLDOMBlock * checksums_xml = 0 );
   std::string & getCurrentBrick( void );
+  
+  std::vector<unsigned int> * getLutFast( uint32_t det_id );
+  std::vector<unsigned int> getLut( int lut_type, int crate, int slot, int topbottom, int fiber, int fiber_channel );
+
+  HcalSubdetector subdet_from_crate(int crate, int eta, int depth);
+  int a_to_i(char * inbuf);
+  int create_lut_map( void );
 
   static std::string get_checksum( std::vector<unsigned int> & lut );
+
+  int test_xpath( std::string filename );
+  int test_access( std::string filename );
 
   //LutXml & operator+=( const LutXml & other);
 
  protected:  
 
+  XMLCh * root;
+  XMLCh * brick;
   DOMElement * addParameter( string _name, string _type, string _value );
   DOMElement * addParameter( string _name, string _type, int _value );
   DOMElement * addData( string _elements, string _encoding, std::vector<unsigned int> _lut );
@@ -63,6 +75,8 @@ class LutXml : public XMLDOMBlock
   DOMElement * add_checksum( DOMDocument * parent, Config & config );
 
   DOMElement * brickElem;
+
+  std::map<uint32_t,vector<unsigned int> > * lut_map;
 
 };
 

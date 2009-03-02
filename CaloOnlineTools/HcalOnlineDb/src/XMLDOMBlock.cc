@@ -8,21 +8,17 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Thu Sep 27 01:43:42 CEST 2007
-// $Id: XMLDOMBlock.cc,v 1.6 2008/08/31 20:40:21 kukartse Exp $
+// $Id: XMLDOMBlock.cc,v 1.7 2008/10/01 13:34:23 kukartse Exp $
 //
 
 // system include files
+#include <iostream>
 #include <string>
+#include<time.h>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/sax/HandlerBase.hpp>
 #include <xercesc/dom/DOM.hpp>
-#include<time.h>
-
-#if defined(XERCES_NEW_IOSTREAMS)
-#include <iostream>
-#else
-#include <iostream.h>
-#endif
+#include <xalanc/XPath/XObject.hpp>
 
 XERCES_CPP_NAMESPACE_USE 
 using namespace std;
@@ -42,11 +38,8 @@ XMLDOMBlock & XMLDOMBlock::operator+=( const XMLDOMBlock & other)
   int i = 0;
   for(int i=0;i!=_length;i++){
     _node = _children->item(i);
-    //cout << "+++=== " << XMLString::transcode(_node->getNodeName()) << endl;
     DOMNode * i_node = this->getDocument()->importNode(_node,true);
     this->getDocument()->getDocumentElement()->appendChild(i_node);
-    //cout << "+++=== result node" << endl << XMLString::transcode(nn->getNodeName()) << endl;
-    //this->write("stdout");
   }
   return *this;
 }
@@ -69,6 +62,14 @@ XMLDOMBlock::XMLDOMBlock( string _root, int rootElementName )
 
 XMLDOMBlock::XMLDOMBlock( InputSource & _source )
 {
+  // xalan objects initialization
+  theSourceTreeInit = 0;
+  theDOMSupport = 0;
+  theLiaison = 0;
+  theInputSource = 0;
+  theDocument = 0;
+  thePrefixResolver = 0;
+  theEvaluator = 0;
 
   theProcessor = XMLProcessor::getInstance();
 
@@ -180,6 +181,15 @@ int XMLDOMBlock::init( string _root )
 
   the_string = 0;
 
+  // xalan objects initialization
+  theSourceTreeInit = 0;
+  theDOMSupport = 0;
+  theLiaison = 0;
+  theInputSource = 0;
+  theDocument = 0;
+  thePrefixResolver = 0;
+  theEvaluator = 0;
+
   return 0;
 }
 
@@ -187,6 +197,14 @@ int XMLDOMBlock::init( string _root )
 
 XMLDOMBlock::XMLDOMBlock( string xmlFileName )
 {
+  // xalan objects initialization
+  theSourceTreeInit = 0;
+  theDOMSupport = 0;
+  theLiaison = 0;
+  theInputSource = 0;
+  theDocument = 0;
+  thePrefixResolver = 0;
+  theEvaluator = 0;
 
   theProcessor = XMLProcessor::getInstance();
 
@@ -297,6 +315,15 @@ XMLDOMBlock::~XMLDOMBlock()
   delete parser;
   delete errHandler;
   //if (the_string) delete the_string;
+
+  // delete xalan objects
+  delete theSourceTreeInit;
+  delete theDOMSupport;
+  delete theLiaison;
+  delete theInputSource;
+  //delete theDocument; // noneed to delete - belongs to theLiaison
+  delete thePrefixResolver;
+  delete theEvaluator;
 }
 
 const char * XMLDOMBlock::getTagValue( const string & tagName, int _item, DOMDocument * _document )
@@ -374,3 +401,38 @@ std::string & XMLDOMBlock::getString( DOMNode * _node )
 
 
 
+int XMLDOMBlock::read_xml_file_xalan( std::string filename ){
+  theSourceTreeInit = new XalanSourceTreeInit();
+  theDOMSupport = new XalanSourceTreeDOMSupport();
+  theLiaison = new XalanSourceTreeParserLiaison(*theDOMSupport);
+  const XalanDOMString theFileName(filename.c_str());
+  theInputSource = new LocalFileInputSource(theFileName.c_str());
+  theDocument = theLiaison->parseXMLStream(*theInputSource);
+  assert(theDocument != 0);
+  thePrefixResolver = new XalanDocumentPrefixResolver(theDocument);
+  theEvaluator = new XPathEvaluator;
+  
+  return 0;
+}
+
+const XObjectPtr XMLDOMBlock::eval_xpath( std::string context, std::string expression ){
+  XalanNode* const theContextNode = theEvaluator->selectSingleNode(
+								   *theDOMSupport,
+								  theDocument,
+								  XalanDOMString(context.c_str()).c_str(),
+								  *thePrefixResolver);
+  if (theContextNode == 0){
+    //cerr << "Warning -- No nodes matched the location path " << context << endl;
+    XObjectPtr _null;
+    return _null;
+  }
+
+  
+  const XObjectPtr theResult(
+			     theEvaluator->evaluate(
+						    *theDOMSupport,
+						    theContextNode,
+						    XalanDOMString(expression.c_str()).c_str(),
+						    *thePrefixResolver));
+  return theResult;
+}
