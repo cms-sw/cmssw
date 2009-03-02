@@ -40,15 +40,13 @@ class ThePEGHadronizer : public ThePEGInterface, public gen::BaseHadronizer {
 
     private:
 	unsigned int			eventsToPrint;
-	unsigned int			index;
 
 	ThePEG::EventPtr		thepegEvent;
 };
 
 ThePEGHadronizer::ThePEGHadronizer(const edm::ParameterSet &pset) :
 	ThePEGInterface(pset),
-	eventsToPrint(pset.getUntrackedParameter<unsigned int>("eventsToPrint", 0)),
-	index(0)
+	eventsToPrint(pset.getUntrackedParameter<unsigned int>("eventsToPrint", 0))
 {  
 	initRepository(pset);
 
@@ -104,7 +102,6 @@ void ThePEGHadronizer::finalizeEvent()
 {
 	HepMC::PdfInfo pdf;
 	clearAuxiliary(event().get(), &pdf);
-	event()->set_event_number(++index);
 	fillAuxiliary(event().get(), &pdf, thepegEvent);
 	event()->set_pdf_info(pdf);
 
