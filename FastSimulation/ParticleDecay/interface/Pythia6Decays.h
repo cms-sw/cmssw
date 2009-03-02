@@ -25,6 +25,8 @@ class Pythia6Decays
 
  private:
 
+  double comE_;
+  bool initialized_;
   Pythia6jets* pyjets;
   Pythia6Random* pyrand;
   DaughterParticleList theList;

@@ -13,20 +13,13 @@ extern "C" {
   void PYTHIA6PYDECY(int *ip);
 }
 
-Pythia6Decays::Pythia6Decays(int seed,double comE)
+Pythia6Decays::Pythia6Decays(int seed,double comE):comE_(comE),initialized_(false)
 {
   // Create a new Pythia6jets
   pyjets = new Pythia6jets();
   // Create a new Pythia6Random steering
   pyrand = new Pythia6Random(seed);
-  // Initialize PYTHIA decay tables...
-  if(pyint1.vint[289]==0)
-    {
-      std::cout << " It seems that pythia has not been initialized. Since Pythia is needed";
-      std::cout << " to simulate the particle decays. FAMOS will call PYINIT " << std::endl;
-      std::cout << " Note that the centre-of-mass energy does not overwrite the generator settings " << std::endl;
-      call_pyinit( "CMS", "p", "p", comE );
-    }
+  // The PYTHIA decay tables will be initialized later 
 
 }
 
@@ -50,6 +43,18 @@ Pythia6Decays::saveRandom() {
 const DaughterParticleList&
 Pythia6Decays::particleDaughters(ParticlePropagator& particle)
 {
+  if(!initialized_)
+    {
+      // Initialize PYTHIA decay tables...
+      if(pyint1.vint[289]==0)
+	{
+	  std::cout << " It seems that pythia has not been initialized. Since Pythia is needed";
+	  std::cout << " to simulate the particle decays. FAMOS will call PYINIT " << std::endl;
+	  std::cout << " Note that the centre-of-mass energy does not overwrite the generator settings " << std::endl;
+	  call_pyinit( "CMS", "p", "p", comE_ );
+	}
+    }
+
   //  Pythia6jets pyjets;
   int ip;
 
