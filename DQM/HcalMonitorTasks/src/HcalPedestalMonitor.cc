@@ -599,6 +599,7 @@ void HcalPedestalMonitor::fillPedestalHistos(void)
 	      ADCPedestalRMS[depth]->setBinContent(eta+2,phi+2,ADC_RMS);
 	      ADCPedestalMean_1D[depth]->Fill(ADC_mean);
 	      ADCPedestalRMS_1D[depth]->Fill(ADC_RMS);
+	      cout <<"SET MEAN"<<eta+2<<"  "<<phi+2<<"  "<<fC_mean<<endl;
 	      fCPedestalMean[depth]->setBinContent(eta+2,phi+2,fC_mean);
 	      fCPedestalMean_1D[depth]->Fill(fC_mean);
 	      fCPedestalRMS[depth]->setBinContent(eta+2,phi+2,fC_RMS);
@@ -707,14 +708,20 @@ void HcalPedestalMonitor::fillPedestalHistos(void)
   FillUnphysicalHEHFBins(subfCPedestalRMS);  
 
   // Individual capid plots
-  for (int capid=0;capid<4;++capid)
+
+  for (unsigned int i=0;i<ADC_PedestalFromDBByDepth_bycapid.size();++i)
     {
-      FillUnphysicalHEHFBins(ADCPedestalMean_bycapid[capid]);
-      FillUnphysicalHEHFBins(ADCPedestalRMS_bycapid[capid]);
-      FillUnphysicalHEHFBins(fCPedestalMean_bycapid[capid]);
-      FillUnphysicalHEHFBins(fCPedestalRMS_bycapid[capid]);
+      for (unsigned int capid=0;capid<ADC_PedestalFromDBByDepth_bycapid[i].size();++capid)
+	{
+      // Why doesn't this work here?
+
+	  FillUnphysicalHEHFBins(ADCPedestalMean_bycapid[capid]);
+	  FillUnphysicalHEHFBins(ADCPedestalRMS_bycapid[capid]);
+	  FillUnphysicalHEHFBins(fCPedestalMean_bycapid[capid]);
+	  FillUnphysicalHEHFBins(fCPedestalRMS_bycapid[capid]);
+	}
     }
-  
+
   // Overall plots by depth
   FillUnphysicalHEHFBins(MeanMapByDepth);    
   FillUnphysicalHEHFBins(RMSMapByDepth);     
@@ -871,14 +878,19 @@ void HcalPedestalMonitor::fillDBValues(const HcalDbService& cond)
   FillUnphysicalHEHFBins(ADC_WidthFromDBByDepth);
   FillUnphysicalHEHFBins(fC_PedestalFromDBByDepth);
   FillUnphysicalHEHFBins(fC_WidthFromDBByDepth);
-  for (int capid=0;capid<4;++capid)
-    {
-      FillUnphysicalHEHFBins(ADC_PedestalFromDBByDepth_bycapid[capid]);
-      FillUnphysicalHEHFBins(ADC_WidthFromDBByDepth_bycapid[capid]);
-      FillUnphysicalHEHFBins(fC_PedestalFromDBByDepth_bycapid[capid]);
-      FillUnphysicalHEHFBins(fC_WidthFromDBByDepth_bycapid[capid]);
-    }
 
+  for (unsigned int i=0;i<ADC_PedestalFromDBByDepth_bycapid.size();++i)
+    {
+      for (unsigned int capid=0;capid<ADC_PedestalFromDBByDepth_bycapid[i].size();++capid)
+	{
+	  // Why does this crash here, but not in lxplus?
+	  FillUnphysicalHEHFBins(ADC_PedestalFromDBByDepth_bycapid[capid]);
+	  FillUnphysicalHEHFBins(ADC_WidthFromDBByDepth_bycapid[capid]);
+	  FillUnphysicalHEHFBins(fC_PedestalFromDBByDepth_bycapid[capid]);
+	  FillUnphysicalHEHFBins(fC_WidthFromDBByDepth_bycapid[capid]);
+	  
+	}
+    }
   if (showTiming)
     {
       cpu_timer.stop();  
