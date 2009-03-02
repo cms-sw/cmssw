@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2009/02/08 02:20:49 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/03/26 21:59:25 $
+ *  $Revision: 1.10 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
@@ -14,12 +14,6 @@ AlignableDTChamber::AlignableDTChamber(const GeomDet *geomDet)
    // even though we overload alignableObjectId(), it's dangerous to
    // have two different claims about the structure type
    theStructureType = align::AlignableDTChamber;
-
-   // set the APE of this chamber,
-   // does not yet have components to which APE could be (erroneously) propagated
-   if (geomDet->alignmentPositionError() != NULL) {
-      setAlignmentPositionError(*geomDet->alignmentPositionError());
-   }
 
    // The unique thing about DT chambers is that they are Dets that contain Dets (superlayers)
    // The superlayer Dets contain DetUnits (layers), as usual
