@@ -86,13 +86,13 @@ void CaloTowerAnalyzer::beginJob(const edm::EventSetup& iSetup)
     me["hCT_Nevents"]          = dbe_->book1D("METTask_CT_Nevents","",1,0,1);  
     //--Data integrated over all events and stored by CaloTower(ieta,iphi) 
     me["hCT_et_ieta_iphi"]          = dbe_->book2D("METTask_CT_et_ieta_iphi","",83,-41,42, 72,1,73);  
-    me["hCT_Minet_ieta_iphi"]          = dbe_->book2D("METTask_CT_Minet_ieta_iphi","",83,-41,42, 72,1,73);  
-    me["hCT_Maxet_ieta_iphi"]          = dbe_->book2D("METTask_CT_Maxet_ieta_iphi","",83,-41,42, 72,1,73);  
+    //    me["hCT_Minet_ieta_iphi"]          = dbe_->book2D("METTask_CT_Minet_ieta_iphi","",83,-41,42, 72,1,73);  
+    //   me["hCT_Maxet_ieta_iphi"]          = dbe_->book2D("METTask_CT_Maxet_ieta_iphi","",83,-41,42, 72,1,73);  
     for (int i = 1; i<=83; i++)
       for (int j = 1; j<=73; j++)
 	{
-	  me["hCT_Minet_ieta_iphi"]->setBinContent(i,j,14E3);
-	  me["hCT_Maxet_ieta_iphi"]->setBinContent(i,j,-999);
+	  //	  me["hCT_Minet_ieta_iphi"]->setBinContent(i,j,14E3);
+	  //	  me["hCT_Maxet_ieta_iphi"]->setBinContent(i,j,-999);
 	}
 
     me["hCT_emEt_ieta_iphi"]        = dbe_->book2D("METTask_CT_emEt_ieta_iphi","",83,-41,42, 72,1,73);  
@@ -134,7 +134,7 @@ void CaloTowerAnalyzer::beginJob(const edm::EventSetup& iSetup)
         me["hCT_emEtvsieta"]        = dbe_->book2D("METTask_CT_emEtvsieta","",83,-41,42, 200,-0.5,999.5);
         me["hCT_hadEtvsieta"]       = dbe_->book2D("METTask_CT_hadEtvsieta","",83,-41,42, 200,-0.5,999.5);
         me["hCT_energyvsieta"]      = dbe_->book2D("METTask_CT_energyvsieta","",83,-41,42, 200,-0.5,999.5);
-        me["hCT_outerEnergyvsieta"] = dbe_->book2D("METTask_CT_outerEnergyvsieta","",83,-41,42, 200,-0.5,999.5);
+        me["hCT_outerEnergyvsieta"] = dbe_->book2D("METTask_CT_outerEnergyvsieta","",83,-41,42, 80,-0.5,399.5);
         me["hCT_hadEnergyvsieta"]   = dbe_->book2D("METTask_CT_hadEnergyvsieta","",83,-41,42, 200,-0.5,999.5);
         me["hCT_emEnergyvsieta"]    = dbe_->book2D("METTask_CT_emEnergyvsieta","",83,-41,42, 200,-0.5,999.5);
 

@@ -57,7 +57,6 @@ METTester::METTester(const edm::ParameterSet& iConfig)
 
 void METTester::beginJob(const edm::EventSetup& iSetup)
 {
-  
   // get ahold of back-end interface
   dbe_ = edm::Service<DQMStore>().operator->();
   
@@ -73,41 +72,39 @@ void METTester::beginJob(const edm::EventSetup& iSetup)
 	// CaloMET Histograms
 	if(!finebinning_)
 	  {
-	    me["hNevents"]                = dbe_->book1D("METTask_Nevents","METTask_Nevents",1,0,1); 
-	    me["hCaloMEx"]                = dbe_->book1D("METTask_CaloMEx","METTask_CaloMEx",1000,-999.5,999.5); 
-	    me["hCaloMEy"]                = dbe_->book1D("METTask_CaloMEy","METTask_CaloMEy",1000,-999.5,999.5);
+	    me["hNevents"]                = dbe_->book1D("METTask_Nevents","METTask_Nevents",1,-0.5,1); 
+	    me["hCaloMEx"]                = dbe_->book1D("METTask_CaloMEx","METTask_CaloMEx",500,-999.5,499.5); 
+	    me["hCaloMEy"]                = dbe_->book1D("METTask_CaloMEy","METTask_CaloMEy",500,-999.5,499.5);
 	    //        me["hCaloEz"]                 = dbe_->book1D("METTask_CaloEz","METTask_CaloEz",2001,-500,501);
-	    me["hCaloMETSig"]             = dbe_->book1D("METTask_CaloMETSig","METTask_CaloMETSig",50,-0.5,49.5);
-	    me["hCaloMET"]                = dbe_->book1D("METTask_CaloMET","METTask_CaloMET",2000,-0.5,1999.5);
+	    me["hCaloMETSig"]             = dbe_->book1D("METTask_CaloMETSig","METTask_CaloMETSig",25,-0.5,24.5);
+	    me["hCaloMET"]                = dbe_->book1D("METTask_CaloMET","METTask_CaloMET",1200,-0.5,1199.5);
 	    me["hCaloMETPhi"]             = dbe_->book1D("METTask_CaloMETPhi","METTask_CaloMETPhi",80,-4,4);
-	    me["hCaloSumET"]              = dbe_->book1D("METTask_CaloSumET","METTask_CaloSumET",1000,-0.5,9999.5);   //10GeV
-	    me["hCaloMaxEtInEmTowers"]    = dbe_->book1D("METTask_CaloMaxEtInEmTowers","METTask_CaloMaxEtInEmTowers",800,-0.5,3999.5);   //5GeV
-	    me["hCaloMaxEtInHadTowers"]   = dbe_->book1D("METTask_CaloMaxEtInHadTowers","METTask_CaloMaxEtInHadTowers",800,-.05,3999.5);  //5GeV
+	    me["hCaloSumET"]              = dbe_->book1D("METTask_CaloSumET","METTask_CaloSumET",800,-0.5,7999.5);   //10GeV
+	    me["hCaloMaxEtInEmTowers"]    = dbe_->book1D("METTask_CaloMaxEtInEmTowers","METTask_CaloMaxEtInEmTowers",600,-0.5,2999.5);   //5GeV
+	    me["hCaloMaxEtInHadTowers"]   = dbe_->book1D("METTask_CaloMaxEtInHadTowers","METTask_CaloMaxEtInHadTowers",600,-.05,2999.5);  //5GeV
 	    me["hCaloEtFractionHadronic"] = dbe_->book1D("METTask_CaloEtFractionHadronic","METTask_CaloEtFractionHadronic",100,0,1);
 	    me["hCaloEmEtFraction"]       = dbe_->book1D("METTask_CaloEmEtFraction","METTask_CaloEmEtFraction",100,0,1);
-	    me["hCaloHadEtInHB"]          = dbe_->book1D("METTask_CaloHadEtInHB","METTask_CaloHadEtInHB",1600, -0.5, 7999.5);  //5GeV  
-	    me["hCaloHadEtInHO"]          = dbe_->book1D("METTask_CaloHadEtInHO","METTask_CaloHadEtInHO",800, -0.5, 3999.5);  //5GeV
-	    me["hCaloHadEtInHE"]          = dbe_->book1D("METTask_CaloHadEtInHE","METTask_CaloHadEtInHE",800, -0.5, 3999.5);  //5GeV
-	    me["hCaloHadEtInHF"]          = dbe_->book1D("METTask_CaloHadEtInHF","METTask_CaloHadEtInHF",800, -0.5, 3999.5);  //5GeV
-	    me["hCaloHadEtInEB"]          = dbe_->book1D("METTask_CaloHadEtInEB","METTask_CaloHadEtInEB",1600, -0.5, 7999.5);   //5GeV
-	    me["hCaloHadEtInEE"]          = dbe_->book1D("METTask_CaloHadEtInEE","METTask_CaloHadEtInEE",800, -0.5, 3999.5);  //5GeV
-	    me["hCaloEmEtInHF"]           = dbe_->book1D("METTask_CaloEmEtInHF","METTask_CaloEmEtInHF",800, -0.5, 3999.5);   //5GeV
-	    me["hCaloEmEtInEE"]           = dbe_->book1D("METTask_CaloEmEtInEE","METTask_CaloEmEtInEE",800,0,3999.5);    //5GeV
-	    me["hCaloEmEtInEB"]           = dbe_->book1D("METTask_CaloEmEtInEB","METTask_CaloEmEtInEB",1600,0, 7999.5);   //5GeV
+	    me["hCaloHadEtInHB"]          = dbe_->book1D("METTask_CaloHadEtInHB","METTask_CaloHadEtInHB",1000, -0.5, 4999.5);  //5GeV  
+	    me["hCaloHadEtInHO"]          = dbe_->book1D("METTask_CaloHadEtInHO","METTask_CaloHadEtInHO",250, -0.5, 499.5);  //5GeV
+	    me["hCaloHadEtInHE"]          = dbe_->book1D("METTask_CaloHadEtInHE","METTask_CaloHadEtInHE",200, -0.5, 399.5);  //5GeV
+	    me["hCaloHadEtInHF"]          = dbe_->book1D("METTask_CaloHadEtInHF","METTask_CaloHadEtInHF",100, -0.5, 199.5);  //5GeV
+	    me["hCaloEmEtInHF"]           = dbe_->book1D("METTask_CaloEmEtInHF","METTask_CaloEmEtInHF",100, -0.5, 99.5);   //5GeV
+	    me["hCaloEmEtInEE"]           = dbe_->book1D("METTask_CaloEmEtInEE","METTask_CaloEmEtInEE",100,0,199.5);    //5GeV
+	    me["hCaloEmEtInEB"]           = dbe_->book1D("METTask_CaloEmEtInEB","METTask_CaloEmEtInEB",1200,0, 5999.5);   //5GeV
 	  }
 	else
 	  {
 	    //FineBinnning
-	    me["hNevents"]                = dbe_->book1D("METTask_Nevents","METTask_Nevents",1,0,1);
+	    me["hNevents"]                = dbe_->book1D("METTask_Nevents","METTask_Nevents",1,-0.5,1);
 	    me["hCaloMEx"]                = dbe_->book1D("METTask_CaloMEx","METTask_CaloMEx",4001,-1000,1001);
 	    me["hCaloMEy"]                = dbe_->book1D("METTask_CaloMEy","METTask_CaloMEy",4001,-1000,1001);
-	    me["hCaloEz"]                 = dbe_->book1D("METTask_CaloEz","METTask_CaloEz",2001,-500,501);
+	    //me["hCaloEz"]                 = dbe_->book1D("METTask_CaloEz","METTask_CaloEz",2001,-500,501);
 	    me["hCaloMETSig"]             = dbe_->book1D("METTask_CaloMETSig","METTask_CaloMETSig",51,0,51);
 	    me["hCaloMET"]                = dbe_->book1D("METTask_CaloMET","METTask_CaloMET",2001,0,2001);
 	    me["hCaloMETPhi"]             = dbe_->book1D("METTask_CaloMETPhi","METTask_CaloMETPhi",80,-4,4);
 	    me["hCaloSumET"]              = dbe_->book1D("METTask_CaloSumET","METTask_CaloSumET",10001,0,10001);
 	    me["hCaloMaxEtInEmTowers"]    = dbe_->book1D("METTask_CaloMaxEtInEmTowers","METTask_CaloMaxEtInEmTowers",4001,0,4001);
-	    me["hCaloMaxEtInHadTowers"]   = dbe_->book1D("METTask_CaloMaxEtInHadTowers","METTask_CaloMaxEtInHadTowers",4001,0,4001);
+ 	    me["hCaloMaxEtInHadTowers"]   = dbe_->book1D("METTask_CaloMaxEtInHadTowers","METTask_CaloMaxEtInHadTowers",4001,0,4001);
 	    me["hCaloEtFractionHadronic"] = dbe_->book1D("METTask_CaloEtFractionHadronic","METTask_CaloEtFractionHadronic",100,0,1);
 	    me["hCaloEmEtFraction"]       = dbe_->book1D("METTask_CaloEmEtFraction","METTask_CaloEmEtFraction",100,0,1);
 	    me["hCaloHadEtInHB"]          = dbe_->book1D("METTask_CaloHadEtInHB","METTask_CaloHadEtInHB",8001,0,8001);
@@ -147,8 +144,8 @@ void METTester::beginJob(const edm::EventSetup& iSetup)
 	       me["hNevents"]                = dbe_->book1D("METTask_Nevents","METTask_Nevents",1,0,1);
 	       me["hGenMEx"]                 = dbe_->book1D("METTask_GenMEx","METTask_GenMEx",4001,-1000,1001);
 	       me["hGenMEy"]                 = dbe_->book1D("METTask_GenMEy","METTask_GenMEy",4001,-1000,1001);
-	       me["hGenEz"]                  = dbe_->book1D("METTask_GenEz","METTask_GenEz",2001,-500,501);
-	       me["hGenMETSig"]              = dbe_->book1D("METTask_GenMETSig","METTask_GenMETSig",51,0,51);
+	       //me["hGenEz"]                  = dbe_->book1D("METTask_GenEz","METTask_GenEz",2001,-500,501);
+	       //me["hGenMETSig"]              = dbe_->book1D("METTask_GenMETSig","METTask_GenMETSig",51,0,51);
 	       me["hGenMET"]                 = dbe_->book1D("METTask_GenMET","METTask_GenMET",2001,0,2001);
 	       me["hGenMETPhi"]              = dbe_->book1D("METTask_GenMETPhi","METTask_GenMETPhi",80,-4,4);
 	       me["hGenSumET"]               = dbe_->book1D("METTaskq_GenSumET","METTask_GenSumET",10001,0,10001);
@@ -219,11 +216,11 @@ void METTester::beginJob(const edm::EventSetup& iSetup)
 	edm::LogInfo("OutputInfo") << " METType not correctly specified!'";// << outputFile_.c_str();
       }
   }
+
 }
 
 void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  
   if (METType_ == "CaloMET")
     { 
       const CaloMET *calomet;
@@ -242,7 +239,7 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       // Reconstructed MET Information
       double caloSumET = calomet->sumEt();
       double caloMETSig = calomet->mEtSig();
-      double caloEz = calomet->e_longitudinal();
+      //      double caloEz = calomet->e_longitudinal();
       double caloMET = calomet->pt();
       double caloMEx = calomet->px();
       double caloMEy = calomet->py();
@@ -267,7 +264,7 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       me["hCaloMETPhi"]->Fill(caloMETPhi);
       me["hCaloSumET"]->Fill(caloSumET);
       me["hCaloMETSig"]->Fill(caloMETSig);
-      me["hCaloEz"]->Fill(caloEz);
+      //      me["hCaloEz"]->Fill(caloEz);
       me["hCaloMaxEtInEmTowers"]->Fill(caloMaxEtInEMTowers);
       me["hCaloMaxEtInHadTowers"]->Fill(caloMaxEtInHadTowers);
       me["hCaloEtFractionHadronic"]->Fill(caloEtFractionHadronic);
@@ -336,7 +333,6 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  const PFMETCollection *pfmetcol = hpfmetcol.product();
 	  pfmet = &(pfmetcol->front());
 	}
-
       // Reconstructed MET Information                                                                                                     
       double SumET = pfmet->sumEt();
       double MET = pfmet->pt();
@@ -349,9 +345,8 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       me["hMET"]->Fill(MET);
       me["hMETPhi"]->Fill(METPhi);
       me["hSumET"]->Fill(SumET);
-
     }
-      else if (METType_ == "MET")
+  else if (METType_ == "MET")
     {
       const MET *met;
       // Get Generated MET
