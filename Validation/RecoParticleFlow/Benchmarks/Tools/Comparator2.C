@@ -10,6 +10,9 @@ public:
   };
 
 
+  Comparator() : rebin_(-1), xMin_(0), xMax_(0), resetAxis_(false), 
+		 s0_(0), s1_(0), legend_(0,0,1,1) {}
+
   Comparator( const char* file0,
 	      const char* dir0,
 	      const char* file1,
@@ -17,7 +20,14 @@ public:
     rebin_(-1), xMin_(0), xMax_(0), resetAxis_(false), 
     s0_(0), s1_(0), legend_(0,0,1,1) {
     
-    
+    SetDirs( file0, dir0, file1, dir1);
+  }
+  
+  void SetDirs( const char* file0,
+		const char* dir0,
+		const char* file1,
+		const char* dir1  ) {
+
     file0_ = new TFile( file0 );
     if( file0_->IsZombie() ) exit(1);
     dir0_ = file0_->GetDirectory( dir0 );
@@ -28,7 +38,7 @@ public:
     dir1_ = file1_->GetDirectory( dir1 );
     if(! dir1_ ) exit(1);
   }
-  
+
   // set the rebinning factor and the range
   void SetAxis( int rebin,
 		float xmin, 
@@ -73,20 +83,25 @@ public:
       cerr<<key<<" is not 2D"<<endl;
       return;
     }
+    
+    TH1::AddDirectory( false );
 
     TH1D* h0_slice = h0_2d->ProjectionY(name0.c_str(),
 					binxmin, binxmax, "");
     TH1D* h1_slice = h1_2d->ProjectionY(name1.c_str(),
 					binxmin, binxmax, "");
+    TH1::AddDirectory( true );
     Draw( h0_slice, h1_slice, mode);        
   }
 
 
   void Draw( const char* key, Mode mode) {
 
+    TH1::AddDirectory( false );
     TH1* h0 = Histo( key, 0);
     TH1* h1 = Histo( key, 1)->Clone("h1");
 
+    TH1::AddDirectory( true );
     Draw( h0, h1, mode);    
   }
 
@@ -151,8 +166,10 @@ private:
       return;
     }
     
+    TH1::AddDirectory( false );
     h0_ = (TH1*) h0->Clone( "h0_");
     h1_ = (TH1*) h1->Clone( "h1_");
+    TH1::AddDirectory( true );
     
     // unsetting the title, since the title of projections
     // is still the title of the 2d histo

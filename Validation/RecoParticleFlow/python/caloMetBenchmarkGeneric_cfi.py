@@ -5,6 +5,7 @@ met = 'put here the calo MET collection'
 caloMetBenchmarkGeneric = cms.EDAnalyzer("GenericBenchmarkAnalyzer",
     OutputFile = cms.untracked.string('metBenchmarkGeneric.root'),
     InputTruthLabel = cms.InputTag('put here the GenMET collection'),
+    minEta = cms.double(-1),
     maxEta = cms.double(3.0),
     recPt = cms.double(10.0),
     deltaRMax = cms.double(999),

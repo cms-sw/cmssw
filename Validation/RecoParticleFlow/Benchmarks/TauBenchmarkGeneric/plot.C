@@ -94,5 +94,11 @@
   comp.Draw("EtGen", mode);
   gPad->SaveAs("etgen.png");
 
+  TCanvas c7("c7", "eta");
+  FormatPad( &c7, false );
+
+  comp.Draw("EtaGen", mode);
+  gPad->SaveAs("etagen.png");
+
   
 }
