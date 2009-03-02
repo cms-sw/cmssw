@@ -28,6 +28,7 @@ public:
 	    bool PlotAgainstReco =true, 
 	    bool onlyTwoJets = false, 
 	    double recPt_cut = -1., 
+	    double minEta_cut = -1., 
 	    double maxEta_cut = -1., 
 	    double deltaR_cut = -1.);
 
@@ -37,7 +38,8 @@ private:
   
   bool accepted(const reco::Candidate* particle,
 		double ptCut,
-		double etaCut ) const;
+		double minEtaCut,
+		double maxEtaCut ) const;
     
 
   TFile *file_;

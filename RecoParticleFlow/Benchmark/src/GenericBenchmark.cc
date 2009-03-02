@@ -179,6 +179,7 @@ void GenericBenchmark::fill(const edm::View<reco::Candidate> *RecoCollection,
 			    const edm::View<reco::Candidate> *GenCollection, 
 			    bool PlotAgainstReco, bool onlyTwoJets, 
 			    double recPt_cut, 
+			    double minEta_cut, 
 			    double maxEta_cut, 
 			    double deltaR_cut) {
 
@@ -189,7 +190,8 @@ void GenericBenchmark::fill(const edm::View<reco::Candidate> *RecoCollection,
     const reco::Candidate *particle = &(*RecoCollection)[i];
 
     assert( particle!=NULL ); 
-    if( !accepted(particle, recPt_cut, maxEta_cut)) continue;
+    if( !accepted(particle, recPt_cut, 
+		  minEta_cut, maxEta_cut)) continue;
 
     const reco::Candidate *gen_particle = algo_->matchByDeltaR(particle,
 							       GenCollection);
@@ -262,7 +264,7 @@ void GenericBenchmark::fill(const edm::View<reco::Candidate> *RecoCollection,
 
     const reco::Candidate *gen_particle = &(*GenCollection)[i]; 
 
-    if( !accepted(gen_particle, recPt_cut, maxEta_cut)) {
+    if( !accepted(gen_particle, recPt_cut, minEta_cut, maxEta_cut)) {
       continue;
     }
 
@@ -285,13 +287,16 @@ void GenericBenchmark::fill(const edm::View<reco::Candidate> *RecoCollection,
 
 bool GenericBenchmark::accepted(const reco::Candidate* particle,
 				double ptCut,
-				double etaCut ) const {
+				double minEtaCut,
+				double maxEtaCut ) const {
  
   //skip reconstructed PFJets with p_t < recPt_cut
   if (particle->pt() < ptCut and ptCut != -1.)
     return false;
 
-  if (fabs(particle->eta())>etaCut and etaCut != -1.)
+  if (fabs(particle->eta())>maxEtaCut and maxEtaCut > 0)
+    return false;
+  if (fabs(particle->eta())<minEtaCut and minEtaCut > 0)
     return false;
 
   //accepted!
