@@ -718,7 +718,7 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
     TCanvas *MyC = new TCanvas("MyC", "TrackerMap",width,height);
     gPad->SetFillColor(38);
     
-    gPad->Range(0,0,3000,1600);
+    gPad->Range(0,0,3700,1600);
     
     //First  build palette
     ncolor=0;
