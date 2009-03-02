@@ -18,8 +18,8 @@
  * 2D means that this segment has information about position and direction in
  * one projection (r-phi or r-theta/zeta).
  *
- * $Date: 2007/08/02 05:35:46 $
- * $Revision: 1.12 $
+ * $Date: 2007/08/02 05:54:11 $
+ * $Revision: 1.13 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -123,6 +123,10 @@ class DTRecSegment2D : public RecSegment{
   /// Get the segment t0 (if recomputed, 0 is returned otherwise)
   double t0() const {return theT0;}
 
+  /// Get the vDirft as computed by the algo for the computation of the segment t0
+  /// (if recomputed, 0 is returned otherwise)
+  double vDrift() const {return theVdrift;}
+
  protected:
   friend class DTSegmentUpdator;
   void setPosition(const LocalPoint& pos);
@@ -131,6 +135,7 @@ class DTRecSegment2D : public RecSegment{
   void setChi2(const double& chi2);
   void update(std::vector<DTRecHit1D> & updatedRecHits);
   void setT0(const double& t0);
+  void setVdrift(const double& vdrift);
 
   LocalPoint  thePosition;  // in SL frame
   LocalVector theDirection; // in SL frame
@@ -142,6 +147,7 @@ class DTRecSegment2D : public RecSegment{
 
   double theChi2;           // chi2 of the fit
   double theT0;             // T0 as coming from the fit
+  double theVdrift;             // vDrift as coming from the fit
 
   std::vector<DTRecHit1D> theHits; // the hits with defined R/L
   
