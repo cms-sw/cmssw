@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.33 2009/02/16 09:42:36 jserrano Exp $
+# $Id: setup_sm.sh,v 1.34 2009/02/18 15:24:47 jserrano Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
@@ -65,7 +65,7 @@ startcopyworker () {
         local reference_time=`stat -t $reference_file 2>/dev/null | cut -f13 -d' '`
         if test $reference_time -gt $local_time; then
             logger -s -t "SM INIT" "INFO: $reference_file is more recent than $local_file"
-            logger -s -t "SM INIT" "INFO: I will overwrite the copyworker local configuration"a
+            logger -s -t "SM INIT" "INFO: I will overwrite the local configuration"
             mv $local_file $local_file.old.$local_time
             cp $reference_file $local_file
             sed -i "1i# File copied from $reference_file on `date`" $local_file
@@ -81,6 +81,33 @@ startcopyworker () {
 }
 
 startinjectworker () {
+    local local_file="/opt/injectworker/.db.conf"
+    local reference_file="/nfshome0/smpro/configuration/db.conf"
+
+    if test -f "$reference_file"; then
+        if test -f "$local_file"; then
+            local local_time=`stat -t $local_file 2>/dev/null | cut -f13 -d' '`
+            local reference_time=`stat -t $reference_file 2>/dev/null | cut -f13 -d' '`
+            if test $reference_time -gt $local_time; then
+                logger -s -t "SM INIT" "INFO: $reference_file is more recent than $local_file"
+                logger -s -t "SM INIT" "INFO: I will overwrite the local configuration"
+                mv $local_file $local_file.old.$local_time
+                su - smpro -c "cp $reference_file $local_file"
+                sed -i "1i# File copied from $reference_file on `date`" $local_file
+                chmod 400 $local_file
+                chown smpro.smpro $local_file
+            fi
+        else
+            logger -s -t "SM INIT" "WARNING: $local_file doesn't exist, copying from $reference_file"
+            su - smpro -c "cp $reference_file $local_file"
+            sed -i "1i# File copied from $reference_file on `date`" $local_file
+            chmod 400 $local_file
+            chown smpro.smpro $local_file
+        fi
+    else
+        logger -s -t "SM INIT" "WARNING: Can not read $reference_file"
+    fi
+
     su - smpro -c "$t0inject stop" >/dev/null 2>&1
     rm -f /tmp/.20*-${hname}-*.log.lock
     su - smpro -c "$t0inject start"
