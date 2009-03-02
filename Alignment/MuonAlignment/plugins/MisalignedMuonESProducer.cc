@@ -115,8 +115,8 @@ MisalignedMuonESProducer::produce( const MuonGeometryRecord& iRecord )
   DTGeometryBuilderFromDDD  DTGeometryBuilder;
   CSCGeometryBuilderFromDDD CSCGeometryBuilder;
 
-  theDTGeometry   = boost::shared_ptr<DTGeometry>(  DTGeometryBuilder.build( &(*cpv), *mdc ) );
-  //theCSCGeometry  = boost::shared_ptr<CSCGeometry>( CSCGeometryBuilder.build( &(*cpv), *mdc ) );
+  theDTGeometry = boost::shared_ptr<DTGeometry>(new DTGeometry );
+  DTGeometryBuilder.build(theDTGeometry,  &(*cpv), *mdc );
   theCSCGeometry  = boost::shared_ptr<CSCGeometry>( new CSCGeometry );
   CSCGeometryBuilder.build( theCSCGeometry,  &(*cpv), *mdc );
 
