@@ -10,17 +10,21 @@ process.load("Configuration.StandardSequences.Services_cff")
 
 process.load("Configuration.StandardSequences.Geometry_cff")
 
-process.load("Configuration.StandardSequences.FakeConditions_cff")
-
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 
 process.load("SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi")
 
 process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-       '/store/relval/CMSSW_2_1_8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v1/0002/04983078-9082-DD11-BB8C-0019DB2F3F9B.root')
+#       '/store/relval/CMSSW_3_0_0_pre9/RelValQCD_FlatPt_15_3000/GEN-SIM-DIGI-RECO/IDEAL_30X_FastSim_v1/0002/22CB7289-9AFB-DD11-867C-000423D95030.root'
+       '/store/relval/CMSSW_3_0_0_pre9/RelValWjet_Pt_80_120/GEN-SIM-RECO/IDEAL_30X_v1/0002/B48A92F2-D3FB-DD11-87B6-001D09F23C73.root'
+) )
+
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(-1)
 )
 
 process.simpleVertexAnalysis = cms.EDFilter("KineExample",
