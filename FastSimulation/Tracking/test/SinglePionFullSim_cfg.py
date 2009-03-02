@@ -14,8 +14,8 @@ process.generator = cms.EDProducer(
     firstRun = cms.untracked.uint32(1),
     PGunParameters = cms.PSet(
         PartID = cms.vint32(211),
-        MinPt = cms.double(0.0),
-        MaxPt = cms.double(1.0),
+        MinPt = cms.double(==MINPT==.0),
+        MaxPt = cms.double(==MAXPT==.0),
         MinEta = cms.double(-2.8),
         MaxEta = cms.double(+2.8),
         MinPhi = cms.double(-3.14159265359), ## it must be in radians
