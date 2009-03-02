@@ -21,6 +21,7 @@
 #include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"    
 #include "Geometry/Records/interface/CSCRecoGeometryRcd.h"
 #include "Geometry/Records/interface/DTRecoGeometryRcd.h"
+#include "Geometry/Records/interface/RPCRecoGeometryRcd.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h" 
 
@@ -37,3 +38,4 @@ REGISTER_PLUGIN(PCastorRcd,PCaloGeometry);
 REGISTER_PLUGIN(CSCRecoDigiParametersRcd,CSCRecoDigiParameters);
 REGISTER_PLUGIN(CSCRecoGeometryRcd,RecoIdealGeometry);
 REGISTER_PLUGIN(DTRecoGeometryRcd,RecoIdealGeometry);
+REGISTER_PLUGIN(RPCRecoGeometryRcd,RecoIdealGeometry);
