@@ -1,8 +1,8 @@
 /*
  * \file DTTestPulsesTask.cc
  * 
- * $Date: 2008/03/01 00:39:55 $
- * $Revision: 1.13 $
+ * $Date: 2008/05/06 13:26:47 $
+ * $Revision: 1.14 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -198,8 +198,8 @@ void DTTestPulsesTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       int chIndex = ((*dtLayerId_It).first).chamberId().rawId();
 
 
-      if ((*digiIt).countsTDC() > t0sPeakRange.first &&
-	  (*digiIt).countsTDC() < t0sPeakRange.second ) {
+      if ((int)(*digiIt).countsTDC() > t0sPeakRange.first &&
+	  (int)(*digiIt).countsTDC() < t0sPeakRange.second ) {
 
 	// Occupancies
 	if (testPulsesOccupancies.find(layerIndex) != testPulsesOccupancies.end())

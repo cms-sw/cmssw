@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/03 09:45:02 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/12/13 10:02:29 $
+ *  $Revision: 1.7 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -273,13 +273,13 @@ void DTAlbertoBenvenutiTask::analyze(const edm::Event& e, const edm::EventSetup&
  
       // for clearness..
       const  DTSuperLayerId dtSLId = ((*dtLayerId_It).first).superlayerId();
-      uint32_t indexSL = dtSLId.rawId();
+//       uint32_t indexSL = dtSLId.rawId();
       const  DTChamberId dtChId = dtSLId.chamberId(); 
-      uint32_t indexCh = dtChId.rawId();
-      int layer_number=((*dtLayerId_It).first).layer();
-      int superlayer_number=dtSLId.superlayer();
+//       uint32_t indexCh = dtChId.rawId();
+//       int layer_number=((*dtLayerId_It).first).layer();
+//       int superlayer_number=dtSLId.superlayer();
       const  DTLayerId dtLId = (*dtLayerId_It).first;
-      uint32_t indexL = dtLId.rawId();
+//       uint32_t indexL = dtLId.rawId();
       
       float t0; float t0RMS;
       int tdcTime = (*digiIt).countsTDC();

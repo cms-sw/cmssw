@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/06 13:26:47 $
- *  $Revision: 1.12 $
+ *  $Date: 2008/10/21 11:30:35 $
+ *  $Revision: 1.13 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -175,7 +175,7 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
 	continue;
       }
       copy(phiRecHits.begin(), phiRecHits.end(), back_inserter(recHits1D));
-      const DTSLRecSegment2D* zSeg;
+      const DTSLRecSegment2D* zSeg = 0;
       if((*segment4D).dimension() == 4) {
 	rZ = true;
 	zSeg = (*segment4D).zSegment();
