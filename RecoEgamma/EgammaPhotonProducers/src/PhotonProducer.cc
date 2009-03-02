@@ -101,7 +101,8 @@ PhotonProducer::~PhotonProducer() {
 }
 
 
-void  PhotonProducer::beginJob (edm::EventSetup const & theEventSetup) {
+
+void  PhotonProducer::beginRun (edm::EventSetup const & theEventSetup) {
   theLikelihoodCalc_ = new ConversionLikelihoodCalculator();
   edm::FileInPath path_mvaWeightFile(likelihoodWeights_.c_str() );
   theLikelihoodCalc_->setWeightsFile(path_mvaWeightFile.fullPath().c_str());

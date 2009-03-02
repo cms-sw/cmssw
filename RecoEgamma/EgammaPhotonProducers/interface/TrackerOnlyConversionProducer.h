@@ -4,8 +4,8 @@
  **
  **
  **  $Id:
- **  $Date: $
- **  $Revision: $
+ **  $Date: 2009/02/06 15:45:55 $
+ **  $Revision: 1.1 $
  **  \author H. Liu, UC of Riverside US
  **
  ***/
@@ -48,7 +48,7 @@ class TrackerOnlyConversionProducer : public edm::EDProducer {
       void getCircleCenter(const reco::TrackRef& tk, const double r, double& x0, double& y0, bool muon = false);
       void getCircleCenter(const edm::RefToBase<reco::Track>& tk, const double r, double& x0, double& y0, bool muon = false);
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       virtual void beginRun(const edm::Run&, const edm::EventSetup&);

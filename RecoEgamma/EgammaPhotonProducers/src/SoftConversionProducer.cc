@@ -70,7 +70,7 @@ SoftConversionProducer::~SoftConversionProducer() {
 }
 
 
-void  SoftConversionProducer::beginJob (edm::EventSetup const & theEventSetup) {
+void  SoftConversionProducer::beginRun (edm::EventSetup const & theEventSetup) {
   
   //get magnetic field
   theEventSetup.get<IdealMagneticFieldRecord>().get(theMF_);  

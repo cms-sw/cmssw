@@ -113,15 +113,6 @@ void  ConversionTrackCandidateProducer::beginRun (edm::Run& r , edm::EventSetup 
   theEventSetup.get<NavigationSchoolRecord>().get("SimpleNavigationSchool", nav);
   theNavigationSchool_ = nav.product();
 
-}
-
-
-void  ConversionTrackCandidateProducer::beginJob (edm::EventSetup const & theEventSetup) {
-  nEvt_=0;
-  //get magnetic field
-  edm::LogInfo("ConversionTrackCandidateProducer") << " get magnetic field" << "\n";
-  
-  
   // get the Out In Seed Finder  
   edm::LogInfo("ConversionTrackCandidateProducer") << " get the OutInSeedFinder" << "\n";
   theOutInSeedFinder_ = new OutInConversionSeedFinder (  conf_ );
@@ -139,7 +130,13 @@ void  ConversionTrackCandidateProducer::beginJob (edm::EventSetup const & theEve
   // get the In Out Track Finder
   edm::LogInfo("ConversionTrackCandidateProducer") << " get the InOutTrackFinder" << "\n";
   theInOutTrackFinder_ = new InOutConversionTrackFinder ( theEventSetup, conf_  );
-  
+
+
+}
+
+
+void  ConversionTrackCandidateProducer::beginJob () {
+  nEvt_=0;
   
 }
 

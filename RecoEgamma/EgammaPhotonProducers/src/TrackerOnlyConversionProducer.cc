@@ -13,7 +13,7 @@
 //
 // Original Author:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id$
+// $Id: TrackerOnlyConversionProducer.cc,v 1.3 2009/02/05 17:55:43 nancy Exp $
 //
 //
 
@@ -494,11 +494,6 @@ TrackerOnlyConversionProducer::produce(edm::Event& iEvent, const edm::EventSetup
 
 }
 
-// ------------ meth(e called once each job just before starting event loop  ------------
-    void
-TrackerOnlyConversionProducer::beginJob(const edm::EventSetup&)
-{
-}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void
