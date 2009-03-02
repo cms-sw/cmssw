@@ -1,8 +1,8 @@
  /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2009/02/23 14:53:55 $
- * $Revision: 1.56 $
+ * $Date: 2009/02/26 12:08:48 $
+ * $Revision: 1.57 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -244,7 +244,7 @@ void DTDigiTask::bookHistos(const DTSuperLayerId& dtSL, string folder, string hi
 
   // ttrig and rms are TDC counts
   if ( readTTrigDB ) 
-    tTrigMap->get(dtSL, tTrig, tTrigRMS, DTTimeUnits::counts); 
+    tTrigMap->get(dtSL, tTrig, tTrigRMS, kFactor, DTTimeUnits::counts); 
   else tTrig = defaultTTrig;
   
 
@@ -552,7 +552,7 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
         // ttrig and rms are TDC counts
 	if (readTTrigDB)
 	  tTrigMap->get( ((*dtLayerId_It).first).superlayerId(),
-                         tTrig, tTrigRMS, DTTimeUnits::counts); 
+                         tTrig, tTrigRMS, kFactor, DTTimeUnits::counts); 
 	else tTrig = defaultTTrig;
 	
 	int inTimeHitsLowerBoundCorr = int(round(tTrig)) - inTimeHitsLowerBound;
