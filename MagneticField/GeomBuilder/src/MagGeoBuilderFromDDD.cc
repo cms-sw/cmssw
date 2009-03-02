@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/02/01 17:59:25 $
- *  $Revision: 1.16 $
+ *  $Date: 2009/03/02 17:03:41 $
+ *  $Revision: 1.17 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -159,9 +159,9 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
      }
   }
   // Loop over MAGF volumes and create volumeHandles. 
-  if (debug) { cout << endl << "*** MAGF: translation: " << fv.translation() << endl
-		    << " rotation " << endl
-		    << fv.rotation() << endl;
+  if (debug) { cout << endl << "*** MAGF: " << fv.geoHistory() << endl
+		    << "translation: " << fv.translation() << endl
+		    << " rotation: " << fv.rotation() << endl;
   }
   
   bool doSubDets = fv.firstChild();
