@@ -59,7 +59,7 @@ BeamHaloSource::BeamHaloSource( const ParameterSet & pset,
 {
 
    int iparam[8];
-   float fparam[3];
+   float fparam[4];
    std::string cparam;
  // -- from bhgctrl.inc
    iparam[0]  = pset.getUntrackedParameter<int>("GENMOD");
