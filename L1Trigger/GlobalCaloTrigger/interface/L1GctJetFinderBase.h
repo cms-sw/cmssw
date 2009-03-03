@@ -216,10 +216,6 @@ public:
   unsigned m_TauJetSeed;
   unsigned m_EtaBoundry;
 
-  // In the improved tau algorithm, we require no more than one tower energy to be 
-  // above the isolation threshold, in the eight regions surrounding the central one. 
-  unsigned m_tauIsolationThreshold;
-
   /// Jet Et Conversion LUT pointer
   lutPtrVector m_jetEtCalLuts;
 
@@ -235,6 +231,10 @@ public:
   // or just in the central region.
   bool m_ignoreTauVetoBitsForIsolation;
     
+  // In the improved tau algorithm, we require no more than one tower energy to be 
+  // above the isolation threshold, in the eight regions surrounding the central one. 
+  unsigned m_tauIsolationThreshold;
+
   /// input data required for jet finding
   RegionsVector m_inputRegions;
 

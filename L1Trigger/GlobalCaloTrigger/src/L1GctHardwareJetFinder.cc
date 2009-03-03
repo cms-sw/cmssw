@@ -160,22 +160,48 @@ void L1GctHardwareJetFinder::findProtoClusters()
     unsigned localPhi = m_localMaxima.at(j).rctPhi();
 
     unsigned etCluster = 0;
-    bool tauVetoOr = false;
     bool ovrFlowOr = false;
+    bool tauVetoOr = false;
+    unsigned rgnsAboveIsoThreshold = 0;
 
     for (unsigned row=localEta; ((row<(localEta+3)) && (row<COL_OFFSET)); ++row) {
 	for (unsigned column=0; column<2; ++column) {
 	    unsigned index = column*COL_OFFSET + row;
 	    etCluster += m_inputRegions.at(index).et();
-	    tauVetoOr |= m_inputRegions.at(index).tauVeto();
 	    ovrFlowOr |= m_inputRegions.at(index).overFlow();
+	    if (m_useImprovedTauAlgo) {
+
+	      if ((row==(localEta+1)) && (column==localPhi)) {
+		// central region - check the tau veto
+		tauVetoOr |= m_inputRegions.at(index).tauVeto();
+	      } else {
+		// other regions - check the tau veto if required
+		if (!m_ignoreTauVetoBitsForIsolation) {
+		  tauVetoOr |= m_inputRegions.at(index).tauVeto();
+		}
+		// check the region energy against the isolation threshold
+		if (m_inputRegions.at(index).et() >= m_tauIsolationThreshold) {
+		  rgnsAboveIsoThreshold++;
+		}
+	      }
+	    } else {
+	      // original tau algorithm
+	      tauVetoOr |= m_inputRegions.at(index).tauVeto();
+	    }
 	}
     }
     unsigned eta = m_localMaxima.at(j).gctEta();
     unsigned phi = m_localMaxima.at(j).gctPhi();
     int16_t  bx  = m_localMaxima.at(j).bx();
 
-    L1GctRegion temp(L1GctRegion::makeProtoJetRegion(etCluster, ovrFlowOr, tauVetoOr, false, eta, phi, bx));
+    // Encode the number of towers over threshold for the isolated tau algorithm
+    bool tauFeatureBit = false;
+    if (m_useImprovedTauAlgo) {
+      tauVetoOr     |= (rgnsAboveIsoThreshold  > 1);
+      tauFeatureBit |= (rgnsAboveIsoThreshold == 1);
+    }
+
+    L1GctRegion temp(L1GctRegion::makeProtoJetRegion(etCluster, ovrFlowOr, tauVetoOr, tauFeatureBit, eta, phi, bx));
     if (localPhi==0) {
     // Store "top edge" jets
       topJets.at(numberOfTopJets) = temp;
@@ -254,8 +280,9 @@ void L1GctHardwareJetFinder::findFinalClusters()
 
 			// Start with the et sum, tau veto and overflow flags of the protoJet (2x3 regions)
 			unsigned etCluster = et0;
-			bool tauVetoOr = m_rcvdProtoJets.at(j).tauVeto();
 			bool ovrFlowOr = m_rcvdProtoJets.at(j).overFlow();
+			bool tauVetoOr = m_rcvdProtoJets.at(j).tauVeto();
+			unsigned rgnsAboveIsoThreshold = ( m_rcvdProtoJets.at(j).featureBit0() ? 1 : 0);
 
 			// Check for double counting (across eta=0 boundary)
 			bool doubleCountingVeto = false;
@@ -266,10 +293,20 @@ void L1GctHardwareJetFinder::findFinalClusters()
 			unsigned index = COL_OFFSET*(this->centralCol0()+column)+localEta0;
 			for (unsigned row=localEta0; ((row<(localEta0+3)) && (row<COL_OFFSET)); ++row) {
 				etCluster += m_inputRegions.at(index).et();
-				tauVetoOr |= m_inputRegions.at(index).tauVeto();
 				ovrFlowOr |= m_inputRegions.at(index).overFlow();
+				if (m_useImprovedTauAlgo) {
+				  if (!m_ignoreTauVetoBitsForIsolation) {
+				    tauVetoOr |= m_inputRegions.at(index).tauVeto();
+				  }
+				  // check the region energy against the isolation threshold
+				  if (m_inputRegions.at(index).et() >= m_tauIsolationThreshold) {
+				    rgnsAboveIsoThreshold++;
+				  }
+				} else {
+				  tauVetoOr |= m_inputRegions.at(index).tauVeto();
+				}
 
-				// Don't make a jet the neighbouring region across the eta=0
+				// Don't make a jet if the neighbouring region across the eta=0
 				// boundary has larger et than the input proto-cluster
 				if ((localEta0==0) && (row==0) && (m_inputRegions.at(index).et() > et0)) {
 				  doubleCountingVeto = true;
@@ -283,6 +320,11 @@ void L1GctHardwareJetFinder::findFinalClusters()
 			  unsigned eta = m_rcvdProtoJets.at(j).gctEta();
 			  unsigned phi = m_rcvdProtoJets.at(j).gctPhi();
 			  int16_t  bx  = m_rcvdProtoJets.at(j).bx();
+
+			  // Use the number of towers over threshold for the isolated tau algorithm
+			  if (m_useImprovedTauAlgo) {
+			    tauVetoOr     |= (rgnsAboveIsoThreshold  > 1);
+			  }
 
 			  L1GctRegion temp(L1GctRegion::makeFinalJetRegion(etCluster, ovrFlowOr, tauVetoOr, eta, phi, bx));
 			  m_clusters.at(j) = temp;
@@ -300,8 +342,8 @@ void L1GctHardwareJetFinder::convertClustersToProtoJets()
     bool isForward = (m_clusters.at(j).rctEta()>=m_EtaBoundry);
     unsigned JET_THRESHOLD = ( isForward ? m_FwdJetSeed : m_CenJetSeed);
     if (m_clusters.at(j).et()>=JET_THRESHOLD) {
-	m_keptProtoJets.at(j) = m_clusters.at(j);
-	m_sentProtoJets.at(j) = m_clusters.at(j);
+      m_keptProtoJets.at(j) = m_clusters.at(j);
+      m_sentProtoJets.at(j) = m_clusters.at(j);
     }
   }
 }
