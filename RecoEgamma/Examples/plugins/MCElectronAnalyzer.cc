@@ -91,7 +91,7 @@ float MCElectronAnalyzer::etaTransformation(  float EtaParticle , float Zvertex)
 
 //---Definitions
 	const float PI    = 3.1415927;
-	const float TWOPI = 2.0*PI;
+	//const float TWOPI = 2.0*PI;
 
 //---Definitions for ECAL
 	const float R_ECAL           = 136.5;
@@ -146,14 +146,14 @@ void MCElectronAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& )
 
 
   using namespace edm;
-  const float etaPhiDistance=0.01;
+  //const float etaPhiDistance=0.01;
   // Fiducial region
-  const float TRK_BARL =0.9;
-  const float BARL = 1.4442; // DAQ TDR p.290
-  const float END_LO = 1.566;
-  const float END_HI = 2.5;
- // Electron mass
-  const Float_t mElec= 0.000511;
+  //const float TRK_BARL =0.9;
+  //const float BARL = 1.4442; // DAQ TDR p.290
+  //const float END_LO = 1.566;
+  //const float END_HI = 2.5;
+  // Electron mass
+  //const Float_t mElec= 0.000511;
 
 
   nEvt_++;
@@ -189,8 +189,9 @@ void MCElectronAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& )
     h_MCEleEta_->Fill  ( (*iEl).fourMomentum().pseudoRapidity() );
     h_MCElePhi_->Fill  ( (*iEl).fourMomentum().phi() );
 
-    float totBrem=0;
-    for ( int iBrem=0; iBrem < (*iEl).bremVertices().size(); ++iBrem ) {
+    float totBrem=0 ;
+    unsigned int iBrem ;
+    for ( iBrem=0; iBrem < (*iEl).bremVertices().size(); ++iBrem ) {
       float rBrem= (*iEl).bremVertices()[iBrem].perp();
       float etaBrem= (*iEl).bremVertices()[iBrem].eta();
       if ( rBrem < 120 ) {
