@@ -5,7 +5,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.50 2009/02/20 09:59:19 wilkenka Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.51 2009/02/23 16:23:52 borrell Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -61,6 +61,10 @@ SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig) :
   edm::ParameterSet ParametersClusterStoN =  conf_.getParameter<edm::ParameterSet>("TH1ClusterStoN");
   layerswitchclusstonon = ParametersClusterStoN.getParameter<bool>("layerswitchon");
   moduleswitchclusstonon = ParametersClusterStoN.getParameter<bool>("moduleswitchon");
+
+  edm::ParameterSet ParametersClusterStoNVsPos =  conf_.getParameter<edm::ParameterSet>("TH1ClusterStoNVsPos");
+  layerswitchclusstonVsposon = ParametersClusterStoNVsPos.getParameter<bool>("layerswitchon");
+  moduleswitchclusstonVsposon = ParametersClusterStoNVsPos.getParameter<bool>("moduleswitchon");
   
   edm::ParameterSet ParametersClusterPos =  conf_.getParameter<edm::ParameterSet>("TH1ClusterPos");
   layerswitchclusposon = ParametersClusterPos.getParameter<bool>("layerswitchon");

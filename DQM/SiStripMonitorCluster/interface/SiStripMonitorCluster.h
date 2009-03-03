@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Wed Feb  1 16:47:14 CET 2006
-// $Id: SiStripMonitorCluster.h,v 1.22 2009/02/20 09:59:19 wilkenka Exp $
+// $Id: SiStripMonitorCluster.h,v 1.23 2009/02/23 16:25:42 borrell Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -118,6 +118,7 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
   bool layerswitchncluson;
   bool layerswitchcluschargeon;
   bool layerswitchclusstonon;
+  bool layerswitchclusstonVsposon;
   bool layerswitchclusposon;
   bool layerswitchclusdigiposon;
   bool layerswitchclusnoiseon;
