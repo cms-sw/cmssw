@@ -16,6 +16,7 @@
 
 #include <string>
 #include "CalibFormats/SiPixelObjects/interface/PixelConfigKey.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelBase64.h"
 
 
 namespace pos{
@@ -71,7 +72,7 @@ namespace pos{
     void setAuthor (std::string author)  {creator_ = author ;} 
     void setComment(std::string comment) {comment_ = comment;} 
     std::string getAuthor()const         {return creator_   ;}
-    std::string getComment()const        {return comment_   ;}
+    std::string getComment()const        {return base64_encode((unsigned char *)comment_.c_str(), comment_.length()) ;}
     
   private:
 
