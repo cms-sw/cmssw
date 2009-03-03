@@ -207,7 +207,8 @@ vector <HDigiFP420> FP420DigiMain::run(const std::vector<PSimHit> &input,
 
   //
 
-    if ( ( !(theApplyTofCut)  ||  (theApplyTofCut &&   tofCut < abs(tof) < (tofCut+200.)) ) && losenergy > elossCut) {
+  //  if ( ( !(theApplyTofCut)  ||  (theApplyTofCut &&   tofCut < abs(tof) < (tofCut+200.)) ) && losenergy > elossCut) {
+    if ( ( !(theApplyTofCut)  ||  ( theApplyTofCut &&   abs(tof) > tofCut && abs(tof) < (tofCut+200.)) ) && losenergy > elossCut) {
       //    if ( abs(tof) < tofCut && losenergy > elossCut) {
       // if ( losenergy>0) {
       if(verbosity>0) std::cout << " inside tof: OK " << std::endl;
@@ -221,6 +222,7 @@ vector <HDigiFP420> FP420DigiMain::run(const std::vector<PSimHit> &input,
       thePileUpFP420->add(_temp,ihit,verbosity);
       
     }// if
+
     else {
       //    std::cout << " *******FP420DigiMain: ERROR???  losenergy =  " <<  losenergy  << std::endl;
     }
