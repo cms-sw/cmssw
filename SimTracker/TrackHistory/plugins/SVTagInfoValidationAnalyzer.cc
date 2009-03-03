@@ -22,7 +22,7 @@
 
 class SVTagInfoValidationAnalyzer : public edm::EDAnalyzer
 {
-	
+
 public:
 
     explicit SVTagInfoValidationAnalyzer(const edm::ParameterSet&);
@@ -44,13 +44,13 @@ private:
 
     // Bookeeping of all the histograms per category
     void book(std::string const &);
-    
+
     // Fill all histogram per category
     void fill(std::string const &, reco::Vertex const &, TrackingVertexRef const &);
 
     // Histogram handlers
     std::map<std::string, TH1D *> TH1Index_;
-   
+
 };
 
 
@@ -104,27 +104,27 @@ void SVTagInfoValidationAnalyzer::analyze(const edm::Event& event, const edm::Ev
         for (std::size_t vindex = 0; vindex < svTagInfo->nVertices(); ++vindex)
         {
 
-        // Classify the tracks
-        classifier_.evaluate(svTagInfo, vindex);
+            // Classify the tracks
+            classifier_.evaluate(svTagInfo, vindex);
 
-        // Fill the histogram with the categories
-        for (Int_t i = 0; i != numberVertexClassifier_; ++i)
-            if (
-                classifier_.is( (VertexCategories::Category) i )
-            )
-                TH1Index_["VertexClassifier"]->Fill(i);
+            // Fill the histogram with the categories
+            for (Int_t i = 0; i != numberVertexClassifier_; ++i)
+                if (
+                    classifier_.is( (VertexCategories::Category) i )
+                )
+                    TH1Index_["VertexClassifier"]->Fill(i);
 
-        if ( !classifier_.is(VertexCategories::Fake) )
-        {
-        	// Fill histograms
-            fill("All", svTagInfo->secondaryVertex(vindex), tracer.simVertex());
-            if ( classifier_.is(VertexCategories::BWeakDecay) )
-                fill("BWeakDecay", svTagInfo->secondaryVertex(vindex), tracer.simVertex());
-            else if ( classifier_.is(VertexCategories::CWeakDecay) )
-                fill("CWeakDecay", svTagInfo->secondaryVertex(vindex), tracer.simVertex());            
-            else
-                fill("Light", svTagInfo->secondaryVertex(vindex), tracer.simVertex());
-        }
+            if ( !classifier_.is(VertexCategories::Fake) )
+            {
+                // Fill histograms
+                fill("All", svTagInfo->secondaryVertex(vindex), tracer.simVertex());
+                if ( classifier_.is(VertexCategories::BWeakDecay) )
+                    fill("BWeakDecay", svTagInfo->secondaryVertex(vindex), tracer.simVertex());
+                else if ( classifier_.is(VertexCategories::CWeakDecay) )
+                    fill("CWeakDecay", svTagInfo->secondaryVertex(vindex), tracer.simVertex());
+                else
+                    fill("Light", svTagInfo->secondaryVertex(vindex), tracer.simVertex());
+            }
 
         }
     }
@@ -133,9 +133,9 @@ void SVTagInfoValidationAnalyzer::analyze(const edm::Event& event, const edm::Ev
 
 void SVTagInfoValidationAnalyzer::book(std::string const & prefix)
 {
-	// Book pull histograms
-	
-	std::string name = prefix + "VertexPullx";
+    // Book pull histograms
+
+    std::string name = prefix + "VertexPullx";
     TH1Index_[name] = fs_->make<TH1D>(name.c_str(), name.c_str(), 50, -10., 10.);
     name = prefix + "VertexPully";
     TH1Index_[name] = fs_->make<TH1D>(name.c_str(), name.c_str(), 50, -10., 10.);
@@ -146,15 +146,15 @@ void SVTagInfoValidationAnalyzer::book(std::string const & prefix)
 
 void SVTagInfoValidationAnalyzer::fill(std::string const & prefix, reco::Vertex const & vertex, TrackingVertexRef const & simVertex)
 {
-	        // Fill pull histograms
- 
-            double pullx = (vertex.x() - simVertex->position().x())/vertex.xError();
-            double pully = (vertex.y() - simVertex->position().y())/vertex.yError();
-            double pullz = (vertex.z() - simVertex->position().z())/vertex.zError();
+    // Fill pull histograms
 
-            TH1Index_[prefix + "VertexPullx"]->Fill(pullx);
-            TH1Index_[prefix + "VertexPully"]->Fill(pully);
-            TH1Index_[prefix + "VertexPullz"]->Fill(pullz);
+    double pullx = (vertex.x() - simVertex->position().x())/vertex.xError();
+    double pully = (vertex.y() - simVertex->position().y())/vertex.yError();
+    double pullz = (vertex.z() - simVertex->position().z())/vertex.zError();
+
+    TH1Index_[prefix + "VertexPullx"]->Fill(pullx);
+    TH1Index_[prefix + "VertexPully"]->Fill(pully);
+    TH1Index_[prefix + "VertexPullz"]->Fill(pullz);
 }
 
 

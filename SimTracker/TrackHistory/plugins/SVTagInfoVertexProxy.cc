@@ -59,6 +59,9 @@ void SVTagInfoVertexProxy::produce(edm::Event& event, const edm::EventSetup& set
     // Get a reference before to put in the event
     reco::VertexRefProd vertexRefProd = event.getRefBeforePut<reco::VertexCollection>();
 
+    // General index
+    std::size_t index = 0;
+
     // Loop over SecondaryVertexTagInfo collection
     for (std::size_t svIndex = 0; svIndex < svTagInfoCollection->size(); ++svIndex)
     {
@@ -68,10 +71,10 @@ void SVTagInfoVertexProxy::produce(edm::Event& event, const edm::EventSetup& set
         // Loop over the vertexes and add them to the new collection
         for (unsigned int vIndex = 0; vIndex < svTagInfo->nVertices(); ++vIndex)
         {
-            proxy->push_back( svTagInfo->secondaryVertex(vIndex) );
-            assoc->insert(svTagInfo, reco::VertexRef(vertexRefProd, vIndex + svIndex) );
+            proxy->push_back(svTagInfo->secondaryVertex(vIndex));
+            assoc->insert(svTagInfo, reco::VertexRef(vertexRefProd, index));
+            ++index;
         }
-
     }
 
     // Adding the collection to the event
