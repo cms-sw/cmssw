@@ -1,6 +1,6 @@
 // Associate jets with tracks by simple "dR" criteria
 // Fedor Ratnikov (UMd), Aug. 28, 2007
-// $Id: JetTracksAssociationDRCalo.cc,v 1.5 2008/01/04 17:45:21 wmtan Exp $
+// $Id: JetTracksAssociationDRCalo.cc,v 1.6 2008/11/04 19:36:11 oehler Exp $
 
 #include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationDRCalo.h"
 
@@ -22,7 +22,7 @@
 
 namespace {
   // basic geometry constants, imported from Geometry/HcalTowerAlgo/src/CaloTowerHardcodeGeometryLoader.cc
-  const double rBarrel = 143.;
+  const double rBarrel = 129.;
   const double zEndcap = 320.;
   const double zVF = 1100.;
   const double rEndcapMin = zEndcap * tan ( 2*atan (exp (-3.)));
