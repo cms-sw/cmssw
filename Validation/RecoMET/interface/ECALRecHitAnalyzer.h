@@ -85,7 +85,8 @@ public:
   //~ECALRecHitAnalyzer();
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginJob(const edm::EventSetup&) ;
+  //  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginRun(const edm::EventSetup&) ;
   virtual void endJob() ;
 
   void WriteECALRecHits(const edm::Event&, const edm::EventSetup&);

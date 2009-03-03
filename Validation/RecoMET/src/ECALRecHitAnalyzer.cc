@@ -17,18 +17,20 @@ ECALRecHitAnalyzer::ECALRecHitAnalyzer(const edm::ParameterSet& iConfig)
 
   debug_             = iConfig.getParameter<bool>("Debug");
 
- 
+
 }
 
 void ECALRecHitAnalyzer::endJob() {
 
 } 
 
-void ECALRecHitAnalyzer::beginJob(const edm::EventSetup& iSetup){
+//void ECALRecHitAnalyzer::beginJob(const edm::EventSetup& iSetup){
+void ECALRecHitAnalyzer::beginRun(const edm::EventSetup& iSetup){
   CurrentEvent = -1;
   // Book the Histograms
-  BookHistos();
+  //  BookHistos();
   // Fill the geometry histograms
+  BookHistos();
   FillGeometry(iSetup);
 }
 

@@ -23,7 +23,8 @@ public:
   explicit HCALRecHitAnalyzer(const edm::ParameterSet&);
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginJob(const edm::EventSetup&);
+  //  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginRun(const edm::EventSetup&);
   virtual void endJob();
 
 private:
@@ -40,7 +41,7 @@ private:
   bool finebinning_;
   // Helper Functions
   void FillGeometry(const edm::EventSetup&);
-
+  virtual void BookHistos();
   int Nevents;
 };
 

@@ -57,15 +57,22 @@ HCALRecHitAnalyzer::HCALRecHitAnalyzer(const edm::ParameterSet& iConfig)
 
   debug_             = iConfig.getParameter<bool>("Debug");
   finebinning_ = iConfig.getParameter<bool>("FineBinning");
-
+  
 
 }
 
-void HCALRecHitAnalyzer::beginJob(const edm::EventSetup& iSetup)
+void HCALRecHitAnalyzer::beginRun(const edm::EventSetup& iSetup)
 {
   Nevents = 0;
+  BookHistos();
+  FillGeometry(iSetup);
+
+}
+
+void HCALRecHitAnalyzer::BookHistos(){
   // get ahold of back-end interface
   dbe_ = edm::Service<DQMStore>().operator->();
+
 
   if (dbe_) {
 
@@ -243,7 +250,7 @@ void HCALRecHitAnalyzer::beginJob(const edm::EventSetup& iSetup)
       }
 
   // Inspect Setup for CaloTower Geometry
-  FillGeometry(iSetup);
+  //  FillGeometry(iSetup);
 
 }
 
