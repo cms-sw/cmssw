@@ -37,9 +37,9 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 process.source = cms.Source("EmptySource")
 
 process.generator = cms.EDProducer("Pythia6PtGun",
-    MaxEventsToPrint = cms.untracked.int32(5),
-    PylistVerbosity = cms.untracked.int32(1),
-    HepMCVerbosity = cms.untracked.int32(1),    
+    maxEventsToPrint = cms.untracked.int32(5),
+    pythiaPylistVerbosity = cms.untracked.int32(1),
+    pythiaHepMCVerbosity = cms.untracked.bool(True),    
     PGunParameters = cms.PSet(
         ParticleID = cms.vint32(-15),
         AddAntiParticle = cms.bool(False),

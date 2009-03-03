@@ -1,6 +1,6 @@
 /*
- *  $Date: 2009/02/19 20:52:43 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/02/26 11:05:03 $
+ *  $Revision: 1.3 $
  *  \author Julia Yarba
  */
 
@@ -49,9 +49,9 @@ Pythia6Gun::Pythia6Gun( const ParameterSet& pset ) :
    fMinPhi     = pgun_params.getParameter<double>("MinPhi"); // ,-3.14159265358979323846);
    fMaxPhi     = pgun_params.getParameter<double>("MaxPhi"); // , 3.14159265358979323846);
    
-   fHepMCVerbosity   = pset.getUntrackedParameter<int>( "HepMCVerbosity", 0 ) ;
-   fPylistVerbosity  = pset.getUntrackedParameter<int>( "PylistVerbosity", 0 ) ;
-   fMaxEventsToPrint = pset.getUntrackedParameter<int>( "MaxEventsToPrint", 0 );
+   fHepMCVerbosity   = pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity", false ) ;
+   fPylistVerbosity  = pset.getUntrackedParameter<int>( "pythiaPylistVerbosity", 0 ) ;
+   fMaxEventsToPrint = pset.getUntrackedParameter<int>( "maxEventsToPrint", 0 );
 
    //fAddAntiParticle = pset.getUntrackedParameter("AddAntiParticle", false) ;  
 

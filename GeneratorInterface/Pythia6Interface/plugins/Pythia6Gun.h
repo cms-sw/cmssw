@@ -65,7 +65,7 @@ namespace gen
     //
     // edm::ESHandle<HepPDT::ParticleDataTable> fPDGTable ;
             	    	
-    int              fHepMCVerbosity ;
+    bool             fHepMCVerbosity ;
     int              fPylistVerbosity;
     int              fMaxEventsToPrint ;
         
