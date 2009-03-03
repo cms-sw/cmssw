@@ -1,6 +1,6 @@
 #! /bin/csh
 
-set RefRelease="CMSSW_2_1_8"
+set RefRelease="CMSSW_3_1_0_pre1"
 
 # Possible values are:
 # Reconstruction  : preforms reconstruction+validation + histograms comparison
@@ -15,8 +15,8 @@ set Mode="Harvesting"
 
 # do you want to copy histograms on the validation page?
 
-set copyWWW="false"
-#set copyWWW="true"
+#set copyWWW="false"
+set copyWWW="true"
 
 # set the histogram file name in Comparison mode
 set histogramfile=""
@@ -82,25 +82,27 @@ set histogramfile="DQM_V0001_R000000001__"$CMSSW_VERSION"__RelVal__Validation.ro
 endif 
 
 if ( ($Mode == "Comparison") || ($Mode == "Harvesting") ) then
-cp $histogramfile TrackerHitHisto.root
-cp $histogramfile stripdigihisto.root
-cp $histogramfile pixeldigihisto.root
-cp $histogramfile trackingtruthhisto.root
-cp $histogramfile validationPlots.root
-cp $histogramfile sistriprechitshisto.root
-cp $histogramfile pixelrechitshisto.root
-cp $histogramfile pixeltrackingrechitshist.root
-cp $histogramfile striptrackingrechitshisto.root
-cp $histogramfile $NEWREFDIR
+ln -fs $histogramfile TrackerHitHisto.root
+ln -fs $histogramfile stripdigihisto.root
+ln -fs $histogramfile pixeldigihisto.root
+ln -fs $histogramfile trackingtruthhisto.root
+ln -fs $histogramfile validationPlots.root
+ln -fs $histogramfile sistriprechitshisto.root
+ln -fs $histogramfile pixelrechitshisto.root
+ln -fs $histogramfile pixeltrackingrechitshist.root
+ln -fs $histogramfile striptrackingrechitshisto.root
+ln -fs $histogramfile $NEWREFDIR
 endif
 
 #if ( -e Muon.root ) /bin/rm Muon.root
 
-cp ./TrackerHitHisto.root ${DATADIR}/Validation/TrackerHits/test/
 
 cd ${DATADIR}/Validation/TrackerHits/test 
 
-cp ${REFDIR}/SimHits/* ../
+ln -fs ${DATADIR}/Validation/TrackerConfiguration/test/TrackerHitHisto.root .
+
+
+ln -fs ${REFDIR}/DQM_V0001_R000000001__${RefRelease}__RelVal__Validation.root ../TrackerHitHisto.root
 
 #cp TrackerHitHisto.root $NEWREFDIR/SimHit
 if ( ! -e plots ) mkdir plots
@@ -116,20 +118,21 @@ gzip -f *.eps
 mv pos*.eps.gz plots/muon
 mv pos*.gif plots/muon
 
-root -b -p -q SiTrackerHitsComparePosition.C
-if ( ! -e plots/muon ) mkdir plots/muon
-gzip -f *.eps
-mv pos*.eps.gz plots/muon
-mv pos*.gif plots/muon
+#root -b -p -q SiTrackerHitsComparePosition.C
+#if ( ! -e plots/muon ) mkdir plots/muon
+#gzip -f *.eps
+#mv pos*.eps.gz plots/muon
+#mv pos*.gif plots/muon
 
 if ($copyWWW == "true") source copyWWWall.csh
 
 cd ${DATADIR}/Validation/TrackerDigis/test 
 
-cp ${DATADIR}/Validation/TrackerConfiguration/test/stripdigihisto.root .
-cp ${DATADIR}/Validation/TrackerConfiguration/test/pixeldigihisto.root .
+ln -fs ${DATADIR}/Validation/TrackerConfiguration/test/stripdigihisto.root .
+ln -fs ${DATADIR}/Validation/TrackerConfiguration/test/pixeldigihisto.root .
 
-cp ${REFDIR}/Digis/* ../
+ln -fs ${REFDIR}/DQM_V0001_R000000001__${RefRelease}__RelVal__Validation.root ../stripdigihisto.root
+ln -fs ${REFDIR}/DQM_V0001_R000000001__${RefRelease}__RelVal__Validation.root ../pixeldigihisto.root
 
 #cp pixeldigihisto.root $NEWREFDIR/Digis
 #cp stripdigihisto.root $NEWREFDIR/Digis
@@ -143,11 +146,11 @@ if ($copyWWW == "true") source copyWWWStrip.csh
 
 cd ${DATADIR}/Validation/TrackerRecHits/test
 
-cp ${DATADIR}/Validation/TrackerConfiguration/test/sistriprechitshisto.root .
-cp ${DATADIR}/Validation/TrackerConfiguration/test/pixelrechitshisto.root .
+ln -fs  ${DATADIR}/Validation/TrackerConfiguration/test/sistriprechitshisto.root .
+ln -fs  ${DATADIR}/Validation/TrackerConfiguration/test/pixelrechitshisto.root .
 
-cp ${REFDIR}/RecHits/* ../
-
+ln -fs  ${REFDIR}/DQM_V0001_R000000001__${RefRelease}__RelVal__Validation.root ../sistriprechitshisto.root
+ln -fs  ${REFDIR}/DQM_V0001_R000000001__${RefRelease}__RelVal__Validation.root ../pixelrechitshisto.root
 #cp sistriprechitshisto.root $NEWREFDIR/RecHits/
 #cp pixelrechitshisto.root $NEWREFDIR/RecHits/
 
@@ -159,8 +162,8 @@ gzip -f *.eps
 if ($copyWWW == "true") source copyWWWStrip.csh
 
 cd ${DATADIR}/Validation/TrackingMCTruth/test
-cp ${DATADIR}/Validation/TrackerConfiguration/test/trackingtruthhisto.root .
-cp ${REFDIR}/TrackingParticles/* ../
+ln -fs ${DATADIR}/Validation/TrackerConfiguration/test/trackingtruthhisto.root .
+ln -fs ${REFDIR}/DQM_V0001_R000000001__${RefRelease}__RelVal__Validation.root ../trackingtruthhisto.root
 #cp trackingtruthhisto.root $NEWREFDIR/TrackingParticles/
 
 
@@ -170,12 +173,13 @@ if ($copyWWW == "true") source copyWWWTP.csh
 
 cd ${DATADIR}/Validation/RecoTrack/test
 
-cp ${DATADIR}/Validation/TrackerConfiguration/test/validationPlots.root .
-cp ${DATADIR}/Validation/TrackerConfiguration/test/pixeltrackingrechitshist.root .
-cp ${DATADIR}/Validation/TrackerConfiguration/test/striptrackingrechitshisto.root .
+ln -fs ${DATADIR}/Validation/TrackerConfiguration/test/validationPlots.root .
+ln -fs ${DATADIR}/Validation/TrackerConfiguration/test/pixeltrackingrechitshist.root .
+ln -fs ${DATADIR}/Validation/TrackerConfiguration/test/striptrackingrechitshisto.root .
 
-cp ${REFDIR}/Tracks/* ../
-cp ${REFDIR}/TrackingRecHits/* ../
+ln -fs ${REFDIR}/DQM_V0001_R000000001__${RefRelease}__RelVal__Validation.root ../validationPlots.root
+ln -fs ${REFDIR}/DQM_V0001_R000000001__${RefRelease}__RelVal__Validation.root ../pixeltrackingrechitshist.root
+ln -fs ${REFDIR}/DQM_V0001_R000000001__${RefRelease}__RelVal__Validation.root ../striptrackingrechitshisto.root
 
 #cp validationPlots.root $NEWREFDIR/Tracks/
 #cp pixeltrackingrechitshist.root $NEWREFDIR/TrackingRecHits/
