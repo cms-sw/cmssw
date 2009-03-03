@@ -19,7 +19,7 @@
 //
 // Original Author:  Andrea Perrotta
 //         Created:  Mon Oct 30 14:37:24 CET 2006
-// $Id: ParamL3MuonProducer.cc,v 1.15 2008/04/24 13:58:10 pjanot Exp $
+// $Id: ParamL3MuonProducer.cc,v 1.16 2008/05/25 16:39:40 pjanot Exp $
 //
 //
 
@@ -545,7 +545,7 @@ void ParamL3MuonProducer::loadGLMuons(reco::MuonCollection & c) const
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void ParamL3MuonProducer::beginJob(const edm::EventSetup& es)
+void ParamL3MuonProducer::beginJob()
 {
 
   // Initialize

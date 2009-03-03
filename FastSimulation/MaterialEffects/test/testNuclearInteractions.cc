@@ -33,7 +33,7 @@ public :
   ~testNuclearInteractions();
 
   virtual void produce(edm::Event&, const edm::EventSetup& );
-  virtual void beginJob(const edm::EventSetup & c);
+  virtual void beginRun(const edm::EventSetup & c);
 private:
   
   // See RecoParticleFlow/PFProducer/interface/PFProducer.h
@@ -643,7 +643,7 @@ testNuclearInteractions::~testNuclearInteractions()
   //  delete mySimEvent;
 }
 
-void testNuclearInteractions::beginJob(const edm::EventSetup & es)
+void testNuclearInteractions::beginRun(const edm::EventSetup & es)
 {
   // init Particle data table (from Pythia)
   edm::ESHandle < HepPDT::ParticleDataTable > pdt;

@@ -18,7 +18,7 @@ DigiCheck::DigiCheck(const edm::ParameterSet&){;}
 DigiCheck::~DigiCheck(){;}
 typedef math::XYZVector XYZPoint;
 
-void  DigiCheck::beginJob(const edm::EventSetup & c){
+void  DigiCheck::beginJob(){
 
   m_firstTimeAnalyze = true ;
 

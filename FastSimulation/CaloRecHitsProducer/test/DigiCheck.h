@@ -22,7 +22,7 @@ public:
   ~DigiCheck();
 
   virtual void analyze(const edm::Event&, const edm::EventSetup& );
-  virtual void beginJob(const edm::EventSetup & c);
+  virtual void beginJob();
   void beginJobAnalyze(const edm::EventSetup & c);
   virtual void endJob();
 private:

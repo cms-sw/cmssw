@@ -32,7 +32,7 @@ public :
   ~producePileUpEvents();
 
   virtual void produce(edm::Event&, const edm::EventSetup& );
-  virtual void beginJob(const edm::EventSetup & c);
+  virtual void beginRun(const edm::EventSetup & c);
 private:
   
   // See RecoParticleFlow/PFProducer/interface/PFProducer.h
@@ -129,7 +129,7 @@ producePileUpEvents::~producePileUpEvents()
   //  delete mySimEvent;
 }
 
-void producePileUpEvents::beginJob(const edm::EventSetup & es)
+void producePileUpEvents::beginRun(const edm::EventSetup & es)
 {
   // init Particle data table (from Pythia)
   edm::ESHandle < HepPDT::ParticleDataTable > pdt;

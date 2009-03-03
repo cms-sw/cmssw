@@ -40,8 +40,8 @@ class FastTrackAnalyzer : public edm::EDAnalyzer {
   virtual ~FastTrackAnalyzer();
   
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
-  virtual   void beginJob( const edm::EventSetup& );
-  virtual  void endJob();
+  virtual void beginRun( const edm::EventSetup& );
+  virtual void endJob();
  private:
   void makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D * rechit, PSimHit * simHit, int numpartners);
   

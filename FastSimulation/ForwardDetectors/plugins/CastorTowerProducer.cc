@@ -13,7 +13,7 @@
 //
 // Original Author:  Hans Van Haevermaet
 //         Created:  Thu Mar 13 12:00:56 CET 2008
-// $Id: CastorTowerProducer.cc,v 1.1.2.1 2008/09/05 15:44:12 beaudett Exp $
+// $Id: CastorTowerProducer.cc,v 1.1 2008/11/30 15:57:20 beaudett Exp $
 //
 //
 
@@ -219,15 +219,10 @@ CastorTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
-CastorTowerProducer::beginJob(const edm::EventSetup&)
-{
-}
+void CastorTowerProducer::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
-CastorTowerProducer::endJob() {
-}
+void CastorTowerProducer::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(CastorTowerProducer);

@@ -40,7 +40,7 @@ FastTSGFromL2Muon::~FastTSGFromL2Muon()
 }
 
 void 
-FastTSGFromL2Muon::beginJob(const edm::EventSetup& es)
+FastTSGFromL2Muon::beginRun(const edm::EventSetup& es)
 {
   //update muon proxy service
   theService->update(es);

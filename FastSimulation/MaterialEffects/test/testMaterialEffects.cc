@@ -26,7 +26,7 @@ public :
   ~testMaterialEffects();
 
   virtual void analyze(const edm::Event&, const edm::EventSetup& );
-  virtual void beginJob(const edm::EventSetup & c);
+  virtual void beginRun(const edm::EventSetup & c);
 private:
   
   // See RecoParticleFlow/PFProducer/interface/PFProducer.h
@@ -563,7 +563,7 @@ testMaterialEffects::~testMaterialEffects()
   //  delete mySimEvent;
 }
 
-void testMaterialEffects::beginJob(const edm::EventSetup & es)
+void testMaterialEffects::beginRun(const edm::EventSetup & es)
 {
   // init Particle data table (from Pythia)
   edm::ESHandle < HepPDT::ParticleDataTable > pdt;

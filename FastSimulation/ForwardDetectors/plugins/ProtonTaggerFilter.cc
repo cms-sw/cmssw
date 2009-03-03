@@ -8,7 +8,7 @@
  * Author: Dmitry Zaborov
  */
 
-// Version: $Id: ProtonTaggerFilter.cc,v 1.1 2008/11/25 17:34:15 beaudett Exp $
+// Version: $Id: ProtonTaggerFilter.cc,v 1.2 2008/11/30 15:57:20 beaudett Exp $
 
 #include "FastSimulation/ForwardDetectors/plugins/ProtonTaggerFilter.h"
 
@@ -97,7 +97,7 @@ ProtonTaggerFilter::~ProtonTaggerFilter() {;}
 
 /** initialize detector acceptance table */
 
-void ProtonTaggerFilter::beginJob(const edm::EventSetup & es)
+void ProtonTaggerFilter::beginJob()
 {
   std::cout << "ProtonTaggerFilter: Getting ready ..." << std::endl;
 

@@ -76,7 +76,7 @@ PileUpProducer::~PileUpProducer() {
 
 }
 
-void PileUpProducer::beginJob(const edm::EventSetup & es)
+void PileUpProducer::beginJob()
 {
   
   gROOT->cd();

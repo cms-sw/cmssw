@@ -26,7 +26,7 @@ public :
   ~testEvent();
 
   virtual void analyze(const edm::Event&, const edm::EventSetup& );
-  virtual void beginJob(const edm::EventSetup & c);
+  virtual void beginRun( const edm::EventSetup& );
 private:
   
   // See RecoParticleFlow/PFProducer/interface/PFProducer.h
@@ -69,7 +69,7 @@ testEvent::~testEvent()
   dbe->save("testEvent.root");
 }
 
-void testEvent::beginJob(const edm::EventSetup & es)
+void testEvent::beginRun(const edm::EventSetup & es)
 {
   // init Particle data table (from Pythia)
   edm::ESHandle < HepPDT::ParticleDataTable > pdt;

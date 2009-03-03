@@ -15,7 +15,7 @@
 //
 //  Author:  Andrea Perrotta
 // Created:  Wed May 02 12:37:24 CET 2007
-// $Id: ParamL3MuonProducer.h,v 1.7 2008/01/08 17:42:18 pjanot Exp $
+// $Id: ParamL3MuonProducer.h,v 1.8 2008/05/25 16:39:39 pjanot Exp $
 //
 
 
@@ -75,7 +75,7 @@ class ParamL3MuonProducer : public edm::EDProducer {
       typedef std::vector<L1MuGMTCand> L1MuonCollection;
       typedef std::vector<l1extra::L1MuonParticle> L1ExtraCollection;
 
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       void readParameters(const edm::ParameterSet&, const edm::ParameterSet& );

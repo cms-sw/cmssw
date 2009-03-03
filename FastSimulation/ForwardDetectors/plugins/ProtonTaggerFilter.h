@@ -21,7 +21,7 @@
  * Author: Dmitry Zaborov
  */
 
-// Version: $Id: ProtonTaggerFilter.h,v 1.2 2007/09/28 08:50:03 dzaborov Exp $
+// Version: $Id: ProtonTaggerFilter.h,v 1.1 2008/11/25 17:34:15 beaudett Exp $
 
 #include "FWCore/Framework/interface/EDFilter.h"
 
@@ -43,7 +43,7 @@ class ProtonTaggerFilter : public edm::EDFilter
   virtual ~ProtonTaggerFilter();
 
   /// startup function of the EDFilter
-  virtual void beginJob(const edm::EventSetup & c);
+  virtual void beginJob();
 
   /// endjob function of the EDFilter
   virtual void endJob();
