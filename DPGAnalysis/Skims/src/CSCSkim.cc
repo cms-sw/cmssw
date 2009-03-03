@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Schmitt
 //         Created:  Sat Jul 12 17:43:33 CEST 2008
-// $Id: CSCSkim.cc,v 1.4 2008/08/28 19:44:40 schmittm Exp $
+// $Id: CSCSkim.cc,v 1.5 2009/03/03 10:57:14 schmittm Exp $
 //
 //
 //======================================================================
@@ -40,6 +40,7 @@
 //
 //
 //======================================================================
+
 #include "DPGAnalysis/Skims/interface/CSCSkim.h"
 
 using namespace std;
