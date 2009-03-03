@@ -997,51 +997,6 @@ void ResidualRefitting::zero_storage() {
 	storageRecMuon_		.n_ = 0;
 	storageTrackHit_	.n_ = 0;
 
-	for ( int i = 0; i < ResidualRefitting::N_MAX_STORED_HIT; i++) {
-
-//Muon Rec Hits		
-		storageRecMuon_.muonLink_		[i]= -99999;
-		
-		storageRecMuon_.system_			[i]= -99999;
-		storageRecMuon_.endcap_			[i]= -99999;
-		storageRecMuon_.station_		[i]= -99999;
-		storageRecMuon_.ring_			[i]= -99999;
-		storageRecMuon_.chamber_		[i]= -99999;
-		storageRecMuon_.layer_			[i]= -99999;
-		storageRecMuon_.wheel_			[i]= -99999;
-		storageRecMuon_.sector_			[i]= -99999;
-		
-		storageRecMuon_.	gpX_		[i]= -99999;
-		storageRecMuon_.	gpY_		[i]= -99999;
-		storageRecMuon_.	gpZ_		[i]= -99999;
-		storageRecMuon_.	gpEta_		[i]= -99999;
-		storageRecMuon_.	gpPhi_		[i]= -99999;
-		storageRecMuon_.	lpX_		[i]= -99999;
-		storageRecMuon_.	lpY_		[i]= -99999;
-		storageRecMuon_.	lpZ_		[i]= -99999;
-//Tracker Rec Hits
-		
-		storageTrackHit_.muonLink_		[N_MAX_STORED_HIT] = -99999;
-		storageTrackHit_.detector_		[N_MAX_STORED_HIT] = -99999;
-		storageTrackHit_.subdetector_	[N_MAX_STORED_HIT] = -99999;
-		storageTrackHit_.blade_			[N_MAX_STORED_HIT] = -99999;
-		storageTrackHit_.disk_			[N_MAX_STORED_HIT] = -99999;
-		storageTrackHit_.ladder_		[N_MAX_STORED_HIT] = -99999;
-		storageTrackHit_.layer_			[N_MAX_STORED_HIT] = -99999;
-		storageTrackHit_.module_		[N_MAX_STORED_HIT] = -99999;
-		storageTrackHit_.panel_			[N_MAX_STORED_HIT] = -99999;
-		storageTrackHit_.ring_			[N_MAX_STORED_HIT] = -99999;
-		storageTrackHit_.side_			[N_MAX_STORED_HIT] = -99999;
-		storageTrackHit_.wheel_			[N_MAX_STORED_HIT] = -99999;
-				
-		storageTrackHit_. gpX_			[N_MAX_STORED_HIT] = -99999;
-		storageTrackHit_. gpY_			[N_MAX_STORED_HIT] = -99999;
-		storageTrackHit_. gpZ_			[N_MAX_STORED_HIT] = -99999;
-		storageTrackHit_. gpEta_		[N_MAX_STORED_HIT] = -99999;
-		storageTrackHit_. gpPhi_		[N_MAX_STORED_HIT] = -99999;
-		storageTrackHit_. lpX_			[N_MAX_STORED_HIT] = -99999;
-		storageTrackHit_. lpY_			[N_MAX_STORED_HIT] = -99999;
-	}
 }
 //
 // Zero out a muon reference
