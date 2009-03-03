@@ -1,8 +1,8 @@
-#include "DQMOffline/Trigger/interface/EgHLTOffEle.h"
+#include "DQMOffline/Trigger/interface/EgHLTOffPho.h"
 
 using namespace egHLT;
 
-float OffEle::scSigmaEtaEta()const
+float OffPho::scSigmaEtaEta()const
 {
   if(fabs(etaSC())<1.479) return clusShapeData_.sigmaEtaEta; //barrel case, no correction
   else{ //endcap, need to apply eta correction
@@ -11,11 +11,7 @@ float OffEle::scSigmaEtaEta()const
 
 }
 
-//defining the == operator
-//bool operator==(const std::pair<TrigCodes::TrigBitSet,int>& lhs,const TrigCodes::TrigBitSet& rhs){return lhs.first==rhs;}
-//bool operator==(const TrigCodes::TrigBitSet& lhs,const std::pair<TrigCodes::TrigBitSet,int>& rhs){return lhs==rhs.first;}
-
-int OffEle::trigCutsCutCode(const TrigCodes::TrigBitSet& trigger)const
+int OffPho::trigCutsCutCode(const TrigCodes::TrigBitSet& trigger)const
 {
   //yes maybe a sorted vector might be better but 1) its small and 2) bitset doesnt support < operator
   //okay laugh, for some reason I cant overload the == operator (brain just not working), hence the non stl'y way
@@ -27,13 +23,3 @@ int OffEle::trigCutsCutCode(const TrigCodes::TrigBitSet& trigger)const
   for(size_t i=0;i<trigCutsCutCodes_.size();i++) if(trigger==trigCutsCutCodes_[i].first) return trigCutsCutCodes_[i].second;
   return 0; //defaults to passing
 }
-
-
-// float EgHLTOffEle::sigmaIEtaIEta()const
-// {
-//   if(fabs(etaSC())<1.479) return clusShapeData_.sigmaIEtaIEta; //barrel case, no correction
-//   else{ //endcap, need to apply eta correction
-//     return clusShapeData_.sigmaIEtaIEta - 0.02*( fabs(etaSC()) - 2.3);
-//   } 
-
-// }

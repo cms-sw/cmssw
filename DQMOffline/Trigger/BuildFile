@@ -15,6 +15,7 @@
 <use name=DataFormats/JetReco>
 <use name=Geometry/CaloEventSetup>
 <use name=RecoEcal/EgammaCoreTools>
+<use name=RecoEgamma/EgammaHLTAlgos>
 <use name=HLTrigger/HLTcore>
 <use name=CondFormats/DataRecord>
 <use name=DQM/HLTEvF>
@@ -40,6 +41,7 @@
   <use name=DataFormats/JetReco>
   <use name=Geometry/CaloEventSetup>
   <use name=RecoEcal/EgammaCoreTools>
+  <use name=RecoEgamma/EgammaHLTAlgos>
   <use name=HLTrigger/HLTcore>
   <use name=CondFormats/DataRecord>
   <use name=root>

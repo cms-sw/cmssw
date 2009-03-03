@@ -24,35 +24,38 @@
 //
 //
 
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Event.h"
 
-#include "DQMOffline/Trigger/interface/MonElemManager.h"
-#include "DQMOffline/Trigger/interface/EgHLTOffHelper.h"
+#include <vector>
+#include <string>
 
 class DQMStore;
+class MonitorElement;
 
-class EleHLTPathMon;
-
-namespace trigger{
-  class TriggerObject;
-
-}
 
 class EgHLTOfflineClient : public edm::EDAnalyzer {
- 
+
  private:
   DQMStore* dbe_; //dbe seems to be the standard name for this, I dont know why. We of course dont own it
   std::string dirName_;
-  std::vector<std::string> eleHLTPathNames_;//names of the HLT paths to use
-  std::vector<std::string> eleHLTFilterNames_;//names of the filter names to use, appended to the pathNames 
-  std::vector<std::string> eleHLTTightLooseFilters_;//names of the filter names to use, appended to the pathNames
-  //disabling copying/assignment
+  
+  std::vector<std::string> eleHLTFilterNames_;//names of the filters monitored using electrons to make plots for
+  std::vector<std::string> eleTightLooseTrigNames_;
+  std::vector<std::string> phoHLTFilterNames_;//names of the filters monitored using photons to make plots for
+  std::vector<std::string> phoTightLooseTrigNames_;
+  
+
+  std::vector<std::string> eleEffVars_;
+  std::vector<std::string> phoEffVars_;
+  std::vector<std::string> eleTrigTPEffVsVars_;
+  std::vector<std::string> phoTrigTPEffVsVars_;
+  std::vector<std::string> eleLooseTightTrigEffVsVars_;
+  std::vector<std::string> phoLooseTightTrigEffVsVars_;
+
+  
+
+  //disabling copying/assignment (in theory this is copyable but lets not just in case)
   EgHLTOfflineClient(const EgHLTOfflineClient& rhs){}
   EgHLTOfflineClient& operator=(const EgHLTOfflineClient& rhs){return *this;}
 
@@ -73,11 +76,15 @@ class EgHLTOfflineClient : public edm::EDAnalyzer {
   virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c);
 
   //at somepoint these all may migrate to a helper class
-  void createN1EffHists(const std::string& baseName,const std::string& region="");
-  void createLooseTightTrigEff(const std::string& filterName,const std::string& region="");
-  void createTrigTagProbeEffHists(const std::string& filterName,const std::string& region="");
+  void createN1EffHists(const std::string& baseName,const std::string& region,const std::vector<std::string>& varNames);
+  void createLooseTightTrigEff(const std::vector<std::string>&  tightLooseTrigNames,const std::string& region,const std::vector<std::string>& vsVarNames,const std::string& objName);
+  void createTrigTagProbeEffHists(const std::string& filterName,const std::string& region,const std::vector<std::string>& vsVarNames,const std::string& objName);
+  
   MonitorElement* makeEffMonElemFromPassAndAll(const std::string& name,const MonitorElement* pass,const MonitorElement* all);
   MonitorElement* makeEffMonElemFromPassAndFail(const std::string& name,const MonitorElement* pass,const MonitorElement* fail);
+
+private:
+  void runClient_(); //master function which runs the client
   
 };
  
