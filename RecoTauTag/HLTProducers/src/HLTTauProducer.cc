@@ -13,6 +13,7 @@ HLTTauProducer::HLTTauProducer(const edm::ParameterSet& iConfig)
   matchingCone_ = iConfig.getParameter<double>("MatchingCone");
   signalCone_ = iConfig.getParameter<double>("SignalCone");
   isolationCone_ = iConfig.getParameter<double>("IsolationCone");
+  ptMin_ = iConfig.getParameter<double>("MinPtTracks");
   produces<reco::HLTTauCollection>();
 }
 
@@ -42,6 +43,7 @@ void HLTTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
   
   int i=0;
   float eta_, phi_, pt_;
+  int nTracksL25, nTracksL3;
 
  for(L2TauInfoAssociation::const_iterator p = tauL2Jets->begin();p!=tauL2Jets->end();++p)
 	   {
@@ -59,26 +61,38 @@ void HLTTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
     phi_ = jetDirL25.phi();
     pt_ = jetTracks->first->pt();
 
-    int trackIsolationL25 = (int)tauL25[i].discriminator(jetDirL25,matchingCone_, signalCone_, isolationCone_,1.,1.,0);
+    int trackIsolationL25 = (int)tauL25[i].discriminator(jetDirL25,matchingCone_, signalCone_, isolationCone_,1.,ptMin_,0);
     const TrackRef leadTkL25 = tauL25[i].leadingSignalTrack(jetDirL25,matchingCone_, 1.);
     double ptLeadTkL25=0.;
     
     if(!leadTkL25) 
       {}else{
 	ptLeadTkL25 = (*leadTkL25).pt();
+	nTracksL25 = (tauL25[i].tracksInCone((*leadTkL25).momentum(), isolationCone_,   ptMin_ )).size() - (tauL25[i].tracksInCone((*leadTkL25).momentum(), signalCone_, ptMin_ )).size();	
       }
     jetTracks = tauL3[i].jtaRef();
     math::XYZVector jetDirL3(jetTracks->first->px(),jetTracks->first->py(),jetTracks->first->pz());	
-    int  trackIsolationL3 = (int)tauL3[i].discriminator(jetDirL3,matchingCone_, signalCone_, isolationCone_,ptMinLeadTk_,1.,0);
+    int  trackIsolationL3 = (int)tauL3[i].discriminator(jetDirL3,matchingCone_, signalCone_, isolationCone_,1.,ptMin_,0);
+    
     const TrackRef leadTkL3 = tauL3[i].leadingSignalTrack(jetDirL3,matchingCone_,1.);
     double ptLeadTkL3=0.;
     if(!leadTkL3) 
       {}else{
 	ptLeadTkL3 = (*leadTkL3).pt();
+	nTracksL3 = (tauL3[i].tracksInCone((*leadTkL3).momentum(), isolationCone_,   ptMin_ )).size() - (tauL3[i].tracksInCone((*leadTkL3).momentum(), signalCone_, ptMin_ )).size();	
       }
 
     HLTTau pippo(eta_,phi_,pt_,emIsol,trackIsolationL25,ptLeadTkL25,trackIsolationL3,ptLeadTkL3);
-      jetCollection->push_back(pippo);
+    pippo.setNL25TrackIsolation(nTracksL25);
+    pippo.setNL3TrackIsolation(nTracksL3);
+    pippo.setSeedEcalHitEt(l2info.seedEcalHitEt());
+    pippo.setEcalClusterShape(l2info.ecalClusterShape());
+    pippo.setNEcalHits(l2info.nEcalHits());		       
+    pippo.setHcalIsolEt(l2info.hcalIsolEt());
+    pippo.setSeedHcalHitEt(l2info.seedHcalHitEt());
+    pippo.setHcalClusterShape(l2info.hcalClusterShape());
+    pippo.setNHcalHits(l2info.nHcalHits());
+    jetCollection->push_back(pippo);
       i++;
   }
   
