@@ -10,6 +10,9 @@
 
 #include <utility>
 
+  //FIXME
+#include <iostream>
+
 namespace l1t
 {
 
@@ -40,9 +43,19 @@ std::string DataWriter::findTokenForTag (const std::string & tag)
     return tagToken;
 }
 
+  //FIXME   vincenzo
 void DataWriter::writeKey (L1TriggerKey * key,
 			   const std::string & tag,
 			   const edm::RunNumber_t sinceRun)
+
+{
+  bool DataWriter__writeKey_isObsolete_in_31X;
+  std::cout << "the code in DataWriter::writeKey has become obsolete as 31X"
+	    << " please use DBOutputService or Popcon" << std::endl;
+  throw std::string("obsolete code");
+}
+
+/*
 {
     // writting key as bit more complicated. At this time we have to worry
     // about such things if the key already exists or not
@@ -109,8 +122,9 @@ void DataWriter::writeKey (L1TriggerKey * key,
     // Assign payload token with IOV value
     if (requireMapping)
         addMappings (tag, tagToken);
-}
 
+}
+*/
 void DataWriter::addMappings (const std::string tag, const std::string iovToken)
 {
   //    coral->connect (cond::ReadWriteCreate);
