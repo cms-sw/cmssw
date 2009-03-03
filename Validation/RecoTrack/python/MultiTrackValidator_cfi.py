@@ -31,8 +31,8 @@ multiTrackValidator = cms.EDFilter("MultiTrackValidator",
     phiRes_rangeMax = cms.double(0.003),
     cotThetaRes_rangeMin = cms.double(-0.01),
     cotThetaRes_rangeMax = cms.double(+0.01),
-    dxyRes_rangeMin = cms.double(-0.001),
-    dxyRes_rangeMax = cms.double(0.001),
+    dxyRes_rangeMin = cms.double(-0.01),
+    dxyRes_rangeMax = cms.double(0.01),
     dzRes_rangeMin = cms.double(-0.05),
     dzRes_rangeMax = cms.double(+0.05),
     ptRes_nbin = cms.int32(100),                                   
@@ -40,9 +40,8 @@ multiTrackValidator = cms.EDFilter("MultiTrackValidator",
     cotThetaRes_nbin = cms.int32(120),                                   
     dxyRes_nbin = cms.int32(100),                                   
     dzRes_nbin = cms.int32(150),                                   
+
     #                                   
-    ignoremissingtrackcollection=cms.untracked.bool(False),
-    #
     sim = cms.string('g4SimHits'),
     # 
     associators = cms.vstring('TrackAssociatorByHits'),
