@@ -1,0 +1,22 @@
+<use name=CommonTools/Utils>
+<use name=FWCore/ServiceRegistry>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/Services>
+<use name=FWCore/Utilities>
+<use name=DataFormats/Common>
+<use name=DataFormats/Provenance>
+<use name=root>
+<export>
+  <lib name=CommonToolsUtilAlgos>
+  <use name=CommonTools/Utils>
+  <use name=FWCore/ServiceRegistry>
+  <use name=FWCore/MessageLogger>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=FWCore/Utilities>
+  <use name=DataFormats/Common>
+  <use name=DataFormats/Provenance>
+  <use name=root>
+</export>
