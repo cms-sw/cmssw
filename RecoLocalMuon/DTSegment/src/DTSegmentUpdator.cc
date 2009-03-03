@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2008/10/27 17:16:50 $
- * $Revision: 1.28 $
+ * $Date: 2008/12/03 13:18:14 $
+ * $Revision: 1.30 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  * \       A.Meneguzzo - Padova University  <anna.meneguzzo@pd.infn.it>
@@ -576,41 +576,11 @@ void DTSegmentUpdator::fitT0_seg(DTRecSegment2D* seg, float& t0cor ,double& vmin
 
   seg->setT0(0.1000); //just for setting a dummy unused value to tell that T0 has been already applyed;
 
-  float dvDrift0 = -0.000001;
-  float t0cor_dvDrift=0.;
-
   if ( nptfit>2            )  {
     t0cor = - cminf/0.00543 ; // in ns ;
-    if ( (abs(vminf))< 0.09 )  dvDrift0 = vminf/10.;
-    // Per Nicola ... si potrebbe sostituire il valore della vdrift costante  usata nell'algo per creare le hits...
 
-    float   t0cor_10 = int(t0cor *10)/10.; //in 0.1 ns;
-
-    t0cor_dvDrift=t0cor_10;
-
-
-    if (vdrift_4parfit) {
-      float dvDrift  = dvDrift0;
-      if ( dvDrift0 < 0. )  {   dvDrift=  - dvDrift0 +.01;  }
-
-      t0cor_dvDrift =   dvDrift + t0cor_10 ;
-      if ( t0cor_10 < 0. )    t0cor_dvDrift = - dvDrift + t0cor_10 ;
-
-
-      //NPT if (t0cor_dvDrift!= 0) cout <<  "NPT " << npt <<  "   " <<  wireId.wheel() << "   " << wireId.station() << "   " <<  wireId.sector() <<" " << t0cor << " vdrift= " << dvDrift0 <<endl;
-      //if (t0cor != 0) cout <<  "NPT " <<"t0cor " << t0cor_dvDrift << endl;
-      //if (t0cor != 0) cout <<  "NPT t0cor _10= " << t0cor_10 << " vdrift= " << dvDrift << "t0_seg= " << t0cor_dvDrift <<endl;
-      //NPT if (t0cor_dvDrift != 0) {
-      //NPT 	for (int jnpt=0; jnpt<npt; jnpt++){
-      //NPT 	 cout <<  "NPT " <<jnpt+1 << "  " <<x[jnpt] << " " <<y[jnpt] <<"    " <<lc[jnpt]<< " " << d_drift[jnpt] << endl;
-      //NPT 	}
-      //NPT }
-
-    }
-
-    //    updateHitsN ( seg,vminf,cminf);  // here the rehits are updated
-    t0cor= t0cor_dvDrift;
-    seg->setT0(t0cor_dvDrift);	      // here the applied time + vdrift corrections are recorded in the segment
+    seg->setT0(t0cor);          // time  and
+    seg->setVdrift(vminf);   //  vdrift correction are recorded in the segment    
   }
 }
 
