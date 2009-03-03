@@ -91,18 +91,37 @@ void align::moveAlignable(Alignable* ali, AlgebraicVector diff){
 //Creates the points which are used in diffAlignables
 void align::createPoints(align::GlobalVectors* Vs, Alignable* ali, const std::string &weightBy, bool weightById, const std::vector< unsigned int > &weightByIdVector){
 	
-	
-	const align::Alignables& comp = ali->components();
-	unsigned int nComp = comp.size();
-	for (unsigned int i = 0; i < nComp; ++i) align::createPoints(Vs, comp[i], weightBy, weightById, weightByIdVector);
-	// double the weight for SS modules if weight by Det
-	if ((ali->alignableObjectId() == align::AlignableDet)&&(weightBy == "Det")){
+	std::string copy=weightBy; 	 
+	std::transform(copy.begin(), copy.end(), copy.begin(),  (int(*)(int)) toupper); 	 
+	if(copy != "SELF"){
+		const align::Alignables& comp = ali->components();
+		unsigned int nComp = comp.size();
 		for (unsigned int i = 0; i < nComp; ++i) align::createPoints(Vs, comp[i], weightBy, weightById, weightByIdVector);
+		// double the weight for SS modules if weight by Det
+		if ((ali->alignableObjectId() == align::AlignableDet)&&(weightBy == "Det")){
+			for (unsigned int i = 0; i < nComp; ++i) align::createPoints(Vs, comp[i], weightBy, weightById, weightByIdVector);
+		}
+		
+		//only create points for lowest hiearchical level
+		if (ali->alignableObjectId() == align::AlignableDetUnit){
+			//check if the raw id or the mother's raw id is on the list
+			bool createPointsForDetUnit = true;
+			if (weightById) createPointsForDetUnit = align::readModuleList( ali->id(), ali->mother()->id(), weightByIdVector);
+			if (createPointsForDetUnit){
+				//if no survey information, create local points
+				if(!(ali->survey())){
+					align::ErrorMatrix error;
+					ali->setSurvey( new SurveyDet (ali->surface(), error*1e-6) );
+				}
+				const align::GlobalPoints& points = ali->surface().toGlobal(ali->survey()->localPoints());
+				for (unsigned int j = 0; j < points.size(); ++j){
+					align::GlobalVector dummy(points[j].x(),points[j].y(),points[j].z());
+					Vs->push_back(dummy);
+				}
+			}
+		}
 	}
-	
-	//only create points for lowest hiearchical level
-	if (ali->alignableObjectId() == align::AlignableDetUnit){
-		//check if the raw id or the mother's raw id is on the list
+	else{
 		bool createPointsForDetUnit = true;
 		if (weightById) createPointsForDetUnit = align::readModuleList( ali->id(), ali->mother()->id(), weightByIdVector);
 		if (createPointsForDetUnit){
@@ -118,9 +137,7 @@ void align::createPoints(align::GlobalVectors* Vs, Alignable* ali, const std::st
 			}
 		}
 	}
-	
 }
-
 
 bool align::readModuleList(unsigned int aliId, unsigned int motherId, const std::vector< unsigned int > &weightByIdVector){
 	
