@@ -1,5 +1,5 @@
-#!/usr/bin/perl -w
-# $Id: smCleanupFiles.pl,v 1.8 2008/10/12 14:28:32 loizides Exp $
+#!/usr/bin/env perl -w
+# $Id: smCleanupFiles.pl,v 1.1 2008/11/13 08:29:22 loizides Exp $
 
 use strict;
 use DBI;
@@ -62,7 +62,7 @@ $rmexitcode = 0;
 $execute    = 1;
 $maxfiles   = 1;
 $force      = 0;
-$config     = "/nfshome0/smpro/configuration/db.conf";
+$config     = "/opt/injectworker/.db.conf";
 
 $hostname   = `hostname -s`;
 chomp($hostname);
