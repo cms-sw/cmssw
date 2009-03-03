@@ -40,13 +40,10 @@ OutputDDToDDL::OutputDDToDDL(const edm::ParameterSet& iConfig) : fname_()
   (*xos_) << "<DDDefinition xmlns=\"http://www.cern.ch/cms/DDL\"" << std::endl;
   (*xos_) << " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" << std::endl;
   (*xos_) << "xsi:schemaLocation=\"http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd\">" << std::endl;
-  //  (*xos_) << std::scientific;
-  // best still is setting ALL to precision(6)
-  (*xos_) << std::fixed << std::setprecision(6);
+  (*xos_) << std::fixed << std::setprecision(18);
 }
 OutputDDToDDL::~OutputDDToDDL()
 {
-  //  std::cout<<"OutputDDToDDL::~OutputDDToDDL"<<std::endl;
   (*xos_) << "</DDDefinition>" << std::endl;
   (*xos_) << std::endl;
   xos_->flush();
@@ -82,7 +79,7 @@ OutputDDToDDL::beginJob( edm::EventSetup const& es)
   std::cout << "fname_=" << fname_ << " namespace = " << out.ns_ << std::endl;
   std::string ns_ = out.ns_;
 
-  (*xos_) << std::scientific << std::setprecision(5);
+  (*xos_) << std::scientific << std::setprecision(18);
   DDMaterial::iterator<DDMaterial> it(DDMaterial::begin()), ed(DDMaterial::end());
   (*xos_) << "<MaterialSection label=\"" << ns_ << "\">" << std::endl;
   for (; it != ed; ++it) {
@@ -92,19 +89,18 @@ OutputDDToDDL::beginJob( edm::EventSetup const& es)
   (*xos_) << "</MaterialSection>" << std::endl;
 
   (*xos_) << "<RotationSection label=\"" << ns_ << "\">" << std::endl;
-  (*xos_) << std::fixed << std::setprecision(6);
+  (*xos_) << std::fixed << std::setprecision(18);
   DDRotationMatrix rotm;
   DDRotation::iterator<DDRotation> rit(DDRotation::begin()), red(DDRotation::end());
   for (; rit != red; ++rit) {
     if (! rit->isDefined().second) continue;
-    if ( *(rit->matrix()) == rotm ) continue;
     if ( rit->toString() != ":" ) {
       out.rotation(*rit, *xos_);
     }
   } 
   (*xos_) << "</RotationSection>" << std::endl;
 
-  //  (*xos_) << std::fixed << std::setprecision(4);
+  (*xos_) << std::fixed << std::setprecision(18);
   DDSolid::iterator<DDSolid> sit(DDSolid::begin()), sed(DDSolid::end());
   (*xos_) << "<SolidSection label=\"" << ns_ << "\">" << std::endl;
   for (; sit != sed; ++sit) {
@@ -123,8 +119,9 @@ OutputDDToDDL::beginJob( edm::EventSetup const& es)
   }
   (*xos_) << "</LogicalPartSection>" << std::endl;
 
-  //  (*xos_) << std::fixed << std::setprecision(6);
+  (*xos_) << std::fixed << std::setprecision(18);
   typedef  DDCompactView::graph_type::const_adj_iterator adjl_iterator;
+
   adjl_iterator git = gra.begin();
   adjl_iterator gend = gra.end();    
     
@@ -149,7 +146,7 @@ OutputDDToDDL::beginJob( edm::EventSetup const& es)
     } // iterate over graph nodes  
   (*xos_) << "</PosPartSection>" << std::endl;
 
-  //  (*xos_) << std::fixed << std::setprecision(4);
+  (*xos_) << std::fixed << std::setprecision(18);
   std::vector<std::string> partSelections;
   std::map<std::string, std::vector<std::pair<std::string, double> > > values;
   std::map<std::string, int> isEvaluated;
