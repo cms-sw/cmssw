@@ -211,10 +211,10 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
   iEvent.getByType(rpcHits);
 
   map<int,int> bxMap;
-  int totalNumberDigi[3][1];
+  int totalNumberDigi[3];
 
-  for (int k=1; k<=3;k++){
-    totalNumberDigi[k][1]=0;
+  for (int k=0; k<=2;k++){
+    totalNumberDigi[k]=0;
   }
 
 
@@ -415,7 +415,7 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
     if(meMap[os.str()])
       meMap[os.str()]->Fill(numberOfDigi);
  
-    totalNumberDigi[detId.region()+2][1]+= numberOfDigi;	
+    totalNumberDigi[detId.region()+1]+= numberOfDigi;	
  
     // Fill RecHit MEs   
     if(recHitCollection.first==recHitCollection.second ){   
@@ -541,7 +541,7 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
 	if(meMap[os.str()])
 	  meMap[os.str()]->Fill(numbOfClusters);
 	
-	if(numberOfHits>5) numberOfHits=16;////////////!!!!!!!!!!!!!!!!!!!!!!!	
+	if(numberOfHits>16) numberOfHits=16;////////////!!!!!!!!!!!!!!!!!!!!!!!	
 	os.str("");
 	os<<"RecHitCounter_"<<nameRoll;
 	if(meMap[os.str()])
@@ -563,9 +563,9 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
   }/// end loop on RPC Digi Collection
  
   //fill global histo at the end of the event
-      NumberOfDigis_for_Barrel ->Fill(totalNumberDigi[2][1]);
-      NumberOfDigis_for_EndcapPositive ->Fill(totalNumberDigi[3][1]);
-      NumberOfDigis_for_EndcapNegative ->Fill(totalNumberDigi[1][1]);
+      NumberOfDigis_for_Barrel ->Fill(totalNumberDigi[1]);
+      NumberOfDigis_for_EndcapPositive ->Fill(totalNumberDigi[2]);
+      NumberOfDigis_for_EndcapNegative ->Fill(totalNumberDigi[0]);
 
   //adding new histo C.Carrillo & A. Cimmino
   for (map<int, int>::const_iterator myItr= bxMap.begin(); 
