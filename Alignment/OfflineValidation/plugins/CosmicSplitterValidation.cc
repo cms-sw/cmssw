@@ -13,7 +13,7 @@
 //
 // Original Author:  Nhan Tran
 //         Created:  Mon Jul 16m 16:56:34 CDT 2007
-// $Id: CosmicSplitterValidation.cc,v 1.3 2009/01/27 13:57:09 ntran Exp $
+// $Id: CosmicSplitterValidation.cc,v 1.4 2009/02/27 17:54:36 flucke Exp $
 //
 //
 
@@ -134,63 +134,65 @@ private:
 	// ----------member data ---------------------------
 	//std::vector<AlignTransform> m_align;
 	// tree
-	TTree* _splitterTree;
+	TTree* splitterTree_;
 	// tree vars
 	// split track variables
-	double _dcaX1_spl, _dcaY1_spl, _dcaZ1_spl;
-	double _dcaX2_spl, _dcaY2_spl, _dcaZ2_spl;
-	double _dxy1_spl, _dxy2_spl, _dz1_spl, _dz2_spl;
-	double _theta1_spl, _theta2_spl, _phi1_spl, _phi2_spl;
-	double _ddxy_spl, _ddz_spl, _dtheta_spl, _dphi_spl;
-	double _pt1_spl, _pt2_spl, _dpt_spl;
-	double _eta1_spl, _eta2_spl, _deta_spl;
-	// split track errors
-	double _pt1Err_spl, _pt2Err_spl;
-	double _theta1Err_spl, _theta2Err_spl;
-	double _phi1Err_spl, _phi2Err_spl;
-	double _d01Err_spl, _d02Err_spl;
-	double _dz1Err_spl, _dz2Err_spl;
+	double dcaX1_spl_, dcaY1_spl_, dcaZ1_spl_;
+	double dcaX2_spl_, dcaY2_spl_, dcaZ2_spl_;
+	double dxy1_spl_, dxy2_spl_, dz1_spl_, dz2_spl_;
+	double theta1_spl_, theta2_spl_, phi1_spl_, phi2_spl_;
+	double ddxy_spl_, ddz_spl_, dtheta_spl_, dphi_spl_;
+	double pt1_spl_, pt2_spl_, dpt_spl_, p1_spl_, p2_spl_;
+	double eta1_spl_, eta2_spl_, deta_spl_;
+	double nHits1_spl_, nHitsPXB1_spl_, nHitsPXF1_spl_, nHitsTIB1_spl_, nHitsTOB1_spl_, nHitsTID1_spl_, nHitsTEC1_spl_;
+	double nHits2_spl_, nHitsPXB2_spl_, nHitsPXF2_spl_, nHitsTIB2_spl_, nHitsTOB2_spl_, nHitsTID2_spl_, nHitsTEC2_spl_;
+	// spl_it track errors
+	double pt1Err_spl_, pt2Err_spl_;
+	double theta1Err_spl_, theta2Err_spl_;
+	double phi1Err_spl_, phi2Err_spl_;
+	double d01Err_spl_, d02Err_spl_;
+	double dz1Err_spl_, dz2Err_spl_;
 	// original track variables
-	double _dcaX_org, _dcaY_org, _dcaZ_org;
-	double _dxy_org, _dz_org;
-	double _theta_org, _phi_org, _eta_org, _pt_org;
-	double _norchi2_org;
+	double dcaX_org_, dcaY_org_, dcaZ_org_;
+	double dxy_org_, dz_org_;
+	double theta_org_, phi_org_, eta_org_, pt_org_, p_org_;
+	double norchi2_org_;
 	
 	// split sta variables
-	double _dcaX1_sta, _dcaY1_sta, _dcaZ1_sta;
-	double _dcaX2_sta, _dcaY2_sta, _dcaZ2_sta;
-	double _dxy1_sta, _dxy2_sta, _dz1_sta, _dz2_sta;
-	double _theta1_sta, _theta2_sta, _phi1_sta, _phi2_sta;
-	double _ddxy_sta, _ddz_sta, _dtheta_sta, _dphi_sta;
-	double _pt1_sta, _pt2_sta, _dpt_sta;
-	double _eta1_sta, _eta2_sta, _deta_sta;
-	// split sta errors
-	double _pt1Err_sta, _pt2Err_sta;
-	double _theta1Err_sta, _theta2Err_sta;
-	double _phi1Err_sta, _phi2Err_sta;
-	double _d01Err_sta, _d02Err_sta;
-	double _dz1Err_sta, _dz2Err_sta;
+	double dcaX1_sta_, dcaY1_sta_, dcaZ1_sta_;
+	double dcaX2_sta_, dcaY2_sta_, dcaZ2_sta_;
+	double dxy1_sta_, dxy2_sta_, dz1_sta_, dz2_sta_;
+	double theta1_sta_, theta2_sta_, phi1_sta_, phi2_sta_;
+	double ddxy_sta_, ddz_sta_, dtheta_sta_, dphi_sta_;
+	double pt1_sta_, pt2_sta_, dpt_sta_, p1_sta_, p2_sta_;
+	double eta1_sta_, eta2_sta_, deta_sta_;
+	// split sta_ errors
+	double pt1Err_sta_, pt2Err_sta_;
+	double theta1Err_sta_, theta2Err_sta_;
+	double phi1Err_sta_, phi2Err_sta_;
+	double d01Err_sta_, d02Err_sta_;
+	double dz1Err_sta_, dz2Err_sta_;
 
-	// split glb variables
-	double _dcaX1_glb, _dcaY1_glb, _dcaZ1_glb;
-	double _dcaX2_glb, _dcaY2_glb, _dcaZ2_glb;
-	double _dxy1_glb, _dxy2_glb, _dz1_glb, _dz2_glb;
-	double _theta1_glb, _theta2_glb, _phi1_glb, _phi2_glb;
-	double _ddxy_glb, _ddz_glb, _dtheta_glb, _dphi_glb;
-	double _pt1_glb, _pt2_glb, _dpt_glb;
-	double _eta1_glb, _eta2_glb, _deta_glb;
-	double _norchi1_glb, _norchi2_glb;
-	// split glb errors
-	double _pt1Err_glb, _pt2Err_glb;
-	double _theta1Err_glb, _theta2Err_glb;
-	double _phi1Err_glb, _phi2Err_glb;
-	double _d01Err_glb, _d02Err_glb;
-	double _dz1Err_glb, _dz2Err_glb;
+	// split glb_ variables
+	double dcaX1_glb_, dcaY1_glb_, dcaZ1_glb_;
+	double dcaX2_glb_, dcaY2_glb_, dcaZ2_glb_;
+	double dxy1_glb_, dxy2_glb_, dz1_glb_, dz2_glb_;
+	double theta1_glb_, theta2_glb_, phi1_glb_, phi2_glb_;
+	double ddxy_glb_, ddz_glb_, dtheta_glb_, dphi_glb_;
+	double pt1_glb_, pt2_glb_, dpt_glb_, p1_glb_, p2_glb_;
+	double eta1_glb_, eta2_glb_, deta_glb_;
+	double norchi1_glb_, norchi2_glb_;
+	// split glb_ errors
+	double pt1Err_glb_, pt2Err_glb_;
+	double theta1Err_glb_, theta2Err_glb_;
+	double phi1Err_glb_, phi2Err_glb_;
+	double d01Err_glb_, d02Err_glb_;
+	double dz1Err_glb_, dz2Err_glb_;
 	// original glb muon variables
-	double _dcaX_orm, _dcaY_orm, _dcaZ_orm;
-	double _dxy_orm, _dz_orm;
-	double _theta_orm, _phi_orm, _eta_orm, _pt_orm;
-	double _norchi2_orm;
+	double dcaX_orm_, dcaY_orm_, dcaZ_orm_;
+	double dxy_orm_, dz_orm_;
+	double theta_orm_, phi_orm_, eta_orm_, pt_orm_, p_orm_;
+	double norchi2_orm_;
 	
 };
 
@@ -252,6 +254,10 @@ void CosmicSplitterValidation::analyze(const edm::Event& iEvent, const edm::Even
 		iEvent.getByLabel(splitGlobalMuons_, globalMuons);
 		iEvent.getByLabel(originalGlobalMuons_, originalGlobalMuons);
 	}
+
+	const int kBPIX = PixelSubdetector::PixelBarrel;
+	const int kFPIX = PixelSubdetector::PixelEndcap;
+
 	
 	totalTracksToAnalyzer_ = totalTracksToAnalyzer_ + tracks->size();
 	if (isGolden) goldenCtr++;
@@ -306,6 +312,73 @@ void CosmicSplitterValidation::analyze(const edm::Event& iEvent, const edm::Even
 			math::XYZPoint dca1 = track1.referencePoint();
 			math::XYZPoint dca2 = track2.referencePoint();
 			
+			// looping through the hits for track 1
+			double Nrechits1 =0;
+			double nhitinTIB1 =0; 
+			double nhitinTOB1 =0; 
+			double nhitinTID1 =0; 
+			double nhitinTEC1 =0; 
+			double nhitinBPIX1 =0;
+			double nhitinFPIX1 =0;    
+			for (trackingRecHit_iterator iHit = track1.recHitsBegin(); iHit != track1.recHitsEnd(); ++iHit) {
+				
+				if((*iHit)->isValid()) {       
+					
+					Nrechits1++;
+					
+					int type =(*iHit)->geographicalId().subdetId();
+					
+					if(type==int(StripSubdetector::TIB)){++nhitinTIB1;}
+					if(type==int(StripSubdetector::TOB)){++nhitinTOB1;}
+					if(type==int(StripSubdetector::TID)){++nhitinTID1;}
+					if(type==int(StripSubdetector::TEC)){++nhitinTEC1;}
+					if(type==int(                kBPIX)){++nhitinBPIX1;}
+					if(type==int(                kFPIX)){++nhitinFPIX1;}
+					
+				}
+			}    
+			nHits1_spl_ = Nrechits1;
+			nHitsTIB1_spl_ = nhitinTIB1; 
+			nHitsTOB1_spl_ = nhitinTOB1; 
+			nHitsTID1_spl_ = nhitinTID1; 
+			nHitsTEC1_spl_ = nhitinTEC1; 
+			nHitsPXB1_spl_ = nhitinBPIX1;
+			nHitsPXF1_spl_ = nhitinFPIX1;  
+			
+			// looping through the hits for track 2
+			double Nrechits2 =0;
+			double nhitinTIB2 =0; 
+			double nhitinTOB2 =0; 
+			double nhitinTID2 =0; 
+			double nhitinTEC2 =0; 
+			double nhitinBPIX2 =0;
+			double nhitinFPIX2 =0;    
+			for (trackingRecHit_iterator iHit = track2.recHitsBegin(); iHit != track2.recHitsEnd(); ++iHit) {
+				
+				if((*iHit)->isValid()) {       
+					
+					Nrechits2++;
+					
+					int type =(*iHit)->geographicalId().subdetId();
+					
+					if(type==int(StripSubdetector::TIB)){++nhitinTIB2;}
+					if(type==int(StripSubdetector::TOB)){++nhitinTOB2;}
+					if(type==int(StripSubdetector::TID)){++nhitinTID2;}
+					//\\if(type==int(StripSubdetector::TEC)){++nhitinTEC2;}
+					if(type==int(                kBPIX)){++nhitinBPIX2;}
+					if(type==int(                kFPIX)){++nhitinFPIX2;}
+					
+				}
+			}    
+			nHits2_spl_ = Nrechits2;
+			nHitsTIB2_spl_ = nhitinTIB2; 
+			nHitsTOB2_spl_ = nhitinTOB2; 
+			nHitsTID2_spl_ = nhitinTID2; 
+			nHitsTEC2_spl_ = nhitinTEC2; 
+			nHitsPXB2_spl_ = nhitinBPIX2;
+			nHitsPXF2_spl_ = nhitinFPIX2;    
+			
+			
 			double dtheta_Val = track1.theta() - track2.theta();
 			double dphi_Val = track1.phi() - track2.phi();
 			double ddxy_Val = track1.d0() - track2.d0();
@@ -318,52 +391,55 @@ void CosmicSplitterValidation::analyze(const edm::Event& iEvent, const edm::Even
 			
 			// fill tree
 			// split tracks
-			_dcaX1_spl = dca1.x(); 
-			_dcaY1_spl = dca1.y();
-			_dcaZ1_spl = dca1.z();
-			_dcaX2_spl = dca2.x(); 
-			_dcaY2_spl = dca2.y();
-			_dcaZ2_spl = dca2.z();
-			_dxy1_spl = track1.d0();
-			_dxy2_spl = track2.d0();
-			_dz1_spl = track1.dz();
-			_dz2_spl = track2.dz();
-			_d01Err_spl = track1.d0Error();
-			_d02Err_spl = track2.d0Error();
-			_dz1Err_spl = track1.dzError();
-			_dz2Err_spl = track2.dzError();
-			_theta1_spl = track1.theta();
-			_theta2_spl = track2.theta();
-			_theta1Err_spl = track1.thetaError();
-			_theta2Err_spl = track2.thetaError();
-			_phi1_spl = track1.phi();
-			_phi2_spl = track2.phi();
-			_phi1Err_spl = track1.phiError();
-			_phi2Err_spl = track2.phiError();
-			_ddxy_spl = ddxy_Val;
-			_ddz_spl = ddz_Val;
-			_dtheta_spl = dtheta_Val;
-			_dphi_spl = dphi_Val;
-			_pt1_spl = track1.pt();
-			_pt2_spl = track2.pt();
-			_pt1Err_spl = track1.ptError();
-			_pt2Err_spl = track2.ptError();
-			_dpt_spl = dpt_Val;
-			_eta1_spl = track1.eta();
-			_eta2_spl = track2.eta();
-			_deta_spl = _eta1_spl - _eta2_spl;
+			dcaX1_spl_ = dca1.x(); 
+			dcaY1_spl_ = dca1.y();
+			dcaZ1_spl_ = dca1.z();
+			dcaX2_spl_ = dca2.x(); 
+			dcaY2_spl_ = dca2.y();
+			dcaZ2_spl_ = dca2.z();
+			dxy1_spl_ = track1.d0();
+			dxy2_spl_ = track2.d0();
+			dz1_spl_ = track1.dz();
+			dz2_spl_ = track2.dz();
+			d01Err_spl_ = track1.d0Error();
+			d02Err_spl_ = track2.d0Error();
+			dz1Err_spl_ = track1.dzError();
+			dz2Err_spl_ = track2.dzError();
+			theta1_spl_ = track1.theta();
+			theta2_spl_ = track2.theta();
+			theta1Err_spl_ = track1.thetaError();
+			theta2Err_spl_ = track2.thetaError();
+			phi1_spl_ = track1.phi();
+			phi2_spl_ = track2.phi();
+			phi1Err_spl_ = track1.phiError();
+			phi2Err_spl_ = track2.phiError();
+			ddxy_spl_ = ddxy_Val;
+			ddz_spl_ = ddz_Val;
+			dtheta_spl_ = dtheta_Val;
+			dphi_spl_ = dphi_Val;
+			pt1_spl_ = track1.pt();
+			pt2_spl_ = track2.pt();
+			p1_spl_ = track1.p();
+			p2_spl_ = track2.p();
+			pt1Err_spl_ = track1.ptError();
+			pt2Err_spl_ = track2.ptError();
+			dpt_spl_ = dpt_Val;
+			eta1_spl_ = track1.eta();
+			eta2_spl_ = track2.eta();
+			deta_spl_ = eta1_spl_ - eta2_spl_;
 			
 			// original tracks
-			_dcaX_org = dca_org.x();
-			_dcaY_org = dca_org.y();
-			_dcaZ_org = dca_org.z();
-			_dxy_org = origTrack.d0();
-			_dz_org = origTrack.dz();
-			_theta_org = origTrack.theta();
-			_phi_org = origTrack.phi();
-			_eta_org = origTrack.eta();
-			_pt_org = origTrack.pt();
-			_norchi2_org = origTrack.normalizedChi2();
+			dcaX_org_ = dca_org.x();
+			dcaY_org_ = dca_org.y();
+			dcaZ_org_ = dca_org.z();
+			dxy_org_ = origTrack.d0();
+			dz_org_ = origTrack.dz();
+			theta_org_ = origTrack.theta();
+			phi_org_ = origTrack.phi();
+			eta_org_ = origTrack.eta();
+			pt_org_ = origTrack.pt();
+			p_org_ = origTrack.p();
+			norchi2_org_ = origTrack.normalizedChi2();
 			
 			// split muons calculations
 			if (splitMuons_){
@@ -377,83 +453,87 @@ void CosmicSplitterValidation::analyze(const edm::Event& iEvent, const edm::Even
 				reco::TrackRef sta2 = muonBottom.outerTrack();
 				
 				// standalone muon variables
-				_dcaX1_sta = sta1->referencePoint().x();
-				_dcaY1_sta = sta1->referencePoint().y();
-				_dcaZ1_sta = sta1->referencePoint().z();
-				_dcaX2_sta = sta2->referencePoint().x();
-				_dcaY2_sta = sta2->referencePoint().y();
-				_dcaZ2_sta = sta2->referencePoint().z();
-				_dxy1_sta = sta1->d0();
-				_dxy2_sta = sta2->d0();
-				_dz1_sta = sta1->dz();
-				_dz2_sta = sta2->dz();
-				_d01Err_sta = sta1->d0Error();
-				_d02Err_sta = sta2->d0Error();
-				_dz1Err_sta = sta1->dzError();
-				_dz2Err_sta = sta2->dzError();
-				_theta1_sta = sta1->theta();
-				_theta2_sta = sta2->theta();
-				_theta1Err_sta = sta1->thetaError();
-				_theta2Err_sta = sta2->thetaError();
-				_phi1_sta = sta1->phi();
-				_phi2_sta = sta2->phi();
-				_phi1Err_sta = sta1->phiError();
-				_phi2Err_sta = sta2->phiError();
-				_ddxy_sta = sta1->d0() - sta2->d0();
-				_ddz_sta = sta1->dz() - sta2->dz();
-				_dtheta_sta = sta1->theta() - sta2->theta();
-				_dphi_sta = sta1->phi() - sta2->phi();
-				_pt1_sta = sta1->pt();
-				_pt2_sta = sta2->pt();
-				_pt1Err_sta = sta1->ptError();
-				_pt2Err_sta = sta2->ptError();
-				_dpt_sta = sta1->pt() - sta2->pt();
-				_eta1_sta = sta1->eta();
-				_eta2_sta = sta2->eta();
-				_deta_sta = _eta1_sta - _eta2_sta;
+				dcaX1_sta_ = sta1->referencePoint().x();
+				dcaY1_sta_ = sta1->referencePoint().y();
+				dcaZ1_sta_ = sta1->referencePoint().z();
+				dcaX2_sta_ = sta2->referencePoint().x();
+				dcaY2_sta_ = sta2->referencePoint().y();
+				dcaZ2_sta_ = sta2->referencePoint().z();
+				dxy1_sta_ = sta1->d0();
+				dxy2_sta_ = sta2->d0();
+				dz1_sta_ = sta1->dz();
+				dz2_sta_ = sta2->dz();
+				d01Err_sta_ = sta1->d0Error();
+				d02Err_sta_ = sta2->d0Error();
+				dz1Err_sta_ = sta1->dzError();
+				dz2Err_sta_ = sta2->dzError();
+				theta1_sta_ = sta1->theta();
+				theta2_sta_ = sta2->theta();
+				theta1Err_sta_ = sta1->thetaError();
+				theta2Err_sta_ = sta2->thetaError();
+				phi1_sta_ = sta1->phi();
+				phi2_sta_ = sta2->phi();
+				phi1Err_sta_ = sta1->phiError();
+				phi2Err_sta_ = sta2->phiError();
+				ddxy_sta_ = sta1->d0() - sta2->d0();
+				ddz_sta_ = sta1->dz() - sta2->dz();
+				dtheta_sta_ = sta1->theta() - sta2->theta();
+				dphi_sta_ = sta1->phi() - sta2->phi();
+				pt1_sta_ = sta1->pt();
+				pt2_sta_ = sta2->pt();
+				p1_sta_ = sta1->p();
+				p2_sta_ = sta2->p();
+				pt1Err_sta_ = sta1->ptError();
+				pt2Err_sta_ = sta2->ptError();
+				dpt_sta_ = sta1->pt() - sta2->pt();
+				eta1_sta_ = sta1->eta();
+				eta2_sta_ = sta2->eta();
+				deta_sta_ = eta1_sta_ - eta2_sta_;
 				
 				// global muon variables
-				_dcaX1_glb = glb1->referencePoint().x();
-				_dcaY1_glb = glb1->referencePoint().y();
-				_dcaZ1_glb = glb1->referencePoint().z();
-				_dcaX2_glb = glb2->referencePoint().x();
-				_dcaY2_glb = glb2->referencePoint().y();
-				_dcaZ2_glb = glb2->referencePoint().z();
-				_dxy1_glb = glb1->d0();
-				_dxy2_glb = glb2->d0();
-				_dz1_glb = glb1->dz();
-				_dz2_glb = glb2->dz();
-				_d01Err_glb = glb1->d0Error();
-				_d02Err_glb = glb2->d0Error();
-				_dz1Err_glb = glb1->dzError();
-				_dz2Err_glb = glb2->dzError();
-				_theta1_glb = glb1->theta();
-				_theta2_glb = glb2->theta();
-				_theta1Err_glb = glb1->thetaError();
-				_theta2Err_glb = glb2->thetaError();
-				_phi1_glb = glb1->phi();
-				_phi2_glb = glb2->phi();
-				_phi1Err_glb = glb1->phiError();
-				_phi2Err_glb = glb2->phiError();
-				_ddxy_glb = glb1->d0() - glb2->d0();
-				_ddz_glb = glb1->dz() - glb2->dz();
-				_dtheta_glb = glb1->theta() - glb2->theta();
-				_dphi_glb = glb1->phi() - glb2->phi();
-				_pt1_glb = glb1->pt();
-				_pt2_glb = glb2->pt();
-				_pt1Err_glb = glb1->ptError();
-				_pt2Err_glb = glb2->ptError();
-				_dpt_glb = glb1->pt() - glb2->pt();
-				_eta1_glb = glb1->eta();
-				_eta2_glb = glb2->eta();
-				_deta_glb = _eta1_glb - _eta2_glb;
-				_norchi1_glb = glb1->normalizedChi2();
-				_norchi2_glb = glb2->normalizedChi2();
+				dcaX1_glb_ = glb1->referencePoint().x();
+				dcaY1_glb_ = glb1->referencePoint().y();
+				dcaZ1_glb_ = glb1->referencePoint().z();
+				dcaX2_glb_ = glb2->referencePoint().x();
+				dcaY2_glb_ = glb2->referencePoint().y();
+				dcaZ2_glb_ = glb2->referencePoint().z();
+				dxy1_glb_ = glb1->d0();
+				dxy2_glb_ = glb2->d0();
+				dz1_glb_ = glb1->dz();
+				dz2_glb_ = glb2->dz();
+				d01Err_glb_ = glb1->d0Error();
+				d02Err_glb_ = glb2->d0Error();
+				dz1Err_glb_ = glb1->dzError();
+				dz2Err_glb_ = glb2->dzError();
+				theta1_glb_ = glb1->theta();
+				theta2_glb_ = glb2->theta();
+				theta1Err_glb_ = glb1->thetaError();
+				theta2Err_glb_ = glb2->thetaError();
+				phi1_glb_ = glb1->phi();
+				phi2_glb_ = glb2->phi();
+				phi1Err_glb_ = glb1->phiError();
+				phi2Err_glb_ = glb2->phiError();
+				ddxy_glb_ = glb1->d0() - glb2->d0();
+				ddz_glb_ = glb1->dz() - glb2->dz();
+				dtheta_glb_ = glb1->theta() - glb2->theta();
+				dphi_glb_ = glb1->phi() - glb2->phi();
+				pt1_glb_ = glb1->pt();
+				pt2_glb_ = glb2->pt();
+				p1_glb_ = glb1->p();
+				p2_glb_ = glb2->p();
+				pt1Err_glb_ = glb1->ptError();
+				pt2Err_glb_ = glb2->ptError();
+				dpt_glb_ = glb1->pt() - glb2->pt();
+				eta1_glb_ = glb1->eta();
+				eta2_glb_ = glb2->eta();
+				deta_glb_ = eta1_glb_ - eta2_glb_;
+				norchi1_glb_ = glb1->normalizedChi2();
+				norchi2_glb_ = glb2->normalizedChi2();
 				
 			}
 			
 			
-			_splitterTree->Fill();
+			splitterTree_->Fill();
 		}
 	}
 	
@@ -466,132 +546,155 @@ void CosmicSplitterValidation::beginJob(const edm::EventSetup& iSetup)
 {
 	edm::LogInfo("beginJob") << "Begin Job" << std::endl;
 	
-	_splitterTree = tfile->make<TTree>("splitterTree","splitterTree");
+	splitterTree_ = tfile->make<TTree>("splitterTree","splitterTree");
 	
-	_splitterTree->Branch("dcaX1_spl", &_dcaX1_spl, "dcaX1_spl/D");
-	_splitterTree->Branch("dcaY1_spl", &_dcaY1_spl, "dcaY1_spl/D");
-	_splitterTree->Branch("dcaZ1_spl", &_dcaZ1_spl, "dcaZ1_spl/D");
-	_splitterTree->Branch("dcaX2_spl", &_dcaX2_spl, "dcaX2_spl/D");
-	_splitterTree->Branch("dcaY2_spl", &_dcaY2_spl, "dcaY2_spl/D");
-	_splitterTree->Branch("dcaZ2_spl", &_dcaZ2_spl, "dcaZ2_spl/D");
-	_splitterTree->Branch("dxy1_spl", &_dxy1_spl, "dxy1_spl/D");
-	_splitterTree->Branch("dz1_spl", &_dz1_spl, "dz1_spl/D");
-	_splitterTree->Branch("dxy2_spl", &_dxy2_spl, "dxy2_spl/D");
-	_splitterTree->Branch("dz2_spl", &_dz2_spl, "dz2_spl/D");
-	_splitterTree->Branch("theta1_spl", &_theta1_spl, "theta1_spl/D");
-	_splitterTree->Branch("theta2_spl", &_theta2_spl, "theta2_spl/D");
-	_splitterTree->Branch("phi1_spl", &_phi1_spl, "phi1_spl/D");
-	_splitterTree->Branch("phi2_spl", &_phi2_spl, "phi2_spl/D");
-	_splitterTree->Branch("ddxy_spl", &_ddxy_spl, "ddxy_spl/D");
-	_splitterTree->Branch("ddz_spl", &_ddz_spl, "ddz_spl/D");
-	_splitterTree->Branch("dphi_spl", &_dphi_spl, "dphi_spl/D");
-	_splitterTree->Branch("dtheta_spl", &_dtheta_spl, "dtheta_spl/D");
-	_splitterTree->Branch("pt1_spl", &_pt1_spl, "pt1_spl/D");
-	_splitterTree->Branch("pt2_spl", &_pt2_spl, "pt2_spl/D");
-	_splitterTree->Branch("dpt_spl", &_dpt_spl, "dpt_spl/D");
-	_splitterTree->Branch("eta1_spl", &_eta1_spl, "eta1_spl/D");
-	_splitterTree->Branch("eta2_spl", &_eta2_spl, "eta2_spl/D");
-	_splitterTree->Branch("deta_spl", &_deta_spl, "deta_spl/D");
+	// split track variables
+	splitterTree_->Branch("dcaX1_spl", &dcaX1_spl_, "dcaX1_spl/D");
+	splitterTree_->Branch("dcaY1_spl", &dcaY1_spl_, "dcaY1_spl/D");
+	splitterTree_->Branch("dcaZ1_spl", &dcaZ1_spl_, "dcaZ1_spl/D");
+	splitterTree_->Branch("dcaX2_spl", &dcaX2_spl_, "dcaX2_spl/D");
+	splitterTree_->Branch("dcaY2_spl", &dcaY2_spl_, "dcaY2_spl/D");
+	splitterTree_->Branch("dcaZ2_spl", &dcaZ2_spl_, "dcaZ2_spl/D");
+	splitterTree_->Branch("dxy1_spl", &dxy1_spl_, "dxy1_spl/D");
+	splitterTree_->Branch("dz1_spl", &dz1_spl_, "dz1_spl/D");
+	splitterTree_->Branch("dxy2_spl", &dxy2_spl_, "dxy2_spl/D");
+	splitterTree_->Branch("dz2_spl", &dz2_spl_, "dz2_spl/D");
+	splitterTree_->Branch("theta1_spl", &theta1_spl_, "theta1_spl/D");
+	splitterTree_->Branch("theta2_spl", &theta2_spl_, "theta2_spl/D");
+	splitterTree_->Branch("phi1_spl", &phi1_spl_, "phi1_spl/D");
+	splitterTree_->Branch("phi2_spl", &phi2_spl_, "phi2_spl/D");
+	splitterTree_->Branch("ddxy_spl", &ddxy_spl_, "ddxy_spl/D");
+	splitterTree_->Branch("ddz_spl", &ddz_spl_, "ddz_spl/D");
+	splitterTree_->Branch("dphi_spl", &dphi_spl_, "dphi_spl/D");
+	splitterTree_->Branch("dtheta_spl", &dtheta_spl_, "dtheta_spl/D");
+	splitterTree_->Branch("pt1_spl", &pt1_spl_, "pt1_spl/D");
+	splitterTree_->Branch("pt2_spl", &pt2_spl_, "pt2_spl/D");
+	splitterTree_->Branch("dpt_spl", &dpt_spl_, "dpt_spl/D");
+	splitterTree_->Branch("p1_spl", &p1_spl_, "p1_spl/D");
+	splitterTree_->Branch("p2_spl", &p2_spl_, "p2_spl/D");
+	splitterTree_->Branch("eta1_spl", &eta1_spl_, "eta1_spl/D");
+	splitterTree_->Branch("eta2_spl", &eta2_spl_, "eta2_spl/D");
+	splitterTree_->Branch("deta_spl", &deta_spl_, "deta_spl/D");
+	splitterTree_->Branch("nHits1_spl", &nHits1_spl_, "nHits1_spl/D");
+	splitterTree_->Branch("nHitsPXB1_spl", &nHitsPXB1_spl_, "nHitsPXB1_spl/D");
+	splitterTree_->Branch("nHitsPXF1_spl", &nHitsPXF1_spl_, "nHitsPXF1_spl/D");
+	splitterTree_->Branch("nHitsTIB1_spl", &nHitsTIB1_spl_, "nHitsTIB1_spl/D");
+	splitterTree_->Branch("nHitsTOB1_spl", &nHitsTOB1_spl_, "nHitsTOB1_spl/D");
+	splitterTree_->Branch("nHitsTID1_spl", &nHitsTID1_spl_, "nHitsTID1_spl/D");
+	splitterTree_->Branch("nHitsTEC1_spl", &nHitsTEC1_spl_, "nHitsTEC1_spl/D");
+	splitterTree_->Branch("nHits2_spl", &nHits2_spl_, "nHits2_spl/D");
+	splitterTree_->Branch("nHitsPXB2_spl", &nHitsPXB2_spl_, "nHitsPXB2_spl/D");
+	splitterTree_->Branch("nHitsPXF2_spl", &nHitsPXF2_spl_, "nHitsPXF2_spl/D");
+	splitterTree_->Branch("nHitsTIB2_spl", &nHitsTIB2_spl_, "nHitsTIB2_spl/D");
+	splitterTree_->Branch("nHitsTOB2_spl", &nHitsTOB2_spl_, "nHitsTOB2_spl/D");
+	splitterTree_->Branch("nHitsTID2_spl", &nHitsTID2_spl_, "nHitsTID2_spl/D");
+	splitterTree_->Branch("nHitsTEC2_spl", &nHitsTEC2_spl_, "nHitsTEC2_spl/D");
 	
-	_splitterTree->Branch("d01Err_spl", &_d01Err_spl, "d01Err_spl/D");
-	_splitterTree->Branch("d02Err_spl", &_d02Err_spl, "d02Err_spl/D");
-	_splitterTree->Branch("dz1Err_spl", &_dz1Err_spl, "dz1Err_spl/D");
-	_splitterTree->Branch("dz2Err_spl", &_dz2Err_spl, "dz2Err_spl/D");
-	_splitterTree->Branch("phi1Err_spl", &_phi1Err_spl, "phi1Err_spl/D");
-	_splitterTree->Branch("phi2Err_spl", &_phi2Err_spl, "phi2Err_spl/D");
-	_splitterTree->Branch("theta1Err_spl", &_theta1Err_spl, "theta1Err_spl/D");
-	_splitterTree->Branch("theta2Err_spl", &_theta2Err_spl, "theta2Err_spl/D");
-	_splitterTree->Branch("pt1Err_spl", &_pt1Err_spl, "pt1Err_spl/D");
-	_splitterTree->Branch("pt2Err_spl", &_pt2Err_spl, "pt2Err_spl/D");
 	
-	_splitterTree->Branch("dcaX_org", &_dcaX_org, "dcaX_org/D");
-	_splitterTree->Branch("dcaY_org", &_dcaY_org, "dcaY_org/D");
-	_splitterTree->Branch("dcaZ_org", &_dcaZ_org, "dcaZ_org/D");
-	_splitterTree->Branch("dxy_org", &_dxy_org, "dxy_org/D");
-	_splitterTree->Branch("dz_org", &_dz_org, "dz_org/D");
-	_splitterTree->Branch("theta_org", &_theta_org, "theta_org/D");
-	_splitterTree->Branch("phi_org", &_phi_org, "phi_org/D");
-	_splitterTree->Branch("eta_org", &_eta_org, "eta_org/D");
-	_splitterTree->Branch("pt_org", &_pt_org, "pt_org/D");
-	_splitterTree->Branch("norchi2_org", &_norchi2_org, "norchi2_org/D");
+	splitterTree_->Branch("d01Err_spl", &d01Err_spl_, "d01Err_spl/D");
+	splitterTree_->Branch("d02Err_spl", &d02Err_spl_, "d02Err_spl/D");
+	splitterTree_->Branch("dz1Err_spl", &dz1Err_spl_, "dz1Err_spl/D");
+	splitterTree_->Branch("dz2Err_spl", &dz2Err_spl_, "dz2Err_spl/D");
+	splitterTree_->Branch("phi1Err_spl", &phi1Err_spl_, "phi1Err_spl/D");
+	splitterTree_->Branch("phi2Err_spl", &phi2Err_spl_, "phi2Err_spl/D");
+	splitterTree_->Branch("theta1Err_spl", &theta1Err_spl_, "theta1Err_spl/D");
+	splitterTree_->Branch("theta2Err_spl", &theta2Err_spl_, "theta2Err_spl/D");
+	splitterTree_->Branch("pt1Err_spl", &pt1Err_spl_, "pt1Err_spl/D");
+	splitterTree_->Branch("pt2Err_spl", &pt2Err_spl_, "pt2Err_spl/D");
+	
+	splitterTree_->Branch("dcaX_org", &dcaX_org_, "dcaX_org/D");
+	splitterTree_->Branch("dcaY_org", &dcaY_org_, "dcaY_org/D");
+	splitterTree_->Branch("dcaZ_org", &dcaZ_org_, "dcaZ_org/D");
+	splitterTree_->Branch("dxy_org", &dxy_org_, "dxy_org/D");
+	splitterTree_->Branch("dz_org", &dz_org_, "dz_org/D");
+	splitterTree_->Branch("theta_org", &theta_org_, "theta_org/D");
+	splitterTree_->Branch("phi_org", &phi_org_, "phi_org/D");
+	splitterTree_->Branch("eta_org", &eta_org_, "eta_org/D");
+	splitterTree_->Branch("pt_org", &pt_org_, "pt_org/D");
+	splitterTree_->Branch("p_org", &p_org_, "p_org/D");
+	splitterTree_->Branch("norchi2_org", &norchi2_org_, "norchi2_org/D");
 	
 	if (splitMuons_){
 		
 		// standalone split 
-		_splitterTree->Branch("dcaX1_sta", &_dcaX1_sta, "dcaX1_sta/D");
-		_splitterTree->Branch("dcaY1_sta", &_dcaY1_sta, "dcaY1_sta/D");
-		_splitterTree->Branch("dcaZ1_sta", &_dcaZ1_sta, "dcaZ1_sta/D");
-		_splitterTree->Branch("dcaX2_sta", &_dcaX2_sta, "dcaX2_sta/D");
-		_splitterTree->Branch("dcaY2_sta", &_dcaY2_sta, "dcaY2_sta/D");
-		_splitterTree->Branch("dcaZ2_sta", &_dcaZ2_sta, "dcaZ2_sta/D");
-		_splitterTree->Branch("dxy1_sta", &_dxy1_sta, "dxy1_sta/D");
-		_splitterTree->Branch("dz1_sta", &_dz1_sta, "dz1_sta/D");
-		_splitterTree->Branch("dxy2_sta", &_dxy2_sta, "dxy2_sta/D");
-		_splitterTree->Branch("dz2_sta", &_dz2_sta, "dz2_sta/D");		
-		_splitterTree->Branch("theta1_sta", &_theta1_sta, "theta1_sta/D");
-		_splitterTree->Branch("theta2_sta", &_theta2_sta, "theta2_sta/D");
-		_splitterTree->Branch("phi1_sta", &_phi1_sta, "phi1_sta/D");
-		_splitterTree->Branch("phi2_sta", &_phi2_sta, "phi2_sta/D");
-		_splitterTree->Branch("ddxy_sta", &_ddxy_sta, "ddxy_sta/D");
-		_splitterTree->Branch("ddz_sta", &_ddz_sta, "ddz_sta/D");
-		_splitterTree->Branch("dphi_sta", &_dphi_sta, "dphi_sta/D");
-		_splitterTree->Branch("dtheta_sta", &_dtheta_sta, "dtheta_sta/D");
-		_splitterTree->Branch("pt1_sta", &_pt1_sta, "pt1_sta/D");
-		_splitterTree->Branch("pt2_sta", &_pt2_sta, "pt2_sta/D");
-		_splitterTree->Branch("dpt_sta", &_dpt_sta, "dpt_sta/D");
-		_splitterTree->Branch("eta1_sta", &_eta1_sta, "eta1_sta/D");
-		_splitterTree->Branch("eta2_sta", &_eta2_sta, "eta2_sta/D");
-		_splitterTree->Branch("deta_sta", &_deta_sta, "deta_sta/D");
+		splitterTree_->Branch("dcaX1_sta", &dcaX1_sta_, "dcaX1_sta/D");
+		splitterTree_->Branch("dcaY1_sta", &dcaY1_sta_, "dcaY1_sta/D");
+		splitterTree_->Branch("dcaZ1_sta", &dcaZ1_sta_, "dcaZ1_sta/D");
+		splitterTree_->Branch("dcaX2_sta", &dcaX2_sta_, "dcaX2_sta/D");
+		splitterTree_->Branch("dcaY2_sta", &dcaY2_sta_, "dcaY2_sta/D");
+		splitterTree_->Branch("dcaZ2_sta", &dcaZ2_sta_, "dcaZ2_sta/D");
+		splitterTree_->Branch("dxy1_sta", &dxy1_sta_, "dxy1_sta/D");
+		splitterTree_->Branch("dz1_sta", &dz1_sta_, "dz1_sta/D");
+		splitterTree_->Branch("dxy2_sta", &dxy2_sta_, "dxy2_sta/D");
+		splitterTree_->Branch("dz2_sta", &dz2_sta_, "dz2_sta/D");		
+		splitterTree_->Branch("theta1_sta", &theta1_sta_, "theta1_sta/D");
+		splitterTree_->Branch("theta2_sta", &theta2_sta_, "theta2_sta/D");
+		splitterTree_->Branch("phi1_sta", &phi1_sta_, "phi1_sta/D");
+		splitterTree_->Branch("phi2_sta", &phi2_sta_, "phi2_sta/D");
+		splitterTree_->Branch("ddxy_sta", &ddxy_sta_, "ddxy_sta/D");
+		splitterTree_->Branch("ddz_sta", &ddz_sta_, "ddz_sta/D");
+		splitterTree_->Branch("dphi_sta", &dphi_sta_, "dphi_sta/D");
+		splitterTree_->Branch("dtheta_sta", &dtheta_sta_, "dtheta_sta/D");
+		splitterTree_->Branch("pt1_sta", &pt1_sta_, "pt1_sta/D");
+		splitterTree_->Branch("pt2_sta", &pt2_sta_, "pt2_sta/D");
+		splitterTree_->Branch("dpt_sta", &dpt_sta_, "dpt_sta/D");
+		splitterTree_->Branch("p1_sta", &p1_sta_, "p1_sta/D");
+		splitterTree_->Branch("p2_sta", &p2_sta_, "p2_sta/D");
+		splitterTree_->Branch("eta1_sta", &eta1_sta_, "eta1_sta/D");
+		splitterTree_->Branch("eta2_sta", &eta2_sta_, "eta2_sta/D");
+		splitterTree_->Branch("deta_sta", &deta_sta_, "deta_sta/D");
 		
-		_splitterTree->Branch("d01Err_sta", &_d01Err_sta, "d01Err_sta/D");
-		_splitterTree->Branch("d02Err_sta", &_d02Err_sta, "d02Err_sta/D");
-		_splitterTree->Branch("dz1Err_sta", &_dz1Err_sta, "dz1Err_sta/D");
-		_splitterTree->Branch("dz2Err_sta", &_dz2Err_sta, "dz2Err_sta/D");
-		_splitterTree->Branch("phi1Err_sta", &_phi1Err_sta, "phi1Err_sta/D");
-		_splitterTree->Branch("phi2Err_sta", &_phi2Err_sta, "phi2Err_sta/D");
-		_splitterTree->Branch("theta1Err_sta", &_theta1Err_sta, "theta1Err_sta/D");
-		_splitterTree->Branch("theta2Err_sta", &_theta2Err_sta, "theta2Err_sta/D");
-		_splitterTree->Branch("pt1Err_sta", &_pt1Err_sta, "pt1Err_sta/D");
-		_splitterTree->Branch("pt2Err_sta", &_pt2Err_sta, "pt2Err_sta/D");
+		splitterTree_->Branch("d01Err_sta", &d01Err_sta_, "d01Err_sta/D");
+		splitterTree_->Branch("d02Err_sta", &d02Err_sta_, "d02Err_sta/D");
+		splitterTree_->Branch("dz1Err_sta", &dz1Err_sta_, "dz1Err_sta/D");
+		splitterTree_->Branch("dz2Err_sta", &dz2Err_sta_, "dz2Err_sta/D");
+		splitterTree_->Branch("phi1Err_sta", &phi1Err_sta_, "phi1Err_sta/D");
+		splitterTree_->Branch("phi2Err_sta", &phi2Err_sta_, "phi2Err_sta/D");
+		splitterTree_->Branch("theta1Err_sta", &theta1Err_sta_, "theta1Err_sta/D");
+		splitterTree_->Branch("theta2Err_sta", &theta2Err_sta_, "theta2Err_sta/D");
+		splitterTree_->Branch("pt1Err_sta", &pt1Err_sta_, "pt1Err_sta/D");
+		splitterTree_->Branch("pt2Err_sta", &pt2Err_sta_, "pt2Err_sta/D");
 		
 		// global split 
-		_splitterTree->Branch("dcaX1_glb", &_dcaX1_glb, "dcaX1_glb/D");
-		_splitterTree->Branch("dcaY1_glb", &_dcaY1_glb, "dcaY1_glb/D");
-		_splitterTree->Branch("dcaZ1_glb", &_dcaZ1_glb, "dcaZ1_glb/D");
-		_splitterTree->Branch("dcaX2_glb", &_dcaX2_glb, "dcaX2_glb/D");
-		_splitterTree->Branch("dcaY2_glb", &_dcaY2_glb, "dcaY2_glb/D");
-		_splitterTree->Branch("dcaZ2_glb", &_dcaZ2_glb, "dcaZ2_glb/D");
-		_splitterTree->Branch("dxy1_glb", &_dxy1_glb, "dxy1_glb/D");
-		_splitterTree->Branch("dz1_glb", &_dz1_glb, "dz1_glb/D");
-		_splitterTree->Branch("dxy2_glb", &_dxy2_glb, "dxy2_glb/D");
-		_splitterTree->Branch("dz2_glb", &_dz2_glb, "dz2_glb/D");		
-		_splitterTree->Branch("theta1_glb", &_theta1_glb, "theta1_glb/D");
-		_splitterTree->Branch("theta2_glb", &_theta2_glb, "theta2_glb/D");
-		_splitterTree->Branch("phi1_glb", &_phi1_glb, "phi1_glb/D");
-		_splitterTree->Branch("phi2_glb", &_phi2_glb, "phi2_glb/D");
-		_splitterTree->Branch("ddxy_glb", &_ddxy_glb, "ddxy_glb/D");
-		_splitterTree->Branch("ddz_glb", &_ddz_glb, "ddz_glb/D");
-		_splitterTree->Branch("dphi_glb", &_dphi_glb, "dphi_glb/D");
-		_splitterTree->Branch("dtheta_glb", &_dtheta_glb, "dtheta_glb/D");
-		_splitterTree->Branch("pt1_glb", &_pt1_glb, "pt1_glb/D");
-		_splitterTree->Branch("pt2_glb", &_pt2_glb, "pt2_glb/D");
-		_splitterTree->Branch("dpt_glb", &_dpt_glb, "dpt_glb/D");
-		_splitterTree->Branch("eta1_glb", &_eta1_glb, "eta1_glb/D");
-		_splitterTree->Branch("eta2_glb", &_eta2_glb, "eta2_glb/D");
-		_splitterTree->Branch("deta_glb", &_deta_glb, "deta_glb/D");
-		_splitterTree->Branch("norchi1_glb", &_norchi1_glb, "norchi1_glb/D");
-		_splitterTree->Branch("norchi2_glb", &_norchi2_glb, "norchi2_glb/D");
+		splitterTree_->Branch("dcaX1_glb", &dcaX1_glb_, "dcaX1_glb/D");
+		splitterTree_->Branch("dcaY1_glb", &dcaY1_glb_, "dcaY1_glb/D");
+		splitterTree_->Branch("dcaZ1_glb", &dcaZ1_glb_, "dcaZ1_glb/D");
+		splitterTree_->Branch("dcaX2_glb", &dcaX2_glb_, "dcaX2_glb/D");
+		splitterTree_->Branch("dcaY2_glb", &dcaY2_glb_, "dcaY2_glb/D");
+		splitterTree_->Branch("dcaZ2_glb", &dcaZ2_glb_, "dcaZ2_glb/D");
+		splitterTree_->Branch("dxy1_glb", &dxy1_glb_, "dxy1_glb/D");
+		splitterTree_->Branch("dz1_glb", &dz1_glb_, "dz1_glb/D");
+		splitterTree_->Branch("dxy2_glb", &dxy2_glb_, "dxy2_glb/D");
+		splitterTree_->Branch("dz2_glb", &dz2_glb_, "dz2_glb/D");		
+		splitterTree_->Branch("theta1_glb", &theta1_glb_, "theta1_glb/D");
+		splitterTree_->Branch("theta2_glb", &theta2_glb_, "theta2_glb/D");
+		splitterTree_->Branch("phi1_glb", &phi1_glb_, "phi1_glb/D");
+		splitterTree_->Branch("phi2_glb", &phi2_glb_, "phi2_glb/D");
+		splitterTree_->Branch("ddxy_glb", &ddxy_glb_, "ddxy_glb/D");
+		splitterTree_->Branch("ddz_glb", &ddz_glb_, "ddz_glb/D");
+		splitterTree_->Branch("dphi_glb", &dphi_glb_, "dphi_glb/D");
+		splitterTree_->Branch("dtheta_glb", &dtheta_glb_, "dtheta_glb/D");
+		splitterTree_->Branch("pt1_glb", &pt1_glb_, "pt1_glb/D");
+		splitterTree_->Branch("pt2_glb", &pt2_glb_, "pt2_glb/D");
+		splitterTree_->Branch("dpt_glb", &dpt_glb_, "dpt_glb/D");
+		splitterTree_->Branch("p1_glb", &p1_glb_, "p1_glb/D");
+		splitterTree_->Branch("p2_glb", &p2_glb_, "p2_glb/D");
+		splitterTree_->Branch("eta1_glb", &eta1_glb_, "eta1_glb/D");
+		splitterTree_->Branch("eta2_glb", &eta2_glb_, "eta2_glb/D");
+		splitterTree_->Branch("deta_glb", &deta_glb_, "deta_glb/D");
+		splitterTree_->Branch("norchi1_glb", &norchi1_glb_, "norchi1_glb/D");
+		splitterTree_->Branch("norchi2_glb", &norchi2_glb_, "norchi2_glb/D");
 
-		_splitterTree->Branch("d01Err_glb", &_d01Err_glb, "d01Err_glb/D");
-		_splitterTree->Branch("d02Err_glb", &_d02Err_glb, "d02Err_glb/D");
-		_splitterTree->Branch("dz1Err_glb", &_dz1Err_glb, "dz1Err_glb/D");
-		_splitterTree->Branch("dz2Err_glb", &_dz2Err_glb, "dz2Err_glb/D");
-		_splitterTree->Branch("phi1Err_glb", &_phi1Err_glb, "phi1Err_glb/D");
-		_splitterTree->Branch("phi2Err_glb", &_phi2Err_glb, "phi2Err_glb/D");
-		_splitterTree->Branch("theta1Err_glb", &_theta1Err_glb, "theta1Err_glb/D");
-		_splitterTree->Branch("theta2Err_glb", &_theta2Err_glb, "theta2Err_glb/D");
-		_splitterTree->Branch("pt1Err_glb", &_pt1Err_glb, "pt1Err_glb/D");
-		_splitterTree->Branch("pt2Err_glb", &_pt2Err_glb, "pt2Err_glb/D");
+		splitterTree_->Branch("d01Err_glb", &d01Err_glb_, "d01Err_glb/D");
+		splitterTree_->Branch("d02Err_glb", &d02Err_glb_, "d02Err_glb/D");
+		splitterTree_->Branch("dz1Err_glb", &dz1Err_glb_, "dz1Err_glb/D");
+		splitterTree_->Branch("dz2Err_glb", &dz2Err_glb_, "dz2Err_glb/D");
+		splitterTree_->Branch("phi1Err_glb", &phi1Err_glb_, "phi1Err_glb/D");
+		splitterTree_->Branch("phi2Err_glb", &phi2Err_glb_, "phi2Err_glb/D");
+		splitterTree_->Branch("theta1Err_glb", &theta1Err_glb_, "theta1Err_glb/D");
+		splitterTree_->Branch("theta2Err_glb", &theta2Err_glb_, "theta2Err_glb/D");
+		splitterTree_->Branch("pt1Err_glb", &pt1Err_glb_, "pt1Err_glb/D");
+		splitterTree_->Branch("pt2Err_glb", &pt2Err_glb_, "pt2Err_glb/D");
 
 	}
 	
