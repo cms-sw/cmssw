@@ -291,7 +291,6 @@ void HFLightCal::endJob(void)
 	  par[0]=0.1;
 	  par[3]=10;
 	  par[4]=6;
-	  par[5]=1;
 	  fTot->SetParameters(par);
 	  fTot->SetParLimits(0,0,2);
 	  //fTot->FixParameter(1,par[1]);
@@ -526,7 +525,7 @@ void HFLightCal::analyze(const edm::Event& fEvent, const edm::EventSetup& fSetup
       if      (ii<2) signal -= (buf[ii+4]+buf[ii+8])/2.0;
       else if (ii<4) signal -= buf[ii+4];
       else if (ii<6) signal -= (buf[ii+4]+buf[ii-4])/2.0;
-      else if (ii<8) signal -= buf[ii-8];
+      else if (ii<8) signal -= buf[ii-4];
       else           signal -= (buf[ii-4]+buf[ii-8])/2.0;
       if (signal>maxADC) {
 	maxADC=signal;
