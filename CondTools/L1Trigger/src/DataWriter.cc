@@ -215,6 +215,14 @@ DataWriter::writeKeyList( L1TriggerKeyList* keyList,
 			  const std::string& tag,
 			  edm::RunNumber_t sinceRun )
 {
+  bool DataWriter__writeKeyList_isObsolete_in_31X;
+  std::cout << "the code in DataWriter::writeKeyList has become obsolete as 31X"
+	    << " please use DBOutputService or Popcon" << std::endl;
+  throw std::string("obsolete code");
+}
+
+/*
+{
    // Get IOVToken for given tag
    std::string tagToken = findTokenForTag( tag ) ;
    bool requireMapping = tagToken.empty() ;
@@ -283,11 +291,20 @@ DataWriter::writeKeyList( L1TriggerKeyList* keyList,
     edm::LogVerbatim( "L1-O2O" ) << "L1TriggerKeyList IOV TOKEN " << tagToken
 				 << " TAG " << tag << " SINCE " << sinceRun ;
 }
+*/
 
 bool
 DataWriter::updateIOV( const std::string& tag,
 		       const std::string& payloadToken,
 		       const edm::RunNumber_t sinceRun )
+{
+  bool DataWriter__updateIOV_isObsolete_in_31X;
+  std::cout << "the code in DataWriter::updateIOV has become obsolete as 31X"
+	    << " please use DBOutputService or Popcon" << std::endl;
+  throw std::string("obsolete code");
+}
+
+/*
 {
   edm::LogVerbatim( "L1-O2O" )<< tag << " PAYLOAD TOKEN " << payloadToken ;
 
@@ -356,6 +373,6 @@ DataWriter::updateIOV( const std::string& tag,
 
     return iovUpdated ;
 }
-
+*/
 
 } // ns
