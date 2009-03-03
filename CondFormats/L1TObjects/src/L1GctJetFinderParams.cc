@@ -158,7 +158,7 @@ double L1GctJetFinderParams::correctedEtGeV(const double et,
       result=correctionFunction(et, tauCorrCoeffs_.at(eta));
     }
     if (convertToEnergy_)  { result *= energyConversionCoeffs_.at(eta); }
-    else { return 0; }
+    return result;
   }
 
 }
