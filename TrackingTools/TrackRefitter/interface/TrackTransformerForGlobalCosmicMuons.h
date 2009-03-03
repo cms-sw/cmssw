@@ -10,8 +10,8 @@
  *  pointers to the services, therefore EACH event the setServices(const edm::EventSetup&)
  *  method MUST be called in the code in which the TrackTransformer is used.
  *
- *  $Date: 2008/11/05 11:30:25 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/11/05 16:54:43 $
+ *  $Revision: 1.3 $
  *  \author R. Bellan - CERN <riccardo.bellan@cern.ch>
  */
 
@@ -68,6 +68,11 @@ public:
 
   TransientTrackingRecHit::ConstRecHitContainer
     getTransientRecHits(const reco::TransientTrack& track) const;
+
+  /// check (via options) if this is a tracker rec hit for removal
+  bool TrackerKeep(DetId id) const;
+  /// check (via options) if this is a muon rec hit for removal
+  bool MuonKeep(DetId id) const;
   
  protected:
   
@@ -85,6 +90,11 @@ public:
   unsigned long long theCacheId_TRH;
   
   bool theRPCInTheFit;
+  int	theSkipStationDT;
+  int	theSkipStationCSC;
+  int	theSkipWheelDT;
+  int   theTrackerSkipSystem;
+  int   theTrackerSkipSection;
 
   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   edm::ESHandle<MagneticField> theMGField;

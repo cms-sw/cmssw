@@ -47,6 +47,11 @@ TrackTransformerForGlobalCosmicMuons::TrackTransformerForGlobalCosmicMuons(const
   theRPCInTheFit = parameterSet.getParameter<bool>("RefitRPCHits");
 
   theCacheId_TC = theCacheId_GTG = theCacheId_MG = theCacheId_TRH = 0;
+  theSkipStationDT      = parameterSet.getParameter<int>("SkipStationDT");
+  theSkipStationCSC     = parameterSet.getParameter<int>("SkipStationCSC");
+  theSkipWheelDT		= parameterSet.getParameter<int>("SkipWheelDT");
+  theTrackerSkipSystem	= parameterSet.getParameter<int>("TrackerSkipSystem");
+  theTrackerSkipSection	= parameterSet.getParameter<int>("TrackerSkipSection");//layer, wheel, or disk depending on the system 
 }
 
 /// Destructor
@@ -108,14 +113,14 @@ TrackTransformerForGlobalCosmicMuons::getTransientRecHits(const reco::TransientT
 
   for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit)
     if((*hit)->isValid())
-      if ( (*hit)->geographicalId().det() == DetId::Tracker )
-	tkHits.push_back(theTrackerRecHitBuilder->build(&**hit));
-      else if ( (*hit)->geographicalId().det() == DetId::Muon ){
-	if( (*hit)->geographicalId().subdetId() == 3 && !theRPCInTheFit){
-	  LogTrace("Reco|TrackingTools|TrackTransformer") << "RPC Rec Hit discarged"; 
-	  continue;
-	}
-	staHits.push_back(theMuonRecHitBuilder->build(&**hit));
+      if ( (*hit)->geographicalId().det() == DetId::Tracker && TrackerKeep((*hit)->geographicalId())) 
+		tkHits.push_back(theTrackerRecHitBuilder->build(&**hit));
+      else if ( (*hit)->geographicalId().det() == DetId::Muon && MuonKeep((*hit)->geographicalId())){
+		if( (*hit)->geographicalId().subdetId() == 3 && !theRPCInTheFit){
+	  	LogTrace("Reco|TrackingTools|TrackTransformer") << "RPC Rec Hit discarged"; 
+	  	continue;
+		}
+		staHits.push_back(theMuonRecHitBuilder->build(&**hit));
       }
   
   if(staHits.empty()) return staHits;
@@ -243,4 +248,90 @@ vector<Trajectory> TrackTransformerForGlobalCosmicMuons::transform(const reco::T
 
 }
 
+//
+// Selection for Tracker Hits
+//
+bool TrackTransformerForGlobalCosmicMuons::TrackerKeep(DetId id) const{
+	
+	bool retVal = true;
+	if (id.det() != DetId::Tracker ) return false;
+	if (theTrackerSkipSystem < 0 ) return true;
+	
 
+    int layer = -999;
+    int disk  = -999;
+    int wheel = -999;
+
+      if ( id.subdetId() == theTrackerSkipSystem){
+
+		if (theTrackerSkipSystem == PixelSubdetector::PixelBarrel) {
+			PXBDetId did(id.rawId());
+			layer = did.layer();
+		}
+
+		if (theTrackerSkipSystem == StripSubdetector::TIB) {
+			TIBDetId did(id.rawId());
+			layer = did.layer();
+		}	
+
+		if (theTrackerSkipSystem == StripSubdetector::TOB) {
+			TOBDetId did(id.rawId());
+			layer = did.layer();
+		}
+		if (theTrackerSkipSystem == PixelSubdetector::PixelEndcap) {
+			PXFDetId did(id.rawId());
+			disk = did.disk();
+		}
+		if (theTrackerSkipSystem == StripSubdetector::TID) {
+			TIDDetId did(id.rawId());
+			wheel = did.wheel();
+		}
+		if (theTrackerSkipSystem == StripSubdetector::TEC) {
+			TECDetId did(id.rawId());
+			wheel = did.wheel();
+		}
+	}
+
+	if (theTrackerSkipSection > -998 && layer == theTrackerSkipSection) retVal = false;
+	if (theTrackerSkipSection > -998 && disk  == theTrackerSkipSection) retVal = false;
+	if (theTrackerSkipSection > -998 && wheel == theTrackerSkipSection) retVal = false;
+
+	return retVal;
+}
+//
+// Selection for Muon hits
+//
+bool TrackTransformerForGlobalCosmicMuons::MuonKeep(DetId id) const {
+
+	if (id.det() != DetId::Muon) return false;
+	if (theSkipStationDT < 0 && theSkipStationCSC < 0) return true;
+
+	int station = -999;
+	int wheel	= -999;
+	bool isRPC 	= false;
+	bool isDT	= false;
+	bool isCSC	= false;
+		
+    if ( id.subdetId() == MuonSubdetId::DT ) {
+  		DTChamberId did(id.rawId());
+  		station = did.station();
+  		wheel = did.wheel();
+		isDT = true;
+    } else if ( id.subdetId() == MuonSubdetId::CSC ) {
+  		CSCDetId did(id.rawId());
+  		station = did.station();
+		isCSC = true;
+    } else if ( id.subdetId() == MuonSubdetId::RPC ) {
+  		RPCDetId rpcid(id.rawId());
+  		station = rpcid.station();
+		isRPC = true;
+    }
+	
+	if (isRPC 	&& (station	== theSkipStationCSC || station == theSkipStationDT)) return false;
+	if (isDT 	&& station 	== theSkipStationDT		) return false;
+	if (isCSC 	&& station 	== theSkipStationCSC	) return false;
+
+	if (isDT && theSkipWheelDT > -998 && wheel == theSkipWheelDT) return false;
+	
+	return true;
+}
