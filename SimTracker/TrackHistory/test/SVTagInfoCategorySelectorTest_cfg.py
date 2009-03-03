@@ -8,24 +8,29 @@ process.load("SimTracker.TrackHistory.Playback_cff")
 process.load("SimTracker.TrackHistory.SecondaryVertexTagInfoProxy_cff")
 process.load("SimTracker.TrackHistory.VertexClassifier_cff")
 
-process.add_(
-  cms.Service("TFileService",
-      fileName = cms.string("SVTagInfoValidation.root")
-  )
+from SimTracker.TrackHistory.CategorySelectors_cff import * 
+
+process.svTagInfoSelector = SecondaryVertexTagInfoCategorySelector( 
+    src = cms.InputTag('secondaryVertexTagInfos'),
+    pxy = cms.InputTag('svTagInfoProxy'),
+    cut = cms.string("is('BWeakDecay') && !is('CWeakDecay')")
 )
 
-process.svTagInfoValidationAnalyzer = cms.EDFilter("SVTagInfoValidationAnalyzer",
-    process.vertexClassifier,
-    svTagInfoProducer = cms.untracked.InputTag('secondaryVertexTagInfos')
+process.svTagInfoProxy2 = cms.EDProducer('SecondaryVertexTagInfoProxy',
+    svTagInfoProducer = cms.untracked.InputTag('svTagInfoSelector')
 )
+
+process.vertexHistoryAnalyzer = cms.EDAnalyzer('VertexHistoryAnalyzer',
+    process.vertexClassifier
+)
+
+process.vertexHistoryAnalyzer.vertexProducer = 'svTagInfoProxy2'
 
 process.GlobalTag.globaltag = 'IDEAL_30X::All'
 
-process.svTagInfoValidationAnalyzer.vertexProducer = 'svTagInfoProxy'
+process.p = cms.Path(process.playback * process.svTagInfoProxy * process.svTagInfoSelector * process.svTagInfoProxy2 * process.vertexHistoryAnalyzer)
 
-process.p = cms.Path(process.playback * process.svTagInfoProxy * process.svTagInfoValidationAnalyzer)
-
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)

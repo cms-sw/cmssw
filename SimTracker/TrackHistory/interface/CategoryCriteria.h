@@ -7,9 +7,7 @@
 
 #include "PhysicsTools/Utilities/interface/StringCutObjectSelector.h"
 
-/**
- Selector to select only tracking particles originating from a given category.
-*/
+//! Implement a selector given a track or vertex collection and track or vertex classifier.
 template <typename Collection, typename Classifier>
 class CategoryCriteria
 {
@@ -38,20 +36,19 @@ public:
     {
         selected_.clear();
 
-        const collection & collectionPointer = *(collectionHandler.product());
+        // const collection & collectionPointer = *(collectionHandler.product());
 
         classifier_.newEvent(event, setup);
 
-        for (typename collection::size_type i=0; i<collectionPointer.size(); i++)
+        for (typename collection::size_type i = 0; i < collectionHandler->size(); ++i)
         {
-            classifier_.evaluate( edm::Ref<Collection>(collectionHandler, i) );
+            edm::Ref<Collection> member(collectionHandler, i);
+
+            classifier_.evaluate(member);
 
             // Classifier is evaluated using StringCutObjectSelector
             if ( evaluate_(classifier_) )
-            {
-                const type * trap = &(collectionPointer[i]);
-                selected_.push_back(trap);
-            }
+                selected_.push_back( &(*member) );
         }
     }
 

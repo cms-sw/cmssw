@@ -4,8 +4,6 @@
 
 #include "DataFormats/Common/interface/AssociationMap.h"
 
-#include "FWCore/Utilities/interface/Exception.h"
-
 #include "SimTracker/TrackHistory/interface/VertexClassifier.h"
 
 //! Get track history and classification by proxy
@@ -34,18 +32,23 @@ public:
     //! Classify any vertexes in categories.
     VertexClassifierByProxy<Collection> const & evaluate (edm::Ref<Collection> const & vertex, std::size_t index)
     {
-        // Find the set of vertexes associated by the proxy
-        typename Association::const_iterator ivertexes = proxyHandler_->find(vertex);
-
-        // If not vertex is found there is something wrong with the collection or proxy
-        if ( ivertexes == proxyHandler_->end() )
-            cms::Exception("ProxyError") << "Vertex is not found in the given proxy.\n";
-
-        // Get a reference to the vector of associated vertexes
-        const reco::VertexRefVector & vertexes = ivertexes->val;
+        const reco::VertexRefVector * vertexes = 0;
+    	
+        try
+        {
+            // Get a reference to the vector of associated vertexes
+            vertexes = &(proxyHandler_->find(vertex)->val);
+        }
+        catch (edm::Exception& e)
+        {
+        	// If association fails define the vertex as unknown
+            reset();
+            unknownVertex();
+            return *this;
+        }
 
         // Evaluate the history for a given index
-        VertexClassifier::evaluate( vertexes.at(index) );
+        VertexClassifier::evaluate( vertexes->at(index) );
 
         return *this;
     }
@@ -53,24 +56,29 @@ public:
     //! Classify any vertexes in categories.
     VertexClassifierByProxy<Collection> const & evaluate (edm::Ref<Collection> const & vertex)
     {
-        // Find the set of vertexes associated by the proxy
-        typename Association::const_iterator ivertexes = proxyHandler_->find(vertex);
-
-        // If not vertex is found there is something wrong with the collection or proxy
-        if ( ivertexes == proxyHandler_->end() )
-            cms::Exception("ProxyError") << "Vertex is not found in the given proxy.\n";
-
-        // Get a reference to the vector of associated vertexes
-        const reco::VertexRefVector & vertexes = ivertexes->val;
+        const reco::VertexRefVector * vertexes = 0;
+        
+        try
+        {
+            // Get a reference to the vector of associated vertexes
+            vertexes = &(proxyHandler_->find(vertex)->val);
+        }
+        catch (edm::Exception& e)
+        {
+        	// If association fails define the vertex as unknown
+            reset();
+            unknownVertex();
+            return *this;
+        }
 
         // Loop over all the associated vertexes
-        for (std::size_t index = 0; index < vertexes.size(); ++index)
+        for (std::size_t index = 0; index < vertexes->size(); ++index)
         {
             // Copy the last status for all the flags
             Flags flags(flags_);
 
             // Evaluate the history for a given index
-            VertexClassifier::evaluate( vertexes[index] );
+            VertexClassifier::evaluate( vertexes->at(index) );
 
             // Combine OR the flag information
             for (std::size_t i = 0; i < flags_.size(); ++i)

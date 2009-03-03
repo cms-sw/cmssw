@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("TrackOriginAnalyzerTest")
+process = cms.Process("VertexCategorySelectorTest")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
@@ -8,22 +8,22 @@ process.load("SimTracker.TrackHistory.Playback_cff")
 process.load("SimTracker.TrackHistory.SecondaryVertexTagInfoProxy_cff")
 process.load("SimTracker.TrackHistory.VertexClassifier_cff")
 
-process.add_(
-  cms.Service("TFileService",
-      fileName = cms.string("SVTagInfoValidation.root")
-  )
+from SimTracker.TrackHistory.CategorySelectors_cff import * 
+
+process.vertexSelector = VertexCategorySelector( 
+    src = cms.InputTag('svTagInfoProxy'),
+    cut = cms.string("is('BWeakDecay') && !is('CWeakDecay')")
 )
 
-process.svTagInfoValidationAnalyzer = cms.EDFilter("SVTagInfoValidationAnalyzer",
-    process.vertexClassifier,
-    svTagInfoProducer = cms.untracked.InputTag('secondaryVertexTagInfos')
+process.vertexHistoryAnalyzer = cms.EDAnalyzer("VertexHistoryAnalyzer",
+    process.vertexClassifier
 )
+
+process.vertexHistoryAnalyzer.vertexProducer = 'vertexSelector'
 
 process.GlobalTag.globaltag = 'IDEAL_30X::All'
 
-process.svTagInfoValidationAnalyzer.vertexProducer = 'svTagInfoProxy'
-
-process.p = cms.Path(process.playback * process.svTagInfoProxy * process.svTagInfoValidationAnalyzer)
+process.p = cms.Path(process.playback * process.svTagInfoProxy * process.vertexSelector * process.vertexHistoryAnalyzer)
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 readFiles = cms.untracked.vstring()

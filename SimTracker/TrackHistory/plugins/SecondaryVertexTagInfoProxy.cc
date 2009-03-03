@@ -20,11 +20,11 @@
 // class decleration
 //
 
-class SVTagInfoVertexProxy : public edm::EDProducer
+class SecondaryVertexTagInfoProxy : public edm::EDProducer
 {
 public:
 
-    explicit SVTagInfoVertexProxy(const edm::ParameterSet&);
+    explicit SecondaryVertexTagInfoProxy(const edm::ParameterSet&);
 
 private:
 
@@ -34,7 +34,7 @@ private:
 };
 
 
-SVTagInfoVertexProxy::SVTagInfoVertexProxy(const edm::ParameterSet& config)
+SecondaryVertexTagInfoProxy::SecondaryVertexTagInfoProxy(const edm::ParameterSet& config)
 {
     // Get the cfg parameter
     svTagInfoCollection_ = config.getUntrackedParameter<edm::InputTag> ( "svTagInfoProducer" );
@@ -45,7 +45,7 @@ SVTagInfoVertexProxy::SVTagInfoVertexProxy(const edm::ParameterSet& config)
 }
 
 
-void SVTagInfoVertexProxy::produce(edm::Event& event, const edm::EventSetup& setup)
+void SecondaryVertexTagInfoProxy::produce(edm::Event& event, const edm::EventSetup& setup)
 {
     // Vertex collection
     edm::Handle<reco::SecondaryVertexTagInfoCollection> svTagInfoCollection;
@@ -84,4 +84,4 @@ void SVTagInfoVertexProxy::produce(edm::Event& event, const edm::EventSetup& set
 
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(SVTagInfoVertexProxy);
+DEFINE_FWK_MODULE(SecondaryVertexTagInfoProxy);

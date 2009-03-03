@@ -4,8 +4,6 @@
 
 #include "DataFormats/Common/interface/AssociationMap.h"
 
-#include "FWCore/Utilities/interface/Exception.h"
-
 #include "SimTracker/TrackHistory/interface/TrackClassifier.h"
 
 //! Get track history and classification by proxy
@@ -20,7 +18,7 @@ public:
 
     //! Constructor by ParameterSet.
     TrackClassifierByProxy(edm::ParameterSet const & config) : TrackClassifier(config),
-            proxy_( config.getUntrackedParameter<edm::InputTag>("vertexProducer") ) {}
+            proxy_( config.getUntrackedParameter<edm::InputTag>("trackProducer") ) {}
 
     //! Pre-process event information (for accessing reconstraction information).
     virtual void newEvent(edm::Event const & event, edm::EventSetup const & config)
@@ -34,18 +32,23 @@ public:
     //! Classify any Tracks in categories.
     TrackClassifierByProxy<Collection> const & evaluate (edm::Ref<Collection> const & track, std::size_t index)
     {
-        // Find the set of tracks associated by the proxy
-        typename Association::const_iterator itracks = proxyHandler_->find(track);
-
-        // If not track is found there is something wrong with the collection or proxy
-        if ( itracks == proxyHandler_->end() )
-            cms::Exception("ProxyError") << "Track is not found in the given proxy.\n";
-
-        // Get a reference to the vector of associated tracks
-        const reco::TrackRefVector & tracks = itracks->val;
+        const reco::TrackRefVector * tracks = 0;
+   	
+        try
+        {
+            // Get a reference to the vector of associated tracks
+            tracks = proxyHandler_->find(track)->val;
+        }
+        catch (edm::Exception& e)
+        {
+        	// If association fails define the track as unknown
+            reset();
+            unknownTrack();
+            return *this;
+        }
 
         // Evaluate the history for a given index
-        TrackClassifier::evaluate( tracks.at(index) );
+        TrackClassifier::evaluate( tracks->at(index) );
 
         return *this;
     }
@@ -53,24 +56,29 @@ public:
     //! Classify any tracks in categories.
     TrackClassifierByProxy<Collection> const & evaluate (edm::Ref<Collection> const & track)
     {
-        // Find the set of tracks associated by the proxy
-        typename Association::const_iterator itracks = proxyHandler_->find(track);
+        const reco::TrackRefVector * tracks = 0;
 
-        // If not track is found there is something wrong with the collection or proxy
-        if ( itracks == proxyHandler_->end() )
-            cms::Exception("ProxyError") << "Track is not found in the given proxy.\n";
-
-        // Get a reference to the vector of associated tracks
-        const reco::TrackRefVector & tracks = itracks->val;
+        try
+        {
+            // Get a reference to the vector of associated tracks
+            tracks = proxyHandler_->find(track)->val;
+        }
+        catch (edm::Exception& e)
+        {
+        	// If association fails define the track as unknown
+            reset();
+            unknownTrack();
+            return *this;
+        }
 
         // Loop over all the associated tracks
-        for (std::size_t index = 0; index < tracks.size(); ++index)
+        for (std::size_t index = 0; index < tracks->size(); ++index)
         {
             // Copy the last status for all the flags
             Flags flags(flags_);
 
             // Evaluate the history for a given index
-            TrackClassifier::evaluate( tracks[index] );
+            TrackClassifier::evaluate( tracks->at(index) );
 
             // Combine OR the flag information
             for (std::size_t i = 0; i < flags_.size(); ++i)

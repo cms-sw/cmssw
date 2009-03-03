@@ -1,31 +1,21 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("TrackOriginAnalyzerTest")
+process = cms.Process("TrackHistoryTest")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 process.load("SimTracker.TrackHistory.Playback_cff")
-process.load("SimTracker.TrackHistory.SecondaryVertexTagInfoProxy_cff")
-process.load("SimTracker.TrackHistory.VertexClassifier_cff")
+process.load("SimTracker.TrackHistory.TrackClassifier_cff")
 
-process.add_(
-  cms.Service("TFileService",
-      fileName = cms.string("SVTagInfoValidation.root")
-  )
-)
-
-process.svTagInfoValidationAnalyzer = cms.EDFilter("SVTagInfoValidationAnalyzer",
-    process.vertexClassifier,
-    svTagInfoProducer = cms.untracked.InputTag('secondaryVertexTagInfos')
+process.vertexHistoryAnalyzer = cms.EDAnalyzer("TrackHistoryAnalyzer",
+    process.trackClassifier
 )
 
 process.GlobalTag.globaltag = 'IDEAL_30X::All'
 
-process.svTagInfoValidationAnalyzer.vertexProducer = 'svTagInfoProxy'
+process.p = cms.Path(process.playback * process.vertexHistoryAnalyzer)
 
-process.p = cms.Path(process.playback * process.svTagInfoProxy * process.svTagInfoValidationAnalyzer)
-
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
