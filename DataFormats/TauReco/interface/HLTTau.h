@@ -70,16 +70,16 @@ namespace reco {
     int getNHcalHits() const {return nHcalHits_;}
 
 
-    void   setNL25TrackIsolation(int& nTracks)  { nTrackIsolationL25_ = nTracks; }
-    void   setNL3TrackIsolation(int& nTracks)  { nTrackIsolationL3_ = nTracks; }
-    void setSeedEcalHitEt(double & seed)   {seedEcalHitEt_ = seed;} 
-    void setEcalClusterShape(std::vector<double>& clusters)  {ecalClusterShape_ = clusters;} 
-    void setNEcalHits(int& nhits)  { nEcalHits_ = nhits;} 
+    void   setNL25TrackIsolation(int nTracks)  { nTrackIsolationL25_ = nTracks; }
+    void   setNL3TrackIsolation(int nTracks)  { nTrackIsolationL3_ = nTracks; }
+    void setSeedEcalHitEt(double  seed)   {seedEcalHitEt_ = seed;} 
+    void setEcalClusterShape(std::vector<double> clusters)  {ecalClusterShape_ = clusters;} 
+    void setNEcalHits(int nhits)  { nEcalHits_ = nhits;} 
     
-   void setHcalIsolEt(double& hcalIso)  { hcalIsolEt_ = hcalIso;}
-    void setSeedHcalHitEt(double& seed)  { seedHcalHitEt_ = seed;}
-    void setHcalClusterShape(std::vector<double>& clusters)  { hcalClusterShape_ = clusters;}
-    void setNHcalHits(int& nhits)  { nHcalHits_ = nhits;}
+   void setHcalIsolEt(double hcalIso)  { hcalIsolEt_ = hcalIso;}
+    void setSeedHcalHitEt(double seed)  { seedHcalHitEt_ = seed;}
+    void setHcalClusterShape(std::vector<double> clusters)  { hcalClusterShape_ = clusters;}
+    void setNHcalHits(int nhits)  { nHcalHits_ = nhits;}
 
 
   private:
