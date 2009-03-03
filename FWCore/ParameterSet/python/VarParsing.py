@@ -457,7 +457,7 @@ if __name__ == "__main__":
     # Example code starts here #
     ############################
 
-	obj = VarParsing ('standard')
+    obj = VarParsing ('standard')
     obj.register ('someVar',
                   mult=VarParsing.multiplicity.singleton,
                   info="for testing")
