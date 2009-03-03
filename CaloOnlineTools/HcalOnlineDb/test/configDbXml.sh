@@ -99,7 +99,7 @@ rbxPedMenu()
     echo $rbx_type_full
     echo    ''
     echo -n 'Please enter the path to the directory with '
-    echo -n 'RBX pedestal XML brick files (read-only is fine)'
+    echo -n 'RBX XML brick files (read-only is fine)'
     echo    ''
     echo -n 'Path: '
     read ped_path_temp
@@ -115,7 +115,7 @@ rbxPedMenu()
     read version
     echo 'processing RBX pedestals from' $ped_path '...'
     ped_files_num=`find $ped_path -iname "*.xml" | wc -l`
-    echo $ped_files_num 'RBX pedestals brick files found...'
+    echo $ped_files_num 'RBX brick files found...'
     if [ $ped_files_num -gt 0 ]
 	then
 	echo -n 'creating temp directory... '
