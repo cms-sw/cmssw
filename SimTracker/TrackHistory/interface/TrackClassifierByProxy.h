@@ -6,7 +6,7 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "SimTracker/TrackHistory/interface/TrackCategories.h"
+#include "SimTracker/TrackHistory/interface/TrackClassifier.h"
 
 //! Get track history and classification by proxy
 template <typename Collection>
@@ -20,7 +20,7 @@ public:
 
     //! Constructor by ParameterSet.
     TrackClassifierByProxy(edm::ParameterSet const & config) : TrackClassifier(config),
-            proxy_( config.getParameter<edm::InputTag>("proxy") ) {}
+            proxy_( config.getUntrackedParameter<edm::InputTag>("vertexProducer") ) {}
 
     //! Pre-process event information (for accessing reconstraction information).
     virtual void newEvent(edm::Event const & event, edm::EventSetup const & config)
