@@ -1,0 +1,22 @@
+This test suite is meant to try, with only 10 events each, the configurations
+which are used for the RelVal samples.
+
+<diffline expr="(Begin processing the \S* record)">
+<diffline expr="(found \S* particles)">
+
+<environment name="SingleElectronPt10Raw">
+  <executable name="cmsDriver.py" args="SingleElectronPt10.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW -n 10 --eventcontent FEVT --conditions FrontierConditions_GlobalTag,IDEAL_30X::All --python_filename=SingleElectronPt10Raw.py --fileout=SingleElectronPt10Raw.root">
+</environment>
+
+<environment name="SingleElectronPt10Reco">
+  <executable name="cmsDriver.py" args="myreco2 -s RAW2DIGI,RECO -n 10 --filein file:SingleElectronPt10Raw.root --eventcontent RECOSIM --conditions FrontierConditions_GlobalTag,IDEAL_30X::All --python_filename=SingleElectronPt10Reco.py --fileout=SingleElectronPt10Reco.root">
+</environment>
+
+<environment name="SingleElectronPt35Raw">
+  <executable name="cmsDriver.py" args="SingleElectronPt35.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW -n 10 --eventcontent FEVT --conditions FrontierConditions_GlobalTag,IDEAL_30X::All --python_filename=SingleElectronPt35Raw.py --fileout=SingleElectronPt35Raw.root">
+</environment>
+
+<environment name="SingleElectronPt35Reco">
+  <executable name="cmsDriver.py" args="myreco2 -s RAW2DIGI,RECO -n 10 --filein file:SingleElectronPt35Raw.root --eventcontent RECOSIM --conditions FrontierConditions_GlobalTag,IDEAL_30X::All --python_filename=SingleElectronPt35Reco.py --fileout=SingleElectronPt35Reco.root">
+</environment>
+  
