@@ -56,7 +56,8 @@ METTester::METTester(const edm::ParameterSet& iConfig)
 }
 
 //void METTester::beginJob(const edm::EventSetup& iSetup)
-void METTester::beginJob()
+//void METTester::beginJob()
+void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
   // get ahold of back-end interface
   dbe_ = edm::Service<DQMStore>().operator->();
