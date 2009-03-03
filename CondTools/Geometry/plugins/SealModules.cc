@@ -17,3 +17,6 @@ DEFINE_ANOTHER_FWK_MODULE(CSCRecoIdealDBLoader);
 
 #include "CondTools/Geometry/plugins/DTRecoIdealDBLoader.h"
 DEFINE_ANOTHER_FWK_MODULE(DTRecoIdealDBLoader);
+
+#include "CondTools/Geometry/plugins/RPCRecoIdealDBLoader.h"
+DEFINE_ANOTHER_FWK_MODULE(RPCRecoIdealDBLoader);
