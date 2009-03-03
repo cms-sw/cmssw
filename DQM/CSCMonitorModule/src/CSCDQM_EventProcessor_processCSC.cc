@@ -75,10 +75,7 @@ namespace cscdqm {
   
     unsigned int cscType = 0;
     unsigned int cscPosition = 0;
-    if (!getCSCFromMap(crateID, dmbID, cscType, cscPosition )) {
-      LOG_ERROR << "Invalid CSC: " << cscTag << ". Skipping";
-      return;
-    }
+    if (!getCSCFromMap(crateID, dmbID, cscType, cscPosition )) return;
   
     uint32_t detRawId = config->fnGetCSCDetId(crateID, dmbID).rawId();
     if (!detRawId) {

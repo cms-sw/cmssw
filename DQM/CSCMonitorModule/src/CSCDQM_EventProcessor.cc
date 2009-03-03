@@ -134,18 +134,28 @@ namespace cscdqm {
    * @return true if parameters where found and filled, false - otherwise
    */
   const bool EventProcessor::getCSCFromMap(const unsigned int& crateId, const unsigned int& dmbId, unsigned int& cscType, unsigned int& cscPosition) const {
+    bool result = false;
 
-    if (crateId < 1 || crateId > 60 || dmbId < 1 || dmbId > 10) return false;
+    if (crateId > 0 && crateId < 61 && dmbId > 0 && dmbId < 11) {
+      try {
+        CSCDetId cid = config->fnGetCSCDetId(crateId, dmbId);
+        cscPosition  = cid.chamber();
+        int iring    = cid.ring();
+        int istation = cid.station();
+        int iendcap  = cid.endcap();
+        std::string tlabel = cscdqm::Utility::getCSCTypeLabel(iendcap, istation, iring);
+        cscType = cscdqm::Utility::getCSCTypeBin(tlabel);
+      } catch (cms::Exception e) {
+        result = false;
+      }
+      result = true;
+    }
+    
+    if (!result) {
+      LOG_ERROR << "Event #" << config->getNEvents() << ": Invalid CSC=" << CSCHistoDef::getPath(crateId, dmbId);
+    }
 
-    CSCDetId cid = config->fnGetCSCDetId(crateId, dmbId);
-    cscPosition  = cid.chamber();
-    int iring    = cid.ring();
-    int istation = cid.station();
-    int iendcap  = cid.endcap();
-    std::string tlabel = cscdqm::Utility::getCSCTypeLabel(iendcap, istation, iring);
-    cscType = cscdqm::Utility::getCSCTypeBin(tlabel);
-
-    return true;
+    return result;
 
   }
 

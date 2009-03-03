@@ -22,10 +22,11 @@
  * @brief  Constructor.
  * @param  ps Parameters.
  */
-CSCMonitorModule::CSCMonitorModule(const edm::ParameterSet& ps) : inputTag(INPUT_TAG_LABEL) {
+CSCMonitorModule::CSCMonitorModule(const edm::ParameterSet& ps) {
 
   edm::FileInPath fp;
 
+  inputTag = ps.getUntrackedParameter<edm::InputTag>("InputObjects", (edm::InputTag)INPUT_TAG_LABEL);
   edm::ParameterSet params = ps.getUntrackedParameter<edm::ParameterSet>("EventProcessor");
   config.load(params);
 
