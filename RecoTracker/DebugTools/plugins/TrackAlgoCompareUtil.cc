@@ -33,7 +33,7 @@ TrackAlgoCompareUtil::~TrackAlgoCompareUtil()
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void TrackAlgoCompareUtil::beginJob(const edm::EventSetup&)
+void TrackAlgoCompareUtil::beginJob()
 {
 }
 
