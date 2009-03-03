@@ -11,7 +11,6 @@
 #include "Calibration/Tools/interface/CalibElectron.h"
 #include "Calibration/Tools/interface/HouseholderDecomposition.h"
 #include "Calibration/Tools/interface/MinL3Algorithm.h"
-#include "Calibration/EcalAlCaRecoProducers/interface/AlCaPhiSymRecHitsProducer.h"
 #include "Calibration/EcalCalibAlgos/interface/ZeePlots.h"
 #include "Calibration/EcalCalibAlgos/interface/ZeeKinematicTools.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"

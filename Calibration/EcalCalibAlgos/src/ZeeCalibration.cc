@@ -25,7 +25,6 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
-#include "Calibration/EcalAlCaRecoProducers/interface/AlCaPhiSymRecHitsProducer.h"
 #include "Calibration/EcalCalibAlgos/interface/ZeeCalibration.h"
 #include "Calibration/EcalCalibAlgos/interface/ZeeKinematicTools.h"
 
