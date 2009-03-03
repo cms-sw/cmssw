@@ -136,6 +136,7 @@ private:
   void  doStandalone(edm::Handle<reco::TrackCollection> saMuons);
 
   // some useful functions
+  bool   filterEvents(edm::Handle<CSCRecHit2DCollection> recHits);
   float  fitX(HepMatrix sp, HepMatrix ep);
   float  getTiming(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);
   float  getSignal(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);
@@ -163,6 +164,8 @@ private:
   int nEventsAnalyzed;
   int rhTreeCount;
   int segTreeCount;
+  bool firstEvent;
+  bool cleanEvent;
 
   //
   //
@@ -181,6 +184,7 @@ private:
   bool detailedAnalysis;
   bool useDigis;
   bool useTrigger;
+  bool filterCSCEvents;
 
   edm::InputTag stripDigiTag;
   edm::InputTag wireDigiTag;
@@ -207,7 +211,6 @@ private:
   bool makeRHNoisePlots;
   bool makeCalibPlots;
   bool makeStandalonePlots;
-  bool makeTriggerPlots;
 
   // The histo managing object
   CSCValHists *histos;

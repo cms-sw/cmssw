@@ -23,6 +23,7 @@ CSCValidation::CSCValidation(const ParameterSet& pset){
   detailedAnalysis     = pset.getUntrackedParameter<bool>("detailedAnalysis",false);
   useDigis             = pset.getUntrackedParameter<bool>("useDigis",true);
   useTrigger           = pset.getUntrackedParameter<bool>("useTrigger",false);
+  filterCSCEvents      = pset.getUntrackedParameter<bool>("filterCSCEvents",false);
 
   // input tags for collections
   stripDigiTag  = pset.getParameter<edm::InputTag>("stripDigiTag");
@@ -50,14 +51,14 @@ CSCValidation::CSCValidation(const ParameterSet& pset){
   makeADCTimingPlots   = pset.getUntrackedParameter<bool>("makeADCTimingPlots",true);
   makeRHNoisePlots     = pset.getUntrackedParameter<bool>("makeRHNoisePlots",false);
   makeCalibPlots       = pset.getUntrackedParameter<bool>("makeCalibPlots",false);
-  makeTriggerPlots     = pset.getUntrackedParameter<bool>("makeTriggerPlots",false);
   makeStandalonePlots  = pset.getUntrackedParameter<bool>("makeStandalonePlots",false);
 
   // set counters to zero
   nEventsAnalyzed = 0;
   rhTreeCount = 0;
   segTreeCount = 0;
-  
+  firstEvent = true; 
+ 
   // Create the root file for the histograms
   theFile = new TFile(rootFileName.c_str(), "RECREATE");
   theFile->cd();
@@ -181,7 +182,7 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
 
   // get the trigger collection
   edm::Handle<L1MuGMTReadoutCollection> pCollection;
-  if (makeTriggerPlots){
+  if (useTrigger){
     event.getByLabel(l1aTag,pCollection);
   }
 
@@ -199,53 +200,112 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
   if (nEventsAnalyzed == 1 && makeCalibPlots) doCalibrations(eventSetup);
 
   // Look at the l1a trigger info (returns true if csc L1A present)
-  bool CSCL1A = false;
-  if (makeTriggerPlots) CSCL1A = doTrigger(pCollection);
+  bool CSCL1A = true;
+  if (useTrigger) CSCL1A = doTrigger(pCollection);
+
+  cleanEvent = true;
+  if (filterCSCEvents) cleanEvent = filterEvents(recHits);
   
   // look at various chamber occupancies
   if (makeOccupancyPlots) doOccupancies(strips,wires,recHits,cscSegments);
 
-  // general look at strip digis
-  if (makeStripPlots && useDigis) doStripDigis(strips);
+  if (cleanEvent && CSCL1A){
+    // general look at strip digis
+    if (makeStripPlots && useDigis) doStripDigis(strips);
 
-  // general look at wire digis
-  if (makeWirePlots && useDigis) doWireDigis(wires);
+    // general look at wire digis
+    if (makeWirePlots && useDigis) doWireDigis(wires);
 
-  // general look at rechits
-  if (makeRecHitPlots) doRecHits(recHits,strips,cscGeom);
+    // general look at rechits
+    if (makeRecHitPlots) doRecHits(recHits,strips,cscGeom);
 
-  // look at simHits
-  if (isSimulation && makeSimHitPlots) doSimHits(recHits,simHits);
+    // look at simHits
+    if (isSimulation && makeSimHitPlots) doSimHits(recHits,simHits);
 
-  // general look at Segments
-  if (makeSegmentPlots) doSegments(cscSegments,cscGeom);
+    // general look at Segments
+    if (makeSegmentPlots) doSegments(cscSegments,cscGeom);
 
-  // look at hit resolution
-  if (makeResolutionPlots) doResolution(cscSegments,cscGeom);
+    // look at hit resolution
+    if (makeResolutionPlots) doResolution(cscSegments,cscGeom);
 
-  // look at Pedestal Noise
-  if (makePedNoisePlots && useDigis) doPedestalNoise(strips);
+    // look at Pedestal Noise
+    if (makePedNoisePlots && useDigis) doPedestalNoise(strips);
   
-  // look at recHit and segment efficiencies
-  if (makeEfficiencyPlots) doEfficiencies(wires,strips, recHits, cscSegments,cscGeom);
+    // look at recHit and segment efficiencies
+    if (makeEfficiencyPlots) doEfficiencies(wires,strips, recHits, cscSegments,cscGeom);
 
-  // gas gain
-  if (makeGasGainPlots && useDigis) doGasGain(*wires,*strips,*recHits);
+    // gas gain
+    if (makeGasGainPlots && useDigis) doGasGain(*wires,*strips,*recHits);
 
-  // AFEB timing
-  if (makeAFEBTimingPlots && useDigis) doAFEBTiming(*wires);
+    // AFEB timing
+    if (makeAFEBTimingPlots && useDigis) doAFEBTiming(*wires);
 
-  // Comparators timing
-  if (makeCompTimingPlots && useDigis) doCompTiming(*compars);
+    // Comparators timing
+    if (makeCompTimingPlots && useDigis) doCompTiming(*compars);
 
-  // strip ADC timing
-  if (makeADCTimingPlots && useDigis) doADCTiming(*strips,*recHits);
+    // strip ADC timing
+    if (makeADCTimingPlots && useDigis) doADCTiming(*strips,*recHits);
 
-  // recHit Noise
-  if (makeRHNoisePlots && useDigis) doNoiseHits(recHits,cscSegments,cscGeom,strips);
+    // recHit Noise
+    if (makeRHNoisePlots && useDigis) doNoiseHits(recHits,cscSegments,cscGeom,strips);
 
-  // look at standalone muons (not implemented yet)
-  if (makeStandalonePlots) doStandalone(saMuons);
+    // look at standalone muons (not implemented yet)
+    if (makeStandalonePlots) doStandalone(saMuons);
+
+    firstEvent = false;
+
+  }
+
+}
+
+// ==============================================
+//
+// event filter, returns false for 'messy' events
+//
+// ==============================================
+
+bool CSCValidation::filterEvents(edm::Handle<CSCRecHit2DCollection> recHits){
+
+  int rechito[2][4][4][36];
+  for (int e = 0; e < 2; e++){
+    for (int s = 0; s < 4; s++){
+      for (int r = 0; r < 4; r++){
+        for (int c = 0; c < 36; c++){
+          rechito[e][s][r][c] = 0;
+        }
+      }
+    }
+  }
+
+  //rechits
+  CSCRecHit2DCollection::const_iterator recIt;
+  int nRecHits = recHits->size();
+  for (recIt = recHits->begin(); recIt != recHits->end(); recIt++) {
+    CSCDetId idrec = (CSCDetId)(*recIt).cscDetId();
+    int kEndcap  = idrec.endcap();
+    int kRing    = idrec.ring();
+    int kStation = idrec.station();
+    int kChamber = idrec.chamber();
+    rechito[kEndcap-1][kStation-1][kRing-1][kChamber-1]++;
+  }
+
+  int nHitChambers = 0;
+  int nMessyChambers = 0;
+  for (int e = 0; e < 2; e++){
+    for (int s = 0; s < 4; s++){
+      for (int r = 0; r < 4; r++){
+        for (int c = 0; c < 36; c++){
+          if (rechito[e][s][r][c] > 0) nHitChambers++;
+          if (rechito[e][s][r][c] > 24 && r != 3) nMessyChambers++;
+        }
+      }
+    }
+  }
+
+  if (nRecHits < 0) return false;
+  if (nHitChambers > 10 && nHitChambers > 0) return false;
+  if (nMessyChambers > 0) return false;
+  return true;
 
 }
 
@@ -364,12 +424,13 @@ void CSCValidation::doOccupancies(edm::Handle<CSCStripDigiCollection> strips, ed
   }
 
   // overall CSC occupancy (events with CSC data compared to total)
-  histos->fill1DHist(1,"hCSCOccupancy","overall CSC occupancy",13,-0.5,12.5,"GeneralHists");
-  if (hasWires) histos->fill1DHist(3,"hCSCOccupancy","overall CSC occupancy",13,-0.5,12.5,"GeneralHists");
-  if (hasStrips) histos->fill1DHist(5,"hCSCOccupancy","overall CSC occupancy",13,-0.5,12.5,"GeneralHists");
-  if (hasWires && hasStrips) histos->fill1DHist(7,"hCSCOccupancy","overall CSC occupancy",13,-0.5,12.5,"GeneralHists");
-  if (hasRecHits) histos->fill1DHist(9,"hCSCOccupancy","overall CSC occupancy",13,-0.5,12.5,"GeneralHists");
-  if (hasSegments) histos->fill1DHist(11,"hCSCOccupancy","overall CSC occupancy",13,-0.5,12.5,"GeneralHists");
+  histos->fill1DHist(1,"hCSCOccupancy","overall CSC occupancy",15,-0.5,14.5,"GeneralHists");
+  if (hasWires) histos->fill1DHist(3,"hCSCOccupancy","overall CSC occupancy",15,-0.5,14.5,"GeneralHists");
+  if (hasStrips) histos->fill1DHist(5,"hCSCOccupancy","overall CSC occupancy",15,-0.5,14.5,"GeneralHists");
+  if (hasWires && hasStrips) histos->fill1DHist(7,"hCSCOccupancy","overall CSC occupancy",15,-0.5,14.5,"GeneralHists");
+  if (hasRecHits) histos->fill1DHist(9,"hCSCOccupancy","overall CSC occupancy",15,-0.5,14.5,"GeneralHists");
+  if (hasSegments) histos->fill1DHist(11,"hCSCOccupancy","overall CSC occupancy",15,-0.5,14.5,"GeneralHists");
+  if (!cleanEvent) histos->fill1DHist(13,"hCSCOccupancy","overall CSC occupancy",15,-0.5,14.5,"GeneralHists");
 
 }
 
@@ -2059,7 +2120,7 @@ void CSCValidation::doGasGain(const CSCWireDigiCollection& wirecltn,
 
      m_single_wire_layer.clear();
 
-  if(nEventsAnalyzed==1) {
+  if(firstEvent) {
 
   // HV segments, their # and location in terms of wire groups
 
