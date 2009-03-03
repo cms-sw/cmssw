@@ -23,7 +23,7 @@ void RPCDaqInfo::beginLuminosityBlock(const LuminosityBlock& lumiBlock, const  E
 
 
   if(0 != iSetup.find( recordKey ) ) {
-     cout<<"record key found"<<endl;
+
     //get fed summary information
     ESHandle<RunInfo> sumFED;
     iSetup.get<RunInfoRcd>().get(sumFED);    
@@ -35,7 +35,7 @@ void RPCDaqInfo::beginLuminosityBlock(const LuminosityBlock& lumiBlock, const  E
     for(unsigned int fedItr=0;fedItr<FedsInIds.size(); ++fedItr) {
       int fedID=FedsInIds[fedItr];
       //make sure fed id is in allowed range  
-      cout<<fedID<<endl;   
+
       if(fedID>=FEDRange_.first && fedID<=FEDRange_.second) ++FedCount;
     }   
 

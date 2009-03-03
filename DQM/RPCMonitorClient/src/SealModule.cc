@@ -1,3 +1,4 @@
+
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -20,9 +21,16 @@ DEFINE_ANOTHER_FWK_MODULE(RPCOccupancyTest);
 DEFINE_ANOTHER_FWK_MODULE(RPCClusterSizeTest);
 #include <DQM/RPCMonitorClient/interface/ReadMeFromFile.h>
 DEFINE_ANOTHER_FWK_MODULE(ReadMeFromFile);
+<<<<<<< SealModule.cc
+//#include <DQM/RPCMonitorClient/interface/RPCMultiplicityTest.h>
+//DEFINE_ANOTHER_FWK_MODULE(RPCMultiplicityTest);
+#include <DQM/RPCMonitorClient/interface/RPCDqmClient.h>
+DEFINE_ANOTHER_FWK_MODULE(RPCDqmClient);
+=======
 #include <DQM/RPCMonitorClient/interface/RPCChamberQuality.h>
 DEFINE_ANOTHER_FWK_MODULE(RPCChamberQuality);
 #include <DQM/RPCMonitorClient/interface/RPCDCSDataSimulator.h>
 DEFINE_ANOTHER_FWK_MODULE(RPCDCSDataSimulator);
 #include <DQM/RPCMonitorClient/interface/RPCMultiplicityTest.h>
 DEFINE_ANOTHER_FWK_MODULE(RPCMultiplicityTest);
+>>>>>>> 1.17
