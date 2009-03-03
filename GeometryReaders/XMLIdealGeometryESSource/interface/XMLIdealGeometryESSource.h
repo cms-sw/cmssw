@@ -6,6 +6,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "GeometryReaders/XMLIdealGeometryESSource/interface/GeometryConfiguration.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
@@ -29,6 +30,7 @@ private:
     const XMLIdealGeometryESSource & operator=(const XMLIdealGeometryESSource &);
     std::string rootNodeName_;
     bool userNS_;
+    GeometryConfiguration geoConfig_;
 };
 
 
