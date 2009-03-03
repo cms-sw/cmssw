@@ -27,6 +27,8 @@ public:
     {
         // Get the association part of the proxy to the collection
         event.getByLabel(proxy_, proxyHandler_);
+        // Call the previous new event
+        TrackClassifier::newEvent(event, config);
     }
 
     //! Classify any Tracks in categories.
