@@ -1,21 +1,6 @@
-// -*- C++ -*-
-//
-// Package:    HLTriggerOffline/special
-// Class:      DQMHcalIsoTrackAlCaRaw
-// 
-/**\class DQMHcalIsoTrackAlCaRaw DQMHcalIsoTrackAlCaRaw.cc HLTriggerOffline/special/src/DQMHcalIsoTrackAlCaRaw.cc
-
- Description: <one line class summary>
-
- Implementation:
-     <Notes on implementation>
-*/
+//code for Hcal IsoTrack HLT MC validation
 //
 // Original Author:  Grigory SAFRONOV
-//         Created:  Mon Oct  6 10:10:22 CEST 2008
-// $Id: DQMHcalIsoTrackAlCaRaw.cc,v 1.1 2008/10/16 10:12:49 safronov Exp $
-//
-//
 
 
 // system include files
@@ -64,11 +49,11 @@
 
 #include <fstream>
 
-class DQMHcalIsoTrackAlCaRaw : public edm::EDAnalyzer {
+class ValHcalIsoTrackHLT : public edm::EDAnalyzer {
 public:
-  explicit DQMHcalIsoTrackAlCaRaw(const edm::ParameterSet&);
-  ~DQMHcalIsoTrackAlCaRaw();
-  
+  explicit ValHcalIsoTrackHLT(const edm::ParameterSet&);
+  ~ValHcalIsoTrackHLT();
+  double getDist(double,double,double,double);  
   
 private:
 
@@ -100,6 +85,8 @@ private:
   edm::InputTag genJetsLabel_;
 
   bool produceRatePdep_;
+
+  bool doL1Prescaling_;
   
   MonitorElement* hl3Pt;
   MonitorElement* hL3L2trackMatch;
@@ -164,7 +151,7 @@ private:
   double hltPThr_;
 };
 
-double getDist(double eta1, double phi1, double eta2, double phi2)
+double ValHcalIsoTrackHLT::getDist(double eta1, double phi1, double eta2, double phi2)
 {
   double dphi = fabs(phi1 - phi2); 
   if(dphi>acos(-1)) dphi = 2*acos(-1)-dphi;
@@ -172,7 +159,7 @@ double getDist(double eta1, double phi1, double eta2, double phi2)
   return dr;
 }
 
-DQMHcalIsoTrackAlCaRaw::DQMHcalIsoTrackAlCaRaw(const edm::ParameterSet& iConfig)
+ValHcalIsoTrackHLT::ValHcalIsoTrackHLT(const edm::ParameterSet& iConfig)
 
 {
   produceRates_=iConfig.getParameter<bool>("produceRates");
@@ -199,6 +186,8 @@ DQMHcalIsoTrackAlCaRaw::DQMHcalIsoTrackAlCaRaw(const edm::ParameterSet& iConfig)
   produceRatePdep_=iConfig.getParameter<bool>("produceRatePdep");
 
   hltPThr_=iConfig.getUntrackedParameter<double>("l3momThreshold",10);
+
+  doL1Prescaling_=iConfig.getParameter<bool>("doL1Prescaling");
   
   for (unsigned int i=0; i<l1seedNames_.size(); i++)
     {
@@ -225,7 +214,7 @@ DQMHcalIsoTrackAlCaRaw::DQMHcalIsoTrackAlCaRaw(const edm::ParameterSet& iConfig)
 }
 
 
-DQMHcalIsoTrackAlCaRaw::~DQMHcalIsoTrackAlCaRaw()
+ValHcalIsoTrackHLT::~ValHcalIsoTrackHLT()
 {
   if (produceRates_)
     {
@@ -266,7 +255,7 @@ DQMHcalIsoTrackAlCaRaw::~DQMHcalIsoTrackAlCaRaw()
     }
 }
 
-void DQMHcalIsoTrackAlCaRaw::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void ValHcalIsoTrackHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   nTotal++;
   haccepts->Fill(0.0001,1);
@@ -304,9 +293,7 @@ void DQMHcalIsoTrackAlCaRaw::analyze(const edm::Event& iEvent, const edm::EventS
 	  if (menu->gtAlgorithmResult( l1seedNames_[i], dWord)) 
 	    {
 	      l1counter[i]++;
-	      //	  if (l1counter[i]%prescale==0)   avoid double-prescaling 
-	      //   (think in future how to apply prescales here to unprescaled gtDigis)
-	      if (l1counter[i]%prescale==0)
+	      if ((doL1Prescaling_&&l1counter[i]%prescale==0)||(!doL1Prescaling_))
 		{
 		  l1pass=true;
 		  break;
@@ -486,7 +473,7 @@ if (!l1pass||!passl3) return;
 
 }
 
-void DQMHcalIsoTrackAlCaRaw::beginJob(const edm::EventSetup&)
+void ValHcalIsoTrackHLT::beginJob(const edm::EventSetup&)
 {
   dbe_ = edm::Service<DQMStore>().operator->();
   dbe_->setCurrentFolder(folderName_);
@@ -581,7 +568,7 @@ void DQMHcalIsoTrackAlCaRaw::beginJob(const edm::EventSetup&)
   hNextToLeadTurnOn=dbe_->book1D("hNextToLeadTurnOn","hNextToLeadTurnOn",100,0,100);
 }
 
-void DQMHcalIsoTrackAlCaRaw::endJob() {
+void ValHcalIsoTrackHLT::endJob() {
 
 if(dbe_) 
   {  
@@ -609,4 +596,4 @@ if(dbe_)
   }
 }
 
-DEFINE_FWK_MODULE(DQMHcalIsoTrackAlCaRaw);
+DEFINE_FWK_MODULE(ValHcalIsoTrackHLT);
