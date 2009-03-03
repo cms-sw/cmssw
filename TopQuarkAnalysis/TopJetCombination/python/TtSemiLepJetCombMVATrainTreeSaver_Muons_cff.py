@@ -7,11 +7,6 @@ import FWCore.ParameterSet.Config as cms
 ## import MVA trainer cfi
 from TopQuarkAnalysis.TopJetCombination.TtSemiLepJetCombMVATrainer_Muons_cfi import *
 
-## define path for mva save file
-mvaTtSemiLepJetCombSaveFile = cms.EDAnalyzer("TtSemiLepJetCombMVASaveFile",
-    ttSemiLepJetCombMVA = cms.string('TopQuarkAnalysis/TopJetCombination/data/TtSemiLepJetComb_Muons.mva')
-)
-
 ## ------------------------------------------------------------------------------------------
 ## configuration of event looper for mva taining; take care to make the 
 ## looper known to the process. The way to do that is to add the following
@@ -22,16 +17,15 @@ mvaTtSemiLepJetCombSaveFile = cms.EDAnalyzer("TtSemiLepJetCombMVASaveFile",
 ## ------------------------------------------------------------------------------------------ 
 looper = cms.Looper("TtSemiLepJetCombMVATrainerLooper",
     trainers = cms.VPSet(cms.PSet(
-        monitoring = cms.untracked.bool(True),
+        monitoring = cms.untracked.bool(False),
         loadState  = cms.untracked.bool(False),
         saveState  = cms.untracked.bool(True),
         calibrationRecord = cms.string('ttSemiLepJetCombMVA'),
-        trainDescription = cms.untracked.string('TopQuarkAnalysis/TopJetCombination/data/TtSemiLepJetCombMVATrainer_Muons.xml')
+        trainDescription = cms.untracked.string(
+            'TopQuarkAnalysis/TopJetCombination/data/TtSemiLepJetCombMVATrainTreeSaver_Muons.xml')
     ))
 )
 
-## provide a sequence for the training
-## remark: do not use this sequence if you want to call your trainer after an event filter
-##         since the SaveFile module should be called in an unfiltered path!
-makeMVATraining = cms.Sequence(trainTtSemiLepJetCombMVA*mvaTtSemiLepJetCombSaveFile)
+## provide a sequence to save a tree for the training
+saveTtSemiLepJetCombMVATrainTree = cms.Sequence(trainTtSemiLepJetCombMVA)
 
