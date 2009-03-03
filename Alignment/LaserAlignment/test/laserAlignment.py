@@ -74,23 +74,23 @@ process.PoolDBOutputService = cms.Service( "PoolDBOutputService",
 ## input files
 process.source = cms.Source( "PoolSource",
   fileNames = cms.untracked.vstring(
-    #'file:/afs/cern.ch/user/o/olzem/scratch0/LaserEvents.70659.root'
-    'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_0.root',
-    'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_1.root',
-    'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_2.root',
-    'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_3.root',
-    'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_4.root',
-    'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_5.root',
-    'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_6.root',
-    'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_7.root',
-    'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_8.root',
-    'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_9.root',
-    'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_10.root',
-    'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_11.root',
-    'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_12.root',
-    'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_13.root',
-    'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_14.root',
-    'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_15.root'
+    'file:/afs/cern.ch/user/o/olzem/scratch0/LaserEvents.SIM-DIGI.1136.root'
+    #'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_0.root',
+    #'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_1.root',
+    #'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_2.root',
+    #'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_3.root',
+    #'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_4.root',
+    #'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_5.root',
+    #'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_6.root',
+    #'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_7.root',
+    #'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_8.root',
+    #'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_9.root',
+    #'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_10.root',
+    #'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_11.root',
+    #'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_12.root',
+    #'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_13.root',
+    #'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_14.root',
+    #'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_15.root'
   )
 
 #    '/store/mc/Summer08/TrackerLaser/ALCARECO/IDEAL_V2_TkAlLAS_v1/0053/0A045025-DC5C-DD11-BACC-001E0B477F28.root', 
@@ -120,16 +120,16 @@ process.source = cms.Source( "PoolSource",
 )
 
 process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32( 50 )
+  input = cms.untracked.int32( -1 )
 )
 
 ## the LaserAlignment module
 process.load( "Alignment.LaserAlignment.LaserAlignment_cfi" )
 process.LaserAlignment.DigiProducersList = cms.VPSet(
   cms.PSet(
-    DigiLabel = cms.string( 'VirginRaw' ),
-    DigiProducer = cms.string( 'laserAlignmentT0Producer' ),
-    DigiType = cms.string( 'Raw' )
+    DigiLabel = cms.string( 'ZeroSuppressed' ),
+    DigiProducer = cms.string( 'simSiStripDigis' ),
+    DigiType = cms.string( 'Processed' )
   )
 )
 process.LaserAlignment.SaveToDbase = False

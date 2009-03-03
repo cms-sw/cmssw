@@ -37,8 +37,10 @@ bool LASPeakFinder::FindPeakIn( const LASModuleProfile& aProfile, std::pair<doub
   // loop over the strips in the "alignment hole"
   // to fill the histogram
   // and determine fit parameter estimates
+  double sum0 = 0.; // this is the sum of all amplitudes
   for( unsigned int strip = meanPosition - halfWindowSize; strip < meanPosition + halfWindowSize; ++strip ) {
     anAmplitude = aProfile.GetValue( strip );
+    sum0 += anAmplitude;
     histogram->SetBinContent( 1 + strip, anAmplitude );
     if( anAmplitude > largestAmplitude.second ) {
       largestAmplitude.first = strip; largestAmplitude.second = anAmplitude;
@@ -52,6 +54,7 @@ bool LASPeakFinder::FindPeakIn( const LASModuleProfile& aProfile, std::pair<doub
   for( unsigned int strip = 0; strip < 512; ++strip ) {
     if( strip < meanPosition - halfWindowSize || strip > meanPosition + halfWindowSize ) {
       anAmplitude = aProfile.GetValue( strip );
+      sum0 += anAmplitude;
       sum1 += anAmplitude;
       sum2 += pow( anAmplitude, 2 );
       nStrips++;
@@ -62,8 +65,8 @@ bool LASPeakFinder::FindPeakIn( const LASModuleProfile& aProfile, std::pair<doub
   const double noise = sqrt( 1. / ( nStrips - 1 ) * ( sum2 - pow( sum1, 2 ) / nStrips ) );
 
   // empty profile?
-  if( fabs( sum1 ) < 1.e-3 ) {
-    std::cerr << " [LASPeakFinder::FindPeakIn] ** WARNING: Empty profile (sum=" << sum1 << ")." << std::endl;
+  if( fabs( sum0 ) < 1.e-3 ) {
+    std::cerr << " [LASPeakFinder::FindPeakIn] ** WARNING: Empty profile (sum=" << sum0 << ")." << std::endl;
     return false;
   }
 
