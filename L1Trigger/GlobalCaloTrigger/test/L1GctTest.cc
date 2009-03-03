@@ -185,10 +185,6 @@ L1GctTest::configureGct(const edm::EventSetup& c)
   // get data from EventSetup
   edm::ESHandle< L1GctJetFinderParams > jfPars ;
   c.get< L1GctJetFinderParamsRcd >().get( jfPars ) ; // which record?
-  edm::ESHandle< L1GctJetCounterSetup > jcPosPars ;
-//   c.get< L1GctJetCounterPositiveEtaRcd >().get( jcPosPars ) ; // which record?
-//   edm::ESHandle< L1GctJetCounterSetup > jcNegPars ;
-//   c.get< L1GctJetCounterNegativeEtaRcd >().get( jcNegPars ) ; // which record?
   edm::ESHandle< L1GctHfLutSetup > hfLSetup ;
   c.get< L1GctHfLutSetupRcd >().get( hfLSetup ) ; // which record?
   edm::ESHandle< L1GctChannelMask > chanMask ;
@@ -207,7 +203,6 @@ L1GctTest::configureGct(const edm::EventSetup& c)
   // pass all the setup info to the gct
   m_gct->setJetEtCalibrationLuts(m_jetEtCalibLuts);
   m_gct->setJetFinderParams(jfPars.product());
-//   m_gct->setupJetCounterLuts(jcPosPars.product(), jcNegPars.product());
   m_gct->setupHfSumLuts(hfLSetup.product());
   m_gct->setChannelMask(chanMask.product());
 }
