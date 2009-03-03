@@ -43,7 +43,7 @@ HcalHitValidation::~HcalHitValidation() {
   if (dbe_ && outFile_.size() > 0) dbe_->save(outFile_);
 }
 
-void HcalHitValidation::beginJob(const edm::EventSetup& ) {
+void HcalHitValidation::beginJob() {
 
   if (dbe_) {
     dbe_->setCurrentFolder("HcalHitValidation");

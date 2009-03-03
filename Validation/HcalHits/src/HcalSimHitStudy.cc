@@ -31,7 +31,7 @@ HcalSimHitStudy::~HcalSimHitStudy() {
   if (dbe_ && outFile_.size() > 0) dbe_->save(outFile_);
 }
 
-void HcalSimHitStudy::beginJob(const edm::EventSetup& ) {
+void HcalSimHitStudy::beginJob() {
 
   if (dbe_) {
     dbe_->setCurrentFolder("HcalHitsV/HcalSimHitsTask");
