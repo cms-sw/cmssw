@@ -43,7 +43,7 @@ cat > ${MACRO}<<EOF
   GlobalPosfromTreeCompare("Global Segment positions ME-2", f1, f2, 2, 2, "segment", "Sglobal_station_-2.png");
   GlobalPosfromTreeCompare("Global Segment positions ME-3", f1, f2, 2, 3, "segment", "Sglobal_station_-3.png");
   GlobalPosfromTreeCompare("Global Segment positions ME-4", f1, f2, 2, 4, "segment", "Sglobal_station_-4.png");
-
+ 
 
   //produce number of X per event plots
   compare1DPlot("Digis/hStripNFired",f1,f2,"Fired Strips per Event", 1110, "Digis_hStripNFired.png");
@@ -52,8 +52,8 @@ cat > ${MACRO}<<EOF
   compare1DPlot("Segments/hSnSegments",f1,f2,"Segments per Event", 1110, "Segments_hSnSegments.png");
 
   //efficiency plots
-  compareEffGif("Efficiency/hRHEff", f1,f2, "RecHit Efficiecy", "Efficiency_hRHEff.png");
-  compareEffGif("Efficiency/hSEff", f1,f2, "Segment Efficiecy", "Efficiency_hSEff.png");
+  compareEffGif("Efficiency/hRHEff", f1,f2, "RecHit Efficiency", "Efficiency_hRHEff.png");
+  compareEffGif("Efficiency/hSEff", f1,f2, "Segment Efficiency", "Efficiency_hSEff.png");
 
   
   //produce wire timing plots
@@ -177,6 +177,26 @@ cat > ${MACRO}<<EOF
   compare1DPlot("recHits/hRHRatioQ-32",f1,f2,"Charge Ratio (Ql_Qr)/Qt ME-3/2", 1110,"recHits_hRHRatioQ-32.png");
   compare1DPlot("recHits/hRHRatioQ-41",f1,f2,"Charge Ratio (Ql_Qr)/Qt ME-4/1", 1110,"recHits_hRHRatioQ-41.png");
 
+  // rechit strip position
+  compare1DPlot("recHits/hRHstpos+11",f1,f2,"Hit Position on Strip ME+1/1b", 1110,"recHits_hRHstpos+11.png");
+  compare1DPlot("recHits/hRHstpos+14",f1,f2,"Hit Position on Strip ME+1/1a", 1110,"recHits_hRHstpos+11a.png");
+  compare1DPlot("recHits/hRHstpos+12",f1,f2,"Hit Position on Strip ME+1/2", 1110,"recHits_hRHstpos+12.png");
+  compare1DPlot("recHits/hRHstpos+13",f1,f2,"Hit Position on Strip ME+1/3", 1110,"recHits_hRHstpos+13.png");
+  compare1DPlot("recHits/hRHstpos+21",f1,f2,"Hit Position on Strip ME+2/1", 1110,"recHits_hRHstpos+21.png");
+  compare1DPlot("recHits/hRHstpos+22",f1,f2,"Hit Position on Strip ME+2/2", 1110,"recHits_hRHstpos+22.png");
+  compare1DPlot("recHits/hRHstpos+31",f1,f2,"Hit Position on Strip ME+3/1", 1110,"recHits_hRHstpos+31.png");
+  compare1DPlot("recHits/hRHstpos+32",f1,f2,"Hit Position on Strip ME+3/2", 1110,"recHits_hRHstpos+32.png");
+  compare1DPlot("recHits/hRHstpos+41",f1,f2,"Hit Position on Strip ME+4/1", 1110,"recHits_hRHstpos+41.png");
+  compare1DPlot("recHits/hRHstpos-11",f1,f2,"Hit Position on Strip ME-1/1b", 1110,"recHits_hRHstpos-11.png");
+  compare1DPlot("recHits/hRHstpos-14",f1,f2,"Hit Position on Strip ME-1/1a", 1110,"recHits_hRHstpos-11a.png");
+  compare1DPlot("recHits/hRHstpos-12",f1,f2,"Hit Position on Strip ME-1/2", 1110,"recHits_hRHstpos-12.png");
+  compare1DPlot("recHits/hRHstpos-13",f1,f2,"Hit Position on Strip ME-1/3", 1110,"recHits_hRHstpos-13.png");
+  compare1DPlot("recHits/hRHstpos-21",f1,f2,"Hit Position on Strip ME-2/1", 1110,"recHits_hRHstpos-21.png");
+  compare1DPlot("recHits/hRHstpos-22",f1,f2,"Hit Position on Strip ME-2/2", 1110,"recHits_hRHstpos-22.png");
+  compare1DPlot("recHits/hRHstpos-31",f1,f2,"Hit Position on Strip ME-3/1", 1110,"recHits_hRHstpos-31.png");
+  compare1DPlot("recHits/hRHstpos-32",f1,f2,"Hit Position on Strip ME-3/2", 1110,"recHits_hRHstpos-32.png");
+  compare1DPlot("recHits/hRHstpos-41",f1,f2,"Hit Position on Strip ME-4/1", 1110,"recHits_hRHstpos-41.png");
+
   //hits on a segment
   compare1DPlot("Segments/hSnHits+11",f1,f2,"N Hits on Segments ME+1/1b", 1110,"Segments_hSnHits+11.png");
   compare1DPlot("Segments/hSnHits+14",f1,f2,"N Hits on Segments ME+1/1a", 1110,"Segments_hSnHits+11a.png");
@@ -196,6 +216,28 @@ cat > ${MACRO}<<EOF
   compare1DPlot("Segments/hSnHits-31",f1,f2,"N Hits on Segments ME-3/1", 1110,"Segments_hSnHits-31.png");
   compare1DPlot("Segments/hSnHits-32",f1,f2,"N Hits on Segments ME-3/2", 1110,"Segments_hSnHits-32.png");
   compare1DPlot("Segments/hSnHits-41",f1,f2,"N Hits on Segments ME-4/1", 1110,"Segments_hSnHits-41.png");
+
+  // segment chi2
+  compare1DPlot("Segments/hSChiSq+11",f1,f2,"Segment Chi2/ndof ME+1/1b", 1110,"Segments_hSChiSq+11.png");
+  compare1DPlot("Segments/hSChiSq+14",f1,f2,"Segment Chi2/ndof ME+1/1a", 1110,"Segments_hSChiSq+11a.png");
+  compare1DPlot("Segments/hSChiSq+12",f1,f2,"Segment Chi2/ndof ME+1/2", 1110,"Segments_hSChiSq+12.png");
+  compare1DPlot("Segments/hSChiSq+13",f1,f2,"Segment Chi2/ndof ME+1/3", 1110,"Segments_hSChiSq+13.png");
+  compare1DPlot("Segments/hSChiSq+21",f1,f2,"Segment Chi2/ndof ME+2/1", 1110,"Segments_hSChiSq+21.png");
+  compare1DPlot("Segments/hSChiSq+22",f1,f2,"Segment Chi2/ndof ME+2/2", 1110,"Segments_hSChiSq+22.png");
+  compare1DPlot("Segments/hSChiSq+31",f1,f2,"Segment Chi2/ndof ME+3/1", 1110,"Segments_hSChiSq+31.png");
+  compare1DPlot("Segments/hSChiSq+32",f1,f2,"Segment Chi2/ndof ME+3/2", 1110,"Segments_hSChiSq+32.png");
+  compare1DPlot("Segments/hSChiSq+41",f1,f2,"Segment Chi2/ndof ME+4/1", 1110,"Segments_hSChiSq+41.png");
+  compare1DPlot("Segments/hSChiSq-11",f1,f2,"Segment Chi2/ndof ME-1/1b", 1110,"Segments_hSChiSq-11.png");
+  compare1DPlot("Segments/hSChiSq-14",f1,f2,"Segment Chi2/ndof ME-1/1a", 1110,"Segments_hSChiSq-11a.png");
+  compare1DPlot("Segments/hSChiSq-12",f1,f2,"Segment Chi2/ndof ME-1/2", 1110,"Segments_hSChiSq-12.png");
+  compare1DPlot("Segments/hSChiSq-13",f1,f2,"Segment Chi2/ndof ME-1/3", 1110,"Segments_hSChiSq-13.png");
+  compare1DPlot("Segments/hSChiSq-21",f1,f2,"Segment Chi2/ndof ME-2/1", 1110,"Segments_hSChiSq-21.png");
+  compare1DPlot("Segments/hSChiSq-22",f1,f2,"Segment Chi2/ndof ME-2/2", 1110,"Segments_hSChiSq-22.png");
+  compare1DPlot("Segments/hSChiSq-31",f1,f2,"Segment Chi2/ndof ME-3/1", 1110,"Segments_hSChiSq-31.png");
+  compare1DPlot("Segments/hSChiSq-32",f1,f2,"Segment Chi2/ndof ME-3/2", 1110,"Segments_hSChiSq-32.png");
+  compare1DPlot("Segments/hSChiSq-41",f1,f2,"Segment Chi2/ndof ME-4/1", 1110,"Segments_hSChiSq-41.png");
+
+  
 
   //miscellaneous
   compare1DPlot("Segments/hSGlobalPhi",f1,f2,"Segment Global Phi", 1110,"Segments_hSGlobalPhi.png");

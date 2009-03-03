@@ -125,6 +125,7 @@ void makeCSCOccupancy(std::string histoname, TFile* f1, std::string histotitle, 
     h1->GetXaxis()->SetBinLabel(8,"# Events with Wires&Strips");
     h1->GetXaxis()->SetBinLabel(10,"# Events with Rechits");
     h1->GetXaxis()->SetBinLabel(12,"# Events with Segments");
+    h1->GetXaxis()->SetBinLabel(14,"Events Rejected");
 
     h1->Draw();
 
@@ -775,7 +776,7 @@ void compare1DPlot(std::string histoname, TFile* f1, TFile* f2, std::string hist
   if (h1 && h2){
     gStyle->SetHistFillColor(92);
     gStyle->SetFrameFillColor(4000);
-    gStyle->SetTitleW(0.3);
+    gStyle->SetTitleW(0.5);
     gStyle->SetTitleH(0.07);
     gStyle->SetStatColor(0);
     gStyle->SetTitleFillColor(0);
@@ -793,7 +794,7 @@ void compare1DPlot(std::string histoname, TFile* f1, TFile* f2, std::string hist
     h1->GetXaxis()->SetTitleSize(0.06);
     h1->GetXaxis()->SetNdivisions(208,kTRUE);
 
-    TLegend *leg = new TLegend(0.6,0.6,0.8,0.8);
+    TLegend *leg = new TLegend(0.79,0.74,0.89,0.84);
     leg->AddEntry(h1,"ref","f");
     leg->AddEntry(h2,"new","l");
 
@@ -861,7 +862,7 @@ void compareEffGif(std::string histoname, TFile* f1, TFile* f2, std::string hist
     h1->GetXaxis()->SetBinLabel(19,"ME -4/1");
     h1->GetXaxis()->SetBinLabel(20,"ME -4/2");
 
-    TLegend *leg = new TLegend(0.6,0.7,0.89,0.89);
+    TLegend *leg = new TLegend(0.79,0.79,0.89,0.89);
     leg->AddEntry(h1,"new","p");
     leg->AddEntry(h2,"ref","p");
 
