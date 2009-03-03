@@ -1,9 +1,9 @@
 /**
  * \file AlignmentParameterStore.cc
  *
- *  $Revision: 1.24 $
- *  $Date: 2009/01/08 17:58:59 $
- *  (last update by $Author: ewidl $)
+ *  $Revision: 1.25 $
+ *  $Date: 2009/02/24 13:24:54 $
+ *  (last update by $Author: flucke $)
  */
 
 // This class's header should be first
@@ -387,21 +387,19 @@ applyAlignableAbsolutePositions( const align::Alignables& alivec,
   ierr=0;
 
   // Iterate over list of alignables
-  for ( align::Alignables::const_iterator iali = alivec.begin(); iali != alivec.end(); ++iali ) 
-  {
+  for (align::Alignables::const_iterator iali = alivec.begin(); iali != alivec.end(); ++iali) { 
     Alignable* ali = *iali;
     align::ID id = ali->id();
     align::StructureType typeId = ali->alignableObjectId();
 
     // Find corresponding entry in AlignablePositions
     bool found=false;
-    for ( AlignablePositions::const_iterator ipos = newpos.begin(); ipos != newpos.end(); ++ipos ) 
-      if ( id == ipos->id() && typeId == ipos->objId() ) 
-	if ( found )
+    for (AlignablePositions::const_iterator ipos = newpos.begin(); ipos != newpos.end(); ++ipos) {
+      if (id == ipos->id() && typeId == ipos->objId()) {
+	if (found) {
 	  edm::LogError("DuplicatePosition")
 	    << "New positions for alignable found more than once!";
-	else
-	{
+	} else {
 	  // New position/rotation
 	  const align::PositionType& pnew = ipos->pos();
 	  const align::RotationType& rnew = ipos->rot();
@@ -426,6 +424,8 @@ applyAlignableAbsolutePositions( const align::Alignables& alivec,
 	  found=true;
 	  ++nappl;
 	}
+      }
+    }
   }
 
   if ( nappl< newpos.size() )
@@ -447,8 +447,7 @@ applyAlignableRelativePositions( const align::Alignables& alivec, const Alignabl
   unsigned int nappl=0;
   unsigned int nAlignables = alivec.size();
 
-  for (unsigned int i = 0; i < nAlignables; ++i)
-  {
+  for (unsigned int i = 0; i < nAlignables; ++i) {
     Alignable* ali = alivec[i];
 
     align::ID id = ali->id();
@@ -456,25 +455,24 @@ applyAlignableRelativePositions( const align::Alignables& alivec, const Alignabl
 
     // Find corresponding entry in AlignableShifts
     bool found = false;
-    for ( AlignableShifts::const_iterator ipos = shifts.begin(); ipos != shifts.end(); ++ipos ) 
-    {
-      if ( id == ipos->id() && typeId == ipos->objId() ) 
-	if ( found )
+    for (AlignableShifts::const_iterator ipos = shifts.begin(); ipos != shifts.end(); ++ipos) {
+      if (id == ipos->id() && typeId == ipos->objId()) {
+	if (found) {
 	  edm::LogError("DuplicatePosition")
 	    << "New positions for alignable found more than once!";
-	else
-	{
+	} else {
 	  ali->move( ipos->pos() );
 	  ali->rotateInGlobalFrame( ipos->rot() );
-				
+          
 	  // Add position error
 	  //AlignmentPositionError ape(pnew.x(),pnew.y(),pnew.z());
 	  //ali->addAlignmentPositionError(ape);
 	  //ali->addAlignmentPositionErrorFromRotation(rnew);
-
+          
 	  found=true;
 	  ++nappl;
 	}
+      }
     }
   }
   
