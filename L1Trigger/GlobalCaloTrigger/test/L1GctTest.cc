@@ -7,13 +7,10 @@
 // Trigger configuration includes
 #include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
-#include "CondFormats/L1TObjects/interface/L1GctJetCounterSetup.h"
 #include "CondFormats/L1TObjects/interface/L1GctChannelMask.h"
 #include "CondFormats/L1TObjects/interface/L1GctHfLutSetup.h"
 #include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
 #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
-#include "CondFormats/DataRecord/interface/L1GctJetCounterPositiveEtaRcd.h"
-#include "CondFormats/DataRecord/interface/L1GctJetCounterNegativeEtaRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctChannelMaskRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctHfLutSetupRcd.h"
 
@@ -138,7 +135,6 @@ L1GctTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      m_tester->fillRawJetData(m_gct);
      passAllTests &= m_tester->checkEnergySums(m_gct);
      passAllTests &= m_tester->checkHtSums(m_gct);
-     passAllTests &= m_tester->checkJetCounts(m_gct);
      passAllTests &= m_tester->checkHfEtSums(m_gct);
    }
 

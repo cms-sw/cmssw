@@ -17,8 +17,6 @@
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCounts.h"
 
 using std::string;
 using std::ios;
@@ -196,12 +194,10 @@ void L1GctTestAnalyzer::doEnergySums(const edm::Event& iEvent, edm::InputTag lab
   Handle<L1GctEtTotal>   etTotResult;
   Handle<L1GctEtHad>     etHadResult;
   Handle<L1GctEtMiss>    etMissResult;
-  Handle<L1GctJetCounts> jetCountResult;
   
   iEvent.getByLabel(label,etTotResult);
   iEvent.getByLabel(label,etHadResult);
   iEvent.getByLabel(label,etMissResult);
-  iEvent.getByLabel(label,jetCountResult);
   
   outFile_ << "Total Et from : " << label.label() << endl;
   outFile_ << (*etTotResult) << endl;
@@ -209,8 +205,6 @@ void L1GctTestAnalyzer::doEnergySums(const edm::Event& iEvent, edm::InputTag lab
   outFile_ << (*etHadResult) << endl;
   outFile_ << "Missing Et from : " << label.label() << endl;
   outFile_ << (*etMissResult) << endl;
-  outFile_ << "Jet counts from : " << label.label() << endl;
-  outFile_ << (*jetCountResult) << endl;
   
   outFile_ << endl;
   

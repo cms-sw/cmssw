@@ -7,7 +7,6 @@
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctMet.h"
-#include "L1Trigger/GlobalCaloTrigger/src/L1GctJetCount.h"
 
 
 #include <vector>
@@ -42,10 +41,6 @@ public:
         typedef L1GctMet::etMissPhiType  etMissPhiType;
         typedef L1GctMet::etmiss_vec     etmiss_vec;
         typedef L1GctJetLeafCard::etComponentType etComponentType;
-
-        /// Number of jet counter per wheel
-        static const unsigned int N_JET_COUNTERS_USED;
-        static const unsigned int N_JET_COUNTERS_MAX;
 
         /// Constructor needs the Wheel card Fpgas set up first
 	 L1GctGlobalEnergyAlgos(std::vector<L1GctWheelEnergyFpga*> WheelFpga,
@@ -119,10 +114,6 @@ public:
 	/// return input Ht value wheel 0
 	inline std::vector< etComponentType > getInputHxVlMinusWheel() const { return m_hxVlMinusPipe.contents; }
 	inline std::vector< etComponentType > getInputHyVlMinusWheel() const { return m_hyVlMinusPipe.contents; }
-	/// return input jet count (number 0-11) wheel 1
-       inline std::vector< L1GctJetCount<3> > getInputJcValPlusWheel() const {return m_jcValPlusPipe.contents; }
-	/// return input jet count (number 0-11) wheel 0
-       inline std::vector< L1GctJetCount<3> > getInputJcVlMinusWheel() const {return m_jcVlMinusPipe.contents; }
 
         /// Access to output quantities for all bunch crossings
 	/// return output missing Et magnitude
@@ -137,13 +128,6 @@ public:
 	inline std::vector< etMissType >    getHtMissColl()    const { return m_outputHtMiss.contents; }
 	/// return output missing Ht value
 	inline std::vector< etMissPhiType > getHtMissPhiColl() const { return m_outputHtMissPhi.contents; }
-
-	/// return a particular jet count
-	inline L1GctJetCount<5> getJetCount(const unsigned jcnum, const unsigned bx) const
-	  { return (m_outputJetCounts.contents.at((bx-bxMin())*N_JET_COUNTERS_MAX + jcnum) ); }
-
-	/// return vector of jet count values
-	std::vector< std::vector<unsigned> > getJetCountValuesColl() const;
 
 	/// check setup
 	bool setupOk() const;
@@ -185,9 +169,6 @@ public:
 	etComponentType m_hxVlMinusWheel;
 	etComponentType m_hyVlMinusWheel;
 
-        std::vector< L1GctJetCount<3> > m_jcValPlusWheel;
-        std::vector< L1GctJetCount<3> > m_jcVlMinusWheel;
-
 	// stored copies of input data
 	Pipeline< etComponentType > m_exValPlusPipe;
 	Pipeline< etComponentType > m_eyValPlusPipe;
@@ -203,9 +184,6 @@ public:
 	Pipeline< etComponentType > m_hxVlMinusPipe;
 	Pipeline< etComponentType > m_hyVlMinusPipe;
 
-        Pipeline< L1GctJetCount<3> > m_jcValPlusPipe;
-        Pipeline< L1GctJetCount<3> > m_jcVlMinusPipe;
-
 	// output data
 	Pipeline<etMissType>    m_outputEtMiss;
 	Pipeline<etMissPhiType> m_outputEtMissPhi;
@@ -214,15 +192,8 @@ public:
 	Pipeline<etMissType>    m_outputHtMiss;
 	Pipeline<etMissPhiType> m_outputHtMissPhi;
 
-	Pipeline<L1GctJetCount<5> > m_outputJetCounts;
-
 	bool m_setupOk;
 
-	std::vector<unsigned> jetCountValues(const int bx) const;
-
-        // PRIVATE MEMBER FUNCTION
-        // Function to use the jet count bits for Hf Et sums
-        //void packHfTowerSumsIntoJetCountBits(std::vector<L1GctJetCount<5> >& jcVector); 
 };
 
 std::ostream& operator << (std::ostream& os, const L1GctGlobalEnergyAlgos& fpga);

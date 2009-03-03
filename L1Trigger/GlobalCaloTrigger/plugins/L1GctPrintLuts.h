@@ -58,7 +58,6 @@ class L1GctPrintLuts : public edm::EDAnalyzer {
 
   // output file names
   std::string m_jetRanksOutFileName;
-  std::string m_jetCountOutFileName;
   std::string m_hfSumLutOutFileName;
 
   // pointer to the actual emulator

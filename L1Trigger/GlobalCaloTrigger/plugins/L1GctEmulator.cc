@@ -18,13 +18,10 @@
 // Trigger configuration includes
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 #include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
-#include "CondFormats/L1TObjects/interface/L1GctJetCounterSetup.h"
 #include "CondFormats/L1TObjects/interface/L1GctChannelMask.h"
 #include "CondFormats/L1TObjects/interface/L1GctHfLutSetup.h"
 #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
-#include "CondFormats/DataRecord/interface/L1GctJetCounterPositiveEtaRcd.h"
-#include "CondFormats/DataRecord/interface/L1GctJetCounterNegativeEtaRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctChannelMaskRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctHfLutSetupRcd.h"
 
@@ -55,7 +52,6 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
   produces<L1GctEtHadCollection>();
   produces<L1GctEtMissCollection>();
   produces<L1GctHtMissCollection>();
-  produces<L1GctJetCountsCollection>();
   produces<L1GctHFBitCountsCollection>();
   produces<L1GctHFRingEtSumsCollection>();
 
@@ -129,10 +125,6 @@ int L1GctEmulator::configureGct(const edm::EventSetup& c)
     // get data from EventSetup
     edm::ESHandle< L1GctJetFinderParams > jfPars ;
     c.get< L1GctJetFinderParamsRcd >().get( jfPars ) ; // which record?
-    edm::ESHandle< L1GctJetCounterSetup > jcPosPars ;
-    c.get< L1GctJetCounterPositiveEtaRcd >().get( jcPosPars ) ; // which record?
-    edm::ESHandle< L1GctJetCounterSetup > jcNegPars ;
-    c.get< L1GctJetCounterNegativeEtaRcd >().get( jcNegPars ) ; // which record?
     edm::ESHandle< L1GctHfLutSetup > hfLSetup ;
     c.get< L1GctHfLutSetupRcd >().get( hfLSetup ) ; // which record?
     edm::ESHandle< L1GctChannelMask > chanMask ;
@@ -174,7 +166,6 @@ int L1GctEmulator::configureGct(const edm::EventSetup& c)
       // pass all the setup info to the gct
       m_gct->setJetEtCalibrationLuts(m_jetEtCalibLuts);
       m_gct->setJetFinderParams(jfPars.product());
-      m_gct->setupJetCounterLuts(jcPosPars.product(), jcNegPars.product());
       m_gct->setupHfSumLuts(hfLSetup.product());
       m_gct->setChannelMask(chanMask.product());
     }
@@ -224,9 +215,6 @@ void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
     std::auto_ptr<L1GctEtMissCollection>  etMissResult(new L1GctEtMissCollection (m_gct->getEtMissCollection() ) );
     std::auto_ptr<L1GctHtMissCollection>  htMissResult(new L1GctHtMissCollection (m_gct->getHtMissCollection() ) );
 
-    // create the jet counts digis
-    std::auto_ptr<L1GctJetCountsCollection> jetCountResult(new L1GctJetCountsCollection(m_gct->getJetCountsCollection() ) );
-
     // create the Hf sums digis
     std::auto_ptr<L1GctHFBitCountsCollection>  hfBitCountResult (new L1GctHFBitCountsCollection (m_gct->getHFBitCountsCollection () ) );
     std::auto_ptr<L1GctHFRingEtSumsCollection> hfRingEtSumResult(new L1GctHFRingEtSumsCollection(m_gct->getHFRingEtSumsCollection() ) );
@@ -242,7 +230,6 @@ void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
     e.put(etHadResult);
     e.put(etMissResult);
     e.put(htMissResult);
-    e.put(jetCountResult);
     e.put(hfBitCountResult);
     e.put(hfRingEtSumResult);
   }

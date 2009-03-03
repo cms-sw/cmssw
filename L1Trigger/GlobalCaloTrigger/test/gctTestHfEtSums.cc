@@ -108,9 +108,6 @@ bool gctTestHfEtSums::checkHfEtSums(const L1GlobalCaloTrigger* gct, const int nu
   bool testPass = true;
 
   for (int bx=0; bx<numOfBx; bx++) {
-    // Get the jet count bits for this bunch crossing
-    std::vector< unsigned > jetCounts=gct->getEnergyFinalStage()->getJetCountValuesColl().at(bx);
-    assert (jetCounts.size()==12);
 
     unsigned bitCountRing0PositiveEta = gct->getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::bitCountPosEtaRing1).at(bx);
     unsigned bitCountRing0NegativeEta = gct->getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::bitCountNegEtaRing1).at(bx);

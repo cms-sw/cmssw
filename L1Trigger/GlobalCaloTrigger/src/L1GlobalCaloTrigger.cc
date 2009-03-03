@@ -1,7 +1,6 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
 
 #include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
-#include "CondFormats/L1TObjects/interface/L1GctJetCounterSetup.h"
 #include "CondFormats/L1TObjects/interface/L1GctChannelMask.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
@@ -12,7 +11,6 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalEnergyAlgos.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalHfSumAlgos.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronFinalSort.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCounter.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -342,21 +340,6 @@ void L1GlobalCaloTrigger::setupTauAlgo(const bool useImprovedAlgo, const bool ig
   }
 }
 
-/// setup Jet Counter LUTs
-void L1GlobalCaloTrigger::setupJetCounterLuts(const L1GctJetCounterSetup* jcPosPars,
-                                              const L1GctJetCounterSetup* jcNegPars) {
-
-  // Initialise look-up tables for Plus and Minus wheels
-  for (unsigned j=0; j<jcPosPars->numberOfJetCounters(); ++j) {
-    theWheelJetFpgas.at(0)->getJetCounter(j)->setLut(
-                 jcPosPars->getCutsForJetCounter(j) );
-  }
-  for (unsigned j=0; j<jcNegPars->numberOfJetCounters(); ++j) {
-    theWheelJetFpgas.at(1)->getJetCounter(j)->setLut(
-                 jcNegPars->getCutsForJetCounter(j) );
-  }
-}
-
 /// setup Hf sum LUTs
 void L1GlobalCaloTrigger::setupHfSumLuts(const L1GctHfLutSetup* iSetup) {
   if (getHfSumProcessor() != 0) {
@@ -667,16 +650,6 @@ L1GctHtMissCollection  L1GlobalCaloTrigger::getHtMissCollection() const {
                      theEnergyFinalStage->getHtMissPhiColl().at(i).value(),
                      theEnergyFinalStage->getHtMissColl().at(i).overFlow(),
 		     bx++ );
-    result.at(i) = temp;
-  }
-  return result;
-}
-
-L1GctJetCountsCollection L1GlobalCaloTrigger::getJetCountsCollection() const {
-  L1GctJetCountsCollection result(m_numOfBx);
-  int bx = m_bxStart;
-  for (int i=0; i<m_numOfBx; i++) {
-    L1GctJetCounts temp(theEnergyFinalStage->getJetCountValuesColl().at(i), bx++);
     result.at(i) = temp;
   }
   return result;

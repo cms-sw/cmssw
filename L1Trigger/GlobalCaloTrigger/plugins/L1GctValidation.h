@@ -73,7 +73,6 @@ class L1GctValidation : public edm::EDAnalyzer {
       TH2F* theMissHxVsInternalJetsSum;
       TH2F* theMissHyVsInternalJetsSum;
 
-      std::vector<TH1F*> theJetCounts;
       TH1F* theHfRing0EtSumPositiveEta;
       TH1F* theHfRing0EtSumNegativeEta;
       TH1F* theHfRing1EtSumPositiveEta;

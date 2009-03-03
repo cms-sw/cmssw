@@ -138,19 +138,6 @@ L1GctValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     theMissHyVsInternalJetsSum->Fill(htMiss*lsbForHt*sin(htMAng)*8, hyFromJets*lsbForHt);
   }
 
-  // Get jet counts from the event
-  Handle< L1GctJetCountsCollection > jetCountColl ;
-  iEvent.getByLabel( m_energy_tag, jetCountColl ) ;
-
-  for (L1GctJetCountsCollection::const_iterator jbx=jetCountColl->begin(); jbx!=jetCountColl->end(); jbx++) {
-    if (jbx->bx()==0) {
-      for (unsigned jc=0; jc<L1GctJetCounts::MAX_TOTAL_COUNTS; jc++) {
-	theJetCounts.at(jc)->Fill(jbx->count(jc));
-      }
-    }
-
-  }
-
   // Get minbias trigger quantities from HF
   Handle<L1GctHFRingEtSumsCollection> HFEtSumsColl;
   Handle<L1GctHFBitCountsCollection>  HFCountsColl;
@@ -227,20 +214,6 @@ L1GctValidation::beginJob(const edm::EventSetup&)
 
 
   TFileDirectory dir1 = fs->mkdir("L1GctHfSumsAndJetCounts");
-
-  for (unsigned jc=0; jc<L1GctJetCounts::MAX_TOTAL_COUNTS; jc++) {
-    std::stringstream ss;
-    std::string title;
-    std::string header;
-    ss << "JetCount#" << jc;
-    ss >> title;
-    ss << "Jet Count number " << jc;
-    if (jc== 6 || jc== 7) { ss << " (Hf tower count)"; }
-    if (jc== 8 || jc== 9) { ss << " (Hf Et0 sum MSB)"; }
-    if (jc==10 || jc==11) { ss << " (Hf Et1 sum MSB)"; }
-    ss >> header;
-    theJetCounts.push_back(dir1.make<TH1F>(title.c_str(), header.c_str(), 32, 0., 32.));
-  }
 
   // Minimum bias triggers from Hf inner rings
   theHfRing0EtSumPositiveEta = dir1.make<TH1F>("HfRing0EtSumPositiveEta", "Hf Inner Ring0 Et eta+",

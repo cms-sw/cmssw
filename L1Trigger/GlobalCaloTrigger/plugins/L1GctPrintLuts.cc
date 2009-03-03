@@ -9,20 +9,15 @@
 // Trigger configuration includes
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 #include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
-#include "CondFormats/L1TObjects/interface/L1GctJetCounterSetup.h"
 #include "CondFormats/L1TObjects/interface/L1GctChannelMask.h"
 #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
-#include "CondFormats/DataRecord/interface/L1GctJetCounterPositiveEtaRcd.h"
-#include "CondFormats/DataRecord/interface/L1GctJetCounterNegativeEtaRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctChannelMaskRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctHfLutSetupRcd.h"
 
 // GCT include files
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelJetFpga.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCounter.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCounterLut.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalEnergyAlgos.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalHfSumAlgos.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctHfBitCountsLut.h"
@@ -36,7 +31,6 @@
 
 L1GctPrintLuts::L1GctPrintLuts(const edm::ParameterSet& iConfig) :
   m_jetRanksOutFileName(iConfig.getUntrackedParameter<std::string>("jetRanksFilename","gctJetRanksContents.txt")),
-  m_jetCountOutFileName(iConfig.getUntrackedParameter<std::string>("jetCountFilename","gctJetCountContents.txt")),
   m_hfSumLutOutFileName(iConfig.getUntrackedParameter<std::string>("hfSumLutFilename","gctHfSumLutContents.txt")),
   m_gct(new L1GlobalCaloTrigger(L1GctJetLeafCard::hardwareJetFinder)),
   m_jetEtCalibLuts()
@@ -103,33 +97,6 @@ L1GctPrintLuts::beginJob(const edm::EventSetup& c)
       file.close();
     }
 
-    if ( !stat(  m_jetCountOutFileName.c_str(), &buffer ) ) {
-      edm::LogWarning("LutFileExists") << "File " << m_jetCountOutFileName << " already exists. It will not be overwritten." << std::endl; 
-    } else {
-
-      std::ofstream file;
-      file.open(  m_jetCountOutFileName.c_str() );
-
-      if (file.good()) {
-	// Print the jet counter luts
-	for (int wheel=0; wheel<m_gct->N_WHEEL_CARDS; wheel++) {
-	  // Could get the actual number of filled counters from the
-	  // L1GctJetCounterSetup records.
-	  // Just a constant for now though.
-	  int nCounters =  m_gct->getWheelJetFpgas().at(wheel)->N_JET_COUNTERS;
-	  file << "\n\n" << (wheel==0 ? "Positive " : "Negative ") << "wheel has "
-	       << nCounters << " jet counters" << std::endl;
-	  for (int ctr=0; ctr<nCounters; ctr++) {
-	    file << "\nJet counter number " << ctr << " lookup table contents \n" << std::endl;
-	    file << *m_gct->getWheelJetFpgas().at(wheel)->getJetCounter(ctr)->getJetCounterLut() << std::endl;
-	  }
-	}
-      } else {
-	edm::LogWarning("LutFileError") << "Error opening file " << m_jetCountOutFileName << ". No lookup tables written." << std::endl;
-      }
-      file.close();
-    }
-
     if ( !stat(  m_hfSumLutOutFileName.c_str(), &buffer ) ) {
       edm::LogWarning("LutFileExists") << "File " << m_hfSumLutOutFileName << " already exists. It will not be overwritten." << std::endl; 
     } else {
@@ -178,10 +145,6 @@ int L1GctPrintLuts::configureGct(const edm::EventSetup& c)
     // get data from EventSetup
     edm::ESHandle< L1GctJetFinderParams > jfPars ;
     c.get< L1GctJetFinderParamsRcd >().get( jfPars ) ; // which record?
-    edm::ESHandle< L1GctJetCounterSetup > jcPosPars ;
-    c.get< L1GctJetCounterPositiveEtaRcd >().get( jcPosPars ) ; // which record?
-    edm::ESHandle< L1GctJetCounterSetup > jcNegPars ;
-    c.get< L1GctJetCounterNegativeEtaRcd >().get( jcNegPars ) ; // which record?
     edm::ESHandle< L1GctHfLutSetup > hfLSetup ;
     c.get< L1GctHfLutSetupRcd >().get( hfLSetup ) ; // which record?
     edm::ESHandle< L1GctChannelMask > chanMask ;
@@ -218,7 +181,6 @@ int L1GctPrintLuts::configureGct(const edm::EventSetup& c)
       // pass all the setup info to the gct
       m_gct->setJetEtCalibrationLuts(m_jetEtCalibLuts);
       m_gct->setJetFinderParams(jfPars.product());
-      m_gct->setupJetCounterLuts(jcPosPars.product(), jcNegPars.product());
       m_gct->setupHfSumLuts(hfLSetup.product());
       m_gct->setChannelMask(chanMask.product());
   

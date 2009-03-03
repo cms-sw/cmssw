@@ -3,7 +3,7 @@
 #include "L1Trigger/GlobalCaloTrigger/test/gctTestElectrons.h"
 #include "L1Trigger/GlobalCaloTrigger/test/gctTestEnergyAlgos.h"
 #include "L1Trigger/GlobalCaloTrigger/test/gctTestFirmware.h"
-#include "L1Trigger/GlobalCaloTrigger/test/gctTestHtAndJetCounts.h"
+#include "L1Trigger/GlobalCaloTrigger/test/gctTestHt.h"
 #include "L1Trigger/GlobalCaloTrigger/test/gctTestHfEtSums.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
@@ -16,7 +16,7 @@ gctTestFunctions::gctTestFunctions() :
   theElectronsTester      ( new gctTestElectrons() ),
   theEnergyAlgosTester    ( new gctTestEnergyAlgos() ),
   theFirmwareTester       ( new gctTestFirmware() ),
-  theHtAndJetCountsTester ( new gctTestHtAndJetCounts() ),
+  theHtTester             ( new gctTestHt() ),
   theHfEtSumsTester       ( new gctTestHfEtSums() ),
   m_inputEmCands(), m_inputRegions(),
   m_bxStart(0), m_numOfBx(1)
@@ -27,7 +27,7 @@ gctTestFunctions::~gctTestFunctions() {
   delete theElectronsTester;
   delete theEnergyAlgosTester;
   delete theFirmwareTester;
-  delete theHtAndJetCountsTester;
+  delete theHtTester;
   delete theHfEtSumsTester;
 }
 
@@ -105,7 +105,7 @@ void gctTestFunctions::bxRangeUpdate(const int16_t bx) {
 
   // Do the same in the testers
   theEnergyAlgosTester->setBxRange(m_bxStart, m_numOfBx);
-  theHtAndJetCountsTester->setBxRange(m_bxStart, m_numOfBx);
+  theHtTester->setBxRange(m_bxStart, m_numOfBx);
 }
 
 //=================================================================================================================
@@ -129,7 +129,7 @@ void gctTestFunctions::fillJetsFromFirmware(const std::string &fileName)
 /// Read the input jet data from the jetfinders (after GCT processing).
 void gctTestFunctions::fillRawJetData(const L1GlobalCaloTrigger* gct)
 {
-  theHtAndJetCountsTester->fillRawJetData(gct);
+  theHtTester->fillRawJetData(gct);
 }
 
 //=================================================================================================================
@@ -157,15 +157,7 @@ bool gctTestFunctions::checkEnergySums(const L1GlobalCaloTrigger* gct) const
 /// Check the Ht summing algorithms
 bool gctTestFunctions::checkHtSums(const L1GlobalCaloTrigger* gct) const
 {
-  return theHtAndJetCountsTester->checkHtSums(gct);
-}
-
-//=================================================================================================================
-//
-/// Check the jet counting algorithms
-bool gctTestFunctions::checkJetCounts(const L1GlobalCaloTrigger* gct) const
-{
-  return theHtAndJetCountsTester->checkJetCounts(gct);
+  return theHtTester->checkHtSums(gct);
 }
 
 //=================================================================================================================

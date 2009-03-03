@@ -2,23 +2,15 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "CondFormats/L1TObjects/interface/L1GctJetCounterSetup.h"
-
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCounts.h"
-
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetSorter.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCounter.h"
 
 //DEFINE STATICS
 const int L1GctWheelJetFpga::MAX_JETS_OUT = 4;
 const unsigned int L1GctWheelJetFpga::MAX_LEAF_CARDS = 3;
 const unsigned int L1GctWheelJetFpga::MAX_JETS_PER_LEAF = L1GctJetLeafCard::MAX_JET_FINDERS * L1GctJetFinderBase::MAX_JETS_OUT;
 const int L1GctWheelJetFpga::MAX_JETS_IN = L1GctWheelJetFpga::MAX_LEAF_CARDS * L1GctWheelJetFpga::MAX_JETS_PER_LEAF;
-const unsigned int L1GctWheelJetFpga::N_JET_COUNTERS = std::min(L1GctJetCounterSetup::MAX_JET_COUNTERS,
-                                                                L1GctJetCounts::MAX_TRUE_COUNTS);
-
 
 L1GctWheelJetFpga::L1GctWheelJetFpga(int id,
 				     std::vector<L1GctJetLeafCard*> inputLeafCards) :
@@ -28,7 +20,6 @@ L1GctWheelJetFpga::L1GctWheelJetFpga(int id,
   m_centralJetSorter(new L1GctJetSorter()),
   m_forwardJetSorter(new L1GctJetSorter()),
   m_tauJetSorter(new L1GctJetSorter()),
-  m_jetCounters(N_JET_COUNTERS),
   m_inputJets(MAX_JETS_IN),
   m_rawCentralJets(MAX_JETS_IN),
   m_rawForwardJets(MAX_JETS_IN),
@@ -40,17 +31,12 @@ L1GctWheelJetFpga::L1GctWheelJetFpga(int id,
   m_centralJets(MAX_JETS_OUT),
   m_forwardJets(MAX_JETS_OUT),
   m_tauJets(MAX_JETS_OUT),
-  m_outputHt(0), m_outputHx(0), m_outputHy(0), m_outputHfSums(),
-  m_outputJc(N_JET_COUNTERS)
+  m_outputHt(0), m_outputHx(0), m_outputHy(0), m_outputHfSums()
 {
   if (checkSetup()) {
 
     setupJetsVectors(0);  //Initialises all the jet vectors with jets of the correct type.
 
-    // Initalise the jetCounters with null jetCounterLuts
-    for (unsigned int i=0; i < N_JET_COUNTERS; i++) {
-      m_jetCounters.at(i) = new L1GctJetCounter(((100*m_id)+i), m_inputLeafCards);
-    }
   } else {
     if (m_verbose) {
       edm::LogError("L1GctSetupError") << "L1GctWheelJetFpga has been incorrectly constructed";
@@ -96,9 +82,6 @@ bool L1GctWheelJetFpga::checkSetup() const
 	  }
 	}
     }
-  for (unsigned i=0; i < N_JET_COUNTERS; i++) {
-    if (m_jetCounters.at(i) != 0) result &= m_jetCounters.at(i)->setupOk();
-  } 
   return result;
 }
 
@@ -107,9 +90,6 @@ L1GctWheelJetFpga::~L1GctWheelJetFpga()
   if (m_centralJetSorter != 0) delete m_centralJetSorter;
   if (m_forwardJetSorter != 0) delete m_forwardJetSorter;
   if (m_tauJetSorter != 0)     delete m_tauJetSorter;
-  for (unsigned int i=0; i < N_JET_COUNTERS; i++) {
-    if (m_jetCounters.at(i) != 0) delete m_jetCounters.at(i);
-  }
 }
 
 std::ostream& operator << (std::ostream& os, const L1GctWheelJetFpga& fpga)
@@ -148,11 +128,6 @@ std::ostream& operator << (std::ostream& os, const L1GctWheelJetFpga& fpga)
 //       os << fpga.m_rawTauJets.at(i);
 //     } 
   os << "Output Ht " << fpga.m_outputHt << endl;
-  os << "Output Jet count " << endl;
-  for(unsigned i=0; i < fpga.m_outputJc.size(); i++)
-    {
-      os << "Jet count " << i << ": " << fpga.m_outputJc.at(i) << endl;
-    } 
 //   os << "No. of output central Jets " << fpga.m_centralJets.size() << endl;
 //   for(unsigned i=0; i < fpga.m_centralJets.size(); i++)
 //     {
@@ -168,39 +143,9 @@ std::ostream& operator << (std::ostream& os, const L1GctWheelJetFpga& fpga)
 //     {
 //       os << fpga.m_tauJets.at(i);
 //     }
-  os << "Jet counters:" << endl; 
-  for (unsigned int i=0; i < L1GctWheelJetFpga::N_JET_COUNTERS; i++) {
-    os << *fpga.m_jetCounters.at(i) << endl;
-  }
   os << endl;
   return os;
 }	
-
-/// clear buffers
-void L1GctWheelJetFpga::reset() {
-  L1GctProcessor::reset();
-  for (unsigned int i=0; i<N_JET_COUNTERS; ++i)
-  {
-    m_jetCounters.at(i)->reset();
-  }
-}
-
-/// partially clear buffers
-void L1GctWheelJetFpga::setBxRange(const int firstBx, const int numberOfBx) {
-  L1GctProcessor::setBxRange(firstBx, numberOfBx);
-  for (unsigned int i=0; i<N_JET_COUNTERS; ++i)
-  {
-    m_jetCounters.at(i)->setBxRange(firstBx, numberOfBx);
-  }
-}
-
-void L1GctWheelJetFpga::setNextBx(const int bx) {
-  L1GctProcessor::setNextBx(bx);
-  for (unsigned int i=0; i<N_JET_COUNTERS; ++i)
-  {
-    m_jetCounters.at(i)->setNextBx(bx);
-  }
-}
 
 void L1GctWheelJetFpga::resetProcessor()
 {
@@ -215,10 +160,6 @@ void L1GctWheelJetFpga::resetProcessor()
   m_outputHx.reset();
   m_outputHy.reset();
   m_outputHfSums.reset();
-  for (unsigned int i=0; i<N_JET_COUNTERS; ++i)
-  {
-    m_outputJc.at(i).reset();
-  }
 }
 
 void L1GctWheelJetFpga::setupObjects()
@@ -247,18 +188,6 @@ void L1GctWheelJetFpga::fetchInput()
 	  m_inputHfSums.at(iLeaf) = m_inputLeafCards.at(iLeaf)->getOutputHfSums();
 	}
       }
-    // Deal with the jet counters
-    for (unsigned int i=0; i<N_JET_COUNTERS; i++) {
-      // m_jetCounters.at(i)->fetchInput();
-      //==============================================
-      // For efficiency, provide our own list of jets to 
-      // all the jet counters instead of allowing them
-      // to fetch the jets from the jetfinder outputs
-
-      m_jetCounters.at(i)->setJets(m_inputJets);
-
-      //==============================================
-    }
   }
 }
 
@@ -290,11 +219,6 @@ void L1GctWheelJetFpga::process()
     //Hf tower sums processing
     m_outputHfSums = m_inputHfSums.at(0) + m_inputHfSums.at(1) + m_inputHfSums.at(2);
 
-    //Jet count processing
-    for (unsigned int i=0; i<N_JET_COUNTERS; i++) {
-      m_jetCounters.at(i)->process();
-      m_outputJc.at(i) = m_jetCounters.at(i)->getValue();
-    }
   }
     
 }

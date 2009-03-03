@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from L1TriggerConfig.GctConfigProducers.l1GctJetCounterConfig_cfi import *
 L1GctConfigProducers = cms.ESProducer("L1GctConfigProducers",
     JetFinderCentralJetSeed = cms.double(0.5),
     JetFinderForwardJetSeed = cms.double(0.5),
@@ -110,10 +109,6 @@ L1GctConfigProducers = cms.ESProducer("L1GctConfigProducers",
         nonTauJetCalib7 = cms.vdouble(17.1, -6.6, 0.6958, 6.88e-05),
         nonTauJetCalib4 = cms.vdouble(48.2, -24.5, 0.7706, 0.000128),
         nonTauJetCalib5 = cms.vdouble(42.0, -23.9, 0.7945, 0.0001458)
-    ),
-    # Get the jet counter setup from a separate file
-    jetCounterSetup = cms.PSet(
-        jcSetup1
     ),
     ConvertEtValuesToEnergy = cms.bool(False)
 )
