@@ -12,7 +12,7 @@
 //
 
 #include <iostream>
-#include "fstream.h"
+#include <fstream>
  
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
  

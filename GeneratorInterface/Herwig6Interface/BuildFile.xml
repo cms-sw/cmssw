@@ -8,7 +8,7 @@
 <use name="jimmy"/>
 <use name="lhapdf"/>
 <use name="f77compiler"/>
-<flags FFLAGS="-O -fno-second-underscore -Wno-globals -Wunused -Wuninitialized"/>
+<flags FFLAGS="-O -fno-second-underscore -Wunused -Wuninitialized"/>
 <export>
 	<lib name="GeneratorInterfaceHerwig6Interface"/>
 	<use name="FWCore/Framework"/>
