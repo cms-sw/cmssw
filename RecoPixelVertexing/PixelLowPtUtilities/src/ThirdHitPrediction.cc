@@ -162,8 +162,8 @@ void ThirdHitPrediction::findRectangle
    float phi[2],float z[2])
 { 
   // Initial guess
-  phi[0] = x[0] <? x[2]; z[0] = y[0] <? y[2];
-  phi[1] = x[0] >? x[2]; z[1] = y[0] >? y[2];
+  phi[0] = min(x[0],x[2]); z[0] = min(y[0],y[2]);
+  phi[1] = max(x[0],x[2]); z[1] = max(y[0],y[2]);
 
   // Extremum: position and value
   float xe = -par[1]/(2*par[2]);
