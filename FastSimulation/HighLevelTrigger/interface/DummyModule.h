@@ -17,7 +17,7 @@ class DummyModule : public edm::EDProducer
 
   explicit DummyModule(edm::ParameterSet const & p);
   virtual ~DummyModule();
-  virtual void beginJob(const edm::EventSetup & c) {;}
+  virtual void beginJob() {;}
   virtual void endJob() {;}
   virtual void produce(edm::Event & e, const edm::EventSetup & c);
 
