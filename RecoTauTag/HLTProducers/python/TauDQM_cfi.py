@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-TauOpenHLT = cms.EDProducer("DQMTauProducer",
+TauDQM = cms.EDProducer("DQMTauProducer",
     TrackIsoJets = cms.InputTag("hltL25TauConeIsolation"),
         SignalCone = cms.double(0.15),
     MatchingCone = cms.double(0.2),
