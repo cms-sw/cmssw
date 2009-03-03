@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2009/01/14 17:03:23 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/01/16 16:43:46 $
+ *  $Revision: 1.3 $
  *  \author Nicola Amapane 11/08
  */
 
@@ -69,7 +69,23 @@ AutoMagneticFieldESProducer::produce(const IdealMagneticFieldRecord& iRecord)
   
   string sValue;
   if (value == 0) {  // B=0, uniform field map
-    result = new UniformMagneticField(0.);
+    //    result = new UniformMagneticField(0.);
+
+    ParameterSet VBFPset;
+    VBFPset.addUntrackedParameter<bool>("debugBuilder",false);
+    VBFPset.addUntrackedParameter<bool>("cacheLastVolume",true);
+    VBFPset.addParameter<string>("version","fake");
+
+    MagGeoBuilderFromDDD builder(VBFPset.getParameter<std::string>("version"),
+				 VBFPset.getUntrackedParameter<bool>("debugBuilder", false));
+    result = new VolumeBasedMagneticField(VBFPset,
+					  builder.barrelLayers(), 
+					  builder.endcapSectors(), 
+					  builder.barrelVolumes(), 
+					  builder.endcapVolumes(),
+					  builder.maxR(), 
+					  builder.maxZ(), 
+					  new UniformMagneticField(0.));
 
   } else {  // Use VolumeBasedMagneticField
 

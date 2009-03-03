@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/03/02 17:03:41 $
- *  $Revision: 1.17 $
+ *  $Date: 2009/03/02 17:10:15 $
+ *  $Revision: 1.18 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -16,6 +16,7 @@
 #include "MagneticField/GeomBuilder/src/bLayer.h"
 #include "MagneticField/GeomBuilder/src/eSector.h"
 #include "MagneticField/GeomBuilder/src/eLayer.h"
+#include "MagneticField/GeomBuilder/src/FakeInterpolator.h"
 
 #include "MagneticField/Layers/interface/MagBLayer.h"
 #include "MagneticField/Layers/interface/MagESector.h"
@@ -489,6 +490,10 @@ void MagGeoBuilderFromDDD::buildInterpolator(const volumeHandle * vol, map<strin
     }
   }
 
+  if (version == "fake") {
+    interpolators[vol->magFile] = new magneticfield::FakeInterpolator();
+    return;
+  }
 
   string fullPath;
 
@@ -515,8 +520,8 @@ void MagGeoBuilderFromDDD::buildInterpolator(const volumeHandle * vol, map<strin
   } catch (MagException& exc) {
     cout << exc.what() << endl;
     interpolators.erase(vol->magFile);
-    // throw; // FIXME, comment this to debug geometry in absence of interpolators
-    return;
+    throw; // FIXME, comment this to debug geometry in absence of interpolators
+    //return;
   }
 
 
