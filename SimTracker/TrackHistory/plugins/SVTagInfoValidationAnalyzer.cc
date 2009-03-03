@@ -96,7 +96,7 @@ void SVTagInfoValidationAnalyzer::analyze(const edm::Event& event, const edm::Ev
     VertexHistory const & tracer = classifier_.history();
 
     // Loop over the svTagInfo collection.
-    for (std::size_t index = 0; index < svTagInfoCollection->size(); index++)
+    for (std::size_t index = 0; index < svTagInfoCollection->size(); ++index)
     {
         reco::SecondaryVertexTagInfoRef svTagInfo(svTagInfoCollection, index);
 
