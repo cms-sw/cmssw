@@ -21,12 +21,10 @@ namespace {
     L1GctEtTotal etTot;
     L1GctEtHad etHad;
     L1GctEtMiss etMiss;
-    L1GctJetCounts jetCounts;
     L1GctEtMissCollection etMissColl;
     L1GctEtTotalCollection etTotColl;
     L1GctEtHadCollection etHadColl;
     L1GctHtMissCollection htMissColl;
-    L1GctJetCountsCollection jetCountsColl;
     L1GctHFRingEtSumsCollection rinSumsColl;
     L1GctHFBitCountsCollection bitCountsColl;
 
@@ -44,12 +42,10 @@ namespace {
     edm::Wrapper<L1GctEtHad> w_etHad;
     edm::Wrapper<L1GctEtMiss> w_etMiss;
     edm::Wrapper<L1GctHtMiss> w_htMiss;
-    edm::Wrapper<L1GctJetCounts> w_jetCounts;
     edm::Wrapper<L1GctEtTotalCollection> w_etTotColl;
     edm::Wrapper<L1GctEtHadCollection> w_etHadColl;
     edm::Wrapper<L1GctEtMissCollection> w_etMissColl;
     edm::Wrapper<L1GctHtMissCollection> w_htMissColl;
-    edm::Wrapper<L1GctJetCountsCollection> w_jetCountsColl;
     edm::Wrapper<L1GctHFRingEtSumsCollection> w_ringSumsColl;
     edm::Wrapper<L1GctHFBitCountsCollection> w_bitCountsColl;
 

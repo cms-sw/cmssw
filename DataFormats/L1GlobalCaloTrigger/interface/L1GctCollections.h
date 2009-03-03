@@ -14,7 +14,6 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCounts.h"
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctHFRingEtSums.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctHFBitCounts.h"
@@ -34,6 +33,5 @@ typedef std::vector<L1GctEtTotal> L1GctEtTotalCollection;
 typedef std::vector<L1GctHtMiss> L1GctHtMissCollection;
 typedef std::vector<L1GctHFRingEtSums> L1GctHFRingEtSumsCollection;
 typedef std::vector<L1GctHFBitCounts> L1GctHFBitCountsCollection;
-typedef std::vector<L1GctJetCounts> L1GctJetCountsCollection;
 
 #endif
