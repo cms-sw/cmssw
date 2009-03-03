@@ -1,5 +1,5 @@
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentMetricsCalculator.h"
-
+#include <limits.h>
 
 KalmanAlignmentMetricsCalculator::KalmanAlignmentMetricsCalculator( void ) : theMaxDistance( SHRT_MAX ) {}
 
