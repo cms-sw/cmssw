@@ -181,6 +181,12 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   if (unpackCalib_) {
     std::auto_ptr<HcalCalibDigiCollection> hc_prod(new HcalCalibDigiCollection());
     hc_prod->swap_contents(hc);
+
+    if (filter_.active()) {
+      HcalCalibDigiCollection filtered_calib=filter_.filter(*hc_prod,*report);
+      hc_prod->swap(filtered_calib);
+    }
+
     hc_prod->sort();
     e.put(hc_prod);
   }

@@ -58,6 +58,18 @@ HODigiCollection HcalDataFrameFilter::filter(const HODigiCollection& incol, Hcal
   return output;
 }
 
+HcalCalibDigiCollection HcalDataFrameFilter::filter(const HcalCalibDigiCollection& incol, HcalUnpackerReport& r) {
+  HcalCalibDigiCollection output;
+  for (HcalCalibDigiCollection::const_iterator i=incol.begin(); i!=incol.end(); i++) {
+    if (!HcalDataFrameFilter_impl::check(*i,requireCapid_,requireDVER_))
+      r.countBadQualityDigi();
+    else if (!energyFilter_ || minimumAmplitude_<HcalDataFrameFilter_impl::energySum(*i,firstSample_,lastSample_))
+      output.push_back(*i);
+    
+  }
+  return output;
+}
+
 HFDigiCollection HcalDataFrameFilter::filter(const HFDigiCollection& incol, HcalUnpackerReport& r) {
   HFDigiCollection output;
   for (HFDigiCollection::const_iterator i=incol.begin(); i!=incol.end(); i++) {
