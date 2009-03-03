@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Photon.h,v 1.24 2008/12/15 19:51:18 nancy Exp $
+ * \version $Id: Photon.h,v 1.25 2009/02/02 23:20:49 nancy Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -152,7 +152,7 @@ namespace reco {
     /// Isolation variables in cone dR=0.3
     float ecalRecHitSumConeDR03()      const{return isolationEcalRecHitSumConeDR03_;}
     /// Hcal isolation sum
-    float hcalRecHitSumConeDR03()      const{return isolationHcalTowerSumConeDR03_;}
+    float hcalTowerSumConeDR03()      const{return isolationHcalTowerSumConeDR03_;}
     /// Hcal-Depth1 isolation sum
     float hcalDepth1TowerSumConeDR03()      const{return isolationHcalDepth1TowerSumConeDR03_;}
     /// Hcal-Depth2 isolation sum
