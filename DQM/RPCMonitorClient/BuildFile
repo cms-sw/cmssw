@@ -2,7 +2,6 @@
 <use name=boost>
 <use name=rootcore>
 <use name=rootgraphics>
-<use name=xdaq>
 
 <use name=DQMServices/Core>
 <use name=DQMServices/ClientConfig>
@@ -15,7 +14,6 @@
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/Records>
 
-<use name=EventFilter/Utilities>
 <use name=EventFilter/RPCRawToDigi>
 
 <use name=DataFormats/L1GlobalMuonTrigger>
@@ -25,30 +23,5 @@
 <use name=CondFormats/RunInfo>
 
 <export>
-<lib name=DQMRPCMonitorClient> 
-<use name=boost>
-<use name=rootcore>
-<use name=rootgraphics>
-<use name=xdaq>
-
-<use name=DQMServices/Core>
-<use name=DQMServices/ClientConfig>
-
-<use name=FWCore/Framework>
-<use name=FWCore/ParameterSet>
-<use name=FWCore/ServiceRegistry>
-
-<use name=Geometry/RPCGeometry>
-<use name=Geometry/CommonDetUnit>
-<use name=Geometry/Records>
-
-<use name=EventFilter/Utilities>
-<use name=EventFilter/RPCRawToDigi>
-
-<use name=DataFormats/L1GlobalMuonTrigger>
-<use name=DataFormats/RPCDigi>
-<use name=DataFormats/FEDRawData>
-
-<use name=CondFormats/RunInfo>
-
+  <lib name=DQMRPCMonitorClient> 
 </export>
