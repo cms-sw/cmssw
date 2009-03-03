@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/23 14:26:58 $
- *  $Revision: 1.15 $
+ *  $Date: 2008/05/06 13:23:47 $
+ *  $Revision: 1.16 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -31,7 +31,6 @@ MagGeometry::MagGeometry(const edm::ParameterSet& config, std::vector<MagBLayer 
 {
   
   cacheLastVolume = config.getUntrackedParameter<bool>("cacheLastVolume", true);
-  timerOn = config.getUntrackedParameter<bool>("timerOn", false);
   v_85l = (config.getParameter<std::string>("version")=="grid_85l_030919");
 
   vector<double> rBorders;
