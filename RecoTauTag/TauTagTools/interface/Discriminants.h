@@ -230,7 +230,7 @@ class ChargedOutlierPt : public DiscriminantBase<double> {
 
 class ChargedOutlierSumPt : public DiscriminantBase<double> {
    public:
-      ChargedOutlierSumPt():DiscriminantBase<double>("ChargedOutlierPt", "D", true, false, 0.0){};
+      ChargedOutlierSumPt():DiscriminantBase<double>("ChargedOutlierSumPt", "D", true, false, 0.0){};
       ~ChargedOutlierSumPt(){};
    protected:
       void doComputation(PFTauDiscriminantManager* input, vector<double>& result);
@@ -254,7 +254,7 @@ class NeutralOutlierPt : public DiscriminantBase<double> {
 
 class NeutralOutlierSumPt : public DiscriminantBase<double> {
    public:
-      NeutralOutlierSumPt():DiscriminantBase<double>("NeutralOutlierPt", "D", true, false, 0.0){};
+      NeutralOutlierSumPt():DiscriminantBase<double>("NeutralOutlierSumPt", "D", true, false, 0.0){};
       ~NeutralOutlierSumPt(){};
    protected:
       void doComputation(PFTauDiscriminantManager* input, vector<double>& result);
