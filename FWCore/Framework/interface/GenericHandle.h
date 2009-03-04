@@ -24,7 +24,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jan  7 15:40:43 EST 2006
-// $Id: GenericHandle.h,v 1.13.4.5 2008/12/16 00:43:04 wmtan Exp $
+// $Id: GenericHandle.h,v 1.15 2008/12/18 04:49:01 wmtan Exp $
 //
 
 // system include files
@@ -35,6 +35,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/UseReflex.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/ConvertHandle.h"
 
 // forward declarations
 namespace edm {

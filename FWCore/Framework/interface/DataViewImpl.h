@@ -106,6 +106,7 @@ edm::Ref<AppleCollection> ref(refApples, index);
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/BasicHandle.h"
+#include "DataFormats/Common/interface/ConvertHandle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 
 #include "FWCore/Utilities/interface/TypeID.h"
