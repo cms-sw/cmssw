@@ -5,6 +5,8 @@
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
+#include "G4Allocator.hh"
+
 class G4VProcess;
 class G4TrackToParticleID;
 /** The part of the information about a SimTrack that we need from
@@ -19,6 +21,10 @@ public:
      */
     TrackWithHistory(const G4Track * g4track);
     ~TrackWithHistory() {}
+
+    inline void * operator new(size_t);
+    inline void   operator delete(void * TrackWithHistory);
+
     void save()					    { saved_ = true; }
     unsigned int trackID() const                    { return trackID_; }
     int particleID() const                          { return particleID_; }
@@ -60,5 +66,18 @@ private:
     static G4TrackToParticleID*  theG4TrackToParticleID;
     int extractGenID(const G4Track * gt) const;
 };
+
+extern G4Allocator<TrackWithHistory> TrackWithHistoryAllocator;
+
+inline void * TrackWithHistory::operator new(size_t) {
+  void * aTwH;
+  aTwH = (void *) TrackWithHistoryAllocator.MallocSingle();
+  return aTwH;
+}
+
+inline void TrackWithHistory::operator delete(void * aTwH) {  
+  TrackWithHistoryAllocator.FreeSingle((TrackWithHistory*) aTwH); 
+}
+
 
 #endif

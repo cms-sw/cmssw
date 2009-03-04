@@ -10,6 +10,8 @@
 
 #include <iostream>
 
+G4Allocator<TrackWithHistory> TrackWithHistoryAllocator;
+
 using std::cout;
 using std::endl;
 
