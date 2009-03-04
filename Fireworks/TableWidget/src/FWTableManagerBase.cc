@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:40:44 EST 2009
-// $Id$
+// $Id: FWTableManagerBase.cc,v 1.1 2009/02/03 20:33:04 chrjones Exp $
 //
 
 // system include files
@@ -29,7 +29,8 @@
 //
 // constructors and destructor
 //
-FWTableManagerBase::FWTableManagerBase()
+FWTableManagerBase::FWTableManagerBase():
+m_sortColumn(-1)
 {
 }
 
@@ -60,12 +61,19 @@ FWTableManagerBase::~FWTableManagerBase()
 void 
 FWTableManagerBase::sort(int col, bool sortOrder)
 {
-   implSort(col,sortOrder);
-   visualPropertiesChanged();
+   if(col <= numberOfColumns()) {
+      m_sortColumn = col;
+      m_sortOrder = sortOrder;
+      implSort(col,sortOrder);
+      visualPropertiesChanged();
+   }
 }
 
 void FWTableManagerBase::dataChanged()
 {
+   if(-1 != m_sortColumn) {
+      implSort(m_sortColumn,m_sortOrder);
+   }
    Emit("dataChanged()");
 }
       
@@ -79,7 +87,17 @@ void FWTableManagerBase::visualPropertiesChanged()
 //
 unsigned int FWTableManagerBase::cellHeight() const
 {
-   return cellRenderer(0,0)->height();
+   FWTableCellRendererBase* cr = cellRenderer(0,0);
+   if(cr) {
+      return cr->height();
+   }
+   if(hasRowHeaders()) {
+      cr = rowHeader(0);
+      if(cr) {
+         return cr->height();
+      }
+   }
+   return 0;
 }
       
 std::vector<unsigned int> FWTableManagerBase::maxWidthForColumns() const
@@ -108,6 +126,15 @@ bool FWTableManagerBase::hasRowHeaders() const
 FWTableCellRendererBase* FWTableManagerBase::rowHeader(int iRow) const
 {
    return 0;
+}
+
+void 
+FWTableManagerBase::buttonPressedInRowHeader(Int_t row, Event_t* event, Int_t relX, Int_t relY)
+{
+}
+void 
+FWTableManagerBase::buttonReleasedInRowHeader(Int_t row, Event_t* event, Int_t relX, Int_t relY)
+{
 }
 
 //
