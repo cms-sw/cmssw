@@ -1245,9 +1245,9 @@ void sistrip::RawToDigiUnpacker::locateStartOfFedBuffer( const uint16_t& fed_id,
   // Check size of output buffer
   if ( output.size() == 0 ) { 
     
-    // Did not find DAQ header after search => return UNadjusted buffer start position and size
-    output.resize( input.size() ); 
-    memcpy( output.data(), input.data(), input.size() );
+    // Did not find DAQ header after search => return buffer with null size
+    output.resize( 0 ); //@@ NULL SIZE
+    memcpy( output.data(), input.data(), 0 ); //@@ NULL SIZE
     if ( edm::isDebugEnabled() ) {
       std::stringstream ss;
       if ( headerBytes_ < 0 ) {
