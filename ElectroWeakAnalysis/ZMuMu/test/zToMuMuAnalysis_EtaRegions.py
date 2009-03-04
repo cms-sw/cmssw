@@ -21,7 +21,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-    "dcap://pnfs/cmsfarm1.ba.infn.it/data/cms/phedex/store/localdata/Zmumu/Summer08-Dimuonskim-v5-CMSSW_2_1_9/22c29467821970683934506a4bb85f81/dimuons_1.root"
+"rfio:/dpm/na.infn.it/home/cms/store/user/noli/reskim/zmm/zmumu_reskim_1.root"
     )
 )
 
@@ -55,7 +55,7 @@ def addModuleEtaRegions(moduleToModify, region, src="", cut =""):
     etaMax = dict[region][1]
     module = copy.deepcopy(moduleToModify)
     if cut=="":
-        cut = "charge = 0 & daughter(0).pt > 20 & daughter(1).pt > 20 & ( abs(daughter(0).eta) > %5.3f & abs( daughter(0).eta )< %5.3f)  &  ( abs(daughter(1).eta) > %5.3f & abs( daughter(1).eta )< %5.3f) " %(etaMin, etaMax, etaMin, etaMax)
+        cut = "mass>20 & charge = 0 & daughter(0).pt > 20 & daughter(1).pt > 20 & ( abs(daughter(0).eta) > %5.3f & abs( daughter(0).eta )< %5.3f)  &  ( abs(daughter(1).eta) > %5.3f & abs( daughter(1).eta )< %5.3f) " %(etaMin, etaMax, etaMin, etaMax)
     print region, ") cut = ",  cut 
     if 'cut' in  module.parameters_():
         setattr(module, "cut", cut)
