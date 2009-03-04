@@ -18,7 +18,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:47 EST 2009
-// $Id: FWTableWidget.h,v 1.1 2009/02/03 20:33:03 chrjones Exp $
+// $Id: FWTableWidget.h,v 1.2 2009/02/04 14:49:31 chrjones Exp $
 //
 
 // system include files
@@ -56,8 +56,8 @@ class FWTableWidget : public TGCompositeFrame
       */
       void sort(UInt_t iColumn, bool iDescendingSort);
 
-      void buttonReleasedInHeader(Int_t row, Int_t column, Int_t btn, Int_t keyMod);
-      void buttonReleasedInBody(Int_t row, Int_t column, Int_t btn, Int_t keyMod);
+      void buttonReleasedInHeader(Int_t row, Int_t column, Event_t* event,Int_t, Int_t);
+      void buttonReleasedInBody(Int_t row, Int_t column, Event_t* event, Int_t,Int_t);
 
       /**This signal is emitted if the mouse button is 'clicked' while the cursor
       was over a row. Arguments:
@@ -70,6 +70,9 @@ class FWTableWidget : public TGCompositeFrame
       ClassDef(FWTableWidget,0);
    
       void dataChanged();
+
+     void buttonPressedInRowHeader(Int_t row, Int_t column, Event_t* event, Int_t relX, Int_t relY);
+     void buttonReleasedInRowHeader(Int_t row, Int_t column, Event_t* event, Int_t relX, Int_t relY);
 
    private:
       //FWTableWidget(const FWTableWidget&); // stop default
