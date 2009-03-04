@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:19 EST 2009
-// $Id$
+// $Id: FWTabularWidget.h,v 1.1 2009/02/03 20:33:04 chrjones Exp $
 //
 
 // system include files
@@ -54,8 +54,8 @@ class FWTabularWidget : public TGFrame
 
       virtual Bool_t HandleButton(Event_t *event);
 
-      void buttonPressed(Int_t row, Int_t column, Int_t btn, Int_t keyMod); //*SIGNAL*
-      void buttonReleased(Int_t row, Int_t column, Int_t btn, Int_t keyMod); //*SIGNAL*
+      void buttonPressed(Int_t row, Int_t column, Event_t* event, Int_t relX, Int_t relY); //*SIGNAL*
+      void buttonReleased(Int_t row, Int_t column, Event_t* event, Int_t relX, Int_t relY); //*SIGNAL*
 
       void dataChanged();
       void needToRedraw();
