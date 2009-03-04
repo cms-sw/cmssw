@@ -28,13 +28,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:40:52 EST 2009
-// $Id$
+// $Id: FWTableManagerBase.h,v 1.1 2009/02/03 20:33:03 chrjones Exp $
 //
 
 // system include files
 #include <vector>
 #include <string>
 #include "TQObject.h"
+#include "GuiTypes.h"
 
 // user include files
 
@@ -78,6 +79,10 @@ class FWTableManagerBase : public TQObject
       ///Returns the renderer for the row header for the sorted row number iSortedRowNumber
       virtual FWTableCellRendererBase* rowHeader(int iSortedRowNumber) const ;
 
+      ///Called if mouse button pressed in Row Header, defaults is to do nothing
+      virtual void buttonPressedInRowHeader(Int_t row, Event_t* event, Int_t relX, Int_t relY);
+      virtual void buttonReleasedInRowHeader(Int_t row, Event_t* event, Int_t relX, Int_t relY);
+
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
@@ -103,7 +108,8 @@ class FWTableManagerBase : public TQObject
       //const FWTableManagerBase& operator=(const FWTableManagerBase&); // stop default
 
       // ---------- member data --------------------------------
-
+      int m_sortColumn;
+      bool m_sortOrder;
 };
 
 
