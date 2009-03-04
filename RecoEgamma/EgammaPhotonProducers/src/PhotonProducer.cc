@@ -47,15 +47,15 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
   hcalTowers_ = conf_.getParameter<edm::InputTag>("hcalTowers");
 
   hOverEConeSize_   = conf_.getParameter<double>("hOverEConeSize");
-  maxHOverE_        = conf_.getParameter<double>("maxHOverE");
   minSCEt_        = conf_.getParameter<double>("minSCEt");
   highEt_        = conf_.getParameter<double>("highEt");
-  minR9_        = conf_.getParameter<double>("minR9");
+  minR9Barrel_        = conf_.getParameter<double>("minR9Barrel");
+  minR9Endcap_        = conf_.getParameter<double>("minR9Endcap");
   likelihoodWeights_= conf_.getParameter<std::string>("MVA_weights_location");
 
   usePrimaryVertex_ = conf_.getParameter<bool>("usePrimaryVertex");
   risolveAmbiguity_ = conf_.getParameter<bool>("risolveConversionAmbiguity");
-
+  // R9 value to decide converted/unconverted
  
  
   // Parameters for the position calculation:
@@ -67,7 +67,8 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
   providedParameters.insert(std::make_pair("W0",conf_.getParameter<double>("posCalc_w0")));
   providedParameters.insert(std::make_pair("X0",conf_.getParameter<double>("posCalc_x0")));
   posCalculator_ = PositionCalc(providedParameters);
-  //
+  // cut values for pre-selection
+  preselCutValuesBarrel_.push_back(conf_.getParameter<double>("maxHoverEBarrel")); 
   preselCutValuesBarrel_.push_back(conf_.getParameter<double>("ecalRecHitSumBarrel")); 
   preselCutValuesBarrel_.push_back(conf_.getParameter<double>("hcalTowerSumBarrel"));
   preselCutValuesBarrel_.push_back(conf_.getParameter<double>("nTrackSolidConeBarrel"));
@@ -76,6 +77,7 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
   preselCutValuesBarrel_.push_back(conf_.getParameter<double>("trackPtSumHollowConeBarrel"));     
   preselCutValuesBarrel_.push_back(conf_.getParameter<double>("sigmaIetaIetaCutBarrel"));     
   //  
+  preselCutValuesEndcap_.push_back(conf_.getParameter<double>("maxHoverEEndcap")); 
   preselCutValuesEndcap_.push_back(conf_.getParameter<double>("ecalRecHitSumEndcap")); 
   preselCutValuesEndcap_.push_back(conf_.getParameter<double>("hcalTowerSumEndcap"));
   preselCutValuesEndcap_.push_back(conf_.getParameter<double>("nTrackSolidConeEndcap"));
@@ -222,7 +224,6 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   math::XYZPoint vtx(0.,0.,0.);
   if (vertexCollection.size()>0) vtx = vertexCollection.begin()->position();
 
-  edm::LogInfo("PhotonProducer") << "Constructing Photon 4-vectors assuming primary vertex position: " << vtx << std::endl;
 
   int iSC=0; // index in photon collection
   // Loop over barrel and endcap SC collections and fill the  photon collection
@@ -235,6 +236,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
 						 topology,
 						 &barrelRecHits,
 						 hcalTowersHandle,
+                                                 minR9Barrel_,
 						 preselCutValuesBarrel_,
 						 conversionHandle,
 						 pixelSeeds,
@@ -250,6 +252,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
 						 topology,
 						 &endcapRecHits,
 						 hcalTowersHandle,
+                                                 minR9Endcap_,
 						 preselCutValuesEndcap_,
 						 conversionHandle,
 						 pixelSeeds,
@@ -273,6 +276,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
 					  const CaloTopology *topology,
 					  const EcalRecHitCollection* hits,
 					  const edm::Handle<CaloTowerCollection> & hcalTowersHandle, 
+                                          const double minR9,
 					  std::vector<double> preselCutValues,
 					  const edm::Handle<reco::ConversionCollection> & conversionHandle,
 					  const reco::ElectronSeedCollection& pixelSeeds,
@@ -320,7 +324,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     // compute position of ECAL shower
     math::XYZPoint caloPosition;
     double photonEnergy=0;
-    if (r9>minR9_) {
+    if (r9>minR9) {
       caloPosition = unconvPos;
       photonEnergy=e5x5 + scRef->preshowerEnergy() ;
     } else {
@@ -387,14 +391,14 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
       //std::cout << " This photon Et is below " << highEt_ << " so I apply pre-selection ID cuts " << std::endl;
       // std::cout << " PhotonProducer Hoe1 " << newCandidate.hadronicDepth1OverEm() << "  HoE2 " <<  newCandidate.hadronicDepth2OverEm() << " tot " <<  newCandidate.hadronicOverEm() << std::endl;
       //     std::cout << "  PhotonProducer checking sigmaIetaIeta " << newCandidate.sigmaIetaIeta() << std::endl;
-      if ( newCandidate.hadronicOverEm()                >= maxHOverE_ )              isLooseEM=false;
-      if ( newCandidate.ecalRecHitSumConeDR04()          > preselCutValues[0] )      isLooseEM=false;
-      if ( newCandidate.hcalTowerSumConeDR04()           > preselCutValues[1] )      isLooseEM=false;
-      if ( newCandidate.nTrkSolidConeDR04()              > int(preselCutValues[2]) ) isLooseEM=false;
-      if ( newCandidate.nTrkHollowConeDR04()             > int(preselCutValues[3]) ) isLooseEM=false;
-      if ( newCandidate.isolationTrkSolidConeDR04()      > preselCutValues[4] )      isLooseEM=false;
-      if ( newCandidate.isolationTrkHollowConeDR04()     > preselCutValues[5] )      isLooseEM=false;
-      if ( newCandidate.sigmaIetaIeta()                  > preselCutValues[6] )      isLooseEM=false;
+      if ( newCandidate.hadronicOverEm()                >= preselCutValues[0] )      isLooseEM=false;
+      if ( newCandidate.ecalRecHitSumConeDR04()          > preselCutValues[1] )      isLooseEM=false;
+      if ( newCandidate.hcalTowerSumConeDR04()           > preselCutValues[2] )      isLooseEM=false;
+      if ( newCandidate.nTrkSolidConeDR04()              > int(preselCutValues[3]) ) isLooseEM=false;
+      if ( newCandidate.nTrkHollowConeDR04()             > int(preselCutValues[4]) ) isLooseEM=false;
+      if ( newCandidate.isolationTrkSolidConeDR04()      > preselCutValues[5] )      isLooseEM=false;
+      if ( newCandidate.isolationTrkHollowConeDR04()     > preselCutValues[6] )      isLooseEM=false;
+      if ( newCandidate.sigmaIetaIeta()                  > preselCutValues[7] )      isLooseEM=false;
     } 
 
 

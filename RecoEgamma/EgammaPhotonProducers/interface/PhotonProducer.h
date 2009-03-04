@@ -3,9 +3,9 @@
 /** \class PhotonProducer
  **  
  **
- **  $Id: PhotonProducer.h,v 1.30 2009/01/13 17:18:17 nancy Exp $ 
- **  $Date: 2009/01/13 17:18:17 $ 
- **  $Revision: 1.30 $
+ **  $Id: PhotonProducer.h,v 1.31 2009/03/02 16:52:47 nancy Exp $ 
+ **  $Date: 2009/03/02 16:52:47 $ 
+ **  $Revision: 1.31 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -52,7 +52,8 @@ class PhotonProducer : public edm::EDProducer {
 			    const CaloSubdetectorGeometry* geometryES,
                             const CaloTopology *topology,
 			    const EcalRecHitCollection* hits,
-			    const edm::Handle<CaloTowerCollection> & hcalTowersHandle, 
+			    const edm::Handle<CaloTowerCollection> & hcalTowersHandle,
+                            const double r9Val, 
 			    std::vector<double> preselCutValues,
 			    const edm::Handle<reco::ConversionCollection> & conversionHandle,
 			    const reco::ElectronSeedCollection& pixelSeeds,
@@ -85,7 +86,9 @@ class PhotonProducer : public edm::EDProducer {
   double maxHOverE_;
   double minSCEt_;
   double highEt_;
-  double minR9_;
+  double  minR9Barrel_;
+  double  minR9Endcap_;
+
   bool validConversions_;
   std::string pixelSeedProducer_;
   std::string vertexProducer_;
@@ -103,6 +106,7 @@ class PhotonProducer : public edm::EDProducer {
 
   bool validPixelSeeds_;
   PhotonIsolationCalculator* thePhotonIsolationCalculator_;
+
 
   std::vector<double>  preselCutValuesBarrel_; 
   std::vector<double>  preselCutValuesEndcap_; 
