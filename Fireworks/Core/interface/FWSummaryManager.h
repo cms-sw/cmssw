@@ -16,43 +16,48 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar  4 09:35:58 EST 2008
-// $Id: FWSummaryManager.h,v 1.4 2008/11/06 22:05:23 amraktad Exp $
+// $Id: FWSummaryManager.h,v 1.5 2009/01/23 21:35:41 amraktad Exp $
 //
 
 // system include files
+#include <vector>
 #include "Rtypes.h"
 
 // user include files
 
 // forward declarations
-class TGListTree;
-class TGListTreeItem;
-class TObject;
-class TEveElementList;
+class TGPack;
+class TGFrame;
+class TGCompositeFrame;
+
 class FWEventItem;
 
 class FWSelectionManager;
 class FWEventItemsManager;
-class FWDetailViewManager;
+class FWGUIManager;
 class FWModelChangeManager;
+class FWCollectionSummaryWidget;
 
 class FWSummaryManager
 {
 
 public:
-   FWSummaryManager(TGListTree* iParent,
+   FWSummaryManager(TGFrame* iParent,
                     FWSelectionManager*,
                     FWEventItemsManager*,
-                    FWDetailViewManager*,
+                    FWGUIManager*,
                     FWModelChangeManager*);
    virtual ~FWSummaryManager();
 
    // ---------- const member functions ---------------------
-
+   TGFrame* widget() const;
+   
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-
+   void requestForInfo(FWEventItem*);
+   void requestForFilter(FWEventItem*);
+   void requestForError(FWEventItem*);
 
 private:
    FWSummaryManager(const FWSummaryManager&);    // stop default
@@ -60,14 +65,17 @@ private:
    const FWSummaryManager& operator=(const FWSummaryManager&);    // stop default
 
    void selectionChanged(const FWSelectionManager&);
-   void newItem(const FWEventItem* iItem);
+   void newItem(FWEventItem* iItem);
    void removeAllItems();
    void changesDone();
 
+   void itemDestroyed(const FWEventItem*);
+   
    // ---------- member data --------------------------------
-   TGListTree* m_listTree;
-   //TEveElementList* m_eventObjects;
-   FWDetailViewManager* m_detailViewManager;
+   //TGPack* m_pack;
+   TGCompositeFrame* m_pack;
+   std::vector<FWCollectionSummaryWidget*> m_collectionWidgets;
+   FWGUIManager* m_guiManager;
 };
 
 

@@ -8,19 +8,24 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar  4 09:35:32 EST 2008
-// $Id: FWSummaryManager.cc,v 1.6 2008/11/10 18:07:58 amraktad Exp $
+// $Id: FWSummaryManager.cc,v 1.7 2009/01/23 21:35:44 amraktad Exp $
 //
 
 // system include files
-#include "TGListTree.h"
 #include <boost/bind.hpp>
+//#include "TGPack.h"
+#include "TGFrame.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWSummaryManager.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
-#include "Fireworks/Core/src/FWListEventItem.h"
+#include "Fireworks/Core/interface/FWGUIManager.h"
+#include "Fireworks/Core/interface/FWEventItem.h"
+
+#include "Fireworks/Core/src/FWCollectionSummaryWidget.h"
+#include "Fireworks/Core/interface/FWDataCategories.h"
 
 
 //
@@ -34,12 +39,12 @@
 //
 // constructors and destructor
 //
-FWSummaryManager::FWSummaryManager(TGListTree* iListTree,
+FWSummaryManager::FWSummaryManager(TGFrame* iParent,
                                    FWSelectionManager* sm,
                                    FWEventItemsManager* eim,
-                                   FWDetailViewManager* dv,
+                                   FWGUIManager* gm,
                                    FWModelChangeManager* cm) :
-   m_detailViewManager(dv)
+   m_guiManager(gm)
 {
    sm->selectionChanged_.connect(boost::bind(&FWSummaryManager::selectionChanged,this,_1));
    eim->newItem_.connect(boost::bind(&FWSummaryManager::newItem,
@@ -47,7 +52,9 @@ FWSummaryManager::FWSummaryManager(TGListTree* iListTree,
    eim->goingToClearItems_.connect(boost::bind(&FWSummaryManager::removeAllItems,this));
 
 
-   m_listTree = iListTree;
+   m_pack = new TGVerticalFrame(iParent);
+   const unsigned int backgroundColor=0x2f2f2f;
+   m_pack->SetBackgroundColor(backgroundColor);
    /*m_eventObjects =  new TEveElementList("Physics Objects");
       m_listTree->OpenItem(m_eventObjects->AddIntoListTree(m_listTree,
                                                         reinterpret_cast<TGListTreeItem*>(0))
@@ -80,43 +87,85 @@ FWSummaryManager::~FWSummaryManager()
 // member functions
 //
 void
-FWSummaryManager::newItem(const FWEventItem* iItem)
+FWSummaryManager::newItem(FWEventItem* iItem)
 {
    //TEveElementList* lst = new TEveElementList(iItem->name().c_str(),"",kTRUE);
    //lst->SetMainColor(iItem->defaultDisplayProperties().color());
-   //NEED TO CHANGE THE SIGNATURE OF THE SIGNAL
-   TEveElementList* lst = new FWListEventItem( const_cast<FWEventItem*>(iItem),
-                                               m_detailViewManager);
-   lst->AddIntoListTree(m_listTree,
-                        reinterpret_cast<TGListTreeItem*>(0));
-
+   TGLayoutHints* hints = new TGLayoutHints(kLHintsExpandX);
+   FWCollectionSummaryWidget* lst = new FWCollectionSummaryWidget(m_pack,*iItem,hints);
+   m_pack->AddFrame(lst, hints);
+   m_collectionWidgets.push_back(lst);
+   iItem->goingToBeDestroyed_.connect(boost::bind(&FWSummaryManager::itemDestroyed,this,_1));
+   lst->Connect("requestForInfo(FWEventItem*)","FWSummaryManager",this,"requestForInfo(FWEventItem*)");
+   lst->Connect("requestForFilter(FWEventItem*)","FWSummaryManager",this,"requestForFilter(FWEventItem*)");
+   lst->Connect("requestForErrorInfo(FWEventItem*)","FWSummaryManager",this,"requestForError(FWEventItem*)");
    //lst->AddIntoListTree(m_listTree,m_eventObjects);
    //NOTE: Why didn't I call AddElement of m_eventObjects???  Because it will go in the wrong list tree?
    //Need to hand this lst into some container so we can get rid of it, since it doesn't seem to go into
    // m_eventObjects
 }
 
+void 
+FWSummaryManager::itemDestroyed(const FWEventItem* iItem)
+{
+   m_pack->RemoveFrame(m_collectionWidgets[iItem->id()]);
+   delete m_collectionWidgets[iItem->id()];
+   m_collectionWidgets[iItem->id()]=0;
+}
+
 void
 FWSummaryManager::removeAllItems()
 {
-   //m_eventObjects->DestroyElements();
+   for(std::vector<FWCollectionSummaryWidget*>::iterator it = m_collectionWidgets.begin(), 
+       itEnd = m_collectionWidgets.end();
+       it != itEnd;
+       ++it) {
+      if(0!=*it) {
+         m_pack->RemoveFrame(*it);
+         delete *it;
+         *it=0;
+      }
+   }
+   m_collectionWidgets.clear();
 }
 
 void
 FWSummaryManager::selectionChanged(const FWSelectionManager& iSM)
 {
-   //m_unselectAllButton->SetEnabled( 0 !=iSM.selected().size() );
 }
 
 void
 FWSummaryManager::changesDone()
 {
-   m_listTree->ClearViewPort();
+}
+
+void 
+FWSummaryManager::requestForInfo(FWEventItem* iItem)
+{
+   m_guiManager->updateEDI(iItem);
+   m_guiManager->showEDIFrame(kData);
+}
+void 
+FWSummaryManager::requestForFilter(FWEventItem* iItem)
+{
+   m_guiManager->updateEDI(iItem);
+   m_guiManager->showEDIFrame(kFilter);
+}
+void 
+FWSummaryManager::requestForError(FWEventItem* iItem)
+{
+   m_guiManager->updateEDI(iItem);
+   m_guiManager->showEDIFrame();
 }
 
 //
 // const member functions
 //
+TGFrame*
+FWSummaryManager::widget() const
+{
+   return m_pack;
+}
 
 //
 // static member functions
