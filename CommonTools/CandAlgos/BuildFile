@@ -1,0 +1,15 @@
+<use name=CommonTools/CandUtils>
+<use name=CommonTools/UtilAlgos>
+<use name=CommonTools/Utils>
+<use name=SimGeneral/HepPDTRecord>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<export>
+  <lib name=CommonToolsCandAlgos>
+  <use name=CommonTools/CandUtils>
+  <use name=CommonTools/UtilAlgos>
+  <use name=CommonTools/Utils>
+  <use name=SimGeneral/HepPDTRecord>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+</export>
