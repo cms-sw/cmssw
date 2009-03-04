@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb  3 14:29:51 EST 2009
-// $Id$
+// $Id: FWCheckedTextTableCellRenderer.cc,v 1.1 2009/02/03 20:33:04 chrjones Exp $
 //
 
 // system include files
@@ -29,8 +29,8 @@
 //
 // constructors and destructor
 //
-FWCheckedTextTableCellRenderer::FWCheckedTextTableCellRenderer(GContext_t iContext, FontStruct_t iFontStruct):
-FWTextTableCellRenderer(iContext,iFontStruct), 
+FWCheckedTextTableCellRenderer::FWCheckedTextTableCellRenderer(const TGGC* iContext):
+FWTextTableCellRenderer(iContext), 
 m_isChecked(false) {}
 
 // FWCheckedTextTableCellRenderer::FWCheckedTextTableCellRenderer(const FWCheckedTextTableCellRenderer& rhs)
@@ -67,14 +67,15 @@ FWCheckedTextTableCellRenderer::draw(Drawable_t iID, int iX, int iY, unsigned in
    const UInt_t h = height();
    
    //draw the check box
-   gVirtualX->DrawLine(iID,graphicsContext(),iX,iY,iX,iY+h);
-   gVirtualX->DrawLine(iID,graphicsContext(),iX+h,iY+h,iX,iY+h);
-   gVirtualX->DrawLine(iID,graphicsContext(),iX+h,iY+h,iX+h,iY);
-   gVirtualX->DrawLine(iID,graphicsContext(),iX+h,iY,iX,iY);
+   GContext_t c = graphicsContext()->GetGC();
+   gVirtualX->DrawLine(iID,c,iX,iY,iX,iY+h);
+   gVirtualX->DrawLine(iID,c,iX+h,iY+h,iX,iY+h);
+   gVirtualX->DrawLine(iID,c,iX+h,iY+h,iX+h,iY);
+   gVirtualX->DrawLine(iID,c,iX+h,iY,iX,iY);
    
    if(m_isChecked) {
-      gVirtualX->DrawLine(iID,graphicsContext(),iX,iY+h/2,iX+h/2,iY+h);      
-      gVirtualX->DrawLine(iID,graphicsContext(),iX+h,iY,iX+h/2,iY+h);      
+      gVirtualX->DrawLine(iID,c,iX,iY+h/2,iX+h/2,iY+h);      
+      gVirtualX->DrawLine(iID,c,iX+h,iY,iX+h/2,iY+h);      
    }
    FWTextTableCellRenderer::draw(iID,iX+kGap+h,iY,iWidth-kGap-h,iHeight);
 }
@@ -82,7 +83,7 @@ FWCheckedTextTableCellRenderer::draw(Drawable_t iID, int iX, int iY, unsigned in
 void 
 FWCheckedTextTableCellRenderer::buttonEvent(Event_t* iClickEvent, int iRelClickX, int iRelClickY)
 {
-   const UInt_t h = height();
+   const int h = height();
    
    bool wasClicked = iClickEvent->fType==kButtonRelease &&
                      iRelClickX >=0 &&

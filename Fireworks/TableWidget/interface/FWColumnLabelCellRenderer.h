@@ -17,7 +17,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:44:11 EST 2009
-// $Id$
+// $Id: FWColumnLabelCellRenderer.h,v 1.1 2009/02/03 20:33:03 chrjones Exp $
 //
 
 // system include files
@@ -32,7 +32,7 @@ class FWColumnLabelCellRenderer : public FWTextTableCellRenderer
 {
 
    public:
-      FWColumnLabelCellRenderer(GContext_t iContext=getDefaultGC()(),FontStruct_t iFontStruct = getDefaultFontStruct());
+      FWColumnLabelCellRenderer(const TGGC* iContext=&(getDefaultGC()));
       virtual ~FWColumnLabelCellRenderer();
 
       // ---------- const member functions ---------------------
@@ -55,6 +55,8 @@ class FWColumnLabelCellRenderer : public FWTextTableCellRenderer
       // ---------- member data --------------------------------
       static const UInt_t kGap = 2;
       fireworks::table::SortOrder m_sortOrder;
+      int m_sizeOfOrderIcon;
+      int m_sizeOfOrderIconStartX;
 
 };
 

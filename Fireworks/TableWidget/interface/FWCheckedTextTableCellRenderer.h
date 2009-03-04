@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb  3 14:29:48 EST 2009
-// $Id$
+// $Id: FWCheckedTextTableCellRenderer.h,v 1.1 2009/02/03 20:33:03 chrjones Exp $
 //
 
 // system include files
@@ -31,7 +31,7 @@ class FWCheckedTextTableCellRenderer : public FWTextTableCellRenderer, public TQ
 {
 
    public:
-      FWCheckedTextTableCellRenderer(GContext_t iContext=getDefaultGC()(),FontStruct_t iFontStruct = getDefaultFontStruct());
+      FWCheckedTextTableCellRenderer(const TGGC* iContext=&(getDefaultGC()));
       virtual ~FWCheckedTextTableCellRenderer();
 
       // ---------- const member functions ---------------------
