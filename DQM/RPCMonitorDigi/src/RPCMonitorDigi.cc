@@ -61,14 +61,12 @@ void RPCMonitorDigi::beginJob(EventSetup const&){
 
   ClusterSize_for_BarrelandEndcaps = dbe->book1D("ClusterSize_for_BarrelandEndcap", "ClusterSize for Barrel&Endcaps", 20, 0.5, 20.5);
 
-  NumberOfDigis_for_Barrel = dbe -> book1D("NumberOfDigi_for_Barrel", "NumberOfDigis for Barrel", 200, 0.5, 200.5);
-  NumberOfDigis_for_EndcapPositive = dbe -> book1D("NumberOfDigi_for_EndcapPositive", "NumberOfDigis for Endcap Positive", 200, 0.5, 200.5);
-  NumberOfDigis_for_EndcapNegative = dbe -> book1D("NumberOfDigi_for_EndcapNegative", "NumberOfDigis for Endcap Negative", 200, 0.5, 200.5);
-
   NumberOfClusters_for_Barrel = dbe -> book1D("NumberOfClusters_for_Barrel", "NumberOfClusters for Barrel", 20, 0.5, 20.5);
   NumberOfClusters_for_EndcapPositive = dbe -> book1D("NumberOfClusters_for_EndcapPositive", "NumberOfClusters for Endcap Positive", 20, 0.5, 20.5);
   NumberOfClusters_for_EndcapNegative = dbe -> book1D("NumberOfClusters_for_EndcapNegative", "NumberOfClusters for Endcap Negative", 20, 0.5, 20.5);
 
+  BarrelNumberOfDigis = dbe -> book1D("Barrel_NumberOfDigi", "Number Of Digis in Barrel", 50, 0.5, 50.5);
+  
   SameBxDigisMeBarrel_ = dbe->book1D("SameBXDigis_Barrel", "Digis with same bx", 20, 0.5, 20.5);  
  //  SameBxDigisMeEndcapPositive_ = dbe->book1D("SameBXDigis_EndcapPositive", "Digis with same bx", 20, 0.5, 20.5);  
  //   SameBxDigisMeEndcapNegative_ = dbe->book1D("SameBXDigis_EndcapNegative", "Digis with same bx", 20, 0.5, 20.5);  
@@ -76,6 +74,8 @@ void RPCMonitorDigi::beginJob(EventSetup const&){
   BarrelOccupancy = dbe -> book2D("Occupancy_for_Barrel", "Barrel Occupancy Wheel vs Sector", 12, 0.5, 12.5, 5, -2.5, 2.5);
   EndcapPositiveOccupancy = dbe -> book2D("Occupancy_for_EndcapPositive", "Endcap Positive Occupancy Disk vs Sector", 6, 0.5, 6.5, 4, 0.5, 4.5);
   EndcapNegativeOccupancy = dbe -> book2D("Occupancy_for_EndcapNegative", "Endcap Negative Occupancy Disk vs Sector", 6, 0.5, 6.5, 4, 0.5, 4.5);
+  
+  RPCEvents = dbe -> book1D("RPCEvents", "RPC Events Barrel+EndCap", 1, 0.5, 1.5);
  
   stringstream binLabel;
   for (int i = 1; i<13; i++){
@@ -133,10 +133,6 @@ void RPCMonitorDigi::beginRun(const Run& r, const EventSetup& iSetup){
   ClusterSize_for_EndcapPositive ->Reset();
   ClusterSize_for_EndcapNegative->Reset();
   ClusterSize_for_BarrelandEndcaps->Reset(); 
-  
-  NumberOfDigis_for_Barrel ->Reset();
-  NumberOfDigis_for_EndcapPositive ->Reset();
-  NumberOfDigis_for_EndcapNegative->Reset();
 
   NumberOfClusters_for_Barrel ->Reset();
   NumberOfClusters_for_EndcapPositive->Reset(); 
@@ -197,7 +193,9 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
 
   counter++;
   LogInfo (nameInLog) <<"[RPCMonitorDigi]: Beginning analyzing event " << counter;
- 
+  
+  RPCEvents -> Fill(1);
+  
   /// RPC Geometry
   ESHandle<RPCGeometry> rpcGeo;
   iSetup.get<MuonGeometryRecord>().get(rpcGeo);
@@ -211,13 +209,7 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
   iEvent.getByType(rpcHits);
 
   map<int,int> bxMap;
-  int totalNumberDigi[3];
-
-  for (int k=0; k<=2;k++){
-    totalNumberDigi[k]=0;
-  }
-
-
+ 
   //Loop on digi collection
   for( RPCDigiCollection::DigiRangeIterator collectionItr=rpcdigis->begin(); collectionItr!=rpcdigis->end(); ++collectionItr){
   
@@ -276,7 +268,7 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
     rangeRecHits recHitCollection =  rpcHits->get(detId);
  
     int numberOfDigi= 0;
- 
+    int bins;
     RPCDigiCollection::const_iterator digiItr; 
     //loop on digis of given roll
     for (digiItr =(*collectionItr ).second.first;digiItr != (*collectionItr ).second.second; ++digiItr){
@@ -337,32 +329,35 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
  
       if(meMap[os.str()])
 	meMap[os.str()]->setBinLabel(nr,YLabel, 2);
+
+
+      os.str("");
+      os<<"Occupancy_"<<nameRoll;
+      if(meMap[os.str()]) meMap[os.str()]->Fill(strip);
+      bins = meMap[os.str()]->getNbinsX();
       
       os.str("");
       os<<"Occupancy_Roll_vs_Sector_"<<ringType<<"_"<<ring;       
       if ( meRingMap[os.str()]) {
 	meRingMap[os.str()]->Fill(detId.sector(), nr, 1);
-	if(detId.region()==0) meRingMap[os.str()]->setBinLabel(nr,YLabel, 2);
+	//if(detId.region()==0) meRingMap[os.str()]->setBinLabel(nr,YLabel, 2);
       }
       
-      // do Occupancy normalization
-      int SectSt;
-      if(ring==2 || ring ==-2) SectSt = SectStr2[detId.sector()];     //get # of strips for given Sector
-      else  SectSt= SectStr1[detId.sector()];                         
-      float NormOcc = (meRingMap[os.str()]->getBinContent(detId.sector(), nr)/SectSt)/counter; // normalization by Strips & RPC Events
+      // moved to client side. remember to delete here !!!!!!!
+      //     // do Occupancy normalization
+      //       int SectSt;
+      //       if(ring==2 || ring ==-2) SectSt = SectStr2[detId.sector()];     //get # of strips for given Sector
+      //       else  SectSt= SectStr1[detId.sector()];                         
+      //       float NormOcc = ((meRingMap[os.str()]->getBinContent(detId.sector(), nr)) / bins)/counter; // normalization by Strips & RPC Events
+      
+      //  os.str("");
+      //       os<<"OccupancyNormByGeoAndEvents_Roll_vs_Sector_"<<ringType<<"_"<<ring; // Wrong place! must be in a client module!!!
+      //       if(meRingMap[os.str()]) {
+      // 	meRingMap[os.str()]->setBinContent(detId.sector(), nr, NormOcc);
+      // 	if(detId.region()==0) meRingMap[os.str()]->setBinLabel(nr,YLabel, 2);
+      //       }
 
-      os.str("");
-      os<<"OccupancyNormByGeoAndEvents_Roll_vs_Sector_"<<ringType<<"_"<<ring;
-      if(meRingMap[os.str()]) {
-	meRingMap[os.str()]->setBinContent(detId.sector(), nr, NormOcc);
-	if(detId.region()==0) meRingMap[os.str()]->setBinLabel(nr,YLabel, 2);
-      }
-
-      os.str("");
-      os<<"Occupancy_"<<nameRoll;
-      if(meMap[os.str()])
-	meMap[os.str()]->Fill(strip);
-  
+    
       if(dqmexpert){ 	
 	os.str("");
 	os<<"BXN_"<<nameRoll;
@@ -379,26 +374,20 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
     }  //end loop of digis of given roll
   
     if (dqmexpert){
-      for(unsigned int stripIter=0;stripIter<duplicatedDigi.size(); ++stripIter){
-	if( stripIter<(duplicatedDigi.size()-1) && duplicatedDigi[stripIter+1].first==duplicatedDigi[stripIter].first+1) {
-	  os.str("");
-	  os<<"CrossTalkHigh_"<<nameRoll;
-	  if(meMap[os.str()])
-	    meMap[os.str()]->Fill(duplicatedDigi[stripIter].first);	
-	}
-	if(stripIter>0 && duplicatedDigi[stripIter-1].first == duplicatedDigi[stripIter].first+1) {
-	  os.str("");
-	  os<<"CrossTalkLow_"<<nameRoll;
-	  if(meMap[os.str()])
-	    meMap[os.str()]->Fill(duplicatedDigi[stripIter].first);	
-	}
-      }
-      
-      os.str("");
-      os<<"NumberOfDigi_"<<nameRoll;
-      if(meMap[os.str()])
-	meMap[os.str()]->Fill(numberOfDigi);
-      
+     //  for(unsigned int stripIter=0;stripIter<duplicatedDigi.size(); ++stripIter){
+// 	if( stripIter<(duplicatedDigi.size()-1) && duplicatedDigi[stripIter+1].first==duplicatedDigi[stripIter].first+1) {
+// 	  os.str("");
+// 	  os<<"CrossTalkHigh_"<<nameRoll;
+// 	  if(meMap[os.str()])
+// 	    meMap[os.str()]->Fill(duplicatedDigi[stripIter].first);	
+// 	}
+// 	if(stripIter>0 && duplicatedDigi[stripIter-1].first == duplicatedDigi[stripIter].first+1) {
+// 	  os.str("");
+// 	  os<<"CrossTalkLow_"<<nameRoll;
+// 	  if(meMap[os.str()])
+// 	    meMap[os.str()]->Fill(duplicatedDigi[stripIter].first);	
+// 	}
+//       }
       os.str("");
       os<<"BXWithData_"<<nameRoll;
       if(meMap[os.str()])
@@ -410,21 +399,41 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
     if(meMap[os.str()])
       meMap[os.str()]->Fill(bxs.size());
  
+
+    if(numberOfDigi>50) numberOfDigi=50; //overflow
+    // os.str("");
+//     os<<"NumberOfDigi_"<<ringType<<"_"<<ring<<"_Sector_"<<detId.sector();
+//     if(meMap[os.str()])
+//       meMap[os.str()]->Fill(numberOfDigi);
+    
     os.str("");
-    os<<"NumberOfDigi_"<<ringType<<"_"<<ring<<"_Sector_"<<detId.sector();
-    if(meMap[os.str()])
+    os<<"NumberOfDigi_"<<nameRoll;
+    if(meMap[os.str()]) { 
       meMap[os.str()]->Fill(numberOfDigi);
- 
-    totalNumberDigi[detId.region()+1]+= numberOfDigi;	
+      // float thierdstrips = bins/3;
+//       
+//       if(numberOfDigi > thierdstrips) {  // Multiplicity greater than 1/3 of Strips
+// 	os.str("");
+// 	os<<"NumberOfDigiGreaterThanThierdStrips_"<<ringType<<"_"<<ring;
+// 	if( meRingMap[os.str()]) meRingMap[os.str()]->Fill(detId.sector(), nr, 1);
+// 	
+//       }
+    }
+    
+    BarrelNumberOfDigis -> Fill(numberOfDigi);
+
+    
+    
+
  
     // Fill RecHit MEs   
     if(recHitCollection.first==recHitCollection.second ){   
  
       if(dqmsuperexpert) {
-	os.str("");
-	os<<"MissingHits_"<<nameRoll;
-	if(meMap[os.str()])
-	  meMap[os.str()]->Fill((int)(counter), 1.0);
+// 	os.str("");
+// 	os<<"MissingHits_"<<nameRoll;
+// 	if(meMap[os.str()])
+// 	  meMap[os.str()]->Fill((int)(counter), 1.0);
       }
     }else{     
       //      foundHitsInChamber[id]=true;
@@ -440,10 +449,10 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
 	LocalPoint point=it->localPosition();     //plot of coordinates/roll =>should be flat
 	GlobalPoint globalHitPoint=surface.toGlobal(point); 
  
-	os.str("");
-	os<<"OccupancyXY_"<<ringType<<"_"<<ring;
-	if(meRingMap[os.str()])
-	  meRingMap[os.str()]->Fill(globalHitPoint.x(),globalHitPoint.y());
+// 	os.str("");
+// 	os<<"OccupancyXY_"<<ringType<<"_"<<ring;
+// 	if(meRingMap[os.str()])
+// 	  meRingMap[os.str()]->Fill(globalHitPoint.x(),globalHitPoint.y());
 
 	int mult=it->clusterSize();		  //cluster size plot => should be within 1-3	
 	int firstStrip=it->firstClusterStrip();    //plot first Strip => should be flat
@@ -451,12 +460,12 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
 
 	ClusterSize_for_BarrelandEndcaps -> Fill(mult);
 	
-	if(mult>5) {
-	  os.str("");
-	  os<<"ClusterSizeGreaterThan5_"<<ringType<<"_"<<ring; 
-	  meRingMap[os.str()]->Fill(detId.sector(), nr, 1);
-	  if(detId.region()==0)  meRingMap[os.str()]->setBinLabel(nr, YLabel, 2);
-	}
+// 	if(mult>5) {
+// 	  os.str("");
+// 	  os<<"ClusterSizeGreaterThan5_"<<ringType<<"_"<<ring; 
+// 	  if( meRingMap[os.str()]) meRingMap[os.str()]->Fill(detId.sector(), nr, 1);
+// 	  //if(detId.region()==0)  meRingMap[os.str()]->setBinLabel(nr, YLabel, 2);
+// 	}
 
 	if(detId.region() ==  0) {
 	  ClusterSize_for_Barrel -> Fill(mult);
@@ -474,10 +483,10 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
 	if(meRingMap[os.str()])
 	  meRingMap[os.str()] -> Fill(mult); 
 
-	os.str("");
-	os<<"ClusterSize_"<<ringType<<"_"<<ring<<"_Sector_"<<detId.sector();
-	if(meMap[os.str()])
-	  meMap[os.str()] -> Fill(mult);
+// 	os.str("");
+// 	os<<"ClusterSize_"<<ringType<<"_"<<ring<<"_Sector_"<<detId.sector();
+// 	if(meMap[os.str()])
+// 	  meMap[os.str()] -> Fill(mult);
 
 	if (dqmsuperexpert) {
 	  int centralStrip=firstStrip;
@@ -487,10 +496,10 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
 	    float x = gRandom->Uniform(2);
 	    centralStrip+=(x<1)? (mult/2)-1 : (mult/2);
 	  }
-	  os.str("");
-	  os<<"ClusterSize_vs_CentralStrip_"<<nameRoll;
-	  if(meMap[os.str()])
-	    meMap[os.str()]->Fill(centralStrip,mult);
+	  // os.str("");
+// 	  os<<"ClusterSize_vs_CentralStrip_"<<nameRoll;
+// 	  if(meMap[os.str()])
+// 	    meMap[os.str()]->Fill(centralStrip,mult);
 	
 
 	  os.str("");
@@ -499,20 +508,20 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
 	    for(int index=0; index<mult; ++index)
 	      meMap[os.str()]->Fill(firstStrip+index,mult);
 
-	  os.str("");
-	  os<<"ClusterSize_vs_LowerSrip_"<<nameRoll;
-	  if(meMap[os.str()])
-	    meMap[os.str()]->Fill(firstStrip,mult);
+// 	  os.str("");
+// 	  os<<"ClusterSize_vs_LowerSrip_"<<nameRoll;
+// 	  if(meMap[os.str()])
+// 	    meMap[os.str()]->Fill(firstStrip,mult);
 	
-	  os.str("");
-	  os<<"ClusterSize_vs_HigherStrip_"<<nameRoll;
-	  if(meMap[os.str()])
-	    meMap[os.str()]->Fill(firstStrip+mult-1,mult);
+// 	  os.str("");
+// 	  os<<"ClusterSize_vs_HigherStrip_"<<nameRoll;
+// 	  if(meMap[os.str()])
+// 	    meMap[os.str()]->Fill(firstStrip+mult-1,mult);
 	
-	  os.str("");
-	  os<<"RecHitX_vs_dx_"<<nameRoll;
-	  if(meMap[os.str()])
-	    meMap[os.str()]->Fill(xposition,error.xx());
+	 //  os.str("");
+// 	  os<<"RecHitX_vs_dx_"<<nameRoll;
+// 	  if(meMap[os.str()])
+// 	    meMap[os.str()]->Fill(xposition,error.xx());
 	}
 
 	if(dqmexpert) {
@@ -521,15 +530,16 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
 	  if(meMap[os.str()])
 	    meMap[os.str()]->Fill(mult);
 	  
-	  os.str("");
-	  os<<"RecHitXPosition_"<<nameRoll;
-	  if(meMap[os.str()])
-	    meMap[os.str()]->Fill(xposition);
+	 //  os.str("");
+// 	  os<<"RecHitXPosition_"<<nameRoll;
+// 	  if(meMap[os.str()])
+// 	    meMap[os.str()]->Fill(xposition);
 	  
-	  os.str("");
-	  os<<"RecHitDX_"<<nameRoll;
-	  if(meMap[os.str()])
-	    meMap[os.str()]->Fill(error.xx());	   
+// 	  os.str("");
+// 	  os<<"RecHitDX_"<<nameRoll;
+// 	  if(meMap[os.str()])
+// 	    meMap[os.str()]->Fill(error.xx());	  
+	  
 	}
 	numberOfHits++;
       }/// end loop on RPCRecHits for given roll
@@ -541,7 +551,7 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
 	if(meMap[os.str()])
 	  meMap[os.str()]->Fill(numbOfClusters);
 	
-	if(numberOfHits>16) numberOfHits=16;////////////!!!!!!!!!!!!!!!!!!!!!!!	
+	if(numberOfHits>5) numberOfHits=16;////////////!!!!!!!!!!!!!!!!!!!!!!!	
 	os.str("");
 	os<<"RecHitCounter_"<<nameRoll;
 	if(meMap[os.str()])
@@ -555,17 +565,12 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
       else if(detId.region()==-1)
 	NumberOfClusters_for_EndcapNegative -> Fill(numbOfClusters);
       
-      os.str("");
-      os<<"NumberOfClusters_"<<ringType<<"_"<<ring<<"_Sector_"<<detId.sector();
-      if(meMap[os.str()])
-      meMap[os.str()]->Fill(numbOfClusters);
+//       os.str("");
+//       os<<"NumberOfClusters_"<<ringType<<"_"<<ring<<"_Sector_"<<detId.sector();
+//       if(meMap[os.str()])
+//       meMap[os.str()]->Fill(numbOfClusters);
     }
   }/// end loop on RPC Digi Collection
- 
-  //fill global histo at the end of the event
-      NumberOfDigis_for_Barrel ->Fill(totalNumberDigi[1]);
-      NumberOfDigis_for_EndcapPositive ->Fill(totalNumberDigi[2]);
-      NumberOfDigis_for_EndcapNegative ->Fill(totalNumberDigi[0]);
 
   //adding new histo C.Carrillo & A. Cimmino
   for (map<int, int>::const_iterator myItr= bxMap.begin(); 
