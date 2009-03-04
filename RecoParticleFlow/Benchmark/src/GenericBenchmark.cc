@@ -1,32 +1,31 @@
 #include "RecoParticleFlow/Benchmark/interface/GenericBenchmark.h"
+#include "RecoParticleFlow/Benchmark/interface/BenchmarkTree.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 // CMSSW_2_X_X
 #include "DQMServices/Core/interface/DQMStore.h"
 
+#include <TROOT.h>
+#include <TFile.h>
 
 //Colin: it seems a bit strange to use the preprocessor for that kind of 
 //thing. Looks like all these macros could be replaced by plain functions.
 
 // preprocessor macro for booking 1d histos with DQMStore -or- bare Root
-#define BOOK1D(name,title,nbinsx,lowx,highx) \
+#define BOOK1D(name,title,nbinsx,lowx,highx)				\
   h##name = DQM ? DQM->book1D(#name,title,nbinsx,lowx,highx)->getTH1F() \
     : new TH1F(#name,title,nbinsx,lowx,highx)
 
 // preprocessor macro for booking 2d histos with DQMStore -or- bare Root
-#define BOOK2D(name,title,nbinsx,lowx,highx,nbinsy,lowy,highy) \
+#define BOOK2D(name,title,nbinsx,lowx,highx,nbinsy,lowy,highy)		\
   h##name = DQM ? DQM->book2D(#name,title,nbinsx,lowx,highx,nbinsy,lowy,highy)->getTH2F() \
     : new TH2F(#name,title,nbinsx,lowx,highx,nbinsy,lowy,highy)
-
-
-
-
 
 
 // all versions OK
 // preprocesor macro for setting axis titles
 
-#define SETAXES(name,xtitle,ytitle) \
+#define SETAXES(name,xtitle,ytitle)					\
   h##name->GetXaxis()->SetTitle(xtitle); h##name->GetYaxis()->SetTitle(ytitle)
 
 #define ET (PlotAgainstReco_)?"reconstructed E_{T} [GeV]":"generated E_{T} [GeV]"
@@ -121,6 +120,7 @@ void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_) {
 	 nbinsEta, minEta, maxEta,
 	 100,0,1);
 
+  BOOK1D(NRec,"Number of reconstructed objects",20,0,20);
 
   // seen and gen distributions, for efficiency computation
   BOOK1D(EtaSeen,"seen #eta",100,-5,5);
@@ -131,6 +131,7 @@ void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_) {
   BOOK1D(PhiGen,"generated #phi",100,-3.5,3.5);
   BOOK1D(EtGen,"generated E_{T}",nbinsEt, minEt, maxEt);
   
+  BOOK1D(NGen,"Number of generated objects",20,0,20);
 
   // number of truth particles found within given cone radius of reco
   //BOOK2D(NumInConeVsConeSize,NumInConeVsConeSize,100,0,1,25,0,25);
@@ -162,6 +163,8 @@ void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_) {
   SETAXES(DeltaR,"#DeltaR","Events");
   SETAXES(DeltaRvsEt,ET,"#DeltaR");
   SETAXES(DeltaRvsEta,ETA,"#DeltaR");
+
+  SETAXES(NRec,"Number of Rec Objects","");
   
   SETAXES(EtaSeen,"seen #eta","");
   SETAXES(PhiSeen,"seen #phi [rad]","");
@@ -171,95 +174,88 @@ void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_) {
   SETAXES(PhiGen,"generated #phi [rad]","");
   SETAXES(EtGen,"generated E_{T} [GeV]","");
 
+  SETAXES(NGen,"Number of Gen Objects","");
+  
+  TDirectory* oldpwd = gDirectory;
 
+
+  TIter next( gROOT->GetListOfFiles() );
+  while ( TFile *file = (TFile *)next() )
+    cout<<"file "<<file->GetName()<<endl;
+
+
+  cout<<"DQM subdir"<<endl;
+  cout<< DQM->pwd().c_str()<<endl;
+
+  DQM->cd( DQM->pwd() );
+
+  cout<<"current dir"<<endl;
+  gDirectory->pwd();
+  
+  
+
+  oldpwd->cd();
+  //gDirectory->pwd();
+
+
+  //   tree_ = new BenchmarkTree("genericBenchmark", "Generic Benchmark TTree");
 }
 
 
 void GenericBenchmark::fill(const edm::View<reco::Candidate> *RecoCollection, 
 			    const edm::View<reco::Candidate> *GenCollection, 
-			    bool PlotAgainstReco, bool onlyTwoJets, 
+			    bool startFromGen, 
+			    bool PlotAgainstReco, 
+			    bool onlyTwoJets, 
 			    double recPt_cut, 
 			    double minEta_cut, 
 			    double maxEta_cut, 
 			    double deltaR_cut) {
 
   // loop over reco particles
-  for (unsigned int i = 0; i < RecoCollection->size(); i++) {
+
+  if( !startFromGen) {
+    int nRec = 0;
+    for (unsigned int i = 0; i < RecoCollection->size(); i++) {
+      
+      // generate histograms comparing the reco and truth candidate (truth = closest in delta-R)
+      const reco::Candidate *particle = &(*RecoCollection)[i];
+      
+      assert( particle!=NULL ); 
+      if( !accepted(particle, recPt_cut, 
+		    minEta_cut, maxEta_cut)) continue;
+
     
-    // generate histograms comparing the reco and truth candidate (truth = closest in delta-R)
-    const reco::Candidate *particle = &(*RecoCollection)[i];
+      // Count the number of jets with a larger energy
+      if( onlyTwoJets ) {
+	unsigned highJets = 0;
+	for(unsigned j=0; j<RecoCollection->size(); j++) { 
+	  const reco::Candidate *otherParticle = &(*RecoCollection)[j];
+	  if ( j != i && otherParticle->pt() > particle->pt() ) highJets++;
+	}
+	if ( highJets > 1 ) continue;
+      }		
+      nRec++;
+      
+      const reco::Candidate *gen_particle = algo_->matchByDeltaR(particle,
+								 GenCollection);
+      if(gen_particle==NULL) continue; 
 
-    assert( particle!=NULL ); 
-    if( !accepted(particle, recPt_cut, 
-		  minEta_cut, maxEta_cut)) continue;
-
-    const reco::Candidate *gen_particle = algo_->matchByDeltaR(particle,
-							       GenCollection);
-    if(gen_particle==NULL) continue; 
 
 
-    // Count the number of jets with a larger energy
-    if( onlyTwoJets ) {
-      unsigned highJets = 0;
-      for(unsigned j=0; j<RecoCollection->size(); j++) { 
-	const reco::Candidate *otherParticle = &(*RecoCollection)[j];
-	if ( j != i && otherParticle->pt() > particle->pt() ) highJets++;
-      }
-      if ( highJets > 1 ) continue;
-    }		
-
-    // get the quantities to place on the denominator and/or divide by
-    double et = gen_particle->et();
-    double eta = gen_particle->eta();
-    double phi = gen_particle->phi();
-    
-    if (PlotAgainstReco) { 
-      et = particle->et(); 
-      eta = particle->eta(); 
-      phi = particle->phi(); 
+      // fill histograms
+      fillHistos( gen_particle, particle, deltaR_cut, PlotAgainstReco);
     }
 
-    
-    // get the delta quantities
-    double deltaEt = algo_->deltaEt(particle,gen_particle);
-    double deltaR = algo_->deltaR(particle,gen_particle);
-    double deltaEta = algo_->deltaEta(particle,gen_particle);
-    double deltaPhi = algo_->deltaPhi(particle,gen_particle);
-   
-    //TODO implement variable Cut:
-    if (fabs(deltaR)>deltaR_cut and deltaR_cut != -1.)
-      continue;
-
-    // fill histograms
-    hDeltaEt->Fill(deltaEt);
-    hDeltaEtvsEt->Fill(et,deltaEt);
-    hDeltaEtOverEtvsEt->Fill(et,deltaEt/et);
-    hDeltaEtvsEta->Fill(eta,deltaEt);
-    hDeltaEtOverEtvsEta->Fill(eta,deltaEt/et);
-    hDeltaEtvsPhi->Fill(phi,deltaEt);
-    hDeltaEtOverEtvsPhi->Fill(phi,deltaEt/et);
-    hDeltaEtvsDeltaR->Fill(deltaR,deltaEt);
-    hDeltaEtOverEtvsDeltaR->Fill(deltaR,deltaEt/et);
-    
-    hDeltaEta->Fill(deltaEta);
-    hDeltaEtavsEt->Fill(et,deltaEta);
-    hDeltaEtavsEta->Fill(eta,deltaEta);
-    
-    hDeltaPhi->Fill(deltaPhi);
-    hDeltaPhivsEt->Fill(et,deltaPhi);
-    hDeltaPhivsEta->Fill(eta,deltaPhi);
-
-    hDeltaR->Fill(deltaR);
-    hDeltaRvsEt->Fill(et,deltaR);
-    hDeltaRvsEta->Fill(eta,deltaR);
+    hNRec->Fill(nRec);
   }
-
 
   // loop over gen particles
   
-//   cout<<"Reco size = "<<RecoCollection->size()<<", ";
-//   cout<<"Gen size = "<<GenCollection->size()<<endl;
+  //   cout<<"Reco size = "<<RecoCollection->size()<<", ";
+  //   cout<<"Gen size = "<<GenCollection->size()<<endl;
 
+  int nGen = 0;
   for (unsigned int i = 0; i < GenCollection->size(); i++) {
 
     const reco::Candidate *gen_particle = &(*GenCollection)[i]; 
@@ -274,6 +270,7 @@ void GenericBenchmark::fill(const edm::View<reco::Candidate> *RecoCollection,
 
     const reco::Candidate *rec_particle = algo_->matchByDeltaR(gen_particle,
 							       RecoCollection);
+    nGen++;
     if(! rec_particle) continue; // no match
     // must make a cut on delta R 
 
@@ -281,7 +278,12 @@ void GenericBenchmark::fill(const edm::View<reco::Candidate> *RecoCollection,
     hPhiSeen->Fill(gen_particle->phi() );
     hEtSeen->Fill(gen_particle->et() );
 
+    if( startFromGen ) 
+      fillHistos( gen_particle, rec_particle, deltaR_cut, PlotAgainstReco);
+
+    
   }
+  hNGen->Fill(nGen);
 
 }
 
@@ -304,6 +306,68 @@ bool GenericBenchmark::accepted(const reco::Candidate* particle,
  
 }
 
+
+void GenericBenchmark::fillHistos( const reco::Candidate* genParticle,
+				   const reco::Candidate* recParticle,
+				   double deltaR_cut,
+				   bool plotAgainstReco ) {
+
+
+  
+  // get the quantities to place on the denominator and/or divide by
+  double et = genParticle->et();
+  double eta = genParticle->eta();
+  double phi = genParticle->phi();
+  
+  if (plotAgainstReco) { 
+    et = recParticle->et(); 
+    eta = recParticle->eta(); 
+    phi = recParticle->phi(); 
+  }
+  
+    
+  // get the delta quantities
+  double deltaEt = algo_->deltaEt(recParticle,genParticle);
+  double deltaR = algo_->deltaR(recParticle,genParticle);
+  double deltaEta = algo_->deltaEta(recParticle,genParticle);
+  double deltaPhi = algo_->deltaPhi(recParticle,genParticle);
+   
+  //TODO implement variable Cut:
+  if (fabs(deltaR)>deltaR_cut and deltaR_cut != -1.)
+    return;
+
+
+  hDeltaEt->Fill(deltaEt);
+  hDeltaEtvsEt->Fill(et,deltaEt);
+  hDeltaEtOverEtvsEt->Fill(et,deltaEt/et);
+  hDeltaEtvsEta->Fill(eta,deltaEt);
+  hDeltaEtOverEtvsEta->Fill(eta,deltaEt/et);
+  hDeltaEtvsPhi->Fill(phi,deltaEt);
+  hDeltaEtOverEtvsPhi->Fill(phi,deltaEt/et);
+  hDeltaEtvsDeltaR->Fill(deltaR,deltaEt);
+  hDeltaEtOverEtvsDeltaR->Fill(deltaR,deltaEt/et);
+    
+  hDeltaEta->Fill(deltaEta);
+  hDeltaEtavsEt->Fill(et,deltaEta);
+  hDeltaEtavsEta->Fill(eta,deltaEta);
+    
+  hDeltaPhi->Fill(deltaPhi);
+  hDeltaPhivsEt->Fill(et,deltaPhi);
+  hDeltaPhivsEta->Fill(eta,deltaPhi);
+
+  hDeltaR->Fill(deltaR);
+  hDeltaRvsEt->Fill(et,deltaR);
+  hDeltaRvsEta->Fill(eta,deltaR);
+
+  BenchmarkTreeEntry entry;
+  entry.deltaEt = deltaEt;
+  entry.deltaEta = deltaEta;
+  entry.et = et;
+  entry.eta = eta;
+    
+  //     tree_->Fill(entry);
+
+}
 
 void GenericBenchmark::write(std::string Filename) {
 

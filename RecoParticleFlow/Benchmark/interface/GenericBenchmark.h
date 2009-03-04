@@ -1,7 +1,9 @@
 #ifndef RecoParticleFlow_Benchmark_GenericBenchmark_h
 #define RecoParticleFlow_Benchmark_GenericBenchmark_h
 
+//COLIN: necessary?
 #include "RecoParticleFlow/Benchmark/interface/PFBenchmarkAlgo.h"
+
 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -13,10 +15,12 @@
 #include <TFile.h>
 
 class DQMStore; // CMSSW_2_X_X
-//class DaqMonitorBEInterface; // CMSSW_1_X_X
+
+class BenchmarkTree;
 
 class GenericBenchmark{
-public:
+
+ public:
 
   GenericBenchmark();
   virtual ~GenericBenchmark();
@@ -25,6 +29,7 @@ public:
 
   void fill(const edm::View<reco::Candidate> *RecoCollection, 
 	    const edm::View<reco::Candidate> *GenCollection,
+	    bool startFromGen=false, 
 	    bool PlotAgainstReco =true, 
 	    bool onlyTwoJets = false, 
 	    double recPt_cut = -1., 
@@ -34,14 +39,17 @@ public:
 
   void write(std::string Filename);
 
-private:
+ private:
   
   bool accepted(const reco::Candidate* particle,
 		double ptCut,
 		double minEtaCut,
 		double maxEtaCut ) const;
     
-
+  void fillHistos( const reco::Candidate* genParticle,
+		   const reco::Candidate* recParticle,
+		   double deltaR_cut,
+		   bool plotAgainstReco); 
   TFile *file_;
 
   TH1F *hDeltaEt;
@@ -66,16 +74,22 @@ private:
   TH2F *hDeltaRvsEt;
   TH2F *hDeltaRvsEta;
 
+  TH1F *hNRec;
+
+
   TH1F *hEtGen;
   TH1F *hEtaGen;
   TH1F *hPhiGen;
 
+  TH1F *hNGen;
+
   TH1F *hEtSeen;
   TH1F *hEtaSeen;
   TH1F *hPhiSeen;
-  
 
-protected:
+  BenchmarkTree*  tree_;
+
+ protected:
 
   DQMStore *dbe_;
   PFBenchmarkAlgo *algo_;
