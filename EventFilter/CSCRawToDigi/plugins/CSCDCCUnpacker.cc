@@ -11,6 +11,7 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
+
 //Digi stuff
 #include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCFEBStatusDigi.h"
@@ -39,7 +40,9 @@
 #include "DataFormats/CSCDigi/interface/CSCDCCStatusDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTStatusDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTStatusDigiCollection.h"
-
+#include "DataFormats/CSCDigi/interface/CSCALCTStatusDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCDCCFormatStatusDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCDCCFormatStatusDigiCollection.h"
 
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
@@ -99,6 +102,7 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
     produces<CSCALCTStatusDigiCollection>("MuonCSCALCTStatusDigi");
     produces<CSCDDUStatusDigiCollection>("MuonCSCDDUStatusDigi");
     produces<CSCDCCStatusDigiCollection>("MuonCSCDCCStatusDigi");
+    produces<CSCDCCFormatStatusDigiCollection>("MuonCSCDCCFormatStatusDigi");
   }
   //CSCAnodeData::setDebug(debug);
   CSCALCTHeader::setDebug(debug);
@@ -150,6 +154,9 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
   std::auto_ptr<CSCDCCStatusDigiCollection> dccStatusProduct(new CSCDCCStatusDigiCollection);
   std::auto_ptr<CSCALCTStatusDigiCollection> alctStatusProduct(new CSCALCTStatusDigiCollection);
 
+  std::auto_ptr<CSCDCCFormatStatusDigiCollection> formatStatusProduct(new CSCDCCFormatStatusDigiCollection);
+ 
+
   // If set selective unpacking mode 
   // hardcoded examiner mask below to check for DCC and DDU level errors will be used first
   // then examinerMask for CSC level errors will be used during unpacking of each CSC block
@@ -197,6 +204,11 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	  if (useSelectiveUnpacking)  goodEvent=!(examiner->errors()&dccBinCheckMask);
 	  else goodEvent=!(examiner->errors()&examinerMask);
 	}
+
+	// Fill Format status digis per FED
+	// Remove examiner->errors() != 0 check if we need to put status digis for every event
+	if (unpackStatusDigis && (examiner->errors() !=0))
+	  formatStatusProduct->insertDigi(CSCDetId(1,1,1,1,1), CSCDCCFormatStatusDigi(id,examiner,dccBinCheckMask));
       }
 	  
       
@@ -475,8 +487,8 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
           }
         }
 
-	dccStatusProduct->insertDigi(CSCDetId(1,1,1,1,1), CSCDCCStatusDigi(examiner->errors()));
-	if(instatiateDQM)  monitor->process(examiner, NULL);
+	// dccStatusProduct->insertDigi(CSCDetId(1,1,1,1,1), CSCDCCStatusDigi(examiner->errors()));
+	// if(instatiateDQM)  monitor->process(examiner, NULL);
       }
       if (examiner!=NULL) delete examiner;
     } // end of if fed has data
@@ -491,12 +503,15 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
   e.put(corrlctProduct,       "MuonCSCCorrelatedLCTDigi");
   if (unpackStatusDigis) 
     {
+      e.put(formatStatusProduct,    "MuonCSCDCCFormatStatusDigi");
+/*
       e.put(cfebStatusProduct,    "MuonCSCCFEBStatusDigi");
       e.put(dmbStatusProduct,     "MuonCSCDMBStatusDigi");
       e.put(tmbStatusProduct,     "MuonCSCTMBStatusDigi");
       e.put(dduStatusProduct,     "MuonCSCDDUStatusDigi");
       e.put(dccStatusProduct,     "MuonCSCDCCStatusDigi");
       e.put(alctStatusProduct,    "MuonCSCALCTStatusDigi");
+*/
     }
   if (printEventNumber) LogTrace("CSCDCCUnpacker|CSCRawToDigi") 
    <<"[CSCDCCUnpacker]: " << numOfEvents << " events processed ";

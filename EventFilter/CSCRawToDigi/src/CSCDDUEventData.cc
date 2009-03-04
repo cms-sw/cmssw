@@ -13,7 +13,7 @@
 #include "EventFilter/CSCRawToDigi/src/bitset_append.h"
 
 bool CSCDDUEventData::debug = false;
-unsigned int CSCDDUEventData::errMask = 0xFFFFFFFF;
+uint32_t CSCDDUEventData::errMask = 0xFFFFFFFF;
 
 
 CSCDDUEventData::CSCDDUEventData(const CSCDDUHeader & header) 
@@ -22,7 +22,7 @@ CSCDDUEventData::CSCDDUEventData(const CSCDDUHeader & header)
 }
 
   
-CSCDDUEventData::CSCDDUEventData(unsigned short *buf, CSCDCCExaminer* examiner) 
+CSCDDUEventData::CSCDDUEventData(uint16_t *buf, CSCDCCExaminer* examiner) 
 {
   unpack_data(buf, examiner);
 }
@@ -147,10 +147,10 @@ void CSCDDUEventData::decodeStatus(int code) const
     }
 }
 
-void CSCDDUEventData::unpack_data(unsigned short *buf, CSCDCCExaminer* examiner) 
+void CSCDDUEventData::unpack_data(uint16_t *buf, CSCDCCExaminer* examiner) 
 {
   // just to calculate length
-  unsigned short * inputBuf = buf;
+  uint16_t * inputBuf = buf;
   theData.clear();
   if (debug) LogTrace ("CSCDDUEventData|CSCRawToDigi") << "CSCDDUEventData::unpack_data() is called";
   if (debug) for (int i=0;i<4;++i) 
@@ -183,26 +183,26 @@ void CSCDDUEventData::unpack_data(unsigned short *buf, CSCDCCExaminer* examiner)
     if (debug) LogTrace ("CSCDDUEventData|CSCRawToDigi") << "selective unpacking starting";
 
     // Find this DDU in examiner's DDUs list
-    int dduID = theDDUHeader.source_id();	
+    DDUIdType dduID = theDDUHeader.source_id();	
 	
-    std::map<short,std::map<short,const unsigned short*> > ddus = examiner->DMB_block();
-    std::map<short,std::map<short,const unsigned short*> >::iterator ddu_itr = ddus.find(dduID);
-    unsigned short* dduBlock = (unsigned short*)((examiner->DDU_block())[dduID]);
-    unsigned long dduBufSize = (examiner->DDU_size())[dduID];
+    std::map<DDUIdType,std::map<CSCIdType,const uint16_t*> > ddus = examiner->DMB_block();
+    std::map<DDUIdType,std::map<CSCIdType,const uint16_t*> >::iterator ddu_itr = ddus.find(dduID);
+    uint16_t* dduBlock = (uint16_t*)((examiner->DDU_block())[dduID]);
+    uint32_t dduBufSize = (examiner->DDU_size())[dduID];
 		
     if (ddu_itr != ddus.end() && dduBufSize!=0 && dduBlock==inputBuf) {
-      std::map<short,const unsigned short*> &cscs = ddu_itr->second;
-      std::map<short,const unsigned short*>::iterator csc_itr;
+      std::map<CSCIdType,const uint16_t*> &cscs = ddu_itr->second;
+      std::map<CSCIdType,const uint16_t*>::iterator csc_itr;
 
       for (csc_itr=cscs.begin(); csc_itr != cscs.end(); ++csc_itr) {
 	short cscid = csc_itr->first;
 
         if(cscid != -1)
         {
-	  unsigned short* pos = (unsigned short*)csc_itr->second;
+	  uint16_t* pos = (uint16_t*)csc_itr->second;
 	
 	
-          long errors = examiner->errorsForChamber(cscid);
+          ExaminerStatusType errors = examiner->errorsForChamber(cscid);
           if ((errors & examiner->getMask()) > 0 ) {	
          	if (debug) 
 		LogTrace ("CSCDDUEventData|CSCRawToDigi" )

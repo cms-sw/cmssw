@@ -15,6 +15,7 @@
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCRPCDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCDCCFormatStatusDigiCollection.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -40,6 +41,7 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
   edm::Handle<CSCRPCDigiCollection> rpcs;
   edm::Handle<CSCCorrelatedLCTDigiCollection> correlatedlcts;
   edm::Handle<CSCDDUStatusDigiCollection> dduStatusDigi;
+  edm::Handle<CSCDCCFormatStatusDigiCollection> formatStatusDigi;
 
   // Pass the handle to the method "getByType", which is used to retrieve
   // one and only one instance of the type in question out of event "e". If
@@ -47,19 +49,28 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
   //
 
   // e.getByLabel("muonCSCDigis","MuonCSCDDUStatusDigi", dduStatusDigi);
-  e.getByLabel("muonCSCDigis","MuonCSCWireDigi",wires);
-  e.getByLabel("muonCSCDigis","MuonCSCStripDigi",strips);
+  // e.getByLabel("muonCSCDigis","MuonCSCWireDigi",wires);
+  // e.getByLabel("muonCSCDigis","MuonCSCStripDigi",strips);
   //   e.getByLabel("muonCSCDigis","MuonCSCComparatorDigi",comparators);
   //e.getByLabel("muonCSCDigis","MuonCSCALCTDigi",alcts);
   //  e.getByLabel("muonCSCDigis","MuonCSCCLCTDigi",clcts);
   // e.getByLabel("muonCSCDigis","MuonCSCRPCDigi",rpcs);
   //e.getByLabel("muonCSCDigis","MuonCSCCorrelatedLCTDigi",correlatedlcts);
-  
+  e.getByLabel("muonCSCDigis","MuonCSCDCCFormatStatusDigi",formatStatusDigi);
   
    
   // read digi collections and print digis
   //
   
+  for (CSCDCCFormatStatusDigiCollection::DigiRangeIterator j=formatStatusDigi->begin(); j!=formatStatusDigi->end(); j++) {
+    std::vector<CSCDCCFormatStatusDigi>::const_iterator digiItr = (*j).second.first;
+    std::vector<CSCDCCFormatStatusDigi>::const_iterator last = (*j).second.second;
+    for( ; digiItr != last; ++digiItr) {
+	digiItr->print();
+    }
+  }
+
+
   /*for (CSCDDUStatusDigiCollection::DigiRangeIterator j=dduStatusDigi->begin(); j!=dduStatusDigi->end(); j++) {
     std::vector<CSCDDUStatusDigi>::const_iterator digiItr = (*j).second.first;
     std::vector<CSCDDUStatusDigi>::const_iterator last = (*j).second.second;
@@ -70,7 +81,7 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
     }
   }
   */
- 
+ /*
   for (CSCStripDigiCollection::DigiRangeIterator j=strips->begin(); j!=strips->end(); j++) {
     std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
     CSCDetId const cscDetId=(*j).first;
@@ -91,7 +102,7 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
       digiItr->print();
     }
   }
-
+*/
 
 
   /*

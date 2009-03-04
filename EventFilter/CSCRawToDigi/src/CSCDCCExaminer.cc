@@ -40,14 +40,14 @@ void CSCDCCExaminer::modeDDU(bool enable){
 }
 
 
-CSCDCCExaminer::CSCDCCExaminer(unsigned long mask):nERRORS(29),nWARNINGS(5),nPAYLOADS(12),nSTATUSES(23),sERROR(nERRORS),sWARNING(nWARNINGS),sERROR_(nERRORS),sWARNING_(nWARNINGS),sDMBExpectedPayload(nPAYLOADS),sDMBEventStaus(nSTATUSES),examinerMask(mask){
+CSCDCCExaminer::CSCDCCExaminer(ExaminerMaskType mask):nERRORS(29),nWARNINGS(5),nPAYLOADS(12),nSTATUSES(23),sERROR(nERRORS),sWARNING(nWARNINGS),sERROR_(nERRORS),sWARNING_(nWARNINGS),sDMBExpectedPayload(nPAYLOADS),sDMBEventStaus(nSTATUSES),examinerMask(mask){
   cout.redirect(std::cout); cerr.redirect(std::cerr);
 
   sERROR[0] = " Any errors                                       ";
   sERROR[1] = " DDU Trailer Missing                              ";
   sERROR[2] = " DDU Header Missing                               ";
-  sERROR[4] = " DDU Word Count Error                             ";
   sERROR[3] = " DDU CRC Error (not yet implemented)              ";
+  sERROR[4] = " DDU Word Count Error                             ";
   sERROR[5] = " DMB Trailer Missing                              ";
   sERROR[6] = " DMB Header Missing                               ";
   sERROR[7] = " ALCT Trailer Missing                             ";
@@ -126,8 +126,8 @@ CSCDCCExaminer::CSCDCCExaminer(unsigned long mask):nERRORS(29),nWARNINGS(5),nPAY
   sERROR_[0] = " Any errors: 00";
   sERROR_[1] = " DDU Trailer Missing: 01";
   sERROR_[2] = " DDU Header Missing: 02";
-  sERROR_[4] = " DDU Word Count Error: 04";
   sERROR_[3] = " DDU CRC Error (not yet implemented): 03";
+  sERROR_[4] = " DDU Word Count Error: 04";
   sERROR_[5] = " DMB Trailer Missing: 05";
   sERROR_[6] = " DMB Header Missing: 06";
   sERROR_[7] = " ALCT Trailer Missing: 07";
@@ -203,10 +203,10 @@ CSCDCCExaminer::CSCDCCExaminer(unsigned long mask):nERRORS(29),nWARNINGS(5),nPAY
   buf1  = &(tmpbuf[8]);
   buf2  = &(tmpbuf[12]);
 
-  bzero(tmpbuf, sizeof(short)*16);
+  bzero(tmpbuf, sizeof(uint16_t)*16);
 }
 
-long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
+int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
   if( length<=0 ) return -1;
 
   // 'buffer' is a sliding pointer; keep track of the true buffer
@@ -270,7 +270,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 	  buf0  = &(tmpbuf[4]);  // Just for safety
 	  buf1  = &(tmpbuf[8]);  // Just for safety
 	  buf2  = &(tmpbuf[12]); // Just for safety
-	  bzero(tmpbuf,sizeof(unsigned short)*16);
+	  bzero(tmpbuf,sizeof(uint16_t)*16);
 	  return length+12;
 	}
 
@@ -351,7 +351,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 	buf0  = &(tmpbuf[4]);  // Just for safety
 	buf1  = &(tmpbuf[8]);  // Just for safety
 	buf2  = &(tmpbuf[12]); // Just for safety
-	bzero(tmpbuf,sizeof(unsigned short)*16);
+	bzero(tmpbuf,sizeof(uint16_t)*16);
 	return length+12;
       }
 
@@ -672,7 +672,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 
       // Check calculated CRC sum against reported
       if( checkCrcALCT ){
-    unsigned long crc = ( fALCT_Format2007 ? buf0[1] : buf0[0] ) & 0x7ff;
+    uint32_t crc = ( fALCT_Format2007 ? buf0[1] : buf0[0] ) & 0x7ff;
     crc |= ((uint32_t)( ( fALCT_Format2007 ? buf0[2] : buf0[1] ) & 0x7ff)) << 11;
 	if( ALCT_CRC != crc ){
 	  fERROR[10] = true;
@@ -695,10 +695,10 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 
     // Calculation of CRC sum ( algorithm is written by Madorsky )
     if( fALCT_Header && checkCrcALCT ){
-      for(unsigned short j=0, w=0; j<4; ++j){
+      for(uint16_t j=0, w=0; j<4; ++j){
 	///w = buf0[j] & 0x7fff;
 	w = buf0[j] & (fALCT_Format2007 ? 0xffff : 0x7fff);
-	for(unsigned long i=15, t=0, ncrc=0; i<16; i--){
+	for(uint32_t i=15, t=0, ncrc=0; i<16; i--){
 	  t = ((w >> i) & 1) ^ ((ALCT_CRC >> 21) & 1);
 	  ncrc = (ALCT_CRC << 1) & 0x3ffffc;
 	  ncrc |= (t ^ (ALCT_CRC & 1)) << 1;
@@ -745,7 +745,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 
       // Check calculated CRC sum against reported
       if( checkCrcTMB ){
-    unsigned long crc = ( fTMB_Format2007 ? buf0[1]&0x7ff : buf0[0]&0x7ff );
+    uint32_t crc = ( fTMB_Format2007 ? buf0[1]&0x7ff : buf0[0]&0x7ff );
     crc |= ((uint32_t)( ( fTMB_Format2007 ? buf0[2]&0x7ff : buf0[1] & 0x7ff ) )) << 11;
 	if( TMB_CRC != crc ){
 	  fERROR[15] = true;
@@ -787,10 +787,10 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
     }
 
     if( fTMB_Header && checkCrcTMB ){
-      for(unsigned short j=0, w=0; j<4; ++j){
+      for(uint16_t j=0, w=0; j<4; ++j){
 	///w = buf0[j] & 0x7fff;
 	w = buf0[j] & (fTMB_Format2007 ? 0xffff : 0x7fff);
-	for(unsigned long i=15, t=0, ncrc=0; i<16; i--){
+	for(uint32_t i=15, t=0, ncrc=0; i<16; i--){
 	  t = ((w >> i) & 1) ^ ((TMB_CRC >> 21) & 1);
 	  ncrc = (TMB_CRC << 1) & 0x3ffffc;
 	  ncrc |= (t ^ (TMB_CRC & 1)) << 1;
@@ -1114,7 +1114,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 	buf0  = &(tmpbuf[4]);  // Just for safety
 	buf1  = &(tmpbuf[8]);  // Just for safety
 	buf2  = &(tmpbuf[12]); // Just for safety
-	bzero(tmpbuf, sizeof(short)*16);
+	bzero(tmpbuf, sizeof(uint16_t)*16);
 	return length-4;
       }
     }
@@ -1143,7 +1143,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 	buf0  = &(tmpbuf[4]);  // Just for safety
 	buf1  = &(tmpbuf[8]);  // Just for safety
 	buf2  = &(tmpbuf[12]); // Just for safety
-	bzero(tmpbuf, sizeof(short)*16);
+	bzero(tmpbuf, sizeof(uint16_t)*16);
 	return length-4;
       }
     }
