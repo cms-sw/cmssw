@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre2/1E31_V129/V2 (CMSSW_3_1_X_2009-02-25-0700_HLT2)
+# /dev/CMSSW_3_1_0/pre2/1E31_V130/V2 (CMSSW_3_1_X_2009-02-25-0700_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/1E31_V129/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/1E31_V130/V2')
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -4936,7 +4936,7 @@ hltL3TauIsolationSelector = cms.EDProducer( "IsolatedTauJetsSelector",
     JetSrc = cms.VInputTag( 'hltL3TauConeIsolation' )
 )
 hltL1HLTSingleIsoTau20JetsMatch = cms.EDProducer( "L1HLTJetsMatching",
-    JetSrc = cms.InputTag( "hltL3TauIsolationSelector " ),
+    JetSrc = cms.InputTag( "hltL3TauIsolationSelector" ),
     L1TauTrigger = cms.InputTag( "hltL1sSingleIsoTau20Trk5" ),
     EtMin = cms.double( 20.0 )
 )
