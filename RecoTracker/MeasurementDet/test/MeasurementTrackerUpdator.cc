@@ -13,7 +13,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Fri Mar 16 13:19:20 CDT 2007
-// $Id$
+// $Id: MeasurementTrackerUpdator.cc,v 1.1 2007/10/18 08:26:38 vlimant Exp $
 //
 //
 
@@ -44,7 +44,7 @@ public:
 
 
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginRun(edm::Run & run, const edm::EventSetup&) ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
@@ -72,7 +72,7 @@ void MeasurementTrackerUpdator::analyze(const edm::Event& iEvent, const edm::Eve
 
 }
 
-void MeasurementTrackerUpdator::beginJob(const edm::EventSetup&) {}
+void MeasurementTrackerUpdator::beginRun(edm::Run & run, const edm::EventSetup&) {}
 void MeasurementTrackerUpdator::endJob() {}
 
 //define this as a plug-in

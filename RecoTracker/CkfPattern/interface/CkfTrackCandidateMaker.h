@@ -36,7 +36,7 @@ namespace cms
 
     virtual ~CkfTrackCandidateMaker(){;}
 
-    virtual void beginJob (edm::EventSetup const & es){beginJobBase(es);}
+    virtual void beginRun (edm::Run&r, edm::EventSetup const & es){beginRunBase(r,es);}
 
     virtual void produce(edm::Event& e, const edm::EventSetup& es){produceBase(e,es);}
     

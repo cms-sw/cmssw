@@ -18,7 +18,7 @@ class TestHitPropagator : public edm::EDAnalyzer
 	TestHitPropagator(const edm::ParameterSet& conf);
 	virtual ~TestHitPropagator();
 	
-	virtual void beginJob(const edm::EventSetup& c);
+	virtual void beginRun(edm::Run & run, const edm::EventSetup& c);
 	virtual void endJob();
 	virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
 

@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Tue Sep  9 09:47:01 CEST 2008
-// $Id$
+// $Id: TrackCandidateTopBottomHitFilter.cc,v 1.1 2009/01/26 09:43:08 vlimant Exp $
 //
 //
 
@@ -46,7 +46,7 @@ public:
   ~TrackCandidateTopBottomHitFilter();
 
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginRun(edm::Run & run, const edm::EventSetup&) ;
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   edm::InputTag label;
@@ -99,7 +99,7 @@ void TrackCandidateTopBottomHitFilter::produce(edm::Event& iEvent, const edm::Ev
   iEvent.put(pOut);
 }
 
-void TrackCandidateTopBottomHitFilter::beginJob(const edm::EventSetup& iSetup) {
+void TrackCandidateTopBottomHitFilter::beginRun(edm::Run & run, const edm::EventSetup& iSetup) {
   iSetup.get<TransientRecHitRecord>().get(builderName,theBuilder);
 }
 

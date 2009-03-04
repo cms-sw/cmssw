@@ -24,7 +24,7 @@ public:
   ~GsfVertexConstraintProducer();
 
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginRun(edm::Run & run, const edm::EventSetup&) ;
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
       
@@ -90,7 +90,7 @@ void GsfVertexConstraintProducer::produce(edm::Event& iEvent, const edm::EventSe
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void GsfVertexConstraintProducer::beginJob(const edm::EventSetup&)
+void GsfVertexConstraintProducer::beginRun(edm::Run & run, const edm::EventSetup&)
 {
 }
 

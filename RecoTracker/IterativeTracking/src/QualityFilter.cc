@@ -153,7 +153,7 @@ QualityFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-QualityFilter::beginJob(const edm::EventSetup&)
+QualityFilter::beginRun(edm::Run & run, const edm::EventSetup&)
 {
 }
 

@@ -15,7 +15,7 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Tue Feb 13 17:29:10 CET 2007
-// $Id: TestTrackHits.h,v 1.5 2008/02/11 12:08:49 cerati Exp $
+// $Id: TestTrackHits.h,v 1.6 2008/05/28 16:44:47 cerati Exp $
 //
 //
 
@@ -58,7 +58,7 @@ public:
   ~TestTrackHits();
 
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginRun(edm::Run & run, const edm::EventSetup&) ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 

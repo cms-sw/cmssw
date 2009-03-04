@@ -34,7 +34,7 @@ DAFValidator::DAFValidator(const edm::ParameterSet& conf): theConf(conf){
 	output = new TFile(outfilename.c_str(), "RECREATE");
 }
 
-void DAFValidator::beginJob(const edm::EventSetup& c){
+void DAFValidator::beginRun(edm::Run & run, const edm::EventSetup& c){
        
   const bool oldAddDir = TH1::AddDirectoryStatus();
   TH1::AddDirectory(true);

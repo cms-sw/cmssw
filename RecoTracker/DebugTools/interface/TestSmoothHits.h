@@ -17,7 +17,7 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Tue Feb 13 17:29:10 CET 2007
-// $Id: TestSmoothHits.h,v 1.1 2007/08/10 00:50:23 cerati Exp $
+// $Id: TestSmoothHits.h,v 1.2 2007/10/08 22:20:04 cerati Exp $
 //
 //
 #include <memory>
@@ -54,7 +54,7 @@ public:
   ~TestSmoothHits();
 
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginRun(edm::Run & run, const edm::EventSetup&) ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 

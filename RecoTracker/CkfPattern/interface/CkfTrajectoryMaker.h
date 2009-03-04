@@ -42,7 +42,7 @@ namespace cms
 
     virtual ~CkfTrajectoryMaker(){;}
 
-    virtual void beginJob (edm::EventSetup const & es){beginJobBase(es);}
+    virtual void beginRun (edm::Run & run, edm::EventSetup const & es){beginRunBase(run,es);}
 
     virtual void produce(edm::Event& e, const edm::EventSetup& es){produceBase(e,es);}
   };

@@ -72,7 +72,7 @@ namespace cms{
     if (theSeedCleaner) delete theSeedCleaner;
   }  
 
-  void CkfTrackCandidateMakerBase::beginJobBase (EventSetup const & es)
+  void CkfTrackCandidateMakerBase::beginRunBase (edm::Run & r, EventSetup const & es)
   {
     std::string cleaner = conf_.getParameter<std::string>("RedundantSeedCleaner");
     if (cleaner == "SeedCleanerByHitPosition") {

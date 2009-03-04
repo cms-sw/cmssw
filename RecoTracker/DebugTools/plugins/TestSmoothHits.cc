@@ -37,7 +37,7 @@ TestSmoothHits::TestSmoothHits(const edm::ParameterSet& iConfig):
 
 TestSmoothHits::~TestSmoothHits(){}
 
-void TestSmoothHits::beginJob(const edm::EventSetup& iSetup)
+void TestSmoothHits::beginRun(edm::Run & run, const edm::EventSetup& iSetup)
 {
  
   iSetup.get<TrackerDigiGeometryRecord>().get(theG);

@@ -13,7 +13,7 @@
 //
 // Original Author:  Loic QUERTENMONT, Vincent ROBERFROID
 //         Created:  Tue Sep 18 14:22:48 CEST 2007
-// $Id: NuclearTrackCorrector.cc,v 1.8 2008/07/08 09:34:59 roberfro Exp $
+// $Id: NuclearTrackCorrector.cc,v 1.9 2008/08/13 21:02:45 roberfro Exp $
 //
 //
 
@@ -195,7 +195,7 @@ NuclearTrackCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-NuclearTrackCorrector::beginJob(const edm::EventSetup& iSetup)
+NuclearTrackCorrector::beginRun(edm::Run & run, const edm::EventSetup& iSetup)
 {
 }
 

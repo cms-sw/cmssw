@@ -13,7 +13,7 @@
 //
 // Original Author:  Boris Mangano
 //         Created:  Mon Oct 16 10:38:20 CEST 2006
-// $Id: TrajectoryAnalyzer.cc,v 1.1 2006/10/16 17:57:18 mangano Exp $
+// $Id: TrajectoryAnalyzer.cc,v 1.2 2006/10/24 08:53:45 mangano Exp $
 //
 //
 
@@ -51,7 +51,7 @@ class TrajectoryAnalyzer : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginRun(edm::Run & run, const edm::EventSetup&) ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
@@ -123,7 +123,7 @@ TrajectoryAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-TrajectoryAnalyzer::beginJob(const edm::EventSetup&)
+TrajectoryAnalyzer::beginRun(edm::Run & run, const edm::EventSetup&)
 {
 }
 

@@ -17,7 +17,7 @@
 //
 // Original Author:  Loic QUERTENMONT, Vincent ROBERFROID
 //         Created:  Tue Sep 18 14:22:48 CEST 2007
-// $Id: NuclearTrackCorrector.h,v 1.5 2008/05/02 19:43:17 burkett Exp $
+// $Id: NuclearTrackCorrector.h,v 1.6 2008/07/08 09:34:59 roberfro Exp $
 //
 //
 
@@ -87,7 +87,7 @@ class NuclearTrackCorrector :  public edm::EDProducer {
       ~NuclearTrackCorrector();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginRun(edm::Run & run, const edm::EventSetup&) ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 

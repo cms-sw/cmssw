@@ -15,7 +15,7 @@ using namespace edm;
 TestHitPropagator::TestHitPropagator(const edm::ParameterSet& conf): theConf(conf){
 }
 
-void TestHitPropagator::beginJob(const edm::EventSetup& c){}
+void TestHitPropagator::beginRun(edm::Run & run, const edm::EventSetup& c){}
 
 TestHitPropagator::~TestHitPropagator(){}
 

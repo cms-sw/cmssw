@@ -14,8 +14,8 @@ namespace cms {
       produces<TrackCandidateCollection>();
     }
 
-    virtual void beginJob (edm::EventSetup const & es){
-      beginJobBase(es); 
+    virtual void beginRun (edm::Run & run, edm::EventSetup const & es){
+      beginRunBase(run,es); 
       initDebugger(es);
     }
 

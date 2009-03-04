@@ -13,7 +13,7 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Mon Sep 17 10:31:30 CEST 2007
-// $Id: TestOutliers.cc,v 1.2 2008/02/13 16:04:10 cerati Exp $
+// $Id: TestOutliers.cc,v 1.4 2008/05/28 16:44:47 cerati Exp $
 //
 //
 
@@ -66,7 +66,7 @@ public:
 
 
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginRun(edm::Run & run, const edm::EventSetup&) ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
@@ -903,7 +903,7 @@ TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-TestOutliers::beginJob(const edm::EventSetup& es)
+TestOutliers::beginRun(edm::Run & run, const edm::EventSetup& es)
 {
   es.get<TrackerDigiGeometryRecord>().get(theG);
   const bool oldAddDir = TH1::AddDirectoryStatus();

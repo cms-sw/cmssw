@@ -15,7 +15,7 @@
 //         Created:  Thu May 31 14:09:02 CEST 2007
 //    Code Updates:  loic Quertenmont (querten)
 //         Created:  Thu May 10 14:09:02 CEST 2008
-// $Id: DeDxDiscriminatorProducer.cc,v 1.5 2008/11/27 15:12:46 querten Exp $
+// $Id: DeDxDiscriminatorProducer.cc,v 1.7 2008/12/09 09:24:29 querten Exp $
 //
 //
 
@@ -73,7 +73,7 @@ DeDxDiscriminatorProducer::DeDxDiscriminatorProducer(const edm::ParameterSet& iC
 DeDxDiscriminatorProducer::~DeDxDiscriminatorProducer(){}
 
 // ------------ method called once each job just before starting event loop  ------------
-void  DeDxDiscriminatorProducer::beginJob(const edm::EventSetup& iSetup)
+void  DeDxDiscriminatorProducer::beginRun(edm::Run & run, const edm::EventSetup& iSetup)
 {
    edm::ESHandle<PhysicsTools::Calibration::HistogramD2D> DeDxMapHandle_;    
    iSetup.get<SiStripDeDxMipRcd>().get(DeDxMapHandle_);

@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Tue Jul 10 15:05:02 CEST 2007
-// $Id: MomentumConstraintProducer.cc,v 1.2 2007/07/22 10:26:39 cerati Exp $
+// $Id: MomentumConstraintProducer.cc,v 1.3 2007/09/18 14:35:06 ratnik Exp $
 //
 //
 
@@ -44,7 +44,7 @@ public:
   ~MomentumConstraintProducer();
 
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginRun(edm::Run & run, const edm::EventSetup&) ;
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
       
@@ -110,7 +110,7 @@ void MomentumConstraintProducer::produce(edm::Event& iEvent, const edm::EventSet
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void MomentumConstraintProducer::beginJob(const edm::EventSetup&)
+void MomentumConstraintProducer::beginRun(edm::Run & run, const edm::EventSetup&)
 {
 }
 

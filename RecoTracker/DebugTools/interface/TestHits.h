@@ -17,7 +17,7 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Tue Feb 13 17:29:10 CET 2007
-// $Id: TestHits.h,v 1.3 2007/08/10 00:49:49 cerati Exp $
+// $Id: TestHits.h,v 1.4 2007/10/08 22:20:04 cerati Exp $
 //
 //
 #include <memory>
@@ -53,7 +53,7 @@ public:
   ~TestHits();
 
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginRun(edm::Run & run, const edm::EventSetup&) ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 

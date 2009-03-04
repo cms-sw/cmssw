@@ -13,7 +13,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Fri Mar 16 13:19:20 CDT 2007
-// $Id: NavigationSchoolAnalyzer.cc,v 1.1 2007/10/02 17:50:03 vlimant Exp $
+// $Id: NavigationSchoolAnalyzer.cc,v 1.2 2008/09/17 11:43:46 vlimant Exp $
 //
 //
 
@@ -57,7 +57,7 @@ public:
   
   
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginRun(edm::Run & run, const edm::EventSetup&) ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
@@ -159,7 +159,7 @@ NavigationSchoolAnalyzer::~NavigationSchoolAnalyzer() {}
 
 void NavigationSchoolAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {}
 
-void NavigationSchoolAnalyzer::beginJob(const edm::EventSetup& iSetup) {
+void NavigationSchoolAnalyzer::beginRun(edm::Run & run, const edm::EventSetup& iSetup) {
   //get the navigation school
   edm::ESHandle<NavigationSchool> nav;
   iSetup.get<NavigationSchoolRecord>().get(theNavigationSchoolName, nav);
