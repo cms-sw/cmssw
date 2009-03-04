@@ -33,6 +33,7 @@ class OHltConfig {
   /**** General Menu & Run conditions ****/ 
   int nEntries;
   int nPrintStatusEvery;
+  bool isRealData;
   TString menuTag;
   TString alcaCondition;
   TString versionTag;
@@ -47,6 +48,11 @@ class OHltConfig {
   float cmsEnergy;
   /*************************/
 
+  /**** Real data conditions ****/  
+  float liveTimeRun;
+  int nL1AcceptsRun;
+  /******************************/ 
+  
   /**** Samples & processes ****/ 
   vector<TString> pnames; 
   vector<TString> ppaths; 

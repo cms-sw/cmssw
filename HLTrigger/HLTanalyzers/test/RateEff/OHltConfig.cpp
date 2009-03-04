@@ -15,6 +15,7 @@ OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
     /**** General Menu & Run conditions ****/ 
     cfg.lookupValue("run.nEntries",nEntries);    
     cfg.lookupValue("run.nPrintStatusEvery",nPrintStatusEvery);    
+    cfg.lookupValue("run.isRealData",isRealData);
     cfg.lookupValue("run.menuTag",stmp); menuTag = TString(stmp);    
     cfg.lookupValue("run.versionTag",stmp); versionTag = TString(stmp);    
     cfg.lookupValue("run.alcaCondition",stmp); alcaCondition = TString(stmp);    
@@ -28,6 +29,11 @@ OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
     cfg.lookupValue("beam.nFilledBunches",nFilledBunches);    
     cfg.lookupValue("beam.cmsEnergy",cmsEnergy);    
     /**********************************/
+
+    /**** Real data conditions ****/   
+    cfg.lookupValue("data.liveTimeRun",liveTimeRun);
+    cfg.lookupValue("data.nL1AcceptsRun",nL1AcceptsRun); 
+    /******************************/  
   
     /**** Samples & Processes ****/ 
     Setting &p = cfg.lookup("process.names");
