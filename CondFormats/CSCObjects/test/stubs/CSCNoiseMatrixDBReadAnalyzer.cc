@@ -1,9 +1,3 @@
-/*----------------------------------------------------------------------
-
-Toy EDProducers and EDProducts for testing purposes only.
-
-----------------------------------------------------------------------*/
-
 #include <stdexcept>
 #include <string>
 #include <iostream>
@@ -18,6 +12,7 @@ Toy EDProducers and EDProducts for testing purposes only.
 
 #include "CondFormats/CSCObjects/interface/CSCDBNoiseMatrix.h"
 #include "CondFormats/DataRecord/interface/CSCDBNoiseMatrixRcd.h"
+#include "DataFormats/MuonDetId/interface/CSCIndexer.h"
 
 namespace edmtest
 {
@@ -48,11 +43,15 @@ namespace edmtest
     const CSCDBNoiseMatrix* myNoiseMatrix=pNoiseMatrix.product();
     std::cout << " Scale factor for conversion to int was " << myNoiseMatrix->factor_noise << std::endl;
 
+    CSCIndexer indexer;
+
     std::vector<CSCDBNoiseMatrix::Item>::const_iterator it;
 
     for( it=myNoiseMatrix->matrix.begin();it!=myNoiseMatrix->matrix.end(); ++it ){
-      counter++;
-      DBNoiseMatrixFile<<counter<<"  "<<it->elem33<<"  "<<it->elem34<<"  "<<it->elem44<<
+      ++counter;
+      std::pair<CSCDetId,CSCIndexer::IndexType> thePair = indexer.detIdFromStripChannelIndex( counter );
+      DBNoiseMatrixFile<<counter<<"  "<<thePair.first << " chan " << thePair.second << 
+      "  "<<it->elem33<<"  "<<it->elem34<<"  "<<it->elem44<<
       "  "<<it->elem35<<"  "<<it->elem45<<"  "<<it->elem55<<"  "<<it->elem46<<"  "<<it->elem56<<
       "  "<<it->elem66<<"  "<<it->elem57<<"  "<<it->elem67<<"  "<<it->elem77<<std::endl;
       if(it->elem33<0){std::cerr<<" 33(1) negative: " << it->elem33 << std::endl;}
