@@ -9,7 +9,8 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.source = cms.Source("PoolSource",
     debugFlag = cms.untracked.bool(True),
     debugVebosity = cms.untracked.uint32(10),
-       fileNames = cms.untracked.vstring (   '/store/relval/CMSSW_3_0_0_pre7/RelValSinglePiPt100/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0002/24CB7386-89E9-DD11-9F0E-00304875A593.root')
+       #fileNames = cms.untracked.vstring (   '/store/relval/CMSSW_3_0_0_pre7/RelValSinglePiPt100/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0002/24CB7386-89E9-DD11-9F0E-00304875A593.root')
+    fileNames = cms.untracked.vstring ('file:/uscms_data/d1/mikeh/QCD_Pt_50_80_cfi_GEN_SIM_DIGI_L1_DIGI2RAW_NoNoise_30X.root' )
 )
 
 process.maxEvents = cms.untracked.PSet(
