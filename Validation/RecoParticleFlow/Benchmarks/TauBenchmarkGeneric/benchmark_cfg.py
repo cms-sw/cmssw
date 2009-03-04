@@ -8,13 +8,13 @@ process.load("DQMServices.Core.DQM_cfg")
 
 
 
-process.load("Validation.RecoParticleFlow.ztt_cfi")
+#process.load("Validation.RecoParticleFlow.ztt_cfi")
 #process.load("Validation.RecoParticleFlow.singletau_cfi")
 
-#process.source = cms.Source("PoolSource",
-#                            fileNames = cms.untracked.vstring('file:aod.root'
-#                                                              )
-#                            )
+process.source = cms.Source("PoolSource",
+                            fileNames = cms.untracked.vstring('file:aod.root'
+                                                              )
+                            )
 
 
 
