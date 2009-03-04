@@ -34,7 +34,9 @@ process.rpcunpacker = cms.EDFilter("RPCUnpackingModule",
 
 process.source = cms.Source("PoolSource",
     moduleLogName = cms.untracked.string('source'),
-    fileNames = cms.untracked.vstring('/store/data/Commissioning08/Cosmics/RECO/v1/000/070/659/50CD2EE7-79AF-DD11-918C-000423D9870C.root ')
+ #   fileNames = cms.untracked.vstring('/store/data/Commissioning08/Cosmics/RECO/v1/000/070/659/50CD2EE7-79AF-DD11-918C-000423D9870C.root ')
+     fileNames = cms.untracked.vstring('/store/data/Commissioning08/Cosmics/RECO/v1/000/070/664/1CE1633D-87AF-DD11-AD95-000423D98B08.root')
+     # fileNames = cms.untracked.vstring('file:/tmp/dlomidze/digi.root ')                       
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -73,7 +75,7 @@ process.qTesterRPC = cms.EDFilter("QualityTester",
 process.RPCDeadChannelTest = cms.EDAnalyzer("RPCDeadChannelTest")
 #process.RPCOccupancyTest = cms.EDAnalyzer("RPCOccupancyTest")
 
-process.p = cms.Path(process.rpcRecHits*process.rpcdigidqm*process.qTesterRPC*process.RPCDeadChannelTest*process.dqmEnv*process.rpcEventSummary)
+process.p = cms.Path(process.rpcRecHits*process.rpcdigidqm*process.dqmEnv)
 process.rpcdigidqm.DigiEventsInterval = 100
 process.rpcdigidqm.DigiDQMSaveRootFile = True
 process.rpcdigidqm.dqmshifter = True

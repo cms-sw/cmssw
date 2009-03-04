@@ -5,8 +5,8 @@
  *
  * Class for RPC Monitoring (strip id, cluster size).
  *
- *  $Date: 2008/10/07 14:14:21 $
- *  $Revision: 1.21 $
+ *  $Date: 2008/12/15 16:38:08 $
+ *  $Revision: 1.22 $
  *
  * \author Ilaria Segoni (CERN)
  *
@@ -73,10 +73,11 @@ class RPCMonitorDigi : public edm::EDAnalyzer {
         MonitorElement * ClusterSize_for_EndcapNegative;
 	
 	MonitorElement * ClusterSize_for_BarrelandEndcaps;
-
+	MonitorElement * BarrelNumberOfDigis;
 	MonitorElement * BarrelOccupancy;
 	MonitorElement * EndcapPositiveOccupancy;
 	MonitorElement * EndcapNegativeOccupancy;
+	MonitorElement * RPCEvents;
 
 	MonitorElement * 	SameBxDigisMeBarrel_;
 	MonitorElement * 	SameBxDigisMeEndcapPositive_;

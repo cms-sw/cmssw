@@ -4,6 +4,7 @@
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include <vector>
 #include <iomanip>
+#include <string>
 using namespace std;
 
 namespace rpcdqm{
@@ -89,15 +90,12 @@ namespace rpcdqm{
 	  } 
 	}
       }else{//Endcap
-	int seg=0;
 	int nseg=36;
 	int nsub=6;
 	if ( _id.ring()==1 &&  _id.station() > 1) {
 	  nsub=3;
 	  nseg=18;
 	}
-	
-	//	seg =(_id.sector()-1)*nsub + _id.subsector() ;
 	  _cnr = (_id.subsector()-1)*3+_id.roll()+(_id.ring()-1)*nsub*3; 
       }
 	return _cnr;
@@ -141,6 +139,43 @@ namespace rpcdqm{
     std::vector<int> SectorStrips1(){
       return Wvector1;
     }
+
+
+    void dolabeling () {
+      
+      ylabel[1] = "RB1in_B";
+      ylabel[2] = "RB1in_F";
+      ylabel[3] = "RBiout_B";
+      ylabel[4] = "RB1out_F";
+      ylabel[5] = "RB2in_B";
+      ylabel[6] = "RB2in_F";
+      
+      ylabel[7] = "RB2in_M";
+      ylabel[0] = "RB1out_M";
+      
+      ylabel[8] = "RB2out_B";
+      ylabel[9] = "RB2out_F";
+      ylabel[10] = "RB3-_F";
+      ylabel[11] = "RB3-_B";
+      ylabel[12] = "RB3+_B";
+      ylabel[13] = "RB3+_F";
+      ylabel[14] = "RB4,-,--_B";
+      ylabel[15] = "RB4,-,--,F";
+      ylabel[16] = "RB4+,-+_B";
+      ylabel[17] = "RB4+,-+_F";
+      ylabel[18] = "RB4+-_B";
+      ylabel[19] = "RB4+-_F";
+      ylabel[20] = "RB4++_B";
+      ylabel[21] = "RB4++_F";
+           
+    }
+
+    string YLabel(int i) {
+
+      return ylabel[i];
+      
+    }
+
 
   
     int detId2ChamberNr(const RPCDetId & _id){
@@ -192,6 +227,7 @@ namespace rpcdqm{
 	return ch;
     }
 
+ 
   
      
 std::string detId2ChamberLabel(const RPCDetId & _id){
@@ -243,7 +279,7 @@ std::string detId2ChamberLabel(const RPCDetId & _id){
 	return ChLabel;
     }
 
-
+ 
 
 
     
@@ -254,8 +290,7 @@ std::string detId2ChamberLabel(const RPCDetId & _id){
       std::string ChLabel;
       std::vector<int> Wvector2;
       std::vector<int> Wvector1;
-      
-      // public:
+      string ylabel[22];
      
       
 
