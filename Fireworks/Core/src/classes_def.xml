@@ -14,13 +14,7 @@
   <class name="FW3DLegoView"/>
   <class name="FWConfiguration"/>
   <class name="FWRhoPhiZViewManager"/>
-  <class name="FWListEventItem"/>
-  <class name="FWListEventItemEditor"/>
-  <class name="FWListModel"/>
-  <class name="FWListModelEditor"/>
-  <class name="FWListItemBase"/>
   <class name="FWDetailViewManager"/>
-  <class name="FWListViewObject"/>
   <class name="FWParameterSetterBase"/>
   <class name="FWDoubleParameterSetter"/>
   <class name="FWDoubleParameter"/>
