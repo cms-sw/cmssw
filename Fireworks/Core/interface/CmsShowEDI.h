@@ -16,7 +16,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:42 EDT 2008
-// $Id: CmsShowEDI.h,v 1.6 2008/12/06 02:39:13 chrjones Exp $
+// $Id: CmsShowEDI.h,v 1.7 2009/01/23 21:35:40 amraktad Exp $
 //
 
 // system include files
@@ -26,6 +26,7 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWModelChangeSignal.h"
+#include "Fireworks/Core/interface/FWDataCategories.h"
 
 // forward declarations
 class FWSelectionManager;
@@ -40,6 +41,7 @@ class TGComboBoxPopup;
 class TGListBox;
 class FWGUIValidatingTextEntry;
 class FWExpressionValidator;
+class TGTab;
 
 class CmsShowEDI : public TGTransientFrame
 {
@@ -49,7 +51,7 @@ public:
    virtual ~CmsShowEDI();
 
    // ---------- const member functions ---------------------
-
+   
    // ---------- static member functions --------------------
 
    // ---------- member functions --------------------------
@@ -67,6 +69,7 @@ public:
    void moveToBack();
    void moveToFront();
 
+   void show(FWDataCategories);
 private:
    CmsShowEDI(const CmsShowEDI&);    // stop default
 
@@ -74,6 +77,7 @@ private:
 
    // ---------- member data --------------------------------
    FWSelectionManager* m_selectionManager;
+   TGTab* m_tabs;
    TGLabel* m_objectLabel;
    TGTextButton* m_removeButton;
    TGTextButton* m_frontButton;

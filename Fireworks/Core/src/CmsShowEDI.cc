@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.18 2008/12/18 21:22:55 chrjones Exp $
+// $Id: CmsShowEDI.cc,v 1.19 2009/01/23 21:35:42 amraktad Exp $
 //
 
 // system include files
@@ -73,8 +73,8 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
    m_objectLabel->SetTextJustify(kTextLeft);
    objectFrame->AddFrame(m_objectLabel, new TGLayoutHints(kLHintsExpandX));
    AddFrame(objectFrame, new TGLayoutHints(kLHintsExpandX, 2, 2, 0, 0));
-   TGTab* ediTabs = new TGTab(this, GetWidth(), GetHeight());
-   TGVerticalFrame* graphicsFrame = new TGVerticalFrame(ediTabs, 200, 400);
+   m_tabs = new TGTab(this, GetWidth(), GetHeight());
+   TGVerticalFrame* graphicsFrame = new TGVerticalFrame(m_tabs, 200, 400);
    TGHorizontalFrame* colorSelectFrame = new TGHorizontalFrame(graphicsFrame, 200, 100);
    TGLabel* colorSelectLabel = new TGLabel(colorSelectFrame, "Color:");
    colorSelectFrame->AddFrame(colorSelectLabel, new TGLayoutHints(kLHintsNormal, 0, 50, 0, 0));
@@ -125,10 +125,10 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
    m_backButton = new TGTextButton(graphicsFrame,"Move to Back");
    m_backButton->SetEnabled(kFALSE);
    graphicsFrame->AddFrame(m_backButton);
-   ediTabs->AddTab("Graphics", graphicsFrame);
+   m_tabs->AddTab("Graphics", graphicsFrame);
 
    // Filter tab
-   TGVerticalFrame* filterFrame = new TGVerticalFrame(ediTabs, 200, 600);
+   TGVerticalFrame* filterFrame = new TGVerticalFrame(m_tabs, 200, 600);
    TGLabel* filterExpressionLabel = new TGLabel(filterFrame, "Expression:");
    filterFrame->AddFrame(filterExpressionLabel);
    m_filterExpressionEntry = new FWGUIValidatingTextEntry(filterFrame);
@@ -144,10 +144,10 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
    m_filterError->ChangeOptions(0);
    filterFrame->AddFrame(m_filterError, new TGLayoutHints(kLHintsExpandX| kLHintsExpandY));
    //taken from TGComboBox.cxx
-   ediTabs->AddTab("Filter", filterFrame);
+   m_tabs->AddTab("Filter", filterFrame);
 
    // Select tab
-   TGVerticalFrame* selectFrame = new TGVerticalFrame(ediTabs, 200, 600);
+   TGVerticalFrame* selectFrame = new TGVerticalFrame(m_tabs, 200, 600);
    TGLabel* expressionLabel = new TGLabel(selectFrame, "Expression:");
    selectFrame->AddFrame(expressionLabel);
    m_selectExpressionEntry = new FWGUIValidatingTextEntry(selectFrame);
@@ -167,10 +167,10 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
    m_selectError->SetBackgroundColor(TGFrame::GetDefaultFrameBackground());
    m_selectError->ChangeOptions(0);
    selectFrame->AddFrame(m_selectError, new TGLayoutHints(kLHintsExpandX| kLHintsExpandY));
-   ediTabs->AddTab("Select", selectFrame);
+   m_tabs->AddTab("Select", selectFrame);
 
    // Data tab
-   TGVerticalFrame* dataFrame = new TGVerticalFrame(ediTabs, 200, 600);
+   TGVerticalFrame* dataFrame = new TGVerticalFrame(m_tabs, 200, 600);
    TGLabel* nameLabel = new TGLabel(dataFrame, "Name:");
    dataFrame->AddFrame(nameLabel);
    m_nameEntry = new TGTextEntry(dataFrame);
@@ -225,8 +225,8 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
    m_removeButton->SetEnabled(kFALSE);
    dataFrame->AddFrame(m_removeButton);
 
-   ediTabs->AddTab("Data", dataFrame);
-   AddFrame(ediTabs, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 0, 0, 0, 0));
+   m_tabs->AddTab("Data", dataFrame);
+   AddFrame(m_tabs, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 0, 0, 0, 0));
 
    m_colorSelectWidget->Connect("ColorSelected(Pixel_t)", "CmsShowEDI", this, "changeItemColor(Pixel_t)");
    m_isVisibleButton->Connect("Toggled(Bool_t)", "CmsShowEDI", this, "toggleItemVisible(Bool_t)");
@@ -467,6 +467,13 @@ CmsShowEDI::selectAll() {
       m_item->select(i);
    }
 }
+
+void 
+CmsShowEDI::show(FWDataCategories iToView)
+{
+   m_tabs->SetTab(iToView);
+}
+
 //
 // const member functions
 //
