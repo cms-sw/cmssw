@@ -32,4 +32,4 @@ DataFormats/L1GlobalCaloTrigger
 DataFormats/L1GlobalMuonTrigger
 DataFormats/L1CaloTrigger
 DataFormats/MuonData
-
+FastSimDataFormats/External
