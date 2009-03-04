@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:42 EST 2009
-// $Id: FWTableWidget.cc,v 1.2 2009/02/04 14:50:11 chrjones Exp $
+// $Id: FWTableWidget.cc,v 1.3 2009/02/04 15:11:09 chrjones Exp $
 //
 
 // system include files
@@ -22,6 +22,7 @@
 #include "Fireworks/TableWidget/src/FWAdapterHeaderTableManager.h"
 #include "Fireworks/TableWidget/src/FWAdapterRowHeaderTableManager.h"
 
+static const unsigned long kWidgetColor = 0x2f2f2f;
 
 //
 // constants, enums and typedefs
@@ -39,8 +40,10 @@ static const UInt_t kColOptions = kLHintsExpandY|kLHintsFillY|kLHintsShrinkY;
 FWTableWidget::FWTableWidget(FWTableManagerBase* iManager,const TGWindow* p):
 TGCompositeFrame(p),
    m_bodyTable(iManager),
-   m_headerTable(new FWAdapterHeaderTableManager(iManager)),
+   m_headerTable(iManager->numberOfColumns()?new FWAdapterHeaderTableManager(iManager): static_cast<FWTableManagerBase*>(0)),
    m_rowHeaderTable(iManager->hasRowHeaders()?new FWAdapterRowHeaderTableManager(iManager): static_cast<FWTableManagerBase*>(0)),
+   m_header(0),
+   m_rowHeader(0),
    m_showingVSlider(true),
    m_showingHSlider(true),
    m_sortedColumn(-1),
@@ -48,31 +51,39 @@ TGCompositeFrame(p),
 {
    SetLayoutManager( new TGTableLayout(this,3,3) );
    
-   m_header = new FWTabularWidget(m_headerTable,this);
-   AddFrame(m_header, new TGTableLayoutHints(1,2,0,1,kLHintsTop|kLHintsLeft|kRowOptions));	
-   m_header->Connect("buttonReleased(Int_t,Int_t,Int_t,Int_t)","FWTableWidget",this,"buttonReleasedInHeader(Int_t,Int_t,Int_t,Int_t)");
-	
-   m_body = new FWTabularWidget(iManager,this);
+   if(0!=m_headerTable) {
+      m_header = new FWTabularWidget(m_headerTable,this);
+      AddFrame(m_header, new TGTableLayoutHints(1,2,0,1,kLHintsTop|kLHintsLeft|kRowOptions));	
+      m_header->Connect("buttonReleased(Int_t,Int_t,Event_t*,Int_t,Int_t)","FWTableWidget",this,"buttonReleasedInHeader(Int_t,Int_t,Event_t*,Int_t,Int_t)");
+   }
+   m_body = new FWTabularWidget(iManager,this,GetWhiteGC()());
+   m_body->SetBackgroundColor(kWidgetColor);
    AddFrame(m_body, new TGTableLayoutHints(1,2,1,2,kLHintsTop|kLHintsLeft|kRowOptions|kColOptions));
-   m_body->Connect("buttonReleased(Int_t,Int_t,Int_t,Int_t)","FWTableWidget",this,"buttonReleasedInBody(Int_t,Int_t,Int_t,Int_t)");
+   m_body->Connect("buttonReleased(Int_t,Int_t,Event_t*,Int_t,Int_t)","FWTableWidget",this,"buttonReleasedInBody(Int_t,Int_t,Event_t*,Int_t,Int_t)");
 
    //set sizes
-   std::vector<unsigned int> columnWidths = m_header->widthOfTextInColumns();
-   std::vector<unsigned int> bodyColumns = m_body->widthOfTextInColumns();
-   for(std::vector<unsigned int>::iterator it = columnWidths.begin(), itEnd=columnWidths.end(), itBody=bodyColumns.begin();
-       it != itEnd;
-       ++it,++itBody) {
-      if(*itBody > *it) {
-         *it = *itBody;
+   std::vector<unsigned int> columnWidths = m_body->widthOfTextInColumns();
+   if(0!=m_header) {
+      std::vector<unsigned int> headerWidths = m_header->widthOfTextInColumns();
+      for(std::vector<unsigned int>::iterator it = columnWidths.begin(), itEnd=columnWidths.end(), itHeader=headerWidths.begin();
+          it != itEnd;
+          ++it,++itHeader) {
+         if(*itHeader > *it) {
+            *it = *itHeader;
+         }
       }
    }
-   m_header->setWidthOfTextInColumns(columnWidths);
+   if(0!=m_header) {
+      m_header->setWidthOfTextInColumns(columnWidths);
+   }
    m_body->setWidthOfTextInColumns(columnWidths);
-   m_rowHeader=0;
    if(m_rowHeaderTable) {
-      m_rowHeader = new FWTabularWidget(m_rowHeaderTable,this);
-   	AddFrame(m_rowHeader, new TGTableLayoutHints(0,1,1,2,kLHintsTop|kLHintsLeft|kColOptions));
-   	m_rowHeader->Connect("buttonReleased(Int_t,Int_t,Int_t,Int_t)","FWTableWidget",this,"buttonReleasedInBody(Int_t,Int_t,Int_t,Int_t)");
+      m_rowHeader = new FWTabularWidget(m_rowHeaderTable,this, GetWhiteGC()());
+      m_rowHeader->SetBackgroundColor(kWidgetColor);
+
+      AddFrame(m_rowHeader, new TGTableLayoutHints(0,1,1,2,kLHintsTop|kLHintsLeft|kColOptions));
+      m_rowHeader->Connect("buttonReleased(Int_t,Int_t,Event_t*,Int_t,Int_t)","FWTableWidget",this,"buttonReleasedInBody(Int_t,Int_t,Event_t*,Int_t,Int_t)");
+      m_rowHeader->Connect("buttonReleased(Int_t,Int_t,Event_t*,Int_t,Int_t)","FWTableWidget",this,"buttonReleasedInRowHeader(Int_t,Int_t,Event_t*,Int_t,Int_t)");
       m_rowHeader->setWidthOfTextInColumns(m_rowHeader->widthOfTextInColumns());
    }
 
@@ -119,7 +130,9 @@ FWTableWidget::~FWTableWidget()
 void 
 FWTableWidget::sort(UInt_t iColumn, bool iDescendingSort)
 {
-   m_headerTable->sort(iColumn,iDescendingSort);
+   if(0!=m_headerTable) {
+      m_headerTable->sort(iColumn,iDescendingSort);
+   }
    m_bodyTable->sort(iColumn,iDescendingSort);
    m_sortedColumn =iColumn;
    m_descendingSort=iDescendingSort;
@@ -162,7 +175,11 @@ FWTableWidget::handleResize(UInt_t w, UInt_t h)
       }
    }
 
-   UInt_t fullHeight = def.fHeight+m_header->GetHeight()+m_hSlider->GetHeight();
+   UInt_t headerHeight = 0;
+   if(m_header) {
+      headerHeight = m_header->GetHeight();
+   }
+   UInt_t fullHeight = def.fHeight+headerHeight+m_hSlider->GetHeight();
    if(h < fullHeight) {
       if(!m_showingVSlider) {
          ShowFrame(m_vSlider);
@@ -211,7 +228,9 @@ FWTableWidget::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
             case kSB_SLIDERTRACK:
             case kSB_SLIDERPOS:
                m_body->setHorizontalOffset(parm1);
-               m_header->setHorizontalOffset(parm1);
+               if(m_header) {
+                  m_header->setHorizontalOffset(parm1);
+               }
                break;
          }
          break;
@@ -235,8 +254,10 @@ FWTableWidget::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
 }
 
 void 
-FWTableWidget::buttonReleasedInHeader(Int_t row, Int_t column, Int_t btn, Int_t keyMod)
+FWTableWidget::buttonReleasedInHeader(Int_t row, Int_t column, Event_t* event,Int_t,Int_t)
 {
+   Int_t btn = event->fCode;
+   //Int_t keyMod = event->fState;
    if(btn != kButton1 && btn != kButton3) {return;}
    if(m_sortedColumn==column) {
       sort(column, !m_descendingSort);
@@ -246,8 +267,10 @@ FWTableWidget::buttonReleasedInHeader(Int_t row, Int_t column, Int_t btn, Int_t 
 }
 
 void 
-FWTableWidget::buttonReleasedInBody(Int_t row, Int_t column, Int_t btn, Int_t keyMod)
+FWTableWidget::buttonReleasedInBody(Int_t row, Int_t column, Event_t* event,Int_t,Int_t)
 {
+   Int_t btn = event->fCode;
+   Int_t keyMod = event->fState;
    if(btn == kButton5){
       //should scroll down
       if(m_vSlider) {
@@ -290,20 +313,45 @@ FWTableWidget::rowClicked(Int_t row, Int_t btn, Int_t keyMod)
 void 
 FWTableWidget::dataChanged()
 {
-   //set sizes
-   std::vector<unsigned int> columnWidths = m_header->widthOfTextInColumns();
-   std::vector<unsigned int> bodyColumns = m_body->widthOfTextInColumns();
-   for(std::vector<unsigned int>::iterator it = columnWidths.begin(), itEnd=columnWidths.end(), itBody=bodyColumns.begin();
-       it != itEnd;
-       ++it,++itBody) {
-      if(*itBody > *it) {
-         *it = *itBody;
-      }
+   m_body->dataChanged();
+   if(m_rowHeader) {
+      m_rowHeader->dataChanged();
    }
-   m_header->setWidthOfTextInColumns(columnWidths);
+   //set sizes
+   std::vector<unsigned int> columnWidths = m_body->widthOfTextInColumns();
+   if(m_header) {
+      std::vector<unsigned int> headerWidths = m_header->widthOfTextInColumns();
+      for(std::vector<unsigned int>::iterator it = columnWidths.begin(), itEnd=columnWidths.end(), itHeader=headerWidths.begin();
+          it != itEnd;
+          ++it,++itHeader) {
+         if(*itHeader > *it) {
+            *it = *itHeader;
+         }
+      }
+      m_header->setWidthOfTextInColumns(columnWidths);
+   } 
    m_body->setWidthOfTextInColumns(columnWidths);
    //this updates sliders to match our new data
    handleResize(GetWidth(),GetHeight());
+   gClient->NeedRedraw(m_body);
+   if(m_rowHeader) {
+      gClient->NeedRedraw(m_rowHeader);
+   }
+}
+
+void 
+FWTableWidget::buttonPressedInRowHeader(Int_t row, Int_t column, Event_t* event, Int_t relX, Int_t relY)
+{
+   Int_t btn = event->fCode;
+   if(btn != kButton1 && btn != kButton3) {return;}
+   m_bodyTable->buttonReleasedInRowHeader(row, event, relX, relY);
+}
+void 
+FWTableWidget::buttonReleasedInRowHeader(Int_t row, Int_t column, Event_t* event, Int_t relX, Int_t relY)
+{
+   Int_t btn = event->fCode;
+   if(btn != kButton1 && btn != kButton3) {return;}
+   m_bodyTable->buttonReleasedInRowHeader(row, event, relX, relY);
 }
 
 //
