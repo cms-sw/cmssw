@@ -7,7 +7,7 @@ void SingleParticleEvent::create(int id, double px, double py, double pz, double
     HitTarget = false;
 }
 
-void SingleParticleEvent::propagate(double ElossScaleFac, double RadiusTarget, double Z_DistTarget, bool TrackerOnly, bool MTCCHalf){
+void SingleParticleEvent::propagate(double ElossScaleFac, double RadiusTarget, double Z_DistTarget, double Z_CentrTarget, bool TrackerOnly, bool MTCCHalf){
   MTCC=MTCCHalf; //need to know this boolean in absVzTmp()
   // calculated propagation direction
   dX = Px/absmom();
@@ -19,6 +19,7 @@ void SingleParticleEvent::propagate(double ElossScaleFac, double RadiusTarget, d
   tmpVz = Vz;
   double RadiusTargetEff = RadiusTarget;
   double Z_DistTargetEff = Z_DistTarget;
+  double Z_CentrTargetEff = Z_CentrTarget;
   if(TrackerOnly==true){
     RadiusTargetEff = RadiusTracker;
     Z_DistTargetEff = Z_DistTracker;

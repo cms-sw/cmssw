@@ -29,6 +29,7 @@ CosmicMuonGenerator::CosmicMuonGenerator() : delRanGen(false)
   ElossScaleFactor = 1.0;
   RadiusOfTarget = 8000.;
   ZDistOfTarget = 15000.;
+  ZCentrOfTarget = 0.;
   TrackerOnly = false;
   TIFOnly_constant = false;
   TIFOnly_linear = false;
@@ -89,6 +90,7 @@ void CosmicMuonGenerator::initialize(CLHEP::HepRandomEngine *rng){
     // set up "surface geometry" dimensions
     double RadiusTargetEff = RadiusOfTarget; //get this from cfg-file
     double Z_DistTargetEff = ZDistOfTarget;  //get this from cfg-file
+    double Z_CentrTargetEff = ZCentrOfTarget;  //get this from cfg-file
     if(TrackerOnly==true){
     RadiusTargetEff = RadiusTracker;
     Z_DistTargetEff = Z_DistTracker;
@@ -188,9 +190,9 @@ void CosmicMuonGenerator::nextEvent(){
     // if angles are ok, propagate to target
     if (goodOrientation()) { 
       if (MinTheta > 90.*Deg2Rad) //upgoing muons from neutrinos
-	OneMuoEvt.propagate(0., RadiusOfTarget, ZDistOfTarget, TrackerOnly, MTCCHalf);
+	OneMuoEvt.propagate(0., RadiusOfTarget, ZDistOfTarget, ZCentrOfTarget, TrackerOnly, MTCCHalf);
       else
-	OneMuoEvt.propagate(ElossScaleFactor, RadiusOfTarget, ZDistOfTarget, TrackerOnly, MTCCHalf);
+	OneMuoEvt.propagate(ElossScaleFactor, RadiusOfTarget, ZDistOfTarget, ZCentrOfTarget, TrackerOnly, MTCCHalf);
     }
       // if cosmic hits target test also if P>Pmin_CMS; the default is MinP_surface=MinP_CMS, thus no bias from access shaft
 
@@ -480,6 +482,8 @@ void CosmicMuonGenerator::setElossScaleFactor(double ElossScaleFact){ if (NotIni
 void CosmicMuonGenerator::setRadiusOfTarget(double R){ if (NotInitialized) RadiusOfTarget = R; }
 
 void CosmicMuonGenerator::setZDistOfTarget(double Z){ if (NotInitialized) ZDistOfTarget = Z; }
+
+void CosmicMuonGenerator::setZCentrOfTarget(double Z){ if (NotInitialized) ZCentrOfTarget = Z; }
 
 void CosmicMuonGenerator::setTrackerOnly(bool Tracker){ if (NotInitialized) TrackerOnly = Tracker; }
 

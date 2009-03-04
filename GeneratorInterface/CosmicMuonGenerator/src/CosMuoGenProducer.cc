@@ -24,6 +24,7 @@ edm::CosMuoGenProducer::CosMuoGenProducer( const ParameterSet & pset ) :
   ELSF(pset.getParameter<double>("ElossScaleFactor")),
   RTarget(pset.getParameter<double>("RadiusOfTarget")),
   ZTarget(pset.getParameter<double>("ZDistOfTarget")),
+  ZCTarget(pset.getParameter<double>("ZCentrOfTarget")),
   TrackerOnly(pset.getParameter<bool>("TrackerOnly")),
   TIFOnly_constant(pset.getParameter<bool>("TIFOnly_constant")),
   TIFOnly_linear(pset.getParameter<bool>("TIFOnly_linear")),
@@ -65,6 +66,7 @@ edm::CosMuoGenProducer::CosMuoGenProducer( const ParameterSet & pset ) :
     CosMuoGen->setElossScaleFactor(ELSF);
     CosMuoGen->setRadiusOfTarget(RTarget);
     CosMuoGen->setZDistOfTarget(ZTarget);
+    CosMuoGen->setZCentrOfTarget(ZCTarget);
     CosMuoGen->setTrackerOnly(TrackerOnly);
     CosMuoGen->setTIFOnly_constant(TIFOnly_constant);
     CosMuoGen->setTIFOnly_linear(TIFOnly_linear);

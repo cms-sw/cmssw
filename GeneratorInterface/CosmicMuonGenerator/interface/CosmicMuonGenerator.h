@@ -50,6 +50,7 @@ private:
   double ElossScaleFactor; // scale factor for energy loss
   double RadiusOfTarget; // Radius of target-cylinder which cosmics HAVE to hit [mm], default is CMS-dimensions
   double ZDistOfTarget; // z-length of target-cylinder which cosmics HAVE to hit [mm], default is CMS-dimensions
+  double ZCentrOfTarget; // z-position of centre of target-cylinder which cosmics HAVE to hit [mm], default is Nominal Interaction Point (=0)
   bool   TrackerOnly; //if set to "true" detector with tracker-only setup is used, so no material or B-field outside is considerd
   bool   TIFOnly_constant; //if set to "true" cosmics can also be generated below 2GeV with unphysical constant energy dependence
   bool   TIFOnly_linear; //if set to "true" cosmics can also be generated below 2GeV with unphysical linear energy dependence
@@ -100,6 +101,7 @@ public:
   void setElossScaleFactor(double ElossScaleFact);
   void setRadiusOfTarget(double R);
   void setZDistOfTarget(double Z);
+  void setZCentrOfTarget(double Z);
   void setTrackerOnly(bool Tracker);
   void setTIFOnly_constant(bool TIF);
   void setTIFOnly_linear(bool TIF);
