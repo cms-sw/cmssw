@@ -73,6 +73,8 @@ public:
    virtual void SetActive(Int_t newat);
    virtual void AddColor(Pixel_t color);
 
+   //if it can't find the color it returns -1
+   Int_t FindColorIndex(Pixel_t) const;
    Int_t GetRowIndex() {
       return fRowIndex;
    }
@@ -109,6 +111,8 @@ public:
    virtual Bool_t HandleButton(Event_t *event);
 
    void InitContent(TGString *name, std::vector<Pixel_t> colors);
+   void SetName(const char* iName);
+   void SetSelection(Pixel_t);
    void PlacePopup(Int_t x, Int_t y, UInt_t w, UInt_t h);
    void EndPopup();
    FWColorRow *GetActiveRow() {

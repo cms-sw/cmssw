@@ -105,6 +105,20 @@ void FWColorRow::AddColor(Pixel_t color)
    fCc.back()->Connect("ColorSelected(Int_t)","FWColorRow", this, "ColorChanged(Int_t)");
 }
 
+Int_t 
+FWColorRow::FindColorIndex(Pixel_t iColor) const
+{
+   Int_t returnValue = -1;
+   Int_t index=0;
+   for(std::vector<FWColorFrame*>::const_iterator it = fCc.begin(), itEnd = fCc.end();
+       it!=itEnd;++it,++index) {
+      if((*it)->GetColor() == iColor) {
+         return index;
+      }
+   }
+   return returnValue;
+}
+
 void FWColorRow::ColorChanged(Int_t newcolor)
 {
    fIsActive = kTRUE;
@@ -228,6 +242,31 @@ void FWColorPopup::EndPopup()
 {
    // Release pointer
    gVirtualX->GrabPointer(0, 0, 0, 0, kFALSE);
+}
+
+void FWColorPopup::SetName(const char* iName)
+{
+   fLabel->SetText(iName);
+}
+
+void FWColorPopup::SetSelection(Pixel_t iColor)
+{
+   FWColorRow* foundIn = fFirstRow;
+   Int_t index = fFirstRow->FindColorIndex(iColor);
+   if(-1 ==index) {
+      foundIn = fSecondRow;
+      index = foundIn->FindColorIndex(iColor);
+      if(-1==index) {
+         std::cout <<"could not find color "<<iColor<<std::endl;
+         return;
+      }
+   }
+   if(foundIn != fSelectedRow) {
+      fSelectedRow->RowActive(kFALSE);
+      fSelectedRow=foundIn;
+      fSelectedRow->RowActive(kTRUE);
+   }
+   fSelectedRow->SetActive(index);
 }
 
 void FWColorPopup::ColorBookkeeping(Int_t row)
