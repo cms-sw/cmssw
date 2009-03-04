@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.32 2009/01/23 21:35:42 amraktad Exp $
+// $Id: FWEveLegoView.cc,v 1.33 2009/02/20 21:51:45 chrjones Exp $
 //
 
 // system include files
@@ -53,7 +53,7 @@
 #include "TGLWidget.h"
 #include "TEveTrans.h"
 #include "TEveStraightLineSet.h"
-#include "TEveLegoOverlay.h"
+#include "TEveCaloLegoOverlay.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWEveLegoView.h"
@@ -94,7 +94,7 @@ FWEveLegoView::FWEveLegoView(TGFrame* iParent, TEveElementList* list) :
    TGLEmbeddedViewer* ev = new TGLEmbeddedViewer(iParent, m_pad, 0);
    m_embeddedViewer=ev;
    TEveViewer* nv = new TEveViewer(staticTypeName().c_str());
-   nv->SetGLViewer(ev);
+   nv->SetGLViewer(ev,ev->GetFrame());
 
    // take care of cameras
    //
@@ -156,11 +156,11 @@ FWEveLegoView::FWEveLegoView(TGFrame* iParent, TEveElementList* list) :
    {
       m_lego =  dynamic_cast<TEveCaloLego*>( list->FirstChild());
       if (m_lego) {
-         TEveLegoOverlay* overlay = new TEveLegoOverlay();
+         TEveCaloLegoOverlay* overlay = new TEveCaloLegoOverlay();
          overlay->SetShowPlane(kFALSE);
          overlay->SetShowPerspective(kFALSE);
-         overlay->RefAxisAttrib().SetLabelSize(0.02);
-         overlay->RefAxisAttrib().SetLabelColor(kWhite);
+         overlay->GetAttAxis()->SetLabelSize(0.02);
+         overlay->GetAttAxis()->SetLabelColor(kWhite);
          ev->AddOverlayElement(overlay);
          overlay->SetCaloLego(m_lego);
          gEve->AddElement(overlay, ns);
