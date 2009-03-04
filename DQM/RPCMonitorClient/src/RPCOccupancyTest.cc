@@ -109,12 +109,16 @@ void RPCOccupancyTest::beginRun(const Run& r, const EventSetup& c){
   if ( me = dbe_->get(prefixDir_ +"/"+ histoName.str()) ) {
     dbe_->removeElement(me->getName());
   }
+<<<<<<< RPCOccupancyTest.cc
+  me = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  100, 0.0, 0.205);
+=======
   me = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  100, 0.0, 0.205);
 
 >>>>>>> 1.3
 
 <<<<<<< RPCOccupancyTest.cc
  //Get NumberOfDigi ME for each roll
+>>>>>>> 1.5
 
  rpcdqmclient::clientTools tool;
  myOccupancyMe_ = tool.constructMEVector(c, prefixDir_, "NumberOfDigi", dbe_);
