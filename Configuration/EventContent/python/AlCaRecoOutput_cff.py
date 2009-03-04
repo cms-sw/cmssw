@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# last update: $Date: 2008/10/08 19:42:56 $ by $Author: futyand $
+# last update: $Date: 2008/11/05 13:17:09 $ by $Author: argiro $
 # Tracker Alignment
 # AlCaReco for track based alignment using ZMuMu events
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlZMuMu_Output_cff import *
@@ -55,7 +55,6 @@ from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHOCosmics_Output_cff impor
 # Muon Alignment with cosmics
 from Alignment.CommonAlignmentProducer.ALCARECOMuAlStandAloneCosmics_Output_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOMuAlGlobalCosmics_Output_cff import *
-from Alignment.CommonAlignmentProducer.ALCARECOMuAlZeroFieldGlobalCosmics_Output_cff import *
 # Muon calibration with minbias
 from Alignment.CommonAlignmentProducer.ALCARECOMuCaliMinBias_Output_cff import *
 # Muon Alignment with isolated muons
