@@ -10,10 +10,10 @@ ALCARECOTkAlMinBiasNOTHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.c
         "HLT_L1MuOpen", "HLT_L1Mu", "HLT_L2Mu9",
         "HLT_Mu3", "HLT_Mu5", "HLT_Mu9", "HLT_Mu11",
         "HLT_DoubleMu3",
-        #TkAl[Z,Jpsi,Upsilon]MuMu
-        'HLT DoubleMu3',
+        #TkAlMuonIsolated _and_ TkAl[Z,Jpsi,Upsilon]MuMu
+        "HLT_DoubleMu3",
         #TkAlCosmics{0T}HLT
-        'HLT_TrackerCosmics_CTF','HLT_TrackerCosmics_CoTF','HLT_TrackerCosmics_RS'
+        'HLT_TrackerCosmics'
         ],
     throw = False # tolerate triggers stated above, but not available
     )
