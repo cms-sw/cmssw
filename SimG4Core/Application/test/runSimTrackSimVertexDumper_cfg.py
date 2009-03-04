@@ -14,7 +14,7 @@ process.prod = cms.EDFilter("SimTrackSimVertexDumper",
     moduleLabelTk = cms.untracked.string('g4SimHits'),
     moduleLabelVtx = cms.untracked.string('g4SimHits'),
     dumpHepMC = cms.untracked.bool(True),
-    moduleLabelHepMC = cms.untracked.string('source')
+    moduleLabelHepMC = cms.untracked.string('generator')
 )
 
 process.p1 = cms.Path(process.prod)
