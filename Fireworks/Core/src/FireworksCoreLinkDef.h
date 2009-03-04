@@ -10,11 +10,13 @@
 #include "Fireworks/Core/interface/FWTextView.h"
 #include "Fireworks/Core/src/CSGConnector.h"
 #include "Fireworks/Core/interface/FWIntValueListenerBase.h"
+#include "Fireworks/Core/interface/FWSummaryManager.h"
 #include "Fireworks/Core/src/CmsShowMain.h"
 #include "Fireworks/Core/src/FWGUIEventDataAdder.h"
 #include "Fireworks/Core/src/FWColorSelect.h"
 #include "Fireworks/Core/src/LightTableWidget.h"
 #include "Fireworks/Core/src/FWListWidget.h"
+#include "Fireworks/Core/src/FWCollectionSummaryWidget.h"
 
 #ifdef __CINT__
 #pragma link off all globals;
@@ -43,7 +45,11 @@
 #pragma link C++ class FWColorFrame;
 #pragma link C++ class FWColorPopup;
 #pragma link C++ class FWColorRow;
-#pragma link C++ class FWColorSelect;ls
+#pragma link C++ class FWColorSelect;
+
+#pragma link C++ class FWCollectionSummaryWidget;
+#pragma link C++ class FWSummaryManager;
+
 
 
 
