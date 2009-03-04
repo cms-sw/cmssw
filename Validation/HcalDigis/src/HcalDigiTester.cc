@@ -1,5 +1,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
 #include "Validation/HcalDigis/interface/HcalDigiTester.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
@@ -47,7 +50,7 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
   
   edm::Handle<edm::HepMCProduct> evtMC;
   //  iEvent.getByLabel("VtxSmeared",evtMC);
-  iEvent.getByLabel("source",evtMC);
+  iEvent.getByLabel("generator",evtMC);
   if (!evtMC.isValid()) {
     MC=false;
     std::cout << "no HepMCProduct found" << std::endl;    
@@ -459,7 +462,7 @@ HcalDigiTester::~HcalDigiTester() {
 
 void HcalDigiTester::endJob() { }
 
-void HcalDigiTester::beginJob(const edm::EventSetup& c){
+void HcalDigiTester::beginJob() {
 
   nevent1 = 0;
   nevent2 = 0;
@@ -523,3 +526,6 @@ double HcalDigiTester::dR(double eta1, double phi1, double eta2, double phi2) {
   return tmp;
 }
 
+
+DEFINE_SEAL_MODULE ();
+DEFINE_ANOTHER_FWK_MODULE (HcalDigiTester) ;
