@@ -5,6 +5,7 @@
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
 <use name=Geometry/Records>
+<use name=CondFormats/GeometryObjects>  
 <use name=MagneticField/Records>
 <export>
   <use name=DetectorDescription/Core>
@@ -12,8 +13,9 @@
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
   <use name=Geometry/Records>
+  <use name=CondFormats/GeometryObjects>  
   <use name=MagneticField/Records>
-  <lib name=GeometryReadersXMLIdealGeometryESSource>
+  <lib name=GeometryReadersXMLIdealGeometry>
 </export>
 
 <flags EDM_PLUGIN=1>
