@@ -23,7 +23,7 @@ class RPCGeometryParsFromDD
 { 
  public:
 
-  RPCGeometryParsFromDD(bool comp11);
+  RPCGeometryParsFromDD();
 
   ~RPCGeometryParsFromDD();
 
@@ -36,9 +36,7 @@ class RPCGeometryParsFromDD
   void buildGeometry(DDFilteredView& fview, 
 		     const MuonDDDConstants& muonConstants,
 		     RecoIdealGeometry& rgeo);
-  std::map<RPCDetId,std::list<RPCRoll *> > chids;
 
-  bool theComp11Flag;
 
 };
 

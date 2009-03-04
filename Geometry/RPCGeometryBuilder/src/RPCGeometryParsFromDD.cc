@@ -28,7 +28,7 @@
 #include <iostream>
 #include <algorithm>
 
-RPCGeometryParsFromDD::RPCGeometryParsFromDD(bool comp11) : theComp11Flag(comp11)
+RPCGeometryParsFromDD::RPCGeometryParsFromDD() 
 { }
 
 RPCGeometryParsFromDD::~RPCGeometryParsFromDD() 
@@ -110,21 +110,16 @@ RPCGeometryParsFromDD::buildGeometry(DDFilteredView& fview, const MuonDDDConstan
     
     std::vector<double> dpar=fview.logicalPart().solid().parameters();
 
+    std::vector<std::string> strpars;
     std::string name=fview.logicalPart().name().name();
+    strpars.push_back(name);
     DDTranslation tran    = fview.translation();
 
 
     DDRotationMatrix rota = fview.rotation();//.Inverse();
-    // CLHEP way
-//     Surface::RotationType rot(rota.xx(),rota.xy(),rota.xz(),
-// 			      rota.yx(),rota.yy(),rota.yz(),
-// 			      rota.zx(),rota.zy(),rota.zz());
-
-//ROOT::Math way
     DD3Vector x, y, z;
     rota.GetComponents(x,y,z);
-    std::vector<double> pars;
-
+    std::vector<double> pars;    
     if (dpar.size()==3){
       double width     = dpar[0]/cm;
       double length    = dpar[1]/cm;
@@ -154,7 +149,7 @@ RPCGeometryParsFromDD::buildGeometry(DDFilteredView& fview, const MuonDDDConstan
     vrot[6]=(float) 1.0 * z.X();
     vrot[7]=(float) 1.0 * z.Y();
     vrot[8]=(float) 1.0 * z.Z();
-    rgeo.insert(rpcid.rawId(),vtra,vrot, pars);
+    rgeo.insert(rpcid.rawId(),vtra,vrot, pars,strpars);
     doSubDets = fview.nextSibling(); // go to next layer
   }
   

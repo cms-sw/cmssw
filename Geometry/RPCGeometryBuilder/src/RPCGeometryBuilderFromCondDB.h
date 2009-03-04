@@ -22,7 +22,7 @@ class RPCGeometryBuilderFromCondDB
 { 
  public:
 
-  RPCGeometryBuilderFromCondDB();
+  RPCGeometryBuilderFromCondDB(bool comp11);
 
   ~RPCGeometryBuilderFromCondDB();
 
@@ -31,7 +31,7 @@ class RPCGeometryBuilderFromCondDB
 
  private:
   std::map<RPCDetId,std::list<RPCRoll *> > chids;
-
+  bool theComp11Flag;
 
 };
 

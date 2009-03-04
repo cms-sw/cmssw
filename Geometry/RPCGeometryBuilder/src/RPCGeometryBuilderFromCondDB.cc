@@ -24,7 +24,8 @@
 #include <iostream>
 #include <algorithm>
 
-RPCGeometryBuilderFromCondDB::RPCGeometryBuilderFromCondDB()
+RPCGeometryBuilderFromCondDB::RPCGeometryBuilderFromCondDB(bool comp11) :
+  theComp11Flag(comp11)
 { }
 
 RPCGeometryBuilderFromCondDB::~RPCGeometryBuilderFromCondDB() 
