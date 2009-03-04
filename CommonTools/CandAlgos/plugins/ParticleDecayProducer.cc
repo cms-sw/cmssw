@@ -29,7 +29,7 @@ class ParticleDecayProducer : public edm::EDProducer {
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
-#include "CommonTools/Utilities/interface/PtComparator.h"
+#include "CommonTools/Utils/interface/PtComparator.h"
 #include "FWCore/Framework/interface/Event.h"
 #include <sstream>
 using namespace edm;

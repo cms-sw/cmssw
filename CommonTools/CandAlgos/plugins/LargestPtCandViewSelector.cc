@@ -18,7 +18,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
 #include "CommonTools/UtilAlgos/interface/SortCollectionSelector.h"
-#include "CommonTools/Utilities/interface/PtComparator.h"
+#include "CommonTools/Utils/interface/PtComparator.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 typedef ObjectSelector<
