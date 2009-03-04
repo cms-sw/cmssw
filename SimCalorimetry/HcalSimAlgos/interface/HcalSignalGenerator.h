@@ -40,8 +40,6 @@ public:
     theShape = theConditions->getHcalShape (); // this one is generic
   }
 
-  void setParameterMap(HcalSimParameterMap * newMap) {theParameterMap = *newMap;}
-
 protected:
 
   virtual void fillNoiseSignals()
@@ -88,7 +86,8 @@ private:
 
   void fC2pe(CaloSamples & samples) const
   {
-    float factor = 1./theParameterMap.simParameters(samples.id()).photoelectronsToAnalog();
+    assert(theParameterMap != 0);
+    float factor = 1./theParameterMap->simParameters(samples.id()).photoelectronsToAnalog();
     samples *= factor;
   }
 
@@ -99,8 +98,6 @@ private:
 
   /// these come from the ParameterSet
   edm::InputTag theInputTag;
-  /// use hardcoded defaults unless overridden
-  HcalSimParameterMap theParameterMap;
 };
 
 
