@@ -572,7 +572,8 @@ int CMSCGEN::initializeNuMu(double pmin_in, double pmax_in, double thetamin_in, 
 
 
 double CMSCGEN::dNdEmudEnu(double Enu, double Emu, double ctheta) {
-  double thetas = asin(sin(acos(ctheta))*(Rearth-SurfaceOfEarth)/(Rearth+ProdAlt));
+  double cthetaNu = 1. + ctheta; //swap cos(theta) from down to up range
+  double thetas = asin(sin(acos(cthetaNu))*(Rearth-SurfaceOfEarth)/(Rearth+ProdAlt));
   double costhetas = cos(thetas);
   double dNdEnudW = 0.0286*pow(Enu,-2.7)*(1./(1.+(6.*Enu*costhetas)/115.)+0.213/(1.+(1.44*Enu*costhetas)/850.)); //cm^2*s*sr*GeV
   double dNdEmudEnu = N_A*sigma/alpha*dNdEnudW*1./(1.+Emu/epsilon)*
