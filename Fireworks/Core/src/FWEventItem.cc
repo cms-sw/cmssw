@@ -8,10 +8,12 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.31 2008/12/09 14:40:21 chrjones Exp $
+// $Id: FWEventItem.cc,v 1.32 2009/01/23 21:35:43 amraktad Exp $
 //
 
 // system include files
+#include <iostream>
+#include <exception>
 #include <TClass.h>
 #include "TVirtualCollectionProxy.h"
 
@@ -199,24 +201,28 @@ FWEventItem::runFilter()
    if(m_accessor->isCollection() && m_accessor->data()) {
       //std::cout <<"runFilter"<<std::endl;
       FWChangeSentry sentry(*(this->changeManager()));
-      //int size = m_colProxy->Size();
       int size = m_accessor->size();
       std::vector<ModelInfo>::iterator itInfo = m_itemInfos.begin();
-      for(int index = 0; index != size; ++index,++itInfo) {
-         bool changed = false;
-         bool wasVisible = itInfo->m_displayProperties.isVisible();
-         //if(not m_filter.passesFilter(m_colProxy->At(index))) {
-         if(not m_filter.passesFilter(m_accessor->modelData(index))) {
-            itInfo->m_displayProperties.setIsVisible(false);
-            changed = wasVisible==true;
-         } else {
-            itInfo->m_displayProperties.setIsVisible(true);
-            changed = wasVisible==false;
+      try {
+         for(int index = 0; index != size; ++index,++itInfo) {
+            bool changed = false;
+            bool wasVisible = itInfo->m_displayProperties.isVisible();
+            if(not m_filter.passesFilter(m_accessor->modelData(index))) {
+               itInfo->m_displayProperties.setIsVisible(false);
+               changed = wasVisible==true;
+            } else {
+               itInfo->m_displayProperties.setIsVisible(true);
+               changed = wasVisible==false;
+            }
+            if(changed) {
+               FWModelId id(this,index);
+               changeManager()->changed(id);
+            }
          }
-         if(changed) {
-            FWModelId id(this,index);
-            changeManager()->changed(id);
-         }
+      } catch( const std::exception& iException) {
+         //Should log this error
+         std::cerr <<"Exception occurred while running filter on "<<name()<<"\n"
+         <<iException.what()<<std::endl;
       }
    }
 }
@@ -347,7 +353,7 @@ FWEventItem::moveToBack()
 const void*
 FWEventItem::data(const std::type_info& iInfo) const
 {
-   using namespace ROOT::Reflex;
+   using namespace Reflex;
    //At the moment this is a programming error
    assert(iInfo == *(m_type->GetTypeInfo()) );
 
@@ -417,7 +423,7 @@ FWEventItem::data(const std::type_info& iInfo) const
 
 
 void
-FWEventItem::setData(const ROOT::Reflex::Object& iData) const
+FWEventItem::setData(const Reflex::Object& iData) const
 {
    m_accessor->setWrapper(iData);
    //std::cout <<"size "<<m_accessor->size()<<std::endl;
