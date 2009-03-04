@@ -5,7 +5,9 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Components.MEtoEDMConverter_cfi import *
 #Subsystem Includes 
 # Tracker Alignment
-from DQMOffline.Configuration.ALCARECOTkAlDQM_cff import *
+from DQMOffline.Alignment.ALCARECOTkAlDQM_cff import *
+# Muon  Alignment
+from DQMOffline.Alignment.ALCARECOMuAlDQM_cff import *
 # Ecal Calibration
 from DQMOffline.Configuration.ALCARECOEcalCalDQM_cff import *
 # unfortunally the ALCARECOTkAl-Producers can not go here because they are filters.
