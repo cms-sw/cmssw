@@ -117,7 +117,7 @@ namespace reco{
 
    void
    PFTauDecayMode::pfMasterClones(const Candidate* input, PFCandidateRefVector& toFill) const
-   {
+   {  
       if (input->numberOfDaughters() == 0) //we have reached a leaf
       {
          if (input->hasMasterClone()) // has a master clone
@@ -126,7 +126,7 @@ namespace reco{
             toFill.push_back(theCandRef);
          }
          else
-            edm::LogWarning("PFTauDecayMode") << "Error in pfMasterClones(...) - found a leaf candidate with no Master clone reference!";
+            edm::LogError("PFTauDecayMode") << "Error in pfMasterClones(...) - found a leaf candidate with no Master clone reference!";
       } else // recurse down composite chain
       {
          size_type numberOfDaughters = input->numberOfDaughters();
@@ -143,7 +143,8 @@ namespace reco{
    {
       PFCandidateRefVector output;
       const Candidate* input = static_cast<const Candidate*>(&chargedPions_);
-      pfMasterClones(input, output);
+      if (input->numberOfDaughters())  
+         pfMasterClones(input, output);
       return output;
    }
 
@@ -152,7 +153,8 @@ namespace reco{
    {
       PFCandidateRefVector output;
       const Candidate* input = static_cast<const Candidate*>(&piZeroes_);
-      pfMasterClones(input, output);
+      if (input->numberOfDaughters())  
+         pfMasterClones(input, output);
       return output;
    }
 
@@ -161,7 +163,8 @@ namespace reco{
    {
       PFCandidateRefVector output;
       const Candidate* input = static_cast<const Candidate*>(&filteredObjects_);
-      pfMasterClones(input, output);
+      if (input->numberOfDaughters())  
+         pfMasterClones(input, output);
       return output;
    }
 
