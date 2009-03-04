@@ -2,12 +2,12 @@
 /*
  *  DQM muon alignment analysis monitoring
  *
- *  $Date: 2008/12/13 09:56:39 $
+ *  $Date: 2008/12/13 15:31:21 $
  *  $Revision: 1.1 $
  *  \author J. Fernandez - Univ. Oviedo <Javier.Fernandez@cern.ch>
  */
 
-#include "DQMOffline/Alignment/src/MuonAlignment.h"
+#include "DQMOffline/Alignment/interface/MuonAlignment.h"
 
 using namespace std;
 using namespace edm;
@@ -53,8 +53,9 @@ MuonAlignment::MuonAlignment(const edm::ParameterSet& pSet) {
 
     numberOfTracks=0;
     numberOfHits=0;
-    
-    topFolder << "Alignment/Muon";
+  
+    MEFolderName = parameters.getParameter<std::string>("FolderName");  
+    topFolder << MEFolderName+"/Alignment/Muon";
 }
 
 MuonAlignment::~MuonAlignment() { 
@@ -82,9 +83,9 @@ void MuonAlignment::beginJob(edm::EventSetup const& iSetup) {
             hLocalPositionRmsDT=dbe->book2D("hLocalPositionRmsDT","Local DT position (cm) RMS residuals;Sector;;cm", 14,1, 15,40,0,40);
             hLocalAngleRmsDT=dbe->book2D("hLocalAngleRmsDT","Local DT angle (rad) RMS residuals;Sector;;rad", 14,1, 15,40,0,40); 
 
-            hLocalXMeanDT=dbe->book1D("hLocalXMeanDT","Distribution of MEAN Local X (cm) residuals for DT;<X> (cm);number of chambers",100,-meanPositionRange,meanPositionRange);
+            hLocalXMeanDT=dbe->book1D("hLocalXMeanDT","Distribution of absolute MEAN Local X (cm) residuals for DT;<X> (cm);number of chambers",100,0,meanPositionRange);
             hLocalXRmsDT=dbe->book1D("hLocalXRmsDT","Distribution of RMS Local X (cm) residuals for DT;X RMS (cm);number of chambers", 100,0,rmsPositionRange);
-            hLocalYMeanDT=dbe->book1D("hLocalYMeanDT","Distribution of MEAN Local Y (cm) residuals for DT;<Y> (cm);number of chambers", 100,-meanPositionRange,meanPositionRange);
+            hLocalYMeanDT=dbe->book1D("hLocalYMeanDT","Distribution of absolute MEAN Local Y (cm) residuals for DT;<Y> (cm);number of chambers", 100,0,meanPositionRange);
             hLocalYRmsDT=dbe->book1D("hLocalYRmsDT","Distribution of RMS Local Y (cm) residuals for DT;Y RMS (cm);number of chambers", 100,0,rmsPositionRange);
 
             hLocalPhiMeanDT=dbe->book1D("hLocalPhiMeanDT","Distribution of MEAN #phi (rad) residuals for DT;<#phi>(rad);number of chambers", 100,-meanAngleRange,meanAngleRange);
@@ -100,14 +101,14 @@ void MuonAlignment::beginJob(edm::EventSetup const& iSetup) {
             hLocalPositionRmsCSC=dbe->book2D("hLocalPositionRmsCSC","Local CSC position (cm) RMS residuals;Sector;;cm", 36,1,37,36,0,36);
             hLocalAngleRmsCSC=dbe->book2D("hLocalAngleRmsCSC","Local CSC angle (rad) RMS residuals;Sector;;rad", 36,1,37,36,0,36); 
 	
-            hLocalXMeanCSC=dbe->book1D("hLocalXMeanCSC","Distribution of MEAN Local X (cm) residuals for CSC;<X> (cm);number of chambers",100,-meanPositionRange,meanPositionRange);
+            hLocalXMeanCSC=dbe->book1D("hLocalXMeanCSC","Distribution of absolute MEAN Local X (cm) residuals for CSC;<X> (cm);number of chambers",100,0,meanPositionRange);
             hLocalXRmsCSC=dbe->book1D("hLocalXRmsCSC","Distribution of RMS Local X (cm) residuals for CSC;X RMS (cm);number of chambers", 100,0,rmsPositionRange);
-            hLocalYMeanCSC=dbe->book1D("hLocalYMeanCSC","Distribution of MEAN Local Y (cm) residuals for CSC;<Y> (cm);number of chambers", 100,-meanPositionRange,meanPositionRange);
+            hLocalYMeanCSC=dbe->book1D("hLocalYMeanCSC","Distribution of absolute MEAN Local Y (cm) residuals for CSC;<Y> (cm);number of chambers", 100,0,meanPositionRange);
             hLocalYRmsCSC=dbe->book1D("hLocalYRmsCSC","Distribution of RMS Local Y (cm) residuals for CSC;Y RMS (cm);number of chambers", 100,0,rmsPositionRange);
 
-            hLocalPhiMeanCSC=dbe->book1D("hLocalPhiMeanCSC","Distribution of MEAN #phi (rad) residuals for CSC;<#phi>(rad);number of chambers", 100,-meanAngleRange,meanAngleRange);
+            hLocalPhiMeanCSC=dbe->book1D("hLocalPhiMeanCSC","Distribution of absolute MEAN #phi (rad) residuals for CSC;<#phi>(rad);number of chambers", 100,0,meanAngleRange);
             hLocalPhiRmsCSC=dbe->book1D("hLocalPhiRmsCSC","Distribution of RMS #phi (rad) residuals for CSC;#phi RMS (rad);number of chambers", 100,0,rmsAngleRange);
-            hLocalThetaMeanCSC=dbe->book1D("hLocalThetaMeanCSC","Distribution of MEAN #theta (rad) residuals for CSC;<#theta>(rad);number of chambers", 100,-meanAngleRange,meanAngleRange);
+            hLocalThetaMeanCSC=dbe->book1D("hLocalThetaMeanCSC","Distribution of absolute MEAN #theta (rad) residuals for CSC;<#theta>(rad);number of chambers", 100,0,meanAngleRange);
             hLocalThetaRmsCSC=dbe->book1D("hLocalThetaRmsCSC","Distribution of RMS #theta (rad) residuals for CSC;#theta RMS (rad);number of chambers",100,0,rmsAngleRange);
         }
     }
@@ -637,7 +638,7 @@ void MuonAlignment::endJob(void) {
                     hLocalPositionRmsDT->setBinContent(sector,ybin,Error);
                     hLocalPositionRmsDT->setBinLabel(ybin,binLabel,2);
 		
-                    hLocalXMeanDT->Fill(Mean);
+                    hLocalXMeanDT->Fill(fabs(Mean));
                     hLocalXRmsDT->Fill(Error);
                 }
 
@@ -661,7 +662,7 @@ void MuonAlignment::endJob(void) {
                     hLocalPositionRmsCSC->setBinContent(chamber,ybin,Error);
                     hLocalPositionRmsCSC->setBinLabel(ybin,binLabel,2);
 
-                    hLocalXMeanCSC->Fill(Mean);
+                    hLocalXMeanCSC->Fill(fabs(Mean));
                     hLocalXRmsCSC->Fill(Error);
                 }
 
@@ -686,7 +687,7 @@ void MuonAlignment::endJob(void) {
                         hLocalAngleRmsDT->setBinContent(sector,ybin,Error);
                         hLocalAngleRmsDT->setBinLabel(ybin,binLabel,2);
 	
-                        hLocalThetaMeanDT->Fill(Mean);
+                        hLocalThetaMeanDT->Fill(fabs(Mean));
                         hLocalThetaRmsDT->Fill(Error);
                     }
                 }
@@ -711,7 +712,7 @@ void MuonAlignment::endJob(void) {
                     hLocalAngleRmsDT->setBinContent(sector,ybin,Error);
                     hLocalAngleRmsDT->setBinLabel(ybin,binLabel,2);
 
-                    hLocalPhiMeanDT->Fill(Mean);
+                    hLocalPhiMeanDT->Fill(fabs(Mean));
                     hLocalPhiRmsDT->Fill(Error);
                 }
 
@@ -736,7 +737,7 @@ void MuonAlignment::endJob(void) {
                     hLocalAngleRmsCSC->setBinContent(chamber,ybin,Error);
                     hLocalAngleRmsCSC->setBinLabel(ybin,binLabel,2);
 
-                    hLocalPhiMeanCSC->Fill(Mean);
+                    hLocalPhiMeanCSC->Fill(fabs(Mean));
                     hLocalPhiRmsCSC->Fill(Error);
                 }
 
@@ -761,7 +762,7 @@ void MuonAlignment::endJob(void) {
                     hLocalAngleRmsCSC->setBinContent(chamber,ybin,Error);
                     hLocalAngleRmsCSC->setBinLabel(ybin,binLabel,2);
 
-                    hLocalThetaMeanCSC->Fill(Mean);
+                    hLocalThetaMeanCSC->Fill(fabs(Mean));
                     hLocalThetaRmsCSC->Fill(Error);
 
                 }
@@ -787,7 +788,7 @@ void MuonAlignment::endJob(void) {
                         hLocalPositionRmsDT->setBinContent(sector,ybin,Error);
                         hLocalPositionRmsDT->setBinLabel(ybin,binLabel,2);
 
-                        hLocalYMeanDT->Fill(Mean);
+                        hLocalYMeanDT->Fill(fabs(Mean));
                         hLocalYRmsDT->Fill(Error);
                     }
                 }
@@ -813,7 +814,7 @@ void MuonAlignment::endJob(void) {
                     hLocalPositionRmsCSC->setBinContent(chamber,ybin,Error);
                     hLocalPositionRmsCSC->setBinLabel(ybin,binLabel,2);
 
-                    hLocalYMeanCSC->Fill(Mean);
+                    hLocalYMeanCSC->Fill(fabs(Mean));
                     hLocalYRmsCSC->Fill(Error);
                 }
             } // check in # entries

@@ -2,8 +2,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 // the clients
-#include "DQMOffline/Alignment/src/MuonAlignment.h"
-#include "DQMOffline/Alignment/src/MuonAlignmentSummary.h"
+#include "DQMOffline/Alignment/interface/MuonAlignment.h"
+#include "DQMOffline/Alignment/interface/MuonAlignmentSummary.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(MuonAlignment);

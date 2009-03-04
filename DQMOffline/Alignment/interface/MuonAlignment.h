@@ -6,7 +6,7 @@
  *
  *  DQM muon alignment analysis monitoring
  *
- *  $Date: 2008/12/13 09:56:36 $
+ *  $Date: 2008/12/13 15:31:21 $
  *  $Revision: 1.1 $
  *  \author J. Fernandez - Univ. Oviedo <Javier.Fernandez@cern.ch>
  */
@@ -162,6 +162,7 @@ private:
     int numberOfHits;
     
     // Top folder in root file
-    stringstream topFolder; 
+    std::string MEFolderName;
+    std::stringstream topFolder;
 };
 #endif  

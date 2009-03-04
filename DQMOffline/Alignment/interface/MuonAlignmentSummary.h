@@ -6,7 +6,7 @@
  *
  *  DQM client for muon alignment summary
  *
- *  $Date: 2008/12/13 09:56:36 $
+ *  $Date: 2008/12/13 15:31:21 $
  *  $Revision: 1.1 $
  *  \author J. Fernandez - Univ. Oviedo <Javier.Fernandez@cern.ch>
  */
@@ -97,6 +97,8 @@ private:
     bool doDT, doCSC;
 
     // Top folder in root file
-    std::string topFolder; 
+    std::string MEFolderName;
+    std::stringstream topFolder;
+
 };
 #endif  
