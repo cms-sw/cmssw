@@ -57,7 +57,8 @@ import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 primTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
 primTrackCandidates.TrajectoryCleaner = 'TrajectoryCleanerBySharedSeeds'
 primTrackCandidates.TrajectoryBuilder = 'CkfTrajectoryBuilder' #instead of GroupedCkfTrajectoryBuilder?
-primTrackCandidates.SeedProducer = 'primSeeds'
+#primTrackCandidates.SeedProducer = 'primSeeds'
+primTrackCandidates.src = 'primSeeds' #change for 3_1_x
 primTrackCandidates.RedundantSeedCleaner = 'none'
 primTrackCandidates.doSeedingRegionRebuilding = False 
 
