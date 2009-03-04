@@ -11,9 +11,7 @@ GlobalTag.globaltag = 'IDEAL_30X::All'
 from DQMServices.Core.DQM_cfg import *
 MessageLogger = cms.Service("MessageLogger")
 
-maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
-)
+
 source = cms.Source("PoolSource",
     debugFlag = cms.untracked.bool(True),
     debugVebosity = cms.untracked.uint32(10),

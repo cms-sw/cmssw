@@ -178,7 +178,7 @@ CaloTowersValidation::~CaloTowersValidation() {
 
 void CaloTowersValidation::endJob() { }
 
-void CaloTowersValidation::beginJob(const edm::EventSetup& c){
+void CaloTowersValidation::beginJob(){
 
 }
 void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup const& c) {
@@ -369,10 +369,6 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
 
 }
 
-
-#include "FWCore/PluginManager/interface/ModuleDef.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(CaloTowersValidation);
