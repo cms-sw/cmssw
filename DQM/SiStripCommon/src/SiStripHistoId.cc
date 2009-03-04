@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Wed Feb 22 16:07:58 CET 2006
-// $Id: SiStripHistoId.cc,v 1.9 2009/02/18 14:28:02 maborgia Exp $
+// $Id: SiStripHistoId.cc,v 1.10 2009/03/04 00:41:49 elmer Exp $
 //
 
 #include<iostream>
@@ -38,8 +38,8 @@ SiStripHistoId::~SiStripHistoId()
 
 
 std::string SiStripHistoId::createHistoId(std::string description, std::string id_type,uint32_t component_id){
-  unsigned int pos1 = description.find( separator1, 0 ); // check if std::string 'description' contains by mistake the 'separator1'
-  unsigned int pos2 = description.find( separator2, 0 ); // check if std::string 'description' contains by mistake the 'separator2'
+  size_t pos1 = description.find( separator1, 0 ); // check if std::string 'description' contains by mistake the 'separator1'
+  size_t pos2 = description.find( separator2, 0 ); // check if std::string 'description' contains by mistake the 'separator2'
   if ( pos1 == std::string::npos && pos2 == std::string::npos ){ // ok, not found either separator
     if(id_type=="fed" || id_type=="det" || id_type=="fec"){ // ok! is one of the accepted id_type-s
       std::ostringstream compid; compid<<component_id; // use std::ostringstream for casting integer to std::string
