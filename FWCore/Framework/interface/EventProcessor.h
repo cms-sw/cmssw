@@ -383,13 +383,14 @@ namespace edm {
     ParameterSet			          maxEventsPset_;
     ParameterSet			          maxLumisPset_;
     boost::shared_ptr<ActivityRegistry>           actReg_;
-    WorkerRegistry                                wreg_;
     SignallingProductRegistry                     preg_;
     ServiceToken                                  serviceToken_;
     boost::shared_ptr<InputSource>                input_;
-    std::auto_ptr<Schedule>                       schedule_;
     std::auto_ptr<eventsetup::EventSetupProvider> esp_;    
     ActionTable                                   act_table_;
+    WorkerRegistry                                wreg_;
+    boost::shared_ptr<ProcessConfiguration>       processConfiguration_;
+    std::auto_ptr<Schedule>                       schedule_;
 
     volatile event_processor::State               state_;
     boost::shared_ptr<boost::thread>              event_loop_;
@@ -404,7 +405,6 @@ namespace edm {
     volatile bool                                 id_set_;
     volatile pthread_t                            event_loop_id_;
     int                                           my_sig_num_;
-    boost::shared_ptr<ProcessConfiguration>       processConfiguration_;
     boost::shared_ptr<FileBlock>                  fb_;
     boost::shared_ptr<EDLooper>                   looper_;
 
