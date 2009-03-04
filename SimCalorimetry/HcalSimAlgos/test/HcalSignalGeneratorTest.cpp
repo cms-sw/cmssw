@@ -44,9 +44,9 @@ void HcalSignalGeneratorTest::analyze(const edm::Event& iEvent, const edm::Event
   theHFSignalGenerator.initializeEvent(&iEvent, &iSetup);
   theZDCSignalGenerator.initializeEvent(&iEvent, &iSetup);
 
-  theHBHESignalGenerator.fill();
-  theHOSignalGenerator.fill();
-  theHFSignalGenerator.fill();
+  theHBHESignalGenerator.fillEvent();
+  theHOSignalGenerator.fillEvent();
+  theHFSignalGenerator.fillEvent();
   //theZDCSignalGenerator.fill();
 
   //dump(&theHBHESignalGenerator);
