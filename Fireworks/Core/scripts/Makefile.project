@@ -45,7 +45,7 @@ else
       ExtraProjectLibs = -lEve -lGeom -lGeomPainter -lGraf3d \
 		 -lGui -lGpad -lGraf -lHist -lPhysics -lGed -lEG -lTree \
 		-lTreePlayer -lRGL -lFTGL -lNet -lRIO -lRint -lRGL -lGui -lCore \
-		-lCintex -lCint -lReflex -lMathMore -lMathCore \
+		-lCintex -lCint -lReflex -lGenVector -lMathMore -lMathCore \
 		-lboost_filesystem-gcc-mt -lboost_program_options-gcc-mt \
 		-lboost_regex-gcc-mt -lsigc-2.0 -L./ -l$(LibCore)
    endif
