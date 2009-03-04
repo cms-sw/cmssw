@@ -77,7 +77,6 @@ void RPCClusterSizeTest::beginRun(const Run& r, const EventSetup& c){
     if ( me = dbe_->get(prefixDir_+ histoName.str()) ) {
       dbe_->removeElement(me->getName());
     }
-<<<<<<< RPCClusterSizeTest.cc
     me = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  20, 0.02, 1.02);
     
     
@@ -101,9 +100,6 @@ void RPCClusterSizeTest::beginRun(const Run& r, const EventSetup& c){
 //     }
 //     me = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  100, 0.5, 10.5);
    
-=======
-    me = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  20, 0.02, 1.02);
->>>>>>> 1.3
     
   }//end loop on wheels
   
@@ -127,6 +123,8 @@ void RPCClusterSizeTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
     
     MonitorElement * CLS;          // ClusterSize in 1 bin, Roll vs Sector
     MonitorElement * CLSD;         // ClusterSize in 1 bin, Distribution
+    MonitorElement * MEAN;         // Mean ClusterSize, Roll vs Sector
+    MonitorElement * MEAND;        // Mean ClusterSize, Distribution
     
     stringstream meName;
     //Loop on chambers
@@ -158,6 +156,7 @@ void RPCClusterSizeTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
 	    
 	    
 	    float NormCLS = myMe->getBinContent(1)/myMe->getEntries(); // Normalization -> # of Entries in first Bin normalaized by total Entries
+	    float meanCLS = myMe->getMean();
 	    
 	    meName.str("");
 	    meName<<prefixDir_<<"ClusterSizeIn1Bin_Roll_vs_Sector_Wheel"<<detId.ring();
@@ -166,11 +165,11 @@ void RPCClusterSizeTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
 	      CLS -> setBinContent(detId.sector(), nr, NormCLS);
 	      CLS->setBinLabel(nr, YLabel, 2);
 	    }
-		    
+	    
+	    
 	    meName.str("");
 	    meName<<prefixDir_<<"ClusterSizeIn1Bin_Distribution_Wheel"<<detId.ring();
 	    CLSD = dbe_->get(meName.str());
-<<<<<<< RPCClusterSizeTest.cc
 	    CLSD->Fill(NormCLS);
 	    	    	    
 	  //   meName.str("");
@@ -200,10 +199,6 @@ void RPCClusterSizeTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
 	      
 // 	    }
 	    
-=======
-	    //CLSD->Reset();
-	    CLSD->Fill(NormCLS);
->>>>>>> 1.3
 	    
 	  }//End loop on Barrel
 	} // end loop on rolls in given chamber
