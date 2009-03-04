@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:44:45 EST 2009
-// $Id$
+// $Id: FWAdapterHeaderTableManager.cc,v 1.1 2009/02/03 20:33:03 chrjones Exp $
 //
 
 // system include files
@@ -99,8 +99,11 @@ FWAdapterHeaderTableManager::cellRenderer(int /*iRow*/, int iCol) const
    } else {
       m_renderer->setSortOrder(fireworks::table::kNotSorted);
    }
-
-   m_renderer->setData( *(getTitles().begin()+iCol),false );
+   if(iCol < m_table->numberOfColumns()) {
+      m_renderer->setData( *(getTitles().begin()+iCol),false );
+   } else {
+      m_renderer->setData("",false);
+   }
    return m_renderer;
 }
 
