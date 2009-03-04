@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:21 EST 2009
-// $Id: FWTabularWidget.cc,v 1.1 2009/02/03 20:33:04 chrjones Exp $
+// $Id: FWTabularWidget.cc,v 1.2 2009/02/04 14:47:28 chrjones Exp $
 //
 
 // system include files
@@ -135,15 +135,22 @@ FWTabularWidget::HandleButton(Event_t *event)
       Int_t row,col,relX,relY;
       translateToRowColumn(event->fX, event->fY, row, col,relX,relY);
       //std::cout <<relX <<" "<<relY<<std::endl;
-      m_table->cellRenderer(row,col)->buttonEvent(event,relX,relY);
-      buttonPressed(row,col,event->fCode,event->fState);
+      FWTableCellRendererBase* renderer = m_table->cellRenderer(row,col);
+      if(renderer){ 
+         renderer->buttonEvent(event,relX,relY);
+      }
+      buttonPressed(row,col,event,relX,relY);
       return true;
    }
    if(event->fType==kButtonRelease){
       Int_t row,col,relX,relY;
       translateToRowColumn(event->fX, event->fY, row, col,relX, relY);
-      m_table->cellRenderer(row,col)->buttonEvent(event,relX,relY);
-      buttonReleased(row,col,event->fCode,event->fState);      
+      FWTableCellRendererBase* renderer = m_table->cellRenderer(row,col);
+      if(renderer) {
+         renderer->buttonEvent(event,relX,relY);
+      }
+
+      buttonReleased(row,col,event,relX,relY);      
       return true;
    }
    return false;
@@ -188,26 +195,28 @@ FWTabularWidget::translateToRowColumn(Int_t iX, Int_t iY, Int_t& oRow, Int_t& oC
 }
 
 void 
-FWTabularWidget::buttonPressed(Int_t row, Int_t column, Int_t btn, Int_t keyMod)
+FWTabularWidget::buttonPressed(Int_t row, Int_t column, Event_t* event, Int_t relX, Int_t relY)
 {
    //std::cout <<"buttonPressed "<<row<<" "<<column<<std::endl;
-   Long_t args[4];
+   Long_t args[5];
    args[0]=(Long_t)row;
    args[1]=(Long_t)column;
-   args[2]=(Long_t)btn;
-   args[3]=(Long_t)keyMod;
-   Emit("buttonPressed(Int_t,Int_t,Int_t,Int_t)",args);
+   args[2]=(Long_t)event;
+   args[3]=(Long_t)relX;
+   args[4]=(Long_t)relY;
+   Emit("buttonPressed(Int_t,Int_t,Event_t*,Int_t,Int_t)",args);
 }
 void 
-FWTabularWidget::buttonReleased(Int_t row, Int_t column, Int_t btn, Int_t keyMod)
+FWTabularWidget::buttonReleased(Int_t row, Int_t column, Event_t* event, Int_t relX, Int_t relY)
 {
    //std::cout <<"buttonReleased "<<row<<" "<<column<<std::endl;
-   Long_t args[4];
+   Long_t args[6];
    args[0]=(Long_t)row;
    args[1]=(Long_t)column;
-   args[2]=(Long_t)btn;
-   args[3]=(Long_t)keyMod;
-   Emit("buttonReleased(Int_t,Int_t,Int_t,Int_t)",args);   
+   args[2]=(Long_t)event;
+   args[3]=(Long_t)relX;
+   args[4]=(Long_t)relY;
+   Emit("buttonReleased(Int_t,Int_t,Event_t*,Int_t,Int_t)",args);   
 }
 
 void
