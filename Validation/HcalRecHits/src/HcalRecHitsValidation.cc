@@ -855,7 +855,7 @@ HcalRecHitsValidation::~HcalRecHitsValidation() {
 
 void HcalRecHitsValidation::endJob() { }
 
-void HcalRecHitsValidation::beginJob(const edm::EventSetup& c){ }
+void HcalRecHitsValidation::beginJob(){ }
 
 void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const& c) {
 
@@ -1786,9 +1786,6 @@ double HcalRecHitsValidation::dPhiWsign(double phi1, double phi2) {
 
 }
 
-#include "FWCore/PluginManager/interface/ModuleDef.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(HcalRecHitsValidation);
