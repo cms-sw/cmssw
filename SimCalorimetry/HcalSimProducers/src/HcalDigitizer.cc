@@ -29,6 +29,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HPDNoiseGenerator.h"
+#include <boost/foreach.hpp>
 using namespace std;
 
 
@@ -161,24 +162,28 @@ HcalDigitizer::~HcalDigitizer() {
 
 void HcalDigitizer::setHBHENoiseSignalGenerator(CaloVNoiseSignalGenerator * noiseGenerator)
 {
+  noiseGenerator->setParameterMap(theParameterMap);
   theHBHEDigitizer->setNoiseSignalGenerator(noiseGenerator);
   theHBHEAmplifier->setNoiseSignalGenerator(noiseGenerator);
 }
 
 void HcalDigitizer::setHFNoiseSignalGenerator(CaloVNoiseSignalGenerator * noiseGenerator)
 {
+  noiseGenerator->setParameterMap(theParameterMap);
   theHFDigitizer->setNoiseSignalGenerator(noiseGenerator);
   theHFAmplifier->setNoiseSignalGenerator(noiseGenerator);
 }
 
 void HcalDigitizer::setHONoiseSignalGenerator(CaloVNoiseSignalGenerator * noiseGenerator)
 {
+  noiseGenerator->setParameterMap(theParameterMap);
   theHODigitizer->setNoiseSignalGenerator(noiseGenerator);
   theHOAmplifier->setNoiseSignalGenerator(noiseGenerator);
 }
 
 void HcalDigitizer::setZDCNoiseSignalGenerator(CaloVNoiseSignalGenerator * noiseGenerator)
 {
+  noiseGenerator->setParameterMap(theParameterMap);
   theZDCAmplifier->setNoiseSignalGenerator(noiseGenerator);
   theZDCAmplifier->setNoiseSignalGenerator(noiseGenerator);
 }
@@ -259,10 +264,13 @@ void HcalDigitizer::checkGeometry(const edm::EventSetup & eventSetup) {
   const vector<DetId>& hoCells =  geometry->getValidDetIds(DetId::Hcal, HcalOuter);
   const vector<DetId>& hfCells =  geometry->getValidDetIds(DetId::Hcal, HcalForward);
   const vector<DetId>& zdcCells = geometry->getValidDetIds(DetId::Calo, HcalZDCDetId::SubdetectorId);
-
+  //const vector<DetId>& hcalTrigCells = geometry->getValidDetIds(DetId::Hcal, HcalTriggerTower);
+  //const vector<DetId>& hcalCalib = geometry->getValidDetIds(DetId::Calo, HcalCastorDetId::SubdetectorId);
   //std::cout<<"HcalDigitizer::CheckGeometry number of cells: "<<zdcCells.size()<<std::endl;
   if(zdcCells.size()==0) doZDC = false;
   // combine HB & HE
+
+
 
   vector<DetId> hbheCells = hbCells;
   hbheCells.insert(hbheCells.end(), heCells.begin(), heCells.end());
