@@ -9,12 +9,12 @@ process.load("DQMServices.Core.DQM_cfg")
 
 
 #process.load("Validation.RecoParticleFlow.ztt_cfi")
-process.load("Validation.RecoParticleFlow.singletau_cfi")
+#process.load("Validation.RecoParticleFlow.singletau_cfi")
 
-#process.source = cms.Source("PoolSource",
-#                            fileNames = cms.untracked.vstring('file:aod.root'
-#                                                              )
-#                            )
+process.source = cms.Source("PoolSource",
+                            fileNames = cms.untracked.vstring('file:aod.root'
+                                                              )
+                            )
 
 
 
@@ -30,34 +30,13 @@ process.p =cms.Path(
     )
 
 
-process.schedule = cms.Schedule(process.p)
-
-
+process.out = cms.OutputModule("PoolOutputModule",
+    outputCommands = cms.untracked.vstring('keep *'),
+    fileName = cms.untracked.string('tree.root')
+)
+#process.outpath = cms.EndPath(process.out)
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.options = cms.untracked.PSet(
-    makeTriggerResults = cms.untracked.bool(True),
-    wantSummary = cms.untracked.bool(True),
-    Rethrow = cms.untracked.vstring('Unknown', 
-        'ProductNotFound', 
-        'DictionaryNotFound', 
-        'InsertFailure', 
-        'Configuration', 
-        'LogicError', 
-        'UnimplementedFeature', 
-        'InvalidReference', 
-        'NullPointerError', 
-        'NoProductSpecified', 
-        'EventTimeout', 
-        'EventCorruption', 
-        'ModuleFailure', 
-        'ScheduleExecutionFailure', 
-        'EventProcessorFailure', 
-        'FileInPathError', 
-        'FatalRootError', 
-        'NotFound')
-)
-
 
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
