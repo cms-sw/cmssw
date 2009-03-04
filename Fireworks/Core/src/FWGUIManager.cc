@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.92 2009/01/12 17:23:48 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.93 2009/01/23 21:35:43 amraktad Exp $
 //
 
 // system include files
@@ -166,7 +166,7 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
       getAction(cmsshow::sExportImage)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::exportImageOfMainView));
       getAction(cmsshow::sSaveConfig)->activated.connect(writeToPresentConfigurationFile_);
       getAction(cmsshow::sSaveConfigAs)->activated.connect(sigc::mem_fun(*this,&FWGUIManager::promptForConfigurationFile));
-      getAction(cmsshow::sShowEventDisplayInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showEDIFrame));
+      getAction(cmsshow::sShowEventDisplayInsp)->activated.connect(boost::bind( &FWGUIManager::showEDIFrame,this,-1));
       getAction(cmsshow::sShowMainViewCtl)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showViewPopup));
       getAction(cmsshow::sShowObjInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showModelPopup));
       getAction(cmsshow::sShowAddCollection)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::addData));
@@ -553,7 +553,7 @@ FWGUIManager::createList(TGSplitFrame *p)
    TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
 
    TGHorizontalFrame* addFrame = new TGHorizontalFrame(p,p->GetWidth(), 10);
-   TGLabel* addLabel = new TGLabel(addFrame,"List View");
+   TGLabel* addLabel = new TGLabel(addFrame,"Summary View");
    addLabel->SetTextJustify(kTextLeft);
 
    addFrame->AddFrame(addLabel, new TGLayoutHints(kLHintsCenterY|kLHintsLeft|kLHintsExpandX,2,2,2,2));
@@ -568,20 +568,19 @@ FWGUIManager::createList(TGSplitFrame *p)
    listFrame->AddFrame(addFrame, new TGLayoutHints(kLHintsExpandX|kLHintsLeft|kLHintsTop,2,2,2,2));
 
 
-   FWListWidget* ltf = new FWListWidget(listFrame);
-   listFrame->SetEditable(kFALSE);
-   listFrame->AddFrame(ltf, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
    //  p->Resize(listFrame->GetWidth(), listFrame->GetHeight());
-   m_listTree = ltf->GetListTree();
-   m_summaryManager = new FWSummaryManager(m_listTree,
+   m_summaryManager = new FWSummaryManager(listFrame,
                                            m_selectionManager,
                                            m_eiManager,
-                                           m_detailViewManager,
+                                           this,
                                            m_changeManager);
+   
+   listFrame->AddFrame(m_summaryManager->widget(), new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
    //m_views =  new TEveElementList("Views");
    //m_views->AddIntoListTree(m_listTree,reinterpret_cast<TGListTreeItem*>(0));
    //m_editor = ltf->GetEditor();
    //m_editor->DisplayElement(0);
+   /*
    {
       //m_listTree->Connect("mouseOver(TGListTreeItem*, UInt_t)", "FWGUIManager",
       //                 this, "itemBelowMouse(TGListTreeItem*, UInt_t)");
@@ -592,6 +591,7 @@ FWGUIManager::createList(TGSplitFrame *p)
       m_listTree->Connect("KeyPressed(TGListTreeItem*, ULong_t, ULong_t)", "FWGUIManager",
                           this, "itemKeyPress(TGListTreeItem*, UInt_t, UInt_t)");
    }
+    */
    /*
       TGGroupFrame* vf = new TGGroupFrame(listFrame,"Selection",kVerticalFrame);
       {
@@ -654,9 +654,12 @@ FWGUIManager::resetEDIFrame() {
 }
 
 void
-FWGUIManager::showEDIFrame()
+FWGUIManager::showEDIFrame(int iToShow)
 {
    createEDIFrame();
+   if(-1 != iToShow) {
+      m_ediFrame->show(static_cast<FWDataCategories> (iToShow));
+   }
    m_ediFrame->MapWindow();
 }
 

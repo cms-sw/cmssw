@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.48 2009/01/12 17:23:49 chrjones Exp $
+// $Id: FWGUIManager.h,v 1.49 2009/01/23 21:35:41 amraktad Exp $
 //
 
 // system include files
@@ -107,7 +107,8 @@ public:
    void createEDIFrame();
    void updateEDI(FWEventItem* iItem);
    void resetEDIFrame();
-   void showEDIFrame();
+   ///Allowed values are -1 or ones from FWDataCategories enum
+   void showEDIFrame(int iInfoToShow=-1);
 
    void createModelPopup();
    void updateModel(FWEventItem* iItem);
@@ -245,10 +246,6 @@ private:
 
    typedef std::map<std::string, ViewBuildFunctor > NameToViewBuilder;
    NameToViewBuilder m_nameToViewBuilder;
-
-   TGListTree* m_listTree;
-   //TEveGedEditor* m_editor;
-   //TEveElementList* m_views;
 
    TEveElement* m_editableSelected;
 
