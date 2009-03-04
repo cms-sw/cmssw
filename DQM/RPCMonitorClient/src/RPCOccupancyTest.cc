@@ -90,7 +90,7 @@ void RPCOccupancyTest::beginRun(const Run& r, const EventSetup& c){
   /////////////////
 
   histoName.str("");
-  histoName<<"OccupancyNormByGeoAndRPCEvents"<<w;
+  histoName<<"OccupancyNormByGeoAndRPCEvents_Wheel"<<w;
 
   if ( me = dbe_->get(prefixDir_ +"/SummaryHistograms/"+ histoName.str()) ) {
     dbe_->removeElement(me->getName());
@@ -105,11 +105,11 @@ void RPCOccupancyTest::beginRun(const Run& r, const EventSetup& c){
   }
   
   histoName.str("");
-  histoName<<"NormOccupancy_Distribution_Wheel"<<w;      
+  histoName<<"OccupancyNormByGeoAndRPCEvents_Distribution_Wheel"<<w;      
   if ( me = dbe_->get(prefixDir_ +"/"+ histoName.str()) ) {
     dbe_->removeElement(me->getName());
   }
-  me = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  50, 0.0, 0.105);
+  me = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  100, 0.0, 0.205);
 
 >>>>>>> 1.3
 
@@ -330,17 +330,17 @@ void RPCOccupancyTest::OccupancyDist(){
 
 
 	    meName.str("");
-	    meName<<prefixDir_<<"/SummaryHistograms/OccupancyNormByGeoAndRPCEvents"<<detId.ring();
+	    meName<<prefixDir_<<"/SummaryHistograms/OccupancyNormByGeoAndRPCEvents_Wheel"<<detId.ring();
 	    NormOccup= dbe_->get(meName.str());
 
 	    meName.str("");
-	    meName<<prefixDir_<<"/SummaryHistograms/NormOccupancy_Distribution_Wheel"<<detId.ring();      
+	    meName<<prefixDir_<<"/SummaryHistograms/OccupancyNormByGeoAndRPCEvents_Distribution_Wheel"<<detId.ring();      
 	    NormOccupDist = dbe_->get(meName.str());
 	    if(myAsyMe){
 	      float normoccup = totEnt/(stripInRoll*rpcevents)*10;
 	      NormOccup->setBinContent(detId.sector(),nr, normoccup);
 	      NormOccup->setBinLabel(nr, YLabel, 2);
-	      if(normoccup>0.1) normoccup=0.1; //overflow
+	      // if(normoccup>0.1) normoccup=0.1; //overflow
 	      NormOccupDist->Fill(normoccup);
 	    }
 

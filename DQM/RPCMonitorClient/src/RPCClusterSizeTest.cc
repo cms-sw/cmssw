@@ -77,29 +77,7 @@ void RPCClusterSizeTest::beginRun(const Run& r, const EventSetup& c){
     if ( me = dbe_->get(prefixDir_+ histoName.str()) ) {
       dbe_->removeElement(me->getName());
     }
-    me = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  20, 0.0, 1.0);
-    
-    
-    histoName.str("");
-    histoName<<"ClusterSizeMean_Roll_vs_Sector_Wheel"<<w;       // Avarage ClusterSize (2D Roll vs Sector)   
-    if ( me = dbe_->get(prefixDir_ + histoName.str()) ) {
-      dbe_->removeElement(me->getName());
-    }
-    me = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(),  12, 0.5, 12.5, 21, 0.5, 21.5);
-    for(int bin =1; bin<13;bin++) {
-      histoName.str("");
-      histoName<<"Sec"<<bin;
-      me->setBinLabel(bin,histoName.str().c_str(),1);
-    }
-    
-    
-    histoName.str("");
-    histoName<<"ClusterSizeMean_Distribution_Wheel"<<w;       //  Avarage ClusterSize Distribution
-    if ( me = dbe_->get(prefixDir_ + histoName.str()) ) {
-      dbe_->removeElement(me->getName());
-    }
-    me = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  100, 0.5, 10.5);
-   
+    me = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  20, 0.02, 1.02);
     
   }//end loop on wheels
   
@@ -123,8 +101,6 @@ void RPCClusterSizeTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
     
     MonitorElement * CLS;          // ClusterSize in 1 bin, Roll vs Sector
     MonitorElement * CLSD;         // ClusterSize in 1 bin, Distribution
-    MonitorElement * MEAN;         // Mean ClusterSize, Roll vs Sector
-    MonitorElement * MEAND;        // Mean ClusterSize, Distribution
     
     stringstream meName;
     //Loop on chambers
@@ -156,7 +132,6 @@ void RPCClusterSizeTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
 	    
 	    
 	    float NormCLS = myMe->getBinContent(1)/myMe->getEntries(); // Normalization -> # of Entries in first Bin normalaized by total Entries
-	    float meanCLS = myMe->getMean();
 	    
 	    meName.str("");
 	    meName<<prefixDir_<<"ClusterSizeIn1Bin_Roll_vs_Sector_Wheel"<<detId.ring();
@@ -165,40 +140,12 @@ void RPCClusterSizeTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
 	      CLS -> setBinContent(detId.sector(), nr, NormCLS);
 	      CLS->setBinLabel(nr, YLabel, 2);
 	    }
-	    
-	    
+		    
 	    meName.str("");
 	    meName<<prefixDir_<<"ClusterSizeIn1Bin_Distribution_Wheel"<<detId.ring();
 	    CLSD = dbe_->get(meName.str());
-	    CLSD->Reset();
-	    	    	    
-	    meName.str("");
-	    meName<<prefixDir_<<"ClusterSizeMean_Roll_vs_Sector_Wheel"<<detId.ring();  
-	    MEAN= dbe_->get(meName.str());
-	    if(MEAN) {
-	      MEAN -> setBinContent(detId.sector(), nr, meanCLS);
-	      MEAN -> setBinLabel(nr, YLabel, 2);
-	    }
-	    
-	    
-	    meName.str("");
-	    meName<<prefixDir_<<"ClusterSizeMean_Distribution_Wheel"<<detId.ring();
-	    MEAND = dbe_->get(meName.str());
-	    MEAND->Reset();
-	    if (MEAND) {
-	      for(int x=1; x<13; x++) {
-		int roll;
-		if(x==4) roll=22;
-		else if(x==9 || x==11) roll=16;
-		else roll=18;
-		for(int y=1; y<roll; y++) {
-		  MEAND->Fill( MEAN->getBinContent(x,y));
-		  if (CLSD) CLSD->Fill(CLS->getBinContent(x,y));
-		}
-	      }
-	      
-	    }
-	    
+	    //CLSD->Reset();
+	    CLSD->Fill(NormCLS);
 	    
 	  }//End loop on Barrel
 	} // end loop on rolls in given chamber

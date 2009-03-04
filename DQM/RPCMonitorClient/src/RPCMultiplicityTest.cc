@@ -173,6 +173,14 @@ void RPCMultiplicityTest::beginRun(const Run& r, const EventSetup& iSetup){
      }
      me = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(), 100, 0.5, 50.5);
    
+    //  histoName.str("");
+//      histoName<<"NumberOfDigiGreaterThanThierdStrips_Distribution_Wheel"<<i;
+//      if ( me = dbe_->get(prefixDir_+"/"+globalFolder_ +"/"+ histoName.str()) ) {
+//        dbe_->removeElement(me->getName());
+//      }
+//      me = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(), 200, 0.0, 0.2);
+     
+
      
    } //end wheels
    
@@ -325,6 +333,11 @@ void  RPCMultiplicityTest::fillGlobalME(RPCDetId & detId, MonitorElement * myMe,
   
   MonitorElement * myGlobalMe;
   MonitorElement * distMe;
+<<<<<<< RPCMultiplicityTest.cc
+  MonitorElement * multthierd;
+  MonitorElement * multthierdDist;
+ 
+=======
 >>>>>>> 1.2
 
   if (myGlobalMe && distMe){
@@ -334,6 +347,7 @@ void  RPCMultiplicityTest::fillGlobalME(RPCDetId & detId, MonitorElement * myMe,
   int nr = rollNumber.detId2RollNr(detId);
   myGlobalMe->setBinContent(detId.sector(),nr, myMe->getMean() );
 =======
+>>>>>>> 1.3
   stringstream meName, distName;
 >>>>>>> 1.2
   
@@ -367,20 +381,44 @@ void  RPCMultiplicityTest::fillGlobalME(RPCDetId & detId, MonitorElement * myMe,
   distMe =   dbe_->get(distName.str());
 >>>>>>> 1.2
 
-  if (myGlobalMe && distMe){
+
+
 
 <<<<<<< RPCMultiplicityTest.cc
 =======
   rpcdqm::utils rollNumber;
   int nr = rollNumber.detId2RollNr(detId);
-  myGlobalMe->setBinContent(detId.sector(),nr, myMe->getMean() );
   
-  distMe->Fill(myMe->getMean());
-
-  RPCGeomServ RPCname(detId);	  
-  string YLabel = RPCname.shortname();
-  myGlobalMe->setBinLabel(nr, YLabel, 2);
+  if (myGlobalMe && distMe){
+    myGlobalMe->setBinContent(detId.sector(),nr, myMe->getMean() );
+    
+    distMe->Fill(myMe->getMean());
+    
+    RPCGeomServ RPCname(detId);	  
+    string YLabel = RPCname.shortname();
+    myGlobalMe->setBinLabel(nr, YLabel, 2);
   }
+
+ //  if (detId.region()==0) {
+//     meName.str("");
+//     meName<<prefixDir_+"/"+ globalFolder_+"/RPCEvents";
+//     int rpcevents = ( dbe_ -> get(meName.str()) ) -> getEntries();
+    
+//     meName.str("");
+//     meName<<prefixDir_+"/"+ globalFolder_+"/NumberOfDigiGreaterThanThierdStrips_Wheel_"<<detId.ring();
+//     multthierd = dbe_ -> get(meName.str());
+    
+//     meName.str("");
+//     meName<<prefixDir_+"/"+ globalFolder_+"/NumberOfDigiGreaterThanThierdStrips_Distribution_Wheel"<<detId.ring();
+//     multthierdDist =  dbe_->get(meName.str());
+
+//     float f = (multthierd -> getBinContent(detId.sector(), nr) / rpcevents) * 100;
+//     multthierdDist -> Fill(f);
+//     multthierd->setBinContent(detId.sector(), nr, f);
+    
+    
+//   }
+  
 }
 
 
