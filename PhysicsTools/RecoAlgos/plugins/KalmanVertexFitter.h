@@ -1,6 +1,6 @@
 #ifndef RecoAlgos_KalmanVertexFitter_h
 #define RecoAlgos_KalmanVertexFitter_h
-#include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
+#include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 
 const bool refitTracks = true;

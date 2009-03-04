@@ -11,9 +11,9 @@
   <use name=DataFormats/HcalRecHit>
   <use name=SimDataFormats/TrackingAnalysis>
   <use name=PhysicsTools/RecoUtils>
-  <use name=PhysicsTools/CandAlgos>
+  <use name=CommonTools/CandAlgos>
   <use name=PhysicsTools/RecoAlgos>
-  <use name=PhysicsTools/UtilAlgos>
+  <use name=CommonTools/UtilAlgos>
   <use name=MagneticField/Records>
   <use name=RecoVertex/KalmanVertexFit>
   <use name=RecoVertex/GaussianSumVertexFit>

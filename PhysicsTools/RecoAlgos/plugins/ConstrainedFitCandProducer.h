@@ -7,8 +7,8 @@
  */
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
-#include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
-#include "PhysicsTools/UtilAlgos/interface/EventSetupInitTrait.h"
+#include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
+#include "CommonTools/UtilAlgos/interface/EventSetupInitTrait.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "SimGeneral/HepPDTRecord/interface/PdtEntry.h"
 #include <vector>

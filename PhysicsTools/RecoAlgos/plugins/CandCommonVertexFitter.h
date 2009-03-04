@@ -1,6 +1,6 @@
 #ifndef RecoAlgos_CandKalmanVertexFitter_h
 #define RecoAlgos_CandKalmanVertexFitter_h
-#include "PhysicsTools/UtilAlgos/interface/EventSetupInitTrait.h"
+#include "CommonTools/UtilAlgos/interface/EventSetupInitTrait.h"
 #include "PhysicsTools/RecoUtils/interface/CandCommonVertexFitter.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
