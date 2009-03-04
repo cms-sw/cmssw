@@ -30,6 +30,7 @@ public:
   edm::InputTag inputTruthLabel_;
   edm::InputTag inputRecoLabel_;
   std::string benchmarkLabel_;
+  bool startFromGen_;
   bool plotAgainstRecoQuantities_;
   bool onlyTwoJets_;
   double recPt_cut;
