@@ -33,8 +33,20 @@ public:
 
   virtual ~HcalSignalGenerator() {}
 
-  virtual void fill()
+  void initializeEvent(const edm::Event * event, const edm::EventSetup * eventSetup)
   {
+    theEvent = event;
+    eventSetup->get<HcalDbRecord>().get(theConditions);
+    theShape = theConditions->getHcalShape (); // this one is generic
+  }
+
+  void setParameterMap(HcalSimParameterMap * newMap) {theParameterMap = *newMap;}
+
+protected:
+
+  virtual void fillNoiseSignals()
+  {
+    theNoiseSignals.clear();
     edm::Handle<COLLECTION> pDigis;
     const COLLECTION *  digis = 0;
     if( theEvent->getByLabel(theInputTag, pDigis) ) {
@@ -57,6 +69,7 @@ public:
     }
   }
 
+private:
 
   CaloSamples samplesInPE(const DIGI & digi)
   {
@@ -73,23 +86,12 @@ public:
   }
  
 
-  void initializeEvent(const edm::Event * event, const edm::EventSetup * eventSetup)
-  {
-    theEvent = event;
-    eventSetup->get<HcalDbRecord>().get(theConditions);
-    theShape = theConditions->getHcalShape (); // this one is generic
-  }
-
-
   void fC2pe(CaloSamples & samples) const
   {
     float factor = 1./theParameterMap.simParameters(samples.id()).photoelectronsToAnalog();
     samples *= factor;
   }
 
-  void setParameterMap(HcalSimParameterMap * newMap) {theParameterMap = *newMap;}
-
-private:
   /// these fields are set in initializeEvent()
   const edm::Event * theEvent;
   edm::ESHandle<HcalDbService> theConditions;
