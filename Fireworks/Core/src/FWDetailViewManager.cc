@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.22 2009/01/13 18:44:57 chrjones Exp $
+// $Id: FWDetailViewManager.cc,v 1.23 2009/01/23 21:35:42 amraktad Exp $
 //
 
 // system include files
@@ -114,7 +114,7 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
    hf->AddFrame(text_view, new TGLayoutHints(kLHintsLeft|kLHintsTop|kLHintsExpandY));
    TGLEmbeddedViewer* v = new TGLEmbeddedViewer(hf, 0, 0);
    TEveViewer* nv = new TEveViewer();
-   nv->SetGLViewer(v);
+   nv->SetGLViewer(v,v->GetFrame());
    nv->GetGLViewer()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
    if ( TGLOrthoCamera* oCamera = dynamic_cast<TGLOrthoCamera*>( &(nv->GetGLViewer()->CurrentCamera()) ) )
       oCamera->SetEnableRotate(kTRUE);

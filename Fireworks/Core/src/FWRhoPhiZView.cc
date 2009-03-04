@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.32 2009/01/21 18:42:59 amraktad Exp $
+// $Id: FWRhoPhiZView.cc,v 1.33 2009/01/23 21:35:44 amraktad Exp $
 //
 
 #define private public
@@ -156,7 +156,7 @@ FWRhoPhiZView::FWRhoPhiZView(TGFrame* iParent,const std::string& iName, const TE
    TGLEmbeddedViewer* ev = new TGLEmbeddedViewer(iParent, m_pad, 0);
    m_embeddedViewer=ev;
    TEveViewer* nv = new TEveViewer(iName.c_str());
-   nv->SetGLViewer(ev);
+   nv->SetGLViewer(ev,ev->GetFrame());
    ev->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
    if ( TGLOrthoCamera* camera = dynamic_cast<TGLOrthoCamera*>( &(ev->CurrentCamera()) ) ) {
       m_cameraZoom = &(camera->fZoom);

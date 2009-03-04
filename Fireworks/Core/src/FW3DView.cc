@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DView.cc,v 1.9 2008/12/09 05:54:38 dmytro Exp $
+// $Id: FW3DView.cc,v 1.10 2009/01/23 21:35:42 amraktad Exp $
 //
 
 // system include files
@@ -107,7 +107,7 @@ FW3DView::FW3DView(TGFrame* iParent, TEveElementList* list) :
    TGLEmbeddedViewer* ev = new TGLEmbeddedViewer(iParent, m_pad, 0);
    m_embeddedViewer=ev;
    TEveViewer* nv = new TEveViewer(staticTypeName().c_str());
-   nv->SetGLViewer(ev);
+   nv->SetGLViewer(ev,ev->GetFrame());
    ev->SetCurrentCamera(TGLViewer::kCameraPerspXOZ);
    m_cameraMatrix = const_cast<TGLMatrix*>(&(ev->CurrentCamera().GetCamTrans()));
    m_cameraMatrixBase = const_cast<TGLMatrix*>(&(ev->CurrentCamera().GetCamBase()));
