@@ -3,8 +3,8 @@
  * Test suit for CSCDigi.
  * Based on testDTDigis.cpp
  *
- * $Date: 2008/01/31 10:32:10 $
- * $Revision: 1.22 $
+ * $Date: 2008/10/29 18:34:41 $
+ * $Revision: 1.23 $
  *
  * \author N. Terentiev, CMU (for CSCWireDigi, CSCRPCDigi, 
  *                                CSCALCTDigi, CSCCLCTDigi)
@@ -12,10 +12,11 @@
  * \author A. Tumanov, Rice U.
  */
 
-static const char CVSId[] = "$Id: testCSCDigis.cpp,v 1.22 2008/01/31 10:32:10 muzaffar Exp $";
+static const char CVSId[] = "$Id: testCSCDigis.cpp,v 1.23 2008/10/29 18:34:41 elmer Exp $";
 
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 #include "DataFormats/CSCDigi/interface/CSCWireDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
@@ -47,10 +48,16 @@ static const char CVSId[] = "$Id: testCSCDigis.cpp,v 1.22 2008/01/31 10:32:10 mu
 #include "DataFormats/CSCDigi/interface/CSCDCCFormatStatusDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCDCCFormatStatusDigiCollection.h"
 
+//#include "DataFormats/CSCDigi/interface/CSCEventFormatStatusDigi.h"
+//#include "DataFormats/CSCDigi/interface/CSCEventFormatStatusDigiCollection.h"
+
 #include <stdio.h>
 #include <iostream>
 
 using namespace std;
+
+CSCIdType makeCSCId(const uint16_t crateId, const uint16_t dmbId) 
+        { return ( (CSCIdType(crateId&0xFF)<<4) | (dmbId&0xF) ); }
 
 class testCSCDigis: public CppUnit::TestFixture {
 
@@ -73,6 +80,7 @@ public:
   void fillCSCCFEBStatusDigi(CSCCFEBStatusDigiCollection &);
   void fillCSCTMBStatusDigi(CSCTMBStatusDigiCollection &);
   void fillCSCDCCFormatStatusDigi(CSCDCCFormatStatusDigiCollection &);
+//  void fillCSCEventFormatStatusDigi(CSCEventFormatStatusDigiCollection &);
 
   void readCSCWireDigi(CSCWireDigiCollection &);
   void readCSCComparatorDigi(CSCComparatorDigiCollection &);
@@ -84,6 +92,7 @@ public:
   void readCSCCFEBStatusDigi(CSCCFEBStatusDigiCollection &);
   void readCSCTMBStatusDigi(CSCTMBStatusDigiCollection &);
   void readCSCDCCFormatStatusDigi(CSCDCCFormatStatusDigiCollection &);
+//  void readCSCEventFormatStatusDigi(CSCEventFormatStatusDigiCollection &);
 
   void testDigiCollectionPut();
 }; 
@@ -341,9 +350,8 @@ void testCSCDigis::fillCSCTMBStatusDigi(CSCTMBStatusDigiCollection & collection)
                                                                                 
       } // end of for(int endcp=1 ...for(int csc=1 ...)
 }
-
+/*
 void testCSCDigis::fillCSCDCCFormatStatusDigi(CSCDCCFormatStatusDigiCollection & collection){
-
   std::vector<CSCDCCFormatStatusDigi> digivec;
   CSCDetId detid(0,0,0,0,0);
 
@@ -365,8 +373,31 @@ void testCSCDigis::fillCSCDCCFormatStatusDigi(CSCDCCFormatStatusDigiCollection &
     }
  
   collection.put(std::make_pair(digivec.begin(), digivec.end()),detid);
-  
 }
+*/
+void testCSCDigis::fillCSCDCCFormatStatusDigi(CSCDCCFormatStatusDigiCollection & collection)
+{
+  std::vector<CSCDCCFormatStatusDigi> digivec;
+  CSCDetId detid(0,0,0,0,0);
+  for(int dcc=FEDNumbering::MINCSCFEDID; dcc<FEDNumbering::MAXCSCFEDID; dcc++) {
+            
+           CSCDCCFormatStatusDigi digi(dcc);
+#ifdef DEBUG
+	   digi.setDCCId(dcc);
+	   digi.setDCCMask(0x111);
+	   digi.setCSCMask(0x01);
+	   for (int i=1; i<5; i++)
+	   	digi.setDDUErrors(i, i);
+	   for (int i=40; i<50;i++) 
+		for (int j=1; j<10; j++) {
+			digi.setCSCPayload(makeCSCId(i,j),i*j);
+			digi.setCSCErrors(makeCSCId(i,j),i*j);
+		}
+#endif
+           digivec.push_back(digi);
+    }
+  collection.put(std::make_pair(digivec.begin(), digivec.end()),detid);
+} 
 
 void testCSCDigis::readCSCCorrLCTDigi(CSCCorrelatedLCTDigiCollection & collection)
 {
@@ -662,9 +693,8 @@ void testCSCDigis::readCSCTMBStatusDigi(CSCTMBStatusDigiCollection & collection)
   }// end of for (detUnitIt=...
 
 }
-
+/*
 void testCSCDigis::readCSCDCCFormatStatusDigi(CSCDCCFormatStatusDigiCollection & collection) {
-
   CSCDCCFormatStatusDigiCollection::DigiRangeIterator detUnitIt;
   for (detUnitIt=collection.begin();
        detUnitIt!=collection.end();
@@ -693,10 +723,26 @@ void testCSCDigis::readCSCDCCFormatStatusDigi(CSCDCCFormatStatusDigiCollection &
 
     }// for digis in collection
   }// end of for (detUnitIt=...
-   
 }
+*/
+void testCSCDigis::readCSCDCCFormatStatusDigi(CSCDCCFormatStatusDigiCollection & collection){
+  CSCDCCFormatStatusDigiCollection::DigiRangeIterator detUnitIt;
+  for (detUnitIt=collection.begin();
+       detUnitIt!=collection.end();
+       ++detUnitIt){
+       
+//   const CSCDetId& id = (*detUnitIt).first;
+
+    const CSCDCCFormatStatusDigiCollection::Range& range = (*detUnitIt).second;
+
+    for (CSCDCCFormatStatusDigiCollection::const_iterator digiIt = range.first; digiIt!=range.second; ++digiIt){
+	digiIt->print();
 
 
+    }// for digis in collection 
+
+  }// end of for (detUnitIt=...
+}
 
 void testCSCDigis::testDigiCollectionPut(){
 
@@ -732,6 +778,9 @@ void testCSCDigis::testDigiCollectionPut(){
 
        CSCDCCFormatStatusDigiCollection dccformatstatusdigiCollection;
        fillCSCDCCFormatStatusDigi(dccformatstatusdigiCollection);
+
+//       CSCEventFormatStatusDigiCollection eventformatstatusdigiCollection;
+//       fillCSCEventFormatStatusDigi(eventformatstatusdigiCollection);
       
 /************           Reading collections             *****************/
 
@@ -745,5 +794,6 @@ void testCSCDigis::testDigiCollectionPut(){
        readCSCCFEBStatusDigi(cfebstatusdigiCollection);
        readCSCTMBStatusDigi(tmbstatusdigiCollection);
        readCSCDCCFormatStatusDigi(dccformatstatusdigiCollection);
+//       readCSCEventFormatStatusDigi(eventformatstatusdigiCollection);
 }
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>

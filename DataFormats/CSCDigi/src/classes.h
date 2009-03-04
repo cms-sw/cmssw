@@ -115,6 +115,8 @@ namespace{
   edm::Wrapper<CSCDCCStatusDigiCollection> wDCCSD_;
   edm::Wrapper<CSCALCTStatusDigiCollection> wALCTSD_;
 
+  std::map<int,unsigned int> mCSCFmt_;
+  std::map<short,unsigned int> mDDUFmt_;
 
   };
 }

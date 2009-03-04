@@ -13,6 +13,9 @@
    <class name="CSCDDUStatusDigi"/>
    <class name="CSCDCCStatusDigi"/>
    <class name="CSCALCTStatusDigi"/>
+  
+   <class name="std::map<int,unsigned int>"/>
+   <class name="std::map<short,unsigned int>"/>
 
 
    <class name="std::vector<CSCWireDigi>"/>
