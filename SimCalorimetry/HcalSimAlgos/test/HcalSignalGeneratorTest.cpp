@@ -21,6 +21,7 @@ private:
   void dump(CaloVNoiseSignalGenerator * signalGenerator) const;
 
       // ----------member data ---------------------------
+  HcalSimParameterMap theMap;
   HBHESignalGenerator theHBHESignalGenerator;
   HOSignalGenerator theHOSignalGenerator;
   HFSignalGenerator theHFSignalGenerator;
@@ -30,11 +31,17 @@ private:
 
 
 HcalSignalGeneratorTest::HcalSignalGeneratorTest(const edm::ParameterSet& iConfig)
-: theHBHESignalGenerator(iConfig.getParameter<edm::InputTag>("HBHEdigiCollectionPile")),
+: theMap(),
+  theHBHESignalGenerator(iConfig.getParameter<edm::InputTag>("HBHEdigiCollectionPile")),
   theHOSignalGenerator(iConfig.getParameter<edm::InputTag>("HOdigiCollectionPile")),
   theHFSignalGenerator(iConfig.getParameter<edm::InputTag>("HFdigiCollectionPile")),
   theZDCSignalGenerator(iConfig.getParameter<edm::InputTag>("ZDCdigiCollectionPile"))
 {
+  theHBHESignalGenerator.setParameterMap(&theMap);
+  theHOSignalGenerator.setParameterMap(&theMap);
+  theHFSignalGenerator.setParameterMap(&theMap);
+  theZDCSignalGenerator.setParameterMap(&theMap);
+
 }
 
 void HcalSignalGeneratorTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -44,10 +51,10 @@ void HcalSignalGeneratorTest::analyze(const edm::Event& iEvent, const edm::Event
   theHFSignalGenerator.initializeEvent(&iEvent, &iSetup);
   theZDCSignalGenerator.initializeEvent(&iEvent, &iSetup);
 
-  theHBHESignalGenerator.fillEvent();
-  theHOSignalGenerator.fillEvent();
-  theHFSignalGenerator.fillEvent();
-  //theZDCSignalGenerator.fill();
+  theHBHESignalGenerator.fill();
+  theHOSignalGenerator.fill();
+  theHFSignalGenerator.fill();
+  theZDCSignalGenerator.fill();
 
   //dump(&theHBHESignalGenerator);
 }
