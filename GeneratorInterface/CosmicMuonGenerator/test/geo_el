@@ -11,6 +11,43 @@
 	
 
   gStyle->SetPalette(6,colVec);
+  
+
+  //////////////////////////////////////////////////////////////////////////////////////
+  TCanvas *C1 = new TCanvas("densities","Densities",10,10,250,250);
+  C1->SetBottomMargin(0.15);
+  C1->Divide(1,1);
+  C1->cd(1); //gPad->SetTicks(1,1);
+  TH2F* col = new TH2F("col","col",5, 0.55, 5.55, 5, 0.5, 5.5);
+  col->Fill(1, 1, 3);
+  col->Fill(1, 2, 4);
+  col->Fill(1, 3, 5);
+  col->Fill(1, 4, 2);
+  col->Fill(1, 5, 1);
+  col->SetMinimum(0);		
+  col->SetMaximum(6);		
+  col->Draw("COLAH");	
+
+  TLatex* line = new TLatex(1.7, 5.0, "Plug  #rho=6.3 g/cm^{3}");
+  line->SetTextSize(0.075);	
+  line->Draw();
+  TLatex* line = new TLatex(1.7, 4.0, "Concrete  #rho=2.5 g/cm^{3}");
+  line->SetTextSize(0.075);	
+  line->Draw();
+  TLatex* line = new TLatex(1.7, 3.0, "Rock  #rho=2.2 g/cm^{3}");
+  line->SetTextSize(0.075);	
+  line->Draw();
+  TLatex* line = new TLatex(1.7, 2.0, "Clay  #rho=1.5 g/cm^{3}");
+  line->SetTextSize(0.075);	
+  line->Draw();
+  TLatex* line = new TLatex(1.7, 1.0, "Air  #rho=0.0 g/cm^{3}");
+  line->SetTextSize(0.075);	
+  line->Draw();
+
+
+  gPad->Update();
+
+
 
   // scan geometry
   //////////////////////////////////////////////////////////////////////////////////////
@@ -31,14 +68,14 @@
   zyv->SetMinimum(0);		
   zyv->SetMaximum(6);		
   zyv->Draw("COL");
-  zyv->GetXaxis()->SetLabelSize(0.025);
-  zyv->GetXaxis()->SetTitleSize(0.025);
-  zyv->GetXaxis()->SetTitleOffset(0.8);
+  zyv->GetXaxis()->SetLabelSize(0.035);
+  zyv->GetXaxis()->SetTitleSize(0.035);
+  zyv->GetXaxis()->SetTitleOffset(1.5);
   zyv->GetXaxis()->SetTitle("Z [m]");
   zyv->GetXaxis()->SetLabelOffset(0.001);
-  zyv->GetYaxis()->SetLabelSize(0.025);
-  zyv->GetYaxis()->SetTitleSize(0.025);
-  zyv->GetYaxis()->SetTitleOffset(1.3);
+  zyv->GetYaxis()->SetLabelSize(0.035);
+  zyv->GetYaxis()->SetTitleSize(0.035);
+  zyv->GetYaxis()->SetTitleOffset(2.0);
   zyv->GetYaxis()->SetTitle("Y [m]");
   gPad->Update();
 
@@ -54,19 +91,22 @@
   }
   TCanvas *C2 = new TCanvas("xy_view1","X-Y view at Z=-38",500,50,220,550);
   C2->SetBottomMargin(0.15);
+  C2->SetLeftMargin(0.15);
   C2->Divide(1,1);
   C2->cd(1); gPad->SetTicks(1,1);
+  gPad->SetLeftMargin(0.15);	
+  gPad->SetLeftMargin(0.2);	
   xyv1->SetMinimum(0);
   xyv1->SetMaximum(6);
   xyv1->Draw("COL");
-  xyv1->GetXaxis()->SetLabelSize(0.055);
+  xyv1->GetXaxis()->SetLabelSize(0.07);
   xyv1->GetXaxis()->SetTitleSize(0.055);
-  xyv1->GetXaxis()->SetTitleOffset(0.4);
+  xyv1->GetXaxis()->SetTitleOffset(0.8);
   xyv1->GetXaxis()->SetTitle("X [m]");
   xyv1->GetXaxis()->SetLabelOffset(-0.022);
-  xyv1->GetYaxis()->SetLabelSize(0.055);
+  xyv1->GetYaxis()->SetLabelSize(0.07);
   xyv1->GetYaxis()->SetTitleSize(0.055);
-  xyv1->GetYaxis()->SetTitleOffset(1.3);
+  xyv1->GetYaxis()->SetTitleOffset(1.9);
   xyv1->GetYaxis()->SetTitle("Y [m]");
   gPad->Update();
 
@@ -84,17 +124,18 @@
   C3->SetBottomMargin(0.15);
   C3->Divide(1,1);
   C3->cd(1); gPad->SetTicks(1,1);
+  gPad->SetLeftMargin(0.2);	
   xyv2->SetMinimum(0);
   xyv2->SetMaximum(6);
   xyv2->Draw("COL");
-  xyv2->GetXaxis()->SetLabelSize(0.055);
+  xyv2->GetXaxis()->SetLabelSize(0.06);
   xyv2->GetXaxis()->SetTitleSize(0.055);
-  xyv2->GetXaxis()->SetTitleOffset(0.4);
+  xyv2->GetXaxis()->SetTitleOffset(0.7);
   xyv2->GetXaxis()->SetTitle("X [m]");
   xyv2->GetXaxis()->SetLabelOffset(-0.022);
-  xyv2->GetYaxis()->SetLabelSize(0.055);
+  xyv2->GetYaxis()->SetLabelSize(0.06);
   xyv2->GetYaxis()->SetTitleSize(0.055);
-  xyv2->GetYaxis()->SetTitleOffset(1.3);
+  xyv2->GetYaxis()->SetTitleOffset(1.7);
   xyv2->GetYaxis()->SetTitle("Y [m]");
   gPad->Update();
 
@@ -108,21 +149,24 @@
 	xzv1->Fill(float(vx),float(vz),inMat(vx*1000.,vy*1000.,vz*1000., PlugVx, PlugVz));	
     }
   }	
-  TCanvas *C4 = new TCanvas("xz_view1","X-Z view at Y=0",150,500,200,480);
+  TCanvas *C4 = new TCanvas("xz_view1","X-Z view at Y=0",150,500,250,480);
   C4->SetBottomMargin(0.15);
+  //C4->SetLeftMargin(3.15);
   C4->Divide(1,1);
   C4->cd(1); gPad->SetTicks(1,1);
+  gPad->SetLeftMargin(0.2);	
+
   xzv1->SetMinimum(0); //needed to get right color interval
   xzv1->SetMaximum(6);	//needed to get right color interval
   xzv1->Draw("COL");
-  xzv1->GetXaxis()->SetLabelSize(0.055);
+  xzv1->GetXaxis()->SetLabelSize(0.07);
   xzv1->GetXaxis()->SetTitleSize(0.055);
-  xzv1->GetXaxis()->SetTitleOffset(0.4);
+  xzv1->GetXaxis()->SetTitleOffset(0.8);
   xzv1->GetXaxis()->SetTitle("X [m]");
   xzv1->GetXaxis()->SetLabelOffset(-0.022);
-  xzv1->GetYaxis()->SetLabelSize(0.055);
+  xzv1->GetYaxis()->SetLabelSize(0.07);
   xzv1->GetYaxis()->SetTitleSize(0.055);
-  xzv1->GetYaxis()->SetTitleOffset(1.3);
+  xzv1->GetYaxis()->SetTitleOffset(1.7);
   xzv1->GetYaxis()->SetTitle("Z [m]");
   gPad->Update();
 
