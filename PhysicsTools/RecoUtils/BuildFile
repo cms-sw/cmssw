@@ -10,6 +10,7 @@
 <use name=PhysicsTools/CandUtils>
 <use name=PhysicsTools/KinFitter>
 <use name=FWCore/ParameterSet>
+<use name=CommonTools/RecoUtils>
 <use name=boost>
 <export>
   <lib name=PhysicsToolsRecoUtils>
