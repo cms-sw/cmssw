@@ -104,11 +104,11 @@ PhotonProducer::~PhotonProducer() {
 
 
 
-void  PhotonProducer::beginRun (edm::EventSetup const & theEventSetup) {
+void  PhotonProducer::beginRun (edm::Run& r, edm::EventSetup const & theEventSetup) {
+
   theLikelihoodCalc_ = new ConversionLikelihoodCalculator();
   edm::FileInPath path_mvaWeightFile(likelihoodWeights_.c_str() );
   theLikelihoodCalc_->setWeightsFile(path_mvaWeightFile.fullPath().c_str());
-
 
   // nEvt_=0;
 }
@@ -352,7 +352,6 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     
     reco::Photon newCandidate(p4, caloPosition, scRef, HoE1, HoE2, hasSeed, vtx);
     newCandidate.setShowerShapeVariables ( maxXtal.second, e1x5, e2x5,  e3x3, e5x5, covEtaEta,  covIetaIeta );
-    //std::cout << " PhotonProducer e1x5 " << newCandidate.e1x5() << " e5x5 " <<   newCandidate.e5x5() << " max Xtal " << newCandidate.maxEnergyXtal() <<  std::endl;
 
     PhotonFiducialFlags fidFlags;
     PhotonIsolationVariables isolVarR03, isolVarR04;
@@ -386,11 +385,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
 
     /// Pre-selection loose  isolation cuts
     bool isLooseEM=true;
-    //    std::cout << " Photon Et " <<  newCandidate.pt() << std::endl;
     if ( newCandidate.pt() < highEt_) { 
-      //std::cout << " This photon Et is below " << highEt_ << " so I apply pre-selection ID cuts " << std::endl;
-      // std::cout << " PhotonProducer Hoe1 " << newCandidate.hadronicDepth1OverEm() << "  HoE2 " <<  newCandidate.hadronicDepth2OverEm() << " tot " <<  newCandidate.hadronicOverEm() << std::endl;
-      //     std::cout << "  PhotonProducer checking sigmaIetaIeta " << newCandidate.sigmaIetaIeta() << std::endl;
       if ( newCandidate.hadronicOverEm()                >= preselCutValues[0] )      isLooseEM=false;
       if ( newCandidate.ecalRecHitSumConeDR04()          > preselCutValues[1] )      isLooseEM=false;
       if ( newCandidate.hcalTowerSumConeDR04()           > preselCutValues[2] )      isLooseEM=false;
@@ -443,6 +438,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
 
 reco::ConversionRef  PhotonProducer::solveAmbiguity(const edm::Handle<reco::ConversionCollection> & conversionHandle, reco::SuperClusterRef& scRef) {
 
+
   std::multimap<reco::ConversionRef, double >   convMap;
 
 
@@ -452,6 +448,7 @@ reco::ConversionRef  PhotonProducer::solveAmbiguity(const edm::Handle<reco::Conv
 
     if (!( scRef.id() == cpRef->caloCluster()[0].id() && scRef.key() == cpRef->caloCluster()[0].key() )) continue;    
     if ( !cpRef->isConverted() ) continue;  
+
     
     double like = theLikelihoodCalc_->calculateLikelihood(cpRef);
     //    std::cout << " Like " << like << std::endl;

@@ -98,7 +98,7 @@ void  SoftConversionTrackCandidateProducer::setEventSetup (const edm::EventSetup
 
 
 
-void  SoftConversionTrackCandidateProducer::beginRun (edm::EventSetup const & theEventSetup) {
+void  SoftConversionTrackCandidateProducer::beginRun (edm::Run& r, edm::EventSetup const & theEventSetup) {
   nEvt_=0;
   //get magnetic field
   edm::LogInfo("SoftConversionTrackCandidateProducer") << " get magnetic field" << "\n";
