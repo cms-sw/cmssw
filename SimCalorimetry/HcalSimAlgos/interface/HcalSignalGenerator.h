@@ -40,9 +40,7 @@ public:
     theShape = theConditions->getHcalShape (); // this one is generic
   }
 
-protected:
-
-  virtual void fillNoiseSignals()
+  virtual void fill()
   {
     theNoiseSignals.clear();
     edm::Handle<COLLECTION> pDigis;
