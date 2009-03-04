@@ -30,11 +30,12 @@ protected:
   virtual void fillNoiseSignals() {}
   std::vector<CaloSamples> theNoiseSignals;
 
+  // maybe not used
+  CaloVSimParameterMap * theParameterMap;
+
 private:
   void fillDetIds();
   std::vector<unsigned int> theDetIds;
-  // maybe not used
-  CaloVSimParameterMap * theParameterMap;
 };
 
 #endif
