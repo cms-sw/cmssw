@@ -7,7 +7,7 @@
  *
  * \author Shahram Rahatlou, INFN
  *
- * \version $Id: CaloCluster.h,v 1.11 2009/02/09 12:14:16 cbern Exp $
+ * \version $Id: CaloCluster.h,v 1.12 2009/02/16 13:28:49 arizzi Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
@@ -146,6 +146,8 @@ namespace reco {
             hitsAndFractions_.push_back( std::pair<DetId, float>(id, fraction) );
     }
 
+<<<<<<< CaloCluster.h
+=======
     CaloCluster& operator=(const CaloCluster & rhs) {
       energy_ = rhs.energy_;
       position_ = rhs.position_;
@@ -155,6 +157,7 @@ namespace reco {
       return *this;
     }
 
+>>>>>>> 1.12
     /// replace getHitsByDetId() : return hits by DetId 
     /// and their corresponding fraction of energy considered
     /// to compute the total cluster energy
