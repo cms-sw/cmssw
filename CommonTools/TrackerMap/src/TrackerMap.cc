@@ -172,7 +172,7 @@ void TrackerMap::init() {
 	if(subdet==3 && detpart!=2)  firstRing[layer_g-1]= 8-nrings; //special numbering for TEC 
 	for (int ring=firstRing[layer_g-1]; ring < ntotRing[layer_g-1]+firstRing[layer_g-1];ring++){//loop on rings
 	  int nmodules = getmoduleCount(subdet,detpart,layer,ring);// compute number of modules
-	  int key;
+	  int key=0;
 	  TmModule *smodule; 
           for(int module=1; module < nmodules+1; module++){//loop on modules
             smodule = new TmModule(module,ring,layer_g);
@@ -816,7 +816,7 @@ void TrackerMap::load(string inputfilename){
              id = atoi(value.c_str());
              }
         if(ipos1>0 && ipos2>0 && val>0)this->fill(id,val);
-        if(ipos1>0 && ipos2>0>0)nline++;
+        if(ipos1>0 && ipos2>0)nline++;
         //if(ipos1>0 && ipos2>0)cout << nline << " " << id << " " << val << endl; 
 
         }
