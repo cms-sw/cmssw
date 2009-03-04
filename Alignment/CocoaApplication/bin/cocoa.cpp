@@ -43,7 +43,7 @@ int main( int argc, char** argv )
   //---------- Build the Model out of the system description text file
   GlobalOptionMgr::getInstance()->setDefaultGlobalOptions();
 
-  Model& model = Model::getInstance();
+  Model::getInstance();
 
   time_t now, time_start;
   now = clock();

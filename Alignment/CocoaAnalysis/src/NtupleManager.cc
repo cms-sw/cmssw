@@ -4,23 +4,22 @@
 //
 //   History: v1.0 
 //   Luca Scodellaro
-#include <map>
+#include "TROOT.h"
+#include <cstdlib>
 #include <fstream>
- 
+
+#include "Alignment/CocoaModel/interface/Model.h"
 #include "Alignment/CocoaAnalysis/interface/NtupleManager.h"
 #include "Alignment/CocoaAnalysis/interface/FittedEntry.h"
-// #include <iostream>
-// #include <iomanip>
 #include "Alignment/CocoaModel/interface/Measurement.h"
 #include "Alignment/CocoaModel/interface/OpticalObject.h"
 #include "Alignment/CocoaModel/interface/Entry.h"
-#include "Alignment/CocoaModel/interface/Model.h"
 // #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
 // #include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 #include "TFile.h" 
 #include "TTree.h"
 #include "TClonesArray.h"
-#include "TMath.h"
+//#include "TMath.h"
 
 NtupleManager* NtupleManager::instance = 0;
 
@@ -401,14 +400,14 @@ void NtupleManager::GetGlobalAngles(const HepRotation& rmGlob, double *theta)
     double sinalpha = zy/cos(beta);
     double cosalpha = zz/cos(beta);
     if (cosalpha>=0) alpha = asin(sinalpha);
-    else alpha = TMath::Pi() - asin(sinalpha);
-    if (alpha>TMath::Pi()) alpha -= 2*TMath::Pi();
+  else alpha = M_PI - asin(sinalpha);
+  if (alpha>M_PI) alpha -= 2*M_PI;
   
     double singamma = yx/cos(beta);
     double cosgamma = xx/cos(beta);
     if (cosgamma>=0) gamma = asin(singamma);
-    else gamma = TMath::Pi() - asin(singamma);
-    if (gamma>TMath::Pi()) gamma -= 2*TMath::Pi();
+    else gamma = M_PI - asin(singamma);
+    if (gamma>M_PI) gamma -= 2*M_PI;
     
   } else {
 
@@ -417,8 +416,8 @@ void NtupleManager::GetGlobalAngles(const HepRotation& rmGlob, double *theta)
     double singamma = yz/sin(beta);
     double cosgamma = yy;
     if (cosgamma>=0) gamma = asin(singamma);
-    else gamma = TMath::Pi() - asin(singamma);
-    if (gamma>TMath::Pi()) gamma -= 2*TMath::Pi();
+    else gamma = M_PI - asin(singamma);
+    if (gamma>M_PI) gamma -= 2*M_PI;
 
   }
 
