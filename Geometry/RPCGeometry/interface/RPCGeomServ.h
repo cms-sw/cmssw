@@ -2,6 +2,7 @@
 #define RPCGeometry_RPCGeomServ_h
 
 #include <string>
+#include <vector>
 
 class RPCDetId;
 class RPCGeomServ{
@@ -16,8 +17,9 @@ class RPCGeomServ{
   virtual bool inverted();
   virtual bool zpositive();
   virtual bool aclockwise();
-
- protected:
+  std::vector<int> channelInChip();
+ 
+protected:
   RPCGeomServ();
   
  protected:
