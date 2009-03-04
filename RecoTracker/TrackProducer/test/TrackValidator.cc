@@ -51,7 +51,7 @@ class TrackValidator : public edm::EDAnalyzer {
     }
   }
 
-  void beginJob( const EventSetup & setup) {
+  void beginRun(edm::Run & run, const edm::EventSetup& setup) {
 
     for (unsigned int j=0;j<label.size();j++){
       

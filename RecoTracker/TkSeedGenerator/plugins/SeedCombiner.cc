@@ -37,7 +37,7 @@ SeedCombiner::~SeedCombiner()
 }
 
 
-void SeedCombiner::beginJob(const edm::EventSetup& es)
+void SeedCombiner::beginRun(edm::Run & run, const edm::EventSetup& es)
 {
 }
 
