@@ -3,9 +3,9 @@
 /** \class SoftConversionProducer
  **  
  **
- **  $Id: SoftConversionProducer.h,v 1.6 2008/07/18 01:41:21 dwjang Exp $ 
- **  $Date: 2008/07/18 01:41:21 $ 
- **  $Revision: 1.6 $
+ **  $Id: SoftConversionProducer.h,v 1.7 2009/03/02 16:52:55 nancy Exp $ 
+ **  $Date: 2009/03/02 16:52:55 $ 
+ **  $Revision: 1.7 $
  **  \author Dongwook Jang, Carnegie Mellon University
  **  Modified version of ConvertedPhotonProducer
  ***/
@@ -34,8 +34,9 @@ class SoftConversionProducer : public edm::EDProducer {
   ~SoftConversionProducer();
 
 
-  virtual void beginRun (edm::EventSetup const & es);
-  virtual void endJob ();
+  virtual void beginRun (edm::Run& r, edm::EventSetup const & es);
+  virtual void endRun(edm::Run &,  edm::EventSetup const&);
+    
   virtual void produce(edm::Event& evt, const edm::EventSetup& es);
   bool trackQualityCut(const reco::TrackRef& trk);
   bool NotAlreadyIn(const reco::Conversion& thisConv,

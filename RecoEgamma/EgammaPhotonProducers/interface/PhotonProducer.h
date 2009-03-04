@@ -3,9 +3,9 @@
 /** \class PhotonProducer
  **  
  **
- **  $Id: PhotonProducer.h,v 1.31 2009/03/02 16:52:47 nancy Exp $ 
- **  $Date: 2009/03/02 16:52:47 $ 
- **  $Revision: 1.31 $
+ **  $Id: PhotonProducer.h,v 1.32 2009/03/04 15:30:29 nancy Exp $ 
+ **  $Date: 2009/03/04 15:30:29 $ 
+ **  $Revision: 1.32 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -39,7 +39,8 @@ class PhotonProducer : public edm::EDProducer {
   PhotonProducer (const edm::ParameterSet& ps);
   ~PhotonProducer();
 
-  virtual void beginRun (edm::EventSetup const & es);
+  virtual void beginRun (edm::Run& r, edm::EventSetup const & es);
+  virtual void endRun(edm::Run &,  edm::EventSetup const&);
   virtual void produce(edm::Event& evt, const edm::EventSetup& es);
 
  private:

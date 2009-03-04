@@ -3,9 +3,9 @@
 /** \class SoftConversionTrackCandidateProducer
  **  
  **
- **  $Id: SoftConversionTrackCandidateProducer.h,v 1.3 2008/07/14 13:02:20 nancy Exp $ 
- **  $Date: 2008/07/14 13:02:20 $ 
- **  $Revision: 1.3 $
+ **  $Id: SoftConversionTrackCandidateProducer.h,v 1.4 2009/03/02 16:53:02 nancy Exp $ 
+ **  $Date: 2009/03/02 16:53:02 $ 
+ **  $Revision: 1.4 $
  **  \author Dongwook Jang, Carnegie Mellon University
  **  Modified version of original ConversionTrackCandidateProducer
  ***/
@@ -44,7 +44,8 @@ class SoftConversionTrackCandidateProducer : public edm::EDProducer {
   ~SoftConversionTrackCandidateProducer();
 
 
-  virtual void beginRun (edm::EventSetup const & es);
+  virtual void beginRun (edm::Run& r, edm::EventSetup const & es);
+  virtual void endRun (edm::Run& r, edm::EventSetup const & es);
   virtual void produce(edm::Event& evt, const edm::EventSetup& es);
 
  private:
