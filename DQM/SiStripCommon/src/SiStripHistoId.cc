@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Wed Feb 22 16:07:58 CET 2006
-// $Id: SiStripHistoId.cc,v 1.8 2008/07/23 16:48:17 maborgia Exp $
+// $Id: SiStripHistoId.cc,v 1.9 2009/02/18 14:28:02 maborgia Exp $
 //
 
 #include<iostream>
@@ -60,8 +60,8 @@ std::string SiStripHistoId::createHistoId(std::string description, std::string i
 }
 
 std::string SiStripHistoId::createHistoLayer(std::string description, std::string id_type,std::string path,std::string flag){
-  unsigned int pos1 = description.find( separator1, 0 ); // check if std::string 'description' contains by mistake the 'separator1'
-  unsigned int pos2 = description.find( separator2, 0 ); // check if std::string 'description' contains by mistake the 'separator2'
+  size_t pos1 = description.find( separator1, 0 ); // check if std::string 'description' contains by mistake the 'separator1'
+  size_t pos2 = description.find( separator2, 0 ); // check if std::string 'description' contains by mistake the 'separator2'
   if ( pos1 == std::string::npos && pos2 == std::string::npos ){ // ok, not found either separator
     if(id_type=="fed" || id_type=="det" || id_type=="fec"  || id_type=="layer"){ // ok! is one of the accepted id_type-s
       std::ostringstream compid; compid<<path; // use std::ostringstream for casting integer to std::string
@@ -142,7 +142,7 @@ std::string SiStripHistoId::getComponentType(std::string histoid){
 
 
 std::string SiStripHistoId::returnIdPart(std::string histoid, uint32_t whichpart){
-  uint32_t length1=histoid.find(separator1,0);
+  size_t length1=histoid.find(separator1,0);
   if(length1==std::string::npos){ // no separator1 found
     LogWarning("SiStripTkDQM|UnregularInput")<<"no regular histoid. Returning 0";
     return "0";
@@ -150,7 +150,7 @@ std::string SiStripHistoId::returnIdPart(std::string histoid, uint32_t whichpart
   std::string part1 = histoid.substr(0,length1); // part of 'histoid' up to 'separator1'
   if(whichpart==1) return part1;
   std::string remain1 = histoid.substr(length1+separator1.size()); // rest of 'histoid' starting at end of 'separator1'
-  uint32_t length2=remain1.find(separator2,0);
+  size_t length2=remain1.find(separator2,0);
   if(length2==std::string::npos){ // no separator2 found
     LogWarning("SiStripTkDQM|UnregularInput")<<"no regular histoid. Returning 0";
     return "0";
