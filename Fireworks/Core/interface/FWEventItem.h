@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.30 2008/12/06 02:38:15 chrjones Exp $
+// $Id: FWEventItem.h,v 1.31 2009/01/23 21:35:41 amraktad Exp $
 //
 
 // system include files
@@ -187,7 +187,7 @@ private:
    //FWEventItem(const FWEventItem&); // stop default
 
    //const FWEventItem& operator=(const FWEventItem&); // stop default
-   void setData(const ROOT::Reflex::Object& ) const;
+   void setData(const Reflex::Object& ) const;
 
    void getPrimaryData() const;
    void runFilter();

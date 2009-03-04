@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 08:14:21 EDT 2008
-// $Id: FWItemAccessorBase.h,v 1.2 2008/11/06 22:05:23 amraktad Exp $
+// $Id: FWItemAccessorBase.h,v 1.3 2009/01/23 21:35:41 amraktad Exp $
 //
 
 // system include files
@@ -30,10 +30,8 @@ namespace edm {
    class EDProduct;
 }
 
-namespace ROOT {
-   namespace Reflex {
-      class Object;
-   }
+namespace Reflex {
+   class Object;
 }
 
 class FWItemAccessorBase {
@@ -54,7 +52,7 @@ public:
    ///override if id of an object should be different than the index
    //virtual std::string idForIndex(int iIndex) const;
    // ---------- member functions ---------------------------
-   virtual void setWrapper(const ROOT::Reflex::Object& )=0;
+   virtual void setWrapper(const Reflex::Object& )=0;
    virtual void reset() = 0;
 
 private:
