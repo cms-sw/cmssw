@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:43:50 EST 2009
-// $Id$
+// $Id: FWTextTableCellRenderer.h,v 1.1 2009/02/03 20:33:03 chrjones Exp $
 //
 
 // system include files
@@ -30,43 +30,51 @@
 
 // forward declarations
 
-class FWTextTableCellRenderer : public FWTableCellRendererBase
-{
-
-   public:
-      static FontStruct_t getDefaultFontStruct();
-      static const TGGC&  getDefaultGC();
-      static const TGGC&  getHighlightGC();   
-
-      FWTextTableCellRenderer(GContext_t iContext=getDefaultGC()(),FontStruct_t iFontStruct = getDefaultFontStruct());
-      virtual ~FWTextTableCellRenderer();
-
-      // ---------- const member functions ---------------------
-      GContext_t graphicsContext() const { return m_context;}
-      virtual UInt_t width() const;
-      virtual UInt_t height() const;
-
-      // ---------- static member functions --------------------
-
-      // ---------- member functions ---------------------------
-      void setData(const std::string&, bool isSelected);
-      void setGraphicsContext(GContext_t iContext) { m_context = iContext;}
-
-      virtual void draw(Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight);
-
-
-   private:
-      FWTextTableCellRenderer(const FWTextTableCellRenderer&); // stop default
-
-      const FWTextTableCellRenderer& operator=(const FWTextTableCellRenderer&); // stop default
-
-      // ---------- member data --------------------------------
-      GContext_t m_context;
-      FontStruct_t m_fontStruct;
-      TGFont* m_font;
-      std::string m_data;
-      bool m_isSelected;
-
+class FWTextTableCellRenderer : public FWTableCellRendererBase {
+   
+public:
+   static const TGGC&  getDefaultGC();
+   static const TGGC&  getHighlightGC();  
+   
+   enum Justify {
+      kJustifyLeft,
+      kJustifyRight,
+      kJustifyCenter
+   };
+   
+   FWTextTableCellRenderer(const TGGC* iContext=&(getDefaultGC()), 
+                           const TGGC* iContext=&(getHighlightGC()),
+                           Justify iJustify=kJustifyLeft);
+   virtual ~FWTextTableCellRenderer();
+   
+   // ---------- const member functions ---------------------
+   const TGGC* graphicsContext() const { return m_context;}
+   virtual UInt_t width() const;
+   virtual UInt_t height() const;
+   
+   const TGFont* font() const;
+   // ---------- static member functions --------------------
+   
+   // ---------- member functions ---------------------------
+   void setData(const std::string&, bool isSelected);
+   void setGraphicsContext(const TGGC* iContext) { m_context = iContext;}
+   void setJustify(Justify);
+   
+   virtual void draw(Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight);
+   
+   
+private:
+   FWTextTableCellRenderer(const FWTextTableCellRenderer&); // stop default
+   
+   const FWTextTableCellRenderer& operator=(const FWTextTableCellRenderer&); // stop default
+   
+   // ---------- member data --------------------------------
+   const TGGC* m_context;
+   const TGGC* m_highlightContext;
+   TGFont* m_font;
+   std::string m_data;
+   bool m_isSelected;
+   Justify m_justify;
 };
 
 
