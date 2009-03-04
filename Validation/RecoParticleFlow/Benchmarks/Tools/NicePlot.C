@@ -58,3 +58,19 @@ void FormatPad( TPad* pad, bool grid = true) {
   pad->Modified();
   pad->Update();
 }
+
+
+void SavePlot(const char* name, const char* dir) {
+  string eps = dir;
+  eps += "/";
+  eps += name;
+  eps += ".eps";
+  gPad->SaveAs( eps.c_str() );
+
+  string png = dir;
+  png += "/";
+  png += name;
+  png += ".png";
+  gPad->SaveAs( png.c_str() );
+
+}
