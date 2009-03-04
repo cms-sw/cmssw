@@ -1,15 +1,15 @@
-#ifndef DataFormats_Common_BasicHandle_h
-#define DataFormats_Common_BasicHandle_h
+#ifndef DataFormats_Common_HandleBase_h
+#define DataFormats_Common_HandleBase_h
 
 /*----------------------------------------------------------------------
   
-Handle: Shared "smart pointer" for reference to EDProducts and
-their Provenances.
+Handle: Non-owning "smart pointer" for reference to products and
+their provenances.
 
 This is a very preliminary version, and lacks safety features and
 elegance.
 
-If the pointed-to EDProduct or Provenance is destroyed, use of the
+If the pointed-to product or provenance is destroyed, use of the
 Handle becomes undefined. There is no way to query the Handle to
 discover if this has happened.
 
@@ -25,48 +25,49 @@ If failedToGet() returns false but isValid() is also false then no attempt
 
 ----------------------------------------------------------------------*/
 
-#include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
+#include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include <boost/shared_ptr.hpp>
 
+namespace cms {
+  class Exception;
+}
 namespace edm {
-  class EDProduct;
-  template <typename T> class Wrapper;
-
-  class BasicHandle {
+  class HandleBase {
   public:
-    BasicHandle() :
-      product_(),
+    HandleBase() :
+      product_(0),
       prov_(0) {}
 
-    BasicHandle(BasicHandle const& h) :
-      product_(h.product_),
-      prov_(h.prov_),
-      whyFailed_(h.whyFailed_){}
-
-    BasicHandle(boost::shared_ptr<EDProduct const> prod, Provenance const* prov) :
+    HandleBase(void const* prod, Provenance const* prov) :
       product_(prod), prov_(prov) {
-
+      assert(prod);
+      assert(prov);
     }
 
     ///Used when the attempt to get the data failed
-    BasicHandle(boost::shared_ptr<cms::Exception> const& iWhyFailed):
+    HandleBase(boost::shared_ptr<cms::Exception> const& iWhyFailed) :
     product_(),
     prov_(0),
     whyFailed_(iWhyFailed) {}
     
-    ~BasicHandle() {}
+    ~HandleBase() {}
 
-    void swap(BasicHandle& other) {
+    void clear() {
+      product_ = 0;
+      prov_ = 0;
+      whyFailed_.reset();
+    }
+
+    void swap(HandleBase& other) {
       using std::swap;
       swap(product_, other.product_);
       std::swap(prov_, other.prov_);
-      swap(whyFailed_,other.whyFailed_);
+      swap(whyFailed_, other.whyFailed_);
     }
-
     
-    BasicHandle& operator=(BasicHandle const& rhs) {
-      BasicHandle temp(rhs);
+    HandleBase& operator=(HandleBase const& rhs) {
+      HandleBase temp(rhs);
       this->swap(temp);
       return *this;
     }
@@ -79,27 +80,19 @@ namespace edm {
       return 0 != whyFailed_.get();
     }
     
-    EDProduct const* wrapper() const {
-      return product_.get();
-    }
-
-    boost::shared_ptr<EDProduct const> product() const {
-      return product_;
-    }
+    void const* productStorage() const;
 
     Provenance const* provenance() const {
       return prov_;
     }
 
-    ProductID id() const {
-      return prov_->productID();
-    }
+    ProductID id() const;
 
     boost::shared_ptr<cms::Exception> whyFailed() const {
       return whyFailed_;
     }
   private:
-    boost::shared_ptr<EDProduct const> product_;
+    void const* product_;
     Provenance const* prov_;
     boost::shared_ptr<cms::Exception> whyFailed_;
   };
@@ -107,7 +100,7 @@ namespace edm {
   // Free swap function
   inline
   void
-  swap(BasicHandle& a, BasicHandle& b) {
+  swap(HandleBase& a, HandleBase& b) {
     a.swap(b);
   }
 }
