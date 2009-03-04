@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWGlimpseView.cc,v 1.22 2008/12/09 13:19:00 dmytro Exp $
+// $Id: FWGlimpseView.cc,v 1.23 2009/01/23 21:35:43 amraktad Exp $
 //
 
 // system include files
@@ -91,7 +91,7 @@ FWGlimpseView::FWGlimpseView(TGFrame* iParent, TEveElementList* list,
    TGLEmbeddedViewer* ev = new TGLEmbeddedViewer(iParent, m_pad, 0);
    m_embeddedViewer=ev;
    TEveViewer* nv = new TEveViewer(staticTypeName().c_str());
-   nv->SetGLViewer(ev);
+   nv->SetGLViewer(ev,ev->GetFrame());
    // ev->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
    ev->SetCurrentCamera(TGLViewer::kCameraPerspXOZ);
    //? ev->SetEventHandler(new TGlimpseEventHandler("Lego", ev->GetGLWidget(), ev));
