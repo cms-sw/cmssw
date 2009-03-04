@@ -1,0 +1,6 @@
+<use name=rootinteractive>
+<lib name=Gui>
+<export>
+ <lib name=FireworksTableWidget>
+ <use name=rootinteractive>
+</export>
