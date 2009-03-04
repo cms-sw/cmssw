@@ -46,7 +46,7 @@ ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::Pa
 
   
   //std::cout << "ConversionTrackCandidateProducer CTOR " << "\n";
-  
+  nEvt_=0;  
    
   // use onfiguration file to setup input/output collection names
  
@@ -85,16 +85,7 @@ ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::Pa
 
 }
 
-ConversionTrackCandidateProducer::~ConversionTrackCandidateProducer() {
-
-
-  delete theOutInSeedFinder_; 
-  delete theOutInTrackFinder_;
-  delete theInOutSeedFinder_;  
-  delete theInOutTrackFinder_;
-
-
-}
+ConversionTrackCandidateProducer::~ConversionTrackCandidateProducer() {}
 
 void  ConversionTrackCandidateProducer::setEventSetup (const edm::EventSetup & theEventSetup) {
 
@@ -135,10 +126,13 @@ void  ConversionTrackCandidateProducer::beginRun (edm::Run& r , edm::EventSetup 
 }
 
 
-void  ConversionTrackCandidateProducer::beginJob () {
-  nEvt_=0;
-  
+void  ConversionTrackCandidateProducer::endRun (edm::Run& r , edm::EventSetup const & theEventSetup) {
+  delete theOutInSeedFinder_; 
+  delete theOutInTrackFinder_;
+  delete theInOutSeedFinder_;  
+  delete theInOutTrackFinder_;
 }
+
 
 
 

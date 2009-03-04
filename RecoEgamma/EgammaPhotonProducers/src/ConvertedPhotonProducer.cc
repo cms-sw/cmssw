@@ -98,25 +98,9 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
   
 }
 
-ConvertedPhotonProducer::~ConvertedPhotonProducer() {
-  
-  
-  delete theTrackPairFinder_;
-  delete theVertexFinder_;
-  delete theEcalImpactPositionFinder_; 
-
-}
+ConvertedPhotonProducer::~ConvertedPhotonProducer() {}
 
 
-
-
-//void  ConvertedPhotonProducer::beginJob (edm::EventSetup const & theEventSetup) {
-  
-
-//  // instantiate the algorithm for finding the position of the track extrapolation at the Ecal front face
-//  theEcalImpactPositionFinder_ = new   ConversionTrackEcalImpactPoint ( &(*theMF_) );
-  
-//}
 
 void  ConvertedPhotonProducer::beginRun (edm::Run& r, edm::EventSetup const & theEventSetup) {
  
@@ -141,12 +125,17 @@ void  ConvertedPhotonProducer::beginRun (edm::Run& r, edm::EventSetup const & th
 }
 
 
+void  ConvertedPhotonProducer::endRun (edm::Run& r, edm::EventSetup const & theEventSetup) {
+  delete theTrackPairFinder_;
+  delete theVertexFinder_;
+  delete theEcalImpactPositionFinder_; 
+}
 
 
 void  ConvertedPhotonProducer::endJob () {
   
   edm::LogInfo("ConvertedPhotonProducer") << " Analyzed " << nEvt_  << "\n";
-  LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer::endJob Analyzed " << nEvt_ << " events " << "\n";
+  LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer::endJob Processed " << nEvt_ << " events " << "\n";
   
   
 }

@@ -82,12 +82,7 @@ SoftConversionTrackCandidateProducer::SoftConversionTrackCandidateProducer(const
 
 }
 
-SoftConversionTrackCandidateProducer::~SoftConversionTrackCandidateProducer() {
-  delete theOutInSeedFinder_; 
-  delete theOutInTrackFinder_;
-  delete theInOutSeedFinder_;  
-  delete theInOutTrackFinder_;
-}
+SoftConversionTrackCandidateProducer::~SoftConversionTrackCandidateProducer() {}
 
 void  SoftConversionTrackCandidateProducer::setEventSetup (const edm::EventSetup & theEventSetup) {
   theOutInSeedFinder_->setEventSetup(theEventSetup);
@@ -124,6 +119,12 @@ void  SoftConversionTrackCandidateProducer::beginRun (edm::Run& r, edm::EventSet
   theInOutTrackFinder_ = new InOutConversionTrackFinder ( theEventSetup, conf_  );
 }
 
+void  SoftConversionTrackCandidateProducer::endRun (edm::Run& r, edm::EventSetup const & theEventSetup) {
+  delete theOutInSeedFinder_; 
+  delete theOutInTrackFinder_;
+  delete theInOutSeedFinder_;  
+  delete theInOutTrackFinder_;
+}
 
 
 void SoftConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {

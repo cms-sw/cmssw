@@ -96,11 +96,7 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
 
 }
 
-PhotonProducer::~PhotonProducer() {
-
-  delete theLikelihoodCalc_;
-  delete thePhotonIsolationCalculator_;
-}
+PhotonProducer::~PhotonProducer() {}
 
 
 
@@ -111,6 +107,13 @@ void  PhotonProducer::beginRun (edm::Run& r, edm::EventSetup const & theEventSet
   theLikelihoodCalc_->setWeightsFile(path_mvaWeightFile.fullPath().c_str());
 
   // nEvt_=0;
+}
+
+void  PhotonProducer::endRun (edm::Run& r, edm::EventSetup const & theEventSetup) {
+
+  delete theLikelihoodCalc_;
+  delete thePhotonIsolationCalculator_;
+
 }
 
 

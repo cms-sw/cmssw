@@ -61,13 +61,7 @@ SoftConversionProducer::SoftConversionProducer(const edm::ParameterSet& config) 
 }
 
 
-SoftConversionProducer::~SoftConversionProducer() {
-
-  if(theTrackPairFinder_) delete theTrackPairFinder_;
-  if(theVertexFinder_) delete theVertexFinder_;
-  if(theEcalImpactPositionFinder_) delete theEcalImpactPositionFinder_; 
-
-}
+SoftConversionProducer::~SoftConversionProducer() {}
 
 
 void  SoftConversionProducer::beginRun (edm::Run& r, edm::EventSetup const & theEventSetup) {
@@ -87,7 +81,14 @@ void  SoftConversionProducer::beginRun (edm::Run& r, edm::EventSetup const & the
 }
 
 
-void  SoftConversionProducer::endJob () {}
+void  SoftConversionProducer::endRun (edm::Run& r, edm::EventSetup const & theEventSetup) {
+
+  if(theTrackPairFinder_) delete theTrackPairFinder_;
+  if(theVertexFinder_) delete theVertexFinder_;
+  if(theEcalImpactPositionFinder_) delete theEcalImpactPositionFinder_; 
+
+}
+
 
 
 void SoftConversionProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
