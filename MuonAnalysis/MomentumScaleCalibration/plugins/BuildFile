@@ -1,5 +1,5 @@
 <use name=FWCore/Framework>
-<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/GeneratorProducts>
 <use name=SimGeneral/HepPDTRecord>
 <use name=FWCore/Utilities>
 <use name=FWCore/ParameterSet>

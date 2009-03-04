@@ -2,11 +2,11 @@
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
 // <<<<<<< MuScleFit.cc
-//  $Date: 2009/01/23 16:16:50 $
-//  $Revision: 1.23 $
+//  $Date: 2009/02/05 16:35:01 $
+//  $Revision: 1.27 $
 // =======
-//  $Date: 2009/01/29 13:20:26 $
-//  $Revision: 1.25 $
+//  $Date: 2009/02/05 16:35:01 $
+//  $Revision: 1.27 $
 // >>>>>>> 1.25
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
@@ -113,7 +113,7 @@
 
 #include "HepMC/GenParticle.h"
 #include "HepMC/GenEvent.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"

@@ -5,15 +5,15 @@
  *  
  *  Provide basic functionalities useful for MuScleFit
  *
- *  $Date: 2008/12/15 16:27:31 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/12/23 14:20:30 $
+ *  $Revision: 1.7 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo - INFN Padova
  */
 
 #include <CLHEP/Vector/LorentzVector.h>
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include <DataFormats/FWLite/interface/Handle.h>
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "TGraphErrors.h"
