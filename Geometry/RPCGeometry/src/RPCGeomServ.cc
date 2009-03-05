@@ -191,25 +191,24 @@ RPCGeomServ::shortname()
 std::vector<int> RPCGeomServ::channelInChip(){
   std::vector<int> chipCh;
   
-  if (_id->station()==3 || (_id->station()<3 && _id->layer()==1 )){ // i.e. RB3 || RB1in ||RB2in  
+  if (_id->station()<3 && _id->layer()==1){ // i.e. RB1in ||RB2in  
     chipCh.push_back(7);
     chipCh.push_back(8);
-  }else if (_id->station() == 1 ){//i.e. RB1out 
+  }else if (_id->station() == 1 || _id->station() == 3){//i.e. RB1out || RB3 
     chipCh.push_back(7);
     chipCh.push_back(7);
   }else if (_id->station() == 2){// i.e. RB2out
     chipCh.push_back(6);
     chipCh.push_back(8);
-  }else if ((_id->sector()!= 4 && _id->sector()!=10) || ((_id->sector() == 8 || _id->sector() == 12 ) &&  _id->subsector()==1)){
+  }else if (_id->sector() == 4 || _id->sector()==10 ||(_id->sector() == 8 &&  _id->subsector()!=1) || (_id->sector() == 12  &&  _id->subsector()==1)){
+    chipCh.push_back(6);//i.e. Sector 4 &  10 RB4 and Sector 8 &12 RB4+
+    chipCh.push_back(6);
+  }else {
     chipCh.push_back(8);
     chipCh.push_back(8);
-  }else {//i.e. Sector 4 &  10 RB4 and Sector 8 &12 RB4+
-    chipCh.push_back(6);
-    chipCh.push_back(6);
   }	
   return chipCh;
 }
-
 
 
 int 
