@@ -64,7 +64,7 @@ public:
   }
 
   /// Make the ReferenceCountingProxy method to check validity public
-  bool isValid() const {return Base::isValid();}
+  bool isValid() const {return Base::isValid() && data().isValid();}
 
 };
 

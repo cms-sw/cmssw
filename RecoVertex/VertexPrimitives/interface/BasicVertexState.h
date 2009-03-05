@@ -46,6 +46,8 @@ public:
   virtual AlgebraicVector3 weightTimesPosition() const = 0;
   virtual double weightInMixture() const = 0;
   virtual std::vector<VertexState> components() const;
+  virtual bool isValid() const = 0;
+
 
   /** conversion to VertexSeed
    */
