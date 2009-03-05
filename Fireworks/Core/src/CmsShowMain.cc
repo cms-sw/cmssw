@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.67 2009/01/20 19:05:51 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.68 2009/01/23 21:35:42 amraktad Exp $
 //
 
 // system include files
@@ -202,6 +202,11 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
          exit(0);
 #endif
       }
+      const char* cmspath = gSystem->Getenv("CMSSW_BASE");
+      if(0 == cmspath) {
+         throw std::runtime_error("CMSSW_BASE environment variable not set");
+      }
+
       if (vm.count(kConfigFileOpt)) {
          m_configFileName = vm[kConfigFileOpt].as<std::string>();
       } else {
@@ -209,12 +214,8 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
             printf("No configiguration is loaded, show everything.\n");
             m_configFileName = "";
          } else {
-            m_configFileName = "src/Fireworks/Core/macros/default.fwc";
+            m_configFileName = "src/Fireworks/Core/data/default.fwc";
          }
-      }
-      const char* cmspath = gSystem->Getenv("CMSSW_BASE");
-      if(0 == cmspath) {
-         throw std::runtime_error("CMSSW_BASE environment variable not set");
       }
 
       if (vm.count(kGeomFileOpt)) {
@@ -260,6 +261,12 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       //tell ROOT where to find our macros
       std::string macPath(cmspath);
       macPath += "/src/Fireworks/Core/macros";
+      const char* base = gSystem->Getenv("CMSSW_RELEASE_BASE");
+      if(0!=base) {
+	macPath+=":";
+	macPath +=base;
+	macPath +="/src/Fireworks/Core/macros";
+      }
       gROOT->SetMacroPath((std::string("./:")+macPath).c_str());
 
       gEve->GetHighlight()->SetPickToSelect(TEveSelection::kPS_PableCompound);

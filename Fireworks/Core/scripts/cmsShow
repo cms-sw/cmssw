@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+
+#strip of the directory name for this shell script
+SHELLDIR=`dirname $0`
+export SHELLDIR
+#if no directory specified we need to use the local directory
+if [ ! -n "$SHELLDIR" ] ; then
+  SHELLDIR=.
+  export SHELLDIR
+fi
+#see if we are running in standalone mode
+if [ ! -n "$CMSSW_BASE" ] ; then
+  CMSSW_BASE=$SHELLDIR
+  export CMSSW_BASE
+  ROOTSYS=$CMSSW_BASE/external/root 
+  export ROOTSYS
+  LD_LIBRARY_PATH=${CMSSW_BASE}:${CMSSW_BASE}/external/lib:${ROOTSYS}/lib
+  export LD_LIBRARY_PATH
+  DYLD_LIBRARY_PATH=${CMSSW_BASE}:${CMSSW_BASE}/external/lib:${ROOTSYS}/lib
+  export DYLD_LIBRARY_PATH
+  cat $CMSSW_BASE/src/Fireworks/Core/standalone_build/version.txt
+  PATH=${ROOTSYS}/bin:/usr/local/bin:/usr/bin:/bin
+  export PATH
+fi
+if [ "`echo $@ | awk '/\-\-soft/'`" != "" ] ; then
+  LIBGL_DRIVERS_PATH=/tmp/
+  export LIBGL_DRIVERS_PATH
+fi
+if [ "`echo $@ | awk '/\-d/'`" != "" ] ; then
+   echo "set args $@" > gdb.cmd
+   echo "run"        >> gdb.cmd
+   echo "bt"         >> gdb.cmd
+   echo "quit"       >> gdb.cmd
+   gdb -x gdb.cmd $SHELLDIR/cmsShow.exe 2>&1 | tee crash.report
+   echo "" >> crash.report
+   echo "System Info" >> crash.report
+   uname -a  >> crash.report
+   glxinfo >> crash.report
+else
+   $SHELLDIR/cmsShow.exe $@
+   if [ $? != "0" ] ; then
+      echo ""
+      echo "  ########################################################################"
+      echo "  #                                                                      #"
+      echo "  #                  Abnormal program termination!                       #"
+      echo "  #                                                                      #"
+      echo "  #  We regret that this happened and we would appreciate your help      #"
+      echo "  #  in debugging and reporting this problem. Please try to reproduce    #"
+      echo "  #  the problem by running the program with --debug flag to get         #"
+      echo "  #  a crash report and send its content (saved in ./crash.report file)  #" 
+      echo "  #  to fireworks-support@cern.ch with brief instructions how to         #"
+      echo "  #  reproduce the problem.                                              #"
+      echo "  #                                                                      #"
+      echo "  ########################################################################"
+      echo ""
+   fi
+fi

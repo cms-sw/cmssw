@@ -32,5 +32,5 @@ std::string CmsShowHelpPopup::helpFileName (const std::string &filename)
    if(0 == cmspath) {
       throw std::runtime_error("CMSSW_BASE environment variable not set");
    }
-   return std::string(cmspath) + "/src/Fireworks/Core/scripts/" + filename;
+   return std::string(cmspath) + "/src/Fireworks/Core/data/" + filename;
 }
