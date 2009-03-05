@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea RIZZI
 //         Created:  Sun Dec  7 12:41:44 CET 2008
-// $Id$
+// $Id: CosmicTOFAnalyzer.cc,v 1.1 2009/03/05 09:42:09 arizzi Exp $
 //
 //
 
@@ -59,6 +59,28 @@
 //
 // class decleration
 //
+  using namespace edm;
+  using namespace std;
+  using namespace reco;
+
+struct MuonCollectionDataAndHistograms
+{
+      TFileDirectory * subDir;
+      TH1F * diff;
+      TH1F * pull;
+      TH1F * diffBiasCorrected;
+      TH1F * diffBiasCorrectedErr;
+      TH1F * diffBiasCorrectedErrPtCut;
+      TProfile * diffBiasCorrectedErrPt;
+      TProfile * diffBiasCorrectedVsErr;
+
+      TH1F * pairs[5][15][5][15];
+      float bias[5][15][5][15];
+      float rms[5][15][5][15];
+      float points[5][15][5][15];
+      TFileDirectory * biasSubDir;
+
+};
 
 class CosmicTOFAnalyzer : public edm::EDAnalyzer {
    public:
@@ -70,23 +92,11 @@ class CosmicTOFAnalyzer : public edm::EDAnalyzer {
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
-      TFileDirectory * subDir;
-      TH1F * h_diff; 
-      TH1F * h_diffBiasCorrected; 
-      TH1F * h_diffBiasCorrectedErr; 
-      TH1F * h_diffBiasCorrectedErrPtCut; 
-      TProfile * h_diffBiasCorrectedErrPt; 
-      TH1F * h_pairs[5][15][5][15];
-      float bias[5][15][5][15];
-      float rms[5][15][5][15];
-      float points[5][15][5][15];
-      TFileDirectory * subDir1;
-/*      TFileDirectory * subDir;
-      TFileDirectory * subDir4;
-      TFileDirectory * subDir5;
-      TProfile * h_testc[8];
-      TProfile * h_testd[8];
-      TH1F * h_tof[8];*/
+      std::map<std::string,MuonCollectionDataAndHistograms> h_; 
+      void readBias(std::string collName);
+      void initHistos(std::string collName);
+      void writeBias(std::string collName);
+      void analyzeCollection(const MuonCollection & muons, std::string collName, const edm::Event& iEvent);
 
       // ----------member data ---------------------------
 };
@@ -124,6 +134,9 @@ CosmicTOFAnalyzer::~CosmicTOFAnalyzer()
 //
 
 // ------------ method called to for each event  ------------
+
+
+
 void
 CosmicTOFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
@@ -131,29 +144,44 @@ CosmicTOFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
    using namespace edm;
    using namespace reco;
 
-Handle<MuonCollection> pIn;
-iEvent.getByLabel("muons",pIn);
-const MuonCollection & dtInfos  =  *pIn.product();
+   Handle<MuonCollection> muH;
+   iEvent.getByLabel("muons",muH);
+   const MuonCollection & muons  =  *muH.product();
+   analyzeCollection(muons,"muons",iEvent);
 
-if(dtInfos.size()!=2) return;
+   Handle<MuonCollection> muH2;
+   bool t0Coll = iEvent.getByLabel("muonsWitht0Correction",muH2);
+  if(t0Coll)
+  {  
+     const MuonCollection & muonsT0  =  *muH2.product();
+     analyzeCollection(muonsT0,"muonsWitht0Correction",iEvent);
+  } 
+
+}
+
+void CosmicTOFAnalyzer::analyzeCollection(const MuonCollection & muons, std::string collName, const edm::Event& iEvent)
+{ 
+
+if(muons.size()!=2) return;
+if( muons[0].bestTrack()->hitPattern().numberOfValidMuonDTHits() < 25 ) return;
+if( muons[1].bestTrack()->hitPattern().numberOfValidMuonDTHits() < 25 ) return;
 
 
-if( dtInfos[0].bestTrack()->hitPattern().numberOfValidMuonDTHits() < 25 ) return;
-if( dtInfos[1].bestTrack()->hitPattern().numberOfValidMuonDTHits() < 25 ) return;
+MuonTime mt0 = muons[0].time();
+MuonTime mt1= muons[1].time();
 
-MuonTime mt0 = dtInfos[0].time();
-MuonTime mt1= dtInfos[1].time();
+
 
 float t0 = mt0.timeAtIpInOut;
 float t1 = mt1.timeAtIpInOut;
 
-h_diff->Fill(t0-t1);
+h_[collName].diff->Fill(t0-t1);
  int w0=0,s0=0,w1=0,s1=0;
  DTChamberId * id;
- cout << "matches0: " << dtInfos[0].matches().size() << endl;
- cout << "matches1: " << dtInfos[1].matches().size() << endl;
-// id = dynamic_cast<const DTChamberId *> (& dtInfos[0].second.timeMeasurements[0].driftCell);
- for(trackingRecHit_iterator match = dtInfos[0].bestTrack()->recHitsBegin() ; match != dtInfos[0].bestTrack()->recHitsEnd() ; ++match)
+ cout << "matches0: " << muons[0].matches().size() << endl;
+ cout << "matches1: " << muons[1].matches().size() << endl;
+// id = dynamic_cast<const DTChamberId *> (& muons[0].second.timeMeasurements[0].driftCell);
+ for(trackingRecHit_iterator match = muons[0].bestTrack()->recHitsBegin() ; match != muons[0].bestTrack()->recHitsEnd() ; ++match)
  {
   DetId did=(*match)->geographicalId() ;
   if(did.det() == 2 && did.subdetId() == MuonSubdetId::DT)
@@ -166,7 +194,7 @@ h_diff->Fill(t0-t1);
   }
  }
 
- for(trackingRecHit_iterator match = dtInfos[1].bestTrack()->recHitsBegin() ; match != dtInfos[1].bestTrack()->recHitsEnd() ; ++match)
+ for(trackingRecHit_iterator match = muons[1].bestTrack()->recHitsBegin() ; match != muons[1].bestTrack()->recHitsEnd() ; ++match)
  {
   DetId did=(*match)->geographicalId() ;
   if(did.det() == 2 && did.subdetId() == MuonSubdetId::DT)
@@ -179,55 +207,53 @@ h_diff->Fill(t0-t1);
   }
  }
 
-
-/* for(std::vector<MuonChamberMatch>::const_iterator match = dtInfos[1].matches().begin() ; match != dtInfos[1].matches().end() ; ++match)
- {
-  cout << "det1: " << match->detector() << endl;
-  if(match->detector() == MuonSubdetId::DT)
-  {
-   id =  new DTChamberId(match->id);
-   w1=id->wheel();
-   s1=id->sector();
-   delete id;
-  }
- }
-*/
 if(s0 ==0 || s1 ==0)
  {
-    cout << "EEEEEEEEERRRRRRRRROOOOOORRRRRRRRRRRRR" << endl;
- return;
-  }
+    cout << "Error: cannot find the sector of this muon" << endl;
+    return;
+ }
 
-//cout << "W" << w0 <<"S" << s0 << "_VS_" << "W" << w1 <<"S" << s1  << endl;
+ h_[collName].pairs[w0+2][s0][w1+2][s1]->Fill(t0-t1);
 
-// cout << w0+2<< " " <<s0<< " " <<w1+2 << " " << s1 << endl
-//if(dtInfos[0].pt() > 50) 
- h_pairs[w0+2][s0][w1+2][s1]->Fill(t0-t1);
-
- if(points[w0+2][s0][w1+2][s1]>=50)  h_diffBiasCorrected->Fill(t0-t1-bias[w0+2][s0][w1+2][s1]);
+ // use only sectors for which we do know the bias quite well (at least 50 measurement)
+ if(h_[collName].points[w0+2][s0][w1+2][s1]>=50) 
+ { 
+      h_[collName].diffBiasCorrected->Fill(t0-t1-h_[collName].bias[w0+2][s0][w1+2][s1]);
+      float error = sqrt(muons[0].time().timeAtIpInOutErr*muons[0].time().timeAtIpInOutErr  + muons[1].time().timeAtIpInOutErr *muons[1].time().timeAtIpInOutErr ); 
+      h_[collName].diffBiasCorrectedVsErr->Fill(error ,abs(t0-t1-h_[collName].bias[w0+2][s0][w1+2][s1])); 
+      h_[collName].pull->Fill((t0-t1-h_[collName].bias[w0+2][s0][w1+2][s1])/error) ;
 
 //TODO: try different Err cuts like: 0.8, 1, 1.2, 1.5, 2, 5
 //TODO: Pull distribution (t-t0)/(sqrt(err0**2+err1**2))
-if(points[w0+2][s0][w1+2][s1]>=50 &&  dtInfos[1].time().timeAtIpInOutErr < 10 && dtInfos[0].time().timeAtIpInOutErr < 10&&  (dtInfos[0].momentum() - dtInfos[1].momentum()).r() < 30   ) 
- {
-  h_diffBiasCorrectedErr->Fill(t0-t1-bias[w0+2][s0][w1+2][s1]);
-  h_diffBiasCorrectedErrPt->Fill(dtInfos[0].pt(),t0-t1-bias[w0+2][s0][w1+2][s1]);
-  if(dtInfos[0].pt() > 50) h_diffBiasCorrectedErrPtCut->Fill(t0-t1-bias[w0+2][s0][w1+2][s1]);
+
+       if( muons[1].time().timeAtIpInOutErr < 10 && muons[0].time().timeAtIpInOutErr < 10&&  (muons[0].momentum() - muons[1].momentum()).r() < 30   ) 
+       {
+          h_[collName].diffBiasCorrectedErr->Fill(t0-t1-h_[collName].bias[w0+2][s0][w1+2][s1]);
+          h_[collName].diffBiasCorrectedErrPt->Fill(muons[0].pt(),t0-t1-h_[collName].bias[w0+2][s0][w1+2][s1]);
+
+          if(muons[0].pt() > 50) h_[collName].diffBiasCorrectedErrPtCut->Fill(t0-t1-h_[collName].bias[w0+2][s0][w1+2][s1]);
 
 
+          //Monitor details of events in the tails
+          if( fabs(t0-t1-h_[collName].bias[w0+2][s0][w1+2][s1]) > 15)
+          {
+              cout << "TAIL ("  << collName << ") e,r:" << iEvent.id().event() << " , "<< iEvent.id().run() <<
+                      " Values: " << t0 << " " << t1 << " Err: " << muons[0].time().timeAtIpInOutErr << " " << 
+                      muons[1].time().timeAtIpInOutErr << "  #hits "  << muons[0].bestTrack()->hitPattern().numberOfValidMuonDTHits() << " " << 
+                      muons[1].bestTrack()->hitPattern().numberOfValidMuonDTHits() << " W/S " << w0 << "/" << s0 << " " << w1 << "/" << s1  <<
+                      " Momentum: " << muons[0].momentum() << " " <<  muons[1].momentum()  <<  " " << 
+                      (muons[0].momentum() - muons[1].momentum()).r()/(muons[0].momentum() + muons[1].momentum()).r() 
+                   <<   endl;
+          }
 
-if( fabs(t0-t1-bias[w0+2][s0][w1+2][s1]) > 15)
- {
-  cout << "TAIL: e,r:" << iEvent.id().event() << " , "<< iEvent.id().run() << " Values: " << t0 << " " << t1 << " Err: " << dtInfos[0].time().timeAtIpInOutErr << " " << dtInfos[1].time().timeAtIpInOutErr << "  #hits " 
- << dtInfos[0].bestTrack()->hitPattern().numberOfValidMuonDTHits() << " " << dtInfos[1].bestTrack()->hitPattern().numberOfValidMuonDTHits() << " W/S " << w0 << "/" << s0 << " " << w1 << "/" << s1  <<
- " Momentum: " << dtInfos[0].momentum() << " " <<  dtInfos[1].momentum()  <<  " " << (dtInfos[0].momentum() - dtInfos[1].momentum()).r()/(dtInfos[0].momentum() + dtInfos[1].momentum()).r() <<   endl;
- }
+ } // if error ok and muon pt matching 
 
- }
+} // if bias ok
+
 if( fabs(t0-t1) > 50)
  {
-  cout << "OVERFLOW: Values: " << t0 << " " << t1 << " Err: " << dtInfos[0].time().timeAtIpInOutErr << " " << dtInfos[1].time().timeAtIpInOutErr << "  #hits " 
- << dtInfos[0].bestTrack()->hitPattern().numberOfValidMuonDTHits() << " " << dtInfos[1].bestTrack()->hitPattern().numberOfValidMuonDTHits() << " W/S " << w0 << "/" << s0 << " " << w1 << "/" << s1  << endl;
+  cout << "OVERFLOW ("  << collName << ") Values: " << t0 << " " << t1 << " Err: " << muons[0].time().timeAtIpInOutErr << " " << muons[1].time().timeAtIpInOutErr << "  #hits " 
+ << muons[0].bestTrack()->hitPattern().numberOfValidMuonDTHits() << " " << muons[1].bestTrack()->hitPattern().numberOfValidMuonDTHits() << " W/S " << w0 << "/" << s0 << " " << w1 << "/" << s1  << endl;
  }
 }
 
@@ -236,12 +262,17 @@ if( fabs(t0-t1) > 50)
 void 
 CosmicTOFAnalyzer::beginJob(const edm::EventSetup&)
 {
-   using namespace edm;
-   using namespace std;
+  readBias("muons");
+  initHistos("muons");
+  readBias("muonsWitht0Correction");
+  initHistos("muonsWitht0Correction");
+}
 
-ifstream f("test.txt");
+void CosmicTOFAnalyzer::readBias(std::string collName)
+{
+  ifstream f((collName+"_input-bias.txt").c_str());
 
- while(!f.eof())
+  while(!f.eof())
   {
    int w0,s0,w1,s1;
    float b,r,p;
@@ -249,23 +280,28 @@ ifstream f("test.txt");
    f >>  w0 >> s0 >> w1 >> s1 >> p >>  b >> r;
    if (!f.good()) break;
 
-   points[w0][s0][w1][s1] = p;
-   bias[w0][s0][w1][s1] = b;
-   rms[w0][s0][w1][s1] = r;
+   h_[collName].points[w0][s0][w1][s1] = p;
+   h_[collName].bias[w0][s0][w1][s1] = b;
+   h_[collName].rms[w0][s0][w1][s1] = r;
    std::cout << w0 << " " << s0 << " " << w1 << " "<< s1 <<" " << b << " " << p << " " << r <<  std::endl;
   }
 
+}
 
+void CosmicTOFAnalyzer::initHistos(std::string collName)
+{
   edm::Service<TFileService> fs;
-  subDir = new TFileDirectory(fs->mkdir( "Plots" ));
-  h_diff = subDir->make<TH1F>("Diff","Diff", 100,-50,50);
-  h_diffBiasCorrected = subDir->make<TH1F>("DiffBiasSub","DiffBiasSub", 100,-50,50);
-  h_diffBiasCorrectedErr = subDir->make<TH1F>("DiffBiasSubErr","DiffBiasSub", 100,-50,50);
-  h_diffBiasCorrectedErrPtCut = subDir->make<TH1F>("DiffBiasSubErrPtCut","DiffBiasSub (Pt > 50)", 100,-50,50);
-  h_diffBiasCorrectedErrPt = subDir->make<TProfile>("DiffBiasSubErrPt","DiffBiasSub vs PT", 100,0,500,-50,50);
+  h_[collName].subDir = new TFileDirectory(fs->mkdir( (collName+"Plots").c_str() ));
+  h_[collName].diff = h_[collName].subDir->make<TH1F>("Diff","Diff", 100,-50,50);
+  h_[collName].pull = h_[collName].subDir->make<TH1F>("Pulls","Pulls", 100,-5,5);
+  h_[collName].diffBiasCorrected = h_[collName].subDir->make<TH1F>("DiffBiasSub","DiffBiasSub", 100,-50,50);
+  h_[collName].diffBiasCorrectedErr = h_[collName].subDir->make<TH1F>("DiffBiasSubErr","DiffBiasSub (Err1 && Err2 < 10)", 100,-50,50);
+  h_[collName].diffBiasCorrectedErrPtCut = h_[collName].subDir->make<TH1F>("DiffBiasSubErrPtCut","DiffBiasSub (Pt > 50)", 100,-50,50);
+  h_[collName].diffBiasCorrectedErrPt = h_[collName].subDir->make<TProfile>("DiffBiasSubErrPt","DiffBiasSub vs PT (Err1 && Err2 <10)", 100,0,500,-50,50);
+  h_[collName].diffBiasCorrectedVsErr = h_[collName].subDir->make<TProfile>("DiffBiasSubVsErr","DiffBiasSub vs Err", 100,0,50,-50,50);
  
 
-  subDir1 = new TFileDirectory(fs->mkdir( "Bias" ));
+  h_[collName].biasSubDir = new TFileDirectory(fs->mkdir( (collName+"Bias").c_str() ));
   for(int w1=0;w1<5;w1++)
    for(int w2=0;w2<5;w2++)
     for(int s1=1;s1<15;s1++)
@@ -273,36 +309,24 @@ ifstream f("test.txt");
       {
           std::stringstream s;
           s<< "W" << w1-2 <<"S" << s1 << "_VS_" << "W" << w2-2 <<"S" << s2  ;
-          h_pairs[w1][s1][w2][s2] = subDir1->make<TH1F>(s.str().c_str(),s.str().c_str(), 100,-50,50);
+          h_[collName].pairs[w1][s1][w2][s2] = h_[collName].biasSubDir->make<TH1F>(s.str().c_str(),s.str().c_str(), 100,-50,50);
       } 
 
-
-/*  subDir2 = new TFileDirectory(fs->mkdir( "Test2" ));
-  subDir3 = new TFileDirectory(fs->mkdir( "FiberCorrected" ));
-  subDir4 = new TFileDirectory(fs->mkdir( "FiberCorrectedNoMu67" ));
-  h_testc[3] = subDir3->make<TProfile>("TIB","TIB", 60,-40,60,0,20);
-  h_testc[4] = subDir3->make<TProfile>("TID","TID", 60,-40,60,0,20);
-  h_testc[5] = subDir3->make<TProfile>("TOB","TOB", 60,-40,60,0,20);
-  h_testc[6] = subDir3->make<TProfile>("TECm","TEC-", 60,-40,60,0,20);
-  h_testc[7] = subDir3->make<TProfile>("TECp","TEC+", 60,-40,60,0,20);
-  h_testd[1] = subDir4->make<TProfile>("PXB","PXB", 60,-40,60,0,20);
-  h_testd[2] = subDir4->make<TProfile>("PXE","PXE", 60,-40,60,0,20);
-  h_testd[3] = subDir4->make<TProfile>("TIB","TIB", 60,-40,60,0,20);
-  h_testd[4] = subDir4->make<TProfile>("TID","TID", 60,-40,60,0,20);
-  h_testd[5] = subDir4->make<TProfile>("TOB","TOB", 60,-40,60,0,20);
-  h_testd[6] = subDir4->make<TProfile>("TECm","TEC-", 60,-40,60,0,20);
-  h_testd[7] = subDir4->make<TProfile>("TECp","TEC+", 60,-40,60,0,20);*/
 
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 CosmicTOFAnalyzer::endJob() {
+ writeBias("muons");
+ writeBias("muonsWitht0Correction");
+}
+void 
+CosmicTOFAnalyzer::writeBias(std::string collName) {
 
    using namespace edm;
    using namespace std;
-
-   ofstream f("out.txt");
+   ofstream f((collName+"_output-bias.txt").c_str());
 
 
 
@@ -311,13 +335,13 @@ CosmicTOFAnalyzer::endJob() {
     for(int s1=1;s1<15;s1++)
      for(int s2=1;s2<15;s2++)
       {
-          if(h_pairs[w1][s1][w2][s2]->GetEntries() > 0)
+          if(h_[collName].pairs[w1][s1][w2][s2]->GetEntries() > 0)
             {
-             f << w1 << " " << s1 << " " << w2 << " " << s2 << " " << h_pairs[w1][s1][w2][s2]->GetEntries() << " " <<  h_pairs[w1][s1][w2][s2]->GetMean() << " " <<  h_pairs[w1][s1][w2][s2]->GetRMS() << endl;  
+             f << w1 << " " << s1 << " " << w2 << " " << s2 << " " << h_[collName].pairs[w1][s1][w2][s2]->GetEntries() << " " <<  h_[collName].pairs[w1][s1][w2][s2]->GetMean() << " " <<  h_[collName].pairs[w1][s1][w2][s2]->GetRMS() << endl;  
       /*       cout <<  "W" << w1-2 <<"S" << s1 << "_VS_" << "W" << w2-2 <<"S "  << s2 << " " <<  w1<< " " <<s1<< " " <<w2 << " " << s2 << " :"; 
-             cout << " Entries : " << h_pairs[w1][s1][w2][s2]->GetEntries() ;
-             cout << " Avg : " << h_pairs[w1][s1][w2][s2]->GetMean() ;
-             cout << " RMS : " << h_pairs[w1][s1][w2][s2]->GetRMS() ;
+             cout << " Entries : " << h_[collName].pairs[w1][s1][w2][s2]->GetEntries() ;
+             cout << " Avg : " << h_[collName].pairs[w1][s1][w2][s2]->GetMean() ;
+             cout << " RMS : " << h_[collName].pairs[w1][s1][w2][s2]->GetRMS() ;
              cout << endl;
         */    }
              else
