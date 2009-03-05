@@ -110,7 +110,10 @@ namespace reco {
     double ndof() const { return track().ndof(); }
     /// chi-squared divided by n.d.o.f.
     double normalizedChi2() const { return track().chi2() / track().ndof(); }
- 
+
+    /// Make the ReferenceCountingProxy method to check validity public
+    bool isValid() const {return Base::isValid() ;}
+
   };
 
 }
