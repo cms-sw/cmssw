@@ -7,19 +7,19 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
 
-process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(100) )
+#process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(100) )
 
 process.load("Configuration.EventContent.EventContentCosmics_cff")
 
 #Drop old reco
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    '/store/data/Commissioning08/Cosmics/RAW-RECO/CRAFT_ALL_V4_TrackingPointing_TrackerPointing_v3/0272/78C097C9-4EF1-DD11-ADC8-0019B9E8B3CD.root'),
-    
+    '/store/data/Commissioning08/Cosmics/RAW-RECO/CRAFT_ALL_V9_SuperPointing_225-v3/0005/B6350AB1-5BFF-DD11-A4BA-00304875A7B5.root'),
     inputCommands = cms.untracked.vstring('drop *')
 )
 process.source.inputCommands.extend(process.RAWEventContent.outputCommands)
 process.source.inputCommands.append('drop *_*_*_Rec')
+process.source.inputCommands.append('keep *_eventAuxiliaryHistoryProducer_*_*')
 
 
 # output module
@@ -53,7 +53,7 @@ process.FEVT.outputCommands.append('keep recoCandidatesOwned_caloTowersOpt_*_*')
 process.FEVT.outputCommands.append('keep RPCDetIdRPCDigiMuonDigiCollection_muonRPCDigis_*_*')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.5 $'),
+    version = cms.untracked.string('$Revision: 1.6 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/GlobalRuns/python/rereco38T_cfg.py,v $'),
     annotation = cms.untracked.string('CRUZET Prompt Reco with DQM with Mag field at 3.8T')
 )
@@ -62,7 +62,7 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) ) #
 
 # Conditions (Global Tag is used here):
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "CRAFT_ALL_V9::All"
+process.GlobalTag.globaltag = "CRAFT_ALL_V11::All"
 process.prefer("GlobalTag")
 
 # Magnetic fiuld: force mag field to be 3.8 tesla
@@ -89,7 +89,7 @@ process.load("L1Trigger.Configuration.L1Config_cff")
 
 #Paths
 process.load("FWCore.Modules.eventAuxiliaryHistoryProducer_cfi")
-process.allPath = cms.Path( process.RawToDigi * process.reconstructionCosmics * process.L1HardwareValidation_woGT * process.DQMOfflineCosmics * process.MEtoEDMConverter * process.eventAuxiliaryHistoryProducer)
+process.allPath = cms.Path( process.RawToDigi * process.reconstructionCosmics * process.L1HardwareValidation_woGT * process.DQMOfflineCosmics * process.MEtoEDMConverter )
 
 process.outpath = cms.EndPath(process.FEVT)
 
