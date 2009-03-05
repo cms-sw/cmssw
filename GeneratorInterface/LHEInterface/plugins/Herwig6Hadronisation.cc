@@ -32,7 +32,12 @@
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 #include "GeneratorInterface/LHEInterface/interface/Hadronisation.h"
 
-#include "GeneratorInterface/Herwig6Interface/src/herwig.h"
+#include "GeneratorInterface/Herwig6Interface/interface/herwig.h"
+
+extern "C" {
+  double hwmsct_dummy_(double);
+}
+#define hwmsct_dummy hwmsct_dummy_ 
 
 namespace lhef {
 
