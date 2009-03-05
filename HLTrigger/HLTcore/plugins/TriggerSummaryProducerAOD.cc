@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/09/29 09:30:21 $
- *  $Revision: 1.28 $
+ *  $Date: 2008/10/11 13:13:58 $
+ *  $Revision: 1.29 $
  *
  *  \author Martin Grunewald
  *
@@ -370,6 +370,7 @@ void TriggerSummaryProducerAOD::endJob() {
   using namespace edm;
   using namespace trigger;
 
+/* The following should be on LogInfo or LogDebug
   cout << "TriggerSummaryProducerAOD::endJob - accumulated tags:" << endl;
 
   const size_type nc(collectionTagsGlobal_.size());
@@ -392,6 +393,7 @@ void TriggerSummaryProducerAOD::endJob() {
   }
 
   cout << "TriggerSummaryProducerAOD::endJob." << endl;
+*/
 
   return;
 
