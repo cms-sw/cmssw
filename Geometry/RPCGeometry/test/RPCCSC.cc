@@ -11,9 +11,9 @@ Implementation:
 <Notes on implementation>
  */
 //
-// Original Author:  Camilo Andres Carrillo Montoya
+// Original Author:  Haiyun Teng
 //         Created:  Wed Feb 25 18:09:15 CET 2009
-// $Id$
+// $Id: RPCCSC.cc,v 1.1 2009/03/02 15:39:50 carrillo Exp $
 //
 //
 
@@ -131,20 +131,19 @@ RPCCSC::~RPCCSC()
 // member functions
 //
 
+
 int mySegment(RPCDetId rpcId){
-    int seg=0;
-    int nsec=36;
-    int nsub=6;
-    if (rpcId.ring()==1 && rpcId.station() > 1) {
-        nsub=3;
-        nsec=18;
-    }
-    seg =rpcId.subsector()+nsub*(rpcId.sector()-1);
-    if(seg==nsec+1)seg=1;
-    return seg;
+  int seg=0;
+  int nsec=36;
+  int nsub=6;
+  if (rpcId.ring()==1 && rpcId.station() > 1) {
+    nsub=3;
+    nsec=18;
+  }
+  seg =rpcId.subsector()+nsub*(rpcId.sector()-1);
+  if(seg==nsec+1)seg=1;
+  return seg;
 }
-
-
 
 // ------------ method called to for each event  ------------
 void RPCCSC::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -155,147 +154,131 @@ void RPCCSC::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     void 
 RPCCSC::beginJob(const edm::EventSetup& iSetup)
 {
-    using namespace std;
-    edm::ESHandle<RPCGeometry> pRPCGeom;
-    iSetup.get<MuonGeometryRecord>().get(pRPCGeom);
-    const RPCGeometry* rpcGeometry = (const RPCGeometry*)&*pRPCGeom;
-    edm::ESHandle<CSCGeometry> pCSCGeom;
-    iSetup.get<MuonGeometryRecord>().get(pCSCGeom);
-    const CSCGeometry* cscGeometry = (const CSCGeometry*)&*pCSCGeom;
+  using namespace std;
+  edm::ESHandle<RPCGeometry> pRPCGeom;
+  iSetup.get<MuonGeometryRecord>().get(pRPCGeom);
+  const RPCGeometry* rpcGeometry = (const RPCGeometry*)&*pRPCGeom;
+  edm::ESHandle<CSCGeometry> pCSCGeom;
+  iSetup.get<MuonGeometryRecord>().get(pCSCGeom);
+  const CSCGeometry* cscGeometry = (const CSCGeometry*)&*pCSCGeom;
 
-    for (TrackingGeometry::DetContainer::const_iterator it=rpcGeometry->dets().begin();it<rpcGeometry->dets().end();it++){
-        if(dynamic_cast< RPCChamber* >( *it ) != 0 ){
-            RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
-            std::vector< const RPCRoll*> roles = (ch->rolls());
-            for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
-                RPCDetId rpcId = (*r)->id();
-                int region=rpcId.region();
-                //booking all histograms
-                RPCGeomServ rpcsrv(rpcId);
-                std::string nameRoll = rpcsrv.name();
-                //std::cout<<"Booking for "<<nameRoll<<std::endl;
+  for (TrackingGeometry::DetContainer::const_iterator it=rpcGeometry->dets().begin();it<rpcGeometry->dets().end();it++){
+    if(dynamic_cast< RPCChamber* >( *it ) != 0 ){
+      RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
+      std::vector< const RPCRoll*> roles = (ch->rolls());
+      for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
+	RPCDetId rpcId = (*r)->id();
+	int region=rpcId.region();
+	//booking all histograms
+	RPCGeomServ rpcsrv(rpcId);
+	std::string nameRoll = rpcsrv.name();
+	//std::cout<<"Booking for "<<nameRoll<<std::endl;
+	
+	if(region!=0){
+	  const TrapezoidalStripTopology* topE_=dynamic_cast<const TrapezoidalStripTopology*>(&((*r)->topology()));
+	  float stripl = topE_->stripLength();
+	  float stripw = topE_->pitch();
+	  int region=rpcId.region();
+          int station=rpcId.station();
+          int ring=rpcId.ring();
+          int cscring=ring;
+          int cscstation=station;
+	  RPCGeomServ rpcsrv(rpcId);
+	  int rpcsegment = mySegment(rpcId); //This replace rpcsrv.segment();
+	  //std::cout<<"My segment="<<mySegment(rpcId)<<" GeomServ="<<rpcsrv.segment()<<std::endl;
+	  int cscchamber = rpcsegment;//FIX THIS ACCORDING TO RPCGeomServ::segment()Definition
+          if((station==2||station==3)&&ring==3){//Adding Ring 3 of RPC to the CSC Ring 2
+            cscring = 2;
+          }
+	  
+	  CSCStationIndex ind(region,cscstation,cscring,cscchamber);
+          std::set<RPCDetId> myrolls;
+	  if (rollstoreCSC.find(ind)!=rollstoreCSC.end()){
+            myrolls=rollstoreCSC[ind];
+          }
+          myrolls.insert(rpcId);
+          rollstoreCSC[ind]=myrolls;
 
-                if(region==1){
-                    const TrapezoidalStripTopology* topE_=dynamic_cast<const TrapezoidalStripTopology*>(&((*r)->topology()));
-                    float stripl = topE_->stripLength();
-                    float stripw = topE_->pitch();
-                    //meCollection[nameRoll] = bookDetUnitSeg(rpcId,(*r)->nstrips(),stripw,stripl);
-                    //std::cout<<"--Filling the cscstore"<<rpcId<<std::endl;
-                    int region=rpcId.region();
-                    int station=rpcId.station();
-                    int ring=rpcId.ring();
-                    int cscring=ring;
-                    int cscstation=station;
-                    RPCGeomServ rpcsrv(rpcId);
-                    int rpcsegment = mySegment(rpcId); //This replace rpcsrv.segment();
-                    //std::cout<<"My segment="<<mySegment(rpcId)<<" GeomServ="<<rpcsrv.segment()<<std::endl;
-                    int cscchamber = rpcsegment;//FIX THIS ACCORDING TO RPCGeomServ::segment()Definition
-                    if((station==2||station==3)&&ring==3){//Adding Ring 3 of RPC to the CSC Ring 2
-                        cscring = 2;
-                    }
-
-                    CSCStationIndex ind(region,cscstation,cscring,cscchamber);
-                    std::set<RPCDetId> myrolls;
-                    if (rollstoreCSC.find(ind)!=rollstoreCSC.end()){
-                        myrolls=rollstoreCSC[ind];
-                    }
-                    myrolls.insert(rpcId);
-                    rollstoreCSC[ind]=myrolls;
-
-                }
-            }
-        }
+	}
+      }
     }
+  }
 
 
-    // Now check binding
-    const std::vector<CSCChamber*> cscChambers = cscGeometry->chambers();
-    for(std::vector<CSCChamber*>::const_iterator CSCChamberIter = cscChambers.begin(); CSCChamberIter != cscChambers.end(); CSCChamberIter++)
-    {   
-        CSCDetId cscChamber = (*CSCChamberIter)->id();
-        int Endcap = cscChamber.endcap();
-        int Station = cscChamber.station();
-        int Ring = cscChamber.ring();
-        int Chamber = cscChamber.chamber();
-        int Layer = cscChamber.layer();
-        CSCStationIndex index(Endcap, Station, Ring, Chamber);
-        // 1=Forward(+), 2=Backward(-)
-        if(Endcap != 1)
-            continue;
-        if(Station == 4)
-            continue;
-        if(Ring == 1 || Ring == 4)
-            continue;
-        cout << "Checking +Z endcap CSC chamber: " << cscChamber.rawId() << ", Endcap: " << Endcap << ", Station: " << Station << ", Ring: " << Ring << ", Chamber: " << Chamber << ", layer: " << Layer << endl;
-        const Bounds& cscBounds = (*CSCChamberIter)->surface().bounds();
-        const CSCLayer* cscLayer = (*CSCChamberIter)->layer(1);
-        const CSCStripTopology* cscTop = cscLayer->geometry()->topology();
-        int nCSCStrip0 = cscLayer->geometry()->numberOfStrips();
-        int nCSCStrip1 = cscTop->nstrips();
-        cout << "CSC layer strips from layer geometry: " << nCSCStrip0 << ", from layer topology: " << nCSCStrip1 << endl;
-        GlobalPoint Edge0 = cscLayer->toGlobal(cscTop->localPosition(0));
-        GlobalPoint Edge1 = cscLayer->toGlobal(cscTop->localPosition(nCSCStrip1));
-        cout << "CSC Phi range from " << Edge0.phi() << " to " << Edge1.phi() << endl;
-        cout << "CSC Phi degree range from " << Edge0.phi().degrees() << " to " << Edge1.phi().degrees() << endl;
-        if(rollstoreCSC.find(index) != rollstoreCSC.end())
-        {
-            std::set<RPCDetId> RPCRolls;
-            RPCRolls = rollstoreCSC[index];
-            cout <<"Bind to " << RPCRolls.size() << " RPC Rolls" << endl;
-            for(std::set<RPCDetId>::const_iterator RPCRollIter = RPCRolls.begin(); RPCRollIter != RPCRolls.end(); RPCRollIter++)
-            {
-                RPCGeomServ rpcSrv(*RPCRollIter);
-                int rEndcap = RPCRollIter->region();
-                int rStation = RPCRollIter->station();
-                int rRing = RPCRollIter->ring();
-                int rSegment = rpcSrv.segment();
-                int rRoll = RPCRollIter->roll();
-                const RPCRoll* rpcRoll = rpcGeometry->roll(*RPCRollIter);
-                int nRPCStrip = rpcRoll->nstrips();
+  // Now check binding
+  const std::vector<CSCChamber*> cscChambers = cscGeometry->chambers();
+  for(std::vector<CSCChamber*>::const_iterator CSCChamberIter = cscChambers.begin(); CSCChamberIter != cscChambers.end(); CSCChamberIter++){   
+    
+    CSCDetId CSCId = (*CSCChamberIter)->id();
 
-                // Camilo's method
-                const BoundPlane & RPCSurface = rpcRoll->surface();
-                GlobalPoint CenterPointRollGlobal = RPCSurface.toGlobal(LocalPoint(0,0,0));
-                std::cout<<"CSC \t \t \t Center (0,0,0) of the Roll in Global"<<CenterPointRollGlobal<<", with phi "<<CenterPointRollGlobal.phi()<<std::endl;
-                GlobalPoint CenterPointCSCGlobal = (*CSCChamberIter)->toGlobal(LocalPoint(0,0,0));
-                std::cout<<"CSC \t \t \t Center (0,0,0) of the CSC in Global"<<CenterPointCSCGlobal<<", with phi "<<CenterPointCSCGlobal.phi()<<std::endl;
-                
-                float rpcphi=0;
-                float cscphi=0;
-                (CenterPointRollGlobal.barePhi()<0)? 
-                    rpcphi = 2*3.141592+CenterPointRollGlobal.barePhi():rpcphi=CenterPointRollGlobal.barePhi();
-                (CenterPointCSCGlobal.barePhi()<0)? 
-                    cscphi = 2*3.1415926536+CenterPointCSCGlobal.barePhi():cscphi=CenterPointCSCGlobal.barePhi();
-                float df=fabs(cscphi-rpcphi); 
-                float dr=fabs(CenterPointRollGlobal.perp()-CenterPointCSCGlobal.perp());
-                float diffz=CenterPointRollGlobal.z()-CenterPointCSCGlobal.z();
-                float dfg=df*180./3.14159265;
-                if(dr>200.||fabs(diffz)>55.||dfg>1.)
-                    cout << "Wrong binding for RPC Roll in Camilo's method" << RPCRollIter->rawId() << ", Endcap: " << rEndcap << ", Station: " << rStation << ", Ring: " << rRing << ", Segment: " << rSegment << ", Roll: " << rRoll << endl;
-
-                GlobalPoint insideEdge0 = rpcRoll->toGlobal(rpcRoll->centreOfStrip(0));
-                GlobalPoint insideEdge1 = rpcRoll->toGlobal(rpcRoll->centreOfStrip(nRPCStrip));
-                cout << "RPC roll: " << RPCRollIter->rawId() <<" Phi range from " << insideEdge0.phi() << " to " << insideEdge1.phi() << endl;
-                cout << "RPC roll: " << RPCRollIter->rawId() <<" Phi degree range from " << insideEdge0.phi().degrees() << " to " << insideEdge1.phi().degrees() << endl;
-                LocalPoint inside0 = LocalPoint((*CSCChamberIter)->surface().toLocal(insideEdge0).x(), (*CSCChamberIter)->surface().toLocal(insideEdge0).y(), 0);
-                LocalPoint inside1 = LocalPoint((*CSCChamberIter)->surface().toLocal(insideEdge1).x(), (*CSCChamberIter)->surface().toLocal(insideEdge1).y(), 0);
-
-                if((Edge0.phi()-insideEdge0.phi()).value()*(Edge1.phi()-insideEdge1.phi()).value() < 0)
-                {
-                    cout << "Well binding for RPC Roll: " << RPCRollIter->rawId() << ", Endcap: " << rEndcap << ", Station: " << rStation << ", Ring: " << rRing << ", Segment: " << rSegment << ", Roll: " << rRoll << endl;
-                }
-                else
-                {
-                    cout << "Wrong binding for RPC Roll " << RPCRollIter->rawId() << ", Endcap: " << rEndcap << ", Station: " << rStation << ", Ring: " << rRing << ", Segment: " << rSegment << ", Roll: " << rRoll << endl;
-                }
-            }
-        }
-        else
-        {
-            cout << "Could not find the binding RPC roll" << endl;
-        }
+    int cscEndCap = CSCId.endcap();
+    int cscStation = CSCId.station();
+    int cscRing = CSCId.ring();
+    int cscChamber = CSCId.chamber();
+    int rpcRegion = 1; if(cscEndCap==2) rpcRegion= -1;//Relacion entre las endcaps
+    int rpcRing = cscRing;
+    if(cscRing==4)rpcRing =1;
+    int rpcStation = cscStation;
+    int rpcSegment = 0;
+	
+    if(cscStation!=1&&cscRing==1){//las de 18 CSC
+      rpcSegment = CSCId.chamber();
     }
+    else{//las de 36 CSC
+      rpcSegment = (CSCId.chamber()==1) ? 36 : CSCId.chamber()-1;
+    }
+    //std::cout<<"CSC \t \t Getting chamber from Geometry"<<std::endl;
+    const CSCChamber* TheChamber=cscGeometry->chamber(CSCId); 
+    //std::cout<<"CSC \t \t Getting ID from Chamber"<<std::endl;
 
+    std::set<RPCDetId> rollsForThisCSC = rollstoreCSC[CSCStationIndex(rpcRegion,rpcStation,rpcRing,rpcSegment)];
+    if(CSCId.ring()!=1) std::cout<<"CSC for"<<CSCId<<" "<<rollsForThisCSC.size()<<" rolls."<<std::endl;
+
+    for (std::set<RPCDetId>::iterator iteraRoll = rollsForThisCSC.begin();iteraRoll != rollsForThisCSC.end(); iteraRoll++){
+      const RPCRoll* rollasociated = rpcGeometry->roll(*iteraRoll);
+      RPCDetId rpcId = rollasociated->id();
+      RPCGeomServ rpcsrv(rpcId);
+
+      const BoundPlane & RPCSurface = rollasociated->surface(); 
+      
+      GlobalPoint CenterPointRollGlobal = RPCSurface.toGlobal(LocalPoint(0,0,0));
+      GlobalPoint CenterPointCSCGlobal = TheChamber->toGlobal(LocalPoint(0,0,0));
+      
+      LocalPoint CenterRollinCSCFrame = TheChamber->toLocal(CenterPointRollGlobal);
+
+      float rpcphi=0;
+      float cscphi=0;
+      
+      (CenterPointRollGlobal.barePhi()<0)? 
+	rpcphi = 2*3.141592+CenterPointRollGlobal.barePhi():rpcphi=CenterPointRollGlobal.barePhi();
+      
+      (CenterPointCSCGlobal.barePhi()<0)? 
+	cscphi = 2*3.1415926536+CenterPointCSCGlobal.barePhi():cscphi=CenterPointCSCGlobal.barePhi();
+      
+      float df=fabs(cscphi-rpcphi); 
+      float dr=fabs(CenterPointRollGlobal.perp()-CenterPointCSCGlobal.perp());
+      float diffz=CenterPointRollGlobal.z()-CenterPointCSCGlobal.z();
+      float dfg=df*180./3.14159265;
+      
+      std::cout<<"CSC \t "<<rpcsrv.name()<<" dr="<<dr<<" dz="<<diffz<<" dfg="<<dfg<<std::endl;
+
+      if(dr>200.||fabs(diffz)>55.||dfg>1.){ 
+	std::cout<<"\t \t problem CSC Station= "<<CSCId.station()
+	  <<" Ring= "<<CSCId.ring()
+	  <<" Chamber= "<<CSCId.chamber()
+	  <<" cscphi="<<cscphi*180/3.14159265
+	  <<"\t RPC Station= "<<rpcId.station()
+	  <<" ring= "<<rpcId.ring()
+	  <<" segment =-> "<<mySegment(rpcId)
+	  <<" rollphi="<<rpcphi*180/3.14159265
+	  <<"\t dfg="<<dfg
+	  <<" dz="<<diffz
+	  <<" dr="<<dr
+	  <<std::endl;
+		    
+      }
+    }
+  }
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
