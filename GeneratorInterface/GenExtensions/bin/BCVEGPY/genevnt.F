@@ -269,10 +269,14 @@ C...HEPEUP for output.
      &ISTUP(MAXNUP),MOTHUP(2,MAXNUP),ICOLUP(2,MAXNUP),PUP(5,MAXNUP),
      &VTIMUP(MAXNUP),SPINUP(MAXNUP)
       SAVE /HEPEUP/
- 
+      
+c IDWTUP = 3 requires XWGTUP = 1
+      XWGTUP_wlhe = 1
+
 C...Optionally write out event to disk. Minimal size for time/spin fields.
       IF(MSTP(162).GT.0) THEN
-        WRITE(MSTP(162),5200) NUP,IDPRUP,XWGTUP,SCALUP,AQEDUP,AQCDUP
+        WRITE(MSTP(162),5200) NUP,IDPRUP,XWGTUP_wlhe,SCALUP,AQEDUP
+     +   ,AQCDUP
         DO 190 I=1,NUP
           IF(VTIMUP(I).EQ.0D0) THEN
             WRITE(MSTP(162),5300) IDUP(I),ISTUP(I),MOTHUP(1,I),
