@@ -1,0 +1,7 @@
+<library file=*.cc name=FireworksElectronsPlugins>
+  <use name=Fireworks/Electrons>
+  <use name=Fireworks/Tracks>
+  <use name=Fireworks/Candidates>
+  <flags EDM_PLUGIN=1>
+</library>
+

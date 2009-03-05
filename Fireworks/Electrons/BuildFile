@@ -1,7 +1,6 @@
 <use name=DataFormats/Common>
 <use name=DataFormats/FWLite>
 <use name=rootrflx>
-<use name=SimDataFormats/HepMCProduct>
 <lib name=Eve>
 <lib name=Geom>
 <lib name=GeomPainter>

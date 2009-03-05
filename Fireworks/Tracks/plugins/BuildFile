@@ -1,0 +1,8 @@
+<library file=*.cc name=FireworksTracksPlugins>
+  <use name=Fireworks/Tracks>
+  <use name=DataFormats/SiStripCluster>
+  <use name=DataFormats/SiPixelCluster>
+  <use name=DataFormats/FWLite>
+  <flags EDM_PLUGIN=1>
+</library>
+

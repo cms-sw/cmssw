@@ -1,0 +1,7 @@
+<library file=*.cc name=FireworksVerticesPlugins>
+  <use name=DataFormats/VertexReco>
+  <use name=Fireworks/Core>
+  <use name=rootrflx>
+  <flags EDM_PLUGIN=1>
+</library>
+

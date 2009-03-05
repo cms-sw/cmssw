@@ -1,7 +1,5 @@
 <use name=DataFormats/Common>
-<use name=DataFormats/SiStripCluster>
-<use name=DataFormats/SiPixelCluster>
-<use name=DataFormats/FWLite>
+<use name=DataFormats/TrackReco>
 <use name=rootrflx>
 <lib name=Eve>
 <lib name=Geom>
@@ -20,13 +18,10 @@
 <lib name=FTGL> 
 <lib name=RIO> 
 <lib name=Rint>
-
 <use name=Fireworks/Core>
-
 <flags CXXFLAGS="-g -O0">
 <export>
-  <lib name=FireworksMuons>
+  <lib name=FireworksTracks>
   <use name=Fireworks/Core>
-  <use name=DataFormats/Common>
   <use name=rootrflx>
 </export>
