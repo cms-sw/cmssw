@@ -29,6 +29,9 @@ pushd ${LOCAL_TMP_DIR}
   echo ${test}TEST------------------------------------------------------------
   cmsRun -p ${LOCAL_TEST_DIR}/${test}TEST_cfg.py || die "cmsRun ${test}TEST_cfg.py" $?
 
+  echo ${test}TESTFAIL------------------------------------------------------------
+  cmsRun -p ${LOCAL_TEST_DIR}/${test}TESTFAIL_cfg.py 2>/dev/null && die "cmsRun ${test}TESTFAIL_cfg.py" $?
+
   echo ${test}TEST1------------------------------------------------------------
   cmsRun -p ${LOCAL_TEST_DIR}/${test}TEST1_cfg.py || die "cmsRun ${test}TEST1_cfg.py" $?
 
