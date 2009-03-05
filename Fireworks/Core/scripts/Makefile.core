@@ -35,7 +35,7 @@ LINKER = c++
 # linker flags
 CoreMissingFlags = -lEG
 #CoreLinkerFlags = -shared -m32 -Lexternal/lib -L$(FWROOTSYS)/lib -Lexternal/lib $(addprefix -l,$(CoreLibs)) $(CoreMissingFlags)
-CoreLinkerFlags = $(MAKESHAREDLIB) -m32 -Lexternal/lib -L$(FWROOTSYS)/lib -Lexternal/lib $(addprefix -l,$(CoreLibs)) $(CoreMissingFlags)
+CoreLinkerFlags = $(MAKESHAREDLIB) -m32 -Lexternal/lib -L$(FWROOTSYS)/lib -Lexternal/lib $(addprefix -l,$(CoreLibs)) $(CoreMissingFlags) -lThread
 
 # cms data format source files and their object files
 CoreSources = $(wildcard cms/*/*/src/*.cc)
