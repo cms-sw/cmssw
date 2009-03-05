@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/03/05 14:13:57 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/03/05 15:12:34 $
+ *  $Revision: 1.6 $
  *
  *  \author Martin Grunewald
  *
@@ -105,6 +105,7 @@ HLTrigReport::endJob()
   // final printout of accumulated statistics
 
   using namespace std;
+  using namespace edm;
   const unsigned int n(hlNames_.size());
 
     LogVerbatim("") << dec << endl;
