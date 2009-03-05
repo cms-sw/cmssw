@@ -249,6 +249,9 @@ public:
   RawJetVector m_outputJets;
   JetVector m_sortedJets;
 
+  unsigned m_HttSumJetThreshold;
+  unsigned m_HtmSumJetThreshold;
+
   /// output Et strip sums and Ht
   etTotalType m_outputEtStrip0;
   etTotalType m_outputEtStrip1;

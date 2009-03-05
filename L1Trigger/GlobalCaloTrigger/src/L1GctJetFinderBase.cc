@@ -32,6 +32,7 @@ L1GctJetFinderBase::L1GctJetFinderBase(int id):
   m_inputRegions(MAX_REGIONS_IN),
   m_sentProtoJets(MAX_JETS_OUT), m_rcvdProtoJets(MAX_JETS_OUT), m_keptProtoJets(MAX_JETS_OUT),
   m_outputJets(MAX_JETS_OUT), m_sortedJets(MAX_JETS_OUT),
+  m_HttSumJetThreshold(0), m_HtmSumJetThreshold(0),
   m_outputEtStrip0(0), m_outputEtStrip1(0),
   m_outputHtStrip0(0), m_outputHtStrip1(0),
   m_outputHfSums(),
@@ -98,6 +99,8 @@ void L1GctJetFinderBase::setJetFinderParams(const L1GctJetFinderParams* jfpars)
   m_TauJetSeed = jfpars->getTauJetEtSeedGct();
   m_EtaBoundry = jfpars->getCenForJetEtaBoundary();
   m_tauIsolationThreshold = jfpars->getTauIsoEtThresholdGct();
+  m_HttSumJetThreshold    = jfpars->getHtJetEtThresholdGct();
+  m_HtmSumJetThreshold    = jfpars->getMHtJetEtThresholdGct();
   m_gotJetFinderParams = true;
 }
 
@@ -333,8 +336,11 @@ L1GctJetFinderBase::etTotalType L1GctJetFinderBase::calcHtStrip(const UShort str
     // Only sum Ht for valid jets
     if (!m_outputJets.at(i).isNullJet()) {
       if (m_outputJets.at(i).rctPhi() == strip) {
-	unsigned ieta = m_outputJets.at(i).rctEta();
-	ht += m_outputJets.at(i).calibratedEt(m_jetEtCalLuts.at(ieta));
+	unsigned ieta  = m_outputJets.at(i).rctEta();
+	unsigned htJet = m_outputJets.at(i).calibratedEt(m_jetEtCalLuts.at(ieta));
+	if (htJet >= m_HttSumJetThreshold) {
+	  ht += htJet;
+	} 
 	of |= m_outputJets.at(i).overFlow();
       }
     }
