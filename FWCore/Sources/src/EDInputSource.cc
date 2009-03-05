@@ -1,9 +1,9 @@
 /*----------------------------------------------------------------------
-$Id: EDInputSource.cc,v 1.3 2008/02/22 19:09:37 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Sources/interface/EDInputSource.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace edm {
   
@@ -12,7 +12,9 @@ namespace edm {
       InputSource(pset, desc),
       poolCatalog_(),
       catalog_(pset, poolCatalog_),
-      secondaryCatalog_(pset, poolCatalog_, std::string("secondaryFileNames"), true) {}
+      secondaryCatalog_(pset, poolCatalog_,
+        std::string("secondaryFileNames"),
+        !pset.getUntrackedParameter<bool>("needSecondaryFileNames", false)) {}
 
   EDInputSource::~EDInputSource() {
   }
