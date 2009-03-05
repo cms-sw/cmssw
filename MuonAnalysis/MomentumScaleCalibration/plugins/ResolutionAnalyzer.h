@@ -46,7 +46,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "HepMC/GenParticle.h"
 #include "HepMC/GenEvent.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"

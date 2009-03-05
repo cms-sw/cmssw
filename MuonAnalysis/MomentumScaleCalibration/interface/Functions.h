@@ -354,6 +354,33 @@ public:
   }
 };
 
+// Parabolic in pt and parabolic in |eta|
+// --------------------------------------
+template <class T>
+class scaleFunctionType14 : public scaleFunctionBase<T> {
+public:
+  scaleFunctionType14() { this->parNum_ = 5; }
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
+    return( (parScale[0] + parScale[1]*pt +
+             parScale[2]*pt*pt +
+             parScale[3]*fabs(eta) +
+             parScale[4]*eta*eta)*pt );
+  }
+  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {
+    double thisStep[] = {0.001, 0.0001, 0.01, 0.01, 0.01};
+    TString thisParName[] = {"Pt offset", "Pt slope", "Pt quadr", "Eta slope", "Eta quadr"};
+    if( muonType == 1 ) {
+      double thisMini[] = {0.9, -0.1, -0.3, -0.3, -0.3};
+      double thisMaxi[] = {1.1, 0.1, 0.3, 0.3, 0.3};
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
+    } else {
+      double thisMini[] = {0.97, -0,1, -0.1, -0.1, -0.1};
+      double thisMaxi[] = {1.03, 0.1, 0.1, 0.1, 0.1};
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
+    }
+  }
+};
+
 /// Service to build the scale functor corresponding to the passed identifier
 scaleFunctionBase<double * > * scaleFunctionService( const int identifier );
 
@@ -784,8 +811,27 @@ class backgroundFunctionBase {
   virtual double operator()( const double * parval, const int resTotNum, const int nres, const bool * resConsidered,
                              const double * ResMass, const double ResHalfWidth[][3], const int MuonType, const double & mass, const int nbins ) = 0;
   virtual int parNum() { return parNum_; }
+  /// This method is used to differentiate parameters among the different functions
+  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const vector<double> & parBgr, const vector<int> & parBgrOrder, const int muonType) = 0;
+  virtual void setLeftWindowFactor(const double & leftWindowFactor) { leftWindowFactor_ = leftWindowFactor; }
+  virtual void setRightWindowFactor(const double & rightWindowFactor) { rightWindowFactor_ = rightWindowFactor; }
 protected:
   int parNum_;
+  double leftWindowFactor_;
+  double rightWindowFactor_;
+  /// This method sets the parameters
+  virtual void setPar(double* Start, double* Step, double* Mini, double* Maxi, int* ind,
+                      TString* parname, const vector<double> & parBgr, const vector<int> & parBgrOrder,
+                      double* thisStep, double* thisMini, double* thisMaxi, TString* thisParName ) {
+    for( int iPar=0; iPar<this->parNum_; ++iPar ) {
+      Start[iPar] = parBgr[iPar];
+      Step[iPar] = thisStep[iPar];
+      Mini[iPar] = thisMini[iPar];
+      Maxi[iPar] = thisMaxi[iPar];
+      ind[iPar] = parBgrOrder[iPar];
+      parname[iPar] = thisParName[iPar];
+    }
+  }
 };
 /// Constant
 // ---------
@@ -804,6 +850,19 @@ class backgroundFunctionType1 : public backgroundFunctionBase {
                              const double * ResMass, const double ResHalfWidth[][3], const int MuonType, const double & mass, const int nbins ) {
     return( nres/(double)nbins ); 
   }
+  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const vector<double> & parBgr, const vector<int> & parBgrOrder, const int muonType) {
+    double thisStep[] = {0.1};
+    TString thisParName[] = {"Bgr fraction"};
+    if( muonType == 1 ) {
+      double thisMini[] = {0.0};
+      double thisMaxi[] = {1.0};
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parBgr, parBgrOrder, thisStep, thisMini, thisMaxi, thisParName );
+    } else {
+      double thisMini[] = {0.0};
+      double thisMaxi[] = {1.0};
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parBgr, parBgrOrder, thisStep, thisMini, thisMaxi, thisParName );
+    }
+  }
 };
 /// Exponential
 // ------------
@@ -821,20 +880,42 @@ class backgroundFunctionType2 : public backgroundFunctionBase {
     double Bgrp2 = parval[1];
     for (int ires=0; ires<resTotNum; ires++) {
       if (resConsidered[ires]) {
-	if (exp(-Bgrp2*(ResMass[ires]-ResHalfWidth[ires][MuonType]))-exp(-Bgrp2*(ResMass[ires]+ResHalfWidth[ires][MuonType]))>0) {
-	  PB += Bgrp2*exp(-Bgrp2*mass) * 
-	    (2*ResHalfWidth[ires][MuonType])/(double)nbins /
-	    (exp(-Bgrp2*(ResMass[ires]-ResHalfWidth[ires][MuonType]))-exp(-Bgrp2*(ResMass[ires]+ResHalfWidth[ires][MuonType])));
-	} else {
-	  cout << "Impossible to compute Background probability! - some fix needed - Bgrp2=" << Bgrp2 << endl;  
-	}
+
+	  PB += Bgrp2*exp(-Bgrp2*mass) * (2*ResHalfWidth[ires][MuonType])/(double)nbins;
+
+// 	if (exp(-Bgrp2*(ResMass[ires]-leftWindowFactor_*ResHalfWidth[ires][MuonType]))-exp(-Bgrp2*(ResMass[ires]+rightWindowFactor_*ResHalfWidth[ires][MuonType]))>0) {
+// 	  PB += Bgrp2*exp(-Bgrp2*mass) * 
+// 	    (2*ResHalfWidth[ires][MuonType])/(double)nbins /
+// 	    (exp(-Bgrp2*(ResMass[ires]-leftWindowFactor_*ResHalfWidth[ires][MuonType]))-exp(-Bgrp2*(ResMass[ires]+rightWindowFactor_*ResHalfWidth[ires][MuonType])));
+// 	} else {
+// 	  cout << "Impossible to compute Background probability! - some fix needed - Bgrp2=" << Bgrp2 << endl;  
+// 	}
+        cout << "Bgrp2 = " << Bgrp2 << endl;
+//         cout << "exp(-Bgrp2*(ResMass[ires]-ResHalfWidth[ires][MuonType]))-exp(-Bgrp2*(ResMass[ires]+ResHalfWidth[ires][MuonType])) = "
+//              << exp(-Bgrp2*(ResMass[ires]-leftWindowFactor_*ResHalfWidth[ires][MuonType]))-exp(-Bgrp2*(ResMass[ires]+rightWindowFactor_*ResHalfWidth[ires][MuonType])) << endl;
       }
     }
     return PB;
   }
+  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const vector<double> & parBgr, const vector<int> & parBgrOrder, const int muonType) {
+    double thisStep[] = {0.01, 0.001};
+    TString thisParName[] = {"Bgr fraction", "Bgr slope"};
+    if( muonType == 1 ) {
+      double thisMini[] = {0.0, 0.0};
+      double thisMaxi[] = {1.0, 10.};
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parBgr, parBgrOrder, thisStep, thisMini, thisMaxi, thisParName );
+    } else {
+      double thisMini[] = {0.0, 0.0};
+      double thisMaxi[] = {1.0, 10.};
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parBgr, parBgrOrder, thisStep, thisMini, thisMaxi, thisParName );
+    }
+  }
 };
 /// Constant + Exponential
-// -----------------------
+// -------------------------------------------------------------------------------- //
+// ATTENTION: TODO: the normalization must be adapted to the asymmetric mass window //
+// -------------------------------------------------------------------------------- //
+
 class backgroundFunctionType3 : public backgroundFunctionBase {
  public:
   // pass parval[shift]
@@ -861,6 +942,19 @@ class backgroundFunctionType3 : public backgroundFunctionBase {
       }
     }
     return PB;
+  }
+  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const vector<double> & parBgr, const vector<int> & parBgrOrder, const int muonType) {
+    double thisStep[] = {0.1, 0.001, 0.1};
+    TString thisParName[] = {"Bgr fraction", "Bgr slope", "Bgr constant"};
+    if( muonType == 1 ) {
+      double thisMini[] = {0.0, 0.000000001, 0.0};
+      double thisMaxi[] = {1.0, 0.2, 1000};
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parBgr, parBgrOrder, thisStep, thisMini, thisMaxi, thisParName );
+    } else {
+      double thisMini[] = {0.0, 0.000000001, 0.0};
+      double thisMaxi[] = {1.0, 0.2, 1000};
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parBgr, parBgrOrder, thisStep, thisMini, thisMaxi, thisParName );
+    }
   }
 };
 

@@ -13,7 +13,7 @@
 #include <CLHEP/Vector/LorentzVector.h>
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include <DataFormats/FWLite/interface/Handle.h>
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "TGraphErrors.h"
@@ -72,7 +72,6 @@ public:
   static lorentzVector applySmearing (const lorentzVector &muon);
   static lorentzVector fromPtEtaPhiToPxPyPz (double* ptEtaPhiE);
 
-  static void setLikeParameters (double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname);
   static void minimizeLikelihood ();
 
   static double invDimuonMass (lorentzVector& mu1, lorentzVector& mu2);
@@ -170,7 +169,14 @@ public:
   
   static std::vector<std::pair<lorentzVector,lorentzVector> > SavedPair;
 
+  // Defined to allow asymmetric mass windows.
+  static double leftWindowFactor;
+  static double rightWindowFactor;
+
 protected:
+
+  /// Method to check if the mass value is within the mass window of the i-th resonance.
+  static bool checkMassWindow( const double & mass, const int ires );
 
 private:
   

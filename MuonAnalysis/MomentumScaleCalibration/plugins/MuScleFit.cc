@@ -113,7 +113,7 @@
 
 #include "HepMC/GenParticle.h"
 #include "HepMC/GenEvent.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
@@ -211,6 +211,8 @@ MuScleFit::MuScleFit (const ParameterSet& pset) {
   int backgroundType = pset.getParameter<int>("BgrFitType");
   MuScleFitUtils::BgrFitType   = backgroundType;
   MuScleFitUtils::backgroundFunction = backgroundFunctionService( backgroundType );
+  MuScleFitUtils::backgroundFunction->setLeftWindowFactor(MuScleFitUtils::leftWindowFactor);
+  MuScleFitUtils::backgroundFunction->setRightWindowFactor(MuScleFitUtils::rightWindowFactor);
 
   // Initial parameters values
   // -------------------------
@@ -996,6 +998,7 @@ void MuScleFit::checkParameters() {
       (MuScleFitUtils::ScaleFitType==11 && MuScleFitUtils::parScale.size()!=4) || // linear in pt and sin in phi w/ chg
       (MuScleFitUtils::ScaleFitType==12 && MuScleFitUtils::parScale.size()!=6) || // linear in pt and para in eta plus sin in phi with chg
       (MuScleFitUtils::ScaleFitType==13 && MuScleFitUtils::parScale.size()!=8) || // linear in pt and para in eta plus sin in phi with chg
+      (MuScleFitUtils::ScaleFitType==14 && MuScleFitUtils::parScale.size()!=5) || // parabolic in pt and para in |eta|
       MuScleFitUtils::ScaleFitType<1 || MuScleFitUtils::ScaleFitType>15) {
     cout << "[MuScleFit-Constructor]: Wrong fit type or number of parameters: aborting!" << endl;
     abort();
