@@ -8,7 +8,7 @@ using edm::helper::IndexRangeAssociation;
 using edm::ProductID;
 
 IndexRangeAssociation::range
-IndexRangeAssociation::get(const ProductID &id, size_t key) const {
+IndexRangeAssociation::get(const ProductID &id, unsigned int key) const {
     typedef IndexRangeAssociation::id_offset_vector::const_iterator iter;
     iter pos = std::lower_bound(id_offsets_.begin(), id_offsets_.end(), id, IDComparator()); 
     if ((pos == id_offsets_.end()) || (pos->first != id)) {
@@ -42,7 +42,7 @@ IndexRangeAssociation::swap(IndexRangeAssociation &other) {
     ref_offsets_.swap(other.ref_offsets_);
 }
 
-IndexRangeAssociation::FastFiller::FastFiller(IndexRangeAssociation &assoc, ProductID id, size_t size) :
+IndexRangeAssociation::FastFiller::FastFiller(IndexRangeAssociation &assoc, ProductID id, unsigned int size) :
     assoc_(assoc), id_(id), 
     start_(assoc.ref_offsets_.empty() ? 0 : assoc.ref_offsets_.size() - 1), // must skip the end marker element
     end_(start_ + size),
@@ -94,7 +94,7 @@ IndexRangeAssociation::FastFiller::~FastFiller() {
 }
 
 void
-IndexRangeAssociation::FastFiller::insert(edm::ProductID id, size_t key, size_t startingOffset, size_t size) {
+IndexRangeAssociation::FastFiller::insert(edm::ProductID id, unsigned int key, unsigned int startingOffset, unsigned int size) {
     if (id != id_) IndexRangeAssociation::throwUnexpectedProductID(id,id_,"FastFiller::insert");
     if (int(key) <= lastKey_) throw cms::Exception("Bad Key") << 
             "IndexRangeAssociation::FastFiller: you must fill this in strict key order\n" << 
