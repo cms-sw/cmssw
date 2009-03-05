@@ -36,8 +36,8 @@ class TtGenEvent: public TopGenEvent {
   const reco::GenParticle* hadronicDecayTop() const;
   const reco::GenParticle* hadronicDecayQuark(bool invert=false ) const;
   const reco::GenParticle* hadronicDecayQuarkBar() const {return hadronicDecayQuark(true); };
-  const std::vector<const reco::GenParticle*> leptonicDecayTopRadiation() const;
-  const std::vector<const reco::GenParticle*> hadronicDecayTopRadiation() const;
+  std::vector<const reco::GenParticle*> leptonicDecayTopRadiation() const;
+  std::vector<const reco::GenParticle*> hadronicDecayTopRadiation() const;
   
   //full-leptonic getters
   const reco::GenParticle* lepton() const;

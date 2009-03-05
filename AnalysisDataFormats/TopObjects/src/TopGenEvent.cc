@@ -144,7 +144,7 @@ TopGenEvent::lightQuarks(bool bIncluded) const
   return lightQuarks;
 }
 
-const std::vector<const reco::GenParticle*> TopGenEvent::topRadiation() const{
+std::vector<const reco::GenParticle*> TopGenEvent::topRadiation() const{
   std::vector<const reco::GenParticle*> topRadiation;
   reco::GenParticleCollection::const_iterator part = parts_->begin();
   for ( ; part < parts_->end(); ++part) {
@@ -158,7 +158,7 @@ const std::vector<const reco::GenParticle*> TopGenEvent::topRadiation() const{
   return topRadiation;
 }
 
-const std::vector<const reco::GenParticle*> TopGenEvent::topBarRadiation() const{
+std::vector<const reco::GenParticle*> TopGenEvent::topBarRadiation() const{
   std::vector<const reco::GenParticle*> topBarRadiation;
   reco::GenParticleCollection::const_iterator part = parts_->begin();
   for ( ; part < parts_->end(); ++part) {
@@ -172,7 +172,7 @@ const std::vector<const reco::GenParticle*> TopGenEvent::topBarRadiation() const
   return topBarRadiation;
 }
 
-const std::vector<const reco::GenParticle*> TopGenEvent::ISR() const{
+std::vector<const reco::GenParticle*> TopGenEvent::ISR() const{
   std::vector<const reco::GenParticle*> ISR;
   reco::GenParticleCollection::const_iterator part = parts_->begin();
   for ( ; part < parts_->end(); ++part) {

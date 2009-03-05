@@ -58,10 +58,10 @@ class TopGenEvent {
   const reco::GenParticle* topBar() const   { return candidate( -6 );}
   const reco::GenParticle* b() const        { return candidate(  5 );}
   const reco::GenParticle* bBar() const     { return candidate( -5 );}
-  const std::vector<const reco::GenParticle*> topRadiation() const;
-  const std::vector<const reco::GenParticle*> topBarRadiation() const;
+  std::vector<const reco::GenParticle*> topRadiation() const;
+  std::vector<const reco::GenParticle*> topBarRadiation() const;
 
-  const std::vector<const reco::GenParticle*> ISR() const;
+  std::vector<const reco::GenParticle*> ISR() const;
  protected:
 
   int defaultStatus_; // default status for the reco::GenParticle* return (expect leptons where status == 3)
