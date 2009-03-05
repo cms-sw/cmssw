@@ -13,7 +13,7 @@
 //
 // Original Author:  Rizzi Andrea
 //         Created:  Mon Sep 24 09:30:06 CEST 2007
-// $Id: HSCPAnalyzer.cc,v 1.26 2008/08/26 14:09:25 arizzi Exp $
+// $Id: HSCPAnalyzer.cc,v 1.27 2009/02/04 10:50:57 delaer Exp $
 //
 //
 
@@ -40,7 +40,7 @@
 
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/GeneratorProducts/interface/GenInfoProduct.h"
+//#include "SimDataFormats/GeneratorProducts/interface/GenInfoProduct.h"
 
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCParticle.h"
 
