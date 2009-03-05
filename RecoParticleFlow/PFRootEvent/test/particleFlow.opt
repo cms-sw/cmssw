@@ -133,10 +133,14 @@ display  eta/phi  1
 // display r/z view yes/no
 display  r/z      1
 
-display cluster_attributes 2 5 20 10
-display track_attributes   8 1 8 8
-display simPart_attributes 4 2 8 
+// color, pscolor, style, size
+display cluster_attributes 2 5 20 1
+// color, line style, marker style, marker size 
+display track_attributes   8 1 8 1
+// color, line style, marker size 
+display simPart_attributes 4 2 1
 display drawPFBlock 0
+
 
 // clustering parameters ---------------------------------------------------
 

@@ -99,7 +99,7 @@ void DisplayManager::readOptions( const char* optfile ) {
     clusterAttributes_.push_back(2); //color
     clusterAttributes_.push_back(5);  // color if clusterPS
     clusterAttributes_.push_back(20); // marker style
-    clusterAttributes_.push_back(10); //markersize *10
+    clusterAttributes_.push_back(1); 
   }
   trackAttributes_.clear();
   options_->GetOpt("display", "track_attributes", trackAttributes_);
@@ -110,27 +110,50 @@ void DisplayManager::readOptions( const char* optfile ) {
     trackAttributes_.push_back(103); //color Line and Marker
     trackAttributes_.push_back(1);  //line style
     trackAttributes_.push_back(8);   //Marker style
-    trackAttributes_.push_back(8);   //Marker size *10
+    trackAttributes_.push_back(0.8);   //Marker size
   }
         
         
-  clusPattern_ = new TAttMarker(clusterAttributes_[0],clusterAttributes_[2],(double)clusterAttributes_[3]/10);
-  clusPSPattern_ = new TAttMarker(clusterAttributes_[1],clusterAttributes_[2],(double)clusterAttributes_[3]/10);
-  trackPatternL_ = new TAttLine(trackAttributes_[0],trackAttributes_[1],1);
-  trackPatternM_ = new TAttMarker(trackAttributes_[0],trackAttributes_[2],(double)trackAttributes_[3]/10);
+  clusPattern_ = new TAttMarker( (int)clusterAttributes_[0],
+				 (int)clusterAttributes_[2],
+				 clusterAttributes_[3]);
+  clusPSPattern_ = new TAttMarker( (int)clusterAttributes_[1],
+				   (int)clusterAttributes_[2],
+				   clusterAttributes_[3]);
+  trackPatternL_ = new TAttLine( (int)trackAttributes_[0],
+				 (int)trackAttributes_[1],
+				 1);
+  trackPatternM_ = new TAttMarker( (int)trackAttributes_[0],
+				   (int)trackAttributes_[2],
+				   trackAttributes_[3]);
   
   genPartPattern_= new TAttMarker(kGreen-1,22,1.);
   
-  simPartPatternPhoton_ = new TAttMarker(4,3,.8);
-  simPartPatternElec_   = new TAttMarker(4,5,.8);
-  simPartPatternMuon_   = new TAttMarker(4,2,.8);
-  simPartPatternK_      = new TAttMarker(4,24,.8);
-  simPartPatternPi_     = new TAttMarker(4,25,.8);
-  simPartPatternProton_ = new TAttMarker(4,26,.8);
-  simPartPatternNeutron_= new TAttMarker(4,27,.8);
-  simPartPatternDefault_= new TAttMarker(4,30,.8);
+
+  std::vector<float> simPartAttributes;
+  options_->GetOpt("display", "simPart_attributes", simPartAttributes);
+  if(simPartAttributes.size() != 3) {
+    cerr<<"PFRootEventManager::::ReadOptions, bad display/simPart_attributes tag...using 103 1 8 8"
+        <<endl;
+    simPartAttributes.push_back(4); //color Line and Marker
+    simPartAttributes.push_back(2);  //line style
+    simPartAttributes.push_back(1);   
+  }
         
-  simPartPatternL_ = new TAttLine(4,2,1);
+  int simColor = (int)simPartAttributes[0];
+  int simLStyle = (int)simPartAttributes[1];
+  float simMSize = simPartAttributes[2];
+
+  simPartPatternPhoton_ = new TAttMarker(simColor,3,simMSize);
+  simPartPatternElec_   = new TAttMarker(simColor,5,simMSize);
+  simPartPatternMuon_   = new TAttMarker(simColor,2,simMSize);
+  simPartPatternK_      = new TAttMarker(simColor,24,simMSize);
+  simPartPatternPi_     = new TAttMarker(simColor,25,simMSize);
+  simPartPatternProton_ = new TAttMarker(simColor,26,simMSize);
+  simPartPatternNeutron_= new TAttMarker(simColor,27,simMSize);
+  simPartPatternDefault_= new TAttMarker(simColor,30,simMSize);
+        
+  simPartPatternL_ = new TAttLine(simColor,simLStyle,1);
   simPartPatternM_.resize(8);
         
   setNewAttrToSimParticles();
@@ -198,8 +221,9 @@ void DisplayManager::createCanvas()
         
   for (int viewType=0;viewType<NViews;++viewType) {
     displayView_[viewType]->SetGrid(0, 0);
-    displayView_[viewType]->SetLeftMargin(0.12);
-    displayView_[viewType]->SetBottomMargin(0.12);
+    displayView_[viewType]->SetBottomMargin(0.14);
+    displayView_[viewType]->SetLeftMargin(0.15);
+    displayView_[viewType]->SetRightMargin(0.05);
     displayView_[viewType]->ToggleToolBar();
   } 
     
@@ -210,23 +234,28 @@ void DisplayManager::createCanvas()
   double rUp  = +300.;
   displayHist_[XY] = new TH2F("hdisplayHist_XY", "", 500, rLow, rUp, 
                               500, rLow, rUp);
-  displayHist_[XY]->SetXTitle("X");
-  displayHist_[XY]->SetYTitle("Y");
+  displayHist_[XY]->SetXTitle("X [cm]");
+  displayHist_[XY]->SetYTitle("Y [cm]");
         
   displayHist_[RZ] = new TH2F("hdisplayHist_RZ", "",500, zLow, zUp, 
                               500, rLow, rUp); 
-  displayHist_[RZ]->SetXTitle("Z");
-  displayHist_[RZ]->SetYTitle("R");
+  displayHist_[RZ]->SetXTitle("Z [cm]");
+  displayHist_[RZ]->SetYTitle("R [cm]");
         
   displayHist_[EPE] = new TH2F("hdisplayHist_EP", "", 500, -5, 5, 
                                500, -3.5, 3.5);
   displayHist_[EPE]->SetXTitle("#eta");
-  displayHist_[EPE]->SetYTitle("#phi");
+  displayHist_[EPE]->SetYTitle("#phi [rad]");
         
   displayHist_[EPH] = displayHist_[EPE];
         
   for (int viewType=0;viewType<NViews;++viewType){
     displayHist_[viewType]->SetStats(kFALSE);
+    displayHist_[viewType]->GetYaxis()->SetTitleSize(0.06);
+    displayHist_[viewType]->GetYaxis()->SetTitleOffset(1.2);
+    displayHist_[viewType]->GetXaxis()->SetTitleSize(0.06);
+    displayHist_[viewType]->GetYaxis()->SetLabelSize(0.045);
+    displayHist_[viewType]->GetXaxis()->SetLabelSize(0.045);
   }  
         
   // Draw ECAL front face
@@ -1172,9 +1201,9 @@ void DisplayManager::createGGenParticle(HepMC::GenParticle* p)
 //   int vertexId1 = 0;
 //   vertexId1 = p->production_vertex()->barcode();
     
-//   math::XYZVector vertex1 (p->production_vertex()->position().x()/10.,
-//                            p->production_vertex()->position().y()/10.,
-//                            p->production_vertex()->position().z()/10.);
+//   math::XYZVector vertex1 (p->production_vertex()->position().x(),
+//                            p->production_vertex()->position().y(),
+//                            p->production_vertex()->position().z());
                              
   math::XYZTLorentzVector momentum1(p->momentum().px(),
                                     p->momentum().py(),

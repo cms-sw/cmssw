@@ -77,8 +77,8 @@ class DisplayManager {
   std::multimap<int , std::pair <int,int> >   blockIdentsMap_;
   
   //------------- graphic attributes ------------------------------------
-  std::vector<int>      trackAttributes_;
-  std::vector<int>      clusterAttributes_;
+  std::vector<float>      trackAttributes_;
+  std::vector<float>      clusterAttributes_;
   
   
   TAttMarker *clusPattern_;
