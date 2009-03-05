@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/10/11 13:13:58 $
- *  $Revision: 1.29 $
+ *  $Date: 2009/03/05 13:31:52 $
+ *  $Revision: 1.30 $
  *
  *  \author Martin Grunewald
  *
@@ -370,30 +370,28 @@ void TriggerSummaryProducerAOD::endJob() {
   using namespace edm;
   using namespace trigger;
 
-/* The following should be on LogInfo or LogDebug
-  cout << "TriggerSummaryProducerAOD::endJob - accumulated tags:" << endl;
+  LogInfo("") << "TriggerSummaryProducerAOD::endJob - accumulated tags:" << endl;
 
   const size_type nc(collectionTagsGlobal_.size());
   const size_type nf(filterTagsGlobal_.size());
-  cout << " Overall number of Collections/Filters: "
-       << nc << "/" << nf << endl;
+  LogVerbatim("") << " Overall number of Collections/Filters: "
+		  << nc << "/" << nf << endl;
 
-  cout << " The collections:" << endl;
+  LogVerbatim("") << " The collections:" << endl;
   const InputTagSet::const_iterator cb(collectionTagsGlobal_.begin());
   const InputTagSet::const_iterator ce(collectionTagsGlobal_.end());
   for (InputTagSet::const_iterator ci=cb; ci!=ce; ++ci) {
-    cout << "  " << distance(cb,ci) << " " << ci->encode() << endl;
+    LogVerbatim("") << "  " << distance(cb,ci) << " " << ci->encode() << endl;
   }
 
-  cout << " The filters:" << endl;
+  LogVerbatim("") << " The filters:" << endl;
   const InputTagSet::const_iterator fb(filterTagsGlobal_.begin());
   const InputTagSet::const_iterator fe(filterTagsGlobal_.end());
   for (InputTagSet::const_iterator fi=fb; fi!=fe; ++fi) {
-    cout << "  " << distance(fb,fi) << " " << fi->encode() << endl;
+    LogVerbatim("") << "  " << distance(fb,fi) << " " << fi->encode() << endl;
   }
 
-  cout << "TriggerSummaryProducerAOD::endJob." << endl;
-*/
+  LogVerbatim("") << "TriggerSummaryProducerAOD::endJob." << endl;
 
   return;
 
