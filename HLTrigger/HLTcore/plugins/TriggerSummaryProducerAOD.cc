@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/03/05 13:31:52 $
- *  $Revision: 1.30 $
+ *  $Date: 2009/03/05 15:07:07 $
+ *  $Revision: 1.31 $
  *
  *  \author Martin Grunewald
  *
@@ -75,16 +75,16 @@ TriggerSummaryProducerAOD::TriggerSummaryProducerAOD(const edm::ParameterSet& ps
       if (tns_!=0) {
 	pn_=tns_->getProcessName();
       } else {
-	LogDebug("") << "HLT Error: TriggerNamesService pointer = 0!";
+	LogDebug("TriggerSummaryProducerAOD") << "HLT Error: TriggerNamesService pointer = 0!";
 	pn_="*";
       }
     } else {
-      LogDebug("") << "HLT Error: TriggerNamesService not available!";
+      LogDebug("TriggerSummaryProducerAOD") << "HLT Error: TriggerNamesService not available!";
       pn_="*";
     }
     selector_=edm::ProcessNameSelector(pn_);
   }
-  LogDebug("") << "Using process name: '" << pn_ <<"'";
+  LogDebug("TriggerSummaryProducerAOD") << "Using process name: '" << pn_ <<"'";
 
   collectionTagsGlobal_.clear();
   filterTagsGlobal_.clear();
@@ -116,7 +116,7 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
    fobs_.clear();
    iEvent.getMany(selector_,fobs_);
    const size_type nfob(fobs_.size());
-   LogTrace("") << "Number of filter  objects found: " << nfob;
+   LogTrace("TriggerSummaryProducerAOD") << "Number of filter  objects found: " << nfob;
 
    ///
    /// check whether collection tags are recorded in filterobjects; if
@@ -151,23 +151,23 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
    ///
    const size_type nc(collectionTagsEvent_.size());
-   LogTrace("") << "Number of unique collections requested " << nc;
+   LogTrace("TriggerSummaryProducerAOD") << "Number of unique collections requested " << nc;
    //   cout    << "Number of unique collections requested " << nc << endl;
    const InputTagSet::const_iterator cb(collectionTagsEvent_.begin());
    const InputTagSet::const_iterator ce(collectionTagsEvent_.end());
    for (InputTagSet::const_iterator ci=cb; ci!=ce; ++ci) {
-     LogTrace("") << distance(cb,ci) << " " << ci->encode();
+     LogTrace("TriggerSummaryProducerAOD") << distance(cb,ci) << " " << ci->encode();
      //   cout    << distance(cb,ci) << " " << ci->encode() << endl;
    }
 
    ///
    const size_type nf(filterTagsEvent_.size());
-   LogTrace("") << "Number of unique filters requested " << nf;
+   LogTrace("TriggerSummaryProducerAOD") << "Number of unique filters requested " << nf;
    //   cout    << "Number of unique filters requested " << nf << endl;
    const InputTagSet::const_iterator fb(filterTagsEvent_.begin());
    const InputTagSet::const_iterator fe(filterTagsEvent_.end());
    for (InputTagSet::const_iterator fi=fb; fi!=fe; ++fi) {
-     LogTrace("") << distance(fb,fi) << " " << fi->encode();
+     LogTrace("TriggerSummaryProducerAOD") << distance(fb,fi) << " " << fi->encode();
      //   cout    << distance(fb,fi) << " " << fi->encode() << endl;
    }
 
@@ -195,9 +195,9 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
    fillTriggerObjects<           L1EtMissParticleCollection>(iEvent);
    ///
    const size_type nk(tags_.size());
-   LogDebug("") << "Number of collections found: " << nk;
+   LogDebug("TriggerSummaryProducerAOD") << "Number of collections found: " << nk;
    const size_type no(toc_.size());
-   LogDebug("") << "Number of physics objects found: " << no;
+   LogDebug("TriggerSummaryProducerAOD") << "Number of physics objects found: " << no;
 
    ///
    /// construct single AOD product, reserving capacity
@@ -233,8 +233,8 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
    }
 
    OrphanHandle<TriggerEvent> ref = iEvent.put(product);
-   LogTrace("") << "Number of physics objects packed: " << ref->sizeObjects();
-   LogTrace("") << "Number of filter  objects packed: " << ref->sizeFilters();
+   LogTrace("TriggerSummaryProducerAOD") << "Number of physics objects packed: " << ref->sizeObjects();
+   LogTrace("TriggerSummaryProducerAOD") << "Number of filter  objects packed: " << ref->sizeFilters();
 
 }
 
@@ -269,7 +269,7 @@ void TriggerSummaryProducerAOD::fillTriggerObjects(const edm::Event& iEvent) {
       if (
           (label   ==tagLabel   ) &&
           (instance==tagInstance) &&
-          ((process ==tagProcess )||(tagProcess=="")||(pn_=="*"))
+          ((process ==tagProcess )||(tagProcess=="TriggerSummaryProducerAOD")||(pn_=="*"))
           ) {
 	const ProductID pid(collections[ic].provenance()->productID());
 	assert(offset_.find(pid)==offset_.end()); // else duplicate pid
@@ -370,28 +370,30 @@ void TriggerSummaryProducerAOD::endJob() {
   using namespace edm;
   using namespace trigger;
 
-  LogInfo("") << "TriggerSummaryProducerAOD::endJob - accumulated tags:" << endl;
+  LogVerbatim("TriggerSummaryProducerAOD") << endl;
+  LogVerbatim("TriggerSummaryProducerAOD") << "TriggerSummaryProducerAOD::endJob - accumulated tags:" << endl;
 
   const size_type nc(collectionTagsGlobal_.size());
   const size_type nf(filterTagsGlobal_.size());
-  LogVerbatim("") << " Overall number of Collections/Filters: "
+  LogVerbatim("TriggerSummaryProducerAOD") << " Overall number of Collections/Filters: "
 		  << nc << "/" << nf << endl;
 
-  LogVerbatim("") << " The collections:" << endl;
+  LogVerbatim("TriggerSummaryProducerAOD") << " The collections:" << endl;
   const InputTagSet::const_iterator cb(collectionTagsGlobal_.begin());
   const InputTagSet::const_iterator ce(collectionTagsGlobal_.end());
   for (InputTagSet::const_iterator ci=cb; ci!=ce; ++ci) {
-    LogVerbatim("") << "  " << distance(cb,ci) << " " << ci->encode() << endl;
+    LogVerbatim("TriggerSummaryProducerAOD") << "  " << distance(cb,ci) << " " << ci->encode() << endl;
   }
 
-  LogVerbatim("") << " The filters:" << endl;
+  LogVerbatim("TriggerSummaryProducerAOD") << " The filters:" << endl;
   const InputTagSet::const_iterator fb(filterTagsGlobal_.begin());
   const InputTagSet::const_iterator fe(filterTagsGlobal_.end());
   for (InputTagSet::const_iterator fi=fb; fi!=fe; ++fi) {
-    LogVerbatim("") << "  " << distance(fb,fi) << " " << fi->encode() << endl;
+    LogVerbatim("TriggerSummaryProducerAOD") << "  " << distance(fb,fi) << " " << fi->encode() << endl;
   }
 
-  LogVerbatim("") << "TriggerSummaryProducerAOD::endJob." << endl;
+  LogVerbatim("TriggerSummaryProducerAOD") << "TriggerSummaryProducerAOD::endJob." << endl;
+  LogVerbatim("TriggerSummaryProducerAOD") << endl;
 
   return;
 

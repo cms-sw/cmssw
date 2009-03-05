@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/12/14 08:58:56 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/05/02 12:13:28 $
+ *  $Revision: 1.7 $
  *
  *  \author Martin Grunewald
  *
@@ -32,17 +32,17 @@ TriggerSummaryProducerRAW::TriggerSummaryProducerRAW(const edm::ParameterSet& ps
       if (tns_!=0) {
 	pn_=tns_->getProcessName();
       } else {
-	LogDebug("") << "HLT Error: TriggerNamesService pointer = 0!";
+	LogDebug("TriggerSummaryProducerRaw") << "HLT Error: TriggerNamesService pointer = 0!";
 	pn_="*";
       }
     } else {
-      LogDebug("") << "HLT Error: TriggerNamesService not available!";
+      LogDebug("TriggerSummaryProducerRaw") << "HLT Error: TriggerNamesService not available!";
       pn_="*";
     }
     selector_=edm::ProcessNameSelector(pn_);
   }
 
-  LogDebug("") << "Using process name: '" << pn_ <<"'";
+  LogDebug("TriggerSummaryProducerRaw") << "Using process name: '" << pn_ <<"'";
   produces<trigger::TriggerEventWithRefs>();
 
 }
@@ -70,7 +70,7 @@ TriggerSummaryProducerRAW::produce(edm::Event& iEvent, const edm::EventSetup& iS
    // get all filter objects created in requested process
    iEvent.getMany(selector_,fobs_);
    const size_type nfob(fobs_.size());
-   LogDebug("") << "Number of filter objects found: " << nfob;
+   LogDebug("TriggerSummaryProducerRaw") << "Number of filter objects found: " << nfob;
 
    // construct single RAW product
    auto_ptr<TriggerEventWithRefs> product(new TriggerEventWithRefs(pn_,nfob));
@@ -79,13 +79,13 @@ TriggerSummaryProducerRAW::produce(edm::Event& iEvent, const edm::EventSetup& iS
      const string& instance (fobs_[ifob].provenance()->productInstanceName());
      const string& process  (fobs_[ifob].provenance()->processName());
      const InputTag tag(InputTag(label,instance,process));
-     LogTrace("") << ifob << " " << tag;
+     LogTrace("TriggerSummaryProducerRaw") << ifob << " " << tag;
      product->addFilterObject(tag,*fobs_[ifob]);
    }
 
    // place product in Event
    OrphanHandle<TriggerEventWithRefs> ref = iEvent.put(product);
-   LogTrace("") << "Number of filter objects packed: " << ref->size();
+   LogTrace("TriggerSummaryProducerRaw") << "Number of filter objects packed: " << ref->size();
 
    return;
 }
