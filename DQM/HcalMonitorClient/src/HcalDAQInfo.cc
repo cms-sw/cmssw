@@ -41,7 +41,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //
-// class decleration
+// class declaration
 //
 
 class HcalDAQInfo : public edm::EDAnalyzer {
@@ -61,7 +61,7 @@ class HcalDAQInfo : public edm::EDAnalyzer {
    edm::ParameterSet conf_;
    DQMStore * dbe;
    edm::Service<TFileService> fs_;
-
+   int debug_;
 };
 
 //
@@ -79,12 +79,13 @@ class HcalDAQInfo : public edm::EDAnalyzer {
 HcalDAQInfo::HcalDAQInfo(const edm::ParameterSet& iConfig):conf_(iConfig)
 {
   // now do what ever initialization is needed
+  debug_=iConfig.getUntrackedParameter<int>("debug",0);
 }
 
 
 HcalDAQInfo::~HcalDAQInfo()
 { 
-   // do anything here that needs to be done at desctruction time
+   // do anything here that needs to be done at destruction time
    // (e.g. close files, deallocate resources etc.)
 }
 
@@ -98,16 +99,6 @@ void
 HcalDAQInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
-   
-#ifdef THIS_IS_AN_EVENT_EXAMPLE
-  Handle<ExampleData> pIn;
-  iEvent.getByLabel("example",pIn);
-#endif
-   
-#ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
-  ESHandle<SetupData> pSetup;
-  iSetup.get<SetupRecord>().get(pSetup);
-#endif
 
 }
 
@@ -117,33 +108,33 @@ HcalDAQInfo::beginJob(const edm::EventSetup&)
 {
   dbe = 0;
   dbe = edm::Service<DQMStore>().operator->();
-  //std::cout<<"beginJob"<< std::endl;
+  if (debug_>0) std::cout<<"<HcalDAQInfo::beginJob>"<< std::endl;
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 HcalDAQInfo::endJob() 
 {
-  //std::cout << ">>> endJob " << std::endl;
+  if (debug_>0) std::cout << "<HcalDAQInfo::endJob> " << std::endl;
 }
 
 // ------------ method called just before starting a new run  ------------
 void 
 HcalDAQInfo::beginRun(const edm::Run& run, const edm::EventSetup& c)
 {
-  //std::cout<<"beginRun"<<std::endl;
+  if (debug_>0) std::cout<<"<HcalDAQInfo::beginRun>"<<std::endl;
 }
 
 // ------------ method called right after a run ends ------------
 void 
 HcalDAQInfo::endRun(const edm::Run& run, const edm::EventSetup& c)
 {
-
+  if (debug_>0) std::cout <<"<HcalDAQInfo::endRun> "<<endl;
   dbe->setCurrentFolder("Hcal");
   std::string currDir = dbe->pwd();
-  //std::cout << "--- Current Directory " << currDir << std::endl;
+  if (debug_>1) std::cout << "--- Current Directory " << currDir << std::endl;
   std::vector<MonitorElement*> mes = dbe->getAllContents("");
-  //std::cout << "found " << mes.size() << " monitoring elements:" << std::endl;
+  if (debug_>1) std::cout << "found " << mes.size() << " monitoring elements:" << std::endl;
 
   dbe->setCurrentFolder("Hcal/EventInfo/DAQContents/");
   MonitorElement* HcalDaqFraction = dbe->bookFloat("HcalDaqFraction");
