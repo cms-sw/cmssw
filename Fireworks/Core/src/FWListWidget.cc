@@ -1,4 +1,4 @@
-// @(#)root/eve:$Id: FWListWidget.cc,v 1.3 2008/11/14 15:36:34 chrjones Exp $
+// @(#)root/eve:$Id: FWListWidget.cc,v 1.4 2009/01/23 21:35:43 amraktad Exp $
 // Authors: Matevz Tadel & Alja Mrak-Tadel: 2006, 2007
 
 /*************************************************************************
@@ -64,7 +64,7 @@
 // Handles also selected/highlighted colors and, in the future,
 // drag-n-drop.
 
-ClassImp(TEveListTreeItem);
+ClassImp(TEveListTreeItem)
 
 //______________________________________________________________________________
 void TEveListTreeItem::NotSupported(const char* func) const
@@ -111,7 +111,7 @@ void TEveListTreeItem::Toggle()
 // Composite GUI frame for parallel display of a TGListTree and TEveGedEditor.
 //
 
-ClassImp(FWListWidget);
+ClassImp(FWListWidget)
 
 //______________________________________________________________________________
 FWListWidget::FWListWidget(const TGWindow* p, Int_t width, Int_t height) :

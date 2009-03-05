@@ -24,7 +24,7 @@ enum FWCSelConstants
 //------------------------------FWColorFrame------------------------------//
 class FWColorFrame : public TGColorFrame {
 
-   RQ_OBJECT("FWColorFrame");
+   RQ_OBJECT("FWColorFrame")
 
 protected:
    Int_t fIndex;
@@ -50,7 +50,7 @@ public:
 //------------------------------FWColorRow------------------------------//
 class FWColorRow : public TGCompositeFrame {
 
-   RQ_OBJECT("FWColorRow");
+   RQ_OBJECT("FWColorRow")
 
 private:
    Int_t fRowIndex;
@@ -93,7 +93,7 @@ public:
 //------------------------------FWColorPopup------------------------------//
 class FWColorPopup : public TGCompositeFrame {
 
-   RQ_OBJECT("FWColorPopup");
+   RQ_OBJECT("FWColorPopup")
 
 private:
    void SetColors(std::vector<Pixel_t> colors);
