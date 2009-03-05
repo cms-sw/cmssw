@@ -28,7 +28,7 @@ process.source.inputCommands.append('keep *_eventAuxiliaryHistoryProducer_*_*')
 
 process.FEVT = cms.OutputModule("PoolOutputModule",
     process.FEVTEventContent,
-    dataset = cms.untracked.PSet(dataTier = cms.untracked.string('RAW+RECO')),
+    dataset = cms.untracked.PSet(dataTier = cms.untracked.string('RAW-RECO')),
     fileName = cms.untracked.string('promptRerecoCosmics.root')
 )
 
@@ -54,7 +54,7 @@ process.FEVT.outputCommands.append('keep recoCandidatesOwned_caloTowersOpt_*_*')
 process.FEVT.outputCommands.append('keep RPCDetIdRPCDigiMuonDigiCollection_muonRPCDigis_*_*')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.8 $'),
+    version = cms.untracked.string('$Revision: 1.9 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/GlobalRuns/python/rereco38T_cfg.py,v $'),
     annotation = cms.untracked.string('CRUZET Prompt Reco with DQM with Mag field at 3.8T')
 )
