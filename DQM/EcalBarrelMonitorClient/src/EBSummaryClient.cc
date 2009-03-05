@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2009/02/27 19:13:42 $
- * $Revision: 1.175 $
+ * $Date: 2009/03/05 10:40:02 $
+ * $Revision: 1.176 $
  * \author G. Della Ricca
  *
 */
@@ -1484,6 +1484,7 @@ void EBSummaryClient::analyze(void) {
 
         // turn each dark color (masked channel) to bright green
         // for laser & timing & trigger turn also yellow into bright green
+        // for pedestal online too because is not computed in calibration events
 
         //  0/3 = red/dark red
         //  1/4 = green/dark green
@@ -1491,7 +1492,7 @@ void EBSummaryClient::analyze(void) {
         //  6   = unknown
 
         if(             val_in==3 || val_in==4 || val_in==5) val_in=1;
-        if(             val_po==3 || val_po==4 || val_po==5) val_po=1;
+        if(val_po==2 || val_po==3 || val_po==4 || val_po==5) val_po=1;
         if(val_ls==2 || val_ls==3 || val_ls==4 || val_ls==5) val_ls=1;
         if(val_tm==2 || val_tm==3 || val_tm==4 || val_tm==5) val_tm=1;
         if(             val_sf==3 || val_sf==4 || val_sf==5) val_sf=1;

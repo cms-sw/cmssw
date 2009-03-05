@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2009/02/27 19:13:43 $
- * $Revision: 1.159 $
+ * $Date: 2009/03/05 10:41:44 $
+ * $Revision: 1.160 $
  * \author G. Della Ricca
  *
 */
@@ -1992,6 +1992,7 @@ void EESummaryClient::analyze(void) {
 
         // turn each dark color (masked channel) to bright green
         // for laser & timing & trigger turn also yellow into bright green
+        // for pedestal online too because is not computed in calibration events
 
         //  0/3 = red/dark red
         //  1/4 = green/dark green
@@ -1999,7 +2000,7 @@ void EESummaryClient::analyze(void) {
         //  6   = unknown
 
         if(             val_in==3 || val_in==4 || val_in==5) val_in=1;
-        if(             val_po==3 || val_po==4 || val_po==5) val_po=1;
+        if(val_po==2 || val_po==3 || val_po==4 || val_po==5) val_po=1;
         if(val_ls==2 || val_ls==3 || val_ls==4 || val_ls==5) val_ls=1;
         if(val_ld==2 || val_ld==3 || val_ld==4 || val_ld==5) val_ld=1;
         if(val_tm==2 || val_tm==3 || val_tm==4 || val_tm==5) val_tm=1;
@@ -2073,6 +2074,7 @@ void EESummaryClient::analyze(void) {
 
         // turn each dark color to bright green
         // for laser & timing & trigger turn also yellow into bright green
+        // for pedestal online too because is not computed in calibration events
 
         //  0/3 = red/dark red
         //  1/4 = green/dark green
@@ -2080,7 +2082,7 @@ void EESummaryClient::analyze(void) {
         //  6   = unknown
 
         if(             val_in==3 || val_in==4 || val_in==5) val_in=1;
-        if(             val_po==3 || val_po==4 || val_po==5) val_po=1;
+        if(val_po==2 || val_po==3 || val_po==4 || val_po==5) val_po=1;
         if(val_ls==2 || val_ls==3 || val_ls==4 || val_ls==5) val_ls=1;
         if(val_ld==2 || val_ld==3 || val_ld==4 || val_ld==5) val_ld=1;
         if(val_tm==2 || val_tm==3 || val_tm==4 || val_tm==5) val_tm=1;
