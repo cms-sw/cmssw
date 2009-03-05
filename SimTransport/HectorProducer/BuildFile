@@ -4,6 +4,7 @@
 <use name=SimGeneral/HepPDTRecord>
 <use name=hector>
 <use name=hepmc>
+<use name=clhep>
 <use name=root>
 <flags EDM_PLUGIN=1>
 <export>
