@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: SuperCluster.h,v 1.15 2008/04/28 19:46:15 meridian Exp $
+ * \version $Id: SuperCluster.h,v 1.16 2009/01/27 09:53:06 ferriff Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
@@ -46,6 +46,7 @@ namespace reco {
     double etaWidth() const { return etaWidth_; }
 
     //Assign new variables to supercluster
+    void setPreshowerEnergy( double preshowerEnergy ) { preshowerEnergy_ = preshowerEnergy; };
     void setPhiWidth( double pw ) { phiWidth_ = pw; }
     void setEtaWidth( double ew ) { etaWidth_ = ew; }
 
