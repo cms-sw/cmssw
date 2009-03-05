@@ -4,7 +4,6 @@
 #include <vector>
 #include <string>
 #include "FWCore/ParameterSet/interface/BoostPython.h"
-using namespace boost::python;
 
 namespace edm {
 void
@@ -30,11 +29,11 @@ pythonToCppException(const std::string& iType);
   {
     std::vector<T> result;
     unsigned n = PyList_Size(l.ptr());
-    object iter_obj(handle<>(PyObject_GetIter(l.ptr())));
+    boost::python::object iter_obj(boost::python::handle<>(PyObject_GetIter(l.ptr())));
     for(unsigned i = 0; i < n; ++i)
     {
-      object obj = extract<object>(iter_obj.attr("next")());
-      result.push_back(extract<T>(obj)); 
+      boost::python::object obj = boost::python::extract<boost::python::object>(iter_obj.attr("next")());
+      result.push_back(boost::python::extract<T>(obj)); 
     }
     return result;
   }
