@@ -161,7 +161,7 @@ void ClusterShape::getExtra
   int dy = y[1] - y[0];
   if(odir != 0) dy *= odir;
 
-  data.size.first  = (unsigned short int)dx;
-  data.size.second = (short int)dy;
+  data.size.first  = dx;
+  data.size.second = dy;
 }
 

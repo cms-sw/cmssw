@@ -133,12 +133,12 @@ ClusterShapeHitFilter::ClusterShapeHitFilter
 
   // Hardwired numbers, since no access to Lorentz
   theAngle[GeomDetEnumerators::PixelBarrel] = 0.106;
-  theAngle[GeomDetEnumerators::PixelEndcap] = 0.0912;
+  theAngle[GeomDetEnumerators::PixelEndcap] = 0.106;
 
-  theAngle[GeomDetEnumerators::TIB] = 0.032;
-  theAngle[GeomDetEnumerators::TOB] = 0.032;
-  theAngle[GeomDetEnumerators::TID] = 0.032;
-  theAngle[GeomDetEnumerators::TEC] = 0.032;
+  theAngle[GeomDetEnumerators::TIB] = 0.0288828;
+  theAngle[GeomDetEnumerators::TOB] = 0.0310855;
+  theAngle[GeomDetEnumerators::TID] = 0.0288828;
+  theAngle[GeomDetEnumerators::TEC] = 0.030;
 
   // Load pixel limits
   loadPixelLimits();
@@ -328,38 +328,44 @@ bool ClusterShapeHitFilter::getSizes
   (const SiPixelRecHit & recHit, const LocalVector & ldir,
    int & part, pair<int,int> & meas, pair<float,float> & pred)
 {
-  ClusterData data;
-  ClusterShape theClusterShape;
-
+  // Get detector
   DetId id = recHit.geographicalId();
   const PixelGeomDetUnit* pixelDet =
     dynamic_cast<const PixelGeomDetUnit*> (theTracker->idToDet(id));
 
+  // Get shape information
+  ClusterData data;
+  ClusterShape theClusterShape;
   theClusterShape.getExtra(*pixelDet, recHit, data);
+  bool usable = (data.isStraight && data.isComplete);
+ 
+  // Usable?
+  if(usable)
+  {
+    part = (pixelDet->type().isBarrel() ? 0 : 1);
 
-  part = (pixelDet->type().isBarrel() ? 0 : 1);
+    meas = data.size;
 
-  meas = data.size;
+    // Predicted size
+    pred.first  = ldir.x() / ldir.z();
+    pred.second = ldir.y() / ldir.z();
 
-  int orient = (isNormalOriented(pixelDet) ? 1 : -1);
+    if(meas.second < 0)
+    { meas.second = - meas.second; pred.second = - pred.second; }
 
-  pred.first  = ldir.x() / fabs(ldir.z()) * orient;
-  pred.second = ldir.y() / fabs(ldir.z()) * orient;
+    // Take out drift 
+    pair<float,float> drift = getDrift(pixelDet);
+    pred.first  += drift.first;
+    pred.second += drift.second;
 
-  if(meas.second < 0)
-  { meas.second = abs(meas.second); pred.second = - pred.second; }
-
-  // Take out drift 
-  pair<float,float> drift = getDrift(pixelDet);
-  pred.first  += drift.first;
-  pred.second += drift.second;
-
-  pair<float,float> cotangent = getCotangent(pixelDet);
-  pred.first  *= cotangent.first;
-  pred.second *= cotangent.second;
+    // Apply cotangent
+    pair<float,float> cotangent = getCotangent(pixelDet);
+    pred.first  *= cotangent.first;
+    pred.second *= cotangent.second;
+  }
 
   // Usable?
-  return (data.isStraight && data.isComplete);
+  return usable;
 }
 
 /*****************************************************************************/
@@ -372,20 +378,29 @@ bool ClusterShapeHitFilter::getSizes
   const StripGeomDetUnit* stripDet =
     dynamic_cast<const StripGeomDetUnit*> (theTracker->idToDet(id));
 
-  // Predicted width
-  int orient = (isNormalOriented(stripDet) ? 1 : -1);
-
-  pred = ldir.x() / fabs(ldir.z()) + orient * getDrift(stripDet);
-  pred *= getCotangent(stripDet);
-
   // Measured width
-  meas  = recHit.cluster()->amplitudes().size();
+  meas   = recHit.cluster()->amplitudes().size();
 
   // Usable?
   int fs = recHit.cluster()->firstStrip();
   int ns = stripDet->specificTopology().nstrips();
+  bool usable = (fs > 1 && fs + meas - 1 < ns);
 
-  return (fs > 1 && fs + meas - 1 < ns);
+  // Usable?
+  if(usable)
+  {
+    // Predicted width
+    pred = ldir.x() / ldir.z();
+  
+    // Take out drift
+    float drift = getDrift(stripDet);
+    pred += drift;
+  
+    // Apply cotangent
+    pred *= getCotangent(stripDet);
+  }
+
+  return usable;
 }   
 
 /*****************************************************************************/

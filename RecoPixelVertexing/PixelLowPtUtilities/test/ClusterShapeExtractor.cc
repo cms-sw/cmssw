@@ -50,19 +50,27 @@ class ClusterShapeExtractor : public edm::EDAnalyzer
    virtual void endJob();
 
  private:
-   bool isSuitable(const PSimHit* simHit);
+   bool isSuitable(const PSimHit & simHit);
 
    // Sim
    void processSim(const SiPixelRecHit &   recHit,
-                   const PSimHit * simHits, vector<TH2F *> & hspc);
+                   const PSimHit & simHit, vector<TH2F *> & hspc);
    void processSim(const SiStripRecHit2D & recHit,
-                   vector<PSimHit> simHits, vector<TH1F *> & hssc);
+                   const PSimHit & simHit, vector<TH1F *> & hssc);
 
    // Rec
    void processRec(const SiPixelRecHit &   recHit,
                    LocalVector ldir, vector<TH2F *> & hrpc);
    void processRec(const SiStripRecHit2D & recHit,
                    LocalVector ldir, vector<TH1F *> & hrsc);
+
+   bool checkSimHits
+    (const TrackingRecHit & recHit, PSimHit & simHit,
+     pair<unsigned int, float> & key);
+
+   void processPixelRecHits(const SiPixelRecHitCollection * recHits);
+   void processStripRecHits(const SiStripRecHit2DCollection * recHits);
+   void processMatchedRecHits(const SiStripMatchedRecHit2DCollection * recHits);
 
    void analyzeSimHits  (const edm::Event& ev, const edm::EventSetup& es);
    void analyzeRecTracks(const edm::Event& ev, const edm::EventSetup& es);
@@ -168,24 +176,24 @@ ClusterShapeExtractor::~ClusterShapeExtractor()
 }
 
 /*****************************************************************************/
-bool ClusterShapeExtractor::isSuitable(const PSimHit* simHit)
+bool ClusterShapeExtractor::isSuitable(const PSimHit & simHit)
 {
   // Outgoing?
-  DetId id = DetId(simHit->detUnitId());
+  DetId id = DetId(simHit.detUnitId());
 
   GlobalVector gvec = theTracker->idToDetUnit(id)->position() -
                       GlobalPoint(0,0,0);
   LocalVector  lvec = theTracker->idToDetUnit(id)->toLocal(gvec);
-  LocalVector  ldir = simHit->exitPoint() - simHit->entryPoint();
+  LocalVector  ldir = simHit.exitPoint() - simHit.entryPoint();
 
   bool isOutgoing = (lvec.z()*ldir.z() > 0); 
 
   // From a relevant process? primary or decay
-  bool isRelevant = (simHit->processType() == 2 ||
-                     simHit->processType() == 4);
+  bool isRelevant = (simHit.processType() == 2 ||
+                     simHit.processType() == 4);
 
   // Fast enough? pt > 50 MeV/c
-  bool isFast = (simHit->momentumAtEntry().perp() > 0.050);
+  bool isFast = (simHit.momentumAtEntry().perp() > 0.050);
 
   return (isOutgoing && isRelevant && isFast);
 }
@@ -221,26 +229,166 @@ void ClusterShapeExtractor::processRec(const SiPixelRecHit & recHit,
 
 /*****************************************************************************/
 void ClusterShapeExtractor::processSim(const SiPixelRecHit & recHit,
-     const PSimHit * simHit, vector<TH2F *> & histo)
+     const PSimHit & simHit, vector<TH2F *> & histo)
 {
-  LocalVector ldir = simHit->exitPoint() - simHit->entryPoint();
+  LocalVector ldir = simHit.exitPoint() - simHit.entryPoint();
   processRec(recHit, ldir, histo);
 }
 
 /*****************************************************************************/
 void ClusterShapeExtractor::processSim(const SiStripRecHit2D & recHit,
-  vector<PSimHit> simHits, vector<TH1F *> & histo)
+     const PSimHit & simHit, vector<TH1F *> & histo)
 {
+  LocalVector ldir = simHit.exitPoint() - simHit.entryPoint();
+  processRec(recHit, ldir, histo);
+}
+
+/*****************************************************************************/
+bool ClusterShapeExtractor::checkSimHits
+  (const TrackingRecHit & recHit, PSimHit & simHit,
+   pair<unsigned int, float> & key)
+{
+  vector<PSimHit> simHits = theHitAssociator->associateHit(recHit);
+
   if(simHits.size() == 1)
   {
-    const PSimHit* simHit = &(simHits[0]);
+    simHit = simHits[0];
 
     if(isSuitable(simHit))
     {
-      LocalVector ldir = simHit->exitPoint() - simHit->entryPoint();
-      processRec(recHit, ldir, histo);
+      key = pair<unsigned int, float>(simHit.trackId(),
+                                      simHit.timeOfFlight());
+      return true;
+    }
+  } 
+
+  return false;
+}
+
+/*****************************************************************************/
+void ClusterShapeExtractor::processPixelRecHits
+  (const SiPixelRecHitCollection * recHits)
+{
+  map<pair<unsigned int, float>, const SiPixelRecHit *> simHitMap;
+
+  PSimHit simHit;
+  pair<unsigned int, float> key;
+
+  for(  SiPixelRecHitCollection::DataContainer::const_iterator
+        recHit = recHits->begin(); recHit!= recHits->end(); recHit++)
+  if(checkSimHits(*recHit, simHit, key))
+  {
+    // Fill map
+    if(simHitMap.count(key) == 0)
+       simHitMap[key] = &(*recHit);
+    else
+      if(        recHit->cluster()->size() >
+         simHitMap[key]->cluster()->size())
+         simHitMap[key] = &(*recHit);
+  }
+
+  for(  SiPixelRecHitCollection::DataContainer::const_iterator
+        recHit = recHits->begin(); recHit!= recHits->end(); recHit++)
+  if(checkSimHits(*recHit, simHit, key))
+  {
+    // Check whether the present rechit is the largest
+    if(&(*recHit) == simHitMap[key])
+      processSim(*recHit, simHit, hspc);
+  }
+}
+
+/*****************************************************************************/
+void ClusterShapeExtractor::processStripRecHits
+  (const SiStripRecHit2DCollection * recHits)
+{
+  map<pair<unsigned int, float>, const SiStripRecHit2D *> simHitMap;
+
+  PSimHit simHit;
+  pair<unsigned int, float> key;
+
+  for(  SiStripRecHit2DCollection::DataContainer::const_iterator
+        recHit = recHits->begin(); recHit!= recHits->end(); recHit++)
+  if(checkSimHits(*recHit, simHit, key))
+  {
+    // Fill map
+    if(simHitMap.count(key) == 0)
+       simHitMap[key] = &(*recHit);
+    else
+      if(        recHit->cluster()->amplitudes().size() >
+         simHitMap[key]->cluster()->amplitudes().size())
+         simHitMap[key] = &(*recHit);
+  }
+
+  for(  SiStripRecHit2DCollection::DataContainer::const_iterator
+        recHit = recHits->begin(); recHit!= recHits->end(); recHit++)
+  if(checkSimHits(*recHit, simHit, key))
+  {
+    // Check whether the present rechit is the largest
+    if(&(*recHit) == simHitMap[key])
+      processSim(*recHit, simHit, hssc);
+  }
+}
+
+/*****************************************************************************/
+void ClusterShapeExtractor::processMatchedRecHits
+  (const SiStripMatchedRecHit2DCollection * recHits)
+{
+  map<pair<unsigned int, float>, const SiStripRecHit2D *> simHitMap;
+
+  PSimHit simHit;
+  pair<unsigned int, float> key;
+
+  const SiStripRecHit2D * recHit;
+
+  for(  SiStripMatchedRecHit2DCollection::DataContainer::const_iterator
+        matched = recHits->begin(); matched!= recHits->end(); matched++)
+  {
+    recHit = matched->monoHit();
+    if(checkSimHits(*recHit, simHit, key))
+    {
+      // Fill map
+      if(simHitMap.count(key) == 0)
+         simHitMap[key] = &(*recHit);
+      else
+        if(        recHit->cluster()->amplitudes().size() >
+           simHitMap[key]->cluster()->amplitudes().size()) 
+           simHitMap[key] = &(*recHit);
+    }
+
+    recHit = matched->stereoHit();
+    if(checkSimHits(*recHit, simHit, key))
+    {
+      // Fill map
+      if(simHitMap.count(key) == 0)
+         simHitMap[key] = &(*recHit);
+      else
+        if(        recHit->cluster()->amplitudes().size() >
+           simHitMap[key]->cluster()->amplitudes().size())
+           simHitMap[key] = &(*recHit);
+    }
+
+  }
+  
+  for(  SiStripMatchedRecHit2DCollection::DataContainer::const_iterator 
+        matched = recHits->begin(); matched!= recHits->end(); matched++)
+  {
+    recHit = matched->monoHit();
+    if(checkSimHits(*recHit, simHit, key))
+    {
+      // Check whether the present rechit is the largest
+      if(&(*recHit) == simHitMap[key]) 
+        processSim(*recHit, simHit, hssc);
+    }
+
+    recHit = matched->stereoHit();
+    if(checkSimHits(*recHit, simHit, key))
+    {
+      // Check whether the present rechit is the largest
+      if(&(*recHit) == simHitMap[key]) 
+        processSim(*recHit, simHit, hssc);
     }
   }
+
 }
 
 /*****************************************************************************/
@@ -253,69 +401,26 @@ void ClusterShapeExtractor::analyzeSimHits
 
   // Pixel hits
   {
-  edm::Handle<SiPixelRecHitCollection> coll;
-  ev.getByLabel("siPixelRecHits", coll);
-
-  const SiPixelRecHitCollection::DataContainer * recHits =
-        & coll.product()->data();
-
-  // Map to store the largest rechit
-  map<pair<unsigned int, float>, const SiPixelRecHit *> simHitMap;
-   
-  for(  SiPixelRecHitCollection::DataContainer::const_iterator
-        recHit = recHits->begin(); recHit!= recHits->end(); recHit++)
-  {
-    vector<PSimHit> simHits = theHitAssociator->associateHit(*recHit);
-
-    if(simHits.size() == 1)
-    {
-      const PSimHit* simHit = &(simHits[0]);
-
-      pair<unsigned int, float> key(simHit->trackId(),
-                                    simHit->timeOfFlight());
-
-      if(simHitMap.count(key) == 0)
-         simHitMap[key] = &(*recHit);
-      else
-        if(        recHit->cluster()->size() >
-           simHitMap[key]->cluster()->size())
-           simHitMap[key] = &(*recHit);
-    }   
-  }
-
-  for(  SiPixelRecHitCollection::DataContainer::const_iterator
-        recHit = recHits->begin(); recHit!= recHits->end(); recHit++)
-  {
-    vector<PSimHit> simHits = theHitAssociator->associateHit(*recHit);
-
-    if(simHits.size() == 1)
-    {
-      const PSimHit* simHit = &(simHits[0]);
-
-      pair<unsigned int, float> key(simHit->trackId(),
-                                    simHit->timeOfFlight());
-
-      if(&(*recHit) == simHitMap[key])
-        processSim(*recHit, simHit, hspc);
-    }
-  }
+    edm::Handle<SiPixelRecHitCollection> coll;
+    ev.getByLabel("siPixelRecHits", coll);
+  
+    const SiPixelRecHitCollection::DataContainer * recHits =
+          & coll.product()->data();
+    processPixelRecHits(recHits);
   }
 
   // Strip hits
   { // rphi and stereo
-  vector<edm::Handle<SiStripRecHit2DCollection> > colls;
-  ev.getManyByType(colls);
-
-  for(vector<edm::Handle<SiStripRecHit2DCollection> >::const_iterator
-        coll = colls.begin(); coll!= colls.end(); coll++)
-  {
-    const SiStripRecHit2DCollection::DataContainer * recHits =
-          & (*coll).product()->data();
-
-    for(  SiStripRecHit2DCollection::DataContainer::const_iterator
-          recHit = recHits->begin(); recHit!= recHits->end(); recHit++)
-      processSim(*recHit, theHitAssociator->associateHit(*recHit), hssc);
-  }
+    vector<edm::Handle<SiStripRecHit2DCollection> > colls;
+    ev.getManyByType(colls);
+  
+    for(vector<edm::Handle<SiStripRecHit2DCollection> >::const_iterator
+          coll = colls.begin(); coll!= colls.end(); coll++)
+    {
+      const SiStripRecHit2DCollection::DataContainer * recHits =
+            & (*coll).product()->data();
+      processStripRecHits(recHits);
+    }
   }
 
   // Matched strip hits
@@ -328,15 +433,7 @@ void ClusterShapeExtractor::analyzeSimHits
   {
     const SiStripMatchedRecHit2DCollection::DataContainer * recHits =
           & (*coll).product()->data();
-
-    for(  SiStripMatchedRecHit2DCollection::DataContainer::const_iterator
-          recHit = recHits->begin(); recHit!= recHits->end(); recHit++)
-    {
-      processSim(*(recHit->monoHit()),
-                 theHitAssociator->associateHit(*(recHit->monoHit())),   hssc);
-      processSim(*(recHit->stereoHit()),
-                 theHitAssociator->associateHit(*(recHit->stereoHit())), hssc);
-    }
+    processMatchedRecHits(recHits);
   }
   }
 

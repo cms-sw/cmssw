@@ -7,7 +7,7 @@ class ClusterData
 {
  public:
    bool isStraight,isComplete; 
-   std::pair<unsigned short int,short int> size;
+   std::pair<int,int> size;
 };
 
 #endif
