@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2009/02/27 13:54:06 $
- * $Revision: 1.174 $
+ * $Date: 2009/02/27 19:13:42 $
+ * $Revision: 1.175 $
  * \author G. Della Ricca
  *
 */
@@ -74,9 +74,19 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps) {
   meLaserL1AmplOverPN_    = 0;
   meLaserL1Timing_        = 0;
   mePedestal_             = 0;
+  mePedestalG01_          = 0;
+  mePedestalG06_          = 0;
+  mePedestalG12_          = 0;
   mePedestalPN_           = 0;
+  mePedestalPNG01_        = 0;
+  mePedestalPNG16_        = 0;
   meTestPulse_            = 0;
+  meTestPulseG01_         = 0;
+  meTestPulseG06_         = 0;
+  meTestPulseG12_         = 0;
   meTestPulsePN_          = 0;
+  meTestPulsePNG01_       = 0;
+  meTestPulsePNG16_       = 0;
   meTestPulseAmplG01_     = 0;
   meTestPulseAmplG06_     = 0;
   meTestPulseAmplG12_     = 0;
@@ -307,6 +317,24 @@ void EBSummaryClient::setup(void) {
   mePedestal_->setAxisTitle("jphi", 1);
   mePedestal_->setAxisTitle("jeta", 2);
 
+  if( mePedestalG01_ ) dqmStore_->removeElement( mePedestalG01_->getName() );
+  sprintf(histo, "EBPT pedestal quality G01 summary");
+  mePedestalG01_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  mePedestalG01_->setAxisTitle("jphi", 1);
+  mePedestalG01_->setAxisTitle("jeta", 2);
+
+  if( mePedestalG06_ ) dqmStore_->removeElement( mePedestalG06_->getName() );
+  sprintf(histo, "EBPT pedestal quality G06 summary");
+  mePedestalG06_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  mePedestalG06_->setAxisTitle("jphi", 1);
+  mePedestalG06_->setAxisTitle("jeta", 2);
+
+  if( mePedestalG12_ ) dqmStore_->removeElement( mePedestalG12_->getName() );
+  sprintf(histo, "EBPT pedestal quality G12 summary");
+  mePedestalG12_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  mePedestalG12_->setAxisTitle("jphi", 1);
+  mePedestalG12_->setAxisTitle("jeta", 2);
+
   if( mePedestalErr_ ) dqmStore_->removeElement( mePedestalErr_->getName() );
   sprintf(histo, "EBPT pedestal quality errors summary");
   mePedestalErr_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
@@ -319,6 +347,18 @@ void EBSummaryClient::setup(void) {
   mePedestalPN_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
   mePedestalPN_->setAxisTitle("jphi", 1);
   mePedestalPN_->setAxisTitle("jeta", 2);
+
+  if( mePedestalPNG01_ ) dqmStore_->removeElement( mePedestalPNG01_->getName() );
+  sprintf(histo, "EBPT PN pedestal quality G01 summary");
+  mePedestalPNG01_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
+  mePedestalPNG01_->setAxisTitle("jphi", 1);
+  mePedestalPNG01_->setAxisTitle("jeta", 2);
+
+  if( mePedestalPNG16_ ) dqmStore_->removeElement( mePedestalPNG16_->getName() );
+  sprintf(histo, "EBPT PN pedestal quality G16 summary");
+  mePedestalPNG16_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
+  mePedestalPNG16_->setAxisTitle("jphi", 1);
+  mePedestalPNG16_->setAxisTitle("jeta", 2);
 
   if( mePedestalPNErr_ ) dqmStore_->removeElement( mePedestalPNErr_->getName() );
   sprintf(histo, "EBPT PN pedestal quality errors summary");
@@ -333,6 +373,24 @@ void EBSummaryClient::setup(void) {
   meTestPulse_->setAxisTitle("jphi", 1);
   meTestPulse_->setAxisTitle("jeta", 2);
 
+  if( meTestPulseG01_ ) dqmStore_->removeElement( meTestPulseG01_->getName() );
+  sprintf(histo, "EBTPT test pulse quality G01 summary");
+  meTestPulseG01_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  meTestPulseG01_->setAxisTitle("jphi", 1);
+  meTestPulseG01_->setAxisTitle("jeta", 2);
+
+  if( meTestPulseG06_ ) dqmStore_->removeElement( meTestPulseG06_->getName() );
+  sprintf(histo, "EBTPT test pulse quality G06 summary");
+  meTestPulseG06_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  meTestPulseG06_->setAxisTitle("jphi", 1);
+  meTestPulseG06_->setAxisTitle("jeta", 2);
+
+  if( meTestPulseG12_ ) dqmStore_->removeElement( meTestPulseG12_->getName() );
+  sprintf(histo, "EBTPT test pulse quality G12 summary");
+  meTestPulseG12_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  meTestPulseG12_->setAxisTitle("jphi", 1);
+  meTestPulseG12_->setAxisTitle("jeta", 2);
+
   if( meTestPulseErr_ ) dqmStore_->removeElement( meTestPulseErr_->getName() );
   sprintf(histo, "EBTPT test pulse quality errors summary");
   meTestPulseErr_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
@@ -345,6 +403,18 @@ void EBSummaryClient::setup(void) {
   meTestPulsePN_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
   meTestPulsePN_->setAxisTitle("jphi", 1);
   meTestPulsePN_->setAxisTitle("jeta", 2);
+
+  if( meTestPulsePNG01_ ) dqmStore_->removeElement( meTestPulsePNG01_->getName() );
+  sprintf(histo, "EBTPT PN test pulse quality G01 summary");
+  meTestPulsePNG01_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+  meTestPulsePNG01_->setAxisTitle("jphi", 1);
+  meTestPulsePNG01_->setAxisTitle("jeta", 2);
+
+  if( meTestPulsePNG16_ ) dqmStore_->removeElement( meTestPulsePNG16_->getName() );
+  sprintf(histo, "EBTPT PN test pulse quality G16 summary");
+  meTestPulsePNG16_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+  meTestPulsePNG16_->setAxisTitle("jphi", 1);
+  meTestPulsePNG16_->setAxisTitle("jeta", 2);
 
   if( meTestPulsePNErr_ ) dqmStore_->removeElement( meTestPulsePNErr_->getName() );
   sprintf(histo, "EBTPT PN test pulse quality errors summary");
@@ -482,6 +552,15 @@ void EBSummaryClient::cleanup(void) {
   if ( mePedestal_ ) dqmStore_->removeElement( mePedestal_->getName() );
   mePedestal_ = 0;
 
+  if ( mePedestalG01_ ) dqmStore_->removeElement( mePedestalG01_->getName() );
+  mePedestalG01_ = 0;
+
+  if ( mePedestalG06_ ) dqmStore_->removeElement( mePedestalG06_->getName() );
+  mePedestalG06_ = 0;
+
+  if ( mePedestalG12_ ) dqmStore_->removeElement( mePedestalG12_->getName() );
+  mePedestalG12_ = 0;
+
   if ( mePedestalErr_ ) dqmStore_->removeElement( mePedestalErr_->getName() );
   mePedestalErr_ = 0;
 
@@ -493,6 +572,18 @@ void EBSummaryClient::cleanup(void) {
 
   if ( meTestPulse_ ) dqmStore_->removeElement( meTestPulse_->getName() );
   meTestPulse_ = 0;
+
+  if ( meTestPulseG01_ ) dqmStore_->removeElement( meTestPulseG01_->getName() );
+  meTestPulseG01_ = 0;
+
+  if ( meTestPulseG06_ ) dqmStore_->removeElement( meTestPulseG06_->getName() );
+  meTestPulseG06_ = 0;
+
+  if ( meTestPulseG12_ ) dqmStore_->removeElement( meTestPulseG12_->getName() );
+  meTestPulseG12_ = 0;
+
+  if ( meTestPulseG01_ ) dqmStore_->removeElement( meTestPulseG01_->getName() );
+  meTestPulseG01_ = 0;
 
   if ( meTestPulseErr_ ) dqmStore_->removeElement( meTestPulseErr_->getName() );
   meTestPulseErr_ = 0;
@@ -564,7 +655,13 @@ void EBSummaryClient::analyze(void) {
 
       meLaserL1_->setBinContent( ipx, iex, 6. );
       mePedestal_->setBinContent( ipx, iex, 6. );
+      mePedestalG01_->setBinContent( ipx, iex, 6. );
+      mePedestalG06_->setBinContent( ipx, iex, 6. );
+      mePedestalG12_->setBinContent( ipx, iex, 6. );
       meTestPulse_->setBinContent( ipx, iex, 6. );
+      meTestPulseG01_->setBinContent( ipx, iex, 6. );
+      meTestPulseG06_->setBinContent( ipx, iex, 6. );
+      meTestPulseG12_->setBinContent( ipx, iex, 6. );
 
       meCosmic_->setBinContent( ipx, iex, 0. );
       meTiming_->setBinContent( ipx, iex, 6. );
@@ -579,7 +676,11 @@ void EBSummaryClient::analyze(void) {
 
       meLaserL1PN_->setBinContent( ipx, iex, 6. );
       mePedestalPN_->setBinContent( ipx, iex, 6. );
+      mePedestalPNG01_->setBinContent( ipx, iex, 6. );
+      mePedestalPNG16_->setBinContent( ipx, iex, 6. );
       meTestPulsePN_->setBinContent( ipx, iex, 6. );
+      meTestPulsePNG01_->setBinContent( ipx, iex, 6. );
+      meTestPulsePNG16_->setBinContent( ipx, iex, 6. );
 
     }
   }
@@ -611,12 +712,22 @@ void EBSummaryClient::analyze(void) {
   meLaserL1PN_->setEntries( 0 );
   meLaserL1PNErr_->Reset();
   mePedestal_->setEntries( 0 );
+  mePedestalG01_->setEntries( 0 );
+  mePedestalG06_->setEntries( 0 );
+  mePedestalG12_->setEntries( 0 );
   mePedestalErr_->Reset();
   mePedestalPN_->setEntries( 0 );
+  mePedestalPNG01_->setEntries( 0 );
+  mePedestalPNG16_->setEntries( 0 );
   mePedestalPNErr_->Reset();
   meTestPulse_->setEntries( 0 );
+  meTestPulseG01_->setEntries( 0 );
+  meTestPulseG06_->setEntries( 0 );
+  meTestPulseG12_->setEntries( 0 );
   meTestPulseErr_->Reset();
   meTestPulsePN_->setEntries( 0 );
+  meTestPulsePNG01_->setEntries( 0 );
+  meTestPulsePNG16_->setEntries( 0 );
   meTestPulsePNErr_->Reset();
   meTestPulseAmplG01_->Reset();
   meTestPulseAmplG06_->Reset();
@@ -851,6 +962,10 @@ void EBSummaryClient::analyze(void) {
                 ipx = 1+(20-ip)+20*(ism-19);
               }
 
+              if ( me_01->getEntries() != 0 ) mePedestalG01_->setBinContent( ipx, iex, val_01 );
+              if ( me_02->getEntries() != 0 ) mePedestalG06_->setBinContent( ipx, iex, val_02 );
+              if ( me_03->getEntries() != 0 ) mePedestalG12_->setBinContent( ipx, iex, val_03 );
+
               if ( me_01->getEntries() != 0 && me_02->getEntries() != 0 && me_03->getEntries() != 0 ) {
                 mePedestal_->setBinContent( ipx, iex, xval );
                 if ( xval == 0 ) mePedestalErr_->Fill( ism );
@@ -905,6 +1020,10 @@ void EBSummaryClient::analyze(void) {
                 iex = 85+ie;
                 ipx = 1+(20-ip)+20*(ism-19);
               }
+
+              if ( me_01->getEntries() != 0 ) meTestPulseG01_->setBinContent( ipx, iex, val_01 );
+              if ( me_02->getEntries() != 0 ) meTestPulseG06_->setBinContent( ipx, iex, val_02 );
+              if ( me_03->getEntries() != 0 ) meTestPulseG12_->setBinContent( ipx, iex, val_03 );
 
               if ( me_01->getEntries() != 0 && me_02->getEntries() != 0 && me_03->getEntries() != 0 ) {
                 meTestPulse_->setBinContent( ipx, iex, xval );
@@ -1120,6 +1239,9 @@ void EBSummaryClient::analyze(void) {
                 ipx = j+5*(ism-19);
               }
 
+              if ( me_04->getEntries() != 0 ) mePedestalPNG01_->setBinContent( ipx, iex, val_04 );
+              if ( me_05->getEntries() != 0 ) mePedestalPNG16_->setBinContent( ipx, iex, val_05 );
+
               if ( me_04->getEntries() != 0 && me_05->getEntries() != 0 ) {
                 mePedestalPN_->setBinContent( ipx, iex, xval );
                 if( xval == 0 ) mePedestalPNErr_->Fill( ism );
@@ -1171,6 +1293,9 @@ void EBSummaryClient::analyze(void) {
                 iex = i+10;
                 ipx = j+5*(ism-19);
               }
+
+              if ( me_04->getEntries() != 0 ) meTestPulsePNG01_->setBinContent( ipx, iex, val_04 );
+              if ( me_05->getEntries() != 0 ) meTestPulsePNG16_->setBinContent( ipx, iex, val_05 );
 
               if ( me_04->getEntries() != 0 && me_05->getEntries() != 0 ) {
                 meTestPulsePN_->setBinContent( ipx, iex, xval );

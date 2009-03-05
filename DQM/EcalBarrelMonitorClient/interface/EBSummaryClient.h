@@ -4,8 +4,8 @@
 /*
  * \file EBSummaryClient.h
  *
- * $Date: 2009/02/27 13:54:04 $
- * $Revision: 1.43 $
+ * $Date: 2009/02/27 19:13:42 $
+ * $Revision: 1.44 $
  * \author G. Della Ricca
  *
 */
@@ -110,11 +110,21 @@ MonitorElement* meLaserL1PN_;
 MonitorElement* meLaserL1PNErr_;
 MonitorElement* mePedestal_;
 MonitorElement* mePedestalErr_;
+MonitorElement* mePedestalG01_;
+MonitorElement* mePedestalG06_;
+MonitorElement* mePedestalG12_;
 MonitorElement* mePedestalPN_;
+MonitorElement* mePedestalPNG01_;
+MonitorElement* mePedestalPNG16_;
 MonitorElement* mePedestalPNErr_;
 MonitorElement* meTestPulse_;
+MonitorElement* meTestPulseG01_;
+MonitorElement* meTestPulseG06_;
+MonitorElement* meTestPulseG12_;
 MonitorElement* meTestPulseErr_;
 MonitorElement* meTestPulsePN_;
+MonitorElement* meTestPulsePNG01_;
+MonitorElement* meTestPulsePNG16_;
 MonitorElement* meTestPulsePNErr_;
 MonitorElement* meTestPulseAmplG01_;
 MonitorElement* meTestPulseAmplG06_;
