@@ -5,11 +5,11 @@ const float EcalUncalibratedRecHit::kPRECISION = 1e-06;
 const double EcalUncalibratedRecHit::kSATURATED = -999999.;
 
 EcalUncalibratedRecHit::EcalUncalibratedRecHit() :
-     amplitude_(0.), pedestal_(0.), jitter_(0.), chi2_(10000.) { }
+     amplitude_(0.), pedestal_(0.), jitter_(0.), chi2_(10000.), flags_(0) { }
 
 EcalUncalibratedRecHit::EcalUncalibratedRecHit(const DetId& id, const double& ampl, const double& ped,
-                          const double& jit, const double& chi2) :
-     amplitude_(ampl), pedestal_(ped), jitter_(jit), chi2_(chi2), id_(id) { }
+                          const double& jit, const double& chi2, const uint32_t &flags) :
+     amplitude_(ampl), pedestal_(ped), jitter_(jit), chi2_(chi2), flags_(flags), id_(id) { }
 
 EcalUncalibratedRecHit::~EcalUncalibratedRecHit() {
 }
