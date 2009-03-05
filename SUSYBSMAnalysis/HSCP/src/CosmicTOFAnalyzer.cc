@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea RIZZI
 //         Created:  Sun Dec  7 12:41:44 CET 2008
-// $Id: CosmicTOFAnalyzer.cc,v 1.1 2009/03/05 09:42:09 arizzi Exp $
+// $Id: CosmicTOFAnalyzer.cc,v 1.2 2009/03/05 11:12:27 arizzi Exp $
 //
 //
 
@@ -66,6 +66,18 @@
 struct MuonCollectionDataAndHistograms
 {
       TFileDirectory * subDir;
+
+      TH1F * nMuons;
+      TH2F * hitsVsHits;
+      TH1F * minHits;
+      TH2F * minHitsVsPhi;
+      TH2F * minHitsVsEta;
+      TH2F * ptVsPt;
+      TH1F * ptDiff;
+      TH2F * posVsPos; 
+      TH2F * ptVsPtSel; 
+      TH1F * ptDiffSel;
+
       TH1F * diff;
       TH1F * pull;
       TH1F * diffBiasCorrected;
@@ -162,10 +174,38 @@ CosmicTOFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 void CosmicTOFAnalyzer::analyzeCollection(const MuonCollection & muons, std::string collName, const edm::Event& iEvent)
 { 
 
-if(muons.size()!=2) return;
-if( muons[0].bestTrack()->hitPattern().numberOfValidMuonDTHits() < 25 ) return;
-if( muons[1].bestTrack()->hitPattern().numberOfValidMuonDTHits() < 25 ) return;
+   h_[collName].nMuons->Fill(muons.size());
 
+   if(muons.size()!=2) return;
+
+   h_[collName].hitsVsHits->Fill(muons[0].bestTrack()->hitPattern().numberOfValidMuonDTHits(), muons[1].bestTrack()->hitPattern().numberOfValidMuonDTHits());
+   h_[collName].posVsPos->Fill(muons[0].bestTrack()->innerPosition().y(),muons[1].bestTrack()->innerPosition().y());
+   h_[collName].ptVsPt->Fill(muons[0].bestTrack()->pt(),muons[1].bestTrack()->pt());
+   h_[collName].ptDiff->Fill(muons[0].bestTrack()->pt()-muons[1].bestTrack()->pt());
+
+
+   float etamin,phimin;
+   int hitsmin;
+   if(muons[0].bestTrack()->hitPattern().numberOfValidMuonDTHits() < muons[1].bestTrack()->hitPattern().numberOfValidMuonDTHits())
+    { 
+       etamin=muons[0].bestTrack()->eta();
+       phimin=muons[0].bestTrack()->phi();
+       hitsmin=muons[0].bestTrack()->hitPattern().numberOfValidMuonDTHits();
+    } else {  
+       etamin=muons[1].bestTrack()->eta();
+       phimin=muons[1].bestTrack()->phi();
+       hitsmin=muons[1].bestTrack()->hitPattern().numberOfValidMuonDTHits();
+    }
+
+  h_[collName].minHits->Fill(hitsmin);
+  h_[collName].minHitsVsPhi->Fill(hitsmin,phimin);
+  h_[collName].minHitsVsEta->Fill(hitsmin,etamin);
+
+  if( muons[0].bestTrack()->hitPattern().numberOfValidMuonDTHits() < 25 ) return;
+  if( muons[1].bestTrack()->hitPattern().numberOfValidMuonDTHits() < 25 ) return;
+
+   h_[collName].ptVsPtSel->Fill(muons[0].bestTrack()->pt(),muons[1].bestTrack()->pt());
+   h_[collName].ptDiffSel->Fill(muons[0].bestTrack()->pt()-muons[1].bestTrack()->pt());
 
 MuonTime mt0 = muons[0].time();
 MuonTime mt1= muons[1].time();
@@ -181,31 +221,48 @@ h_[collName].diff->Fill(t0-t1);
  cout << "matches0: " << muons[0].matches().size() << endl;
  cout << "matches1: " << muons[1].matches().size() << endl;
 // id = dynamic_cast<const DTChamberId *> (& muons[0].second.timeMeasurements[0].driftCell);
+ std::set<unsigned int> dets1; 
+//cout << "Mu1 " ; 
  for(trackingRecHit_iterator match = muons[0].bestTrack()->recHitsBegin() ; match != muons[0].bestTrack()->recHitsEnd() ; ++match)
  {
   DetId did=(*match)->geographicalId() ;
   if(did.det() == 2 && did.subdetId() == MuonSubdetId::DT)
   {
-   id =  new DTChamberId(did);
-   w0=id->wheel();
-   s0=id->sector();
-   delete id;
-   break;
+   if(s0==0)
+   {
+    id =  new DTChamberId(did);
+    w0=id->wheel();
+    s0=id->sector();
+    delete id;
+   // break;
+   }
+//   cout << did.rawId() << " ";
+   dets1.insert(did.rawId());
   }
  }
-
+// cout << endl;
+//cout << "Mu2 " ; 
  for(trackingRecHit_iterator match = muons[1].bestTrack()->recHitsBegin() ; match != muons[1].bestTrack()->recHitsEnd() ; ++match)
  {
   DetId did=(*match)->geographicalId() ;
   if(did.det() == 2 && did.subdetId() == MuonSubdetId::DT)
   {
+   if(s1==0)
+   {
    id =  new DTChamberId(did);
    w1=id->wheel();
    s1=id->sector();
    delete id;
-   break;
+   // break;
+   }
+   if(dets1.find(did.rawId()) != dets1.end() ) 
+    {
+     cout << "Skipping event " << iEvent.id().event() << "same measurement used twice" << endl;
+    }
+//   cout << did.rawId() <<  " ";
   }
  }
+// cout << endl;
 
 if(s0 ==0 || s1 ==0)
  {
@@ -299,7 +356,19 @@ void CosmicTOFAnalyzer::initHistos(std::string collName)
   h_[collName].diffBiasCorrectedErrPtCut = h_[collName].subDir->make<TH1F>("DiffBiasSubErrPtCut","DiffBiasSub (Pt > 50)", 100,-50,50);
   h_[collName].diffBiasCorrectedErrPt = h_[collName].subDir->make<TProfile>("DiffBiasSubErrPt","DiffBiasSub vs PT (Err1 && Err2 <10)", 100,0,500,-50,50);
   h_[collName].diffBiasCorrectedVsErr = h_[collName].subDir->make<TProfile>("DiffBiasSubVsErr","DiffBiasSub vs Err", 100,0,50,-50,50);
- 
+
+
+  h_[collName].nMuons = h_[collName].subDir->make<TH1F>("NMuons","Number of muons in the event", 25,-0.5,24.5);
+  h_[collName].hitsVsHits = h_[collName].subDir->make<TH2F>("HitsVsHits","Number of Hits of muon 1 vs muon 2", 100,0,50,100,0,50);
+  h_[collName].minHits = h_[collName].subDir->make<TH1F>("MinHits","Number of Hits of the muon with less hits", 100,0,50);
+  h_[collName].minHitsVsPhi = h_[collName].subDir->make<TH2F>("MinHitsVsPhi","min Hits vs Phi", 100,0,50,100,-5,5);
+  h_[collName].minHitsVsEta = h_[collName].subDir->make<TH2F>("MinHitsVsEta","min Hits vs Eta", 100,0,50,100,-5,5);
+  h_[collName].posVsPos = h_[collName].subDir->make<TH2F>("PosVsPos","Y-pos of muon 1 vs muon 2", 250,-1500,1500,250,-1500,1500);
+  h_[collName].ptVsPt = h_[collName].subDir->make<TH2F>("PtVsPt","Pt of muon 1 vs muon 2", 250,0,500,250,0,500);
+  h_[collName].ptVsPtSel = h_[collName].subDir->make<TH2F>("PtVsPtSel","Pt of muon 1 vs muon 2 (selected  muons only)", 250,0,500,250,0,500);
+  h_[collName].ptDiff = h_[collName].subDir->make<TH1F>("PtDiff","Pt of muon 1 - muon 2", 300,-50,50);
+  h_[collName].ptDiffSel = h_[collName].subDir->make<TH1F>("PtDiffSel","Pt of muon 1 - muon 2 (selected  muons only)", 300,-50,50);
+
 
   h_[collName].biasSubDir = new TFileDirectory(fs->mkdir( (collName+"Bias").c_str() ));
   for(int w1=0;w1<5;w1++)
