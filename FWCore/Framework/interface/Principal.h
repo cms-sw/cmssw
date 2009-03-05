@@ -29,6 +29,7 @@ pointer to a Group, when queried.
 #include "DataFormats/Provenance/interface/BranchMapper.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
+#include "DataFormats/Common/interface/BasicHandle.h"
 #include "DataFormats/Common/interface/OutputHandle.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
