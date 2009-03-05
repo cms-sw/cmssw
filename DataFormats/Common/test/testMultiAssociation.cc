@@ -1,4 +1,4 @@
-// $Id: testMultiAssociation.cc,v 1.5 2008/03/18 12:49:22 wmtan Exp $
+// $Id: testMultiAssociation.cc,v 1.1 2009/03/03 09:15:00 gpetrucc Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include <algorithm>
 #include <iterator>
@@ -29,8 +29,6 @@ namespace {
     struct DummyDer1 : public DummyBase {     virtual int id() const { return 1; } virtual DummyDer1 *clone() const { return new DummyDer1(*this); } };
     struct DummyDer2 : public DummyBase {     virtual int id() const { return 2; } virtual DummyDer2 *clone() const { return new DummyDer2(*this); } };
 }
-
-using namespace boost::lambda;
 
 using namespace edm;
 
@@ -218,6 +216,8 @@ testMultiAssociation::testMultiAssociation() {
 }
 
 void testMultiAssociation::checkAll() {
+  using boost::lambda::_1;
+  using boost::lambda::_2;
   {
     MultiRef try1;
     dump(try1, "empty");
@@ -292,6 +292,8 @@ void testMultiAssociation::checkAll() {
 }
 
 void testMultiAssociation::checkVals() {
+  using boost::lambda::_1;
+  using boost::lambda::_2;
   {
     MultiVal try1;
     dump(try1, "empty");
@@ -630,6 +632,8 @@ void testMultiAssociation::checkBadFill() {
 }
 
 bool testMultiAssociation::tryBadRead(int i) {
+    using boost::lambda::_1;
+    using boost::lambda::_2;
     MultiRef m;
     fastFillRefs(handleK1, m, _1 > 0, _1 > _2); 
     fastFillRefs(handleK2, m, _1 > 0, _1 > _2);
@@ -656,6 +660,8 @@ bool testMultiAssociation::tryBadRead(int i) {
     return true;
 }
 void testMultiAssociation::checkWritableMap() {
+    using boost::lambda::_1;
+    using boost::lambda::_2;
     MultiVal tryRW;
     fastFillVals(handleK1, tryRW, _1 > 0, _1 > _2); 
     fastFillVals(handleK2, tryRW, _1 > 0, _1 > _2);
