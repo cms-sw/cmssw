@@ -13,13 +13,13 @@
 // tracks have only the recoTracks branch!
 #include "PhysicsTools/RecoAlgos/interface/TrackSelector.h"
 
-struct TrackConfigSelector {
+struct CSCTrackConfigSelector {
 
       typedef std::vector<const reco::Track*> container;
       typedef container::const_iterator const_iterator;
       typedef reco::TrackCollection collection; 
 
-      TrackConfigSelector( const edm::ParameterSet & cfg ) : theBaseSelector(cfg) {}
+      CSCTrackConfigSelector( const edm::ParameterSet & cfg ) : theBaseSelector(cfg) {}
   
       const_iterator begin() const { return theSelectedTracks.begin(); }
       const_iterator end() const { return theSelectedTracks.end(); }
@@ -40,6 +40,6 @@ struct TrackConfigSelector {
       AlignmentCSCTrackSelector theBaseSelector;
 };
 
-typedef ObjectSelector<TrackConfigSelector>  AlignmentCSCTrackSelectorModule;
+typedef ObjectSelector<CSCTrackConfigSelector>  AlignmentCSCTrackSelectorModule;
 
 DEFINE_FWK_MODULE( AlignmentCSCTrackSelectorModule );
