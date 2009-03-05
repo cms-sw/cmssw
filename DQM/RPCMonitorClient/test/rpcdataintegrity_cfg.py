@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("rpcdqm")
 
 ################# Input ########################
-#process.load("DQM.RPCMonitorClient.66722_cff")
 process.source = cms.Source("EmptySource")
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1))
@@ -42,11 +41,6 @@ process.rpcdigidqm.dqmshifter = True
 process.rpcdigidqm.dqmexpert = True
 process.rpcdigidqm.dqmsuperexpert = False
 process.rpcdigidqm.DigiDQMSaveRootFile = False
-################ DQM RPC Read Source output file
-process.readMeFromFile = cms.EDAnalyzer("ReadMeFromFile",
-InputFile = cms.untracked.string("Merged_test_70664.root")
-)
-
 
 ################# DQM Client Modules ####################
 process.load("DQM.RPCMonitorClient.RPCEventSummary_cfi")
@@ -59,9 +53,7 @@ process.RPCDeadChannelTest = cms.EDAnalyzer("RPCDeadChannelTest",
         diagnosticPrescale = cms.untracked.int32(1)
 )
 
-process.rpcOccupancyTest = cms.EDAnalyzer("RPCOccupancyTest")
-
-process.rpcMultiplicityTest = cms.EDAnalyzer("RPCMultiplicityTest")
+process.rpcOccupancyTest = cms.EDAnalyzer("RPCOccupancyChipTest")
 
 process.load("DQM.RPCMonitorClient.RPCMon_SS_Dbx_Global_cfi")
 
@@ -81,10 +73,16 @@ process.MessageLogger = cms.Service("MessageLogger",
      cout = cms.untracked.PSet( threshold = cms.untracked.string('INFO'))
 )
 
-################# Path ###########################
-#process.rpcDigi = cms.Sequence(process.rpcunpacker*process.rpcRecHits*process.rpcdigidqm*process.rpcAfterPulse)
-process.rpcClient = cms.Sequence(process.readMeFromFile*process.qTesterRPC*process.rpcOccupancyTest*process.rpcMultiplicityTest *process.RPCDeadChannelTest*process.dqmEnv*process.rpcEventSummary*process.dqmSaver)
 
+################# DQM Read ME ROOT File ####################
+process.readME = cms.EDAnalyzer("ReadMeFromFile",
+      InputFile = cms.untracked.string('DQM_V0_MERGED_R70664.root')
+)
+
+
+################# Path ###########################
+process.rpcDigi = cms.Sequence(process.rpcunpacker*process.rpcRecHits*process.rpcdigidqm*process.rpcAfterPulse)
+process.rpcClient = cms.Sequence(process.readME*process.qTesterRPC*process.RPCDeadChannelTest*process.rpcOccupancyTest*process.dqmEnv*process.rpcEventSummary*process.dqmSaver)
 
 process.p = cms.Path(process.rpcClient)
 
