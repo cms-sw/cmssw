@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/03/05 15:12:34 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/03/05 15:21:37 $
+ *  $Revision: 1.7 $
  *
  *  \author Martin Grunewald
  *
@@ -35,7 +35,7 @@ HLTrigReport::HLTrigReport(const edm::ParameterSet& iConfig) :
   hlNames_(0),
   init_(false)
 {
-  LogDebug("") << "HL TiggerResults: " + hlTriggerResults_.encode();
+  LogDebug("HLTrigReport") << "HL TiggerResults: " + hlTriggerResults_.encode();
 }
 
 HLTrigReport::~HLTrigReport()
@@ -62,11 +62,11 @@ HLTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (HLTR.isValid()) {
     if (HLTR->wasrun()) nWasRun_++;
     const bool accept(HLTR->accept());
-    LogDebug("") << "HL TriggerResults decision: " << accept;
+    LogDebug("HLTrigReport") << "HL TriggerResults decision: " << accept;
     if (accept) ++nAccept_;
     if (HLTR->error() ) nErrors_++;
   } else {
-    LogDebug("") << "HL TriggerResults with label ["+hlTriggerResults_.encode()+"] not found!";
+    LogDebug("HLTrigReport") << "HL TriggerResults with label ["+hlTriggerResults_.encode()+"] not found!";
     nErrors_++;
     return;
   }
@@ -108,40 +108,40 @@ HLTrigReport::endJob()
   using namespace edm;
   const unsigned int n(hlNames_.size());
 
-    LogVerbatim("") << dec << endl;
-    LogVerbatim("") << "HLT-Report " << "---------- Event  Summary ------------\n";
-    LogVerbatim("") << "HLT-Report"
+    LogVerbatim("HLTrigReport") << dec << endl;
+    LogVerbatim("HLTrigReport") << "HLT-Report " << "---------- Event  Summary ------------" << endl;
+    LogVerbatim("HLTrigReport") << "HLT-Report"
 	 << " Events total = " << nEvents_
 	 << " wasrun = " << nWasRun_
 	 << " passed = " << nAccept_
 	 << " errors = " << nErrors_
-	 << "\n";
+	 << endl;
 
-    LogVerbatim("") << endl;
-    LogVerbatim("") << "HLT-Report " << "---------- HLTrig Summary ------------\n";
-    LogVerbatim("") << "HLT-Report "
+    LogVerbatim("HLTrigReport") << endl;
+    LogVerbatim("HLTrigReport") << "HLT-Report " << "---------- HLTrig Summary ------------" << endl;
+    LogVerbatim("HLTrigReport") << "HLT-Report "
 	 << right << setw(10) << "HLT  Bit#" << " "
 	 << right << setw(10) << "WasRun" << " "
 	 << right << setw(10) << "Passed" << " "
 	 << right << setw(10) << "Errors" << " "
-	 << "Name" << "\n";
+	 << "Name" << endl;
 
   if (init_) {
     for (unsigned int i=0; i!=n; ++i) {
-      LogVerbatim("") << "HLT-Report "
+      LogVerbatim("HLTrigReport") << "HLT-Report "
 	   << right << setw(10) << i << " "
 	   << right << setw(10) << hlWasRun_[i] << " "
 	   << right << setw(10) << hlAccept_[i] << " "
 	   << right << setw(10) << hlErrors_[i] << " "
-	   << hlNames_[i] << "\n";
+	   << hlNames_[i] << endl;
     }
   } else {
-    LogVerbatim("") << "HLT-Report - No HL TriggerResults found!" << endl;
+    LogVerbatim("HLTrigReport") << "HLT-Report - No HL TriggerResults found!" << endl;
   }
 
-    LogVerbatim("") << endl;
-    LogVerbatim("") << "HLT-Report end!" << endl;
-    LogVerbatim("") << endl;
+    LogVerbatim("HLTrigReport") << endl;
+    LogVerbatim("HLTrigReport") << "HLT-Report end!" << endl;
+    LogVerbatim("HLTrigReport") << endl;
 
     return;
 }
