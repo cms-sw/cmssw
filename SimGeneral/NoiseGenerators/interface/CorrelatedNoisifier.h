@@ -244,6 +244,10 @@ template<class M> void CorrelatedNoisifier<M>::computeDecomposition()
         double hij = theMatrix(i,j);
         hii -= hij*hij;
       }
+      if(hii <= 0.) {
+        throw cms::Exception("CorrelatedNoisifier")
+            << "Bad covariance matrix. " << theCovarianceMatrix;
+      }
       hii = sqrt(hii);
       theMatrix(i,i) = hii;
 
