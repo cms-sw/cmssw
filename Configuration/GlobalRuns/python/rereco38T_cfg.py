@@ -14,7 +14,8 @@ process.load("Configuration.EventContent.EventContentCosmics_cff")
 #Drop old reco
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    '/store/data/Commissioning08/Cosmics/RAW-RECO/CRAFT_ALL_V9_SuperPointing_225-v3/0005/B6350AB1-5BFF-DD11-A4BA-00304875A7B5.root'),
+    '/store/data/Commissioning08/Cosmics/RAW-RECO/CRAFT_ALL_V9_SuperPointing_225-v3/0005/B6350AB1-5BFF-DD11-A4BA-00304875A7B5.root'
+    ),
     inputCommands = cms.untracked.vstring('drop *')
 )
 process.source.inputCommands.extend(process.RAWEventContent.outputCommands)
@@ -53,7 +54,7 @@ process.FEVT.outputCommands.append('keep recoCandidatesOwned_caloTowersOpt_*_*')
 process.FEVT.outputCommands.append('keep RPCDetIdRPCDigiMuonDigiCollection_muonRPCDigis_*_*')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.6 $'),
+    version = cms.untracked.string('$Revision: 1.7 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/GlobalRuns/python/rereco38T_cfg.py,v $'),
     annotation = cms.untracked.string('CRUZET Prompt Reco with DQM with Mag field at 3.8T')
 )
