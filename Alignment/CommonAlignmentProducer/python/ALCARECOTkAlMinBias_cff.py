@@ -9,7 +9,6 @@ ALCARECOTkAlMinBiasNOTHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.c
         #TkAlMuonIsolated
         "HLT_L1MuOpen", "HLT_L1Mu", "HLT_L2Mu9",
         "HLT_Mu3", "HLT_Mu5", "HLT_Mu9", "HLT_Mu11",
-        "HLT_DoubleMu3",
         #TkAlMuonIsolated _and_ TkAl[Z,Jpsi,Upsilon]MuMu
         "HLT_DoubleMu3",
         #TkAlCosmics{0T}HLT
