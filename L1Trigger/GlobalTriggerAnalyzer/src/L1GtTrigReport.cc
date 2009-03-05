@@ -79,7 +79,7 @@ L1GtTrigReport::L1GtTrigReport(const edm::ParameterSet& pSet) {
     m_printVerbosity = pSet.getUntrackedParameter<int>("PrintVerbosity", 0);
 
     // print output
-    m_printOutput = pSet.getUntrackedParameter<int>("PrintOutput", 0);
+    m_printOutput = pSet.getUntrackedParameter<int>("PrintOutput", 3);
 
     LogDebug("L1GtTrigReport") 
         << "\nUse L1GlobalTriggerRecord:   "
@@ -838,6 +838,13 @@ void L1GtTrigReport::endJob() {
         case 2: {
 
             edm::LogVerbatim("L1GtTrigReport") << myCout.str() << std::endl;
+
+        }
+
+            break;
+        case 3: {
+
+            edm::LogInfo("L1GtTrigReport") << myCout.str();
 
         }
 
