@@ -48,10 +48,7 @@ namespace {
   /*   ==========================================================================================================================
               NON PAT Dataformats, except those for RefToBase/Ptr
        ==========================================================================================================================   */
-  /*   To go into DataFormats/WrappedStdDictionaries   */
-  std::vector<std::pair<std::string, float> >	 v_p_s_f;
-  std::vector<std::pair<std::string, int32_t> >	 v_p_s_i32;
-  std::vector<std::pair<std::string, Bool_t> > v_p_s_b;
+
   /*   To go into DataFormats/Candidate   */
   edm::Wrapper<edm::ValueMap<reco::CandidatePtr> >	            w_vm_cptr;
   std::vector<std::pair<std::string,edm::Ptr<reco::Candidate> > >   v_p_s_cptr;

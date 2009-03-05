@@ -4,13 +4,6 @@
   <!-- ==========================================================================================================================
               NON PAT Dataformats, except those for RefToBase/Ptr
        ========================================================================================================================== -->
-  <!-- To go into DataFormats/WrappedStdDictionaries -->
-  <class name="std::pair<std::string, float>" />
-  <class name="std::vector<std::pair<std::string, float> >" />
-  <class name="std::pair<std::string, int32_t>" />
-  <class name="std::pair<std::string, Bool_t>" />
-  <class name="std::vector<std::pair<std::string, int32_t> >" />
-  <class name="std::vector<std::pair<std::string, Bool_t> >" />
 
   <!-- To go into DataFormats/Candidate -->
   <class name="std::vector<reco::CandidatePtr>" />

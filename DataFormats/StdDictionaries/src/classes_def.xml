@@ -36,6 +36,8 @@
  <class name="std::pair<int,int>"/>
  <class name="std::pair<std::basic_string<char>,double>"/>
  <class name="std::pair<std::basic_string<char>,int>"/>
+ <class name="std::pair<std::basic_string<char>,float>"/>
+ <class name="std::pair<std::basic_string<char>,bool>"/>
  <class name="std::pair<std::basic_string<char>,std::vector<std::basic_string<char> > >"/>
  <class name="std::pair<std::basic_string<char>,std::vector<std::pair<std::basic_string<char>,double> > >"/>
  <class name="std::pair<unsigned int,bool>"/>
@@ -64,6 +66,9 @@
  <class name="std::vector<long long>"/>
  <class name="std::vector<short>"/>
  <class name="std::vector<std::pair<std::basic_string<char>,double> >"/>
+ <class name="std::vector<std::pair<std::basic_string<char>,float> >"/>
+ <class name="std::vector<std::pair<std::basic_string<char>,int> >"/>
+ <class name="std::vector<std::pair<std::basic_string<char>,bool> >"/>
  <class name="std::vector<std::pair<unsigned int,double> >" />
  <class name="std::vector<std::vector<int> >"/>
  <class name="std::vector<std::vector<unsigned int> >"/>

@@ -46,11 +46,17 @@ namespace {
   std::pair<unsigned long long, std::basic_string<char> > dymmywp8;
   std::pair<std::basic_string<char>,int> dummywp9;
   std::pair<std::basic_string<char>,double> dummywp10;
+  std::pair<std::basic_string<char>,float> dummywp101;
+  std::pair<std::basic_string<char>,bool> dummywp102;
   std::pair<std::basic_string<char>,std::vector<std::pair<std::basic_string<char>,double> > > dummywp11;
   std::pair<std::basic_string<char>,std::vector<std::basic_string<char> > > dummywp12;
   std::pair<unsigned int,std::vector<unsigned int> > dymmywp13;
   std::pair<unsigned long,std::vector<unsigned long> > dymmywp14;
   std::pair<unsigned short,std::vector<unsigned short> > dymmywp15;
+
+  std::vector<std::pair<std::basic_string<char>, float> >	 v_p_s_f;
+  std::vector<std::pair<std::basic_string<char>, int> >	 v_p_s_i32;
+  std::vector<std::pair<std::basic_string<char>, bool> > v_p_s_b;
 
   std::map<unsigned long, unsigned long> dymmywm1;
   std::map<unsigned int, unsigned int> dymmywm2;
