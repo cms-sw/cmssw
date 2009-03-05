@@ -5,17 +5,17 @@
 using namespace std;
 using namespace reco;
 
-SingleTrackVertexConstraint::TrackFloatPair SingleTrackVertexConstraint::constrain(
+bool SingleTrackVertexConstraint::constrain(
 	const TransientTrack & track, const GlobalPoint& priorPos,
-	const GlobalError & priorError) const
+	const GlobalError & priorError)
 { 
   VertexState priorVertexState(priorPos, priorError);
   return constrain(track, priorVertexState);
 }
 
 
-SingleTrackVertexConstraint::TrackFloatPair SingleTrackVertexConstraint::constrain(
-	const TransientTrack & track,  const VertexState priorVertexState) const
+bool SingleTrackVertexConstraint::constrain(
+	const TransientTrack & track,  const VertexState priorVertexState)
 {
   // Linearize tracks
 
@@ -31,29 +31,39 @@ SingleTrackVertexConstraint::TrackFloatPair SingleTrackVertexConstraint::constra
   vector<RefCountedVertexTrack> initialTracks;
   CachingVertex<5> vertex(priorVertexState,priorVertexState,initialTracks,0);
   vertex = vertexUpdator.add(vertex, vertexTrack);
+  if (!vertex.isValid()) {
+    validity_ = false;
+    return false;
+  }
   RefCountedVertexTrack nTrack = theVertexTrackUpdator.update(vertex, vertexTrack);
-
-  return TrackFloatPair(nTrack->refittedState()->transientTrack(), nTrack->smoothedChi2()) ;
+  validity_ = true;
+  result_ = TrackFloatPair(nTrack->refittedState()->transientTrack(), nTrack->smoothedChi2()) ;
+  return validity_;
 }
 
-SingleTrackVertexConstraint::TrackFloatPair SingleTrackVertexConstraint::constrain(
+bool SingleTrackVertexConstraint::constrain(
 	const FreeTrajectoryState & fts, const GlobalPoint& priorPos,
-	const GlobalError& priorError) const
+	const GlobalError& priorError)
 { 
   return constrain(ttFactory.build(fts), priorPos, priorError);
 }
 
-SingleTrackVertexConstraint::TrackFloatPair SingleTrackVertexConstraint::constrain(
-	const TransientTrack & track, const reco::BeamSpot & spot ) const
+bool SingleTrackVertexConstraint::constrain(
+	const TransientTrack & track, const reco::BeamSpot & spot )
 {
   VertexState priorVertexState(spot);
   return constrain(track, priorVertexState);
 }
 
-SingleTrackVertexConstraint::TrackFloatPair SingleTrackVertexConstraint::constrain(
-	const FreeTrajectoryState & fts, const reco::BeamSpot & spot) const
+bool SingleTrackVertexConstraint::constrain(
+	const FreeTrajectoryState & fts, const reco::BeamSpot & spot)
 { 
   VertexState priorVertexState(spot);
   return constrain(ttFactory.build(fts), priorVertexState);
 }
 
+SingleTrackVertexConstraint::TrackFloatPair SingleTrackVertexConstraint::result() const
+{
+  if (!validity_) throw VertexException("SingleTrackVertexConstraint::constaint had files. Check validity first!");
+  return result_;
+}
