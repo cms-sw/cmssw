@@ -49,6 +49,10 @@
         SingleMu_0x05_E8 AND ( SingleIsoEG_0x05 OR SingleNoIsoEG_0x05 )
         <output_pin nr="17" pin="a" />
       </L1_Mu3QE8_EG5>
+      <L1_Mu3QE8_Jet15 algAlias="L1_Mu3_Jet15">
+        SingleMu_0x05_E8 AND ( SingleCenJet_0x04 OR SingleForJet_0x04 OR SingleTauJet_0x04 )
+        <output_pin nr="20" pin="a" />
+      </L1_Mu3QE8_Jet15>
       <L1_Mu5QE8_Jet15 algAlias="L1_Mu5_Jet15">
         SingleMu_0x09_E8 AND ( SingleCenJet_0x04 OR SingleForJet_0x04 OR SingleTauJet_0x04 )
         <output_pin nr="21" pin="a" />
