@@ -123,6 +123,9 @@ foreach sample($samples)
       -e s@REFSELECTION@$RefSelection@g \
       -e s@NEWSELECTION@$NewSelection@g \
       -e s@TrackValHistoPublisher@$sample@g \
+      -e s@MINEFF@0.5@g \
+      -e s@MAXEFF@1.025@g \
+      -e s@MAXFAKE@0.7@g \
     > ! $sample.C
 
     root -b -q -l $sample.C > ! macro.$sample.log

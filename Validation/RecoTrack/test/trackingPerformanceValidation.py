@@ -11,23 +11,23 @@ import string
 
 #Reference release
 
-RefRelease='CMSSW_3_0_0_pre6'
+RefRelease='CMSSW_3_1_0_pre1'
 
 # startup and ideal sample list
-startupsamples= ['RelValTTbar', 'RelValMinBias', 'RelValQCD_Pt_3000_3500']
-#startupsamples= ['RelValTTbar']
+#startupsamples= ['RelValTTbar', 'RelValMinBias', 'RelValQCD_Pt_3000_3500']
+startupsamples= ['RelValTTbar']
 
-idealsamples= ['RelValSingleMuPt1', 'RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSinglePiPt1', 'RelValSinglePiPt10', 'RelValSinglePiPt100', 'RelValSingleElectronPt35', 'RelValTTbar', 'RelValQCD_Pt_3000_3500','RelValMinBias']
+#idealsamples= ['RelValSingleMuPt1', 'RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSinglePiPt1', 'RelValSinglePiPt10', 'RelValSinglePiPt100', 'RelValSingleElectronPt35', 'RelValTTbar', 'RelValQCD_Pt_3000_3500','RelValMinBias']
 
 #idealsamples= [ 'RelValSingleElectronPt35']
-#idealsamples= ['RelValTTbar']
+idealsamples= ['RelValTTbar']
 
 
 
 # track algorithm name and quality. Can be a list.
-Algos= ['']
-Qualities=['']
-#Qualities=['', 'highPurity']
+Algos= ['ootb', 'ctf','iter2','iter3','iter4','iter5']
+#Qualities=['']
+Qualities=['', 'highPurity']
 
 #Leave unchanged unless the track collection name changed
 Tracksname=''
@@ -94,12 +94,21 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
     global Sequence, RefSelection, RefRepository, NewSelection, NewRepository, defaultNevents, Events
     global cfg, macro, Tracksname
     print 'Tag: ' + GlobalTag
-
+    tracks_map = { 'ootb':'general_AssociatorByHits','ctf':'cutsRecoFirst_AssociatorByHits','iter2':'cutsRecoSecond_AssociatorByHits','iter3':'cutsRecoThird_AssociatorByHits','iter4':'cutsRecoFourth_AssociatorByHits','iter5':'cutsRecoFifth_AssociatorByHits'}
+    tracks_map_hp = { 'ootb':'cutsRecoHp_AssociatorByHits','ctf':'cutsRecoFirstHp_AssociatorByHits','iter2':'cutsRecoSecondHp_AssociatorByHits','iter3':'cutsRecoThirdHp_AssociatorByHits','iter4':'cutsRecoFourthHp_AssociatorByHits','iter5':'cutsRecoFifthHp_AssociatorByHits'}
+    if(trackalgorithm=='ctf' or trackalgorithm=='ootb'):
+        mineff='0.5'
+        maxeff='1.025'
+        maxfake='0.7'
+    else:
+        mineff='0'
+        maxeff='0.1'
+        maxfake='0.8'
     #build the New Selection name
     NewSelection=GlobalTag +'_noPU'
     if( trackquality !=''):
         NewSelection+='_'+trackquality
-    if(trackalgorithm!=''):
+    if(trackalgorithm!=''and not(trackalgorithm=='ootb' and trackquality !='')):
         NewSelection+='_'+trackalgorithm
     if(trackquality =='') and (trackalgorithm==''):
         if(Tracksname==''):
@@ -119,120 +128,122 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
         templatemacroFile = open(macro, 'r')
         print 'Get information from DBS for sample', sample
         newdir=NewRepository+'/'+NewRelease+'/'+NewSelection+'/'+sample 
-
-        #chech if the sample is already done
+	cfgFileName=sample
+        #check if the sample is already done
         if(os.path.isfile(newdir+'/building.pdf' )!=True):    
+            #if the job is harvesting check if the file is already harvested
+            	harvestedfile='./DQM_V0001_R000000001__' + GlobalTag+ '__' + sample + '__Validation.root'
+		if(( Sequence=="harvesting" and os.path.isfile(harvestedfile) )==False):
+			#search the primary dataset
+			cmd='./DDSearchCLI.py  --limit -1 --input="find  dataset.createdate, dataset where dataset like *'
+		#            cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-DIGI-RAW-HLTDEBUG-RECO* "'
+			cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-RECO* "'
+			cmd+='|grep '+sample+'|grep -v test|sort|tail -1| cut -d "," -f2 '
+			print cmd
+			dataset= os.popen(cmd).readline()
+			print 'DataSet:  ', dataset, '\n'
+		
+			#Check if a dataset is found
+			if dataset!="":
+		
+				#Find and format the list of files
+				cmd2='./DDSearchCLI.py  --limit -1 --cff --input="find file where dataset like '+ dataset +'"|grep ' + sample 
+				filenames='import FWCore.ParameterSet.Config as cms\n'
+				filenames+='readFiles = cms.untracked.vstring()\n'
+				filenames+='secFiles = cms.untracked.vstring()\n'
+				filenames+='source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)\n'
+				filenames+='readFiles.extend( [\n'
+				for filename in os.popen(cmd2).readlines():
+					filenames+=filename
+				filenames+=']);\n'
+				
+				# if not harvesting find secondary file names
+				if(Sequence!="harvesting"):
+					cmd3='./DDSearchCLI.py  --limit -1 --input="find dataset.parent where dataset like '+ dataset +'"|grep ' + sample
+					parentdataset=os.popen(cmd3).readline()
+					print 'Parent DataSet:  ', parentdataset, '\n'
+		
+				#Check if a dataset is found
+					if parentdataset!="":
+						cmd4='./DDSearchCLI.py  --limit -1 --cff --input="find file where dataset like '+ parentdataset +'"|grep ' + sample 
+						filenames+='secFiles.extend( [\n'
+						first=True
+		
+						for line in os.popen(cmd4).readlines():
+							filenames+=line
+						filenames+=']);\n'
+					else :
+						print "No primary dataset found skipping sample: ", sample
+						continue
+				else :
+					filenames+='secFiles.extend( (               ) )'
 
-            #search the primary dataset
-            cmd='./DDSearchCLI.py  --limit -1 --input="find  dataset.createdate, dataset where dataset like *'
-#            cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-DIGI-RAW-HLTDEBUG-RECO* "'
-            cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-RECO* "'
-            cmd+='|grep '+sample+'|grep -v test|sort|tail -1| cut -d "," -f2 '
-            print cmd
-            dataset= os.popen(cmd).readline()
-            print 'DataSet:  ', dataset, '\n'
-
-            #Check if a dataset is found
-            if dataset!="":
-
-                #Find and format the list of files
-                cmd2='./DDSearchCLI.py  --limit -1 --cff --input="find file where dataset like '+ dataset +'"|grep ' + sample 
-                filenames='import FWCore.ParameterSet.Config as cms\n'
-                filenames+='readFiles = cms.untracked.vstring()\n'
-                filenames+='secFiles = cms.untracked.vstring()\n'
-                filenames+='source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)\n'
-                filenames+='readFiles.extend( [\n'
-                for filename in os.popen(cmd2).readlines():
-                    filenames+=filename
-                filenames+=']);\n'
-                
-                # if not harvesting find secondary file names
-                if(Sequence!="harvesting"):
-                    cmd3='./DDSearchCLI.py  --limit -1 --input="find dataset.parent where dataset like '+ dataset +'"|grep ' + sample
-                    parentdataset=os.popen(cmd3).readline()
-                    print 'Parent DataSet:  ', parentdataset, '\n'
-
-                #Check if a dataset is found
-                    if parentdataset!="":
-                        cmd4='./DDSearchCLI.py  --limit -1 --cff --input="find file where dataset like '+ parentdataset +'"|grep ' + sample 
-                        filenames+='secFiles.extend( [\n'
-                        first=True
-
-                        for line in os.popen(cmd4).readlines():
-                            filenames+=line
-#                            secfilename=line.strip()
-#                            if first==True:
-#                                filenames+="'"
-#                                first=False
-#                            else :
-#                                filenames+=",\n'"
-#                            filenames+=secfilename
-#                            filenames+="'"
-
-                        filenames+=']);\n'
-                    else :
-                        print "No primary dataset found skipping sample: ", sample
-                        continue
-                else :
-                    filenames+='secFiles.extend( (               ) )'
-                cfgFileName=sample
-                cfgFile = open(cfgFileName+'.py' , 'w' )
-                cfgFile.write(filenames)
-
-                if (Events.has_key(sample)!=True):
-                    Nevents=defaultNevents
-                else:
-                    Nevents=Events[sample]
-
-                symbol_map = { 'NEVENT':Nevents, 'GLOBALTAG':GlobalTag, 'SEQUENCE':Sequence, 'SAMPLE': sample, 'ALGORITHM':trackalgorithm, 'QUALITY':trackquality, 'TRACKS':Tracks}
-
-
-                cfgFile = open(cfgFileName+'.py' , 'a' )
-                replace(symbol_map, templatecfgFile, cfgFile)
-
-                cmdrun='cmsRun ' +cfgFileName+ '.py >&  ' + cfgFileName + '.log < /dev/zero '
-                retcode=os.system(cmdrun)
-
-        #        retcode=0
-                if (retcode!=0):
-                    print 'Job for sample '+ sample + ' failed. \n'
-                else:
-                    if Sequence=="harvesting":
-                        os.system('mv  DQM_V0001_R000000001__' + GlobalTag+ '__' + sample + '__Validation.root val.' +sample+'.root')
-                    referenceSample=RefRepository+'/'+RefRelease+'/'+RefSelection+'/'+sample+'/'+'val.'+sample+'.root'
-                    if os.path.isfile(referenceSample ):
-                        replace_map = { 'NEW_FILE':'val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefSelection+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefSelection, 'NEWSELECTION':NewSelection, 'TrackValHistoPublisher': sample}
-
-                        if(os.path.exists(RefRelease+'/'+RefSelection)==False):
-                            os.makedirs(RefRelease+'/'+RefSelection)
-                        os.system('cp ' + referenceSample+ ' '+RefRelease+'/'+RefSelection)  
-                    else:
-                        print "No reference file found at: ", RefRelease+'/'+RefSelection
-                        replace_map = { 'NEW_FILE':'val.'+sample+'.root', 'REF_FILE':'val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewSelection, 'NEWSELECTION':NewSelection, 'TrackValHistoPublisher': sample}
-
-
-                    macroFile = open(cfgFileName+'.C' , 'w' )
-                    replace(replace_map, templatemacroFile, macroFile)
-
-
-                    os.system('root -b -q -l '+ cfgFileName+'.C'+ '>  macro.'+cfgFileName+'.log')
-
-
-                    if(os.path.exists(newdir)==False):
-                        os.makedirs(newdir)
-
-                    print "copying pdf files for sample: " , sample
-                    os.system('cp  *.pdf ' + newdir)
-
-                    print "copying root file for sample: " , sample
-                    os.system('cp val.'+ sample+ '.root ' + newdir)
-
-                    print "copying py file for sample: " , sample
-                    os.system('cp '+cfgFileName+'.py ' + newdir)
-
-
-            else:
-                print 'No dataset found skipping sample: '+ sample, '\n'
+				cfgFile = open(cfgFileName+'.py' , 'w' )
+				cfgFile.write(filenames)
+	
+				if (Events.has_key(sample)!=True):
+					Nevents=defaultNevents
+				else:
+					Nevents=Events[sample]
+		
+				symbol_map = { 'NEVENT':Nevents, 'GLOBALTAG':GlobalTag, 'SEQUENCE':Sequence, 'SAMPLE': sample, 'ALGORITHM':trackalgorithm, 'QUALITY':trackquality, 'TRACKS':Tracks}
+		
+		
+				cfgFile = open(cfgFileName+'.py' , 'a' )
+				replace(symbol_map, templatecfgFile, cfgFile)
+		
+				cmdrun='cmsRun ' +cfgFileName+ '.py >&  ' + cfgFileName + '.log < /dev/zero '
+				retcode=os.system(cmdrun)
+		
+			else:      
+				print 'No dataset found skipping sample: '+ sample, '\n'  
+				retcode=0
+		else: 
+			retcode=0
+		if (retcode!=0):
+			print 'Job for sample '+ sample + ' failed. \n'
+		else:
+			if Sequence=="harvesting":
+				#copy only the needed histograms
+				if(trackquality==""):
+					rootcommand='root -b -q -l CopySubdir.C\\('+ '\\\"DQM_V0001_R000000001__' + GlobalTag+ '__' + sample + '__Validation.root\\\",\\\"val.' +sample+'.root\\\",\\\"'+ tracks_map[trackalgorithm]+ '\\\"\\) >& /dev/null'
+					os.system(rootcommand)
+				elif(trackquality=="highPurity"):
+					os.system('root -b -q -l CopySubdir.C\\('+ '\\\"DQM_V0001_R000000001__' + GlobalTag+ '__' + sample + '__Validation.root\\\",\\\"val.' +sample+'.root\\\",\\\"'+ tracks_map_hp[trackalgorithm]+ '\\\"\\) >& /dev/null')
+		
+		
+			referenceSample=RefRepository+'/'+RefRelease+'/'+RefSelection+'/'+sample+'/'+'val.'+sample+'.root'
+			if os.path.isfile(referenceSample ):
+				replace_map = { 'NEW_FILE':'val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefSelection+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefSelection, 'NEWSELECTION':NewSelection, 'TrackValHistoPublisher': sample, 'MINEFF':mineff, 'MAXEFF':maxeff, 'MAXFAKE':maxfake}
+		
+				if(os.path.exists(RefRelease+'/'+RefSelection)==False):
+					os.makedirs(RefRelease+'/'+RefSelection)
+				os.system('cp ' + referenceSample+ ' '+RefRelease+'/'+RefSelection)  
+			else:
+				print "No reference file found at: ", RefRelease+'/'+RefSelection
+                                replace_map = { 'NEW_FILE':'val.'+sample+'.root', 'REF_FILE':'val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewSelection, 'NEWSELECTION':NewSelection, 'TrackValHistoPublisher': sample, 'MINEFF':mineff, 'MAXEFF':maxeff, 'MAXFAKE':maxfake}
+		
+		
+			macroFile = open(cfgFileName+'.C' , 'w' )
+			replace(replace_map, templatemacroFile, macroFile)
+		
+		
+			os.system('root -b -q -l '+ cfgFileName+'.C'+ '>  macro.'+cfgFileName+'.log')
+		
+		
+			if(os.path.exists(newdir)==False):
+				os.makedirs(newdir)
+		
+			print "copying pdf files for sample: " , sample
+			os.system('cp  *.pdf ' + newdir)
+		
+			print "copying root file for sample: " , sample
+			os.system('cp val.'+ sample+ '.root ' + newdir)
+		
+			print "copying py file for sample: " , sample
+			os.system('cp '+cfgFileName+'.py ' + newdir)
+	
+	
         else:
             print 'Validation for sample ' + sample + ' already done. Skipping this sample. \n'
 
@@ -272,7 +283,7 @@ for algo in Algos:
         RefSelection=ReferenceSelection
         if( quality !=''):
             RefSelection+='_'+quality
-        if(algo!=''):
+        if(algo!=''and not(algo=='ootb' and quality !='')):
             RefSelection+='_'+algo
         if(quality =='') and (algo==''):
             RefSelection+='_ootb'
@@ -285,4 +296,4 @@ for algo in Algos:
         if(quality =='') and (algo==''):
             RefSelection+='_ootb'
         do_validation(startupsamples, StartupTag, quality , algo)
-
+        

@@ -70,12 +70,16 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    //===== building
    rdir->GetObject(collname1+"/effic",rh1);
    sdir->GetObject(collname2+"/effic",sh1);
-   rh1->GetYaxis()->SetRangeUser(0.5,1.025);
-   sh1->GetYaxis()->SetRangeUser(0.5,1.025);
+   rh1->GetYaxis()->SetRangeUser(MINEFF,MAXEFF);
+   sh1->GetYaxis()->SetRangeUser(MINEFF,MAXEFF);
+//   rh1->GetYaxis()->SetRangeUser(0.5,1.025);
+//   sh1->GetYaxis()->SetRangeUser(0.5,1.025);
    rdir->GetObject(collname1+"/fakerate",rh2);
    sdir->GetObject(collname2+"/fakerate",sh2);
-   rh2->GetYaxis()->SetRangeUser(0.,.70);
-   sh2->GetYaxis()->SetRangeUser(0.,.70);
+   rh2->GetYaxis()->SetRangeUser(0.,MAXFAKE);
+   sh2->GetYaxis()->SetRangeUser(0.,MAXFAKE);
+//   rh2->GetYaxis()->SetRangeUser(0.,.70);
+//   sh2->GetYaxis()->SetRangeUser(0.,.70);
 
 
    rdir->GetObject(collname1+"/efficPt",rh3);
