@@ -5,7 +5,7 @@
 using namespace std;
 using namespace reco;
 
-bool SingleTrackVertexConstraint::constrain(
+SingleTrackVertexConstraint::BTFtuple SingleTrackVertexConstraint::constrain(
 	const TransientTrack & track, const GlobalPoint& priorPos,
 	const GlobalError & priorError)
 { 
@@ -14,7 +14,7 @@ bool SingleTrackVertexConstraint::constrain(
 }
 
 
-bool SingleTrackVertexConstraint::constrain(
+SingleTrackVertexConstraint::BTFtuple SingleTrackVertexConstraint::constrain(
 	const TransientTrack & track,  const VertexState priorVertexState)
 {
   // Linearize tracks
@@ -32,38 +32,30 @@ bool SingleTrackVertexConstraint::constrain(
   CachingVertex<5> vertex(priorVertexState,priorVertexState,initialTracks,0);
   vertex = vertexUpdator.add(vertex, vertexTrack);
   if (!vertex.isValid()) {
-    validity_ = false;
-    return false;
+    return BTFtuple(false, TransientTrack(), 0.);
   }
   RefCountedVertexTrack nTrack = theVertexTrackUpdator.update(vertex, vertexTrack);
-  validity_ = true;
-  result_ = TrackFloatPair(nTrack->refittedState()->transientTrack(), nTrack->smoothedChi2()) ;
-  return validity_;
+  return BTFtuple(true, nTrack->refittedState()->transientTrack(), nTrack->smoothedChi2());
 }
 
-bool SingleTrackVertexConstraint::constrain(
+SingleTrackVertexConstraint::BTFtuple SingleTrackVertexConstraint::constrain(
 	const FreeTrajectoryState & fts, const GlobalPoint& priorPos,
 	const GlobalError& priorError)
 { 
   return constrain(ttFactory.build(fts), priorPos, priorError);
 }
 
-bool SingleTrackVertexConstraint::constrain(
+SingleTrackVertexConstraint::BTFtuple SingleTrackVertexConstraint::constrain(
 	const TransientTrack & track, const reco::BeamSpot & spot )
 {
   VertexState priorVertexState(spot);
   return constrain(track, priorVertexState);
 }
 
-bool SingleTrackVertexConstraint::constrain(
+SingleTrackVertexConstraint::BTFtuple SingleTrackVertexConstraint::constrain(
 	const FreeTrajectoryState & fts, const reco::BeamSpot & spot)
 { 
   VertexState priorVertexState(spot);
   return constrain(ttFactory.build(fts), priorVertexState);
 }
 
-SingleTrackVertexConstraint::TrackFloatPair SingleTrackVertexConstraint::result() const
-{
-  if (!validity_) throw VertexException("SingleTrackVertexConstraint::constaint had files. Check validity first!");
-  return result_;
-}
