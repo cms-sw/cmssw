@@ -25,9 +25,9 @@ CSCConditions::CSCConditions( const edm::ParameterSet& ps )
 {
   readBadChannels_ = ps.getParameter<bool>("readBadChannels");
   readBadChambers_ = ps.getParameter<bool>("readBadChambers");
-  // initialize #layers = 2808
-  badStripWords.resize( 2808, 0 );
-  badWireWords.resize( 2808, 0 );
+  // set size to hold all layers, using enum defined in .h
+  badStripWords.resize( MAX_LAYERS, 0 );
+  badWireWords.resize( MAX_LAYERS, 0 );
 }
 
 
@@ -90,13 +90,13 @@ void CSCConditions::initializeEvent(const edm::EventSetup & es)
 
 void CSCConditions::fillBadStripWords(){
   // reset existing values
-  badStripWords.assign( 2808, 0 );
+  badStripWords.assign( MAX_LAYERS, 0 );
   if ( readBadChannels() ) {
     // unpack what we've read from theBadStrips
 
     // chambers is a vector<BadChamber>
     // channels is a vector<BadChannel>
-    // Each BadChamber contains its index (1-468), the no. of bad channels, 
+    // Each BadChamber contains its index (1-468 or 540 w. ME42), the no. of bad channels, 
     // and the index within vector<BadChannel> where this chamber's bad channels start.
 
     CSCIndexer indexer;
@@ -124,7 +124,7 @@ void CSCConditions::fillBadStripWords(){
 
 void CSCConditions::fillBadWireWords(){
   // reset existing values
-  badWireWords.assign( 2808, 0 );
+  badWireWords.assign( MAX_LAYERS, 0 );
   if ( readBadChannels() ) {
     // unpack what we've read from theBadWires
     CSCIndexer indexer;
@@ -297,6 +297,7 @@ const std::bitset<112>& CSCConditions::badWireWord( const CSCDetId& id ) const {
 /// Return average strip gain for full CSC system. Lazy evaluation.
 /// Restrict averaging to gains between 5 and 10, and require average
 /// is between 6 or 9 otherwise fix it to 7.5.
+/// These values came from Dominique and Stan,
 float CSCConditions::averageGain() const {
 
   const float loEdge = 5.0; // consider gains above this

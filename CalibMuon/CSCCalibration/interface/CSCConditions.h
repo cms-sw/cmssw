@@ -102,6 +102,9 @@ private:
   //@@ remove until we have real information to use
   //  edm::ESWatcher<CSCBadStripsRcd> badStripsWatcher_; 
   //  edm::ESWatcher<CSCBadWiresRcd> badWiresWatcher_; 
+
+  // Total number of CSC layers in the system, with full ME42 installed.
+  enum elayers{ MAX_LAYERS = 3240 };
 };
 
 #endif
