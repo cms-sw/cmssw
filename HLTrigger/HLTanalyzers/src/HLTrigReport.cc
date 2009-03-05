@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/07/30 14:06:35 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/12/18 08:28:01 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
@@ -107,6 +107,7 @@ HLTrigReport::endJob()
   using namespace std;
   const unsigned int n(hlNames_.size());
 
+  /* Silence for now, if added back it should be on LogInfo or LogDebug 
     cout << dec << endl;
     cout << "HLT-Report " << "---------- Event  Summary ------------\n";
     cout << "HLT-Report"
@@ -141,6 +142,7 @@ HLTrigReport::endJob()
     cout << endl;
     cout << "HLT-Report end!" << endl;
     cout << endl;
+  */
 
     return;
 }
