@@ -1,4 +1,4 @@
-// $Id: testMultiAssociation.cc,v 1.1 2009/03/03 09:15:00 gpetrucc Exp $
+// $Id: testMultiAssociation.cc,v 1.2 2009/03/05 14:36:58 wmtan Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include <algorithm>
 #include <iterator>
@@ -702,7 +702,7 @@ void testMultiAssociation::checkWithPtr() {
     { // Read the map
       for (size_t i = 0; i < handleK1->size(); ++i) {
         MultiPtr::const_range r = map[Ref<CKey1>(handleK1, i)];
-        CPPUNIT_ASSERT(r.size() == ((i+2) % 3));
+        CPPUNIT_ASSERT(static_cast<size_t>(r.size()) == ((i+2) % 3));
         for (size_t j = 0; j < ((i+2) % 3); ++j) {
             CPPUNIT_ASSERT(  r[j].key()   ==        (3*i+4*j)%10 );
             CPPUNIT_ASSERT(  r[j]->addr() == &der1s[(3*i+4*j)%10]);
@@ -727,7 +727,7 @@ void testMultiAssociation::checkWithOwn() {
     { // Read the map
       for (size_t i = 0; i < handleK1->size(); ++i) {
         MultiOwn::const_range r = map[Ref<CKey1>(handleK1, i)];
-        CPPUNIT_ASSERT(r.size() == ((i+2) % 3));
+        CPPUNIT_ASSERT(static_cast<size_t>(r.size()) == ((i+2) % 3));
         for (size_t j = 0; j < ((i+2) % 3); ++j) {
             CPPUNIT_ASSERT((r.begin()+j)->id() == bases[(i+j)%3].id());
         }
