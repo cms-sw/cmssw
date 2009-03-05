@@ -5,10 +5,8 @@
 <use name=FWCore/PluginManager>
 <use name=SimDataFormats/GeneratorProducts>
 <use name=hepmc>
+<use name=clhep>
 <flags EDM_PLUGIN=1>
 <export>
-  <use name=FWCore/Framework>
-  <use name=FWCore/Sources>
-  <use name=hepmc>
   <lib name=IOMCInput>
 </export>
