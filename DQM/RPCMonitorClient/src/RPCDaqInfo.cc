@@ -35,7 +35,7 @@ void RPCDaqInfo::beginLuminosityBlock(const LuminosityBlock& lumiBlock, const  E
     for(unsigned int fedItr=0;fedItr<FedsInIds.size(); ++fedItr) {
       int fedID=FedsInIds[fedItr];
       //make sure fed id is in allowed range  
-  
+
       if(fedID>=FEDRange_.first && fedID<=FEDRange_.second) ++FedCount;
     }   
 
