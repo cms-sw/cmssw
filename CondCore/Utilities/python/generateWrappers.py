@@ -41,12 +41,12 @@ def getClasses(package) :
     _header = 'Condition Objects'
     _ret = []
     _ch = file('../../CondFormats/'+package+'/src/classes.h')
-    if (_ch.read().find(_header)<0) :
+    if (_ch.readline().find(_header)<0) :
         print 'comment header not found in '+package
         return _ret
     for line in _ch:
-        if (line[0:2]==' */') : break
-        _ret.append(line[2:])
+        if (line.find('*/')>0) : break
+        _ret.append(line[3:].rstrip())
     _ch.close()
     return _ret
 
@@ -68,8 +68,8 @@ def declareCondWrapper(package):
     _newch.write(wrapperDeclarationHeader)
     _n=0
     for cl in getClasses(package):
-        _newch.write('pool::Ptr<'+cl+' > p'+str(n)+';')
-        _newch.write('cond::DataWrapper<'+cl+' > dw'+str(n)+';')
+        _newch.write('      pool::Ptr<'+cl+' > p'+str(_n)+';\n')
+        _newch.write('      cond::DataWrapper<'+cl+' > dw'+str(_n)+';\n')
         _n=_n+1
     _newch.write(wrapperDeclarationFooter)
     _newch.close()
