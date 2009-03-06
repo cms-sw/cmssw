@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: sm_hookscript.pl,v 1.6 2008/05/05 15:55:37 loizides Exp $
+# $Id: sm_hookscript.pl,v 1.7 2009/03/05 08:54:44 jserrano Exp $
 ################################################################################
 
 use strict;
@@ -27,10 +27,6 @@ my $checksum    = $ENV{'SM_CHECKSUM'};
 my $producer    = 'StorageManager';
 my $smid        = 1;
 
-if (defined $hostname) {
-    $smid = (split(/-/,$hostname))[2];
-}
-
 # special treatment for calibration stream
 my $doca = $ENV{'SM_CALIB_NFS'};
 if (defined $doca) {
@@ -44,7 +40,7 @@ if (defined $doca) {
 # copy first file per lumi section to look area 
 my $dola = $ENV{'SM_LA_NFS'};
 if (defined $dola) {
-    if ($lumisection == $smid * 5 && $count < 1)
+    if ($lumisection == 5 * ($instance + 1)  && $count < 1)
     {
         my $COPYCOMMAND = '$SMT0_BASE_DIR/sm_nfscopy.sh $SM_LA_NFS $SM_PATHNAME/$SM_FILENAME $SM_LOOKAREA 10';
         system($COPYCOMMAND);
