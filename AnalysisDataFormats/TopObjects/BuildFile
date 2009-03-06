@@ -9,7 +9,6 @@
 <use name=DataFormats/HepMCCandidate>
 <use name=DataFormats/EgammaCandidates>
 <use name=PhysicsTools/CandUtils>
-<use name=rootrflx>
 <use name=root>
 
 <export>

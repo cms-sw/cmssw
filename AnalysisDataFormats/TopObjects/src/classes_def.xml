@@ -4,11 +4,6 @@
   <class name="std::vector<std::pair<int, double> > " />
   <class name="std::vector<std::vector<std::pair<int, double> > >" />
 
-  <class name="JetRejObs" />
-  <class name="std::vector<JetRejObs>" />
-  <class name="edm::Wrapper<std::vector<JetRejObs> >" />
-  <class name="JetRejObsRef" />
-
   <class name="std::pair<unsigned int, double>" />
   <class name="std::vector<std::pair<double, double> >" />
   <class name="std::vector<std::pair<unsigned int, double> >" />
@@ -44,7 +39,7 @@
   <class name="edm::RefProd<TtFullLeptonicEvent>" />
   <class name="edm::RefProd<TtSemiLeptonicEvent>" />
 
-  <class name="std::pair<TtEvent::LepDecay, TtEvent::LepDecay>" />
+  <class name="std::pair<WDecay::LeptonType, WDecay::LeptonType>" />
   <class name="std::pair<reco::CompositeCandidate, std::vector<int> >" />
   <class name="std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > >" />
   <class name="edm::Wrapper<std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > >" />
@@ -53,7 +48,6 @@
 
   <class name="TtDilepEvtSolution" />
   <class name="TtSemiEvtSolution" />
-  <class name="TtSemiMassSolution" />
   <class name="TtHadEvtSolution" />
   <class name="StEvtSolution" />
   <class name="std::vector<TtDilepEvtSolution>" />

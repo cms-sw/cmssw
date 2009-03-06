@@ -17,9 +17,9 @@ TtSemiLeptonicEvent::print()
   else if( this->genEvent()->isSemiLeptonic() ) {
     log << "Semi-leptonic TtBar, ";
     switch( this->genEvent()->semiLeptonicChannel() ) {
-    case TtGenEvent::kElec : log << "Electron"; break;
-    case TtGenEvent::kMuon : log << "Muon"    ; break;
-    case TtGenEvent::kTau  : log << "Tau"     ; break;
+    case WDecay::kElec : log << "Electron"; break;
+    case WDecay::kMuon : log << "Muon"    ; break;
+    case WDecay::kTau  : log << "Tau"     ; break;
     default                : log << "Unknown" ; break;
     }
     log << " Channel";
@@ -33,11 +33,11 @@ TtSemiLeptonicEvent::print()
   log << " - JetLepComb: ";
   for(unsigned idx = 0; idx < 5; idx++) {
     switch(idx) {
-    case TtSemiLepEvtPartonsFwd::LightQ    : log << "LightP "; break;
-    case TtSemiLepEvtPartonsFwd::LightQBar : log << "LightQ "; break;
-    case TtSemiLepEvtPartonsFwd::HadB      : log << " HadB  "; break;
-    case TtSemiLepEvtPartonsFwd::LepB      : log << " LepB  "; break;
-    case TtSemiLepEvtPartonsFwd::Lepton    : log << "Lepton "; break;
+    case TtSemiLepEvtPartons::LightQ    : log << "LightP "; break;
+    case TtSemiLepEvtPartons::LightQBar : log << "LightQ "; break;
+    case TtSemiLepEvtPartons::HadB      : log << " HadB  "; break;
+    case TtSemiLepEvtPartons::LepB      : log << " LepB  "; break;
+    case TtSemiLepEvtPartons::Lepton    : log << "Lepton "; break;
     }
   }
   log << "\n";

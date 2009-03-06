@@ -4,14 +4,13 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtFullLeptonicEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiLeptonicEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/CATopJetTagInfo.h"
+#include "DataFormats/JetReco/interface/BasicJet.h"
+
 #include "AnalysisDataFormats/TopObjects/interface/StEvtSolution.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtDilepEvtSolution.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtHadEvtSolution.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
-#include "AnalysisDataFormats/TopObjects/interface/TtSemiMassSolution.h"
-#include "AnalysisDataFormats/TopObjects/interface/JetRejObs.h"
-#include "AnalysisDataFormats/TopObjects/interface/CATopJetTagInfo.h"
-#include "DataFormats/JetReco/interface/BasicJet.h"
 
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "TString.h"
@@ -21,12 +20,6 @@ namespace {
     std::pair<int,double>  dummy0;
     std::vector<std::pair<int, double> > dummy1;
     std::vector<std::vector<std::pair<int, double> >  > dummy2;
-
-    typedef edm::Ref<std::vector<JetRejObs> > JetRejObsRef;
-    JetRejObs jro;
-    std::vector<JetRejObs> v_jro;
-    edm::Wrapper<std::vector<JetRejObs> > w_v_jro;
-    edm::Ref<std::vector<JetRejObs> > r_jro;
 
     std::pair<unsigned int, double> p_uint_dbl;
     std::vector<std::pair<double, double> > v_p_dbl_dbl;
@@ -67,7 +60,7 @@ namespace {
     edm::RefProd<TtFullLeptonicEvent> rp_ttfullevt;
     edm::RefProd<TtSemiLeptonicEvent> rp_ttsemievt;
 
-    std::pair<TtEvent::LepDecay, TtEvent::LepDecay> p_lepdecay_lepdecay;
+    std::pair<WDecay::LeptonType, WDecay::LeptonType> p_lepdecay_lepdecay;
     std::pair<reco::CompositeCandidate, std::vector<int> > p_compcand_vint;
     std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > v_p_compcand_vint;
     edm::Wrapper<std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > > w_v_p_compcand_vint;
@@ -76,7 +69,6 @@ namespace {
 
     TtDilepEvtSolution ttdilep;
     TtSemiEvtSolution ttsemi;
-    TtSemiMassSolution ttsemimass;
     TtHadEvtSolution tthad;
     StEvtSolution st;
     std::vector<TtDilepEvtSolution> v_ttdilep;

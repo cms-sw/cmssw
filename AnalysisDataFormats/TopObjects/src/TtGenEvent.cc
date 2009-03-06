@@ -1,5 +1,5 @@
 //
-// $Id: TtGenEvent.cc,v 1.22.2.2 2009/01/23 02:12:30 rwolf Exp $
+// $Id: TtGenEvent.cc,v 1.24 2009/02/27 15:22:00 echabert Exp $
 //
 
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -7,29 +7,21 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
-TtGenEvent::TtGenEvent()
-{
-}
 
-TtGenEvent::TtGenEvent(reco::GenParticleRefProd & parts, reco::GenParticleRefProd & inits, int status)
+TtGenEvent::TtGenEvent(reco::GenParticleRefProd & parts, reco::GenParticleRefProd & inits)
 {
   parts_ = parts;
   initPartons_= inits;
-  defaultStatus_ = status;
 }
 
-TtGenEvent::~TtGenEvent()
-{
-}
-
-TtGenEvent::LeptonType 
+WDecay::LeptonType 
 TtGenEvent::semiLeptonicChannel() const 
 {
-  LeptonType type=kNone;
+  WDecay::LeptonType type=WDecay::kNone;
   if( isSemiLeptonic() && singleLepton() ){
-    if( fabs(singleLepton()->pdgId())==11 ) type=kElec;
-    if( fabs(singleLepton()->pdgId())==13 ) type=kMuon;
-    if( fabs(singleLepton()->pdgId())==15 ) type=kTau;
+    if( fabs(singleLepton()->pdgId())==TopDecayID::elecID ) type=WDecay::kElec;
+    if( fabs(singleLepton()->pdgId())==TopDecayID::muonID ) type=WDecay::kMuon;
+    if( fabs(singleLepton()->pdgId())==TopDecayID::tauID  ) type=WDecay::kTau;
   }
   return type;
 }
@@ -38,15 +30,17 @@ const reco::GenParticle*
 TtGenEvent::hadronicDecayQuark(bool invert) const 
 {
   const reco::GenParticle* cand=0;
-  //catch W boson and check for its daughters for a quark
-  if (singleLepton()) {
+  // catch W boson and check its 
+  // daughters for quarks
+  if(singleLepton()) {
     for(reco::GenParticleCollection::const_iterator w=parts_->begin(); w!=parts_->end(); ++w){
-      if( w->status()==defaultStatus_ && abs( w->pdgId() )==TopDecayID::WID ){
+      if( abs( w->pdgId() )==TopDecayID::WID ){
 	// make sure that the particle is a w daughter
 	for(reco::GenParticle::const_iterator wd=w->begin(); wd!=w->end(); ++wd){ 
 	  // make sure that the parton is a quark
-	  if( wd->status()==defaultStatus_ && abs(wd->pdgId())<TopDecayID::tID){
-	    if( invert ){ //treat ~q case
+	  if( abs(wd->pdgId())<TopDecayID::tID){
+	    if( invert ){ 
+	      //treat ~q case
 	      if( reco::flavour(*wd)<0 ){
 		cand = dynamic_cast<const reco::GenParticle* > (&(*wd));
 		if(cand == 0){
@@ -55,7 +49,8 @@ TtGenEvent::hadronicDecayQuark(bool invert) const
 		break;
 	      }
 	    }
-	    else{         //treat q case
+	    else{ 
+	      //treat q case
 	      if( reco::flavour(*wd)>0 ){
 		cand = dynamic_cast<const reco::GenParticle* > (&(*wd));
 		if(cand == 0){
@@ -77,11 +72,11 @@ TtGenEvent::hadronicDecayB() const
 {
   const reco::GenParticle* cand=0;
   if (singleLepton()) {
-    const reco::GenParticleCollection & partsColl = *parts_;
-    const reco::GenParticle & singleLep = *singleLepton();
-    for (unsigned int i = 0; i < partsColl.size(); ++i) {
-      if (abs(partsColl[i].pdgId())==5 &&  partsColl[i].status()==defaultStatus_ &&
-	  reco::flavour(singleLep)==reco::flavour(partsColl[i])) {
+    const reco::GenParticleCollection& partsColl = *parts_;
+    const reco::GenParticle& singleLep = *singleLepton();
+    for(unsigned int i = 0; i < partsColl.size(); ++i) {
+      if(abs(partsColl[i].pdgId())==TopDecayID::bID &&
+	  reco::flavour(singleLep)==reco::flavour(partsColl[i])){
         cand = &partsColl[i];
       }
     }
@@ -96,9 +91,10 @@ TtGenEvent::hadronicDecayW() const
   if (singleLepton()) {
     const reco::GenParticleCollection & partsColl = *parts_;
     const reco::GenParticle & singleLep = *singleLepton();
-    for (unsigned int i = 0; i < partsColl.size(); ++i) {
-      if (abs(partsColl[i].pdgId())==24 && partsColl[i].status()==defaultStatus_ &&
-          reco::flavour(singleLep) != - reco::flavour(partsColl[i])) { // PDG Id:13=mu- 24=W+ (+24)->(-13) (-24)->(+13) opposite sign
+    for(unsigned int i = 0; i < partsColl.size(); ++i) {
+      if(abs(partsColl[i].pdgId())==TopDecayID::WID &&
+          reco::flavour(singleLep) != -reco::flavour(partsColl[i])){ 
+	// PDG Id:13=mu- 24=W+ (+24)->(-13) (-24)->(+13) opposite sign
 	cand = &partsColl[i];
       }
     }
@@ -113,8 +109,8 @@ TtGenEvent::hadronicDecayTop() const
   if (singleLepton()) {
     const reco::GenParticleCollection & partsColl = *parts_;
     const reco::GenParticle & singleLep = *singleLepton();
-    for (unsigned int i = 0; i < partsColl.size(); ++i) {
-      if (abs(partsColl[i].pdgId())==6 && partsColl[i].status()==defaultStatus_ &&
+    for(unsigned int i = 0; i < partsColl.size(); ++i){
+      if(abs(partsColl[i].pdgId())==TopDecayID::tID &&
           reco::flavour(singleLep)==reco::flavour(partsColl[i])) {
         cand = &partsColl[i];
       }
@@ -130,8 +126,8 @@ TtGenEvent::leptonicDecayB() const
   if (singleLepton()) {
     const reco::GenParticleCollection & partsColl = *parts_;
     const reco::GenParticle & singleLep = *singleLepton();
-    for (unsigned int i = 0; i < partsColl.size(); ++i) {
-      if (abs(partsColl[i].pdgId())==5 && partsColl[i].status()==defaultStatus_ &&
+    for(unsigned int i = 0; i < partsColl.size(); ++i){
+      if(abs(partsColl[i].pdgId())==TopDecayID::bID &&
           reco::flavour(singleLep)!=reco::flavour(partsColl[i])) {
         cand = &partsColl[i];
       }
@@ -147,9 +143,10 @@ TtGenEvent::leptonicDecayW() const
   if (singleLepton()) {
     const reco::GenParticleCollection & partsColl = *parts_;
     const reco::GenParticle & singleLep = *singleLepton();
-    for (unsigned int i = 0; i < partsColl.size(); ++i) {
-      if (abs(partsColl[i].pdgId())==24 && partsColl[i].status()==defaultStatus_ &&
-          reco::flavour(singleLep) == - reco::flavour(partsColl[i])) { // PDG Id:13=mu- 24=W+ (+24)->(-13) (-24)->(+13) opposite sign
+    for(unsigned int i = 0; i < partsColl.size(); ++i){
+      if(abs(partsColl[i].pdgId())==TopDecayID::WID &&
+          reco::flavour(singleLep) == -reco::flavour(partsColl[i])) { 
+	// PDG Id:13=mu- 24=W+ (+24)->(-13) (-24)->(+13) opposite sign
         cand = &partsColl[i];
       }
     }
@@ -164,8 +161,8 @@ TtGenEvent::leptonicDecayTop() const
   if (singleLepton()) {
     const reco::GenParticleCollection & partsColl = *parts_;
     const reco::GenParticle & singleLep = *singleLepton();
-    for (unsigned int i = 0; i < partsColl.size(); ++i) {
-      if (abs(partsColl[i].pdgId())==6 && partsColl[i].status()==defaultStatus_ &&
+    for(unsigned int i = 0; i < partsColl.size(); ++i){
+      if(abs(partsColl[i].pdgId())==TopDecayID::tID &&
           reco::flavour(singleLep)!=reco::flavour(partsColl[i])) {
         cand = &partsColl[i];
       }
@@ -179,10 +176,13 @@ TtGenEvent::lepton() const
 {
   const reco::GenParticle* cand=0;
   const reco::GenParticleCollection & partsColl = *parts_;
-  for (unsigned int i = 0; i < partsColl.size(); ++i) { // particles keep status 3 in decaySubset
-    if (reco::isLepton(partsColl[i]) && reco::flavour(partsColl[i])>0&&(partsColl[i].status()==3)) {
-      cand = &partsColl[i];
-    }  
+  for(unsigned int i = 0; i < partsColl.size(); ++i){ 
+    if(reco::isLepton(partsColl[i]) && partsColl[i].mother() && 
+       abs(partsColl[i].mother()->pdgId())==TopDecayID::WID){
+      if( reco::flavour(partsColl[i])>0 ) {
+	cand = &partsColl[i];
+      } 
+    }
   }
   return cand;
 }
@@ -192,9 +192,12 @@ TtGenEvent::neutrino() const
 {
   const reco::GenParticle* cand=0;
   const reco::GenParticleCollection & partsColl = *parts_;
-  for (unsigned int i = 0; i < partsColl.size(); ++i) { // particles keep status 3 in decaySubset
-    if (reco::isNeutrino(partsColl[i]) && reco::flavour(partsColl[i])>0&&(partsColl[i].status()==3)) {
-      cand = &partsColl[i];
+  for (unsigned int i = 0; i < partsColl.size(); ++i){
+    if(reco::isNeutrino(partsColl[i]) && partsColl[i].mother() && 
+       abs(partsColl[i].mother()->pdgId())==TopDecayID::WID){
+      if( reco::flavour(partsColl[i])>0 ) {
+	cand = &partsColl[i];
+      }
     }  
   }
   return cand;
@@ -205,10 +208,13 @@ TtGenEvent::leptonBar() const
 {
   const reco::GenParticle* cand=0;
   const reco::GenParticleCollection & partsColl = *parts_;
-  for (unsigned int i = 0; i < partsColl.size(); ++i) { // particles keep status 3 in decaySubset
-    if (reco::isLepton(partsColl[i]) && reco::flavour(partsColl[i])<0&&(partsColl[i].status()==3)) {
-      cand = &partsColl[i];
-    }  
+  for(unsigned int i = 0; i < partsColl.size(); ++i){ 
+    if(reco::isLepton(partsColl[i]) && partsColl[i].mother() && 
+       abs(partsColl[i].mother()->pdgId())==TopDecayID::WID){
+      if( reco::flavour(partsColl[i])<0 ) {
+	cand = &partsColl[i];
+      } 
+    }
   }
   return cand;
 }
@@ -218,22 +224,25 @@ TtGenEvent::neutrinoBar() const
 {
   const reco::GenParticle* cand=0;
   const reco::GenParticleCollection & partsColl = *parts_;
-  for (unsigned int i = 0; i < partsColl.size(); ++i) { // particles keep status 3 in decaySubset
-    if (reco::isNeutrino(partsColl[i]) && reco::flavour(partsColl[i])<0&&(partsColl[i].status()==3)) {
-      cand = &partsColl[i];
+  for (unsigned int i = 0; i < partsColl.size(); ++i){
+    if(reco::isNeutrino(partsColl[i]) && partsColl[i].mother() && 
+       abs(partsColl[i].mother()->pdgId())==TopDecayID::WID){
+      if( reco::flavour(partsColl[i])>0 ) {
+	cand = &partsColl[i];
+      }
     }  
   }
   return cand;
 }
 
 const reco::GenParticle* 
-TtGenEvent::quarkFromTop() const 
+TtGenEvent::lightQFromTopBar() const 
 {
   const reco::GenParticle* cand=0;
   const reco::GenParticleCollection & partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
-    if (partsColl[i].mother(0) && reco::flavour(*(partsColl[i].mother(0)))<0 &&
-        abs(partsColl[i].pdgId())<5 && reco::flavour(partsColl[i])>0 && partsColl[i].status()==defaultStatus_) {
+    if(partsColl[i].mother() && partsColl[i].mother()->pdgId()==-TopDecayID::WID &&
+       abs(partsColl[i].pdgId())<TopDecayID::bID && reco::flavour(partsColl[i])>0){
       cand = &partsColl[i];
     }
   }
@@ -241,13 +250,13 @@ TtGenEvent::quarkFromTop() const
 }
 
 const reco::GenParticle* 
-TtGenEvent::quarkFromTopBar() const 
+TtGenEvent::lightQBarFromTopBar() const 
 {
   const reco::GenParticle* cand=0;
   const reco::GenParticleCollection & partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
-    if (partsColl[i].mother(0) && reco::flavour(*(partsColl[i].mother(0)))<0 &&
-        abs(partsColl[i].pdgId())<5 && reco::flavour(partsColl[i])<0 && partsColl[i].status()==defaultStatus_) {
+    if(partsColl[i].mother() && partsColl[i].mother()->pdgId()==-TopDecayID::WID &&
+       abs(partsColl[i].pdgId())<TopDecayID::bID && reco::flavour(partsColl[i])<0){
       cand = &partsColl[i];
     }
   }
@@ -255,13 +264,13 @@ TtGenEvent::quarkFromTopBar() const
 }
 
 const reco::GenParticle* 
-TtGenEvent::quarkFromAntiTop() const 
+TtGenEvent::lightQFromTop() const 
 {
   const reco::GenParticle* cand=0;
   const reco::GenParticleCollection & partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
-    if (partsColl[i].mother(0) && reco::flavour(*(partsColl[i].mother(0)))>0 &&
-        abs(partsColl[i].pdgId())<5 && reco::flavour(partsColl[i])>0 && partsColl[i].status()==defaultStatus_) {
+    if(partsColl[i].mother() && partsColl[i].mother()->pdgId()==TopDecayID::WID &&
+       abs(partsColl[i].pdgId())<TopDecayID::bID && reco::flavour(partsColl[i])>0){
       cand = &partsColl[i];
     }  
   }
@@ -269,13 +278,13 @@ TtGenEvent::quarkFromAntiTop() const
 }
 
 const reco::GenParticle* 
-TtGenEvent::quarkFromAntiTopBar() const 
+TtGenEvent::lightQBarFromTop() const 
 {
   const reco::GenParticle* cand=0;
   const reco::GenParticleCollection & partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
-    if (partsColl[i].mother(0) && reco::flavour(*(partsColl[i].mother(0)))>0 &&
-        abs(partsColl[i].pdgId())<5 && reco::flavour(partsColl[i])<0 && partsColl[i].status()==defaultStatus_) {
+    if(partsColl[i].mother() && partsColl[i].mother()->pdgId()==TopDecayID::WID &&
+       abs(partsColl[i].pdgId())<TopDecayID::bID && reco::flavour(partsColl[i])<0){
       cand = &partsColl[i];
     }  
   }
@@ -283,15 +292,17 @@ TtGenEvent::quarkFromAntiTopBar() const
 }
 
 std::vector<const reco::GenParticle*> TtGenEvent::leptonicDecayTopRadiation() const{
-  if(leptonicDecayTop() && leptonicDecayTop()->pdgId()==6) return (topRadiation());
-  if(leptonicDecayTop() && leptonicDecayTop()->pdgId()==-6) return (topBarRadiation());
+  if(leptonicDecayTop()){
+    return (hadronicDecayTop()->pdgId()>0 ? radiatedGluons(TopDecayID::tID) : radiatedGluons(-TopDecayID::tID));
+  }
   std::vector<const reco::GenParticle*> rad;
   return (rad);
 }
 
 std::vector<const reco::GenParticle*> TtGenEvent::hadronicDecayTopRadiation() const{
-  if(hadronicDecayTop() && hadronicDecayTop()->pdgId()==6) return (topRadiation());
-  if(hadronicDecayTop() && hadronicDecayTop()->pdgId()==-6) return (topBarRadiation());
+  if(hadronicDecayTop()){
+    return (hadronicDecayTop()->pdgId()>0 ? radiatedGluons(TopDecayID::tID) : radiatedGluons(-TopDecayID::tID));
+  }
   std::vector<const reco::GenParticle*> rad;
   return (rad);
 }

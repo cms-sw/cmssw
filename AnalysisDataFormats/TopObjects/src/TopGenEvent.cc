@@ -2,14 +2,14 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "PhysicsTools/CandUtils/interface/pdgIdUtils.h"
-#include "AnalysisDataFormats/TopObjects/interface/TopGenEvent.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "AnalysisDataFormats/TopObjects/interface/TopGenEvent.h"
 
-TopGenEvent::TopGenEvent(reco::GenParticleRefProd& parts, reco::GenParticleRefProd& inits, int status)
+/// default contructor
+TopGenEvent::TopGenEvent(reco::GenParticleRefProd& parts, reco::GenParticleRefProd& inits)
 {
   parts_ = parts; 
   initPartons_= inits;
-  defaultStatus_ = status;
 }
 
 const reco::GenParticle*
@@ -18,7 +18,7 @@ TopGenEvent::candidate(int id) const
   const reco::GenParticle* cand=0;
   const reco::GenParticleCollection & partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
-    if (partsColl[i].pdgId()==id && partsColl[i].status()==defaultStatus_) {
+    if (partsColl[i].pdgId()==id) {
       cand = &partsColl[i];
     }
   }  
@@ -43,56 +43,41 @@ TopGenEvent::dumpEventContent() const
 }
 
 int
-TopGenEvent::numberOfLeptons() const
+TopGenEvent::numberOfLeptons(bool fromWBoson) const
 {
   int lep=0;
-  const reco::GenParticleCollection & partsColl = *parts_;
-  for (unsigned int i = 0; i < partsColl.size(); ++i) {
-    if (reco::isLepton(partsColl[i])&&(partsColl[i].status()==3)) {
-      ++lep;
+  const reco::GenParticleCollection& partsColl = *parts_;
+  for(unsigned int i = 0; i < partsColl.size(); ++i) {
+    if(reco::isLepton(partsColl[i])) {
+      if(fromWBoson){
+	if(partsColl[i].mother() &&  abs(partsColl[i].mother()->pdgId())==TopDecayID::WID){
+	  ++lep;
+	}
+      }
+      else{
+	++lep;
+      }
     }
   }  
   return lep;
 }
 
 int
-TopGenEvent::numberOfLeptonsFromW() const
-{
-  int lep=0;
-  const reco::GenParticleCollection & partsColl = *parts_;
-  for (unsigned int i = 0; i < partsColl.size(); ++i) {
-    if (reco::isLepton(partsColl[i])&&(partsColl[i].status()==4) && 
-    // Leptons are coming from W decay 
-     partsColl[i].mother() &&  abs(partsColl[i].mother()->pdgId())==24  ) {
-      ++lep;
-    }
-  }  
-  return lep;
-}
-int
-TopGenEvent::numberOfBQuarks() const
+TopGenEvent::numberOfBQuarks(bool fromTopQuark) const
 {
   int bq=0;
   const reco::GenParticleCollection & partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
    //depend if radiation qqbar are included or not
-    if (abs(partsColl[i].pdgId())==5 && partsColl[i].status()==4) {// &&
-      //abs(partsColl[i].mother()->pdgId())==6) {
-      ++bq;
-    }
-  }  
-  return bq;
-}
-
-int
-TopGenEvent::numberOfBQuarksFromTop() const
-{
-  int bq=0;
-  const reco::GenParticleCollection & partsColl = *parts_;
-  for (unsigned int i = 0; i < partsColl.size(); ++i) {
-   //depend if radiation qqbar are included or not
-    if (abs(partsColl[i].pdgId())==5 && partsColl[i].status()==4 && abs(partsColl[i].mother()->pdgId())==6) {
-      ++bq;
+    if(abs(partsColl[i].pdgId())==TopDecayID::bID){
+      if(fromTopQuark){
+	if(partsColl[i].mother() &&  abs(partsColl[i].mother()->pdgId())==TopDecayID::tID){
+	  ++bq;
+	}
+      }
+      else{
+	++bq;
+      }
     }
   }  
   return bq;
@@ -102,10 +87,11 @@ const reco::GenParticle*
 TopGenEvent::singleLepton() const 
 {
   const reco::GenParticle* cand = 0;
-  if (numberOfLeptonsFromW() == 1) {
+  if (numberOfLeptons() == 1) {
     const reco::GenParticleCollection & partsColl = *parts_;
     for (unsigned int i = 0; i < partsColl.size(); ++i) {
-     if (reco::isLepton(partsColl[i])&&(partsColl[i].status()==defaultStatus_)&&(partsColl[i].mother())&&( abs(partsColl[i].mother()->pdgId()))==24) {
+      if (reco::isLepton(partsColl[i]) && partsColl[i].mother() &&
+	  abs(partsColl[i].mother()->pdgId())==TopDecayID::WID) {
         cand = &partsColl[i];
       }
     }
@@ -117,10 +103,11 @@ const reco::GenParticle*
 TopGenEvent::singleNeutrino() const 
 {
   const reco::GenParticle* cand=0;
-  if (numberOfLeptonsFromW()==1) {
+  if (numberOfLeptons() == 1) {
     const reco::GenParticleCollection & partsColl = *parts_;
     for (unsigned int i = 0; i < partsColl.size(); ++i) {
-      if (reco::isNeutrino(partsColl[i])&&(partsColl[i].status()==defaultStatus_)&&(partsColl[i].mother())&&abs(partsColl[i].mother()->pdgId())==24) {
+      if (reco::isNeutrino(partsColl[i]) && partsColl[i].mother() &&
+	  abs(partsColl[i].mother()->pdgId())==TopDecayID::WID) {
         cand = &partsColl[i];
       }
     }
@@ -132,9 +119,8 @@ std::vector<const reco::GenParticle*>
 TopGenEvent::lightQuarks(bool bIncluded) const 
 {
   std::vector<const reco::GenParticle*> lightQuarks;
-  reco::GenParticleCollection::const_iterator part = parts_->begin();
-  for ( ; part < parts_->end(); ++part) {
-    if( (bIncluded && abs(part->pdgId())==5) || (abs(part->pdgId())<5) && (part->status()==defaultStatus_) ) {
+  for (reco::GenParticleCollection::const_iterator part = parts_->begin(); part < parts_->end(); ++part) {
+    if( (bIncluded && abs(part->pdgId())==TopDecayID::bID) || abs(part->pdgId())<TopDecayID::bID ) {
       if( dynamic_cast<const reco::GenParticle*>( &(*part) ) == 0){
 	throw edm::Exception( edm::errors::InvalidReference, "Not a GenParticle" );
       }
@@ -144,45 +130,18 @@ TopGenEvent::lightQuarks(bool bIncluded) const
   return lightQuarks;
 }
 
-std::vector<const reco::GenParticle*> TopGenEvent::topRadiation() const{
-  std::vector<const reco::GenParticle*> topRadiation;
-  reco::GenParticleCollection::const_iterator part = parts_->begin();
-  for ( ; part < parts_->end(); ++part) {
-    if ( part->mother()!=NULL && part->mother()->pdgId()==6 && part->mother()->status()==3 && part->status()==2 ){
-      if( dynamic_cast<const reco::GenParticle*>( &(*part) ) == 0){
-	throw edm::Exception( edm::errors::InvalidReference, "Not a GenParticle" );
+std::vector<const reco::GenParticle*> 
+TopGenEvent::radiatedGluons(int pdgId) const{
+  std::vector<const reco::GenParticle*> rads;
+  for (reco::GenParticleCollection::const_iterator part = parts_->begin(); part < parts_->end(); ++part) {
+    if ( part->mother() && part->mother()->pdgId()==pdgId ){
+      if(part->pdgId()==TopDecayID::glueID){
+	if( dynamic_cast<const reco::GenParticle*>( &(*part) ) == 0){
+	  throw edm::Exception( edm::errors::InvalidReference, "Not a GenParticle" );
+	}
       }
-      topRadiation.push_back( part->clone() );
+      rads.push_back( part->clone() );
     }
   }  
-  return topRadiation;
-}
-
-std::vector<const reco::GenParticle*> TopGenEvent::topBarRadiation() const{
-  std::vector<const reco::GenParticle*> topBarRadiation;
-  reco::GenParticleCollection::const_iterator part = parts_->begin();
-  for ( ; part < parts_->end(); ++part) {
-    if ( part->mother()!=NULL && part->mother()->pdgId()==-6 && part->mother()->status()==3 && part->status()==2 ){
-      if( dynamic_cast<const reco::GenParticle*>( &(*part) ) == 0){
-	throw edm::Exception( edm::errors::InvalidReference, "Not a GenParticle" );
-      }
-      topBarRadiation.push_back( part->clone() );
-    }
-  }  
-  return topBarRadiation;
-}
-
-std::vector<const reco::GenParticle*> TopGenEvent::ISR() const{
-  std::vector<const reco::GenParticle*> ISR;
-  reco::GenParticleCollection::const_iterator part = parts_->begin();
-  for ( ; part < parts_->end(); ++part) {
-    if ( part->pdgId()==21 && part->status()==3 && part->numberOfMothers()==0 ){
-    // ISR are the only gluons status 3 in the collection & they don't have mother
-      if( dynamic_cast<const reco::GenParticle*>( &(*part) ) == 0){
-	throw edm::Exception( edm::errors::InvalidReference, "Not a GenParticle" );
-      }
-      ISR.push_back( part->clone() );
-    }
-  }  
-  return ISR;
+  return rads;
 }

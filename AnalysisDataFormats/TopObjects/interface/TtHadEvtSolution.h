@@ -1,7 +1,7 @@
 #ifndef TopObjects_TtHadEvtSolution_h
 #define TopObjects_TtHadEvtSolution_h
 //
-// $Id: TtHadEvtSolution.h,v 1.9 2008/11/14 19:20:51 rwolf Exp $
+// $Id: TtHadEvtSolution.h,v 1.10 2008/12/18 21:20:10 rwolf Exp $
 // adapted TtSemiEvtSolution.h,v 1.14 2007/07/06 03:07:47 lowette Exp 
 // for fully hadronic channel
 
@@ -51,10 +51,10 @@ class TtHadEvtSolution {
   const edm::RefProd<TtGenEvent> & getGenEvent() const { return theGenEvt_; };
   const reco::GenParticle * getGenHadb() const { if (!theGenEvt_) return 0; else return theGenEvt_->b(); };
   const reco::GenParticle * getGenHadbbar() const { if (!theGenEvt_) return 0; else return theGenEvt_->bBar(); };
-  const reco::GenParticle * getGenHadp() const { if (!theGenEvt_) return 0; else return theGenEvt_->quarkFromTop(); };
-  const reco::GenParticle * getGenHadq() const { if (!theGenEvt_) return 0; else return theGenEvt_->quarkFromTopBar(); };
-  const reco::GenParticle * getGenHadj() const { if (!theGenEvt_) return 0; else return theGenEvt_->quarkFromAntiTop(); };
-  const reco::GenParticle * getGenHadk() const { if (!theGenEvt_) return 0; else return theGenEvt_->quarkFromAntiTopBar(); };
+  const reco::GenParticle * getGenHadp() const { if (!theGenEvt_) return 0; else return theGenEvt_->lightQFromTop(); };
+  const reco::GenParticle * getGenHadq() const { if (!theGenEvt_) return 0; else return theGenEvt_->lightQBarFromTop(); };
+  const reco::GenParticle * getGenHadj() const { if (!theGenEvt_) return 0; else return theGenEvt_->lightQFromTopBar(); };
+  const reco::GenParticle * getGenHadk() const { if (!theGenEvt_) return 0; else return theGenEvt_->lightQBarFromTopBar(); };
   
   //-------------------------------------------
   // get (un-)/calibrated reco objects
