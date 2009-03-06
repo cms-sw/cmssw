@@ -21,16 +21,43 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
+
+  cout << "Running UEAnalysis..." << endl;
   
+  if ( argc != 6 )
+    {
+      /// old command was
+      ///
+      ///  ./UEAnalysis list test.root UEGen MB 1 2 1500 1500
+      ///
+      /// new command is
+      ///
+      /// ./UEAnalysis list test.root UEGen 2 1500
+
+      cout << "[Fatal Error] Wrong number of parameters. Please run by invoking" << endl;
+      cout << "              ./UEAnalysis <input list> <output> <mode> <eta-range> <pT-threshold>" << endl;
+      cout << "exitting ..." << endl;
+
+      return 1;
+    }
+
   char* filelist = argv[1];
   char* outname = argv[2];
   char* type = argv[3];
-  char* jetStream = argv[4];
-  Float_t lumi=atof(argv[5]);
-  Float_t eta=atof(argv[6]);
-  char* tkCut= argv[7];
-  Float_t ptCut = atof(argv[8]);
+  char* jetStream = "";
+  Float_t lumi= 1.;
+  Float_t eta=atof(argv[4]);
+  char* tkCut= argv[5];
+  Float_t ptCut = atof(tkCut);
 
+  cout << endl;
+  cout << "\tinput list   " << filelist << endl;
+  cout << "\toutput       " << outname << endl;
+  cout << "\tmode         " << type << endl;
+  cout << "\teta-range    -" << eta << " ... " << eta << endl;
+  cout << "\tpT-threshold " << ptCut << " MeV/c" << endl;
+  cout << endl;
+  
   string Trigger(jetStream);
   string AnalysisType(type);
   string TracksPt(tkCut);
