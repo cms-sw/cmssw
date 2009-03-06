@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctRawToDigi.h,v 1.21 2008/07/14 13:03:29 tapper Exp $
+// $Id: GctRawToDigi.h,v 1.22 2008/11/05 20:46:52 tapper Exp $
 //
 //
 
@@ -70,15 +70,6 @@ private: // members
   // unpacking options
   const bool hltMode_;  // If true, only outputs the GT output data, and only BX = 0.
   const bool grenCompatibilityMode_;  // If true, use old-style (GREN07 era) block headers & pipe format.
-  const bool doEm_;
-  const bool doJets_;
-  const bool doEtSums_;
-  const bool doInternEm_;
-  const bool doInternJets_;
-  const bool doInternESums_;
-  const bool doInternHF_;
-  const bool doRct_;
-  const bool doFibres_;
 
   // Block to Digi converter
   GctBlockUnpackerBase * blockUnpacker_;
