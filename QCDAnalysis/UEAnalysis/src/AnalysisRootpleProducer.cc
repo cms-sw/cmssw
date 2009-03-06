@@ -47,16 +47,17 @@ void AnalysisRootpleProducer::fillEventInfo(int e){
 AnalysisRootpleProducer::AnalysisRootpleProducer( const ParameterSet& pset )
 {
   // flag to ignore gen-level analysis
-  onlyRECO = pset.getUntrackedParameter<bool>("OnlyRECO",false);
+  onlyRECO = pset.getParameter<bool>("OnlyRECO");
 
   // particle, track and jet collections
-  mcEvent = pset.getUntrackedParameter<InputTag>("MCEvent",std::string(""));
-  genJetCollName = pset.getUntrackedParameter<InputTag>("GenJetCollectionName",std::string(""));
-  chgJetCollName = pset.getUntrackedParameter<InputTag>("ChgGenJetCollectionName",std::string(""));
-  tracksJetCollName = pset.getUntrackedParameter<InputTag>("TracksJetCollectionName",std::string(""));
-  recoCaloJetCollName = pset.getUntrackedParameter<InputTag>("RecoCaloJetCollectionName",std::string(""));
-  chgGenPartCollName = pset.getUntrackedParameter<InputTag>("ChgGenPartCollectionName",std::string(""));
-  tracksCollName = pset.getUntrackedParameter<InputTag>("TracksCollectionName",std::string(""));
+  mcEvent             = pset.getParameter<InputTag>( "MCEvent"                   );
+  genJetCollName      = pset.getParameter<InputTag>( "GenJetCollectionName"      );
+  chgJetCollName      = pset.getParameter<InputTag>( "ChgGenJetCollectionName"   );
+  tracksJetCollName   = pset.getParameter<InputTag>( "TracksJetCollectionName"   );
+  recoCaloJetCollName = pset.getParameter<InputTag>( "RecoCaloJetCollectionName" );
+  chgGenPartCollName  = pset.getParameter<InputTag>( "ChgGenPartCollectionName"  );
+  tracksCollName      = pset.getParameter<InputTag>( "TracksCollectionName"      );
+  genEventScaleTag    = pset.getParameter<InputTag>( "genEventScale"             );
 
   //   cout << genJetCollName.label() << endl;
   //   cout << chgJetCollName.label() << endl;
@@ -65,7 +66,7 @@ AnalysisRootpleProducer::AnalysisRootpleProducer( const ParameterSet& pset )
 
   // trigger results
   triggerResultsTag = pset.getParameter<InputTag>("triggerResults");
-  triggerEventTag   = pset.getParameter<InputTag>("triggerEvent");
+  triggerEventTag   = pset.getParameter<InputTag>("triggerEvent"  );
   //   hltFilterTag      = pset.getParameter<InputTag>("hltFilter");
   //   triggerName       = pset.getParameter<InputTag>("triggerName");
 
@@ -111,7 +112,12 @@ void AnalysisRootpleProducer::beginJob( const EventSetup& )
   
 void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
 {
-  if ( e.getByLabel( "genEventScale", genEventScaleHandle ) ) genEventScale = *genEventScaleHandle;
+  ///
+  /// Pythia: genEventScaleTag = "genEventScale"
+  /// Herwig: genEventScaleTag = "genEventKTValue"
+  ///
+
+  if ( e.getByLabel( genEventScaleTag, genEventScaleHandle ) ) genEventScale = *genEventScaleHandle;
 
   // access trigger bits by TriggerEvent
   //   acceptedTriggers->Clear();
@@ -255,22 +261,22 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
 
 
 	  //======
-	  bool found( false );
-	  for (int iParticle(0), iParticleEnd( pdgidList.size() ); iParticle<iParticleEnd; ++iParticle) 
-	    {
-	      //cout << "Particle pdgid " << it->pdgId() << " charge " << it->charge() << endl; 
-	      if ( it->pdgId()==pdgidList[iParticle] )
-		{
-		  found = true;
-		  break;
-		}
-	    }
-	  if (!found) 
-	    {
-	      //cout << "Particle pdgid " << it->pdgId() << " status " << it->status() << endl; 
-	      //cout << "Particle pdgid " << it->pdgId() << " charge " << it->charge() << endl;
-	      pdgidList.push_back( it->pdgId() );
-	    }
+	  // 	  bool found( false );
+	  // 	  for (int iParticle(0), iParticleEnd( pdgidList.size() ); iParticle<iParticleEnd; ++iParticle) 
+	  // 	    {
+	  // 	      //cout << "Particle pdgid " << it->pdgId() << " charge " << it->charge() << endl; 
+	  // 	      if ( it->pdgId()==pdgidList[iParticle] )
+	  // 		{
+	  // 		  found = true;
+	  // 		  break;
+	  // 		}
+	  // 	    }
+	  // 	  if (!found) 
+	  // 	    {
+	  // 	      //cout << "Particle pdgid " << it->pdgId() << " status " << it->status() << endl; 
+	  // 	      //cout << "Particle pdgid " << it->pdgId() << " charge " << it->charge() << endl;
+	  // 	      pdgidList.push_back( it->pdgId() );
+	  // 	    }
 	  //======
 
 

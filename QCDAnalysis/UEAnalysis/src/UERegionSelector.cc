@@ -55,6 +55,8 @@ void UERegionSelector::produce(Event& e, const EventSetup& )
 			       << jet->eta() << ", "
 			       << jet->phi() << ")" << endl;
 
+		  unsigned int itrack(0);
+
 		  // ===== loop over particles
 // 		  for( View<Candidate>::const_iterator it(particleHandle->begin()), 
 // 			 itEnd(particleHandle->end());
@@ -78,7 +80,15 @@ void UERegionSelector::produce(Event& e, const EventSetup& )
 			{
 			  //			  auto_ptr<Candidate> ptr( particle->clone() );
 			  Track *newTrack( new Track(*track) );
+
 			  ueRegionTracks->push_back( *newTrack );
+
+// 			  cout << "TEllipse* ellipse" << itrack << " = getEllipse( ";
+// 			  cout << track->pt() << ", ";
+// 			  cout << track->phi() << ", ";
+// 			  cout << track->charge() << ", alpha); ellipse" << itrack << "->Draw(\"same\");\n";
+
+			  ++itrack;
 			}
 		    }
 		}
@@ -90,7 +100,6 @@ void UERegionSelector::produce(Event& e, const EventSetup& )
 	       << " Candidates in selected phi-region around leading jet" << endl;
 
   e.put( ueRegionTracks );
-
  
 }
 
