@@ -129,7 +129,7 @@ void PFTopProjector::produce(Event& iEvent,
 			 inputTagIsolatedElectrons_, 
 			 iEvent );
 
-  Handle<IsolatedPFCandidateCollection> pfIsolatedMuons;
+  Handle<PFCandidateCollection> pfIsolatedMuons;
   pfpat::fetchCollection(pfIsolatedMuons, 
 			 inputTagIsolatedMuons_, 
 			 iEvent );
