@@ -4,11 +4,7 @@ import FWCore.ParameterSet.Config as cms
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 ALCARECOTkAlMuonIsolatedHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
     andOr = True, ## choose logical OR between Triggerbits
-    # for L = 8E29: HLT_L1MuOpen HLT_L1Mu HLT_L2Mu9 HLT_Mu3 HLT_Mu5 HLT_DoubleMu3
-    # for L = 1E31: HLT_L1MuOpen HLT_L1Mu HLT_Mu5 HLT_Mu9 HLT_Mu11 HLT_DoubleMu3
-    HLTPaths = ["HLT_L1MuOpen", "HLT_L1Mu", "HLT_L2Mu9",
-                "HLT_Mu3", "HLT_Mu5", "HLT_Mu9", "HLT_Mu11",
-                "HLT_DoubleMu3"],
+    eventSetupPathsKey = 'TkAlMuonIsolated',
     throw = False # tolerate triggers stated above, but not available
     )
 

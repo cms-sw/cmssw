@@ -5,15 +5,7 @@ import HLTrigger.HLTfilters.hltHighLevel_cfi
 #Note the MinBias selection should contain as many tracks as possible but no overlaps. So the HLT selection selects any event that is not selected in another TkAl* selector.
 ALCARECOTkAlMinBiasNOTHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
     andOr = True, ## choose logical OR between Triggerbits
-    HLTPaths = [
-        #TkAlMuonIsolated
-        "HLT_L1MuOpen", "HLT_L1Mu", "HLT_L2Mu9",
-        "HLT_Mu3", "HLT_Mu5", "HLT_Mu9", "HLT_Mu11",
-        #TkAlMuonIsolated _and_ TkAl[Z,Jpsi,Upsilon]MuMu
-        "HLT_DoubleMu3",
-        #TkAlCosmics{0T}HLT
-        'HLT_TrackerCosmics'
-        ],
+    eventSetupPathsKey = 'TkAlMinBiasNOT',
     throw = False # tolerate triggers stated above, but not available
     )
 

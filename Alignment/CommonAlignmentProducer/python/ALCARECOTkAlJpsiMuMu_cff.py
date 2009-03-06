@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 ALCARECOTkAlJpsiMuMuHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
     andOr = True, ## choose logical OR between Triggerbits
-    HLTPaths = ['HLT_DoubleMu3'],
+    eventSetupPathsKey = 'TkAlJpsiMuMu',
     throw = False # tolerate triggers stated above, but not available
     )
 
