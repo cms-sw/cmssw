@@ -1,7 +1,5 @@
 #include "TopQuarkAnalysis/TopTools/interface/JetPartonMatching.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include <Math/VectorUtil.h>
 
 JetPartonMatching::JetPartonMatching(const std::vector<const reco::Candidate*>& p, const std::vector<reco::GenJet>& j,

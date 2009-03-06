@@ -1,7 +1,6 @@
 <use name=AnalysisDataFormats/TopObjects>
 <use name=DataFormats/PatCandidates>
 <use name=TopQuarkAnalysis/TopTools>
-<use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Framework>
 <use name=root>
