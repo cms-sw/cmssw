@@ -456,7 +456,7 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
 
 	int mult=it->clusterSize();		  //cluster size plot => should be within 1-3	
 	int firstStrip=it->firstClusterStrip();    //plot first Strip => should be flat
-	float xposition=point.x();
+	//	float xposition=point.x();
 
 	ClusterSize_for_BarrelandEndcaps -> Fill(mult);
 	
