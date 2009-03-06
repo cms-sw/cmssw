@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.cc,v 1.13 2009/02/26 14:31:45 charlot Exp $
+// $Id: GsfElectronMCAnalyzer.cc,v 1.14 2009/03/06 12:42:16 chamont Exp $
 //
 //
 
@@ -49,7 +49,6 @@ using namespace reco;
 
 GsfElectronMCAnalyzer::GsfElectronMCAnalyzer(const edm::ParameterSet& conf)
 {
-
   outputFile_ = conf.getParameter<std::string>("outputFile");
   histfile_ = new TFile(outputFile_.c_str(),"RECREATE");
   electronCollection_=conf.getParameter<edm::InputTag>("electronCollection");
@@ -95,15 +94,7 @@ GsfElectronMCAnalyzer::GsfElectronMCAnalyzer(const edm::ParameterSet& conf)
   nbindphimatch=conf.getParameter<int>("Nbindphimatch");
   nbindetamatch2D=conf.getParameter<int>("Nbindetamatch2D");
   nbindphimatch2D=conf.getParameter<int>("Nbindphimatch2D");
-}
 
-GsfElectronMCAnalyzer::~GsfElectronMCAnalyzer()
-{
-
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-  histfile_->Write();
-  histfile_->Close();
 }
 
 void GsfElectronMCAnalyzer::beginJob(){
@@ -908,6 +899,20 @@ GsfElectronMCAnalyzer::endJob(){
   h_ele_xOverX0VsEta->Write();
 
 }
+
+GsfElectronMCAnalyzer::~GsfElectronMCAnalyzer()
+{
+
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
+  histfile_->Write();
+  histfile_->Close();
+}
+
+
+//=========================================================================
+// Main method
+//=========================================================================
 
 void
 GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)

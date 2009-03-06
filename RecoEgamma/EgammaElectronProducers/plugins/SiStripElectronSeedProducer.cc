@@ -37,10 +37,6 @@ SiStripElectronSeedProducer::~SiStripElectronSeedProducer()
   delete matcher_;
 }
 
-void SiStripElectronSeedProducer::beginJob(edm::EventSetup const&iSetup)
-{
-}
-
 void SiStripElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
 {
   using namespace edm;
