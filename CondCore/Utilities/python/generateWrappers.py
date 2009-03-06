@@ -13,7 +13,7 @@ def guessPackage() :
     f = f[f.find('CondFormats/')+len('CondFormats/'):]
     return f[:f.find('/')]
  
-def getClasses() :
+def guessClasses() :
     ret = []
     lines = ( line for line in file('src/plugin.cc') if line[0:3]=='REG')
     for line in lines:
@@ -23,16 +23,57 @@ def getClasses() :
 # generate the comment in classes.h
 def generateClassesHeader(package):
     header = '/* Condtion Objects'
-    footer = '\n */\n\n'
+    footer = '\n */\n\n#include "CondFormats/Common/interface/PayloadWrapper.h\n\n"'
     leader = '\n * '
+
+    classes = guessClasses()
+    
     newch = file('../../CondFormats/'+package+'/src/classes_new.h','w')
     newch.write(header)
-    for cl in getClasses() :
+    for cl in classe :
         newch.write(leader+cl)
     newch.write(footer)
     for line in file('../../CondFormats/'+package+'/src/classes.h'):
         newch.write(line)
     newch.close()
+
+def getClasses(package) :
+    header = '/* Condtion Objects'
+    ret = []
+    ch = file('../../CondFormats/'+package+'/src/classes.h')
+    if (ch.read()!=header) :
+        print 'comment header not found in '+package
+        return ret
+    for line in ch:
+        if (line[0:2]=' */') : break
+        ret.append(line[2:])
+    ch.close()
+    return ret
+
+wrapperDeclarationHeader = """
+// wrapper declarations
+namespace {
+   struct wrappers {
+"""
+wrapperDeclarationFooter = """
+   };
+}
+"""
+
+def declareCondWrapper(package):
+    _newch = file('../../CondFormats/'+package+'/src/classes_new.h','w')
+    for line in file('../../CondFormats/'+package+'/src/classes.h'):
+        if (line.find('wrapper declarations')) : break
+        _newch.write(line)
+    _newch.write(wrapperDeclarationHeader)
+    _n=0
+    for cl in getClasses(package):
+        _newch.write('pool::Ptr<'+cl+' > p'+str(n)+';')
+        _newch.write('cond::DataWrapper<'+cl+' > dw'+str(n)+';')
+        n++;
+     _newch.write(wrapperDeclarationFooter)
+     _newch.close()
+
 
 def generateBuildFile(package,classes) :
     f = file('plugins/BuildFile','w')
@@ -49,3 +90,6 @@ def generateWrapper(package,classes) :
         f.write(s.substitute(_PACKAGE_=package, _CLASS_NAME_=classname, _HEADER_FILE_=classname))
         f.close()
           
+
+def generateDict(package):
+  os.system('cd ../../;cvs co CondFormats/'+package)
