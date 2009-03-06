@@ -9,46 +9,46 @@ def guessPackage() :
     lines = ( line for line in file('src/plugin.cc')
               if (line.find('CondFormats')>0 and line.find('DataRecord')<0)
     )
-    f = lines.next()
-    f = f[f.find('CondFormats/')+len('CondFormats/'):]
-    return f[:f.find('/')]
+    _f = lines.next()
+    _f = _f[f.find('CondFormats/')+len('CondFormats/'):]
+    return _f[:_f.find('/')]
  
 def guessClasses() :
-    ret = []
+    _ret = []
     lines = ( line for line in file('src/plugin.cc') if line[0:3]=='REG')
     for line in lines:
-        ret.append(line[line.find(',')+1:line.find(')')])
-    return ret
+        _ret.append(line[line.find(',')+1:line.find(')')])
+    return _ret
 
 # generate the comment in classes.h
 def generateClassesHeader(package):
-    header = '/* Condtion Objects'
-    footer = '\n */\n\n#include "CondFormats/Common/interface/PayloadWrapper.h\n\n"'
-    leader = '\n * '
+    _header = '/* Condtion Objects'
+    _footer = '\n */\n\n#include "CondFormats/Common/interface/PayloadWrapper.h\n\n"'
+    _leader = '\n * '
 
-    classes = guessClasses()
+    _classes = guessClasses()
     
-    newch = file('../../CondFormats/'+package+'/src/classes_new.h','w')
-    newch.write(header)
-    for cl in classe :
-        newch.write(leader+cl)
-    newch.write(footer)
+    _newch = file('../../CondFormats/'+package+'/src/classes_new.h','w')
+    _newch.write(header)
+    for cl in _classes :
+        _newch.write(_leader+cl)
+    _newch.write(_footer)
     for line in file('../../CondFormats/'+package+'/src/classes.h'):
-        newch.write(line)
-    newch.close()
+        _newch.write(line)
+    _newch.close()
 
 def getClasses(package) :
-    header = '/* Condtion Objects'
-    ret = []
-    ch = file('../../CondFormats/'+package+'/src/classes.h')
-    if (ch.read()!=header) :
+    _header = 'Condtion Objects'
+    _ret = []
+    _ch = file('../../CondFormats/'+package+'/src/classes.h')
+    if (_ch.read().find(_header)) :
         print 'comment header not found in '+package
-        return ret
-    for line in ch:
+        return _ret
+    for line in _ch:
         if (line[0:2]==' */') : break
-        ret.append(line[2:])
-    ch.close()
-    return ret
+        _ret.append(line[2:])
+    _ch.close()
+    return _ret
 
 wrapperDeclarationHeader = """
 // wrapper declarations
