@@ -10,17 +10,18 @@ namespace gen
 extern "C"
 {
    void   py1ent_(int& ip, int& kf, double& pe, double& the, double& phi);
-   double pymass_(int& kf);
+   double pymass_(int& );
    void   pyexec_();
-   int    pycomp_(int& ip);
+   int    pycomp_(int& );
    void   pyglfr_();
    void   pyglrhad_();
    void   pystlfr_();
    void   pystrhad_();
-   void   pygive_(const char* line, int length);
+   void   pygive_(const char*, int );
    void   pydecy_( int& ip ) ;
+   void   pyrobo_( int&, int&, double&, double&, double&, double&, double& );
    
-   void   txgive_(const char* line, int length);
+   void   txgive_(const char*, int );
    void   txgive_init_(void);
     
    static bool call_pygive(const std::string &line)
