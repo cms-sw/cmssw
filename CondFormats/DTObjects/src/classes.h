@@ -1,3 +1,19 @@
+/* Condtion Objects
+ * DTReadOutMapping
+ * DTT0
+ * DTT0
+ * DTRangeT0
+ * DTTtrig
+ * DTMtime
+ * DTStatusFlag
+ * DTDeadFlag
+ * DTPerformance
+ * DTCCBConfig
+ * DTTPGParameters
+ */
+
+#include "CondFormats/Common/interface/PayloadWrapper.h"
+
 #include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
 #include "CondFormats/DTObjects/interface/DTT0.h"
 #include "CondFormats/DTObjects/interface/DTTtrig.h"

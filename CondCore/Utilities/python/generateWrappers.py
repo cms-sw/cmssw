@@ -10,7 +10,7 @@ def guessPackage() :
               if (line.find('CondFormats')>0 and line.find('DataRecord')<0)
     )
     _f = lines.next()
-    _f = _f[f.find('CondFormats/')+len('CondFormats/'):]
+    _f = _f[_f.find('CondFormats/')+len('CondFormats/'):]
     return _f[:_f.find('/')]
  
 def guessClasses() :
@@ -22,14 +22,14 @@ def guessClasses() :
 
 # generate the comment in classes.h
 def generateClassesHeader(package):
-    _header = '/* Condtion Objects'
-    _footer = '\n */\n\n#include "CondFormats/Common/interface/PayloadWrapper.h\n\n"'
+    _header = '/* Condition Objects'
+    _footer = '\n */\n\n#include "CondFormats/Common/interface/PayloadWrapper.h"\n\n'
     _leader = '\n * '
 
     _classes = guessClasses()
     
     _newch = file('../../CondFormats/'+package+'/src/classes_new.h','w')
-    _newch.write(header)
+    _newch.write(_header)
     for cl in _classes :
         _newch.write(_leader+cl)
     _newch.write(_footer)
