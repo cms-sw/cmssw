@@ -57,6 +57,8 @@ MuScleFitFilter::MuScleFitFilter(const ParameterSet& iConfig) {
   Mmax = iConfig.getUntrackedParameter<vector<double> >("Mmax");
   maxWrite = iConfig.getUntrackedParameter<int>("maxWrite",100000);
 
+  minimumMuonsNumber = iConfig.getUntrackedParameter<unsigned int>("minimumMuonsNumber", 2);
+
   // The must have the same size and they must not be empty, otherwise abort.
   if ( !(Mmin.size() == Mmax.size() && !Mmin.empty()) ) abort();
 
@@ -84,7 +86,7 @@ bool MuScleFitFilter::filter(Event& event, const EventSetup& iSetup) {
 
   // Cut the crap if we have stored enough stuff
   // -------------------------------------------
-  if ( eventsWritten>=maxWrite ) return false;
+  if ( maxWrite != -1 && eventsWritten>=maxWrite ) return false;
 
   // Get the RecTrack and the RecMuon collection from the event
   // ----------------------------------------------------------
@@ -163,38 +165,54 @@ bool MuScleFitFilter::filter(Event& event, const EventSetup& iSetup) {
   reco::MuonCollection::const_iterator muon2;
   
   bool resfound = false;
-  for (muon1=muons->begin(); muon1!=muons->end(); ++muon1) {  
 
-    if (debug) {
-      cout << "  Reconstructed muon: pT = " << muon1->p4().Pt()
-	   << "  Eta = " << muon1->p4().Eta() << endl;
-    }
+  // Require at least N muons of the selected type.
+  cout << "muons("<<muons->size()<<") >= " << minimumMuonsNumber << endl;
+  if( muons->size() >= minimumMuonsNumber ) {
 
-    // Recombine all the possible Z from reconstructed muons
-    // -----------------------------------------------------
-    if (muons->size()>1) { 
-      for (muon2 = muon1+1; muon2!=muons->end(); ++muon2) {  
-	if ( ((*muon1).charge()*(*muon2).charge())<0 ) { // This also gets rid of muon1==muon2
-	  //	  reco::Particle::LorentzVector Z (muonCorr1 + muonCorr2);
-	  reco::Particle::LorentzVector Z (muon1->p4()+muon2->p4());
-	  // Loop on all the cuts on invariant mass.
-          // If it passes at least one of the cuts, the event will be accepted.
-	  // ------------------------------------------------------------------
-          vector<double>::const_iterator mMinCut = Mmin.begin();
-          vector<double>::const_iterator mMaxCut = Mmax.begin();
-          for( ; mMinCut != Mmin.end(); ++mMinCut, ++mMaxCut ) {
-            if (Z.mass()>*mMinCut && Z.mass()<*mMaxCut) {
-              resfound = true;
-              if (debug) {
-                cout << "One particle found with mass = " << Z.mass() << endl;
+    for (muon1=muons->begin(); muon1!=muons->end(); ++muon1) {  
+
+      if (debug) {
+        cout << "  Reconstructed muon: pT = " << muon1->p4().Pt()
+             << "  Eta = " << muon1->p4().Eta() << endl;
+      }
+
+      // Recombine all the possible Z from reconstructed muons
+      // -----------------------------------------------------
+      if (muons->size()>1) { 
+        for (muon2 = muon1+1; muon2!=muons->end(); ++muon2) {  
+          if ( ((*muon1).charge()*(*muon2).charge())<0 ) { // This also gets rid of muon1==muon2
+            //	  reco::Particle::LorentzVector Z (muonCorr1 + muonCorr2);
+            reco::Particle::LorentzVector Z (muon1->p4()+muon2->p4());
+            // Loop on all the cuts on invariant mass.
+            // If it passes at least one of the cuts, the event will be accepted.
+            // ------------------------------------------------------------------
+            vector<double>::const_iterator mMinCut = Mmin.begin();
+            vector<double>::const_iterator mMaxCut = Mmax.begin();
+            for( ; mMinCut != Mmin.end(); ++mMinCut, ++mMaxCut ) {
+              // When the two borders are -1 do not cut.
+              if( *mMinCut == *mMaxCut && *mMaxCut == -1) {
+                resfound = true;
+                if (debug) {
+                  cout << "Acceptiong event because mMinCut = " << *mMinCut << " = mMaxCut = " << *mMaxCut << endl;
+                }
+              }
+              else if (Z.mass()>*mMinCut && Z.mass()<*mMaxCut) {
+                resfound = true;
+                if (debug) {
+                  cout << "One particle found with mass = " << Z.mass() << endl;
+                }
               }
             }
           }
-	}
+        }
+      } else if (debug) {
+        cout << "Not enough reconstructed muons to make a resonance" << endl; 
       }
-    } else if (debug) {
-      cout << "Not enough reconstructed muons to make a resonance" << endl; 
     }
+  }
+  else if (debug) {
+    cout << "Skipping event because muons = " << muons->size() << " < " << "minimumMuonsNumber("<<minimumMuonsNumber<<")" << endl;
   }
   
   // Store the event if it has a dimuon pair with mass within defined boundaries

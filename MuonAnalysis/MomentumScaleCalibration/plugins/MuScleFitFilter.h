@@ -36,6 +36,7 @@ class MuScleFitFilter : public edm::EDFilter {
   vector<double> Mmin;
   vector<double> Mmax;
   int maxWrite;
+  unsigned int minimumMuonsNumber;
 
   // Collections labels
   // ------------------
