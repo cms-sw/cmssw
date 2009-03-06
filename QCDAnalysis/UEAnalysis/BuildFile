@@ -1,6 +1,6 @@
 <flags EDM_PLUGIN=1>
 
-<use name=SimDataFormats/GeneratorProducts>
+<use name=SimDataFormats/HepMCProduct>
 <use name=DataFormats/JetReco>
 <use name=DataFormats/Candidate>
 <use name=DataFormats/Common>

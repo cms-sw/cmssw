@@ -11,7 +11,7 @@
 #include <DataFormats/Common/interface/Handle.h>
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 #include <FWCore/ServiceRegistry/interface/Service.h>
 #include <PhysicsTools/UtilAlgos/interface/TFileService.h>

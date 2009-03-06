@@ -6,8 +6,14 @@ process.load("TrackingTools.TrackRefitter.TracksToTrajectories_cff")
 process.load("Visualisation.Frog.Frog_Analyzer_cff")
 
 process.source = cms.Source("PoolSource",
-#                            fileNames = cms.untracked.vstring('file:/rdata2/uhh-cms013/data/bechtel/Summer08/CMSSW_2_1_9/src/RelValQCD_Pt_80_120-Ideal-000AD2A4-6E86-DD11-AA99-000423D9863C.root')
-                            fileNames = cms.untracked.vstring('file:/rdata2/uhh-cms013/data/bechtel/Summer08/CMSSW_2_1_9/src/UEAnalysisEventContent.root')
+                            fileNames = cms.untracked.vstring(
+#    'file:/rdata2/uhh-cms013/data/bechtel/Summer08/CMSSW_2_1_9/src/QCDAnalysis/UEAnalysis/test/UEAnalysisEventContentHerwigQCDPt15.root'
+#    'file:/rdata2/uhh-cms013/data/bechtel/Summer08/CMSSW_2_1_9/src/QCDAnalysis/UEAnalysis/test/UEAnalysisEventContentHerwigQCDPt30.root'
+#    'file:/rdata2/uhh-cms013/data/bechtel/Summer08/CMSSW_2_1_9/src/QCDAnalysis/UEAnalysis/test/UEAnalysisEventContentHerwigQCDPt80.root'
+#    'file:/rdata2/uhh-cms013/data/bechtel/Summer08/CMSSW_2_1_9/src/QCDAnalysis/UEAnalysis/test/UEAnalysisEventContentHerwigQCDPt170.root'
+#    'file:/rdata2/uhh-cms013/data/bechtel/Summer08/CMSSW_2_1_9/src/QCDAnalysis/UEAnalysis/test/UEAnalysisEventContentHerwigQCDPt300.root'
+    'file:/rdata2/uhh-cms013/data/bechtel/Summer08/CMSSW_2_1_9/src/QCDAnalysis/UEAnalysis/test/UEAnalysisEventContentHerwigQCDPt470.root'
+    )
 )
 
 process.load("RecoTracker.TrackProducer.RefitterWithMaterial_cff")
@@ -94,7 +100,7 @@ from PhysicsTools.HepMCCandAlgos.genParticles_cfi import *
 process.genParticles = cms.EDProducer("GenParticleProducer",
     saveBarCodes = cms.untracked.bool(True),
     src = cms.InputTag("source"),
-    abortOnUnknownPDGCode = cms.untracked.bool(True)
+    abortOnUnknownPDGCode = cms.untracked.bool(False)
 )
 
 

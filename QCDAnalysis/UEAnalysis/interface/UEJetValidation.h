@@ -11,7 +11,7 @@
 #include <DataFormats/Common/interface/Handle.h>
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 #include <FWCore/ServiceRegistry/interface/Service.h>
 #include <PhysicsTools/UtilAlgos/interface/TFileService.h>
@@ -71,6 +71,7 @@ private:
   InputTag CaloJetsInputTag;
   InputTag triggerResultsTag;
   InputTag triggerEventTag;
+  InputTag genEventScaleTag;
 
   GenJetCollection theChgGenJets;
   BasicJetCollection theTrackJets;
@@ -97,7 +98,22 @@ private:
   TH1D** h_eta_chggenjetMatched;
   TH1D** h_phi_chggenjetMatched;
   TH1D** h_pT_chggenjetMatched;
+  TH1D** h_pT_tracksjet;
+  TH1D** h_pT_calojet;
+  TH1D** h_pT_calojet_hadronic;
+  TH1D** h_pT_calojet_electromagnetic;
+  TH1D** h_nConstituents_tracksjet;
+  TH1D** h_nConstituents_calojet;
+  TH1D** h_nConstituents_chggenjet;
+  TH1D** h_maxDistance_tracksjet;
+  TH1D** h_maxDistance_calojet;
+  TH1D** h_maxDistance_chggenjet;
+  TH1D** h_jetsizeNchg_tracksjet;
+  TH1D** h_jetsizePtsum_tracksjet;
+  TH1D** h_jetFragmentation_tracksjet;
 
+  TH2D** h2d_DrTrackJetCaloJet_PtTrackJet;
+  TH2D** h2d_DrTrackJetChgGenJet_PtTrackJet;
   TH2D** h2d_pTratio_tracksjet_calojet;
   TH2D** h2d_pTRatio_tracksjet_calojet_hadronic;
   TH2D** h2d_pTRatio_tracksjet_calojet_electromagnetic;
@@ -106,13 +122,25 @@ private:
   TH2D** h2d_nConstituents_tracksjet_chggenjet;
   TH2D** h2d_maxDistance_tracksjet_calojet;
   TH2D** h2d_maxDistance_tracksjet_chggenjet;
+  TH2D** h2d_nConstituents_tracksjet; // vs pt(jet)
+  TH2D** h2d_nConstituents_calojet;
+  TH2D** h2d_nConstituents_chggenjet;
+  TH2D** h2d_maxDistance_tracksjet;
+  TH2D** h2d_maxDistance_calojet;
+  TH2D** h2d_maxDistance_chggenjet;
+  TH2D** h2d_jetsizeNchg_tracksjet;
+  TH2D** h2d_jetsizePtsum_tracksjet;
+  TH2D** h2d_nchg_vs_dR;
+  TH2D** h2d_ptsum_vs_dR;
+
+  TH2D* h2d_jetsizeNchg_chggenjet;
+  TH2D* h2d_jetsizePtsum_chggenjet;
 
   double _eventScaleMin;
   double _eventScaleMax;
   double _PTTHRESHOLD;
   double _ETALIMIT;
-  double _dRByPi;
-  double _pTratioRange;
+  double _dR;
 
   class PtSorter {
   public:

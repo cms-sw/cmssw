@@ -11,7 +11,7 @@
 #include <DataFormats/Common/interface/Handle.h>
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 #include <FWCore/ServiceRegistry/interface/Service.h>
 #include <PhysicsTools/UtilAlgos/interface/TFileService.h>
@@ -73,6 +73,7 @@ private:
   InputTag tracksCollName;
   InputTag triggerResultsTag;
   InputTag triggerEventTag;
+  InputTag genEventScaleTag;
 
   Handle< double              > genEventScaleHandle;
   Handle< HepMCProduct        > EvtHandle ;
@@ -85,6 +86,7 @@ private:
   Handle< CaloJetCollection   > RecoCaloJetsHandle ;
   Handle< TriggerResults      > triggerResults;
   Handle< TriggerEvent        > triggerEvent;
+
   //  Handle<TriggerFilterObjectWithRefs> hltFilter; // not used at the moment: can access objects that fired the trigger
   TriggerNames triggerNames;
 
