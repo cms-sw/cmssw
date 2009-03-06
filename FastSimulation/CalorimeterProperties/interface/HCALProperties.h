@@ -65,9 +65,17 @@ class HCALProperties : public CalorimeterProperties
   /// Spot fraction wrt ECAL 
   inline double spotFraction() const {return spotFrac;}
 
+  double getHcalDepth(double) const;  
+
+  int eta2ieta(double eta) const; 
+
  private:
   double hOPi;
   double spotFrac;
+
+
+  double etatow[42];      // HCAL towers eta edges
+  double hcalDepthLam[41]; // HCAL depth for each tower ieta
 };
 
 #endif
