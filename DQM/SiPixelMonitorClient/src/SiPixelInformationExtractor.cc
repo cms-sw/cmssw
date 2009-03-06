@@ -1811,7 +1811,7 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
     }
   }
   
-  if(allmodsMap) allmodsMap->Clear();
+  if(allmodsMap) allmodsMap->Delete();
   if(goodmodsMap) goodmodsMap->Clear();
   if(errmodsMap) errmodsMap->Clear();
   //cout<<"counters: "<<count<<" , "<<errcount<<endl;
