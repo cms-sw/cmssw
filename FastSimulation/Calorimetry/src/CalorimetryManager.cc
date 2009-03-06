@@ -590,11 +590,14 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
   XYZTLorentzVector moment = myTrack.momentum();
 
   if(debug_)
-    LogDebug("FastCalorimetry") << "CalorimetryManager::HDShowerSimulation - track param."
-         << std::endl
-	 << "  eta = " << moment.eta() << std::endl
-         << "  phi = " << moment.phi() << std::endl
-         << "   et = " << moment.Et()  << std::endl;
+    LogDebug("FastCalorimetry") 
+      << "CalorimetryManager::HDShowerSimulation - track param."
+      << std::endl
+      << "  eta = " << moment.eta() << std::endl
+      << "  phi = " << moment.phi() << std::endl
+      << "   et = " << moment.Et()  << std::endl
+      << "   e  = " << myTrack.hcalEntrance().e() << std::endl;
+
 
   int hit;
   //  int pid = abs(myTrack.type());
@@ -657,6 +660,16 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
 	caloentrance = myTrack.vfcalEntrance().vertex().Vect();
 	direction = myTrack.vfcalEntrance().Vect().Unit();
       }
+
+  if(debug_)
+    LogDebug("FastCalorimetry") 
+      << "CalorimetryManager::HDShowerSimulation - on-calo 1 "
+      << std::endl
+      << "  onEcal    = " <<  myTrack.onEcal()  << std::endl
+      << "  onHcal    = " <<  myTrack.onHcal()  << std::endl
+      << "  onVFcal   = " <<  myTrack.onVFcal() << std::endl
+      << "  position  = " << caloentrance << std::endl;
+
 
     DetId pivot;
     if(myTrack.onEcal())
@@ -744,16 +757,18 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
       
       emeas = random->gaussShoot(e,sigma);      
       double correction = emeas / eGen;
-
+      
       if(debug_)
 	LogDebug("FastCalorimetry") 
-	  << "CalorimetryManager::HDShowerSimulation - on-calo " << std::endl
+	  << "CalorimetryManager::HDShowerSimulation - on-calo 2" << std::endl
 	  << "   eta  = " << pathEta << std::endl
 	  << "   phi  = " << pathPhi << std::endl
 	  << "  Egen  = " << eGen << std::endl
 	  << "  Eres  = " << e << std::endl
 	  << " sigma  = " << sigma << std::endl
-	  << "  Emeas = " << emeas << std::endl;
+	  << " Emeas  = " << emeas << std::endl
+	  << "  corr  = " << correction << std::endl
+	  << "   mip  = " << mip << std::endl;
       
       
       // was map<unsigned,double> but CaloHitMaker uses float

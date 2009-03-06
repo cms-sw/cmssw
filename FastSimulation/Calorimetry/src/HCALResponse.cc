@@ -82,6 +82,11 @@ HCALResponse::HCALResponse(const edm::ParameterSet& pset,
   double _eGridMU[maxMUe]     = {10., 30., 100., 300.};
   double _etaGridMU[maxMUeta] = {0.3, 0.6, 0.8, 1.25, 1.4, 3.0};
 
+  // additional tuning factor to correct the response in the barrel
+  // -8 % for very low energies, +5 % for very high, taking into account 
+  // K.Kousouris results for Winter'09 production
+  //                              1     2     3     5      9   15  20  30 
+  double barrelCorrection[15] = {0.9, 0.93, 0.95, 0.97, 0.98, 0.99, 1., 1.,       1.01, 1.02, 1.03, 1.03, 1.04, 1.04, 1.04};  
 
   // new HB parameters and eta-energy 
 
@@ -388,7 +393,7 @@ HCALResponse::HCALResponse(const edm::ParameterSet& pset,
     for(int j = 0; j<maxHDeta; j++) {
  
       double factor = 1.;
-      if( j < 14) factor = 0.94;     
+      if( j < 16) factor = 0.95 * barrelCorrection[i];     
  
       meanHD[i][j]        =  factor * _meanHD[i][j]  / eGridHD[i];
       sigmaHD[i][j]       =  _sigmaHD[i][j] / eGridHD[i];
