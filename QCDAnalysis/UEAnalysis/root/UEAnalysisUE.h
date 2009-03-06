@@ -38,10 +38,10 @@ class UEAnalysisUE {
   TProfile*   pdN_vs_ptMC; 
 
   /*   TProfile*   pdN_vs_dphiMC; */
-  /*   TProfile*   pdPt_vs_dphiMC; */
+  TProfile*   pdPt_vs_dphiMC; 
   
   TH2D*   pdN_vs_dphiMC;
-  TH2D*   pdPt_vs_dphiMC;
+/*   TH2D*   pdPt_vs_dphiMC; */
 
   /*   TProfile*   pdN_vs_ptJTransMC; */
   /*   TProfile*   pdN_vs_ptJTransMaxMC; */
@@ -139,6 +139,8 @@ class UEAnalysisUE {
 
   TH2D* h2d_averageParticlePt_vs_numParticles;
   TH2D* h2d_averageTrackPt_vs_numTracks;
+
+  TH1D* h_pTChgGenJet;
 
   float piG;
 

@@ -1,26 +1,25 @@
 #ifndef UEAnalysisOnRootple_h
 #define UEAnalysisOnRootple_h
 
-#include <TROOT.h>
-#include <TChain.h>
-#include <TFile.h>
-#include <TH1F.h>
-#include <TProfile.h>
-#include <TH2D.h>
-#include <iostream>
-#include <fstream>
 #include <vector>
+#include <fstream>
+#include <iostream>
 
-//
-#include <TClonesArray.h>
+#include <TH1F.h>
+#include <TH2D.h>
+#include <TROOT.h>
+#include <TFile.h>
+#include <TChain.h>
+#include <TProfile.h>
 #include <TObjString.h>
-//
+#include <TClonesArray.h>
 
-
+#include "UETrigger.h"
+#include "UEJetArea.h"
+#include "UEActivity.h"
 #include "UEAnalysisUE.h"
-#include "UEAnalysisJets.h"
-#include "UEAnalysisAntiKtJets.h"
 #include "UEAnalysisMPI.h"
+#include "UEAnalysisJets.h"
 
 using namespace std;
 
@@ -100,31 +99,21 @@ public :
   UEAnalysisJets* jetsHLT1jet250     ;
   UEAnalysisJets* jetsAll            ;
 
-  UEAnalysisAntiKtJets* antiKtJetsHLTMinBiasPixel;
-  UEAnalysisAntiKtJets* antiKtJetsHLTMinBiasHcal;
-  UEAnalysisAntiKtJets* antiKtJetsHLTMinBiasEcal;
-  UEAnalysisAntiKtJets* antiKtJetsHLTMinBias;
-  UEAnalysisAntiKtJets* antiKtJetsHLTZeroBias;
-  UEAnalysisAntiKtJets* antiKtJetsHLT1jet30;
-  UEAnalysisAntiKtJets* antiKtJetsHLT1jet50;
-  UEAnalysisAntiKtJets* antiKtJetsHLT1jet80;
-  UEAnalysisAntiKtJets* antiKtJetsHLT1jet110;
-  UEAnalysisAntiKtJets* antiKtJetsHLT1jet180;
-  UEAnalysisAntiKtJets* antiKtJetsHLT1jet250;
-
-  UEAnalysisAntiKtJets* antiKtJetsOnlyMC;
-
   UEAnalysisMPI* mpi;
 
 
-  //
   TH1D* h_acceptedTriggers;
   TH1D* h_eventScale;
   double pThatMax;
 
   std::string HLTBitNames[11]; 
-  //
 
+  string SampleType;
+  UEJetAreaHistograms*  areaHistos;
+
+  //  UEActivityFinder*     activityFinder;
+  UEActivityHistograms* ueHistos;
+  UETriggerHistograms*  hltHistos;
 };
 
 #endif

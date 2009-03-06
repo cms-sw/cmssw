@@ -4,7 +4,7 @@
 
 UEAnalysisUE::UEAnalysisUE()
 {
-  cout << "UEAnalysisUE constructor " <<endl;
+  //  cout << "UEAnalysisUE constructor " <<endl;
   piG = acos(-1.);
   cc = new UEAnalysisCorrCali();
 }
@@ -12,6 +12,8 @@ UEAnalysisUE::UEAnalysisUE()
 void UEAnalysisUE::Begin(TFile * f, string hltBit)
 {
   f->cd( hltBit.c_str() );
+
+  h_pTChgGenJet = new TH1D("h_pTChgGenJet", "h_pTChgGenJet;p_{T}(chg. gen jet) (GeV/c);", 150, 0., 300. ); 
 
   //Underlying Event analysis
   fHistPtDistMC   = new TH1F(  "HistPtDistMC"  , "Pt Spectra", 100,  0., 4. ) ;
@@ -27,7 +29,9 @@ void UEAnalysisUE::Begin(TFile * f, string hltBit)
   pdN_vs_ptMC           = new TProfile("dN_vs_ptMC","#delta N vs P_{T}",1000,0.,100.);
 
   pdN_vs_dphiMC         = new TH2D("dN_vs_dphiMC","#frac{dN}{d#phid#eta} vs #delta #phi",100,-180.,180.,100,0.,100.);
-  pdPt_vs_dphiMC        = new TH2D("dPt_vs_dphiMC","#frac{dP_{T}^{sum}}{d#phid#eta} vs #delta #phi",100,-180.,180.,100, 0.,100.);
+  //  pdPt_vs_dphiMC        = new TH2D("dPt_vs_dphiMC","#frac{dP_{T}^{sum}}{d#phid#eta} vs #delta #phi",100,-180.,180.,100, 0.,100.);
+  //  pdPt_vs_dphiMC        = new TH2D("dPt_vs_dphiMC","#frac{dP_{T}^{sum}}{d#phid#eta} vs #delta #phi",360,-180.,180.,100, 0.,100.);
+  pdPt_vs_dphiMC        = new TProfile("dPt_vs_dphiMC","#frac{dP_{T}^{sum}}{d#phid#eta} vs #delta #phi",100,-180.,180.,0.,100.);
 
   //==== MC: Density evolution vs pT(jet)
   pdN_vs_ptJTowardMC = 
@@ -144,7 +148,7 @@ void UEAnalysisUE::ueAnalysisMC(float weight,string tkpt,float etaRegion, float 
 				TClonesArray* MonteCarlo, TClonesArray* ChargedJet, TFile* f, string hltBit)
 {
   f->cd( hltBit.c_str() );
-  //cout << "UEAnalysisUE::ueAnalysisMC(...)" << endl;
+  //  cout << "UEAnalysisUE::ueAnalysisMC(...), HLT " << hltBit << endl;
 
   TLorentzVector* leadingJet;
   Float_t PTLeadingCJ = -10;
@@ -186,8 +190,13 @@ void UEAnalysisUE::ueAnalysisMC(float weight,string tkpt,float etaRegion, float 
       return;
     }
 
+  h_pTChgGenJet->Fill( PTLeadingCJ, weight );
   //cout << "for(int i=0;i<MonteCarlo->GetSize();i++){" << endl;
 
+  //   if ( hltBit == "All" )
+  //     {
+  //       cout << "[UEAnalysisUE]" << endl;
+  //     }
   for(int i=0;i<MonteCarlo->GetSize();i++){
     TLorentzVector *v = (TLorentzVector*)MonteCarlo->At(i);    
 
@@ -205,6 +214,17 @@ void UEAnalysisUE::ueAnalysisMC(float weight,string tkpt,float etaRegion, float 
 
       Float_t conv = 180/piG;
       Float_t Dphi_mc = conv * leadingJet->DeltaPhi(*v);
+
+      //       if ( hltBit == "All" )
+      //        	{
+      //        	  cout << "(" << i << ") ";
+      //        	  cout << "pT, eta, phi, dphi ";
+      //        	  cout << v->Pt() << ", ";
+      //        	  cout << v->Eta() << ", ";
+      //        	  cout << v->Phi() << ", ";
+      //        	  cout << Dphi_mc << endl;
+      //        	}
+      
       temp1MC->Fill(Dphi_mc);
       temp2MC->Fill(Dphi_mc,v->Pt());
     }
@@ -270,8 +290,12 @@ void UEAnalysisUE::ueAnalysisMC(float weight,string tkpt,float etaRegion, float 
 
     Float_t bincont1_mc=temp1MC->GetBinContent(i+1);
     pdN_vs_dphiMC->Fill(-180.+i*3.6+1.8,bincont1_mc/(3.6*2*etaRegion*(piG/180.)),weight);
-    
+
     Float_t bincont2_mc=temp2MC->GetBinContent(i+1);
+
+    //     cout << "(" << i << ") ";
+    //     cout << bincont2_mc/(3.6*2*etaRegion*(piG/180.)) << endl;
+    
     pdPt_vs_dphiMC->Fill(-180.+i*3.6+1.8,bincont2_mc/(3.6*2*etaRegion*(piG/180.)),weight);
     
   }

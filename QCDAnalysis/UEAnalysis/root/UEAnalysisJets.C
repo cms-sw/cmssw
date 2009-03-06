@@ -4,7 +4,7 @@
 
 UEAnalysisJets::UEAnalysisJets()
 {
-  cout << "UEAnalysisJets constructor " <<endl;
+  //  cout << "UEAnalysisJets constructor " <<endl;
   piG = acos(-1.);
 
 }

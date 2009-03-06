@@ -1,100 +1,52 @@
 #include "UEAnalysisOnRootple.h"
+#include <vector>
+#include <math.h>
+
+///
+/// ROOT includes
+///
 #include <TH2.h>
 #include <TStyle.h>
 #include <TCanvas.h>
 #include <TVector3.h>
-
-#include <vector>
-#include <math.h>
-
-//
-#include <TClonesArray.h>
 #include <TObjString.h>
-//
+#include <TClonesArray.h>
 
 vector<string> nameList; 
 
+///
+///_____________________________________________________________________________________________
+///
 UEAnalysisOnRootple::UEAnalysisOnRootple()
 {
-  cout << "UEAnalysisOnRootple constructor " <<endl;
+  //SampleType = "CSA08";
+  SampleType = "Summer08:Herwig";
+  //SampleType = "Pythia8:10TeV";
+  //SampleType = "Pythia6:10TeV";
+  cout << "UEAnalysisOnRootple constructor running on " << SampleType <<endl;
 
-  // UEAnalysisUE
-  ueHLTMinBiasPixel = new UEAnalysisUE();
-  ueHLTMinBiasHcal  = new UEAnalysisUE();
-  ueHLTMinBiasEcal  = new UEAnalysisUE();
-  ueHLTMinBias      = new UEAnalysisUE();
-  ueHLTZeroBias     = new UEAnalysisUE();
-  ueHLT1jet30       = new UEAnalysisUE();
-  ueHLT1jet50       = new UEAnalysisUE();
-  ueHLT1jet80       = new UEAnalysisUE();
-  ueHLT1jet110      = new UEAnalysisUE();
-  ueHLT1jet180      = new UEAnalysisUE();
-  ueHLT1jet250      = new UEAnalysisUE();
-  ueAll             = new UEAnalysisUE();
-
-  // UEAnalysisJets
-  jetsHLTMinBiasPixel = new UEAnalysisJets();
-  jetsHLTMinBiasHcal  = new UEAnalysisJets();
-  jetsHLTMinBiasEcal  = new UEAnalysisJets();
-  jetsHLTMinBias      = new UEAnalysisJets();
-  jetsHLTZeroBias     = new UEAnalysisJets();
-  jetsHLT1jet30       = new UEAnalysisJets();
-  jetsHLT1jet50       = new UEAnalysisJets();
-  jetsHLT1jet80       = new UEAnalysisJets();
-  jetsHLT1jet110      = new UEAnalysisJets();
-  jetsHLT1jet180      = new UEAnalysisJets();
-  jetsHLT1jet250      = new UEAnalysisJets();
-  jetsAll             = new UEAnalysisJets();
-
-  // UEAnalysisAntiKtJets
-  antiKtJetsHLTMinBiasPixel = new UEAnalysisAntiKtJets();
-  antiKtJetsHLTMinBiasHcal  = new UEAnalysisAntiKtJets();
-  antiKtJetsHLTMinBiasEcal  = new UEAnalysisAntiKtJets();
-  antiKtJetsHLTMinBias      = new UEAnalysisAntiKtJets();
-  antiKtJetsHLTZeroBias     = new UEAnalysisAntiKtJets();
-  antiKtJetsHLT1jet30       = new UEAnalysisAntiKtJets();
-  antiKtJetsHLT1jet50       = new UEAnalysisAntiKtJets();
-  antiKtJetsHLT1jet80       = new UEAnalysisAntiKtJets();
-  antiKtJetsHLT1jet110      = new UEAnalysisAntiKtJets();
-  antiKtJetsHLT1jet180      = new UEAnalysisAntiKtJets();
-  antiKtJetsHLT1jet250      = new UEAnalysisAntiKtJets();
-  //  antiKtJetsAll             = new UEAnalysisAntiKtJets();
-
-  antiKtJetsOnlyMC = new UEAnalysisAntiKtJets();
-
-  //antiKtJets = new UEAnalysisAntiKtJets();
-
-  mpi = new UEAnalysisMPI();
-  cout << "UEAnalysisOnRootple constructor finished initialization" <<endl;
-
-  nameList.reserve(20);
-}
-
-void UEAnalysisOnRootple::MultiAnalysis(char* filelist,char* outname,vector<float> weight,Float_t eta,
-					  string type,string trigger,string tkpt,Float_t ptCut)
-{
-
-  cout << "UEAnalysisOnRootple MultiAnalysis start " <<endl;
-  BeginJob(outname,type);
-  etaRegion = eta;
-  ptThreshold = ptCut/1000.;
-  char RootTupleName[255];
-  char RootListFileName[255];
-  strcpy(RootListFileName,filelist);
-  ifstream inFile(RootListFileName);
-  int filenumber = 0;
-  while(inFile.getline(RootTupleName,255)) {
-    if (RootTupleName[0] != '#') {
- 
-      string fileName( RootTupleName );
-      cout<<"I'm analyzing file "<< fileName << " (" 
-	  << fileName.size() << " characters)" << endl;
-     
-
-      // no binning of datasets
-      pThatMax = 14000.;
-
-      // Summer08 HLT filter names
+  if ( SampleType == "CSA08" )
+    {
+      ///
+      /// CSA08 HLT names
+      ///
+      HLTBitNames[0]  = "HLTMinBiasPixel";
+      HLTBitNames[1]  = "HLTMinBiasHcal";
+      HLTBitNames[2]  = "HLTMinBiasEcal";
+      HLTBitNames[3]  = "HLTMinBias";
+      HLTBitNames[4]  = "HLTZeroBias";
+      HLTBitNames[5]  = "HLT1jet30";
+      HLTBitNames[6]  = "HLT1jet50";
+      HLTBitNames[7]  = "HLT1jet80";
+      HLTBitNames[8]  = "HLT1jet110";
+      HLTBitNames[9]  = "HLT1jet180";
+      HLTBitNames[10] = "HLT1jet250";
+    }
+  else
+    {
+      ///
+      /// Summer08 HLT names
+      ///
       HLTBitNames[0]  = "HLT_MinBiasPixel";
       HLTBitNames[1]  = "HLT_MinBiasHcal";
       HLTBitNames[2]  = "HLT_MinBiasEcal";
@@ -106,137 +58,155 @@ void UEAnalysisOnRootple::MultiAnalysis(char* filelist,char* outname,vector<floa
       HLTBitNames[8]  = "HLT_Jet110";
       HLTBitNames[9]  = "HLT_Jet180";
       HLTBitNames[10] = "HLT_Jet250";
-
-      //----------------------------------------------------------
-      // CSA08: set upper limit on pT of hard interaction to avoid 
-      // double-counting when merging datasets
-      //
-      bool csa08( false );
-      if ( csa08 == true )
-	{
-	  cout << "//----------------------------------------------------------" << endl;
-	  cout << "// CSA08: set upper limit on pT of hard interaction to avoid" << endl;
-	  cout << "// double-counting when merging datasets                    " << endl;
-	  cout << "//                                                          " << endl;
-	  
-	  HLTBitNames[0]  = "HLTMinBiasPixel";
-	  HLTBitNames[1]  = "HLTMinBiasHcal";
-	  HLTBitNames[2]  = "HLTMinBiasEcal";
-	  HLTBitNames[3]  = "HLTMinBias";
-	  HLTBitNames[4]  = "HLTZeroBias";
-	  HLTBitNames[5]  = "HLT1jet30";
-	  HLTBitNames[6]  = "HLT1jet50";
-	  HLTBitNames[7]  = "HLT1jet80";
-	  HLTBitNames[8]  = "HLT1jet110";
-	  HLTBitNames[9]  = "HLT1jet180";
-	  HLTBitNames[10] = "HLT1jet250";
-
-	  // dcap://dcache-ses-cms.desy.de:22125/pnfs/desy.de/cms/tier2/store/user/bechtel/CSA08/S43/JetET110/MBUEAnalysisRootFile_1.root
-	  if ( fileName.size() < 45 )   // too few characters
-	    {
-	      cout << "!!! WARNING !!! Cannot determine dataset range (expect MinBias, JetET20, JetET30, ...)" << endl;
-	      cout << "!!! WARNING !!! Will accept all pthat values" << endl;
-	      pThatMax = 14000.;
-	    }
-	  else if ( fileName.compare( 88, 7, "MinBias"  )==0 ) 
-	    {
-	      cout << "choose pthat for minbias range" << endl;
-	      pThatMax = 30.;
-	    }
-	  else if ( fileName.compare( 88, 7, "JetET20"  )==0 ) 
-	    {
-	      cout << "choose pthat for jetET20 range" << endl;
-	      pThatMax = 45.;
-	    }
-	  else if ( fileName.compare( 88, 7, "JetET30"  )==0 ) 
-	    {
-	      cout << "choose pthat for jetET30 range" << endl;
-	      pThatMax = 75.;
-	    }
-	  else if ( fileName.compare( 88, 7, "JetET50"  )==0 ) 
-	    {
-	      cout << "choose pthat for jetET50 range" << endl;
-	      pThatMax = 120.;
-	    }
-	  else if ( fileName.compare( 88, 7, "JetET80"  )==0 ) 
-	    {
-	      cout << "choose pthat for jetET80 range" << endl;
-	      pThatMax = 160.;
-	    }
-	  else if ( fileName.compare( 88, 8, "JetET110" )==0 ) 
-	    {
-	      cout << "choose pthat for jetET110 range" << endl;
-	      // uncomment if JetET150 is available:
-	      // pThatMax = 220.;
-	    }
-	  else if ( fileName.compare( 88, 8, "JetET150" )==0 ) 
-	    {
-	      // highest pThat bin: no restriction
-	      cout << "choose pthat for jetET150 range" << endl;
-	      pThatMax = 14000.;
-	    }
-	  else 
-	    {
-	      cout << "!!! WARNING !!! Cannot determine dataset range (expect MinBias, JetET20, JetET30, ...)" << endl;
-	      cout << "!!! WARNING !!! Will accept all pthat values" << endl;
-	      pThatMax = 14000.;
-	    }
-	}
-
-      f = TFile::Open(RootTupleName);
-
-      // TFileService puts UEAnalysisTree in a directory named after the module
-      // which called the EDAnalyzer
-
-      // different directory names for gen-level only analysis
-      //
-      //    KEY: TDirectoryFile   UEAnalysisRootpleOnlyMC;1       UEAnalysisRootpleOnlyMC (AnalysisRootpleProducerOnlyMC) folder
-      //    KEY: TDirectoryFile   UEAnalysisRootpleOnlyMC500;1    UEAnalysisRootpleOnlyMC500 (AnalysisRootpleProducerOnlyMC) folder
-
-      if ( TMath::Abs(ptThreshold - 1.5) < 0.001 ) 
-	{ 
-	  cout << "pT threshold set to 1500 MeV/c" << endl;
-	  if ( trigger == "Gen" ) f->cd("UEAnalysisRootpleOnlyMC1500");
-	  else                    f->cd("UEAnalysisRootple1500");
-	}
-      else if ( TMath::Abs(ptThreshold - 0.9) < 0.001 ) 
-	{ 
-	  cout << "pT threshold set to 900 MeV/c" << endl;
-	  if ( trigger == "Gen" ) f->cd("UEAnalysisRootpleOnlyMC");
-	  else                    f->cd("UEAnalysisRootple");
-	}
-      else if ( TMath::Abs(ptThreshold - 0.5) < 0.001 )
-	{
-	  cout << "pT threshold set to 500 MeV/c" << endl;
-	  if ( trigger == "Gen" ) f->cd("UEAnalysisRootpleOnlyMC500");
-	  else                    f->cd("UEAnalysisRootple500");
-	}
-      else
-	{
-	  cout << "please choose 500, 900 or 1500 MeV/c as pT threshold" << endl;
-	  break;
-	}
-
-      TTree * tree = (TTree*)gDirectory->Get("AnalysisTree");
-      Init(tree, trigger);
-
-      Loop(weight[filenumber],ptThreshold,type,trigger,tkpt);
-    
-      f->Close();
-    
-    } else {
-      if (RootTupleName[1] == '#') break;     
     }
-    filenumber++;
-  }
 
-  EndJob(type);
-
+  nameList.reserve(20);
 }
 
-void UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string trigger,string tkpt)
+///
+///_____________________________________________________________________________________________
+///
+void 
+UEAnalysisOnRootple::MultiAnalysis(char* filelist,char* outname,vector<float> weight,Float_t eta,
+				   string type,string trigger,string tkpt,Float_t ptCut)
 {
+  BeginJob(outname,type);
+
+  /// declare jet algo
+  //  jetsWithAreas = new UEAnalysisJetAreas( eta , ptCut , "kT" );
+
+  if ( type == "Area" || type == "AreaGen" )
+    {
+      /// declare histogram filler
+      areaHistos = new UEJetAreaHistograms( outname, HLTBitNames );
+    }
+
+  if ( type == "UE" || type == "UEGen" )
+    {
+      /// declare histogram filler
+      ueHistos = new UEActivityHistograms( outname, HLTBitNames );
+    }
+
+  if ( type == "HLT" )
+    {
+      // declare histogram filler for HLT analysis
+      hltHistos = new UETriggerHistograms( outname, HLTBitNames );
+    }
+
+  etaRegion   = eta;
+  ptThreshold = ptCut/1000.;
+
+  char RootTupleName   [255];
+  char RootListFileName[255];
+
+  strcpy ( RootListFileName, filelist );
+  ifstream inFile( RootListFileName );
+  int filenumber = 0;
+
+  ///
+  /// loop on list of file names
+  ///
+  while ( inFile.getline(RootTupleName, 255) ) 
+    {
+      if ( RootTupleName[0] != '#') 
+	{
+	  string fileName( RootTupleName );
+	  cout <<"File: "<< fileName << endl;
+	  //<< " (" << fileName.size() << " characters)" << endl;
+     
+	  // no binning of datasets
+	  pThatMax = 14000.;
+	  
+	  ///
+	  /// Set upper limit on pT of hard interaction to avoid 
+	  /// double-counting when merging datasets
+	  ///
+	  if ( SampleType == "Summer08:Herwig" || SampleType == "Summer08:Pythia" )
+	    {
+	      unsigned int startCharacter( 0 );
+
+	      if      ( SampleType == "Summer08:Herwig" ) startCharacter = 74;
+	      else if ( SampleType == "Summer08:Pythia" ) startCharacter = 66;
+
+	      if      ( fileName.size() < 45 )                                    pThatMax = 14000.;
+	      else if ( fileName.compare( startCharacter, 7, "QCDPt15"   ) == 0 ) pThatMax =    30.;
+	      else if ( fileName.compare( startCharacter, 8, "QCDPt170"  ) == 0 ) pThatMax =   300.;
+	      else if ( fileName.compare( startCharacter, 9, "QCDPt3000" ) == 0 ) pThatMax = 14000.;
+	      else if ( fileName.compare( startCharacter, 8, "QCDPt300"  ) == 0 ) pThatMax =   470.;
+	      else if ( fileName.compare( startCharacter, 7, "QCDPt30"   ) == 0 ) pThatMax =    80.;
+	      else if ( fileName.compare( startCharacter, 8, "QCDPt470"  ) == 0 ) pThatMax =   800.;
+	      else if ( fileName.compare( startCharacter, 8, "QCDPt800"  ) == 0 ) pThatMax =  1400.;
+	      else if ( fileName.compare( startCharacter, 7, "QCDPt80"   ) == 0 ) pThatMax =   170.;
+	      else if ( fileName.compare( startCharacter, 9, "QCDPt1400" ) == 0 ) pThatMax =  2000.;
+	      else                                                                pThatMax = 14000.;
+	      
+	    }
+	  else if ( SampleType == "CSA08" )
+	    {
+	      if      ( fileName.size() < 45 )                       pThatMax = 14000.;
+	      else if ( fileName.compare( 61, 7, "MinBias"  ) == 0 ) pThatMax =    30.;
+	      else if ( fileName.compare( 61, 7, "JetET20"  ) == 0 ) pThatMax =    45.;
+	      else if ( fileName.compare( 61, 7, "JetET30"  ) == 0 ) pThatMax =    75.;
+	      else if ( fileName.compare( 61, 7, "JetET50"  ) == 0 ) pThatMax =   120.;
+	      else if ( fileName.compare( 61, 7, "JetET80"  ) == 0 ) pThatMax =   160.;
+	      else if ( fileName.compare( 61, 8, "JetET110" ) == 0 ) pThatMax =   220.;
+	      else                                                   pThatMax = 14000.;
+	    }
+	  cout << "Choose maximum pThat for dataset. ptHatMax = " << pThatMax << " GeV/c" << endl;
+	  
+	  f = TFile::Open(RootTupleName);
+	  
+	  // TFileService puts UEAnalysisTree in a directory named after the module
+	  // which called the EDAnalyzer
+	  
+	  // different directory names for gen-level only analysis
+	  //
+	  //    KEY: TDirectoryFile   UEAnalysisRootpleOnlyMC;1       UEAnalysisRootpleOnlyMC (AnalysisRootpleProducerOnlyMC) folder
+	  //    KEY: TDirectoryFile   UEAnalysisRootpleOnlyMC500;1    UEAnalysisRootpleOnlyMC500 (AnalysisRootpleProducerOnlyMC) folder
+
+	  char   buffer[200];
+	  if ( type == "UEGen" || type == "AreaGen" ) 
+	    {
+	      sprintf ( buffer, "UEAnalysisRootpleOnlyMC%i", int(ptCut) );
+	    }
+	  else if ( int(ptCut)!=900 ) sprintf ( buffer, "UEAnalysisRootple%i", int(ptCut) );
+	  else                        sprintf ( buffer, "UEAnalysisRootple"               );
+	  cout << endl << "Opening directory " << buffer << endl << endl;
+	  f->cd( buffer );
+
+	  TTree * tree = (TTree*)gDirectory->Get("AnalysisTree");
+	  Init(tree, trigger);
+	  
+	  Loop(weight[filenumber],ptThreshold,type,trigger,tkpt);
+	  
+	  f->Close();
+	} 
+      else 
+	{
+	  if (RootTupleName[1] == '#') break;     
+	}
+      filenumber++;
+    }
+  ///
+  /// end loop on file names
+  ///
   
+  EndJob ( type );
+  
+  if ( type == "Area" || type == "AreaGen" ) delete areaHistos;
+  if ( type == "UE"   || type == "UEGen"   ) delete ueHistos;
+  if ( type == "HLT"                       ) delete hltHistos;
+}
+
+///
+///_____________________________________________________________________________________________
+///
+void 
+UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string trigger,string tkpt)
+{
+  ///
+  /// Sanity check.
+  ///
   if (fChain == 0) 
     {
       cout << "fChain == 0 return." << endl;
@@ -244,341 +214,132 @@ void UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string
     }
 
   Long64_t nentries = fChain->GetEntriesFast();
-
   cout << "number of entries: " << nentries << endl;
 
-  
   Long64_t nbytes = 0, nb = 0;
 
-  for (Long64_t jentry=0; jentry<nentries;jentry++) {
+  ///
+  /// Main event loop
+  ///
+  for ( Long64_t jentry(0); jentry<nentries; ++jentry ) 
+    {
+      if ( jentry%1000 == 0 ) cout << "/// entry /// " << jentry << " ///" << endl;
+ 
+//         if ( jentry>100 ) 
+//    	{
+//    	  cout << "[UEAnalysisOnRootple] Stop after " << jentry << " events" << endl;
+//    	  break;
+//    	}
 
-    // for debugging:
-    //   cout << "start debug loop" << endl;
-    //   for (Long64_t jentry=0; jentry<100; jentry++) {
-
-    Long64_t ientry = LoadTree(jentry);
-    if (ientry < 0) break;
-    nb = fChain->GetEntry(jentry);   nbytes += nb;
-
-    if ( trigger != "Gen" )
-      {
-	//	cout << "genEventScale=" << genEventScale << " < " << pThatMax << "=pThatMax ?" << endl;
-	if ( genEventScale >= pThatMax ) continue;
-
-	int nAcceptedTriggers( 0 );
-	nAcceptedTriggers = acceptedTriggers->GetSize();
-	for ( int iAcceptedTrigger(0); iAcceptedTrigger<nAcceptedTriggers; ++iAcceptedTrigger )
-	  {
-	    std::string filterName( acceptedTriggers->At(iAcceptedTrigger)->GetName() );
-	    //cout << "Trigger: " << filterName << endl;
-
-	    bool triggerAccept( false );
-	    for ( int ibit(0); ibit<10; ++ibit )
-	      {
-		if ( filterName == HLTBitNames[ibit] )
-		  { 
-		    h_acceptedTriggers->Fill( ibit ); 
-		    triggerAccept = true;
-		  }
-	      }
-	    if ( !triggerAccept ) h_acceptedTriggers->Fill( 11 );
-	    
-	    // fill histos for each HLT bit separately
-	    if ( filterName==HLTBitNames[0] )
-	      {
-		if (type=="Jet") jetsHLTMinBiasPixel->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
-								       TracksJet,CalorimeterJet, acceptedTriggers, 
-								       hFile, "HLTMinBiasPixel");
-		if (type=="UE") 
-		  {
-		    ueHLTMinBiasPixel->ueAnalysisMC(we,tkpt,etaRegion,ptThreshold,MonteCarlo,ChargedJet, hFile, "HLTMinBiasPixel");
-		    ueHLTMinBiasPixel->ueAnalysisRECO(we,tkpt,etaRegion,ptThreshold,Track,TracksJet, hFile, "HLTMinBiasPixel");
-		  }
-		
-		if (type=="AntiKtJet") 
-		  {
-		    antiKtJetsHLTMinBiasPixel->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLTMinBiasPixel" );
-		  }
-	      }
-	    else if ( filterName==HLTBitNames[1] )
-	      {
-		if(type=="Jet") jetsHLTMinBiasHcal->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
-								     TracksJet,CalorimeterJet, acceptedTriggers, 
-								     hFile, "HLTMinBiasHcal");
-		if(type=="UE") 
-		  {
-		    ueHLTMinBiasHcal->ueAnalysisMC(we,tkpt,etaRegion,ptThreshold,MonteCarlo,ChargedJet, hFile, "HLTMinBiasHcal");
-		    ueHLTMinBiasHcal->ueAnalysisRECO(we,tkpt,etaRegion,ptThreshold,Track,TracksJet, hFile, "HLTMinBiasHcal");
-		  }
-		
-		if (type=="AntiKtJet") antiKtJetsHLTMinBiasHcal->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLTMinBiasHcal" );
-	      }
-	    else if ( filterName==HLTBitNames[2] )
-	      {
-		if(type=="Jet") jetsHLTMinBiasEcal->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
-								     TracksJet,CalorimeterJet, acceptedTriggers, 
-								     hFile, "HLTMinBiasEcal");
-		if(type=="UE") 
-		  {
-		    ueHLTMinBiasEcal->ueAnalysisMC(we,tkpt,etaRegion,ptThreshold,MonteCarlo,ChargedJet, hFile, "HLTMinBiasEcal");
-		    ueHLTMinBiasEcal->ueAnalysisRECO(we,tkpt,etaRegion,ptThreshold,Track,TracksJet, hFile, "HLTMinBiasEcal");
-		  }
-		
-		if (type=="AntiKtJet") antiKtJetsHLTMinBiasEcal->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLTMinBiasEcal" );
-	      }
-	    else if ( filterName==HLTBitNames[3] )
-	      {
-		if(type=="Jet") jetsHLTMinBias->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
-								 TracksJet,CalorimeterJet, acceptedTriggers, 
-								 hFile, "HLTMinBias");
-		if(type=="UE") 
-		  {
-		    ueHLTMinBias->ueAnalysisMC(we,tkpt,etaRegion,ptThreshold,MonteCarlo,ChargedJet, hFile, "HLTMinBias");
-		    ueHLTMinBias->ueAnalysisRECO(we,tkpt,etaRegion,ptThreshold,Track,TracksJet, hFile, "HLTMinBias");
-		  }
-		
-		if (type=="AntiKtJet") antiKtJetsHLTMinBias->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLTMinBias" );
-	      }
-	    else if ( filterName==HLTBitNames[4] )
-	      {
-		if(type=="Jet") jetsHLTZeroBias->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
-								  TracksJet,CalorimeterJet, acceptedTriggers, 
-								  hFile, "HLTZeroBias");
-		if(type=="UE") 
-		  {
-		    ueHLTZeroBias->ueAnalysisMC(we,tkpt,etaRegion,ptThreshold,MonteCarlo,ChargedJet, hFile, "HLTZeroBias");
-		    ueHLTZeroBias->ueAnalysisRECO(we,tkpt,etaRegion,ptThreshold,Track,TracksJet, hFile, "HLTZeroBias");
-		  }
-		
-		if (type=="AntiKtJet") antiKtJetsHLTZeroBias->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLTZeroBias" );
-	      }
-	    else if ( filterName==HLTBitNames[5] )
-	      {
-		if(type=="Jet") jetsHLT1jet30->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
-								TracksJet,CalorimeterJet, acceptedTriggers, 
-								hFile, "HLT1jet30");
-		if(type=="UE") 
-		  {
-		    ueHLT1jet30->ueAnalysisMC(we,tkpt,etaRegion,ptThreshold,MonteCarlo,ChargedJet, hFile, "HLT1jet30");
-		    ueHLT1jet30->ueAnalysisRECO(we,tkpt,etaRegion,ptThreshold,Track,TracksJet, hFile, "HLT1jet30");
-		  }
-		
-		if (type=="AntiKtJet") antiKtJetsHLT1jet30->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLT1jet30" );
-	      }
-	    else if ( filterName==HLTBitNames[6] )
-	      {
-		if(type=="Jet") jetsHLT1jet50->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
-								TracksJet,CalorimeterJet, acceptedTriggers, 
-								hFile, "HLT1jet50");
-		if(type=="UE") 
-		  {
-		    ueHLT1jet50->ueAnalysisMC(we,tkpt,etaRegion,ptThreshold,MonteCarlo,ChargedJet, hFile, "HLT1jet50");
-		    ueHLT1jet50->ueAnalysisRECO(we,tkpt,etaRegion,ptThreshold,Track,TracksJet, hFile, "HLT1jet50");
-		  }
-		
-		if (type=="AntiKtJet") antiKtJetsHLT1jet50->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLT1jet50" );
-	      }
-	    else if ( filterName==HLTBitNames[7] )
-	      {
-		if(type=="Jet") jetsHLT1jet80->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
-								TracksJet,CalorimeterJet, acceptedTriggers, 
-								hFile, "HLT1jet80");
-		if(type=="UE") 
-		  {
-		    ueHLT1jet80->ueAnalysisMC(we,tkpt,etaRegion,ptThreshold,MonteCarlo,ChargedJet, hFile, "HLT1jet80");
-		    ueHLT1jet80->ueAnalysisRECO(we,tkpt,etaRegion,ptThreshold,Track,TracksJet, hFile, "HLT1jet80");
-		  }
-		
-		if (type=="AntiKtJet") antiKtJetsHLT1jet80->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLT1jet80" );
-	      }
-	    else if ( filterName==HLTBitNames[8] )
-	      {
-		if(type=="Jet") jetsHLT1jet110->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
-								 TracksJet,CalorimeterJet, acceptedTriggers, 
-								 hFile, "HLT1jet110");
-		if(type=="UE") 
-		  {
-		    ueHLT1jet110->ueAnalysisMC(we,tkpt,etaRegion,ptThreshold,MonteCarlo,ChargedJet, hFile, "HLT1jet110");
-		    ueHLT1jet110->ueAnalysisRECO(we,tkpt,etaRegion,ptThreshold,Track,TracksJet, hFile, "HLT1jet110");
-		  }
-		
-		if (type=="AntiKtJet") antiKtJetsHLT1jet110->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLT1jet110" );
-	      }
-	    else if ( filterName==HLTBitNames[9] )
-	      {
-		if(type=="Jet") jetsHLT1jet180->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
-								 TracksJet,CalorimeterJet, acceptedTriggers, 
-								 hFile, "HLT1jet180");
-		if(type=="UE") 
-		  {
-		    ueHLT1jet180->ueAnalysisMC(we,tkpt,etaRegion,ptThreshold,MonteCarlo,ChargedJet, hFile, "HLT1jet180");
-		    ueHLT1jet180->ueAnalysisRECO(we,tkpt,etaRegion,ptThreshold,Track,TracksJet, hFile, "HLT1jet180");
-		  }
-		
-		if (type=="AntiKtJet") antiKtJetsHLT1jet180->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLT1jet180" );
-	      }
-	    else if ( filterName==HLTBitNames[10] )
-	      {
-		if(type=="Jet") jetsHLT1jet250->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
-								 TracksJet,CalorimeterJet, acceptedTriggers, 
-								 hFile, "HLT1jet250");
-		if(type=="UE") 
-		  {
-		    ueHLT1jet250->ueAnalysisMC(we,tkpt,etaRegion,ptThreshold,MonteCarlo,ChargedJet, hFile, "HLT1jet250");
-		    ueHLT1jet250->ueAnalysisRECO(we,tkpt,etaRegion,ptThreshold,Track,TracksJet, hFile, "HLT1jet250");
-		  }
-		
-		if (type=="AntiKtJet") antiKtJetsHLT1jet250->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLT1jet250" );
-	      }
-	  }
-	h_eventScale->Fill( genEventScale );
+      ///
+      /// Load branches.
+      ///
+      Long64_t ientry = LoadTree(jentry);
+      if (ientry < 0) break;
+      nb = fChain->GetEntry(jentry);   nbytes += nb;
       
-	if(type=="Jet") jetsAll->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,TracksJet,CalorimeterJet, acceptedTriggers, hFile, "All");
-	if(type=="MPI") mpi->mpiAnalysisRECO(we,etaRegion,ptThreshold,TracksJet);
-	if(type=="UE")  ueAll->ueAnalysisRECO(we,tkpt,etaRegion,ptThreshold,Track,TracksJet, hFile, "All");
+      ///
+      /// Veto events with too large pThat to avoid overlap.
+      ///
+      if ( genEventScale >= pThatMax ) continue;
 
-      } // end reco-level analysis
 
-    if(type=="MPI"      ) mpi->mpiAnalysisMC(we,etaRegion,ptThreshold,ChargedJet);
-    if(type=="UE"       ) ueAll->ueAnalysisMC(we,tkpt,etaRegion,ptThreshold,MonteCarlo,ChargedJet, hFile, "All");
-    if(type=="AntiKtJet") antiKtJetsOnlyMC->jetAnalysis(we, etaRegion, ptThreshold, MonteCarlo, hFile, "GenLevel" );
+      ///
+      /// save frequency of trigger accepts
+      ///
+      if ( type == "HLT" ) hltHistos->fill( *acceptedTriggers );
 
-  }
+
+      ///
+      /// Area: calculate jet areas
+      ///
+      if (type=="AreaGen")
+	{
+	  UEJetAreaFinder *areaFinder = new UEJetAreaFinder( etaRegion , ptThreshold, "kT" );
+	  vector<UEJetWithArea> *area = new vector<UEJetWithArea>();
+
+	  if ( areaFinder->find( *MonteCarlo, *area ) ) areaHistos->fill( *area );
+	  delete area;
+	  delete areaFinder;
+	}
+      
+      if (type=="Area")
+	{
+ 	  ///
+ 	  /// Hadron level analysis
+ 	  ///
+ 	  UEJetAreaFinder *areaGenFinder = new UEJetAreaFinder( etaRegion , ptThreshold, "kT" );
+ 	  vector<UEJetWithArea> *areaGen = new vector<UEJetWithArea>();
+ 	  if ( areaGenFinder->find( *MonteCarlo, *areaGen ) ) areaHistos->fill( *areaGen );
+ 	  delete areaGen;
+ 	  delete areaGenFinder;
+	  
+ 	  ///
+ 	  /// Track analysis
+ 	  ///
+	  UEJetAreaFinder *areaFinder = new UEJetAreaFinder( etaRegion , ptThreshold, "kT" );
+ 	  vector<UEJetWithArea> *area = new vector<UEJetWithArea>();
+ 	  if ( areaFinder->find( *Track, *area ) ) areaHistos->fill( *area, *acceptedTriggers );
+ 	  delete area;
+ 	  delete areaFinder;
+	}    
+      
+
+      ///
+      /// UE: identify UE densities
+      ///
+      if (type=="UEGen")
+	{
+	  UEActivityFinder *activityFinder = new UEActivityFinder( etaRegion , ptThreshold );
+	  UEActivity       *activity       = new UEActivity();
+
+	  if ( activityFinder->find( *ChargedJet, *MonteCarlo, *activity ) ) ueHistos->fill( *activity );
+	  delete activity;
+	  delete activityFinder;
+	}
+      
+      if (type=="UE")
+	{
+	  ///
+	  /// Hadron level analysis
+	  ///
+	  UEActivityFinder *activityGenFinder = new UEActivityFinder( etaRegion , ptThreshold );
+	  UEActivity       *activityGen       = new UEActivity();
+	  if ( activityGenFinder->find( *ChargedJet, *MonteCarlo, *activityGen ) ) ueHistos->fill( *activityGen );
+	  delete activityGen;
+	  delete activityGenFinder;
+	  
+	  ///
+	  /// Track analysis
+	  ///
+	  UEActivityFinder *activityFinder = new UEActivityFinder( etaRegion , ptThreshold );
+	  UEActivity       *activity       = new UEActivity();
+	  if ( activityFinder->find( *TracksJet, *Track, *activity ) ) ueHistos->fill( *activity, *acceptedTriggers );
+	  delete activity;
+	  delete activityFinder;
+	}    
+      
+      //h_eventScale->Fill( genEventScale );
+      } 
+  /// end reco-level analysis
+  
 }
-
 
 void UEAnalysisOnRootple::BeginJob(char* outname,string type)
 {    
-  hFile = new TFile(outname, "RECREATE" );
-  
-  hFile->mkdir("GenLevel");
-
-  hFile->mkdir("HLTMinBiasPixel");
-  hFile->mkdir("HLTMinBiasHcal");
-  hFile->mkdir("HLTMinBiasEcal");
-  hFile->mkdir("HLTMinBias");
-  hFile->mkdir("HLTZeroBias");
-  hFile->mkdir("HLT1jet30");
-  hFile->mkdir("HLT1jet50");
-  hFile->mkdir("HLT1jet80");
-  hFile->mkdir("HLT1jet110");
-  hFile->mkdir("HLT1jet180");
-  hFile->mkdir("HLT1jet250");
-  hFile->mkdir("All");
-
-  if(type=="UE")
-    {
-      ueHLTMinBiasPixel->Begin(hFile, "HLTMinBiasPixel");
-      ueHLTMinBiasHcal->Begin(hFile, "HLTMinBiasHcal");
-      ueHLTMinBiasEcal->Begin(hFile, "HLTMinBiasEcal");
-      ueHLTMinBias->Begin(hFile, "HLTMinBias");
-      ueHLTZeroBias->Begin(hFile, "HLTZeroBias");
-      ueHLT1jet30->Begin(hFile, "HLT1jet30");
-      ueHLT1jet50->Begin(hFile, "HLT1jet50");
-      ueHLT1jet80->Begin(hFile, "HLT1jet80");
-      ueHLT1jet110->Begin(hFile, "HLT1jet110");
-      ueHLT1jet180->Begin(hFile, "HLT1jet180");
-      ueHLT1jet250->Begin(hFile, "HLT1jet250");
-      ueAll->Begin(hFile, "All");
-    }
-  if(type=="Jet")
-    {
-      jetsHLTMinBiasPixel->Begin(hFile, "HLTMinBiasPixel");
-      jetsHLTMinBiasHcal->Begin(hFile, "HLTMinBiasHcal");
-      jetsHLTMinBiasEcal->Begin(hFile, "HLTMinBiasEcal");
-      jetsHLTMinBias->Begin(hFile, "HLTMinBias");
-      jetsHLTZeroBias->Begin(hFile, "HLTZeroBias");
-      jetsHLT1jet30->Begin(hFile, "HLT1jet30");
-      jetsHLT1jet50->Begin(hFile, "HLT1jet50");
-      jetsHLT1jet80->Begin(hFile, "HLT1jet80");
-      jetsHLT1jet110->Begin(hFile, "HLT1jet110");
-      jetsHLT1jet180->Begin(hFile, "HLT1jet180");
-      jetsHLT1jet250->Begin(hFile, "HLT1jet250");
-      jetsAll->Begin(hFile, "All");
-    }
-  if(type=="AntiKtJet")
-    {
-      antiKtJetsHLTMinBiasPixel->Begin(hFile, "HLTMinBiasPixel");
-      antiKtJetsHLTMinBiasHcal->Begin(hFile, "HLTMinBiasHcal");
-      antiKtJetsHLTMinBiasEcal->Begin(hFile, "HLTMinBiasEcal");
-      antiKtJetsHLTMinBias->Begin(hFile, "HLTMinBias");
-      antiKtJetsHLTZeroBias->Begin(hFile, "HLTZeroBias");
-      antiKtJetsHLT1jet30->Begin(hFile, "HLT1jet30");
-      antiKtJetsHLT1jet50->Begin(hFile, "HLT1jet50");
-      antiKtJetsHLT1jet80->Begin(hFile, "HLT1jet80");
-      antiKtJetsHLT1jet110->Begin(hFile, "HLT1jet110");
-      antiKtJetsHLT1jet180->Begin(hFile, "HLT1jet180");
-      antiKtJetsHLT1jet250->Begin(hFile, "HLT1jet250");
-
-      // GenLevel
-      antiKtJetsOnlyMC->Begin(hFile, "GenLevel");
-    }
-  if(type=="MPI")
-    mpi->Begin(hFile);
-
-  //
-  hFile->cd();
-  h_acceptedTriggers = new TH1D("h_acceptedTriggers","h_acceptedTriggers",12,-0.5,11.5);
-  h_eventScale = new TH1D("h_eventScale", "h_eventScale", 100, 0., 200.);
-  //
+//   h_acceptedTriggers = new TH1D("h_acceptedTriggers","h_acceptedTriggers",12,-0.5,11.5);
+//   h_eventScale = new TH1D("h_eventScale", "h_eventScale", 100, 0., 200.);
 }
 
 void UEAnalysisOnRootple::EndJob(string type)
 {
-
-  if(type=="MPI")
-    mpi->writeToFile(hFile);
-
-  hFile->Write();
-  hFile->Close();
+  //  hFile->Close();
 }
 
 UEAnalysisOnRootple::~UEAnalysisOnRootple()
 {
    if (!fChain) return;
    delete fChain->GetCurrentFile();
-
-   delete ueHLTMinBiasPixel;
-   delete ueHLTMinBiasHcal;
-   delete ueHLTMinBiasEcal;
-   delete ueHLTMinBias;
-   delete ueHLTZeroBias;
-   delete ueHLT1jet30;
-   delete ueHLT1jet50;
-   delete ueHLT1jet80;
-   delete ueHLT1jet110;
-   delete ueHLT1jet180;
-   delete ueHLT1jet250;
-   delete ueAll;
-
-   delete jetsHLTMinBiasPixel;
-   delete jetsHLTMinBiasHcal;
-   delete jetsHLTMinBiasEcal;
-   delete jetsHLTMinBias;
-   delete jetsHLTZeroBias;
-   delete jetsHLT1jet30;
-   delete jetsHLT1jet50;
-   delete jetsHLT1jet80;
-   delete jetsHLT1jet110;
-   delete jetsHLT1jet180;
-   delete jetsHLT1jet250;
-   delete jetsAll;
-
-   delete antiKtJetsHLTMinBiasPixel;
-   delete antiKtJetsHLTMinBiasHcal;
-   delete antiKtJetsHLTMinBiasEcal;
-   delete antiKtJetsHLTMinBias;
-   delete antiKtJetsHLTZeroBias;
-   delete antiKtJetsHLT1jet30;
-   delete antiKtJetsHLT1jet50;
-   delete antiKtJetsHLT1jet80;
-   delete antiKtJetsHLT1jet110;
-   delete antiKtJetsHLT1jet180;
-   delete antiKtJetsHLT1jet250;
-
-   delete antiKtJetsOnlyMC;
-
-   delete mpi;
 }
 
 Int_t UEAnalysisOnRootple::GetEntry(Long64_t entry)
@@ -640,11 +401,11 @@ void UEAnalysisOnRootple::Init(TTree *tree, string trigger)
 
    fChain->SetBranchAddress("EventKind", &EventKind, &b_EventKind);
    fChain->SetBranchAddress("MonteCarlo", &MonteCarlo, &b_MonteCarlo);
-   fChain->SetBranchAddress("InclusiveJet", &InclusiveJet, &b_InclusiveJet);
    fChain->SetBranchAddress("ChargedJet", &ChargedJet, &b_ChargedJet);
 
-   if ( trigger != "Gen" )
+   if ( trigger != "UEGen" )
      {
+       fChain->SetBranchAddress("InclusiveJet", &InclusiveJet, &b_InclusiveJet);
        fChain->SetBranchAddress("Track", &Track, &b_Track);
        fChain->SetBranchAddress("TracksJet", &TracksJet, &b_TracksJet);
        fChain->SetBranchAddress("CalorimeterJet", &CalorimeterJet, &b_CalorimeterJet);
@@ -656,12 +417,6 @@ void UEAnalysisOnRootple::Init(TTree *tree, string trigger)
 
 Bool_t UEAnalysisOnRootple::Notify()
 {
-   // The Notify() function is called when a new file is opened. This
-   // can be either for a new TTree in a TChain or when when a new TTree
-   // is started when using PROOF. It is normaly not necessary to make changes
-   // to the generated code, but the routine can be extended by the
-   // user if needed. The return value is currently not used.
-
    return kTRUE;
 }
 
