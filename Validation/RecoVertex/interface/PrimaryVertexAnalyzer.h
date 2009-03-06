@@ -13,7 +13,7 @@
 //
 // Original Author:  Wolfram Erdmann
 //         Created:  Fri Jun  2 10:54:05 CEST 2006
-// $Id: PrimaryVertexAnalyzer.h,v 1.12 2007/09/13 14:11:12 speer Exp $
+// $Id: PrimaryVertexAnalyzer.h,v 1.14 2009/01/09 10:23:27 saout Exp $
 //
 //
 
@@ -83,7 +83,7 @@ public:
   ~PrimaryVertexAnalyzer();
   
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginJob(edm::EventSetup const&);
+  virtual void beginJob();
   virtual void endJob();
 
 private:

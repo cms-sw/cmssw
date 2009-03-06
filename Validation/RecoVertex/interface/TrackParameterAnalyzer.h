@@ -13,7 +13,7 @@
 //
 // Original Author:  Wolfram Erdmann
 //         Created:  Fri Jun  2 10:54:05 CEST 2006
-// $Id: TrackParameterAnalyzer.h,v 1.8 2007/08/26 04:35:55 dlange Exp $
+// $Id: TrackParameterAnalyzer.h,v 1.10 2009/01/09 10:23:27 saout Exp $
 //
 //
 
@@ -71,7 +71,7 @@ class TrackParameterAnalyzer : public edm::EDAnalyzer {
       ~TrackParameterAnalyzer();
 
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void beginJob(edm::EventSetup const&);
+      virtual void beginJob();
       virtual void endJob();
 
    private:

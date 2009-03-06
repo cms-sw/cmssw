@@ -50,7 +50,7 @@ TrackParameterAnalyzer::~TrackParameterAnalyzer()
 //
 // member functions
 //
-void TrackParameterAnalyzer::beginJob(edm::EventSetup const&){
+void TrackParameterAnalyzer::beginJob(){
   std::cout << " TrackParameterAnalyzer::beginJob  conversion from sim units to rec units is " << simUnit_ << std::endl;
 
   rootFile_->cd();

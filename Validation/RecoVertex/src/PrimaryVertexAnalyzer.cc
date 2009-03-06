@@ -89,7 +89,7 @@ PrimaryVertexAnalyzer::~PrimaryVertexAnalyzer()
 //
 // member functions
 //
-void PrimaryVertexAnalyzer::beginJob(edm::EventSetup const& iSetup){
+void PrimaryVertexAnalyzer::beginJob(){
   std::cout << " PrimaryVertexAnalyzer::beginJob  conversion from sim units to rec units is " << simUnit_ << std::endl;
 
 
