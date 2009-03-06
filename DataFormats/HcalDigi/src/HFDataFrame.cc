@@ -45,10 +45,11 @@ void HFDataFrame::setZSInfo(bool unsuppressed, bool markAndPass) {
 
 int HFDataFrame::fiberIdleOffset() const {
   int val=(hcalPresamples_&0xF00)>>8;
-  return (val==0)?(-1000):((val&0x8==0)?(-(val&0x7)):(val&0x7));
+  return (val==0)?(-1000):(((val&0x8)==0)?(-(val&0x7)):(val&0x7));
 }
 
 void HFDataFrame::setFiberIdleOffset(int offset) {
+  hcalPresamples_&=0xFFFF0FF;
   if (offset>=7) hcalPresamples_|=0xF00;
   else if (offset>=0) hcalPresamples_|=(0x800)|(offset<<8);
   else if (offset>=-7) hcalPresamples_|=((-offset)<<8);
