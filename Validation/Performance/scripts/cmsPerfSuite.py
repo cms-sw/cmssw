@@ -1033,6 +1033,10 @@ class PerfSuite:
     
             #Create a tarball of the work directory
             #Adding the str(stepOptions to distinguish the tarballs for 1 release (GEN->DIGI, L1->RECO will be run in parallel)
+            #Adhoc fix:
+            prodFilterreg = re.compile('GEN:ProductionFilterSequence')
+            if prodFilterreg.search(stepOptions):
+                stepOptions = prodFilterreg.sub(r"GEN", stepOptions)
             TarFile = "%s_%s_%s_%s.tgz" % (self.cmssw_version, str(stepOptions), self.host, self.user)
             AbsTarFile = os.path.join(perfsuitedir,TarFile)
             tarcmd  = "tar -zcf %s %s" %(AbsTarFile,os.path.join(perfsuitedir,"*"))

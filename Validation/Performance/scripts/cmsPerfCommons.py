@@ -28,7 +28,7 @@ CandFname={
     }
 
 #List with all the "individual" steps understood by the Performance Suite
-Step = ["GEN,SIM",
+Step = ["GEN:ProductionFilterSequence,SIM",
         "DIGI",
         "L1",              
         "DIGI2RAW",
