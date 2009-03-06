@@ -34,15 +34,8 @@ process.qTester    = cms.EDFilter("QualityTester",
     verboseQT =  cms.untracked.bool(True)                 
 )
 
-process.stats = cms.EDFilter("DQMStoreStats",
-    statsDepth = cms.untracked.int32(2),
-    pathNameMatch = cms.untracked.string('*'),
-    verbose = cms.untracked.int32(0),
-    runInEventLoop = cms.untracked.bool(False),
-    runOnEndLumi = cms.untracked.bool(False),
-    runOnEndRun = cms.untracked.bool(True),
-    runOnEndJob = cms.untracked.bool(False)
-)
+### include to get DQM histogramming services
+process.load("DQMServices.Components.DQMStoreStats_cfi")
 
 ### DQM Client program (in DQMServices/Examples/src/DQMClientExample.cc)
 ### by default: the client runs at the end of each lumisection
@@ -90,5 +83,5 @@ process.dqmEnv.subSystemFolder = 'YourSubsystemName'
 #process.dqmSaver.saveByRun         =  1
 
 ### FIX YOUR  PATH TO INCLUDE dqmEnv and dqmSaver
-process.p = cms.Path(process.dqmSource*process.qTester*process.stats*process.dqmClient*process.dqmEnv*process.dqmSaver)
+process.p = cms.Path(process.dqmSource*process.qTester*process.dqmStoreStats*process.dqmClient*process.dqmEnv*process.dqmSaver)
 
