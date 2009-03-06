@@ -15,6 +15,7 @@
 //implimentation:
 
 #include "DQMOffline/Trigger/interface/MonElemManager.h"
+#include "DQMOffline/Trigger/interface/MonElemMgrEBEE.h"
 #include "DQMOffline/Trigger/interface/EgHLTDQMCut.h"
 #include "DQMOffline/Trigger/interface/EgHLTOffData.h"
 
@@ -30,8 +31,8 @@ template<class T> class EgammaHLTEffSrcBase {
 template<class T,typename varType> class EgammaHLTEffSrc : public EgammaHLTEffSrcBase<T> {
 
  private:
-  MonElemManager<T,varType> *numMonElem_; //numerator hist, we own this
-  MonElemManager<T,varType> *denMonElem_; //denomenator hist we own this
+  MonElemMgrEBEE<T,varType> *numMonElem_; //numerator hist, we own this
+  MonElemMgrEBEE<T,varType> *denMonElem_; //denomenator hist we own this
 
   EgHLTDQMCut<T> *cut_; //we own this
   EgHLTDQMCut<T> *sampleCut_; //we also own this but it may be null
@@ -57,8 +58,8 @@ template<class T,typename varType> EgammaHLTEffSrc<T,varType>::EgammaHLTEffSrc(c
 									       varType (T::*varFunc)()const,
 									       EgHLTDQMCut<T>* cut,EgHLTDQMCut<T>* sampleCut)
 {
-  numMonElem_ = new MonElemManager<T,varType>(name+"_pass",title+" Pass",nrBins,xMin,xMax,varFunc);
-  denMonElem_ = new MonElemManager<T,varType>(name+"_all",title+" All",nrBins,xMin,xMax,varFunc); 
+  numMonElem_ = new MonElemMgrEBEE<T,varType>(name+"_pass",title+" Pass",nrBins,xMin,xMax,varFunc);
+  denMonElem_ = new MonElemMgrEBEE<T,varType>(name+"_all",title+" All",nrBins,xMin,xMax,varFunc); 
   cut_=cut;
   sampleCut_=sampleCut;
 

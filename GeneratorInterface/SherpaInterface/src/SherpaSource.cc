@@ -1,5 +1,5 @@
 /*
- *  $Revision: 1.1 $
+ *  $Revision: 1.5 $
  *  
  *  Martin Niegel 
  *  niegel@cern.ch
@@ -22,8 +22,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "CLHEP/Random/JamesRandom.h"
-#include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Random/RandomEngine.h"
+//#include "CLHEP/Random/RandFlat.h"
+
 
 #include <iostream>
 #include "time.h"
@@ -54,8 +55,7 @@ SherpaSource::SherpaSource( const ParameterSet & pset,
   GeneratedInputSource(pset, desc), evt(0),
   libDir_(pset.getUntrackedParameter<string>("libDir","Sherpa_Process")),
   resultDir_(pset.getUntrackedParameter<string>("resultDir","Result"))
-
-
+  
 {
 
   libDir_    =  pset.getUntrackedParameter<string>("libDir","Sherpa_Process");
@@ -64,44 +64,29 @@ SherpaSource::SherpaSource( const ParameterSet & pset,
    string shRun  = "./Sherpa";
    string shPath = "PATH=" + libDir_;
    string shRes  = "RESULT_DIRECTORY=" + libDir_ + "/" + resultDir_;
-   char* argv[3];
+   string shRng  = "EXTERNAL_RNG=CMS_RNG";
+   char* argv[4];
    argv[0]=(char*)shRun.c_str();
    argv[1]=(char*)shPath.c_str();
    argv[2]=(char*)shRes.c_str();
-
-
-  cout << "Set Sherpa random number seed " << endl;
-
-  Service<RandomNumberGenerator> rng;
-  long seed = (long)(rng->mySeed());
-  cout << " seed= " << seed << endl ;
-  fRandomEngine = new HepJamesRandom(seed) ;
-  fRandomGenerator = new RandFlat(fRandomEngine) ;
-  cout << "Internal BaseFlatGunSource is initialzed" << endl ;
-  int seed1  = fRandomGenerator->fireInt(0,31328);//allowed random number range for Sherpa 1.0.11
-  int seed2  = fRandomGenerator->fireInt(0,30081);//allowed random number range for Sherpa 1.0.11
-
-  cout << " seed1= " << seed1 << endl ;
-  cout << " seed2= " << seed2 << endl ;
+   argv[3]=(char*)shRng.c_str();
 
   set_prof();	
-
   cout << "SherpaSource: initializing Sherpa. " << endl;
-  Generator.InitializeTheRun(3,argv);
+  Generator.InitializeTheRun(4,argv);
   cout << "SherpaSource: InitializeTheRun(argc,argv)" << endl;
   Generator.InitializeTheEventHandler();
   cout << "SherpaSource: InitializeTheEventHandler() " << endl;
   produces<HepMCProduct>();
   cout << "SherpaSource: starting event generation ... " << endl;
 
-//  msg_Out()<<"=========================================================================="<<std::endl
-//           <<"Sherpa will start event generation now : "<<std::endl               
-//           <<"=========================================================================="<<std::endl;
 
 }
 
 
 SherpaSource::~SherpaSource(){
+  cout << "SherpaSource: summarizing the run " << endl;
+  Generator.SummarizeRun();
   cout << "SherpaSource: event generation done. " << endl;
   clear(); 
 }
@@ -115,18 +100,7 @@ bool SherpaSource::produce(Event & e) {
 
  auto_ptr<HepMCProduct> bare_product(new HepMCProduct);   
 
-//   int i = numberEventsInRun() - remainingEvents() ;
-//   if (i%100==0 && i!=0) {
-//
-//  cout<<"numberEventsInRun() :"<<numberEventsInRun() <<endl;
-//  cout<<"remainingEvents()   :"<< remainingEvents()<<endl;
-//  cout<<"Sherpa : Passed "<<i<<" events."<<std::endl;
-// std::cout <<" ================================== " << i <<std::endl; 
-// 
-//   }
-
  if (Generator.GenerateOneEvent()) { 
-
   HepMC::GenEvent* evt = Generator.GetIOHandler()->GetHepMC2Interface()->GenEvent();
   HepMC::GenEvent *copyEvt = new HepMC::GenEvent (*evt);      
 	   
@@ -140,3 +114,25 @@ bool SherpaSource::produce(Event & e) {
  } 
 }
 
+
+using namespace ATOOLS;
+DECLARE_GETTER(CMS_RNG_Getter,"CMS_RNG",External_RNG,RNG_Key);
+External_RNG *CMS_RNG_Getter::operator()(const RNG_Key &) const
+{ return new CMS_RNG(); }
+void CMS_RNG_Getter::PrintInfo(std::ostream &str,const size_t) const
+{ str<<"CMS RNG interface"; }
+
+double CMS_RNG::Get(){
+ edm::Service<edm::RandomNumberGenerator> rng;
+   if ( ! rng.isAvailable()) {
+     throw cms::Exception("Configuration")
+       << "SherpaInterface requires the RandomNumberGeneratorService\n"
+          "which is not present in the configuration file.  You must add the service\n"
+          "in the configuration file or remove the modules that require it.";
+   }
+//   double rngNumber = RandFlat::shoot(rng->getEngine());
+   CLHEP::HepRandomEngine& engine = rng->getEngine();
+   double rngNumber = engine.flat();
+//   std::cout << "rno: " << rngNumber << std::endl;
+   return rngNumber;
+}

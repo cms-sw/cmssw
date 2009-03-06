@@ -45,6 +45,7 @@ bool FUResource::doFedIdCheck_ = true;
 bool FUResource::useEvmBoard_ = true;
 unsigned int FUResource::gtpEvmId_ =  FEDNumbering::getTriggerGTPFEDIds().first;
 unsigned int FUResource::gtpDaqId_ =  FEDNumbering::getTriggerGTPFEDIds().second;
+unsigned int FUResource::gtpeId_ =  FEDNumbering::getTriggerEGTPFEDIds().first;
 
 ////////////////////////////////////////////////////////////////////////////////
 // construction/destruction
@@ -663,6 +664,8 @@ void FUResource::findFEDs() throw (evf::Exception)
     //if gtp EVM block is available set cell event number to global partition-independent trigger number
     //daq block partition-independent event number is left as an option in case of problems
 
+    if(fedId == gtpeId_)
+      if(evf::evtn::gtpe_board_sense(fedHeaderAddr)) shmCell_->setEvtNumber(evf::evtn::gtpe_get(fedHeaderAddr));
     if(useEvmBoard_ && (fedId == gtpEvmId_))
       if(evf::evtn::evm_board_sense(fedHeaderAddr)) shmCell_->setEvtNumber(evf::evtn::get(fedHeaderAddr, true));
     if(!useEvmBoard_ && (fedId == gtpDaqId_))

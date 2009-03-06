@@ -13,6 +13,6 @@ pixelLessTracking = cms.Sequence(pixelLessSeeds*pixelLessTrackCandidates*pixelLe
 pixelLessTrackCandidates.SeedProducer = cms.InputTag("pixelLessSeeds","PixelLess")
 pixelLessWithMaterialTracks.src = 'pixelLessTrackCandidates'
 pixelLessWithMaterialTracks.TTRHBuilder = 'WithoutRefit'
-pixelLessWithMaterialTracks.Fitter = 'KFFittingSmoother'
+pixelLessWithMaterialTracks.Fitter = 'KFFittingSmootherWithOutlierRejection'
 pixelLessWithMaterialTracks.Propagator = 'PropagatorWithMaterial'
 

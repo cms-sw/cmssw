@@ -16,10 +16,10 @@ process.load("CondTools.SiPixel.SiPixelGainCalibrationService_cfi")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
 process.source = cms.Source("EmptyIOVSource",
-    firstValue = cms.uint64(1),
-    lastValue = cms.uint64(1),
+    firstRun = cms.untracked.uint32(1),
+    lastRun = cms.untracked.uint32(1),
     timetype = cms.string('runnumber'),
-    interval = cms.uint64(1)
+    interval = cms.uint32(1)
 )
 
 process.maxEvents = cms.untracked.PSet(

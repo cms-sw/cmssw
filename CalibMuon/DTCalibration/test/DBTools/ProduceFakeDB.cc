@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/01/18 17:46:34 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/09/14 08:07:22 $
+ *  $Revision: 1.2 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -60,8 +60,7 @@ void ProduceFakeDB::endJob() {
     //Loop on superlayers
     for (vector<DTSuperLayer*>::const_iterator sl = dtSupLylist.begin();
 	 sl != dtSupLylist.end(); sl++) {
-      // vdrift is cm/ns , resolution is cm
-      mtimeMap->set((*sl)->id(), vdrift, hitReso, DTVelocityUnits::cm_per_ns);
+      mtimeMap->set((*sl)->id(), vdrift, hitReso, DTTimeUnits::ns);
     }
 
     // Write the object in the DB

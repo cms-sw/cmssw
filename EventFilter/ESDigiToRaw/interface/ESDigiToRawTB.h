@@ -14,19 +14,22 @@
 
 #include "EventFilter/ESDigiToRaw/interface/ESDataFormatter.h"
 
-class ESDigiToRawTB : public edm::EDProducer {
+using namespace std;
+using namespace edm;
+
+class ESDigiToRawTB : public EDProducer {
   
  public:
   
-  ESDigiToRawTB(const edm::ParameterSet& ps);
+  ESDigiToRawTB(const ParameterSet& ps);
   virtual ~ESDigiToRawTB();
   
-  void beginJob(const edm::EventSetup& es) ;
-  void produce(edm::Event& e, const edm::EventSetup& es);
+  void beginJob(const EventSetup& es) ;
+  void produce(Event& e, const EventSetup& es);
   void endJob() ;
-
-  typedef uint64_t  Word64;
-  typedef uint32_t  Word32;
+  
+  typedef long long Word64;
+  typedef unsigned int Word32;
   
   int* GetCounter() {return &counter_ ;}
   int* GetOrbit() {return &orbit_number_ ;}
@@ -44,8 +47,8 @@ class ESDigiToRawTB : public edm::EDProducer {
   int bx_;
   int lv1_;
     
-  std::string label_;
-  std::string instanceName_;
+  string label_;
+  string instanceName_;
   bool   debug_;
 
   ESDataFormatter* ESDataFormatter_;

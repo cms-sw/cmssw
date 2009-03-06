@@ -22,7 +22,7 @@ from CondTools.SiPixel.SiPixelGainCalibrationService_cfi import *
 #  CMSSW configuration init file for pixel gain calibrations in CMSSW>=180
 #  Original Author:  Freya Blekman
 #          Created:  November 15 2007  
-#  $Id: SiPixelGainCalibrationAnalysis_cfi.py,v 1.8 2008/09/16 14:46:01 fblekman Exp $
+#  $Id: SiPixelGainCalibrationAnalysis_cfi.py,v 1.7 2008/08/29 14:59:27 fblekman Exp $
 #
 #
 siPixelGainCalibrationAnalysis = cms.EDFilter("SiPixelGainCalibrationAnalysis",
@@ -51,9 +51,7 @@ siPixelGainCalibrationAnalysis = cms.EDFilter("SiPixelGainCalibrationAnalysis",
     maxGainInHist = cms.untracked.double(25.),
     useVCALHIGH = cms.bool(True),
     # conversion factor to go from VCAL_HIGH to VCAL_LOW. Current best estimate: VCAL_HIGH = 7 * VCAL_LOW, which is encoded in the parameter below 
-    vcalHighToLowConversionFac = cms.double(7.0),
-    # use this mode if you want to analyze S-Curve data with the Gain analysis
-    ignoreMode = cms.untracked.bool(False)                                          
+    vcalHighToLowConversionFac = cms.double(7.0)                                          
 )
 
 

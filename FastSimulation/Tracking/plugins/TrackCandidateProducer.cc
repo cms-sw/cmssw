@@ -186,7 +186,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	anAssociation = theAssoMaps[tprod]->begin();
 	lastAssociation = theAssoMaps[tprod]->end(); 
 #ifdef FAMOS_DEBUG
-	std::cout << "Input Track Producer : " << trackProducer << std::endl;
+	std::cout << "Input Track Producer " << tprod << " : " << trackProducers[tprod] << std::endl;
 	std::cout << "List of tracks already reconstructed " << std::endl;
 #endif
 	// Build the map of correspondance between reco tracks and sim tracks
@@ -222,6 +222,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   /* */
 #ifdef FAMOS_DEBUG
   std::cout << "Input seed Producer : " << seedProducer << std::endl;
+  std::cout << "Number of seeds : " << theSeeds->size() << std::endl;
 #endif
   unsigned seed_size = theSeeds->size(); 
   for (unsigned seednr = 0; seednr < seed_size; ++seednr){

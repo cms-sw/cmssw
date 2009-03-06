@@ -2,7 +2,6 @@
 <use name=FWCore/Framework>
 <use name=root>
 <use name=rootcore>
-<use name=rootinteractive>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
 <use name=DQMServices/Core>

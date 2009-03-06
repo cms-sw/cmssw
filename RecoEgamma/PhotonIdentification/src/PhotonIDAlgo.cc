@@ -5,7 +5,6 @@
  */
 
 #include "RecoEgamma/PhotonIdentification/interface/PhotonIDAlgo.h"
-
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
@@ -13,28 +12,24 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/PhotonTkIsolation.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaEcalIsolation.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHcalIsolation.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHcalIsolation.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/PhotonTkIsolation.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaEcalIsolation.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
-#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
-
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include <string>
 #include <TMath.h>
 
@@ -51,7 +46,8 @@ void PhotonIDAlgo::baseSetup(const edm::ParameterSet& conf) {
   hcalCollection_ = conf.getParameter<std::string>("HcalRecHitCollection");
   hcalProducer_ = conf.getParameter<std::string>("HcalRecHitProducer");
 
-  //  gsfRecoInputTag_ = conf.getParameter<edm::InputTag>("GsfRecoCollection");
+  gsfRecoInputTag_ = conf.getParameter<edm::InputTag>("GsfRecoCollection");
+
   modulePhiBoundary_ = conf.getParameter<double>("modulePhiBoundary");
   moduleEtaBoundary_ = conf.getParameter<std::vector<double> >("moduleEtaBoundary");
 
@@ -82,21 +78,17 @@ void PhotonIDAlgo::classify(const reco::Photon* photon,
   //Are you in the gap between EE and Ecal Barrel (EB)?
   if (fabs(feta-1.479)<.1) isEBEEGap=true; 
 
-  // Set isEBGap if photon is 
-  //  in the barrel (|eta| < 1.5), and 
-  //  photon is closer than "modulePhiBoundary_" (set in cfg)
-  //  to a phi module/supermodule boundary (same thing)
-  if (feta < 1.5) {
-    if (phi < 0) phi += TMath::Pi()*2.;
-    Float_t phiRelative = fmod( phi , 20*TMath::Pi()/180 ) - 10*TMath::Pi()/180;
-    if ( fabs(phiRelative) < modulePhiBoundary_ ) isEBGap=true;
-  }
+  // Set isEBGap if photon is closer than "modulePhiBoundary_" (set in cfg)
+  // to a phi module/supermodule boundary (same thing)
+  if (phi < 0) phi += TMath::Pi()*2.;
+  Float_t phiRelative = fmod( phi , 20*TMath::Pi()/180 ) - 10*TMath::Pi()/180;
+  if ( fabs(phiRelative) < modulePhiBoundary_ ) isEBGap=true;
 
   // Set isEBGap if photon is between specific eta values 
   // in the "moduleEtaBoundary_" variable.
   // Loop over the vector of Eta boundaries given in the config file
   bool nearEtaBoundary = false;
-  for (unsigned int i=0; i <= moduleEtaBoundary_.size(); i+=2) {
+  for (unsigned int i=0; i < moduleEtaBoundary_.size(); i+=2) {
     // Checks to see if it's between the 0th and 1st entry, the 2nd and 3rd entry...etc
     if ( (feta > moduleEtaBoundary_[i]) && (feta < moduleEtaBoundary_[i+1]) ) {
       //std::cout << "Photon between eta " << moduleEtaBoundary_[i] << " and " << moduleEtaBoundary_[i+1] << std::endl;
@@ -131,7 +123,7 @@ void PhotonIDAlgo::calculateTrackIso(const reco::Photon* photon,
   //Photon Eta and Phi.  Hope these are correct.
 
   
-  PhotonTkIsolation phoIso(RCone, RinnerCone, pTThresh, 2.,2000., trackCollection, math::XYZPoint(0,0,0));
+  PhotonTkIsolation phoIso(RCone, RinnerCone, pTThresh, 2., trackCollection);
   counter = phoIso.getNumberTracks(photon);
   ptSum = phoIso.getPtTracks(photon);
   //delete phoIso;
@@ -141,39 +133,39 @@ void PhotonIDAlgo::calculateTrackIso(const reco::Photon* photon,
 }
 
 
-////////////Deprecated.  Use RecHit isolation now.
-// double PhotonIDAlgo::calculateBasicClusterIso(const reco::Photon* photon,
-// 					      const edm::Event& iEvent,
-// 					      double RCone,
-// 					      double RConeInner,
-// 					      double etMin)
-// {
+
+double PhotonIDAlgo::calculateBasicClusterIso(const reco::Photon* photon,
+					      const edm::Event& iEvent,
+					      double RCone,
+					      double RConeInner,
+					      double etMin)
+{
 					      
 
-//   edm::Handle<reco::BasicClusterCollection> basicClusterH;
-//   edm::Handle<reco::SuperClusterCollection> endcapSuperClusterH;
+  edm::Handle<reco::BasicClusterCollection> basicClusterH;
+  edm::Handle<reco::SuperClusterCollection> endcapSuperClusterH;
 
-//   double peta = photon->p4().Eta();
-//   if (fabs(peta) > 1.479){
-//     iEvent.getByLabel(endcapbasicclusterProducer_,endcapbasicclusterCollection_,basicClusterH);
-//     iEvent.getByLabel(endcapSuperClusterProducer_,endcapsuperclusterCollection_,endcapSuperClusterH);
-//   }
-//   else{
-//     iEvent.getByLabel(barrelbasicclusterProducer_,barrelbasicclusterCollection_,basicClusterH);
-//     iEvent.getByLabel(barrelsuperclusterProducer_,barrelsuperclusterCollection_,endcapSuperClusterH);
-//   }
-//   const reco::BasicClusterCollection* basicClusterCollection_ = basicClusterH.product();
-//   const reco::SuperClusterCollection* endcapSuperClusterCollection_ = endcapSuperClusterH.product();
+  double peta = photon->p4().Eta();
+  if (fabs(peta) > 1.479){
+    iEvent.getByLabel(endcapbasicclusterProducer_,endcapbasicclusterCollection_,basicClusterH);
+    iEvent.getByLabel(endcapSuperClusterProducer_,endcapsuperclusterCollection_,endcapSuperClusterH);
+  }
+  else{
+    iEvent.getByLabel(barrelbasicclusterProducer_,barrelbasicclusterCollection_,basicClusterH);
+    iEvent.getByLabel(barrelsuperclusterProducer_,barrelsuperclusterCollection_,endcapSuperClusterH);
+  }
+  const reco::BasicClusterCollection* basicClusterCollection_ = basicClusterH.product();
+  const reco::SuperClusterCollection* endcapSuperClusterCollection_ = endcapSuperClusterH.product();
 
-//   double ecalIsol=0.;
-//   EgammaEcalIsolation phoIso(RCone,etMin, basicClusterCollection_, endcapSuperClusterCollection_);
-//   ecalIsol = phoIso.getEcalEtSum(photon);
-//   //  delete phoIso;
+  double ecalIsol=0.;
+  EgammaEcalIsolation phoIso(RCone,etMin, basicClusterCollection_, endcapSuperClusterCollection_);
+  ecalIsol = phoIso.getEcalEtSum(photon);
+  //  delete phoIso;
 
-//   return ecalIsol;
+  return ecalIsol;
   
 
-// }
+}
 
 double PhotonIDAlgo::calculateEcalRecHitIso(const reco::Photon* photon,
 					    const edm::Event& iEvent,
@@ -181,7 +173,6 @@ double PhotonIDAlgo::calculateEcalRecHitIso(const reco::Photon* photon,
 					    double RCone,
 					    double RConeInner,
                                             double etaSlice,
-					    double eMin,
 					    double etMin){
 
 
@@ -208,7 +199,6 @@ double PhotonIDAlgo::calculateEcalRecHitIso(const reco::Photon* photon,
 			       RConeInner,
                                etaSlice,
 			       etMin,
-			       eMin,
 			       geoHandle,
 			       &(*RecHits),
 			       DetId::Ecal);
@@ -262,249 +252,82 @@ double PhotonIDAlgo::calculateR9(const reco::Photon* photon,
 
 }
 
-double PhotonIDAlgo::calculateE1x5(const reco::Photon* photon,
-				   const edm::Event& iEvent,
-				   const edm::EventSetup& iSetup
-				   ){
-
-  
-  edm::Handle<EcalRecHitCollection> ecalhitsCollH;
-  double peta = photon->superCluster()->position().eta();
-  edm::ESHandle<CaloGeometry> geoHandle;
-  iSetup.get<CaloGeometryRecord>().get(geoHandle);
-  //const CaloGeometry& geometry = *geoHandle;
-  edm::ESHandle<CaloTopology> pTopology;
-  iSetup.get<CaloTopologyRecord>().get(pTopology);
-  const CaloTopology *topology = pTopology.product();
-  // const CaloSubdetectorGeometry *geometry_p;
-  if (fabs(peta) > 1.479){
-    iEvent.getByLabel(endcapecalProducer_,endcapecalCollection_, ecalhitsCollH);
-  }
-  else{
-    iEvent.getByLabel(barrelecalProducer_,barrelecalCollection_, ecalhitsCollH);
-  }
-  const EcalRecHitCollection* rechitsCollection_ = ecalhitsCollH.product();
-
-  reco::SuperClusterRef scref = photon->superCluster();
-  const reco::SuperCluster *sc = scref.get();
-  const reco::BasicClusterRef bcref = sc->seed();
-  const reco::BasicCluster *bc = bcref.get();
-
-
-  float e1x5 = EcalClusterTools::e5x1(*bc, rechitsCollection_, topology);
-  return e1x5;
-  
-}
-
-double PhotonIDAlgo::calculateE2x5(const reco::Photon* photon,
-				   const edm::Event& iEvent,
-				   const edm::EventSetup& iSetup
-				   ){
-  
-  
-  edm::Handle<EcalRecHitCollection> ecalhitsCollH;
-  double peta = photon->superCluster()->position().eta();
-  edm::ESHandle<CaloGeometry> geoHandle;
-  iSetup.get<CaloGeometryRecord>().get(geoHandle);
-  //const CaloGeometry& geometry = *geoHandle;
-  edm::ESHandle<CaloTopology> pTopology;
-  iSetup.get<CaloTopologyRecord>().get(pTopology);
-  const CaloTopology *topology = pTopology.product();
-  // const CaloSubdetectorGeometry *geometry_p;
-  if (fabs(peta) > 1.479){
-    iEvent.getByLabel(endcapecalProducer_,endcapecalCollection_, ecalhitsCollH);
-  }
-  else{
-    iEvent.getByLabel(barrelecalProducer_,barrelecalCollection_, ecalhitsCollH);
-  }
-  const EcalRecHitCollection* rechitsCollection_ = ecalhitsCollH.product();
-
-  reco::SuperClusterRef scref = photon->superCluster();
-  const reco::SuperCluster *sc = scref.get();
-  const reco::BasicClusterRef bcref = sc->seed();
-  const reco::BasicCluster *bc = bcref.get();
-
-
-  float e2x5 = EcalClusterTools::e2x5Max(*bc, rechitsCollection_, topology);
-  return e2x5;
-  
-}
-
-double PhotonIDAlgo::calculateE5x5(const reco::Photon* photon,
-				   const edm::Event& iEvent,
-				   const edm::EventSetup& iSetup
-				   ){
-  
-  
-  edm::Handle<EcalRecHitCollection> ecalhitsCollH;
-  double peta = photon->superCluster()->position().eta();
-  edm::ESHandle<CaloGeometry> geoHandle;
-  iSetup.get<CaloGeometryRecord>().get(geoHandle);
-  //const CaloGeometry& geometry = *geoHandle;
-  edm::ESHandle<CaloTopology> pTopology;
-  iSetup.get<CaloTopologyRecord>().get(pTopology);
-  const CaloTopology *topology = pTopology.product();
-  // const CaloSubdetectorGeometry *geometry_p;
-  if (fabs(peta) > 1.479){
-    iEvent.getByLabel(endcapecalProducer_,endcapecalCollection_, ecalhitsCollH);
-  }
-  else{
-    iEvent.getByLabel(barrelecalProducer_,barrelecalCollection_, ecalhitsCollH);
-  }
-  const EcalRecHitCollection* rechitsCollection_ = ecalhitsCollH.product();
-
-  reco::SuperClusterRef scref = photon->superCluster();
-  const reco::SuperCluster *sc = scref.get();
-  const reco::BasicClusterRef bcref = sc->seed();
-  const reco::BasicCluster *bc = bcref.get();
-
-
-  float e5x5 = EcalClusterTools::e5x5(*bc, rechitsCollection_, topology);
-  return e5x5;
-  
-}
-
-double PhotonIDAlgo::calculateSigmaIetaIeta(const reco::Photon* photon,
+double PhotonIDAlgo::calculateHcalRecHitIso(const reco::Photon* photon,
 					    const edm::Event& iEvent,
-					    const edm::EventSetup& iSetup
-					    ){
-  
-  
-  edm::Handle<EcalRecHitCollection> ecalhitsCollH;
-  double peta = photon->superCluster()->position().eta();
-  edm::ESHandle<CaloGeometry> geoHandle;
-  iSetup.get<CaloGeometryRecord>().get(geoHandle);
-  //const CaloGeometry& geometry = *geoHandle;
-  edm::ESHandle<CaloTopology> pTopology;
-  iSetup.get<CaloTopologyRecord>().get(pTopology);
-  const CaloTopology *topology = pTopology.product();
-  // const CaloSubdetectorGeometry *geometry_p;
-  if (fabs(peta) > 1.479){
-    iEvent.getByLabel(endcapecalProducer_,endcapecalCollection_, ecalhitsCollH);
-  }
-  else{
-    iEvent.getByLabel(barrelecalProducer_,barrelecalCollection_, ecalhitsCollH);
-  }
-  const EcalRecHitCollection* rechitsCollection_ = ecalhitsCollH.product();
-
-  reco::SuperClusterRef scref = photon->superCluster();
-  const reco::SuperCluster *sc = scref.get();
-  const reco::BasicClusterRef bcref = sc->seed();
-  const reco::BasicCluster *bc = bcref.get();
+					    const edm::EventSetup& iSetup,
+					    double RCone,
+					    double RConeInner,
+                                            double etaSlice,
+					    double etMin){
 
 
-  std::vector<float> covariances= EcalClusterTools::localCovariances(*bc, rechitsCollection_, topology);
-  return covariances[0];
-  
-}
-
-
-/////////////////Deprecated.  Use tower isolation now.
-// double PhotonIDAlgo::calculateHcalRecHitIso(const reco::Photon* photon,
-// 					    const edm::Event& iEvent,
-// 					    const edm::EventSetup& iSetup,
-// 					    double RCone,
-// 					    double RConeInner,
-//                                             double etaSlice,
-// 					    double eMin,
-// 					    double etMin){
-
-
-//   edm::Handle<HBHERecHitCollection> hcalhitsCollH;
- 
-//   iEvent.getByLabel(hcalProducer_,hcalCollection_, hcalhitsCollH);
-
-//   const HBHERecHitCollection* rechitsCollection_ = hcalhitsCollH.product();
-
-//   std::auto_ptr<CaloRecHitMetaCollectionV> RecHits(0); 
-//   RecHits = std::auto_ptr<CaloRecHitMetaCollectionV>(new HBHERecHitMetaCollection(*rechitsCollection_));
-
-//   edm::ESHandle<CaloGeometry> geoHandle;
-//   iSetup.get<CaloGeometryRecord>().get(geoHandle);
-//   double ecalIsol=0.;
-  
-
-//   EgammaRecHitIsolation phoIso(RCone,
-// 			       RConeInner,
-// 			       etMin,
-// 			       eMin,
-//                                etaSlice,
-// 			       geoHandle,
-// 			       &(*RecHits),
-// 			       DetId::Hcal);
-//   ecalIsol = phoIso.getEtSum(photon);
-//   //  delete phoIso;
-
-//   return ecalIsol;
-  
-
-// }
-double PhotonIDAlgo::calculateHcalTowerIso(const reco::Photon* photon,
-					   const edm::Event& iEvent,
-					   const edm::EventSetup& iSetup,
-					   double RCone,
-					   double RConeInner,
-					   double eMin){
-
-  edm::Handle<CaloTowerCollection> hcalhitsCollH;
+  edm::Handle<HBHERecHitCollection> hcalhitsCollH;
  
   iEvent.getByLabel(hcalProducer_,hcalCollection_, hcalhitsCollH);
-  
-  const CaloTowerCollection *toww = hcalhitsCollH.product();
 
+  const HBHERecHitCollection* rechitsCollection_ = hcalhitsCollH.product();
+
+  std::auto_ptr<CaloRecHitMetaCollectionV> RecHits(0); 
+  RecHits = std::auto_ptr<CaloRecHitMetaCollectionV>(new HBHERecHitMetaCollection(*rechitsCollection_));
+
+  edm::ESHandle<CaloGeometry> geoHandle;
+  iSetup.get<CaloGeometryRecord>().get(geoHandle);
   double ecalIsol=0.;
   
-  //std::cout << "before iso call" << std::endl;
-  EgammaTowerIsolation phoIso(RCone,
-			      RConeInner,
-			      eMin,-1,
-			      toww);
-  ecalIsol = phoIso.getTowerEtSum(photon);
+
+  EgammaRecHitIsolation phoIso(RCone,
+			       RConeInner,
+			       etMin,
+                               etaSlice,
+			       geoHandle,
+			       &(*RecHits),
+			       DetId::Hcal);
+  ecalIsol = phoIso.getEtSum(photon);
   //  delete phoIso;
-  //std::cout << "after call" << std::endl;
+
   return ecalIsol;
   
 
 }
 
 
-/////////////Deprecated.
-// bool PhotonIDAlgo::isAlsoElectron(const reco::Photon* photon,
-// 				  const edm::Event& e){
 
-//   //Currently some instability with GsfPixelMatchElectronCollection
-//   //causes this simple code to die horribly.  Thus we simply return false
-//   //for now.
+bool PhotonIDAlgo::isAlsoElectron(const reco::Photon* photon,
+				  const edm::Event& e){
 
-//   //Get MY supercluster position
-// //   std::cout << "Checking isAlsoElectron code: " << std::endl;
-// //   reco::SuperClusterRef sc = photon->superCluster();
-// //   float PhoCaloE = sc.get()->energy();
+  //Currently some instability with GsfPixelMatchElectronCollection
+  //causes this simple code to die horribly.  Thus we simply return false
+  //for now.
 
-// //   math::XYZVector position(sc.get()->position().x(),
-// // 			   sc.get()->position().y(),
-// // 			   sc.get()->position().z());
+  //Get MY supercluster position
+//   std::cout << "Checking isAlsoElectron code: " << std::endl;
+//   reco::SuperClusterRef sc = photon->superCluster();
+//   float PhoCaloE = sc.get()->energy();
+
+//   math::XYZVector position(sc.get()->position().x(),
+// 			   sc.get()->position().y(),
+// 			   sc.get()->position().z());
   
-// //   std::cout << "Got supercluster position: Photon." << std::endl;
-//   //get the Gsf electrons:
-// //   edm::Handle<reco::PixelMatchGsfElectronCollection> pElectrons;
-// //   e.getByLabel(gsfRecoInputTag_, pElectrons);
-// //   std::cout << "Got GsfElectronCollection: " << std::endl;
-// //   float PhoCaloE=0;
+//   std::cout << "Got supercluster position: Photon." << std::endl;
+  //get the Gsf electrons:
+//   edm::Handle<reco::PixelMatchGsfElectronCollection> pElectrons;
+//   e.getByLabel(gsfRecoInputTag_, pElectrons);
+//   std::cout << "Got GsfElectronCollection: " << std::endl;
+//   float PhoCaloE=0;
 
-// //   const reco::PixelMatchGsfElectronCollection *elec = pElectrons.product();
-// //   for(reco::PixelMatchGsfElectronCollection::const_iterator gItr = elec->begin(); gItr != elec->end(); ++gItr){
+//   const reco::PixelMatchGsfElectronCollection *elec = pElectrons.product();
+//   for(reco::PixelMatchGsfElectronCollection::const_iterator gItr = elec->begin(); gItr != elec->end(); ++gItr){
 
-// //     std::cout << "Got Electron: " << std::endl;
-// //     float EleCaloE = gItr->caloEnergy();
-// //     std::cout << "Energy: " << EleCaloE << std::endl;
-// //     std::cout << "Photon E: " << PhoCaloE << std::endl;
-// //     float dE = fabs(EleCaloE-PhoCaloE);
-// //     std::cout << "Made comparison. " << std::endl;
+//     std::cout << "Got Electron: " << std::endl;
+//     float EleCaloE = gItr->caloEnergy();
+//     std::cout << "Energy: " << EleCaloE << std::endl;
+//     std::cout << "Photon E: " << PhoCaloE << std::endl;
+//     float dE = fabs(EleCaloE-PhoCaloE);
+//     std::cout << "Made comparison. " << std::endl;
 
-// //     if(dE < 0.0001) return true;
+//     if(dE < 0.0001) return true;
 
-// //   }    
+//   }    
     
-//   return false;
-// }
+  return false;
+}

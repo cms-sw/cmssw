@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2008/05/11 09:35:13 $
- * $Revision: 1.50 $
+ * $Date: 2008/12/03 10:43:36 $
+ * $Revision: 1.54 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -346,42 +346,42 @@ void EEOccupancyTask::setup(void){
     meEETrigPrimDigiOccupancyProPhiThr_[1]->setAxisTitle("phi'", 1);
     meEETrigPrimDigiOccupancyProPhiThr_[1]->setAxisTitle("number of TP digis", 2);
 
-    sprintf(histo, "EEOT test pulse digi occupancy EE +");
+    sprintf(histo, "EEOT test pulse digi occupancy EE -");
     meEETestPulseDigiOccupancy_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
     meEETestPulseDigiOccupancy_[0]->setAxisTitle("jx'", 1);
     meEETestPulseDigiOccupancy_[0]->setAxisTitle("jy'", 2);
 
-    sprintf(histo, "EEOT test pulse digi occupancy EE -");
+    sprintf(histo, "EEOT test pulse digi occupancy EE +");
     meEETestPulseDigiOccupancy_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
     meEETestPulseDigiOccupancy_[1]->setAxisTitle("jx'", 1);
     meEETestPulseDigiOccupancy_[1]->setAxisTitle("jy'", 2);
 
-    sprintf(histo, "EEOT led digi occupancy EE +");
+    sprintf(histo, "EEOT led digi occupancy EE -");
     meEELedDigiOccupancy_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
     meEELedDigiOccupancy_[0]->setAxisTitle("jx'", 1);
     meEELedDigiOccupancy_[0]->setAxisTitle("jy'", 2);
 
-    sprintf(histo, "EEOT led digi occupancy EE -");
+    sprintf(histo, "EEOT led digi occupancy EE +");
     meEELedDigiOccupancy_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
     meEELedDigiOccupancy_[1]->setAxisTitle("jx'", 1);
     meEELedDigiOccupancy_[1]->setAxisTitle("jy'", 2);
 
-    sprintf(histo, "EEOT laser digi occupancy EE +");
+    sprintf(histo, "EEOT laser digi occupancy EE -");
     meEELaserDigiOccupancy_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
     meEELaserDigiOccupancy_[0]->setAxisTitle("jx'", 1);
     meEELaserDigiOccupancy_[0]->setAxisTitle("jy'", 2);
 
-    sprintf(histo, "EEOT laser digi occupancy EE -");
+    sprintf(histo, "EEOT laser digi occupancy EE +");
     meEELaserDigiOccupancy_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
     meEELaserDigiOccupancy_[1]->setAxisTitle("jx'", 1);
     meEELaserDigiOccupancy_[1]->setAxisTitle("jy'", 2);
 
-    sprintf(histo, "EEOT pedestal digi occupancy EE +");
+    sprintf(histo, "EEOT pedestal digi occupancy EE -");
     meEEPedestalDigiOccupancy_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
     meEEPedestalDigiOccupancy_[0]->setAxisTitle("jx'", 1);
     meEEPedestalDigiOccupancy_[0]->setAxisTitle("jy'", 2);
 
-    sprintf(histo, "EEOT pedestal digi occupancy EE -");
+    sprintf(histo, "EEOT pedestal digi occupancy EE +");
     meEEPedestalDigiOccupancy_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
     meEEPedestalDigiOccupancy_[1]->setAxisTitle("jx'", 1);
     meEEPedestalDigiOccupancy_[1]->setAxisTitle("jy'", 2);
@@ -529,8 +529,7 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EEDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
-      EEDataFrame dataframe = (*digiItr);
-      EEDetId id = dataframe.id();
+      EEDetId id = digiItr->id();
 
       int ix = id.ix();
       int iy = id.iy();
@@ -573,12 +572,12 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
         for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-          EcalDCCHeaderBlock dcch = (*dcchItr);
+          if ( Numbers::subDet( *dcchItr ) != EcalEndcap ) continue;
 
-          if ( Numbers::subDet( dcch ) != EcalEndcap ) continue;
+          if ( Numbers::iSM( *dcchItr, EcalEndcap ) != ism ) continue;
 
-          if ( dcch.getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
-               dcch.getRunType() == EcalDCCHeaderBlock::TESTPULSE_GAP ) {
+          if ( dcchItr->getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::TESTPULSE_GAP ) {
 
             if ( ism >=1 && ism <= 9 ) {
               if ( meEETestPulseDigiOccupancy_[0] ) meEETestPulseDigiOccupancy_[0]->Fill( xeex, xeey );
@@ -588,8 +587,8 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
           }
 
-          if ( dcch.getRunType() == EcalDCCHeaderBlock::LASER_STD ||
-               dcch.getRunType() == EcalDCCHeaderBlock::LASER_GAP ) {
+          if ( dcchItr->getRunType() == EcalDCCHeaderBlock::LASER_STD ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::LASER_GAP ) {
 
             if ( ism >=1 && ism <= 9 ) {
               if ( meEELaserDigiOccupancy_[0] ) meEELaserDigiOccupancy_[0]->Fill( xeex, xeey );
@@ -599,8 +598,8 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
           }
 
-          if ( dcch.getRunType() == EcalDCCHeaderBlock::LED_STD ||
-               dcch.getRunType() == EcalDCCHeaderBlock::LED_GAP ) {
+          if ( dcchItr->getRunType() == EcalDCCHeaderBlock::LED_STD ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::LED_GAP ) {
 
             if ( ism >=1 && ism <= 9 ) {
               if ( meEELedDigiOccupancy_[0] ) meEELedDigiOccupancy_[0]->Fill( xeex, xeey );
@@ -610,8 +609,8 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
           }
 
-          if ( dcch.getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD ||
-               dcch.getRunType() == EcalDCCHeaderBlock::PEDESTAL_GAP ) {
+          if ( dcchItr->getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::PEDESTAL_GAP ) {
 
             if ( ism >=1 && ism <= 9 ) {
               if ( meEEPedestalDigiOccupancy_[0] ) meEEPedestalDigiOccupancy_[0]->Fill( xeex, xeey );
@@ -642,14 +641,11 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalPnDiodeDigiCollection::const_iterator pnItr = PNs->begin(); pnItr != PNs->end(); ++pnItr ) {
 
-      EcalPnDiodeDigi pn = (*pnItr);
-      EcalPnDiodeDetId id = pn.id();
+      if ( Numbers::subDet( pnItr->id() ) != EcalEndcap ) continue;
 
-      if ( Numbers::subDet( id ) != EcalEndcap ) continue;
+      int   ism   = Numbers::iSM( pnItr->id() );
 
-      int   ism   = Numbers::iSM( id );
-
-      float PnId  = (*pnItr).id().iPnId();
+      float PnId  = pnItr->id().iPnId();
 
       PnId        = PnId - 0.5;
       float st    = 0.0;
@@ -729,14 +725,11 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalTrigPrimDigiCollection::const_iterator tpdigiItr = trigPrimDigis->begin(); tpdigiItr != trigPrimDigis->end(); ++tpdigiItr ) {
 
-      EcalTriggerPrimitiveDigi data = (*tpdigiItr);
-      EcalTrigTowerDetId idt = data.id();
+      if ( Numbers::subDet( tpdigiItr->id() ) != EcalEndcap ) continue;
 
-      if ( Numbers::subDet( idt ) != EcalEndcap ) continue;
+      int ismt = Numbers::iSM( tpdigiItr->id() );
 
-      int ismt = Numbers::iSM( idt );
-
-      vector<DetId> crystals = Numbers::crystals( idt );
+      vector<DetId> crystals = Numbers::crystals( tpdigiItr->id() );
 
       for ( unsigned int i=0; i<crystals.size(); i++ ) {
 
@@ -758,7 +751,7 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
           if ( meEETrigPrimDigiOccupancyProPhi_[1] ) meEETrigPrimDigiOccupancyProPhi_[1]->Fill( atan2(xeey-50.,xeex-50.) );
         }
 
-        if ( data.compressedEt() > trigPrimEtMin_ ) {
+        if ( tpdigiItr->compressedEt() > trigPrimEtMin_ ) {
 
           if ( ismt >= 1 && ismt <= 9 ) {
             if ( meEETrigPrimDigiOccupancyThr_[0] ) meEETrigPrimDigiOccupancyThr_[0]->Fill( xeex, xeey );

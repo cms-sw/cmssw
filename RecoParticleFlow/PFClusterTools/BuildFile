@@ -5,7 +5,6 @@
 <use name=root>
 <use name=rootcore>
 <use name=rootrflx>
-<use name=rootinteractive>
 <export>
   <lib name=RecoParticleFlowPFClusterTools>
   <use name=FWCore/Framework>

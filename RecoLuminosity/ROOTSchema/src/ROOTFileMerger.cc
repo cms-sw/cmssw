@@ -1,114 +1,96 @@
 #include "RecoLuminosity/ROOTSchema/interface/ROOTFileMerger.h"
-#include "RecoLuminosity/ROOTSchema/interface/ROOTFileWriter.h"
-#include "RecoLuminosity/ROOTSchema/interface/ROOTFileReader.h"
- 
+
+#include <iostream>
 #include <iomanip>
 #include <cstdio>
 
 #include <TFile.h>
 #include <TChain.h>
 
-HCAL_HLX::ROOTFileMerger::ROOTFileMerger():minSectionNumber_(99999)
-{
+HCAL_HLX::ROOTFileMerger::ROOTFileMerger(){
+#ifdef DEBUG
+    std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
+#endif
 
-  RFWriter_    = NULL;
-  RFReader_    = NULL;
-  lumiSection_ = NULL;
+    minSectionNumber = 99999999;
 
-  RFWriter_ = new ROOTFileWriter;
-  if( RFWriter_ == 0 ){
-    // Could not allocate memory.
-    // Do something.
-  }
-
-  RFReader_ = new ROOTFileReader; 
-  if( RFReader_ == 0 ){
-    // Could not allocate memory.
-    // Do something.
-  }
-
-  lumiSection_ = new HCAL_HLX::LUMI_SECTION;
-  if( lumiSection_ == 0 ){
-    // Could not allocate memory.
-    // Do something.
-  }
-
-  RFWriter_->SetMerge(true);
+#ifdef DEBUG
+    std::cout << "End " << __PRETTY_FUNCTION__ << std::endl;
+#endif
 }
 
 HCAL_HLX::ROOTFileMerger::~ROOTFileMerger(){
+#ifdef DEBUG
+    std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
+#endif
 
-  if( RFWriter_ != 0){
-    delete RFWriter_;
-  }
-  
-  if( RFReader_ != 0){
-    delete RFReader_;
-  }
-
-  if( lumiSection_ !=0 ){
-    delete lumiSection_;
-  }
+#ifdef DEBUG
+    std::cout << "End " << __PRETTY_FUNCTION__ << std::endl;
+#endif
 }
 
-bool HCAL_HLX::ROOTFileMerger::Merge(const unsigned int runNumber, const unsigned int minSectionNumber ){
+void HCAL_HLX::ROOTFileMerger::Merge(const unsigned int runNumber, bool bCMSLive){
+#ifdef DEBUG
+    std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
+#endif
+    // TChain::Merge and TTree::CloneTree leak because we used TTree::Bronch to create the tree.
 
-    /*
-      TChain::Merge and TTree::CloneTree leak because we used TTree::Bronch to create the tree.
-    */
-  
-  RFReader_->CreateFileNameList();
-  
-  // RFWriter_->SetFileName(runNumber, firstSectionNumber);
-  RFWriter_->OpenFile(runNumber, minSectionNumber);
-  
-  unsigned int nentries = RFReader_->GetEntries();
-  if( nentries == 0 ){
-    RFWriter_->CloseFile();
-    return false;
-  }
-  
-  for(unsigned int iEntry = 0; iEntry < nentries; ++iEntry ){
-    memset( lumiSection_, 0, sizeof(LUMI_SECTION));
-    RFReader_->GetEntry(iEntry);
-    RFReader_->GetLumiSection(*lumiSection_);
+    HCAL_HLX::LUMI_SECTION lumiSection;
+
+    ROOTFileReader RFR;
+    RFR.ReplaceFile(CreateInputFileName(runNumber));
     
-    // Must fill Threshold eventually  right now it contains fake data.
-    RFWriter_->FillTree(*lumiSection_);
-  }
+    SetFileName(CreateRunFileName(runNumber, 0));
+    CreateTree(lumiSection);
+    
+    int nentries = RFR.GetNumEntries();
   
-  return RFWriter_->CloseFile();
+    for(int i = 0; i < nentries; i++){
+      RFR.GetEntry(i);
+      RFR.GetLumiSection(lumiSection);
+      if( minSectionNumber > lumiSection.hdr.sectionNumber ){
+	std::cout << minSectionNumber << ":" << lumiSection.hdr.sectionNumber << std::endl;
+	minSectionNumber = lumiSection.hdr.sectionNumber;
+      }    
+
+      // Must fill Threshold eventually  right now it contains fake data.
+      FillTree(lumiSection);
+    }
+    
+    CloseTree();
+
+    // Rename file so that it includes the minimum lumi section number.
+    rename( CreateRunFileName(runNumber, 0).c_str(), CreateRunFileName(runNumber, minSectionNumber).c_str() ); 
+
+#ifdef DEBUG
+    std::cout << "End " << __PRETTY_FUNCTION__ << std::endl;
+#endif
 }
 
-void HCAL_HLX::ROOTFileMerger::SetInputDir( const std::string &dirName){
+std::string HCAL_HLX::ROOTFileMerger::CreateInputFileName(const unsigned int runNumber){
+#ifdef DEBUG
+    std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
+#endif
 
-  RFReader_->SetDir(dirName);
+    std::ostringstream outputString;
+    
+    outputString << outputDir_
+		 << "/"
+		 << TimeStampYYYYMM()
+		 << "/"
+		 << std::setfill('0') << std::setw(9) << runNumber
+		 << "/"
+		 << outputFilePrefix_
+		 << "_"
+		 << TimeStampYYYYMMDD()
+		 << "_"
+		 << std::setfill('0') << std::setw(9) << runNumber
+		 << "_*.root";
+
+#ifdef DEBUG
+    std::cout << "Input file name: " << outputString.str() << std::endl;
+    std::cout << "End " << __PRETTY_FUNCTION__ << std::endl;
+#endif
+    return outputString.str();
 }
 
-void HCAL_HLX::ROOTFileMerger::SetOutputDir(const std::string &dirName){
-
-  RFWriter_->SetDir(dirName);
-}
-
-std::string HCAL_HLX::ROOTFileMerger::GetOutputFileName(){
-
-  return RFWriter_->GetFileName();
-}
-
-void HCAL_HLX::ROOTFileMerger::SetEtSumOnly(bool bEtSumOnly){
-
-  RFWriter_->SetEtSumOnly(bEtSumOnly);
-  RFReader_->SetEtSumOnly(bEtSumOnly);
-}
-
-void HCAL_HLX::ROOTFileMerger::SetFileType( const std::string &fileType ){
-
-  RFWriter_->SetFileType( fileType );
-  RFReader_->SetFileType( fileType );
-}
-
-void HCAL_HLX::ROOTFileMerger::SetDate( const std::string &date ){
-  
-  RFWriter_->SetDate( date );
-  RFReader_->SetDate( date );
-}  

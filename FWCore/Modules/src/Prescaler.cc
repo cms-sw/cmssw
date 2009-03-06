@@ -6,10 +6,11 @@ namespace edm
 {
   Prescaler::Prescaler(edm::ParameterSet const& ps):
     count_(),
-    n_(ps.getParameter<int>("prescaleFactor"))
+    n_(ps.getParameter<int>("prescaleFactor")),
+    offset_(ps.getParameter<int>("prescaleOffset"))
   {
   }
-    
+
   Prescaler::~Prescaler()
   {
   }
@@ -17,7 +18,7 @@ namespace edm
   bool Prescaler::filter(edm::Event & e,edm::EventSetup const&)
   {
     ++count_;
-    return count_%n_ ==0 ? true : false;
+    return count_ % n_ == offset_ ? true : false;
   }
 
   void Prescaler::endJob()

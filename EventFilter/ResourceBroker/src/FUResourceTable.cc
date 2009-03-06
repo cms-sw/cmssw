@@ -50,12 +50,15 @@ FUResourceTable::FUResourceTable(bool              segmentationMode,
   , wlDiscard_(0)
   , asDiscard_(0)
   , shmBuffer_(0)
+  , acceptSMDataDiscard_(0)
+  , acceptSMDqmDiscard_(0)
   , doCrcCheck_(1)
   , nbPending_(0)
   , nbClientsToShutDown_(0)
   , isReadyToShutDown_(true)
   , isActive_(false)
   , isHalting_(false)
+  , runNumber_(0xffffffff)
   , lock_(toolbox::BSem::FULL)
 {
   initialize(segmentationMode,
@@ -71,6 +74,8 @@ FUResourceTable::~FUResourceTable()
   shmdt(shmBuffer_);
   if (FUShmBuffer::releaseSharedMemory())
     LOG4CPLUS_INFO(log_,"SHARED MEMORY SUCCESSFULLY RELEASED.");
+  if (0!=acceptSMDataDiscard_) delete [] acceptSMDataDiscard_;
+  if (0!= acceptSMDqmDiscard_) delete [] acceptSMDqmDiscard_;
 }
 
 
@@ -103,6 +108,9 @@ void FUResourceTable::initialize(bool   segmentationMode,
     resources_.push_back(new FUResource(i,log_));
     freeResourceIds_.push(i);
   }
+
+  acceptSMDataDiscard_ = new bool[nbRecoCells];
+  acceptSMDqmDiscard_  = new bool[nbDqmCells];
   
   resetCounters();
 }
@@ -187,7 +195,7 @@ bool FUResourceTable::sendData(toolbox::task::WorkLoop* /* wl */)
       else if (cell->type()==2) {
 	UInt_t   cellIndex       = cell->index();
 	UInt_t   cellRawIndex    = cell->rawCellIndex();
-	UInt_t   cellRunNumber   = cell->runNumber();
+	//UInt_t   cellRunNumber   = cell->runNumber();
 	UInt_t   cellEvtNumber   = cell->evtNumber();
 	UInt_t   cellFUProcId    = cell->fuProcessId();
 	UInt_t   cellFUGuid      = cell->fuGuid();
@@ -201,11 +209,11 @@ bool FUResourceTable::sendData(toolbox::task::WorkLoop* /* wl */)
 	if (resources_[cellRawIndex]->nbSent()==1) { nbSent_++; nbSentError_++; }
 	unlock();
 	
-	sendErrorEvent(cellIndex,cellRunNumber,cellEvtNumber,
+	sendErrorEvent(cellIndex,runNumber_,cellEvtNumber,
 		       cellFUProcId,cellFUGuid,cellPayloadAddr,cellEventSize);
       }
       else {
-	string errmsg="Unknown RecoCell type (neither DATA nor INIT).";
+	string errmsg="Unknown RecoCell type (neither INIT/DATA/ERROR).";
 	XCEPT_RAISE(evf::Exception,errmsg);
       }
     }
@@ -451,20 +459,30 @@ bool FUResourceTable::buildResource(MemRef_t* bufRef)
 //______________________________________________________________________________
 bool FUResourceTable::discardDataEvent(MemRef_t* bufRef)
 {
-  lock();
-  nbPendingSMDiscards_--;
-  unlock();
+  I2O_FU_DATA_DISCARD_MESSAGE_FRAME *msg;
+  msg=(I2O_FU_DATA_DISCARD_MESSAGE_FRAME*)bufRef->getDataLocation();
+  UInt_t recoIndex=msg->rbBufferID;
+  
+  if (acceptSMDataDiscard_[recoIndex]) {
+    lock();
+    nbPendingSMDiscards_--;
+    unlock();
+    acceptSMDataDiscard_[recoIndex] = false;
+    
+    if (!isHalting_) {
+      shmBuffer_->discardRecoCell(recoIndex);
+      bufRef->release();
+    }
+  }
+  else {
+    LOG4CPLUS_ERROR(log_,"Spurious DATA discard by StorageManager, skip!");
+  }
   
   if (isHalting_) {
     bufRef->release();
     return false;
   }
   
-  I2O_FU_DATA_DISCARD_MESSAGE_FRAME *msg;
-  msg=(I2O_FU_DATA_DISCARD_MESSAGE_FRAME*)bufRef->getDataLocation();
-  UInt_t recoIndex=msg->rbBufferID;
-  shmBuffer_->discardRecoCell(recoIndex);
-  bufRef->release();
   return true;
 }
 
@@ -472,16 +490,26 @@ bool FUResourceTable::discardDataEvent(MemRef_t* bufRef)
 //______________________________________________________________________________
 bool FUResourceTable::discardDqmEvent(MemRef_t* bufRef)
 {
+  I2O_FU_DQM_DISCARD_MESSAGE_FRAME *msg;
+  msg=(I2O_FU_DQM_DISCARD_MESSAGE_FRAME*)bufRef->getDataLocation();
+  UInt_t dqmIndex=msg->rbBufferID;
+
+  if (acceptSMDqmDiscard_[dqmIndex]) {
+    if (!isHalting_) {
+      shmBuffer_->discardDqmCell(dqmIndex);
+      bufRef->release();
+    }
+    acceptSMDqmDiscard_[dqmIndex] = false;
+  }
+  else {
+    LOG4CPLUS_ERROR(log_,"Spurious DQM discard by StorageManager, skip!");
+  }
+  
   if (isHalting_) {
     bufRef->release();
     return false;
   }
   
-  I2O_FU_DQM_DISCARD_MESSAGE_FRAME *msg;
-  msg=(I2O_FU_DQM_DISCARD_MESSAGE_FRAME*)bufRef->getDataLocation();
-  UInt_t dqmIndex=msg->rbBufferID;
-  shmBuffer_->discardDqmCell(dqmIndex);
-  bufRef->release();
   return true;
 }
 
@@ -499,9 +527,7 @@ void FUResourceTable::dropEvent()
 //______________________________________________________________________________
 void FUResourceTable::handleCrashedEP(UInt_t runNumber,pid_t pid)
 {
-  lockShm();
   vector<pid_t> pids=cellPrcIds();
-  unlockShm();
   UInt_t iRawCell=pids.size();
   for (UInt_t i=0;i<pids.size();i++) { if (pid==pids[i]) { iRawCell=i; break; } }
   
@@ -581,6 +607,11 @@ void FUResourceTable::clear()
 //______________________________________________________________________________
 void FUResourceTable::resetCounters()
 {
+  if (0!=shmBuffer_) {
+    for (UInt_t i=0;i<shmBuffer_->nRecoCells();i++) acceptSMDataDiscard_[i]=false;
+    for (UInt_t i=0;i<shmBuffer_->nDqmCells();i++)  acceptSMDqmDiscard_[i] =false;
+  }
+  
   nbAllocated_        =nbPending_;
   nbCompleted_        =0;
   nbSent_             =0;
@@ -641,6 +672,7 @@ vector<string> FUResourceTable::cellStates() const
   vector<string> result;
   if (0!=shmBuffer_) {
     UInt_t n=nbResources();
+    shmBuffer_->lock();
     for (UInt_t i=0;i<n;i++) {
       evt::State_t state=shmBuffer_->evtState(i);
       if      (state==evt::EMPTY)      result.push_back("EMPTY");
@@ -656,6 +688,7 @@ vector<string> FUResourceTable::cellStates() const
       else if (state==evt::SENT)       result.push_back("SENT");
       else if (state==evt::DISCARDING) result.push_back("DISCARDING");
     }
+    shmBuffer_->unlock();
   }
   return result;
 }
@@ -667,7 +700,9 @@ vector<UInt_t> FUResourceTable::cellEvtNumbers() const
   vector<UInt_t> result;
   if (0!=shmBuffer_) {
     UInt_t n=nbResources();
+    shmBuffer_->lock();
     for (UInt_t i=0;i<n;i++) result.push_back(shmBuffer_->evtNumber(i));
+    shmBuffer_->unlock();
   }
   return result;
 }
@@ -679,7 +714,9 @@ vector<pid_t> FUResourceTable::cellPrcIds() const
   vector<pid_t> result;
   if (0!=shmBuffer_) {
     UInt_t n=nbResources();
+    shmBuffer_->lock();
     for (UInt_t i=0;i<n;i++) result.push_back(shmBuffer_->evtPrcId(i));
+    shmBuffer_->unlock();
   }
   return result;
 }
@@ -691,7 +728,9 @@ vector<time_t> FUResourceTable::cellTimeStamps() const
   vector<time_t> result;
   if (0!=shmBuffer_) {
     UInt_t n=nbResources();
+    shmBuffer_->lock();
     for (UInt_t i=0;i<n;i++) result.push_back(shmBuffer_->evtTimeStamp(i));
+    shmBuffer_->unlock();
   }
   return result;
 }
@@ -736,8 +775,9 @@ void FUResourceTable::sendInitMessage(UInt_t   fuResourceId,
     LOG4CPLUS_ERROR(log_,"No StorageManager, DROP INIT MESSAGE!");
   }
   else {
-    UInt_t   nbBytes    =sm_->sendInitMessage(fuResourceId,outModId,fuProcessId,
-					      fuGuid,data,dataSize);
+    acceptSMDataDiscard_[fuResourceId] = true;
+    UInt_t nbBytes=sm_->sendInitMessage(fuResourceId,outModId,fuProcessId,
+					fuGuid,data,dataSize);
     sumOfSquares_+=(uint64_t)nbBytes*(uint64_t)nbBytes;
     sumOfSizes_  +=nbBytes;
   }
@@ -758,12 +798,12 @@ void FUResourceTable::sendDataEvent(UInt_t   fuResourceId,
     LOG4CPLUS_ERROR(log_,"No StorageManager, DROP DATA EVENT!");
   }
   else {
-    UInt_t   nbBytes    =sm_->sendDataEvent(fuResourceId,runNumber,evtNumber,
-					    outModId,fuProcessId,fuGuid,
-					    data,dataSize);
+    acceptSMDataDiscard_[fuResourceId] = true;
+    UInt_t nbBytes=sm_->sendDataEvent(fuResourceId,runNumber,evtNumber,
+				      outModId,fuProcessId,fuGuid,
+				      data,dataSize);
     sumOfSquares_+=(uint64_t)nbBytes*(uint64_t)nbBytes;
     sumOfSizes_  +=nbBytes;
-
   }
 }
 
@@ -781,6 +821,7 @@ void FUResourceTable::sendErrorEvent(UInt_t   fuResourceId,
     LOG4CPLUS_ERROR(log_,"No StorageManager, DROP ERROR EVENT!");
   }
   else {
+    acceptSMDataDiscard_[fuResourceId] = true;
     UInt_t nbBytes=sm_->sendErrorEvent(fuResourceId,runNumber,evtNumber,
 				       fuProcessId,fuGuid,data,dataSize);
     sumOfSquares_+=(uint64_t)nbBytes*(uint64_t)nbBytes;
@@ -803,6 +844,7 @@ void FUResourceTable::sendDqmEvent(UInt_t   fuDqmId,
     LOG4CPLUS_WARN(log_,"No StorageManager, DROP DQM EVENT.");
   }
   else {
+    acceptSMDqmDiscard_[fuDqmId] = true;
     sm_->sendDqmEvent(fuDqmId,runNumber,evtAtUpdate,folderId,
 		      fuProcessId,fuGuid,data,dataSize);
     nbSentDqm_++;

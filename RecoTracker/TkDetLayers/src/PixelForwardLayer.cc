@@ -95,29 +95,33 @@ PixelForwardLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
   DetGroupElement closestGel( closestResult.front().front());
   float window = computeWindowSize( closestGel.det(), closestGel.trajectoryState(), est);
 
-  float detWidth = closestGel.det()->surface().bounds().width();
-  if (crossings.nextDistance < detWidth + window) {
-    vector<DetGroup> nextResult;
-    if (Adder::add( *theComps[theBinFinder.binIndex(crossings.nextIndex)], 
-		   tsos, prop, est, nextResult)) {
-      int crossingSide = LayerCrossingSide().endcapSide( tsos, prop);
-      int theHelicity = computeHelicity(theComps[theBinFinder.binIndex(crossings.closestIndex)],
+  //float detWidth = closestGel.det()->surface().bounds().width();
+  //if (crossings.nextDistance < detWidth + window) {
+  vector<DetGroup> nextResult;
+  if (Adder::add( *theComps[theBinFinder.binIndex(crossings.nextIndex)], 
+		  tsos, prop, est, nextResult)) {
+    int crossingSide = LayerCrossingSide().endcapSide( tsos, prop);
+    int theHelicity = computeHelicity(theComps[theBinFinder.binIndex(crossings.closestIndex)],
 					theComps[theBinFinder.binIndex(crossings.nextIndex)] );
-      DetGroupMerger::orderAndMergeTwoLevels( closestResult, nextResult, result, 
-					      theHelicity, crossingSide);
-    }
-    else {
-      result.swap(closestResult);
-    }
+    DetGroupMerger::orderAndMergeTwoLevels( closestResult, nextResult, result, 
+					    theHelicity, crossingSide);
   }
   else {
     result.swap(closestResult);
   }
+  
+  /*
+  }
+  else {
+    result.swap(closestResult);
+  }
+  */
 
-  // only loop over neighbors (other than closest and next) if window is BIG
-  if (window > 0.5*detWidth) {
-    searchNeighbors( tsos, prop, est, crossings, window, result);
-  } 
+  // --- THIS lines may speed up the reconstruction. But it reduces slightly the efficiency.
+  // only loop over neighbors (other than closest and next) if window is BIG  
+  //if (window > 0.5*detWidth) {
+  searchNeighbors( tsos, prop, est, crossings, window, result);
+  //} 
 }
 
 
@@ -130,7 +134,7 @@ PixelForwardLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 				    float window, 
 				    vector<DetGroup>& result) const
 {
-   typedef CompatibleDetToGroupAdder Adder;
+  typedef CompatibleDetToGroupAdder Adder;
   int crossingSide = LayerCrossingSide().endcapSide( tsos, prop);
   typedef DetGroupMerger Merger;
 

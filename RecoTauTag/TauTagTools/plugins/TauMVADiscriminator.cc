@@ -13,7 +13,7 @@
 //
 // Original Author:  Evan K. Friis, UC Davis (friis@physics.ucdavis.edu)
 //         Created:  Fri Aug 15 11:22:14 PDT 2008
-// $Id: TauMVADiscriminator.cc,v 1.3 2008/10/17 00:11:24 friis Exp $
+// $Id: TauMVADiscriminator.cc,v 1.4 2008/10/22 00:51:03 friis Exp $
 //
 //
 
@@ -66,6 +66,7 @@ class TauMVADiscriminator : public edm::EDProducer {
       virtual void endJob() ;
       InputTag                  pfTauDecayModeSrc_;
       std::vector<InputTag>     preDiscriminants_; //these must pass for the MVA value to be computed
+      double                    failValue_;        //specifies discriminant output when the object fails one of the preDiscriminants
       string                    computerName_;
       DiscriminantList          myDiscriminants_;
       PFTauDiscriminantManager  discriminantManager_;
@@ -76,6 +77,7 @@ class TauMVADiscriminator : public edm::EDProducer {
 TauMVADiscriminator::TauMVADiscriminator(const edm::ParameterSet& iConfig):
                    pfTauDecayModeSrc_(iConfig.getParameter<InputTag>("pfTauDecayModeSrc")),
                    preDiscriminants_(iConfig.getParameter<std::vector<InputTag> >("preDiscriminants")),
+                   failValue_(iConfig.getParameter<double>("prefailValue")),
                    computerName_(iConfig.getParameter<string>("computerName"))
 {
    produces<PFTauDiscriminator>();
@@ -125,7 +127,7 @@ TauMVADiscriminator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    size_t numberOfTaus = pfTauDecayModes->size();
    for(size_t iDecayMode = 0; iDecayMode < numberOfTaus; ++iDecayMode)
    {
-      double output = 0.0;
+      double output = failValue_;
 
       // Check if this tau fails one of the specified discriminants
       // This is needed as applying these discriminants on a tau w/o a 

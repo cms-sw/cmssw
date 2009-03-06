@@ -13,14 +13,23 @@
 #include "TrackingTools/GeomPropagators/interface/PropagationExceptions.h"
 
 using namespace std;
-template <class T> T sqr( T t) {return t*t;}
+
+SeedFromConsecutiveHits::
+SeedFromConsecutiveHits( const TrackingRecHit* outerHit, 
+			 const TrackingRecHit* innerHit, 
+			 const GlobalPoint& vertexPos,
+			 const GlobalError& vertexErr,
+			 const edm::EventSetup& iSetup,
+			 const edm::ParameterSet& p){
+
+  isValid_ = construct( outerHit,  innerHit, vertexPos, vertexErr,iSetup,p) ;
+}
 
 SeedFromConsecutiveHits:: SeedFromConsecutiveHits(
     const SeedingHitSet & ordered,
     const GlobalPoint& vertexPos,
     const GlobalError& vertexErr,
     const edm::EventSetup& es,
-    float ptMin,
     double theBOFFMomentum)
   : isValid_(false)
 {
@@ -45,7 +54,7 @@ SeedFromConsecutiveHits:: SeedFromConsecutiveHits(
   }
 
   float sinTheta = sin( kine.momentum().theta() );
-  FreeTrajectoryState fts( kine, initialError( vertexPos, vertexErr, sinTheta, ptMin));
+  FreeTrajectoryState fts( kine, initialError( vertexPos, vertexErr, sinTheta));
 
   // get tracker
   edm::ESHandle<TrackerGeometry> tracker;
@@ -83,18 +92,87 @@ SeedFromConsecutiveHits:: SeedFromConsecutiveHits(
 
 
 
+
+bool SeedFromConsecutiveHits::
+construct( const TrackingRecHit* outerHit, 
+	   const TrackingRecHit* innerHit, 
+	   const GlobalPoint& vertexPos,
+	   const GlobalError& vertexErr,
+	   const edm::EventSetup& iSetup,
+	   const edm::ParameterSet& p) 
+{
+  typedef TrajectoryStateOnSurface     TSOS;
+  typedef TrajectoryMeasurement        TM;
+
+
+  // get tracker geometry
+  edm::ESHandle<TrackerGeometry> tracker;
+  iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
+
+  GlobalPoint inner = 
+      tracker->idToDet(innerHit->geographicalId())->surface().toGlobal(innerHit->localPosition());
+  GlobalPoint outer = 
+      tracker->idToDet(outerHit->geographicalId())->surface().toGlobal(outerHit->localPosition());
+
+  FastHelix helix(outer, inner, vertexPos,iSetup);
+  
+  GlobalTrajectoryParameters kine = helix.stateAtVertex().parameters();
+  float sinTheta = sin( kine.momentum().theta() );
+  FreeTrajectoryState fts( kine, initialError( vertexPos, vertexErr, sinTheta));
+
+  edm::ESHandle<Propagator>  thePropagatorHandle;
+  iSetup.get<TrackingComponentsRecord>().get("PropagatorWithMaterial",thePropagatorHandle);
+  const Propagator*  thePropagator = &(*thePropagatorHandle);
+
+
+
+  KFUpdator     theUpdator;
+
+  const TSOS innerState = 
+      thePropagator->propagate(fts,tracker->idToDet(innerHit->geographicalId())->surface());
+  if ( !innerState.isValid()) return false;
+
+
+  //
+  // get the transient builder
+  //
+  edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
+  std::string builderName = p.getParameter<std::string>("TTRHBuilder");  
+  iSetup.get<TransientRecHitRecord>().get(builderName,theBuilder);
+
+
+  intrhit=theBuilder.product()->build(innerHit);
+
+  const TSOS innerUpdated= theUpdator.update( innerState,*intrhit);			      
+
+  TSOS outerState = thePropagator->propagate( innerUpdated,
+      tracker->idToDet(outerHit->geographicalId())->surface());
+ 
+  if ( !outerState.isValid()) return false;
+  
+  outrhit=theBuilder.product()->build(outerHit);
+
+  TSOS outerUpdated = theUpdator.update( outerState, *outrhit);
+ 
+  _hits.push_back(innerHit->clone());
+  _hits.push_back(outerHit->clone());
+
+  PTraj = boost::shared_ptr<PTrajectoryStateOnDet>( 
+      transformer.persistentState(outerUpdated, outerHit->geographicalId().rawId()) );
+
+  return true;
+}
+
+
 CurvilinearTrajectoryError SeedFromConsecutiveHits::
-   initialError( const GlobalPoint& vertexPos, const GlobalError& vertexErr, 
-                 float sinTheta, float ptMin) 
+   initialError( const GlobalPoint& vertexPos, const GlobalError& vertexErr, float sinTheta) 
 {
   AlgebraicSymMatrix C(5,1);
 
-  float sin2th = sqr(sinTheta);
-  C[0][0] = sin2th/sqr(ptMin); 
   float zErr = vertexErr.czz();
   float transverseErr = vertexErr.cxx(); // assume equal cxx cyy 
   C[3][3] = transverseErr;
-  C[4][4] = zErr*sin2th + transverseErr*(1-sin2th);
+  C[4][4] = zErr*sinTheta;
 
   return CurvilinearTrajectoryError(C);
 }

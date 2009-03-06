@@ -10,6 +10,11 @@ MethodInvoker::MethodInvoker(const Member & method, const vector<AnyMethodArgume
   method_(method), ints_(ints), isFunction_(method.IsFunctionMember())
 { 
   setArgs();
+  /*std::cout << "Booking " << method_.Name() 
+            << " from " << method_.DeclaringType().Name() 
+            << " with " << args_.size() << " arguments"
+            << " (were " << ints.size() << ")"
+            << std::endl; */
 }
 
 MethodInvoker::MethodInvoker(const MethodInvoker & other) :
@@ -44,6 +49,11 @@ std::pair<Object,bool> MethodInvoker::value(const Object & o) const {
 	<< dynType.Name() << "\"\n";
     ret = met.Invoke(Object(dynType, o.Address()), args_);
     } else */
+  /*std::cout << "Invoking " << method_.Name() 
+            << " from " << method_.DeclaringType().Name() 
+            << " on an instance of " << o.DynamicType().Name() 
+            << " with " << args_.size() << " arguments"
+            << std::endl;*/
   if(isFunction_) {
      ret = method_.Invoke(o, args_);
   } else {

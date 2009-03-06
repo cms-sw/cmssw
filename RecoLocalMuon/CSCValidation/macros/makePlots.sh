@@ -70,10 +70,10 @@ cat > ${MACRO}<<EOF
   //efficiency plots
   makeEffGif("Efficiency/hRHEff", f1, "RecHit Efficiecy", "Efficiency_hRHEff.png");
   makeEffGif("Efficiency/hSEff", f1, "Segment Efficiecy", "Efficiency_hSEff.png");
-  Draw2DTempPlot("Efficiency/hRHEff2", f1, true, "Efficiency_hRHEff2.png");
-  Draw2DTempPlot("Efficiency/hSEff2", f1, true, "Efficiency_hSEff2.png");
-  Draw2DTempPlot("Efficiency/hWireEff2", f1, true, "Efficiency_hWireEff2.png");
-  Draw2DTempPlot("Efficiency/hStripEff2", f1, true, "Efficiency_hStripEff2.png");
+  Draw2DTempPlot("Efficiency/hRHEff2", f1, false, "Efficiency_hRHEff2.png");
+  Draw2DTempPlot("Efficiency/hSEff2", f1, false, "Efficiency_hSEff2.png");
+  Draw2DTempPlot("Efficiency/hWireEff2", f1, false, "Efficiency_hWireEff2.png");
+  Draw2DTempPlot("Efficiency/hStripEff2", f1, false, "Efficiency_hStripEff2.png");
   Draw2DTempPlot("Efficiency/hSensitiveAreaEvt", f1, false, "Efficiency_hEvts2.png");
 
   

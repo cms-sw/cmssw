@@ -18,6 +18,8 @@ public:
     Px = 0.; Py = 0.; Pz = 0.; E = 0.; M = 0.;
     Vx = 0.; Vy = 0.; Vz = 0.; T0 = 0.;
     HitTarget = false;
+    PlugVx = PlugOnShaftVx;
+    PlugVz = PlugOnShaftVz;
   }
   // destructor
   ~SingleParticleEvent(){}
@@ -27,6 +29,7 @@ private:
   double Vx; double Vy; double Vz; double T0;
   bool HitTarget;
   bool MTCC;
+
   // other stuff
   double dX; double dY; double dZ;
   double tmpVx; double tmpVy; double tmpVz;
@@ -63,5 +66,8 @@ public:
   double absmom(); // |p| [GeV/c]
   double absVz(); // |Vz| [mm]
   double rVxy();  // R_XY [mm]
+
+  double PlugVx;
+  double PlugVz;
 };
 #endif

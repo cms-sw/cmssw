@@ -48,6 +48,15 @@
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::BasicJet>,reco::BasicJet,edm::refhelper::FindUsingAdvance<std::vector<reco::BasicJet>,reco::BasicJet> > >" />
   <class name="reco::JetTrackMatch<std::vector<reco::BasicJet> >"/>
 
+  <class name="reco::GenericJet"/>
+  <class name="std::vector<reco::GenericJet>"/>
+  <class name="edm::RefVector<std::vector<reco::GenericJet>,reco::GenericJet,edm::refhelper::FindUsingAdvance<std::vector<reco::GenericJet>,reco::GenericJet> >"/>
+  <class name="edm::Ref<std::vector<reco::GenericJet>,reco::GenericJet,edm::refhelper::FindUsingAdvance<std::vector<reco::GenericJet>,reco::GenericJet> >"/>
+  <class name="edm::RefProd<std::vector<reco::GenericJet> >"/>
+  <class name="edm::Wrapper<std::vector<reco::GenericJet> >"/>
+  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::GenericJet>,reco::GenericJet,edm::refhelper::FindUsingAdvance<std::vector<reco::GenericJet>,reco::GenericJet> > >" />
+  <class name="reco::JetTrackMatch<std::vector<reco::GenericJet> >"/>
+
   <class pattern="edm::AssociationVector<*>">
     <field name="transientVector_" transient="true"/>
     <field name="fixed_" transient="true"/>

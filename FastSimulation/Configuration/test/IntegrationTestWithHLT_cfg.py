@@ -55,8 +55,8 @@ process.schedule = cms.Schedule()
 process.schedule.extend(process.HLTSchedule)
 
 # If uncommented : All events are reconstructed, including those rejected at L1/HLT
-# process.reconstruction = cms.Path(process.reconstructionWithFamos)
-# process.schedule.append(process.reconstruction)
+process.reconstruction = cms.Path(process.reconstructionWithFamos)
+process.schedule.append(process.reconstruction)
 
 # Simulation sequence
 process.simulation = cms.Sequence(process.simulationWithFamos)
@@ -69,8 +69,8 @@ process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 process.famosPileUp.PileUpSimulator.averageNumber = 0.0
 
 # Get frontier conditions   - not applied in the HCAL, see below
-# Values for globaltag are "STARTUP_V5::All", "1PB::All", "10PB::All", "IDEAL_V5::All"
-process.GlobalTag.globaltag = "STARTUP_V5::All"
+# Values for globaltag are "STARTUP_V7::All", "IDEAL_V12::All"
+process.GlobalTag.globaltag = "STARTUP_V9::All"
 
 
 # Apply ECAL and HCAL miscalibration 
@@ -80,11 +80,11 @@ process.caloRecHits.RecHitsFactory.doMiscalib = True
 process.famosSimHits.ApplyAlignment = True
 process.misalignedTrackerGeometry.applyAlignment = True
 
-# Apply HCAL miscalibration (not ideal in that case).
-# Choose between hcalmiscalib_startup.xml , hcalmiscalib_1pb.xml , hcalmiscalib_10pb.xml (startup is the default)
-process.caloRecHits.RecHitsFactory.HCAL.Refactor = 1.0
-process.caloRecHits.RecHitsFactory.HCAL.Refactor_mean = 1.0
-#process.caloRecHits.RecHitsFactory.HCAL.fileNameHcal = "hcalmiscalib_startup.xml"
+
+# Attention ! for the HCAL IDEAL==STARTUP
+# process.caloRecHits.RecHitsFactory.HCAL.Refactor = 1.0
+# process.caloRecHits.RecHitsFactory.HCAL.Refactor_mean = 1.0
+# process.caloRecHits.RecHitsFactory.HCAL.fileNameHcal = "hcalmiscalib_0.0.xml"
 
 
 # Note : if your process is not called HLT, you have to change that! 

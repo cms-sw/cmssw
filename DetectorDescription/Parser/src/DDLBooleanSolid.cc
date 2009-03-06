@@ -26,6 +26,7 @@
 
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
+#include <string>
 
 // default constructor
 DDLBooleanSolid::DDLBooleanSolid()

@@ -1,61 +1,72 @@
 #include <DQM/HcalMonitorClient/interface/HcalTrigPrimClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalClientUtils.h>
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include <DQM/HcalMonitorClient/interface/HcalHistoUtils.h>
 
 HcalTrigPrimClient::HcalTrigPrimClient(){}
 
 
-void HcalTrigPrimClient::init(const ParameterSet& ps, DQMStore* dbe, string clientName){
+void HcalTrigPrimClient::init(const ParameterSet& ps, DQMStore* dbe, string clientName)
+{
   //Call the base class first
   HcalBaseClient::init(ps,dbe,clientName);
 
-  for(int i=0; i<10; i++) tpSpectrum_[i] = NULL;
+ if (showTiming_)
+    {
+      cpu_timer.reset(); cpu_timer.start();
+    }
 
-  tpCount_ = NULL;
-  tpCountThr_ = NULL;
-  tpSize_ = NULL;
-  tpSpectrumAll_ = NULL;
-  tpETSumAll_ = NULL;
-  tpSOI_ET_ = NULL;
-  OCC_ETA_ = NULL;
-  OCC_PHI_ = NULL;
-  OCC_ELEC_VME_ = NULL;
-  OCC_ELEC_DCC_ = NULL;
-  OCC_MAP_GEO_ = NULL;
+  if (debug_>0) cout <<"<HcalTrigPrimClient> init(const ParameterSet& ps, DQMStore* dbe, string clientName)"<<endl;
 
-  OCC_MAP_THR_ = NULL;
-  EN_ETA_ = NULL;
-  EN_PHI_ = NULL;
-  EN_ELEC_VME_ = NULL;
-  EN_ELEC_DCC_ = NULL;
-  EN_MAP_GEO_ = NULL;
+  for(int i=0; i<10; i++) tpSpectrum_[i] = 0;
 
- TPTiming_ = NULL;
- TPTimingTop_ = NULL;
- TPTimingBot_ = NULL; 
- TPOcc_ = NULL;
- TP_ADC_ = NULL;
- MAX_ADC_ = NULL;
- TS_MAX_ = NULL;
- TPvsDigi_ = NULL;
+  tpCount_ = 0;
+  tpCountThr_ = 0;
+  tpSize_ = 0;
+  tpSpectrumAll_ = 0;
+  tpETSumAll_ = 0;
+  tpSOI_ET_ = 0;
+  OCC_ETA_ = 0;
+  OCC_PHI_ = 0;
+  OCC_ELEC_VME_ = 0;
+  OCC_ELEC_DCC_ = 0;
+  OCC_MAP_GEO_ = 0;
 
+  OCC_MAP_THR_ = 0;
+  EN_ETA_ = 0;
+  EN_PHI_ = 0;
+  EN_ELEC_VME_ = 0;
+  EN_ELEC_DCC_ = 0;
+  EN_MAP_GEO_ = 0;
 
-}
+  TPTiming_ = 0;
+  TPTimingTop_ = 0;
+  TPTimingBot_ = 0; 
+  TPOcc_ = 0;
+  TP_ADC_ = 0;
+  MAX_ADC_ = 0;
+  TS_MAX_ = 0;
+  TPvsDigi_ = 0;
+  
+ if (showTiming_)
+   {
+     cpu_timer.stop();  cout <<"TIMER:: HcalTrigPrimClient INIT  -> "<<cpu_timer.cpuTime()<<endl;
+    }
+  return;
+} // void HcalTrigPrimClient::init(...)
 
 HcalTrigPrimClient::~HcalTrigPrimClient(){
   this->cleanup();  
 }
 
 void HcalTrigPrimClient::beginJob(void){
-  if ( debug_ ) cout << "HcalTrigPrimClient: beginJob" << endl;
+  if ( debug_ >0) cout << "HcalTrigPrimClient: beginJob" << endl;
 
   ievt_ = 0; jevt_ = 0;
   return;
 }
 
 void HcalTrigPrimClient::beginRun(void){
-  if ( debug_ ) cout << "HcalTrigPrimClient: beginRun" << endl;
+  if ( debug_ >0) cout << "HcalTrigPrimClient: beginRun" << endl;
 
   jevt_ = 0;
   this->resetAllME();
@@ -63,21 +74,21 @@ void HcalTrigPrimClient::beginRun(void){
 }
 
 void HcalTrigPrimClient::endJob(void) {
-  if ( debug_ ) cout << "HcalTrigPrimClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ >0) cout << "HcalTrigPrimClient: endJob, ievt = " << ievt_ << endl;
 
   this->cleanup();
 
   return;
-}
+} //void HcalTrigPrimClient::endJob(void)
 
 void HcalTrigPrimClient::endRun(void) {
 
-  if ( debug_ ) cout << "HcalTrigPrimClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ >0) cout << "HcalTrigPrimClient: endRun, jevt = " << jevt_ << endl;
 
   this->cleanup();
 
   return;
-}
+} //void HcalTrigPrimClient::endRun(void)
 
 
 
@@ -116,37 +127,37 @@ void HcalTrigPrimClient::cleanup(void) {
     if(TPvsDigi_) delete TPvsDigi_;
   }  
 
-  for(int i=0; i<10; i++) tpSpectrum_[i] = NULL;
+  for(int i=0; i<10; i++) tpSpectrum_[i] = 0;
 
-  tpCount_ = NULL;
-  tpCountThr_ = NULL;
-  tpSize_ = NULL;
-  tpSpectrumAll_ = NULL;
-  tpETSumAll_ = NULL;
-  tpSOI_ET_ = NULL;
-  OCC_ETA_ = NULL;
-  OCC_PHI_ = NULL;
-  OCC_ELEC_VME_ = NULL;
-  OCC_ELEC_DCC_ = NULL;
-  OCC_MAP_GEO_ = NULL;
+  tpCount_ = 0;
+  tpCountThr_ = 0;
+  tpSize_ = 0;
+  tpSpectrumAll_ = 0;
+  tpETSumAll_ = 0;
+  tpSOI_ET_ = 0;
+  OCC_ETA_ = 0;
+  OCC_PHI_ = 0;
+  OCC_ELEC_VME_ = 0;
+  OCC_ELEC_DCC_ = 0;
+  OCC_MAP_GEO_ = 0;
  
-  OCC_MAP_THR_ = NULL;
-  EN_ETA_ = NULL;
-  EN_PHI_ = NULL;
-  EN_ELEC_VME_ = NULL;
-  EN_ELEC_DCC_ = NULL;
-  EN_MAP_GEO_ = NULL;
-  TPTiming_ = NULL;
-  TPTimingTop_ = NULL;
-  TPTimingBot_ = NULL; 
-  TPOcc_ = NULL;
-  TP_ADC_ = NULL;
-  MAX_ADC_ = NULL;
-  TS_MAX_ = NULL;
-  TPvsDigi_ = NULL;
+  OCC_MAP_THR_ = 0;
+  EN_ETA_ = 0;
+  EN_PHI_ = 0;
+  EN_ELEC_VME_ = 0;
+  EN_ELEC_DCC_ = 0;
+  EN_MAP_GEO_ = 0;
+  TPTiming_ = 0;
+  TPTimingTop_ = 0;
+  TPTimingBot_ = 0; 
+  TPOcc_ = 0;
+  TP_ADC_ = 0;
+  MAX_ADC_ = 0;
+  TS_MAX_ = 0;
+  TPvsDigi_ = 0;
 
   return;
-}
+} //void HcalTrigPrimClient::cleanup(void)
 
 
 
@@ -155,18 +166,27 @@ void HcalTrigPrimClient::analyze(void){
 
   int updates = 0;
   if ( updates % 10 == 0 ) {
-    if ( debug_ ) cout << "HcalTrigPrimClient: " << updates << " updates" << endl;
+    if ( debug_ >0) cout << "HcalTrigPrimClient: " << updates << " updates" << endl;
   }
 
   return;
-}
+} // void HcalTrigPrimClient::analyze(void)
 
-void HcalTrigPrimClient::getHistograms(){
 
+void HcalTrigPrimClient::getHistograms()
+{
   if(!dbe_) return;
 
+  if (showTiming_)
+    {
+      cpu_timer.reset(); cpu_timer.start();
+    }
+
+  if (debug_>0) cout <<"<HcalTrigPrimClient> getHistograms()"<<endl;
+
+
   tpCount_ = getHisto("TrigPrimMonitor/Energy Plots/# TP Digis", process_, dbe_, debug_,cloneME_);
-  assert(tpCount_!=NULL);
+  assert(tpCount_!=0);
 
   tpCountThr_ = getHisto("TrigPrimMonitor/Energy Plots/# TP Digis over Threshold", process_, dbe_, debug_,cloneME_);
   tpSize_ = getHisto("TrigPrimMonitor/Timing Plots/TP Size", process_, dbe_, debug_,cloneME_);  
@@ -200,13 +220,24 @@ void HcalTrigPrimClient::getHistograms(){
   TPOcc_ = getHisto2("TrigPrimMonitor/00 TP Occupancy",process_, dbe_, debug_,cloneME_);  
   TPvsDigi_ = getHisto2("TrigPrimMonitor/Electronics Plots/TP vs Digi",process_, dbe_, debug_,cloneME_);  
 
-
+  if (showTiming_)
+   {
+     cpu_timer.stop();  cout <<"TIMER:: HcalTrigPrimClient GET HISTOGRAMS  -> "<<cpu_timer.cpuTime()<<endl;
+    }
   return;
-}
+} //void HcalTrigPrimClient::getHistograms()
 
-void HcalTrigPrimClient::report(){
+
+void HcalTrigPrimClient::report()
+{
   if(!dbe_) return;
-  if ( debug_ ) cout << "HcalTrigPrimClient: report" << endl;
+
+  if (showTiming_)
+    {
+      cpu_timer.reset(); cpu_timer.start();
+    }
+
+  if ( debug_ >0) cout << "<HcalTrigPrimClient> report()" << endl;
   
   char name[256];
   
@@ -216,17 +247,27 @@ void HcalTrigPrimClient::report(){
     string s = me->valueString();
     ievt_ = -1;
     sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
-    if ( debug_ ) cout << "Found '" << name << "'" << endl;
+    if ( debug_ >0) cout << "Found '" << name << "'" << endl;
   }
   else printf("Didn't find %s\n",name);
   getHistograms();
-  
+  if (showTiming_)
+    {
+      cpu_timer.stop();  cout <<"TIMER:: HcalTrigPrimClient REPORT -> "<<cpu_timer.cpuTime()<<endl;
+    }
   return;
-}
+} //void HcalTrigPrimClient::report()
 
-void HcalTrigPrimClient::resetAllME(){
+
+void HcalTrigPrimClient::resetAllME()
+{
+  if (showTiming_)
+    {
+      cpu_timer.reset(); cpu_timer.start();
+    }
 
   if(!dbe_) return;
+  if ( debug_ >0) cout << "<HcalTrigPrimClient> resetAllME()" << endl;
   
   char name[150];     
   sprintf(name,"%sHcal/TrigPrimMonitor/Energy Plots/# TP Digis",process_.c_str());
@@ -286,12 +327,21 @@ void HcalTrigPrimClient::resetAllME(){
   sprintf(name,"%sHcal/TrigPrimMonitor/Electronics Plots/TP vs Digi",process_.c_str());
   resetME(name,dbe_);  
 
+  if (showTiming_)
+   {
+     cpu_timer.stop();  cout <<"TIMER:: HcalTrigPrimClient RESETALLME  -> "<<cpu_timer.cpuTime()<<endl;
+    }
   return;
-}
+} //void HcalTrigPrimClient::resetAllME()
 
-void HcalTrigPrimClient::htmlOutput(int runNo, string htmlDir, string htmlName){
 
-  cout << "Preparing HcalTrigPrimClient html output ..." << endl;
+void HcalTrigPrimClient::htmlOutput(int runNo, string htmlDir, string htmlName)
+{
+  if (showTiming_)
+    {
+      cpu_timer.reset(); cpu_timer.start();
+    }
+  if (debug_>0) cout << "<HcalTrigPrimClient::htmlOutput> Preparing  html output ..." << endl;
   string client = "TrigPrimMonitor";
   htmlErrors(runNo,htmlDir,client,process_,dbe_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
 
@@ -335,71 +385,70 @@ void HcalTrigPrimClient::htmlOutput(int runNo, string htmlDir, string htmlName){
 //ZZ Expert Plots
   htmlFile << "<td>&nbsp;&nbsp;&nbsp;<h3>Global Histograms</h3></td></tr>" << endl;
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML(runNo,tpCount_,"# TP Digis"," ", 92, htmlFile,htmlDir);
-  histoHTML(runNo,tpCountThr_,"# TP Digis"," ", 100, htmlFile,htmlDir);
+  htmlAnyHisto(runNo,tpCount_,"# TP Digis"," ", 92, htmlFile,htmlDir);
+  htmlAnyHisto(runNo,tpCountThr_,"# TP Digis"," ", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML(runNo,tpSpectrumAll_ ,"TP Energy"," ", 92, htmlFile,htmlDir);
-  histoHTML(runNo,tpETSumAll_,"TP ET Sum"," ", 100, htmlFile,htmlDir);
+  htmlAnyHisto(runNo,tpSpectrumAll_ ,"TP Energy"," ", 92, htmlFile,htmlDir);
+  htmlAnyHisto(runNo,tpETSumAll_,"TP ET Sum"," ", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
   
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML(runNo,tpSOI_ET_,"TP Energy"," ", 92, htmlFile,htmlDir);
-  histoHTML(runNo,tpSize_,"# Samples"," ", 100, htmlFile,htmlDir);
+  htmlAnyHisto(runNo,tpSOI_ET_,"TP Energy"," ", 92, htmlFile,htmlDir);
+  htmlAnyHisto(runNo,tpSize_,"# Samples"," ", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
   
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML2(runNo,OCC_MAP_GEO_,"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(runNo,EN_MAP_GEO_,"iEta","iPhi", 100, htmlFile,htmlDir);
+  htmlAnyHisto(runNo,OCC_MAP_GEO_,"iEta","iPhi", 92, htmlFile,htmlDir);
+  htmlAnyHisto(runNo,EN_MAP_GEO_,"iEta","iPhi", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML(runNo,OCC_ETA_,"iEta"," ", 92, htmlFile,htmlDir);
-  histoHTML(runNo,EN_ETA_,"iEta"," ", 100, htmlFile,htmlDir);
+  htmlAnyHisto(runNo,OCC_ETA_,"iEta"," ", 92, htmlFile,htmlDir);
+  htmlAnyHisto(runNo,EN_ETA_,"iEta"," ", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML(runNo,OCC_PHI_,"iPhi"," ", 92, htmlFile,htmlDir);
-  histoHTML(runNo,EN_PHI_,"iPhi"," ", 100, htmlFile,htmlDir);
+  htmlAnyHisto(runNo,OCC_PHI_,"iPhi"," ", 92, htmlFile,htmlDir);
+  htmlAnyHisto(runNo,EN_PHI_,"iPhi"," ", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML2(runNo,OCC_ELEC_VME_,"Slot","Crate Id", 92, htmlFile,htmlDir);
-  histoHTML2(runNo,EN_ELEC_VME_,"Slot","Crate Id", 100, htmlFile,htmlDir);
+  htmlAnyHisto(runNo,OCC_ELEC_VME_,"Slot","Crate Id", 92, htmlFile,htmlDir);
+  htmlAnyHisto(runNo,EN_ELEC_VME_,"Slot","Crate Id", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
   
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML2(runNo,OCC_ELEC_DCC_,"Spigot","DCC Id", 92, htmlFile,htmlDir);
-  histoHTML2(runNo,EN_ELEC_DCC_,"Spigot","DCC Id", 100, htmlFile,htmlDir);
+  htmlAnyHisto(runNo,OCC_ELEC_DCC_,"Spigot","DCC Id", 92, htmlFile,htmlDir);
+  htmlAnyHisto(runNo,EN_ELEC_DCC_,"Spigot","DCC Id", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
 
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML(runNo,TPTiming_,"","time", 92, htmlFile,htmlDir);
-  histoHTML(runNo,TP_ADC_,"","raw ADC", 100, htmlFile,htmlDir);
+  htmlAnyHisto(runNo,TPTiming_,"","time", 92, htmlFile,htmlDir);
+  htmlAnyHisto(runNo,TP_ADC_,"","raw ADC", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML(runNo,MAX_ADC_,"","raw ADC", 92, htmlFile,htmlDir);
-  histoHTML(runNo,TS_MAX_,"TS","num at TS", 100, htmlFile,htmlDir);
+  htmlAnyHisto(runNo,MAX_ADC_,"","raw ADC", 92, htmlFile,htmlDir);
+  htmlAnyHisto(runNo,TS_MAX_,"TS","num at TS", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
   
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML(runNo,TPTimingTop_,"","time", 92, htmlFile,htmlDir);
-  histoHTML(runNo,TPTimingBot_,"","time", 100, htmlFile,htmlDir);
+  htmlAnyHisto(runNo,TPTimingTop_,"","time", 92, htmlFile,htmlDir);
+  htmlAnyHisto(runNo,TPTimingBot_,"","time", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML2(runNo,TPOcc_,"iEta","iPhi", 92, htmlFile,htmlDir);  
-  histoHTML2(runNo,TPvsDigi_,"Digi","TP", 100, htmlFile,htmlDir);
+  htmlAnyHisto(runNo,TPOcc_,"iEta","iPhi", 92, htmlFile,htmlDir);  
+  htmlAnyHisto(runNo,TPvsDigi_,"Digi","TP", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
  
-  histoHTML2(runNo,OCC_MAP_THR_,"iEta","iPhi", 92, htmlFile,htmlDir);
+  htmlAnyHisto(runNo,OCC_MAP_THR_,"iEta","iPhi", 92, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
-
 
 
   htmlFile << "</table>" << endl;
@@ -408,15 +457,20 @@ void HcalTrigPrimClient::htmlOutput(int runNo, string htmlDir, string htmlName){
   // html page footer
   htmlFile << "</body> " << endl;
   htmlFile << "</html> " << endl;
-  
+
   htmlFile.close();
-   return;
-}
+
+  if (showTiming_)
+    {
+      cpu_timer.stop();  cout <<"TIMER:: HcalTrigPrimClient HTML OUTPUT -> "<<cpu_timer.cpuTime()<<endl;
+    }
+  return;
+} // void HcalTrigPrimClient::htmlOutput(...)
 
 
 void HcalTrigPrimClient::createTests(){
 
-  if(debug_) cout << "HcalTrigPrimClient: creating tests" << endl;
+  if(debug_>0) cout << "HcalTrigPrimClient: creating tests" << endl;
 
   if(!dbe_) return;
 

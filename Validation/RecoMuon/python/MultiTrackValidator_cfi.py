@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from Validation.RecoMuon.selectors_cff import *
 from Validation.RecoMuon.associators_cff import *
 
-multiTrackValidator = cms.EDFilter("MultiTrackValidator",
+multiTrackValidator = cms.EDAnalyzer("MultiTrackValidator",
     dirName = cms.string('RecoMuonV/MultiTrack/'),
     out = cms.string(''),
     outputFile = cms.string(''),

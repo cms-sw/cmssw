@@ -14,6 +14,7 @@ class CaloGeometry;
 class RandomEngine;
 class HcalTPGCoder;
 class HcalSimParameterMap;
+class HcalDbService;
 
 namespace edm { 
   class ParameterSet;
@@ -37,6 +38,7 @@ class HcalRecHitsMaker
   // Not currently used. Will probably be removed soon.
   //  void noisifySignal(std::map<uint32_t,std::pair<float,bool> >& theMap); 
   void noisify();
+  double noiseInfCfromDB(const HcalDbService * conditions,const HcalDetId & detId);
   void Fill(int id,float energy, std::vector<int> & myHits,float noise);
   void loadPCaloHits(const edm::Event & iEvent);
   
@@ -56,6 +58,7 @@ class HcalRecHitsMaker
   bool doDigis_;
   bool doMiscalib_;
   bool doSaturation_;
+  bool noiseFromDb_;
   double refactor_;
   double refactor_mean_;
   std::string hcalfileinpath_;
@@ -76,7 +79,7 @@ class HcalRecHitsMaker
   std::vector<float> peds_;
   std::vector<float> gains_;
   std::vector<float> sat_;
-  
+  std::vector<float> noisesigma_;
   std::vector<float> TPGFactor_;
  
   // the hashed indices

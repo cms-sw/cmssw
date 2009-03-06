@@ -58,7 +58,7 @@ void VolumeGridTester::dumpProblem( const MFGrid::LocalPoint& lp, double toleran
        << gp << " (global) " << gp.perp() << " " << gp.phi()
        << " (R,phi global) not in volume!" << endl;
 
-  vector<VolumeSide> faces = volume_->faces();
+  const vector<VolumeSide>& faces = volume_->faces();
   for (vector<VolumeSide>::const_iterator v=faces.begin(); v!=faces.end(); v++) {
     cout << "Volume face has position " << v->surface().position() 
  	 << " side " << (int) v->surfaceSide() << " rotation " << endl

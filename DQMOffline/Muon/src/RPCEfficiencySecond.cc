@@ -529,6 +529,8 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
   	  
 	  std::string folder2 = "Muons/RPCEfficiency/RollByRoll/" +  folderStr->folderStructure(rpcId); 
 
+	  delete folderStr;
+
 	  meIdRPC2 = "RPCDataOccupancyFromDT_" + rpcsrv.name();	
 	  meIdDT2 =  "ExpectedOccupancyFromDT_"+ rpcsrv.name();
 	  bxDistroId2 = "BXDistribution_"+ rpcsrv.name();
@@ -851,6 +853,8 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	  
 	  RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure(); //Anna
 	  std::string folder = "Muons/MuonSegEff/" +  folderStr->folderStructure(rpcId);
+
+	  delete folderStr;
 		
 	  meIdRPC = folder +"/RPCDataOccupancyFromCSC_"+ rpcsrv.name();	
 	  meIdCSC =folder+"/ExpectedOccupancyFromCSC_"+ rpcsrv.name();

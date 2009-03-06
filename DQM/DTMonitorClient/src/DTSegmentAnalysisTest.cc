@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/10 08:09:57 $
- *  $Revision: 1.20 $
+ *  $Date: 2008/11/28 11:11:48 $
+ *  $Revision: 1.24 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -29,6 +29,8 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DQM/DTMonitorModule/interface/DTTimeEvolutionHisto.h"
+
 #include <iostream>
 #include <stdio.h>
 #include <string>
@@ -49,6 +51,7 @@ DTSegmentAnalysisTest::DTSegmentAnalysisTest(const edm::ParameterSet& ps){
 
   // get the cfi parameters
   detailedAnalysis = parameters.getUntrackedParameter<bool>("detailedAnalysis","false");
+  normalizeHistoPlots  = parameters.getUntrackedParameter<bool>("normalizeHistoPlots",false);
 }
 
 
@@ -82,19 +85,19 @@ void DTSegmentAnalysisTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg,
 void DTSegmentAnalysisTest::analyze(const edm::Event& e, const edm::EventSetup& context){
  
   nevents++;
-  edm::LogVerbatim ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << "[DTSegmentAnalysisTest]: "<<nevents<<" events";
+  if(nevents%1000 == 0)
+    LogVerbatim ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << "[DTSegmentAnalysisTest]: "<<nevents<<" events";
 
 }
 
 
 void DTSegmentAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
- 
-  edm::LogVerbatim ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") <<"[DTSegmentAnalysisTest]: End of LS transition, performing the DQM client operation";
 
   // counts number of lumiSegs 
   nLumiSegs = lumiSeg.id().luminosityBlock();
  
-  edm::LogVerbatim ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") <<"[DTSegmentAnalysisTest]: "<<nLumiSegs<<" updates";
+  edm::LogVerbatim ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest")
+    <<"[DTSegmentAnalysisTest]: End of LS " << nLumiSegs << ", perform DQM client operation";
 
   summaryHistos[3]->Reset();
   vector<DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
@@ -106,8 +109,7 @@ void DTSegmentAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, E
     MonitorElement * segm_histo = dbe->get(getMEName(chID, "h4DSegmNHits"));
     MonitorElement * summary_histo = dbe->get(getMEName(chID, "numberOfSegments"));
    
-    if (segm_histo && summary_histo){
-      edm::LogVerbatim ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") <<"[DTSegmentAnalysisTest]: I've got the recHits histo and the summary!!";
+    if (segm_histo && summary_histo) {
       
       TH1F * segmHit_histo_root = segm_histo->getTH1F();
       TH2F * segm_histo_root = summary_histo->getTH2F();
@@ -127,7 +129,7 @@ void DTSegmentAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, E
       else
 	summaryHistos[chID.wheel()]->setBinContent(sector, chID.station(),0);
     
-      if(detailedAnalysis){
+      if(detailedAnalysis) {
 	if(chID.station()!=4)
 	  segmRecHitHistos[make_pair(chID.wheel(),chID.sector())]->Fill(chID.station(),abs(12-segmHit_histo_root->GetMaximumBin()));
 	else
@@ -142,14 +144,15 @@ void DTSegmentAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, E
 	  summaryHistos[3]->setBinContent(sector, chID.wheel()+3,2);
       }
       
+    } else {
+      LogVerbatim ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << "[DTSegmentAnalysisTest]: histos not found!!"; // FIXME
     }
 
     if(detailedAnalysis){ // switch on detailed analysis
    
       //test on chi2 segment quality
       MonitorElement * chi2_histo = dbe->get(getMEName(chID, "h4DChi2"));
-      if (chi2_histo) {
-	edm::LogVerbatim ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") <<"[DTSegmentAnalysisTest]: I've got the histo of the segment chi2!!";
+      if(chi2_histo) {
 	TH1F * chi2_histo_root = chi2_histo->getTH1F();
 	double threshold = parameters.getUntrackedParameter<double>("chi2Threshold", 5);
 	double maximum = chi2_histo_root->GetXaxis()->GetXmax();
@@ -166,7 +169,10 @@ void DTSegmentAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, E
 	  double badSegmentsPercentual= badSegments/double(chi2_histo_root->GetEntries());
 	  chi2Histos[make_pair(chID.wheel(),chID.sector())]->Fill(chID.station(),badSegmentsPercentual);
 	}
-      }      
+      } else {
+	edm::LogVerbatim ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") <<"[DTSegmentAnalysisTest]: Histo: "
+									 << getMEName(chID, "h4DChi2") << " not found!" << endl;
+      }
     } // end of switch for detailed analysis
     
   } //loop over all the chambers
@@ -218,8 +224,8 @@ string DTSegmentAnalysisTest::getMEName(const DTChamberId & chID, string histoTa
   string folderRoot = parameters.getUntrackedParameter<string>("folderRoot", "Collector/FU0/");
   string folderName = 
     folderRoot + "DT/02-Segments/Wheel" +  wheel.str() +
-    "/Station" + station.str() +
-    "/Sector" + sector.str() + "/";
+    "/Sector" + sector.str() +
+    "/Station" + station.str() + "/";
 
   string histoname = folderName + histoTag  
     + "_W" + wheel.str() 
@@ -281,4 +287,34 @@ void DTSegmentAnalysisTest::bookHistos() {
   
 
   
+
+void DTSegmentAnalysisTest::endJob() {
+}
+
+
+void DTSegmentAnalysisTest::endRun(const Run& run, const EventSetup& eSetup) {
+
+
+  if(normalizeHistoPlots) {
+    LogVerbatim ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << " Performing time-histo normalization" << endl;
+    MonitorElement* hNevtPerLS = dbe->get("DT/EventInfo/NevtPerLS");
+    if(hNevtPerLS != 0) {
+      for(int wheel = -2; wheel != 3; ++wheel) { // loop over wheels
+	for(int sector = 1; sector <= 12; ++sector) { // loop over sectors
+	  stringstream wheelstr; wheelstr << wheel;	
+	  stringstream sectorstr; sectorstr << sector;
+	  string sectorHistoName = "DT/02-Segments/Wheel" + wheelstr.str() +
+	    "/Sector" + sectorstr.str() +
+	    "/NSegmPerEvent_W" + wheelstr.str() +
+	    "_Sec" + sectorstr.str();
+	  DTTimeEvolutionHisto hNSegmPerLS(&(*dbe), sectorHistoName);
+	  hNSegmPerLS.normalizeTo(hNevtPerLS);
+	}
+      }
+    } else {
+      edm::LogError ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << "Histo NevtPerLS not found!" << endl;
+    }
+  }
+}
+
 

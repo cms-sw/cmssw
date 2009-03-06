@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsTask.cc
  *
- * $Date: 2008/05/23 13:27:49 $
- * $Revision: 1.15 $
+ * $Date: 2008/12/03 10:28:11 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  *
 */
@@ -218,15 +218,13 @@ void EEStatusFlagsTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-      EcalDCCHeaderBlock dcch = (*dcchItr);
+      if ( Numbers::subDet( *dcchItr ) != EcalEndcap ) continue;
 
-      if ( Numbers::subDet( dcch ) != EcalEndcap ) continue;
+      int ism = Numbers::iSM( *dcchItr, EcalEndcap );
 
-      int ism = Numbers::iSM( dcch, EcalEndcap );
+      if ( meEvtType_[ism-1] ) meEvtType_[ism-1]->Fill(dcchItr->getRunType()+0.5);
 
-      if ( meEvtType_[ism-1] ) meEvtType_[ism-1]->Fill(dcch.getRunType()+0.5);
-
-      vector<short> status = dcch.getFEStatus();
+      const vector<short> status = dcchItr->getFEStatus();
 
       for ( unsigned int itt=1; itt<=status.size(); itt++ ) {
 
@@ -234,7 +232,7 @@ void EEStatusFlagsTask::analyze(const Event& e, const EventSetup& c){
 
         if ( ( ism == 8 || ism == 17 ) && ( itt >= 18 && itt <= 24 ) ) continue;
 
-        vector<DetId> crystals = Numbers::crystals( EcalElectronicsId(dcch.id(), itt, 1, 1) );
+        vector<DetId> crystals = Numbers::crystals( EcalElectronicsId(dcchItr->id(), itt, 1, 1) );
 
         for ( unsigned int i=0; i<crystals.size(); i++ ) {
 

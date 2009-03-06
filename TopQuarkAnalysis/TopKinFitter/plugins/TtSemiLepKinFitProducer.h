@@ -36,7 +36,8 @@ class TtSemiLepKinFitProducer : public edm::EDProducer {
   edm::InputTag match_;
   bool useOnlyMatch_;
   
-  unsigned maxNJets_;
+  int maxNJets_;
+  int maxNComb_;
   
   unsigned int maxNrIter_;
   double maxDeltaS_;
@@ -47,6 +48,20 @@ class TtSemiLepKinFitProducer : public edm::EDProducer {
   std::vector<unsigned> constraints_;
 
   TtSemiLepKinFitter* fitter;
+
+  struct KinFitResult {
+    int Status;
+    double Chi2;
+    double Prob;
+    pat::Particle HadB;
+    pat::Particle HadP;
+    pat::Particle HadQ;
+    pat::Particle LepB;
+    pat::Particle LepL;
+    pat::Particle LepN;
+    std::vector<int> JetCombi;
+    bool operator< (const KinFitResult& rhs) { return Chi2 < rhs.Chi2; };
+  };
 };
 
 template<typename LeptonCollection>
@@ -56,7 +71,8 @@ TtSemiLepKinFitProducer<LeptonCollection>::TtSemiLepKinFitProducer(const edm::Pa
   mets_        (cfg.getParameter<edm::InputTag>("mets")),
   match_       (cfg.getParameter<edm::InputTag>("match")),
   useOnlyMatch_(cfg.getParameter<bool>             ("useOnlyMatch"      )),
-  maxNJets_    (cfg.getParameter<unsigned>         ("maxNJets"          )),
+  maxNJets_    (cfg.getParameter<int>              ("maxNJets"          )),
+  maxNComb_    (cfg.getParameter<int>              ("maxNComb"          )),
   maxNrIter_   (cfg.getParameter<unsigned>         ("maxNrIter"         )),
   maxDeltaS_   (cfg.getParameter<double>           ("maxDeltaS"         )),
   maxF_        (cfg.getParameter<double>           ("maxF"              )),
@@ -67,14 +83,17 @@ TtSemiLepKinFitProducer<LeptonCollection>::TtSemiLepKinFitProducer(const edm::Pa
 {
   fitter = new TtSemiLepKinFitter(param(jetParam_), param(lepParam_), param(metParam_), maxNrIter_, maxDeltaS_, maxF_, constraints(constraints_));
 
-  produces< std::vector<pat::Particle> >("Partons");
+  produces< std::vector<pat::Particle> >("PartonsHadP");
+  produces< std::vector<pat::Particle> >("PartonsHadQ");
+  produces< std::vector<pat::Particle> >("PartonsHadB");
+  produces< std::vector<pat::Particle> >("PartonsLepB");
   produces< std::vector<pat::Particle> >("Leptons");
   produces< std::vector<pat::Particle> >("Neutrinos");
 
-  produces< std::vector<int> >();
-  produces< double >("Chi2");
-  produces< double >("Prob");
-  produces< int >("Status");
+  produces< std::vector<std::vector<int> > >();
+  produces< std::vector<double> >("Chi2");
+  produces< std::vector<double> >("Prob");
+  produces< std::vector<int> >("Status");
 }
 
 template<typename LeptonCollection>
@@ -86,14 +105,17 @@ TtSemiLepKinFitProducer<LeptonCollection>::~TtSemiLepKinFitProducer()
 template<typename LeptonCollection>
 void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const edm::EventSetup& setup)
 {
-  std::auto_ptr< std::vector<pat::Particle> > pPartons  ( new std::vector<pat::Particle> );
-  std::auto_ptr< std::vector<pat::Particle> > pLeptons  ( new std::vector<pat::Particle> );
-  std::auto_ptr< std::vector<pat::Particle> > pNeutrinos( new std::vector<pat::Particle> );
+  std::auto_ptr< std::vector<pat::Particle> > pPartonsHadP( new std::vector<pat::Particle> );
+  std::auto_ptr< std::vector<pat::Particle> > pPartonsHadQ( new std::vector<pat::Particle> );
+  std::auto_ptr< std::vector<pat::Particle> > pPartonsHadB( new std::vector<pat::Particle> );
+  std::auto_ptr< std::vector<pat::Particle> > pPartonsLepB( new std::vector<pat::Particle> );
+  std::auto_ptr< std::vector<pat::Particle> > pLeptons    ( new std::vector<pat::Particle> );
+  std::auto_ptr< std::vector<pat::Particle> > pNeutrinos  ( new std::vector<pat::Particle> );
 
-  std::auto_ptr< std::vector<int> > pCombi(new std::vector<int>);
-  std::auto_ptr< double > pChi2( new double);
-  std::auto_ptr< double > pProb( new double);
-  std::auto_ptr< int > pStatus( new int);
+  std::auto_ptr< std::vector<std::vector<int> > > pCombi ( new std::vector<std::vector<int> > );
+  std::auto_ptr< std::vector<double>            > pChi2  ( new std::vector<double> );
+  std::auto_ptr< std::vector<double>            > pProb  ( new std::vector<double> );
+  std::auto_ptr< std::vector<int>               > pStatus( new std::vector<int> );
 
   edm::Handle<std::vector<pat::Jet> > jets;
   evt.getByLabel(jets_, jets);
@@ -105,7 +127,6 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
   evt.getByLabel(leps_, leps);
 
   unsigned int nPartons = 4;
-  pPartons->resize(nPartons);
 
   edm::Handle<std::vector<int> > match;
   bool unvalidMatch = false;
@@ -130,24 +151,34 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
 
   if( leps->empty() || mets->empty() || jets->size()<nPartons || unvalidMatch ) {
     // the kinFit getters return empty objects here
-    (*pPartons)[TtSemiLepEvtPartons::LightQ   ] = fitter->fittedHadP();
-    (*pPartons)[TtSemiLepEvtPartons::LightQBar] = fitter->fittedHadQ();
-    (*pPartons)[TtSemiLepEvtPartons::HadB     ] = fitter->fittedHadB();
-    (*pPartons)[TtSemiLepEvtPartons::LepB     ] = fitter->fittedLepB();
-    pLeptons  ->push_back( fitter->fittedLepton() );
-    pNeutrinos->push_back( fitter->fittedNeutrino() );
-    evt.put(pPartons,   "Partons");
-    evt.put(pLeptons,   "Leptons");
-    evt.put(pNeutrinos, "Neutrinos");
+    pPartonsHadP->push_back( fitter->fittedHadP()     );
+    pPartonsHadQ->push_back( fitter->fittedHadQ()     );
+    pPartonsHadB->push_back( fitter->fittedHadB()     );
+    pPartonsLepB->push_back( fitter->fittedLepB()     );
+    pLeptons    ->push_back( fitter->fittedLepton()   );
+    pNeutrinos  ->push_back( fitter->fittedNeutrino() );
+    // indices referring to the jet combination
+    std::vector<int> invalidCombi;
     for(unsigned int i = 0; i < nPartons; ++i) 
-      pCombi->push_back( -1 );
+      invalidCombi.push_back( -1 );
+    pCombi->push_back( invalidCombi );
+    // chi2
+    pChi2->push_back( -1. );
+    // chi2 probability
+    pProb->push_back( -1. );
+    // status of the fitter
+    pStatus->push_back( -1 );
+    // feed out all products
     evt.put(pCombi);
-    *pChi2 = -1.;
-    evt.put(pChi2, "Chi2");
-    *pProb = -1.;
-    evt.put(pProb, "Prob");
-    *pStatus = -1;
-    evt.put(pStatus, "Status");
+    evt.put(pPartonsHadP, "PartonsHadP");
+    evt.put(pPartonsHadQ, "PartonsHadQ");
+    evt.put(pPartonsHadB, "PartonsHadB");
+    evt.put(pPartonsLepB, "PartonsLepB");
+    evt.put(pLeptons    , "Leptons"    );
+    evt.put(pNeutrinos  , "Neutrinos"  );
+    evt.put(pChi2       , "Chi2"       );
+    evt.put(pProb       , "Prob"       );
+    evt.put(pStatus     , "Status"     );
     return;
   }
 
@@ -159,7 +190,7 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
   std::vector<int> jetIndices;
   if(!useOnlyMatch_) {
     for(unsigned int i=0; i<jets->size(); ++i){
-      if(maxNJets_ >= nPartons && i == (unsigned int) maxNJets_) break;
+      if(maxNJets_ >= (int) nPartons && maxNJets_ == (int) i) break;
       jetIndices.push_back(i);
     }
   }
@@ -170,17 +201,7 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
     else combi.push_back(i);
   }
 
-  pat::Particle bestHadb = pat::Particle();
-  pat::Particle bestHadp = pat::Particle();
-  pat::Particle bestHadq = pat::Particle();
-  pat::Particle bestLepb = pat::Particle();
-  pat::Particle bestLepl = pat::Particle();
-  pat::Particle bestLepn = pat::Particle();
-  
-  double bestChi2 = -1.;
-  std::vector<int> bestCombi;
-  double bestProb = -1.;
-  int bestStatus = -1;
+  std::list<KinFitResult> FitResultList;
 
   do{
     for(int cnt = 0; cnt < TMath::Factorial( combi.size() ); ++cnt){
@@ -199,19 +220,21 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
 	// do the kinematic fit
 	int status = fitter->fit(jetCombi, (*leps)[0], (*mets)[0]);
 
-	double chi2 = fitter->fitS();
-	// get details from the fitter if chi2 is the smallest found so far
-	if(chi2 < bestChi2 || bestChi2 < 0) {
-	  bestHadb = fitter->fittedHadB();
-	  bestHadp = fitter->fittedHadP();
-	  bestHadq = fitter->fittedHadQ();
-	  bestLepb = fitter->fittedLepB();
-	  bestLepl = fitter->fittedLepton();
-	  bestLepn = fitter->fittedNeutrino();
-	  bestChi2 = chi2;
-	  bestCombi= combi;
-	  bestProb = fitter->fitProb();
-	  bestStatus = status;
+	if( status != -10 ) { // skip this jet combination if kinematic fit was aborted
+	                      // (due to errors during fitting)
+	  KinFitResult result;
+	  result.Status = status;
+	  result.Chi2 = fitter->fitS();
+	  result.Prob = fitter->fitProb();
+	  result.HadB = fitter->fittedHadB();
+	  result.HadP = fitter->fittedHadP();
+	  result.HadQ = fitter->fittedHadQ();
+	  result.LepB = fitter->fittedLepB();
+	  result.LepL = fitter->fittedLepton();
+	  result.LepN = fitter->fittedNeutrino();
+	  result.JetCombi = combi;
+
+	  FitResultList.push_back(result);
 	}
 
       }
@@ -221,38 +244,68 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
     if(useOnlyMatch_) break; // don't go through combinatorics if useOnlyMatch was chosen
   }
   while(stdcomb::next_combination( jetIndices.begin(), jetIndices.end(), combi.begin(), combi.end() ));
+
+  // sort results w.r.t. chi2 values
+  FitResultList.sort();
   
   // -----------------------------------------------------
   // feed out result
+  // starting with the JetComb having the smallest chi2
   // -----------------------------------------------------
-  
-  // feed out particles that result from the kinematic fit
-  (*pPartons)[TtSemiLepEvtPartons::LightQ   ] = bestHadp;
-  (*pPartons)[TtSemiLepEvtPartons::LightQBar] = bestHadq;
-  (*pPartons)[TtSemiLepEvtPartons::HadB     ] = bestHadb;
-  (*pPartons)[TtSemiLepEvtPartons::LepB     ] = bestLepb;
-  pLeptons  ->push_back( bestLepl );
-  pNeutrinos->push_back( bestLepn );
-  evt.put(pPartons,   "Partons");
-  evt.put(pLeptons,   "Leptons");
-  evt.put(pNeutrinos, "Neutrinos");
-  
-  // feed out indices referring to the jet combination that gave the smallest chi2
-  for(unsigned int i = 0; i < bestCombi.size(); ++i)
-    pCombi->push_back( bestCombi[i] );
+
+  if( FitResultList.size() < 1 ) { // in case no fit results were stored in the list (all fits aborted)
+    pPartonsHadP->push_back( fitter->fittedHadP()     );
+    pPartonsHadQ->push_back( fitter->fittedHadQ()     );
+    pPartonsHadB->push_back( fitter->fittedHadB()     );
+    pPartonsLepB->push_back( fitter->fittedLepB()     );
+    pLeptons    ->push_back( fitter->fittedLepton()   );
+    pNeutrinos  ->push_back( fitter->fittedNeutrino() );
+    // indices referring to the jet combination
+    std::vector<int> invalidCombi;
+    for(unsigned int i = 0; i < nPartons; ++i) 
+      invalidCombi.push_back( -1 );
+    pCombi->push_back( invalidCombi );
+    // chi2
+    pChi2->push_back( -1. );
+    // chi2 probability
+    pProb->push_back( -1. );
+    // status of the fitter
+    pStatus->push_back( -1 );
+  }
+  else {
+    unsigned int iComb = 0;
+    for(typename std::list<KinFitResult>::const_iterator result = FitResultList.begin(); result != FitResultList.end(); ++result) {
+      if(maxNComb_ >= 1 && iComb == (unsigned int) maxNComb_) break;
+      iComb++;
+      // partons
+      pPartonsHadP->push_back( result->HadP );
+      pPartonsHadQ->push_back( result->HadQ );
+      pPartonsHadB->push_back( result->HadB );
+      pPartonsLepB->push_back( result->LepB );
+      // lepton
+      pLeptons->push_back( result->LepL );
+      // neutrino
+      pNeutrinos->push_back( result->LepN );
+      // indices referring to the jet combination
+      pCombi->push_back( result->JetCombi );
+      // chi2
+      pChi2->push_back( result->Chi2 );
+      // chi2 probability
+      pProb->push_back( result->Prob );
+      // status of the fitter
+      pStatus->push_back( result->Status );
+    }
+  }
   evt.put(pCombi);
-  
-  // feed out chi2
-  *pChi2=bestChi2;
-  evt.put(pChi2, "Chi2");
-  
-  // feed out chi2 probability 
-  *pProb=bestProb;
-  evt.put(pProb, "Prob");
-  
-  // feed out status of the fitter
-  *pStatus=bestStatus;
-  evt.put(pStatus, "Status");
+  evt.put(pPartonsHadP, "PartonsHadP");
+  evt.put(pPartonsHadQ, "PartonsHadQ");
+  evt.put(pPartonsHadB, "PartonsHadB");
+  evt.put(pPartonsLepB, "PartonsLepB");
+  evt.put(pLeptons    , "Leptons"    );
+  evt.put(pNeutrinos  , "Neutrinos"  );
+  evt.put(pChi2       , "Chi2"       );
+  evt.put(pProb       , "Prob"       );
+  evt.put(pStatus     , "Status"     );
 }
  
 template<typename LeptonCollection>

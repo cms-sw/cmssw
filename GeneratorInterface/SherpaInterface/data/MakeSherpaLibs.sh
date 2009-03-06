@@ -6,8 +6,8 @@
 #  uses:        the required SHERPA data cards (+ libraries) [see below]
 #
 #  author:      Markus Merschmeyer, RWTH Aachen
-#  date:        2008/10/28
-#  version:     2.3
+#  date:        2008/11/28
+#  version:     2.4
 #
 
 
@@ -18,8 +18,8 @@
 
 print_help() {
     echo "" && \
-    echo "MakeSherpaLibs version 2.3" && echo && \
-    echo "options: -r  path       path to your SHERPA installation OR" && \
+    echo "MakeSherpaLibs version 2.4" && echo && \
+    echo "options: -d  path       path to your SHERPA installation OR" && \
     echo "                         path to your CMSSW installation (if you want" && \
     echo "                         to use the SHERPA package of that release)"
     echo "                         -> ( "${shr}" )" && \
@@ -33,7 +33,6 @@ print_help() {
     echo "                         [ 'EVTS' : generate events, needs libs + crss. sec.! ]" && \
     echo "         -f  path       output path for SHERPA library & cross section files" && \
     echo "                         -> ( "${fin}" )" && \
-#    echo "         -d  directory  (optional) name of SHERPA 'Run' subdirectory ( "${pth}" )" && \
     echo "         -D  filename   (optional) name of data card file ( "${cfdc}" )" && \
     echo "         -L  filename   (optional) name of library file ( "${cflb}" )" && \
     echo "         -C  filename   (optional) name of cross section file ( "${cfcr}" )" && \
@@ -47,6 +46,7 @@ check_md5() {
 IMD=`which md5sum | grep -c -i "not found"`
 if [ $IMD -eq 0 ]; then
   if [ -e $3 ]; then
+    echo " <I> performing MD5 check: "$1" "$2" "$3
     rslt=`md5sum --check $3`
     fpatt="OK"
     nok=`echo $rslt | grep -o -i $fpatt | grep -c -i $fpatt`
@@ -99,30 +99,39 @@ clean_libs() {
     echo "======================"
     cd $J
     make clean
-###FIXME: MM (27 May 2008)
-    rm config* Makefile* *.tex
+    rm config* Makefile*
+#    rm *.tex
     rm aclocal.m4 ChangeLog depcomp install-sh libtool ltmain.sh missing
     rm AUTHORS COPYING INSTALL NEWS README 
     rm -rf autom4te.cache
-#    ddir=fsrchannels
-#    rm -rf ${ddir}*/Makefile*
-#    rm -rf ${ddir}*/.deps
-#    rm -rf ${ddir}*/*.C
-#    rm -rf ${ddir}*/*.H
-#    ddir=P2_
-#    rm -rf ${ddir}*/Makefile*
-#    rm -rf ${ddir}*/.deps
-#    rm -rf ${ddir}*/*.C
-#    rm -rf ${ddir}*/*.H
-###
     find ./ -type f -name 'Makefile*' -exec rm -rf {} \;
     find ./ -type d -name '.deps'     -exec rm -rf {} \;
     find ./ -type f -name '*.C'       -exec rm -rf {} \;
     find ./ -type f -name '*.H'       -exec rm -rf {} \;
-###FIXME: MM (27 May 2008)
     cd ../..
   done
 }
+
+fix_makelibs() {
+# fix 'makelibs' script for 32-bit compatibility
+  echo " <W> setting 32bit flags in 'makelibs' script !!!"
+
+  CNFFLG="CFLAGS=-m32 FFLAGS=-m32 CXXFLAGS=-m32 LDFLAGS=-m32"
+  MKEFLG="CFLAGS=-m32 FFLAGS=-m32 CXXFLAGS=\"-O2 -m32\" LDFLAGS=-m32"
+
+  if [ -e ${SHERPA_SHARE_PATH} ]; then
+    sed -e "s/configure/configure ${CNFFLG}/" < ${SHERPA_SHARE_PATH}/makelibs > ./makelibs.tmp
+    sed -e "s/-j2 \"CXXFLAGS=-O2\"/-j2 ${MKEFLG}/" < ./makelibs.tmp > ./makelibs
+    rm ./makelibs.tmp
+    chmod 755 ./makelibs
+  else
+    echo " <E> SHERPA_SHARE_PATH does not exist, stopping..."
+    exit
+  fi
+
+}
+
+
 
 
 
@@ -149,15 +158,14 @@ cfcr=""                            # custom cross section file name
 fin=${HDIR}                        # output path for SHERPA libraries & cross sections
 
 # get & evaluate options
-while getopts :r:i:p:o:f:d:D:L:C:h OPT
+while getopts :d:i:p:o:f:D:L:C:h OPT
 do
   case $OPT in
-  r) shr=$OPTARG ;;
+  d) shr=$OPTARG ;;
   i) inc=$OPTARG ;;
   p) prc=$OPTARG ;;
   o) lbo=$OPTARG ;;
   f) fin=$OPTARG ;;
-  d) pth=$OPTARG ;;
   D) cfdc=$OPTARG ;;
   L) cflb=$OPTARG ;;
   C) cfcr=$OPTARG ;;
@@ -231,7 +239,6 @@ fi
 
 echo "  -> SHERPA path: '"${shr}"'"
 echo "  -> SHERPA run path: '"${shrun}"'"
-echo "  -> SHERPA data card directory: '"${pth}"'"
 echo "  -> PROCESS name: '"${prc}"'"
 echo "  -> Library & cross section otions: '"${lbo}"'"
 echo "  -> include path: '"${inc}"'"
@@ -283,18 +290,14 @@ loglfile=${outflbs}_logL.tgz              # output messages (-> from library pro
 logcfile=${outflbs}_logC.tgz              # output messages (-> from cross section calculation)
 logefile=${outflbs}_logE.tgz              # output messages (-> from event generation)
 #
-#if [ "${lbo}" = "LIBS" ] || [ "${lbo}" = "LBCR" ]; then
-#elif [ "${lbo}" = "CRSS" ]; then
-#fi
-#
-dir1="Process"
-dir2="Result"
+dir1="Process"                            # SHERPA process directory name
+dir2="Result"                             # SHERPA results directory name
 
 
 ### clean up existing xsection files
-for file in `ls xsections_*.dat`; do
-  echo " <W> deleting existing cross section file: "${file}
-  rm ${file}
+for FILE in `ls xsections_*.dat 2> /dev/null`; do
+  echo " <W> deleting existing cross section file: "${FILE}
+  rm ${FILE}
 done
 
 
@@ -373,7 +376,7 @@ if [ "${lbo}" = "CRSS" ] || [ "${lbo}" = "EVTS" ]; then
       mv ${libsfile} ${pth}/
       cd ${pth}
       tar -xzf ${libsfile}
-      check_md5 "CRDFILE" "LIBS" ${crdfmd5s}
+#      check_md5 "CRDFILE" "LIBS" ${crdfmd5s}
 #      rm ${cardfile}
       check_md5 "CRDS"    "LIBS" ${crdsmd5s}
       cd -
@@ -426,7 +429,8 @@ if [ "${lbo}" = "LIBS" ] || [ "${lbo}" = "LBCR" ]; then
   echo " <I> creating library code..."
   ./Sherpa "PATH="${pth} "RESULT_DIRECTORY="${pth}/${dir2} 1>${shrun}/${outflbs}_pass1.out 2>${shrun}/${outflbs}_pass1.err
   cd ${pth}
-  cp ${shr}/share/SHERPA-MC/makelibs .
+##  cp ${shr}/share/SHERPA-MC/makelibs .
+  fix_makelibs
   echo " <I> compiling libraries..."
   ./makelibs 1>${shrun}/${outflbs}_mklib.out 2>${shrun}/${outflbs}_mklib.err
   nf=`du -sh | grep -o "\." | grep -c "\."`
@@ -454,22 +458,25 @@ fi
 ## generate tar balls with data cards, libraries, cross sections, events
 cd ${shrun}/${pth}
 ## data cards
-md5sum *.dat  >  ${crdsmd5s}
-md5sum *.slha >> ${crdsmd5s}
+if [ "${lbo}" = "LBCR" ] || [ "${lbo}" = "CRSS" ]; then
+  mv ../xsections_*.dat ./${dir2}/
+fi
+touch ${crdsmd5s}
+for FILE in `ls *.dat *.slha 2> /dev/null`; do
+  md5sum ${FILE} >> ${crdsmd5s}
+done
+FILES=`ls *.md5 *.dat *.slha 2> /dev/null`
 if [ "${lbo}" = "LIBS" ]; then
-  tar -czf ${crdlfile} *.md5 *.dat *.slha
+  tar -czf ${crdlfile} ${FILES}
   md5sum ${crdlfile} > ${crdfmd5s}
 elif [ "${lbo}" = "LBCR" ]; then
-  mv ../xsections_*.dat ./
-  tar -czf ${crdlfile} *.md5 *.dat *.slha
+  tar -czf ${crdlfile} ${FILES}
   md5sum ${crdlfile} > ${crdfmd5s}
 elif [ "${lbo}" = "CRSS" ]; then
-  mv ../xsections_*.dat ./
-  tar -czf ${crdcfile} *.md5 *.dat *.slha
+  tar -czf ${crdcfile} ${FILES}
   md5sum ${crdcfile} > ${crdfmd5s}
 elif [ "${lbo}" = "EVTS" ]; then
-  mv ../xsections_*.dat ./
-  tar -czf ${crdefile} *.md5 *.dat *.slha
+  tar -czf ${crdefile} ${FILES}
   md5sum ${crdefile} > ${evtfmd5s}
 fi
 rm *.dat
@@ -527,14 +534,15 @@ rm -rf ${dir2}/*
 rm *.md5
 ## log files
 cd ${shrun}
+FILES=`ls *.err *.out 2> /dev/null`
 if [ "${lbo}" = "LIBS" ]; then
-  tar -czf ${loglfile} *.err *.out
+  tar -czf ${loglfile} ${FILES}
 elif [ "${lbo}" = "LBCR" ]; then
-  tar -czf ${loglfile} *.err *.out
+  tar -czf ${loglfile} ${FILES}
 elif [ "${lbo}" = "CRSS" ]; then
-  tar -czf ${logcfile} *.err *.out
+  tar -czf ${logcfile} ${FILES}
 elif [ "${lbo}" = "EVTS" ]; then
-  tar -czf ${logefile} *.err *.out
+  tar -czf ${logefile} ${FILES}
 fi
 rm *.err *.out
 mv *.tgz ${fin}/

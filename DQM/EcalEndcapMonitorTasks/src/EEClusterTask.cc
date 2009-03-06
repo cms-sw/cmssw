@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2008/10/25 09:14:51 $
- * $Revision: 1.54 $
+ * $Date: 2008/12/03 10:28:11 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -529,19 +529,17 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-      EcalDCCHeaderBlock dcch = (*dcchItr);
+      if ( Numbers::subDet( *dcchItr ) != EcalEndcap ) continue;
 
-      if ( Numbers::subDet( dcch ) != EcalEndcap ) continue;
+      if ( dcchItr->getRunType() == EcalDCCHeaderBlock::BEAMH4 ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::BEAMH2 ) enable = true;
 
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::BEAMH4 ||
-           dcch.getRunType() == EcalDCCHeaderBlock::BEAMH2 ) enable = true;
-
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::COSMIC ||
-           dcch.getRunType() == EcalDCCHeaderBlock::MTCC ||
-           dcch.getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
-           dcch.getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
-           dcch.getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
-           dcch.getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) enable = true;
+      if ( dcchItr->getRunType() == EcalDCCHeaderBlock::COSMIC ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::MTCC ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) enable = true;
 
       break;
 

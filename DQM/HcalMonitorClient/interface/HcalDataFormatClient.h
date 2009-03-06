@@ -70,7 +70,6 @@ class HcalDataFormatClient : public HcalBaseClient {
   TH2F* CDF_Violation_;
   TH2F* DCC_Evt_Fmt_;
   TH2F* DCC_Spigot_Err_;
-  TH2F* DCC_Status_Flags_;
 
   TH2F* BCNMap_;
   TH2F* EvtMap_;

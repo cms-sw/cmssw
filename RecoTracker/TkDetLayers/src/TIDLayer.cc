@@ -140,15 +140,19 @@ TIDLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& startingState,
   }
   groupsAtRingLevel.push_back(nextResult);
 
-  if(!overlapInR(closestGel.trajectoryState(),ringIndices[2],rWindow) ) 
+  if(!overlapInR(closestGel.trajectoryState(),ringIndices[2],rWindow) ) {
     //then merge 2 levels & return 
     orderAndMergeLevels(closestGel.trajectoryState(),prop,groupsAtRingLevel,ringIndices,result);      
-    
+    return;
+  }
+
   theComps[ringIndices[2]]->groupedCompatibleDetsV( startingState, prop, est, nextNextResult);   
-  if(nextNextResult.empty()) 
+  if(nextNextResult.empty()) {
     // then merge 2 levels and return 
     orderAndMergeLevels(closestGel.trajectoryState(),prop,groupsAtRingLevel,ringIndices,result);
-  
+    return;
+  }
+
   groupsAtRingLevel.push_back(nextNextResult);
   // merge 3 level and return merged   
   orderAndMergeLevels(closestGel.trajectoryState(),prop,groupsAtRingLevel,ringIndices, result);  

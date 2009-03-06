@@ -63,13 +63,6 @@ cat > scaledhistos <<EOF
   h_ele_PoPtrue_endcaps   
   h_scl_EoEtrue_barrel   
   h_scl_EoEtrue_endcaps   
-  h_scl_sigetaeta   
-  h_scl_sigietaieta_barrel   
-  h_scl_sigietaieta_endcaps
-  h_scl_E1x5   
-  h_scl_E2x5max   
-  h_scl_E5x5   
-  h_scl_EoEtrue_endcaps   
   h_ele_EtaMnEtaTrue   
   h_ele_PhiMnPhiTrue 
   h_ele_vertexP 
@@ -85,20 +78,16 @@ cat > scaledhistos <<EOF
   h_ele_dEtaSc_propVtx 
   h_ele_dPhiCl_propOut 
   h_ele_dPhiSc_propVtx 
-  h_ele_HoE   
+  h_ele_HoE 
   h_ele_chi2 
   h_ele_foundHits 
   h_ele_lostHits 
   h_ele_PinMnPout_mode 
-  h_ele_seedDphi2
-  h_ele_seedDrz2
-  h_ele_seedSubdet2
   h_ele_classes 
   h_ele_charge
   h_ele_EoverP_all
   h_ele_mee_all
   h_recEleNum
-
 EOF
 
 cat > unscaledhistos <<EOF
@@ -119,10 +108,6 @@ cat > unscaledhistos <<EOF
   h_ele_HoEVsEta_pfx 
   h_ele_chi2VsEta_pfx 
   h_ele_foundHitsVsEta_pfx 
-  h_ele_seedDphi2VsEta_pfx
-  h_ele_seedDphi2VsPt_pfx
-  h_ele_seedDrz2VsEta_pfx
-  h_ele_seedDrz2VsPt_pfx
   h_ele_fbremvsEtamean
   h_ele_fbremvsEtamode
   h_ele_eta_bbremFrac 

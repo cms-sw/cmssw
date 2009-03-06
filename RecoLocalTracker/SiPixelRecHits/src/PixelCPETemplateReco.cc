@@ -33,6 +33,9 @@ const float degsPerRad = 57.29578;
 // &&& need a class const
 const float micronsToCm = 1.0e-4;
 
+const int cluster_matrix_size_x = 13;
+const int cluster_matrix_size_y = 21;
+
 //-----------------------------------------------------------------------------
 //  Constructor.  All detUnit-dependent quantities will be initialized later,
 //  in setTheDet().  Here we only load the templates into the template store templ_ .
@@ -48,8 +51,8 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
   GlobalPoint center(0.0, 0.0, 0.0);
   float field_magnitude = magfield_->inTesla(center).mag();
 
-  //cout << "----------------------------------------- field_magnitude = " << field_magnitude << endl;
-
+  DoCosmics_ = conf.getParameter<bool>("DoCosmics");
+ 
   if ( field_magnitude > 3.9 ) 
     {
       templID_ = 4;
@@ -58,20 +61,27 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
     {
       if ( field_magnitude > 1.0 ) 
 	{
-	  templID_ = 1;
+	  if ( DoCosmics_ )
+	    templID_ = 10;
+	  else 
+	    templID_ = 1;
 	} 
       else 
 	{	 
-	  //--- allow for zero field operation with new template ID=2
-	  templID_ = 2;
+	  //--- allow for zero field operation with new template ID=12
+	  templID_ = 12;
 	}
     }
   
+  //cout << "DoCosmics_ = " << DoCosmics_ << endl;
+  //cout << "----------------------------------------- field_magnitude = " << field_magnitude << endl;
   //cout << "--------------------------------------------- templID_ = " << templID_ << endl;
-
+  
   // Initialize template store to the selected ID [Morris, 6/25/08]
   
   templ_.pushfile( templID_ );
+  
+
 
   //cout << "About to read speed..." << endl;
   speed_ = conf.getParameter<int>( "speed");
@@ -123,14 +133,14 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
   else                                              
     fpix = true;     // yes, it's forward
   
-  // Make cot(alpha) and cot(beta)... cot(x) = 1.0/tan(x);
+  // Make cot(alpha) and cot(be10ta)... cot(x) = 1.0/tan(x);
   // No longer need these. cotalpha_and cotbeta_ are calculated in PixelCPEBase  
   //float cotalpha = 1.0/tan(alpha_);  
   //float cotbeta  = 1.0/tan(beta_);   
   
   // Make from cluster (a SiPixelCluster) a boost multi_array_2d called 
   // clust_array_2d.
-  boost::multi_array<float, 2> clust_array_2d(boost::extents[7][21]);
+  boost::multi_array<float, 2> clust_array_2d(boost::extents[cluster_matrix_size_x][cluster_matrix_size_y]);
   
   // Preparing to retrieve ADC counts from the SiPixelCluster.  In the cluster,
   // we have the following:
@@ -165,7 +175,7 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
     for (int j=0; j<100; j++)
     cluster_matrix[i][j] = '.';
     
-    if ( cluster.sizeX()>7 || cluster.sizeY()>21 )
+    if ( cluster.sizeX()>cluster_matrix_size_x || cluster.sizeY()>cluster_matrix_size_y )
     //if ( cluster.sizeX()>0 || cluster.sizeY()>0 )
     {		
     cout << "cluster.size()  = " << cluster.size()  << endl;
@@ -185,7 +195,7 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
     cout << cluster_matrix[i][j];
     cout << endl;
     }
-    } // if ( cluster.sizeX()>7 || cluster.sizeY()>21 )
+    } // if ( cluster.sizeX()>cluster_matrix_size_x || cluster.sizeY()>cluster_matrix_size_y )
   */
   // End Visualize clusters ---------------------------------------------------------
   
@@ -200,9 +210,9 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
       int irow = int(pixIter->x) - row_offset;   // &&& do we need +0.5 ???
       int icol = int(pixIter->y) - col_offset;   // &&& do we need +0.5 ???
       
-      // Gavril : what do we do here if the row/column is larger than 7/21 ?
+      // Gavril : what do we do here if the row/column is larger than cluster_matrix_size_x/cluster_matrix_size_y = 13/21 ?
       // Ignore them for the moment...
-      if ( irow<7 && icol<21 )
+      if ( irow<cluster_matrix_size_x && icol<cluster_matrix_size_y )
 	// 02/13/2008 ggiurgiu@fnal.gov typecast pixIter->adc to float
 	clust_array_2d[irow][icol] = (float)pixIter->adc;
       //else
@@ -210,16 +220,16 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
     }
   
   // Make and fill the bool arrays flagging double pixels
-  // &&& Need to define constants for 7 and 21 somewhere!
-  std::vector<bool> ydouble(21), xdouble(7);
+
+  std::vector<bool> ydouble(cluster_matrix_size_y), xdouble(cluster_matrix_size_x);
   // x directions (shorter), rows
-  for (int irow = 0; irow < 7; ++irow)
+  for (int irow = 0; irow < cluster_matrix_size_x; ++irow)
     {
       xdouble[irow] = RectangularPixelTopology::isItBigPixelInX( irow+row_offset );
     }
       
   // y directions (longer), columns
-  for (int icol = 0; icol < 21; ++icol) 
+  for (int icol = 0; icol < cluster_matrix_size_y; ++icol) 
     {
       ydouble[icol] = RectangularPixelTopology::isItBigPixelInY( icol+col_offset );
     }
@@ -256,14 +266,20 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
 	"reconstruction failed with error " << ierr << "\n";
 
       // Gavril: what do we do in this case ? For now, just return the cluster center of gravity in microns
-      // In the x case, apply a rough Lorentz drift correction
-      double lorentz_drift = 60.0; // in microns
+      // In the x case, apply a rough Lorentz drift average correction
+      // To do: call PixelCPEGeneric whenever PixelTempReco2D fails
+      double lorentz_drift = -999.9;
+      if ( thePart == GeomDetEnumerators::PixelBarrel )
+	lorentz_drift = 60.0; // in microns
+      else if ( thePart == GeomDetEnumerators::PixelEndcap )
+	lorentz_drift = 10.0; // in microns
+      else 
+	throw cms::Exception("PixelCPETemplateReco::localPosition :") 
+	  << "A non-pixel detector type in here?" << "\n";
+
       templXrec_ = theTopol->localX( cluster.x() ) - lorentz_drift * micronsToCm; // very rough Lorentz drift correction
       templYrec_ = theTopol->localY( cluster.y() );
 
-      // go back to the module coordinate system 
-      templXrec_ += lp.x();
-      templYrec_ += lp.y();    
     }
   else if ( UseClusterSplitter_ && templQbin_ == 0 )
     {
@@ -281,16 +297,23 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
 	{
 	  //cout << "Error from PixelTempSplit" << endl;
 	  
-	  LogDebug("PixelCPETemplateReco::localPosition") <<
-	    "reconstruction failed with error " << ierr << "\n";
+	  LogDebug("PixelCPETemplateReco::localPosition") 
+	    << "reconstruction failed with error " << ierr << "\n";
 	  
-	  double lorentz_drift = 60.0; // in microns
+	  // Gavril: what do we do in this case ? For now, just return the cluster center of gravity in microns
+	  // In the x case, apply a rough Lorentz drift average correction
+	  // To do: call PixelCPEGeneric whenever PixelTempReco2D fails
+	  double lorentz_drift = -999.9;
+	  if ( thePart == GeomDetEnumerators::PixelBarrel )
+	    lorentz_drift = 60.0; // in microns
+	  else if ( thePart == GeomDetEnumerators::PixelEndcap )
+	    lorentz_drift = 10.0; // in microns
+	  else 
+	    throw cms::Exception("PixelCPETemplateReco::localPosition :") 
+	      << "A non-pixel detector type in here?" << "\n";
+
 	  templXrec_ = theTopol->localX( cluster.x() ) - lorentz_drift * micronsToCm; // very rough Lorentz drift correction
 	  templYrec_ = theTopol->localY( cluster.y() );
-	
-	  // go back to the module coordinate system 
-	  templXrec_ += lp.x();
-	  templYrec_ += lp.y();    
 	}
       else
 	{
@@ -386,6 +409,9 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
       templYrec_ += lp.y();
     }
   
+  
+  //cout << endl;
+  //cout << "with_track_angle = " << (int)with_track_angle << endl;
   //cout << "templXrec_ = " << templXrec_ << endl;
   //cout << "templYrec_ = " << templYrec_ << endl;
   
@@ -429,11 +455,25 @@ PixelCPETemplateReco::localError( const SiPixelCluster& cluster,
   if ( ierr !=0 ) 
     {
       // If reconstruction fails the hit position is calculated from cluster center of gravity 
-      // corrected in x by average Lorentz drift. The template reconstruction fails when the cluster 
-      // size is larger than 7 in y or larger than 21 in y. These kind of clusters must be delta rays, 
-      // so they are not reliable. Assign huge errors.
-      xerr = 10.0 * xerr;
-      yerr = 10.0 * yerr;
+      // corrected in x by average Lorentz drift. 
+      // Assign huge errors.
+      //xerr = 10.0 * (float)cluster.sizeX() * xerr;
+      //yerr = 10.0 * (float)cluster.sizeY() * yerr;
+
+      // Assign better errors based on the residuals for failed template cases
+      if ( thePart == GeomDetEnumerators::PixelBarrel )
+	{
+	  xerr = 55.0 * micronsToCm;
+	  yerr = 36.0 * micronsToCm;
+	}
+      else if ( thePart == GeomDetEnumerators::PixelEndcap )
+	{
+	  xerr = 42.0 * micronsToCm;
+	  yerr = 39.0 * micronsToCm;
+	}
+      else 
+	throw cms::Exception("PixelCPETemplateReco::localError :") << "A non-pixel detector type in here?" ;
+	
       return LocalError(xerr*xerr, 0, yerr*yerr);
     }
   else if ( edgex || edgey )

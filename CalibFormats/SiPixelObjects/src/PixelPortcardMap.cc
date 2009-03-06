@@ -7,9 +7,7 @@
 //
  
 #include "CalibFormats/SiPixelObjects/interface/PixelPortcardMap.h"
-#include "CalibFormats/SiPixelObjects/interface/PixelTimeFormatter.h"
 
-#include <sstream>
 #include <cassert>
 
 using namespace pos;
@@ -20,29 +18,6 @@ PixelPortcardMap::PixelPortcardMap(std::vector< std::vector < std::string> > &ta
   std::vector< std::string > ins = tableMat[0];
   std::map<std::string , int > colM;
   std::vector<std::string > colNames;
-/*
-  EXTENSION_TABLE_NAME: PIXEL_PORTCARD_MAP (VIEW: CONF_KEY_PORTCARD_MAP_V)
-
-  CONFIG_KEY				    NOT NULL VARCHAR2(80)
-  KEY_TYPE				    NOT NULL VARCHAR2(80)
-  KEY_ALIAS				    NOT NULL VARCHAR2(80)
-  VERSION					     VARCHAR2(40)
-  KIND_OF_COND  			    NOT NULL VARCHAR2(40)
-  PORT_CARD				    NOT NULL VARCHAR2(200)
-  PANEL_NAME				    NOT NULL VARCHAR2(200)
-  TBM_MODE					     VARCHAR2(200)
-  AOH_CHAN				    NOT NULL NUMBER(38)
-*/
-  colNames.push_back("CONFIG_KEY"  );
-  colNames.push_back("KEY_TYPE"    );
-  colNames.push_back("KEY_ALIAS"   );
-  colNames.push_back("VERSION"     );
-  colNames.push_back("KIND_OF_COND");
-  colNames.push_back("PORT_CARD"   );
-  colNames.push_back("PANEL_NAME"  );
-  colNames.push_back("TBM_MODE"    );
-  colNames.push_back("AOH_CHAN"    );
-/*
   colNames.push_back("CONFIG_KEY_ID" );
   colNames.push_back("CONFG_KEY"     );
   colNames.push_back("VERSION"       );
@@ -52,7 +27,7 @@ PixelPortcardMap::PixelPortcardMap(std::vector< std::vector < std::string> > &ta
   colNames.push_back("PANEL_NAME"    );
   colNames.push_back("TBM_MODE"      );
   colNames.push_back("AOH_CHAN"      );
- */ 
+  
   for(unsigned int c = 0 ; c < ins.size() ; c++)
     {
       for(unsigned int n=0; n<colNames.size(); n++)
@@ -87,14 +62,14 @@ PixelPortcardMap::PixelPortcardMap(std::vector< std::vector < std::string> > &ta
     modulename   = tableMat[r][colM["PANEL_NAME"]];
     aohstring    = tableMat[r][colM["AOH_CHAN"]];
     tbmChannel   = tableMat[r][colM["TBM_MODE"]] ;
-//    cout << "[PixelPortcardMap::PixelPortcardMap()]\t\t\t    "
-//      << "Portcardname: " << portcardname
-//      << "\tmodulename: "   << modulename
-//      << "\taohstring: "    << aohstring
-//      << "\ttbmChannel:"   << tbmChannel
-//      << endl ;
+    cout << "[PixelPortcardMap::PixelPortcardMap()]\t\t\t    "
+      << "Portcardname: " << portcardname
+      << "\tmodulename: "   << modulename
+      << "\taohstring: "    << aohstring
+      << "\ttbmChannel:"   << tbmChannel
+      << endl ;
     //aohname.erase(0,20);  // Is going to be change when Umesh put a AOH Channel column in the view.
-    aoh = (((unsigned int)atoi(aohstring.c_str())));
+    aoh = (((unsigned int)atoi(aohstring.c_str()))+1);
     //std::cout<<aoh<<std::endl;
     PixelModuleName module(modulename);
     if (module.modulename()!=modulename)
@@ -291,75 +266,3 @@ std::set< std::string > PixelPortcardMap::portcards()
 	
 	return returnThis;
 }
-//=============================================================================================
-void PixelPortcardMap::writeXMLHeader(pos::PixelConfigKey key, 
-                                      int version, 
-                                      std::string path, 
-                                      std::ofstream *outstream,
-                                      std::ofstream *out1stream,
-                                      std::ofstream *out2stream) const
-{
-  std::string mthn = "[PixelPortcardMap::writeXMLHeader()]\t\t\t    " ;
-  std::stringstream fullPath ;
-  fullPath << path << "/Pixel_PortCardMap_" << PixelTimeFormatter::getmSecTime() << ".xml" ;
-  std::cout << mthn << "Writing to: " << fullPath.str() << std::endl ;
-  
-  outstream->open(fullPath.str().c_str()) ;
-  
-  *outstream << "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"			 	     << std::endl ;
-  *outstream << "<ROOT xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>" 		 	             << std::endl ;
-  *outstream << " <HEADER>"								         	     << std::endl ;
-  *outstream << "  <TYPE>"								         	     << std::endl ;
-  *outstream << "   <EXTENSION_TABLE_NAME>PIXEL_PORTCARD_MAP</EXTENSION_TABLE_NAME>"          	             << std::endl ;
-  *outstream << "   <NAME>Pixel Port Card Map</NAME>"				         	             << std::endl ;
-  *outstream << "  </TYPE>"								         	     << std::endl ;
-  *outstream << "  <RUN>"								         	     << std::endl ;
-  *outstream << "   <RUN_TYPE>Pixel Port Card Map</RUN_TYPE>" 		                                     << std::endl ;
-  *outstream << "   <RUN_NUMBER>1</RUN_NUMBER>"					         	             << std::endl ;
-  *outstream << "   <RUN_BEGIN_TIMESTAMP>" << pos::PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>" << std::endl ;
-  *outstream << "   <COMMENT_DESCRIPTION>Pixel Port Card Map</COMMENT_DESCRIPTION>"      	             << std::endl ;
-  *outstream << "   <LOCATION>CERN TAC</LOCATION>"					         	     << std::endl ;
-  *outstream << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"			 	     << std::endl ;
-  *outstream << "  </RUN>"								         	     << std::endl ;
-  *outstream << " </HEADER>"								         	     << std::endl ;
-  *outstream << ""										 	     << std::endl ;
-  *outstream << " <DATA_SET>"								         	     << std::endl ;
-  *outstream << "  <PART>"                                                                                   << std::endl ;
-  *outstream << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"                                                 << std::endl ;
-  *outstream << "   <KIND_OF_PART>Detector ROOT</KIND_OF_PART>"                                              << std::endl ;
-  *outstream << "  </PART>"                                                                                  << std::endl ;
-  *outstream << "  <VERSION>" << version << "</VERSION>"				         	     << std::endl ;
-}
-
-//=============================================================================================
-void PixelPortcardMap::writeXML(std::ofstream *outstream,
-                                std::ofstream *out1stream,
-                                std::ofstream *out2stream) const 
-{
-  std::string mthn = "[PixelPortcardMap::writeXML()]\t\t\t    " ;
-
-
-  std::map< PixelChannel, std::pair<std::string, int> >::const_iterator i=map_.begin();
-  for(;i!=map_.end();++i){
-     *outstream << "  <DATA>"                                                    			     << std::endl ;
-     *outstream << "   <PORT_CARD>"  << i->second.first       << "</PORT_CARD>"  			     << std::endl ;
-     *outstream << "   <PANEL_NAME>" << i->first.module()     << "</PANEL_NAME>" 			     << std::endl ;
-     *outstream << "   <TBM_MODE>"   << i->first.TBMChannel() << "</TBM_MODE>"   			     << std::endl ;
-     *outstream << "   <AOH_CHAN>"   << i->second.second      << "</AOH_CHAN>"  			     << std::endl ;
-     *outstream << "  </DATA>"                                                   			     << std::endl ;
-   }  
-}
-
-//=============================================================================================
-void PixelPortcardMap::writeXMLTrailer(std::ofstream *outstream,
-                                       std::ofstream *out1stream,
-                                       std::ofstream *out2stream) const
-{
-  std::string mthn = "[PixelPortcardMap::writeXMLTrailer()]\t\t\t    " ;
-  
-  *outstream << " </DATA_SET>" 						    	 	              	     << std::endl ;
-  *outstream << "</ROOT> "								              	     << std::endl ;
-
-  outstream->close() ;
-}
-

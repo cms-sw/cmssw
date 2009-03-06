@@ -11,7 +11,7 @@
 #include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+//#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 
@@ -45,6 +45,10 @@ namespace edm
     bool         TIFOnly_linear; //if set to "true" cosmics can also be generated below 2GeV with unphysical linear energy dependence
     bool         MTCCHalf; //if set to "true" muons are sure to hit half of CMS important for MTCC, 
                            //still material and B-field of whole CMS is considered
+
+    //Plug position (default = on shaft)
+    double PlugVtx;
+    double PlugVtz;
 
     CosmicMuonGenerator* CosMuoGen;
     // the event format itself

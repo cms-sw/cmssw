@@ -20,11 +20,11 @@ class TtSemiLepHypMaxSumPtWMass : public TtSemiLepHypothesis  {
 			 const edm::Handle<edm::View<reco::RecoCandidate> >&,
 			 const edm::Handle<std::vector<pat::MET> >&,
 			 const edm::Handle<std::vector<pat::Jet> >&,
-			 std::vector<int>& );
+			 std::vector<int>&, const unsigned int iComb);
 
  private:
 
-  unsigned maxNJets_;
+  int maxNJets_;
   double wMass_;
 };
 

@@ -3,7 +3,6 @@
 <use name=FWCore/ParameterSet>
 <use name=Geometry/Records>
 <use name=Geometry/TrackerGeometryBuilder>
-<use name=CalibTracker/SiStripCommon>
 <library file="*.cc" name=CalibTrackerSiStripCommonPlugins>
 <flags EDM_PLUGIN=1>
 </library>

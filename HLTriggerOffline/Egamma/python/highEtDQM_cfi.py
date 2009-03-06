@@ -5,8 +5,8 @@ highEtDQM = cms.EDFilter("EmDQM",
     genEtAcc = cms.double(2.0),
     reqNum = cms.uint32(1),
     filters = cms.VPSet(cms.PSet(
-        PlotBounds = cms.vdouble(0.0, 0.0),
-        HLTCollectionLabels = cms.InputTag("hltL1seedRelaxedSingle","","HLT"),
+        PlotBounds = cms.vdouble(0.0, 0.0), 
+        HLTCollectionLabels = cms.InputTag("hltL1sRelaxedSingleEgamma","","HLT"),
         IsoCollections = cms.VInputTag(cms.InputTag("none")),
         theHLTOutputTypes = cms.uint32(82)
     ), 

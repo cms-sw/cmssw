@@ -6,8 +6,8 @@
  * *
  *  DQM Client for global summary
  *
- *  $Date: 2008/10/22 09:38:14 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/12/17 13:57:52 $
+ *  $Revision: 1.7 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -47,11 +47,18 @@ protected:
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c){}
 
+  /// Histograms initialisation
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
+
   /// Diagnostic
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
 
   /// test operations
-  void doTests(std::string type, std::string AlgoName, int bin);
+  void doKinematicsTests(std::string muonType, int bin);
+  void doResidualsTests(std::string type, std::string parameter, int bin);
+  void doMuonIDTests();
+  void doEnergyTests(std::string nameHisto, std::string muonType, int bin);
+  void doMolteplicityTests();
   
 private:
 
@@ -59,16 +66,33 @@ private:
   // Switch for verbosity
   std::string metname;
 
-  // data type
-  std::string dataType;
   // test ranges
-  double etaSpread;
-  double phiSpread;
+  double etaExpected;
+  double phiExpected;
   double chi2Fraction;
   double chi2Spread;
+  double resEtaSpread_tkGlb;
+  double resEtaSpread_glbSta;
+  double resPhiSpread_tkGlb;
+  double resPhiSpread_glbSta;
+  double resOneOvPSpread_tkGlb;
+  double resOneOvPSpread_glbSta;
+  double resChargeLimit_tkGlb;
+  double resChargeLimit_glbSta;
+  double resChargeLimit_tkSta;
+  double numMatchedExpected;
+  double sigmaResSegmTrackExp;
+  double expMolteplicityGlb;
+  double expMolteplicityTk;
+  double expMolteplicitySta;
 
   // the report MEs
-  MonitorElement*  summaryReport;
+  MonitorElement* kinematicsSummaryMap;
+  MonitorElement* residualsSummaryMap;
+  MonitorElement* muonIdSummaryMap;
+  MonitorElement* energySummaryMap;
+  MonitorElement* molteplicitySummaryMap;
+  MonitorElement* summaryReport;
   MonitorElement*  summaryReportMap;
   std::vector<MonitorElement*>  theSummaryContents;
 

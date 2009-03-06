@@ -1,19 +1,26 @@
+#include <memory>
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQM/SiPixelCommon/interface/SiPixelHistogramId.h"
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelPerformanceSummary.h"
 
-// #include "DQM/SiPixelHistoricInfoClient/interface/SiPixelHistoricInfoWebInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
+#include "DQM/SiPixelHistoricInfoClient/interface/SiPixelHistoricInfoWebInterface.h"
+
+
+namespace edm {
+  class ParameterSet;
+  class Event;
+  class EventId;
+  class Timestamp;
+}
 
 class SiPixelHistoricInfoEDAClient : public edm::EDAnalyzer {
 public:
@@ -27,25 +34,22 @@ private:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
 
-  void retrieveMEs();
-  void fillPerformanceSummary() const;
-  void writeDB() const; 
-  void saveFile(std::string filename) const { dbe_->save(filename); }
+  void retrievePointersToModuleMEs(const edm::EventSetup&);
+  void fillSummaryObjects(const edm::Run&) const;
+
+  float calculatePercentOver(MonitorElement*) const; 
+  void writetoDB(edm::EventID, edm::Timestamp) const;
+  void writetoDB(const edm::Run&) const; 
+  void savetoFile(std::string) const; 
+  // void printMEs() const; 
 
 private: 
-  bool printDebug_;
-  bool writeHisto_;
-  std::string outputDir_; 
-
+  bool firstEventInRun;
+  int nEvents;
   edm::ParameterSet parameterSet_;
   DQMStore* dbe_;
-
-  bool firstEventInRun; 
-  int nEventsInRun; 
-
-  SiPixelHistogramId histogramManager;
-  std::map< uint32_t, std::vector<MonitorElement*> > mapOfdetIDtoMEs;
-  SiPixelPerformanceSummary* performanceSummary;
+  std::map< uint32_t, std::vector<MonitorElement*> > ClientPointersToModuleMEs;
+  SiPixelPerformanceSummary* performanceSummary_;
 
   // SiPixelHistoricInfoWebInterface* webInterface_;
   // bool defaultWebPageCreated_; 

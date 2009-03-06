@@ -4,83 +4,162 @@
 #include "DQM/HcalMonitorTasks/interface/HcalBaseMonitor.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
+#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 
+#include <cmath>
+#include <iostream>
+#include <fstream>
 
 /** \class HcalRecHitMonitor
-  *  
-  * $Date: 2008/08/17 15:15:20 $
-  * $Revision: 1.18 $
-  * \author W. Fisher - FNAL
+  *
+  * $Date: 2008/11/06 18:02:33 $
+  * $Revision: 1.23 $
+  * \author J. Temple - Univ. of Maryland
   */
+
+
 class HcalRecHitMonitor: public HcalBaseMonitor {
-public:
-  HcalRecHitMonitor(); 
-  ~HcalRecHitMonitor(); 
+
+ public:
+  HcalRecHitMonitor();
+
+  ~HcalRecHitMonitor();
 
   void setup(const edm::ParameterSet& ps, DQMStore* dbe);
-  void processEvent(const HBHERecHitCollection& hbHits, const HORecHitCollection& hoHits, const HFRecHitCollection& hfHits);
-  // For now, keep the ZDC stuff separate from the rest of the processEvent code.  Merge it once ZDC is stable
-  void processZDC(const ZDCRecHitCollection& zdcHits);
+  void done();
+  void clearME(); // overrides base class function
   void reset();
 
-private:  ///Monitoring elements
+  
+  void processEvent(const HBHERecHitCollection& hbHits,
+                    const HORecHitCollection& hoHits,
+                    const HFRecHitCollection& hfHits
+		    //const ZDCRecHitCollection& zdcHits,
+		    );
 
-  bool doPerChannel_;
-  float occThresh_;
+  void processEvent_rechit( const HBHERecHitCollection& hbheHits,
+			    const HORecHitCollection& hoHits,
+			    const HFRecHitCollection& hfHits);
+
+  void fillRecHitHistosAtEndRun();
+ private:
+
+
+  void fillNevents();
+
+  bool rechit_makeDiagnostics_;
+
+  int rechit_checkNevents_;  // specify how often to fill histograms
+
+  double energyThreshold_;
+  double HBenergyThreshold_;
+  double HEenergyThreshold_;
+  double HOenergyThreshold_;
+  double HFenergyThreshold_;
+  double ZDCenergyThreshold_;
+
+  MonitorElement* meEVT_;
   int ievt_;
 
-  double etaMax_, etaMin_, phiMax_, phiMin_;
-  int etaBins_, phiBins_;
+  double rechit_minErrorFlag_; // minimum error rate needed to dump out bad bin info 
+  // Problem Histograms
+  MonitorElement* ProblemRecHits;
+  std::vector<MonitorElement*> ProblemRecHitsByDepth;
 
-  struct{
-    MonitorElement* meOCC_MAP_GEO;
-    MonitorElement* meRECHIT_E_all;
-    MonitorElement* meRECHIT_E_low;
-    MonitorElement* meRECHIT_E_tot;
-    MonitorElement* meRECHIT_T_all;
-
-    MonitorElement* meOCC_MAPthresh_GEO;
-    MonitorElement* meRECHIT_Ethresh_tot;
-    MonitorElement* meRECHIT_Tthresh_all;
-    std::map<HcalDetId, MonitorElement*> meRECHIT_E, meRECHIT_T;  // complicated per-channel histogram setup
-  }hbHists,heHists, hfHists,hoHists;
-
-  MonitorElement* meOCC_MAP_L1;
-  MonitorElement* meOCC_MAP_L1_E;
-  MonitorElement* meOCC_MAP_L2;
-  MonitorElement* meOCC_MAP_L2_E;
-  MonitorElement* meOCC_MAP_L3;
-  MonitorElement* meOCC_MAP_L3_E;
-  MonitorElement* meOCC_MAP_L4;
-  MonitorElement* meOCC_MAP_L4_E;
-
-  MonitorElement* meOCC_MAP_ETA;
-  MonitorElement* meOCC_MAP_PHI;
-  MonitorElement* meOCC_MAP_ETA_E;
-  MonitorElement* meOCC_MAP_PHI_E;
- 
-  MonitorElement* meRECHIT_Ethresh_all;
-  MonitorElement* meRECHIT_E_all;
-  MonitorElement* meEVT_;
-
-  MonitorElement* hfshort_meRECHIT_E_all;
-  MonitorElement* hfshort_meRECHIT_E_low;
-  MonitorElement* hfshort_meRECHIT_T_all;
-
-  // ZDC plots
-  // TH1F
-  MonitorElement* ZDCtanAlpha;
-  MonitorElement* ZDCaverageX;
-  // TH2F
-  MonitorElement* ZDCxplusVSxminus;
-  MonitorElement* ZDChadVSem_plus;
-  MonitorElement* ZDChadVSem_minus;
-  MonitorElement* ZDCenergy_plusVSminus;
+  // Basic Histograms
+  std::vector<MonitorElement*> OccupancyByDepth;
+  std::vector<MonitorElement*> OccupancyThreshByDepth;
+  std::vector<MonitorElement*> EnergyByDepth;
+  std::vector<MonitorElement*> EnergyThreshByDepth;
+  std::vector<MonitorElement*> TimeByDepth;
+  std::vector<MonitorElement*> TimeThreshByDepth;
   
-  // TProfile
-  MonitorElement* ZDCenergyVSlayer_plus;
-  MonitorElement* ZDCenergyVSlayer_minus;
 
+
+
+  unsigned int occupancy_[ETABINS][PHIBINS][6]; // will get filled when rechit found
+  unsigned int occupancy_thresh_[ETABINS][PHIBINS][6]; // filled when above given energy
+  double energy_[ETABINS][PHIBINS][6]; // will get filled when rechit found
+  double energy_thresh_[ETABINS][PHIBINS][6]; // filled when above given  
+  double time_[ETABINS][PHIBINS][6]; // will get filled when rechit found
+  double time_thresh_[ETABINS][PHIBINS][6]; // filled when above given energy
+
+  double HBenergy_[200];
+  double HBenergy_thresh_[200];
+  double HBtime_[300];
+  double HBtime_thresh_[300];
+  double HB_occupancy_[2593];
+  double HB_occupancy_thresh_[2593];
+  double HEenergy_[200];
+  double HEenergy_thresh_[200];
+  double HEtime_[300];
+  double HEtime_thresh_[300];
+  double HE_occupancy_[2593];
+  double HE_occupancy_thresh_[2593];
+  double HOenergy_[200];
+  double HOenergy_thresh_[200];
+  double HOtime_[300];
+  double HOtime_thresh_[300];
+  double HO_occupancy_[2161];
+  double HO_occupancy_thresh_[2161];
+  double HFenergy_[200];
+  double HFenergy_thresh_[200];
+  double HFtime_[300];
+  double HFtime_thresh_[300];
+  double HFenergyLong_[200];
+  double HFenergyLong_thresh_[200];
+  double HFtimeLong_[300];
+  double HFtimeLong_thresh_[300];
+  double HFenergyShort_[200];
+  double HFenergyShort_thresh_[200];
+  double HFtimeShort_[300];
+  double HFtimeShort_thresh_[300];
+  double HF_occupancy_[1729];
+  double HF_occupancy_thresh_[1729];
+  double HFlong_occupancy_[865];
+  double HFlong_occupancy_thresh_[865];
+  double HFshort_occupancy_[865];
+  double HFshort_occupancy_thresh_[865];
+
+  // Diagnostic plots
+  MonitorElement* h_HBEnergy;
+  MonitorElement* h_HBThreshEnergy;
+  MonitorElement* h_HBTotalEnergy;
+  MonitorElement* h_HBThreshTotalEnergy;
+  MonitorElement* h_HBTime;
+  MonitorElement* h_HBThreshTime;
+  MonitorElement* h_HBOccupancy;
+  MonitorElement* h_HBThreshOccupancy;
+
+  MonitorElement* h_HEEnergy;
+  MonitorElement* h_HEThreshEnergy;
+  MonitorElement* h_HETotalEnergy;
+  MonitorElement* h_HEThreshTotalEnergy;
+  MonitorElement* h_HETime;
+  MonitorElement* h_HEThreshTime;
+  MonitorElement* h_HEOccupancy;
+  MonitorElement* h_HEThreshOccupancy;
+
+  MonitorElement* h_HOEnergy;
+  MonitorElement* h_HOThreshEnergy;
+  MonitorElement* h_HOTotalEnergy;
+  MonitorElement* h_HOThreshTotalEnergy;
+  MonitorElement* h_HOTime;
+  MonitorElement* h_HOThreshTime;
+  MonitorElement* h_HOOccupancy;
+  MonitorElement* h_HOThreshOccupancy;
+
+  MonitorElement* h_HFEnergy;
+  MonitorElement* h_HFThreshEnergy;
+  MonitorElement* h_HFTotalEnergy;
+  MonitorElement* h_HFThreshTotalEnergy;
+  MonitorElement* h_HFTime;
+  MonitorElement* h_HFThreshTime;
+  MonitorElement* h_HFOccupancy;
+  MonitorElement* h_HFThreshOccupancy;
+
+  bool HBpresent_, HEpresent_, HOpresent_, HFpresent_;
 };
 
 #endif

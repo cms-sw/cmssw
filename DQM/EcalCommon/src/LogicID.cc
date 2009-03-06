@@ -1,12 +1,12 @@
-// $Id: LogicID.cc,v 1.17 2008/09/29 12:16:47 dellaric Exp $
+// $Id: LogicID.cc,v 1.18 2008/09/29 12:19:01 dellaric Exp $
 
 /*!
   \file LogicID.cc
   \brief Construct EcalLogicIDs
   \author G. Della Ricca
   \author B. Gobbo
-  \version $Revision: 1.17 $
-  \date $Date: 2008/09/29 12:16:47 $
+  \version $Revision: 1.18 $
+  \date $Date: 2008/09/29 12:19:01 $
 */
 
 #include "DQM/EcalCommon/interface/LogicID.h"
@@ -76,7 +76,7 @@ EcalLogicID LogicID::getEcalLogicID( const char* name,
   }
   if( strcmp(name, "EE_readout_tower") == 0 ) {
     return( EcalLogicID( "EE_readout_tower",
-                         2200000000UL+100*((id1>=1&&id1<=9)?(646+(id1-1)):(601+(id1-9)))+id2,
+                         2110000000UL+100*((id1>=1&&id1<=9)?(646+(id1-1)):(601+(id1-9)))+id2,
                          ((id1>=1&&id1<=9)?(646+(id1-1)):(601+(id1-9))),
                          id2 ) );
   }

@@ -192,6 +192,7 @@ public:
 
   PrimaryVertexGenerator* theVertexGenerator;
   math::XYZPoint theBeamSpot;
+  double lateVertexPosition;
 
   const RandomEngine* random;
 

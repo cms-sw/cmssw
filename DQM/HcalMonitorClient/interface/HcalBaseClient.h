@@ -11,6 +11,8 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMOldReceiver.h"
 
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+
 #include "TROOT.h"
 #include "TStyle.h"
 #include "TColor.h"
@@ -19,11 +21,16 @@
 #include "TH2F.h"
 #include "TFile.h"
 
+#include "DQM/HcalMonitorClient/interface/HcalClientUtils.h"
+#include "DQM/HcalMonitorClient/interface/HcalHistoUtils.h"
+
 #include <memory>
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <string>
+
+
 
 // Don't like having these here in the header; can we move them to src?
 using namespace cms;
@@ -50,11 +57,10 @@ class HcalBaseClient{
   bool hasErrors() const { return dqmReportMapErr_.size(); }
   bool hasWarnings() const { return dqmReportMapWarn_.size(); }
   bool hasOther() const { return dqmReportMapOther_.size(); }
+  bool validDetId(HcalSubdetector sd, int ies, int ip, int dp);
   
-  /*
-  void getSJ6histos( char* dir, char* name, TH2F* &h);
-  void getSJ6histos( char* dir, char* name, TH1F* &h);
-  */
+  void getSJ6histos( char* dir, char* name, TH2F* h[6]);
+  void getSJ6histos( char* dir, char* name, TH1F* h[6]);
 
  protected:
 
@@ -69,7 +75,7 @@ class HcalBaseClient{
   
   bool showTiming_; // controls whether to show timing diagnostic info 
   edm::CPUTimer cpu_timer; //  
-
+  bool fillUnphysical_; // determine whether or not to fill unphysical cells in iphi
 
   DQMStore* dbe_;
   

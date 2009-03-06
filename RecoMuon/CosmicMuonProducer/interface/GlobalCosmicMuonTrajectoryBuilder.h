@@ -4,8 +4,8 @@
 /** \file GlobalCosmicMuonTrajectoryBuilder
  *  class to build combined trajectory from cosmic tracks in tk and mu
  *
- *  $Date: 2007/12/16 07:32:59 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/12/15 16:37:05 $
+ *  $Revision: 1.12 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -21,8 +21,9 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
 #include "RecoMuon/CosmicMuonProducer/interface/CosmicMuonSmoother.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
+#include "RecoMuon/GlobalTrackingTools/interface/GlobalMuonTrackMatcher.h"
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
@@ -42,6 +43,7 @@ public:
   typedef MuonTransientTrackingRecHit::ConstMuonRecHitPointer ConstMuonRecHitPointer;
   typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
   typedef MuonTransientTrackingRecHit::ConstMuonRecHitContainer ConstMuonRecHitContainer;
+  typedef std::pair<const Trajectory*,reco::TrackRef> TrackCand;
 
   /// Constructor
   GlobalCosmicMuonTrajectoryBuilder(const edm::ParameterSet&,const MuonServiceProxy* service);
@@ -52,14 +54,15 @@ public:
   /// dummy implementation, unused in this class
   std::vector<Trajectory*> trajectories(const TrajectorySeed&) {return std::vector<Trajectory*>();}
 
+  const Propagator* propagator() const {return &*theService->propagator(thePropagatorName);}
+
   /// choose tk Track and build combined trajectories
   virtual CandidateContainer trajectories(const TrackCand&);
 
+  /// check if tk and muon Tracks are matched
+  std::vector<TrackCand> match(const TrackCand&, const edm::Handle<reco::TrackCollection>& );
 
   virtual void setEvent(const edm::Event&);
-
-  /// check if tk and muon Tracks are matched
-  std::pair<bool,double> match(const reco::Track&, const reco::Track&);
 
 private:
 
@@ -71,18 +74,13 @@ private:
 
   CosmicMuonUtilities* utilities() const {return smoother()->utilities();}
 
+  bool isTraversing(const reco::Track& tk) const;
+
   const MuonServiceProxy *theService;
 
   CosmicMuonSmoother* theSmoother;
 
-  TrackTransformer* theTrackTransformer;
-
-  struct DecreasingGlobalY{
-    bool operator()(const TransientTrackingRecHit::ConstRecHitPointer &lhs,
-		    const TransientTrackingRecHit::ConstRecHitPointer &rhs) const{ 
-      return lhs->globalPosition().y() > rhs->globalPosition().y(); 
-    }
-  };
+  GlobalMuonTrackMatcher* theTrackMatcher;
 
   std::string thePropagatorName;
   std::string theTkTrackLabel;
@@ -98,6 +96,8 @@ private:
   bool tkTrajsAvailable;
 
   const std::vector<Trajectory>* allTrackerTrajs;
+
+  std::string category_;
   
 };
 #endif

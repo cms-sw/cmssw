@@ -17,6 +17,7 @@ namespace edm
   private:
     int count_;
     int n_; // accept one in n
+    int offset_; // with offset, ie. sequence of events does not have to start at first event
   };
 }
 

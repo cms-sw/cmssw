@@ -202,7 +202,8 @@ HDShower::HDShower(const RandomEngine* engine,
 
   int nmoresteps;      // how many longitudinal steps in addition to 
                        // one (if interaction happens there) in ECAL
- 
+
+  mip = 1;             // just to initiate particle as MIP in ECAL    
 
   if(e < criticalEnergy ) nmoresteps = 1;  
   else                    nmoresteps = nDepthSteps;
@@ -280,7 +281,7 @@ HDShower::HDShower(const RandomEngine* engine,
     if(debug) LogDebug("FastCalorimetry") << " FamosHDShower : onECAL" << std::endl;
     if(depthStart < depthECAL) {
       if(debug) LogDebug("FastCalorimetry") << " FamosHDShower : depthStart < depthECAL" << std::endl;
-      if((depthECAL - depthStart)/depthECAL > 0.25 && depthECAL > depthStep) {
+      if((depthECAL - depthStart)/depthECAL > 0.1 && depthECAL > depthStep) {
 	if(debug) LogDebug("FastCalorimetry") << " FamosHDShower : enough space to make ECAL step"
 		       << std::endl;
 	//  ECAL - one step
@@ -295,7 +296,8 @@ HDShower::HDShower(const RandomEngine* engine,
 	x0depth.push_back(sum3);
 	x0curr.push_back(x0EM);
 	detector.push_back(1);
-	
+        mip = 0;	
+
 	if(debug) LogDebug("FastCalorimetry") << " FamosHDShower : " << " in ECAL sum1, sum2 "
 		       << sum1 << " " << sum2 << std::endl;
 	

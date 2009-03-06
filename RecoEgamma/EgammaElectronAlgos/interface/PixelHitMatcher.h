@@ -17,7 +17,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.h,v 1.20 2008/06/26 16:19:54 uberthon Exp $
+// $Id: PixelHitMatcher.h,v 1.19 2008/04/21 09:47:34 uberthon Exp $
 //
 //
 
@@ -37,7 +37,6 @@
 
 #include "CLHEP/Vector/ThreeVector.h"
 #include <vector>
-#include <limits>
 
 /** Class to match an ECAL cluster to the pixel hits.
  *  Two compatible hits in the pixel layers are required.
@@ -69,57 +68,6 @@ class RecHitWithDist
    float dphi_;
 };
 
-
-class RecHitWithInfo
- {
-  public: 
-
-    typedef TransientTrackingRecHit::ConstRecHitPointer   ConstRecHitPointer;
-    typedef TransientTrackingRecHit::RecHitPointer        RecHitPointer;
-    typedef TransientTrackingRecHit::RecHitContainer      RecHitContainer;
-  
-    RecHitWithInfo( ConstRecHitPointer rh, int subDet =0,
-       float dRz =std::numeric_limits<float>::infinity(),
-       float dPhi =std::numeric_limits<float>::infinity() )
-     : rh_(rh), subDet_(subDet), dRz_(dRz), dPhi_(dPhi) {}
-      
-    ConstRecHitPointer recHit() const { return rh_; }
-    
-    int subDet() { return subDet_ ; }
-    float dRz() { return dRz_ ; }
-    float dPhi() { return dPhi_ ; }
-
-    void invert() { dPhi_*=-1. ; }
-  
-  private:
-  
-    ConstRecHitPointer rh_;  
-    int subDet_ ;
-    float dRz_ ;
-    float dPhi_ ;
- } ;
-
-class SeedWithInfo
- {
-  public :
-  
-    SeedWithInfo( TrajectorySeed seed, int subDet2, float dRz2, float dPhi2 )
-     : seed_(seed), subDet2_(subDet2), dRz2_(dRz2), dPhi2_(dPhi2) {}
-     
-    const TrajectorySeed & seed() { return seed_ ; }
-    
-    int subDet2() { return subDet2_ ; }
-    float dRz2() { return dRz2_ ; }
-    float dPhi2() { return dPhi2_ ; }
-    
-  private :
-  
-    TrajectorySeed seed_ ;
-    int subDet2_ ;
-    float dRz2_ ;
-    float dPhi2_ ;
- } ;
-
 class PixelHitMatcher{  
  public:
 
@@ -135,13 +83,11 @@ class PixelHitMatcher{
   void setES(const MagneticField*, const MeasurementTracker *theMeasurementTracker, const TrackerGeometry *trackerGeometry);
 
   std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> > 
-  compatibleHits(const GlobalPoint& xmeas, const GlobalPoint& vprim, float energy, float charge);
-  
-  //   compatibleSeeds(edm::Handle<TrajectorySeedCollection> &seeds, const GlobalPoint& xmeas,
-  std::vector<SeedWithInfo> 
-  compatibleSeeds
-    ( TrajectorySeedCollection * seeds, const GlobalPoint & xmeas,
-      const GlobalPoint & vprim, float energy, float charge ) ;
+   compatibleHits(const GlobalPoint& xmeas, const GlobalPoint& vprim, float energy, float charge);
+  std::vector<TrajectorySeed> 
+    //   compatibleSeeds(edm::Handle<TrajectorySeedCollection> &seeds, const GlobalPoint& xmeas,
+   compatibleSeeds(TrajectorySeedCollection *seeds, const GlobalPoint& xmeas,
+                    const GlobalPoint& vprim, float energy, float charge);
    
   std::vector<Hep3Vector> predicted1Hits();
   std::vector<Hep3Vector> predicted2Hits();

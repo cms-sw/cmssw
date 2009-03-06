@@ -44,6 +44,7 @@ public :
   virtual Double_t getInitValue();
   virtual Double_t getCurrentValue();
 
+  virtual TString getInfoString();
   virtual void print(); 
  
 protected :

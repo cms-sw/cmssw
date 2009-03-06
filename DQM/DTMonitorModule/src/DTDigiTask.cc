@@ -1,8 +1,8 @@
  /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2008/10/20 10:15:26 $
- * $Revision: 1.50 $
+ * $Date: 2008/11/18 17:55:42 $
+ * $Revision: 1.53 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -48,7 +48,7 @@ using namespace std;
 // Contructor
 DTDigiTask::DTDigiTask(const edm::ParameterSet& ps){
   // switch for the verbosity
-  LogTrace("DTDQM|DTMonitormodule|DTDigiTask") <<"[DTDigiTask]: Constructor"<<endl;
+  LogTrace("DTDQM|DTMonitorModule|DTDigiTask") <<"[DTDigiTask]: Constructor"<<endl;
 
   // The label to retrieve the digis 
   dtDigiLabel = ps.getParameter<InputTag>("dtDigiLabel");
@@ -74,7 +74,11 @@ DTDigiTask::DTDigiTask(const edm::ParameterSet& ps){
   inTimeHitsUpperBound = ps.getParameter<int>("inTimeHitsUpperBound");
   timeBoxGranularity = ps.getUntrackedParameter<int>("timeBoxGranularity",4);
   tdcRescale = ps.getUntrackedParameter<int>("tdcRescale", 1);
+
+  doAllHitsOccupancies = ps.getUntrackedParameter<bool>("doAllHitsOccupancies", true);
   doNoiseOccupancies = ps.getUntrackedParameter<bool>("doNoiseOccupancies", false);
+  doInTimeOccupancies = ps.getUntrackedParameter<bool>("doInTimeOccupancies", false);
+
   // switch on the mode for running on test pulses (different top folder)
   tpMode = ps.getUntrackedParameter<bool>("testPulseMode", false);
   // switch on/off the filtering of synchronous noise events (cutting on the # of digis)
@@ -92,7 +96,7 @@ DTDigiTask::DTDigiTask(const edm::ParameterSet& ps){
 
 // destructor
 DTDigiTask::~DTDigiTask(){
-  LogTrace("DTDQM|DTMonitormodule|DTDigiTask") << "DTDigiTask: analyzed " << nevents << " events" << endl;
+  LogTrace("DTDQM|DTMonitorModule|DTDigiTask") << "DTDigiTask: analyzed " << nevents << " events" << endl;
 
 }
 
@@ -100,7 +104,7 @@ DTDigiTask::~DTDigiTask(){
 
 
 void DTDigiTask::endJob(){
-  LogTrace("DTDQM|DTMonitormodule|DTDigiTask") <<"[DTDigiTask] endjob called!"<<endl;
+  LogTrace("DTDQM|DTMonitorModule|DTDigiTask") <<"[DTDigiTask] endjob called!"<<endl;
   
 }
 
@@ -108,7 +112,7 @@ void DTDigiTask::endJob(){
 
 
 void DTDigiTask::beginJob(const edm::EventSetup& context){
-  LogTrace("DTDQM|DTMonitormodule|DTDigiTask") <<"[DTDigiTask]: BeginJob"<<endl;
+  LogTrace("DTDQM|DTMonitorModule|DTDigiTask") <<"[DTDigiTask]: BeginJob"<<endl;
 
   nevents = 0;
 
@@ -118,7 +122,7 @@ void DTDigiTask::beginJob(const edm::EventSetup& context){
 
 
 void DTDigiTask::beginRun(const edm::Run& run, const edm::EventSetup& context) {
-  LogTrace("DTDQM|DTMonitormodule|DTDigiTask") <<"[DTDigiTask]: begin run"<<endl;
+  LogTrace("DTDQM|DTMonitorModule|DTDigiTask") <<"[DTDigiTask]: begin run"<<endl;
 
   // tTrig 
   if (readTTrigDB) 
@@ -131,8 +135,14 @@ void DTDigiTask::beginRun(const edm::Run& run, const edm::EventSetup& context) {
   
   // ----------------------------------------------------------------------
   if(doStaticBooking) {  // Static histo booking
+    // book the event counter
+    dbe->setCurrentFolder(topFolder());
+    nEventMonitor = dbe->bookFloat("nProcessedEvents");
     for(int wh = -2; wh <= 2; ++wh) { // loop over wheels
-      bookHistos(wh, string("Occupancies"), "OccupancyAllHits");
+      if(doAllHitsOccupancies) bookHistos(wh, string("Occupancies"), "OccupancyAllHits");
+      if(doNoiseOccupancies) bookHistos(wh, string("Occupancies"), "OccupancyNoiseHits");
+      if(doInTimeOccupancies) bookHistos(wh, string("Occupancies"), "OccupancyInTimeHits");
+
       if(filterSyncNoise) bookHistos(wh, string("SynchNoise"), "SyncNoiseEvents" );
       for(int st = 1; st <= 4; ++st) { // loop over stations
 	for(int sect = 1; sect <= 14; ++sect) { // loop over sectors
@@ -141,12 +151,13 @@ void DTDigiTask::beginRun(const edm::Run& run, const edm::EventSetup& context) {
 	  const  DTChamberId dtChId(wh,st,sect);
 
 	  // Occupancies 
-	  if (!doNoiseOccupancies) {
+	  if (doAllHitsOccupancies) 
 	    bookHistos(dtChId, string("Occupancies"), "OccupancyAllHits_perCh");
-	  } else {
+	  if(doNoiseOccupancies) 
 	    bookHistos(dtChId, string("Occupancies"), "OccupancyNoise_perCh");
+	  if(doInTimeOccupancies)
 	    bookHistos(dtChId, string("Occupancies"), "OccupancyInTimeHits_perCh" );
-	  }
+
 
 
 
@@ -172,11 +183,11 @@ void DTDigiTask::beginRun(const edm::Run& run, const edm::EventSetup& context) {
 
 
 void DTDigiTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
-  LogTrace("DTDQM|DTMonitormodule|DTDigiTask") <<"[DTDigiTask]: Begin of LS transition"<<endl;
+  LogTrace("DTDQM|DTMonitorModule|DTDigiTask") <<"[DTDigiTask]: Begin of LS transition"<<endl;
   
   // Reset the MonitorElements every n (= ResetCycle) Lumi Blocks
   if(lumiSeg.id().luminosityBlock() % resetCycle == 0) {
-    LogVerbatim("DTDQM|DTMonitormodule|DTDigiTask")
+    LogVerbatim("DTDQM|DTMonitorModule|DTDigiTask")
       <<"[DTDigiTask]: Reset at the LS transition : "<<lumiSeg.id().luminosityBlock()<<endl;
     // Loop over all ME
     for(map<string, map<uint32_t, MonitorElement*> > ::const_iterator histo = digiHistos.begin();
@@ -219,7 +230,7 @@ void DTDigiTask::bookHistos(const DTSuperLayerId& dtSL, string folder, string hi
     + "_Sec" + sector.str() 
     + "_SL" + superLayer.str(); 
 
-  LogTrace("DTDQM|DTMonitormodule|DTDigiTask")
+  LogTrace("DTDQM|DTMonitorModule|DTDigiTask")
     << "[DTDigiTask]: booking SL histo:" << histoName
     << " (tag: " << histoTag
     << ") folder: " << topFolder() + "Wheel" + wheel.str() +
@@ -275,7 +286,7 @@ void DTDigiTask::bookHistos(const DTChamberId& dtCh, string folder, string histo
     + "_Sec" + sector.str(); 
 
 
-  LogTrace("DTDQM|DTMonitormodule|DTDigiTask")
+  LogTrace("DTDQM|DTMonitorModule|DTDigiTask")
     << "[DTDigiTask]: booking chamber histo:" 
     << " (tag: " << histoTag
     << ") folder: " << topFolder() + "Wheel" + wheel.str() +
@@ -363,7 +374,7 @@ void DTDigiTask::bookHistos(const int wheelId, string folder, string histoTag) {
   string histoName = histoTag + "_W" + wheel.str(); 
 
 
-  LogTrace("DTDQM|DTMonitormodule|DTDigiTask")
+  LogTrace("DTDQM|DTMonitorModule|DTDigiTask")
     << "[DTDigiTask]: booking wheel histo:" << histoName
     << " (tag: " << histoTag
     << ") folder: " << topFolder() + "Wheel" + wheel.str() + "/" <<endl;
@@ -378,7 +389,7 @@ void DTDigiTask::bookHistos(const int wheelId, string folder, string histoTag) {
     (wheelHistos[histoTag])[wheelId]->setBinLabel(4,"MB4",2);
     (wheelHistos[histoTag])[wheelId]->setAxisTitle("sector",1);
   } else if(folder == "SynchNoise") {
-    dbe->setCurrentFolder(topFolder() + "SynchNoise");
+    dbe->setCurrentFolder("DT/04-Noise/SynchNoise");
     string histoTitle = "Event rate of Syncronous Noisy events WHEEL: "+wheel.str();
     (wheelHistos[histoTag])[wheelId] = dbe->book2D(histoName,histoTitle,12,1,13,4,1,5);
     (wheelHistos[histoTag])[wheelId]->setBinLabel(1,"MB1",2);
@@ -394,12 +405,12 @@ void DTDigiTask::bookHistos(const int wheelId, string folder, string histoTag) {
 
 // does the real job
 void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
-  LogTrace("DTDQM|DTMonitormodule|DTDigiTask") << "[DTDigiTask] analyze" << endl;
+  LogTrace("DTDQM|DTMonitorModule|DTDigiTask") << "[DTDigiTask] analyze" << endl;
   
   nevents++;
-
+  nEventMonitor->Fill(nevents);
   if (nevents%1000 == 0) {
-    LogTrace("DTDQM|DTMonitormodule|DTDigiTask") << "[DTDigiTask] Analyze #Run: " << event.id().run()
+    LogTrace("DTDQM|DTMonitorModule|DTDigiTask") << "[DTDigiTask] Analyze #Run: " << event.id().run()
 						 << " #Event: " << event.id().event() << endl;
   }
   
@@ -415,7 +426,7 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
   // Status map (for noisy channels)
   ESHandle<DTStatusFlag> statusMap;
   if(checkNoisyChannels) {
-    LogTrace("DTDQM|DTMonitormodule|DTDigiTask") << "    get the map of noisy channels" << endl;
+    LogTrace("DTDQM|DTMonitorModule|DTDigiTask") << "    get the map of noisy channels" << endl;
     // Get the map of noisy channels
     c.get<DTStatusFlagRcd>().get(statusMap);
   }
@@ -425,11 +436,11 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
 
   // Check if the digi container is empty
   if(dtdigis->begin() == dtdigis->end()) {
-    LogTrace("DTDQM|DTMonitormodule|DTDigiTask") << "Event " << nevents << " empty." << endl;
+    LogTrace("DTDQM|DTMonitorModule|DTDigiTask") << "Event " << nevents << " empty." << endl;
   }
 
   if (filterSyncNoise) { // dosync
-    LogTrace("DTDQM|DTMonitormodule|DTDigiTask") << "     Filter Sync Noise" << endl;
+    LogTrace("DTDQM|DTMonitorModule|DTDigiTask") << "     Filter Sync Noise" << endl;
     
     // Count the # of digis per chamber
     DTDigiCollection::DigiRangeIterator dtLayerId_It;
@@ -458,14 +469,14 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
 
     // log
     if (syncNoisyChambers.size() != 0) {
-      LogVerbatim("DTDQM|DTMonitormodule|DTDigiTask") << "[DTDigiTask]** Synch Noise in event: " << nevents
+      LogVerbatim("DTDQM|DTMonitorModule|DTDigiTask") << "[DTDigiTask]** Synch Noise in event: " << nevents
 						      << " noisy time-boxes and occupancy will not be filled!" << endl; 
       syncNumTot++;
       syncNum++;
     }
 
     if (nevents%1000 == 0) {
-      LogVerbatim("DTDQM|DTMonitormodule|DTDigiTask") << (syncNumTot*100./nevents) << "% sync noise events since the beginning \n"
+      LogVerbatim("DTDQM|DTMonitorModule|DTDigiTask") << (syncNumTot*100./nevents) << "% sync noise events since the beginning \n"
 						      << (syncNum*0.1) << "% sync noise events in the last 1000 events " << endl;
       syncNum = 0;
     }
@@ -557,7 +568,8 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
 
 	// Fill Occupancies
 	if (!isSyncNoisy) { // Discard synch noisy channels 
-	  if (!doNoiseOccupancies) { // Do not use ttrig table
+
+	  if (doAllHitsOccupancies) { // fill occupancies for all hits
 	    //Occupancies per chamber & layer
 	    histoTag = "OccupancyAllHits_perCh";
 	    map<uint32_t, MonitorElement*>::const_iterator mappedHisto =
@@ -580,11 +592,13 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
 	    histoPerWheel->second->Fill(dtChId.sector(),dtChId.station()); // FIXME: normalize to # of layers
 	   
 	    
-	  } else { // after-Calibration jobs: use ttrig DB
+	  } 
 
-	    if (tdcTime < inTimeHitsLowerBoundCorr ) { // FIXME: what about tdcTime > inTimeHitsUpperBoundCorr ???
+	  if(doNoiseOccupancies) { // fill occupancies for hits before the ttrig
+	    if (tdcTime < inTimeHitsLowerBoundCorr ) { 
+	      // FIXME: what about tdcTime > inTimeHitsUpperBoundCorr ???
+
 	      // Noise: Before tTrig
-	      
 	      //Occupancies Noise per chamber & layer
 	      histoTag = "OccupancyNoise_perCh";
 	      map<uint32_t, MonitorElement*>::const_iterator mappedHisto =
@@ -596,9 +610,23 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
 	      mappedHisto->second->Fill((*digiIt).wire(),
 					(layer_number+(superlayer_number-1)*4)-1);
 
-	    } else if (tdcTime > inTimeHitsLowerBoundCorr && tdcTime < inTimeHitsUpperBoundCorr) { 
+	      // Fill the chamber occupancy
+	      histoTag = "OccupancyNoise";
+	      map<int, MonitorElement*>::const_iterator histoPerWheel =
+		wheelHistos[histoTag].find(dtChId.wheel());
+	      if(histoPerWheel ==  wheelHistos[histoTag].end()) { // dynamic booking
+		bookHistos(dtChId.wheel(), string("Occupancies"), histoTag);
+		histoPerWheel = wheelHistos[histoTag].find(dtChId.wheel());
+	      }
+	      histoPerWheel->second->Fill(dtChId.sector(),dtChId.station()); // FIXME: normalize to # of layers
+
+	    } 
+	  }
+	  
+	  if(doInTimeOccupancies) { // fill occpunacies for in-time hits only
+	    if (tdcTime > inTimeHitsLowerBoundCorr && tdcTime < inTimeHitsUpperBoundCorr) { 
 	      // Physical hits: within the time window	
-	      
+
 	      //Occupancies Signal per chamber & layer
 	      histoTag = "OccupancyInTimeHits_perCh";
 	      map<uint32_t, MonitorElement*>::const_iterator mappedHisto =
@@ -609,6 +637,16 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
 	      }
 	      mappedHisto->second->Fill((*digiIt).wire(),
 					(layer_number+(superlayer_number-1)*4)-1);
+
+	      // Fill the chamber occupancy
+	      histoTag = "OccupancyInTimeHits";
+	      map<int, MonitorElement*>::const_iterator histoPerWheel =
+		wheelHistos[histoTag].find(dtChId.wheel());
+	      if(histoPerWheel ==  wheelHistos[histoTag].end()) { // dynamic booking
+		bookHistos(dtChId.wheel(), string("Occupancies"), histoTag);
+		histoPerWheel = wheelHistos[histoTag].find(dtChId.wheel());
+	      }
+	      histoPerWheel->second->Fill(dtChId.sector(),dtChId.station()); // FIXME: normalize to # of layers
 
 	    }
 	  }
@@ -645,7 +683,7 @@ string DTDigiTask::triggerSource() {
 
 
 string DTDigiTask::topFolder() const {
-  if(tpMode) return string("DT/99-TestPulses/");
+  if(tpMode) return string("DT/10-TestPulses/");
   return string("DT/01-Digi/");
 }
 

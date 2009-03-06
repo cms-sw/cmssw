@@ -9,10 +9,10 @@ TtSemiLepHypGenMatch::~TtSemiLepHypGenMatch() { }
 
 void
 TtSemiLepHypGenMatch::buildHypo(edm::Event& evt,
-				    const edm::Handle<edm::View<reco::RecoCandidate> >& leps, 
-				    const edm::Handle<std::vector<pat::MET> >& mets, 
-				    const edm::Handle<std::vector<pat::Jet> >& jets, 
-				    std::vector<int>& match)
+				const edm::Handle<edm::View<reco::RecoCandidate> >& leps, 
+				const edm::Handle<std::vector<pat::MET> >& mets, 
+				const edm::Handle<std::vector<pat::Jet> >& jets, 
+				std::vector<int>& match, const unsigned int iComb)
 {
   // -----------------------------------------------------
   // add jets

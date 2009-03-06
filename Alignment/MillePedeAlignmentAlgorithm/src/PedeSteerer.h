@@ -8,8 +8,8 @@
  *
  * \author    : Gero Flucke
  * date       : October 2006
- * $Date: 2008/07/31 15:44:00 $
- * $Revision: 1.16 $
+ * $Date: 2007/12/17 18:59:52 $
+ * $Revision: 1.14 $
  * (last update by $Author: flucke $)
  */
 
@@ -53,8 +53,6 @@ class PedeSteerer
   /// If reference alignables have been configured, shift everything such that mean
   /// position and orientation of dets in these alignables are zero.
   void correctToReferenceSystem();
-  bool isCorrectToRefSystem(const std::vector<Alignable*> &coordDefiners) const;
-
 
   double cmsToPedeFactor(unsigned int parNum) const;
   /// results from pede (and start values for pede) might need a sign flip
@@ -114,7 +112,6 @@ class PedeSteerer
   edm::ParameterSet myConfig;
   std::string myDirectory; /// directory of all files
   bool myNoSteerFiles; /// flag to write steering files to /dev/null
-  bool myIsSteerFileDebug; /// whether or not to fill pede steering files with debug info
   int myParameterSign; /// old pede versions (before May '07) need a sign flip...
 
   std::vector<std::string> mySteeringFiles; /// keeps track of created 'secondary' steering files

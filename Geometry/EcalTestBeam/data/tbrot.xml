@@ -4,8 +4,8 @@
 
 <ConstantsSection  label="tbrot.xml" eval="true" >
 
-<Constant name="eta"        value="0.221605"/>
-<Constant name="phi"        value="0.0467487*rad"/>
+<Constant name="eta"        value="0.221525"/>
+<Constant name="phi"        value="0.0467617*rad"/>
 
 
 <Constant name="theta"     value="2*atan(exp(-[tbrot:eta]))"/>

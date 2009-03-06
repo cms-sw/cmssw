@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineTask.cc
  *
- * $Date: 2008/04/08 18:11:28 $
- * $Revision: 1.25 $
+ * $Date: 2008/12/03 14:44:53 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  *
 */
@@ -149,8 +149,7 @@ void EEPedestalOnlineTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EEDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
-      EEDataFrame dataframe = (*digiItr);
-      EEDetId id = dataframe.id();
+      EEDetId id = digiItr->id();
 
       int ix = id.ix();
       int iy = id.iy();
@@ -165,16 +164,17 @@ void EEPedestalOnlineTask::analyze(const Event& e, const EventSetup& c){
       LogDebug("EEPedestalOnlineTask") << " det id = " << id;
       LogDebug("EEPedestalOnlineTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
 
+      EEDataFrame dataframe = (*digiItr);
+
       for (int i = 0; i < 3; i++) {
 
-        EcalMGPASample sample = dataframe.sample(i);
-        int adc = sample.adc();
+        int adc = dataframe.sample(i).adc();
 
         MonitorElement* mePedMap = 0;
 
-        if ( sample.gainId() == 1 ) mePedMap = mePedMapG12_[ism-1];
-        if ( sample.gainId() == 2 ) mePedMap = 0;
-        if ( sample.gainId() == 3 ) mePedMap = 0;
+        if ( dataframe.sample(i).gainId() == 1 ) mePedMap = mePedMapG12_[ism-1];
+        if ( dataframe.sample(i).gainId() == 2 ) mePedMap = 0;
+        if ( dataframe.sample(i).gainId() == 3 ) mePedMap = 0;
 
         float xval = float(adc);
 

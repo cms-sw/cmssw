@@ -19,6 +19,6 @@ globalMixedTrackCandidates.SeedProducer = cms.InputTag("globalMixedSeeds","Globa
 globalMixedTrackCandidates.TrackProducers = ['globalPixelWithMaterialTracks']
 globalMixedWithMaterialTracks.src = 'globalMixedTrackCandidates'
 globalMixedWithMaterialTracks.TTRHBuilder = 'WithoutRefit'
-globalMixedWithMaterialTracks.Fitter = 'KFFittingSmoother'
+globalMixedWithMaterialTracks.Fitter = 'KFFittingSmootherWithOutlierRejection'
 globalMixedWithMaterialTracks.Propagator = 'PropagatorWithMaterial'
 

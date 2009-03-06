@@ -1,5 +1,5 @@
-#ifndef GUARD_HCALTESTUTILS_h
-#define GUARD_HCALTESTUTILS_h
+#ifndef GUARD_HCALTESTUTILS_H
+#define GUARD_HCALTESTUTILS_H
 
 #define UTILS_ETAMIN -44.5
 #define UTILS_ETAMAX 44.5
@@ -35,12 +35,12 @@
                          DQMStore* dbe_, bool verb, bool clone)  
  *			   
  * std::string getAnyIMG(int runNo,myHist* hist, int size, std::string htmlDir,
-    		         const char* xlab, const char* ylab) 
+    		         const char* xlab, const char* ylab, bool setLogy, bool setLogx) 
  *
  * void htmlAnyHisto(int runNo, myHist *hist, 
 		     const char* xlab, const char* ylab, 
 		     int width, ofstream& htmlFile, 
-		     std::string htmlDir)
+		     std::string htmlDir, bool setLogy, bool setLogx)
  
  *
  *****************************************************************************
@@ -161,7 +161,7 @@ myHist* getAnyHisto(myHist* hist,
 // MAKE GIF FROM HISTOGRAM IMAGE
 template <class myHist>
 std::string getAnyIMG(int runNo,myHist* hist, int size, std::string htmlDir,
-		      const char* xlab, const char* ylab) 
+		      const char* xlab, const char* ylab, bool setLogy=0, bool setLogx=0 ) 
 {
   /* 
      Template function draws histogram plot, and saves it as a .gif image.
@@ -172,10 +172,12 @@ std::string getAnyIMG(int runNo,myHist* hist, int size, std::string htmlDir,
     {
       return ""; // no histogram provided
     }
-
+  
+  // Grab the histogram's title, and convert it to something more palatable for use as a file name
+  
   // Run cleanString algorithm  -- direct call of cleanString causes a crash 
   std::string name = (std::string)hist->GetTitle();
-  //cout <<"TITLE = "<<name<<endl;
+  //cout <<"NAME = ["<<name<<"]"<<endl;
   for ( unsigned int i = 0; i < name.size(); ++i ) {
     if ( name.substr(i, 6) == " - Run" ){
       name.replace(i, name.size()-i, "");
@@ -186,6 +188,7 @@ std::string getAnyIMG(int runNo,myHist* hist, int size, std::string htmlDir,
     if ( name.substr(i, 5) == "__Run" ){
       name.replace(i, name.size()-i, "");
     }
+
     if (name.substr(i,1) == "(" || name.substr(i,1)==")")
       name.replace(i,1,"_");
     if (name.substr(i,1)==",")
@@ -196,14 +199,17 @@ std::string getAnyIMG(int runNo,myHist* hist, int size, std::string htmlDir,
       name.replace(i,1,"_gt_");
     if (name.substr(i,1)=="+")
       name.replace(i,1,"_plus_");
-  } // for (unsigned int i=0; i< name.size();
+    if (name.substr(i,1)=="#")
+      name.replace(i,1,"");
 
+  } // for (unsigned int i=0; i< name.size();
+  //cout <<"NEWNAME = ["<<name<<"]"<<endl;
 
   char dest[512]; // stores name of destination .gif file
   if(runNo>-1) sprintf(dest,"%s - Run %d",name.c_str(),runNo);
   else sprintf(dest,"%s",name.c_str());
 
-  hist->SetTitle(dest);
+  //hist->SetTitle(dest); // no need to change the histogram title itself, right?
   std::string title = dest;
 
   int xwid = 900; 
@@ -246,54 +252,84 @@ std::string getAnyIMG(int runNo,myHist* hist, int size, std::string htmlDir,
 
   // Create canvas for histogram
   TCanvas* can = new TCanvas(dest,dest, xwid, ywid);
+  TAxis* xaxis=0;
+  TAxis* yaxis=0;
+  TLine* vert=0;
+  TLine* horiz=0;
   hist->SetXTitle(xlab);
   hist->SetYTitle(ylab);
   std::string histtype=hist->ClassName();
- 
-  // Set grids to on for all TH2F histograms (maybe add for others later?)
-  /*
-    // we now draw the lines directly, so that we can set our own grid spacing
-  if (histtype=="TH2F")
-    {
-      can->SetGridx();
-      can->SetGridy();
-      }
-  */
+  //can->GetFrame()->SetFillColor(21); // change canvas to different default color?   
 
   // Don't draw stat box for color plots
   if (((std::string)hist->GetOption())=="col" || 
       ((std::string)hist->GetOption())=="colz")
     hist->SetStats(false);
 
-  // Draw with whatever options are set for the particluar histogram
+  // Draw with whatever options are set for the particular histogram
 
   hist->Draw(hist->GetOption());// I think that Draw should automatically use the GetOption() value, but include it here to be sure.
-  
-  int vertlinespace=UTILS_VERTLINESPACE;
-  int horizlinespace=UTILS_HORIZLINESPACE;
+
+  // Draw Grid Lines
+  //int vertlinespace=UTILS_VERTLINESPACE;
+  //int horizlinespace=UTILS_HORIZLINESPACE;
   if (histtype=="TH2F")
     {
+      TAxis *xaxis = hist->GetXaxis();
+      TAxis *yaxis=hist->GetYaxis();
       // Draw vertical lines
-      for (int xx=int(UTILS_ETAMIN);xx<=int(UTILS_ETAMAX);++xx)
-	{
-	  if (xx%vertlinespace!=0) continue;
-	  TLine *vert = new TLine(xx,UTILS_PHIMIN,xx,UTILS_PHIMAX);
-	  vert->SetLineStyle(3);
-	  vert->Draw("same");
-	}
-      // Draw horizontal lines
-      for (int yy=-int(UTILS_PHIMIN);yy<=int(UTILS_PHIMAX);++yy)
-	{
-	  if (yy%horizlinespace!=0) continue;
-	  TLine *horiz = new TLine(UTILS_ETAMIN,yy,UTILS_ETAMAX,yy);
-	  horiz->SetLineStyle(3);
-	  horiz->Draw("same");
-	}
+      //for (int xx=int(UTILS_ETAMIN);xx<=int(UTILS_ETAMAX);++xx)
+ 
       
-    }
+	if (xaxis->GetXmax()==UTILS_ETAMAX && xaxis->GetXmin()==UTILS_ETAMIN 
+	 && yaxis->GetXmax()==UTILS_PHIMAX && yaxis->GetXmin()==UTILS_PHIMIN) // ad hoc method for only drawing grids for eta-phi graphs; need to be more clever later?
+	{
+	  for (int xx=int(xaxis->GetXmin());
+	       xx<=int(xaxis->GetXmax()); ++xx)
+	    {
+	      if (xx<-42 || xx >= 42) continue;
+	      vert = new TLine(xx+0.5,0.5,xx+0.5,72.5);
+	      //if (xx%vertlinespace!=0) continue;
+	      //TLine *vert = new TLine(xx,yaxis->GetXmin(),xx,yaxis->GetXmax());
+	      
+	      vert->SetLineStyle(3);
+	      vert->Draw("same");
+	    }
+	  // Draw horizontal lines
+	  for (int yy=int(yaxis->GetXmin()); yy<int(yaxis->GetXmax());++yy)
+	    {
+	      if (yy%4==0)
+		horiz = new TLine(-41.5,yy+0.5,41.5,yy+0.5);
+	      else if (yy%2==0)
+		horiz = new TLine(-39.5,yy+0.5,39.5,yy+0.5);
+	      else
+		horiz = new TLine(-20.5,yy+0.5,20.5,yy+0.5);
+	      //if (yy%horizlinespace!=0) continue;
+	      //TLine *horiz = new TLine(xaxis->GetXmin(),yy,xaxis->GetXmax(),yy);
+	      horiz->SetLineStyle(3);
+	      horiz->Draw("same");
+	    }
+	} //if (xaxis->GetXmax()==44)
+    } // if (histtype=="TH2F")
 
+  
+  // SetLogx, SetLogy don't seem to work.  Why not?
+  if (hist->GetMaximum()>0 && hist->GetMinimum()>0)
+    {
+      // Don't bother with this yet until we get something useful working
+      /*
+      if (setLogx)
+	can->SetLogx();
+      if (setLogy)
+	can->SetLogy();  
+      */
+    }	
   can->SaveAs(saveName.c_str());  
   delete can;
+  delete vert;
+  delete horiz;
+  delete xaxis;
+  delete yaxis;
 
   return outName;
 } // std::string getAnyIMG(...)
@@ -306,7 +342,8 @@ template <class myHist>
 void htmlAnyHisto(int runNo, myHist *hist, 
 		  const char* xlab, const char* ylab, 
 		  int width, ofstream& htmlFile, 
-		  std::string htmlDir)
+		  std::string htmlDir,
+		  bool setLogy=0, bool setLogx=0)
 {
 
   /*
@@ -327,19 +364,19 @@ void htmlAnyHisto(int runNo, myHist *hist,
 	}
 
       // Form full-sized and thumbnail .gifs from histogram
-      std::string imgNameTMB = "";   
-      imgNameTMB = getAnyIMG(runNo,hist,1,htmlDir,xlab,ylab); 
-      std::string imgName = "";   
-      imgName = getAnyIMG(runNo,hist,2,htmlDir,xlab,ylab);  
+      //std::string imgNameTMB = "";   
+      std::string imgNameTMB = getAnyIMG(runNo,hist,1,htmlDir,xlab,ylab,setLogy, setLogx); 
+      //std::string imgName = "";   
+      std::string imgName = getAnyIMG(runNo,hist,2,htmlDir,xlab,ylab, setLogy, setLogx);  
       
       // Add thumbnail image to html code, linked to full-sized image
       if (imgName.size() != 0 )
 	{
-	htmlFile << "<td><a href=\"" <<  imgName << "\"><img src=\"" <<  imgNameTMB << "\"></a></td>" << endl;
+	htmlFile << "<td align=\"center\"><a href=\"" <<  imgName << "\"><img src=\"" <<  imgNameTMB << "\"></a></td>" << endl;
 	}
       else
 	{
-	  htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+	  htmlFile << "<td aling=\"center\"><img src=\"" << " " << "\"></td>" << endl;
 	}
     } // (hist != NULL)
 

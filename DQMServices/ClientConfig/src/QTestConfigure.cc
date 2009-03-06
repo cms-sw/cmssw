@@ -2,13 +2,14 @@
  *
  *  Implementation of QTestConfigure
  *
- *  $Date: 2008/08/12 16:33:19 $
- *  $Revision: 1.16 $
+ *  $Date: 2008/08/12 21:44:48 $
+ *  $Revision: 1.18 $
  *  \author Ilaria Segoni
  */
 #include "DQMServices/ClientConfig/interface/QTestConfigure.h"
 #include "DQMServices/Core/interface/QTest.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include <cstring>
 
 bool QTestConfigure::enableTests(std::map<std::string, std::map<std::string, std::string> > tests,DQMStore *bei){
 	

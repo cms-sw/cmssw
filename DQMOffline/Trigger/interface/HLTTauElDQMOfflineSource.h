@@ -16,7 +16,7 @@
 #include "TDirectory.h"
 #include "TH1F.h"
 #include "TH2F.h"
-#include "HepMC/GenParticle.h"
+
 
 // DQM core
 #include "DQMServices/Core/interface/DQMStore.h"

@@ -167,28 +167,13 @@ TransverseImpactPointExtrapolator::tipSurface (const GlobalPoint& position,
   GlobalVector xLocal(vtxDirection.x()/vtxDistance,
 		      vtxDirection.y()/vtxDistance,
 		      0.);
-  if ( vtxDistance<fabs(signedTransverseRadius) ) {
-    LogDebug("TransverseImpactPointExtrapolator")<<"Inverting the x axis.";
-    xLocal = -xLocal;
-  }
+  if ( vtxDistance<fabs(signedTransverseRadius) )  xLocal = -xLocal;
   GlobalVector yLocal(0.,0.,1.);
   GlobalVector zLocal(xLocal.cross(yLocal));
   if ( zLocal.dot(momentum)<0. ) {
-    LogDebug("TransverseImpactPointExtrapolator")<<"Inverting the y,z frame.";
     yLocal = -yLocal;
     zLocal = -zLocal;
   }
   Surface::RotationType rotation(xLocal,yLocal,zLocal);
-  
-  LogDebug("TransverseImpactPointExtrapolator")<<"plane center: "<<origin<<"\n"
-					       <<"plane rotation axis:\n"
-					       <<xLocal<<"\n"
-					       <<yLocal<<"\n"
-					       <<zLocal<<"\n"
-					       <<"x0: "<<x0<<"\n"
-					       <<"t0: "<<t0<<"\n"
-					       <<"xc: "<<xc<<"\n"
-					       <<"vtxDirection: "<<vtxDirection;
-
   return PlaneBuilder().plane(origin,rotation);
 }

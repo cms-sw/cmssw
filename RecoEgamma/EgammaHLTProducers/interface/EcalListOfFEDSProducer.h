@@ -32,7 +32,6 @@ public:
 	void Jets(edm::Event& e, const edm::EventSetup& es, std::vector<int>& done, std::vector<int>& FEDs);
 
 private:
-	edm::InputTag Pi0ListToIgnore_; 
 	bool EGamma_;
 	edm::InputTag EMl1TagIsolated_;
 	edm::InputTag EMl1TagNonIsolated_;

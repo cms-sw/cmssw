@@ -1,6 +1,6 @@
 /** \class HLTElectronTrackIsolFilterRegional
  *
- * $Id: HLTElectronTrackIsolFilterRegional.cc,v 1.5 2008/04/22 17:01:17 ghezzi Exp $ 
+ * $Id: HLTElectronTrackIsolFilterRegional.cc,v 1.4 2007/12/07 09:32:56 ghezzi Exp $ 
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -31,7 +31,6 @@ HLTElectronTrackIsolFilterRegional::HLTElectronTrackIsolFilterRegional(const edm
   isoTag_ = iConfig.getParameter< edm::InputTag > ("isoTag");
   nonIsoTag_ = iConfig.getParameter< edm::InputTag > ("nonIsoTag");
   pttrackisolcut_  = iConfig.getParameter<double> ("pttrackisolcut");
-  pttrackisolOverEcut_ = iConfig.getParameter<double> ("pttrackisolOverEcut");
   ncandcut_  = iConfig.getParameter<int> ("ncandcut");
   doIsolated_ = iConfig.getParameter<bool> ("doIsolated");
 
@@ -92,7 +91,7 @@ HLTElectronTrackIsolFilterRegional::filter(edm::Event& iEvent, const edm::EventS
     // Have to make sure that something is really found ????
     float vali = mapi->val;
     //for(reco::ElectronIsolationMap::const_iterator it = depMap->begin(); it != depMap->end(); it++){
-    if(vali <= pttrackisolcut_ || vali <=  pttrackisolOverEcut_ ){
+    if(vali <= pttrackisolcut_){
       n++;
       filterproduct->addObject(TriggerElectron, eleref);
     }

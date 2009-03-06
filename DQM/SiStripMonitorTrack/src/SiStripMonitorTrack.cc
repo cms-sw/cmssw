@@ -760,8 +760,8 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster, const uint32
   // if one imposes a cut on the clusters, apply it
   const  edm::ParameterSet ps = conf_.getParameter<edm::ParameterSet>("ClusterConditions");
   if( ps.getParameter<bool>("On") &&
-      (cluster->getSignalOverNoise() < ps.getParameter<double>("minStoN") ||
-       cluster->getSignalOverNoise() > ps.getParameter<double>("maxStoN") ||
+      (cluster->getSignalOverNoiseRescaledByGain() < ps.getParameter<double>("minStoN") ||
+       cluster->getSignalOverNoiseRescaledByGain() > ps.getParameter<double>("maxStoN") ||
        cluster->getWidth() < ps.getParameter<double>("minWidth") ||
        cluster->getWidth() > ps.getParameter<double>("maxWidth")                    )) return false;
   // start of the analysis
@@ -921,8 +921,8 @@ void SiStripMonitorTrack::fillModMEs(SiStripClusterInfo* cluster,TString name,fl
 {
   std::map<TString, ModMEs>::iterator iModME  = ModMEsMap.find(name);
   if(iModME!=ModMEsMap.end()){
-    fillME(iModME->second.ClusterStoN  ,cluster->getSignalOverNoise());
-    fillME(iModME->second.ClusterStoNCorr ,cluster->getSignalOverNoise()*cos);
+    fillME(iModME->second.ClusterStoN  ,cluster->getSignalOverNoiseRescaledByGain());
+    fillME(iModME->second.ClusterStoNCorr ,cluster->getSignalOverNoiseRescaledByGain()*cos);
     fillME(iModME->second.ClusterCharge,cluster->getCharge());
     fillME(iModME->second.ClusterChargeCorr,cluster->getCharge()*cos);
     fillME(iModME->second.ClusterWidth ,cluster->getWidth());
@@ -948,17 +948,17 @@ void SiStripMonitorTrack::fillTrendMEs(SiStripClusterInfo* cluster,std::string n
   std::map<TString, LayerMEs>::iterator iLayerME  = LayerMEsMap.find(name);
   if(iLayerME!=LayerMEsMap.end()){
     if(flag=="OnTrack"){
-      fillME(iLayerME->second.ClusterStoNCorr,(cluster->getSignalOverNoise())*cos);
-      fillTrend(iLayerME->second.ClusterStoNCorrTrend,(cluster->getSignalOverNoise())*cos);
+      fillME(iLayerME->second.ClusterStoNCorr,(cluster->getSignalOverNoiseRescaledByGain())*cos);
+      fillTrend(iLayerME->second.ClusterStoNCorrTrend,(cluster->getSignalOverNoiseRescaledByGain())*cos);
       fillME(iLayerME->second.ClusterChargeCorr,cluster->getCharge()*cos);
       fillTrend(iLayerME->second.ClusterChargeCorrTrend,cluster->getCharge()*cos);
     }
-    fillME(iLayerME->second.ClusterStoN  ,cluster->getSignalOverNoise());
-    fillTrend(iLayerME->second.ClusterStoNTrend,cluster->getSignalOverNoise());
+    fillME(iLayerME->second.ClusterStoN  ,cluster->getSignalOverNoiseRescaledByGain());
+    fillTrend(iLayerME->second.ClusterStoNTrend,cluster->getSignalOverNoiseRescaledByGain());
     fillME(iLayerME->second.ClusterCharge,cluster->getCharge());
     fillTrend(iLayerME->second.ClusterChargeTrend,cluster->getCharge());
-    fillME(iLayerME->second.ClusterNoise ,cluster->getNoise());
-    fillTrend(iLayerME->second.ClusterNoiseTrend,cluster->getNoise());
+    fillME(iLayerME->second.ClusterNoise ,cluster->getNoiseRescaledByGain());
+    fillTrend(iLayerME->second.ClusterNoiseTrend,cluster->getNoiseRescaledByGain());
     fillME(iLayerME->second.ClusterWidth ,cluster->getWidth());
     fillTrend(iLayerME->second.ClusterWidthTrend,cluster->getWidth());
     fillME(iLayerME->second.ClusterPos   ,cluster->getPosition());
@@ -1005,8 +1005,8 @@ void SiStripMonitorTrack::fillCapacitiveCouplingMEs(SiStripClusterInfo* cluster,
 	<< " in det " << cluster->getDetId()
 	<< ": Eta Function from Charge"
 	<<"\n\t\t\t Signal = " << cluster->getCharge()
-	<<"\n\t\t\t Noise  = " << cluster->getNoise()
-	<<"\n\t\t\t S/N    = " << cluster->getSignalOverNoise()
+	<<"\n\t\t\t Noise  = " << cluster->getNoiseRescaledByGain()
+	<<"\n\t\t\t S/N    = " << cluster->getSignalOverNoiseRescaledByGain()
 	<<"\n\t\t\t  Cluster Central C = " << cluster->getMaxCharge()
 	<<"\n\t\t\t  Cluster    Left L = " << cluster->getChargeLRFirstNeighbour().first
 	<<"\n\t\t\t  Cluster   Right R = " << cluster->getChargeLRFirstNeighbour().second

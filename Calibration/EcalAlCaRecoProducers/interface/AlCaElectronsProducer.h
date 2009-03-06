@@ -17,7 +17,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO
 //         Created:  Mon Jul 17 18:07:01 CEST 2006
-// $Id: AlCaElectronsProducer.h,v 1.9 2007/06/14 09:28:28 govoni Exp $
+// $Id: AlCaElectronsProducer.h,v 1.8 2007/06/01 08:35:59 govoni Exp $
 //
 //
 
@@ -83,12 +83,7 @@ class AlCaElectronsProducer : public edm::EDProducer {
   std::string alcaEndcapHitsCollection_;
   int etaSize_;
   int phiSize_;
-  float weight_;
-
-  bool selectByEleNum_;
-  int minEleNumber_;
-  double minElePt_;
-
+  
 //PG  TH2F * m_failMap ;
 
 };

@@ -25,6 +25,7 @@ elecpreid = cms.EDProducer("GoodSeedProducer",
     UseTMVA = cms.untracked.bool(True),
     TrackQuality = cms.string('highPurity'),
     MaxPt = cms.double(50.0),
+    ApplyIsolation = cms.bool(False),
     EcalStripSumE_deltaPhiOverQ_minValue = cms.double(-0.1),
     EcalStripSumE_minClusEnergy = cms.double(0.1),
     EcalStripSumE_deltaEta = cms.double(0.03),
@@ -32,7 +33,8 @@ elecpreid = cms.EDProducer("GoodSeedProducer",
     EOverPLead_minValue = cms.double(0.95),
     HOverPLead_maxValue = cms.double(0.05),
     HcalWindow=cms.double(0.184),                       
-    ClusterThreshold = cms.double(0.5)
+    ClusterThreshold = cms.double(0.5),
+    UsePreShower =cms.bool(False)                       
 )
 
 

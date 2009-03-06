@@ -112,10 +112,11 @@ protected:
 	      "  Status = " << status_ << endl;
 */
 
-      qv.code = status_ ;
+      qv.code = status_;
       qv.message = message_;
-      qv.qtname = qtname_ ;
+      qv.qtname = qtname_;
       qv.algorithm = algoName_;
+      qv.qtresult = prob_;
       qr.badChannels_ = getBadChannels();
 
       return prob_;

@@ -1,10 +1,7 @@
 #ifndef _DQMSERVICEMANAGER_H_
 #define _DQMSERVICEMANAGER_H_
 
-// $Id: DQMServiceManager.h,v 1.3 2008/06/25 18:03:22 biery Exp $
-
-#include "FWCore/ParameterSet/interface/ProcessDesc.h"
-#include "FWCore/Framework/interface/EventSelector.h"
+// $Id: DQMServiceManager.h,v 1.4 2008/06/27 14:48:44 biery Exp $
 
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/EventMessage.h"

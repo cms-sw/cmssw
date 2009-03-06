@@ -21,33 +21,29 @@
 #include "TGraph.h"
 
 //const int models=2, nEnergy0=8, nEnergy1=7, nEnergy2=10, nEnergy3=8;
-const int models=6, nEnergy0=8, nEnergy1=7, nEnergy2=10, nEnergy3=8;
-//const int models=4, nEnergy0=8, nEnergy1=7, nEnergy2=10, nEnergy3=8;
+const int models=4, nEnergy0=8, nEnergy1=7, nEnergy2=10, nEnergy3=8;
 //const int models=5, nEnergy0=8, nEnergy1=7, nEnergy2=10, nEnergy3=8;
 //std::string Models[2]      = {"Bertini", "Bertini"};
 //std::string ModelFiles[2]  = {"OldBertini", "NewBertini"};
 //std::string ModelNames[2]  = {"Bertini (Old)", "Bertini (New)"};
-std::string Models[6]      = {"LEP", "RPG", "FTF", "Bertini", "QGSP", "QGSC"};
-std::string ModelFiles[6]  = {"LEP", "RPG", "FTF", "Bertini", "QGSP", "QGSC"};
-std::string ModelNames[6]  = {"LEP", "RPG", "FTF", "Bertini", "QGSP", "QGSC"};
-//std::string Models[4]      = {"LEP", "RPG", "FTF", "Bertini"};
-//std::string ModelFiles[4]  = {"LEP", "RPG", "FTF", "Bertini"};
-//std::string ModelNames[4]  = {"LEP", "RPG", "FTF", "Bertini"};
+std::string Models[4]      = {"LEP", "RPG", "FTF", "Bertini"};
+std::string ModelFiles[4]  = {"LEP", "RPG", "FTF", "Bertini"};
+std::string ModelNames[4]  = {"LEP", "RPG", "FTF", "Bertini"};
 //std::string Models[5]      = {"LEP", "Binary", "FTFP", "QGSC", "Bertini"};
 //std::string ModelFiles[5]  = {"LEP", "Binary", "FTFP", "QGSC", "Bertini"};
 //std::string ModelNames[5]  = {"LEP", "Binary", "FTFP", "QGSC", "Bertini"};
 //std::string Models[5]      = {"LEP", "QGSP", "FTFP", "QGSC", "Bertini"};
 //std::string ModelFiles[5]  = {"LEP", "QGSP", "FTFP", "QGSC", "Bertini"};
 //std::string ModelNames[5]  = {"LEP", "QGSP", "FTFP", "QGSC", "Bertini"};
-int         colModel[6]    = {1, 2, 6, 3, 7, 9};
-int         symbModel[6]   = {24, 29, 25, 27, 26, 23};
+int         colModel[5]    = {1, 2, 6, 3, 7};
+int         symbModel[5]   = {24, 29, 25, 27, 26};
 double      keproton[4]    = {0.09, 0.15, 0.19, 0.23};
 double      keneutron[4]   = {0.07, 0.11, 0.15, 0.17};
 double      energyScan0[8] = {5.7, 6.2, 6.5, 7.0, 7.5, 8.2, 8.5, 9.0};
 double      energyScan1[7] = {6.0, 6.5, 7.0, 7.5, 8.2, 8.5, 9.0};
 double      energyScan2[10]= {1.0, 2.0, 3.0,  5.0, 6.0, 6.5,
 			      7.0, 7.5, 8.25, 9.0};
-bool        debug=true;
+bool        debug=false;
 
 void plotData(char element[2], char ene[6], char angle[6], 
 	      char beam[8]="proton", char particle[8]="neutron", int save=0) {
@@ -232,7 +228,7 @@ void plotKE(char element[2], char ene[6], char angle[6], int first=0,
 	    char dir[8]="root") {
 
   char fname[60], list[20], hname[40], titlx[50];
-  TH1F *hi[6];
+  TH1F *hi[5];
   int i=0, icol=1;
   sprintf (titlx, "Kinetic Energy of %s (GeV)", particle);
   double  ymx0=1, ymi0=100., xlow=0.06, xhigh=0.26;
@@ -339,7 +335,7 @@ void plotCT4(char element[2], char ene[6], int first=0, int scan=1, int logy=0,
     myc->SaveAs(fname);
   }
 }
- 
+
 void plotCT1(char element[2], char ene[6], double ke, int first=0, int scan=1,
 	     int logy=0, int save=0, char beam[8]="proton", 
 	     char particle[8]="proton", char dir[8]="root") {
@@ -369,7 +365,7 @@ void plotCT(char element[2], char ene[6], double ke, int first=0, int scan=1,
   if (debug) std::cout << " gives " << nn << " angles\n";
 
   char fname[40], list[20], hname[40];
-  TH1F *hi[6];
+  TH1F *hi[5];
   int i=0, icol=1;
   double  ymx0=1, ymi0=100., xlow=-1.0, xhigh=1.0;
   for (i=0; i<models; i++) {
@@ -649,137 +645,7 @@ void plotBE(char element[2], char angle[6], double ke, int logy=0, int scan=1,
   leg1->SetHeader(header); leg1->SetFillColor(0);
   leg1->SetTextSize(0.04);
   leg1->Draw();
-}
- 
-void plotMT4(char element[2], char ene[6], int first=0, int logy=0, int save=0,
-	     char particle[8]="piplus", double ymin=-1, char beam[8]="proton",
-	     char dir[8]="root") {
 
-  setStyle();
-  TCanvas *myc = new TCanvas("myc","",800,600); myc->Divide(2,2);
-
-  myc->cd(1); if (logy != 0) gPad->SetLogy(1); gPad->SetLeftMargin(0.15);
-  plotMT(element, ene, "1.10", first, logy, particle, ymin, beam, dir);
-  myc->cd(2); if (logy != 0) gPad->SetLogy(1); gPad->SetLeftMargin(0.15);
-  plotMT(element, ene, "1.50", first, logy, particle, ymin, beam, dir);
-  myc->cd(3); if (logy != 0) gPad->SetLogy(1); gPad->SetLeftMargin(0.15);
-  plotMT(element, ene, "1.90", first, logy, particle, ymin, beam, dir);
-  myc->cd(4); if (logy != 0) gPad->SetLogy(1); gPad->SetLeftMargin(0.15);
-  plotMT(element, ene, "2.30", first, logy, particle, ymin, beam, dir);
-
-  char fname[40];
-  if (save != 0) {
-    if (save > 0) sprintf (fname, "%s%sto%sat%sGeV.eps", beam, element, particle, ene);
-    else          sprintf (fname, "%s%sto%sat%sGeV.gif", beam, element, particle, ene);
-    myc->SaveAs(fname);
-  }
-}
- 
-void plotMT1(char element[2], char ene[6], char rapid[6], int first=0, 
-	     int logy=0, int save=0, char particle[8]="piplus", double ymin=-1,
-	     char beam[8]="proton", char dir[8]="root") {
-
-  setStyle();
-  TCanvas *myc = new TCanvas("myc","",800,600); myc->SetLeftMargin(0.15);
-  if (logy != 0) gPad->SetLogy(1);
-  plotMT(element, ene, rapid, first, logy, particle, ymin, beam, dir);
-
-  char fname[40];
-  if (save != 0) {
-    if (save > 0) sprintf (fname, "%s%sto%sat%sGeVY%s.eps", beam, element, particle, ene, rapid);
-    else          sprintf (fname, "%s%sto%sat%sGeVY%s.gif", beam, element, particle, ene, rapid);
-    myc->SaveAs(fname);
-  }
-}
-
-void plotMT(char element[2], char ene[6], char rapid[6], int first=0, 
-	    int logy=0, char particle[8]="piplus", double ymin=-1,
-	    char beam[8]="proton", char dir[8]="root") {
-
-  char fname[60], list[20], hname[40], titlx[50], sym[6];
-  TH1F *hi[6];
-  int i=0, icol=1;
-  if      (particle=="piminus") sprintf(sym, "#pi^{-}");
-  else if (particle=="piplus")  sprintf(sym, "#pi^{+}");
-  else if (particle=="kminus")  sprintf(sym, "K^{-}");
-  else if (particle=="kplus")   sprintf(sym, "K^{+}");
-  else                          sprintf(sym, "p");
-  sprintf (titlx, "Reduced m_{T} (GeV)");
-  double  ymx0=1, ymi0=100., xlow=0.1, xhigh=1.6;
-  for (i=0; i<models; i++) {
-    sprintf (list, "%s", ModelFiles[i].c_str()); 
-    sprintf (fname, "%s/%s/%s/%s%s%sGeV_1.root", dir, beam, particle, element, list, ene);
-    sprintf (list, "%s", Models[i].c_str()); icol = colModel[i];
-    sprintf (hname, "KE0%s%s%sGeVy%s", element, list, ene, rapid);
-    TFile *file = new TFile(fname);
-    hi[i] = (TH1F*) file->Get(hname);
-    std::cout << "Get " << hname << " from " << fname <<" as " << hi[i] <<"\n";
-    int nx = hi[i]->GetNbinsX();
-    for (int k=1; k <= nx; k++) {
-      double xx = hi[i]->GetBinCenter(k);
-      double yy = hi[i]->GetBinContent(k);
-      if (xx > xlow && xx < xhigh) {
-	if (yy > ymx0) ymx0 = yy;
-	if (yy < ymi0 && yy > 0) ymi0 = yy;
-      }
-    }
-    if (debug) std::cout << "ylimit " << ymi0 << ":" << ymx0 << "\n";
-    hi[i]->GetXaxis()->SetRangeUser(xlow, xhigh); hi[i]->SetTitle("");
-    hi[i]->GetXaxis()->SetTitle(titlx);
-    hi[i]->SetLineStyle(1);  hi[i]->SetLineWidth(2); hi[i]->SetLineColor(icol);
-    //    file->Close();
-  }
-
-  sprintf (fname, "bnl802/%s/%s/%s%sGeVRap%s.dat", beam, particle, element, ene, rapid);
-  std::cout << "Reads data from file " << fname << "\n";
-  ifstream infile;
-  infile.open(fname);
-  int     q1;
-  float   ym1, ym2, sys, x1[50], y1[50], stater1[50], syser1[50];
-  infile >> q1 >> ym1 >> ym2 >> sys;
-  for (i=0; i<q1; i++) {
-    infile >> x1[i] >> y1[i] >> stater1[i];
-    syser1[i] = sys*y1[i];
-    double err = sqrt(syser1[i]*syser1[i]+stater1[i]*stater1[i]);
-    stater1[i] = err;
-    if (y1[i]+stater1[i] > ymx0) ymx0 = y1[i]+stater1[i];    
-    if (y1[i]-stater1[i] < ymi0 && y1[i]-stater1[i] > 0) ymi0=y1[i]-stater1[i];
-    if (debug) std::cout << i << " " << x1[i] << " " << y1[i] << " " << stater1[i] << "\n";
-  }
-  TGraph*  gr1 = new TGraphErrors(q1,x1,y1,0,stater1);
-  gr1->SetMarkerColor(4);  gr1->SetMarkerStyle(22);
-  gr1->SetMarkerSize(1.6);
-
-  if (logy == 0) {ymx0 *= 1.5; ymi0 *= 0.8;}
-  else           {ymx0 *=10.0; ymi0 *= 0.2; }
-  if (ymin > 0) ymi0 = ymin;
-  for (i = 0; i<models; i++) {
-    if (debug) std::cout << "Model " << i << " " << hi[i] << " " << ymi0 << " " << ymx0 << "\n";
-    hi[i]->GetYaxis()->SetRangeUser(ymi0,ymx0);
-  }
-
-  hi[first]->GetYaxis()->SetTitleOffset(1.1);
-  hi[first]->Draw();
-  for (i=0; i<models; i++) {
-    if (i != first) hi[i]->Draw("same");
-  }
-  gr1->Draw("p");
-
-  TLegend *leg1 = new TLegend(0.42,0.70,0.90,0.90);
-  for (i=0; i<models; i++) {
-    sprintf (list, "%s", ModelNames[i].c_str()); 
-    leg1->AddEntry(hi[i],list,"F");
-  }
-  char header[120], beamx[8], partx[2];
-  if      (beam == "piplus")  sprintf (beamx, "#pi^{+}");
-  else if (beam == "piminus") sprintf (beamx, "#pi^{-}");
-  else                        sprintf (beamx, "p");
-  sprintf (header,"%s+%s #rightarrow %s+X at %s GeV (y = %s)", beamx, element, sym, ene, rapid);
-  leg1->SetHeader(header); leg1->SetFillColor(0);
-  leg1->SetTextSize(0.04);
-  leg1->Draw("same");
-
-  if (debug) std::cout << "End\n";
 }
 
 void setStyle() {

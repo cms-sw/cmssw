@@ -194,10 +194,15 @@ map<string, MonitorElement*> RPCMonitorDigi::bookRegionRing(int region, int ring
   meMap[os.str()] = dbe->book1D(os.str(), os.str(),20, 0.5, 20.5);
 
   os.str("");
-  os<<"1DOccupancy_"<<ringType<<"_"<<ring;
-  if (region!=0)  meMap[os.str()] = dbe->book1D(os.str(), os.str(), 6, 0.5, 6.5);
-  else meMap[os.str()] = dbe->book1D(os.str(), os.str(), 12, 0.5, 12.5);
-  
+  os<<"1DOccupancy_"<<ringType<<"_";
+  if (region!=0){
+    ring = ring*region;
+    os<<ring;
+    meMap[os.str()] = dbe->book1D(os.str(), os.str(), 6, 0.5, 6.5);
+  }else{
+     os<<ring;
+     meMap[os.str()] = dbe->book1D(os.str(), os.str(), 12, 0.5, 12.5);
+  }
 
   os.str("");
   os<<"BxDistribution_"<<ringType<<"_"<<ring;

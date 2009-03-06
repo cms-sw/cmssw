@@ -723,6 +723,10 @@ void SiStripRawToDigiUnpacker::triggerFed( const FEDRawDataCollection& buffers,
 //------------------------------------------------------------------------------
 /** 
     Removes any data appended prior to FED buffer and reorders 32-bit words if swapped.
+    Pattern matches to find DAQ header:
+    DAQ header,  4 MSB, BEO1, with value 0x5
+    DAQ header,  4 LSB, Hx$$, with value 0x8 (or 0x0)
+    DAQ trailer, 4 MSB, EOE,  with value 0xA
 */
 void SiStripRawToDigiUnpacker::locateStartOfFedBuffer( const uint16_t& fed_id,
 						       const FEDRawData& input,
@@ -752,12 +756,10 @@ void SiStripRawToDigiUnpacker::locateStartOfFedBuffer( const uint16_t& fed_id,
 
     /*
 
-      Some info on FED buffer 32-bit word swapping. 
+      Some info on FED buffer 32-bit word swapping. Table below
+      indicates if data are swapped relative to "old" VME format (as
+      orignally expected by Fed9UEvent)
 
-      Table below indicates if data are swapped relative to the "old"
-      VME format (as originally expected by the Fed9UEvent class).
-
-      -------------------------------------------
       | SWAPPED?    |         DATA FORMAT       |
       | (wrt "OLD") | OLD (0xED)  | NEW (0xC5)  |
       |             | VME | SLINK | VME | SLINK |
@@ -766,31 +768,14 @@ void SiStripRawToDigiUnpacker::locateStartOfFedBuffer( const uint16_t& fed_id,
       | TRK HEADER  |  N  |   Y   |  N  |   N   |
       | PAYLOAD     |  N  |   Y   |  N  |   N   |
       | DAQ TRAILER |  N  |   Y   |  Y  |   Y   |
-      -------------------------------------------
 
       So, in code, we check in code order of bytes in DAQ header/trailer only:
       -> if "old_vme_header",           then old format read out via vme, so do nothing.
-      -> else if "old_slink_header",    then data may be wrapped, so check additionally the TRK header:
-      ---> if "old_slink_payload",       then old format read out via slink, so swap all data;
-      ---> else if "new_buffer_format",  then new format, handled internally by Fed9UEvent, so do nothing.
-      
-      Pattern matching to find DAQ and tracker headers, and DAQ trailer:
-      DAQ header,  4 bits, in field  |BOE_1|      with value 0x5
-      DAQ trailer, 4 bits, in field  |EOE_1|      with value 0xA
-      TRK header,  8 bits, in field  |Hdr format| with value 0xED or 0xC5
+      -> else if "old_slink_header",    then data mapy be wwapped, so check additionally the TRK header:
+      --> if "old_slink_payload",       then old format read out via slink, so swap all data;
+      --> else if "new_buffer_format",  then new format, handled internally by Fed9UEvent, so do nothing.
 
-      -------------------------------------------------------------------------------------------
-      | SWAPPED?    |                                 DATA FORMAT                               |
-      | (wrt "OLD") |               OLD (0xED)            |               NEW (0xC5)            |
-      |             |       VME        |      SLINK       |       VME        |      SLINK       |
-      -------------------------------------------------------------------------------------------
-      | DAQ HEADER  | ........5....... | 5............... | 5............... | 5............... |
-      | TRK HEADER  | ........ED...... | ED.............. | ........C5...... | ........C5...... |
-      | PAYLOAD     | ..........EA.... | ..EA............ | ..EA............ | ............EA.. | 
-      | DAQ TRAILER | ........A....... | A............... | A............... | A............... |
-      -------------------------------------------------------------------------------------------
-      
-    */
+     */
     
     bool old_vme_header = 
       ( input_u32[0]    & 0xF0000000 ) == 0x50000000 &&
@@ -801,7 +786,7 @@ void SiStripRawToDigiUnpacker::locateStartOfFedBuffer( const uint16_t& fed_id,
       ( input_u32[1]    & 0xF0000000 ) == 0x50000000 &&
       ( fed_trailer[1]  & 0xF0000000 ) == 0xA0000000 &&
       ( (fed_trailer[1] & 0x00FFFFFF)*0x8 ) == (input.size() - offset);
-    
+
     bool old_slink_payload = ( input_u32[3] & 0xFF000000 ) == 0xED000000;
     
     bool new_buffer_format = ( input_u32[2] & 0xFF000000 ) == 0xC5000000;

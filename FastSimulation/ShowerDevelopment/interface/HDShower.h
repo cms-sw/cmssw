@@ -38,6 +38,8 @@ class HDShower
 	   int onECAL, 
 	   double epart);
 
+  int getmip() {return mip;}
+
   virtual ~HDShower() {;}
 
   /// Compute the shower longitudinal and lateral development
@@ -91,6 +93,9 @@ class HDShower
 
   // OnECAL flag as an input parameter ... 
   int onEcal;
+
+  // MIP in ECAL map flag
+  int mip;
 
   // Input energy to distribute
   double e;

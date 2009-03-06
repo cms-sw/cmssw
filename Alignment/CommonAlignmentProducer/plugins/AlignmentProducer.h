@@ -7,16 +7,15 @@
 /// Description : calls alignment algorithms
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.10 $
-///  last update: $Date: 2008/02/25 17:47:58 $
-///  by         : $Author: flucke $
+///  Revision   : $Revision: 1.9 $
+///  last update: $Date: 2008/02/20 08:59:36 $
+///  by         : $Author: pivarski $
 
 #include <vector>
 
 // Framework
 #include "FWCore/Framework/interface/ESProducerLooper.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ESWatcher.h"
 
 // Geometry
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -30,14 +29,6 @@
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 #include <FWCore/Framework/interface/Frameworkfwd.h> 
 #include "CondFormats/Alignment/interface/Alignments.h"
-
-// for watcher
-#include "CondFormats/AlignmentRecord/interface/TrackerSurveyRcd.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerSurveyErrorRcd.h"
-#include "CondFormats/AlignmentRecord/interface/DTSurveyRcd.h"
-#include "CondFormats/AlignmentRecord/interface/DTSurveyErrorRcd.h"
-#include "CondFormats/AlignmentRecord/interface/CSCSurveyRcd.h"
-#include "CondFormats/AlignmentRecord/interface/CSCSurveyErrorRcd.h"
 
 
 class Alignments;
@@ -94,9 +85,6 @@ class AlignmentProducer : public edm::ESProducerLooper
   void addSurveyInfo_(
 		      Alignable*
 		      );
-	
-	/// read in survey records
-	void readInSurveyRcds( const edm::EventSetup& );
 
   // private data members
 
@@ -129,14 +117,6 @@ class AlignmentProducer : public edm::ESProducerLooper
   bool doTracker_,doMuon_;
   bool useSurvey_; // true to read survey info from DB
 
-	// ESWatcher
-	edm::ESWatcher<TrackerSurveyRcd> watchTkSurveyRcd_;
-	edm::ESWatcher<TrackerSurveyErrorRcd> watchTkSurveyErrRcd_;
-	edm::ESWatcher<DTSurveyRcd> watchDTSurveyRcd_;
-	edm::ESWatcher<DTSurveyErrorRcd> watchDTSurveyErrRcd_;
-	edm::ESWatcher<CSCSurveyRcd> watchCSCSurveyRcd_;
-	edm::ESWatcher<CSCSurveyErrorRcd> watchCSCSurveyErrRcd_;	
-	
 };
 
 #endif

@@ -5,7 +5,6 @@
 <use name=DataFormats/SiStripDigi>
 <use name=CalibFormats/SiStripObjects>
 <use name=CalibTracker/Records>
-<use name=CalibTracker/SiStripConnectivity>
 <use name=DQM/SiStripCommon>
 <flags EDM_PLUGIN=1>
 <export>

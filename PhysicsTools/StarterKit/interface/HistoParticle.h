@@ -50,26 +50,15 @@ namespace pat {
   class HistoParticle : public HistoGroup<Particle> {
 
   public:
-    HistoParticle(std::string dir = "particle", std::string group = "Particle",
-	      std::string pre ="p",
-	      double pt1=0, double pt2=200, double m1=0, double m2=200,
-	      TFileDirectory * parentDir=0);
-    virtual ~HistoParticle() ;
+    HistoParticle( std::string subDir );
+    virtual ~HistoParticle();
 
-    // fill a plain ol' particle:
-    virtual void fill( const Particle *particle, double weight = 1.0 );
-    virtual void fill( const Particle &particle, double weight = 1.0 ) { fill(&particle, weight); }
-
-    // fill a particle that is a shallow clone, and take kinematics from 
-    // shallow clone but detector plots from the particle itself
-    virtual void fill( const reco::ShallowClonePtrCandidate *particle, double weight = 1.0 );
-    virtual void fill( const reco::ShallowClonePtrCandidate &particle, double weight = 1.0 )
-    { fill(&particle, weight); }
+    void fill( const Particle * part, double weight = 1.0 );
+    void fill( const Particle & part, double weight = 1.0 ) { return fill(&part, weight); }
 
 
     // Clear ntuple cache
     void clearVec();
-
   };
 
 }

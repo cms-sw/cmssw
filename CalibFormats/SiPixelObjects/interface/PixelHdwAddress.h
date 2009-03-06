@@ -23,19 +23,19 @@ namespace pos{
 
     PixelHdwAddress();
 
-    PixelHdwAddress(int fecnumber,  int mfec,        int mfecchannel,
+    PixelHdwAddress(int fecnumber, int mfec, int mfecchannel,
 		    int hubaddress, int portaddress, int rocid,
-		    int fednumber,  int fedchannel,  int fedrocnumber);
+		    int fednumber, int fedchannel, int fedrocnumber);
     
 
-    unsigned int fecnumber()    const { return fecnumber_;    }
-    unsigned int mfec()         const { return mfec_;         }
-    unsigned int mfecchannel()  const { return mfecchannel_;  }
-    unsigned int hubaddress()   const { return hubaddress_;   }
-    unsigned int portaddress()  const { return portaddress_;  }
-    unsigned int rocid()        const { return rocid_;        }
-    unsigned int fednumber()    const { return fednumber_;    }
-    unsigned int fedchannel()   const { return fedchannel_;   }
+    unsigned int fecnumber() const { return fecnumber_; }
+    unsigned int mfec() const { return mfec_; }
+    unsigned int mfecchannel() const { return mfecchannel_;}
+    unsigned int hubaddress() const { return hubaddress_; }
+    unsigned int portaddress() const { return portaddress_; }
+    unsigned int rocid() const { return rocid_; }
+    unsigned int fednumber() const { return fednumber_; }
+    unsigned int fedchannel() const { return fedchannel_; }
     unsigned int fedrocnumber() const { return fedrocnumber_; }
 
 
@@ -56,8 +56,7 @@ namespace pos{
                fedchannel_   == aHdwAddress.fedchannel_ );
     }
 
-    void setAddress(std::string what, int value);                                                    // Added by Dario
-    void compare(   std::string what, bool &changed, unsigned int newValue, unsigned int &oldValue); // Added by Dario
+    void setAddress(std::string what, int value); // Added by Dario
 
   private:
 

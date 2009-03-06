@@ -54,11 +54,11 @@ namespace edm
  
     private:
       virtual bool verifyRegistry(std::string object, std::string subdet,InputTag &tag,std::string &label);
-      virtual void put(edm::Event &e,const edm::EventSetup& e);
+      virtual void put(edm::Event &e) ;
       virtual void createnewEDProduct();
-      virtual void addSignals(const edm::Event &e, const edm::EventSetup& e); 
-      virtual void doPileUp(edm::Event &e, const edm::EventSetup& e);
-      virtual void addPileups(const int bcr, edm::Event*,unsigned int EventId,unsigned int worker, const edm::EventSetup& e);
+      virtual void addSignals(const edm::Event &e); 
+      virtual void doPileUp(edm::Event &e);
+      virtual void addPileups(const int bcr, edm::Event*,unsigned int EventId,unsigned int worker);
       virtual void setEventStartInfo(const unsigned int s); // set in CF-s
       virtual void getEventStartInfo(edm::Event & e, const unsigned int s); // fill in in base class
 
@@ -69,7 +69,7 @@ namespace edm
 
       std::vector<MixingWorkerBase *> workers_;
       std::vector<std::string> wantedBranches_;
-      bool useCurrentProcessOnly_;
+
     };
 }//edm
 

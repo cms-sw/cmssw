@@ -1,5 +1,5 @@
 //
-// $Id: Jet.cc,v 1.23 2008/10/08 18:28:44 lowette Exp $
+// $Id: Jet.cc,v 1.25 2008/11/04 13:53:52 auterman Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -14,8 +14,6 @@ Jet::Jet() :
   PATObject<JetType>(JetType()),
   embeddedCaloTowers_(false),
   partonFlavour_(0), 
-  jetCorrF_(),
-  noCorrF_(1.),
   jetCharge_(0.)
 {
 }
@@ -26,8 +24,6 @@ Jet::Jet(const JetType & aJet) :
   PATObject<JetType>(aJet),
   embeddedCaloTowers_(false),
   partonFlavour_(0), 
-  jetCorrF_(),
-  noCorrF_(1.),
   jetCharge_(0.0)
 {
   tryImportSpecific(aJet);
@@ -38,8 +34,6 @@ Jet::Jet(const edm::Ptr<JetType> & aJetRef) :
   PATObject<JetType>(aJetRef),
   embeddedCaloTowers_(false),
   partonFlavour_(0), 
-  jetCorrF_(),
-  noCorrF_(1.),
   jetCharge_(0.0)
 {
   tryImportSpecific(*aJetRef);
@@ -50,8 +44,6 @@ Jet::Jet(const edm::RefToBase<JetType> & aJetRef) :
   PATObject<JetType>(aJetRef),
   embeddedCaloTowers_(false),
   partonFlavour_(0), 
-  jetCorrF_(),
-  noCorrF_(1.),
   jetCharge_(0.0)
 {
   tryImportSpecific(*aJetRef);
@@ -135,104 +127,12 @@ int Jet::partonFlavour() const {
 }
 
 
-/// return the correction factor to go to a non-calibrated jet
-JetCorrFactors Jet::jetCorrFactors() const {
-  return jetCorrF_;
-}
-
-
-/// return the original non-calibrated jet
-JetType Jet::recJet() const {
-  JetType recJet(*this);
-  recJet.setP4(noCorrF_*this->p4());
-  return recJet;
-}
-
-
-/// return the associated non-calibrated jet
-Jet Jet::noCorrJet() const {
-  Jet jet(*this);
-  jet.setP4(noCorrF_ * this->p4());
-  // fix the factor to uncalibrate for the fact that we change the scale of the actual jet
-  jet.setNoCorrFactor(1.);
-  return jet;
-}
-
-
-/// return the associated default-calibrated jet
-Jet Jet::defaultCorrJet() const {
-  Jet jet(*this);
-  jet.setP4(jetCorrF_.scaleDefault() * noCorrF_ * this->p4());
-  // fix the factor to uncalibrate for the fact that we change the scale of the actual jet
-  jet.setNoCorrFactor(1. / jetCorrF_.scaleDefault());
-  return jet;
-}
-
-
-/// return the associated uds-calibrated jet
-Jet Jet::udsCorrJet() const {
-  Jet jet(*this);
-  jet.setP4(jetCorrF_.scaleUds() * noCorrF_ * this->p4());
-  // fix the factor to uncalibrate for the fact that we change the scale of the actual jet
-  jet.setNoCorrFactor(1. / jetCorrF_.scaleUds());
-  return jet;
-}
-
-
-/// return the associated gluon-calibrated jet
-Jet Jet::gluCorrJet() const {
-  Jet jet(*this);
-  jet.setP4(jetCorrF_.scaleGlu() * noCorrF_ * this->p4());
-  // fix the factor to uncalibrate for the fact that we change the scale of the actual jet
-  jet.setNoCorrFactor(1. / jetCorrF_.scaleGlu());
-  return jet;
-}
-
-
-/// return the associated c-calibrated jet
-Jet Jet::cCorrJet() const {
-  Jet jet(*this);
-  jet.setP4(jetCorrF_.scaleC() * noCorrF_ * this->p4());
-  // fix the factor to uncalibrate for the fact that we change the scale of the actual jet
-  jet.setNoCorrFactor(1. / jetCorrF_.scaleC());
-  return jet;
-}
-
-
-/// return the associated b-calibrated jet
-Jet Jet::bCorrJet() const {
-  Jet jet(*this);
-  // set the corrected 4-vector
-  jet.setP4(jetCorrF_.scaleB() * noCorrF_ * this->p4());
-  // fix the factor to uncalibrate for the fact that we change the scale of the actual jet
-  jet.setNoCorrFactor(1. / jetCorrF_.scaleB());
-  return jet;
-}
-
-
-/// return the jet calibrated according to the MC flavour truth
-Jet Jet::mcFlavCorrJet() const {
-  // determine the correction factor to use depending on MC flavour truth
-  float corrF = jetCorrF_.scaleGlu(); // default, also for unidentified flavour
-  if (abs(partonFlavour_) == 1 || abs(partonFlavour_) == 2 || abs(partonFlavour_) == 3) corrF = jetCorrF_.scaleUds();
-  if (abs(partonFlavour_) == 4) corrF = jetCorrF_.scaleC();
-  if (abs(partonFlavour_) == 5) corrF = jetCorrF_.scaleB();
-  Jet jet(*this);
-  jet.setP4(corrF * noCorrF_ * this->p4());
-  // fix the factor to uncalibrate for the fact that we change the scale of the actual jet
-  jet.setNoCorrFactor(1. / corrF);
-  return jet;
-}
-
-
-/// return the jet calibrated with weights assuming W decay
-Jet Jet::wCorrJet() const {
-  Jet jet(*this);
-  // set the corrected 4-vector weighting for the c-content in W decays
-  jet.setP4((3*jetCorrF_.scaleUds() + jetCorrF_.scaleC()) / 4 * noCorrF_ * this->p4());
-  // fix the factor to uncalibrate for the fact that we change the scale of the actual jet
-  jet.setNoCorrFactor(4. / (3*jetCorrF_.scaleUds() + jetCorrF_.scaleC()));
-  return jet;
+/// Copy of this jet with correction factor to target step, starting from jetCorrStep()
+Jet Jet::correctedJet(const std::string &step, const std::string &flavour) const {
+    Jet ret(*this);
+    ret.setP4(p4() * fabs(jetCorrFactors().correction(jetCorrFactors().corrStep(step, flavour), jetCorrStep())));
+    ret.setJetCorrStep(jetCorrFactors().corrStep(step, flavour));
+    return ret;
 }
 
 
@@ -338,13 +238,13 @@ void Jet::setPartonFlavour(int partonFl) {
 
 /// method to set the energy scale correction factors
 void Jet::setJetCorrFactors(const JetCorrFactors & jetCorrF) {
-  jetCorrF_ = jetCorrF;
+  jetEnergyCorrections_.clear();
+  jetEnergyCorrections_.push_back(jetCorrF);
 }
 
-
-/// method to set correction factor to go back to an uncorrected jet
-void Jet::setNoCorrFactor(float noCorrF) {
-  noCorrF_ = noCorrF;
+/// method to set the energy scale correction factors
+void Jet::setJetCorrStep(JetCorrFactors::CorrStep step) {
+  jetEnergyCorrectionStep_ = step;
 }
 
 /// method to add a algolabel-discriminator pair
@@ -357,32 +257,3 @@ void Jet::setJetCharge(float jetCharge) {
   jetCharge_ = jetCharge;
 }
 
-/// correction factor from correction type
-float
-Jet::correctionFactor (CorrectionType type) const
-{
-  switch ( type ) {
-  case NoCorrection :      return noCorrF_;
-  case DefaultCorrection : return jetCorrF_.scaleDefault();
-  case udsCorrection :     return jetCorrF_.scaleUds();
-  case cCorrection :       return jetCorrF_.scaleC();
-  case bCorrection :       return jetCorrF_.scaleB();
-  case gCorrection :       return jetCorrF_.scaleGlu();
-  default :                return jetCorrF_.scaleDefault();
-  }
-}
-
-/// auxiliary method to convert a string to a correction type enum
-Jet::CorrectionType
-Jet::correctionType (const std::string& correctionName) 
-{
-  for ( unsigned int i=0; i<NrOfCorrections; ++i ) {
-    if ( correctionName == correctionNames_[i] )  
-      return static_cast<CorrectionType>(i);
-  }
-  // No MessageLogger in DataFormats 
-  throw cms::Exception("pat::Jet") << "Unknown correction type '" << correctionName << "' ";
-}
-
-const std::string pat::Jet::correctionNames_[] = { "none", "default", 
-						   "uds", "c", "b", "g" };

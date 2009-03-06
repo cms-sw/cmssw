@@ -27,10 +27,14 @@ particleFlowSimParticle = cms.EDProducer("PFSimParticleProducer",
     # input collections ----------------------------------------
     # module label to find input sim tracks and sim vertices
     sim = cms.InputTag("g4SimHits"),
-    #Monte Carlo Truth Matching Options:
+    #Monte Carlo Truth Matching Options, only in FASTSIM!:
+    #MC Truth Matching info (only if UnFoldedMode = true in FastSim) 
+    MCTruthMatchingInfo = cms.untracked.bool(False), 
     #retrieving RecTracks
     RecTracks = cms.InputTag("elecpreid"),                                 
     #retrieving EcalRechits
     ecalRecHitsEB = cms.InputTag('caloRecHits','EcalRecHitsEB'),
-    ecalRecHitsEE = cms.InputTag('caloRecHits','EcalRecHitsEE')
- )
+    ecalRecHitsEE = cms.InputTag('caloRecHits','EcalRecHitsEE'),
+    #retrieving famos SimHits                                     
+    famosSimHits = cms.untracked.InputTag('famosSimHits','EcalHitsEB')
+)

@@ -12,7 +12,7 @@
 <use name=DataFormats/MuonDetId>
 <use name=CondFormats/CSCObjects>
 <use name=root>
-<use name=rootinteractive>
+<use name=rootcore>
 <use name=DataFormats/L1GlobalMuonTrigger>
 <use name=RecoMuon/TrackingTools>
 

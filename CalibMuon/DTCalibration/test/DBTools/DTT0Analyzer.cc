@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/01/22 19:00:30 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/09/10 10:41:29 $
+ *  $Revision: 1.5 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -34,7 +34,7 @@ DTT0Analyzer::~DTT0Analyzer(){
   theFile->Close();
 }
 
-void DTT0Analyzer::beginRun(const edm::Run&, const edm::EventSetup& eventSetup) {
+void DTT0Analyzer::beginJob(const edm::EventSetup& eventSetup) {
   //Get the t0 map from the DB
   ESHandle<DTT0> t0;
   eventSetup.get<DTT0Rcd>().get(t0);
@@ -54,16 +54,21 @@ void DTT0Analyzer::endJob() {
 		    (*tzero).first.slId,
 		    (*tzero).first.layerId,
 		    (*tzero).first.cellId);
-    float t0mean;
-    float t0rms;
-    // t0s and rms are TDC counts
-    tZeroMap->get(wireId, t0mean, t0rms, DTTimeUnits::counts);
+    float t0mean = (*tzero).second.t0mean;
+    float t0rms = (*tzero).second.t0rms;
     cout << "Wire: " <<  wireId <<endl
 	 << " T0 mean (TDC counts): " << t0mean
 	 << " T0_rms (TDC counts): " << t0rms << endl;
 
     DTLayerId layerId = wireId.layerId();
     const int nWires = dtGeom->layer(layerId)->specificTopology().channels();
+    //  const int nWires1 = dtGeom->layer(layerId)->specificTopology().firstChannel();
+    //  const int nWires2 = dtGeom->layer(layerId)->specificTopology().lastChannel();
+
+    //cout << "nWires:" << nWires <<endl;
+    //cout << "nWires1:" << nWires1 <<endl;
+    //cout << "nWires2:" << nWires2 <<endl;
+
 
 
     //Define an histo for means and an histo for sigmas for each layer

@@ -10,7 +10,7 @@
  * in addition to generic Jet parameters
  *
  * \author Fedor Ratnikov, UMd, Apr 24, 2007
-  * \version   $Id: PFJet.h,v 1.17 2008/07/27 16:22:21 cbern Exp $
+  * \version   $Id: PFJet.h,v 1.16 2008/07/24 14:51:23 cbern Exp $
  ************************************************************/
 
 
@@ -108,9 +108,10 @@ class PFJet : public Jet {
   /// Polymorphic clone
   virtual PFJet* clone () const;
 
-  /// Print object in details
+  /// Print object
   virtual std::string print () const;
 
+  friend std::ostream& operator<<(std::ostream& out, const reco::PFJet& jet);
 
  private:
   /// Polymorphic overlap
@@ -119,9 +120,6 @@ class PFJet : public Jet {
   //Variables specific to to the PFJet class
   Specific m_specific;
 };
-
-// streamer
- std::ostream& operator<<(std::ostream& out, const reco::PFJet& jet);
 }
 // temporary fix before include_checcker runs globally
 #include "DataFormats/JetReco/interface/PFJetCollection.h" //INCLUDECHECKER:SKIP 

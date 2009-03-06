@@ -5,7 +5,7 @@
 TtSemiLepSignalSel::TtSemiLepSignalSel(){}
 
 TtSemiLepSignalSel::TtSemiLepSignalSel(const std::vector<pat::Jet>& topJets, math::XYZTLorentzVector lepton, 
-                                 const edm::View<pat::MET>& MET, unsigned int nJetsMax)
+                                 const edm::View<pat::MET>& MET, unsigned int maxNJets)
 { 
 
   var_dphiMETlepton = fabs(MET.begin()->phi()-lepton.phi());
@@ -30,11 +30,11 @@ TtSemiLepSignalSel::TtSemiLepSignalSel(const std::vector<pat::Jet>& topJets, mat
   p.push_back(lep);
   //std::cout<<"lepton aus p -- px: "<<p[0].x()<<"  py: "<<p[0].y()<<"  pz: "<<p[0].z()<<std::endl;
 
-  if(topJets.size()<nJetsMax) nJetsMax = topJets.size();
+  if(topJets.size()<maxNJets) maxNJets = topJets.size();
 
-  //std::cout<<"nJetsMax: "<<nJetsMax<<std::endl;
+  //std::cout<<"maxNJets: "<<maxNJets<<std::endl;
 
-  for(unsigned int i=0; i<nJetsMax; i++) {
+  for(unsigned int i=0; i<maxNJets; i++) {
     TVector3 jet(topJets[i].px(),topJets[i].py(),topJets[i].pz());
     //std::cout<<"jet"<<i<<":  px: "<<topJets[i].px()<<"  py: "<<topJets[i].py()<<"  pz: "<<topJets[i].pz()<<std::endl;
     p.push_back(jet);
@@ -50,7 +50,7 @@ TtSemiLepSignalSel::TtSemiLepSignalSel(const std::vector<pat::Jet>& topJets, mat
 
   var_sumEt = 0.;
   var_maxEta = 0.;
-  for(unsigned int i=0; i<nJetsMax; i++) {
+  for(unsigned int i=0; i<maxNJets; i++) {
     var_sumEt += topJets[i].et();
     if(i==0) var_maxEta = fabs(topJets[i].eta());
     else if(fabs(topJets[i].eta())>var_maxEta) var_maxEta = fabs(topJets[i].eta());

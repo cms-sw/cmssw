@@ -12,7 +12,6 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -46,7 +45,7 @@ MET MuonMETAlgo::makeMET (const MET& fMet,
 
 template <class T> void MuonMETAlgo::MuonMETAlgo_run(const edm::Event& iEvent,
 						     const edm::EventSetup& iSetup, 
-						     const vector<T>& v_uncorMET,
+						     const edm::View<T>& v_uncorMET,
 						     const edm::View<Muon>& inputMuons,
 						     TrackDetectorAssociator& trackAssociator,
 						     TrackAssociatorParameters& trackAssociatorParameters,
@@ -91,8 +90,8 @@ template <class T> void MuonMETAlgo::MuonMETAlgo_run(const edm::Event& iEvent,
     muMETInfo.useAverage = useAverage;
     muMETInfo.useTkAssociatorPositions = useTrackAssociatorPositions;
     muMETInfo.useHO = useHO;
-    
-    TrackRef mu_track = mus_it->combinedMuon();
+
+    TrackRef mu_track = mus_it->globalTrack();
     TrackDetMatchInfo info = 
       trackAssociator.associate(iEvent, iSetup,
 				trackAssociator.getFreeTrajectoryState(iSetup, *mu_track),
@@ -133,12 +132,12 @@ template <class T> void MuonMETAlgo::MuonMETAlgo_run(const edm::Event& iEvent,
     
     //The tracker has better resolution for pt < 200 GeV
     math::XYZTLorentzVector mup4;
-    if(mus_it->combinedMuon()->pt() < 200) {
+    if(mus_it->globalTrack()->pt() < 200) {
       mup4 = LorentzVector(mus_it->innerTrack()->px(), mus_it->innerTrack()->py(),
 			   mus_it->innerTrack()->pz(), mus_it->innerTrack()->p());
     } else {
-      mup4 = LorentzVector(mus_it->combinedMuon()->px(), mus_it->combinedMuon()->py(),
-			   mus_it->combinedMuon()->pz(), mus_it->combinedMuon()->p());
+      mup4 = LorentzVector(mus_it->globalTrack()->px(), mus_it->globalTrack()->py(),
+			   mus_it->globalTrack()->pz(), mus_it->globalTrack()->p());
     }	
     
     //call function that does the work 
@@ -396,8 +395,8 @@ void MuonMETAlgo::correctMETforMuon(double& metx, double& mety, double bfield, i
 //----------------------------------------------------------------------------
 void MuonMETAlgo::run(const edm::Event& iEvent,
 		      const edm::EventSetup& iSetup,
-		      const reco::METCollection& uncorMET, 
-		      const edm::View<Muon>& Muons, 
+		      const edm::View<reco::MET>& uncorMET, 
+		      const edm::View<reco::Muon>& Muons, 
 		      TrackDetectorAssociator& trackAssociator,
 		      TrackAssociatorParameters& trackAssociatorParameters,
 		      METCollection *corMET,
@@ -417,8 +416,8 @@ void MuonMETAlgo::run(const edm::Event& iEvent,
 //----------------------------------------------------------------------------
 void MuonMETAlgo::run(const edm::Event& iEvent,
 		      const edm::EventSetup& iSetup,
-		      const reco::CaloMETCollection& uncorMET, 
-		      const edm::View<Muon>& Muons,
+		      const edm::View<reco::CaloMET>& uncorMET, 
+		      const edm::View<reco::Muon>& Muons,
 		      TrackDetectorAssociator& trackAssociator,
 		      TrackAssociatorParameters& trackAssociatorParameters,
 		      CaloMETCollection *corMET,

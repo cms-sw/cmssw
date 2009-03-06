@@ -1,7 +1,6 @@
 1) execute command:
 
-cmsRun runFP420_cfg.py
-(cmsRun runFP420.cfg  )
+cmsRun runFP420.cfg  
 
 the simfp420event.root and
 TheAnalysis.root will be produced 
@@ -12,7 +11,11 @@ gv z1.ps
 
 
 2) execute command:
-cmsRun runHecMB_cfg.py
-(cmsRun runHecMB.cfg)
+cmsRun runHecMB.cfg
+
+WARNING: with MinBias generator there is an Exception: 
+"PDTRecord" record found in the EventSetup, therefore 
+use more relevant generator to produce response 
+somewhere in any CMS detector
 
 the HecMBEvent.root will be produced

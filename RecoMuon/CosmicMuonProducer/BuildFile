@@ -16,6 +16,7 @@
 <use name="RecoMuon/MeasurementDet">
 <use name="RecoMuon/Navigation">
 <use name="RecoMuon/TrackingTools">
+<use name="RecoMuon/GlobalTrackingTools">
 <use name="RecoMuon/TransientTrackingRecHit">
 <use name="TrackingTools/DetLayers">
 <use name="TrackingTools/GeomPropagators">

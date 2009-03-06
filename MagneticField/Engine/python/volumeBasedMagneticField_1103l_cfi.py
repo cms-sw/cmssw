@@ -24,7 +24,9 @@ VolumeBasedMagneticFieldESProducer = cms.ESProducer("VolumeBasedMagneticFieldESP
     label = cms.untracked.string(''),
     version = cms.string('grid_1103l_071212_3_8t'),
     debugBuilder = cms.untracked.bool(False),
-    cacheLastVolume = cms.untracked.bool(True)
+    cacheLastVolume = cms.untracked.bool(True),
+    scalingVolumes = cms.vint32(),
+    scalingFactors = cms.vdouble()
 )
 
 

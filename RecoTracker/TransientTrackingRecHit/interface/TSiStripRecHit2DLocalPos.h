@@ -7,7 +7,6 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/HelpertRecHit2DLocalPos.h"
 #include "DataFormats/Common/interface/RefGetter.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class TSiStripRecHit2DLocalPos : public TransientTrackingRecHit{
 public:
@@ -88,26 +87,8 @@ private:
   TSiStripRecHit2DLocalPos (const GeomDet * geom, const SiStripRecHit2D* rh,
 			    const StripClusterParameterEstimator* cpe,
 			    float weight, float annealing) : 
-    TransientTrackingRecHit(geom, weight, annealing), theCPE(cpe) 
-    {
-      if (rh->hasPositionAndError())
-	theHitData = SiStripRecHit2D(*rh);
-      else{
-      const GeomDetUnit* gdu = dynamic_cast<const GeomDetUnit*>(geom);
-      if (gdu){
-	if (rh->cluster().isNonnull()){
-	  StripClusterParameterEstimator::LocalValues lval= theCPE->localParameters(*rh->cluster(), *gdu);
-	  theHitData = SiStripRecHit2D(lval.first, lval.second, geom->geographicalId(),rh->cluster());
-	}else{
-	  StripClusterParameterEstimator::LocalValues lval= theCPE->localParameters(*rh->cluster_regional(), *gdu);
-	  theHitData = SiStripRecHit2D(lval.first, lval.second, geom->geographicalId(),rh->cluster_regional());
-	}
-      }else{
-	edm::LogError("TSiStripRecHit2DLocalPos")<<" geomdet does not cast into geomdet unit. cannot create strip local parameters.";
-	theHitData = SiStripRecHit2D(*rh);
-      }
-      }
-    }
+    TransientTrackingRecHit(geom, weight, annealing), theHitData(*rh), theCPE(cpe) 
+  {}
 
   /// Creates the TrackingRecHit internally, avoids redundent cloning
   TSiStripRecHit2DLocalPos( const LocalPoint& pos, const LocalError& err,

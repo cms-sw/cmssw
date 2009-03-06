@@ -69,5 +69,5 @@ l1CaloScales.L1CaloJetThresholds = cms.vdouble(
     120.0, 122.0, 124.0, 126.0)
 
 # GCT HF ring sum scale
-L1GctConfigProducers.HfLutThresholds = cms.vuint32(8, 12, 16, 24, 200, 800, 2000) 
+L1GctConfigProducers.HfLutEtSumThresholds = cms.vuint32(8, 12, 16, 24, 200, 800, 2000)
 

@@ -41,6 +41,7 @@ public :
   const TVector3* getu2(){ return &_u2; }
   const TVector3* getu3()  { return &_u3; }
 
+  TString getInfoString();
   virtual void print(); 
   virtual void reset();
 

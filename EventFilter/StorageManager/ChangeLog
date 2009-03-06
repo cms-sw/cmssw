@@ -1,3 +1,30 @@
+2008-12-01  Kurt Biery <biery@fnal.gov>
+
+	* tag V04-02-00
+	* Moved the collection of INIT message fragments from the
+	  SMFUSender* classes to the FragmentCollector.
+	* Improved fragment collection - allowed fragments out of order,
+	  checked for duplicate fragments, checked for incomplete events.
+	* Modified the DQM archive filenames to better match the format
+	  used by the online consumers.
+	* Added support for reconfigurations between runs.
+	* Brought forward the additional event statistics from Harry.
+	* Included the fix for the spurious discard messages sent to the
+	  resource broker.
+	* Added sample Python configuration files to test subdirectory.
+
+2008-11-21  Kurt Biery <biery@fnal.gov>
+
+	* tag V04-01-01
+	* Added a necessary call to the state machine findRcmsStateListener
+	  method in StorageManager.cc after the RCMS parameters are added
+	  to the application infospace.
+
+2008-11-26  Peter Elmer <Peter.Elmer@cern.ch>
+
+	* tag V04-01-00-01
+	* Removed Foundation/SealBase dependence in test area BuildFile.
+
 2008-10-24  Constantin Loizides <loizides@mit.edu>
 
 	* tag V04-01-00

@@ -1,4 +1,4 @@
-# last update: $Date: 2008/06/20 14:13:40 $ by $Author: flucke $
+# last update: $Date: 2008/07/25 11:56:56 $ by $Author: emiglior $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,10 +9,11 @@ OutALCARECOTkAlCosmicsHLT = cms.PSet(
             'pathALCARECOTkAlCosmicsCosmicTFHLT', 
             'pathALCARECOTkAlCosmicsRSHLT')
     ),
-    outputCommands = cms.untracked.vstring('drop *', 
-        'keep *_ALCARECOTkAlCosmics*_*_*', 
-        'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*', # for cosmics keep also L1
-        'keep Si*Cluster*_*_*_*', # for cosmics keep also clusters
-        'keep *_MEtoEDMConverter_*_*')
+    outputCommands = cms.untracked.vstring()
 )
+
+# We have the same producers as in the non-HLT path, just HLT sel. in front,
+# ==> identical keep statements:
+import Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmics_Output_cff
+OutALCARECOTkAlCosmicsHLT.outputCommands = Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmics_Output_cff.OutALCARECOTkAlCosmics.outputCommands
 

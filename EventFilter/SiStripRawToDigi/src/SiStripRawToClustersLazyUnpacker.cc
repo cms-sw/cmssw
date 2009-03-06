@@ -1,10 +1,6 @@
 #include "EventFilter/SiStripRawToDigi/interface/SiStripRawToClustersLazyUnpacker.h"
-
-//Data Formats
 #include <sstream>
 #include <iostream>
-
-//stl
 
 using namespace sistrip;
 
@@ -14,22 +10,17 @@ SiStripRawToClustersLazyUnpacker::SiStripRawToClustersLazyUnpacker(const SiStrip
   regions_(&(regioncabling.getRegionCabling())),
   clusterizer_(&clustfact),
   fedEvents_(),
+  fedModes_(),
   rawToDigi_(0,0,0,0,0)
 
 {
-#ifdef USE_FED9U_EVENT_STREAMLINE
-  fedEvents_.assign(1024,static_cast<Fed9U::Fed9UEventStreamLine*>(0));
-#else
   fedEvents_.assign(1024,static_cast<Fed9U::Fed9UEvent*>(0));
-#endif
+  fedModes_.assign(1024,sistrip::UNDEFINED_FED_READOUT_MODE);
 }
 
 SiStripRawToClustersLazyUnpacker::~SiStripRawToClustersLazyUnpacker() {
-#ifdef USE_FED9U_EVENT_STREAMLINE
-  std::vector< Fed9U::Fed9UEventStreamLine*>::iterator ifedevent = fedEvents_.begin();
-#else
+  
   std::vector< Fed9U::Fed9UEvent*>::iterator ifedevent = fedEvents_.begin();
-#endif
   for (; ifedevent!=fedEvents_.end(); ifedevent++) {
     if (*ifedevent) {
       delete (*ifedevent);
@@ -40,35 +31,35 @@ SiStripRawToClustersLazyUnpacker::~SiStripRawToClustersLazyUnpacker() {
 
 void SiStripRawToClustersLazyUnpacker::fill(const uint32_t& index, record_type& record) {
 
-  //Get region, subdet and layer from element-index
+  // Get region, subdet and layer from element-index
   uint32_t region = SiStripRegionCabling::region(index);
   uint32_t subdet = static_cast<uint32_t>(SiStripRegionCabling::subdet(index));
   uint32_t layer = SiStripRegionCabling::layer(index);
  
-  //Retrieve cabling for element
+  // Retrieve cabling for element
   const SiStripRegionCabling::ElementCabling& element = (*regions_)[region][subdet][layer];
   
-  //Loop dets
+  // Loop dets
   SiStripRegionCabling::ElementCabling::const_iterator idet = element.begin();
   for (;idet!=element.end();idet++) {
     
-    //If det id is null or invalid continue.
+    // If det id is null or invalid continue.
     if ( !(idet->first) || (idet->first == sistrip::invalid32_) ) { continue; }
     
-    //Loop over apv-pairs of det
+    // Loop over apv-pairs of det
     std::vector<FedChannelConnection>::const_iterator iconn = idet->second.begin();
     for (;iconn!=idet->second.end();iconn++) {
       
-      //If fed id is null or connection is invalid continue
+      // If fed id is null or connection is invalid continue
       if ( !iconn->fedId() || !iconn->isConnected() ) { continue; }    
       
-      //If Fed hasnt already been initialised, extract data and initialise
+      // If Fed hasnt already been initialised, extract data and initialise
       if (!fedEvents_[iconn->fedId()]) {
 	
 	// Retrieve FED raw data for given FED
 	const FEDRawData& input = raw_->FEDData( static_cast<int>(iconn->fedId()) );
 	
-	//@@ TEMP FIX DUE TO FED SW AND DAQ INCOMPATIBLE FORMATS (32-BIT WORD SWAPPED)
+	// @@ TEMP FIX DUE TO FED SW AND DAQ INCOMPATIBLE FORMATS (32-BIT WORD SWAPPED)
 	FEDRawData& temp = const_cast<FEDRawData&>( input ); 
 	FEDRawData output;
 	rawToDigi_.locateStartOfFedBuffer( iconn->fedId(), temp, output );
@@ -106,74 +97,48 @@ void SiStripRawToClustersLazyUnpacker::fill(const uint32_t& index, record_type& 
 	
 	// Construct Fed9UEvent using present FED buffer
 	try {
-#ifdef USE_FED9U_EVENT_STREAMLINE
-          fedEvents_[iconn->fedId()] = new Fed9U::Fed9UEventStreamLine(data_u32,0);
-#else
 	  fedEvents_[iconn->fedId()] = new Fed9U::Fed9UEvent(data_u32,0,size_u32);
-#endif
 	} catch(...) { 
 	  rawToDigi_.handleException( __func__, "Problem when constructing Fed9UEvent" ); 
 	  if ( fedEvents_[iconn->fedId()] ) { delete fedEvents_[iconn->fedId()]; }
 	  fedEvents_[iconn->fedId()] = 0;
+	  fedModes_[iconn->fedId()] = sistrip::UNDEFINED_FED_READOUT_MODE;
 	  continue;
 	}
 	
 	/*
-	//Check Fed9UEvent
-	try {
-	//fedEvents_[iconn->fedId()]->checkEvent(); 
-	} catch(...) { rawToDigi_.handleException( __func__, "Problem when checking Fed9UEventStreamLine" ); }
+	// Check Fed9UEvent
+	try {fedEvents_[iconn->fedId()]->checkEvent();} 
+	catch(...) {rawToDigi_.handleException( __func__, "Problem when checking Fed9UEventStreamLine" );}
 	*/
 	
-	/*
 	// Retrieve readout mode
-	sistrip::FedReadoutMode mode = sistrip::UNDEFINED_FED_READOUT_MODE;
-	try {
-	mode = rawToDigi_.fedReadoutMode( static_cast<unsigned int>( fedEvents_[iconn->fedId()]->getSpecialTrackerEventType() ) );
-	} catch(...) { rawToDigi_.handleException( __func__, "Problem extracting readout mode from Fed9UEvent" ); } 
-	
-	if ( mode != sistrip::ZERO_SUPPR ) { 
-	edm::LogWarning(sistrip::mlRawToCluster_)
-	<< "[SiStripRawClustersLazyGetter::" 
-	<< __func__ 
-	<< "]"
-	<< " Readout mode for FED id " 
-	<< iconn->fedId()
-	<< " not zero suppressed.";
-	continue;
-	}
-	*/
-	
-	/*
-	// Dump of FEDRawData to stdout
-	if ( dumpFrequency_ && !(event.id().event()%dumpFrequency_) ) {
-	stringstream ss;
-	rawToDigi_.dumpRawData( fed_id, input, ss );
-	LogTrace(mlRawToDigi_) << ss.str();
-	}
-	*/
+	try {fedModes_[iconn->fedId()] = rawToDigi_.fedReadoutMode( static_cast<unsigned int>( fedEvents_[iconn->fedId()]->getSpecialTrackerEventType() ) );} 
+	catch(...) {rawToDigi_.handleException( __func__, "Problem extracting readout mode from Fed9UEvent" );} 
       }
       
-      //Calculate corresponding FED unit, channel
-      uint16_t iunit = 0;
-      uint16_t ichan = 0;
-      uint16_t chan = 0;
+      // Check readout mode is ZERO_SUPPRESSED or ZERO_SUPPRESSED_LITE
+      if (fedModes_[iconn->fedId()] != sistrip::FED_ZERO_SUPPR && fedModes_[iconn->fedId()] != sistrip::FED_ZERO_SUPPR_LITE) { 
+	edm::LogWarning(sistrip::mlRawToCluster_)
+	  << "[SiStripRawClustersLazyGetter::" 
+	  << __func__ 
+	  << "]"
+	  << " Readout mode for FED id " 
+	  << iconn->fedId()
+	  << " not zero-suppressed or zero-suppressed lite.";
+	continue;
+      }
+      
+      // Calculate corresponding FED unit, channel
+      uint16_t iunit = 0, ichan = 0, chan = 0;
       try {
 	Fed9U::Fed9UAddress addr;
-	addr.setFedChannel( static_cast<unsigned char>( iconn->fedCh() ) );
-#ifdef USE_FED9U_EVENT_STREAMLINE
-        iunit = addr.getExternalFedFeUnit();
-        ichan = addr.getExternalFeUnitChannel();
-#else
-        //0-7 (internal)
-	iunit = addr.getFedFeUnit();/*getExternalFedFeUnit() for StreamLine*/
-	//0-11 (internal)
-	ichan = addr.getFeUnitChannel();/*getExternalFeUnitChannel()*/
-#endif
-	//0-95 (internal)
-	chan = 12*( iunit ) + ichan;
+	addr.setFedChannel( static_cast<unsigned char>(iconn->fedCh()));
+	iunit = addr.getFedFeUnit(); //0-7 (internal)
+	ichan = addr.getFeUnitChannel(); //0-11 (internal)
+	chan = 12*( iunit ) + ichan; //0-95 (internal)
       } catch(...) { 
-	rawToDigi_.handleException( __func__, "Problem using Fed9UAddress" ); 
+	rawToDigi_.handleException(__func__, "Problem using Fed9UAddress"); 
       } 
       
       try {
@@ -181,41 +146,15 @@ void SiStripRawToClustersLazyUnpacker::fill(const uint32_t& index, record_type& 
 	uint16_t last_strip = 0;
 	uint16_t strips = 256 * iconn->nApvPairs();
 #endif
-#ifdef USE_FED9U_EVENT_STREAMLINE
-        const Fed9U::Fed9USu8& samples = fedEvents_[iconn->fedId()]->getFeUnit(iunit).getSampleSpecialPointer(ichan,0);
-        Fed9U::u32 len = fedEvents_[iconn->fedId()]->getFeUnit(iunit).getChannelDataLength(ichan)-7;
-        Fed9U::u32 i=0;
-        while (i < len) {
-          uint16_t first_strip = iconn->apvPairNumber()*256 + samples[i++];
-          unsigned char width = samples[i++];
-          for ( uint16_t istr = 0; istr < ((uint16_t)width); istr++) {
-	    uint16_t strip = first_strip + istr;
-#ifdef USE_PATCH_TO_CATCH_CORRUPT_FED_DATA
-	    if ( !( strip < strips && ( !strip || strip > last_strip ) ) ) { // check for corrupt FED data
-	      if ( edm::isDebugEnabled() ) {
-		std::stringstream ss;
-		ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
-		   << " Corrupt FED data found for FED id " << iconn->fedId()
-		   << " and channel " << iconn->fedCh()
-		   << "!  present strip: " << strip
-		   << "  last strip: " << last_strip
-		   << "  detector strips: " << strips;
-		edm::LogWarning(mlRawToDigi_) << ss.str();
-		}
-	      continue; 
-	    } 
-	    last_strip = strip;
-#endif
-            clusterizer_->algorithm()->add(record,idet->first,strip,(samples[i++]));
-          }
-        }
-#else
+	
 	Fed9U::Fed9UEventIterator fed_iter = const_cast<Fed9U::Fed9UEventChannel&>(fedEvents_[iconn->fedId()]->channel( iunit, ichan )).getIterator();
-	for (Fed9U::Fed9UEventIterator i = fed_iter+7; i.size() > 0;) {
+	Fed9U::Fed9UEventIterator i = fed_iter+(fedModes_[iconn->fedId()] == sistrip::FED_ZERO_SUPPR ? 7 : 2);
+	for (;i.size() > 0;) {
 	  uint16_t first_strip = iconn->apvPairNumber()*256 + *i++;
 	  unsigned char width = *i++; 
 	  for ( uint16_t istr = 0; istr < ((uint16_t)width); istr++) {
 	    uint16_t strip = first_strip + istr;
+
 #ifdef USE_PATCH_TO_CATCH_CORRUPT_FED_DATA
 	    if ( !( strip < strips && ( !strip || strip > last_strip ) ) ) { // check for corrupt FED data
 	      if ( edm::isDebugEnabled() ) {
@@ -232,13 +171,13 @@ void SiStripRawToClustersLazyUnpacker::fill(const uint32_t& index, record_type& 
 	    } 
 	    last_strip = strip;
 #endif
+
 	    clusterizer_->algorithm()->add(record,idet->first,strip,(uint16_t)(*i++));
 	  }
-	}
-#endif	
+	}	
       } catch(...) { 
 	std::stringstream sss;
-	sss << "Problem accessing ZERO_SUPPR data for FED id/ch: " 
+	sss << "Problem accessing data for FED id/ch: " 
 	    << iconn->fedId() 
 	    << "/" 
 	    << chan;

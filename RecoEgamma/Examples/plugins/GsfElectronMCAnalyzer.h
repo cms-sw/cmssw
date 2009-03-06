@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.h,v 1.2 2008/09/13 08:30:26 charlot Exp $
+// $Id: GsfElectronMCAnalyzer.h,v 1.1 2008/04/21 13:44:57 uberthon Exp $
 //
 //
   
@@ -113,12 +113,6 @@ class GsfElectronMCAnalyzer : public edm::EDAnalyzer
   TH2F *histSclEtaVsPhi_ ;
   TH1F *histSclEta_ ;
   TH1F *histSclPhi_ ;
-  TH1F *histSclSigEtaEta_ ;
-  TH1F *histSclSigIEtaIEtabarrel_ ;
-  TH1F *histSclSigIEtaIEtaendcaps_ ;
-  TH1F *histSclE1x5_ ;
-  TH1F *histSclE2x5max_ ;
-  TH1F *histSclE5x5_ ;
 
   TH1F *h_ctf_foundHits;
   TH2F *h_ctf_foundHitsVsEta;
@@ -194,14 +188,6 @@ class GsfElectronMCAnalyzer : public edm::EDAnalyzer
   TH2F *h_ele_dPhiClVsPhi_propOut;
   TH2F *h_ele_dPhiClVsPt_propOut;
   
-  TH1F *h_ele_seed_dphi2_;
-  TH2F *h_ele_seed_dphi2VsEta_;
-  TH2F *h_ele_seed_dphi2VsPt_ ;
-  TH1F *h_ele_seed_drz2_;
-  TH2F *h_ele_seed_drz2VsEta_; 
-  TH2F *h_ele_seed_drz2VsPt_; 
-  TH1F *h_ele_seed_subdet2_; 
-
   TH1F *h_ele_classes;
   TH1F *h_ele_eta;
   TH1F *h_ele_eta_golden;

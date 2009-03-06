@@ -7,6 +7,7 @@ $|=1;
 
 my $bf1=shift;
 my $bf2=shift;
+my $html=shift || 0;
 my @output=();
 
 if(!defined $bf1){die "Usage: $0 <buildfile1> <buildfile2>\n";}
@@ -15,131 +16,150 @@ if(!defined $bf2){die "Usage: $0 <buildfile1> <buildfile2>\n";}
 if(!-f $bf1){die "No such file \"$bf1\".";}
 if(!-f $bf2){die "No such file \"$bf2\".";}
 
+my $rel=`/bin/pwd`; chomp $rel; $rel=&SCRAMGenUtils::fixPath($rel);
+if ($bf1!~/^\//){$bf1=&SCRAMGenUtils::fixPath("${rel}/${bf1}");}
+if ($bf2!~/^\//){$bf2=&SCRAMGenUtils::fixPath("${rel}/${bf2}");}
+
+my $buildfile=$bf2; $buildfile=~s/^$rel\/src\///;
+
+$rel=&SCRAMGenUtils::scramReleaseTop($rel);
+&SCRAMGenUtils::init($rel);
 my $refbf1=&SCRAMGenUtils::readBuildFile($bf1);
 my $refbf2=&SCRAMGenUtils::readBuildFile($bf2);
-&cleanup($refbf1);
-&cleanup($refbf2);
+&findDiff($refbf1,$refbf2);
+exit 0;
 
-my $output1={};
-my $output2={};
-my $res1=&compare ($refbf1,$refbf2,"",$output1);
-my $res2=&compare ($refbf2,$refbf1,"",$output2);
-if($res1 && $res2){print "OK SAME Files.\n"; exit 0;}
-if(!$res1)
+sub FixToolName()
 {
-  print "Missing tags/values in $bf2 w.r.t $bf1\n";
-  &printOut($output1);
+  my $name=shift;
+  my $tool=lc($name);
+  if (-e "${rel}/.SCRAM/$ENV{SCRAM_ARCH}/timestamps/${tool}"){return $tool;}
+  return $name;
 }
-if(!$res2)
-{
-  print "Missing tags/values in $bf1 w.r.t $bf2\n";
-  &printOut($output2);
-}
-exit 1;
 
-sub printOut ()
+sub printHead()
 {
-  my $out=shift || return;
-  my $base=shift || "";
-  foreach my $k (keys %$out)
+  if ($html)
   {
-    my $v=$out->{$k};
-    if($k eq "COMPARE_BUILDFILE_ERROR_MSG"){print "$base=> $v\n";}
-    else
-    {
-      my $base1=$base;
-      if(($k ne "deps") || ($base!~/^(bin|library)\:/))
-      {
-        if($base1){$base1.=":$k";}
-        else{$base1="$k";}
-      }
-      &printOut($v,$base1);
-    }
+    print "<html><body><center><h2>Difference for $buildfile</h2></center><pre>\n";
   }
 }
 
-sub cleanup ()
-{ 
+sub printTail()
+{
+  if ($html){print "</pre></body></html>\n";}
+}
+
+sub printLine ()
+{
+  my $line=shift;
+  if ($html)
+  {
+    my $tag=shift || "";
+    if ($tag){print "<$tag>";}
+    print "$line\n";
+    if ($tag){print "</$tag>";}
+  }
+  else{print "$line\n";}
+}
+
+sub findDiff ()
+{
+  my $bf1=shift;
+  my $bf2=shift;
+  my $u1={}; my $u2={};
+  my $hasprod=0;
+  for(my $i=1;$i<=2;$i++)
+  {
+    my $u={};
+    my $bf=$bf1;
+    if ($i==2){$bf=$bf2;}
+    foreach my $type ("","bin", "library")
+    {
+      my $data={};    
+      if ($type eq ""){&getAllUse($bf,$data,$u);}
+      elsif(exists $bf->{$type})
+      {
+	foreach my $name (keys %{$bf->{$type}})
+        {
+          $hasprod=1;
+	  $data->{prodname}=$name;
+	  $data->{prodtype}=$type;
+	  &getAllUse($bf,$data,$u);
+        }
+      }
+    }
+    if ($i==1){$u1=$u;}
+    else{$u2=$u;}
+  }
+  my $diff={};
+  foreach my $t (keys %$u1)
+  {
+    foreach my $p (keys %{$u1->{$t}})
+    {
+      foreach my $u (keys %{$u1->{$t}{$p}})
+      {
+	if((exists $u2->{$t}) && (exists $u2->{$t}{$p}) && (exists $u2->{$t}{$p}{$u})){delete $u1->{$t}{$p}{$u}; delete $u2->{$t}{$p}{$u};}
+	else{$diff->{$t}{$p}{"+"}{$u}=1;}
+      }
+    }
+  }
+  foreach my $t (keys %$u2)
+  {
+    foreach my $p (keys %{$u2->{$t}})
+    {
+      foreach my $u (keys %{$u2->{$t}{$p}}){$diff->{$t}{$p}{"-"}{$u}=1;}
+    }
+  }
+  &printHead();
+  foreach my $t (sort keys %$diff)
+  {
+    foreach my $p (sort keys %{$diff->{$t}})
+    {
+      if ($hasprod)
+      {
+        if ($t eq "common"){&printLine("* Common Non-Export Section:","b");}
+        else{&printLine("* $p:","b");}
+      }
+      else{&printLine("* Non-Export Section:","b");}
+      foreach my $a (sort keys %{$diff->{$t}{$p}})
+      {
+	foreach my $u (sort keys %{$diff->{$t}{$p}{$a}})
+	{
+	  print "  $a $u\n";
+	}
+      }
+      print "\n\n";
+    }
+  }
+  &printTail();
+}
+
+sub getAllUse ()
+{
   my $bf=shift;
-  my $data=shift || {};
-  my $f=&SCRAMGenUtils::findBuildFileTag($data,$bf,"flags");
-  foreach my $a (keys %$f)
+  my $data=shift;
+  my $use=shift;
+  my $f=&findTag($data,$bf,"use");
+  my $type="common"; my $name="all";
+  if (exists $data->{prodname}){$type="prods"; $name=$data->{prodname};}
+  $use{$type}{$name}={};
+  foreach my $c (@{$f})
   {
-    foreach my $c (@{$f->{$a}})
-    {
-      foreach my $f1 (keys %{$c->{flags}})
-      {
-        my $v=$c->{flags}{$f1};
-        if(ref($v) eq "ARRAY"){foreach my $x (@$v){if(exists $x->{q}){delete $x->{q};}}}
-      }
-    }
-  }
-  if(exists $data->{prodtype}){return;}
-  foreach my $type ("bin", "library")
-  {
-    if(exists $bf->{$type})
-    {
-      foreach my $name (keys %{$bf->{$type}})
-      {
-        $data->{prodname}=$name;
-	$data->{prodtype}=$type;
-	&cleanup($bf,$data);
-      }
-    }
+    foreach my $u (keys %{$c->{use}}){$use->{$type}{$name}{&FixToolName($u)}=1;}
   }
 }
 
-sub compare ()
+sub findTag ()
 {
-  my $data1=shift || ();
-  my $data2=shift || ();
-  my $tab=shift || "";
-  my $seq=shift || {};
-  
-  my $ref1=ref($data1);
-  my $ref2=ref($data2);
-  my $res=1;
-  if ($ref1 ne $ref2){$res=0;$seq->{COMPARE_BUILDFILE_ERROR_MSG}="MISMATCH REF:\"$ref1\"!=\"$ref2\"";}
-  elsif(($ref1 eq "SCALAR") || ($ref1 eq ""))
-  {if ($data1 ne $data2){$res=0;$seq->{COMPARE_BUILDFILE_ERROR_MSG}="MISMATCH VAL:\"$data1\"!=\"$data2\"";}}
-  elsif ($ref1 eq "ARRAY")
-  {
-    my $count = scalar(@$data1);
-    for(my $i=0;$i<$count;$i++)
-    {
-      $seq->{$i}={};
-      my $x=$data1->[$i];
-      my $rx=ref($x);
-      if(($rx eq "SCALAR") || ($rx eq ""))
-      {
-        if(!&existsInArray($x,$data2)){$res=0;$seq->{$i}{COMPARE_BUILDFILE_ERROR_MSG}="MISSING VAL:\"$x\"";}
-	else{delete $seq->{$i};}
-      }
-      elsif(!&compare($data1->[$i],$data2->[$i],"$tab  ",$seq->{$i})){$res=0;}
-      else{delete $seq->{$i};}
-    }
-  }
-  else
-  {
-    foreach my $k (keys %{$data1})
-    {
-      $seq->{$k}={};
-      if(exists $data2->{$k})
-      {
-        push @output,"$tab  Checking:\"$k\"\n";
-        if (!&compare($data1->{$k},$data2->{$k},"$tab  ",$seq->{$k})){$res=0;}
-	else{delete $seq->{$k};}
-      }
-      else{$res=0;$seq->{$k}{COMPARE_BUILDFILE_ERROR_MSG}="Missing Key";}
-    }
-  }
-  return $res;
-}
-
-sub existsInArray ()
-{
-  my $val=shift;
-  my $array=shift;
-  foreach my $x (@$array){if($x eq $val){return 1;}}
-  return 0;
+  my $data=shift;
+  my $bf=shift;
+  my $tag=shift;
+  my $d=shift || [];
+  my $pt=$data->{prodtype};
+  my $pn=$data->{prodname};
+  if ($pt eq ""){if(exists $bf->{$tag}){push @{$d},$bf;}}
+  elsif((exists $bf->{$pt}) && (exists $bf->{$pt}{$pn}) && (exists $bf->{$pt}{$pn}{deps}))
+  {&findTag({},$bf->{$pt}{$pn}{deps},$tag,$d);}
+  return $d;
 }

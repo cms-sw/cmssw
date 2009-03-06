@@ -36,7 +36,7 @@ public:
 						     const Propagator& prop) const;
 
     /// Access to volume faces
-    std::vector<VolumeSide> faces() const { return theFaces; }
+    virtual const std::vector<VolumeSide>& faces() const { return theFaces; }
 
     /// Access to Iron/Air information:
     bool isIron() const { return isThisIron; }

@@ -1,4 +1,4 @@
-// $Id: TtHadEvtSolutionMaker.cc,v 1.14 2008/07/24 10:38:54 rwolf Exp $
+// $Id: TtHadEvtSolutionMaker.cc,v 1.15 2008/08/28 00:38:51 rwolf Exp $
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtHadEvtSolutionMaker.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -220,14 +220,14 @@ void TtHadEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup &
 	  jets.push_back( &jetbbar );
 	  JetPartonMatching aMatch(quarks, jets, matchingAlgo_, useMaxDist_, useDeltaR_, maxDist_);  
 	  (*evtsols)[s].setGenEvt(genEvt);   
-	  (*evtsols)[s].setMCBestSumAngles(aMatch.getSumAngles());
-	  (*evtsols)[s].setMCBestAngleHadp(aMatch.getAngleForParton(0));
-	  (*evtsols)[s].setMCBestAngleHadq(aMatch.getAngleForParton(1));
-	  (*evtsols)[s].setMCBestAngleHadb(aMatch.getAngleForParton(2));
-	  (*evtsols)[s].setMCBestAngleHadb(aMatch.getAngleForParton(2));
-	  (*evtsols)[s].setMCBestAngleHadj(aMatch.getAngleForParton(3));
-	  (*evtsols)[s].setMCBestAngleHadk(aMatch.getAngleForParton(4));
-	  (*evtsols)[s].setMCBestAngleHadbbar(aMatch.getAngleForParton(5));
+	  (*evtsols)[s].setMCBestSumAngles(aMatch.getSumDistances());
+	  (*evtsols)[s].setMCBestAngleHadp(aMatch.getDistanceForParton(0));
+	  (*evtsols)[s].setMCBestAngleHadq(aMatch.getDistanceForParton(1));
+	  (*evtsols)[s].setMCBestAngleHadb(aMatch.getDistanceForParton(2));
+	  (*evtsols)[s].setMCBestAngleHadb(aMatch.getDistanceForParton(2));
+	  (*evtsols)[s].setMCBestAngleHadj(aMatch.getDistanceForParton(3));
+	  (*evtsols)[s].setMCBestAngleHadk(aMatch.getDistanceForParton(4));
+	  (*evtsols)[s].setMCBestAngleHadbbar(aMatch.getDistanceForParton(5));
 	  
 	  // Check match - checking if two light quarks are swapped wrt matched gen particle
 	  if((aMatch.getMatchForParton(2) == 2 && aMatch.getMatchForParton(5) == 5)

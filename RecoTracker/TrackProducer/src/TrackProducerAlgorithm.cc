@@ -73,9 +73,12 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
     else ndof = ndof - 5;
     
     TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
-    LogDebug("TrackProducer") << "innertsos=" << innertsos ;
+    //    const FreeTrajectoryState & stateForProjectionToBeamLine=*innertsos.freeState();
+    const FreeTrajectoryState & stateForProjectionToBeamLine=*theTraj->closestMeasurement(GlobalPoint(bs.x0(),bs.y0(),bs.z0())).updatedState().freeState();
 
-    TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(*(innertsos.freeState()),bs);
+    LogDebug("TrackProducer") << "stateForProjectionToBeamLine=" << stateForProjectionToBeamLine;
+
+    TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(stateForProjectionToBeamLine,bs);
 
     if (tscbl.isValid()==false) {
         delete theTraj;
@@ -172,9 +175,12 @@ TrackProducerAlgorithm<reco::GsfTrack>::buildTrack (const TrajectoryFitter * the
     else ndof = ndof - 5;
    
     TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
-    LogDebug("TrackProducer") << "innertsos=" << innertsos ;
+    //    const FreeTrajectoryState & stateForProjectionToBeamLine=*innertsos.freeState();
+    const FreeTrajectoryState & stateForProjectionToBeamLine=*theTraj->closestMeasurement(GlobalPoint(bs.x0(),bs.y0(),bs.z0())).updatedState().freeState();
 
-    TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(*(innertsos.freeState()),bs);
+    LogDebug("TrackProducer") << "stateForProjectionToBeamLine=" << stateForProjectionToBeamLine;
+
+    TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(stateForProjectionToBeamLine,bs);
 
     if (tscbl.isValid()==false) {
         delete theTraj;

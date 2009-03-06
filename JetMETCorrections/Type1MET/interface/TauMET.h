@@ -1,18 +1,7 @@
 #ifndef Type1MET_TauMET_h
 #define Type1MET_TauMET_h
 
-// -*- C++ -*-
-//
-// Package:    TauMET
-// Class:      TauMET
-// 
-// class TauMET TauMET.cc TauMET.cc
-//
-// Original Author:  Chi Nhan Nguyen
-//         Created:  Mon Oct 22 15:20:51 CDT 2007
-// $Id: TauMET.h,v 1.1 2008/08/27 00:40:41 kalavase Exp $
-//
-//
+// Original Authors:  Alfredo Gurrola, Chi Nhan Nguyen
 
 // system include files
 #include <memory>
@@ -43,19 +32,24 @@ namespace cms
     virtual void endJob() ;
     
     // Input parameters
-    string _InputPFJetsLabel;
+    string _InputTausLabel;
+    string _tauType;
     string _InputCaloJetsLabel;
+    double _jetPTthreshold;
+    double _jetEMfracLimit;
     string _correctorLabel;
-    bool _UseCorrectedJets;
+    string _InputMETLabel;
+    string _metType;
     double _JetMatchDeltaR;
-
-    //std::string _InputTyp1MetLabel;
-
-    // Not used: for tau tagging
-    //std::string _InputJetTagLabel;
-    //double _TauJetDiscrMin;
-    //double _TauEtMin;
-    //double _TauAbsEtaMax;
+    double _TauMinEt;
+    double _TauEtaMax;
+    bool _UseSeedTrack;
+    double _seedTrackPt;
+    bool _UseTrackIsolation;
+    double _trackIsolationMinPt;
+    bool _UseECALIsolation;
+    double _gammaIsolationMinPt;
+    bool _UseProngStructure;
 
     TauMETAlgo _algo;
 

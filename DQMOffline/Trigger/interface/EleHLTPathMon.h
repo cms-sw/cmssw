@@ -29,11 +29,12 @@ class EleHLTPathMon {
   
 
  public:
-  EleHLTPathMon(std::string pathName):pathName_(pathName){}
+  explicit EleHLTPathMon(std::string pathName=""):pathName_(pathName){}
   ~EleHLTPathMon();
  
-  void addFilter(std::string filterName);
-  void setStdFilters();  //egamma electron triggers all have the same filter names, time saving function
+  void addFilter(const std::string& filterName);
+  void addFilters(const std::vector<std::string>& names);
+  //void setStdFilters();  //egamma electron triggers all have the same filter names, time saving function
   
   //does exactly what it says on the tin (fills all the filterMons)
   void fill(const EgHLTOffData& evtData,float weight);

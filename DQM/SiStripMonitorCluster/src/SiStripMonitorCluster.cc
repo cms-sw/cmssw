@@ -5,7 +5,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.43 2008/10/05 11:11:25 dutta Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.48 2008/11/21 19:21:47 dutta Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -87,6 +87,9 @@ SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig) :
 
   edm::ParameterSet ParametersClusterWidthProf = conf_.getParameter<edm::ParameterSet>("TProfClusterWidth");
   layerswitchclusterwidthprofon = ParametersClusterWidthProf.getParameter<bool>("layerswitchon");
+
+  edm::ParameterSet ParametersTotDigiProf = conf_.getParameter<edm::ParameterSet>("TProfTotalNumberOfClusters");
+  subdetswitchtotclusterprofon = ParametersTotDigiProf.getParameter<bool>("subdetswitchon");
 
   edm::ParameterSet ParametersDetsOn =  conf_.getParameter<edm::ParameterSet>("detectorson");
   tibon = ParametersDetsOn.getParameter<bool>("tibon");
@@ -175,12 +178,25 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es){
 
         int32_t lnumber = det_layer_pair.second;
 	std::vector<uint32_t> layerDetIds;
-        if (det_layer_pair.first == "TIB")      substructure.getTIBDetectors(SelectedDetIds,layerDetIds,lnumber,0,0,0);
-        else if (det_layer_pair.first == "TOB") substructure.getTOBDetectors(SelectedDetIds,layerDetIds,lnumber,0,0);
-        else if (det_layer_pair.first == "TID" && lnumber > 0) substructure.getTIDDetectors(SelectedDetIds,layerDetIds,2,abs(lnumber),0,0);
-        else if (det_layer_pair.first == "TID" && lnumber < 0) substructure.getTIDDetectors(SelectedDetIds,layerDetIds,1,abs(lnumber),0,0);
-        else if (det_layer_pair.first == "TEC" && lnumber > 0) substructure.getTECDetectors(SelectedDetIds,layerDetIds,2,abs(lnumber),0,0,0,0);
-        else if (det_layer_pair.first == "TEC" && lnumber < 0) substructure.getTECDetectors(SelectedDetIds,layerDetIds,1,abs(lnumber),0,0,0,0);
+        if (det_layer_pair.first == "TIB") {
+          substructure.getTIBDetectors(SelectedDetIds,layerDetIds,lnumber,0,0,0);
+          if (subdetswitchtotclusterprofon && SubDetMEsMap.find("TIB") == SubDetMEsMap.end()) createSubDetMEs("TIB");
+        } else if (det_layer_pair.first == "TOB") {
+          substructure.getTOBDetectors(SelectedDetIds,layerDetIds,lnumber,0,0);
+          if (subdetswitchtotclusterprofon && SubDetMEsMap.find("TOB") == SubDetMEsMap.end()) createSubDetMEs("TOB");
+        } else if (det_layer_pair.first == "TID" && lnumber > 0) {
+          substructure.getTIDDetectors(SelectedDetIds,layerDetIds,2,abs(lnumber),0,0);
+          if (subdetswitchtotclusterprofon && SubDetMEsMap.find("TID") == SubDetMEsMap.end()) createSubDetMEs("TID");
+        } else if (det_layer_pair.first == "TID" && lnumber < 0) {
+          substructure.getTIDDetectors(SelectedDetIds,layerDetIds,1,abs(lnumber),0,0);
+          if (subdetswitchtotclusterprofon && SubDetMEsMap.find("TID") == SubDetMEsMap.end()) createSubDetMEs("TID");
+        } else if (det_layer_pair.first == "TEC" && lnumber > 0) {
+          substructure.getTECDetectors(SelectedDetIds,layerDetIds,2,abs(lnumber),0,0,0,0);
+          if (subdetswitchtotclusterprofon && SubDetMEsMap.find("TEC") == SubDetMEsMap.end()) createSubDetMEs("TEC");
+        } else if (det_layer_pair.first == "TEC" && lnumber < 0) {
+          substructure.getTECDetectors(SelectedDetIds,layerDetIds,1,abs(lnumber),0,0,0,0);
+          if (subdetswitchtotclusterprofon && SubDetMEsMap.find("TEC") == SubDetMEsMap.end()) createSubDetMEs("TEC");
+        }
 
 	std::string label;
         getLayerLabel(detid, label);
@@ -208,6 +224,8 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
   runNb   = iEvent.id().run();
   //   eventNb = iEvent.id().event();
   eventNb++;
+  float iOrbit = iEvent.orbitNumber()/11223.0;
+
   //std::cout << " run " << iEvent.id().run() << runNb << " event " << iEvent.id().event() << eventNb << std::endl;
 
   edm::ESHandle<SiStripNoises> noiseHandle;
@@ -231,6 +249,11 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
   //if (!cluster_detsetvektor.isValid()) std::cout<<" collection not valid"<<std::endl;
   if (!cluster_detsetvektor.isValid()) return;
  
+  int nTotClusterTIB = 0;
+  int nTotClusterTOB = 0;
+  int nTotClusterTEC = 0;
+  int nTotClusterTID = 0;
+
   bool found_layer_me = false;
   for (std::map<std::string, std::vector< uint32_t > >::const_iterator iterLayer = LayerDetMap.begin();
        iterLayer != LayerDetMap.end(); iterLayer++) {
@@ -238,6 +261,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
     std::string layer_label = iterLayer->first;
     
     std::vector< uint32_t > layer_dets = iterLayer->second;
+    int ncluster_layer = 0;
     std::map<std::string, LayerMEs>::iterator iLayerME = LayerMEMap.find(layer_label);
     
     //get Layer MEs 
@@ -284,6 +308,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
       }
       if (found_layer_me && layerswitchnumclusterprofon) 
 	layer_single.LayerNumberOfClusterProfile->Fill(iDet, static_cast<float>(cluster_detset.size()));
+      ncluster_layer +=  cluster_detset.size();
       
       short total_clusterized_strips = 0;
       //
@@ -364,8 +389,23 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 	fillME(layer_single.LayerLocalOccupancy,local_occupancy);
 	if (createTrendMEs) fillTrend(layer_single.LayerLocalOccupancyTrend,local_occupancy);
       }
-    }    
+    }
+    if (layer_label.find("TIB") != std::string::npos)      nTotClusterTIB += ncluster_layer;
+    else if (layer_label.find("TOB") != std::string::npos) nTotClusterTOB += ncluster_layer;
+    else if (layer_label.find("TEC") != std::string::npos) nTotClusterTEC += ncluster_layer;        
+    else if (layer_label.find("TID") != std::string::npos) nTotClusterTID += ncluster_layer;        
   }
+  if (subdetswitchtotclusterprofon) {
+    for (std::map<std::string, MonitorElement*>::iterator it = SubDetMEsMap.begin();
+	 it != SubDetMEsMap.end(); it++) {
+      MonitorElement* me = it->second;
+      if (!me) continue;
+      if (it->first == "TIB") me->Fill(iOrbit,nTotClusterTIB);
+      else if (it->first == "TOB") me->Fill(iOrbit,nTotClusterTOB);
+      else if (it->first == "TID") me->Fill(iOrbit,nTotClusterTID);
+      else if (it->first == "TEC") me->Fill(iOrbit,nTotClusterTEC);      
+    }
+  }    
 }
 //
 // -- EndJob
@@ -373,57 +413,11 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 void SiStripMonitorCluster::endJob(void){
   bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
   std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
-  if(outputMEsInRootFile){
-
-    std::ofstream monitor_summary("monitor_cluster_summary.txt");
-    monitor_summary<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<std::endl;
-    monitor_summary<<"SiStripMonitorCluster::endJob ModuleMEMap.size()="<<ModuleMEMap.size()<<std::endl;
-
-    for(std::map<uint32_t, ModMEs>::const_iterator idet = ModuleMEMap.begin(); idet!= ModuleMEMap.end(); idet++ ){
-
-      monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"      ++++++detid  "<<idet->first<<std::endl<<std::endl;
-
-      if(moduleswitchncluson) {
-	monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"              +++ NumberOfClusters "<<(idet->second).NumberOfClusters->getEntries()<<" "<<(idet->second).NumberOfClusters->getMean()<<" "<<(idet->second).NumberOfClusters->getRMS()<<std::endl;
-      }
-
-      if(moduleswitchclusposon) {
-	monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"              +++ ClusterPosition "<<(idet->second).ClusterPosition->getEntries()<<" "<<(idet->second).ClusterPosition->getMean()<<" "<<(idet->second).ClusterPosition->getRMS()<<std::endl;
-      }
-
-      if(moduleswitchcluswidthon) {
-	monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"              +++ ClusterWidth "<<(idet->second).ClusterWidth->getEntries()<<" "<<(idet->second).ClusterWidth->getMean()<<" "<<(idet->second).ClusterWidth->getRMS()<<std::endl;
-      }
-
-      if(moduleswitchcluschargeon) {
-	monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"              +++ ClusterCharge "<<(idet->second).ClusterCharge->getEntries()<<" "<<(idet->second).ClusterCharge->getMean()<<" "<<(idet->second).ClusterCharge->getRMS()<<std::endl;
-      }
-
-      if(moduleswitchclusnoiseon) {
-	monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"              +++ ClusterNoise "<<(idet->second).ClusterNoise->getEntries()<<" "<<(idet->second).ClusterNoise->getMean()<<" "<<(idet->second).ClusterNoise->getRMS()<<std::endl;
-      }
-
-      if(moduleswitchclusstonon) {
-	monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"              +++ ClusterSignalOverNoise "<<(idet->second).ClusterSignalOverNoise->getEntries()<<" "<<(idet->second).ClusterSignalOverNoise->getMean()<<" "<<(idet->second).ClusterSignalOverNoise->getRMS()<<std::endl;
-      }
-
-      monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"              +++ ModuleLocalOccupancy "<<(idet->second).ModuleLocalOccupancy->getEntries()<<" "<<(idet->second).ModuleLocalOccupancy->getMean()<<" "<<(idet->second).ModuleLocalOccupancy->getRMS()<<std::endl;
-
-      monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"              +++ NrOfClusterizedStrips "<<(idet->second).NrOfClusterizedStrips->getEntries()<<" "<<(idet->second).NrOfClusterizedStrips->getMean()<<" "<<(idet->second).NrOfClusterizedStrips->getRMS()<<std::endl;
  
-    }
-
-    monitor_summary<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<std::endl;
-  
-    // save histos in a file
-    dqmStore_->save(outputFileName);
-    
-  }//end of if
-
+  // save histos in a file
+  if(outputMEsInRootFile) dqmStore_->save(outputFileName);
 }
-
-
-
+//
 // -- Reset MEs
 //------------------------------------------------------------------------------
 void SiStripMonitorCluster::ResetModuleMEs(uint32_t idet){
@@ -432,6 +426,7 @@ void SiStripMonitorCluster::ResetModuleMEs(uint32_t idet){
 
   if (moduleswitchncluson)            mod_me.NumberOfClusters->Reset();
   if (moduleswitchclusposon)          mod_me.ClusterPosition->Reset();
+  if (moduleswitchclusstonVsposon)    mod_me.ClusterSignalOverNoiseVsPos->Reset();
   if (moduleswitchcluswidthon)        mod_me.ClusterWidth->Reset();
   if (moduleswitchcluschargeon)       mod_me.ClusterCharge->Reset();
   if (moduleswitchclusnoiseon)        mod_me.ClusterNoise->Reset();
@@ -496,6 +491,22 @@ void SiStripMonitorCluster::createModuleMEs(ModMEs& mod_single, uint32_t detid) 
     mod_single.ClusterSignalOverNoise = bookME1D("TH1ClusterStoN", hid.c_str());
     dqmStore_->tag(mod_single.ClusterSignalOverNoise, detid);
     mod_single.ClusterSignalOverNoise->setAxisTitle("ratio of signal to noise for each cluster");
+  }
+
+  //ClusterSignalOverNoiseVsPos
+  if(moduleswitchclusstonVsposon) {
+    hid = hidmanager.createHistoId("ClusterSignalOverNoiseVsPos","det",detid);
+    Parameters =  conf_.getParameter<edm::ParameterSet>("TH1ClusterStoNVsPos");
+    mod_single.ClusterSignalOverNoiseVsPos= dqmStore_->bookProfile(hid.c_str(),hid.c_str(),
+								   Parameters.getParameter<int32_t>("Nbinx"),
+								   Parameters.getParameter<double>("xmin"),
+								   Parameters.getParameter<double>("xmax"),
+								   Parameters.getParameter<int32_t>("Nbiny"),
+								   Parameters.getParameter<double>("ymin"),
+								   Parameters.getParameter<double>("ymax")
+								   );
+    dqmStore_->tag(mod_single.ClusterSignalOverNoiseVsPos, detid);
+    mod_single.ClusterSignalOverNoiseVsPos->setAxisTitle("pos");
   }
   
   //ModuleLocalOccupancy
@@ -573,6 +584,28 @@ void SiStripMonitorCluster::createLayerMEs(std::string label, int ndets) {
 
 }
 //
+// -- Create SubDetector MEs
+//
+void SiStripMonitorCluster::createSubDetMEs(std::string label) {
+  edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TProfTotalNumberOfClusters");
+  std::string HistoName;
+  dqmStore_->cd("SiStrip/MechanicalView/"+label);
+  HistoName = "TotalNumberOfClusterProfile__" + label;
+  MonitorElement* me = dqmStore_->bookProfile(HistoName,HistoName,
+					      Parameters.getParameter<int32_t>("Nbins"),
+					      Parameters.getParameter<double>("xmin"),
+					      Parameters.getParameter<double>("xmax"),
+					      100, //that parameter should not be there !?
+					      Parameters.getParameter<double>("ymin"),
+					      Parameters.getParameter<double>("ymax"),
+					      "" );
+  if (!me) return;
+  me->setAxisTitle("Event Time (Seconds)",1);
+  if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) me->getTH1()->SetBit(TH1::kCanRebin);
+  SubDetMEsMap.insert( std::make_pair(label, me));
+}
+
+//
 // -- Fill Module Level Histograms
 //
 void SiStripMonitorCluster::fillModuleMEs(ModMEs& mod_mes, ClusterProperties& cluster) {
@@ -586,6 +619,11 @@ void SiStripMonitorCluster::fillModuleMEs(ModMEs& mod_mes, ClusterProperties& cl
   if(moduleswitchclusstonon && (mod_mes.ClusterSignalOverNoise)) {// SignalToNoise
     if (cluster.noise > 0) 
       (mod_mes.ClusterSignalOverNoise)->Fill(cluster.charge/cluster.noise);
+  }
+
+  if(moduleswitchclusstonVsposon && (mod_mes.ClusterSignalOverNoiseVsPos)) {// SignalToNoise
+    if (cluster.noise > 0) 
+      (mod_mes.ClusterSignalOverNoiseVsPos)->Fill(cluster.position,cluster.charge/cluster.noise);
   }
 
   if(moduleswitchclusnoiseon && (mod_mes.ClusterNoise))  // Noise

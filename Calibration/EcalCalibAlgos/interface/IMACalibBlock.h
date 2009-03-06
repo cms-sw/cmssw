@@ -18,10 +18,10 @@
  
     \brief element for the single ECAL block intercalibration  
 
-    $Date: 2008/02/25 17:50:28 $
-    $Revision: 1.2 $
-    $Id: IMACalibBlock.h,v 1.2 2008/02/25 17:50:28 malberti Exp $ 
-    \author $Author: malberti $
+    $Date: 2008/01/23 11:04:54 $
+    $Revision: 1.1.2.1 $
+    $Id: IMACalibBlock.h,v 1.1.2.1 2008/01/23 11:04:54 govoni Exp $ 
+    \author $Author: govoni $
 */
 class IMACalibBlock : public VEcalCalibBlock
 {
@@ -41,7 +41,7 @@ class IMACalibBlock : public VEcalCalibBlock
     //! reset the chi2 matrices
     void reset () ;
     //! solve the chi2 linear system
-    int solve (int usingBlockSolver, double min, double max) ;
+    void solve (int usingBlockSolver, double min, double max) ;
   private :
     
     //! give the size of a chi2 matrix

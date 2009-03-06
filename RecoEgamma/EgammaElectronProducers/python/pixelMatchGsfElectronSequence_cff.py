@@ -1,6 +1,9 @@
+# The following comments couldn't be translated into the new config version:
+
+# FIXME
 import FWCore.ParameterSet.Config as cms
 
-# $Id: pixelMatchGsfElectronSequence_cff.py,v 1.4 2008/07/10 10:22:47 charlot Exp $
+# $Id: pixelMatchGsfElectronSequence_cff.py,v 1.3 2008/05/19 23:54:05 rpw Exp $
 # create a sequence with all required modules and sources needed to make
 # Gsf electron sequence
 #

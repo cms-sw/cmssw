@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/09 09:38:44 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/11/06 16:57:53 $
+ *  $Revision: 1.3 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -15,6 +15,7 @@
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -100,7 +101,7 @@ void DTOfflineSummaryClients::analyze(const Event& event, const EventSetup& cont
 void DTOfflineSummaryClients::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
   
   LogVerbatim("DTDQM|DTMonitorClient|DTOfflineSummaryClients")
-    << "[DTSummaryClients]: End of LS transition, performing the DQM client operation" << endl;
+    << "[DTOfflineSummaryClients]: End of LS transition, performing the DQM client operation" << endl;
 
   // reset the monitor elements
   summaryReportMap->Reset();
@@ -109,7 +110,7 @@ void DTOfflineSummaryClients::endLuminosityBlock(LuminosityBlock const& lumiSeg,
     theSummaryContents[ii]->Reset();
   }
 
-  bool noDTData = false;
+//   bool noDTData = false;
 
   // Check if DT data in each ROS have been read out and set the SummaryContents and the ErrorSummary
   // accordignly
@@ -145,19 +146,19 @@ void DTOfflineSummaryClients::endLuminosityBlock(LuminosityBlock const& lumiSeg,
 
   // Fill the map using, at the moment, only the information from DT chamber efficiency
   // problems at a granularity smaller than the chamber are ignored
-  for(int wheel=-2; wheel<=2; wheel++){ // loop over wheels
+  for(int wheel=-2; wheel<=2; wheel++) { // loop over wheels
     // retrieve the chamber efficiency summary
     stringstream str;
-    str << "DT/01-DTChamberEfficiency/chEfficiencySummary_W" << wheel;
-    MonitorElement * wheelChEfficiencySummary =  dbe->get(str.str());
-    if(wheelChEfficiencySummary != 0) {
+    str << "DT/02-Segments/segmentSummary_W" << wheel;
+    MonitorElement * segmentWheelSummary =  dbe->get(str.str());
+    if(segmentWheelSummary != 0) {
       int nFailingChambers = 0;
-      for(int sector=1; sector<=12; sector++){ // loop over sectors
+      for(int sector=1; sector<=12; sector++) { // loop over sectors
 	for(int station = 1; station != 5; ++station) { // loop over stations
-	  double chamberStatus = wheelChEfficiencySummary->getBinContent(sector, station);
+	  double chamberStatus = segmentWheelSummary->getBinContent(sector, station);
 	  LogTrace("DTDQM|DTMonitorClient|DTOfflineSummaryClients")
 	    << "Wheel: " << wheel << " Stat: " << station << " Sect: " << sector << " status: " << chamberStatus << endl;
-	  if(chamberStatus == 1) {
+	  if(chamberStatus == 0 || chamberStatus == 1) {
 	    summaryReportMap->Fill(sector, wheel, 0.25);
 	  } else {
 	    nFailingChambers++;
@@ -171,14 +172,15 @@ void DTOfflineSummaryClients::endLuminosityBlock(LuminosityBlock const& lumiSeg,
       totalStatus += (48.-nFailingChambers)/48.;
     } else {
       efficiencyFound = false;
-      LogError("DTDQM|DTMonitorClient|DTOfflineSummaryClients")<< " Wheel Chamber Efficiency Summary not found with name: " << str.str() << endl;
+      LogWarning("DTDQM|DTMonitorClient|DTOfflineSummaryClients")
+	<< " [DTOfflineSummaryClients] Segment Summary not found with name: " << str.str() << endl;
     }
   }
 
 
   //if(efficiencyFound && !noDTData)
-  if(efficiencyFound)
-    summaryReport->Fill(totalStatus/5.);
+//   if(efficiencyFound)
+//     summaryReport->Fill(totalStatus/5.);
 
 //   cout << "-----------------------------------------------------------------------------" << endl;
 //   cout << " In the endLuminosityBlock: " << endl;

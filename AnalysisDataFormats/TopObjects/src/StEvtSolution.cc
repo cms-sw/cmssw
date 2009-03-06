@@ -1,5 +1,5 @@
 //
-// $Id: StEvtSolution.cc,v 1.9 2008/01/25 13:34:29 vadler Exp $
+// $Id: StEvtSolution.cc,v 1.10 2008/02/15 12:10:51 rwolf Exp $
 //
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -31,12 +31,14 @@ StEvtSolution::~StEvtSolution()
 //-------------------------------------------
 pat::Jet StEvtSolution::getBottom() const 
 {
+  // WARNING this is obsolete and only 
+  // kept for backwards compatibility
   if(jetCorrScheme_==1){
     //jet calibrated according to MC truth
-    return bottom_->mcFlavCorrJet();
+    return bottom_->correctedJet("HAD", "B");
   } 
   else if(jetCorrScheme_==2){
-    return bottom_->bCorrJet();
+    return bottom_->correctedJet("HAD", "B");
   }
   else{
     return *bottom_;
@@ -45,12 +47,14 @@ pat::Jet StEvtSolution::getBottom() const
 
 pat::Jet StEvtSolution::getLight() const 
 {
+  // WARNING this is obsolete and only 
+  // kept for backwards compatibility
   if(jetCorrScheme_==1){
     //jet calibrated according to MC truth
-    return light_->mcFlavCorrJet();
+    return light_->correctedJet("HAD", "UDS");
   }
   else if(jetCorrScheme_==2){
-    return light_->udsCorrJet();
+    return light_->correctedJet("HAD", "UDS");
   }
   else{
     return *light_;

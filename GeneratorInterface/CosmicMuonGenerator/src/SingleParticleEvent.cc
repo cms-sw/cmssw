@@ -119,7 +119,8 @@ void SingleParticleEvent::propagate(double ElossScaleFac, double RadiusTarget, d
   // actual propagation + energy loss
   if (HitTarget == true){
     HitTarget = false;
-    int nAir = 0; int nWall = 0; int nRock = 0;
+    //int nAir = 0; int nWall = 0; int nRock = 0; int nClay = 0; int nPlug = 0;
+    int nMat[6] = {0, 0, 0, 0, 0, 0};
     double stepSize = MinStepSize*1.; // actual step size
     double acceptR = RadiusCMS + stepSize;
     double acceptZ = Z_DistCMS + stepSize;
@@ -135,15 +136,22 @@ void SingleParticleEvent::propagate(double ElossScaleFac, double RadiusTarget, d
         continuePropagation = false;
       }
       if (continuePropagation) update(stepSize);
-      if (inAir(Vx,Vy,Vz))  ++nAir;
-      if (inWall(Vx,Vy,Vz)) ++nWall;
-      if (inRock(Vx,Vy,Vz)) ++nRock;
+
+      int Mat = inMat(Vx,Vy,Vz, PlugVx, PlugVz);
+
+      nMat[Mat]++;
     }
+
     if (HitTarget){
-      double lAir  = double(nAir) *stepSize;
-      double lWall = double(nWall)*stepSize;
-      double lRock = double(nRock)*stepSize;
-      double waterEquivalents = (lAir*RhoAir + lWall*RhoWall + lRock*RhoRock) *ElossScaleFac/10.; // [g cm^-2]
+      double lPlug = double(nMat[Plug])*stepSize;
+      double lWall = double(nMat[Wall])*stepSize;
+      double lAir = double(nMat[Air])*stepSize;
+      double lClay = double(nMat[Clay])*stepSize;
+      double lRock = double(nMat[Rock])*stepSize;      
+      //double lUnknown = double(nMat[Unknown])*stepSize;
+
+      double waterEquivalents = (lAir*RhoAir + lWall*RhoWall + lRock*RhoRock
+				 + lClay*RhoClay + lPlug*RhoPlug) *ElossScaleFac/10.; // [g cm^-2]
       subtractEloss(waterEquivalents);
       if (E < MuonMass) HitTarget = false; // muon stopped in the material around the target
     }

@@ -26,10 +26,6 @@ public:
 				  double u, double v, double w, 
 				  double step_length, double zFiber, 
 				  double Dose, int Npe_Dose);
-   
-   int                 computeNPEinPMT(G4ParticleDefinition* pDef,double pBeta,
-                                       double u, double v, double w, 
-                                       double step_length);
 
    int                 computeNPhTrapped(double pBeta, double u, double v, 
 					 double w, double step_length,

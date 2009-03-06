@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.25 2008/10/17 13:43:28 chamont Exp $
+// $Id: GsfElectronAlgo.cc,v 1.23 2008/05/21 13:10:46 uberthon Exp $
 //
 //
 
@@ -41,7 +41,6 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/Records/interface/CaloTopologyRecord.h"
 
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
@@ -57,16 +56,13 @@
 #include "TrackingTools/GsfTools/interface/MultiGaussianStateTransform.h"
 #include "TrackingTools/GsfTools/interface/MultiGaussianState1D.h"
 #include "TrackingTools/GsfTools/interface/GaussianSumUtilities1D.h"
-
 #include "RecoCaloTools/Selectors/interface/CaloConeSelector.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -85,21 +81,20 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 
-GsfElectronAlgo::GsfElectronAlgo
- ( const edm::ParameterSet& conf,
-   double maxEOverPBarrel, double maxEOverPEndcaps,
-   double minEOverPBarrel, double minEOverPEndcaps,
-   double maxDeltaEta, double maxDeltaPhi,
-   bool highPtPresel, double highPtMin,
-   bool applyEtaCorrection, bool applyAmbResolution )
- : maxEOverPBarrel_(maxEOverPBarrel), maxEOverPEndcaps_(maxEOverPEndcaps),
-   minEOverPBarrel_(minEOverPBarrel), minEOverPEndcaps_(minEOverPEndcaps),
-   maxDeltaEta_(maxDeltaEta), maxDeltaPhi_(maxDeltaPhi),
-   highPtPreselection_(highPtPresel), highPtMin_(highPtMin),
-   applyEtaCorrection_(applyEtaCorrection), applyAmbResolution_(applyAmbResolution),
-   cacheIDGeom_(0),cacheIDTopo_(0),cacheIDTDGeom_(0),cacheIDMagField_(0)
- {
-  // this is the new version allowing to configurate the algo
+GsfElectronAlgo::GsfElectronAlgo(const edm::ParameterSet& conf,
+                                               double maxEOverPBarrel, double maxEOverPEndcaps, 
+                                               double minEOverPBarrel, double minEOverPEndcaps,
+                                               double maxDeltaEta, double maxDeltaPhi, 
+					       bool highPtPresel, double highPtMin,
+   				               bool applyEtaCorrection, bool applyAmbResolution):  
+  maxEOverPBarrel_(maxEOverPBarrel), maxEOverPEndcaps_(maxEOverPEndcaps), 
+  minEOverPBarrel_(minEOverPBarrel), minEOverPEndcaps_(minEOverPEndcaps), 
+  maxDeltaEta_(maxDeltaEta), maxDeltaPhi_(maxDeltaPhi),
+  highPtPreselection_(highPtPresel), highPtMin_(highPtMin),
+  applyEtaCorrection_(applyEtaCorrection), applyAmbResolution_(applyAmbResolution),
+  cacheIDGeom_(0),cacheIDTDGeom_(0),cacheIDMagField_(0)
+{   
+ // this is the new version allowing to configurate the algo
   // interfaces still need improvement!!
   mtsTransform_ = new MultiTrajectoryStateTransform;
   geomPropBw_=0;	
@@ -110,10 +105,8 @@ GsfElectronAlgo::GsfElectronAlgo
   
   // get input collections
   hcalRecHits_ = conf.getParameter<edm::InputTag>("hcalRecHits");
-  tracks_ = conf.getParameter<edm::InputTag>("tracks");
-  ctfTracks_ = conf.getParameter<edm::InputTag>("ctfTracks");
-  reducedBarrelRecHitCollection_ = conf.getParameter<edm::InputTag>("reducedBarrelRecHitCollection") ;
-  reducedEndcapRecHitCollection_ = conf.getParameter<edm::InputTag>("reducedEndcapRecHitCollection") ;
+  tracks_ = conf.getParameter<edm::InputTag>("tracks");  
+
 }
 
 GsfElectronAlgo::~GsfElectronAlgo() {
@@ -133,7 +126,6 @@ void GsfElectronAlgo::setupES(const edm::EventSetup& es) {
     if (geomPropFw_) delete geomPropFw_;
     geomPropFw_ = new GsfPropagatorAdapter(AnalyticalPropagator(theMagField.product(), alongMomentum));
   }
-
   if (cacheIDTDGeom_!=es.get<TrackerDigiGeometryRecord>().cacheIdentifier()){
     cacheIDTDGeom_=es.get<TrackerDigiGeometryRecord>().cacheIdentifier();
     es.get<TrackerDigiGeometryRecord>().get(trackerHandle_);
@@ -143,27 +135,15 @@ void GsfElectronAlgo::setupES(const edm::EventSetup& es) {
     cacheIDGeom_=es.get<CaloGeometryRecord>().cacheIdentifier();
     es.get<CaloGeometryRecord>().get(theCaloGeom);
   }
-
-  if (cacheIDTopo_!=es.get<CaloTopologyRecord>().cacheIdentifier()){
-    cacheIDTopo_=es.get<CaloTopologyRecord>().cacheIdentifier();
-    es.get<CaloTopologyRecord>().get(theCaloTopo);
-  }
-
+  
 
 }
 
 void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
 
-  // get the input
+  // get the input 
   edm::Handle<GsfTrackCollection> tracksH;
   e.getByLabel(tracks_,tracksH);
-  edm::Handle<TrackCollection> ctfTracksH;
-  e.getByLabel(ctfTracks_, ctfTracksH);
-  edm::Handle< EcalRecHitCollection > pEBRecHits;
-  e.getByLabel( reducedBarrelRecHitCollection_, pEBRecHits );
-  edm::Handle< EcalRecHitCollection > pEERecHits;
-  e.getByLabel( reducedEndcapRecHitCollection_, pEERecHits ) ;
-
   
   // for HoE calculation
   edm::Handle<HBHERecHitCollection> hbhe;
@@ -178,9 +158,9 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
 
   // temporay array for electron before amb. solving
   std::vector<GsfElectron> tempEle;
-
+  
   // create electrons 
-  process(tracksH,ctfTracksH,pEBRecHits,pEERecHits,bsPosition,tempEle);
+  process(tracksH,bsPosition,tempEle);
 
   std::ostringstream str;
 
@@ -224,22 +204,19 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
   return;
 }
 
-void GsfElectronAlgo::process(
-  edm::Handle<GsfTrackCollection> gsfTracksH,
-  edm::Handle<TrackCollection> ctfTracksH,
-  edm::Handle<EcalRecHitCollection> reducedEBRecHits,
-  edm::Handle<EcalRecHitCollection> reducedEERecHits,
-  const math::XYZPoint & bsPosition,
-  GsfElectronCollection & outEle )
- {
-  const GsfTrackCollection * gsfTrackCollection = gsfTracksH.product() ;
-  for (unsigned int i=0;i<gsfTrackCollection->size();++i) {
+void GsfElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH,
+			const math::XYZPoint &bsPosition,
+		        GsfElectronCollection & outEle) {
+ 
+
+  const GsfTrackCollection *tracks=tracksH.product();
+  for (unsigned int i=0;i<tracks->size();++i) {
 
     // track -scl association
 
-    const GsfTrack & t=(*gsfTrackCollection)[i];
-    const GsfTrackRef gsfTrackRef = edm::Ref<GsfTrackCollection>(gsfTracksH,i);
-    const SuperClusterRef & scRef=getTrSuperCluster(gsfTrackRef);
+    const GsfTrack & t=(*tracks)[i];
+    const GsfTrackRef trackRef = edm::Ref<GsfTrackCollection>(tracksH,i);
+    const SuperClusterRef & scRef=getTrSuperCluster(trackRef);
     const SuperCluster theClus=*scRef;
     std::vector<DetId> vecId=theClus.seed()->getHitsByDetId();
     subdet_ =vecId[0].subdetId();  
@@ -248,13 +225,11 @@ void GsfElectronAlgo::process(
     if (!calculateTSOS(t,theClus, bsPosition)) continue;
     vtxMom_=computeMode(vtxTSOS_);
     sclPos_=sclTSOS_.globalPosition();
-    if (preSelection(theClus))
-     {
-      pair<TrackRef,float> ctfpair = getCtfTrackRef(gsfTrackRef,ctfTracksH) ;
-      const TrackRef ctfTrackRef = ctfpair.first ;
-      const float fracShHits = ctfpair.second ;
+    if (preSelection(theClus)) {
+
       // interface to be improved...
-      createElectron(scRef,gsfTrackRef,ctfTrackRef,fracShHits,reducedEBRecHits,reducedEERecHits,outEle) ;
+      createElectron(scRef,trackRef,outEle);
+
       LogInfo("")<<"Constructed new electron with energy  "<< scRef->energy();
     }
   } // loop over tracks
@@ -344,45 +319,16 @@ GlobalVector GsfElectronAlgo::computeMode(const TrajectoryStateOnSurface &tsos) 
 }
 
 // interface to be improved...
-void GsfElectronAlgo::createElectron
- ( const SuperClusterRef & scRef,
-   const GsfTrackRef & trackRef,
-   const TrackRef & ctfTrackRef, const float shFracInnerHits,
-   edm::Handle<EcalRecHitCollection> reducedEBRecHits,
-   edm::Handle<EcalRecHitCollection> reducedEERecHits,
-   GsfElectronCollection & outEle )
-
- {
+void GsfElectronAlgo::createElectron(const SuperClusterRef & scRef, const GsfTrackRef &trackRef, GsfElectronCollection & outEle) {
       GlobalVector innMom=computeMode(innTSOS_);
       GlobalPoint innPos=innTSOS_.globalPosition();
       GlobalVector seedMom=computeMode(seedTSOS_);
       GlobalPoint  seedPos=seedTSOS_.globalPosition();
-      GlobalVector sclMom=computeMode(sclTSOS_);
+      GlobalVector sclMom=computeMode(sclTSOS_);    
 
       GlobalPoint  vtxPos=vtxTSOS_.globalPosition();
       GlobalVector outMom=computeMode(outTSOS_);
       GlobalPoint  outPos=outTSOS_.globalPosition();
-
-      // cluster shape
-      const CaloTopology * topology = theCaloTopo.product() ;
-      const CaloGeometry * geometry = theCaloGeom.product() ;
-      const reco::BasicCluster & seedCluster = *(scRef->seed()) ;
-      const EcalRecHitCollection * reducedRecHits = 0 ;
-      std::vector<DetId> vecId=seedCluster.getHitsByDetId() ;
-      int detector = vecId[0].subdetId() ;
-      if (detector==EcalBarrel)
-       { reducedRecHits = reducedEBRecHits.product() ; }
-      else if (detector==EcalEndcap)
-       { reducedRecHits = reducedEERecHits.product() ; }
-      else
-       { edm::LogWarning("")<<"GsfElectronAlgo::createElectron(): do not know if it is a barrel or endcap seed cluster !!!!" ; }
-      std::vector<float> covariances = EcalClusterTools::covariances(seedCluster,reducedRecHits,topology,geometry) ;
-      std::vector<float> localCovariances = EcalClusterTools::localCovariances(seedCluster,reducedRecHits,topology) ;
-      float scSigmaEtaEta = sqrt(covariances[0]) ;
-      float scSigmaIEtaIEta = sqrt(localCovariances[0]) ;
-      float scE1x5 = EcalClusterTools::e5x1(seedCluster,reducedRecHits,topology)  ;
-      float scE2x5 = EcalClusterTools::e2x5Max(seedCluster,reducedRecHits,topology)  ;
-      float scE5x5 = EcalClusterTools::e5x5(seedCluster,reducedRecHits,topology) ;
 
       //create electron
       double scale = (*scRef).energy()/vtxMom_.mag();    
@@ -391,12 +337,11 @@ void GsfElectronAlgo::createElectron
 								 vtxMom_.z()*scale,
 								 (*scRef).energy());
       // should be coming from supercluster!
-      HoECalculator calc(theCaloGeom);
-      double HoE=calc(&(*scRef),mhbhe_);
-      GsfElectron ele(momentum,scRef,trackRef,sclPos_,sclMom,seedPos,seedMom,innPos,innMom,vtxPos,vtxMom_,outPos,outMom,HoE,
-        scSigmaEtaEta,scSigmaIEtaIEta,scE1x5,scE2x5,scE5x5,ctfTrackRef,shFracInnerHits) ;
+     HoECalculator calc(theCaloGeom);
+     double HoE=calc(&(*scRef),mhbhe_);
+     GsfElectron ele(momentum,scRef,trackRef,sclPos_,sclMom,seedPos,seedMom,innPos,innMom,vtxPos,vtxMom_,outPos,outMom,HoE);
 
-      // and set various properties
+      //and set various properties
       ECALPositionCalculator ecpc;
       float trackEta=ecpc.ecalEta(trackRef->innerMomentum(),trackRef->innerPosition());
       float trackPhi=ecpc.ecalPhi(theMagField.product(),trackRef->innerMomentum(),trackRef->innerPosition(),trackRef->charge());
@@ -518,74 +463,3 @@ void GsfElectronAlgo::resolveElectrons(std::vector<reco::GsfElectron> & tempEle,
 
 }
 
-// Code from Puneeth Kalavase
-pair<TrackRef,float> GsfElectronAlgo::getCtfTrackRef(const GsfTrackRef& gsfTrackRef, edm::Handle<reco::TrackCollection> ctfTracksH ) {
-
-  float maxFracShared = 0;
-  TrackRef ctfTrackRef = TrackRef() ;
-  const TrackCollection * ctfTrackCollection = ctfTracksH.product() ;
-  
-  //get the Hit Pattern for the gsfTrack
-  const HitPattern& gsfHitPattern = gsfTrackRef->hitPattern();
-
-  unsigned int counter ;
-  TrackCollection::const_iterator ctfTkIter ;
-  for ( ctfTkIter = ctfTrackCollection->begin() , counter = 0 ;
-        ctfTkIter != ctfTrackCollection->end() ; ctfTkIter++, counter++ ) {
-
-    double dEta = gsfTrackRef->eta() - ctfTkIter->eta();
-    double dPhi = gsfTrackRef->phi() - ctfTkIter->phi();
-    double pi = acos(-1.);
-    if(fabs(dPhi) > pi) dPhi = 2*pi - fabs(dPhi);
-        
-    //dont want to look at every single track in the event!
-    if(sqrt(dEta*dEta + dPhi*dPhi) > 0.3) continue;
-
-    unsigned int shared = 0;
-    int gsfHitCounter = 0;
-    int numGsfInnerHits = 0;
-    int numCtfInnerHits = 0;
-    //get the CTF Track Hit Pattern
-    const HitPattern& ctfHitPattern = ctfTkIter->hitPattern();
-    
-    for(trackingRecHit_iterator elHitsIt = gsfTrackRef->recHitsBegin();
-        elHitsIt != gsfTrackRef->recHitsEnd(); elHitsIt++, gsfHitCounter++) {
-      if(!((**elHitsIt).isValid()))  //count only valid Hits
-	continue;
-
-      //look only in the pixels/TIB/TID
-      uint32_t gsfHit = gsfHitPattern.getHitPattern(gsfHitCounter);
-      if(!(gsfHitPattern.pixelHitFilter(gsfHit) || 
-	   gsfHitPattern.stripTIBHitFilter(gsfHit) ||
-	   gsfHitPattern.stripTIDHitFilter(gsfHit) ) ) continue;
-      numGsfInnerHits++;
-
-      int ctfHitsCounter = 0;
-      numCtfInnerHits = 0;
-      for(trackingRecHit_iterator ctfHitsIt = ctfTkIter->recHitsBegin();
-          ctfHitsIt != ctfTkIter->recHitsEnd(); ctfHitsIt++, ctfHitsCounter++) {
-        if(!((**ctfHitsIt).isValid())) //count only valid Hits!
-	  continue;
-
-	uint32_t ctfHit = ctfHitPattern.getHitPattern(ctfHitsCounter);
-	if( !(ctfHitPattern.pixelHitFilter(ctfHit) ||
-	      ctfHitPattern.stripTIBHitFilter(ctfHit) ||
-	      ctfHitPattern.stripTIDHitFilter(ctfHit) ) ) continue;
-	numCtfInnerHits++;
-        if( (**elHitsIt).sharesInput(&(**ctfHitsIt), TrackingRecHit::all) ) {
-          shared++;
-          break;
-        }
-      }//ctfHits iterator
-          
-    }//gsfHits iterator
-
-    if ( static_cast<float>(shared)/min(numGsfInnerHits,numCtfInnerHits) > maxFracShared ) {
-      maxFracShared = static_cast<float>(shared)/min(numGsfInnerHits, numCtfInnerHits); 
-      ctfTrackRef = TrackRef(ctfTracksH,counter);
-    }
-
-  }//ctfTrack iterator
-
-  return make_pair(ctfTrackRef,maxFracShared);
-}

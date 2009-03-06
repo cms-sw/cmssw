@@ -24,7 +24,7 @@ class CVRAnalysis : public edm::EDAnalyzer {
       std::string trackcoll_;
       std::string vertexcoll_;
       std::string beamspot_;
-      edm::InputTag trackingtruth_;
+      std::string trackingtruth_;
       std::string associator_;
       VertexHisto histo_;
       VertexHisto bhisto_;

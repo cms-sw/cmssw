@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/25 10:21:48 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/10/07 14:26:43 $
+ *  $Revision: 1.6 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -36,6 +36,7 @@ using namespace std;
 DTLocalTriggerLutTest::DTLocalTriggerLutTest(const edm::ParameterSet& ps){
 
   setConfig(ps,"DTLocalTriggerLut");
+  baseFolder = "DT/03-LocalTrigger/";
 
 }
 
@@ -137,12 +138,21 @@ void DTLocalTriggerLutTest::runClientDiagnostic() {
 	      }
 
 	      TProfile* PhitkvsPhitrigProf = TrackPhitkvsPhitrig->ProfileX();
-	      PhitkvsPhitrigProf->Fit("pol1","CQO");
-	      TF1 *ffPhi= PhitkvsPhitrigProf->GetFunction("pol1");
-	      double phiInt   = ffPhi->GetParameter(0);
-	      double phiSlope = ffPhi->GetParameter(1);
-	      double phiCorr  = TrackPhitkvsPhitrig->GetCorrelationFactor();
-
+	      double phiInt   = 0;
+	      double phiSlope = 0;
+	      double phiCorr  = 0;
+	      try {
+		PhitkvsPhitrigProf->Fit("pol1","CQO");
+		TF1 *ffPhi= PhitkvsPhitrigProf->GetFunction("pol1");
+		if (ffPhi) {
+		  phiInt   = ffPhi->GetParameter(0);
+		  phiSlope = ffPhi->GetParameter(1);
+		  phiCorr  = TrackPhitkvsPhitrig->GetCorrelationFactor();
+		}
+	      } catch (...) {
+		edm::LogError(category()) << "[" << testName << "Test]: Error fitting PhitkvsPhitrig for Wheel " << wh 
+					  <<" Sector " << sect << " Station " << stat;
+	      }
 	      std::map<std::string,MonitorElement*> *innerME = &(secME[sector_id]);
 	      innerME->find(fullName("PhiTkvsTrigSlope"))->second->setBinContent(stat,phiSlope);
 	      innerME->find(fullName("PhiTkvsTrigIntercept"))->second->setBinContent(stat,phiInt);
@@ -173,12 +183,22 @@ void DTLocalTriggerLutTest::runClientDiagnostic() {
 	      }
 
 	      TProfile* PhibtkvsPhibtrigProf = TrackPhibtkvsPhibtrig->ProfileX(); 
-	      PhibtkvsPhibtrigProf->Fit("pol1","CQO");
-	      TF1 *ffPhib= PhibtkvsPhibtrigProf->GetFunction("pol1");
-	      double phibInt   = ffPhib->GetParameter(0);
-	      double phibSlope = ffPhib->GetParameter(1);
-	      double phibCorr  = TrackPhibtkvsPhibtrig->GetCorrelationFactor();
-
+	      double phibInt  = 0;
+	      double phibSlope = 0;
+	      double phibCorr  = 0;
+	      try {
+		PhibtkvsPhibtrigProf->Fit("pol1","CQO");
+		TF1 *ffPhib= PhibtkvsPhibtrigProf->GetFunction("pol1");
+		if (ffPhib) {
+		  phibInt   = ffPhib->GetParameter(0);
+		  phibSlope = ffPhib->GetParameter(1);
+		  phibCorr  = TrackPhibtkvsPhibtrig->GetCorrelationFactor();
+		}
+	      } catch (...) {
+		edm::LogError(category()) << "[" << testName << "Test]: Error fitting PhibtkvsPhibtrig for Wheel " << wh 
+					  <<" Sector " << sect << " Station " << stat;
+	      }
+	      
 	      std::map<std::string,MonitorElement*> *innerME = &(secME[sector_id]);
 	      innerME->find(fullName("PhibTkvsTrigSlope"))->second->setBinContent(stat,phibSlope);
 	      innerME->find(fullName("PhibTkvsTrigIntercept"))->second->setBinContent(stat,phibInt);
@@ -203,16 +223,23 @@ void DTLocalTriggerLutTest::runClientDiagnostic() {
 	      }
 
 	      double peak = PhiResidual->GetBinCenter(PhiResidual->GetMaximumBin());
-	      PhiResidual->Fit("gaus","CQO","",peak-5,peak+5);
-	      TF1 *ffPhi = PhiResidual->GetFunction("gaus");
-	      if ( ffPhi ) {
-		double phiMean = ffPhi->GetParameter(1);
-		double phiRMS  = ffPhi->GetParameter(2);
-		
-		std::map<std::string,MonitorElement*> *innerME = &(whME[wh]);
-		innerME->find(fullName("PhiResidualMean"))->second->setBinContent(sect,stat,phiMean);
-		innerME->find(fullName("PhiResidualRMS"))->second->setBinContent(sect,stat,phiRMS);
+	      double phiMean = 0;
+	      double phiRMS  = 0;
+	      try {
+		PhiResidual->Fit("gaus","CQO","",peak-5,peak+5);
+		TF1 *ffPhi = PhiResidual->GetFunction("gaus");
+		if ( ffPhi ) {
+		  phiMean = ffPhi->GetParameter(1);
+		  phiRMS  = ffPhi->GetParameter(2);
+		}
+	      } catch (...) {
+		edm::LogError(category()) << "[" << testName << "Test]: Error fitting PhiResidual for Wheel " << wh 
+					  <<" Sector " << sect << " Station " << stat;
 	      }
+	      
+	      std::map<std::string,MonitorElement*> *innerME = &(whME[wh]);
+	      innerME->find(fullName("PhiResidualMean"))->second->setBinContent(sect,stat,phiMean);
+	      innerME->find(fullName("PhiResidualRMS"))->second->setBinContent(sect,stat,phiRMS);
 	  
 	    }
 
@@ -228,16 +255,23 @@ void DTLocalTriggerLutTest::runClientDiagnostic() {
 	      }
 
 	      double peak = PhibResidual->GetBinCenter(PhibResidual->GetMaximumBin());
-	      PhibResidual->Fit("gaus","CQO","",peak-5,peak+5);
-	      TF1 *ffPhib = PhibResidual->GetFunction("gaus");
-	      if ( ffPhib ) {
-		double phibMean = ffPhib->GetParameter(1);
-		double phibRMS  = ffPhib->GetParameter(2);
-
-		std::map<std::string,MonitorElement*> *innerME = &(whME[wh]);
-		innerME->find(fullName("PhibResidualMean"))->second->setBinContent(sect,stat,phibMean);
-		innerME->find(fullName("PhibResidualRMS"))->second->setBinContent(sect,stat,phibRMS);
+	      double phibMean = 0;
+	      double phibRMS  = 0;
+	      try {
+		PhibResidual->Fit("gaus","CQO","",peak-5,peak+5);
+		TF1 *ffPhib = PhibResidual->GetFunction("gaus");
+		if ( ffPhib ) {
+		  phibMean = ffPhib->GetParameter(1);
+		  phibRMS  = ffPhib->GetParameter(2);
+		}
+	      } catch (...) {
+		edm::LogError(category()) << "[" << testName << "Test]: Error fitting PhibResidual for Wheel " << wh 
+					  <<" Sector " << sect << " Station " << stat;
 	      }
+
+	      std::map<std::string,MonitorElement*> *innerME = &(whME[wh]);
+	      innerME->find(fullName("PhibResidualMean"))->second->setBinContent(sect,stat,phibMean);
+	      innerME->find(fullName("PhibResidualRMS"))->second->setBinContent(sect,stat,phibRMS);
 	  
 	    }
 

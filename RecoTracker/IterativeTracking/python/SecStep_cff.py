@@ -1,20 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
-firstfilter = cms.EDFilter("QualityFilter",
-    TrackQuality = cms.string('highPurity'),
-    recTracks = cms.InputTag("preMergingFirstStepTracksWithQuality")
-)
-
-
 # new hit collection
 secClusters = cms.EDFilter("TrackClusterRemover",
-    oldClusterRemovalInfo = cms.InputTag("newClusters"),
     trajectories = cms.InputTag("firstfilter"),
-    pixelClusters = cms.InputTag("newClusters"),
-    stripClusters = cms.InputTag("newClusters"),
+    pixelClusters = cms.InputTag("siPixelClusters"),
     Common = cms.PSet(
         maxChi2 = cms.double(30.0)
-    )
+    ),
+    stripClusters = cms.InputTag("siStripClusters")
 )
 
 import RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi
@@ -63,7 +56,7 @@ secCkfTrajectoryBuilder.ComponentName = 'secCkfTrajectoryBuilder'
 secCkfTrajectoryBuilder.MeasurementTrackerName = 'secMeasurementTracker'
 secCkfTrajectoryBuilder.trajectoryFilterName = 'secCkfTrajectoryFilter'
 
-secTrackCandidates.src = cms.InputTag('secTriplets')
+secTrackCandidates.SeedProducer = 'secTriplets'
 secTrackCandidates.TrajectoryBuilder = 'secCkfTrajectoryBuilder'
 secTrackCandidates.doSeedingRegionRebuilding = True
 secTrackCandidates.useHitsSplitting = True
@@ -72,38 +65,11 @@ secTrackCandidates.useHitsSplitting = True
 # fitting
 import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
 secWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
-secWithMaterialTracks.AlgorithmName = cms.string('iter2')
 secWithMaterialTracks.src = 'secTrackCandidates'
 secWithMaterialTracks.clusterRemovalInfo = 'secClusters'
 
 
 # track selection
-import RecoTracker.FinalTrackSelectors.selectHighPurity_cfi
+from RecoTracker.IterativeTracking.SecVxFilter_cff import *
 
-secStepVtx = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone()
-secStepVtx.src = 'secWithMaterialTracks'
-secStepVtx.copyTrajectories = True
-secStepVtx.chi2n_par = 0.9
-secStepVtx.res_par = ( 0.003, 0.001 )
-secStepVtx.d0_par1 = ( 0.85, 3.0 )
-secStepVtx.dz_par1 = ( 0.8, 3.0 )
-secStepVtx.d0_par2 = ( 0.9, 3.0 )
-secStepVtx.dz_par2 = ( 0.9, 3.0 )
-
-secStepTrk = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone()
-secStepTrk.src = 'secWithMaterialTracks'
-secStepTrk.copyTrajectories = True
-secStepTrk.chi2n_par = 0.5
-secStepTrk.res_par = ( 0.003, 0.001 )
-secStepTrk.minNumberLayers = 5
-secStepTrk.d0_par1 = ( 0.9, 4.0 )
-secStepTrk.dz_par1 = ( 0.9, 4.0 )
-secStepTrk.d0_par2 = ( 0.9, 4.0 )
-secStepTrk.dz_par2 = ( 0.9, 4.0 )
-
-import RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi
-secStep = RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi.ctfrsTrackListMerger.clone()
-secStep.TrackProducer1 = 'secStepVtx'
-secStep.TrackProducer2 = 'secStepTrk'
-
-secondStep = cms.Sequence(firstfilter*secClusters*secPixelRecHits*secStripRecHits*secTriplets*secTrackCandidates*secWithMaterialTracks*secStepVtx*secStepTrk*secStep)
+secondStep = cms.Sequence(secClusters*secPixelRecHits*secStripRecHits*secTriplets*secTrackCandidates*secWithMaterialTracks*secStep)

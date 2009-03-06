@@ -157,7 +157,7 @@ unsigned int CBInputStream::readBytes(XMLByte* const buf,
 
 		std::memcpy(rawBuf + read, buffer.c_str(), len);
 		buffer.clear();
-		read += rem;
+		read += len;
 	}
 
 	read /= sizeof(XMLByte);

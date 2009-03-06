@@ -33,7 +33,7 @@ class TtSemiLepJetCombMVATrainer : public edm::EDAnalyzer {
   edm::InputTag jets_;
   edm::InputTag matching_;
 
-  unsigned int nJetsMax_;
+  unsigned int maxNJets_;
   
   int lepChannel_;
 

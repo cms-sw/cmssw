@@ -146,6 +146,7 @@ int RPCSynchronizer::getSimHitBx(const PSimHit* simhit)
       }
     }
   }
+
   return bx;
 }
 

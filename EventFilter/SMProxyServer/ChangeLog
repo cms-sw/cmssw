@@ -1,3 +1,10 @@
+2008-11-21  Kurt Biery <biery@fnal.gov>
+
+	* tag V01-08-07
+	* Added RCMS infospace parameters and findRcmsStateListener call
+	  to avoid crash in FSM during configure step with
+	  EventFilter/Utilities V00-15-01.
+
 2008-10-14  Harry Cheung <cheung@fnal.gov>
 
 	* tag V01-08-06

@@ -136,12 +136,12 @@ boost::shared_ptr<stor::SMFUSenderEntry> SMFUSenderList::addEntry(const char* hl
     const char* hltClassName, const unsigned int hltLocalId,
     const unsigned int hltInstance, const unsigned int hltTid,
     const unsigned int frameCount, const unsigned int numFrames,
-    toolbox::mem::Reference *ref, const std::string outModName, 
+    const uint32 regSize, const std::string outModName, 
     const uint32 outModId, const uint32 rbBufferID)
 {
    boost::shared_ptr<stor::SMFUSenderEntry> entry_p(new SMFUSenderEntry(hltURL, hltClassName,
                      hltLocalId, hltInstance, hltTid, frameCount, numFrames, 
-                     outModName, outModId, rbBufferID, ref));
+                     outModName, outModId, rbBufferID, regSize));
    senderlist_.push_back(entry_p);
    return entry_p;
 }
@@ -170,7 +170,7 @@ int SMFUSenderList::registerDataSender(const char* hltURL,
     const char* hltClassName, const unsigned int hltLocalId,
     const unsigned int hltInstance, const unsigned int hltTid,
     const unsigned int frameCount, const unsigned int numFrames,
-    toolbox::mem::Reference *ref, const std::string outModName, 
+    const uint32 regSize, const std::string outModName, 
     const uint32 outModId, const uint32 rbBufferID)
 {  
   // register FU sender into the list to keep its status
@@ -186,7 +186,7 @@ int SMFUSenderList::registerDataSender(const char* hltURL,
     {
       FDEBUG(10) << "registerDataSender: found a new output Module " << outModName << " for URL "
                  << hltURL << " and Tid " << hltTid << " rb buffer ID " << rbBufferID << std::endl;
-      foundPos->addReg2Entry(frameCount, numFrames, outModName, outModId, ref);
+      foundPos->addReg2Entry(frameCount, numFrames, outModName, outModId, regSize);
       if(foundPos->regIsCopied(outModName)) {
         return 1;
       } else {
@@ -198,7 +198,7 @@ int SMFUSenderList::registerDataSender(const char* hltURL,
                  << " and output module " << outModName << std::endl;
       // should really check this is not a duplicate frame
       // should check if already all frames were received (indicates reconnect maybe)
-      bool regComplete = foundPos->addFrame(frameCount, numFrames, ref, outModName);
+      bool regComplete = foundPos->addFrame(frameCount, numFrames, regSize, outModName);
       if(regComplete) {
         return 1;
       } else {
@@ -218,7 +218,7 @@ int SMFUSenderList::registerDataSender(const char* hltURL,
     
     // register (add) this FU sender to the list
     foundPos = addEntry(hltURL, hltClassName, hltLocalId, hltInstance, hltTid, 
-                        frameCount, numFrames, ref, outModName, outModId, rbBufferID);
+                        frameCount, numFrames, regSize, outModName, outModId, rbBufferID);
     // ask Jim about a better design for the return from addEntry to say reg is complete
     if(foundPos == NULL)
     {
@@ -302,50 +302,6 @@ bool SMFUSenderList::removeDataSender(const char* hltURL,
   return didErase;
 }
 */
-
-void SMFUSenderList::setRegCheckedOK(const char* hltURL,
-    const char* hltClassName, const unsigned int hltLocalId,
-    const unsigned int hltInstance, const unsigned int hltTid, 
-    const std::string outModName, const uint32 rbBufferID)
-{  
-  boost::mutex::scoped_lock sl(list_lock_);
-  boost::shared_ptr<stor::SMFUSenderEntry> foundPos = findEntry(hltURL, hltClassName, hltLocalId,
-                                                                hltInstance, hltTid, rbBufferID, outModName);
-  if(foundPos != NULL)
-  {
-    foundPos->setregCheckedOK(outModName, true);
-  }
-}
-
-char* SMFUSenderList::getRegistryData(const char* hltURL,
-    const char* hltClassName, const unsigned int hltLocalId,
-    const unsigned int hltInstance, const unsigned int hltTid, 
-    const std::string outModName, const uint32 rbBufferID)
-{  
-  boost::mutex::scoped_lock sl(list_lock_);
-  boost::shared_ptr<stor::SMFUSenderEntry> foundPos = findEntry(hltURL, hltClassName, hltLocalId,
-                                                                hltInstance, hltTid, rbBufferID, outModName);
-  if(foundPos != NULL)
-  {
-    return foundPos->getregistryData(outModName);
-  } else {
-     return NULL;
-  }
-}
-
-void SMFUSenderList::shrinkRegistryData(const char* hltURL,
-    const char* hltClassName, const unsigned int hltLocalId,
-    const unsigned int hltInstance, const unsigned int hltTid, 
-    const std::string outModName, const uint32 rbBufferID)
-{  
-  boost::mutex::scoped_lock sl(list_lock_);
-  boost::shared_ptr<stor::SMFUSenderEntry> foundPos = findEntry(hltURL, hltClassName, hltLocalId,
-                                                                hltInstance, hltTid, rbBufferID, outModName);
-  if(foundPos != NULL)
-  {
-    foundPos->shrinkRegistryData(outModName);
-  }
-}
 
 unsigned int SMFUSenderList::getRegistrySize(const char* hltURL,
     const char* hltClassName, const unsigned int hltLocalId,
