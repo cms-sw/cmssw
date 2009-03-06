@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2008/04/17 07:35:05 $
- *  $Revision: 1.23 $
+ *  $Date: 2008/02/19 18:05:17 $
+ *  $Revision: 1.22 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -53,9 +53,7 @@ typedef MuonTransientTrackingRecHit::ConstMuonRecHitPointer ConstMuonRecHitPoint
 typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
 
 // Constructor
-MuonSeedGenerator::MuonSeedGenerator(const edm::ParameterSet& pset)
-: theSeedFinder(pset)
-{
+MuonSeedGenerator::MuonSeedGenerator(const edm::ParameterSet& pset){
   produces<TrajectorySeedCollection>(); 
 
   // enable the DT chamber
@@ -204,16 +202,16 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
 
   for (MuonRecHitContainer::iterator iter = list1.begin(); iter!=list1.end(); iter++ ){
     if ( (*iter)->recHits().size() < 4 && list3.size() > 0 ) continue; // 3p.tr-seg. are not so good for starting
-    theSeedFinder.clear();
-    theSeedFinder.add(*iter);
-    complete(theSeedFinder, list2, ME2);
-    complete(theSeedFinder, list3, ME3);
-    complete(theSeedFinder, list4, ME4);
-    complete(theSeedFinder, list5, ME5);
-    complete(theSeedFinder, list6, MB3);
-    complete(theSeedFinder, list7, MB2);    
-    complete(theSeedFinder, list8, MB1);
-    checkAndFill(theSeedFinder,eSetup);
+    MuonSeedFinder theSeed;
+    theSeed.add(*iter);
+    complete(theSeed, list2, ME2);
+    complete(theSeed, list3, ME3);
+    complete(theSeed, list4, ME4);
+    complete(theSeed, list5, ME5);
+    complete(theSeed, list6, MB3);
+    complete(theSeed, list7, MB2);    
+    complete(theSeed, list8, MB1);
+    checkAndFill(theSeed,eSetup);
   }
 
 
@@ -222,16 +220,16 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   for ( counter = 0; counter<list2.size(); counter++ ){
 
     if ( !ME2[counter] ) {
-      theSeedFinder.clear();
-      theSeedFinder.add(list2[counter]);
-      complete(theSeedFinder, list3, ME3);
-      complete(theSeedFinder, list4, ME4);
-      complete(theSeedFinder, list5, ME5);
-      complete(theSeedFinder, list6, MB3);
-      complete(theSeedFinder, list7, MB2);
-      complete(theSeedFinder, list8, MB1);
+      MuonSeedFinder theSeed;
+      theSeed.add(list2[counter]);
+      complete(theSeed, list3, ME3);
+      complete(theSeed, list4, ME4);
+      complete(theSeed, list5, ME5);
+      complete(theSeed, list6, MB3);
+      complete(theSeed, list7, MB2);
+      complete(theSeed, list8, MB1);
 
-      checkAndFill(theSeedFinder,eSetup);
+      checkAndFill(theSeed,eSetup);
     }
   }
 
@@ -239,15 +237,15 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   if ( list3.size() < 20 ) {   // +v
     for ( counter = 0; counter<list3.size(); counter++ ){
       if ( !ME3[counter] ) { 
-	theSeedFinder.clear();
-	theSeedFinder.add(list3[counter]);
-	complete(theSeedFinder, list4, ME4);
-	complete(theSeedFinder, list5, ME5);
-	complete(theSeedFinder, list6, MB3);
-	complete(theSeedFinder, list7, MB2);
-	complete(theSeedFinder, list8, MB1);
+	MuonSeedFinder theSeed;
+	theSeed.add(list3[counter]);
+	complete(theSeed, list4, ME4);
+	complete(theSeed, list5, ME5);
+	complete(theSeed, list6, MB3);
+	complete(theSeed, list7, MB2);
+	complete(theSeed, list8, MB1);
 	
-	checkAndFill(theSeedFinder,eSetup);
+	checkAndFill(theSeed,eSetup);
       }
     }
   }
@@ -255,14 +253,14 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   if ( list4.size() < 20 ) {   // +v
     for ( counter = 0; counter<list4.size(); counter++ ){
       if ( !ME4[counter] ) {
-	theSeedFinder.clear();
-	theSeedFinder.add(list4[counter]);
-	complete(theSeedFinder, list5, ME5);
-	complete(theSeedFinder, list6, MB3);
-	complete(theSeedFinder, list7, MB2);
-	complete(theSeedFinder, list8, MB1);
+	MuonSeedFinder theSeed;
+	theSeed.add(list4[counter]);
+	complete(theSeed, list5, ME5);
+	complete(theSeed, list6, MB3);
+	complete(theSeed, list7, MB2);
+	complete(theSeed, list8, MB1);
 
-	checkAndFill(theSeedFinder,eSetup);
+	checkAndFill(theSeed,eSetup);
       }   
     }          
   } 
@@ -346,33 +344,33 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
 
   for (MuonRecHitContainer::iterator iter=list1.begin(); iter!=list1.end(); iter++ ){
     if ( (*iter)->recHits().size() < 4 && list3.size() > 0 ) continue;// 3p.tr-seg.aren't so good for starting
-    theSeedFinder.clear();
-    theSeedFinder.add(*iter);
-    complete(theSeedFinder, list2, ME2);
-    complete(theSeedFinder, list3, ME3);
-    complete(theSeedFinder, list4, ME4);
-    complete(theSeedFinder, list5, ME5);
-    complete(theSeedFinder, list6, MB3);
-    complete(theSeedFinder, list7, MB2);
-    complete(theSeedFinder, list8, MB1);
+    MuonSeedFinder theSeed;
+    theSeed.add(*iter);
+    complete(theSeed, list2, ME2);
+    complete(theSeed, list3, ME3);
+    complete(theSeed, list4, ME4);
+    complete(theSeed, list5, ME5);
+    complete(theSeed, list6, MB3);
+    complete(theSeed, list7, MB2);
+    complete(theSeed, list8, MB1);
 
-    checkAndFill(theSeedFinder,eSetup);
+    checkAndFill(theSeed,eSetup);
     
   }
 
 
   for ( counter = 0; counter<list2.size(); counter++ ){
     if ( !ME2[counter] ) {
-      theSeedFinder.clear();
-      theSeedFinder.add(list2[counter]);
-      complete(theSeedFinder, list3, ME3);
-      complete(theSeedFinder, list4, ME4);
-      complete(theSeedFinder, list5, ME5);
-      complete(theSeedFinder, list6, MB3);
-      complete(theSeedFinder, list7, MB2);
-      complete(theSeedFinder, list8, MB1);
+      MuonSeedFinder theSeed;
+      theSeed.add(list2[counter]);
+      complete(theSeed, list3, ME3);
+      complete(theSeed, list4, ME4);
+      complete(theSeed, list5, ME5);
+      complete(theSeed, list6, MB3);
+      complete(theSeed, list7, MB2);
+      complete(theSeed, list8, MB1);
 
-      checkAndFill(theSeedFinder,eSetup);
+      checkAndFill(theSeed,eSetup);
     } 
   }
 
@@ -380,15 +378,15 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   if ( list3.size() < 20 ) {   // +v
     for ( counter = 0; counter<list3.size(); counter++ ){
       if ( !ME3[counter] ) { 
-	theSeedFinder.clear();
-	theSeedFinder.add(list3[counter]);
-	complete(theSeedFinder, list4, ME4);
-	complete(theSeedFinder, list5, ME5);
-	complete(theSeedFinder, list6, MB3);
-	complete(theSeedFinder, list7, MB2);
-	complete(theSeedFinder, list8, MB1);
+	MuonSeedFinder theSeed;
+	theSeed.add(list3[counter]);
+	complete(theSeed, list4, ME4);
+	complete(theSeed, list5, ME5);
+	complete(theSeed, list6, MB3);
+	complete(theSeed, list7, MB2);
+	complete(theSeed, list8, MB1);
 
-	checkAndFill(theSeedFinder,eSetup);
+	checkAndFill(theSeed,eSetup);
       }
     }
   }
@@ -396,14 +394,14 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   if ( list4.size() < 20 ) {   // +v
     for ( counter = 0; counter<list4.size(); counter++ ){
       if ( !ME4[counter] ) {
-	theSeedFinder.clear();
-	theSeedFinder.add(list4[counter]);
-	complete(theSeedFinder, list5, ME5);
-	complete(theSeedFinder, list6, MB3);
-	complete(theSeedFinder, list7, MB2);
-	complete(theSeedFinder, list8, MB1);
+	MuonSeedFinder theSeed;
+	theSeed.add(list4[counter]);
+	complete(theSeed, list5, ME5);
+	complete(theSeed, list6, MB3);
+	complete(theSeed, list7, MB2);
+	complete(theSeed, list8, MB1);
 
-	checkAndFill(theSeedFinder,eSetup);
+	checkAndFill(theSeed,eSetup);
       }   
     }          
   } 
@@ -415,13 +413,13 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
 
   if ( list9.size() < 100 ) {   // +v
     for (MuonRecHitContainer::iterator iter=list9.begin(); iter!=list9.end(); iter++ ){
-      theSeedFinder.clear();
-      theSeedFinder.add(*iter);
-      complete(theSeedFinder, list6, MB3);
-      complete(theSeedFinder, list7, MB2);
-      complete(theSeedFinder, list8, MB1);
+      MuonSeedFinder theSeed;
+      theSeed.add(*iter);
+      complete(theSeed, list6, MB3);
+      complete(theSeed, list7, MB2);
+      complete(theSeed, list8, MB1);
 
-      checkAndFill(theSeedFinder,eSetup);
+      checkAndFill(theSeed,eSetup);
     }
   }
 
@@ -429,13 +427,13 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   if ( list6.size() < 100 ) {   // +v
     for ( counter = 0; counter<list6.size(); counter++ ){
       if ( !MB3[counter] ) { 
-	theSeedFinder.clear();
-	theSeedFinder.add(list6[counter]);
-	complete(theSeedFinder, list7, MB2);
-	complete(theSeedFinder, list8, MB1);
-	complete(theSeedFinder, list9);
+	MuonSeedFinder theSeed;
+	theSeed.add(list6[counter]);
+	complete(theSeed, list7, MB2);
+	complete(theSeed, list8, MB1);
+	complete(theSeed, list9);
 
-	checkAndFill(theSeedFinder,eSetup);
+	checkAndFill(theSeed,eSetup);
       }
     }
   }
@@ -444,14 +442,14 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   if ( list7.size() < 100 ) {   // +v
     for ( counter = 0; counter<list7.size(); counter++ ){
       if ( !MB2[counter] ) { 
-	theSeedFinder.clear();
-	theSeedFinder.add(list7[counter]);
-	complete(theSeedFinder, list8, MB1);
-	complete(theSeedFinder, list9);
-	complete(theSeedFinder, list6, MB3);
-	if (theSeedFinder.nrhit()>1 || (theSeedFinder.nrhit()==1 &&
-				  theSeedFinder.firstRecHit()->dimension()==4) ) {
-	  fill(theSeedFinder,eSetup);
+	MuonSeedFinder theSeed;
+	theSeed.add(list7[counter]);
+	complete(theSeed, list8, MB1);
+	complete(theSeed, list9);
+	complete(theSeed, list6, MB3);
+	if (theSeed.nrhit()>1 || (theSeed.nrhit()==1 &&
+				  theSeed.firstRecHit()->dimension()==4) ) {
+	  fill(theSeed,eSetup);
 	}
       }
     }
@@ -461,14 +459,14 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   if ( list8.size() < 100 ) {   // +v
     for ( counter = 0; counter<list8.size(); counter++ ){
       if ( !MB1[counter] ) { 
-	theSeedFinder.clear();
-	theSeedFinder.add(list8[counter]);
-	complete(theSeedFinder, list9);
-	complete(theSeedFinder, list6, MB3);
-	complete(theSeedFinder, list7, MB2);
-	if (theSeedFinder.nrhit()>1 || (theSeedFinder.nrhit()==1 &&
-				  theSeedFinder.firstRecHit()->dimension()==4) ) {
-	  fill(theSeedFinder,eSetup);
+	MuonSeedFinder theSeed;
+	theSeed.add(list8[counter]);
+	complete(theSeed, list9);
+	complete(theSeed, list6, MB3);
+	complete(theSeed, list7, MB2);
+	if (theSeed.nrhit()>1 || (theSeed.nrhit()==1 &&
+				  theSeed.firstRecHit()->dimension()==4) ) {
+	  fill(theSeed,eSetup);
 	}
       }
     }

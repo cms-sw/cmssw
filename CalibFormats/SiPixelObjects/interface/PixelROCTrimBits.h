@@ -1,22 +1,14 @@
 #ifndef PixelROCTrimBits_h
 #define PixelROCTrimBits_h
-/*! \file CalibFormats/SiPixelObjects/interface/PixelROCTrimBits.h
-*   \brief This class implements..
-*
-*    A longer explanation will be placed here later
-*/
+//
+//
+//
 
-#include <sstream>
 #include <fstream>
 #include "CalibFormats/SiPixelObjects/interface/PixelROCName.h"
 #include <string>
 
 namespace pos{
-/*! \class PixelROCTrimBits PixelROCTrimBits.h "interface/PixelROCTrimBits.h"
-*   \brief This class implements..
-*
-*   A longer explanation will be placed here later
-*/
   class PixelROCTrimBits {
 
   public:
@@ -26,7 +18,6 @@ namespace pos{
     void setROCTrimBits(PixelROCName rocid ,std::string bits);
 
     int read(PixelROCName rocid, std::ifstream& in);
-    int read(PixelROCName rocid, std::istringstream& in);
 
     int readBinary(PixelROCName rocid, std::ifstream& in);
 
@@ -39,7 +30,6 @@ namespace pos{
     void writeBinary(std::ofstream& out) const;
 
     void writeASCII(std::ofstream& out) const;
-//    void writeXML(pos::PixelConfigKey key, int version, std::string path) const {;}
 
     PixelROCName name() const {return rocid_;}
 

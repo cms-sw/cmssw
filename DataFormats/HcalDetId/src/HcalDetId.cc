@@ -65,172 +65,53 @@ std::ostream& operator<<(std::ostream& s,const HcalDetId& id) {
   }
 }
 
-bool 
-HcalDetId::validDetId( HcalSubdetector sd,
-		       int             ies,
-		       int             ip,
-		       int             dp      ) 
-{
-   const int ie ( abs( ies ) ) ;
+int HcalDetId::hashed_index() const {
+  int index = -1;
 
-   return ( ( ip >=  1         ) &&
-	    ( ip <= 72         ) &&
-	    ( dp >=  1         ) &&
-	    ( ie >=  1         ) &&
-	    ( ( ( sd == HcalBarrel ) &&
-		( ( ( ie <= 14         ) &&
-		    ( dp ==  1         )    ) ||
-		  ( ( ( ie == 15 ) || ( ie == 16 ) ) && 
-		    ( dp <= 2          )                ) ) ) ||
-	      (  ( sd == HcalEndcap ) &&
-		 ( ( ( ie == 16 ) &&
-		     ( dp ==  3 )          ) ||
-		   ( ( ie == 17 ) &&
-		     ( dp ==  1 )          ) ||
-		   ( ( ie >= 18 ) &&
-		     ( ie <= 20 ) &&
-		     ( dp <=  2 )          ) ||
-		   ( ( ie >= 21 ) &&
-		     ( ie <= 26 ) &&
-		     ( dp <=  2 ) &&
-		     ( ip%2 == 1 )         ) ||
-		   ( ( ie >= 27 ) &&
-		     ( ie <= 28 ) &&
-		     ( dp <=  3 ) &&
-		     ( ip%2 == 1 )         ) ||
-		   ( ( ie == 29 ) &&
-		     ( dp <=  2 ) &&
-		     ( ip%2 == 1 )         )          )      ) ||
-	      (  ( sd == HcalOuter ) &&
-		 ( ie <= 15 ) &&
-		 ( dp ==  4 )           ) ||
-	      (  ( sd == HcalForward ) &&
-		 ( dp <=  2 )          &&
-		 ( ( ( ie >= 29 ) &&
-		     ( ie <= 39 ) &&
-		     ( ip%2 == 1 )    ) ||
-		   ( ( ie >= 40 ) &&
-		     ( ie <= 41 ) &&
-		     ( ip%4 == 3 )         )  ) ) ) ) ;
-}
+  int HBhalf = 1296;
+  int HEhalf = 1296;
+  int HOhalf = 1080;
+  int HFhalf = 864;
 
-int 
-HcalDetId::hashed_index() const 
-{
-   const HcalSubdetector sd ( subdet()  ) ;
-   const int             ip ( iphi()    ) ;
-   const int             ie ( ietaAbs() ) ;
-   const int             dp ( depth()   ) ;
-   const int             zn ( zside() < 0 ? 1 : 0 ) ;
-
-   // HB valid DetIds: phi=1-72,eta=1-14,depth=1; phi=1-72,eta=15-16,depth=1-2
-  
-   // HE valid DetIds: phi=1-72,eta=16-17,depth=1; phi=1-72,eta=18-20,depth=1-2; 
-   //                  phi=1-71(in steps of 2),eta=21-26,depth=1-2; phi=1-71(in steps of 2),eta=27-28,depth=1-3
-   //                  phi=1-71(in steps of 2),eta=29,depth=1-2
-
-   // HO valid DetIds: phi=1-72,eta=1-15,depth=4!
-
-   // HF valid DetIds: phi=1-71(in steps of 2),eta=29-39,depth=1-2; phi=3-71(in steps of 4),eta=40-41,depth=1-2
-
-   return ( ( sd == HcalBarrel ) ?
-	    ( ip - 1 )*18 + dp - 1 + ie - ( ie<16 ? 1 : 0 ) + zn*kHBhalf :
-	    ( ( sd == HcalEndcap ) ?
-	      2*kHBhalf + ( ip - 1 )*8 + ( ip/2 )*20 +
-	      ( ( ie==16 || ie==17 ) ? ie - 16 :
-		( ( ie>=18 && ie<=20 ) ? 2 + 2*( ie - 18 ) + dp - 1 :
-		  ( ( ie>=21 && ie<=26 ) ? 8 + 2*( ie - 21 ) + dp - 1 :
-		    ( ( ie>=27 && ie<=28 ) ? 20 + 3*( ie - 27 ) + dp - 1 :
-		      26 + 2*( ie - 29 ) + dp - 1 ) ) ) ) + zn*kHEhalf :
-	      ( ( sd == HcalOuter ) ?
-		2*kHBhalf + 2*kHEhalf + ( ip - 1 )*15 + ( ie - 1 ) + zn*kHOhalf :
-		( ( sd == HcalForward ) ?
-		  2*kHBhalf + 2*kHEhalf + 2*kHOhalf + 
-		  ( ( ip - 1 )/4 )*4 + ( ( ip - 1 )/2 )*22 + 
-		  2*( ie - 29 ) + ( dp - 1 ) + zn*kHFhalf : -1 ) ) ) ) ; 
-}
-
-HcalDetId 
-HcalDetId::detIdFromDenseIndex( uint32_t di )
-{
-    if( validDenseIndex( di ) )
+  // HB valid DetIds: phi=1-72,eta=1-14,depth=1; phi=1-72,eta=15-16,depth=1-2
+  if (subdet() == HcalBarrel)
     {
-      HcalSubdetector sd ( HcalBarrel ) ;
-      int ie ( 0 ) ;
-      int ip ( 0 ) ;
-      int dp ( 0 ) ;
-      int in ( di ) ;
-      int iz ( 1 ) ;
-      if( in > 2*( kHBhalf + kHEhalf + kHOhalf ) - 1 )
-      {
-	 sd  = HcalForward ;
-	 in -= 2*( kHBhalf + kHEhalf + kHOhalf ) ; 
-	 iz  = ( in<kHFhalf ? 1 : -1 ) ;
-	 in %= kHFhalf ; 
-	 ip  = 4*( in/48 ) ;
-	 in %= 48 ;
-	 ip += 1 + ( in>21 ? 2 : 0 ) ;
-	 if( 3 == ip%4 ) in -= 22 ;
-	 ie  = 29 + in/2 ;
-	 dp  = 1 + in%2 ;
-      }
-      else
-      {
-	 if( in > 2*( kHBhalf + kHEhalf ) - 1 )
-	 {
-	    sd  = HcalOuter ;
-	    in -= 2*( kHBhalf + kHEhalf ) ; 
-	    iz  = ( in<kHOhalf ? 1 : -1 ) ;
-	    in %= kHOhalf ; 
-	    dp  = 4 ;
-	    ip  = 1 + in/15 ;
-	    ie  = 1 + ( in - 15*( ip - 1 ) ) ;
-	 }
-	 else
-         {
-	    if( in > 2*kHBhalf - 1 )
-	    {
-	       sd  = HcalEndcap ;
-	       in -= 2*kHBhalf ;
-	       iz  = ( in<kHEhalf ? 1 : -1 ) ;
-	       in %= kHEhalf ; 
-	       ip  = 2*( in/36 ) ;
-	       in %= 36 ;
-	       ip += 1 + in/28 ;
-	       if( 0 == ip%2 ) in %= 28 ;
-	       ie  = 15 + ( in<2 ? 1 + in : 2 + 
-			    ( in<20 ? 1 + ( in - 2 )/2 : 9 +
-			      ( in<26 ? 1 + ( in - 20 )/3 : 3 ) ) ) ;
-	       dp  = ( in<1 ? 3 :
-		       ( in<2 ? 1 : 
-			 ( in<20 ? 1 + ( in - 2 )%2 : 
-			   ( in<26 ? 1 + ( in - 20 )%3 : 
-			     ( 1 + ( in - 26 )%2 ) ) ) ) ) ;
-	    }
-	    else // barrel
-	    {
-	       iz  = ( di<kHBhalf ? 1 : -1 ) ;
-	       in %= kHBhalf ; 
-	       ip = in/18 + 1 ;
-	       in %= 18 ;
-	       if( in < 14 )
-	       {
-		  dp = 1 ;
-		  ie = in + 1 ;
-	       }
-	       else
-	       {
-		  in %= 14 ;
-		  dp =  1 + in%2 ;
-		  ie = 15 + in/2 ;
-	       }
-	    }
-	 }
-      }
-      return HcalDetId( sd, iz*int(ie), ip, dp ) ;
-   }
-   else
-   {
-      return HcalDetId() ;
-   }
+      if (ietaAbs() < 16)   index = (iphi() - 1)*18 + (ietaAbs() - 1) + (depth() - 1);
+      if (ietaAbs() == 16)  index = (iphi() - 1)*18 + ietaAbs() + (depth() - 1);
+      
+      if (zside() == -1) index += HBhalf;
+    }
+  
+  // HE valid DetIds: phi=1-72,eta=16-17,depth=1; phi=1-72,eta=18-20,depth=1-2; 
+  //                  phi=1-71(in steps of 2),eta=21-26,depth=1-2; phi=1-71(in steps of 2),eta=27-28,depth=1-3
+  //                  phi=1-71(in steps of 2),eta=29,depth=1-2
+  if (subdet() == HcalEndcap)
+    {
+      if (ietaAbs() == 16 || ietaAbs() == 17)  index = (iphi() - 1)*8 + (iphi()/2)*20 + (ietaAbs() - 16);
+      if (ietaAbs() >= 18 && ietaAbs() <= 20)  index = (iphi() - 1)*8 + (iphi()/2)*20 + 2  + 2*(ietaAbs()-18) + (depth() - 1);
+      if (ietaAbs() >= 21 && ietaAbs() <= 26)  index = (iphi() - 1)*8 + (iphi()/2)*20 + 8  + 2*(ietaAbs()-21) + (depth() - 1);
+      if (ietaAbs() >= 27 && ietaAbs() <= 28)  index = (iphi() - 1)*8 + (iphi()/2)*20 + 20 + 3*(ietaAbs()-27) + (depth() - 1);
+      if (ietaAbs() == 29)                     index = (iphi() - 1)*8 + (iphi()/2)*20 + 26 + 2*(ietaAbs()-29) + (depth() - 1);
+      
+      index += 2*HBhalf;
+      if (zside() == -1) index += HEhalf;
+    }
+
+  // HO valid DetIds: phi=1-72,eta=1-15,depth=4!
+  if (subdet() == HcalOuter)
+    {
+      index = (2*HBhalf) + (2*HEhalf) + (iphi() - 1)*15 + (ietaAbs() - 1);
+
+      if (zside() == -1) index += HOhalf;
+  }
+
+  // HF valid DetIds: phi=1-71(in steps of 2),eta=29-39,depth=1-2; phi=3-71(in steps of 4),eta=40-41,depth=1-2
+  if (subdet() == HcalForward)
+    {
+      index = ((iphi()-1)/4)*4 + ((iphi()-1)/2)*22 + 2*(ietaAbs()-29) + (depth() - 1);
+
+      index += (2*HBhalf) + (2*HEhalf) + (2*HOhalf);
+      if (zside() == -1)  index += HFhalf;
+    }
+  return index;
 }

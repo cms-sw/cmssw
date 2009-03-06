@@ -20,12 +20,6 @@
  * 3. Does nothing with wiregroup channels; the output = the input. In the long term we intend to
  * move remapping currently embedded in the CSCRawToDigi unpacker into this class.<BR>
  *
- * Beware that the 48 strips in ME1a are ganged to 16 channels, so be careful to distinguish
- * the nomenclatures 'strip' vs 'channel'. It is usually a meaningful distinction!
- *
- * Also note that CSCDetId for ME11 and ME1b are identical. Offline we presume ring=1 of station 1
- * to mean the ME1b strips. We use the identifier ring=4 to denote the ME1a strips.
- *
  * \author Tim Cox
  *
  */
@@ -54,14 +48,6 @@ class CSCChannelTranslator{
   int geomCathodeChannel( const CSCDetId& id, int iraw ) const { return geomStripChannel( id, iraw );}
   /// Alias for geomWireChannel
   int geomAnodeChannel( const CSCDetId& id, int iraw ) const { return geomWireChannel( id, iraw );}
-
-  /// Offline conversion of a strip (geometric labelling) back to channel
-  /// (At present this just has to convert the 48 strips of ME1A to 16 ganged channels.)
-  int channelFromStrip( const CSCDetId& id, int strip ) const;
-
-  /// Construct raw CSCDetId matching supplied offline CSCDetid
-  /// (At present all this has to do is return the ME11 CSCDetID when supplied with that for ME1A)
-  CSCDetId rawCSCDetId( const CSCDetId& id ) const;
 
 };
 

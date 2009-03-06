@@ -1,145 +1,150 @@
 import FWCore.ParameterSet.Config as cms
 
-import HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi
-# HLT BTag Soft muon-based triggers analyers
-hlt_BTagMu_Jet20_Calib = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
-import HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi
-hlt_BTagMu_DoubleJet120 = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
-import HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi
-hlt_BTagMu_TripleJet70 = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
-import HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi
-hlt_BTagMu_QuadJet40 = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
-import HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi
-hlt_BTagMu_HT370 = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
-hltBSoftmuon_modules = cms.PSet(
-    modules = cms.vstring('hlt_BTagMu_Jet20_Calib', 
-        'hlt_BTagMu_DoubleJet120', 
-        'hlt_BTagMu_TripleJet70', 
-        'hlt_BTagMu_QuadJet40', 
-        'hlt_BTagMu_HT370')
+import copy
+from HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi import *
+# HLT Btag Softmuon paths analyers
+hltb1jetmu = copy.deepcopy(hltBtagLifetimeAnalyzer)
+import copy
+from HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi import *
+hltb2jetmu = copy.deepcopy(hltBtagLifetimeAnalyzer)
+import copy
+from HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi import *
+hltb3jetmu = copy.deepcopy(hltBtagLifetimeAnalyzer)
+import copy
+from HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi import *
+hltb4jetmu = copy.deepcopy(hltBtagLifetimeAnalyzer)
+import copy
+from HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi import *
+hltbhtmu = copy.deepcopy(hltBtagLifetimeAnalyzer)
+hltBSoftmuonModules = cms.PSet(
+    modules = cms.vstring('hltb1jetmu', 
+        'hltb2jetmu', 
+        'hltb3jetmu', 
+        'hltb4jetmu', 
+        'hltbhtmu')
 )
-hltBSoftmuon = cms.Sequence(hlt_BTagMu_Jet20_Calib+hlt_BTagMu_DoubleJet120+hlt_BTagMu_TripleJet70+hlt_BTagMu_QuadJet40+hlt_BTagMu_HT370)
-hlt_BTagMu_Jet20_Calib.triggerPath = 'HLT_BTagMu_Jet20_Calib'
-hlt_BTagMu_Jet20_Calib.levels = cms.VPSet(cms.PSet(
-    filter = cms.InputTag("hltBSoftmuonNjetL1seeds","","HLT"),
-    jets = cms.InputTag("hltIterativeCone5CaloJets","","HLT"),
-    name = cms.string('L1'),
-    title = cms.string('L1')
+hltBSoftmuon = cms.Sequence(hltb1jetmu+hltb2jetmu+hltb3jetmu+hltb4jetmu+hltbhtmu)
+hltb1jetmu.triggerPath = 'HLTB1Jet'
+hltb1jetmu.levels = cms.VPSet(cms.PSet(
+    filter = cms.InputTag("hltBSoftmuonNjetL1seeds"),
+    jets = cms.InputTag("iterativeCone5CaloJets","","HLT"),
+    name = cms.string('preL2'),
+    title = cms.string('pre-L2')
 ), 
     cms.PSet(
-        filter = cms.InputTag("hltBSoftmuon1jetL2filter","","HLT"),
+        filter = cms.InputTag("hltBSoftmuon1jetL2filter"),
         jets = cms.InputTag("hltBSoftmuonL25Jets","","HLT"),
         name = cms.string('L2'),
         title = cms.string('L2')
     ), 
     cms.PSet(
-        filter = cms.InputTag("hltBSoftmuonL25filter","","HLT"),
+        filter = cms.InputTag("hltBSoftmuonL25filter"),
         jets = cms.InputTag("hltBSoftmuonL25Jets","","HLT"),
         name = cms.string('L25'),
         title = cms.string('L2.5')
     ), 
     cms.PSet(
-        filter = cms.InputTag("hltBSoftmuonByDRL3filter","","HLT"),
+        filter = cms.InputTag("hltBSoftmuonByDRL3filter"),
         jets = cms.InputTag("hltBSoftmuonHLTJetsByDR"),
         name = cms.string('L3'),
         title = cms.string('L3')
     ))
-hlt_BTagMu_DoubleJet120.triggerPath = 'HLT_BTagMu_DoubleJet120'
-hlt_BTagMu_DoubleJet120.levels = cms.VPSet(cms.PSet(
-    filter = cms.InputTag("hltBSoftmuonNjetL1seeds","","HLT"),
-    jets = cms.InputTag("hltIterativeCone5CaloJets","","HLT"),
-    name = cms.string('L1'),
-    title = cms.string('L1')
+hltb2jetmu.triggerPath = 'HLTB2Jet'
+hltb2jetmu.levels = cms.VPSet(cms.PSet(
+    filter = cms.InputTag("hltBSoftmuonNjetL1seeds"),
+    jets = cms.InputTag("iterativeCone5CaloJets","","HLT"),
+    name = cms.string('preL2'),
+    title = cms.string('pre-L2')
 ), 
     cms.PSet(
-        filter = cms.InputTag("hltBSoftmuon2jetL2filter","","HLT"),
+        filter = cms.InputTag("hltBSoftmuon2jetL2filter"),
         jets = cms.InputTag("hltBSoftmuonL25Jets","","HLT"),
         name = cms.string('L2'),
         title = cms.string('L2')
     ), 
     cms.PSet(
-        filter = cms.InputTag("hltBSoftmuonL25filter","","HLT"),
+        filter = cms.InputTag("hltBSoftmuonL25filter"),
         jets = cms.InputTag("hltBSoftmuonL25Jets","","HLT"),
         name = cms.string('L25'),
         title = cms.string('L2.5')
     ), 
     cms.PSet(
-        filter = cms.InputTag("hltBSoftmuonL3filter","","HLT"),
+        filter = cms.InputTag("hltBSoftmuonL3filter"),
         jets = cms.InputTag("hltBSoftmuonHLTJets"),
         name = cms.string('L3'),
         title = cms.string('L3')
     ))
-hlt_BTagMu_TripleJet70.triggerPath = 'HLT_BTagMu_TripleJet70'
-hlt_BTagMu_TripleJet70.levels = cms.VPSet(cms.PSet(
-    filter = cms.InputTag("hltBSoftmuonNjetL1seeds","","HLT"),
-    jets = cms.InputTag("hltIterativeCone5CaloJets","","HLT"),
-    name = cms.string('L1'),
-    title = cms.string('L1')
+hltb3jetmu.triggerPath = 'HLTB3Jet'
+hltb3jetmu.levels = cms.VPSet(cms.PSet(
+    filter = cms.InputTag("hltBSoftmuonNjetL1seeds"),
+    jets = cms.InputTag("iterativeCone5CaloJets","","HLT"),
+    name = cms.string('preL2'),
+    title = cms.string('pre-L2')
 ), 
     cms.PSet(
-        filter = cms.InputTag("hltBSoftmuon3jetL2filter","","HLT"),
+        filter = cms.InputTag("hltBSoftmuon3jetL2filter"),
         jets = cms.InputTag("hltBSoftmuonL25Jets","","HLT"),
         name = cms.string('L2'),
         title = cms.string('L2')
     ), 
     cms.PSet(
-        filter = cms.InputTag("hltBSoftmuonL25filter","","HLT"),
+        filter = cms.InputTag("hltBSoftmuonL25filter"),
         jets = cms.InputTag("hltBSoftmuonL25Jets","","HLT"),
         name = cms.string('L25'),
         title = cms.string('L2.5')
     ), 
     cms.PSet(
-        filter = cms.InputTag("hltBSoftmuonL3filter","","HLT"),
+        filter = cms.InputTag("hltBSoftmuonL3filter"),
         jets = cms.InputTag("hltBSoftmuonHLTJets"),
         name = cms.string('L3'),
         title = cms.string('L3')
     ))
-hlt_BTagMu_QuadJet40.triggerPath = 'HLT_BTagMu_QuadJet40'
-hlt_BTagMu_QuadJet40.levels = cms.VPSet(cms.PSet(
-    filter = cms.InputTag("hltBSoftmuonNjetL1seeds","","HLT"),
-    jets = cms.InputTag("hltIterativeCone5CaloJets","","HLT"),
-    name = cms.string('L1'),
-    title = cms.string('L1')
+hltb4jetmu.triggerPath = 'HLTB4Jet'
+hltb4jetmu.levels = cms.VPSet(cms.PSet(
+    filter = cms.InputTag("hltBSoftmuonNjetL1seeds"),
+    jets = cms.InputTag("iterativeCone5CaloJets","","HLT"),
+    name = cms.string('preL2'),
+    title = cms.string('pre-L2')
 ), 
     cms.PSet(
-        filter = cms.InputTag("hltBSoftmuon4jetL2filter","","HLT"),
+        filter = cms.InputTag("hltBSoftmuon4jetL2filter"),
         jets = cms.InputTag("hltBSoftmuonL25Jets","","HLT"),
         name = cms.string('L2'),
         title = cms.string('L2')
     ), 
     cms.PSet(
-        filter = cms.InputTag("hltBSoftmuonL25filter","","HLT"),
+        filter = cms.InputTag("hltBSoftmuonL25filter"),
         jets = cms.InputTag("hltBSoftmuonL25Jets","","HLT"),
         name = cms.string('L25'),
         title = cms.string('L2.5')
     ), 
     cms.PSet(
-        filter = cms.InputTag("hltBSoftmuonL3filter","","HLT"),
+        filter = cms.InputTag("hltBSoftmuonL3filter"),
         jets = cms.InputTag("hltBSoftmuonHLTJets"),
         name = cms.string('L3'),
         title = cms.string('L3')
     ))
-hlt_BTagMu_HT370.triggerPath = 'HLT_BTagMu_HT300'
-hlt_BTagMu_HT370.levels = cms.VPSet(cms.PSet(
-    filter = cms.InputTag("hltBSoftmuonHTL1seeds","","HLT"),
-    jets = cms.InputTag("hltIterativeCone5CaloJets","","HLT"),
-    name = cms.string('L1'),
-    title = cms.string('L1')
+hltbhtmu.triggerPath = 'HLTBHT'
+hltbhtmu.levels = cms.VPSet(cms.PSet(
+    filter = cms.InputTag("hltBSoftmuonHTL1seeds"),
+    jets = cms.InputTag("iterativeCone5CaloJets","","HLT"),
+    name = cms.string('preL2'),
+    title = cms.string('pre-L2')
 ), 
     cms.PSet(
-        filter = cms.InputTag("hltBSoftmuonHTL2filter","","HLT"),
+        filter = cms.InputTag("hltBSoftmuonHTL2filter"),
         jets = cms.InputTag("hltBSoftmuonL25Jets","","HLT"),
         name = cms.string('L2'),
         title = cms.string('L2')
     ), 
     cms.PSet(
-        filter = cms.InputTag("hltBSoftmuonL25filter","","HLT"),
+        filter = cms.InputTag("hltBSoftmuonL25filter"),
         jets = cms.InputTag("hltBSoftmuonL25Jets","","HLT"),
         name = cms.string('L25'),
         title = cms.string('L2.5')
     ), 
     cms.PSet(
-        filter = cms.InputTag("hltBSoftmuonL3filter","","HLT"),
+        filter = cms.InputTag("hltBSoftmuonL3filter"),
         jets = cms.InputTag("hltBSoftmuonHLTJets"),
         name = cms.string('L3'),
         title = cms.string('L3')

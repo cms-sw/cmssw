@@ -2,7 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 from TrackingTools.TrackFitters.KFTrajectoryFitterESProducer_cfi import *
 from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
-
+#Magnetic Field and Geometry
+from MagneticField.Engine.volumeBasedMagneticField_cfi import *
+from Geometry.CMSCommonData.cmsIdealGeometryXML_cfi import *
+from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *
+# NavigationSchool
 from RecoTracker.TkNavigation.NavigationSchoolESProducer_cff import *
 # Pattern Recognition and Fit
 from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cff import *
@@ -36,5 +40,5 @@ nuclearTrackCandidates.SeedProducer = 'nuclearSeed'
 nuclearTrackCandidates.TrajectoryBuilder = 'nuclearCkfTrajectoryBuilder'
 nuclearTrackCandidates.RedundantSeedCleaner = 'none'
 nuclearWithMaterialTracks.src = 'nuclearTrackCandidates'
-#FittingSmootherRK.MinNumberOfHits = 3
+FittingSmootherRK.MinNumberOfHits = 3
 

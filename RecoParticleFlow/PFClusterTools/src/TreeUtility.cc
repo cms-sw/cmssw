@@ -39,12 +39,10 @@ unsigned TreeUtility::getCalibratablesFromRootFile(TFile& f,
 
 unsigned TreeUtility::convertCalibratablesToParticleDeposits(
 		const std::vector<Calibratable>& input,
-		std::vector<ParticleDepositPtr>& toBeFilled, CalibrationTarget target,
-		DetectorElementPtr offset, DetectorElementPtr ecal,
-		DetectorElementPtr hcal, bool includeOffset) {
+		std::vector<ParticleDepositPtr>& toBeFilled, CalibrationTarget target, DetectorElementPtr offset, 
+		DetectorElementPtr ecal, DetectorElementPtr hcal) {
 
 	std::cout << __PRETTY_FUNCTION__ << std::endl;
-	std::cout << "WARNING: Using fabs() for eta value assignments!\n";
 	//neither of these two are supported yet
 	if (target == UNDEFINED || target == PFELEMENT)
 		return 0;
@@ -56,85 +54,61 @@ unsigned TreeUtility::convertCalibratablesToParticleDeposits(
 		bool veto(false);
 		if (c.sim_isMC_) {
 			pd->setTruthEnergy(c.sim_energyEvent_);
-			pd->setEta(fabs(c.sim_eta_));
-			pd->setPhi(c.sim_phi_);
+			pd->setEta(c.cand_eta_);
+			pd->setPhi(c.cand_phi_);
 			//TODO:: sort this out
-			if (c.sim_energyEvent_== 0)
+			if (c.cand_eta_ == NAN|| c.cand_phi_ == NAN|| c.sim_energyEvent_ == 0)
 				veto = true;
 		}
 
 		if (target == CLUSTER) {
-			if (c.cluster_ecal_.size() == 0 && c.cluster_hcal_.size() ==0)
-				veto = true;
-			//			if (c.cluster_numEcal_ > 1|| c.cluster_numHcal_ > 1)
-			//				veto = true;
-			//TODO: using fabs for eta! WARNING!!!
-			Deposition decal(ecal, fabs(c.cluster_meanEcal_.eta_),
-					c.cluster_meanEcal_.phi_, c.cluster_energyEcal_, 0);
-			Deposition dhcal(hcal, fabs(c.cluster_meanHcal_.eta_),
-					c.cluster_meanHcal_.phi_, c.cluster_energyHcal_, 0);
-			Deposition doffset(offset, fabs(c.cluster_meanEcal_.eta_),
-					c.cluster_meanEcal_.phi_, 0.001, 0);
-
-				pd->addTruthDeposition(decal);
-				pd->addRecDeposition(decal);
-
-				pd->addTruthDeposition(dhcal);
-				pd->addRecDeposition(dhcal);
-
-
-			if (includeOffset) {
-				pd->addTruthDeposition(doffset);
-				pd->addRecDeposition(doffset);
-			}
+			Deposition decal(ecal, c.cluster_etaEcal_, c.cluster_phiEcal_,
+					c.cluster_energyEcal_, 0);
+			Deposition dhcal(hcal, c.cluster_etaHcal_, c.cluster_phiHcal_,
+					c.cluster_energyHcal_, 0);
+			Deposition doffset(offset, c.cluster_etaHcal_, c.cluster_phiHcal_,
+					1.0, 0);
+			pd->addTruthDeposition(doffset);
+			pd->addTruthDeposition(decal);
+			pd->addTruthDeposition(dhcal);
+			pd->addRecDeposition(decal);
+			pd->addRecDeposition(dhcal);
+			pd->addRecDeposition(doffset);
 
 		}
 
-		else if (target == PFCANDIDATE) {
-			//			if(c.cands_num_ != 1)
-			//				veto = true;
+		if (target == PFCANDIDATE) {
 			Deposition decal(ecal, c.cand_eta_, c.cand_phi_,
-					c.cand_energyEcal_, 0);
+					c.cluster_energyEcal_, 0);
 			Deposition dhcal(hcal, c.cand_eta_, c.cand_phi_,
-					c.cand_energyHcal_, 0);
-			Deposition doffset(offset, c.cand_eta_, c.cand_phi_, 1.0, 0);
-
+					c.cluster_energyHcal_, 0);
+			Deposition doffset(offset, c.cand_eta_, c.cand_phi_,
+								1.0, 0);
+			pd->addTruthDeposition(doffset);
 			pd->addTruthDeposition(decal);
 			pd->addTruthDeposition(dhcal);
 			pd->addRecDeposition(decal);
 			pd->addRecDeposition(dhcal);
-
-			if (includeOffset) {
-				pd->addTruthDeposition(doffset);
-				pd->addRecDeposition(doffset);
-			}
+			pd->addRecDeposition(doffset);
 		}
 
-		else if (target == RECHIT) {
-			if (c.rechits_ecal_.size() == 0&& c.rechits_hcal_.size() == 0)
-			veto = true;
-			Deposition decal(ecal, c.rechits_meanEcal_.eta_,
-					c.rechits_meanEcal_.phi_, c.rechits_meanEcal_.energy_
-					* c.rechits_ecal_.size(), 0);
-			Deposition dhcal(hcal, c.rechits_meanHcal_.eta_,
-					c.rechits_meanHcal_.phi_, c.rechits_meanHcal_.energy_
-					* c.rechits_hcal_.size(), 0);
-			Deposition doffset(offset, c.rechits_meanEcal_.eta_,
-					c.rechits_meanEcal_.phi_, 1.0, 0);
-
+		if (target == RECHIT) {
+			Deposition decal(ecal, c.rechits_etaEcal_, c.rechits_phiEcal_,
+					c.rechits_energyEcal_, 0);
+			Deposition dhcal(hcal, c.rechits_etaHcal_, c.rechits_phiHcal_,
+					c.rechits_energyHcal_, 0);
+			Deposition doffset(offset, c.rechits_etaEcal_, c.rechits_phiEcal_,
+								1.0, 0);
+			pd->addTruthDeposition(doffset);
 			pd->addTruthDeposition(decal);
 			pd->addTruthDeposition(dhcal);
 			pd->addRecDeposition(decal);
 			pd->addRecDeposition(dhcal);
-
-			if (includeOffset) {
-				pd->addTruthDeposition(doffset);
-				pd->addRecDeposition(doffset);
-			}
+			pd->addRecDeposition(doffset);
 
 		}
 		if (!veto)
-		toBeFilled.push_back(pd);
+			toBeFilled.push_back(pd);
 		++count;
 	}
 

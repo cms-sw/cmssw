@@ -25,15 +25,6 @@ std::pair<float, float> CSCStripTopology::equationOfStrip( float strip ) const {
   return std::pair<float,float>(ms, cs);
 }
 
-std::pair<float, float> CSCStripTopology::yLimitsOfStripPlane() const{
-  // use functions from base class
-  float ylow  = yCentreOfStripPlane() - yExtentOfStripPlane()/2. ;
-  float yhigh = yCentreOfStripPlane() + yExtentOfStripPlane()/2. ;
-  
-  return std::pair<float, float>(ylow, yhigh);
-}
-
-
 // op<< is not a member
 
 #include <iostream>

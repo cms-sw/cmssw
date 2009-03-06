@@ -8,9 +8,9 @@ using namespace std;
 IsolatedPFCandidate::IsolatedPFCandidate() : PFCandidate(), isolation_(-1) {}
 
 
-IsolatedPFCandidate::IsolatedPFCandidate( const PFCandidatePtr & candidatePtr, 
+IsolatedPFCandidate::IsolatedPFCandidate( const PFCandidateRef & candidateRef, 
 					  double isolation ) : 
-  PFCandidate(candidatePtr), 
+  PFCandidate(candidateRef), 
   isolation_(isolation) {
 }
 

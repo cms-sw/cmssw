@@ -84,6 +84,7 @@ private:
   // KK_end
   
   // JAG
+  MonitorElement* haloDelEta23;
   MonitorElement* csctfChamberOccupancies;
   MonitorElement* csctfTrackPhi;
   MonitorElement* csctfTrackEta;

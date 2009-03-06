@@ -56,9 +56,9 @@ std::ostream& operator << (std::ostream& os, const L1GctJetEtCalibrationLut& lut
   os << "==================================================" << std::endl;
   os << "===Level-1 Trigger:  GCT Jet Et Calibration Lut===" << std::endl;
   os << "==================================================" << std::endl;
-  os << "===Parameter settings===" << std::endl;
+  os << "===Parameter settings" << std::endl;
   os << *lut.getFunction() << std::endl;
-  os << "\n===Lookup table contents===\n" << std::endl;
+  os << "===Lookup table contents" << std::endl;
   const L1GctLut<L1GctJetEtCalibrationLut::NAddress,L1GctJetEtCalibrationLut::NData>* temp=&lut;
   os << *temp;
   return os;

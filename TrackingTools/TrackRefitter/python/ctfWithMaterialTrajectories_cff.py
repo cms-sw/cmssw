@@ -14,11 +14,9 @@ from TrackingTools.TrackRefitter.TracksToTrajectories_cff import *
 # the propagator must be the same as the one used by the Fitter
 #
 ctfWithMaterialTracks = cms.EDFilter("TracksToTrajectories",
-    Tracks = cms.InputTag("generalTracks"),
+    Tracks = cms.InputTag("ctfWithMaterialTracks"),
     TrackTransformer = cms.PSet(
-        DoPredictionsOnly = cms.bool(False),
         Fitter = cms.string('KFFitterForRefitInsideOut'),
-#        TrackerRecHitBuilder = cms.string('WithTrackAngleAndTemplate'),
         TrackerRecHitBuilder = cms.string('WithTrackAngle'),
         Smoother = cms.string('KFSmootherForRefitInsideOut'),
         MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
@@ -27,6 +25,5 @@ ctfWithMaterialTracks = cms.EDFilter("TracksToTrajectories",
         Propagator = cms.string('SmartPropagatorAnyRK')
     )
 )
-
 
 

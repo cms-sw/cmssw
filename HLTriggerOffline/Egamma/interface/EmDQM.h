@@ -11,9 +11,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/Common/interface/RefToBase.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include <vector>
 #include "TDirectory.h"
-#include "TH1F.h"
+#include "HepMC/GenParticle.h"
 
 class EmDQM : public edm::EDAnalyzer{
 public:
@@ -34,23 +36,32 @@ private:
   std::vector<edm::InputTag> theHLTCollectionLabels;  
   edm::InputTag theL1Seed;
   std::vector<int> theHLTOutputTypes;
+  std::vector<bool> plotiso;
+  std::vector<std::vector<edm::InputTag> > isoNames; // there has to be a better solution
+  std::vector<std::pair<double,double> > plotBounds; 
   std::string theHltName;
   unsigned int reqNum;
   double thePtMin ;
   double thePtMax ;
   unsigned int theNbins ;
 
-  std::vector<TH1F*> etahist;
-  std::vector<TH1F*> ethist;
-  TH1F* total;
-  TH1F* etgen;
-  TH1F* etagen;
+  std::vector<MonitorElement*> etahist;
+  std::vector<MonitorElement*> ethist;
+  std::vector<MonitorElement*> etahistmatch;
+  std::vector<MonitorElement*> ethistmatch;
+  std::vector<MonitorElement*> etahistiso;
+  std::vector<MonitorElement*> ethistiso;
+  MonitorElement* total;
+  MonitorElement* etgen;
+  MonitorElement* etagen;
   int   pdgGen;
   double genEtaAcc;
   double genEtAcc;
 
-  template <class T> void fillHistos(edm::Handle<trigger::TriggerEventWithRefs>& , std::vector<int>& ,int);
+  template <class T> void fillHistos(edm::Handle<trigger::TriggerEventWithRefs>& ,const edm::Event& ,unsigned int, std::vector<HepMC::GenParticle>& );
   
+  DQMStore * dbe;
+  std::string dirname_;
 
 };
 #endif

@@ -2,7 +2,6 @@
 <library name=PhysicsToolsHepMCCandAlgos_plugins file=*.cc>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
-  <use name=FWCore/MessageLogger>
   <use name=DataFormats/HepMCCandidate>
   <use name=DataFormats/WrappedStdDictionaries>
   <use name=DataFormats/JetReco>

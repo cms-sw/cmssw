@@ -5,15 +5,15 @@
 //  exception with trace back and chaining
 //
 
-# include "FWCore/Utilities/interface/Exception.h"
+# include "SealBase/Error.h"
 
 
 
 /** base CMSexception
  */
-class CMSexception : public cms::Exception {
+class CMSexception : public seal::Error {
 public:
-  CMSexception() throw() : cms::Exception("") {}
+  CMSexception() throw() {}
   virtual ~CMSexception() throw() {}
   virtual const char* what() const throw() = 0;
   virtual std::string explainSelf (void) const { return what();}
@@ -27,7 +27,7 @@ public:
   virtual ~Fastexception() throw() {}
   virtual const char* what() const throw() { return 0;}
   virtual std::string explainSelf (void) const { return "";}
-  virtual cms::Exception *     clone (void) const { return new Fastexception(*this);}
+  virtual seal::Error *     clone (void) const { return new Fastexception(*this);}
   virtual void        rethrow (void) { throw *this;}
 };
 
@@ -42,7 +42,7 @@ public:
   BaseGenexception(const std::string & mess) throw();
   virtual ~BaseGenexception() throw();
   virtual const char* what() const throw() { return message.c_str();}
-  virtual cms::Exception *     clone (void) const { return new BaseGenexception(*this);}
+  virtual seal::Error *     clone (void) const { return new BaseGenexception(*this);}
   virtual void        rethrow (void) { throw *this;}
 
 private:
@@ -66,7 +66,7 @@ public:
   void add(Genexception * in) throw();
 
   void dump(std::ostream & o, bool it=false) const throw(); 
-  virtual cms::Exception *  clone (void) const { return new Genexception(*this);}
+  virtual seal::Error *  clone (void) const { return new Genexception(*this);}
   virtual void        rethrow (void) { throw *this;}
 
 private:

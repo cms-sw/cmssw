@@ -18,7 +18,7 @@ towerMaker = cms.EDFilter("CaloTowersCreator",
 
     HEDWeight = cms.double(1.0),
     EEWeight = cms.double(1.0),
-    UseHO = cms.bool(True),
+    UseHO = cms.bool(False), ## Disable HO
     HF1Weight = cms.double(1.0),
     HOWeight = cms.double(1.0),
     HESWeight = cms.double(1.0),

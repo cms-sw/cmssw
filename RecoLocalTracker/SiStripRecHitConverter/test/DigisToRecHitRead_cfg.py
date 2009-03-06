@@ -15,7 +15,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/relval/CMSSW_2_1_0/RelValSingleMuPt10/GEN-SIM-DIGI-RECO/SpecialConditions_v1/0001/0A2D1D45-0D61-DD11-937B-001BFCDBD154.root')
+    fileNames = cms.untracked.vstring('/store/relval/2008/6/22/RelVal-RelValSingleMuPt10-1214048167-IDEAL_V2-2nd/0004/0AE2B3E3-0141-DD11-846F-000423D98BC4.root')
 )
 
 process.Timing = cms.Service("Timing")

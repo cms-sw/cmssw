@@ -1,34 +1,17 @@
 #ifndef PixelConfigBase_h
 #define PixelConfigBase_h
-/*! \file CalibFormats/SiPixelObjects/interface/PixelConfigBase.h
-*   \brief This file contains the base class for "pixel configuration data" 
-*          management
-*
-*   A longer explanation will be placed here later
-*/
 //
 // Base class for pixel configuration data
 // provide a place to implement common interfaces
 // for these objects. Any configuration data
 // object that is to be accessed from the database
-// should derive from this class.
+// should derive from this class
 //
 
 #include <string>
-#include "CalibFormats/SiPixelObjects/interface/PixelConfigKey.h"
 
 
 namespace pos{
-/*!  \ingroup ConfigurationObjects "Configuration Objects"
-*    
-*  @{
-*
-*   \class PixelConfigBase PixelConfigBase.h "interface/PixelConfigBase.h"
-*   \brief This file contains the base class for "pixel configuration data" 
-*          management
-*
-*   A longer explanation will be placed here later
-*/
   class PixelConfigBase {
 
   public:
@@ -50,12 +33,7 @@ namespace pos{
 
     //Interface to write out data to ascii file
     virtual void writeASCII(std::string dir="") const = 0;
-    //Interface to write out data to XML file for DB population
-    virtual void writeXML(      pos::PixelConfigKey key, int version, std::string path)                     const {;}
-    virtual void writeXMLHeader(pos::PixelConfigKey key, int version, std::string path, std::ofstream *out) const {;}
-    virtual void writeXML(                                                              std::ofstream *out) const {;}
-    virtual void writeXMLTrailer(                                                       std::ofstream *out) const {;}
-    
+
   private:
 
     std::string description_;
@@ -65,7 +43,5 @@ namespace pos{
 
   };
 
-/* @} */
 }
-
 #endif

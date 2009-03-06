@@ -1,23 +1,24 @@
 import FWCore.ParameterSet.Config as cms
 
 l1bias = cms.EDFilter("L1EmulBias",
+    ETPsource = cms.InputTag("ecalTriggerPrimitiveDigis"),
+    HTPsource = cms.InputTag("hcalTriggerPrimitiveDigis"),
+    RCTsource = cms.InputTag("rctDigis"),
+    GCTsource = cms.InputTag("gctDigis"),
+    DTPsource = cms.InputTag("dtTriggerPrimitiveDigis"),
+    DTFsource = cms.InputTag("dttfDigis"),
+    CTPsource = cms.InputTag("cscTriggerPrimitiveDigis"),
+    CTTsource = cms.InputTag("l1CscTfTrackEmulDigis"),
+    CTFsource = cms.InputTag("csctfDigis"),
     RPCsource = cms.InputTag("rpcTriggerDigis"),
+    GMTsource = cms.InputTag("gmtDigis"),
     LTCsource = cms.InputTag("none"),
     GLTsource = cms.InputTag("gtModule"),
-    HTPsource = cms.InputTag("hcalTriggerPrimitiveDigis"),
-    CTFsource = cms.InputTag("csctfDigis"),
-    DO_SYSTEM = cms.untracked.vuint32(0, 0, 0, 0, 0, 
-        0, 0, 0, 0, 0, 
-        0, 0),
-    CTPsource = cms.InputTag("cscTriggerPrimitiveDigis"),
-    GMTsource = cms.InputTag("gmtDigis"),
-    VerboseFlag = cms.untracked.int32(0),
-    DTFsource = cms.InputTag("dttfDigis"),
-    CTTsource = cms.InputTag("l1CscTfTrackEmulDigis"),
-    DTPsource = cms.InputTag("dtTriggerPrimitiveDigis"),
-    ETPsource = cms.InputTag("ecalTriggerPrimitiveDigis"),
-    GCTsource = cms.InputTag("gctDigis"),
-    RCTsource = cms.InputTag("rctDigis")
+    DO_SYSTEM = cms.untracked.vuint32(
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    # ETP,HTP,RCT,GCT,DTP,DTF,CTP,CTF,RPC,LTC,GMT,GT
+    ),
+    VerboseFlag = cms.untracked.int32(0)
 )
 
 

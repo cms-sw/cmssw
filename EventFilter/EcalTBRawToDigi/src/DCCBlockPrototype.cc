@@ -4,6 +4,7 @@
 #include "ECALParserBlockException.h"
 
 #include <stdio.h>
+#include <iomanip>
 #include <sstream>
 
 

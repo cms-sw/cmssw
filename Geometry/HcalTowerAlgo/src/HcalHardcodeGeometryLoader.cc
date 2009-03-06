@@ -54,7 +54,7 @@ HcalHardcodeGeometryLoader::load( DetId::Detector det,
    HcalSubdetector hsub=static_cast<HcalSubdetector>( subdet );
    ReturnType hg( new HcalGeometry( extTopology) );
 
-   if( hg->cornersMgr() == 0 ) hg->allocateCorners( HcalDetId::kSizeForDenseIndexing ) ;
+   if( hg->cornersMgr() == 0 ) hg->allocateCorners( 9072 ) ;
    if( hg->parMgr()     == 0 ) hg->allocatePar( 500, 3 ) ;
 
    switch (hsub) 
@@ -73,7 +73,7 @@ HcalHardcodeGeometryLoader::load()
 {
    ReturnType hg( new HcalGeometry( extTopology ) ) ;
 
-   if( hg->cornersMgr() == 0 ) hg->allocateCorners( HcalDetId::kSizeForDenseIndexing ) ;
+   if( hg->cornersMgr() == 0 ) hg->allocateCorners( 9072 ) ;
    if( hg->parMgr()     == 0 ) hg->allocatePar( 500, 3 ) ;
 
    fill(HcalBarrel,  extTopology->firstHBRing(), extTopology->lastHBRing(), hg); 
@@ -115,14 +115,15 @@ HcalHardcodeGeometryLoader::fill( HcalSubdetector subdet,
    for(std::vector<HcalDetId>::const_iterator hcalIdItr = hcalIds.begin();
        hcalIdItr != hcalIds.end(); ++hcalIdItr)
    {
-      geom->addCell( *hcalIdItr, makeCell(*hcalIdItr,geom) );
+      const CaloCellGeometry * geometry = makeCell(*hcalIdItr,geom);
+      geom->addCell(*hcalIdItr, geometry);
    }
 }
      
 
 inline double theta_from_eta(double eta){return (2.0*atan(exp(-eta)));}
 
-CaloCellGeometry* 
+const CaloCellGeometry* 
 HcalHardcodeGeometryLoader::makeCell( const HcalDetId& detId ,
 				      ReturnType       geom    ) const 
 {

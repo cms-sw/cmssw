@@ -9,19 +9,9 @@ HcalCalibDetId::HcalCalibDetId() : HcalOtherDetId() {
 HcalCalibDetId::HcalCalibDetId(uint32_t rawid) : HcalOtherDetId(rawid) {
 }
 
-HcalCalibDetId::HcalCalibDetId(HcalSubdetector subdet, int ieta, int iphi, int ctype) : HcalOtherDetId(HcalCalibration) {
-  id_|=(CalibrationBox<<17); // Calibration Category, bits [17:19] (= "1" for CalibrationBox)
-  id_|=(ctype&0xF)           // calibration channel type, bits [0:3]
-      |((iphi&0x1F)<<4)      // phi index, bits [4:10]
-      |(((ieta+2)&0x7)<<11)     // eta index, bits [11:13]
-      |((subdet&0x7)<<14);   // subdetector, bits [14:16]
-}
-
-HcalCalibDetId::HcalCalibDetId(int ieta, int iphi) : HcalOtherDetId(HcalCalibration) {
-  id_|=(HOCrosstalk<<17); // Calibration Category, bits [17:19] (= "2" for HOX)
-  id_|=(iphi&0x3F)               // phi index, bits [0:6]
-      |((abs(ieta)&0xF)<<7)     // eta index, bits [7:10]
-      |(((ieta > 0)?(1):(0))<<11); // z side, bit [11]
+HcalCalibDetId::HcalCalibDetId(SectorId sector, int rbx, int channel) : HcalOtherDetId(HcalCalibration) {
+  id_|=(CalibrationBox<<17);
+  id_|=(rbx&0x1F)|((sector&0xF)<<5)|((channel&0xF)<<9);
 }
 
 HcalCalibDetId::HcalCalibDetId(const DetId& gen) {
@@ -45,24 +35,33 @@ HcalCalibDetId& HcalCalibDetId::operator=(const DetId& gen) {
   return *this;
 }
 
+int HcalCalibDetId::rbx() const {
+  return (calibFlavor()==CalibrationBox)?(id_&0x1F):(0);
+}
+
+HcalCalibDetId::SectorId HcalCalibDetId::sector() const {
+  return (SectorId)((calibFlavor()==CalibrationBox)?((id_>>5)&0xF):(0));
+}
+
+std::string HcalCalibDetId::sectorString() const {
+  switch (sector()) {
+  case(HBplus): return "HBP";
+  case(HBminus): return "HBM";
+  case(HEplus): return "HEP";
+  case(HEminus): return "HEM";
+  case(HFplus): return "HFP";
+  case(HFminus): return "HFM";
+  case(HO2plus): return "HO2P";
+  case(HO1plus): return "HO1P";
+  case(HOzero): return "HO0";
+  case(HO1minus): return "HO1M";
+  case(HO2minus): return "HO2M";
+  default : return "";
+  }
+}
+
 int HcalCalibDetId::cboxChannel() const {
-  return (calibFlavor()==CalibrationBox)?(id_&0xF):(0);
-}
-
-HcalSubdetector HcalCalibDetId::hcalSubdet() const {  
-  return (HcalSubdetector)((calibFlavor()==CalibrationBox)?((id_>>14)&0x7):(0));
-}
-    
-int HcalCalibDetId::ieta() const {
-  return (calibFlavor()==CalibrationBox)?(((id_>>11)&0x7)-2):((calibFlavor()==HOCrosstalk)?(((id_>>7)&0xF)*zside()):(0));
-}
-
-int HcalCalibDetId::iphi() const {
-  return (calibFlavor()==CalibrationBox)?((id_>>4)&0x3F):((calibFlavor()==HOCrosstalk)?(id_&0x3F):(0));
-}
-
-int HcalCalibDetId::zside() const {
-  return (calibFlavor()==HOCrosstalk)?(((id_>>11)&0x1)?(1):(-1)):(0);
+  return (calibFlavor()==CalibrationBox)?((id_>>9)&0xF):(0);
 }
 
 std::string HcalCalibDetId::cboxChannelString() const {
@@ -70,32 +69,21 @@ std::string HcalCalibDetId::cboxChannelString() const {
   case(cbox_MixerHigh): return "Mixer-High";
   case(cbox_MixerLow): return "Mixer-Low";
   case(cbox_LaserMegatile): return "Megatile";
-  case(cbox_RadDam_Layer0_RM4): return "RadDam-L0-RM4";
-  case(cbox_RadDam_Layer7_RM4): return "RadDam-L7-RM4";
-  case(cbox_RadDam_Layer0_RM1): return "RadDam-L0-RM1";
-  case(cbox_RadDam_Layer7_RM1): return "RadDam-L7-RM1";
-  case(cbox_HOCrosstalkPIN): return "HO-Crosstalk-PIN";
-  case(cbox_HF_ScintillatorPIN): return "HF-Scint-PIN";
+  case(cbox_MixerScint): return "Mixer-Scintillator";
+  case(cbox_RadDam1): return "RadDam1";
+  case(cbox_RadDam2): return "RadDam2";
+  case(cbox_RadDam3): return "RadDam3";
   default : return "";
   }
 }
 
 std::ostream& operator<<(std::ostream& s,const HcalCalibDetId& id) {
-  std::string sd;
-  switch (id.hcalSubdet()) {
-    case(HcalBarrel) : sd="HB"; break;
-    case(HcalEndcap) : sd="HE"; break;
-    case(HcalOuter) : sd="HO"; break;
-    case(HcalForward) : sd="HF"; break;
-    default: break;
-  }
   switch (id.calibFlavor()) {
   case(HcalCalibDetId::CalibrationBox):
-    return s << "(HcalCalibBox " << sd << ' ' << id.ieta() << "," << id.iphi()
+    return s << "(HcalCalibBox " << id.sectorString() << ':' << id.rbx() 
 	     << ' ' << id.cboxChannelString() << ')';
-  case(HcalCalibDetId::HOCrosstalk):
-    return s << "(HOCrosstalk "  << id.ieta() << "," << id.iphi() 
-	     << ')';
   default: return s;
   };
 }
+
+

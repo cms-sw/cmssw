@@ -26,7 +26,7 @@ class VariableEventSelector : public EventSelector {
 	description_.push_back(ss.str());       ss.str("");}
     }
     bool select(const edm::Event& e) const{
-      const CachingVariable * var=edm::Service<VariableHelperService>()->get().variable(var_);
+      const CachingVariable * var=VariableHelperInstance::get().variable(var_);
       if (!var->compute(e)) return false;
 
       double v=(*var)(e);

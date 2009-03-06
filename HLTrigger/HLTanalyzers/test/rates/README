@@ -16,7 +16,7 @@ README for OpenHLT rate calculating scripts
  
 	Once the binary file is built, the rate-calculating script can be run using:
 	
-	./OHltRates <NEntries> <sMenu> <sConditions> <sVersion> <sEnergy> <doPrintAll>
+	./OHltRates <NEntries> <sMenu> <sConditions> <sVersion> <doPrintAll>
 
 	The arguments are as follows:
 		
@@ -27,13 +27,11 @@ README for OpenHLT rate calculating scripts
 			    Any number < 0 will be interpreted as "running over all existing events".
 			    Default is all (-1).
 	
-		<sMenu>: Type of trigger menu to run. Options are "default", "example", and "l1default".
+		<sMenu>: Type of trigger menu to run. Options are "default" and "example".
 			 The "default" option runs the full HLT menu using the trigger bits
 			 from the standard HLT. The "example" menu will run the OpenHLT 
 			 triggers together with a few triggers from the full HLT for comparison.
 			 The method for adding new OpenHLT triggers is described below.
-			 The "l1default" calculates the rates for the full L1 menu using the trigger bits
-			 from the standard L1.
 
 		<sConditions>: Options are "startup" and "ideal". The "startup" option
 			       will run over events processed with 1pb-1 conditions. The "ideal" 
@@ -41,10 +39,6 @@ README for OpenHLT rate calculating scripts
 
 		<sVersion>: A string describing this menu. This will be appended to the name of 
 			    the output files.
-
-		<sEnergy>: sqrt(s) energy to assume for scaling cross-sections. Options are 10 and 14.
-			   Note - the currently available samples were produced with 14TeV settings in 
-			   CMSSW_1_8_4. 
 
 		<doPrintAll>: If set to 1 all printouts incl. overlap coefficient etc,
 			      and also the pdf file is generated.
@@ -199,24 +193,3 @@ README for OpenHLT rate calculating scripts
 		float HisoBR:	Barrel Hcal isolation in GeV
 		float HisoEC:	Endcap Hcal isolation in GeV
 
-
---------------------------------------
-3f. Example OpenHLT tau triggers
---------------------------------------
-	
-	Several examples are available in OHltTree.cpp. 
-
-	The algorithm for the Tau triggers is implemented in OHltTree::OpenHltTauPassed method.
-        As an example one can take the HLT2TauPixel path, which can be implemented as
-
-	if(OpenHltTauPassed(15.,5.,3.,1,0.,0)>=2) {} using
-        OpenHltTauPassed(float Et,float Eiso, float L25Tpt, int L25Tiso, float L3Tpt, int L3Tiso)
-
-	The if statement asks for at least 2 tau candidates which fullfil both these criteria:	      
-
-		float   Et:	L2 calo Et threshold in GeV
-		int   Eiso:	L2 is Ecal isolated (1: yes, 0: no)
-		float L25Tpt:	L2.5 pixel leading Track Pt threshold in GeV
-		int   L25Tiso:	L2.5 is Track isolated (1: yes, 0: no)
-		float L3Tpt:	L3 si+pix leading Track Pt threshold in GeV
-		int   L3Tiso:	L3 is Track isolated (1: yes, 0: no)

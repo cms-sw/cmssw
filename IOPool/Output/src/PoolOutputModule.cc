@@ -25,9 +25,6 @@ namespace edm {
   PoolOutputModule::PoolOutputModule(ParameterSet const& pset) :
     OutputModule(pset),
     selectedOutputItemList_(), 
-    droppedOutputItemList_(), 
-    prunedOutputItemList_(), 
-    registryItems_(), 
     fileName_(pset.getUntrackedParameter<std::string>("fileName")),
     logicalFileName_(pset.getUntrackedParameter<std::string>("logicalFileName", std::string())),
     catalog_(pset.getUntrackedParameter<std::string>("catalog", std::string())),
@@ -97,87 +94,7 @@ namespace edm {
     // Sort outputItemList to allow fast copying.
     // The branches in outputItemList must be in the same order as in the input tree, with all new branches at the end.
     sort_all(outputItemList, OutputItem::Sorter(theTree));
-
-    for(OutputItemList::const_iterator it = outputItemList.begin(), itEnd = outputItemList.end();
-        it != itEnd; ++it) {
-      registryItems_.insert(it->branchDescription_->branchID());
-    }
   }
-
-  void PoolOutputModule::fillDroppedItemList(BranchType branchType) {
-
-    Selections const& droppedVector = droppedProducts()[branchType];
-    OutputItemList&   outputItemList = droppedOutputItemList_[branchType];
-
-    // Fill outputItemList with an entry for each dropped branch.
-    for (Selections::const_iterator it = droppedVector.begin(), itEnd = droppedVector.end(); it != itEnd; ++it) {
-      BranchDescription const& prod = **it;
-      outputItemList.push_back(OutputItem(&prod));
-    }
-
-    for(OutputItemList::const_iterator it = outputItemList.begin(), itEnd = outputItemList.end();
-        it != itEnd; ++it) {
-      registryItems_.insert(it->branchDescription_->branchID());
-    }
-  }
-
-  // This is a predicate class. It is created using information from
-  // an OutputItemList (which specifies the set of data product
-  // branches that are being written), and BranchChildren (the lookup
-  // table used to determine what are the ancestors of a given
-  // branch).
-  class MatchItemWithoutPedigree {
-  public:
-    typedef PoolOutputModule::OutputItem OutputItem;
-    typedef PoolOutputModule::OutputItemList OutputItemList;
-    MatchItemWithoutPedigree(OutputItemList const& items, 
-			     BranchChildren const& lookup_table);
-
-    // Return true for those OutputItems we are to prune.
-    bool operator()(OutputItem const& item) const;
-  private:
-    // these are the ids of the provenances we shall keep.
-    std::vector<BranchID> keepers_;
-  };
-
-  MatchItemWithoutPedigree::MatchItemWithoutPedigree(RootOutputFile::OutputItemList const& items,
-						     BranchChildren const& lookup_table) {
-    // Get the BranchIDs for the data product branches we will write.
-    std::vector<BranchID> productBranches;
-    // If we had transform_copy_if, I'd use it here...
-    for (OutputItemList::const_iterator i = items.begin(), e = items.end(); i != e; ++i) {
-      productBranches.push_back(i->branchID());
-    }
-
-    // Go through the BranchIDs for the data product branches we will
-    // write, and get all the ancestors for each.
-    std::set<BranchID> allAncestors;
-    for (std::vector<BranchID>::iterator i=productBranches.begin(), e = productBranches.end(); i != e; ++i) {
-      lookup_table.appendToAncestors(*i, allAncestors);
-    }
-
-    // Save the results
-    std::vector<BranchID>(allAncestors.begin(), allAncestors.end()).swap(keepers_);
-  }
-
-  inline
-  bool
-  MatchItemWithoutPedigree::operator()(OutputItem const& item) const {
-    // We should prune the item if we do *not* recognize its BranchID
-    // as one we are to keep.
-    // We we must keep all items produced in this process,
-    // because we do not yet know the dependencies newly produced items.
-    return !binary_search_all(keepers_, item.branchID()) && !item.branchDescription_->produced();
-  }
-
-  void PoolOutputModule::pruneOutputItemList(BranchType branchType, FileBlock const& inputFile) {
-    OutputItemList& items = prunedOutputItemList_[branchType];
-    items.clear();
-    items = droppedOutputItemList()[branchType];
-    MatchItemWithoutPedigree pred(items, inputFile.branchChildren());
-    items.erase(std::remove_if(items.begin(), items.end(), pred), items.end());
-  }
-
 
   void PoolOutputModule::openFile(FileBlock const& fb) {
     if (!isFileOpen()) {
@@ -197,8 +114,6 @@ namespace edm {
 		          (branchType == InLumi ? fb.lumiTree() :
                           fb.runTree()));
         fillSelectedItemList(branchType, theTree);
-        fillDroppedItemList(branchType);
-        pruneOutputItemList(branchType, fb);
       }
     }
     ++inputFileCount_;

@@ -6,8 +6,6 @@
 // should derive from this class
 //
 
-#include <iostream>
-#include <fstream>
 #include "CalibFormats/SiPixelObjects/interface/PixelConfigBase.h"
 
 
@@ -20,3 +18,4 @@ PixelConfigBase::PixelConfigBase(std::string description,
   creator_(creator),
   date_(date){
 }
+

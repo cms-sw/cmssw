@@ -23,7 +23,7 @@ StreamerInputIndexFile::StreamerInputIndexFile(const std::string& name):
   eof_(false),
   eventBufPtr_(0),
   headerBuf_(1000*1000),
-  eventBuf_(1000*1000*10),
+  eventBuf_(1000*1000*40),
   eventHeaderSize_(0),
   indexes_(0)
 {
@@ -48,7 +48,7 @@ StreamerInputIndexFile::StreamerInputIndexFile(const std::vector<std::string>& n
   eof_(false),
   eventBufPtr_(0),
   headerBuf_(1000*1000),
-  eventBuf_(1000*1000*10),
+  eventBuf_(1000*1000*40),
   eventHeaderSize_(0),
   indexes_(0)
 {

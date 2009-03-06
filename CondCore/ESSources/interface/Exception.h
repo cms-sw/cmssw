@@ -18,5 +18,6 @@ namespace cond{
     virtual ~nonExistentGlobalTagException() throw(){
     }
   };
+  
 }
 #endif

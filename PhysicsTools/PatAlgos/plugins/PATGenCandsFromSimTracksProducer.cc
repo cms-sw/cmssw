@@ -6,7 +6,7 @@
    
 
   \author   Jordan Tucker (original module), Giovanni Petrucciani (PAT integration)
-  \version  $Id: PATGenCandsFromSimTracksProducer.cc,v 1.1 2008/07/30 01:11:35 gpetrucc Exp $
+  \version  $Id: PATGenCandsFromSimTracksProducer.h,v 1.6 2008/05/06 20:13:50 gpetrucc Exp $
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -113,14 +113,14 @@ void PATGenCandsFromSimTracksProducer::produce(Event& event,
       Particle::Point vtx; // = (0,0,0) by default
       if (!isimtrk->noVertex())
           vtx = (*simvertices)[isimtrk->vertIndex()].position();
+      int status = 1;
 
-      GenParticle genp(charge, p4, vtx, isimtrk->type(), setStatus_, true);
+      GenParticle genp(charge, p4, vtx, isimtrk->type(), status, true);
 
       // Maybe apply filter on the particle
       if (filter_.get() != 0) {
         if (!(*filter_)(genp)) continue;
       }
-
       cands->push_back(genp);
   }
 

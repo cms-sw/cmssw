@@ -1,17 +1,7 @@
 #ifndef PixelConfig_h
 #define PixelConfig_h
-/*! \file CalibFormats/SiPixelObjects/interface/PixelConfig.h
-*   \brief This class implements..
-*
-*   A longer explanation will be placed here later
-*/
 
 namespace pos{
-/*! \class PixelConfig PixelConfig.h "interface/PixelConfig.h"
-*   \brief This class implements..
-*
-*   A longer explanation will be placed here later
-*/
   class PixelConfig {
     
   public:
@@ -31,7 +21,7 @@ namespace pos{
 //      std::cout << "[pos::PixelConfig::find()] versions_.size() = " << versions_.size() << std::endl ;
       for(unsigned int i=0;i<versions_.size();i++){
 //	std::cout << "Looking :"<<versions_[i].first
-//	          <<" "<<versions_[i].second<<std::endl;
+//		  <<" "<<versions_[i].second<<std::endl;
 	if (versions_[i].first==dir) {
 	  version=versions_[i].second;
 	  return 0;
@@ -54,9 +44,7 @@ namespace pos{
       return -1;
     }
 
-    std::vector<std::pair<std::string,unsigned int> > versions(){
-      return versions_;
-    }
+    
 
   private:
    

@@ -199,9 +199,6 @@ private:
 
   //----- Minimum value of the factor to multiply Da to test if an smaller chi2 can be obtained (chapter 5.2 of LeastSquareMethods)
   static ALIdouble theMinDaFactor;
-
- public:
-  static ALIuint nEvent; 
 };
 
 

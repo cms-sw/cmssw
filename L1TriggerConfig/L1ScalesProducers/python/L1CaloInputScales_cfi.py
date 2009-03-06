@@ -7,4 +7,3 @@ L1CaloInputScalesProducer = cms.ESProducer("L1CaloInputScalesProducer",
 )
 
 
-

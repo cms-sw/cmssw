@@ -58,7 +58,7 @@ public:
   virtual DetLayer* detLayer() const;
   virtual void   setDetLayer( DetLayer* dl);
   
-  virtual void setInwardLinks(const BDLC& theBarrelv, const FDLC& theForwardv);
+  virtual void setInwardLinks(const BDLC& theBarrelv, const FDLC& theForwardv,TkLayerLess sorter = TkLayerLess(outsideIn));
 
 private:
   bool areAllReachableLayersSet;

@@ -1,5 +1,5 @@
 //
-// $Id: GflashEMShowerProfile.cc,v 1.7 2008/08/05 16:30:27 dwjang Exp $
+// $Id: GflashEMShowerProfile.cc,v 1.3 2008/02/29 23:40:56 syjun Exp $
 // initial setup : Soon Jun & Dongwook Jang
 // Translated from Fortran code.
 
@@ -17,14 +17,10 @@
 #include "SimG4Core/GFlash/interface/GflashTrajectory.h"
 #include "SimG4Core/GFlash/interface/GflashTrajectoryPoint.h"
 
-GflashEMShowerProfile::GflashEMShowerProfile(G4Region* envelope, edm::ParameterSet parSet) : theParSet(parSet)
+GflashEMShowerProfile::GflashEMShowerProfile(G4Region* envelope)
 {
   theHelix = new GflashTrajectory;
   theHisto = GflashHistogram::instance();
-  jCalorimeter = Gflash::kNULL;
-  theBField = parSet.getParameter<double>("bField");
-  theGflash5x5EnergyScale_a = parSet.getParameter<double>("gflash5x5EnergyScale_a");
-  theGflash5x5EnergyScale_b = parSet.getParameter<double>("gflash5x5EnergyScale_b");
 
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable()) {
@@ -35,26 +31,13 @@ GflashEMShowerProfile::GflashEMShowerProfile(G4Region* envelope, edm::ParameterS
       << "remove the modules that require it.";
   }
   theRandGauss = new CLHEP::RandGaussQ(rng->getEngine());
-
-  theEMLateral_pList = parSet.getParameter<std::vector<double> >("emLateral_pList");
-
-  std::cout << "------------ tuning parameters --------------" << std::endl;
-  std::cout << "theGflash5x5EnergyScale_a : " << theGflash5x5EnergyScale_a << std::endl;
-  std::cout << "theGflash5x5EnergyScale_b : " << theGflash5x5EnergyScale_b << std::endl;
-  std::cout << "theEMLateral_pList[0]     : " << theEMLateral_pList[0] << std::endl;
-  std::cout << "theEMLateral_pList[1]     : " << theEMLateral_pList[1] << std::endl;
-  std::cout << "theEMLateral_pList[2]     : " << theEMLateral_pList[2] << std::endl;
-  std::cout << "theEMLateral_pList[3]     : " << theEMLateral_pList[3] << std::endl;
-
 }
-
 
 GflashEMShowerProfile::~GflashEMShowerProfile()
 {
   delete theHelix;
   delete theRandGauss;
 }
-
 
 void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
 {
@@ -64,24 +47,26 @@ void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
   const G4double energyCutoff     = 0.01; 
   const G4int    maxNumberOfSpots = 100000;
 
-   G4ThreeVector showerStartingPosition = fastTrack.GetPrimaryTrack()->GetPosition() / cm;
+  G4double incomingEnergy   = fastTrack.GetPrimaryTrack()->GetKineticEnergy()/GeV;
+  const G4double radLength = 0.89; // cm
+  const G4double Z = 68.360;
+  const G4double rMoliere = 2.19; // cm
+  const G4double criticalEnergy = 8.6155/GeV; // eScale*radLength/rMoliere (in MeV) need to convert into GeV
+  G4double nSpots = 93.0 * std::log(Z) * std::pow(incomingEnergy,0.876); // total number of spots
+
+  G4double logEinc = std::log(incomingEnergy);
+  G4double y = incomingEnergy / criticalEnergy; // y = E/Ec, criticalEnergy is in GeV
+  G4double logY = std::log(y);
+ 
+  G4ThreeVector showerStartingPosition = fastTrack.GetPrimaryTrack()->GetPosition() / cm;
   G4ThreeVector showerMomentum = fastTrack.GetPrimaryTrack()->GetMomentum()/GeV;
 
-  //find the calorimeter at the shower starting point
-  jCalorimeter = getCalorimeterNumber(showerStartingPosition);
-
-  G4double incomingEnergy   = fastTrack.GetPrimaryTrack()->GetKineticEnergy()/GeV;
-  G4double logEinc = std::log(incomingEnergy);
-  G4double y = incomingEnergy / Gflash::criticalEnergy; // y = E/Ec, criticalEnergy is in GeV
-  G4double logY = std::log(y);
-
-  G4double e25Scale = theGflash5x5EnergyScale_a + theGflash5x5EnergyScale_b*incomingEnergy;
-
-  G4double nSpots = 93.0 * std::log(Gflash::Z[jCalorimeter]) * std::pow(incomingEnergy,0.876); // total number of spots
 
   // implementing magnetic field effects
+  const G4double bField = 4.0; // in Tesla
   double charge = fastTrack.GetPrimaryTrack()->GetStep()->GetPreStepPoint()->GetCharge();
-  theHelix->initializeTrajectory(showerMomentum,showerStartingPosition,charge,theBField);
+  //  GflashTrajectory helix(showerMomentum,showerStartingPosition,charge,bField);
+  theHelix->initializeTrajectory(showerMomentum,showerStartingPosition,charge,bField);
 
   //path Length from the origin to the shower starting point in cm
   G4double pathLength0 = theHelix->getPathLengthAtRhoEquals(showerStartingPosition.getRho());
@@ -91,7 +76,7 @@ void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
   //--- 2.2  Fix intrinsic properties of em. showers.
 
   G4double fluctuatedTmax = std::log(logY - 0.7157);
-  G4double fluctuatedAlpha = std::log(0.7996 +(0.4581 + 1.8628/Gflash::Z[jCalorimeter])*logY);
+  G4double fluctuatedAlpha = std::log(0.7996 +(0.4581 + 1.8628/Z)*logY);
 
   G4double sigmaTmax = 1.0/( -1.4  + 1.26 * logY);
   G4double sigmaAlpha = 1.0/( -0.58 + 0.86 * logY);
@@ -111,9 +96,9 @@ void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
  
   // spot fluctuations are added to tmax, alpha, beta
   G4double averageTmax = logY-0.858;
-  G4double averageAlpha = 0.21+(0.492+2.38/Gflash::Z[jCalorimeter])*logY;
-  G4double spotTmax  = averageTmax * (0.698 + .00212*Gflash::Z[jCalorimeter]);
-  G4double spotAlpha = averageAlpha * (0.639 + .00334*Gflash::Z[jCalorimeter]);
+  G4double averageAlpha = 0.21+(0.492+2.38/Z)*logY;
+  G4double spotTmax  = averageTmax * (0.698 + .00212*Z);
+  G4double spotAlpha = averageAlpha * (0.639 + .00334*Z);
   G4double spotBeta = (spotAlpha-1.0)/spotTmax;
 
 
@@ -124,22 +109,20 @@ void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
 
   //  parameters for lateral distribution and fluctuation
   G4double z1=0.0251+0.00319*logEinc;
-  G4double z2=0.1162-0.000381*Gflash::Z[jCalorimeter];
+  G4double z2=0.1162-0.000381*Z;
 
-  G4double k1=0.659 - 0.00309 * Gflash::Z[jCalorimeter];
+  G4double k1=0.659 - 0.00309 * Z;
   G4double k2=0.645;
   G4double k3=-2.59;
   G4double k4=0.3585+ 0.0421*logEinc;
 
-  G4double p1=2.623 -0.00094*Gflash::Z[jCalorimeter];
-  G4double p2=0.401 +0.00187*Gflash::Z[jCalorimeter];
+  G4double p1=2.623 -0.00094*Z;
+  G4double p2=0.401 +0.00187*Z;
   G4double p3=1.313 -0.0686*logEinc;
 
-  // @@@ dwjang, intial tuning by comparing 20-150GeV TB data
-  // the width of energy response is not yet tuned.
-  z1 *= theEMLateral_pList[0] + theEMLateral_pList[1] * std::tanh(theEMLateral_pList[2]*std::log(incomingEnergy) - theEMLateral_pList[3]);
-  p1 *= 0.96;
-
+  //@@@ dwjang, intial tuning by comparing 20GeV TB data
+  p1 = 2.47;
+ 
   // preparation of longitudinal integration
   G4double stepLengthLeft = fastTrack.GetEnvelopeSolid()->DistanceToOut(fastTrack.GetPrimaryTrackLocalPosition(),
 									fastTrack.GetPrimaryTrackLocalDirection()) / cm;
@@ -169,16 +152,16 @@ void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
   // loop for longitudinal integration
   while(energy > 0.0 && stepLengthLeft > 0.0) { 
 
-    stepLengthLeftInX0 = stepLengthLeft / Gflash::radLength[jCalorimeter];
+    stepLengthLeftInX0 = stepLengthLeft / radLength;
 
     if ( stepLengthLeftInX0 < divisionStepInX0 ) {
       deltaZInX0 = stepLengthLeftInX0;
-      deltaZ     = deltaZInX0 * Gflash::radLength[jCalorimeter];
+      deltaZ     = deltaZInX0 * radLength;
       stepLengthLeft = 0.0;
     }
     else {
       deltaZInX0 = divisionStepInX0;
-      deltaZ     = deltaZInX0 * Gflash::radLength[jCalorimeter];
+      deltaZ     = deltaZInX0 * radLength;
       stepLengthLeft -= deltaZ;
     }
 
@@ -257,7 +240,7 @@ void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
 	rInRM = rTail * std::sqrt( u2/(1.0-u2) );
       }
 
-      G4double rShower =  rInRM * Gflash::rMoliere[jCalorimeter];
+      G4double rShower =  rInRM * rMoliere;
 
       // Uniform & random rotation of spot along the azimuthal angle
       G4double azimuthalAngle = twopi*G4UniformRand();
@@ -276,19 +259,19 @@ void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
 	rShower*std::sin(azimuthalAngle)*trajectoryPoint.getCrossUnitVector();
 
       // put energy and position to a spot
-      eSpot.setEnergy(emSpotEnergy*GeV*e25Scale);
+      eSpot.setEnergy(emSpotEnergy*GeV);
       eSpot.setPosition(SpotPosition*cm);
 
       // for histogramming      
-      G4double zInX0_spot = std::abs(pathLength+incrementPath - pathLength0)/Gflash::radLength[jCalorimeter];
+      G4double zInX0_spot = std::abs(pathLength+incrementPath - pathLength0)/radLength;
 
       if(theHisto->getStoreFlag()) {
-	theHisto->rxry->Fill(rShower*std::cos(azimuthalAngle)/Gflash::rMoliere[jCalorimeter],rShower*std::sin(azimuthalAngle)/Gflash::rMoliere[jCalorimeter]);
-	theHisto->dx->Fill(rShower*std::cos(azimuthalAngle)/Gflash::rMoliere[jCalorimeter]);
-	theHisto->xdz->Fill(zInX0-0.5,rShower*std::cos(azimuthalAngle)/Gflash::rMoliere[jCalorimeter]);
+	theHisto->rxry->Fill(rShower*std::cos(azimuthalAngle)/rMoliere,rShower*std::sin(azimuthalAngle)/rMoliere);
+	theHisto->dx->Fill(rShower*std::cos(azimuthalAngle)/rMoliere);
+	theHisto->xdz->Fill(zInX0-0.5,rShower*std::cos(azimuthalAngle)/rMoliere);
 	theHisto->dndz_spot->Fill(zInX0_spot);
 	theHisto->rzSpots->Fill(SpotPosition.z(),SpotPosition.r());
-	theHisto->rArm->Fill(rShower/Gflash::rMoliere[jCalorimeter]);
+	theHisto->rArm->Fill(rShower/rMoliere);
       }
 
       // to be returned
@@ -299,33 +282,3 @@ void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
 
 }
 
-
-Gflash::CalorimeterNumber GflashEMShowerProfile::getCalorimeterNumber(const G4ThreeVector position)
-{
-  Gflash::CalorimeterNumber index = Gflash::kNULL;
-  G4double eta = position.getEta();
-
-  //central
-  if (fabs(eta) < Gflash::EtaMax[Gflash::kESPM] || fabs(eta) < Gflash::EtaMax[Gflash::kHB]) {
-    if(position.getRho() > Gflash::Rmin[Gflash::kESPM] && 
-       position.getRho() < Gflash::Rmax[Gflash::kESPM] ) {
-      index = Gflash::kESPM;
-    }
-    if(position.getRho() > Gflash::Rmin[Gflash::kHB] && 
-       position.getRho() < Gflash::Rmax[Gflash::kHB]) {
-      index = Gflash::kHB;
-    }
-  }
-  //forward
-  else if (fabs(eta) > Gflash::EtaMin[Gflash::kENCA] || fabs(eta) > Gflash::EtaMin[Gflash::kHE]) {
-    if( fabs(position.getZ()) > Gflash::Zmin[Gflash::kENCA] &&  
-	fabs(position.getZ()) < Gflash::Zmax[Gflash::kENCA] ) {
-      index = Gflash::kENCA;
-    }
-    if( fabs(position.getZ()) > Gflash::Zmin[Gflash::kHE] &&  
-	fabs(position.getZ()) < Gflash::Zmax[Gflash::kHE] ) {
-      index = Gflash::kHE;
-    }
-  }
-  return index;
-}

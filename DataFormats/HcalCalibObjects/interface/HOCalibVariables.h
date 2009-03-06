@@ -20,7 +20,7 @@ struct HOCalibVariables {
   float trkph;  //Azimuthal angle of track
 
   float ndof;   //number of degrees of freedom (track fitting)
-  //  float nrecht; //Number of rechit candidates in the track
+  float nrecht; //Number of rechit candidates in the track
   float chisq; //Fitted normalised chisquare (chi^2/ndf)
 
   float therr; //Error in fitted polar angle
@@ -31,7 +31,6 @@ struct HOCalibVariables {
                // co-ordinate system from an edge in X-axis
   float hody; //Same in Y-axis
   float hoang; //Angle between track (in HO tiles) and HO Z-axis
-  float htime; //Energy weighted time of signal
   float hosig[9];    //HO signal in 3x3 tower with respect to the tile, where 
                // muon passed through (for the consistency check of 
                // track reconstruction

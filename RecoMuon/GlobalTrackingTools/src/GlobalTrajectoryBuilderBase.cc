@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2008/05/13 04:59:50 $
- *  $Revision: 1.18 $
+ *  $Date: 2008/05/10 01:54:26 $
+ *  $Revision: 1.17 $
  *
  *  \author N. Neumeister        Purdue University
  *  \author C. Liu               Purdue University
@@ -200,7 +200,7 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
       if (  !innerTM.backwardPredictedState().isValid() ) {
 	TrajectoryMeasurement outerTM = ((*it)->trackerTrajectory()->direction() == alongMomentum) ? (*it)->trackerTrajectory()->lastMeasurement() : (*it)->trackerTrajectory()->firstMeasurement();
 	TrajectoryStateOnSurface outerTsos = outerTM.updatedState();
-	//	outerTsos.rescaleError(100.);
+	outerTsos.rescaleError(100.);
 	
 	TrajectoryStateOnSurface innerTsos2;
 	if ( trackerRecHits.front()->geographicalId().det() == DetId::Tracker ) {

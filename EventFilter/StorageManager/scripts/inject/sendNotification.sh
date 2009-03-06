@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: sendNotification.sh,v 1.4 2008/06/12 13:56:05 loizides Exp $
+# $Id: sendNotification.sh,v 1.5 2008/07/04 13:39:51 loizides Exp $
 
 # error dir and file
 errordir=/tmp
@@ -32,7 +32,7 @@ export PERL5LIB=${T0ROOT}/perl_lib:${T0_BASE_DIR}/perl
 
 res=`${T0_BASE_DIR}/injection/sendNotification.pl --config $CONFIG $@ 2>&1 | grep "Connection established (3)"`
 if test -z "$res"; then
-    echo "#Error: $res" >> $errorfile
+    echo "#Error: Most likely CopyManager is not running (cmsusr3)" >> $errorfile
     echo $0 $@ >> $errorfile
     exit 0;
 fi

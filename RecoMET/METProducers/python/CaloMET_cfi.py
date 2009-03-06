@@ -15,6 +15,10 @@ met = cms.EDProducer("METProducer",
     InputType = cms.string('CandidateCollection')
 )
 
+metHO = met.clone()
+metHO.src = "towerMakerWithHO"
+metHO.alias = 'RawCaloMETHO'
+
 metOpt = cms.EDProducer("METProducer",
     src = cms.InputTag("calotoweroptmaker"),
     METType = cms.string('CaloMET'),
@@ -23,6 +27,10 @@ metOpt = cms.EDProducer("METProducer",
     globalThreshold = cms.double(0.0),
     InputType = cms.string('CandidateCollection')
 )
+
+metOptHO = metOpt.clone()
+metOptHO.src = "calotoweroptmakerWithHO"
+metOptHO.alias = 'RawCaloMETOptHO'
 
 metNoHF = cms.EDProducer("METProducer",
     src = cms.InputTag("towerMaker"),
@@ -33,6 +41,10 @@ metNoHF = cms.EDProducer("METProducer",
     InputType = cms.string('CandidateCollection')
 )
 
+metNoHFHO = metNoHF.clone()
+metNoHFHO.src = "towerMakerWithHO"
+metNoHFHO.alias = 'RawCaloMETNoHFHO'
+
 metOptNoHF = cms.EDProducer("METProducer",
     src = cms.InputTag("calotoweroptmaker"),
     METType = cms.string('CaloMET'),
@@ -41,5 +53,9 @@ metOptNoHF = cms.EDProducer("METProducer",
     globalThreshold = cms.double(0.0),
     InputType = cms.string('CandidateCollection')
 )
+
+metOptNoHFHO = metOptNoHF.clone()
+metOptNoHFHO.src = "calotoweroptmakerWithHO"
+metOptNoHFHO.alias = 'RawCaloMETOptNoHFHO'
 
 

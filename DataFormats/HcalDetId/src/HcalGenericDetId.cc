@@ -1,7 +1,7 @@
 /** \class HcalGenericDetId
     \author F.Ratnikov, UMd
    Generic HCAL detector ID suitable for all Hcal subdetectors
-   $Id: HcalGenericDetId.cc,v 1.7 2008/07/15 20:14:26 rofierzy Exp $
+   $Id: HcalGenericDetId.cc,v 1.4 2007/10/03 01:39:14 mansj Exp $
 */
 
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
@@ -88,18 +88,18 @@ std::ostream& operator<<(std::ostream& s,const HcalGenericDetId& id) {
   return s;
 }
 
-int HcalGenericDetId::hashedId(bool h2mode_) const {
+int HcalGenericDetId::hashedId() const {
   int index = -1;
 
   int HBhalf = 1296;
   int HEhalf = 1296;
-  if (h2mode_) HEhalf = 4032;
   int HOhalf = 1080;
   int HFhalf = 864;
   int HThalf = 2088;
   int ZDChalf = 11;
 
-  int zside=0, ietaAbs=0, ieta=0, iphi=0, depth=0, channel=0;
+  int zside=0, ietaAbs=0, iphi=0, depth=0;
+  int sector=0, rbx=0, channel=0;
 
   // HB valid DetIds: phi=1-72,eta=1-14,depth=1; phi=1-72,eta=15-16,depth=1-2
   if (genericSubdet() == HcalGenericDetId::HcalGenBarrel )
@@ -127,28 +127,13 @@ int HcalGenericDetId::hashedId(bool h2mode_) const {
       iphi = tid.iphi();
       depth = tid.depth();
       
-      if (!h2mode_)
-	{
-	  if (ietaAbs == 16 || ietaAbs == 17)  index = (iphi - 1)*8 + (iphi/2)*20 + (ietaAbs - 16);
-	  if (ietaAbs >= 18 && ietaAbs <= 20)  index = (iphi - 1)*8 + (iphi/2)*20 + 2  + 2*(ietaAbs-18) + (depth - 1);
-	  if (ietaAbs >= 21 && ietaAbs <= 26)  index = (iphi - 1)*8 + (iphi/2)*20 + 8  + 2*(ietaAbs-21) + (depth - 1);
-	  if (ietaAbs >= 27 && ietaAbs <= 28)  index = (iphi - 1)*8 + (iphi/2)*20 + 20 + 3*(ietaAbs-27) + (depth - 1);
-	  if (ietaAbs == 29)                   index = (iphi - 1)*8 + (iphi/2)*20 + 26 + 2*(ietaAbs-29) + (depth - 1);
-	}
-      else
-	{
-	  // make as general as possible, don't care about tight packing for the moment
-	  index = (iphi-1)*4*14 + (ietaAbs - 16)*4 + (depth - 1);
-
-//	  if (ietaAbs == 16)                   index = (iphi - 1)*11 + (iphi/2)*20 + (ietaAbs - 16);
-//	  if (ietaAbs == 17)                   index = (iphi - 1)*11 + (iphi/2)*20 + 1 + (ietaAbs - 17) + (depth - 1);
-//	  if (ietaAbs >= 18 && ietaAbs <= 20)  index = (iphi - 1)*11 + (iphi/2)*20 + 5  + 2*(ietaAbs-18) + (depth - 1);
-//	  if (ietaAbs >= 21 && ietaAbs <= 26)  index = (iphi - 1)*11 + (iphi/2)*20 + 11 + 2*(ietaAbs-21) + (depth - 1);
-//	  if (ietaAbs >= 27 && ietaAbs <= 28)  index = (iphi - 1)*11 + (iphi/2)*20 + 23 + 3*(ietaAbs-27) + (depth - 1);
-//	  if (ietaAbs == 29)                   index = (iphi - 1)*11 + (iphi/2)*20 + 29 + 2*(ietaAbs-29) + (depth - 1);
-	}
+      if (ietaAbs == 16 || ietaAbs == 17)  index = (iphi - 1)*8 + (iphi/2)*20 + (ietaAbs - 16);
+      if (ietaAbs >= 18 && ietaAbs <= 20)  index = (iphi - 1)*8 + (iphi/2)*20 + 2  + 2*(ietaAbs-18) + (depth - 1);
+      if (ietaAbs >= 21 && ietaAbs <= 26)  index = (iphi - 1)*8 + (iphi/2)*20 + 8  + 2*(ietaAbs-21) + (depth - 1);
+      if (ietaAbs >= 27 && ietaAbs <= 28)  index = (iphi - 1)*8 + (iphi/2)*20 + 20 + 3*(ietaAbs-27) + (depth - 1);
+      if (ietaAbs == 29)                     index = (iphi - 1)*8 + (iphi/2)*20 + 26 + 2*(ietaAbs-29) + (depth - 1);
+      
       if (zside == -1) index += HEhalf;
-
     }
 
   // HO valid DetIds: phi=1-72,eta=1-15,depth=4!
@@ -220,48 +205,14 @@ int HcalGenericDetId::hashedId(bool h2mode_) const {
   // Calibration channels: no zside=-1 ! with current naming convention
   if (genericSubdet() == HcalGenericDetId::HcalGenCalibration )
     {
-      HcalCalibDetId tid(rawId() );
+      HcalCalibDetId tid(rawId() ); 
+      sector = tid.sector();
+      rbx = tid.rbx();
       channel = tid.cboxChannel();
-      ieta = tid.ieta();
-      iphi = tid.iphi();
-      zside = tid.zside();
 
-      if (tid.calibFlavor()==HcalCalibDetId::CalibrationBox) {
+      index = (sector-1)*18*7 + (rbx-1)*7 + (channel-1);
 
-        HcalSubdetector subDet = tid.hcalSubdet();
-
-        if (subDet==HcalBarrel) {
-          index = ((iphi+1)/4-1) + 18*channel + 27*(ieta+1);
-	} else if (subDet==HcalEndcap) {
-	  index = ((iphi+1)/4-1) + 18*channel + 63*(ieta+1) + 108;
-        } else if (subDet==HcalForward) {
-	  if (channel==8) channel = 3;
-	  index = (iphi-1)/18 + 4*channel + 8*(ieta+1) + 360;
-	} else if (subDet==HcalOuter) {
-	  if (channel==7) channel = 2;
-	  index = ((iphi+1)/6-1) + 12*(ieta+2) + 65*channel + 391;
-	} else {
-	  std::cout << "HCAL Det Id not valid!" << std::endl;
-          index = 0;
-        }
-
-     } else if (tid.calibFlavor()==HcalCalibDetId::HOCrosstalk) {
-	if (ieta==11) {
-	   switch(iphi) {
-	   case(16): index = 288+577; // 576 is the index of the last calib channel
-	   case(31): index = 289+577;
-	   case(5): index = 290+577;
-	   case(67): index = 291+577;
-           default: index = 0;
-	   }
-	} else {
-          if (ieta==4) ieta = 0;
-	  if (ieta==15) ieta = 1;
-	  index = (iphi-1) + 72*(ieta) + 72*(zside+1) + 577;
-	}
-     }
-     
-   }
+    }
 
   //std::cout << "eta=" << ietaAbs << " side=" << zside << " phi=" << iphi << " depth=" << depth << " index=" << index << std::endl;
 

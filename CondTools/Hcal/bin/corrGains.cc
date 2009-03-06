@@ -25,8 +25,7 @@ int main (int argn, char* argv []) {
   std::vector<DetId> channels = gainsIn.getAllChannels ();
   for (unsigned i = 0; i < channels.size(); i++) {
     DetId id = channels[i];
-    float scale = 1.;
-    if (corrsIn.exists(id)) scale = corrsIn.getValues(id)->getValue();
+    float scale = corrsIn.getValues(id)->getValue();
     HcalGain item(id, gainsIn.getValues(id)->getValue(0) * scale, gainsIn.getValues(id)->getValue(1) * scale, 
 		  gainsIn.getValues(id)->getValue(2) * scale, gainsIn.getValues(id)->getValue(3) * scale);
     gainsOut.addValues(item);

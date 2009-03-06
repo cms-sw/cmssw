@@ -10,8 +10,8 @@ class HcalHTRData;
  *  Interpretive class for an HcalDCCHeader
  *   
  *
- *  $Date: 2008/04/23 01:14:14 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/08/26 09:33:44 $
+ *  $Revision: 1.6 $
  *  \author J. Mans - UMD
  */
 
@@ -83,6 +83,11 @@ class HcalDCCHeader {
       Returns -1 if spigot points to data area beyond validSize
    */
   int getSpigotData(int nspigot, HcalHTRData& decodeTool, int validSize) const;
+
+  /** Old (unsafe) getSpigotData.  All calls should be replaced by the new call.
+      This call will generate WARN log messages.
+   */
+  void getSpigotData(int nspigot, HcalHTRData& decodeTool) const;
 
   /** Get the size (in 32-bit words) of the data from this spigot */
   inline unsigned int getSpigotDataLength(int nspigot) const { return (nspigot>=15)?(0):(spigotInfo[nspigot]&0x3ff); }

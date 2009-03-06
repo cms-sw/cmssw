@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2007/08/02 05:35:47 $
- * $Revision: 1.12 $
+ * $Date: 2007/02/13 13:25:12 $
+ * $Revision: 1.11 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -13,6 +13,7 @@
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "FWCore/Utilities/interface/Exception.h"
 /* C++ Headers */
+#include <iosfwd>
 
 
 

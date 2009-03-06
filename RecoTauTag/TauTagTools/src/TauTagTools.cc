@@ -2,17 +2,6 @@
 
 namespace TauTagTools{
 
-   double computeDeltaR(const math::XYZVector& vec1, const math::XYZVector& vec2) 
-   { 
-      DeltaR<math::XYZVector> myMetricDR_;
-      return myMetricDR_(vec1, vec2); 
-   }
-   double computeAngle(const math::XYZVector& vec1, const math::XYZVector& vec2)  
-   {  
-      Angle<math::XYZVector> myMetricAngle_;
-      return myMetricAngle_(vec1, vec2); 
-   }
-
   TrackRefVector filteredTracksByNumTrkHits(TrackRefVector theInitialTracks, int tkminTrackerHitsn){
     TrackRefVector filteredTracks;
     for(TrackRefVector::const_iterator iTk=theInitialTracks.begin();iTk!=theInitialTracks.end();iTk++){

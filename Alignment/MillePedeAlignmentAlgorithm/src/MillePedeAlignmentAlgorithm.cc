@@ -3,12 +3,10 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.39 $
- *  $Date: 2008/08/12 18:23:15 $
+ *  $Revision: 1.36 $
+ *  $Date: 2008/03/27 17:46:40 $
  *  (last update by $Author: flucke $)
  */
-
-#include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeAlignmentAlgorithm.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -17,6 +15,7 @@
 // end in header, too
 
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeMonitor.h"
+#include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeAlignmentAlgorithm.h"
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeVariables.h"
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeVariablesIORoot.h"
 #include "Mille.h"       // 'unpublished' interface located in src
@@ -30,7 +29,6 @@
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIORoot.h"
 
-#include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 #include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
 #include "Alignment/CommonAlignment/interface/AlignableDetOrUnitPtr.h"
 
@@ -216,15 +214,9 @@ void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup,
   const bool useTrackTsosBack = theUseTrackTsos;
   if (!canUseTrack) theUseTrackTsos = false;
 
-  // Loop over ReferenceTrajectoryCollection and possibly over tracks,
-  // but in case Ref.-Traj. are not parallel to tracks, first fill monitor for tracks:
-  ConstTrajTrackPairCollection::const_iterator iTrajTrack = tracks.begin();
-  if (theMonitor) {
-    for (; iTrajTrack != tracks.end(); ++iTrajTrack) theMonitor->fillTrack((*iTrajTrack).second);
-    iTrajTrack = tracks.begin(); // set back...
-  }
-  // Now really loop over ReferenceTrajectoryCollection
   std::vector<TrajectoryStateOnSurface> trackTsos; // some buffer...
+  // loop over ReferenceTrajectoryCollection and possibly over tracks  
+  ConstTrajTrackPairCollection::const_iterator iTrajTrack = tracks.begin();
   for (RefTrajColl::const_iterator iRefTraj = trajectories.begin(), iRefTrajE = trajectories.end();
        iRefTraj != iRefTrajE; ++iRefTraj) {
 
@@ -234,6 +226,7 @@ void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup,
     
     if (canUseTrack) {
       if (!this->orderedTsos((*iTrajTrack).first, trackTsos)) continue; // first is Trajectory*
+      if (theMonitor) theMonitor->fillTrack((*iTrajTrack).second); // second is reco::Track*
     } else {
       trackTsos.clear();
       trackTsos.resize((*iTrajTrack).second->recHitsSize());
@@ -266,8 +259,8 @@ void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup,
 	}
       }
       theMille->end();
-      if (theMonitor) {
-        theMonitor->fillUsedTrack((canUseTrack ? iTrajTrack->second : 0), nValidHitsX, nValidHitsY);
+      if (canUseTrack && theMonitor) {
+        theMonitor->fillUsedTrack((*iTrajTrack).second, nValidHitsX, nValidHitsY);
       }
     } else {
       theMille->kill();
@@ -761,7 +754,6 @@ int MillePedeAlignmentAlgorithm
  
   // calculates correlation between Hit measurements
   const double corr = aHitCovarianceM(0,1) / sqrt(aHitCovarianceM(0,0) * aHitCovarianceM(1,1));
-  if (theMonitor) theMonitor->fillCorrelations2D(corr, aRecHit);
   bool diag = false;
   if (TMath::Abs(corr) > theMaximalCor2D) {
     this->diagonalize(aHitCovarianceM, aLocalDerivativesM, aHitResidualsM, aGlobalDerivativesM);

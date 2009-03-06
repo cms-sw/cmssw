@@ -12,7 +12,7 @@ double TauElementsOperators::computeConeSize(const TFormula& ConeSizeTFormula,do
   if (ConeSize>ConeSizeMax)ConeSize=ConeSizeMax;
   return ConeSize;
 }
-TFormula & TauElementsOperators::computeConeSizeTFormula(const string& ConeSizeFormula,const char* errorMessage){
+TFormula TauElementsOperators::computeConeSizeTFormula(const string& ConeSizeFormula,const char* errorMessage){
   //--- check functional form 
   //    given as configuration parameter for matching and signal cone sizes;
   //
@@ -24,6 +24,7 @@ TFormula & TauElementsOperators::computeConeSizeTFormula(const string& ConeSizeF
   string ConeSizeFormulaStr = ConeSizeFormula;
   replaceSubStr(ConeSizeFormulaStr,"ET","y");
   replaceSubStr(ConeSizeFormulaStr,"E","x");
+  TFormula ConeSizeTFormula;
   ConeSizeTFormula.SetName("ConeSize");
   ConeSizeTFormula.SetTitle(ConeSizeFormulaStr.data()); // the function definition is actually stored in the "Title" data-member of the TFormula object
   int errorFlag = ConeSizeTFormula.Compile();
@@ -31,11 +32,8 @@ TFormula & TauElementsOperators::computeConeSizeTFormula(const string& ConeSizeF
     throw cms::Exception("") << "\n unsupported functional Form for " << errorMessage << " " << ConeSizeFormula << endl
 			     << "Please check that the Definition in \"" << ConeSizeTFormula.GetName() << "\" only contains the variables \"E\" or \"ET\""
 			     << " and Functions that are supported by ROOT's TFormular Class." << endl;
-  }else return *(static_cast<TFormula*>((ConeSizeTFormula.Clone())));
+  }else return ConeSizeTFormula;
 }
-
-
-
 void TauElementsOperators::replaceSubStr(string& s,const string& oldSubStr,const string& newSubStr){
   //--- protect replacement algorithm
   //    from case that oldSubStr and newSubStr are equal

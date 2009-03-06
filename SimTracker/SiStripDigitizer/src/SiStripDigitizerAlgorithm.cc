@@ -72,22 +72,14 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
 				    GlobalVector bfield,float langle, 
 				    edm::ESHandle<SiStripGain> & gainHandle,
 				    edm::ESHandle<SiStripThreshold> & thresholdHandle,
-				    edm::ESHandle<SiStripNoises> & noiseHandle,
-				    edm::ESHandle<SiStripPedestals> & pedestalHandle
-				    ){
+				    edm::ESHandle<SiStripNoises> & noiseHandle){
   
   theSiPileUpSignals->reset();
   unsigned int detID = det->geographicalId().rawId();
   SiStripNoises::Range detNoiseRange = noiseHandle->getRange(detID);
-  SiStripPedestals::Range detPedestalRange = pedestalHandle->getRange(detID);
   numStrips = (det->specificTopology()).nstrips();
   strip = int(numStrips/2.);
-  // WARNING!!!
-  // here only the value for noise and pedestal from the central strip are taken
-  //    in case the noise RMS / pedestal values are not flat
-  //    the value strip-by-strip must be taken in SiGaussianTailNoiseAdded
   noiseRMS = noiseHandle->getNoise(strip,detNoiseRange);
-  pedValue = pedestalHandle->getPed(strip,detPedestalRange);
   
   /*
   // We will work on ONE copy of the map only,
@@ -157,23 +149,7 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
   
   if(!zeroSuppression){
     if(noise){
-      // the constant pedestal offset is needed because
-      //   negative adc counts are not allowed in case
-      //   Pedestal and CMN subtraction is performed.
-      //   The pedestal value read from the conditions
-      //   is pedValue and after the pedestal subtraction
-      //   the baseline is zero. The Common Mode Noise
-      //   is not subtracted from the negative adc counts
-      //   channels. Adding pedOffset the baseline is set
-      //   to pedOffset after pedestal subtraction and CMN
-      //   is subtracted to all the channels since none of
-      //   them has negative adc value. The pedOffset is
-      //   treated as a constant component in the CMN
-      //   estimation and subtracted as CMN.
-      float pedOffset = 128.; // ADC counts
-      pedValue += pedOffset;
-      //
-      theSiNoiseAdder->createRaw(detAmpl,firstChannelWithSignal,lastChannelWithSignal,numStrips,noiseRMS*theElectronPerADC,pedValue*theElectronPerADC);
+      theSiNoiseAdder->createRaw(detAmpl,firstChannelWithSignal,lastChannelWithSignal,numStrips,noiseRMS*theElectronPerADC);
     }else{
       edm::LogWarning("SiStripDigitizer")<<"You are running the digitizer without Noise generation and without applying Zero Suppression. ARE YOU SURE???";
     }

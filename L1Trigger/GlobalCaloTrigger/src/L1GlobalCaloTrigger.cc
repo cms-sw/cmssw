@@ -364,47 +364,6 @@ void L1GlobalCaloTrigger::setBxRangeAutomatic()  { m_bxStart = 0; m_numOfBx = 1;
 ///=================================================================================================
 /// Input data set methods
 ///
-/// Use the following two methods for full emulator operation 
-/// set jet regions from the RCT at the input to be processed
-void L1GlobalCaloTrigger::fillRegions(const vector<L1CaloRegion>& rgn)
-{
-  // To enable multiple bunch crossing operation, we copy the input regions into a vector,
-  // from which they will be extracted one bunch crossing at a time and sent to the processors
-  vector<L1CaloRegion>::iterator itr=m_allInputRegions.end();
-  m_allInputRegions.insert(itr, rgn.begin(), rgn.end());
-}
-
-/// set electrons from the RCT at the input to be processed
-void L1GlobalCaloTrigger::fillEmCands(const vector<L1CaloEmCand>& em)
-{
-  // To enable multiple bunch crossing operation, we copy the input electrons into a vector,
-  // from which they will be extracted one bunch crossing at a time and sent to the processors
-  vector<L1CaloEmCand>::iterator itr=m_allInputEmCands.end();
-  m_allInputEmCands.insert(itr, em.begin(), em.end());
-}
-
-/// Private method to send one bunch crossing's worth of regions to the processors
-void L1GlobalCaloTrigger::fillRegions(vector<L1CaloRegion>::iterator& rgn, const int bx) {
-  while (rgn != m_allInputRegions.end() && rgn->bx() == bx) {
-    setRegion(*rgn++);
-  }
-}
-
-/// Private method to send one bunch crossing's worth of electrons to the processors
-void L1GlobalCaloTrigger::fillEmCands(vector<L1CaloEmCand>::iterator& emc, const int bx){
-  while (emc != m_allInputEmCands.end() && emc->bx() == bx) {
-    if (emc->isolated()) {
-      setIsoEm(*emc);
-    } else {
-      setNonIsoEm(*emc);
-    } 
-    emc++;
-  }
-}
-
-/// Set a jet region at the input to be processed
-/// Called from fillRegions() above - also available to be called directly
-/// (but the "user" has to take care of any multiple bunch crossing issues) 
 void L1GlobalCaloTrigger::setRegion(const L1CaloRegion& region) 
 {
   if ( !m_inputChannelMask->regionMask( region.gctEta(), region.gctPhi() ) ) {
@@ -425,37 +384,56 @@ void L1GlobalCaloTrigger::setRegion(const L1CaloRegion& region)
   }
 }
 
-/// Construct a jet region and set it at the input to be processed.
-/// For testing/debugging only.
 void L1GlobalCaloTrigger::setRegion(const unsigned et, const unsigned ieta, const unsigned iphi,
                                     const bool overFlow, const bool fineGrain)
 {
-  //  L1CaloRegion temp = L1CaloRegion::makeRegionFromGctIndices(et, overFlow, fineGrain, false, false, ieta, iphi, 0);
   L1CaloRegion temp(et, overFlow, fineGrain, false, false, ieta, iphi, 0);
   setRegion(temp);
 }
 
-/// Set an isolated EM candidate to be processed
-/// Called from fillEmCands() above - also available to be called directly
-/// (but the "user" has to take care of any multiple bunch crossing issues) 
 void L1GlobalCaloTrigger::setIsoEm(const L1CaloEmCand& em) 
 {
   if ( !m_inputChannelMask->emCrateMask( em.rctCrate() ) )
     theIsoElectronSorters.at(sorterNo(em))->setInputEmCand(em);
 }
 
-/// Set a non-isolated EM candidate to be processed
-/// Called from fillEmCands() above - also available to be called directly
-/// (but the "user" has to take care of any multiple bunch crossing issues) 
 void L1GlobalCaloTrigger::setNonIsoEm(const L1CaloEmCand& em) 
 {
   if ( !m_inputChannelMask->emCrateMask( em.rctCrate() ) )
     theNonIsoElectronSorters.at(sorterNo(em))->setInputEmCand(em);
 }
 
-///=================================================================================================
-/// Print method
-///
+/// Fill input data (local copies)
+void L1GlobalCaloTrigger::fillRegions(const vector<L1CaloRegion>& rgn)
+{
+  vector<L1CaloRegion>::iterator itr=m_allInputRegions.end();
+  m_allInputRegions.insert(itr, rgn.begin(), rgn.end());
+}
+
+void L1GlobalCaloTrigger::fillEmCands(const vector<L1CaloEmCand>& em)
+{
+  vector<L1CaloEmCand>::iterator itr=m_allInputEmCands.end();
+  m_allInputEmCands.insert(itr, em.begin(), em.end());
+}
+
+/// Fill input data into processors for a new bunch crossing
+void L1GlobalCaloTrigger::fillRegions(vector<L1CaloRegion>::iterator& rgn, const int bx) {
+  while (rgn != m_allInputRegions.end() && rgn->bx() == bx) {
+    setRegion(*rgn++);
+  }
+}
+
+void L1GlobalCaloTrigger::fillEmCands(vector<L1CaloEmCand>::iterator& emc, const int bx){
+  while (emc != m_allInputEmCands.end() && emc->bx() == bx) {
+    if (emc->isolated()) {
+      setIsoEm(*emc);
+    } else {
+      setNonIsoEm(*emc);
+    } 
+    emc++;
+  }
+}
+
 void L1GlobalCaloTrigger::print() {
 
   using edm::LogInfo;
@@ -512,9 +490,6 @@ void L1GlobalCaloTrigger::print() {
  
 }
 
-///=================================================================================================
-/// Output data get methods
-///
 // isolated EM outputs
 L1GctEmCandCollection L1GlobalCaloTrigger::getIsoElectrons() const { 
   return theIsoEmFinalStage->getOutputCands();

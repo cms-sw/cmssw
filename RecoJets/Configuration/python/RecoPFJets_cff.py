@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: RecoPFJets_cff.py,v 1.3 2008/04/21 03:27:29 rpw Exp $
+# $Id: RecoPFJets.cff,v 1.2 2008/04/01 19:33:11 weng Exp $
 #
 # ShR 27 Mar 07: move modules producing candidates for Jets into separate cff file due to scheduling problem
 #
@@ -13,6 +13,7 @@ kt4PFJets = cms.EDProducer("KtJetProducer",
     FastjetNoPU,
     KtJetParameters,
     PFJetParameters,
+    JetPtMin = cms.double(1.0),
     alias = cms.untracked.string('KT4PFJet'),
     FJ_ktRParam = cms.double(0.4)
 )
@@ -21,6 +22,7 @@ kt6PFJets = cms.EDProducer("KtJetProducer",
     FastjetNoPU,
     KtJetParameters,
     PFJetParameters,
+    JetPtMin = cms.double(1.0),
     alias = cms.untracked.string('KT6PFJet'),
     FJ_ktRParam = cms.double(0.6)
 )

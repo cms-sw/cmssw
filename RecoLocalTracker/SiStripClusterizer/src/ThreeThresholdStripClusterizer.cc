@@ -2,6 +2,8 @@
 #include "sstream"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#define PATCH_FOR_DIGIS_DUPLICATION
+
 void ThreeThresholdStripClusterizer::init(const edm::EventSetup& es) {
   //Get ESObject 
   es.get<SiStripGainRcd>().get(gainHandle_);
@@ -20,6 +22,10 @@ template<typename InputDetSet>
 void ThreeThresholdStripClusterizer::clusterizeDetUnit_(const InputDetSet& input,
 						        edmNew::DetSetVector<SiStripCluster>::FastFiller& output) {
   
+#ifdef PATCH_FOR_DIGIS_DUPLICATION
+  bool printPatchError=false;
+  int countErrors=0;
+#endif
   const uint32_t& detID = input.detId();
   
   if (!qualityHandle_->IsModuleUsable(detID)){
@@ -126,9 +132,26 @@ void ThreeThresholdStripClusterizer::clusterizeDetUnit_(const InputDetSet& input
     float sigmaNoise2=0;
     //int counts=0;
     cluster_digis_.clear();
+
+#ifdef PATCH_FOR_DIGIS_DUPLICATION
+    bool isDigiListBad=false;
+    int16_t oldStrip=-1;
+#endif
+
     for (itest=ibeg; itest<=iend; itest++) {
       float channelNoise = noiseHandle_->getNoise(itest->strip(),detNoiseRange);
       bool IsBadChannel = qualityHandle_->IsStripBad(detQualityRange,itest->strip());
+
+#ifdef PATCH_FOR_DIGIS_DUPLICATION
+      if(itest->strip()==oldStrip){
+	isDigiListBad=true;
+	printPatchError=true;
+	countErrors++;
+	break;
+      }
+      oldStrip=itest->strip();
+#endif
+
 
 #ifdef DEBUG_SiStripClusterizer_
       if(edm::isDebugEnabled())
@@ -211,7 +234,12 @@ void ThreeThresholdStripClusterizer::clusterizeDetUnit_(const InputDetSet& input
     }
     float sigmaNoise = sqrt(sigmaNoise2);
     
-    if (charge >= clusterThresholdInNoiseSigma()*sigmaNoise) {
+#ifdef PATCH_FOR_DIGIS_DUPLICATION
+    if (charge >= clusterThresholdInNoiseSigma()*sigmaNoise && !isDigiListBad) {
+#else
+    if (charge >= clusterThresholdInNoiseSigma()*sigmaNoise ) {
+#endif
+
 #ifdef DEBUG_SiStripClusterizer_
        if(edm::isDebugEnabled())
 	 ss << "\n\t\tCluster accepted :)";
@@ -227,7 +255,11 @@ void ThreeThresholdStripClusterizer::clusterizeDetUnit_(const InputDetSet& input
     ibeg = iend+1;
   }
 
-  
+#ifdef PATCH_FOR_DIGIS_DUPLICATION
+  if(printPatchError)
+    edm::LogError("SiStripClusterizer") << "[ThreeThresholdStripClusterizer::clusterizeDetUnit] \n There are errors in " << countErrors << "  clusters due to not unique digis ";
+#endif
+
 #ifdef DEBUG_SiStripClusterizer_
   LogDebug("SiStripClusterizer") << "[ThreeThresholdStripClusterizer::clusterizeDetUnit] \n" << ss.str();
 #endif

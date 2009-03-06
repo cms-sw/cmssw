@@ -6,14 +6,14 @@
 // 
 /**\class HcalIsoTrkAnalyzer HcalIsoTrkAnalyzer.cc Calibration/HcalCalibAlgos/src/HcalIsoTrkAnalyzer.cc
 
-   Description: <one line class summary>
+ Description: <one line class summary>
 
-   Implementation:
-   <Notes on implementation>
+ Implementation:
+     <Notes on implementation>
 */
 //
-// Original Author:  Andrey Pozdnyakov, Sergey Petrushanko, 
-//                   Grigory Safronov, Olga Kodolova
+// Original Author:  Andrey Pozdnyakov
+//                   ... and Sergey Petrushanko (all lines between M+ and M-)
 //         Created:  Thu Jul 12 18:12:19 CEST 2007
 // $Id: HcalIsoTrkAnalyzer.cc,v 1.7 2008/05/01 15:45:59 kodolova Exp $
 //
@@ -57,11 +57,6 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
-
-#include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
-#include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
 
 // M+
 #include "Calibration/Tools/interface/MinL3AlgoUniv.h"
@@ -72,23 +67,6 @@
 #include "TH2.h"
 #include "TFile.h"
 #include "TTree.h"
-#include <iostream>
-#include <fstream>
-
-#include "TString.h"
-#include "TObject.h"
-#include "TObjArray.h"
-#include "TClonesArray.h"
-#include "TRefArray.h"
-#include "TLorentzVector.h"
-
-#include "TCell.h"
-
-#include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
-#include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
-
-#include <iostream>
-#include <fstream>
 
 using namespace edm;
 using namespace std;
@@ -102,7 +80,8 @@ class HcalIsoTrkAnalyzer : public edm::EDAnalyzer {
 public:
   explicit HcalIsoTrkAnalyzer(const edm::ParameterSet&);
   ~HcalIsoTrkAnalyzer();
-
+ 
+ 
 private:
   virtual void beginJob(const edm::EventSetup&) ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
@@ -119,13 +98,12 @@ private:
   InputTag hoLabel_;
   InputTag eLabel_;
   InputTag trackLabel_;
-  InputTag trackLabel1_;
 
-  std::string m_inputTrackLabel;
-  std::string m_ecalLabel;
-  std::string m_ebInstance;
-  std::string m_eeInstance;
-  std::string m_hcalLabel;
+      std::string m_inputTrackLabel;
+      std::string m_ecalLabel;
+      std::string m_ebInstance;
+      std::string m_eeInstance;
+      std::string m_hcalLabel;
   int m_histoFlag;
 
   double associationConeSize_;
@@ -133,6 +111,7 @@ private:
   bool allowMissingInputs_;
   string outputFileName_;
 
+  int NisoTrk;
   double trackPt, trackEta, trackPhi; 
 
   double ptrack, rvert;
@@ -152,47 +131,40 @@ private:
   int numbers[60][72];
   int numbers2[60][72];
 
+// M+
   vector<float> EnergyVector;
   vector<vector<float> > EventMatrix;
   vector<vector<HcalDetId> > EventIds;
-  //  MinL3AlgoUniv<HcalDetId>* MyL3Algo;
+  MinL3AlgoUniv<HcalDetId>* MyL3Algo;
   map<HcalDetId,float> solution;
-  int nIterations, MinNTrackHitsBarrel,MinNTECHitsEndcap;
+  int nIterations;
   float eventWeight;
   double energyMinIso, energyMaxIso;
-  double energyECALmip, maxPNear;
+// M-  
 
-  char dirname[50];
-  char hname[20];
-  char htitle[80];
+  TFile* tf2;
 
- TFile* rootFile;
- TTree* tree;
-    Float_t targetE;
-    UInt_t numberOfCells;
-    UInt_t cell;
-    Float_t cellEnergy; 
+  TH1F* thDrTrEHits;
+  TH1F* thDrTrHBHEHits;
+  TH1F* thDrTrHOHits;
 
-    // Make these members of the analyser ----------------------------------
-    TClonesArray* cells;
-    TRefArray* cells3x3;
-    TRefArray* cellsPF;
-    UInt_t  eventNumber;
-    UInt_t  runNumber;
-    Int_t   iEtaHit;
-    UInt_t  iPhiHit;
-    Float_t emEnergy;
-    TLorentzVector* exampleP4;  // declare p4's as needed for the final format
-    //_______________________________________________________________________    
-    
-   
-  ofstream input_to_L3;
+  TH1F* isoTrE;
+  TH1F* isoTrEta;
+  TH1F* isoTrPhi;
+  TH1F* isoEcalCone;
+  
+  TTree* CalibTree;
+   char dirname[50];
+   char hname[20];
+   char htitle[80];
 
 };
 
+
+
 HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig)
 {
-  //now do what ever initialization is needed
+   //now do what ever initialization is needed
 
   m_ecalLabel = iConfig.getUntrackedParameter<std::string> ("ecalRecHitsLabel","ecalRecHit");
   m_ebInstance = iConfig.getUntrackedParameter<std::string> ("ebRecHitsInstance","EcalRecHitsEB");
@@ -203,34 +175,37 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig)
   hbheLabel_= iConfig.getParameter<edm::InputTag>("hbheInput");
   hoLabel_=iConfig.getParameter<edm::InputTag>("hoInput");
   eLabel_=iConfig.getParameter<edm::InputTag>("eInput");
-  trackLabel_ = iConfig.getParameter<edm::InputTag>("HcalIsolTrackInput");
-  trackLabel1_ = iConfig.getParameter<edm::InputTag>("trackInput");
+  trackLabel_ = iConfig.getParameter<edm::InputTag>("trackInput");
   associationConeSize_=iConfig.getParameter<double>("associationConeSize");
-  allowMissingInputs_=iConfig.getUntrackedParameter<bool>("allowMissingInputs",true);
+  allowMissingInputs_=iConfig.getParameter<bool>("allowMissingInputs");
   outputFileName_=iConfig.getParameter<std::string>("outputFileName");
 
   AxB_=iConfig.getParameter<std::string>("AxB");
 
-  nIterations = iConfig.getParameter<int>("noOfIterations");
-  eventWeight = iConfig.getParameter<double>("eventWeight");
-  energyMinIso = iConfig.getParameter<double>("energyMinIso");
+// M+
+  nIterations = iConfig.getUntrackedParameter<int>("noOfIterations",10);
+  eventWeight = iConfig.getUntrackedParameter<double>("eventWeight",0.);
+  energyMinIso = iConfig.getUntrackedParameter<double>("energyMinIso",2.);
   energyMaxIso = iConfig.getUntrackedParameter<double>("energyMaxIso",1000.);
-  energyECALmip = iConfig.getParameter<double>("energyECALmip");
-  maxPNear = iConfig.getParameter<double>("maxPNear");
-  MinNTrackHitsBarrel =  iConfig.getParameter<int>("MinNTrackHitsBarrel");
-  MinNTECHitsEndcap =  iConfig.getParameter<int>("MinNTECHitsEndcap");
+// M-
 
   edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
   parameters_.loadParameters( parameters );
   trackAssociator_.useDefaultPropagator();
 
-}
+ }
 
 HcalIsoTrkAnalyzer::~HcalIsoTrkAnalyzer()
 {
-/*  tf2->Close();
-*/
+
+//  if(m_histoFlag==1)  {tf2 -> Close();}
+  
+  tf2 -> Close();
+  
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
+
 
 // ------------ method called to for each event  ------------
 void
@@ -239,127 +214,132 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   using namespace edm;
   using namespace std;
 
-  vector<float> rawEnergyVec;
-  vector<int> detiphi;
-  vector<int> detieta;
-  vector<int> i3i5;
-  vector<HcalDetId> detidvec;
-  float calEnergy;
+// M+
+   vector<float> rawEnergyVec;
+   vector<HcalDetId> detidvec;
+   float calEnergy;
+// M-
 
-  edm::Handle<reco::TrackCollection> generalTracks;
-  iEvent.getByLabel(trackLabel1_,generalTracks);  
-
-  edm::Handle<reco::IsolatedPixelTrackCandidateCollection> trackCollection;
+  
+  edm::Handle<reco::TrackCollection> trackCollection;
   iEvent.getByLabel(trackLabel_,trackCollection);
-  //const reco::IsolatedPixelTrackCandidateCollection isoTrack = *(trackCollection.product());
-  //  LogInfo("IsoTracks: ")<<" IsoTracks size "<<(isoTrack).size();
-  //cout << " IsoTracks size "<<(isoTrack).size() << endl;
+  const reco::TrackCollection isoTrack = *(trackCollection.product());
+//  LogInfo("IsoTracks: ")<<" IsoTracks size "<<(isoTrack).size();
+//    cout << " IsoTracks size "<<(isoTrack).size() << endl;
     
   edm::Handle<EcalRecHitCollection> ecal;
   iEvent.getByLabel(eLabel_,ecal);
   const EcalRecHitCollection Hitecal = *(ecal.product());
-  //  LogInfo("ECAL: ")<<" Size of ECAl "<<(Hitecal).size();
-  //    cout << " Size of ECAl "<<(Hitecal).size() << endl;
+//  LogInfo("ECAL: ")<<" Size of ECAl "<<(Hitecal).size();
+//    cout << " Size of ECAl "<<(Hitecal).size() << endl;
     
   edm::Handle<HBHERecHitCollection> hbhe;
   iEvent.getByLabel(hbheLabel_,hbhe);
   const HBHERecHitCollection Hithbhe = *(hbhe.product());
-  //  LogInfo("HBHE: ")<<" Size of HBHE "<<(Hithbhe).size();
+//  LogInfo("HBHE: ")<<" Size of HBHE "<<(Hithbhe).size();
 
-  edm::ESHandle<CaloGeometry> pG;
+  ESHandle<CaloGeometry> pG;
   iSetup.get<CaloGeometryRecord>().get(pG);
   geo = pG.product();
-
-// rof 16.05.2008 start: include the possibility for recalibration (use "recalibrate" label for safety)
-/*
-  edm::ESHandle <HcalRespCorrs> recalibCorrs;
-  iSetup.get<HcalRespCorrsRcd>().get("recalibrate",recalibCorrs);
-  const HcalRespCorrs* myRecalib = recalibCorrs.product();
-*/
-// rof end
+  
 
   parameters_.useEcal = true;
   parameters_.useHcal = true;
   parameters_.useCalo = false;
-  parameters_.useMuon = false;
   parameters_.dREcal = 0.5;
   parameters_.dRHcal = 0.6;  
 
-  if (trackCollection->size()==0) return;
+//	    cout<<"  BEGINNING "<< calEnergy << "  " << rawEnergyVec.size() <<  "  " << detidvec.size()<< endl; 
 
-  for (reco::TrackCollection::const_iterator trit=generalTracks->begin(); trit!=generalTracks->end(); trit++)
-    {
-      reco::IsolatedPixelTrackCandidateCollection::const_iterator isoMatched=trackCollection->begin();
-      bool matched=false;
-      for (reco::IsolatedPixelTrackCandidateCollection::const_iterator it = trackCollection->begin(); it!=trackCollection->end(); it++)
-         { 
-           if (floor(100000*trit->pt())==floor(100000*it->pt())) 
-	     {
-               isoMatched=it;
-               matched=true;
-	     }
-	 }
-       if (!matched) continue;
+ for (reco::TrackCollection::const_iterator it = isoTrack.begin(); it!=isoTrack.end(); it++)
+    { 
 
-      if (trit->hitPattern().numberOfValidHits()<MinNTrackHitsBarrel) continue;
-      if (fabs(trit->eta())>1.47&&trit->hitPattern().numberOfValidStripTECHits()<MinNTECHitsEndcap) 
+//	    cout<<"  BEGINNING 1 "<< calEnergy << "  " << rawEnergyVec.size() <<  "  " << detidvec.size()<< endl; 
+
+      NisoTrk++;
+
+      ptrack = sqrt(it->px()*it->px()+it->py()*it->py()+it->pz()*it->pz());
+
+// M+      
+      calEnergy = sqrt(it->px()*it->px()+it->py()*it->py()+it->pz()*it->pz()+0.14*0.14);
+// M-
+
       
-      ptrack = sqrt(trit->px()*trit->px()+trit->py()*trit->py()+trit->pz()*trit->pz());
-      calEnergy = sqrt(trit->px()*trit->px()+trit->py()*trit->py()+trit->pz()*trit->pz()+0.14*0.14);
-	
-      trackPt  = trit->pt();
-      trackEta = trit->eta();
-      trackPhi = trit->phi();
-
+      //if (ptrack < 20) continue;
+      
+      trackPt  = it->pt();
+      trackEta = it->eta();
+      trackPhi = it->phi();
       
       double corrHCAL = 1.;
-      /*      
+      
       if (fabs(trackEta)<1.47) {
 
-	if (calEnergy < 5.) corrHCAL = 1.55;
-	if (calEnergy > 5. && calEnergy < 9.) corrHCAL = 1.55 - 0.18*(calEnergy-5.)/4.;
-	if (calEnergy > 9. && calEnergy < 20.) corrHCAL = 1.37 - 0.18*(calEnergy-9.)/11.;
-	if (calEnergy > 20. && calEnergy < 30.) corrHCAL = 1.19 - 0.06*(calEnergy-20.)/10.;
-	if (calEnergy > 30. && calEnergy < 50.) corrHCAL = 1.13 - 0.02*(calEnergy-30.)/20.;
-	if (calEnergy > 50. && calEnergy < 100.) corrHCAL = 1.11 - 0.02*(calEnergy-50.)/50.;
-	if (calEnergy > 100. && calEnergy < 1000.) corrHCAL = 1.09 - 0.09*(calEnergy-100.)/900.;
+      if (calEnergy < 5.) corrHCAL = 1.55;
+      if (calEnergy > 5. && calEnergy < 9.) corrHCAL = 1.55 - 0.18*(calEnergy-5.)/4.;
+      if (calEnergy > 9. && calEnergy < 20.) corrHCAL = 1.37 - 0.18*(calEnergy-9.)/11.;
+      if (calEnergy > 20. && calEnergy < 30.) corrHCAL = 1.19 - 0.06*(calEnergy-20.)/10.;
+      if (calEnergy > 30. && calEnergy < 50.) corrHCAL = 1.13 - 0.02*(calEnergy-30.)/20.;
+      if (calEnergy > 50. && calEnergy < 100.) corrHCAL = 1.11 - 0.02*(calEnergy-50.)/50.;
+      if (calEnergy > 100. && calEnergy < 1000.) corrHCAL = 1.09 - 0.09*(calEnergy-100.)/900.;
       
       }
       
       if (fabs(trackEta)>1.47) {
 
-	if (calEnergy < 5.) corrHCAL = 1.49;
-	if (calEnergy > 5. && calEnergy < 9.) corrHCAL = 1.49 - 0.08*(calEnergy-5.)/4.;
-	if (calEnergy > 9. && calEnergy < 20.) corrHCAL = 1.41- 0.15*(calEnergy-9.)/11.;
-	if (calEnergy > 20. && calEnergy < 30.) corrHCAL = 1.26 - 0.07*(calEnergy-20.)/10.;
-	if (calEnergy > 30. && calEnergy < 50.) corrHCAL = 1.19 - 0.04*(calEnergy-30.)/20.;
-	if (calEnergy > 50. && calEnergy < 100.) corrHCAL = 1.15 - 0.03*(calEnergy-50.)/50.;
-	if (calEnergy > 100. && calEnergy < 1000.) corrHCAL = 1.12 - 0.12*(calEnergy-100.)/900.;
+      if (calEnergy < 5.) corrHCAL = 1.49;
+      if (calEnergy > 5. && calEnergy < 9.) corrHCAL = 1.49 - 0.08*(calEnergy-5.)/4.;
+      if (calEnergy > 9. && calEnergy < 20.) corrHCAL = 1.41- 0.15*(calEnergy-9.)/11.;
+      if (calEnergy > 20. && calEnergy < 30.) corrHCAL = 1.26 - 0.07*(calEnergy-20.)/10.;
+      if (calEnergy > 30. && calEnergy < 50.) corrHCAL = 1.19 - 0.04*(calEnergy-30.)/20.;
+      if (calEnergy > 50. && calEnergy < 100.) corrHCAL = 1.15 - 0.03*(calEnergy-50.)/50.;
+      if (calEnergy > 100. && calEnergy < 1000.) corrHCAL = 1.12 - 0.12*(calEnergy-100.)/900.;
       
       }      
-      */
 
-      //      cout << endl << " ISO TRACK E = "<< calEnergy << " ETA = " << trackEta<< " PHI = " << trackPhi <<  " Correction " <<  corrHCAL<< endl;
+	  if (abs(trackEta)<2.1)  {
+	  
+	  isoTrE -> Fill(calEnergy);
+	  isoTrEta -> Fill(trackEta);
+	  isoTrPhi -> Fill(trackPhi);
+	  
+//	  isoTrE -> Fill(calEnergy);
+	  
+	  }
 
-      rvert = sqrt(trit->vx()*trit->vx()+trit->vy()*trit->vy()+trit->vz()*trit->vz());      
+
+//      cout << endl << " ISO TRACK E = "<< calEnergy << " ETA = " << trackEta<< " PHI = " << trackPhi <<  " Correction " <<  corrHCAL<< endl;
+
+      rvert = sqrt(it->vx()*it->vx()+it->vy()*it->vy()+it->vz()*it->vz());      
                  
       //Associate track with a calorimeter
-      TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup,trackAssociator_.getFreeTrajectoryState(iSetup, *trit),parameters_);
-     //*(it->track().get())
+      TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, trackAssociator_.getFreeTrajectoryState(iSetup, *it), parameters_);
+      
       double etaecal=info.trkGlobPosAtEcal.eta();
       double phiecal=info.trkGlobPosAtEcal.phi();
+      
+      //double thetaecal=2.*atan(1.)-asin(2.*exp(etaecal)/(1.+exp(2.*etaecal)));
+      //if(etaecal<0) thetaecal=-thetaecal;
+      //double etahcal=info.trkGlobPosAtHcal.eta();
+      //double phihcal=info.trkGlobPosAtHcal.phi();
 
       eecal=info.coneEnergy(parameters_.dREcal, TrackDetMatchInfo::EcalRecHits);
       ehcal=info.coneEnergy(parameters_.dRHcal, TrackDetMatchInfo::HcalRecHits);
 
-      double rmin = 0.07;
-      if( fabs(etaecal) > 1.47 ) rmin = 0.07*(fabs(etaecal)-0.47)*1.2;
-      if( fabs(etaecal) > 2.2 ) rmin = 0.07*(fabs(etaecal)-0.47)*1.4;
+	   double rmin = 0.07;
+	   if( fabs(etaecal) > 1.47 ) rmin = 0.07*(fabs(etaecal)-0.47)*1.2;
+	   if( fabs(etaecal) > 2.2 ) rmin = 0.07*(fabs(etaecal)-0.47)*1.4;
+      
+//      cout << " ISO TRACK ecal "<<  eecal<< " ETA = "<< etaecal  << " PHI = " << phiecal << "  " << rmin<< endl;
+  
+      //LogInfo("CaloConeEnergy:")<<" eecalCone:"<<eecal<<" ehcalCone:"<<ehcal<<" etaecal:"<<etaecal<<" phiecal:"<<phiecal<<" etahcal:"<<etahcal<<" phihcal:"<<phihcal;
+                  
+// Select ECAL & HCAL RecHits 
 
       struct
       {
-	int iphihitm;
-	int ietahitm;
+	int iphihit;
+	int ietahit;
 	int depthhit;
 	double hitenergy;
       } MaxHit;
@@ -369,96 +349,94 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       nECRecHits=0;
       
       double econus = 0.;
-      float ecal_cluster = 0.;      
-
+      
       for (std::vector<EcalRecHit>::const_iterator ehit=Hitecal.begin(); ehit!=Hitecal.end(); ehit++)	
-	{
-
+{
 	  if((*ehit).energy() > MaxHit.hitenergy) 
 	    {
 	      MaxHit.hitenergy = (*ehit).energy();
 	    }
 
-	  GlobalPoint pos = geo->getPosition((*ehit).detid());
-	  double phihit = pos.phi();
-	  double etahit = pos.eta();
+	 GlobalPoint pos = geo->getPosition((*ehit).detid());
+	 double phihit = pos.phi();
+	 double etahit = pos.eta();
 	 
-	  double dphi = fabs(phiecal - phihit); 
-	  if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
-	  double deta = fabs(etaecal - etahit); 
-	  double dr = sqrt(dphi*dphi + deta*deta);
+	 double dphi = fabs(phiecal - phihit); 
+	 if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
+	 double deta = fabs(etaecal - etahit); 
+	 double dr = sqrt(dphi*dphi + deta*deta);
 
-	  //         cout << " eta "<<  etahit << " phi "<< phihit << " en " << (*ehit).energy() << "  dr "<< dr << endl;
+//         cout << " eta "<<  etahit << " phi "<< phihit << " en " << (*ehit).energy() << "  dr "<< dr << endl;
 
-	  if (dr < rmin) {
-	    econus = econus + (*ehit).energy();
-	  }
-          if (dr < 0.13) ecal_cluster += (*ehit).energy();
+	 if (dr < rmin) {
+	   econus = econus + (*ehit).energy();
+	 }
 	 
-	  ecRHen [nECRecHits] = (*ehit).energy();
-	  ecRHeta[nECRecHits] = etahit;
-	  ecRHphi[nECRecHits] = phihit;
-	  nECRecHits++;
+	 if(m_histoFlag==1)  {thDrTrEHits -> Fill(dr);}
+	 ecRHen [nECRecHits] = (*ehit).energy();
+	 ecRHeta[nECRecHits] = etahit;
+	 ecRHphi[nECRecHits] = phihit;
+	 nECRecHits++;
 	}
 
+//      cout << " ISO TRACK ecal "<<  eecal<< " ETA = "<< etaecal  << " PHI = " << phiecal << "  " << econus << endl;
+
+	  if (abs(trackEta)<2.1 && calEnergy > 5.)  {
+                isoEcalCone-> Fill(econus);
+            }
+
+      //LogInfo("iCoord of MaxHhit: ")<<" ehitenergy:"<<MaxHit.hitenergy;
+      
+      // Find Hcal RecHit with maximum energy and collect other information
+      
       MaxHit.hitenergy=-100;
       nHCRecHits=0;
       
-      float dddeta = 1000.;
-      float dddphi = 1000.;
-      int iphitrue = 1234;
-      int ietatrue = 1234;
-
       for (HBHERecHitCollection::const_iterator hhit=Hithbhe.begin(); hhit!=Hithbhe.end(); hhit++) 
 	{
+	  // LogInfo("ALL HBHERecHit: ")<<" ieta->"<<(hhit->id()).ieta()<<" iphi->"<<(hhit->id()).iphi()<<" depth->"<<(hhit->id()).depth();
 
-	  // rof 16.05.2008 start: include the possibility for recalibration
-	  float recal = 1;
-	  // rof end
 
 	  GlobalPoint pos = geo->getPosition(hhit->detid());
 	  double phihit = pos.phi();
 	  double etahit = pos.eta();
 	  
-	  int iphihitm  = (hhit->id()).iphi();
-	  int ietahitm  = (hhit->id()).ieta();
+	  int iphihit  = (hhit->id()).iphi();
+	  int ietahit  = (hhit->id()).ieta();
 	  int depthhit = (hhit->id()).depth();
-	   
+	  
+	  // LogInfo("iCoord: ")<<ietahit<<"   "<<iphihit<<"       "<< depthhit;
+	  
 	  double dphi = fabs(info.trkGlobPosAtHcal.phi() - phihit); 
 	  if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
 	  double deta = fabs(info.trkGlobPosAtHcal.eta() - etahit); 
 	  double dr = sqrt(dphi*dphi + deta*deta);
 	  
-	  if (deta<dddeta) {
-	   ietatrue = ietahitm;
-	   dddeta=deta;
-	  }
-	  
-	  if (dphi<dddphi) {
-	  iphitrue = iphihitm;
-	  dddphi=dphi;
-	  }
+	  if(m_histoFlag==1)  { thDrTrHBHEHits -> Fill(dr);}
 	  
 	  if(dr<associationConeSize_) 
 	    {
-	      hcRHen[nHCRecHits]    = hhit->energy() * recal;
+	      hcRHen[nHCRecHits]    = hhit->energy();
 	      hcRHeta[nHCRecHits]   = etahit;
 	      hcRHphi[nHCRecHits]   = phihit;
-	      hcRHieta[nHCRecHits]  = ietahitm;
-	      hcRHiphi[nHCRecHits]  = iphihitm;
+	      hcRHieta[nHCRecHits]  = ietahit;
+	      hcRHiphi[nHCRecHits]  = iphihit;
 	      hcRHdepth[nHCRecHits] = depthhit;
 	      nHCRecHits++;
 	 
-	      if(hhit->energy() * recal > MaxHit.hitenergy) 
+	      if(hhit->energy() > MaxHit.hitenergy) 
 		{
-		  MaxHit.hitenergy =  hhit->energy() * recal;
-		  MaxHit.ietahitm   = (hhit->id()).ieta();
-		  MaxHit.iphihitm   = (hhit->id()).iphi();
+		  MaxHit.hitenergy =  hhit->energy();
+		  MaxHit.ietahit   = (hhit->id()).ieta();
+		  MaxHit.iphihit   = (hhit->id()).iphi();
 		  MaxHit.depthhit  = (hhit->id()).depth();
 		}
 	    }
 	}
       MaxHhitEnergy = MaxHit.hitenergy;
+      //LogInfo("iCoord of MaxHhit: ")<<" hhitenergy:"<<MaxHit.hitenergy<<"  ietahhit:"<<MaxHit.ietahit <<" iphihhit:"<<MaxHit.iphihit<<" depth:"<<MaxHit.depthhit;
+
+//      cout <<""<<  " hhitenergy:"<<MaxHit.hitenergy<<"  ietahhit:"<<MaxHit.ietahit <<" iphihhit:"<<MaxHit.iphihit<<" depth:"<<MaxHit.depthhit <<endl;
 
       if(m_histoFlag==1) 
 	{
@@ -474,181 +452,185 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	      MinIPHI = MinIPHI > hcRHiphi[k] ? hcRHiphi[k] : MinIPHI;
 	      MaxIPHI = MaxIPHI < hcRHiphi[k] ? hcRHiphi[k] : MaxIPHI;
 	    }
+	  // cout <<"MINIMAX "<<"MinIETA->"<<MinIETA<<"MaxIETA->"<<MaxIETA<<"MinIPHI->"<<MinIPHI<<"MaxIPHI->"<<MaxIPHI<<endl;
+	  
+	  sprintf(hname,"Track_%d",NisoTrk);
+	  TH2F* h2 = new TH2F(hname,"IETA :: IPHI ",10,MinIETA-1,MaxIETA+1, 10,MinIPHI-1,MaxIPHI+1);
+	  for (int k=0; k<nHCRecHits; k++) { h2->Fill( hcRHieta[k],hcRHiphi[k],hcRHen[k]);}
+	  h2->Write();
 	}
 
-      if(AxB_=="5x5" || AxB_=="3x3")
+      if(AxB_=="3x3")
 	{
 	  HcalAxBxDepthEnergy=0.;
 	  for(int ih=0; ih<9; ih++){HCAL3x3[ih]=0.;}
 
 	  for (HBHERecHitCollection::const_iterator hhit=Hithbhe.begin(); hhit!=Hithbhe.end(); hhit++) 
 	    {
-
+	      
 	      int DIETA = 100;
-	      if(MaxHit.ietahitm*(hhit->id()).ieta()>0)
+	      if(MaxHit.ietahit*(hhit->id()).ieta()>0)
 		{
-		  DIETA = MaxHit.ietahitm - (hhit->id()).ieta();
+		  DIETA = MaxHit.ietahit - (hhit->id()).ieta();
 		}
-	      if(MaxHit.ietahitm*(hhit->id()).ieta()<0)
+	      if(MaxHit.ietahit*(hhit->id()).ieta()<0)
 		{
-		  DIETA = MaxHit.ietahitm - (hhit->id()).ieta();
+		  DIETA = MaxHit.ietahit - (hhit->id()).ieta();
 		  DIETA = DIETA>0 ? DIETA-1 : DIETA+1; 
 		}
 	      
-	      int DIPHI = MaxHit.iphihitm - (hhit->id()).iphi();
+	      int DIPHI = MaxHit.iphihit - (hhit->id()).iphi();
 	      DIPHI = DIPHI>36 ? 72-DIPHI : DIPHI;
-	      
-	      int numbercell=0;
-	      if(AxB_=="3x3") numbercell = 1;
-	      if(AxB_=="5x5") numbercell = 2;
-	      
-	      if( abs(DIETA)<=numbercell && abs(DIPHI)<=numbercell) {
-		
-		// rof 16.05.2008 start: include the possibility for recalibration
-		float recal = 1;
 
-  	        int iii3i5 = 0;
-
-		  if(DIPHI==-1  && DIETA== 1) {HCAL3x3[0] += hhit->energy() * recal; iii3i5 = 1;}
-		  if(DIPHI==-1  && DIETA== 0) {HCAL3x3[1] += hhit->energy() * recal; iii3i5 = 1;}
-		  if(DIPHI==-1  && DIETA==-1) {HCAL3x3[2] += hhit->energy() * recal; iii3i5 = 1;}
-		  if(DIPHI== 0  && DIETA== 1) {HCAL3x3[3] += hhit->energy() * recal; iii3i5 = 1;}
-		  if(DIPHI== 0  && DIETA== 0) {HCAL3x3[4] += hhit->energy() * recal; iii3i5 = 1;}
-		  if(DIPHI== 0  && DIETA==-1) {HCAL3x3[5] += hhit->energy() * recal; iii3i5 = 1;}
-		  if(DIPHI== 1  && DIETA== 1) {HCAL3x3[6] += hhit->energy() * recal; iii3i5 = 1;}
-		  if(DIPHI== 1  && DIETA== 0) {HCAL3x3[7] += hhit->energy() * recal; iii3i5 = 1;}
-		  if(DIPHI== 1  && DIETA==-1) {HCAL3x3[8] += hhit->energy() * recal; iii3i5 = 1;}
-
-		  if(DIPHI==-2  && DIETA== 2) {HCAL5x5[0] += hhit->energy() * recal;}
-		  if(DIPHI==-2  && DIETA== 1) {HCAL5x5[1] += hhit->energy() * recal;}
-		  if(DIPHI==-2  && DIETA== 0) {HCAL5x5[2] += hhit->energy() * recal;}
-		  if(DIPHI==-2  && DIETA==-1) {HCAL5x5[3] += hhit->energy() * recal;}
-		  if(DIPHI==-2  && DIETA==-2) {HCAL5x5[4] += hhit->energy() * recal;}
-
-		  if(DIPHI==-1  && DIETA== 2) {HCAL5x5[5] += hhit->energy() * recal;}
-		  if(DIPHI==-1  && DIETA== 1) {HCAL5x5[6] += hhit->energy() * recal;}
-		  if(DIPHI==-1  && DIETA== 0) {HCAL5x5[7] += hhit->energy() * recal;}
-		  if(DIPHI==-1  && DIETA==-1) {HCAL5x5[8] += hhit->energy() * recal;}
-		  if(DIPHI==-1  && DIETA==-2) {HCAL5x5[9] += hhit->energy() * recal;}
-
-		  if(DIPHI== 0  && DIETA== 2) {HCAL5x5[10] += hhit->energy() * recal;}
-		  if(DIPHI== 0  && DIETA== 1) {HCAL5x5[11] += hhit->energy() * recal;}
-		  if(DIPHI== 0  && DIETA== 0) {HCAL5x5[12] += hhit->energy() * recal;}
-		  if(DIPHI== 0  && DIETA==-1) {HCAL5x5[13] += hhit->energy() * recal;}
-		  if(DIPHI== 0  && DIETA==-2) {HCAL5x5[14] += hhit->energy() * recal;}
+	      if( abs(DIETA)<=1 && abs(DIPHI)<=1) 
+		{
+		  //HCAl Energy in 3x3 Clastor (sum of depth)
+		  HcalAxBxDepthEnergy += hhit->energy();
 		  
-		  if(DIPHI== 1  && DIETA== 2) {HCAL5x5[15] += hhit->energy() * recal;}
-		  if(DIPHI== 1  && DIETA== 1) {HCAL5x5[16] += hhit->energy() * recal;}
-		  if(DIPHI== 1  && DIETA== 0) {HCAL5x5[17] += hhit->energy() * recal;}
-		  if(DIPHI== 1  && DIETA==-1) {HCAL5x5[18] += hhit->energy() * recal;}
-		  if(DIPHI== 1  && DIETA==-2) {HCAL5x5[19] += hhit->energy() * recal;}
+		  // LogInfo("3x3: ")<<" --- OK----"<<"  ieta->"<<(hhit->id()).ieta()<<"  iphi->"<<(hhit->id()).iphi()<<"  depth->"<<(hhit->id()).depth();
 		  
-		  if(DIPHI== 2  && DIETA== 2) {HCAL5x5[20] += hhit->energy() * recal;}
-		  if(DIPHI== 2  && DIETA== 1) {HCAL5x5[21] += hhit->energy() * recal;}
-		  if(DIPHI== 2  && DIETA== 0) {HCAL5x5[22] += hhit->energy() * recal;}
-		  if(DIPHI== 2  && DIETA==-1) {HCAL5x5[23] += hhit->energy() * recal;}
-		  if(DIPHI== 2  && DIETA==-2) {HCAL5x5[24] += hhit->energy() * recal;}
-		    
-		  if(calEnergy > energyMinIso && calEnergy < energyMaxIso 
-		      && isoMatched->energyIn() < energyECALmip && isoMatched->maxPtPxl() < maxPNear 
-		      && MaxHit.hitenergy > 0.){
-		      rawEnergyVec.push_back(hhit->energy() * recal * corrHCAL);
-		      detidvec.push_back(hhit->id());
-		      detiphi.push_back((hhit->id()).iphi());
-		      detieta.push_back((hhit->id()).ieta());
-		      i3i5.push_back(iii3i5);
-		      numbers2[(hhit->id()).ieta()+29][(hhit->id()).iphi()] = numbers2[(hhit->id()).ieta()+29][(hhit->id()).iphi()] + 1;
-		      
-		  }
-	      }
+		  // HCAL Energy in each RecHit of 3x3 (sum of depth) 
+		  // HCAL3x3[9] -> 0  1  2
+		  //               3  4  5
+		  //               6  7  8
+		  //
+		  //  i       ^72
+		  //  p       |
+		  //  h       |
+		  //  i       |
+		  //  - - - - 0 - - - ->
+		  //                  ieta
+		  
+		  if(DIPHI==-1  && DIETA== 1) {HCAL3x3[0] += hhit->energy();} 
+		  if(DIPHI==-1  && DIETA== 0) {HCAL3x3[1] += hhit->energy();}
+		  if(DIPHI==-1  && DIETA==-1) {HCAL3x3[2] += hhit->energy();}
+		  if(DIPHI== 0  && DIETA== 1) {HCAL3x3[3] += hhit->energy();}
+		  if(DIPHI== 0  && DIETA== 0) {HCAL3x3[4] += hhit->energy();}
+		  if(DIPHI== 0  && DIETA==-1) {HCAL3x3[5] += hhit->energy();}
+		  if(DIPHI== 1  && DIETA== 1) {HCAL3x3[6] += hhit->energy();}
+		  if(DIPHI== 1  && DIETA== 0) {HCAL3x3[7] += hhit->energy();}
+		  if(DIPHI== 1  && DIETA==-1) {HCAL3x3[8] += hhit->energy();}
+
+// M+
+// collect into rawEnergyVector:
+
+//                   cout<<" rawEnergyVec "<< hhit->energy() << "  "<< hhit->id() <<  " ieta "<< (hhit->id()).ieta() <<  " iphi " << (hhit->id()).iphi()<< endl;
+
+	   if(calEnergy > energyMinIso && calEnergy < energyMaxIso && econus < 1. && MaxHit.hitenergy > 0.)
+	   {
+		   rawEnergyVec.push_back(hhit->energy() * corrHCAL);
+		   detidvec.push_back(hhit->id());
+
+	    numbers2[(hhit->id()).ieta()+29][(hhit->id()).iphi()] = numbers2[(hhit->id()).ieta()+29][(hhit->id()).iphi()] + 1;
+		   
+		   }
+// M-
+
+		}
 	    }
 	}
 
+      if(AxB_=="5x5")
+	{
+	  HcalAxBxDepthEnergy=0.;
+	  for(int ih=0; ih<9; ih++){HCAL5x5[ih]=0.;}
+	  
+	  for (HBHERecHitCollection::const_iterator hhit=Hithbhe.begin(); hhit!=Hithbhe.end(); hhit++) 
+	    {
+	      int DIETA = 100;
+	      if(MaxHit.ietahit*(hhit->id()).ieta()>0)	{DIETA = MaxHit.ietahit - (hhit->id()).ieta();}
+	      if(MaxHit.ietahit*(hhit->id()).ieta()<0){ DIETA = MaxHit.ietahit - (hhit->id()).ieta();DIETA = DIETA>0 ? DIETA-1 : DIETA+1;}
+	      int DIPHI = MaxHit.iphihit - (hhit->id()).iphi();
+	      DIPHI = DIPHI>36 ? 72-DIPHI : DIPHI;
+	      
+	      if( abs(DIETA)<=2 && abs(DIPHI)<=2) 
+		{
+		
+		  HcalAxBxDepthEnergy += hhit->energy();
+		  
+		  
+		  // HCAL Energy in each RecHit of 5x5 (sum of depth) 
+		  // HCAL3x3[25] ->  0  1  2  3  4
+		  //                 5  6  7  9 10
+		  //                11 12 13 14 15
+		  //                16 17 18 19 20
+		  //                21 22 23 24 25
+		  if(DIPHI==-2  && DIETA== 2) {HCAL3x3[0] += hhit->energy();}
+		  if(DIPHI==-2  && DIETA== 1) {HCAL3x3[1] += hhit->energy();}
+		  if(DIPHI==-2  && DIETA== 0) {HCAL3x3[3] += hhit->energy();}
+		  if(DIPHI==-2  && DIETA==-1) {HCAL3x3[4] += hhit->energy();}
+		  if(DIPHI==-2  && DIETA==-2) {HCAL3x3[5] += hhit->energy();}
+
+		  if(DIPHI==-1  && DIETA== 2) {HCAL3x3[6] += hhit->energy();}
+		  if(DIPHI==-1  && DIETA== 1) {HCAL3x3[7] += hhit->energy();}
+		  if(DIPHI==-1  && DIETA== 0) {HCAL3x3[8] += hhit->energy();}
+		  if(DIPHI==-1  && DIETA==-1) {HCAL3x3[9] += hhit->energy();}
+		  if(DIPHI==-1  && DIETA==-2) {HCAL3x3[10] += hhit->energy();}
+
+		  if(DIPHI== 0  && DIETA== 2) {HCAL3x3[11] += hhit->energy();}
+		  if(DIPHI== 0  && DIETA== 1) {HCAL3x3[12] += hhit->energy();}
+		  if(DIPHI== 0  && DIETA== 0) {HCAL3x3[13] += hhit->energy();}
+		  if(DIPHI== 0  && DIETA==-1) {HCAL3x3[14] += hhit->energy();}
+		  if(DIPHI== 0  && DIETA==-2) {HCAL3x3[15] += hhit->energy();}
+		  
+		  if(DIPHI== 1  && DIETA== 2) {HCAL3x3[16] += hhit->energy();}
+		  if(DIPHI== 1  && DIETA== 1) {HCAL3x3[17] += hhit->energy();}
+		  if(DIPHI== 1  && DIETA== 0) {HCAL3x3[18] += hhit->energy();}
+		  if(DIPHI== 1  && DIETA==-1) {HCAL3x3[19] += hhit->energy();}
+		  if(DIPHI== 1  && DIETA==-2) {HCAL3x3[20] += hhit->energy();}
+		  
+		  if(DIPHI== 2  && DIETA== 2) {HCAL3x3[21] += hhit->energy();}
+		  if(DIPHI== 2  && DIETA== 1) {HCAL3x3[22] += hhit->energy();}
+		  if(DIPHI== 2  && DIETA== 0) {HCAL3x3[23] += hhit->energy();}
+		  if(DIPHI== 2  && DIETA==-1) {HCAL3x3[24] += hhit->energy();}
+		  if(DIPHI== 2  && DIETA==-2) {HCAL3x3[25] += hhit->energy();}
+
+// M+
+// collect into rawEnergyVector:
+		   rawEnergyVec.push_back(hhit->energy());
+		   detidvec.push_back(hhit->id());
+// M-
+
+		}	  
+	    }
+	}
+      
       if(AxB_!="3x3" && AxB_!="5x5") LogWarning(" AxB ")<<"   Not supported: "<< AxB_;
 
-      if(calEnergy > energyMinIso && calEnergy < energyMaxIso &&
-         isoMatched->energyIn() < energyECALmip && isoMatched->maxPtPxl() < maxPNear &&
-	 (MaxHit.ietahitm+29) > -1 && (MaxHit.ietahitm+29) < 60 && MaxHit.hitenergy > 0.)
-	{
-	  EventMatrix.push_back(rawEnergyVec);
-	  EventIds.push_back(detidvec);
-	  EnergyVector.push_back(calEnergy);
+// M+
+	   if(calEnergy > energyMinIso && calEnergy < energyMaxIso && econus < 1. && 
+	   (MaxHit.ietahit+29) > -1 && (MaxHit.ietahit+29) < 60 && MaxHit.hitenergy > 0.)
+	   {
+// 	    cout<<" Begin of pushing "<<endl; 
+	    EventMatrix.push_back(rawEnergyVec);
+	    EventIds.push_back(detidvec);
+	    EnergyVector.push_back(calEnergy);
 
-	  numbers[MaxHit.ietahitm+29][MaxHit.iphihitm] = numbers[MaxHit.ietahitm+29][MaxHit.iphihitm] + 1;
-	}
-
-      if (calEnergy > 10. && isoMatched->energyIn() < energyECALmip && isoMatched->maxPtPxl() < maxPNear &&
-	 (MaxHit.ietahitm+29) > -1 && (MaxHit.ietahitm+29) < 60 && MaxHit.hitenergy > 0.){
-//	  input_to_L3 << rawEnergyVec.size() << "   " << calEnergy <<  "   " << ietatrue << "   " << iphitrue;
-	  input_to_L3 << rawEnergyVec.size() << "   " << calEnergy;
-
-	  for (unsigned int i=0; i<rawEnergyVec.size(); i++)
-	    {
-//	      input_to_L3 << "   " << rawEnergyVec.at(i) << "   " << detidvec.at(i).rawId() << "   " << detiphi.at(i) << "   " << detieta.at(i);
-	      input_to_L3 << "   " << rawEnergyVec.at(i) << "   " << detidvec.at(i).rawId() ;	    
-	      }
-	  input_to_L3 <<endl;
-
-        // set dummy values for - not in ascii file
-        eventNumber = iEvent.id().event();
-        runNumber = iEvent.id().run();
-        iEtaHit = ietatrue;
-        iPhiHit = iphitrue;
-        emEnergy = econus;
-        exampleP4->SetPxPyPzE(2, 1, 1, 10);
-	
-	numberOfCells=rawEnergyVec.size();
-	targetE = calEnergy;
-        
-        for (unsigned int ia=0; ia<numberOfCells; ++ia) {
-            cellEnergy = rawEnergyVec.at(ia);
-            cell = detidvec.at(ia).rawId();
-            
-            new((*cells)[ia])  TCell(cell, cellEnergy);
-            
-            if (i3i5.at(ia)==1) {
-                cells3x3->Add((*cells)[ia]);
-//	        input_to_L3 << "  3x3 " << detiphi.at(ia) << "   " <<detieta.at(ia) << endl;
-            }
-            if (i3i5.at(ia)==1) {
-                cellsPF->Add((*cells)[ia]);
-            }
-            
-        } 
-	  
-        tree->Fill();
-        
-        cells3x3->Clear();
-        cellsPF->Clear();
-        cells->Clear();	  
-	  
-      }
-
-      rawEnergyVec.clear();
-      detidvec.clear();
-      detiphi.clear();
-      detieta.clear();
-      i3i5.clear();
-
+//	    cout<<"        "<< MaxHit.ietahit << "  " <<MaxHit.iphihit << endl;
+//            cout<<"   "<< calEnergy << "  " << trackEta << " " << trackPhi<< endl; 
+	    
+	    numbers[MaxHit.ietahit+29][MaxHit.iphihit] = numbers[MaxHit.ietahit+29][MaxHit.iphihit] + 1;
+	    
+//	    cout<<" End of pushing "<<endl; 
+//	    cout<<"   "<< calEnergy << "  " << rawEnergyVec.size() <<  "  " << detidvec.size()<< endl; 
+	   }
+// M-
+     
+//	    cout<<"  BEGINNING 2 "<< calEnergy << "  " << rawEnergyVec.size() <<  "  " << detidvec.size()<< endl; 
+      
       nHORecHits=0;
       try {
 	Handle<HORecHitCollection> ho;
 	iEvent.getByLabel(hoLabel_,ho);
 	const HORecHitCollection Hitho = *(ho.product());
-
 	for(HORecHitCollection::const_iterator hoItr=Hitho.begin(); hoItr!=Hitho.end(); hoItr++)
 	  {
-
-	    // rof 16.05.2008 start: include the possibility for recalibration
-	    float recal = 1;
-	    // rof end
-
 	    GlobalPoint pos = geo->getPosition(hoItr->detid());
 	    double phihit = pos.phi();
 	    double etahit = pos.eta();
 	    
-	    int iphihitm = (hoItr->id()).iphi();
-	    int ietahitm = (hoItr->id()).ieta();
+	    int iphihit = (hoItr->id()).iphi();
+	    int ietahit = (hoItr->id()).ieta();
 	    int depthhit = (hoItr->id()).depth();
 	    
 	    double dphi = fabs(trackPhi - phihit); 
@@ -656,12 +638,14 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	    double deta = fabs(trackEta - etahit); 
 	    double dr = sqrt(dphi*dphi + deta*deta);
 	    
+	    if(m_histoFlag==1)  {thDrTrHOHits -> Fill(dr);}
+	    
 	    if(dr<associationConeSize_) {
-	      hoRHen[nHORecHits] = hoItr->energy() * recal;
+	      hoRHen[nHORecHits] = hoItr->energy();
 	      hoRHeta[nHORecHits] = etahit;
 	      hoRHphi[nHORecHits] = phihit;
-	      hoRHieta[nHORecHits] = ietahitm;
-	      hoRHiphi[nHORecHits] = iphihitm;
+	      hoRHieta[nHORecHits] = ietahit;
+	      hoRHiphi[nHORecHits] = iphihit;
 	      hoRHdepth[nHORecHits] = depthhit;
 	      nHORecHits++;
 	      
@@ -670,6 +654,9 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       } catch (cms::Exception& e) { // can't find it!
 	if (!allowMissingInputs_) throw e;
       }
+      //  cout<<" HO is done "<<endl; 
+      
+      if(m_histoFlag==1)  {CalibTree -> Fill();}
     }
 }
 
@@ -677,28 +664,63 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 void 
 HcalIsoTrkAnalyzer::beginJob(const edm::EventSetup&)
 {
-  //  MyL3Algo = new MinL3AlgoUniv<HcalDetId>(eventWeight);
+      tf2 = new TFile(outputFileName_.c_str(),"RECREATE");
+      isoTrE = new TH1F("isoTrE","isoTrE", 200, 0., 100.);
+      isoTrEta = new TH1F("isoTrEta","isoTrEta", 100, -2.1, 2.1);
+      isoTrPhi = new TH1F("isoTrPhi","isoTrPhi", 72, -3.14, 3.14);
 
-    input_to_L3.open("input_to_l3.txt");
+      isoEcalCone = new TH1F("isoEcalCone","isoEcalCone", 550, -1., 10.);
 
-    rootFile = new TFile("rootFile.root", "RECREATE");
-    tree = new TTree("hcalCalibTree", "Tree for IsoTrack Calibration");  
-    // Do this in BeginJob()  -----------------------------------------
-    cells = new TClonesArray("TCell", 10000);
-    cells3x3 = new TRefArray;
-    cellsPF = new TRefArray;
-    exampleP4 = new TLorentzVector();
-    
-    tree->Branch("cells", &cells, 64000, 0);  // works also without the last two arguments
-    tree->Branch("targetE", &targetE, "targetE/F");
-    tree->Branch("exampleP4", "TLorentzVector", &exampleP4);
-    tree->Branch("cells3x3", &cells3x3, 64000, 0);
-    tree->Branch("cellsPF", &cellsPF, 64000, 0);
-    tree->Branch("iEtaHit", &iEtaHit, "iEtaHit/I");
-    tree->Branch("iPhiHit", &iPhiHit, "iPhiHit/i");
-    tree->Branch("eventNumber", &eventNumber, "eventNumber/i");
-    tree->Branch("runNumber", &runNumber, "runNumber/i");
-    //_________________________________________________________________  
+  if(m_histoFlag==1)  
+    {
+      
+      thDrTrEHits = new TH1F("thDrTrEHits","thDrETrHits", 50, 0., 5.);
+      thDrTrHBHEHits = new TH1F("thDrHBHETrHits","thDrHBHETrHits", 50, 0., 5.);
+      thDrTrHOHits = new TH1F("thDrHOTrHits","thDrHOTrHits", 50, 0., 5.);
+
+     
+      CalibTree = new TTree("CalibTree","CalibTree");
+      CalibTree->Branch("trackEta",&trackEta,"trackEta/D");
+      CalibTree->Branch("trackPt",&trackPt,"trackPt/D");
+      CalibTree->Branch("ptrack",&ptrack,"ptrack/D");
+      CalibTree->Branch("rvert",&rvert,"rvert/D");
+      
+      CalibTree->Branch("MaxHhitEnergy",&MaxHhitEnergy,"MaxHhitEnergy/D");
+      CalibTree->Branch("HcalAxBxDepthEnergy",&HcalAxBxDepthEnergy,"HcalAxBxDepthEnergy/D");
+      CalibTree->Branch("HCAL3x3",HCAL3x3,"HCAL3x3[9]/D");
+      CalibTree->Branch("HCAL5x5",HCAL5x5,"HCAL5x5[25]/D");
+
+      CalibTree->Branch("nECRecHits",&nECRecHits,"nECRecHits/I");//, "ECAL Number of RecHits"
+      CalibTree->Branch("ecRHen",ecRHen,"ecRHen[nECRecHits]/D");//, "ECAL RecHits Energy"
+      CalibTree->Branch("ecRHeta",ecRHeta,"ecRHeta[nECRecHits]/D");//, "ECAL RecHits eta"
+      CalibTree->Branch("ecRHphi",ecRHphi,"ecRHphi[nECRecHits]/D");//, "ECAL RecHits phi"
+      CalibTree->Branch("eecal",&eecal,"eecal/D");//, "ECAL Cone Energy"
+      
+      CalibTree->Branch("nHCRecHits",&nHCRecHits,"nHCRecHits/I");//,"HCAL Number of RecHits"
+      CalibTree->Branch("hcRHen",hcRHen,"hcRHen[nHCRecHits]/D");//,"HCAL RecHits Energy"
+      CalibTree->Branch("hcRHeta",hcRHeta,"hcRHeta[nHCRecHits]/D");//,"HCAL RecHits eta"
+      CalibTree->Branch("hcRHphi",hcRHphi,"hcRHphi[nHCRecHits]/D");//,"HCAL RecHits phi"
+      CalibTree->Branch("hcRHieta",hcRHieta,"hcRHieta[nHCRecHits]/I");//, "HCAL RecHits ieta"
+      CalibTree->Branch("hcRHiphi",hcRHiphi,"hcRHiphi[nHCRecHits]/I");//, "HCAL RecHits iphi"
+      CalibTree->Branch("hcRHdepth",hcRHdepth,"hcRHdepth[nHCRecHits]/I");//,"HCAL RecHits depth"
+      CalibTree->Branch("ehcal",&ehcal,"ehcal/D");//, "HCAL Cone Energy"
+      
+      CalibTree->Branch("nHORecHits",&nHORecHits,"nHORecHits/I");
+      CalibTree->Branch("hoRHen",hoRHen,"hoRHen[nHORecHits]/D");
+      CalibTree->Branch("hoRHeta",hoRHeta,"hoRHeta[nHORecHits]/D");
+      CalibTree->Branch("hoRHphi",hoRHphi,"hoRHphi[nHORecHits]/D");
+      CalibTree->Branch("hoRHieta",hoRHieta,"hoRHieta[nHORecHits]/I");
+      CalibTree->Branch("hoRHiphi",hoRHiphi,"hoRHiphi[nHORecHits]/I");
+      CalibTree->Branch("hoRHdepth",hoRHdepth,"hoRHdepth[nHORecHits]/I"); 
+    }
+  NisoTrk=0;
+
+// M+
+
+// initialize the algorithm
+  MyL3Algo = new MinL3AlgoUniv<HcalDetId>(eventWeight);
+
+// M-
 
 }
 
@@ -706,12 +728,11 @@ HcalIsoTrkAnalyzer::beginJob(const edm::EventSetup&)
 void 
 HcalIsoTrkAnalyzer::endJob() {
 
-  /*
-  // M+
+// M+
   // perform the calibration with given number of iterations  
-  cout<<" Begin of solution "<< EnergyVector.size() << "  "<< EventMatrix.size()<< "  "<< EventIds.size()<<endl; 
+	   cout<<" Begin of solution "<< EnergyVector.size() << "  "<< EventMatrix.size()<< "  "<< EventIds.size()<<endl; 
   solution = MyL3Algo->iterate(EventMatrix, EventIds, EnergyVector, nIterations);
-  cout<<" End of solution "<<endl; 
+	   cout<<" End of solution "<<endl; 
 
   // print the solution and make a few plots
   map<HcalDetId,float>::iterator ii;
@@ -721,9 +742,22 @@ HcalIsoTrkAnalyzer::endJob() {
       int curr_phi = ii->first.iphi();
       int curr_depth = ii->first.depth();
       cout << "solution[eta=" << curr_eta << ",phi=" << curr_phi << ",subdet=" << ii->first.subdet()
-	   << ",depth=" << curr_depth << "] = " << ii->second 
-	   << " Stat " << numbers[curr_eta+29][curr_phi] << "  " << numbers2[curr_eta+29][curr_phi]
-	   << endl; 
+      << ",depth=" << curr_depth << "] = " << ii->second 
+      << " Stat " << numbers[curr_eta+29][curr_phi] << "  " << numbers2[curr_eta+29][curr_phi]
+      << endl; 
+
+///      layers->Fill(curr_depth);
+
+///      calibs->Fill(ii->second);
+      // translate into eta, phi and fill into map
+
+///      if (curr_depth == 1) calibMapL1->Fill(curr_eta,curr_phi,ii->second);
+///      if (curr_depth == 2) calibMapL2->Fill(curr_eta,curr_phi,ii->second);
+///      if (curr_depth == 3) calibMapL3->Fill(curr_eta,curr_phi,ii->second);
+///      if (ii->first.subdet() == HcalOuter) calibMapHO->Fill(curr_eta,curr_phi,ii->second);
+
+      //depth definition:
+      //enum HcalSubdetector { HcalEmpty=0, HcalBarrel=1, HcalEndcap=2, HcalOuter=3, HcalForward=4, HcalTriggerTower=5, HcalOther=7 };
     }
 
   for (ii = solution.begin(); ii != solution.end(); ii++)
@@ -732,20 +766,31 @@ HcalIsoTrkAnalyzer::endJob() {
       int curr_phi = ii->first.iphi();
       int curr_depth = ii->first.depth();
       cout << "  "<< ii->first.subdet() << "  " << curr_depth  << "  "<< curr_eta << "  " << curr_phi <<  "  "<< ii->second
-	   << endl; 
+      << endl; 
     }
-  */
+
+
+
+// M-
+
+      tf2 -> cd();
+
+      isoTrE -> Write();      
+      isoTrEta -> Write();      
+      isoTrPhi -> Write();      
+      isoEcalCone-> Write(); 
   
-    input_to_L3.close();
+  if(m_histoFlag==1) 
+    {
+      
+      thDrTrEHits -> Write();  
+      thDrTrHBHEHits -> Write();
+      thDrTrHOHits -> Write(); 
 
-    rootFile->Write();
-    rootFile->Close();
-
-    if (cells) delete cells;
-    if (cells3x3) delete cells3x3;
-    if (cellsPF) delete cellsPF;
-    if (exampleP4) delete exampleP4;
+      CalibTree -> Write();
+    }
 }
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(HcalIsoTrkAnalyzer);
+

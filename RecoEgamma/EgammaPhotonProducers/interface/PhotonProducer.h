@@ -3,9 +3,9 @@
 /** \class PhotonProducer
  **  
  **
- **  $Id: PhotonProducer.h,v 1.24 2008/08/17 12:47:38 nancy Exp $ 
- **  $Date: 2008/08/17 12:47:38 $ 
- **  $Revision: 1.24 $
+ **  $Id: PhotonProducer.h,v 1.23 2008/07/18 10:14:51 nancy Exp $ 
+ **  $Date: 2008/07/18 10:14:51 $ 
+ **  $Revision: 1.23 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -97,7 +97,7 @@ class PhotonProducer : public edm::EDProducer {
 
   bool validPixelSeeds_;
 
-  //int nEvt_;
+  int nEvt_;
 
 };
 #endif

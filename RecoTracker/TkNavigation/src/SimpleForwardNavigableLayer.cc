@@ -294,11 +294,13 @@ void SimpleForwardNavigableLayer::setDetLayer( DetLayer* dl) {
 }
 
 void SimpleForwardNavigableLayer::setInwardLinks(const BDLC& innerBL, 
-                                                 const FDLC& innerFL) {
+                                                 const FDLC& innerFL,
+						 TkLayerLess sorter) {
 
   theInnerBarrelLayers  = innerBL;
   theInnerForwardLayers = innerFL;
 
+  theInnerLayers.clear();
   theInnerLayers.reserve(innerBL.size() + innerFL.size());
   for ( ConstBDLI bl = innerBL.begin(); bl != innerBL.end(); bl++ )
     theInnerLayers.push_back(*bl);
@@ -306,9 +308,9 @@ void SimpleForwardNavigableLayer::setInwardLinks(const BDLC& innerBL,
     theInnerLayers.push_back(*fl);
 
   // sort the inner layers
-  sort(theInnerLayers.begin(), theInnerLayers.end(),TkLayerLess(outsideIn));
-  sort(theInnerForwardLayers.begin(), theInnerForwardLayers.end(), TkLayerLess(outsideIn));
-  sort(theInnerBarrelLayers.begin(), theInnerBarrelLayers.end(), TkLayerLess(outsideIn));  
+  sort(theInnerLayers.begin(), theInnerLayers.end(),sorter);
+  sort(theInnerForwardLayers.begin(), theInnerForwardLayers.end(),sorter);
+  sort(theInnerBarrelLayers.begin(), theInnerBarrelLayers.end(), sorter);
 
 }
 

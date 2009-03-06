@@ -23,65 +23,60 @@ using namespace std;
 PixelMaskAllPixels::PixelMaskAllPixels(std::vector< std::vector<std::string> >& tableMat) : PixelMaskBase("","","")
 {
 
-  std::cout<<"Table Size in const:"<<tableMat.size()<<std::endl;
+//std::cout<<"Table Size in const:"<<tableMat.size()<<std::endl;
 
+ std::stringstream currentRocName;
  std::vector< std::string > ins = tableMat[0];
  std::map<std::string , int > colM;
  std::vector<std::string > colNames;
-
- colNames.push_back("CONFIG_KEY_ID" );
- colNames.push_back("CONFG_KEY"     );
- colNames.push_back("VERSION"       );
- colNames.push_back("KIND_OF_COND"  );
- colNames.push_back("ROC_NAME"      );
- colNames.push_back("HUB_ADDRS"     );
- colNames.push_back("PORT_NUMBER"   );
- colNames.push_back("ROC_I2C_ADDR"  );
- colNames.push_back("GEOM_ROC_NUM"  );
- colNames.push_back("DATA_FILE"     );
- colNames.push_back("MASK_CLOB"     );
-
+ colNames.push_back("ROC_NAME");//0
+ colNames.push_back("TRIM_BLOB");//1
 
   
- for(unsigned int c = 0 ; c < ins.size() ; c++)
-   {
-     for(unsigned int n=0; n<colNames.size(); n++)
-       {
-	 if(tableMat[0][c] == colNames[n])
-	   {
-	     colM[colNames[n]] = c;
-	     break;
-	   }
-       }
-   }//end for
- for(unsigned int n=0; n<colNames.size(); n++)
-   {
-     if(colM.find(colNames[n]) == colM.end())
-       {
-	 std::cerr << "[PixelMaskAllPixels::PixelMaskAllPixels()]\tCouldn't find in the database the column with name " << colNames[n] << std::endl;
-	 assert(0);
-       }
+ for(unsigned int c = 0 ; c < ins.size() ; c++){
+   for(unsigned int n=0; n<colNames.size(); n++){
+     if(tableMat[0][c] == colNames[n]){
+       colM[colNames[n]] = c;
+       break;
+     }
    }
- 
+ }//end for
+ for(unsigned int n=0; n<colNames.size(); n++){
+   if(colM.find(colNames[n]) == colM.end()){
+     std::cerr << "[PixelMaskAllPixels::PixelMaskAllPixels()]\tCouldn't find in the database the column with name " << colNames[n] << std::endl;
+     assert(0);
+   }
+ }
+
+	
+std::string bits;
+	
   for(unsigned int r = 1 ; r < tableMat.size() ; r++){   //Goes to every row of the Matrix
-    std::string currentRocName = tableMat[r][colM["ROC_NAME"]]  ;               
-    PixelROCName rocid(currentRocName);
-    PixelROCMaskBits tmp;
-    std::istringstream istring ;
-    istring.str(tableMat[r][colM["MASK_CLOB"]]) ;
-    tmp.read(rocid,istring);
-    maskbits_.push_back(tmp);
+    currentRocName.str("");
+    currentRocName <<  tableMat[r][colM[colNames[0]]]  ;               
+		                 
+		   
+		
+		
+		 PixelROCName rocid(currentRocName.str());
+		 
+		 
+	         PixelROCMaskBits tmp;     // Have to add like this  PixelROCTrimBits tmp(rocid , bits ); 
+		 
+		 bits = tableMat[r][colM[colNames[1]]];
+		// std::cout<<rocid<<std::endl;
+		// std::cout<<bits.size()<<std::endl;
+		 
+		 tmp.setROCMaskBits(rocid, bits);
+		 
+		 maskbits_.push_back(tmp);
+		  
+		 
   }//end for r 
+
 //std::cout<<maskbits_.size()<<std::endl;
 }
 
-// modified by MR on 18-04-2008 10:02:00
-PixelMaskAllPixels::PixelMaskAllPixels():PixelMaskBase("","",""){;}
-
-void PixelMaskAllPixels::addROCMaskBits(PixelROCMaskBits bits)
-{
-  maskbits_.push_back(bits);
-}
 
 //**********************************************************************
 
@@ -207,6 +202,8 @@ PixelROCMaskBits* PixelMaskAllPixels::getMaskBits(PixelROCName name) {
   return 0;
 
 }
+
+
 
 void PixelMaskAllPixels::writeBinary(std::string filename) const{
 

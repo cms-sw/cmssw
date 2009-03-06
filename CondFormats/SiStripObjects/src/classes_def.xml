@@ -38,10 +38,6 @@
 
   <class name="SiStripRunSummary" class_version="0"/>
 
-  <class name="SiStripSummary" class_version="0"/>
-  <class name="SiStripSummary::DetRegistry"/>
-  <class name="std::vector<SiStripSummary::DetRegistry>"/>
-
   <class pattern="*vector*"/>
   <class pattern="*map*"/>
 

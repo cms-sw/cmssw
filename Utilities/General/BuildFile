@@ -1,8 +1,8 @@
 <export>
  <lib name=UtilitiesGeneral>
  <use name=boost>
- <use name=FWCore/Utilities>
+ <use name=Foundation/SealBase>
 </export>
 
-<use name=FWCore/Utilities>
 <use name=boost>
+<use name=Foundation/SealBase>

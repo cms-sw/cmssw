@@ -39,19 +39,11 @@ void CaloGeometryHelper::initialize(double bField)
   buildCrystalArray();
   buildNeighbourArray();
   bfield_ = bField;
-  preshowerPresent_=(getEcalPreshowerGeometry()!=0);
-    
-  if(preshowerPresent_)
-    {
-      ESDetId cps1(getEcalPreshowerGeometry()->getClosestCellInPlane(GlobalPoint(80.,80.,303.),1));
-      psLayer1Z_ = getEcalPreshowerGeometry()->getGeometry(cps1)->getPosition().z();
-      ESDetId cps2(getEcalPreshowerGeometry()->getClosestCellInPlane(GlobalPoint(80.,80.,307.),2));
-      psLayer2Z_ = getEcalPreshowerGeometry()->getGeometry(cps2)->getPosition().z();
-      LogDebug("CaloGeometryTools")  << " Preshower layer positions " << psLayer1Z_ << " " << psLayer2Z_ << std::endl;
-    }
-  else
-    LogDebug("CaloGeometryTools")  << " No preshower present" << std::endl;
-
+  ESDetId cps1(getEcalPreshowerGeometry()->getClosestCellInPlane(GlobalPoint(80.,80.,303.),1));
+  psLayer1Z_ = getEcalPreshowerGeometry()->getGeometry(cps1)->getPosition().z();
+  ESDetId cps2(getEcalPreshowerGeometry()->getClosestCellInPlane(GlobalPoint(80.,80.,307.),2));
+  psLayer2Z_ = getEcalPreshowerGeometry()->getGeometry(cps2)->getPosition().z();
+  LogDebug("CaloGeometryTools")  << " Preshower layer positions " << psLayer1Z_ << " " << psLayer2Z_ << std::endl;
   //  std::cout << " Preshower layer positions " << psLayer1Z_ << " " << psLayer2Z_ << std::endl;
 
 }

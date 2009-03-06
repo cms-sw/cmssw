@@ -40,14 +40,6 @@
      <PARAM name="ymin">1.4</PARAM> 
      <PARAM name="ymax">4.0</PARAM> 
 </QTEST>
-<!-- ndigisFREQ in PixelEndcap: NOISY PIXELS!-->
-<QTEST name="NoisyPixelsEndcap" activate="true"> 
-     <TYPE>NoisyChannel</TYPE> 
-     <PARAM name="error">0.90</PARAM> 
-     <PARAM name="warning">0.95</PARAM> 
-     <PARAM name="neighbours">335</PARAM>
-     <PARAM name="tolerance">9.0</PARAM> 
-</QTEST>
 <!-- adc in HalfCylinders: -->
 <QTEST name="YrangeWithin:80-130" activate="false"> 
      <TYPE>ContentsYRange</TYPE> 
@@ -358,9 +350,6 @@
 </LINK>
 <LINK name="*SUMDIG_ndigis_Endcap*"> 
   <TestName activate="false">YrangeWithin:1.4-4</TestName> 
-</LINK>
-<LINK name="*SUMDIG_ndigisFREQ_Endcap*">
-  <TestName activate="true">NoisyPixelsEndcap</TestName>
 </LINK>
 <LINK name="*SUMDIG_adc_HalfCylinder*"> 
   <TestName activate="false">YrangeWithin:80-130</TestName> 

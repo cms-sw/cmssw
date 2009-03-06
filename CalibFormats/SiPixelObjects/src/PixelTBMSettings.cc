@@ -18,89 +18,73 @@ using namespace pos;
 
 
 PixelTBMSettings::PixelTBMSettings(std::vector < std::vector< std::string> > &tableMat):PixelConfigBase("","",""){
-  std::vector< std::string > ins = tableMat[0];
-  std::map<std::string , int > colM;
-  std::vector<std::string > colNames;
-
-  /**
-
-     View's name:     CONF_KEY_PIXEL_TBM_MV
-
-     ----------------------------------------- -------- ----------------------------
-     CONFIG_KEY_ID                                      NUMBER(38)
-     CONFIG_KEY                                         VARCHAR2(80)
-     VERSION                                            VARCHAR2(40)
-     CONDITION_DATA_SET_ID                              NUMBER(38)
-     KIND_OF_CONDITION_ID                               NUMBER(38)
-     KIND_OF_COND                                       VARCHAR2(40)
-     TBM_PART_ID                                        NUMBER(38)
-     TBM_SER_NUM                                        VARCHAR2(40)
-     MODULE_NAME                                        VARCHAR2(99)
-     HUB_ADDRS                                          NUMBER(38)
-     ANLG_INBIAS_ADDR                                   NUMBER(38)
-     ANLG_INBIAS_VAL                                    NUMBER(38)
-     ANLG_OUTBIAS_ADDR                                  NUMBER(38)
-     ANLG_OUTBIAS_VAL                                   NUMBER(38)
-     ANLG_OUTGAIN_ADDR                                  NUMBER(38)
-     ANLG_OUTGAIN_VAL                                   NUMBER(38)
-     TBM_MODE                                           VARCHAR2(200)
-
-     N.B.: Here we should (MUST) get a single row referring to a particula module for a particula version.
-  */
-
-
-
-  colNames.push_back("CONFIG_KEY_ID"        );
-  colNames.push_back("CONFIG_KEY"           );
-  colNames.push_back("VERSION"              );
-  colNames.push_back("CONDITION_DATA_SET_ID");
-  colNames.push_back("KIND_OF_CONDITION_ID" );
-  colNames.push_back("KIND_OF_COND"         );
-  colNames.push_back("TBM_PART_ID"          );
-  colNames.push_back("TBM_SER_NUM"          );
-  colNames.push_back("MODULE_NAME"          );
-  colNames.push_back("HUB_ADDRS"            );
-  colNames.push_back("ANLG_INBIAS_ADDR"     );
-  colNames.push_back("ANLG_INBIAS_VAL"      );     
-  colNames.push_back("ANLG_OUTBIAS_ADDR"    );
-  colNames.push_back("ANLG_OUTBIAS_VAL"     );
-  colNames.push_back("ANLG_OUTGAIN_ADDR"    );
-  colNames.push_back("ANLG_OUTGAIN_VAL"     );
-  colNames.push_back("TBM_MODE"             );
-                    
+ std::vector< std::string > ins = tableMat[0];
+ std::map<std::string , int > colM;
+ std::vector<std::string > colNames;
+ colNames.push_back("PANEL_NAME");//0
+ colNames.push_back("TBM_MODE");//1
+ colNames.push_back("REG");//2
+ colNames.push_back("VALUE");//3
  
 
-  for(unsigned int c = 0 ; c < ins.size() ; c++){
-    for(unsigned int n=0; n<colNames.size(); n++){
-      if(tableMat[0][c] == colNames[n]){
-        colM[colNames[n]] = c;
-        break;
-      }
-    }
-  }//end for
-  for(unsigned int n=0; n<colNames.size(); n++){
-    if(colM.find(colNames[n]) == colM.end()){
-      std::cerr << "[PixelTBMSettings::PixelTBMSettings()]\tCouldn't find in the database the column with name " << colNames[n] << std::endl;
-      assert(0);
-    }
-  }
- 
-  if(tableMat.size() >1)
-    {
-      PixelModuleName tmp(tableMat[1][colM["MODULE_NAME"]]);
-      moduleId_ = tmp ;
+for(unsigned int c = 0 ; c < ins.size() ; c++){
+   for(unsigned int n=0; n<colNames.size(); n++){
+     if(tableMat[0][c] == colNames[n]){
+       colM[colNames[n]] = c;
+       break;
+     }
+   }
+ }//end for
+ for(unsigned int n=0; n<colNames.size(); n++){
+   if(colM.find(colNames[n]) == colM.end()){
+     std::cerr << "[PixelTBMSettings::PixelTBMSettings()]\tCouldn't find in the database the column with name " << colNames[n] << std::endl;
+     assert(0);
+   }
+ }
+
+std::string panel = "";
+for(unsigned int r = 1 ; r < tableMat.size() ; r++){    //Goes to every row of the Matrix
+
+if ( panel != tableMat[r][colM[colNames[0]]] ){
+  
+  PixelROCName tmp(tableMat[r][colM[colNames[0]]]+"_PLQ2_ROC0");
+  rocid_=tmp;
+  panel = tableMat[r][colM[colNames[0]]];
+ } 
       
-      analogInputBias_  = atoi(tableMat[1][colM["ANLG_INBIAS_VAL"]].c_str());
-      analogOutputBias_ = atoi(tableMat[1][colM["ANLG_OUTBIAS_VAL"]].c_str());
-      analogOutputGain_ = atoi(tableMat[1][colM["ANLG_OUTGAIN_VAL"]].c_str());
-      
-      if( tableMat[1][colM["TBM_MODE"]] == "Single"){
+      unsigned int tmpic;	
+      std::string tag;
+      tag = tableMat[r][colM[colNames[2]]] ;  
+	if( tag == "AnalogInputBias"){
+	//std::cout << "Tag="<<tag<<std::endl;
+	tmpic = atoi(tableMat[r][colM[colNames[3]]].c_str()) ;
+	//std::cout<<"testing 1:"<<tmpic<<std::endl;
+	analogInputBias_=tmpic;
+	//std::cout<<"testing 2 :"<<analogInputBias_<<std::endl;
+	} 
+	else if ( tag == "AnalogOutputBias"){
+	//std::cout << "Tag="<<tag<<std::endl;
+        tmpic = atoi(tableMat[r][colM[colNames[3]]].c_str()) ;
+	analogOutputBias_=tmpic;
+	}
+	else if ( tag == "AnalogOutputGain"){
+	//std::cout << "Tag="<<tag<<std::endl;
+	tmpic = atoi(tableMat[r][colM[colNames[3]]].c_str()) ;
+	analogOutputGain_=tmpic;
+	}
+
+	if( tableMat[r][colM[colNames[1]]] == "Single"){
 	singlemode_=true;
-      }
-      else{
-	singlemode_=false;
-      }
-    }
+         }
+  	else{
+	 singlemode_=false;
+         }
+	 
+	 
+
+}//end for r
+
+
 }//end contructor
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -114,7 +98,7 @@ PixelTBMSettings::PixelTBMSettings(std::string filename):
 	std::ifstream in(filename.c_str());
 
 	if (!in.good()){
-	    std::cout << "[PixelTBMSettings::PixelTBMSettings()]\t\tCould not open:"<<filename<<std::endl;
+	    std::cout << "Could not open:"<<filename<<std::endl;
 	    assert(0);
 	}
 	else {
@@ -204,14 +188,6 @@ PixelTBMSettings::PixelTBMSettings(std::string filename):
 
 }
 
-void PixelTBMSettings::setTBMGenericValue(std::string what, int value) 
-{
- if(      what == "analogInputBias" )  {analogInputBias_  = (unsigned char)value;}
- else if( what == "analogOutputBias" ) {analogOutputBias_ = (unsigned char)value;}
- else if( what == "analogOutputGain" ) {analogOutputGain_ = (unsigned char)value;}
- else if( what == "Mode" )             {singlemode_       = (bool)value;         }
- else {std::cout << "[PixelTBMSettings::setTBMGenericValue()]\t\tFATAL: invalid key/value pair: " << what << "/" << value << std::endl ; assert(0);}
-}
  
 void PixelTBMSettings::writeBinary(std::string filename) const {
 
@@ -258,8 +234,7 @@ void PixelTBMSettings::writeASCII(std::string dir) const {
 
 
 void PixelTBMSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
-					     PixelNameTranslation* trans,
-					     bool physics) const{
+					     PixelNameTranslation* trans) const{
 
     PixelHdwAddress theROC=*(trans->getHdwAddress(rocid_));
 
@@ -279,15 +254,12 @@ void PixelTBMSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
 
     //pixelFEC->synccontrolregister(mfec);
 
-    //Reset TBM and reset ROC
-    pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannel, hubaddress, 4, 2, 0x14, 0);
     //setting speed to 40MHz
     pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannel, hubaddress, 4, 0, 1, 0);
-    if (physics) {
-      pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannel, hubaddress, 4, 1, 0x80, 0);
-    } else {
-      pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannel, hubaddress, 4, 1, 0xc0, 0);
-    }
+    //pre-calibration FIXME can not be used for data taking
+    pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannel, hubaddress, 4, 1, 0xc0, 0);
+    //Reset TBM and reset ROC
+    pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannel, hubaddress, 4, 2, 0x14, 0);
     //Enable token and analog output
     pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannel, hubaddress, 4, 4, 0x0, 0);
 

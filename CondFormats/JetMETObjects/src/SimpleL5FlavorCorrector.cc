@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: SimpleL5FlavorCorrector.cc,v 1.4 2008/08/28 19:09:34 kkousour Exp $
+// $Id: SimpleL5FlavorCorrector.cc,v 1.2 2007/11/17 00:50:14 fedor Exp $
 //
 // MC Jet Corrector
 //
@@ -18,7 +18,7 @@ typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> > PtEtaPhiELor
 typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > XYZTLorentzVectorD;
 
 namespace {
-  const unsigned nParameters = 7;
+  const unsigned nParameters = 5;
 }
 
 SimpleL5FlavorCorrector::SimpleL5FlavorCorrector () 
@@ -82,20 +82,9 @@ double SimpleL5FlavorCorrector::correctionBandPtEta (unsigned fBand, double fPt,
     throw cms::Exception ("SimpleL5FlavorCorrector") 
       << "wrong # of parameters: " << nParameters << " expected, " << p.size() << " got";
   }
-  /* previous implementation
   double pt = (fPt < p[0]) ? p[0] : (fPt > p[1]) ? p[1] : fPt;
   double logPt = log10(pt);
   double result = p[2]+logPt*(p[3]+logPt*p[4]);
-  */
-  // New implementation 08/13/2008
-  double ptrec = fPt;
-  // map from calojet to 'genjet'
-  double pt = (ptrec - p[5])/p[6];
-  //
-  double logPt = log10(pt);
-  double result = p[2] + p[3]*logPt + p[4]*logPt*logPt;
-  result = (fPt < p[0]) ? 0. : (fPt > p[1]) ? 0. : result;
-  //
   return result;
 }
 

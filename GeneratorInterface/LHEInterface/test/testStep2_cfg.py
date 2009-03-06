@@ -9,7 +9,7 @@ process.source = cms.Source("PoolSource",
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
 
-process.load("Configuration.StandardSequences.Services_cff")
+process.load("Configuration.StandardSequences.Generator_cff")
 
 process.RandomNumberGeneratorService.generator = cms.PSet(
 	initialSeed = cms.untracked.uint32(123456789),
@@ -45,8 +45,6 @@ process.generator = cms.EDProducer("LHEProducer",
 		)
 	)
 )
-
-process.load("Configuration.StandardSequences.Generator_cff")
 
 process.p0 = cms.Path(
 	process.generator *

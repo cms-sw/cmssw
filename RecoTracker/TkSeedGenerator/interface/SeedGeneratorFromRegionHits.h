@@ -29,6 +29,7 @@ private:
   OrderedHitsGenerator * theHitsGenerator;
   edm::ParameterSet theConfig; //  temporary 
   SeedComparitor * theComparitor;
+  double theBOFFMomentum;
 
 };
 #endif 

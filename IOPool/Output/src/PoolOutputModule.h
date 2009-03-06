@@ -26,7 +26,6 @@ namespace edm {
     friend class RootOutputFile;
     explicit PoolOutputModule(ParameterSet const& ps);
     virtual ~PoolOutputModule();
-    std::set<BranchID> const& registryItems() const {return registryItems_;}
     std::string const& fileName() const {return fileName_;}
     std::string const& logicalFileName() const {return logicalFileName_;}
     int const& compressionLevel() const {return compressionLevel_;}
@@ -67,8 +66,6 @@ namespace edm {
     typedef boost::array<OutputItemList, NumBranchTypes> OutputItemListArray;
 
     OutputItemListArray const& selectedOutputItemList() const {return selectedOutputItemList_;}
-    OutputItemListArray const& droppedOutputItemList() const {return droppedOutputItemList_;}
-    OutputItemListArray const& prunedOutputItemList() const {return prunedOutputItemList_;}
 
   private:
     virtual void openFile(FileBlock const& fb);
@@ -98,13 +95,8 @@ namespace edm {
     virtual void finishEndFile();
 
     void fillSelectedItemList(BranchType branchtype, TTree *theTree);
-    void fillDroppedItemList(BranchType branchtype);
-    void pruneOutputItemList(BranchType branchType, FileBlock const& fb);
 
     OutputItemListArray selectedOutputItemList_;
-    OutputItemListArray droppedOutputItemList_;
-    OutputItemListArray prunedOutputItemList_;
-    std::set<BranchID> registryItems_;
     std::string const fileName_;
     std::string const logicalFileName_;
     std::string const catalog_;

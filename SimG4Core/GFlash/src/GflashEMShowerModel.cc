@@ -16,13 +16,15 @@
 #include "SimG4Core/GFlash/interface/GflashEMShowerProfile.h"
 #include "SimG4Core/GFlash/interface/GflashEnergySpot.h"
 
-GflashEMShowerModel::GflashEMShowerModel(G4String modelName, G4Envelope* envelope, edm::ParameterSet parSet)
-  : G4VFastSimulationModel(modelName, envelope), theParSet(parSet) {
+GflashEMShowerModel::GflashEMShowerModel(G4String modelName, G4Envelope* envelope)
+  : G4VFastSimulationModel(modelName, envelope) {
 
-  theProfile = new GflashEMShowerProfile(envelope,parSet);
+  theProfile = new GflashEMShowerProfile(envelope);
   theGflashStep = new G4Step();
   theGflashNavigator = new G4Navigator();
   theGflashTouchableHandle = new G4TouchableHistory();
+
+  theGflashNavigator->SetWorldVolume(G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume());
 
 }
 
@@ -104,8 +106,7 @@ void GflashEMShowerModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastSte
     theGflashStep->GetPostStepPoint()->SetProcessDefinedStep(const_cast<G4VProcess*> (fastTrack.GetPrimaryTrack()->GetStep()->GetPostStepPoint()->GetProcessDefinedStep()));
 
     //put touchable for each energy spot so that touchable history keeps track of each step.
-    theGflashNavigator->SetWorldVolume(G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume());
-    theGflashNavigator->LocateGlobalPointAndUpdateTouchableHandle(spotIter->getPosition(),G4ThreeVector(0,0,0),theGflashTouchableHandle, false);
+    theGflashNavigator->LocateGlobalPointAndUpdateTouchable(spotIter->getPosition(),theGflashTouchableHandle(), false);
     theGflashStep->GetPreStepPoint()->SetTouchableHandle(theGflashTouchableHandle);
     theGflashStep->SetTotalEnergyDeposit(spotIter->getEnergy());
     

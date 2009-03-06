@@ -7,6 +7,15 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoTracker.TkTrackingRegions.GlobalTrackingRegion_cfi import *
+#extend the seeds to inner rings of TEC
+TECi = cms.PSet(
+        minRing = cms.int32(1),
+            matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+            useRingSlector = cms.untracked.bool(True),
+            TTRHBuilder = cms.string('WithTrackAngle'),
+            rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
+            maxRing = cms.int32(2)
+            )
 layerInfo = cms.PSet(
     TID = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
@@ -28,8 +37,36 @@ layerInfo = cms.PSet(
         TTRHBuilder = cms.string('WithTrackAngle'),
         rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
         maxRing = cms.int32(7)
-    )
+    ),
+    TEC1 = TECi,
+    TEC2 = TECi,
+    TEC3 = TECi,
+    TEC4 = TECi,
+    TEC5 = TECi,
+    TEC6 = TECi
 )
+
+layerList = cms.vstring(
+    'FPix1_pos+FPix2_pos', 
+    'FPix1_neg+FPix2_neg', 
+    'TID2_pos+TID3_pos', 
+    'TID2_neg+TID3_neg', 
+    'TEC1_neg+TEC2_neg',
+    'TEC1_pos+TEC2_pos',
+    'TEC2_neg+TEC3_neg',
+    'TEC2_pos+TEC3_pos',
+    'TEC3_neg+TEC4_neg',
+    'TEC3_pos+TEC4_pos',
+    'TEC4_neg+TEC5_neg',
+    'TEC4_pos+TEC5_pos',
+    'TEC5_neg+TEC6_neg',
+    'TEC5_pos+TEC6_pos',
+    'TEC7_neg+TEC8_neg',
+    'TEC7_pos+TEC8_pos', 
+    'TEC8_neg+TEC9_neg',
+    'TEC8_pos+TEC9_pos'
+    )
+
 combinatorialbeamhaloseedfinder = cms.EDFilter("CtfSpecialSeedGenerator",
     SeedMomentum = cms.double(15.0), ##initial momentum in GeV !!!set to a lower value for slice test data
 
@@ -46,14 +83,7 @@ combinatorialbeamhaloseedfinder = cms.EDFilter("CtfSpecialSeedGenerator",
         NavigationDirection = cms.string('outsideIn'),
         LayerPSet = cms.PSet(
             layerInfo,
-            layerList = cms.vstring('FPix1_pos+FPix2_pos', 
-                'FPix1_neg+FPix2_neg', 
-                'TID2_pos+TID3_pos', 
-                'TID2_neg+TID3_neg', 
-                'TEC7_pos+TEC8_pos', 
-                'TEC8_pos+TEC9_pos', 
-                'TEC7_neg+TEC8_neg', 
-                'TEC8_neg+TEC9_neg')
+            layerList = layerList
         )
     ), 
         cms.PSet(
@@ -63,24 +93,18 @@ combinatorialbeamhaloseedfinder = cms.EDFilter("CtfSpecialSeedGenerator",
             NavigationDirection = cms.string('outsideIn'),
             LayerPSet = cms.PSet(
                 layerInfo,
-                layerList = cms.vstring('FPix1_pos+FPix2_pos', 
-                    'FPix1_neg+FPix2_neg', 
-                    'TID2_pos+TID3_pos', 
-                    'TID2_neg+TID3_neg', 
-                    'TEC7_pos+TEC8_pos', 
-                    'TEC8_pos+TEC9_pos', 
-                    'TEC7_neg+TEC8_neg', 
-                    'TEC8_neg+TEC9_neg')
+                layerList = layerList
             )
         )),
     UseScintillatorsConstraint = cms.bool(False),
     TTRHBuilder = cms.string('WithTrackAngle'),
     SeedsFromPositiveY = cms.bool(False),
-    doClusterCheck = cms.bool(True),
+    doClusterCheck = cms.bool(False),
     ClusterCollectionLabel = cms.InputTag("siStripClusters"),
     MaxNumberOfCosmicClusters = cms.uint32(300),
     CheckHitsAreOnDifferentLayers = cms.bool(False),
-    SetMomentum = cms.bool(True)
+    SetMomentum = cms.bool(True),
+    requireBOFF = cms.bool(False),
 )
 
 

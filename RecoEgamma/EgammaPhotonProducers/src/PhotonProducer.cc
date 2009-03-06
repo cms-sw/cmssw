@@ -81,14 +81,14 @@ void  PhotonProducer::beginJob (edm::EventSetup const & theEventSetup) {
   edm::FileInPath path_mvaWeightFile(likelihoodWeights_.c_str() );
   theLikelihoodCalc_->setWeightsFile(path_mvaWeightFile.fullPath().c_str());
 
-  // nEvt_=0;
+  nEvt_=0;
 }
 
 
 void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
 
   using namespace edm;
-  //  nEvt_++;
+  nEvt_++;
 
   reco::PhotonCollection outputPhotonCollection;
   std::auto_ptr< reco::PhotonCollection > outputPhotonCollection_p(new reco::PhotonCollection);
@@ -151,7 +151,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   edm::Handle<reco::ConversionCollection> conversionHandle; 
   theEvent.getByLabel(conversionProducer_, conversionCollection_ , conversionHandle);
   if (!conversionHandle.isValid()) {
-    //if ( nEvt_%10==0 ) edm::LogError("PhotonProducer") << "Error! Can't get the product  "<<conversionCollection_.c_str() << " but keep running. Photons will be produced with null reference to conversions " << "\n";
+    if ( nEvt_%10==0 ) edm::LogError("PhotonProducer") << "Error! Can't get the product  "<<conversionCollection_.c_str() << " but keep running. Photons will be produced with null reference to conversions " << "\n";
     validConversions_=false;
   }
  

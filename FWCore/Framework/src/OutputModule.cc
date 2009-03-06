@@ -119,9 +119,6 @@ namespace edm {
     remainingEvents_(maxEvents_),
     nextID_(),
     keptProducts_(),
-    droppedProducts_(),
-    keptProducedProducts_(),
-    droppedProducedProducts_(),
     hasNewlyDroppedBranch_(),
     process_name_(),
     groupSelectorRules_(pset, "outputCommands", "OutputModule"),
@@ -193,43 +190,19 @@ namespace edm {
 
     for (; it != end; ++it) {
       BranchDescription const& desc = it->second;
-      if (desc.produced()) {
-	if(desc.transient()) {
-	  // if the class of the branch is marked transient, output nothing
-	  continue;
-	} else if (selected(desc)) {
-	  // else if the branch has been selected, put it in the list of selected branches
-	  keptProducts_[desc.branchType()].push_back(&desc);
-	  keptProducedProducts_[desc.branchType()].push_back(&desc);
-	} else {
-	  // otherwise, drop the product branch.
-	  droppedProducts_[desc.branchType()].push_back(&desc);
-	  droppedProducedProducts_[desc.branchType()].push_back(&desc);
-	  // mark the fact that there is a newly dropped branch of this type.
-	  hasNewlyDroppedBranch_[desc.branchType()] = true;
-	}
+      if(desc.transient()) {
+	// if the class of the branch is marked transient, output nothing
+      } else if(!desc.present() && !desc.produced()) {
+	// else if the branch containing the product has been previously dropped,
+	// output nothing
+      } else if (selected(desc)) {
+	// else if the branch has been selected, put it in the list of selected branches
+        keptProducts_[desc.branchType()].push_back(&desc);
       } else {
-	if(desc.transient()) {
-	  // else if the class of the branch is marked transient, output nothing
-	  continue;
-	} else if(!desc.present()) {
-	  // else if the branch containing the product has been previously dropped,
-	  // drop the product branch again.
-	  droppedProducts_[desc.branchType()].push_back(&desc);
-	  droppedPriorProducts_[desc.branchType()].push_back(&desc);
-	} else if (selected(desc)) {
-	  // else if the branch has been selected, put it in the list of selected branches
-	  keptProducts_[desc.branchType()].push_back(&desc);
-	  keptPriorProducts_[desc.branchType()].push_back(&desc);
-	} else {
-	  // otherwise, drop the product branch.
-	  droppedProducts_[desc.branchType()].push_back(&desc);
-	  droppedPriorProducts_[desc.branchType()].push_back(&desc);
-	  // mark the fact that there is a newly dropped branch of this type.
-	  hasNewlyDroppedBranch_[desc.branchType()] = true;
-	}
+	// otherwise, output nothing,
+	// and mark the fact that there is a newly dropped branch of this type.
+        hasNewlyDroppedBranch_[desc.branchType()] = true;
       }
-
     }
   }
 

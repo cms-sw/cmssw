@@ -329,7 +329,7 @@ void HLTBtagLifetimeAnalyzer::analyze(const edm::Event & event, const edm::Event
     bool passed = accepted or (latest > level.m_filterIndex);               // accepted by this filter
     bool failed = (not accepted) and (latest == level.m_filterIndex);       // rejected by this filter
     bool notrun = (not accepted) and (latest  < level.m_filterIndex);       // did not reach this filter
-    LogDebug("HLTBtagAnalyzer") << "  path " << std::setw(32) << m_triggerPath << ", filter " << std::setw(32) << std::left << level.m_filter.label() << std::right << (passed ? "passed" : failed ? "failed" : "not run");
+    LogDebug("HLTBtagAnalyzer") << "  path " << m_triggerPath << ", filter " << std::setw(32) << std::left << level.m_filter.label() << std::right << (passed ? "passed" : failed ? "failed" : "not run");
     
     edm::Handle<edm::View<reco::Jet> >                  h_jets;
     edm::Handle<reco::JetTracksAssociation::Container>  h_tracks;
@@ -386,52 +386,44 @@ void HLTBtagLifetimeAnalyzer::analyze(const edm::Event & event, const edm::Event
 void HLTBtagLifetimeAnalyzer::endJob()
 {
   // print event rates
-  edm::LogVerbatim("HLTBtagAnalyzer") << "HLT Trigger path: " << m_triggerPath;
+  edm::LogVerbatim("HLTBtagAnalyzer") << m_triggerPath << " HLT Trigger path" << std::endl << std::endl;
   {
     std::stringstream out;
-    out << std::left << std::setw(32) << m_triggerPath << ": " 
-        << std::setw(32) << "total number of events: " << std::right << std::setw(12) << m_ratePlots.rate(0);
-    edm::LogVerbatim("HLTBtagAnalyzer") << out.str();
+    out << std::setw(64) << std::left << "total number of events: " << std::right << std::setw(12) << m_ratePlots.rate(0);
+    edm::LogVerbatim("HLTBtagAnalyzer") << m_triggerPath << ":" << out.str() << std::endl;
   }
   for (unsigned int i = 0; i < m_levels.size(); ++i) {
     std::stringstream out;
-    out << std::left << std::setw(32) << m_triggerPath << ": " 
-        << std::setw(32) << ("events passing " + m_levels[i].m_title) << std::right << std::setw(12) << m_ratePlots.rate(i+1);
-    edm::LogVerbatim("HLTBtagAnalyzer") << out.str();
+    out << std::setw(64) << std::left << ("events passing " + m_levels[i].m_title) << std::right << std::setw(12) << m_ratePlots.rate(i+1);
+    edm::LogVerbatim("HLTBtagAnalyzer") << m_triggerPath << ":" << out.str() << std::endl;
   }
-  if (m_doStepEfficiencies) for (unsigned int i = 0; i < m_levels.size(); ++i) {
+  if (m_doStepEfficiencies) for (unsigned int i = 1; i < m_levels.size(); ++i) {
     // compute and print step-by-step event efficiencies
     std::stringstream out;
-    out << std::left << std::setw(32) << m_triggerPath << ": " 
-        << std::setw(32) << ("step efficiency at " + m_levels[i].m_title);
+    out << std::setw(64) << std::left << ("step efficiency at " + m_levels[i].m_title);
     double eff = m_ratePlots.stepEfficiency(i+1);
     if (std::isnormal(eff)) {
-      std::pair<double, double> interval = m_ratePlots.stepConfidence(i+1);
       out << std::right << std::setw(11) << std::fixed << std::setprecision(2) << eff * 100. << "%";
-      out << " - " << (eff-interval.first) * 100. << "% + " << (interval.second-eff) * 100. << "%";
     } else {
       out << std::right << std::setw(12) << "n/a";
     }
-    edm::LogVerbatim("HLTBtagAnalyzer") << out.str();
+    edm::LogVerbatim("HLTBtagAnalyzer") << m_triggerPath << ":" << out.str() << std::endl;
   }
-  if (m_doCumulativeEfficiencies) for (unsigned int i = 0; i < m_levels.size(); ++i) {
+  if (m_doCumulativeEfficiencies) for (unsigned int i = 1; i < m_levels.size(); ++i) {
     // compute and print cumulative event efficiencies
     std::stringstream out;
-    out << std::left << std::setw(32) << m_triggerPath << ": " 
-        << std::setw(32) << ("cumulative efficiency at " + m_levels[i].m_title);
+    out << std::setw(64) << std::left << ("cumulative efficiency at " + m_levels[i].m_title);
     double eff = m_ratePlots.efficiency(i+1);
     if (std::isnormal(eff)) {
-      std::pair<double, double> interval = m_ratePlots.confidence(i+1);
       out << std::right << std::setw(11) << std::fixed << std::setprecision(2) << eff * 100. << "%";
-      out << " - " << (eff-interval.first) * 100. << "% + " << (interval.second-eff) * 100. << "%";
     } else {
       out << std::right << std::setw(12) << "n/a";
     }
-    edm::LogVerbatim("HLTBtagAnalyzer") << out.str();
+    edm::LogVerbatim("HLTBtagAnalyzer") << m_triggerPath << ":" << out.str() << std::endl;
   }
-  edm::LogVerbatim("HLTBtagAnalyzer");
+  edm::LogVerbatim("HLTBtagAnalyzer") << std::endl;
   
-  TFile * file = new TFile(m_outputFile.c_str(), "RECREATE");
+  TFile * file = new TFile(m_outputFile.c_str(), "UPDATE");
   TDirectory * dir = file->mkdir( m_triggerPath.c_str(), (m_triggerPath + " HLT path").c_str() );
   if (dir) {
     m_ratePlots.save(*dir);

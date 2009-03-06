@@ -22,7 +22,7 @@ FastHelix::FastHelix(const GlobalPoint& outerHit,
 
 FreeTrajectoryState FastHelix::stateAtVertex() const {
   
-  if(isValid())
+  if(isValid() && (fabs(tesla0.z()) > 1e-3))
     return helixStateAtVertex();
   else 
     return straightLineStateAtVertex();

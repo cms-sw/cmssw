@@ -1780,7 +1780,7 @@ std::vector<double> OpticalObject::getRotationAnglesFromMatrix( CLHEP::HepRotati
   double angleX = entries[3]->value()+entries[3]->valueDisplacementByFitting();
   double angleY = entries[4]->value()+entries[4]->valueDisplacementByFitting();
   double angleZ = entries[5]->value()+entries[5]->valueDisplacementByFitting();
-  if( ALIUtils::debug >= 5 ) {
+  if( ALIUtils::debug >= 4 ) {
     std::cout << " angles as value entries: X= " << angleX << " Y= " << angleY << " Z " << angleZ << std::endl;
   }
   return ALIUtils::getRotationAnglesFromMatrix( rmLocal, angleX, angleY, angleZ );
@@ -2123,7 +2123,6 @@ void OpticalObject::constructFromOptAligInfo( const OpticalAlignInfo& oaInfo )
     centreIsGlobal = 0;
     anglesIsGlobal = 0;
     
-    setCmsswID( oaInfo.ID_);
     //--------- build Coordinates 
     fillCoordinateEntry( "centre", getCoordinateFromOptAlignParam( oaInfo.x_ ) );
     fillCoordinateEntry( "centre", getCoordinateFromOptAlignParam( oaInfo.y_ ) );

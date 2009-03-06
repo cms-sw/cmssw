@@ -23,8 +23,6 @@ private:
   // try to make something from a pair of layers with hits.
   bool makeSeed(const MuonRecHitContainer & hits1, const MuonRecHitContainer & hits2,
                  TrajectorySeed & seed) const;
-  bool makeSeed2(const MuonRecHitContainer & hits1, const MuonRecHitContainer & hits2,
-                 TrajectorySeed & seed) const;
 
   // when all else fails
   void makeDefaultSeed(TrajectorySeed & seed) const;

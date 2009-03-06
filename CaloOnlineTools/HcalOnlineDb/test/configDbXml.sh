@@ -43,12 +43,10 @@ echo -n 'In order to upload to a database, copy '
 echo -n $2
 echo    ' to'
 echo    'dbvalhcal@pcuscms34.cern.ch:conditions/ (validation - first!)'
-echo    'dbprdhcal@pcuscms34.cern.ch:conditions/ (old master DB)'
-echo    'dbpp5hcal@pcuscms34.cern.ch:conditions/ (old OMDS)'
-echo    'your_user_name@srv-C2C02-06:/var/spool/xmlloader/hcal/prod/conditions/ (OMDS)'
-echo    '(OMDS is on private .CMS network)'
+echo    'dbprdhcal@pcuscms34.cern.ch:conditions/ (Master - for now)'
+echo    'dbpp5hcal@pcuscms34.cern.ch:conditions/ (OMDS)'
 echo    ''
-echo -n 'You need to do all four in this order! If there is a problem '
+echo -n 'You need to do all three in this order! If there is a problem '
 echo -n 'reported from the validation DB, fix it first before '
 echo -n 'proceeeding to Master and OMDS '
 echo -n 'or, even better, follow the most recent instructions at '
@@ -176,14 +174,6 @@ lutMenu()
   echo -n 'Path: '
   read lut_path_temp
   lut_path=`echo ${lut_path_temp%/}/`
-  echo -n 'Please enter version name (string): '
-  read lut_version
-  echo ''
-  echo -n 'Please enter subversion name (integer): '
-  read lut_subversion
-  echo ''
-  echo -n 'Comment (please be descriptive, this can be a long line): '
-  read lut_comment
   echo ''
   echo 'processing LUTs from' $lut_path '...'
   lut_files_num=`find $lut_path -iname "*_[0-9]*.xml" | wc -l`
@@ -200,13 +190,11 @@ lutMenu()
       cp `find $lut_path -iname "*_checksums*.xml"` $lut_temp_dir/
 #      a_lut_file=`find $lut_temp_dir/ -iname "*_[0-9]*.xml" | awk 'NR==1{print $1}'`
       a_lut_file=`find $lut_temp_dir/ -iname "*_*[0-9].xml" | awk 'NR==1{print $1}'`
-#      echo 'DEBUG: ' $a_lut_file
-      tag_name=`grep 'CREATIONTAG' $a_lut_file | head -n 1 | sed 's/.*>\(.*\)<.*/\1/'`
-      source luts.sh $a_lut_file "$lut_comment" "$lut_version" "$lut_subversion"
+      echo 'DEBUG: ' $a_lut_file
+      source luts.sh $a_lut_file
       echo -n 'Cleaning temporary files... '
       rm -rf $lut_temp_dir
       echo 'done'
-      uploadInstructions 'LUTs' './'$tag_name'.zip'
   else
       echo 'LUT XML not found...check path'
   fi
@@ -227,99 +215,6 @@ credits()
     echo 'https://twiki.cern.ch/twiki/bin/view/CMS/CMSHCALConfigDBDesign'
 }
 
-# $1 type, 
-genLutXml()
-{
-    echo ''
-    echo -n 'Please enter the desired tag name:'
-    read tag_name
-    echo ''
-#    echo -n 'Please enter the comment:'
-#    read comment
-#    echo ''
-	echo -n 'Linearization LUT master file:'
-	read lin_master
-	echo ''
-	echo -n 'Compression LUT master file (enter if none):'
-	read comp_master
-	if [ -z "$comp_master" ]
-	then
-	    comp_master=nofile
-	fi
-	echo ''
-#    echo -n 'Split XML files by crate? (y/n)'
-#    read split_by_crate
-#    echo ''
-    dialog --title "Question" --yesno "Split XML files by crate?" 0 0 || split_by_crate=0
-    if [ -z "$split_by_crate" ]
-    then
-	split_by_crate=1
-    fi
-
-    if [ $split_by_crate -eq 0 ]
-    then
-	./xmlToolsRun --create-lut-xml --tag-name="$tag_name" --lin-lut-master-file="$lin_master" --comp-lut-master-file="$comp_master" --do-not-split-by-crate
-    else
-	./xmlToolsRun --create-lut-xml --tag-name="$tag_name" --lin-lut-master-file="$lin_master" --comp-lut-master-file="$comp_master"
-    fi
-}
-
-genLutXmlFromCoder()
-{
-    echo ''
-    echo -n 'Please enter the desired tag name:'
-    read tag_name
-    echo ''
-    dialog --title "Question" --yesno "Split XML files by crate?" 0 0 || split_by_crate=0
-
-    if [ $split_by_crate -eq 0 ]
-    then
-	./xmlToolsRun --create-lut-xml-from-coder --tag-name="$tag_name" --do-not-split-by-crate
-    else
-	./xmlToolsRun --create-lut-xml-from-coder --tag-name="$tag_name"
-    fi
-}
-
-lutXml()
-{
-  echo ''
-  echo '  -- LUT menu'
-  echo ' 1. Generate a set of LUT XML from master files'
-  echo ' 2. Generate a set of compression LUT XML from the TPG coder (no master files needed)'
-  echo ' 9. Prepare LUTs for uploading to the database'
-  echo ' 0. Main menu'
-  
-  echo ''
-  echo -n 'Please choose the action: '
-  read line
-  echo ''
-
-  case $line in
-      1)
-        echo 'Generating full set of LUT XML...'
-	echo ''
-        _type=3        
-        genLutXml
-	;;
-      2)
-        echo 'Generating a set of compression LUT XML from the TPG coder...'
-	echo ''
-        _type=3        
-        genLutXmlFromCoder
-	;;
-      9)
-        lutMenu
-	;;
-      0)
-      mainMenu
-      ;;
-      *)
-        echo 'Invalid choice - nothing to do...'
-        credits
-      ;;
-  esac
-}
-
 mainMenu()
 {
   echo ''
@@ -337,7 +232,7 @@ mainMenu()
 
   case $line in
       1)
-        lutXml
+        lutMenu
 	;;
       2)
         zsMenu

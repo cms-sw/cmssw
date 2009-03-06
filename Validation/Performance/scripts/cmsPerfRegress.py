@@ -75,7 +75,7 @@ def getParameters():
                       choices= ("timing", "simplememory","edmsize","igprof","callgrind",""),
                       #store = "store_choices",#["Timing","SimpleMemory"],
                       help='Type of report to perform regrssion on. Default is TimingReport.' ,
-                      default="Timing",
+                      default="timing",
                       dest='reporttype')      
     (options,args) = parser.parse_args()
     if not len(args) == 2:
@@ -869,7 +869,33 @@ def cmpTimingReport(rootfilename,outdir,oldLogfile,newLogfile,secsperbin,batch=T
 
         newrootfile = createROOT(outdir,rootfilename)
 
-        cputime_tuple = None
+##         (rootfile1, rootfile2) = (oldLogfile, newLogfile)
+##         rootreg = re.compile("(.*)_TimingReport.log")
+##         found = rootreg.search(oldLogfile)
+##         if found:
+##             rootfile1 = found.groups()[0] + ".root"
+##         found = rootreg.search(newLogfile)
+##         if found:
+##             rootfile2 = found.groups()[0] + ".root"
+
+##         (fsize1, fsize2) = (0.0, 0.0)
+##         if os.path.exists(rootfile1):
+##             statinfo = os.stat(rootfile1)
+##             fsize1 = statinfo.st_size
+##         if os.path.exists(rootfile2):
+##             statinfo = os.stat(rootfile2)
+##             fsize2 = statinfo.st_size
+
+##         fs_t = ROOT.TTree()
+##         fs1 = array("i", [0])
+##         fs2 = array("i", [0])
+##         fs1[0] = fsize1
+##         fs2[0] = fsize2
+
+##         fs_t.Branch("fsize1",fs1,"fsize1/I")
+##         fs_t.Branch("fsize2",fs2,"fsize2/I")
+##         fs_t.Fill()
+##         fs_t.Write("fsize_tuple",ROOT.TObject.kOverwrite)        
 
         cput = ROOT.TTree()
         #  array(typecode, initializer)
@@ -957,7 +983,7 @@ def perfreport(perftype,file1,file2,outdir):
 
     xmlfile = os.path.join(cmssw_base,"src","Validation","Performance","doc","regress.xml")
 
-    prRoot = "/build/nicolson/perfreport/2.0.1"
+    prRoot = "/afs/cern.ch/user/g/gbenelli/public/PerfReport2/2.0.1"
 
     # this might be useful at some point
     #cd %s ; eval `scramv1 runtime -csh`  ; source $CMSSW_DATA_PATH/perfreport/2.0.0/etc/profile.d/init.csh; cd - ; %s\"" % (loc,perfcmd)
@@ -976,7 +1002,6 @@ def perfreport(perftype,file1,file2,outdir):
     process  = os.popen(cmd)
     cmdout   = process.read()
     exitstat = process.close()
-
 
     try:
         rmtree(tmpdir)        

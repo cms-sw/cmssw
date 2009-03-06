@@ -4,36 +4,33 @@ import FWCore.ParameterSet.Config as cms
 hltBtagLifetimeAnalyzer = cms.EDAnalyzer("HLTBtagLifetimeAnalyzer",
     mcRadius = cms.double(0.1),
     outputFile = cms.string('plots.root'),
-    computeStepEfficiencies = cms.bool(False),
-    computeCumulativeEfficiencies = cms.bool(True),
-    offlineRadius = cms.double(0.1), ## matching my pseudo-rapidity cone
-
+    offlineRadius = cms.double(0.1),
     vertex = cms.InputTag("pixelVertices"),
-    offlineBJets = cms.InputTag("jetProbabilityBJetTags"), ## match to offline btagged jets
-
-    triggerPath = cms.string('HLT_BTagIP_Jet180'),
+    triggerEvent = cms.InputTag("triggerSummaryRAW","","HLT"),
+    offlineBJets = cms.InputTag("jetProbabilityBJetTags"),
+    triggerPath = cms.string('HLTB1Jet'),
     levels = cms.VPSet(cms.PSet(
-        filter = cms.InputTag("hltBLifetimeL1seeds","","HLT"),
-        jets = cms.InputTag("hltIterativeCone5CaloJets","","HLT"),
-        name = cms.string('L1'),
-        title = cms.string('L1')
+        filter = cms.InputTag("hltBLifetimeL1seeds"),
+        jets = cms.InputTag("iterativeCone5CaloJets","","HLT"),
+        name = cms.string('preL2'),
+        title = cms.string('pre-L2')
     ), 
         cms.PSet(
-            filter = cms.InputTag("hltBLifetime1jetL2filter","","HLT"),
+            filter = cms.InputTag("hltBLifetime1jetL2filter"),
             jets = cms.InputTag("hltBLifetimeL25Jets","","HLT"),
             tracks = cms.InputTag("hltBLifetimeL25Associator","","HLT"),
             name = cms.string('L2'),
             title = cms.string('L2')
         ), 
         cms.PSet(
-            filter = cms.InputTag("hltBLifetimeL25filter","","HLT"),
+            filter = cms.InputTag("hltBLifetimeL25filter"),
             jets = cms.InputTag("hltBLifetimeL3Jets","","HLT"),
             tracks = cms.InputTag("hltBLifetimeL3Associator","","HLT"),
             name = cms.string('L25'),
             title = cms.string('L2.5')
         ), 
         cms.PSet(
-            filter = cms.InputTag("hltBLifetimeL3filter","","HLT"),
+            filter = cms.InputTag("hltBLifetimeL3filter"),
             jets = cms.InputTag("hltBLifetimeHLTJets"),
             name = cms.string('L3'),
             title = cms.string('L3')

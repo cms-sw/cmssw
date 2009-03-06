@@ -23,8 +23,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2008/07/29 10:56:05 $
- * $Revision: 1.17 $
+ * $Date: 2008/04/29 10:32:32 $
+ * $Revision: 1.15 $
  *
  */
 
@@ -74,6 +74,18 @@ class CSCCathodeLCTProcessor
 
   /** Returns vector of found CLCTs, if any. */
   std::vector<CSCCLCTDigi> getCLCTs();
+
+  /** Access to times on halfstrips on any layer. */
+  std::vector<int> halfStripHits(const int layer) const;
+
+  /** Access to time on single halfstrip on any layer. */
+  int halfStripHit(const int layer, const int strip) const;
+
+  /** Access to times on distrips on any layer. */
+  std::vector<int> diStripHits(const int layer) const;
+
+  /** Access to time on single distrip on any layer. */
+  int diStripHit(const int layer, const int strip) const;
 
   static void distripStagger(int stag_triad[CSCConstants::MAX_NUM_STRIPS],
 			     int stag_time[CSCConstants::MAX_NUM_STRIPS],
@@ -129,27 +141,23 @@ class CSCCathodeLCTProcessor
 
   std::vector<CSCComparatorDigi> digiV[CSCConstants::NUM_LAYERS];
 
+  std::vector<int> theHalfStripHits[CSCConstants::NUM_LAYERS];
+  std::vector<int> theDiStripHits[CSCConstants::NUM_LAYERS];
+
   /** Flag for MTCC data. */
   bool isMTCC; 
 
   /** Configuration parameters. */
-  unsigned int fifo_tbins,  fifo_pretrig; // only for test beam mode.
-  unsigned int hit_persist, drift_delay;
-  unsigned int nplanes_hit_pretrig, nplanes_hit_pattern;
-  unsigned int pid_thresh_pretrig,  min_separation;
-
-  /** Default values of configuration parameters. */
-  static const unsigned int def_fifo_tbins,  def_fifo_pretrig;
-  static const unsigned int def_hit_persist, def_drift_delay;
-  static const unsigned int def_nplanes_hit_pretrig;
-  static const unsigned int def_nplanes_hit_pattern;
-  static const unsigned int def_pid_thresh_pretrig, def_min_separation;
+  unsigned int bx_width, drift_delay, hs_thresh, ds_thresh, nph_pattern;
+  unsigned int fifo_tbins, fifo_pretrig; // only for test beam mode.
+  unsigned int hit_thresh, pid_thresh;   // new TMB-07 parameters
+  unsigned int sep_src, sep_vme;
 
   /** Set default values for configuration parameters. */
   void setDefaultConfigParameters();
 
   /** Make sure that the parameter values are within the allowed range. */
-  void checkConfigParameters();
+  void checkConfigParameters() const;
 
   //----------------------- Default functions ---------------------------------
   std::vector<CSCCLCTDigi> findLCTs(const int strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
@@ -196,6 +204,22 @@ class CSCCathodeLCTProcessor
   /** Dump digis on half-strips and di-strips. */
   void dumpDigis(const int strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
 		 const int stripType, const int nStrips) const;
+
+  /** Set times on all layers for distrips and halfstrips. */
+  void saveAllHits(const int distrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS], 
+		   const int halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]);
+
+  /** Set times on halfstrips on any layer. */
+  void setHalfStripHits(const int layer, const std::vector<int>& hStripHits);
+
+  /** Set time on single halfstrip on any layer. */
+  void setHalfStripHit(const int layer, const int strip, const int hit);
+
+  /** Set times on distrips on any layer. */
+  void setDiStripHits(const int layer, const std::vector<int>& dStripHits);
+
+  /** Set time on single distrip on any layer. */
+  void setDiStripHit(const int layer, const int strip, const int hit);
 
   void testDistripStagger();
   void testLCTs();

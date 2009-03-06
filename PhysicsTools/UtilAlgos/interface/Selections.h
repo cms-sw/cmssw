@@ -13,6 +13,7 @@ class Filter {
     name_(name),inverted_(false), selector_(0)
   {
     dump_=iConfig.dump();
+    //    std::cout<<"constructing filter: "<<name_<<std::endl;
     if (!iConfig.empty()){
       const std::string d("name");
       iConfig.addUntrackedParameter<std::string>(d,name);

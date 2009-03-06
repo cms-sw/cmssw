@@ -8,8 +8,8 @@
  * - they receive ME data from the SM 
  * - they are run together with the producers (standalone mode)
  *
- * $Date: 2008/05/17 16:22:28 $
- * $Revision: 1.6 $
+ * $Date: 2008/05/17 16:54:46 $
+ * $Revision: 1.7 $
  * \author M. Zanetti - CERN PH
  *
  */
@@ -62,6 +62,7 @@ private:
   bool testInEventloop;
   bool qtestOnEndRun;
   bool qtestOnEndJob;
+  bool qtestOnEndLumi;
   std::string reportThreshold;
 
   DQMStore * bei;

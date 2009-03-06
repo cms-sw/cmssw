@@ -6,7 +6,7 @@ use work.std_logic_1164_ktp.all;
 use work.RPC_PAC_def.all;
 
 package RPC_PAC_patt is
-constant TT_MPAC_CFG_ID         :THV(3 downto 0) := "SET_";
+
 XXN
 constant TT_REF_GROUP_NUMBERS   :natural := 1;
 constant TT_GBSORT_INPUTS       :natural := 12;

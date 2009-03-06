@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: smCleanupFiles.pl,v 1.3 2008/06/27 20:39:55 loizides Exp $
+# $Id: smCleanupFiles.pl,v 1.4 2008/08/11 18:07:38 loizides Exp $
 
 use strict;
 use DBI;
@@ -93,8 +93,10 @@ if ($nothing) { $execute = 0; $debug = 1; }
 # Alternate queries for different values of these? even needed?
 # These files need to be in FILES_CREATED and FILES_INJECTED to 
 # check correct hostname and pathname. They must not be in FILES_DELETED.
-my $basesql = "select PATHNAME, CMS_STOMGR.FILES_TRANS_CHECKED.FILENAME, HOSTNAME from CMS_STOMGR.FILES_TRANS_CHECKED inner join CMS_STOMGR.FILES_CREATED on CMS_STOMGR.FILES_CREATED.FILENAME=CMS_STOMGR.FILES_TRANS_CHECKED.FILENAME inner join CMS_STOMGR.FILES_INJECTED on CMS_STOMGR.FILES_TRANS_CHECKED.FILENAME=CMS_STOMGR.FILES_INJECTED.FILENAME " .
-"where not exists (select * from CMS_STOMGR.FILES_DELETED where CMS_STOMGR.FILES_DELETED.FILENAME=CMS_STOMGR.FILES_TRANS_CHECKED.FILENAME)";
+my $basesql = "select PATHNAME, CMS_STOMGR.FILES_TRANS_CHECKED.FILENAME, HOSTNAME from CMS_STOMGR.FILES_TRANS_CHECKED inner join " .
+               "CMS_STOMGR.FILES_CREATED on CMS_STOMGR.FILES_CREATED.FILENAME=CMS_STOMGR.FILES_TRANS_CHECKED.FILENAME inner join " .
+               "CMS_STOMGR.FILES_INJECTED on CMS_STOMGR.FILES_TRANS_CHECKED.FILENAME=CMS_STOMGR.FILES_INJECTED.FILENAME " .
+               "where not exists (select * from CMS_STOMGR.FILES_DELETED where CMS_STOMGR.FILES_DELETED.FILENAME=CMS_STOMGR.FILES_TRANS_CHECKED.FILENAME)";
 
 # Sorting by time
 my $endsql = " order by ITIME";

@@ -6,12 +6,6 @@ process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring('file:/afs/cern.ch/cms/CAF/CMSCOMM/COMM_GLOBAL/CRUZET3/CMSSW_2_1_2/src/DPGAnalysis/Skims/python/reco_50908_210_CRZT210_V1P.root')
                             )
 
-process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
-    name = cms.untracked.string('$Source: /local/projects/CMSSW/rep/CMSSW/DPGAnalysis/Skims/python/DoubleMuonPointing_cfg.py,v $'),
-    annotation = cms.untracked.string('CRUZET4 DoubleMuonPointing skim')
-)
-
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
@@ -60,9 +54,6 @@ process.out1 = cms.OutputModule("PoolOutputModule",
                                                                                              'cosmictrackfinderP5TkCntPath',
                                                                                              'ctfWithMaterialTracksP5TkCntPath',
                                                                                              'rsWithMaterialTracksP5TkCntPath')),
-                                dataset = cms.untracked.PSet(
-			                  dataTier = cms.untracked.string('RECO'),
-                                          filterName = cms.untracked.string('TrackerPointing')),
                                 fileName = cms.untracked.string('trackerPointing.root')
                                 )
 
@@ -86,9 +77,6 @@ process.multiLHCMuonPath = cms.Path(process.multiLHCMuonFilter)
 process.out2 = cms.OutputModule("PoolOutputModule",
                                 SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('multiCosmicMuonPath',
                                                                                              'multiLHCMuonPath')),
-                                dataset = cms.untracked.PSet(
-			                  dataTier = cms.untracked.string('RECO'),
-                                          filterName = cms.untracked.string('multiCosmicMuon')),
                                 fileName = cms.untracked.string('multiMuon.root')
                                 )
 
@@ -105,9 +93,6 @@ process.doubleMuonPath = cms.Path(process.doubleMuonFilter)
 
 process.out3 = cms.OutputModule("PoolOutputModule",
                                SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('doubleMuonPath')),
-                               dataset = cms.untracked.PSet(
-			        	 dataTier = cms.untracked.string('RECO'),
-                                	 filterName = cms.untracked.string('doubleMuonPath')),
                                fileName = cms.untracked.string('doubleMuon.root')
                                )
 

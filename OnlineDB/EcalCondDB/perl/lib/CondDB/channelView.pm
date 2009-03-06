@@ -91,15 +91,7 @@ sub new {
 		'EE_trigger_strip'=>\&define_EE_trigger_strip,
 		'EE_crystal_readout_strip'=>\&define_EE_crystal_readout_strip,
 		'EE_crystal_trigger_strip'=>\&define_EE_crystal_trigger_strip,
-		'EE_elec_crystal_number'=>\&define_EE_elec_crystal_number,
-
-		#endcap mappings
-		'EE_readout_tower_to_EE_crystal_number'=>\&define_EE_readout_tower_to_EE_crystal_number,
-		'EE_trigger_tower_to_EE_crystal_number'=>\&define_EE_trigger_tower_to_EE_crystal_number,
-		'EE_crystal_number_to_EE_trigger_tower'=>\&define_EE_crystal_number_to_EE_trigger_tower,
-		'EE_crystal_number_to_EE_readout_tower'=>\&define_EE_crystal_number_to_EE_readout_tower,
-		'EE_crystal_readout_strip_to_EE_crystal_number'=>\&define_EE_crystal_readout_strip_to_EE_crystal_number
-
+		'EE_elec_crystal_number'=>\&define_EE_elec_crystal_number
 	 };
 
 
@@ -471,7 +463,7 @@ sub define_EE_trigger_tower {
 		$TCC = $channels[0];
 		$trigger_tower = $channels[1];
 
-		my $logic_id = sprintf "20000%03d%02d", $TCC, $trigger_tower;
+		my $logic_id = sprintf "2000%03d%02d", $TCC, $trigger_tower;
 		push @logic_ids, $logic_id;
 		push @channel_ids, [$TCC, $trigger_tower];
 	}
@@ -1260,272 +1252,29 @@ sub define_EB_mem_channel {
 ###   Cross-Channel mappings
 ###
 
-sub define_EE_crystal_number_to_EE_trigger_tower {
+#testing here
+#sub define_EE_side_to_EE_sector {
 
-	my $name = "EE_crystal_number";
-	my $maps_to = "EE_trigger_tower";
+	#returns reference to hash
+#	my $side_def = define_EE_side();
+	#unhash for clarity
+#	my $side_logic_ids = $side_def -> {logic_ids}
+#	my $side_channel_ids = $side_def -> {channel_ids}
+#	my $count = scalar @{side_logic_ids};
 
-	my @channel_ids;
-	my @logic_ids;
+#	print $count;
+	
+#	my $name = "EE_side";
+#	my $maps_to = "EE_sector";
 
-	#opening file
-	open (FILE , "CMSSW.txt") || die ("could not open EE numbering file");
-	#reading it into an array
-	my @lines = <FILE>;
-	#getting the first line out	
-	shift @lines;
+#	my @logic_ids;
+#	my @channel_ids;
 
-	#temp variables
-	my $TCC;
-	my $trigger_tower;
-	my $ix;
-	my $iy;
-	my $side;
-	my $logic_id;
+	#foreach my $ 
 
+#}
 
-	foreach my $line (@lines) {
-
-	        my @channels = split (/ /, $line);
-
-		$ix = $channels[0];
-		$iy = $channels[1];
-		$side = $channels[2];
-
-		$TCC = $channels[8];
-		$trigger_tower = $channels[9];
-
-		#xtal number ids: side, ix, iy
-		push @channel_ids, [$side, $ix, $iy];
-
-		#trigger tower logic id: 20000XXXYY XXX=TCC, YY=trigger tower
-		$logic_id = sprintf "20000%03d%02d", $TCC, $trigger_tower;
-		push @logic_ids, $logic_id;
-
-	}
-
-	return { 
-		name => $name, maps_to => $maps_to, 
-		logic_ids => \@logic_ids, channel_ids => \@channel_ids
-	};
-
-}
-
-
-sub define_EE_trigger_tower_to_EE_crystal_number {
-
-	my $name = "EE_trigger_tower";	
-	my $maps_to = "EE_crystal_number";
-
-	my @channel_ids;
-	my @logic_ids;
-
-	#opening file
-	open (FILE , "CMSSW.txt") || die ("could not open EE numbering file");
-	#reading it into an array
-	my @lines = <FILE>;
-	#getting the first line out	
-	shift @lines;
-
-	#temp variables
-	my $TCC;
-	my $trigger_tower;
-	my $ix;
-	my $iy;
-	my $sideIndex;
-	my $logic_id;
-
-
-	foreach my $line (@lines) {
-
-	        my @channels = split (/ /, $line);
-
-		$ix = $channels[0];
-		$iy = $channels[1];
-		$sideIndex = $channels[2] + 1;
-
-		$TCC = $channels[8];
-		$trigger_tower = $channels[9];
-
-		#trigger tower ids: TCC, trigger tower
-		push @channel_ids, [$TCC, $trigger_tower];
-
-		#xtal number logic id: 201XYYYZZZ XX=TCC, YY=trigger tower
-		my $logic_id = sprintf "201%01d%03d%03d", $sideIndex, $ix, $iy;
-		push @logic_ids, $logic_id;
-
-	}
-
-	return { 
-		name => $name, maps_to => $maps_to, 
-		logic_ids => \@logic_ids, channel_ids => \@channel_ids
-	};
-
-}
-
-sub define_EE_crystal_number_to_EE_readout_tower {
-
-	my $name = "EE_crystal_number";
-	my $maps_to = "EE_readout_tower";
-
-	my @channel_ids;
-	my @logic_ids;
-
-	#opening file
-	open (FILE , "CMSSW.txt") || die ("could not open EE numbering file");
-	#reading it into an array
-	my @lines = <FILE>;
-	#getting the first line out	
-	shift @lines;
-
-	#temp variables
-	my $DCC;
-	my $readout_tower;
-	my $ix;
-	my $iy;
-	my $side;
-
-	my $logic_id;
-
-	foreach my $line (@lines) {
-
-	        my @channels = split (/ /, $line);
-
-		$ix = $channels[0];
-		$iy = $channels[1];
-		$side = $channels[2];
-
-		$DCC = $channels[4] + 600;
-		$readout_tower = $channels[5];
-
-		#readout tower logic id: 2000XXXYY XXX=DCC, YY=readout tower
-		$logic_id = sprintf "20000%03d%02d", $DCC, $readout_tower;
-		push @logic_ids, $logic_id;
-
-		#xtal number ids: ix, iy, iz
-		push @channel_ids, [$side, $ix, $iy];
-
-	}
-
-	return { 
-		name => $name, maps_to => $maps_to, 
-		logic_ids => \@logic_ids, channel_ids => \@channel_ids
-	};
-
-}
-
-sub define_EE_readout_tower_to_EE_crystal_number {
-
-
-	my $name = "EE_readout_tower";
-	my $maps_to = "EE_crystal_number";
-
-	my @channel_ids;
-	my @logic_ids;
-
-	#opening file
-	open (FILE , "CMSSW.txt") || die ("could not open EE numbering file");
-	#reading it into an array
-	my @lines = <FILE>;
-	#getting the first line out	
-	shift @lines;
-
-	#temp variables
-	my $DCC;
-	my $readout_tower;
-	my $ix;
-	my $iy;
-	my $side;
-	my $sideIndex;
-
-	my $logic_id;
-
-	foreach my $line (@lines) {
-
-	        my @channels = split (/ /, $line);
-
-		$ix = $channels[0];
-		$iy = $channels[1];
-		$sideIndex = $channels[2] + 1;
-
-		$DCC = $channels[4] + 600;
-		$readout_tower = $channels[5];
-
-		#trigger tower ids: DCC, trigger tower
-		push @channel_ids, [$DCC, $readout_tower];
-
-		#xtal number logic id: 201XYYYZZZ X=sideIndex, YYY=ix YYY=iy
-		my $logic_id = sprintf "201%01d%03d%03d", $sideIndex, $ix, $iy;
-		push @logic_ids, $logic_id;
-
-	}
-
-	return { 
-		name => $name, maps_to => $maps_to, 
-		logic_ids => \@logic_ids, channel_ids => \@channel_ids
-	};
-
-}
-
-sub define_EE_crystal_readout_strip_to_EE_crystal_number {
-
-	my $name = "EE_crystal_readout_strip";
-	my $maps_to = "EE_crystal_number";
-
-	my @channel_ids;
-	my @logic_ids;
-
-	#opening file
-	open (FILE , "CMSSW.txt") || die ("could not open EE numbering file");
-	#reading it into an array
-	my @lines = <FILE>;
-	#getting the first line out	
-	shift @lines;
-
-	#temp variables
-	my $DCC;
-	my $readout_tower;	
-	my $readout_strip;
-	my $crystal_readout_strip;
-	my $crystal_readout_strip_id;
-	my $ix;
-	my $iy;
-	my $side;
-
-	my $logic_id;
-
-	foreach my $line (@lines) {
-
-		my @channels = split (/ /, $line);
-		$ix = $channels[0];
-		$iy = $channels[1];
-		$side = $channels[2];
-		my $sideIndex = $side + 1;
-
-		#EE_crystal_number logicId
-		my $logic_id = sprintf "201%01d%03d%03d", $sideIndex, $ix, $iy;
-		push @logic_ids, $logic_id;
-
-	        $DCC = $channels[4] + 600;
-		$readout_tower= $channels[5];
-		$readout_strip= $channels[6];
-		$crystal_readout_strip=$channels[7];
-
-		#crystal_readout_strip_id=(strip-1)*5+channel_in_strip
-		$crystal_readout_strip_id=($readout_strip-1)*5+$crystal_readout_strip;
-
-		#crystal_readout_strip ids: DCC, RO Tower, crystal_readout_strip_id
-		push @channel_ids, [$DCC, $readout_tower,$crystal_readout_strip_id];
-
-	}
-
-	return { 
-		name => $name, maps_to => $maps_to, 
-		logic_ids => \@logic_ids, channel_ids => \@channel_ids
-	};
-
-}
-
+#end testing here
 
 sub define_EB_crystal_number_to_EB_trigger_tower {
   my $tt_def = define_EB_trigger_tower();
@@ -1574,10 +1323,10 @@ sub define_EB_crystal_number_to_EB_trigger_tower {
     }
   }
 
-	return { 
+  return { 
 	  name => $name, maps_to => $maps_to, 
 	  logic_ids => \@logic_ids, channel_ids => \@channel_ids
-	};
+	 };
 }
 
 sub define_EB_crystal_number_to_EB_module {

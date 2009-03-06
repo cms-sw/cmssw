@@ -84,6 +84,15 @@ namespace edm {
     template <typename T>
     void fillBranches(BranchType const& branchType, Principal const& principal, std::vector<T> * entryInfoVecPtr);
 
+     template <typename T>
+     static void insertAncestors(const T& iParents,
+                          const BranchMapper& iMapper,
+                          std::set<T>& oToFill);
+
+     void insertAncestors(const EventEntryInfo& iGetParents,
+                          const BranchMapper& iMapper,
+                          std::set<EventEntryInfo>& oToFill);
+        
     //-------------------------------
     // Member data
 
@@ -116,8 +125,19 @@ namespace edm {
     RootOutputTree runTree_;
     RootOutputTreePtrArray treePointers_;
     bool dataTypeReported_;
+    std::set<BranchID> branchesWithStoredHistory_;
   };
+   
+   //Used by the 'fillBranches' code
+   template <typename T>
+   void RootOutputFile::insertAncestors(const T& iGetParents,
+                                        const BranchMapper& iMapper,
+                                        std::set<T>& oToFill) {
+      //do nothing
+   }
 
+   
+   
   template <typename T>
   void RootOutputFile::fillBranches(
 		BranchType const& branchType,
@@ -130,11 +150,14 @@ namespace edm {
     
     OutputItemList const& items = om_->selectedOutputItemList()[branchType];
 
+     std::set<T> keepPlusAncestors;
+
     // Loop over EDProduct branches, fill the provenance, and write the branch.
     for (OutputItemList::const_iterator i = items.begin(), iEnd = items.end(); i != iEnd; ++i) {
 
       BranchID const& id = i->branchDescription_->branchID();
-
+      branchesWithStoredHistory_.insert(id);
+       
       bool getProd = (i->branchDescription_->produced() ||
 	 !fastCloning || treePointers_[branchType]->uncloned(i->branchDescription_->branchName()));
 
@@ -144,17 +167,19 @@ namespace edm {
 	// No product with this ID is in the event.
 	// Create and write the provenance.
 	if (i->branchDescription_->produced()) {
-          entryInfoVecPtr->push_back(T(i->branchDescription_->branchID(),
+          keepPlusAncestors.insert(T(i->branchDescription_->branchID(),
 			      productstatus::neverCreated(),
 			      i->branchDescription_->moduleDescriptionID()));
 	} else {
-          entryInfoVecPtr->push_back(T(i->branchDescription_->branchID(),
+          keepPlusAncestors.insert(T(i->branchDescription_->branchID(),
 			      productstatus::dropped(),
 			      i->branchDescription_->moduleDescriptionID()));
 	}
       } else {
 	product = oh.wrapper();
-        entryInfoVecPtr->push_back(*oh.entryInfo());
+        keepPlusAncestors.insert(*oh.entryInfo());
+        assert(principal.branchMapperPtr());
+        insertAncestors(*oh.entryInfo(),*principal.branchMapperPtr(),keepPlusAncestors);
       }
       if (getProd) {
 	if (product == 0) {
@@ -168,33 +193,8 @@ namespace edm {
 	i->product_ = product;
       }
     }
-
-    OutputItemList const& droppedItems = om_->prunedOutputItemList()[branchType];
-
-    // Loop over pruned branches (branches that survived pruning) and fill the provenance.
-    for (OutputItemList::const_iterator i = droppedItems.begin(), iEnd = droppedItems.end(); i != iEnd; ++i) {
-
-      BranchID const& id = i->branchDescription_->branchID();
-
-      OutputHandle<T> const oh = principal.getForOutput<T>(id, false);
-      if (!oh.entryInfo()) {
-	// No product with this ID is in the event.
-	// Create and write the provenance.
-	if (i->branchDescription_->produced()) {
-          entryInfoVecPtr->push_back(T(i->branchDescription_->branchID(),
-			      productstatus::neverCreated(),
-			      i->branchDescription_->moduleDescriptionID()));
-	} else {
-          entryInfoVecPtr->push_back(T(i->branchDescription_->branchID(),
-			      productstatus::dropped(),
-			      i->branchDescription_->moduleDescriptionID()));
-	}
-      } else {
-        entryInfoVecPtr->push_back(*oh.entryInfo());
-      }
-    }
-
-    sort_all(*entryInfoVecPtr);
+     
+     entryInfoVecPtr->assign(keepPlusAncestors.begin(),keepPlusAncestors.end());
     treePointers_[branchType]->fillTree();
     entryInfoVecPtr->clear();
   }

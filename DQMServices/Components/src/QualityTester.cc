@@ -1,8 +1,8 @@
 /*
  * \file QualityTester.cc
  *
- * $Date: 2008/05/17 16:22:29 $
- * $Revision: 1.12 $
+ * $Date: 2008/05/17 16:54:46 $
+ * $Revision: 1.13 $
  * \author M. Zanetti - CERN PH
  *
  */
@@ -28,6 +28,7 @@ QualityTester::QualityTester(const ParameterSet& ps)
   testInEventloop = ps.getUntrackedParameter<bool>("testInEventloop",false);
   qtestOnEndRun = ps.getUntrackedParameter<bool>("qtestOnEndRun",false);
   qtestOnEndJob = ps.getUntrackedParameter<bool>("qtestOnEndJob",false);
+  qtestOnEndLumi = ps.getUntrackedParameter<bool>("qtestOnEndLumi",true);
   
   bei = &*edm::Service<DQMStore>();
 
@@ -56,18 +57,18 @@ void QualityTester::analyze(const edm::Event& e, const edm::EventSetup& c)
     if (getQualityTestsFromFile 
         && prescaleFactor > 0 
 	&& nEvents % prescaleFactor == 0)  {
-             performTests();
+      performTests();
     }
   }
 }
 
 void QualityTester::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context)
 {
-  if (!testInEventloop) {
+  if (!testInEventloop&&qtestOnEndLumi) {
     if (getQualityTestsFromFile
         && prescaleFactor > 0
         && lumiSeg.id().luminosityBlock() % prescaleFactor == 0) {
-             performTests();
+      performTests();
     }
   }
 }

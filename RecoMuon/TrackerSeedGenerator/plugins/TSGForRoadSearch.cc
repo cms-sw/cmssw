@@ -55,7 +55,7 @@ TSGForRoadSearch::TSGForRoadSearch(const edm::ParameterSet & par){
 TSGForRoadSearch::~TSGForRoadSearch(){
   delete theChi2Estimator;
   if (theUpdator)  delete theUpdator;
-  if (theErrorMatrixAdjuster) delete theErrorMatrixAdjuster;
+  //  if (theErrorMatrixAdjuster) delete theErrorMatrixAdjuster;
 }
 
 
@@ -86,6 +86,36 @@ void  TSGForRoadSearch::trackerSeeds(const TrackCand & muonTrackCand, const Trac
   }  
 }
 
+void TSGForRoadSearch::adjust(FreeTrajectoryState & state){
+  CurvilinearTrajectoryError oMat = state.curvilinearError();
+  CurvilinearTrajectoryError sfMat = theErrorMatrixAdjuster->get(state.momentum());//FIXME with position
+
+  //  if (theScale){
+  MuonErrorMatrix::multiply(oMat, sfMat);
+  //  }
+  //  else{
+  //    oMat=sfMat;
+  //  }
+  state = FreeTrajectoryState(state.parameters(),
+			      oMat);
+}
+
+void TSGForRoadSearch::adjust(TrajectoryStateOnSurface & state){
+  CurvilinearTrajectoryError oMat = state.curvilinearError();
+  CurvilinearTrajectoryError sfMat = theErrorMatrixAdjuster->get(state.globalMomentum());//FIXME with position
+
+  //  if (theScale){
+  MuonErrorMatrix::multiply(oMat, sfMat);
+  //  }
+  //  else{
+  //    oMat=sfMat;
+  //  }
+  state = TrajectoryStateOnSurface(state.globalParameters(),
+				   oMat,
+				   state.surface(),
+				   state.surfaceSide(),
+				   state.weight());
+}
 
 bool TSGForRoadSearch::IPfts(const reco::Track & muon, FreeTrajectoryState & fts){
   TrajectoryStateTransform transform; 
@@ -95,7 +125,7 @@ bool TSGForRoadSearch::IPfts(const reco::Track & muon, FreeTrajectoryState & fts
     return false;}
 
   //rescale the error at IP
-  if (theErrorMatrixAdjuster && theAdjustAtIp){ theErrorMatrixAdjuster->adjust(fts); }
+  if (theErrorMatrixAdjuster && theAdjustAtIp){ adjust(fts); }
 
   return true;
 }
@@ -114,7 +144,7 @@ void TSGForRoadSearch::makeSeeds_0(const reco::Track & muon, std::vector<Traject
   if ( !inner.isValid() ) {LogDebug(theCategory) <<"inner state is not valid. no seed."; return;}
 
   //rescale the error
-  if (theErrorMatrixAdjuster && !theAdjustAtIp){ theErrorMatrixAdjuster->adjust(inner); }
+  if (theErrorMatrixAdjuster && !theAdjustAtIp){ adjust(inner); }
 
   double z = inner.globalPosition().z();
 
@@ -191,7 +221,7 @@ void TSGForRoadSearch::makeSeeds_3(const reco::Track & muon, std::vector<Traject
   if ( !outer.isValid() ) {LogDebug(theCategory) <<"outer state is not valid. no seed."; return;}
   
   //rescale the error
-  if (theErrorMatrixAdjuster && !theAdjustAtIp){ theErrorMatrixAdjuster->adjust(outer); }
+  if (theErrorMatrixAdjuster && !theAdjustAtIp){ adjust(outer); }
 
   double z = outer.globalPosition().z();
 
@@ -264,7 +294,7 @@ void TSGForRoadSearch::makeSeeds_4(const reco::Track & muon, std::vector<Traject
   if ( !inner.isValid() ) {LogDebug(theCategory) <<"inner state is not valid. no seed."; return;}
 
   //rescale the error
-  if (theErrorMatrixAdjuster && !theAdjustAtIp){ theErrorMatrixAdjuster->adjust(inner); }
+  if (theErrorMatrixAdjuster && !theAdjustAtIp){ adjust(inner); }
     
   double z = inner.globalPosition().z();
 

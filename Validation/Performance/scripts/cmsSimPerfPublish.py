@@ -13,7 +13,8 @@
 #            functionality.
 import tempfile as tmp
 import optparse as opt
-import re, os, sys, time, glob, socket, fnmatch, cmsPerfRegress
+import cmsPerfRegress as cpr
+import re, os, sys, time, glob, socket, fnmatch
 from shutil import copy2, copystat
 from stat   import *
 from cmsPerfCommons import CandFname, Step, Candles
@@ -66,7 +67,21 @@ def getcmd(command):
         print command
     return os.popen4(command)[1].read().strip()
 
-class cpuRow(object):
+def prettySize(size):
+    nega = size < 0
+    if nega:
+        size = -size
+    suffixes = [("B",2**10), ("k",2**20), ("M",2**30), ("G",2**40), ("T",2**50)]
+    for suf, lim in suffixes:
+        if size > lim:
+            continue
+        else:
+            if nega:
+                return "-" + round(size/float(lim/2**10),2).__str__() + suf
+            else:
+                return round(size/float(lim/2**10),2).__str__()+suf                
+
+class Row(object):
 
     def __init__(self,table):
         self.table   = table
@@ -82,7 +97,7 @@ class cpuRow(object):
     def getRowDict(self):
         return self.coldata
 
-class cpuTable(object):
+class Table(object):
     
     def __init__(self):
         self.colNames = []
@@ -100,16 +115,19 @@ class cpuTable(object):
         else:
             self.colNames.append(name)
 
+    def getCols(self):
+        return self.colNames
+
     def newRow(self,name):
         if name in self.rows.keys():
             pass
         else:
             self.keys.append(name)
-            self.rows[name] = cpuRow(self)
+            self.rows[name] = Row(self)
             
         return self.rows[name]
 
-    def getTable(self):
+    def getTable(self,mode=0):
         name = "Total"
         
         for key in self.keys:
@@ -124,12 +142,38 @@ class cpuTable(object):
                     if col == None:
                         pass
                     elif rowdict.has_key(col) and not col == name:
-                        (step_tot1, step_tot2) = rowdict[col]
-                        total1 += step_tot1
-                        total2 += step_tot2
-                rowobj.addEntry(name,(total1,total2))
+                        if mode == 1:
+                            total1 += rowdict[col]
+                        else:
+                            (step_tot1, step_tot2) = rowdict[col]
+                            total1 += step_tot1
+                            total2 += step_tot2
+                if mode == 1:
+                    rowobj.addEntry(name,total1)                    
+                else:
+                    rowobj.addEntry(name,(total1,total2))
                 
         return (self.keys, self.rows)
+
+    def addRow(self,row,name):
+        if name in self.rows.keys():
+            pass
+        else:
+            self.keys.append(name)
+            self.rows[name] = row
+            
+    def transpose(self):
+        transp = Table()
+        for col in self.colnames:
+            rowobj = transp.newRow(col)
+            for key in self.keys:
+                if key == None:
+                    pass
+                else:
+                    row_dict = self.rows[key].getRowDict()
+                    if row_dict.has_key(key):
+                        rowobj.addEntry(key,row_dict[col])
+        return transp
 
 ######################
 #
@@ -331,7 +375,7 @@ def optionparse():
         #metavar='DEBUG',
         )
 
-    repdirdef = "./"
+    repdirdef = os.getcwd()
     parser.set_defaults(debug=0,simulation=False,relval=False,port=873,pretend=False,repdir=repdirdef,verbose=False)
     parser.add_option_group(devel)
 
@@ -455,6 +499,11 @@ def getStageRepDirs(options,args):
     #Local cases
     elif defaultlocal:
         StagingArea = CMSSW_WORK
+        try:
+            os.mkdir(os.path.join(CMSSW_BASE,"work"))
+            os.mkdir(os.path.join(CMSSW_BASE,"work","Results"))
+        except OSError:
+            pass
         print "**User did not specify location of results, staging in default %s**" % StagingArea 
     else:
         print "**User chose to publish results in a local directory**" 
@@ -570,14 +619,25 @@ def step_cmp(x,y):
     ystr = os.path.basename(y)
     x_idx = -1
     y_idx = -1
+    bestx_idx = -1
+    besty_idx = -1
     for i in range(len(Step)):
         if Step[i] in xstr and x_idx == -1:
-            x_idx = i
+            bestx_idx = i
         if Step[i] in ystr and y_idx == -1:
+            besty_idx = i
+        if Step[i] == xstr and x_idx == -1:
+            x_idx = i
+        if Step[i] == ystr and y_idx == -1:
             y_idx = i
         if not ( x_idx == -1 or y_idx == -1):
             break
-        
+
+    if x_idx == -1:
+        x_idx = bestx_idx
+    if y_idx == -1:
+        y_idx = besty_idx
+    
     if x_idx == -1 or y_idx == -1:
         print "WARNING: No steps could be found in SimpleMemReport names when sorting for correcting the order of the graphs."
     
@@ -594,14 +654,21 @@ def step_cmp(x,y):
 # Create HTML pages for candles
 
 def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,date,prevrev):
-    def _getProfileReportLink(CurrentCandle,CurDir,step,CurrentProfile,Profiler):
+    def _getProfileReportLink(repdir,CurrentCandle,CurDir,step,CurrentProfile,Profiler):
 
-        ProfileTemplate="%s_%s/*_%s_%s*/%s" % (CurrentCandle,CurDir,step,CurrentProfile,Profiler)
+        ProfileTemplate=os.path.join(repdir, "%s_%s" % (CurrentCandle,CurDir), "*_%s_%s*" % (step,CurrentProfile),Profiler)
+
         #There was the issue of SIM vs sim (same for DIGI) between the previous RelVal based performance suite and the current.
-        ProfileTemplateLowCaps="%s_%s/*_%s_%s*/%s" % (CurrentCandle,CurDir,step.lower(),CurrentProfile,Profiler)
-        ProfileReportLink=getcmd("ls %s 2>/dev/null" % ProfileTemplate)
-        if ( CurrentCandle not in ProfileReportLink) : #no match with caps try low caps
-            ProfileReportLink=getcmd("ls %s 2>/dev/null" % ProfileTemplateLowCaps)
+        ProfileTemplateLowCaps=os.path.join(repdir, "%s_%s" % (CurrentCandle,CurDir), "*_%s_%s*" % (step.lower(),CurrentProfile),Profiler)        
+        ProfileReportLink = glob.glob(ProfileTemplate)
+        #print ProfileReportLink
+        #ProfileReportLink=getcmd("ls %s 2>/dev/null" % ProfileTemplate)
+        if len(ProfileReportLink) > 0:
+            if not reduce(lambda x,y: x or y,map(lambda x: CurrentCandle in x,ProfileReportLink)):# match with caps try low caps
+                ProfileReportLink = glob.glob(ProfileTemplateLowCaps)
+            #ProfileReportLink=getcmd("ls %s 2>/dev/null" % ProfileTemplateLowCaps)
+        else:
+            ProfileReportLink = glob.glob(ProfileTemplateLowCaps)
         return ProfileReportLink
 
     def _writeReportLink(INDEX,ProfileReportLink,CurrentProfile,step,NumOfEvents,Profiler=""):
@@ -778,7 +845,12 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                                         step = "Unknown-step"
                                         if found:
                                             step = found.groups()[0]
-                                        CAND.write("<a href=\"%s/%s/objects_pp.html\">%s %s regression report</a><br/>\n" % (LocalDirname,base,prof,step))
+                                        htmlpage = ""
+                                        if prof == "IgProfMemLive" or prof == "IgProfMemTotal" or prof == "valgrind":
+                                            htmlpage = "overall.html"
+                                        else:
+                                            htmlpage = "objects_pp.html"
+                                        CAND.write("<a href=\"%s/%s/%s\">%s %s regression report</a><br/>\n" % (LocalDirname,base,htmlpage,prof,step))
                                         
                                         
                     
@@ -802,8 +874,7 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                                 print "Found %s in %s\n" % (cand,LocalPath)
                                 
                             if not "EdmSize" in cand:
-                                lfileshtml += "<a href=\"./%s/%s\">%s </a>" % (base,cand,cand)
-                                lfileshtml += "<br />\n"
+                                lfileshtml += "<a href=\"./%s/%s\">%s </a><br/>" % (base,cand,cand)
                                     
                         CAND.write("<p><strong>Logfiles for %s</strong></p>\n" % CurDir)    
                         CAND.write(lfileshtml)
@@ -813,13 +884,16 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
 
                         for step in Step :
 
-                            ProfileReportLink = _getProfileReportLink(CurrentCandle,
+                            ProfileReportLink = _getProfileReportLink(repdir,CurrentCandle,
                                                                      CurDir,
                                                                      step,
                                                                      CurrentProfile,
                                                                      OutputHtml[CurrentProfile])
+                            isProfinLink = False
+                            if len (ProfileReportLink) > 0:
+                                isProfinLink = reduce(lambda x,y: x or y,map(lambda x: CurrentProfile in x,ProfileReportLink))
 
-                            if (CurrentProfile in ProfileReportLink):
+                            if isProfinLink:
                                 #It could also not be there
 
                                 if (PrintedOnce==False): 
@@ -831,29 +905,39 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                                     PrintedOnce=True
                                 #Special cases first (IgProf MemAnalyse and Valgrind MemCheck)
                                 if (CurrentProfile == Profile[7]):
-                                    for i in range(0,3,1):
-                                        ProfileReportLink = _getProfileReportLink(CurrentCandle,
+                                    for igprof in IgProfMemAnalyseOut:
+                                        ProfileReportLink = _getProfileReportLink(repdir,CurrentCandle,
                                                                                  CurDir,
                                                                                  step,
                                                                                  CurrentProfile,
-                                                                                 IgProfMemAnalyseOut[i])
-                                        if (CurrentProfile in ProfileReportLink ) :#It could also not be there
-                                            _writeReportLink(CAND,ProfileReportLink,CurrentProfile,step,NumOfEvents[CurDir],Profiler=IgProfMemAnalyseOut[i])
+                                                                                 igprof)
+                                        isProfinLink = False
+                                        if len (ProfileReportLink) > 0:
+                                            isProfinLink = reduce(lambda x,y: x or y,map(lambda x: CurrentProfile in x,ProfileReportLink))                                        
+                                        if isProfinLink :#It could also not be there
+                                            for prolink in ProfileReportLink:
+                                                _writeReportLink(CAND,prolink,CurrentProfile,step,NumOfEvents[CurDir],Profiler=igprof)
 
 
                                 elif (CurrentProfile == Profile[9]):
 
-                                    for i in range(0,3,1):
-                                        ProfileReportLink = _getProfileReportLink(CurrentCandle,
+                                    for memprof in memcheck_valgrindOut:
+                                        ProfileReportLink = _getProfileReportLink(repdir,CurrentCandle,
                                                                                  CurDir,
                                                                                  step,
                                                                                  CurrentProfile,
-                                                                                 memcheck_valgrindOut[i])
-                                        if (CurrentProfile in ProfileReportLink) : #It could also not be there
-                                            _writeReportLink(CAND,ProfileReportLink,CurrentProfile,step,NumOfEvents[CurDir],Profiler=memcheck_valgrindOut[i])
+                                                                                  
+                                                                                 memprof)
+                                        isProfinLink = False
+                                        if len (ProfileReportLink) > 0:
+                                            isProfinLink = reduce(lambda x,y: x or y,map(lambda x: CurrentProfile in x,ProfileReportLink))                                        
+                                        if isProfinLink :#It could also not be there                                        
+                                            for prolink in ProfileReportLink:
+                                                _writeReportLink(CAND,prolink,CurrentProfile,step,NumOfEvents[CurDir],Profiler=memprof)
 
                                 else:
-                                    _writeReportLink(CAND,ProfileReportLink,CurrentProfile,step,NumOfEvents[CurDir])
+                                    for prolink in ProfileReportLink:
+                                        _writeReportLink(CAND,prolink,CurrentProfile,step,NumOfEvents[CurDir])
 
 
                     if PrintedOnce:
@@ -872,6 +956,161 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
     except IOError, detail:
         print "ERROR: Could not write candle html %s because %s" % (os.path.basename(candlHTML),detail)
 
+
+def populateFromTupleRoot(tupname,repdir,rootfile,pureg):
+    table = Table()
+    for cand in Candles:
+        fname = CandFname[cand]
+        globpath = os.path.join(repdir,"%s_TimeSize" % cand,"%s_*_TimingReport" % fname)
+        stepDirs = glob.glob(globpath)
+        stepDirs.sort(cmp=step_cmp)
+        stepreg = re.compile("%s_(.*)_TimingReport" % fname)
+        createNewRow = True
+        curRow = None
+        createPURow = True
+        puRow = None
+        for stepdir in stepDirs:
+            base  = os.path.basename(stepdir)
+            found = stepreg.search(base)
+            step  = "Unknown-step"
+            if found:
+                step = found.groups()[0]
+            realstep  = "Unknown-step"
+            if "PILEUP" in step:
+                found = pureg.search(step)
+                if found:
+                    realstep = found.groups()[0]
+                if createPURow:
+                    createPURow = False
+                    puRow = Row(table)                
+            rootf = os.path.join(stepdir,rootfile)
+            
+            if os.path.exists(rootf):
+                f = ROOT.TFile(rootf)
+                cpu_time_tree = ROOT.TTree()
+                f.GetObject("cpu_time_tuple;1",cpu_time_tree)
+                if cpu_time_tree:
+                    if cpu_time_tree.InheritsFrom("TTree"):
+                        data1 = None
+                        data2 = None
+                        for t in cpu_time_tree:
+                            data1 = t.total1
+                            data2 = t.total2
+                        if data1 and data2:
+                            if createNewRow:
+                                createNewRow = False
+                                curRow = table.newRow(cand)
+                            data_tuple = (data1,data2)
+                            if "PILEUP" in step:
+                                puRow.addEntry(realstep,data_tuple)
+                            else:
+                                if createNewRow:
+                                    createNewRow = False
+                                    curRow = table.newRow(cand)
+
+                                curRow.addEntry(step,data_tuple)
+                f.Close()
+        if puRow == None:
+            pass
+        else:
+            table.addRow(puRow,"%s PILEUP" %cand)                
+    return table
+                
+
+def createHTMLtab(INDEX,table_dict,ordered_keys,header,caption,name,mode=0):
+    cols     = len(ordered_keys)
+    totcols  = (cols * 3) + 1
+    innercol = 3
+    colspan  = totcols - 1
+    labels   = []
+    if mode == 1:
+        labels = ["fs1","fs2","&#x0394;"]
+    elif mode == 2 or mode == 3:
+        colspan = cols
+        innercol = 1
+    else:
+        labels = ["t1" ,"t2" ,"&#x0394;"]
+
+
+    INDEX.write("<h3>%s</h3>\n" % header)
+    #INDEX.write("<p>Table showing previous release CPU times, t1, latest times, t2, and the difference between them &#x0394; in secs.</p>\n")
+    INDEX.write("<table>\n")
+    INDEX.write("<caption>%s</caption>\n" % caption)
+    INDEX.write("<thead><tr><th></th><th colspan=\"%s\" scope=\"colgroup\">%s</th></tr></thead>" % (colspan,name)) 
+    INDEX.write("<tbody>\n")
+    for key in ordered_keys:
+        INDEX.write("<tr>")
+        if key == None:
+            INDEX.write("<th></th>")
+        else:
+            INDEX.write("<td scope=\"row\">")
+            INDEX.write(key)
+            INDEX.write("</td>")
+        for col in table_dict[None]:
+            if key == None:
+                INDEX.write("<th colspan=\"%s\" scope=\"col\">" % innercol)
+                INDEX.write(col)
+                INDEX.write("</th>")                            
+            else:
+                rowdict = table_dict[key].getRowDict()
+                if rowdict.has_key(col):
+                    if mode == 2:
+                        dat = prettySize(rowdict[col])
+                        INDEX.write("<td>")
+                        INDEX.write("%s" % dat)
+                        INDEX.write("</td>")
+                        
+                    elif mode == 3:
+                        dat = rowdict[col]
+                        INDEX.write("<td>")
+                        INDEX.write("%6.2f" % dat)
+                        INDEX.write("</td>")                        
+                    else:
+                        (data1, data2) = rowdict[col]
+                        diff = data2 - data1
+
+                        if mode == 1:
+                            diff  = prettySize(diff)
+                            data1 = prettySize(data1)
+                            data2 = prettySize(data2)
+                        
+                        seq = [ data1, data2, diff ]
+                        for dat in seq:
+                            INDEX.write("<td id=\"data\">")
+                            if mode == 1:
+                                INDEX.write("%s" % dat) # %s if                            
+                            else:
+                                INDEX.write("%6.2f" % dat) # %s if                            
+
+                            INDEX.write("</td>")
+                else:
+                    if mode == 2 or mode == 3:
+                        INDEX.write("<td>")                                    
+                        INDEX.write("N/A")
+                        INDEX.write("</td>")                         
+                    else:
+                        for i in range(3):
+                            INDEX.write("<td>")                                    
+                            INDEX.write("N/A")
+                            INDEX.write("</td>") 
+        INDEX.write("</tr>\n")
+        # write an additional row if this row is the header row
+        # we need to describe the sub columns
+        if not (mode == 2 or mode == 3 ):
+            if key == None:
+                INDEX.write("<tr>")
+                INDEX.write("<th>Candles</th>")
+                for col in table_dict[None]:
+                    INDEX.write("<th>%s</th>" % labels[0])
+                    INDEX.write("<th>%s</th>" % labels[1])
+                    INDEX.write("<th>%s</th>" % labels[2])
+                INDEX.write("</tr>\n")
+    INDEX.write("</tbody></table>\n")
+
+    INDEX.write("<br />")    
+
+
+
 #####################
 #
 # Create web report index and create  HTML file for each candle
@@ -880,24 +1119,10 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
 
     #Some nomenclature
 
-    Candle=( #These need to match the directory names in the work area
-        "HiggsZZ4LM200",
-        "MinBias",
-        "SingleElectronE1000",
-        "SingleMuMinusPt10",
-        "SinglePiMinusE1000",
-        "TTbar",
-        "QCD_80_120"
-        )
-    CmsDriverCandle={ #These need to match the cmsDriver.py output filenames
-        Candle[0] : "HZZLLLL_200",
-        Candle[1] : "MINBIAS",
-        Candle[2] : "E_1000",
-        Candle[3] : "MU-_pt_10",
-        Candle[4] : "PI-_1000",
-        Candle[5] : "TTBAR",
-        Candle[6] : "QCD_80_120"
-        }
+    Candle = Candles #These need to match the directory names in the work area
+
+    CmsDriverCandle = CandFname #{ #These need to match the cmsDriver.py output filenames
+
 
     #Produce a "small" index.html file to navigate the html reports/logs etc
     IndexFile="%s/index.html" % WebArea
@@ -906,6 +1131,7 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
     cmsverreg = re.compile("CMSSW_VERSION")
     hostreg   = re.compile("HOST")
     lpathreg  = re.compile("LocalPath")
+    fsizereg  = re.compile("FSizeTable")        
     cpureg    = re.compile("CPUTable")    
     proddreg  = re.compile("ProductionDate")
     logfreg   = re.compile("LogfileLinks")
@@ -922,7 +1148,7 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
         print "Template used: %s" % TemplateHtml
 
     syscp((BASE_PERFORMANCE + "/doc/perf_style.css"),WebArea + "/.")
-    
+    pureg = re.compile("(.*)_PILEUP")    
     try:
         INDEX = open(IndexFile,"w") 
         for NewFileLine in open(TemplateHtml) :
@@ -933,103 +1159,241 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                     INDEX.write("Simulation Performance Reports with regression: %s VS %s\n" % (prevrev,CMSSW_VERSION))
             elif hostreg.search(NewFileLine):
                 INDEX.write(HOST + "\n")
-            elif cpureg.search(NewFileLine):
+            elif fsizereg.search(NewFileLine):
+                if prevrev == "":
+                    fsize_tab = Table()
 
-                ####
-                #
-                # Create the table data structure
-                #
-                cpu_time_tab = cpuTable()
-                for cand in Candles:
-                    fname = CandFname[cand]
-                    globpath = os.path.join(repdir,"%s_TimeSize" % cand,"%s_*_TimingReport" % fname)
-                    stepDirs = glob.glob(globpath)
-                    stepDirs.sort(cmp=step_cmp)
-                    stepreg = re.compile("%s_([^_]*)_TimingReport" % fname)
-                    createNewRow = True
-                    curRow = None
-                    for stepdir in stepDirs:
-                        base  = os.path.basename(stepdir)
-                        found = stepreg.search(base)
-                        step  = "Unknown-step"
-                        if found:
-                            step = found.groups()[0]
-                        rootf = os.path.join(stepdir,"timing-regress.root")
-                        if os.path.exists(rootf):
-                            f = ROOT.TFile(rootf)
-                            cpu_time_tree = ROOT.TTree()
-                            f.GetObject("cpu_time_tuple;1",cpu_time_tree)
-                            if cpu_time_tree:
-                                if cpu_time_tree.InheritsFrom("TTree"):
-                                    data1 = None
-                                    data2 = None
-                                    for t in cpu_time_tree:
-                                        data1 = t.total1
-                                        data2 = t.total2
-                                    if data1 and data2:
+                    #populateFromTupleRoot(fsize_tab,"fsize_tuple",repdir,"timing-regress.root","fsize")
+                    #(ordered_keys,table_dict) = fsize_tab.getTable()
+                    #cols = len(ordered_keys)
+
+                    for cand in Candles:
+                        fname = CandFname[cand]
+                        globpath  = os.path.join(repdir,"%s_TimeSize" % cand,"%s_*.root" % fname)
+                        rootfiles = glob.glob(globpath)
+                        rootfiles.sort(cmp=step_cmp)
+                        stepreg = re.compile("%s_(.*).root" % fname)
+                        createNewRow = True
+                        curRow = None
+                        createPURow = True
+                        puRow = None                        
+                        for rootf in rootfiles:
+                            base  = os.path.basename(rootf)
+                            found = stepreg.search(base)
+                            step  = "Unknown-step"
+                            if found:
+                                step = found.groups()[0]
+                            realstep  = "Unknown-step"
+                            if "PILEUP" in step:
+                                found = pureg.search(step)
+                                if found:
+                                    realstep = found.groups()[0]
+                                if createPURow:
+                                    createPURow = False
+                                    puRow = Row(fsize_tab)
+                            try:
+                                statinfo = os.stat(rootf)
+                                fsize    = statinfo.st_size
+                                if createNewRow:
+                                    createNewRow = False
+                                    curRow = fsize_tab.newRow(cand)
+                                    
+                                if "PILEUP" in step:
+                                    puRow.addEntry(realstep,fsize)
+                                else:
+                                    if createNewRow:
+                                        createNewRow = False
+                                        curRow = fsize_tab.newRow(cand)
+                                        
+                                    curRow.addEntry(step,fsize)       
+                            except IOError, detail:
+                                print detail
+                            except OSError, detail:
+                                print detail
+                        if puRow == None:
+                            pass
+                        else:
+                            fsize_tab.addRow(puRow,"%s PILEUP" %cand)                                                                    
+                    (ordered_keys,table_dict) = fsize_tab.getTable(1)
+                    cols = len(ordered_keys)
+                    
+                    if len(table_dict) > 1 and cols > 0:
+                        createHTMLtab(INDEX,table_dict,ordered_keys,
+                                      "Release ROOT file sizes",
+                                      "Table showing current release ROOT filesizes in (k/M/G) bytes.",
+                                      "Filesizes",2)   
+                else:
+
+                    try:
+                        idfile  = open(os.path.join(repdir,"REGRESSION.%s.vs.%s" % (prevrev,CMSSW_VERSION)))
+                        oldpath = ""
+                        for line in idfile:
+                            oldpath = line
+                        oldpath = oldpath.strip()
+                        fsize_tab = Table()
+
+                        #populateFromTupleRoot(fsize_tab,"fsize_tuple",repdir,"timing-regress.root","fsize")
+                        #(ordered_keys,table_dict) = fsize_tab.getTable()
+                        #cols = len(ordered_keys)
+
+                        for cand in Candles:
+                            fname = CandFname[cand]
+                            globpath  = os.path.join(repdir,"%s_TimeSize" % cand,"%s_*.root" % fname)
+                            rootfiles = glob.glob(globpath)
+                            rootfiles.sort(cmp=step_cmp)
+                            stepreg = re.compile("%s_(.*).root" % fname)
+                            createNewRow = True
+                            curRow = None
+                            createPURow = True
+                            puRow = None                            
+                            for rootf in rootfiles:
+                                base  = os.path.basename(rootf)
+                                found = stepreg.search(base)
+                                step  = "Unknown-step"
+                                if found:
+                                    step = found.groups()[0]
+                                    
+                                realstep  = "Unknown-step"
+                                if "PILEUP" in step:
+                                    found = pureg.search(step)
+                                    if found:
+                                        realstep = found.groups()[0]
+                                    if createPURow:
+                                        createPURow = False
+                                        puRow = Row(fsize_tab)
+                                try:
+                                    statinfo = os.stat(rootf)
+                                    fsize2   = statinfo.st_size
+                                    oldfile  = os.path.join(oldpath,"%s_TimeSize" % cand,base)
+                                    fsize1   = 0
+
+                                    if os.path.exists(oldfile):
+                                        statinfo = os.stat(oldfile)
+                                        fsize1   = statinfo.st_size
+                                    if createNewRow:
+                                        createNewRow = False
+                                        curRow = fsize_tab.newRow(cand)
+
+                                    data_tuple = (fsize1,fsize2)
+                                    if "PILEUP" in step:
+                                        puRow.addEntry(realstep,data_tuple)
+                                    else:
                                         if createNewRow:
                                             createNewRow = False
-                                            curRow = cpu_time_tab.newRow(cand)
-                                        data_tuple = (data1,data2)
+                                            curRow = fsize_tab.newRow(cand)
+
                                         curRow.addEntry(step,data_tuple)
-                            f.Close()
-
-                ###########
-                #
-                # Create HTML table from table data structure
-                #
-
-                (ordered_keys,table_dict) = cpu_time_tab.getTable()
-                cols = len(ordered_keys)
-                if len(table_dict) > 1 and cols > 0:
-                    totcols = (cols * 3) + 1
-                    INDEX.write("<h3>Release CPU times</h3>\n")
-                    #INDEX.write("<p>Table showing previous release CPU times, t1, latest times, t2, and the difference between them &#x0394; in secs.</p>\n")
-                    INDEX.write("<table>\n")
-                    INDEX.write("<caption>Table showing previous release CPU times, t1, latest times, t2, and the difference between them &#x0394; in secs.</caption>\n")
-                    INDEX.write("<thead><tr><th></th><th colspan=\"%s\" scope=\"colgroup\">CPU Times (s)</th></tr></thead>" % (totcols - 1)) 
-                    INDEX.write("<tbody>\n")
-                    for key in ordered_keys:
-                        INDEX.write("<tr>")
-                        if key == None:
-                            INDEX.write("<th></th>")
-                        else:
-                            INDEX.write("<td scope=\"row\">")
-                            INDEX.write(key)
-                            INDEX.write("</td>")
-                        for col in table_dict[None]:
-                            if key == None:
-                                INDEX.write("<th colspan=\"3\" scope=\"col\">")
-                                INDEX.write(col)
-                                INDEX.write("</th>")                            
+                                except IOError, detail:
+                                    print detail
+                                except OSError, detail:
+                                    print detail
+                            if puRow == None:
+                                pass
                             else:
-                                rowdict = table_dict[key].getRowDict()
-                                if rowdict.has_key(col):
-                                    (data1, data2) = rowdict[col]
-                                    seq = [ data1, data2, (data2 - data1 ) ]
-                                    for dat in seq:
-                                        INDEX.write("<td id=\"data\">") 
-                                        INDEX.write("%6.2f" % dat)
-                                        INDEX.write("</td>")
-                                else:
-                                    for i in range(3):
-                                        INDEX.write("<td>")                                    
-                                        INDEX.write("N/A")
-                                        INDEX.write("</td>")
-                        INDEX.write("</tr>\n")
-                        # write an additional row if this row is the header row
-                        # we need to describe the sub columns
-                        if key == None:
-                            INDEX.write("<tr>")
-                            INDEX.write("<th>Candles</th>")
-                            for col in table_dict[None]:
-                                INDEX.write("<th>t1</th>")
-                                INDEX.write("<th>t2</th>")
-                                INDEX.write("<th>&#x0394;</th>")
-                            INDEX.write("</tr>\n")
-                    INDEX.write("</tbody></table>\n")
+                                fsize_tab.addRow(puRow,"%s PILEUP" %cand)                                    
+                                    
+                        (ordered_keys,table_dict) = fsize_tab.getTable()
+                        cols = len(ordered_keys)
+                    
+                        if len(table_dict) > 1 and cols > 0:
+                            createHTMLtab(INDEX,table_dict,ordered_keys,
+                                          "Release ROOT file sizes",
+                                          "Table showing previous release ROOT filesizes, fs1, latest sizes, fs2, and the difference between them &#x0394; in (k/M/G) bytes.",
+                                          "Filesizes",1)
+                    except IOError, detail:
+                        print detail
+                    except OSError, detail:
+                        print detail
+                
+            elif cpureg.search(NewFileLine):
+                if prevrev == "":
+                    time_tab = Table()
 
-                    INDEX.write("<br />")
+                    #populateFromTupleRoot(fsize_tab,"fsize_tuple",repdir,"timing-regress.root","fsize")
+                    #(ordered_keys,table_dict) = fsize_tab.getTable()
+                    #cols = len(ordered_keys)
+
+                    for cand in Candles:
+                        fname = CandFname[cand]
+                        globpath  = os.path.join(repdir,"%s_TimeSize" % cand,"%s_*_TimingReport.log" % fname)
+                        logfiles = glob.glob(globpath)
+                        logfiles.sort(cmp=step_cmp)
+                        stepreg = re.compile("%s_(.*)_TimingReport.log" % fname)
+                        createNewRow = True
+                        curRow = None
+                        createPURow = True
+                        puRow = None
+                        for log in logfiles:
+                            base  = os.path.basename(log)
+                            found = stepreg.search(base)
+                            step  = "Unknown-step"
+                            if found:
+                                step = found.groups()[0]
+
+                            realstep  = "Unknown-step"
+                            if "PILEUP" in step:
+                                found = pureg.search(step)
+                                if found:
+                                    realstep = found.groups()[0]
+                                if createPURow:
+                                    createPURow = False
+                                    puRow = Row(time_tab)
+                                
+                            data = cpr.getTimingLogData(log)
+                            mean = 0
+                            i    = 0
+                            for evtnum, time in data:
+                                mean += time
+                                i += 1
+                            try:
+                                mean = mean / float(i)
+                            except ZeroDivisionError, detail:
+                                print "WARNING: Could not calculate mean CPU time in log", log
+
+                            if "PILEUP" in step:
+                                puRow.addEntry(realstep,mean)
+                            else:
+                                if createNewRow:
+                                    createNewRow = False
+                                    curRow = time_tab.newRow(cand)
+
+                                curRow.addEntry(step,mean)                                
+                        if puRow == None:
+                            pass
+                        else:
+                            time_tab.addRow(puRow,"%s PILEUP" %cand)
+
+                    (ordered_keys,table_dict) = time_tab.getTable(1)
+                    cols = len(ordered_keys)
+                    
+                    if len(table_dict) > 1 and cols > 0:
+                        createHTMLtab(INDEX,table_dict,ordered_keys,
+                                      "Release CPU times",
+                                      "Table showing current release CPU times in secs.",
+                                      "CPU Times (s)",3)                        
+                else:
+
+
+                    ####
+                    #
+                    # Create the table data structure
+                    #
+                    cpu_time_tab =  populateFromTupleRoot("cpu_time_tuple",repdir,"timing-regress.root",pureg)
+
+
+                    ###########
+                    #
+                    # Create HTML table from table data structure
+                    #
+
+                    (ordered_keys,table_dict) = cpu_time_tab.getTable()
+                    cols = len(ordered_keys)
+                    if len(table_dict) > 1 and cols > 0:
+                        createHTMLtab(INDEX,table_dict,ordered_keys,
+                                      "Release CPU times",
+                                      "Table showing previous release CPU times, t1, latest times, t2, and the difference between them &#x0394; in secs.",
+                                      "CPU Times (s)")
+
                         
                     
             elif lpathreg.search(NewFileLine):
@@ -1043,14 +1407,13 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                     if _verbose:
                         print "linking log file %s" % log
                     INDEX.write("<a href=\"./%s\"> %s </a>" % (log,log))
-                    INDEX.write("<br /><br />\n")
+                    INDEX.write("<br />\n")
                 #Add the cmsScimark results here:
                 INDEX.write("Results for cmsScimark2 benchmark (running on the other cores) available at:\n")
-                INDEX.write("<br /><br />\n")
                 for cmssci in cmsScimarkResults:
                     cmssci = os.path.basename(cmssci)
                     INDEX.write("<a href=\"%s\"> %s </a>" % (cmssci,cmssci))
-                    INDEX.write("<br /><br />\n")
+                    INDEX.write("<br />\n")
 
 
             elif dirbreg.search(NewFileLine):
@@ -1065,10 +1428,10 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                     candlHTML = "%s.html" % acandle
                     #INDEX.write("<table><th colspan=\"3\">")
                     INDEX.write("<a href=\"./%s\"> %s </a>" % (candlHTML,acandle))
-                    INDEX.write("<br /><br />\n")
+                    INDEX.write("<br />\n")
                    # INDEX.write("</th><tr><td>")
                     
-                    candlHTML="%s/%s" % (WebArea,candlHTML)
+                    candlHTML=os.path.join(WebArea,candlHTML)
                     createCandlHTML(CandlTmpltHTML,candlHTML,acandle,WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,date,prevrev)
             else:
                 INDEX.write(NewFileLine)

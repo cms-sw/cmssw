@@ -6,7 +6,6 @@ source = cms.Source("PythiaSource",
     maxEventsToPrint = cms.untracked.int32(0),
     pythiaPylistVerbosity = cms.untracked.int32(0),
     filterEfficiency = cms.untracked.double(1.0),
-    comEnergy = cms.untracked.double(10000.0),
     PythiaParameters = cms.PSet(
         pythiaUESettingsBlock,
         processParameters = cms.vstring('MSEL=1               ! QCD hight pT processes', 

@@ -27,8 +27,6 @@ public:
 
   void setErrorStatus(bool ErrorStatus);
 
-  bool checkCRC(bool& errorsInEvent, int fedId, const Word64* trailer, Errors& errors);
-
   bool checkHeader(bool& errorsInEvent, int fedId, const Word64* header, Errors& errors);
 
   bool checkTrailer(bool& errorsInEvent, int fedId, int nWords, const Word64* trailer, Errors& errors);

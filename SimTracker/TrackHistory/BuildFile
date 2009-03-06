@@ -10,7 +10,6 @@
 <use name=FWCore/Utilities>
 <use name=MagneticField/Records>
 <use name=MagneticField/Engine>
-<use name=PhysicsTools/UtilAlgos>
 <use name=RecoBTag/Analysis>
 <use name=RecoVertex/PrimaryVertexProducer>
 <use name=SimDataFormats/TrackingAnalysis>
@@ -33,7 +32,6 @@
    <use name=FWCore/Utilities>
    <use name=MagneticField/Records>
    <use name=MagneticField/Engine>
-   <use name=PhysicsTools/UtilAlgos>
    <use name=RecoBTag/Analysis>
    <use name=RecoVertex/PrimaryVertexProducer>
    <use name=SimDataFormats/TrackingAnalysis>

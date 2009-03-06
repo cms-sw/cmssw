@@ -321,9 +321,6 @@ bool Generator::particlePassesPrimaryCuts(const G4PrimaryParticle * p) const
 
 void Generator::nonBeamEvent2G4(const HepMC::GenEvent * evt, G4Event * g4evt)
 {
-
-  if(verbose >0){ evt->print(); }
-
   int i = 0; 
   for(HepMC::GenEvent::particle_const_iterator it = evt->particles_begin(); 
       it != evt->particles_end(); ++it )
@@ -351,9 +348,7 @@ void Generator::nonBeamEvent2G4(const HepMC::GenEvent * evt, G4Event * g4evt)
 				g->production_vertex()->position().y()*mm,	     
 				g->production_vertex()->position().z()*mm,	     
 				g->production_vertex()->position().t()*mm/c_light);
-          if ( verbose > 1 ) g4p->Print();
 	      v->SetPrimary(g4p);
-          if (verbose > 1 ) v->Print();
 	      g4evt->AddPrimaryVertex(v);
 	    }
 	}

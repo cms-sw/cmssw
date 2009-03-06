@@ -27,21 +27,20 @@ class L2TauIsolationSelector : public edm::EDProducer {
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
-      
 
-      //Association class Input
-      edm::InputTag associationInput_;  
+
+
+
+	edm::InputTag associationInput_;  
       
-      //Sliding Cuts
-      std::vector<double> ecalIsolEt_;
-      std::vector<double> towerIsolEt_;
-      std::vector<double> nClusters_;
-      std::vector<double> phiRMS_;
-      std::vector<double> etaRMS_;
-      std::vector<double> drRMS_;
-    
-      //Cuts of the Style This > Something
-      double et_;
-      double seedTowerEt_;
+      //Create vars for Cuts
+      double ECALIsolEt_;
+      double TowerIsolEt_;
+      double Cluster_etaRMS_;
+      double Cluster_phiRMS_;
+      double Cluster_drRMS_;
+      int    Cluster_nClusters_;
+      double JetEt_;
+      double SeedTowerEt_;
     
 };

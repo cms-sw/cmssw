@@ -43,8 +43,6 @@ public:
 	virtual double getRecEnergy(const DetectorElementPtr de) const;
 
 	virtual double getRecEnergy() const;
-	
-	virtual void setRecEnergy(const DetectorElementPtr de, double energy);
 
 	virtual double getEnergyResolution() const;
 
@@ -76,8 +74,6 @@ public:
 	void setEta(const double eta) {
 		myEta = eta;
 	}
-
-	double getTargetFunctionContrib() const;
 
 	friend std::ostream& operator<<(std::ostream& s, const ParticleDeposit& p);
 

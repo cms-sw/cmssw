@@ -77,7 +77,7 @@ MuonAssociatorByHits::associateRecoToSim(edm::RefToBaseVector<reco::Track>& tC,
   TrackerHitAssociator * trackertruth = new TrackerHitAssociator::TrackerHitAssociator(*e, conf_);
   // CSC hit association
   MuonTruth csctruth(conf_);
-  csctruth.eventSetup(*e,*setup);
+  csctruth.eventSetup(*e);
   // DT hit association
   printRtS = true;
   DTHitAssociator dttruth(*e,*setup,conf_,printRtS);
@@ -271,7 +271,7 @@ MuonAssociatorByHits::associateRecoToSim(edm::RefToBaseVector<reco::Track>& tC,
 	else {
 	  // print something only if this TrackingParticle shares some hits with the current reco::Track
 	  if (global_nshared >0) 
-	    edm::LogVerbatim("MuonAssociatorByHits")
+	    LogTrace("MuonAssociatorByHits")
 	      <<"\t\t"<< " NOT matched to TrackingParticle "<<tpindex
 	      << " with quality = "<<global_quality<<" (tracker: "<<tracker_quality<<" / muon: "<<muon_quality<<")";
 	}
@@ -334,7 +334,7 @@ MuonAssociatorByHits::associateSimToReco(edm::RefToBaseVector<reco::Track>& tC,
   TrackerHitAssociator * trackertruth = new TrackerHitAssociator::TrackerHitAssociator(*e, conf_);
   // CSC hit association
   MuonTruth csctruth(conf_);
-  csctruth.eventSetup(*e,*setup);
+  csctruth.eventSetup(*e);
   // DT hit association
   printRtS = false;
   DTHitAssociator dttruth(*e,*setup,conf_,printRtS);  
@@ -348,7 +348,7 @@ MuonAssociatorByHits::associateSimToReco(edm::RefToBaseVector<reco::Track>& tC,
   
   int tindex=0;
   for (edm::RefToBaseVector<reco::Track>::const_iterator track=tC.begin(); track!=tC.end(); track++, tindex++) {
-    if (printRtS) edm::LogVerbatim("MuonAssociatorByHits")
+    LogTrace("MuonAssociatorByHits")
       <<"\n"<<"reco::Track "<<tindex
       <<", pT = " << (*track)->pt()<<", eta = "<<(*track)->momentum().eta()<<", phi = "<<(*track)->momentum().phi()
       <<", number of RecHits = "<<(*track)->recHitsSize()<<" ("<<(*track)->found()<<" valid hits, "<<(*track)->lost()<<" lost hits)";
@@ -382,7 +382,7 @@ MuonAssociatorByHits::associateSimToReco(edm::RefToBaseVector<reco::Track>& tC,
     n_muon_valid_hits = n_dt_valid_hits + n_csc_valid_hits + n_rpc_valid_hits;
     n_muon_matched_hits = n_dt_matched_hits + n_csc_matched_hits + n_rpc_matched_hits;
 
-    if (printRtS) edm::LogVerbatim("MuonAssociatorByHits")
+    LogTrace("MuonAssociatorByHits")
       <<"\n"<<"*** # all RecHits = "<<(*track)->recHitsSize()
       <<", # matching PSimHit = " << n_matching_simhits <<" (may be more than one per rechit)"
       <<"\n"<< "# valid RecHits   = " <<n_valid_hits  <<" (" <<n_tracker_valid_hits<<"/"
@@ -544,7 +544,7 @@ MuonAssociatorByHits::associateSimToReco(edm::RefToBaseVector<reco::Track>& tC,
 	else {
 	  // print something only if this TrackingParticle shares some hits with the current reco::Track
 	  if (global_nshared >0) {
-	    if (printRtS) edm::LogVerbatim("MuonAssociatorByHits")
+	    LogTrace("MuonAssociatorByHits")
 	      <<"************************************************************************************************************************"  
 	      <<"\n"<<"TrackingParticle " << tpindex <<", q = "<<(*trpart).charge()<<", p = "<<(*trpart).p()
 	      <<", pT = "<<(*trpart).pt()<<", eta = "<<(*trpart).eta()<<", phi = "<<(*trpart).phi()
@@ -555,10 +555,10 @@ MuonAssociatorByHits::associateSimToReco(edm::RefToBaseVector<reco::Track>& tC,
 	    for(TrackingParticle::g4t_iterator g4T=(*trpart).g4Track_begin(); 
 		g4T!=(*trpart).g4Track_end(); 
 		++g4T) {
-	      if (printRtS) edm::LogVerbatim("MuonAssociatorByHits")
+	      LogTrace("MuonAssociatorByHits")
 		<<" Id:"<<(*g4T).trackId()<<"/Evt:("<<(*g4T).eventId().event()<<","<<(*g4T).eventId().bunchCrossing()<<")";
 	    }
-	    if (printRtS) edm::LogVerbatim("MuonAssociatorByHits")
+	    LogTrace("MuonAssociatorByHits")
 	      <<"\t NOT matched  to reco::Track "<<tindex
 	      <<" with quality = "<<global_quality<<" (tracker: "<<tracker_quality<<" / muon: "<<muon_quality<<")"
 	      <<"\n\t and purity = "<<global_purity<<" (tracker: "<<tracker_purity<<" / muon: "<<muon_purity<<")";
@@ -621,7 +621,7 @@ int MuonAssociatorByHits::LayerFromDetid(const DetId& detId ) const
       layerNumber = pxfid.disk();  
     }
   else
-    edm::LogWarning("MuonAssociatorByHits") << "Unknown Tracker subdetector: subdetId = " <<  subdetId;
+    LogTrace("MuonAssociatorByHits") << "Unknown Tracker subdetector: subdetId = " <<  subdetId;
   
   return layerNumber;
 } 

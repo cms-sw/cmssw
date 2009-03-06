@@ -5,13 +5,11 @@
  * \class CalibrationTarget
  * \brief Enumerates possible targets for calibration
  * 
- * The undefined element means just that!
- * 
  * \author Jamie Ballin
  * \date June 2008
  */
 enum CalibrationTarget {
-	UNDEFINED = 0, CLUSTER = 1, RECHIT = 2, PFCANDIDATE = 3, PFELEMENT = 4, CORR_CLUSTER = -1, PRE_RECHIT = 6, PRE_PFCANDIDATE = 7
+	UNDEFINED = 0, CLUSTER = 1, RECHIT = 2, PFCANDIDATE = 3, PFELEMENT = 4
 };
-
+}
 #endif /*CALIBRATIONTARGET_H_*/

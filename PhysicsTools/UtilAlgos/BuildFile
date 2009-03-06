@@ -3,8 +3,8 @@
 <use name=FWCore/MessageLogger>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
-<use name=FWCore/Services>
 <use name=FWCore/Utilities>
+<use name=FWCore/Services>
 <use name=DataFormats/Common>
 <use name=DataFormats/Provenance>
 <use name=root>

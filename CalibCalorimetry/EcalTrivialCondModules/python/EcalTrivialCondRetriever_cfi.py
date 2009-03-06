@@ -12,19 +12,17 @@ EcalTrivialConditionRetriever = cms.ESSource("EcalTrivialConditionRetriever",
     getWeightsFromFile = cms.untracked.bool(True),
     intercalibErrorsFile = cms.untracked.string(''),
     laserAPDPNMean = cms.untracked.double(1.0),
-    laserAPDPNRefMean = cms.untracked.double(1.0),
     #       untracked string amplWeightsFile = "CalibCalorimetry/EcalTrivialCondModules/data/ampWeights_TB.txt"
     # file with intercalib constants - same format used for online and offline DB
     # by default set all inter calib const to 1.0 if no file provided
     intercalibConstantsFile = cms.untracked.string(''),
     producedEcalWeights = cms.untracked.bool(True),
-    adcToGeVEBConstant = cms.untracked.double(0.035),
     EEpedRMSX12 = cms.untracked.double(2.87),
     producedEcalIntercalibConstants = cms.untracked.bool(True),
     producedEcalIntercalibErrors = cms.untracked.bool(True),
     producedEcalLaserCorrection = cms.untracked.bool(True),
     producedEcalGainRatios = cms.untracked.bool(True),
-    adcToGeVEEConstant = cms.untracked.double(0.06),
+    laserAPDPNRefMean = cms.untracked.double(1.0),
     producedEcalADCToGeVConstant = cms.untracked.bool(True)
 )
 

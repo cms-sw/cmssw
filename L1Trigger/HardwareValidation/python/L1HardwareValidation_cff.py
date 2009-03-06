@@ -74,24 +74,7 @@ valGmtDigis = L1Trigger.GlobalMuonTrigger.gmtDigis_cfi.gmtDigis.clone()
 import L1Trigger.GlobalTrigger.gtDigis_cfi
 valGtDigis = L1Trigger.GlobalTrigger.gtDigis_cfi.gtDigis.clone()
 
-# the comparator module
-from L1Trigger.HardwareValidation.L1Comparator_cfi import *
-deEcal = cms.Sequence(valEcalTriggerPrimitiveDigis)
-deHcal = cms.Sequence(valHcalTriggerPrimitiveDigis)
-deRct = cms.Sequence(valRctDigis)
-deGct = cms.Sequence(valGctDigis)
-deDt = cms.Sequence(valDtTriggerPrimitiveDigis)
-deDttf = cms.Sequence(valCsctfTrackDigis*valDttfDigis*muonDtMon)
-deCsc = cms.Sequence(valCscTriggerPrimitiveDigis)
-deCsctf = cms.Sequence(valCsctfTrackDigis*valCsctfDigis*muonCscMon)
-deRpc = cms.Sequence(valRpcTriggerDigis)
-#replace valGmtDigis.MipIsoData =
-deGmt = cms.Sequence(valGmtDigis)
-#replace valGtDigis.TechnicalTriggerInputTag = ???
-deGt = cms.Sequence(valGtDigis)
-#replace l1compare.COMPARE_COLLS= { 0,0,0,0,0,0,0,0,0,0,0,0 }
-#compareMode  {ETP,HTP,RCT,GCT, DTP,DTF,CTP,CTF,RPC, LTC,GMT,GT};
-
+# Emulator input
 valEcalTriggerPrimitiveDigis.Label = 'ecalDigis'
 valEcalTriggerPrimitiveDigis.InstanceEB = 'ebDigis'
 valEcalTriggerPrimitiveDigis.InstanceEE = 'eeDigis'
@@ -117,6 +100,27 @@ valGmtDigis.RPCbCandidates = cms.InputTag("gtDigis","RPCb")
 valGmtDigis.RPCfCandidates = cms.InputTag("gtDigis","RPCf")
 valGtDigis.GmtInputTag = 'gtDigis'
 valGtDigis.GctInputTag = 'gctDigis'
+
+# the comparator module
+# parameters are specified in cfi
+from L1Trigger.HardwareValidation.L1Comparator_cfi import *
+#l1compare.COMPARE_COLLS = [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1]
+# ETP,HTP,RCT,GCT, DTP,DTF,CTP,CTF,RPC, LTC,GMT,GT
+
+# subsystem sequences
+deEcal = cms.Sequence(valEcalTriggerPrimitiveDigis)
+deHcal = cms.Sequence(valHcalTriggerPrimitiveDigis)
+deRct = cms.Sequence(valRctDigis)
+deGct = cms.Sequence(valGctDigis)
+deDt = cms.Sequence(valDtTriggerPrimitiveDigis)
+deDttf = cms.Sequence(valCsctfTrackDigis*valDttfDigis*muonDtMon)
+deCsc = cms.Sequence(valCscTriggerPrimitiveDigis)
+deCsctf = cms.Sequence(valCsctfTrackDigis*valCsctfDigis*muonCscMon)
+deRpc = cms.Sequence(valRpcTriggerDigis)
+#replace valGmtDigis.MipIsoData =
+deGmt = cms.Sequence(valGmtDigis)
+#replace valGtDigis.TechnicalTriggerInputTag = ???
+deGt = cms.Sequence(valGtDigis)
 
 # the sequences
 L1HardwareValidation = cms.Sequence(deEcal+deHcal+deRct+deGct+deDt+deDttf+deCsc+deCsctf+deRpc+deGmt+deGt*l1compare)

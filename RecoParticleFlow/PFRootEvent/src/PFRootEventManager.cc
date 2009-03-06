@@ -69,10 +69,10 @@ PFRootEventManager::PFRootEventManager(const char* file)
   //   iEvent_=0;
   h_deltaETvisible_MCEHT_ 
     = new TH1F("h_deltaETvisible_MCEHT","Jet Et difference CaloTowers-MC"
-               ,1000,-50.,50.);
+               ,100,-100,100);
   h_deltaETvisible_MCPF_  
     = new TH1F("h_deltaETvisible_MCPF" ,"Jet Et difference ParticleFlow-MC"
-               ,1000,-50.,50.);
+               ,100,-100,100);
 
   readOptions(file, true, true);
  
@@ -147,7 +147,7 @@ void PFRootEventManager::readOptions(const char* file,
       // cout<<"don't do tree"<<endl;
     }
   }
-// PFJet benchmark options and output jetfile to be open before input file!!!--
+  // PFJet benchmark options and output jetfile to be open before input file!!!--
 
   doPFJetBenchmark_ = false;
   options_->GetOpt("pfjet_benchmark", "on/off", doPFJetBenchmark_);
@@ -525,54 +525,6 @@ void PFRootEventManager::readOptions(const char* file,
     exit(1);
   }
 
-  // PFElectrons options -----------------------------
-  double chi2EcalGSF = 900;
-  options_->GetOpt("particle_flow", "final_chi2cut_gsfecal", chi2EcalGSF);
-
-  double chi2EcalBrem = 25;
-  options_->GetOpt("particle_flow", "final_chi2cut_bremecal", chi2EcalBrem);
-
-  double chi2HcalGSF = 100;
-  options_->GetOpt("particle_flow", "final_chi2cut_gsfhcal", chi2HcalGSF);
-
-  double chi2HcalBrem = 25;
-  options_->GetOpt("particle_flow", "final_chi2cut_bremhcal", chi2HcalBrem);
-
-  double chi2PsGSF = 100;
-  options_->GetOpt("particle_flow", "final_chi2cut_gsfps", chi2PsGSF);
-
-  double chi2PsBrem = 25;
-  options_->GetOpt("particle_flow", "final_chi2cut_bremps", chi2PsBrem);
-
-
-  double mvaEleCut = -1.;  // if = -1. get all the pre-id electrons
-  options_->GetOpt("particle_flow", "electron_mvaCut", mvaEleCut);
-
-  bool usePFElectrons = false;   // set true to use PFElectrons
-  options_->GetOpt("particle_flow", "usePFElectrons", usePFElectrons);
-
-  string mvaWeightFileEleID = "";
-  options_->GetOpt("particle_flow", "electronID_mvaWeightFile", 
-		   mvaWeightFileEleID);
-  mvaWeightFileEleID = expand(mvaWeightFileEleID);
-
-  try { 
-    pfAlgo_.setPFEleParameters(chi2EcalGSF,
-			       chi2EcalBrem,
-			       chi2HcalGSF,
-			       chi2HcalBrem,
-			       chi2PsGSF,
-			       chi2PsBrem,
-			       mvaEleCut,
-			       mvaWeightFileEleID,
-			       usePFElectrons);
-  }
-  catch( std::exception& err ) {
-    cerr<<"exception setting PFAlgo Electron parameters: "
-        <<err.what()<<". terminating."<<endl;
-    exit(1);
-  }
-
   int    algo = 2;
   options_->GetOpt("particle_flow", "algorithm", algo);
 
@@ -897,22 +849,6 @@ void PFRootEventManager::connect( const char* infilename ) {
           <<genParticleCandBranchName<< endl;
     }  
   }
-       
-  // calo tower base candidates 
-  string caloTowerCandBranchName;
-  caloTowerBaseCandidatesBranch_ = 0;
-  options_->GetOpt("root","caloTowerBaseCandidates_branch", 
-		   caloTowerCandBranchName);
-  if(!caloTowerCandBranchName.empty() ){  
-    caloTowerBaseCandidatesBranch_= 
-      tree_->GetBranch(caloTowerCandBranchName.c_str()); 
-    if(!caloTowerBaseCandidatesBranch_) {
-      cerr<<"PFRootEventanager::ReadOptions : "
-	  <<"caloTowerBaseCandidates_branch not found : "
-          <<caloTowerCandBranchName<< endl;
-    }  
-  }
-
       
   string genJetBranchName; 
   options_->GetOpt("root","genJetBranchName", genJetBranchName);
@@ -1014,10 +950,7 @@ bool PFRootEventManager::processEntry(int entry) {
   if( outEvent_ ) outEvent_->setNumber(entry);
 
   if(verbosity_ == VERBOSE  || 
-     entry < 10 ||
-     entry < 100 && entry%10 == 0 || 
-     entry < 1000 && entry%100 == 0 || 
-     entry%1000 == 0 ) 
+     entry%10 == 0) 
     cout<<"process entry "<< entry << endl;
   
   bool goodevent =  readFromSimulation(entry);
@@ -1078,25 +1011,12 @@ bool PFRootEventManager::processEntry(int entry) {
           <<" resNeutralHadEnergy Max " << resNeutralHadEnergy
           << " resNeutralEmEnergy Max "<< resNeutralEmEnergy << endl;
     } // end debug print
-
-    // PJ : printout for bad events (selected by the "if")
-    if ( resPt < -1. ) { 
-      cout << " =====================PFJetBenchmark =================" << endl;
-      cout<<"process entry "<< entry << endl;
-      cout<<"Resol Pt max "<<resPt
-	  <<" resChargedHadEnergy Max " << resChargedHadEnergy
-	  <<" resNeutralHadEnergy Max " << resNeutralHadEnergy
-	  << " resNeutralEmEnergy Max "<< resNeutralEmEnergy 
-	  << " Jet pt " << genJets_[0].pt() << endl;
-      // return true;
-    } else { 
-      // return false;
-    }
     //   if (resNeutralEmEnergy>0.5) return true;
     //   else return false;
   }// end PFJet Benchmark
-    
-  // evaluate tau Benchmark   
+  
+  // evaluate tau Benchmark 
+  
   if( goodevent && doTauBenchmark_) { // start tau Benchmark
     double deltaEt = 0.;
     deltaEt  = tauBenchmark( *pfCandidates_ ); 

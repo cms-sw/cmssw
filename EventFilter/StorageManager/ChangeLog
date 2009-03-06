@@ -1,3 +1,12 @@
+2008-09-16  Kurt Biery <biery@fnal.gov>
+
+	* tag V03-14-14
+	* Modified the INIT message handling in SMFUSenderEntry to handle
+	  multiple INIT messages from the same RB.  Re-enabled the RBSender
+	  web page.  Added partial fixes for the storedEvents problem at 
+	  end run.  Added support for gracefully handling duplicate event
+	  numbers when running with multiple AutoBUs.
+
 2008-09-04  Kurt Biery <biery@fnal.gov>
 
 	* tag V03-14-12

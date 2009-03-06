@@ -1,11 +1,11 @@
-// $Id: CompositeCandidate.cc,v 1.12 2008/06/20 09:12:27 llista Exp $
+// $Id: CompositeCandidate.cc,v 1.11 2008/06/18 14:22:03 srappocc Exp $
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 using namespace reco;
 
 CompositeCandidate::CompositeCandidate(const Candidate & c,
-				       const std::string& name) :
+				       std::string name) :
   Candidate(c), name_(name) {
   size_t n = c.numberOfDaughters();
   for(size_t i = 0; i != n; ++i) {
@@ -14,7 +14,7 @@ CompositeCandidate::CompositeCandidate(const Candidate & c,
 }
 
 CompositeCandidate::CompositeCandidate(const Candidate & c,
-				       const std::string& name,
+				       std::string name,
 				       role_collection const & roles) :
   Candidate(c), name_(name), roles_(roles) {
   size_t n = c.numberOfDaughters();
@@ -85,7 +85,7 @@ void CompositeCandidate::applyRoles() {
   }
 }
 
-Candidate * CompositeCandidate::daughter(const std::string& s) {
+Candidate * CompositeCandidate::daughter(std::string s) {
   int ret = -1;
   int i = 0, N = roles_.size();
   bool found = false;
@@ -104,7 +104,7 @@ Candidate * CompositeCandidate::daughter(const std::string& s) {
   return daughter(ret);
 }
 
-const Candidate * CompositeCandidate::daughter(const std::string& s) const  {
+const Candidate * CompositeCandidate::daughter(std::string s) const  {
   int ret = -1;
   int i = 0, N = roles_.size();
   bool found = false;
@@ -123,7 +123,7 @@ const Candidate * CompositeCandidate::daughter(const std::string& s) const  {
   return daughter(ret);
 }
 
-void CompositeCandidate::addDaughter(const Candidate & cand, const std::string& s) {
+void CompositeCandidate::addDaughter(const Candidate & cand, std::string s) {
   Candidate * c = cand.clone();
   if (s != "") {
     role_collection::iterator begin = roles_.begin(), end = roles_.end();
@@ -142,7 +142,7 @@ void CompositeCandidate::addDaughter(const Candidate & cand, const std::string& 
   dau.push_back(c);
 }
 
-void CompositeCandidate::addDaughter(std::auto_ptr<Candidate> cand, const std::string& s) {
+void CompositeCandidate::addDaughter(std::auto_ptr<Candidate> cand, std::string s) {
   if (s != "") {
     role_collection::iterator begin = roles_.begin(), end = roles_.end();
     bool isFound = (find(begin, end, s) != end);

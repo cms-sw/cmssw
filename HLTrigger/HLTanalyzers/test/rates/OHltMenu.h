@@ -1,8 +1,9 @@
 //////////////////////////////////////////////////////////
+//
 // Class to hold Open HLT Menu
 // in form of maps b/w path names and L1Bits, Thresholds, 
 // Descriptions, Prescales.
-// Author:  Vladimir Rekovic (UMN)   Date: Mar, 2008
+// 
 //////////////////////////////////////////////////////////
 
 #ifndef OHltMenu_h

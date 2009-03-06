@@ -19,8 +19,7 @@ GlobalTrajectoryBuilderCommon = cms.PSet(
         Smoother = cms.string('KFSmootherForRefitInsideOut'),
         MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
         RefitDirection = cms.string('insideOut'),
-        RefitRPCHits = cms.bool(True),
-        DoPredictionsOnly = cms.bool(False)
+        RefitRPCHits = cms.bool(True)
     ),
     GlobalMuonTrackMatcher = cms.PSet(
         MinP = cms.double(2.5),

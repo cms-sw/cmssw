@@ -105,13 +105,18 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   , timeoutOnStop_(10)
   , hasShMem_(true)
   , hasPrescaleService_(true)
+  , hasModuleWebRegistry_(true)
   , isRunNumberSetter_(true)
   , outprev_(true)
   , monSleepSec_(1)
   , wlMonitoring_(0)
   , asMonitoring_(0)
   , watching_(false)
+  , wlScalers_(0)
+  , asScalers_(0)
   , reasonForFailedState_()
+  , wlMonitoringActive_(false)
+  , wlScalersActive_(false)
   , squidnet_(3128,"http://frontier1.cms:8000/RELEASE-NOTES.txt")
 {
   //list of variables for scalers flashlist
@@ -157,6 +162,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   ispace->fireItemAvailable("timeoutOnStop",        &timeoutOnStop_);
   ispace->fireItemAvailable("hasSharedMemory",      &hasShMem_);
   ispace->fireItemAvailable("hasPrescaleService",   &hasPrescaleService_);
+  ispace->fireItemAvailable("hasModuleWebRegistry", &hasModuleWebRegistry_);
   ispace->fireItemAvailable("isRunNumberSetter",    &isRunNumberSetter_);
   ispace->fireItemAvailable("monSleepSec",          &monSleepSec_);
 
@@ -205,7 +211,8 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   toolbox::net::URN urn2 = this->createQualifiedInfoSpace(monInfoSpaceName2);
   xdata::Table &stbl = trh_.getTable(); 
   scalersInfoSpace_ = xdata::getInfoSpaceFactory()->get(urn2.toString());
-  scalersInfoSpace_->fireItemAvailable("scalersTable",      &stbl);
+  scalersInfoSpace_->fireItemAvailable("instance", &instance_);
+  scalersInfoSpace_->fireItemAvailable("scalersTable", &stbl);
   scalersComplete_.addColumn("instance", "unsigned int 32");
   scalersComplete_.addColumn("lsid", "unsigned int 32");
   scalersComplete_.addColumn("psid", "unsigned int 32");
@@ -266,7 +273,6 @@ bool FUEventProcessor::getTriggerReport(bool useLock)
   // evtProcessor_->getTriggerReport, the value returned is encoded as
   // a xdata::Table.
   LOG4CPLUS_DEBUG(getApplicationLogger(),"getTriggerReport action invoked");
-  
   //Get the trigger report.
   ModuleWebRegistry *mwr = 0;
   try{
@@ -276,67 +282,74 @@ bool FUEventProcessor::getTriggerReport(bool useLock)
   catch(...) { 
     LOG4CPLUS_INFO(getApplicationLogger(),
 		   "exception when trying to get service ModuleWebRegistry");
-    
+    return false;
   }
   edm::TriggerReport tr; 
-  if(mwr)
+  if(mwr==0) return false;
+
+  xdata::InfoSpace *ispace = getApplicationInfoSpace();
+  unsigned int ls = 0;
+  unsigned int ps = 0;
+  xdata::Table::iterator it = scalersComplete_.begin();
+  if( it == scalersComplete_.end())
     {
-
-      xdata::InfoSpace *ispace = getApplicationInfoSpace();
-      unsigned int ls = 0;
-      unsigned int ps = 0;
-      xdata::Table::iterator it = scalersComplete_.begin();
-      if( it == scalersComplete_.end())
-	{
-	  it = scalersComplete_.append();
-	}
-      it->setField("instance",instance_);
-      if(useLock) {
-	mwr->openBackDoor("DaqSource");
-      }
-      if(!inRecovery_)evtProcessor_->getTriggerReport(tr);
-      try{
-	xdata::Serializable *lsid = ispace->find("lumiSectionIndex");
-	if(lsid) ls = ((xdata::UnsignedInteger32*)(lsid))->value_;
-	xdata::Serializable *psid = ispace->find("prescaleSetIndex");
-	if(psid) ps = ((xdata::UnsignedInteger32*)(psid))->value_;
-	it->setField("lsid",*lsid);
-	it->setField("psid",*psid);
-      }
-      catch(xdata::exception::Exception e){
-      }
-
-      if(useLock){
-	mwr->closeBackDoor("DaqSource");
-      }
-
-
-      if(inRecovery_) { return false;}
-      trh_.formatReportTable(tr,descs_);
-      if(trh_.checkLumiSection(ls))
-	{
-	  trh_.triggerReportToTable(tr,ls,false);
-	}
-      else
-	{
-	  if(triggerReportIncomplete_)
-	    {
-	      triggerReportIncomplete_ = false;
-	      //	      trh_.printReportTable();
-	      //send xmas message with data
-	    }
-	  trh_.triggerReportToTable(tr,ls);
-	}
-      it->setField("triggerReport",trh_.getTable());
-      // send xmas message with data
-      //      triggerReportAsString_ = triggerReportToString(tr);
-      
-      //Print the trigger report message in debug format.
-		   //      trh_.printTriggerReport(tr);
-
-      }
-  return true;
+      it = scalersComplete_.append();
     }
+  it->setField("instance",instance_);
+  if(useLock) {
+    mwr->openBackDoor("DaqSource");
+  }
+  if(!inRecovery_)evtProcessor_->getTriggerReport(tr);
+  try{
+    xdata::Serializable *lsid = ispace->find("lumiSectionIndex");
+    if(lsid) {
+      ls = ((xdata::UnsignedInteger32*)(lsid))->value_;
+      it->setField("lsid",*lsid);
+    }
+    xdata::Serializable *psid = ispace->find("prescaleSetIndex");
+    if(psid) {
+      ps = ((xdata::UnsignedInteger32*)(psid))->value_;
+      it->setField("psid",*psid);
+    }
+  }
+  catch(xdata::exception::Exception e){
+    LOG4CPLUS_INFO(getApplicationLogger(),
+                   "exception when obtaining ls or ps id");
+    if(useLock){
+      mwr->closeBackDoor("DaqSource");
+    }
+    return false;
+  }
+  if(useLock){
+    mwr->closeBackDoor("DaqSource");
+  }
+  
+  if(inRecovery_) { return false;}
+  trh_.formatReportTable(tr,descs_);
+  if(trh_.checkLumiSection(ls))
+    {
+      trh_.triggerReportToTable(tr,ls,false);
+    }
+  else
+    {
+      if(triggerReportIncomplete_)
+	{
+	  triggerReportIncomplete_ = false;
+	  //	      trh_.printReportTable();
+	  //send xmas message with data
+	}
+      trh_.triggerReportToTable(tr,ls);
+    }
+  it->setField("triggerReport",trh_.getTable());
+  // send xmas message with data
+  //      triggerReportAsString_ = triggerReportToString(tr);
+      
+  //Print the trigger report message in debug format.
+  //      trh_.printTriggerReport(tr);
+  
+  
+  return true;
+}
 
 
 
@@ -553,6 +566,7 @@ void FUEventProcessor::initEventProcessor()
     internal::addServiceMaybe(*pServiceSets,"MLlog4cplus");
     internal::addServiceMaybe(*pServiceSets,"MicroStateService");
     if(hasPrescaleService_) internal::addServiceMaybe(*pServiceSets,"PrescaleService");
+    if(hasModuleWebRegistry_) internal::addServiceMaybe(*pServiceSets,"ModuleWebRegistry");
     
     try{
       serviceToken_ = edm::ServiceRegistry::createSet(*pServiceSets);
@@ -576,6 +590,17 @@ void FUEventProcessor::initEventProcessor()
   edm::LogInfo("FUEventProcessor")<<"started MessageLogger Service.";
   edm::LogInfo("FUEventProcessor")<<"Using config string \n"<<configuration_;
 
+  ModuleWebRegistry *mwr = 0;
+  try{
+    if(edm::Service<ModuleWebRegistry>().isAvailable())
+      mwr = edm::Service<ModuleWebRegistry>().operator->();
+  }
+  catch(...) { 
+    LOG4CPLUS_INFO(getApplicationLogger(),
+		   "exception when trying to get service ModuleWebRegistry");
+  }
+
+  if(mwr) mwr->clear(); // in case we are coming from stop we need to clear the mwr
 
   // instantiate the event processor
   try{
@@ -604,15 +629,6 @@ void FUEventProcessor::initEventProcessor()
     outprev_=outPut_;
     
     // to publish all module names to XDAQ infospace
-    ModuleWebRegistry *mwr = 0;
-    try{
-      if(edm::Service<ModuleWebRegistry>().isAvailable())
-	mwr = edm::Service<ModuleWebRegistry>().operator->();
-    }
-    catch(...) { 
-      LOG4CPLUS_INFO(getApplicationLogger(),
-		     "exception when trying to get service ModuleWebRegistry");
-    }
 
     if(mwr) 
       {
@@ -667,7 +683,7 @@ void FUEventProcessor::initEventProcessor()
       oss << i << "=" << evtProcessor_->stateName((edm::event_processor::State) i) << " ";
     }
   monitorInfoSpace_->lock();
-  macro_state_legend_ = oss.str();
+  if(getApplicationDescriptor()->getInstance() == 0) macro_state_legend_ = oss.str();
   //fill microstate legend information
   descs_ = evtProcessor_->getAllModuleDescriptions();
   trh_.resetFormat();
@@ -695,7 +711,7 @@ void FUEventProcessor::initEventProcessor()
 	  modmap_[descs_[i]->moduleLabel()]=outcount+modcount;
 	}
     }
-  micro_state_legend_ = oss2.str();
+  if(getApplicationDescriptor()->getInstance() == 0) micro_state_legend_ = oss2.str();
   monitorInfoSpace_->unlock();
   LOG4CPLUS_INFO(getApplicationLogger(),"FUEventProcessor configuration finished.");
   
@@ -846,6 +862,11 @@ void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
   *out << "    </a>"                                                 << endl;
   *out << "  </td>"                                                  << endl;
   *out << "</tr>"                                                    << endl;
+  *out << "<tr>"                                                     << endl;
+  *out << "  <td colspan=\"3\" align=\"right\">"                     << endl;
+  *out << "    Version 1.3.5"                                        << endl;
+  *out << "  </td>"                                                  << endl;
+  *out << "</tr>"                                                    << endl;
   *out << "</table>"                                                 << endl;
   
   *out << "<hr/>"                                                    << endl;
@@ -913,14 +934,32 @@ void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
 
   try{
     xdata::Serializable *lsid = ispace->find("lumiSectionIndex");
-    *out << "<tr>" << endl;
-    *out << "<td >" << endl;
-    *out << "Luminosity Section" << endl;
-    *out << "</td>" << endl;
-    *out << "<td>" << endl;
-    *out << lsid->toString() << endl;
-    *out << "</td>" << endl;
-    *out << "</tr>"                                            << endl;
+    if(lsid!=0){
+      *out << "<tr>" << endl;
+      *out << "<td >" << endl;
+      *out << "Luminosity Section" << endl;
+      *out << "</td>" << endl;
+      *out << "<td>" << endl;
+      *out << lsid->toString() << endl;
+      *out << "</td>" << endl;
+      *out << "</tr>"                                        << endl;
+    }
+  }
+  catch(xdata::exception::Exception e){
+  }
+
+  try{
+    xdata::Serializable *psid = ispace->find("prescaleSetIndex");
+    if(psid!=0) {
+      *out << "<tr>" << endl;
+      *out << "<td >" << endl;
+      *out << "Prescale Index" << endl;
+      *out << "</td>" << endl;
+      *out << "<td>" << endl;
+      *out << psid->toString() << endl;
+      *out << "</td>" << endl;
+      *out << "</tr>"                                        << endl;
+    }
   }
   catch(xdata::exception::Exception e){
   }
@@ -958,6 +997,14 @@ void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
   *out << "</tr>"                                            << endl;
   *out << "<tr>" << endl;
   *out << "<td >" << endl;
+  *out << "Has Module Web" << endl;
+  *out << "</td>" << endl;
+  *out << "<td>" << endl;
+  *out << hasModuleWebRegistry_.toString() << endl;
+  *out << "</td>" << endl;
+  *out << "</tr>"                                            << endl;
+  *out << "<tr>" << endl;
+  *out << "<td >" << endl;
   *out << "Monitor Sleep (s)" << endl;
   *out << "</td>" << endl;
   *out << "<td>" << endl;
@@ -972,6 +1019,25 @@ void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
   *out << squidPresent_.toString() << endl;
   *out << "</td>" << endl;
   *out << "</tr>"                                            << endl;
+  *out << "<tr>" << endl;
+  *out << "<td >" << endl;
+  *out << "Monitor WL " << endl;
+  *out << "</td>" << endl;
+  *out << "<td>" << endl;
+  if(wlMonitoring_!=0 && wlMonitoring_->isActive()) *out << (wlMonitoringActive_ ? "active" : "inactive");
+  else *out << "not initialized";
+  *out << "</td>" << endl;
+  *out << "</tr>"                                            << endl;
+  *out << "<tr>" << endl;
+  *out << "<td >" << endl;
+  *out << "Scalers WL " << endl;
+  *out << "</td>" << endl;
+  *out << "<td>" << endl;
+  if(wlScalers_!=0 && wlScalers_->isActive()) *out << (wlScalersActive_ ? "active" : "inactive");
+  else *out << "not initialized";
+  *out << "</td>" << endl;
+  *out << "</tr>"                                            << endl;
+
 
 
   *out << "</table>" << endl;
@@ -1426,6 +1492,7 @@ void FUEventProcessor::startScalersWorkLoop() throw (evf::Exception)
     asScalers_ = toolbox::task::bind(this,&FUEventProcessor::scalers,
 				      sourceId_+"Scalers");
     wlScalers_->submit(asScalers_);
+    wlScalersActive_ = true;
   }
   catch (xcept::Exception& e) {
     string msg = "Failed to start workloop 'Scalers'.";
@@ -1447,6 +1514,7 @@ void FUEventProcessor::startMonitoringWorkLoop() throw (evf::Exception)
     asMonitoring_ = toolbox::task::bind(this,&FUEventProcessor::monitoring,
 				      sourceId_+"Monitoring");
     wlMonitoring_->submit(asMonitoring_);
+    wlMonitoringActive_ = true;
   }
   catch (xcept::Exception& e) {
     string msg = "Failed to start workloop 'Monitoring'.";
@@ -1458,20 +1526,37 @@ void FUEventProcessor::startMonitoringWorkLoop() throw (evf::Exception)
 //______________________________________________________________________________
 bool FUEventProcessor::scalers(toolbox::task::WorkLoop* wl)
 {
+  ::sleep(1); //avoid synchronization issues at the start of the event loop
   edm::ServiceRegistry::Operate operate(serviceToken_);
-  squidPresent_ = squidnet_.check();
+  monitorInfoSpace_->lock();
   if(evtProcessor_)
     {
-      ::sleep(1);
       edm::event_processor::State st = evtProcessor_->getState();
-      if(st == edm::event_processor::sRunning)
+      monitorInfoSpace_->unlock();
+      if(st == edm::event_processor::sRunning && fsm_.stateName()->toString()=="Enabled")
 	{
-	  if(!getTriggerReport(true)) {return false;}
-	  //	  trh_.printReportTable();
-	  //	  scalersComplete_.writeTo(std::cout);
-	  if(!fireScalersUpdate()) return false;
+	  if(!getTriggerReport(true)) {
+	    wlScalersActive_ = false;
+	    return false;
+	  }
+	  if(!fireScalersUpdate()){
+	    wlScalersActive_ = false;
+	    return false;
+	  }
+	}
+      else 
+	{
+	  wlScalersActive_ = false;
+	  return false;
 	}
     }
+  else
+    {
+      monitorInfoSpace_->unlock();
+      wlScalersActive_ = false;
+      return false;
+    }
+  squidPresent_ = squidnet_.check();
   return true;
 }
 
@@ -1558,6 +1643,7 @@ bool FUEventProcessor::monitoring(toolbox::task::WorkLoop* wl)
 	    oss<<"EventProcessor::runAsync returned status code " << sc;
 	    reasonForFailedState_ = oss.str();
 	    fsm_.fireFailed(reasonForFailedState_,this);
+	    wlMonitoringActive_ = false;
 	    return false;
 	  }
 
@@ -1615,10 +1701,10 @@ bool FUEventProcessor::monitoring(toolbox::task::WorkLoop* wl)
 
 bool FUEventProcessor::fireScalersUpdate()
 {
+  scalersInfoSpace_->fireItemGroupChanged(names_,0);
   typedef set<xdaq::ApplicationDescriptor*> AppDescSet_t;
   typedef AppDescSet_t::iterator            AppDescIter_t;
   
-  // locate input BU
   AppDescSet_t rcms=
     getApplicationContext()->getDefaultZone()->
     getApplicationDescriptors("RCMSStateListener");
@@ -1682,7 +1768,6 @@ bool FUEventProcessor::fireScalersUpdate()
   disposition << "attachment; filename=" << "urn:xdaq-flashlist:scalers" << ".exdr; creation-date=" << "\"" << "dummy" << "\"";
   attachment->addMimeHeader("Content-Disposition",disposition.str());
   msg->addAttachmentPart(attachment);
-  //  msg->writeTo(std::cout);
   try{
     this->getApplicationContext()->postSOAP(msg,*(getApplicationDescriptor()),*appdesc);
   }

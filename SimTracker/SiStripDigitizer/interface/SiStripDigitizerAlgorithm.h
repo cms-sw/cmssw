@@ -61,7 +61,7 @@ class SiStripDigitizerAlgorithm
   //  void  run(edm::DetSet<SiStripDigi>&,edm::DetSet<SiStripRawDigi>&,const std::vector<PSimHit> &, StripGeomDetUnit *,GlobalVector,
   //	    float , edm::ESHandle<SiStripGain> &,edm::ESHandle<SiStripPedestals> &, edm::ESHandle<SiStripNoises> &);
   void  run(edm::DetSet<SiStripDigi>&,edm::DetSet<SiStripRawDigi>&,const std::vector<std::pair<PSimHit, int > >  &, StripGeomDetUnit *,GlobalVector,
-	    float , edm::ESHandle<SiStripGain> &,edm::ESHandle<SiStripThreshold> &, edm::ESHandle<SiStripNoises> &, edm::ESHandle<SiStripPedestals> &);
+	    float , edm::ESHandle<SiStripGain> &,edm::ESHandle<SiStripThreshold> &, edm::ESHandle<SiStripNoises> &);
 
   void setParticleDataTable(const ParticleDataTable * pdt);
   
@@ -88,7 +88,6 @@ class SiStripDigitizerAlgorithm
   int numStrips; 
   int strip;     
   float noiseRMS;
-  float pedValue;
   float cosmicShift;
 
   void push_link(const DigitalVecType&,

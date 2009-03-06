@@ -18,7 +18,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CalibCalorimetry/CaloTPG/src/CaloTPGTranscoderULUT.h"
 
 const float HcaluLUTTPGCoder::nominal_gain = 0.177; 
 
@@ -31,9 +30,6 @@ HcaluLUTTPGCoder::HcaluLUTTPGCoder(const char* filename, bool read_Ascii_LUTs) {
   else {
     getRecHitCalib(filename);
   }
-//  CaloTPGTranscoderULUT("CalibCalorimetry/CaloTPG/data/outputLUTtranscoder_CRUZET_part3_v2.dat","CalibCalorimetry/CaloTPG/data/TPGcalcDecompress_CRUZET4_v2.txt");
-//  CaloTPGTranscoderULUT("CalibCalorimetry/CaloTPG/data/outputLUTtranscoder_CRUZET_part3_v2.dat","");
-//  CaloTPGTranscoderULUT();
 }
 
 void HcaluLUTTPGCoder::PrintTPGMap() {
@@ -466,32 +462,32 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 	 }
        }        
        for (int ieta=-41; ieta <= 41; ieta++) {
-		HcalDetId cell(HcalForward,ieta,iphi,depth);
-		if (theTopo.valid(cell)) {  
-			id = GetLUTID(HcalForward,ieta,iphi,depth);
-			if (inputLUT[id] == 0) throw cms::Exception("PROBLEM: inputLUT has not been initialized for HF, ieta, iphi, depth, id = ") << ieta << "," << iphi << "," << depth << "," << id << std::endl;
+	 HcalDetId cell(HcalForward,ieta,iphi,depth);
+	 if (theTopo.valid(cell)) {  
+	   id = GetLUTID(HcalForward,ieta,iphi,depth);
+	   if (inputLUT[id] == 0) throw cms::Exception("PROBLEM: inputLUT has not been initialized for HF, ieta, iphi, depth, id = ") << ieta << "," << iphi << "," << depth << "," << id << std::endl;
 	   //conditions.makeHcalCalibration (cell, &calibrations);
-			HcalCalibrations calibrations = conditions.getHcalCalibrations(cell);
-			const HcalQIECoder* channelCoder = conditions.getHcalCoder (cell);
-			HcalCoderDb coder (*channelCoder, *shape);
-			float ped_ = (calibrations.pedestal(0)+calibrations.pedestal(1)+calibrations.pedestal(2)+calibrations.pedestal(3))/4;
-			float gain_= (calibrations.respcorrgain(0)+calibrations.respcorrgain(1)+calibrations.respcorrgain(2)+calibrations.respcorrgain(3))/4;          
+	   HcalCalibrations calibrations = conditions.getHcalCalibrations(cell);
+	   const HcalQIECoder* channelCoder = conditions.getHcalCoder (cell);
+	   HcalCoderDb coder (*channelCoder, *shape);
+	   float ped_ = (calibrations.pedestal(0)+calibrations.pedestal(1)+calibrations.pedestal(2)+calibrations.pedestal(3))/4;
+	   float gain_= (calibrations.respcorrgain(0)+calibrations.respcorrgain(1)+calibrations.respcorrgain(2)+calibrations.respcorrgain(3))/4;          
 
-			HFDataFrame frame(cell);
-			frame.setSize(1);
-			CaloSamples samples(cell, 1);
-			_ped[id] = ped_;
-			_gain[id] = gain_;
-			int offset = (abs(ieta) >= 33 && abs(ieta) <= 36) ? 1 : 0; // Lumi offset of 1 for the four rings used to measure lumi
-			for (int j = 0; j <= 0x7F; j++) {
-				HcalQIESample adc(j);
-				frame.setSample(0,adc);
-				coder.adc2fC(frame,samples);
-				float adc2fC_ = samples[0];
-				if (ieta < 0 ) inputLUT[id][j] = (LUT) std::min(std::max(0,int((adc2fC_ - ped_ + offset)*Rcalib[abs(ieta)+2]*gain_/lsb_/cosheta_[abs(ieta)])), 0x3FF);
-				else inputLUT[id][j] = (LUT) std::min(std::max(0,int((adc2fC_ - ped_ + offset)*Rcalib[abs(ieta)+45]*gain_/lsb_/cosheta_[abs(ieta)])), 0x3FF);
-			}
-		}
+
+	   HFDataFrame frame(cell);
+	   frame.setSize(1);
+	   CaloSamples samples(cell, 1);
+	   _ped[id] = ped_;
+           _gain[id] = gain_;
+	   for (int j = 0; j <= 0x7F; j++) {
+	     HcalQIESample adc(j);
+	     frame.setSample(0,adc);
+	     coder.adc2fC(frame,samples);
+	     float adc2fC_ = samples[0];
+	     if (ieta < 0 ) inputLUT[id][j] = (LUT) std::min(std::max(0,int((adc2fC_ - ped_)*Rcalib[abs(ieta)+2]*gain_/lsb_/cosheta_[abs(ieta)])), 0x3FF);
+	     else inputLUT[id][j] = (LUT) std::min(std::max(0,int((adc2fC_ - ped_)*Rcalib[abs(ieta)+45]*gain_/lsb_/cosheta_[abs(ieta)])), 0x3FF);
+	   }
+	 }
        }
      }
    }

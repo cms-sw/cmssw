@@ -20,13 +20,6 @@ public:
   virtual ~TrackingMaterialAnalyser();
   
 private:
-  enum SplitMode {
-    NEAREST_LAYER,
-    INNER_LAYER,
-    OUTER_LAYER,
-    UNDEFINED
-  };
-  
   void analyze(const edm::Event &, const edm::EventSetup &);
   void beginJob(const edm::EventSetup &);
   void endJob();
@@ -41,7 +34,6 @@ private:
   void saveLayerPlots();
   
   edm::InputTag                             m_material;
-  SplitMode                                 m_splitMode;
   bool                                      m_skipAfterLastDetector;
   bool                                      m_skipBeforeFirstDetector;
   bool                                      m_symmetricForwardLayers;

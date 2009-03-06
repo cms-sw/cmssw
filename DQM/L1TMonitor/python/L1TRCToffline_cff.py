@@ -26,7 +26,7 @@ from Configuration.StandardSequences.Geometry_cff import *
 from Configuration.StandardSequences.RawToDigi_Data_cff import *
 
 #emulator/comparator
-from L1Trigger.HardwareValidation.L1HardwareValidationGR_cff import *
+from L1Trigger.HardwareValidation.L1HardwareValidation_cff import *
 from L1Trigger.Configuration.L1Config_cff import *
 
 #for LUTs

@@ -11,23 +11,21 @@
 HcalCellType::HcalCellType(HcalSubdetector detType, int etaBin, int phiBin, 
 			   int depthSegment, HcalCellType::HcalCell cell, 
 			   int readoutDirection, double samplingFactor,
-			   int numberZ, int nmodule, double halfSize, 
-			   int units) :
+			   int numberZ, int nmodule) :
   theDetType(detType), theEtaBin(etaBin), theDepthSegment(depthSegment),
   theNumberOfZ(numberZ), theActualReadoutDirection(readoutDirection), 
-  theUnitPhi(units), theSamplingFactor(samplingFactor){
+  theSamplingFactor(samplingFactor) {
 
   theEtaMin   = cell.eta - cell.deta;
   theEtaMax   = cell.eta + cell.deta;
   theRzFlag   = cell.flagrz;
-  theDepthMin = (cell.rz  - cell.drz)/cm;
-  theDepthMax = (cell.rz  + cell.drz)/cm;
+  theDepthMin = cell.rz  - cell.drz;
+  theDepthMax = cell.rz  + cell.drz;
   int nphi           = (int)(10*deg/cell.dphi);
   theNumberOfPhiBins = nphi*nmodule;
   double phimin      = cell.phi - cell.dphi;
   thePhiOffset       = (phimin - 2*(phiBin-1)*cell.dphi)/deg;
   thePhiBinWidth     = 2*(cell.dphi)/deg;
-  theHalfSize        = halfSize/cm;
 }
 
 HcalCellType::HcalCellType(const HcalCellType &right) {
@@ -38,7 +36,6 @@ HcalCellType::HcalCellType(const HcalCellType &right) {
   theNumberOfPhiBins        = right.theNumberOfPhiBins;
   theNumberOfZ              = right.theNumberOfZ;
   theActualReadoutDirection = right.theActualReadoutDirection;
-  theUnitPhi                = right.theUnitPhi;
   theRzFlag                 = right.theRzFlag;
   theEtaMin                 = right.theEtaMin;
   theEtaMax                 = right.theEtaMax;
@@ -46,7 +43,6 @@ HcalCellType::HcalCellType(const HcalCellType &right) {
   thePhiBinWidth            = right.thePhiBinWidth;
   theDepthMin               = right.theDepthMin;
   theDepthMax               = right.theDepthMax;
-  theHalfSize               = right.theHalfSize;
   theSamplingFactor         = right.theSamplingFactor;
 }
 
@@ -58,9 +54,8 @@ std::ostream& operator<<(std::ostream& os, const HcalCellType& cell) {
      << cell.depthSegment() << " (" << cell.depthMin() << ":" 
      << cell.depthMax() << "; " << cell.depthType() << ") Phi " 
      << cell.nPhiBins() << " ("	<< cell.phiOffset() << ", "
-     << cell.phiBinWidth() << ", " << cell.nPhiModule() << ", "
-     << cell.unitPhi() << ") Halves " << cell.nHalves() << " Direction " 
-     << cell.actualReadoutDirection() << " Half size " << cell.halfSize() 
+     << cell.phiBinWidth() << ", " << cell.nPhiModule() << ") Halves " 
+     << cell.nHalves() << " Direction " << cell.actualReadoutDirection()
      << " Sampling Factor " << cell.samplingFactor();
   return os;
 }

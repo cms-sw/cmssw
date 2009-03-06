@@ -158,19 +158,25 @@ fit(const TrajectorySeed& aSeed,
 	LogTrace("TrackFitters") << "First measurement is invalid";
 	Trajectory tmpTraj(smoothed[0].seed(),smoothed[0].direction());
 	Trajectory::DataContainer meas = smoothed[0].measurements();
-
-	Trajectory::DataContainer::iterator it;//first valid hit
-	for (it=meas.begin();it!=meas.end();++it) {
+	
+	for (Trajectory::DataContainer::iterator it=meas.begin();it!=meas.end();++it) {
 	  if (!it->recHit()->isValid()) continue;
-	  else break;
+	  else {
+	    LogTrace("TrackFitters") << "First valid measurement is: " << it-meas.begin();
+	    const KFTrajectorySmoother* myKFSmoother = dynamic_cast<const KFTrajectorySmoother*>(smoother());
+	    if (!myKFSmoother) throw cms::Exception("TrackFitters") << "trying to use outliers rejection with a smoother different from KFTrajectorySmoother. Please disable outlier rejection.";
+	    const MeasurementEstimator* estimator = myKFSmoother->estimator();
+	    for (Trajectory::DataContainer::iterator itt=it;itt!=meas.end();++itt) {
+	      if (itt->recHit()->isValid()) 
+		tmpTraj.push(*itt,estimator->estimate(itt->backwardPredictedState(),*itt->recHit()).second);//chi2!!!!!!
+	      else tmpTraj.push(*itt);
+	    }
+	    break;
+	  }
 	}
-	tmpTraj.push(*it,smoothed[0].chiSquared());//push the first valid measurement and set the same global chi2
-	for (Trajectory::DataContainer::iterator itt=it+1;itt!=meas.end();++itt) {
-	  tmpTraj.push(*itt,0);//add all the other measurements
-	}
-
 	smoothed.clear();
 	smoothed.push_back(tmpTraj);
+	
       }
     }
     

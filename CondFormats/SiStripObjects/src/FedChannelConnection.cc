@@ -76,9 +76,11 @@ const uint16_t& FedChannelConnection::i2cAddr( const uint16_t& apv ) const {
   if      ( apv == 0 ) { return apv0_; }
   else if ( apv == 1 ) { return apv1_; }
   else {
-    edm::LogWarning(mlCabling_)
-      << "[FedChannelConnection::" << __func__ << "]"
-      << " Unexpected APV I2C address!" << apv;
+    if ( edm::isDebugEnabled() ) {
+      edm::LogWarning(mlCabling_)
+	<< "[FedChannelConnection::" << __func__ << "]"
+	<< " Unexpected APV I2C address!" << apv;
+    }
     static const uint16_t i2c_addr = 0;
     return i2c_addr;
   }
@@ -92,11 +94,13 @@ uint16_t FedChannelConnection::lldChannel() const {
   else if ( apv0_ == 36 || apv1_ == 37 ) { return 3; }
   else if ( apv0_ != sistrip::invalid_ ||
 	    apv1_ != sistrip::invalid_ ) {
-    edm::LogWarning(mlCabling_)
-      << "[FedChannelConnection::" << __func__ << "]"
-      << " Unexpected APV I2C addresses!" 
-      << " Apv0: " << apv0_
-      << " Apv1: " << apv1_;
+    if ( edm::isDebugEnabled() ) {
+      edm::LogWarning(mlCabling_)
+	<< "[FedChannelConnection::" << __func__ << "]"
+	<< " Unexpected APV I2C addresses!" 
+	<< " Apv0: " << apv0_
+	<< " Apv1: " << apv1_;
+    }
   }
   return 0; //@@ sistrip::invalid_
 }
@@ -108,31 +112,37 @@ uint16_t FedChannelConnection::apvPairNumber() const {
     if      ( apv0_ == 32 || apv1_ == 33 ) { return 0; }
     else if ( apv0_ == 36 || apv1_ == 37 ) { return 1; }
     else { 
-      edm::LogWarning(mlCabling_)
-	<< "[FedChannelConnection::" << __func__ << "]"
-	<< " APV I2C addresses (" 
-	<< apv0_ << "/" << apv1_
-	<< ") are incompatible with"
-	<< " number of APV pairs (" 
-	<< nApvPairs_ << ") found for this module!";
+      if ( edm::isDebugEnabled() ) {
+	edm::LogWarning(mlCabling_)
+	  << "[FedChannelConnection::" << __func__ << "]"
+	  << " APV I2C addresses (" 
+	  << apv0_ << "/" << apv1_
+	  << ") are incompatible with"
+	  << " number of APV pairs (" 
+	  << nApvPairs_ << ") found for this module!";
+      }
     }
   } else if ( nApvPairs_ == 3 ) {
     if      ( apv0_ == 32 || apv1_ == 33 ) { return 0; }
     else if ( apv0_ == 34 || apv1_ == 35 ) { return 1; }
     else if ( apv0_ == 36 || apv1_ == 37 ) { return 2; }
     else { 
-      edm::LogWarning(mlCabling_)
-	<< "[FedChannelConnection::" << __func__ << "]"
-	<< " APV I2C addresses (" 
-	<< apv0_ << "/" << apv1_
-	<< ") are incompatible with"
-	<< " number of APV pairs (" 
-	<< nApvPairs_ << ") found for this module!";
+      if ( edm::isDebugEnabled() ) {
+	edm::LogWarning(mlCabling_)
+	  << "[FedChannelConnection::" << __func__ << "]"
+	  << " APV I2C addresses (" 
+	  << apv0_ << "/" << apv1_
+	  << ") are incompatible with"
+	  << " number of APV pairs (" 
+	  << nApvPairs_ << ") found for this module!";
+      }
     }
-  } else { //@@ commented out due to complaints from hlt guys when running hlt code
-//     edm::LogWarning(mlCabling_) 
-//       << "[FedChannelConnection::" << __func__ << "]"
-//       << " Unexpected number of APV pairs: " << nApvPairs_;
+  } else { 
+    if ( edm::isDebugEnabled() ) {
+      edm::LogWarning(mlCabling_) 
+	<< "[FedChannelConnection::" << __func__ << "]"
+	<< " Unexpected number of APV pairs: " << nApvPairs_;
+    }
   }
   return 0; //@@ sistrip::invalid_;
 }

@@ -8,7 +8,6 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
-#include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
@@ -27,11 +26,6 @@ namespace edm
   MixingModule::MixingModule(const edm::ParameterSet& ps_mix) : BMixingModule(ps_mix),labelPlayback_(ps_mix.getParameter<std::string>("LabelPlayback"))
 
   {
-    useCurrentProcessOnly_=false;
-    if (ps_mix.exists("useCurrentProcessOnly")) {
-      useCurrentProcessOnly_=ps_mix.getParameter<bool>("useCurrentProcessOnly");
-      LogWarning("MixingModule") <<" using given Parameter 'useCurrentProcessOnly' ="<<useCurrentProcessOnly_;
-    }
     if (labelPlayback_.size()>0){
       sel_=new Selector( ModuleLabelSelector(labelPlayback_));
     }
@@ -165,15 +159,22 @@ namespace edm
       LogWarning("MixingModule")<<"!!!!!!!!!Could not find in registry requested object: "<<object<<" with "<<tag<<".\nWill NOT be considered for mixing!!!!!!!!!";
       return false;
     }
-
-    //if useCurrentProcessOnly, we have to change the input tag
-    if (useCurrentProcessOnly_) {
-      const std::string processName = edm::Service<edm::service::TriggerNamesService>()->getProcessName();
-
-      tag = InputTag(tag.label(),tag.instance(),processName);
-    }    
+    
     return true;
   }
+
+//   Selector * MixingModule::createSelector(InputTag &tag){
+//     //FIXME: how to distinguish in input tags between ="" and any?
+//     Selector *sel=0;
+//     if (tag.label()=="") {
+//       if (tag.instance()=="")  sel = new Selector(MatchAllSelector());
+//       else sel = new Selector(ProductInstanceNameSelector(tag.instance()));
+//     } else {
+//       if (tag.instance()=="") sel =new Selector(ModuleLabelSelector(tag.label()));
+//       else sel =new Selector(ModuleLabelSelector(tag.label()) && ProductInstanceNameSelector(tag.instance()));
+//     }
+//     return sel;
+//   }
 
   void MixingModule::beginJob(edm::EventSetup const&iSetup) {
   }

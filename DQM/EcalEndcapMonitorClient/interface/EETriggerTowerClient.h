@@ -4,8 +4,8 @@
 /*
  * \file EETriggerTowerClient.h
  *
- * $Date: 2008/09/05 13:38:05 $
- * $Revision: 1.28 $
+ * $Date: 2008/06/25 14:16:16 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -96,9 +96,8 @@ std::vector<int> superModules_;
 
 DQMStore* dqmStore_;
 
-MonitorElement* meh01_;
-MonitorElement* meh02_;
-
+MonitorElement* meh01_[18];
+MonitorElement* meh02_[18];
 MonitorElement* mei01_[18];
 MonitorElement* mei02_[18];
 MonitorElement* mej01_[18];
@@ -108,8 +107,8 @@ MonitorElement* mel01_[18];
 MonitorElement* mem01_[18];
 MonitorElement* men01_[18];
 
-TH2F* h01_;
-TH2F* h02_;
+TH3F* h01_[18];
+TH3F* h02_[18];
 TH3F* i01_[18];
 TH3F* i02_[18];
 TH3F* j01_[18];

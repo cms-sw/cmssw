@@ -178,13 +178,25 @@ CSCDCCExaminer::CSCDCCExaminer(unsigned long mask):nERRORS(29),nWARNINGS(5),nPAY
   DAV_CFEB = 0;
   DMB_Active  = 0;
   nDMBs = 0;
+
   DDU_WordsSinceLastHeader     = 0;
   DDU_WordCount                = 0;
   DDU_WordMismatch_Occurrences = 0;
   DDU_WordsSinceLastTrailer    = 0;
 
+  ALCT_WordsSinceLastHeader    = 0;
+  ALCT_WordCount               = 0;
+  ALCT_WordsExpected           = 0;
+
+  TMB_WordsSinceLastHeader     = 0;
+  TMB_WordCount                = 0;
+  TMB_WordsExpected            = 0;
+  TMB_Tbins                    = 0;
   TMB_WordsExpectedCorrection  = 0;
-  zeroCounts();
+
+  CFEB_SampleWordCount         = 0;
+  CFEB_SampleCount             = 0;
+  CFEB_BSampleCount            = 0;
 
   checkCrcALCT = false; ALCT_CRC=0;
   checkCrcTMB  = false; TMB_CRC=0;
@@ -196,7 +208,30 @@ CSCDCCExaminer::CSCDCCExaminer(unsigned long mask):nERRORS(29),nWARNINGS(5),nPAY
 
   //headerDAV_Active = -1; // Trailer vs. Header check // Obsolete since 16.09.05
 
-  clear();
+
+  bERROR   = 0;
+  bWARNING = 0;
+  bzero(fERROR,  sizeof(fERROR));
+  bzero(fWARNING,sizeof(fWARNING));
+
+  bCHAMB_ERR.clear();
+  bCHAMB_WRN.clear();
+  bCHAMB_PAYLOAD.clear();
+  bCHAMB_STATUS.clear();
+
+  for(int err=0; err<nERRORS;   ++err) fCHAMB_ERR[err].clear();
+  for(int wrn=0; wrn<nWARNINGS; ++wrn) fCHAMB_WRN[wrn].clear();
+
+  bDDU_ERR.clear();
+  bDDU_WRN.clear();
+
+  dduBuffers.clear();
+  dmbBuffers.clear();
+  dduOffsets.clear();
+  dmbOffsets.clear();
+  dduSize.clear();
+  dmbSize.clear();
+
   buf_1 = &(tmpbuf[0]);
   buf0  = &(tmpbuf[4]);
   buf1  = &(tmpbuf[8]);
@@ -273,8 +308,25 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 	  return length+12;
 	}
 
+    dduBuffers.clear();
+    dmbBuffers.clear();
+    dduOffsets.clear();
+    dmbOffsets.clear();
+    dduSize.clear();
+    dmbSize.clear();
+
     fDCC_Header  = true;
-    clear();
+    bzero(fERROR,   sizeof(bool)*nERRORS);
+    bzero(fWARNING, sizeof(bool)*nWARNINGS);
+    bERROR = 0; bWARNING = 0;
+    for(int err=0; err<nERRORS;   ++err) fCHAMB_ERR[err].clear();
+    for(int wrn=0; wrn<nWARNINGS; ++wrn) fCHAMB_WRN[wrn].clear();
+    bCHAMB_ERR.clear();
+    bCHAMB_WRN.clear();
+    bCHAMB_PAYLOAD.clear();
+    bCHAMB_STATUS.clear();
+    bDDU_ERR.clear();
+    bDDU_WRN.clear();
 	  }
 	}
     // == Check for Format Control Words, set proper flags, perform self-consistency checks
@@ -296,8 +348,77 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
     if( /*buf0[0]==0x8000 &&*/ buf0[1]==0x8000 && buf0[2]==0x0001 && buf0[3]==0x8000 ){
       // headerDAV_Active = (buf1[1]<<16) | buf1[0]; // Obsolete since 16.09.05
 /////////////////////////////////////////////////////////
-        checkDAVs();
-        checkTriggerHeadersAndTrailers();
+	if( DAV_ALCT ){
+	  fERROR[21] = true;
+	  bERROR   |= 0x200000;
+	  fCHAMB_ERR[21].insert(currentChamber);
+	  bCHAMB_ERR[currentChamber] |= 0x200000;
+	  DAV_ALCT = false;
+	}
+	if( DAV_TMB  ){
+	  fERROR[22] = true;
+	  bERROR   |= 0x400000;
+	  fCHAMB_ERR[22].insert(currentChamber);
+	  bCHAMB_ERR[currentChamber] |= 0x400000;
+	  DAV_TMB = false;
+	}
+	if( DAV_CFEB && DAV_CFEB!=-16){
+	  fERROR[23] = true;
+	  bERROR   |= 0x800000;
+	  fCHAMB_ERR[23].insert(currentChamber);
+	  bCHAMB_ERR[currentChamber] |= 0x800000;
+	  DAV_CFEB = 0;
+	}
+
+      if( !fALCT_Header && ( ALCT_WordsSinceLastHeader!=ALCT_WordCount || ALCT_WordsSinceLastHeader!=ALCT_WordsExpected ) ){
+	fERROR[9] = true;
+	bERROR   |= 0x200;
+	fCHAMB_ERR[9].insert(currentChamber);
+	bCHAMB_ERR[currentChamber] |= 0x200;
+	ALCT_WordsSinceLastHeader = 0;
+	ALCT_WordCount            = 0;
+	ALCT_WordsSinceLastHeader = 0;
+	ALCT_WordsExpected        = 0;
+      } // ALCT Word Count Error
+
+      if( !fTMB_Header && ( TMB_WordsSinceLastHeader!=TMB_WordCount || TMB_WordsSinceLastHeader!=TMB_WordsExpected ) ){
+	fERROR[14] = true;
+	bERROR    |= 0x4000;
+	fCHAMB_ERR[14].insert(currentChamber);
+	bCHAMB_ERR[currentChamber] |= 0x4000;
+	TMB_WordsSinceLastHeader = 0;
+	TMB_WordCount            = 0;
+	TMB_WordsSinceLastHeader = 0;
+	TMB_WordsExpected        = 0;
+      } // TMB Word Count Error
+
+      if( (CFEB_SampleCount%8)!=0 ){
+	fERROR[17] = true;
+	bERROR    |= 0x20000;
+	fCHAMB_ERR[17].insert(currentChamber);
+	bCHAMB_ERR[currentChamber] |= 0x20000;
+	CFEB_SampleCount = 0;
+      } // Number of CFEB samples != 8*n
+
+      if(fALCT_Header) {
+	fERROR[7] = true;  // ALCT Trailer is missing
+	bERROR   |= 0x80;
+	fCHAMB_ERR[7].insert(currentChamber);
+	bCHAMB_ERR[currentChamber] |= 0x80;
+	ALCT_WordsSinceLastHeader = 0;
+	ALCT_WordsExpected        = 0;
+	fALCT_Header = 0;
+      }
+
+      if(fTMB_Header) {
+	fERROR[12]=true;	// TMB Trailer is missing
+	bERROR   |= 0x1000;
+	fCHAMB_ERR[12].insert(currentChamber);
+	bCHAMB_ERR[currentChamber] |= 0x1000;
+	TMB_WordsSinceLastHeader = 0;
+	TMB_WordsExpected        = 0;
+	fTMB_Header = false;
+      }
 /////////////////////////////////////////////////////////
 
       if( fDDU_Header ){
@@ -384,11 +505,36 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
       fTMB_Format2007= false;
       uniqueALCT    = true;
       uniqueTMB     = true;
-      zeroCounts();
+      ALCT_WordsSinceLastHeader = 0;
+      ALCT_WordCount            = 0;
+      ALCT_WordsExpected        = 0;
+      TMB_WordsSinceLastHeader  = 0;
+      TMB_WordCount             = 0;
+      TMB_WordsExpected         = 0;
+      TMB_Tbins                 = 0;
+      CFEB_SampleWordCount      = 0;
+      CFEB_SampleCount          = 0;
+      CFEB_BSampleCount         = 0;
 
       if (modeDDUonly) {
          fDCC_Header  = true;
-         clear();
+         bzero(fERROR,   sizeof(bool)*nERRORS);
+         bzero(fWARNING, sizeof(bool)*nWARNINGS);
+         bERROR = 0; bWARNING = 0;
+         for(int err=0; err<nERRORS;   ++err) fCHAMB_ERR[err].clear();
+         for(int wrn=0; wrn<nWARNINGS; ++wrn) fCHAMB_WRN[wrn].clear();
+         bCHAMB_ERR.clear();
+         bCHAMB_WRN.clear();
+         bCHAMB_PAYLOAD.clear();
+         bCHAMB_STATUS.clear();
+         bDDU_ERR.clear();
+         bDDU_WRN.clear();
+         dduBuffers.clear();
+         dduOffsets.clear();
+         dmbBuffers.clear();
+         dmbOffsets.clear();
+         dduSize.clear();
+         dmbSize.clear();
       }
 
 	  dduBuffers[sourceID] = buf_1;
@@ -428,8 +574,77 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
     // == DMB Header found
     if( (buf0[0]&0xF000)==0xA000 && (buf0[1]&0xF000)==0xA000 && (buf0[2]&0xF000)==0xA000 && (buf0[3]&0xF000)==0xA000 ){
 /////////////////////////////////////////////////////////
-      checkDAVs();
-      checkTriggerHeadersAndTrailers();
+	if( DAV_ALCT ){
+	  fERROR[21] = true;
+	  bERROR   |= 0x200000;
+	  fCHAMB_ERR[21].insert(currentChamber);
+	  bCHAMB_ERR[currentChamber] |= 0x200000;
+	  DAV_ALCT = false;
+	}
+	if( DAV_TMB  ){
+	  fERROR[22] = true;
+	  bERROR   |= 0x400000;
+	  fCHAMB_ERR[22].insert(currentChamber);
+	  bCHAMB_ERR[currentChamber] |= 0x400000;
+	  DAV_TMB = false;
+	}
+	if( DAV_CFEB && DAV_CFEB!=-16){
+	  fERROR[23] = true;
+	  bERROR   |= 0x800000;
+	  fCHAMB_ERR[23].insert(currentChamber);
+	  bCHAMB_ERR[currentChamber] |= 0x800000;
+	  DAV_CFEB = 0;
+	}
+
+      if( !fALCT_Header && ( ALCT_WordsSinceLastHeader!=ALCT_WordCount || ALCT_WordsSinceLastHeader!=ALCT_WordsExpected ) ){
+	fERROR[9] = true;
+	bERROR   |= 0x200;
+	fCHAMB_ERR[9].insert(currentChamber);
+	bCHAMB_ERR[currentChamber] |= 0x200;
+	ALCT_WordsSinceLastHeader = 0;
+	ALCT_WordCount            = 0;
+	ALCT_WordsSinceLastHeader = 0;
+	ALCT_WordsExpected        = 0;
+      } // ALCT Word Count Error
+
+      if( !fTMB_Header && ( TMB_WordsSinceLastHeader!=TMB_WordCount || TMB_WordsSinceLastHeader!=TMB_WordsExpected ) ){
+	fERROR[14] = true;
+	bERROR    |= 0x4000;
+	fCHAMB_ERR[14].insert(currentChamber);
+	bCHAMB_ERR[currentChamber] |= 0x4000;
+	TMB_WordsSinceLastHeader = 0;
+	TMB_WordCount            = 0;
+	TMB_WordsSinceLastHeader = 0;
+	TMB_WordsExpected        = 0;
+      } // TMB Word Count Error
+
+      if( (CFEB_SampleCount%8)!=0 ){
+	fERROR[17] = true;
+	bERROR    |= 0x20000;
+	fCHAMB_ERR[17].insert(currentChamber);
+	bCHAMB_ERR[currentChamber] |= 0x20000;
+	CFEB_SampleCount = 0;
+      } // Number of CFEB samples != 8*n
+
+      if(fALCT_Header) {
+	fERROR[7] = true;  // ALCT Trailer is missing
+	bERROR   |= 0x80;
+	fCHAMB_ERR[7].insert(currentChamber);
+	bCHAMB_ERR[currentChamber] |= 0x80;
+	ALCT_WordsSinceLastHeader = 0;
+	ALCT_WordsExpected        = 0;
+	fALCT_Header = 0;
+      }
+
+      if(fTMB_Header) {
+	fERROR[12]=true;	// TMB Trailer is missing
+	bERROR   |= 0x1000;
+	fCHAMB_ERR[12].insert(currentChamber);
+	bCHAMB_ERR[currentChamber] |= 0x1000;
+	TMB_WordsSinceLastHeader = 0;
+	TMB_WordsExpected        = 0;
+	fTMB_Header = false;
+      }
 /////////////////////////////////////////////////////////
 
       if( DDU_WordsSinceLastHeader>3 && !fDMB_Header && !fDMB_Trailer && !nDMBs ){
@@ -477,7 +692,16 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
       fTMB_Format2007= false;
       uniqueALCT   = true;
       uniqueTMB    = true;
-      zeroCounts();
+      ALCT_WordsSinceLastHeader = 0;
+      ALCT_WordCount            = 0;
+      ALCT_WordsExpected        = 0;
+      TMB_WordsSinceLastHeader  = 0;
+      TMB_WordCount             = 0;
+      TMB_WordsExpected         = 0;
+      TMB_Tbins                 = 0;
+      CFEB_SampleWordCount      = 0;
+      CFEB_SampleCount          = 0;
+      CFEB_BSampleCount         = 0;
       CFEB_CRC                  = 0;
 
       nDMBs++;
@@ -756,8 +980,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
       //    	2) for extra 4 frames in the new RPC-aware format and
       //         for RPC raw hit data, if present
       if( buf_1[1]==0x6E0C ) {
-        // RPW add 4 for TMB trailer
-	TMB_WordsExpected = TMB_WordsExpected + 4+ 2;	//
+	TMB_WordsExpected = TMB_WordsExpected + 2;	//
 	if( buf_1[0]==0x6E04 )
 	  TMB_WordsExpected = TMB_WordsExpected + 4 + TMB_WordsExpectedCorrection;
       }
@@ -858,17 +1081,17 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
     // == DMB F-Trailer found
     if( (buf0[0]&0xF000)==0xF000 && (buf0[1]&0xF000)==0xF000 && (buf0[2]&0xF000)==0xF000 && (buf0[3]&0xF000)==0xF000 ){
       if(!fDMB_Header){
-        currentChamber = buf0[3]&0x0FFF;
+    currentChamber = buf0[3]&0x0FFF;
 	fERROR[6] = true;
 	bERROR   |= 0x40;
 	fCHAMB_ERR[6].insert(currentChamber);
 	bCHAMB_ERR[currentChamber] |= 0x40;
-        nDMBs++;
-        // Set variables if we are waiting ALCT, TMB and CFEB records to be present in event
-        if( buf0[0]&0x0400 ) bCHAMB_PAYLOAD[currentChamber] |= 0x20;
-        if( buf0[0]&0x0800 ) bCHAMB_PAYLOAD[currentChamber] |= 0x40;
-        bCHAMB_PAYLOAD[currentChamber] |= (buf0[0]&0x001f)<<7;
-        bCHAMB_PAYLOAD[currentChamber] |=((buf0[0]>>5)&0x1f);
+    nDMBs++;
+      // Set variables if we are waiting ALCT, TMB and CFEB records to be present in event
+      if( buf0[0]&0x0400 ) bCHAMB_PAYLOAD[currentChamber] |= 0x20;
+      if( buf0[0]&0x0800 ) bCHAMB_PAYLOAD[currentChamber] |= 0x40;
+      bCHAMB_PAYLOAD[currentChamber] |= (buf0[0]&0x001f)<<7;
+      bCHAMB_PAYLOAD[currentChamber] |=((buf0[0]>>5)&0x1f);
 
       } // DMB Header is missing
       fDMB_Header  = false;
@@ -879,7 +1102,27 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
       dmbSize[sourceID][currentChamber] = buf0 - dmbBuffers[sourceID][currentChamber];
 
       // Finally check if DAVs were correct
-      checkDAVs();
+      if( DAV_ALCT ){
+	fERROR[21] = true;
+	bERROR   |= 0x200000;
+	fCHAMB_ERR[21].insert(currentChamber);
+	bCHAMB_ERR[currentChamber] |= 0x200000;
+	DAV_ALCT = false;
+      }
+      if( DAV_TMB  ){
+	fERROR[22] = true;
+	bERROR   |= 0x400000;
+	fCHAMB_ERR[22].insert(currentChamber);
+	bCHAMB_ERR[currentChamber] |= 0x400000;
+	DAV_TMB = false;
+      }
+      if( DAV_CFEB && DAV_CFEB!=-16 ){
+	fERROR[23] = true;
+	bERROR   |= 0x800000;
+	fCHAMB_ERR[23].insert(currentChamber);
+	bCHAMB_ERR[currentChamber] |= 0x800000;
+	DAV_CFEB = 0;
+      }
 
       // If F-Trailer is lost then do necessary work here
       if( (buf1[0]&0xF000)!=0xE000 || (buf1[1]&0xF000)!=0xE000 || (buf1[2]&0xF000)!=0xE000 || (buf1[3]&0xF000)!=0xE000 ){
@@ -948,11 +1191,79 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 	fCHAMB_ERR[0].insert(currentChamber);
 	bCHAMB_ERR[currentChamber] |= 0x1;
 	// Check if DAVs were correct here
-        checkDAVs();
+	if( DAV_ALCT ){
+	  fERROR[21] = true;
+	  bERROR   |= 0x200000;
+	  fCHAMB_ERR[21].insert(currentChamber);
+	  bCHAMB_ERR[currentChamber] |= 0x200000;
+	  DAV_ALCT = false;
+	}
+	if( DAV_TMB  ){
+	  fERROR[22] = true;
+	  bERROR   |= 0x400000;
+	  fCHAMB_ERR[22].insert(currentChamber);
+	  bCHAMB_ERR[currentChamber] |= 0x400000;
+	  DAV_TMB = false;
+	}
+	if( DAV_CFEB && DAV_CFEB!=-16){
+	  fERROR[23] = true;
+	  bERROR   |= 0x800000;
+	  fCHAMB_ERR[23].insert(currentChamber);
+	  bCHAMB_ERR[currentChamber] |= 0x800000;
+	  DAV_CFEB = 0;
+	}
       }
       fDMB_Trailer = false;
 
-     checkTriggerHeadersAndTrailers();
+      if( !fALCT_Header && ( ALCT_WordsSinceLastHeader!=ALCT_WordCount || ALCT_WordsSinceLastHeader!=ALCT_WordsExpected ) ){
+	fERROR[9] = true;
+	bERROR   |= 0x200;
+	fCHAMB_ERR[9].insert(currentChamber);
+	bCHAMB_ERR[currentChamber] |= 0x200;
+	ALCT_WordsSinceLastHeader = 0;
+	ALCT_WordCount            = 0;
+	ALCT_WordsSinceLastHeader = 0;
+	ALCT_WordsExpected        = 0;
+      } // ALCT Word Count Error
+
+      if( !fTMB_Header && ( TMB_WordsSinceLastHeader!=TMB_WordCount || TMB_WordsSinceLastHeader!=TMB_WordsExpected ) ){
+	fERROR[14] = true;
+	bERROR    |= 0x4000;
+	fCHAMB_ERR[14].insert(currentChamber);
+	bCHAMB_ERR[currentChamber] |= 0x4000;
+	TMB_WordsSinceLastHeader = 0;
+	TMB_WordCount            = 0;
+	TMB_WordsSinceLastHeader = 0;
+	TMB_WordsExpected        = 0;
+      } // TMB Word Count Error
+
+      if( (CFEB_SampleCount%8)!=0 ){
+	fERROR[17] = true;
+	bERROR    |= 0x20000;
+	fCHAMB_ERR[17].insert(currentChamber);
+	bCHAMB_ERR[currentChamber] |= 0x20000;
+	CFEB_SampleCount = 0;
+      } // Number of CFEB samples != 8*n
+
+      if(fALCT_Header) {
+	fERROR[7] = true;  // ALCT Trailer is missing
+	bERROR   |= 0x80;
+	fCHAMB_ERR[7].insert(currentChamber);
+	bCHAMB_ERR[currentChamber] |= 0x80;
+	ALCT_WordsSinceLastHeader = 0;
+	ALCT_WordsExpected        = 0;
+	fALCT_Header = 0;
+      }
+
+      if(fTMB_Header) {
+	fERROR[12]=true;	// TMB Trailer is missing
+	bERROR   |= 0x1000;
+	fCHAMB_ERR[12].insert(currentChamber);
+	bCHAMB_ERR[currentChamber] |= 0x1000;
+	TMB_WordsSinceLastHeader = 0;
+	TMB_WordsExpected        = 0;
+	fTMB_Header = false;
+      }
 
       //
       for(int err=0; err<nERRORS; ++err)
@@ -1000,10 +1311,77 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
       //			}
       //			headerDAV_Active = -1;
 /////////////////////////////////////////////////////////
-      checkDAVs();
+	if( DAV_ALCT ){
+	  fERROR[21] = true;
+	  bERROR   |= 0x200000;
+	  fCHAMB_ERR[21].insert(currentChamber);
+	  bCHAMB_ERR[currentChamber] |= 0x200000;
+	  DAV_ALCT = false;
+	}
+	if( DAV_TMB  ){
+	  fERROR[22] = true;
+	  bERROR   |= 0x400000;
+	  fCHAMB_ERR[22].insert(currentChamber);
+	  bCHAMB_ERR[currentChamber] |= 0x400000;
+	  DAV_TMB = false;
+	}
+	if( DAV_CFEB && DAV_CFEB!=-16){
+	  fERROR[23] = true;
+	  bERROR   |= 0x800000;
+	  fCHAMB_ERR[23].insert(currentChamber);
+	  bCHAMB_ERR[currentChamber] |= 0x800000;
+	  DAV_CFEB = 0;
+	}
 
-      checkTriggerHeadersAndTrailers();
+      if( !fALCT_Header && ( ALCT_WordsSinceLastHeader!=ALCT_WordCount || ALCT_WordsSinceLastHeader!=ALCT_WordsExpected ) ){
+	fERROR[9] = true;
+	bERROR   |= 0x200;
+	fCHAMB_ERR[9].insert(currentChamber);
+	bCHAMB_ERR[currentChamber] |= 0x200;
+	ALCT_WordsSinceLastHeader = 0;
+	ALCT_WordCount            = 0;
+	ALCT_WordsSinceLastHeader = 0;
+	ALCT_WordsExpected        = 0;
+      } // ALCT Word Count Error
 
+      if( !fTMB_Header && ( TMB_WordsSinceLastHeader!=TMB_WordCount || TMB_WordsSinceLastHeader!=TMB_WordsExpected ) ){
+	fERROR[14] = true;
+	bERROR    |= 0x4000;
+	fCHAMB_ERR[14].insert(currentChamber);
+	bCHAMB_ERR[currentChamber] |= 0x4000;
+	TMB_WordsSinceLastHeader = 0;
+	TMB_WordCount            = 0;
+	TMB_WordsSinceLastHeader = 0;
+	TMB_WordsExpected        = 0;
+      } // TMB Word Count Error
+
+      if( (CFEB_SampleCount%8)!=0 ){
+	fERROR[17] = true;
+	bERROR    |= 0x20000;
+	fCHAMB_ERR[17].insert(currentChamber);
+	bCHAMB_ERR[currentChamber] |= 0x20000;
+	CFEB_SampleCount = 0;
+      } // Number of CFEB samples != 8*n
+
+      if(fALCT_Header) {
+	fERROR[7] = true;  // ALCT Trailer is missing
+	bERROR   |= 0x80;
+	fCHAMB_ERR[7].insert(currentChamber);
+	bCHAMB_ERR[currentChamber] |= 0x80;
+	ALCT_WordsSinceLastHeader = 0;
+	ALCT_WordsExpected        = 0;
+	fALCT_Header = 0;
+      }
+
+      if(fTMB_Header) {
+	fERROR[12]=true;	// TMB Trailer is missing
+	bERROR   |= 0x1000;
+	fCHAMB_ERR[12].insert(currentChamber);
+	bCHAMB_ERR[currentChamber] |= 0x1000;
+	TMB_WordsSinceLastHeader = 0;
+	TMB_WordsExpected        = 0;
+	fTMB_Header = false;
+      }
 /////////////////////////////////////////////////////////
 
       if( DDU_WordsSinceLastHeader>3 && !nDMBs ){
@@ -1142,121 +1520,4 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
   memcpy((void*)tmpbuf,(void*)(buffer-16),sizeof(short)*16);
 
   return -1;
-}
-
-
-void CSCDCCExaminer::clear()
-{
-  bzero(fERROR,   sizeof(bool)*nERRORS);
-  bzero(fWARNING, sizeof(bool)*nWARNINGS);
-  bERROR = 0; bWARNING = 0;
-  for(int err=0; err<nERRORS;   ++err) fCHAMB_ERR[err].clear();
-  for(int wrn=0; wrn<nWARNINGS; ++wrn) fCHAMB_WRN[wrn].clear();
-  bCHAMB_ERR.clear();
-  bCHAMB_WRN.clear();
-  bCHAMB_PAYLOAD.clear();
-  bCHAMB_STATUS.clear();
-  bDDU_ERR.clear();
-  bDDU_WRN.clear();
-  dduBuffers.clear();
-  dduOffsets.clear();
-  dmbBuffers.clear();
-  dmbOffsets.clear();
-  dduSize.clear();
-  dmbSize.clear();
-}
-
-
-void CSCDCCExaminer::zeroCounts()
-{
-  ALCT_WordsSinceLastHeader = 0;
-  ALCT_WordCount            = 0;
-  ALCT_WordsExpected        = 0;
-  TMB_WordsSinceLastHeader  = 0;
-  TMB_WordCount             = 0;
-  TMB_WordsExpected         = 0;
-  TMB_Tbins                 = 0;
-  CFEB_SampleWordCount      = 0;
-  CFEB_SampleCount          = 0;
-  CFEB_BSampleCount         = 0;
-}
-
-
-void CSCDCCExaminer::checkDAVs() 
-{
-  if( DAV_ALCT ){
-    fERROR[21] = true;
-    bERROR   |= 0x200000;
-    fCHAMB_ERR[21].insert(currentChamber);
-    bCHAMB_ERR[currentChamber] |= 0x200000;
-    DAV_ALCT = false;
-  }
-  if( DAV_TMB  ){
-    fERROR[22] = true;
-    bERROR   |= 0x400000;
-    fCHAMB_ERR[22].insert(currentChamber);
-    bCHAMB_ERR[currentChamber] |= 0x400000;
-    DAV_TMB = false;
-  }
-  if( DAV_CFEB && DAV_CFEB!=-16){
-    fERROR[23] = true;
-    bERROR   |= 0x800000;
-    fCHAMB_ERR[23].insert(currentChamber);
-    bCHAMB_ERR[currentChamber] |= 0x800000;
-    DAV_CFEB = 0;
-  }
-}
-
-
-void CSCDCCExaminer::checkTriggerHeadersAndTrailers()
-{
-  if( !fALCT_Header && ( ALCT_WordsSinceLastHeader!=ALCT_WordCount || ALCT_WordsSinceLastHeader!=ALCT_WordsExpected ) ){
-    fERROR[9] = true;
-    bERROR   |= 0x200;
-    fCHAMB_ERR[9].insert(currentChamber);
-    bCHAMB_ERR[currentChamber] |= 0x200;
-    ALCT_WordsSinceLastHeader = 0;
-    ALCT_WordCount            = 0;
-    ALCT_WordsSinceLastHeader = 0;
-    ALCT_WordsExpected        = 0;
-  } // ALCT Word Count Error
-
-  if( !fTMB_Header && ( TMB_WordsSinceLastHeader!=TMB_WordCount || TMB_WordsSinceLastHeader!=TMB_WordsExpected ) ){
-    fERROR[14] = true;
-    bERROR    |= 0x4000;
-    fCHAMB_ERR[14].insert(currentChamber);
-    bCHAMB_ERR[currentChamber] |= 0x4000;
-    TMB_WordsSinceLastHeader = 0;
-    TMB_WordCount            = 0;
-    TMB_WordsSinceLastHeader = 0;
-    TMB_WordsExpected        = 0;
-  } // TMB Word Count Error
-
-  if( (CFEB_SampleCount%8)!=0 ){
-    fERROR[17] = true;
-    bERROR    |= 0x20000;
-    fCHAMB_ERR[17].insert(currentChamber);
-    bCHAMB_ERR[currentChamber] |= 0x20000;
-    CFEB_SampleCount = 0;
-  } // Number of CFEB samples != 8*n
-
-  if(fALCT_Header) {
-    fERROR[7] = true;  // ALCT Trailer is missing
-    bERROR   |= 0x80;
-    fCHAMB_ERR[7].insert(currentChamber);
-    bCHAMB_ERR[currentChamber] |= 0x80;
-    ALCT_WordsSinceLastHeader = 0;
-    ALCT_WordsExpected        = 0;
-    fALCT_Header = 0;
-  }
-
-  if(fTMB_Header) {
-    fERROR[12]=true;        // TMB Trailer is missing
-    bERROR   |= 0x1000;
-    fCHAMB_ERR[12].insert(currentChamber);
-    bCHAMB_ERR[currentChamber] |= 0x1000;
-    TMB_WordsSinceLastHeader = 0;
-    TMB_WordsExpected        = 0;
-    fTMB_Header = false;
-  }
 }

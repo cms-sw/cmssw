@@ -8,8 +8,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2008/07/29 10:56:05 $
-//   $Revision: 1.14 $
+//   $Date: 2008/02/25 21:33:24 $
+//   $Revision: 1.12 $
 //
 //   Modifications:
 //
@@ -63,12 +63,11 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
 		(sect <= 0 || sect > MAX_SECTORS)    ||
 		(subs <= 0 || subs > MAX_SUBSECTORS) ||
 		(cham <= 0 || stat > MAX_CHAMBERS)) {
-	      edm::LogError("CSCTriggerPrimitivesBuilder")
-		<< "+++ trying to instantiate TMB of illegal CSC id ["
+	      throw cms::Exception("CSCTriggerPrimitivesBuilder")
+		<< "+++ trying to instantiate TMB of illegal CSC:"
 		<< " endcap = "  << endc << " station = "   << stat
 		<< " sector = "  << sect << " subsector = " << subs
-		<< " chamber = " << cham << "]; skipping it... +++\n";
-	      continue;
+		<< " chamber = " << cham << " +++" << std::endl;
 	    }
 	    // When the motherboard is instantiated, it instantiates ALCT
 	    // and CLCT processors.
@@ -235,11 +234,12 @@ void CSCTriggerPrimitivesBuilder::build(const CSCWireDigiCollection* wiredc,
   for (; itr != result.end(); itr++) {
     oc_sorted_lct.insertDigi(CSCDetId(itr->getDetId().rawId()), *(itr->getDigi()));
     LogDebug("L1CSCTrigger")
-      << "MPC " << *(itr->getDigi()) << " found in ME"
-      << ((itr->endcap() == 1) ? "+" : "-") << itr->station() << "/"
-      << CSCDetId(itr->getDetId().rawId()).ring() << "/"
-      << CSCDetId(itr->getDetId().rawId()).chamber()
-      << " (sector " << itr->sector()
-      << " trig id. " << itr->cscid() << ")" << "\n";
+      << "MPC " << *(itr->getDigi()) << " found in"
+      << " endcap "    << itr->endcap()
+      << " station "   << itr->station()
+      << " sector "    << itr->sector()
+      << " ring "      << CSCDetId(itr->getDetId().rawId()).ring()
+      << " chamber "   << CSCDetId(itr->getDetId().rawId()).chamber()
+      << " (trig id. " << itr->cscid() << ")" << "\n";
   }
 }

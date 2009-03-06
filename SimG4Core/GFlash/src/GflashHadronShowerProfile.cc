@@ -14,13 +14,12 @@
 
 #include <math.h>
 
-GflashHadronShowerProfile::GflashHadronShowerProfile(G4Region* envelope, edm::ParameterSet parSet) : theParSet(parSet)
+GflashHadronShowerProfile::GflashHadronShowerProfile(G4Region* envelope)
 {
   showerType   = 0;
   jCalorimeter = Gflash::kNULL;
   theHelix = new GflashTrajectory;
   theHisto = GflashHistogram::instance();
-  theBField = parSet.getParameter<double>("bField");
 
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable()) {
@@ -84,7 +83,7 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
   // unit convention: energy in [GeV] and length in [cm]
 
   // maximum number of energy spots 
-  const G4int    maxNumberOfSpots = 100000;  
+  const G4int    maxNumberOfSpots = 10000;  
 
   // low energy cutoff (unit in GeV)
   //  const G4double energyCutoff     = 0.01; 
@@ -110,8 +109,12 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
 
   // The direction of shower is assumed to be along the showino trajectory 
   // inside the magnetic field;
+
+  const G4double bField = 4.0*tesla; 
+
   double charge = fastTrack.GetPrimaryTrack()->GetStep()->GetPreStepPoint()->GetCharge();
-  theHelix->initializeTrajectory(momentumShower,positionShower,charge,theBField/tesla);
+
+  theHelix->initializeTrajectory(momentumShower,positionShower,charge,bField/tesla);
 
   //path Length from the origin to the shower starting point in cm
 
@@ -149,7 +152,7 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
   G4double pathLength  = pathLength0; // this will grow along the shower development
 
   // Limit number of spots to maxNumberOfSpots
-  G4int numberOfSpots = getNumberOfSpots(einc);
+  G4int numberOfSpots = std::max( 50, static_cast<int>(800.*std::log(einc)+50.));
   numberOfSpots = std::min(numberOfSpots,maxNumberOfSpots);
 
   // Spot energy to simulate sampling fluctuations (SampleEnergySpot) and
@@ -169,6 +172,7 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
   aEnergySpotList.clear();
 
   double scaleLateral = 0.0;
+  const double rMoliere = 2.19; //Moliere Radius in [cm]
 
   while(stepLengthLeft > 0.0) {
 
@@ -188,9 +192,8 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
     // energy in this deltaStep along the longitudinal shower profile
     double deltaEnergy = 0.;
 
-    //double heightProfile = longitudinalProfile(showerDepth,pathLength,transDepth);
-    //@@@O.K, we need the better way of passing arguments here, use like this temporarily
-    double heightProfile = longitudinalProfile(showerDepth,pathLength,transDepth,positionShower,einc);
+    double heightProfile = longitudinalProfile(showerDepth,pathLength,transDepth);
+    //    deltaEnergy =  longitudinalProfile(showerDepth)*divisionStep*energyToDeposit;    
     deltaEnergy =  heightProfile*divisionStep*energyToDeposit;    
     
     //@@@ When depthShower is inside Hcal, the sampling fluctuation for deposited
@@ -201,23 +204,6 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
     G4double fluctuatedEnergy = deltaEnergy;
     G4int nSpotsInStep = std::max(1,static_cast<int>(fluctuatedEnergy/spotEnergy));
     G4double sampleSpotEnergy = hadronicFraction*fluctuatedEnergy/nSpotsInStep;
-
-    //@@@@syjun trial consideration for Sampling Detector - only for the central detector
-    //until we optimize the reduction scale in the number of Nspots
-    // trajectoryPoint for along the longitudinal profile center
-    GflashTrajectoryPoint trajectoryShowino;
-    theHelix->getGflashTrajectoryPoint(trajectoryShowino,pathLength);
-
-    G4double rhoShowino = (trajectoryShowino.getPosition()).getRho();
-
-    if(rhoShowino < Gflash::Rmin[Gflash::kHB] ) {
-      nSpotsInStep = nSpotsInStep/50;
-      sampleSpotEnergy = sampleSpotEnergy*50.0;
-    }
-    else {
-      nSpotsInStep = nSpotsInStep/10;
-      sampleSpotEnergy = sampleSpotEnergy*10.0;
-    }
 
     // Sampling fluctuations determine the number of spots:
     //    if (insideSampling(positionShower)) samplingFluctuation(fluctuatedEnergy,einc); 
@@ -248,19 +234,19 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
 
     //@@@this should be each spot basis
     if(showerType == 4 || showerType == 8) {
-      scaleLateral = (3.5+1.0*showerDepth)*Gflash::rMoliere[jCalorimeter];
+      scaleLateral = (3.5+1.0*showerDepth)*rMoliere;
     }
     else {
       //@@@need better division for showerDepth arosse the Hcal front face
       if(showerDepthR50 < 2.0 ) {
-	scaleLateral = (5.5-0.4*std::log(einc))*Gflash::rMoliere[jCalorimeter];
+	scaleLateral = (5.5-0.4*std::log(einc))*rMoliere;
       }
       else {
-	scaleLateral = ( 14-1.5*std::log(einc))*Gflash::rMoliere[jCalorimeter];
+	scaleLateral = ( 14-1.5*std::log(einc))*rMoliere;
       }
     }
-    // region0 && inside Ecal: scaleLateral = (5.5-0.4*logEinc)*Gflash::rMoliere[jCalorimeter];
-    // region0 && inside Hcal: scaleLateral = (14-1.5*logEinc)*Gflash::rMoliere[jCalorimeter];
+    // region0 && inside Ecal: scaleLateral = (5.5-0.4*logEinc)*rMoliere;
+    // region0 && inside Hcal: scaleLateral = (14-1.5*logEinc)*rMoliere;
     // region1                 
 
     R50 *= scaleLateral;
@@ -466,8 +452,7 @@ void GflashHadronShowerProfile::loadParameters(const G4FastTrack& fastTrack)
   lateralPar[3] = 0.20 * lateralPar[2];
 }
 
-G4double GflashHadronShowerProfile::longitudinalProfile(G4double showerDepth, G4double pathLength, G4double transDepth,
-							const G4ThreeVector pos,G4double einc){
+G4double GflashHadronShowerProfile::longitudinalProfile(G4double showerDepth, G4double pathLength, G4double transDepth){
 
   G4double heightProfile = 0;
 
@@ -483,10 +468,6 @@ G4double GflashHadronShowerProfile::longitudinalProfile(G4double showerDepth, G4
 
   double x = 0.0;
   //get parameters
-  double dlength = 0.0;
-  double dlevel = 0.0;
-  double dscale = 0.0;
-
   if(showerType == 1 || showerType == 2 ) {
     //    std::cout << " pathLength tempPoint.getPosition().getRho()=  "  << pathLength << " "  << tempPoint.getPosition().getRho() << std::endl;
     if(tempPoint.getPosition().getRho() < 150.0 ) { 
@@ -495,13 +476,7 @@ G4double GflashHadronShowerProfile::longitudinalProfile(G4double showerDepth, G4
     }
     else if (tempPoint.getPosition().getRho() > Gflash::Rmin[Gflash::kHB] ){
       x = showerDepth;
-
-      //shower starting point depedence
-      dlength = 2.18301e+01+2.15602e+00*std::tanh(1.40888e+00*(std::log(einc)-3.60780e+00));
-      dlevel = 8.25244e-01+3.40168e-02*std::tanh(2.68191e+00*(std::log(einc)-2.95289e+00));
-      dscale = dlevel+std::pow((pos.getRho() - Gflash::Rmin[Gflash::kESPM])/dlength,2.0);
-
-      heightProfile = dscale*longPar[0][4]*std::exp(-x/longPar[0][5]);
+      heightProfile = longPar[0][4]*std::exp(-x/longPar[0][5]);
       heightProfile *= Gflash::ScaleSensitive;
     }
     else heightProfile = 0.;
@@ -640,32 +615,4 @@ void GflashHadronShowerProfile::doCholeskyReduction(double **vv, double **cc, co
       }
     }
   }
-}
-G4int GflashHadronShowerProfile::getNumberOfSpots(G4double einc) {
-  //generator number of spots: energy dependent Gamma distribution of Nspots based on Geant4
-  //replacing old parameterization of H1, 
-  //G4int numberOfSpots = std::max( 50, static_cast<int>(80.*std::log(einc)+50.));
-
-  G4int numberOfSpots = 0;
-  G4double alphaNspots = 0.0;
-  G4double betaNspots  = 0.0;
-
-  if(showerType == 1 || showerType == 2 || showerType == 5 || showerType == 6 ) {
-    alphaNspots = 1.37719e+01+1.27901e+01*std::tanh(5.83278e-01*(std::log(einc)-2.71949e+00));
-    betaNspots  = 1.43212e-01-1.43340e-01*std::tanh(2.62593e-01*(std::log(einc)+8.94369e+00));
-  }
-  else if (showerType == 3 || showerType == 4 || showerType == 7 || showerType == 8 ) {
-    alphaNspots = 7.27190e+00+2.63063e+00*std::tanh(2.44278e+00*(std::log(einc)-2.16815e+00));
-    betaNspots  = 2.11525e-01-2.11634e-01*std::tanh(3.78206e-01*(std::log(einc)+6.06337e+00));
-  }
-  else {
-    alphaNspots = 5;
-    betaNspots  = 0.01;
-  }
-
-  //@@@need correlation and individual fluctuation on alphaNspots and betaNspots here:
-  //evaluating covariance should be straight forward since the distribution is 'one' Gamma
-
-  numberOfSpots = std::max(500,static_cast<int> (theRandGamma->fire(alphaNspots,betaNspots)));
-  return numberOfSpots;
 }

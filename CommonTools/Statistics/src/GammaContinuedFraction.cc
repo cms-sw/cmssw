@@ -1,4 +1,5 @@
 #include "CommonTools/Statistics/src/GammaContinuedFraction.h"
+#include "CommonTools/Statistics/src/GammaLn.h"
 #include <cmath>
 #include <iostream>
 

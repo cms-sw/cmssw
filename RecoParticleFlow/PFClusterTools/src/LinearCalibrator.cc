@@ -60,46 +60,45 @@ LinearCalibrator* LinearCalibrator::create() const {
 
 std::map<DetectorElementPtr, double> LinearCalibrator::getCalibrationCoefficientsCore()
 		throw(PFToolsException&) {
-//	std::cout << __PRETTY_FUNCTION__
-//			<< ": determining linear calibration coefficients...\n";
+	std::cout << __PRETTY_FUNCTION__
+			<< ": determining linear calibration coefficients...\n";
 	if (!hasParticles()) {
 		//I have no particles to calibrate to - throw exception.
 		PFToolsException me("Calibrator has no particles for calibration!");
 		throw me;
 	}
-	//std::cout << "\tGetting eij matrix...\n";
+	std::cout << "\tGetting eij matrix...\n";
 	TMatrixD eij;
 	TVectorD truthE;
 	initEijMatrix(eij, truthE);
 
-//	std::cout << "\tEij matrix:\n";
-//	printMat(std::cout, eij);
+	//std::cout << "\tEij matrix:\n";
+	//printMat(std::cout, eij);
 
-	//std::cout << "\tGetting projections...\n";
+	std::cout << "\tGetting projections...\n";
 	TVectorD proj;
 	TMatrixD hess;
 
 	getProjections(eij, proj, truthE);
-	//std::cout << "\tProjections:\n";
-	//printVec(std::cout, proj);
+	std::cout << "\tProjections:\n";
+	printVec(std::cout, proj);
 	getHessian(eij, hess, truthE);
 
 	TDecompLU lu;
 	lu.SetMatrix(hess);
-	//std::cout << "\tHessian:\n";
-	//printMat(std::cout, hess);
+	std::cout << "\tHessian:\n";
+	printMat(std::cout, hess);
 
 	lu.SetTol(1e-25);
 	TMatrixD hessInv = lu.Invert();
-	//std::cout <<"\tInverse Hessian:\n";
-	//printMat(std::cout, hessInv);
+	std::cout <<"\tInverse Hessian:\n";
+	printMat(std::cout, hessInv);
 	TVectorD calibsSolved(eij.GetNcols());
 
 	bool ok(true);
 	calibsSolved = lu.Solve(proj, ok);
-	if (ok) {
-		//std::cout << "\tLU reports ok.\n";
-	}
+	if (ok)
+		std::cout << "\tLU reports ok.\n";
 	else {
 		std::cout << "\tWARNING: LU reports NOT ok.\n";
 		//This usually happens when you've asked the calibrator to solve for the 'a' term, without including
@@ -116,8 +115,8 @@ std::map<DetectorElementPtr, double> LinearCalibrator::getCalibrationCoefficient
 		throw me;
 	}
 
-	//std::cout << "\tCalibrations: \n";
-	//printVec(std::cout, calibsSolved);
+	std::cout << "\tCalibrations: \n";
+	printVec(std::cout, calibsSolved);
 
 	std::map<DetectorElementPtr, double> answers;
 	for (std::map<DetectorElementPtr, unsigned>::iterator it =
@@ -155,7 +154,7 @@ void LinearCalibrator::initEijMatrix(TMatrixD& eij, TVectorD& truthE) {
 			eij[index][myDetElIndex[de]] = p->getRecEnergy(de);
 			//truthE[p->getId()] += p->getTruthEnergy(de);
 		}
-		truthE[index] = p->getTruthEnergy();
+		truthE[index] += p->getTruthEnergy();
 		++index;
 	}
 
@@ -198,7 +197,7 @@ void LinearCalibrator::populateDetElIndex() {
 	//reserve index = 0 for the constant term, if we're told to compute it
 	unsigned index(0);
 
-	myDetElIndex.clear();
+	//myDetElIndex.clear();
 	//loop over known detector elements, and assign a unique row/column index to each
 	for (std::vector<DetectorElementPtr>::const_iterator cit =
 			myDetectorElements.begin(); cit != myDetectorElements.end(); ++cit) {

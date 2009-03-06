@@ -6,6 +6,7 @@
 <use name=DataFormats/DetId>
 <use name=Geometry/CommonDetUnit>
 <use name=DQMServices/Core>
+<use name=root>
 <use name=clhep>
 <use name=DataFormats/Math>
 

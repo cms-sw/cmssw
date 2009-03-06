@@ -43,10 +43,6 @@ public:
 		return (particleEnergy_ -  truthEnergy_) / truthEnergy_;
 	}
 	
-	double ratio() const {
-		return(particleEnergy_/truthEnergy_);
-	}
-	
 	/*
 	 * Which calibrator made this?
 	 */
@@ -76,30 +72,12 @@ public:
 	 */
 	CalibrationTarget target_;
 	
-	/*
-	 * (reco - truth)/truth
-	 */
 	double bias_;
-	
-	/*
-	 * reco/truth
-	 */
-	double ratio_;
-
-	/*
-	* Target function contribution
-	*/
-	double targetFuncContrib_;
-	
-	double a_;
-	double b_;
-	double c_;
 
 private:
 	
 	virtual void computeCore() {
 		bias_ = bias();
-		ratio_ = ratio();
 	}
 	
 	virtual void resetCore() {
@@ -110,11 +88,6 @@ private:
 		provenance_ = UNCALIBRATED;
 		target_ = UNDEFINED;
 		bias_ = 0;
-		ratio_ = 1.0;
-		targetFuncContrib_ = 0;
-		a_ = 0.0;
-		b_ = 1.0;
-		c_ = 1.0;
 	}
 
 };

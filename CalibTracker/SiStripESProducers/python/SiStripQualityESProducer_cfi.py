@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-SiStripQualityESProducer = cms.ESProducer("SiStripQualityESProducer",
+siStripQualityESProducer = cms.ESProducer("SiStripQualityESProducer",
     appendToDataLabel = cms.string(''),
     ListOfRecordToMerge = cms.VPSet(cms.PSet(
         record = cms.string('SiStripBadModuleRcd'),
@@ -15,7 +15,7 @@ SiStripQualityESProducer = cms.ESProducer("SiStripQualityESProducer",
             tag = cms.string('SiStripBadChannel_v1')
         )
     ),
-    ReduceGranularity = cms.bool(False),
+    ReduceGranularity = cms.bool(True),
     ThresholdForReducedGranularity = cms.double(0.3)                                                                                  
 )
 

@@ -5,11 +5,4 @@
   <class name="edm::Wrapper<std::map<int, std::vector<int> > >"/>
   <class name="RPCRawDataCounts"/>
   <class name="edm::Wrapper<RPCRawDataCounts>"/>
-
-  <class name="LinkBoardElectronicIndex"/>
-  <class name="edm::Wrapper<LinkBoardElectronicIndex>"/>
-  <class name="std::pair<LinkBoardElectronicIndex,int>"/>
-  <class name="edm::Wrapper< std::pair<LinkBoardElectronicIndex,int> >"/>
-  <class name="std::vector< std::pair<LinkBoardElectronicIndex, int> >"/> 
-  <class name="edm::Wrapper< std::vector< std::pair<LinkBoardElectronicIndex, int> > >"/>  
 </lcgdict>

@@ -13,7 +13,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Mon Apr 14 11:39:51 CEST 2008
-// $Id: ConfigurableAnalysis.cc,v 1.5 2008/08/31 16:03:06 vlimant Exp $
+// $Id: ConfigurableAnalysis.cc,v 1.1 2008/06/21 11:43:27 vlimant Exp $
 //
 //
 
@@ -29,14 +29,12 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "PhysicsTools/UtilAlgos/interface/Selections.h"
 #include "PhysicsTools/UtilAlgos/interface/Plotter.h"
 #include "PhysicsTools/UtilAlgos/interface/NTupler.h"
-#include "PhysicsTools/UtilAlgos/interface/InputTagDistributor.h"
 
 //
 // class decleration
@@ -58,6 +56,7 @@ class ConfigurableAnalysis : public edm::EDFilter {
 
   std::vector<std::string> flows_;
   bool workAsASelector_;
+  std::string vHelperInstance_;
 };
 
 //
@@ -75,14 +74,14 @@ ConfigurableAnalysis::ConfigurableAnalysis(const edm::ParameterSet& iConfig) :
   selections_(0), plotter_(0), ntupler_(0)
 {
 
-  std::string moduleLabel = iConfig.getParameter<std::string>("@module_label");
+  vHelperInstance_ = iConfig.getParameter<std::string>("@module_label");
 
   //configure inputag distributor
   if (iConfig.exists("InputTags"))
-    edm::Service<InputTagDistributorService>()->init(moduleLabel,iConfig.getParameter<edm::ParameterSet>("InputTags"));
+    InputTagDistributor::init(vHelperInstance_,iConfig.getParameter<edm::ParameterSet>("InputTags"));
 
   //configure the variable helper
-  edm::Service<VariableHelperService>()->init(moduleLabel,iConfig.getParameter<edm::ParameterSet>("Variables"));
+  VariableHelperInstance::init(vHelperInstance_,iConfig.getParameter<edm::ParameterSet>("Variables"));
 
   //list of selections
   selections_ = new Selections(iConfig.getParameter<edm::ParameterSet>("Selections"));
@@ -116,7 +115,7 @@ ConfigurableAnalysis::ConfigurableAnalysis(const edm::ParameterSet& iConfig) :
 
 ConfigurableAnalysis::~ConfigurableAnalysis()
 {
-  delete selections_;
+  
 }
 
 
@@ -131,6 +130,8 @@ bool ConfigurableAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
   //will the filter pass or not.
   bool majorGlobalAccept=false;
+
+  InputTagDistributor::set(vHelperInstance_);
 
   std::auto_ptr<std::vector<bool> > passedProduct(new std::vector<bool>(flows_.size(),false));
   bool filledOnce=false;  
@@ -153,9 +154,9 @@ bool ConfigurableAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSe
     std::string separator="";
     std::string cumulative="";
     std::string allButOne="allBut_";
-    std::string fullAccept="fullAccept";
-    std::string fullContent="fullContent";
+    std::string fullAccept="fullAccept_";
 
+    std::string fullContent="fullContent_";
     if (selection->makeContentPlots() && plotter_)
       plotter_->fill(fullContent,iEvent);
 

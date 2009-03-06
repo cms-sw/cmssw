@@ -38,7 +38,7 @@ calotoweroptmaker = cms.EDFilter("CaloTowersCreator",
     # Weighting factor for EE   
     EEWeight = cms.double(1.0),
     # HO on/off flag for tower energy reconstruction
-    UseHO = cms.bool(True),
+    UseHO = cms.bool(False),  # no HO contribution
     HBWeights = cms.untracked.vdouble(1.0, 1.0, 1.0, 1.0, 1.0),
     # Weighting factor for HE 5-degree cells   
     HESWeight = cms.double(1.0),
@@ -85,4 +85,5 @@ calotoweroptmaker = cms.EDFilter("CaloTowersCreator",
     EBGrid = cms.untracked.vdouble(-1.0, 1.0, 10.0, 100.0, 1000.0)
 )
 
-
+calotoweroptmakerWithHO = calotoweroptmaker.clone()
+calotoweroptmakerWithHO.UseHO = True

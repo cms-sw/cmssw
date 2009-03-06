@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2008/03/10 11:28:30 $
- * $Revision: 1.12 $
+ * $Date: 2006/05/09 13:57:21 $
+ * $Revision: 1.10 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -70,16 +70,15 @@ void DTSegmentCand::removeHit(AssPoint badHit) {
 
 int DTSegmentCand::nSharedHitPairs(const DTSegmentCand& seg) const{
   int result=0;
-  AssPointCont hitsCont = seg.hits();
-
   for (AssPointCont::const_iterator hit=theHits.begin(); 
        hit!=theHits.end() ; ++hit) {
+    AssPointCont hitsCont = seg.hits();
     for (AssPointCont::const_iterator hit2=hitsCont.begin();
          hit2!=hitsCont.end() ; ++hit2) {
       //  if(result) return result ; // TODO, uncomm this line or move it in another func
       if ((*(*hit).first)==(*(*hit2).first)) {
         ++result;
-        continue;
+	continue;
       }
     }
   }
@@ -89,12 +88,10 @@ int DTSegmentCand::nSharedHitPairs(const DTSegmentCand& seg) const{
 DTSegmentCand::AssPointCont
 DTSegmentCand::conflictingHitPairs(const DTSegmentCand& seg) const{
   AssPointCont result;
-  AssPointCont hitCont = seg.hits();
-  
-//  if (nSharedHitPairs(seg)==0) return result;
-
+  if (nSharedHitPairs(seg)==0) return result;
   for (AssPointCont::const_iterator hit=theHits.begin(); 
        hit!=theHits.end() ; ++hit) {
+    AssPointCont hitCont = seg.hits();
     for (AssPointCont::const_iterator hit2 = hitCont.begin();
          hit2!=hitCont.end() ; ++hit2) {
       if ((*(*hit).first)==(*(*hit2).first) &&
@@ -204,3 +201,4 @@ std::ostream& operator<<(std::ostream& out, const DTSegmentCand::AssPoint& hit) 
   //     " " << hit.second  << " Lay " << (hit.first)->layerNumber() << endl;
   return out;
 }
+

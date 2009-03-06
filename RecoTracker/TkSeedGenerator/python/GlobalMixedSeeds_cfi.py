@@ -13,6 +13,7 @@ globalMixedSeeds = cms.EDProducer("SeedGeneratorFromRegionHitsEDProducer",
         RegionPSetBlock,
         ComponentName = cms.string('GlobalRegionProducer')
     ),
+    SeedMomentumForBOFF = cms.double(5.0), 
     TTRHBuilder = cms.string('WithTrackAngle')
 )
 

@@ -1,5 +1,5 @@
 #!/bin/sh
-#$Id: t0inject.sh,v 1.8 2008/05/19 19:41:37 loizides Exp $
+#$Id: t0inject.sh,v 1.9 2008/06/12 13:56:05 loizides Exp $
 
 . /etc/init.d/functions
 
@@ -69,6 +69,7 @@ status(){
     for pid in `ps ax | grep ${SMT0_IW} | grep -v grep | cut -b1-6 | tr -d " "`; do
 	echo `/bin/ps $pid | grep $pid`
     done
+    ls /tmp/.2*-`hostname`-*.log.lock 2>/dev/null
 }
 
 cleanup(){
@@ -82,9 +83,11 @@ cleanup(){
 case "$1" in
     start)
 	start
+        status
         ;;
     stop)
         stop
+        status
         ;;
     status)
         status

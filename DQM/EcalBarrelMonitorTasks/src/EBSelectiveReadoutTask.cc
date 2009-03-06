@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2008/07/30 16:20:33 $
- * $Revision: 1.13 $
+ * $Date: 2008/07/28 14:59:51 $
+ * $Revision: 1.12 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -16,18 +16,15 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
-
-#include "DQMServices/Core/interface/DQMStore.h"
-
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <DQM/EcalCommon/interface/Numbers.h>
-
 #include <DQM/EcalBarrelMonitorTasks/interface/EBSelectiveReadoutTask.h>
 
 using namespace cms;

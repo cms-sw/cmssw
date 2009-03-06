@@ -1,3 +1,4 @@
+
 #ifndef POPCON_POPCON_H
 #define POPCON_POPCON_H
 //
@@ -49,6 +50,7 @@ namespace popcon {
      template<typename T>
        void writeOne(T * payload, Time_t time);
 
+   
     
      
   private:
@@ -98,31 +100,29 @@ namespace popcon {
   
  
   template<typename Container>
-   const std::string displayIovHelper(Container const & payloads, bool sinceAppend) {
+    const std::string displayIovHelper(Container const & payloads, bool sinceAppend) {
     typename Container::const_iterator it;
     size_t i =0, j=0;
-    std::ostringstream s; std::ostringstream ss;
+    std::ostringstream s; std::ostringstream ss; 
     // when only 1 payload is transferred; 
-   
     for (it = payloads.begin(); it != payloads.end(); it++){
       i++; 
-      if (i ==1)   s<<  (sinceAppend ? "Since " :" Till ") << (*it).second <<  "; " ;
+      if (i ==1)   s <<(sinceAppend ? "Since " :" Till ") << (*it).second <<  "; " ;
     }
-   
     // when more than one payload are transferred;  
     if (i>1) {
-      ss << "\n transferred " << i << " payloads:\n "  ;
+      ss << "\ntransferred " << i << " payloads:\n"  ;
       for (it = payloads.begin(); it != payloads.end(); it++){
 	j++;
-	if (j==1) ss <<   " first payload " << (sinceAppend ? "Since " :" Till ") << (*it).second <<  ";\n " ;
-	if (j==i) ss<< " last payload " << (sinceAppend ? "Since " :" Till ") << (*it).second <<  ";\n " ;  
+	if (j==1) ss <<   "first payload " << (sinceAppend ? "Since " :" Till ") << (*it).second <<  ";\n" ;
+	if (j==i) ss<< "last payload " << (sinceAppend ? "Since " :" Till ") << (*it).second <<  ";\n" ;  
       }  
     } 
-    
     return ( (i ==1)  ?  s.str(): ss.str() ) ; 
   }            
   
-      
+ 
+ 
   
     template<typename Source>
       void PopCon::write(Source const & source) {
@@ -133,7 +133,20 @@ namespace popcon {
       std::pair<Container const *, std::string const> ret = source(&m_dbService->connection(),
 								   m_tagInfo,m_logDBEntry); 
      Container const & payloads = *ret.first;
-     m_dbService->setLogHeaderForRecord(m_record,source.id(),"PopCon v2.1; " + displayIovHelper(payloads,m_since ) +  ret.second);
+     
+
+  // adding info about the popcon user
+    std::ostringstream user_info;
+    char * user= ::getenv("USER");
+    char * hostname= ::getenv("HOSTNAME");
+    char * pwd = ::getenv("PWD");
+    if (user) { user_info<< "\nUSER = " << user <<";" ;} else { user_info<< "\n USER = "<< "??;";}
+    if (hostname) {user_info<< "\nHOSTNAME= " << hostname <<";";} else { user_info<< "\n HOSTNAME = "<< "??;";}
+    if (pwd) {user_info<< "\nPWD= " << pwd <<";";} else  {user_info<< "\n PWD = "<< "??;";}
+    
+       
+
+     m_dbService->setLogHeaderForRecord(m_record,source.id(),"PopCon v2.1; " + user_info.str() + displayIovHelper(payloads,m_since ) +  ret.second);
      
      
      displayHelper(payloads,m_since);
@@ -153,3 +166,5 @@ namespace popcon {
 }
 
 #endif //  POPCON_POPCON_H
+
+

@@ -44,9 +44,9 @@ GctBlockHeaderBase::BlockLengthPair initArray3[] = {
   GctBlockHeaderBase::BlockLengthPair(0x306,32),     // WheelPosEtaJet: Test (deprecated)  (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
   GctBlockHeaderBase::BlockLengthPair(0x307,4),      // WheelPosEtaJet: Info (deprecated)  (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
   // WHEEL POS ETA ENERGY FPGA
-  GctBlockHeaderBase::BlockLengthPair(0x380,21),     // WheelPosEtaEnergy: Input TrigPathA (Et)
+  GctBlockHeaderBase::BlockLengthPair(0x380,9),      // WheelPosEtaEnergy: Input TrigPathA (Et)
   GctBlockHeaderBase::BlockLengthPair(0x381,3),      // WheelPosEtaEnergy: Input TrigPathB (Ht)
-  GctBlockHeaderBase::BlockLengthPair(0x383,7),      // WheelPosEtaEnergy: Output TrigPathA (Et)
+  GctBlockHeaderBase::BlockLengthPair(0x383,3),      // WheelPosEtaEnergy: Output TrigPathA (Et)
   GctBlockHeaderBase::BlockLengthPair(0x385,2),      // WheelPosEtaEnergy: Output TrigPathB (Ht)
   GctBlockHeaderBase::BlockLengthPair(0x386,32),     // WheelPosEtaEnergy: Test
   GctBlockHeaderBase::BlockLengthPair(0x387,6),      // WheelPosEtaEnergy: BX & Orbit Info   (Potential data incompatibility between V24/V25 where block length=4, and V27.1 where block length=6)
@@ -56,9 +56,9 @@ GctBlockHeaderBase::BlockLengthPair initArray3[] = {
   GctBlockHeaderBase::BlockLengthPair(0x706,32),     // WheelNegEtaJet: Test (deprecated)  (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
   GctBlockHeaderBase::BlockLengthPair(0x707,4),      // WheelNegEtaJet: Info (deprecated)  (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
   // WHEEL NEG ETA ENERGY FPGA
-  GctBlockHeaderBase::BlockLengthPair(0x780,21),     // WheelNegEtaEnergy: Input TrigPathA (Et)
+  GctBlockHeaderBase::BlockLengthPair(0x780,9),      // WheelNegEtaEnergy: Input TrigPathA (Et)
   GctBlockHeaderBase::BlockLengthPair(0x781,3),      // WheelNegEtaEnergy: Input TrigPathB (Ht)
-  GctBlockHeaderBase::BlockLengthPair(0x783,7),      // WheelNegEtaEnergy: Output TrigPathA (Et)
+  GctBlockHeaderBase::BlockLengthPair(0x783,3),      // WheelNegEtaEnergy: Output TrigPathA (Et)
   GctBlockHeaderBase::BlockLengthPair(0x785,2),      // WheelNegEtaEnergy: Output TrigPathB (Ht)
   GctBlockHeaderBase::BlockLengthPair(0x786,32),     // WheelNegEtaEnergy: Test
   GctBlockHeaderBase::BlockLengthPair(0x787,6),      // WheelNegEtaEnergy: BX & Orbit Info   (Potential data incompatibility between V24/V25 where block length=4, and V27.1 where block length=6)

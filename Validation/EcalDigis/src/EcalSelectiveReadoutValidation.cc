@@ -1,8 +1,8 @@
 /*
  * \file EcalSelectiveReadoutValidation.cc
  *
- * $Date: 2008/07/02 09:00:55 $
- * $Revision: 1.17 $
+ * $Date: 2008/11/20 11:22:18 $
+ * $Revision: 1.18.2.1 $
  *
  */
 
@@ -546,8 +546,8 @@ EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event,
   CaloSubdetectorGeometry const& geometry = *geometry_p;
   
   //EB unsuppressed digis:
-  for(EBDigiCollection::const_iterator it = ebDigis_->begin();
-      it != ebDigis_->end(); ++it){
+  for(EBDigiCollection::const_iterator it = ebNoZsDigis_->begin();
+      it != ebNoZsDigis_->end(); ++it){
     const EBDataFrame& frame = *it;
     int iEta0 = iEta2cIndex(static_cast<const EBDetId&>(frame.id()).ieta());
     int iPhi0 = iPhi2cIndex(static_cast<const EBDetId&>(frame.id()).iphi());

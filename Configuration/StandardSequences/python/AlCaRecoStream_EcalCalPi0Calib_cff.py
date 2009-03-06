@@ -1,13 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
-# last update: $Date: 2008/08/25 11:36:00 $ by $Author: futyand $
+# last update: $Date: 2008/08/25 12:50:37 $ by $Author: futyand $
 
 # ECAL calibration with pi0
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalPi0Calib_cff import *
 
 from DQMOffline.Configuration.AlCaRecoDQM_cff import *
 
-pathALCARECOEcalCalPi0Calib = cms.Path(seqALCARECOEcalCalPi0Calib)
+pathALCARECOEcalCalPi0Calib = cms.Path(seqALCARECOEcalCalPi0Calib*ALCARECOEcalCalPi0CalibDQM)
 
 from Configuration.EventContent.AlCaRecoOutput_cff import *
 

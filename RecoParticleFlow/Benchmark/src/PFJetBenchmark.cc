@@ -109,7 +109,7 @@ void PFJetBenchmark::setup(
   BOOK1D(jetsEta,cutString,100, -5, 5);
 	
   // delta Pt or E quantities for Barrel
-  DBOOK1D(RPt,#DeltaP_{T}/P_{T},80,-1,1);
+  DBOOK1D(RPt,#DeltaP_{T}/P_{T},80,-2,2);
   DBOOK1D(RCHE,#DeltaE/E (charged had),80,-2,2);
   DBOOK1D(RNHE,#DeltaE/E (neutral had),80,-2,2);
   DBOOK1D(RNEE,#DeltaE/E (neutral em),80,-2,2);
@@ -119,17 +119,6 @@ void PFJetBenchmark::setup(
   DBOOK2D(RNHEvsPt,#DeltaE/E (neutral had) vs P_{T},40, 0, 500, 80,-2,2);
   DBOOK2D(RNEEvsPt,#DeltaE/E (neutral em) vs P_{T},40, 0, 500, 80,-2,2);
   DBOOK2D(RneutvsPt,#DeltaE/E (neutral) vs P_{T},40, 0, 500, 80,-2,2);
-  DBOOK1D(RPt20_40,#DeltaP_{T}/P_{T},80,-1,1);
-  DBOOK1D(RPt40_60,#DeltaP_{T}/P_{T},80,-1,1);
-  DBOOK1D(RPt60_80,#DeltaP_{T}/P_{T},80,-1,1);
-  DBOOK1D(RPt80_100,#DeltaP_{T}/P_{T},80,-1,1);
-  DBOOK1D(RPt100_150,#DeltaP_{T}/P_{T},80,-1,1);
-  DBOOK1D(RPt150_200,#DeltaP_{T}/P_{T},80,-1,1);
-  DBOOK1D(RPt200_250,#DeltaP_{T}/P_{T},80,-1,1);
-  DBOOK1D(RPt250_300,#DeltaP_{T}/P_{T},80,-1,1);
-  DBOOK1D(RPt300_400,#DeltaP_{T}/P_{T},80,-1,1);
-  DBOOK1D(RPt400_500,#DeltaP_{T}/P_{T},80,-1,1);
-  DBOOK1D(RPt500_750,#DeltaP_{T}/P_{T},80,-1,1);
 	
  // Set Axis Titles
  
@@ -139,17 +128,6 @@ void PFJetBenchmark::setup(
   SETAXES(jetsEta, "#eta", "Number of Events");
   // delta Pt or E quantities for Barrel and Endcap
   DSETAXES(RPt, "#DeltaP_{T}/P_{T}", "Events");
-  DSETAXES(RPt20_40, "#DeltaP_{T}/P_{T}", "Events");
-  DSETAXES(RPt40_60, "#DeltaP_{T}/P_{T}", "Events");
-  DSETAXES(RPt60_80, "#DeltaP_{T}/P_{T}", "Events");
-  DSETAXES(RPt80_100, "#DeltaP_{T}/P_{T}", "Events");
-  DSETAXES(RPt100_150, "#DeltaP_{T}/P_{T}", "Events");
-  DSETAXES(RPt150_200, "#DeltaP_{T}/P_{T}", "Events");
-  DSETAXES(RPt200_250, "#DeltaP_{T}/P_{T}", "Events");
-  DSETAXES(RPt250_300, "#DeltaP_{T}/P_{T}", "Events");
-  DSETAXES(RPt300_400, "#DeltaP_{T}/P_{T}", "Events");
-  DSETAXES(RPt400_500, "#DeltaP_{T}/P_{T}", "Events");
-  DSETAXES(RPt500_750, "#DeltaP_{T}/P_{T}", "Events");
   DSETAXES(RCHE, "#DeltaE/E(charged had)", "Events");
   DSETAXES(RNHE, "#DeltaE/E(neutral had)", "Events");
   DSETAXES(RNEE, "#DeltaE/E(neutral em)", "Events");
@@ -256,13 +234,14 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
       if (true_NeutralEnergy > cut5){
 	resNeutralEnergy = (rec_NeutralEnergy- true_NeutralEnergy)/true_NeutralEnergy;
 	plot5 = true;}
-      
+			
+	 		
       //double deltaEta = algo_->deltaEta(&pfj, truth);
       //double deltaPhi = algo_->deltaPhi(&pfj, truth);
-      if(abs(resPt) > abs(resPtMax_)) resPtMax_ = resPt;
-      if(abs(resChargedHadEnergy) > abs(resChargedHadEnergyMax_) ) resChargedHadEnergyMax_ = resChargedHadEnergy;
-      if(abs(resNeutralHadEnergy) > abs(resNeutralHadEnergyMax_) ) resNeutralHadEnergyMax_ = resNeutralHadEnergy;
-      if(abs(resNeutralEmEnergy) > abs(resNeutralEmEnergyMax_) ) resNeutralEmEnergyMax_ = resNeutralEmEnergy;
+      if(abs(resPt) > resPtMax_) resPtMax_ = abs(resPt);
+      if(abs(resChargedHadEnergy) > resChargedHadEnergyMax_) resChargedHadEnergyMax_ = abs(resChargedHadEnergy);
+      if(abs(resNeutralHadEnergy) > resNeutralHadEnergyMax_) resNeutralHadEnergyMax_ = abs(resNeutralHadEnergy);
+      if(abs(resNeutralEmEnergy) > resNeutralEmEnergyMax_) resNeutralEmEnergyMax_ = abs(resNeutralEmEnergy);
       if (debug_) {
 	cout << i <<"  =========PFJet Pt "<< rec_pt
 	     << " eta " << rec_eta
@@ -291,20 +270,7 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
       // fill histograms for relative delta quantitites of matched jets
       // delta Pt or E quantities for Barrel
       if (Barrel){
-	if(plot1) { 
-	  hBRPt->Fill (resPt);
-	  if ( pt_denom >  20. && pt_denom <  40. ) hBRPt20_40->Fill (resPt);
-	  if ( pt_denom >  40. && pt_denom <  60. ) hBRPt40_60->Fill (resPt);
-	  if ( pt_denom >  60. && pt_denom <  80. ) hBRPt60_80->Fill (resPt);
-	  if ( pt_denom >  80. && pt_denom < 100. ) hBRPt80_100->Fill (resPt);
-	  if ( pt_denom > 100. && pt_denom < 150. ) hBRPt100_150->Fill (resPt);
-	  if ( pt_denom > 150. && pt_denom < 200. ) hBRPt150_200->Fill (resPt);
-	  if ( pt_denom > 200. && pt_denom < 250. ) hBRPt200_250->Fill (resPt);
-	  if ( pt_denom > 250. && pt_denom < 300. ) hBRPt250_300->Fill (resPt);
-	  if ( pt_denom > 300. && pt_denom < 400. ) hBRPt300_400->Fill (resPt);
-	  if ( pt_denom > 400. && pt_denom < 500. ) hBRPt400_500->Fill (resPt);
-	  if ( pt_denom > 500. && pt_denom < 750. ) hBRPt500_750->Fill (resPt);
-	}
+	if(plot1)hBRPt->Fill (resPt);
 	if(plot2)hBRCHE->Fill(resChargedHadEnergy);
 	if(plot3)hBRNHE->Fill(resNeutralHadEnergy);
 	if(plot4)hBRNEE->Fill(resNeutralEmEnergy);
@@ -317,20 +283,7 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
       }
       // delta Pt or E quantities for Endcap
       if (Endcap){
-	if(plot1) {
-	  hERPt->Fill (resPt);
-	  if ( pt_denom >  20. && pt_denom <  40. ) hERPt20_40->Fill (resPt);
-	  if ( pt_denom >  40. && pt_denom <  60. ) hERPt40_60->Fill (resPt);
-	  if ( pt_denom >  60. && pt_denom <  80. ) hERPt60_80->Fill (resPt);
-	  if ( pt_denom >  80. && pt_denom < 100. ) hERPt80_100->Fill (resPt);
-	  if ( pt_denom > 100. && pt_denom < 150. ) hERPt100_150->Fill (resPt);
-	  if ( pt_denom > 150. && pt_denom < 200. ) hERPt150_200->Fill (resPt);
-	  if ( pt_denom > 200. && pt_denom < 250. ) hERPt200_250->Fill (resPt);
-	  if ( pt_denom > 250. && pt_denom < 300. ) hERPt250_300->Fill (resPt);
-	  if ( pt_denom > 300. && pt_denom < 400. ) hERPt300_400->Fill (resPt);
-	  if ( pt_denom > 400. && pt_denom < 500. ) hERPt400_500->Fill (resPt);
-	  if ( pt_denom > 500. && pt_denom < 750. ) hERPt500_750->Fill (resPt);
-	}
+	if(plot1)hERPt->Fill (resPt);
 	if(plot2)hERCHE->Fill(resChargedHadEnergy);
 	if(plot3)hERNHE->Fill(resNeutralHadEnergy);
 	if(plot4)hERNEE->Fill(resNeutralEmEnergy);

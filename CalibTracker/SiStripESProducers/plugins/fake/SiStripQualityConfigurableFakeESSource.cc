@@ -13,7 +13,7 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Wed Oct  3 11:46:09 CEST 2007
-// $Id: SiStripQualityConfigurableFakeESSource.cc,v 1.1 2008/02/06 17:04:16 bainbrid Exp $
+// $Id: SiStripQualityConfigurableFakeESSource.cc,v 1.1 2008/06/17 09:10:20 giordano Exp $
 //
 //
 
@@ -23,7 +23,7 @@
 SiStripQualityConfigurableFakeESSource::SiStripQualityConfigurableFakeESSource(const edm::ParameterSet& iConfig):
   iConfig_(iConfig){
   setWhatProduced(this);
-  findingRecord<SiStripQualityRcd>();
+  findingRecord<SiStripBadModuleRcd>();
 
   edm::LogInfo("SiStripQualityConfigurableFakeESSource") << " ctor ";
   fp_ = iConfig.getUntrackedParameter<edm::FileInPath>("file",edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"));
@@ -33,7 +33,7 @@ SiStripQualityConfigurableFakeESSource::SiStripQualityConfigurableFakeESSource(c
 }
 
 
-std::auto_ptr<SiStripQuality> SiStripQualityConfigurableFakeESSource::produce(const SiStripQualityRcd& iRecord)
+std::auto_ptr<SiStripBadStrip> SiStripQualityConfigurableFakeESSource::produce(const SiStripBadModuleRcd& iRecord)
 {
 
   SiStripQuality* obj = new SiStripQuality();
@@ -74,7 +74,7 @@ std::auto_ptr<SiStripQuality> SiStripQualityConfigurableFakeESSource::produce(co
     edm::LogInfo("SiStripQualityConfigurableFakeESSource") << ss.str();
   
   obj->cleanUp();
-  obj->fillBadComponents();
+  //obj->fillBadComponents();
 
   std::stringstream ss1;
   if (printdebug_){
@@ -82,7 +82,7 @@ std::auto_ptr<SiStripQuality> SiStripQualityConfigurableFakeESSource::produce(co
       ss1 << "bad module " << iter->detid << " " << iter->BadModule <<  "\n";
     edm::LogInfo("SiStripQualityConfigurableFakeESSource") << ss1.str();
   }
-  std::auto_ptr<SiStripQuality> ptr(obj);
+  std::auto_ptr<SiStripBadStrip> ptr( dynamic_cast<SiStripBadStrip*> (obj) );
   return ptr;
 }
 

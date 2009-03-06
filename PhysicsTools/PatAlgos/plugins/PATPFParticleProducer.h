@@ -1,5 +1,5 @@
 //
-// $Id: PATPFParticleProducer.h,v 1.1 2008/07/24 12:45:38 cbern Exp $
+// $Id: PATPFParticleProducer.h,v 1.10 2008/07/08 21:24:50 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATPFParticleProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of PFParticleType.
 
   \author   Steven Lowette, Roger Wolf
-  \version  $Id: PATPFParticleProducer.h,v 1.1 2008/07/24 12:45:38 cbern Exp $
+  \version  $Id: PATPFParticleProducer.h,v 1.10 2008/07/08 21:24:50 gpetrucc Exp $
 */
 
 
@@ -60,7 +60,7 @@ namespace pat {
       bool          embedPFCandidate_;
       bool          addGenMatch_;
       bool          embedGenMatch_;
-      std::vector<edm::InputTag> genMatchSrc_;
+      edm::InputTag genMatchSrc_;
       // tools
       GreaterByPt<PFParticle>      pTComparator_;
 

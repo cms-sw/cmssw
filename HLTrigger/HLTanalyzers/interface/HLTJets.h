@@ -26,8 +26,6 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
-#include "DataFormats/TauReco/interface/HLTTau.h"
-
 #include "HLTrigger/HLTanalyzers/interface/JetUtil.h"
 #include "HLTrigger/HLTanalyzers/interface/CaloTowerBoundries.h"
 
@@ -39,15 +37,6 @@ typedef std::vector<std::string> MyStrings;
   * $Revision: 
   * \author L. Apanasevich - UIC, P. Bargassa - Rice U.
   */
-
-class GetPtGreater {
-  public:
-  template <typename T> bool operator () (const T& i, const T& j) {
-    return (i.getPt() > j.getPt());
-  }
-};
-
-
 class HLTJets {
 public:
   HLTJets(); 
@@ -60,27 +49,20 @@ public:
 	       const CaloMETCollection& rmets,
 	       const GenMETCollection& gmets,
 	       const METCollection& ht,
-	       const reco::HLTTauCollection& myHLTTau,
 	       const CaloTowerCollection& caloTowers,
 	       TTree* tree);
 
 private:
 
   // Tree variables
-  float *jcalpt, *jcalphi, *jcaleta, *jcale;
-  float *jgenpt, *jgenphi, *jgeneta, *jgene;
+  float *jcalpt, *jcalphi, *jcaleta, *jcalet, *jcale;
+  float *jgenpt, *jgenphi, *jgeneta, *jgenet, *jgene;
   float *towet, *toweta, *towphi, *towen, *towem, *towhd, *towoe;
   float mcalmet,mcalphi,mcalsum;
   float htcalet,htcalphi,htcalsum;
   float mgenmet,mgenphi,mgensum;
   int njetcal,njetgen,ntowcal;
 
-   // Taus
-  float *l2tauemiso, *l25tauPt, *l3tauPt;
-  int *l25tautckiso, *l3tautckiso;
-  int nohtau;
-  float *tauEta, *tauPt, *tauPhi; 
-  
   // input variables
   bool _Monte,_Debug;
   float _CalJetMin, _GenJetMin;

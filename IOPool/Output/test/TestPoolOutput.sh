@@ -14,3 +14,9 @@ cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolDropRead_cfg.py || die 'Failure usi
 
 cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolMissingRead_cfg.py || die 'Failure using PoolMissingRead_cfg.py' $?
 
+
+cmsRun ${LOCAL_TEST_DIR}/TestProvA_cfg.py || die 'Failure using TestProvA_cfg.py' $?
+#reads file from above
+cmsRun ${LOCAL_TEST_DIR}/TestProvB_cfg.py || die 'Failure using TestProvB_cfg.py' $?
+#reads file from above
+cmsRun ${LOCAL_TEST_DIR}/TestProvC_cfg.py || die 'Failure using TestProvC_cfg.py' $?

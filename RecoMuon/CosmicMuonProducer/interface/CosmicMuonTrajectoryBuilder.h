@@ -2,8 +2,8 @@
 #define CosmicMuonTrajectoryBuilder_H
 /** \file CosmicMuonTrajectoryBuilder
  *
- *  $Date: 2008/06/17 18:11:31 $
- *  $Revision: 1.18 $
+ *  $Date: 2008/05/19 15:14:57 $
+ *  $Revision: 1.17 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -21,8 +21,6 @@
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "RecoMuon/CosmicMuonProducer/interface/CosmicMuonSmoother.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
-#include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
 
 namespace edm {class Event; class EventSetup;}
 
@@ -92,11 +90,8 @@ private:
   /// check if the trajectory iterates the same hit more than once
   bool selfDuplicate(const Trajectory&) const;
 
-  /// check the direction of trajectory by checking eta spread
+  /// check the direction of trajectory by refitting from both ends
   void estimateDirection(Trajectory&) const;
-
-  /// check the direction of trajectory by checking the timing 
-  void getDirectionByTime(Trajectory&) const;
 
   void updateTrajectory(Trajectory&, const MuonTransientTrackingRecHit::MuonRecHitContainer&);
 
@@ -117,13 +112,8 @@ private:
   std::string thePropagatorName;
   bool theTraversingMuonFlag;
 
-  std::string category_;
   int theNTraversing;
   int theNSuccess;
-
-  edm::Handle<CSCRecHit2DCollection> cschits_;
-  edm::Handle<DTRecHitCollection> dthits_;
-
   
 };
 #endif

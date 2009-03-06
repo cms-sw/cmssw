@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/06/25 09:37:15 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/02/04 15:47:50 $
+ *  $Revision: 1.5 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -53,6 +53,9 @@ DTNoiseCalibration::DTNoiseCalibration(const edm::ParameterSet& ps){
   // The wheel & sector interested for the time-dependent analysis
   wh = ps.getUntrackedParameter<int>("wheel", 0);
   sect = ps.getUntrackedParameter<int>("sector", 6);
+
+  // The total numeber of events
+  TotEvents = ps.getUntrackedParameter<int>("TotEvents");
 
   // The trigger mode
   cosmicRun = ps.getUntrackedParameter<bool>("cosmicRun", false);
@@ -259,6 +262,11 @@ void DTNoiseCalibration::endJob(){
 
   cout << "[DTNoiseCalibration] endjob called!" <<endl;
 
+  if(nevents>TotEvents){
+    cout<<"***Error*** : your TotEvents number is not correct!"<<endl;
+    abort();
+  } 
+
   // save the TDC digi plot
   theFile->cd();
   hTDCTriggerWidth->Write();
@@ -279,8 +287,8 @@ void DTNoiseCalibration::endJob(){
     if(!cosmicRun)
       TriggerWidth_s = double(TriggerWidth/1e9);
     if(debug)
-      cout<<"TriggerWidth (s): "<<TriggerWidth_s<<"  TotEvents: "<<nevents<<endl;
-    double normalization = 1/double(nevents*TriggerWidth_s);
+      cout<<"TriggerWidth (s): "<<TriggerWidth_s<<"  TotEvents: "<<TotEvents<<endl;
+    double normalization = 1/double(TotEvents*TriggerWidth_s);
     if((*lHisto).second){
       (*lHisto).second->Scale(normalization);
       theFile->cd();
@@ -306,7 +314,7 @@ void DTNoiseCalibration::endJob(){
   //save the digi event plot per SuperLayer 
   bool histo=false;
   map<DTSuperLayerId, vector<int> > maxPerSuperLayer;
-  int numPlot = (nevents/1000);
+  int numPlot = (TotEvents/1000);
   int num=0;
   // loop over the numPlot 
   for(int i=0; i<numPlot; i++){  

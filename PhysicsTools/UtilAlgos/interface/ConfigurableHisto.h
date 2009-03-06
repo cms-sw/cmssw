@@ -64,7 +64,7 @@ class ConfigurableHisto {
     std::string title=conf_.getParameter<std::string>("title");
     edm::ParameterSet xAxisPSet=conf_.getParameter<edm::ParameterSet>("xAxis");
     ConfigurableAxis xAxis(xAxisPSet);
-    x_=edm::Service<VariableHelperService>()->get().variable(xAxisPSet.getParameter<std::string>("var"));
+    x_=VariableHelperInstance::get().variable(xAxisPSet.getParameter<std::string>("var"));
 
     std::string yLabel="";    
     bool yVBin=false;
@@ -75,7 +75,7 @@ class ConfigurableHisto {
       yLabel=yAxis.Label();
       //at least TH2 or TProfile
       if (yAxisPSet.exists("var"))
-	y_=edm::Service<VariableHelperService>()->get().variable(yAxisPSet.getParameter<std::string>("var"));
+	y_=VariableHelperInstance::get().variable(yAxisPSet.getParameter<std::string>("var"));
       yVBin=yAxis.variableSize();
     }
     
@@ -146,7 +146,7 @@ class ConfigurableHisto {
     
     if (conf_.exists("weight"))
       {
-	w_=edm::Service<VariableHelperService>()->get().variable(conf_.getParameter<std::string>("weight"));
+	w_=VariableHelperInstance::get().variable(conf_.getParameter<std::string>("weight"));
       }
   }
   
@@ -224,19 +224,23 @@ class SplittingConfigurableHisto : public ConfigurableHisto {
  public:
   SplittingConfigurableHisto(HType t, std::string name, edm::ParameterSet & pset) :
     ConfigurableHisto(t,name,pset) , splitter_(0) {
+    //---    std::cout<<"getting IN the constructor of SplittingConfigurableHisto for "<< name_<<std::endl;
     std::string title=pset.getParameter<std::string>("title");
 
     //allow for many splitters ...
     if (pset.exists("splitters")){
       //you want more than one splitter
       std::vector<std::string> splitters = pset.getParameter<std::vector<std::string> >("splitters");
+      //---      std::cout<<splitters.size()<<" splitters"<<std::endl;
       for (uint s=0;s!=splitters.size();++s){
-	const CachingVariable * v=edm::Service<VariableHelperService>()->get().variable(splitters[s]);
+	//---	std::cout<<"trying with "<<splitters[s]<<std::endl;
+	const CachingVariable * v=VariableHelperInstance::get().variable(splitters[s]);
 	const Splitter * splitter = dynamic_cast<const Splitter*>(v);
 	if (!splitter){
 	  edm::LogError("SplittingConfigurableHisto")<<"for: "<<name_<<" the splitting variable: "<<splitters[s]<<" is not a Splitter";
 	  continue;
 	}
+	//---	std::cout<<"ok for:"<<name_<<" and "<<splitters[s]<<std::endl;
 
 	//insert in the map
 	std::vector<ConfigurableHisto*> & insertedHisto=subHistoMap_[splitter];
@@ -249,6 +253,7 @@ class SplittingConfigurableHisto : public ConfigurableHisto {
 	  edm::ParameterSet mPset=pset;
 	  edm::Entry e("string",title+" for "+label,true);
 	  mPset.insert(true,"title",e);
+	  //---	  std::cout<<"new for: "<<name_<<" and "<<slabel<<std::endl;
 	  insertedHisto.push_back(new ConfigurableHisto(t,name+slabel ,mPset));
 	}//loop on slots
       }//loop on splitters
@@ -257,12 +262,15 @@ class SplittingConfigurableHisto : public ConfigurableHisto {
     else{
       //single splitter
       //get the splitting variable
-      const CachingVariable * v=edm::Service<VariableHelperService>()->get().variable(pset.getParameter<std::string>("splitter"));
+      const CachingVariable * v=VariableHelperInstance::get().variable(pset.getParameter<std::string>("splitter"));
+      //---    std::cout<<"trying to cast"<<std::endl;
       splitter_ = dynamic_cast<const Splitter*>(v);
       if (!splitter_){
+	//      std::cout<<"for: "<<name_<<" the splitting variable: "<<v->name()<<" is not a Splitter"<<std::endl;
 	edm::LogError("SplittingConfigurableHisto")<<"for: "<<name_<<" the splitting variable: "<<v->name()<<" is not a Splitter";
       }
       else{
+	//---      std::cout<<"configure slots"<<std::endl;
 	//configure the splitted plots
 	uint mSlots=splitter_->maxSlots();
 	for (uint i=0;i!=mSlots;i++){
@@ -275,6 +283,7 @@ class SplittingConfigurableHisto : public ConfigurableHisto {
 	}
       }
     }
+      //---    std::cout<<"getting OUT the constructor of SplittingConfigurableHisto"<<std::endl;
   }//end of ctor
     
   void book(TFileDirectory* dir){

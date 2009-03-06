@@ -28,6 +28,7 @@ from RecoTracker.SpecialSeedGenerators.CombinatorialSeedGeneratorForCosmics_cfi 
 #seeding module
 combinatorialcosmicseedfinderP5 = copy.deepcopy(combinatorialcosmicseedfinder)
 #replace combinatorialcosmicseedfinderP5.SetMomentum = false
+combinatorialcosmicseedfinderP5.requireBOFF = True
 combinatorialcosmicseedfinderP5.UseScintillatorsConstraint = False
 combinatorialcosmicseedfinderP5.OrderedHitsFactoryPSets = cms.VPSet(cms.PSet(
     ComponentName = cms.string('GenericTripletGenerator'),

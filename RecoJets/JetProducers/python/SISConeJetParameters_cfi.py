@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 # Standard SISCone jets parameters
-# $Id: SISConeJetParameters_cfi.py,v 1.2 2008/04/21 03:29:18 rpw Exp $
+# $Id: SISConeJetParameters.cfi,v 1.2 2007/10/26 22:29:55 fedor Exp $
 SISConeJetParameters = cms.PSet(
     protojetPtMin = cms.double(0.0),
-    
+    JetPtMin = cms.double(1.0),
     coneOverlapThreshold = cms.double(0.75),
     caching = cms.bool(False),
     maxPasses = cms.int32(0),

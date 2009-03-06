@@ -12,7 +12,6 @@ pixel3ProtoTracks = cms.EDFilter("PixelTrackProducerWithZPos",
     RegionFactoryPSet = cms.PSet(
         ComponentName = cms.string('HITrackingRegionProducer'),
         RegionPSet = cms.PSet(
-            siPixelRecHits = cms.string("siPixelRecHits"),
             precise = cms.bool(True),
             originHalfLength = cms.double(15.9),
             originZPos = cms.double(0.0),

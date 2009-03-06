@@ -90,20 +90,20 @@ RPCGeomServ::name()
       }
     }
     else {
-      buf="RE";
+      buf="D";
       
       {
 	std::stringstream os;
-	os << std::setw(2)<<std::setfill('+')<<_id->station()*_id->region()
+	os << std::setw(2)<<std::setfill('+')<<_id->ring()*_id->region()
 	   <<std::setfill(' ')<<"_";
 	buf += os.str();    
       }
       
       {
 	std::stringstream os;
-	os <<"R"<<_id->ring()<<"_";
-	os <<"S"<<std::setw(2)<<std::setfill('0')<<_id->sector();
-	os <<"_CH"<<std::setw(2)<<std::setfill('0')<<this->segment();
+	os <<"RE"<<_id->station()<<"_"<<_id->ring();
+	os <<"S"<<std::setw(2)<<std::setfill('0')<<this->segment();
+	  
 	buf += os.str();
       } 
 

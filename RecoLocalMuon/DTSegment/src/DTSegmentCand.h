@@ -7,8 +7,8 @@
  * and store relative information. It must be transformed into a DTSegment
  * for further use.
  *
- * $Date: 2006/11/16 13:19:11 $
- * $Revision: 1.6 $
+ * $Date: 2006/05/04 09:18:50 $
+ * $Revision: 1.5 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -61,9 +61,6 @@ class DTSegmentCand{
 
     /// the chi2 (NOT chi2/NDOF) of the fit
     double chi2() const {return theChi2; }
-
-    /// the chi2/NDOF of the fit
-    double chi2ndof() const {return theChi2/(nHits()-2.); }
 
     /// equality operator based on position, direction, chi2 and nHits
     bool operator==(const DTSegmentCand& seg);

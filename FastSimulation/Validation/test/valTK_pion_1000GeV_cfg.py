@@ -39,12 +39,12 @@ process.o1 = cms.OutputModule("PoolOutputModule",
 )
 
 process.p1 = cms.Path(process.famosWithTracks*process.valid)
-#process.load("Configuration.StandardSequences.MagneticField_40T_cff")
-process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+process.load("Configuration.StandardSequences.MagneticField_40T_cff")
+#process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 process.famosSimHits.SimulateCalorimetry = False
 process.famosSimHits.SimulateTracking = True
-process.multiTrackValidator.outputFile = 'valid_pion_1000GeV.root'
+process.multiTrackValidator.out = 'valid_pion_1000GeV.root'
 process.MessageLogger.destinations = ['detailedInfo_pi1000.txt']
 
 

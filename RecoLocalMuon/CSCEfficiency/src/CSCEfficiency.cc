@@ -752,43 +752,7 @@ CSCEfficiency::~CSCEfficiency(){
   const float Layer_max = LAYER_MAX-2.;
   const int nLayer_bins = int(Layer_max - Layer_min);
 
-  //
-  //
-  const int chMin = 1;
-  const int chMax = 36;
-  int chRange = chMax - chMin +1;
 
-  sprintf(SpecName,"eff_S");
-  TH1F * h_effStrips =  
-    new TH1F(SpecName,"Efficiency",chRange,float(chMin) -0.5,float(chMax) +0.5);
-  sprintf(SpecName,"eff_S2");
-  TH1F * h_allStrips =  
-    new TH1F(SpecName,"Efficiency",chRange,float(chMin) -0.5,float(chMax) +0.5);
-  //
-  sprintf(SpecName,"eff_W");
-  TH1F * h_effWGs =  
-    new TH1F(SpecName,"Efficiency",chRange,float(chMin) -0.5,float(chMax) +0.5);
-  TH1F * h_allWGs =  
-    new TH1F(SpecName,"Efficiency",chRange,float(chMin) -0.5,float(chMax) +0.5);
-  //
-  sprintf(SpecName,"eff_R");
-  TH1F * h_effRHs =  
-    new TH1F(SpecName,"Efficiency",chRange,float(chMin) -0.5,float(chMax) +0.5);
-  TH1F * h_allRHs =  
-    new TH1F(SpecName,"Efficiency",chRange,float(chMin) -0.5,float(chMax) +0.5);
-  //
-  sprintf(SpecName,"eff_R_g");
-  TH1F * h_effRHs_good =  
-    new TH1F(SpecName,"Efficiency",chRange,float(chMin) -0.5,float(chMax) +0.5);
-  TH1F * h_allRHs_good =  
-    new TH1F(SpecName,"Efficiency",chRange,float(chMin) -0.5,float(chMax) +0.5);
-  //
-  sprintf(SpecName,"eff_R_in");
-  TH1F * h_effRHs_inSeg =  
-    new TH1F(SpecName,"Efficiency",chRange,float(chMin) -0.5,float(chMax) +0.5);
-  TH1F * h_allRHs_inSeg =  
-    new TH1F(SpecName,"Efficiency",chRange,float(chMin) -0.5,float(chMax) +0.5);
-  //
   //---- loop over chambers
   for(int iChamber=FirstCh;iChamber<FirstCh+NumCh;iChamber++){
     sprintf(SpecName,"Chamber_%d",iChamber);
@@ -947,41 +911,7 @@ CSCEfficiency::~CSCEfficiency(){
       ChHist[iChamber-FirstCh].SimSimhits->Write();
       ChHist[iChamber-FirstCh].SimRechits_each->Write();
       ChHist[iChamber-FirstCh].SimSimhits_each->Write();
-      //
     }
-    // efficiencies per chamber
-    const int min = 2;
-    const int max = 7;
-    int reference = 9;
-    float effStrips =    ChHist[iChamber-FirstCh].EfficientStrips->Integral(min,max);   
-    float allStrips = 6.*ChHist[iChamber-FirstCh].EfficientStrips->GetBinContent(reference);   
-    h_effStrips->SetBinContent(iChamber,effStrips);
-    h_allStrips->SetBinContent(iChamber,allStrips);
-      //
-    float effWGs = ChHist[iChamber-FirstCh].EfficientWireGroups->Integral(min,max);   
-    float allWGs = 6.*ChHist[iChamber-FirstCh].EfficientWireGroups->GetBinContent(reference);
-    h_effWGs->SetBinContent(iChamber,effWGs);
-    h_allWGs->SetBinContent(iChamber,allWGs);
-    //
-    float effRHs = ChHist[iChamber-FirstCh].EfficientRechits->Integral(min,max);   
-    float allRHs = 6.*ChHist[iChamber-FirstCh].EfficientRechits->GetBinContent(reference); 
-    h_effRHs->SetBinContent(iChamber,effRHs);
-    h_allRHs->SetBinContent(iChamber,allRHs);
-    //
-    float effRHs_good = ChHist[iChamber-FirstCh].EfficientRechits_good->Integral(min,max);   
-    float allRHs_good = 6.*ChHist[iChamber-FirstCh].EfficientRechits_good->GetBinContent(reference);
-    h_effRHs_good->SetBinContent(iChamber,effRHs_good);
-    h_allRHs_good->SetBinContent(iChamber,allRHs_good);
-    //
-    reference = 10;
-    float effRHs_inSeg = ChHist[iChamber-FirstCh].EfficientRechits_inSegment->Integral(min,max);   
-    float allRHs_inSeg = 6.*ChHist[iChamber-FirstCh].EfficientRechits_inSegment->GetBinContent(reference);
-    h_effRHs_inSeg->SetBinContent(iChamber,effRHs_inSeg);
-    h_allRHs_inSeg->SetBinContent(iChamber,allRHs_inSeg);
-    //
-    reference = 9;
-    //
-    
     theFile->cd(SpecName);
     //---- Calculate the efficiencies, write the result in histograms
     sprintf(SpecName,"FINAL_Rechit_inSegment_Efficiency_Ch%d",iChamber);
@@ -1169,59 +1099,6 @@ CSCEfficiency::~CSCEfficiency(){
     
   }
   theFile->cd(SpecName);
-  // efficiencies per chamber
-  TGraphAsymmErrors* g_effStrips = new TGraphAsymmErrors(chRange);
-  g_effStrips->BayesDivide(h_effStrips,h_allStrips);
-  g_effStrips->SetTitle("Strip efficiency per chamber ;Chamber # ; efficiency");
-  g_effStrips->SetName("FINAL_Strip_Efficiency_perChamber");
-
-  g_effStrips->Write();
-  delete h_effStrips;
-  delete h_allStrips;
-  //
-  TGraphAsymmErrors* g_effWGs = new TGraphAsymmErrors(chRange);
-  g_effWGs->BayesDivide(h_effWGs,h_allWGs);
-  g_effWGs->SetTitle("Wire group efficiency per chamber ;Chamber # ; efficiency");
-  g_effWGs->SetName("FINAL_WireGroup_Efficiency_perChamber");
-  g_effWGs->Write();
-  delete h_effWGs;
-  delete h_allWGs;
-  //
-  TGraphAsymmErrors* g_effRHs = new TGraphAsymmErrors(chRange);
-  g_effRHs->BayesDivide(h_effRHs,h_allRHs);
-  g_effRHs->SetTitle("Rechit efficiency per chamber ;Chamber # ; efficiency");
-  g_effRHs->SetName("FINAL_Rechit_Efficiency_perChamber");
-  g_effRHs->Write();
-
-  delete h_effRHs;
-  delete h_allRHs;
-  //
-  TGraphAsymmErrors* g_effRHs_good = new TGraphAsymmErrors(chRange);
-  g_effRHs_good->BayesDivide(h_effRHs_good,h_allRHs_good);
-  g_effRHs_good->SetTitle("Rechit (sensitive region) efficiency per chamber ;Chamber # ; efficiency");
-  g_effRHs_good->SetName("FINAL_Rechit_good_Efficiency_perChamber");
-  g_effRHs_good->Write();
-
-  delete h_effRHs_good;
-  delete h_allRHs_good;
-  //
-  TGraphAsymmErrors* g_effRHs_inSeg = new TGraphAsymmErrors(chRange);
-  g_effRHs_inSeg->BayesDivide(h_effRHs_inSeg,h_allRHs_inSeg);
-  g_effRHs_inSeg->SetTitle("Rechit (in Segment) efficiency per chamber ;Chamber # ; efficiency");
-  g_effRHs_inSeg->SetName("FINAL_Rechit_inSegment_Efficiency_perChamber");
-  g_effRHs_inSeg->Write();
-
-  delete h_effRHs_inSeg;
-  delete h_allRHs_inSeg;
-  //
-
-  sprintf(SpecName,"FINAL_dydz_Efficiency_ALCT");
-  FINAL_dydz_Efficiency_ALCT=
-    new TH1F(SpecName,"ALCT efficiency vs dy/dz of the segment in ref. system;dydz;efficiency", 30, -1.5, 1.5);
-  FINAL_dydz_Efficiency_ALCT->Sumw2();
-
-  FINAL_dydz_Efficiency_ALCT->Divide(dydz_Eff_ALCT, dydz_All_ALCT, 1.,1.,"B");
-
   //
   sprintf(SpecName,"FINAL_dydz_Efficiency_ALCT");
   FINAL_dydz_Efficiency_ALCT=

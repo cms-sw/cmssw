@@ -1,12 +1,14 @@
 #ifndef PixelTKFECConfig_h
 #define PixelTKFECConfig_h
-/**
-* \file CalibFormats/SiPixelObjects/interface/PixelTKFECConfig.h
-* \brief This class specifies which TKFEC boards are used and how they are addressed
-*
-*   A longer explanation will be placed here later
-*
-*/
+//
+// This class specifies which TKFEC boards
+// are used and how they are addressed
+// 
+// 
+// 
+//
+//
+//
 #include <iostream>
 #include <vector>
 #include <string>
@@ -14,16 +16,6 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelTKFECParameters.h"
 
 namespace pos{
-/*!  \ingroup ConfigurationObjects "Configuration Objects"
-*    
-*  @{
-*
-*  \class PixelTKFECConfig PixelTKFECConfig.h
-*  \brief This class specifies which TKFEC boards are used and how they are addressed
-*
-*   A longer explanation will be placed here later
-*
-*/
   class PixelTKFECConfig: public PixelConfigBase {
 
   public:
@@ -45,14 +37,9 @@ namespace pos{
     unsigned int addressFromTKFECID(std::string TKFECID) const;
 
     virtual void writeASCII(std::string dir) const;
-    virtual void writeXML(      pos::PixelConfigKey key, int version, std::string path)                     const {;}
-    virtual void writeXMLHeader(pos::PixelConfigKey key, int version, std::string path, std::ofstream *out) const {;}
-    virtual void writeXML(                                                              std::ofstream *out) const {;}
-    virtual void writeXMLTrailer(                                                       std::ofstream *out) const {;}
     
   private:
     std::vector< PixelTKFECParameters > TKFECconfig_;
   };
 }
-/* @} */
 #endif

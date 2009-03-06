@@ -1,7 +1,7 @@
 /*
         For saving the FU sender list
 
- $Id: SMFUSenderEntry.cc,v 1.8 2008/08/17 23:18:58 hcheung Exp $
+ $Id: SMFUSenderEntry.cc,v 1.9 2008/09/03 00:03:59 hcheung Exp $
 */
 
 #include "EventFilter/StorageManager/interface/SMFUSenderEntry.h"
@@ -345,7 +345,15 @@ bool SMFUSenderEntry::testCompleteRegistry(const std::string outModName)
   }
   else
   {
-    if(registryCollection_.currFramesMap_[outModName] == registryCollection_.totFramesMap_[outModName])
+    // 13-Sep-2008, KAB: Unfortunately, fragments from multiple INIT messages can
+    // be added to the same SMFUSenderEntry.  When this happens, we have to make
+    // sure that we release the I2O buffers when each complete INIT message is received.
+    // Of course, a better solution is to only ask SMFUSenderEntry to handle a
+    // single INIT message - that will come when we get a unique FU UUID.
+    // In the meantime, we simply go through this code whenever we get a complete
+    // INIT message, whether it is the first one or not.
+    //if(registryCollection_.currFramesMap_[outModName] == registryCollection_.totFramesMap_[outModName])
+    if((registryCollection_.currFramesMap_[outModName] % registryCollection_.totFramesMap_[outModName]) == 0)
     {
       FDEBUG(10) << "testCompleteRegistry: Received fragment completes a chain that has " 
                  << registryCollection_.totFramesMap_[outModName]

@@ -206,7 +206,7 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
  
       RPCstate.clear();
  
-      if(track.numberOfValidHits()>0.){
+      if(track.numberOfValidHits()>20){
 	for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
 	  if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
 	    RPCChamber* ch = dynamic_cast< RPCChamber* >( *it );
@@ -273,8 +273,7 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	const RPCRoll* rollasociated = rpcGeo->roll(rollId);
 	TrajectoryStateOnSurface tsosAtRoll = RPCstate[rollId];
 	
-	const float stripPredicted =rollasociated->strip
-	  (LocalPoint(tsosAtRoll.localPosition().x(),tsosAtRoll.localPosition().y(),0.));
+	const float stripPredicted =rollasociated->strip(LocalPoint(tsosAtRoll.localPosition().x(),tsosAtRoll.localPosition().y(),0.));
 	const float xextrap = tsosAtRoll.localPosition().x();
 	
 	totalcounter[0]++;

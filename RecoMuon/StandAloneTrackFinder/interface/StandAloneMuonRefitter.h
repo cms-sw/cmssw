@@ -4,8 +4,8 @@
 /** \class StandAloneMuonRefitter
  *  Class ti interface the muon system rechits with the standard KF tools.
  *
- *  $Date: 2008/07/07 12:36:41 $
- *  $Revision: 1.31 $
+ *  $Date: 2008/04/23 16:56:34 $
+ *  $Revision: 1.29 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -20,7 +20,7 @@ class Trajectory;
 
 class StandAloneMuonRefitter {
  public:
-  typedef std::pair<bool, Trajectory> RefitResult;
+  typedef std::pair<bool,Trajectory> RefitResult;
 
  public:
   /// Constructor
@@ -32,7 +32,6 @@ class StandAloneMuonRefitter {
   // Operations
 
   /// Refit
-  RefitResult singleRefit(const Trajectory&);
   RefitResult refit(const Trajectory&);
 
 protected:
@@ -41,9 +40,7 @@ private:
   const MuonServiceProxy* theService;
   edm::ESHandle<TrajectoryFitter> theFitter;
   std::string  theFitterName;
-  unsigned int theNumberOfIterations;
-  bool isForceAllIterations;
-  double theMaxFractionOfLostHits;
+  int theTEMPORARYoption;
 };
 #endif
 

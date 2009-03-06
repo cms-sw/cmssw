@@ -7,6 +7,7 @@
 
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
+#include "RecoTracker/TkNavigation/interface/TkLayerLess.h"
 
 #include <vector>
 
@@ -26,7 +27,7 @@ public:
     theSelfSearch(false),
     theEpsilon(eps),thePropagator(field),theCheckCrossingSide(checkCrossingSide) {}
 
-  virtual void setInwardLinks(const BDLC&, const FDLC&) = 0;
+    virtual void setInwardLinks(const BDLC&, const FDLC&, TkLayerLess sorter = TkLayerLess(outsideIn)) = 0;
   
   virtual void setAdditionalLink(DetLayer*, NavigationDirection direction=insideOut) = 0;
 

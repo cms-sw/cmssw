@@ -1,5 +1,5 @@
 //
-// $Id: PATGenericParticleProducer.h,v 1.5 2008/07/22 12:47:02 gpetrucc Exp $
+// $Id: PATGenericParticleProducer.h,v 1.4 2008/07/08 21:24:50 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATGenericParticleProducer_h
@@ -13,7 +13,7 @@
    any collection of Candidates
 
   \author   Giovanni Petrucciani
-  \version  $Id: PATGenericParticleProducer.h,v 1.5 2008/07/22 12:47:02 gpetrucc Exp $
+  \version  $Id: PATGenericParticleProducer.h,v 1.4 2008/07/08 21:24:50 gpetrucc Exp $
 */
 
 
@@ -58,7 +58,7 @@ namespace pat {
 
       bool addGenMatch_;
       bool embedGenMatch_;
-      std::vector<edm::InputTag> genMatchSrc_;
+      edm::InputTag genPartSrc_;
 
       bool addTrigMatch_;
       std::vector<edm::InputTag> trigPrimSrc_;

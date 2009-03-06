@@ -149,9 +149,9 @@ reco::PhotonID CutBasedPhotonIDAlgo::calculate(const reco::Photon* pho, const ed
 						photonEcalRecHitConeInnerRadius_,
                                                 photonEcalRecHitEtaSlice_,
 						photonEcalRecHitThresh_);
-  //double rawSCEt = (pho->superCluster()->rawEnergy())/(cosh(pho->p4().Eta()));
-  //double tempiso = EcalRecHitIso - rawSCEt;
-  //EcalRecHitIso= tempiso;
+  double rawSCEt = (pho->superCluster()->rawEnergy())/(cosh(pho->p4().Eta()));
+  double tempiso = EcalRecHitIso - rawSCEt;
+  EcalRecHitIso= tempiso;
 
 //   std::cout << "Output from ecal isolation: ";
 //   std::cout << " Sum pT: " << EcalRecHitIso << std::endl;

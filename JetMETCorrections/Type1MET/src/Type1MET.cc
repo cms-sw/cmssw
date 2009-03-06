@@ -13,13 +13,13 @@
 //
 // Original Author:  Oct 12 08:23
 //         Created:  Wed Oct 12 12:16:04 CDT 2005
-// $Id: Type1MET.cc,v 1.1 2008/08/27 00:41:21 kalavase Exp $
+// $Id: Type1MET.cc,v 1.14 2007/10/09 18:09:44 scurlock Exp $
 //
 //
 
 
 // user include files
-#include "JetMETCorrections/Type1MET/interface/Type1MET.h"
+#include "Type1MET.h"
 
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METCollection.h"

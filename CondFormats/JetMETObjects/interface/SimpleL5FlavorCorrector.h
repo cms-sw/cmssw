@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Oct 31, 2007
-// $Id: SimpleL5FlavorCorrector.h,v 1.4 2008/08/28 19:09:34 kkousour Exp $
+// $Id: SimpleL5FlavorCorrector.h,v 1.2 2008/02/29 20:28:26 fedor Exp $
 //
 // Jet flavor dependent corrections
 //

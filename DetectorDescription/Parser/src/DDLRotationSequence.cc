@@ -22,12 +22,14 @@
 // DDCore dependencies
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/Base/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
 
 // CLHEP dependencies
 //#include "CLHEP/Geometry/Transform3D.h"
 
+#include <string>
 
 // Default constructor
 DDLRotationSequence::DDLRotationSequence() 

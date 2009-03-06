@@ -9,6 +9,7 @@ int CSCChannelTranslator::rawStripChannel( const CSCDetId& id, int igeo ) const 
 
   bool zplus = (id.endcap()==1); 
 
+  // While we have separate detids for ME1a and ME1b...
   bool me1a = (id.station()==1) && (id.ring()==4);
   bool me1b = (id.station()==1) && (id.ring()==1);
 
@@ -40,21 +41,3 @@ int CSCChannelTranslator::geomStripChannel( const CSCDetId& id, int iraw ) const
   return igeo;
 }
 
-int CSCChannelTranslator::channelFromStrip( const CSCDetId& id, int strip ) const {
-  // This just returns the electronics channel label to which a given strip is connected
-  // In all chambers but ME1A this is just a direct 1-1 correspondence.
-  // In ME1A the 48 strips are ganged into 16 channels: 1+17+33->1, 2+18+34->2, ... 16+32+48->16.
-  int ichan = strip;
-  bool me1a = (id.station()==1) && (id.ring()==4);
-  if ( me1a && strip>16 ) ichan = (strip-1)%16 + 1; // gang the 48 to 16
-  return ichan;
-}
-
-CSCDetId CSCChannelTranslator::rawCSCDetId( const CSCDetId& id ) const {
-  // Return the effective online CSCDetId for given offline CSCDetId
-  // That means the same one except for ME1A, which online is part of ME11 (channels 65-80)
-  CSCDetId idraw( id );
-  bool me1a = (id.station()==1) && (id.ring()==4);
-  if ( me1a ) idraw = CSCDetId( id.endcap(), id.station(), 1, id.chamber(), id.layer() );
-  return idraw;   
-}

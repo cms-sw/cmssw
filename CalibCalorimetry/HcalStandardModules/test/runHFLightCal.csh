@@ -46,9 +46,7 @@ set pretxt  = hf_PreLightCal$1.txt
 cat > ${cfgp} <<EOF
 process HFPRELIGHTCAL = {
 
-include "CalibCalorimetry/Configuration/data/Hcal_FrontierConditions.cff"
-
-        untracked PSet maxEvents = {untracked int32 input = 99999999}
+        untracked PSet maxEvents = {untracked int32 input = 2000}
         source = HcalTBSource {
                 untracked vstring fileNames = {'file:${file}'}
 /*
@@ -81,9 +79,17 @@ include "CalibCalorimetry/Configuration/data/Hcal_FrontierConditions.cff"
                untracked string rootPreFile = "${preroot}"
                untracked string textPreFile = "${pretxt}"
         }
+        path p1 = { hcalDigis, PreLightCal }
 
-        path p = { hcalDigis, PreLightCal }
+  es_module = HcalDbProducer {}
+  es_source es_hardcode = HcalHardcodeCalibrations { untracked vstring toGet = {"Pedestals", "PedestalWidths", "Gains", "GainWidths", "QIEShape", "QIEData", "ChannelQuality"}}
 
+  es_source es_ascii = HcalTextCalibrations { VPSet input = {
+                                                {string object = "ElectronicsMap"
+                                                 FileInPath file = "CondFormats/HcalObjects/data/official_emap_16x_v4.txt"
+                                                }
+    }
+  }
 }
 EOF
 
@@ -110,8 +116,6 @@ set antxt  = hf_LightCal$1.txt
 
 cat > ${cfg} <<EOF
 process HFLIGHTCAL = {
-
-include "CalibCalorimetry/Configuration/data/Hcal_FrontierConditions.cff"
 
         untracked PSet maxEvents = {untracked int32 input = ${nevents}}
         source = HcalTBSource {
@@ -148,8 +152,21 @@ include "CalibCalorimetry/Configuration/data/Hcal_FrontierConditions.cff"
                untracked string preFile = "${pretxt}"
         }
 
-        path p = { hcalDigis, LightCal }
 
+
+
+
+        path p = { hcalDigis, LightCal}
+
+  es_module = HcalDbProducer {}
+  es_source es_hardcode = HcalHardcodeCalibrations { untracked vstring toGet = {"Pedestals", "PedestalWidths", "Gains", "GainWidths", "QIEShape", "QIEData", "ChannelQuality"}}
+
+  es_source es_ascii = HcalTextCalibrations { VPSet input = {
+                                                {string object = "ElectronicsMap"
+                                                 FileInPath file = "CondFormats/HcalObjects/data/official_emap_16x_v4.txt"
+                                                }
+    }
+  }
 }		
 EOF
 
@@ -160,13 +177,11 @@ else
     exit
 endif
 
-eval `scramv1 runtime -csh`
 echo "eval scramv1 runtime -csh"
+eval `scramv1 runtime -csh`
 
 set logp = "hf_PreLightCal$1.log"
 if (-f "${logp}") rm $logp
-
-echo "Pre- job at run"
 
 cmsRun ${cfgp} > $logp
 
@@ -180,8 +195,6 @@ endif
 
 set log = "hf_LightCal$1.log"
 if (-f "${log}") rm $log
-
-echo "HFCal- job at run"
 
 cmsRun ${cfg} > $log
 

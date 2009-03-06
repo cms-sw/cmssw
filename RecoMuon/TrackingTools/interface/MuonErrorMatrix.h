@@ -8,7 +8,7 @@
  * Error/Scale factor matrix is obtained using get(GlobalVector momentum)
  *
  * $Dates: 2007/09/04 13:28 $
- * $Revision: 1.4 $
+ * $Revision: 1.3 $
  *
  * \author Jean-Roch Vlimant  UCSB
  * \author Finn Rebassoo      UCSB
@@ -19,7 +19,6 @@
 
 
 #include <TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h>
-#include <TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <TFile.h>
@@ -64,18 +63,6 @@ class MuonErrorMatrix{
   ///method to get the bin index, taking care of under/overlow: first(1)/last(GetNbins())returned
   int findBin(TAxis * axis, double value);
 
-  /// convert sigma2/COV -> sigma/rho
-  void simpleTerm(const AlgebraicSymMatrix55 & input, AlgebraicSymMatrix55 & output);
-  
-  ///convert sigma/rho -> sigma2/COV
-  void complicatedTerm(const AlgebraicSymMatrix55 & input, AlgebraicSymMatrix55 & output);
-
-  /// adjust the error matrix on the state
-  void adjust(FreeTrajectoryState & state);
-
-  /// adjust the error matrix on the state
-  void adjust(TrajectoryStateOnSurface & state);
-
  private:
   /// log category: "MuonErrorMatrix"
   std::string theCategory;
@@ -85,10 +72,7 @@ class MuonErrorMatrix{
   /// 15 TProfile, each holding he parametrization of each term of the 5x5 
   TProfile3D * theData[15];
   TProfile3D * theData_fast[5][5];
-
-  /// decide whether to scale of to assigne terms
-  enum TermAction  { error, scale, assign };
-  TermAction theTermAction[15];  
+  
 
   /// internal methods to get the index of a matrix term.
   inline int Pindex(int i , int j) {

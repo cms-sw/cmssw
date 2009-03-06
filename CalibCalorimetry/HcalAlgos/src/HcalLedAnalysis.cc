@@ -547,8 +547,10 @@ void HcalLedAnalysis::LedDone()
   m_file->cd();
   m_file->cd("Calib");
   for(_meca=calibHists.begin(); _meca!=calibHists.end(); _meca++){
-    _meca->second.avePulse->Write();
-    _meca->second.integPulse->Write();
+    for (int i = 0; i != 3; i++){
+      _meca->second.avePulse[i]->Write();
+      _meca->second.integPulse[i]->Write();
+    }
   }
 
   // Write the histo file and close it
@@ -933,29 +935,22 @@ void HcalLedAnalysis::ProcessCalibEvent(int fiberChan, HcalCalibDetId calibId, c
   if (_meca==calibHists.end()){
   // if histos for this channel do not exist, first create them
     char name[1024];
-    std::string prefix;
-    if (calibId.calibFlavor()==HcalCalibDetId::CalibrationBox) {
-      std::string sector=(calibId.hcalSubdet()==HcalBarrel)?("HB"):
-	(calibId.hcalSubdet()==HcalEndcap)?("HE"):
-	(calibId.hcalSubdet()==HcalOuter)?("HO"):
-	(calibId.hcalSubdet()==HcalForward)?("HF"):"";
-      sprintf(name,"%s %+d iphi=%d %s",sector.c_str(),calibId.ieta(),calibId.iphi(),calibId.cboxChannelString().c_str());
-      prefix=name;
+    // this loop is temporary.  CalibDetId cannot seem to distinquish between the fiber channels
+    for (int fiber = 0; fiber != 3; fiber++){
+      sprintf(name,"%s Pin Diode Mean pulse, RBX=%d, Fiber Channel=%d",calibId.sectorString().c_str(),calibId.rbx(),fiber);    
+      calibHists[calibId].avePulse[fiber] = new TProfile(name,name,10,-0.5,9.5,0,1000);
+      sprintf(name,"%s Pin Diode Current Pulse, RBX=%d, Fiber Channel=%d",calibId.sectorString().c_str(),calibId.rbx(),fiber); 
+      calibHists[calibId].thisPulse[fiber] = new TH1F(name,name,10,-0.5,9.5);
+      sprintf(name,"%s Pin Diode Integrated Pulse, RBX=%d, Fiber Channel=%d",calibId.sectorString().c_str(),calibId.rbx(),fiber);
+      calibHists[calibId].integPulse[fiber] = new TH1F(name,name,200,0,500);
     }
-    
-    sprintf(name,"%s Pin Diode Mean",prefix.c_str());
-    calibHists[calibId].avePulse = new TProfile(name,name,10,-0.5,9.5,0,1000);
-    sprintf(name,"%s Pin Diode Current Pulse",prefix.c_str());
-    calibHists[calibId].thisPulse = new TH1F(name,name,10,-0.5,9.5);
-    sprintf(name,"%s Pin Diode Integrated Pulse",prefix.c_str());
-    calibHists[calibId].integPulse = new TH1F(name,name,200,0,500);    
   }
   else {
     for (int i=m_startTS; i<digi.size() && i<=m_endTS; i++) {
-      calibHists[calibId].avePulse->Fill(i,digi.sample(i).adc());
-      calibHists[calibId].thisPulse->SetBinContent(i+1,digi.sample(i).adc());
+      calibHists[calibId].avePulse[fiberChan]->Fill(i,digi.sample(i).adc());
+      calibHists[calibId].thisPulse[fiberChan]->SetBinContent(i+1,digi.sample(i).adc());
     }
-    calibHists[calibId].integPulse->Fill(calibHists[calibId].thisPulse->Integral());
+    calibHists[calibId].integPulse[fiberChan]->Fill(calibHists[calibId].thisPulse[fiberChan]->Integral());
   }
 }
 

@@ -1,5 +1,5 @@
 //
-// $Id: PATPhotonProducer.cc,v 1.11 2008/07/08 21:24:50 gpetrucc Exp $
+// $Id: PATPhotonProducer.cc,v 1.10 2008/06/24 22:58:24 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATPhotonProducer.h"
@@ -25,14 +25,8 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet & iConfig) :
 
    // MC matching configurables
   addGenMatch_       = iConfig.getParameter<bool>         ( "addGenMatch" );
-  if (addGenMatch_) {
-      embedGenMatch_ = iConfig.getParameter<bool>         ( "embedGenMatch" );
-      if (iConfig.existsAs<edm::InputTag>("genParticleMatch")) {
-          genMatchSrc_.push_back(iConfig.getParameter<edm::InputTag>( "genParticleMatch" ));
-      } else {
-          genMatchSrc_ = iConfig.getParameter<std::vector<edm::InputTag> >( "genParticleMatch" );
-      }
-  }
+  embedGenMatch_     = iConfig.getParameter<bool>         ( "embedGenMatch" );
+  genMatchSrc_       = iConfig.getParameter<edm::InputTag>( "genParticleMatch" );
   
   // trigger matching configurables
   addTrigMatch_     = iConfig.getParameter<bool>         ( "addTrigMatch" );
@@ -73,11 +67,9 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
   iEvent.getByLabel(photonSrc_, photons);
 
   // prepare the MC matching
-  std::vector<edm::Handle<edm::Association<reco::GenParticleCollection> > > genMatches(genMatchSrc_.size());
+  edm::Handle<edm::Association<reco::GenParticleCollection> > genMatch;
   if (addGenMatch_) {
-        for (size_t j = 0, nd = genMatchSrc_.size(); j < nd; ++j) {
-            iEvent.getByLabel(genMatchSrc_[j], genMatches[j]);
-        }
+    iEvent.getByLabel(genMatchSrc_, genMatch);
   }
 
   // prepare the PhotonID
@@ -104,13 +96,12 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
     Photon aPhoton(photonRef);
     if (embedSuperCluster_) aPhoton.embedSuperCluster();
 
-    // store the match to the generated final state muons
+    // store the match to the generated final state photons
     if (addGenMatch_) {
-      for(size_t i = 0, n = genMatches.size(); i < n; ++i) {
-          reco::GenParticleRef genPhoton = (*genMatches[i])[photonRef];
-          aPhoton.addGenParticleRef(genPhoton);
-      }
-      if (embedGenMatch_) aPhoton.embedGenParticle();
+      reco::GenParticleRef genPhoton = (*genMatch)[photonRef];
+      if (genPhoton.isNonnull() && genPhoton.isAvailable() ) {
+        aPhoton.setGenPhoton(genPhoton, embedGenMatch_);
+      } // leave empty if no match found
     }
     
     // matches to trigger primitives

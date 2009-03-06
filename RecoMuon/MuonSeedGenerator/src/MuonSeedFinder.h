@@ -8,8 +8,8 @@
  *  \author A. Vitelli - INFN Torino
  *  \author porting R. Bellan - INFN Torino
  *
- *  $Date: 2007/03/28 01:05:33 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/08/01 15:53:04 $
+ *  $Revision: 1.8 $
  *  
  */
 
@@ -18,9 +18,8 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2D.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
-#include "RecoMuon/MuonSeedGenerator/src/MuonSeedPtExtractor.h"
 
 #include <vector>
 
@@ -30,7 +29,7 @@ class MagneticField;
 class MuonSeedFinder {
 public:
   /// Constructor
-  MuonSeedFinder(const edm::ParameterSet & pset);
+  MuonSeedFinder();
 
   /// Destructor
   virtual ~MuonSeedFinder(){};
@@ -42,8 +41,6 @@ public:
   std::vector<TrajectorySeed> seeds(const edm::EventSetup& eSetup) const;
   MuonTransientTrackingRecHit::ConstMuonRecHitPointer firstRecHit() const { return theRhits.front(); }
   unsigned int nrhit() const { return  theRhits.size(); }
-
-  void clear() {theRhits.clear();}
   
 private:
   //  TrackingRecHit best_cand(TrackingRecHit* rhit=0) const;
@@ -57,7 +54,7 @@ private:
   
   float computePt(MuonTransientTrackingRecHit::ConstMuonRecHitPointer muon, const MagneticField *field) const;
   void analyze() const;
-  MuonSeedPtExtractor thePtExtractor; 
+  
   MuonTransientTrackingRecHit::MuonRecHitContainer theRhits;
  
   // put a parameterSet instead of

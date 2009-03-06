@@ -55,9 +55,7 @@ void EcalPreshowerRecHitsMaker::clean()
 
 void EcalPreshowerRecHitsMaker::loadEcalPreshowerRecHits(edm::Event &iEvent,ESRecHitCollection & ecalHits)
 {
-  // if no preshower, do nothing
 
-  if(ncells_==0) return;
   loadPCaloHits(iEvent);
   if( myGaussianTailGenerator_ ) noisify();
 
@@ -112,7 +110,6 @@ unsigned EcalPreshowerRecHitsMaker::createVectorsOfCells(const edm::EventSetup &
     escells_.reserve(137728);
 
     const CaloSubdetectorGeometry* geom=pG->getSubdetectorGeometry(DetId::Ecal,EcalPreshower);  
-    if(geom==0) return 0;
     const std::vector<DetId>& ids(geom->getValidDetIds(DetId::Ecal,EcalPreshower));  
     for (std::vector<DetId>::const_iterator i=ids.begin(); i!=ids.end(); i++) 
       {

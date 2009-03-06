@@ -74,7 +74,7 @@ void SiStripFedCabling::buildFedCabling( const std::vector<FedChannelConnection>
   
   // Check input
   if ( input.empty() ) {
-    edm::LogWarning(mlCabling_)
+    edm::LogError(mlCabling_)
       << "[SiStripFedCabling::" << __func__ << "]"
       << " Input vector of FedChannelConnections is of zero size!"
       << " Unable to populate FED cabling object!"; 
@@ -103,15 +103,21 @@ void SiStripFedCabling::buildFedCabling( const std::vector<FedChannelConnection>
     
     // Check on FED ids and channels
     if ( fed_id > sistrip::CMS_FED_ID_MAX ) {
-      edm::LogWarning(mlCabling_)
-	<< "[SiStripFedCabling::" << __func__ << "]"
-	<< " Unexpected FED id! " << fed_id; 
-    } 
+      if ( edm::isDebugEnabled() ) {
+	edm::LogWarning(mlCabling_)
+	  << "[SiStripFedCabling::" << __func__ << "]"
+	  << " Unexpected FED id! " << fed_id; 
+      } 
+      continue;
+    }
     if ( fed_ch >= sistrip::FEDCH_PER_FED ) {
-      edm::LogWarning(mlCabling_)
-	<< "[SiStripFedCabling::" << __func__ << "]"
-	<< " Unexpected FED channel! " << fed_ch;
-    } 
+      if ( edm::isDebugEnabled() ) {
+	edm::LogWarning(mlCabling_)
+	  << "[SiStripFedCabling::" << __func__ << "]"
+	  << " Unexpected FED channel! " << fed_ch;
+      } 
+      continue;
+    }
     
     // Resize container to accommodate all FED channels
     if ( connected_.size() <= fed_id ) { connected_.resize(fed_id+1); }
@@ -156,27 +162,33 @@ const FedChannelConnection& SiStripFedCabling::connection( uint16_t fed_id,
 	if ( fed_chan < connected_[fed_id].size() ) {
 	  return connected_[fed_id][fed_chan];
 	} else {
-	  edm::LogWarning(mlCabling_)
-	    << "[SiStripFedCabling::" << __func__ << "]" 
-	    << " FED channel (" << fed_chan
-	    << ") is greater than or equal to vector size (" 
-	    << connected_[fed_chan].size() << ")!";
+	  if ( edm::isDebugEnabled() ) {
+	    edm::LogWarning(mlCabling_)
+	      << "[SiStripFedCabling::" << __func__ << "]" 
+	      << " FED channel (" << fed_chan
+	      << ") is greater than or equal to vector size (" 
+	      << connected_[fed_chan].size() << ")!";
+	  }
 	}
       } else {
-	edm::LogWarning(mlCabling_)
-	  << "[SiStripFedCabling::" << __func__ << "]" 
-	  << " Cabling map is empty for FED id "
-	  << fed_id;
+	if ( edm::isDebugEnabled() ) {
+	  edm::LogWarning(mlCabling_)
+	    << "[SiStripFedCabling::" << __func__ << "]" 
+	    << " Cabling map is empty for FED id "
+	    << fed_id;
+	}
       }
     } else {
-      edm::LogWarning(mlCabling_) 
-	<< "[SiStripFedCabling::" << __func__ << "]" 
-	<< " FED id (" << fed_id
-	<< ") is greater than or equal to vector size (" 
-	<< connected_.size() << ")!";
+      if ( edm::isDebugEnabled() ) {
+	edm::LogWarning(mlCabling_) 
+	  << "[SiStripFedCabling::" << __func__ << "]" 
+	  << " FED id (" << fed_id
+	  << ") is greater than or equal to vector size (" 
+	  << connected_.size() << ")!";
+      }
     }
   } else {
-    edm::LogWarning(mlCabling_)
+    edm::LogError(mlCabling_)
       << "[SiStripFedCabling::" << __func__ << "]" 
       << " Cabling map is empty!";
   }
@@ -195,20 +207,24 @@ const std::vector<FedChannelConnection>& SiStripFedCabling::connections( uint16_
       if ( !connected_[fed_id].empty() ) {
 	return connected_[fed_id];
       } else {
-	edm::LogWarning(mlCabling_)
-	  << "[SiStripFedCabling::" << __func__ << "]" 
-	  << " Cabling map is empty for FED id "
-	  << fed_id;
+	if ( edm::isDebugEnabled() ) {
+	  edm::LogWarning(mlCabling_)
+	    << "[SiStripFedCabling::" << __func__ << "]" 
+	    << " Cabling map is empty for FED id "
+	    << fed_id;
+	}
       }
     } else {
-      edm::LogWarning(mlCabling_)
-	<< "[SiStripFedCabling::" << __func__ << "]" 
-	<< " FED id (" << fed_id
-	<< ") is greater than or equal to vector size (" 
-	<< connected_.size() << ")!";
+      if ( edm::isDebugEnabled() ) {
+	edm::LogWarning(mlCabling_)
+	  << "[SiStripFedCabling::" << __func__ << "]" 
+	  << " FED id (" << fed_id
+	  << ") is greater than or equal to vector size (" 
+	  << connected_.size() << ")!";
+      }
     }
   } else {
-    edm::LogWarning(mlCabling_)
+    edm::LogError(mlCabling_)
       << "[SiStripFedCabling::" << __func__ << "]" 
       << " Cabling map is empty!";
   }

@@ -215,13 +215,16 @@ std::vector<MyElectronicsId> HistoManager::getElecIdsForType(HistType ht,
     std::string keyname = keyList->At(keyindex)->GetName();
     while (keyname.find("_")!=std::string::npos)
       keyname.replace(keyname.find("_"),1," ");
+    int dumeta,dumphi,dumdepth,dumdcc,dumspig; 
     char bottop;
+    char unknown[100];
+    char calib[100];
     
     //printf("%s\n",keyname.c_str());
  
     if(strstr(keyname.c_str(),"CALIB")){
-       converted = sscanf(keyname.c_str(),"%s %*s %s %*d %*d chan=%*s eid=%*d %*d %d %d HTR %d:%d%c ",
-			  keyflavor,keysubDet, &mydeteid.fiber,&mydeteid.fiberChan,&mydeteid.crate,&mydeteid.Slot,&bottop);
+       converted = sscanf(keyname.c_str(),"%s %s %s rbx=%d chan=%s eid=%d %d %d %d HTR %d:%d%c ",
+			  keyflavor,keysubDet,calib,&dumeta,unknown,&dumdcc,&dumspig, &mydeteid.fiber,&mydeteid.fiberChan,&mydeteid.crate,&mydeteid.Slot,&bottop);
             
    if (bottop=='t')
       {mydeteid.tb=1;}
@@ -231,8 +234,8 @@ std::vector<MyElectronicsId> HistoManager::getElecIdsForType(HistType ht,
    // printf("%d converts to %d %d %d %d %c\n",converted,mydeteid.fiber,mydeteid.fiberChan,mydeteid.crate,mydeteid.Slot,bottop);
 
     }else{
-      converted = sscanf(keyname.c_str(),"%s %s %*d %*d %*d eid=%*d %*d %d %d HTR %d:%d%c ",
-			 keyflavor,keysubDet, &mydeteid.fiber,&mydeteid.fiberChan,&mydeteid.crate,&mydeteid.Slot,&bottop);
+      converted = sscanf(keyname.c_str(),"%s %s %d %d %d eid=%d %d %d %d HTR %d:%d%c ",
+			 keyflavor,keysubDet,&dumeta,&dumphi,&dumdepth,&dumdcc,&dumspig, &mydeteid.fiber,&mydeteid.fiberChan,&mydeteid.crate,&mydeteid.Slot,&bottop);
       
         
     if (bottop=='t')
@@ -243,7 +246,7 @@ std::vector<MyElectronicsId> HistoManager::getElecIdsForType(HistType ht,
     //printf("converts to %d %d %d %d %d\n",mydeteid.fiber,mydeteid.fiberChan,mydeteid.crate,mydeteid.Slot,mydeteid.tb);
 
 
-    if( (flavor==keyflavor) && (converted==7) )
+    if( (flavor==keyflavor) && (converted==12) )
 
       retvals.push_back(mydeteid);
     

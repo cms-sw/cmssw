@@ -18,15 +18,23 @@
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include <vector>
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+#include <vector>
+#include "TFile.h"
+#include "TNtuple.h"
+
 
 class HLTMuonGenericRate {
+
 public:
+
   /// Constructor
   HLTMuonGenericRate(const edm::ParameterSet& pset, int triggerIndex);
 
@@ -34,73 +42,76 @@ public:
   virtual ~HLTMuonGenericRate();
 
   // Operations
-
-  void analyze(const edm::Event & event);
-
-  void BookHistograms() ;
-  void WriteHistograms() ;
-  void SetCurrentFolder( TString folder );
+  void analyze          ( const edm::Event & iEvent );
+  void BookHistograms   ( );
   MonitorElement* BookIt( TString name, TString title, 
-			  int Nbins, float Min, float Max);
+			  int Nbins, float Min, float Max );
 
 private:
 
   // Input from cfg file
-  std::string folderName;
-  edm::InputTag theL1CollectionLabel, theGenLabel, theRecoLabel;
+  edm::InputTag theL1CollectionLabel;
+  std::string   theGenLabel;
+  std::string   theRecoLabel;
   std::vector<edm::InputTag> theHLTCollectionLabels;
-  double theL1ReferenceThreshold,theHLTReferenceThreshold;
-  std::vector<double> theNSigmas;
-  unsigned int theNumberOfObjects;
-  bool useMuonFromGenerator,useMuonFromReco;
-  double theCrossSection;
+
+  double theL1ReferenceThreshold;
+  double theHLTReferenceThreshold;
   double theLuminosity;
   double thePtMin;
   double thePtMax;
+  double theMinPtCut;
+  double theMaxEtaCut;
+
+  std::vector<double> theNSigmas;
+  unsigned int theNumberOfObjects;
   unsigned int theNbins;
-  int thisEventWeight;
+  int  thisEventWeight;
+  int  theMotherParticleId;
+  bool m_useMuonFromGenerator;
+  bool m_useMuonFromReco;
+  bool m_makeNtuple;
 
-  // Histograms
-  DQMStore* dbe_;  
-  MonitorElement* hL1DR, *hL2DR, *hL3DR;
-  MonitorElement* hL1eff;
-  MonitorElement* hMCMaxPtPassL1;
-  MonitorElement* hRECOMaxPtPassL1;
-  MonitorElement* hMCMaxPt;
-  MonitorElement* hMCphinor;
-  MonitorElement* hMCetanor;
-  MonitorElement* hRECOMaxPt;
-  MonitorElement* hRECOphinor;
-  MonitorElement* hRECOetanor;
-  MonitorElement* hL1rate;
-  MonitorElement* hL1pt;
-  MonitorElement* hL1etaMC;
-  MonitorElement* hL1phiMC;
-  MonitorElement* hL1etaRECO;
-  MonitorElement* hL1phiRECO;
-  MonitorElement* hSteps;
-  std::vector <MonitorElement*> hHLTeff;
-  std::vector <MonitorElement*> hHLTMCMaxPtPass;
-  std::vector <MonitorElement*> hHLTRECOMaxPtPass;
-  std::vector <MonitorElement*> hHLTrate;
-  std::vector <MonitorElement*> hHLTpt;
-  std::vector <MonitorElement*> hHLTetaMC;
-  std::vector <MonitorElement*> hHLTphiMC;
-  std::vector <MonitorElement*> hHLTetaRECO;
-  std::vector <MonitorElement*> hHLTphiRECO;
+  // Struct for matching
+  struct MatchStruct {
+    const reco::GenParticle*       genCand;
+    const reco::Track*             recCand;
+    const l1extra::L1MuonParticle* l1Cand;
+    std::vector<const reco::RecoChargedCandidate*> hltCands;
+  };
 
-  HepMC::GenEvent::particle_const_iterator theAssociatedGenPart;
-  reco::TrackCollection::const_iterator theAssociatedRecoPart;
-  const HepMC::GenEvent* evt;
+  const reco::Candidate* findMother( const reco::Candidate* );
+  int findGenMatch( double eta, double phi, double maxDeltaR,
+		    std::vector<MatchStruct> matches );
+  int findRecMatch( double eta, double phi, double maxdeltaR,
+		    std::vector<MatchStruct> matches );
+  
+  // Monitor Elements (Histograms and ints)
+  DQMStore* dbe_;
 
-  std::pair<double,double> getAngles( double eta, double phi, 
-			   HepMC::GenEvent evt, double maxDeltaR );
-  std::pair<double,double> getAngles( double eta, double phi, 
-			   reco::TrackCollection tracks, double maxDeltaR );
+  std::vector <MonitorElement*> hPtPassGen ;
+  std::vector <MonitorElement*> hEtaPassGen;
+  std::vector <MonitorElement*> hPhiPassGen;
+  std::vector <MonitorElement*> hPtPassRec ;
+  std::vector <MonitorElement*> hEtaPassRec;
+  std::vector <MonitorElement*> hPhiPassRec;
 
-  MonitorElement *NumberOfEvents, *NumberOfL1Events;
-  int theNumberOfEvents,theNumberOfL1Events;
+  MonitorElement *NumberOfEvents;
+  MonitorElement *NumberOfL1Events;
+  MonitorElement *NumberOfL1Orphans;
+  MonitorElement *NumberOfHltOrphans;
+  int theNumberOfEvents;
+  int theNumberOfL1Events;
+  int theNumberOfL1Orphans;
+  int theNumberOfHltOrphans;
   std::string theRootFileName;
+
+
+  // Facilities for writing a match ntuple
+  bool    makeNtuple;
+  TNtuple *theNtuple;
+  TFile   *theFile;
+  float   ntParams[18];
 
 };
 #endif

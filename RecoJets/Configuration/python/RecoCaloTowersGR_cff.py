@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: RecoCaloTowersGR_cff.py,v 1.1 2008/04/21 03:27:17 rpw Exp $
+# $Id: RecoCaloTowersGR_cff.py,v 1.2 2008/06/18 23:40:28 fedor Exp $
 #
 # create GR calotowers here
 #
@@ -53,6 +53,7 @@ towerMaker = cms.EDFilter("CaloTowersCreator",
     MomTotDepth = cms.double(0)
 )
 
+from RecoJets.JetProducers.CaloTowerSchemeBWithHO_cfi import *
 
-recoCaloTowersGR = cms.Sequence(towerMaker)
+recoCaloTowersGR = cms.Sequence(towerMaker+towerMakerWithHO)
 

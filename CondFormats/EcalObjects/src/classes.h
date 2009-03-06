@@ -174,7 +174,3 @@ namespace {
   }
 }
 
-#include "CondFormats/EcalObjects/interface/EcalMappingElectronics.h"
-namespace {
-  EcalMappingElectronics ecalMap;
-}

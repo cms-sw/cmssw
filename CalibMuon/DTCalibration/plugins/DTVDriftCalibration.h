@@ -4,17 +4,15 @@
 /** \class DTVDriftCalibration
  *  No description available.
  *
- *  $Date: 2007/07/12 07:25:47 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/07/11 12:21:01 $
+ *  $Revision: 1.1 $
  *  \author M. Giunta
  */
 
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-//#include "CalibMuon/DTCalibration/plugins/vDriftHistos.h"
-#include "CalibMuon/DTCalibration/interface/vDriftHistos.h"
-//#include "CalibMuon/DTCalibration/plugins/DTTMax.h"
-#include "CalibMuon/DTCalibration/interface/DTTMax.h"
+#include "CalibMuon/DTCalibration/plugins/vDriftHistos.h"
+#include "CalibMuon/DTCalibration/plugins/DTTMax.h"
 #include "CalibMuon/DTCalibration/plugins/DTCalibrationMap.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

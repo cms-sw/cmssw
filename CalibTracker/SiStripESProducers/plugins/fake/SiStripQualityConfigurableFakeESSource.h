@@ -16,7 +16,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
-#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
+#include "CondFormats/DataRecord/interface/SiStripBadModuleRcd.h"
 
 #include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
@@ -37,7 +38,7 @@ class SiStripQualityConfigurableFakeESSource : public edm::ESProducer, public ed
   ~SiStripQualityConfigurableFakeESSource(){};
   
   
-  std::auto_ptr<SiStripQuality> produce(const SiStripQualityRcd&);
+  std::auto_ptr<SiStripBadStrip> produce(const SiStripBadModuleRcd&);
   
 private:
   

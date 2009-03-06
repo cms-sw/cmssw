@@ -1,4 +1,4 @@
-// $Id: CompositePtrCandidate.cc,v 1.2 2008/04/21 15:38:38 llista Exp $
+// $Id: CompositePtrCandidate.cc,v 1.1 2007/10/29 15:49:20 llista Exp $
 #include "DataFormats/Candidate/interface/CompositePtrCandidate.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -45,14 +45,6 @@ size_t CompositePtrCandidate::numberOfDaughters() const {
 
 size_t CompositePtrCandidate::numberOfMothers() const { 
   return 0;
-}
-
-size_t CompositePtrCandidate::numberOfSourceCandidatePtrs() const { 
-  return numberOfDaughters(); 
-}
-
-CandidatePtr CompositePtrCandidate::sourceCandidatePtr( size_type i ) const {
-  return daughterPtr(i);
 }
 
 bool CompositePtrCandidate::overlap( const Candidate & c2 ) const {

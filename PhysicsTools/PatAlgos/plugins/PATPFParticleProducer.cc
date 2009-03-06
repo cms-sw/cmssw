@@ -1,5 +1,5 @@
 //
-// $Id: PATPFParticleProducer.cc,v 1.1 2008/07/24 12:45:38 cbern Exp $
+// $Id: PATPFParticleProducer.cc,v 1.12 2008/07/21 17:18:38 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATPFParticleProducer.h"
@@ -31,14 +31,8 @@ PATPFParticleProducer::PATPFParticleProducer(const edm::ParameterSet & iConfig) 
  
   // MC matching configurables
   addGenMatch_   = iConfig.getParameter<bool>         ( "addGenMatch" );
-  if (addGenMatch_) {
-      embedGenMatch_ = iConfig.getParameter<bool>         ( "embedGenMatch" );
-      if (iConfig.existsAs<edm::InputTag>("genParticleMatch")) {
-          genMatchSrc_.push_back(iConfig.getParameter<edm::InputTag>( "genParticleMatch" ));
-      } else {
-          genMatchSrc_ = iConfig.getParameter<std::vector<edm::InputTag> >( "genParticleMatch" );
-      }
-  }
+  embedGenMatch_ = iConfig.getParameter<bool>         ( "embedGenMatch" );
+  // genMatchSrc_   = iConfig.getParameter<edm::InputTag>( "genParticleMatch" );
 
 
   // produces vector of muons
@@ -62,12 +56,8 @@ void PATPFParticleProducer::produce(edm::Event & iEvent,
 			   iEvent );
 
   // prepare the MC matching
-  std::vector<edm::Handle<edm::Association<reco::GenParticleCollection> > > genMatches(genMatchSrc_.size());
-  if (addGenMatch_) {
-        for (size_t j = 0, nd = genMatchSrc_.size(); j < nd; ++j) {
-            iEvent.getByLabel(genMatchSrc_[j], genMatches[j]);
-        }
-  }
+  edm::Handle<edm::Association<reco::GenParticleCollection> > genMatch;
+  if (addGenMatch_) iEvent.getByLabel(genMatchSrc_, genMatch);
 
   // loop over PFCandidates
   std::vector<PFParticle> * patPFParticles = new std::vector<PFParticle>();
@@ -82,13 +72,14 @@ void PATPFParticleProducer::produce(edm::Event & iEvent,
 
     PFParticle aPFParticle(pfCandidatesRef);
 
-    if (addGenMatch_) {
-      for(size_t i = 0, n = genMatches.size(); i < n; ++i) {
-          reco::GenParticleRef genPFParticle = (*genMatches[i])[pfCandidatesRef];
-          aPFParticle.addGenParticleRef(genPFParticle);
-      }
-      if (embedGenMatch_) aPFParticle.embedGenParticle();
-    }
+    // store the match to the generated final state pfCandidates
+//     if (addGenMatch_) {
+//       reco::GenParticleRef genPFParticle = (*genMatch)[pfCandidatesRef];
+//       if (genPFParticle.isNonnull() && genPFParticle.isAvailable() ) {
+//         aPFParticle.setGenLepton(genPFParticle, embedGenMatch_);
+//       } // leave empty if no match found
+//     }
+
 
     // add sel to selected
     patPFParticles->push_back(aPFParticle);

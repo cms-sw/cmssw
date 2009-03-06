@@ -1,10 +1,6 @@
 #ifndef RecoParticleFlow_PFClusterTools_PFEnergyCalibration_h
 #define RecoParticleFlow_PFClusterTools_PFEnergyCalibration_h 
 
-#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-#include "RecoParticleFlow/PFClusterAlgo/interface/PFClusterAlgo.h"
-#include "RecoParticleFlow/PFBlockAlgo/interface/PFBlockAlgo.h"
-
 // -*- C++ -*-
 //
 // Package:    PFClusterTools
@@ -23,7 +19,7 @@
 //
 // Original Author:  Christian Veelken
 //         Created:  Tue Aug  8 16:26:18 CDT 2006
-// $Id: PFEnergyCalibration.h,v 1.3 2007/12/09 18:37:38 cbern Exp $
+// $Id: PFEnergyCalibration.h,v 1.2 2007/03/29 14:32:44 veelken Exp $
 //
 //
 
@@ -52,8 +48,6 @@ class PFEnergyCalibration
   double energyEm(double uncalibratedEnergyECAL, 
 		  double eta=0, double phi=0) const;
   
-  double energyEm(const reco::PFCluster& clusterEcal,std::vector<double> &EclustersPS1,std::vector<double> &EclustersPS2);
-
   // HCAL only calibration
   double energyHad(double uncalibratedEnergyHCAL, 
 		   double eta=0, double phi=0) const;
@@ -101,23 +95,6 @@ class PFEnergyCalibration
   double paramHCAL_slope_;
   double paramHCAL_offset_;
   double paramHCAL_damping_;
-
- private:
-  
-  double minimum(double a,double b);
-  double dCrackPhi(double phi, double eta);
-  double CorrPhi(double phi, double eta);
-  double CorrEta(double eta);
-  double CorrBarrel(double E, double eta);
-  double Alpha(double eta);
-  double Beta(double E, double eta);
-  double Gamma(double etaEcal);
-  double EcorrBarrel(double E, double eta, double phi);
-  double EcorrZoneBeforePS(double E, double eta);
-  double EcorrPS(double eEcal,double ePS1,double ePS2,double etaEcal);
-  double EcorrPS_ePSNil(double eEcal,double eta);
-  double EcorrZoneAfterPS(double E, double eta);
-  double Ecorr(double eEcal,double ePS1,double ePS2,double eta,double phi);
 };
 
 #endif

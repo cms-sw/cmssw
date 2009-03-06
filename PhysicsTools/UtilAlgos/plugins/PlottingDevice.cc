@@ -13,7 +13,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Thu May 15 14:37:59 CEST 2008
-// $Id: PlottingDevice.cc,v 1.3 2008/08/29 22:24:35 vlimant Exp $
+// $Id: PlottingDevice.cc,v 1.1 2008/06/21 11:43:27 vlimant Exp $
 //
 //
 
@@ -71,10 +71,10 @@ PlottingDevice::PlottingDevice(const edm::ParameterSet& iConfig)
   
   //configure the inputtag distributor
   if (iConfig.exists("InputTags"))
-    edm::Service<InputTagDistributorService>()->init(vHelperInstance_,iConfig.getParameter<edm::ParameterSet>("InputTags"));
-  
+    InputTagDistributor::init(vHelperInstance_,iConfig.getParameter<edm::ParameterSet>("InputTags"));
+
   //configure the variable helper
-  edm::Service<VariableHelperService>()->init(vHelperInstance_,iConfig.getParameter<edm::ParameterSet>("Variables"));
+  VariableHelperInstance::init(vHelperInstance_,iConfig.getParameter<edm::ParameterSet>("Variables"));
 
   //configure the plotting device
   edm::ParameterSet plotPset = iConfig.getParameter<edm::ParameterSet>("Plotter");
@@ -94,8 +94,7 @@ PlottingDevice::~PlottingDevice(){}
 void
 PlottingDevice::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  edm::Service<InputTagDistributorService>()->set(vHelperInstance_);
-  edm::Service<VariableHelperService>()->set(vHelperInstance_);
+  InputTagDistributor::set(vHelperInstance_);
 
   plotter_->setDir(plotDirectoryName_);
 

@@ -42,15 +42,11 @@ class L1TDEMON : public edm::EDAnalyzer {
 
   // input d|e record
   edm::InputTag DEsource_;
+  bool hasRecord_;
 
   // debug verbose level
   int verbose_;
   int verbose() {return verbose_;}
-
-  // counters
-  int nEvt_;
-  int deSysCount[dedefs::DEnsys];
-  int nEvtWithSys[dedefs::DEnsys];
 
   // root output file name
   std::string histFile_;
@@ -62,6 +58,11 @@ class L1TDEMON : public edm::EDAnalyzer {
   DQMStore* dbe;
   bool monitorDaemon_;
  
+  // counters
+  int nEvt_;
+  int deSysCount[dedefs::DEnsys];
+  int nEvtWithSys[dedefs::DEnsys];
+  
   /// monitoring elements
 
   // global

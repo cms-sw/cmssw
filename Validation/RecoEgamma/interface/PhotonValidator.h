@@ -23,8 +23,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2008/07/31 19:34:05 $ 
- **  $Revision: 1.6 $
+ **  $Date: 2008/08/08 13:54:36 $ 
+ **  $Revision: 1.7 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -115,6 +115,9 @@ class PhotonValidator : public edm::EDAnalyzer
   double trkPtSumCut_;
   double ecalEtSumCut_;
   double hcalEtSumCut_;
+  bool dCotCutOn_;
+  double dCotCutValue_;
+  double dCotHardCutValue_;
 
   /// global variable for the MC photon
   double mcPhi_;

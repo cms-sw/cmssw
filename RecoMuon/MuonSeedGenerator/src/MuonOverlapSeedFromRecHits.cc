@@ -1,5 +1,4 @@
 #include "RecoMuon/MuonSeedGenerator/src/MuonOverlapSeedFromRecHits.h"
-#include "RecoMuon/MuonSeedGenerator/src/MuonSeedPtExtractor.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
@@ -61,7 +60,7 @@ std::vector<TrajectorySeed> MuonOverlapSeedFromRecHits::seeds() const
       endcapHitItr != lastEndcapHit; ++endcapHitItr)
     {
       TrajectorySeed seed;
-      bool good = makeSeed2(*barrelHitItr, *endcapHitItr, seed);
+      bool good = makeSeed(*barrelHitItr, *endcapHitItr, seed);
       if(good) result.push_back(seed);
       // try just one seed
       return result;
@@ -81,8 +80,10 @@ MuonOverlapSeedFromRecHits::makeSeed(MuonTransientTrackingRecHit::ConstMuonRecHi
                                      TrajectorySeed & result) const
 {
   DTChamberId dtId(barrelHit->geographicalId().rawId());
+  int wheel = dtId.wheel();
   int dtStation = dtId.station();
 
+  //std::cout << "DT " << wheel << " " << dtStation << std::endl; 
 
   CSCDetId cscId(endcapHit->geographicalId().rawId());
   int cscChamberType = CSCChamberSpecs::whatChamberType(cscId.station(), cscId.ring());
@@ -109,40 +110,6 @@ MuonOverlapSeedFromRecHits::makeSeed(MuonTransientTrackingRecHit::ConstMuonRecHi
     double minpt = 3.;
     float sigmapt = 25.;
     // if too small, probably an error.  Keep trying.
-    if(fabs(pt) > minpt)
-    {
-      double maxpt = 2000.;
-      if(pt > maxpt) {
-        pt = maxpt;
-        sigmapt = maxpt;
-      }
-      if(pt < -maxpt) {
-        pt = -maxpt;
-        sigmapt = maxpt;
-      }
-    }
-
-    // use the endcap hit, since segments at the edge of the barrel
-    // might just be 2D
-    result = createSeed(pt, sigmapt, endcapHit);
-    //std::cout << "OVERLAPFITTED PT " << pt << " dphi " << dphi << " eta " << eta << std::endl;
-    return true;
-  }
-  return false;
-}
-
-
-bool
-MuonOverlapSeedFromRecHits::makeSeed2(MuonTransientTrackingRecHit::ConstMuonRecHitPointer barrelHit,
-                                     MuonTransientTrackingRecHit::ConstMuonRecHitPointer endcapHit,
-                                     TrajectorySeed & result) const
-{
-  std::vector<double> pts = thePtExtractor->pT_extract(barrelHit, endcapHit);
-  double minpt = 3.;
-  double pt = pts[0];
-  double sigmapt = pts[1];
-    // if too small, probably an error.  Keep trying.
-  if(pt != 0) {
     if(fabs(pt) > minpt)
     {
       double maxpt = 2000.;

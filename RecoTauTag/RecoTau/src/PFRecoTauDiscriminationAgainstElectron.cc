@@ -77,11 +77,11 @@ void PFRecoTauDiscriminationAgainstElectron::produce(Event& iEvent,const EventSe
       if (
 	  ((*thePFTauRef).electronPreIDDecision() &&
 	   ((*thePFTauRef).ecalStripSumEOverPLead() < elecPreID1_EOverPLead_maxValue ||
-	    (*thePFTauRef).hcal3x3OverPLead() > elecPreID1_HOverPLead_minValue))
+	    (*thePFTauRef).hcalTotOverPLead() > elecPreID1_HOverPLead_minValue))
 	  ||
 	  (!(*thePFTauRef).electronPreIDDecision() &&
 	   ((*thePFTauRef).ecalStripSumEOverPLead() < elecPreID0_EOverPLead_maxValue ||
-	    (*thePFTauRef).hcal3x3OverPLead() > elecPreID0_HOverPLead_minValue))
+	    (*thePFTauRef).hcalTotOverPLead() > elecPreID0_HOverPLead_minValue))
 	  ){
 	epreid2DPass = true;
       }  else {

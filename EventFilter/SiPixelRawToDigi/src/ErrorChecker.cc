@@ -41,22 +41,6 @@ void ErrorChecker::setErrorStatus(bool ErrorStatus)
   includeErrors = ErrorStatus;
 }
 
-bool ErrorChecker::checkCRC(bool& errorsInEvent, int fedId, const Word64* trailer, Errors& errors)
-{
-  int CRC_bits = 1;
-  int CRC_shift = 2;
-  Word64 CRC_mask = ~(~Word64(0) << CRC_bits);
-  int CRC_BIT = (*trailer >> CRC_shift) & CRC_mask;
-  if (CRC_BIT == 0) return true;
-  errorsInEvent = true;
-  if (includeErrors) {
-    int errorType = 39;
-    SiPixelRawDataError error(*trailer, errorType, fedId);
-    errors[dummyDetId].push_back(error);
-  }
-  return false;
-}
-
 bool ErrorChecker::checkHeader(bool& errorsInEvent, int fedId, const Word64* header, Errors& errors)
 {
   FEDHeader fedHeader( reinterpret_cast<const unsigned char*>(header));

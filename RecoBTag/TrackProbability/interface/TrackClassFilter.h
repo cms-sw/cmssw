@@ -18,9 +18,9 @@ class TrackClassFilter
  class Input
  {
  public:
-  Input(const bool useQ, const reco::Track & t,const reco::Jet &j, const reco::Vertex & v) :
-                     useQuality(useQ),  track(t), jet(j), vertex(v) {}
-  const bool useQuality;
+  Input(const reco::Track & t,const reco::Jet &j, const reco::Vertex & v) :
+                       track(t), jet(j), vertex(v) {}
+
   const reco::Track & track;
   const reco::Jet & jet;
   const reco::Vertex & vertex;

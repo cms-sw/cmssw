@@ -1,9 +1,9 @@
 #!/usr/bin/env python
+import os
 from ConfigParser import ConfigParser
 from copy import copy
 from optparse import OptionParser, Option, OptionValueError
 import coral
-import sys, os
 def stripws(myinput):
     result=('').join(myinput.split(' '))
     return result
@@ -37,48 +37,38 @@ class logDBReader:
         self.__parser.add_option("-P","--path",action="store",dest="authpath",type="string",help="path to authentication.xml")
         self.__parser.add_option("-v","--verbose",action="store_true",dest="verbose",help="verbose mode")
         self.__parser.set_defaults(connectstring='')
-        self.__parser.set_defaults(verbose=False)
-        self.__parser.set_defaults(connectstring='')
         self.__parser.set_defaults(user='')
         self.__parser.set_defaults(password='')
         self.__parser.set_defaults(authpath='')
+        self.__parser.set_defaults(verbose=False)
         (options, args) = self.__parser.parse_args()
+        if len(self.__parser.values.authpath)!=0:
+            self.__authpath=self.__parser.values.authpath
+        else:
+            self.__user=self.__parser.values.user
+            self.__password=self.__parser.values.password
         self.__verbose=self.__parser.values.verbose
         self.__connectstring=self.__parser.values.connectstring
         if self.__parser.values.verbose is True:
             print 'connectstring: ',self.__connectstring
-        if len(self.__parser.values.user) !=0 :
-            self.__user=self.__parser.values.user
-            if self.__parser.values.verbose is True:
-                print 'user: ',self.__user
-        if len(self.__parser.values.password) !=0 :
-            self.__password=self.__parser.values.password
-            if self.__parser.values.verbose is True:
-                print 'password: ',self.__password
-        if len(self.__parser.values.authpath)!=0:
-            self.__authpath=self.__parser.values.authpath
-            if self.__parser.values.verbose is True:
-                print 'authpath: ',self.__authpath
+            print 'user: ',self.__user
+            print 'password: ',self.__password
+            print 'authpath: ',self.__authpath
     def dumpAll(self):
         """
         Dump the content of the log 
         """
+        if len(self.__user)!=0:
+            os.environ['CORAL_AUTH_USER']=self.__user
+            os.environ['CORAL_AUTH_PASSWORD']=self.__password
+        else:
+            os.environ['CORAL_AUTH_PATH']=self.__authpath
         context = coral.Context()
         if self.__verbose is True:
             context.setVerbosityLevel( 'DEBUG' )
         else:
             context.setVerbosityLevel( 'ERROR' )
         svc = coral.ConnectionService( context )
-        config=svc.configuration()
-        if len(self.__authpath)!=0:
-            print 'self.__authpath',self.__authpath
-            os.environ["CORAL_AUTH_PATH"]=self.__authpath
-            config.setDefaultAuthenticationService('CORAL/Services/XMLAuthenticationService')
-        else:
-            os.environ["CORAL_AUTH_USER"]=self.__user
-            os.environ["CORAL_AUTH_PASSWORD"]=self.__password
-            config.setDefaultAuthenticationService('CORAL/Services/EnvironmentAuthenticationService')
-            
         session=svc.connect(self.__connectstring,accessMode=coral.access_ReadOnly )
         try:
             session.transaction().start(True)

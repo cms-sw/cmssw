@@ -12,7 +12,6 @@ struct IsolatedSelector {
   bool operator()(double i1, double i2) const {
     return i1 < cut_ && i2 < cut_;
   }
-private:
   double cut_;
 };
 
@@ -23,24 +22,6 @@ struct NonIsolatedSelector {
   }
 private:
   IsolatedSelector isolated_;
-};
-
-struct OneNonIsolatedSelector {
-  OneNonIsolatedSelector(double cut) : cut_(cut) { }
-  bool operator()(double i1, double i2) const {
-    return (i1 < cut_ && i2 >= cut_) || (i1 >= cut_ && i2 < cut_);
-  }
-private:
-  double cut_;
-};
-
-struct TwoNonIsolatedSelector {
-  TwoNonIsolatedSelector(double cut) : cut_(cut) { }
-  bool operator()(double i1, double i2) const {
-    return i1 >= cut_ && i2 >= cut_;
-  }
-private:
-  double cut_;
 };
 
 #include "DataFormats/Common/interface/ValueMap.h"
@@ -107,22 +88,7 @@ typedef SingleObjectSelector<reco::CandidateView,
   > ZToMuMuNonIsolatedSelector;
 
 
-typedef SingleObjectSelector<reco::CandidateView, 
-    AndSelector<ZToMuMuIsolationSelector<OneNonIsolatedSelector>, 
-		StringCutObjectSelector<reco::Candidate> 
-    > 
-  > ZToMuMuOneNonIsolatedSelector;
-
-typedef SingleObjectSelector<reco::CandidateView, 
-    AndSelector<ZToMuMuIsolationSelector<TwoNonIsolatedSelector>, 
-		StringCutObjectSelector<reco::Candidate> 
-    > 
-  > ZToMuMuTwoNonIsolatedSelector;
-
-
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_FWK_MODULE(ZToMuMuIsolatedSelector);
 DEFINE_FWK_MODULE(ZToMuMuNonIsolatedSelector);
-DEFINE_FWK_MODULE(ZToMuMuOneNonIsolatedSelector);
-DEFINE_FWK_MODULE(ZToMuMuTwoNonIsolatedSelector);

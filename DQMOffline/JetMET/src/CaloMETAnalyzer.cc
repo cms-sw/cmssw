@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/30 02:14:43 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/08/26 19:17:30 $
+ *  $Revision: 1.2 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -48,40 +48,40 @@ void CaloMETAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   jetME->setBinLabel(1,"CaloMET",1);
 
   hNevents                = dbe->book1D("METTask_Nevents",   "METTask_Nevents"   ,1,0,1);
-  hCaloMEx                = dbe->book1D("METTask_CaloMEx",   "METTask_CaloMEx"   ,1000,-500,500);
-  hCaloMEy                = dbe->book1D("METTask_CaloMEy",   "METTask_CaloMEy"   ,1000,-500,500);
-  hCaloEz                 = dbe->book1D("METTask_CaloEz",    "METTask_CaloEz"    ,1000,-500,500);
+  hCaloMEx                = dbe->book1D("METTask_CaloMEx",   "METTask_CaloMEx"   ,500,-500,500);
+  hCaloMEy                = dbe->book1D("METTask_CaloMEy",   "METTask_CaloMEy"   ,500,-500,500);
+  hCaloEz                 = dbe->book1D("METTask_CaloEz",    "METTask_CaloEz"    ,500,-500,500);
   hCaloMETSig             = dbe->book1D("METTask_CaloMETSig","METTask_CaloMETSig",51,0,51);
-  hCaloMET                = dbe->book1D("METTask_CaloMET",   "METTask_CaloMET"   ,2001,0,2001);
+  hCaloMET                = dbe->book1D("METTask_CaloMET",   "METTask_CaloMET"   ,500,0,1000);
   hCaloMETPhi             = dbe->book1D("METTask_CaloMETPhi","METTask_CaloMETPhi",80,-4,4);
-  hCaloSumET              = dbe->book1D("METTask_CaloSumET", "METTask_CaloSumET" ,4001,0,4001);
-  hCaloMExLS              = dbe->book2D("METTask_CaloMEx_LS","METTask_CaloMEx_LS",1000,-500,500,2000,0.,2000.);
-  hCaloMEyLS              = dbe->book2D("METTask_CaloMEy_LS","METTask_CaloMEy_LS",1000,-500,500,2000,0.,2000.);
+  hCaloSumET              = dbe->book1D("METTask_CaloSumET", "METTask_CaloSumET" ,1000,0,2000);
+  hCaloMExLS              = dbe->book2D("METTask_CaloMEx_LS","METTask_CaloMEx_LS",200,-200,200,500,0.,500.);
+  hCaloMEyLS              = dbe->book2D("METTask_CaloMEy_LS","METTask_CaloMEy_LS",200,-200,200,500,0.,500.);
 
-  hCaloMaxEtInEmTowers    = dbe->book1D("METTask_CaloMaxEtInEmTowers",   "METTask_CaloMaxEtInEmTowers"   ,4001,0,4001);
-  hCaloMaxEtInHadTowers   = dbe->book1D("METTask_CaloMaxEtInHadTowers",  "METTask_CaloMaxEtInHadTowers"  ,4001,0,4001);
+  hCaloMaxEtInEmTowers    = dbe->book1D("METTask_CaloMaxEtInEmTowers",   "METTask_CaloMaxEtInEmTowers"   ,1000,0,2000);
+  hCaloMaxEtInHadTowers   = dbe->book1D("METTask_CaloMaxEtInHadTowers",  "METTask_CaloMaxEtInHadTowers"  ,1000,0,2000);
   hCaloEtFractionHadronic = dbe->book1D("METTask_CaloEtFractionHadronic","METTask_CaloEtFractionHadronic",100,0,1);
   hCaloEmEtFraction       = dbe->book1D("METTask_CaloEmEtFraction",      "METTask_CaloEmEtFraction"      ,100,0,1);
 
-  hCaloHadEtInHB          = dbe->book1D("METTask_CaloHadEtInHB","METTask_CaloHadEtInHB",4001,0,4001);
-  hCaloHadEtInHO          = dbe->book1D("METTask_CaloHadEtInHO","METTask_CaloHadEtInHO",4001,0,4001);
-  hCaloHadEtInHE          = dbe->book1D("METTask_CaloHadEtInHE","METTask_CaloHadEtInHE",4001,0,4001);
-  hCaloHadEtInHF          = dbe->book1D("METTask_CaloHadEtInHF","METTask_CaloHadEtInHF",4001,0,4001);
-//hCaloHadEtInEB          = dbe->book1D("METTask_CaloHadEtInEB","METTask_CaloHadEtInEB",4001,0,4001);
-//hCaloHadEtInEE          = dbe->book1D("METTask_CaloHadEtInEE","METTask_CaloHadEtInEE",4001,0,4001);
-  hCaloEmEtInHF           = dbe->book1D("METTask_CaloEmEtInHF" ,"METTask_CaloEmEtInHF" ,4001,0,4001);
-  hCaloEmEtInEE           = dbe->book1D("METTask_CaloEmEtInEE" ,"METTask_CaloEmEtInEE" ,4001,0,4001);
-  hCaloEmEtInEB           = dbe->book1D("METTask_CaloEmEtInEB" ,"METTask_CaloEmEtInEB" ,4001,0,4001);
+  hCaloHadEtInHB          = dbe->book1D("METTask_CaloHadEtInHB","METTask_CaloHadEtInHB",1000,0,2000);
+  hCaloHadEtInHO          = dbe->book1D("METTask_CaloHadEtInHO","METTask_CaloHadEtInHO",1000,0,2000);
+  hCaloHadEtInHE          = dbe->book1D("METTask_CaloHadEtInHE","METTask_CaloHadEtInHE",1000,0,2000);
+  hCaloHadEtInHF          = dbe->book1D("METTask_CaloHadEtInHF","METTask_CaloHadEtInHF",1000,0,2000);
+//hCaloHadEtInEB          = dbe->book1D("METTask_CaloHadEtInEB","METTask_CaloHadEtInEB",1000,0,2000);
+//hCaloHadEtInEE          = dbe->book1D("METTask_CaloHadEtInEE","METTask_CaloHadEtInEE",1000,0,2000);
+  hCaloEmEtInHF           = dbe->book1D("METTask_CaloEmEtInHF" ,"METTask_CaloEmEtInHF" ,1000,0,2000);
+  hCaloEmEtInEE           = dbe->book1D("METTask_CaloEmEtInEE" ,"METTask_CaloEmEtInEE" ,1000,0,2000);
+  hCaloEmEtInEB           = dbe->book1D("METTask_CaloEmEtInEB" ,"METTask_CaloEmEtInEB" ,1000,0,2000);
 
-  hCaloMExNoHF            = dbe->book1D("METTask_CaloMExNoHF",   "METTask_CaloMExNoHF"   ,1000,-500,500);
-  hCaloMEyNoHF            = dbe->book1D("METTask_CaloMEyNoHF",   "METTask_CaloMEyNoHF"   ,1000,-500,500);
-  hCaloEzNoHF             = dbe->book1D("METTask_CaloEzNoHF",    "METTask_CaloEzNoHF"    ,1000,-500,500);
+  hCaloMExNoHF            = dbe->book1D("METTask_CaloMExNoHF",   "METTask_CaloMExNoHF"   ,500,-500,500);
+  hCaloMEyNoHF            = dbe->book1D("METTask_CaloMEyNoHF",   "METTask_CaloMEyNoHF"   ,500,-500,500);
+  hCaloEzNoHF             = dbe->book1D("METTask_CaloEzNoHF",    "METTask_CaloEzNoHF"    ,500,-500,500);
   hCaloMETSigNoHF         = dbe->book1D("METTask_CaloMETSigNoHF","METTask_CaloMETSigNoHF",51,0,51);
-  hCaloMETNoHF            = dbe->book1D("METTask_CaloMETNoHF",   "METTask_CaloMETNoHF"   ,2001,0,2001);
+  hCaloMETNoHF            = dbe->book1D("METTask_CaloMETNoHF",   "METTask_CaloMETNoHF"   ,1000,0,1000);
   hCaloMETPhiNoHF         = dbe->book1D("METTask_CaloMETPhiNoHF","METTask_CaloMETPhiNoHF",80,-4,4);
-  hCaloSumETNoHF          = dbe->book1D("METTask_CaloSumETNoHF", "METTask_CaloSumETNoHF" ,4001,0,4001);
-  hCaloMExNoHFLS          = dbe->book2D("METTask_CaloMExNoHF_LS","METTask_CaloMExNoHF_LS",1000,-500,500,2000,0.,2000.);
-  hCaloMEyNoHFLS          = dbe->book2D("METTask_CaloMEyNoHF_LS","METTask_CaloMEyNoHF_LS",1000,-500,500,2000,0.,2000.);
+  hCaloSumETNoHF          = dbe->book1D("METTask_CaloSumETNoHF", "METTask_CaloSumETNoHF" ,1000,0,2000);
+  hCaloMExNoHFLS          = dbe->book2D("METTask_CaloMExNoHF_LS","METTask_CaloMExNoHF_LS",200,-200,200,500,0.,500.);
+  hCaloMEyNoHFLS          = dbe->book2D("METTask_CaloMEyNoHF_LS","METTask_CaloMEyNoHF_LS",200,-200,200,500,0.,500.);
 
 }
 

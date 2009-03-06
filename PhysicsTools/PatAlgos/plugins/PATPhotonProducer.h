@@ -1,5 +1,5 @@
 //
-// $Id: PATPhotonProducer.h,v 1.10 2008/07/08 21:24:51 gpetrucc Exp $
+// $Id: PATPhotonProducer.h,v 1.9 2008/06/24 22:58:24 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATPhotonProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of PhotonType.
 
   \author   Steven Lowette
-  \version  $Id: PATPhotonProducer.h,v 1.10 2008/07/08 21:24:51 gpetrucc Exp $
+  \version  $Id: PATPhotonProducer.h,v 1.9 2008/06/24 22:58:24 gpetrucc Exp $
 */
 
 
@@ -51,7 +51,7 @@ namespace pat {
 
       bool addGenMatch_;
       bool embedGenMatch_;
-      std::vector<edm::InputTag> genMatchSrc_;
+      edm::InputTag genMatchSrc_;
 
       bool addTrigMatch_;
       std::vector<edm::InputTag> trigMatchSrc_;

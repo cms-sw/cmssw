@@ -5,8 +5,8 @@
 /** \class RPCUnpackingModule
  *  Driver class for unpacking RPC raw data (DCC format)
  *
- *  $Date: 2008/03/28 07:39:46 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/03/11 16:23:47 $
+ *  $Revision: 1.3 $
  *  \author Ilaria Segoni - CERN
  */
 
@@ -32,7 +32,6 @@ public:
   
 private:
   edm::InputTag dataLabel_;
-  bool doSynchro_; 
   unsigned long eventCounter_;
   const RPCReadOutMapping* theCabling;
 };

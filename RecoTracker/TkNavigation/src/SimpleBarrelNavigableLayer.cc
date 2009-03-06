@@ -321,11 +321,12 @@ void   SimpleBarrelNavigableLayer::setDetLayer( DetLayer* dl) {
 }
 
 void SimpleBarrelNavigableLayer::setInwardLinks(const BDLC& theBarrelv, 
-						const FDLC& theForwardv)
+						const FDLC& theForwardv,
+						TkLayerLess sorter)
 {
   theInnerBarrelLayers=theBarrelv;
   // sort the inner layers
-  sort(theInnerBarrelLayers.begin(), theInnerBarrelLayers.end(),TkLayerLess(outsideIn));
+  sort(theInnerBarrelLayers.begin(), theInnerBarrelLayers.end(),sorter);
 
 
   ConstFDLI middle = find_if( theForwardv.begin(),theForwardv.end(),
@@ -334,8 +335,8 @@ void SimpleBarrelNavigableLayer::setInwardLinks(const BDLC& theBarrelv,
   theInnerRightForwardLayers=FDLC(middle,theForwardv.end());
 
   // sort the inner layers
-  sort(theInnerLeftForwardLayers.begin(), theInnerLeftForwardLayers.end(),TkLayerLess(outsideIn));
-  sort(theInnerRightForwardLayers.begin(), theInnerRightForwardLayers.end(),TkLayerLess(outsideIn));
+  sort(theInnerLeftForwardLayers.begin(), theInnerLeftForwardLayers.end(),sorter);
+  sort(theInnerRightForwardLayers.begin(), theInnerRightForwardLayers.end(),sorter);
 
 
 
@@ -353,11 +354,11 @@ void SimpleBarrelNavigableLayer::setInwardLinks(const BDLC& theBarrelv,
     thePosInnerLayers.push_back( *fl);
 
   // sort the inner layers 
-  sort( theNegInnerLayers.begin(), theNegInnerLayers.end(), TkLayerLess(outsideIn));
-  sort( thePosInnerLayers.begin(), thePosInnerLayers.end(), TkLayerLess(outsideIn));
-  sort(theInnerBarrelLayers.begin(), theInnerBarrelLayers.end(),TkLayerLess(outsideIn));
-  sort(theInnerLeftForwardLayers.begin(), theInnerLeftForwardLayers.end(),TkLayerLess(outsideIn));
-  sort(theInnerRightForwardLayers.begin(), theInnerRightForwardLayers.end(),TkLayerLess(outsideIn));
+  sort( theNegInnerLayers.begin(), theNegInnerLayers.end(), sorter);
+  sort( thePosInnerLayers.begin(), thePosInnerLayers.end(), sorter);
+  sort(theInnerBarrelLayers.begin(), theInnerBarrelLayers.end(),sorter);
+  sort(theInnerLeftForwardLayers.begin(), theInnerLeftForwardLayers.end(),sorter);
+  sort(theInnerRightForwardLayers.begin(), theInnerRightForwardLayers.end(),sorter);
 
 }
 

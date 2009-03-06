@@ -9,10 +9,10 @@ short unsigned int CSCALCTTrailer::firmwareVersion=2006;
 
 
 
-CSCALCTTrailer::CSCALCTTrailer(int size, int firmVersion) 
-{ ///needed for packing
-  trailer2006.setSize(size);
+CSCALCTTrailer::CSCALCTTrailer() { ///needed for packing
   firmwareVersion = 2006;
+  trailer2006.e0dLine = 0xe0d; 
+  trailer2006.reserved_4=0xd;
 }
 
 CSCALCTTrailer::CSCALCTTrailer(const unsigned short * buf){

@@ -2,7 +2,6 @@
 #define RecoTauTag_RecoTau_PFTauElementsOperators_H_
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
@@ -13,7 +12,6 @@
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 
-#include "RecoTauTag/TauTagTools/interface/TauTagTools.h"
 #include "RecoTauTag/TauTagTools/interface/TauElementsOperators.h"
 #include "RecoTauTag/TauTagTools/interface/ElementsInCone.h"
 #include "RecoTauTag/TauTagTools/interface/ElementsInAnnulus.h"
@@ -23,8 +21,6 @@
 
 #include "Math/GenVector/VectorUtil.h"
 #include "Math/GenVector/PxPyPzE4D.h"
-
-#include <algorithm>
 
 using namespace edm;
 using namespace std;
@@ -60,19 +56,7 @@ class PFTauElementsOperators : public TauElementsOperators {
   PFCandidateRefVector PFChargedHadrCandsInAnnulus(const math::XYZVector myVector,const string innercone_metric,const double innercone_size,const string outercone_metric,const double outercone_size,const double minPt,const double PFChargedHadrCand_tracktorefpoint_maxDZ,const double refpoint_Z)const;
   PFCandidateRefVector PFNeutrHadrCandsInAnnulus(const math::XYZVector myVector,const string innercone_metric,const double innercone_size,const string outercone_metric,const double outercone_size,const double minPt)const;
   PFCandidateRefVector PFGammaCandsInAnnulus(const math::XYZVector myVector,const string innercone_metric,const double innercone_size,const string outercone_metric,const double outercone_size,const double minPt)const;
-
-  /// append elements of theInputCands that pass Pt requirement to the end of theOutputCands
-  void                 copyCandRefsFilteredByPt(const PFCandidateRefVector& theInputCands, PFCandidateRefVector& theOutputCands, const double minPt);
-
-  /// compute size of cone using the Inside-Out cone (Author Evan Friis, UC Davis)
-  void                 computeInsideOutContents(const PFCandidateRefVector& theChargedCands, const PFCandidateRefVector& theGammaCands, const math::XYZVector leadTrackVector, 
-                               const TFormula& coneSizeFormula, double (*ptrToMetricFunction)(const math::XYZVector&, const math::XYZVector&),  // determines grow function, and the metric to compare the opening angle to
-                               const double minChargedSize, const double maxChargedSize, const double minNeutralSize, const double maxNeutralSize,
-                               const double minChargedPt, const double minNeutralPt,
-                               const string& outlierCollectorConeMetric, const double outlierCollectorConeSize,
-                               PFCandidateRefVector& signalChargedObjects, PFCandidateRefVector& outlierChargedObjects,
-                               PFCandidateRefVector& signalGammaObjects, PFCandidateRefVector& outlierGammaObjects, bool useScanningAxis); //these last two quantities are the return values
-
+  
   // return 1 if no/low PFCandidates activity in an isolation annulus around a leading PFCandidate, 0 otherwise; 
   // different possible metrics* for the matching, signal and isolation cones; 
   double discriminatorByIsolPFCandsN(int IsolPFCands_maxN=0);
@@ -113,8 +97,6 @@ class PFTauElementsOperators : public TauElementsOperators {
   // template objects for DR and Angle metrics
   DeltaR<math::XYZVector> metricDR_;  
   Angle<math::XYZVector> metricAngle_;
-  double computeDeltaR(const math::XYZVector& vec1, const math::XYZVector& vec2);
-  double computeAngle(const math::XYZVector& vec1, const math::XYZVector& vec2);
   ElementsInCone<math::XYZVector,DeltaR<math::XYZVector>,reco::PFCandidateCollection> PFCandsinCone_DRmetric_;
   ElementsInCone<math::XYZVector,Angle<math::XYZVector>,reco::PFCandidateCollection> PFCandsinCone_Anglemetric_; 
   ElementsInAnnulus<math::XYZVector,DeltaR<math::XYZVector>,DeltaR<math::XYZVector>,reco::PFCandidateCollection> PFCandsinAnnulus_innerDRouterDRmetrics_;

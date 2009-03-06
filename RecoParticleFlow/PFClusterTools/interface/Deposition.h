@@ -19,10 +19,6 @@ namespace pftools {
  * */
 class Deposition {
 public:
-	
-	inline void setEnergy(double energy) {
-		myEnergy = energy;
-	}
 
 	
 	inline double getEta() const {

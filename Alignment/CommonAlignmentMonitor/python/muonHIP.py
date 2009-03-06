@@ -129,9 +129,9 @@ class Convergence(Selection):
 
   def profile(self, iteration, name=None, title=None, bins=100, low=-1., high=1., normalized=False, aslist=False):
     if iteration == 0:
-      tree = self.tfile.Get("AlignmentMonitorMuonHIP/iter1/before")
+      tree = self.tfile.Get("iter1/before")
     else:
-      tree = self.tfile.Get("AlignmentMonitorMuonHIP/iter%d/after" % iteration)
+      tree = self.tfile.Get("iter%d/after" % iteration)
 
     if name == None: name = dummyName()
     if title == None: title = "%s after %d iterations" % (self.hist, iteration)
@@ -179,7 +179,7 @@ def select(func=(lambda c: True), hist="wxresid", granularity=Chamber, superset=
   for rawid, c in superset.items():
     if (func.func_code.co_argcount == 1 and func(c)) or (func.func_code.co_argcount == 2):
 
-      th1 = tf.Get("AlignmentMonitorMuonHIP/iter%d/%s_%s/%s_%s_%d" % (iteration, hist, dirname, hist, dirname, rawid))
+      th1 = tf.Get("iter%d/%s_%s/%s_%s_%d" % (iteration, hist, dirname, hist, dirname, rawid))
 
       if (func.func_code.co_argcount == 1) or (func.func_code.co_argcount == 2 and th1 != None and func(c, th1)):
         if th1 != None:
@@ -217,7 +217,7 @@ def conv(func=(lambda c: True), hist="x", granularity=Chamber, superset=None, tf
   for rawid, c in superset.items():
     if (func.func_code.co_argcount == 1 and func(c)) or (func.func_code.co_argcount == 2):
 
-      th1 = tf.Get("AlignmentMonitorMuonHIP/conv_%s_%s/conv_%s_%s_%d" % (hist, dirname, hist, dirname, rawid))
+      th1 = tf.Get("conv_%s_%s/conv_%s_%s_%d" % (hist, dirname, hist, dirname, rawid))
 
       if (func.func_code.co_argcount == 1) or (func.func_code.co_argcount == 2 and th1 != None and func(c, th1)):
         if th1 != None:

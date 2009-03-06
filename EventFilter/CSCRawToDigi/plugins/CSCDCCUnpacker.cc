@@ -100,7 +100,7 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
     produces<CSCDDUStatusDigiCollection>("MuonCSCDDUStatusDigi");
     produces<CSCDCCStatusDigiCollection>("MuonCSCDCCStatusDigi");
   }
-  //CSCAnodeData::setDebug(debug);
+  CSCAnodeData::setDebug(debug);
   CSCALCTHeader::setDebug(debug);
   CSCCLCTData::setDebug(debug);
   CSCEventData::setDebug(debug);

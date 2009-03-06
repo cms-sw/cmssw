@@ -20,9 +20,6 @@ namespace reco {
   /// persistent reference to a PileUpPFCandidate
   typedef edm::Ref<PileUpPFCandidateCollection> PileUpPFCandidateRef;
 
-  /// persistent reference to a PileUpPFCandidate
-  typedef edm::Ptr<PileUpPFCandidate> PileUpPFCandidatePtr;  
-
   /// persistent reference to a PileUpPFCandidates collection
   typedef edm::RefProd<PileUpPFCandidateCollection> PileUpPFCandidateRefProd;
 

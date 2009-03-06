@@ -39,7 +39,8 @@ class SeedFromConsecutiveHits{
   SeedFromConsecutiveHits(const SeedingHitSet & hits,
     const GlobalPoint& vertexPos,
     const GlobalError& vertexErr,
-    const edm::EventSetup& es);
+    const edm::EventSetup& es,
+    double theBOFFMomentum=-1.0);
   
   virtual  ~SeedFromConsecutiveHits(){};
 

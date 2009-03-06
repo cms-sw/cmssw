@@ -23,38 +23,18 @@ public:
 	 * containsXXX(y) will return true.
 	 */
 	SpaceVoxel(double etaBegin = 0, double etaEnd = 0, double phiBegin = 0,
-			double phiEnd = 0, double energyBegin = 0, double energyEnd = 0, bool ecalValid = true, bool hcalValid = true);
-	
+			double phiEnd = 0, double energyBegin = 0, double energyEnd = 0);
 
 	virtual ~SpaceVoxel();
 
 	virtual bool contains(const double& eta, const double& phi,
 			const double& energy) const;
-	
-	virtual bool contains(const double& eta, const double& phi,
-				const double& energy, const bool& ecalValid, const bool& hcalValid) const;
 
 	virtual bool containsEta(const double& eta) const;
 
 	virtual bool containsPhi(const double& phi) const;
 
 	virtual bool containsEnergy(const double& energy) const;
-	
-	double minEnergy() const {
-		return myEnergyMin;
-	}
-	
-	double maxEnergy() const {
-		return myEnergyMax;
-	}
-	
-	virtual bool ecalValid() const {
-		return ecalValid_;
-	}
-	
-	virtual bool hcalValid() const {
-		return hcalValid_;
-	}
 
 	void print(std::ostream& s) const;
 	
@@ -62,16 +42,15 @@ public:
 		std::cout << "Hello!\n";
 	}
 	
+	int getInt() {
+		return 2;
+	}
 	
 	//Prints this SpaceVoxel's name into the supplied string
 	void getName(std::string& s) const;
 
 	friend std::ostream& operator<<(std::ostream& s,
 			const pftools::SpaceVoxel& sv);
-	
-	bool operator()(const SpaceVoxel& sv1, const SpaceVoxel& sv2) ;
-	
-	bool operator()(const boost::shared_ptr<SpaceVoxel>& sv1, const boost::shared_ptr<SpaceVoxel>& sv2) ;
 	
 
 private:
@@ -81,8 +60,6 @@ private:
 	double myPhiMax;
 	double myEnergyMin;
 	double myEnergyMax;
-	bool ecalValid_;
-	bool hcalValid_;
 
 };
 

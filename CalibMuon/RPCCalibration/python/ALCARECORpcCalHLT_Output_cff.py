@@ -9,6 +9,8 @@ OutALCARECORpcCalHLT = cms.PSet(
         'keep CSCDetIdCSCWireDigiMuonDigiCollection_*_*_*', 
         'keep CSCDetIdCSCStripDigiMuonDigiCollection_*_*_*', 
         'keep DTLayerIdDTDigiMuonDigiCollection_*_*_*', 
+        'keep *_dt4DSegments_*_*',
+        'keep *_cscSegments_*_*',
         'keep RPCDetIdRPCDigiMuonDigiCollection_*_*_*', 
         'keep L1MuGMTCands_*_*_*', 
         'keep L1MuGMTReadoutCollection_*_*_*')

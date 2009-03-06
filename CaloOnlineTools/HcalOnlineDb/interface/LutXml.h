@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Mar 18 14:30:33 CDT 2008
-// $Id: LutXml.h,v 1.3 2008/05/28 12:07:00 kukartse Exp $
+// $Id: LutXml.h,v 1.1 2008/02/12 17:02:00 kukartse Exp $
 //
 
 #include <vector>
@@ -43,24 +43,17 @@ class LutXml : public XMLDOMBlock
   } Config;
   
   LutXml();
-  LutXml( InputSource & _source );
   virtual ~LutXml();
   
   void init( void );
-  void addLut( Config & _config, XMLDOMBlock * checksums_xml = 0 );
+  void addLut( Config & _config );
   std::string & getCurrentBrick( void );
-
-  static std::string get_checksum( std::vector<unsigned int> & lut );
-
-  //LutXml & operator+=( const LutXml & other);
 
  protected:  
 
   DOMElement * addParameter( string _name, string _type, string _value );
   DOMElement * addParameter( string _name, string _type, int _value );
   DOMElement * addData( string _elements, string _encoding, std::vector<unsigned int> _lut );
-
-  DOMElement * add_checksum( DOMDocument * parent, Config & config );
 
   DOMElement * brickElem;
 
