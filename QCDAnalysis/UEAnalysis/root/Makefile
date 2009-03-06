@@ -1,15 +1,19 @@
 objects = UEAnalysis.o UEAnalysisOnRootple.o \
           UEAnalysisWeight.o  UEAnalysisCorrCali.o \
-          UEAnalysisJets.o  UEAnalysisAntiKtJets.o \
-          UEAnalysisMPI.o  UEAnalysisUE.o  
-source1 = UEAnalysis.cpp
-source2 = UEAnalysisOnRootple.C
-source3 = UEAnalysisWeight.C
-source4 = UEAnalysisCorrCali.C
-source5 = UEAnalysisJets.C
-source6 = UEAnalysisAntiKtJets.C
-source7 = UEAnalysisMPI.C
-source8 = UEAnalysisUE.C
+          UEAnalysisJets.o  \
+          UEAnalysisMPI.o  UEAnalysisUE.o  \
+          UEJetArea.o UEActivity.o \
+          UETrigger.o
+source1  = UEAnalysis.cpp
+source2  = UEAnalysisOnRootple.C
+source3  = UEAnalysisWeight.C
+source4  = UEAnalysisCorrCali.C
+source5  = UEAnalysisJets.C
+source6  = UEAnalysisMPI.C
+source7  = UEAnalysisUE.C
+source8  = UEJetArea.C
+source9  = UEActivity.C
+source10 = UETrigger.C
 
 PREFIX        = /afs/cern.ch/sw/lcg/external
 SYSNAME       = slc4_ia32_gcc34
@@ -26,7 +30,7 @@ CXXFLAGS     += $(ROOTCFLAGS)
 CXXFLAGS     += -I$(FastJetdir)/include
 LIBS          = $(ROOTLIBS) -lEG $(FastJetlib)
 SHARE         = -shared
-NAMELIB       = $(CMSSW_BASE)/src/QCDAnalysis/UEAnalysis/root/UE.o
+NAMELIB       = $(CMSSW_BASE)/src/UE.o
 BINFILE       = UEAnalysis
 lib :
 	$(LD) -g $(ROOTCFLAGS) -I$(FastJetdir)/include -c $(source1)
@@ -37,6 +41,8 @@ lib :
 	$(LD) -g $(ROOTCFLAGS) -I$(FastJetdir)/include -c $(source6)
 	$(LD) -g $(ROOTCFLAGS) -I$(FastJetdir)/include -c $(source7)
 	$(LD) -g $(ROOTCFLAGS) -I$(FastJetdir)/include -c $(source8)
+	$(LD) -g $(ROOTCFLAGS) -I$(FastJetdir)/include -c $(source9)
+	$(LD) -g $(ROOTCFLAGS) -I$(FastJetdir)/include -c $(source10)
 	$(LD) -g $(objects) $(LIBS) $(SHARE) -o $(NAMELIB) $(FastJetlib)
  
 bin:
