@@ -2,15 +2,8 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 
-# one library for the FakeProducers
-<library name=CommonAlignmentProducerFakes file=FakeAlignment*.cc>
-  <use name=CondFormats/Alignment>
-  <use name=CondFormats/AlignmentRecord>
-  <use name=boost>
-</library>
-
 # one library for the 'real' AlignmentProducers
-<library file=AlignmentProducer.cc>
+<library name=AlignmentCommonAlignmentProducers file=AlignmentProducer.cc,FakeAlignment*.cc>
  <use name=Alignment/CommonAlignment>
  <use name=Alignment/CommonAlignmentAlgorithm>
  <use name=Alignment/CommonAlignmentMonitor>
@@ -31,26 +24,21 @@
  <use name=Geometry/TrackerGeometryBuilder>
  <use name=Geometry/TrackingGeometryAligner>
  <use name=TrackingTools/PatternTools>
+ <use name=boost>
 </library>
 
 # one library for the selector modules
-<library name=CommonAlignmentProducerSelectors file=Alignment*SelectorModule.cc>
+<library name=CommonAlignmentProducerSelectors file=Alignment*SelectorModule.cc,AlignmentMuonHIPTrajectorySelector.cc>
  <use name=Alignment/CommonAlignmentProducer>
- <use name=PhysicsTools/RecoAlgos>
- <use name=PhysicsTools/UtilAlgos>
-</library>
-
-# one library for the this one that does not fit in naming...
-<library file=AlignmentMuonHIPTrajectorySelector.cc>
  <use name=DataFormats/DetId>
  <use name=DataFormats/MuonDetId>
  <use name=DataFormats/TrackingRecHit>
  <use name=DataFormats/TrackReco>
- <use name=TrackingTools/PatternTools>
- <use name=TrackingTools/TransientTrackingRecHit>
  <use name=FWCore/ServiceRegistry>
  <use name=PhysicsTools/UtilAlgos>
+ <use name=PhysicsTools/RecoAlgos>
+ <use name=TrackingTools/PatternTools>
  <use name=TrackingTools/TrackFitters>
+ <use name=TrackingTools/TransientTrackingRecHit>
  <use name=root>
 </library>
-
