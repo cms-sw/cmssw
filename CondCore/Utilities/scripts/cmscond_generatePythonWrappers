@@ -1,39 +1,9 @@
 #!/usr/bin/env python
 
-from CondCore.Utilities.payloadInspectorTemplate import *
+from CondCore.Utilities.generateWrappers import *
 import string, os, sys
 
-
-def guessPackage() :
-    lines = ( line for line in file('src/plugin.cc')
-              if (line.find('CondFormats')>0 and line.find('DataRecord')<0)
-    )
-    f = lines.next()
-    f = f[f.find('CondFormats/')+len('CondFormats/'):]
-    return f[:f.find('/')]
- 
-def getClasses() :
-    ret = []
-    lines = ( line for line in file('src/plugin.cc') if line[0:3]=='REG')
-    for line in lines:
-        ret.append(line[line.find(',')+1:line.find(')')])
-    return ret
-
-def generateBuildFile(package,classes) :
-    f = file('plugins/BuildFile','w')
-    f.seek(0,2)
-    s = string.Template(buildfileTemplate)
-    for classname in classes:
-        f.write(s.substitute(_PACKAGE_=package, _CLASS_NAME_=classname).replace('-',''))
-
-def generateWrapper(package,classes) :
-    s = string.Template(wrapperTemplate)
-    for classname in classes:
-        f = file('plugins/'+classname+'PyWrapper.cc','w')
-        print "generating file:", f.name
-        f.write(s.substitute(_PACKAGE_=package, _CLASS_NAME_=classname, _HEADER_FILE_=classname))
-        f.close()
-
+# All those below run in CondCore/XyzPlugin directory
 
 if __name__ == "__main__":
     classes=getClasses()
