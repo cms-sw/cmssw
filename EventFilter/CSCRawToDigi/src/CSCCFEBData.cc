@@ -44,6 +44,7 @@ CSCCFEBData::CSCCFEBData(unsigned number, unsigned short * buf)
 	  << "CORRUPT CFEB DATA slice " << theNumberOfSamples << std::hex << " " 
 	  << *(buf+pos+3) << " " << *(buf+pos+2) << " "  << *(buf+pos+1) << " "<< *(buf+pos);
 	//ok slice is bad but try another one at 100 words after it
+        theSliceStarts.push_back(std::pair<int, bool>(pos, false));
 	pos += 100;
       }
     }
