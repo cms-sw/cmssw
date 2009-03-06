@@ -60,7 +60,7 @@ wrapperDeclarationFooter = """
 }
 """
 
-def declareCondWrapper(package):
+def declareCondWrappers(package):
     _newch = file('../../CondFormats/'+package+'/src/classes_new.h','w')
     for line in file('../../CondFormats/'+package+'/src/classes.h'):
         if (line.find('wrapper declarations')>0) : break
@@ -73,6 +73,20 @@ def declareCondWrapper(package):
         _n=_n+1
     _newch.write(wrapperDeclarationFooter)
     _newch.close()
+
+def declareXMLCondWrappers(package):
+    _wrapperComment = '<-- wrapper declarations -->\n'
+    _newxml = file('../../CondFormats/'+package+'/src/classes_def_new.xml','w')
+    for line in file('../../CondFormats/'+package+'/src/classes_def.xml'):
+        if (line.find('wrapper declarations')>0) : break
+        _newch.write(line)
+    _newch.write_(wrapperComment)
+    for cl in getClasses(package):
+        _newch.write(' <class name="pool::Ptr<'+cl+' >"/>\n')
+        _newch.write(' <class name="cond::DataWrapper<'+cl+' >"/>\n')
+    _newch.close()
+
+
 
 
 def generateBuildFile(package,classes) :
