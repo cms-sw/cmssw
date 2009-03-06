@@ -242,6 +242,7 @@ namespace edm {
 
     desc.addOptionalUntracked<bool>("noEventSort", false);
     desc.addOptionalUntracked<bool>("skipBadFiles", false);
+    desc.addOptionalUntracked<bool>("needSecondaryFileNames", false);
     desc.addOptionalUntracked<bool>("dropDescendantsOfDroppedBranches", true);
     desc.addOptionalUntracked<unsigned int>("cacheSize", 0U);
     desc.addOptionalUntracked<int>("treeMaxVirtualSize", -1);
