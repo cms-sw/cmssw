@@ -7,18 +7,12 @@ bool BaseSiTrackerRecHit2DLocalPos::hasPositionAndError() const {
 }
 
 LocalPoint BaseSiTrackerRecHit2DLocalPos::localPosition() const {
-    if (!hasPositionAndError()) throw cms::Exception("BaseSiTrackerRecHit2DLocalPos") << 
-      "Trying to access the localPosition of a RecHit that was read from disk, but since CMSSW_2_1_X localPosition is transient.\n" <<
-      "If you want to get coarse position/error estimation from disk, please set: ComputeCoarseLocalPositionFromDisk = True \n " <<
-      " to the TransientTrackingRecHitBuilder you are using from RecoTracker/TransientTrackingRecHit/python/TTRHBuilders_cff.py";
+    if (!hasPositionAndError()) throwExceptionUninitialized("localPosition");
     return pos_;
 }
 
 LocalError BaseSiTrackerRecHit2DLocalPos::localPositionError() const{ 
-    if (!hasPositionAndError()) throw cms::Exception("BaseSiTrackerRecHit2DLocalPos") << 
-      "Trying to access the localPositionError of a RecHit that was read from disk, but since CMSSW_2_1_X localPositionError is transient.\n" <<
-      "If you want to get coarse position/error estimation from disk, please set: ComputeCoarseLocalPositionFromDisk = True \n " <<
-      " to the TransientTrackingRecHitBuilder you are using from RecoTracker/TransientTrackingRecHit/python/TTRHBuilders_cff.py";
+    if (!hasPositionAndError()) throwExceptionUninitialized("localPositionError");
     return err_;
 }
 
@@ -26,10 +20,7 @@ LocalError BaseSiTrackerRecHit2DLocalPos::localPositionError() const{
 void 
 BaseSiTrackerRecHit2DLocalPos::getKfComponents( KfComponentsHolder & holder ) const 
 {
-   if (!hasPositionAndError()) throw cms::Exception("BaseSiTrackerRecHit2DLocalPos") << 
-     "Trying to access the KfComponents of a RecHit that was read from disk, but since CMSSW_2_1_X local positions are transient.\n" <<
-     "If you want to get coarse position/error estimation from disk, please set: ComputeCoarseLocalPositionFromDisk = True \n " <<
-     " to the TransientTrackingRecHitBuilder you are using from RecoTracker/TransientTrackingRecHit/python/TTRHBuilders_cff.py";
+   if (!hasPositionAndError()) throwExceptionUninitialized("getKfComponents");
    //std::cout << "Call to KfComponentsHolder::genericFill should be optimized here " << std::endl;
    AlgebraicVector2 & pars = holder.params<2>();
    pars[0] = pos_.x(); 
@@ -54,3 +45,13 @@ BaseSiTrackerRecHit2DLocalPos::getKfComponents( KfComponentsHolder & holder ) co
    //holder.genericFill(*this);
    //holder.dump<2>();
 }
+
+void
+BaseSiTrackerRecHit2DLocalPos::throwExceptionUninitialized(const char *where) const
+{
+   throw cms::Exception("BaseSiTrackerRecHit2DLocalPos") << 
+     "Trying to access " << where << " for a RecHit that was read from disk, but since CMSSW_2_1_X local positions are transient.\n" <<
+     "If you want to get coarse position/error estimation from disk, please set: ComputeCoarseLocalPositionFromDisk = True \n " <<
+     " to the TransientTrackingRecHitBuilder you are using from RecoTracker/TransientTrackingRecHit/python/TTRHBuilders_cff.py";
+}
+

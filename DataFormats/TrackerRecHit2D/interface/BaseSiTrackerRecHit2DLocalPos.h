@@ -25,6 +25,8 @@ public:
  
   virtual void getKfComponents( KfComponentsHolder & holder ) const ; 
  private:
+
+  void throwExceptionUninitialized(const char *where) const;
   
   LocalPoint pos_;
   LocalError err_;
