@@ -1,4 +1,5 @@
 <flags GENREFLEX_ARGS="--">
+<use name=CondFormats/Common>
 <use name=DataFormats/DetId>
 <use name=DataFormats/SiPixelDetId>
 <use name=CalibFormats/SiPixelObjects>
@@ -17,7 +18,6 @@
 <use name=root>
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/TrackerGeometryBuilder>
-<use name=CalibFormats/SiPixelObjects>
 <use name=DQM/SiPixelCommon>
 <use name=DQMServices/Core>
 
@@ -25,6 +25,7 @@
 <use name=boost>
 <use name=rootrflx>
 <export>
+  <use name=CondFormats/Common>
   <use name=boost>
   <lib name=CondFormatsSiPixelObjects>
 </export>

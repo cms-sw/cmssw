@@ -1,5 +1,6 @@
 <use name=FWCore/Framework>
 <export>
+  <use name=CondFormats/Common>
   <use name=FWCore/Framework>
   <lib name=CondFormatsAlignmentRecord>
 </export>

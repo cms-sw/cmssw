@@ -5,6 +5,7 @@
 <use name=boost>
 <use name=rootrflx>
 <export>
+  <use name=CondFormats/Common>
   <use name=boost>
   <lib name=CondFormatsPhysicsToolsObjects>
 </export>

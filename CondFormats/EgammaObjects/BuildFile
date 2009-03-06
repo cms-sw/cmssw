@@ -1,8 +1,10 @@
 <flags GENREFLEX_ARGS="--">
+<use name=CondFormats/Common>
 <use name=FWCore/Framework>
 <use name=CondFormats/PhysicsToolsObjects>
 <use name=rootrflx>
 <export>
+  <use name=CondFormats/Common>
    <lib name=CondFormatsEgammaObjects>
     <use name=FWCore/Framework>
     <use name=CondFormats/PhysicsToolsObjects>

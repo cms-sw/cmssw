@@ -1,6 +1,6 @@
 <flags GENREFLEX_ARGS="--">
-<use name=FWCore/Framework>
 <use name=CondFormats/Common>
+<use name=FWCore/Framework>
 <use name=rootrflx>
 <export>
   <use name=CondFormats/Common>                              
