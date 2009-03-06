@@ -81,14 +81,14 @@ all: display
 
 display: lib$(LibProject).$(SO_EXT) tmp/lib$(LibProject).$(SO_EXT).out cmsShow.exe
 
-#cmsShow.exe: lib$(LibProject).$(SO_EXT) lib$(LibCore).$(SO_EXT) src/Fireworks/Core/test/cmsShow.cc
+#cmsShow.exe: lib$(LibProject).$(SO_EXT) lib$(LibCore).$(SO_EXT) src/Fireworks/Core/bin/cmsShow.cc
 #	$(QUIET) echo "linking cmsShow.exe"; \
 #	$(CC) $(CFLAGS) -Wl,-rpath -Wl,./ -L$(FWROOTSYS)/lib $(addprefix $(LinkerOptions),$(LDLIBRARYPATH)) \
-#	  -lGui -lGpad -lGraf -lRIO -lNet -o cmsShow.exe libCMSShow.$(SO_EXT) -L./ -l$(LibCore) -lCore src/Fireworks/Core/test/cmsShow.cc
-cmsShow.exe: lib$(LibProject).$(SO_EXT) lib$(LibCore).$(SO_EXT) src/Fireworks/Core/test/cmsShow.cc
+#	  -lGui -lGpad -lGraf -lRIO -lNet -o cmsShow.exe libCMSShow.$(SO_EXT) -L./ -l$(LibCore) -lCore src/Fireworks/Core/bin/cmsShow.cc
+cmsShow.exe: lib$(LibProject).$(SO_EXT) lib$(LibCore).$(SO_EXT) src/Fireworks/Core/bin/cmsShow.cc
 	$(QUIET) echo "linking cmsShow.exe"; \
 	$(CC) $(CFLAGS) -Wl,-rpath -Wl,./ -L$(FWROOTSYS)/lib $(addprefix $(LinkerOptions),$(LDLIBRARYPATH)) \
-	$(ExecLibs) -o cmsShow.exe src/Fireworks/Core/test/cmsShow.cc
+	$(ExecLibs) -o cmsShow.exe src/Fireworks/Core/bin/cmsShow.cc
 
 
 lib$(LibProject).$(SO_EXT): $(ProjectObjects) $(ProjectRootDicObjects) $(ProjectDictionaryObjects) lib$(LibCore).$(SO_EXT)
