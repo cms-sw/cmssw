@@ -512,11 +512,11 @@ BaseParticlePropagator::propagateToHcalEntrance(bool first) {
   //
   // Propagation to HCAL entrance
   // TODO: include proper geometry
-  // Geometry taken from DAQ TDR Chapter 13
+  // Geometry taken from CMSSW_3_1_X xml (Sunanda)
   //
 
   // First propagate to global barrel / endcap cylinder 
-  setPropagationConditions(183.0 , 388.0, first);
+  setPropagationConditions(177.5 , 359.4, first);
   propDir = 0;
   bool done = propagate();
   propDir = 1;
@@ -554,11 +554,11 @@ BaseParticlePropagator::propagateToHcalExit(bool first) {
   //
   // Propagation to HCAL exit
   // TODO: include proper geometry
-  // Geometry taken from DAQ TDR Chapter 13
+  // Geometry taken from CMSSW_3_1_X xml (Sunanda)
   //
 
   // Approximate it to a single cylinder as it is not that crucial.
-  setPropagationConditions(285.0 , 560.0, first);
+  setPropagationConditions(263.9 , 554.1, first);
   //  this->rawPart().setCharge(0.0); ?? Shower Propagation ??
   propDir = 0;
   bool done = propagate();
