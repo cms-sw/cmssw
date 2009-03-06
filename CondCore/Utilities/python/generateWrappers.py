@@ -45,7 +45,7 @@ def getClasses(package) :
         print 'comment header not found in '+package
         return ret
     for line in ch:
-        if (line[0:2]=' */') : break
+        if (line[0:2]==' */') : break
         ret.append(line[2:])
     ch.close()
     return ret
@@ -70,9 +70,9 @@ def declareCondWrapper(package):
     for cl in getClasses(package):
         _newch.write('pool::Ptr<'+cl+' > p'+str(n)+';')
         _newch.write('cond::DataWrapper<'+cl+' > dw'+str(n)+';')
-        n++;
-     _newch.write(wrapperDeclarationFooter)
-     _newch.close()
+        _n=_n+1
+    _newch.write(wrapperDeclarationFooter)
+    _newch.close()
 
 
 def generateBuildFile(package,classes) :
