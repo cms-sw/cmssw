@@ -7,7 +7,7 @@
 # This script behavior is tuned by few unix variables and command-line
 # arguments. You can use Oval as execution manager, whose configuration is
 # within OvalFile. Oval will set the relevant variables for you.
-# If you prefer to set the variablse and run this script directly,
+# If you prefer to set the variables and run this script directly,
 # here they are :
 #
 # $1 : eventual first command-line argument, immediatly duplicated into VAL_ENV,
@@ -16,6 +16,8 @@
 # $2 : eventual second command-line argument, immediatly duplicated into VAL_OUTPUT_FILE,
 #   is the default default base name of the files containing the histograms ; it is
 #   also used to build some default value for other variables.
+# $3 : eventual third command-line argument, immediatly duplicated into VAL_WEB_SUB_DIR,
+#   it is the name of the web subdirectory. Default is ${DBS_SAMPLE}Ideal
 #
 # VAL_NEW_FILE : complete path of the file containing the new histograms.
 # VAL_REF_FILE : complete path of the file containing the old histograms to compare with.
@@ -34,6 +36,7 @@
 
 setenv VAL_ENV $1
 setenv VAL_OUTPUT_FILE $2
+setenv VAL_WEB_SUB_DIR $3
 setenv VAL_WEB "/afs/cern.ch/cms/Physics/egamma/www/validation"
 
 if ( ${?VAL_NEW_FILE} == "0" ) setenv VAL_NEW_FILE ""
@@ -54,12 +57,22 @@ if ( ${VAL_REF_FILE} == "" ) then
   endif
 endif
  
+if ( ${VAL_WEB_SUB_DIR} == "" ) then
+  if ( "${DBS_LIKE}" =~ *IDEAL* ) then
+    setenv VAL_WEB_SUB_DIR ${DBS_SAMPLE}Ideal
+  else if ( "${DBS_LIKE}" =~ *STARTUP* ) then
+    setenv VAL_WEB_SUB_DIR ${DBS_SAMPLE}Startup
+  else
+    setenv VAL_WEB_SUB_DIR ${DBS_SAMPLE}
+  endif
+endif
+ 
 #setenv VAL_ANALYZER GsfElectronMCAnalyzer
 
 #setenv VAL_NEW_RELEASE 220pre1IDEAL
 #setenv VAL_REF_RELEASE 219IDEAL
 
-#setenv DBS_SAMPLE RelValQCD_Pt_80_120
+#setenv VAL_WEB_SUB_DIR RelValQCD_Pt_80_120
 
 
 #============== Echo parameters ==================
@@ -102,10 +115,10 @@ if (! -d "vs${VAL_REF_RELEASE}") then
 endif
 cd "vs${VAL_REF_RELEASE}"
 
-if (! -d ${DBS_SAMPLE}) then
-  mkdir ${DBS_SAMPLE}
+if (! -d ${VAL_WEB_SUB_DIR}) then
+  mkdir ${VAL_WEB_SUB_DIR}
 endif
-cd ${DBS_SAMPLE}
+cd ${VAL_WEB_SUB_DIR}
 
 if (! -d gifs) then
   mkdir gifs
@@ -314,4 +327,4 @@ endif
 
 root -b -l -q newvalidation.C
 echo "You can view your validation plots here:"
-echo "http://cmsdoc.cern.ch/Physics/egamma/www/validation/${VAL_NEW_RELEASE}/vs${VAL_REF_RELEASE}/${DBS_SAMPLE}/validation.html"
+echo "http://cmsdoc.cern.ch/Physics/egamma/www/validation/${VAL_NEW_RELEASE}/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/validation.html"
