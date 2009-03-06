@@ -669,6 +669,10 @@ def writeCommands(simcandles,
                 
                 #Special case of EventEdmSize profiling 
                 if 'EdmSize' in prof:
+                    #Adhoc fix:
+                    prodFilterreg = re.compile('GEN:ProductionFilterSequence')
+                    if prodFilterreg.search(outfile):
+                        outfile = prodFilterreg.sub(r"GEN", outfile)
                     EdmFile = "%s_%s.root" % (FileName[acandle],outfile) #stepToWrite) #Bug in the filename for EdmSize for PileUp corrected.
                     #EventEdmSize needs a pre-requisite step that just produces the root file if one decided to run with only EdmSize profiling!
                     if prof == Profile[0] and not os.path.exists("./" + EdmFile):
