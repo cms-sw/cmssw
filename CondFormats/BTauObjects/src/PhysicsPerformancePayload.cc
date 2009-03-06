@@ -1,0 +1,27 @@
+#include "CondFormats/BTauObjects/interface/PhysicsPerformancePayload.h"
+
+//#include <iostream>
+
+int PhysicsPerformancePayload::nRows() const {
+  return table_.size()/stride_;
+}
+
+PhysicsPerformancePayload::Row PhysicsPerformancePayload::getRow(int n) const{
+  Row temp;
+  copy (table_.begin()+(n*stride_) ,table_.begin()+(n+1)*stride_, back_inserter(temp));
+  return temp;
+}
+
+PhysicsPerformancePayload::PhysicsPerformancePayload(int stride, std::string columns, std::vector<float> table) : stride_(stride), 
+														  columns_(columns),
+														  table_(table)
+{}
+
+
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
+
+#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+
+EVENTSETUP_DATA_REG(PhysicsPerformancePayload);
