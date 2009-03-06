@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<!DOCTYPE PoolDatabase SYSTEM "InMemory">
+ <PoolDatabase >
+  <PoolContainer name="RPCRecoGeometryRcd" >
+   <Class table="RPCRECOGEOMETRY" id_columns="ID" name="RecoIdealGeometry" mapping_version="RPCRecoGeometry_basic" >
+     <Blob column="RPCRECOGEOMETRY__1" name="pDetIds"/>
+     <Blob column="RPCRECOGEOMETRY__2" name="pPars"/>
+     <Blob column="RPCRECOGEOMETRY__3" name="pParsIndex"/>
+     <Blob column="RPCRECOGEOMETRY__4" name="pNumShapeParms"/>
+     <Blob column="RPCRECOGEOMETRY__5" name="strPars"/>
+     <Blob column="RPCRECOGEOMETRY__6" name="sParsIndex"/>
+     <Blob column="RPCRECOGEOMETRY__7" name="sNumsParms"/>
+   </Class >
+  </PoolContainer >
+ </PoolDatabase >
