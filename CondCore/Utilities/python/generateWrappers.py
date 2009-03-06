@@ -38,10 +38,10 @@ def generateClassesHeader(package):
     _newch.close()
 
 def getClasses(package) :
-    _header = 'Condtion Objects'
+    _header = 'Condition Objects'
     _ret = []
     _ch = file('../../CondFormats/'+package+'/src/classes.h')
-    if (_ch.read().find(_header)) :
+    if (_ch.read().find(_header)<0) :
         print 'comment header not found in '+package
         return _ret
     for line in _ch:
@@ -63,7 +63,7 @@ wrapperDeclarationFooter = """
 def declareCondWrapper(package):
     _newch = file('../../CondFormats/'+package+'/src/classes_new.h','w')
     for line in file('../../CondFormats/'+package+'/src/classes.h'):
-        if (line.find('wrapper declarations')) : break
+        if (line.find('wrapper declarations')>0) : break
         _newch.write(line)
     _newch.write(wrapperDeclarationHeader)
     _n=0
