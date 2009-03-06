@@ -11,16 +11,16 @@ import string
 
 #Reference release
 
-RefRelease='CMSSW_3_1_0_pre1'
+RefRelease='CMSSW_3_0_0_pre7'
 
 # startup and ideal sample list
-#startupsamples= ['RelValTTbar', 'RelValMinBias', 'RelValQCD_Pt_3000_3500']
-startupsamples= ['RelValTTbar']
+startupsamples= ['RelValTTbar', 'RelValMinBias', 'RelValQCD_Pt_3000_3500']
+#startupsamples= ['RelValTTbar']
 
-#idealsamples= ['RelValSingleMuPt1', 'RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSinglePiPt1', 'RelValSinglePiPt10', 'RelValSinglePiPt100', 'RelValSingleElectronPt35', 'RelValTTbar', 'RelValQCD_Pt_3000_3500','RelValMinBias']
+idealsamples= ['RelValSingleMuPt1', 'RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSinglePiPt1', 'RelValSinglePiPt10', 'RelValSinglePiPt100', 'RelValSingleElectronPt35', 'RelValTTbar', 'RelValQCD_Pt_3000_3500','RelValMinBias']
 
 #idealsamples= [ 'RelValSingleElectronPt35']
-idealsamples= ['RelValTTbar']
+#idealsamples= ['RelValTTbar']
 
 
 
@@ -29,7 +29,7 @@ Algos= ['ootb', 'ctf','iter2','iter3','iter4','iter5']
 #Qualities=['']
 Qualities=['', 'highPurity']
 
-#Leave unchanged unless the track collection name changed
+#Leave unchanged unless the track collection name changes
 Tracksname=''
 
 # Sequence. Possible values:
@@ -197,7 +197,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
 		
 			else:      
 				print 'No dataset found skipping sample: '+ sample, '\n'  
-				retcode=0
+				continue
 		else: 
 			retcode=0
 		if (retcode!=0):
@@ -234,13 +234,13 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
 			if(os.path.exists(newdir)==False):
 				os.makedirs(newdir)
 		
-			print "copying pdf files for sample: " , sample
-			os.system('cp  *.pdf ' + newdir)
+			print "moving pdf files for sample: " , sample
+			os.system('mv  *.pdf ' + newdir)
 		
-			print "copying root file for sample: " , sample
-			os.system('cp val.'+ sample+ '.root ' + newdir)
+			print "moving root file for sample: " , sample
+			os.system('mv val.'+ sample+ '.root ' + newdir)
 		
-			print "copying py file for sample: " , sample
+			print "copy py file for sample: " , sample
 			os.system('cp '+cfgFileName+'.py ' + newdir)
 	
 	
