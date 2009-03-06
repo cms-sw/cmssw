@@ -1,0 +1,23 @@
+<use name=CondFormats/BTauObjects>
+<use name=RecoBTag/Records>
+<use name=RecoBTag/PerformanceDB>
+<use name=CondFormats/DataRecord>
+
+<use name=FWCore/PluginManager> 
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/Utilities>
+<use name=FWCore/MessageLogger>
+
+<use name=CondCore/PluginSystem>
+
+<use name=CondCore/DBCommon>
+<use name=CondCore/DBOutputService>
+
+<use name=boost>
+
+<library file="*.cc" name=RecoBTagPerformanceDBplugins>
+<use name=FWCore/Framework>
+        <flags EDM_PLUGIN=1>
+</library>
+
