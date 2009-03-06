@@ -2,7 +2,6 @@
 <use name=PhysicsTools/KinFitter>
 <use name=DataFormats/PatCandidates>
 <use name=TopQuarkAnalysis/TopTools>
-<use name=Foundation/PluginManager>
 <use name=PhysicsTools/UtilAlgos>
 <use name=CondCore/PluginSystem>
 <use name=FWCore/ParameterSet>

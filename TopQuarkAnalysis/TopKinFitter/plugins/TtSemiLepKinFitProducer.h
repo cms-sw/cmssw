@@ -6,7 +6,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "PhysicsTools/JetMCUtils/interface/combination.h"
-#include "TopQuarkAnalysis/TopTools/interface/TtSemiLepEvtPartons.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtSemiLepKinFitter.h"
 
 
