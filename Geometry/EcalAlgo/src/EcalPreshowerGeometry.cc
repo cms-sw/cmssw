@@ -1,5 +1,3 @@
-#include "Geometry/CaloGeometry/interface/PreshowerStrip.h"
-#include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
 #include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -27,57 +25,6 @@ EcalPreshowerGeometry::EcalPreshowerGeometry() :
 
 
 EcalPreshowerGeometry::~EcalPreshowerGeometry() {}
-
-unsigned int
-EcalPreshowerGeometry::alignmentTransformIndexLocal( const DetId& id )
-{
-   const CaloGenericDetId gid ( id ) ;
-
-   assert( gid.isES() ) ;
-   unsigned int index ( 0 ) ;
-
-   return index ;
-}
-
-unsigned int
-EcalPreshowerGeometry::alignmentTransformIndexGlobal( const DetId& id )
-{
-   return (unsigned int)DetId::Ecal ;
-}
-
-
-void 
-EcalPreshowerGeometry::initializeParms() 
-{
-   typedef CaloSubdetectorGeometry::CellCont Cont ;
-   unsigned int n1 ( 0 ) ;
-   unsigned int n2 ( 0 ) ;
-   double z1 ( 0 ) ;
-   double z2 ( 0 ) ;
-   const Cont& con ( cellGeometries() ) ;
-   for( unsigned int i ( 0 ) ; i != con.size() ; ++i )
-   {
-      const ESDetId esid ( getValidDetIds()[i] ) ;
-      if( 1 == esid.plane() )
-      {
-	 z1 += fabs( con[i]->getPosition().z() ) ;
-	 ++n1 ;
-      }
-      if( 2 == esid.plane() )
-      {
-	 z2 += fabs( con[i]->getPosition().z() ) ;
-	 ++n2 ;
-      }
-//      if( 0 == z1 && 1 == esid.plane() ) z1 = fabs( i->second->getPosition().z() ) ;
-//      if( 0 == z2 && 2 == esid.plane() ) z2 = fabs( i->second->getPosition().z() ) ;
-//      if( 0 != z1 && 0 != z2 ) break ;
-   }
-   assert( 0 != n1 && 0 != n2 ) ;
-   z1 /= (1.*n1) ;
-   z2 /= (1.*n2) ;
-   assert( 0 != z1 && 0 != z2 ) ;
-   setzPlanes( z1, z2 ) ;
-}
 
 // Get closest cell, etc...
 DetId 
@@ -154,49 +101,18 @@ EcalPreshowerGeometry::getClosestCellInPlane( const GlobalPoint& point,
   //Find zside
   int zside = ( z > 0.) ? +1 : -1;
   
-  if (plane == 1)
-    {
-      try
-	{
-	  if (present(ESDetId(istr, col, row, 1, zside)))
-	    return  DetId(ESDetId(istr, col, row, 1, zside));
-	}
-      catch ( cms::Exception &e ) 
-	{ 
-	  return DetId(0);
-	}
-    }
-  else if (plane == 2)
-    {
-      try
-	{
-	  if (present(ESDetId(istr, row, col, 2, zside)))
-	    return  DetId(ESDetId(istr, row, col, 2, zside));
-	}
-      catch ( cms::Exception &e ) 
-	{ 
-	  return DetId(0);
-	}
-    }
+  const DetId esid ( ESDetId::validDetId( istr,
+					  1 == plane ? col : row,
+					  1 == plane ? row : col,
+					  plane,
+					  zside  ) ?
+		     DetId( ESDetId(             istr,
+						 1 == plane ? col : row,
+						 1 == plane ? row : col,
+						 plane,
+						 zside  ) ) :
+		     DetId(0) ) ;
 
-  return DetId(0);
-}
-
-std::vector<HepPoint3D> 
-EcalPreshowerGeometry::localCorners( const double* pv,
-				     unsigned int  i,
-				     HepPoint3D&   ref )
-{
-   return ( PreshowerStrip::localCorners( pv, ref ) ) ;
-}
-
-CaloCellGeometry* 
-EcalPreshowerGeometry::newCell( const GlobalPoint& f1 ,
-				const GlobalPoint& f2 ,
-				const GlobalPoint& f3 ,
-				CaloCellGeometry::CornersMgr* mgr,
-				const double*      parm ,
-				const DetId&       detId    ) 
-{
-   return ( new PreshowerStrip( f1, mgr , parm ) ) ;
+  return ( present( esid ) && 
+	   !esid.null()       ? esid : DetId(0) ) ;
 }
