@@ -13,7 +13,7 @@ from Calibration.EcalAlCaRecoProducers.electronFilter_cfi import *
 
 electronewkHLTFilter = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
 electronewkHLTFilter.throw = False 
-electronewkHLTFilter.HLTPaths = ['HLT_Ele15_LW_L1R', 'HLT_LooseIsoEle15_LW_L1R', 'HLT_DoubleEle10_LW_OnlyPixelM_L1R']
+electronewkHLTFilter.HLTPaths = ['HLT_Ele15_SW_L1R', 'HLT_DoubleEle10_SW_L1R']
 
 seqALCARECOEcalCalElectronRECO = cms.Sequence(alCaIsolatedElectrons)
 seqALCARECOEcalCalElectron = cms.Sequence(electronewkHLTFilter*electronFilter*seqALCARECOEcalCalElectronRECO) 

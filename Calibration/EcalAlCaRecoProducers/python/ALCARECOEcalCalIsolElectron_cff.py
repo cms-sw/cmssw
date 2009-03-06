@@ -12,7 +12,7 @@ from Calibration.EcalAlCaRecoProducers.electronFilter_cfi import *
 
 isolElectronewkHLTFilter = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
 isolElectronewkHLTFilter.throw = False 
-isolElectronewkHLTFilter.HLTPaths = ['HLT_Ele15_LW_L1R', 'HLT_LooseIsoEle15_LW_L1R', 'HLT_DoubleEle10_LW_OnlyPixelM_L1R']
+isolElectronewkHLTFilter.HLTPaths = ['HLT_Ele15_SW_L1R', 'HLT_DoubleEle10_SW_L1R']
 
 goodElectrons = cms.EDFilter("CandViewRefSelector",
     filter = cms.bool(True),
