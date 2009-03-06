@@ -1,34 +1,33 @@
 #ifndef ElectronSeedAnalyzer_h
 #define ElectronSeedAnalyzer_h
-  
+
 //
 // Package:         RecoEgamma/ElectronTrackSeed
 // Class:           ElectronSeedAnalyzer
-// 
+//
 
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronSeedAnalyzer.h,v 1.3 2008/10/06 14:53:20 charlot Exp $
+// $Id: ElectronSeedAnalyzer.h,v 1.1 2009/01/12 17:10:30 chamont Exp $
 //
 //
-  
-  
+
+
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
- 
+
 #include "DataFormats/Common/interface/EDProduct.h"
- 
+
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
-class MagneticField;  
+class MagneticField;
 class TFile;
 class TH1F;
 class TH1I;
@@ -37,19 +36,15 @@ class TTree;
 class ElectronSeedAnalyzer : public edm::EDAnalyzer
 {
  public:
-  
-  explicit ElectronSeedAnalyzer(const edm::ParameterSet& conf);
-  
+
+  explicit ElectronSeedAnalyzer( const edm::ParameterSet & conf );
   virtual ~ElectronSeedAnalyzer();
-  
-  virtual void beginJob(edm::EventSetup const& iSetup);
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-  
+  virtual void analyze( const edm::Event &, const edm::EventSetup &);
+
  private:
 
   TrajectoryStateTransform transformer_;
-  edm::ESHandle<TrackerGeometry> pDD;
-  edm::ESHandle<MagneticField> theMagField;
+
   TFile *histfile_;
   TTree *tree_;
   float mcEnergy[10], mcEta[10], mcPhi[10], mcPt[10], mcQ[10];
@@ -78,12 +73,12 @@ class ElectronSeedAnalyzer : public edm::EDAnalyzer
   TH1I *histnbclus_;
 
   edm::InputTag inputCollection_;
-  std::vector<std::pair<const GeomDet*, TrajectoryStateOnSurface> >  mapTsos_;
-  std::vector<std::pair<std::pair<const GeomDet*,GlobalPoint>,  TrajectoryStateOnSurface> >  mapTsos2_;
+//  std::vector<std::pair<const GeomDet*, TrajectoryStateOnSurface> >  mapTsos_;
+//  std::vector<std::pair<std::pair<const GeomDet*,GlobalPoint>,  TrajectoryStateOnSurface> >  mapTsos2_;
 
  };
-  
+
 #endif
- 
+
 
 

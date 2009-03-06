@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:49:38 EDT 2006
-// $Id: SiStripElectronAnalyzer.cc,v 1.8 2008/12/08 22:33:47 chamont Exp $
+// $Id: SiStripElectronAnalyzer.cc,v 1.9 2009/02/06 13:30:03 chamont Exp $
 //
 
 // system include files
@@ -182,7 +182,7 @@ SiStripElectronAnalyzer::~SiStripElectronAnalyzer()
 // member functions
 //
 // init for TTree
-void SiStripElectronAnalyzer::beginJob(edm::EventSetup const &iSetup){
+void SiStripElectronAnalyzer::beginJob(){
 
   myTree_ = new TTree("myTree","my first Tree example");
 

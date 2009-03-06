@@ -2,7 +2,7 @@
 //
 // Package:    EgammaElectronProducers
 // Class:      GsfElectronProducer
-// 
+//
 /**\class GsfElectronProducer RecoEgamma/ElectronProducers/src/GsfElectronProducer.cc
 
  Description: EDProducer of GsfElectron objects
@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronProducer.cc,v 1.10 2009/01/12 16:45:53 chamont Exp $
+// $Id: GsfElectronProducer.cc,v 1.11 2009/02/14 14:53:56 charlot Exp $
 //
 //
 
@@ -34,8 +34,8 @@
 #include <iostream>
 
 using namespace reco;
- 
-GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& iConfig) 
+
+GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& iConfig)
 {
   //register your products
   produces<GsfElectronCollection>();
@@ -74,24 +74,20 @@ GsfElectronProducer::~GsfElectronProducer()
   delete algo_;
 }
 
-void GsfElectronProducer::beginJob(edm::EventSetup const&iSetup) 
-{     
-}
-
 // ------------ method called to produce the data  ------------
-void GsfElectronProducer::produce(edm::Event& e, const edm::EventSetup& iSetup) 
+void GsfElectronProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
 {
-  algo_->setupES(iSetup);  
+  algo_->setupES(iSetup);
 
-  // Create the output collections   
+  // Create the output collections
   std::auto_ptr<GsfElectronCollection> pOutEle(new GsfElectronCollection);
-  
+
   // invoke algorithm
   algo_->run(e,*pOutEle);
 
   // put result into the Event
   e.put(pOutEle);
-  
+
 }
 
 

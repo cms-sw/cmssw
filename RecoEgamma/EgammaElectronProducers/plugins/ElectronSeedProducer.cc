@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronSeedProducer.cc,v 1.1 2009/01/12 16:45:53 chamont Exp $
+// $Id: ElectronSeedProducer.cc,v 1.2 2009/02/05 11:39:44 chamont Exp $
 //
 //
 
@@ -69,10 +69,6 @@ ElectronSeedProducer::~ElectronSeedProducer()
    // (e.g. close files, deallocate resources etc.)
       delete matcher_;
       delete seedFilter_;
-}
-
-void ElectronSeedProducer::beginJob(edm::EventSetup const&iSetup)
-{
 }
 
 void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)

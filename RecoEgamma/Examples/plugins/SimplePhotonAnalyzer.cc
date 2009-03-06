@@ -1,7 +1,7 @@
 /**\class PhotonSimpleAnalyzer
  **
- ** $Date: 2008/06/24 15:26:55 $
- ** $Revision: 1.17 $
+ ** $Date: 2008/12/08 22:33:47 $
+ ** $Revision: 1.18 $
  ** \author Nancy Marinelli, U. of Notre Dame, US
 */
 
@@ -57,7 +57,7 @@ SimplePhotonAnalyzer::~SimplePhotonAnalyzer()
 
 //========================================================================
 void
-SimplePhotonAnalyzer::beginJob(edm::EventSetup const&) {
+SimplePhotonAnalyzer::beginJob() {
 //========================================================================
 
   edm::Service<TFileService> fs;
@@ -333,7 +333,7 @@ float SimplePhotonAnalyzer::etaTransformation(  float EtaParticle , float Zverte
 
   //---Definitions
   const float PI    = 3.1415927;
-  const float TWOPI = 2.0*PI;
+  //UNUSED const float TWOPI = 2.0*PI;
 
   //---Definitions for ECAL
   const float R_ECAL           = 136.5;

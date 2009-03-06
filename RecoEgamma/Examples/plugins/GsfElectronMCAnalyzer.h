@@ -1,33 +1,33 @@
 #ifndef GsfElectronMCAnalyzer_h
 #define GsfElectronMCAnalyzer_h
-  
+
 //
 // Package:         RecoEgamma/Examples
 // Class:           GsfElectronMCAnalyzer
-// 
+//
 
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.h,v 1.5 2008/12/11 23:29:35 charlot Exp $
+// $Id: GsfElectronMCAnalyzer.h,v 1.6 2009/02/26 14:31:45 charlot Exp $
 //
 //
-  
-  
+
+
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
- 
+
 #include "DataFormats/Common/interface/EDProduct.h"
- 
+
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
-class MagneticField;  
+class MagneticField;
 class TFile;
 class TH1F;
 class TH2F;
@@ -38,15 +38,15 @@ class TTree;
 class GsfElectronMCAnalyzer : public edm::EDAnalyzer
 {
  public:
-  
+
   explicit GsfElectronMCAnalyzer(const edm::ParameterSet& conf);
-  
+
   virtual ~GsfElectronMCAnalyzer();
-  
-  virtual void beginJob(edm::EventSetup const& iSetup);
+
+  virtual void beginJob();
   virtual void endJob();
   virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-  
+
  private:
 
   TrajectoryStateTransform transformer_;
@@ -61,14 +61,14 @@ class GsfElectronMCAnalyzer : public edm::EDAnalyzer
   TH1F *h_mcNum;
   TH1F *h_eleNum;
   TH1F *h_gamNum;
-  
+
   TH1F *h_simEta;
   TH1F *h_simAbsEta;
   TH1F *h_simP;
   TH1F *h_simPt;
   TH1F *h_simPhi;
   TH1F *h_simZ;
-  
+
   TH1F *h_ele_simEta_matched;
   TH1F *h_ele_simAbsEta_matched;
   TH1F *h_ele_simPt_matched;
@@ -97,11 +97,11 @@ class GsfElectronMCAnalyzer : public edm::EDAnalyzer
   TH1F *h_ele_vertexX;
   TH1F *h_ele_vertexY;
   TH1F *h_ele_vertexZ;
-  TH1F *h_ele_vertexTIP;  
-  TH2F *h_ele_vertexTIPVsEta;  
-  TH2F *h_ele_vertexTIPVsPhi;  
-  TH2F *h_ele_vertexTIPVsPt;  
-  
+  TH1F *h_ele_vertexTIP;
+  TH2F *h_ele_vertexTIPVsEta;
+  TH2F *h_ele_vertexTIPVsPhi;
+  TH2F *h_ele_vertexTIPVsPt;
+
   TH1F *histNum_;
 
   TH1F *histSclEn_ ;
@@ -145,7 +145,7 @@ class GsfElectronMCAnalyzer : public edm::EDAnalyzer
   TH2F *h_ele_chi2VsEta;
   TH2F *h_ele_chi2VsPhi;
   TH2F *h_ele_chi2VsPt;
-  
+
   TH1F *h_ele_PoPtrue;
   TH2F *h_ele_PoPtrueVsEta;
   TH2F *h_ele_PoPtrueVsPhi;
@@ -168,7 +168,7 @@ class GsfElectronMCAnalyzer : public edm::EDAnalyzer
   TH2F *h_ele_PinMnPoutVsPt_mode;
   TH2F *h_ele_PinMnPoutVsE_mode;
   TH2F *h_ele_PinMnPoutVsChi2_mode;
-  
+
   TH1F *h_ele_outerP;
   TH1F *h_ele_outerP_mode;
   TH2F *h_ele_outerPVsEta_mode;
@@ -193,7 +193,7 @@ class GsfElectronMCAnalyzer : public edm::EDAnalyzer
   TH2F *h_ele_EeleOPoutVsEta;
   TH2F *h_ele_EeleOPoutVsPhi;
   TH2F *h_ele_EeleOPoutVsE;
-  
+
   TH1F *h_ele_dEtaSc_propVtx;
   TH2F *h_ele_dEtaScVsEta_propVtx;
   TH2F *h_ele_dEtaScVsPhi_propVtx;
@@ -218,14 +218,14 @@ class GsfElectronMCAnalyzer : public edm::EDAnalyzer
   TH2F *h_ele_dPhiEleClVsEta_propOut;
   TH2F *h_ele_dPhiEleClVsPhi_propOut;
   TH2F *h_ele_dPhiEleClVsPt_propOut;
-  
+
   TH1F *h_ele_seed_dphi2_;
   TH2F *h_ele_seed_dphi2VsEta_;
   TH2F *h_ele_seed_dphi2VsPt_ ;
   TH1F *h_ele_seed_drz2_;
-  TH2F *h_ele_seed_drz2VsEta_; 
-  TH2F *h_ele_seed_drz2VsPt_; 
-  TH1F *h_ele_seed_subdet2_; 
+  TH2F *h_ele_seed_drz2VsEta_;
+  TH2F *h_ele_seed_drz2VsPt_;
+  TH1F *h_ele_seed_subdet2_;
 
   TH1F *h_ele_classes;
   TH1F *h_ele_eta;
@@ -233,17 +233,17 @@ class GsfElectronMCAnalyzer : public edm::EDAnalyzer
   TH1F *h_ele_eta_bbrem;
   TH1F *h_ele_eta_narrow;
   TH1F *h_ele_eta_shower;
-  
+
   TH1F *h_ele_HoE;
   TH1F *h_ele_HoE_fiducial;
   TH2F *h_ele_HoEVsEta;
   TH2F *h_ele_HoEVsPhi;
   TH2F *h_ele_HoEVsE;
-  
+
   TH1F *h_ele_fbrem;
   TProfile *h_ele_fbremVsEta_mode;
   TProfile *h_ele_fbremVsEta_mean;
-  
+
   TH2F *h_ele_PinVsPoutGolden_mode;
   TH2F *h_ele_PinVsPoutShowering0_mode;
   TH2F *h_ele_PinVsPoutShowering1234_mode;
@@ -263,14 +263,14 @@ class GsfElectronMCAnalyzer : public edm::EDAnalyzer
   TH1F *histSclEoEtrueShowering1234_barrel;
   TH1F *histSclEoEtrueShowering1234_endcaps;
 
-  std::string outputFile_; 
+  std::string outputFile_;
   edm::InputTag electronCollection_;
   edm::InputTag  mcTruthCollection_;
-  
+
   double maxPt_;
   double maxAbsEta_;
-  double deltaR_; 
-  
+  double deltaR_;
+
   // histos limits and binning
   double etamin;
   double etamax;
@@ -310,10 +310,10 @@ class GsfElectronMCAnalyzer : public edm::EDAnalyzer
   int nbindphimatch;
   int nbindetamatch2D;
   int nbindphimatch2D;
-  
+
  };
-  
+
 #endif
- 
+
 
 

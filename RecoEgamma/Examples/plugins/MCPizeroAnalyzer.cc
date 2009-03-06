@@ -60,7 +60,7 @@ MCPizeroAnalyzer::~MCPizeroAnalyzer() {
 }
 
 
-void MCPizeroAnalyzer::beginJob( const edm::EventSetup& setup)
+void MCPizeroAnalyzer::beginJob()
 {
 
 
@@ -109,7 +109,7 @@ float MCPizeroAnalyzer::etaTransformation(  float EtaParticle , float Zvertex)  
 
 //---Definitions
 	const float PI    = 3.1415927;
-	const float TWOPI = 2.0*PI;
+	//UNUSED const float TWOPI = 2.0*PI;
 
 //---Definitions for ECAL
 	const float R_ECAL           = 136.5;
@@ -164,14 +164,14 @@ void MCPizeroAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& )
 
 
   using namespace edm;
-  const float etaPhiDistance=0.01;
+  //UNUSED const float etaPhiDistance=0.01;
   // Fiducial region
-  const float TRK_BARL =0.9;
-  const float BARL = 1.4442; // DAQ TDR p.290
-  const float END_LO = 1.566;
-  const float END_HI = 2.5;
+  //UNUSED const float TRK_BARL =0.9;
+  //UNUSED const float BARL = 1.4442; // DAQ TDR p.290
+  //UNUSED const float END_LO = 1.566;
+  //UNUSED const float END_HI = 2.5;
  // Electron mass
-  const Float_t mElec= 0.000511;
+  //UNUSED const Float_t mElec= 0.000511;
 
 
   nEvt_++;
@@ -245,7 +245,7 @@ void MCPizeroAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& )
 	  h_EleEvsPhoE_->Fill ( (*iPho).fourMomentum().e(), (*iEl).fourMomentum().e() );
 
 	  float totBrem=0;
-	  for ( int iBrem=0; iBrem < (*iEl).bremVertices().size(); ++iBrem )
+	  for ( unsigned int iBrem=0; iBrem < (*iEl).bremVertices().size(); ++iBrem )
 	    totBrem +=  (*iEl).bremMomentum()[iBrem].e();
 
 	  h_BremFrac_->Fill( totBrem/(*iEl).fourMomentum().e() );

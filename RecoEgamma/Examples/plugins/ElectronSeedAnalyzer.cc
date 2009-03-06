@@ -1,5 +1,6 @@
 
 // user include files
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -60,25 +61,8 @@ using namespace reco;
 
 ElectronSeedAnalyzer::ElectronSeedAnalyzer(const edm::ParameterSet& conf)
 {
-  histfile_ = new
-  TFile("electronpixelseeds.root","RECREATE");
-
-  inputCollection_=conf.getParameter<edm::InputTag>("inputCollection");
-}
-
-ElectronSeedAnalyzer::~ElectronSeedAnalyzer()
-{
-
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-  tree_->Print();
-  histfile_->Write();
-  histfile_->Close();
-}
-
-void ElectronSeedAnalyzer::beginJob(edm::EventSetup const&iSetup){
-  iSetup.get<TrackerDigiGeometryRecord> ().get(pDD);
-  iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
+  inputCollection_=conf.getParameter<edm::InputTag>("inputCollection") ;
+  histfile_ = new TFile("electronpixelseeds.root","RECREATE");
   tree_ = new TTree("ElectronSeeds","ElectronSeed validation ntuple");
   tree_->Branch("mcEnergy",mcEnergy,"mcEnergy[10]/F");
   tree_->Branch("mcEta",mcEta,"mcEta[10]/F");
@@ -126,9 +110,22 @@ void ElectronSeedAnalyzer::beginJob(edm::EventSetup const&iSetup){
   histnrseeds_ = new TH1I("ns","Nr of seeds if clusters",50,0.,25.);
 }
 
-void
-ElectronSeedAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& iSetup)
+ElectronSeedAnalyzer::~ElectronSeedAnalyzer()
 {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
+  tree_->Print();
+  histfile_->Write();
+  histfile_->Close();
+}
+
+void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& iSetup)
+{
+
+  edm::ESHandle<TrackerGeometry> pDD ;
+  edm::ESHandle<MagneticField> theMagField ;
+  iSetup.get<TrackerDigiGeometryRecord> ().get(pDD);
+  iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
 
   // rereads the seeds for test purposes
   typedef edm::OwnVector<TrackingRecHit> recHitContainer;

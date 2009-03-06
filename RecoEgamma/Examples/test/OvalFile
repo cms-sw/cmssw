@@ -69,6 +69,32 @@ touch with changes in data catalog structure.
   <executable name="newvalidation.csh" args="Pt35 ${TEST_OUTPUT_FILE}">
 </environment>
 
+<environment name="TTbar">
+  <var name="DBS_SAMPLE" value="RelValTTbar">
+  <var name="VAL_ANALYZER" value="GsfElectronMCAnalyzer">
+  <!var name="VAL_REF_FILE" value="${VAL_REF_DIR}/cmsRun.TTbar.olog.${TEST_OUTPUT_FILE}">
+  <executable name="dbs_discovery.py">
+  <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
+  <executable name="newvalidation.csh" args="TTbar ${TEST_OUTPUT_FILE}">
+</environment>
+
+<environment name="ZEEIdeal">
+  <var name="DBS_SAMPLE" value="RelValZEE">
+  <var name="VAL_ANALYZER" value="GsfElectronMCAnalyzer">
+  <executable name="dbs_discovery.py">
+  <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
+  <executable name="newvalidation.csh" args="ZEEIdeal ${TEST_OUTPUT_FILE}">
+</environment>
+
+<environment name="ZEEStartup">
+  <var name="DBS_SAMPLE" value="RelValZEE">
+  <var name="DBS_LIKE" value="*STARTUP_30X_v1*-RECO">
+  <var name="VAL_ANALYZER" value="GsfElectronMCAnalyzer">
+  <executable name="dbs_discovery.py">
+  <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
+  <executable name="newvalidation.csh" args="ZEEStartup ${TEST_OUTPUT_FILE}">
+</environment>
+
 <environment name="Pt5-100">
   <var name="DBS_SAMPLE" value="RelValSingleElectronFlatPt5To100">
   <var name="VAL_ANALYZER" value="GsfElectronMCAnalyzer">

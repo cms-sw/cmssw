@@ -39,7 +39,6 @@ SiStripElectronSeedProducer::~SiStripElectronSeedProducer()
 
 void SiStripElectronSeedProducer::beginJob(edm::EventSetup const&iSetup)
 {
-  matcher_->setupES(iSetup,conf_);
 }
 
 void SiStripElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
@@ -49,6 +48,8 @@ void SiStripElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& 
 
   LogDebug("entering");
   LogDebug("")  <<"[SiStripElectronSeedProducer::produce] entering " ;
+
+  matcher_->setupES(iSetup);
 
   ElectronSeedCollection *seeds = new ElectronSeedCollection;
   std::auto_ptr<ElectronSeedCollection> pSeeds;
@@ -60,7 +61,7 @@ void SiStripElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& 
     edm::Handle<SuperClusterCollection> clusters;
     if(e.getByLabel(superClusters_[i],clusters)) {
       // run the seed generator and put the ElectronSeeds into a collection
-      matcher_->run(e,clusters,*seeds);
+      matcher_->run(e,iSetup,clusters,*seeds);
     }
 
   }

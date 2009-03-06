@@ -3,8 +3,8 @@
 /**\class SimplePhotonAnalyzer
  **
  ** Description: Get Photon collection from the event and make very basic histos
- ** $Date: 2008/06/03 13:55:21 $
- ** $Revision: 1.8 $
+ ** $Date: 2008/06/24 15:26:58 $
+ ** $Revision: 1.9 $
  ** \author Nancy Marinelli, U. of Notre Dame, US
  **
  **/
@@ -40,7 +40,7 @@ class SimplePhotonAnalyzer : public edm::EDAnalyzer {
 
 
       virtual void analyze( const edm::Event&, const edm::EventSetup& );
-      virtual void beginJob(edm::EventSetup const&);
+      virtual void beginJob();
       virtual void endJob();
  private:
 
@@ -48,8 +48,8 @@ class SimplePhotonAnalyzer : public edm::EDAnalyzer {
 
       std::string mcProducer_;
       std::string mcCollection_;
-      std::string photonCollectionProducer_;       
-      std::string photonCollection_;       
+      std::string photonCollectionProducer_;
+      std::string photonCollection_;
 
       edm::InputTag barrelEcalHits_;
       edm::InputTag endcapEcalHits_;
@@ -59,7 +59,7 @@ class SimplePhotonAnalyzer : public edm::EDAnalyzer {
       std::string vertexProducer_;
       float sample_;
 
- 
+
       TProfile* effEta_;
       TProfile* effPhi_;
 
@@ -69,7 +69,7 @@ class SimplePhotonAnalyzer : public edm::EDAnalyzer {
       TH1F* h1_scPhi_;
       TH1F* h1_deltaEtaSC_;
       TH1F* h1_deltaPhiSC_ ;
- 
+
 
       TH1F* h1_e5x5_unconvBarrel_;
       TH1F* h1_e5x5_unconvEndcap_;
@@ -83,14 +83,14 @@ class SimplePhotonAnalyzer : public edm::EDAnalyzer {
       TH1F* h1_recESCoverTrueEEndcap_ ;
       TH1F* h1_deltaEta_;
       TH1F* h1_deltaPhi_ ;
-    
+
 
       TH1F* h1_pho_E_;
       TH1F* h1_pho_Eta_;
       TH1F* h1_pho_Phi_;
       TH1F* h1_pho_R9Barrel_;
       TH1F* h1_pho_R9Endcap_;
-    
+
 
 
 };

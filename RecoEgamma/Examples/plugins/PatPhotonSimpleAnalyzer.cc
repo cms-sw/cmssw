@@ -2,10 +2,10 @@
 //
 // Package:    PatPhotonSimpleAnalyzer
 // Class:      PatPhotonSimpleAnalyzer
-// 
+//
 /**\class PatPhotonSimpleAnalyzer PatPhotonSimpleAnalyzer.cc RecoEgamma/PhotonIdentification/test/PatPhotonSimpleAnalyzer.cc
 
- Description: Generate various histograms for cuts and important 
+ Description: Generate various histograms for cuts and important
               photon ID parameters using a data sample of photons in QCD events.
 
  Implementation:
@@ -47,7 +47,7 @@ PatPhotonSimpleAnalyzer::PatPhotonSimpleAnalyzer(const edm::ParameterSet& ps)
 
   // output filename
   outputFile_   = ps.getParameter<std::string>("outputFile");
-  // Read variables that must be passed to allow a 
+  // Read variables that must be passed to allow a
   //  supercluster to be placed in histograms as a photon.
   minPhotonEt_     = ps.getParameter<double>("minPhotonEt");
   minPhotonAbsEta_ = ps.getParameter<double>("minPhotonAbsEta");
@@ -79,8 +79,8 @@ PatPhotonSimpleAnalyzer::~PatPhotonSimpleAnalyzer()
 ///////////////////////////////////////////////////////////////////////
 //    method called once each job just before starting event loop    //
 ///////////////////////////////////////////////////////////////////////
-void 
-PatPhotonSimpleAnalyzer::beginJob(edm::EventSetup const&)
+void
+PatPhotonSimpleAnalyzer::beginJob()
 {
 
   // go to *OUR* rootfile
@@ -129,7 +129,7 @@ PatPhotonSimpleAnalyzer::beginJob(edm::EventSetup const&)
 void
 PatPhotonSimpleAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es)
 {
-  
+
   using namespace std;
   using namespace edm;
 
@@ -139,10 +139,10 @@ PatPhotonSimpleAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& e
   View<pat::Photon> photons = *photonHandle;
 
   int photonCounter = 0;
-     
+
   for (int i=0; i<int(photons.size()); i++)
-  {   
-       
+  {
+
     pat::Photon currentPhoton = photons.at(i);
 
     float photonEt       = currentPhoton.et();
@@ -168,7 +168,7 @@ PatPhotonSimpleAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& e
       h_ntrk_solid_->   Fill(currentPhoton.nTrkSolidConeDR04());
       h_ntrk_hollow_->  Fill(currentPhoton.nTrkHollowConeDR04());
       h_ebgap_->        Fill(currentPhoton.isEBGap());
-      h_eeGap_->        Fill(currentPhoton.isEEGap()); 
+      h_eeGap_->        Fill(currentPhoton.isEEGap());
       h_ebeeGap_->      Fill(currentPhoton.isEBEEGap());
       h_r9_->           Fill(currentPhoton.r9());
 
@@ -226,7 +226,7 @@ PatPhotonSimpleAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& e
       }
 
       photonCounter++;
-    } 
+    }
     else
     {
       // This didn't pass photon cuts, mark it
@@ -241,7 +241,7 @@ PatPhotonSimpleAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& e
 ///////////////////////////////////////////////////////////////////////
 //    method called once each job just after ending the event loop   //
 ///////////////////////////////////////////////////////////////////////
-void 
+void
 PatPhotonSimpleAnalyzer::endJob()
 {
 

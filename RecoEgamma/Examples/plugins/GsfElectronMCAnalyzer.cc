@@ -2,7 +2,7 @@
 //
 // Package:    RecoEgamma/Examples
 // Class:      GsfElectronMCAnalyzer
-// 
+//
 /**\class GsfElectronMCAnalyzer RecoEgamma/Examples/src/GsfElectronMCAnalyzer.cc
 
  Description: GsfElectrons analyzer using MC truth
@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.cc,v 1.12 2009/02/14 11:01:56 charlot Exp $
+// $Id: GsfElectronMCAnalyzer.cc,v 1.13 2009/02/26 14:31:45 charlot Exp $
 //
 //
 
@@ -46,7 +46,7 @@
 #include <iostream>
 
 using namespace reco;
- 
+
 GsfElectronMCAnalyzer::GsfElectronMCAnalyzer(const edm::ParameterSet& conf)
 {
 
@@ -95,45 +95,45 @@ GsfElectronMCAnalyzer::GsfElectronMCAnalyzer(const edm::ParameterSet& conf)
   nbindphimatch=conf.getParameter<int>("Nbindphimatch");
   nbindetamatch2D=conf.getParameter<int>("Nbindetamatch2D");
   nbindphimatch2D=conf.getParameter<int>("Nbindphimatch2D");
-}  
-  
+}
+
 GsfElectronMCAnalyzer::~GsfElectronMCAnalyzer()
 {
- 
+
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
   histfile_->Write();
   histfile_->Close();
 }
 
-void GsfElectronMCAnalyzer::beginJob(edm::EventSetup const&iSetup){
+void GsfElectronMCAnalyzer::beginJob(){
 
   histfile_->cd();
-  
-  
-  // mc truth  
+
+
+  // mc truth
 
   h_mcNum              = new TH1F( "h_mcNum",              "# mc particles",    nbinfhits,0.,fhitsmax );
   h_eleNum             = new TH1F( "h_mcNum_ele",             "# mc electrons",             nbinfhits,0.,fhitsmax);
   h_gamNum             = new TH1F( "h_mcNum_gam",             "# mc gammas",             nbinfhits,0.,fhitsmax);
-    
+
   // rec event
-  
+
   histNum_= new TH1F("h_recEleNum","# rec electrons",20, 0.,20.);
-  
-  // mc  
-  h_simEta             = new TH1F( "h_mc_eta",             "mc #eta",           nbineta,etamin,etamax); 
-  h_simAbsEta             = new TH1F( "h_mc_abseta",             "mc |#eta|",           nbineta/2,0.,etamax); 
-  h_simP               = new TH1F( "h_mc_P",               "mc p",              nbinp,0.,pmax); 
-  h_simPt               = new TH1F( "h_mc_Pt",               "mc pt",            nbinpteff,5.,ptmax); 
-  h_simPhi               = new TH1F( "h_mc_phi",               "mc phi",        nbinphi,phimin,phimax); 
+
+  // mc
+  h_simEta             = new TH1F( "h_mc_eta",             "mc #eta",           nbineta,etamin,etamax);
+  h_simAbsEta             = new TH1F( "h_mc_abseta",             "mc |#eta|",           nbineta/2,0.,etamax);
+  h_simP               = new TH1F( "h_mc_P",               "mc p",              nbinp,0.,pmax);
+  h_simPt               = new TH1F( "h_mc_Pt",               "mc pt",            nbinpteff,5.,ptmax);
+  h_simPhi               = new TH1F( "h_mc_phi",               "mc phi",        nbinphi,phimin,phimax);
   h_simZ      = new TH1F( "h_mc_z",      "mc z ",    nbinxyz, -25, 25 );
 
   // ctf tracks
   h_ctf_foundHitsVsEta      = new TH2F( "h_ctf_foundHitsVsEta",      "ctf track # found hits vs eta",  nbineta2D,etamin,etamax,nbinfhits,0.,fhitsmax);
   h_ctf_lostHitsVsEta       = new TH2F( "h_ctf_lostHitsVsEta",       "ctf track # lost hits vs eta",   nbineta2D,etamin,etamax,nbinlhits,0.,lhitsmax);
-  
-  // all electrons  
+
+  // all electrons
   h_ele_EoverP_all       = new TH1F( "h_ele_EoverP_all",       "all ele E/p at vertex",  nbineop,0.,eopmax);
   h_ele_TIP_all       = new TH1F( "h_ele_TIP_all",       "all ele tip at vertex",  100,0.,0.2);
   h_ele_vertexPt_all       = new TH1F( "h_ele_vertexPt_all",       "all ele p_{T} at vertex",  nbinpteff,5.,ptmax);
@@ -141,10 +141,10 @@ void GsfElectronMCAnalyzer::beginJob(edm::EventSetup const&iSetup){
   h_ele_mee_all      = new TH1F( "h_ele_mee_all", "all ele pairs invariant mass", 100, 0., 150. );
 
   // matched electrons
-  h_ele_charge         = new TH1F( "h_ele_charge",         "ele charge",             5,-2.,2.);   
-  h_ele_chargeVsEta    = new TH2F( "h_ele_chargeVsEta",         "ele charge vs eta", nbineta2D,etamin,etamax,5,-2.,2.);   
-  h_ele_chargeVsPhi    = new TH2F( "h_ele_chargeVsPhi",         "ele charge vs phi", nbinphi2D,phimin,phimax,5,-2.,2.);   
-  h_ele_chargeVsPt    = new TH2F( "h_ele_chargeVsPt",         "ele charge vs pt", nbinpt,0.,100.,5,-2.,2.);   
+  h_ele_charge         = new TH1F( "h_ele_charge",         "ele charge",             5,-2.,2.);
+  h_ele_chargeVsEta    = new TH2F( "h_ele_chargeVsEta",         "ele charge vs eta", nbineta2D,etamin,etamax,5,-2.,2.);
+  h_ele_chargeVsPhi    = new TH2F( "h_ele_chargeVsPhi",         "ele charge vs phi", nbinphi2D,phimin,phimax,5,-2.,2.);
+  h_ele_chargeVsPt    = new TH2F( "h_ele_chargeVsPt",         "ele charge vs pt", nbinpt,0.,100.,5,-2.,2.);
   h_ele_vertexP        = new TH1F( "h_ele_vertexP",        "ele p at vertex",       nbinp,0.,pmax);
   h_ele_vertexPt       = new TH1F( "h_ele_vertexPt",       "ele p_{T} at vertex",  nbinpt,0.,ptmax);
   h_ele_vertexPtVsEta   = new TH2F( "h_ele_vertexPtVsEta",       "ele p_{T} at vertex vs eta",nbinpt2D,etamin,etamax,nbinpt2D,0.,ptmax);
@@ -154,7 +154,7 @@ void GsfElectronMCAnalyzer::beginJob(edm::EventSetup const&iSetup){
   h_ele_vertexEtaVsPhi  = new TH2F( "h_ele_vertexEtaVsPhi",      "ele #eta at vertex vs phi",nbineta2D,etamin,etamax,nbinphi2D,phimin,phimax );
   h_ele_simAbsEta_matched      = new TH1F( "h_ele_simAbsEta_matched",      "sim |#eta|, matched ",    nbineta/2,0.,2.5);
   h_ele_simEta_matched      = new TH1F( "h_ele_simEta_matched",      "sim #eta,matched ",    nbineta,etamin,etamax);
-  h_ele_simPhi_matched               = new TH1F( "h_ele_simPhi_matched",               "sim phi, matched ",        nbinphi,phimin,phimax); 
+  h_ele_simPhi_matched               = new TH1F( "h_ele_simPhi_matched",               "sim phi, matched ",        nbinphi,phimin,phimax);
   h_ele_vertexPhi      = new TH1F( "h_ele_vertexPhi",      "ele #phi at vertex",    nbinphi,phimin,phimax);
   h_ele_vertexX      = new TH1F( "h_ele_vertexX",      "ele x at vertex",    nbinxyz,-0.1,0.1 );
   h_ele_vertexY      = new TH1F( "h_ele_vertexY",      "ele y at vertex",    nbinxyz,-0.1,0.1 );
@@ -217,10 +217,10 @@ void GsfElectronMCAnalyzer::beginJob(edm::EventSetup const&iSetup){
   h_ele_lostHitsVsEta       = new TH2F( "h_ele_lostHitsVsEta",       "ele track # lost hits vs eta",   nbineta2D,etamin,etamax,nbinlhits,0.,lhitsmax);
   h_ele_lostHitsVsPhi       = new TH2F( "h_ele_lostHitsVsPhi",       "ele track # lost hits vs eta",   nbinphi2D,phimin,phimax,nbinlhits,0.,lhitsmax);
   h_ele_lostHitsVsPt       = new TH2F( "h_ele_lostHitsVsPt",       "ele track # lost hits vs eta",   nbinpt2D,0.,ptmax,nbinlhits,0.,lhitsmax);
-  h_ele_chi2           = new TH1F( "h_ele_chi2",           "ele track #chi^{2}",         100,0.,15.);   
-  h_ele_chi2VsEta           = new TH2F( "h_ele_chi2VsEta",           "ele track #chi^{2} vs eta",  nbineta2D,etamin,etamax,50,0.,15.);   
-  h_ele_chi2VsPhi           = new TH2F( "h_ele_chi2VsPhi",           "ele track #chi^{2} vs phi",  nbinphi2D,phimin,phimax,50,0.,15.);   
-  h_ele_chi2VsPt           = new TH2F( "h_ele_chi2VsPt",           "ele track #chi^{2} vs pt",  nbinpt2D,0.,ptmax,50,0.,15.);   
+  h_ele_chi2           = new TH1F( "h_ele_chi2",           "ele track #chi^{2}",         100,0.,15.);
+  h_ele_chi2VsEta           = new TH2F( "h_ele_chi2VsEta",           "ele track #chi^{2} vs eta",  nbineta2D,etamin,etamax,50,0.,15.);
+  h_ele_chi2VsPhi           = new TH2F( "h_ele_chi2VsPhi",           "ele track #chi^{2} vs phi",  nbinphi2D,phimin,phimax,50,0.,15.);
+  h_ele_chi2VsPt           = new TH2F( "h_ele_chi2VsPt",           "ele track #chi^{2} vs pt",  nbinpt2D,0.,ptmax,50,0.,15.);
   h_ele_PinMnPout      = new TH1F( "h_ele_PinMnPout",      "ele track inner p - outer p, mean"   ,nbinp,0.,200.);
   h_ele_PinMnPout_mode      = new TH1F( "h_ele_PinMnPout_mode",      "ele track inner p - outer p, mode"   ,nbinp,0.,100.);
   h_ele_PinMnPoutVsEta_mode = new TH2F( "h_ele_PinMnPoutVsEta_mode",      "ele track inner p - outer p vs eta, mode" ,nbineta2D, etamin,etamax,nbinp2D,0.,100.);
@@ -236,8 +236,8 @@ void GsfElectronMCAnalyzer::beginJob(edm::EventSetup const&iSetup){
   h_ele_outerPtVsEta_mode        = new TH2F( "h_ele_outerPtVsEta_mode", "ele track outer p_{T} vs eta, mode", nbineta2D,etamin,etamax,nbinpt2D,0.,ptmax);
   h_ele_outerPtVsPhi_mode        = new TH2F( "h_ele_outerPtVsPhi_mode", "ele track outer p_{T} vs phi, mode", nbinphi2D,phimin,phimax,nbinpt2D,0.,ptmax);
   h_ele_outerPtVsPt_mode        = new TH2F( "h_ele_outerPtVsPt_mode", "ele track outer p_{T} vs pt, mode", nbinpt2D,0.,100.,nbinpt2D,0.,ptmax);
-  
-  // matched electrons, matching 
+
+  // matched electrons, matching
   h_ele_EoP            = new TH1F( "h_ele_EoP",            "ele E/P_{vertex}",        nbineop,0.,eopmax);
   h_ele_EoPVsEta            = new TH2F( "h_ele_EoPVsEta",            "ele E/P_{vertex} vs eta",  nbineta2D,etamin,etamax,nbineop2D,0.,eopmaxsht);
   h_ele_EoPVsPhi            = new TH2F( "h_ele_EoPVsPhi",            "ele E/P_{vertex} vs phi",  nbinphi2D,phimin,phimax,nbineop2D,0.,eopmaxsht);
@@ -278,13 +278,13 @@ void GsfElectronMCAnalyzer::beginJob(edm::EventSetup const&iSetup){
   h_ele_dPhiEleClVsEta_propOut = new TH2F( "h_ele_dPhiEleClVsEta_propOut", "ele #phi_{EleCl} - #phi_{tr} vs eta, prop from out", nbineta2D,etamin,etamax,nbindphimatch2D,dphimatchmin,dphimatchmax);
   h_ele_dPhiEleClVsPhi_propOut = new TH2F( "h_ele_dPhiEleClVsPhi_propOut", "ele #phi_{EleCl} - #phi_{tr} vs phi, prop from out", nbinphi2D,phimin,phimax,nbindphimatch2D,dphimatchmin,dphimatchmax);
   h_ele_dPhiEleClVsPt_propOut = new TH2F( "h_ele_dPhiSEleClsPt_propOut", "ele #phi_{EleCl} - #phi_{tr} vs pt, prop from out", nbinpt2D,0.,ptmax,nbindphimatch2D,dphimatchmin,dphimatchmax);
-  
+
   h_ele_HoE = new TH1F("h_ele_HoE", "ele H/E", 55,-0.05,0.5) ;
   h_ele_HoE_fiducial = new TH1F("h_ele_HoE_fiducial", "ele H/E, in fiducial region", 55,-0.05,0.5) ;
   h_ele_HoEVsEta = new TH2F("h_ele_HoEVsEta", "ele H/E vs eta", nbineta,etamin,etamax,55,-0.05,0.5) ;
   h_ele_HoEVsPhi = new TH2F("h_ele_HoEVsPhi", "ele H/E vs phi", nbinphi2D,phimin,phimax,55,-0.05,0.5) ;
   h_ele_HoEVsE = new TH2F("h_ele_HoEVsE", "ele H/E vs E", nbinp, 0.,300.,55,-0.05,0.5) ;
- 
+
   h_ele_seed_dphi2_ = new TH1F("h_ele_seedDphi2", "ele seed dphi 2nd layer", 50,-0.003,+0.003) ;
   h_ele_seed_dphi2VsEta_ = new TH2F("h_ele_seedDphi2VsEta", "ele seed dphi 2nd layer vs eta", nbineta2D,etamin,etamax,50,-0.003,+0.003) ;
   h_ele_seed_dphi2VsPt_ = new TH2F("h_ele_seedDphi2VsPt", "ele seed dphi 2nd layer vs pt", nbinpt2D,0.,ptmax,50,-0.003,+0.003) ;
@@ -293,7 +293,7 @@ void GsfElectronMCAnalyzer::beginJob(edm::EventSetup const&iSetup){
   h_ele_seed_drz2VsPt_ = new TH2F("h_ele_seedDrz2VsPt", "ele seed dr/dz 2nd layer vs pt", nbinpt2D,0.,ptmax,50,-0.03,+0.03) ;
   h_ele_seed_subdet2_ = new TH1F("h_ele_seedSubdet2", "ele seed subdet 2nd layer", 10,0.,10.) ;
 
-  // classes  
+  // classes
   h_ele_classes = new TH1F( "h_ele_classes", "electron classes",      150,0.0,150.);
   h_ele_eta = new TH1F( "h_ele_eta", "electron eta",  nbineta/2,0.0,etamax);
   h_ele_eta_golden = new TH1F( "h_ele_eta_golden", "electron eta golden",  nbineta/2,0.0,etamax);
@@ -323,22 +323,22 @@ void GsfElectronMCAnalyzer::beginJob(edm::EventSetup const&iSetup){
   h_ele_fbrem = new TH1F( "h_ele_fbrem","fbrem, mode",50,0.,1.);
   h_ele_fbremVsEta_mode = new TProfile( "h_ele_fbremvsEtamode","mean fbrem vs eta, mode",nbineta2D,etamin,etamax,0.,1.);
   h_ele_fbremVsEta_mean = new TProfile( "h_ele_fbremvsEtamean","mean fbrem vs eta, mean",nbineta2D,etamin,etamax,0.,1.);
-  
+
   // histos titles
   h_mcNum              -> GetXaxis()-> SetTitle("# MC particles");
   h_eleNum             -> GetXaxis()-> SetTitle("# MC ele");
   h_gamNum             -> GetXaxis()-> SetTitle("# MC gammas");
   h_simEta             -> GetXaxis()-> SetTitle("true #eta");
   h_simP               -> GetXaxis()-> SetTitle("true p (GeV/c)");
-  h_ele_foundHits      -> GetXaxis()-> SetTitle("# hits");   
-  h_ele_ambiguousTracks      -> GetXaxis()-> SetTitle("# ambiguous tracks");   
-  h_ele_lostHits       -> GetXaxis()-> SetTitle("# lost hits");   
-  h_ele_chi2           -> GetXaxis()-> SetTitle("#Chi^{2}");   
-  h_ele_charge         -> GetXaxis()-> SetTitle("charge");   
+  h_ele_foundHits      -> GetXaxis()-> SetTitle("# hits");
+  h_ele_ambiguousTracks      -> GetXaxis()-> SetTitle("# ambiguous tracks");
+  h_ele_lostHits       -> GetXaxis()-> SetTitle("# lost hits");
+  h_ele_chi2           -> GetXaxis()-> SetTitle("#Chi^{2}");
+  h_ele_charge         -> GetXaxis()-> SetTitle("charge");
   h_ele_vertexP        -> GetXaxis()-> SetTitle("p_{vertex} (GeV/c)");
   h_ele_vertexPt       -> GetXaxis()-> SetTitle("p_{T vertex} (GeV/c)");
-  h_ele_vertexEta      -> GetXaxis()-> SetTitle("#eta");  
-  h_ele_vertexPhi      -> GetXaxis()-> SetTitle("#phi");   
+  h_ele_vertexEta      -> GetXaxis()-> SetTitle("#eta");
+  h_ele_vertexPhi      -> GetXaxis()-> SetTitle("#phi");
   h_ele_PoPtrue        -> GetXaxis()-> SetTitle("P/P_{true}");
   h_ele_EtaMnEtaTrue   -> GetXaxis()-> SetTitle("#eta_{rec} - #eta_{true}");
   h_ele_PhiMnPhiTrue   -> GetXaxis()-> SetTitle("#phi_{rec} - #phi_{true}");
@@ -353,24 +353,24 @@ void GsfElectronMCAnalyzer::beginJob(edm::EventSetup const&iSetup){
   h_ele_EoPout         -> GetXaxis()-> SetTitle("E_{seed}/p_{out}");
   h_ele_EeleOPout         -> GetXaxis()-> SetTitle("E_{ele}/p_{out}");
 
-}     
+}
 
 void
 GsfElectronMCAnalyzer::endJob(){
-  
+
   histfile_->cd();
 
   // add errors
 
-  // mc truth  
+  // mc truth
   h_mcNum->Sumw2();
   h_eleNum->Sumw2();
   h_gamNum->Sumw2();
-   
-  // rec event 
+
+  // rec event
   histNum_->Sumw2();
-  
-  // mc  
+
+  // mc
   h_simEta->Sumw2();
   h_simAbsEta->Sumw2();
   h_simP->Sumw2();
@@ -381,14 +381,14 @@ GsfElectronMCAnalyzer::endJob(){
   // ctf tracks
   h_ctf_foundHitsVsEta->Sumw2();
   h_ctf_lostHitsVsEta->Sumw2();
-  
-  // all electrons  
+
+  // all electrons
   h_ele_EoverP_all->Sumw2();
   h_ele_TIP_all->Sumw2();
   h_ele_vertexPt_all->Sumw2();
   h_ele_vertexEta_all->Sumw2();
   h_ele_mee_all->Sumw2();
-  
+
   // matched electrons
   h_ele_charge->Sumw2();
   h_ele_chargeVsEta->Sumw2();
@@ -427,7 +427,7 @@ GsfElectronMCAnalyzer::endJob(){
   h_ele_PhiMnPhiTrueVsEta->Sumw2();
   h_ele_PhiMnPhiTrueVsPhi->Sumw2();
   h_ele_PhiMnPhiTrueVsPt->Sumw2();
-  
+
   // matched electron, superclusters
   histSclEn_->Sumw2();
   histSclEoEtrue_barrel->Sumw2();
@@ -450,7 +450,7 @@ GsfElectronMCAnalyzer::endJob(){
   histSclE1x5_->Sumw2();
   histSclE2x5max_->Sumw2();
   histSclE5x5_->Sumw2();
-  
+
   // matched electron, gsf tracks
   h_ele_ambiguousTracks->Sumw2();
   h_ele_ambiguousTracksVsEta->Sumw2();
@@ -483,9 +483,9 @@ GsfElectronMCAnalyzer::endJob(){
   h_ele_outerPt_mode ->Sumw2();
   h_ele_outerPtVsEta_mode->Sumw2();
   h_ele_outerPtVsPhi_mode->Sumw2();
-  h_ele_outerPtVsPt_mode->Sumw2(); 
- 
-  // matched electrons, matching 
+  h_ele_outerPtVsPt_mode->Sumw2();
+
+  // matched electrons, matching
   h_ele_EoP ->Sumw2();
   h_ele_EoPVsEta ->Sumw2();
   h_ele_EoPVsPhi->Sumw2();
@@ -517,16 +517,16 @@ GsfElectronMCAnalyzer::endJob(){
   h_ele_dPhiCl_propOut->Sumw2();
   h_ele_dPhiClVsEta_propOut->Sumw2();
   h_ele_dPhiClVsPhi_propOut->Sumw2();
-  h_ele_dPhiClVsPt_propOut->Sumw2(); 
-  h_ele_dEtaEleCl_propOut->Sumw2(); 
-  h_ele_dEtaEleClVsEta_propOut->Sumw2(); 
-  h_ele_dEtaEleClVsPhi_propOut->Sumw2(); 
-  h_ele_dEtaEleClVsPt_propOut->Sumw2(); 
-  h_ele_dPhiEleCl_propOut->Sumw2(); 
-  h_ele_dPhiEleClVsEta_propOut->Sumw2(); 
-  h_ele_dPhiEleClVsPhi_propOut->Sumw2(); 
-  h_ele_dPhiEleClVsPt_propOut->Sumw2(); 
-  
+  h_ele_dPhiClVsPt_propOut->Sumw2();
+  h_ele_dEtaEleCl_propOut->Sumw2();
+  h_ele_dEtaEleClVsEta_propOut->Sumw2();
+  h_ele_dEtaEleClVsPhi_propOut->Sumw2();
+  h_ele_dEtaEleClVsPt_propOut->Sumw2();
+  h_ele_dPhiEleCl_propOut->Sumw2();
+  h_ele_dPhiEleClVsEta_propOut->Sumw2();
+  h_ele_dPhiEleClVsPhi_propOut->Sumw2();
+  h_ele_dPhiEleClVsPt_propOut->Sumw2();
+
   h_ele_HoE->Sumw2();
   h_ele_HoE_fiducial->Sumw2();
   h_ele_HoEVsEta->Sumw2();
@@ -540,8 +540,8 @@ GsfElectronMCAnalyzer::endJob(){
   h_ele_seed_drz2VsEta_->Sumw2();
   h_ele_seed_drz2VsPt_->Sumw2();
   h_ele_seed_subdet2_->Sumw2();
-  
-  // classes  
+
+  // classes
   h_ele_classes->Sumw2();
   h_ele_eta->Sumw2();
   h_ele_eta_golden->Sumw2();
@@ -569,10 +569,10 @@ GsfElectronMCAnalyzer::endJob(){
 
   // fbrem
   h_ele_fbrem->Sumw2();
-  //h_ele_fbremVsEta_mode->Sumw2(); 
+  //h_ele_fbremVsEta_mode->Sumw2();
   //h_ele_fbremVsEta_mean->Sumw2();
-  
-  std::cout << "efficiency calculation " << std::endl; 
+
+  std::cout << "efficiency calculation " << std::endl;
   // efficiency vs eta
   TH1F *h_ele_etaEff = (TH1F*)h_ele_simEta_matched->Clone("h_ele_etaEff");
   h_ele_etaEff->Reset();
@@ -580,7 +580,7 @@ GsfElectronMCAnalyzer::endJob(){
   h_ele_etaEff->Print();
   h_ele_etaEff->GetXaxis()->SetTitle("#eta");
   h_ele_etaEff->GetYaxis()->SetTitle("eff");
-  
+
   // efficiency vs z
   TH1F *h_ele_zEff = (TH1F*)h_ele_simZ_matched->Clone("h_ele_zEff");
   h_ele_zEff->Reset();
@@ -637,7 +637,7 @@ GsfElectronMCAnalyzer::endJob(){
   TH1F *h_ele_eta_showerFrac = (TH1F*)h_ele_eta_shower->Clone("h_ele_eta_showerFrac");
   h_ele_eta_showerFrac->Reset();
   h_ele_eta_showerFrac->Divide(h_ele_eta_shower,h_ele_eta,1,1,"b");
-  
+
   // fbrem
   TH1F *h_ele_xOverX0VsEta = new TH1F( "h_ele_xOverx0VsEta","mean X/X_0 vs eta",nbineta/2,0.0,2.5);
   for (int ibin=1;ibin<h_ele_fbremVsEta_mean->GetNbinsX()+1;ibin++) {
@@ -645,7 +645,7 @@ GsfElectronMCAnalyzer::endJob(){
     if (h_ele_fbremVsEta_mean->GetBinContent(ibin)>0.) xOverX0 = -log(h_ele_fbremVsEta_mean->GetBinContent(ibin));
     h_ele_xOverX0VsEta->SetBinContent(ibin,xOverX0);
   }
-   
+
   //profiles from 2D histos
   TProfile *p_ele_PoPtrueVsEta = h_ele_PoPtrueVsEta->ProfileX();
   p_ele_PoPtrueVsEta->Write();
@@ -687,18 +687,18 @@ GsfElectronMCAnalyzer::endJob(){
   p_ele_lostHitsVsEta->Write();
   TProfile *p_ele_lostHitsVsPhi = h_ele_lostHitsVsPhi->ProfileX();
   p_ele_lostHitsVsPhi->Write();
-  
-  // mc truth  
+
+  // mc truth
 
   h_mcNum->Write();
   h_eleNum->Write();
   h_gamNum->Write();
-    
+
   // rec event
-  
+
   histNum_->Write();
-  
-  // mc  
+
+  // mc
   h_simEta->Write();
   h_simAbsEta->Write();
   h_simP->Write();
@@ -707,8 +707,8 @@ GsfElectronMCAnalyzer::endJob(){
   // ctf tracks
   h_ctf_foundHitsVsEta->Write();
   h_ctf_lostHitsVsEta->Write();
-  
-  // all electrons  
+
+  // all electrons
   h_ele_EoverP_all->Write();
   h_ele_TIP_all->Write();
   h_ele_vertexPt_all->Write();
@@ -804,8 +804,8 @@ GsfElectronMCAnalyzer::endJob(){
   h_ele_outerPtVsEta_mode->Write();
   h_ele_outerPtVsPhi_mode->Write();
   h_ele_outerPtVsPt_mode->Write();
-  
-  // matched electrons, matching 
+
+  // matched electrons, matching
   h_ele_EoP ->Write();
   h_ele_EoPVsEta ->Write();
   h_ele_EoPVsPhi->Write();
@@ -846,12 +846,12 @@ GsfElectronMCAnalyzer::endJob(){
   h_ele_dPhiEleClVsEta_propOut->Write();
   h_ele_dPhiEleClVsPhi_propOut->Write();
   h_ele_dPhiEleClVsPt_propOut->Write();
-  
+
   h_ele_HoE->Write();
   h_ele_HoEVsEta->Write();
   h_ele_HoEVsPhi->Write();
   h_ele_HoEVsE->Write();
- 
+
   h_ele_seed_dphi2_->Write();
   TProfile *p_ele_seed_dphi2VsEta_ = h_ele_seed_dphi2VsEta_->ProfileX();
   p_ele_seed_dphi2VsEta_->Write();
@@ -862,9 +862,9 @@ GsfElectronMCAnalyzer::endJob(){
   p_ele_seed_drz2VsEta_->Write();
   TProfile *p_ele_seed_drz2VsPt_ = h_ele_seed_drz2VsPt_->ProfileX();
   p_ele_seed_drz2VsPt_->Write();
-  h_ele_seed_subdet2_->Write(); 
+  h_ele_seed_subdet2_->Write();
 
- // classes  
+ // classes
   h_ele_classes->Write();
   h_ele_eta->Write();
   h_ele_eta_golden->Write();
@@ -906,7 +906,7 @@ GsfElectronMCAnalyzer::endJob(){
   h_ele_eta_narrowFrac->Write();
   h_ele_eta_showerFrac->Write();
   h_ele_xOverX0VsEta->Write();
-  
+
 }
 
 void
@@ -914,16 +914,16 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 {
   std::cout << "analyzing new event " << std::endl;
   // get electrons
-  
+
   edm::Handle<GsfElectronCollection> gsfElectrons;
-  iEvent.getByLabel(electronCollection_,gsfElectrons); 
+  iEvent.getByLabel(electronCollection_,gsfElectrons);
   edm::LogInfo("")<<"\n\n =================> Treating event "<<iEvent.id()<<" Number of electrons "<<gsfElectrons.product()->size();
 
   edm::Handle<edm::HepMCProduct> hepMC;
   iEvent.getByLabel(mcTruthCollection_,hepMC);
 
   histNum_->Fill((*gsfElectrons).size());
-  
+
   // all rec electrons
   for (reco::GsfElectronCollection::const_iterator gsfIter=gsfElectrons->begin();
    gsfIter!=gsfElectrons->end(); gsfIter++){
@@ -940,48 +940,48 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
      gsfIter2!=gsfElectrons->end(); gsfIter2++){
         math::XYZTLorentzVector p12 = (*gsfIter).p4()+(*gsfIter2).p4();
         float mee2 = p12.Dot(p12);
-	h_ele_mee_all -> Fill(sqrt(mee2));       
+	h_ele_mee_all -> Fill(sqrt(mee2));
     }
   }
-   
+
   // association mc-reco
   HepMC::GenParticle* genPc=0;
   const HepMC::GenEvent *myGenEvent = hepMC->GetEvent();
   int mcNum=0, gamNum=0, eleNum=0;
   HepMC::FourVector pAssSim;
-      
+
   for ( HepMC::GenEvent::particle_const_iterator mcIter=myGenEvent->particles_begin(); mcIter != myGenEvent->particles_end(); mcIter++ ) {
-    
+
     // number of mc particles
     mcNum++;
 
     // counts photons
-    if ((*mcIter)->pdg_id() == 22 ){ gamNum++; }       
+    if ((*mcIter)->pdg_id() == 22 ){ gamNum++; }
 
     // select electrons
-    if ( (*mcIter)->pdg_id() == 11 || (*mcIter)->pdg_id() == -11 ){       
+    if ( (*mcIter)->pdg_id() == 11 || (*mcIter)->pdg_id() == -11 ){
 
       // single primary electrons or electrons from Zs or Ws
       HepMC::GenParticle* mother = 0;
       if ( (*mcIter)->production_vertex() )  {
-       if ( (*mcIter)->production_vertex()->particles_begin(HepMC::parents) != 
-           (*mcIter)->production_vertex()->particles_end(HepMC::parents))  
+       if ( (*mcIter)->production_vertex()->particles_begin(HepMC::parents) !=
+           (*mcIter)->production_vertex()->particles_end(HepMC::parents))
             mother = *((*mcIter)->production_vertex()->particles_begin(HepMC::parents));
-      } 
+      }
       if ( ((mother == 0) || ((mother != 0) && (mother->pdg_id() == 23))
 	                  || ((mother != 0) && (mother->pdg_id() == 32))
-	                  || ((mother != 0) && (fabs(mother->pdg_id()) == 24)))) {       
-   
+	                  || ((mother != 0) && (fabs(mother->pdg_id()) == 24)))) {
+
       genPc=(*mcIter);
       pAssSim = genPc->momentum();
 
       if (pAssSim.perp()> maxPt_ || fabs(pAssSim.eta())> maxAbsEta_) continue;
-      
+
       // suppress the endcaps
       //if (fabs(pAssSim.eta()) > 1.5) continue;
       // select central z
       //if ( fabs((*mcIter)->production_vertex()->position().z())>50.) continue;
- 
+
       eleNum++;
       h_simEta -> Fill( pAssSim.eta() );
       h_simAbsEta -> Fill( fabs(pAssSim.eta()) );
@@ -989,7 +989,7 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       h_simPt   -> Fill( pAssSim.perp() );
       h_simPhi   -> Fill( pAssSim.phi() );
       h_simZ   -> Fill( (*mcIter)->production_vertex()->position().z()/10. );
-     	
+
       // looking for the best matching gsf electron
       bool okGsfFound = false;
       double gsfOkRatio = 999999.;
@@ -998,7 +998,7 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       reco::GsfElectron bestGsfElectron;
       for (reco::GsfElectronCollection::const_iterator gsfIter=gsfElectrons->begin();
        gsfIter!=gsfElectrons->end(); gsfIter++){
-	
+
         double dphi = gsfIter->phi()-pAssSim.phi();
         if (fabs(dphi)>CLHEP::pi)
          dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
@@ -1011,10 +1011,10 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	    gsfOkRatio = tmpGsfRatio;
 	    bestGsfElectron=*gsfIter;
 	    okGsfFound = true;
-	  } 
-	} 
-	} 
-      } // loop over rec ele to look for the best one	
+	  }
+	}
+	}
+      } // loop over rec ele to look for the best one
 
       // analysis when the mc track is found
      if (okGsfFound){
@@ -1042,11 +1042,11 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         h_ele_simZ_matched   -> Fill( (*mcIter)->production_vertex()->position().z()/10. );
 	double d = bestGsfElectron.gsfTrack()->vertex().x()*bestGsfElectron.gsfTrack()->vertex().x()+
 	 bestGsfElectron.gsfTrack()->vertex().y()*bestGsfElectron.gsfTrack()->vertex().y();
-	d = sqrt(d); 
+	d = sqrt(d);
 	h_ele_vertexTIP     -> Fill( d );
 	h_ele_vertexTIPVsEta     -> Fill(  bestGsfElectron.eta(), d );
 	h_ele_vertexTIPVsPhi     -> Fill(  bestGsfElectron.phi(), d );
-	h_ele_vertexTIPVsPt     -> Fill(  bestGsfElectron.pt(), d );	
+	h_ele_vertexTIPVsPt     -> Fill(  bestGsfElectron.pt(), d );
 	h_ele_EtaMnEtaTrue  -> Fill( bestGsfElectron.eta()-pAssSim.eta());
 	h_ele_EtaMnEtaTrueVsEta  -> Fill( bestGsfElectron.eta(), bestGsfElectron.eta()-pAssSim.eta());
 	h_ele_EtaMnEtaTrueVsPhi  -> Fill( bestGsfElectron.phi(), bestGsfElectron.eta()-pAssSim.eta());
@@ -1102,10 +1102,10 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	h_ele_lostHitsVsEta      -> Fill( bestGsfElectron.eta(), bestGsfElectron.gsfTrack()->numberOfLostHits() );
 	h_ele_lostHitsVsPhi      -> Fill( bestGsfElectron.phi(), bestGsfElectron.gsfTrack()->numberOfLostHits() );
 	h_ele_lostHitsVsPt      -> Fill( bestGsfElectron.pt(), bestGsfElectron.gsfTrack()->numberOfLostHits() );
-	h_ele_chi2          -> Fill( bestGsfElectron.gsfTrack()->normalizedChi2() );  
-	h_ele_chi2VsEta          -> Fill( bestGsfElectron.eta(), bestGsfElectron.gsfTrack()->normalizedChi2() );  
-	h_ele_chi2VsPhi          -> Fill( bestGsfElectron.phi(), bestGsfElectron.gsfTrack()->normalizedChi2() );  
-	h_ele_chi2VsPt          -> Fill( bestGsfElectron.pt(), bestGsfElectron.gsfTrack()->normalizedChi2() );  
+	h_ele_chi2          -> Fill( bestGsfElectron.gsfTrack()->normalizedChi2() );
+	h_ele_chi2VsEta          -> Fill( bestGsfElectron.eta(), bestGsfElectron.gsfTrack()->normalizedChi2() );
+	h_ele_chi2VsPhi          -> Fill( bestGsfElectron.phi(), bestGsfElectron.gsfTrack()->normalizedChi2() );
+	h_ele_chi2VsPt          -> Fill( bestGsfElectron.pt(), bestGsfElectron.gsfTrack()->normalizedChi2() );
 	// from gsf track interface, hence using mean
 	h_ele_PinMnPout     -> Fill( bestGsfElectron.gsfTrack()->innerMomentum().R() - bestGsfElectron.gsfTrack()->outerMomentum().R() );
 	h_ele_outerP        -> Fill( bestGsfElectron.gsfTrack()->outerMomentum().R() );
@@ -1123,18 +1123,18 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	h_ele_outerPtVsEta_mode       -> Fill(bestGsfElectron.eta(),  bestGsfElectron.trackMomentumOut().Rho() );
 	h_ele_outerPtVsPhi_mode       -> Fill(bestGsfElectron.phi(),  bestGsfElectron.trackMomentumOut().Rho() );
 	h_ele_outerPtVsPt_mode       -> Fill(bestGsfElectron.pt(),  bestGsfElectron.trackMomentumOut().Rho() );
-	
+
         edm::RefToBase<TrajectorySeed> seed = bestGsfElectron.gsfTrack()->extra()->seedRef();
 	ElectronSeedRef elseed=seed.castTo<ElectronSeedRef>();
 	h_ele_seed_dphi2_-> Fill(elseed->dPhi2());
         h_ele_seed_dphi2VsEta_-> Fill(bestGsfElectron.eta(), elseed->dPhi2());
         h_ele_seed_dphi2VsPt_-> Fill(bestGsfElectron.pt(), elseed->dPhi2()) ;
         h_ele_seed_drz2_-> Fill(elseed->dRz2());
-        h_ele_seed_drz2VsEta_-> Fill(bestGsfElectron.eta(), elseed->dRz2()); 
-        h_ele_seed_drz2VsPt_-> Fill(bestGsfElectron.pt(), elseed->dRz2()); 
-        h_ele_seed_subdet2_-> Fill(elseed->subDet2()); 
-        
-	// match distributions 
+        h_ele_seed_drz2VsEta_-> Fill(bestGsfElectron.eta(), elseed->dRz2());
+        h_ele_seed_drz2VsPt_-> Fill(bestGsfElectron.pt(), elseed->dRz2());
+        h_ele_seed_subdet2_-> Fill(elseed->subDet2());
+
+	// match distributions
 	h_ele_EoP    -> Fill( bestGsfElectron.eSuperClusterOverP() );
 	h_ele_EoPVsEta    -> Fill(bestGsfElectron.eta(),  bestGsfElectron.eSuperClusterOverP() );
 	h_ele_EoPVsPhi    -> Fill(bestGsfElectron.phi(),  bestGsfElectron.eSuperClusterOverP() );
@@ -1155,36 +1155,36 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	h_ele_dEtaScVsEta_propVtx -> Fill( bestGsfElectron.eta(),bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
 	h_ele_dEtaScVsPhi_propVtx -> Fill(bestGsfElectron.phi(),bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
 	h_ele_dEtaScVsPt_propVtx -> Fill(bestGsfElectron.pt(),bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
-	h_ele_dPhiSc_propVtx -> Fill(bestGsfElectron.deltaPhiSuperClusterTrackAtVtx()); 
-	h_ele_dPhiScVsEta_propVtx -> Fill( bestGsfElectron.eta(),bestGsfElectron.deltaPhiSuperClusterTrackAtVtx()); 
-	h_ele_dPhiScVsPhi_propVtx -> Fill(bestGsfElectron.phi(),bestGsfElectron.deltaPhiSuperClusterTrackAtVtx()); 
-	h_ele_dPhiScVsPt_propVtx -> Fill(bestGsfElectron.pt(),bestGsfElectron.deltaPhiSuperClusterTrackAtVtx()); 
-	h_ele_dEtaCl_propOut -> Fill(bestGsfElectron.deltaEtaSeedClusterTrackAtCalo()); 
-	h_ele_dEtaClVsEta_propOut -> Fill( bestGsfElectron.eta(),bestGsfElectron.deltaEtaSeedClusterTrackAtCalo()); 
-	h_ele_dEtaClVsPhi_propOut -> Fill(bestGsfElectron.phi(),bestGsfElectron.deltaEtaSeedClusterTrackAtCalo()); 
-	h_ele_dEtaClVsPt_propOut -> Fill(bestGsfElectron.pt(),bestGsfElectron.deltaEtaSeedClusterTrackAtCalo()); 
-	h_ele_dPhiCl_propOut -> Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo()); 
-	h_ele_dPhiClVsEta_propOut -> Fill( bestGsfElectron.eta(),bestGsfElectron.deltaPhiSeedClusterTrackAtCalo()); 
-	h_ele_dPhiClVsPhi_propOut -> Fill(bestGsfElectron.phi(),bestGsfElectron.deltaPhiSeedClusterTrackAtCalo()); 
-	h_ele_dPhiClVsPt_propOut -> Fill(bestGsfElectron.pt(),bestGsfElectron.deltaPhiSeedClusterTrackAtCalo()); 
-	h_ele_dEtaEleCl_propOut -> Fill(bestGsfElectron.deltaEtaEleClusterTrackAtCalo()); 
-	h_ele_dEtaEleClVsEta_propOut -> Fill( bestGsfElectron.eta(),bestGsfElectron.deltaEtaEleClusterTrackAtCalo()); 
-	h_ele_dEtaEleClVsPhi_propOut -> Fill(bestGsfElectron.phi(),bestGsfElectron.deltaEtaEleClusterTrackAtCalo()); 
-	h_ele_dEtaEleClVsPt_propOut -> Fill(bestGsfElectron.pt(),bestGsfElectron.deltaEtaEleClusterTrackAtCalo()); 
-	h_ele_dPhiEleCl_propOut -> Fill(bestGsfElectron.deltaPhiEleClusterTrackAtCalo()); 
-	h_ele_dPhiEleClVsEta_propOut -> Fill( bestGsfElectron.eta(),bestGsfElectron.deltaPhiEleClusterTrackAtCalo()); 
-	h_ele_dPhiEleClVsPhi_propOut -> Fill(bestGsfElectron.phi(),bestGsfElectron.deltaPhiEleClusterTrackAtCalo()); 
-	h_ele_dPhiEleClVsPt_propOut -> Fill(bestGsfElectron.pt(),bestGsfElectron.deltaPhiEleClusterTrackAtCalo()); 
+	h_ele_dPhiSc_propVtx -> Fill(bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
+	h_ele_dPhiScVsEta_propVtx -> Fill( bestGsfElectron.eta(),bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
+	h_ele_dPhiScVsPhi_propVtx -> Fill(bestGsfElectron.phi(),bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
+	h_ele_dPhiScVsPt_propVtx -> Fill(bestGsfElectron.pt(),bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
+	h_ele_dEtaCl_propOut -> Fill(bestGsfElectron.deltaEtaSeedClusterTrackAtCalo());
+	h_ele_dEtaClVsEta_propOut -> Fill( bestGsfElectron.eta(),bestGsfElectron.deltaEtaSeedClusterTrackAtCalo());
+	h_ele_dEtaClVsPhi_propOut -> Fill(bestGsfElectron.phi(),bestGsfElectron.deltaEtaSeedClusterTrackAtCalo());
+	h_ele_dEtaClVsPt_propOut -> Fill(bestGsfElectron.pt(),bestGsfElectron.deltaEtaSeedClusterTrackAtCalo());
+	h_ele_dPhiCl_propOut -> Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
+	h_ele_dPhiClVsEta_propOut -> Fill( bestGsfElectron.eta(),bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
+	h_ele_dPhiClVsPhi_propOut -> Fill(bestGsfElectron.phi(),bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
+	h_ele_dPhiClVsPt_propOut -> Fill(bestGsfElectron.pt(),bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
+	h_ele_dEtaEleCl_propOut -> Fill(bestGsfElectron.deltaEtaEleClusterTrackAtCalo());
+	h_ele_dEtaEleClVsEta_propOut -> Fill( bestGsfElectron.eta(),bestGsfElectron.deltaEtaEleClusterTrackAtCalo());
+	h_ele_dEtaEleClVsPhi_propOut -> Fill(bestGsfElectron.phi(),bestGsfElectron.deltaEtaEleClusterTrackAtCalo());
+	h_ele_dEtaEleClVsPt_propOut -> Fill(bestGsfElectron.pt(),bestGsfElectron.deltaEtaEleClusterTrackAtCalo());
+	h_ele_dPhiEleCl_propOut -> Fill(bestGsfElectron.deltaPhiEleClusterTrackAtCalo());
+	h_ele_dPhiEleClVsEta_propOut -> Fill( bestGsfElectron.eta(),bestGsfElectron.deltaPhiEleClusterTrackAtCalo());
+	h_ele_dPhiEleClVsPhi_propOut -> Fill(bestGsfElectron.phi(),bestGsfElectron.deltaPhiEleClusterTrackAtCalo());
+	h_ele_dPhiEleClVsPt_propOut -> Fill(bestGsfElectron.pt(),bestGsfElectron.deltaPhiEleClusterTrackAtCalo());
 	h_ele_HoE -> Fill(bestGsfElectron.hadronicOverEm());
 	if (!bestGsfElectron.isEBEtaGap() && !bestGsfElectron.isEBPhiGap()&& !bestGsfElectron.isEBEEGap() &&
 	    !bestGsfElectron.isEERingGap() && !bestGsfElectron.isEEDeeGap()) h_ele_HoE_fiducial -> Fill(bestGsfElectron.hadronicOverEm());
 	h_ele_HoEVsEta -> Fill( bestGsfElectron.eta(),bestGsfElectron.hadronicOverEm());
 	h_ele_HoEVsPhi -> Fill(bestGsfElectron.phi(),bestGsfElectron.hadronicOverEm());
 	h_ele_HoEVsE -> Fill(bestGsfElectron.caloEnergy(),bestGsfElectron.hadronicOverEm());
-	 
+
 	//classes
 	int eleClass = bestGsfElectron.classification();
-	h_ele_classes ->Fill(eleClass);	
+	h_ele_classes ->Fill(eleClass);
 /*
         if (bestGsfElectron.classification() == 0)  histSclEoEtrueGolden_barrel->Fill(sclRef->energy()/pAssSim.t());
         if (bestGsfElectron.classification() == 100)  histSclEoEtrueGolden_endcaps->Fill(sclRef->energy()/pAssSim.t());
@@ -1200,13 +1200,13 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         if (eleClass == 20) h_ele_eta_narrow ->Fill(fabs(bestGsfElectron.eta()));
         if (eleClass == 30 || eleClass == 31 || eleClass == 32  || eleClass == 33 || eleClass == 34 ) h_ele_eta_shower ->Fill(fabs(bestGsfElectron.eta()));
 
-	//fbrem 
+	//fbrem
 	double fbrem_mean =  1. - bestGsfElectron.gsfTrack()->outerMomentum().R()/bestGsfElectron.gsfTrack()->innerMomentum().R();
 	double fbrem_mode =  bestGsfElectron.fbrem();
 	h_ele_fbrem->Fill(fbrem_mode);
 	h_ele_fbremVsEta_mode->Fill(bestGsfElectron.eta(),fbrem_mode);
 	h_ele_fbremVsEta_mean->Fill(bestGsfElectron.eta(),fbrem_mean);
- 
+
         if (eleClass == 0) h_ele_PinVsPoutGolden_mode -> Fill(bestGsfElectron.trackMomentumOut().R(), bestGsfElectron.trackMomentumAtVtx().R());
         if (eleClass == 30)
 	 h_ele_PinVsPoutShowering0_mode -> Fill(bestGsfElectron.trackMomentumOut().R(), bestGsfElectron.trackMomentumAtVtx().R());
@@ -1234,8 +1234,8 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     }
 
-  } // loop over mc particle 
-  
+  } // loop over mc particle
+
   h_mcNum->Fill(mcNum);
   h_eleNum->Fill(eleNum);
 

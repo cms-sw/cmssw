@@ -66,7 +66,7 @@ SimpleConvertedPhotonAnalyzer::~SimpleConvertedPhotonAnalyzer() {
 }
 
 
-void SimpleConvertedPhotonAnalyzer::beginJob( const edm::EventSetup& setup)
+void SimpleConvertedPhotonAnalyzer::beginJob( const edm::EventSetup& )
 {
 
 
@@ -117,7 +117,7 @@ float SimpleConvertedPhotonAnalyzer::etaTransformation(  float EtaParticle , flo
 
 //---Definitions
 	const float PI    = 3.1415927;
-	const float TWOPI = 2.0*PI;
+	//UNUSED const float TWOPI = 2.0*PI;
 
 //---Definitions for ECAL
 	const float R_ECAL           = 136.5;
@@ -160,12 +160,12 @@ void SimpleConvertedPhotonAnalyzer::analyze( const edm::Event& e, const edm::Eve
   using namespace edm;
   const float etaPhiDistance=0.01;
   // Fiducial region
-  const float TRK_BARL =0.9;
+  //UNUSED const float TRK_BARL =0.9;
   const float BARL = 1.4442; // DAQ TDR p.290
   const float END_LO = 1.566;
   const float END_HI = 2.5;
  // Electron mass
-  const Float_t mElec= 0.000511;
+  //UNUSED const Float_t mElec= 0.000511;
 
 
   nEvt_++;
@@ -202,9 +202,9 @@ void SimpleConvertedPhotonAnalyzer::analyze( const edm::Event& e, const edm::Eve
 
 
   // Loop over simulated photons
-  int iDet=0;
-  int iRadius=-1;
-  int indPho=0;
+  //UNUSED int iDet=0;
+  //UNUSED int iRadius=-1;
+  //UNUSED int indPho=0;
 
   for ( std::vector<PhotonMCTruth>::const_iterator mcPho=mcPhotons.begin(); mcPho !=mcPhotons.end(); mcPho++) {
     float mcPhi= (*mcPho).fourMomentum().phi();

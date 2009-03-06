@@ -33,7 +33,6 @@ Description: SiStrip-driven electron seed finding algorithm.
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiStripMatchedRecHit.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
-#include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
@@ -57,53 +56,55 @@ Description: SiStrip-driven electron seed finding algorithm.
 #include "RecoEgamma/EgammaElectronAlgos/interface/SiStripElectronSeedGenerator.h"
 
 SiStripElectronSeedGenerator::SiStripElectronSeedGenerator()
-  :theUpdator(0),
-   thePropagator(0),
-   theSetup(0),
-   pts_(0),
-   theMatcher_(0)
+  :theUpdator(0),thePropagator(0),theMeasurementTracker(0),
+   theSetup(0),pts_(0),theMatcher_(0),
+   cacheIDMagField_(0),cacheIDCkfComp_(0),cacheIDTrkGeom_(0)
 {
-
+  theUpdator = new KFUpdator();
+  theEstimator = new Chi2MeasurementEstimator(30,3);
 }
 
 
 SiStripElectronSeedGenerator::~SiStripElectronSeedGenerator() {
-
   delete thePropagator;
   delete theUpdator;
-
 }
 
 
-void SiStripElectronSeedGenerator::setupES(const edm::EventSetup& setup, const edm::ParameterSet &conf) {
-  using namespace edm;
+void SiStripElectronSeedGenerator::setupES(const edm::EventSetup& setup) {
 
-  theSetup= &setup;
+  if (cacheIDMagField_!=setup.get<IdealMagneticFieldRecord>().cacheIdentifier()) {
+    setup.get<IdealMagneticFieldRecord>().get(theMagField);
+    cacheIDMagField_=setup.get<IdealMagneticFieldRecord>().cacheIdentifier();
+    if (thePropagator) delete thePropagator;
+    thePropagator = new PropagatorWithMaterial(alongMomentum,.000511,&(*theMagField));
+  }
 
-  setup.get<IdealMagneticFieldRecord>().get(theMagField);
+  if (cacheIDCkfComp_!=setup.get<CkfComponentsRecord>().cacheIdentifier()) {
+    setup.get<CkfComponentsRecord>().get(measurementTrackerHandle);
+    cacheIDCkfComp_=setup.get<CkfComponentsRecord>().cacheIdentifier();
+    theMeasurementTracker = measurementTrackerHandle.product();
+  }
 
-  measurementTrackerName_ = "";
-
-  theUpdator = new KFUpdator();
-  thePropagator = new PropagatorWithMaterial(alongMomentum,.1057,&(*theMagField));
-  theEstimator = new Chi2MeasurementEstimator(30,3);
-
-  setup.get<TrackerDigiGeometryRecord>().get(trackerHandle);
-
-  setup.get<CkfComponentsRecord>().get(measurementTrackerName_,measurementTrackerHandle);
+  if (cacheIDTrkGeom_!=setup.get<TrackerDigiGeometryRecord>().cacheIdentifier()) {
+    setup.get<TrackerDigiGeometryRecord>().get(trackerGeometryHandle);
+    cacheIDTrkGeom_=setup.get<TrackerDigiGeometryRecord>().cacheIdentifier();   
+  }
 
 }
 
-void  SiStripElectronSeedGenerator::run(edm::Event& e,
-					const edm::Handle<reco::SuperClusterCollection> &clusters,
+void  SiStripElectronSeedGenerator::run(edm::Event& e, const edm::EventSetup& setup, 
+					const edm::Handle<reco::SuperClusterCollection> &clusters, 
 					reco::ElectronSeedCollection & out) {
-  measurementTrackerHandle->update(e);
+  theSetup= &setup;
+  e.getByType(theBeamSpot);
+  theMeasurementTracker->update(e);
 
   for  (unsigned int i=0;i<clusters->size();++i) {
     edm::Ref<reco::SuperClusterCollection> theClusB(clusters,i);
     // Find the seeds
     LogDebug ("run") << "new cluster, calling findSeedsFromCluster";
-    findSeedsFromCluster(theClusB,out);
+    findSeedsFromCluster(theClusB,theBeamSpot,out);
   }
 
   LogDebug ("run") << ": For event "<<e.id();
@@ -113,7 +114,7 @@ void  SiStripElectronSeedGenerator::run(edm::Event& e,
 
 
 // Find seeds using a supercluster
-void SiStripElectronSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClusterCollection> seedCluster,
+void SiStripElectronSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClusterCollection> seedCluster, edm::Handle<reco::BeamSpot> bs,
 							 reco::ElectronSeedCollection & result) {
 
   // clear the member vectors of good hits
@@ -132,14 +133,13 @@ void SiStripElectronSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
 
   double pT = sCenergy * seedCluster->position().rho()/sqrt(seedCluster->x()*seedCluster->x()+seedCluster->y()*seedCluster->y()+seedCluster->z()*seedCluster->z());
 
-  double magneticField = 4.0;
+  double magneticField = 3.8;
 
   // cf Jackson p. 581-2, a little geometry
   double phiVsRSlope = -3.00e-3 * magneticField / pT / 2.;
 
 
   //Need to create TSOS to feed MeasurementTracker
-  reco::BeamSpot* bs = new reco::BeamSpot();
   GlobalPoint beamSpot(bs->x0(),bs->y0(),bs->z0());
   GlobalPoint superCluster(sCposition.x(),sCposition.y(),sCposition.z());
   double r0 = beamSpot.perp();
@@ -167,7 +167,7 @@ void SiStripElectronSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
   TrajectoryStateOnSurface initialTSOS = tipe->extrapolate(initialFTS,beamSpot);
 
   //Use GST to retrieve hits from various DetLayers using layerMeasurements class
-  const GeometricSearchTracker* gst = measurementTrackerHandle->geometricSearchTracker();
+  const GeometricSearchTracker* gst = theMeasurementTracker->geometricSearchTracker();
 
   std::vector<BarrelDetLayer*> tibLayers = gst->tibLayers();
   DetLayer* tib1 = tibLayers.at(0);
@@ -214,7 +214,7 @@ void SiStripElectronSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
   bool hasLay2Hit = false;
   bool hasBackupHit = false;
 
-  LayerMeasurements layerMeasurements(measurementTrackerHandle.product());
+  LayerMeasurements layerMeasurements(theMeasurementTracker);
 
   std::vector<TrajectoryMeasurement> tib1measurements;
   if(useDL.at(0)) tib1measurements = layerMeasurements.measurements(*tib1,initialTSOS,*thePropagator,*theEstimator);
@@ -229,7 +229,7 @@ void SiStripElectronSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
     ConstRecHitPointer hit = tmIter->recHit();
     const SiStripMatchedRecHit2D* matchedHit = matchedHitConverter(hit);
     if(matchedHit){
-      GlobalPoint position = trackerHandle->idToDet(matchedHit->geographicalId())->surface().toGlobal(matchedHit->localPosition());
+      GlobalPoint position = trackerGeometryHandle->idToDet(matchedHit->geographicalId())->surface().toGlobal(matchedHit->localPosition());
       if(preselection(position, superCluster, phiVsRSlope)){
 	hasLay1Hit = true;
 	layer1Hits_.push_back(matchedHit);
@@ -241,7 +241,7 @@ void SiStripElectronSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
     ConstRecHitPointer hit = tmIter->recHit();
     const SiStripMatchedRecHit2D* matchedHit = matchedHitConverter(hit);
     if(matchedHit){
-      GlobalPoint position = trackerHandle->idToDet(matchedHit->geographicalId())->surface().toGlobal(matchedHit->localPosition());
+      GlobalPoint position = trackerGeometryHandle->idToDet(matchedHit->geographicalId())->surface().toGlobal(matchedHit->localPosition());
       if(preselection(position, superCluster, phiVsRSlope)){
 	hasLay2Hit = true;
 	layer2Hits_.push_back(matchedHit);
@@ -263,7 +263,7 @@ void SiStripElectronSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
     ConstRecHitPointer hit = tmIter->recHit();
     const SiStripMatchedRecHit2D* matchedHit = matchedHitConverter(hit);
     if(matchedHit){
-      GlobalPoint position = trackerHandle->idToDet(matchedHit->geographicalId())->surface().toGlobal(matchedHit->localPosition());
+      GlobalPoint position = trackerGeometryHandle->idToDet(matchedHit->geographicalId())->surface().toGlobal(matchedHit->localPosition());
       if(preselection(position, superCluster, phiVsRSlope)){
 	tid1MHC++;
 	hasLay1Hit = true;
@@ -274,7 +274,7 @@ void SiStripElectronSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
     }else if(useDL.at(8) && tid1BHC < 4){
       const SiStripRecHit2D* backupHit = backupHitConverter(hit);
       if(backupHit){
-	GlobalPoint position = trackerHandle->idToDet(backupHit->geographicalId())->surface().toGlobal(backupHit->localPosition());
+	GlobalPoint position = trackerGeometryHandle->idToDet(backupHit->geographicalId())->surface().toGlobal(backupHit->localPosition());
 	if(preselection(position, superCluster, phiVsRSlope) && position.perp() > 37.){
 	  tid1BHC++;
 	  hasBackupHit = true;
@@ -290,7 +290,7 @@ void SiStripElectronSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
     ConstRecHitPointer hit = tmIter->recHit();
     const SiStripMatchedRecHit2D* matchedHit = matchedHitConverter(hit);
     if(matchedHit){
-      GlobalPoint position = trackerHandle->idToDet(matchedHit->geographicalId())->surface().toGlobal(matchedHit->localPosition());
+      GlobalPoint position = trackerGeometryHandle->idToDet(matchedHit->geographicalId())->surface().toGlobal(matchedHit->localPosition());
       if(preselection(position, superCluster, phiVsRSlope)){
 	tid2MHC++;
 	hasLay1Hit = true;
@@ -301,7 +301,7 @@ void SiStripElectronSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
     }else if(useDL.at(8) && tid2BHC < 4){
       const SiStripRecHit2D* backupHit = backupHitConverter(hit);
       if(backupHit){
-	GlobalPoint position = trackerHandle->idToDet(backupHit->geographicalId())->surface().toGlobal(backupHit->localPosition());
+	GlobalPoint position = trackerGeometryHandle->idToDet(backupHit->geographicalId())->surface().toGlobal(backupHit->localPosition());
 	if(preselection(position, superCluster, phiVsRSlope) && position.perp() > 37.){
 	  tid2BHC++;
 	  hasBackupHit = true;
@@ -317,7 +317,7 @@ void SiStripElectronSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
     ConstRecHitPointer hit = tmIter->recHit();
     const SiStripMatchedRecHit2D* matchedHit = matchedHitConverter(hit);
     if(matchedHit){
-      GlobalPoint position = trackerHandle->idToDet(matchedHit->geographicalId())->surface().toGlobal(matchedHit->localPosition());
+      GlobalPoint position = trackerGeometryHandle->idToDet(matchedHit->geographicalId())->surface().toGlobal(matchedHit->localPosition());
       if(preselection(position, superCluster, phiVsRSlope)){
 	tid3MHC++;
 	hasLay1Hit = true;
@@ -328,7 +328,7 @@ void SiStripElectronSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
     }else if(useDL.at(8) && tid3BHC < 4){
       const SiStripRecHit2D* backupHit = backupHitConverter(hit);
       if(backupHit){
-	GlobalPoint position = trackerHandle->idToDet(backupHit->geographicalId())->surface().toGlobal(backupHit->localPosition());
+	GlobalPoint position = trackerGeometryHandle->idToDet(backupHit->geographicalId())->surface().toGlobal(backupHit->localPosition());
 	if(preselection(position, superCluster, phiVsRSlope) && position.perp() > 37.){
 	  tid3BHC++;
 	  hasBackupHit = true;
@@ -351,7 +351,7 @@ void SiStripElectronSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
     ConstRecHitPointer hit = tmIter->recHit();
     const SiStripMatchedRecHit2D* matchedHit = matchedHitConverter(hit);
     if(matchedHit){
-      GlobalPoint position = trackerHandle->idToDet(matchedHit->geographicalId())->surface().toGlobal(matchedHit->localPosition());
+      GlobalPoint position = trackerGeometryHandle->idToDet(matchedHit->geographicalId())->surface().toGlobal(matchedHit->localPosition());
       if(preselection(position, superCluster, phiVsRSlope)){
 	tec1MHC++;
 	hasLay1Hit = true;
@@ -368,7 +368,7 @@ void SiStripElectronSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
     ConstRecHitPointer hit = tmIter->recHit();
     const SiStripMatchedRecHit2D* matchedHit = matchedHitConverter(hit);
     if(matchedHit){
-      GlobalPoint position = trackerHandle->idToDet(matchedHit->geographicalId())->surface().toGlobal(matchedHit->localPosition());
+      GlobalPoint position = trackerGeometryHandle->idToDet(matchedHit->geographicalId())->surface().toGlobal(matchedHit->localPosition());
       if(preselection(position, superCluster, phiVsRSlope)){
 	tec2MHC++;
 	hasLay1Hit = true;
@@ -385,7 +385,7 @@ void SiStripElectronSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
     ConstRecHitPointer hit = tmIter->recHit();
     const SiStripMatchedRecHit2D* matchedHit = matchedHitConverter(hit);
     if(matchedHit){
-      GlobalPoint position = trackerHandle->idToDet(matchedHit->geographicalId())->surface().toGlobal(matchedHit->localPosition());
+      GlobalPoint position = trackerGeometryHandle->idToDet(matchedHit->geographicalId())->surface().toGlobal(matchedHit->localPosition());
       if(preselection(position, superCluster, phiVsRSlope)){
 	tec3MHC++;
 	hasLay2Hit = true;
@@ -490,12 +490,12 @@ bool SiStripElectronSeedGenerator::checkHitsAndTSOS(std::vector<const SiStripMat
   double rCut = .3;
   double phiCut = 0.;
 
-  GlobalPoint hit1Pos = trackerHandle->idToDet((*hit1)->geographicalId())->surface().toGlobal((*hit1)->localPosition());
+  GlobalPoint hit1Pos = trackerGeometryHandle->idToDet((*hit1)->geographicalId())->surface().toGlobal((*hit1)->localPosition());
   double r1 = sqrt(hit1Pos.x()*hit1Pos.x() + hit1Pos.y()*hit1Pos.y());
   double phi1 = hit1Pos.phi();
   double z1=hit1Pos.z();
 
-  GlobalPoint hit2Pos = trackerHandle->idToDet((*hit2)->geographicalId())->surface().toGlobal((*hit2)->localPosition());
+  GlobalPoint hit2Pos = trackerGeometryHandle->idToDet((*hit2)->geographicalId())->surface().toGlobal((*hit2)->localPosition());
   double r2 = sqrt(hit2Pos.x()*hit2Pos.x() + hit2Pos.y()*hit2Pos.y());
   double phi2 = hit2Pos.phi();
   double z2 = hit2Pos.z();
@@ -504,7 +504,7 @@ bool SiStripElectronSeedGenerator::checkHitsAndTSOS(std::vector<const SiStripMat
 
     //Consider the circle made of IP and Hit 1; Calculate it's radius using pT
 
-    double curv = pT*100/1.2;
+    double curv = pT*100*.877;
 
     //Predict phi of hit 2
     double a = (r2-r1)/(2*curv);
@@ -560,8 +560,8 @@ bool SiStripElectronSeedGenerator::checkHitsAndTSOS(std::vector<const SiStripMat
      takes Transient rec hits, so to recycle code we have to build them.
   */
 
-  RecHitPointer hit1Trans = TSiStripMatchedRecHit::build(trackerHandle->idToDet((*hit1)->geographicalId()), *hit1, theMatcher_);
-  RecHitPointer hit2Trans = TSiStripMatchedRecHit::build(trackerHandle->idToDet((*hit2)->geographicalId()), *hit2, theMatcher_);
+  RecHitPointer hit1Trans = TSiStripMatchedRecHit::build(trackerGeometryHandle->idToDet((*hit1)->geographicalId()), *hit1, theMatcher_);
+  RecHitPointer hit2Trans = TSiStripMatchedRecHit::build(trackerGeometryHandle->idToDet((*hit2)->geographicalId()), *hit2, theMatcher_);
 
   typedef TrajectoryStateOnSurface TSOS;
 
@@ -599,12 +599,12 @@ bool SiStripElectronSeedGenerator::altCheckHitsAndTSOS(std::vector<const SiStrip
 
   using namespace std;
 
-  GlobalPoint hit1Pos = trackerHandle->idToDet((*hit1)->geographicalId())->surface().toGlobal((*hit1)->localPosition());
+  GlobalPoint hit1Pos = trackerGeometryHandle->idToDet((*hit1)->geographicalId())->surface().toGlobal((*hit1)->localPosition());
   double r1 = sqrt(hit1Pos.x()*hit1Pos.x() + hit1Pos.y()*hit1Pos.y());
   double phi1 = hit1Pos.phi();
   double z1=hit1Pos.z();
 
-  GlobalPoint hit2Pos = trackerHandle->idToDet((*hit2)->geographicalId())->surface().toGlobal((*hit2)->localPosition());
+  GlobalPoint hit2Pos = trackerGeometryHandle->idToDet((*hit2)->geographicalId())->surface().toGlobal((*hit2)->localPosition());
   double r2 = sqrt(hit2Pos.x()*hit2Pos.x() + hit2Pos.y()*hit2Pos.y());
   double phi2 = hit2Pos.phi();
   double z2 = hit2Pos.z();
@@ -613,7 +613,7 @@ bool SiStripElectronSeedGenerator::altCheckHitsAndTSOS(std::vector<const SiStrip
 
     //Consider the circle made of IP and Hit 1; Calculate it's radius using pT
 
-    double curv = pT*100/1.2;
+    double curv = pT*100*.877;
 
     //Predict phi of hit 2
     double a = (r2-r1)/(2*curv);
@@ -636,8 +636,8 @@ bool SiStripElectronSeedGenerator::altCheckHitsAndTSOS(std::vector<const SiStrip
      takes Transient rec hits, so to recycle code we have to build them.
   */
 
-  RecHitPointer hit1Trans = TSiStripMatchedRecHit::build(trackerHandle->idToDet((*hit1)->geographicalId()), *hit1, theMatcher_);
-  RecHitPointer hit2Trans = TSiStripMatchedRecHit::build(trackerHandle->idToDet((*hit2)->geographicalId()), *hit2, theMatcher_);
+  RecHitPointer hit1Trans = TSiStripMatchedRecHit::build(trackerGeometryHandle->idToDet((*hit1)->geographicalId()), *hit1, theMatcher_);
+  RecHitPointer hit2Trans = TSiStripMatchedRecHit::build(trackerGeometryHandle->idToDet((*hit2)->geographicalId()), *hit2, theMatcher_);
 
   typedef TrajectoryStateOnSurface TSOS;
 

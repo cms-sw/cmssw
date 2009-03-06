@@ -24,34 +24,34 @@ class MCPizeroAnalyzer : public edm::EDAnalyzer
 {
 
    public:
-   
+
       //
       explicit MCPizeroAnalyzer( const edm::ParameterSet& ) ;
       virtual ~MCPizeroAnalyzer();
-                                   
-      
+
+
       virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
-      virtual void beginJob( const edm::EventSetup& ) ;
+      virtual void beginJob() ;
       virtual void endJob() ;
 
    private:
- 
-   
+
+
       float etaTransformation( float a, float b);
       float phiNormalization( float& a);
 
-      
+
       //
       PizeroMCTruthFinder*  thePizeroMCTruthFinder_;
-            
 
-      
+
+
       std::string fOutputFileName_ ;
       TFile*      fOutputFile_ ;
-      
 
 
-      
+
+
       int nEvt_;
       int nMatched_;
 
@@ -63,7 +63,7 @@ class MCPizeroAnalyzer : public edm::EDAnalyzer
       std::string SimTkLabel;
       std::string SimVtxLabel;
       std::string SimHitLabel;
-      
+
 
       TH1F* h_MCPizE_;
       TH1F* h_MCPizEta_;
@@ -73,23 +73,23 @@ class MCPizeroAnalyzer : public edm::EDAnalyzer
       TH1F* h_MCPizPhi_;
       TH1F* h_MCPizMass1_;
       TH1F* h_MCPizMass2_;
- 
+
       TH1F* h_MCEleE_;
       TH1F* h_MCEleEta_;
       TH1F* h_MCElePhi_;
-      TH1F* h_BremFrac_;      
-      TH1F* h_BremEnergy_;      
+      TH1F* h_BremFrac_;
+      TH1F* h_BremEnergy_;
 
       TH2F* h_EleEvsPhoE_;
 
       TH1F* h_MCPhoE_;
       TH1F* h_MCPhoEta_;
-      TH1F* h_MCPhoPhi_;  
+      TH1F* h_MCPhoPhi_;
       TH1F* h_MCConvPhoE_;
       TH1F* h_MCConvPhoEta_;
       TH1F* h_MCConvPhoPhi_;
       TH1F* h_MCConvPhoR_;
-  
+
 
 
 };

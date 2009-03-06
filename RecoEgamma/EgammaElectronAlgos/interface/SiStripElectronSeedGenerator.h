@@ -7,7 +7,7 @@
  *  
  * \author Chris Macklin, Avishek Chatterjee 
  *
- * \version October 2008 (Now with TID Ring 3) 
+ * \version March 2009 (Adapt code to simplify call to SetupES) 
  *
  ************************************************************/
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -53,6 +53,7 @@
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 class PropagatorWithMaterial;
 class KFUpdator;
@@ -63,86 +64,86 @@ class SiStripElectronSeedGenerator
 {
 public:
 
-  //RC
   typedef edm::OwnVector<TrackingRecHit> PRecHitContainer;
   typedef TransientTrackingRecHit::ConstRecHitPointer  ConstRecHitPointer;
   typedef TransientTrackingRecHit::RecHitPointer       RecHitPointer;
   typedef TransientTrackingRecHit::RecHitContainer     RecHitContainer;
-  
 
-  enum mode{HLT, offline, unknown};  //to be used later
-
-  SiStripElectronSeedGenerator( );
+  SiStripElectronSeedGenerator();
 
   ~SiStripElectronSeedGenerator();
 
-  void setupES(const edm::EventSetup& setup, const edm::ParameterSet& conf);
-  void run(edm::Event&, const edm::Handle<reco::SuperClusterCollection>&,
+  void setupES(const edm::EventSetup& setup);
+  void run(edm::Event&, const edm::EventSetup& setup, 
+	   const edm::Handle<reco::SuperClusterCollection>&, 
 	   reco::ElectronSeedCollection&);	
 
- private:
-	double normalPhi(double phi) const {
-		while (phi > 2.* M_PI) { phi -= 2.*M_PI; }
-		while (phi < 0) { phi += 2.*M_PI; }
-		return phi;
-	}
+private:
+  double normalPhi(double phi) const {
+    while (phi > 2.* M_PI) { phi -= 2.*M_PI; }
+    while (phi < 0) { phi += 2.*M_PI; }
+    return phi;
+  }
 	
-	double phiDiff(double phi1, double phi2){
-		double result = normalPhi(phi1) - normalPhi(phi2);
-		if(result > M_PI) result -= 2*M_PI;
-		if(result < -M_PI) result += 2*M_PI;
-		return result;
-	}
+  double phiDiff(double phi1, double phi2){
+    double result = normalPhi(phi1) - normalPhi(phi2);
+    if(result > M_PI) result -= 2*M_PI;
+    if(result < -M_PI) result += 2*M_PI;
+    return result;
+  }
+  
+  double unwrapPhi(double phi) const {
+    while (phi > M_PI) { phi -= 2.*M_PI; }
+    while (phi < -M_PI) { phi += 2.*M_PI; }
+    return phi;
+  }
+	
+  void findSeedsFromCluster(edm::Ref<reco::SuperClusterCollection>, edm::Handle<reco::BeamSpot>,
+			    reco::ElectronSeedCollection&);
+  
+  int whichSubdetector(std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit);
+  
+  bool preselection(GlobalPoint position,GlobalPoint superCluster,double phiVsRSlope);
+	
+  bool checkHitsAndTSOS(std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit1,
+			std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit2,
+			double scr,double scz,double pT,double scEta);
+  
+  bool altCheckHitsAndTSOS(std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit1,
+			   std::vector<const SiStripRecHit2D*>::const_iterator hit2,
+			   double scr,double scz,double pT,double scEta);
 
-	double unwrapPhi(double phi) const {
-	  while (phi > M_PI) { phi -= 2.*M_PI; }
-	  while (phi < -M_PI) { phi += 2.*M_PI; }
-	  return phi;
-	}
-	
-	void findSeedsFromCluster(edm::Ref<reco::SuperClusterCollection>,
-				  reco::ElectronSeedCollection&);
-	
-	int whichSubdetector(std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit);
+  const SiStripMatchedRecHit2D* matchedHitConverter(ConstRecHitPointer crhp);
+  const SiStripRecHit2D* backupHitConverter(ConstRecHitPointer crhp);
 
-	bool preselection(GlobalPoint position,GlobalPoint superCluster,double phiVsRSlope);
+  std::vector<bool> useDetLayer(double scEta);
 	
-	bool checkHitsAndTSOS(std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit1,
-			      std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit2,
-			      double scr,double scz,double pT,double scEta);
+  edm::ESHandle<MeasurementTracker> measurementTrackerHandle;
+  edm::ESHandle<MagneticField> theMagField;
+  edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
+  edm::Handle<reco::BeamSpot> theBeamSpot;
 
-	bool altCheckHitsAndTSOS(std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit1,
-				 std::vector<const SiStripRecHit2D*>::const_iterator hit2,
-				 double scr,double scz,double pT,double scEta);
+  KFUpdator* theUpdator;
+  PropagatorWithMaterial* thePropagator;	
+  Chi2MeasurementEstimator* theEstimator;
 
-	const SiStripMatchedRecHit2D* matchedHitConverter(ConstRecHitPointer crhp);
-	const SiStripRecHit2D* backupHitConverter(ConstRecHitPointer crhp);
+  const MeasurementTracker* theMeasurementTracker;
+  const edm::EventSetup *theSetup; 
+  TrajectoryStateTransform transformer_; 
+  PRecHitContainer recHits_; 
+  PTrajectoryStateOnDet* pts_; 
+	
+  // member vectors to hold the good hits found between hit selection and combinatorics
+  std::vector<const SiStripMatchedRecHit2D*> layer1Hits_;
+  std::vector<const SiStripMatchedRecHit2D*> layer2Hits_;
+  std::vector<const SiStripRecHit2D*> backupLayer2Hits_;
+	
+  const SiStripRecHitMatcher* theMatcher_;
 
-	std::vector<bool> useDetLayer(double scEta);
-	
-	edm::ESHandle<MeasurementTracker> measurementTrackerHandle;
-	edm::ESHandle<MagneticField> theMagField;
-	edm::ESHandle<TrackerGeometry> trackerHandle;
-	KFUpdator* theUpdator;
-	PropagatorWithMaterial* thePropagator;	
-	Chi2MeasurementEstimator* theEstimator;
-	
-	const NavigationSchool* theNavigationSchool;
-	
-	const edm::EventSetup *theSetup; 
-	TrajectoryStateTransform transformer_; 
-	PRecHitContainer recHits_; 
-	PTrajectoryStateOnDet* pts_; 
-	
-	// member vectors to hold the good hits found between hit selection and combinatorics
-	std::vector<const SiStripMatchedRecHit2D*> layer1Hits_;
-	std::vector<const SiStripMatchedRecHit2D*> layer2Hits_;
-	std::vector<const SiStripRecHit2D*> backupLayer2Hits_;
-	
-	const SiStripRecHitMatcher* theMatcher_;
+  unsigned long long cacheIDMagField_;
+  unsigned long long cacheIDCkfComp_;
+  unsigned long long cacheIDTrkGeom_;
 
-	std::string measurementTrackerName_;
-	
 };
 
 #endif // SiStripElectronSeedGenerator_H

@@ -57,7 +57,7 @@ MCPhotonAnalyzer::~MCPhotonAnalyzer() {
 }
 
 
-void MCPhotonAnalyzer::beginJob( const edm::EventSetup& setup)
+void MCPhotonAnalyzer::beginJob( const edm::EventSetup& )
 {
 
 
@@ -127,7 +127,7 @@ float MCPhotonAnalyzer::etaTransformation(  float EtaParticle , float Zvertex)  
 
 //---Definitions
 	const float PI    = 3.1415927;
-	const float TWOPI = 2.0*PI;
+//	const float TWOPI = 2.0*PI;
 
 //---Definitions for ECAL
 	const float R_ECAL           = 136.5;
@@ -182,14 +182,14 @@ void MCPhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& )
 
 
   using namespace edm;
-  const float etaPhiDistance=0.01;
+  //UNUSED const float etaPhiDistance=0.01;
   // Fiducial region
-  const float TRK_BARL =0.9;
-  const float BARL = 1.4442; // DAQ TDR p.290
-  const float END_LO = 1.566;
-  const float END_HI = 2.5;
+  //UNUSED const float TRK_BARL =0.9;
+  //UNUSED const float BARL = 1.4442; // DAQ TDR p.290
+  //UNUSED const float END_LO = 1.566;
+  //UNUSED const float END_HI = 2.5;
  // Electron mass
-  const Float_t mElec= 0.000511;
+  //UNUSED const Float_t mElec= 0.000511;
 
 
   nEvt_++;
@@ -316,33 +316,33 @@ void MCPhotonAnalyzer::endJob()
 {
 
 
-  int s1=0;
-  int s2=0;
-  int s3=0;
-  int s4=0;
+  Double_t s1=0;
+  Double_t s2=0;
+  Double_t s3=0;
+  Double_t s4=0;
   int e1=0;
   int e2=0;
   int e3=0;
   int e4=0;
 
-  int nTotEta1 = h_MCPhoEta1_->GetEntries();
-  int nTotEta2 = h_MCPhoEta2_->GetEntries();
-  int nTotEta3 = h_MCPhoEta3_->GetEntries();
-  int nTotEta4 = h_MCPhoEta4_->GetEntries();
+  Double_t nTotEta1 = h_MCPhoEta1_->GetEntries();
+  Double_t nTotEta2 = h_MCPhoEta2_->GetEntries();
+  Double_t nTotEta3 = h_MCPhoEta3_->GetEntries();
+  Double_t nTotEta4 = h_MCPhoEta4_->GetEntries();
 
   for ( int i=1; i<=120; ++i) {
-  e1 = h_MCConvPhoREta1_->GetBinContent(i);
-  e2 = h_MCConvPhoREta2_->GetBinContent(i);
-  e3 = h_MCConvPhoREta3_->GetBinContent(i);
-  e4 = h_MCConvPhoREta4_->GetBinContent(i);
+  e1 = (int)h_MCConvPhoREta1_->GetBinContent(i);
+  e2 = (int)h_MCConvPhoREta2_->GetBinContent(i);
+  e3 = (int)h_MCConvPhoREta3_->GetBinContent(i);
+  e4 = (int)h_MCConvPhoREta4_->GetBinContent(i);
   s1+=e1;
   s2+=e2;
   s3+=e3;
   s4+=e4;
-  h_convFracEta1_->SetBinContent(i,float(s1)*100/float(nTotEta1));
-  h_convFracEta2_->SetBinContent(i,float(s2)*100/float(nTotEta2));
-  h_convFracEta3_->SetBinContent(i,float(s3)*100/float(nTotEta3));
-  h_convFracEta4_->SetBinContent(i,float(s4)*100/float(nTotEta4));
+  h_convFracEta1_->SetBinContent(i,s1*100/nTotEta1);
+  h_convFracEta2_->SetBinContent(i,s2*100/nTotEta2);
+  h_convFracEta3_->SetBinContent(i,s3*100/nTotEta3);
+  h_convFracEta4_->SetBinContent(i,s4*100/nTotEta4);
 
 
 

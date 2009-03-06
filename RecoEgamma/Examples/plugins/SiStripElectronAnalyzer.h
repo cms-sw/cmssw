@@ -4,7 +4,7 @@
 //
 // Package:     RecoEgamma/Examples
 // Class  :     SiStripElectronAnalyzer
-// 
+//
 /**\class SiStripElectronAnalyzer SiStripElectronAnalyzer.h RecoEgamma/Examples/interface/SiStripElectronAnalyzer.h
 
  Description: <one line class summary>
@@ -14,9 +14,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Fri May 26 16:52:45 EDT 2006
-// $Id: SiStripElectronAnalyzer.h,v 1.1 2007/07/05 10:34:46 charlot Exp $
+// $Id: SiStripElectronAnalyzer.h,v 1.2 2007/12/31 02:43:12 elmer Exp $
 //
 
 // system include files
@@ -51,7 +51,7 @@ class SiStripElectronAnalyzer : public edm::EDAnalyzer {
 
 
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void beginJob(edm::EventSetup const& iSetup);
+      virtual void beginJob();
       virtual void initNtuple ( void ) ;
       virtual void endJob( void );
 
@@ -93,9 +93,9 @@ class SiStripElectronAnalyzer : public edm::EDAnalyzer {
       TH1F* energySuperClustersFailed ;
       TH1F* eOverPFailed ;
       TH1F* eOverPPassed ;
- 
 
-      TH1F* numSiStereoHits_; 
+
+      TH1F* numSiStereoHits_;
       TH1F* numSiMonoHits_;
       TH1F* numSiMatchedHits_;
 

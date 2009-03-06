@@ -59,7 +59,7 @@ MCElectronAnalyzer::~MCElectronAnalyzer() {
 }
 
 
-void MCElectronAnalyzer::beginJob( const edm::EventSetup& setup)
+void MCElectronAnalyzer::beginJob()
 {
 
 

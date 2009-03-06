@@ -41,7 +41,7 @@ class PatPhotonSimpleAnalyzer : public edm::EDAnalyzer {
 
 
       virtual void analyze( const edm::Event&, const edm::EventSetup& );
-      virtual void beginJob(edm::EventSetup const&);
+      virtual void beginJob();
       virtual void endJob();
  private:
 
@@ -50,7 +50,7 @@ class PatPhotonSimpleAnalyzer : public edm::EDAnalyzer {
       double minPhotonAbsEta_;   // min and
       double maxPhotonAbsEta_;   // max abs(eta)
       double minPhotonR9_;       // minimum R9 = E(3x3)/E(SuperCluster)
-      double maxPhotonHoverE_;   // maximum HCAL / ECAL 
+      double maxPhotonHoverE_;   // maximum HCAL / ECAL
       bool   createPhotonTTree_; // Create a TTree of photon variables
 
       // Will be used for creating TTree of photons.
@@ -101,8 +101,8 @@ class PatPhotonSimpleAnalyzer : public edm::EDAnalyzer {
       TH1F* h_hadoverem_;
 
       // Photon's SuperCluster Histograms
-      TH1F* h_photonScEt_;       
-      TH1F* h_photonScEta_;      
+      TH1F* h_photonScEt_;
+      TH1F* h_photonScEta_;
       TH1F* h_photonScPhi_;
       TH1F* h_photonScEtaWidth_;
 

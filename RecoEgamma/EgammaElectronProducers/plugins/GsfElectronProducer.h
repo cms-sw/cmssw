@@ -1,13 +1,13 @@
 #ifndef GsfElectronProducer_h
 #define GsfElectronProducer_h
-  
+
 //
 // Package:         RecoEgamma/EgammaElectronProducers
 // Class:           GsfElectronProducer
-// 
-// Description:   
-  
-  
+//
+// Description:
+
+
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -27,7 +27,6 @@ class GsfElectronProducer : public edm::EDProducer
 
   virtual ~GsfElectronProducer();
 
-  virtual void beginJob(edm::EventSetup const&iSetup);
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
  private:
