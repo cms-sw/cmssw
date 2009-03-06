@@ -48,6 +48,10 @@ class RecoIdealGeometry {
     std::copy ( trans.begin(), trans.end(), std::back_inserter(pPars));
     std::copy ( rot.begin(), rot.end(), std::back_inserter(pPars));
     std::copy ( pars.begin(), pars.end(), std::back_inserter(pPars));
+
+    sNumsParms.push_back(spars.size());
+    sParsIndex.push_back(strPars.size());
+    strPars.reserve(strPars.size()+spars.size());
     std::copy ( spars.begin(), spars.end(), std::back_inserter(strPars));
     return true;
   }
@@ -69,9 +73,6 @@ class RecoIdealGeometry {
     return pDetIds;
   }
 
-  const std::vector<std::string>& stringParams () const {
-    return strPars;
-  }
 
   std::vector<double> translation( size_t ind ) const {
     assert (ind < pDetIds.size());
@@ -112,15 +113,33 @@ class RecoIdealGeometry {
     return pPars.begin() + pParsIndex[ind] + 3 + 9 + pNumShapeParms[ind];
   }
 
+  const std::vector<std::string> strParams ( size_t ind ) const {
+    assert(ind<pDetIds.size());
+    return std::vector<std::string>( strStart(ind),strEnd(ind) );
+  }
+
+  std::vector<std::string>::const_iterator strStart ( size_t ind ) const {
+    return strPars.begin() + sParsIndex[ind];
+  }
+
+  std::vector<std::string>::const_iterator strEnd ( size_t ind ) const {
+    return strPars.begin() + sParsIndex[ind] + sNumsParms[ind];
+  }
+
+
  private:    
   // translation always 3; rotation 9 for now; pars depends on shape_type.
   std::vector<DetId> pDetIds;
-  std::vector<std::string> strPars;
+
   std::vector<double> pPars;  // trans, rot then shape parms.
   // 0 for first pDetId, 3 + 9 + number of shape parameters for second & etc.
   // just save pPars size BEFORE adding next stuff.
   std::vector<int> pParsIndex; 
   std::vector<int> pNumShapeParms; // save the number of shape parameters.
+
+  std::vector<std::string> strPars;
+  std::vector<int> sParsIndex;
+  std::vector<int> sNumsParms;
 };
 
 #endif
