@@ -30,7 +30,7 @@ CXXFLAGS     += $(ROOTCFLAGS)
 CXXFLAGS     += -I$(FastJetdir)/include
 LIBS          = $(ROOTLIBS) -lEG $(FastJetlib)
 SHARE         = -shared
-NAMELIB       = $(CMSSW_BASE)/src/UE.o
+NAMELIB       = $(CMSSW_BASE)/src/QCDAnalysis/UEAnalysis/root/UE.o
 BINFILE       = UEAnalysis
 lib :
 	$(LD) -g $(ROOTCFLAGS) -I$(FastJetdir)/include -c $(source1)
