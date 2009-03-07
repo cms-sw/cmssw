@@ -28,6 +28,7 @@ gensource = 'genJetSelector'
 trueTaus = cms.Sequence(
     goodGenJets +
     tauGenJets + 
+    tauGenJetsSelectorAllHadrons + 
     genJetSelector  
     )
 
