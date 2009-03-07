@@ -8,5 +8,5 @@ UniformMagneticFieldESProducer = cms.ESProducer("UniformMagneticFieldESProducer"
 )
 
 es_prefer_UniformMagneticFieldESProducer = cms.ESPrefer("UniformMagneticFieldESProducer")
-g4SimHits.UseMagneticField = False
+
 
