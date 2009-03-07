@@ -782,7 +782,7 @@ void L1GtTrigReport::endJob() {
                         << std::right << std::setw(10) << ( *itEntry )->gtNrEventsReject() << " "
                         << std::right << std::setw(10) << ( *itEntry )->gtNrEventsError() << std::setw(2) << " "
                         << std::right << std::setw(20) << ( *itEntry )->gtTriggerMenuName()
-                        << "\n ";
+                        << "\n";
                 }
             }
 
@@ -831,9 +831,9 @@ void L1GtTrigReport::endJob() {
                 << std::right << std::setw(15) << "Error" << std::setw(2) << " "
                 << std::right << std::setw(20) << "Trigger Menu Key"
                 << "\n"
-                << std::right << std::setw(54) << " " << std::setw(15) << "Passed" << " "
+                << std::right << std::setw(53) << " " << std::setw(15) << "Passed" << " "
                 << std::right << std::setw(15) << "Passed" << " " << "\n"
-                << std::right << std::setw(54) << " " << std::setw(15) << "Rejected" << " "
+                << std::right << std::setw(53) << " " << std::setw(15) << "Rejected" << " "
                 << std::right << std::setw(15) << "Rejected" << " "
                 << "\n";
 
@@ -851,7 +851,7 @@ void L1GtTrigReport::endJob() {
                         << std::right << std::setw(15) << ( *itEntry )->gtNrEventsError() << std::setw(2) << " "
                         << std::right << std::setw(20) << ( *itEntry )->gtTriggerMenuName()
                         << "\n"
-                        << std::right << std::setw(54) << " "
+                        << std::right << std::setw(53) << " "
                         << std::right << std::setw(15) << ( *itEntry )->gtNrEventsRejectBeforeMask() << " "
                         << std::right << std::setw(15) << ( *itEntry )->gtNrEventsReject()
                         << "\n";
@@ -868,10 +868,10 @@ void L1GtTrigReport::endJob() {
                 << std::right << std::setw(15) << "Error" << std::setw(2) << " "
                 << std::right << std::setw(20) << "Trigger Menu Key"
                 << "\n"
-                << std::right << std::setw(74) << " " << std::setw(15) << "Passed" << " "
+                << std::right << std::setw(53) << " " << std::setw(15) << "Passed" << " "
                 << std::right << std::setw(15) << "Passed" << " "
                 << "\n"
-                << std::right << std::setw(74) << " " << std::setw(15) << "Rejected" << " "
+                << std::right << std::setw(53) << " " << std::setw(15) << "Rejected" << " "
                 << std::right << std::setw(15) << "Rejected" << " "
                 << "\n";
 
@@ -889,7 +889,7 @@ void L1GtTrigReport::endJob() {
                     << std::right << std::setw(15) << ( *itEntry )->gtNrEventsError() << std::setw(2) << " "
                     << std::right << std::setw(20) << ( *itEntry )->gtTriggerMenuName()
                     << "\n"
-                    << std::right << std::setw(74) << " "
+                    << std::right << std::setw(53) << " "
                     << std::right << std::setw(15) << ( *itEntry )->gtNrEventsRejectBeforeMask() << " "
                     << std::right << std::setw(15) << ( *itEntry )->gtNrEventsReject()
                     << "\n";
