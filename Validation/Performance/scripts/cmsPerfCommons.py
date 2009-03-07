@@ -123,6 +123,7 @@ cmsDriverPileUpOption='LowLumiPileUp'
 #used for all steps.
 CustomiseFragment = {
          'GEN,SIM': 'Validation/Performance/TimeMemoryG4Info.py',
+         'GEN:ProductionFilterSequence,SIM': 'Validation/Performance/TimeMemoryG4Info.py',
          'DIGI': 'Validation/Performance/TimeMemoryInfo.py',
          'DIGI-PILEUP':'Validation/Performance/MixingModule.py'
          }
