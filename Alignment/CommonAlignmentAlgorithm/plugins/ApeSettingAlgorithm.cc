@@ -2,13 +2,14 @@
  * \file MillePedeAlignmentAlgorithm.cc
  *
  *  \author    : Gero Flucke/Ivan Reid
- *  date       : February 2009 *  $Revision: 1.42 $
- *  $Date: 2008/11/10 14:48:42 $
- *  (last update by $Author: henderle $)
+ *  date       : February 2009 *  $Revision: 1.1 $
+ *  $Date: 2009/03/04 12:27:08 $
+ *  (last update by $Author: ireid $)
  */
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmPluginFactory.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
+#include "Alignment/CommonAlignment/interface/AlignableModifier.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -123,7 +124,7 @@ class ApeSettingAlgorithm : public AlignmentAlgorithmBase
   AlignableNavigator       *theAlignableNavigator;
   AlignableTracker         *theTracker;
   bool                     saveApeToAscii_,readApeFromAscii_;
- 
+  bool                     readLocalNotGlobal_;
 };
 
 //____________________________________________________
@@ -142,6 +143,8 @@ ApeSettingAlgorithm::ApeSettingAlgorithm(const edm::ParameterSet &cfg) :
   edm::LogInfo("Alignment") << "@SUB=ApeSettingAlgorithm" << "Start.";
   saveApeToAscii_ = theConfig.getUntrackedParameter<bool>("saveApeToASCII");
   readApeFromAscii_ = theConfig.getParameter<bool>("readApeFromASCII");
+  readLocalNotGlobal_ = theConfig.getParameter<bool>("readLocalNotGlobal");
+
 }
 
 // Destructor ----------------------------------------------------------------
@@ -156,40 +159,50 @@ ApeSettingAlgorithm::~ApeSettingAlgorithm()
 void ApeSettingAlgorithm::initialize(const edm::EventSetup &setup, 
                                              AlignableTracker *tracker, AlignableMuon *muon,
                                              AlignmentParameterStore *store)
-{
-  theAlignableNavigator = new AlignableNavigator(tracker, muon);
-  theTracker = tracker;
+{ theAlignableNavigator = new AlignableNavigator(tracker, muon);
+ theTracker = tracker;
+ 
+ if (readApeFromAscii_)
+   { std::ifstream apeReadFile(theConfig.getParameter<edm::FileInPath>("apeASCIIReadFile").fullPath().c_str()); //requires <fstream>
+   if (!apeReadFile.good())
+     { edm::LogInfo("Alignment") << "@SUB=initialize" <<"Problem opening APE file"
+				 << theConfig.getParameter<edm::FileInPath>("apeASCIIReadFile").fullPath();
+     return;
+     }
+   std::set<int> apeList; //To avoid duplicates
+   AlignmentPositionError* ape = new AlignmentPositionError(0.,0.,0.); //assume local to start
+   AlignableModifier* theModifier;
+   if (readLocalNotGlobal_) { theModifier=new AlignableModifier();}
+   while (!apeReadFile.eof())
+     { int apeId=0; double x11,x21,x22,x31,x32,x33;
+     apeReadFile>>apeId>>x11>>x21>>x22>>std::ws;
+     if (!readLocalNotGlobal_) { apeReadFile>>x31>>x32>>x33>>std::ws;}
+     //idr What sanity checks do we need to put here?
+     if (apeId != 0) //read appears valid?
+       if (apeList.find(apeId) == apeList.end()) //Not previously done
+	 { if (!readLocalNotGlobal_)
+	   { delete ape; //clear previous
+	   ape= new AlignmentPositionError(GlobalError(x11,x21,x22,x31,x32,x33));
+	   }
+	 DetId id(apeId);
+	 AlignableDetOrUnitPtr alidet(theAlignableNavigator->alignableFromDetId(id)); //NULL if none
+	 if (alidet) 
+	   { alidet->setAlignmentPositionError(*ape); //set for global or clear for local
+	   if (readLocalNotGlobal_) {theModifier->addAlignmentPositionErrorLocal(alidet,x11,x21,x22);}
+	   apeList.insert(apeId); //Flag it's been set
+	   }
+	 }
+       else
+	 { edm::LogInfo("Alignment") << "@SUB=initialize" << "Skipping duplicate APE for DetId "<<apeId;
+	 }
+     }
+   if (readLocalNotGlobal_) { delete theModifier;}
+   delete ape;
+   apeReadFile.close();
+   edm::LogInfo("Alignment") << "@SUB=initialize" << "Set "<<apeList.size()<<" APE values.";
+   }
+}
 
-  if (readApeFromAscii_)
-    { std::ifstream apeReadFile(theConfig.getParameter<edm::FileInPath>("apeASCIIReadFile").fullPath().c_str()); //requires <fstream>
-    if (!apeReadFile.good())
-      { edm::LogInfo("Alignment") << "@SUB=initialize" <<"Problem opening APE file"
-				  << theConfig.getParameter<edm::FileInPath>("apeASCIIReadFile").fullPath();
-      return;
-}
-    std::set<int> apeList; //To avoid duplicates
-    while (!apeReadFile.eof())
-      { int apeId=0; double x11,x21,x22,x31,x32,x33;
-      apeReadFile>>apeId>>x11>>x21>>x22>>x31>>x32>>x33>>std::ws;
-      //idr What sanity checks do we need to put here?
-      if (apeId != 0) //read appears valid?
-	if (apeList.find(apeId) == apeList.end()) //Not previously done
-	  { AlignmentPositionError ape(GlobalError(x11,x21,x22,x31,x32,x33));
-	  DetId id(apeId);
-	  AlignableDetOrUnitPtr alidet(theAlignableNavigator->alignableFromDetId(id)); //NULL if none
-	  if (alidet) 
-	    { alidet->setAlignmentPositionError(ape);
-	    apeList.insert(apeId);
-	    }
-	  }
-	else
-	  { edm::LogInfo("Alignment") << "@SUB=initialize" << "Skipping duplicate APE for DetId "<<apeId;
-	  }
-      }
-    apeReadFile.close();
-    edm::LogInfo("Alignment") << "@SUB=initialize" << "Set "<<apeList.size()<<" APE values.";
-    }
-}
 
 // Call at end of job ---------------------------------------------------------
 //____________________________________________________
