@@ -60,33 +60,13 @@ L1GlobalTriggerPSB::L1GlobalTriggerPSB()
         m_candHTT(0),
         m_candJetCounts(0),
         m_candHfBitCounts(0),
-        m_candHfRingEtSums(0),
-        m_techTrigSelector(edm::Selector( edm::ModuleLabelSelector("")))
+        m_candHfRingEtSums(0)
 {
 
     // empty
 
 }
 
-L1GlobalTriggerPSB::L1GlobalTriggerPSB(const std::string selLabel)
-        :
-        m_candL1NoIsoEG( new std::vector<const L1GctCand*> ),
-        m_candL1IsoEG  ( new std::vector<const L1GctCand*>),
-        m_candL1CenJet ( new std::vector<const L1GctCand*>),
-        m_candL1ForJet ( new std::vector<const L1GctCand*>),
-        m_candL1TauJet ( new std::vector<const L1GctCand*>),
-        m_candETM(0),
-        m_candETT(0),
-        m_candHTT(0),
-        m_candJetCounts(0),
-        m_candHfBitCounts(0),
-        m_candHfRingEtSums(0),
-        m_techTrigSelector(edm::Selector( edm::ModuleLabelSelector(selLabel)))
-{
-
-    // empty
-
-}
 
 // destructor
 L1GlobalTriggerPSB::~L1GlobalTriggerPSB()
@@ -509,47 +489,58 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
 // receive technical triggers
 // each L1GtTechnicalTriggerRecord can have more than one technical trigger bit,
 // such that a single producer per system can be used (if desired)
-void L1GlobalTriggerPSB::receiveTechnicalTriggers(edm::Event& iEvent,
-    const edm::InputTag& technicalTriggersInputTag, const int iBxInEvent,
-    const bool receiveTechTr, const int nrL1TechTr) {
+void L1GlobalTriggerPSB::receiveTechnicalTriggers(
+        edm::Event& iEvent, const std::vector<edm::InputTag>& technicalTriggersInputTags,
+        const int iBxInEvent, const bool receiveTechTr, const int nrL1TechTr) {
+
+    std::ostringstream warningsStream;
+    bool warningEnabled = edm::isWarningEnabled();
 
     // reset the technical trigger bits
     m_gtTechnicalTriggers = std::vector<bool>(nrL1TechTr, false);
 
-
     if (receiveTechTr) {
 
-        // get the technical trigger bits, change the values
-        iEvent.getMany(m_techTrigSelector, m_techTrigRecords);
+        // get the technical trigger bits from the records and write them in
+        // the decision word for technical triggers
 
-        size_t recordsSize = m_techTrigRecords.size();
-        LogTrace("L1GlobalTriggerPSB")
-            << "\n Number of technical trigger records: " << recordsSize << "\n"
-            << std::endl;
+        // loop over all producers of technical trigger records
+        for (std::vector<edm::InputTag>::const_iterator it = technicalTriggersInputTags.begin(); it
+                != technicalTriggersInputTags.end(); it++) {
 
-        for (size_t iRec = 0; iRec < recordsSize; ++iRec) {
+            edm::Handle<L1GtTechnicalTriggerRecord> techTrigRecord;
+            iEvent.getByLabel( ( *it ), techTrigRecord);
 
-            const L1GtTechnicalTriggerRecord& ttRecord = *m_techTrigRecords[iRec];
-            const std::vector<L1GtTechnicalTrigger>& ttVec = ttRecord.gtTechnicalTrigger();
-            size_t ttVecSize = ttVec.size();
+            if (!techTrigRecord.isValid()) {
+                if (warningEnabled) {
+                    warningsStream << "\nWarning: L1GtTechnicalTriggerRecord with input tag "
+                            << ( *it )
+                            << "\nrequested in configuration, but not found in the event.\n"
+                            << std::endl;
+                }
+            } else {
 
-            for (size_t iTT = 0; iTT < ttVecSize; ++iTT) {
+                const std::vector<L1GtTechnicalTrigger>& ttVec =
+                        techTrigRecord->gtTechnicalTrigger();
+                size_t ttVecSize = ttVec.size();
 
-                const L1GtTechnicalTrigger& ttBxRecord = ttVec[iTT];
-                int ttBxInEvent = ttBxRecord.bxInEvent();
+                for (size_t iTT = 0; iTT < ttVecSize; ++iTT) {
 
-                if (ttBxInEvent == iBxInEvent) {
-                    int ttBitNumber = ttBxRecord.gtTechnicalTriggerBitNumber();
-                    bool ttResult = ttBxRecord.gtTechnicalTriggerResult();
+                    const L1GtTechnicalTrigger& ttBxRecord = ttVec[iTT];
+                    int ttBxInEvent = ttBxRecord.bxInEvent();
 
-                    m_gtTechnicalTriggers.at(ttBitNumber) = ttResult;
+                    if (ttBxInEvent == iBxInEvent) {
+                        int ttBitNumber = ttBxRecord.gtTechnicalTriggerBitNumber();
+                        bool ttResult = ttBxRecord.gtTechnicalTriggerResult();
 
-                    LogTrace("L1GlobalTriggerPSB")
-                        << "Add for BxInEvent " << iBxInEvent
-                        << " the technical trigger " << (ttBxRecord.gtTechnicalTriggerName())
-                        << " with bit number " << ttBitNumber
-                        << " and result " << ttResult
-                        << std::endl;
+                        m_gtTechnicalTriggers.at(ttBitNumber) = ttResult;
+
+                        LogTrace("L1GlobalTriggerPSB") << "Add for BxInEvent " << iBxInEvent
+                                << " the technical trigger produced by " << (*it) << " : name "
+                                << ( ttBxRecord.gtTechnicalTriggerName() ) << " , bit number "
+                                << ttBitNumber << " and result " << ttResult << std::endl;
+
+                    }
 
                 }
 
@@ -559,34 +550,36 @@ void L1GlobalTriggerPSB::receiveTechnicalTriggers(edm::Event& iEvent,
 
     }
 
-    if ( edm::isDebugEnabled() ) {
+    if (warningEnabled) {
+        if (warningsStream.tellp() > 0) {
+            edm::LogWarning("L1GlobalTriggerPSB")
+                << warningsStream.str();
+        }
+    }
+
+    if (edm::isDebugEnabled()) {
         LogDebug("L1GlobalTriggerPSB")
-            << "\n**** L1GlobalTriggerPSB receiving technical triggers from input tag "
-            << technicalTriggersInputTag
-            << "\n**** Technical triggers (bitset style): "
-            << std::endl;
+                << "\n**** L1GlobalTriggerPSB receiving technical triggers: "
+                << std::endl;
 
         int sizeW64 = 64; // 64 bits words
         int iBit = 0;
 
         std::ostringstream myCout;
 
-        for (std::vector<bool>::reverse_iterator ritBit = m_gtTechnicalTriggers.rbegin();
-                ritBit != m_gtTechnicalTriggers.rend(); ++ritBit) {
+        for (std::vector<bool>::reverse_iterator ritBit = m_gtTechnicalTriggers.rbegin(); ritBit
+                != m_gtTechnicalTriggers.rend(); ++ritBit) {
 
-            myCout << (*ritBit ? '1' : '0');
+            myCout << ( *ritBit ? '1' : '0' );
 
-            if ( (((iBit + 1)%16) == (sizeW64%16)) && (iBit != 63) ) {
+            if ( ( ( ( iBit + 1 ) % 16 ) == ( sizeW64 % 16 ) ) && ( iBit != 63 )) {
                 myCout << " ";
             }
 
             iBit++;
         }
 
-        LogTrace("L1GlobalTriggerPSB")
-        << myCout.str() << "\n"
-        << std::endl;
-
+        LogTrace("L1GlobalTriggerPSB") << myCout.str() << "\n" << std::endl;
 
     }
 
