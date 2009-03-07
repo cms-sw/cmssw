@@ -23,7 +23,7 @@ void BackTrace::trace() const {
 #include <cxxabi.h>
 
 void BackTrace::trace(std::ostream & out) const{
-  static const int bsize(1024);
+  static const unsigned int bsize(1024U);
   char buffer [bsize];
   void * ltrace [MAX_BACKTRACE_DEPTH];
   int  depth = backtrace (ltrace, MAX_BACKTRACE_DEPTH);
