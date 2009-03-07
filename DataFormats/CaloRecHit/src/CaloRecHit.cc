@@ -30,7 +30,7 @@ void CaloRecHit::setFlagField(uint32_t value, int base, int width) {
 }
 
 uint32_t CaloRecHit::flagField(int base, int width) const {
-  return (flags_&masks[std::max(std::min(width,32),0)])>>std::max(std::min(base,31),0);
+  return (flags_>>std::max(std::min(base,31),0))&masks[std::max(std::min(width,32),0)];
 }
 
 
