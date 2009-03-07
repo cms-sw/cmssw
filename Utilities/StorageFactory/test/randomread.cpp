@@ -47,8 +47,8 @@ int main (int argc, char **argv)
     {
       double bfract = double(rand()) / double(std::numeric_limits<int>::max());
       double pfract = double(rand()) / double(std::numeric_limits<int>::max());
-      IOSize bufSize = maxBufSize * bfract;
-      IOOffset pos = (sizes[i] - bufSize)*pfract;
+      IOSize bufSize = static_cast<IOSize>(maxBufSize * bfract);
+      IOOffset pos = static_cast<IOOffset>((sizes[i] - bufSize)*pfract);
       // std::cout << "read " << bufSize << " at " << pos << std::endl;
       storages[i]->position(pos);	
       n = storages[i]->read (buf, bufSize);
