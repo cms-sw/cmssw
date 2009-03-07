@@ -124,7 +124,15 @@ namespace edm {
 
   void
   RootInputFileSequence::endJob() {
-    closeFile_();
+    if (primary()) {
+      closeFile_();
+    } else {
+      if (rootFile_) {
+        rootFile_->close(true);
+        logFileAction("  Closed file ", rootFile_->file());
+        rootFile_.reset();
+      }
+    }
   }
 
   boost::shared_ptr<FileBlock>

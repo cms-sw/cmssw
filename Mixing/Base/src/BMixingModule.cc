@@ -221,4 +221,12 @@ namespace edm {
       if (fwdDet_) fwdDet_->dropUnwantedBranches(wantedBranches);
   }
 
+  void BMixingModule::endJob() {
+      if (input_) input_->endJob();
+      if (cosmics_) cosmics_->endJob();
+      if (beamHalo_p_) beamHalo_p_->endJob();
+      if (beamHalo_m_) beamHalo_m_->endJob();
+      if (fwdDet_) fwdDet_->endJob();
+  }
+
 } //edm
