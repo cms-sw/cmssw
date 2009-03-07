@@ -1,5 +1,6 @@
+#include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepHypWMassMaxSumPt.h"
-#include "TopQuarkAnalysis/TopTools/interface/TtSemiLepEvtPartons.h"
+
 
 TtSemiLepHypWMassMaxSumPt::TtSemiLepHypWMassMaxSumPt(const edm::ParameterSet& cfg):
   TtSemiLepHypothesis( cfg ),  
@@ -95,34 +96,49 @@ TtSemiLepHypWMassMaxSumPt::buildHypo(edm::Event& evt,
   // -----------------------------------------------------
   // add jets
   // -----------------------------------------------------
+  //
+  // FIXME:
+  // template does not work anymore with new compiler
+  // we need to fix this as soon as test data arrive
+  //  
   if( isValid(closestToWMassIndices[0], jets) ){
-    setCandidate(jets, closestToWMassIndices[0], lightQ_);
+    //setCandidate(jets, closestToWMassIndices[0], lightQ_);
     match[TtSemiLepEvtPartons::LightQ] = closestToWMassIndices[0];
   }
 
   if( isValid(closestToWMassIndices[1], jets) ){
-    setCandidate(jets, closestToWMassIndices[1], lightQBar_);
+    //setCandidate(jets, closestToWMassIndices[1], lightQBar_);
     match[TtSemiLepEvtPartons::LightQBar] = closestToWMassIndices[1];
   }
   
   if( isValid(hadB, jets) ){
-    setCandidate(jets, hadB, hadronicB_);
+    //setCandidate(jets, hadB, hadronicB_);
     match[TtSemiLepEvtPartons::HadB] = hadB;
   }
 
   if( isValid(lepB, jets) ){
-    setCandidate(jets, lepB, leptonicB_);
+    //setCandidate(jets, lepB, leptonicB_);
     match[TtSemiLepEvtPartons::LepB] = lepB;
   }
 
   // -----------------------------------------------------
   // add lepton
   // -----------------------------------------------------
-  setCandidate(leps, 0, lepton_);
+  //
+  // FIXME:
+  // template does not work anymore with new compiler
+  // we need to fix this as soon as test data arrive
+  //  
+  //setCandidate(leps, 0, lepton_);
   match[TtSemiLepEvtPartons::Lepton] = 0;
   
   // -----------------------------------------------------
   // add neutrino
   // -----------------------------------------------------
-  setCandidate(mets, 0, neutrino_);
+  //
+  // FIXME:
+  // template does not work anymore with new compiler
+  // we need to fix this as soon as test data arrive
+  //  
+  //setCandidate(mets, 0, neutrino_);
 }

@@ -1,8 +1,9 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "AnalysisDataFormats/TopObjects/interface/TtSemiLeptonicEvent.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "TopQuarkAnalysis/TopTools/interface/TtSemiLepEvtPartons.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtEvent.h"
 #include "TopQuarkAnalysis/Examples/plugins/HypothesisAnalyzer.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtSemiLeptonicEvent.h"
+
 
 HypothesisAnalyzer::HypothesisAnalyzer(const edm::ParameterSet& cfg):
   semiLepEvt_  (cfg.getParameter<edm::InputTag>("semiLepEvent")),

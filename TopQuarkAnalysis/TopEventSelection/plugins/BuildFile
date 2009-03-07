@@ -3,7 +3,6 @@
 <use name=DataFormats/RecoCandidate>
 <use name=DataFormats/PatCandidates>
 <use name=TopQuarkAnalysis/TopTools>
-<use name=Foundation/PluginManager>
 <use name=PhysicsTools/MVAComputer>
 <use name=PhysicsTools/MVATrainer>
 <use name=PhysicsTools/JetMCUtils>
@@ -14,6 +13,6 @@
 <use name=rootcore>
 <use name=rootmath>
 
-<library file=*.cc name=TopQuarkAnalysisTopEventSelectionPlugins>
-  <flags EDM_PLUGIN=1>
-</library>
+#<library file=*.cc name=TopQuarkAnalysisTopEventSelectionPlugins>
+#  <flags EDM_PLUGIN=1>
+#</library>

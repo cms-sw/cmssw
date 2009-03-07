@@ -1,6 +1,6 @@
+#include "DataFormats/PatCandidates/interface/Particle.h"
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepHypKinFit.h"
 
-#include "DataFormats/PatCandidates/interface/Particle.h"
 
 TtSemiLepHypKinFit::TtSemiLepHypKinFit(const edm::ParameterSet& cfg):
   TtSemiLepHypothesis( cfg ),
@@ -47,24 +47,41 @@ TtSemiLepHypKinFit::buildHypo(edm::Event& evt,
   // -----------------------------------------------------
   // add jets
   // -----------------------------------------------------
+  //
+  // FIXME:
+  // template does not work anymore with new compiler
+  // we need to fix this as soon as test data arrive
+  //
   if( !( partonsHadP->empty() || partonsHadQ->empty() ||
 	 partonsHadB->empty() || partonsLepB->empty() ) ) {
-    setCandidate(partonsHadP, iComb, lightQ_   );
-    setCandidate(partonsHadQ, iComb, lightQBar_);
-    setCandidate(partonsHadB, iComb, hadronicB_);
-    setCandidate(partonsLepB, iComb, leptonicB_);
+    //setCandidate(partonsHadP, iComb, lightQ_   );
+    //setCandidate(partonsHadQ, iComb, lightQBar_);
+    //setCandidate(partonsHadB, iComb, hadronicB_);
+    //setCandidate(partonsLepB, iComb, leptonicB_);
   }
 
   // -----------------------------------------------------
   // add lepton
   // -----------------------------------------------------
-  if( !leptons->empty() )
-    setCandidate(leptons, iComb, lepton_);
+  //
+  // FIXME:
+  // template does not work anymore with new compiler
+  // we need to fix this as soon as test data arrive
+  //
+  if( !leptons->empty() ){
+    //setCandidate(leptons, iComb, lepton_);
+  }
   match.push_back( 0 );
   
   // -----------------------------------------------------
   // add neutrino
   // -----------------------------------------------------
-  if( !neutrinos->empty() )
-    setCandidate(neutrinos, iComb, neutrino_);
+  //
+  // FIXME:
+  // template does not work anymore with new compiler
+  // we need to fix this as soon as test data arrive
+  //
+  if( !neutrinos->empty() ){
+    //setCandidate(neutrinos, iComb, neutrino_);
+  }
 }

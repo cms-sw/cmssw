@@ -1,5 +1,6 @@
+#include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepHypMaxSumPtWMass.h"
-#include "TopQuarkAnalysis/TopTools/interface/TtSemiLepEvtPartons.h"
+
 
 TtSemiLepHypMaxSumPtWMass::TtSemiLepHypMaxSumPtWMass(const edm::ParameterSet& cfg):
   TtSemiLepHypothesis( cfg ),
@@ -101,12 +102,22 @@ TtSemiLepHypMaxSumPtWMass::buildHypo(edm::Event& evt,
   // add jets
   // -----------------------------------------------------
   if( isValid(closestToWMassIndices[0], jets) ){
-    setCandidate(jets, closestToWMassIndices[0], lightQ_);
+    //
+    // FIXME:
+    // template does not work anymore with new compiler
+    // we need to fix this as soon as test data arrive
+    //  
+    //setCandidate(jets, closestToWMassIndices[0], lightQ_);
     match[TtSemiLepEvtPartons::LightQ] = closestToWMassIndices[0];
   }
 
   if( isValid(closestToWMassIndices[1], jets) ){
-    setCandidate(jets, closestToWMassIndices[1], lightQBar_);
+    //
+    // FIXME:
+    // template does not work anymore with new compiler
+    // we need to fix this as soon as test data arrive
+    //  
+    //setCandidate(jets, closestToWMassIndices[1], lightQBar_);
     match[TtSemiLepEvtPartons::LightQBar] = closestToWMassIndices[1];
   }
 
@@ -115,7 +126,12 @@ TtSemiLepHypMaxSumPtWMass::buildHypo(edm::Event& evt,
     if( std::find( closestToWMassIndices.begin(), closestToWMassIndices.end(), maxPtIndices[idx]) == closestToWMassIndices.end() ){
       // ...and if it is valid
       if( isValid(maxPtIndices[idx], jets) ){
-	setCandidate(jets, maxPtIndices[idx], hadronicB_);
+	//
+	// FIXME:
+	// template does not work anymore with new compiler
+	// we need to fix this as soon as test data arrive
+	//  
+	//setCandidate(jets, maxPtIndices[idx], hadronicB_);
 	match[TtSemiLepEvtPartons::HadB] = maxPtIndices[idx];
 	break; // there should be no other cadidates!
       }
@@ -123,18 +139,28 @@ TtSemiLepHypMaxSumPtWMass::buildHypo(edm::Event& evt,
   }
 
   if( isValid(lepB, jets) ){
-    setCandidate(jets, lepB, leptonicB_);
+    //
+    // FIXME:
+    // template does not work anymore with new compiler
+    // we need to fix this as soon as test data arrive
+    //  
+    //setCandidate(jets, lepB, leptonicB_);
     match[TtSemiLepEvtPartons::LepB] = lepB;
   }
 
   // -----------------------------------------------------
   // add lepton
   // -----------------------------------------------------
-  setCandidate(leps, 0, lepton_);
+  //
+  // FIXME:
+  // template does not work anymore with new compiler
+  // we need to fix this as soon as test data arrive
+  //  
+  //setCandidate(leps, 0, lepton_);
   match[TtSemiLepEvtPartons::Lepton] = 0;
   
   // -----------------------------------------------------
   // add neutrino
   // -----------------------------------------------------
-  setCandidate(mets, 0, neutrino_);
+  //setCandidate(mets, 0, neutrino_);
 }

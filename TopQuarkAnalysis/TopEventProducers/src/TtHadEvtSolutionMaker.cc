@@ -1,4 +1,4 @@
-// $Id: TtHadEvtSolutionMaker.cc,v 1.15.2.1 2009/01/12 12:24:22 snaumann Exp $
+// $Id: TtHadEvtSolutionMaker.cc,v 1.15.2.2 2009/03/02 14:11:47 rwolf Exp $
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtHadEvtSolutionMaker.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -191,11 +191,11 @@ void TtHadEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup &
 	edm::Handle<TtGenEvent> genEvt;
 	iEvent.getByLabel ("genEvt",genEvt); 
 	vector<const reco::Candidate*> quarks;
-	const reco::Candidate & genp  = *(genEvt->quarkFromTop());
-	const reco::Candidate & genq  = *(genEvt->quarkFromTopBar());
+	const reco::Candidate & genp  = *(genEvt->lightQFromTop());
+	const reco::Candidate & genq  = *(genEvt->lightQBarFromTop());
 	const reco::Candidate & genb  = *(genEvt->b());
-	const reco::Candidate & genj  = *(genEvt->quarkFromAntiTop());
-	const reco::Candidate & genk  = *(genEvt->quarkFromAntiTopBar());
+	const reco::Candidate & genj  = *(genEvt->lightQFromTopBar());
+	const reco::Candidate & genk  = *(genEvt->lightQBarFromTopBar());
 	const reco::Candidate & genbbar = *(genEvt->bBar());
 	quarks.push_back( &genp );       
 	quarks.push_back( &genq );   

@@ -1,22 +1,20 @@
+#include "TMath.h"
 #include <algorithm>
 
-#include "TMath.h"
-
-#include "PhysicsTools/MVATrainer/interface/HelperMacros.h"
 #include "PhysicsTools/JetMCUtils/interface/combination.h"
+#include "PhysicsTools/MVATrainer/interface/HelperMacros.h"
 
+#include "AnalysisDataFormats/TopObjects/interface/TtEvent.h"
 #include "TopQuarkAnalysis/TopEventSelection/plugins/TraintreeSaver.h"
 #include "TopQuarkAnalysis/TopTools/interface/TtSemiLepSignalSelEval.h"
-#include "TopQuarkAnalysis/TopTools/interface/TtSemiLepEvtPartons.h"
 
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
-#include "DataFormats/PatCandidates/interface/MET.h"
-#include "DataFormats/PatCandidates/interface/Electron.h"
-
-#include <DataFormats/PatCandidates/interface/Lepton.h>
 #include "DataFormats/PatCandidates/interface/Flags.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+
 
 TraintreeSaver::TraintreeSaver(const edm::ParameterSet& cfg):
   muons_     (cfg.getParameter<edm::InputTag>("muons")),

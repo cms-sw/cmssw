@@ -1,15 +1,16 @@
 #include "PhysicsTools/JetMCUtils/interface/combination.h"
 
-#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepJetCombMVAComputer.h"
-#include "TopQuarkAnalysis/TopTools/interface/TtSemiLepEvtPartons.h"
-#include "TopQuarkAnalysis/TopTools/interface/TtSemiLepJetCombEval.h"
-
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
+#include "TopQuarkAnalysis/TopTools/interface/TtSemiLepJetCombEval.h"
+#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepJetCombMVAComputer.h"
+
 
 TtSemiLepJetCombMVAComputer::TtSemiLepJetCombMVAComputer(const edm::ParameterSet& cfg):
   leptons_ (cfg.getParameter<edm::InputTag>("leptons")),
   jets_    (cfg.getParameter<edm::InputTag>("jets")),
+  mets_    (cfg.getParameter<edm::InputTag>("mets")),
   maxNJets_(cfg.getParameter<int>("maxNJets")),
   maxNComb_(cfg.getParameter<int>("maxNComb"))
 {
@@ -40,18 +41,21 @@ TtSemiLepJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& set
   *pOutMeth = ( processors[ processors.size()-1 ] )->getInstanceName();
   evt.put(pOutMeth, "Method");
 
-  // get lepton and jets
+  // get lepton, jets and mets
   edm::Handle< edm::View<reco::RecoCandidate> > leptons; 
   evt.getByLabel(leptons_, leptons);
 
   edm::Handle< std::vector<pat::Jet> > jets;
   evt.getByLabel(jets_, jets);
 
+  edm::Handle< std::vector<pat::MET> > mets;
+  evt.getByLabel(mets_, mets);
+
   unsigned int nPartons = 4;
 
-  // skip events with no appropriate lepton candidate in
-  // or less jets than partons
-  if( leptons->empty() || jets->size() < nPartons ) {
+  // skip events with no appropriate lepton candidate,
+  // empty METs vector or less jets than partons
+  if( leptons->empty() || mets->empty() || jets->size() < nPartons ) {
     std::vector<int> invalidCombi;
     for(unsigned int i = 0; i < nPartons; ++i) 
       invalidCombi.push_back( -1 );
@@ -62,7 +66,9 @@ TtSemiLepJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& set
     return;
   }
 
-  math::XYZTLorentzVector lepton = leptons->begin()->p4();
+  const math::XYZTLorentzVector lepton = leptons->begin()->p4();
+
+  const pat::MET *met = &(*mets)[0];
 
   // analyze jet combinations
   std::vector<int> jetIndices;
@@ -84,8 +90,7 @@ TtSemiLepJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& set
       // reduces combinatorics by a factor of 2
       if(combi[TtSemiLepEvtPartons::LightQ] < combi[TtSemiLepEvtPartons::LightQBar]) {
 
-	TtSemiLepJetComb jetComb(*jets, combi, lepton);
-
+	TtSemiLepJetComb jetComb(*jets, combi, lepton, *met);
 	// get discriminator here
 	double discrim = evaluateTtSemiLepJetComb(mvaComputer, jetComb);
 
@@ -128,3 +133,4 @@ TtSemiLepJetCombMVAComputer::endJob()
 // -> register TtSemiLepJetCombMVARcd
 // -> define TtSemiLepJetCombMVAFileSource
 MVA_COMPUTER_CONTAINER_IMPLEMENT(TtSemiLepJetCombMVA);
+

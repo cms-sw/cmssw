@@ -1,20 +1,21 @@
+#include "TMath.h"
 #include <algorithm>
 
-#include "TMath.h"
-
-#include "PhysicsTools/MVATrainer/interface/HelperMacros.h"
-#include "PhysicsTools/JetMCUtils/interface/combination.h"
-
-#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepJetCombMVATrainer.h"
-#include "TopQuarkAnalysis/TopTools/interface/TtSemiLepJetCombEval.h"
-#include "TopQuarkAnalysis/TopTools/interface/TtSemiLepEvtPartons.h"
-
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
+#include "TopQuarkAnalysis/TopTools/interface/TtSemiLepJetCombEval.h"
+#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepJetCombMVATrainer.h"
+
+#include "PhysicsTools/JetMCUtils/interface/combination.h"
+#include "PhysicsTools/MVATrainer/interface/HelperMacros.h"
+
 
 TtSemiLepJetCombMVATrainer::TtSemiLepJetCombMVATrainer(const edm::ParameterSet& cfg):
   leptons_   (cfg.getParameter<edm::InputTag>("leptons")),
   jets_      (cfg.getParameter<edm::InputTag>("jets")),
+  mets_      (cfg.getParameter<edm::InputTag>("mets")),
   matching_  (cfg.getParameter<edm::InputTag>("matching")),
   maxNJets_  (cfg.getParameter<int>("maxNJets")),
   lepChannel_(cfg.getParameter<int>("lepChannel"))
@@ -43,10 +44,18 @@ TtSemiLepJetCombMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup
   edm::Handle< std::vector<pat::Jet> > jets;
   evt.getByLabel(jets_, jets);
 
-  // skip events with no appropriate lepton candidate in
-  if( leptons->empty() ) return;
+  edm::Handle< std::vector<pat::MET> > mets;
+  evt.getByLabel(mets_, mets);
 
-  math::XYZTLorentzVector lepton = leptons->begin()->p4();
+  //skip events with no appropriate lepton candidate
+  if( leptons->empty() ) return;
+  
+  const math::XYZTLorentzVector lepton = leptons->begin()->p4();
+  
+  //skip events with empty METs vector
+  if( mets->empty() ) return;
+
+  const pat::MET *met = &(*mets)[0];
 
   // skip events with less jets than partons
   unsigned int nPartons = 4;
@@ -84,7 +93,8 @@ TtSemiLepJetCombMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup
       // reduces combinatorics by a factor of 2
       if(combi[TtSemiLepEvtPartons::LightQ] < combi[TtSemiLepEvtPartons::LightQBar]) {  
 	
-	TtSemiLepJetComb jetComb(*jets, combi, lepton);
+	TtSemiLepJetComb jetComb(*jets, combi, lepton, *met);
+
 	
 	bool trueCombi = true;
 	if(genEvt->semiLeptonicChannel() == lepChannel_) {

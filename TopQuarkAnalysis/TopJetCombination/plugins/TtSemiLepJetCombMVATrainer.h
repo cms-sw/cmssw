@@ -31,7 +31,9 @@ class TtSemiLepJetCombMVATrainer : public edm::EDAnalyzer {
 
   edm::InputTag leptons_;
   edm::InputTag jets_;
+  edm::InputTag mets_;
   edm::InputTag matching_;
+
 
   unsigned int maxNJets_;
   

@@ -1,6 +1,5 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
-<use name=Foundation/PluginManager>
 <use name=DataFormats/PatCandidates>
 <use name=AnalysisDataFormats/TopObjects>
 <use name=TopQuarkAnalysis/TopJetCombination>

@@ -73,7 +73,7 @@ class TtSemiLepHypothesis : public edm::EDProducer {
   reco::ShallowClonePtrCandidate *lepton_;
 };
 
-// unfortunately this has to be placed in the header since otherwise the function template
+// has to be placed in the header since otherwise the function template
 // would cause unresolved references in classes derived from this base class
 template <typename O, template<typename> class C>
 void

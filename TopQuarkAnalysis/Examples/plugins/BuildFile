@@ -1,7 +1,6 @@
 <use name=AnalysisDataFormats/TopObjects>
 <use name=TopQuarkAnalysis/Examples>
 <use name=TopQuarkAnalysis/TopTools>
-<use name=Foundation/PluginManager>
 <use name=PhysicsTools/UtilAlgos>
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/MessageLogger>
