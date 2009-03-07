@@ -1,20 +1,26 @@
 #
-# cfg file to run L1 Global Trigger emulator on a file containing the output of the 
-# GCT system and GMT system ("digi"), followed by the L1 trigger report
+# cfg file to run some technical trigger emulators/simulation, L1 Global Trigger emulator 
+# on a file containing the output of the  GCT system and GMT system ("digi"), followed by 
+# the L1 trigger report
 #
-# V M Ghete 2009-03-03
+# V M Ghete 2009-03-04
+
+
+import FWCore.ParameterSet.Config as cms
+
+# process
+process = cms.Process('TestL1Gt')
 
 ###################### user choices ######################
 
-
 # choose the type of sample used (True for RelVal, False for data)
 useRelValSample = True 
-#useRelValSample=False 
+#useRelValSample = False 
 
 # choose the global tag type for RelVal; 
 #     actual GlobalTag must be replaced in the "if" below 
-useGlobalTag = 'IDEAL'
-#useGlobalTag='STARTUP'
+#useGlobalTag = 'IDEAL'
+useGlobalTag = 'STARTUP'
 
 # explicit choice of the L1 menu - available choices:
 #l1Menu = 'L1Menu_Commissioning2009_v0'
@@ -29,11 +35,6 @@ useLocalFiles = False
 
 ###################### end user choices ###################
 
-
-import FWCore.ParameterSet.Config as cms
-
-# process
-process = cms.Process('TestL1Gt')
 
 # number of events to be processed and source file
 process.maxEvents = cms.untracked.PSet(
@@ -65,14 +66,12 @@ if useRelValSample == True :
 
     elif useGlobalTag == 'STARTUP':
 
-        #/RelValTTbar/CMSSW_2_2_4_STARTUP_V8_v1/GEN-SIM-DIGI-RAW-HLTDEBUG
-        dataset = cms.untracked.vstring('RelValTTbar_CMSSW_2_2_4_STARTUP_V8_v1')
+        #/RelValBeamHalo/CMSSW_2_2_4_STARTUP_V8_v1/GEN-SIM-DIGI-RAW-HLTDEBUG
+        dataset = cms.untracked.vstring('RelValBeamHalo_CMSSW_2_2_4_STARTUP_V8_v1')
         
         readFiles.extend([
-            '/store/relval/CMSSW_2_2_4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V8_v1/0000/069AA022-5BF3-DD11-9A56-001617E30D12.root',
-            '/store/relval/CMSSW_2_2_4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V8_v1/0000/08DA99A6-5AF3-DD11-AAC1-001D09F24493.root',
-            '/store/relval/CMSSW_2_2_4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V8_v1/0000/0A725E15-5BF3-DD11-8B4B-000423D99CEE.root',
-            '/store/relval/CMSSW_2_2_4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V8_v1/0000/0AF5B676-5AF3-DD11-A22F-001617DBCF1E.root'
+            '/store/relval/CMSSW_2_2_4/RelValBeamHalo/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V8_v1/0000/4059446C-1FF3-DD11-9570-001D09F241B4.root',
+            '/store/relval/CMSSW_2_2_4/RelValBeamHalo/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V8_v1/0000/60D8AF30-91F3-DD11-81A6-001D09F29597.root'
             ]);
 
 
@@ -95,6 +94,10 @@ else :
 if useLocalFiles :
     readFiles = 'file:/afs/cern.ch/user/g/ghete/scratch0/CmsswTestFiles/testGt_L1GtTrigReport_source.root'
 
+# technical triggers to be run and collected by GT
+
+# BSC trigger
+process.load("L1TriggerOffline.L1Analyzer.bscTrigger_cfi")
 
 # Global Trigger emulator
 import L1Trigger.GlobalTrigger.gtDigis_cfi
@@ -207,7 +210,7 @@ else :
 #
 
 process.load("L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi")
- 
+
 # boolean flag to select the input record
 # if true, it will use L1GlobalTriggerRecord 
 #process.l1GtTrigReport.UseL1GlobalTriggerRecord = True
@@ -222,14 +225,14 @@ process.l1GtTrigReport.L1GtRecordInputTag = "l1GtEmulDigis"
 #process.l1GtTrigReport.PrintOutput = 1
 
 # path to be run
-process.p = cms.Path(process.l1GtEmulDigis*process.l1GtTrigReport)
+process.p = cms.Path(process.bscTrigger * process.l1GtEmulDigis * process.l1GtTrigReport)
 
 
 # Message Logger
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.debugModules = ['l1GtEmulDigis', 'l1GtTrigReport']
 process.MessageLogger.categories.append('L1GlobalTrigger')
-process.MessageLogger.destinations = ['L1GtEmulTrigReport']
+process.MessageLogger.destinations = ['L1TechTrigL1GtEmulTrigReport']
 process.MessageLogger.cout = cms.untracked.PSet(
     #threshold=cms.untracked.string('DEBUG'),
     #threshold = cms.untracked.string('INFO'),
@@ -246,17 +249,17 @@ process.MessageLogger.cout = cms.untracked.PSet(
     ERROR=cms.untracked.PSet(
         limit=cms.untracked.int32(-1)
     ),
-    default = cms.untracked.PSet( 
+    default=cms.untracked.PSet(
         limit=cms.untracked.int32(0)  
     ),
-    L1GlobalTrigger = cms.untracked.PSet( 
+    L1GlobalTrigger=cms.untracked.PSet(
         limit=cms.untracked.int32(-1)  
     )
 )
 
 # summary
 process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(True)
+    wantSummary=cms.untracked.bool(True)
 )
 
 # output 
@@ -265,10 +268,10 @@ process.options = cms.untracked.PSet(
 # update labels if InputTags are replaced above
 
 process.outputL1GlobalTrigger = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('testGt_Emulator_GctGmtFile_output.root'),
-    outputCommands = cms.untracked.vstring('drop *', 
-        'keep *_simGmtDigis_*_*', 
-        'keep *_simGctDigis_*_*', 
+    fileName=cms.untracked.string('L1GtTechTrigL1GtEmulTrigReport.root'),
+    outputCommands=cms.untracked.vstring('drop *',
+        'keep *_simGmtDigis_*_*',
+        'keep *_simGctDigis_*_*',
         'keep *_l1GtEmulDigis_*_*')
 )
 
