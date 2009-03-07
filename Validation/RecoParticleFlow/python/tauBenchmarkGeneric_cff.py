@@ -5,7 +5,50 @@ from Validation.RecoParticleFlow.goodGenJets_cfi import *
 from Validation.RecoParticleFlow.pfTauBenchmarkGeneric_cfi import pfTauBenchmarkGeneric
 from Validation.RecoParticleFlow.caloTauBenchmarkGeneric_cfi import caloTauBenchmarkGeneric
 from PhysicsTools.JetMCAlgos.TauGenJets_cfi import tauGenJets
+from PhysicsTools.JetMCAlgos.TauGenJetsSelectorAllHadrons_cfi import tauGenJetsSelectorAllHadrons
 from Validation.RecoParticleFlow.GenJetSelector_cfi import genJetSelector
+
+# setting the sources
+
+def changeSource( benchmark, rec, gen ):
+    #benchmark.BenchmarkLabel = rec
+    benchmark.InputRecoLabel = rec
+    benchmark.InputTruthLabel = gen
+    
+
+fromTaus = False
+
+# taking the jets, reconstructed from the large jet cone
+# and as a reference the closest genjet (reconstructed with the same cone)
+# from the tau genjets. In this way, the contribution of the 
+# underlying event cancels
+pfsource = 'iterativeCone5PFJets'
+calosource = 'iterativeCone5CaloJets'
+gensource = 'genJetSelector'
+trueTaus = cms.Sequence(
+    goodGenJets +
+    tauGenJets + 
+    genJetSelector  
+    )
+
+if( fromTaus==True):
+    # taking the taus, reconstructed from the signal cone elements
+    # and as a reference the tau genjets
+    pfsource = 'pfRecoTauProducerHighEfficiency'
+    gensource = 'tauGenJetsSelectorAllHadrons'
+    trueTaus = cms.Sequence(
+        tauGenJets + 
+        tauGenJetsSelectorAllHadrons
+    )
+    
+
+changeSource(pfTauBenchmarkGeneric, 
+             pfsource, 
+             gensource)
+changeSource(caloTauBenchmarkGeneric, 
+             calosource, 
+             gensource)
+
 
 
 # define barrel and endcap benchmarks for the PF case: 
@@ -34,11 +77,7 @@ caloEndcap.maxEta = 2.8
 caloEndcap.BenchmarkLabel = cms.string('%s_endcap' % caloEndcap.BenchmarkLabel.value() )
 
 
-trueTaus = cms.Sequence(
-    goodGenJets +
-    tauGenJets + 
-    genJetSelector  
-    )
+
 
 tauBenchmarkGeneric = cms.Sequence(
     trueTaus + 

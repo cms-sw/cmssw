@@ -1,12 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-jets = 'iterativeCone5CaloJets'
-genjets = 'genJetSelector'
 
 #'tauGenJets'
 caloTauBenchmarkGeneric = cms.EDAnalyzer("GenericBenchmarkAnalyzer",
     OutputFile = cms.untracked.string('benchmark.root'),
-    InputTruthLabel = cms.InputTag(genjets),
+    InputTruthLabel = cms.InputTag(''),
     minEta = cms.double(-1),
     maxEta = cms.double(2.8),
     recPt = cms.double(10.0),
@@ -14,6 +12,6 @@ caloTauBenchmarkGeneric = cms.EDAnalyzer("GenericBenchmarkAnalyzer",
     StartFromGen = cms.bool(True),
     PlotAgainstRecoQuantities = cms.bool(False),
     OnlyTwoJets = cms.bool(False),
-    BenchmarkLabel = cms.string( jets ),
-    InputRecoLabel = cms.InputTag( jets )
+    BenchmarkLabel = cms.string( 'CaloTaus' ),
+    InputRecoLabel = cms.InputTag('')
 )
