@@ -162,7 +162,6 @@ JetMatchingMadgraph::JetMatchingMadgraph(const edm::ParameterSet &params) :
 	memain_.etcjet = 0.;
 	memain_.rclmax = 0.0;
 	memain_.clfact = 0.0;
-	memain_.iexcfile = params.getParameter<unsigned int>("MEMAIN_iexcfile");
 	memain_.ktsche = 0;
 	memain_.etaclmax = params.getParameter<double>("MEMAIN_etaclmax");
 	memain_.qcut = params.getParameter<double>("MEMAIN_qcut");
