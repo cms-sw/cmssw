@@ -79,16 +79,16 @@ namespace popcon {
 	return *this;
       }
       
-      T * ptr() const {
+      T const * ptr() const {
 	if (m_dw) return &m_dw->data();
 	return m_d.ptr();
 
       }
-      T* operator->() const {
+      T const * operator->() const {
 	return ptr();
       }
       // dereference operator
-      T& operator*() const {
+      T const & operator*() const {
 	return *ptr();
       }
 
