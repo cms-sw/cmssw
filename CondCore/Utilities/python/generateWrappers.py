@@ -3,6 +3,15 @@
 from CondCore.Utilities.payloadInspectorTemplate import *
 import string, os, sys
 
+
+def walkPlugins(a):
+    for dir in os.listdir('.'):
+        if(dir.find('Plugins')<0) : continue
+        os.chdir(dir)
+        a.act()
+        os.chdir('../')
+
+
 # All those below run in CondCore/XyzPlugin directory
 
 def guessPackage() :
@@ -106,4 +115,7 @@ def generateWrapper(package,classes) :
           
 
 def generateDict(package):
-  os.system('cd ../../;cvs co CondFormats/'+package)
+    os.system('cd ../../;cvs co CondFormats/'+package)
+    declareCondWrappers(package)
+    declareXMLCondWrappers(package)
+
