@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 import DQM.TrackingMonitor.TrackingMonitor_cfi as _TrackMon
 import DQMOffline.Alignment.muonAlignment_cfi as _MuonAl
+#from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagator_cfi import *
+from Configuration.StandardSequences.ReconstructionCosmics_cff import *
 
 #Below all DQM modules for MuonAlignment AlCaRecos are instanciated.
 

@@ -8,7 +8,7 @@ muonAlignmentSummary = cms.EDAnalyzer("MuonAlignmentSummary",
     rmsPositionRange = cms.untracked.double(0.01),
     meanAngleRange = cms.untracked.double(0.05),
     rmsAngleRange = cms.untracked.double(0.005),
-    FolderName = cms.string(".")
+    FolderName = cms.string("")
  )
 
 
