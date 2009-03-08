@@ -4,7 +4,7 @@
  * based on DeltaR 
  *
  */
-#include "PhysicsTools/CandAlgos/interface/CandMatcher.h"
+#include "CommonTools/CandAlgos/interface/CandMatcher.h"
 #include "PhysicsTools/HepMCCandAlgos/interface/MCTruthPairSelector.h"
 
 typedef reco::modules::CandMatcher<

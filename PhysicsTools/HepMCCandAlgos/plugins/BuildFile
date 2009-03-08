@@ -9,7 +9,7 @@
   <use name=SimDataFormats/GeneratorProducts>
   <use name=SimGeneral/HepPDTRecord>
   <use name=PhysicsTools/UtilAlgos>
-  <use name=PhysicsTools/CandAlgos>
+  <use name=CommonTools/CandAlgos>
   <use name=PhysicsTools/HepMCCandAlgos>
   <use name=PhysicsTools/JetMCUtils>
 </library>

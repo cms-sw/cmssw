@@ -4,7 +4,7 @@
  * based on DeltaR 
  *
  */
-#include "PhysicsTools/CandAlgos/interface/NewCandMatcher.h"
+#include "CommonTools/CandAlgos/interface/NewCandMatcher.h"
 #include "PhysicsTools/HepMCCandAlgos/interface/MCTruthPairSelector.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
