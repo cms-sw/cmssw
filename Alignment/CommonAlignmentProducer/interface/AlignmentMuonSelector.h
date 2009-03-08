@@ -9,14 +9,14 @@
  * 
  * \author Javier Fernandez, IFCA
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: AlignmentMuonSelector.h,v 1.2 2007/09/24 16:40:53 ratnik Exp $
+ * $Id: AlignmentMuonSelector.h,v 1.3 2007/12/04 23:39:24 ratnik Exp $
  *
  */
 
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "PhysicsTools/RecoAlgos/interface/MuonSelector.h"
+#include "CommonTools/RecoAlgos/interface/MuonSelector.h"
 #include <vector>
 
 namespace edm { class Event; }

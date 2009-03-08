@@ -1,28 +1,9 @@
 <use name=FWCore/MessageLogger>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
-<use name=CondFormats/Alignment>
-<use name=CondFormats/AlignmentRecord>
 
-<library file=FakeAlignmentProducer.cc>
-  <use name=CondFormats/Alignment>
-  <use name=CondFormats/AlignmentRecord>
-  <use name=FWCore/Framework>
-  <use name=FWCore/MessageLogger>
-  <use name=boost>
-  <flags EDM_PLUGIN=1>
-</library>
-
-<library file=FakeAlignmentSource.cc>
-  <use name=CondFormats/Alignment>
-  <use name=CondFormats/AlignmentRecord>
-  <use name=FWCore/Framework>
-  <use name=FWCore/MessageLogger>
-  <use name=boost>
-  <flags EDM_PLUGIN=1>
-</library>
-
-<library file=AlignmentProducer.cc>
+# one library for the 'real' AlignmentProducers
+<library name=AlignmentCommonAlignmentProducers file=AlignmentProducer.cc,FakeAlignment*.cc>
  <use name=Alignment/CommonAlignment>
  <use name=Alignment/CommonAlignmentAlgorithm>
  <use name=Alignment/CommonAlignmentMonitor>
@@ -31,6 +12,8 @@
  <use name=Alignment/MuonAlignment>
  <use name=Alignment/TrackerAlignment>
  <use name=CondCore/DBOutputService>
+ <use name=CondFormats/Alignment>
+ <use name=CondFormats/AlignmentRecord>
  <use name=FWCore/ServiceRegistry>
  <use name=Geometry/CSCGeometry>
  <use name=Geometry/CSCGeometryBuilder>
@@ -41,84 +24,21 @@
  <use name=Geometry/TrackerGeometryBuilder>
  <use name=Geometry/TrackingGeometryAligner>
  <use name=TrackingTools/PatternTools>
- <flags EDM_PLUGIN=1>
+ <use name=boost>
 </library>
 
-<library file=AlignmentMuonSelectorModule.cc>
+# one library for the selector modules
+<library name=CommonAlignmentProducerSelectors file=Alignment*SelectorModule.cc,AlignmentMuonHIPTrajectorySelector.cc>
  <use name=Alignment/CommonAlignmentProducer>
- <use name=CommonTools/RecoAlgos>
- <use name=PhysicsTools/UtilAlgos>
- <flags EDM_PLUGIN=1>
-</library>
-
-<library file=AlignmentTrackSelectorModule.cc>
- <use name=Alignment/CommonAlignmentProducer>
- <use name=CommonTools/RecoAlgos>
- <use name=PhysicsTools/UtilAlgos>
- <flags EDM_PLUGIN=1>
-</library>
-
-<library file=AlignmentCSCOverlapSelectorModule.cc>
- <use name=Alignment/CommonAlignmentProducer>
- <use name=CommonTools/RecoAlgos>
- <use name=PhysicsTools/UtilAlgos>
- <flags EDM_PLUGIN=1>
-</library>
-
-<library file=AlignmentCSCBeamHaloSelectorModule.cc>
- <use name=Alignment/CommonAlignmentProducer>
- <use name=CommonTools/RecoAlgos>
- <use name=PhysicsTools/UtilAlgos>
- <flags EDM_PLUGIN=1>
-</library>
-
-<library file=AlignmentCSCTrackSelectorModule.cc>
- <use name=Alignment/CommonAlignmentProducer>
- <use name=CommonTools/RecoAlgos>
- <use name=PhysicsTools/UtilAlgos>
- <flags EDM_PLUGIN=1>
-</library>
-
-<library file=AlignmentSeedSelectorModule.cc>
- <use name=Alignment/CommonAlignmentProducer>
- <use name=CommonTools/RecoAlgos>
- <use name=PhysicsTools/UtilAlgos>
- <flags EDM_PLUGIN=1>
-</library>
-
-<library file=AlignmentMuonHIPTrajectorySelector.cc>
  <use name=DataFormats/DetId>
  <use name=DataFormats/MuonDetId>
  <use name=DataFormats/TrackingRecHit>
  <use name=DataFormats/TrackReco>
- <use name=FWCore/Framework>
- <use name=FWCore/ParameterSet>
- <use name=TrackingTools/PatternTools>
- <use name=TrackingTools/TransientTrackingRecHit>
  <use name=FWCore/ServiceRegistry>
  <use name=PhysicsTools/UtilAlgos>
+ <use name=PhysicsTools/RecoAlgos>
+ <use name=TrackingTools/PatternTools>
  <use name=TrackingTools/TrackFitters>
+ <use name=TrackingTools/TransientTrackingRecHit>
  <use name=root>
- <flags EDM_PLUGIN=1>
-</library>
-
-<library name="ZeroFieldGlobalMuonBuilder" file="ZeroFieldGlobalMuonBuilder.cc">
- <use name=DataFormats/GeometrySurface>
- <use name=DataFormats/MuonDetId>
- <use name=DataFormats/TrackingRecHit>
- <use name=DataFormats/TrackReco>
- <use name=Geometry/CommonDetUnit>
- <use name=Geometry/CSCGeometry>
- <use name=Geometry/DTGeometry>
- <use name=Geometry/Records>
- <use name=MagneticField/Engine>
- <use name=MagneticField/Records>
- <use name=RecoMuon/TransientTrackingRecHit>
- <use name=TrackingTools/PatternTools>
- <use name=TrackingTools/TrajectoryState>
- <use name=DataFormats/CSCRecHit>
- <use name=FWCore/ServiceRegistry>
- <use name=PhysicsTools/UtilAlgos>
- <use name=root>
- <flags EDM_PLUGIN=1>
 </library>
