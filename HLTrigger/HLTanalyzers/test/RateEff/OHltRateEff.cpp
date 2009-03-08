@@ -137,6 +137,11 @@ void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
 	spureRateErr[j] += OHltRateCounter::effErr((float)rcs[i]->sPureCount[j],scaleddeno); 
 	pureRate[j]    += OHltRateCounter::eff((float)rcs[i]->pureCount[j],scaleddeno);   
 	pureRateErr[j] += OHltRateCounter::effErr((float)rcs[i]->pureCount[j],scaleddeno); 
+
+        for (int k=0;k<ntrig;k++){ 
+          coMa[j][k] += ((float)rcs[i]->overlapCount[j][k]);
+        } 
+        coDen[j] += ((float)rcs[i]->iCount[j]); // ovelap denominator 
       }
 
       else{
@@ -147,12 +152,11 @@ void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
 	spureRateErr[j] += pow(collisionRate*mu * OHltRateCounter::effErr((float)rcs[i]->sPureCount[j],deno),2.);
 	pureRate[j]    += collisionRate*(1. - exp(- mu * OHltRateCounter::eff((float)rcs[i]->pureCount[j],deno)));  
 	pureRateErr[j] += pow(collisionRate*mu * OHltRateCounter::effErr((float)rcs[i]->pureCount[j],deno),2.);
-	
+
 	for (int k=0;k<ntrig;k++){
 	  coMa[j][k] += ((float)rcs[i]->overlapCount[j][k]) * cfg->psigmas[i];     
 	}
 	coDen[j] += ((float)rcs[i]->iCount[j] * cfg->psigmas[i]); // ovelap denominator
-      
       }
     }
   }

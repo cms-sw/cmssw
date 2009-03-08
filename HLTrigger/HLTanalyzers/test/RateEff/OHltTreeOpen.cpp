@@ -16,56 +16,56 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   
   /* DiJetAve */
   if (menu->GetTriggerName(it).CompareTo("OpenHLT_DiJetAve15") == 0) {   
-    if(map_BitOfStandardHLTPath.find("L1_SingleJet6_00001")->second == 1) {    
+    if(map_BitOfStandardHLTPath.find("L1_SingleJet6")->second == 1) {    
       if(OpenHltDiJetAvePassed(15)>=1) {   
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }  
       }   
     }   
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DiJetAve30") == 0) {   
-    if(map_BitOfStandardHLTPath.find("L1_SingleJet10_00001")->second == 1) {    
+    if(map_BitOfStandardHLTPath.find("L1_SingleJet10")->second == 1) {    
       if(OpenHltDiJetAvePassed(30)>=1) {   
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }  
       }   
     }   
   } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DiJetAve50") == 0) {   
-    if(map_BitOfStandardHLTPath.find("L1_SingleJet20_00001")->second == 1) {         
+    if(map_BitOfStandardHLTPath.find("L1_SingleJet20")->second == 1) {         
       if(OpenHltDiJetAvePassed(50)>=1) {   
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }  
       }   
     }   
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DiJetAve70") == 0) {   
-    if(map_BitOfStandardHLTPath.find("L1_SingleJet40_00001")->second == 1) {         
+    if(map_BitOfStandardHLTPath.find("L1_SingleJet40")->second == 1) {         
       if(OpenHltDiJetAvePassed(70)>=1) {   
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }  
       }   
     }   
   }   
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DiJetAve130") == 0) {
-    if(map_BitOfStandardHLTPath.find("L1_SingleJet40_00001")->second == 1) {      
+    if(map_BitOfStandardHLTPath.find("L1_SingleJet40")->second == 1) {      
       if(OpenHltDiJetAvePassed(130)>=1) {
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
       }
     }
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DiJetAve50") == 0) {   
-    if(map_BitOfStandardHLTPath.find("L1_SingleJet20_00001")->second == 1) {         
+    if(map_BitOfStandardHLTPath.find("L1_SingleJet20")->second == 1) {         
       if(OpenHltDiJetAvePassed(50)>=1) {   
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }  
       }   
     }   
   }   
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DiJetAve70") == 0) {   
-    if(map_BitOfStandardHLTPath.find("L1_SingleJet40_00001")->second == 1) {         
+    if(map_BitOfStandardHLTPath.find("L1_SingleJet40")->second == 1) {         
       if(OpenHltDiJetAvePassed(70)>=1) {   
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }  
       }   
     }   
   }   
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DiJetAve130") == 0) {
-    if(map_BitOfStandardHLTPath.find("L1_SingleJet40_00001")->second == 1) {      
+    if(map_BitOfStandardHLTPath.find("L1_SingleJet40")->second == 1) {      
       if(OpenHltDiJetAvePassed(130)>=1) {
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
       }
@@ -116,12 +116,12 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   }   
   /* Single Jet */
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1Jet15") == 0) {    
-    if(map_BitOfStandardHLTPath.find("L1_SingleJet6_00001")->second == 1) {          
+    if(map_BitOfStandardHLTPath.find("L1_SingleJet6")->second == 1) {          
       if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }   
     }    
   }    
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet30") == 0) {   
-    if(map_BitOfStandardHLTPath.find("L1_SingleJet6_00001")->second == 1) {         
+    if(map_BitOfStandardHLTPath.find("L1_SingleJet6")->second == 1) {         
       if(OpenHlt1JetPassed(15)>=1) {   
 	//	  if(OpenHlt1CorJetPassed(30)>=1) {
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }  
@@ -129,7 +129,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
     }   
   }   
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet50") == 0) {    
-    if(map_BitOfStandardHLTPath.find("L1_SingleJet10_00001")->second == 1) {          
+    if(map_BitOfStandardHLTPath.find("L1_SingleJet10")->second == 1) {          
       if(OpenHlt1JetPassed(30)>=1) {    
 	//	  if(OpenHlt1CorJetPassed(50)>=1) {
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }   
@@ -137,7 +137,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
     }    
   }    
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet80") == 0) {     
-    if(map_BitOfStandardHLTPath.find("L1_SingleJet20_00001")->second == 1) {           
+    if(map_BitOfStandardHLTPath.find("L1_SingleJet20")->second == 1) {           
       if(OpenHlt1JetPassed(50)>=1) {     
 	//	  if(OpenHlt1CorJetPassed(80)>=1) {
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }    
@@ -145,14 +145,14 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
     }     
   }     
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet110") == 0) {     
-    if(map_BitOfStandardHLTPath.find("L1_SingleJet40_00001")->second == 1) {           
+    if(map_BitOfStandardHLTPath.find("L1_SingleJet40")->second == 1) {           
       if(OpenHlt1JetPassed(110)>=1) {     
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }    
       }     
     }     
   }     
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet180") == 0) {
-    if(map_BitOfStandardHLTPath.find("L1_SingleJet40_00001")->second == 1) {      
+    if(map_BitOfStandardHLTPath.find("L1_SingleJet40")->second == 1) {      
       if(OpenHlt1JetPassed(180)>=1) {
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
       }
@@ -161,63 +161,63 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
 
   //---------------New JetMET and e/gamma triggers approved in Jan 2009--------------------    
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1Jet6U") == 0) { 
-    if(map_BitOfStandardHLTPath.find("L1_SingleJet6_00001")->second == 1) {       
+    if(map_BitOfStandardHLTPath.find("L1_SingleJet6")->second == 1) {       
       if(OpenHlt1JetPassed(6)>=1) { 
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; } 
       } 
     } 
   } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet15U") == 0) {  
-    if(map_BitOfStandardHLTPath.find("L1_SingleJet6_00001")->second == 1) {        
+    if(map_BitOfStandardHLTPath.find("L1_SingleJet6")->second == 1) {        
       if(OpenHlt1JetPassed(15)>=1) {  
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }  
       }  
     }  
   }  
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet30U") == 0) {  
-    if(map_BitOfStandardHLTPath.find("L1_SingleJet20_00001")->second == 1) {        
+    if(map_BitOfStandardHLTPath.find("L1_SingleJet20")->second == 1) {        
       if(OpenHlt1JetPassed(30)>=1) {  
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }  
       }  
     }  
   }  
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet50U") == 0) {  
-    if(map_BitOfStandardHLTPath.find("L1_SingleJet30_00001")->second == 1) {        
+    if(map_BitOfStandardHLTPath.find("L1_SingleJet30")->second == 1) {        
       if(OpenHlt1JetPassed(50)>=1) {  
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }  
       }  
     }  
   }  
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DiJetAve15U") == 0) {    
-    if(map_BitOfStandardHLTPath.find("L1_SingleJet6_00001")->second == 1) {     
+    if(map_BitOfStandardHLTPath.find("L1_SingleJet6")->second == 1) {     
       if(OpenHltDiJetAvePassed(15)>=1) {    
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }   
       }    
     }    
   } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DiJetAve30U") == 0) {     
-    if(map_BitOfStandardHLTPath.find("L1_SingleJet20_00001")->second == 1) {      
+    if(map_BitOfStandardHLTPath.find("L1_SingleJet20")->second == 1) {      
       if(OpenHltDiJetAvePassed(30)>=1) {     
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }    
       }     
     }     
   }  
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1SingleEG5") == 0) {     
-    if ( map_BitOfStandardHLTPath.find("L1_SingleEG5_00001")->second == 1 ) {                                       
+    if ( map_BitOfStandardHLTPath.find("L1_SingleEG5")->second == 1 ) {                                       
       if(true) { // passthrough      
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }      
       }      
     }      
   } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1SingleEG8") == 0) {      
-    if ( map_BitOfStandardHLTPath.find("L1_SingleEG8_00001")->second == 1 ) {                                        
+    if ( map_BitOfStandardHLTPath.find("L1_SingleEG8")->second == 1 ) {                                        
       if(true) { // passthrough       
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }       
       }       
     }       
   }  
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1DoubleEG5") == 0) {       
-    if ( map_BitOfStandardHLTPath.find("L1_DoubleEG5_00001")->second == 1 ) {                                         
+    if ( map_BitOfStandardHLTPath.find("L1_DoubleEG5")->second == 1 ) {                                         
       if(true) { // passthrough        
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }        
       }        
@@ -225,7 +225,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   }   
 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon15_TrackIso_L1R") == 0) {     
-    if ( map_BitOfStandardHLTPath.find("L1_SingleEG8_00001")->second == 1 ) { 
+    if ( map_BitOfStandardHLTPath.find("L1_SingleEG8")->second == 1 ) { 
       if(OpenHlt1PhotonPassed(15.,0,2,2.,999.,999.)>=1) { // added track iso! 
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }      
       }      
@@ -234,14 +234,14 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
 
   /* Forward & MultiJet */
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_FwdJet20U") == 0) {      
-    if(map_BitOfStandardHLTPath.find("L1_IsoEG10_Jet6_ForJet6_00001")->second == 1) {
+    if(map_BitOfStandardHLTPath.find("L1_IsoEG10_Jet6_ForJet6")->second == 1) {
       if(OpenHltFwdJetPassed(20.)>=1) {      
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }     
       }      
     }      
   }      
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_QuadJet30") == 0) {
-    if ( map_BitOfStandardHLTPath.find("L1_QuadJet6_00001")->second == 1) { 
+    if ( map_BitOfStandardHLTPath.find("L1_QuadJet6")->second == 1) { 
       if(OpenHltQuadJetPassed(30.)>=1) {    
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }   
       }    
@@ -249,40 +249,40 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   }
   /* MET */
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1MET20") == 0) {       
-    if(map_BitOfStandardHLTPath.find("L1_ETM20_00001")->second == 1) {             
+    if(map_BitOfStandardHLTPath.find("L1_ETM20")->second == 1) {             
       if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }      
     }     
   }       
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_MET25") == 0) { 
-    if(map_BitOfStandardHLTPath.find("L1_ETM20_00001")->second == 1) {       
+    if(map_BitOfStandardHLTPath.find("L1_ETM20")->second == 1) {       
       if(recoMetCal > 25.) { 
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; } 
       } 
     } 
   } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_MET35") == 0) {         
-    if(map_BitOfStandardHLTPath.find("L1_ETM30_00001")->second == 1) {               
+    if(map_BitOfStandardHLTPath.find("L1_ETM30")->second == 1) {               
       if(recoMetCal > 35.) {         
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }        
       }         
     }         
   }         
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_MET50") == 0) {
-    if(map_BitOfStandardHLTPath.find("L1_ETM40_00001")->second == 1) {      
+    if(map_BitOfStandardHLTPath.find("L1_ETM40")->second == 1) {      
       if(recoMetCal > 50.) {
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
       }
     }
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_MET65") == 0) {
-    if(map_BitOfStandardHLTPath.find("L1_ETM50_00001")->second == 1) {      
+    if(map_BitOfStandardHLTPath.find("L1_ETM50")->second == 1) {      
       if(recoMetCal > 65.) {
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
       }
     }
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_MET100") == 0) { 
-    if(map_BitOfStandardHLTPath.find("L1_ETM50_00001")->second == 1) {       
+    if(map_BitOfStandardHLTPath.find("L1_ETM50")->second == 1) {       
       if(recoMetCal > 100.) { 
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; } 
       } 
@@ -361,7 +361,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   }   
   /* Photons */
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1Photon5") == 0) {    
-    if ( map_BitOfStandardHLTPath.find("L1_SingleEG5_00001")->second == 1 ) {                                      
+    if ( map_BitOfStandardHLTPath.find("L1_SingleEG5")->second == 1 ) {                                      
       if(true) { // passthrough     
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }     
       }     
@@ -369,7 +369,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   }
       
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon15_L1R") == 0) {    
-    if ( map_BitOfStandardHLTPath.find("L1_SingleEG8_00001")->second == 1 ) {
+    if ( map_BitOfStandardHLTPath.find("L1_SingleEG8")->second == 1 ) {
       if(OpenHlt1PhotonPassed(15.,0,999.,2.,999.,999.)>=1) { // added track iso!
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }     
       }     
@@ -377,7 +377,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   }
 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon15_LooseEcalIso_L1R") == 0) {    
-    if ( map_BitOfStandardHLTPath.find("L1_SingleEG10_00001")->second == 1 ) {
+    if ( map_BitOfStandardHLTPath.find("L1_SingleEG10")->second == 1 ) {
       if(OpenHlt1PhotonLooseEcalIsoPassed(15.,0,999.,999.,3.,999.)>=1) { 
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }     
       }     
@@ -385,14 +385,14 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   }
   
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon25_L1R") == 0) {     
-    if ( map_BitOfStandardHLTPath.find("L1_SingleEG15_00001")->second == 1 ) {               
+    if ( map_BitOfStandardHLTPath.find("L1_SingleEG15")->second == 1 ) {               
       if(OpenHlt1PhotonPassed(25.,0,999.,999.,999.,999.)>=1) {      
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }      
       }      
     }      
   } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon10_L1R") == 0) {    
-    if ( map_BitOfStandardHLTPath.find("L1_SingleEG5_00001")->second == 1 ) {                   
+    if ( map_BitOfStandardHLTPath.find("L1_SingleEG5")->second == 1 ) {                   
       if(OpenHlt1PhotonPassed(15.,0,999.,999.,999.,999.)>=1) {     
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }     
       }     
@@ -400,7 +400,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   }
       
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon20_L1R") == 0) {    
-    if ( map_BitOfStandardHLTPath.find("L1_SingleEG8_00001")->second == 1 ) {                                  
+    if ( map_BitOfStandardHLTPath.find("L1_SingleEG8")->second == 1 ) {                                  
       if(OpenHlt1PhotonPassed(20.,0,999.,999.,999.,999.)>=1) {     
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }     
       }     
@@ -408,35 +408,35 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   }
       
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_IsoPhoton10_L1R") == 0) {     
-    if ( map_BitOfStandardHLTPath.find("L1_SingleEG8_00001")->second == 1 ) {                                
+    if ( map_BitOfStandardHLTPath.find("L1_SingleEG8")->second == 1 ) {                                
       if(OpenHlt1PhotonPassed(10.,0,1.,1.5,6.,4.)>=1) {      
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }      
       }      
     }
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_IsoPhoton15_L1R") == 0) {     
-    if ( map_BitOfStandardHLTPath.find("L1_SingleEG12_00001")->second == 1 ) {                                   
+    if ( map_BitOfStandardHLTPath.find("L1_SingleEG12")->second == 1 ) {                                   
       if(OpenHlt1PhotonPassed(15.,0,1.,1.5,6.,4.)>=1) {      
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }      
       }      
     }
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_IsoPhoton20_L1R") == 0) {     
-    if ( map_BitOfStandardHLTPath.find("L1_SingleEG12_00001")->second == 1 ) {                                     
+    if ( map_BitOfStandardHLTPath.find("L1_SingleEG12")->second == 1 ) {                                     
       if(OpenHlt1PhotonPassed(20.,0,1.,1.5,6.,4.)>=1) {      
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }      
       }      
     }
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoublePhoton10_L1R") == 0) {    
-    if ( map_BitOfStandardHLTPath.find("L1_SingleEG8_00001")->second == 1 ) {                                     
+    if ( map_BitOfStandardHLTPath.find("L1_SingleEG8")->second == 1 ) {                                     
       if(OpenHlt1PhotonPassed(10.,0,999.,999.,999.,999.)>=2) {     
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }     
       }     
     }     
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleIsoPhoton20_L1R") == 0) {     
-    if ( map_BitOfStandardHLTPath.find("L1_DoubleEG10_00001")->second == 1 ) {                                   
+    if ( map_BitOfStandardHLTPath.find("L1_DoubleEG10")->second == 1 ) {                                   
       if(OpenHlt1PhotonPassed(20.,0,1.,1.5,6.,4.)>=2) {      
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }      
       }      
@@ -444,70 +444,70 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   } 
   /* Electrons */
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleEle10_LW_L1R") == 0) {   
-    if ( map_BitOfStandardHLTPath.find("L1_DoubleEG5_00001")->second == 1 ) {        
+    if ( map_BitOfStandardHLTPath.find("L1_DoubleEG5")->second == 1 ) {        
       if(OpenHlt1LWElectronPassed(10.,1,9999.,9999.)>=2) {       
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }       
       }       
     }       
   }
   else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele15_LW_L1R") == 0) {
-    if ( map_BitOfStandardHLTPath.find("L1_SingleEG10_00001")->second == 1 ) { 
+    if ( map_BitOfStandardHLTPath.find("L1_SingleEG10")->second == 1 ) { 
       if(OpenHlt1LWElectronPassed(15.,1,9999.,9999.)>=1) {
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
       }
     }
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele10_SW_L1R") == 0) {      
-    if ( map_BitOfStandardHLTPath.find("L1_SingleEG8_00001")->second == 1 ) {       
+    if ( map_BitOfStandardHLTPath.find("L1_SingleEG8")->second == 1 ) {       
       if(OpenHlt1ElectronPassed(10.,0,9999.,9999.)>=1) { 
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }      
       }      
     }      
   } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele15_SW_L1R") == 0) {      
-    if ( map_BitOfStandardHLTPath.find("L1_SingleEG12_00001")->second == 1 ) {       
+    if ( map_BitOfStandardHLTPath.find("L1_SingleEG12")->second == 1 ) {       
       if(OpenHlt1ElectronPassed(15.,0,9999.,9999.)>=1) { 
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }      
       }      
     }      
   }        
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele20_SW_L1R") == 0) {      
-    if ( map_BitOfStandardHLTPath.find("L1_SingleEG15_00001")->second == 1 ) {       
+    if ( map_BitOfStandardHLTPath.find("L1_SingleEG15")->second == 1 ) {       
       if(OpenHlt1ElectronPassed(15.,0,9999.,9999.)>=1) { 
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }      
       }      
     }      
   } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele200_LW_L1R") == 0) {      
-    if ( map_BitOfStandardHLTPath.find("L1_SingleEG8_00001")->second == 1 ) {       
+    if ( map_BitOfStandardHLTPath.find("L1_SingleEG8")->second == 1 ) {       
       if(OpenHlt1LWElectronPassed(20.,0,9999.,9999.)>=1) { 
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }      
       }      
     }      
   } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_LooseIsoEle15_LW_L1R") == 0) {      
-    if ( map_BitOfStandardHLTPath.find("L1_SingleEG12_00001")->second == 1 ) {       
+    if ( map_BitOfStandardHLTPath.find("L1_SingleEG12")->second == 1 ) {       
       if(OpenHlt1LWElectronPassed(15.,0,0.12,6.)>=1) {      
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }      
       }      
     }      
   } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_IsoEle18_L1R") == 0) {       
-    if ( map_BitOfStandardHLTPath.find("L1_SingleEG15_00001")->second == 1 ) {        
+    if ( map_BitOfStandardHLTPath.find("L1_SingleEG15")->second == 1 ) {        
       if(OpenHlt1ElectronPassed(18.,1,0.06,3.)>=1) {       
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }       
       }       
     }       
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_IsoEle20_LW_L1R") == 0) {      
-    if ( map_BitOfStandardHLTPath.find("L1_SingleIsoEG15_00001")->second == 1 ) {       
+    if ( map_BitOfStandardHLTPath.find("L1_SingleIsoEG15")->second == 1 ) {       
       if(OpenHlt1LWElectronPassed(20.,0,0.06,3.)>=1) {      
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }      
       }      
     }      
   } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_IsoEle15_LW_L1I") == 0) {      
-    if ( map_BitOfStandardHLTPath.find("L1_SingleIsoEG12_00001")->second == 1 ) {       
+    if ( map_BitOfStandardHLTPath.find("L1_SingleIsoEG12")->second == 1 ) {       
       if(OpenHlt1LWElectronPassed(15.,1,0.06,3.)>=1) {      
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }      
       }      
@@ -515,28 +515,28 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   } 
        
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_IsoEle20_LW_L1I") == 0) {      
-    if ( map_BitOfStandardHLTPath.find("L1_SingleIsoEG15_00001")->second == 1 ) {       
+    if ( map_BitOfStandardHLTPath.find("L1_SingleIsoEG15")->second == 1 ) {       
       if(OpenHlt1LWElectronPassed(20.,1,0.06,3.)>=1) {      
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }      
       }      
     }      
   } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleEle10_LW_OnlyPixelM_L1R") == 0) {   
-    if ( map_BitOfStandardHLTPath.find("L1_DoubleEG5_00001")->second == 1 ) {        
+    if ( map_BitOfStandardHLTPath.find("L1_DoubleEG5")->second == 1 ) {        
       if(OpenHlt1LWElectronPassed(10.,1,9999.,9999.)>=2) {       
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }       
       }       
     }       
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleEle5_SW_L1R") == 0) {      
-    if ( map_BitOfStandardHLTPath.find("L1_DoubleEG5_00001")->second == 1 ) {       
+    if ( map_BitOfStandardHLTPath.find("L1_DoubleEG5")->second == 1 ) {       
       if(OpenHlt1ElectronPassed(5.,0,9999.,9999.)>=2) {       
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }      
       }      
     }      
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleEle5_LW_L1R") == 0) {      
-    if ( map_BitOfStandardHLTPath.find("L1_DoubleEG5_00001")->second == 1 ) {       
+    if ( map_BitOfStandardHLTPath.find("L1_DoubleEG5")->second == 1 ) {       
       if(OpenHlt1LWElectronPassed(5.,0,9999.,9999.)>=2) {       
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }      
       }      
@@ -545,7 +545,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
 
   /* BTag */
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_Jet20_Calib") == 0) {
-    if ( map_BitOfStandardHLTPath.find("L1_Mu5_Jet6_00001")->second == 1 ) {
+    if ( map_BitOfStandardHLTPath.find("L1_Mu5_Jet6")->second == 1 ) {
       int rc = 0; 
       int max =  (NohBJetL2 > 2) ? 2 : NohBJetL2;
       for(int i = 0; i < max; i++) { 
@@ -565,7 +565,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
 
   /* Taus */
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_LooseIsoTau_MET30") == 0) {        
-    if ( map_BitOfStandardHLTPath.find("L1_SingleTauJet50_00001")->second == 1) {              
+    if ( map_BitOfStandardHLTPath.find("L1_SingleTauJet50")->second == 1) {              
       if(OpenHltTauPassed(15.,5.,0.,0,0.,0)>=1  && recoMetCal>=30.) { 
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }       
       }        
@@ -579,21 +579,21 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
     }         
   }         
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleLooseIsoTau") == 0) { 
-    if ( map_BitOfStandardHLTPath.find("L1_DoubleTauJet20_00001")->second == 1 ) {  
+    if ( map_BitOfStandardHLTPath.find("L1_DoubleTauJet20")->second == 1 ) {  
       if(OpenHltTauPassed(15.,5.,0.,0,0.,0)>=2) { 
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; } 
       } 
     } 
   } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleIsoTau_Trk3") == 0) { 
-    if ( map_BitOfStandardHLTPath.find("L1_DoubleTauJet20_00001")->second == 1 ) {  
+    if ( map_BitOfStandardHLTPath.find("L1_DoubleTauJet20")->second == 1 ) {  
       if(OpenHltTauPassed(15.,5.,3.,1,0.,0)>=2) { 
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; } 
       } 
     } 
   } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_LooseIsoTau_MET30_Trk3") == 0) { 
-    if ( map_BitOfStandardHLTPath.find("L1_SingleTauJet50_00001")->second == 1) {   
+    if ( map_BitOfStandardHLTPath.find("L1_SingleTauJet50")->second == 1) {   
       if(OpenHltTauPassed(15.,5.,3.,0,0.,0)>=1  && recoMetCal>=30.) {
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; } 
       } 
@@ -607,7 +607,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
     } 
   } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_IsoTau_MET65_Trk20") == 0) { 
-    if ( map_BitOfStandardHLTPath.find("L1_SingleTauJet50_00001")->second == 1) {   
+    if ( map_BitOfStandardHLTPath.find("L1_SingleTauJet50")->second == 1) {   
       if(OpenHltTauPassed(15.,5.,3.,1,20.,0)>=1  && recoMetCal>=65.) {
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; } 
       } 
@@ -776,30 +776,30 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
     }        
   }
   else if (menu->GetTriggerName(it).CompareTo("xL1_Tau40_OR_Jet100") == 0) {   
-    if(map_BitOfStandardHLTPath.find("L1_SingleTauJet20_00001")->second == 1 ||
-       map_BitOfStandardHLTPath.find("L1_SingleJet60_00001")->second == 1) {    
+    if(map_BitOfStandardHLTPath.find("L1_SingleTauJet20")->second == 1 ||
+       map_BitOfStandardHLTPath.find("L1_SingleJet60")->second == 1) {    
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }  
     }   
   } 
   else if (menu->GetTriggerName(it).CompareTo("xL1_Tau60_OR_Jet100") == 0) {   
-    if(map_BitOfStandardHLTPath.find("L1_SingleTauJet30_00001")->second == 1 ||
-       map_BitOfStandardHLTPath.find("L1_SingleJet60_00001")->second == 1) {    
+    if(map_BitOfStandardHLTPath.find("L1_SingleTauJet30")->second == 1 ||
+       map_BitOfStandardHLTPath.find("L1_SingleJet60")->second == 1) {    
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }  
     }   
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_NoIsoEle10_IsoTau15_Trk5_L3I") == 0) {        
-    if(map_BitOfStandardHLTPath.find("L1_SingleEG8_00001")->second == 1 &&
-       (map_BitOfStandardHLTPath.find("L1_SingleTauJet10_00001")->second == 1 ||
-	map_BitOfStandardHLTPath.find("L1_SingleJet40_00001")->second == 1)) {    
+    if(map_BitOfStandardHLTPath.find("L1_SingleEG8")->second == 1 &&
+       (map_BitOfStandardHLTPath.find("L1_SingleTauJet10")->second == 1 ||
+	map_BitOfStandardHLTPath.find("L1_SingleJet40")->second == 1)) {    
       if(OpenHltElecTauL2SCPassed(10.,0,9999.,9999.,15.,5.,0,0.,1)>=1) { 
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }      
       }        
     }        
   }        
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_NoIsoEle10_IsoTau15_Trk5") == 0) {        
-    if(map_BitOfStandardHLTPath.find("L1_SingleEG8_00001")->second == 1 &&
-       (map_BitOfStandardHLTPath.find("L1_SingleTauJet10_00001")->second == 1 ||
-	map_BitOfStandardHLTPath.find("L1_SingleJet40_00001")->second == 1)) {    
+    if(map_BitOfStandardHLTPath.find("L1_SingleEG8")->second == 1 &&
+       (map_BitOfStandardHLTPath.find("L1_SingleTauJet10")->second == 1 ||
+	map_BitOfStandardHLTPath.find("L1_SingleJet40")->second == 1)) {    
       if(OpenHltElecTauL2SCPassed(10.,0,9999.,9999.,15.,5.,0,0.,0)>=1) { 
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }      
       }        
@@ -822,7 +822,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_MinBiasEcal") == 0) {          
     if(map_BitOfStandardHLTPath.find("L1_SingleEG1")->second == 1 ||   
-       map_BitOfStandardHLTPath.find("L1_DoubleEG1_00001")->second == 1) {
+       map_BitOfStandardHLTPath.find("L1_DoubleEG1")->second == 1) {
       if(true) { // passthrough        
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }        
       }        
@@ -914,7 +914,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   // jets are used at HLT. For now, they run on the translated *uncorrected* 
   // L1 jet seeds.
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu9_1JetU15") == 0){ 
-    if((L1_Mu5_Jet6_00001==1)) {      // L1 Seed  
+    if((L1_Mu5_Jet6==1)) {      // L1 Seed  
       int rc = 0; 
       if(OpenHlt1CorJetPassed(30)>=1){ // Require 1 corrected jet above threshold
 	for(int i = 0; i < NohMuL2; i++) { 
@@ -930,7 +930,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   }
 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele10_SW_L1R_3Jet30_3JetL1") == 0){
-    if((L1_EG5_TripleJet6_00001 == 1)) {      // L1 Seed 
+    if((L1_EG5_TripleJet6 == 1)) {      // L1 Seed 
       int rc = 0;
       if(OpenHlt1CorJetPassed(30)>=3){
 	if(OpenHlt1ElectronPassed(10.,0,9999.,9999.)>=1) {
@@ -954,28 +954,28 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   // Exotica mu + e/gamma, mu + jet, and mu + MET L1-passthrough cross-triggers
   else if(menu->GetTriggerName(it).CompareTo("OpenHLT_L1Mu14_L1SingleEG10")){
     if(L1_SingleMu14 == 1){      // L1 Seed
-      if(L1_SingleEG10_00001 == 1)
+      if(L1_SingleEG10 == 1)
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
     }
   }
 
   else if(menu->GetTriggerName(it).CompareTo("OpenHLT_L1Mu14_L1SingleJet15")){ 
     if(L1_SingleMu14 == 1){      // L1 Seed 
-      if(L1_SingleJet6_00001 == 1) 
+      if(L1_SingleJet6 == 1) 
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; } 
     } 
   } 
 
   else if(menu->GetTriggerName(it).CompareTo("OpenHLT_L1Mu14_L1ETM30")){ 
     if(L1_SingleMu14 == 1){      // L1 Seed 
-      if(L1_ETM30_00001 == 1) 
+      if(L1_ETM30 == 1) 
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; } 
     } 
   }
 
   // triple jet b-tag trigger for top
   else if(menu->GetTriggerName(it).CompareTo("OpenHLT_BTagIP_TripleJet20U")){
-    if(L1_TripleJet30_00001 == 1){      // L1 Seed  
+    if(L1_TripleJet30 == 1){      // L1 Seed  
       int njets = 0;
       int ntaggedjets = 0;
       int max =  (NohBJetL2 > 2) ? 2 : NohBJetL2; 
