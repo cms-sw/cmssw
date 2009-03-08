@@ -57,7 +57,7 @@ template< class RecordT, class DataT >
       m_data.copyShallow(mydata);
     } else {
       // compatibility mode....
-      pool::Ref<T> myodata(&(pooldb.poolDataSvc()),m_pDatumToToken->second);
+      pool::Ref<DataT> myodata(&(pooldb.poolDataSvc()),m_pDatumToToken->second);
       result = myodata.ptr();
       if (!result) throw cond::Exception("DataProxy::make: null result");
       m_OldData.copyShallow(myodata);
@@ -78,6 +78,6 @@ template< class RecordT, class DataT >
 
   pool::Ref<DataWrapper> m_data;
   // Backward compatibility
-  pool::Ref<T> m_OldData;
+  pool::Ref<DataT> m_OldData;
 };
 #endif /* CONDCORE_PLUGINSYSTEM_DATAPROXY_H */
