@@ -5,7 +5,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.51 2009/02/23 16:23:52 borrell Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.52 2009/03/03 10:47:54 kaussen Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -191,11 +191,12 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es){
 
 	SiStripHistoId hidmanager;
 	std::string label = hidmanager.getSubdetid(detid,false);
-        LayerDetMap[label] = layerDetIds;
-
-        // book Layer plots
-        folder_organizer.setLayerFolder(detid,det_layer_pair.second);
-        createLayerMEs(label, layerDetIds.size());
+        if (label.size() > 0) {
+          LayerDetMap[label] = layerDetIds;
+          // book Layer plots
+          folder_organizer.setLayerFolder(detid,det_layer_pair.second);
+          createLayerMEs(label, layerDetIds.size());
+        }
       }
 
     }//end of loop over detectors

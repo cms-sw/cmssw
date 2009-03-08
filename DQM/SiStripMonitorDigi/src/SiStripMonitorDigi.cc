@@ -3,7 +3,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.39 2009/02/20 21:28:52 dutta Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.40 2009/02/26 13:06:19 borrell Exp $
 #include<fstream>
 #include "TNamed.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -181,13 +181,12 @@ void SiStripMonitorDigi::createMEs(const edm::EventSetup& es){
 
         SiStripHistoId hidmanager;
 	std::string label = hidmanager.getSubdetid(detid, false);
-        LayerDetMap[label] = layerDetIds;
-
-        // book Layer plots      
-	folder_organizer.setLayerFolder(detid,det_layer_pair.second); 
-
-	createLayerMEs(label, layerDetIds.size());
-
+        if (label.size() > 0) {
+          LayerDetMap[label] = layerDetIds;
+          // book Layer plots      
+          folder_organizer.setLayerFolder(detid,det_layer_pair.second); 
+          createLayerMEs(label, layerDetIds.size());
+        }
       }    
     
     }//end of loop over detectors
@@ -272,12 +271,7 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
       int largest_adc=(digi_detset.data.begin())->adc();
       int smallest_adc=(digi_detset.data.begin())->adc();
       
-
-      // Check if these parameters are really needed
-      SiStripHistoId hidmanager;
-      std::string label = hidmanager.getSubdetid(detid, false);
       float det_occupancy = 0.0;
-      
       for(edm::DetSet<SiStripDigi>::const_iterator digiIter = digi_detset.data.begin(); 
 	  digiIter!= digi_detset.data.end(); digiIter++ ){
 	
