@@ -1,13 +1,13 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentCSCOverlapSelector.h"
 
 // the following include is necessary to clone all track branches
 // including recoTrackExtras and TrackingRecHitsOwned.
 // if you remove it the code will compile, but the cloned
 // tracks have only the recoTracks branch!
-#include "PhysicsTools/RecoAlgos/interface/TrackSelector.h"
+#include "CommonTools/RecoAlgos/interface/TrackSelector.h"
 
 struct CSCOverlapConfigSelector {
 

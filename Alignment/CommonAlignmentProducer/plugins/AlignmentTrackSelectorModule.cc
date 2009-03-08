@@ -1,6 +1,6 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
 
 //the selectores used to select the tracks
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentTrackSelector.h"
@@ -13,7 +13,7 @@
 // including recoTrackExtras and TrackingRecHitsOwned (in future also "owned clusters"?).
 // if you remove it the code will compile, but the cloned
 // tracks have only the recoTracks branch!
-#include "PhysicsTools/RecoAlgos/interface/TrackSelector.h"
+#include "CommonTools/RecoAlgos/interface/TrackSelector.h"
 
 struct TrackConfigSelector {
 
