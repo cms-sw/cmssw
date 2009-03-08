@@ -91,6 +91,12 @@ void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const in
     val_file.cd("DQMData/CaloTowersV/CaloTowersTask");   
     val_hist1[nh1] = (TH1F*) gDirectory->Get(HistName);
 
+    //Rebin histograms -- has to be done first
+    if (Chi2Switch == "Chi2" && LogSwitch == "Log"){
+	ref_hist1[nh1]->Rebin(5);
+	val_hist1[nh1]->Rebin(5);
+    }
+
     //Set the colors, styles, titles, stat boxes and format x-axis for the histograms 
     if (StatSwitch == "Stat") ref_hist1[nh1]->SetStats(kTRUE);
 
@@ -110,14 +116,10 @@ void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const in
     
     //Chi2
     if (Chi2Switch == "Chi2"){
-      //Rebin histograms
-      ref_hist1[nh1]->Rebin(5);
-      val_hist1[nh1]->Rebin(5);
-
       //Draw histograms
       ref_hist1[nh1]->SetFillColor(48);
       ref_hist1[nh1]->Draw("hist"); // "stat"
-      val_hist1[nh1]->Draw("sames e1");
+      val_hist1[nh1]->Draw("sames e0");
       //Get p-value from chi2 test
       const float NCHI2MIN = 0.01;
       

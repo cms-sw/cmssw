@@ -102,6 +102,12 @@ void ProcessRelValRecHit(TFile &ref_file, TFile &val_file, ifstream &recstr, con
       
       val_file.cd("DQMData/HcalRecHitsV/HcalRecHitTask");   
       val_hist1[nh1] = (TH1F*) gDirectory->Get(HistName);
+
+      //Rebin histograms -- has to be done first
+      if (Chi2Switch == "Chi2"){
+	ref_hist1[nh1]->Rebin(10);
+	val_hist1[nh1]->Rebin(10);
+      }
       
       //Set the colors, styles, titles, stat boxes and format axes for the histograms 
       if (StatSwitch != "Stat" && StatSwitch != "Statrv") ref_hist1[nh1]->SetStats(kFALSE);   
@@ -132,16 +138,12 @@ void ProcessRelValRecHit(TFile &ref_file, TFile &val_file, ifstream &recstr, con
       leg->AddEntry(val_hist1[nh1],"CMSSW_"+val_vers,"l");
 
       if (Chi2Switch == "Chi2"){
-	//Rebin histograms
-	ref_hist1[nh1]->Rebin(10);
-	val_hist1[nh1]->Rebin(10);
-	
 	//Draw and save histograms
 	ref_hist1[nh1]->SetFillColor(48);
 	ref_hist1[nh1]->Draw("hist");   
 	val_hist1[nh1]->SetLineStyle(1);  
-	if (StatSwitch == "Statrv") val_hist1[nh1]->Draw("hist sames e1");   
-	else                        val_hist1[nh1]->Draw("hist same e1");   
+	if (StatSwitch == "Statrv") val_hist1[nh1]->Draw("hist sames e0");   
+	else                        val_hist1[nh1]->Draw("hist same e0");   
 
 	//Get p-value from chi2 test
 	const float NCHI2MIN = 0.01;
