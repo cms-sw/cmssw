@@ -176,7 +176,7 @@ int main( int argc, char** argv ){
 	   std::cout<<ioviterator->since() << " \t "<<ioviterator->till() <<" \t "<<ioviterator->wrapperToken();
 	   if (details) {
 	     cond::TypedRef<cond::PayloadWrapper> wrapper(pooldb,ioviterator->wrapperToken());
-	     std::cout << " \t "<< wrapper->summary();
+	     if (wrapper) std::cout << " \t "<< wrapper->summary();
 	   }
 	   std::cout<<std::endl;	
 	   ++counter;
