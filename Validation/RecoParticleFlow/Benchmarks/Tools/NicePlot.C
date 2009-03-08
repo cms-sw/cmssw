@@ -6,6 +6,8 @@ Style *s1;
 Style *s2;
 Style *sg1;
 Style *sback;
+Style *spred;
+Style *spblue;
 
 void InitNicePlot() {
   s1 = new Style(); 
@@ -28,7 +30,18 @@ void InitNicePlot() {
   sback =  new Style();
   sback->SetFillStyle(1001);  
   sback->SetFillColor(5);  
-  
+ 
+  spred = new Style();
+  spred->SetLineColor(1); 
+  spred->SetLineWidth(2);  
+  spred->SetFillStyle(3002); 
+  spred->SetFillColor(2); 
+
+  spblue = new Style();
+  spblue->SetLineColor(1); 
+  spblue->SetLineWidth(1); 
+  spblue->SetFillStyle(1001); 
+  spblue->SetFillColor(20);   
 }
 
 

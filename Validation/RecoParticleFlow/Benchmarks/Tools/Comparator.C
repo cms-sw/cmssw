@@ -197,8 +197,13 @@ private:
 	FormatHisto( h0_ , s0_);
       if(s1_)
  	FormatHisto( h1_ , s1_);
+      
+      if( h1_->GetMaximum()>h0_->GetMaximum()) {
+	h0_->SetMaximum( h1_->GetMaximum()*1.15 );
+      }
       h0_->Draw();
       h1_->Draw("same");
+	
       break;
     case EFF:
       h1_->Divide( h0_ );
