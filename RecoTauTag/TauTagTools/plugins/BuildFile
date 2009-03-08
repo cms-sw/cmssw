@@ -12,8 +12,8 @@
   <use name=FWCore/MessageLogger>
   <use name=DataFormats/TauReco>
   <use name=DataFormats/WrappedStdDictionaries>
-  <use name=PhysicsTools/UtilAlgos>
-  <use name=PhysicsTools/CandAlgos>
+  <use name=CommonTools/UtilAlgos>
+  <use name=CommonTools/CandAlgos>
   <use name=PhysicsTools/HepMCCandAlgos>
   <use name=RecoTauTag/TauTagTools>
 </library>

@@ -4,6 +4,6 @@
   <use name=FWCore/ParameterSet>
   <use name=DataFormats/Candidate>
   <use name=DataFormats/HepMCCandidate>
-  <use name=PhysicsTools/UtilAlgos>
-  <use name=PhysicsTools/CandAlgos>
+  <use name=CommonTools/UtilAlgos>
+  <use name=CommonTools/CandAlgos>
 </library>
