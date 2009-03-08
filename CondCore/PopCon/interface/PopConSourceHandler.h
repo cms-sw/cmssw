@@ -52,13 +52,14 @@ namespace popcon {
     typedef std::vector<std::pair<T*, cond::Time_t> > OldContainer;
     
     
-    class Ref : public cond::TypedRef<Wrapper>  {
+    class Ref : {
     public:
       Ref() : m_pooldb(0){}
       Ref(cond::PoolTransaction& pooldb, std::string token) : 
         m_pooldb(&pooldb){
 	m_pooldb->start(true);
-	(cond::TypedRef<Wrapper>&)(*this) = cond::TypedRef<Wrapper>(pooldb,token);
+	m_dw = pool::Ref<Wrapper>(&(pooldb.poolDataSvc()),token);
+	m_d = pool::Ref<T>(&(pooldb.poolDataSvc()),token);
       }
       ~Ref() {
 	if (m_pooldb)
@@ -66,19 +67,37 @@ namespace popcon {
       }
       
       Ref(const Ref & ref) : 
-	cond::TypedRef<Wrapper>(ref), m_pooldb(ref.m_pooldb) {
+	m_pooldb(ref.m_pooldb), m_dw(ref.m_dw), m_d(ref.m_d) {
 	ref.m_pooldb=0; // avoid commit;
       }
       
       Ref & operator=(const Ref & ref) {
-	cond::TypedRef<Wrapper>::operator=(ref);
 	m_pooldb = ref.m_pooldb;
+	m_dw = ref.m_dw;
+	m_d = ref.m_d; 
 	ref.m_pooldb=0; // avoid commit;
 	return *this;
       }
       
-      mutable cond::PoolTransaction *m_pooldb;
+      T * ptr() const {
+	if (m_dw) return &m_dw->data();
+	return m_d.ptr();
+
+      }
+      T* operator->() const {
+	return ptr();
+      }
+      // dereference operator
+      T& operator*() const {
+	return *ptr();
+      }
+
       
+    private:
+
+      mutable cond::PoolTransaction *m_pooldb;
+      pool::Ref<Wrapper> m_dw;
+      pool::Ref<T> m_d;
     };
     
     
