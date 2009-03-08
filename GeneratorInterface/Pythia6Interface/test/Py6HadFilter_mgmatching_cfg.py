@@ -47,12 +47,11 @@ process.generator = cms.EDFilter("Pythia6HadronizerFilter",
     ),
     jetMatching = cms.untracked.PSet(
        scheme = cms.string("Madgraph"),
-       mode = cms.string("auto"),
+       mode = cms.string("auto"),	# soup, or "inclusive" / "exclusive"
        MEMAIN_etaclmax = cms.double(5.0),
        MEMAIN_qcut = cms.double(30.0),
        MEMAIN_minjets = cms.int32(0),
        MEMAIN_maxjets = cms.int32(2),
-       MEMAIN_iexcfile = cms.uint32(0) # only set to 1 if need to perform exclusive matching
     )    
 )
 
