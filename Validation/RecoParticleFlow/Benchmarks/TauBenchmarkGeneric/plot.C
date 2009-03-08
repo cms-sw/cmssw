@@ -7,11 +7,17 @@
 
   gStyle->SetOptStat(1111);
 
-  string dirpf = "DQMData/PFTask/Benchmarks/iterativeCone5PFJets/Gen";
-  string dircalo = "DQMData/PFTask/Benchmarks/iterativeCone5CaloJets/Gen";
-  const char* file = "benchmark.root";
-  // const char* file = "ztautau.root";
-  // const char* file = "singleTaus.root";
+//   string dirpf = "DQMData/PFTask/Benchmarks/iterativeCone5PFJets/Gen";
+//   string dir2 = "DQMData/PFTask/Benchmarks/iterativeCone5CaloJets/Gen";
+  string dir1 = "DQMData/PFTask/Benchmarks/PFlowTaus/Gen";
+  string dir2 = "DQMData/PFTask/Benchmarks/PFlowTaus/Gen";
+  //  string dir2 = "DQMData/PFTask/Benchmarks/CaloTaus/Gen";
+  //  const char* file1 = "benchmark_oldmethod.root";
+  const char* file1 = "single_newmethod_bigcone.root";
+  const char* file2 = "single_newmethod_bigcone_noint.root";
+  // const char* file2 = "benchmark_newmethod.root";
+  // const char* file1 = "ztautau.root";
+  // const char* file1 = "singleTaus.root";
 
   enum EtaModes {
     BARREL,
@@ -24,6 +30,8 @@
   float ptMax = 9999;
   Style* style1 = sback;
   Style* style2 = s1;
+  // Style* style1 = spred;
+  // Style* style1 = spblue;
   Comparator::Mode mode = Comparator::SCALE;
 
   int etamode = ALL;
@@ -32,23 +40,23 @@
 
   switch( etamode ) {
   case BARREL:
-    dirpf = "DQMData/PFTask/Benchmarks/iterativeCone5PFJets_barrel/Gen";
-    dircalo = "DQMData/PFTask/Benchmarks/iterativeCone5CaloJets_barrel/Gen";
+    dir1 = "DQMData/PFTask/Benchmarks/PFlowTaus_barrel/Gen";
+    dir2 = "DQMData/PFTask/Benchmarks/CaloTaus_barrel/Gen";
     outdir = "Plots_Barrel";
     break;
   case ENDCAP:
-    dirpf = "DQMData/PFTask/Benchmarks/iterativeCone5PFJets_endcap/Gen";
-    dircalo = "DQMData/PFTask/Benchmarks/iterativeCone5CaloJets_endcap/Gen";
+    dir1 = "DQMData/PFTask/Benchmarks/PFlowTaus_endcap/Gen";
+    dir2 = "DQMData/PFTask/Benchmarks/CaloTaus_endcap/Gen";
     outdir = "Plots_Endcap";
     break;
   default:
     break;
   }   
 
-  Comparator comp(file,
-		  dirpf.c_str(),
-		  file,
-		  dircalo.c_str());
+  Comparator comp(file1,
+		  dir1.c_str(),
+		  file2,
+		  dir2.c_str());
   comp.SetStyles(style1, style2, "Particle Flow Taus", "Calo Taus");
 
 
@@ -73,7 +81,7 @@
     SavePlot("tauBenchmarkGeneric_highpT", outdir.c_str() );
   }
 
-  comp.SetAxis(1, -0.3,0.3);
+  comp.SetAxis(2, -0.2,0.2);
 
   TCanvas c2a("c2a", "Eta resolution, low pT");
   FormatPad( &c2a, false );
@@ -110,10 +118,10 @@
     FormatPad( &c4, false );
     unsigned rebin = 10;
 
-    Comparator comp2(file,
-		     dirpf.c_str(),
-		     file,
-		     dirpf.c_str() ); 
+    Comparator comp2(file1,
+		     dir1.c_str(),
+		     file1,
+		     dir1.c_str() ); 
     comp2.SetStyles(style1, style2);
     comp2.Draw("EtSeen","EtGen", Comparator::EFF);
     SavePlot("efficiency_vs_pT_pf", outdir.c_str() );
@@ -121,10 +129,10 @@
     TCanvas c5("c5", "Efficiency Calo");
     FormatPad( &c5, false );
 
-    Comparator comp3(file,
-		     dircalo.c_str(),
-		     file,
-		     dircalo.c_str() ); 
+    Comparator comp3(file1,
+		     dir2.c_str(),
+		     file1,
+		     dir2.c_str() ); 
     comp3.SetStyles(style1, style2);
     comp3.Draw("EtSeen","EtGen", Comparator::EFF);
     SavePlot("efficiency_vs_pT_calo", outdir.c_str() );
