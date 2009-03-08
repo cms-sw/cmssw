@@ -70,11 +70,11 @@ namespace cond{
       
       virtual std::string operator()(cond::PoolTransaction& pooldb, bool withWrapper) const {
 	if (withWrapper) {
-	  cond::TypedRef<Wrapper> myPayload(pooldb,new Wrapper(p,s));
+	  cond::TypedRef<Wrapper> myPayload(pooldb,new Wrapper(m_p,m_s));
 	  myPayload.markWrite(myPayload.className().replace(0,sizeDSW(),"DSW"));
 	  return myPayload.token();
 	} else {
-	  cond::TypedRef<T> myPayload(pooldb,p);
+	  cond::TypedRef<T> myPayload(pooldb,m_p);
 	  myPayload.markWrite(myPayload.className());
 	  return myPayload.token();
 	}
