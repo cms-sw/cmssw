@@ -19,7 +19,7 @@
 #include "DataFormats/BTauReco/interface/JetTag.h"
 
 // This to convert to candidates
-#include "PhysicsTools/CandAlgos/interface/ShallowCloneProducer.h"
+#include "CommonTools/CandAlgos/interface/ShallowCloneProducer.h"
 #include "L1TriggerOffline/L1Analyzer/interface/TagCaloJetProducer.h"
 
 // L1 converters
