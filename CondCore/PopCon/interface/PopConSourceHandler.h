@@ -52,7 +52,7 @@ namespace popcon {
     typedef std::vector<std::pair<T*, cond::Time_t> > OldContainer;
     
     
-    class Ref : {
+    class Ref {
     public:
       Ref() : m_pooldb(0){}
       Ref(cond::PoolTransaction& pooldb, std::string token) : 
