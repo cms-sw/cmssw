@@ -13,7 +13,7 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Mon Sep 17 10:31:30 CEST 2007
-// $Id: TestOutliers.cc,v 1.4 2008/05/28 16:44:47 cerati Exp $
+// $Id: TestOutliers.cc,v 1.5 2009/03/04 13:34:24 vlimant Exp $
 //
 //
 
@@ -52,7 +52,7 @@
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
-#include "PhysicsTools/RecoAlgos/interface/RecoTrackSelector.h"
+#include "CommonTools/RecoAlgos/interface/RecoTrackSelector.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 //

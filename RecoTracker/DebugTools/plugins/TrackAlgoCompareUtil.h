@@ -23,8 +23,8 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
-#include "PhysicsTools/RecoAlgos/interface/RecoTrackSelector.h"
-#include "PhysicsTools/RecoAlgos/interface/TrackingParticleSelector.h"
+#include "CommonTools/RecoAlgos/interface/RecoTrackSelector.h"
+#include "CommonTools/RecoAlgos/interface/TrackingParticleSelector.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 // Track Association Methods

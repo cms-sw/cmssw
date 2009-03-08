@@ -4,7 +4,7 @@
 
 <library file=CalibrationTrackSelectorModule.cc>
  <use name=Calibration/TkAlCaRecoProducers>
- <use name=PhysicsTools/RecoAlgos>
+ <use name=CommonTools/RecoAlgos>
  <use name=PhysicsTools/UtilAlgos>
  <flags EDM_PLUGIN=1>
 </library>

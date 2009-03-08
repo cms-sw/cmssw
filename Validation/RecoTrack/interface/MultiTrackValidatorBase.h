@@ -4,8 +4,8 @@
 /** \class MultiTrackValidatorBase
  *  Base class for analyzers that produces histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2009/02/02 17:57:35 $
- *  $Revision: 1.16 $
+ *  $Date: 2009/02/03 14:18:10 $
+ *  $Revision: 1.17 $
  *  \author cerati
  */
 
@@ -24,8 +24,8 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "PhysicsTools/RecoAlgos/interface/RecoTrackSelector.h"
-#include "PhysicsTools/RecoAlgos/interface/TrackingParticleSelector.h"
+#include "CommonTools/RecoAlgos/interface/RecoTrackSelector.h"
+#include "CommonTools/RecoAlgos/interface/TrackingParticleSelector.h"
 
 #include <iostream>
 #include <sstream>
