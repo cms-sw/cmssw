@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Wed Feb 22 16:07:58 CET 2006
-// $Id: SiStripHistoId.cc,v 1.10 2009/03/04 00:41:49 elmer Exp $
+// $Id: SiStripHistoId.cc,v 1.11 2009/03/04 00:45:46 elmer Exp $
 //
 
 #include<iostream>
@@ -40,93 +40,95 @@ SiStripHistoId::~SiStripHistoId()
 std::string SiStripHistoId::createHistoId(std::string description, std::string id_type,uint32_t component_id){
   size_t pos1 = description.find( separator1, 0 ); // check if std::string 'description' contains by mistake the 'separator1'
   size_t pos2 = description.find( separator2, 0 ); // check if std::string 'description' contains by mistake the 'separator2'
+  std::string local_histo_id;
+  std::ostringstream compid;
+  compid<<component_id; // use std::ostringstream for casting integer to std::string
+      
   if ( pos1 == std::string::npos && pos2 == std::string::npos ){ // ok, not found either separator
     if(id_type=="fed" || id_type=="det" || id_type=="fec"){ // ok! is one of the accepted id_type-s
-      std::ostringstream compid; compid<<component_id; // use std::ostringstream for casting integer to std::string
-      std::string local_histo_id = description + separator1 + id_type + separator2 + compid.str();
-      return local_histo_id;
+      local_histo_id = description + separator1 + id_type + separator2 + compid.str();
     }else{
-      LogWarning("SiStripTkDQM|WrongInput")<<"no such type of component accepted: "<<id_type
-                            <<" . id_type can be: fed, det, or fec."
-                            <<"   Throwing exception";
-      throw std::string("Exception thrown");
+      local_histo_id = description + separator1 + "dummy" + separator2 + compid.str();
+      LogError("SiStripHistoId") <<" SiStripHistoId::WrongInput " 
+				 <<" no such type of component accepted: "<<id_type
+				 <<" id_type can be: fed, det, or fec.";      
     }
   }else{
-    LogWarning("SiStripTkDQM|WrongInput")<<"histogram description cannot contain: "<<separator1<<" or: "<<separator2
-                          <<" histogram description = "<<description
-                          <<" . Throwing exception";
-    throw std::string("Exception thrown");
+    local_histo_id = description + "_dummy_" + separator1 + id_type + separator2 + compid.str();
+    LogError("SiStripHistoId") <<" SiStripHistoId::WrongInput " 
+			       <<" histogram description cannot contain: "<<separator1<<" or: "<<separator2
+			       <<" histogram description = "<<description;
   }
+  return local_histo_id;
 }
 
 std::string SiStripHistoId::createHistoLayer(std::string description, std::string id_type,std::string path,std::string flag){
   size_t pos1 = description.find( separator1, 0 ); // check if std::string 'description' contains by mistake the 'separator1'
   size_t pos2 = description.find( separator2, 0 ); // check if std::string 'description' contains by mistake the 'separator2'
+  std::string local_histo_id;
   if ( pos1 == std::string::npos && pos2 == std::string::npos ){ // ok, not found either separator
     if(id_type=="fed" || id_type=="det" || id_type=="fec"  || id_type=="layer"){ // ok! is one of the accepted id_type-s
-      std::ostringstream compid; compid<<path; // use std::ostringstream for casting integer to std::string
-      std::string local_histo_id;
       if(flag.size() > 0)
 	local_histo_id = description + separator1 + flag + separator2 + path;
       else 
 	local_histo_id = description + separator2 + path;
-
       LogTrace("SiStripHistoId") << "Local_histo_ID " << local_histo_id << std::endl;
-      return local_histo_id;
     }else{
-      LogWarning("SiStripTkDQM|WrongInput")<<"no such type of component accepted: "<<id_type
-                            <<" . id_type can be: fed, det, fec or layer."
-                            <<"   Throwing exception";
-      throw std::string("Exception thrown");
+      local_histo_id = description + separator2 + "_dummy_" + path;
+      LogError("SiStripHistoId") <<" SiStripHistoId::WrongInput " 
+				 <<" no such type of component accepted: "<<id_type
+				 <<" id_type can be: fed, det, fec or layer ";
     }
   }else{
-    LogWarning("SiStripTkDQM|WrongInput")<<"histogram description cannot contain: "<<separator1<<" or: "<<separator2
-                          <<" histogram description = "<<description
-                          <<" . Throwing exception";
-    throw std::string("Exception thrown");
+    local_histo_id = description + "_dummy_" + separator2 +  path;
+    LogWarning("SiStripHistoId") <<" SiStripHistoId::WrongInput " 
+                                 <<" histogram description cannot contain: "<<separator1<<" or: "<<separator2
+				 <<" histogram description = "<<description;
   }
+  return local_histo_id;
 }
 
-std::string SiStripHistoId::getSubdetid(uint32_t id,bool flag_ring){
-  char rest[1024];
+std::string SiStripHistoId::getSubdetid(uint32_t id,bool flag_ring){  std::string rest1;
+  std::ostringstream temp_str;
+  std::string subdet_id;
 
   StripSubdetector subdet(id);
   if( subdet.subdetId() == StripSubdetector::TIB){
-  // ---------------------------  TIB  --------------------------- //
+    // ---------------------------  TIB  --------------------------- //
     TIBDetId tib1 = TIBDetId(id);
-    sprintf(rest,"TIB__layer__%d",tib1.layer());
+    temp_str << "TIB__layer__"<< tib1.layer();
   }else if( subdet.subdetId() == StripSubdetector::TID){
-  // ---------------------------  TID  --------------------------- //
+    // ---------------------------  TID  --------------------------- //
     TIDDetId tid1 = TIDDetId(id);
-    sprintf(rest,"TID__side__%d__wheel__%d",tid1.side(),tid1.wheel());
+    temp_str << "TID__side__" << tid1.side() <<"__wheel__"<< tid1.wheel(); 
   }else if(subdet.subdetId() == StripSubdetector::TOB){ 
-  // ---------------------------  TOB  --------------------------- //
+    // ---------------------------  TOB  --------------------------- //
     TOBDetId tob1 = TOBDetId(id);
-    sprintf(rest,"TOB__layer__%d",tob1.layer());
+    temp_str << "TOB__layer__" << tob1.layer();
   }else if(subdet.subdetId() == StripSubdetector::TEC){
-  // ---------------------------  TEC  --------------------------- //
+    // ---------------------------  TEC  --------------------------- //
     TECDetId tec1 = TECDetId(id);
-    sprintf(rest,"TEC__side__%d__wheel__%d",tec1.side(),tec1.wheel());
+    temp_str << "TEC__side__" << tec1.side() <<"__wheel__" <<tec1.wheel();  
   }else{
-  // ---------------------------  ???  --------------------------- //
+    // ---------------------------  ???  --------------------------- //
     edm::LogError("SiStripTkDQM|WrongInput")<<"no such subdetector type :"<<subdet.subdetId()<<" no folder set!"<<std::endl;
-    return 0;
+    temp_str << "";  
   }
   
   if(flag_ring){
     if(subdet.subdetId() == StripSubdetector::TID){
       // ---------------------------  TID  --------------------------- //
       TIDDetId tid1 = TIDDetId(id);
-      sprintf(rest,"TID__side__%d__ring__%d",tid1.side(),tid1.ring());
+      temp_str << "TID__side__" << tid1.side() << "__ring__" << tid1.ring();
     }else if( subdet.subdetId() == StripSubdetector::TEC){
       // ---------------------------  TEC  --------------------------- //
       TECDetId tec1 = TECDetId(id);
-      sprintf(rest,"TEC__side__%d__ring__%d",tec1.side(),tec1.ring());
+      temp_str << "TEC__side__" << tec1.side() << "__ring__" << tec1.ring();
     }
   }
 
-  std::string rest1(rest);
-  return rest1;
+  subdet_id = temp_str.str();
+  return subdet_id;
 }
 
 uint32_t SiStripHistoId::getComponentId(std::string histoid){
