@@ -50,5 +50,6 @@
   <class name="DTTPGParametersId" id="D0D7107B-C7C5-DD11-AA5A-000E0C5CE282"/>
   <class name="DTTPGParametersData" id="5EEE8E7B-C7C5-DD11-A18E-000E0C5CE282"/>
   <class name="std::basic_string<char>"/>
+<!-- comment -->
 </lcgdict>
 

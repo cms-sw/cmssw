@@ -181,7 +181,7 @@ cond::IOVServiceImpl::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
        it!=isecondTill; ++it){
     // FIXME need option to load Ptr unconditionally....
     cond::TypedRef<cond::PayloadWrapper> payloadTRef(*m_pooldb,it->wrapperToken());
-    payloadTRef->loadAll();
+    if(payloadTRef.ptr()) payloadTRef->loadAll();
     cond::GenericRef payloadRef(*m_pooldb,it->wrapperToken());
     std::string newPtoken=payloadRef.exportTo(destDB);
     newiov.add(it->sinceTime(), newPtoken);
