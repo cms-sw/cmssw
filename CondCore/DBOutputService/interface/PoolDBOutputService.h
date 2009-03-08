@@ -47,7 +47,7 @@ namespace cond{
       virtual std::string operator()(cond::PoolTransaction&, bool) const =0;
       static unsigned int sizeDSW();
     };
-
+    
     struct GetTrivialToken : public GetToken {
       
       GetTrivialToken(std::string token) : 
@@ -56,19 +56,19 @@ namespace cond{
       virtual std::string operator()(cond::PoolTransaction&, bool) const {
 	return m_token;
       }
-
+      
       std::string m_token;
     };
-
+    
     template<typename T>
     struct GetTokenFromPointer : public GetToken {
       typedef cond::DataWrapper<T> Wrapper;
-
+      
       GetTokenFromPointer(T * p, Summary * s) : 
 	m_p(p), m_s(s){}
-	//m_w(new Wrapper(p,s)){}
+      //m_w(new Wrapper(p,s)){}
       
-      virtual std::string operator()(cond::PoolTransaction& pooldb, bool=withWrapper) const {
+      virtual std::string operator()(cond::PoolTransaction& pooldb, bool withWrapper) const {
 	if (withWrapper) {
 	  cond::TypedRef<Wrapper> myPayload(pooldb,new Wrapper(p,s));
 	  myPayload.markWrite(myPayload.className().replace(0,sizeDSW(),"DSW"));
@@ -80,13 +80,13 @@ namespace cond{
 	}
 	return "make compiler happy";
       }
-
+      
       T * m_p;
-      S * m_s;
+      cond::Summary * m_s;
       // Wrapper * m_w;
       //const std::string& m_recordName;
     };
-
+    
 
 
       
@@ -309,6 +309,9 @@ namespace cond{
       bool m_dbstarted;
       cond::Logger* m_logdb;
       bool m_logdbOn;
+      
+      bool m_withWrapper;
+
       std::map<size_t, cond::UserLogInfo> m_logheaders;
       //cond::IOVService* m_iovservice;
       //edm::ParameterSet m_connectionPset;
