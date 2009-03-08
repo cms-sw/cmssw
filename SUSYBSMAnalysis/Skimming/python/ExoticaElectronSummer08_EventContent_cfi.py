@@ -15,7 +15,7 @@ exoticaEOutputModule = cms.OutputModule("PoolOutputModule",
   )
 
 #default output content AODSIMEventContent or AODEventContent
-exoticaEOutputModule.outputCommands.extend(RECOEventContent.outputCommands)
+exoticaEOutputModule.outputCommands.extend(RECOSIMEventContent.outputCommands)
 
 #add specifi content you need. 
 SpecifiedEvenetContent=cms.PSet(

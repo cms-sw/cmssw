@@ -16,7 +16,7 @@ exoticaMuOutputModule = cms.OutputModule("PoolOutputModule",
 
 
 #default output content RecoEventContent
-exoticaMuOutputModule.outputCommands.extend(RECOEventContent.outputCommands)
+exoticaMuOutputModule.outputCommands.extend(RECOSIMEventContent.outputCommands)
 
 #add specifi content you need. 
 SpecifiedEvenetContent=cms.PSet(
