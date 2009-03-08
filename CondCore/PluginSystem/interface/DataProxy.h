@@ -45,23 +45,28 @@ template< class RecordT, class DataT >
     //std::cout<<"DataT make "<<std::endl;
     cond::PoolTransaction& pooldb=m_connection->poolTransaction();
     pooldb.start(true);      
-
-    pool::Ref<DataWrapper> mydata(&(pooldb.poolDataSvc()),m_pDatumToToken->second);
-    if (mydata) {
-      try{
-	result = &mydata->data();
-      }
-      catch( const pool::Exception& e) {
+    // FIXME (clean this mess)
+    try {
+      pool::Ref<DataWrapper> mydata(&(pooldb.poolDataSvc()),m_pDatumToToken->second);
+      if (mydata) {
+	try{
+	  result = &mydata->data();
+	}
+	catch( const pool::Exception& e) {
 	throw cond::Exception("DataProxy::make: null result");
+	}
+	m_data.copyShallow(mydata);
+	pooldb.commit();
+	return result;
       }
-      m_data.copyShallow(mydata);
-    } else {
-      // compatibility mode....
-      pool::Ref<DataT> myodata(&(pooldb.poolDataSvc()),m_pDatumToToken->second);
-      result = myodata.ptr();
-      if (!result) throw cond::Exception("DataProxy::make: null result");
-      m_OldData.copyShallow(myodata);
-    }
+    } catch(const pool::Exception&){}
+
+    // compatibility mode....
+    pool::Ref<DataT> myodata(&(pooldb.poolDataSvc()),m_pDatumToToken->second);
+    result = myodata.ptr();
+    if (!result) throw cond::Exception("DataProxy::make: null result");
+    m_OldData.copyShallow(myodata);
+
     pooldb.commit();
     return result;
   }
