@@ -75,7 +75,7 @@ ElectronSeedMerger::produce(Event& iEvent, const EventSetup& iSetup)
   ElectronSeedCollection::const_iterator e_end= ESeed.end();
   for (;e_beg!=e_end;++e_beg){
 
-    ElectronSeed NewSeed=*(e_beg->clone());
+    ElectronSeed NewSeed=*(e_beg);
     bool AlreadyMatched =false;
     
     //LOOP OVER THE TK SEED COLLECTION
@@ -99,10 +99,10 @@ ElectronSeedMerger::produce(Event& iEvent, const EventSetup& iSetup)
 	for (;th!=th_end;++th){
 	  if (!th->isValid()) continue;
 	  //CHECK THE HIT COMPATIBILITY
-	  if (eh->sharesInput(th->clone(),TrackingRecHit::all)) hitShared++;
+	  if (eh->sharesInput(&(*th),TrackingRecHit::all)) hitShared++;
 	}
 	if (Shared) hitShared++;
-      }
+      }     
       if (hitShared==hitSeed){
 	AlreadyMatched=true;
 	TSeedMatched[it]=true;
@@ -115,7 +115,7 @@ ElectronSeedMerger::produce(Event& iEvent, const EventSetup& iSetup)
   
   //FILL THE COLLECTION WITH UNMATCHED TK-BASED SEED
   for (uint it=0;it<TSeed.size();it++){
-    if (!TSeedMatched[it])  output->push_back(*TSeed[it].clone());
+    if (!TSeedMatched[it])  output->push_back(TSeed[it]);
   }
   
   //PUT THE MERGED COLLECTION IN THE EVENT
