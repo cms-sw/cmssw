@@ -44,7 +44,7 @@ namespace cond{
 
 
     struct GetToken {
-      virtual std::string operator()(cond::PoolTransaction&) const =0;
+      virtual std::string operator()(cond::PoolTransaction&, bool) const =0;
       static unsigned int sizeDSW();
     };
 
@@ -53,7 +53,7 @@ namespace cond{
       GetTrivialToken(std::string token) : 
 	m_token(token){}
       virtual ~GetTrivialToken(){}
-      virtual std::string operator()(cond::PoolTransaction&) const {
+      virtual std::string operator()(cond::PoolTransaction&, bool) const {
 	return m_token;
       }
 
@@ -65,16 +65,25 @@ namespace cond{
       typedef cond::DataWrapper<T> Wrapper;
 
       GetTokenFromPointer(T * p, Summary * s) : 
-	m_w(new Wrapper(p,s)){}
+	m_p(p), m_s(s){}
+	//m_w(new Wrapper(p,s)){}
       
-      virtual std::string operator()(cond::PoolTransaction& pooldb) const {
-	cond::TypedRef<Wrapper> myPayload(pooldb,m_w);
-	myPayload.markWrite(myPayload.className().replace(0,sizeDSW(),"DSW"));
-	return myPayload.token();
-
+      virtual std::string operator()(cond::PoolTransaction& pooldb, bool=withWrapper) const {
+	if (withWrapper) {
+	  cond::TypedRef<Wrapper> myPayload(pooldb,new Wrapper(p,s));
+	  myPayload.markWrite(myPayload.className().replace(0,sizeDSW(),"DSW"));
+	  return myPayload.token();
+	} else {
+	  cond::TypedRef<T> myPayload(pooldb,p);
+	  myPayload.markWrite(myPayload.className());
+	  return myPayload.token();
+	}
+	return "make compiler happy";
       }
 
-      Wrapper * m_w;
+      T * m_p;
+      S * m_s;
+      // Wrapper * m_w;
       //const std::string& m_recordName;
     };
 
@@ -109,6 +118,33 @@ namespace cond{
       std::string tag( const std::string& EventSetupRecordName );
       bool isNewTagRequest( const std::string& EventSetupRecordName );
       const cond::Logger& queryLog() const;
+
+
+      /* write one (either create or append)
+       * The ONE and ONLY interface supportd in future!
+       */
+      template<typename T>
+      void writeOne(T * payload, Summary * summary, 
+		    Time_t time, const std::string& recordName, 
+		    bool withlogging=false, bool since=true) {
+	if (isNewTagRequest(recordName) ){
+	  createNewIOV<T>(payload, summary,
+			  since ? time : beginOfTime(),
+			  since ?  endOfTime() : time, 
+			  recordName, withlogging);
+	}
+	else{
+	  if (since){ 
+	    appendSinceTime<T>(payload, summary, time, recordName, withlogging);
+	  } 
+	  else { 
+	    appendTillTime<T>(payload, summary, time, recordName, withlogging);
+	  }
+	}	
+      }
+
+
+
 
       //
       // insert the payload and its valid since/till time into the database
@@ -198,27 +234,7 @@ namespace cond{
       }
 
 
-      // write one (either create or append
-      template<typename T>
-      void writeOne(T * payload, Summary * summary, 
-		    Time_t time, const std::string& recordName, 
-		    bool withlogging=false, bool since=true) {
-	if (isNewTagRequest(recordName) ){
-	  createNewIOV<T>(payload, summary,
-			  since ? time : beginOfTime(),
-			  since ?  endOfTime() : time, 
-			  recordName, withlogging);
-	}
-	else{
-	  if (since){ 
-	    appendSinceTime<T>(payload, summary, time, recordName, withlogging);
-	  } 
-	  else { 
-	    appendTillTime<T>(payload, summary, time, recordName, withlogging);
-	  }
-	}	
-      }
-
+ 
 
       //
       // Service time utility callback method 

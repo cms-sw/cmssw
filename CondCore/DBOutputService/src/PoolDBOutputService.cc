@@ -40,8 +40,15 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
   m_session( 0 ),
   m_dbstarted( false ),
   m_logdb( 0 ),
-  m_logdbOn( false )
+  m_logdbOn( false ),
+  m_withWrapper(false)
 {
+
+  if( iConfig.exists("withWrapper") ){
+     m_withWrapper=iConfig.getUntrackedParameter<bool>("withWrapper");
+  }  
+
+
   std::string connect=iConfig.getParameter<std::string>("connect");
   std::string logconnect("");
   if( iConfig.exists("logconnect") ){
@@ -280,7 +287,7 @@ cond::service::PoolDBOutputService::add( bool sinceNotTill,
 
   try{
     pooldb.start(false);
-    objToken = payloadToken(pooldb);
+    objToken = payloadToken(pooldb,m_withWrapper);
     payloadIdx= sinceNotTill ?
       this->appendIOV(pooldb,myrecord,objToken,time) :
       this->insertIOV(pooldb,myrecord,objToken,time);
