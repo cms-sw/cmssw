@@ -222,6 +222,75 @@ MonitorElement::Fill(float x, float yw)
     incompatible(__PRETTY_FUNCTION__);
 }
 
+/// shift bin to the left and fill last bin with new entry
+/// 1st argument is y value, 2nd argument is y error (default 0)
+/// can be used with 1D or profile histograms only
+void
+MonitorElement::ShiftFillLast(float y, float ye, int xscale)
+{
+  update();
+  if (kind_ == DQM_KIND_TH1F || kind_ == DQM_KIND_TH1S ) 
+  {
+    int nbins = getNbinsX();
+    int entries = (int)getEntries();
+    // first fill bins from left to right
+    int index = entries + 1 ;
+    int xlow = 2 ; int xup = nbins ;
+    // if more entries than bins then start shifting
+    if ( entries >= nbins ) 
+    {
+      index = nbins;
+      xlow = entries - nbins + 2 ; xup = entries ; 
+      // average first bin
+      float y1 = getBinContent(1);
+      float y2 = getBinContent(2);
+      float y1err = getBinError(1);
+      float y2err = getBinError(2);
+      float N = entries - nbins + 1.;
+      if ( ye == 0. || y1err == 0. || y2err == 0.) 
+      {
+        // for errors zero calculate unweighted mean and its error
+	float sum = N*y1 + y2;
+        y1 = sum/(N+1.) ;
+	// FIXME check if correct
+        y1err = sqrt((N+1.)*(N*y1*y1 + y2*y2) - sum*sum)/(N+1.);  
+      }
+      else 
+      {
+        // for errors non-zero calculate weighted mean and its error
+        float denom = (1./y1err + 1./y2err);
+        float mean = (y1/y1err + y2/y2err)/denom;
+	// FIXME check if correct
+	y1err = sqrt(((y1-mean)*(y1-mean)/y1err +
+                      (y2-mean)*(y2-mean)/y2err)/denom/2.);
+	y1 = mean; // set y1 to mean for filling below
+      }
+      setBinContent(1,y1);
+      setBinError(1,y1err);
+      // shift remaining bins to the left
+      for ( int i = 3; i <= nbins ; i++) 
+      {
+        setBinContent(i-1,getBinContent(i));
+        setBinError(i-1,getBinError(i));
+      }
+    }
+    // fill last bin with new values
+    setBinContent(index,y);
+    setBinError(index,ye); 
+    // set entries
+    setEntries(entries+1);
+    // set axis labels and reset drawing option
+    char buffer [10];
+    sprintf (buffer, "%d", xlow*xscale); 
+    std::string a(buffer); setBinLabel(2,a);
+    sprintf (buffer, "%d", xup*xscale); 
+    std::string b(buffer); setBinLabel(nbins,b);
+    setBinLabel(1,"av.");
+    static_cast<TH1*>(getRootObject())->SetOption("HIST");
+  }
+  else
+    incompatible(__PRETTY_FUNCTION__);
+}
 /// can be used with 3D (x, y, z) or 2D (x, y, w) histograms
 void
 MonitorElement::Fill(float x, float y, float zw)

@@ -118,6 +118,7 @@ public:
   void Fill(float x, float yw);
   void Fill(float x, float y, float zw);
   void Fill(float x, float y, float z, float w);
+  void ShiftFillLast(float y, float ye = 0., int xscale = 1);
   void Reset(void);
 
   std::string valueString(void) const;
