@@ -224,7 +224,7 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 
 						track.first.m_output_link = iter->id();
 						if( track.first.m_output_link ){
-							track.first.m_rank = (iter->f_r()?sp->record(tbin).ptSpy()&0x1F:(sp->record(tbin).ptSpy()&0x1F00)>>8);
+							track.first.m_rank = (iter->f_r()?sp->record(tbin).ptSpy()&0x7F:(sp->record(tbin).ptSpy()&0x7F00)>>8);
 							track.first.setChargeValidPacked((iter->f_r()?(sp->record(tbin).ptSpy()&0x80)>>8:(sp->record(tbin).ptSpy()&0x8000)>>15));
 						} else {
 							track.first.m_rank = 0;
