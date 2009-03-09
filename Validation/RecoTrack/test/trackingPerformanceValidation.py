@@ -11,7 +11,7 @@ import string
 
 #Reference release
 
-RefRelease='CMSSW_3_0_0_pre7'
+RefRelease='CMSSW_3_1_0_pre2'
 
 # startup and ideal sample list
 startupsamples= ['RelValTTbar', 'RelValMinBias', 'RelValQCD_Pt_3000_3500']
@@ -291,7 +291,7 @@ for algo in Algos:
         RefSelection=StartupReferenceSelection
         if( quality !=''):
             RefSelection+='_'+quality
-        if(algo!=''):
+        if(algo!=''and not(algo=='ootb' and quality !='')):
             RefSelection+='_'+algo
         if(quality =='') and (algo==''):
             RefSelection+='_ootb'
