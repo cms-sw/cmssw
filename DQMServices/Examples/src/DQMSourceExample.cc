@@ -2,8 +2,8 @@
  * \file DQMSourceExample.cc
  * \author C.Leonidopoulos
  * Last Update:
- * $Date: 2009/01/09 15:42:54 $
- * $Revision: 1.17 $
+ * $Date: 2009/01/19 12:50:46 $
+ * $Revision: 1.18 $
  * $Author: dvolyans $
  *
  * Description: Simple example showing how to create a DQM source creating and filling
@@ -108,6 +108,7 @@ void DQMSourceExample::beginJob(const EventSetup& context) {
   h2        = dbe_->book1D("histo2", "Example 2 1D histogram.", NBINS, XMIN, XMAX);
   p1        = dbe_->bookProfile(  "prof1", "My profile 1D", NBINS,XMIN,XMAX,NBINS,XMIN,XMAX,"");
   p2        = dbe_->bookProfile2D("prof2", "My profile 2D", NBINS,XMIN,XMAX,NBINS,XMIN,XMAX,NBINS,XMIN,XMAX,"");
+  h1hist    = dbe_->book1D("history 1D","Example 1 1D history plot", 30, 0.,30.);
  
   // set labels for h1
   char temp[1024];
@@ -174,6 +175,10 @@ void DQMSourceExample::analyze(const Event& iEvent, const EventSetup& iSetup) {
     cout << " # of events = " << counterEvt_ << endl;
     summ->Fill(counterEvt_/1000., counterEvt_);
   }
+  // fill summ histo
+  if(counterEvt_%100 == 0) {
+    h1hist->ShiftFillLast(gRandom->Gaus(12,1.),1.,5);
+  }
 
   float z  = gRandom->Uniform(XMAX);
   xTrue->Fill(  z, 1./log(z+1.) );
@@ -187,6 +192,9 @@ void DQMSourceExample::analyze(const Event& iEvent, const EventSetup& iSetup) {
   deadTrue->Fill(  gRandom->Gaus(20, 10), 2.);
   deadFalse->Fill( gRandom->Gaus(20,  4), 1.);
   h2->Fill(  gRandom->Gaus(20,  4), 1.);
+  
+  //h1hist->Print();
+  //h1hist->Print();
 
   for ( int i = 0; i != 10; ++i ) {
     float w = gRandom->Uniform(XMAX);

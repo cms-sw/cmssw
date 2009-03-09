@@ -6,7 +6,7 @@ process.source = cms.Source("EmptySource")
 
 ### set number of events
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(-1)
     )
 
 ### include to get DQM histogramming services
@@ -50,7 +50,7 @@ process.dqmClient = cms.EDFilter("DQMClientExample",
 # MessageLogger
 process.MessageLogger = cms.Service("MessageLogger",
                 #suppressWarning = cms.untracked.vstring('qTester')      
-               #destinations = cms.untracked.vstring('detailedInfo'),
+               destinations = cms.untracked.vstring('detailedInfo'),
                #debugModules = cms.untracked.vstring('*'),
                #detailedInfo = cms.untracked.PSet(
                #threshold = cms.untracked.string('DEBUG')
@@ -62,8 +62,8 @@ process.MessageLogger = cms.Service("MessageLogger",
 ### replace YourSubsystemName by the name of your source ###
 ### use it for dqmEnv, dqmSaver
 process.load("DQMServices.Components.DQMEnvironment_cfi")
-process.DQM.collectorHost = ''
-#process.DQM.collectorPort = 9190
+process.DQM.collectorHost = 'localhost'
+process.DQM.collectorPort = 9190
 
 ### path where to save the output file
 process.dqmSaver.dirName = '.'
