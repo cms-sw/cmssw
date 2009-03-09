@@ -1,6 +1,6 @@
 # Configuration file to run CSCGeometryAsChambers
 # printing table of chamber information.
-# Tim Cox 21.01.2009
+# Tim Cox 09.03.2009
 
 import FWCore.ParameterSet.Config as cms
 
@@ -29,32 +29,18 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-# Care! The following MessageLogger config deactivates even error messges
-# from other modules. Try removing altogether to see any!
-process.MessageLogger = cms.Service(
-    "MessageLogger",
-    debugModules = cms.untracked.vstring('*'),
-    ## DEBUG will dump addresses of CSCChamberSpecs objects etc. INFO does not.        
-    threshold = cms.untracked.string('INFO'),
-    categories = cms.untracked.vstring(
-       'CSC'
-    ),
-    destinations = cms.untracked.vstring('cout'),
-    noLineBreaks = cms.untracked.bool(True),                                    
-    cout = cms.untracked.PSet(
-       INFO = cms.untracked.PSet(
-          limit = cms.untracked.int32(-1)
-       ),
-      default = cms.untracked.PSet(
-         limit = cms.untracked.int32(0)
-      ),
-      CSC = cms.untracked.PSet(
-         limit = cms.untracked.int32(-1)
-      )
-   )
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.MessageLogger.debugModules.append('CSCGeometryESModule')
+process.MessageLogger.categories.append('CSCGeometry')
+process.MessageLogger.categories.append('CSCGeometryBuilder')
+process.MessageLogger.cout = cms.untracked.PSet(
+   threshold = cms.untracked.string('DEBUG'),
+   default = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
+   CSCGeometry = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
+   CSCGeometryBuilder = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
 )
 
-process.producer = cms.EDAnalyzer("CSCGeometryAsLayers")
+process.producer = cms.EDAnalyzer("CSCGeometryAsChambers")
 
 process.p1 = cms.Path(process.producer)
 
