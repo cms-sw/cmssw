@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.32 2009/02/19 15:39:29 rwolf Exp $
+// $Id: Jet.h,v 1.33 2009/03/09 21:01:53 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,7 +13,7 @@
    'pat' namespace
 
   \author   Steven Lowette, Giovanni Petrucciani, Roger Wolf, Christian Autermann
-  \version  $Id: Jet.h,v 1.32 2009/02/19 15:39:29 rwolf Exp $
+  \version  $Id: Jet.h,v 1.33 2009/03/09 21:01:53 lowette Exp $
 */
 
 
@@ -268,16 +268,15 @@ namespace pat {
 
       /// get a pointer to a Candididate constituent of the jet 
       /// needs to be re-implemented because of CaloTower embedding
-      using reco::Jet::daughter; // needed to avoid a warning in ACLiC compilation
       virtual const reco::Candidate * daughter(size_t i) const {
           return (embeddedCaloTowers_ ?  &caloTowers_[i] : reco::Jet::daughter(i));
       }
+      using reco::LeafCandidate::daughter; // avoid hiding the base implementation
       /// get the number of constituents 
       /// needs to be re-implemented because of CaloTower embedding
       virtual size_t numberOfDaughters() const {
           return (embeddedCaloTowers_ ? caloTowers_.size() : reco::Jet::numberOfDaughters() );
       }
-      using reco::LeafCandidate::daughter; // avoid hiding the base implementation
  
     protected:
 
