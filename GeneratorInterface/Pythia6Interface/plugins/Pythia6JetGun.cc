@@ -97,7 +97,7 @@ void Pythia6JetGun::generateEvent()
 	 
    //now the boost (from input params)
    //
-   pp = (fMaxP-fMinP)*pyr_(&dum)+fMinP; // hell, it is pt or p ???
+   pp = (fMaxP-fMinP)*pyr_(&dum)+fMinP; 
    ee = std::sqrt( totM*totM + pp*pp );	 
 	 
    //the boost direction (from input params)
@@ -107,7 +107,7 @@ void Pythia6JetGun::generateEvent()
    the  = 2.*atan(exp(-eta));  
 	 
    double betaX = pp/ee * std::sin(the) * std::cos(phi);
-   double betaY = pp/ee * std::sin(the) * std::cos(phi);
+   double betaY = pp/ee * std::sin(the) * std::sin(phi);
    double betaZ = pp/ee * std::cos(the);  
    
    // boost all particles
@@ -116,9 +116,9 @@ void Pythia6JetGun::generateEvent()
    // 
    int first=-1, last=-1;
    double rothe=0, rophi=0.;
+   
    pyrobo_( first, last, rothe, rophi, betaX, betaY, betaZ );                                                                      
 	          
-
    // event should be formed from boosted record !!!
    // that's why additional loop
    //
