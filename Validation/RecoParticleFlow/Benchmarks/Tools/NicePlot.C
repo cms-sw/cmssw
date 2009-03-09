@@ -10,6 +10,10 @@ Style *spred;
 Style *spblue;
 
 void InitNicePlot() {
+  gROOT->SetStyle("Plain");
+  gStyle->SetPalette(1);
+  gStyle->SetHistMinimumZero(kTRUE);
+
   s1 = new Style(); 
 
   s1->SetLineWidth(2);   
@@ -46,7 +50,7 @@ void InitNicePlot() {
 
 
 void FormatHisto( TH1* h, const Style* s ) {
-  //  h->SetStats(0);
+  h->SetStats(0);
   h->GetYaxis()->SetTitleSize(0.06);
   h->GetYaxis()->SetTitleOffset(1.2);
   h->GetXaxis()->SetTitleSize(0.06);
