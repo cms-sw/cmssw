@@ -20,7 +20,7 @@ uint32_t EcalBarrelNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) 
 
   const uint32_t nLevels ( baseNumber.getLevels() ) ;
 
-  LogDebug("EcalGeom") << "ECalBarrelNumberingScheme geometry levels = " << nLevels;
+//  LogDebug("EcalGeom") << "ECalBarrelNumberingScheme geometry levels = " << nLevels;
   
   if( 7 > nLevels )
     {
@@ -95,10 +95,10 @@ uint32_t EcalBarrelNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) 
     //  zside=2*(1-zside)+1;
     uint32_t intindex = EBDetId(zside*eta,phi).rawId();
 
-    LogDebug("EcalGeom") << "EcalBarrelNumberingScheme zside = "  << zside 
-                         << " eta = " << eta << " phi = " << phi 
-                         << " packed index = 0x" << std::hex << intindex 
-                         << std::dec;
+//    LogDebug("EcalGeom") << "EcalBarrelNumberingScheme zside = "  << zside 
+//                         << " eta = " << eta << " phi = " << phi 
+//                         << " packed index = 0x" << std::hex << intindex 
+//                         << std::dec;
     return intindex;
   
   }
@@ -119,14 +119,14 @@ uint32_t EcalBarrelNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) 
       const uint32_t supmCopy ( baseNumber.getCopyNumber( 6 ) ) ;
 
 
-      LogDebug("EcalGeom") << baseNumber.getLevelName(0) << ", "
-                           << baseNumber.getLevelName(1) << ", "
-                           << baseNumber.getLevelName(2) << ", "
-                           << baseNumber.getLevelName(3) << ", "
-                           << baseNumber.getLevelName(4) << ", "
-                           << baseNumber.getLevelName(5) << ", "
-                           << baseNumber.getLevelName(6) << ", "
-                           << baseNumber.getLevelName(7)         ;
+//      LogDebug("EcalGeom") << baseNumber.getLevelName(0) << ", "
+//                           << baseNumber.getLevelName(1) << ", "
+//                           << baseNumber.getLevelName(2) << ", "
+//                           << baseNumber.getLevelName(3) << ", "
+//                           << baseNumber.getLevelName(4) << ", "
+//                           << baseNumber.getLevelName(5) << ", "
+//                           << baseNumber.getLevelName(6) << ", "
+//                           << baseNumber.getLevelName(7)         ;
 
       // error checking
 
@@ -188,16 +188,16 @@ uint32_t EcalBarrelNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) 
       const int32_t intindex ( EBDetId( zsign*eta, phi ).rawId() ) ;
 
 
-      LogDebug("EcalGeom") << "EcalBarrelNumberingScheme: "
-                           << "supmCopy = " << supmCopy
-                           << ", fawCopy = " << fawCopy
-                           << ", hawCopy = " << hawCopy
-                           << ", wallCopy = " << wallCopy
-                           << ", cryType = " << cryType
-                           << "\n           zsign = "  << zsign 
-                           << ", eta = " << eta 
-                           << ", phi = " << phi 
-                           << ", packed index = 0x" << std::hex << intindex << std::dec ;
+//      LogDebug("EcalGeom") << "EcalBarrelNumberingScheme: "
+//                           << "supmCopy = " << supmCopy
+//                           << ", fawCopy = " << fawCopy
+//                           << ", hawCopy = " << hawCopy
+//                           << ", wallCopy = " << wallCopy
+//                           << ", cryType = " << cryType
+//                           << "\n           zsign = "  << zsign 
+//                           << ", eta = " << eta 
+//                           << ", phi = " << phi 
+//                           << ", packed index = 0x" << std::hex << intindex << std::dec ;
 
       return intindex;
     }
