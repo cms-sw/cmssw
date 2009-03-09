@@ -3,12 +3,10 @@
 
 #include "L1TriggerConfig/GctConfigProducers/interface/L1GctConfigProducers.h"
 
-#include "L1TriggerConfig/GctConfigProducers/interface/L1GctCalibFunConfigurer.h"
 #include "L1TriggerConfig/GctConfigProducers/interface/L1GctJfParamsConfigurer.h"
 #include "L1TriggerConfig/GctConfigProducers/interface/L1GctHfLutSetupConfigurer.h"
 
 #include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
-#include "CondFormats/DataRecord/interface/L1GctJetCalibFunRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctHfLutSetupRcd.h"
 #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctChannelMaskRcd.h"
