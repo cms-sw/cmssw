@@ -48,7 +48,7 @@ process.famosSimHits.SimulateTracking = True
 # process.famosSimHits.SimulateMuons = False
 
 # Produce Tracks and Clusters
-process.p1 = cms.Path(process.ProductionFilterSequence*process.famosWithElectrons)
+process.p1 = cms.Path(process.ProductionFilterSequence*process.famosWithCaloHits)
 
 # To write out events (not need: FastSimulation _is_ fast!)
 process.o1 = cms.OutputModule(
