@@ -2,7 +2,7 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonResidualsFitter_H
 
 /** \class MuonResidualsFitter
- *  $Date: Fri Feb 13 11:35:36 CST 2009 $
+ *  $Date: 2009/02/27 18:58:29 $
  *  $Revision: 1.1 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
@@ -34,7 +34,7 @@ public:
     if (m_residualsModel != kPureGaussian  &&  m_residualsModel != kPowerLawTails) throw cms::Exception("MuonResidualsFitter") << "unrecognized residualsModel";
   };
 
-  ~MuonResidualsFitter() {
+  virtual ~MuonResidualsFitter() {
     for (std::vector<double*>::const_iterator residual = residuals_begin();  residual != residuals_end();  ++residual) {
       delete [] (*residual);
     }

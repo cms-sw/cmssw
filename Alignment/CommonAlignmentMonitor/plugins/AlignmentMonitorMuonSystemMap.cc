@@ -41,20 +41,31 @@ public:
   void afterAlignment(const edm::EventSetup &iSetup);
 
 private:
-  int m_minHitsPerRegion;
-  int m_residualsModel;
   double m_minTrackPt;
   double m_maxTrackPt;
-  double m_maxResidual;
   int m_minTrackerHits;
   double m_maxTrackerRedChi2;
   bool m_allowTIDTEC;
   int m_minDT13Hits;
   int m_minDT2Hits;
   int m_minCSCHits;
+  double m_maxResidual;
   std::string m_writeTemporaryFile;
   std::vector<std::string> m_readTemporaryFiles;
   bool m_doFits;
+  bool m_DT13fitBfield;
+  bool m_DT13fitZpos;
+  bool m_DT13fitPhiz;
+  bool m_DT13fitSlopeBfield;
+  bool m_DT2fitBfield;
+  bool m_DT2fitZpos;
+  bool m_DT2fitPhiz;
+  bool m_DT2fitSlopeBfield;
+  bool m_CSCfitBfield;
+  bool m_CSCfitZpos;
+  bool m_CSCfitPhiz;
+  bool m_CSCfitSlopeBfield;
+  int m_residualsModel;
 
   // the rphires vs z/r plots
   // last array is: 0 offset residual, a.k.a local x (mm)
@@ -111,6 +122,8 @@ private:
   TH1F *m_DTzres_vsphi_station2[5][5];
   TH1F *m_DTzres_vsphi_station3[5][5];
 
+  std::vector<TH1F*> m_DT13hists, m_DT2hists, m_CSChists;
+
   // profiles for all the offsets and slopes
   std::map<MuonResidualsPositionFitter*,std::pair<TProfile*,int> > m_offsetprofs;
   std::map<MuonResidualsAngleFitter*,std::pair<TProfile*,int> > m_slopeprofs;
@@ -158,7 +171,18 @@ AlignmentMonitorMuonSystemMap::AlignmentMonitorMuonSystemMap(const edm::Paramete
    , m_writeTemporaryFile(cfg.getParameter<std::string>("writeTemporaryFile"))
    , m_readTemporaryFiles(cfg.getParameter<std::vector<std::string> >("readTemporaryFiles"))
    , m_doFits(cfg.getParameter<bool>("doFits"))
-   , m_minHitsPerRegion(cfg.getParameter<int>("minHitsPerRegion"))
+   , m_DT13fitBfield(cfg.getParameter<bool>("DT13fitBfield"))
+   , m_DT13fitZpos(cfg.getParameter<bool>("DT13fitZpos"))
+   , m_DT13fitPhiz(cfg.getParameter<bool>("DT13fitPhiz"))
+   , m_DT13fitSlopeBfield(cfg.getParameter<bool>("DT13fitSlopeBfield"))
+   , m_DT2fitBfield(cfg.getParameter<bool>("DT2fitBfield"))
+   , m_DT2fitZpos(cfg.getParameter<bool>("DT2fitZpos"))
+   , m_DT2fitPhiz(cfg.getParameter<bool>("DT2fitPhiz"))
+   , m_DT2fitSlopeBfield(cfg.getParameter<bool>("DT2fitSlopeBfield"))
+   , m_CSCfitBfield(cfg.getParameter<bool>("CSCfitBfield"))
+   , m_CSCfitZpos(cfg.getParameter<bool>("CSCfitZpos"))
+   , m_CSCfitPhiz(cfg.getParameter<bool>("CSCfitPhiz"))
+   , m_CSCfitSlopeBfield(cfg.getParameter<bool>("CSCfitSlopeBfield"))
 {
   std::string model = cfg.getParameter<std::string>("residualsModel");
   if (model == std::string("pureGaussian")) {
@@ -224,8 +248,8 @@ void AlignmentMonitorMuonSystemMap::book_and_link_up(std::string namestart, std:
   }
 
   for (int bin = 1;  bin <= bins;  bin++) {
-    MuonResidualsPositionFitter *positionFitter = new MuonResidualsPositionFitter(m_residualsModel, m_minHitsPerRegion);
-    MuonResidualsAngleFitter *angleFitter = new MuonResidualsAngleFitter(m_residualsModel, m_minHitsPerRegion);
+    MuonResidualsPositionFitter *positionFitter = new MuonResidualsPositionFitter(m_residualsModel, -1);
+    MuonResidualsAngleFitter *angleFitter = new MuonResidualsAngleFitter(m_residualsModel, -1);
     m_allFitters.push_back(positionFitter);
     m_allFitters.push_back(angleFitter);
 
@@ -295,6 +319,7 @@ void AlignmentMonitorMuonSystemMap::book() {
       name << "DTst1sec" << o << sector;
       title << "DT station 1 sector " << sector;
       book_vsz(name.str(), title.str(), lastarray_name, lastarray_title, m_DTrphires_vsz_station1[sector-1], false, maxOffset, maxZpos, maxPhiz, maxPhiy);
+      m_DT13hists.push_back(m_DTrphires_vsz_station1[sector-1][0]);
     }
 
     if (sector <= 12) {
@@ -302,6 +327,7 @@ void AlignmentMonitorMuonSystemMap::book() {
       name << "DTst2sec" << o << sector;
       title << "DT station 2 sector " << sector;
       book_vsz(name.str(), title.str(), lastarray_name, lastarray_title, m_DTrphires_vsz_station2[sector-1], false, maxOffset, maxZpos, maxPhiz, maxPhiy);
+      m_DT13hists.push_back(m_DTrphires_vsz_station2[sector-1][0]);
     }
 
     if (sector <= 12) {
@@ -309,6 +335,7 @@ void AlignmentMonitorMuonSystemMap::book() {
       name << "DTst3sec" << o << sector;
       title << "DT station 3 sector " << sector;
       book_vsz(name.str(), title.str(), lastarray_name, lastarray_title, m_DTrphires_vsz_station3[sector-1], false, maxOffset, maxZpos, maxPhiz, maxPhiy);
+      m_DT13hists.push_back(m_DTrphires_vsz_station3[sector-1][0]);
     }
 
     if (true) {
@@ -316,6 +343,7 @@ void AlignmentMonitorMuonSystemMap::book() {
       name << "DTst4sec" << o << sector;
       title << "DT station 4 sector " << sector;
       book_vsz(name.str(), title.str(), lastarray_name, lastarray_title, m_DTrphires_vsz_station4[sector-1], false, maxOffset, maxZpos, maxPhiz, maxPhiy);
+      m_DT13hists.push_back(m_DTrphires_vsz_station4[sector-1][0]);
     }
   }
 
@@ -329,6 +357,7 @@ void AlignmentMonitorMuonSystemMap::book() {
 	name << "CSCme" << (endcap == 1 ? "p" : "m") << "1ch" << o << chamber;
 	title << "CSC ME" << (endcap == 1 ? "+" : "-") << "1 chamber " << chamber;
 	book_vsr(name.str(), title.str(), lastarray_name, lastarray_title, m_CSCrphires_vsr_me1[endcap-1][chamber-1], false, maxOffset, maxZpos, maxPhiz, maxPhiy);
+	m_CSChists.push_back(m_CSCrphires_vsr_me1[endcap-1][chamber-1][0]);
       }
 
       if (true) {
@@ -336,6 +365,7 @@ void AlignmentMonitorMuonSystemMap::book() {
 	name << "CSCme" << (endcap == 1 ? "p" : "m") << "2ch" << o << chamber;
 	title << "CSC ME" << (endcap == 1 ? "+" : "-") << "2 chamber " << chamber;
 	book_vsr(name.str(), title.str(), lastarray_name, lastarray_title, m_CSCrphires_vsr_me2[endcap-1][chamber-1], false, maxOffset, maxZpos, maxPhiz, maxPhiy);
+	m_CSChists.push_back(m_CSCrphires_vsr_me2[endcap-1][chamber-1][0]);
       }
 
       if (true) {
@@ -343,6 +373,7 @@ void AlignmentMonitorMuonSystemMap::book() {
 	name << "CSCme" << (endcap == 1 ? "p" : "m") << "3ch" << o << chamber;
 	title << "CSC ME" << (endcap == 1 ? "+" : "-") << "3 chamber " << chamber;
 	book_vsr(name.str(), title.str(), lastarray_name, lastarray_title, m_CSCrphires_vsr_me3[endcap-1][chamber-1], false, maxOffset, maxZpos, maxPhiz, maxPhiy);
+	m_CSChists.push_back(m_CSCrphires_vsr_me3[endcap-1][chamber-1][0]);
       }
 
       if (chamber <= 18) {
@@ -350,6 +381,7 @@ void AlignmentMonitorMuonSystemMap::book() {
 	name << "CSCme" << (endcap == 1 ? "p" : "m") << "4ch" << o << chamber;
 	title << "CSC ME" << (endcap == 1 ? "+" : "-") << "4 chamber " << chamber;
 	book_vsr(name.str(), title.str(), lastarray_name, lastarray_title, m_CSCrphires_vsr_me4[endcap-1][chamber-1], false, maxOffset, maxZpos, maxPhiz, maxPhiy);
+	m_CSChists.push_back(m_CSCrphires_vsr_me4[endcap-1][chamber-1][0]);
       }
     }
   }
@@ -369,6 +401,7 @@ void AlignmentMonitorMuonSystemMap::book() {
       name << "DTst1sec" << o << sector;
       title << "DT station 1 sector " << sector;
       book_vsz(name.str(), title.str(), lastarray_name, lastarray_title, m_DTzres_vsz_station1[sector-1], true, maxOffset, maxZpos, maxPhiz, maxPhix);
+      m_DT2hists.push_back(m_DTzres_vsz_station1[sector-1][0]);
     }
 
     if (sector <= 12) {
@@ -376,6 +409,7 @@ void AlignmentMonitorMuonSystemMap::book() {
       name << "DTst2sec" << o << sector;
       title << "DT station 2 sector " << sector;
       book_vsz(name.str(), title.str(), lastarray_name, lastarray_title, m_DTzres_vsz_station2[sector-1], true, maxOffset, maxZpos, maxPhiz, maxPhix);
+      m_DT2hists.push_back(m_DTzres_vsz_station2[sector-1][0]);
     }
 
     if (sector <= 12) {
@@ -383,6 +417,7 @@ void AlignmentMonitorMuonSystemMap::book() {
       name << "DTst3sec" << o << sector;
       title << "DT station 3 sector " << sector;
       book_vsz(name.str(), title.str(), lastarray_name, lastarray_title, m_DTzres_vsz_station3[sector-1], true, maxOffset, maxZpos, maxPhiz, maxPhix);
+      m_DT2hists.push_back(m_DTzres_vsz_station3[sector-1][0]);
     }
   }
 
@@ -405,6 +440,7 @@ void AlignmentMonitorMuonSystemMap::book() {
       name << "DTst1wh" << wheelname;
       title << "DT station 1 wheel " << wheel;
       book_vsphi(name.str(), title.str(), lastarray_name, lastarray_title, m_DTrphires_vsphi_station1[wheel+2], true, maxOffset, maxZpos, maxPhiz, maxPhiy);
+      m_DT13hists.push_back(m_DTrphires_vsphi_station1[wheel+2][0]);
     }
 
     if (true) {
@@ -412,6 +448,7 @@ void AlignmentMonitorMuonSystemMap::book() {
       name << "DTst2wh" << wheelname;
       title << "DT station 2 wheel " << wheel;
       book_vsphi(name.str(), title.str(), lastarray_name, lastarray_title, m_DTrphires_vsphi_station2[wheel+2], true, maxOffset, maxZpos, maxPhiz, maxPhiy);
+      m_DT13hists.push_back(m_DTrphires_vsphi_station2[wheel+2][0]);
     }
 
     if (true) {
@@ -419,6 +456,7 @@ void AlignmentMonitorMuonSystemMap::book() {
       name << "DTst3wh" << wheelname;
       title << "DT station 3 wheel " << wheel;
       book_vsphi(name.str(), title.str(), lastarray_name, lastarray_title, m_DTrphires_vsphi_station3[wheel+2], true, maxOffset, maxZpos, maxPhiz, maxPhiy);
+      m_DT13hists.push_back(m_DTrphires_vsphi_station3[wheel+2][0]);
     }
 
     if (true) {
@@ -426,6 +464,7 @@ void AlignmentMonitorMuonSystemMap::book() {
       name << "DTst4wh" << wheelname;
       title << "DT station 4 wheel " << wheel;
       book_vsphi(name.str(), title.str(), lastarray_name, lastarray_title, m_DTrphires_vsphi_station4[wheel+2], true, maxOffset, maxZpos, maxPhiz, maxPhiy);
+      m_DT13hists.push_back(m_DTrphires_vsphi_station4[wheel+2][0]);
     }
   }
 
@@ -448,6 +487,16 @@ void AlignmentMonitorMuonSystemMap::book() {
     book_vsphi(std::string("CSCme") + p + std::string("31"), std::string("CSC ME") + plus + std::string("3/1"), lastarray_name, lastarray_title, m_CSCrphires_vsphi_me31[endcap-1], true, maxOffset, maxZpos, maxPhiz, maxPhiy);
     book_vsphi(std::string("CSCme") + p + std::string("32"), std::string("CSC ME") + plus + std::string("3/2"), lastarray_name, lastarray_title, m_CSCrphires_vsphi_me32[endcap-1], true, maxOffset, maxZpos, maxPhiz, maxPhiy);
     book_vsphi(std::string("CSCme") + p + std::string("41"), std::string("CSC ME") + plus + std::string("4/1"), lastarray_name, lastarray_title, m_CSCrphires_vsphi_me41[endcap-1], true, maxOffset, maxZpos, maxPhiz, maxPhiy);
+
+    m_CSChists.push_back(m_CSCrphires_vsphi_me11[endcap-1][0]);
+    m_CSChists.push_back(m_CSCrphires_vsphi_me12[endcap-1][0]);
+    m_CSChists.push_back(m_CSCrphires_vsphi_me13[endcap-1][0]);
+    m_CSChists.push_back(m_CSCrphires_vsphi_me14[endcap-1][0]);
+    m_CSChists.push_back(m_CSCrphires_vsphi_me21[endcap-1][0]);
+    m_CSChists.push_back(m_CSCrphires_vsphi_me22[endcap-1][0]);
+    m_CSChists.push_back(m_CSCrphires_vsphi_me31[endcap-1][0]);
+    m_CSChists.push_back(m_CSCrphires_vsphi_me32[endcap-1][0]);
+    m_CSChists.push_back(m_CSCrphires_vsphi_me41[endcap-1][0]);
   }
 
   lastarray_name[0] = std::string("_z_offset");        lastarray_title[0] = std::string(" global z residual (mm)");
@@ -469,6 +518,7 @@ void AlignmentMonitorMuonSystemMap::book() {
       name << "DTst1wh" << wheelname;
       title << "DT station 1 wheel " << wheel;
       book_vsphi(name.str(), title.str(), lastarray_name, lastarray_title, m_DTzres_vsphi_station1[wheel+2], false, maxOffset, maxZpos, maxPhiz, maxPhix);
+      m_DT2hists.push_back(m_DTzres_vsphi_station1[wheel+2][0]);
     }
 
     if (true) {
@@ -476,6 +526,7 @@ void AlignmentMonitorMuonSystemMap::book() {
       name << "DTst2wh" << wheelname;
       title << "DT station 2 wheel " << wheel;
       book_vsphi(name.str(), title.str(), lastarray_name, lastarray_title, m_DTzres_vsphi_station2[wheel+2], false, maxOffset, maxZpos, maxPhiz, maxPhix);
+      m_DT2hists.push_back(m_DTzres_vsphi_station2[wheel+2][0]);
     }
 
     if (true) {
@@ -483,8 +534,46 @@ void AlignmentMonitorMuonSystemMap::book() {
       name << "DTst3wh" << wheelname;
       title << "DT station 3 wheel " << wheel;
       book_vsphi(name.str(), title.str(), lastarray_name, lastarray_title, m_DTzres_vsphi_station3[wheel+2], false, maxOffset, maxZpos, maxPhiz, maxPhix);
+      m_DT2hists.push_back(m_DTzres_vsphi_station3[wheel+2][0]);
     }
   }
+
+  for (std::vector<TH1F*>::const_iterator hist = m_DT13hists.begin();  hist != m_DT13hists.end();  ++hist) {
+    for (int i = 1;  i <= (*hist)->GetNbinsX();  i++) {
+      std::pair<TH1F*,int> index(*hist, i);
+      MuonResidualsPositionFitter *posfitter = m_positionFitters[index];
+      MuonResidualsAngleFitter *angfitter = m_angleFitters[index];
+      if (!m_DT13fitBfield) posfitter->fix(MuonResidualsPositionFitter::kBfield);
+      if (!m_DT13fitZpos) posfitter->fix(MuonResidualsPositionFitter::kZpos);
+      if (!m_DT13fitPhiz) posfitter->fix(MuonResidualsPositionFitter::kPhiz);
+      if (!m_DT13fitSlopeBfield) angfitter->fix(MuonResidualsAngleFitter::kBfield);
+    }
+  }
+
+  for (std::vector<TH1F*>::const_iterator hist = m_DT2hists.begin();  hist != m_DT2hists.end();  ++hist) {
+    for (int i = 1;  i <= (*hist)->GetNbinsX();  i++) {
+      std::pair<TH1F*,int> index(*hist, i);
+      MuonResidualsPositionFitter *posfitter = m_positionFitters[index];
+      MuonResidualsAngleFitter *angfitter = m_angleFitters[index];
+      if (!m_DT2fitBfield) posfitter->fix(MuonResidualsPositionFitter::kBfield);
+      if (!m_DT2fitZpos) posfitter->fix(MuonResidualsPositionFitter::kZpos);
+      if (!m_DT2fitPhiz) posfitter->fix(MuonResidualsPositionFitter::kPhiz);
+      if (!m_DT2fitSlopeBfield) angfitter->fix(MuonResidualsAngleFitter::kBfield);
+    }
+  }
+
+  for (std::vector<TH1F*>::const_iterator hist = m_CSChists.begin();  hist != m_CSChists.end();  ++hist) {
+    for (int i = 1;  i <= (*hist)->GetNbinsX();  i++) {
+      std::pair<TH1F*,int> index(*hist, i);
+      MuonResidualsPositionFitter *posfitter = m_positionFitters[index];
+      MuonResidualsAngleFitter *angfitter = m_angleFitters[index];
+      if (!m_CSCfitBfield) posfitter->fix(MuonResidualsPositionFitter::kBfield);
+      if (!m_CSCfitZpos) posfitter->fix(MuonResidualsPositionFitter::kZpos);
+      if (!m_CSCfitPhiz) posfitter->fix(MuonResidualsPositionFitter::kPhiz);
+      if (!m_CSCfitSlopeBfield) angfitter->fix(MuonResidualsAngleFitter::kBfield);
+    }
+  }
+
 }
 
 void AlignmentMonitorMuonSystemMap::event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& trajtracks) {
@@ -729,6 +818,10 @@ void AlignmentMonitorMuonSystemMap::afterAlignment(const edm::EventSetup &iSetup
       double phizValue = 2000.;
       double phizError = 1000.;
 
+      // the fit is verbose in std::cout anyway
+      std::cout << "=============================================================================================" << std::endl;
+      std::cout << "Fitting " << offsetBin->second.first->GetTitle() << " (" << fitter->second->numResiduals() << " super-residuals)" << std::endl;
+      std::cout << "=============================================================================================" << std::endl;
       if (fitter->second->fit()) {
 	offsetValue = fitter->second->value(MuonResidualsPositionFitter::kPosition) * 10.;                // convert from cm to mm
 	offsetError = fitter->second->minoserr(MuonResidualsPositionFitter::kPosition) * 10.;
@@ -775,6 +868,10 @@ void AlignmentMonitorMuonSystemMap::afterAlignment(const edm::EventSetup &iSetup
       double slopebfieldValue = 2000.;
       double slopebfieldError = 1000.;
 
+      // the fit is verbose in std::cout anyway
+      std::cout << "=============================================================================================" << std::endl;
+      std::cout << "Fitting " << slopeBin->second.first->GetTitle() << " (" << fitter->second->numResiduals() << " super-residuals)" << std::endl;
+      std::cout << "=============================================================================================" << std::endl;
       if (fitter->second->fit()) {
 	slopeValue = fitter->second->value(MuonResidualsAngleFitter::kAngle) * 1000.;                     // convert from radians to mrad
 	slopeError = fitter->second->minoserr(MuonResidualsAngleFitter::kAngle) * 1000.;

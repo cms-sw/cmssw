@@ -75,6 +75,18 @@ private:
   std::vector<std::string> m_readTemporaryFiles;
   bool m_doAlignment;
   std::string m_residualsModel;
+  bool m_DT13fitBfield;
+  bool m_DT13fitZpos;
+  bool m_DT13fitPhiz;
+  bool m_DT13fitSlopeBfield;
+  bool m_DT2fitBfield;
+  bool m_DT2fitZpos;
+  bool m_DT2fitPhiz;
+  bool m_DT2fitSlopeBfield;
+  bool m_CSCfitBfield;
+  bool m_CSCfitZpos;
+  bool m_CSCfitPhiz;
+  bool m_CSCfitSlopeBfield;
   bool m_DTzFrom13;
   bool m_DTphizFrom13;
   std::string m_reportFileName;
@@ -107,6 +119,18 @@ MuonAlignmentFromReference::MuonAlignmentFromReference(const edm::ParameterSet &
   , m_readTemporaryFiles(iConfig.getParameter<std::vector<std::string> >("readTemporaryFiles"))
   , m_doAlignment(iConfig.getParameter<bool>("doAlignment"))
   , m_residualsModel(iConfig.getParameter<std::string>("residualsModel"))
+  , m_DT13fitBfield(iConfig.getParameter<bool>("DT13fitBfield"))
+  , m_DT13fitZpos(iConfig.getParameter<bool>("DT13fitZpos"))
+  , m_DT13fitPhiz(iConfig.getParameter<bool>("DT13fitPhiz"))
+  , m_DT13fitSlopeBfield(iConfig.getParameter<bool>("DT13fitSlopeBfield"))
+  , m_DT2fitBfield(iConfig.getParameter<bool>("DT2fitBfield"))
+  , m_DT2fitZpos(iConfig.getParameter<bool>("DT2fitZpos"))
+  , m_DT2fitPhiz(iConfig.getParameter<bool>("DT2fitPhiz"))
+  , m_DT2fitSlopeBfield(iConfig.getParameter<bool>("DT2fitSlopeBfield"))
+  , m_CSCfitBfield(iConfig.getParameter<bool>("CSCfitBfield"))
+  , m_CSCfitZpos(iConfig.getParameter<bool>("CSCfitZpos"))
+  , m_CSCfitPhiz(iConfig.getParameter<bool>("CSCfitPhiz"))
+  , m_CSCfitSlopeBfield(iConfig.getParameter<bool>("CSCfitSlopeBfield"))
   , m_DTzFrom13(iConfig.getParameter<bool>("DTzFrom13"))
   , m_DTphizFrom13(iConfig.getParameter<bool>("DTphizFrom13"))
   , m_reportFileName(iConfig.getParameter<std::string>("reportFileName"))
@@ -135,8 +159,8 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup, Align
    m_alignables = m_alignmentParameterStore->alignables();
 
    int residualsModel;
-   if (m_residualsModel == std::string("PureGaussian")) residualsModel = MuonResidualsFitter::kPureGaussian;
-   else if (m_residualsModel == std::string("PowerLawTails")) residualsModel = MuonResidualsFitter::kPowerLawTails;
+   if (m_residualsModel == std::string("pureGaussian")) residualsModel = MuonResidualsFitter::kPureGaussian;
+   else if (m_residualsModel == std::string("powerLawTails")) residualsModel = MuonResidualsFitter::kPowerLawTails;
    else throw cms::Exception("MuonAlignmentFromReference") << "unrecognized residualsModel: \"" << m_residualsModel << "\"" << std::endl;
 
    // set up the MuonResidualsFitters (which also collect residuals for fitting)
@@ -150,51 +174,51 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup, Align
      std::vector<bool> selector = (*ali)->alignmentParameters()->selector();
      bool align_x = selector[0];
      bool align_y = selector[1];
-     bool align_z = selector[2];
+     //     bool align_z = selector[2];
      bool align_phix = selector[3];
-     bool align_phiy = selector[4];
+     //     bool align_phiy = selector[4];
      bool align_phiz = selector[5];
 
      if ((*ali)->alignableObjectId() == align::AlignableDTChamber) {
-       if (align_x  ||  align_z  ||  align_phiz) {
-	 m_rphiFitters[*ali] = new MuonResidualsPositionFitter(residualsModel, -1);
-	 m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 0);
-	 m_fitterOrder.push_back(m_rphiFitters[*ali]);
-       }
+       m_rphiFitters[*ali] = new MuonResidualsPositionFitter(residualsModel, -1);
+       if (!m_DT13fitBfield) m_rphiFitters[*ali]->fix(MuonResidualsPositionFitter::kBfield);
+       if (!m_DT13fitZpos) m_rphiFitters[*ali]->fix(MuonResidualsPositionFitter::kZpos);
+       if (!m_DT13fitPhiz) m_rphiFitters[*ali]->fix(MuonResidualsPositionFitter::kPhiz);
+       m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 0);
+       m_fitterOrder.push_back(m_rphiFitters[*ali]);
        
-       if (align_y  ||  align_z  ||  align_phiz) {
-	 m_zFitters[*ali] = new MuonResidualsPositionFitter(residualsModel, -1);
-	 m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 1);
-	 m_fitterOrder.push_back(m_zFitters[*ali]);
-       }
+       m_zFitters[*ali] = new MuonResidualsPositionFitter(residualsModel, -1);
+       if (!m_DT2fitBfield) m_zFitters[*ali]->fix(MuonResidualsPositionFitter::kBfield);
+       if (!m_DT2fitZpos) m_zFitters[*ali]->fix(MuonResidualsPositionFitter::kZpos);
+       if (!m_DT2fitPhiz) m_zFitters[*ali]->fix(MuonResidualsPositionFitter::kPhiz);
+       m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 1);
+       m_fitterOrder.push_back(m_zFitters[*ali]);
 
-       if (align_phix) {
-	 m_phixFitters[*ali] = new MuonResidualsAngleFitter(residualsModel, -1);
-	 m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 2);
-	 m_fitterOrder.push_back(m_phixFitters[*ali]);
-       }
+       m_phixFitters[*ali] = new MuonResidualsAngleFitter(residualsModel, -1);
+       if (!m_DT2fitSlopeBfield) m_phixFitters[*ali]->fix(MuonResidualsAngleFitter::kBfield);
+       m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 2);
+       m_fitterOrder.push_back(m_phixFitters[*ali]);
 
-       if (align_phiy) {
-	 m_phiyFitters[*ali] = new MuonResidualsAngleFitter(residualsModel, -1);
-	 m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 3);
-	 m_fitterOrder.push_back(m_phiyFitters[*ali]);
-       }
+       m_phiyFitters[*ali] = new MuonResidualsAngleFitter(residualsModel, -1);
+       if (!m_DT13fitSlopeBfield) m_phiyFitters[*ali]->fix(MuonResidualsAngleFitter::kBfield);
+       m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 3);
+       m_fitterOrder.push_back(m_phiyFitters[*ali]);
      }
 
      else if ((*ali)->alignableObjectId() == align::AlignableCSCChamber) {
-       if (align_x  ||  align_z  ||  align_phiz) {
-	 if (align_x  &&  (!align_y  ||  !align_phiz)) throw cms::Exception("MuonAlignmentFromReference") << "CSCs are aligned in rphi, not x, so y and phiz must also be alignable" << std::endl;
+       if (align_x  &&  (!align_y  ||  !align_phiz)) throw cms::Exception("MuonAlignmentFromReference") << "CSCs are aligned in rphi, not x, so y and phiz must also be alignable" << std::endl;
 
-	 m_rphiFitters[*ali] = new MuonResidualsPositionFitter(residualsModel, -1);
-	 m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 0);
-	 m_fitterOrder.push_back(m_rphiFitters[*ali]);
-       }
+       m_rphiFitters[*ali] = new MuonResidualsPositionFitter(residualsModel, -1);
+       if (!m_CSCfitBfield) m_rphiFitters[*ali]->fix(MuonResidualsPositionFitter::kBfield);
+       if (!m_CSCfitZpos) m_rphiFitters[*ali]->fix(MuonResidualsPositionFitter::kZpos);
+       if (!m_CSCfitPhiz) m_rphiFitters[*ali]->fix(MuonResidualsPositionFitter::kPhiz);
+       m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 0);
+       m_fitterOrder.push_back(m_rphiFitters[*ali]);
 
-       if (align_phiy) {
-	 m_phiyFitters[*ali] = new MuonResidualsAngleFitter(residualsModel, -1);
-	 m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 1);
-	 m_fitterOrder.push_back(m_phiyFitters[*ali]);
-       }
+       m_phiyFitters[*ali] = new MuonResidualsAngleFitter(residualsModel, -1);
+       if (!m_CSCfitSlopeBfield) m_phiyFitters[*ali]->fix(MuonResidualsAngleFitter::kBfield);
+       m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 1);
+       m_fitterOrder.push_back(m_phiyFitters[*ali]);
 
        if (align_phix) {
 	 throw cms::Exception("MuonAlignmentFromReference") << "CSCChambers can't be aligned in phix" << std::endl;
@@ -536,6 +560,10 @@ void MuonAlignmentFromReference::terminate() {
       }
 
       if (rphiFitter != m_rphiFitters.end()) {
+	// the fit is verbose in std::cout anyway
+	std::cout << "=============================================================================================" << std::endl;
+	std::cout << "Fitting " << name.str() << " rphi" << std::endl;
+	std::cout << "=============================================================================================" << std::endl;
 	if (rphiFitter->second->fit()) {
 	  std::stringstream name2;
 	  name2 << name.str() << "_rphiFit";
@@ -568,6 +596,7 @@ void MuonAlignmentFromReference::terminate() {
 	  double sigma_downerr = rphiFitter->second->downerr(MuonResidualsPositionFitter::kSigma);
 
 	  double gamma_value, gamma_error, gamma_uperr, gamma_downerr;
+	  gamma_value = gamma_error = gamma_uperr = gamma_downerr = 0.;
 	  if (rphiFitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian) {
 	    gamma_value = rphiFitter->second->value(MuonResidualsPositionFitter::kGamma);
 	    gamma_error = rphiFitter->second->error(MuonResidualsPositionFitter::kGamma);
@@ -639,6 +668,10 @@ void MuonAlignmentFromReference::terminate() {
       }
 
       if (zFitter != m_zFitters.end()) {
+	// the fit is verbose in std::cout anyway
+	std::cout << "=============================================================================================" << std::endl;
+	std::cout << "Fitting " << name.str() << " z" << std::endl;
+	std::cout << "=============================================================================================" << std::endl;
 	if (zFitter->second->fit()) {
 	  std::stringstream name2;
 	  name2 << name.str() << "_zFit";
@@ -671,6 +704,7 @@ void MuonAlignmentFromReference::terminate() {
 	  double sigma_downerr = zFitter->second->downerr(MuonResidualsPositionFitter::kSigma);
 
 	  double gamma_value, gamma_error, gamma_uperr, gamma_downerr;
+	  gamma_value = gamma_error = gamma_uperr = gamma_downerr = 0.;
 	  if (zFitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian) {
 	    gamma_value = zFitter->second->value(MuonResidualsPositionFitter::kGamma);
 	    gamma_error = zFitter->second->error(MuonResidualsPositionFitter::kGamma);
@@ -714,6 +748,10 @@ void MuonAlignmentFromReference::terminate() {
       }
 
       if (phixFitter != m_phixFitters.end()) {
+	// the fit is verbose in std::cout anyway
+	std::cout << "=============================================================================================" << std::endl;
+	std::cout << "Fitting " << name << " phix" << std::endl;
+	std::cout << "=============================================================================================" << std::endl;
 	if (phixFitter->second->fit()) {
 	  std::stringstream name2;
 	  name2 << name.str() << "_phixFit";
@@ -736,6 +774,7 @@ void MuonAlignmentFromReference::terminate() {
 	  double sigma_downerr = phixFitter->second->downerr(MuonResidualsAngleFitter::kSigma);
 
 	  double gamma_value, gamma_error, gamma_uperr, gamma_downerr;
+	  gamma_value = gamma_error = gamma_uperr = gamma_downerr = 0.;
 	  if (phixFitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian) {
 	    gamma_value = phixFitter->second->value(MuonResidualsAngleFitter::kGamma);
 	    gamma_error = phixFitter->second->error(MuonResidualsAngleFitter::kGamma);
@@ -768,6 +807,10 @@ void MuonAlignmentFromReference::terminate() {
       }
 
       if (phiyFitter != m_phiyFitters.end()) {
+	// the fit is verbose in std::cout anyway
+	std::cout << "=============================================================================================" << std::endl;
+	std::cout << "Fitting " << name << " phiy" << std::endl;
+	std::cout << "=============================================================================================" << std::endl;
 	if (phiyFitter->second->fit()) {
 	  std::stringstream name2;
 	  name2 << name.str() << "_phiyFit";
@@ -790,6 +833,7 @@ void MuonAlignmentFromReference::terminate() {
 	  double sigma_downerr = phiyFitter->second->downerr(MuonResidualsAngleFitter::kSigma);
 
 	  double gamma_value, gamma_error, gamma_uperr, gamma_downerr;
+	  gamma_value = gamma_error = gamma_uperr = gamma_downerr = 0.;
 	  if (phiyFitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian) {
 	    gamma_value = phiyFitter->second->value(MuonResidualsAngleFitter::kGamma);
 	    gamma_error = phiyFitter->second->error(MuonResidualsAngleFitter::kGamma);

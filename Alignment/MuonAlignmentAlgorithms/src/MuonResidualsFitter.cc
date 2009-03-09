@@ -13,6 +13,7 @@ bool MuonResidualsFitter_table_initialized = false;
 double MuonResidualsFitter_lookup_table[MuonResidualsFitter_numgsbins][MuonResidualsFitter_numtsbins];
 
 static TMinuit* MuonResidualsFitter_TMinuit;
+bool MuonResidualsFitter_inbadregion;
 
 // fit function
 double MuonResidualsFitter_pureGaussian(double residual, double center, double sigma) {
@@ -28,23 +29,22 @@ Double_t MuonResidualsFitter_pureGaussian_TF1(Double_t *xvec, Double_t *par) {
 // fit function
 double MuonResidualsFitter_powerLawTails(double residual, double center, double sigma, double gamma) {
   sigma = fabs(sigma);
-  double gammaoversigma = fabs(gamma) / sigma;
-  double toversigma = fabs(residual - center) / sigma;
+  double gammaoversigma = fabs(gamma / sigma);
+  double toversigma = fabs((residual - center) / sigma);
 
   int gsbin0 = int(floor(gammaoversigma / MuonResidualsFitter_gsbinsize));
   int gsbin1 = int(ceil(gammaoversigma / MuonResidualsFitter_gsbinsize));
   int tsbin0 = int(floor(toversigma / MuonResidualsFitter_tsbinsize));
   int tsbin1 = int(ceil(toversigma / MuonResidualsFitter_tsbinsize));
 
-  if (gsbin0 < 0) gsbin0 = 0;
-  if (gsbin1 < 0) gsbin1 = 0;
-  if (gsbin0 >= MuonResidualsFitter_numgsbins) gsbin0 = MuonResidualsFitter_numgsbins-1;
-  if (gsbin1 >= MuonResidualsFitter_numgsbins) gsbin1 = MuonResidualsFitter_numgsbins-1;
-
-  if (tsbin0 < 0) tsbin0 = 0;
-  if (tsbin1 < 0) tsbin1 = 0;
-  if (tsbin0 >= MuonResidualsFitter_numtsbins) tsbin0 = MuonResidualsFitter_numtsbins-1;
-  if (tsbin1 >= MuonResidualsFitter_numtsbins) tsbin1 = MuonResidualsFitter_numtsbins-1;
+  // this region should be disfavored: if sampled, it will throw you back to the good region
+  if (gsbin0 >= MuonResidualsFitter_numgsbins  ||  gsbin1 >= MuonResidualsFitter_numgsbins  ||
+      tsbin0 >= MuonResidualsFitter_numtsbins  ||  tsbin1 >= MuonResidualsFitter_numtsbins) {
+    MuonResidualsFitter_inbadregion = true;
+    return MuonResidualsFitter_lookup_table[MuonResidualsFitter_numgsbins-1][MuonResidualsFitter_numtsbins-1]
+      / sigma * (1. + pow(gammaoversigma, 2) + pow(toversigma, 2));
+  }
+  MuonResidualsFitter_inbadregion = false;
 
   double val00 = MuonResidualsFitter_lookup_table[gsbin0][tsbin0];
   double val01 = MuonResidualsFitter_lookup_table[gsbin0][tsbin1];
@@ -74,7 +74,7 @@ void MuonResidualsFitter::initialize_table() {
   for (int gsbin = 0;  gsbin < MuonResidualsFitter_numgsbins;  gsbin++) {
     double gammaoversigma = double(gsbin) * MuonResidualsFitter_gsbinsize;
 
-    std::cout << "    gsbin " << gsbin << std::endl;
+    std::cout << "    gsbin " << gsbin << "/" << MuonResidualsFitter_numgsbins << std::endl;
 
     for (int tsbin = 0;  tsbin < MuonResidualsFitter_numtsbins;  tsbin++) {
       double toversigma = double(tsbin) * MuonResidualsFitter_tsbinsize;
@@ -119,6 +119,7 @@ double MuonResidualsFitter::compute_convolution(double toversigma, double gammao
 
 bool MuonResidualsFitter::dofit(void (*fcn)(int&,double*,double&,double*,int), std::vector<int> &parNum, std::vector<std::string> &parName, std::vector<double> &start, std::vector<double> &step, std::vector<double> &low, std::vector<double> &high) {
   MuonResidualsFitterFitInfo *fitinfo = new MuonResidualsFitterFitInfo(this);
+  MuonResidualsFitter_inbadregion = true;
 
   MuonResidualsFitter_TMinuit = new TMinuit(npar());
   MuonResidualsFitter_TMinuit->SetObjectFit(fitinfo);
@@ -165,6 +166,8 @@ bool MuonResidualsFitter::dofit(void (*fcn)(int&,double*,double&,double*,int), s
   ierflg = 0;
   MuonResidualsFitter_TMinuit->mnexcm("MINOS", arglist, 0, ierflg);
   if (ierflg != 0) { delete MuonResidualsFitter_TMinuit; delete fitinfo; return false; }
+
+  if (MuonResidualsFitter_inbadregion) { delete MuonResidualsFitter_TMinuit; delete fitinfo; return false; }
   
   // read-out the results
   m_goodfit = true;

@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonChamberResidual_H
 
 /** \class MuonChamberResidual
- *  $Date: 2009/02/02 13:46:01 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/02/27 18:58:29 $
+ *  $Revision: 1.2 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -45,6 +45,8 @@ public:
     , m_tracky_xx(0.)
     , m_tracky_xy(0.)
   {};
+
+  virtual ~MuonChamberResidual() {};
 
   virtual void addResidual(const TrajectoryStateOnSurface *tsos, const TransientTrackingRecHit *hit) = 0;
   virtual double signConvention(const unsigned int rawId=0) const = 0;
