@@ -8,24 +8,6 @@ l1GctParamsRecords = cms.ESSource("EmptyESSource",
 )
 
 l1GctConfigRecords = cms.ESSource("EmptyESSource",
-    recordName = cms.string('L1GctJetCalibFunRcd'),
-    iovIsRunNotTime = cms.bool(True),
-    firstValid = cms.vuint32(1)
-)
-
-l1GctJcPosParsRecords = cms.ESSource("EmptyESSource",
-    recordName = cms.string('L1GctJetCounterPositiveEtaRcd'),
-    iovIsRunNotTime = cms.bool(True),
-    firstValid = cms.vuint32(1)
-)
-
-l1GctJcNegParsRecords = cms.ESSource("EmptyESSource",
-    recordName = cms.string('L1GctJetCounterNegativeEtaRcd'),
-    iovIsRunNotTime = cms.bool(True),
-    firstValid = cms.vuint32(1)
-)
-
-l1GctConfigRecords = cms.ESSource("EmptyESSource",
     recordName = cms.string('L1GctHfLutSetupRcd'),
     iovIsRunNotTime = cms.bool(True),
     firstValid = cms.vuint32(1)
