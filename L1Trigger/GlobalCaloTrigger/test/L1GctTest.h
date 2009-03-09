@@ -11,7 +11,7 @@
 //
 // Original Author:  Gregory Heath
 //         Created:  Mon Mar 12 16:36:35 CET 2007
-// $Id: L1GctTest.h,v 1.6 2008/07/02 15:48:23 heath Exp $
+// $Id: L1GctTest.h,v 1.7 2008/10/23 20:04:32 heath Exp $
 //
 //
 
@@ -71,6 +71,9 @@ private:
 
   int m_firstBx;
   int m_lastBx;
+
+  /// HACK - Ht threshold value for CMSSW22X
+  double m_JetThresholdForHtSumGeV;
 
   unsigned m_eventNo;
   bool m_allGood;
