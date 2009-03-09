@@ -22,18 +22,16 @@
 #setenv OLDFILE /data/test/CMSSW_3_0_0_pre6/src/Validation/RecoEgamma/test/PhotonValidationRelVal300pre6_SingleGammaPt35.root
 #setenv NEWFILE /data/test/CMSSW_3_0_0_pre7/src/Validation/RecoEgamma/test/PhotonValidationRelVal300pre7_SingleGammaPt35.root
 
-setenv OLDFILE /data/test/CMSSW_3_0_0_pre7/src/Validation/RecoEgamma/test/PhotonValidationRelVal300pre7_SingleGammaPt35.root
-setenv NEWFILE /tmp/nancy/CMSSW_3_0_0_pre7/src/Validation/RecoEgamma/test/PhotonValidationRelVal300pre7_SingleGammaPt35TrackPtCut.root
-
-
+setenv OLDFILE /data/test/CMSSW_3_1_0_pre2/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre2_SingleGammaPt10.root
+setenv NEWFILE /data/test/CMSSW_3_1_0_pre3/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre3_SingleGammaPt10.root
 
 #setenv OLDRELEASE 221IDEAL
-setenv OLDRELEASE 300pre7IDEAL
-setenv NEWRELEASE 300pre7IDEAL
+setenv OLDRELEASE 310pre2IDEAL
+setenv NEWRELEASE 310pre3IDEAL
 #Name of sample (affects output directory name and htmldescription only) 
-setenv SAMPLE SingleGammaPt35
+setenv SAMPLE SingleGammaPt10
 #setenv SAMPLE SingleGammaFlatPt10_100
-#setenv SAMPLE H130GGgluonfusion
+#setenv SAMPLE H130GGgluonfusionSTARTUP
 #TYPE must be one ofPixelMatchGsfElectron, Photon 
 setenv TYPE Photon
 
@@ -229,9 +227,16 @@ foreach i (`cat scaledhistosForPhotons`)
   cat > temp$N.C <<EOF
 TCanvas *c$i = new TCanvas("c$i");
 c$i->SetFillColor(10);
+file_new->cd("DQMData/Egamma/PhotonValidator/Photons");
+Double_t mnew=$i->GetMaximum();
 file_old->cd("DQMData/Egamma/PhotonValidator/Photons");
+Double_t mold=$i->GetMaximum();
 $i->SetStats(0);
 $i->SetMinimum(0.);
+if ( mnew > mold) 
+$i->SetMaximum(mnew+mnew*0.1);
+else 
+$i->SetMaximum(mold+mold*0.1);
 $i->SetLineColor(4);
 $i->SetLineWidth(3);
 $i->Draw();
@@ -241,6 +246,7 @@ Double_t nnew=$i->GetEntries();
 $i->SetStats(0);
 $i->SetLineColor(2);
 $i->SetLineWidth(3);
+$i->SetMinimum(0.);
 $i->Scale(nold/nnew);
 $i->Draw("same");
 c$i->SaveAs("gifs/$i.gif");
@@ -279,9 +285,16 @@ foreach i (`cat scaledhistosForConvertedPhotons`)
   cat > temp$N.C <<EOF
 TCanvas *c$i = new TCanvas("c$i");
 c$i->SetFillColor(10);
+file_new->cd("DQMData/Egamma/PhotonValidator/ConversionInfo");
+Double_t mnew=$i->GetMaximum();
 file_old->cd("DQMData/Egamma/PhotonValidator/ConversionInfo");
+Double_t mold=$i->GetMaximum();
 $i->SetStats(0);
 $i->SetMinimum(0.);
+if ( mnew > mold) 
+$i->SetMaximum(mnew+mnew*0.1);
+else 
+$i->SetMaximum(mold+mold*0.1);
 $i->SetLineColor(4);
 $i->SetLineWidth(3);
 $i->Draw();
@@ -380,9 +393,16 @@ foreach i (`cat scaledhistosForTracks`)
   cat > temp$N.C <<EOF
 TCanvas *c$i = new TCanvas("c$i");
 c$i->SetFillColor(10);
+file_new->cd("DQMData/Egamma/PhotonValidator/ConversionInfo");
+Double_t mnew=$i->GetMaximum();
 file_old->cd("DQMData/Egamma/PhotonValidator/ConversionInfo");
+Double_t mold=$i->GetMaximum();
 $i->SetStats(0);
 $i->SetMinimum(0.);
+if ( mnew > mold) 
+$i->SetMaximum(mnew+mnew*0.1);
+else 
+$i->SetMaximum(mold+mold*0.1);
 $i->SetLineColor(4);
 $i->SetLineWidth(3);
 $i->Draw();
