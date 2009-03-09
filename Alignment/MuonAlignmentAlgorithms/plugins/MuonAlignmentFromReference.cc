@@ -750,7 +750,7 @@ void MuonAlignmentFromReference::terminate() {
       if (phixFitter != m_phixFitters.end()) {
 	// the fit is verbose in std::cout anyway
 	std::cout << "=============================================================================================" << std::endl;
-	std::cout << "Fitting " << name << " phix" << std::endl;
+	std::cout << "Fitting " << name.str() << " phix" << std::endl;
 	std::cout << "=============================================================================================" << std::endl;
 	if (phixFitter->second->fit()) {
 	  std::stringstream name2;
@@ -809,7 +809,7 @@ void MuonAlignmentFromReference::terminate() {
       if (phiyFitter != m_phiyFitters.end()) {
 	// the fit is verbose in std::cout anyway
 	std::cout << "=============================================================================================" << std::endl;
-	std::cout << "Fitting " << name << " phiy" << std::endl;
+	std::cout << "Fitting " << name.str() << " phiy" << std::endl;
 	std::cout << "=============================================================================================" << std::endl;
 	if (phiyFitter->second->fit()) {
 	  std::stringstream name2;

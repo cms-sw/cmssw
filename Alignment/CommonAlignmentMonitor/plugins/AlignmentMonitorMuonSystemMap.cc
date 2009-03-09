@@ -819,9 +819,9 @@ void AlignmentMonitorMuonSystemMap::afterAlignment(const edm::EventSetup &iSetup
       double phizError = 1000.;
 
       // the fit is verbose in std::cout anyway
-      std::cout << "=============================================================================================" << std::endl;
-      std::cout << "Fitting " << offsetBin->second.first->GetTitle() << " (" << fitter->second->numResiduals() << " super-residuals)" << std::endl;
-      std::cout << "=============================================================================================" << std::endl;
+      std::cout << "=====================================================================================================" << std::endl;
+      std::cout << "Fitting " << offsetBin->second.first->GetTitle() << " bin " << offsetBin->second.second << " (" << fitter->second->numResiduals() << " super-residuals)" << std::endl;
+      std::cout << "=====================================================================================================" << std::endl;
       if (fitter->second->fit()) {
 	offsetValue = fitter->second->value(MuonResidualsPositionFitter::kPosition) * 10.;                // convert from cm to mm
 	offsetError = fitter->second->minoserr(MuonResidualsPositionFitter::kPosition) * 10.;
@@ -869,9 +869,9 @@ void AlignmentMonitorMuonSystemMap::afterAlignment(const edm::EventSetup &iSetup
       double slopebfieldError = 1000.;
 
       // the fit is verbose in std::cout anyway
-      std::cout << "=============================================================================================" << std::endl;
-      std::cout << "Fitting " << slopeBin->second.first->GetTitle() << " (" << fitter->second->numResiduals() << " super-residuals)" << std::endl;
-      std::cout << "=============================================================================================" << std::endl;
+      std::cout << "=====================================================================================================" << std::endl;
+      std::cout << "Fitting " << slopeBin->second.first->GetTitle() << " bin " << slopeBin->second.second << " (" << fitter->second->numResiduals() << " super-residuals)" << std::endl;
+      std::cout << "=====================================================================================================" << std::endl;
       if (fitter->second->fit()) {
 	slopeValue = fitter->second->value(MuonResidualsAngleFitter::kAngle) * 1000.;                     // convert from radians to mrad
 	slopeError = fitter->second->minoserr(MuonResidualsAngleFitter::kAngle) * 1000.;
