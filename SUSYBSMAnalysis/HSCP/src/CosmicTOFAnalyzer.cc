@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea RIZZI
 //         Created:  Sun Dec  7 12:41:44 CET 2008
-// $Id: CosmicTOFAnalyzer.cc,v 1.2 2009/03/05 11:12:27 arizzi Exp $
+// $Id: CosmicTOFAnalyzer.cc,v 1.3 2009/03/05 17:04:04 arizzi Exp $
 //
 //
 
@@ -23,7 +23,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -44,6 +44,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TH2F.h"
+#include "TTree.h"
+#include "TBranch.h"
 #include "TProfile.h"
 #include "TH1F.h"
 #include <string>
@@ -63,8 +65,41 @@
   using namespace std;
   using namespace reco;
 
+struct DiMuonEvent
+{
+//timing
+ float t0;
+ float t1;
+ float t0e;
+ float t1e;
+ float deltaT;
+//momentum
+ float pt0;
+ float pt1;
+ float eta0;
+ float eta1;
+ float phi0;
+ float phi1;
+//nhits
+ float nh0;
+ float nh1;
+//sectr & wheel
+ float s0; 
+ float s1; 
+ float w0; 
+ float w1; 
+
+//inner point
+ float y0; 
+ float y1; 
+ float ev; 
+ float run; 
+};
+
 struct MuonCollectionDataAndHistograms
 {
+      DiMuonEvent event;
+      TBranch * branch;
       TFileDirectory * subDir;
 
       TH1F * nMuons;
@@ -83,6 +118,7 @@ struct MuonCollectionDataAndHistograms
       TH1F * diffBiasCorrected;
       TH1F * diffBiasCorrectedErr;
       TH1F * diffBiasCorrectedErrPtCut;
+      TH1F * diffBiasCorrectedErrPtCutPhiCut;
       TProfile * diffBiasCorrectedErrPt;
       TProfile * diffBiasCorrectedVsErr;
 
@@ -91,10 +127,9 @@ struct MuonCollectionDataAndHistograms
       float rms[5][15][5][15];
       float points[5][15][5][15];
       TFileDirectory * biasSubDir;
-
 };
 
-class CosmicTOFAnalyzer : public edm::EDAnalyzer {
+class CosmicTOFAnalyzer : public edm::EDFilter {
    public:
       explicit CosmicTOFAnalyzer(const edm::ParameterSet&);
       ~CosmicTOFAnalyzer();
@@ -102,13 +137,16 @@ class CosmicTOFAnalyzer : public edm::EDAnalyzer {
 
    private:
       virtual void beginJob(const edm::EventSetup&) ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual bool filter(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       std::map<std::string,MuonCollectionDataAndHistograms> h_; 
       void readBias(std::string collName);
       void initHistos(std::string collName);
       void writeBias(std::string collName);
-      void analyzeCollection(const MuonCollection & muons, std::string collName, const edm::Event& iEvent);
+      bool analyzeCollection(const MuonCollection & muons, std::string collName, const edm::Event& iEvent);
+      void initBranch(std::string collName, TTree * t);
+
+      TTree * diMuEventTree;
 
       // ----------member data ---------------------------
 };
@@ -149,37 +187,56 @@ CosmicTOFAnalyzer::~CosmicTOFAnalyzer()
 
 
 
-void
-CosmicTOFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+bool
+CosmicTOFAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace std;
    using namespace edm;
    using namespace reco;
-
+   bool result=false;
    Handle<MuonCollection> muH;
    iEvent.getByLabel("muons",muH);
    const MuonCollection & muons  =  *muH.product();
-   analyzeCollection(muons,"muons",iEvent);
+   if( analyzeCollection(muons,"muons",iEvent)) result=true;
 
    Handle<MuonCollection> muH2;
    bool t0Coll = iEvent.getByLabel("muonsWitht0Correction",muH2);
   if(t0Coll)
   {  
      const MuonCollection & muonsT0  =  *muH2.product();
-     analyzeCollection(muonsT0,"muonsWitht0Correction",iEvent);
+    if( analyzeCollection(muonsT0,"muonsWitht0Correction",iEvent)) result=true;
   } 
-
+  if(result) diMuEventTree->Fill();
+  return result;
 }
 
-void CosmicTOFAnalyzer::analyzeCollection(const MuonCollection & muons, std::string collName, const edm::Event& iEvent)
+bool CosmicTOFAnalyzer::analyzeCollection(const MuonCollection & muons, std::string collName, const edm::Event& iEvent)
 { 
-
+   
    h_[collName].nMuons->Fill(muons.size());
+h_[collName].event.t0 = 0;
+h_[collName].event.t1 = 0;
+h_[collName].event.t0e = 0;
+h_[collName].event.t1e = 0;
+h_[collName].event.deltaT = 0;
+h_[collName].event.pt0=0;
+h_[collName].event.pt1=0;
+h_[collName].event.eta0=0;
+h_[collName].event.eta1=0;
+h_[collName].event.phi0=0;
+h_[collName].event.phi1=0;
+h_[collName].event.nh0=0;
+h_[collName].event.nh1=0;
+h_[collName].event.s0=0;
+h_[collName].event.s1=0;
+h_[collName].event.w0=0;
+h_[collName].event.w1=0;
 
-   if(muons.size()!=2) return;
+
+   if(muons.size()!=2) return false;
 
    h_[collName].hitsVsHits->Fill(muons[0].bestTrack()->hitPattern().numberOfValidMuonDTHits(), muons[1].bestTrack()->hitPattern().numberOfValidMuonDTHits());
-   h_[collName].posVsPos->Fill(muons[0].bestTrack()->innerPosition().y(),muons[1].bestTrack()->innerPosition().y());
+   if(muons[0].outerTrack().isNonnull() && muons[1].outerTrack().isNonnull())    h_[collName].posVsPos->Fill(muons[0].outerTrack()->innerPosition().y(),muons[1].outerTrack()->innerPosition().y());
    h_[collName].ptVsPt->Fill(muons[0].bestTrack()->pt(),muons[1].bestTrack()->pt());
    h_[collName].ptDiff->Fill(muons[0].bestTrack()->pt()-muons[1].bestTrack()->pt());
 
@@ -201,8 +258,8 @@ void CosmicTOFAnalyzer::analyzeCollection(const MuonCollection & muons, std::str
   h_[collName].minHitsVsPhi->Fill(hitsmin,phimin);
   h_[collName].minHitsVsEta->Fill(hitsmin,etamin);
 
-  if( muons[0].bestTrack()->hitPattern().numberOfValidMuonDTHits() < 25 ) return;
-  if( muons[1].bestTrack()->hitPattern().numberOfValidMuonDTHits() < 25 ) return;
+  if( muons[0].bestTrack()->hitPattern().numberOfValidMuonDTHits() < 25 ) return false;
+  if( muons[1].bestTrack()->hitPattern().numberOfValidMuonDTHits() < 25 ) return false;
 
    h_[collName].ptVsPtSel->Fill(muons[0].bestTrack()->pt(),muons[1].bestTrack()->pt());
    h_[collName].ptDiffSel->Fill(muons[0].bestTrack()->pt()-muons[1].bestTrack()->pt());
@@ -267,10 +324,10 @@ h_[collName].diff->Fill(t0-t1);
 if(s0 ==0 || s1 ==0)
  {
     cout << "Error: cannot find the sector of this muon" << endl;
-    return;
+    return true;
  }
 
- h_[collName].pairs[w0+2][s0][w1+2][s1]->Fill(t0-t1);
+if(muons[0].pt() > 20 && muons[1].pt()  > 20)  h_[collName].pairs[w0+2][s0][w1+2][s1]->Fill(t0-t1);
 
  // use only sectors for which we do know the bias quite well (at least 50 measurement)
  if(h_[collName].points[w0+2][s0][w1+2][s1]>=50) 
@@ -288,7 +345,14 @@ if(s0 ==0 || s1 ==0)
           h_[collName].diffBiasCorrectedErr->Fill(t0-t1-h_[collName].bias[w0+2][s0][w1+2][s1]);
           h_[collName].diffBiasCorrectedErrPt->Fill(muons[0].pt(),t0-t1-h_[collName].bias[w0+2][s0][w1+2][s1]);
 
-          if(muons[0].pt() > 50) h_[collName].diffBiasCorrectedErrPtCut->Fill(t0-t1-h_[collName].bias[w0+2][s0][w1+2][s1]);
+          if(muons[0].pt() > 50)
+          {
+             h_[collName].diffBiasCorrectedErrPtCut->Fill(t0-t1-h_[collName].bias[w0+2][s0][w1+2][s1]);
+             if( fabs(muons[0].phi()+1.5708 ) < 0.785  && fabs(muons[1].phi()+1.5708 ) < 0.785  ) 
+               {
+                   h_[collName].diffBiasCorrectedErrPtCutPhiCut->Fill(t0-t1-h_[collName].bias[w0+2][s0][w1+2][s1]);
+               }
+          } 
 
 
           //Monitor details of events in the tails
@@ -305,6 +369,30 @@ if(s0 ==0 || s1 ==0)
 
  } // if error ok and muon pt matching 
 
+ h_[collName].event.t0 = t0;
+ h_[collName].event.t1 = t1;
+ h_[collName].event.t0e = mt0.timeAtIpInOutErr;
+ h_[collName].event.t1e = mt1.timeAtIpInOutErr;
+ h_[collName].event.deltaT = t0-t1-h_[collName].bias[w0+2][s0][w1+2][s1]; 
+ h_[collName].event.pt0=muons[0].pt();
+ h_[collName].event.pt1=muons[1].pt();
+ h_[collName].event.eta0=muons[0].eta();
+ h_[collName].event.eta1=muons[1].eta();
+ h_[collName].event.phi0=muons[0].phi();
+ h_[collName].event.phi1=muons[1].phi();
+ h_[collName].event.nh0= muons[0].bestTrack()->hitPattern().numberOfValidMuonDTHits();
+ h_[collName].event.nh1= muons[1].bestTrack()->hitPattern().numberOfValidMuonDTHits();
+ h_[collName].event.s0=s0;
+ h_[collName].event.s1=s1;
+ h_[collName].event.w0=w0;
+ h_[collName].event.w1=w1;
+ h_[collName].event.y0=muons[0].outerTrack()->innerPosition().y();
+ h_[collName].event.y1=muons[1].outerTrack()->innerPosition().y();
+
+ h_[collName].event.ev= iEvent.id().event();
+ h_[collName].event.run = iEvent.id().run();
+// h_[collName].branch->Fill();
+
 } // if bias ok
 
 if( fabs(t0-t1) > 50)
@@ -312,6 +400,7 @@ if( fabs(t0-t1) > 50)
   cout << "OVERFLOW ("  << collName << ") Values: " << t0 << " " << t1 << " Err: " << muons[0].time().timeAtIpInOutErr << " " << muons[1].time().timeAtIpInOutErr << "  #hits " 
  << muons[0].bestTrack()->hitPattern().numberOfValidMuonDTHits() << " " << muons[1].bestTrack()->hitPattern().numberOfValidMuonDTHits() << " W/S " << w0 << "/" << s0 << " " << w1 << "/" << s1  << endl;
  }
+ return true;
 }
 
 
@@ -323,6 +412,18 @@ CosmicTOFAnalyzer::beginJob(const edm::EventSetup&)
   initHistos("muons");
   readBias("muonsWitht0Correction");
   initHistos("muonsWitht0Correction");
+  edm::Service<TFileService> fs;
+  TFileDirectory * ntupleDir = new TFileDirectory(fs->mkdir( "tree" ));
+  diMuEventTree  = ntupleDir->make<TTree>("DiMuEventTree","Tree with di muon events");
+  initBranch("muons",diMuEventTree);
+  initBranch("muonsWitht0Correction",diMuEventTree);
+ 
+}
+
+void CosmicTOFAnalyzer::initBranch(std::string collName, TTree * t)
+{
+   h_[collName].branch = t->Branch(collName.c_str(),&(h_[collName].event),"t0:t1:t0e:t1e:deltaT:pt0:pt1:eta0:eta1:phi0:phi1:nh0:nh1:s0:s1:w0:w1:y0:y1:ev:run");
+
 }
 
 void CosmicTOFAnalyzer::readBias(std::string collName)
@@ -354,6 +455,7 @@ void CosmicTOFAnalyzer::initHistos(std::string collName)
   h_[collName].diffBiasCorrected = h_[collName].subDir->make<TH1F>("DiffBiasSub","DiffBiasSub", 100,-50,50);
   h_[collName].diffBiasCorrectedErr = h_[collName].subDir->make<TH1F>("DiffBiasSubErr","DiffBiasSub (Err1 && Err2 < 10)", 100,-50,50);
   h_[collName].diffBiasCorrectedErrPtCut = h_[collName].subDir->make<TH1F>("DiffBiasSubErrPtCut","DiffBiasSub (Pt > 50)", 100,-50,50);
+  h_[collName].diffBiasCorrectedErrPtCutPhiCut = h_[collName].subDir->make<TH1F>("DiffBiasSubErrPtCutPhiCut","DiffBiasSub (Pt > 50 && |phi+pi/2| < pi/4)", 100,-50,50);
   h_[collName].diffBiasCorrectedErrPt = h_[collName].subDir->make<TProfile>("DiffBiasSubErrPt","DiffBiasSub vs PT (Err1 && Err2 <10)", 100,0,500,-50,50);
   h_[collName].diffBiasCorrectedVsErr = h_[collName].subDir->make<TProfile>("DiffBiasSubVsErr","DiffBiasSub vs Err", 100,0,50,-50,50);
 
