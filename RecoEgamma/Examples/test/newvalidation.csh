@@ -59,9 +59,9 @@ endif
  
 if ( ${VAL_WEB_SUB_DIR} == "" ) then
   if ( "${DBS_LIKE}" =~ *IDEAL* ) then
-    setenv VAL_WEB_SUB_DIR ${DBS_SAMPLE}Ideal
+    setenv VAL_WEB_SUB_DIR ${DBS_SAMPLE}_Ideal
   else if ( "${DBS_LIKE}" =~ *STARTUP* ) then
-    setenv VAL_WEB_SUB_DIR ${DBS_SAMPLE}Startup
+    setenv VAL_WEB_SUB_DIR ${DBS_SAMPLE}_Startup
   else
     setenv VAL_WEB_SUB_DIR ${DBS_SAMPLE}
   endif
