@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/02/20 11:39:45 $
- *  $Revision: 1.33 $
+ *  $Date: 2009/03/06 10:50:04 $
+ *  $Revision: 1.34 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -164,8 +164,35 @@ void DTResolutionTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
 	SlopeFilled[make_pair(i,j)]=false;
       }
     }
-
   }
+
+
+  // summary histos initialization
+  for(int wh=-2; wh<=3; wh++){
+    if(wh!=3){
+      for(int xBin=0; xBin<14; xBin++){
+	for(int yBin=0; yBin<11; yBin++){
+	  wheelMeanHistos[wh]->setBinContent(xBin,yBin,0);
+	  if(parameters.getUntrackedParameter<bool>("sigmaTest"))
+	    wheelSigmaHistos[wh]->setBinContent(xBin,yBin,0);
+	  if(parameters.getUntrackedParameter<bool>("slopeTest"))
+	    wheelSlopeHistos[wh]->setBinContent(xBin,yBin,0);
+	  }
+      }
+    }
+    else{
+      for(int xBin=0; xBin<14; xBin++){
+	for(int yBin=-2; yBin<3; yBin++){
+	  wheelMeanHistos[wh]->setBinContent(xBin,yBin,0);
+	  if(parameters.getUntrackedParameter<bool>("sigmaTest"))
+	    wheelSigmaHistos[wh]->setBinContent(xBin,yBin,0);
+	  if(parameters.getUntrackedParameter<bool>("slopeTest"))
+	    wheelSlopeHistos[wh]->setBinContent(xBin,yBin,0);
+	}
+      }
+    }
+  }
+
 
   edm::LogVerbatim ("resolution") <<"[DTResolutionTest]: "<<nLumiSegs<<" updates";
 
@@ -586,11 +613,6 @@ void DTResolutionTest::bookHistos(int wh) {
     wheelMeanHistos[3]->setBinLabel(3,"Wheel0",2);
     wheelMeanHistos[3]->setBinLabel(4,"Wheel+1",2);
     wheelMeanHistos[3]->setBinLabel(5,"Wheel+2",2);
-    for(int xBin=0; xBin<14; xBin++){
-      for(int yBin=-2; yBin<3; yBin++){
-	wheelMeanHistos[3]->Fill(xBin,yBin,0);
-      }
-    }
   }
 
   if(parameters.getUntrackedParameter<bool>("sigmaTest")){
@@ -617,11 +639,6 @@ void DTResolutionTest::bookHistos(int wh) {
       wheelSigmaHistos[3]->setBinLabel(3,"Wheel0",2);
       wheelSigmaHistos[3]->setBinLabel(4,"Wheel+1",2);
       wheelSigmaHistos[3]->setBinLabel(5,"Wheel+2",2);
-      for(int xBin=0; xBin<14; xBin++){
-	for(int yBin=-2; yBin<3; yBin++){
-	  wheelSigmaHistos[3]->Fill(xBin,yBin,0);
-	}
-      }
     }
   }
 
@@ -649,11 +666,6 @@ void DTResolutionTest::bookHistos(int wh) {
       wheelSlopeHistos[3]->setBinLabel(3,"Wheel0",2);
       wheelSlopeHistos[3]->setBinLabel(4,"Wheel+1",2);
       wheelSlopeHistos[3]->setBinLabel(5,"Wheel+2",2);
-      for(int xBin=0; xBin<14; xBin++){
-	for(int yBin=-2; yBin<3; yBin++){
-	  wheelSlopeHistos[3]->Fill(xBin,yBin,0);
-	}
-      }
     }
   }
 
@@ -687,12 +699,7 @@ void DTResolutionTest::bookHistos(int wh) {
     wheelMeanHistos[wh]->setBinLabel(9,"MB3_SL3",2);
     wheelMeanHistos[wh]->setBinLabel(10,"MB4_SL1",2);
     wheelMeanHistos[wh]->setBinLabel(11,"MB4_SL3",2);
-    for(int xBin=0; xBin<14; xBin++){
-      for(int yBin=0; yBin<11; yBin++){
-	wheelMeanHistos[wh]->Fill(xBin,yBin,0);
-      }
-    }
-  }  
+  }
 
   if(parameters.getUntrackedParameter<bool>("sigmaTest")){
     if(wheelSigmaHistos.find(wh) == wheelSigmaHistos.end()){
@@ -723,11 +730,6 @@ void DTResolutionTest::bookHistos(int wh) {
       wheelSigmaHistos[wh]->setBinLabel(9,"MB3_SL3",2);
       wheelSigmaHistos[wh]->setBinLabel(10,"MB4_SL1",2);
       wheelSigmaHistos[wh]->setBinLabel(11,"MB4_SL3",2);
-      for(int xBin=0; xBin<14; xBin++){
-	for(int yBin=0; yBin<11; yBin++){
-	  wheelSigmaHistos[wh]->Fill(xBin,yBin,0);
-	}
-      }
     }  
   }
 
@@ -760,11 +762,6 @@ void DTResolutionTest::bookHistos(int wh) {
       wheelSlopeHistos[wh]->setBinLabel(9,"MB3_SL3",2);
       wheelSlopeHistos[wh]->setBinLabel(10,"MB4_SL1",2);
       wheelSlopeHistos[wh]->setBinLabel(11,"MB4_SL3",2);
-      for(int xBin=0; xBin<14; xBin++){
-	for(int yBin=0; yBin<11; yBin++){
-	  wheelSlopeHistos[wh]->Fill(xBin,yBin,0);
-	}
-      }
     }  
   }
   
