@@ -205,6 +205,9 @@ public:
   /// get the Jet Et calibration LUT
   const lutPtrVector getJetEtCalibLuts() const { return m_jetEtCalLuts; }
 
+  /// HACK - Ht threshold value for CMSSW22X
+  const unsigned getJetThresholdForHtSum() const { return m_JetThresholdForHtSum; }
+
   ///=================================================================================================
   /// Print method
   ///
@@ -290,6 +293,9 @@ public:
 
   /// Jet Et calibration LUT
   lutPtrVector m_jetEtCalLuts;
+
+  // HACK - Ht threshold value for CMSSW22X
+  unsigned m_JetThresholdForHtSum;
 
   /// Input channel mask
   const L1GctChannelMask* m_inputChannelMask;

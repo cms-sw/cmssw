@@ -162,6 +162,9 @@ public:
   /// Return pointers to calibration LUTs
   const lutPtrVector getJetEtCalLuts() const { return m_jetEtCalLuts; }
 
+  /// HACK - Ht threshold value for CMSSW22X
+  const unsigned getJetThresholdForHtSum() const { return m_JetThresholdForHtSum; }
+
   // The hardware output quantities
   JetVector getJets() const { return m_sortedJets; } ///< Get the located jets. 
   etTotalType getEtStrip0() const { return m_outputEtStrip0; }  ///< Get transverse energy strip sum 0

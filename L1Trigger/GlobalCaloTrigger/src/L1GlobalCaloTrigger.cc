@@ -34,6 +34,7 @@ L1GlobalCaloTrigger::L1GlobalCaloTrigger(const L1GctJetLeafCard::jetFinderType j
   theWheelEnergyFpgas(N_WHEEL_CARDS),
   m_jetFinderParams(0),
   m_jetEtCalLuts(),
+  m_JetThresholdForHtSum(0),
   m_inputChannelMask(0),
   m_bxRangeAuto(true),
   m_bxStart(0), m_numOfBx(1),
@@ -333,6 +334,8 @@ void L1GlobalCaloTrigger::setJetEtCalibrationLuts(const L1GlobalCaloTrigger::lut
 
 /// HACK - Ht threshold value for CMSSW22X
 void L1GlobalCaloTrigger::setJetThresholdForHtSum(const unsigned thresh) {
+  // Store the jet threshold (so it can be retrieved)
+  m_JetThresholdForHtSum = thresh;
   // Need to propagate the new value to all the JetFinders
   for (int i=0; i<N_JET_LEAF_CARDS; i++) {
     theJetLeafCards.at(i)->getJetFinderA()->setJetThresholdForHtSum(thresh);
