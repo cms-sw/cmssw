@@ -1,5 +1,5 @@
 /*
- * $Id: HydjetSource.cc,v 1.26 2009/02/03 22:02:00 yilmaz Exp $
+ * $Id: HydjetSource.cc,v 1.27 2009/02/19 02:32:14 yilmaz Exp $
  *
  * Interface to the HYDJET generator, produces HepMC events
  *
@@ -127,10 +127,14 @@ void HydjetSource::add_heavy_ion_rec(HepMC::GenEvent *evt)
 {
   // heavy ion record in the final CMSSW Event
 
+   double npart = hyfpar.npart;
+   int nproj = static_cast<int>(npart / 2);
+   int ntarg = static_cast<int>(npart - nproj);
+
   HepMC::HeavyIon* hi = new HepMC::HeavyIon(
-    nsub_,                               // Ncoll_hard/N of SubEvents
-    static_cast<int>(hyfpar.npart / 2),  // Npart_proj
-    static_cast<int>(hyfpar.npart / 2),  // Npart_targ
+    nsub_,                               // Ncoll_hard, or, N of SubEvents
+    nproj,  // Npart_proj
+    ntarg,  // Npart_targ
     static_cast<int>(hyfpar.nbcol),      // Ncoll
     0,                                   // spectator_neutrons
     0,                                   // spectator_protons
