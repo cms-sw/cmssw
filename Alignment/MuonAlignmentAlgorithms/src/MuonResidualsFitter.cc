@@ -6,8 +6,8 @@
 
 const double MuonResidualsFitter_gsbinsize = 0.1;
 const double MuonResidualsFitter_tsbinsize = 0.1;
-const int MuonResidualsFitter_numgsbins = 100;
-const int MuonResidualsFitter_numtsbins = 1000;
+const int MuonResidualsFitter_numgsbins = 200;
+const int MuonResidualsFitter_numtsbins = 500;
 
 bool MuonResidualsFitter_table_initialized = false;
 double MuonResidualsFitter_lookup_table[MuonResidualsFitter_numgsbins][MuonResidualsFitter_numtsbins];
@@ -37,19 +37,38 @@ double MuonResidualsFitter_powerLawTails(double residual, double center, double 
   int tsbin0 = int(floor(toversigma / MuonResidualsFitter_tsbinsize));
   int tsbin1 = int(ceil(toversigma / MuonResidualsFitter_tsbinsize));
 
-  // this region should be disfavored: if sampled, it will throw you back to the good region
-  if (gsbin0 >= MuonResidualsFitter_numgsbins  ||  gsbin1 >= MuonResidualsFitter_numgsbins  ||
-      tsbin0 >= MuonResidualsFitter_numtsbins  ||  tsbin1 >= MuonResidualsFitter_numtsbins) {
-    MuonResidualsFitter_inbadregion = true;
-    return MuonResidualsFitter_lookup_table[MuonResidualsFitter_numgsbins-1][MuonResidualsFitter_numtsbins-1]
-      / sigma * (1. + pow(gammaoversigma, 2) + pow(toversigma, 2));
-  }
-  MuonResidualsFitter_inbadregion = false;
+  bool gsisbad = (gsbin0 >= MuonResidualsFitter_numgsbins  ||  gsbin1 >= MuonResidualsFitter_numgsbins);
+  bool tsisbad = (tsbin0 >= MuonResidualsFitter_numtsbins  ||  tsbin1 >= MuonResidualsFitter_numtsbins);
 
-  double val00 = MuonResidualsFitter_lookup_table[gsbin0][tsbin0];
-  double val01 = MuonResidualsFitter_lookup_table[gsbin0][tsbin1];
-  double val10 = MuonResidualsFitter_lookup_table[gsbin1][tsbin0];
-  double val11 = MuonResidualsFitter_lookup_table[gsbin1][tsbin1];
+  double val00, val01, val10, val11;
+  if (gsisbad  &&  !tsisbad) {
+    MuonResidualsFitter_inbadregion = true;
+    val00 = MuonResidualsFitter_lookup_table[MuonResidualsFitter_numgsbins-1][tsbin0] * exp(-gammaoversigma);
+    val01 = MuonResidualsFitter_lookup_table[MuonResidualsFitter_numgsbins-1][tsbin1] * exp(-gammaoversigma);
+    val10 = MuonResidualsFitter_lookup_table[MuonResidualsFitter_numgsbins-1][tsbin0] * exp(-gammaoversigma);
+    val11 = MuonResidualsFitter_lookup_table[MuonResidualsFitter_numgsbins-1][tsbin1] * exp(-gammaoversigma);
+  }
+  else if (!gsisbad  &&  tsisbad) {
+    MuonResidualsFitter_inbadregion = true;
+    val00 = MuonResidualsFitter_lookup_table[gsbin0][MuonResidualsFitter_numtsbins-1] * exp(-toversigma);
+    val01 = MuonResidualsFitter_lookup_table[gsbin0][MuonResidualsFitter_numtsbins-1] * exp(-toversigma);
+    val10 = MuonResidualsFitter_lookup_table[gsbin1][MuonResidualsFitter_numtsbins-1] * exp(-toversigma);
+    val11 = MuonResidualsFitter_lookup_table[gsbin1][MuonResidualsFitter_numtsbins-1] * exp(-toversigma);
+  }
+  else if (gsisbad  &&  tsisbad) {
+    MuonResidualsFitter_inbadregion = true;
+    val00 = MuonResidualsFitter_lookup_table[MuonResidualsFitter_numgsbins-1][MuonResidualsFitter_numtsbins-1] * exp(-gammaoversigma) * exp(-toversigma);
+    val01 = MuonResidualsFitter_lookup_table[MuonResidualsFitter_numgsbins-1][MuonResidualsFitter_numtsbins-1] * exp(-gammaoversigma) * exp(-toversigma);
+    val10 = MuonResidualsFitter_lookup_table[MuonResidualsFitter_numgsbins-1][MuonResidualsFitter_numtsbins-1] * exp(-gammaoversigma) * exp(-toversigma);
+    val11 = MuonResidualsFitter_lookup_table[MuonResidualsFitter_numgsbins-1][MuonResidualsFitter_numtsbins-1] * exp(-gammaoversigma) * exp(-toversigma);
+  }
+  else {
+    MuonResidualsFitter_inbadregion = false;
+    val00 = MuonResidualsFitter_lookup_table[gsbin0][tsbin0];
+    val01 = MuonResidualsFitter_lookup_table[gsbin0][tsbin1];
+    val10 = MuonResidualsFitter_lookup_table[gsbin1][tsbin0];
+    val11 = MuonResidualsFitter_lookup_table[gsbin1][tsbin1];
+  }
 
   double val0 = val00 + ((toversigma / MuonResidualsFitter_tsbinsize) - tsbin0) * (val01 - val00);
   double val1 = val10 + ((toversigma / MuonResidualsFitter_tsbinsize) - tsbin0) * (val11 - val10);
