@@ -59,6 +59,8 @@ class HLTJetMETValidation : public edm::EDAnalyzer {
  private:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
+  //JL    
+  virtual void endRun(const edm::Run&, const edm::EventSetup&) ;
 
   void getHLTResults(const edm::TriggerResults&);
 
@@ -100,6 +102,10 @@ class HLTJetMETValidation : public edm::EDAnalyzer {
   MonitorElement *_meProbePt;
   MonitorElement *_triggerResults;
 
+  //JL
+  //MonitorElement *_meTurnOnMET;
+  //MonitorElement *_meTurnOnJetPt;
+
 //Define Numbers 
 
   int NRef;
@@ -113,5 +119,8 @@ class HLTJetMETValidation : public edm::EDAnalyzer {
   edm::TriggerNames triggerNames_;  // TriggerNames class
 
   bool HLTinit_;
+
+  //JL
+  bool writeFile_;
 };
 #endif

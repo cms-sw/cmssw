@@ -30,7 +30,9 @@ HLTJetMETValidation::HLTJetMETValidation(const edm::ParameterSet& ps) :
   _probefilter(ps.getUntrackedParameter<edm::InputTag>("ProbeFilter")),
   _HLTPath(ps.getUntrackedParameter<edm::InputTag>("HLTPath")),
   outFile_(ps.getUntrackedParameter<std::string>("OutputFileName","")),
-  HLTinit_(false)
+  HLTinit_(false),
+  //JL
+  writeFile_(ps.getUntrackedParameter<bool>("WriteFile",false))
 {
 //initialize 
   NRef = 0;
@@ -43,7 +45,7 @@ HLTJetMETValidation::HLTJetMETValidation(const edm::ParameterSet& ps) :
     {
       //Create the histograms
       store->setCurrentFolder(triggerTag_);
-      test_histo = store->book1D("test_histo","Test Histogram",100,0,100);
+      if (writeFile_) test_histo = store->book1D("test_histo","Test Histogram",100,0,100);
       _meRecoJetPt= store->book1D("_meRecoJetPt","Single Reconstructed Jet Pt",100,0,500);
       _meRecoJetPtTrg= store->book1D("_meRecoJetPtTrg","Single Reconstructed Jet Pt -- HLT Triggered",100,0,500);
       _meRecoJetPtRef= store->book1D("_meRecoJetPtRef","Single Reconstructed Jet Pt -- Ref trigger fired",100,0,500);
@@ -68,9 +70,13 @@ HLTJetMETValidation::HLTJetMETValidation(const edm::ParameterSet& ps) :
       _meProbePt= store->book1D("_meProbePt","HLT Probe Pt",100,0,500);
 
       _triggerResults = store->book1D( "_triggerResults", "HLT Results", 200, 0, 200 );
+
+      //JL
+      //_meTurnOnMET= store->book1D("_meTurnOnMET","Missing ET Turn-On",100,0,500);
+      //_meTurnOnJetPt= store->book1D("_meTurnOnJetPt","Jet Pt Turn-On",100,0,500);
     }
 
-  printf("Initializing\n");
+  if (writeFile_) printf("Initializing\n");
 }
 
 HLTJetMETValidation::~HLTJetMETValidation()
@@ -91,13 +97,44 @@ HLTJetMETValidation::endJob()
 
   //Write DQM thing..
   if(outFile_.size()>0)
-  if (&*edm::Service<DQMStore>()) edm::Service<DQMStore>()->save (outFile_);
+    //JL
+    //if (&*edm::Service<DQMStore>()) edm::Service<DQMStore>()->save (outFile_);
+    if (&*edm::Service<DQMStore>() && writeFile_) {
+      edm::Service<DQMStore>()->save (outFile_);
 
-  printf("\n\n");
-  printf("NRef = %i\n",NRef);
-  printf("NProbe = %i\n",NProbe);
+      printf("\n\n");
+      printf("NRef = %i\n",NRef);
+      printf("NProbe = %i\n",NProbe);
+    }
+  
+}
 
-
+//JL
+void
+HLTJetMETValidation::endRun(const edm::Run& run, const edm::EventSetup& es)
+{
+  /*
+  _meTurnOnMET->getTH1F()->Add(_meGenMETTrg->getTH1F(),1);
+  _meTurnOnMET->getTH1F()->Sumw2();
+  _meGenMET->getTH1F()->Sumw2();
+  _meTurnOnMET->getTH1F()->Divide(_meTurnOnMET->getTH1F(),_meGenMET->getTH1F(),1,1,"B");
+  _meTurnOnJetPt->getTH1F()->Add(_meGenJetPtTrg->getTH1F(),1);
+  _meTurnOnJetPt->getTH1F()->Sumw2();
+  _meGenJetPt->getTH1F()->Sumw2();
+  _meTurnOnJetPt->getTH1F()->Divide(_meTurnOnJetPt->getTH1F(),_meGenJetPt->getTH1F(),1,1,"B");
+  
+  
+  float val, err, binc;
+  for (int i=0;i<_meGenMET->getNbinsX();i++) {
+    binc = _meGenMET->getBinContent(i+1);
+    if (binc) {
+      val = _meGenMETTrg->getBinContent(i+1)/binc;
+      err = sqrt(val*(1-val)/binc);
+      _meTurnOnMET->setBinContent(i+1,val);
+      _meTurnOnMET->setBinError(i+1,err);
+    }
+  }
+  */
 }
 
 
@@ -110,7 +147,7 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   using namespace l1extra;
   using namespace trigger;
 
-  test_histo->Fill(50.);
+  if (writeFile_) test_histo->Fill(50.);
 
   //get The triggerEvent
 
