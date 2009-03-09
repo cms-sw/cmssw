@@ -10,9 +10,16 @@ from Calibration.EcalAlCaRecoProducers.electronFilter_cfi import *
 # calibration
 #
 
-isolElectronewkHLTFilter = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
-isolElectronewkHLTFilter.throw = False 
-isolElectronewkHLTFilter.HLTPaths = ['HLT_Ele15_SW_L1R', 'HLT_DoubleEle10_SW_L1R']
+isolElectronewkHLTFilter = hltHighLevel.clone()
+isolElectronewkHLTFilter.throw = False
+
+#
+# Here we specify trigger names for both 1E31 and 8E29
+# Since have throw = false, this setting will work for both menus
+#
+#
+isolElectronewkHLTFilter.HLTPaths = ['HLT_Ele15_SW_L1R', 'HLT_DoubleEle10_SW_L1R', # 1E31
+                                     'HLT_Ele10_LW_L1R', 'HLT_DoubleEle5_SW_L1R']  # 8E29
 
 goodElectrons = cms.EDFilter("CandViewRefSelector",
     filter = cms.bool(True),
