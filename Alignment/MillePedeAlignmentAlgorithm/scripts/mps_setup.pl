@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     08-Oct-2007
 #     A. Parenti, DESY Hamburg    16-Apr-2008
-#     $Revision: 1.13 $
-#     $Date: 2008/07/29 17:10:40 $
+#     $Revision: 1.14 $
+#     $Date: 2009/01/07 18:27:19 $
 #
 #  Setup local mps database
 #  
@@ -132,6 +132,8 @@ if ($driver eq "merge") {
     exit 1;
   }
 }
+
+$mssDirOrig = $mssDir; # First store the original value of $mssDir
 if ($mssDir ne "") {
   if ($mssDir =~ /:/) {
     $castorPool = $mssDir;
@@ -300,6 +302,8 @@ system "rm -rf jobData/$ScriptCfg";
 
 
 # Write to DB
-write_db();
+
+$mssDir = $mssDirOrig; # First restore original value of $mssDir...
+write_db(); # ... then save to DB
 read_db();
 print_memdb();
