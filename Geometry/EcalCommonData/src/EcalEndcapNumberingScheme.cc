@@ -21,7 +21,7 @@ uint32_t EcalEndcapNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) 
 
    const uint32_t nLevels ( baseNumber.getLevels() ) ;
 
-   LogDebug("EcalGeom") << "ECalEndcapNumberingScheme geometry levels = " << nLevels;
+   //LogDebug("EcalGeom") << "ECalEndcapNumberingScheme geometry levels = " << nLevels;
   
    if( 7 > nLevels )
    {
@@ -61,10 +61,10 @@ uint32_t EcalEndcapNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) 
 
   uint32_t intindex = EEDetId(module_number,crystal_number,zside,EEDetId::SCCRYSTALMODE).rawId();
   
-  LogDebug("EcalGeom") << "EcalEndcapNumberingScheme: zside = "  << zside 
-		       << " super crystal = " << module_number << " crystal = "
-		       << crystal_number << " packed index = 0x" << std::hex 
-		       << intindex << std::dec;
+//LogDebug("EcalGeom") << "EcalEndcapNumberingScheme: zside = "  << zside 
+//                     << " super crystal = " << module_number << " crystal = "
+//                     << crystal_number << " packed index = 0x" << std::hex 
+//                     << intindex << std::dec;
 
 
   return intindex;
