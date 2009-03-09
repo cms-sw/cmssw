@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Haiyun Teng
 //         Created:  Wed Feb 25 18:09:15 CET 2009
-// $Id: RPCCSC.cc,v 1.1 2009/03/02 15:39:50 carrillo Exp $
+// $Id: RPCCSC.cc,v 1.2 2009/03/05 00:36:06 carrillo Exp $
 //
 //
 
@@ -127,23 +127,6 @@ RPCCSC::~RPCCSC()
 }
 
 
-//
-// member functions
-//
-
-
-int mySegment(RPCDetId rpcId){
-  int seg=0;
-  int nsec=36;
-  int nsub=6;
-  if (rpcId.ring()==1 && rpcId.station() > 1) {
-    nsub=3;
-    nsec=18;
-  }
-  seg =rpcId.subsector()+nsub*(rpcId.sector()-1);
-  if(seg==nsec+1)seg=1;
-  return seg;
-}
 
 // ------------ method called to for each event  ------------
 void RPCCSC::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -184,7 +167,7 @@ RPCCSC::beginJob(const edm::EventSetup& iSetup)
           int cscring=ring;
           int cscstation=station;
 	  RPCGeomServ rpcsrv(rpcId);
-	  int rpcsegment = mySegment(rpcId); //This replace rpcsrv.segment();
+	  int rpcsegment = rpcsrv.segment(); //This replace rpcsrv.segment();
 	  //std::cout<<"My segment="<<mySegment(rpcId)<<" GeomServ="<<rpcsrv.segment()<<std::endl;
 	  int cscchamber = rpcsegment;//FIX THIS ACCORDING TO RPCGeomServ::segment()Definition
           if((station==2||station==3)&&ring==3){//Adding Ring 3 of RPC to the CSC Ring 2
@@ -203,6 +186,49 @@ RPCCSC::beginJob(const edm::EventSetup& iSetup)
       }
     }
   }
+  for (TrackingGeometry::DetContainer::const_iterator it=rpcGeometry->dets().begin();it<rpcGeometry->dets().end();it++){
+    if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
+      RPCChamber* ch = dynamic_cast< RPCChamber* >( *it );                                                                         std::vector< const RPCRoll*> roles = (ch->rolls());                                                                          for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){                              
+	RPCDetId rpcId = (*r)->id();
+	int region = rpcId.region();                                        
+	if(region!=0 && (rpcId.ring()==2 || rpcId.ring()==3)){                                                    
+       	  int region=rpcId.region();                                                                                         
+          int station=rpcId.station();                                                                                       
+          int ring=rpcId.ring();                                                                                             
+	  int cscring = ring;
+	  
+	  if((station==2||station==3)&&ring==3) cscring = 2; //CSC Ring 2 covers rpc ring 2 & 3                              
+
+
+          int cscstation=station;                                                                                            
+          RPCGeomServ rpcsrv(rpcId);                                                                                         
+          int rpcsegment = rpcsrv.segment();                                                                                 
+                                                                                                                             
+                                                                                                                                       
+          int cscchamber = rpcsegment+1;                                                                                     
+          if(cscchamber==37)cscchamber=1;                                                                                    
+          CSCStationIndex ind(region,cscstation,cscring,cscchamber);                                                         
+	  std::set<RPCDetId> myrolls;                                                                                        
+          if (rollstoreCSC.find(ind)!=rollstoreCSC.end())myrolls=rollstoreCSC[ind];                                          
+          myrolls.insert(rpcId);                                                                                             
+          rollstoreCSC[ind]=myrolls;                                                                                         
+                                                                                                                             
+          cscchamber = rpcsegment-1;                                                                                         
+          if(cscchamber==0)cscchamber=36;                                                                                    
+          CSCStationIndex indDos(region,cscstation,cscring,cscchamber);                                                      
+	  std::set<RPCDetId> myrollsDos;                                                                                     
+          if (rollstoreCSC.find(indDos)!=rollstoreCSC.end()) myrollsDos=rollstoreCSC[indDos];                                 
+          myrollsDos.insert(rpcId);                                                                                          
+          rollstoreCSC[indDos]=myrollsDos;                                                                                      
+                                                                                                                             
+        }            
+      }
+    }
+  }
+
+
+  //adding more rpcs 
+
 
 
   // Now check binding
@@ -219,14 +245,9 @@ RPCCSC::beginJob(const edm::EventSetup& iSetup)
     int rpcRing = cscRing;
     if(cscRing==4)rpcRing =1;
     int rpcStation = cscStation;
-    int rpcSegment = 0;
-	
-    if(cscStation!=1&&cscRing==1){//las de 18 CSC
-      rpcSegment = CSCId.chamber();
-    }
-    else{//las de 36 CSC
-      rpcSegment = (CSCId.chamber()==1) ? 36 : CSCId.chamber()-1;
-    }
+    int rpcSegment = CSCId.chamber();
+
+
     //std::cout<<"CSC \t \t Getting chamber from Geometry"<<std::endl;
     const CSCChamber* TheChamber=cscGeometry->chamber(CSCId); 
     //std::cout<<"CSC \t \t Getting ID from Chamber"<<std::endl;
@@ -260,16 +281,18 @@ RPCCSC::beginJob(const edm::EventSetup& iSetup)
       float diffz=CenterPointRollGlobal.z()-CenterPointCSCGlobal.z();
       float dfg=df*180./3.14159265;
       
-      std::cout<<"CSC \t "<<rpcsrv.name()<<" dr="<<dr<<" dz="<<diffz<<" dfg="<<dfg<<std::endl;
+      std::cout<<"CSC \t "<<rpcsrv.segment()<<rpcsrv.name()<<" dr="<<dr<<" dz="<<diffz<<" dfg="<<dfg<<std::endl;
 
-      if(dr>200.||fabs(diffz)>55.||dfg>1.){ 
+      bool print = false;
+
+      if((dr>200.||fabs(diffz)>55.||dfg>1.) && print){ 
 	std::cout<<"\t \t problem CSC Station= "<<CSCId.station()
 	  <<" Ring= "<<CSCId.ring()
 	  <<" Chamber= "<<CSCId.chamber()
 	  <<" cscphi="<<cscphi*180/3.14159265
 	  <<"\t RPC Station= "<<rpcId.station()
 	  <<" ring= "<<rpcId.ring()
-	  <<" segment =-> "<<mySegment(rpcId)
+          <<" segment =-> "<<rpcsrv.segment()
 	  <<" rollphi="<<rpcphi*180/3.14159265
 	  <<"\t dfg="<<dfg
 	  <<" dz="<<diffz
