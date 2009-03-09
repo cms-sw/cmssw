@@ -11,7 +11,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Thu May 18 15:04:56 CEST 2006
-// $Id: L1GctEmulator.h,v 1.4 2008/10/23 20:03:51 heath Exp $
+// $Id: L1GctEmulator.h,v 1.5 2008/10/29 11:28:35 heath Exp $
 //
 //
 
@@ -55,6 +55,9 @@ class L1GctEmulator : public edm::EDProducer {
 
   // pointers to the jet Et LUTs
   lutPtrVector m_jetEtCalibLuts;
+
+  // HACK - Ht threshold value for CMSSW22X
+  double m_JetThresholdForHtSumGeV;
 
   // untracked parameters
   bool m_verbose;

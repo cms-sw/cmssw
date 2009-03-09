@@ -7,6 +7,7 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctUnsignedInt.h"
+#include "L1Trigger/GlobalCaloTrigger/src/L1GctJetCount.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
@@ -39,6 +40,7 @@ class L1GctGlobalHfSumAlgos;
 class L1GctElectronFinalSort;
 class L1GctJetFinderParams;
 class L1GctJetEtCalibrationLut;
+class L1GctJetCounterSetup;
 class L1GctChannelMask;
 class L1CaloEtScale;
 
@@ -82,8 +84,12 @@ public:
   /// setup the Jet Calibration Luts
   void setJetEtCalibrationLuts(const lutPtrVector& jfluts);
 
-  /// Setup the tau algorithm parameters
-  void setupTauAlgo(const bool useImprovedAlgo, const bool ignoreVetoBitsForIsolation);
+  /// HACK - Ht threshold value for CMSSW22X
+  void setJetThresholdForHtSum(const unsigned thresh);
+
+  /// setup Jet Counter LUTs
+  void setupJetCounterLuts(const L1GctJetCounterSetup* jcPosPars,
+                           const L1GctJetCounterSetup* jcNegPars);
 
   /// setup Hf sum LUTs
   void setupHfSumLuts(const L1GctHfLutSetup* iSetup);
@@ -149,9 +155,6 @@ public:
   /// tau jet outputs to GT
   L1GctJetCandCollection getTauJets() const;
   
-  /// all jets from jetfinders in raw format
-  L1GctInternJetDataCollection getInternalJets() const;
-
   /// Total Et output to GT
   L1GctEtTotalCollection getEtSumCollection() const;
   
@@ -162,7 +165,10 @@ public:
   L1GctEtMissCollection  getEtMissCollection() const;
 
   /// Htmiss output to GT
-  L1GctHtMissCollection  getHtMissCollection() const;
+  L1GctEtMissCollection  getHtMissCollection() const;
+
+  // Jet Count output to GT
+  L1GctJetCountsCollection getJetCountsCollection() const;
 
   // Hf sums output to GT
   L1GctHFBitCountsCollection  getHFBitCountsCollection()  const;

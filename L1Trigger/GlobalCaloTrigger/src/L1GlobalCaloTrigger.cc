@@ -1,6 +1,7 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
 
 #include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
+#include "CondFormats/L1TObjects/interface/L1GctJetCounterSetup.h"
 #include "CondFormats/L1TObjects/interface/L1GctChannelMask.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
@@ -11,6 +12,7 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalEnergyAlgos.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalHfSumAlgos.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronFinalSort.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCounter.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -304,8 +306,8 @@ void L1GlobalCaloTrigger::bxProcess(const int bx) {
 void L1GlobalCaloTrigger::setJetFinderParams(const L1GctJetFinderParams* jfpars) {
 
   // Some parameters not (yet?) implemented
-  if ((jfpars->getCenForJetEtaBoundary()==7) &&
-      (jfpars->getCenJetEtSeedGct()==jfpars->getTauJetEtSeedGct())) { 
+  if ((jfpars->CENTRAL_FORWARD_ETA_BOUNDARY==7) &&
+      (jfpars->CENTRAL_JET_SEED==jfpars->TAU_JET_SEED)) { 
 
     m_jetFinderParams = jfpars;
     // Need to propagate the new parameters to all the JetFinders
@@ -329,14 +331,28 @@ void L1GlobalCaloTrigger::setJetEtCalibrationLuts(const L1GlobalCaloTrigger::lut
   }
 }
 
-/// Setup the tau algorithm parameters
-void L1GlobalCaloTrigger::setupTauAlgo(const bool useImprovedAlgo, const bool ignoreVetoBitsForIsolation)
-{
-  // Need to propagate the new parameters to all the JetFinders
+/// HACK - Ht threshold value for CMSSW22X
+void L1GlobalCaloTrigger::setJetThresholdForHtSum(const unsigned thresh) {
+  // Need to propagate the new value to all the JetFinders
   for (int i=0; i<N_JET_LEAF_CARDS; i++) {
-    theJetLeafCards.at(i)->getJetFinderA()->setupTauAlgo(useImprovedAlgo, ignoreVetoBitsForIsolation);
-    theJetLeafCards.at(i)->getJetFinderB()->setupTauAlgo(useImprovedAlgo, ignoreVetoBitsForIsolation);
-    theJetLeafCards.at(i)->getJetFinderC()->setupTauAlgo(useImprovedAlgo, ignoreVetoBitsForIsolation);
+    theJetLeafCards.at(i)->getJetFinderA()->setJetThresholdForHtSum(thresh);
+    theJetLeafCards.at(i)->getJetFinderB()->setJetThresholdForHtSum(thresh);
+    theJetLeafCards.at(i)->getJetFinderC()->setJetThresholdForHtSum(thresh);
+  }
+}
+
+/// setup Jet Counter LUTs
+void L1GlobalCaloTrigger::setupJetCounterLuts(const L1GctJetCounterSetup* jcPosPars,
+                                              const L1GctJetCounterSetup* jcNegPars) {
+
+  // Initialise look-up tables for Plus and Minus wheels
+  for (unsigned j=0; j<jcPosPars->numberOfJetCounters(); ++j) {
+    theWheelJetFpgas.at(0)->getJetCounter(j)->setLut(
+                 jcPosPars->getCutsForJetCounter(j) );
+  }
+  for (unsigned j=0; j<jcNegPars->numberOfJetCounters(); ++j) {
+    theWheelJetFpgas.at(1)->getJetCounter(j)->setLut(
+                 jcNegPars->getCutsForJetCounter(j) );
   }
 }
 
@@ -591,19 +607,6 @@ L1GctJetCandCollection L1GlobalCaloTrigger::getTauJets() const {
   return theJetFinalStage->getTauJets(); 
 }
 
-/// all jets from jetfinders in raw format
-L1GctInternJetDataCollection L1GlobalCaloTrigger::getInternalJets() const {
-  L1GctInternJetDataCollection allJets, jfJets;
-
-  // Loop over jetfinders, find the internal jets and add them to the list
-  for (unsigned jf=0; jf<theJetFinders.size(); jf++) {
-    jfJets = theJetFinders.at(jf)->getInternalJets();
-    allJets.insert(allJets.end(), jfJets.begin(), jfJets.end());
-  }
-
-  return allJets;
-}
-
 // total Et output
 L1GctEtTotalCollection L1GlobalCaloTrigger::getEtSumCollection() const {
   L1GctEtTotalCollection result(m_numOfBx);
@@ -642,14 +645,24 @@ L1GctEtMissCollection  L1GlobalCaloTrigger::getEtMissCollection() const {
   return result;
 }
 
-L1GctHtMissCollection  L1GlobalCaloTrigger::getHtMissCollection() const {
-  L1GctHtMissCollection result(m_numOfBx);
+L1GctEtMissCollection  L1GlobalCaloTrigger::getHtMissCollection() const {
+  L1GctEtMissCollection result(m_numOfBx);
   int bx = m_bxStart;
   for (int i=0; i<m_numOfBx; i++) {
-    L1GctHtMiss temp(theEnergyFinalStage->getHtMissColl().at(i).value(),
+    L1GctEtMiss temp(theEnergyFinalStage->getHtMissColl().at(i).value(),
                      theEnergyFinalStage->getHtMissPhiColl().at(i).value(),
-                     theEnergyFinalStage->getHtMissColl().at(i).overFlow(),
+                     false,
 		     bx++ );
+    result.at(i) = temp;
+  }
+  return result;
+}
+
+L1GctJetCountsCollection L1GlobalCaloTrigger::getJetCountsCollection() const {
+  L1GctJetCountsCollection result(m_numOfBx);
+  int bx = m_bxStart;
+  for (int i=0; i<m_numOfBx; i++) {
+    L1GctJetCounts temp(theEnergyFinalStage->getJetCountValuesColl().at(i), bx++);
     result.at(i) = temp;
   }
   return result;
@@ -663,8 +676,8 @@ L1GctHFBitCountsCollection L1GlobalCaloTrigger::getHFBitCountsCollection() const
       L1GctHFBitCounts temp =
 	L1GctHFBitCounts::fromGctEmulator(static_cast<int16_t>(bx),
 					  getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::bitCountPosEtaRing1).at(i),
-					  getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::bitCountNegEtaRing1).at(i),
 					  getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::bitCountPosEtaRing2).at(i),
+					  getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::bitCountNegEtaRing1).at(i),
 					  getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::bitCountNegEtaRing2).at(i));
       result.at(i) = temp;
       bx++;
@@ -681,8 +694,8 @@ L1GctHFRingEtSumsCollection L1GlobalCaloTrigger::getHFRingEtSumsCollection() con
       L1GctHFRingEtSums temp =
 	L1GctHFRingEtSums::fromGctEmulator(static_cast<int16_t>(bx),
 					   getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::etSumPosEtaRing1).at(i),
-					   getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::etSumNegEtaRing1).at(i),
 					   getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::etSumPosEtaRing2).at(i),
+					   getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::etSumNegEtaRing1).at(i),
 					   getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::etSumNegEtaRing2).at(i));
       result.at(i) = temp;
       bx++;

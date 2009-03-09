@@ -5,6 +5,7 @@ gctDigis = cms.EDFilter("L1GctEmulator",
     useImprovedTauAlgorithm = cms.bool(False),
     ignoreRCTTauVetoBitsForIsolation = cms.bool(False),
     inputLabel = cms.InputTag("rctDigis"),
+    jetThresholdForHtSumGeV = cms.double(5.0),
     preSamples = cms.uint32(1),
     postSamples = cms.uint32(1)
 )
