@@ -4,8 +4,14 @@ import FWCore.ParameterSet.Config as cms
 #AlCaReco filtering for HCAL HO:
 #------------------------------------------------
 from Calibration.HcalAlCaRecoProducers.alcahomuoncosmics_cfi import *
-from Calibration.HcalAlCaRecoProducers.isoMuonHLT_cfi import *
-seqALCARECOHcalCalHOCosmics = cms.Sequence(isoMuonHLT*hoCalibCosmicsProducer)
-#seqALCARECOHcalCalHOCosmics = cms.Sequence(hoCalibProducer)
+import HLTrigger.HLTfilters.hltHighLevel_cfi
+
+
+ALCARECOHcalCalHOCosmicHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
+   HLTPaths = ['HLT_L1MuOpen', 'HLT_Mu3',  'HLT_Mu5'],
+   throw = False #dont throw except on unknown path name
+) 
+
+seqALCARECOHcalCalHOCosmics = cms.Sequence(ALCARECOHcalCalHOCosmicHLT*hoCalibCosmicsProducer)
 
 
