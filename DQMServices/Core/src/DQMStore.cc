@@ -598,6 +598,21 @@ DQMStore::bookProfile(const std::string &name, const std::string &title,
 					      option));
 }
 
+/// Book profile.  Option is one of: " ", "s" (default), "i", "G" (see
+/// TProfile::BuildOptions).  The number of channels in Y is
+/// disregarded in a profile plot.
+MonitorElement *
+DQMStore::bookProfile(const std::string &name, const std::string &title,
+		      int nchX, double lowX, double highX,
+		                double lowY, double highY,
+		      const char *option /* = "s" */)
+{
+  return bookProfile(pwd_, name, new TProfile(name.c_str(), title.c_str(),
+					      nchX, lowX, highX,
+					      lowY, highY,
+					      option));
+}
+
 /// Book TProfile by cloning an existing profile.
 MonitorElement *
 DQMStore::bookProfile(const std::string &name, TProfile *source)
@@ -623,6 +638,23 @@ DQMStore::bookProfile2D(const std::string &name, const std::string &title,
 			int nchX, double lowX, double highX,
 			int nchY, double lowY, double highY,
 			int nchZ, double lowZ, double highZ,
+			const char *option /* = "s" */)
+{
+  return bookProfile2D(pwd_, name, new TProfile2D(name.c_str(), title.c_str(),
+						  nchX, lowX, highX,
+						  nchY, lowY, highY,
+						  lowZ, highZ,
+						  option));
+}
+
+/// Book 2-D profile.  Option is one of: " ", "s" (default), "i", "G"
+/// (see TProfile2D::BuildOptions).  The number of channels in Z is
+/// disregarded in a 2-D profile.
+MonitorElement *
+DQMStore::bookProfile2D(const std::string &name, const std::string &title,
+			int nchX, double lowX, double highX,
+			int nchY, double lowY, double highY,
+			          double lowZ, double highZ,
 			const char *option /* = "s" */)
 {
   return bookProfile2D(pwd_, name, new TProfile2D(name.c_str(), title.c_str(),

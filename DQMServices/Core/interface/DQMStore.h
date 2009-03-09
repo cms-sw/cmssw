@@ -106,6 +106,11 @@ public:
 					      int nchX, double lowX, double highX,
 					      int nchY, double lowY, double highY,
 					      const char *option = "s");
+  MonitorElement *		bookProfile  (const std::string &name,
+					      const std::string &title,
+					      int nchX, double lowX, double highX,
+					                double lowY, double highY,
+					      const char *option = "s");
   MonitorElement *		bookProfile  (const std::string &name, TProfile *h);
 
   MonitorElement *		bookProfile2D(const std::string &name,
@@ -113,6 +118,12 @@ public:
 					      int nchX, double lowX, double highX,
 					      int nchY, double lowY, double highY,
 					      int nchZ, double lowZ, double highZ,
+					      const char *option = "s");
+  MonitorElement *		bookProfile2D(const std::string &name,
+					      const std::string &title,
+					      int nchX, double lowX, double highX,
+					      int nchY, double lowY, double highY,
+					                double lowZ, double highZ,
 					      const char *option = "s");
   MonitorElement *		bookProfile2D(const std::string &name, TProfile2D *h);
 
