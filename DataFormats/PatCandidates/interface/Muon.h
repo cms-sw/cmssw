@@ -1,5 +1,5 @@
 //
-// $Id: Muon.h,v 1.20 2008/10/10 17:44:57 lowette Exp $
+// $Id: Muon.h,v 1.21 2008/11/28 19:02:15 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Muon_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
-  \version  $Id: Muon.h,v 1.20 2008/10/10 17:44:57 lowette Exp $
+  \version  $Id: Muon.h,v 1.21 2008/11/28 19:02:15 lowette Exp $
 */
 
 
@@ -63,6 +63,7 @@ namespace pat {
       // ---- methods for content embedding ----
       /// reference to Track reconstructed in the tracker only (reimplemented from reco::Muon)
       reco::TrackRef track() const;
+      using reco::RecoCandidate::track; // avoid hiding the base implementation
       /// reference to Track reconstructed in the tracker only (reimplemented from reco::Muon)
       reco::TrackRef innerTrack() const { return track(); }
       /// reference to Track reconstructed in the muon detector only (reimplemented from reco::Muon)

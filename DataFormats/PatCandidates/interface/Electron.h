@@ -1,5 +1,5 @@
 //
-// $Id: Electron.h,v 1.20 2008/11/28 19:02:15 lowette Exp $
+// $Id: Electron.h,v 1.21 2008/12/11 10:46:43 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Electron.h,v 1.20 2008/11/28 19:02:15 lowette Exp $
+  \version  $Id: Electron.h,v 1.21 2008/12/11 10:46:43 lowette Exp $
 */
 
 
@@ -66,6 +66,7 @@ namespace pat {
       reco::SuperClusterRef superCluster() const;
       /// override the reco::GsfElectron::track method, to access the internal storage of the track
       reco::TrackRef track() const;
+      using reco::RecoCandidate::track; // avoid hiding the base implementation
       /// method to store the electron's GsfTrack internally
       void embedGsfTrack();
       /// method to store the electron's SuperCluster internally

@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.31 2009/01/09 17:37:47 auterman Exp $
+// $Id: Jet.h,v 1.32 2009/02/19 15:39:29 rwolf Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,7 +13,7 @@
    'pat' namespace
 
   \author   Steven Lowette, Giovanni Petrucciani, Roger Wolf, Christian Autermann
-  \version  $Id: Jet.h,v 1.31 2009/01/09 17:37:47 auterman Exp $
+  \version  $Id: Jet.h,v 1.32 2009/02/19 15:39:29 rwolf Exp $
 */
 
 
@@ -277,6 +277,7 @@ namespace pat {
       virtual size_t numberOfDaughters() const {
           return (embeddedCaloTowers_ ? caloTowers_.size() : reco::Jet::numberOfDaughters() );
       }
+      using reco::LeafCandidate::daughter; // avoid hiding the base implementation
  
     protected:
 
