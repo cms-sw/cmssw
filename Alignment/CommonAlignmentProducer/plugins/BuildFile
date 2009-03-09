@@ -36,7 +36,7 @@
  <use name=DataFormats/TrackReco>
  <use name=FWCore/ServiceRegistry>
  <use name=PhysicsTools/UtilAlgos>
- <use name=PhysicsTools/RecoAlgos>
+ <use name=CommonTools/RecoAlgos>
  <use name=TrackingTools/PatternTools>
  <use name=TrackingTools/TrackFitters>
  <use name=TrackingTools/TransientTrackingRecHit>

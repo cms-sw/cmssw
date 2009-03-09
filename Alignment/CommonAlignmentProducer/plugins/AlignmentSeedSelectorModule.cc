@@ -1,6 +1,6 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentSeedSelector.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h" 
 

@@ -6,14 +6,14 @@
  * 
  * \author Javier Fernandez, IFCA
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: AlignmentMuonSelectorModule.cc,v 1.2 2007/12/04 23:39:24 ratnik Exp $
+ * $Id: AlignmentMuonSelectorModule.cc,v 1.3 2008/02/04 19:32:26 flucke Exp $
  *
  */
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentMuonSelector.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h" 
 
