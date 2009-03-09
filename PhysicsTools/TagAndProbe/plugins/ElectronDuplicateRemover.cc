@@ -98,10 +98,8 @@ void ElectronDuplicateRemover::produce(edm::Event &event, const edm::EventSetup 
 	   elec2 = electrons->begin();
 	 elec2 != electrons->end(); ++elec2) {
        if(elec != elec2) {
-	 DetId id1
-	   = elec->superCluster()->seed()->getHitsByDetId()[0];
-	 DetId id2
-	   = elec2->superCluster()->seed()->getHitsByDetId()[0];
+	 DetId id1= elec->superCluster()->seed()->hitsAndFractions()[0].first;
+	 DetId id2 = elec2->superCluster()->seed()->hitsAndFractions()[0].first;
 	 if( elec->superCluster() == elec2->superCluster()) {
 	   duplicate = true;
 	   if(fabs(BestDuplicate->eSuperClusterOverP()-1.0)

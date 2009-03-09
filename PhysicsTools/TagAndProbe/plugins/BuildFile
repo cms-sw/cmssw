@@ -4,7 +4,7 @@
    <use name=root>
    <use name=rootmath>
    <use name=rootcore>
-   <lib name=RooFit>
+   <use name=rootroofit>
    <use name=FWCore/Framework>
    <use name=FWCore/MessageLogger>
    <use name=FWCore/PluginManager>
@@ -22,6 +22,5 @@
    <use name=PhysicsTools/TagAndProbe>
    <use name=PhysicsTools/HepMCCandAlgos>
    <use name=DataFormats/BTauReco>
-   <use name=SimDataFormats/HepMCProduct>
 </library>
  

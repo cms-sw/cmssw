@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "PhysicsTools/TagAndProbe/interface/IsolatedElectronCandProducer.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 IsolatedElectronCandProducer::IsolatedElectronCandProducer(const edm::ParameterSet &params)
 {
@@ -17,6 +18,8 @@ IsolatedElectronCandProducer::IsolatedElectronCandProducer(const edm::ParameterS
   maxVtxDist_        = params.getParameter<double>("maxVtxDist");
   absolut_           = params.getParameter<bool>("absolut");
   isoCut_            = params.getParameter<double>( "isoCut" );
+  beamspotProducer_  = params.getParameter<edm::InputTag>("BeamspotProducer");
+  drb_               = params.getParameter<double>("maxVtxDistXY");
 
   //register your products
   produces < reco::GsfElectronCollection>();
@@ -61,11 +64,14 @@ void IsolatedElectronCandProducer::produce(edm::Event& iEvent,
       throw ex;
     }
   
-
   const reco::TrackCollection* trackCollection = tracks.product();
 
+  edm::Handle<reco::BeamSpot> beamSpotH;
+  iEvent.getByLabel(beamspotProducer_,beamSpotH);
+  reco::TrackBase::Point beamspot = beamSpotH->position();
+
   ElectronTkIsolation myTkIsolation (extRadius_,intRadius_, 
-				     ptMin_,maxVtxDist_,trackCollection) ;
+				     ptMin_,maxVtxDist_,drb_,trackCollection,beamspot) ;
   
   for(unsigned int i = 0 ; i < electronHandle->size(); ++i ){
 

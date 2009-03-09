@@ -13,7 +13,7 @@
 //
 // Original Author:  Nadia Adam
 //         Created:  Mon May  5 08:47:29 CDT 2008
-// $Id: TagProbeEDMNtuple.cc,v 1.9 2008/10/10 17:07:10 neadam Exp $
+// $Id: TagProbeEDMNtuple.cc,v 1.10 2008/11/24 15:38:47 haupt Exp $
 //
 //
 // Kalanand Mishra: October 7, 2008 
@@ -53,7 +53,7 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "Math/GenVector/VectorUtil.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 //

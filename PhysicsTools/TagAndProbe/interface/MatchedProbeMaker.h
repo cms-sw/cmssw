@@ -79,24 +79,15 @@ void MatchedProbeMaker<T>::produce(edm::Event& iEvent, const edm::EventSetup& iS
   
   // Get the candidates from the event
   edm::Handle< edm::RefVector< collection > > Cands;
-  bool bool1 = iEvent.getByLabel(m_candidateSource,Cands);
-//   std::cout << " Cands exist: " << bool1 << std::endl;
-//   if(bool1) std::cout << " with " << Cands->size() << " entries" << std::endl;
-  
-  // Get the references from the event (the probes)
-  //edm::Handle< edm::RefVector< collection > > Refs;
+  iEvent.getByLabel(m_candidateSource,Cands);
+
   edm::Handle< reco::CandidateView > Refs;
-  bool bool2 = iEvent.getByLabel(m_referenceSource,Refs);
-//   std::cout << " Refs exist: " << bool2 << std::endl;
-//   if(bool2) std::cout << " with " << Refs->size() << " entries" << std::endl;
-  
+  iEvent.getByLabel(m_referenceSource,Refs);
+
   // Get the resolution matching map from the event
   edm::Handle<reco::CandViewMatchMap> ResMatchMap;
-  bool bool3 = iEvent.getByLabel(m_resMatchMapSource,ResMatchMap);
-//   std::cout << " Map exist: " << bool3 << std::endl;
-//   if(bool3) std::cout << " with " << ResMatchMap->size() << " entries" << std::endl; 
-  
-  if(bool3){
+
+  if(iEvent.getByLabel(m_resMatchMapSource,ResMatchMap)){
     // Loop over the candidates looking for a match
     for (unsigned i=0; i<Cands->size(); i++) {
       const edm::Ref< collection > CandRef = (*Cands)[i];      

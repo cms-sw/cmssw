@@ -480,9 +480,9 @@ void ElectronTPValidator::analyze(const edm::Event& evt, const edm::EventSetup& 
 	    if(elec != elec2)
 	      {
 		DetId id1
-		  = elec->superCluster()->seed()->getHitsByDetId()[0];
+		  = elec->superCluster()->seed()->hitsAndFractions()[0].first;
 		DetId id2
-		  = elec2->superCluster()->seed()->getHitsByDetId()[0];
+		  = elec2->superCluster()->seed()->hitsAndFractions()[0].first;
 		if( elec->superCluster() == elec2->superCluster())
 		  {
 		    duplicate = true;
@@ -909,13 +909,13 @@ void ElectronTPValidator::analyze(const edm::Event& evt, const edm::EventSetup& 
 	    }//end of loop over pixel match gsf electrons
 	  }
 	  else if (ProbeSC2RecoElecMatchingMethod_ == "seedDetId") {
-	    DetId id_for_probe = probe->seed()->getHitsByDetId()[0];
+	    DetId id_for_probe = probe->seed()->hitsAndFractions()[0].first;
 	    for(std::vector<reco::PixelMatchGsfElectronRef>::const_iterator 
 	       Relec = UniqueElectrons.begin(); Relec != UniqueElectrons.end();
 	       ++Relec) {
 	      reco::PixelMatchGsfElectronRef elec;
 	      elec = *Relec; edm::LogInfo("deb") << "Dereferencing successful!";
-	      DetId id1 = elec->superCluster()->seed()->getHitsByDetId()[0];
+	      DetId id1 = elec->superCluster()->seed()->hitsAndFractions()[0].first;
 	      if (id1 == id_for_probe) { ++recoEle_int;
 	      probeEle = elec;
 	      }

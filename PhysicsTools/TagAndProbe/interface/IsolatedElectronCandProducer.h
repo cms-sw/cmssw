@@ -28,12 +28,14 @@ class IsolatedElectronCandProducer : public edm::EDProducer {
       
   edm::InputTag electronProducer_;
   edm::InputTag trackProducer_;
+  edm::InputTag beamspotProducer_;
 
   double ptMin_;
   double intRadius_;
   double extRadius_;
   double maxVtxDist_;
   double isoCut_;
+  double drb_;
 
   bool absolut_;
   

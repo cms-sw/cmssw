@@ -1,19 +1,24 @@
 <lcgdict>
    <class name="edm::Wrapper< reco::CandViewCandViewAssociation>"/>
    <class name="reco::CandViewCandViewAssociation"/>
- 
-  <class name="edm::helpers::KeyVal<edm::RefToBaseProd< reco::Candidate >,edm::RefToBaseProd< reco::Candidate > >" />
-   <class name="std::map<unsigned int,edm::helpers::KeyVal<edm::RefToBase<reco::Candidate>,std::vector<std::pair<edm::RefToBase<reco::Candidate>,double> > > >" />
-   <class name="edm::RefToBaseProd<reco::Candidate>" />
-   <class name="edm::helpers::KeyVal<edm::RefToBase< reco::Candidate >,std::vector<std::pair<edm::RefToBase<reco::Candidate>,double> > >" /> 
+
+   <class name="edm::RefToBase<reco::Candidate>" /> 
+
    <class name="std::vector<std::pair<edm::RefToBase<reco::Candidate>,double> >" />
-   <class name="std::pair<edm::RefToBase<reco::Candidate>,double>" />
+   <class name="std::map<unsigned int,edm::helpers::KeyVal<edm::RefToBase<reco::Candidate>,std::vector<std::pair<edm::RefToBase<reco::Candidate>,double> > > >" />
+
+   <class name="edm::RefToBaseProd<reco::Candidate>" /> 
+
+   <class name="edm::helpers::KeyVal<edm::RefToBaseProd< reco::Candidate >,edm::RefToBaseProd< reco::Candidate > >" />
+   <class name="edm::helpers::KeyVal<edm::RefToBase< reco::Candidate >,std::vector<std::pair<edm::RefToBase<reco::Candidate>,double> > >" /> 
  
-  
+   <class name="std::pair<edm::RefToBase<reco::Candidate>,double>" />
+   <class name="std::pair<edm::RefToBaseProd<reco::Candidate>,double>" />
+
+   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::RecoChargedCandidate>,reco::RecoChargedCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoChargedCandidate>,reco::RecoChargedCandidate> > >" />
+
+
    <class pattern="edm::KeyVal<*>" />
    <class pattern="edm::Wrapper<edm::AssociationMap<*>" />
 
- <class name="EffTableReader"/>
-  <class name="EffTableLoader"/>
-  <class name="dibin"/>
- /lcgdict>
+</lcgdict>
