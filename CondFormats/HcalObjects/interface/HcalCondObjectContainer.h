@@ -30,6 +30,7 @@ class HcalCondObjectContainer
   // list of available channels:
   std::vector<DetId> getAllChannels() const;
 
+  std::string myname() const {return (std::string)"Hcal Undefined";}
 
  private:
   void initContainer(int container, bool h2mode_ = false);
@@ -76,7 +77,7 @@ HcalCondObjectContainer<Item>::initContainer(int container, bool h2mode_)
     case HcalGenericDetId::HcalGenTriggerTower: for (int i=0; i<4176; i++) HTcontainer.push_back(emptyItem); break;
     case HcalGenericDetId::HcalGenZDC: for (int i=0; i<22; i++) ZDCcontainer.push_back(emptyItem); break;
     case HcalGenericDetId::HcalGenCalibration: for (int i=0; i<1386; i++) CALIBcontainer.push_back(emptyItem); break;
-    case HcalGenericDetId::HcalGenCastor: for (int i=0; i<1; i++) CASTORcontainer.push_back(emptyItem); break;
+    case HcalGenericDetId::HcalGenCastor: for (int i=0; i<448; i++) CASTORcontainer.push_back(emptyItem); break;
     default: break;
     }
 }
@@ -132,7 +133,7 @@ HcalCondObjectContainer<Item>::getValues(DetId fId) const
   //  if (cell->rawId() == emptyItem.rawId() ) 
   if ((!cell) || (cell->rawId() != fId ) )
     throw cms::Exception ("Conditions not found") 
-      << "Unavailable Conditions for cell " << myId;
+      << "Unavailable Conditions of type " << myname() << " for cell " << myId;
   return cell;
 }
 
@@ -261,7 +262,7 @@ HcalCondObjectContainer<Item>::addValues(const Item& myItem, bool h2mode_)
 
   if (!success) 
     throw cms::Exception ("Filling of conditions failed") 
-      << " no valid filling possible for DetId " << myId;
+      << " no valid filling possible for Conditions of type " << myname() << " for DetId " << myId;
   return success;
 }
 
