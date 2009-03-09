@@ -12,18 +12,21 @@ namespace cond{
   const cond::TimeType timeTypeValues[]=
     {runnumber,timestamp,lumiid,userid};
   
-  const std::string timeTypeNames[]=
+  std::string const & timeTypeNames(int i) {
+    static const string local[]=
     {"runnumber","timestamp","lumiid","userid"};
-  
+    return local[i];
+  }
 
- const TimeTypeSpecs timeTypeSpecs[] = {
+  
+  const TimeTypeSpecs timeTypeSpecs[] = {
     TimeTypeTraits<runnumber>::specs(),
     TimeTypeTraits<timestamp>::specs(),
     TimeTypeTraits<lumiid>::specs(),
     TimeTypeTraits<userid>::specs(),
   };
-
-
+  
+  
   
   // find spec by name
   const TimeTypeSpecs & findSpecs(std::string const & name) {

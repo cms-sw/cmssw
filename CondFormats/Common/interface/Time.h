@@ -22,7 +22,7 @@ namespace cond{
   
   extern const cond::TimeType timeTypeValues[];
 
-  extern const std::string timeTypeNames[];
+  std::string const & timeTypeNames(int);
   
   const Time_t TIMELIMIT(std::numeric_limits<Time_t>::max());
   
@@ -70,7 +70,7 @@ namespace cond{
     static  const TimeTypeSpecs & specs() {
       static const TimeTypeSpecs local = { 
 	type,
-	timeTypeNames[type],
+	timeTypeNames(type),
 	1,
 	std::numeric_limits<typename RealTimeType<type>::type>::max(),
 	0
