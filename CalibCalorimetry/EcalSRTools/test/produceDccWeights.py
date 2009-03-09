@@ -18,11 +18,11 @@ process.eegeom = cms.ESSource("EmptyESSource",
 # Conditions:
 #
 # a) Getting hardcoded conditions the same used for standard digitization:
-process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_cfi")
+#process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_cfi")
 # b) Getting conditions through frontier interface:
 # process.load("RecoLocalCalo.EcalRecProducers.getEcalConditions_frontier_cff")
 # c) Getiing conditions through oracle interface:
-#process.load("RecoLocalCalo.EcalRecProducers.getEcalConditions_orcoffint2r_cff.py")
+#process.load("RecoLocalCalo.EcalRecProducers.getEcalConditions_orcoffint2r_cff")
 
 #########################
 process.source = cms.Source("EmptySource")
@@ -34,11 +34,19 @@ process.maxEvents = cms.untracked.PSet(
 process.dccWeightBuilder = cms.EDAnalyzer("EcalDccWeightBuilder",
   dcc1stSample = cms.int32(2),
   sampleToSkip = cms.int32(-1),
+  mode = cms.string("computeWeights"),
   nDccWeights = cms.int32(6),
-  dccWeightsWithIntercalib = cms.bool(True),
-  writeToDB = cms.bool(False),
+  inputWeights  = cms.vdouble(),
+  dccWeightsWithIntercalib = cms.bool(False),
+  writeToDB = cms.bool(True),
   writeToAsciiFile = cms.bool(True),
   writeToRootFile = cms.bool(True),
+  dbSid = cms.string(""),
+  dbUser = cms.string(""),
+  dbPassword = cms.string(""),
+  dbTag = cms.string("6-weights"),
+  dbVersion = cms.int32(0),
+  sqlMode = cms.bool(True),
   asciiOutputFileName = cms.string("dccWeights.txt"),
   rootOutputFileName = cms.string("dccWeights.root"))
 

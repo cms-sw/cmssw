@@ -1,3 +1,10 @@
+/* $Id$
+ *
+ * authors: Ph. Gras (CEA/Saclay), F. Cavallari
+ *          some code copied from CalibCalorimetry/EcalTPGTools code
+ *          written by P. Paganini and F. Cavallari
+ */
+
 #include "CalibCalorimetry/EcalSRTools/interface/EcalDccWeightBuilder.h"
 
 #include <limits>
@@ -11,10 +18,17 @@
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalSimParameterMap.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
+#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+#include "OnlineDB/EcalCondDB/interface/ODWeightsDat.h"
+
+#include "CalibCalorimetry/EcalSRTools/src/ecalDccMap.h"
+
 
 using namespace std;
 using namespace edm;
@@ -31,19 +45,48 @@ EcalDccWeightBuilder::EcalDccWeightBuilder(edm::ParameterSet const& ps):
   dcc1stSample_(ps.getParameter<int>("dcc1stSample")),
   sampleToSkip_(ps.getParameter<int>("sampleToSkip")),
   nDccWeights_(ps.getParameter<int>("nDccWeights")),
+  inputWeights_(ps.getParameter<vector<double> >("inputWeights")),
+  mode_(ps.getParameter<string>("mode")),
   dccWeightsWithIntercalib_(ps.getParameter<bool>("dccWeightsWithIntercalib")),
   writeToDB_(ps.getParameter<bool>("writeToDB")),
   writeToAsciiFile_(ps.getParameter<bool>("writeToAsciiFile")),
   writeToRootFile_(ps.getParameter<bool>("writeToRootFile")),
   asciiOutputFileName_(ps.getParameter<string>("asciiOutputFileName")),
   rootOutputFileName_(ps.getParameter<string>("rootOutputFileName")),
+  dbSid_(ps.getParameter<string>("dbSid")),
+  dbUser_(ps.getParameter<string>("dbUser")),
+  dbPassword_(ps.getParameter<string>("dbPassword")),
+  dbTag_(ps.getParameter<string>("dbTag")),
+  dbVersion_(ps.getParameter<int>("dbVersion")),
+  sqlMode_(ps.getParameter<bool>("sqlMode")),
   calibMap_(emptyCalibMap_)
-{}
+{
+  if(mode_=="weightsFromConfig"){
+    imode_ = WEIGHTS_FROM_CONFIG;
+    if(inputWeights_.size()!=(unsigned)nDccWeights_){
+      throw cms::Exception("Config")
+        << "Inconsistent configuration. 'nDccWeights' parameters indicated "
+        << nDccWeights_ << " weights while parameter 'inputWeights_' contains "
+        << inputWeights_.size() << " weight values!\n";
+    }
+  } else if(mode_=="computeWeights"){
+    imode_ = COMPUTE_WEIGHTS;
+  } else{
+    throw cms::Exception("Config")
+      << "Invalid value ('" << mode_ << "') for parameter mode. "
+      << "Valid values are: 'weightsFromConfig' and 'computeWeights'\n";
+  }
+}
 
 
 void
 EcalDccWeightBuilder::analyze(const edm::Event& event,
                               const edm::EventSetup& es){
+
+  edm::ESHandle<EcalElectronicsMapping> handle;
+  es.get<EcalMappingRcd>().get(handle);
+  ecalElectronicsMap_ = handle.product();
+  
   // Retrieval of intercalib constants
   if(dccWeightsWithIntercalib_){
     ESHandle<EcalIntercalibConstants> hIntercalib ;
@@ -80,7 +123,7 @@ void EcalDccWeightBuilder::computeAllWeights(bool withIntercalib){
   //        <<  "Number of EB det IDs: " << ebDetIds.size() << "\n";
   
   const vector<DetId>& eeDetIds
-         = geom_->getValidDetIds(DetId::Ecal, EcalEndcap);
+    = geom_->getValidDetIds(DetId::Ecal, EcalEndcap);
 
   //  cout << __FILE__ << ":" << __LINE__ << ": "
   //        <<  "Number of EE det IDs: " << eeDetIds.size() << "\n";
@@ -94,6 +137,13 @@ void EcalDccWeightBuilder::computeAllWeights(bool withIntercalib){
   vector<double> w(nw); //weight*intercalib
   vector<int> W(nw);    //weight in hw encoding (integrer)
   double prevPhase = numeric_limits<double>::min();
+
+
+  if(imode_==WEIGHTS_FROM_CONFIG){
+    assert(inputWeights_.size()==baseWeights.size());
+    copy(inputWeights_.begin(), inputWeights_.end(), baseWeights.begin());
+  }
+  
   for(vector<DetId>::const_iterator it = detIds.begin();
       it != detIds.end(); ++it){
     
@@ -122,14 +172,16 @@ void EcalDccWeightBuilder::computeAllWeights(bool withIntercalib){
       EcalShape shape(phase);
       
       if(phase!=prevPhase){
-        computeWeights(shape, dcc1stSample_-1, nDccWeights_, iSkip0_,
-                       baseWeights);
+        if(imode_==COMPUTE_WEIGHTS){
+          computeWeights(shape, dcc1stSample_-1, nDccWeights_, iSkip0_,
+                         baseWeights);
+        } 
         prevPhase = phase;
       }
       for(int i = 0; i < nw; ++i){
         w[i] = baseWeights[i];
         if(withIntercalib) w[i]*= intercalib(*it);
-                           //* intercalibRescale() ;
+        //* intercalibRescale() ;
       }
       unbiasWeights(w, &W);
       encodedWeights_[*it] = W;
@@ -155,35 +207,35 @@ void
 EcalDccWeightBuilder::computeWeights(const EcalShape& shape, int iFirst,
                                      int nWeights, int iSkip,
                                      vector<double>& result){
-   double sum2 = 0.;
-   double sum = 0;
-   result.resize(nWeights);
+  double sum2 = 0.;
+  double sum = 0;
+  result.resize(nWeights);
 
-   int nActualWeights = 0;
+  int nActualWeights = 0;
 
-   //TO FIX:
-   const int binOfMax = 6;
-   const double timePhase = 56.1;//ns
-   const double tzero = -(binOfMax-1)*25+timePhase;//ns
+  //TO FIX:
+  const int binOfMax = 6;
+  const double timePhase = 56.1;//ns
+  const double tzero = -(binOfMax-1)*25+timePhase;//ns
 
-   for(int i=0; i<nWeights; ++i){
-     double t_ns = tzero+(iFirst+i)*25;
-     double s = shape(t_ns);
-     if(i==iSkip){
-       continue;
-     }
-     result[i] = s;
-     sum += s;
-     sum2 += s*s;
-     ++nActualWeights;
-   }
-   for(int i=0; i<nWeights; ++i){
-     if(i==iSkip){
-       result[i] = 0;
-     } else{
-       result[i] = (result[i]-sum/nActualWeights)/(sum2-sum*sum/nActualWeights);
-     }
-   }
+  for(int i=0; i<nWeights; ++i){
+    double t_ns = tzero+(iFirst+i)*25;
+    double s = shape(t_ns);
+    if(i==iSkip){
+      continue;
+    }
+    result[i] = s;
+    sum += s;
+    sum2 += s*s;
+    ++nActualWeights;
+  }
+  for(int i=0; i<nWeights; ++i){
+    if(i==iSkip){
+      result[i] = 0;
+    } else{
+      result[i] = (result[i]-sum/nActualWeights)/(sum2-sum*sum/nActualWeights);
+    }
+  }
 }
 
 int EcalDccWeightBuilder::encodeWeight(double w){
@@ -275,16 +327,56 @@ void EcalDccWeightBuilder::writeWeightToAsciiFile(){
       << fName
       << "'for writing DCC weights\n";
   }
+
+  const char* comment = sqlMode_?"-- ":"# ";
+  
+  file << comment << "List of weights for amplitude estimation to be used in DCC for\n"
+       << comment << "zero suppresssion.\n\n";
+  if(!sqlMode_){
+    file << comment << "Note: RU: trigger tower in EB, supercrystal in EE\n"
+         << comment << "      xtl: crystal electronic channel id in RU, from 1 to 25\n\n"
+         << comment << " DetId    SM  FED RU xtl weights[0..5]...\n";
+  }
+  
+  if(sqlMode_){
+    file<< "column recid new_val recid;\n"
+      "select COND2CONF_INFO_SQ.NextVal recid from DUAL;\n"
+      "insert into weights_info (rec_id,tag,version) values (&recid,"
+        << dbTag_ << "," << dbVersion_ << ")\n";
+  }
+  
   for(map<DetId, std::vector<int32_t> >::const_iterator it
         = encodedWeights_.begin();
       it !=  encodedWeights_.end();
       ++it){
     const DetId& detId = it->first;
+    
+    int fedId;
+    int smId;
+    int ruId;
+    int xtalId;
+    
+    //detId ->  fedId, smId, ruId, xtalId
+    dbId(detId, fedId, smId, ruId, xtalId);
+
+    char delim = sqlMode_?',':' ';
+
+    if(sqlMode_) file << "-- detId " << detId.rawId() << "\n"
+                      << "insert into dcc_weights_dat(rec_id,sm_id,fed_id,tt_id,"
+                   "cry_id,weight_0,weight_1,weight_2,weight_3,weight_4,weight_5) values ("
+                   "&recId";
+    
     const vector<int>& weights = it->second;
-    file << setw(10) << detId.rawId();
+    if(!sqlMode_) file << setw(10) << detId.rawId();
+    file << delim << setw(2) << smId;
+    file << delim << setw(3) << fedId;
+    file << delim << setw(2) << ruId;
+    file << delim << setw(2) << xtalId;
+      
     for(unsigned i=0; i<weights.size(); ++i){
-      file << " " << setw(5) << weights[i];
+      file << delim << setw(5) << weights[i];
     }
+    if(sqlMode_) file << ");";
     file << "\n";
   }
   if(!file.good()){
@@ -308,16 +400,31 @@ void EcalDccWeightBuilder::writeWeightToRootFile(){
   //                           used for test purposes.
   struct {
     Int_t detId;
+    Int_t fedId;
+    Int_t smId;
+    Int_t ruId;
+    Int_t xtalId;
     Int_t n_weights;
     Int_t weights[nWeightMax];
   } buf;
-  t.Branch("weights", &buf, "rawDetId/I:n_weights/I:weights[n_weights]/I");
+  t.Branch("weights", &buf,
+           "rawDetId/I:"
+           "feId/I:"
+           "smSlotId/I:"
+           "ruId/I:"
+           "xtalInRuId/I:"
+           "n_weights/I:"
+           "weights[n_weights]/I");
   for(map<DetId, std::vector<int32_t> >::const_iterator it
         = encodedWeights_.begin();
       it !=  encodedWeights_.end();
       ++it){
     buf.detId = it->first.rawId();
     buf.n_weights = it->second.size();
+
+    //detId ->  fedId, smId, ruId, xtalId
+    dbId(buf.detId, buf.fedId, buf.smId, buf.ruId, buf.xtalId);
+
     if(buf.n_weights>nWeightMax){
       throw cms::Exception("EcalDccWeight")
         << "Number of weights (" << buf.n_weights
@@ -333,5 +440,114 @@ void EcalDccWeightBuilder::writeWeightToRootFile(){
 }
 
 void EcalDccWeightBuilder::writeWeightToDB(){
-  cout << "Database export not yet implemented!\n";
+  cout << "going to write to the online DB "<<dbSid_<<" user "<<dbUser_<<endl;;
+  EcalCondDBInterface* econn;
+
+  try {
+    cout << "Making connection..." << flush;
+    econn = new EcalCondDBInterface( dbSid_, dbUser_, dbPassword_ );
+    cout << "Done." << endl;
+  } catch (runtime_error &e) {
+    cerr << e.what() << endl;
+    exit(-1);
+  }
+  
+  ODFEWeightsInfo weight_info;
+  weight_info.setConfigTag(dbTag_);
+  weight_info.setVersion(dbVersion_);
+  cout << "Inserting in DB..." << endl;
+
+  econn->insertConfigSet(&weight_info);
+  
+  int weight_id=weight_info.getId();
+  cout << "WeightInfo inserted with ID "<< weight_id<< endl;
+
+  vector<ODWeightsDat> datadel;
+  datadel.reserve(encodedWeights_.size());
+
+
+  
+  for(map<DetId, std::vector<int32_t> >::const_iterator it
+        = encodedWeights_.begin();
+      it !=  encodedWeights_.end();
+      ++it){
+    const DetId& detId = it->first;
+    const unsigned nWeights = 6;
+    vector<int> weights(nWeights);
+
+    for(unsigned i=0; i<weights.size(); ++i){
+      //completing the weight vector with zeros in case it has
+      //less than 6 elements:
+      const vector<int>& w = it->second;
+      weights[i] = i<w.size()?w[i]:0;
+    }
+
+    ODWeightsDat one_dat;
+    one_dat.setId(weight_id);
+
+    int fedId;
+    int smId;
+    int ruId;
+    int xtalId;
+    
+    //detId ->  fedId, smId, ruId, xtalId
+    dbId(detId, fedId, smId, ruId, xtalId);
+      
+    one_dat.setSMId(smId);
+    one_dat.setFedId(fedId);
+    one_dat.setTTId(ruId);
+    one_dat.setCrystalId(xtalId);
+    
+    one_dat.setWeight0(weights[0]);
+    one_dat.setWeight1(weights[1]);
+    one_dat.setWeight2(weights[2]);
+    one_dat.setWeight3(weights[3]);
+    one_dat.setWeight4(weights[4]);
+    one_dat.setWeight5(weights[5]);
+    
+    datadel.push_back(one_dat);
+  }
+  econn->insertConfigDataArraySet(datadel,&weight_info);
+  std::cout<< " .. done insertion in DB "<< endl;
+  delete econn;
+  cout<< "closed DB connection ... done"  << endl;
 }
+
+void EcalDccWeightBuilder::dbId(const DetId& detId, int& fedId, int& smId,
+                                int& ruId,
+                                int& xtalId) const{
+  const EcalElectronicsId& elecId
+    = ecalElectronicsMap_->getElectronicsId(detId);
+  
+  fedId = 600 + elecId.dccId();
+  ruId =  ecalElectronicsMap_->getTriggerElectronicsId(detId).ttId();
+  
+  if(detId.subdetId()==EcalBarrel) {
+    smId=((EBDetId)detId).ism();
+  } else{
+    smId = 0;
+  }
+  const int stripLength = 5; //1 strip = 5 crystals in a row
+  xtalId = (elecId.stripId()-1)*stripLength  + elecId.xtalId();
+
+#if 0
+  cout << __FILE__ << ":" << __LINE__ << ": FED ID "
+       <<  fedId << "\n";
+
+  cout << __FILE__ << ":" << __LINE__ << ": SM logical ID "
+       <<  smId << "\n";
+  
+  cout << __FILE__ << ":" << __LINE__ << ": RU ID (TT or SC): "
+       <<  ruId << "\n";
+  
+  cout << __FILE__ << ":" << __LINE__ << ": strip:"
+       <<  elecId.stripId() << "\n";
+  
+  cout << __FILE__ << ":" << __LINE__ << ": xtal in strip: "
+       <<  elecId.xtalId() << "\n";
+
+  cout << __FILE__ << ":" << __LINE__ << ": xtalId in RU: "
+       <<  xtalId << "\n";
+#endif
+}
+

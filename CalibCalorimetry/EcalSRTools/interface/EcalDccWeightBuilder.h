@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id: EcalDccWeightBuilder.h,v 1.1 2009/03/04 22:50:34 pgras Exp $
  */
 
 #ifndef ECALDCCWEIGHTBUILDER_CC
@@ -19,10 +19,15 @@
 #include <map>
 #include <inttypes.h>
 
+// Forward declarations:
+class EcalElectronicsMapping;
+
 /**
  */
 class EcalDccWeightBuilder: public edm::EDAnalyzer {
-
+private:
+  enum mode_t { WEIGHTS_FROM_CONFIG, COMPUTE_WEIGHTS};
+  
   //constructor(s) and destructor(s)
 public:
   /** Constructs an EcalDccWeightBuilder
@@ -84,6 +89,10 @@ private:
   void writeWeightToRootFile();   
   void writeWeightToDB();
 
+  //converts DetId to IDs used by DB:
+  void dbId(const DetId& detId, int& fedId, int& smId, int& ruId,
+           int& xtalId) const;
+  
   //attribute(s)
 protected:
 private:
@@ -93,13 +102,24 @@ private:
   int dcc1stSample_;
   int sampleToSkip_;
   int nDccWeights_;
+  /** weights used in weightFromConfig mode.
+   */
+  std::vector<double> inputWeights_;
+  std::string mode_;
+  mode_t imode_;
   bool dccWeightsWithIntercalib_;
   bool writeToDB_;
   bool writeToAsciiFile_;
   bool writeToRootFile_;
   std::string asciiOutputFileName_;
   std::string rootOutputFileName_;
-
+  std::string dbSid_;
+  std::string dbUser_;
+  std::string dbPassword_;
+  std::string dbTag_;
+  int dbVersion_;
+  bool sqlMode_;
+  
   edm::ESHandle<CaloGeometry> geom_;
   
   EcalIntercalibConstantMap& calibMap_;
@@ -107,6 +127,7 @@ private:
   std::map<DetId, std::vector<int> > encodedWeights_;
 
   static const double weightScale_;
+  const EcalElectronicsMapping* ecalElectronicsMap_;
 };
 
 #endif //ECALDCCWEIGHTBUILDER_CC not defined
