@@ -2,8 +2,8 @@
  * \file MillePedeAlignmentAlgorithm.cc
  *
  *  \author    : Gero Flucke/Ivan Reid
- *  date       : February 2009 *  $Revision: 1.1 $
- *  $Date: 2009/03/04 12:27:08 $
+ *  date       : February 2009 *  $Revision: 1.2 $
+ *  $Date: 2009/03/07 18:49:13 $
  *  (last update by $Author: ireid $)
  */
 
@@ -14,64 +14,16 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CondFormats/Alignment/interface/AlignmentErrors.h" 
+#include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 #include "CLHEP/Matrix/SymMatrix.h"
 
 #include <fstream>
 #include <string>
 #include <set>
 
-// #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-// #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-
-// #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectoryBase.h"
-
-
-// #include <vector>
-
-// #include <TMatrixDSym.h>
-// #include <TMatrixD.h>
-// #include <TMatrixF.h>
-
-// class Alignable;
-// class AlignableTracker;
-// class AlignableMuon;
-
-// class AlignmentParameters;
-// class AlignableNavigator;
-// class AlignableDetOrUnitPtr;
-// class AlignmentUserVariables;
-
-// class AlignmentParameterStore;
-
-// class MillePedeMonitor;
-// class PedeSteerer;
-// class PedeLabeler;
-// class Mille;
-//class TrajectoryFactoryBase;
-
-
-//#include "FWCore/MessageLogger/interface/MessageLogger.h"
-//
-//#include "TrackingTools/PatternTools/interface/Trajectory.h"
-//// in header, too
-//// end in header, too
-//
-//#include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeMonitor.h"
-//#include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeVariables.h"
-//#include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeVariablesIORoot.h"
-//#include "Mille.h"       // 'unpublished' interface located in src
-//#include "PedeSteerer.h" // dito
-//#include "PedeReader.h" // dito
-//#include "PedeLabeler.h" // dito
-//
-//#include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryBase.h"
-//#include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryPlugin.h"
-//
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
-//#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIORoot.h"
 
-//#include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 #include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
 #include "Alignment/CommonAlignment/interface/AlignableDetOrUnitPtr.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
@@ -80,23 +32,7 @@
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 
-// #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
-// #include "DataFormats/TrackReco/interface/Track.h"
-
-
-// #include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
-// #include <Geometry/CommonDetUnit/interface/GeomDetType.h>
-
-// #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
-
-// #include <fstream>
-// #include <sstream>
-// #include <algorithm>
-
-// #include <TMath.h>
-// #include <TMatrixDSymEigen.h>
-// typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
-// typedef TransientTrackingRecHit::ConstRecHitPointer   ConstRecHitPointer;
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 class ApeSettingAlgorithm : public AlignmentAlgorithmBase
 {
@@ -119,8 +55,6 @@ class ApeSettingAlgorithm : public AlignmentAlgorithmBase
 
  private:
   edm::ParameterSet         theConfig;
-//   AlignmentParameterStore  *theAlignmentParameterStore;
-//   std::vector<Alignable*>   theAlignables;
   AlignableNavigator       *theAlignableNavigator;
   AlignableTracker         *theTracker;
   bool                     saveApeToAscii_,readApeFromAscii_;
@@ -137,7 +71,6 @@ class ApeSettingAlgorithm : public AlignmentAlgorithmBase
 //____________________________________________________
 ApeSettingAlgorithm::ApeSettingAlgorithm(const edm::ParameterSet &cfg) :
   AlignmentAlgorithmBase(cfg), theConfig(cfg),
-  // theAlignmentParameterStore(0) //, theAlignables(), 
   theAlignableNavigator(0)
 {
   edm::LogInfo("Alignment") << "@SUB=ApeSettingAlgorithm" << "Start.";
@@ -165,14 +98,11 @@ void ApeSettingAlgorithm::initialize(const edm::EventSetup &setup,
  if (readApeFromAscii_)
    { std::ifstream apeReadFile(theConfig.getParameter<edm::FileInPath>("apeASCIIReadFile").fullPath().c_str()); //requires <fstream>
    if (!apeReadFile.good())
-     { edm::LogInfo("Alignment") << "@SUB=initialize" <<"Problem opening APE file"
+     { edm::LogInfo("Alignment") << "@SUB=initialize" <<"Problem opening APE file: skipping"
 				 << theConfig.getParameter<edm::FileInPath>("apeASCIIReadFile").fullPath();
      return;
      }
    std::set<int> apeList; //To avoid duplicates
-   AlignmentPositionError* ape = new AlignmentPositionError(0.,0.,0.); //assume local to start
-   AlignableModifier* theModifier;
-   if (readLocalNotGlobal_) { theModifier=new AlignableModifier();}
    while (!apeReadFile.eof())
      { int apeId=0; double x11,x21,x22,x31,x32,x33;
      apeReadFile>>apeId>>x11>>x21>>x22>>std::ws;
@@ -180,15 +110,23 @@ void ApeSettingAlgorithm::initialize(const edm::EventSetup &setup,
      //idr What sanity checks do we need to put here?
      if (apeId != 0) //read appears valid?
        if (apeList.find(apeId) == apeList.end()) //Not previously done
-	 { if (!readLocalNotGlobal_)
-	   { delete ape; //clear previous
-	   ape= new AlignmentPositionError(GlobalError(x11,x21,x22,x31,x32,x33));
-	   }
-	 DetId id(apeId);
+	 {  DetId id(apeId);
 	 AlignableDetOrUnitPtr alidet(theAlignableNavigator->alignableFromDetId(id)); //NULL if none
 	 if (alidet) 
-	   { alidet->setAlignmentPositionError(*ape); //set for global or clear for local
-	   if (readLocalNotGlobal_) {theModifier->addAlignmentPositionErrorLocal(alidet,x11,x21,x22);}
+	   { if (readLocalNotGlobal_)
+	     { AlgebraicSymMatrix as(3,0); 
+	     as[0][0]=x11*x11; as[1][1]=x21*x21; as[2][2]=x22*x22; //local cov.
+	     align::RotationType rt=alidet->globalRotation();
+	     AlgebraicMatrix am(3,3);
+	     am[0][0]=rt.xx(); am[0][1]=rt.xy(); am[0][2]=rt.xz();
+	     am[1][0]=rt.yx(); am[1][1]=rt.yy(); am[1][2]=rt.yz();
+	     am[2][0]=rt.zx(); am[2][1]=rt.zy(); am[2][2]=rt.zz();
+	     am=am.T()*as*am; //symmetric matrix
+	     alidet->setAlignmentPositionError(GlobalError(am[0][0],am[1][0],am[1][1],am[2][0],am[2][1],am[2][2]));
+	     }
+	   else
+	     { alidet->setAlignmentPositionError(GlobalError(x11,x21,x22,x31,x32,x33)); //set for global
+	     }
 	   apeList.insert(apeId); //Flag it's been set
 	   }
 	 }
@@ -196,8 +134,6 @@ void ApeSettingAlgorithm::initialize(const edm::EventSetup &setup,
 	 { edm::LogInfo("Alignment") << "@SUB=initialize" << "Skipping duplicate APE for DetId "<<apeId;
 	 }
      }
-   if (readLocalNotGlobal_) { delete theModifier;}
-   delete ape;
    apeReadFile.close();
    edm::LogInfo("Alignment") << "@SUB=initialize" << "Set "<<apeList.size()<<" APE values.";
    }
