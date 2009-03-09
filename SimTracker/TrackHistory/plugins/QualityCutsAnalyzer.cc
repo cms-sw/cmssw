@@ -1,11 +1,3 @@
-/*
- *  OptTOA.C
- *
- *  Created by Victor Eduardo Bazterra on 5/31/07.
- *  Copyright 2007 __MyCompanyName__. All rights reserved.
- *
- */
-
 #include <algorithm>
 #include <cctype>
 #include <iomanip>
@@ -41,13 +33,13 @@
 // class decleration
 //
 
-class OptTOA : public edm::EDAnalyzer
+class QualityCutsAnalyzer : public edm::EDAnalyzer
 {
 
 public:
 
-    explicit OptTOA(const edm::ParameterSet&);
-    ~OptTOA();
+    explicit QualityCutsAnalyzer(const edm::ParameterSet&);
+    ~QualityCutsAnalyzer();
 
 private:
 
@@ -227,7 +219,7 @@ private:
 //
 // constructors and destructor
 //
-OptTOA::OptTOA(const edm::ParameterSet& config) : classifier_(config)
+QualityCutsAnalyzer::QualityCutsAnalyzer(const edm::ParameterSet& config) : classifier_(config)
 {
     trackProducer_         = config.getUntrackedParameter<edm::InputTag> ( "trackProducer" );
     primaryVertexProducer_ = config.getUntrackedParameter<edm::InputTag> ( "primaryVertexProducer" );
@@ -252,7 +244,7 @@ OptTOA::OptTOA(const edm::ParameterSet& config) : classifier_(config)
     }
 }
 
-OptTOA::~OptTOA() {}
+QualityCutsAnalyzer::~QualityCutsAnalyzer() {}
 
 //
 // member functions
@@ -260,7 +252,7 @@ OptTOA::~OptTOA() {}
 
 // ------------ method called to for each event  ------------
 void
-OptTOA::analyze(const edm::Event& event, const edm::EventSetup& setup)
+QualityCutsAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup)
 {
     // Track collection
     edm::Handle<edm::View<reco::Track> > trackCollection;
@@ -288,7 +280,7 @@ OptTOA::analyze(const edm::Event& event, const edm::EventSetup& setup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void
-OptTOA::beginJob(const edm::EventSetup& setup)
+QualityCutsAnalyzer::beginJob(const edm::EventSetup& setup)
 {
     histogram_data_.resize(6);
 }
@@ -296,7 +288,7 @@ OptTOA::beginJob(const edm::EventSetup& setup)
 
 // ------------ method called once each job just after ending the event loop  ------------
 void
-OptTOA::endJob()
+QualityCutsAnalyzer::endJob()
 {
     TFile file(rootFile_.c_str(), "RECREATE");
     file.cd();
@@ -331,7 +323,7 @@ OptTOA::endJob()
 
 
 void
-OptTOA::LoopOverJetTracksAssociation(
+QualityCutsAnalyzer::LoopOverJetTracksAssociation(
     const edm::ESHandle<TransientTrackBuilder> & TTbuilder,
     const edm::Handle<reco::VertexCollection> & primaryVertexProducer_,
     const edm::Handle<reco::JetTracksAssociationCollection> & jetTracksAssociation
@@ -422,4 +414,4 @@ OptTOA::LoopOverJetTracksAssociation(
     }
 }
 
-DEFINE_ANOTHER_FWK_MODULE(OptTOA);
+DEFINE_ANOTHER_FWK_MODULE(QualityCutsAnalyzer);
