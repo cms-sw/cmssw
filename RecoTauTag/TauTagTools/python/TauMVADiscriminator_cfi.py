@@ -20,7 +20,7 @@ pfRecoTauDiscriminationByMVAHighEfficiency = cms.EDProducer("TauMVADiscriminator
 
 pfRecoTauDiscriminationByMVAInsideOut = cms.EDProducer("TauMVADiscriminator",
     pfTauDecayModeSrc = cms.InputTag("pfTauDecayModeInsideOut"),
-    preDiscriminants  = cms.VInputTag("pfRecoTauDiscriminationByLeadingPionCutInsideOut"),
+    preDiscriminants  = cms.VInputTag("pfRecoTauDiscriminationByLeadingPionPtCutInsideOut"),
     computers         = TaNC,
     prefailValue      = cms.double(-2.0),    
     MakeBinaryDecision = cms.bool(False)
