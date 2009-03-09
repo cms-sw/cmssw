@@ -40,10 +40,10 @@ void NewTrackAction::addUserInfoToPrimary(G4Track * aTrack) const {
 void NewTrackAction::addUserInfoToSecondary(G4Track * aTrack,const TrackInformation & motherInfo, int flag) const {
 
   TrackInformation * trkInfo = new TrackInformation();
-  LogDebug("SimG4CoreApplication") << "NewTrackAction called for "
-				   << aTrack->GetTrackID()
-				   << " mother " << motherInfo.isPrimary()
-				   << " flag " << flag;
+//  LogDebug("SimG4CoreApplication") << "NewTrackAction called for "
+//				   << aTrack->GetTrackID()
+//				   << " mother " << motherInfo.isPrimary()
+//				   << " flag " << flag;
   
   // Take care of cascade decays
   if (flag == 1)
