@@ -10,11 +10,13 @@ DEFINE_ANOTHER_FWK_MODULE(DTClusterer);
 
 
 #include "RecoLocalMuon/DTSegment/src/DTRecSegment2DProducer.h"
+#include "RecoLocalMuon/DTSegment/src/DTSegment4DT0Corrector.h"
 #include "RecoLocalMuon/DTSegment/src/DTRecSegment2DAlgoFactory.h"
 #include "RecoLocalMuon/DTSegment/src/DTCombinatorialPatternReco.h"
 #include "RecoLocalMuon/DTSegment/src/DTMeantimerPatternReco.h"
 
 DEFINE_ANOTHER_FWK_MODULE(DTRecSegment2DProducer);
+DEFINE_ANOTHER_FWK_MODULE(DTSegment4DT0Corrector);
 DEFINE_EDM_PLUGIN (DTRecSegment2DAlgoFactory, DTCombinatorialPatternReco, "DTCombinatorialPatternReco");
 DEFINE_EDM_PLUGIN (DTRecSegment2DAlgoFactory, DTMeantimerPatternReco, "DTMeantimerPatternReco");
 //-------------------------------------------------------------------------------------------------------

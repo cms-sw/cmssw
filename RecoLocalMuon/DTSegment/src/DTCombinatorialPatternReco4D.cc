@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2008/04/04 15:23:01 $
- * $Revision: 1.14 $
+ * $Date: 2008/12/03 12:52:22 $
+ * $Revision: 1.15 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -36,6 +36,9 @@ DTCombinatorialPatternReco4D::DTCombinatorialPatternReco4D(const ParameterSet& p
 
     // debug parameter
     debug = pset.getUntrackedParameter<bool>("debug");
+
+    //do you want the T0 correction?
+    applyT0corr = pset.getParameter<bool>("performT0SegCorrection");
 
     // the updator
     theUpdator = new DTSegmentUpdator(pset);
@@ -120,13 +123,13 @@ void DTCombinatorialPatternReco4D::setDTRecSegment2DContainer(Handle<DTRecSegmen
 
 
 OwnVector<DTRecSegment4D>
-DTCombinatorialPatternReco4D::reconstruct(){
+DTCombinatorialPatternReco4D::reconstruct() {
 
   OwnVector<DTRecSegment4D> result;
 
   if (debug){ 
     cout << "Segments in " << theChamber->id() << endl;
-    cout<<"Reconstructing of the Phi segments"<<endl;
+    cout << "Reconstructing of the Phi segments" << endl;
   }
 
   vector<DTHitPairForFit*> pairPhiOwned;
@@ -147,7 +150,7 @@ DTCombinatorialPatternReco4D::reconstruct(){
     }
   }
 
-  bool hasZed=false;
+  bool hasZed = false;
 
   // has this chamber the Z-superlayer?
   if (theSegments2DTheta.size()){
@@ -187,17 +190,23 @@ DTCombinatorialPatternReco4D::reconstruct(){
 
           /// 4d segment: I have the pos along the wire => further update!
           theUpdator->update(newSeg);
+
           if (debug) cout << "Created a 4D seg " << *newSeg << endl;
-          //newSeg=segmentSpecialZed(newSeg);
-          //cout << "New 4D seg " << *newSeg << endl;
+
+	  //update the segment with the t0 and possibly vdrift correction
+          if(applyT0corr) theUpdator->update(newSeg,true);
+
           result.push_back(newSeg);
         }
       } else {
         // Only phi
         DTRecSegment4D* newSeg = new DTRecSegment4D(*superPhi);
 
-        if (debug) cout << "Created a 4D segment using only the 2D Phi segment "
-          << *newSeg << endl;
+        if (debug) cout << "Created a 4D segment using only the 2D Phi segment " << *newSeg << endl;
+
+        //update the segment with the t0 and possibly vdrift correction
+	if(applyT0corr) theUpdator->update(newSeg,true);
+
         result.push_back(newSeg);
       }
     }
@@ -218,7 +227,11 @@ DTCombinatorialPatternReco4D::reconstruct(){
         // <<
 
         if (debug) cout << "Created a 4D segment using only the 2D Theta segment " << 
-          *newSeg << endl;
+		     *newSeg << endl;
+
+	//update the segment with the t0 and possibly vdrift correction
+	theUpdator->update(newSeg,true);
+
         result.push_back(newSeg);
       }
     }
@@ -228,6 +241,7 @@ DTCombinatorialPatternReco4D::reconstruct(){
        phi!=resultPhi.end(); ++phi) delete *phi;
   for (vector<DTHitPairForFit*>::iterator phiPair = pairPhiOwned.begin();
        phiPair!=pairPhiOwned.end(); ++phiPair) delete *phiPair;
+
   return result;
 }
 
