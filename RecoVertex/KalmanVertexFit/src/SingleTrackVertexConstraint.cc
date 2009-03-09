@@ -7,7 +7,7 @@ using namespace reco;
 
 SingleTrackVertexConstraint::BTFtuple SingleTrackVertexConstraint::constrain(
 	const TransientTrack & track, const GlobalPoint& priorPos,
-	const GlobalError & priorError)
+	const GlobalError & priorError) const
 { 
   VertexState priorVertexState(priorPos, priorError);
   return constrain(track, priorVertexState);
@@ -15,7 +15,7 @@ SingleTrackVertexConstraint::BTFtuple SingleTrackVertexConstraint::constrain(
 
 
 SingleTrackVertexConstraint::BTFtuple SingleTrackVertexConstraint::constrain(
-	const TransientTrack & track,  const VertexState priorVertexState)
+	const TransientTrack & track,  const VertexState priorVertexState) const
 {
   // Linearize tracks
 
@@ -40,20 +40,20 @@ SingleTrackVertexConstraint::BTFtuple SingleTrackVertexConstraint::constrain(
 
 SingleTrackVertexConstraint::BTFtuple SingleTrackVertexConstraint::constrain(
 	const FreeTrajectoryState & fts, const GlobalPoint& priorPos,
-	const GlobalError& priorError)
+	const GlobalError& priorError) const
 { 
   return constrain(ttFactory.build(fts), priorPos, priorError);
 }
 
 SingleTrackVertexConstraint::BTFtuple SingleTrackVertexConstraint::constrain(
-	const TransientTrack & track, const reco::BeamSpot & spot )
+	const TransientTrack & track, const reco::BeamSpot & spot ) const
 {
   VertexState priorVertexState(spot);
   return constrain(track, priorVertexState);
 }
 
 SingleTrackVertexConstraint::BTFtuple SingleTrackVertexConstraint::constrain(
-	const FreeTrajectoryState & fts, const reco::BeamSpot & spot)
+	const FreeTrajectoryState & fts, const reco::BeamSpot & spot) const
 { 
   VertexState priorVertexState(spot);
   return constrain(ttFactory.build(fts), priorVertexState);

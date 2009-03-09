@@ -29,34 +29,34 @@ public:
    *  The track must NOT have been used in the vertex fit.
    */
   BTFtuple constrain(const reco::TransientTrack & track,
-	const GlobalPoint& priorPos, const GlobalError& priorError);
+	const GlobalPoint& priorPos, const GlobalError& priorError) const;
 
   /**
    *  Constaint of a FreeTrajectoryState with a position and error.
    *  The track must NOT have been used in the vertex fit.
    */
   BTFtuple constrain(const FreeTrajectoryState & fts,
-	const GlobalPoint& priorPos, const GlobalError& priorError);
+	const GlobalPoint& priorPos, const GlobalError& priorError) const;
 
   /**
    *  The method which does the constaint.
    *  The track must NOT have been used in the vertex fit.
    */
   BTFtuple constrain(const reco::TransientTrack & track,
-	const VertexState priorVertex);
+	const VertexState priorVertex) const;
 
   /**
    *  Constaint of a TransientTrack with a BeamSpot.
    */
   BTFtuple constrain(const reco::TransientTrack & track,
-	const reco::BeamSpot & spot );
+	const reco::BeamSpot & spot ) const;
 
 
   /**
    *  Constaint of a FreeTrajectoryState with a BeamSpot.
    */
   BTFtuple constrain(const FreeTrajectoryState & fts,
-	const reco::BeamSpot & spot);
+	const reco::BeamSpot & spot) const;
 
 
 private:
