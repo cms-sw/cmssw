@@ -499,9 +499,9 @@ void HistoPhoton::fill( const Photon * photon, uint iE, double weight )
   std::vector<int> nPho(2);
   std::vector<int> nPhoBarrel(2);
   std::vector<int> nPhoEndcap(2);
-  for ( int i=0; i<nPho.size(); i++ ) nPho[i]=0;
-  for ( int i=0; i<nPhoBarrel.size(); i++ ) nPhoBarrel[i]=0;
-  for ( int i=0; i<nPhoEndcap.size(); i++ ) nPhoEndcap[i]=0;
+  for ( unsigned int i=0; i<nPho.size(); i++ ) nPho[i]=0;
+  for ( unsigned int i=0; i<nPhoBarrel.size(); i++ ) nPhoBarrel[i]=0;
+  for ( unsigned int i=0; i<nPhoEndcap.size(); i++ ) nPhoEndcap[i]=0;
 
 
 
@@ -770,9 +770,9 @@ void HistoPhoton::fill( const reco::ShallowClonePtrCandidate * pshallow, uint iE
   std::vector<int> nPho(2);
   std::vector<int> nPhoBarrel(2);
   std::vector<int> nPhoEndcap(2);
-  for ( int i=0; i<nPho.size(); i++ ) nPho[i]=0;
-  for ( int i=0; i<nPhoBarrel.size(); i++ ) nPhoBarrel[i]=0;
-  for ( int i=0; i<nPhoEndcap.size(); i++ ) nPhoEndcap[i]=0;
+  for ( unsigned int i=0; i<nPho.size(); i++ ) nPho[i]=0;
+  for ( unsigned int i=0; i<nPhoBarrel.size(); i++ ) nPhoBarrel[i]=0;
+  for ( unsigned int i=0; i<nPhoEndcap.size(); i++ ) nPhoEndcap[i]=0;
 
 
 

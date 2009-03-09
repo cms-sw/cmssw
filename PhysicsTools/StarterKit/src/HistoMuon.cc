@@ -642,9 +642,9 @@ void HistoMuon::fill( const Muon *muon, uint iMu, double weight )
       // hits from Tracker
       if (id.det() == DetId::Tracker){
         hitsFromTk++;
-        if(id.subdetId() == PixelSubdetector::PixelBarrel )
+        if((uint32_t)id.subdetId() == PixelSubdetector::PixelBarrel )
           GlbhitTkrProvenance_->fill(1,  iMu,   weight);
-        if(id.subdetId() == PixelSubdetector::PixelEndcap )
+        if((uint32_t)id.subdetId() == PixelSubdetector::PixelEndcap )
           GlbhitTkrProvenance_->fill(2,  iMu,   weight);
         if(id.subdetId() == SiStripDetId::TIB )
           GlbhitTkrProvenance_->fill(3,  iMu,   weight);
@@ -708,9 +708,9 @@ void HistoMuon::fill( const Muon *muon, uint iMu, double weight )
       // hits from Tracker
       if (id.det() == DetId::Tracker){
         hitsFromTk++;
-        if(id.subdetId() == PixelSubdetector::PixelBarrel )
+        if((uint32_t)id.subdetId() == PixelSubdetector::PixelBarrel )
           StahitTkrProvenance_->fill(1,  iMu,   weight);
-        if(id.subdetId() == PixelSubdetector::PixelEndcap )
+        if((uint32_t)id.subdetId() == PixelSubdetector::PixelEndcap )
           StahitTkrProvenance_->fill(2,  iMu,   weight);
         if(id.subdetId() == SiStripDetId::TIB )
           StahitTkrProvenance_->fill(3,  iMu,   weight);
@@ -959,9 +959,9 @@ void HistoMuon::fill( const reco::ShallowClonePtrCandidate *pshallow, uint iMu, 
       // hits from Tracker
       if (id.det() == DetId::Tracker){
         hitsFromTk++;
-        if(id.subdetId() == PixelSubdetector::PixelBarrel )
+        if((uint32_t)id.subdetId() == PixelSubdetector::PixelBarrel )
           GlbhitTkrProvenance_->fill(1,  iMu,   weight);
-        if(id.subdetId() == PixelSubdetector::PixelEndcap )
+        if((uint32_t)id.subdetId() == PixelSubdetector::PixelEndcap )
           GlbhitTkrProvenance_->fill(2,  iMu,   weight);
         if(id.subdetId() == SiStripDetId::TIB )
           GlbhitTkrProvenance_->fill(3,  iMu,   weight);
@@ -1025,9 +1025,9 @@ void HistoMuon::fill( const reco::ShallowClonePtrCandidate *pshallow, uint iMu, 
       // hits from Tracker
       if (id.det() == DetId::Tracker){
         hitsFromTk++;
-        if(id.subdetId() == PixelSubdetector::PixelBarrel )
+        if((uint32_t)id.subdetId() == PixelSubdetector::PixelBarrel )
           StahitTkrProvenance_->fill(1,  iMu,   weight);
-        if(id.subdetId() == PixelSubdetector::PixelEndcap )
+        if((uint32_t)id.subdetId() == PixelSubdetector::PixelEndcap )
           StahitTkrProvenance_->fill(2,  iMu,   weight);
         if(id.subdetId() == SiStripDetId::TIB )
           StahitTkrProvenance_->fill(3,  iMu,   weight);
