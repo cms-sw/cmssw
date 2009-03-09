@@ -31,14 +31,8 @@ SiStripCluster::SiStripCluster(const uint32_t& detid,
 
   detId_(detid),
   firstStrip_(firstStrip),
-  amplitudes_()
-{
-  amplitudes_.reserve(end-begin);
-  std::vector<uint16_t>::const_iterator idigi = begin;
-  for (;idigi!=end;idigi++) {
-    amplitudes_.push_back(*idigi);
-  }
-}
+  amplitudes_(begin,end)
+{}
 
 float SiStripCluster::barycenter() const{
   int sumx = 0;
