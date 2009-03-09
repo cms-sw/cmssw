@@ -89,13 +89,13 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track * aTra
 	classification = fKill;
     }
     if (isItLongLived(aTrack)) classification = fKill;
-    LogDebug("SimG4CoreApplication") << "StackingAction:Classify Track "
-				     << aTrack->GetTrackID() << " Parent " 
-				     << aTrack->GetParentID() << " Type "
-				     << aTrack->GetDefinition()->GetParticleName() 
-				     << " K.E. " << aTrack->GetKineticEnergy()/MeV
-				     << " MeV as " << classification 
-				     << " Flag " << flag;
+//  LogDebug("SimG4CoreApplication") << "StackingAction:Classify Track "
+//                                   << aTrack->GetTrackID() << " Parent " 
+//                                   << aTrack->GetParentID() << " Type "
+//                                   << aTrack->GetDefinition()->GetParticleName() 
+//                                   << " K.E. " << aTrack->GetKineticEnergy()/MeV
+//                                   << " MeV as " << classification 
+//                                   << " Flag " << flag;
   }
   return classification;
 }
