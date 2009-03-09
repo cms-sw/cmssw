@@ -6,6 +6,15 @@
 
 namespace cond{
 
+  const cond::TimeType timeTypeList[TIMETYPE_LIST_MAX]=
+    {runnumber,timestamp,lumiid,userid};
+  
+  const cond::TimeType timeTypeValues[]=
+    {runnumber,timestamp,lumiid,userid};
+  
+  const std::string timeTypeNames[]=
+    {"runnumber","timestamp","lumiid","userid"};
+  
 
  const TimeTypeSpecs timeTypeSpecs[] = {
     TimeTypeTraits<runnumber>::specs(),

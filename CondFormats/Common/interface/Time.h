@@ -18,15 +18,11 @@ namespace cond{
   typedef enum { runnumber=0, timestamp, lumiid, userid } TimeType;
   const unsigned int TIMETYPE_LIST_MAX=4;
   
-  const cond::TimeType timeTypeList[TIMETYPE_LIST_MAX]=
-    {runnumber,timestamp,lumiid,userid};
+  extern const cond::TimeType timeTypeList[TIMETYPE_LIST_MAX];
   
-  const cond::TimeType timeTypeValues[]=
-    {runnumber,timestamp,lumiid,userid};
-  
-  const std::string timeTypeNames[]=
-    {"runnumber","timestamp","lumiid","userid"};
-  
+  extern const cond::TimeType timeTypeValues[];
+
+  extern const std::string timeTypeNames[];
   
   const Time_t TIMELIMIT(std::numeric_limits<Time_t>::max());
   

@@ -31,6 +31,10 @@
  <class name="std::vector<BlobComplexObjects>"/>
  <class name="BlobComplex"/>
 
+ <class name="pool::Ptr<BlobComplex>"/>
+ <class name="cond::DataWrapper<BlobComplex>"/>
+
+
  <class name="__gnu_cxx::__normal_iterator<const unsigned int*,std::vector<unsigned int> >"/>
  <class name="__gnu_cxx::__normal_iterator<unsigned int*,std::vector<unsigned int> >"/>
  <class name="__gnu_cxx::__normal_iterator<const BlobComplexObjects*,std::vector<BlobComplexObjects> >"/>
