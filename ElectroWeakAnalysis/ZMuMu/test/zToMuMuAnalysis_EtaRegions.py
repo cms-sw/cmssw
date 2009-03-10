@@ -27,19 +27,21 @@ process.source = cms.Source(
 
 process.TFileService = cms.Service(
     "TFileService",
-    fileName = cms.string("zMuMuHistograms_all.root")
+    fileName = cms.string("zMuMu_qcd.root")
 )
 
 zSelection = cms.PSet(
     cut = cms.string("charge = 0 & daughter(0).pt > 20 & daughter(1).pt > 20 & abs(daughter(0).eta)<2.0 & abs(daughter(1).eta)<2.0  &  mass > 20"),
-    isoCut = cms.double(1.7),
-    ptThreshold = cms.untracked.double("1"),
+   # adjusting isolation values  
+    isoCut = cms.double(3.0),
+    ptThreshold = cms.untracked.double("1.5"),
     etEcalThreshold = cms.untracked.double("0.2"),
     etHcalThreshold = cms.untracked.double("0.5"),
-    deltaRTrk = cms.untracked.double("0.2"),
+    deltaRTrk = cms.untracked.double("0.3"),
     deltaREcal = cms.untracked.double("0.25"),
     deltaRHcal = cms.untracked.double("0.25"),
-    alpha = cms.untracked.double("0.75"),
+    # setting alpha=0 in order to have only tracker isolation
+    alpha = cms.untracked.double("0"),
     beta = cms.untracked.double("-0.75"),
     relativeIsolation = cms.bool(False)
  )
