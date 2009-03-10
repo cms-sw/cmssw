@@ -1,4 +1,27 @@
-// $Id: RPCTechnicalTrigger.h,v 1.1 2009/02/05 13:46:21 aosorio Exp $
+// -*- C++ -*-
+//
+// Package:    RPCTechnicalTrigger
+// Class:      RPCTechnicalTrigger
+// 
+/**\class RPCTechnicalTrigger RPCTechnicalTrigger.cc L1Trigger/RPCTechnicalTrigger/src/RPCTechnicalTrigger.cc
+
+Description: Implementation of the RPC Technical Trigger Emulator
+
+Implementation:
+
+
+*/
+//
+// Original Author:  Andres Osorio
+//         Created:  Tue Mar 10 13:59:40 CET 2009
+//
+//
+//
+//
+// $Id: 
+//
+//
+
 #ifndef RPCTECHNICALTRIGGER_H 
 #define RPCTECHNICALTRIGGER_H 1
 
@@ -9,7 +32,7 @@
 // Include files From CMSSW
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -32,7 +55,7 @@
 
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 
-//Local to project
+// Local to project
 #include "L1Trigger/RPCTechnicalTrigger/interface/ProcessInputSignal.h"
 #include "L1Trigger/RPCTechnicalTrigger/src/TTUEmulator.h"
 #include "L1Trigger/RPCTechnicalTrigger/src/HistoOutput.h"
@@ -43,40 +66,28 @@
 #include "CondFormats/RPCObjects/interface/TTUBoardSpecs.h"
 #include "CondFormats/DataRecord/interface/TTUBoardSpecsRcd.h"
 
-//From ROOT
+//...........................................................................
 
-/** @class RPCTechnicalTrigger RPCTechnicalTrigger.h
- *  
- *
- *  @author Andres Osorio
- *
- *  email: aosorio@uniandes.edu.co
- *
- *  @date   2008-10-15
- */
+class RPCTechnicalTrigger : public edm::EDProducer {
+public:
 
-class RPCTechnicalTrigger : public edm::EDAnalyzer {
-public: 
-  /// Standard constructor
   explicit RPCTechnicalTrigger(const edm::ParameterSet&);
-  
-  ~RPCTechnicalTrigger( ); ///< Destructor
-  
-  
-protected:
+  ~RPCTechnicalTrigger();
   
 private:
   
-  virtual void beginJob(const edm::EventSetup&);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void endJob();
+  
+  //...........................................................................
 
   void validate( const edm::Event&, const edm::EventSetup&, int & );
   
   int  discriminateGMT( const edm::Event&, const edm::EventSetup& );
   
   void makeGMTFilterDist( );
-      
+  
   void printinfo();
   
   TTUEmulator * m_ttu[3];
@@ -106,6 +117,8 @@ private:
   int m_ievt;
   int m_cand;
   int m_valflag;
-  
+
+
 };
+
 #endif // RPCTECHNICALTRIGGER_H

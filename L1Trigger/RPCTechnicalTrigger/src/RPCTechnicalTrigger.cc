@@ -1,21 +1,16 @@
-// -*- C++ -*-
+// $Id: 
+
+//-----------------------------------------------------------------------------
+// Implementation file for class : RPCTechnicalTrigger
 //
-// Package:    RPCTechnicalTrigger
-// Class:      RPCTechnicalTrigger
-// 
-/**\class RPCTechnicalTrigger RPCTechnicalTrigger.cc L1Trigger/RPCTechnicalTrigger/src/RPCTechnicalTrigger.cc
-   
-Description: 
+// 2008-10-15 : Andres Osorio
+//-----------------------------------------------------------------------------
 
-RPC Technical Trigger Emulator: the RPCTechnicalTrigger is the main controler
+//=============================================================================
+// Standard constructor, initializes variables
+//=============================================================================
 
-Implementation:
-
-*/
-//
-// Original Author:  Andres Felipe Osorio Oliveros
-//         Created:  Thu Nov 13 08:21:16 CET 2008
-// $Id: RPCTechnicalTrigger.cc,v 1.2 2009/02/05 13:46:21 aosorio Exp $
+// Include files
 
 // local
 #include "L1Trigger/RPCTechnicalTrigger/src/RPCTechnicalTrigger.h"
@@ -31,12 +26,21 @@ Implementation:
 //=============================================================================
 // Standard constructor, initializes variables
 //=============================================================================
-RPCTechnicalTrigger::RPCTechnicalTrigger(const edm::ParameterSet& iConfig) : 
-  edm::EDAnalyzer()
-{
 
+RPCTechnicalTrigger::RPCTechnicalTrigger(const edm::ParameterSet& iConfig)
+{
+  
+  //register your products
+  /* Examples
+     produces<ExampleData2>();
+     
+     //if do put with a label
+     produces<ExampleData2>("label");
+  */
+  //now do what ever other initialization is needed
+  
   edm::Service<TFileService> fs;
-    
+  
   m_debugmode    = iConfig.getUntrackedParameter<int>("RPCTTDebugMode",0);
   
   m_validation   = iConfig.getUntrackedParameter<int>("RPCTTValidationMode", 0);
@@ -75,22 +79,20 @@ RPCTechnicalTrigger::RPCTechnicalTrigger(const edm::ParameterSet& iConfig) :
   m_ttu[2] = new TTUEmulator( 3 , 2 );
   
   //... histograms
-
+  
   m_houtput = new HistoOutput( fs , "Plots");
   
   //...........................................................................
-
+  
   m_ievt = 0;
   m_cand = 0;
-  
+
 }
 
-//=============================================================================
-// Destructor
-//=============================================================================
-RPCTechnicalTrigger::~RPCTechnicalTrigger() {
 
-
+RPCTechnicalTrigger::~RPCTechnicalTrigger()
+{
+  
   std::cout << "RPCTechnicalTrigger: object starts deletion" << std::endl;
   
   delete m_ttu[0];
@@ -105,12 +107,28 @@ RPCTechnicalTrigger::~RPCTechnicalTrigger() {
   
   std::cout << "RPCTechnicalTrigger: object deleted" << std::endl;
     
-} 
+}
 
 //=============================================================================
-void RPCTechnicalTrigger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   
+  /* This is an event example
+  //Read 'ExampleData' from the Event
+  Handle<ExampleData> pIn;
+  iEvent.getByLabel("example",pIn);
+  
+  //Use the ExampleData to create an ExampleData2 which 
+  // is put into the Event
+  std::auto_ptr<ExampleData2> pOut(new ExampleData2(*pIn));
+  iEvent.put(pOut);
+  */
+  
+  /* this is an EventSetup example
+  //Read SetupData from the SetupRecord in the EventSetup
+  ESHandle<SetupData> pSetup;
+  iSetup.get<SetupRecord>().get(pSetup);
+  */
+    
   edm::Handle<RPCDigiCollection> pIn;
   try {
     iEvent.getByLabel("muonRPCDigis", pIn);
@@ -168,9 +186,6 @@ void RPCTechnicalTrigger::analyze(const edm::Event& iEvent, const edm::EventSetu
   if ( m_validation == 1 )
     validate ( iEvent, iSetup, flag );
     
-
-
-
   //... reset data map for next event
   
   input->clear();
@@ -231,6 +246,7 @@ void RPCTechnicalTrigger::beginJob(const edm::EventSetup& _evtSetup)
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
+
 void RPCTechnicalTrigger::endJob() 
 {
   
@@ -376,4 +392,6 @@ void RPCTechnicalTrigger::makeGMTFilterDist( )
   
 }
 
+
+//define this as a plug-in
 DEFINE_FWK_MODULE(RPCTechnicalTrigger);
