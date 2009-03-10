@@ -13,8 +13,7 @@ class  TrackerGeometricDetESModule: public edm::ESProducer,
  public:
   TrackerGeometricDetESModule(const edm::ParameterSet & p);
   virtual ~TrackerGeometricDetESModule(); 
-  std::auto_ptr<GeometricDet>  produceFromDDDXML(const IdealGeometryRecord &);
-  std::auto_ptr<GeometricDet>  produceFromPGeometricDet(const PGeometricDetRcd &);
+  std::auto_ptr<GeometricDet>  produce(const IdealGeometryRecord &);
 
  protected:
   //overriding from ContextRecordIntervalFinder
