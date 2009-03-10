@@ -886,8 +886,8 @@ void AlignmentMonitorMuonSystemMap::afterAlignment(const edm::EventSetup &iSetup
       else assert(false);
 
       if (slopebfieldBin != m_slopebfieldBin.end()) {
-	slopebfieldBin->second.first->SetBinContent(slopebfieldBin->second.second, slopeValue);
-	slopebfieldBin->second.first->SetBinError(slopebfieldBin->second.second, slopeError);
+	slopebfieldBin->second.first->SetBinContent(slopebfieldBin->second.second, slopebfieldValue);
+	slopebfieldBin->second.first->SetBinError(slopebfieldBin->second.second, slopebfieldError);
       }
       else assert(false);
     }
