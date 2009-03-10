@@ -5,7 +5,7 @@
 namespace edm {
   void const*
   HandleBase::productStorage() const {
-    if (!product_) {
+    if (whyFailed_) {
       throw *whyFailed_;
     }
     return product_;
