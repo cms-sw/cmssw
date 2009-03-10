@@ -7,7 +7,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/GeometryObjects/interface/PGeometricDet.h"
-#include "Geometry/Records/interface/PGeometricDetRcd.h"
+//#include "Geometry/Records/interface/PGeometricDetRcd.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
@@ -114,8 +114,8 @@ PGeometricDetBuilder::beginJob( edm::EventSetup const& es)
     --lev;
   }
   std::vector<const GeometricDet*> modules =  tracker->deepComponents();
-  if ( mydbservice->isNewTagRequest("PGeometricDetRcd") ) {
-    mydbservice->createNewIOV<PGeometricDet>( pgd,mydbservice->beginOfTime(),mydbservice->endOfTime(),"PGeometricDetRcd");
+  if ( mydbservice->isNewTagRequest("IdealGeometryRecord") ) {
+    mydbservice->createNewIOV<PGeometricDet>( pgd,mydbservice->beginOfTime(),mydbservice->endOfTime(),"IdealGeometryRecord");
   } else {
     edm::LogError("PGeometricDetBuilder")<<"PGeometricDetBuilder Tag already present";
   }
