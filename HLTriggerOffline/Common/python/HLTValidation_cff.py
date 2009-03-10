@@ -7,6 +7,7 @@ from HLTriggerOffline.Top.topvalidation_cfi import *
 #from HLTriggerOffline.SUSYBSM.SUSYBSM_triggerValidation_cff import *
 from HLTriggerOffline.Common.FourVectorHLTriggerOffline_cff import *
 from HLTriggerOffline.HeavyFlavor.heavyFlavorValidationSequence_cff import *
+from HLTriggerOffline.JetMET.Validation.HLTJetMETValidation_cff import *
 
 hltvalidation = cms.Sequence(
     HLTMuonVal
@@ -18,6 +19,7 @@ hltvalidation = cms.Sequence(
    #+HLTSusyExoVal
     +HLTFourVector
     +heavyFlavorValidationSequence
+    +HLTJetMETVal
     )
 
 hltvalidation_fastsim = cms.Sequence(
@@ -30,4 +32,3 @@ hltvalidation_fastsim = cms.Sequence(
     +HLTTopVal
     +heavyFlavorValidationSequence
     )
-
