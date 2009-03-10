@@ -33,5 +33,5 @@ TopDecayChannelFilter<S>::filter(edm::Event& iEvent, const edm::EventSetup& iSet
   edm::Handle<reco::GenParticleCollection> parts;
   iEvent.getByLabel( src_,parts );
  
-  return sel_( *parts );
+  return sel_( *parts, src_.label() );
 }

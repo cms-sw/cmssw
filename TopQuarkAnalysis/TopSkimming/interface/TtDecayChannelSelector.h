@@ -1,4 +1,6 @@
-#include <vector>
+#include "vector"
+#include "string.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
@@ -22,7 +24,7 @@ class TtDecayChannelSelector {
 
   TtDecayChannelSelector(const edm::ParameterSet&);
   ~TtDecayChannelSelector();
-  bool operator()(const reco::GenParticleCollection&) const;
+  bool operator()(const reco::GenParticleCollection& parts, std::string inputType) const;
 
  private:
 
@@ -32,6 +34,7 @@ class TtDecayChannelSelector {
   bool checkTauDecay(const reco::Candidate&) const;
 
  private:
+  std::string input_;
   bool  invert_;  //inversion flag
   int   channel_; //top decay channel
   int   summed_;
