@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
-  <PoolContainer name="PGeometricDetRcd" >
+  <PoolContainer name="IdealGeometryRecord" >
    <Class table="PGEOMETRICDET" id_columns="IOV_VALUE_ID" name="PGeometricDet" mapping_version="PGeometricDet_basic" >
       <Blob column="GEOMETRYTRACKER_ATTRIBUTE" name="pgeomdets_"/>
    </Class >
