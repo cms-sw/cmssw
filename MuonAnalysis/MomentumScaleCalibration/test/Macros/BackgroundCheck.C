@@ -32,21 +32,30 @@ void BackgroundCheck()
   TH1F * resonanceHisto = (TH1F*)resonanceFile->Get("hRecBestRes_Mass");
   TH1F * backgroundHisto = (TH1F*)backgroundFile->Get("hRecBestRes_Mass");
 
+  int rebinCount = 200;
+
+  allHisto->Rebin(rebinCount);
+  resonanceHisto->Rebin(rebinCount);
+  backgroundHisto->Rebin(rebinCount);
+
   // The fitted background function gives the background fraction (is normalized).
   // We multiply it by the integral to get the background value.
   int xBins = allHisto->GetNbinsX();
 
-  // For Upsilon the interval is 0-30
-  int lowBin = int((9.4603-0.5)*xBins/30.);
-  int upBin = int((9.4603+0.5)*xBins/30.);
+  double ResMass[] = {91.1876, 10.3552, 10.0233, 9.4603, 3.68609, 3.0969};
 
-  // For J/Psi the intervale is 0-30
-  // int lowBin = int((3.0969-0.2)*xBins/30.);
-  // int upBin = int((3.0969+0.2)*xBins/30.);
+  double ResHalfWidth[] = {20., 0.5, 0.5, 0.5, 0.2, 0.2};
 
-  // Compute the integral used to rescale the background function only in the region actually used for the computation.
-  // (Where the function was also normalized, which is also the region the values refer to).
-  double integral = allHisto->Integral(lowBin, upBin);
+  int ires = 3;
+
+  // For J/Psi exclude the Upsilon from the background normalization as the bin is not used by the fit.
+  double lowWindowValue = ResMass[ires]-ResHalfWidth[ires];
+  double upWindowValue = ResMass[ires]+ResHalfWidth[ires];
+
+  // ATTENTION: for the Z the number of bins is more than 30.
+
+  int lowBin = int((lowWindowValue)*xBins/30.);
+  int upBin = int((upWindowValue)*xBins/30.);
 
   // Constant
   // --------
@@ -56,21 +65,23 @@ void BackgroundCheck()
   // Exponential
   // -----------
   TF1 * backgroundFunction = new TF1("backgroundFunction","[0]*([1]*exp(-[1]*x))",allHisto->GetXaxis()->GetXmin(),allHisto->GetXaxis()->GetXmax());
-  // TF1 * backgroundFunction = new TF1("backgroundFunction","[0]*(exp(-[1]*x))",allHisto->GetXaxis()->GetXmin(),allHisto->GetXaxis()->GetXmax());
 
-  // Upsilon+J/Psi fit parameters (integral used is on the Upsilon peak)
-  backgroundFunction->SetParameter(0, 0.047892*integral);
-  backgroundFunction->SetParameter(1, 0.122279);
+  backgroundFunction->SetParameter(0, 1);
+  backgroundFunction->SetParameter(1, 0.105061);
 
-  // J/Psi only fit parameters
-  // backgroundFunction->SetParameter(0, 0.239987*integral);
-  // backgroundFunction->SetParameter(1, 0.32617);
+  // Compute the integral used to rescale the background function only in the region actually used for the computation.
+  // (Where the function was also normalized, which is also the region the values refer to).
+  // double integral = allHisto->Integral(0, lowBin) + allHisto->Integral(upBin, xBins);
+  double integral = allHisto->Integral(lowBin, upBin);
+  double functionIntegral = backgroundFunction->Integral(lowWindowValue, upWindowValue);
+  double normalization = integral/functionIntegral*0.0230452/(upBin-lowBin);
+
+  // To normalize the function so that its integral in the resonance mass
+  // window gives the fraction of events determined by the fit.
+  // This is divided by the number of bins in that interval (after rebinning).
+  backgroundFunction->SetParameter(0, normalization);
 
   cout << "Integral = " << integral << endl;
-
-  allHisto->Rebin(200);
-  resonanceHisto->Rebin(200);
-  backgroundHisto->Rebin(200);
 
   TLegend * legend = new TLegend( 0.55, 0.65, 0.76, 0.82 );
   TCanvas * canvas = new TCanvas("ResMassCanvas", "ResMassCanvas", 1000, 800);
