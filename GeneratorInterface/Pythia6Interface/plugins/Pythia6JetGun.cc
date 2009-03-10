@@ -84,15 +84,15 @@ void Pythia6JetGun::generateEvent()
          totPx += pyjets.p[0][ip-1];
 	 totPy += pyjets.p[1][ip-1];
 	 totPz += pyjets.p[2][ip-1];
-	 totE  += pyjets.p[4][ip-1];
+	 totE  += pyjets.p[3][ip-1];
 	 
 	 ip++;
 	 
-   } // end forming up py6 record
+   } // end forming up py6 record of the jet
 
 	 
    // compute total mass
-   //
+   //   
    totM = std::sqrt( totE*totE - (totPx*totPx+totPy*totPy+totPz*totPz) );
 	 
    //now the boost (from input params)
@@ -137,6 +137,15 @@ void Pythia6JetGun::generateEvent()
      
    // run pythia
    pyexec_();
+   
+   double totalE = 0.;
+   for ( int i=0; i<pyjets.n; i++ )
+   {
+      if ( pyjets.k[0][i] == 1 )
+      {
+         totalE += pyjets.p[3][i];
+      }
+   }
    
    return;
 }
