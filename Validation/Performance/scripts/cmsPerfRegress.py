@@ -1056,7 +1056,7 @@ def perfreport(perftype,file1,file2,outdir,IgProfMemopt=""):
     cmssw_release_base = ""
     cmssw_data = ""
     try:
-        cmssw_release_base = os.environ['CMSSW__RELEASE_BASE']
+        cmssw_release_base = os.environ['CMSSW_RELEASE_BASE']
         cmssw_data = os.environ['CMSSW_DATA_PATH']
     except KeyError, detail:
         raise PerfReportErr
