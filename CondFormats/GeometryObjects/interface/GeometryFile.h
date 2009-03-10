@@ -8,7 +8,7 @@
 class GeometryFile{
 
  public:
-  GeometryFile(): compressed(false), isize(0) {};
+  GeometryFile() {};
   /// constructor from file to read
   GeometryFile(const std::string & fname, bool zip);
   /// constructor from  stream to read
