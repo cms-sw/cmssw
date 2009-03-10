@@ -46,7 +46,7 @@ sistrip::RawToDigiModule::RawToDigiModule( const edm::ParameterSet& pset ) :
   produces< edm::DetSetVector<SiStripRawDigi> >("VirginRaw");
   produces< edm::DetSetVector<SiStripRawDigi> >("ProcessedRaw");
   produces< edm::DetSetVector<SiStripDigi> >("ZeroSuppressed");
-  produces<DetIdCollection>("SiStripRawToDigi");
+  produces<DetIdCollection>();
   
 }
 
