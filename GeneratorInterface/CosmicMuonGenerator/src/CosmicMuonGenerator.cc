@@ -290,7 +290,10 @@ void CosmicMuonGenerator::terminate(){
       rateErr_stat =Nsel;
       rateErr_syst =Nsel;
       std::cout << std::endl;
-      std::cout << " !!! Not enough statistics to apply normalisation (rate=1 +- 1) !!!" << std::endl;
+      if (MinP > 100.)
+	std::cout << " !!! MinP > 100 GeV. Cannot apply normalisation!" << std::endl;
+      else
+	std::cout << " !!! Not enough statistics to apply normalisation (rate=1 +- 1) !!!" << std::endl;
     } 
     
     std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;

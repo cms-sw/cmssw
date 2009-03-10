@@ -26,3 +26,6 @@ process.generator.MaxTheta = 80.
 
 # Plug z-position [mm] (default=-14000.)
 #process.generator.PlugVz = -33000.;
+
+# z-position of centre of target cylinder [mm] (default=0.)
+#process.CosMuoGenSource.ZCentrOfTarget = 0.;

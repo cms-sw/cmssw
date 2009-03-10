@@ -49,7 +49,8 @@ int CMSCGEN::initialize(double pmin_in, double pmax_in, double thetamin_in, doub
 
   //allowed energy range
   pmin_min = 3.;
-  pmin_max = 100.;
+  //pmin_max = 100.;
+  pmin_max = 3000.;
   pmax = 3000.;
   //allowed angular range
   cmax_max = -0.1,

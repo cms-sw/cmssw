@@ -140,11 +140,11 @@
   gPad->Update();
 
   //////////////////////////////////////////////////////////////////////////////////////
-  TH2D* xzv1 = new TH2D("xzv1","X-Z view at Y=0",350,-20.,50.,750,-65.,70.);
+  TH2D* xzv1 = new TH2D("xzv1","X-Z view at Y=0",350,-20.,50.,675,-65.,70.);
   double vy = 0.;
   for (int ix=0; ix<350; ++ix){
     double vx = double(ix)*0.2 - 19.9;
-    for (int iz=0; iz<750; ++iz){
+    for (int iz=0; iz<675; ++iz){
       double vz = double(iz)*0.2 - 64.9;
 	xzv1->Fill(float(vx),float(vz),inMat(vx*1000.,vy*1000.,vz*1000., PlugVx, PlugVz));	
     }
