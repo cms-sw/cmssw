@@ -12,11 +12,18 @@ process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 
 process.load("DQMServices.Core.DQM_cfg")
 
-process.source = cms.Source("EmptyIOVSource",
-    lastRun = cms.untracked.uint32(100),
-    timetype = cms.string('runnumber'),
-    firstRun = cms.untracked.uint32(1),
-    interval = cms.uint32(90)
+from CalibTracker.Configuration.Common.PoolDBESSource_cfi import poolDBESSource
+poolDBESSource.connect = "frontier://FrontierDev/CMS_COND_ALIGNMENT"
+poolDBESSource.toGet = cms.VPSet(cms.PSet(
+        record = cms.string('GlobalPositionRcd'),
+        tag = cms.string('IdealGeometry')
+    )) 
+process.glbPositionSource = poolDBESSource
+
+
+process.source = cms.Source("EmptySource",
+    numberEventsInRun = cms.untracked.uint32(1),
+    firstRun = cms.untracked.uint32(1)
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -27,13 +34,13 @@ process.noiseRef = cms.ESSource("PoolDBESSource",
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('DTStatusFlagRcd'),
         tag = cms.string('noise'),
-        connect = cms.untracked.string('sqlite_file:noise51039.db'),
+        connect = cms.untracked.string('sqlite_file:noise_66722.db'),
         label = cms.untracked.string('noiseRef')
     ), 
         cms.PSet(
             record = cms.string('DTStatusFlagRcd'),
             tag = cms.string('noise'),
-            connect = cms.untracked.string('sqlite_file:noise51087.db'),
+            connect = cms.untracked.string('sqlite_file:noise_68958.db'),
             label = cms.untracked.string('noiseToValidate')
         )),
     connect = cms.string('')
@@ -68,7 +75,7 @@ process.dtNoiseAnalyzer = cms.EDFilter("DTnoiseDBValidation",
     stationTestName = cms.untracked.string('noiseStationOccInRange'),
     sectorTestName = cms.untracked.string('noiseSectorOccInRange'),                                   
     TestName = cms.untracked.string('noiseWheelOccInRange'),                                
-    OutputFileName = cms.untracked.string('MuonTestMonitoring.root'),
+    OutputFileName = cms.untracked.string('noiseTestMonitoring_2.root'),
     labelDB = cms.untracked.string('noiseToValidate')
 )
 
