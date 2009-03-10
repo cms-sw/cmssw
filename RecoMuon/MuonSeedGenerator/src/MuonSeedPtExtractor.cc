@@ -125,12 +125,13 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
   GlobalPoint outerPoint = secondHit->globalPosition();
   MuonTransientTrackingRecHit::ConstMuonRecHitPointer innerHit = firstHit;
   MuonTransientTrackingRecHit::ConstMuonRecHitPointer outerHit = secondHit;
-  if(innerPoint.perp() > outerPoint.perp()) {
-    innerHit = secondHit;
-    outerHit = firstHit;
-    innerPoint = innerHit->globalPosition();
-    outerPoint = outerHit->globalPosition();
-  } 
+  // no - it is not so simple...
+  //if(innerPoint.perp() > outerPoint.perp()) {
+    //innerHit = secondHit;
+    //outerHit = firstHit;
+    //innerPoint = innerHit->globalPosition();
+    //outerPoint = outerHit->globalPosition();
+  //} 
   
   double phiInner = innerPoint.phi();
   double phiOuter = outerPoint.phi();
