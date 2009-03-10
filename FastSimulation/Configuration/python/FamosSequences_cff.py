@@ -364,7 +364,8 @@ famosWithMuonsAndIsolation = cms.Sequence(
 famosWithElectrons = cms.Sequence(
     famosWithTracks+
     caloRecHits+
-    ecalClusters+ 
+    ecalClusters+
+    caloTowersRec+
     particleFlowCluster+
     famosElectronSequence+
     interestingEleIsoDetIdEB+
@@ -387,6 +388,7 @@ famosWithElectronsAndPhotons = cms.Sequence(
     vertexreco+
     caloRecHits+
     ecalClusters+
+    caloTowersRec+
     famosElectronSequence+
     famosPhotonSequence+
     interestingEgammaIsoDetIds+
