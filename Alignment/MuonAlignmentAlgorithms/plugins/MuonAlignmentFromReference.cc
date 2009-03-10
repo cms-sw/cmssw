@@ -142,6 +142,7 @@ MuonAlignmentFromReference::MuonAlignmentFromReference(const edm::ParameterSet &
   if (m_doAlignment) {
     edm::Service<TFileService> tfileService;
     TFile &tfile = tfileService->file();
+    tfile.ls();
   }
 }
 
