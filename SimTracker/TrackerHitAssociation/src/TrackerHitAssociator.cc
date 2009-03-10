@@ -559,29 +559,28 @@ std::vector<SimHitIdpr>  TrackerHitAssociator::associateGSRecHit(const SiTracker
 }
 
 std::vector<PSimHit> TrackerHitAssociator::associateMultiRecHit(const SiTrackerMultiRecHit * multirechit){
-  std::vector<const TrackingRecHit*> componenthits = multirechit->recHits();
-  //        std::vector<PSimHit> assimhits;
-  int size=multirechit->weights().size(), idmostprobable=0;
-  
-  for (int i=0; i<size; i++){
-    if(multirechit->weight(i)>multirechit->weight(idmostprobable)) idmostprobable=i;
-  }
-  
-  //	std::vector<PSimHit> assimhits = associateHit(**mostpropable);
-  //	assimhits.insert(assimhits.end(), asstocurrent.begin(), asstocurrent.end());
-  //std::cout << "Returning " << assimhits.size() << " simhits" << std::endl;
-  return associateHit(*componenthits[idmostprobable]);
+        std::vector<const TrackingRecHit*> componenthits = multirechit->recHits();
+        std::vector<PSimHit> assimhits;
+        std::vector<const TrackingRecHit*>::const_iterator iter;
+        for (iter = componenthits.begin(); iter != componenthits.end(); iter ++){
+                std::vector<PSimHit> asstocurrent = associateHit(**iter);
+                assimhits.insert(assimhits.end(), asstocurrent.begin(), asstocurrent.end());
+        }
+        //std::cout << "Returning " << assimhits.size() << " simhits" << std::endl;
+        return assimhits;
 }
 
 std::vector<SimHitIdpr> TrackerHitAssociator::associateMultiRecHitId(const SiTrackerMultiRecHit * multirechit){
-  std::vector<const TrackingRecHit*> componenthits = multirechit->recHits();
-  int size=multirechit->weights().size(), idmostprobable=0;
-  
-  for (int i=0; i<size; i++){
-    if(multirechit->weight(i)>multirechit->weight(idmostprobable)) idmostprobable=i;
-  }
-  
-  return associateHitId(*componenthits[idmostprobable]);
+
+        std::vector<const TrackingRecHit*> componenthits = multirechit->recHits();
+        std::vector<SimHitIdpr> assimhits;
+        std::vector<const TrackingRecHit*>::const_iterator iter;
+        for (iter = componenthits.begin(); iter != componenthits.end(); iter ++){
+	  std::vector<SimHitIdpr> asstocurrent = associateHitId(**iter);
+	  assimhits.insert(assimhits.end(), asstocurrent.begin(), asstocurrent.end());
+        }
+        //std::cout << "Returning " << assimhits.size() << " simhits" << std::endl;
+        return assimhits;
 }
 
 std::vector<SimHitIdpr>  TrackerHitAssociator::associateGSMatchedRecHit(const SiTrackerGSMatchedRecHit2D * gsmrechit)

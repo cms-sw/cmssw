@@ -191,8 +191,10 @@ void LHEReader::XMLHandler::endElement(const XMLCh *const uri,
 			XMLSimpleStr buffer(
 					writer->writeToString(*xmlNodes[0]));
 			LHERunInfo::Header header("header");
-			fillHeader(header, (const char*)buffer + 8,
-			           std::strlen(buffer) - 17);
+			const char *p =
+				std::strchr((const char*)buffer, '>') + 1;
+			const char *q = std::strrchr(p, '<');
+			fillHeader(header, p, q - p);
 			headers.push_back(header);
 
 			xmlHeader->release();
@@ -261,7 +263,7 @@ LHEReader::LHEReader(const edm::ParameterSet &params) :
 
 LHEReader::LHEReader(const std::vector<std::string> &fileNames,
                      unsigned int firstEvent) :
-	fileURLs(fileNames), firstEvent(firstEvent),
+	fileURLs(fileNames), firstEvent(firstEvent), maxEvents(-1),
 	curIndex(0), handler(new XMLHandler())
 {
 }

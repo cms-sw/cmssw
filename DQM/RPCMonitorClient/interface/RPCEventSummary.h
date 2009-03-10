@@ -6,8 +6,8 @@
  * *
  *  DQM Event Summary module for RPCs
  *
- *  $Date: 2008/08/19 14:33:50 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/09/28 15:37:48 $
+ *  $Revision: 1.6 $
  *  \author Anna Cimmino
  *   
  */
@@ -66,7 +66,8 @@ public:
  private:
   
   std::string eventInfoPath_, prefixDir_;
-  
+
+  bool tier0_;  
   bool enableReportSummary_;
   int prescaleFactor_;
   bool verbose_;

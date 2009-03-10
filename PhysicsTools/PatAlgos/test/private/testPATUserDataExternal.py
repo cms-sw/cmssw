@@ -14,7 +14,7 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 # source
 process.source = cms.Source("PoolSource", 
-     fileNames = cms.untracked.vstring('file:/afs/cern.ch/cms/PRS/top/cmssw-data/relval200-for-pat-testing/FullSimTTBar-2_1_X_2008-07-08_STARTUP_V4-AODSIM.100.root')
+     fileNames = cms.untracked.vstring('file:/afs/cern.ch/cms/PRS/top/cmssw-data/relval200-for-pat-testing/FullSimTTBar-2_2_X_2008-11-03-STARTUP_V7-AODSIM.100.root')
 )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
@@ -30,6 +30,7 @@ process.load("PhysicsTools.PatAlgos.patLayer1_cff")
 process.answer = cms.EDProducer("PATUserDataTestModule", # each of this will produce all
     mode  = cms.string("external"),                      # but I don't care
     muons = cms.InputTag("allLayer0Muons"),
+    label = cms.string("il"),                            # use instance label 'il' for the ints
 )
 process.pi = cms.EDProducer("PATUserDataTestModule",
     mode  = cms.string("external"),
@@ -39,7 +40,7 @@ process.halfP4 = cms.EDProducer("PATUserDataTestModule",
     mode  = cms.string("external"),
     muons = cms.InputTag("allLayer0Muons"),
 )
-process.allLayer1Muons.userData.userInts.src    = cms.VInputTag(cms.InputTag("answer"))
+process.allLayer1Muons.userData.userInts.src    = cms.VInputTag(cms.InputTag("answer","il"))
 process.allLayer1Muons.userData.userFloats.src  = cms.VInputTag(cms.InputTag("pi"))
 process.allLayer1Muons.userData.userClasses.src = cms.VInputTag(cms.InputTag("halfP4"))
 process.testRead = cms.EDProducer("PATUserDataTestModule",
@@ -53,7 +54,7 @@ process.content = cms.EDAnalyzer("EventContentAnalyzer")
 process.p = cms.Path(
                 process.patLayer0  
                 + process.answer * process.pi * process.halfP4
-                + process.content # uncomment to get a dump of the output after layer 0
+                #+ process.content # uncomment to get a dump of the output after layer 0
                 + process.patLayer1  
                 + process.testRead
             )

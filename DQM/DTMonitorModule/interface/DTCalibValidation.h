@@ -5,8 +5,8 @@
  *  Analysis on DT residuals to validate the kFactor
  *
  *
- *  $Date: 2008/09/02 13:48:15 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/10/07 13:59:20 $
+ *  $Revision: 1.4 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -73,6 +73,8 @@ class DTCalibValidation: public edm::EDAnalyzer{
   int wrongSegment;
   int rightSegment;
   int nevent;
+  // the analysis type
+  bool detailedAnalysis;
   // the geometry
   edm::ESHandle<DTGeometry> dtGeom;
 

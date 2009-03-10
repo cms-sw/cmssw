@@ -4,7 +4,7 @@
 /** \class DTt0DBValidation
  *  Plot the t0 from the DB
  *
- *  $Date: 2008/04/18 12:28:37 $
+ *  $Date: 2007/03/28 17:19:28 $
  *  $Revision: 1.1 $
  *  \author G. Mila - INFN Torino
  */
@@ -40,7 +40,7 @@ public:
 
   /// Operations
   //Read the DTGeometry and the t0 DB
-  void beginRun(const edm::Run& run, const edm::EventSetup& setup);
+  void beginJob(const edm::EventSetup& setup);
   void analyze(const edm::Event& event, const edm::EventSetup& setup) {}
   //Do the real work
   void endJob();

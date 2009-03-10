@@ -1,11 +1,13 @@
 #ifndef GflashHadronShowerModel_H
 #define GflashHadronShowerModel_H
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "G4VFastSimulationModel.hh"
+#include "G4TouchableHandle.hh"
+#include "G4Navigator.hh"
 
 class GflashHadronShowerProfile;
 class GflashHistogram;
+class G4Step;
 
 class GflashHadronShowerModel : public G4VFastSimulationModel 
 {
@@ -13,7 +15,7 @@ public:
   //-------------------------
   // Constructor, destructor
   //-------------------------
-  GflashHadronShowerModel (G4String modelName, G4Region* envelope, edm::ParameterSet parSet);
+  GflashHadronShowerModel (G4String modelName, G4Region* envelope);
   ~GflashHadronShowerModel ();
 
   //------------------------------------------------------------------------
@@ -30,8 +32,10 @@ private:
 
 private:  
 
-  edm::ParameterSet theParSet;
   GflashHadronShowerProfile *theProfile;
+  G4Step *theGflashStep; 
+  G4Navigator *theGflashNavigator;
+  G4TouchableHandle  theGflashTouchableHandle;
 
   //debugging histograms
   GflashHistogram* theHisto;

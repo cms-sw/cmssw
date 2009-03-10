@@ -21,9 +21,7 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
-//#include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
-#include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeed.h"
-#include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
+#include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 
 #include "HLTrigger/HLTanalyzers/interface/JetUtil.h"
 #include "HLTrigger/HLTanalyzers/interface/CaloTowerBoundries.h"
@@ -50,7 +48,7 @@ public:
 	       const edm::Handle<edm::ValueMap<bool> >           & isoMap2,
 	       const edm::Handle<RecoChargedCandidateCollection> & mucands3,
 	       const edm::Handle<edm::ValueMap<bool> >           & isoMap3,
-	       //	       const edm::Handle<MuonTrackLinksCollection>       & mulinks,
+	       const edm::Handle<MuonTrackLinksCollection>       & mulinks,
 	       TTree* tree);
 
 

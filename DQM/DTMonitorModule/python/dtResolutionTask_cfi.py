@@ -1,8 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 dtResolutionAnalysisMonitor = cms.EDAnalyzer("DTResolutionAnalysisTask",
-    # switch for verbosity
-    debug = cms.untracked.bool(False),
     # labels of 4D and 1D hits
     recHits4DLabel = cms.string('dt4DSegments'),
     recHitLabel = cms.string('dt1DRecHits'),

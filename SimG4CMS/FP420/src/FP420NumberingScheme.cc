@@ -2,7 +2,7 @@
 // File: FP420NumberingScheme.cc
 // Date: 02.2006
 // Description: Numbering scheme for FP420
-// Modifications: 08.2008  mside and fside added
+// Modifications:
 ///////////////////////////////////////////////////////////////////////////////
 #include "SimG4CMS/FP420/interface/FP420NumberingScheme.h"
 //
@@ -10,14 +10,16 @@
 #include "globals.hh"
 #include <iostream>
 
+//#define debug
+
 //UserVerbosity FP420NumberingScheme::cout("FP420NumberingScheme","silent","FP420NumberingScheme");
 
 FP420NumberingScheme::FP420NumberingScheme() {
-//  sn0=3, pn0=6, rn0=7;   
+//  cout.infoOut << " Creating FP420NumberingScheme" << endl;
 }
 
 FP420NumberingScheme::~FP420NumberingScheme() {
-  //  std::cout << " Deleting FP420NumberingScheme" << std::endl;
+//  cout.infoOut << " Deleting FP420NumberingScheme" << endl;
 }
 
                                                                                 
@@ -52,7 +54,9 @@ unsigned int FP420NumberingScheme::getUnitID(const G4Step* aStep) const {
   unsigned intindex=0;
   int level = detectorLevel(aStep);
 
-  // std::cout << "FP420NumberingScheme number of levels= " << level << std::endl;
+#ifdef debug
+//  cout.testOut << "FP420NumberingScheme number of levels= " << level << endl;
+#endif
 
  //  unsigned int intIndex = 0;
   if (level > 0) {
@@ -95,44 +99,40 @@ unsigned int FP420NumberingScheme::getUnitID(const G4Step* aStep) const {
 	station   = stationgen;
       } else if(name[ich] == "SIPLANE") {
 	plane   = copyno[ich];
-      // SIDETL (or R) can be ether X or Y type in next readout code
-	//        !!! (=...) zside
-	//      1         2        3     <---copyno
-	//   Front(=2) Empty(=4) Back(=6)     <--SIDETR
-	//   Front(=1) Back(=3) Empty(=5)     <--SIDETL
-	//
-      } else if(name[ich] == "SIDETR") {
-	//	zside   = 2;// OLD
-	zside   = 2 * copyno[ich] ;//= 2   4   6
       } else if(name[ich] == "SIDETL") {
-	//	zside   = 1;// OLD
-	zside   = 2 * copyno[ich] - 1 ;//= 1   3   5
+	zside   = 1;
+      } else if(name[ich] == "SIDETR") {
+	zside   = 2;
       }
-      //
-      //  std::cout << "FP420NumberingScheme  " << "ich=" << ich  << "copyno" << copyno[ich] << "name="  << name[ich] << std::endl;
-      //
+#ifdef debug
+//      cout.testOut << "FP420NumberingScheme  " << "ich=" << ich  << "copyno" 
+//		   << copyno[ich] << "name="  << name[ich] << endl;
+#endif
     }
-    // det = 1 for +FP420 , = 2 for -FP420  / (det-1) = 0,1
-    // 0 is as default for every below:
-    // Z index 
-    // station number 1 - 5   (in reality just 2 ones)
-    // superplane(superlayer) number  1 - 10 (in reality just 5 ones)
+    // use for FP420 number 1 
+    // 0 is as defauld for every below:
+    // Z index X = 1; Y = 2 
+    // station number 1 - 5
+    // plane number  1 - 10
 
    // intindex = myPacker.packEcalIndex (det, zside, station, plane);
    // intindex = myPacker.packCastorIndex (det, zside, station, plane);
     intindex = packFP420Index (det, zside, station, plane);
+
+
+#ifdef debug
     /*
-    //
-    std::cout << "FP420NumberingScheme det=" << det << " zside=" << zside << " station=" <<station  << " plane=" << plane << std::endl;
+    cout.debugOut << "FP420NumberingScheme : det " << det << " zside " 
+		  << zside << " station " << station << " plane " << plane
+		  << " UnitID 0x" << hex << intindex << dec << endl;
 
-    for (int ich = 0; ich < level; ich++) {
-      std::cout <<" name = " << name[ich] <<" copy = " << copyno[ich] << std::endl;
-      std::cout << " packed index = intindex" << intindex << std::endl;
-    }
-    //    
- */   
+    for (int ich = 0; ich < level; ich++)
+      cout.debugOut <<" name = " << name[ich] <<" copy = " << copyno[ich] 
+		    << endl;
+    cout.testOut << " packed index = 0x" << hex << intindex << dec << endl;
+*/
+#endif
 
-    
     delete[] copyno;
     delete[] name;
   }
@@ -142,39 +142,36 @@ unsigned int FP420NumberingScheme::getUnitID(const G4Step* aStep) const {
 }
 
 unsigned FP420NumberingScheme::packFP420Index(int det, int zside, int station,int plane){
-  unsigned int idx = ((det-1)&1)<<20;     //bit 20     (det-1): 0 ,1= 2-->2**1=2 -> 2-1 -> ((det-1)&1)  1 bit: 0
-  idx += (zside&7)<<7;                  //bits 7-9    zside: 0- 7= 8-->2**3 =8 -> 8-1 -> (zside&7)   3 bits:0-2
-  //  idx += (zside&3)<<7;                         //bits 7-8    zside: 0- 2= 3-->2**2 =4 -> 4-1 -> (zside&3)   2 bits:0-1
-  idx += (station&7)<<4;                //bits 4-6   station:0- 7= 8-->2**3 =8  -> 8-1 ->(station&7)  3 bits:0-2
-  idx += (plane&15);                    //bits 0-3    plane: 0-15=16-->2**4 =16 -> 16-1 ->(plane&15)  4 bits:0-3
+  unsigned int idx = ((det-1)&1)<<20;     //bit 20      det:0,1=2-->2**1=2        1 bit: 0
+  idx += (zside&3)<<7;                  //bits 7-8    zside:0-2=3-->2**2 =4     2 bits:0-1
+  idx += (station&7)<<4;                //bits 4-6   station:0-7=8-->2**3 =8     3 bits:0-2
+  idx += (plane&15);                    //bits 0-3    plane:  0-15=16-->2**4 =16    4 bits:0-3
                                                                                 
-  //  
-
-  //  std::cout << "FP420 packing: det " << det  << " zside  " << zside << " station " << station  << " plane " <<  plane << " idx " << idx <<  std::endl;
-  //  int newdet, newzside, newstation,newplane;
-  //  unpackFP420Index(idx, newdet, newzside, newstation,newplane);
-
-  //
+#ifdef debug
+  /*
+  cout.testOut << "FP420 packing: det " << det 
+ << " zside  " << zside << " station " << station  << " plane " <<  plane << "-> 0x" << hex << idx << dec <<  endl;
+  int newdet, newzside, newstation,newplane;
+  unpackFP420Index(idx, newdet, newzside, newstation,newplane);
+*/
+#endif
                                                                                 
   return idx;
 }
-
-
-
 void FP420NumberingScheme::unpackFP420Index(const unsigned int& idx, int& det,
                                         int& zside, int& station,
                                         int& plane) {
   det  = (idx>>20)&1;
   det += 1;
-  zside   = (idx>>7)&7;
-  //  zside   = (idx>>7)&3;
+  zside   = (idx>>7)&3;
   station = (idx>>4)&7;
   plane   =  idx&15;
-  //                                                                                
-  
-  //  std::cout  << " FP420unpacking: idx=" << idx << " zside  " << zside << " station " << station  << " plane " <<  plane << std::endl;
-
-  //
+                                                                                
+#ifdef debug
+  /*
+  cout.testOut  << " FP420 unpacking: 0x " << hex << idx << dec << " -> det " <<   det
+          << " zside  " << zside << " station " << station  << " plane " <<  plane << endl;
+*/
+#endif
 }
-
-
+                                                                                

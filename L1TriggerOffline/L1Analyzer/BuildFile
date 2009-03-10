@@ -2,11 +2,7 @@
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=root>
-<use name=DataFormats/L1GlobalTrigger>
-<use name=SimDataFormats/HepMCProduct>
 <use name=DataFormats/L1Trigger>
-<use name=DataFormats/L1DTTrackFinder>
-<use name=DataFormats/L1GlobalMuonTrigger>
 <use name=DataFormats/JetReco>
 <use name=DataFormats/METReco>
 <use name=DataFormats/EgammaReco>
@@ -14,15 +10,11 @@
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=L1TriggerOfflineL1Analyzer>
-   <use name=DataFormats/L1GlobalTrigger>
-   <use name=SimDataFormats/HepMCProduct>
    <use name=FWCore/Framework>
    <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=root>
    <use name=DataFormats/L1Trigger>
-   <use name=DataFormats/L1DTTrackFinder>
-<use name=DataFormats/L1GlobalMuonTrigger>
    <use name=DataFormats/JetReco>
    <use name=DataFormats/METReco>
    <use name=DataFormats/EgammaReco>

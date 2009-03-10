@@ -8,6 +8,6 @@ PFJetParameters = cms.PSet(
     verbose = cms.untracked.bool(False),
     jetPtMin = cms.double(1.0),
     inputEMin = cms.double(0.0),
-    inputEtMin = cms.double(0.5)
+    inputEtMin = cms.double(0.0)
 )
 

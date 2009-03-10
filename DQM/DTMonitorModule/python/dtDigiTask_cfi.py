@@ -25,8 +25,10 @@ dtDigiMonitor = cms.EDAnalyzer("DTDigiTask",
     defaultTmax = cms.int32(500),
     performPerWireT0Calibration = cms.bool(True),
     # the     # of luminosity blocks to reset the histos
-    ResetCycle = cms.untracked.int32(10000),
+    ResetCycle = cms.untracked.int32(100),
+    doAllHitsOccupancies = cms.untracked.bool(True),
     doNoiseOccupancies = cms.untracked.bool(False),
+    doInTimeOccupancies = cms.untracked.bool(False),                                
     # switch on the mode for running on test pulses (different top folder)
     testPulseMode = cms.untracked.bool(False),
     # switch for filtering on synch noise events (threshold on # of digis per chamber)

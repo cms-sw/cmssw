@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalHardcodeCalibrations.cc,v 1.14 2008/03/05 10:32:26 rofierzy Exp $
+// $Id: HcalHardcodeCalibrations.cc,v 1.13 2008/03/03 20:22:40 rofierzy Exp $
 //
 //
 
@@ -156,7 +156,7 @@ std::auto_ptr<HcalPedestals> HcalHardcodeCalibrations::producePedestals (const H
   std::vector <HcalGenericDetId> cells = allCells(h2mode_);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     HcalPedestal item = HcalDbHardcode::makePedestal (*cell);
-    result->addValues(item,h2mode_);
+    result->addValues(item);
   }
   return result;
 }
@@ -167,7 +167,7 @@ std::auto_ptr<HcalPedestalWidths> HcalHardcodeCalibrations::producePedestalWidth
   std::vector <HcalGenericDetId> cells = allCells(h2mode_);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     HcalPedestalWidth item = HcalDbHardcode::makePedestalWidth (*cell);
-    result->addValues(item,h2mode_);
+    result->addValues(item);
   }
   return result;
 }
@@ -178,7 +178,7 @@ std::auto_ptr<HcalGains> HcalHardcodeCalibrations::produceGains (const HcalGains
   std::vector <HcalGenericDetId> cells = allCells(h2mode_);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     HcalGain item = HcalDbHardcode::makeGain (*cell);
-    result->addValues(item,h2mode_);
+    result->addValues(item);
   }
   return result;
 }
@@ -189,7 +189,7 @@ std::auto_ptr<HcalGainWidths> HcalHardcodeCalibrations::produceGainWidths (const
   std::vector <HcalGenericDetId> cells = allCells(h2mode_);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     HcalGainWidth item = HcalDbHardcode::makeGainWidth (*cell);
-    result->addValues(item,h2mode_);
+    result->addValues(item);
   }
   return result;
 }
@@ -200,7 +200,7 @@ std::auto_ptr<HcalQIEData> HcalHardcodeCalibrations::produceQIEData (const HcalQ
   std::vector <HcalGenericDetId> cells = allCells(h2mode_);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     HcalQIECoder coder = HcalDbHardcode::makeQIECoder (*cell);
-    result->addCoder (coder,h2mode_);
+    result->addCoder (coder);
   }
   return result;
 }
@@ -211,7 +211,7 @@ std::auto_ptr<HcalChannelQuality> HcalHardcodeCalibrations::produceChannelQualit
   std::vector <HcalGenericDetId> cells = allCells(h2mode_);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     HcalChannelStatus item(cell->rawId(),0);
-    result->addValues(item,h2mode_);
+      result->addValues(item);
   }
   return result;
 }
@@ -223,7 +223,7 @@ std::auto_ptr<HcalRespCorrs> HcalHardcodeCalibrations::produceRespCorrs (const H
   std::vector <HcalGenericDetId> cells = allCells(h2mode_);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     HcalRespCorr item(cell->rawId(),1.0);
-    result->addValues(item,h2mode_);
+      result->addValues(item);
   }
   return result;
 }
@@ -233,7 +233,7 @@ std::auto_ptr<HcalZSThresholds> HcalHardcodeCalibrations::produceZSThresholds (c
   std::vector <HcalGenericDetId> cells = allCells(h2mode_);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     HcalZSThreshold item(cell->rawId(),0);
-    result->addValues(item,h2mode_);
+      result->addValues(item);
   }
   return result;
 }

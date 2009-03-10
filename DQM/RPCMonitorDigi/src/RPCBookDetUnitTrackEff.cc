@@ -79,5 +79,17 @@ std::map<std::string, MonitorElement*> RPCEfficiencyFromTrack::bookDetUnitTrackE
   sprintf(meTitle,"Residuals_for_%s",layerLabel);
   meMap[meId] = dbe->book1D(meId, meTitle, 150,-49.5, 49.);
 
+  sprintf(meId,"EfficienyFromTrackExtrapolation_%s",detUnitLabel);
+  sprintf(meTitle,"EfficienyFromTrackExtrapolation_for_%s",layerLabel);
+  meMap[meId] = dbe->book1D(meId, meTitle, strips, 0.5, lastvalue);
+
+  sprintf(meId,"ClusterSize_%s",detUnitLabel);
+  sprintf(meTitle,"ClusterSize_for_%s",layerLabel);
+  meMap[meId] = dbe->book1D(meId, meTitle,10,0.5,10.5);
+
+  sprintf(meId,"BunchX_%s",detUnitLabel);
+  sprintf(meTitle,"BunchX_for_%s",layerLabel);
+  meMap[meId] = dbe->book1D(meId, meTitle,13,-6.5,6.5);
+
   return meMap;
 }

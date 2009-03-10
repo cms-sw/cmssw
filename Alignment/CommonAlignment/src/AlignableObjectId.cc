@@ -13,7 +13,6 @@ AlignableObjectId::AlignableObjectId()
   theMap.clear();
   theReverseMap.clear();
 
-  theMap.insert( PairEnumType( invalid         , "invalid" ) );
   theMap.insert( PairEnumType( AlignableDetUnit, "DetUnit" ) );
   theMap.insert( PairEnumType( AlignableDet    , "Det"     ) );
 

@@ -145,6 +145,9 @@ public:
 	/// return vector of jet count values
 	std::vector< std::vector<unsigned> > getJetCountValuesColl() const;
 
+	/// check setup
+	bool setupOk() const;
+  
  protected:
 	/// Separate reset methods for the processor itself and any data stored in pipelines
 	virtual void resetProcessor();
@@ -212,6 +215,8 @@ public:
 	Pipeline<etMissPhiType> m_outputHtMissPhi;
 
 	Pipeline<L1GctJetCount<5> > m_outputJetCounts;
+
+	bool m_setupOk;
 
 	std::vector<unsigned> jetCountValues(const int bx) const;
 

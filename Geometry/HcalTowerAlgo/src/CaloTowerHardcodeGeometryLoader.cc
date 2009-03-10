@@ -36,10 +36,8 @@ std::auto_ptr<CaloSubdetectorGeometry> CaloTowerHardcodeGeometryLoader::load() {
   return std::auto_ptr<CaloSubdetectorGeometry>(geom); 
 }
 
-CaloCellGeometry* 
-CaloTowerHardcodeGeometryLoader::makeCell( int ieta,
-					   int iphi,
-					   CaloSubdetectorGeometry* geom ) const {
+const CaloCellGeometry* CaloTowerHardcodeGeometryLoader::makeCell(int ieta, int iphi,
+								  CaloSubdetectorGeometry* geom) const {
   const double EBradius = 143.0; // cm
   const double HOradius = 406.0+1.0;
   const double EEz = 320.0; // rough (cm)

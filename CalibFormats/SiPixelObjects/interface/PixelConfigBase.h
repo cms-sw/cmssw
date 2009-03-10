@@ -51,18 +51,6 @@ namespace pos{
     //Interface to write out data to ascii file
     virtual void writeASCII(std::string dir="") const = 0;
     //Interface to write out data to XML file for DB population
-    virtual void writeXMLHeader(  pos::PixelConfigKey key, 
-				  int version, 
-				  std::string path, 
-				  std::ofstream *out,
-				  std::ofstream *out1,
-				  std::ofstream *out2) const {;}
-    virtual void writeXML( 	  std::ofstream *out,
-			   	  std::ofstream *out1,
-			   	  std::ofstream *out2 ) const {;}
-    virtual void writeXMLTrailer( std::ofstream *out,
-				  std::ofstream *ou1, 
-				  std::ofstream *out2) const {;}
     virtual void writeXML(      pos::PixelConfigKey key, int version, std::string path)                     const {;}
     virtual void writeXMLHeader(pos::PixelConfigKey key, int version, std::string path, std::ofstream *out) const {;}
     virtual void writeXML(                                                              std::ofstream *out) const {;}

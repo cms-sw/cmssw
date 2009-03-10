@@ -30,5 +30,3 @@ BeamHaloMPropagatorAlong.MaxDPhi = 10000
 BeamHaloMPropagatorOpposite.ComponentName = 'BeamHaloMPropagatorOpposite'
 BeamHaloMPropagatorOpposite.MaxDPhi = 10000
 
-BeamHaloMPropagatorAlong.useRungeKutta = True
-BeamHaloMPropagatorOpposite.useRungeKutta = True

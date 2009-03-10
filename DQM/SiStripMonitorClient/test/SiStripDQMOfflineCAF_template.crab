@@ -14,14 +14,14 @@ pset = SiStripDQMOfflineGlobalRunCAF_cfg.py
 total_number_of_events = -1
 number_of_jobs         = xNUMBER_OF_JOBSx
 
-output_file = SiStripDQMOfflineGlobalRunCAF-xRUN_NUMBERx.root
+output_file = SiStripDQMOfflineGlobalRunCAF-xRUN_NAMEx.root
 
 [USER]
 
 eMail          = xEMAILx
 thresholdLevel = 100
 
-ui_working_dir = xUI_WORKING_DIRx
+ui_working_dir = crabxRUN_NAMEx
 
 return_data = 0
 

@@ -31,13 +31,13 @@ lclphidat CSCSectorReceiverMiniLUT::calcLocalPhiMini(unsigned theadd)
   if(strip < 2*CSCConstants::MAX_NUM_STRIPS && pattern < CSCConstants::NUM_CLCT_PATTERNS)
     data.phi_local = static_cast<unsigned>((lcl_phi_param0[pattern] + strip)*lcl_phi_param1);
   else
-    throw cms::Exception("CSCSectorReceiverMiniLUT")
+    edm::LogWarning("CSCSectorReceiverMiniLUT")
       << "+++ Value of strip, " << strip
       << ", exceeds max allowed, " << 2*CSCConstants::MAX_NUM_STRIPS-1
       << " +++\n";
   
   if(data.phi_local >= maxPhiL)
-    throw cms::Exception("CSCSectorReceiverMiniLUT")
+    edm::LogWarning("CSCSectorReceiverMiniLUT")
       << "+++ Value of phi_local, " << data.phi_local
       << ", exceeds max allowed, " << CSCConstants::NUM_CLCT_PATTERNS-1 << " +++\n";
   
@@ -53,15 +53,15 @@ global_eta_data CSCSectorReceiverMiniLUT::calcGlobalEtaMEMini(unsigned short end
                                                               unsigned theadd)
 {
   if(endcap < 1 || endcap > 2)
-    throw cms::Exception("CSCSectorReceiverMiniLUT")
+    edm::LogWarning("CSCSectorReceiverMiniLUT")
       << "+++ Value of endcap, " << endcap
       << ", is out of bounds, [1, 2] +++\n";
   if(sector < 1 || sector > 6)
-    throw cms::Exception("CSCSectorReceiverMiniLUT")
+    edm::LogWarning("CSCSectorReceiverMiniLUT")
       << "+++ Value of sector, " << sector
       << ", is out of bounds, [1, 6] +++\n";
   if(station < 1 || station > 4)
-    throw cms::Exception("CSCSectorReceiverMiniLUT")
+    edm::LogWarning("CSCSectorReceiverMiniLUT")
       << "+++ Value of station, " << station
       << ", is out of bounds, [1, 4] +++\n";
   
@@ -94,7 +94,7 @@ global_eta_data CSCSectorReceiverMiniLUT::calcGlobalEtaMEMini(unsigned short end
     }
   else
     {
-      throw cms::Exception("CSCSectorReceiverMiniLUT")
+      edm::LogWarning("CSCSectorReceiverMiniLUT")
         << "+++ Value of cscid, " << cscid
         << ", is out of bounds, [1, 9] -- or --"
         << " Value of wire group, " << WG 
@@ -122,15 +122,15 @@ global_phi_data CSCSectorReceiverMiniLUT::calcGlobalPhiMEMini(unsigned short end
                                                               unsigned theadd)
 {
   if(endcap < 1 || endcap > 2)
-    throw cms::Exception("CSCSectorReceiverMiniLUT")
+    edm::LogWarning("CSCSectorReceiverMiniLUT")
       << "+++ Value of endcap, " << endcap
       << ", is out of bounds, [1, 2] +++\n";
   if(sector < 1 || sector > 6)
-    throw cms::Exception("CSCSectorReceiverMiniLUT")
+    edm::LogWarning("CSCSectorReceiverMiniLUT")
       << "+++ Value of sector, " << sector
       << ", is out of bounds, [1, 6] +++\n";
   if(station < 1 || station > 4)
-    throw cms::Exception("CSCSectorReceiverMiniLUT")
+    edm::LogWarning("CSCSectorReceiverMiniLUT")
       << "+++ Value of station, " << station
       << ", is out of bounds, [1, 4] +++\n";
   
@@ -157,12 +157,12 @@ global_phi_data CSCSectorReceiverMiniLUT::calcGlobalPhiMEMini(unsigned short end
                            gbl_phi_me_params[endcap-1][sector-1][station-1][0][cscid-1][1]*lclPhi);
     }
   else
-    throw cms::Exception("CSCSectorReceiverMiniLUT")
+    edm::LogWarning("CSCSectorReceiverMiniLUT")
       << "+++ Value of cscid, " << cscid
       << ", is out of bounds, [1, 9] +++\n";
   
   if(data.global_phi >= maxPhiG)
-    throw cms::Exception("CSCSectorReceiverMiniLUT")
+    edm::LogWarning("CSCSectorReceiverMiniLUT")
       << "+++ Value of global_phi, " << data.global_phi
       << ", exceeds max allowed, " << maxPhiG-1 << " +++\n";
   
@@ -175,11 +175,11 @@ global_phi_data CSCSectorReceiverMiniLUT::calcGlobalPhiMBMini(unsigned short end
                                                               unsigned theadd)
 {
   if(endcap < 1 || endcap > 2)
-    throw cms::Exception("CSCSectorReceiverMiniLUT")
+    edm::LogWarning("CSCSectorReceiverMiniLUT")
       << "+++ Value of endcap, " << endcap
       << ", is out of bounds, [1, 2] +++\n";
   if(sector < 1 || sector > 6)
-    throw cms::Exception("CSCSectorReceiverMiniLUT")
+    edm::LogWarning("CSCSectorReceiverMiniLUT")
       << "+++ Value of sector, " << sector
       << ", is out of bounds, [1, 6] +++\n";
   
@@ -203,17 +203,17 @@ global_phi_data CSCSectorReceiverMiniLUT::calcGlobalPhiMBMini(unsigned short end
                            gbl_phi_mb_params[endcap-1][sector-1][subsector-1][cscid-1][1]*(maxPhiL-1));
     }
   else
-    throw cms::Exception("CSCSectorReceiverMiniLUT")
+    edm::LogWarning("CSCSectorReceiverMiniLUT")
       << "+++ Value of cscid, " << cscid
       << ", is out of bounds, [1, 9] +++\n";
   
   if(data.global_phi >= maxPhiG)
-    throw cms::Exception("CSCSectorReceiverMiniLUT")
+    edm::LogWarning("CSCSectorReceiverMiniLUT")
       << "+++ Value of global_phi, " << data.global_phi
       << ", exceeds max allowed, " << maxPhiG-1 << " +++\n";
   
   if(data.global_phi >= maxPhiG)
-    throw cms::Exception("CSCSectorReceiverMiniLUT")
+    edm::LogWarning("CSCSectorReceiverMiniLUT")
       << "+++ Value of global_phi, " << data.global_phi
       << ", exceeds max allowed, " << maxPhiG-1 << " +++\n";
   

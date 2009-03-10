@@ -32,8 +32,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 
+#include "DQMOffline/Trigger/interface/MonElemContainer.h"
 #include "DQMOffline/Trigger/interface/MonElemManager.h"
 #include "DQMOffline/Trigger/interface/EgHLTOffHelper.h"
+#include "DQMOffline/Trigger/interface/TrigCodes.h"
 
 class DQMStore;
 
@@ -56,6 +58,10 @@ class EgammaHLTOffline : public edm::EDAnalyzer {
   EgHLTOffHelper egHelper_;// this is where up wrap up nasty code which will be replaced by offical tools at some point
   std::vector<std::string> namesFiltersUsed_; //the names of all the filters used (so we dont have to do calculations for every filter in the event
 
+  std::vector<std::string> eleHLTPathNames_;//names of the HLT paths to use
+  std::vector<std::string> eleHLTFilterNames_;//names of the filter names to use, appended to the pathNames
+
+  std::vector<MonElemContainer<EgHLTOffEle>*> eleMonElems_;
 
   //disabling copying/assignment
   EgammaHLTOffline(const EgammaHLTOffline& rhs){}
@@ -72,10 +78,11 @@ class EgammaHLTOffline : public edm::EDAnalyzer {
   virtual void beginRun(const edm::Run& run, const edm::EventSetup& c);
   virtual void endRun(const edm::Run& run, const edm::EventSetup& c);
 
-  void addTrigPath(std::string name);
+  void addTrigPath(const std::string& name);
   void obtainFiltersElePasses(const std::vector<EgHLTOffEle>& eles,const std::vector<std::string>& filters,edm::Handle<trigger::TriggerEvent> trigEvt,std::vector<std::vector<int> >& filtersElePasses);
   void filterNamesUsed(std::vector<std::string>& filterNames);
-  
+  TrigCodes::TrigBitSet setFiltersElePasses(std::vector<EgHLTOffEle>& eles,const std::vector<std::string>& filters,edm::Handle<trigger::TriggerEvent> trigEvt);
+
 };
  
 

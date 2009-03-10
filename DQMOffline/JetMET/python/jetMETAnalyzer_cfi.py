@@ -1,24 +1,56 @@
+
 import FWCore.ParameterSet.Config as cms
 
 jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
+
+    #
+    # Output files
+    #
     OutputMEsInRootFile = cms.bool(False),
-    PFJetsCollectionLabel = cms.InputTag("iterativeCone5PFJets"),
-    caloMETAnalysis = cms.PSet(
-    HLTPathsJetMB = cms.vstring("HLT_L1Jet15",
-	                    "HLT_Jet30", 
-	                    "HLT_Jet50", 
-                            "HLT_Jet80", 
-	                    "HLT_Jet110", 
-	                    "HLT_Jet180",
-                            "HLT_DiJetAve15",
-                            "HLT_DiJetAve30",
-                            "HLT_DiJetAve50",
-                            "HLT_DiJetAve70",
-                            "HLT_DiJetAve130",
-                            "HLT_DiJetAve220",
-                            "HLT_MinBias"),
-    ),
     OutputFileName = cms.string('jetMETMonitoring.root'),
+
+    #
+    #                                
+    #
+    pfJetAnalysis = cms.PSet(
+    ),
+    DoCaloMETAnalysis          = cms.untracked.bool(True),
+    DoJetAnalysis              = cms.untracked.bool(True),
+    DoPFJetAnalysis            = cms.untracked.bool(True),
+    PFJetsCollectionLabel      = cms.InputTag("iterativeCone5PFJets"),
+    SCJetsCollectionLabel      = cms.InputTag("sisCone5CaloJets"),
+    ICJetsCollectionLabel      = cms.InputTag("iterativeCone5CaloJets"),
+    CaloMETCollectionLabel     = cms.InputTag("met"),
+    CaloMETNoHFCollectionLabel = cms.InputTag("metNoHF"),
+
+    TriggerResultsLabel        = cms.InputTag("TriggerResults::HLT"),
+    JetLo                      = cms.string("HLT_Jet30"),
+    JetHi                      = cms.string("HLT_Jet110"),
+
+    #
+    # For caloMETAnalysis                                
+    #
+    caloMETAnalysis = cms.PSet(
+    HLTPathsJetMB = cms.vstring(),
+#   When it is empty, it accepts all the triggers
+#    HLTPathsJetMB = cms.vstring("HLT_L1Jet15",
+#	                     "HLT_Jet30", 
+#	                     "HLT_Jet50", 
+#                            "HLT_Jet80", 
+#	                     "HLT_Jet110", 
+#	                     "HLT_Jet180",
+#                            "HLT_DiJetAve15",
+#                            "HLT_DiJetAve30",
+#                            "HLT_DiJetAve50",
+#                            "HLT_DiJetAve70",
+#                            "HLT_DiJetAve130",
+#                            "HLT_DiJetAve220",
+#                            "HLT_MinBias"),
+    ),
+
+    #
+    # For jetAnalysis
+    #
     jetAnalysis = cms.PSet(
         ptThreshold = cms.double(3.),
         eBin    = cms.int32(100),
@@ -36,22 +68,6 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
         etaMax  = cms.double(5.0),
         pMax    = cms.double(500.0),
         phiMax  = cms.double(3.2)
-    ),
-    pfJetAnalysis = cms.PSet(
-
-    ),
-    DoPFJetAnalysis            = cms.untracked.bool(True),
-    SCJetsCollectionLabel      = cms.InputTag("sisCone5CaloJets"),
-    DoCaloMETAnalysis          = cms.untracked.bool(True),
-    DoJetAnalysis              = cms.untracked.bool(True),
-    CaloMETCollectionLabel     = cms.InputTag("met"),
-    CaloMETNoHFCollectionLabel = cms.InputTag("metNoHF"),
-    ICJetsCollectionLabel      = cms.InputTag("iterativeCone5CaloJets"),
-    TriggerResultsLabel        = cms.InputTag("TriggerResults::HLT"),
-    JetLo                      = cms.string("HLT_Jet30"),
-    JetHi                      = cms.string("HLT_Jet110")
-
+    )
 
 )
-
-

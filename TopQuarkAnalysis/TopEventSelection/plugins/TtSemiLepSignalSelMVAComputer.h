@@ -40,7 +40,7 @@ class TtSemiLepSignalSelMVAComputer : public edm::EDProducer {
   edm::InputTag METs_;
 
 
-  unsigned int nJetsMax_;
+  unsigned int maxNJets_;
 
   PhysicsTools::MVAComputerCache mvaComputer;
 

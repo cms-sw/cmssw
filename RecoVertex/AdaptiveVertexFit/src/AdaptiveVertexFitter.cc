@@ -3,6 +3,7 @@
 #include "RecoVertex/VertexTools/interface/AnnealingSchedule.h"
 #include "RecoVertex/VertexTools/interface/GeometricAnnealing.h"
 #include "RecoVertex/VertexTools/interface/VertexTrackFactory.h"
+#include "RecoVertex/AdaptiveVertexFit/interface/KalmanChiSquare.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -18,60 +19,7 @@ using namespace edm;
 using namespace std;
 
 namespace {
-  // typedef ReferenceCountingPointer<VertexTrack<5> > RefCountedVertexTrack;
-  typedef AdaptiveVertexFitter::RefCountedVertexTrack RefCountedVertexTrack;
-
-  GlobalError fitError()
-  {
-    static GlobalError err;
-    static bool once=true;
-    if (once)
-    {
-      // that's how we model the lin pt error for the initial seed!
-      static const float initialError = 10000;
-      AlgebraicSymMatrix33 ret;
-      ret(0,0)=initialError;
-      ret(1,1)=initialError;
-      ret(2,2)=initialError;
-      err=GlobalError ( ret );
-      once=false;
-    }
-    return err;
-  }
-
-  GlobalError linPointError()
-  {
-    static GlobalError err;
-    static bool once=true;
-    if (once)
-    {
-      // that's how we model the error of the linearization point.
-      // for track weighting!
-      AlgebraicSymMatrix33 ret;
-      ret(0,0)=.3; ret(1,1)=.3; ret(2,2)=3.;
-      // ret(0,0)=1e-7; ret(1,1)=1e-7; ret(2,2)=1e-7;
-      err=GlobalError ( ret );
-      once=false;
-    }
-    return err;
-  }
-
-  struct DistanceToRefPoint {
-    DistanceToRefPoint ( const GlobalPoint & ref ) : theRef ( ref ) {}
-
-    bool operator() ( const RefCountedVertexTrack & v1, const RefCountedVertexTrack & v2 )
-    {
-      return ( distance ( v1 ) < distance ( v2 ) );
-    }
-
-    float distance ( const RefCountedVertexTrack & v1 )
-    {
-      return ( v1->linearizedTrack()->track().initialFreeState().position() - theRef ).mag2();
-    }
-
-    private:
-      GlobalPoint theRef;
-  };
+  static const float initialError = 10000;
 
   #ifdef STORE_WEIGHTS
   map < RefCountedLinearizedTrackState, int > ids;
@@ -159,12 +107,13 @@ AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & tracks) const
     return CachingVertex<5>(); // return invalid vertex
   };
   // Linearization Point
-  GlobalPoint linP = theLinP->getLinearizationPoint(tracks);
+  GlobalPoint linP(0.,0.,0.);
+    linP = theLinP->getLinearizationPoint(tracks);
   // Initial vertex seed, with a very large error matrix
-  VertexState lseed (linP, linPointError() );
-  vector<RefCountedVertexTrack> vtContainer = linearizeTracks(tracks, lseed);
-
-  VertexState seed (linP, fitError() );
+  AlgebraicSymMatrix we(3,1);
+  GlobalError error( we * initialError );
+  VertexState seed (linP, error);
+  vector<RefCountedVertexTrack> vtContainer = linearizeTracks(tracks, seed);
   return fit(vtContainer, seed, false);
 }
 
@@ -179,7 +128,9 @@ AdaptiveVertexFitter::vertex(const vector<RefCountedVertexTrack> & tracks) const
   };
   // Initial vertex seed, with a very small weight matrix
   GlobalPoint linP = tracks[0]->linearizedTrack()->linearizationPoint();
-  VertexState seed (linP, fitError() );
+  AlgebraicSymMatrix we(3,1);
+  GlobalError error( we * initialError );
+  VertexState seed (linP, error);
   return fit(tracks, seed, false);
 }
 
@@ -212,10 +163,11 @@ AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & tracks,
     return CachingVertex<5>(); // return invalid vertex
   };
   // Initial vertex seed, with a very large error matrix
-  VertexState seed (linPoint, linPointError() );
+  AlgebraicSymMatrix we(3,1);
+  GlobalError error( we * initialError );
+  VertexState seed (linPoint, error);
   vector<RefCountedVertexTrack> vtContainer = linearizeTracks(tracks, seed);
-  VertexState fitseed (linPoint, fitError() );
-  return fit(vtContainer, fitseed, false);
+  return fit(vtContainer, seed, false);
 }
 
 
@@ -239,8 +191,13 @@ AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & tracks,
 
   if (tracks.size() > 1) {
     // Linearization Point search if there are more than 1 track
-    GlobalPoint linP = theLinP->getLinearizationPoint(tracks);
-    VertexState lpState(linP, linPointError() );
+    GlobalPoint linP(0.,0.,0.);
+      linP = theLinP->getLinearizationPoint(tracks);
+    AlgebraicSymMatrix we(3,1);
+    // AlgebraicSymMatrix33 we;
+    // we(0,0)=1; we(1,1)=1; we(2,2);
+    GlobalError error(we*10000);
+    VertexState lpState(linP, error);
     vtContainer = linearizeTracks(tracks, lpState);
   } else {
     // otherwise take the beamspot position.
@@ -304,7 +261,7 @@ vector<AdaptiveVertexFitter::RefCountedVertexTrack>
 AdaptiveVertexFitter::linearizeTracks(const vector<reco::TransientTrack> & tracks,
                                       const VertexState & seed ) const
 {
-  const GlobalPoint & linP ( seed.position() );
+  GlobalPoint linP = seed.position();
   vector<RefCountedLinearizedTrackState> lTracks;
   for(vector<reco::TransientTrack>::const_iterator i = tracks.begin();
       i != tracks.end(); ++i )
@@ -319,7 +276,10 @@ AdaptiveVertexFitter::linearizeTracks(const vector<reco::TransientTrack> & track
         << "Your future vertex has just lost a track.";
     };
   }
-  return weightTracks(lTracks, seed );
+  AlgebraicSymMatrix we(3,0);
+  GlobalError nullError( we );
+  VertexState initialSeed (linP, nullError);
+  return weightTracks(lTracks, initialSeed);
 }
 
 /**
@@ -361,9 +321,9 @@ AdaptiveVertexFitter * AdaptiveVertexFitter::clone() const
   return new AdaptiveVertexFitter( * this );
 }
 
-double AdaptiveVertexFitter::getWeight ( float chi2 ) const
+float AdaptiveVertexFitter::getWeight ( float chi2 ) const
 {
-  double weight = theAssProbComputer->weight(chi2);
+  float weight = theAssProbComputer->weight(chi2);
 
   if ( weight > 1.0 )
   {
@@ -396,16 +356,14 @@ AdaptiveVertexFitter::reWeightTracks(
   for(vector<RefCountedLinearizedTrackState>::const_iterator i
         = lTracks.begin(); i != lTracks.end(); i++)
   {
-    double weight=0.;
+    float weight=0.;
     try {
       float chi2 = theComp->estimate ( vertex, *i );
       weight=getWeight ( chi2 );
     } catch ( cms::Exception & c ) {
       cout << "[AdaptiveVertexFitter] Aiee! " << c.what() << endl;
-      cout << "[AdaptiveVertexFitter] vertex candidate is at  " << vertex.position() << endl;
       LogWarning("AdaptiveVertexFitter" ) << "When reweighting, a track threw \"" 
                                           << c.what() << "\". Will add this track with w=0.";
-      // edm::LogWarning("AdaptiveVertexFitter" ) << "pt=" << (**i).track().pt();
     }
     
     RefCountedVertexTrack vTrData
@@ -433,22 +391,23 @@ AdaptiveVertexFitter::weightTracks(
                     const VertexState & seed ) const
 {
   theNr++;
-  CachingVertex<5> seedvtx ( seed, vector<RefCountedVertexTrack> (), 0. );
+  GlobalPoint pos = seed.position();
   /** track weighting, as opposed to re-weighting, must always 
    * be done with a reset annealer! */
   theAssProbComputer->resetAnnealing();
 
   vector<RefCountedVertexTrack> finalTracks;
   VertexTrackFactory<5> vTrackFactory;
+  KalmanChiSquare computer;
   #ifdef STORE_WEIGHTS
   iter++;
   #endif
   for(vector<RefCountedLinearizedTrackState>::const_iterator i
         = lTracks.begin(); i != lTracks.end(); i++)
   {
-    double weight = 0.;
+    float weight = 0.;
     try {
-      float chi2 = theComp->estimate ( seedvtx, *i );
+      float chi2 = computer.estimate ( pos, *i );
       weight = getWeight ( chi2 );
     } catch ( cms::Exception & c ) {
       cout << "[AdaptiveVertexFitter] Aiee! " << c.what() << endl;
@@ -499,12 +458,11 @@ AdaptiveVertexFitter::reWeightTracks(
  */
 
 CachingVertex<5>
-AdaptiveVertexFitter::fit( const vector<RefCountedVertexTrack> & tracks,
+AdaptiveVertexFitter::fit(const vector<RefCountedVertexTrack> & tracks,
                           const VertexState & priorSeed,
                           bool withPrior) const
 {
   theAssProbComputer->resetAnnealing();
-
   vector<RefCountedVertexTrack> initialTracks;
   GlobalPoint priorVertexPosition = priorSeed.position();
   GlobalError priorVertexError = priorSeed.error();
@@ -517,12 +475,7 @@ AdaptiveVertexFitter::fit( const vector<RefCountedVertexTrack> & tracks,
                     priorVertexPosition,priorVertexError,initialTracks,0);
   }
 
-  // vector<RefCountedVertexTrack> globalVTracks = tracks;
-  // sort the tracks, according to distance to seed!
-  vector<RefCountedVertexTrack> globalVTracks ( tracks.size() );
-
-  partial_sort_copy ( tracks.begin(), tracks.end(), 
-      globalVTracks.begin(), globalVTracks.end(), DistanceToRefPoint ( priorSeed.position() ) );
+  vector<RefCountedVertexTrack> globalVTracks = tracks;
 
   // main loop through all the VTracks
   int lpStep = 0; int step = 0;
@@ -560,37 +513,18 @@ AdaptiveVertexFitter::fit( const vector<RefCountedVertexTrack> & tracks,
       } catch ( cms::Exception & c ) {
         edm::LogWarning("AdaptiveVertexFitter" ) << "when updating, received " << c.what()
                                                  << " final result might miss the info of a track.";
-        edm::LogWarning("AdaptiveVertexFitter" ) << "w=" << (**i).weight();
-        edm::LogWarning("AdaptiveVertexFitter" ) << "schi2=" << (**i).smoothedChi2();
-        edm::LogWarning("AdaptiveVertexFitter" ) << "has refitted state=" << (**i).refittedStateAvailable();
-        //edm::LogWarning("AdaptiveVertexFitter" ) << "pt=" << (**i).linearizedTrack()->track().pt();
       }
       if (nVertex.isValid()) {
         if ( (**i).weight() >= theWeightThreshold )
         {
           ns_trks++;
         };
-
-        if ( fabs ( nVertex.position().z() ) > 10000. )
-        {
-          // were more than 100 m off!!
-          LogError ("AdaptiveVertexFitter" ) << "Help! Vertex candidate just took off to " << nVertex.position()
-                                             << "! Will discard this update!";
-          // LogError ("AdaptiveVertexFitter" ) << "track pt was " << (**i).linearizedTrack()->track().pt();
-          LogError ("AdaptiveVertexFitter" ) << "track momentum was " << (**i).linearizedTrack()->track().initialFreeState().momentum();
-          LogError ("AdaptiveVertexFitter" ) << "track position was " << (**i).linearizedTrack()->track().initialFreeState().position();
-          LogError ("AdaptiveVertexFitter" ) << "track chi2 was " << (**i).linearizedTrack()->track().chi2();
-          LogError ("AdaptiveVertexFitter" ) << "track ndof was " << (**i).linearizedTrack()->track().ndof();
-          LogError ("AdaptiveVertexFitter" ) << "track w was " << (**i).weight();
-          LogError ("AdaptiveVertexFitter" ) << "track schi2 was " << (**i).smoothedChi2();
-        } else {
-	        fVertex = nVertex;
-        }
+	fVertex = nVertex;
       } else {
         LogWarning("RecoVertex/AdaptiveVertexFitter") 
           << "The updator returned an invalid vertex when adding track "
           << i-globalVTracks.begin() <<endl
-	        << "Your vertex might just have lost one good track.";
+	  << "Your vertex might just have lost one good track.";
       };
     }
     previousPosition = newPosition;
@@ -609,7 +543,7 @@ AdaptiveVertexFitter::fit( const vector<RefCountedVertexTrack> & tracks,
 
   if ( theWeightThreshold > 0. &&  ns_trks < 2 && !withPrior ) 
   {
-    LogDebug("AdaptiveVertexFitter") 
+    LogDebug("RecoVertex/AdaptiveVertexFitter") 
       << "fewer than two significant tracks (w>" << theWeightThreshold << ")."
       << " Fitted vertex is invalid.";
     return CachingVertex<5>(); // return invalid vertex

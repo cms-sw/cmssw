@@ -1,62 +1,39 @@
 import FWCore.ParameterSet.Config as cms
 
+#
+# define event content of common tqafLayer1
+#
+def makeTqafLayer1EventContent(process):
 
-def tqafLayer1EventContent(process):
-    #
-    # define event content
-    #
+    ## define event content
     process.tqafEventContent = cms.PSet(
         outputCommands = cms.untracked.vstring('drop *')
     )
-    #
-    # tqaf layer1 event content equivalent to pat layer0 & 1
-    #
+
+    ## std pat layer1 event content
     process.load("PhysicsTools.PatAlgos.patLayer1_EventContent_cff")
     process.tqafEventContent.outputCommands.extend(process.patLayer1EventContent.outputCommands)
-
-    #
-    # tqaf layer1 event content (on top of pat layer0 & 1 / aod specific) 
-    #
-    process.patLayer1EventContent_aod = cms.PSet(
-        outputCommands = cms.untracked.vstring('keep *_genEventPdfInfo_*_*')
-    )
-    process.tqafEventContent.outputCommands.extend(process.patLayer1EventContent_aod.outputCommands)
     
-    #
-    # tqaf layer1 event content (on top of pat layer0 & 1 / top specific)
-    #
-    process.patLayer1EventContent_tqaf = cms.PSet(
-        outputCommands = cms.untracked.vstring('keep *_selectedLayer1CaloTaus_*_*',
-                                               'keep *_decaySubset_*_*', 
-                                               'keep *_initSubset_*_*', 
-                                               'keep *_genEvt_*_*'
+    ## additionally reco'ed pat layer1 event content
+    process.tqafEventContent_pat = cms.PSet(
+        outputCommands = cms.untracked.vstring('keep *_selectedLayer1CaloTaus_*_*' ## reco'd caloTaus
                                                )
     )
-    process.tqafEventContent.outputCommands.extend(process.patLayer1EventContent_tqaf.outputCommands)
-    
-    #
-    # pruned generator particles
-    #
-    process.include( "SimGeneral/HepPDTESSource/data/pythiapdt.cfi" )
-    
-    process.prunedGenParticles = cms.EDProducer(
-        "GenParticlePruner",
-        src = cms.InputTag("genParticles"),
-        select = cms.vstring(
-        ## keep relevant status 2 particles
-        ##"keep+ pdgId = {t} && status = 2 || status == 3",
-        ##"keep++ pdgId = {tbar} && status = 2 || status == 3",
-        ## keep all stable particles within detector acceptance
-        "keep status = 1 && pt > 0.5 && abs(eta) < 5"
-        )
-    )
-    process.gen = cms.Path(process.prunedGenParticles)
-    
-    process.patLayer1EventContent_prunedGenParticles = cms.PSet(
-        outputCommands = cms.untracked.vstring('drop *_genParticles_*_*',
-                                               'keep *_prunedGenParticles_*_*'
-                                               )
-    )
-    process.tqafEventContent.outputCommands.extend(process.patLayer1EventContent_prunedGenParticles.outputCommands)
+    process.tqafEventContent.outputCommands.extend(process.tqafEventContent_pat.outputCommands)
         
+    ## additional reco/aod event content
+    process.tqafEventContent_aod = cms.PSet(
+        outputCommands = cms.untracked.vstring('keep *_genParticles_*_*',          ## all genPaticles (unpruned)
+                                               'keep *_genEventScale_*_*',         ## genEvent info
+                                               'keep *_genEventWeight_*_*',        ## genEvent info
+                                               'keep *_genEventProcID_*_*',        ## genEvent info
+                                               'keep *_genEventPdfInfo_*_*',       ## genEvent info
+                                               'keep *_genEventRunInfo_*_*',       ## genEvent info
+                                               'keep *_hltTriggerSummaryAOD_*_*',  ## hlt TriggerEvent
+                                               'keep *_towerMaker_*_*',            ## all caloTowers
+                                               'keep *_offlineBeamSpot_*_*'        ## offline beamspot
+                                               )
+    )
+    process.tqafEventContent.outputCommands.extend(process.tqafEventContent_aod.outputCommands)
+
     return()

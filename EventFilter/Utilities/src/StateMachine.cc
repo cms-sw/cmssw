@@ -35,6 +35,7 @@ using namespace evf;
 //______________________________________________________________________________
 StateMachine::StateMachine(xdaq::Application* app)
   : logger_(app->getApplicationLogger())
+  , appInfoSpace_(app->getApplicationInfoSpace())
   , workLoopConfiguring_(0)
   , workLoopEnabling_(0)
   , workLoopStopping_(0)
@@ -208,3 +209,10 @@ void StateMachine::fireFailed(const string& errorMsg,void* originator)
   fsm_.fireEvent(e);
 }
 
+
+//______________________________________________________________________________
+void StateMachine::findRcmsStateListener()
+{
+  rcmsStateNotifier_.findRcmsStateListener(); //might not be needed
+  rcmsStateNotifier_.subscribeToChangesInRcmsStateListener(appInfoSpace_); 
+}

@@ -18,6 +18,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 
+#include "RecoCaloTools/Selectors/interface/CaloDualConeSelector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -42,22 +43,30 @@ namespace egammaisolation {
 
       private:
          void collect(reco::IsoDeposit &deposit, 
-                  const GlobalPoint &caloPosition, const CaloSubdetectorGeometry* subdet,
+                  const GlobalPoint &caloPosition, CaloDualConeSelector &cone, //cone.select is not const. why?
                   const CaloGeometry* caloGeom,
-                  const EcalRecHitCollection &hits) const;
+                  const CaloRecHitMetaCollectionV &hits) const;
 
          double etMin_ ;
          double energyMin_ ;
+         double minCandEt_ ;
          double extRadius_ ;
          double intRadius_ ;
          double intStrip_ ;
+         std::vector<double> paramForIsolBarrel_;  //Barrel requirements to check if isolated
+         std::vector<double> paramForIsolEndcap_;  //Endcap requirements to check if isolated
+         edm::InputTag barrelRecHitsTag_;
+         edm::InputTag endcapRecHitsTag_;
          edm::InputTag barrelEcalHitsTag_;
          edm::InputTag endcapEcalHitsTag_;
          bool fakeNegativeDeposit_;
          bool  tryBoth_;
+         bool  sameTag_;
          bool  useEt_;
-	 bool  sameTag_;
+         DetId::Detector detector_;
 
+         //edm::ESHandle<CaloGeometry>  theCaloGeom_ ;
+         //CaloRecHitMetaCollectionV* caloHits_ ;
    };
 }
 #endif

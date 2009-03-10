@@ -56,7 +56,7 @@ void HistoTrack::fill( const reco::ShallowClonePtrCandidate * pshallow, uint iTr
 
 
   // Get the underlying object that the shallow clone represents
-  const reco::RecoChargedCandidate * track = dynamic_cast<const reco::RecoChargedCandidate*>(&*(pshallow->masterClonePtr()));
+  const reco::RecoChargedCandidate * track = dynamic_cast<const reco::RecoChargedCandidate*>(pshallow);
 
   if ( track == 0 ) {
     cout << "Error! Was passed a shallow clone that is not at heart a track" << endl;

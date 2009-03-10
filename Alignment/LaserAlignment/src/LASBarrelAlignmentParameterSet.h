@@ -5,8 +5,6 @@
 
 
 #include <vector>
-#include <iostream>
-#include <iomanip>
 #include <utility>
 
 #include <FWCore/Utilities/interface/Exception.h>
@@ -26,7 +24,6 @@ class LASBarrelAlignmentParameterSet {
  public:
   LASBarrelAlignmentParameterSet();
   std::pair<double,double>& GetParameter( int aSubdetector, int aDisk, int aParameter );
-  void Dump( void );
 
  private:
   void Init( void );

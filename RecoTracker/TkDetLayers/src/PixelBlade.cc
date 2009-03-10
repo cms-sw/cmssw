@@ -87,7 +87,7 @@ PixelBlade::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
     if(nextResult.empty())    return;
     
     DetGroupElement nextGel( nextResult.front().front());  
-    int crossingSide = LayerCrossingSide().barrelSide( nextGel.trajectoryState(), prop);
+    int crossingSide = LayerCrossingSide().endcapSide( nextGel.trajectoryState(), prop);
 
     DetGroupMerger::orderAndMergeTwoLevels( closestResult, nextResult, result,
 					    crossings.closestIndex(), crossingSide);   
@@ -103,7 +103,7 @@ PixelBlade::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
     searchNeighbors( tsos, prop, est, crossings.other(), window,
 		     nextResult, true);
     
-    int crossingSide = LayerCrossingSide().barrelSide( closestGel.trajectoryState(), prop);
+    int crossingSide = LayerCrossingSide().endcapSide( closestGel.trajectoryState(), prop);
     DetGroupMerger::orderAndMergeTwoLevels( closestResult, nextResult, result,
 					    crossings.closestIndex(), crossingSide);
   }

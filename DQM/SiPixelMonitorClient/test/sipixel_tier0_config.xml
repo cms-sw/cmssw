@@ -28,6 +28,10 @@
      <MonElement name="ClustX"> </MonElement>
      <MonElement name="ClustY"> </MonElement>
      <MonElement name="nRecHits"> </MonElement>
+     <MonElement name="residualX_RMS"></MonElement>
+     <MonElement name="residualY_RMS"></MonElement>
+     <MonElement name="residualX_mean"></MonElement>
+     <MonElement name="residualY_mean"></MonElement>
 </SubStructureBarrelLevel> 
 <SubStructureGrandBarrelLevel name="Ladder_" update_frequency="300"> 
      <MonElement name="errorType"></MonElement> 
@@ -55,6 +59,8 @@
      <MonElement name="ClustX"> </MonElement>
      <MonElement name="ClustY"> </MonElement>
      <MonElement name="nRecHits"> </MonElement>
+     <MonElement name="residualX"></MonElement>
+     <MonElement name="residualY"></MonElement>
 </SubStructureGrandBarrelLevel> 
 <SubStructureEndcapLevel name="Disk_" update_frequency="300"> 
      <MonElement name="errorType"></MonElement> 
@@ -82,6 +88,10 @@
      <MonElement name="ClustX"> </MonElement>
      <MonElement name="ClustY"> </MonElement>
      <MonElement name="nRecHits"> </MonElement>
+     <MonElement name="residualX_RMS"></MonElement>
+     <MonElement name="residualY_RMS"></MonElement>
+     <MonElement name="residualX_mean"></MonElement>
+     <MonElement name="residualY_mean"></MonElement>
 </SubStructureEndcapLevel> 
 <SubStructureGrandEndcapLevel name="Blade_" update_frequency="300"> 
      <MonElement name="errorType"></MonElement> 
@@ -109,6 +119,8 @@
      <MonElement name="ClustX"> </MonElement>
      <MonElement name="ClustY"> </MonElement>
      <MonElement name="nRecHits"> </MonElement>
+     <MonElement name="residualX"></MonElement>
+     <MonElement name="residualY"></MonElement>
 </SubStructureGrandEndcapLevel> 
 <SubStructureNonDetId name="AdditionalPixelErrors" update_frequency="300"> 
      <MonElement name="errorType"></MonElement> 

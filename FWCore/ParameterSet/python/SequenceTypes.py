@@ -494,8 +494,15 @@ class DecoratedNodeNameVisitor(object):
         self.l = l
     def enter(self,visitee):
         if isinstance(visitee,_SequenceLeaf):
-            self.l.append(visitee.label_())
-        pass
+            if hasattr(visitee, "_Labelable__label"):
+                self.l.append(visitee.label_())
+            else:
+                error = "An object in a sequence was not found in the process\n"
+                if hasattr(visitee, "_filename"):
+                    error += "From file " + visitee._filename
+                else:
+                    error += "Dump follows\n" + repr(visitee)
+                raise RuntimeError(error)
     def leave(self,visitee):
         if isinstance(visitee,_UnarySequenceOperator):
            self.l[-1] = visitee.dumpSequenceConfig()

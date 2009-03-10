@@ -99,7 +99,7 @@ void HistoTau::fill( const reco::ShallowClonePtrCandidate * pshallow, uint iTau,
 {
 
   // Get the underlying object that the shallow clone represents
-  const pat::Tau * tau = dynamic_cast<const pat::Tau*>(&*(pshallow->masterClonePtr()));
+  const pat::Tau * tau = dynamic_cast<const pat::Tau*>(pshallow);
 
   if ( tau == 0 ) {
     cout << "Error! Was passed a shallow clone that is not at heart a tau" << endl;

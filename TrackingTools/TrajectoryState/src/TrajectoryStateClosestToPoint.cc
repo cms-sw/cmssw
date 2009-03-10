@@ -4,7 +4,7 @@
 
 TrajectoryStateClosestToPoint::
 TrajectoryStateClosestToPoint(const FTS& originalFTS, const GlobalPoint& referencePoint) :
-  valid(true), theFTS(originalFTS), theFTSavailable(true), theRefPoint(referencePoint)
+  theFTS(originalFTS), theFTSavailable(true), theRefPoint(referencePoint)
 {
   theParameters = perigeeConversions.ftsToPerigeeParameters(originalFTS, referencePoint, thePt);
   if (theFTS.hasError()) {
@@ -27,7 +27,7 @@ TrajectoryStateClosestToPoint(const FTS& originalFTS, const GlobalPoint& referen
 TrajectoryStateClosestToPoint::
 TrajectoryStateClosestToPoint(const PerigeeTrajectoryParameters& perigeeParameters, double pt,
   const GlobalPoint& referencePoint, const MagneticField* field) :
-    valid(true), theField(field), theFTSavailable(false), theRefPoint(referencePoint), 
+    theField(field), theFTSavailable(false), theRefPoint(referencePoint), 
     theParameters(perigeeParameters), thePt( pt ), errorIsAvailable(false)
 {}
 
@@ -41,17 +41,14 @@ TrajectoryStateClosestToPoint::
 TrajectoryStateClosestToPoint(const PerigeeTrajectoryParameters& perigeeParameters, double pt,
   const PerigeeTrajectoryError& perigeeError, const GlobalPoint& referencePoint,
   const MagneticField* field):
-    valid(true), theField(field), theFTSavailable(false), theRefPoint(referencePoint),
-    theParameters(perigeeParameters), thePt( pt ), thePerigeeError(perigeeError),
-    errorIsAvailable(true)
+    theField(field), theFTSavailable(false), theRefPoint(referencePoint), theParameters(perigeeParameters),
+    thePt( pt ), thePerigeeError(perigeeError), errorIsAvailable(true)
     
 {}
 
 
 void TrajectoryStateClosestToPoint::calculateFTS() const
 {
-  if(!isValid()) throw TrajectoryStateException(
-	"TrajectoryStateClosestToPoint is invalid and cannot return any parameters");
   GlobalTrajectoryParameters gtp(
 	    perigeeConversions.positionFromPerigee(theParameters, theRefPoint),
 	    perigeeConversions.momentumFromPerigee(theParameters, thePt, theRefPoint),

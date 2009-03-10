@@ -539,14 +539,14 @@ const std::string Detector::AddressName(const Address& adr) const {
 const bool Detector::AddressFromString(const std::string str_address, Address& adr) const {
   
   std::vector<std::string> tokens;
-  CSCUtility::splitString(str_address, ",", tokens);
+  Utility::splitString(str_address, ",", tokens);
 
   if (tokens.size() != ADDR_SIZE) return false;
 
   for (unsigned int r = 0; r < ADDR_SIZE; r++) {
 
     std::string token = tokens.at(r);
-    CSCUtility::trimString(token);
+    Utility::trimString(token);
     bool mask = false;
     unsigned int num  = 0;
 

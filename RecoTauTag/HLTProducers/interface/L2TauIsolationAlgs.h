@@ -118,25 +118,22 @@ class L2TauTowerIsolation
 {
  public:
   L2TauTowerIsolation();
-  L2TauTowerIsolation(double,double,double);
+  L2TauTowerIsolation(double,double);
 
   ~L2TauTowerIsolation();
 
 
-  void run(const CaloJet&,L2TauIsolationInfo&);
+  void run(const CaloJet&, const math::PtEtaPhiELorentzVectorCollection&, L2TauIsolationInfo&);
 
 
  private:
   //METHODS;
-  double isolatedEt(const CaloJet&) const;
-  double seedTowerEt(const CaloJet&) const; 
+  double isolatedEt(const CaloJet&,const math::PtEtaPhiELorentzVectorCollection&) const;
+  double seedTowerEt(const math::PtEtaPhiELorentzVectorCollection&) const; 
 
   //VARIABLES;
   double m_innerCone;
   double m_outerCone;
-  double m_towerEtThreshold;
-
-
 
 
 };

@@ -208,6 +208,10 @@ public:
   /// print setup info
   void print();
   
+  /// control output messages
+  void setVerbose();
+  void setTerse();
+
  private:
   
   /// Steps in the processing treating input arriving over several bunch crossings
@@ -227,7 +231,7 @@ public:
   void build(L1GctJetLeafCard::jetFinderType jfType);
 
   /// check we have done all the setup
-  bool setupOk();
+  bool setupOk() const;
 
   /// ordering of the electron sorters to give the correct
   /// priority to the candidates in the final sort 

@@ -15,5 +15,5 @@ probemuonFilter = cms.EDFilter("CandViewCountFilter",
 )
 
 TrackingEffPath = cms.Path(TrackingEffHLTFilter+muonRecoForTrackingEff+tagmuonFilter+probemuonFilter)
-TrackingEffHLTFilter.HLTPaths = ['HLT_Mu15_L1Mu7', 'CandHLT1MuonPrescalePt5', 'CandHLT1MuonPrescalePt7x7', 'CandHLT1MuonPrescalePt7x10']
+TrackingEffHLTFilter.HLTPaths = ['HLT1MuonNonIso', 'CandHLT1MuonPrescalePt5', 'CandHLT1MuonPrescalePt7x7', 'CandHLT1MuonPrescalePt7x10']
 

@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2008/08/07 21:34:01 $
- *  $Revision: 1.56 $
+ *  $Date: 2008/11/25 01:35:53 $
+ *  $Revision: 1.58 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.56 2008/08/07 21:34:01 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.58 2008/11/25 01:35:53 slava77 Exp $
 //
 //
 
@@ -405,7 +405,7 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
     } else {
       dir = propagationDirection();
       if (fabs(tanDist)<0.1 && refDirection != dir ){
-	nOsc++;
+	//how did it get here?	nOsc++;
 	dir = refDirection;
 	if (debug_) LogTrace(metname)<<"NOTE: overstepped last time: switch direction (can do it if within 1 mm)"<<std::endl;
       }
@@ -421,13 +421,15 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
 	//reasonable limit; "turn off" checking if bounds are further than the destination
 	if (tanDistMagNextCheck >  defaultStep_*20. 
 	    || fabs(dist) < fabs(distMag)
-	    || resultToMag ==SteppingHelixStateInfo::INACC) tanDistMagNextCheck = defaultStep_*20.;	
+	    || resultToMag ==SteppingHelixStateInfo::INACC) 
+	  tanDistMagNextCheck  = defaultStep_*20 > fabs(fastSkipDist) ? fabs(fastSkipDist) : defaultStep_*20;;	
 	if (resultToMag != SteppingHelixStateInfo::INACC 
 	    && resultToMag != SteppingHelixStateInfo::OK) tanDistMagNextCheck = -1;
       } else {
 	//	resultToMag = SteppingHelixStateInfo::OK;
 	tanDistMag  = tanDistMag > 0. ? tanDistMag - oldDStep : tanDistMag + oldDStep; 
-	if (debug_) LogTrace(metname)<<"Skipped refToMag: guess tanDistMag = "<<tanDistMag<<std::endl;
+	if (debug_) LogTrace(metname)<<"Skipped refToMag: guess tanDistMag = "<<tanDistMag
+				     <<" next check at "<<tanDistMagNextCheck;
       }
     }
 
@@ -441,13 +443,15 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
 	//reasonable limit; "turn off" checking if bounds are further than the destination
 	if (tanDistMatNextCheck >  defaultStep_*20. 
 	    || fabs(dist) < fabs(distMat)
-	    || resultToMat ==SteppingHelixStateInfo::INACC ) tanDistMatNextCheck = defaultStep_*20.;
+	    || resultToMat ==SteppingHelixStateInfo::INACC ) 
+	  tanDistMatNextCheck = defaultStep_*20 > fabs(fastSkipDist) ? fabs(fastSkipDist) : defaultStep_*20;
 	if (resultToMat != SteppingHelixStateInfo::INACC 
 	    && resultToMat != SteppingHelixStateInfo::OK) tanDistMatNextCheck = -1;
       } else {
 	//	resultToMat = SteppingHelixStateInfo::OK;
 	tanDistMat  = tanDistMat > 0. ? tanDistMat - oldDStep : tanDistMat + oldDStep; 
-	if (debug_) LogTrace(metname)<<"Skipped refToMat: guess tanDistMat = "<<tanDistMat<<std::endl;
+	if (debug_) LogTrace(metname)<<"Skipped refToMat: guess tanDistMat = "<<tanDistMat
+				     <<" next check at "<<tanDistMatNextCheck;
       }
     }
 
@@ -475,13 +479,17 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
       if (expectNewMagVolume) expectNewMagVolume = false;
     }
 
-    if (fabs(tanDistMin) < dStep){
-      dStep = fabs(tanDistMin); 
-      if ((type == POINT_PCA_DT || type == LINE_PCA_DT)
-	  && fabs(tanDist) < 2.*fabs(tanDistMin) ){
-	//being lazy here; the best is to take into account the curvature
-	dStep = fabs(tanDistMin)*0.5; 
-      }
+
+
+    double tanDistMinLazy = fabs(tanDistMin);
+    if ((type == POINT_PCA_DT || type == LINE_PCA_DT)
+	&& fabs(tanDist) < 2.*fabs(tanDistMin) ){
+      //being lazy here; the best is to take into account the curvature
+      tanDistMinLazy = fabs(tanDistMin)*0.5;
+    }
+ 
+    if (fabs(tanDistMinLazy) < dStep){
+      dStep = fabs(tanDistMinLazy); 
     }
 
     //keep this path length for the next step
@@ -1622,6 +1630,15 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
       Point pDest(pars[0], pars[1], pars[2]);
       dist = (sv.r3 - pDest).mag()+ 1e-24;//add a small number to avoid 1/0
       tanDist = (sv.r3.dot(sv.p3) - pDest.dot(sv.p3))/sv.p3.mag();
+      //account for bending in magnetic field (quite approximate)
+      double b0 = sv.bf.mag();
+      if (b0>1.5e-6){
+	double p0 = sv.p3.mag();
+        double kVal = 0.0029979*sv.q/p0*b0;
+        double aVal = fabs(dist*kVal);
+        tanDist *= 1./(1.+ aVal);
+	if (debug_) LogTrace(metname)<<"corrected by aVal "<<aVal<<" to "<<tanDist;
+      }
       refDirection = tanDist < 0 ?
 	alongMomentum : oppositeToMomentum;
       result = SteppingHelixStateInfo::OK;
@@ -1641,6 +1658,16 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
       //angle wrt line
       double cosAlpha = dLine.dot(sv.p3)/sv.p3.mag();
       tanDist *= fabs(1./sqrt(fabs(1.-cosAlpha*cosAlpha)+1e-96));
+      //correct for dPhi in magnetic field: this isn't made quite right here 
+      //(the angle between the line and the trajectory plane is neglected .. conservative)
+      double b0 = sv.bf.mag();
+      if (b0>1.5e-6){
+	double p0 = sv.p3.mag();
+        double kVal = 0.0029979*sv.q/p0*b0;
+        double aVal = fabs(dist*kVal);
+	tanDist *= 1./(1.+ aVal);
+	if (debug_) LogTrace(metname)<<"corrected by aVal "<<aVal<<" to "<<tanDist;
+      }
       refDirection = tanDist < 0 ?
 	alongMomentum : oppositeToMomentum;
       result = SteppingHelixStateInfo::OK;

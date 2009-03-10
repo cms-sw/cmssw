@@ -24,7 +24,6 @@ MillePedeAlignmentAlgorithm = cms.PSet(
     pedeSteerer = cms.PSet(
         fileDir = cms.untracked.string(''),
         steerFile = cms.string('pedeSteer'), ## beginning of steering file names
-        steerFileDebug = cms.untracked.bool(False),
         # If MillePedeAlignmentAlgorithm.mode causes pede to run (e.g. 'full', 'pede' etc.),
         # the pede command line is constructed as:
         #    'pedeCommand' 'steerFile'Master.txt 
@@ -38,7 +37,8 @@ MillePedeAlignmentAlgorithm = cms.PSet(
         options = cms.vstring('entries 50', # min. number of measurements (parameters with less will be skipped)
             # "chisqcut  20.0  4.5", # simple chi^2 cut for outliers OR ...
             # "outlierdownweighting 3", "dwfractioncut 0.1" #, # ... 3x Huber down weighting OR...
-            'outlierdownweighting 5', 'dwfractioncut 0.2',
+            'outlierdownweighting 4', 
+            'dwfractioncut 0.2', 
             'bandwidth 6'), # for method sparseGMRES for preconditioning
 
         # Special selection of parameters to fix, use as reference coordinate system etc.

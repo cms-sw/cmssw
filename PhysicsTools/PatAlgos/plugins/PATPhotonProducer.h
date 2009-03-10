@@ -1,5 +1,5 @@
 //
-// $Id: PATPhotonProducer.h,v 1.11 2008/09/01 14:35:48 gpetrucc Exp $
+// $Id: PATPhotonProducer.h,v 1.12 2008/09/30 21:33:06 srappocc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATPhotonProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of PhotonType.
 
   \author   Steven Lowette
-  \version  $Id: PATPhotonProducer.h,v 1.11 2008/09/01 14:35:48 gpetrucc Exp $
+  \version  $Id: PATPhotonProducer.h,v 1.12 2008/09/30 21:33:06 srappocc Exp $
 */
 
 
@@ -33,10 +33,6 @@
 #include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
 
 namespace pat {
-
-
-  class ObjectResolutionCalc;
-
 
   class PATPhotonProducer : public edm::EDProducer {
 

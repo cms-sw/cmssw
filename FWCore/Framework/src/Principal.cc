@@ -317,6 +317,7 @@ namespace edm {
         resolveProduct(*i->second, false);
       }
     }
+    branchMapperPtr_->setDelayedRead(false);
   }
 
   size_t

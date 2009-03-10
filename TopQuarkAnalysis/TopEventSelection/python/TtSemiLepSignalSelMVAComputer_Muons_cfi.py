@@ -8,5 +8,5 @@ findTtSemiLepSignalSelMVA = cms.EDProducer("TtSemiLepSignalSelMVAComputer",
     leptons  = cms.InputTag("selectedLayer1Muons"),
     METs     = cms.InputTag("selectedLayer1METs"),
 
-    nJetsMax = cms.int32(5)
+    maxNJets = cms.int32(5)
 )

@@ -39,9 +39,6 @@ LaserAlignment = cms.EDFilter("LaserAlignment",
     # enable the zero (empty profile) filter in the LASProfileJudge, so profiles without signal are rejected.
     # might want to disable this for simulated data with typically low signal level on the last disks
     EnableJudgeZeroFilter = cms.untracked.bool(True),
-    # if this is set to true, the geometry update is applied to the ideal geometry, not to the input geometry.
-    # should be set true only for geometry comparison purposes (see TkLasCMSSW Twiki for more details)
-    UpdateFromIdealGeometry = cms.untracked.bool(False),
     # whether to create an sqlite file with a TrackerAlignmentRcd + error
     saveToDbase = cms.untracked.bool(True),
     DebugLevel = cms.untracked.int32(4),

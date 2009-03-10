@@ -47,18 +47,8 @@ reco::IsoDeposit EgammaTowerExtractor::deposit(const edm::Event & iEvent,
 
     //loop over tracks
     for(CaloTowerCollection::const_iterator trItr = towercollectionH->begin(), trEnd = towercollectionH->end(); trItr != trEnd; ++trItr){
-      double depEt  = 0;
-      //the hcal can be seperated into different depths
-      //currently it is setup to check that the depth is valid in constructor
-      //if the depth is not valid it fails gracefully
-      //small bug fix, hadEnergyHeInnerLater returns zero for towers which are only depth 1
-      //but we want Depth1 isolation to include these so we have to manually check for this
-      if(depth_==AllDepths) depEt = trItr->hadEt();
-      else if(depth_==Depth1) depEt = trItr->ietaAbs()<18 || trItr->ietaAbs()>29 ? trItr->hadEt() : trItr->hadEnergyHeInnerLayer()*sin(trItr->p4().theta());
-      else if(depth_==Depth2) depEt = trItr->hadEnergyHeOuterLayer()*sin(trItr->p4().theta());
-      
-      if ( depEt < etLow_ )  continue ;  
-      
+        double depEt  = trItr->hadEt();
+        if ( depEt < etLow_ )  continue ;  
 
         Direction towerDir( trItr->eta(), trItr->phi() );
         double dR2 = candDir.deltaR2(towerDir);

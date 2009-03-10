@@ -6,13 +6,7 @@ import FWCore.ParameterSet.Config as cms
 #   sequence: iterativeFirstTrackFiltering
 # Official sequence has loose and tight quality tracks, not reproduced
 # here. (People will use generalTracks, eventually.)
-###from RecoTracker.IterativeTracking.FirstFilter_cfi import *
-
-firstfilter = cms.EDFilter("QualityFilter",
-    TrackQuality = cms.string('highPurity'),
-    recTracks = cms.InputTag("firstStepTracksWithQuality")
-)
-
+from RecoTracker.IterativeTracking.FirstFilter_cfi import *
 import RecoTracker.FinalTrackSelectors.selectHighPurity_cfi
 firstStepTracksWithQuality = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone()
 iterativeFirstTrackFiltering = cms.Sequence(firstStepTracksWithQuality+firstfilter)

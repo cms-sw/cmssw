@@ -1,7 +1,7 @@
 #include "RecoVertex/ConfigurableVertexReco/test/VertexHisto.h"
-#include "Workspace/DataHarvesting/interface/Writer.h"
-#include "Workspace/DataHarvesting/interface/SystemWriter.h"
-#include "Workspace/DataHarvesting/interface/Tuple.h"
+#include "RaveBase/DataHarvesting/interface/Writer.h"
+#include "RaveBase/DataHarvesting/interface/SystemWriter.h"
+#include "RaveBase/DataHarvesting/interface/Tuple.h"
 
 using namespace std;
 using namespace reco;
@@ -16,7 +16,7 @@ void VertexHisto::stamp()
 }
 
 VertexHisto::VertexHisto ( const string & filename, const string & trackname ) : filename_ ( filename ),
-  /* tracks_ ( TrackHisto ( trackname ) ), */ hasStamped(false)
+  tracks_ ( TrackHisto ( trackname ) ), hasStamped(false)
 {
   stamp();
 }
@@ -25,7 +25,6 @@ void VertexHisto::saveTracks ( const TransientVertex & trec,
     const reco::RecoToSimCollection & p,
     const string & name ) const
 {
-  /*
   vector < TransientTrack > ttrks = trec.originalTracks();
   for ( vector< TransientTrack >::const_iterator i=ttrks.begin(); 
         i!=ttrks.end() ; ++i )
@@ -59,7 +58,7 @@ void VertexHisto::saveTracks ( const TransientVertex & trec,
         tracks_.analyse ( (*i), "UnassociatedRefittedTk" );
       }
     }
-  }*/
+  }
 }
 
 void VertexHisto::analyse ( const TrackingVertex & sim, const TransientVertex & rec,

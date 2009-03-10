@@ -32,13 +32,6 @@ void ConversionSeedFinder::setEvent(const edm::Event& evt  )  {
   theMeasurementTracker_->update(evt);
   theTrackerGeom_= this->getMeasurementTracker()->geomTracker();
 
-  //get the BeamSpot
-  edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  evt.getByLabel("offlineBeamSpot",recoBeamSpotHandle);
-  theBeamSpot_ = *recoBeamSpotHandle;
-
-
-
 }
 
 void ConversionSeedFinder::setEventSetup(const edm::EventSetup& es  )  {
@@ -60,8 +53,7 @@ void ConversionSeedFinder::findLayers() const {
   int charge;
   //List the DetLayers crossed by a straight line from the centre of the 
   //detector to the supercluster position
-  //  GlobalPoint  vertex(0.,0.,0.);
-  GlobalPoint  vertex(theBeamSpot_.position().x(),theBeamSpot_.position().y(),theBeamSpot_.position().z()); 
+  GlobalPoint  vertex(0.,0.,0.);
   charge=-1;  
   FreeTrajectoryState theStraightLineFTS = trackStateFromClusters(charge, vertex, alongMomentum, 1.);
   

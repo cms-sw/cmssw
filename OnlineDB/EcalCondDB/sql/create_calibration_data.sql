@@ -56,7 +56,6 @@ CREATE TABLE CALI_TEMP_DAT (
   logic_id              NUMBER(10), -- (crystal)
   beta                  BINARY_FLOAT,
   r25                   BINARY_FLOAT,
-  offset                BINARY_FLOAT,
   task_status           char(1)
 );
 

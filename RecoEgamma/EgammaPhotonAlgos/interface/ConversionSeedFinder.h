@@ -3,9 +3,9 @@
 /** \class ConversionSeedFinder
  **  
  **
- **  $Id: ConversionSeedFinder.h,v 1.9 2008/05/08 20:38:48 nancy Exp $ 
- **  $Date: 2008/05/08 20:38:48 $ 
- **  $Revision: 1.9 $
+ **  $Id: ConversionSeedFinder.h,v 1.8 2008/02/15 16:45:27 nancy Exp $ 
+ **  $Date: 2008/02/15 16:45:27 $ 
+ **  $Revision: 1.8 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -23,7 +23,6 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/Point3D.h"
@@ -115,7 +114,6 @@ class ConversionSeedFinder {
   mutable GlobalPoint theBCPosition_;
   mutable float       theBCEnergy_; 
 
-  reco::BeamSpot theBeamSpot_;
 
 
 };

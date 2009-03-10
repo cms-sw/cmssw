@@ -705,6 +705,11 @@ void Muon::setIsolation( const MuonIsolation& isoR03, const MuonIsolation& isoR0
    isolationValid_ = true; 
 }
 
+float Muon::segmentCompatibility() const
+{
+   return muon::segmentCompatibility( *this );
+}
+
 bool Muon::isGood( SelectionType type ) const
 {
    return muon::isGoodMuon( *this, type );

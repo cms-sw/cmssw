@@ -6,7 +6,14 @@
 
 // user include files
 #include "FWCore/Framework/interface/EDProducer.h"
-//#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
+// Geometry
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+
+
 
 #include<vector>
 
@@ -68,10 +75,17 @@ class FastL1MuonProducer : public edm::EDProducer {
   L1ExtraCollection mySimpleL1MuonExtraCands;
   FML1EfficiencyHandler * myL1EfficiencyHandler;
   FML1PtSmearer * myL1PtSmearer;
+
+  edm::ESHandle<DTGeometry> dtGeometry;
+  edm::ESHandle<CSCGeometry> cscGeometry;
+  edm::ESHandle<RPCGeometry> rpcGeometry;
   
   // ----------- parameters ---------------------------- 
   edm::InputTag theSimModule;
-  double minEta_ ,  maxEta_;
+  edm::InputTag theDTHits;
+  edm::InputTag theCSCHits;
+  edm::InputTag theRPCHits;
+  //  double minEta_ ,  maxEta_;
   
   // Regional Eta scales
   const L1MuTriggerScales* theMuScales;  

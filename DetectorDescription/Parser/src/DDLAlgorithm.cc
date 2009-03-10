@@ -18,17 +18,26 @@
 #include "DDLVector.h"
 #include "DDLMap.h"
 #include "DDLElementRegistry.h"
+#include "DDXMLElement.h"
 
 // DDCore dependencies
 #include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Core/interface/DDNumeric.h"
+#include "DetectorDescription/Core/interface/DDString.h"
+#include "DetectorDescription/Core/interface/DDVector.h"
+#include "DetectorDescription/Core/interface/DDMap.h"
 #include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
+#include "DetectorDescription/Base/interface/DDException.h"
 
 #include "DetectorDescription/Algorithm/interface/DDAlgorithmHandler.h"
 
 // CLHEP dependencies
+#include "CLHEP/Units/SystemOfUnits.h"
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
+#include <string>
 #include <sstream>
 
 DDLAlgorithm::DDLAlgorithm()

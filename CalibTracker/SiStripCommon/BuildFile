@@ -1,15 +1,9 @@
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
-<use name=FWCore/PluginManager>
-<use name=FWCore/ParameterSet>
-<use name=DataFormats/SiStripDetId>
 <use name=boost>
 <export>
-   <lib name=CalibTrackerSiStripCommon>
+<lib name=CalibTrackerSiStripCommon>
    <use name=FWCore/Framework>
    <use name=FWCore/MessageLogger>
-   <use name=FWCore/PluginManager>
-   <use name=FWCore/ParameterSet>
-   <use name=DataFormats/SiStripDetId>
    <use name=boost>
 </export>

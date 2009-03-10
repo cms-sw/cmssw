@@ -31,13 +31,6 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(200)
 )
 
-process.printList = cms.EDAnalyzer( "ParticleListDrawer",
-                                    src = cms.InputTag( "genParticles" ),
-                                    maxEventsToPrint = cms.untracked.int32( 1 )
-                                    )
-
-process.load( "SimGeneral.HepPDTESSource.pythiapdt_cfi")
-process.load("PhysicsTools.RecoAlgos.allTrackCandidates_cfi")
 
 # input pat sequences
 process.load("PhysicsTools.PatAlgos.patLayer0_cff")
@@ -52,9 +45,7 @@ process.TFileService = cms.Service("TFileService",
 )
 
 # define path 'p': PAT Layer 0, PAT Layer 1, and the analyzer
-process.p = cms.Path(process.printList*
-                     process.allTrackCandidates*
-                     process.patLayer0*
+process.p = cms.Path(process.patLayer0*
                      process.patLayer1*
                      process.patAnalyzerKit)
 

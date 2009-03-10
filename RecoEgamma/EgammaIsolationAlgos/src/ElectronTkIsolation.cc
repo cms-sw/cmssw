@@ -14,7 +14,6 @@
 
 //CMSSW includes
 #include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"
-#include "RecoEgamma/EgammaIsolationAlgos/plugins/EgammaTrackSelector.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
@@ -26,19 +25,15 @@ using namespace ROOT::Math::VectorUtil ;
 
 
 ElectronTkIsolation::ElectronTkIsolation (double extRadius,
-					  double intRadius,
-					  double ptLow,
-					  double lip,
-					  double drb,
-					  const reco::TrackCollection* trackCollection,
-					  reco::TrackBase::Point beamPoint) :
+			  double intRadius,
+			  double ptLow,
+			  double lip,
+			  const reco::TrackCollection* trackCollection)   :
   extRadius_(extRadius),
   intRadius_(intRadius),
   ptLow_(ptLow),
   lip_(lip),
-  drb_(drb),
-  trackCollection_(trackCollection),
-  beamPoint_(beamPoint)
+  trackCollection_(trackCollection)  
 {
 }
 
@@ -55,32 +50,29 @@ std::pair<int,double> ElectronTkIsolation::getIso(const reco::GsfElectron* elect
   reco::GsfTrackRef tmpTrack = electron->gsfTrack() ;
   math::XYZVector tmpElectronMomentumAtVtx = (*tmpTrack).momentum () ; 
 
-
   for ( reco::TrackCollection::const_iterator itrTr  = (*trackCollection_).begin() ; 
-	itrTr != (*trackCollection_).end()   ; 
-	++itrTr ) {
-    math::XYZVector tmpTrackMomentumAtVtx = (*itrTr).momentum () ; 
+                                              itrTr != (*trackCollection_).end()   ; 
+	   			              ++itrTr ) 
+    {
+	math::XYZVector tmpTrackMomentumAtVtx = (*itrTr).momentum () ; 
+	double this_pt  = (*itrTr).pt();
+	if ( this_pt < ptLow_ ) 
+	  continue ;  
+	if (fabs( (*itrTr).dz() - (*tmpTrack).dz() ) > lip_ )
+          continue ;
+	double dr = DeltaR(tmpTrackMomentumAtVtx,tmpElectronMomentumAtVtx) ;
+	if ( fabs(dr) < extRadius_ && 
+	     fabs(dr) >= intRadius_ )
+	  {
+	    ++counter ;
+	    ptSum += this_pt;
+	  }
+    }//end loop over tracks                 
 
-    double this_pt  = (*itrTr).pt();
-    if ( this_pt < ptLow_ ) 
-      continue;
-    if (fabs( (*itrTr).dz() - (*tmpTrack).dz() ) > lip_ )
-      continue;
-    if (fabs( (*itrTr).dxy(beamPoint_) ) > drb_   )
-      continue;
-    double dr = ROOT::Math::VectorUtil::DeltaR(tmpTrackMomentumAtVtx,tmpElectronMomentumAtVtx) ;
-    if ( fabs(dr) < extRadius_ && 
-	 fabs(dr) >= intRadius_ )
-      {
-	++counter ;
-	ptSum += this_pt;
-      }
-  }//end loop over tracks                 
-  
   std::pair<int,double> retval;
   retval.first  = counter;
   retval.second = ptSum;
-  
+
   return retval;
 }
 

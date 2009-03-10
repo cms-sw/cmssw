@@ -1,6 +1,7 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBTrailer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
+#include <cassert>
 
 CSCTMBTrailer::CSCTMBTrailer(int wordCount, int firmwareVersion) 
 : theFirmwareVersion(firmwareVersion)

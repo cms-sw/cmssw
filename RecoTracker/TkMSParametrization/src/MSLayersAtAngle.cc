@@ -33,8 +33,7 @@ void MSLayersAtAngle::update(const MSLayer & layer)
 //------------------------------------------------------------------------------
 float MSLayersAtAngle::sumX0D(
     const PixelRecoPointRZ & pointI,
-    const PixelRecoPointRZ & pointO,
-    float tip) const
+    const PixelRecoPointRZ & pointO) const
 {
   LayerItr iO = findLayer(pointO, theLayers.begin(), theLayers.end());
 //  cout << "outer Layer: "<<*iO<<endl;
@@ -42,14 +41,13 @@ float MSLayersAtAngle::sumX0D(
 //  cout << "inner Layer: "<<*iI<<endl;
 
   return sqrt(sum2RmRn(iI,iO, pointO.r(),
-                              PixelRecoLineRZ(pointI, pointO, tip)));
+                              PixelRecoLineRZ(pointI,pointO)));
 }
 //------------------------------------------------------------------------------
 float MSLayersAtAngle::sumX0D(
     const PixelRecoPointRZ & pointI,
     const PixelRecoPointRZ & pointM,
-    const PixelRecoPointRZ & pointO,
-    float tip) const
+    const PixelRecoPointRZ & pointO) const
 {
   LayerItr iO = findLayer(pointO, theLayers.begin(), theLayers.end());
   LayerItr iI = findLayer(pointI, theLayers.begin(), iO);
@@ -59,8 +57,8 @@ float MSLayersAtAngle::sumX0D(
   float drMO = pointO.r() - pointM.r();
   float drMI = pointM.r() - pointI.r();
 
-  PixelRecoLineRZ line(pointI, pointO, tip);
-  float sum2I = sum2RmRn(iI+1, iM, pointI.r(), line);
+  PixelRecoLineRZ line(pointI,pointO);
+  float sum2I = sum2RmRn(iI+1,iM, pointI.r(), line);
   float sum2O = sum2RmRn(iM, iO, pointO.r(), line);
 
   return sqrt( sum2I* sqr(drMO) + sum2O*sqr(drMI) )/drOI;

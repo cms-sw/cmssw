@@ -8,18 +8,6 @@
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 #include "OnlineDB/EcalCondDB/interface/all_lmf_types.h"
 #include "OnlineDB/EcalCondDB/interface/RunDat.h"
-
-#include "OnlineDB/EcalCondDB/interface/RunDat.h"
-#include "OnlineDB/EcalCondDB/interface/RunLaserRunDat.h"
-
-// fixme
-#include "OnlineDB/EcalCondDB/interface/LMFLaserPrimDat.h"
-#include "OnlineDB/EcalCondDB/interface/LMFLaserPNPrimDat.h"
-#include "OnlineDB/EcalCondDB/interface/LMFLaserPulseDat.h"
-
-#include "MELaserPrim.hh"
-
-
 #include "TROOT.h"
 #include "TFile.h"
 #include "TDirectory.h"
@@ -131,7 +119,7 @@ inline std::string to_string( char value[])
   }
 
   
-  LMFRunIOV makeLMFRunIOV(RunIOV* runiov, int subr)
+  LMFRunIOV makeLMFRunIOV(RunIOV* runiov)
   {
     // LMF Tag and IOV
     
@@ -140,9 +128,8 @@ inline std::string to_string( char value[])
     LMFRunIOV lmfiov;
     lmfiov.setLMFRunTag(lmftag);
     lmfiov.setRunIOV(*runiov);
-    lmfiov.setSubRunNumber(subr);
+    lmfiov.setSubRunNumber(0);
     lmfiov.setSubRunStart(runiov->getRunStart());
-    lmfiov.setSubRunType("Standard");
 
     return lmfiov;
   }
@@ -170,207 +157,150 @@ inline std::string to_string( char value[])
 
     cout << "Fetching run by tag just used..." << flush;
     RunIOV runiov_prime = econn->fetchRunIOV(&runtag, run);
-    cout << "Done fetching run" << endl;
 
-
-
-    EcalLogicID ecid_allEcal;
-    ecid_allEcal = econn->getEcalLogicID("ECAL");
-    map< EcalLogicID, RunLaserRunDat >    dataset;
-    RunLaserRunDat rd;
-    rd.setLaserSequenceType("STANDARD");
-    rd.setLaserSequenceCond("STANDALONE");
-    // or eventually this:
-    // rd.setSequenceType("IN_THE_GAP");
-    dataset[ecid_allEcal]=rd;
-    econn->insertDataSet( &dataset, &runiov );
-
-    cout << "Done inserting laser config" << endl;
-
+    // LMF Tag and IOV
+    LMFRunIOV lmfiov = this->makeLMFRunIOV(&runiov_prime);
+    map<EcalLogicID, LMFLaserBlueNormDat> dataset_lmf;
+    map<EcalLogicID, LMFLaserBlueRawDat> dataset_lraw;
+    map<EcalLogicID, LMFPNBlueDat> dataset_lpn;
+    map<EcalLogicID, LMFMatacqBlueDat> dataset_mq;
+    
     vector<EcalLogicID> ecid_vec;
     int sm_min=1;
     int sm_max=36;
-    int ch_min=0;
-    int ch_max=1;
-    ecid_vec = econn->getEcalLogicIDSetOrdered("EB_LM_side", sm_min, sm_max, 
-					       ch_min, ch_max, 
-					       EcalLogicID::NULLID, EcalLogicID::NULLID, 
-					       "EB_crystal_number", 1234 );
+    int ch_min=1;
+    int ch_max=1700;
+
+
+    Tm startTm3;
+    startTm3.setToCurrentGMTime();
+    cout << "query starting at:    " << startTm3.str() << endl;
+
+    ecid_vec = econn->getEcalLogicIDSet("EB_crystal_number", sm_min, sm_max, ch_min, ch_max);
+
+    Tm startTm4;
+    startTm4.setToCurrentGMTime();
+    cout << "query finished at:    " << startTm4.str() << endl;
+
 
     vector<EcalLogicID> ecid_vec_pn;
     ch_min=0;
     ch_max=9;
     ecid_vec_pn = econn->getEcalLogicIDSet("EB_LM_PN", sm_min, sm_max,ch_min, ch_max);
 
-    // fanout 
-    vector<EcalLogicID> ecid_vec_fanout;
-    ch_min=0;
-    ch_max=1;
-    ecid_vec_fanout = econn->getEcalLogicIDSet("EB_LM_side", sm_min, sm_max,ch_min, ch_max);
+    Tm startTm5;
+    startTm5.setToCurrentGMTime();
+    cout << "query PN finished at:    " << startTm5.str() << endl;
 
-    cout << "Done retrieval of logicid " << endl;
-
-
-    // LMF Tag and IOV
-    int subrunnumber = 0;
+    int count=0;
+    int count_pn=0;
+    for (int sm_num=1; sm_num<37; sm_num++){
 
 
-    for( int color=0; color<1; color++ ) {
-	for (int sm_num=1; sm_num<37; sm_num++){
-	  for( int side=0; side<2; side++ ) {
+    // Get channel ID for SM sm_num, crystal c      
+      
+      Int_t cx, cy;
 
-            subrunnumber ++;
+      int pn_chan[]={1,101, 501, 901, 1301, 11, 111, 511, 911, 1311 };
 
-	    cout << "going to generate lmf run iov ..." << endl;
-            LMFRunIOV lmfiov = this->makeLMFRunIOV( &runiov, subrunnumber );
-	    cout << "Done generating lmf run iov " << endl;
-
-            // datasets
-            //      typedef LMFPNBluePrimDat LMFLaserBluePNPrimDat;  // name of class should be fixed
-            map< EcalLogicID, LMFRunDat             >    dataset_lmfrun;
-            map< EcalLogicID, LMFLaserConfigDat     >    dataset_config;
-            //      map< EcalLogicID, LMFLaserBluePrimDat   >      dataset_prim;
-            map< EcalLogicID, LMFLaserPrimDat   >          dataset_prim;
-            //      map< EcalLogicID, LMFLaserBluePNPrimDat >    dataset_pnprim;
-            map< EcalLogicID, LMFLaserPNPrimDat >        dataset_pnprim;
-            //      map< EcalLogicID, LMFLaserBluePulseDat  >     dataset_pulse;
-            map< EcalLogicID, LMFLaserPulseDat  >     dataset_pulse;
-
-            // Set the data
-
-            LMFRunDat lmf_lmfrun;
-            lmf_lmfrun.setNumEvents(  150  );
-            lmf_lmfrun.setQualityFlag(   1 );
-	    int idchannel=(sm_num-1)*2+side; 
-	    std::cout << "channel "<< idchannel << endl;
-
-	    dataset_lmfrun[ ecid_vec_fanout[(sm_num-1)*2+side] ] = lmf_lmfrun;
-            cout << "Inserting lmf run..." << flush;
-            econn->insertDataSet( &dataset_lmfrun, &lmfiov );
-            cout << "Done." << endl;
+      for (int c=1; c<1701; c++){
+	// the channels are turned in phi and eta 
+	// with respect to the standard numbering scheme
+	cx = 85-(c-1)/20;
+	cy = 20-(c-1)%20;
+	float x= rand()/1e8;
+	float apdpn = 1.5+x;
+	float apd = 1500.+x;
+	float apd_rms = 15.5+x;
+	float apdpn_rms = 0.1+x;
+	float pn = 800.+x;
+	
+	if(c%500==0) cout << "SM: "<<sm_num<<  " channel "<< c<< " value "<< apdpn << endl; 
 
 
-            LMFLaserConfigDat lmf_config;
-            lmf_config.setWavelength( 492     );
-            lmf_config.setVFEGain(    12       );
-            lmf_config.setPNGain(     16        );
-            lmf_config.setPower(      100     );
-            lmf_config.setAttenuator( 1 );
-            lmf_config.setCurrent(    100    );
-            lmf_config.setDelay1(     0    );
-            lmf_config.setDelay2(     0    );
-
-	    dataset_config[ecid_vec_fanout[(sm_num-1)*2+side]] = lmf_config;
-            cout << "Inserting lmf config..." << flush;
-            econn->insertDataSet( &dataset_config, &lmfiov );
-            cout << "Done." << endl;
-
-            //
-            // Laser MATACQ Primitives
-            //
-	    LMFLaserPulseDat::setColor( color ); // set the color
-            LMFLaserPulseDat lmf_pulse;
-            lmf_pulse.setFitMethod( 0 );  // fixme -- is it a string or an int ???
-            lmf_pulse.setAmplitude( 100.4   );
-            lmf_pulse.setTime(     34.5   );
-            lmf_pulse.setRise(     3.2  );
-            lmf_pulse.setFWHM(     33.6  );
-            lmf_pulse.setFW80(    44.5    );
-            lmf_pulse.setFW20(     45.3   );
-            lmf_pulse.setSliding(  43.2 );
-            // Fill the dataset
-            dataset_pulse[ecid_vec_fanout[(sm_num-1)*2+side]] = lmf_pulse;
-            cout << "Inserting lmf pulse ..." << flush;
-            econn->insertDataSet( &dataset_pulse, &lmfiov );
-            cout << "Done." << endl;
-
-
-	    // LASER BLUE PRIM Data 
-	    LMFLaserPrimDat::setColor( color ); // set the color
-	    int nchan=0;
-	    if(side==0) nchan=800;
-	    if(side==1) nchan=900;
-
-            for( int ixt=1; ixt<=nchan;  ixt++ ) {
-
-
-	      float x= rand()/1e8;
-	      float apdpn = 1.5+x;
-	      float apd = 1500.+x;
-	      float apd_rms = 15.5+x;
-	      float apdpn_rms = 0.1+x;
-	      float pn = 800.+x;
-
-	      EcalLogicID ecid_prim = ecid_vec[(sm_num-1)*1700+side*800+ixt -1]; 
-	      // Set the data
-	      LMFLaserPrimDat bluelaser;
-	      bluelaser.setFlag(   1 );
-	      bluelaser.setMean(apd  );
-	      bluelaser.setRMS( apd_rms  );
-	      bluelaser.setPeak(apd  );
-	      bluelaser.setAPDOverPNAMean(apdpn );
-	      bluelaser.setAPDOverPNARMS(apdpn_rms  );
-	      bluelaser.setAPDOverPNAPeak( apdpn );  
-	      bluelaser.setAPDOverPNBMean(apdpn);
-	      bluelaser.setAPDOverPNBRMS( apdpn_rms  );
-	      bluelaser.setAPDOverPNBPeak(apdpn );
-	      
-	      bluelaser.setAPDOverPNMean( apdpn );
-	      bluelaser.setAPDOverPNRMS( apdpn_rms  );
-	      bluelaser.setAPDOverPNPeak(apdpn  );
-	      
-	      bluelaser.setAlpha(   1.2       );
-	      bluelaser.setBeta(    1.3       );
-	      bluelaser.setShapeCor( 100.2      );
-	      // Fill the dataset
-	      dataset_prim[ecid_prim] = bluelaser;
-	  
-	  }
-
-
-            // Inserting the dataset, identified by iov
-            cout << "Inserting  _PRIM_DAT  ..." << flush;
-            econn->insertDataSet( &dataset_prim,   &lmfiov );
-            cout << "Done." << endl;
-
-	    LMFLaserPNPrimDat::setColor( color ); // set the color
-
-	    nchan=10;
-            for( int ipn=1; ipn<=nchan ; ipn++ ) {
-
-	      float x= rand()/1e8;
-	      float pn = 800.+x;
-
-	      EcalLogicID ecid_pn = ecid_vec_pn[(sm_num-1)*10+ipn -1];
-	      // Set the data
-	      LMFLaserPNPrimDat bluepn;
-	      bluepn.setFlag(1);
-	      bluepn.setMean( pn );
-	      bluepn.setRMS( pn/10. );
-	      bluepn.setPeak( pn);
-	      bluepn.setPNAOverPNBMean( 1.+x );
-	      bluepn.setPNAOverPNBRMS((1+x)*0.1 );
-	      bluepn.setPNAOverPNBPeak( 1.+x);
-	      // Fill the dataset
-	      dataset_pnprim[ecid_pn] = bluepn;
-	    }
-
-            cout << "Inserting _PN_PRIM_DAT ..." << flush;
-            econn->insertDataSet( &dataset_pnprim, &lmfiov );
-            cout << "Done." << endl;
-
-	  }
+	int ispn=-1;
+	for(int j=0; j<10; j++){
+	  if(pn_chan[j]==c) ispn=j;
 	}
+	
+	if(ispn!=-1){
+	  LMFPNBlueDat bluepn;
+	  
+	  bluepn.setPNPeak(pn);
+	  bluepn.setPNErr(pn/100.);
+	  dataset_lpn[ecid_vec_pn[count_pn]] = bluepn;
+	  count_pn++;
+	}
+	
+	// Set the data
+	LMFLaserBlueNormDat bluelaser;
+	LMFLaserBlueRawDat bluelaserraw;
+	bluelaser.setAPDOverPNMean(apdpn);
+	bluelaser.setAPDOverPNAMean(apdpn);
+	bluelaser.setAPDOverPNBMean(apdpn);
+	bluelaser.setAPDOverPNARMS(apdpn_rms);
+	bluelaser.setAPDOverPNBRMS(apdpn_rms);
+	bluelaser.setAPDOverPNRMS(apdpn_rms);
+	
+	bluelaserraw.setAPDPeak(apd);
+	bluelaserraw.setAPDErr(apd_rms);
+	
+	// Fill the dataset
+	dataset_lmf[ecid_vec[count]] = bluelaser;
+	dataset_lraw[ecid_vec[count]] = bluelaserraw;
+
+	count++;
+
+	
       }
+    
+
+    }
   
     cout << "finished processing the APD and PN data"  << endl;
     
-
+    cout << "now MATACQ  "<<  endl;
     
+    try {
+      
+	float x=rand()/1e8;
+
+	float par_height= 100.+x;
+	
+	float par_width=10.+x;
+	
+	float par_timing=10.+x;
+	
+	LMFMatacqBlueDat lmf_mq;
+	EcalLogicID ecid_mq;
+	ecid_mq = econn->getEcalLogicID("EB");
+	lmf_mq.setAmplitude(par_height);
+	lmf_mq.setWidth(par_width);
+	lmf_mq.setTimeOffset(par_timing);
+	dataset_mq[ecid_mq] = lmf_mq;
+	econn->insertDataSet(&dataset_mq, &lmfiov);
+      
+	cout << "Done Matacq "  << endl;
+    
+    } catch (...) { 
+      cout << "TestDB>> error with MATACQ " << endl ;
+    } 
 
     Tm startTm;
     startTm.setToCurrentGMTime();
-    cout << "program finished at:    " << startTm.str() << endl;
+    cout << "record generated at:    " << startTm.str() << endl;
+
+
+    // Insert the dataset, identifying by iov
+    cout << "Inserting dataset..." << flush;
+    econn->insertDataArraySet(&dataset_lmf, &lmfiov);
+    econn->insertDataArraySet(&dataset_lraw, &lmfiov);
+    econn->insertDataArraySet(&dataset_lpn, &lmfiov);
+    cout << "Done." << endl;
+
+    Tm startTm2;
+    startTm2.setToCurrentGMTime();
+    cout << "record inserted at:    " << startTm2.str() << endl;
 
   }
   

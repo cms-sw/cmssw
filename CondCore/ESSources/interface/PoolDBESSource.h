@@ -25,6 +25,7 @@ namespace edm{
 }
 namespace cond{
   class DBSession;
+  class IOVService;
   class CoralTransaction;
   class Connection;
   struct IOVInfo{
@@ -74,6 +75,7 @@ class PoolDBESSource : public edm::eventsetup::DataProxyProvider,
   typedef std::map<std::string, std::string > DatumToToken;
   DatumToToken m_datumToToken;
   cond::DBSession* m_session;
+  std::map<std::string,cond::IOVService*> m_serviceReg;
  private:
   void fillRecordToIOVInfo();
   void fillTagCollectionFromDB( cond::CoralTransaction& coraldb,

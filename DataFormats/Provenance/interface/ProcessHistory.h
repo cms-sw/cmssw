@@ -104,7 +104,7 @@ namespace edm {
 
   inline
   bool
-  isDescendent(ProcessHistory const& a, ProcessHistory const& b) {
+  isDescendant(ProcessHistory const& a, ProcessHistory const& b) {
     return isAncestor(b, a);
   }
 

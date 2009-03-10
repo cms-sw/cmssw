@@ -137,10 +137,6 @@ Pix_Fwd_AdhFilm                  1.000 0.000 0.000 0.000 0.000
 
 Pix_Fwd_HDI                      0.181 0.000 0.000 0.000 0.819
 
-Aluminium_OuterRing              1.000 0.000 0.000 0.000 0.000
-
-Aluminium_InnerRing              1.000 0.000 0.000 0.000 0.000
-
 Pix_Fwd_Servi_Cylind             0.976 0.000 0.024 0.000 0.000
 
 Pix_Fwd_End_Flange               0.739 0.000 0.196 0.065 0.000

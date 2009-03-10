@@ -14,7 +14,7 @@ class TtSemiLepSignalSel {
 public:
 
   TtSemiLepSignalSel();
-  TtSemiLepSignalSel(const std::vector<pat::Jet>&, math::XYZTLorentzVector, const edm::View<pat::MET>&, unsigned int nJetsMax);
+  TtSemiLepSignalSel(const std::vector<pat::Jet>&, math::XYZTLorentzVector, const edm::View<pat::MET>&, unsigned int maxNJets);
   ~TtSemiLepSignalSel();
 
   double dphiMETlepton() const { return var_dphiMETlepton; }

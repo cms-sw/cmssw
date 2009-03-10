@@ -53,6 +53,8 @@ public:
   JetVector getCentralJets() const { return m_centralJets.contents; } ///< get the central jets output data
   JetVector getForwardJets() const { return m_forwardJets.contents; } ///< get the forward jets output data
   JetVector getTauJets() const     { return m_tauJets.contents; }     ///< get the tau jets output data
+
+  bool setupOk() const { return m_setupOk; }
  protected:
 
   /// Separate reset methods for the processor itself and any data stored in pipelines
@@ -83,6 +85,9 @@ private:
   JetPipeline m_centralJets;
   JetPipeline m_forwardJets;
   JetPipeline m_tauJets;
+
+  // setup flag
+  bool m_setupOk;
 
   //PRIVATE MEMBER FUNCTIONS
   ///Enters jets into the specified storageVector, according to which wheel card we are taking them from.

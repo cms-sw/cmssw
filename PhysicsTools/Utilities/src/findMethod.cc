@@ -20,7 +20,9 @@ static bool fatalErrorCondition(int iError)
    
 }
 namespace reco {
-  int checkMethod(const ROOT::Reflex::Member & mem, const std::vector<AnyMethodArgument> &args, std::vector<AnyMethodArgument> &fixuppedArgs) {
+  int checkMethod(const ROOT::Reflex::Member & mem, 
+                  const ROOT::Reflex::Type   & type,
+                  const std::vector<AnyMethodArgument> &args, std::vector<AnyMethodArgument> &fixuppedArgs) {
     int casts = 0;
     if (mem.IsConstructor()) return -1*parser::kIsConstructor;
     if (mem.IsDestructor()) return -1*parser::kIsDestructor;
@@ -29,26 +31,33 @@ namespace reco {
     if (mem.IsStatic()) return -1*parser::kIsStatic;
     if ( ! mem.TypeOf().IsConst() ) return -1*parser::kIsNotConst;
     if (mem.Name().substr(0, 2) == "__") return -1*parser::kIsFunctionAddedByROOT;
+    if (mem.DeclaringType().Id() != type.Id()) {
+        //std::cerr << "\nMETHOD OVERLOAD " << mem.Name() << " from " << type.Name() << " of " << mem.DeclaringType().Name() << std::endl;
+        return -1*parser::kOverloaded;
+    }
     size_t minArgs = mem.FunctionParameterSize(true), maxArgs = mem.FunctionParameterSize(false);
-    //std::cerr << "\nMETHOD " << mem.Name() << " of " << mem.DeclaringType().Name() 
-    //    << ", min #args = " << minArgs << ", max #args = " << maxArgs 
-    //    << ", args = " << args.size() << std::endl;
     if ((args.size() < minArgs) || (args.size() > maxArgs)) return -1*parser::kWrongNumberOfArguments;
+    /*std::cerr << "\nMETHOD " << mem.Name() << " of " << mem.DeclaringType().Name() 
+        << ", min #args = " << minArgs << ", max #args = " << maxArgs 
+        << ", args = " << args.size() << std::endl;*/
     if (!args.empty()) {
         Type t = mem.TypeOf();
+        std::vector<AnyMethodArgument> tmpFixups;
         for (size_t i = 0; i < args.size(); ++i) { 
             std::pair<AnyMethodArgument,int> fixup = boost::apply_visitor( reco::parser::AnyMethodArgumentFixup(t.FunctionParameterAt(i)), args[i] );
             //std::cerr << "\t ARG " << i << " type is " << t.FunctionParameterAt(i).Name() << " conversion = " << fixup.second << std::endl; 
             if (fixup.second >= 0) { 
-                fixuppedArgs.push_back(fixup.first);
+                tmpFixups.push_back(fixup.first);
                 casts += fixup.second;
             } else { 
-                fixuppedArgs.clear(); 
                 return -1*parser::kWrongArgumentType;
             }
         }
+        fixuppedArgs.swap(tmpFixups);
     }
-    //std::cerr << "\nMETHOD " << mem.Name() << " of " << mem.DeclaringType().Name() << " matched with " << casts << " casts" << std::endl;
+    /*std::cerr << "\nMETHOD " << mem.Name() << " of " << mem.DeclaringType().Name() 
+        << ", min #args = " << minArgs << ", max #args = " << maxArgs 
+        << ", args = " << args.size() << " fixupped args = " << fixuppedArgs.size() << "(" << casts << " implicit casts)" << std::endl; */
     return casts;
   }
 
@@ -65,7 +74,7 @@ namespace reco {
 	<< "No dictionary for class \"" << type.Name() << "\".";
     if(type.IsPointer()) type = type.ToType();
 
-    pair<Member, bool> mem;
+    pair<Member, bool> mem; mem.second = false;
 
     // suitable members and number of integer->real casts required to get them
     vector<pair<int,Member> > oks;
@@ -73,7 +82,7 @@ namespace reco {
     // first look in base scope
     for(Member_Iterator m = type.FunctionMember_Begin(); m != type.FunctionMember_End(); ++m ) {
       if(m->Name()==name) {
-        int casts = checkMethod(*m, args, fixuppedArgs);
+        int casts = checkMethod(*m, type, args, fixuppedArgs);
         if (casts > -1) {
             oks.push_back( make_pair(casts,*m) );
         } else {
@@ -85,7 +94,7 @@ namespace reco {
         }
       }
     }
-
+    //std::cout << "At base scope (type " << (type.Name()) << ") found " << oks.size() << " methods." << std::endl; 
     // found at least one method
     if (!oks.empty()) {
         if (oks.size() > 1) {
@@ -101,8 +110,8 @@ namespace reco {
 
             // I should fixup again the args, as both good methods have pushed them on fixuppedArgs
             fixuppedArgs.clear();
-            checkMethod(oks.front().second, args, fixuppedArgs);
-        }
+            checkMethod(oks.front().second, type, args, fixuppedArgs);
+        } 
         mem.first = oks.front().second;
     }
 
@@ -118,10 +127,10 @@ namespace reco {
       }
     }
 
-
     // otherwise see if this object is just a Ref or Ptr and we should pop it out
     if(!mem.first) {
       // check for edm::Ref or edm::RefToBase or edm::Ptr
+      // std::cout << "Mem.first is null, so looking for templates from type " << type.Name() << std::endl;
       if(type.IsTemplateInstance()) {
          TypeTemplate templ = type.TemplateFamily();
          std::string name = templ.Name();

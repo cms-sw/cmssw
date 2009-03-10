@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Thu Sep 27 01:46:46 CEST 2007
-// $Id: XMLDOMBlock.h,v 1.6 2008/08/31 20:40:21 kukartse Exp $
+// $Id: XMLDOMBlock.h,v 1.3 2008/04/10 21:12:09 kukartse Exp $
 //
 
 
@@ -44,7 +44,6 @@ class XMLDOMBlock
   XMLDOMBlock( string _root, int rootElementName ); // create XML from scratch, second parameter is a dummy
 
   DOMDocument * getDocument( void );
-  DOMDocument * getDocumentConst( void ) const;
   DOMDocument * getNewDocument( string xmlFileName );
   std::string & getString( void );
   std::string & getString( DOMNode * _node );
@@ -52,17 +51,12 @@ class XMLDOMBlock
   virtual ~XMLDOMBlock();
   
   const char * getTagValue( const string & tagName, int _item = 0, DOMDocument * _document = NULL );
-  const char * getTagValue( const string & tagName, int _item, DOMElement * _document );
   const char * getTagAttribute( const string & tagName, const string & attrName, int _item = 0 );
 
   int setTagValue( const string & tagName, const string & tagValue, int _item = 0, DOMDocument * _document = NULL );
   int setTagValue( const string & tagName, const int & tagValue, int _item = 0, DOMDocument * _document = NULL );
   int setTagAttribute( const string & tagName, const string & attrName, const string & attrValue, int _item = 0 );
   string getTimestamp( time_t _time );  
-
-  void parse( InputSource & _source );
-
-  XMLDOMBlock & operator+=( const XMLDOMBlock & other);
 
  protected:
 

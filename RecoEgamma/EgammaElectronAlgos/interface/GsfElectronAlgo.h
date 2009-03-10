@@ -3,19 +3,19 @@
 
 /** \class GsfElectronAlgo
  
-  Top algorithm producing GsfElectron objects from supercluster driven Gsf tracking
- 
-  \author U.Berthon, C.Charlot, LLR Palaiseau
- 
-  \version   2nd Version Oct 10, 2006  
- 
+ * Class to reconstruct electron tracks from electron pixel seeds
+ *  keep track of information about the initiating supercluster
+ *
+ * \author U.Berthon, C.Charlot, LLR Palaiseau
+ *
+ * \version   2nd Version Oct 10, 2006  
+ *
  ************************************************************/
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -28,7 +28,6 @@
 
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloTopology/interface/CaloTopology.h"
 
 class MultiTrajectoryStateTransform;
 class GsfPropagatorAdapter;
@@ -51,25 +50,17 @@ public:
  private:
 
   // create electrons from superclusters, tracks and Hcal rechits
-  void process
-   ( edm::Handle<reco::GsfTrackCollection> tracksH,
-     edm::Handle<reco::TrackCollection> ctfTracksH,
-     edm::Handle<EcalRecHitCollection> reducedEBRecHits,
-     edm::Handle<EcalRecHitCollection> reducedEERecHits,
-     const math::XYZPoint &bs,
-     reco::GsfElectronCollection & outEle);
+  void process(edm::Handle<reco::GsfTrackCollection> tracksH,
+	       const math::XYZPoint &bs,
+	       reco::GsfElectronCollection & outEle);
   
   // preselection method
   bool preSelection(const reco::SuperCluster& clus);
 
   // interface to be improved...
-  void createElectron
-   ( const reco::SuperClusterRef & scRef,
-     const reco::GsfTrackRef & trackRef,
-     const reco::TrackRef & ctfTrackRef, const float shFracInnerHits,
-     edm::Handle<EcalRecHitCollection> reducedEBRecHits,
-     edm::Handle<EcalRecHitCollection> reducedEERecHits,
-     reco::GsfElectronCollection & outEle ) ;
+  void createElectron(const reco::SuperClusterRef & scRef,
+                      const reco::GsfTrackRef &trackRef,
+		      reco::GsfElectronCollection & outEle);  
 
   void resolveElectrons(std::vector<reco::GsfElectron> &, reco::GsfElectronCollection & outEle);
   
@@ -78,11 +69,6 @@ public:
 
   // associations
   const reco::SuperClusterRef getTrSuperCluster(const reco::GsfTrackRef & trackRef);
-
-  // From Puneeth Kalavase : returns the CTF track that has the highest fraction
-  // of shared hits in Pixels and the inner strip tracker with the electron Track
-  std::pair<reco::TrackRef,float> getCtfTrackRef
-   ( const reco::GsfTrackRef &, edm::Handle<reco::TrackCollection> ctfTracksH ) ;
 
   // intermediate calculations
   bool calculateTSOS(const reco::GsfTrack &t,const reco::SuperCluster & theClus, const math::XYZPoint & bs);
@@ -114,15 +100,10 @@ public:
   edm::InputTag barrelSuperClusters_;
   edm::InputTag endcapSuperClusters_;
   edm::InputTag tracks_;
-  edm::InputTag ctfTracks_;
   edm::InputTag hcalRecHits_;
-  edm::InputTag reducedBarrelRecHitCollection_ ;
-  edm::InputTag reducedEndcapRecHitCollection_ ;
-
 
   edm::ESHandle<MagneticField>                theMagField;
   edm::ESHandle<CaloGeometry>                 theCaloGeom;
-  edm::ESHandle<CaloTopology>                 theCaloTopo;
   edm::ESHandle<TrackerGeometry>              trackerHandle_;
 
   const MultiTrajectoryStateTransform *mtsTransform_;
@@ -142,7 +123,6 @@ public:
   HBHERecHitMetaCollection *mhbhe_;
 
   unsigned long long cacheIDGeom_;
-  unsigned long long cacheIDTopo_;
   unsigned long long cacheIDTDGeom_;
   unsigned long long cacheIDMagField_;
 };

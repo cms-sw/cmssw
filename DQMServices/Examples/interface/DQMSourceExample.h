@@ -5,8 +5,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/02/22 23:52:28 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/01/17 22:56:13 $
+ *  $Revision: 1.6 $
  *  \author  M. Zanetti CERN
  *   
  */
@@ -27,73 +27,56 @@ public:
 
 protected:
    
-  // BeginJob
+  /// BeginJob
   void beginJob(const edm::EventSetup& c);
 
-  // BeginRun
+  /// BeginRun
   void beginRun(const edm::Run& r, const edm::EventSetup& c);
 
-  // Fake Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
+  /// Fake Analyze
+  void analyze(const edm::Event& e, const edm::EventSetup& c) ;
 
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                            const edm::EventSetup& context);
+                            const edm::EventSetup& context) ;
 
-  // DQM Client Diagnostic
+  /// DQM Client Diagnostic
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
                           const edm::EventSetup& c);
 
-  // EndRun
+  /// EndRun
   void endRun(const edm::Run& r, const edm::EventSetup& c);
 
-  // Endjob
+  /// Endjob
   void endJob();
 
 private:
-
-  void initialize();
  
   edm::ParameterSet parameters_;
 
-  DQMStore* dbe_;
+  DQMStore* dbe_;  
   std::string monitorName_;
+  int counterEvt_;      ///counter
+  int prescaleEvt_;     ///every n events
+                        /// FIXME, make prescale module?
 
-  int counterEvt_;
-  int counterLS_;
+  // ----------member data ---------------------------
 
-  int prescaleEvt_;    // every n events
-  int prescaleLS_;     // units of lumi sections
-
-  // ---------- member data ----------
-
-  int   NBINS;
-  float XMIN, XMAX;
-
-  MonitorElement * xTrue;
-  MonitorElement * xFalse;
-  MonitorElement * yTrue;
-  MonitorElement * yFalse;
-
-  MonitorElement * wExpTrue;
-  MonitorElement * wExpFalse;
-  MonitorElement * meanTrue;
-  MonitorElement * meanFalse;
-
-  MonitorElement * deadTrue;
-  MonitorElement * deadFalse;
-  MonitorElement * noisyTrue;
-  MonitorElement * noisyFalse;
-
+  MonitorElement * h1;
+  MonitorElement * h2;
+  MonitorElement * h3;
+  MonitorElement * h4;
+  MonitorElement * h5;
+  MonitorElement * h6;
+  MonitorElement * h7;
+  MonitorElement * h8;
+  MonitorElement * h9;
   MonitorElement * i1;
   MonitorElement * f1;
   MonitorElement * s1;
   MonitorElement * p1;
-  MonitorElement * p2;
-  MonitorElement * h7;
-
-  MonitorElement * summ;
-  MonitorElement * fitResult;
-
+  TH1F *rooth1;
+  
+  float XMIN; float XMAX;
 };
 
 #endif

@@ -1,6 +1,6 @@
 /** \class HLTEgammaEtFilterPairs
  *
- * $Id: HLTEgammaEtFilterPairs.cc,v 1.8 2008/04/22 17:01:17 ghezzi Exp $
+ * $Id: HLTEgammaEtFilterPairs.cc,v 1.1 2008/10/14 14:52:57 ghezzi Exp $
  *
  *  \author Alessio Ghezzi
  *
@@ -22,8 +22,10 @@
 HLTEgammaEtFilterPairs::HLTEgammaEtFilterPairs(const edm::ParameterSet& iConfig)
 {
    inputTag_ = iConfig.getParameter< edm::InputTag > ("inputTag");
-   etcut1_  = iConfig.getParameter<double> ("etcut1");
-   etcut2_  = iConfig.getParameter<double> ("etcut2");
+   etcutEB1_  = iConfig.getParameter<double> ("etcut1EB");
+   etcutEE1_  = iConfig.getParameter<double> ("etcut1EE");
+   etcutEB2_  = iConfig.getParameter<double> ("etcut2EB");
+   etcutEE2_  = iConfig.getParameter<double> ("etcut2EE");
    store_ = iConfig.getUntrackedParameter<bool> ("SaveTag",false) ;
    relaxed_ = iConfig.getUntrackedParameter<bool> ("relaxed",true) ;
    L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
@@ -65,10 +67,13 @@ HLTEgammaEtFilterPairs::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
      edm::Ref<reco::RecoEcalCandidateCollection> r1 = recoecalcands[i];
      edm::Ref<reco::RecoEcalCandidateCollection> r2 = recoecalcands[i+1];
      //  std::cout<<"EtFilter: 1) Et Eta phi: "<<r1->et()<<" "<<r1->eta()<<" "<<r1->phi()<<" 2) Et eta phi: "<<r2->et()<<" "<<r2->eta()<<" "<<r2->phi()<<std::endl;
-    if ( recoecalcands[i]->et()  >= etcut1_ && recoecalcands[i+1]->et()  >= etcut2_) {
+     bool first  = (fabs(r1->eta()) < 1.479 &&  r1->et()  >= etcutEB1_) || (fabs(r1->eta()) >= 1.479 &&  r1->et()  >= etcutEE1_);
+     bool second = (fabs(r2->eta()) < 1.479 &&  r2->et()  >= etcutEB2_) || (fabs(r2->eta()) >= 1.479 &&  r2->et()  >= etcutEE2_);
+
+    if ( first && second ) {
       n++;
-      filterproduct->addObject(TriggerCluster,recoecalcands[i] );
-      filterproduct->addObject(TriggerCluster,recoecalcands[i+1] );
+      filterproduct->addObject(TriggerCluster,r1 );
+      filterproduct->addObject(TriggerCluster,r2 );
     }
   }
 

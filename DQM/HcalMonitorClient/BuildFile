@@ -1,12 +1,9 @@
 <flags EDM_PLUGIN=1>
 <use name=boost>
-<use name=root> 
-<use name=rootcore>
+<use name=rootgraphics>
 <use name=FWCore/Framework>
-<use name=EventFilter/Utilities>
 <use name=DQMServices/Core>
 <use name=DQMServices/Components>
-<use name=DQMServices/WebComponents>
 <use name=DQMServices/ClientConfig>
 <use name=CalibCalorimetry/HcalAlgos>
 <use name=Geometry/CaloGeometry>
@@ -15,17 +12,4 @@
 
 <export>
  <lib name=DQMHcalMonitorClient>
- <use name=boost>
- <use name=root> 
- <use name=rootcore>
- <use name=FWCore/Framework>
- <use name=EventFilter/Utilities>
- <use name=DQMServices/Core>
- <use name=DQMServices/Components>
- <use name=DQMServices/WebComponents>
- <use name=DQMServices/ClientConfig>
- <use name=CalibCalorimetry/HcalAlgos>
- <use name=Geometry/CaloGeometry>
- <use name=Geometry/CaloEventSetup>
- <use name=xerces-c>
 </export>

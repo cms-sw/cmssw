@@ -21,11 +21,11 @@
 // The initial parameters values are chosen like (r, theta, phi) = (1., 0., 0.)
 // corresponding to the measured momentum.
 //
- 
 
 using namespace std;
 
 #include <iostream>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "PhysicsTools/KinFitter/interface/TFitParticleEScaledMomDev.h"
 #include "TMath.h"
 
@@ -114,7 +114,8 @@ TLorentzVector* TFitParticleEScaledMomDev::calc4Vec( const TMatrixD* params ) {
   }
 
   if ( params->GetNcols() != 1 || params->GetNrows() !=_nPar ) {
-    cout << "Parameter matrix has wrong size." << endl;
+    edm::LogError ("WrongMatrixSize")
+      << GetName() << "::calc4Vec - Parameter matrix has wrong size.";
     return 0;
   }
   

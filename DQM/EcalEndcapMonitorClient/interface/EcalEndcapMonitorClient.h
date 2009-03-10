@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2008/07/12 09:02:11 $
- * $Revision: 1.47 $
+ * $Date: 2008/07/23 06:18:01 $
+ * $Revision: 1.48 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -99,21 +99,7 @@ void writeDb(bool flag);
 /// EndRunDB
 void endRunDb(void);
 
-inline int getEvtPerJob() { return( ievt_ ); }
-inline int getEvtPerRun() { return( jevt_ ); }
-inline int getEvt( void ) { return( evt_ ); }
-inline int getRun( void ) { return( run_ ); }
-
 inline const char* getRunType( void )  { return( runType_ == -1 ? "UNKNOWN" : runTypes_[runType_].c_str() ); }
-
-inline std::vector<std::string> getRunTypes( void ) { return( runTypes_ ); }
-
-inline const std::vector<EEClient*> getClients() { return( clients_ ); }
-inline const std::vector<std::string> getClientsNames() { return( clientsNames_ ); }
-
-inline RunIOV getRunIOV() { return( runiov_ ); }
-inline MonRunIOV getMonIOV() { return( moniov_ ); }
-inline const TH1F* getEntryHisto() { return( h_ ); }
 
 private:
 

@@ -6,7 +6,7 @@
 RefVector: A template for a vector of interproduct references.
 	Each vector element is a reference to a member of the same product.
 
-$Id: RefVector.h,v 1.37 2008/03/18 12:48:31 wmtan Exp $
+$Id: RefVector.h,v 1.38 2008/03/31 21:12:11 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -27,7 +27,7 @@ $Id: RefVector.h,v 1.37 2008/03/18 12:48:31 wmtan Exp $
 namespace edm {
 
   template <typename T>
-  T const * getProduct(RefCore const & ref);
+  T const* getProduct(RefCore const& ref);
 
   template <typename C, 
 	    typename T = typename refhelper::ValueTrait<C>::value, 
@@ -40,6 +40,8 @@ namespace edm {
     typedef typename refhelper::RefVectorTrait<C, T, F>::iterator_type iterator;
     typedef iterator                        const_iterator;
     typedef typename refhelper::RefVectorTrait<C, T, F>::ref_type value_type;
+    typedef value_type const                const_reference; // better this than the default 'const value_type &'
+    typedef const_reference                 reference;       // as operator[] returns 'const R' and not 'R &'
 
     // key_type is the type of the key into the collection
     typedef typename value_type::key_type   key_type;
@@ -54,7 +56,7 @@ namespace edm {
     /// store. Not for direct use.
     RefVector() : refVector_() {}
 
-    RefVector(ProductID const & id) : refVector_(id) {}
+    RefVector(ProductID const& id) : refVector_(id) {}
     /// Add a Ref<C, T> to the RefVector
     void push_back(value_type const& ref) 
     {refVector_.pushBack(ref.ref().refCore(), ref.ref().item());}

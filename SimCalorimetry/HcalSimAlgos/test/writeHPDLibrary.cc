@@ -1,10 +1,7 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HPDNoiseMaker.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HPDNoiseData.h"
-#include <Cintex/Cintex.h>
 
 int main () {
-  ROOT::Cintex::Cintex::Enable();
-
   HPDNoiseMaker maker ("hpdNoiseLibrary.root");
 
   maker.addHpd ("HPD01");
@@ -50,9 +47,9 @@ int main () {
   maker.newHpdEvent ("HPD03", event);
   maker.newHpdEvent ("HPD03", event);
 
-  maker.setRate ("HPD01", 0.01, 0.01, 0.01, 0.01);
-  maker.setRate ("HPD02", 0.02, 0.01, 0.01, 0.01);
-  maker.setRate ("HPD03", 0.03, 0.01, 0.01, 0.01);
+  maker.setRate ("HPD01", 0.01);
+  maker.setRate ("HPD02", 0.02);
+  maker.setRate ("HPD03", 0.03);
 
   std::cout << "HPD01: total entries: " << maker.totalEntries ("HPD01") << std::endl;
   std::cout << "HPD02: total entries: " << maker.totalEntries ("HPD02") << std::endl;

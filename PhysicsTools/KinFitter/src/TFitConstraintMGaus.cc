@@ -13,7 +13,9 @@
 using namespace std;
 
 #include <iostream>
+#include <iomanip>
 #include "PhysicsTools/KinFitter/interface/TFitConstraintMGaus.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TClass.h"
 
 ClassImp(TFitConstraintMGaus)
@@ -122,17 +124,31 @@ TMatrixD* TFitConstraintMGaus::getDerivativeAlpha() {
 
 }
 
+TString TFitConstraintMGaus::getInfoString() {
+  // Collect information to be used for printout
+
+  stringstream info;
+  info << scientific << setprecision(6);
+
+  info << "__________________________" << endl
+       << endl;
+  info << "OBJ: " << IsA()->GetName() << "\t" << GetName() << "\t" << GetTitle() << endl;
+
+  info << "initial value: " << getInitValue() << endl;
+  info << "current value: " << getCurrentValue() << endl;
+  info << "mean mass: " << _TheMassConstraint << endl;
+  info << "width: " << _width << endl;
+  info << "initial mass: " << _iniparameters(0,0)*_TheMassConstraint  << endl;
+  info << "current mass: " << _parameters(0,0)*_TheMassConstraint  << endl;
+
+  return info.str();
+
+}
+
 void TFitConstraintMGaus::print() {
+  // Print constraint contents
 
-  cout << "__________________________" << endl << endl;
-  cout <<"OBJ: " << IsA()->GetName() << "\t" << GetName() << "\t" << GetTitle() << endl;
-
-  cout << "initial value: " << getInitValue() << endl;
-  cout << "current value: " << getCurrentValue() << endl;
-  cout << "mean mass: " << _TheMassConstraint << endl;
-  cout << "width: " << _width << endl;
-  cout << "initial mass: " << _iniparameters(0,0)*_TheMassConstraint  << endl;
-  cout << "current mass: " << _parameters(0,0)*_TheMassConstraint  << endl;
+  edm::LogVerbatim("KinFitter") << this->getInfoString();
 
 }
 

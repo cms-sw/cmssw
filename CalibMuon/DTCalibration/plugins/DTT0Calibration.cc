@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/02/19 15:13:21 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/01/18 17:48:39 $
+ *  $Revision: 1.8 $
  *  \author S. Bolognesi - INFN Torino
  */
 #include "CalibMuon/DTCalibration/plugins/DTT0Calibration.h"
@@ -238,17 +238,17 @@ void DTT0Calibration::analyze(const edm::Event & event, const edm::EventSetup& e
 	hT0SectorHisto->Fill((*lHisto).second->GetMean());
       }
       //Take the mean of noise + 400ns as a first t0 estimation
-      // if((*lHisto).second->GetRMS()>10.0 && ((*lHisto).second->GetRMS()<15.0)){
-// 	double t0_estim = (*lHisto).second->GetMean() + 400;
-// 	if(hT0SectorHisto == 0){
-// 	  hT0SectorHisto = new TH1D("hT0AllLayerOfSector","T0 from pulses per layer in sector", 
-// 				    //20, t0_estim-100, t0_estim+100);
-// 				    700, 0, 7000);
-// 	}
-// 	if(debug)
-// 	  cout<<" accepted + 400ns"<<endl;
-// 	hT0SectorHisto->Fill((*lHisto).second->GetMean() + 400);
-//       }
+      if((*lHisto).second->GetRMS()>10.0 && ((*lHisto).second->GetRMS()<15.0)){
+	double t0_estim = (*lHisto).second->GetMean() + 400;
+	if(hT0SectorHisto == 0){
+	  hT0SectorHisto = new TH1D("hT0AllLayerOfSector","T0 from pulses per layer in sector", 
+				    //20, t0_estim-100, t0_estim+100);
+				    700, 0, 7000);
+	}
+	if(debug)
+	  cout<<" accepted + 400ns"<<endl;
+	hT0SectorHisto->Fill((*lHisto).second->GetMean() + 400);
+      }
       if(debug)
 	cout<<endl;
 

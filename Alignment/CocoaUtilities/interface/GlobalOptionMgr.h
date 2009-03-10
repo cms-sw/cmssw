@@ -37,8 +37,7 @@ public:
 
   ///----- Search a string in theGlobalOptions and return 1 if found
   int getGlobalOptionValue( const ALIstring& sstr, ALIdouble& val );
-  void setGlobalOption( const ALIstring go, const ALIdouble val, ALIFileIn& filein );
-  bool setGlobalOption( const ALIstring go, const ALIdouble val, bool bExit = 1 );
+  void setGlobalOption( const ALIstring& go, const ALIdouble val, ALIFileIn& filein );
  
 private:
   static GlobalOptionMgr* theInstance;

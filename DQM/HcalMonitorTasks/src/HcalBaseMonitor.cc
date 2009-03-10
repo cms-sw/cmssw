@@ -27,10 +27,11 @@ void HcalBaseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
 
   // Global cfgs
   
-  fVerbosity = ps.getUntrackedParameter<int>("debug",0); // shouldn't fVerbosity be an int32?
-  makeDiagnostics=ps.getUntrackedParameter<bool>("makeDiagnosticPlots",false);
-  showTiming = ps.getUntrackedParameter<bool>("showTiming",false);
-  
+  fVerbosity      = ps.getUntrackedParameter<int>("debug",0); 
+  makeDiagnostics = ps.getUntrackedParameter<bool>("makeDiagnosticPlots",false);
+  fillUnphysical_ = ps.getUntrackedParameter<bool>("fillUnphysicalIphi", true);
+  showTiming      = ps.getUntrackedParameter<bool>("showTiming",false);
+  dump2database   = ps.getUntrackedParameter<bool>("dump2database",false); // dumps output to database file 
   checkHB_ = ps.getUntrackedParameter<bool>("checkHB",true);
   checkHE_ = ps.getUntrackedParameter<bool>("checkHE",true);
   checkHO_ = ps.getUntrackedParameter<bool>("checkHO",true);
@@ -68,9 +69,8 @@ void HcalBaseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   phiMin_ = ps.getUntrackedParameter<double>("MinPhi", PHIMIN);
   phiBins_ = (int)(phiMax_ - phiMin_);
 
-
   return;
-}
+} //void HcalBaseMonitor::setup()
 
 void HcalBaseMonitor::done(){}
 
@@ -187,11 +187,12 @@ void HcalBaseMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorE
      values in HcalBaseMonitor.h
   */
 
+  /*
   if (showTiming)
     {
       cpu_timer.reset(); cpu_timer.start();
     }
-
+  */
   stringstream name;
   name<<Name;
   stringstream unitname;
@@ -215,11 +216,12 @@ void HcalBaseMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorE
   h->setAxisTitle("i#phi",2);
   
   setupDepthHists2D(hh, Name, Units);
-
+  /*
   if (showTiming)
     {
       cpu_timer.stop();  cout <<"TIMER:: HcalBaseMonitor SETUPDEPTHHISTS2D_OVERALL "<<name.str().c_str()<<" -> "<<cpu_timer.cpuTime()<<endl;
     }
+  */
   return;
 } // void HcalBaseMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* Name, char* Units)
 
@@ -232,12 +234,13 @@ void HcalBaseMonitor::setupDepthHists2D(std::vector<MonitorElement*> &hh, char* 
      (4 depths, + 2 for separate HE histograms).
      Bins are automatically set for eta/phi indices
   */
-
+  
+  /*
   if (showTiming)
     {
       cpu_timer.reset(); cpu_timer.start();
     }
-
+  */
   stringstream name;
   name<<Name;
 
@@ -284,12 +287,12 @@ void HcalBaseMonitor::setupDepthHists2D(std::vector<MonitorElement*> &hh, char* 
       hh[i]->setAxisTitle("i#eta",1);
       hh[i]->setAxisTitle("i#phi",2);
     }
- 
+  /* 
   if (showTiming)
     {
       cpu_timer.stop();  cout <<"TIMER:: HcalBaseMonitor SETUPDEPTHHISTS2D "<<name.str().c_str()<<" -> "<<cpu_timer.cpuTime()<<endl;
     }
-
+  */
   return;
 } // void HcalBaseMonitor::setupDepthHists2D(std::vector<MonitorElement*> &hh, char* Name, char* Units)
 
@@ -509,5 +512,108 @@ void HcalBaseMonitor::setupDepthHists1D(std::vector<MonitorElement*> &hh, char* 
 
   return;
 } // void HcalBaseMonitor::setupDepthHists1D(std::vector<MonitorElement*> &hh, char* Name, char* Units, int lowbound, int highbound, int Nbins)
+
+
+void HcalBaseMonitor::setMinMaxHists2D(std::vector<MonitorElement*> &hh, double min, double max)
+{
+  for (unsigned int i=0; i<hh.size();++i)
+    {
+      TH2F* histo=hh[i]->getTH2F();
+      histo->SetMinimum(min);
+      histo->SetMaximum(max);
+    }
+  return;
+}
+
+void HcalBaseMonitor::setMinMaxHists1D(std::vector<MonitorElement*> &hh, double min, double max)
+{
+  for (unsigned int i=0; i<hh.size();++i)
+    {
+      TH1F* histo=hh[i]->getTH1F();
+      histo->SetMinimum(min);
+      histo->SetMaximum(max);
+    }
+  return;
+}
+
+
+void HcalBaseMonitor::FillUnphysicalHEHFBins(std::vector<MonitorElement*> &hh)
+{
+  // This fills in the regions of the eta-phi map where the HCAL phi segmentation is greater than 5 degrees.
+  // This version does the fill for the "St. John 6" set of histograms
+
+  if (!fillUnphysical_) return; 
+
+  int ieta=0;
+  int iphi=0;
+  for (int eta=0;eta<(etaBins_-2);++eta)
+    {
+      ieta=eta-int((etaBins_-2)/2);
+      if (abs(ieta)<21)
+	continue;
+      for (int phi=0;phi<72;++phi)
+        {
+	  iphi=phi+1;
+	  if (iphi%2==1 && abs(ieta)<40 && iphi<75 && iphi>0)
+	    {
+	      hh[0]->setBinContent(eta+2,phi+3,hh[0]->getBinContent(eta+2,phi+2));
+	      hh[1]->setBinContent(eta+2,phi+3,hh[1]->getBinContent(eta+2,phi+2));
+	      hh[2]->setBinContent(eta+2,phi+3,hh[2]->getBinContent(eta+2,phi+2));
+	      hh[4]->setBinContent(eta+2,phi+3,hh[4]->getBinContent(eta+2,phi+2));
+	      hh[5]->setBinContent(eta+2,phi+3,hh[5]->getBinContent(eta+2,phi+2));
+	    } // if (iphi%2==1...)
+	  else if (abs(ieta)>39 && iphi%4==3 && iphi<75)
+	    {
+	      // Set last two eta strips where each cell spans 20 degrees in phi
+	      // Set next phi cell above iphi, and 2 cells below the actual cell 
+	      hh[0]->setBinContent(eta+2,phi+3,hh[0]->getBinContent(eta+2,phi+2));
+	      hh[0]->setBinContent(eta+2,phi+1,hh[0]->getBinContent(eta+2,phi+2));
+	      hh[0]->setBinContent(eta+2,phi,hh[0]->getBinContent(eta+2,phi+2));
+	      hh[1]->setBinContent(eta+2,phi+3,hh[0]->getBinContent(eta+2,phi+2));
+              hh[1]->setBinContent(eta+2,phi+1,hh[0]->getBinContent(eta+2,phi+2));
+              hh[1]->setBinContent(eta+2,phi,hh[0]->getBinContent(eta+2,phi+2));
+
+	    } // else if (abs(ieta)>39 ...)
+	} // for (int phi=0;phi<72;++phi)
+
+    } // for (int eta=0; eta< (etaBins_-2);++eta)
+
+  return;
+} // HcalBaseMonitor::FillUnphysicalHEHFBins(std::vector<MonitorElement*> &hh)
+
+
+
+void HcalBaseMonitor::FillUnphysicalHEHFBins(MonitorElement* hh)
+{
+  // This fills in the regions of the eta-phi map where the HCAL phi segmentation is greater than 5 degrees.
+  // This version does the fill for only a single MonitorElement
+  // Do we want to be more careful here in the future, summing over the individual problem cells?
+
+  int ieta=0;
+  int iphi=0;
+  for (int eta=0;eta<(etaBins_-2);++eta)
+    {
+      ieta=eta-int((etaBins_-2)/2);
+      if (abs(ieta)<21)
+	continue;
+      for (int phi=0;phi<72;++phi)
+        {
+	  iphi=phi+1;
+	  if (iphi%2==1 && abs(ieta)<40 && iphi<75 && iphi>0)
+	    {
+	      hh->setBinContent(eta+2,phi+3,hh->getBinContent(eta+2,phi+2));
+	    } // if (iphi%2==1...)
+	  else if (abs(ieta)>39 && iphi%4==3 && iphi<75)
+	    {
+	      // Set last two eta strips where each cell spans 20 degrees in phi
+	      // Set next phi cell above iphi, and 2 cells below the actual cell 
+	      hh->setBinContent(eta+2,phi+3,hh->getBinContent(eta+2,phi+2));
+	    } // else if (abs(ieta)>39 ...)
+	} // for (int phi=0;phi<72;++phi)
+
+    } // for (int eta=0; eta< (etaBins_-2);++eta)
+
+  return;
+} // HcalBaseMonitor::FillUnphysicalHEHFBins(std::vector<MonitorElement*> &hh)
 
 

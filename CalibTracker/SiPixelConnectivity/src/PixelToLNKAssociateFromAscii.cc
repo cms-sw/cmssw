@@ -186,8 +186,10 @@ void PixelToLNKAssociateFromAscii::addConnections(
        // fix for type-B modules in barrel
        if (name->isHalfModule() && (rocDetIds.min()>7)  
            && (part==PixelBarrelName::mO || PixelBarrelName::mI) ) {
-            cablingRocId.rocLinkId = 9-rocLnkId;
-            detectorRocId.rocDetId = rocDetId-8;
+	 //cablingRocId.rocLinkId = 9-rocLnkId;
+	 // rocDetId=8,...,15
+         cablingRocId.rocLinkId = rocLnkId;   // 1...8    19/11/08 d.k.
+         detectorRocId.rocDetId = rocDetId-8; // 0...7
        }
        theConnection.push_back( make_pair(detectorRocId,cablingRocId));
      } 
@@ -248,7 +250,7 @@ void PixelToLNKAssociateFromAscii::addConnections(
          if (plaq==1) { rocs = Range(0,1); firstRoc=1; step=-1; }
          if (plaq==2) { rocs = Range(0,5); firstRoc=0; step=+1; }
          if (plaq==3) { rocs = Range(0,7); firstRoc=0; step=+1; }
-         if (plaq==4) { rocs = Range(0,4); firstRoc=4; step=-1; }
+         if (plaq==4) { rocs = Range(0,4); firstRoc=0; step=+1; }
          for (int iroc =rocs.min(); iroc<=rocs.max(); iroc++) {
            rocLnkId++;
            int rocDetId = firstRoc + step*iroc; 
@@ -275,7 +277,7 @@ void PixelToLNKAssociateFromAscii::addConnections(
          if (plaq==1) { rocs = Range(0,1); firstRoc=1; step=-1; }
          if (plaq==2) { rocs = Range(0,5); firstRoc=3; step=+1; }
          if (plaq==3) { rocs = Range(0,7); firstRoc=4; step=+1; }
-         if (plaq==4) { rocs = Range(0,4); firstRoc=4; step=-1; }
+         if (plaq==4) { rocs = Range(0,4); firstRoc=0; step=+1; }
          for (int iroc =rocs.min(); iroc<=rocs.max(); iroc++) {
            rocLnkId++;
            int rocDetId = firstRoc + step*iroc;

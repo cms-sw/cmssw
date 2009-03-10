@@ -159,7 +159,7 @@ class dbsBaseGui:
         # TO DO:  Make this default value changeable by user?  Save in cPickle?
         self.dbsRange.set(100) # specify range of runs over which to search, starting at the LastDBS value
 
-        self.lastFoundDBS.set(42100) # specify last run # found in DBS
+        self.lastFoundDBS.set(64042) # specify last run # found in DBS
 
         self.foundfiles=0 # number of files found in the latest DBS search -- deprecated variable?
 
@@ -428,7 +428,7 @@ class dbsBaseGui:
                                    x.Helpwin(temptext,usetext=1,title="About this program..."))
         self.aboutmenu.add_command(label="Help",
                                    command = lambda x=helpfunctions:
-                                   x.Helpwin("%s"%os.path.join(self.basedir,dqmdbs_instructions.txt),title="Basic instructions for the user"))
+                                   x.Helpwin("%s"%os.path.join(self.basedir,"dqmdbs_instructions.txt"),title="Basic instructions for the user"))
         self.BAbout['menu']=self.aboutmenu
 
 
@@ -1594,7 +1594,13 @@ class dbsBaseGui:
 
             temp.write("replace PoolSource.fileNames={\n")
 
+            print "WRITING TO FILE!"
             for f in range(0,filelength):
+                if (f>200):
+                    print "Skipping # ",f
+                # f can't be > 255:
+                if (f>200):
+                    continue
                 temp.write("'%s'"%string.strip(filesToRun[f]))
                 if (f==filelength-1):
                     temp.write("\n")
@@ -1629,8 +1635,9 @@ class dbsBaseGui:
                     tempoutput.append('process.source = cms.Source("PoolSource",\n')
                     tempoutput.append('\tfileNames= cms.untracked.vstring(\n') # jeff
                     for f in range(0,filelength):
-                        if (f==filelength-1):
+                        if (f==filelength-1 or f==250):
                             tempoutput.append("\t\t'%s')\n"%string.strip(filesToRun[f]))
+                            break # can't have more than 255 runs in the fileList, for some dumb reason
                         else:
                             tempoutput.append("\t\t'%s',\n"%string.strip(filesToRun[f]))
                     tempoutput.append("\t)\n")
@@ -1671,6 +1678,18 @@ class dbsBaseGui:
                     # now move object to final directory
                     os.system("mv %s %s"%(myobject,os.path.join(self.finalDir.get(),os.path.basename(myobject))))
 
+                    # temporary code for moving hotcell, deadcell lists to new directory
+                    # ADDED ON 2 NOV 2008
+                    statusname="HcalDQMstatus_%i.txt"%i
+                    if os.path.isfile(statusname):
+                        os.system("mv %s %s/%s"%(statusname,self.finalDir.get(),statusname))
+                    #if os.path.isfile("hcalHotCells.txt"):
+                    #    os.system("mv %s %s/hcalHotCells_run%i.txt"%("hcalHotCells.txt",self.finalDir.get(),i))
+
+                    #if os.path.isfile("hcalDeadCells.txt"):
+                    #    os.system("mv %s %s/hcalDeadCells_run%i.txt"%("hcalDeadCells.txt",self.finalDir.get(),i))
+
+                        
                     self.commentLabel.configure(text = "moved %s\n to directory %s"%(myobject,
                                                                                      self.finalDir.get()))
                     self.commentLabel.update_idletasks()

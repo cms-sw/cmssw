@@ -34,7 +34,9 @@ namespace {
 
 namespace lhef {
 
-Hadronisation::Hadronisation(const edm::ParameterSet &params)
+Hadronisation::Hadronisation(const edm::ParameterSet &params) :
+	psRequested(false),
+	psAsHepMC(true)
 {
 }
 
@@ -64,6 +66,32 @@ void Hadronisation::clear()
 {
 }
 
+std::set<std::string> Hadronisation::capabilities() const
+{
+	return std::set<std::string>();
+}
+
+void Hadronisation::matchingCapabilities(
+				const std::set<std::string> &capabilities)
+{
+	psRequested = false;
+	psAsHepMC = false;
+	for(std::set<std::string>::const_iterator iter = capabilities.begin();
+	    iter != capabilities.end(); ++iter) {
+		if (*iter == "hepmc")
+			psAsHepMC = true;
+		else if (*iter == "psFinalState")
+			psRequested = true;
+		else if (*iter == "matchSummary")
+			/* nothing */;
+		else if (!this->capabilities().count(*iter))
+			throw cms::Exception("Generator|LHEInterface")
+				<< "JetMatching expected capability \""
+				<< *iter << "\", but hadronizer does not "
+				   "support it." << std::endl;
+	}
+}
+
 std::auto_ptr<Hadronisation> Hadronisation::create(
 					const edm::ParameterSet &params)
 {
@@ -79,7 +107,7 @@ std::auto_ptr<Hadronisation> Hadronisation::create(
 	if (!plugin.get())
 		throw cms::Exception("InvalidGenerator")
 			<< "Unknown MC generator \"" << name << "\""
-			   " specified for hadronisation in LHESource."
+			   " specified for hadronisation in LHEProducer."
 			<< std::endl;
 
 	edm::LogInfo("Generator|LHEInterface")
@@ -111,11 +139,14 @@ void Hadronisation::newRunInfo(const boost::shared_ptr<LHERunInfo> &runInfo)
 bool Hadronisation::showeredEvent(
 			const boost::shared_ptr<HepMC::GenEvent> &event)
 {
-	const HepMC::GenVertex *signalVertex = event->signal_process_vertex();
-	if (!signalVertex) {
-		signalVertex = LHEEvent::findSignalVertex(event.get(), false);
-		event->set_signal_process_vertex(
-			const_cast<HepMC::GenVertex*>(signalVertex));
+	if (event.get()) {
+		const HepMC::GenVertex *signalVertex =
+					event->signal_process_vertex();
+		if (!signalVertex) {
+			signalVertex = LHEEvent::findSignalVertex(event.get(), false);
+			event->set_signal_process_vertex(
+				const_cast<HepMC::GenVertex*>(signalVertex));
+		}
 	}
 
 	return sigShower.emit(event);

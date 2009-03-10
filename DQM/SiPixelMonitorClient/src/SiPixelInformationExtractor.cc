@@ -13,7 +13,7 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/WebComponents/interface/CgiReader.h"
+#include "DQM/TrackerCommon/interface/CgiReader.h"
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -72,7 +72,6 @@ SiPixelInformationExtractor::SiPixelInformationExtractor(bool offlineXMLfile) : 
   edm::LogInfo("SiPixelInformationExtractor") << 
     " Creating SiPixelInformationExtractor " << "\n" ;
   
-  canvas_ = new TCanvas("PlotCanvas", "Plot Canvas"); 
   readReference_ = false;
   allMods_=0;
   errorMods_=0;
@@ -89,7 +88,6 @@ SiPixelInformationExtractor::~SiPixelInformationExtractor() {
   edm::LogInfo("SiPixelInformationExtractor") << 
     " Deleting SiPixelInformationExtractor " << "\n" ;
   
-  if (canvas_) delete canvas_;
   if (histoPlotter_) delete histoPlotter_;
 }
 
@@ -1229,13 +1227,13 @@ int SiPixelInformationExtractor::getDetId(MonitorElement * mE)
  if( rx.search(mEName) != -1 )
  {
   detId = rx.cap(3).toInt() ;
- } else {
-  cout << ACYellow << ACBold
-       << "[SiPixelInformationExtractor::getDetId()] "
-       << ACPlain
-       << "Could not extract detId from "
-       << mEName
-       << endl ;
+// } else {
+//  cout << ACYellow << ACBold
+//       << "[SiPixelInformationExtractor::getDetId()] "
+//       << ACPlain
+//       << "Could not extract detId from "
+//       << mEName
+//       << endl ;
  }
       
   return detId ;
@@ -1368,8 +1366,8 @@ void SiPixelInformationExtractor::bookGlobalQualityFlag(DQMStore * bei, float no
     SummaryReportMap->setAxisTitle("Link #",2);
   }else{
     SummaryReportMap = bei->book2D("reportSummaryMap","Pixel Summary Map",7,0.,7.,22,1.,23.);
-    SummaryReportMap->setAxisTitle("Layer(Disk)",1);
-    SummaryReportMap->setAxisTitle("Ladder #",2);
+    //SummaryReportMap->setAxisTitle("Layer(Disk)",1);
+    SummaryReportMap->setAxisTitle("Ladder/Blade #",2);
     SummaryReportMap->setBinLabel(1,"Barrel_Layer_1",1);
     SummaryReportMap->setBinLabel(2,"Barrel_Layer_2",1);
     SummaryReportMap->setBinLabel(3,"Barrel_Layer_3",1);
@@ -1587,218 +1585,6 @@ void SiPixelInformationExtractor::computeGlobalQualityFlag(DQMStore * bei,
 
 }
 
-/*void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::EventSetup const& eSetup)
-{
-  //calculate eta and phi of the modules and fill a 2D plot:
-  
-  if(init){
-    allmodsMap = new TH2F("allmodsMap","allmodsMap",28,0.,28.,48,0.,48.);
-    errmodsMap = new TH2F("errmodsMap","errmodsMap",28,0.,28.,48,0.,48.);
-    goodmodsMap = new TH2F("goodmodsMap","goodmodsMap",28,0.,28.,48,0.,48.);
-    count=0; errcount=0;
-    init=false;
-  }
-  string currDir = bei->pwd();
-  string dname = currDir.substr(currDir.find_last_of("/")+1);
-  
-  QRegExp rx("Module_");
- 
-  if(rx.search(dname)!=-1){
-    vector<string> meVec = bei->getMEs();
-    float detEta=-5.; float detPhi=-5.;
-    bool first=true; bool once=true;
-    int xbin = -1; int ybin =-1; int xoffA = 0; int xoffB = 0; int yoffA = 0; int yoffB = 0;
-    bool gotData=false;
-    for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
-      //checking for any digis or FED errors to decide if this module is in DAQ:  
-      string full_path = currDir + "/" + (*it);
-      if(full_path.find("ndigis")!=string::npos || full_path.find("NErrors")!=string::npos){
-        MonitorElement * me = bei->get(full_path);
-        if (!me) continue;
-        if(me->getMean()>0.) gotData = true;
-      }
-      
-      if(!once) continue;
-      MonitorElement * me = bei->get(full_path);
-      if (!me) continue;*/
-/*      int id=0;
-      if(first){ id = getDetId(me); first=false; }
-      DetId detid = DetId(id);
-      if(detid.det()!=1) continue;
-      edm::ESHandle<TrackerGeometry> pDD;
-      eSetup.get<TrackerDigiGeometryRecord>().get( pDD );
-      for(TrackerGeometry::DetContainer::const_iterator it = 
-	  pDD->dets().begin(); it != pDD->dets().end(); it++){
-        if(dynamic_cast<PixelGeomDetUnit*>((*it))!=0){
-          DetId detId = (*it)->geographicalId();
-	  if(detId!=detid) continue;
-	  //if(detId.subdetId()!=1) continue;
-          const GeomDetUnit * geoUnit = pDD->idToDetUnit( detId );
-          const PixelGeomDetUnit * pixDet = dynamic_cast<const PixelGeomDetUnit*>(geoUnit);
-	  float detR = pixDet->surface().position().perp();
-	  float detZ = pixDet->surface().position().z();
-	  detPhi = pixDet->surface().position().phi();
-	  detEta = -1.*log(tan(atan2(detR,detZ)/2.));
-	  //cout<<"Module: "<<currDir<<" , Eta= "<<detEta<<" , Phi= "<<detPhi<<endl;
-	  once=false;
-	}
-      }*/
-      
-/*      if(full_path.find("Endcap")!=string::npos){ // Endcaps
-        if(full_path.find("_m")!=string::npos) xoffA = 19; // the -z endcaps are on the right hand side in x
-	if(full_path.find("_m")!=string::npos && full_path.find("Disk_2")!=string::npos) xoffB = 5; // on -z Disk_2 is right of Disk_1
-	if(full_path.find("_p")!=string::npos && full_path.find("Disk_1")!=string::npos) xoffB = 5; // on +z Disk_2 is left of Disk_1
-	if(full_path.find("_p")!=string::npos){
-	  if(full_path.find("Module_4")!=string::npos) xbin = 1+xoffA+xoffB;
-	  else if(full_path.find("Module_3")!=string::npos) xbin = 2+xoffA+xoffB;
-	  else if(full_path.find("Module_2")!=string::npos) xbin = 3+xoffA+xoffB;
-	  else if(full_path.find("Module_1")!=string::npos) xbin = 4+xoffA+xoffB;
-	}else if(full_path.find("_m")!=string::npos){
-	  if(full_path.find("Module_1")!=string::npos) xbin = 1+xoffA+xoffB;
-	  else if(full_path.find("Module_2")!=string::npos) xbin = 2+xoffA+xoffB;
-	  else if(full_path.find("Module_3")!=string::npos) xbin = 3+xoffA+xoffB;
-	  else if(full_path.find("Module_4")!=string::npos) xbin = 4+xoffA+xoffB;
-	}
-	if(full_path.find("Panel_2")!=string::npos) yoffA = 1; // Panel_2's are shifted by 1 bin in y w.r.t. their Panel_1 partner
-	if(full_path.find("HalfCylinder_mO")!=string::npos || full_path.find("HalfCylinder_pO")!=string::npos) yoffB = 24; // outer HC's have offset off 24 bins in y
-	if(full_path.find("Blade_01")!=string::npos) ybin = 1+yoffA+yoffB;
-	else if(full_path.find("Blade_02")!=string::npos) ybin = 3+yoffA+yoffB;
-	else if(full_path.find("Blade_03")!=string::npos) ybin = 5+yoffA+yoffB;
-	else if(full_path.find("Blade_04")!=string::npos) ybin = 7+yoffA+yoffB;
-	else if(full_path.find("Blade_05")!=string::npos) ybin = 9+yoffA+yoffB;
-	else if(full_path.find("Blade_06")!=string::npos) ybin = 11+yoffA+yoffB;
-	else if(full_path.find("Blade_07")!=string::npos) ybin = 13+yoffA+yoffB;
-	else if(full_path.find("Blade_08")!=string::npos) ybin = 15+yoffA+yoffB;
-	else if(full_path.find("Blade_09")!=string::npos) ybin = 17+yoffA+yoffB;
-	else if(full_path.find("Blade_10")!=string::npos) ybin = 19+yoffA+yoffB;
-	else if(full_path.find("Blade_11")!=string::npos) ybin = 21+yoffA+yoffB;
-	else if(full_path.find("Blade_12")!=string::npos) ybin = 23+yoffA+yoffB;
-      }else if(full_path.find("Barrel")!=string::npos){ // Barrel
-        if(full_path.find("_m")!=string::npos) xoffA = 1; 
-	if(full_path.find("Module_4")!=string::npos) xbin = 11+xoffA*7;
-	else if(full_path.find("Module_3")!=string::npos) xbin = 12+xoffA*5;
-	else if(full_path.find("Module_2")!=string::npos) xbin = 13+xoffA*3;
-	else if(full_path.find("Module_1")!=string::npos) xbin = 14+xoffA*1;
-	if(full_path.find("Layer_3")!=string::npos) yoffA = 2;
-	if(full_path.find("Layer_2")!=string::npos) yoffA = 8;
-	if(full_path.find("Layer_1")!=string::npos) yoffA = 14;
-	if(full_path.find("_mO")!=string::npos || full_path.find("_pO")!=string::npos) yoffB = 22;
-	if(full_path.find("Ladder_01")!=string::npos) ybin = 1+yoffA+yoffB;
-	else if(full_path.find("Ladder_02")!=string::npos) ybin = 2+yoffA+yoffB;
-	else if(full_path.find("Ladder_03")!=string::npos) ybin = 3+yoffA+yoffB;
-	else if(full_path.find("Ladder_04")!=string::npos) ybin = 4+yoffA+yoffB;
-	else if(full_path.find("Ladder_05")!=string::npos) ybin = 5+yoffA+yoffB;
-	else if(full_path.find("Ladder_06")!=string::npos) ybin = 6+yoffA+yoffB;
-	else if(full_path.find("Ladder_07")!=string::npos) ybin = 7+yoffA+yoffB;
-	else if(full_path.find("Ladder_08")!=string::npos) ybin = 8+yoffA+yoffB;
-	else if(full_path.find("Ladder_09")!=string::npos) ybin = 9+yoffA+yoffB;
-	else if(full_path.find("Ladder_10")!=string::npos) ybin = 10+yoffA+yoffB;
-	else if(full_path.find("Ladder_11")!=string::npos) ybin = 11+yoffA+yoffB;
-	else if(full_path.find("Ladder_12")!=string::npos) ybin = 12+yoffA+yoffB;
-	else if(full_path.find("Ladder_13")!=string::npos) ybin = 13+yoffA+yoffB;
-	else if(full_path.find("Ladder_14")!=string::npos) ybin = 14+yoffA+yoffB;
-	else if(full_path.find("Ladder_15")!=string::npos) ybin = 15+yoffA+yoffB;
-	else if(full_path.find("Ladder_16")!=string::npos) ybin = 16+yoffA+yoffB;
-	else if(full_path.find("Ladder_17")!=string::npos) ybin = 17+yoffA+yoffB;
-	else if(full_path.find("Ladder_18")!=string::npos) ybin = 18+yoffA+yoffB;
-	else if(full_path.find("Ladder_19")!=string::npos) ybin = 19+yoffA+yoffB;
-	else if(full_path.find("Ladder_20")!=string::npos) ybin = 20+yoffA+yoffB;
-	else if(full_path.find("Ladder_21")!=string::npos) ybin = 21+yoffA+yoffB;
-	else if(full_path.find("Ladder_22")!=string::npos) ybin = 22+yoffA+yoffB;
-      }
-      once=false;
-		
-    } //end of the for loop over all ME's for a given module
-    //cout<<"module: "<<bei->pwd()<<" , xbin="<<xbin<<" , ybin="<<ybin<<endl; 
-    //got module ID and eta and phi now! time to count:
-    
-    // only consider those modules that are actually in the readout.
-    if(gotData){
-      count++;
-      //allmodsEtaPhi->Fill(detEta,detPhi);
-      allmodsMap->Fill(xbin-1,ybin-1);
-      bool anyerr=false;
-      for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++){
-        if(anyerr) continue;
-        string full_path = currDir + "/" + (*it);
-        MonitorElement * me = bei->get(full_path);
-        if (!me) continue;
-        //use only presence of any FED error as error flag here:
-        if(full_path.find("NErrors")!=string::npos && me->getEntries()>0){
-	  full_path = full_path.replace(full_path.find("NErrors"),9,"errorType");
-	  me = bei->get(full_path);
-	  if(!me) anyerr=true;
-	  else{
-	    bool type30=false;
-	    for(int jj=1; jj<16; jj++){
-	      if(me->getBinContent(jj)>0.){
-	        if(jj!=6) anyerr=true;
-		else type30=true;
-	      }
-	    }
-	    if(type30){
-	      full_path = full_path.replace(full_path.find("errorType"),10,"TBMMessage");
-	      me = bei->get(full_path);
-	      if(!me) anyerr=true;
-	      else{
-	        for(int kk=1; kk<9; kk++){
-		  if(me->getBinContent(kk)>0.){
-		    if(kk!=6 && kk!=7) anyerr=true;
-		  }
-		}
-	      }
-	    }
-	  }
-	}// if NErrors
-	      
-	      
-        //use QTest results for error flag here:
-        //if(me->hasError()||me->hasWarning()||me->hasOtherReport()) anyerr=true;
-      }
-      if(anyerr){
-        errcount++;
-        //errmodsEtaPhi->Fill(detEta,detPhi);
-        errmodsMap->Fill(xbin-1,ybin-1);
-      }
-    }
-  }
-
-  vector<string> subDirVec = bei->getSubdirs();  
-  for (vector<string>::const_iterator ic = subDirVec.begin();
-       ic != subDirVec.end(); ic++) {
-    bei->cd(*ic);
-    init=false;
-    fillGlobalQualityPlot(bei,init,eSetup);
-    bei->goUp();
-  }
-  
-  SummaryReportMap = bei->get("Pixel/EventInfo/reportSummaryMap");
-  if(SummaryReportMap){ 
-    float contents=0.;
-    //for(int i=1; i!=61; i++)for(int j=1; j!=65; j++){
-    for(int i=1; i!=29; i++)for(int j=1; j!=49; j++){
-      //contents = (allmodsEtaPhi->GetBinContent(i,j))-(errmodsEtaPhi->GetBinContent(i,j));
-      contents = (allmodsMap->GetBinContent(i,j))-(errmodsMap->GetBinContent(i,j));
-      //cout<<"all: "<<allmodsMap->GetBinContent(i,j)<<" , error: "<<errmodsMap->GetBinContent(i,j)<<" , contents: "<<contents<<endl;
-      //goodmodsEtaPhi->SetBinContent(i,j,contents);
-      goodmodsMap->SetBinContent(i,j,contents);
-      //if(allmodsEtaPhi->GetBinContent(i,j)>0){
-      if(allmodsMap->GetBinContent(i,j)>0){
-	//contents = (goodmodsEtaPhi->GetBinContent(i,j))/(allmodsEtaPhi->GetBinContent(i,j));
-	contents = (goodmodsMap->GetBinContent(i,j))/(allmodsMap->GetBinContent(i,j));
-      }else{
-        contents = -1.;
-      }
-      //cout<<"MAP: "<<i<<","<<j<<","<<contents<<endl;
-      SummaryReportMap->setBinContent(i,j,contents);
-    }
-  }
-  if(allmodsMap) allmodsMap->Clear();
-  if(goodmodsMap) goodmodsMap->Clear();
-  if(errmodsMap) errmodsMap->Clear();
-  //cout<<"counters: "<<count<<" , "<<errcount<<endl;
-}*/
-
 void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::EventSetup const& eSetup, int nFEDs, bool Tier0Flag)
 {
   //calculate eta and phi of the modules and fill a 2D plot:
@@ -1837,12 +1623,15 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
     for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
       //checking for any digis or FED errors to decide if this module is in DAQ:  
       string full_path = currDir + "/" + (*it);
-      if(!Tier0Flag && detId==-1 && (full_path.find("ndigis")!=string::npos || full_path.find("NErrors")!=string::npos)){
+      if(!Tier0Flag && detId==-1 && full_path.find("SUMOFF")==string::npos &&
+         ((full_path.find("ndigis")!=string::npos && full_path.find("SUMDIG")==string::npos) || 
+	  (full_path.find("NErrors")!=string::npos && full_path.find("SUMRAW")==string::npos && (getDetId(bei->get(full_path)) > 100)))){
         MonitorElement * me = bei->get(full_path);
         if (!me) continue;
 	if((full_path.find("ndigis")!=string::npos && me->getMean()>0.) ||
 	   (full_path.find("NErrors")!=string::npos && me->getMean()>0.)){ 
           detId = getDetId(me);
+	  
 	  //cout<<"got a module with digis or errors and the detid is: "<<detId<<endl;
           for(int fedid=0; fedid<=40; ++fedid){
             SiPixelFrameConverter converter(theCablingMap.product(),fedid);
@@ -1852,6 +1641,7 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
               break;   
             }
           }
+	  
           if(fedId==-1) continue; 
           sipixelobjects::ElectronicIndex cabling; 
           SiPixelFrameConverter formatter(theCablingMap.product(),fedId);
@@ -1893,7 +1683,9 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
 	    //cout<<"this is a module that has errors: "<<detId<<","<<fedId<<","<<linkId<<endl;
 	  }
 	}
-      }else if(Tier0Flag && detId==-1 && (full_path.find("ndigis")!=string::npos || full_path.find("NErrors")!=string::npos)){
+      }else if(Tier0Flag && detId==-1 && full_path.find("SUMOFF")==string::npos && 
+               ((full_path.find("ndigis")!=string::npos && full_path.find("SUMDIG")==string::npos) || 
+	        (full_path.find("NErrors")!=string::npos && full_path.find("SUMRAW")==string::npos && (getDetId(bei->get(full_path)) > 100)))){
         MonitorElement * me = bei->get(full_path);
         if (!me) continue;
 	if((full_path.find("ndigis")!=string::npos && me->getMean()>0.) ||
@@ -2037,7 +1829,7 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore * bei, bool init, flo
       nevents_ = (bei->get("Pixel/EventInfo/processedEvents"))->getIntValue();
     }
     bei->cd();  
-    myfile_.open ("NoisyPixelList.txt");
+    myfile_.open ("NoisyPixelList.txt", ios::app);
     myfile_ << "Noise summary, ran over " << nevents_ << " events, threshold was set to " << noiseRate_ <<  std::endl;
   }
   string currDir = bei->pwd();
@@ -2180,10 +1972,12 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore * bei, bool init, flo
         sipixelobjects::LocalPixel::DcolPxid loc;
         loc.dcol = cabling.dcol;
         loc.pxid = cabling.pxid;
+
         const sipixelobjects::PixelFEDCabling *theFed= theCablingMap.product()->fed(realfedID);
         const sipixelobjects::PixelFEDLink * link = theFed->link(cabling.link);
         const sipixelobjects::PixelROC *theRoc = link->roc(cabling.roc);
         sipixelobjects::LocalPixel locpixel(loc);
+	
         int onlineColumn = locpixel.rocCol();
         int onlineRow= locpixel.rocRow();
 	myrocmap[(theRoc->idInDetUnit())]++;
@@ -2191,7 +1985,7 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore * bei, bool init, flo
         myfile_<<"NAME: "<<outputname<<" , DETID: "<<detid<<" , OFFLINE: col,row: "<<offlineColumn<<","<<offlineRow<<"  \t , ONLINE: roc,col,row: "<<theRoc->idInDetUnit()<<","<<onlineColumn<<","<<onlineRow<< "  \t , fed,dcol,pixid,link: "<<realfedID<<","<<loc.dcol<<","<<loc.pxid<<","<<cabling.link << ", Noise fraction: " << Noise_frac << std::endl;;
       }
       for(std::map<int, int>::const_iterator nrc = myrocmap.begin(); nrc != myrocmap.end(); nrc++){
-	if((*nrc).second > 1){
+	if((*nrc).second > 0){
 	  n_noisyrocs_all++;
 	  if(detSubId == 2){
 	    n_noisyrocs_endcap++;

@@ -76,9 +76,9 @@ typedef std::bitset<32> Bitset32;
 typedef std::map<const std::string, MonitorElement*> MeMap;
 
 /**
- * Class Definition
+ * @class CSCHLTMonitorModule
+ * @brief HLT Level CSC DQM module
  */
-
 class CSCHLTMonitorModule: public edm::EDAnalyzer {
 
   public:

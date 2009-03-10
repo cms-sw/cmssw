@@ -5,6 +5,18 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     #mctruth = cms.InputTag("genParticleCandidates"),
     mctruth = cms.InputTag("genParticles"),
     genEventScale = cms.InputTag("genEventScale"),
+
+### Trigger objects
+#    l1GctCounts = cms.InputTag("l1GctEmulDigis"),
+    l1GctCounts = cms.InputTag("gctDigis"),
+#    l1GtObjectMapRecord = cms.InputTag("l1GtEmulDigis"),
+    l1GtObjectMapRecord = cms.InputTag("gtDigis"),
+#    l1GtReadoutRecord = cms.InputTag("l1GmtEmulDigis"),
+    l1GtReadoutRecord = cms.InputTag("gtDigis"),
+    l1extramc = cms.string('l1extraParticles'),
+    l1extramu = cms.string('l1ParamMuons'),
+    hltresults = cms.InputTag("TriggerResults"),
+
 ### Reconstructed objects
     genjets = cms.InputTag("iterativeCone5GenJets"),
     genmet = cms.InputTag("genMet"),
@@ -16,22 +28,14 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     Electron = cms.InputTag("pixelMatchGsfElectrons"),
 #    Photon = cms.InputTag("correctedPhotons"),
     Photon = cms.InputTag("photons"),
-### Trigger objects
-#    l1GctCounts = cms.InputTag("l1GctEmulDigis"),
-    l1GctCounts = cms.InputTag("gctDigis"),
-#    l1GtObjectMapRecord = cms.InputTag("l1GtEmulDigis"),
-    l1GtObjectMapRecord = cms.InputTag("gtDigis"),
-#    l1GtReadoutRecord = cms.InputTag("l1GmtEmulDigis"),
-    l1GtReadoutRecord = cms.InputTag("gtDigis"),
-    l1extramc = cms.string('l1extraParticles'),
-    l1extramu = cms.string('l1ParamMuons'),
-    hltresults = cms.InputTag("TriggerResults"),
+
 ### Muon OpenHLT objects                             
     MuCandTag2 = cms.InputTag("hltL2MuonCandidates"),
     MuCandTag3 = cms.InputTag("hltL3MuonCandidates"),
     MuIsolTag3 = cms.InputTag("hltL3MuonIsolations"),
     MuIsolTag2 = cms.InputTag("hltL2MuonIsolations"),
     MuLinkTag = cms.InputTag("hltL3Muons"),
+
 ### Egamma OpenHLT objects                             
     CandIso = cms.InputTag("hltL1IsoRecoEcalCandidate"),
     CandNonIso = cms.InputTag("hltL1NonIsoRecoEcalCandidate"),
@@ -64,10 +68,15 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     IsoEleTrackIsolLargeWindows =cms.InputTag("hltL1IsoLargeWindowElectronTrackIsol"),
     NonIsoEleTrackIsolLargeWindows =cms.InputTag("hltL1NonIsoLargeWindowElectronTrackIsol"),
     HLTTau =cms.InputTag("TauOpenHLT"),
+
     ########
+    CommonBJetsL2                   = cms.InputTag("hltIterativeCone5CaloJets"),
+    CorrectedBJetsL2                = cms.InputTag("hltMCJetCorJetIcone5"),
     LifetimeBJetsL2     = cms.InputTag("hltBLifetimeL25Jets"),              # or "hltBLifetimeL25JetsRelaxed"
     LifetimeBJetsL25    = cms.InputTag("hltBLifetimeL25BJetTags"),          # or "hltBLifetimeL25BJetTagsRelaxed"
     LifetimeBJetsL3     = cms.InputTag("openHltBLifetimeL3BJetTags"),       # or "openHltBLifetimeL3BJetTagsRelaxed"
+    LifetimeBJetsL25Relaxed         = cms.InputTag("openHltBLifetimeL25BJetTags"),
+    LifetimeBJetsL3Relaxed          = cms.InputTag("openHltBLifetimeL3BJetTagsRelaxed"),
     SoftmuonBJetsL2     = cms.InputTag("hltBSoftmuonL25Jets"),
     SoftmuonBJetsL25    = cms.InputTag("hltBSoftmuonL25BJetTags"),
     SoftmuonBJetsL3     = cms.InputTag("hltBSoftmuonL3BJetTags"),
@@ -76,13 +85,13 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     PerformanceBJetsL3  = cms.InputTag("hltBSoftmuonL3BJetTagsByDR"),
     ########
     RunParameters = cms.PSet(
-        GenJetMin = cms.double(0.0),
-        Monte = cms.bool(True),
-        CalJetMin = cms.double(0.0),
-        HistogramFile = cms.string('TEST.root'),
-        EtaMin = cms.double(-5.2),
-        Debug = cms.bool(False),
-        EtaMax = cms.double(5.2)
+       HistogramFile = cms.untracked.string('openhlt.root'),
+        EtaMin        = cms.untracked.double(-5.2),
+        EtaMax        = cms.untracked.double( 5.2),
+        CalJetMin     = cms.double(0.0),
+        GenJetMin     = cms.double(0.0),
+        Monte         = cms.bool(True),
+        Debug         = cms.bool(False)
     )
 
 )

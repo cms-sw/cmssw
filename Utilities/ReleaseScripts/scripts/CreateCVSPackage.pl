@@ -1,11 +1,11 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 #______________  ______________________________________________________ 
 # File: CreateCVSPackage.pl
 #____________________________________________________________________ 
 #  
 # Author: Shaun ASHBY <Shaun.Ashby@cern.ch>
 # Update: 2006-04-28 09:50:38+0200
-# Revision: $Id: CreateCVSPackage.pl,v 1.11 2007/07/30 19:08:01 dlange Exp $ 
+# Revision: $Id: CreateCVSPackage.pl,v 1.12 2008/10/13 09:49:18 dlange Exp $ 
 #
 # Copyright: 2006 (C) Shaun ASHBY
 #
@@ -17,7 +17,7 @@ use File::Basename;
 # Fixed parameters:
 my $cvs = '/usr/bin/cvs';
 my $projectroot = 'CMSSW';
-my $cvsroot = ':kserver:cmscvs.cern.ch:/cvs_server/repositories/'.$projectroot;
+my $cvsroot = ':gserver:cmscvs.cern.ch:/cvs_server/repositories/'.$projectroot;
 
 # Use CVSROOT to override:
 if ($ENV{CVSROOT}) {

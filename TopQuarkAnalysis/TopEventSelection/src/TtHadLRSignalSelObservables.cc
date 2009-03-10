@@ -31,18 +31,18 @@ void TtHadLRSignalSelObservables::operator() (TtHadEvtSolution &TS)
   TLorentzVector *Hadk = new TLorentzVector();
   TLorentzVector *Hadb = new TLorentzVector();	
   TLorentzVector *Hadbbar = new TLorentzVector();
-  Hadp->SetPxPyPzE(topJets[0].recJet().px(),topJets[0].recJet().py(),topJets[0].recJet().pz(),topJets[3].recJet().energy());
-  Hadq->SetPxPyPzE(topJets[1].recJet().px(),topJets[1].recJet().py(),topJets[1].recJet().pz(),topJets[2].recJet().energy());	
-  Hadj->SetPxPyPzE(topJets[2].recJet().px(),topJets[2].recJet().py(),topJets[2].recJet().pz(),topJets[2].recJet().energy());
-  Hadk->SetPxPyPzE(topJets[3].recJet().px(),topJets[3].recJet().py(),topJets[3].recJet().pz(),topJets[3].recJet().energy());
-  Hadb->SetPxPyPzE(topJets[4].recJet().px(),topJets[4].recJet().py(),topJets[4].recJet().pz(),topJets[1].recJet().energy());
-  Hadbbar->SetPxPyPzE(topJets[4].recJet().px(),topJets[4].recJet().py(),topJets[4].recJet().pz(),topJets[1].recJet().energy());
+  Hadp->SetPxPyPzE(topJets[0].px(),topJets[0].py(),topJets[0].pz(),topJets[3].energy());
+  Hadq->SetPxPyPzE(topJets[1].px(),topJets[1].py(),topJets[1].pz(),topJets[2].energy());	
+  Hadj->SetPxPyPzE(topJets[2].px(),topJets[2].py(),topJets[2].pz(),topJets[2].energy());
+  Hadk->SetPxPyPzE(topJets[3].px(),topJets[3].py(),topJets[3].pz(),topJets[3].energy());
+  Hadb->SetPxPyPzE(topJets[4].px(),topJets[4].py(),topJets[4].pz(),topJets[1].energy());
+  Hadbbar->SetPxPyPzE(topJets[4].px(),topJets[4].py(),topJets[4].pz(),topJets[1].energy());
   
   //sort the topJets in Et
   std::sort(topJets.begin(),topJets.end(),EtComparator);
   
   //Et-Sum of the lightest jets
-  double EtSum = topJets[5].recJet().et()+topJets[5].recJet().et();
+  double EtSum = topJets[5].et()+topJets[5].et();
   double Obs1 = (EtSum>0 ? EtSum : -1);
   evtselectVarVal.push_back(pair<unsigned int,double>(1,Obs1));
   
@@ -63,7 +63,7 @@ void TtHadLRSignalSelObservables::operator() (TtHadEvtSolution &TS)
   // C = 2min(E(pt.n)^2/E(pt)^2) = 2*N/D but it is theorically preferable to use C'=PI/2*min(E|pt.n|/E|pt|), sum over all jets+lepton+MET (cf PhysRevD 48 R3953(Nov 1993))
   
   for(unsigned int i=0;i<6;i++){
-    D += fabs(topJets[i].recJet().pt());
+    D += fabs(topJets[i].pt());
   }
   
   if((D>0)){
@@ -74,7 +74,7 @@ void TtHadLRSignalSelObservables::operator() (TtHadEvtSolution &TS)
       nz = 0;
       N=0;
       for(unsigned int i=0;i<4;i++){
-	N += fabs(topJets[i].recJet().px()*nx+topJets[i].recJet().py()*ny+topJets[i].recJet().pz()*nz);
+	N += fabs(topJets[i].px()*nx+topJets[i].py()*ny+topJets[i].pz()*nz);
       }
       C_tmp = 2*N/D;
       if(C_tmp<C) C = C_tmp;
@@ -88,7 +88,7 @@ void TtHadLRSignalSelObservables::operator() (TtHadEvtSolution &TS)
   //HT variable (Et-sum of the six jets)
   double HT=0;
   for(unsigned int i=0;i<6;i++){
-    HT += topJets[i].recJet().et();
+    HT += topJets[i].et();
   }
   
   double Obs4 = ( HT!=0 ? HT : -1);
@@ -98,7 +98,7 @@ void TtHadLRSignalSelObservables::operator() (TtHadEvtSolution &TS)
   XYZTLorentzVector pjets;
   // for the six jets 
   for(unsigned int i=0;i<6;i++){
-    pjets += topJets[i].recJet().p4();
+    pjets += topJets[i].p4();
   }
   double MT = sqrt(pow(pjets.mass(),2));
   double Obs5 = ( MT>0 ? MT : -1);
@@ -108,14 +108,14 @@ void TtHadLRSignalSelObservables::operator() (TtHadEvtSolution &TS)
   //sort the lightJets in Et
   std::sort(topJets.begin(),topJets.end(),EtComparator);
   
-  double px1 = topJets[2].recJet().px();     double px2 = topJets[3].recJet().px();
-  double py1 = topJets[2].recJet().py();     double py2 = topJets[3].recJet().py();
-  double pz1 = topJets[2].recJet().pz();     double pz2 = topJets[3].recJet().pz();
-  double E1  = topJets[2].recJet().energy(); double E2  = topJets[3].recJet().energy();
-  double px3 = topJets[4].recJet().px();     double px4 = topJets[5].recJet().px();
-  double py3 = topJets[4].recJet().py();     double py4 = topJets[5].recJet().py();
-  double pz3 = topJets[4].recJet().pz();     double pz4 = topJets[5].recJet().pz();
-  double E3  = topJets[4].recJet().energy(); double E4  = topJets[5].recJet().energy();
+  double px1 = topJets[2].px();     double px2 = topJets[3].px();
+  double py1 = topJets[2].py();     double py2 = topJets[3].py();
+  double pz1 = topJets[2].pz();     double pz2 = topJets[3].pz();
+  double E1  = topJets[2].energy(); double E2  = topJets[3].energy();
+  double px3 = topJets[4].px();     double px4 = topJets[5].px();
+  double py3 = topJets[4].py();     double py4 = topJets[5].py();
+  double pz3 = topJets[4].pz();     double pz4 = topJets[5].pz();
+  double E3  = topJets[4].energy(); double E4  = topJets[5].energy();
   
   TLorentzVector *LightJet1 = new TLorentzVector();
   TLorentzVector *LightJet2 = new TLorentzVector();
@@ -269,7 +269,7 @@ void TtHadLRSignalSelObservables::operator() (TtHadEvtSolution &TS)
   // Centrality of the six jets
   double H=0;
   for(unsigned int i=0;i<6;i++){
-    H += topJets[i].recJet().energy();
+    H += topJets[i].energy();
   }
   double Obs16 = ( H != 0 ? HT/H : -1 );
   evtselectVarVal.push_back(pair<unsigned int,double>(16,Obs16));

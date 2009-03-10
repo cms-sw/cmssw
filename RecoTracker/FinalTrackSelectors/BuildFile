@@ -20,7 +20,6 @@
 <use name=MagneticField/Engine>
 <use name=MagneticField/Records>
 <use name=TrackingTools/PatternTools>
-<use name=TrackingTools/TransientTrack>
 <use name=clhep>
 <flags EDM_PLUGIN=1>
 <export>

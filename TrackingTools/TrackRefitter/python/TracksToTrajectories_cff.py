@@ -1,61 +1,51 @@
 import FWCore.ParameterSet.Config as cms
 
+from TrackingTools.KalmanUpdators.KFUpdatorESProducer_cfi import *
+from RecoMuon.TransientTrackingRecHit.MuonTransientTrackingRecHitBuilder_cfi import *
+from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi import *
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
 from RecoLocalTracker.SiPixelRecHits.PixelCPEParmError_cfi import *
 from RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi import *
-from RecoLocalTracker.SiPixelRecHits.PixelCPEGeneric_cfi import *
-
-from TrackingTools.KalmanUpdators.KFUpdatorESProducer_cfi import *
 from TrackingTools.GeomPropagators.SmartPropagator_cff import *
+Chi2EstimatorForRefit = cms.ESProducer("Chi2MeasurementEstimatorESProducer",
+    ComponentName = cms.string('Chi2EstimatorForRefit'),
+    nSigma = cms.double(3.0),
+    MaxChi2 = cms.double(100000.0)
+)
 
-from RecoMuon.TransientTrackingRecHit.MuonTransientTrackingRecHitBuilder_cfi import *
-from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi import *
+KFFitterForRefitOutsideIn = cms.ESProducer("KFTrajectoryFitterESProducer",
+    ComponentName = cms.string('KFFitterForRefitOutsideIn'),
+    Estimator = cms.string('Chi2EstimatorForRefit'),
+    Propagator = cms.string('SmartPropagatorAnyRK'),
+    Updator = cms.string('KFUpdator'),
+    minHits = cms.int32(3)
+)
 
-from TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi import *
-
-Chi2EstimatorForRefit = Chi2MeasurementEstimator.clone()
-Chi2EstimatorForRefit.ComponentName = cms.string('Chi2EstimatorForRefit')
-Chi2EstimatorForRefit.MaxChi2 = cms.double(100000.0)
-Chi2EstimatorForRefit.nSigma = cms.double(3.0)
-
-
-from TrackingTools.TrackFitters.KFTrajectoryFitterESProducer_cfi import *
-from TrackingTools.TrackFitters.KFTrajectorySmootherESProducer_cfi import *
-
-KFFitterForRefitOutsideIn = KFTrajectoryFitter.clone()
-KFFitterForRefitOutsideIn.ComponentName = cms.string('KFFitterForRefitOutsideIn')
-KFFitterForRefitOutsideIn.Propagator = cms.string('SmartPropagatorAnyRK')
-KFFitterForRefitOutsideIn.Updator = cms.string('KFUpdator')
-KFFitterForRefitOutsideIn.Estimator = cms.string('Chi2EstimatorForRefit')
-KFFitterForRefitOutsideIn.minHits = cms.int32(3)
-
-
-KFSmootherForRefitOutsideIn = KFTrajectorySmoother.clone()
-KFSmootherForRefitOutsideIn.ComponentName = cms.string('KFSmootherForRefitOutsideIn')
-KFSmootherForRefitOutsideIn.Propagator = cms.string('SmartPropagatorRK')
-KFSmootherForRefitOutsideIn.Updator = cms.string('KFUpdator')
-KFSmootherForRefitOutsideIn.Estimator = cms.string('Chi2EstimatorForRefit')
-KFSmootherForRefitOutsideIn.errorRescaling = cms.double(100.0)
-KFSmootherForRefitOutsideIn.minHits = cms.int32(3)
-
+KFSmootherForRefitOutsideIn = cms.ESProducer("KFTrajectorySmootherESProducer",
+    errorRescaling = cms.double(100.0),
+    minHits = cms.int32(3),
+    ComponentName = cms.string('KFSmootherForRefitOutsideIn'),
+    Estimator = cms.string('Chi2EstimatorForRefit'),
+    Updator = cms.string('KFUpdator'),
+    Propagator = cms.string('SmartPropagatorRK')
+)
 
 #
-KFFitterForRefitInsideOut = KFTrajectoryFitter.clone()
-KFFitterForRefitInsideOut.ComponentName = cms.string('KFFitterForRefitInsideOut')
-KFFitterForRefitInsideOut.Propagator = cms.string('SmartPropagatorAnyRK')
-KFFitterForRefitInsideOut.Updator = cms.string('KFUpdator')
-KFFitterForRefitInsideOut.Estimator = cms.string('Chi2EstimatorForRefit')
-KFFitterForRefitInsideOut.minHits = cms.int32(3)
+KFFitterForRefitInsideOut = cms.ESProducer("KFTrajectoryFitterESProducer",
+    ComponentName = cms.string('KFFitterForRefitInsideOut'),
+    Estimator = cms.string('Chi2EstimatorForRefit'),
+    Propagator = cms.string('SmartPropagatorAnyRK'),
+    Updator = cms.string('KFUpdator'),
+    minHits = cms.int32(3)
+)
 
-
-KFSmootherForRefitInsideOut = KFTrajectorySmoother.clone()
-KFSmootherForRefitInsideOut.ComponentName = cms.string('KFSmootherForRefitInsideOut')
-KFSmootherForRefitInsideOut.Propagator = cms.string('SmartPropagatorAnyRK')
-KFSmootherForRefitInsideOut.Updator = cms.string('KFUpdator')
-KFSmootherForRefitInsideOut.Estimator = cms.string('Chi2EstimatorForRefit')
-KFSmootherForRefitInsideOut.errorRescaling = cms.double(100.0)
-KFSmootherForRefitInsideOut.minHits = cms.int32(3)
-
-
+KFSmootherForRefitInsideOut = cms.ESProducer("KFTrajectorySmootherESProducer",
+    errorRescaling = cms.double(100.0),
+    minHits = cms.int32(3),
+    ComponentName = cms.string('KFSmootherForRefitInsideOut'),
+    Estimator = cms.string('Chi2EstimatorForRefit'),
+    Updator = cms.string('KFUpdator'),
+    Propagator = cms.string('SmartPropagatorAnyRK')
+)
 
 

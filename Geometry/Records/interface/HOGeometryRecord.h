@@ -15,7 +15,6 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "CondFormats/AlignmentRecord/interface/HOAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/HOAlignmentErrorRcd.h"
-#include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "boost/mpl/vector.hpp"
 
 
@@ -25,9 +24,7 @@ class HOGeometryRecord :
 		boost::mpl::vector<
                 IdealGeometryRecord,
 		HOAlignmentRcd, 
-		HOAlignmentErrorRcd,
-		GlobalPositionRcd
-		> > {};
+		HOAlignmentErrorRcd> > {};
 
 #endif /* RECORDS_HOGEOMETRYRECORD_H */
 

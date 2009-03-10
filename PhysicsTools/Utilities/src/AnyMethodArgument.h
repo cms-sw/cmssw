@@ -3,6 +3,7 @@
 
 #include "Reflex/Object.h"
 #include "Reflex/Member.h"
+#include "PhysicsTools/Utilities/interface/Exception.h"
 #include <algorithm>
 
 #include <string>
@@ -21,6 +22,7 @@ namespace reco {
 
     class AnyMethodArgumentFixup : public boost::static_visitor<std::pair<AnyMethodArgument, int> > {
         private:
+            ROOT::Reflex::Type rflxType_;
             const std::type_info & type_;
             template<typename From, typename To>
             std::pair<AnyMethodArgument, int> retOk_(const From &f, int cast) const {
@@ -42,15 +44,25 @@ namespace reco {
                 return std::pair<AnyMethodArgument,int>(t,-1);
             }
         public:
-            AnyMethodArgumentFixup(const ROOT::Reflex::Type & type) : 
+            AnyMethodArgumentFixup(ROOT::Reflex::Type type) : 
+                rflxType_(type),
                 type_(type.Name() == "string" ? typeid(std::string) : type.TypeInfo()) // Otherwise Reflex does this wrong :-(
             {
-                //std::cerr << "\nAnyMethodArgumentFixup: Conversion [" << type.Name() << "] => [" << type_.name() << "]" << std::endl;
+                while (rflxType_.IsTypedef()) rflxType_ = rflxType_.ToType();
+                /* // Code to print out enum table 
+                if (rflxType_.IsEnum()) {
+                    std::cerr << "Enum conversion: [" << rflxType_.Name() <<  "] => [" << type_.name() << "]" << std::endl;
+                    std::cerr << "Enum has " << rflxType_.MemberSize() << ", members." << std::endl;
+                    for (size_t i = 0; i < rflxType_.MemberSize(); ++i) {
+                        ROOT::Reflex::Member mem = rflxType_.MemberAt(i);
+                        std::cerr << " member #"<<i<<", name = " << mem.Name() << ", rflxType_ = " << mem.TypeOf().Name() << std::endl; 
+                    }
+                } // */
             }
 
             // we handle all integer types through 'int', as that's the way they are parsed by boost::spirit
-            std::pair<AnyMethodArgument,int> operator()(const  int8_t  &t)  const { return doInt(t); }
-            std::pair<AnyMethodArgument,int> operator()(const uint8_t  &t)  const { return doInt(t); }
+            std::pair<AnyMethodArgument,int> operator()(const   int8_t &t) const { return doInt(t); }
+            std::pair<AnyMethodArgument,int> operator()(const  uint8_t &t) const { return doInt(t); }
             std::pair<AnyMethodArgument,int> operator()(const  int16_t &t) const { return doInt(t); }
             std::pair<AnyMethodArgument,int> operator()(const uint16_t &t) const { return doInt(t); }
             std::pair<AnyMethodArgument,int> operator()(const  int32_t &t) const { return doInt(t); }
@@ -70,6 +82,19 @@ namespace reco {
             }
             std::pair<AnyMethodArgument,int> operator()(const std::string &t) const { 
                 if (type_ == typeid(std::string)) { return std::pair<AnyMethodArgument,int>(t,0); }
+                if (rflxType_.IsEnum()) {
+                    ROOT::Reflex::Member value = rflxType_.MemberByName(t);
+                    //std::cerr << "Trying to convert '" << t << "'  to a value for enumerator '" << rflxType_.Name() << "'" << std::endl;
+                    if (!value) // check for existing value
+                        throw parser::Exception(t.c_str()) << "Can't convert '" << t << "' to a value for enumerator '" << rflxType_.Name() << "'\n";
+                    //std::cerr << "  found member of type '" << value.TypeOf().Name() << "'" << std::endl;
+                    if (value.TypeOf().TypeInfo() != typeid(int)) // check is backed by an Int
+                        throw parser::Exception(t.c_str()) << "Enumerator '" << rflxType_.Name() << "' is not implemented by type 'int' !!??\n";
+                    //std::cerr << "  value is @ " <<   reinterpret_cast<const int *>(value.Get().Address()) << std::endl;
+                    int ival = * reinterpret_cast<const int *>(value.Get().Address());
+                    //std::cerr << "  value is = " << ival << std::endl;
+                    return std::pair<AnyMethodArgument,int>(ival,1);
+                }
                 return std::pair<AnyMethodArgument,int>(t,-1);
             }
 

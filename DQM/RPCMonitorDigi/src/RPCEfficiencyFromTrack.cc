@@ -208,7 +208,7 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
  
       RPCstate.clear();
  
-      if(track.numberOfValidHits()>25){
+      if(track.numberOfValidHits()>24.){
 	for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
 	  if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
 	    RPCChamber* ch = dynamic_cast< RPCChamber* >( *it );
@@ -234,8 +234,10 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	      
 		if(tsosAtRPC.isValid()
 		   && fabs(tsosAtRPC.localPosition().z()) < 0.01 
-		   && fabs(tsosAtRPC.localPosition().x()) < (rsize-2.5) 
-		   && fabs(tsosAtRPC.localPosition().y()) < (stripl*0.5-2.5)){
+		   && fabs(tsosAtRPC.localPosition().x()) < rsize 
+		   && fabs(tsosAtRPC.localPosition().y()) < stripl*0.5){
+		  //&& tsosAtRPC.localError().positionError().xx()<1.
+		  //&& tsosAtRPC.localError().positionError().yy()<1.){
 		  RPCstate[rollId]=tsosAtRPC;
 		}	      
 	      }
@@ -258,6 +260,8 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 		   && fabs(tsosAtRPC.localPosition().z()) < 0.01 
 		   && fabs(tsosAtRPC.localPosition().x()) < rsize 
 		   && fabs(tsosAtRPC.localPosition().y()) < stripl*0.5){
+		  //&& tsosAtRPC.localError().positionError().xx()<1.
+		  //&& tsosAtRPC.localError().positionError().yy()<1.){
 		  RPCstate[rollId]=tsosAtRPC;
 		}	      
 	      }
@@ -313,7 +317,13 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	  
 	  LocalError RecError = (*recIt).localPositionError();
 	  double sigmaRec = RecError.xx();
-	  res = (double)(xextrap - rhitpos);	 
+	  res = (double)(xextrap - rhitpos);
+	  
+	  sprintf(meIdRPC,"ClusterSize_%s",detUnitLabel);
+	  meMap[meIdRPC]->Fill((*recIt).clusterSize());
+	  
+	  sprintf(meIdRPC,"BunchX_%s",detUnitLabel);
+	  meMap[meIdRPC]->Fill((*recIt).BunchX());	 
 	  
 	  sprintf(meIdRPC,"Residuals_%s",detUnitLabel);
 	  meMap[meIdRPC]->Fill(res);
@@ -378,7 +388,6 @@ void RPCEfficiencyFromTrack::endJob(){
   std::map<RPCDetId, int> reje = counter[2];
   std::map<RPCDetId, int>::iterator irpc;
   int f=0;
-
   for (irpc=pred.begin(); irpc!=pred.end();irpc++){
     RPCDetId id=irpc->first;
     RPCGeomServ RPCname(id);
@@ -414,6 +423,31 @@ void RPCEfficiencyFromTrack::endJob(){
     std::cout<<"No predictions in this file = 0!!!"<<std::endl;
   }
 
+  std::vector<std::string>::iterator meIt;
+  int id=0;
+  for(meIt = _idList.begin(); meIt != _idList.end(); ++meIt){
+    id++;
+    char detUnitLabel[128];
+    char meIdRPC [128];
+    char meIdTrack [128];
+    char effIdRPC [128];
+
+    sprintf(detUnitLabel ,"%s",(*meIt).c_str());
+    sprintf(meIdRPC,"RPCDataOccupancy_%s",detUnitLabel);
+    sprintf(meIdTrack,"ExpectedOccupancyFromTrack_%s",detUnitLabel);
+    sprintf(effIdRPC,"EfficienyFromTrackExtrapolation_%s",detUnitLabel);
+
+    std::map<std::string, MonitorElement*> meMap=meCollection[*meIt];
+
+    for(unsigned int i=1;i<=100;++i){
+      if(meMap[meIdTrack]->getBinContent(i) != 0){
+	float eff = meMap[meIdRPC]->getBinContent(i)/meMap[meIdTrack]->getBinContent(i);
+	float erreff = sqrt(eff*(1-eff)/meMap[meIdTrack]->getBinContent(i));
+	meMap[effIdRPC]->setBinContent(i,eff*100.);
+	meMap[effIdRPC]->setBinError(i,erreff*100.);
+      }
+    }
+  } 
   if(EffSaveRootFile) dbe->save(EffRootFileName);
 }
 

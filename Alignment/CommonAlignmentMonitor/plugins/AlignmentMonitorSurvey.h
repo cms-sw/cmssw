@@ -13,7 +13,7 @@
 //
 // Original Author:  Nhan Tran
 //         Created:  10/8/07
-// $Id: AlignmentMonitorSurvey.h,v 1.4 2008/02/22 01:21:45 cklae Exp $
+// $Id: AlignmentMonitorSurvey.h,v 1.3 2008/01/03 13:10:35 cklae Exp $
 
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorBase.h"
 
@@ -26,8 +26,7 @@ class AlignmentMonitorSurvey:
 	
   virtual void book();
 
-  virtual void event(const edm::Event&,
-		     const edm::EventSetup&,
+  virtual void event(const edm::EventSetup&,
 		     const ConstTrajTrackPairCollection&) {}
 
   private:

@@ -41,8 +41,13 @@
 #include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCChamber.h"
@@ -50,10 +55,13 @@
 #include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
-
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalVector.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 // #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-
 
 #include "TVector3.h"
 #include "TH1F.h"
@@ -101,6 +109,12 @@ private:
   // select muons which go through inner part of stations 1,2,3,4
   bool doHaloLike(edm::Handle<CSCSegmentCollection> cscSegments);
 
+  // select events with long stand-alone (cosmic) muons
+  bool doLongSATrack(edm::Handle<reco::TrackCollection> saTracks);
+
+  // select events suitable for magnetic field studies - they have a track in the tracker
+  bool doBFieldStudySelection(edm::Handle<reco::TrackCollection> saTracks, edm::Handle<reco::TrackCollection> Tracks, edm::Handle<reco::MuonCollection> gMuons);
+
   // some useful functions
   int    chamberSerial(int kE, int kS, int kR, int kCh);
 
@@ -113,6 +127,8 @@ private:
   int nEventsCertainChamber;
   int nEventsDTOverlap;
   int nEventsHaloLike;
+  int nEventsLongSATrack;
+  int nEventsForBFieldStudies;
 
   // run and event number
   int iRun;
@@ -138,6 +154,17 @@ private:
   int whichStation;
   int whichRing;
   int whichChamber;
+  // parameters for B-field study skim
+  float pMin;
+  float zLengthMin;
+  int nCSCHitsMin;
+  float zInnerMax;
+  int nTrHitsMin;
+  float zLengthTrMin;
+  float rExtMax;
+  float redChiSqMax;
+  int nValidHitsMin;
+
 
   // histograms for skimming module
   TH1F *hxnRecHits;
@@ -150,5 +177,8 @@ private:
   TH1F *mevnRecHits1;
   TH1F *mevnChambers1;
   TH1F *mevnSegments1;
+
+  TH1F *xxP, *xxnValidHits, *xxnCSCHits, *xxredChiSq, *xxnTrackerHits;
+
 };
 #endif

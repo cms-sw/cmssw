@@ -7,7 +7,7 @@
 //
 // Original Author:  Dong Ho Moon
 //         Created:  Wed May  9 06:22:36 CEST 2007
-// $Id: HITrackVertexMaker.cc,v 1.6 2008/09/14 12:25:20 kodolova Exp $
+// $Id: HITrackVertexMaker.cc,v 1.8 2009/01/11 15:15:38 hegner Exp $
 //
 //
  
@@ -124,7 +124,7 @@ HITrackVertexMaker::HITrackVertexMaker(const edm::ParameterSet& ps1, const edm::
     double theChiSquareCut = 500.;
     double nsig = 3.;
     int theLowMult = 1;
-    theEstimator = new HICMeasurementEstimator(theChiSquareCut, nsig, &(*tracker), &(*magfield));
+    theEstimator = new HICMeasurementEstimator(&(*tracker), &(*magfield), theChiSquareCut, nsig);
     std::string updatorName = "KFUpdator";
     std::string propagatorAlongName    = "PropagatorWithMaterial";
     std::string propagatorOppositeName = "PropagatorWithMaterialOpposite";
@@ -253,7 +253,9 @@ for(gmt_iter1 = exc1.begin(); gmt_iter1!=exc1.end(); gmt_iter1++)
    RecoChargedCandidateCollection::const_iterator L2cand1;
    RecoChargedCandidateCollection::const_iterator L2cand2;
       
+#ifdef DEBUG
    cout<<" Number of muon candidates "<<L2mucands->size()<<endl;
+#endif
 
    if( L2mucands->size() < 2 ) return dimuon;
    
@@ -360,7 +362,12 @@ for(gmt_iter1 = exc1.begin(); gmt_iter1!=exc1.end(); gmt_iter1++)
 	                                    allTraj.insert(allTraj.end(),theTmpTrajectories.begin(),theTmpTrajectories.end());
 					    theTmpTrajectories0.insert(theTmpTrajectories0.end(),theTmpTrajectories.begin(),theTmpTrajectories.end());
 	                                }
-	if(theTmpTrajectories0.size() > 0) { std::cout<<"We found trajectories for at least one seed "<<std::endl; break;}
+	if(theTmpTrajectories0.size() > 0) { 
+#ifdef DEBUG
+          std::cout<<"We found trajectories for at least one seed "<<std::endl; 
+#endif
+          break;
+        }
 					
         iseedn++;
 	    
@@ -377,7 +384,9 @@ for(gmt_iter1 = exc1.begin(); gmt_iter1!=exc1.end(); gmt_iter1++)
      if(iseedn > 0) numofseeds++;
    } // Muon Free trajectory state
 
+#ifdef DEBUG
    cout<<" Number of muons trajectories in MUON "<<theFts.size()<<" Number of seeds "<<numofseeds+1<<endl;
+#endif
         
 //
 // start fitting procedure
@@ -503,7 +512,12 @@ for(gmt_iter1 = exc1.begin(); gmt_iter1!=exc1.end(); gmt_iter1++)
       }
     } // Traj
 
-   if( thePositiveTracks.size() < 1 || theNegativeTracks.size() < 1 ){ cout<<" No enough tracks to get vertex "<<endl; return dimuon; }
+   if( thePositiveTracks.size() < 1 || theNegativeTracks.size() < 1 ){ 
+#ifdef DEBUG
+     cout<<" No enough tracks to get vertex "<<endl; 
+#endif
+     return dimuon; 
+   }
 
    bool useRefTrax=true;
    KalmanVertexFitter theFitter(useRefTrax);
@@ -563,7 +577,9 @@ for(gmt_iter1 = exc1.begin(); gmt_iter1!=exc1.end(); gmt_iter1++)
   } // iplus
   
        if( theVertexContainer.size() < 1 ) { 
+#ifdef DEBUG
         std::cout<<" No vertex found in event "<<std::endl; 
+#endif
        return dimuon; 
        } else {
           // cout<<" Event vertex is selected "<<endl;

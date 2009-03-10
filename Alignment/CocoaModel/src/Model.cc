@@ -18,7 +18,6 @@
 #include "Alignment/CocoaModel/interface/MeasurementCOPS.h"
 #include "Alignment/CocoaModel/interface/MeasurementDiffEntry.h"
 #include "Alignment/CocoaModel/interface/CocoaDaqReaderText.h"
-#include "Alignment/CocoaModel/interface/CocoaDaqReaderRoot.h"
 //t#include "Alignment/CocoaModel/interface/MeasurementDiffAngle.h"
 //t#include "Alignment/CocoaModel/interface/MeasurementCentreEntry.h"
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
@@ -92,6 +91,7 @@ Model& Model::getInstance()
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 Model::Model()
 {
+  GlobalOptionMgr::getInstance()->setDefaultGlobalOptions();
   //  theMeasurementsTime = clock();
 }
 
@@ -450,8 +450,6 @@ void Model::readSystemDescription()
 	  Measurement::only1Time = wordlist[3]; 
 	  //-      std::cout << " setting Measurement::only1" <<  Measurement::only1 << std::endl;
 	}
-      } else if ( measType == ALIstring("measurements_from_file_ROOT") || measType == ALIstring("@measurements_from_file") ) {
-	new CocoaDaqReaderRoot( wordlist[1] );
       } else if ( wordlist[0] == ALIstring("correlations_from_file") || wordlist[0] == ALIstring("@correlations_from_file") ) {
 	ErrorCorrelationMgr::getInstance()->readFromReportFile( wordlist[1] );
       } else if ( wordlist[0] == ALIstring("copy_measurements") || wordlist[0] == ALIstring("@copy_measurements") ) {
@@ -1632,7 +1630,7 @@ void Model::BuildMeasurementsFromOA( OpticalAlignMeasurements& measList )
   for( mite = measInfos.begin(); mite != measInfos.end(); mite++ ) {
     std::string measType = (*mite).type_;
     std::string measName = (*mite).name_;
-  if( ALIUtils::debug >= 4 ) std::cout << " BuildMeasurementsFromOA measType " << measType << " measName " << measName << std::endl;
+    std::cout << " BuildMeasurementsFromOA measType " << measType << " measName " << measName << std::endl;
     //---------- Create Measurement with appropiate dimension
     Measurement* meastemp = 0;
     if ( measType == ALIstring("SENSOR2D") ) {

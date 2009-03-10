@@ -73,7 +73,7 @@ CVRAnalysis::CVRAnalysis(const edm::ParameterSet& iconfig) :
   trackcoll_( iconfig.getParameter<string>("trackcoll") ),
   vertexcoll_( iconfig.getParameter<string>("vertexcoll") ),
   beamspot_( iconfig.getParameter<string>("beamspot") ),
-  trackingtruth_ ( iconfig.getParameter< edm::InputTag >("truth") ),
+  trackingtruth_ ( iconfig.getParameter<string>("truth") ),
   associator_ ( iconfig.getParameter<string>("associator") ),
   histo_ ( VertexHisto ( "vertices.root", "tracks.root" ) ),
   bhisto_ ( VertexHisto ( "vertices-b.root", "tracks-b.root" ) )
@@ -109,7 +109,7 @@ void CVRAnalysis::analyze( const edm::Event & iEvent,
   edm::ESHandle<TransientTrackBuilder> builder;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",builder );
 
-  edm::Handle< edm::View < reco::Track > > tks;
+  edm::Handle<reco::TrackCollection> tks;
   iEvent.getByLabel( trackcoll_, tks );
   discussPrimary( iEvent );
 

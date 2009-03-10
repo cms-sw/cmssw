@@ -1,6 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // modified by P. Biallass 29.03.2006 to implement new cosmic generator (CMSCGEN.cc) and new normalization of flux (CMSCGENnorm.cc)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// 04.12.2008 sonne: replaced Min/MaxE by Min/MaxP to get cos_sf/ug scripts working again
 
 #include "GeneratorInterface/CosmicMuonGenerator/interface/CosmicMuonGenerator.h"
 
@@ -23,9 +24,11 @@ void CosmicMuonGenerator::initialize(){
     }
     Target3dRadius = sqrt(RadiusTargetEff*RadiusTargetEff + Z_DistTargetEff*Z_DistTargetEff) + MinStepSize;
     if (Debug) std::cout << "  radius of sphere  around  target = " << Target3dRadius << " mm" << std::endl;
-    SurfaceRadius = (SurfaceOfEarth+RadiusTargetEff)*tan(MaxTheta) + Target3dRadius;  
-    if (Debug) std::cout << "  starting point radius at surface = " << SurfaceRadius << " mm" << std::endl;
-    
+    SurfaceRadius = (SurfaceOfEarth+PlugWidth+RadiusTargetEff)*tan(MaxTheta) + Target3dRadius;  
+    if (Debug) std::cout << "  starting point radius at Surface + PlugWidth = " << SurfaceRadius << " mm" << std::endl;
+
+    OneMuoEvt.PlugVx = PlugVx;
+    OneMuoEvt.PlugVz = PlugVz;
     //set energy and angle limits for CMSCGEN, give same seed as above 
     Cosmics->initialize(MinP, MaxP, MinTheta, MaxTheta, RanSeed, TIFOnly_constant, TIFOnly_linear);
    
@@ -87,7 +90,7 @@ void CosmicMuonGenerator::nextEvent(){
     double Py = -verMom;         // [GeV/c]
     double Pz = horMom*cos(Phi); // [GeV/c]
     double Vx = RxzV*sin(PhiV);  // [mm]
-    double Vy = SurfaceOfEarth;  // [mm]
+    double Vy = SurfaceOfEarth + PlugWidth;  // [mm]
     double Vz = RxzV*cos(PhiV);  // [mm]
     double T0 = (RanGen.Rndm()*(MaxT0-MinT0) + MinT0)*SpeedOfLight; // [mm/c];
     OneMuoEvt.create(id, Px, Py, Pz, E, MuonMass, Vx, Vy, Vz, T0); 
@@ -143,8 +146,8 @@ void CosmicMuonGenerator::terminate(){
     std::cout << "       energy  loss:   " << ElossScaleFactor*100. << "%" << std::endl;
     std::cout << std::endl;
     double area = 1.e-6*Pi*SurfaceRadius*SurfaceRadius; // area on surface [m^2] 
-    std::cout << "       area of initial cosmics on surface:   " << area << " m^2" << std::endl;
-    std::cout << "       depth of CMS detector:   " << SurfaceOfEarth/1000 << " m" << std::endl;
+    std::cout << "       area of initial cosmics on Surface + PlugWidth:   " << area << " m^2" << std::endl;
+    std::cout << "       depth of CMS detector (from Surface, without PlugWidth)):   " << SurfaceOfEarth/1000 << " m" << std::endl;
        
     if(n100cos>0){
       // rate: corrected for area and selection-Eff. and normalized to known flux, integration over solid angle (dOmega) is implicit
@@ -215,7 +218,7 @@ bool CosmicMuonGenerator::goodOrientation(){
   bool phiaccepted = false;
   bool thetaaccepted = false;
   double RxzV = sqrt(OneMuoEvt.vx()*OneMuoEvt.vx() + OneMuoEvt.vz()*OneMuoEvt.vz());
-  double rVY = sqrt(RxzV*RxzV + SurfaceOfEarth*SurfaceOfEarth);
+  double rVY = sqrt(RxzV*RxzV + (SurfaceOfEarth+PlugWidth)*(SurfaceOfEarth+PlugWidth));
   double Phi = OneMuoEvt.phi();
   double PhiV = atan2(OneMuoEvt.vx(),OneMuoEvt.vz()) + Pi; if (PhiV > TwoPi) PhiV -= TwoPi;
   double disPhi = fabs(PhiV - Phi); if (disPhi > Pi) disPhi = TwoPi - disPhi;
@@ -226,6 +229,14 @@ bool CosmicMuonGenerator::goodOrientation(){
   double dTheta = Pi; if (rVY > Target3dRadius) dTheta = asin(Target3dRadius/rVY);
   //std::cout << "    dPhi = " <<   dPhi << "  (" <<   Phi << " <p|V> " <<   PhiV << ")" << std::endl;
   //std::cout << "  dTheta = " << dTheta << "  (" << Theta << " <p|V> " << ThetaV << ")" << std::endl;
+
+  if (!phiaccepted && RxzV < Target3dRadius)
+  //if (RxzV < Target3dRadius)
+    std::cout << "Rejected phi=" << Phi << "  PhiV="  << PhiV 
+	 << "  dPhi=" << dPhi << "  disPhi=" << disPhi
+	 << "  RxzV=" << RxzV << "  Target3dRadius=" << Target3dRadius 
+	 << "  Theta=" << Theta << std::endl;
+
   if (fabs(Theta-ThetaV) < dTheta) thetaaccepted = true;
   if (phiaccepted && thetaaccepted) goodAngles = true;
   return goodAngles;
@@ -248,8 +259,8 @@ void CosmicMuonGenerator::initEvDis(){
   disC->Divide(2,1);
   disC->cd(1);
   gPad->SetTicks(1,1);
-  disXY->SetMinimum(log10(MinE));
-  disXY->SetMaximum(log10(MaxE));
+  disXY->SetMinimum(log10(MinP));
+  disXY->SetMaximum(log10(MaxP));
   disXY->GetXaxis()->SetLabelSize(0.05);
   disXY->GetXaxis()->SetTitleSize(0.05);
   disXY->GetXaxis()->SetTitleOffset(1.0);
@@ -261,8 +272,8 @@ void CosmicMuonGenerator::initEvDis(){
   disC->cd(2);
   gPad->SetGrid(1,1);
   gPad->SetTicks(1,1);
-  disZY->SetMinimum(log10(MinE));
-  disZY->SetMaximum(log10(MaxE));
+  disZY->SetMinimum(log10(MinP));
+  disZY->SetMaximum(log10(MaxP));
   disZY->GetXaxis()->SetLabelSize(0.05);
   disZY->GetXaxis()->SetTitleSize(0.05);
   disZY->GetXaxis()->SetTitleOffset(1.0);
@@ -349,5 +360,9 @@ void CosmicMuonGenerator::setTIFOnly_constant(bool TIF){ if (NotInitialized) TIF
 void CosmicMuonGenerator::setTIFOnly_linear(bool TIF){ if (NotInitialized) TIFOnly_linear = TIF; }
 
 void CosmicMuonGenerator::setMTCCHalf(bool MTCC){ if (NotInitialized) MTCCHalf = MTCC; }
+
+void CosmicMuonGenerator::setPlugVx(double PlugVtx){ if (NotInitialized) PlugVx = PlugVtx; }
+void CosmicMuonGenerator::setPlugVz(double PlugVtz){ if (NotInitialized) PlugVz = PlugVtz; }
+
 
 double CosmicMuonGenerator::getRate(){ return EventRate; }

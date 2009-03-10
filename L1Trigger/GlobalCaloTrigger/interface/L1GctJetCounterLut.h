@@ -84,7 +84,7 @@ private:
   L1GctJetCounterSetup::cutsListForJetCounter m_cutList;
 
   // PRIVATE MEMBER FUNCTIONS
-  void checkCut (const L1GctJetCounterSetup::cutDescription cut) const;
+  bool checkCut (const L1GctJetCounterSetup::cutDescription cut) const;
   bool jetPassesThisCut (const L1GctJetCand jet, const unsigned i) const;
 
   // locally calculated jet properties

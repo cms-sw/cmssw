@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for muon reco track
  *
- *  $Date: 2008/07/12 10:47:25 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/07/15 10:17:16 $
+ *  $Revision: 1.4 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -63,6 +63,10 @@ class MuonRecoAnalyzer : public MuonAnalyzerBase {
   double phiMin;
   double phiMax;
 
+  int chi2Bin;
+  double chi2Min;
+  double chi2Max;
+
   int pBin;
   double pMin;
   double pMax;
@@ -88,6 +92,7 @@ class MuonRecoAnalyzer : public MuonAnalyzerBase {
   std::vector<MonitorElement*> thetaResolution;
   std::vector<MonitorElement*> phiGlbTrack;
   std::vector<MonitorElement*> phiResolution;
+  std::vector<MonitorElement*> chi2OvDFGlbTrack;
   std::vector<MonitorElement*> pGlbTrack;
   std::vector<MonitorElement*> ptGlbTrack;
   std::vector<MonitorElement*> qGlbTrack;
@@ -100,6 +105,7 @@ class MuonRecoAnalyzer : public MuonAnalyzerBase {
   MonitorElement* etaTrack;
   MonitorElement* thetaTrack;
   MonitorElement* phiTrack;
+  MonitorElement* chi2OvDFTrack;
   MonitorElement* pTrack;
   MonitorElement* ptTrack;
   MonitorElement* qTrack;
@@ -107,6 +113,7 @@ class MuonRecoAnalyzer : public MuonAnalyzerBase {
   MonitorElement* etaStaTrack;
   MonitorElement* thetaStaTrack;
   MonitorElement* phiStaTrack;
+  MonitorElement* chi2OvDFStaTrack;
   MonitorElement* pStaTrack;
   MonitorElement* ptStaTrack;
   MonitorElement* qStaTrack;

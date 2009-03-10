@@ -30,6 +30,4 @@
 <use name="TrackingTools/TrajectoryState">
 <use name="gsl">
 <use name="rootcore">
-<export>
-  <lib name=RecoMuonMuonSeedGenerator>
-</export>
+<flags EDM_PLUGIN="1">

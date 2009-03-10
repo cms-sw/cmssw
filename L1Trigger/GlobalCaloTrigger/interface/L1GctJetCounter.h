@@ -71,6 +71,13 @@ public:
   /// get the value of the counter, for input into the jet count sums
   L1GctJetCount<3> getValue() const { return m_value;}
 
+  /// Method to check the setup for this jet counter
+  bool setupOk() const;
+
+  /// control output messages
+  void setVerbose();
+  void setTerse();
+
  protected:
 
   /// Separate reset methods for the processor itself and any data stored in pipelines
@@ -98,6 +105,8 @@ public:
     
   /// The value of the counter
   L1GctJetCount<3> m_value;
+
+  bool m_setupOk;
 
   //PRIVATE METHODS
   

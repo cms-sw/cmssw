@@ -237,23 +237,23 @@ float EcalClusterTools::e2x5Max( const reco::BasicCluster &cluster, const EcalRe
 float EcalClusterTools::e1x5( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology )
 {
         DetId id = getMaximum( cluster.getHitsByDetId(), recHits ).first;
-        return matrixEnergy( cluster, recHits, topology, id, -2, 2, 0, 0 );
-}
-
-
-
-float EcalClusterTools::e5x1( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology )
-{
-        DetId id = getMaximum( cluster.getHitsByDetId(), recHits ).first;
         return matrixEnergy( cluster, recHits, topology, id, 0, 0, -2, 2 );
 }
+
+
+
+// float EcalClusterTools::e5x1( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology )
+// {
+//         DetId id = getMaximum( cluster.getHitsByDetId(), recHits ).first;
+//         return matrixEnergy( cluster, recHits, topology, id, -2, 2, 0, 0 );
+// }
 
 
 
 float EcalClusterTools::e1x3( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology )
 {
         DetId id = getMaximum( cluster.getHitsByDetId(), recHits ).first;
-        return matrixEnergy( cluster, recHits, topology, id, -1, 1, 0, 0 );
+        return matrixEnergy( cluster, recHits, topology, id, 0, 0, -1, 1 );
 }
 
 
@@ -261,7 +261,7 @@ float EcalClusterTools::e1x3( const reco::BasicCluster &cluster, const EcalRecHi
 float EcalClusterTools::e3x1( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology )
 {
         DetId id = getMaximum( cluster.getHitsByDetId(), recHits ).first;
-        return matrixEnergy( cluster, recHits, topology, id, 0, 0, -1, 1 );
+        return matrixEnergy( cluster, recHits, topology, id, -1, 1, 0, 0 );
 }
 
 

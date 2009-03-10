@@ -1,5 +1,4 @@
 #include "GeneratorInterface/ExhumeInterface/interface/ExhumeSource.h"
-#include "GeneratorInterface/ExhumeInterface/interface/PYR.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "SimDataFormats/HepMCProduct/interface/GenInfoProduct.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -7,6 +6,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "Utilities/General/interface/FileInPath.h"
 
 //#include "CLHEP/Random/JamesRandom.h"
 //#include "CLHEP/Random/RandFlat.h"
@@ -29,7 +29,7 @@ using namespace std;
 extern "C" {
         void pylist(int*);
 }
-inline void call_pylist( int mode ){ pylist( &mode ); }
+void call_pylist( int mode ){ pylist( &mode ); }
 
 /*
 #define my_pythia_init my_pythia_init_
@@ -119,9 +119,6 @@ ExhumeSource::ExhumeSource( const ParameterSet & pset,
   }
 
   edm::Service<RandomNumberGenerator> rng;
-  fRandomEngine = &(rng->getEngine());
-  randomEngine = fRandomEngine;
-  fRandomGenerator = new CLHEP::RandFlat(fRandomEngine) ;
   uint32_t seed = rng->mySeed();
   ExhumeEvent = new Exhume::Event(*ExhumeProcess,seed);
 

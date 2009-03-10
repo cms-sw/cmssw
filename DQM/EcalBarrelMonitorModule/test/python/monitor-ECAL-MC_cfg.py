@@ -117,6 +117,8 @@ process.ecalBarrelOccupancyTask.EcalTrigPrimDigiCollection = 'ecalTriggerPrimiti
 
 process.ecalBarrelPedestalOnlineTask.EBDigiCollection = 'simEcalDigis:ebDigis'
 
+process.ecalBarrelTriggerTowerTask.EBDigiCollection = 'simEcalDigis:ebDigis'
+
 process.ecalBarrelMonitorClient.maskFile = '../data/maskfile-EB.dat'
 process.ecalBarrelMonitorClient.mergeRuns = True
 process.ecalBarrelMonitorClient.location = 'H4'
@@ -132,6 +134,8 @@ process.ecalEndcapOccupancyTask.EEDigiCollection = 'simEcalDigis:eeDigis'
 process.ecalEndcapOccupancyTask.EcalTrigPrimDigiCollection = 'ecalTriggerPrimitiveDigis'
 
 process.ecalEndcapPedestalOnlineTask.EEDigiCollection = 'simEcalDigis:eeDigis'
+
+process.ecalEndcapTriggerTowerTask.EEDigiCollection = 'simEcalDigis:eeDigis'
 
 process.ecalEndcapMonitorClient.maskFile = '../data/maskfile-EE.dat'
 process.ecalEndcapMonitorClient.mergeRuns = True

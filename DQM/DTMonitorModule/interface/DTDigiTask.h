@@ -4,8 +4,8 @@
 /*
  * \file DTDigiTask.h
  *
- * $Date: 2008/10/20 10:15:26 $
- * $Revision: 1.23 $
+ * $Date: 2008/10/31 05:46:50 $
+ * $Revision: 1.25 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -134,11 +134,16 @@ private:
   int inTimeHitsUpperBound;
   int timeBoxGranularity;
   int tdcRescale;
+  bool doAllHitsOccupancies;
   bool doNoiseOccupancies;
+  bool doInTimeOccupancies;
+
   bool tpMode;
   bool filterSyncNoise;
   
   std::map<DTChamberId, int> nSynchNoiseEvents;
+  MonitorElement* nEventMonitor;
+
 
 };
 

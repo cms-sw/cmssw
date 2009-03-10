@@ -54,7 +54,7 @@ def createBranchBuffer(branch):
     branchType = ROOT.branchToClass(branch)
     #buffer = eval ('ROOT.'+reColons.sub(".",reOpenTemplate.sub("(ROOT.",reCloseTemplate.sub(")",branchType.GetName())))+'()')
     buffer = ROOT.MakeRootClass(branchType.GetName()) ()
-    if( branch.GetName()[-1] != '.'):
+    if( branch.GetName()[-1] != '.') and (branch.GetName()!="EventAuxiliary"):
         branch.SetAddress(buffer)
     else:
         branch.SetAddress(ROOT.AddressOf(buffer))
@@ -102,6 +102,8 @@ class EventTree(object):
           return cppCode
       def getListOfAliases(self):
           return self._aliases
+      def SetAlias (self, alias, fullName):
+          self.tree().SetAlias(alias, fullName)
       def index(self):
           return self._index
       def tree(self):

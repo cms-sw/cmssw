@@ -20,7 +20,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.h,v 1.12 2008/08/07 02:27:43 dmytro Exp $
+// $Id: MuonIdProducer.h,v 1.13 2008/10/07 02:28:33 dmytro Exp $
 //
 //
 
@@ -44,6 +44,7 @@
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 // #include "Utilities/Timing/interface/TimerStack.h"
 
+#include "RecoMuon/TrackingTools/interface/MuonTimingExtractor.h"
 #include "RecoMuon/MuonIdentification/interface/MuonCaloCompatibility.h"
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
 
@@ -94,6 +95,8 @@ class MuonIdProducer : public edm::EDProducer {
    
    std::vector<edm::InputTag> inputCollectionLabels_;
    std::vector<std::string>   inputCollectionTypes_;
+
+   MuonTimingExtractor* theTimingExtractor_;
 
    // selections
    double minPt_;

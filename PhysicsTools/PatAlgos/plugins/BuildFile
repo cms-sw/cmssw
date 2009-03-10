@@ -11,6 +11,7 @@
   <use name=DataFormats/TrackReco>
   <use name=DataFormats/Candidate>
   <use name=DataFormats/L1Trigger>
+  <use name=DataFormats/HLTReco>
   <use name=AnalysisDataFormats/Egamma>
   <use name=PhysicsTools/PatUtils>
   <use name=PhysicsTools/JetCharge>

@@ -8,8 +8,8 @@
 
 /** \class HcalLEDMonitor
   *  
-  * $Date: 2008/03/01 00:39:58 $
-  * $Revision: 1.13 $
+  * $Date: 2008/04/22 17:59:30 $
+  * $Revision: 1.14 $
   * \author W. Fisher - FNAL
   */
   static const float LedMonAdc2fc[128]={-0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5,
@@ -75,9 +75,7 @@ public:
   map<unsigned int, MonitorElement*>::iterator _fedIter;
 
   bool doPerChannel_;
-  double etaMax_, etaMin_, phiMax_, phiMin_;
-  int etaBins_, phiBins_;
-  
+
   int sigS0_, sigS1_;
   float adcThresh_;
 

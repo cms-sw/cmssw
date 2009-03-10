@@ -28,7 +28,6 @@
 <use name=RecoVertex/VertexPrimitives>
 <use name=TrackingTools/TransientTrack>
 <use name=HLTrigger/HLTcore>
-<use name=SimDataFormats/HepMCProduct>
 <use name=hepmc>
 <use name=RecoHIMuon/HiMuSeed>
 <use name=RecoHIMuon/HiMuPropagator>

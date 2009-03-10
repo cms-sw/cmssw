@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : November 2006
- *  $Revision: 1.9 $
- *  $Date: 2007/12/17 18:59:52 $
- *  (last update by $Author: flucke $)
+ *  $Revision: 1.8 $
+ *  $Date: 2007/12/04 23:55:27 $
+ *  (last update by $Author: ratnik $)
  */
 
 #include "PedeReader.h"
@@ -133,11 +133,7 @@ Alignable* PedeReader::setParameter(unsigned int paramLabel,
     AlignmentParameters *params = this->checkAliParams(alignable, setUserVars);
     MillePedeVariables *userParams = // static cast ensured by previous checkAliParams
       (setUserVars ? static_cast<MillePedeVariables*>(params->userVariables()) : 0);
-    if (userParams && userParams->label() != myLabels.alignableLabelFromLabel(paramLabel)) {
-      edm::LogError("Alignment") << "@SUB=PedeReader::setParameter" 
-				 << "Label mismatch: paramLabel " << paramLabel 
-				 << " for alignableLabel " << userParams->label();
-    }
+    if (userParams) userParams->setLabel(myLabels.alignableLabelFromLabel(paramLabel));
 
     AlgebraicVector parVec(params->parameters());
     AlgebraicSymMatrix covMat(params->covariance());
@@ -205,7 +201,7 @@ AlignmentParameters* PedeReader::checkAliParams(Alignable *alignable, bool creat
     edm::LogInfo("Alignment") << "@SUB=PedeReader::checkAliParams"
                               << "Add user variables for alignable with label " 
                               << myLabels.alignableLabel(alignable);
-    params->setUserVariables(new MillePedeVariables(params->size(), myLabels.alignableLabel(alignable)));
+    params->setUserVariables(new MillePedeVariables(params->size()));
   }
   
   return params;

@@ -43,32 +43,14 @@ float SiPixelGainCalibrationOfflineService::getGain( const uint32_t& detID,const
 bool SiPixelGainCalibrationOfflineService::isDead( const uint32_t& detID,const int& col, const int& row)
 {
    bool isDead = false;
-   try  
-   {
-      this->getPedestalByPixel(detID, col, row, isDead); 
-   }
-   catch (cms::Exception& e) 
-   {
-      // Do not stop processing if you check if a nonexistant pixel is dead
-      edm::LogInfo("SiPixelGainCalibrationOfflineService") << "Attempting to check if nonexistant pixel is dead.  Exception message: " << e.what();
-      isDead = false; 
-   }
+   this->getPedestalByPixel(detID, col, row, isDead); 
    return isDead;
 }
    
 bool SiPixelGainCalibrationOfflineService::isDeadColumn( const uint32_t& detID,const int& col, const int& row)
 {
    bool isDead = false;
-   try  
-   {
-      this->getGainByColumn(detID, col, row, isDead); // the gain column average can flag a whole column as bad
-   }
-   catch (cms::Exception& e) 
-   {
-      // Do not stop processing if you check if a nonexistant pixel is dead
-      edm::LogInfo("SiPixelGainCalibrationOfflineService") << "Attempting to check if nonexistant pixel is dead.  Exception message: " << e.what();
-      isDead = false; 
-   }
+   this->getGainByColumn(detID, col, row, isDead); // the gain column average can flag a whole column as bad
    return isDead;
 }
 

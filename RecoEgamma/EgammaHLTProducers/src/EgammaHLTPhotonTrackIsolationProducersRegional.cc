@@ -36,6 +36,8 @@ EgammaHLTPhotonTrackIsolationProducersRegional::EgammaHLTPhotonTrackIsolationPro
   recoEcalCandidateProducer_    = conf_.getParameter<edm::InputTag>("recoEcalCandidateProducer");
   trackProducer_                = conf_.getParameter<edm::InputTag>("trackProducer");
 
+  countTracks_                  = conf_.getParameter<bool>("countTracks");
+
   egTrkIsoPtMin_                = conf_.getParameter<double>("egTrkIsoPtMin");
   egTrkIsoConeSize_             = conf_.getParameter<double>("egTrkIsoConeSize");
   egTrkIsoZSpan_                = conf_.getParameter<double>("egTrkIsoZSpan");
@@ -85,7 +87,13 @@ EgammaHLTPhotonTrackIsolationProducersRegional::produce(edm::Event& iEvent, cons
     const reco::RecoCandidate *tempiRecoEcalCand = &(*recoecalcandref);
 
     bool usePhotonVertex = false;
-    float isol =  test_->photonTrackCount(tempiRecoEcalCand,trackCollection,usePhotonVertex);
+     
+    float isol;
+    if (countTracks_) {
+      isol = test_->photonTrackCount(tempiRecoEcalCand,trackCollection,usePhotonVertex);
+    } else {
+      isol = test_->photonPtSum(tempiRecoEcalCand,trackCollection,usePhotonVertex);
+    }
 
     isoMap.insert(recoecalcandref, isol);
 

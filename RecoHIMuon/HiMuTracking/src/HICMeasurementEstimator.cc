@@ -166,7 +166,9 @@ vector<double> HICMeasurementEstimator::setCuts(Trajectory& traj, const DetLayer
      
      if( theBarrel.size() == 0 || theForward.size() == 0 )
      {
+#ifdef DEBUG
        cout<<" HICMeasurementEstimator::setCuts:: no datector map "<<endl;
+#endif
         return theCuts;
      }
      
@@ -324,7 +326,9 @@ int HICMeasurementEstimator::getDetectorCode(const DetLayer* a)
 void HICMeasurementEstimator::setHICDetMap()
 {
 
+#ifdef DEBUG
   std::cout<<" Set Detector Map... "<<std::endl;
+#endif
   
   int ila=0;
   for ( std::vector<BarrelDetLayer*>::const_iterator ilayer = bl.begin(); ilayer != bl.end(); ilayer++)
@@ -347,7 +351,9 @@ void HICMeasurementEstimator::setHICDetMap()
    for ( vector<ForwardDetLayer*>::const_iterator ilayer = fneg.begin(); 
                                                     ilayer != fneg.end(); ilayer++)
    {
+#ifdef DEBUG
             cout<<" HICDetectorMap::negative layers "<<(**ilayer).position().z()<<" "<<ilf2<<endl;
+#endif
                    theBackward[(*ilayer)] = ilf2;
                    ilf2++;
    }

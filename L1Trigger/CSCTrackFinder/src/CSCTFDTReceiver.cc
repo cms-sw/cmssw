@@ -23,15 +23,15 @@ CSCTriggerContainer<csctf::TrackStub> CSCTFDTReceiver::process(const L1MuDTChamb
 	{
 	  int wheel = (e == 1) ? 2 : -2;
 	  int sector = 2*s - 1;
-	  int csc_bx = bx + CSCConstants::TIME_OFFSET;
-	  
+	  int csc_bx = bx;
+
 	  // combine two 30 degree DT sectors into a 60 degree CSC
 	  // sector.
 	  for(int is = sector; is <= sector+1; ++is)
 	    {
 	      int iss = (is == 12) ? 0 : is;
 	      L1MuDTChambPhDigi* dtts[2];
-	      
+
 	      for(int stub = 0; stub < 2; ++stub)
 		{
 		  dtts[stub] = (stub == 0) ? dttrig->chPhiSegm1(wheel,1,iss,bx) :
@@ -50,13 +50,13 @@ CSCTriggerContainer<csctf::TrackStub> CSCTFDTReceiver::process(const L1MuDTChamb
 		      // DT chambers may lie outside CSC sector boundary
 		      // Eventually we need to extend CSC phi definition
 		      phi = (phi>0) ? phi : 0;
-		      phi = (phi<(1<<(CSCBitWidths::kGlobalPhiDataBitWidth))) ? phi : 
+		      phi = (phi<(1<<(CSCBitWidths::kGlobalPhiDataBitWidth))) ? phi :
 			(1<<(CSCBitWidths::kGlobalPhiDataBitWidth))-1;
 
 		      // account for slope in DT/CSC comparison
 		      phi = static_cast<int>(phi*(1.-40./4096.)) + 25;
 		      phi = (phi>0) ? phi : 0;
-		      phi = (phi<(1<<(CSCBitWidths::kGlobalPhiDataBitWidth))) ? phi : 
+		      phi = (phi<(1<<(CSCBitWidths::kGlobalPhiDataBitWidth))) ? phi :
 			(1<<(CSCBitWidths::kGlobalPhiDataBitWidth))-1;
 
 		      // change phib from 10 bits to 6

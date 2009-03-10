@@ -36,13 +36,9 @@ void DDTrackerLinear::initialize(const DDNumericArguments & nArgs,
   rotMat    = sArgs["Rotation"];
   if ( nArgs.find("StartCopyNo") != nArgs.end() ) {
     startcn = size_t(nArgs["StartCopyNo"]);
-  } else {
-    startcn = 1;
   }
   if ( nArgs.find("IncrCopyNo") != nArgs.end() ) {
     incrcn = int(nArgs["IncrCopyNo"]);
-  } else {
-    incrcn = 1;
   }
   
   idNameSpace = DDCurrentNamespace::ns();

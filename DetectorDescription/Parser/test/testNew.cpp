@@ -19,6 +19,7 @@
 #include "DetectorDescription/Algorithm/src/AlgoInit.h"
 #include "DetectorDescription/Core/src/DDCheck.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/src/DDCheckMaterials.cc"
 #include "DetectorDescription/Base/interface/DDException.h"
 
 int main(int argc, char *argv[])

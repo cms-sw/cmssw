@@ -60,7 +60,7 @@ thirdPixelRecHits.src = 'thirdClusters:'
 thirdStripRecHits.ClusterProducer = 'thirdClusters'
 pixel2PrimTracks.passLabel = 'Pixel pair tracks with vertex constraint'
 pixel2PrimTracks.RegionFactoryPSet.RegionPSet.useFoundVertices = True
-#pixel2PrimTracks.RegionFactoryPSet.RegionPSet.fixedError = 0.2
+pixel2PrimTracks.RegionFactoryPSet.RegionPSet.fixedError = 0.2
 pixel2PrimTracks.OrderedHitsFactoryPSet.ComponentName = 'StandardHitPairGenerator'
 pixel2PrimTracks.OrderedHitsFactoryPSet.SeedingLayers = 'thirdLayerPairs'
 pixel2PrimTracks.OrderedHitsFactoryPSet.GeneratorPSet.ComponentName = 'StandardHitPairGenerator'
@@ -71,13 +71,10 @@ thirdMeasurementTracker.stripClusterProducer = 'thirdClusters'
 thirdCkfTrajectoryBuilder.ComponentName = 'thirdCkfTrajectoryBuilder'
 thirdCkfTrajectoryBuilder.MeasurementTrackerName = 'thirdMeasurementTracker'
 thirdCkfTrajectoryBuilder.trajectoryFilterName = 'MinBiasCkfTrajectoryFilter'
-
 tertTrackCandidates.TrajectoryCleaner = 'TrajectoryCleanerBySharedSeeds'
 tertTrackCandidates.SeedProducer = 'tertSeeds'
 tertTrackCandidates.TrajectoryBuilder = 'thirdCkfTrajectoryBuilder'
 tertTrackCandidates.RedundantSeedCleaner = 'none'
-tertTrackCandidates.doSeedingRegionRebuilding = False
-
 globalTertTracks.src = 'tertTrackCandidates'
 globalTertTracks.clusterRemovalInfo = 'thirdClusters'
 globalTertTracks.TrajectoryInEvent = True

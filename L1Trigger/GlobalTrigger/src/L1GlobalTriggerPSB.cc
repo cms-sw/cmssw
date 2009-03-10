@@ -446,7 +446,8 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
                 if ((*it).bx() == iBxInEvent) {
 
                     m_candHfBitCounts = &(*it);
-                    //LogTrace("L1GlobalTriggerPSB") << (*it) << std::endl;
+                    //LogTrace("L1GlobalTriggerPSB") << "L1GctHFBitCountsCollection: "
+                    //<< (*it) << std::endl;
 
                 }
             }
@@ -476,7 +477,8 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
                 if ((*it).bx() == iBxInEvent) {
 
                     m_candHfRingEtSums = &(*it);
-                    //LogTrace("L1GlobalTriggerPSB") << (*it) << std::endl;
+                    //LogTrace("L1GlobalTriggerPSB") << "L1GctHFRingEtSumsCollection: "
+                    //<< (*it) << std::endl;
 
                 }
             }
@@ -661,7 +663,10 @@ void L1GlobalTriggerPSB::fillPsbBlock(
                         case TechTr: {
 
                             //LogTrace("L1GlobalTriggerPSB")
-                            //<< "\nL1GlobalTriggerPSB: write TechTr"
+                            //<< "\nL1GlobalTriggerPSB: write TechTr for BxInEvent = "
+                            //<< iBxInEvent
+                            //<< "\n PSB " << std::hex << itBoard->gtBoardId() << std::dec
+                            //<< " Cable " << iCable << " Quad " << (*itQuad)
                             //<< std::endl;
 
                             // order: 16-bit words
@@ -740,7 +745,10 @@ void L1GlobalTriggerPSB::fillPsbBlock(
                         case NoIsoEGQ: {
 
                             //LogTrace("L1GlobalTriggerPSB")
-                            //<< "\nL1GlobalTriggerPSB: write NoIsoEGQ"
+                            //<< "\nL1GlobalTriggerPSB: write NoIsoEGQ for BxInEvent = "
+                            //<< iBxInEvent
+                            //<< "\n PSB " << std::hex << itBoard->gtBoardId() << std::dec
+                            //<< " Cable " << iCable << " Quad " << (*itQuad)
                             //<< std::endl;
 
                             int recL1NoIsoEG = m_candL1NoIsoEG->size();
@@ -770,7 +778,10 @@ void L1GlobalTriggerPSB::fillPsbBlock(
                         case IsoEGQ: {
 
                             //LogTrace("L1GlobalTriggerPSB")
-                            //<< "\nL1GlobalTriggerPSB: write IsoEGQ"
+                            //<< "\nL1GlobalTriggerPSB: write IsoEGQ for BxInEvent = "
+                            //<< iBxInEvent
+                            //<< "\n PSB " << std::hex << itBoard->gtBoardId() << std::dec
+                            //<< " Cable " << iCable << " Quad " << (*itQuad)
                             //<< std::endl;
 
                             int recL1IsoEG = m_candL1IsoEG->size();
@@ -801,7 +812,10 @@ void L1GlobalTriggerPSB::fillPsbBlock(
                         case CenJetQ: {
 
                             //LogTrace("L1GlobalTriggerPSB")
-                            //<< "\nL1GlobalTriggerPSB: write CenJetQ"
+                            //<< "\nL1GlobalTriggerPSB: write CenJetQ for BxInEvent = "
+                            //<< iBxInEvent
+                            //<< "\n PSB " << std::hex << itBoard->gtBoardId() << std::dec
+                            //<< " Cable " << iCable << " Quad " << (*itQuad)
                             //<< std::endl;
 
                             int recL1CenJet = m_candL1CenJet->size();
@@ -831,7 +845,10 @@ void L1GlobalTriggerPSB::fillPsbBlock(
                         case ForJetQ: {
 
                             //LogTrace("L1GlobalTriggerPSB")
-                            //<< "\nL1GlobalTriggerPSB: write ForJetQ"
+                            //<< "\nL1GlobalTriggerPSB: write ForJetQ for BxInEvent = "
+                            //<< iBxInEvent
+                            //<< "\n PSB " << std::hex << itBoard->gtBoardId() << std::dec
+                            //<< " Cable " << iCable << " Quad " << (*itQuad)
                             //<< std::endl;
 
                             int recL1ForJet = m_candL1ForJet->size();
@@ -862,7 +879,10 @@ void L1GlobalTriggerPSB::fillPsbBlock(
                         case TauJetQ: {
 
                             //LogTrace("L1GlobalTriggerPSB")
-                            //<< "\nL1GlobalTriggerPSB: write TauJetQ"
+                            //<< "\nL1GlobalTriggerPSB: write TauJetQ for BxInEvent = "
+                            //<< iBxInEvent
+                            //<< "\n PSB " << std::hex << itBoard->gtBoardId() << std::dec
+                            //<< " Cable " << iCable << " Quad " << (*itQuad)
                             //<< std::endl;
 
                             int recL1TauJet = m_candL1TauJet->size();
@@ -885,6 +905,15 @@ void L1GlobalTriggerPSB::fillPsbBlock(
                                 }
                                 psbWordValue.setBData(bDataVal, iAB + iPair);
 
+                                //LogTrace("L1GlobalTriggerPSB")
+                                //        << "\n aDataVal[" << (iAB + iPair)
+                                //        << "] = 0x" << std::hex << aDataVal << std::dec
+                                //        << " (object " << iPair << ")"
+                                //        << "\n bDataVal[" << (iAB + iPair)
+                                //        << "] = 0x" << std::hex << bDataVal << std::dec
+                                //        << " (object " << (iPair + nrObjRow) << ")"
+                                //        << std::endl;
+
                             }
 
                         }
@@ -893,7 +922,10 @@ void L1GlobalTriggerPSB::fillPsbBlock(
                         case ESumsQ: {
 
                             //LogTrace("L1GlobalTriggerPSB")
-                            //<< "\nL1GlobalTriggerPSB: write ESumsQ"
+                            //<< "\nL1GlobalTriggerPSB: write ESumsQ for BxInEvent = "
+                            //<< iBxInEvent
+                            //<< "\n PSB " << std::hex << itBoard->gtBoardId() << std::dec
+                            //<< " Cable " << iCable << " Quad " << (*itQuad)
                             //<< std::endl;
 
                             // order: ETT, ETM et, HTT, ETM phi... hardcoded here
@@ -915,10 +947,24 @@ void L1GlobalTriggerPSB::fillPsbBlock(
                             }
                             psbWordValue.setBData(bDataVal, iAB + iPair);
 
+                            //LogTrace("L1GlobalTriggerPSB")
+                            //        << "\n aDataVal[" << (iAB + iPair)
+                            //        << "] = 0x" << std::hex << aDataVal << std::dec
+                            //        << "\n bDataVal[" << (iAB + iPair)
+                            //        << "] = 0x" << std::hex << bDataVal << std::dec
+                            //        << std::endl;
                             //
                             iPair = 1;
                             if (m_candETM) {
-                                aDataVal = m_candETM->et();
+                                // bits 0:15
+                                aDataVal = m_candETM->raw() & 0x0000FFFF;
+
+                                //LogTrace("L1GlobalTriggerPSB") << std::hex
+                                //        << "\n ETM et        = "
+                                //        << m_candETM->et()
+                                //        << "\n ETM overFlow  = "
+                                //       << m_candETM->overFlow() << std::dec
+                                //       << std::endl;
                             }
                             else {
                                 aDataVal = 0;
@@ -926,13 +972,26 @@ void L1GlobalTriggerPSB::fillPsbBlock(
                             psbWordValue.setAData(aDataVal, iAB + iPair);
 
                             if (m_candETM) {
-                                bDataVal = m_candETM->phi();
+
+                                // bits 16:31
+                                bDataVal = (m_candETM->raw() & 0xFFFF0000) >> 16;
+
+                                //LogTrace("L1GlobalTriggerPSB") << std::hex
+                                //        << "\n ETM phi  = " << m_candETM->phi()
+                                //        << std::dec << std::endl;
+
                             }
                             else {
                                 bDataVal = 0;
                             }
                             psbWordValue.setBData(bDataVal, iAB + iPair);
 
+                            //LogTrace("L1GlobalTriggerPSB")
+                            //        << "\n aDataVal[" << (iAB + iPair)
+                            //        << "] = 0x" << std::hex << aDataVal << std::dec
+                            //       << "\n bDataVal[" << (iAB + iPair)
+                            //        << "] = 0x" << std::hex << bDataVal << std::dec
+                            //       << std::endl;
 
                         }
 
@@ -940,7 +999,10 @@ void L1GlobalTriggerPSB::fillPsbBlock(
                         case JetCountsQ: {
 
                             //LogTrace("L1GlobalTriggerPSB")
-                            //<< "\nL1GlobalTriggerPSB: write JetCountsQ"
+                            //<< "\nL1GlobalTriggerPSB: write JetCountsQ for BxInEvent = "
+                            //<< iBxInEvent
+                            //<< "\n PSB " << std::hex << itBoard->gtBoardId() << std::dec
+                            //<< " Cable " << iCable << " Quad " << (*itQuad)
                             //<< std::endl;
 
                             // order: 3 JetCounts per 16-bits word ... hardcoded here
@@ -1007,6 +1069,169 @@ void L1GlobalTriggerPSB::fillPsbBlock(
 
                             break;
                             // FIXME add MIP/Iso bits
+                        case HfQ: {
+
+                            //LogTrace("L1GlobalTriggerPSB")
+                            //<< "\nL1GlobalTriggerPSB: write HfQ for BxInEvent = "
+                            //<< iBxInEvent
+                            //<< "\n PSB " << std::hex << itBoard->gtBoardId() << std::dec
+                            //<< " Cable " << iCable << " Quad " << (*itQuad)
+                            //<< std::endl;
+
+                            // FIXME get it from event setup?
+                            // 3 bits per Hf index
+                            // order hardcoded here
+                            // HfBitCounts first, followed by HfRingEtSum
+                            int hfBits = 3;
+
+                            L1GctHFBitCounts hfBitCounts;
+                            int nHfBitCounts = hfBitCounts.nCounts();
+
+                            L1GctHFRingEtSums hfRingEtSums;
+                            int nHfRingEtSums = hfRingEtSums.nSums();
+
+                            //
+                            int iPair = 0;
+                            aDataVal = 0;
+                            bDataVal = 0;
+
+                            // sizeof return in multiple of 8 bits
+                            int hfPerWord = sizeof(aDataVal)*8/hfBits;
+                            //LogTrace("L1GlobalTriggerPSB")
+                            //<< "\n nHfBitCounts  = " << nHfBitCounts
+                            //<< "\n nHfRingEtSums = " << nHfRingEtSums
+                            //<< "\n hfPerWord     = " << hfPerWord
+                            //<< std::endl;
+
+                            int iHf = 0;
+                            bool aDataFlag = true;
+                            bool bDataFlag = false;
+
+                            if (m_candHfBitCounts) {
+
+                                for (int i = 0; i < nHfBitCounts; ++i) {
+
+                                    if (aDataFlag) {
+                                        if (iHf < hfPerWord) {
+                                            // aData (cycle 0) for iPair 0 (object 0)
+                                            aDataVal = aDataVal
+                                                    | ((m_candHfBitCounts->bitCount(i))
+                                                            << (hfBits*iHf));
+                                            iHf++;
+                                            //LogTrace("L1GlobalTriggerPSB")
+                                            //        << "\n Added HfBitCounts index " << i << " to "
+                                            //        << " aDataVal[" << (iAB + iPair) << "]"
+                                            //        << std::endl;
+                                        } else {
+                                            aDataFlag = false;
+                                            bDataFlag = true;
+                                            iHf = 0;
+                                        }
+                                    }
+
+                                    if (bDataFlag) {
+                                        if (iHf < hfPerWord) {
+                                            // bData (cycle 1) for iPair 0 (object 2)
+                                            bDataVal = bDataVal
+                                                    | ((m_candHfBitCounts->bitCount(i))
+                                                            << (hfBits*iHf));
+                                            iHf++;
+                                            //LogTrace("L1GlobalTriggerPSB")
+                                            //        << "\n Added HfBitCounts index " << i << " to "
+                                            //        << " bDataVal[" << (iAB + iPair) << "]"
+                                            //       << std::endl;
+                                        } else {
+                                            aDataFlag = false;
+                                            bDataFlag = false;
+                                            iHf = 0;
+                                        }
+                                    }
+                                }
+                            } else {
+                                iHf = nHfBitCounts%hfPerWord;
+                                //LogTrace("L1GlobalTriggerPSB")
+                                //        << "\n No HfBitCounts collection - skip "
+                                //        << iHf*hfBits << " bits "
+                                //        << std::endl;
+                            }
+
+                            if (aDataFlag && bDataFlag) {
+                                LogTrace("L1GlobalTriggerPSB")
+                                        << "\n HfBitCounts collection filled aData and bData ["
+                                        << (iAB + iPair) << "]"
+                                        << "\n HfRingEtSums collection has no space to be written"
+                                        << std::endl;
+                            }
+
+                            if (m_candHfRingEtSums) {
+
+                                for (int i = 0; i < nHfRingEtSums; ++i) {
+
+                                    if (aDataFlag) {
+                                        if (iHf < hfPerWord) {
+                                            // aData (cycle 0) for iPair 0 (object 0)
+                                            aDataVal = aDataVal
+                                                    | ((m_candHfRingEtSums->etSum(i))
+                                                            << (hfBits*iHf));
+                                            iHf++;
+                                            //LogTrace("L1GlobalTriggerPSB")
+                                            //        << "\n Added HfRingEtSums index " << i << " to "
+                                            //        << " aDataVal[" << (iAB + iPair) << "]"
+                                            //       << std::endl;
+                                        } else {
+                                            aDataFlag = false;
+                                            bDataFlag = true;
+                                            iHf = 0;
+                                        }
+                                    }
+
+                                    if (bDataFlag) {
+                                        if (iHf < hfPerWord) {
+                                            // bData (cycle 1) for iPair 0 (object 2)
+                                            bDataVal = bDataVal
+                                                    | ((m_candHfRingEtSums->etSum(i))
+                                                            << (hfBits*iHf));
+                                            iHf++;
+                                            //LogTrace("L1GlobalTriggerPSB")
+                                            //        << "\n Added HfRingEtSums index " << i << " to "
+                                            //        << " bDataVal[" << (iAB + iPair) << "]"
+                                            //        << std::endl;
+                                        } else {
+                                            aDataFlag = false;
+                                            bDataFlag = false;
+                                            iHf = 0;
+                                        }
+                                    }
+                                }
+                            } else {
+                                iHf = nHfRingEtSums%hfPerWord;
+                                //LogTrace("L1GlobalTriggerPSB")
+                                //        << "\n No HfRingEtSums collection - skip "
+                                //        << iHf*hfBits << " bits "
+                                //        << std::endl;
+                            }
+
+                            psbWordValue.setAData(aDataVal, iAB + iPair);
+                            psbWordValue.setBData(bDataVal, iAB + iPair);
+
+                            //LogTrace("L1GlobalTriggerPSB")
+                            //        << "\n aDataVal[" << iAB + iPair
+                            //        << "] = 0x" << std::hex << aDataVal << std::dec
+                            //        << "\n bDataVal[" << (iAB + iPair)
+                            //        << "] = 0x" << std::hex << bDataVal << std::dec
+                            //       << std::endl;
+
+                            if (aDataFlag && bDataFlag) {
+                                LogTrace("L1GlobalTriggerPSB")
+                                        << "\n aData and bData ["
+                                        << (iAB + iPair) << "] full"
+                                        << "\n HfRingEtSums collection has not enough space to be written"
+                                        << std::endl;
+                            }
+
+                        }
+
+                            break;
                         default: {
                             // do nothing
                         }

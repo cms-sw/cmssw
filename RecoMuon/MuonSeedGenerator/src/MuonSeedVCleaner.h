@@ -6,7 +6,7 @@
 class MuonSeedVCleaner
 {
 public:
-  virtual ~MuonSeedVCleaner() {}
+
   virtual void clean(TrajectorySeedCollection & seeds) = 0;
 };
 

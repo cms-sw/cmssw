@@ -119,7 +119,6 @@ void ElectronSiStripSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
   // clear the member vectors of good hits
   layer1Hits_.clear();
   layer2Hits_.clear();
-  backupLayer2Hits_.clear();
 
   using namespace std;
 	
@@ -200,9 +199,6 @@ void ElectronSiStripSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
   int tid1MHC = 0;
   int tid2MHC = 0;
   int tid3MHC = 0;
-  int tid1BHC = 0;
-  int tid2BHC = 0;
-  int tid3BHC = 0;
   int tec1MHC = 0;
   int tec2MHC = 0;
   int tec3MHC = 0;
@@ -212,7 +208,6 @@ void ElectronSiStripSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
 
   bool hasLay1Hit = false;
   bool hasLay2Hit = false;
-  bool hasBackupHit = false;
   
   LayerMeasurements layerMeasurements(measurementTrackerHandle.product());
 
@@ -271,16 +266,6 @@ void ElectronSiStripSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
 	hasLay2Hit = true;
 	layer2Hits_.push_back(matchedHit);
       }
-    }else if(useDL.at(8) && tid1BHC < 4){
-      const SiStripRecHit2D* backupHit = backupHitConverter(hit);
-      if(backupHit){
-	GlobalPoint position = trackerHandle->idToDet(backupHit->geographicalId())->surface().toGlobal(backupHit->localPosition());
-	if(preselection(position, superCluster, phiVsRSlope) && position.perp() > 37.){
-	  tid1BHC++;
-	  hasBackupHit = true;
-	  backupLayer2Hits_.push_back(backupHit);
-	}
-      }
     }
     }
   }
@@ -298,16 +283,6 @@ void ElectronSiStripSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
 	hasLay2Hit = true;
 	layer2Hits_.push_back(matchedHit);
       }
-    }else if(useDL.at(8) && tid2BHC < 4){
-      const SiStripRecHit2D* backupHit = backupHitConverter(hit);
-      if(backupHit){
-	GlobalPoint position = trackerHandle->idToDet(backupHit->geographicalId())->surface().toGlobal(backupHit->localPosition());
-	if(preselection(position, superCluster, phiVsRSlope) && position.perp() > 37.){
-	  tid2BHC++;
-	  hasBackupHit = true;
-	  backupLayer2Hits_.push_back(backupHit);
-	}
-      }
     }
     }
   }
@@ -324,16 +299,6 @@ void ElectronSiStripSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
 	layer1Hits_.push_back(matchedHit);
 	hasLay2Hit = true;
 	layer2Hits_.push_back(matchedHit);
-      }
-    }else if(useDL.at(8) && tid3BHC < 4){
-      const SiStripRecHit2D* backupHit = backupHitConverter(hit);
-      if(backupHit){
-	GlobalPoint position = trackerHandle->idToDet(backupHit->geographicalId())->surface().toGlobal(backupHit->localPosition());
-	if(preselection(position, superCluster, phiVsRSlope) && position.perp() > 37.){
-	  tid3BHC++;
-	  hasBackupHit = true;
-	  backupLayer2Hits_.push_back(backupHit);
-	}
       }
     }
     }
@@ -430,44 +395,6 @@ void ElectronSiStripSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
     }// end of hit 1 loop 
 
   }//end of seed making
-
-  //Make seeds using TID Ring 3 if necessary
-
-  if(hasLay1Hit && hasBackupHit && seedCounter == 0){
-
-    for (std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit1 = layer1Hits_.begin() ; hit1!= layer1Hits_.end(); ++hit1) {
-      for (std::vector<const SiStripRecHit2D*>::const_iterator hit2 = backupLayer2Hits_.begin() ; hit2!= backupLayer2Hits_.end(); ++hit2) {
-
-	if(seedCounter < 5){
-	  
-	  if(altCheckHitsAndTSOS(hit1,hit2,scr,scz,pT,scEta)) {
-
-	    seedCounter++;
-
-	    recHits_.clear();
-
-	    SiStripMatchedRecHit2D *innerHit;
-	    innerHit=new SiStripMatchedRecHit2D(*(dynamic_cast <const SiStripMatchedRecHit2D *> (*hit1) ) );
-	    recHits_.push_back(innerHit);
-	    SiStripRecHit2D *outerHit;
-	    outerHit=new SiStripRecHit2D(*(dynamic_cast <const SiStripRecHit2D *> (*hit2) ) );
-	    recHits_.push_back(outerHit);
-	  
-	    PropagationDirection dir = alongMomentum;	    
-	  
-	    result.push_back( reco::ElectronPixelSeed (seedCluster,*pts_,recHits_,dir) );
-	    
-	    delete pts_;
-	    pts_=0;
-	  }	 
-
-	} 
-	
-      }// end of hit 2 loop
-
-    }// end of hit 1 loop
-
-  }// end of backup seed making
   
 } // end of findSeedsFromCluster
 
@@ -516,6 +443,7 @@ bool ElectronSiStripSeedGenerator::checkHitsAndTSOS(std::vector<const SiStripMat
     double rMissHit2 = r2 - rPredHit2;
 
     int subdetector = whichSubdetector(hit2);
+
     
     if(subdetector == 1){
       phiCut = .006;
@@ -523,6 +451,13 @@ bool ElectronSiStripSeedGenerator::checkHitsAndTSOS(std::vector<const SiStripMat
       phiCut = .006;
     }else if(subdetector == 3){
       phiCut = .007;
+    }
+    
+
+    if(fabs(scEta) > 1.2 && fabs(scEta) < 1.5){
+      zCut = .8;
+      rCut = .8;
+      phiCut = .015;
     }
 
     bool zDiff = true;
@@ -587,83 +522,6 @@ bool ElectronSiStripSeedGenerator::checkHitsAndTSOS(std::vector<const SiStripMat
   return true;
 }
 
-bool ElectronSiStripSeedGenerator::altCheckHitsAndTSOS(std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit1,
-						       std::vector<const SiStripRecHit2D*>::const_iterator hit2,
-						       double rc,double zc,double pT,double scEta) {
-
-  bool seedCutSatisfied = false;
-
-  using namespace std;
-
-  GlobalPoint hit1Pos = trackerHandle->idToDet((*hit1)->geographicalId())->surface().toGlobal((*hit1)->localPosition());
-  double r1 = sqrt(hit1Pos.x()*hit1Pos.x() + hit1Pos.y()*hit1Pos.y());
-  double phi1 = hit1Pos.phi();
-  double z1=hit1Pos.z();
-
-  GlobalPoint hit2Pos = trackerHandle->idToDet((*hit2)->geographicalId())->surface().toGlobal((*hit2)->localPosition());
-  double r2 = sqrt(hit2Pos.x()*hit2Pos.x() + hit2Pos.y()*hit2Pos.y());
-  double phi2 = hit2Pos.phi();
-  double z2 = hit2Pos.z();
-
-  if(r2 > r1 && fabs(z2) > fabs(z1)) {	
-			
-    //Consider the circle made of IP and Hit 1; Calculate it's radius using pT
-			
-    double curv = pT*100/1.2;
-			
-    //Predict phi of hit 2	      
-    double a = (r2-r1)/(2*curv);
-    double b = phiDiff(phi2,phi1);
-    double phiMissHit2 = 0;
-    if(fabs(b - a)<fabs(b + a)) phiMissHit2 = b - a;
-    if(fabs(b - a)>fabs(b + a)) phiMissHit2 = b + a;
-		      
-    if(fabs(phiMissHit2) < .02) seedCutSatisfied = true;
-
-  }
-
-  if(!seedCutSatisfied) return false;
-	
-  // seed checks borrowed from pixel-based algoritm
-	
-  pts_=0;
-		
-  /* Some of this code could be better optimized.  The Pixel algorithm natively
-     takes Transient rec hits, so to recycle code we have to build them.
-  */
-
-  RecHitPointer hit1Trans = TSiStripMatchedRecHit::build(trackerHandle->idToDet((*hit1)->geographicalId()), *hit1, theMatcher_);
-  RecHitPointer hit2Trans = TSiStripMatchedRecHit::build(trackerHandle->idToDet((*hit2)->geographicalId()), *hit2, theMatcher_);
-		
-  typedef TrajectoryStateOnSurface TSOS;
-
-  double vertexZ = z1 - (r1 * (zc - z1) ) / (rc - r1);
-  GlobalPoint eleVertex(0.,0.,vertexZ);
-
-  // make a spiral
-  FastHelix helix(hit2Pos,hit1Pos,eleVertex,*theSetup);
-  if (!helix.isValid()) return false;
-  
-  FreeTrajectoryState fts = helix.stateAtVertex();
-  TSOS propagatedState = thePropagator->propagate(fts,hit1Trans->det()->surface());
-
-  if (!propagatedState.isValid()) return false;
-
-  TSOS updatedState = theUpdator->update(propagatedState, *hit1Trans);		
-  TSOS propagatedState_out = thePropagator->propagate(fts,hit2Trans->det()->surface()) ;
-
-  if (!propagatedState_out.isValid()) return false;
-
-  // the seed has now passed all the cuts
-
-  TSOS updatedState_out = theUpdator->update(propagatedState_out, *hit2Trans);
-
-  pts_ =  transformer_.persistentState(updatedState_out, hit2Trans->geographicalId().rawId());
-		
-  return true;
-}
-
-
 bool ElectronSiStripSeedGenerator::preselection(GlobalPoint position,GlobalPoint superCluster,double phiVsRSlope){
   double r = position.perp();
   double phi = position.phi();
@@ -706,12 +564,6 @@ const SiStripMatchedRecHit2D* ElectronSiStripSeedGenerator::matchedHitConverter(
   return matchedHit;
 }
 
-const SiStripRecHit2D* ElectronSiStripSeedGenerator::backupHitConverter(ConstRecHitPointer crhp){
-  const TrackingRecHit* trh = crhp->hit();
-  const SiStripRecHit2D* backupHit = dynamic_cast<const SiStripRecHit2D*>(trh);
-  return backupHit;
-}
-
 std::vector<bool> ElectronSiStripSeedGenerator::useDetLayer(double scEta){
   std::vector<bool> useDetLayer;
   double variable = fabs(scEta);
@@ -751,11 +603,6 @@ std::vector<bool> ElectronSiStripSeedGenerator::useDetLayer(double scEta){
     useDetLayer.push_back(false);
   }
   if(variable > 1.8 && variable < 2.5){
-    useDetLayer.push_back(true);
-  }else{
-    useDetLayer.push_back(false);
-  }
-  if(variable > 1.2 && variable < 1.6){
     useDetLayer.push_back(true);
   }else{
     useDetLayer.push_back(false);

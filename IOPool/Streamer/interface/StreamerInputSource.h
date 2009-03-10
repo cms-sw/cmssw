@@ -25,6 +25,7 @@ typedef TBuffer RootBuffer;
 
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
+#include "DataFormats/Common/interface/EDProductGetter.h"
 #include <vector>
 
 class InitMsgView;
@@ -66,7 +67,24 @@ namespace edm {
     void setEndRun() {runEndingFlag_ = true;}
     void resetAfterEndRun();
 
+    bool inputFileTransitionsEachEvent_;
+
   private:
+
+    class ProductGetter : public EDProductGetter {
+    public:
+      ProductGetter();
+      virtual ~ProductGetter();
+
+      virtual EDProduct const* getIt(edm::ProductID const& id) const;
+
+      void setEventPrincipal(EventPrincipal *ep);
+
+    private:
+      // We don't own the principal.  The lifetime must be managed externally.
+      EventPrincipal const* eventPrincipal_;
+    };
+
     virtual std::auto_ptr<EventPrincipal> read() = 0;
 
     virtual boost::shared_ptr<RunPrincipal> readRun_();
@@ -90,6 +108,7 @@ namespace edm {
     std::vector<unsigned char> dest_;
     RootBuffer xbuf_;
     bool runEndingFlag_;
+    ProductGetter productGetter_;
 
     //Do not like these to be static, but no choice as deserializeRegistry() that sets it is a static memeber 
     static std::string processName_;

@@ -4,14 +4,13 @@
 
 void BeamSpotObjects::print(std::stringstream& ss) const {
 	  ss << "-----------------------------------------------------\n"
-	     << "              Beam Spot Data\n\n"
-		 << " Beam type  = " << GetBeamType() << "\n"
-	     << "       X0   = " << GetX() << " +/- " << GetXError() << " [cm]\n"
-	     << "       Y0   = " << GetY() << " +/- " << GetYError() << " [cm]\n"
-	     << "       Z0   = " << GetZ() << " +/- " << GetZError() << " [cm]\n"
-	     << " Sigma Z0   = " << GetSigmaZ() << " +/- " << GetSigmaZError() << " [cm]\n"
-	     << " dxdz       = " << Getdxdz() << " +/- " << GetdxdzError() << " [radians]\n"
-	     << " dydz       = " << Getdydz() << " +/- " << GetdydzError() << " [radians]\n"
+	     << "            Calculated Beam Spot\n\n"
+	     << "   X0 = " << GetX() << " +/- " << GetXError() << " [cm]\n"
+	     << "   Y0 = " << GetY() << " +/- " << GetYError() << " [cm]\n"
+	     << "   Z0 = " << GetZ() << " +/- " << GetZError() << " [cm]\n"
+	     << " Sigma Z0 = " << GetSigmaZ() << " +/- " << GetSigmaZError() << " [cm]\n"
+	     << " dxdz = " << Getdxdz() << " +/- " << GetdxdzError() << " [radians]\n"
+	     << " dydz = " << Getdydz() << " +/- " << GetdydzError() << " [radians]\n"
 	     << " Beam Width = " << GetBeamWidth() << " +/- " << GetBeamWidthError() << " [cm]\n"
 	     << "-----------------------------------------------------\n\n";
 }

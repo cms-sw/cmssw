@@ -4,9 +4,9 @@
 /*----------------------------------------------------------------------
   
 RefVectorIterator: An iterator for a RefVector
+Note: this is actually a *const_iterator*
 
-
-$Id: RefVectorIterator.h,v 1.7 2007/07/09 07:28:50 llista Exp $
+$Id: RefVectorIterator.h,v 1.8 2007/12/21 22:42:30 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -21,6 +21,9 @@ namespace edm {
   class RefVectorIterator : public std::iterator <std::random_access_iterator_tag, Ref<C, T, F> > {
   public:
     typedef Ref<C, T, F> value_type;
+    typedef Ref<C, T, F> const const_reference;  // Otherwise boost::iterator_reference assumes '*it' returns 'Ref &'
+    typedef const_reference    reference;        // This to prevent compilation of code that tries to modify the RefVector
+                                                 // through this iterator
     typedef typename value_type::key_type key_type;
 
     typedef RefVectorIterator<C, T, F> iterator;
@@ -29,11 +32,11 @@ namespace edm {
     RefVectorIterator() : product_(), iter_() {}
     explicit RefVectorIterator(RefCore const& product, itemIter const& it) :
       product_(product), iter_(it) {}
-    value_type operator*() const {
+    reference operator*() const {
       RefItem<key_type> const& item = *iter_;
       return value_type(product_, item);
     }
-    value_type operator[](difference n) const {
+    reference operator[](difference n) const {
       RefItem<key_type> const& item = iter_[n];
       return value_type(product_, item);
     }

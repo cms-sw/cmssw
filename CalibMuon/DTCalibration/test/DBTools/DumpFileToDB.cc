@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/07 11:31:03 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/02/19 15:40:55 $
+ *  $Revision: 1.9 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -58,11 +58,10 @@ void DumpFileToDB::endJob() {
       cout << "key: " << (*keyAndCalibs).first
 	   << " vdrift (cm/ns): " << theCalibFile->meanVDrift((*keyAndCalibs).first)
 	   << " hit reso (cm): " << theCalibFile->sigma_meanVDrift((*keyAndCalibs).first) << endl;
-      // vdrift is cm/ns , resolution is cm
       mtime->set((*keyAndCalibs).first.superlayerId(),
 		 theCalibFile->meanVDrift((*keyAndCalibs).first), 
 		 theCalibFile->sigma_meanVDrift((*keyAndCalibs).first),
-		 DTVelocityUnits::cm_per_ns);
+		 DTTimeUnits::ns);
     }
 
     cout << "[DumpFileToDB]Writing mtime object to DB!" << endl;
@@ -108,7 +107,7 @@ void DumpFileToDB::endJob() {
       tZeroMap->set((*keyAndCalibs).first,
 		    t0mean,
 		    t0rms,
-		    DTTimeUnits::counts);
+		    DTTimeUnits::counts );
     }
 
     cout << "[DumpFileToDB]Writing tZero object to DB!" << endl;

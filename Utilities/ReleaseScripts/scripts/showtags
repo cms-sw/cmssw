@@ -1,6 +1,6 @@
-#!/usr/bin/perl -w
+#!/usr/bin/env perl
 #
-# $Id: showtags,v 1.6 2008/06/12 11:04:46 rahatlou Exp $
+# $Id: showtags,v 1.8 2009/02/06 08:05:48 andreasp Exp $
 #
 # Created by: Shahram Rahatlou
 #             University of Rome & INFN
@@ -211,6 +211,7 @@ foreach my $ipack (@packages) {
       open D, "cvs diff -ub -r $tag $nf 2>&1|";
       while(my $l = <D>) {
         chomp $l;
+        next if($l =~/^gserver/);
         next if($l =~/^kserver/);
         print STDOUT "$l\n";
       }
@@ -247,6 +248,7 @@ foreach my $ipack (@packages) {
       open D, "cvs diff -ub -r $tagrel $nf 2>&1|";
       while(my $l = <D>) {
         chomp $l;
+        next if($l =~/^gserver/);
         next if($l =~/^kserver/);
         print STDOUT "$l\n";
       }

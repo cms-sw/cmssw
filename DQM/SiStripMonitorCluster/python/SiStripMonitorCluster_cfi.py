@@ -71,6 +71,16 @@ SiStripMonitorCluster = cms.EDFilter("SiStripMonitorCluster",
         layerswitchon  = cms.bool(False),
         moduleswitchon = cms.bool(True)
     ),
+    TH1ClusterStoNVsPos = cms.PSet(
+        Nbinx          = cms.int32(768),
+        xmin           = cms.double(-0.5),
+        xmax           = cms.double(767.5),
+        Nbiny          = cms.int32(100),
+        ymin           = cms.double(-0.5),
+        ymax           = cms.double(299.5),
+        layerswitchon  = cms.bool(False),
+        moduleswitchon = cms.bool(False)
+    ),
     TH1ClusterCharge = cms.PSet(
         Nbinx          = cms.int32(200),
         xmin           = cms.double(-0.5),        
@@ -108,6 +118,14 @@ SiStripMonitorCluster = cms.EDFilter("SiStripMonitorCluster",
         maxStoN    = cms.double(10000.0),
         minStoN    = cms.double(0.0),
         maxWidth   = cms.double(10000.0)
+    ),
+    TProfTotalNumberOfClusters = cms.PSet(
+        Nbins = cms.int32(600),
+        xmin = cms.double(0.0),
+        xmax = cms.double(1.0*60*60),
+        ymin = cms.double(0.0),
+        ymax = cms.double(1000000.0),
+        subdetswitchon = cms.bool(False)
     ),
                                      
     #select detectors

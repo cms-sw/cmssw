@@ -13,7 +13,6 @@
 <use name=TrackingTools/MaterialEffects>
 <use name=TrackingTools/PatternTools>
 <use name=TrackingTools/TrajectoryState>
-<use name=TrackingTools/TrackFitters> # for TSOS combiner in DualKalman
 <use name=TrackingTools/TransientTrackingRecHit>
 <use name=RecoTracker/TransientTrackingRecHit>
 <export>

@@ -12,39 +12,34 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "TFile.h"
-#include "TH2F.h"
 #include "TObjArray.h"
+#include "TH2F.h"
 
 
-class SiPixelHistoricInfoReader : public edm::EDAnalyzer {
-  typedef std::vector<std::string> vstring; 
+namespace cms {
+  class SiPixelHistoricInfoReader : public edm::EDAnalyzer {
+  public:
+    explicit SiPixelHistoricInfoReader(const edm::ParameterSet&);
+            ~SiPixelHistoricInfoReader();
 
-public:
-  explicit SiPixelHistoricInfoReader(const edm::ParameterSet&);
-	  ~SiPixelHistoricInfoReader();
+    virtual void beginJob(const edm::EventSetup&);
+    virtual void beginRun(const edm::Run&, const edm::EventSetup&) ;
+    void analyze(const edm::Event&, const edm::EventSetup&);
+    virtual void endRun(const edm::Run&, const edm::EventSetup&) ;
+    virtual void endJob();
+    
+    void fillHistograms(edm::ESHandle<SiPixelPerformanceSummary>);
 
-  virtual void beginJob(const edm::EventSetup&);
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endRun(const edm::Run&, const edm::EventSetup&) ;
-  virtual void endJob(); 
-  
-  std::string getMEregionString(uint32_t) const; 
-  void fillDebugHistogram(TString, float, float); 
-  
-private:
-  edm::ParameterSet parameterSet_;
-  
-  bool firstBeginRun_; 
-  bool printDebug_;
-  bool normEvents_; 
-  bool variable_[10]; 
-  std::vector<std::string> variables_; 
-  std::vector<uint32_t> allDetIds; 
-  std::string outputFile_; 
-  TFile* outputFile; 
-  TObjArray* AllDetHistograms; 
-  TString hisID, title; 
-};
+  private:
+    bool printDebug_;
+    std::string outputDir_;
+    unsigned int presentRun_;
+    std::vector<uint32_t> allDetIds;
+    TH1F *NumberOfDigisAllDets;
+    TObjArray *AllDetHistograms;
+    TFile *outputFile;
+  };
+}
+
 
 #endif

@@ -22,8 +22,10 @@ class HLTEgammaEtFilterPairs : public HLTFilter {
 
    private:
       edm::InputTag inputTag_; // input tag identifying product contains egammas
-      double etcut1_;           // Et threshold in GeV 
-      double etcut2_;           // Et threshold in GeV 
+      double etcutEB1_;           // Et threshold in GeV 
+      double etcutEB2_;           // Et threshold in GeV 
+      double etcutEE1_;           // Et threshold in GeV 
+      double etcutEE2_;           // Et threshold in GeV 
       bool   store_;
       bool   relaxed_;
       edm::InputTag L1IsoCollTag_; 

@@ -34,6 +34,8 @@ public:
   
   recordName type() const;
 
+  static std::string name(const recordName & code);
+
   std::string print() const {
     std::ostringstream str;
     str << reinterpret_cast<const std::bitset<16>&>(theData); 

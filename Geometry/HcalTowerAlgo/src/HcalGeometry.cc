@@ -15,40 +15,24 @@ HcalGeometry::~HcalGeometry()
 }
 
 
-const std::vector<DetId>& 
-HcalGeometry::getValidDetIds( DetId::Detector det,
-			      int             subdet ) const 
-{
-   const std::vector<DetId>& baseIds ( CaloSubdetectorGeometry::getValidDetIds() ) ;
-   if( det    == DetId::Detector( 0 ) &&
-       subdet == 0                        )
-   {
-      return baseIds ;
-   }
-   
-   if( lastReqDet_    != det    ||
-       lastReqSubdet_ != subdet    ) 
-   {
-      lastReqDet_     = det    ;
-      lastReqSubdet_  = subdet ;
-      m_validIds.clear();
-      m_validIds.reserve( baseIds.size() ) ;
-   }
-
-   if( m_validIds.empty() ) 
-   {
-      for( unsigned int i ( 0 ) ; i != baseIds.size() ; ++i ) 
-      {
-	 const DetId id ( baseIds[i] );
-	 if( id.det()      == det    &&
-	     id.subdetId() == subdet    )
-	 { 
-	    m_validIds.push_back( id ) ;
-	 }
-      }
+std::vector<DetId> const & HcalGeometry::getValidDetIds(DetId::Detector det, int subdet) const {
+  if (lastReqDet_!=det || lastReqSubdet_!=subdet) {
+    lastReqDet_=det;
+    lastReqSubdet_=subdet;
+    m_validIds.clear();
+  }
+  if (m_validIds.empty()) {
+    m_validIds.reserve(cellGeometries().size());
+    CaloSubdetectorGeometry::CellCont::const_iterator i;
+    for (i=cellGeometries().begin(); i!=cellGeometries().end(); i++) {
+      DetId id(i->first);
+      if (id.det()==det && id.subdetId()==subdet) 
+	m_validIds.push_back(id);
+    }
       std::sort(m_validIds.begin(),m_validIds.end());
-   }
-   return m_validIds;
+  }
+
+  return m_validIds;
 }
 
 
@@ -147,10 +131,9 @@ int HcalGeometry::etaRing(HcalSubdetector bc, double abseta) const
 
 int HcalGeometry::phiBin(double phi, int etaring) const
 {
-   static const double twopi = M_PI+M_PI;
+  double twopi = M_PI+M_PI;
   //put phi in correct range (0->2pi)
   if(phi<0.0) phi += twopi;
-  if(phi>twopi) phi -= twopi;
   int nphibins = theTopology->nPhiBins(etaring);
   int phibin= static_cast<int>(phi/twopi*nphibins)+1;
   int iphi;
@@ -171,82 +154,5 @@ int HcalGeometry::phiBin(double phi, int etaring) const
   }
 
   return iphi;
-}
-
-CaloSubdetectorGeometry::DetIdSet 
-HcalGeometry::getCells( const GlobalPoint& r, 
-			double             dR ) const 
-{
-   CaloSubdetectorGeometry::DetIdSet dis;  // this is the return object
-
-   if( 0.000001 < dR )
-   {
-      if( dR > M_PI/2. ) // this version needs "small" dR
-      {
-	 dis = CaloSubdetectorGeometry::getCells( r, dR ) ; // base class version
-      }
-      else
-      {
-	 const double dR2     ( dR*dR ) ;
-	 const double reta    ( r.eta() ) ;
-	 const double rphi    ( r.phi() ) ;
-	 const double lowEta  ( reta - dR ) ;
-	 const double highEta ( reta + dR ) ;
-	 const double lowPhi  ( rphi - dR ) ;
-	 const double highPhi ( rphi + dR ) ;
-	 
-	 const double hfEtaHi ( theHFEtaBounds[ theTopology->lastHFRing() -
-						theTopology->firstHFRing() + 1 ] ) ;
-	 
-	 if( highEta > -hfEtaHi &&
-	     lowEta  <  hfEtaHi    ) // in hcal
-	 {
-	    const HcalSubdetector hs[] = { HcalBarrel, HcalOuter, HcalEndcap, HcalForward } ;
-
-	    for( unsigned int is ( 0 ) ; is != 4 ; ++is )
-	    {
-	       const int sign        (  reta>0 ? 1 : -1 ) ;
-	       const int ieta_center ( sign*etaRing( hs[is], fabs( reta ) ) ) ;
-	       const int ieta_lo     ( ( 0 < lowEta*sign ? sign : -sign )*etaRing( hs[is], fabs( lowEta ) ) ) ;
-	       const int ieta_hi     ( ( 0 < highEta*sign ? sign : -sign )*etaRing( hs[is], fabs( highEta ) ) ) ;
-	       const int iphi_lo     ( phiBin( lowPhi , ieta_center ) ) ;
-	       const int iphi_hi     ( phiBin( highPhi, ieta_center ) ) ;
-	       const int jphi_lo     ( iphi_lo>iphi_hi ? iphi_lo - 72 : iphi_lo ) ;
-	       const int jphi_hi     ( iphi_hi ) ;
-
-	       const int idep_lo     ( 1 == is ? 4 : 1 ) ;
-	       const int idep_hi     ( 1 == is ? 4 :
-				       ( 2 == is ? 3 : 2 ) ) ;
-	       for( int ieta ( ieta_lo ) ; ieta <= ieta_hi ; ++ieta ) // over eta limits
-	       {
-		  if( ieta != 0 )
-		  {
-		     for( int jphi ( jphi_lo ) ; jphi <= jphi_hi ; ++jphi )  // over phi limits
-		     {
-			const int iphi ( 1 > jphi ? jphi+72 : jphi ) ;
-
-			for( int idep ( idep_lo ) ; idep <= idep_hi ; ++idep )
-			{
-			   if( HcalDetId::validDetId( hs[is], ieta, iphi, idep ) )
-			   {
-			      const HcalDetId did ( hs[is], ieta, iphi, idep ) ;
-			      const CaloCellGeometry* cell ( getGeometry( did ) );
-			      if( 0 != cell )
-			      {
-				 const GlobalPoint& p   ( cell->getPosition() ) ;
-				 const double       eta ( p.eta() ) ;
-				 const double       phi ( p.phi() ) ;
-				 if( reco::deltaR2( eta, phi, reta, rphi ) < dR2 ) dis.insert( did ) ;
-			      }
-			   }
-			}
-		     }
-		  }
-	       }
-	    }
-	 }
-      }
-   }
-   return dis;
 }
 

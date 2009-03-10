@@ -30,77 +30,46 @@ public:
 			 double pTThresh=0,
 			 double RCone=.4,
 			 double RinnerCone=.1);
-  /////////////////Deprecated.  Use RecHits now.
-/*   double calculateBasicClusterIso(const reco::Photon* photon, */
-/* 				  const edm::Event& iEvent, */
-/* 				  double RCone=0.4, */
-/* 				  double RConeInner=0, */
-/* 				  double etMin=0); */
-  //////////////////////////////////////////////
-
+  double calculateBasicClusterIso(const reco::Photon* photon,
+				  const edm::Event& iEvent,
+				  double RCone=0.4,
+				  double RConeInner=0,
+				  double etMin=0);
   double calculateEcalRecHitIso(const reco::Photon* photon,
 				const edm::Event& iEvent,
 				const edm::EventSetup& iSetup,
 				double RCone,
 				double RConeInner,
                                 double etaSlice,
-				double eMin,
 				double etMin);
-
-  ////////////////Deprecated.  Use Towers now.
-/*   double calculateHcalRecHitIso(const reco::Photon* photon, */
-/* 				const edm::Event& iEvent, */
-/* 				const edm::EventSetup& iSetup, */
-/* 				double RCone, */
-/* 				double RConeInner, */
-/*                                 double etaSlice, */
-/* 				double eMin, */
-/* 				double etMin); */
-  ////////////////////////////////////////
-  
-  double calculateHcalTowerIso(const reco::Photon* photon,
-			       const edm::Event& iEvent,
-			       const edm::EventSetup& iSetup,
-			       double RCone,
-			       double RConeInner,
-			       double eMin);
+  double calculateHcalRecHitIso(const reco::Photon* photon,
+				const edm::Event& iEvent,
+				const edm::EventSetup& iSetup,
+				double RCone,
+				double RConeInner,
+                                double etaSlice,
+				double etMin);
 
   double calculateR9(const reco::Photon* photon,
 		     const edm::Event& iEvent,
 		     const edm::EventSetup& iSetup);
 
-  double calculateE1x5(const reco::Photon* photon,
-		       const edm::Event& iEvent,
-		       const edm::EventSetup& iSetup);
-
-  double calculateE2x5(const reco::Photon* photon,
-		       const edm::Event& iEvent,
-		       const edm::EventSetup& iSetup);
-
-  double calculateE5x5(const reco::Photon* photon,
-		       const edm::Event& iEvent,
-		       const edm::EventSetup& iSetup);
-
-  double calculateSigmaIetaIeta(const reco::Photon* photon,
-				const edm::Event& iEvent,
-				const edm::EventSetup& iSetup);
   
-  ///////////////////Deprecated  
-/*   bool isAlsoElectron(const reco::Photon* photon, */
-/* 		      const edm::Event& e); */
-  ////////////////////////////
+  bool isAlsoElectron(const reco::Photon* photon,
+		      const edm::Event& e);
+  
   
  protected:
 
 
-  //  std::string endcapSuperClusterProducer_;      
-  //  std::string endcapsuperclusterCollection_;
-  //  std::string barrelsuperclusterCollection_;
-  //  std::string barrelsuperclusterProducer_;
-  //  std::string barrelbasicclusterCollection_;
-  //  std::string barrelbasicclusterProducer_;
-  //  std::string endcapbasicclusterCollection_;
-  //  std::string endcapbasicclusterProducer_;
+  std::string endcapSuperClusterProducer_;      
+  std::string endcapsuperclusterCollection_;
+  std::string barrelsuperclusterCollection_;
+  std::string barrelsuperclusterProducer_;
+  std::string barrelbasicclusterCollection_;
+  std::string barrelbasicclusterProducer_;
+  std::string endcapbasicclusterCollection_;
+  std::string endcapbasicclusterProducer_;
   std::string barrelecalCollection_;
   std::string barrelecalProducer_;
   std::string endcapecalCollection_;
@@ -108,8 +77,10 @@ public:
   std::string hcalCollection_;
   std::string hcalProducer_;
 
+  
+
   edm::InputTag trackInputTag_;
-  //  edm::InputTag gsfRecoInputTag_;
+  edm::InputTag gsfRecoInputTag_;
 
   double modulePhiBoundary_;
   std::vector<double> moduleEtaBoundary_;

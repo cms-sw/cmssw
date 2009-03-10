@@ -1,10 +1,8 @@
 // Jet.cc
 // Fedor Ratnikov, UMd
-// $Id: Jet.cc,v 1.22 2008/05/12 19:04:27 fedor Exp $
+// $Id: Jet.cc,v 1.21 2008/04/21 14:06:05 llista Exp $
 
 #include <sstream>
-#include <cmath>
-
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
@@ -15,35 +13,16 @@ using namespace reco;
 
 namespace {
   // approximate simple CALO geometry
-  // abstract baseclass for geometry.
-
   class CaloPoint {
   public:
-    static const double depth; // one for all relative depth of the reference point between ECAL begin and HCAL end
-    static const double R_BARREL;
-    static const double R_BARREL2;
-    static const double Z_ENDCAP; // 1/2(EEz+HEz)
-    static const double R_FORWARD; // eta=3
-    static const double R_FORWARD2;
-    static const double Z_FORWARD;
-    static const double Z_BIG;
-  };
-
-  const double CaloPoint::depth = 0.1; // one for all relative depth of the reference point between ECAL begin and HCAL end
-  const double CaloPoint::R_BARREL = (1.-depth)*143.+depth*407.;
-  const double CaloPoint::R_BARREL2 = R_BARREL * R_BARREL;
-  const double CaloPoint::Z_ENDCAP = (1.-depth)*320.+depth*568.; // 1/2(EEz+HEz)
-  const double CaloPoint::R_FORWARD = Z_ENDCAP / sqrt (cosh(3.)*cosh(3.) -1.); // eta=3
-  const double CaloPoint::R_FORWARD2 = R_FORWARD * R_FORWARD;
-  const double CaloPoint::Z_FORWARD = 1100.+depth*165.;
-  const double CaloPoint::Z_BIG = 1.e5;
-
-  //old zvertex only implementation:
-  class CaloPointZ: private CaloPoint{
-  public:
-    CaloPointZ (double fZ, double fEta){
-      
-      static const double ETA_MAX = 5.2;
+    CaloPoint (double fZ, double fEta) {
+      const double depth = 0.1; // one for all relative depth of the reference point between ECAL begin and HCAL end
+      const double R_BARREL = (1.-depth)*143.+depth*407.;
+      const double Z_ENDCAP = (1.-depth)*320.+depth*568.; // 1/2(EEz+HEz)
+      const double R_FORWARD = Z_ENDCAP / sqrt (cosh(3.)*cosh(3.) -1.); // eta=3
+      const double Z_FORWARD = 1100.+depth*165.;
+      const double ETA_MAX = 5.2;
+      const double Z_BIG = 1.e5;
       
       if (fZ > Z_ENDCAP) fZ = Z_ENDCAP-1.;
       if (fZ < -Z_ENDCAP) fZ = -Z_ENDCAP+1; // sanity check
@@ -66,6 +45,7 @@ namespace {
 	mR = fabs ((mZ - fZ) / tanTheta);
       }
     }
+
     double etaReference (double fZ) {
       Jet::Point p (r(), 0., z() - fZ);
       return p.eta();
@@ -78,83 +58,11 @@ namespace {
 
     double z() const {return mZ;}
     double r() const {return mR;}
+
   private:
-    CaloPointZ(){};
     double mZ;
     double mR;
   };
-
-  //new implementation to derive CaloPoint for free 3d vertex. 
-  //code provided thanks to Christophe Saout
-  template<typename Point>
-  class CaloPoint3D : private CaloPoint {
-  public:
-    template<typename Vector, typename Point2>
-    CaloPoint3D(const Point2 &vertex, const Vector &dir)
-    {
-      // note: no sanity checks here, make sure vertex is inside the detector!
-
-      // check if positive or negative (or none) endcap should be tested
-      int side = dir.z() < -1e-9 ? -1 : dir.z() > 1e-9 ? +1 : 0;
-
-      double dirR = dir.Rho();
-
-      // normalized direction in x-y plane
-      double dirUnit[2] = { dir.x() / dirR, dir.y() / dirR };
-
-      // rotate the vertex into a coordinate system where dir lies along x
-
-      // vtxLong is the longitudinal coordinate of the vertex wrt/ dir
-      double vtxLong = dirUnit[0] * vertex.x() + dirUnit[1] * vertex.y();
-
-      // tIP is the (signed) transverse impact parameter
-      double tIP = dirUnit[0] * vertex.y() - dirUnit[1] * vertex.x();
-
-      // r and z coordinate
-      double r, z;
-
-      if (side) {
-        double slope = dirR / dir.z();
-
-        // check extrapolation to endcap
-        r = vtxLong + slope * (side * Z_ENDCAP - vertex.z());
-        double r2 = sqr(r) + sqr(tIP);
-
-        if (r2 < R_FORWARD2) {
-          // we are in the forward calorimeter, recompute
-          r = vtxLong + slope * (side * Z_FORWARD - vertex.z());
-          z = side * Z_FORWARD;
-        } else if (r2 < R_BARREL2) {
-          // we are in the endcap
-          z = side * Z_ENDCAP;
-        } else {
-          // we are in the barrel, do the intersection below
-          side = 0;
-        }
-      }
-
-      if (!side) {
-        // we are in the barrel
-        double slope = dir.z() / dirR;
-        r = std::sqrt(R_BARREL2 - sqr(tIP));
-        z = vertex.z() + slope * (r - vtxLong);
-      }
-
-      // rotate (r, tIP, z) back into original x-y coordinate system
-      point = Point(dirUnit[0] * r - dirUnit[1] * tIP,
-                    dirUnit[1] * r + dirUnit[0] * tIP,
-                    z);
-    }
-
-    const Point &caloPoint() const { return point; }
-
-  private:
-    template<typename T>
-    static inline T sqr(const T &value) { return value * value; }
-
-    Point point;
-  };
-
 }
 
 Jet::Jet (const LorentzVector& fP4, 
@@ -313,38 +221,16 @@ float Jet::maxDistance () const {
 }
 
 /// static function to convert detector eta to physics eta
-// kept for backwards compatibility, use detector/physicsP4 instead!
 float Jet::physicsEta (float fZVertex, float fDetectorEta) {
-  CaloPointZ refPoint (0., fDetectorEta);
+  CaloPoint refPoint (0., fDetectorEta);
   return refPoint.etaReference (fZVertex);
 }
 
 /// static function to convert physics eta to detector eta
-// kept for backwards compatibility, use detector/physicsP4 instead!
 float Jet::detectorEta (float fZVertex, float fPhysicsEta) {
-  CaloPointZ refPoint (fZVertex, fPhysicsEta);
+  CaloPoint refPoint (fZVertex, fPhysicsEta);
   return refPoint.etaReference (0.);
 }
-
-Particle::LorentzVector Jet::physicsP4 (const Particle::Point &newVertex, const Particle &inParticle,const Particle::Point &oldVertex) {
-  CaloPoint3D<Point> caloPoint(oldVertex,inParticle.momentum()); // Jet position in Calo.
-  Vector physicsDir = caloPoint.caloPoint() - newVertex;
-  double p = inParticle.momentum().r();
-  Vector p3 = p * physicsDir.unit();
-  LorentzVector returnVector(p3.x(), p3.y(), p3.z(), inParticle.energy());
-  return returnVector;
-}
-
-Particle::LorentzVector Jet::detectorP4 (const Particle::Point &vertex, const Particle &inParticle) {
-  CaloPoint3D<Point> caloPoint(vertex,inParticle.momentum()); // Jet position in Calo.
-  static const Point np(0,0,0);
-  Vector detectorDir = caloPoint.caloPoint() - np;
-  double p = inParticle.momentum().r();
-  Vector p3 = p * detectorDir.unit();
-  LorentzVector returnVector(p3.x(), p3.y(), p3.z(), inParticle.energy());
-  return returnVector;
-}
-
 
 Jet::Constituents Jet::getJetConstituents () const {
   Jet::Constituents result;

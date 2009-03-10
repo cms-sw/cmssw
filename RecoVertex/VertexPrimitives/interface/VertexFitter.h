@@ -35,13 +35,6 @@ public:
    */
   virtual CachingVertex<N> 
   vertex(const vector<typename CachingVertex<N>::RefCountedVertexTrack > & tracks) const = 0;
-  
-  /** Same as above, only now also the
-   * BeamSpot constraint is provided.
-   */
-  virtual CachingVertex<N> 
-  vertex(const vector<typename CachingVertex<N>::RefCountedVertexTrack > & tracks, const reco::BeamSpot & spot ) const = 0;
-
 
   /** Fit vertex out of a set of TransientTracks. 
    *  The specified point will be used as linearization point, but will NOT be used as prior.

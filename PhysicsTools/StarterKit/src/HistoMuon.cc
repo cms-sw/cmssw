@@ -751,7 +751,7 @@ void HistoMuon::fill( const reco::ShallowClonePtrCandidate *pshallow, uint iMu, 
 {
 
   // Get the underlying object that the shallow clone represents
-  const pat::Muon * muon = dynamic_cast<const pat::Muon*>(&*(pshallow->masterClonePtr()));
+  const pat::Muon * muon = dynamic_cast<const pat::Muon*>(pshallow);
 
   if ( muon == 0 ) {
     cout << "Error! Was passed a shallow clone that is not at heart a muon" << endl;

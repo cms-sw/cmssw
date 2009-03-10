@@ -22,6 +22,8 @@ edm::CosMuoGenSource::CosMuoGenSource( const ParameterSet & pset, InputSourceDes
   TIFOnly_constant(pset.getParameter<bool>("TIFOnly_constant")),
   TIFOnly_linear(pset.getParameter<bool>("TIFOnly_linear")),
   MTCCHalf(pset.getParameter<bool>("MTCCHalf")),
+  PlugVtx(pset.getParameter<double>("PlugVx")),
+  PlugVtz(pset.getParameter<double>("PlugVz")),
   cmVerbosity_(pset.getParameter<bool>("Verbosity"))
   {
 
@@ -51,6 +53,8 @@ edm::CosMuoGenSource::CosMuoGenSource( const ParameterSet & pset, InputSourceDes
     CosMuoGen->setTIFOnly_constant(TIFOnly_constant);
     CosMuoGen->setTIFOnly_linear(TIFOnly_linear);
     CosMuoGen->setMTCCHalf(MTCCHalf);
+    CosMuoGen->setPlugVx(PlugVtx);
+    CosMuoGen->setPlugVz(PlugVtz);    
     CosMuoGen->initialize();
     produces<HepMCProduct>();
     //  fEvt = new HepMC::GenEvent();

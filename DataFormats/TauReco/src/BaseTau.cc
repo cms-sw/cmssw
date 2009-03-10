@@ -33,7 +33,7 @@ BaseTau* BaseTau::clone()const{return new BaseTau(*this);}
 math::XYZTLorentzVector BaseTau::alternatLorentzVect()const{return(alternatLorentzVect_);} 
 void BaseTau::setalternatLorentzVect(math::XYZTLorentzVector x){alternatLorentzVect_=x;}
     
-const TrackRef& BaseTau::leadTrack() const {return leadTrack_;}
+TrackRef BaseTau::leadTrack() const {return leadTrack_;}
 void BaseTau::setleadTrack(const TrackRef& myTrack) { leadTrack_ = myTrack;}
 const TrackRefVector& BaseTau::signalTracks() const {return signalTracks_;}
 void BaseTau::setsignalTracks(const TrackRefVector& myTracks)  { signalTracks_ = myTracks;}

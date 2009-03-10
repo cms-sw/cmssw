@@ -62,32 +62,24 @@ int getAngleParams( double angle )
 int plotAll() {
                                                                         
   gStyle->SetOptStat(0);
-  gStyle->SetOptDate(0);
   gStyle->SetOptTitle(0);
   TCanvas* myCanvas = new TCanvas("myCanvas","Canvas",10,10,800,800);
   myCanvas->Divide(2,5);
-  TH2F* range = new TH2F("range","Cherenkov photons ; x [mm]; y [mm]",2,-50,50,2,-12,12);
-  //TH2F* range = new TH2F("range","Cherenkov photons ; #(photons)/step",2,0,300,2,0,300);
-  range->GetXaxis()->SetTitleSize(0.09);
-  range->GetXaxis()->SetTitleOffset(-0.5);
-  range->GetYaxis()->SetTitleSize(0.09);
-  range->GetYaxis()->SetTitleOffset(0.5);
+  myCanvas->SetLogy(1);
+  TH2F* range = new TH2F("range","Cherenkov photons",2,-40,40,2,-12,12);
 
   const int nfiles = 9;
   TString fileRoot("output");
   char fileName[50];
 
   // Draw angle = 0 twice
-  TLatex* t = new TLatex();
-  char angle[20];
-  TFile* file = new TFile("output-1.root");
-  TTree* tree0 = file->Get("g4SimHits/tree");
+  TTree* tree0 = new TTree("tree0","Cherenkov photons");
+  std::cout << tree0->ReadFile("output-1.txt","px/D:py:pz:x:y:z") 
+            << " lines read from output-1.txt" << std::endl;
   for ( int i=1; i<=2; ++i ) {
     myCanvas->cd(i);
     range->Draw();
     tree0->Draw("y:x","","same");
-    //tree0->Draw("nphotons","");
-    t->DrawLatex(-40,-10,"angle = 0");
   }
   
   // Draw other angles
@@ -96,16 +88,17 @@ int plotAll() {
     int ican = 2*ifile+1-(ifile/5)*7; // Sorry for that...
     std::cout << ican << std::endl;
     myCanvas->cd( ican );
-    sprintf(fileName,"%s-%1d.root",fileRoot.Data(),ifile+1);
-    TFile* file = new TFile(fileName);
-    TTree* tree = file->Get("g4SimHits/tree");
+    sprintf(fileName,"%s-%1d.txt",fileRoot.Data(),ifile+1);
+    TTree* tree = new TTree("tree","Cherenkov photons");
+    std::cout << tree->ReadFile(fileName,"px/D:py:pz:x:y:z") 
+              << " lines read from " << fileName << std::endl;
+
     range->Draw();
     tree->Draw("y:x","","same");
-//     tree->Draw("nphotons","");
-    if ( ifile<5) sprintf(angle,"angle = %02d",(ifile*10));
-    else sprintf(angle,"angle = %02d",-((ifile-4)*10));
-    t->DrawLatex(-40,-10,angle);
+
   }
+
+  //   int colors[] = { kRed-1, kBlue-1, kGreen-1, kMagenta-1, kYellow-3 };
 
 
   return 0;

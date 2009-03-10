@@ -17,7 +17,7 @@
  * \date    20/02/06
  */
 
-class L1GctEmLeafCard : L1GctProcessor {
+class L1GctEmLeafCard : public L1GctProcessor {
  public:
   static const unsigned N_SORTERS;
 

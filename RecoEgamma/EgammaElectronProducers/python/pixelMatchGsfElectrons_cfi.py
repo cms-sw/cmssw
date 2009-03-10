@@ -1,38 +1,31 @@
 import FWCore.ParameterSet.Config as cms
 
-# module to produce gsf electrons
+# produce electrons based on matched pixel hits with gsf fit
 #
 pixelMatchGsfElectrons = cms.EDProducer("GsfElectronProducer",
-
-    # input collections
-    barrelSuperClusters = cms.InputTag("correctedHybridSuperClusters","electronPixelSeeds"),
+    #  InputTag endcapSuperClusters = correctedEndcapSuperClustersWithPreshower:electronPixelSeeds
     endcapSuperClusters = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower","electronPixelSeeds"),
-    tracks = cms.InputTag("pixelMatchGsfFit"),
-    ctfTracks = cms.InputTag("generalTracks"),
-    hcalRecHits = cms.InputTag("hbhereco"),
-    reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
-    reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
-    # steering
-    applyEtaCorrection = cms.bool(False),
-    applyAmbResolution = cms.bool(True),    
-    # preselection parameters
-    minEOverPBarrel = cms.double(0.0),
-    maxEOverPBarrel = cms.double(10000.0),
+    maxDeltaPhi = cms.double(0.1),
     minEOverPEndcaps = cms.double(0.0),
     maxEOverPEndcaps = cms.double(10000.0),
+    minEOverPBarrel = cms.double(0.0),
+    barrelSuperClusters = cms.InputTag("correctedHybridSuperClusters","electronPixelSeeds"),
+    applyEtaCorrection = cms.bool(False),
+    applyAmbResolution = cms.bool(True),
+    tracks = cms.InputTag("pixelMatchGsfFit"),
     maxDeltaEta = cms.double(0.02),
-    maxDeltaPhi = cms.double(0.1),
-    # high Et preselection
-    highPtPreselection = cms.bool(False),
-    highPtMin = cms.double(150.0),
-    # electron algo
     ElectronType = cms.string(''),
+    # electron preselection parameters
+    maxEOverPBarrel = cms.double(10000.0),
+    highPtPreselection = cms.bool(False),
+    hcalRecHits = cms.InputTag("hbhereco"),
+    highPtMin = cms.double(150.0),
     # nested parameter set for TransientInitialStateEstimator
+    #FIXME!
     TransientInitialStateEstimatorParameters = cms.PSet(
         propagatorAlongTISE = cms.string('PropagatorWithMaterial'),
         propagatorOppositeTISE = cms.string('PropagatorWithMaterialOpposite')
     )
-
 )
 
 

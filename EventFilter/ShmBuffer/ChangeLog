@@ -1,3 +1,11 @@
+2008-11-03  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-07-01
+	* evaluate the env variables FUSHM_KEYFILE and FUSEM_KEYFILE and
+	use these values instead of /dev/null, to allow several brokers on
+	the same machine (Kurt)
+	* add accessors nRawCells(), nRecoCells(), nDqmCells()
+
 2008-10-14  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-07-00

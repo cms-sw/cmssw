@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     09-Jul-2007
 #     A. Parenti, DESY Hamburg    24-Apr-2008
-#     $Revision: 1.11 $
-#     $Date: 2008/08/12 21:45:39 $
+#     $Revision: 1.10.2.1 $
+#     $Date: 2008/08/12 21:19:52 $
 #
 #  Check output from jobs that have FETCH status
 #  
@@ -39,7 +39,6 @@ for ($i=0; $i<@JOBID; ++$i) {
   $cfgerr = 0;
   $emptyDatErr = 0;
   $emptyDatOnFarm = 0;
-  $cmdNotFound = 0;
 
   $remark = "";
 
@@ -60,7 +59,6 @@ for ($i=0; $i<@JOBID; ++$i) {
       }
       if (($line =~ m/ConfigFileReadError/) eq 1)  { $cfgerr = 1; }
       if (($line =~ m/0 bytes transferred/) eq 1)  { $emptyDatOnFarm = 1; }
-      if (($line =~ m/command not found/) eq 1)  { $cmdNotFound = 1; }
 
     }
     close STDFILE;
@@ -210,12 +208,6 @@ for ($i=0; $i<@JOBID; ++$i) {
       } else {
 	$okStatus = "FAIL";
       }
-    }
-
-    if ($cmdNotFound eq 1) {
-	print "@JOBDIR[$i] @JOBID[$i] Command not found\n";
-	$remark = "cmd not found";
-	$okStatus = "FAIL";
     }
 
     if ($pedeAbend eq 1) {

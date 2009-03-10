@@ -104,16 +104,10 @@ SiPixelCondObjForHLTReader::analyze(const edm::Event& iEvent, const edm::EventSe
   fFile->Write();
   fFile->Close();    
 }
-// ------------ method called once each job just before starting event loop  ------------
-void 
-SiPixelCondObjForHLTReader::beginJob(const edm::EventSetup& iSetup)
-{
-   //functionality implemented in beginRun
-}
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-SiPixelCondObjForHLTReader::beginRun(const edm::Run& run, const edm::EventSetup& iSetup)
+SiPixelCondObjForHLTReader::beginJob(const edm::EventSetup& iSetup)
 {
 
   edm::LogInfo("SiPixelCondObjForHLTReader") <<"[SiPixelCondObjForHLTReader::beginJob] Opening ROOT file  " <<std::endl;

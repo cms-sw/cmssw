@@ -199,8 +199,7 @@ void DQMSourcePi0::analyze(const Event& iEvent,
   iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
   //  bool accept=false;
 
-  std::map<DetId, EcalRecHit>  recHitsEB_map;
-  //  recHitsEB_map= new std::map<DetId, EcalRecHit>();
+  recHitsEB_map= new std::map<DetId, EcalRecHit>();
 
   std::vector<EcalRecHit> seeds;
   seeds.clear();
@@ -232,7 +231,7 @@ void DQMSourcePi0::analyze(const Event& iEvent,
 	double energy = itb->energy();
 	if (energy > seleXtalMinEnergy_) {
 	  std::pair<DetId, EcalRecHit> map_entry(itb->id(), *itb);
-	  recHitsEB_map.insert(map_entry);
+	  recHitsEB_map->insert(map_entry);
 	}
 	if (energy > clusSeedThr_) seeds.push_back(*itb);
 
@@ -320,10 +319,10 @@ void DQMSourcePi0::analyze(const Event& iEvent,
 	    }
 	  }
 	  if(HitAlreadyUsed)continue;
-	  if (recHitsEB_map.find(*det) != recHitsEB_map.end()){
+	  if (recHitsEB_map->find(*det) != recHitsEB_map->end()){
 	    //      cout<<" Used det "<< EBdet<<endl;
 	    std::map<DetId, EcalRecHit>::iterator aHit;
-	    aHit = recHitsEB_map.find(*det);
+	    aHit = recHitsEB_map->find(*det);
 	    usedXtals.push_back(*det);
 	    RecHitsInWindow.push_back(aHit->second);
 	    clus_used.push_back(*det);
@@ -489,7 +488,7 @@ void DQMSourcePi0::analyze(const Event& iEvent,
 
       //cout<<"  (Simple Clustering) Pi0 candidates #: "<<npi0_s<<endl;
 
-      //      delete recHitsEB_map;
+      delete recHitsEB_map;
 
 
 

@@ -7,9 +7,7 @@
 //
 
 #include "CalibFormats/SiPixelObjects/interface/PixelTBMSettings.h"
-#include "CalibFormats/SiPixelObjects/interface/PixelTimeFormatter.h"
 #include <fstream>
-#include <sstream>
 #include <iostream>
 #include <ios>
 #include <assert.h>
@@ -26,42 +24,51 @@ PixelTBMSettings::PixelTBMSettings(std::vector < std::vector< std::string> > &ta
 
   /**
 
-     EXTENSION_TABLE_NAME:     (VIEW:)
+     View's name:     CONF_KEY_PIXEL_TBM_MV
 
-     CONFIG_KEY 			       NOT NULL VARCHAR2(80)
-     KEY_TYPE				       NOT NULL VARCHAR2(80)
-     KEY_ALIAS  			       NOT NULL VARCHAR2(80)
-     VERSION						VARCHAR2(40)
-     KIND_OF_COND			       NOT NULL VARCHAR2(40)
-     TBM_NAME						VARCHAR2(200)
-     MODULE_NAME			       NOT NULL VARCHAR2(200)
-     HUB_ADDRS  					NUMBER(38)
-     TBM_MODE						VARCHAR2(200)
-     ANLG_INBIAS_ADDR					NUMBER(38)
-     ANLG_INBIAS_VAL			       NOT NULL NUMBER(38)
-     ANLG_OUTBIAS_ADDR  				NUMBER(38)
-     ANLG_OUTBIAS_VAL			       NOT NULL NUMBER(38)
-     ANLG_OUTGAIN_ADDR  				NUMBER(38)
-     ANLG_OUTGAIN_VAL			       NOT NULL NUMBER(38)
+     ----------------------------------------- -------- ----------------------------
+     CONFIG_KEY_ID                                      NUMBER(38)
+     CONFIG_KEY                                         VARCHAR2(80)
+     VERSION                                            VARCHAR2(40)
+     CONDITION_DATA_SET_ID                              NUMBER(38)
+     KIND_OF_CONDITION_ID                               NUMBER(38)
+     KIND_OF_COND                                       VARCHAR2(40)
+     TBM_PART_ID                                        NUMBER(38)
+     TBM_SER_NUM                                        VARCHAR2(40)
+     MODULE_NAME                                        VARCHAR2(99)
+     HUB_ADDRS                                          NUMBER(38)
+     ANLG_INBIAS_ADDR                                   NUMBER(38)
+     ANLG_INBIAS_VAL                                    NUMBER(38)
+     ANLG_OUTBIAS_ADDR                                  NUMBER(38)
+     ANLG_OUTBIAS_VAL                                   NUMBER(38)
+     ANLG_OUTGAIN_ADDR                                  NUMBER(38)
+     ANLG_OUTGAIN_VAL                                   NUMBER(38)
+     TBM_MODE                                           VARCHAR2(200)
 
      N.B.: Here we should (MUST) get a single row referring to a particula module for a particula version.
   */
 
-  colNames.push_back("CONFIG_KEY" 	);
-  colNames.push_back("KEY_TYPE"   	);
-  colNames.push_back("KEY_ALIAS"  	);
-  colNames.push_back("VERSION"    	);
-  colNames.push_back("KIND_OF_COND"	);
-  colNames.push_back("TBM_NAME"   	);
-  colNames.push_back("MODULE_NAME"      );
-  colNames.push_back("HUB_ADDRS"  	);
-  colNames.push_back("TBM_MODE"   	);
-  colNames.push_back("ANLG_INBIAS_ADDR" );
-  colNames.push_back("ANLG_INBIAS_VAL"  );
-  colNames.push_back("ANLG_OUTBIAS_ADDR");
-  colNames.push_back("ANLG_OUTBIAS_VAL" );
-  colNames.push_back("ANLG_OUTGAIN_ADDR");
-  colNames.push_back("ANLG_OUTGAIN_VAL" );
+
+
+  colNames.push_back("CONFIG_KEY_ID"        );
+  colNames.push_back("CONFIG_KEY"           );
+  colNames.push_back("VERSION"              );
+  colNames.push_back("CONDITION_DATA_SET_ID");
+  colNames.push_back("KIND_OF_CONDITION_ID" );
+  colNames.push_back("KIND_OF_COND"         );
+  colNames.push_back("TBM_PART_ID"          );
+  colNames.push_back("TBM_SER_NUM"          );
+  colNames.push_back("MODULE_NAME"          );
+  colNames.push_back("HUB_ADDRS"            );
+  colNames.push_back("ANLG_INBIAS_ADDR"     );
+  colNames.push_back("ANLG_INBIAS_VAL"      );     
+  colNames.push_back("ANLG_OUTBIAS_ADDR"    );
+  colNames.push_back("ANLG_OUTBIAS_VAL"     );
+  colNames.push_back("ANLG_OUTGAIN_ADDR"    );
+  colNames.push_back("ANLG_OUTGAIN_VAL"     );
+  colNames.push_back("TBM_MODE"             );
+                    
+ 
 
   for(unsigned int c = 0 ; c < ins.size() ; c++){
     for(unsigned int n=0; n<colNames.size(); n++){
@@ -221,6 +228,7 @@ void PixelTBMSettings::writeBinary(std::string filename) const {
 
 }
 
+
 void PixelTBMSettings::writeASCII(std::string dir) const {
 
   PixelModuleName module(rocid_.rocname());
@@ -242,7 +250,12 @@ void PixelTBMSettings::writeASCII(std::string dir) const {
     else{
       out << "DualMode" << std::endl;
     }
+
+
+
 }
+
+
 
 void PixelTBMSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
 					     PixelNameTranslation* trans,
@@ -321,80 +334,4 @@ std::ostream& pos::operator<<(std::ostream& s, const PixelTBMSettings& tbm){
     return s;
 
 }
-//=============================================================================================
-void PixelTBMSettings::writeXMLHeader(pos::PixelConfigKey key, 
-                                      int version, 
-                                      std::string path, 
-                                      std::ofstream *outstream,
-                                      std::ofstream *out1stream,
-                                      std::ofstream *out2stream) const
-{
-  std::string mthn = "[PixelTBMSettings::writeXMLHeader()]\t\t\t    " ;
-  std::stringstream fullPath ;
-  fullPath << path << "/Pixel_TbmParameters_" << PixelTimeFormatter::getmSecTime() << ".xml" ;
-  std::cout << mthn << "Writing to: " << fullPath.str() << std::endl ;
-  
-  outstream->open(fullPath.str().c_str()) ;
-  
-  *outstream << "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"			 	     << std::endl ;
-  *outstream << "<ROOT xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>" 		 	             << std::endl ;
-  *outstream << " <HEADER>"								         	     << std::endl ;
-  *outstream << "  <TYPE>"								         	     << std::endl ;
-  *outstream << "   <EXTENSION_TABLE_NAME>PIXEL_TBM_PARAMETERS</EXTENSION_TABLE_NAME>"          	     << std::endl ;
-  *outstream << "   <NAME>Pixel TBM Parameters</NAME>"				         	             << std::endl ;
-  *outstream << "  </TYPE>"								         	     << std::endl ;
-  *outstream << "  <RUN>"								         	     << std::endl ;
-  *outstream << "   <RUN_TYPE>Pixel TBM Parameters</RUN_TYPE>" 		                                     << std::endl ;
-  *outstream << "   <RUN_NUMBER>1</RUN_NUMBER>"					         	             << std::endl ;
-  *outstream << "   <RUN_BEGIN_TIMESTAMP>" << pos::PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>" << std::endl ;
-  *outstream << "   <COMMENT_DESCRIPTION>Pixel TBM Parameters</COMMENT_DESCRIPTION>"      	             << std::endl ;
-  *outstream << "   <LOCATION>CERN TAC</LOCATION>"					         	     << std::endl ;
-  *outstream << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"			 	     << std::endl ;
-  *outstream << "  </RUN>"								         	     << std::endl ;
-  *outstream << " </HEADER>"								         	     << std::endl ;
-  *outstream << ""										 	     << std::endl ;
-  *outstream << " <DATA_SET>"								         	     << std::endl ;
-  *outstream << "  <PART>"                                                                                   << std::endl ;
-  *outstream << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"                                                 << std::endl ;
-  *outstream << "   <KIND_OF_PART>Detector ROOT</KIND_OF_PART>"                                              << std::endl ;
-  *outstream << "  </PART>"                                                                                  << std::endl ;
-  *outstream << "  <VERSION>" << version << "</VERSION>"				         	     << std::endl ;
-  *outstream << " "				         	                                             << std::endl ;
-}
 
-//=============================================================================================
-void PixelTBMSettings::writeXML(std::ofstream *outstream,
-                                std::ofstream *out1stream,
-                                std::ofstream *out2stream) const 
-{
-  std::string mthn = "[PixelTBMSettings::writeXML()]\t\t\t    " ;
-
-  PixelModuleName module(rocid_.rocname());
-  													     
-  *outstream << "  <DATA>"										     << std::endl ;
-  *outstream << "   <MODULE_NAME>"	<< rocid_.rocname()	 << "</MODULE_NAME>"			     << std::endl ;
-  *outstream << "   <ANLG_INBIAS_VAL>"  <<(int)analogInputBias_  << "</ANLG_INBIAS_VAL>"		     << std::endl ;
-  *outstream << "   <ANLG_OUTBIAS_VAL>" <<(int)analogOutputBias_ << "</ANLG_OUTBIAS_VAL>"		     << std::endl ;
-  *outstream << "   <ANLG_OUTGAIN_VAL>" <<(int)analogOutputGain_ << "</ANLG_OUTGAIN_VAL>"		     << std::endl ;
-  if (singlemode_) {											     	
-    *outstream << "  <TBM_MODE>SingleMode</TBM_MODE>" 					 		     << std::endl ;
-  }
-  else{ 												     
-    *outstream << "  <TBM_MODE>DualMode</TBM_MODE>"   					 		     << std::endl ;
-  }													     
-  *outstream << "  </DATA>"                                                               		     << std::endl ;
-}
-
-//=============================================================================================
-void PixelTBMSettings::writeXMLTrailer(std::ofstream *outstream,
-                                       std::ofstream *out1stream,
-                                       std::ofstream *out2stream) const 
-{
-  std::string mthn = "[PixelTBMSettings::writeXMLTrailer()]\t\t\t    " ;
-  
-  *outstream << " " 						    	 	              	             << std::endl ;
-  *outstream << " </DATA_SET>" 						    	 	              	     << std::endl ;
-  *outstream << "</ROOT> "								              	     << std::endl ;
-
-  outstream->close() ;
-}

@@ -15,7 +15,7 @@
 //
 // Original Author:  Monica Vazquez Acosta - CERN
 //         Created:  Tue Jun 13 12:19:32 CEST 2006
-// $Id: EgammaHLTTrackIsolation.h,v 1.3 2007/03/07 09:07:53 monicava Exp $
+// $Id: EgammaHLTTrackIsolation.h,v 1.4 2008/10/10 14:07:09 covarell Exp $
 //
 
 
@@ -84,6 +84,7 @@ class EgammaHLTTrackIsolation
   /// set useVertex=false to consider all tracks for isolation
   std::pair<int,float> photonIsolation(const reco::RecoCandidate * const recocand, const reco::TrackCollection* isoTracks, bool useVertex);
   std::pair<int,float> photonIsolation(const reco::RecoCandidate * const recocand, const reco::TrackCollection* isoTracks, GlobalPoint vertex);
+  std::pair<int,float> photonIsolation(const reco::RecoCandidate * const recocand, const reco::ElectronCollection* allEle, const reco::TrackCollection* isoTracks);  
 
   /// Get number of tracks inside an isolation cone for electrons
   int electronTrackCount(const reco::Track * const tr, const reco::TrackCollection* isoTracks)
@@ -98,6 +99,8 @@ class EgammaHLTTrackIsolation
   {return photonIsolation(recocand,isoTracks,useVertex).first;}
   int photonTrackCount(const reco::RecoCandidate * const recocand, const reco::TrackCollection* isoTracks, GlobalPoint vertex)
   {return photonIsolation(recocand,isoTracks,vertex).first;}
+  int photonTrackCount(const reco::RecoCandidate * const recocand, const reco::ElectronCollection* allEle, const reco::TrackCollection* isoTracks)
+  {return photonIsolation(recocand,allEle,isoTracks).first;}
 
   /// Get Pt sum of tracks inside an isolation cone for electrons
   float electronPtSum(const reco::Track * const tr, const reco::TrackCollection* isoTracks)
@@ -114,6 +117,8 @@ class EgammaHLTTrackIsolation
   {return photonIsolation(recocand,isoTracks, useVertex).second;}
   float photonPtSum(const reco::RecoCandidate * const recocand, const reco::TrackCollection* isoTracks, GlobalPoint vertex)
   {return photonIsolation(recocand,isoTracks, vertex).second;}
+  float photonPtSum(const reco::RecoCandidate * const recocand, const reco::ElectronCollection* allEle, const reco::TrackCollection* isoTracks)
+  {return photonIsolation(recocand,allEle,isoTracks).second;}
 
 
   /// Get pt cut for itracks.

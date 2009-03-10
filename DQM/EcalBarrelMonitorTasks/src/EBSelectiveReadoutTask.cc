@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2008/10/10 16:14:14 $
- * $Revision: 1.17 $
+ * $Date: 2008/12/03 12:55:49 $
+ * $Revision: 1.23 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -52,7 +52,7 @@ EBSelectiveReadoutTask::EBSelectiveReadoutTask(const ParameterSet& ps){
   EBUnsuppressedDigiCollection_ = ps.getParameter<edm::InputTag>("EBUsuppressedDigiCollection");
   EBSRFlagCollection_ = ps.getParameter<edm::InputTag>("EBSRFlagCollection");
   EcalTrigPrimDigiCollection_ = ps.getParameter<edm::InputTag>("EcalTrigPrimDigiCollection");
-  EcalFEDRawCollection_ = ps.getParameter<edm::InputTag>("EcalFEDRawCollection");
+  FEDRawDataCollection_ = ps.getParameter<edm::InputTag>("FEDRawDataCollection");
 
   // histograms...
   EBDccEventSize_ = 0;
@@ -216,16 +216,25 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
   ievt_++;
 
   Handle<FEDRawDataCollection> raw;
-  if ( e.getByLabel(EcalFEDRawCollection_, raw) ) {
+  if ( e.getByLabel(FEDRawDataCollection_, raw) ) {
 
     for ( int iDcc = 0; iDcc < nEBDcc; ++iDcc ) {
 
       EBDccEventSize_->Fill(iDcc+1, ((double)raw->FEDData(610+iDcc).size())/kByte );
 
     }
+
   } else {
-    LogWarning("EBSelectiveReadoutTask") << EcalFEDRawCollection_ << " not available";
+    LogWarning("EBSelectiveReadoutTask") << FEDRawDataCollection_ << " not available";
   }
+  
+  TH2F *h01 = UtilsClient::getHisto<TH2F*>( EBFullReadoutSRFlagMap_ );
+  float integral01 = h01->GetEntries();
+  if( integral01 != 0 ) h01->Scale( integral01 );
+
+  TH2F *h02 = UtilsClient::getHisto<TH2F*>( EBReadoutUnitForcedBitMap_ );
+  float integral02 = h02->GetEntries();
+  if( integral02 != 0 ) h02->Scale( integral02 );
 
   // Selective Readout Flags
   Handle<EBSrFlagCollection> ebSrFlags;
@@ -233,19 +242,13 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EBSrFlagCollection::const_iterator it = ebSrFlags->begin(); it != ebSrFlags->end(); ++it ) {
 
-      const EBSrFlag& srf = *it;
-
-      int iet = srf.id().ieta();
-      int ipt = srf.id().iphi();
+      int iet = it->id().ieta();
+      int ipt = it->id().iphi();
 
       float xiet = (iet>0) ? iet-0.5 : iet+0.5 ;
       float xipt = ipt-0.5;
 
-      int flag = srf.value() & ~EcalSrFlag::SRF_FORCED_MASK;
-
-      TH2F *h01 = UtilsClient::getHisto<TH2F*>( EBFullReadoutSRFlagMap_ );
-      float integral = h01->GetEntries();
-      if( integral != 0 ) h01->Scale( integral );
+      int flag = it->value() & ~EcalSrFlag::SRF_FORCED_MASK;
 
       if(flag == EcalSrFlag::SRF_FULL){
         EBFullReadoutSRFlagMap_->Fill(xipt,xiet);
@@ -253,24 +256,29 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 	EBFullReadoutSRFlagMap_->Fill(-1,-18);
       }
 
-      if( integral != 0 ) h01->Scale( 1.0/h01->GetEntries() );
-
-      TH2F *h02 = UtilsClient::getHisto<TH2F*>( EBReadoutUnitForcedBitMap_ );
-      integral = h02->GetEntries();
-      if( integral != 0 ) h02->Scale( integral );
-
-      if(srf.value() & EcalSrFlag::SRF_FORCED_MASK){
+      if(it->value() & EcalSrFlag::SRF_FORCED_MASK){
         EBReadoutUnitForcedBitMap_->Fill(xipt,xiet);
       } else {
 	EBReadoutUnitForcedBitMap_->Fill(-1,-18);
       }
-
-      if( integral != 0 ) h02->Scale( 1.0/h02->GetEntries() );
-
+      
     }
   } else {
     LogWarning("EBSelectiveReadoutTask") << EBSRFlagCollection_ << " not available";
   }
+
+  integral01 = h01->GetEntries();
+  if( integral01 != 0 ) h01->Scale( 1.0/integral01 );
+  integral02 = h02->GetEntries();
+  if( integral02 != 0 ) h02->Scale( 1.0/integral02 );
+
+  TH2F *h03 = UtilsClient::getHisto<TH2F*>( EBLowInterestTriggerTowerFlagMap_ );
+  float integral03 = h03->GetEntries();
+  if( integral03 != 0 ) h03->Scale( integral03 );
+
+  TH2F *h04 = UtilsClient::getHisto<TH2F*>( EBHighInterestTriggerTowerFlagMap_ );
+  float integral04 = h04->GetEntries();
+  if( integral04 != 0 ) h04->Scale( integral04 );
 
   Handle<EcalTrigPrimDigiCollection> TPCollection;
   if ( e.getByLabel(EcalTrigPrimDigiCollection_, TPCollection) ) {
@@ -279,20 +287,13 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
     EcalTrigPrimDigiCollection::const_iterator TPdigi;
     for (TPdigi = TPCollection->begin(); TPdigi != TPCollection->end(); ++TPdigi ) {
 
-      EcalTriggerPrimitiveDigi data = (*TPdigi);
-      EcalTrigTowerDetId idt = data.id();
+      if ( Numbers::subDet( TPdigi->id() ) != EcalBarrel ) continue;
 
-      if ( Numbers::subDet( idt ) != EcalBarrel ) continue;
-
-      int iet = idt.ieta();
-      int ipt = idt.iphi();
+      int iet = TPdigi->id().ieta();
+      int ipt = TPdigi->id().iphi();
 
       float xiet = (iet>0) ? iet-0.5 : iet+0.5 ;
       float xipt = ipt-0.5;
-
-      TH2F *h03 = UtilsClient::getHisto<TH2F*>( EBLowInterestTriggerTowerFlagMap_ );
-      float integral = h03->GetEntries();
-      if( integral != 0 ) h03->Scale( integral );
 
       if ( (TPdigi->ttFlag() & 0x3) == 0 ) {
         EBLowInterestTriggerTowerFlagMap_->Fill(xipt,xiet);
@@ -300,25 +301,21 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 	EBLowInterestTriggerTowerFlagMap_->Fill(-1,-18);
       }
 
-      if( integral != 0 ) h03->Scale( 1.0/h03->GetEntries() );
-
-
-      TH2F *h04 = UtilsClient::getHisto<TH2F*>( EBHighInterestTriggerTowerFlagMap_ );
-      integral = h04->GetEntries();
-      if( integral != 0 ) h04->Scale( integral );
-
       if ( (TPdigi->ttFlag() & 0x3) == 3 ) {
         EBHighInterestTriggerTowerFlagMap_->Fill(xipt,xiet);
       } else {
 	EBHighInterestTriggerTowerFlagMap_->Fill(-1,-18);
       }
 
-      if( integral != 0 ) h04->Scale( 1.0/h04->GetEntries() );
-
     }
   } else {
     LogWarning("EBSelectiveReadoutTask") << EcalTrigPrimDigiCollection_ << " not available";
   }
+
+  integral03 = h03->GetEntries();
+  if( integral03 != 0 ) h03->Scale( 1.0/integral03 );
+  integral04 = h04->GetEntries();
+  if( integral04 != 0 ) h04->Scale( 1.0/integral04 );
 
   if (!ebSrFlags.isValid()) return;
 
@@ -337,11 +334,11 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
       anaDigi(ebdf, *ebSrFlags);
     }
 
-    //low interesest channels:
+    //low interest channels:
     aLowInterest = nEbLI_*bytesPerCrystal/kByte;
     EBLowInterestPayload_->Fill(aLowInterest);
 
-    //low interesest channels:
+    //low interest channels:
     aHighInterest = nEbHI_*bytesPerCrystal/kByte;
     EBHighInterestPayload_->Fill(aHighInterest);
 
@@ -357,7 +354,8 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
 void EBSelectiveReadoutTask::anaDigi(const EBDataFrame& frame, const EBSrFlagCollection& srFlagColl){
 
-  EBSrFlagCollection::const_iterator srf = srFlagColl.find(readOutUnitOf(frame.id()));
+  EBDetId id = frame.id();
+  EBSrFlagCollection::const_iterator srf = srFlagColl.find(readOutUnitOf(id));
 
   if(srf == srFlagColl.end()){
     // LogWarning("EBSelectiveReadoutTask") << "SR flag not found";
@@ -367,8 +365,7 @@ void EBSelectiveReadoutTask::anaDigi(const EBDataFrame& frame, const EBSrFlagCol
   bool highInterest = ((srf->value() & ~EcalSrFlag::SRF_FORCED_MASK)
                        == EcalSrFlag::SRF_FULL);
 
-  const DetId& xtalId = frame.id();
-  bool barrel = (xtalId.subdetId()==EcalBarrel);
+  bool barrel = (id.subdetId()==EcalBarrel);
 
   if(barrel){
     ++nEb_;
@@ -377,15 +374,15 @@ void EBSelectiveReadoutTask::anaDigi(const EBDataFrame& frame, const EBSrFlagCol
     } else{//low interest
       ++nEbLI_;
     }
-    int iEta0 = iEta2cIndex(static_cast<const EBDetId&>(xtalId).ieta());
-    int iPhi0 = iPhi2cIndex(static_cast<const EBDetId&>(xtalId).iphi());
+    int iEta0 = iEta2cIndex(id.ieta());
+    int iPhi0 = iPhi2cIndex(id.iphi());
     if(!ebRuActive_[iEta0/ebTtEdge][iPhi0/ebTtEdge]){
-      ++nRuPerDcc_[dccNum(xtalId)-1];
+      ++nRuPerDcc_[dccNum(id)-1];
       ebRuActive_[iEta0/ebTtEdge][iPhi0/ebTtEdge] = true;
     }
   }
 
-  ++nPerDcc_[dccNum(xtalId)-1];
+  ++nPerDcc_[dccNum(id)-1];
 }
 
 void EBSelectiveReadoutTask::anaDigiInit(){

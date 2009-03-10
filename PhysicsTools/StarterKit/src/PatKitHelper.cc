@@ -19,14 +19,15 @@ PatKitHelper::~PatKitHelper()
 
 PhysicsHistograms::KinAxisLimits PatKitHelper::getAxisLimits(std::string name)
 {
+  edm::ParameterSet axisLimitsSet = parameters_.getParameter<edm::ParameterSet>(name);
+  
   PhysicsHistograms::KinAxisLimits axisLimits;
-  if ( parameters_.exists(name) ) {
-    edm::ParameterSet axisLimitsSet = parameters_.getParameter<edm::ParameterSet>(name);
-    axisLimits.pt1 = axisLimitsSet.getParameter<double>("pt1");
-    axisLimits.pt2 = axisLimitsSet.getParameter<double>("pt2");
-    axisLimits.m1  = axisLimitsSet.getParameter<double>("m1");
-    axisLimits.m2  = axisLimitsSet.getParameter<double>("m2");
-  }
+
+  axisLimits.pt1 = axisLimitsSet.getParameter<double>("pt1");
+  axisLimits.pt2 = axisLimitsSet.getParameter<double>("pt2");
+  axisLimits.m1  = axisLimitsSet.getParameter<double>("m1");
+  axisLimits.m2  = axisLimitsSet.getParameter<double>("m2");
+
   return axisLimits;
 }
 
@@ -44,8 +45,7 @@ void PatKitHelper::bookHistos(edm::EDProducer * producer)
 					getAxisLimits("jetAxis"),
 					getAxisLimits("METAxis"),
 					getAxisLimits("photonAxis"),
-					getAxisLimits("trackAxis"),
-					getAxisLimits("genParticleAxis")
+					getAxisLimits("trackAxis")
 					);
 
   // Get list of histograms to enable and disable
@@ -105,42 +105,25 @@ void PatKitHelper::getHandles( edm::Event & event,
 			       edm::Handle<std::vector<pat::Tau> > &      tauHandle,
 			       edm::Handle<std::vector<pat::Jet> > &      jetHandle,
 			       edm::Handle<std::vector<pat::MET> > &      METHandle,
-			       edm::Handle<std::vector<pat::Photon> > &   photonHandle,
-			       edm::Handle<std::vector<reco::RecoChargedCandidate> > &   trackHandle,
-			       edm::Handle<std::vector<reco::GenParticle> > & genParticlesHandle
+			       edm::Handle<std::vector<pat::Photon> > &   photonHandle
 			       )
 {
-
-  bool doMuon         = parameters_.getParameter<bool>("doMuon");
-  bool doElectron     = parameters_.getParameter<bool>("doElectron");
-  bool doTau          = parameters_.getParameter<bool>("doTau");
-  bool doJet          = parameters_.getParameter<bool>("doJet");
-  bool doMET          = parameters_.getParameter<bool>("doMET");
-  bool doPhoton       = parameters_.getParameter<bool>("doPhoton");
-  bool doTrack        = parameters_.getParameter<bool>("doTrack");
-  bool doGenParticles = parameters_.getParameter<bool>("doGenParticles");
   
-  
-  edm::InputTag muonName         = parameters_.getParameter<edm::InputTag>("muonSrc"    );
-  edm::InputTag electronName     = parameters_.getParameter<edm::InputTag>("electronSrc");
-  edm::InputTag tauName          = parameters_.getParameter<edm::InputTag>("tauSrc"     );
-  edm::InputTag jetName          = parameters_.getParameter<edm::InputTag>("jetSrc"     );
-  edm::InputTag METName          = parameters_.getParameter<edm::InputTag>("METSrc"     );
-  edm::InputTag photonName       = parameters_.getParameter<edm::InputTag>("photonSrc"  );
-  edm::InputTag trackName        = parameters_.getParameter<edm::InputTag>("trackSrc"   );
-  edm::InputTag genParticlesName = parameters_.getParameter<edm::InputTag>("genParticleSrc");
+  edm::InputTag muonName     = parameters_.getParameter<edm::InputTag>("muonSrc"    );
+  edm::InputTag electronName = parameters_.getParameter<edm::InputTag>("electronSrc");
+  edm::InputTag tauName      = parameters_.getParameter<edm::InputTag>("tauSrc"     );
+  edm::InputTag jetName      = parameters_.getParameter<edm::InputTag>("jetSrc"     );
+  edm::InputTag METName      = parameters_.getParameter<edm::InputTag>("METSrc"     );
+  edm::InputTag photonName   = parameters_.getParameter<edm::InputTag>("photonSrc"  );
 
   
 
-  if ( doMuon         ) event.getByLabel(muonName        , muonHandle);
-  if ( doElectron     ) event.getByLabel(electronName    , electronHandle);
-  if ( doTau          ) event.getByLabel(tauName         , tauHandle);
-  if ( doJet          ) event.getByLabel(jetName         , jetHandle);
-  if ( doMET          ) event.getByLabel(METName         , METHandle);
-  if ( doPhoton       ) event.getByLabel(photonName      , photonHandle);
-  if ( doTrack        ) event.getByLabel(trackName       , trackHandle);
-  if ( doGenParticles ) event.getByLabel(genParticlesName, genParticlesHandle );
-
+  event.getByLabel(muonName     , muonHandle);
+  event.getByLabel(electronName , electronHandle);
+  event.getByLabel(tauName      , tauHandle);
+  event.getByLabel(jetName      , jetHandle);
+  event.getByLabel(METName      , METHandle);
+  event.getByLabel(photonName   , photonHandle);
 }
 
 
@@ -150,20 +133,16 @@ void PatKitHelper::fillHistograms(edm::Event & event,
 				  edm::Handle<std::vector<pat::Tau> > &      tauHandle,
 				  edm::Handle<std::vector<pat::Jet> > &      jetHandle,
 				  edm::Handle<std::vector<pat::MET> > &      METHandle,
-				  edm::Handle<std::vector<pat::Photon> > &   photonHandle,
-				  edm::Handle<std::vector<reco::RecoChargedCandidate> > &   trackHandle,
-				  edm::Handle<std::vector<reco::GenParticle> > & genParticlesHandle
+				  edm::Handle<std::vector<pat::Photon> > &   photonHandle
 				  )
 {
   physHistos_->clearVec();
-  if ( muonHandle.isValid()         ) physHistos_->fillCollection(*muonHandle);
-  if ( electronHandle.isValid()     ) physHistos_->fillCollection(*electronHandle);
-  if ( tauHandle.isValid()          ) physHistos_->fillCollection(*tauHandle);
-  if ( jetHandle.isValid()          ) physHistos_->fillCollection(*jetHandle);
-  if ( METHandle.isValid()          ) physHistos_->fillCollection(*METHandle);
-  if ( photonHandle.isValid()       ) physHistos_->fillCollection(*photonHandle);
-  if ( trackHandle.isValid()        ) physHistos_->fillCollection(*trackHandle);
-  if ( genParticlesHandle.isValid() ) physHistos_->fillCollection( *genParticlesHandle );
+  physHistos_->fillCollection(*muonHandle);
+  physHistos_->fillCollection(*electronHandle);
+  physHistos_->fillCollection(*tauHandle);
+  physHistos_->fillCollection(*jetHandle);
+  physHistos_->fillCollection(*METHandle);
+  physHistos_->fillCollection(*photonHandle);
 
 
 

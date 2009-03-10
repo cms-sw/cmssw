@@ -20,15 +20,16 @@
 
 namespace cscdqm {
 
-#ifndef DQMGLOBAL
+#ifdef DQMLOCAL
 
 
   void EventProcessor::processEvent(const char* data, const int32_t dataSize, const uint32_t errorStat, const int32_t nodeNumber) {
 
-    nEvents++;
+    config->incNEvents();
+    config->incNEventsCSC();
 
-    METype* me = 0;
-    if (getEMUHisto(EMU_ALL_READOUT_ERRORS, me)) {
+    MonitorObject* me = 0;
+    if (getEMUHisto(h::EMU_ALL_READOUT_ERRORS, me)) {
       if(errorStat != 0) {
         me->Fill(nodeNumber, 1);
         for (unsigned int i = 0; i < 16; i++) {
@@ -42,7 +43,7 @@ namespace cscdqm {
     }
 
     bool eventDenied = false;
-    if (((uint32_t) errorStat & dduCheckMask) > 0) {
+    if (((uint32_t) errorStat & config->getDDU_CHECK_MASK()) > 0) {
       eventDenied = true;
     }
 
@@ -51,26 +52,35 @@ namespace cscdqm {
     processExaminer(tmp, dataSize / sizeof(short), eventDenied);
 
     if (!eventDenied) {
-      nGoodEvents++;
-      CSCDDUEventData dduData((short unsigned int*) tmp, &binChecker);
-      processDDU(dduData);
+      config->incNEventsGood();
+
+      if (config->getPROCESS_DDU()) {
+        CSCDDUEventData dduData((short unsigned int*) tmp, &binChecker);
+        processDDU(dduData);
+      }
+
     }
 
   }
 
 #endif
 
-#ifndef DQMLOCAL
+#ifdef DQMGLOBAL
 
 
-  void EventProcessor::processEvent(const edm::Event& e) {
+  void EventProcessor::processEvent(const edm::Event& e, const edm::InputTag& inputTag) {
 
-    nEvents++;
+    config->incNEvents();
+
+    bCSCEventCounted = false;
 
     // get a handle to the FED data collection
     // actualy the FED_EVENT_LABEL part of the event
     edm::Handle<FEDRawDataCollection> rawdata;
-    e.getByLabel(inputTag, rawdata);
+    if (!e.getByLabel(inputTag, rawdata)) {
+      LOG_WARN << "No product: " << inputTag << " in FEDRawDataCollection";
+      return;
+    }
 
     // run through the DCC's 
     for (int id = FEDNumbering::getCSCFEDIds().first; id <= FEDNumbering::getCSCFEDIds().second; ++id) {
@@ -80,20 +90,44 @@ namespace cscdqm {
       const FEDRawData& fedData = rawdata->FEDData(id);
   
       //if fed has data then unpack it
-      if ( fedData.size() >= 32 ) {
+      if (fedData.size() >= 32) {
+
+        // Count in CSC Event!
+        if (!bCSCEventCounted) {
+          config->incNEventsCSC();
+          bCSCEventCounted = true;
+        }
+
+        // Filling in FED Entries histogram
+        MonitorObject* mo = 0;
+        if (getEMUHisto(h::EMU_FED_ENTRIES, mo)) mo->Fill(id); 
 
         const uint16_t *data = (uint16_t *) fedData.data();
         bool eventDenied = false;
         
+        // Move into Examiner stuff
         processExaminer(data, long(fedData.size() / 2), eventDenied);
 
         if (!eventDenied) {
-          nGoodEvents++;
-          CSCDCCEventData dccData((short unsigned int*) data);
-          const std::vector<CSCDDUEventData> & dduData = dccData.dduData();
-          for (int ddu = 0; ddu < (int)dduData.size(); ddu++) {
-            processDDU(dduData[ddu]);
+
+          config->incNEventsGood();
+
+          if (binChecker.warnings() != 0) {
+            if (getEMUHisto(h::EMU_FED_NONFATAL, mo)) mo->Fill(id);
+          } 
+
+          if (config->getPROCESS_DDU()) {
+            CSCDCCEventData dccData((short unsigned int*) data);
+            const std::vector<CSCDDUEventData> & dduData = dccData.dduData();
+            for (int ddu = 0; ddu < (int)dduData.size(); ddu++) {
+              processDDU(dduData[ddu]);
+            }
           }
+
+        } else {
+
+          if (getEMUHisto(h::EMU_FED_FATAL, mo)) mo->Fill(id);
+
         }
 
       }
@@ -103,5 +137,7 @@ namespace cscdqm {
   }
 
 #endif
+
+#undef ECHO_FUNCTION
 
 }

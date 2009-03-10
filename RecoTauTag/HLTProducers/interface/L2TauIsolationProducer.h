@@ -59,11 +59,13 @@ class L2TauIsolationProducer : public edm::EDProducer {
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
-      math::PtEtaPhiELorentzVectorCollection getECALHits(const CaloJet&,const edm::Event&,const edm::EventSetup& iSetup); //retrieve the ECAL Hits from the Jet
-      
-      
+
+
+      //Retrieve Calo Hits 
+      math::PtEtaPhiELorentzVectorCollection getECALHits(const CaloJet&,const edm::Event&,const edm::EventSetup& iSetup); 
+      math::PtEtaPhiELorentzVectorCollection getHCALHits(const CaloJet&);
+
       edm::InputTag l2CaloJets_;//label for the readout Collection
-      
       edm::InputTag EBRecHits_;//Label for ECAL Barrel Hits
       edm::InputTag EERecHits_;//Label for ECAL EndCAP Hits
 

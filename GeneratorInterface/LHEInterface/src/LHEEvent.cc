@@ -47,6 +47,20 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
 			<< "Les Houches file contained invalid"
 			   " event header." << std::endl;
 
+	int idwtup = runInfo->getHEPRUP()->IDWTUP;
+	if (idwtup >= 0 && hepeup.XWGTUP < 0) {
+		edm::LogWarning("Generator|LHEInterface")
+			<< "Non-allowed egative event weight encountered."
+			<< std::endl;
+		hepeup.XWGTUP = std::abs(hepeup.XWGTUP);
+	}
+	if (std::abs(idwtup) >= 3 && std::abs(hepeup.XWGTUP) != 1.) {
+		edm::LogWarning("Generator|LHEInterface")
+			<< "Event weight not set to one for abs(IDWTUP) >= 3"
+			<< std::endl;
+		hepeup.XWGTUP = hepeup.XWGTUP > 0. ? 1.0 : -1.0;
+	}
+
 	hepeup.resize();
 
 	for(int i = 0; i < hepeup.NUP; i++) {
@@ -97,6 +111,23 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
 LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
                    const HEPEUP &hepeup) :
 	runInfo(runInfo), hepeup(hepeup)
+{
+}
+
+LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
+                   const HEPEUP &hepeup,
+                   const LHEEventProduct::PDF *pdf,
+                   const std::vector<std::string> &comments) :
+	runInfo(runInfo), hepeup(hepeup), pdf(pdf ? new PDF(*pdf) : 0),
+	comments(comments)
+{
+}
+
+LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
+                   const LHEEventProduct &product) :
+	runInfo(runInfo), hepeup(product.hepeup()),
+	pdf(product.pdf() ? new PDF(*product.pdf()) : 0),
+	comments(product.comments_begin(), product.comments_end())
 {
 }
 
@@ -162,9 +193,11 @@ void LHEEvent::removeResonances(const std::vector<int> &ids)
 	}
 }
 
-void LHEEvent::count(LHERunInfo::CountMode mode, double matchWeight)
+void LHEEvent::count(LHERunInfo::CountMode mode,
+                     double weight, double matchWeight)
 {
-	runInfo->count(hepeup.IDPRUP, mode, hepeup.XWGTUP, matchWeight);
+	runInfo->count(hepeup.IDPRUP, mode, hepeup.XWGTUP,
+	               weight, matchWeight);
 }
 
 void LHEEvent::fillPdfInfo(HepMC::PdfInfo *info) const
@@ -216,7 +249,7 @@ std::auto_ptr<HepMC::GenEvent> LHEEvent::asHepMCEvent() const
 
 	// any particles in HEPEUP block?
 	if (!nup) {
-		edm::LogWarning("GeneratorWarning|LHEInterface")
+		edm::LogWarning("Generator|LHEInterface")
 			<< "Les Houches Event does not contain any partons. "
 			<< "Not much to convert." ;
 		return hepmc;
@@ -300,12 +333,12 @@ std::auto_ptr<HepMC::GenEvent> LHEEvent::asHepMCEvent() const
 			v1->add_particle_out(genParticles.at(0));
 			v2->add_particle_out(genParticles.at(1));
 		} else
-			edm::LogWarning("GeneratorWarning|LHEInterface")
+			edm::LogWarning("Generator|LHEInterface")
 				<< "Initial partons do already have a"
 				   " production vertex. " << std::endl
 				<< "Beam particles not connected.";
 	} else
-		edm::LogWarning("GeneratorWarning|LHEInterface")
+		edm::LogWarning("Generator|LHEInterface")
 			<< "Can't find any initial partons to be"
 			   " connected to the beam particles.";
 
@@ -316,7 +349,7 @@ std::auto_ptr<HepMC::GenEvent> LHEEvent::asHepMCEvent() const
 	// do some more consistency checks
 	for(unsigned int i = 0; i < nup; i++) {
 		if (!genParticles.at(i)->parent_event()) {
-			edm::LogWarning("GeneratorWarning|LHEInterface")
+			edm::LogWarning("Generator|LHEInterface")
 				<< "Not all LHE particles could be stored"
 				   "  stored in the HepMC event. "
 				<< std::endl
@@ -379,7 +412,7 @@ bool LHEEvent::checkHepMCTree(const HepMC::GenEvent *event)
 	}
 
 	if (px*px + py*py + pz*pz + E*E > 0.1) {
-		edm::LogWarning("GeneratorWarning|LHEInterface")
+		edm::LogWarning("Generator|LHEInterface")
 			<< "Energy-momentum badly conserved. "
 			<< std::setprecision(3)
 			<< "sum p_i  = ["

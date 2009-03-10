@@ -19,7 +19,7 @@ namespace reco {
 
     PFBlockElementBrem() {} 
 
-    PFBlockElementBrem(const GsfPFRecTrackRef& gsfref, const double DeltaP, const double SigmaDeltaP, const uint indTrajPoint);
+    PFBlockElementBrem(const GsfPFRecTrackRef& gsfref, const double DeltaP, const double SigmaDeltaP, const unsigned int indTrajPoint);
 
       
     PFBlockElement* clone() const { return new PFBlockElementBrem(*this); }
@@ -42,7 +42,7 @@ namespace reco {
 
     double DeltaP() const {return deltaP_;}
     double SigmaDeltaP() const {return sigmadeltaP_;}
-    uint indTrajPoint() const {return indPoint_;}
+    unsigned int indTrajPoint() const {return indPoint_;}
   private:
     
     /// reference to the corresponding track (transient)
@@ -53,7 +53,7 @@ namespace reco {
      
     double deltaP_;
     double sigmadeltaP_;
-    uint indPoint_;
+    unsigned int indPoint_;
 
  
   };

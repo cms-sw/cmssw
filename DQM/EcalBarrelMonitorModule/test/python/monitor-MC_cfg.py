@@ -103,6 +103,8 @@ process.ecalBarrelOccupancyTask.EcalTrigPrimDigiCollection = 'ecalTriggerPrimiti
 
 process.ecalBarrelPedestalOnlineTask.EBDigiCollection = 'simEcalDigis:ebDigis'
 
+process.ecalBarrelTriggerTowerTask.EBDigiCollection = 'simEcalDigis:ebDigis'
+
 process.ecalBarrelMonitorClient.maskFile = '../data/maskfile-EB.dat'
 process.ecalBarrelMonitorClient.mergeRuns = True
 process.ecalBarrelMonitorClient.location = 'H4'

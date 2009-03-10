@@ -1,21 +1,21 @@
 /** \file
  * 
  * 
- * $Date: 2006/10/27 01:35:23 $
- * $Revision: 1.6 $
+ * $Date: 2008/11/04 14:43:22 $
+ * $Revision: 1.2 $
  * \author N. Amapane - S. Argiro'
  *
 */
 
-#include <FWCore/Framework/interface/MakerMacros.h>
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Event.h>
-#include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
-#include <DataFormats/FEDRawData/interface/FEDHeader.h>
-#include <DataFormats/FEDRawData/interface/FEDTrailer.h>
-#include <DataFormats/FEDRawData/interface/FEDNumbering.h>
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/FEDRawData/interface/FEDHeader.h"
+#include "DataFormats/FEDRawData/interface/FEDTrailer.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
-#include "EventFilter/Utilities/interface/GlobalEventNumber.h"
+#include "EventFilter/FEDInterface/interface/GlobalEventNumber.h"
 
 #include <iostream>
 #include <iomanip>
@@ -26,6 +26,7 @@ using namespace std;
 namespace test{
 
   static const unsigned int GTEVMId= 812;
+  static const unsigned int GTPEId= 814;
   class GlobalNumbersAnalysis: public EDAnalyzer{
   private:
   public:
@@ -53,6 +54,21 @@ namespace test{
 	      cout << "GPS HI # " << evf::evtn::getgpshigh(data.data()) << endl;
 	      cout << "BX FROM FDL 0-xing # " << evf::evtn::getfdlbx(data.data()) << endl;
 	      cout << "PRESCALE INDEX FROM FDL 0-xing # " << evf::evtn::getfdlpsc(data.data()) << endl;
+	    }
+	  }
+
+      const FEDRawData& data2 = rawdata->FEDData(GTPEId);
+      size=data2.size();
+
+      if (size>0 ) {
+	  cout << "FED# " << setw(4) << GTPEId << " " << setw(8) << size << " bytes " << endl;
+	  if(evf::evtn::gtpe_board_sense(data2.data()))
+	    {
+	      cout << "FED# " << setw(4) << GTPEId << " is the real GTPE block " << endl;
+	      cout << "Event # " << evf::evtn::gtpe_get(data2.data()) << endl;
+	      cout << "LS # " << evf::evtn::gtpe_getlbn(data2.data()) << endl;
+	      cout << "ORBIT # " << evf::evtn::gtpe_getorbit(data2.data()) << endl;
+	      cout << "BX # " << evf::evtn::gtpe_getbx(data2.data()) << endl;
 	    }
 	  }
 

@@ -15,7 +15,6 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "CondFormats/AlignmentRecord/interface/ESAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/ESAlignmentErrorRcd.h"
-#include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "boost/mpl/vector.hpp"
 
 
@@ -25,9 +24,7 @@ class EcalPreshowerGeometryRecord :
 		boost::mpl::vector<
                 IdealGeometryRecord,
 		ESAlignmentRcd, 
-		ESAlignmentErrorRcd,
-		GlobalPositionRcd
-		> > {};
+		ESAlignmentErrorRcd> > {};
 
 #endif /* RECORDS_ECALPRESHOWERGEOMETRYRECORD_H */
 

@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.h
  *
- * $Date: 2008/09/24 14:33:46 $
- * $Revision: 1.34 $
+ * $Date: 2009/02/05 09:50:56 $
+ * $Revision: 1.40 $
  * \author W. Fisher
  *
 */
@@ -33,6 +33,7 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -52,7 +53,12 @@
 #include "DQM/HcalMonitorTasks/interface/HcalCaloTowerMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalTrigPrimMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalTemplateAnalysis.h"
+#include "DQM/HcalMonitorTasks/interface/HcalEEUSMonitor.h"
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBRunData.h"
+
+// Use to hold/get channel status
+#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
+#include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 
 #include <memory>
 #include <iostream>
@@ -61,7 +67,6 @@
 #include <string>
 #include <sys/time.h>
 
-using namespace std;
 using namespace edm;
 
 class HcalMonitorModule : public EDAnalyzer{
@@ -108,7 +113,12 @@ public:
   // Check which subdetectors have FED data
   void CheckSubdetectorStatus(const FEDRawDataCollection& rawraw, 
 			      const HcalUnpackerReport& report, 
-			      const HcalElectronicsMap& emap);
+			      const HcalElectronicsMap& emap,
+			      const HBHEDigiCollection& hbhedigi,
+			      const HODigiCollection& hodigi,
+			      const HFDigiCollection& hfdigi
+			      //const ZDCDigiCollection& zdcdigi,
+			      );
     
  private:
   /********************************************************/
@@ -135,7 +145,7 @@ public:
   bool showTiming_; 
   edm::CPUTimer cpu_timer; // 
 
-  /// counters and flags
+  // counters and flags
   int nevt_;
   int nlumisecs_;
   bool saved_;
@@ -168,6 +178,7 @@ public:
 
   edm::InputTag inputLabelCaloTower_;
   edm::InputTag inputLabelLaser_;
+  edm::InputTag FEDRawDataCollection_;
 
   // Maps of readout hardware unit to calorimeter channel
   std::map<uint32_t, std::vector<HcalDetId> > DCCtoCell;
@@ -199,7 +210,8 @@ public:
   HcalCaloTowerMonitor*   ctMon_;
   HcalTrigPrimMonitor*    tpMon_;
   HcalTemplateAnalysis*   tempAnalysis_;
-  
+  HcalEEUSMonitor*        eeusMon_;
+
   edm::ESHandle<HcalDbService> conditions_;
   const HcalElectronicsMap*    readoutMap_;
 
@@ -210,13 +222,24 @@ public:
   bool checkHE_;
   bool checkHO_;
   bool checkHF_;
+  bool checkZDC_; // not yet implemented 
 
   // Determine which subdetectors are in the run (using FED info)
-  bool HBpresent_;
-  bool HEpresent_;
-  bool HOpresent_;
-  bool HFpresent_;
+  int HBpresent_;
+  int HEpresent_;
+  int HOpresent_;
+  int HFpresent_;
+  int ZDCpresent_; // need to implement
+  MonitorElement* meHB_;
+  MonitorElement* meHE_;
+  MonitorElement* meHO_;
+  MonitorElement* meHF_;
+  MonitorElement* meZDC_;
 
+  // myquality_ will store status values for each det ID I find
+  bool dump2database_;
+  std::map<HcalDetId, unsigned int> myquality_;
+  HcalChannelQuality* chanquality_;
 };
 
 #endif

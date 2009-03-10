@@ -15,7 +15,7 @@
 //
 // Original Author:  Ilaria SEGONI
 //         Created:  Thu Sep 25 11:17:43 CEST 2008
-// $Id$
+// $Id: DQMDaqInfo.h,v 1.6 2008/11/11 17:34:20 segoni Exp $
 //
 //
 
@@ -35,8 +35,9 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 //Run Info
-#include "CondFormats/RunInfo/interface/RunSummary.h"
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
+#include "CondFormats/RunInfo/interface/RunSummary.h"
+#include "CondFormats/RunInfo/interface/RunInfo.h"
 
 //DQM
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -58,18 +59,25 @@ private:
   virtual void endLuminosityBlock(const edm::LuminosityBlock& , const  edm::EventSetup&);
   virtual void endJob() ;
   
-  bool saveDCFile_;
-  std::string outputFile_;
-  std::ofstream  dataCertificationFile;
-  
   DQMStore *dbe_;  
-  std::string outputFileName;
-  bool saveData;
 
-  enum subDetList { Pixel , SiStrip , ECAL , HCAL , DT , CSC , RPC };  
+  enum subDetList { Pixel, SiStrip, EcalBarrel, EcalEndcap, Hcal, DT, CSC, RPC, L1T };  
   
-  MonitorElement*  DaqFraction[7];
+  MonitorElement*  DaqFraction[9];
+
+  std::pair<int,int> PixelRange;
+  std::pair<int,int> TrackerRange;
+  std::pair<int,int> CSCRange;
+  std::pair<int,int> RPCRange;
+  std::pair<int,int> DTRange;
+  std::pair<int,int> HcalRange;  
+  std::pair<int,int> ECALBarrRange;
+  std::pair<int,int> ECALEndcapRangeLow;
+  std::pair<int,int> ECALEndcapRangeHigh;
+  std::pair<int,int> L1TRange;
   
+  float  NumberOfFeds[9];
+ 
 };
 
 #endif

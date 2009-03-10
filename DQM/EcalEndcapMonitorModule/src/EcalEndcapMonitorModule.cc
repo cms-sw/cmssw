@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2008/05/17 07:59:57 $
- * $Revision: 1.57 $
+ * $Date: 2008/11/04 22:36:08 $
+ * $Revision: 1.61 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -366,8 +366,6 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   evtNumber_ = e.id().event();
 
-  map<int, EcalDCCHeaderBlock> dccMap;
-
   Handle<EcalRawDataCollection> dcchs;
 
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
@@ -381,29 +379,25 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-      EcalDCCHeaderBlock dcch = (*dcchItr);
-
-      if ( Numbers::subDet( dcch ) != EcalEndcap ) continue;
+      if ( Numbers::subDet( *dcchItr ) != EcalEndcap ) continue;
 
       neec++;
 
-      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(dcch.id());
-      if ( i != dccMap.end() ) continue;
-
-      dccMap[dcch.id()] = dcch;
-
-      if ( meEEDCC_ ) meEEDCC_->Fill(Numbers::iSM( dcch, EcalEndcap )+0.5);
+      if ( meEEDCC_ ) meEEDCC_->Fill(Numbers::iSM( *dcchItr, EcalEndcap )+0.5);
 
       if ( ! fixedRunNumber_ ) {
-        runNumber_ = dcch.getRunNumber();
+        runNumber_ = dcchItr->getRunNumber();
       }
 
-      evtNumber_ = dcch.getLV1();
+      evtNumber_ = dcchItr->getLV1();
 
       if ( ! fixedRunType_ ) {
-        runType_ = dcch.getRunType();
+        runType_ = dcchItr->getRunType();
         evtType_ = runType_;
       }
+
+      if ( evtType_ < 0 || evtType_ > 22 ) evtType_ = -1;
+      if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5, 1./18.);
 
     }
 
@@ -411,18 +405,14 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
+    if ( evtType_ < 0 || evtType_ > 22 ) evtType_ = -1;
+    if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5, 1./18.);
+
     LogWarning("EcalEndcapMonitorModule") << EcalRawDataCollection_ << " not available";
 
   }
 
   if ( meRunType_ ) meRunType_->Fill(runType_);
-
-  if ( evtType_ >= 0 && evtType_ <= 22 ) {
-    if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5);
-  } else {
-    if ( evtType_ != -1 ) LogWarning("EcalEndcapMonitorModule") << "Unknown event type = " << evtType_ << " at event: " << ievt_;
-    if ( meEvtType_ ) meEvtType_->Fill( -1 );
-  }
 
   if ( ievt_ == 1 ) {
     LogInfo("EcalEndcapMonitorModule") << "processing run " << runNumber_;

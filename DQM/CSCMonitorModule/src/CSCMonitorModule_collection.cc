@@ -37,7 +37,7 @@ using namespace XERCES_CPP_NAMESPACE;
 const bool CSCMonitorModule::isMEValid(const std::string name, MonitorElement*& me) {
   me = dbe->get(name);
   if(me == NULL) {
-    LOGWARNING("ME not found") << "MonitorElement [" << name << "] not found.";
+    LOGINFO("ME not found") << "MonitorElement [" << name << "] not found.";
     return false;
   } else {
     return true;

@@ -42,7 +42,7 @@ from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
 es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
 #GlobalTag.connect ="frontier://(proxyurl=http://localhost:3128)(serverurl=http://frontier1.cms:8000/FrontierOnProd)(serverurl=http://frontier2.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_21X_GLOBALTAG"
-GlobalTag.globaltag = "CRUZET4_V5P::All"
+GlobalTag.globaltag = "CRAFT_V3P::All"
 
 
 

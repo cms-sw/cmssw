@@ -1,5 +1,5 @@
 //
-// $Id: JetCorrFactorsProducer.h,v 1.1 2008/03/07 18:52:56 lowette Exp $
+// $Id: JetCorrFactorsProducer.h,v 1.2 2008/03/10 14:38:57 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_JetCorrFactorsProducer_h
@@ -18,7 +18,7 @@
    created in the PAT Layer-1.
 
   \author   Steven Lowette
-  \version  $Id: JetCorrFactorsProducer.h,v 1.1 2008/03/07 18:52:56 lowette Exp $
+  \version  $Id: JetCorrFactorsProducer.h,v 1.2 2008/03/10 14:38:57 lowette Exp $
 */
 
 
@@ -51,11 +51,21 @@ namespace pat {
 
       // configurables
       edm::InputTag jetsSrc_;
-      std::string defaultJetCorrService_;
-      std::string udsJetCorrService_;
-      std::string gluJetCorrService_;
-      std::string cJetCorrService_;
-      std::string bJetCorrService_;
+      std::string L1JetCorrService_;
+      std::string L2JetCorrService_;
+      std::string L3JetCorrService_;
+      std::string L4JetCorrService_;
+      std::string L6JetCorrService_;
+      std::string L5udsJetCorrService_;
+      std::string L5gluJetCorrService_;
+      std::string L5cJetCorrService_;
+      std::string L5bJetCorrService_;
+      std::string L7udsJetCorrService_;
+      std::string L7gluJetCorrService_;
+      std::string L7cJetCorrService_;
+      std::string L7bJetCorrService_;
+      
+      bool bl1_,bl2_,bl3_,bl4_,bl6_,bl5uds_,bl5g_,bl5c_,bl5b_,bl7uds_,bl7g_,bl7c_,bl7b_;
 
   };
 

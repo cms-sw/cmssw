@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/06/18 15:17:25 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/06/18 14:25:14 $
+ *  $Revision: 1.9 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -49,7 +49,7 @@ pair<double, double> DTTimeBoxFitter::fitTimeBox(TH1F *hTimeBox) {
     return make_pair(-1, -1);
   }
 
-  if(hTimeBox->GetEntries() < 50000) {
+  if(hTimeBox->GetEntries() < 10000) {
     hTimeBox->Rebin(2);
   }
 

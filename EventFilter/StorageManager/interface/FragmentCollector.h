@@ -27,9 +27,12 @@
 #include "EventFilter/StorageManager/interface/DQMServiceManager.h"
 #include "EventFilter/StorageManager/interface/InitMsgCollection.h"
 #include "EventFilter/StorageManager/interface/SMPerformanceMeter.h"
+#include "EventFilter/StorageManager/interface/SMFUSenderList.h"
 
 #include "boost/shared_ptr.hpp"
 #include "boost/thread/thread.hpp"
+
+#include "log4cplus/logger.h"
 
 #include <vector>
 #include <map>
@@ -37,6 +40,13 @@
 
 namespace stor
 {
+  struct FragmentContainer
+  {
+    FragmentContainer():creationTime_(time(0)),lastFragmentTime_(0) { }
+    std::map<int, FragEntry> fragmentMap_;
+    time_t creationTime_;
+    time_t lastFragmentTime_;
+  };
 
   class FragmentCollector
   {
@@ -47,12 +57,13 @@ namespace stor
     // This is not the most efficient way to store and manipulate this
     // type of data.  It is like this because there is not much time
     // available to create the prototype.
-    typedef std::vector<FragEntry> Fragments;
-    typedef std::map<stor::FragKey, Fragments> Collection;
+    typedef std::map<stor::FragKey, FragmentContainer> Collection;
 
     FragmentCollector(HLTInfo& h, Deleter d,
+		      log4cplus::Logger& applicationLogger,
                       const std::string& config_str="");
     FragmentCollector(std::auto_ptr<HLTInfo>, Deleter d,
+		      log4cplus::Logger& applicationLogger,
                       const std::string& config_str="");
     ~FragmentCollector();
 
@@ -70,6 +81,7 @@ namespace stor
       }
     }
     void setInitMsgCollection(boost::shared_ptr<InitMsgCollection>& imColl) { initMsgCollection_ = imColl; }
+    void setSMRBSenderList(SMFUSenderList* senderList) { smRBSenderList_ = senderList; }
 
   private:
     static void run(FragmentCollector*);
@@ -78,6 +90,9 @@ namespace stor
     void processHeader(FragEntry* msg);
     void processDQMEvent(FragEntry* msg);
     void processErrorEvent(FragEntry* msg);
+
+    int assembleFragments(std::map<int, FragEntry>& fragmentMap);
+    int removeStaleFragments();
 
     edm::EventBuffer* cmd_q_;
     edm::EventBuffer* evtbuf_q_;
@@ -89,6 +104,9 @@ namespace stor
     boost::shared_ptr<boost::thread> me_;
     const edm::ProductRegistry* prods_; // change to shared_ptr ? 
     stor::HLTInfo* info_;  // cannot be const when using EP_Runner?
+
+    time_t lastStaleCheckTime_;
+    int staleFragmentTimeout_;
 
   public:
 
@@ -138,6 +156,7 @@ namespace stor
     uint32 disks_;
     std::string catalog_;
     std::string sourceId_;
+    log4cplus::Logger& applicationLogger_;
 
     std::auto_ptr<edm::ServiceManager> writer_;
     std::auto_ptr<stor::DQMServiceManager> dqmServiceManager_;
@@ -145,6 +164,7 @@ namespace stor
     boost::shared_ptr<EventServer> eventServer_;
     boost::shared_ptr<DQMEventServer> DQMeventServer_;
     boost::shared_ptr<InitMsgCollection> initMsgCollection_;
+    SMFUSenderList* smRBSenderList_;
   };
 }
 

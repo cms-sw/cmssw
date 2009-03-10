@@ -1,14 +1,14 @@
 /**
  * \class L1GtBoardMapsTrivialProducer
- * 
- * 
- * Description: ESProducer for various mappings of the L1 GT boards.  
+ *
+ *
+ * Description: ESProducer for various mappings of the L1 GT boards.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
+ *
  * $Date$
  * $Revision$
  *
@@ -268,8 +268,14 @@ L1GtBoardMapsTrivialProducer::L1GtBoardMapsTrivialProducer(const edm::ParameterS
                     psbQuad = MQF12;
                 } else if ( *cIt == "Free" ) {
                     psbQuad = Free;
+                } else if ( *cIt == "HfQ" ) {
+                    psbQuad = HfQ;
                 } else {
-                    // do nothing, return empty string
+                    // should not arrive here
+                    throw cms::Exception("Configuration")
+                    << "\nError: no such quadruplet: " << (*cIt).c_str() << "\n"
+                    << "\n       Can not define the mapping of quadruplets to the L1 PSB boards.\n"
+                    << std::endl;
                 }
 
                 int psbIndex = cableToPsbMap.at(posCable);

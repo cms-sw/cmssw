@@ -71,11 +71,10 @@
 #define EVENTINFO_FOLDER   "EventInfo/"
 #define SUMCONTENTS_FOLDER "EventInfo/reportSummaryContents/"
 
-
 /**
- * Class Definition
+ * @class CSCMonitorModule
+ * @brief Online CSC DQM module
  */
-
 class CSCMonitorModule: public edm::EDAnalyzer {
 
   public:
@@ -99,7 +98,7 @@ class CSCMonitorModule: public edm::EDAnalyzer {
     void printCollection();
     void book(const std::string prefix);
     const bool isMEValid(const std::string name, MonitorElement*& me);
-    void getCSCFromMap(int crate, int slot, int& csctype, int& cscposition);
+    const bool getCSCFromMap(const int crate, const int slot, int& csctype, int& cscposition) const;
 
     /** Histogram filling and calculation methods */
     void monitorEvent(const edm::Event& e) ;
@@ -146,7 +145,6 @@ class CSCMonitorModule: public edm::EDAnalyzer {
     uint32_t                     nEvents;
     uint32_t                     nCSCEvents;
     bool                         bCSCEventCounted;
-    std::map<std::string, int>   tmap;
     uint32_t                     L1ANumber;
     std::map<uint32_t,uint32_t>  L1ANumbers;
 
