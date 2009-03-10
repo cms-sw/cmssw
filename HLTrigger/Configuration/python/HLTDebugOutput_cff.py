@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre2/HLT/V128 (CMSSW_3_1_X_2009-02-25-0700_HLT2)
+# /dev/CMSSW_3_1_0/pre2/HLT/V150 (CMSSW_3_1_X_2009-02-25-0700_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/HLT/V128')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/HLT/V150')
 )
 
 block_hltDebugOutput = cms.PSet(
@@ -69,6 +69,7 @@ outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
   'keep *_hltBSoftmuonL25Jets_*_*',
   'keep *_hltL1IsoElectronsRegionalCkfTrackCandidates_*_*',
   'keep *_hltCsc2DRecHits_*_*',
+  'keep *_hltIsolPixelTrackProd_*_*',
   'keep recoTracks_hltCtfL1NonIsoStartUpWithMaterialTracks_*_*',
   'keep recoTracks_hltL1NonIsoElectronsRegionalCTFFinalFitWithMaterial_*_*',
   'keep *_hltMuonTauIsoL3IsoFilteredNoL1Tau_*_*',
@@ -78,6 +79,7 @@ outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
   'keep *_hltL2MuonSeeds_*_*',
   'keep *_hltHtMet_*_*',
   'keep *_hltMuonTauIsoL2IsoFilteredNoL1Tau_*_*',
+  'keep *_hltHITIPTCorrector_*_*',
   'keep *_hltCkfL1NonIsoStartUpTrackCandidates_*_*',
   'keep *_hltPixelMatchStartUpElectronsL1NonIso_*_*',
   'keep *_hltL2TauNarrowConeIsolationProducer_*_*',
@@ -105,6 +107,7 @@ outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
   'keep *_hltCkfL1IsoStartUpTrackCandidates_*_*',
   'keep *_hltL25TauPixelTracksLeadingTrackPtCutSelectorNoL2_*_*',
   'keep *_hltCkfTrackCandidatesMumuk_*_*',
+  'keep *_hltHITCtfWithMaterialTracks_*_*',
   'keep *_hltMCJetCorJetIcone5Regional_*_*',
   'keep *_hltCkfL1IsoTrackCandidates_*_*',
   'keep recoTracks_hltL1IsoElectronsRegionalCTFFinalFitWithMaterial_*_*',
