@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/24 17:23:49 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/09/24 14:48:13 $
+ *  $Revision: 1.1 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -84,20 +84,20 @@ void DTnoiseDBValidation::beginJob(const EventSetup& setup) {
   noisyCells_toTest=0;
 
   // histo booking
-  diffHisto = dbe->book1D("noisyCellDiff", "partial difference between the total number of noisy cells",1, 0.5, 1.5);
+  diffHisto = dbe->book1D("noisyCellDiff", "percentual (wrt the previous db) total number of noisy cells",1, 0.5, 1.5);
   diffHisto->setBinLabel(1,"diff");
-  wheelHisto = dbe->book1D("wheelOccupancy", "percentual wheel occupancy",5, -2.5, 2.5);
+  wheelHisto = dbe->book1D("wheelOccupancy", "percentual noisy cells occupancy per wheel",5, -2.5, 2.5);
   wheelHisto->setBinLabel(1,"wh-2");
   wheelHisto->setBinLabel(2,"wh-1");
   wheelHisto->setBinLabel(3,"wh0");
   wheelHisto->setBinLabel(4,"wh1");
   wheelHisto->setBinLabel(5,"wh2");
-  stationHisto = dbe->book1D("stationOccupancy", "percentual station occupancy",4, 0.5, 4.5);
+  stationHisto = dbe->book1D("stationOccupancy", "percentual noisy cells occupancy per station",4, 0.5, 4.5);
   stationHisto->setBinLabel(1,"st1");
   stationHisto->setBinLabel(2,"st2");
   stationHisto->setBinLabel(3,"st3");
   stationHisto->setBinLabel(4,"st4");
-  sectorHisto = dbe->book1D("sectorOccupancy", "percentual sector occupancy",12, 0.5, 12.5);
+  sectorHisto = dbe->book1D("sectorOccupancy", "percentual noisy cells occupancy per sector",12, 0.5, 12.5);
   sectorHisto->setBinLabel(1,"sect1");
   sectorHisto->setBinLabel(2,"sect2");
   sectorHisto->setBinLabel(3,"sect3");
@@ -110,7 +110,7 @@ void DTnoiseDBValidation::beginJob(const EventSetup& setup) {
   sectorHisto->setBinLabel(10,"sect10");
   sectorHisto->setBinLabel(11,"sect11");
   sectorHisto->setBinLabel(12,"sect12");
-  layerHisto = dbe->book1D("layerOccupancy", "percentual layer occupancy",3, 0.5, 3.5);
+  layerHisto = dbe->book1D("layerOccupancy", "percentual noisy cells occupancy per layer",3, 0.5, 3.5);
   layerHisto->setBinLabel(1,"first 10 bins");
   layerHisto->setBinLabel(2,"middle bins");
   layerHisto->setBinLabel(3,"last 10 bins");
