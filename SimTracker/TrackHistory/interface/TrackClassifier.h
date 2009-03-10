@@ -122,10 +122,10 @@ private:
     void hadronFlavor();
 
     //! Get all the information related to decay process
-    void decayProcesses();
+    void processesAtGenerator();
 
     //! Get information about conversion and other interactions
-    void conversionInteraction();
+    void processesAtSimulation();
 
     //! Get geometrical information about the vertices
     void vertexInformation();

@@ -15,7 +15,9 @@ vertexHistory = cms.PSet(
     trackAssociator = cms.untracked.string('TrackAssociatorByHits'),
     trackProducer = cms.untracked.InputTag('generalTracks'),
     vertexAssociator = cms.untracked.string('VertexAssociatorByTracks'),
-    vertexProducer = cms.untracked.InputTag('offlinePrimaryVertices')
+    vertexProducer = cms.untracked.InputTag('offlinePrimaryVertices'),
+    enableRecoToSim = cms.untracked.bool(True),
+    enableSimToReco = cms.untracked.bool(False)
 )
 
 

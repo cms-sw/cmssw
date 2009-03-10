@@ -54,7 +54,8 @@ void TrackClassifier::newEvent ( edm::Event const & event, edm::EventSetup const
     edm::Handle<reco::BeamSpot> beamSpot;
     event.getByLabel(beamSpotLabel_, beamSpot);
     beamSpot_ = reco::TrackBase::Point(
-                    beamSpot->x0(), beamSpot->y0(), beamSpot->z0());
+                    beamSpot->x0(), beamSpot->y0(), beamSpot->z0()
+                );
 
     // Transient track builder
     setup.get<TransientTrackRecord>().get("TransientTrackBuilder", transientTrackBuilder_);
@@ -85,10 +86,10 @@ TrackClassifier const & TrackClassifier::evaluate (reco::TrackBaseRef const & tr
         hadronFlavor();
 
         // Get all the information related to decay process
-        decayProcesses();
+        processesAtGenerator();
 
         // Get information about conversion and other interactions
-        conversionInteraction();
+        processesAtSimulation();
 
         // Get geometrical information about the vertices
         vertexInformation();
@@ -111,6 +112,21 @@ TrackClassifier const & TrackClassifier::evaluate (TrackingParticleRef const & t
     // Trace the history for the given TP
     tracer_.evaluate(track);
 
+    // Collect the associated reco track
+    const reco::TrackBaseRef & recotrack = tracer_.recoTrack();
+
+    // If there is a reco truck then evaluate the simulated history
+    if ( recotrack.isNonnull() )
+    {
+        flags_[Reconstructed] = true;
+        // Classify all the tracks by their association and reconstruction information        
+        reconstructionInformation(recotrack);
+        // Analyse the track reconstruction quality
+        qualityInformation(recotrack);
+    }
+    else
+        flags_[Reconstructed] = false;
+
     // Get all the information related to the simulation details
     simulationInformation();
 
@@ -118,10 +134,10 @@ TrackClassifier const & TrackClassifier::evaluate (TrackingParticleRef const & t
     hadronFlavor();
 
     // Get all the information related to decay process
-    decayProcesses();
+    processesAtGenerator();
 
     // Get information about conversion and other interactions
-    conversionInteraction();
+    processesAtSimulation();
 
     // Get geometrical information about the vertices
     vertexInformation();
@@ -231,7 +247,7 @@ void TrackClassifier::hadronFlavor()
 }
 
 
-void TrackClassifier::decayProcesses()
+void TrackClassifier::processesAtGenerator()
 {
     // Get the generated vetices from track history
     TrackHistory::GenVertexTrail const & genVertexTrail = tracer_.genVertexTrail();
@@ -291,7 +307,7 @@ void TrackClassifier::decayProcesses()
 }
 
 
-void TrackClassifier::conversionInteraction()
+void TrackClassifier::processesAtSimulation()
 {
     TrackHistory::SimParticleTrail const & simParticleTrail = tracer_.simParticleTrail();
 

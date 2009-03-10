@@ -29,11 +29,18 @@ public:
         TrackClassifier::newEvent(event, config);
     }
 
+    //! Classify the TrackingVertex in categories.
+    TrackClassifierByProxy<Collection> const & evaluate (TrackingParticleRef const & track)
+    {
+    	TrackClassifier::evaluate(track);
+    	return *this;
+    }
+
     //! Classify any Tracks in categories.
     TrackClassifierByProxy<Collection> const & evaluate (edm::Ref<Collection> const & track, std::size_t index)
     {
         const reco::TrackRefVector * tracks = 0;
-   	
+
         try
         {
             // Get a reference to the vector of associated tracks
@@ -41,7 +48,7 @@ public:
         }
         catch (edm::Exception& e)
         {
-        	// If association fails define the track as unknown
+            // If association fails define the track as unknown
             reset();
             unknownTrack();
             return *this;
@@ -65,7 +72,7 @@ public:
         }
         catch (edm::Exception& e)
         {
-        	// If association fails define the track as unknown
+            // If association fails define the track as unknown
             reset();
             unknownTrack();
             return *this;

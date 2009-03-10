@@ -82,11 +82,14 @@ VertexClassifier const & VertexClassifier::evaluate (TrackingVertexRef const & v
     // Trace the history for the given TP
     tracer_.evaluate(vertex);
 
+    // Check for a reconstructed track
+    if ( tracer_.recoVertex().isNonnull() )
+        flags_[Reconstructed] = true;
+    else
+        flags_[Reconstructed] = false;
+
     // Get all the information related to the simulation details
     simulationInformation();
-
-    // Get hadron flavor of the initial hadron
-    // hadronFlavor();
 
     // Get all the information related to decay process
     processesAtGenerator();

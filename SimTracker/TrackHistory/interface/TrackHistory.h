@@ -10,6 +10,7 @@
 
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 #include "SimTracker/TrackHistory/interface/HistoryBase.h"
+#include "SimTracker/TrackHistory/interface/Utils.h"
 
 //! This class traces the simulated and generated history of a given track.
 class TrackHistory : public HistoryBase
@@ -37,6 +38,7 @@ public:
     */
     bool evaluate(TrackingParticleRef tpr)
     {
+        if ( enableSimToReco_ ) recotrack_ = match(tpr, simToReco_, bestMatchByMaxValue_);
         return HistoryBase::evaluate(tpr);
     }
 
@@ -48,11 +50,19 @@ public:
     */
     bool evaluate (reco::TrackBaseRef);
 
+    //! Return a reference to the reconstructed track.
+    const reco::TrackBaseRef & recoTrack() const
+    {
+        return recotrack_;
+    }
+
 private:
 
     bool newEvent_;
 
     bool bestMatchByMaxValue_;
+
+    bool enableRecoToSim_, enableSimToReco_;
 
     edm::InputTag trackProducer_;
 
@@ -60,9 +70,12 @@ private:
 
     std::string trackAssociator_;
 
-    reco::RecoToSimCollection association_;
+    reco::TrackBaseRef recotrack_;
 
-    TrackingParticleRef match ( reco::TrackBaseRef );
+    reco::RecoToSimCollection recoToSim_;
+
+    reco::SimToRecoCollection simToReco_;
+
 };
 
 #endif

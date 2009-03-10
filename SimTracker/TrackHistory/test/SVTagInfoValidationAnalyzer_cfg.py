@@ -21,7 +21,8 @@ process.svTagInfoValidationAnalyzer = cms.EDFilter("SVTagInfoValidationAnalyzer"
 
 process.GlobalTag.globaltag = 'IDEAL_30X::All'
 
-process.svTagInfoValidationAnalyzer.vertexProducer = 'svTagInfoProxy'
+process.svTagInfoValidationAnalyzer.enableSimToReco = cms.untracked.bool(True)
+process.svTagInfoValidationAnalyzer.vertexProducer = cms.untracked.InputTag('svTagInfoProxy')
 
 process.p = cms.Path(process.playback * process.svTagInfoProxy * process.svTagInfoValidationAnalyzer)
 

@@ -12,7 +12,9 @@ trackHistory = cms.PSet(
     bestMatchByMaxValue = cms.untracked.bool(True),
     trackingTruth = cms.untracked.InputTag("mergedtruth","MergedTrackTruth"),
     trackAssociator = cms.untracked.string('TrackAssociatorByHits'),
-    trackProducer = cms.untracked.InputTag("generalTracks")
+    trackProducer = cms.untracked.InputTag("generalTracks"),
+    enableRecoToSim = cms.untracked.bool(True),
+    enableSimToReco = cms.untracked.bool(False)
 )
 
 

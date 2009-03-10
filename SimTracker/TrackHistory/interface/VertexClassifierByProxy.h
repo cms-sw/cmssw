@@ -29,11 +29,18 @@ public:
         VertexClassifier::newEvent(event, config);
     }
 
+    //! Classify the TrackingVertex in categories.
+    VertexClassifierByProxy<Collection> const & evaluate (TrackingVertexRef const & vertex)
+    {
+    	VertexClassifier::evaluate(vertex);
+    	return *this;
+    }
+
     //! Classify any vertexes in categories.
     VertexClassifierByProxy<Collection> const & evaluate (edm::Ref<Collection> const & vertex, std::size_t index)
     {
         const reco::VertexRefVector * vertexes = 0;
-    	
+
         try
         {
             // Get a reference to the vector of associated vertexes
@@ -41,7 +48,7 @@ public:
         }
         catch (edm::Exception& e)
         {
-        	// If association fails define the vertex as unknown
+            // If association fails define the vertex as unknown
             reset();
             unknownVertex();
             return *this;
@@ -57,7 +64,7 @@ public:
     VertexClassifierByProxy<Collection> const & evaluate (edm::Ref<Collection> const & vertex)
     {
         const reco::VertexRefVector * vertexes = 0;
-        
+
         try
         {
             // Get a reference to the vector of associated vertexes
@@ -65,7 +72,7 @@ public:
         }
         catch (edm::Exception& e)
         {
-        	// If association fails define the vertex as unknown
+            // If association fails define the vertex as unknown
             reset();
             unknownVertex();
             return *this;

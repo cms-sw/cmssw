@@ -13,6 +13,7 @@ public:
     enum Category
     {
         Fake = 0,
+        Reconstructed = Fake,
         SignalEvent,
         BWeakDecay,
         CWeakDecay,

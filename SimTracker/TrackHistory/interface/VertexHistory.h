@@ -10,6 +10,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimTracker/TrackHistory/interface/HistoryBase.h"
+#include "SimTracker/TrackHistory/interface/Utils.h"
 #include "SimTracker/VertexAssociation/interface/VertexAssociatorBase.h"
 
 //! This class traces the simulated and generated history of a given track.
@@ -38,6 +39,7 @@ public:
     */
     bool evaluate(TrackingVertexRef tvr)
     {
+        if ( enableSimToReco_ ) recovertex_ = match(tvr, simToReco_, bestMatchByMaxValue_);
         return HistoryBase::evaluate(tvr);
     }
 
@@ -49,9 +51,17 @@ public:
     */
     bool evaluate (reco::VertexRef);
 
+    //! Return a reference to the reconstructed track.
+    const reco::VertexRef & recoVertex() const
+    {
+        return recovertex_;
+    }
+
 private:
 
     bool bestMatchByMaxValue_;
+
+    bool enableRecoToSim_, enableSimToReco_;
 
     edm::InputTag trackProducer_;
 
@@ -63,9 +73,11 @@ private:
 
     std::string vertexAssociator_;
 
-    reco::VertexRecoToSimCollection association_;
+    reco::VertexRef recovertex_;
 
-    TrackingVertexRef match ( reco::VertexRef );
+    reco::VertexRecoToSimCollection recoToSim_;
+
+    reco::VertexSimToRecoCollection simToReco_;
 };
 
 #endif
