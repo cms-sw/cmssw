@@ -9,3 +9,6 @@ using cms::SiStripClusterizer;
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(SiStripClusterizer);
+
+#include "RecoLocalTracker/SiStripClusterizer/plugins/SiStripClusterProducer.h"
+DEFINE_ANOTHER_FWK_MODULE(SiStripClusterProducer);
