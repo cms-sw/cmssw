@@ -82,6 +82,11 @@ private:
   TH1D *h_zmutrackSele_muon_vz_respectToPV, *h_zmutrackSele_muon_d0signed_respectToPV;
   TH1D *h_zmutrackSele_track_vz, *h_zmutrackSele_track_d0signed;
   TH1D *h_zmutrackSele_track_vz_respectToPV, *h_zmutrackSele_track_d0signed_respectToPV;
+  // ... cynematic cuts zmusta
+  TH1D *h_zmustaSele_muon_vz, *h_zmustaSele_muon_d0signed;
+  TH1D *h_zmustaSele_muon_vz_respectToPV, *h_zmustaSele_muon_d0signed_respectToPV;
+  TH1D *h_zmustaSele_sta_vz, *h_zmustaSele_sta_d0signed;
+  TH1D *h_zmustaSele_sta_vz_respectToPV, *h_zmustaSele_sta_d0signed_respectToPV;
 
 
   // global counters
@@ -161,6 +166,15 @@ ZMuMu_vtxAnalyzer::ZMuMu_vtxAnalyzer(const ParameterSet& pset) :
   h_zmutrackSele_track_d0signed = fs->make<TH1D>("zmutrackSele_trackD0signed","d0 vertex of track (zmutrack sele)",50,-.1,.1);
   h_zmutrackSele_track_vz_respectToPV = fs->make<TH1D>("zmutrackSele_trackVz_respectToPV","z vertex of track respect to PV (zmutrack sele)",50,-.05,.05);
   h_zmutrackSele_track_d0signed_respectToPV = fs->make<TH1D>("zmutrackSele_trackD0signed_respectToPV","d0 vertex of track respect to PV (zmutrack sele)",50,-.1,.1);
+  // ... zmusta cynematic Cuts
+  h_zmustaSele_muon_vz = fs->make<TH1D>("zmustaSele_muonVz","z vertex of muon (zmusta sele)",50,-20.,20.);
+  h_zmustaSele_muon_d0signed = fs->make<TH1D>("zmustaSele_muonD0signed","d0 vertex of muon (zmusta sele)",50,-.1,.1);
+  h_zmustaSele_muon_vz_respectToPV = fs->make<TH1D>("zmustaSele_muonVz_respectToPV","z vertex of muon respect to PV (zmusta sele)",50,-.05,.05);
+  h_zmustaSele_muon_d0signed_respectToPV = fs->make<TH1D>("zmustaSele_muonD0signed_respectToPV","d0 vertex of muon respect to PV (zmusta sele)",50,-.1,.1);
+  h_zmustaSele_sta_vz = fs->make<TH1D>("zmustaSele_staVz","z vertex of sta (zmusta sele)",50,-20.,20.);
+  h_zmustaSele_sta_d0signed = fs->make<TH1D>("zmustaSele_staD0signed","d0 vertex of sta (zmusta sele)",50,-.1,.1);
+  h_zmustaSele_sta_vz_respectToPV = fs->make<TH1D>("zmustaSele_staVz_respectToPV","z vertex of sta respect to PV (zmusta sele)",50,-.05,.05);
+  h_zmustaSele_sta_d0signed_respectToPV = fs->make<TH1D>("zmustaSele_staD0signed_respectToPV","d0 vertex of sta respect to PV (zmusta sele)",50,-.1,.1);
 
 }
 
@@ -253,7 +267,7 @@ void ZMuMu_vtxAnalyzer::analyze(const Event& event, const EventSetup& setup) {
 	if (trig1[j].filterName()=="hltSingleMuNoIsoL3PreFiltered") trig1found = true;
       }
       // cynematical selection
-      if ((trig0found || trig1found) && pt0>ptmin_ && pt1>ptmin_ && eta0<etamax_ && eta1<etamax_ && mass > massMin_) {
+      if ((trig0found || trig1found) && pt0>ptmin_ && pt1>ptmin_ && abs(eta0)<etamax_ && abs(eta1)<etamax_ && mass > massMin_) {
 	if (trkiso0<isoMax_ && trkiso1<isoMax_) {  // zmumu both isolated
 	  h_zmumuSele_muon_vz->Fill(muonDau0.vz());
 	  h_zmumuSele_muon_vz->Fill(muonDau1.vz());
@@ -306,17 +320,52 @@ void ZMuMu_vtxAnalyzer::analyze(const Event& event, const EventSetup& setup) {
       double trkiso0 = muonDau0.trackIso();
       const pat::Muon & muonDau1 = dynamic_cast<const pat::Muon &>(*lep1->masterClone());
       double trkiso1 = muonDau1.trackIso();
+
+      // vertex
+ 
+      TrackRef mu0TrkRef = muonDau0.track();
+      float d0signed_mu0 = (*mu0TrkRef).dxy();
+      float d0signed_mu0_respectToPV= (*mu0TrkRef).dxy( primaryVertices->begin()->position() );
+      float vz_mu0_respectToPV= (*mu0TrkRef).dz( primaryVertices->begin()->position() );
+      
+      TrackRef mu1TrkRef = muonDau1.track();
+      float d0signed_mu1 = (*mu1TrkRef).dxy();
+      float d0signed_mu1_respectToPV= (*mu1TrkRef).dxy( primaryVertices->begin()->position() );
+      float vz_mu1_respectToPV= (*mu1TrkRef).dz( primaryVertices->begin()->position() );
+
       double pt0 = zMuStandAloneCand.daughter(0)->pt();
       double pt1 = zMuStandAloneCand.daughter(1)->pt();
       double eta0 = zMuStandAloneCand.daughter(0)->eta();
       double eta1 = zMuStandAloneCand.daughter(1)->eta();
       double mass = zMuStandAloneCand.mass();
 
-      // HLT match (check just dau0 the global)
+      // HLT match 
       const std::vector<pat::TriggerPrimitive> & trig0 =muonDau0.triggerMatches();//vector of triggerPrimitive
+      const std::vector<pat::TriggerPrimitive> & trig1 =muonDau1.triggerMatches();//vector of triggerPrimitive
       bool trig0found = false;
+      bool trig1found = false;
       for (unsigned int j=0; j<trig0.size();j++) {
 	if (trig0[j].filterName()=="hltSingleMuNoIsoL3PreFiltered") trig0found = true;
+      }
+      for (unsigned int j=0; j<trig1.size();j++) {
+	if (trig1[j].filterName()=="hltSingleMuNoIsoL3PreFiltered") trig1found = true;
+      }
+      // check the global muon ... trigger is required just on global muon
+      bool trigfound = false;
+      if (muonDau0.isGlobalMuon()) trigfound = trig0found;
+      if (muonDau1.isGlobalMuon()) trigfound = trig1found;
+
+      // cynematical selection
+      if (trigfound && pt0>ptmin_ && pt1>ptmin_ && abs(eta0)<etamax_ && abs(eta1)<etamax_ && mass>massMin_ && trkiso0<isoMax_ && trkiso1<isoMax_) {
+	zMuSta_found = true;
+	h_zmustaSele_muon_vz->Fill(muonDau0.vz(),1.);     // muon vz
+	h_zmustaSele_sta_vz->Fill(muonDau1.vz(),1.);    // sta vz
+	h_zmustaSele_muon_d0signed->Fill(d0signed_mu0,1.);   // muon d0
+	h_zmustaSele_sta_d0signed->Fill(d0signed_mu1,1.);  // sta d0
+	h_zmustaSele_muon_d0signed_respectToPV->Fill(d0signed_mu0_respectToPV,1.); // muon d0 respect PV
+	h_zmustaSele_sta_d0signed_respectToPV->Fill(d0signed_mu1_respectToPV,1.); // sta d0 respect PV
+	h_zmustaSele_muon_vz_respectToPV->Fill(vz_mu0_respectToPV,1.);             // muon vz respect PV
+	h_zmustaSele_sta_vz_respectToPV->Fill(vz_mu1_respectToPV,1.);	          // sta vz respect PV
       }
       
     }  // end loop on ZMuStandAlone cand
@@ -365,14 +414,14 @@ void ZMuMu_vtxAnalyzer::analyze(const Event& event, const EventSetup& setup) {
 
       // cynematical selection
       if (trig0found && pt0>ptmin_ && pt1>ptmin_ && abs(eta0)<etamax_ && abs(eta1)<etamax_ && mass>massMin_ && trkiso0<isoMax_ && trkiso1<isoMax_) {
-	h_zmutrackSele_muon_vz->Fill(muonDau0.vz(),.5);     // muon vz
-	h_zmutrackSele_track_vz->Fill(trackDau1.vz(),.5);    // track vz
-	h_zmutrackSele_muon_d0signed->Fill(d0signed_mu0,.5);   // muon d0
-	h_zmutrackSele_track_d0signed->Fill(d0signed_mu1,.5);  // track d0
-	h_zmutrackSele_muon_d0signed_respectToPV->Fill(d0signed_mu0_respectToPV,.5); // muon d0 respect PV
-	h_zmutrackSele_track_d0signed_respectToPV->Fill(d0signed_mu1_respectToPV,.5); // track d0 respect PV
-	h_zmutrackSele_muon_vz_respectToPV->Fill(vz_mu0_respectToPV,.5);             // muon vz respect PV
-	h_zmutrackSele_track_vz_respectToPV->Fill(vz_mu1_respectToPV,.5);	          // track vz respect PV
+	h_zmutrackSele_muon_vz->Fill(muonDau0.vz(),1.);     // muon vz
+	h_zmutrackSele_track_vz->Fill(trackDau1.vz(),1.);    // track vz
+	h_zmutrackSele_muon_d0signed->Fill(d0signed_mu0,1.);   // muon d0
+	h_zmutrackSele_track_d0signed->Fill(d0signed_mu1,1.);  // track d0
+	h_zmutrackSele_muon_d0signed_respectToPV->Fill(d0signed_mu0_respectToPV,1.); // muon d0 respect PV
+	h_zmutrackSele_track_d0signed_respectToPV->Fill(d0signed_mu1_respectToPV,1.); // track d0 respect PV
+	h_zmutrackSele_muon_vz_respectToPV->Fill(vz_mu0_respectToPV,1.);             // muon vz respect PV
+	h_zmutrackSele_track_vz_respectToPV->Fill(vz_mu1_respectToPV,1.);	          // track vz respect PV
       }
       
     }  // end loop on ZMuTrack cand
