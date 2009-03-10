@@ -100,7 +100,9 @@ std::vector<CSCComparatorDigi>  CSCCLCTData::comparatorDigis(uint32_t idlayer, u
 	       *
 	       */
 
-	std::cout	<< "fillComparatorOutputs: layer = "
+	if (debug)
+          LogTrace ("CSCCLCTData|CSCRawToDigi")
+                  << "fillComparatorOutputs: layer = "
 		  << layer << " timebin = " << tbin
 		  << " cfeb = " << cfeb << " distrip = " << chamberDistrip
 		  << " HalfStrip = " << HalfStrip
@@ -156,7 +158,6 @@ std::vector<CSCComparatorDigi>  CSCCLCTData::comparatorDigis(uint32_t idlayer, u
 	//uh oh ugly ugly ugly!
       }
     }//end of loop over distrips
- std::cout << "RET URING " << result.size() << std::endl;
   return result;
 }
 
@@ -180,7 +181,6 @@ std::vector<CSCComparatorDigi>  CSCCLCTData::comparatorDigis(int layer)
 
 void CSCCLCTData::add(const CSCComparatorDigi & digi, int layer)
 {
-std::cout << "ADDCOMP " << digi << " NON " << digi.getTimeBinsOn().size() << std::endl;
   //FIXME do flipping
   int strip = digi.getStrip();
   int halfStrip = (strip-1)*2 + digi.getComparator();
@@ -192,23 +192,12 @@ std::cout << "ADDCOMP " << digi << " NON " << digi.getTimeBinsOn().size() << std
   for(std::vector<int>::const_iterator tbinItr = timeBinsOn.begin();
       tbinItr != timeBinsOn.end(); ++tbinItr)
   {
-std::cout << "TBINON " << *tbinItr << " OF " << ntbins_ << std::endl;
     int tbin = *tbinItr;
     if(tbin >= 0 && tbin < ntbins_)
     {
        dataWord(cfeb, tbin, layer).set(distrip, true);
-std::cout << "SET " << cfeb << " " << tbin << " " << layer << " " << distrip << std::endl;
     }
   }
-
-
-std::vector<CSCComparatorDigi> newComps = comparatorDigis(layer);
-std::cout << "FETECHED " << newComps.size() << std::endl;
-for(std::vector<CSCComparatorDigi>::const_iterator compItr = newComps.begin();
-    compItr != newComps.end(); ++compItr)
-{
-  std::cout << *compItr << std::endl;
-}
 }
 
 
