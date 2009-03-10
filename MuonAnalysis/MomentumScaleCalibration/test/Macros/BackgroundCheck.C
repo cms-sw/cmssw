@@ -54,8 +54,8 @@ void BackgroundCheck()
   // IMPORTANT: parameters to change
   // -------------------------------
   int ires = 3;
-  double Bgrp1 = 0.0260452;
-  double a = 0.105061;
+  double Bgrp1 = 0.0625942;
+  double a = 0.105663;
   // -------------------------------
 
   // For J/Psi exclude the Upsilon from the background normalization as the bin is not used by the fit.
@@ -85,7 +85,8 @@ void BackgroundCheck()
   TH1F * backgroundFunctionHisto = new TH1F("backgroundFunctionHisto", "backgroundFunctionHisto", xBins, xMin, xMax);
   for( int xBin = 0; xBin < xBins; ++xBin ) {
     // Compute the value in the mean bin point.
-    backgroundFunctionHisto->SetBinContent(xBin+1, backgroundFunction->Eval((xBin+1/2)*xWidth));
+    // backgroundFunctionHisto->SetBinContent(xBin+1, backgroundFunction->Eval((xBin+1/2)*xWidth));
+    backgroundFunctionHisto->SetBinContent(xBin+1, backgroundFunction->Integral(xBin*xWidth, (xBin+1)*xWidth));
     // cout << "xBin = " << xBin << ", backgroundFunction->Eval((xBin+1/2)*xWidth) = " << backgroundFunction->Eval((xBin+1/2)*xWidth) << endl;
   }
 
