@@ -179,11 +179,15 @@ def regressReports(olddir,newdir,oldRelName = "",newRelName=""):
                                             outd   = os.path.join(adir,logdir)
                                             rootf  = "timing-regress.root" 
                                             oldlog = os.path.join(olddir,profdir,base)
-                                            print "** Comparing", candle, step, prof, "previous release: %s and latest release: %s" % (oldlog,log)
-                                            print "**"
-                                            oldRelName = getOldRelName("",oldlog)
-                                            #print "TIMING OLD REL extracted from %s :\n %s"%(oldlog,oldRelName)
-                                            cpr.cmpTimingReport(rootf, outd, oldlog, log, 1, batch = True, prevrev = oldRelName)
+                                            if os.path.exists(log) and os.path.exists(oldlog) and os.path.exists(outd):
+                                                print "** Comparing", candle, step, prof, "previous release: %s and latest release: %s" % (oldlog,log)
+                                                print "**"
+                                                oldRelName = getOldRelName("",oldlog)
+                                                #print "TIMING OLD REL extracted from %s :\n %s"%(oldlog,oldRelName)
+                                                cpr.cmpTimingReport(rootf, outd, oldlog, log, 1, batch = True, prevrev = oldRelName)
+                                            else:
+                                                print "WARNING: While comparing", candle, step, prof, " at least one of the logfiles/directories: old (%s) or new (%s) was not found!!!" % (oldlog,log)
+                                                break
                                         elif prof == "valgrind":
                                             cpr.cmpCallgrindReport(outpath,oldlog,log)
                                         elif prof == "IgProfperf":
