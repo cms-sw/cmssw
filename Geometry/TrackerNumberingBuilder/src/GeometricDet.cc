@@ -1,12 +1,12 @@
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
+#include "Geometry/TrackerNumberingBuilder/interface/TrackerShapeToBounds.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
-#include "Geometry/TrackerNumberingBuilder/interface/TrackerShapeToBounds.h"
-
-#include "CLHEP/Units/SystemOfUnits.h"
-
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDExpandedNode.h"
+#include "CondFormats/GeometryObjects/interface/PGeometricDet.h"
+
+#include "CLHEP/Units/SystemOfUnits.h"
 
 #include <boost/bind.hpp>
 

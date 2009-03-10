@@ -1,6 +1,7 @@
 #ifndef Geometry_TrackerNumberingBuilder_GeometricDet_H
 #define Geometry_TrackerNumberingBuilder_GeometricDet_H
 
+#include "CondFormats/GeometryObjects/interface/PGeometricDet.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Base/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Base/interface/DDTranslation.h"
@@ -9,7 +10,6 @@
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-#include "CondFormats/GeometryObjects/interface/PGeometricDet.h"
 #include <vector>
 #include "FWCore/ParameterSet/interface/types.h"
 
