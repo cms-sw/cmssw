@@ -8,8 +8,8 @@
  * impact angle and position (also along the wire) and perform linear fit on
  * improved hits.
  *
- * $Date: 2008/12/03 13:18:14 $
- * $Revision: 1.12 $
+ * $Date: 2009/03/09 15:32:04 $
+ * $Revision: 1.13 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -61,10 +61,13 @@ class DTSegmentUpdator{
     void fit(DTRecSegment4D* seg) const;
 
     /// recompute hits position and refit the segment4D
-    void update(DTRecSegment4D* seg, const bool calcT0 = false);
+    void update(DTRecSegment4D* seg, const bool calcT0 = false) const;
 
     /// recompute hits position and refit the segment2D
-    void update(DTRecSegment2D* seg);
+    void update(DTRecSegment2D* seg) const;
+
+    void calculateT0corr(DTRecSegment2D* seg, float& t0cor = 0., 
+			 double& vminf = 0., float& cminf = 0.) const;
 
     /// set the setup
     void setES(const edm::EventSetup& setup);
@@ -76,12 +79,10 @@ class DTSegmentUpdator{
     DTRecHitBaseAlgo* theAlgo; // the algo for hit reconstruction
     edm::ESHandle<DTGeometry> theGeom; // the geometry
 
-    void updateHits(DTRecSegment2D* seg);
-
     void updateHits(DTRecSegment2D* seg,
                     GlobalPoint &gpos,
                     GlobalVector &gdir,
-                    const int step=2);
+                    const int step=2) const;
 
     /// interface to LinearFit
     void fit(const std::vector<float>& x,
@@ -93,30 +94,24 @@ class DTSegmentUpdator{
              double& chi2) const;
 
     // interface to updates hits with t0 corretion
-    void updateHitsN(DTRecSegment2D* seg, const double &vminf,const float &cminf );
-
     void updateHitsN(DTRecSegment2D* seg, const double &vminf, const float &cminf,
-                     GlobalPoint &gpos, GlobalVector &gdir);
+                     GlobalPoint &gpos, GlobalVector &gdir) const;
 
-    void fitT0_seg(DTRecSegment2D* seg,float& t0_cor , double& vminf ,float& cminf);
+    void fitT0_seg(DTRecSegment2D* seg,float& t0_cor , double& vminf ,float& cminf) const;
 
-    void Fit4Var(
-                 const std::vector<float>& xfit,
+    void Fit4Var(const std::vector<float>& xfit,
                  const std::vector<float>& yfit,
                  const std::vector<float>& sigy,
                  const std::vector<int>& lfit,
                  const std::vector<double>& tfit,
-                 int& nptfit,
-                 int& nppar,
-                 float& aminf,
-                 float& bminf,
-                 float& cminf,
-                 double& vminf,
-                 double& chi2fit);
+                 const int nptfit, int& nppar,
+                 float& aminf, float& bminf,
+                 float& cminf, double& vminf,
+                 double& chi2fit) const;
 
     bool vdrift_4parfit;
     double T0_hit_resolution;
-    bool T0_seg_debug;
+    bool debug;
 
 };
 

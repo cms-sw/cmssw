@@ -1,10 +1,11 @@
 /** \file
  *
- * $Date: 2009/03/03 11:21:55 $
- * $Revision: 1.31 $
+ * $Date: 2009/03/09 15:32:04 $
+ * $Revision: 1.32 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  * \       A.Meneguzzo - Padova University  <anna.meneguzzo@pd.infn.it>
+ * \       M.Pelliccioni - INFN TO <pellicci@cern.ch>
  */
 
 /* This Class Header */
@@ -45,11 +46,14 @@ DTSegmentUpdator::DTSegmentUpdator(const ParameterSet& config) :
   theFitter(new DTLinearFit()) ,
   vdrift_4parfit(config.getParameter<bool>("performT0_vdriftSegCorrection")),
   T0_hit_resolution(config.getParameter<double>("hit_afterT0_resolution")),
-  T0_seg_debug(config.getUntrackedParameter<bool>("T0SegCorrectionDebug",false)) 
+  debug(config.getUntrackedParameter<bool>("debug",false)) 
 {  
   string theAlgoName = config.getParameter<string>("recAlgo");
   theAlgo = DTRecHitAlgoFactory::get()->create(theAlgoName, 
                                                config.getParameter<ParameterSet>("recAlgoConfig"));
+
+  if(debug)
+    cout << "[DTSegmentUpdator] Constructor called" << endl;
 }
 
 /// Destructor
@@ -59,12 +63,15 @@ DTSegmentUpdator::~DTSegmentUpdator() {
 
 /* Operations */ 
 
-void DTSegmentUpdator::setES(const edm::EventSetup& setup){
+void DTSegmentUpdator::setES(const EventSetup& setup){
   setup.get<MuonGeometryRecord>().get(theGeom);
   theAlgo->setES(setup);
 }
 
-void DTSegmentUpdator::update(DTRecSegment4D* seg, const bool calcT0) {
+void DTSegmentUpdator::update(DTRecSegment4D* seg, const bool calcT0) const {
+
+  if(debug)
+    cout << "[DTSegmentUpdator] Starting to update the segment" << endl;
 
   bool hasPhi = seg->hasPhi();
   bool hasZed = seg->hasZed();
@@ -80,31 +87,25 @@ void DTSegmentUpdator::update(DTRecSegment4D* seg, const bool calcT0) {
     if (calcT0) {
       const float t0cor_seg = segPhi->theT0;  // get the current value of the t0seg
 
-      if (T0_seg_debug)
-        cout << "  before  fitT0_seg(seg) in Update 4D, t0cor_seg in phi = " << t0cor_seg << endl;
+      if (debug)
+        cout << "before fitT0_seg(seg) in Update 4D, t0cor_seg in phi = " << t0cor_seg << endl;
 
       float  t0cor = 0.; //value wich will be computed in the fit 
       double vminf = 0.; // % of vdrift change  
       float  cminf = 0.; // shift on space 
 
-      //if t0cor_seg is null, compute the value of the correction
-      if (t0cor_seg == 0 ) {
+      // find t0 and vdrift corrections to the segment hits
+      calculateT0corr(segPhi,t0cor,vminf,cminf);
 
-        // find t0 and vdrift corrections to the segment hits
-        fitT0_seg(segPhi,t0cor,vminf,cminf);
+      if(segPhi->theT0 != t0cor)	
+	cout << "Attention: in Update 4D the phi time segment has not been updated properly! segPhi " 
+	     << segPhi->theT0 << " t0cor " << t0cor <<endl;
 
-        // apply found corrections to hits
-        updateHitsN(segPhi, vminf, cminf ,pos,dir);
+      //update the hits with the t0 correction
+      updateHitsN(segPhi,vminf,cminf,pos,dir);
 
-        if(segPhi->theT0 != t0cor )	
-          cout << " Attention: in Update 4D the phi time segment has not been updated properly! segPhi " 
-	       <<segPhi->theT0 <<" t0cor " << t0cor <<endl;
-      }
-      //if t0cor was already computed, just update the hits
-      else updateHitsN(segPhi,vminf,cminf,pos,dir);
-
-      if(T0_seg_debug)  
-        cout << " After  fitT0_seg(seg) in Update 4D : Phi seg !!t0corphi = " << segPhi->theT0 << endl;
+      if(debug)  
+        cout << "After fitT0_seg(seg) in Update 4D : Phi seg !!t0corphi = " << segPhi->theT0 << endl;
     } 			
 
     else updateHits(segPhi,pos,dir,step);
@@ -118,31 +119,24 @@ void DTSegmentUpdator::update(DTRecSegment4D* seg, const bool calcT0) {
     if (calcT0) {
       const float t0cor_seg = segZed->theT0;  // get the current value of the t0seg
 
-      if (T0_seg_debug)
+      if (debug)
         cout << "  before  fitT0_seg(seg) in Update 4D, t0cor_seg in Zed = " << t0cor_seg << endl;
 
       float  t0cor = 0.;  //value wich will be computed in the fit 
       double vminf = 0.;  // % of vdrift change
       float  cminf = 0.; // shift on space
 
-      //if t0cor_seg is null, compute the value of the correction
-      if (t0cor_seg == 0 ) {
+      // find t0 and vdrift corrections to the segment hits
+      calculateT0corr(segZed,t0cor, vminf, cminf);
 
-        // find t0 and vdrift corrections to the segment hits
-        fitT0_seg(segZed,t0cor, vminf, cminf);
+      if(segZed->theT0 != t0cor)
+	cout << " Attention: in Update 4D the theta time segment has not been updated properly! segZed " 
+	     <<segZed->theT0 <<" t0cor" << t0cor  << endl;
 
-        // apply found corrections to hits
-        updateHitsN(segZed,vminf, cminf,pos,dir);
+      //update the hits with the t0 correction
+      updateHitsN(segZed, vminf ,cminf ,pos,dir);
 
-        if(segZed->theT0 != t0cor)
-          cout << " Attention: in Update 4D the theta time segment has not been updated properly! segZed " 
-	       <<segZed->theT0 <<" t0cor" << t0cor  << endl;
-
-      } 
-      //if t0cor was already computed, just update the hits
-      else updateHitsN(segZed, vminf ,cminf ,pos,dir);
-
-      if(T0_seg_debug)
+      if(debug)
 	cout << " After  fitT0_seg(seg) in Update 4D : Zed seg !! t0corzed = " << segZed->theT0 << endl;
     }
 
@@ -153,8 +147,18 @@ void DTSegmentUpdator::update(DTRecSegment4D* seg, const bool calcT0) {
   fit(seg);
 }
 
-void DTSegmentUpdator::update(DTRecSegment2D* seg) {
-  updateHits(seg);
+//Calculates the t0 correction. Need the first parameter only.
+//If the other parameters are passed, the method passes-by-value
+//the parameters back
+void DTSegmentUpdator::calculateT0corr(DTRecSegment2D* seg, float& t0cor, double& vminf, float& cminf) const{
+  fitT0_seg(seg,t0cor,vminf,cminf);
+}
+
+void DTSegmentUpdator::update(DTRecSegment2D* seg) const {
+  GlobalPoint pos = (theGeom->idToDet(seg->geographicalId()))->toGlobal(seg->localPosition());
+  GlobalVector dir = (theGeom->idToDet(seg->geographicalId()))->toGlobal(seg->localDirection());
+
+  updateHits(seg,pos,dir);
   fit(seg);
 }
 
@@ -314,8 +318,8 @@ void DTSegmentUpdator::fit(DTRecSegment2D* seg) const {
   seg->setPosition(pos);
   seg->setDirection(dir);
 
-  //cout << "pos " << segPosition<< endl;
-  //cout << "dir " << segDirection<< endl;
+  //cout << "pos " << segPosition << endl;
+  //cout << "dir " << segDirection << endl;
 
   seg->setCovMatrix(covMat);
   // cout << "Mat " << mat << endl;
@@ -335,7 +339,7 @@ void DTSegmentUpdator::fit(const vector<float>& x,
   float intercept = 0.;
   float covss     = 0.;
   float covii     = 0.;
-  float covsi     = 0.;;
+  float covsi     = 0.;
 
   // do the fit
   theFitter->fit(x,y,x.size(),sigy,slope,intercept,covss,covii,covsi);
@@ -364,16 +368,10 @@ void DTSegmentUpdator::fit(const vector<float>& x,
   }
 }
 
-void DTSegmentUpdator::updateHits(DTRecSegment2D* seg) {
-  GlobalPoint pos = (theGeom->idToDet(seg->geographicalId()))->toGlobal(seg->localPosition());
-  GlobalVector dir = (theGeom->idToDet(seg->geographicalId()))->toGlobal(seg->localDirection());
-  updateHits(seg, pos, dir);
-}
-
 // The GlobalPoint and the GlobalVector can be either the glb position and the direction
 // of the 2D-segment itself or the glb position and direction of the 4D segment
 void DTSegmentUpdator::updateHits(DTRecSegment2D* seg, GlobalPoint &gpos,
-                                  GlobalVector &gdir, const int step) {
+                                  GlobalVector &gdir, const int step) const{
 
   // it is not necessary to have DTRecHit1D* to modify the obj in the container
   // but I have to be carefully, since I cannot make a copy before the iteration!
@@ -425,7 +423,7 @@ void DTSegmentUpdator::updateHits(DTRecSegment2D* seg, GlobalPoint &gpos,
 }
 
 
-void DTSegmentUpdator::fitT0_seg(DTRecSegment2D* seg, float& t0cor ,double& vminf,float& cminf) {
+void DTSegmentUpdator::fitT0_seg(DTRecSegment2D* seg, float& t0cor, double& vminf, float& cminf) const {
   // WARNING: since this method is called both with a 2D and a 2DPhi as argument
   // seg->geographicalId() can be a superLayerId or a chamberId 
 
@@ -438,7 +436,7 @@ void DTSegmentUpdator::fitT0_seg(DTRecSegment2D* seg, float& t0cor ,double& vmin
   vector<DTRecHit1D> hits=seg->specificRecHits();
 
   DTWireId wireId;
-  int npt = 0;
+  int nptfit = 0;
 
   for (vector<DTRecHit1D>::const_iterator hit=hits.begin();
        hit!=hits.end(); ++hit) {
@@ -451,11 +449,9 @@ void DTSegmentUpdator::fitT0_seg(DTRecSegment2D* seg, float& t0cor ,double& vmin
     float xwire = layer->specificTopology().wirePosition(hit->wireId().wire());
     float distance = fabs(hit->localPosition().x() - xwire);
 
-    int ilc = 0;
-    if ( hit->lrSide() == DTEnums::Left ) ilc= 1;
-    else                                  ilc=-1;    
+    int ilc = ( hit->lrSide() == DTEnums::Left ) ? 1 : -1;
 
-    npt++;
+    nptfit++;
     x.push_back(pos.z()); 
     y.push_back(pos.x());
     lc.push_back(ilc);
@@ -466,7 +462,6 @@ void DTSegmentUpdator::fitT0_seg(DTRecSegment2D* seg, float& t0cor ,double& vmin
 
   double chi2fit = 0.;
   double chi20   = 0.;
-  int nptfit     = npt;
   int nppar      = 0;
   float aminf    = 0.;
   float bminf    = 0.;
@@ -475,8 +470,6 @@ void DTSegmentUpdator::fitT0_seg(DTRecSegment2D* seg, float& t0cor ,double& vmin
   vminf = 0.;
 
   chi20 =seg->chi2(); //previous chi2
-
-  seg->setT0(0.1); //just for setting a dummy unused value to tell that T0 has been already applyed;
 
   if ( nptfit > 2 ) {
     //NB chi2fit is normalized
@@ -489,18 +482,10 @@ void DTSegmentUpdator::fitT0_seg(DTRecSegment2D* seg, float& t0cor ,double& vmin
   }
 }
 
-
-void DTSegmentUpdator::updateHitsN(DTRecSegment2D* seg, const double &vminf, const float &cminf ) {
-  GlobalPoint pos = (theGeom->idToDet(seg->geographicalId()))->toGlobal(seg->localPosition());
-  GlobalVector dir = (theGeom->idToDet(seg->geographicalId()))->toGlobal(seg->localDirection());
-
-  updateHitsN(seg, vminf, cminf, pos, dir);
-}
-
 // The GlobalPoint and the GlobalVector can be either the glb position and the direction
 // of the 2D-segment itself or the glb position and direction of the 4D segment
 void DTSegmentUpdator::updateHitsN(DTRecSegment2D* seg, const double &vminf, const float &cminf,
-                                   GlobalPoint &gpos, GlobalVector &gdir) {
+                                   GlobalPoint &gpos, GlobalVector &gdir) const {
 
   // it is not necessary to have DTRecHit1D* to modify the obj in the container
   // but I have to be carefully, since I cannot make a copy before the iteration!
@@ -522,28 +507,21 @@ void DTSegmentUpdator::updateHitsN(DTRecSegment2D* seg, const double &vminf, con
     //  distance from the wire: hit in local coordinate - wire posizion 
     //  cout << " Drift space  d_drift "<<distance  <<endl;
 
-    int ilc = 0;
-    if ( hit->lrSide() == DTEnums::Left ) ilc= 1;
-    else                                  ilc=-1;    
+    int ilc = ( hit->lrSide() == DTEnums::Left ) ? 1 : -1;
 
-    //*********************************************    
-    bool ok = true;
     double dy_corr = (vminf*ilc*distance-cminf*ilc ); 
-    //*********************************************    
 
     LocalPoint segPos=layer->toLocal(gpos);
     LocalVector segDir=layer->toLocal(gdir);
 
-    // define impact angle needed by the step 2
-    // 	not used here 	const float angle = atan(segDir.x()/-segDir.z());
     // define the local position (extr.) of the segment. Needed by the third step 
     LocalPoint segPosAtLayer=segPos+segDir*(-segPos.z())/cos(segDir.theta());
 
-    DTRecHit1D newHit1D=(*hit);
-    LocalPoint leftPoint(hit->localPosition().x() +dy_corr,+segPosAtLayer.y(),0.);;
-    LocalPoint rightPoint(hit->localPosition().x()+dy_corr,+segPosAtLayer.y(),0.);;
+    DTRecHit1D newHit1D = (*hit);
+    LocalPoint leftPoint(hit->localPosition().x() + dy_corr, +segPosAtLayer.y(), 0.);;
+    LocalPoint rightPoint(hit->localPosition().x()+ dy_corr, +segPosAtLayer.y(), 0.);;
 
-    float  hitresol=T0_hit_resolution;   //local resolution in use 	
+    float hitresol = T0_hit_resolution;   //local resolution in use 	
     LocalError error(hitresol*hitresol,0.,0.);
     switch(newHit1D.lrSide()) {
 
@@ -561,13 +539,7 @@ void DTSegmentUpdator::updateHitsN(DTRecSegment2D* seg, const double &vminf, con
         break;
     }
 
-
-    if (ok) {
       updatedRecHits.push_back(newHit1D);
-    } else {
-      LogError("DTSegmentUpdator")<<"DTSegmentUpdator::updateHits failed update" << endl;
-      throw cms::Exception("DTSegmentUpdator")<<"updateHits failed update"<<endl;
-    }
   }
   seg->update(updatedRecHits);
 } 
@@ -578,17 +550,15 @@ void DTSegmentUpdator::Fit4Var(
                                const vector<float>& sigy,
                                const vector<int>& lfit,
                                const vector<double>& tfit,
-                               int& nptfit,
+                               const int nptfit,
                                int& nppar,
-                               //            LocalPoint& pos,
-                               //            LocalVector& dir,
                                float& aminf,
                                float& bminf,
                                float& cminf,
                                double& vminf,
-                               double& chi2fit) { 
+                               double& chi2fit) const { 
 
-  double sigma = 0.0295;// errors can be inserted .just load them/that is the usual TB resolution value for DT chambers 
+  const double sigma = 0.0295;// errors can be inserted .just load them/that is the usual TB resolution value for DT chambers 
   double delta = 0.;
   double sx = 0.;
   double  sx2 = 0.;
@@ -612,13 +582,13 @@ void DTSegmentUpdator::Fit4Var(
   float bminf3 = bminf;
   float aminf3 = aminf;
   float cminf3 = cminf;
-  int nppar2=0;
-  int nppar3=0;
-  int nppar4=0;
-  cminf=0.;
-  vminf=0.;
+  int nppar2 = 0;
+  int nppar3 = 0;
+  int nppar4 = 0;
 
-  //cout << "sigma = "<<sigma;
+  cminf = 0.;
+  vminf = 0.;
+
   for (int j=0; j<nptfit; j++){
     sx  = sx + xfit[j];       
     sy  = sy + yfit[j];
@@ -635,13 +605,16 @@ void DTSegmentUpdator::Fit4Var(
     slty = slty + lfit[j] * tfit[j]*yfit[j];
 
   } //end loop
+
   delta = nptfit*sx2 - sx*sx;
   // cout << delta << " " << nptfit << " " << sigma << endl;
   //cout << "npfit"<< nptfit<< "delta"<< delta<<endl;
   //cout << <<endl;
-  double a = 0;
-  double b = 0;	       
-  if (delta!=0  ){   //
+
+  double a = 0.;
+  double b = 0.;	       
+
+  if (delta!=0){   //
     a = (sx2*sy - sx*sxy)/delta;
     b = (nptfit*sxy - sx*sy)/delta;
 
@@ -653,48 +626,51 @@ void DTSegmentUpdator::Fit4Var(
     } //end loop chi2
   }
 
-  bminf=b;
-  aminf=a;
+  bminf = b;
+  aminf = a;
 
-  nppar=2; 
-  nppar2=nppar; 
+  nppar = 2; 
+  nppar2 = nppar; 
 
   chi2fit2 = chi2fit;
   chi2fitN2 = chi2fit/(nptfit-2);
+
   // cout << "dt0 = 0chi2fit = " << chi2fit << "  slope = "<<b<<endl;
-  // cout << chi2fit;
 
   if (nptfit >= 3) {
 
-    double d1=  sy;
-    double d2=  sxy;
-    double d3=  sly;
-    double c1=  sl;
-    double c2=  slx;
-    double c3=  sl2;
-    double b1=  sx;
-    double b2=  sx2;
-    double b3=  slx;
-    double a1= nptfit;
-    double a2=  sx;
-    double a3=  sl;
-    double b4= b2*a1-b1*a2; // questo e i seguenti sono inutilizzati nel fit a 4 variabili
-    double c4= c2*a1-c1*a2;
-    double d4= d2*a1-d1*a2;
-    double b5= a1*b3-a3*b1;
-    double c5= a1*c3-a3*c1;
-    double d5= a1*d3-d1*a3;
+    double d1 = sy;
+    double d2 = sxy;
+    double d3 = sly;
+    double c1 = sl;
+    double c2 = slx;
+    double c3 = sl2;
+    double b1 = sx;
+    double b2 = sx2;
+    double b3 = slx;
+    double a1 = nptfit;
+    double a2 = sx;
+    double a3 = sl;
+
+    //these parameters are not used in the 4-variables fit
+    double b4 = b2*a1-b1*a2;
+    double c4 = c2*a1-c1*a2;
+    double d4 = d2*a1-d1*a2;
+    double b5 = a1*b3-a3*b1;
+    double c5 = a1*c3-a3*c1;
+    double d5 = a1*d3-d1*a3;
     double a6 = slt;
     double b6 = sltx;
     double c6 = st;
     double v6 = st2;	
     double d6 = slty;
+
     if (((c5*b4-c4*b5)*b4*a1)!=0) {
-      nppar=3;
+      nppar = 3;
       chi2fit = 0.;
-      cminf=(d5*b4-d4*b5)/(c5*b4-c4*b5);
-      bminf=d4/b4 -cminf *c4/b4;
-      aminf=(d1/a1 -cminf*c1/a1 -bminf*b1/a1);
+      cminf = (d5*b4-d4*b5)/(c5*b4-c4*b5);
+      bminf = d4/b4 -cminf *c4/b4;
+      aminf = (d1/a1 -cminf*c1/a1 -bminf*b1/a1);
 
       for (int j=0; j<nptfit; j++){
         double ypred = aminf + bminf*xfit[j];
@@ -708,27 +684,28 @@ void DTSegmentUpdator::Fit4Var(
 
     }
     else {
-      cminf=0.;
-      bminf=b;
-      aminf=a;
+      cminf = 0.;
+      bminf = b;
+      aminf = a;
       chi2fit3 = chi2fit;
       chi2fitN3 = chi2fit /(nptfit-2);
     }
 
-    bminf3=bminf;
-    aminf3=aminf;
-    cminf3=cminf;
-    //   	}  
-    nppar3=nppar;
+    bminf3 = bminf;
+    aminf3 = aminf;
+    cminf3 = cminf;
+    nppar3 = nppar;
 
-    if (T0_seg_debug) {
-      cout << "   dt0= 0 : slope 2  = "<<b     << "  pos in  = " << a     <<" chi2fitN2 = " << chi2fitN2 <<"  nppar= " << nppar2 << " nptfit= " << nptfit <<endl;
-      cout << "   dt0= 0 : slope 3  = "<<bminf << "  pos out = " << aminf <<" chi2fitN3 = " << chi2fitN3 <<"  nppar= " << nppar3 << " T0_ev ns= " << cminf/0.00543 <<endl;
+    if (debug) {
+      cout << "dt0= 0 : slope 2 = " << b << " pos in  = " << a << " chi2fitN2 = " << chi2fitN2
+	   << " nppar = " << nppar2 << " nptfit = " << nptfit << endl;
+      cout << "dt0 = 0 : slope 3 = " << bminf << " pos out = " << aminf << " chi2fitN3 = "
+	   << chi2fitN3 << " nppar = " << nppar3 << " T0_ev ns = " << cminf/0.00543 << endl;
     } 
 
     //***********************************
     //     cout << " vdrift_4parfit "<< vdrift_4parfit<<endl;
-    if( (nptfit>=5) && vdrift_4parfit) { 
+    if( nptfit>=5 && vdrift_4parfit) { 
       const double det = (a1*a1*(b2*v6 - b6*b6) - a1*(a2*a2*v6 - 2*a2*a6*b6 + a6*a6*b2 + b2*c6*c6 + b3*(b3*v6 - 2*b6*c6))
 			  + a2*a2*c6*c6 + 2*a2*(a3*(b3*v6 - b6*c6) - a6*b3*c6) + a3*a3*(b6*b6 - b2*v6)
 			  + a6*(2*a3*(b2*c6 - b3*b6) + a6*b3*b3)); 
@@ -736,20 +713,20 @@ void DTSegmentUpdator::Fit4Var(
       // the dv/vdrift correction may be computed  under vdrift_4parfit request;
       if (det != 0) { 
         nppar = 4;
-        chi2fit =0;
+        chi2fit = 0.;
         // computation of   a, b, c e v
         aminf = (a1*(a2*(b6*d6 - v6*d2) + a6*(b6*d2 - b2*d6) + d1*(b2*v6 - b6*b6)) - a2*(b3*(c6*d6 - v6*d3)
-                                                                                         + c6*(b6*d3 - c6*d2)) + a3*(b2*(c6*d6 - v6*d3) + b3*(v6*d2 - b6*d6) + b6*(b6*d3 - c6*d2))
+                 + c6*(b6*d3 - c6*d2)) + a3*(b2*(c6*d6 - v6*d3) + b3*(v6*d2 - b6*d6) + b6*(b6*d3 - c6*d2))
                  + a6*(b2*c6*d3 + b3*(b3*d6 - b6*d3 - c6*d2)) - d1*(b2*c6*c6 + b3*(b3*v6 - 2*b6*c6)))/det;
         bminf = - (a1*a1*(b6*d6 - v6*d2) - a1*(a2*(a6*d6 - v6*d1) - a6*a6*d2 + a6*b6*d1 + b3*(c6*d6 - v6*d3)
-                                               + c6*(b6*d3 - c6*d2)) + a2*(a3*(c6*d6 - v6*d3) + c6*(a6*d3 - c6*d1)) + a3*a3*(v6*d2 - b6*d6)
-                   + a3*(a6*(b3*d6 + b6*d3 - 2*c6*d2) - d1*(b3*v6 - b6*c6)) - a6*b3*(a6*d3 - c6*d1))/det;
+                 + c6*(b6*d3 - c6*d2)) + a2*(a3*(c6*d6 - v6*d3) + c6*(a6*d3 - c6*d1)) + a3*a3*(v6*d2 - b6*d6)
+                 + a3*(a6*(b3*d6 + b6*d3 - 2*c6*d2) - d1*(b3*v6 - b6*c6)) - a6*b3*(a6*d3 - c6*d1))/det;
         cminf = -(a1*(b2*(c6*d6 - v6*d3) + b3*(v6*d2 - b6*d6) + b6*(b6*d3 - c6*d2)) + a2*a2*(v6*d3 - c6*d6)
-                  + a2*(a3*(b6*d6 - v6*d2) + a6*(b3*d6 - 2*b6*d3 + c6*d2) - d1*(b3*v6 - b6*c6))
-                  + a3*(d1*(b2*v6 - b6*b6) - a6*(b2*d6 - b6*d2)) + a6*(a6*(b2*d3 - b3*d2) - d1*(b2*c6 - b3*b6)))/det;
+                 + a2*(a3*(b6*d6 - v6*d2) + a6*(b3*d6 - 2*b6*d3 + c6*d2) - d1*(b3*v6 - b6*c6))
+                 + a3*(d1*(b2*v6 - b6*b6) - a6*(b2*d6 - b6*d2)) + a6*(a6*(b2*d3 - b3*d2) - d1*(b2*c6 - b3*b6)))/det;
         vminf = - (a1*a1*(b2*d6 - b6*d2) - a1*(a2*a2*d6 - a2*(a6*d2 + b6*d1) + a6*b2*d1 + b2*c6*d3
-                                               + b3*(b3*d6 - b6*d3 - c6*d2)) + a2*a2*c6*d3 + a2*(a3*(2*b3*d6 - b6*d3 - c6*d2) - b3*(a6*d3 + c6*d1))
-                   + a3*a3*(b6*d2 - b2*d6) + a3*(a6*(b2*d3 - b3*d2) + d1*(b2*c6 - b3*b6)) + a6*b3*b3*d1)/det;
+                 + b3*(b3*d6 - b6*d3 - c6*d2)) + a2*a2*c6*d3 + a2*(a3*(2*b3*d6 - b6*d3 - c6*d2) - b3*(a6*d3 + c6*d1))
+                 + a3*a3*(b6*d2 - b2*d6) + a3*(a6*(b2*d3 - b3*d2) + d1*(b2*c6 - b3*b6)) + a6*b3*b3*d1)/det;
 
         //  chi 2
         for (int j=0; j<nptfit; j++) {
@@ -792,17 +769,20 @@ void DTSegmentUpdator::Fit4Var(
 
   }  //end nptfit >=3
 
-  if (T0_seg_debug) {
+  if (debug) {
     cout << "   dt0= 0 : slope 4  = " << bminf << " pos out = " << aminf <<" chi2fitN4 = " << chi2fitN4
 	 << "  nppar= " << nppar4 << " T0_ev ns= " << cminf/0.00543 <<" delta v = " << vminf <<endl;
     cout << nptfit << " nptfit " << " end  chi2fit = " << chi2fit/ (nptfit-nppar ) << " T0_ev ns= " << cminf/0.00543 << " delta v = " << vminf <<endl;
   }
 
-  if ( fabs(vminf) >= 0.09 && T0_seg_debug ) {  //checks only vdrift less then 10 % accepted
-    cout << "  vminf gt 0.09 det=  " <<  endl;
-    cout << "   dt0= 0 : slope 4  = "<<bminf << "  pos out = " << aminf <<" chi2fitN4 = " << chi2fitN4 << " T0_ev ns= " << cminf/0.00543 <<" delta v = "<< vminf <<endl;
-    cout << "   dt0= 0 : slope 2  = "<<b     << "  pos in  = " << a     <<" chi2fitN2 = " << chi2fitN2 <<"  nppar= " <<nppar-1<< " nptfit= " << nptfit <<endl;
-    cout << "   dt0= 0 : slope 3  = "<<bminf << "  pos out = " << aminf <<" chi2fitN3 = " << chi2fitN3 << " T0_ev ns= " << cminf/0.00543 <<endl;
+  if ( fabs(vminf) >= 0.09 && debug ) {  //checks only vdrift less then 10 % accepted
+    cout << "vminf gt 0.09 det=  " << endl;
+    cout << "dt0= 0 : slope 4 = "<< bminf << " pos out = " << aminf << " chi2fitN4 = " << chi2fitN4
+	 << " T0_ev ns = " << cminf/0.00543 << " delta v = "<< vminf << endl;
+    cout << "dt0 = 0 : slope 2 = "<< b << " pos in = " << a <<" chi2fitN2 = " << chi2fitN2
+	 << " nppar = " << nppar-1 << " nptfit = " << nptfit <<endl;
+    cout << "dt0 = 0 : slope 3 = " << bminf << " pos out = " << aminf << " chi2fitN3 = "
+	 << chi2fitN3 << " T0_ev ns = " << cminf/0.00543 << endl;
     cout << nptfit   <<" nptfit "<< "   end  chi2fit = " << chi2fit << "T0_ev ns= " << cminf/0.00543 << "delta v = "<< vminf <<endl;        
   }
 

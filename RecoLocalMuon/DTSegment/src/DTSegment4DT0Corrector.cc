@@ -1,8 +1,8 @@
 /** \class DTSegment4DT0Corrector
  *  Builds the segments in the DT chambers.
  *
- *  $Date: 2009/03/09 12:52:22 $
- *  $Revision: 1.11 $
+ *  $Date: 2009/03/09 15:32:04 $
+ *  $Revision: 1.1 $
  * \author Mario Pelliccioni - INFN Torino <pellicci@cern.ch>
  */
 
@@ -54,32 +54,47 @@ void DTSegment4DT0Corrector::produce(Event& event, const EventSetup& setup){
   ESHandle<DTGeometry> theGeom;
   setup.get<MuonGeometryRecord>().get(theGeom);
 
+ // Percolate the setup
+  theUpdator->setES(setup);
+
+
   // Create the pointer to the collection which will store the rechits
   auto_ptr<DTRecSegment4DCollection> segments4DCollection(new DTRecSegment4DCollection());
 
   // Iterate over the input DTSegment4D
   DTRecSegment4DCollection::id_iterator chamberId;
 
+  if(debug)
+    cout << "[DTSegment4DT0Corrector] Starting to loop over segments" << endl;
+
   for (chamberId = all4DSegments->id_begin(); chamberId != all4DSegments->id_end(); ++chamberId){
 
-  OwnVector<DTRecSegment4D> result;
+    OwnVector<DTRecSegment4D> result;
 
     // Get the range for the corresponding ChamerId
     DTRecSegment4DCollection::range  range = all4DSegments->get(*chamberId);
 
-      // Loop over the rechits of this ChamberId
-      for (DTRecSegment4DCollection::const_iterator segment4D = range.first;
-	   segment4D!=range.second; ++segment4D) {
+    // Loop over the rechits of this ChamberId
+    for (DTRecSegment4DCollection::const_iterator segment4D = range.first;
+	 segment4D!=range.second; ++segment4D) {
 
-	     DTRecSegment4D newSeg = *segment4D;
+      DTRecSegment4D tmpseg = *segment4D;
 
-	     theUpdator->update(&newSeg,true);
-	     result.push_back(newSeg);
-	   }
+      DTRecSegment4D *newSeg = tmpseg.clone();
+
+      if(newSeg == 0) continue;
+
+      theUpdator->update(newSeg,true);
+      result.push_back(*newSeg);
+
+    }
 
     segments4DCollection->put(*chamberId, result.begin(), result.end());
 
   }
+
+  if(debug)
+    cout << "[DTSegment4DT0Corrector] Saving modified segments into the event" << endl;
 
   // Load the output in the Event
   event.put(segments4DCollection);

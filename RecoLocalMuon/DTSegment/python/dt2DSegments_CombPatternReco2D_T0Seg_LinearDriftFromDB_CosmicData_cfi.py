@@ -12,6 +12,7 @@ dt2DSegments = cms.EDProducer("DTRecSegment2DProducer",
     # name of the rechit 1D collection in the event
     recHits1DLabel = cms.InputTag("dt1DRecHits")
 )
+
 # enable the t0 seg correction (event by event)
 dt2DSegments.Reco2DAlgoConfig.performT0SegCorrection = True
 dt2DSegments.Reco2DAlgoConfig.performT0_vdriftSegCorrection = True

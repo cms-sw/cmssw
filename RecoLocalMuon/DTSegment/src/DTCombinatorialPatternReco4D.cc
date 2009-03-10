@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2008/12/03 12:52:22 $
- * $Revision: 1.15 $
+ * $Date: 2009/03/09 15:32:04 $
+ * $Revision: 1.16 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -38,7 +38,8 @@ DTCombinatorialPatternReco4D::DTCombinatorialPatternReco4D(const ParameterSet& p
     debug = pset.getUntrackedParameter<bool>("debug");
 
     //do you want the T0 correction?
-    applyT0corr = pset.getParameter<bool>("performT0SegCorrection");
+    applyT0corr = pset.getParameter<bool>("performT0SegCorrection","false");
+    computeT0corr = pset.getParameter<bool>("computeT0Seg","true");
 
     // the updator
     theUpdator = new DTSegmentUpdator(pset);
@@ -205,6 +206,7 @@ DTCombinatorialPatternReco4D::reconstruct() {
         if (debug) cout << "Created a 4D segment using only the 2D Phi segment " << *newSeg << endl;
 
         //update the segment with the t0 and possibly vdrift correction
+        if(computeT0corr && !applyT0corr) theUpdator->calculateT0corr(newSeg);
 	if(applyT0corr) theUpdator->update(newSeg,true);
 
         result.push_back(newSeg);
@@ -230,7 +232,8 @@ DTCombinatorialPatternReco4D::reconstruct() {
 		     *newSeg << endl;
 
 	//update the segment with the t0 and possibly vdrift correction
-	theUpdator->update(newSeg,true);
+        if(computeT0corr && !applyT0corr) theUpdator->calculateT0corr(newSeg);
+	if(applyT0corr) theUpdator->update(newSeg,true);
 
         result.push_back(newSeg);
       }
