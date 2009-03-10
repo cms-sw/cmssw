@@ -15,8 +15,6 @@
 <use name=DataFormats/HcalDigi>
 <use name=DataFormats/HcalDetId>
 <use name=TBDataFormats/HcalTBObjects>
-<use name=SimDataFormats/HepMCProduct>
-
 <use name=DataFormats/BTauReco>
 <use name=DataFormats/TauReco>
 <use name=FWCore/ServiceRegistry>
@@ -33,8 +31,7 @@
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/VertexReco>
 <use name=FWCore/MessageLogger>
-<use name=PhysicsTools/UtilAlgos>
-<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/GeneratorProducts>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=TrackingTools/Records>
 <use name=clhep>
