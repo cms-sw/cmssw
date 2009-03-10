@@ -73,7 +73,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.dtT0Analyzer = cms.EDFilter("DTt0DBValidation",
     labelDBRef = cms.untracked.string('tzeroRef'),
     t0TestName = cms.untracked.string('t0DifferenceInRange'),
-    OutputFileName = cms.untracked.string('MuonTestMonitoring_47041.root'),
+    OutputFileName = cms.untracked.string('t0TestMonitoring.root'),
     labelDB = cms.untracked.string('tzeroToValidate')
 )
 
