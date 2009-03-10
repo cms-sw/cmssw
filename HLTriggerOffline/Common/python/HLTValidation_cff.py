@@ -19,7 +19,7 @@ hltvalidation = cms.Sequence(
    #+HLTSusyExoVal
     +HLTFourVector
     +heavyFlavorValidationSequence
-    +HLTJetMETVal
+    +HLTJetMETValSeq
     )
 
 hltvalidation_fastsim = cms.Sequence(
