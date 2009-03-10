@@ -36,6 +36,7 @@ public:
   //Do the real work
   void endJob();
   void bookHistos(int,int);
+  void bookHistos(int wheel);
 
 protected:
 
@@ -60,6 +61,9 @@ private:
 
   // Map of the tTrig difference histos by (wheel,sector)
   std::map<std::pair<int,int>, MonitorElement* > tTrigDiffHistos;
+
+  // summary histos
+  std::map<int, MonitorElement* > wheelSummary;
 
   // Compute the station from the bin number of mean and sigma histos
   int stationFromBin(int bin) const;

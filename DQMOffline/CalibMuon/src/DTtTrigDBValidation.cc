@@ -67,6 +67,12 @@ void DTtTrigDBValidation::beginRun(const edm::Run& run, const EventSetup& setup)
   const DTTtrig* DTTtrigMap = &*tTrig;
   LogTrace(metname)<<"[DTtTrigDBValidation] Ttrig to validate version: " << tTrig->version();
 
+  //book&reset the summary histos
+  for(int wheel=-2; wheel<=2; wheel++){
+    bookHistos(wheel);
+    wheelSummary[wheel]->Reset();
+  }
+
   // Get the geometry
   setup.get<MuonGeometryRecord>().get(dtGeom);
 
@@ -85,8 +91,6 @@ void DTtTrigDBValidation::beginRun(const edm::Run& run, const EventSetup& setup)
 		     << " Ttrig mean (TDC counts): " << tTrigmean
 		     << " Ttrig rms (TDC counts): " << tTrigrms;
 
-    //t0RefMap[wireId].push_back(t0mean);
-    //t0RefMap[wireId].push_back(t0rms);
     tTrigRefMap[slId] = std::make_pair<float,float>(tTrigmean,tTrigrms);
   }
 
@@ -105,8 +109,6 @@ void DTtTrigDBValidation::beginRun(const edm::Run& run, const EventSetup& setup)
 		     << " Ttrig mean (TDC counts): " << tTrigmean
 		     << " Ttrig rms (TDC counts): " << tTrigrms;
 
-    //t0Map[wireId].push_back(t0mean);
-    //t0Map[wireId].push_back(t0rms);
     tTrigMap[slId] = std::make_pair<float,float>(tTrigmean,tTrigrms);
   }
 
@@ -120,22 +122,12 @@ void DTtTrigDBValidation::beginRun(const edm::Run& run, const EventSetup& setup)
       difference = tTrigMap[(*it).first].first - (*it).second.first;
 
       //book histo
-      /*DTLayerId layerId = (*theMap).first.layerId();
-      if(t0DiffHistos.find(layerId) == t0DiffHistos.end()) {
-	const DTTopology& dtTopo = dtGeom->layer(layerId)->specificTopology();
-	const int firstWire = dtTopo.firstChannel();
-	const int lastWire = dtTopo.lastChannel();
-	bookHistos(layerId, firstWire, lastWire);
-      }*/
-
       int wheel = (*it).first.chamberId().wheel();
       int sector = (*it).first.chamberId().sector();	
       if(tTrigDiffHistos.find(make_pair(wheel,sector)) == tTrigDiffHistos.end()) bookHistos(wheel,sector);
 			
-      cout<< "Filling the histo for super-layer: "<<(*it).first
-	  <<"  difference: "<<difference<<endl;
-      //t0DiffHistos[layerId]->Fill((*theMap).first.wire(),difference);
-
+      cout<< "Filling the histo for super-layer: "<<(*it).first<<"  difference: "<<difference<<endl;
+ 
       // Fill the test histos
       int entry=-1;
       int station = (*it).first.chamberId().station();	
@@ -152,7 +144,6 @@ void DTtTrigDBValidation::beginRun(const edm::Run& run, const EventSetup& setup)
     }
   } // Loop over the tTrig map reference
   
-  
 }
 
 
@@ -168,12 +159,16 @@ void DTtTrigDBValidation::endJob() {
         vector<dqm::me_util::Channel> badChannels = theDiffQReport->getBadChannels();
         for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	    channel != badChannels.end(); channel++) {
-	  //cout << "layer:"<<(*hDiff).first<<" Bad mean channels: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents()<<endl;
 	  cout << "Bad mean channel: wh: " << (*hDiff).first.first
 				           << " st: " << stationFromBin((*channel).getBin())
 				           << " sect: " << (*hDiff).first.second
 				           << " sl: " << slFromBin((*channel).getBin())
-				           << " mean (cm): " << (*channel).getContents() << endl;
+				           << " mean : " << (*channel).getContents() << endl;
+
+	  int xBin = (stationFromBin((*channel).getBin())-1)*3+slFromBin((*channel).getBin());
+	  if(xBin==12) xBin=11;
+	  wheelSummary[(*hDiff).first.first]->Fill(xBin,(*hDiff).first.second);
+
         }
         cout << "-------- Wheel, Sector: "<< (*hDiff).first.first << ", " << (*hDiff).first.second << "  " << theDiffQReport->getMessage() << " ------- " << theDiffQReport->getStatus() << endl; 
 	
@@ -185,35 +180,6 @@ void DTtTrigDBValidation::endJob() {
 
 }
 
-// Book a set of histograms for a given Layer
-/*void DTtTrigDBValidation::bookHistos(DTLayerId lId, int firstWire, int lastWire) {
-  
-  LogTrace(metname)<< "   Booking histos for L: " << lId;
-
-  // Compose the chamber name
-  stringstream wheel; wheel << lId.superlayerId().chamberId().wheel();	
-  stringstream station; station << lId.superlayerId().chamberId().station();	
-  stringstream sector; sector << lId.superlayerId().chamberId().sector();	
-  stringstream superLayer; superLayer << lId.superlayerId().superlayer();	
-  stringstream layer; layer << lId.layer();
-
-  string lHistoName =
-    "_W" + wheel.str() +
-    "_St" + station.str() +
-    "_Sec" + sector.str() +
-    "_SL" + superLayer.str()+
-    "_L" + layer.str();
-  
-  dbe->setCurrentFolder("DT/t0Validation/Wheel" + wheel.str() +
-			   "/Station" + station.str() +
-			   "/Sector" + sector.str() +
-			   "/SuperLayer" +superLayer.str());
-  // Create the monitor elements
-  MonitorElement * hDifference;
-  hDifference = dbe->book1D("hDifference"+lHistoName, "difference between the two t0 values",lastWire-firstWire+1, firstWire-0.5, lastWire+0.5);
-  
-  t0DiffHistos[lId] = hDifference;
-}*/
 
 void DTtTrigDBValidation::bookHistos(int wheel, int sector) {
 
@@ -246,6 +212,26 @@ void DTtTrigDBValidation::bookHistos(int wheel, int sector) {
   (tTrigDiffHistos[mypair])->setBinLabel(10,"MB4_SL1",1);
   (tTrigDiffHistos[mypair])->setBinLabel(11,"MB4_SL3",1);
 }
+
+
+// Book the summary histos
+void DTtTrigDBValidation::bookHistos(int wheel) {
+  dbe->setCurrentFolder("DT/tTrigValidation/Summary");
+  stringstream wh; wh << wheel;
+  wheelSummary[wheel]= dbe->book2D("summaryWrongTtrig_W"+wh.str(), "W"+wh.str()+": summary of wrong t0 differences",11,0,11,14,1,15);
+  wheelSummary[wheel]->setBinLabel(1,"MB1_SL1",1);
+  wheelSummary[wheel]->setBinLabel(2,"MB1_SL2",1);
+  wheelSummary[wheel]->setBinLabel(3,"MB1_SL3",1);
+  wheelSummary[wheel]->setBinLabel(4,"MB2_SL1",1);
+  wheelSummary[wheel]->setBinLabel(5,"MB2_SL2",1);
+  wheelSummary[wheel]->setBinLabel(6,"MB2_SL3",1);
+  wheelSummary[wheel]->setBinLabel(7,"MB3_SL1",1);
+  wheelSummary[wheel]->setBinLabel(8,"MB3_SL2",1);
+  wheelSummary[wheel]->setBinLabel(9,"MB3_SL3",1);
+  wheelSummary[wheel]->setBinLabel(10,"MB4_SL1",1);
+  wheelSummary[wheel]->setBinLabel(11,"MB4_SL3",1);
+}
+
 
 int DTtTrigDBValidation::stationFromBin(int bin) const {
   return (int) (bin /3.1)+1;
