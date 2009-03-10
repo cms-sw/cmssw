@@ -350,6 +350,26 @@ namespace edm {
   // ----------------------------------------------------------------------
   // ----------------------------------------------------------------------
 
+  std::string
+  ParameterSet::getParameterAsString(std::string const& name) const {
+    if(existsAs<ParameterSet>(name)) {
+      return retrieveUnknownParameterSet(name)->toString();
+    }
+    else if(existsAs<std::vector<ParameterSet> >(name)) {
+      return retrieveUnknownVParameterSet(name)->toString();
+    }
+    else if(exists(name)) {
+      return retrieveUnknown(name)->toString();
+    }
+    else {
+      throw edm::Exception(errors::Configuration,"getParameterAsString")
+       << "Cannot find parameter " << name  << " in " << *this;
+    }
+  }
+
+  // ----------------------------------------------------------------------
+  // ----------------------------------------------------------------------
+
   void
   ParameterSet::insert(bool okay_to_replace, char const* name, Entry const& value) {
     insert(okay_to_replace, std::string(name), value);
@@ -422,8 +442,7 @@ namespace edm {
   }  // augment()
 
 
-  void ParameterSet::copyFrom(ParameterSet const& from, char const*name)
-  {
+  void ParameterSet::copyFrom(ParameterSet const& from, std::string const& name) {
     invalidateRegistration(std::string());
     if(from.existsAs<ParameterSet>(name)) {
       this->insertParameterSet(false, name, *(from.retrieveUnknownParameterSet(name)) );
@@ -435,10 +454,9 @@ namespace edm {
       this->insert(false, name, *(from.retrieveUnknown(name)) );
     }
     else {
-      throw edm::Exception(errors::Configuration,"CopyFailure")
+      throw edm::Exception(errors::Configuration, "copyFrom")
        << "Cannot find parameter " << name  << " in " << from;
     }
-
   }
 
   // ----------------------------------------------------------------------

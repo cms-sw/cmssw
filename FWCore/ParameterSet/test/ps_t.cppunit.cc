@@ -1,5 +1,5 @@
 /*
- * $Id: ps_t.cppunit.cc,v 1.21 2009/01/18 19:59:23 wmtan Exp $
+ * $Id: ps_t.cppunit.cc,v 1.22 2009/03/10 04:27:40 rpw Exp $
  */
 
 #include <algorithm>
@@ -34,6 +34,7 @@ class testps: public CppUnit::TestFixture
   CPPUNIT_TEST(testEmbeddedPSet);
   CPPUNIT_TEST(testRegistration);
   CPPUNIT_TEST(testCopyFrom);
+  CPPUNIT_TEST(testGetParameterAsString);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -55,6 +56,7 @@ public:
   void testEmbeddedPSet();
   void testRegistration();
   void testCopyFrom();
+  void testGetParameterAsString();
   // Still more to do...
 private:
 };
@@ -456,7 +458,6 @@ void testps::testRegistration()
   CPPUNIT_ASSERT(psDeeper.isRegistered());
 }
 
-
 void testps::testCopyFrom()
 {
   edm::ParameterSet psOld;
@@ -473,5 +474,27 @@ void testps::testCopyFrom()
   CPPUNIT_ASSERT(psNew.existsAs<int>("i"));
   CPPUNIT_ASSERT(psNew.existsAs<edm::ParameterSet>("ps"));
   CPPUNIT_ASSERT(psNew.existsAs<std::vector<edm::ParameterSet> >("vps"));
+}
+
+void testps::testGetParameterAsString()
+{
+  edm::ParameterSet ps;
+  edm::ParameterSet psInternal;
+  std::vector<edm::ParameterSet> vpset;
+  vpset.push_back(psInternal);
+  ps.addParameter<int>("i", 5);
+  ps.addParameter<edm::ParameterSet>("ps", psInternal);
+  ps.addParameter<std::vector<edm::ParameterSet> >("vps", vpset);
+  ps.registerIt();
+  psInternal.registerIt();
+  std::string parStr = ps.getParameterAsString("i");
+  std::string psetStr = ps.getParameterAsString("ps");
+  std::string vpsetStr = ps.getParameterAsString("vps");
+  std::string parStr2 = ps.retrieve("i").toString();
+  std::string psetStr2 = ps.retrieveParameterSet("ps").toString();
+  std::string vpsetStr2 = ps.retrieveVParameterSet("vps").toString();
+  CPPUNIT_ASSERT(parStr == parStr2);
+  CPPUNIT_ASSERT(psetStr == psetStr2);
+  CPPUNIT_ASSERT(vpsetStr == vpsetStr2);
 }
 
