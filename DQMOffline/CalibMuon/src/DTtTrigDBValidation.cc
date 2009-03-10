@@ -218,7 +218,7 @@ void DTtTrigDBValidation::bookHistos(int wheel, int sector) {
 void DTtTrigDBValidation::bookHistos(int wheel) {
   dbe->setCurrentFolder("DT/tTrigValidation/Summary");
   stringstream wh; wh << wheel;
-  wheelSummary[wheel]= dbe->book2D("summaryWrongTtrig_W"+wh.str(), "W"+wh.str()+": summary of wrong t0 differences",11,0,11,14,1,15);
+  wheelSummary[wheel]= dbe->book2D("summaryWrongTtrig_W"+wh.str(), "W"+wh.str()+": summary of wrong t0 differences",11,1,12,14,1,15);
   wheelSummary[wheel]->setBinLabel(1,"MB1_SL1",1);
   wheelSummary[wheel]->setBinLabel(2,"MB1_SL2",1);
   wheelSummary[wheel]->setBinLabel(3,"MB1_SL3",1);
