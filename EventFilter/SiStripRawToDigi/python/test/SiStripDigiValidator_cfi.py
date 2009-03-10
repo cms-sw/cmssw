@@ -1,9 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-DigiValidator = cms.EDFilter("SiStripDigiValidator",
-    FedRawDataMode = cms.untracked.bool(False),
-    Collection2 = cms.untracked.InputTag("siStripDigis","ZeroSuppressed"),
-    Collection1 = cms.untracked.InputTag("DigiSource")
-)
-
+DigiValidator = cms.EDFilter(
+    "SiStripDigiValidator",
+    TagCollection1 = cms.untracked.InputTag("DigiSource"),
+    TagCollection2 = cms.untracked.InputTag("siStripDigis","ZeroSuppressed"),
+    RawCollection1 = cms.untracked.bool(False),
+    RawCollection2 = cms.untracked.bool(False),
+    )
 
