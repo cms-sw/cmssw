@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2009/03/05 10:41:44 $
- * $Revision: 1.160 $
+ * $Date: 2009/03/05 13:04:53 $
+ * $Revision: 1.161 $
  * \author G. Della Ricca
  *
 */
@@ -193,7 +193,8 @@ void EESummaryClient::beginJob(DQMStore* dqmStore) {
   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
 
   sprintf(histo, "reportSummary");
-  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo) ) {
+  me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo);
+  if ( me ) {
     dqmStore_->removeElement(me->getName());
   }
   me = dqmStore_->bookFloat(histo);
@@ -203,7 +204,8 @@ void EESummaryClient::beginJob(DQMStore* dqmStore) {
 
   for (int i = 0; i < 18; i++) {
     sprintf(histo, "EcalEndcap_%s", Numbers::sEE(i+1).c_str());
-    if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo) ) {
+    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo);
+    if ( me ) {
       dqmStore_->removeElement(me->getName());
     }
     me = dqmStore_->bookFloat(histo);
@@ -213,7 +215,8 @@ void EESummaryClient::beginJob(DQMStore* dqmStore) {
   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
 
   sprintf(histo, "reportSummaryMap");
-  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo) ) {
+  me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo);
+  if ( me ) ) {
     dqmStore_->removeElement(me->getName());
   }
   me = dqmStore_->book2D(histo, histo, 200, 0., 200., 100, 0., 100);
