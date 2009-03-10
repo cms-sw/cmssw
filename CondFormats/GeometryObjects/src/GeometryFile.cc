@@ -6,19 +6,19 @@
 #include <string>
 #include <zlib.h>
 
-GeometryFile::GeometryFile(const std::string & fname, bool zip) {
+GeometryFile::GeometryFile(const std::string & fname, bool zip):isize(0){
   compressed = zip;
-  /*
+  /*  
   std::cout << "isize = " << isize 
 	    << "  zip = " << (zip? "true" : "false")
 	    << std::endl;
   */
   if (isize==0) isize= computeFileSize(fname);
-  //  std::cout << "isize = " << isize << std::endl;
+  // std::cout << "isize = " << isize << std::endl;
   blob.reserve(isize);
   read(fname);
 }
-GeometryFile::GeometryFile(std::istream& is, bool zip) {
+GeometryFile::GeometryFile(std::istream& is, bool zip):isize(0) {
   compressed = zip;
   if (isize==0) isize= computeStreamSize(is);
   blob.reserve(isize);
@@ -32,6 +32,12 @@ void GeometryFile::read(std::istream & is) {
     char c;
     while (is.get(c))
       in.push_back((unsigned char)c);
+    /*
+    for(int i=0;i<in.size();i++){
+      std::cout<<in[i];
+    }
+    std::cout<<std::endl;
+    */
     blob.resize(isize);
     uLongf destLen = compressBound(in.size());
     int zerr =  compress2(&*blob.begin(), &destLen,
@@ -40,7 +46,7 @@ void GeometryFile::read(std::istream & is) {
     if (zerr!=0) edm::LogError("GeometryFile")<< "Compression error " << zerr;
     blob.resize(destLen);  
   }else{
-    std::cout << "reading uncompressed" << std::endl;
+    //std::cout << "reading uncompressed" << std::endl;
     char c;
     while (is.get(c))
       blob.push_back( (unsigned char)c);
@@ -71,6 +77,7 @@ std::vector<unsigned char>* GeometryFile::getUncompressedBlob() const {
   {
     newblob = new std::vector<unsigned char>(isize);
     uLongf destLen = newblob->size();
+    //    std::cout<<"Store isize = "<<isize<<"; newblob->size() = "<<newblob->size()<<"; destLen = "<<destLen<<std::endl;
     int zerr =  uncompress(&*(newblob->begin()),  &destLen,
                            &*blob.begin(), blob.size());
     if (zerr!=0 || newblob->size()!=destLen) 
