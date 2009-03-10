@@ -40,7 +40,7 @@ process.tzeroRef = cms.ESSource("PoolDBESSource",
         cms.PSet(
             record = cms.string('DTT0Rcd'),
             tag = cms.string('t0'),
-            connect = cms.untracked.string('sqlite_file:/tmp/giorgia/CMSSW_3_0_0_pre6/src/DQMOffline/CalibMuon/test/t0_70195.db'),
+            connect = cms.untracked.string('sqlite_file:/afs/cern.ch/user/g/giorgia/scratch0/Calibration/CMSSW_3_0_0_pre6/src/DQMOffline/CalibMuon/test/t0_70195.db'),
             label = cms.untracked.string('tzeroToValidate')
         )),
     connect = cms.string('frontier://FrontierProd/CMS_COND_30X_DT'),
@@ -73,10 +73,8 @@ process.dtT0Analyzer = cms.EDFilter("DTt0DBValidation",
     labelDBRef = cms.untracked.string('tzeroRef'),
     t0TestName = cms.untracked.string('t0DifferenceInRange'),
     OutputFileName = cms.untracked.string('MuonTestMonitoring.root'),
-    labelDB = cms.untracked.string('tzeroToValidate'),
-    minT0Limit = cms.untracked.int32(10),
-    maxT0Limit = cms.untracked.int32(20)
-)
+    labelDB = cms.untracked.string('tzeroToValidate')
+ )
 
 process.qTester = cms.EDFilter("QualityTester",
     prescaleFactor = cms.untracked.int32(1),
