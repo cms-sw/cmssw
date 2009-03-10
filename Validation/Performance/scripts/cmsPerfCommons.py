@@ -28,7 +28,7 @@ CandFname={
     }
 
 #List with all the "individual" steps understood by the Performance Suite
-Step = ["GEN:ProductionFilterSequence,SIM",
+Step = ["GEN,SIM",
         "DIGI",
         "L1",              
         "DIGI2RAW",
@@ -123,7 +123,6 @@ cmsDriverPileUpOption='LowLumiPileUp'
 #used for all steps.
 CustomiseFragment = {
          'GEN,SIM': 'Validation/Performance/TimeMemoryG4Info.py',
-         'GEN:ProductionFilterSequence,SIM': 'Validation/Performance/TimeMemoryG4Info.py',
          'DIGI': 'Validation/Performance/TimeMemoryInfo.py',
          'DIGI-PILEUP':'Validation/Performance/MixingModule.py'
          }

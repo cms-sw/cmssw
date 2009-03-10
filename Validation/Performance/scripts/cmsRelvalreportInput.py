@@ -32,8 +32,8 @@ THIS_PROG_NAME = os.path.basename(sys.argv[0])
 cmsDriver = 'cmsDriver.py'                    #cmsDriver.py path
 hypreg = re.compile('-')
 debug = False
-DEF_STEPS = ['GEN:ProductionFilterSequence,SIM', 'DIGI']
-AllSteps  = ["GEN:ProductionFilterSequence,SIM", "DIGI", "L1", "DIGI2RAW", "HLT", "RAW2DIGI","RECO"]
+DEF_STEPS = ['GEN,SIM', 'DIGI']
+AllSteps  = ["GEN,SIM", "DIGI", "L1", "DIGI2RAW", "HLT", "RAW2DIGI","RECO"]
 AfterPileUpSteps=[]
 
 # Global variables used by writeCommandsToReport and dependents
@@ -91,8 +91,8 @@ def checkSteps(steps):
 def getSteps(userSteps):
 
     # Then split the user steps into "steps"
-    gsreg = re.compile('GEN:ProductionFilterSequence-SIM')
-    greg = re.compile('GEN:ProductionFilterSequence') #Add a second hack (due to the first) to handle the step 1 case GEN-HLT
+    gsreg = re.compile('GEN-SIM')
+    greg = re.compile('GEN') #Add a second hack (due to the first) to handle the step 1 case GEN-HLT
     StepsTokens = userSteps.split(",")
     steps = [] 
     for astep in StepsTokens:
@@ -101,9 +101,9 @@ def getSteps(userSteps):
         # from using the "-" to using the "," to match cmsDriver.py convention
 
         if gsreg.search(astep):
-            astep = gsreg.sub(r"GEN:ProductionFilterSequence,SIM", astep)
+            astep = gsreg.sub(r"GEN,SIM", astep)
         elif greg.search(astep):
-            astep = greg.sub(r"GEN:ProductionFilterSequence,SIM", astep)
+            astep = greg.sub(r"GEN,SIM", astep)
             
         print astep
         # Finally collect all the steps into the @Steps array:
@@ -414,7 +414,7 @@ def setInputFile(steps,step,acandle,stepIndex,pileup=False,bypasshlt=False):
     if pileup:
         pass
     else :
-        if 'GEN:ProductionFilterSequence,SIM' in step:  # there is no input file for GEN,SIM!
+        if 'GEN,SIM' in step:  # there is no input file for GEN,SIM!
             InputFileOption = ''
         elif   'HLT' in steps[stepIndex - 1] and bypasshlt:
 
@@ -443,11 +443,6 @@ def writeUnprofiledSteps(simcandles,CustomisePythonFragment,cmsDriverOptions,unp
         stepsStr = ",".join(unprofiledSteps)
         OutputFile = "%s_%s.root" % ( FileName[acandle],unprofiledSteps[-1])
     simcandles.write("\n#Run a %s step(s) that has not been selected for profiling but is needed to run the next step to be profiled\n" % (stepsStr))
-    #Adhoc fix:
-    prodFilterreg = re.compile('GEN:ProductionFilterSequence')
-    if prodFilterreg.search(OutputFile):
-            OutputFile = prodFilterreg.sub(r"GEN", OutputFile)
-            
     OutputFileOption = "--fileout=%s" % OutputFile
     #Bug here: should take into account the flag --bypass-hlt instead of assuming hlt should be bypassed
     #This affects the Step1/Step2 running since Step1 will produce an HLT.root file and Step2 should start from there!
@@ -516,7 +511,7 @@ def writeCommands(simcandles,
 
     #Handling the case of the first user step not being the first step (GEN,SIM):
     print "Steps passed to writeCommands %s",steps
-    if not (steps[0] == AllSteps[0]) and (steps[0].split("-")[0] != "GEN:ProductionFilterSequence,SIM"):
+    if not (steps[0] == AllSteps[0]) and (steps[0].split("-")[0] != "GEN,SIM"):
         #Write the necessary line to run without profiling all the steps before the wanted ones in one shot:
         (stepIndex, rootFileStr) = writePrerequisteSteps(simcandles,steps,acandle,NumberOfEvents,cmsDriverOptions,pileup,bypasshlt)
         
@@ -658,10 +653,6 @@ def writeCommands(simcandles,
             if fstROOTfile:
                 fstROOTfileStr = OutputFile
                 fstROOTfile = False
-            #Adhoc fix:
-            prodFilterreg = re.compile('GEN:ProductionFilterSequence')
-            if prodFilterreg.search(OutputFile):
-                OutputFile = prodFilterreg.sub(r"GEN", OutputFile)
             OutputFileOption = "--fileout=" + OutputFile
 
             for prof in Profile:
@@ -669,10 +660,6 @@ def writeCommands(simcandles,
                 
                 #Special case of EventEdmSize profiling 
                 if 'EdmSize' in prof:
-                    #Adhoc fix:
-                    prodFilterreg = re.compile('GEN:ProductionFilterSequence')
-                    if prodFilterreg.search(outfile):
-                        outfile = prodFilterreg.sub(r"GEN", outfile)
                     EdmFile = "%s_%s.root" % (FileName[acandle],outfile) #stepToWrite) #Bug in the filename for EdmSize for PileUp corrected.
                     #EventEdmSize needs a pre-requisite step that just produces the root file if one decided to run with only EdmSize profiling!
                     if prof == Profile[0] and not os.path.exists("./" + EdmFile):
@@ -711,7 +698,7 @@ def writeCommands(simcandles,
 
                     #if '--pileup' in cmsDriverOptions:
                     #    stepToWrite = pileupStep
-                    if '--pileup' in cmsDriverOptions and ( stepToWrite=='GEN:ProductionFilterSequence,SIM' or stepToWrite=='SIM'):
+                    if '--pileup' in cmsDriverOptions and ( stepToWrite=='GEN,SIM' or stepToWrite=='SIM'):
                         Command = ("%s %s -n %s --step=%s %s %s --customise=%s %s" % (
                                cmsDriver,
                                KeywordToCfi[acandle],
@@ -737,15 +724,9 @@ def writeCommands(simcandles,
                 if _noprof:
                     simcandles.write("%s @@@ None @@@ None\n" % Command)
                 else:
-                    prodFilterreg = re.compile('GEN:ProductionFilterSequence')
-
                     stepLabel=stepToWrite
-                    if '--pileup' in cmsDriverOptions and not "_PILEUP" in stepToWrite:    
+                    if '--pileup' in cmsDriverOptions and not "_PILEUP" in stepToWrite:
                         stepLabel = stepToWrite+"_PILEUP"
-                        
-                    if prodFilterreg.search(stepLabel):
-                        stepLabel = prodFilterreg.sub(r"GEN", stepLabel)
-                    
                     simcandles.write("%s @@@ %s @@@ %s_%s_%s\n" % (Command,
                                                                    Profiler[prof],
                                                                    FileName[acandle],
