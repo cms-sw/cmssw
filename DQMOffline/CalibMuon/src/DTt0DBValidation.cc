@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/03 10:20:05 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/02/16 15:57:24 $
+ *  $Revision: 1.6 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -75,6 +75,12 @@ void DTt0DBValidation::beginRun(const edm::Run& run, const EventSetup& setup) {
   setup.get<DTT0Rcd>().get(labelDB, t0);
   tZeroMap = &*t0;
   LogTrace(metname)<<"[DTt0DBValidation] T0 to validate version: " << t0->version();
+
+  //book&reset the summary histos
+  for(int wheel=-2; wheel<=2; wheel++){
+    bookHistos(wheel);
+    wheelSummary[wheel]->Reset();
+  }
 
   // Get the geometry
   setup.get<MuonGeometryRecord>().get(dtGeom);
@@ -149,7 +155,7 @@ void DTt0DBValidation::beginRun(const edm::Run& run, const EventSetup& setup) {
 }
 
 
-void DTt0DBValidation::endJob() {
+void DTt0DBValidation::endJob() {  
 
   //check the histos
   string testCriterionName = parameters.getUntrackedParameter<string>("t0TestName","t0DifferenceInRange"); 
@@ -162,40 +168,14 @@ void DTt0DBValidation::endJob() {
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	   channel != badChannels.end(); channel++) {
 	cout << "layer:"<<(*hDiff).first<<" Bad mean channels: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents()<<endl;
-	t0WrongDiff[(*hDiff).first]++;
+
+	int xBin = ((*hDiff).first.station()-1)*12+(*hDiff).first.layer()+4*((*hDiff).first.superlayer()-1);
+	if((*hDiff).first.station()==4 && (*hDiff).first.superlayer()==3)
+	  xBin = ((*hDiff).first.station()-1)*12+(*hDiff).first.layer()+4*((*hDiff).first.superlayer()-2);
+	wheelSummary[(*hDiff).first.wheel()]->Fill(xBin,(*hDiff).first.sector());
+ 
       }
       cout << "-------- layer: "<<(*hDiff).first<<"  "<<theDiffQReport->getMessage()<<" ------- "<<theDiffQReport->getStatus()<<endl; 
-    }
-  }
-
-  // book the summary histos
-  dbe->setCurrentFolder("DT/t0Validation/Summary");
-  for(int wheel=-2; wheel<=2; wheel++){
-    bookHistos(wheel);
-    wheelSummary[wheel]->Reset();
-  }
-  // fill the summary histos
-  for(map<DTLayerId, int>::const_iterator wrongDiff = t0WrongDiff.begin();
-      wrongDiff != t0WrongDiff.end();
-      wrongDiff++) {
-
-    int xBin = ((*wrongDiff).first.station()-1)*12+(*wrongDiff).first.layer()+4*((*wrongDiff).first.superlayer()-1);
-    if((*wrongDiff).first.station()==4 && (*wrongDiff).first.superlayer()==3)
-      xBin = ((*wrongDiff).first.station()-1)*12+(*wrongDiff).first.layer()+4*((*wrongDiff).first.superlayer()-2);
-
-    if((*wrongDiff).second<parameters.getUntrackedParameter<int>("minT0Limit")){
-      wheelSummary[(*wrongDiff).first.wheel()]->Fill(xBin,(*wrongDiff).first.sector(),0);
-      cout<<"0 || Summary for layer:"<<(*wrongDiff).first<<" - #of wrong t0:: "<<(*wrongDiff).second<<endl;
-    }
-    else{
-      if((*wrongDiff).second<parameters.getUntrackedParameter<int>("maxT0Limit")){
-	wheelSummary[(*wrongDiff).first.wheel()]->Fill(xBin,(*wrongDiff).first.sector(),1);
-	cout<<"1 || Summary for layer:"<<(*wrongDiff).first<<" - #of wrong t0:: "<<(*wrongDiff).second<<endl;
-      }
-      else{
-	wheelSummary[(*wrongDiff).first.wheel()]->Fill(xBin,(*wrongDiff).first.sector(),2);
-	cout<<"2 || Summary for layer:"<<(*wrongDiff).first<<" - #of wrong t0:: "<<(*wrongDiff).second<<endl;
-      }
     }
   }
 
@@ -236,6 +216,7 @@ void DTt0DBValidation::bookHistos(DTLayerId lId, int firstWire, int lastWire) {
 
 // Book the summary histos
 void DTt0DBValidation::bookHistos(int wheel) {
+  dbe->setCurrentFolder("DT/t0Validation/Summary");
   stringstream wh; wh << wheel;
     wheelSummary[wheel]= dbe->book2D("summaryWrongT0_W"+wh.str(), "W"+wh.str()+": summary of wrong t0 differences",44,1,45,14,1,15);
     wheelSummary[wheel]->setBinLabel(1,"M1L1",1);
