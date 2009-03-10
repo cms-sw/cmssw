@@ -903,7 +903,7 @@ void CaloTowersCreationAlgo::getThresholdAndWeight(const DetId & detId, double &
       threshold = theEBthreshold;
       weight = theEBweight;
       if (weight <= 0.) {
-        ROOT::Math::Interpolator my(theEBGrid,theEBWeights,ROOT::Math::Interpolation::AKIMA);
+        ROOT::Math::Interpolator my(theEBGrid,theEBWeights,ROOT::Math::Interpolation::kAKIMA);
         weight = my.Eval(theEBEScale);
       }
     }
@@ -911,7 +911,7 @@ void CaloTowersCreationAlgo::getThresholdAndWeight(const DetId & detId, double &
       threshold = theEEthreshold;
       weight = theEEweight;
       if (weight <= 0.) {
-        ROOT::Math::Interpolator my(theEEGrid,theEEWeights,ROOT::Math::Interpolation::AKIMA);
+        ROOT::Math::Interpolator my(theEEGrid,theEEWeights,ROOT::Math::Interpolation::kAKIMA);
         weight = my.Eval(theEEEScale);
       }
     }
@@ -924,7 +924,7 @@ void CaloTowersCreationAlgo::getThresholdAndWeight(const DetId & detId, double &
       threshold = theHBthreshold;
       weight = theHBweight;
       if (weight <= 0.) {
-        ROOT::Math::Interpolator my(theHBGrid,theHBWeights,ROOT::Math::Interpolation::AKIMA);
+        ROOT::Math::Interpolator my(theHBGrid,theHBWeights,ROOT::Math::Interpolation::kAKIMA);
         weight = my.Eval(theHBEScale);
       }
     }
@@ -935,7 +935,7 @@ void CaloTowersCreationAlgo::getThresholdAndWeight(const DetId & detId, double &
         threshold = theHESthreshold;
         weight = theHESweight;
         if (weight <= 0.) {
-          ROOT::Math::Interpolator my(theHESGrid,theHESWeights,ROOT::Math::Interpolation::AKIMA);
+          ROOT::Math::Interpolator my(theHESGrid,theHESWeights,ROOT::Math::Interpolation::kAKIMA);
           weight = my.Eval(theHESEScale);
         }
       }
@@ -943,7 +943,7 @@ void CaloTowersCreationAlgo::getThresholdAndWeight(const DetId & detId, double &
         threshold = theHEDthreshold;
         weight = theHEDweight;
         if (weight <= 0.) {
-          ROOT::Math::Interpolator my(theHEDGrid,theHEDWeights,ROOT::Math::Interpolation::AKIMA);
+          ROOT::Math::Interpolator my(theHEDGrid,theHEDWeights,ROOT::Math::Interpolation::kAKIMA);
           weight = my.Eval(theHEDEScale);
         }
       }
@@ -961,7 +961,7 @@ void CaloTowersCreationAlgo::getThresholdAndWeight(const DetId & detId, double &
       }
       weight = theHOweight;
       if (weight <= 0.) {
-        ROOT::Math::Interpolator my(theHOGrid,theHOWeights,ROOT::Math::Interpolation::AKIMA);
+        ROOT::Math::Interpolator my(theHOGrid,theHOWeights,ROOT::Math::Interpolation::kAKIMA);
         weight = my.Eval(theHOEScale);
       }
     } 
@@ -971,14 +971,14 @@ void CaloTowersCreationAlgo::getThresholdAndWeight(const DetId & detId, double &
         threshold = theHF1threshold;
         weight = theHF1weight;
         if (weight <= 0.) {
-          ROOT::Math::Interpolator my(theHF1Grid,theHF1Weights,ROOT::Math::Interpolation::AKIMA);
+          ROOT::Math::Interpolator my(theHF1Grid,theHF1Weights,ROOT::Math::Interpolation::kAKIMA);
           weight = my.Eval(theHF1EScale);
         }
       } else {
         threshold = theHF2threshold;
         weight = theHF2weight;
         if (weight <= 0.) {
-          ROOT::Math::Interpolator my(theHF2Grid,theHF2Weights,ROOT::Math::Interpolation::AKIMA);
+          ROOT::Math::Interpolator my(theHF2Grid,theHF2Weights,ROOT::Math::Interpolation::kAKIMA);
           weight = my.Eval(theHF2EScale);
         }
       }
