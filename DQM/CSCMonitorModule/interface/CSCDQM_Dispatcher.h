@@ -20,7 +20,10 @@
 #define CSCDQM_Dispatcher_H
 
 #include <typeinfo>
+
+#ifdef DQMMT      
 #include <boost/thread.hpp>
+#endif
 
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Configuration.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_EventProcessor.h"
@@ -87,7 +90,11 @@ namespace cscdqm {
       /**
        * @brief  Destructor. Joins and waits to complete all threads.
        */
-      ~Dispatcher() { threads.join_all(); }
+      ~Dispatcher() { 
+#ifdef DQMMT      
+        threads.join_all(); 
+#endif      
+      }
 
       void init();
       void updateFractionAndEfficiencyHistos();
@@ -115,8 +122,12 @@ namespace cscdqm {
       /** Lockable Fractional and Efficiency MO update object */
       EventProcessorMutex processorFract;
 
+#ifdef DQMMT      
+
       /** Thread group to store all threads created by Dispatcher */
       boost::thread_group threads;
+
+#endif      
 
 #ifdef DQMLOCAL
 

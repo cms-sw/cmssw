@@ -46,8 +46,8 @@ namespace cscdqm {
     MonitorObject* mo = 0;
     if (getEMUHisto(h::EMU_ALL_DDUS_FORMAT_ERRORS, mo)) {
 
-      std::vector<int> DDUs = binChecker.listOfDDUs();
-      for (std::vector<int>::iterator ddu_itr = DDUs.begin(); ddu_itr != DDUs.end(); ++ddu_itr) {
+      DDUExaminerVectorType DDUs = binChecker.listOfDDUs();
+      for (DDUExaminerVectorType::const_iterator ddu_itr = DDUs.begin(); ddu_itr != DDUs.end(); ++ddu_itr) {
         if (*ddu_itr != 0xFFF) {
           long errs = binChecker.errorsForDDU(*ddu_itr);
           int dduID = (*ddu_itr)&0xFF;
@@ -78,9 +78,8 @@ namespace cscdqm {
       config->incNEventsBad();
     }
 
-    std::map<int,long> payloads = binChecker.payloadDetailed();
-
-    for(std::map<int,long>::const_iterator chamber=payloads.begin(); chamber!=payloads.end(); chamber++) {
+    CSCExaminerMapType payloads = binChecker.payloadDetailed();
+    for(CSCExaminerMapType::const_iterator chamber=payloads.begin(); chamber!=payloads.end(); chamber++) {
 
       int chamberID = chamber->first;
       int crateID = (chamberID >> 4) & 0xFF;
@@ -267,8 +266,8 @@ namespace cscdqm {
 
   /**  === Check and fill CSC Data Flow Problems */
    
-  std::map<int,long> statuses = binChecker.statusDetailed();
-  for(std::map<int,long>::const_iterator chamber = statuses.begin(); chamber != statuses.end(); chamber++) {
+  CSCExaminerMapType statuses = binChecker.statusDetailed();
+  for (CSCExaminerMapType::const_iterator chamber = statuses.begin(); chamber != statuses.end(); chamber++) {
 
       int chamberID = chamber->first;
 
@@ -325,8 +324,8 @@ namespace cscdqm {
     }
 
     /**  Check and fill CSC Format Errors  */
-    std::map<int,long> checkerErrors = binChecker.errorsDetailed();
-    for(std::map<int,long>::const_iterator chamber = checkerErrors.begin(); chamber != checkerErrors.end(); chamber++) {
+    CSCExaminerMapType checkerErrors = binChecker.errorsDetailed();
+    for (CSCExaminerMapType::const_iterator chamber = checkerErrors.begin(); chamber != checkerErrors.end(); chamber++) {
 
       unsigned int chamberID = chamber->first;
       unsigned int crateID = (chamberID >> 4) & 0xFF;

@@ -48,6 +48,11 @@
 
 namespace cscdqm {
 
+  typedef std::map<CSCIdType, ExaminerStatusType> CSCExaminerMapType;
+  typedef std::vector<DDUIdType>                  DDUExaminerVectorType;
+  // typedef std::map<int, long> CSCExaminerMapType;
+  // typedef std::vector<int>    DDUExaminerVectorType;
+
   /**
    * @class EventProcessor
    * @brief Object used to process Events and compute statistics

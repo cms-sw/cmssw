@@ -19,11 +19,21 @@
 #ifndef CSCDQM_Lock_H
 #define CSCDQM_Lock_H
 
+#ifdef DQMMT      
 #include <boost/thread.hpp>
+#endif
 
 namespace cscdqm {
 
+#ifdef DQMMT
   typedef boost::recursive_mutex::scoped_lock LockType;
+#else
+  typedef struct LockType {
+    bool locked;
+    LockType(bool locked_) : locked(locked_) { }
+    void unlock() { locked = false;  }
+  };
+#endif
 
   /**
    * @class Lock
@@ -34,7 +44,11 @@ namespace cscdqm {
     public:
 
       /** Mutual exclusion object */
+#ifdef DQMMT
       boost::recursive_mutex mutex;
+#else
+      bool mutex;
+#endif
 
       /**
        * @brief  Constructor.

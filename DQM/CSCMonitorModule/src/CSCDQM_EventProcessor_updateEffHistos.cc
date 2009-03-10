@@ -86,66 +86,70 @@ namespace cscdqm {
 
     }
 
+    const int COLOR_GREEN = 3;
+    const int COLOR_RED   = 2;
+    const int COLOR_BLUE  = 4;
+
     if (getEMUHisto(h::EMU_CSC_STATS_SUMMARY, me)) {
       LockType lock(me->mutex);
       TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
-      summary.WriteChamberState(tmp, 0x1, 3, true, false);
-      summary.WriteChamberState(tmp, HWSTATUSERRORBITS, 2, false, true);
+      summary.WriteChamberState(tmp, 0x1, COLOR_GREEN, true, false);
+      summary.WriteChamberState(tmp, HWSTATUSERRORBITS, COLOR_RED, false, true);
     }
 
     if (getEMUHisto(h::EMU_CSC_STATS_OCCUPANCY, me)){
       LockType lock(me->mutex);
       TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
-      summary.WriteChamberState(tmp, 0x4, 2, true, false);
-      summary.WriteChamberState(tmp, 0x8, 4, false, false);
+      summary.WriteChamberState(tmp, 0x4, COLOR_RED, true, false);
+      summary.WriteChamberState(tmp, 0x8, COLOR_BLUE, false, false);
     }
 
     if (getEMUHisto(h::EMU_CSC_STATS_FORMAT_ERR, me)){
       LockType lock(me->mutex);
       TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
-      summary.WriteChamberState(tmp, 0x10, 2, true, false);
+      summary.WriteChamberState(tmp, 0x10, COLOR_RED, true, false);
     }
 
     if (getEMUHisto(h::EMU_CSC_STATS_L1SYNC_ERR, me)){
       LockType lock(me->mutex);
       TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
-      summary.WriteChamberState(tmp, 0x20, 2, true, false);
+      summary.WriteChamberState(tmp, 0x20, COLOR_RED, true, false);
     }
 
     if (getEMUHisto(h::EMU_CSC_STATS_FIFOFULL_ERR, me)){
       LockType lock(me->mutex);
       TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
-      summary.WriteChamberState(tmp, 0x40, 2, true, false);
+      summary.WriteChamberState(tmp, 0x40, COLOR_RED, true, false);
     }
 
     if (getEMUHisto(h::EMU_CSC_STATS_INPUTTO_ERR, me)){
       LockType lock(me->mutex);
       TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
-      summary.WriteChamberState(tmp, 0x80, 2, true, false);
+      summary.WriteChamberState(tmp, 0x80, COLOR_RED, true, false);
     }
 
     if (getEMUHisto(h::EMU_CSC_STATS_WO_ALCT, me)){
       LockType lock(me->mutex);
       TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
-      summary.WriteChamberState(tmp, 0x100, 2, true, false);
+      summary.WriteChamberState(tmp, 0x100, COLOR_RED, true, false);
     }
 
     if (getEMUHisto(h::EMU_CSC_STATS_WO_CLCT, me)){
       LockType lock(me->mutex);
       TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
-      summary.WriteChamberState(tmp, 0x200, 2, true, false);
+      summary.WriteChamberState(tmp, 0x200, COLOR_RED, true, false);
     }
 
     if (getEMUHisto(h::EMU_CSC_STATS_WO_CFEB, me)){
       LockType lock(me->mutex);
       TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
-      summary.WriteChamberState(tmp, 0x400, 2, true, false);
+      summary.WriteChamberState(tmp, 0x400, COLOR_RED, true, false);
     }
 
     if (getEMUHisto(h::EMU_CSC_STATS_CFEB_BWORDS, me)){
       LockType lock(me->mutex);
       TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
-      summary.WriteChamberState(tmp, 0x800, 2, true, false);
+      summary.WriteChamberState(tmp, 0x800, COLOR_RED, true, false);
     }
     
     /**

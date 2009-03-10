@@ -188,6 +188,12 @@ namespace cscdqm {
       data[id] = mo;
     }
 
+
+    /** Add histo (if mo is not null!) into lookup list */
+    if (mo) {
+      lookupData.insert(lookupData.end(), LookupKeyType(histo, mo));
+    }
+
   }
 
   /**

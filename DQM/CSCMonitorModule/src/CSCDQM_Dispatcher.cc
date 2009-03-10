@@ -124,7 +124,11 @@ namespace cscdqm {
     LockType lock(processorFract.mutex);
     if (config->getFRAEFF_SEPARATE_THREAD()) { 
       boost::function<void ()> fnUpdate = boost::bind(&EventProcessorMutex::updateFractionAndEfficiencyHistos, &processorFract);
+#ifdef DQMMT
       threads.create_thread(boost::ref(fnUpdate));
+#else
+      fnUpdate();
+#endif 
     } else {
       processorFract.updateFractionAndEfficiencyHistos();
     }

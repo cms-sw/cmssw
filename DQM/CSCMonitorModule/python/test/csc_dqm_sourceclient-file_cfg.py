@@ -7,6 +7,9 @@ process = cms.Process("CSCDQM")
 #-------------------------------------------------
 
 process.load("DQM.CSCMonitorModule.test.csc_dqm_sourceclient_cfi")
+process.load("DQM.CSCMonitorModule.test.csc_daq_info_cfi")
+process.load("DQM.CSCMonitorModule.test.csc_dcs_info_cfi")
+process.load("DQM.CSCMonitorModule.test.csc_certification_info_cfi")
 
 #-------------------------------------------------
 # Offline DQM Module Configuration
@@ -30,7 +33,7 @@ process.source = cms.Source("PoolSource",
       '/store/data/Commissioning08/BeamHalo/RAW/GRtoBeam_v1/000/062/096/DA5006AF-757F-DD11-9127-000423D94700.root'
      #'/store/data/Commissioning08/Cosmics/RAW/v1/000/066/910/8CA64FCF-259F-DD11-B86D-000423D99BF2.root'
     ),
-    #skipEvents = cms.untracked.uint32(25900)
+    skipEvents = cms.untracked.uint32(1129)
 )
 
 #----------------------------
@@ -95,27 +98,29 @@ MessageLogger = cms.Service("MessageLogger",
 # suppressInfo = cms.untracked.vstring('source'),
 # suppressInfo = cms.untracked.vstring('*'),
 
-#  cout = cms.untracked.PSet(
-#    threshold = cms.untracked.string('INFO'),
+  cout = cms.untracked.PSet(
+    threshold = cms.untracked.string('DEBUG'),
 #    WARNING = cms.untracked.PSet(
 #      limit = cms.untracked.int32(0)
 #    ),
 #    noLineBreaks = cms.untracked.bool(False)
-#  ),
+  ),
 
-#  detailedInfo = cms.untracked.PSet(
-#    threshold = cms.untracked.string('INFO')
-#  ),
+  detailedInfo = cms.untracked.PSet(
+    threshold = cms.untracked.string('DEBUG')
+  ),
 
 #  critical = cms.untracked.PSet(
 #    threshold = cms.untracked.string('ERROR')
 #  ),
 
-#  debugModules = cms.untracked.vstring('CSCMonitorModule'),
+  debugModules = cms.untracked.vstring('*'),
 
-#  destinations = cms.untracked.vstring('detailedInfo', 
-#    'critical', 
-#    'cout')
+  destinations = cms.untracked.vstring(
+    'detailedInfo', 
+    'critical', 
+    'cout'
+  )
 
 )
 
@@ -123,7 +128,7 @@ MessageLogger = cms.Service("MessageLogger",
 # Sequences
 #--------------------------
 
-process.p = cms.Path(process.dqmCSCClient + process.dqmEnv + process.dqmSaver)
+process.p = cms.Path(process.dqmCSCClient * process.cscDaqInfo * process.cscDcsInfo * process.cscCertificationInfo + process.dqmEnv + process.dqmSaver)
 #process.p = cms.Path(process.muonCSCDigis * process.csc2DRecHits * process.cscSegments * process.cscMonitor * process.dqmCSCClient + process.dqmEnv + process.dqmSaver)
 
 

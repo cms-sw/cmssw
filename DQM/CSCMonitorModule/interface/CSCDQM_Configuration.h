@@ -305,38 +305,43 @@ namespace cscdqm {
        */
       void load(const std::string& configFile) {
         XMLPlatformUtils::Initialize();
-        boost::shared_ptr<XercesDOMParser> parser(new XercesDOMParser());
 
-        XMLFileErrorHandler eh;
-        parser->setErrorHandler(&eh);
+        {
+          XercesDOMParser parser;
 
-        parser->parse(configFile.c_str());
-        DOMDocument *doc = parser->getDocument();
-        DOMNode *docNode = (DOMNode*) doc->getDocumentElement();
+          XMLFileErrorHandler eh;
+          parser.setErrorHandler(&eh);
 
-        DOMNodeList *itemList = docNode->getChildNodes();
-        for(uint32_t i = 0; i < itemList->getLength(); i++) {
-          DOMNode* node = itemList->item(i);
-          if (node->getNodeType() != DOMNode::ELEMENT_NODE) { continue; }
+          parser.parse(configFile.c_str());
+          DOMDocument *doc = parser.getDocument();
+          DOMNode *docNode = (DOMNode*) doc->getDocumentElement();
 
-          std::string nodeName = XMLString::transcode(node->getNodeName());
-          std::string value = XMLString::transcode(node->getTextContent());
-          std::istringstream stm(value);
+          DOMNodeList *itemList = docNode->getChildNodes();
+          for(uint32_t i = 0; i < itemList->getLength(); i++) {
+            DOMNode* node = itemList->item(i);
+            if (node->getNodeType() != DOMNode::ELEMENT_NODE) { continue; }
 
-          BOOST_PP_SEQ_FOR_EACH_I(CONFIG_PARAMETER_LOADXML_MACRO, _, CONFIG_PARAMETERS_SEQ)
+            std::string nodeName = XMLString::transcode(node->getNodeName());
+            std::string value = XMLString::transcode(node->getTextContent());
+            std::istringstream stm(value);
 
-          if (nodeName.compare("MO_FILTER") == 0) {
-            DOMNodeList *filterList = node->getChildNodes();
-            for(uint32_t j = 0; j < filterList->getLength(); j++) {
-              DOMNode* filter = filterList->item(j);
-              if (filter->getNodeType() != DOMNode::ELEMENT_NODE) { continue; }
-              std::string filterName = XMLString::transcode(filter->getNodeName());
-              std::string filterValue = XMLString::transcode(filter->getTextContent());
-              MOFilterItems.insert(MOFilterItems.end(), MOFilterItem(filterValue, (filterName.compare("INCLUDE") == 0)));
+            BOOST_PP_SEQ_FOR_EACH_I(CONFIG_PARAMETER_LOADXML_MACRO, _, CONFIG_PARAMETERS_SEQ)
+
+            if (nodeName.compare("MO_FILTER") == 0) {
+              DOMNodeList *filterList = node->getChildNodes();
+              for(uint32_t j = 0; j < filterList->getLength(); j++) {
+                DOMNode* filter = filterList->item(j);
+                if (filter->getNodeType() != DOMNode::ELEMENT_NODE) { continue; }
+                std::string filterName = XMLString::transcode(filter->getNodeName());
+                std::string filterValue = XMLString::transcode(filter->getTextContent());
+                MOFilterItems.insert(MOFilterItems.end(), MOFilterItem(filterValue, (filterName.compare("INCLUDE") == 0)));
+              }
             }
-          }
 
+          }
         }
+
+        XMLPlatformUtils::Terminate();
 
       }
 

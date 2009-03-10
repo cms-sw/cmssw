@@ -1,9 +1,9 @@
 /*
  * =====================================================================================
  *
- *       Filename:  CSCDaqInfo.h
+ *       Filename:  CSCCertificationInfo.h
  *
- *    Description:  CSC DAQ Information
+ *    Description:  CSC DCS Information
  *
  *        Version:  1.0
  *        Created:  12/09/2008 10:53:27 AM
@@ -16,8 +16,8 @@
  * =====================================================================================
  */
 
-#ifndef CSCDaqInfo_H
-#define CSCDaqInfo_H
+#ifndef CSCCertificationInfo_H
+#define CSCCertificationInfo_H
 
 // system include files
 #include <memory>
@@ -39,27 +39,24 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-class CSCDaqInfo : public edm::EDAnalyzer {
+class CSCCertificationInfo : public edm::EDAnalyzer {
 
   public:
 
-    explicit CSCDaqInfo(const edm::ParameterSet&);
-    ~CSCDaqInfo() { }
+    explicit CSCCertificationInfo(const edm::ParameterSet&);
+    ~CSCCertificationInfo() { }
 
   private:
 
     virtual void beginJob(const edm::EventSetup&) ;
-    virtual void beginLuminosityBlock(const edm::LuminosityBlock& , const  edm::EventSetup&);
 
+    virtual void beginLuminosityBlock(const edm::LuminosityBlock& , const  edm::EventSetup&) { }
     virtual void analyze(const edm::Event&, const edm::EventSetup&) { }
     virtual void endLuminosityBlock(const edm::LuminosityBlock& , const  edm::EventSetup&) { }
     virtual void endJob() { }
                     
     DQMStore *dbe;  
-    MonitorElement*  DaqFraction;
-    std::pair<int,int> FEDRange;
-    int  NumberOfFeds;
-                          
+
 };
 
 #endif

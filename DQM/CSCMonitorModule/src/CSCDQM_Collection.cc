@@ -36,97 +36,96 @@ namespace cscdqm {
 
     LOG_INFO << "Reading histograms from " << config->getBOOKING_XML_FILE();
 
-    DOMDocument *doc = 0;
-
     try {
 
       XMLPlatformUtils::Initialize();
 
-      boost::shared_ptr<XercesDOMParser> parser(new XercesDOMParser());
+      {
 
-      parser->setValidationScheme(XercesDOMParser::Val_Always);
-      parser->setDoNamespaces(true);
-      parser->setDoSchema(true);
-      parser->setExitOnFirstFatalError(true);
-      parser->setValidationConstraintFatal(true);
-      XMLFileErrorHandler eh;
-      parser->setErrorHandler(&eh);
+        XercesDOMParser parser;
 
-      parser->parse(config->getBOOKING_XML_FILE().c_str());
-      doc = parser->getDocument();
-      DOMNode *docNode = (DOMNode*) doc->getDocumentElement();
+        parser.setValidationScheme(XercesDOMParser::Val_Always);
+        parser.setDoNamespaces(true);
+        parser.setDoSchema(true);
+        parser.setExitOnFirstFatalError(true);
+        parser.setValidationConstraintFatal(true);
+        XMLFileErrorHandler eh;
+        parser.setErrorHandler(&eh);
 
-      DOMNodeList *itemList = docNode->getChildNodes();
+        parser.parse(config->getBOOKING_XML_FILE().c_str());
+        DOMDocument *doc = parser.getDocument();
+        DOMNode *docNode = (DOMNode*) doc->getDocumentElement();
+  
+        DOMNodeList *itemList = docNode->getChildNodes();
 
-      CoHisto definitions;
-      for(uint32_t i = 0; i < itemList->getLength(); i++) {
+        CoHisto definitions;
+        for(uint32_t i = 0; i < itemList->getLength(); i++) {
+  
+          DOMNode* node = itemList->item(i);
+          if (node->getNodeType() != DOMNode::ELEMENT_NODE) { continue; }
 
-        DOMNode* node = itemList->item(i);
-        if (node->getNodeType() != DOMNode::ELEMENT_NODE) { continue; }
+          std::string nodeName = XMLString::transcode(node->getNodeName());
 
-        std::string nodeName = XMLString::transcode(node->getNodeName());
+          ///
+          /// Load histogram definition
+          ///
+          if (nodeName.compare(XML_BOOK_DEFINITION) == 0) {
 
-        ///
-        /// Load histogram definition
-        ///
-        if (nodeName.compare(XML_BOOK_DEFINITION) == 0) {
+            CoHistoProps dp;
+            getNodeProperties(node, dp);
 
-          CoHistoProps dp;
-          getNodeProperties(node, dp);
+            DOMElement* el = dynamic_cast<DOMElement*>(node);
+            std::string id(XMLString::transcode(el->getAttribute(XMLString::transcode(XML_BOOK_DEFINITION_ID))));
+            definitions.insert(make_pair(id, dp));
 
-          DOMElement* el = dynamic_cast<DOMElement*>(node);
-          std::string id(XMLString::transcode(el->getAttribute(XMLString::transcode(XML_BOOK_DEFINITION_ID))));
-          definitions.insert(make_pair(id, dp));
+          } else
 
-        } else
+          ///
+          /// Load histogram
+          ///
+          if (nodeName.compare(XML_BOOK_HISTOGRAM) == 0) {
+  
+            CoHistoProps hp;
 
-        ///
-        /// Load histogram
-        ///
-        if (nodeName.compare(XML_BOOK_HISTOGRAM) == 0) {
-
-          CoHistoProps hp;
-
-          DOMElement* el = dynamic_cast<DOMElement*>(node);
-          if (el->hasAttribute(XMLString::transcode(XML_BOOK_DEFINITION_REF))) {
-            std::string id(XMLString::transcode(el->getAttribute(XMLString::transcode(XML_BOOK_DEFINITION_REF))));
-            CoHistoProps d = definitions[id];
-            for (CoHistoProps::iterator it = d.begin(); it != d.end(); it++) {
-              hp[it->first] = it->second;
+            DOMElement* el = dynamic_cast<DOMElement*>(node);
+            if (el->hasAttribute(XMLString::transcode(XML_BOOK_DEFINITION_REF))) {
+              std::string id(XMLString::transcode(el->getAttribute(XMLString::transcode(XML_BOOK_DEFINITION_REF))));
+              CoHistoProps d = definitions[id];
+              for (CoHistoProps::iterator it = d.begin(); it != d.end(); it++) {
+                hp[it->first] = it->second;
+              }
             }
+
+            getNodeProperties(node, hp);
+
+            std::string name   = hp[XML_BOOK_HISTO_NAME];
+            std::string prefix = hp[XML_BOOK_HISTO_PREFIX];
+
+            // Check if this histogram is an ON DEMAND histogram?
+            hp[XML_BOOK_ONDEMAND] = (Utility::regexMatch(REGEXP_ONDEMAND, name) ? XML_BOOK_ONDEMAND_TRUE : XML_BOOK_ONDEMAND_FALSE );
+
+            LOG_DEBUG << "[Collection::load] loading " << prefix << "::" << name << " XML_BOOK_ONDEMAND = " << hp[XML_BOOK_ONDEMAND]; 
+  
+            CoHistoMap::iterator it = collection.find(prefix);
+            if (it == collection.end()) {
+              CoHisto h;
+              h[name] = hp;
+              collection[prefix] = h; 
+            } else {
+              it->second.insert(make_pair(name, hp));
+            }
+
           }
-
-          getNodeProperties(node, hp);
-
-          std::string name   = hp[XML_BOOK_HISTO_NAME];
-          std::string prefix = hp[XML_BOOK_HISTO_PREFIX];
-
-          // Check if this histogram is an ON DEMAND histogram?
-          hp[XML_BOOK_ONDEMAND] = (Utility::regexMatch(REGEXP_ONDEMAND, name) ? XML_BOOK_ONDEMAND_TRUE : XML_BOOK_ONDEMAND_FALSE );
-
-          LOG_DEBUG << "[Collection::load] loading " << prefix << "::" << name << " XML_BOOK_ONDEMAND = " << hp[XML_BOOK_ONDEMAND]; 
-
-          CoHistoMap::iterator it = collection.find(prefix);
-          if (it == collection.end()) {
-            CoHisto h;
-            h[name] = hp;
-            collection[prefix] = h; 
-          } else {
-            it->second.insert(make_pair(name, hp));
-          }
-
         }
+
       }
+
+      XMLPlatformUtils::Terminate();
 
     } catch (XMLException& e) {
       char* message = XMLString::transcode(e.getMessage());
-      //if (doc) doc->release();
-      //XMLPlatformUtils::Terminate();
       throw Exception(message);
     }
-
-    //if (doc) doc->release();
-    //XMLPlatformUtils::Terminate();
 
     for (CoHistoMap::const_iterator i = collection.begin(); i != collection.end(); i++) {
       LOG_INFO << i->second.size() << " " << i->first << " histograms defined";

@@ -83,6 +83,25 @@ namespace cscdqm {
   /** DDU List definition (static MO list) */
   typedef std::map<HwId, MonitorObject**> DDUMapType;
 
+  /** @brief MO Lookup List object definition */
+  typedef struct LookupKeyType {
+    HistoDef histo;
+    std::string path;
+    MonitorObject* mo;
+    LookupKeyType(const HistoDef& histo_, MonitorObject*& mo_) : histo(histo_), mo(mo_) {
+      path = histo.getPath();
+    }
+  };
+
+  /** MO Lookup List definition */
+  typedef boost::multi_index_container<
+    LookupKeyType,
+    boost::multi_index::indexed_by<
+      boost::multi_index::ordered_unique<boost::multi_index::member<LookupKeyType, HistoDef, &LookupKeyType::histo> >,
+      boost::multi_index::ordered_non_unique<boost::multi_index::member<LookupKeyType, std::string, &LookupKeyType::path> >
+    >
+  > LookupMapType;
+
   /**
    * @class Cache
    * @brief MonitorObject cache - list objects and routines to manage cache
@@ -106,6 +125,9 @@ namespace cscdqm {
       /** Pointer to the Last Chamber object used (cached) */
       CSCMapType::const_iterator cscPointer;
 
+      /** MO Lookup List */
+      LookupMapType lookupData;
+
     public:
       
       /** Cache Constructor */
@@ -124,7 +146,9 @@ namespace cscdqm {
       ~Cache() {
         /** Clear DDU MO static arrays */
         while (dduData.begin() != dduData.end()) {
-          if (dduData.begin()->second) delete [] dduData.begin()->second;
+          if (dduData.begin()->second) {
+            delete [] dduData.begin()->second;
+          }
           dduData.erase(dduData.begin());
         }
       }
