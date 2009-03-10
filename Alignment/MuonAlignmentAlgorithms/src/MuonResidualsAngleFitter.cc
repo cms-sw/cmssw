@@ -91,23 +91,23 @@ void MuonResidualsAngleFitter::plot(std::string name, TFileDirectory *dir) {
   narrowed_name << name << "_narrowed";
   qoverpt_name << name << "_qoverpt";
 
-  TH1F *raw_hist = dir->make<TH1F>(raw_name.str().c_str(), (raw_name.str() + std::string(" (mm)")).c_str(), 100, -300., 300.);
-  TH1F *narrowed_hist = dir->make<TH1F>(narrowed_name.str().c_str(), (narrowed_name.str() + std::string(" (mm)")).c_str(), 100, -300., 300.);
+  TH1F *raw_hist = dir->make<TH1F>(raw_name.str().c_str(), (raw_name.str() + std::string(" (mm)")).c_str(), 100, -100., 100.);
+  TH1F *narrowed_hist = dir->make<TH1F>(narrowed_name.str().c_str(), (narrowed_name.str() + std::string(" (mm)")).c_str(), 100, -100., 100.);
   TProfile *qoverpt_hist = dir->make<TProfile>(qoverpt_name.str().c_str(), (qoverpt_name.str() + std::string(" (mm)")).c_str(), 100, -0.05, 0.05);
 
   narrowed_name << "fit";
   qoverpt_name << "fit";
 
-  double scale_factor = double(numResiduals()) * (300. - -300.)/100;   // (max - min)/nbins
+  double scale_factor = double(numResiduals()) * (100. - -100.)/100;   // (max - min)/nbins
 
   TF1 *narrowed_fit = NULL;
   if (residualsModel() == kPureGaussian) {
-    narrowed_fit = new TF1(narrowed_name.str().c_str(), MuonResidualsFitter_pureGaussian_TF1, -300., 300., 3);
+    narrowed_fit = new TF1(narrowed_name.str().c_str(), MuonResidualsFitter_pureGaussian_TF1, -100., 100., 3);
     narrowed_fit->SetParameters(scale_factor, value(kAngle) * 1000., value(kSigma) * 1000.);
     narrowed_fit->Write();
   }
   else if (residualsModel() == kPowerLawTails) {
-    narrowed_fit = new TF1(narrowed_name.str().c_str(), MuonResidualsFitter_powerLawTails_TF1, -300., 300., 4);
+    narrowed_fit = new TF1(narrowed_name.str().c_str(), MuonResidualsFitter_powerLawTails_TF1, -100., 100., 4);
     narrowed_fit->SetParameters(scale_factor, value(kAngle) * 1000., value(kSigma) * 1000., value(kGamma) * 1000.);
     narrowed_fit->Write();
   }
