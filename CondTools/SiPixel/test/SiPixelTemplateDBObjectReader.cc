@@ -48,8 +48,10 @@ SiPixelTemplateDBObjectReader::analyze(const edm::Event& iEvent, const edm::Even
 			
 			//Removes header in db object from diff
 			index+=20;
-			
-			std::cout << "Calibration " << i+1 << " of " << numOfTempl << ", with Template ID " << dbobject.sVector()[index] << "\t--------  ";
+
+			//Tell the person viewing the output what the template ID and version are -- note that version is only valid for >=13
+			std::cout << "Calibration " << i+1 << " of " << numOfTempl << ", with Template ID " << dbobject.sVector()[index]
+								<< "\tand Version " << dbobject.sVector()[index+1] <<"\t--------  ";
 			
 			//Opening the text-based template calibration
 			std::ostringstream tout;
@@ -134,20 +136,23 @@ std::ostream& operator<<(std::ostream& s, const SiPixelTemplateDBObject& dbobjec
 	{
 		//To change the size of the output based on which template version we are using"
 		//For 11 and 12, version is the 14th element after the header
-		templateVersion = (int) dbobject.sVector_[index+33];
+		templateVersion = (int) dbobject.sVector_[index+21];
+		//For backwards compatibility when the version was at the end of a variable string
+		if(templateVersion == 60) templateVersion = (int) dbobject.sVector_[index+33];
 		if(templateVersion<=10) {
 			std::cout << "*****WARNING***** This code will not format this template version properly *****WARNING*****\n";
 			sizeSetter=0;
 		}
 		else if(templateVersion==11) sizeSetter=1;
 		else if(templateVersion==12) sizeSetter=1;
+		else if(templateVersion==13) sizeSetter=1;
 		else std::cout << "*****WARNING***** This code has not been tested at formatting this version *****WARNING*****\n";
 		
 		std::cout << "\n\n*********************************************************************************************" << std::endl;
 		std::cout << "***************                  Reading Template ID " << dbobject.sVector_[index+20]
 							<< "\t(" << m+1 << "/" << dbobject.numOfTempl_ <<")                 ***************" << std::endl;
 		std::cout << "*********************************************************************************************\n\n" << std::endl;
-
+		
 		//Header Title
 		SiPixelTemplateDBObject::char2float temp;
 		for (n=0; n < 20; ++n) {
@@ -155,19 +160,37 @@ std::ostream& operator<<(std::ostream& s, const SiPixelTemplateDBObject& dbobjec
 			s << temp.c[0] << temp.c[1] << temp.c[2] << temp.c[3];
 			++index;
 		}
-		
-		entries[0] = (int)dbobject.sVector_[index+1];                                //Barrel Y
-		entries[1] = (int)(dbobject.sVector_[index+2]*dbobject.sVector_[index+3]);   //Barrel X
-		entries[2] = (int)dbobject.sVector_[index+4];                                //Forward Y
-		entries[3] = (int)(dbobject.sVector_[index+5]*dbobject.sVector_[index+6]);   //Forward X
+
+		//In Version 13, we changed the order of the header, where the version was moved to before this information
+		if(templateVersion<13) {
+			entries[0] = (int)dbobject.sVector_[index+1];                                //Barrel Y
+			entries[1] = (int)(dbobject.sVector_[index+2]*dbobject.sVector_[index+3]);   //Barrel X
+			entries[2] = (int)dbobject.sVector_[index+4];                                //Forward Y
+			entries[3] = (int)(dbobject.sVector_[index+5]*dbobject.sVector_[index+6]);   //Forward X
+		}
+		else {
+			entries[0] = (int)dbobject.sVector_[index+2];                                //Barrel Y
+			entries[1] = (int)(dbobject.sVector_[index+3]*dbobject.sVector_[index+4]);   //Barrel X
+			entries[2] = (int)dbobject.sVector_[index+5];                                //Forward Y
+			entries[3] = (int)(dbobject.sVector_[index+6]*dbobject.sVector_[index+7]);   //Forward X
+		}			
 		
 		//Header
 		s         << dbobject.sVector_[index]    << "\t" << dbobject.sVector_[index+1]  << "\t" << dbobject.sVector_[index+2]
 			<< "\t" << dbobject.sVector_[index+3]  << "\t" << dbobject.sVector_[index+4]  << "\t" << dbobject.sVector_[index+5]
 			<< "\t" << dbobject.sVector_[index+6]  << "\t" << dbobject.sVector_[index+7]  << "\t" << dbobject.sVector_[index+8]
 			<< "\t" << dbobject.sVector_[index+9]  << "\t" << dbobject.sVector_[index+10] << "\t" << dbobject.sVector_[index+11]
-		  << "\t" << dbobject.sVector_[index+12] << "\t" << dbobject.sVector_[index+13] << std::endl;
-		index += 14;
+      << "\t" << dbobject.sVector_[index+12] << "\t" << dbobject.sVector_[index+13];
+
+		//Extended Header for internal version >=13
+		if(templateVersion<13) {
+			s << std::endl;
+			index += 14;
+		}
+		else {
+			s << "\t" << dbobject.sVector_[index+14] << "\t" << dbobject.sVector_[index+15] << std::endl;
+			index += 16;
+		}
 
 		//Loop over By,Bx,Fy,Fx
 		for(entry_it=0;entry_it<4;++entry_it) {
@@ -296,7 +319,7 @@ std::ostream& operator<<(std::ostream& s, const SiPixelTemplateDBObject& dbobjec
 					s << std::endl;
 				}
 				//New Paramters introduced in version 12 for CPE Generic
-				if(templateVersion==12)
+				if(templateVersion>=12)
 				{
 					//Y average reco params for CPE Generic
 					for(j=0;j<4;++j)
