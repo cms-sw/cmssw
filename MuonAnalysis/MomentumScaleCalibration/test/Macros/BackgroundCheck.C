@@ -38,6 +38,10 @@ void BackgroundCheck()
   resonanceHisto->Rebin(rebinCount);
   backgroundHisto->Rebin(rebinCount);
 
+  double xMin = allHisto->GetXaxis()->GetXmin();
+  double xMax = allHisto->GetXaxis()->GetXmax();
+  double deltaX = xMax - xMin;
+
   // The fitted background function gives the background fraction (is normalized).
   // We multiply it by the integral to get the background value.
   int xBins = allHisto->GetNbinsX();
@@ -58,10 +62,13 @@ void BackgroundCheck()
   double lowWindowValue = ResMass[ires]-ResHalfWidth[ires];
   double upWindowValue = ResMass[ires]+ResHalfWidth[ires];
 
-  // ATTENTION: for the Z the number of bins is more than 30.
+  int lowBin = int((lowWindowValue)*xBins/deltaX);
+  int upBin = int((upWindowValue)*xBins/deltaX);
 
-  int lowBin = int((lowWindowValue)*xBins/30.);
-  int upBin = int((upWindowValue)*xBins/30.);
+  cout << "lowBin = " << lowBin << ", upBin = " << upBin << endl;
+  cout << "lowWindowValue = " << lowWindowValue << ", upWindowValue = " << upWindowValue << endl;
+
+  double xWidth = deltaX/xBins;
 
   // Constant
   // --------
@@ -75,19 +82,34 @@ void BackgroundCheck()
   backgroundFunction->SetParameter(0, 1);
   backgroundFunction->SetParameter(1, a);
 
+  TH1F * backgroundFunctionHisto = new TH1F("backgroundFunctionHisto", "backgroundFunctionHisto", xBins, xMin, xMax);
+  for( int xBin = 0; xBin < xBins; ++xBin ) {
+    // Compute the value in the mean bin point.
+    backgroundFunctionHisto->SetBinContent(xBin+1, backgroundFunction->Eval((xBin+1/2)*xWidth));
+    // cout << "xBin = " << xBin << ", backgroundFunction->Eval((xBin+1/2)*xWidth) = " << backgroundFunction->Eval((xBin+1/2)*xWidth) << endl;
+  }
+
   // Compute the integral used to rescale the background function only in the region actually used for the computation.
   // (Where the function was also normalized, which is also the region the values refer to).
   // double integral = allHisto->Integral(0, lowBin) + allHisto->Integral(upBin, xBins);
   double integral = allHisto->Integral(lowBin, upBin);
   double functionIntegral = backgroundFunction->Integral(lowWindowValue, upWindowValue);
+  double functionHistoIntegral = backgroundFunctionHisto->Integral(lowBin, upBin);
   double normalization = integral/functionIntegral*Bgrp1/(upBin-lowBin);
+  double normalizationHisto = integral*Bgrp1/functionHistoIntegral;
 
   // To normalize the function so that its integral in the resonance mass
   // window gives the fraction of events determined by the fit.
   // This is divided by the number of bins in that interval (after rebinning).
   backgroundFunction->SetParameter(0, normalization);
 
+  backgroundFunctionHisto->Scale(normalizationHisto);
+
   cout << "Integral = " << integral << endl;
+  cout << "FunctionHisto integral = " << backgroundFunctionHisto->Integral(lowBin, upBin) << endl;
+  cout << "Bgrp1 from histo = " << backgroundFunctionHisto->Integral(lowBin, upBin)/integral << endl;
+  cout << "Function integral = " << backgroundFunction->Integral(lowWindowValue, upWindowValue) << endl;
+  cout << "Bgrp1 from function = " << backgroundFunction->Integral(lowWindowValue, upWindowValue)/integral << endl;
 
   TLegend * legend = new TLegend( 0.55, 0.65, 0.76, 0.82 );
   TCanvas * canvas = new TCanvas("ResMassCanvas", "ResMassCanvas", 1000, 800);
@@ -106,9 +128,14 @@ void BackgroundCheck()
   backgroundHisto->Draw("same");
   legend->AddEntry(backgroundHisto, "Background events");
 
-  backgroundFunction->SetLineColor(kGreen);
-  backgroundFunction->Draw("same");
-  legend->AddEntry(backgroundFunction, "Background function");
+//   backgroundFunction->SetLineColor(kGreen);
+//   backgroundFunction->Draw("same");
+//   legend->AddEntry(backgroundFunction, "Background function");
+
+  backgroundFunctionHisto->SetLineWidth(2);
+  backgroundFunctionHisto->SetLineColor(kGreen);
+  backgroundFunctionHisto->Draw("same");
+  legend->AddEntry(backgroundFunctionHisto, "Background function");
 
   legend->Draw("same");
 
