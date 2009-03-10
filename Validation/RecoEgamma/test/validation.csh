@@ -22,16 +22,28 @@
 #setenv OLDFILE /data/test/CMSSW_3_0_0_pre6/src/Validation/RecoEgamma/test/PhotonValidationRelVal300pre6_SingleGammaPt35.root
 #setenv NEWFILE /data/test/CMSSW_3_0_0_pre7/src/Validation/RecoEgamma/test/PhotonValidationRelVal300pre7_SingleGammaPt35.root
 
-setenv OLDFILE /data/test/CMSSW_3_1_0_pre2/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre2_SingleGammaPt10.root
-setenv NEWFILE /data/test/CMSSW_3_1_0_pre3/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre3_SingleGammaPt10.root
+#setenv OLDFILE /data/test/CMSSW_3_1_0_pre2/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre2_SingleGammaPt10.root
+#setenv NEWFILE /data/test/CMSSW_3_1_0_pre3/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre3_SingleGammaPt10.root
+
+setenv OLDFILE /data/test/CMSSW_3_1_0_pre2/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre2_SingleGammaPt35.root
+setenv NEWFILE /data/test/CMSSW_3_1_0_pre3/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre3_SingleGammaPt35.root
+
+#setenv OLDFILE /data/test/CMSSW_3_1_0_pre2/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre2_H130GGgluonfusion.root
+#setenv NEWFILE /data/test/CMSSW_3_1_0_pre3/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre3_H130GGgluonfusion.root
+
+#setenv OLDFILE /data/test/CMSSW_3_1_0_pre2/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre2_GammaJets_Pt_80_120.root
+#setenv NEWFILE /data/test/CMSSW_3_1_0_pre3/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre3_GammaJets_Pt_80_120.root
+
+
 
 #setenv OLDRELEASE 221IDEAL
 setenv OLDRELEASE 310pre2IDEAL
 setenv NEWRELEASE 310pre3IDEAL
 #Name of sample (affects output directory name and htmldescription only) 
-setenv SAMPLE SingleGammaPt10
+setenv SAMPLE SingleGammaPt35
 #setenv SAMPLE SingleGammaFlatPt10_100
 #setenv SAMPLE H130GGgluonfusionSTARTUP
+#setenv SAMPLE GammaJets_Pt_80_120STARTUP
 #TYPE must be one ofPixelMatchGsfElectron, Photon 
 setenv TYPE Photon
 
@@ -237,18 +249,19 @@ if ( mnew > mold)
 $i->SetMaximum(mnew+mnew*0.1);
 else 
 $i->SetMaximum(mold+mold*0.1);
-$i->SetLineColor(4);
+$i->SetLineColor(kRed-8);
+$i->SetFillColor(kRed-8);
 $i->SetLineWidth(3);
 $i->Draw();
 Double_t nold=$i->GetEntries();
 file_new->cd("DQMData/Egamma/PhotonValidator/Photons");
 Double_t nnew=$i->GetEntries();
 $i->SetStats(0);
-$i->SetLineColor(2);
+$i->SetLineColor(kBlack);
 $i->SetLineWidth(3);
 $i->SetMinimum(0.);
 $i->Scale(nold/nnew);
-$i->Draw("same");
+$i->Draw("esame");
 c$i->SaveAs("gifs/$i.gif");
 
 EOF
@@ -264,13 +277,13 @@ c$i->SetFillColor(10);
 file_old->cd("DQMData/Egamma/PhotonValidator/Photons");
 $i->SetStats(0);
 $i->SetMinimum(0.);
-$i->SetLineColor(4);
+$i->SetLineColor(kRed-8);
 $i->SetLineWidth(3);
 $i->Draw();
 file_new->cd("DQMData/Egamma/PhotonValidator/Photons");
 $i->SetStats(0);
 $i->SetMinimum(0.);
-$i->SetLineColor(2);
+$i->SetLineColor(kBlack);
 $i->SetLineWidth(3);
 $i->Draw("same");
 c$i->SaveAs("gifs/$i.gif");
@@ -295,17 +308,18 @@ if ( mnew > mold)
 $i->SetMaximum(mnew+mnew*0.1);
 else 
 $i->SetMaximum(mold+mold*0.1);
-$i->SetLineColor(4);
+$i->SetLineColor(kRed-8);
+$i->SetFillColor(kRed-8);
 $i->SetLineWidth(3);
 $i->Draw();
 Double_t nold=$i->GetEntries();
 file_new->cd("DQMData/Egamma/PhotonValidator/ConversionInfo");
 Double_t nnew=$i->GetEntries();
 $i->SetStats(0);
-$i->SetLineColor(2);
+$i->SetLineColor(kBlack);
 $i->SetLineWidth(3);
 $i->Scale(nold/nnew);
-$i->Draw("same");
+$i->Draw("esame");
 c$i->SaveAs("gifs/$i.gif");
 
 EOF
@@ -322,16 +336,16 @@ c$i->SetFillColor(10);
 file_old->cd("DQMData/Egamma/PhotonValidator/ConversionInfo");
 $i->SetStats(0);
 $i->SetMinimum(0.6);
-$i->SetLineColor(4);
+$i->SetLineColor(kRed-8);
 $i->SetLineWidth(3);
 $i->Draw();
 Double_t nold=$i->GetEntries();
 file_new->cd("DQMData/Egamma/PhotonValidator/ConversionInfo");
 Double_t nnew=$i->GetEntries();
 $i->SetStats(0);
-$i->SetLineColor(2);
+$i->SetLineColor(kBlack);
 $i->SetLineWidth(3);
-$i->Draw("same");
+$i->Draw("esame");
 c$i->SaveAs("gifs/$i.gif");
 
 EOF
@@ -348,13 +362,13 @@ file_old->cd("DQMData/Egamma/PhotonValidator/ConversionInfo");
 $i->SetStats(0);
 $i->SetMinimum(0.);
 $i->SetMaximum(1.);
-$i->SetLineColor(4);
+$i->SetLineColor(kRed-8);
 $i->SetLineWidth(3);
 $i->Draw();
 file_new->cd("DQMData/Egamma/PhotonValidator/ConversionInfo");
 $i->SetStats(0);
 $i->SetMinimum(0.);
-$i->SetLineColor(2);
+$i->SetLineColor(kBlack);
 $i->SetLineWidth(3);
 $i->Draw("same");
 c$i->SaveAs("gifs/$i.gif");
@@ -372,13 +386,13 @@ file_old->cd("DQMData/Egamma/PhotonValidator/ConversionInfo");
 $i->SetStats(0);
 $i->SetMinimum(0.);
 $i->SetMaximum(1.);
-$i->SetLineColor(4);
+$i->SetLineColor(kRed-8);
 $i->SetLineWidth(3);
 $i->Draw();
 file_new->cd("DQMData/Egamma/PhotonValidator/ConversionInfo");
 $i->SetStats(0);
 $i->SetMinimum(0.);
-$i->SetLineColor(2);
+$i->SetLineColor(kBlack);
 $i->SetLineWidth(3);
 $i->Draw("same");
 c$i->SaveAs("gifs/$i.gif");
@@ -403,17 +417,18 @@ if ( mnew > mold)
 $i->SetMaximum(mnew+mnew*0.1);
 else 
 $i->SetMaximum(mold+mold*0.1);
-$i->SetLineColor(4);
+$i->SetLineColor(kRed-8);
+$i->SetFillColor(kRed-8);
 $i->SetLineWidth(3);
 $i->Draw();
 Double_t nold=$i->GetEntries();
 file_new->cd("DQMData/Egamma/PhotonValidator/ConversionInfo");
 Double_t nnew=$i->GetEntries();
 $i->SetStats(0);
-$i->SetLineColor(2);
+$i->SetLineColor(kBlack);
 $i->SetLineWidth(3);
 $i->Scale(nold/nnew);
-$i->Draw("same");
+$i->Draw("esame");
 c$i->SaveAs("gifs/$i.gif");
 
 EOF
@@ -428,17 +443,18 @@ file_old->cd("DQMData/Egamma/PhotonValidator/ConversionInfo");
 $i->SetStats(0);
 $i->SetMinimum(0.);
 $i->SetMaximum(15.);
-$i->SetLineColor(4);
+$i->SetLineColor(kRed-8);
+$i->SetFillColor(kRed-8);
 $i->SetLineWidth(3);
 $i->Draw();
 Double_t nold=$i->GetEntries();
 file_new->cd("DQMData/Egamma/PhotonValidator/ConversionInfo");
 Double_t nnew=$i->GetEntries();
 $i->SetStats(0);
-$i->SetLineColor(2);
+$i->SetLineColor(kBlack);
 $i->SetLineWidth(3);
 $i->Scale(nold/nnew);
-$i->Draw("same");
+$i->Draw("esame");
 c$i->SaveAs("gifs/$i.gif");
 
 EOF
@@ -488,7 +504,7 @@ cat > begin.html <<EOF
 using <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Validation/RecoEgamma/test/$CFG.py">Validation/RecoEgamma/test/$CFG.py</a>, using $SAMPLE as input.
 <p>The script used to make the plots is <a href="validation.C">here</a>.
 
-<p>In all plots below, $OLDRELEASE is in blue, $NEWRELEASE in red.
+<p>In all plots below, $OLDRELEASE is in brown , $NEWRELEASE in black.
 
 
 EOF
