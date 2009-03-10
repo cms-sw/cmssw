@@ -7,7 +7,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/GeometryObjects/interface/PGeometricDet.h"
-//#include "Geometry/Records/interface/PGeometricDetRcd.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
