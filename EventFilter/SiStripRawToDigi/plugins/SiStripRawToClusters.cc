@@ -79,7 +79,7 @@ void SiStripRawToClusters::updateCabling( const edm::EventSetup& setup ) {
 }
 
 RawToClusters::RawToClusters( const edm::ParameterSet& conf ) :
-  productLabel_(conf.getParameter<edm::InputTag>("FedRawData")),
+  productLabel_(conf.getParameter<edm::InputTag>("ProductLabel")),
   cabling_(0),
   cacheId_(0),
   clusterizer_(0)
