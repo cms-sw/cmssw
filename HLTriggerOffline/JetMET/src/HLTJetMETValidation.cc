@@ -403,7 +403,7 @@ void HLTJetMETValidation::getHLTResults( const edm::TriggerResults& hltresults) 
     HLTinit_=true;
     triggerNames_.init(hltresults);
     
-    cout << "Number of HLT Paths: " << ntrigs << endl;
+    if (writeFile_) cout << "Number of HLT Paths: " << ntrigs << endl;
 
     // book histogram and label axis with trigger names
     //h_TriggerResults = fs->make<TH1F>( "TriggerResults", "HLT Results", ntrigs, 0, ntrigs );
