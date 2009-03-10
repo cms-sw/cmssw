@@ -43,7 +43,7 @@ process.famosSimHits.SimulateCalorimetry = True
 process.famosSimHits.SimulateTracking = True
 
 # Famos with everything !
-process.p1 = cms.Path(process.famosWithEverything)
+process.p1 = cms.Path(process.ProductionFilterSequence*process.famosWithEverything)
 
 # To write out events (not need: FastSimulation _is_ fast!)
 process.o1 = cms.OutputModule(
