@@ -167,7 +167,6 @@ bool MuScleFitFilter::filter(Event& event, const EventSetup& iSetup) {
   bool resfound = false;
 
   // Require at least N muons of the selected type.
-  cout << "muons("<<muons->size()<<") >= " << minimumMuonsNumber << endl;
   if( muons->size() >= minimumMuonsNumber ) {
 
     for (muon1=muons->begin(); muon1!=muons->end(); ++muon1) {  

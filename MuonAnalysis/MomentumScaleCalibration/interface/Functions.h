@@ -881,18 +881,19 @@ class backgroundFunctionType2 : public backgroundFunctionBase {
     for (int ires=0; ires<resTotNum; ires++) {
       if (resConsidered[ires]) {
 
-	  PB += Bgrp2*exp(-Bgrp2*mass) * (2*ResHalfWidth[ires][MuonType])/(double)nbins;
+        PB += Bgrp2*exp(-Bgrp2*mass) * (2*ResHalfWidth[ires][MuonType])/(double)nbins;
 
-// 	if (exp(-Bgrp2*(ResMass[ires]-leftWindowFactor_*ResHalfWidth[ires][MuonType]))-exp(-Bgrp2*(ResMass[ires]+rightWindowFactor_*ResHalfWidth[ires][MuonType]))>0) {
-// 	  PB += Bgrp2*exp(-Bgrp2*mass) * 
-// 	    (2*ResHalfWidth[ires][MuonType])/(double)nbins /
-// 	    (exp(-Bgrp2*(ResMass[ires]-leftWindowFactor_*ResHalfWidth[ires][MuonType]))-exp(-Bgrp2*(ResMass[ires]+rightWindowFactor_*ResHalfWidth[ires][MuonType])));
-// 	} else {
-// 	  cout << "Impossible to compute Background probability! - some fix needed - Bgrp2=" << Bgrp2 << endl;  
-// 	}
-        cout << "Bgrp2 = " << Bgrp2 << endl;
-//         cout << "exp(-Bgrp2*(ResMass[ires]-ResHalfWidth[ires][MuonType]))-exp(-Bgrp2*(ResMass[ires]+ResHalfWidth[ires][MuonType])) = "
-//              << exp(-Bgrp2*(ResMass[ires]-leftWindowFactor_*ResHalfWidth[ires][MuonType]))-exp(-Bgrp2*(ResMass[ires]+rightWindowFactor_*ResHalfWidth[ires][MuonType])) << endl;
+        // 	if (exp(-Bgrp2*(ResMass[ires]-leftWindowFactor_*ResHalfWidth[ires][MuonType]))-exp(-Bgrp2*(ResMass[ires]+rightWindowFactor_*ResHalfWidth[ires][MuonType]))>0) {
+        // 	  PB += Bgrp2*exp(-Bgrp2*mass) * 
+        // 	    (2*ResHalfWidth[ires][MuonType])/(double)nbins /
+        // 	    (exp(-Bgrp2*(ResMass[ires]-leftWindowFactor_*ResHalfWidth[ires][MuonType]))-exp(-Bgrp2*(ResMass[ires]+rightWindowFactor_*ResHalfWidth[ires][MuonType])));
+        // 	} else {
+        // 	  cout << "Impossible to compute Background probability! - some fix needed - Bgrp2=" << Bgrp2 << endl;  
+        // 	}
+        //         cout << "exp(-Bgrp2*(ResMass[ires]-ResHalfWidth[ires][MuonType]))-exp(-Bgrp2*(ResMass[ires]+ResHalfWidth[ires][MuonType])) = "
+        //              << exp(-Bgrp2*(ResMass[ires]-leftWindowFactor_*ResHalfWidth[ires][MuonType]))-exp(-Bgrp2*(ResMass[ires]+rightWindowFactor_*ResHalfWidth[ires][MuonType])) << endl;
+
+        // cout << "Bgrp2 = " << Bgrp2 << endl;
       }
     }
     return PB;

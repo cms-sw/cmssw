@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2009/01/23 12:31:16 $
- *  $Revision: 1.22 $
+ *  $Date: 2009/03/05 15:14:07 $
+ *  $Revision: 1.23 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M.De Mattia - INFN Padova
  */
 // Some notes:
@@ -219,10 +219,33 @@ pair<lorentzVector,lorentzVector> MuScleFitUtils::findBestRecoRes (vector<reco::
   if (debug>0) cout << "In findBestRecoRes" << endl;
   ResFound = false;
   pair <lorentzVector, lorentzVector> recMuFromBestRes; 
-  double maxprob = -0.1; 
 
-  // Choose the best resonance using its mass probability
-  // ----------------------------------------------------
+
+  // Very simple method taking the two highest Pt muons in the event
+  // ---------------------------------------------------------------
+  lorentzVector * firstMuon = 0;
+  lorentzVector * secondMuon = 0;
+  double firstMuonPt = 0;
+  double secondMuonPt = 0;
+
+//   struct byPt
+//   {
+//     bool operator() ( const reco::LeafCandidate & muon1, const reco::LeafCandidate & muon2 ) {
+//       return muon1.pt() > muon2.pt();
+//     }
+//   };
+
+//   if( muons.size() > 1 ) {
+//     vector<reco::LeafCandidate> muonsCopy( muons );
+//     sort( muonsCopy, byPt );
+//   }
+//   else {
+//     cout << "WARNING: Event has less than two muons" << endl;
+//   }
+
+    // Choose the best resonance using its mass probability
+    // ----------------------------------------------------
+  double maxprob = -0.1; 
   for (vector<reco::LeafCandidate>::const_iterator Muon1=muons.begin(); Muon1!=muons.end(); ++Muon1) {  
     for (vector<reco::LeafCandidate>::const_iterator Muon2=Muon1+1; Muon2!=muons.end(); ++Muon2) { 
       if (((*Muon1).charge()*(*Muon2).charge())>0) {
@@ -823,6 +846,14 @@ double MuScleFitUtils::massProb (double mass, double rapidity, double massResol,
   bool resConsidered[6] = {false};
   int nres = 0;  // number of resonances contributing here
 
+  // Used to skip resonances when computing the background
+  // bool noBackground = false;
+
+  // Factor to take into account the superposition of different resonances mass windows. In that case
+  // the background should also be weighted multiple times, as the probabilities of the different resonances are all
+  // normalized independently and their sum is not.
+  int superpositionFactor = 0;
+
   // First check the Z, which is divided in 40 rapidity bins
   // NB max value of Z rapidity to be considered is 4. here
   // -------------------------------------------------------
@@ -916,89 +947,110 @@ double MuScleFitUtils::massProb (double mass, double rapidity, double massResol,
 
     // Changed to test the background. This way the outside of the region is also used to determine the
     // parameters of the background function.
-    if( checkMassWindow(mass, ires) ) {
+    if( resfind[ires] > 0 ) {
+      if( checkMassWindow(mass, ires) ) {
 
-      resConsidered[ires] = true;
-      nres += 1; 
+        resConsidered[ires] = true;
+        nres += 1; 
 
-      if (MuScleFitUtils::debug>1) cout << "massProb:resFound = " << ires << endl;
+        if (MuScleFitUtils::debug>1) cout << "massProb:resFound = " << ires << endl;
 
-      // Interpolate the four values of GLValue[] in the 
-      // grid square within which the (mass,sigma) values lay 
-      // ----------------------------------------------------
-      double fracMass = (mass-(ResMass[ires]-ResHalfWidth[ires][MuonType]))/(2*ResHalfWidth[ires][MuonType]);
-      if (debug>1) cout<<setprecision(9)<<"mass ResMass[ires] ResHalfWidth[ires][MuonType] ResHalfWidth[ires][MuonType]"
-		       <<mass<<" "<<ResMass[ires]<<" "<<ResHalfWidth[ires][MuonType]<<" "<<ResHalfWidth[ires][MuonType]<<endl;
-      int iMassLeft  = (int)(fracMass*(double)nbins);
-      int iMassRight = iMassLeft+1;
-      double fracMassStep = (double)nbins*(fracMass - (double)iMassLeft/(double)nbins);
-      if (debug>1) cout<<"nbins iMassLeft fracMass "<<nbins<<" "<<iMassLeft<<" "<<fracMass<<endl;
+        // Interpolate the four values of GLValue[] in the 
+        // grid square within which the (mass,sigma) values lay 
+        // ----------------------------------------------------
+        double fracMass = (mass-(ResMass[ires]-ResHalfWidth[ires][MuonType]))/(2*ResHalfWidth[ires][MuonType]);
+        if (debug>1) cout<<setprecision(9)<<"mass ResMass[ires] ResHalfWidth[ires][MuonType] ResHalfWidth[ires][MuonType]"
+                         <<mass<<" "<<ResMass[ires]<<" "<<ResHalfWidth[ires][MuonType]<<" "<<ResHalfWidth[ires][MuonType]<<endl;
+        int iMassLeft  = (int)(fracMass*(double)nbins);
+        int iMassRight = iMassLeft+1;
+        double fracMassStep = (double)nbins*(fracMass - (double)iMassLeft/(double)nbins);
+        if (debug>1) cout<<"nbins iMassLeft fracMass "<<nbins<<" "<<iMassLeft<<" "<<fracMass<<endl;
 
-      // Simple protections for the time being: the region where we fit should not include
-      // values outside the boundaries set by ResMass-ResHalfWidth : ResMass+ResHalfWidth
-      // ---------------------------------------------------------------------------------
-      if (iMassLeft<0) {
-	cout << "WARNING: fracMass=" << fracMass << ", iMassLeft=" 
-	     << iMassLeft << "; mass = " << mass << " and bounds are " << ResMass[ires]-ResHalfWidth[ires][MuonType] 
-	     << ":" << ResMass[ires]+ResHalfWidth[ires][MuonType] << " - iMassLeft set to 0" << endl;
-	iMassLeft  = 0;
-	iMassRight = 1;
-      }
-      if (iMassRight>nbins) {
-	cout << "WARNING: fracMass=" << fracMass << ", iMassRight=" 
-	     << iMassRight << "; mass = " << mass << " and bounds are " << ResMass[ires]-ResHalfWidth[ires][MuonType] 
-	     << ":" << ResMass[ires]+ResHalfWidth[ires][MuonType] << " - iMassRight set to " << nbins-1 << endl;
-	iMassLeft  = nbins-1;
-	iMassRight = nbins;
-      }
-      double fracSigma = (massResol/ResMaxSigma[ires][MuonType]);
-      int iSigmaLeft = (int)(fracSigma*(double)nbins);
-      int iSigmaRight = iSigmaLeft+1;
-      double fracSigmaStep = (double)nbins * (fracSigma - (double)iSigmaLeft/(double)nbins);
+        // Simple protections for the time being: the region where we fit should not include
+        // values outside the boundaries set by ResMass-ResHalfWidth : ResMass+ResHalfWidth
+        // ---------------------------------------------------------------------------------
+        if (iMassLeft<0) {
+          cout << "WARNING: fracMass=" << fracMass << ", iMassLeft=" 
+               << iMassLeft << "; mass = " << mass << " and bounds are " << ResMass[ires]-ResHalfWidth[ires][MuonType] 
+               << ":" << ResMass[ires]+ResHalfWidth[ires][MuonType] << " - iMassLeft set to 0" << endl;
+          iMassLeft  = 0;
+          iMassRight = 1;
+        }
+        if (iMassRight>nbins) {
+          cout << "WARNING: fracMass=" << fracMass << ", iMassRight=" 
+               << iMassRight << "; mass = " << mass << " and bounds are " << ResMass[ires]-ResHalfWidth[ires][MuonType] 
+               << ":" << ResMass[ires]+ResHalfWidth[ires][MuonType] << " - iMassRight set to " << nbins-1 << endl;
+          iMassLeft  = nbins-1;
+          iMassRight = nbins;
+        }
+        double fracSigma = (massResol/ResMaxSigma[ires][MuonType]);
+        int iSigmaLeft = (int)(fracSigma*(double)nbins);
+        int iSigmaRight = iSigmaLeft+1;
+        double fracSigmaStep = (double)nbins * (fracSigma - (double)iSigmaLeft/(double)nbins);
 
-      // Simple protections for the time being: they should not affect convergence, since
-      // ResMaxSigma is set to very large values, and if massResol exceeds them the fit 
-      // should not get any prize for that (for large sigma, the prob. distr. becomes flat)
-      // ----------------------------------------------------------------------------------
-      if (iSigmaLeft<0) {
-	cout << "WARNING: fracSigma = " << fracSigma << ", iSigmaLeft=" 
-	     << iSigmaLeft << " -  iSigmaLeft set to 0" << endl;
-	iSigmaLeft  = 0;
-	iSigmaRight = 1;
-      }
-      if (iSigmaRight>nbins ) { 
-	if (counter_resprob<100)
-	  cout << "WARNING: fracSigma = " << fracSigma << ", iSigmaRight=" 
-	       << iSigmaRight << "; sigma = " << massResol << " and bounds are 0:" 
-	       << ResMaxSigma[ires][MuonType] << " - iSigmaRight set to " << nbins-1 << endl;
-	iSigmaLeft  = nbins-1;
-	iSigmaRight = nbins;
-      }
+        // Simple protections for the time being: they should not affect convergence, since
+        // ResMaxSigma is set to very large values, and if massResol exceeds them the fit 
+        // should not get any prize for that (for large sigma, the prob. distr. becomes flat)
+        // ----------------------------------------------------------------------------------
+        if (iSigmaLeft<0) {
+          cout << "WARNING: fracSigma = " << fracSigma << ", iSigmaLeft=" 
+               << iSigmaLeft << " -  iSigmaLeft set to 0" << endl;
+          iSigmaLeft  = 0;
+          iSigmaRight = 1;
+        }
+        if (iSigmaRight>nbins ) { 
+          if (counter_resprob<100)
+            cout << "WARNING: fracSigma = " << fracSigma << ", iSigmaRight=" 
+                 << iSigmaRight << "; sigma = " << massResol << " and bounds are 0:" 
+                 << ResMaxSigma[ires][MuonType] << " - iSigmaRight set to " << nbins-1 << endl;
+          iSigmaLeft  = nbins-1;
+          iSigmaRight = nbins;
+        }
       
-      // If f11,f12,f21,f22 are the values at the four corners, one finds by linear interpolation the
-      // formula below for PS[]
-      // --------------------------------------------------------------------------------------------
-      double f11 = 0.;
-      if (GLNorm[ires][iSigmaLeft]>0) 
-	f11 = GLValue[ires][iMassLeft][iSigmaLeft] / GLNorm[ires][iSigmaLeft];
-      double f12 = 0.;
-      if (GLNorm[ires][iSigmaRight]>0) 
-	f12 = GLValue[ires][iMassLeft][iSigmaRight] / GLNorm[ires][iSigmaRight];
-      double f21 = 0.;
-      if (GLNorm[ires][iSigmaLeft]>0) 
-	f21 = GLValue[ires][iMassRight][iSigmaLeft] / GLNorm[ires][iSigmaLeft];
-      double f22 = 0.;
-      if (GLNorm[ires][iSigmaRight]>0) 
-	f22 = GLValue[ires][iMassRight][iSigmaRight] / GLNorm[ires][iSigmaRight];
-      PS[ires] = f11 + (f12-f11)*fracSigmaStep + (f21-f11)*fracMassStep + 
-	         (f22-f21-f12+f11)*fracMassStep*fracSigmaStep;    
-      if (PS[ires]>0.1 || debug>1) cout << "ires=" << ires << " PS=" << PS[ires] << " f11,f12,f21,f22=" 
-					<< f11 << " " << f12 << " " << f21 << " " << f22 << " " 
-					<< " fSS=" << fracSigmaStep << " fMS=" << fracMassStep << " iSL, iSR=" 
-					<< iSigmaLeft << " " << iSigmaRight << " GLV,GLN=" 
-					<< GLValue[ires][iMassLeft][iSigmaLeft] 
-					<< " " << GLNorm[ires][iSigmaLeft] << endl;
-    } 
+        // If f11,f12,f21,f22 are the values at the four corners, one finds by linear interpolation the
+        // formula below for PS[]
+        // --------------------------------------------------------------------------------------------
+        double f11 = 0.;
+        if (GLNorm[ires][iSigmaLeft]>0) 
+          f11 = GLValue[ires][iMassLeft][iSigmaLeft] / GLNorm[ires][iSigmaLeft];
+        double f12 = 0.;
+        if (GLNorm[ires][iSigmaRight]>0) 
+          f12 = GLValue[ires][iMassLeft][iSigmaRight] / GLNorm[ires][iSigmaRight];
+        double f21 = 0.;
+        if (GLNorm[ires][iSigmaLeft]>0) 
+          f21 = GLValue[ires][iMassRight][iSigmaLeft] / GLNorm[ires][iSigmaLeft];
+        double f22 = 0.;
+        if (GLNorm[ires][iSigmaRight]>0) 
+          f22 = GLValue[ires][iMassRight][iSigmaRight] / GLNorm[ires][iSigmaRight];
+        PS[ires] = f11 + (f12-f11)*fracSigmaStep + (f21-f11)*fracMassStep + 
+          (f22-f21-f12+f11)*fracMassStep*fracSigmaStep;    
+        if (PS[ires]>0.1 || debug>1) cout << "ires=" << ires << " PS=" << PS[ires] << " f11,f12,f21,f22=" 
+                                          << f11 << " " << f12 << " " << f21 << " " << f22 << " " 
+                                          << " fSS=" << fracSigmaStep << " fMS=" << fracMassStep << " iSL, iSR=" 
+                                          << iSigmaLeft << " " << iSigmaRight << " GLV,GLN=" 
+                                          << GLValue[ires][iMassLeft][iSigmaLeft] 
+                                          << " " << GLNorm[ires][iSigmaLeft] << endl;
+
+        // We are inside the current resonance mass window, check if we are also inside any other resonance mass window.
+        for( int otherRes = 0; otherRes < 6; ++otherRes ) {
+          if( otherRes != ires ) {
+            if( checkMassWindow( mass, otherRes ) ) ++superpositionFactor;
+          }
+        }
+      }
+//       else {
+//         // If we are not in the current resonance mass window, check that we are not in the window of any other resonance
+//         // so as not to use them in the background computation.
+//         for( int otherRes = 0; otherRes < 6; ++otherRes ) {
+//           if( otherRes != ires ) {
+//             if( checkMassWindow( mass, otherRes ) ) {
+//               noBackground = true;
+//               // cout << "noBackground: mass = " << mass << ", otherRes = " << otherRes << ", ires = " << ires << endl;
+//             }
+//           }
+//         }
+//       }
+    }
   }
 
   double PB = 0.;
@@ -1009,52 +1061,6 @@ double MuScleFitUtils::massProb (double mass, double rapidity, double massResol,
   PB = (*backgroundFunction)( &(parval[shift]), resTotNum, nres, resConsidered, ResMass, ResHalfWidth, MuonType, mass, nbins );
 
   Bgrp1 = parval[shift];
-//   if (BgrFitType==1) { // Constant
-//     // This is a constant normalized to unity in the span of the window (1000 bins in mass)
-//     // NB: wherever there are more than a single resonance contributing, the background fraction
-//     // gets multiplied by the number of signals. This allows to have the same normalization 
-//     // throughout the spectrum: the background fraction (Bgrp1 in this fit) will represent 
-//     // the right fraction overall. This is because where two resonances overlap their windows
-//     // a given background fraction will contribute only half to Bgrp1.
-//     // -----------------------------------------------------------------------------------------
-//     PB = nres/(double)nbins;
-//   } else if (BgrFitType==2) { // Exponential
-//     Bgrp2 = parval[1+shift];
-//     for (int ires=0; ires<6; ires++) {
-//       // In case of an exponential, we normalize it such that it has integral in any window
-//       // equal to unity, and then, when adding together all the resonances, one gets a meaningful
-//       // result for the overall background fraction.
-//       // ----------------------------------------------------------------------------------------
-//       if (resConsidered[ires]) {
-// 	if (exp(-Bgrp2*(ResMass[ires]-ResHalfWidth[ires][MuonType]))-exp(-Bgrp2*(ResMass[ires]+ResHalfWidth[ires][MuonType]))>0) {
-// 	  PB += Bgrp2*exp(-Bgrp2*mass) * 
-// 	    (2*ResHalfWidth[ires][MuonType])/(double)nbins /
-// 	    (exp(-Bgrp2*(ResMass[ires]-ResHalfWidth[ires][MuonType]))-exp(-Bgrp2*(ResMass[ires]+ResHalfWidth[ires][MuonType])));
-// 	} else {
-// 	  cout << "Impossible to compute Background probability! - some fix needed - Bgrp2=" << Bgrp2 << endl;  
-// 	}
-//       }
-//     }
-//   } else if (BgrFitType==3) { // Constant + Exponential
-//     Bgrp2 = parval[1+shift];
-//     Bgrp3 = parval[2+shift];
-//     for (int ires=0; ires<6; ires++) {
-//       // In this case, by integrating between A and B, we get for f=exp(a-bx)+k:
-//       // INT = exp(a)/b*(exp(-bA)-exp(-bB))+k*(B-A) so our function, which in 1000 bins between A and B
-//       // gets a total of 1, is f = (exp(a-bx)+k)*(B-A)/nbins / (INT)
-//       // ----------------------------------------------------------------------------------------------
-//       if (resConsidered[ires]) {
-// 	if (exp(-Bgrp2*(ResMass[ires]-ResHalfWidth[ires][MuonType]))-exp(-Bgrp2*(ResMass[ires]+ResHalfWidth[ires][MuonType]))>0) {
-// 	  PB += (exp(-Bgrp2*mass)+Bgrp3) *
-// 	    2*ResHalfWidth[ires][MuonType]/(double)nbins / 
-// 	    ( (exp(-Bgrp2*(ResMass[ires]-ResHalfWidth[ires][MuonType]))-exp(-Bgrp2*(ResMass[ires]+ResHalfWidth[ires][MuonType])))/
-// 	      Bgrp2 + Bgrp3*2*ResHalfWidth[ires][MuonType] );
-// 	} else {
-// 	  cout << "Impossible to compute Background probability! - some fix needed - Bgrp2=" << Bgrp2 << endl;  
-// 	}
-//       }
-//     }
-//   }
   
   double PStot = 0.;
   for (int ires=0; ires<6; ires++) {
@@ -1064,11 +1070,16 @@ double MuScleFitUtils::massProb (double mass, double rapidity, double massResol,
     }
   }
 
+//   // Do not compute the background over other resonances
+//   if( noBackground ) {
+//     // cout << "mass = " << mass << endl;
+//     PB = 0;
+//   }
 
   if (debug>0) cout << "MassProb: Pstot, Pb, bgrp1 = " << PStot << " " << PB << " " << Bgrp1 << endl;
-  P = PStot*(1-Bgrp1) + PB*Bgrp1;
+  P = PStot*(1-Bgrp1) + PB*(1+superpositionFactor)*Bgrp1;
 
-  cout << "mass = " << mass << ", P = " << P << ", Pstot = " << PStot << ", Pb = " << PB << ", bgrp1 = " << Bgrp1 << endl;
+  if (debug>1) cout << "mass = " << mass << ", P = " << P << ", Pstot = " << PStot << ", Pb = " << PB << ", bgrp1 = " << Bgrp1 << endl;
 
   return P;
   
@@ -1078,16 +1089,16 @@ double MuScleFitUtils::massProb (double mass, double rapidity, double massResol,
 bool MuScleFitUtils::checkMassWindow( const double & mass, const int ires ) {
   // Special conditions for J/Psi and Upsilon: 3*Gamma on the left and Gamma on the right (so as to avoid the Psi1S and Upsilon1S).
   // Separated so that the correct mass window is checked for each resonance.
-  if (ires == 3 && resfind[3]>0 && ( (mass-ResMass[3]>-leftWindowFactor*ResHalfWidth[3][MuonType]) && (mass-ResMass[3]<rightWindowFactor*ResHalfWidth[3][MuonType]) )) {
-    cout << "Upsilon: ires = " << ires << ", mass = " << mass << ", ResMass[3] = " << ResMass[3]
-         << ", ResHalfWidth[3][MuonType] = " << ResHalfWidth[3][MuonType] << endl;
-    return true;
-  }
-  if (ires == 5 && resfind[5]>0 && ( (mass-ResMass[5]>-leftWindowFactor*ResHalfWidth[5][MuonType]) && (mass-ResMass[5]<rightWindowFactor*ResHalfWidth[5][MuonType]) )) {
-    cout << "J/Psi: ires = " << ires << ", mass = " << mass << ", ResMass[5] = " << ResMass[5]
-         << ", ResHalfWidth[5][MuonType] = " << ResHalfWidth[5][MuonType] << endl;
-    return true;
-  }
+//   if (ires == 3 && resfind[3]>0 && ( (mass-ResMass[3]>-leftWindowFactor*ResHalfWidth[3][MuonType]) && (mass-ResMass[3]<rightWindowFactor*ResHalfWidth[3][MuonType]) )) {
+//     if( debug>1 ) cout << "Upsilon: ires = " << ires << ", mass = " << mass << ", ResMass[3] = " << ResMass[3]
+//                       << ", ResHalfWidth[3][MuonType] = " << ResHalfWidth[3][MuonType] << endl;
+//     return true;
+//   }
+//   if (ires == 5 && resfind[5]>0 && ( (mass-ResMass[5]>-leftWindowFactor*ResHalfWidth[5][MuonType]) && (mass-ResMass[5]<rightWindowFactor*ResHalfWidth[5][MuonType]) )) {
+//     if( debug>1 ) cout << "J/Psi: ires = " << ires << ", mass = " << mass << ", ResMass[5] = " << ResMass[5]
+//                        << ", ResHalfWidth[5][MuonType] = " << ResHalfWidth[5][MuonType] << endl;
+//     return true;
+//   }
 
   return fabs(mass-ResMass[ires])<ResHalfWidth[ires][MuonType];
 }
