@@ -36,7 +36,7 @@ def getConfigsForScenario(sequence = None):
     If no trigger or an invalid trigger is given, use the default one. 
     """
     # default trigger, used if none is 
-    default = 'L1Menu_Commissioning2009_v0:Unprescaled'
+    default = 'L1Menu_2008MC_2E30:Unprescaled'
 
     if not sequence:
         # no trigger was specified, use the default one
