@@ -50,9 +50,6 @@ namespace edm {
     T const& operator*() const;
 
   private:
-    T const* prod_;
-    Provenance const* prov_;    
-    boost::shared_ptr<cms::Exception> whyFailed_;
   };
 
   template <class T>
