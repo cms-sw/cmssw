@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/09/24 14:48:13 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/03/10 15:08:59 $
+ *  $Revision: 1.2 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -48,7 +48,7 @@ DTnoiseDBValidation::DTnoiseDBValidation(const ParameterSet& pset) {
 
   // Get the DQM needed services
   dbe = edm::Service<DQMStore>().operator->();
-  dbe->setCurrentFolder("DT/DTDBValidation");
+  dbe->setCurrentFolder("DT/noiseDBValidation");
 
   // Get dataBase label
   labelDBRef = pset.getUntrackedParameter<string>("labelDBRef");
