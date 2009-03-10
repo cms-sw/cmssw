@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Producer.cc,v 1.8 2008/12/02 22:53:40 drell Exp $
+// $Id: V0Producer.cc,v 1.9 2009/02/04 22:42:41 drell Exp $
 //
 //
 
@@ -80,7 +80,8 @@ void V0Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 }
 
 
-void V0Producer::beginJob(const edm::EventSetup&) {
+//void V0Producer::beginJob(const edm::EventSetup&) {
+void V0Producer::beginJob() {
 }
 
 
