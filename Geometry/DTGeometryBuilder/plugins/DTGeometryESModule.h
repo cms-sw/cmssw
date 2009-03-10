@@ -5,8 +5,8 @@
  * 
  *  ESProducer for DTGeometry in MuonGeometryRecord
  *
- *  $Date: 2008/06/26 12:20:40 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/01/16 11:11:46 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - CERN
  */
 
@@ -15,7 +15,6 @@
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 #include <Geometry/DTGeometry/interface/DTGeometry.h>
-#include "Geometry/Records/interface/PGeometricDetRcd.h"
 
 #include <string>
 
@@ -29,7 +28,6 @@ public:
 
   /// Produce DTGeometry.
   boost::shared_ptr<DTGeometry> produce(const MuonGeometryRecord& record);
-  //std::auto_ptr<DTGeometry>  produceFromCondDB(const PGeometricDetRcd& record);
 
 private:  
   void geometryCallback_( const MuonNumberingRecord& record ) ;

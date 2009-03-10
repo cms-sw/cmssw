@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Mon Jul 25 11:05:09 EDT 2005
-// $Id: TrackerDigiGeometryRecord.h,v 1.7 2008/02/19 13:54:58 pivarski Exp $
+// $Id: TrackerDigiGeometryRecord.h,v 1.8 2008/12/19 10:22:50 fambrogl Exp $
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
@@ -25,7 +25,6 @@
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
-#include "Geometry/Records/interface/PGeometricDetRcd.h"
 #include "boost/mpl/vector.hpp"
 
 
@@ -34,8 +33,7 @@ class TrackerDigiGeometryRecord :
                 boost::mpl::vector<IdealGeometryRecord,
                 TrackerAlignmentRcd, 
                 TrackerAlignmentErrorRcd,
-                GlobalPositionRcd,
-                PGeometricDetRcd> > {};
+                GlobalPositionRcd> > {};
 
 #endif /* RECORDS_TRACKERDIGIGEOMETRYRECORD_H */
 

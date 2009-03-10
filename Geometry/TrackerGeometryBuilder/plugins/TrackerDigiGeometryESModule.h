@@ -17,7 +17,7 @@ class  TrackerDigiGeometryESModule: public edm::ESProducer{
  private:
   /// Called when geometry description changes
   void ddGeometryCallback_( const IdealGeometryRecord& );
-  void gdGeometryCallback_( const PGeometricDetRcd& );
+  void gdGeometryCallback_( const IdealGeometryRecord& );
   boost::shared_ptr<TrackerGeometry> _tracker;
   bool applyAlignment_; // Switch to apply alignment corrections
   bool fromDDD_;

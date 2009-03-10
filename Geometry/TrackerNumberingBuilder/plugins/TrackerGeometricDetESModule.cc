@@ -1,6 +1,5 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/TrackerGeometricDetESModule.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/DDDCmsTrackerContruction.h"
-#include "Geometry/Records/interface/PGeometricDetRcd.h"
 #include "CondFormats/GeometryObjects/interface/PGeometricDet.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"

@@ -95,7 +95,7 @@ void TrackerDigiGeometryESModule::ddGeometryCallback_( const IdealGeometryRecord
 
 }
 
-void TrackerDigiGeometryESModule::gdGeometryCallback_( const PGeometricDetRcd& record )
+void TrackerDigiGeometryESModule::gdGeometryCallback_( const IdealGeometryRecord& record )
 {
 
   //

@@ -132,11 +132,8 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   // get the GeometricDet
   //
   edm::ESHandle<GeometricDet> rDD;
-  if (fromDDD_) {
-    iSetup.get<IdealGeometryRecord>().get( rDD );     
-  } else {
-    iSetup.get<PGeometricDetRcd>().get( rDD );
-  }
+  iSetup.get<IdealGeometryRecord>().get( rDD );     
+
   edm::LogInfo("ModuleInfo") << " Top node is  " << &(*rDD) << " " <<  (*rDD).name().name() << std::endl;
   edm::LogInfo("ModuleInfo") << " And Contains  Daughters: " << (*rDD).deepComponents().size() << std::endl;
   CmsTrackerDebugNavigator nav;
