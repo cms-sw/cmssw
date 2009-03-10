@@ -12,6 +12,6 @@
 <use name=rootcore>
 <use name=rootmath>
 
-#<library file=*.cc name=TopQuarkAnalysisTopJetCombinationPlugins>
-#  <flags EDM_PLUGIN=1>
-#</library>
+<library file=*.cc name=TopQuarkAnalysisTopJetCombinationPlugins>
+  <flags EDM_PLUGIN=1>
+</library>

@@ -92,51 +92,36 @@ TtSemiLepHypGeom::buildHypo(edm::Event& evt,
   // -----------------------------------------------------
   // add jets
   // -----------------------------------------------------
-  //
-  // FIXME:
-  // template does not work anymore with new compiler
-  // we need to fix this as soon as test data arrive
-  //  
   if( isValid(lightQ, jets) ){
-    //setCandidate(jets, lightQ, lightQ_);
+    setCandidate(jets, lightQ, lightQ_);
     match[TtSemiLepEvtPartons::LightQ] = lightQ;
   }
 
   if( isValid(lightQBar, jets) ){
-    //setCandidate(jets, lightQBar, lightQBar_);
+    setCandidate(jets, lightQBar, lightQBar_);
     match[TtSemiLepEvtPartons::LightQBar] = lightQBar;
   }
 
   if( isValid(hadB, jets) ){
-    //setCandidate(jets, hadB, hadronicB_);
+    setCandidate(jets, hadB, hadronicB_);
     match[TtSemiLepEvtPartons::HadB] = hadB;
   }
   
   if( isValid(lepB, jets) ){
-    //setCandidate(jets, lepB, leptonicB_);
+    setCandidate(jets, lepB, leptonicB_);
     match[TtSemiLepEvtPartons::LepB] = lepB;
   }
 
   // -----------------------------------------------------
   // add lepton
   // -----------------------------------------------------
-  //
-  // FIXME:
-  // template does not work anymore with new compiler
-  // we need to fix this as soon as test data arrive
-  //
-  //setCandidate(leps, 0, lepton_);
+  setCandidate(leps, 0, lepton_);
   match[TtSemiLepEvtPartons::Lepton] = 0;
   
   // -----------------------------------------------------
   // add neutrino
   // -----------------------------------------------------
-  //
-  // FIXME:
-  // template does not work anymore with new compiler
-  // we need to fix this as soon as test data arrive
-  //
-  //setCandidate(mets, 0, neutrino_);
+  setCandidate(mets, 0, neutrino_);
 }
 
 double

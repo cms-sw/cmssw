@@ -21,22 +21,17 @@ TtSemiLepHypGenMatch::buildHypo(edm::Event& evt,
   for(unsigned idx=0; idx<match.size(); ++idx){
     if( isValid(match[idx], jets) ){
       switch(idx){
-	//
-	// FIXME:
-	// template does not work anymore with new compiler
-	// we need to fix this as soon as test data arrive
-	//
       case TtSemiLepEvtPartons::LightQ:
-	//setCandidate(jets, match[idx], lightQ_); 
+	setCandidate(jets, match[idx], lightQ_); 
 	break;
       case TtSemiLepEvtPartons::LightQBar:
-	//setCandidate(jets, match[idx], lightQBar_); 
+	setCandidate(jets, match[idx], lightQBar_); 
 	break;
       case TtSemiLepEvtPartons::HadB:
-	//setCandidate(jets, match[idx], hadronicB_); 
+	setCandidate(jets, match[idx], hadronicB_); 
 	break;
       case TtSemiLepEvtPartons::LepB: 
-	//setCandidate(jets, match[idx], leptonicB_); 
+	setCandidate(jets, match[idx], leptonicB_); 
 	break;
       }
     }
@@ -47,13 +42,8 @@ TtSemiLepHypGenMatch::buildHypo(edm::Event& evt,
   // -----------------------------------------------------
   if( !leps->empty() ){
     int iLepton = findMatchingLepton(evt,leps);
-    //
-    // FIXME:
-    // template does not work anymore with new compiler
-    // we need to fix this as soon as test data arrive
-    //
     if( iLepton>=0 ){
-      //setCandidate(leps, iLepton, lepton_);
+      setCandidate(leps, iLepton, lepton_);
     }
     match.push_back( iLepton );
   }
@@ -62,13 +52,8 @@ TtSemiLepHypGenMatch::buildHypo(edm::Event& evt,
   // -----------------------------------------------------
   // add neutrino
   // -----------------------------------------------------
-  //
-  // FIXME:
-  // template does not work anymore with new compiler
-  // we need to fix this as soon as test data arrive
-  //
   if( !mets->empty() ){
-    //setCandidate(mets, 0, neutrino_);
+    setCandidate(mets, 0, neutrino_);
   }
 }
 
