@@ -4,16 +4,23 @@ process = cms.Process("CALIB")
 process.load("Geometry.MuonCommonData.muonIdealGeometryXML_cfi")
 
 process.load("Geometry.DTGeometry.dtGeometry_cfi")
+process.DTGeometryESModule.applyAlignment = False
 
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 
 process.load("DQMServices.Core.DQM_cfg")
 
-process.source = cms.Source("EmptyIOVSource",
-    lastRun = cms.untracked.uint32(100),
-    timetype = cms.string('runnumber'),
-    firstRun = cms.untracked.uint32(1),
-    interval = cms.uint32(90)
+from CalibTracker.Configuration.Common.PoolDBESSource_cfi import poolDBESSource
+poolDBESSource.connect = "frontier://FrontierDev/CMS_COND_ALIGNMENT"
+poolDBESSource.toGet = cms.VPSet(cms.PSet(
+        record = cms.string('GlobalPositionRcd'),
+        tag = cms.string('IdealGeometry')
+    )) 
+process.glbPositionSource = poolDBESSource
+
+process.source = cms.Source("EmptySource",
+    numberEventsInRun = cms.untracked.uint32(1),
+    firstRun = cms.untracked.uint32(70675)
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -27,16 +34,16 @@ process.ttrigRef = cms.ESSource("PoolDBESSource",
     timetype = cms.string('runnumber'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('DTTtrigRcd'),
-        tag = cms.string('tTrig_CRUZET_080708_2019'),
+        tag = cms.string('DT_tTrig_CRAFT_V04_k-07_offline'),
         label = cms.untracked.string('ttrigRef')
     ), 
         cms.PSet(
             record = cms.string('DTTtrigRcd'),
             tag = cms.string('ttrig'),
-            connect = cms.untracked.string('sqlite_file:ttrig_second_52256.db'),
+            connect = cms.untracked.string('sqlite_file:ttrig_67838.db'),
             label = cms.untracked.string('ttrigToValidate')
         )),
-    connect = cms.string('oracle://cms_orcoff_prod/CMS_COND_20X_DT'),
+    connect = cms.string('oracle://cms_orcoff_prep/CMS_COND_30X_DT'),
     siteLocalConfig = cms.untracked.bool(False)
 )
 
@@ -71,7 +78,7 @@ process.dtTTrigAnalyzer = cms.EDFilter("DTtTrigDBValidation",
 
 process.qTester = cms.EDFilter("QualityTester",
     prescaleFactor = cms.untracked.int32(1),
-    qtList = cms.untracked.FileInPath('DQMOffline/CalibMuon/data/QualityTests_ttrig.xml')
+    qtList = cms.untracked.FileInPath('DQMOffline/CalibMuon/data/QualityTests.xml')
 )
 
 process.p = cms.Path(process.dtTTrigAnalyzer*process.qTester)
