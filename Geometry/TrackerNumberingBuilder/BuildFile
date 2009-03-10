@@ -1,9 +1,16 @@
-<export>
-<lib name=GeometryTrackerNumberingBuilder>
-<use name=DetectorDescription/Core>
-</export>
-
 <use name=DataFormats/GeometrySurface>
 <use name=DataFormats/DetId>
 <use name=DetectorDescription/Core>
+<use name=DetectorDescription/Base>
+<use name=CondFormats/GeometryObjects>
 <use name=FWCore/Framework>
+
+<export>
+ <lib name=GeometryTrackerNumberingBuilder>
+ <use name=DataFormats/GeometrySurface>
+ <use name=DataFormats/DetId>
+ <use name=DetectorDescription/Core>
+ <use name=DetectorDescription/Basee>
+ <use name=CondFormats/GeometryObjects>
+</export>
+
