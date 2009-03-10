@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2009/03/05 13:04:53 $
- * $Revision: 1.161 $
+ * $Date: 2009/03/10 10:10:36 $
+ * $Revision: 1.162 $
  * \author G. Della Ricca
  *
 */
@@ -216,7 +216,7 @@ void EESummaryClient::beginJob(DQMStore* dqmStore) {
 
   sprintf(histo, "reportSummaryMap");
   me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo);
-  if ( me ) ) {
+  if ( me ) {
     dqmStore_->removeElement(me->getName());
   }
   me = dqmStore_->book2D(histo, histo, 200, 0., 200., 100, 0., 100);
