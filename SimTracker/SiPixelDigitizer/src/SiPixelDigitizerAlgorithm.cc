@@ -57,11 +57,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "CondTools/SiPixel/interface/SiPixelGainCalibrationOfflineService.h"
  
-// Accessing Lorentz Angle from the DB:
-#include "CalibTracker/SiPixelLorentzAngle/test/SiPixelLorentzAngleReader.h"
-
 // Accessing dead pixel modules from the DB:
-#include "CondTools/SiPixel/test/SiPixelBadModuleReader.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 using namespace std;
@@ -1319,9 +1315,6 @@ float SiPixelDigitizerAlgorithm::missCalibrate(int col,int row,
   // Convert electrons to VCAL units
   float signal = (signalInElectrons-electronsPerVCAL_Offset)/electronsPerVCAL;
 
-  //  std::cout << "electronsPerVCAL = " << electronsPerVCAL << " and electronsPerVCAL_Offset = " << electronsPerVCAL_Offset << std::endl;
-
-  //
   // Simulate the analog response with fixed parametrization
   newAmp = p3 + p2 * tanh(p0*signal - p1);
   
