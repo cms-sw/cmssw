@@ -20,7 +20,7 @@ SiGaussianTailNoiseAdder::~SiGaussianTailNoiseAdder(){
 }
 
 void SiGaussianTailNoiseAdder::addNoise(std::vector<double> &in,
-					unsigned int& minChannel, unsigned int& maxChannel,
+					size_t& minChannel, size_t& maxChannel,
 					int ns, float nrms){
   
   numStrips = ns; 
@@ -29,7 +29,7 @@ void SiGaussianTailNoiseAdder::addNoise(std::vector<double> &in,
   genNoise->generate(numStrips,threshold,noiseRMS,generatedNoise);
   
   // noise on strips with signal:
-  for (unsigned int iChannel=minChannel; iChannel<=maxChannel; iChannel++) {
+  for (size_t iChannel=minChannel; iChannel<=maxChannel; iChannel++) {
     if(in[iChannel] != 0) {
       in[iChannel] += gaussDistribution->fire(0.,noiseRMS);
     }
@@ -45,17 +45,17 @@ void SiGaussianTailNoiseAdder::addNoise(std::vector<double> &in,
 }
 
 void SiGaussianTailNoiseAdder::createRaw(std::vector<double> &in,
-					 unsigned int& minChannel, unsigned int& maxChannel,
+					 size_t& minChannel, size_t& maxChannel,
 					 int ns, float nrms, float ped){
   
   // Add pedestals
-  for (unsigned int iChannel=0; iChannel!=in.size(); iChannel++) {
+  for (size_t iChannel=0; iChannel!=in.size(); iChannel++) {
     in[iChannel] += ped;
   }
   
   // in raw mode, we simulate the same noise everywhere 
   // (no threshold effect).
-  for (unsigned int iChannel=minChannel; iChannel<=maxChannel; iChannel++) {
+  for (size_t iChannel=minChannel; iChannel<=maxChannel; iChannel++) {
       in[iChannel] += gaussDistribution->fire(0.,nrms);           
   }
 }

@@ -43,7 +43,7 @@ SiHitDigitizer::~SiHitDigitizer(){
 
 void 
 SiHitDigitizer::processHit(const PSimHit& hit, const StripGeomDetUnit& det, GlobalVector bfield,float langle,
-			   std::vector<double>& locAmpl, unsigned int& firstChannelWithSignal, unsigned int& lastChannelWithSignal){
+			   std::vector<double>& locAmpl, size_t& firstChannelWithSignal, size_t& lastChannelWithSignal){
   
   // Compute the drift direction for this det
   double moduleThickness = det.specificSurface().bounds().thickness(); // full detector thicness

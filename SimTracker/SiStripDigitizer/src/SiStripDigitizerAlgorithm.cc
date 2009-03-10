@@ -83,10 +83,10 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
   std::vector<double> detAmpl(locAmpl);
 
   // to speed-up vector filling (only for channels with signal)
-  //  the unsigned int corresponds to the channel number
+  //  the size_t corresponds to the channel number
   //  and NOT to the vector position (which is channel-1)
-  unsigned int firstChannelWithSignal = numStrips+1;
-  unsigned int lastChannelWithSignal  = 0;
+  size_t firstChannelWithSignal = numStrips+1;
+  size_t lastChannelWithSignal  = 0;
 
   // First: loop on the SimHits
   std::vector<std::pair<PSimHit, int > >::const_iterator simHitIter = input.begin();
@@ -97,13 +97,13 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
       const PSimHit & ihit = (*simHitIter).first;
       float t0 = det->surface().toGlobal(ihit.localPosition()).mag()/30.;
       if ( std::fabs( ihit.tof() - cosmicShift - t0) < tofCut && ihit.energyLoss()>0) {
-        unsigned int localFirstChannel = numStrips+1;
-        unsigned int localLastChannel  = 0;
+        size_t localFirstChannel = numStrips+1;
+        size_t localLastChannel  = 0;
         // process the hit
         theSiHitDigitizer->processHit(ihit,*det,bfield,langle, locAmpl, localFirstChannel, localLastChannel);
         theSiPileUpSignals->add(locAmpl, localFirstChannel, localLastChannel, ihit, (*simHitIter).second);
         // sum signal on strips
-        for (unsigned int iChannel=localFirstChannel; iChannel<=localLastChannel; iChannel++) {
+        for (size_t iChannel=localFirstChannel; iChannel<=localLastChannel; iChannel++) {
           if(locAmpl[iChannel]>0.) {             
             detAmpl[iChannel]+=locAmpl[iChannel];
             locAmpl[iChannel]=0;

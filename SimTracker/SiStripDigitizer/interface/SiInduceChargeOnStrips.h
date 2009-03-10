@@ -18,6 +18,6 @@ public:
   
   virtual ~SiInduceChargeOnStrips() { }
   virtual void induce(SiChargeCollectionDrifter::collection_type, const StripGeomDetUnit&, 
-		      std::vector<double>&, unsigned int&, unsigned int&) = 0 ;
+		      std::vector<double>&, size_t&, size_t&) = 0 ;
 };
 #endif

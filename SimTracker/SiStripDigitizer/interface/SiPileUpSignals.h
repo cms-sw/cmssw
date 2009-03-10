@@ -26,7 +26,7 @@ class SiPileUpSignals{
   virtual ~SiPileUpSignals() { }
   
   virtual void add(const std::vector<double>& locAmpl,
-		   const unsigned int& firstChannelWithSignal, const unsigned int& lastChannelWithSignal,
+		   const size_t& firstChannelWithSignal, const size_t& lastChannelWithSignal,
 		   const PSimHit& hit,const int& counter);
 		   
   void reset(){ resetLink(); }

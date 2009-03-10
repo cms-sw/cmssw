@@ -11,17 +11,17 @@ class SiTrivialInduceChargeOnStrips: public SiInduceChargeOnStrips {
   void  induce(SiChargeCollectionDrifter::collection_type collection_points,
 	       const StripGeomDetUnit& det,
 	       std::vector<double>& localAmplitudes,
-	       unsigned int& recordMinAffectedStrip,
-	       unsigned int& recordMaxAffectedStrip);
+	       size_t& recordMinAffectedStrip,
+	       size_t& recordMaxAffectedStrip);
   
  private:
-  double chargeDeposited(uint16_t strip, 
-			 uint16_t Nstrips, 
+  double chargeDeposited(size_t strip, 
+			 size_t Nstrips, 
 			 double amplitude, 
 			 double chargeSpread, 
 			 double chargePosition) const;
-  static uint16_t typeOf(const StripGeomDetUnit&);
-  static uint16_t indexOf(const std::string&);
+  static unsigned int typeOf(const StripGeomDetUnit&);
+  static unsigned int indexOf(const std::string&);
   static const std::string type[];
   static const int Ntypes;
   std::vector<std::vector<double> > signalCoupling; 

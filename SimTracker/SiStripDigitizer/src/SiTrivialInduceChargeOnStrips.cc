@@ -20,11 +20,11 @@ const  std::string
 SiTrivialInduceChargeOnStrips::
 type[Ntypes] = { "IB1", "IB2","OB1","OB2","W1a","W2a","W3a","W1b","W2b","W3b","W4","W5","W6","W7"};
 
-inline uint16_t 
+inline unsigned int 
 SiTrivialInduceChargeOnStrips::
 indexOf(const std::string& t) { return std::find( type, type + Ntypes, t) - type;}
 
-inline uint16_t
+inline unsigned int
 SiTrivialInduceChargeOnStrips::
 typeOf(const StripGeomDetUnit& det) {
   DetId id = det.geographicalId();
@@ -50,12 +50,12 @@ SiTrivialInduceChargeOnStrips::
 induce(SiChargeCollectionDrifter::collection_type collection_points, 
        const StripGeomDetUnit& det, 
        std::vector<double>& localAmplitudes, 
-       unsigned int& recordMinAffectedStrip, 
-       unsigned int& recordMaxAffectedStrip) {
+       size_t& recordMinAffectedStrip, 
+       size_t& recordMaxAffectedStrip) {
 
   std::vector<double>& coupling = signalCoupling.at(typeOf(det));
   const StripTopology& topology = dynamic_cast<const StripTopology&>(det.specificTopology());
-  unsigned Nstrips =  topology.nstrips();
+  size_t Nstrips =  topology.nstrips();
 
   for (SiChargeCollectionDrifter::collection_type::const_iterator 
 	 signalpoint = collection_points.begin();  signalpoint != collection_points.end();  signalpoint++ ) {
@@ -64,15 +64,15 @@ induce(SiChargeCollectionDrifter::collection_type collection_points,
     double chargePosition = topology.strip(signalpoint->position());
     double chargeSpread = signalpoint->sigma() / topology.localPitch(signalpoint->position());
     
-    uint16_t fromStrip = std::max( 0,         int(   std::floor( chargePosition - Nsigma*chargeSpread) ));
-    uint16_t untilStrip = std::min( Nstrips, unsigned(std::ceil( chargePosition + Nsigma*chargeSpread) ));
-    for (uint16_t strip = fromStrip;  strip < untilStrip; strip++) {
+    size_t fromStrip = std::max( 0,         int(   std::floor( chargePosition - Nsigma*chargeSpread) ));
+    size_t untilStrip = std::min( Nstrips, size_t(std::ceil( chargePosition + Nsigma*chargeSpread) ));
+    for (size_t strip = fromStrip;  strip < untilStrip; strip++) {
 
       double chargeDepositedOnStrip = chargeDeposited( strip, Nstrips, signalpoint->amplitude(), chargeSpread, chargePosition);
 
-      uint16_t affectedFromStrip = std::max( unsigned(0),  strip - coupling.size() + 1 );
-      uint16_t affectedUntilStrip = std::min( Nstrips,  strip + coupling.size() );  
-      for (uint16_t affectedStrip = affectedFromStrip;  affectedStrip < affectedUntilStrip;  affectedStrip++) {
+      size_t affectedFromStrip = std::max( size_t(0),  size_t(strip - coupling.size() + 1) );
+      size_t affectedUntilStrip = std::min( size_t(Nstrips),  size_t(strip + coupling.size()) );  
+      for (size_t affectedStrip = affectedFromStrip;  affectedStrip < affectedUntilStrip;  affectedStrip++) {
 	localAmplitudes.at( affectedStrip ) += chargeDepositedOnStrip * coupling.at(abs( affectedStrip - strip )) ;
       }
 
@@ -85,7 +85,7 @@ induce(SiChargeCollectionDrifter::collection_type collection_points,
 
 inline double
 SiTrivialInduceChargeOnStrips::
-chargeDeposited(uint16_t strip, uint16_t Nstrips, double amplitude, double chargeSpread, double chargePosition) const {
+chargeDeposited(size_t strip, size_t Nstrips, double amplitude, double chargeSpread, double chargePosition) const {
   double integralUpToStrip = (strip == 0)         ? 0. : ( ROOT::Math::normal_cdf(   strip, chargeSpread, chargePosition) );
   double integralUpToNext  = (strip+1 == Nstrips) ? 1. : ( ROOT::Math::normal_cdf( strip+1, chargeSpread, chargePosition) );
   double percentOfSignal = integralUpToNext - integralUpToStrip;

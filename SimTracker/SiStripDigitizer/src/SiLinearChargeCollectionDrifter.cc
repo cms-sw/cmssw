@@ -22,7 +22,7 @@ SiChargeCollectionDrifter::collection_type SiLinearChargeCollectionDrifter::drif
   collection_type _temp;
   _temp.resize(ion.size());
   // call the drift method for each deposit
-  for (unsigned int i=0; i<ion.size(); i++){
+  for (size_t i=0; i<ion.size(); i++){
     _temp[i] = drift(ion[i], driftDir);
   }
   return _temp;
