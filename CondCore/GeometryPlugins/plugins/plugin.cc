@@ -4,7 +4,7 @@
 #include "Geometry/Records/interface/GeometryFileRcd.h"
 
 #include "CondFormats/GeometryObjects/interface/PGeometricDet.h"
-#include "Geometry/Records/interface/PGeometricDetRcd.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h" 
 
 #include "CondFormats/GeometryObjects/interface/PCaloGeometry.h"
 #include "Geometry/Records/interface/PEcalBarrelRcd.h"
@@ -23,11 +23,10 @@
 #include "Geometry/Records/interface/DTRecoGeometryRcd.h"
 #include "Geometry/Records/interface/RPCRecoGeometryRcd.h"
 
-#include "Geometry/Records/interface/IdealGeometryRecord.h" 
 
 DEFINE_SEAL_MODULE();
 REGISTER_PLUGIN(GeometryFileRcd,GeometryFile);
-REGISTER_PLUGIN(PGeometricDetRcd,PGeometricDet);
+REGISTER_PLUGIN(IdealGeometryRecord,PGeometricDet);
 REGISTER_PLUGIN(PEcalBarrelRcd,PCaloGeometry);
 REGISTER_PLUGIN(PEcalEndcapRcd,PCaloGeometry);
 REGISTER_PLUGIN(PEcalPreshowerRcd,PCaloGeometry);
