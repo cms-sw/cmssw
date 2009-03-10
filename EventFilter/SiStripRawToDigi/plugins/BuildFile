@@ -1,7 +1,7 @@
 <library file="*.cc" name=EventFilterSiStripRawToDigiPlugins>
   <use name=CalibFormats/SiStripObjects>
   <use name=CalibTracker/Records>
-  <use name=CalibTracker/SiStripConnectivity>
+  <use name=CalibTracker/SiStripESProducers>
   <use name=CondFormats/SiStripObjects>
   <use name=CondFormats/DataRecord>
   <use name=DataFormats/Common>
