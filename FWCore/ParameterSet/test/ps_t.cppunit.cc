@@ -1,5 +1,5 @@
 /*
- * $Id: ps_t.cppunit.cc,v 1.19 2009/01/09 10:13:14 wmtan Exp $
+ * $Id: ps_t.cppunit.cc,v 1.21 2009/01/18 19:59:23 wmtan Exp $
  */
 
 #include <algorithm>
@@ -33,6 +33,7 @@ class testps: public CppUnit::TestFixture
   CPPUNIT_TEST(fileInPathTest);
   CPPUNIT_TEST(testEmbeddedPSet);
   CPPUNIT_TEST(testRegistration);
+  CPPUNIT_TEST(testCopyFrom);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -53,6 +54,7 @@ public:
   void fileInPathTest();
   void testEmbeddedPSet();
   void testRegistration();
+  void testCopyFrom();
   // Still more to do...
 private:
 };
@@ -453,3 +455,23 @@ void testps::testRegistration()
   CPPUNIT_ASSERT(!psEmbedded.isRegistered());
   CPPUNIT_ASSERT(psDeeper.isRegistered());
 }
+
+
+void testps::testCopyFrom()
+{
+  edm::ParameterSet psOld;
+  edm::ParameterSet psNew;
+  edm::ParameterSet psInternal;
+  std::vector<edm::ParameterSet> vpset;
+  vpset.push_back(psInternal);
+  psOld.addParameter<int>("i", 5);
+  psOld.addParameter<edm::ParameterSet>("ps", psInternal);
+  psOld.addParameter<std::vector<edm::ParameterSet> >("vps", vpset);
+  psNew.copyFrom(psOld, "i");
+  psNew.copyFrom(psOld, "ps");
+  psNew.copyFrom(psOld, "vps");
+  CPPUNIT_ASSERT(psNew.existsAs<int>("i"));
+  CPPUNIT_ASSERT(psNew.existsAs<edm::ParameterSet>("ps"));
+  CPPUNIT_ASSERT(psNew.existsAs<std::vector<edm::ParameterSet> >("vps"));
+}
+

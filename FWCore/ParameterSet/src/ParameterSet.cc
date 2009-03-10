@@ -421,6 +421,26 @@ namespace edm {
     }
   }  // augment()
 
+
+  void ParameterSet::copyFrom(ParameterSet const& from, char const*name)
+  {
+    invalidateRegistration(std::string());
+    if(from.existsAs<ParameterSet>(name)) {
+      this->insertParameterSet(false, name, *(from.retrieveUnknownParameterSet(name)) );
+    }
+    else if(from.existsAs<std::vector<ParameterSet> >(name)) {
+      this->insertVParameterSet(false, name, *(from.retrieveUnknownVParameterSet(name)) );
+    }
+    else if(from.exists(name)) {
+      this->insert(false, name, *(from.retrieveUnknown(name)) );
+    }
+    else {
+      throw edm::Exception(errors::Configuration,"CopyFailure")
+       << "Cannot find parameter " << name  << " in " << from;
+    }
+
+  }
+
   // ----------------------------------------------------------------------
   // coding
   // ----------------------------------------------------------------------

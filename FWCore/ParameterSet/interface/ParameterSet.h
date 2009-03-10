@@ -73,6 +73,8 @@ namespace edm {
     void insert(bool ok_to_replace, char const* , Entry const&);
     void insert(bool ok_to_replace, std::string const&, Entry const&);
     void augment(ParameterSet const& from); 
+    void copyFrom(ParameterSet const& from, char const*name);
+
     // encode
     std::string toString() const;
     void toString(std::string& result) const;
