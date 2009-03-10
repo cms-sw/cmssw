@@ -215,3 +215,25 @@ int DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
 
       return BLOCK_UNPACKED;
 }
+
+
+
+void DCCTowerBlock::fillEcalElectronicsError( std::auto_ptr<EcalElectronicsIdCollection> * errorColection ){
+
+   int activeDCC = mapper_->getActiveSM();
+
+   if(NUMB_SM_EB_MIN_MIN<=activeDCC && activeDCC<=NUMB_SM_EB_PLU_MAX){
+     EcalElectronicsId  *  eleTp = mapper_->getTTEleIdPointer(activeDCC+TCCID_SMID_SHIFT_EB,expTowerID_);
+     (*errorColection)->push_back(*eleTp);
+   }else{
+      if( ! DCCDataUnpacker::silentMode_ ){
+          edm::LogWarning("EcalRawToDigiDevChId")
+            <<"\n For event "<<event_->l1A()<<" there's fed: "<< activeDCC
+            <<" activeDcc: "<<mapper_->getActiveSM()
+            <<" but that activeDcc is not valid in EB.";
+        }
+
+   }
+
+}
+

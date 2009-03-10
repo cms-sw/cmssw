@@ -33,11 +33,12 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
   data_    = *data;
   dwToEnd_ = dwToEnd;
   
+   uint activeDCC = mapper_->getActiveSM();
  
   if( (*dwToEnd_)<1){
     if( ! DCCDataUnpacker::silentMode_ ){
       edm::LogWarning("EcalRawToDigiTowerSize")
-        <<"\n Unable to unpack Tower block for event "<<event_->l1A()<<" in fed "<<mapper_->getActiveDCC()
+        <<"\n Unable to unpack Tower block for event "<<event_->l1A()<<" in fed "<<activeDCC
         <<"\n The end of event was reached "
         <<"\n(or, previously, pointers intended to navigate outside of FedBlock (based on block sizes), and were stopped by setting dwToEnd_ to zero)"    ;
       //TODO : add this to a dcc event size collection error?
@@ -65,7 +66,6 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
   //display(cout);
 
 
-  uint activeDCC = mapper_->getActiveSM();
   
   ////////////////////////////////////////////////////
   // check that expected fe_id==fe_expected is on
@@ -78,29 +78,8 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
         <<"\n Expected FE_id is "<<expTowerID_<<" while "<<towerId_<<" was found "
         <<"\n => Skipping to next FE block...";
      } 
-
-    // in case of EB, FE is one-to-one with TT
-    // use those EcalElectronicsId for simplicity
-    if(NUMB_SM_EB_MIN_MIN<=activeDCC && activeDCC<=NUMB_SM_EB_PLU_MAX){
-      EcalElectronicsId  *  eleTp = mapper_->getTTEleIdPointer(mapper_->getActiveSM()+TCCID_SMID_SHIFT_EB,expTowerID_);
-      (*invalidTTIds_)->push_back(*eleTp);
-    }// EE
-    else if ( (NUMB_SM_EE_MIN_MIN <=activeDCC && activeDCC<=NUMB_SM_EE_MIN_MAX) ||
-	      (NUMB_SM_EE_PLU_MIN <=activeDCC && activeDCC<=NUMB_SM_EE_PLU_MAX) )
-      {
-	EcalElectronicsId * scEleId = mapper_->getSCElectronicsPointer(activeDCC, expTowerID_);
-	(*invalidTTIds_)->push_back(*scEleId);
-      }
-    else
-      {
-        if( ! DCCDataUnpacker::silentMode_ ){
-  	  edm::LogWarning("EcalRawToDigiChId")
-	    <<"\n For event "<<event_->l1A()<<" there's fed: "<< mapper_->getActiveDCC()
-	    <<" activeDcc: "<<mapper_->getActiveSM()
-	    <<" but that activeDcc is not valid.";
-        }
-      }
-    
+   
+    fillEcalElectronicsError(invalidTTIds_); 
     
     updateEventPointers();
     return SKIP_BLOCK_UNPACKING;
@@ -186,8 +165,7 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
           <<"\n => Skipping to next fed block...";
        }
 
-      EcalElectronicsId  *  eleTp = mapper_->getTTEleIdPointer(mapper_->getActiveSM()+TCCID_SMID_SHIFT_EB,expTowerID_);
-      (*invalidBlockLengths_)->push_back(*eleTp);
+      fillEcalElectronicsError(invalidBlockLengths_) ;
 
       //Safer approach...  - why pointers do not navigate in this case?
       return STOP_EVENT_UNPACKING;	  
@@ -202,8 +180,8 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
         <<"\n => Skipping to next fed block...";
      }
 
-    EcalElectronicsId  *  eleTp = mapper_->getTTEleIdPointer(mapper_->getActiveSM()+TCCID_SMID_SHIFT_EB,expTowerID_);
-    (*invalidBlockLengths_)->push_back(*eleTp);
+     fillEcalElectronicsError(invalidBlockLengths_) ;
+
 
     //Safer approach... - why pointers do not navigate in this case?
     return STOP_EVENT_UNPACKING;
