@@ -41,9 +41,9 @@ DTGeometryBuilderFromCondDB::~DTGeometryBuilderFromCondDB() {
 void
 DTGeometryBuilderFromCondDB::build(boost::shared_ptr<DTGeometry> theGeometry,
                                    const RecoIdealGeometry& rig) {
-  cout << "DTGeometryBuilderFromCondDB " << endl;
+  //  cout << "DTGeometryBuilderFromCondDB " << endl;
   const std::vector<DetId>& detids(rig.detIds());
-  cout << "size " << detids.size() << endl;
+  //  cout << "size " << detids.size() << endl;
 
   size_t idt = 0;
   DTChamber* chamber(0);

@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/01/22 21:12:16 $
- *  $Revision: 1.10 $
+ *  $Date: 2009/01/16 11:11:46 $
+ *  $Revision: 1.11 $
  *  \author N. Amapane - CERN. 
  */
 
@@ -38,7 +38,7 @@ DTGeometryBuilderFromDDD::~DTGeometryBuilderFromDDD(){}
 void DTGeometryBuilderFromDDD::build(boost::shared_ptr<DTGeometry> theGeometry,
                                      const DDCompactView* cview,
                                      const MuonDDDConstants& muonConstants){
-  cout << "DTGeometryBuilderFromDDD::build" << endl;
+  //  cout << "DTGeometryBuilderFromDDD::build" << endl;
   //   static const string t0 = "DTGeometryBuilderFromDDD::build";
   //   TimeMe timer(t0,true);
 
