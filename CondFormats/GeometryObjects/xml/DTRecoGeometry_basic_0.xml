@@ -3,10 +3,13 @@
  <PoolDatabase >
   <PoolContainer name="DTRecoGeometryRcd" >
    <Class table="DTRECOGEOMETRY" id_columns="ID" name="RecoIdealGeometry" mapping_version="DTRecoGeometry_basic" >
-     <Blob column="DTRECOGEOMETRY__1" name="pDetIds"/>
-     <Blob column="DTRECOGEOMETRY__2" name="pNumShapeParms"/>
-     <Blob column="DTRECOGEOMETRY__3" name="pPars"/>
-     <Blob column="DTRECOGEOMETRY__4" name="pParsIndex"/>
+     <Blob column="RPCRECOGEOMETRY__1" name="pDetIds"/>
+     <Blob column="RPCRECOGEOMETRY__2" name="pPars"/>
+     <Blob column="RPCRECOGEOMETRY__3" name="pParsIndex"/>
+     <Blob column="RPCRECOGEOMETRY__4" name="pNumShapeParms"/>
+     <Blob column="RPCRECOGEOMETRY__5" name="strPars"/>
+     <Blob column="RPCRECOGEOMETRY__6" name="sParsIndex"/>
+     <Blob column="RPCRECOGEOMETRY__7" name="sNumsParms"/>
    </Class >
   </PoolContainer >
  </PoolDatabase >
