@@ -152,50 +152,46 @@ namespace cscdqm {
             if (N > 0) {
   
               eps_meas = (1.0 * n) / (1.0 * N);
-              double S = 0;
   
               /**  Chamber is cold? It means error! */
               if (eps_meas < cold_coef) {
   
-                S = SignificanceLevel(N, n, cold_coef);
+                double S = SignificanceLevel(N, n, cold_coef);
+  
+                LOG_DEBUG << "?COLD?" 
+                  << "adr = " << detector.AddressName(adr)
+                  << ", n = " << n 
+                  << ", N = " << N
+                  << ", eps_meas = " << eps_meas
+                  << ", cold_coef = " << cold_coef
+                  << ", cold_Sfail = " << cold_Sfail
+                  << ", S = " << S
+                  << ", result = " << (S > cold_Sfail);
   
                 if (S > cold_Sfail) {
-  
-                  /*
-                  std::cout << "!COLD!";
-                  std::cout << "adr = " << detector.AddressName(adr);
-                  std::cout << ", n = " << n << ", N = " << N;
-                  std::cout << ", eps_meas = " << eps_meas;
-                  std::cout << ", cold_coef = " << cold_coef;
-                  std::cout << ", cold_Sfail = " << cold_Sfail;
-                  std::cout << ", S = " << S;
-                  std::cout << "\n";
-                  */
-  
                   SetValue(adr, COLD);
                 }
+
               } else {
               
                 /**  Chamber is hot? It means error! */
                 if (eps_meas > hot_coef) {
   
-                  S = SignificanceLevelHot(N, n);
+                  double S = SignificanceLevelHot(N, n);
+  
+                  LOG_DEBUG << "?HOT?"
+                    << "adr = " << detector.AddressName(adr)
+                    << ", n = " << n << ", N = " << N
+                    << ", eps_meas = " << eps_meas
+                    << ", hot_coef = " << hot_coef
+                    << ", hot_Sfail = " << hot_Sfail
+                    << ", S = " << S
+                    << ", result = " << (S > cold_Sfail);
   
                   if (S > hot_Sfail) {
-  
-                    /*
-                    std::cout << "!HOT!";
-                    std::cout << "adr = " << detector.AddressName(adr);
-                    std::cout << ", n = " << n << ", N = " << N;
-                    std::cout << ", eps_meas = " << eps_meas;
-                    std::cout << ", hot_coef = " << hot_coef;
-                    std::cout << ", hot_Sfail = " << hot_Sfail;
-                    std::cout << ", S = " << S;
-                    std::cout << "\n";
-                    */
-  
                     SetValue(adr, HOT);
                   }
+
                 }
               }
   
