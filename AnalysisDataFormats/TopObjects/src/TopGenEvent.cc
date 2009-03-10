@@ -83,6 +83,23 @@ TopGenEvent::numberOfBQuarks(bool fromTopQuark) const
   return bq;
 }
 
+std::vector<const reco::GenParticle*> 
+TopGenEvent::topSisters() const
+{
+  std::vector<const reco::GenParticle*> sisters;
+  for(reco::GenParticleCollection::const_iterator part = parts_->begin(); part<parts_->end(); ++part){
+    if( part->numberOfMothers()==0 && abs(part->pdgId())!= TopDecayID::tID){
+      // choose top sister which do not have a 
+      // mother and are whether top nor anti-top 
+      if( dynamic_cast<const reco::GenParticle*>( &(*part) ) == 0){
+	throw edm::Exception( edm::errors::InvalidReference, "Not a GenParticle" );
+      }
+      sisters.push_back( part->clone() );
+    }
+  }  
+  return sisters;
+}
+
 const reco::GenParticle* 
 TopGenEvent::singleLepton() const 
 {

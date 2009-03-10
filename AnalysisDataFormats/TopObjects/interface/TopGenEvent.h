@@ -55,6 +55,8 @@ class TopGenEvent {
   int numberOfLeptons(bool fromWBoson=true) const;
   /// return number of b quarks in the decay chain
   int numberOfBQuarks(bool fromTopQuark=true) const;
+  /// return number of top anti-top sisters
+  std::vector<const reco::GenParticle*> topSisters() const;
 
   /// get candidate with given pdg id if available; 0 else 
   const reco::GenParticle* candidate(int id) const;

@@ -12,11 +12,6 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 
-//3 different status are kept for each partons (top and its descendants)
-// status 2 -> after all radiations (top & other particles' radiations) : stable (came be compare to previous versions of TopDecaySubset)
-// status 3 -> before radiation : unfrag (intermediate state - directly coming from genParticles collection)
-// status 4 -> resum the quark status 2 with its own radiations (taking properly into account top radiation) (New Version)
-
 class TopDecaySubset : public edm::EDProducer {
 
  public:
@@ -56,9 +51,9 @@ class TopDecaySubset : public edm::EDProducer {
   reco::Particle::LorentzVector p4(const std::vector<reco::GenParticle>::const_iterator top, int statusFlag);
   /// calculate lorentz vector from input
     reco::Particle::LorentzVector p4(const reco::GenParticle::const_iterator part, int statusFlag);
-  /// fill vector recursively for all further decay 
-  /// particles of a tau
-  void addTauDaughters(int& idx, const reco::GenParticle::const_iterator part, reco::GenParticleCollection& target);
+  /// recursively fill vector for all further 
+  /// dacay particles of a given particle
+  void addDaughters(int& idx, const reco::GenParticle::const_iterator part, reco::GenParticleCollection& target, bool recursive=true);
   /// fill vector including all radiations from quarks 
   /// originating from W/top
   void addRadiation(int& idx, const reco::GenParticle::const_iterator part, reco::GenParticleCollection& target);

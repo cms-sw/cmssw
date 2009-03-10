@@ -183,7 +183,7 @@ TopDecaySubset::fromFullListing(const reco::GenParticleCollection& src, reco::Ge
 	      if( wd->status()==TopDecayID::unfrag && abs( wd->pdgId() )==TopDecayID::tauID ){ 
 		// add tau daughters if the particle is a tau pass
 		// the daughter of the tau which is of status 2
-		addTauDaughters(motherPartIdx_,wd->begin(),target); 
+		addDaughters(motherPartIdx_,wd->begin(),target); 
 	      }
 	    } 
 	  }
@@ -196,19 +196,20 @@ TopDecaySubset::fromFullListing(const reco::GenParticleCollection& src, reco::Ge
 	  topDaughters.push_back( ++motherPartIdx_ );
 	}
       }
-      // add potential sisters of the top quark; this is only
-      // done for top not for anti-top to prevent double counting
+      // add potential sisters of the top quark;
+      // only for top to prevent double counting
       if(t->numberOfMothers()>0 && t->pdgId()==TopDecayID::tID){
         for(reco::GenParticle::const_iterator ts = t->mother()->begin(); ts!=t->mother()->end(); ++ts){
 	  // loop over all daughters of the top mother i.e.
 	  // the two top quarks and their potential sisters
-	  if(abs(ts->pdgId())!=TopDecayID::tID){
-	    // add all further particles but the two top
-	    // quarks 
+	  if(abs(ts->pdgId())!=t->pdgId()){
+	    // add all further particles
+	    // but the two top quarks 
 	    reco::GenParticle* cand = new reco::GenParticle( ts->threeCharge(), ts->p4(), ts->vertex(), ts->pdgId(), ts->status(), false );
-	    std::auto_ptr<reco::GenParticle> ptr( cand );
-	    target.push_back( *ptr );
-	    ++motherPartIdx_;
+	    std::auto_ptr<reco::GenParticle> sPtr( cand );
+	    target.push_back( *sPtr );
+	    // increment & add 1. generation of daughters
+	    addDaughters(++motherPartIdx_,ts->begin(),target,false);
 	  }
 	}
       }
@@ -293,7 +294,7 @@ TopDecaySubset::fromTruncListing(const reco::GenParticleCollection& src, reco::G
 	  if( td->status()==TopDecayID::unfrag && abs( td->pdgId() )==TopDecayID::tauID ){ 
 	    // add tau daughters if the particle is a tau pass
 	    // the daughter of the tau which is of status 2
-	    addTauDaughters(motherPartIdx_,td->begin(),target); 
+	    addDaughters(motherPartIdx_,td->begin(),target); 
 	  }
 	}
 	if( (td+1)==t->end() ){
@@ -310,8 +311,7 @@ TopDecaySubset::fromTruncListing(const reco::GenParticleCollection& src, reco::G
 	  iW=motherPartIdx_; 
 	  if(mode == kBeforePS){
 	    addRadiation(motherPartIdx_,td,target); 
-	  }
-	  
+	  }  
 	  // reset the quantities of the W boson 
 	  // for the next reconstruction cycle
 	  wQ  = 0;
@@ -326,19 +326,20 @@ TopDecaySubset::fromTruncListing(const reco::GenParticleCollection& src, reco::G
 	  topDaughters.push_back( ++motherPartIdx_ );
 	}
       }
-      // add potential sisters of the top quark; this is only
-      // done for top not for anti-top to prevent double counting
+      // add potential sisters of the top quark;
+      // only for top to prevent double counting
       if(t->numberOfMothers()>0 && t->pdgId()==TopDecayID::tID){
         for(reco::GenParticle::const_iterator ts = t->mother()->begin(); ts!=t->mother()->end(); ++ts){
 	  // loop over all daughters of the top mother i.e.
 	  // the two top quarks and their potential sisters
-	  if(abs(ts->pdgId())!=TopDecayID::tID){
-	    // add all further particles but the two top
-	    // quarks 
+	  if(abs(ts->pdgId())!=t->pdgId()){
+	    // add all further particles
+	    // but the two top quarks 
 	    reco::GenParticle* cand = new reco::GenParticle( ts->threeCharge(), ts->p4(), ts->vertex(), ts->pdgId(), ts->status(), false );
-	    std::auto_ptr<reco::GenParticle> ptr( cand );
-	    target.push_back( *ptr );
-	    ++motherPartIdx_;
+	    std::auto_ptr<reco::GenParticle> sPtr( cand );
+	    target.push_back( *sPtr );
+	    // increment & add 1. generation of daughters
+	    addDaughters(++motherPartIdx_,ts->begin(),target,false);
 	  }
 	}
       }
@@ -442,7 +443,7 @@ TopDecaySubset::addRadiation(int& idx, const reco::GenParticle::const_iterator p
 }
 
 void 
-TopDecaySubset::addTauDaughters(int& idx, const reco::GenParticle::const_iterator part, reco::GenParticleCollection& target)
+TopDecaySubset::addDaughters(int& idx, const reco::GenParticle::const_iterator part, reco::GenParticleCollection& target, bool recursive)
 {
   std::vector<int> daughters;
   int idxBuffer = idx;
@@ -451,8 +452,10 @@ TopDecaySubset::addTauDaughters(int& idx, const reco::GenParticle::const_iterato
     target.push_back( *ptr );
     // increment & push index of daughter
     daughters.push_back( ++idx );
-    // continue recursively
-    addTauDaughters(idx,daughter,target);  
+    // continue recursively if desired
+    if(recursive){
+      addDaughters(idx,daughter,target);  
+    }
   }  
   if(daughters.size()) {
      refs_[ idxBuffer ] = daughters;
