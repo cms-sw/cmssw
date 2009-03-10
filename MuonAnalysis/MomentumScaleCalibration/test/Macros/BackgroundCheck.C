@@ -46,7 +46,13 @@ void BackgroundCheck()
 
   double ResHalfWidth[] = {20., 0.5, 0.5, 0.5, 0.2, 0.2};
 
+
+  // IMPORTANT: parameters to change
+  // -------------------------------
   int ires = 3;
+  double Bgrp1 = 0.0260452;
+  double a = 0.105061;
+  // -------------------------------
 
   // For J/Psi exclude the Upsilon from the background normalization as the bin is not used by the fit.
   double lowWindowValue = ResMass[ires]-ResHalfWidth[ires];
@@ -67,14 +73,14 @@ void BackgroundCheck()
   TF1 * backgroundFunction = new TF1("backgroundFunction","[0]*([1]*exp(-[1]*x))",allHisto->GetXaxis()->GetXmin(),allHisto->GetXaxis()->GetXmax());
 
   backgroundFunction->SetParameter(0, 1);
-  backgroundFunction->SetParameter(1, 0.105061);
+  backgroundFunction->SetParameter(1, a);
 
   // Compute the integral used to rescale the background function only in the region actually used for the computation.
   // (Where the function was also normalized, which is also the region the values refer to).
   // double integral = allHisto->Integral(0, lowBin) + allHisto->Integral(upBin, xBins);
   double integral = allHisto->Integral(lowBin, upBin);
   double functionIntegral = backgroundFunction->Integral(lowWindowValue, upWindowValue);
-  double normalization = integral/functionIntegral*0.0230452/(upBin-lowBin);
+  double normalization = integral/functionIntegral*Bgrp1/(upBin-lowBin);
 
   // To normalize the function so that its integral in the resonance mass
   // window gives the fraction of events determined by the fit.
