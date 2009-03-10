@@ -12,6 +12,7 @@
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
+#include <sstream>
 
 /**
     @file EventFilter/SiStripRawToDigi/test/plugins/SiStripDigiValidator.h
@@ -27,20 +28,29 @@ class SiStripDigiValidator : public edm::EDAnalyzer {
  public:
   SiStripDigiValidator(const edm::ParameterSet& config);
   ~SiStripDigiValidator();
+
   virtual void beginJob(const edm::EventSetup& setup);
   virtual void endJob();
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
+
   void validate(const edm::DetSetVector<SiStripDigi>&, const edm::DetSetVector<SiStripDigi>&);
   void validate(const edm::DetSetVector<SiStripDigi>&, const edm::DetSetVector<SiStripRawDigi>&);
-
+  void validate(const edm::DetSetVector<SiStripRawDigi>&, const edm::DetSetVector<SiStripDigi>&);
+  void validate(const edm::DetSetVector<SiStripRawDigi>&, const edm::DetSetVector<SiStripRawDigi>&);
+  
  private:
 
+  inline const std::string& header() { return header_; }
+  
   //Input collections
-  edm::InputTag collection1Tag_;
-  edm::InputTag collection2Tag_;
-  bool raw_;
+  edm::InputTag tag1_;
+  edm::InputTag tag2_;
+  bool raw1_;
+  bool raw2_;
   //used to remember if there have been errors for message in endJob
   bool errors_;
+
+  std::string header_;
 
 };
 

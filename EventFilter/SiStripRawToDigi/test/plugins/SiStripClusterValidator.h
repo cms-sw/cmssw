@@ -10,6 +10,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include <sstream>
 
 class SiStripClusterValidator : public edm::EDAnalyzer {
  public:
@@ -23,12 +24,17 @@ class SiStripClusterValidator : public edm::EDAnalyzer {
 
  private:
 
+  inline const std::string& header() { return header_; }
+
   /// Input collections
   edm::InputTag collection1Tag_;
   edm::InputTag collection2Tag_;
   bool dsvnew_;
   /// used to remember if there have been errors for message in endJob
   bool errors_;
+
+  std::string header_;
+
 };
 
 std::ostream& operator<<(std::ostream&, const edmNew::DetSetVector<SiStripCluster>&);

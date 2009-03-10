@@ -6,8 +6,27 @@ SiStripClusterValidator::SiStripClusterValidator(const edm::ParameterSet& conf)
   : collection1Tag_(conf.getUntrackedParameter<edm::InputTag>("Collection1")),
     collection2Tag_(conf.getUntrackedParameter<edm::InputTag>("Collection2")),
     dsvnew_(conf.getUntrackedParameter<bool>("DetSetVectorNew",true)),
-    errors_(false)
+    errors_(false),
+    header_()
 {
+  std::stringstream ss;
+  ss << " Collection1: " 
+     << " Type:Label:Instance:Process=\""
+     << ( dsvnew_ ? "edmNew::DSV<SiStripClusters>" : "edm::DSV<SiStripClusters>" )
+     << ":" << collection1Tag_.label()
+     << ":" << collection1Tag_.instance()
+     << ":" << collection1Tag_.process()
+     << "\""
+     << std::endl
+     << " Collection2: " 
+     << " Type:Label:Instance:Process=\""
+     << ( dsvnew_ ? "edmNew::DSV<SiStripClusters>" : "edm::DSV<SiStripClusters>" )
+     << ":" << collection2Tag_.label()
+     << ":" << collection2Tag_.instance()
+     << ":" << collection2Tag_.process()
+     << "\""
+     << std::endl;
+  header_ = ss.str();
 }
 
 SiStripClusterValidator::~SiStripClusterValidator()
@@ -20,8 +39,18 @@ void SiStripClusterValidator::beginJob(const edm::EventSetup& setup)
 
 void SiStripClusterValidator::endJob()
 {
-  if (errors_) edm::LogInfo("SiStripClusterValidator") << "Differences were found" << std::endl;
-  else edm::LogInfo("SiStripClusterValidator") << "Collections are identical in every event" << std::endl;
+
+  std::stringstream ss;
+  ss << "[SiStripClusterValidator::" << __func__ << "]"
+     << std::endl
+     << header();
+  
+  if (!errors_) { ss << "Collections are identical in every event (assuming no exceptions thrown!)" << std::endl; }
+  else { ss << "Differences were found" << std::endl; }
+  
+  if (!errors_) { edm::LogVerbatim("SiStripDigiValidator") << ss.str(); }
+  else { edm::LogError("SiStripDigiValidator") << ss.str(); }
+
 }
 
 void SiStripClusterValidator::analyze(const edm::Event& event,const edm::EventSetup& setup)
@@ -46,12 +75,16 @@ void SiStripClusterValidator::validate(const edmNew::DetSetVector<SiStripCluster
   /// check number of DetSets
 
   if (collection1.size() != collection2.size()) {
-    edm::LogWarning("SiStripClusterValidator") 
-      << "Collection sizes do not match! ("
-      << collection1.size() 
-      << " and " 
-      << collection2.size() 
-      <<  ")";
+    std::stringstream ss;
+    ss << "[SiStripClusterValidator::" << __func__ << "]"
+       << std::endl
+       << header()
+       << "Collection sizes do not match! ("
+       << collection1.size() 
+       << " and " 
+       << collection2.size() 
+       <<  ")";
+    edm::LogError("SiStripClusterValidator") << ss.str();
     errors_ = true;
     return;
   }
@@ -67,10 +100,14 @@ void SiStripClusterValidator::validate(const edmNew::DetSetVector<SiStripCluster
     edm::det_id_type id = iDetSet1->detId();
     edmNew::DetSetVector<SiStripCluster>::const_iterator iDetSet2 = collection2.find(id);
     if (iDetSet2 == collection2.end()) {
-      edm::LogWarning("SiStripClusterValidator")
-	<< "DetSet in collection 1 with id " 
-	<< id
-	<< " is missing from collection 2!";
+      std::stringstream ss;
+      ss << "[SiStripClusterValidator::" << __func__ << "]"
+	 << std::endl
+	 << header()
+	 << "DetSet in collection 1 with id " 
+	 << id
+	 << " is missing from collection 2!";
+      edm::LogError("SiStripClusterValidator") << ss.str();
       errors_ = true;
       return;
     }
@@ -87,11 +124,15 @@ void SiStripClusterValidator::validate(const edmNew::DetSetVector<SiStripCluster
     }
     
     if (iCluster1!=iDetSet1->end()) {
-      edm::LogWarning("SiStripClusterValidator") 
-	<< "No match for cluster in detector " 
-	<< id 
-	<< " with first strip number " 
-	<< iCluster1->firstStrip();
+      std::stringstream ss;
+      ss << "[SiStripClusterValidator::" << __func__ << "]"
+	 << std::endl
+	 << header()
+	 << "No match for cluster in detector " 
+	 << id 
+	 << " with first strip number " 
+	 << iCluster1->firstStrip();
+      edm::LogError("SiStripClusterValidator") << ss.str();
       errors_ = true;
     }
   }
@@ -102,12 +143,15 @@ void SiStripClusterValidator::validate(const edm::DetSetVector<SiStripCluster>& 
   /// check number of DetSets
 
   if (collection1.size() != collection2.size()) {
-    edm::LogWarning("SiStripClusterValidator") 
-      << "Collection sizes do not match! ("
-      << collection1.size() 
-      << " and " 
-      << collection2.size() 
-      <<  ")";
+    std::stringstream ss;
+    ss << "[SiStripClusterValidator::" << __func__ << "]"
+       << std::endl
+       << header()
+       << "Collection sizes do not match! ("
+       << collection1.size() 
+       << " and " 
+       << collection2.size() 
+       <<  ")";
     errors_ = true;
     return;
   }
@@ -123,10 +167,14 @@ void SiStripClusterValidator::validate(const edm::DetSetVector<SiStripCluster>& 
     edm::det_id_type id = iDetSet1->detId();
     edm::DetSetVector<SiStripCluster>::const_iterator iDetSet2 = collection2.find(id);
     if (iDetSet2 == collection2.end()) {
-      edm::LogWarning("SiStripClusterValidator")
-	<< "DetSet in collection 1 with id " 
-	<< id
-	<< " is missing from collection 2!";
+      std::stringstream ss;
+      ss << "[SiStripClusterValidator::" << __func__ << "]"
+	 << std::endl
+	 << header()
+	 << "DetSet in collection 1 with id " 
+	 << id
+	 << " is missing from collection 2!";
+      edm::LogError("SiStripClusterValidator") << ss.str();
       errors_ = true;
       return;
     }
@@ -143,11 +191,15 @@ void SiStripClusterValidator::validate(const edm::DetSetVector<SiStripCluster>& 
     }
     
     if (iCluster1!=iDetSet1->end()) {
-      edm::LogWarning("SiStripClusterValidator") 
-	<< "No match for cluster in detector " 
-	<< id 
-	<< " with first strip number " 
-	<< iCluster1->firstStrip();
+      std::stringstream ss;
+      ss << "[SiStripClusterValidator::" << __func__ << "]"
+	 << std::endl
+	 << header()
+	 << "No match for cluster in detector " 
+	 << id 
+	 << " with first strip number " 
+	 << iCluster1->firstStrip();
+      edm::LogError("SiStripClusterValidator") << ss.str();
       errors_ = true;
     }
   }
@@ -166,22 +218,23 @@ std::ostream& operator<<(std::ostream& ss, const edmNew::DetSetVector<SiStripClu
     edmNew::DetSet<SiStripCluster>::const_iterator jd = ids->end();
     for ( ; id != jd; ++id ) {
       nd++;
-      //if ( !( uint16_t( id - ids->begin() ) % 128 ) ) {
-	if ( uint16_t( id - ids->begin() ) < 10 ) {
-	  sss << uint16_t( id - ids->begin() ) 
-	      << "/" 
-	      << id->firstStrip() 
-	      << "/" 
-	      << id->amplitudes().size() 
-	      <<", ";
-	}
+      if ( uint16_t( id - ids->begin() ) < 10 ) {
+	sss << uint16_t( id - ids->begin() ) 
+	    << "/" 
+	    << id->firstStrip() 
+	    << "/" 
+	    << id->amplitudes().size() 
+	    <<", ";
+      }
     }
-    edm::LogWarning("SiStripClusterValidator") 
-      << " DetId: " << ids->detId()
-      << " size: " << ids->size()
-      << " clusters: " << nd
-      << " index/first-strip/width: " << sss.str()
-      << std::endl;
+    std::stringstream ss;
+    ss << "[SiStripClusterValidator::" << __func__ << "]"
+       << " DetId: " << ids->detId()
+       << " size: " << ids->size()
+       << " clusters: " << nd
+       << " index/first-strip/width: " << sss.str()
+       << std::endl;
+    edm::LogError("SiStripClusterValidator") << ss.str();
   }
   return ss;
 }
@@ -199,22 +252,23 @@ std::ostream& operator<<(std::ostream& ss, const edm::DetSetVector<SiStripCluste
     edm::DetSet<SiStripCluster>::const_iterator jd = ids->end();
     for ( ; id != jd; ++id ) {
       nd++;
-      //if ( !( uint16_t( id - ids->begin() ) % 128 ) ) {
-	if ( uint16_t( id - ids->begin() ) < 10 ) {
-	  sss << uint16_t( id - ids->begin() ) 
-	      << "/" 
-	      << id->firstStrip() 
-	      << "/" 
-	      << id->amplitudes().size() 
-	      <<", ";
-	}
+      if ( uint16_t( id - ids->begin() ) < 10 ) {
+	sss << uint16_t( id - ids->begin() ) 
+	    << "/" 
+	    << id->firstStrip() 
+	    << "/" 
+	    << id->amplitudes().size() 
+	    <<", ";
+      }
     }
-    edm::LogWarning("SiStripClusterValidator") 
-      << " DetId: " << ids->detId()
-      << " size: " << ids->size()
-      << " clusters: " << nd
-      << " index/first-strip/width: " << sss.str()
-      << std::endl;
+    std::stringstream ss;
+    ss << "[SiStripClusterValidator::" << __func__ << "]"
+       << " DetId: " << ids->detId()
+       << " size: " << ids->size()
+       << " clusters: " << nd
+       << " index/first-strip/width: " << sss.str()
+       << std::endl;
+    edm::LogError("SiStripClusterValidator") << ss.str();
   }
   return ss;
 }
