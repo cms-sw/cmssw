@@ -73,19 +73,18 @@ void SiStripTrivialDigiSource::produce( edm::Event& event,
   // Iterate through fed ids and channels
   std::vector<uint16_t>::const_iterator ifed;
   for ( ifed = fed_ids.begin(); ifed != fed_ids.end(); ifed++ ) {
-    for ( uint16_t ichan = 0; ichan < 96; ichan++ ) {
-
-      // Retrieve FED channel info
-      const FedChannelConnection& conn = cabling->connection( *ifed, ichan );
-      
+    const std::vector<FedChannelConnection>& conns = cabling->connections(*ifed);
+    std::vector<FedChannelConnection>::const_iterator iconn = conns.begin();
+    for ( ; iconn != conns.end(); iconn++ ) {
+    
       // Build FED key
-      uint32_t fed_key = ( ( conn.fedId() & sistrip::invalid_ ) << 16 ) | ( conn.fedCh() & sistrip::invalid_ );
+      uint32_t fed_key = ( ( iconn->fedId() & sistrip::invalid_ ) << 16 ) | ( iconn->fedCh() & sistrip::invalid_ );
       
       // Determine key (FED key or DetId) to index DSV
-      uint32_t key = useFedKey_ ? fed_key : conn.detId();
+      uint32_t key = useFedKey_ ? fed_key : iconn->detId();
 
       // Determine APV pair number
-      uint16_t ipair = useFedKey_ ? 0 : conn.apvPairNumber();
+      uint16_t ipair = useFedKey_ ? 0 : iconn->apvPairNumber();
 
       // Check key is non-zero and valid
       if ( !key || ( key == sistrip::invalid32_ ) ) { continue; }
@@ -105,7 +104,7 @@ void SiStripTrivialDigiSource::produce( edm::Event& event,
       // Remember strips used
       std::vector<uint16_t> used_strips; 
       used_strips.reserve(ndigi);
-
+      
       // Create digis
       uint16_t idigi = 0;
       while ( idigi < ndigi ) {
@@ -115,13 +114,13 @@ void SiStripTrivialDigiSource::produce( edm::Event& event,
 	uint16_t adc = static_cast<uint16_t>( 256. * RandFlat::shoot() );
 	
 	// Generate and check strip number
-	uint16_t nstrips = conn.nDetStrips();
+	uint16_t nstrips = iconn->nDetStrips();
 	uint16_t strip = str + 256 * ipair;
 	if ( strip >= nstrips ) { continue; }
 
 	// Create digi object
-	std::vector<uint16_t>::iterator iter = find( used_strips.begin(), used_strips.end(), strip );
-	if ( iter == used_strips.end() && adc ) { // require non-zero adc!
+ 	std::vector<uint16_t>::iterator iter = find( used_strips.begin(), used_strips.end(), strip );
+ 	if ( iter == used_strips.end() && adc ) { // require non-zero adc!
 	  uint16_t level = raw_ ? ped_ + adc : adc;
 	  zs.data.push_back( SiStripDigi( strip, level ) );
 	  used_strips.push_back( strip ); 
@@ -133,11 +132,11 @@ void SiStripTrivialDigiSource::produce( edm::Event& event,
 
       // Populate DetSet with remaining "raw" digis
       if ( raw_ ) {
-	for ( uint16_t istr = 256*ipair; istr < 256*(ipair+1); ++istr ) {
-	  if ( find( used_strips.begin(), used_strips.end(), istr ) == used_strips.end() ) { 
-	    zs.data.push_back( SiStripDigi( istr, ped_ ) );
-	  }
-	}
+ 	for ( uint16_t istr = 256*ipair; istr < 256*(ipair+1); ++istr ) {
+ 	  if ( find( used_strips.begin(), used_strips.end(), istr ) == used_strips.end() ) { 
+ 	    zs.data.push_back( SiStripDigi( istr, ped_ ) );
+ 	  }
+ 	}
       }
       
     }
@@ -179,7 +178,7 @@ void SiStripTrivialDigiSource::produce( edm::Event& event,
   event.put( collection );
   
   // Some debug
-  if ( nchans ) { 
+  if ( edm::isDebugEnabled() && nchans ) { 
     std::stringstream ss;
     ss << "[SiStripTrivialDigiSource::" << __func__ << "]"
        << " Generated " << ndigis 
