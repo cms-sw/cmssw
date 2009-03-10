@@ -193,7 +193,7 @@ namespace pos{
       if(!first)
 	{
 	  //	  std::cout << "[pos::PixelConfigFile::getConfig()] Reloading configurations.txt"<< std::endl ;
-	  configs.reload(filename) ;
+ 	  configs.reload(filename) ; 
 //	  std::cout << "[pos::PixelConfigFile::getConfig()] Size reloaded: " << configs.size() << std::endl ;
 	}
       if (first) 
@@ -495,9 +495,10 @@ namespace pos{
 /*       pos::PixelTimeFormatter * timer = new pos::PixelTimeFormatter("PixelConfigFile::ConfigurationDataExists") ; */
       unsigned int theKey=key.key();
     
-/*       timer->stopTimer() ; */
-      assert(theKey<=getConfig().size());
-/*       timer->stopTimer() ; */
+      static PixelConfigList configList= getConfig() ;
+
+      assert(theKey<=configList.size());
+      
     
       unsigned int last=path.find_last_of("/");
       assert(last!=std::string::npos);
@@ -520,7 +521,7 @@ namespace pos{
 //      std::cout << mthn << "Extracted ext :" << ext  <<std::endl;
     
       unsigned int version;
-      int err=getConfig()[theKey].find(dir,version);   
+      int err=configList[theKey].find(dir,version);   
       // assert(err==0);
       if(0!=err) 
 	{
