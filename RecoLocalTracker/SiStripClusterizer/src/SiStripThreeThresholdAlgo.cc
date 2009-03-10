@@ -25,15 +25,18 @@ SiStripThreeThresholdAlgo::SiStripThreeThresholdAlgo( const edm::ParameterSet& p
 
 SiStripThreeThresholdAlgo::~SiStripThreeThresholdAlgo() {}
 
-void SiStripThreeThresholdAlgo::clusterize( const edm::DetSet<SiStripDigi>& digis, edm::DetSetVector<SiStripCluster>& clusters ) 
-{
-  edm::DetSet<SiStripCluster>& out = clusters.find_or_insert(digis.id);
-  edm::DetSet<SiStripDigi>::const_iterator idigi = digis.begin();
-  for (; idigi != digis.end(); idigi++) {add(out.data,out.id,idigi->strip(),idigi->adc());}
-  endDet(out.data,out.id);
+void SiStripThreeThresholdAlgo::clusterize( const DigisDS& digis, 
+					    ClustersDS& clusters ) {
+  DigisDS::const_iterator idigis = digis.begin();
+  DigisDS::const_iterator jdigis = digis.end();
+  for ( ; idigis != jdigis; ++idigis ) { add( clusters.data, digis.id, idigis->strip(), idigis->adc() ); }
+  endDet( clusters.data, digis.id );
 }
 
-void SiStripThreeThresholdAlgo::add(std::vector<SiStripCluster>& data, const uint32_t& id, const uint16_t& istrip, const uint16_t& adc) 
+void SiStripThreeThresholdAlgo::add( ClustersV& data, 
+				     const uint32_t& id, 
+				     const uint16_t& istrip, 
+				     const uint16_t& adc ) 
 {
   bool disable = quality()->IsStripBad(quality()->getRange(id),istrip);
   float stripnoise = noise()->getNoise(istrip,noise()->getRange(id));
@@ -54,7 +57,7 @@ void SiStripThreeThresholdAlgo::add(std::vector<SiStripCluster>& data, const uin
 
 }
 
-void SiStripThreeThresholdAlgo::endDet(std::vector<SiStripCluster>& data, const uint32_t& id) 
+void SiStripThreeThresholdAlgo::endDet( ClustersV& data, const uint32_t& id) 
 {
   endCluster(data,id); digis_.clear();
 }
@@ -97,7 +100,7 @@ void SiStripThreeThresholdAlgo::strip(const uint16_t& istrip, const uint16_t& ad
   sigmanoise2_+=noise*noise/(gain*gain);
 }
 
-void SiStripThreeThresholdAlgo::endCluster(std::vector<SiStripCluster>& data, const uint32_t& id) 
+void SiStripThreeThresholdAlgo::endCluster( ClustersV& data, const uint32_t& id) 
 {
   if (seed_ && (charge_ >= sqrt(sigmanoise2_) * clustThr_)) {
     if (find(digis_.begin(),digis_.end(),first_-1) != digis_.end()) {pad(1,0);}

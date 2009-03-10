@@ -4,12 +4,14 @@
 #include "RecoLocalTracker/SiStripClusterizer/interface/SiStripThreeThresholdAlgo.h"
 #include "string"
 
+// -----------------------------------------------------------------------------
+//
 SiStripClusterizerFactory::SiStripClusterizerFactory( const edm::ParameterSet& pset ) 
   : algorithms_(),
     algorithm_(0),
     factory_(0)
 {
-  
+
   // Create clusterizer algorithm object
   std::string algo = pset.getUntrackedParameter<std::string>("ClusterizerAlgorithm","DummyAlgorithm");
   if ( algo == "DummyAlgorithm" ) {
@@ -29,31 +31,48 @@ SiStripClusterizerFactory::SiStripClusterizerFactory( const edm::ParameterSet& p
 
   // Create zero-suppressor factory
   bool zero_suppr = pset.getUntrackedParameter<bool>("PerformZeroSuppression",false);
-  if ( zero_suppr ) { factory_ = NULL; } //@@ to come
+  if ( zero_suppr ) { 
+    edm::LogError("SiStripClusterizerFactory") << " TO BE IMPLEMENTED!";
+    factory_ = NULL; //@@ TO BE IMPLEMENTED!!!
+  } 
   
 }
 
+// -----------------------------------------------------------------------------
+//
 SiStripClusterizerFactory::~SiStripClusterizerFactory() {
-  delete algorithm_;
+  if ( algorithm_ ) { delete algorithm_; }
 }
 
-void SiStripClusterizerFactory::clusterize( const edm::DetSetVector<SiStripDigi>& digis, edm::DetSetVector<SiStripCluster>& clusters ) {
-
-  edm::DetSetVector<SiStripDigi>::const_iterator idigis = digis.begin();
-  for ( ; idigis != digis.end(); idigis++ ) {
-    clusterize( *idigis, clusters );
-  }
+// -----------------------------------------------------------------------------
+//
+void SiStripClusterizerFactory::clusterize( const DigisDSV& digis, ClustersDSVnew& clusters ) {
+  if ( algorithm_ ) { algorithm_->clusterize( digis, clusters ); }
 }
 
-void SiStripClusterizerFactory::clusterize( const edm::DetSet<SiStripDigi>& digis, edm::DetSetVector<SiStripCluster>& clusters ) {
-  if (algorithm()) algorithm()->clusterize( digis, clusters ); 
+// -----------------------------------------------------------------------------
+//
+void SiStripClusterizerFactory::clusterize( const DigisDSV& digis, ClustersDSV& clusters ) {
+  if ( algorithm_ ) { algorithm_->clusterize( digis, clusters ); }
 }
 
-void SiStripClusterizerFactory::clusterize( const edm::DetSetVector<SiStripRawDigi>& raw_digis, edm::DetSetVector<SiStripCluster>& clusters ) {}
+// -----------------------------------------------------------------------------
+//
+void SiStripClusterizerFactory::clusterize( const RawDigisDSV& digis, ClustersDSVnew& clusters ) {
+  //@@ TO BE IMPLEMENTED!!!
+  edm::LogError("SiStripClusterizerFactory") << "TO BE IMPLEMENTED!";
+}
 
-void SiStripClusterizerFactory::clusterize( const edm::DetSet<SiStripRawDigi>& raw_digis, edm::DetSetVector<SiStripCluster>& clusters ) {}
+// -----------------------------------------------------------------------------
+//
+void SiStripClusterizerFactory::clusterize( const RawDigisDSV& digis, ClustersDSV& clusters ) {
+  //@@ TO BE IMPLEMENTED!!!
+  edm::LogError("SiStripClusterizerFactory") << "TO BE IMPLEMENTED!";
+}
 
+// -----------------------------------------------------------------------------
+//
 void SiStripClusterizerFactory::eventSetup( const edm::EventSetup& setup) {
-  if (algorithm()) algorithm()->eventSetup(setup);
+  if ( algorithm_ ) { algorithm_->eventSetup(setup); }
 }
 

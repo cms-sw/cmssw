@@ -2,6 +2,7 @@
 #include "CalibTracker/Records/interface/SiStripGainRcd.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 #include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
+#include <algorithm>
 
 // -----------------------------------------------------------------------------
 //
@@ -12,11 +13,41 @@ SiStripClusterizerAlgo::SiStripClusterizerAlgo( const edm::ParameterSet& pset) :
   nCacheId_(0),
   qCacheId_(0),
   gCacheId_(0)
-{}
+{;}
 
 // -----------------------------------------------------------------------------
 //
-SiStripClusterizerAlgo::~SiStripClusterizerAlgo() {}
+SiStripClusterizerAlgo::~SiStripClusterizerAlgo() {;}
+
+// -----------------------------------------------------------------------------
+//
+void SiStripClusterizerAlgo::clusterize( const DigisDSV& digis, 
+					 ClustersDSVnew& clusters ) {
+  DigisDSV::const_iterator idigis = digis.begin();
+  DigisDSV::const_iterator jdigis = digis.end();
+  for ( ; idigis != jdigis; ++idigis ) {
+    edm::DetSet<SiStripCluster> temp;
+    clusterize( *idigis, temp );
+    if ( !temp.empty() ) {
+      ClustersDSVnew::FastFiller output( clusters, idigis->detId() );
+      output.resize( temp.size() );
+      std::copy( temp.begin(), temp.end(), output.begin() );
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+void SiStripClusterizerAlgo::clusterize( const DigisDSV& digis, 
+					 ClustersDSV& clusters ) {
+  DigisDSV::const_iterator idigis = digis.begin();
+  DigisDSV::const_iterator jdigis = digis.end();
+  for ( ; idigis != jdigis; ++idigis ) {
+    edm::DetSet<SiStripCluster> output( idigis->id );
+    clusterize( *idigis, output ); 
+    if ( !output.empty() ) { clusters.insert( output ); }
+  }
+}
 
 // -----------------------------------------------------------------------------
 //

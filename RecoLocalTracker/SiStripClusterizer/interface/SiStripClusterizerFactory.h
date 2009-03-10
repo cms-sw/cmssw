@@ -1,19 +1,20 @@
 #ifndef RecoLocalTracker_SiStripClusterizer_SiStripClusterizerFactory_H
 #define RecoLocalTracker_SiStripClusterizer_SiStripClusterizerFactory_H
 
-#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterizerAlgo.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterizerAlgo.h"
 
 class SiStripDetCabling;
 class SiStripZeroSuppressorFactory; 
 
 /** 
-    @author M.Wingham, D.Giordano, R.Bainbridge
+    @author M.Wingham, R.Bainbridge
     @class SiStripClusterizerFactory
     @brief Factory for clusterization algorithms. 
 */
@@ -24,26 +25,31 @@ class SiStripClusterizerFactory {
 
   typedef std::list<std::string> RegisteredAlgorithms; 
   
+  typedef edm::DetSetVector<SiStripRawDigi> RawDigisDSV;
+  typedef SiStripClusterizerAlgo::DigisDSV DigisDSV;
+  typedef SiStripClusterizerAlgo::ClustersDSV ClustersDSV;
+  typedef SiStripClusterizerAlgo::ClustersDSVnew ClustersDSVnew;
+  
   SiStripClusterizerFactory( const edm::ParameterSet& );
   
   ~SiStripClusterizerFactory();
-  
-  /** Clusterization from zero-suppressed data for several DetIds. */
-  void clusterize(const edm::DetSetVector<SiStripDigi>& digis, edm::DetSetVector<SiStripCluster>& clusters);
 
-  /** Clusterization from zero-suppressed data for a single DetId. */
-  void clusterize(const edm::DetSet<SiStripDigi>& digis, edm::DetSetVector<SiStripCluster>& clusters);
+  /// Digis to Clusters (new DetSetVector).
+  void clusterize( const DigisDSV&, ClustersDSVnew& );
   
-  /** Clusterization from raw data for several DetIds. */
-  void clusterize(const edm::DetSetVector<SiStripRawDigi>& raw_digis, edm::DetSetVector<SiStripCluster>& clusters);
+  /// Digis to Clusters (old DetSetVector).
+  void clusterize( const DigisDSV&, ClustersDSV& );
   
-  /** Clusterization from raw data for a single DetId. */
-  void clusterize(const edm::DetSet<SiStripRawDigi>& raw_digis, edm::DetSetVector<SiStripCluster>& clusters);
+  /// RawDigis to Clusters (new DetSetVector).
+  void clusterize( const RawDigisDSV&, ClustersDSVnew& );
 
-  /** Provides access to calibration constants for algorithm. */ 
-  void eventSetup(const edm::EventSetup&);
+  /// RawDigis to Clusters (old DetSetVector).
+  void clusterize( const RawDigisDSV&, ClustersDSV& );
   
-  /** Access to the algorithm object. */
+  /// Provides access to calibration constants for algorithm. 
+  void eventSetup( const edm::EventSetup& );
+  
+  /// Access to the algorithm object.
   inline SiStripClusterizerAlgo* const algorithm() const;
   
  private:

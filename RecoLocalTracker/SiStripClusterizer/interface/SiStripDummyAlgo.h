@@ -4,7 +4,7 @@
 #include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterizerAlgo.h"
 
 /**
-   @author M.Wingham, D.Giordano, R.Bainbridge
+   @author M.Wingham, R.Bainbridge
    @class SiStripDummyAlgo
    @brief Dummy clusterizer algorithm for testing only
 */
@@ -14,17 +14,17 @@ class SiStripDummyAlgo : public SiStripClusterizerAlgo {
   
   SiStripDummyAlgo( const edm::ParameterSet& );
   
-  virtual ~SiStripDummyAlgo();
-  
-  virtual void clusterize( const edm::DetSet<SiStripDigi>&,
-			   edm::DetSetVector<SiStripCluster>& );
+  ~SiStripDummyAlgo();
   
  private:
   
-  /** Building of clusters on strip-by-strip basis. */
-  virtual void add( edm::DetSet<SiStripCluster>&,
-		    const uint16_t& strip,
-		    const uint16_t& adc );
+  void clusterize( const DigisDS&, ClustersDS& );
+  
+  /// Building of clusters on strip-by-strip basis
+  void add( ClustersV& data, 
+	    const uint32_t& id, 
+	    const uint16_t& strip, 
+	    const uint16_t& adc );
   
 };
 

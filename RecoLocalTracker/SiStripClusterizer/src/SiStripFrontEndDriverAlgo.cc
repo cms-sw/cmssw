@@ -17,16 +17,17 @@ SiStripFrontEndDriverAlgo::~SiStripFrontEndDriverAlgo() {
 
 // -----------------------------------------------------------------------------
 //
-void SiStripFrontEndDriverAlgo::clusterize( const edm::DetSet<SiStripDigi>& digis,
-					    edm::DetSetVector<SiStripCluster>& clusters ) {
+void SiStripFrontEndDriverAlgo::clusterize( const DigisDS& digis, 
+					    ClustersDS& clusters ) {
   LogTrace("UNDEFINED_CATEGORY")
     << "[SiStripFrontEndDriverAlgo::" << __func__ << "]";
 }
 
 // -----------------------------------------------------------------------------
 //
-void SiStripFrontEndDriverAlgo::add( edm::DetSet<SiStripCluster>& clusters,
-				     const uint16_t& strip,
+void SiStripFrontEndDriverAlgo::add( ClustersV& data, 
+				     const uint32_t& id, 
+				     const uint16_t& istrip, 
 				     const uint16_t& adc ) {
   LogTrace("UNDEFINED_CATEGORY")
     << "[SiStripFrontEndDriverAlgo::" << __func__ << "]";

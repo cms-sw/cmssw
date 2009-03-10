@@ -4,7 +4,7 @@
 #include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterizerAlgo.h"
 
 /**
-   @author M.Wingham, D.Giordano, R.Bainbridge
+   @author M.Wingham, R.Bainbridge
    @class SiStripFrontEndDriverAlgo
    @brief Clusterizer algorithm replicating Front-End Driver
 */
@@ -14,15 +14,17 @@ class SiStripFrontEndDriverAlgo : public SiStripClusterizerAlgo {
   
   SiStripFrontEndDriverAlgo( const edm::ParameterSet& );
   
-  virtual ~SiStripFrontEndDriverAlgo();
+  ~SiStripFrontEndDriverAlgo();
   
-  virtual void clusterize( const edm::DetSet<SiStripDigi>&,
-			   edm::DetSetVector<SiStripCluster>& );
+  void clusterize( const DigisDS&, ClustersDS& );
   
  private:
   
-  /** Building of clusters on strip-by-strip basis. */
-  virtual void add( edm::DetSet<SiStripCluster>&,const uint16_t& strip,const uint16_t& adc );
+  // Build clusters on strip-by strip basis
+  void add( ClustersV& data, 
+	    const uint32_t& id, 
+	    const uint16_t& strip, 
+	    const uint16_t& adc );
   
 };
 
