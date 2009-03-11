@@ -10,11 +10,9 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
 #include "CalibTracker/Records/interface/SiStripGainRcd.h"
 
-#include "CommonTools/SiStripZeroSuppression/interface/SiStripPedestalsSubtractor.h"
-#include "CommonTools/SiStripZeroSuppression/interface/SiStripCommonModeNoiseSubtractor.h"
-#include "CommonTools/SiStripZeroSuppression/interface/SiStripMedianCommonModeNoiseSubtraction.h"
-#include "CommonTools/SiStripZeroSuppression/interface/SiStripFastLinearCommonModeNoiseSubtraction.h"
-#include "CommonTools/SiStripZeroSuppression/interface/SiStripTT6CommonModeNoiseSubtraction.h"
+#include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripPedestalsSubtractor.h"
+#include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripCommonModeNoiseSubtractor.h"
+#include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripRawProcessingFactory.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
@@ -29,7 +27,7 @@
 class SiStripProcessedRawDigiProducer : public edm::EDProducer {
  public:
   explicit SiStripProcessedRawDigiProducer(edm::ParameterSet const&);
-  ~SiStripProcessedRawDigiProducer();
+  ~SiStripProcessedRawDigiProducer() {}
   
   enum FEDOUTPUT {NOTFOUND=0, ZS, VR, PR, SM};
   enum CMNTYPE   {UNKNOWN=0, MEDIAN, TT6, FASTLINEAR};  
@@ -50,8 +48,8 @@ class SiStripProcessedRawDigiProducer : public edm::EDProducer {
   std::string            CMNSubtractionMode_;
   bool                  validCMNSubtraction_;
 
-  SiStripPedestalsSubtractor*             SiStripPedestalsSubtractor_;
-  SiStripCommonModeNoiseSubtractor* SiStripCommonModeNoiseSubtractor_;
+  std::auto_ptr<SiStripPedestalsSubtractor>             SiStripPedestalsSubtractor_;
+  std::auto_ptr<SiStripCommonModeNoiseSubtractor> SiStripCommonModeNoiseSubtractor_;
 };
 #endif //AnalysisAlgos_SiStripClusterInfoProducer_SiStripProcessedRawDigiProducer_H
 

@@ -13,7 +13,7 @@
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/TrackerGeometryBuilder>	
 
-<use name=CommonTools/SiStripZeroSuppression>	
+<use name=RecoLocalTracker/SiStripZeroSuppression>	
 
 <use name=CalibFormats/SiStripObjects>
 <use name=CalibTracker/Records>

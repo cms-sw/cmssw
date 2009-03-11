@@ -2,33 +2,13 @@
 
 SiStripProcessedRawDigiProducer::SiStripProcessedRawDigiProducer(edm::ParameterSet const& conf) : 
   conf_(conf),
-  CMNSubtractionMode_(conf.getParameter<std::string>("CommonModeNoiseSubtractionMode"))
+  SiStripPedestalsSubtractor_(SiStripRawProcessingFactory::create_SubtractorPed(conf)),
+  SiStripCommonModeNoiseSubtractor_(SiStripRawProcessingFactory::create_SubtractorCMN(conf))
 {
   produces< edm::DetSetVector<SiStripProcessedRawDigi> >("");
 
-  SiStripPedestalsSubtractor_ = new SiStripPedestalsSubtractor();
-
-  validCMNSubtraction_ = true;
-  std::map<std::string, CMNTYPE> cmnmap;  
-  cmnmap["Median"] = MEDIAN; 
-  cmnmap["TT6"]=TT6; 
-  cmnmap["FastLinear"]=FASTLINEAR;
-
-  switch(cmnmap.find(CMNSubtractionMode_)->second) {
-  case MEDIAN:     SiStripCommonModeNoiseSubtractor_ = new SiStripMedianCommonModeNoiseSubtraction();  break;
-  case FASTLINEAR: SiStripCommonModeNoiseSubtractor_ = new SiStripFastLinearCommonModeNoiseSubtraction(); break;
-  case TT6:        SiStripCommonModeNoiseSubtractor_ = new SiStripTT6CommonModeNoiseSubtraction(conf.getParameter<double>("CutToAvoidSignal"));  break;
-  default:         validCMNSubtraction_ = false;   break;
-  }
-
   inputmap_["ProcessedRaw"]   = PR;  inputmap_["VirginRaw"]      = VR;
   inputmap_["ZeroSuppressed"] = ZS;  inputmap_["ScopeMode"]      = SM;
-}
-
-SiStripProcessedRawDigiProducer::~SiStripProcessedRawDigiProducer() {
-  delete SiStripPedestalsSubtractor_;
-  if(validCMNSubtraction_)   
-    delete SiStripCommonModeNoiseSubtractor_;
 }
 
 void 
