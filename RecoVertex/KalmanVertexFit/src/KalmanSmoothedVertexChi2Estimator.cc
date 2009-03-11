@@ -3,26 +3,30 @@
 
 
 template <unsigned int N>
-float KalmanSmoothedVertexChi2Estimator<N>::estimate(const CachingVertex<N> & vertex) const
+typename KalmanSmoothedVertexChi2Estimator<N>::BDpair
+KalmanSmoothedVertexChi2Estimator<N>::estimate(const CachingVertex<N> & vertex) const
 {
 //initial vertex part
   float v_part = 0.;
   float returnChi = 0.;
-  
+
   if (vertex.hasPrior()) {
     v_part = helper.vertexChi2(vertex.priorVertexState(), vertex.vertexState());
   }
- 
+
 //vector of tracks part
   typedef typename CachingVertex<N>::RefCountedVertexTrack RefCountedVertexTrack;
   vector< RefCountedVertexTrack > tracks = vertex.tracks();
   float sum = 0.;
+  bool success = true;
   for(typename vector<RefCountedVertexTrack>::iterator i = tracks.begin(); i != tracks.end(); i++)
   {
-   sum += (*i)->weight() * helper.trackParameterChi2((*i)->linearizedTrack(), (*i)->refittedState());
+    BDpair result = helper.trackParameterChi2((*i)->linearizedTrack(), (*i)->refittedState());
+    success = success && result.first;
+    sum += (*i)->weight() * result.second;
   }
  returnChi = v_part + sum;
- return returnChi;   
+ return BDpair(success, returnChi);
 }
 
 template class KalmanSmoothedVertexChi2Estimator<5>;

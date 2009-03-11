@@ -15,6 +15,7 @@ public:
   typedef typename CachingVertex<N>::RefCountedVertexTrack RefCountedVertexTrack;
   typedef typename VertexTrack<N>::RefCountedLinearizedTrackState RefCountedLinearizedTrackState;
   typedef typename VertexTrack<N>::RefCountedRefittedTrackState RefCountedRefittedTrackState;
+  typedef typename std::pair <bool, double> BDpair;
 
 
   /**
@@ -38,7 +39,7 @@ public:
    *  \param linTrack	The track as linearized
    *  \param refittedTrackState The refitted track
    */
-  float trackParameterChi2(const RefCountedLinearizedTrackState linTrack,
+  BDpair trackParameterChi2(const RefCountedLinearizedTrackState linTrack,
 	const RefCountedRefittedTrackState refittedTrackState) const;
 
   /**
@@ -46,7 +47,7 @@ public:
    *   track parameters. The track must have been smoothed before calling this method.
    *   If not, an Exception will be thrown.
    */
-  float trackParameterChi2(const RefCountedVertexTrack track) const;
+  BDpair trackParameterChi2(const RefCountedVertexTrack track) const;
 
 };
 

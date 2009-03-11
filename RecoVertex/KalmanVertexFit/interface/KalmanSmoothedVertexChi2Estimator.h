@@ -15,6 +15,8 @@ class KalmanSmoothedVertexChi2Estimator:public VertexSmoothedChiSquaredEstimator
 
 public:
 
+  typedef typename std::pair<bool, double> BDpair;
+
   virtual ~KalmanSmoothedVertexChi2Estimator() {}
 
   /**
@@ -22,7 +24,7 @@ public:
    *  \param vertex is the final estimate of the vertex, with the refited tracks
    *  \return the smoothed vertex chi**2
    */
-  float estimate(const CachingVertex<N> & vertex) const;
+  BDpair estimate(const CachingVertex<N> & vertex) const;
    
   KalmanSmoothedVertexChi2Estimator * clone() const 
   {

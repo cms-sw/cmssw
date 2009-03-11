@@ -36,14 +36,14 @@ double KVFHelper<N>::vertexChi2(const VertexState & vertexA,
 
 
 template <unsigned int N>
-float KVFHelper<N>::trackParameterChi2(const RefCountedVertexTrack track) const
+typename KVFHelper<N>::BDpair KVFHelper<N>::trackParameterChi2(const RefCountedVertexTrack track) const
 {
   return trackParameterChi2(track->linearizedTrack(), track->refittedState());
 }
 
 
 template <unsigned int N>
-float KVFHelper<N>::trackParameterChi2(
+typename KVFHelper<N>::BDpair KVFHelper<N>::trackParameterChi2(
 	const RefCountedLinearizedTrackState linTrack,
 	const RefCountedRefittedTrackState refittedTrackState) const
 {
@@ -56,7 +56,8 @@ float KVFHelper<N>::trackParameterChi2(
   linTrack->checkParameters(parameterResiduals);
   int error;
   float lChi2 = ROOT::Math::Similarity(parameterResiduals, linTrack->predictedStateWeight(error));
-  return (lChi2);
+  if (error != 0) return BDpair(false, -1.);
+  return BDpair(true, lChi2);
 }
 
 template class KVFHelper<5>;

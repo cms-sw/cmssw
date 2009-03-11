@@ -30,6 +30,7 @@ public:
   typedef typename CachingVertex<N>::RefCountedVertexTrack RefCountedVertexTrack;
   typedef typename VertexTrack<N>::RefCountedLinearizedTrackState RefCountedLinearizedTrackState;
   typedef typename VertexTrack<N>::RefCountedRefittedTrackState RefCountedRefittedTrackState;
+  typedef typename std::pair<bool, double> BDpair;
 
   KalmanVertexTrackCompatibilityEstimator(){}
 
@@ -43,12 +44,12 @@ public:
    * \return The chi**2.
    */
 
-  virtual float estimate(const CachingVertex<N> & vrt, const RefCountedVertexTrack track) const;
+  virtual BDpair estimate(const CachingVertex<N> & vrt, const RefCountedVertexTrack track) const;
 
-  virtual float estimate(const CachingVertex<N> & v, 
+  virtual BDpair estimate(const CachingVertex<N> & v, 
 			 const RefCountedLinearizedTrackState track) const;
 
-  virtual float estimate(const reco::Vertex & vertex, 
+  virtual BDpair estimate(const reco::Vertex & vertex, 
 			 const reco::TransientTrack & track) const;
 
   virtual KalmanVertexTrackCompatibilityEstimator<N> * clone() const
@@ -59,9 +60,9 @@ public:
 
 private:
 
-  float estimateFittedTrack(const CachingVertex<N> & v, const RefCountedVertexTrack track) const;
-  float estimateNFittedTrack(const CachingVertex<N> & v, const RefCountedVertexTrack track) const;  
-  float estimateDifference(const CachingVertex<N> & more, const CachingVertex<N> & less, 
+  BDpair estimateFittedTrack(const CachingVertex<N> & v, const RefCountedVertexTrack track) const;
+  BDpair estimateNFittedTrack(const CachingVertex<N> & v, const RefCountedVertexTrack track) const;  
+  BDpair estimateDifference(const CachingVertex<N> & more, const CachingVertex<N> & less, 
                                                        const RefCountedVertexTrack track) const;
   KalmanVertexUpdator<N> updator;
   KalmanVertexTrackUpdator<N> trackUpdator;

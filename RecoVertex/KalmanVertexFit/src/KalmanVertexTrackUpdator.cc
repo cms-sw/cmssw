@@ -18,8 +18,8 @@ KalmanVertexTrackUpdator<N>::update
   VertexState rVert = updator.positionUpdate (vertex.vertexState(), track->linearizedTrack(),
 			track->weight(), -1);
 
-  float smoothedChi2 = helper.vertexChi2(rVert, vertex.vertexState()) +
-	helper.trackParameterChi2(track->linearizedTrack(), thePair.first);
+  std::pair<bool, double> result = helper.trackParameterChi2(track->linearizedTrack(), thePair.first);
+  float smoothedChi2 = helper.vertexChi2(rVert, vertex.vertexState()) + result.second;
 
   return theVTFactory.vertexTrack(track->linearizedTrack(),
   	vertex.vertexState(), thePair.first, smoothedChi2, thePair.second,
