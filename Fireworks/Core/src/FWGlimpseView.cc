@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWGlimpseView.cc,v 1.23 2009/01/23 21:35:43 amraktad Exp $
+// $Id: FWGlimpseView.cc,v 1.24 2009/03/04 16:58:14 chrjones Exp $
 //
 
 // system include files
@@ -42,6 +42,7 @@
 #undef private
 #include "TEveViewer.h"
 #include "TEveManager.h"
+#include "TEveWindow.h"
 #include "TEveElement.h"
 #include "TEveCalo.h"
 #include "TEveElement.h"
@@ -76,7 +77,7 @@
 //
 // constructors and destructor
 //
-FWGlimpseView::FWGlimpseView(TGFrame* iParent, TEveElementList* list,
+FWGlimpseView::FWGlimpseView(TEveWindowSlot* iParent, TEveElementList* list,
                              FWEveValueScaler* iScaler) :
    m_cylinder(0),
    m_cameraMatrix(0),
@@ -87,18 +88,18 @@ FWGlimpseView::FWGlimpseView(TGFrame* iParent, TEveElementList* list,
    m_showCylinder(this, "Show Cylinder", true),
    m_scaler(iScaler)
 {
-   m_pad = new TEvePad;
-   TGLEmbeddedViewer* ev = new TGLEmbeddedViewer(iParent, m_pad, 0);
-   m_embeddedViewer=ev;
    TEveViewer* nv = new TEveViewer(staticTypeName().c_str());
-   nv->SetGLViewer(ev,ev->GetFrame());
-   // ev->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
+   m_embeddedViewer =  nv->SpawnGLEmbeddedViewer();
+   iParent->ReplaceWindow(nv);
+
+
+   TGLEmbeddedViewer* ev = m_embeddedViewer;
    ev->SetCurrentCamera(TGLViewer::kCameraPerspXOZ);
    //? ev->SetEventHandler(new TGlimpseEventHandler("Lego", ev->GetGLWidget(), ev));
    m_cameraMatrix = const_cast<TGLMatrix*>(&(ev->CurrentCamera().GetCamTrans()));
    m_cameraMatrixBase = const_cast<TGLMatrix*>(&(ev->CurrentCamera().GetCamBase()));
    if ( TGLPerspectiveCamera* camera =
-           dynamic_cast<TGLPerspectiveCamera*>(&(ev->CurrentCamera())) )
+        dynamic_cast<TGLPerspectiveCamera*>(&(ev->CurrentCamera())) )
       m_cameraFOV = &(camera->fFOV);
 
    TEveScene* ns = gEve->SpawnNewScene(staticTypeName().c_str());
@@ -177,34 +178,34 @@ FWGlimpseView::FWGlimpseView(TGFrame* iParent, TEveElementList* list,
    wns->AddElement(m_cylinder);
 
    /*
-      TGeoTrap* cube = new TGeoTrap(100,0,0,100,100,100,0,100,100,100,0);
-      TEveGeoShapeExtract* extract = fw::getShapeExtract("Detector outline", cube, Color_t(TColor::GetColor("#202020")) );
-      TEveElement* element = TEveGeoShape::ImportShapeExtract(extract, ns);
-      element->SetPickable(kFALSE);
-      element->SetMainTransparency(80);
-      gEve->AddElement(element, ns);
-    */
+     TGeoTrap* cube = new TGeoTrap(100,0,0,100,100,100,0,100,100,100,0);
+     TEveGeoShapeExtract* extract = fw::getShapeExtract("Detector outline", cube, Color_t(TColor::GetColor("#202020")) );
+     TEveElement* element = TEveGeoShape::ImportShapeExtract(extract, ns);
+     element->SetPickable(kFALSE);
+     element->SetMainTransparency(80);
+     gEve->AddElement(element, ns);
+   */
 
    /*
-      TEveStraightLineSet* outline = new TEveStraightLineSet( "EnergyScale" );
-      outline->SetPickable(kTRUE);
-      outline->SetTitle("100 GeV Energy Scale Cube");
-      double size = 100;
-      outline->SetLineColor( Color_t(TColor::GetColor("#202020")) );
-      outline->AddLine(-size, -size, -size,  size, -size, -size);
-      outline->AddLine( size, -size, -size,  size,  size, -size);
-      outline->AddLine( size,  size, -size, -size,  size, -size);
-      outline->AddLine(-size,  size, -size, -size, -size, -size);
-      outline->AddLine(-size, -size,  size,  size, -size,  size);
-      outline->AddLine( size, -size,  size,  size,  size,  size);
-      outline->AddLine( size,  size,  size, -size,  size,  size);
-      outline->AddLine(-size,  size,  size, -size, -size,  size);
-      outline->AddLine(-size, -size, -size, -size, -size,  size);
-      outline->AddLine(-size,  size, -size, -size,  size,  size);
-      outline->AddLine( size, -size, -size,  size, -size,  size);
-      outline->AddLine( size,  size, -size,  size,  size,  size);
-      gEve->AddElement(outline, ns);
-    */
+     TEveStraightLineSet* outline = new TEveStraightLineSet( "EnergyScale" );
+     outline->SetPickable(kTRUE);
+     outline->SetTitle("100 GeV Energy Scale Cube");
+     double size = 100;
+     outline->SetLineColor( Color_t(TColor::GetColor("#202020")) );
+     outline->AddLine(-size, -size, -size,  size, -size, -size);
+     outline->AddLine( size, -size, -size,  size,  size, -size);
+     outline->AddLine( size,  size, -size, -size,  size, -size);
+     outline->AddLine(-size,  size, -size, -size, -size, -size);
+     outline->AddLine(-size, -size,  size,  size, -size,  size);
+     outline->AddLine( size, -size,  size,  size,  size,  size);
+     outline->AddLine( size,  size,  size, -size,  size,  size);
+     outline->AddLine(-size,  size,  size, -size, -size,  size);
+     outline->AddLine(-size, -size, -size, -size, -size,  size);
+     outline->AddLine(-size,  size, -size, -size,  size,  size);
+     outline->AddLine( size, -size, -size,  size, -size,  size);
+     outline->AddLine( size,  size, -size,  size,  size,  size);
+     gEve->AddElement(outline, ns);
+   */
    // m_scaleParam.changed_.connect(boost::bind(&FWGlimpseView::updateScale,this,_1));
    m_showAxes.changed_.connect(boost::bind(&FWGlimpseView::showAxes,this));
    m_showCylinder.changed_.connect(boost::bind(&FWGlimpseView::showCylinder,this));
@@ -212,16 +213,8 @@ FWGlimpseView::FWGlimpseView(TGFrame* iParent, TEveElementList* list,
 
 FWGlimpseView::~FWGlimpseView()
 {
-   //NOTE: have to do this EVIL activity to avoid double deletion. The fFrame inside glviewer
-   // was added to a CompositeFrame which will delete it.  However, TGLEmbeddedViewer will also
-   // delete fFrame in its destructor
-   TGLEmbeddedViewer* glviewer = dynamic_cast<TGLEmbeddedViewer*>(m_viewer->GetGLViewer());
-   glviewer->fFrame=0;
-   delete glviewer;
-
-   m_viewer->Destroy();
    m_scene->Destroy();
-   //delete m_viewer;
+   m_viewer->DestroyWindowAndSlot();
 }
 
 void

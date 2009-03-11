@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FW3DViewManager.cc,v 1.6 2008/12/08 18:43:28 chrjones Exp $
+// $Id: FW3DViewManager.cc,v 1.7 2009/01/23 21:35:42 amraktad Exp $
 //
 
 // system include files
@@ -23,6 +23,7 @@
 #include "TRootEmbeddedCanvas.h"
 #include "TEveCaloData.h"
 #include "TEveElement.h"
+#include "TEveWindow.h"
 #include "TROOT.h"
 
 // user include files
@@ -108,7 +109,7 @@ FW3DViewManager::~FW3DViewManager()
 // member functions
 //
 FWViewBase*
-FW3DViewManager::buildView(TGFrame* iParent)
+FW3DViewManager::buildView(TEveWindowSlot* iParent)
 {
    TEveManager::TRedrawDisabler disableRedraw(gEve);
    boost::shared_ptr<FW3DView> view( new FW3DView(iParent, m_elements.get()) );

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.33 2009/01/23 21:35:44 amraktad Exp $
+// $Id: FWRhoPhiZView.cc,v 1.34 2009/03/04 17:01:29 chrjones Exp $
 //
 
 #define private public
@@ -33,6 +33,7 @@
 #undef private
 #include "TEveViewer.h"
 #include "TEveManager.h"
+#include "TEveWindow.h"
 #include "TClass.h"
 #include "TEveElement.h"
 #include "TEveProjectionBases.h"
@@ -95,7 +96,7 @@ static TEveElement* doReplication(TEveProjectionManager* iMgr, TEveElement* iFro
 //
 // constructors and destructor
 //
-FWRhoPhiZView::FWRhoPhiZView(TGFrame* iParent,const std::string& iName, const TEveProjection::EPType_e& iProjType) :
+FWRhoPhiZView::FWRhoPhiZView(TEveWindowSlot* iParent,const std::string& iName, const TEveProjection::EPType_e& iProjType) :
    m_projType(iProjType),
    m_typeName(iName),
    m_caloScale(1),
@@ -108,8 +109,8 @@ FWRhoPhiZView::FWRhoPhiZView(TGFrame* iParent,const std::string& iName, const TE
    m_caloAutoScale(this,"Calo auto scale",false),
    m_showHF(0),
    m_showEndcaps(0),
-//m_minEcalEnergy(this,"ECAL energy threshold (GeV)",0.,0.,100.),
-//m_minHcalEnergy(this,"HCAL energy threshold (GeV)",0.,0.,100.),
+   //m_minEcalEnergy(this,"ECAL energy threshold (GeV)",0.,0.,100.),
+   //m_minHcalEnergy(this,"HCAL energy threshold (GeV)",0.,0.,100.),
    m_cameraZoom(0),
    m_cameraMatrix(0)
 {
@@ -117,12 +118,12 @@ FWRhoPhiZView::FWRhoPhiZView(TGFrame* iParent,const std::string& iName, const TE
    m_projMgr->SetProjection(iProjType);
    //m_projMgr->GetProjection()->SetFixedRadius(700);
    /*
-      m_projMgr->GetProjection()->SetDistortion(m_distortion.value()*1e-3);
-      m_projMgr->GetProjection()->SetFixR(200);
-      m_projMgr->GetProjection()->SetFixZ(300);
-      m_projMgr->GetProjection()->SetPastFixRFac(0.0);
-      m_projMgr->GetProjection()->SetPastFixZFac(0.0);
-    */
+     m_projMgr->GetProjection()->SetDistortion(m_distortion.value()*1e-3);
+     m_projMgr->GetProjection()->SetFixR(200);
+     m_projMgr->GetProjection()->SetFixZ(300);
+     m_projMgr->GetProjection()->SetPastFixRFac(0.0);
+     m_projMgr->GetProjection()->SetPastFixZFac(0.0);
+   */
 
    //m_minEcalEnergy.changed_.connect(  boost::bind(&FWRhoPhiZView::updateCaloThresholdParameters, this) );
    //m_minHcalEnergy.changed_.connect(  boost::bind(&FWRhoPhiZView::updateCaloThresholdParameters, this) );
@@ -152,11 +153,11 @@ FWRhoPhiZView::FWRhoPhiZView(TGFrame* iParent,const std::string& iName, const TE
    m_caloFixedScale.changed_.connect( boost::bind(&FWRhoPhiZView::updateScaleParameters, this) );
    m_caloAutoScale.changed_.connect(  boost::bind(&FWRhoPhiZView::updateScaleParameters, this) );
 
-   m_pad = new TEvePad;
-   TGLEmbeddedViewer* ev = new TGLEmbeddedViewer(iParent, m_pad, 0);
-   m_embeddedViewer=ev;
    TEveViewer* nv = new TEveViewer(iName.c_str());
-   nv->SetGLViewer(ev,ev->GetFrame());
+   m_embeddedViewer =  nv->SpawnGLEmbeddedViewer();
+   iParent->ReplaceWindow(nv);
+   TGLEmbeddedViewer* ev = m_embeddedViewer;
+
    ev->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
    if ( TGLOrthoCamera* camera = dynamic_cast<TGLOrthoCamera*>( &(ev->CurrentCamera()) ) ) {
       m_cameraZoom = &(camera->fZoom);
@@ -187,19 +188,11 @@ FWRhoPhiZView::FWRhoPhiZView(TGFrame* iParent,const std::string& iName, const TE
 
 FWRhoPhiZView::~FWRhoPhiZView()
 {
-   //NOTE: have to do this EVIL activity to avoid double deletion. The fFrame inside glviewer
-   // was added to a CompositeFrame which will delete it.  However, TGLEmbeddedViewer will also
-   // delete fFrame in its destructor
    m_axes.destroyElement();
    m_projMgr.destroyElement();
-   m_scene.destroyElement();
 
-   TGLEmbeddedViewer* glviewer = dynamic_cast<TGLEmbeddedViewer*>(m_viewer->GetGLViewer());
-   glviewer->fFrame=0;
-   delete glviewer;
-   m_viewer.destroyElement();
-   //delete m_viewer;
-   //delete m_projMgr;
+   m_scene->Destroy();
+   m_viewer->DestroyWindowAndSlot();
 }
 
 //

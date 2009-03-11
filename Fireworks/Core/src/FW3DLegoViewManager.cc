@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FW3DLegoViewManager.cc,v 1.23 2008/12/03 20:54:40 chrjones Exp $
+// $Id: FW3DLegoViewManager.cc,v 1.24 2009/01/23 21:35:42 amraktad Exp $
 //
 
 // system include files
@@ -85,7 +85,7 @@ FW3DLegoViewManager::~FW3DLegoViewManager()
 // member functions
 //
 FWViewBase*
-FW3DLegoViewManager::buildView(TGFrame* iParent)
+FW3DLegoViewManager::buildView(TEveWindowSlot* iParent)
 {
    if(0==m_stack) {
       m_stack = new THStack("LegoStack", "Calo tower lego plot");

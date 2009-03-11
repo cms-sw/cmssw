@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWEveLegoView.h,v 1.12 2009/01/23 21:35:41 amraktad Exp $
+// $Id: FWEveLegoView.h,v 1.13 2009/02/20 21:51:45 chrjones Exp $
 //
 
 // system include files
@@ -35,12 +35,13 @@ class TEveViewer;
 class TEveScene;
 class TEveElementList;
 class TGLMatrix;
+class TEvwWindowSlot;
 
 class FWEveLegoView : public FWViewBase
 {
 
 public:
-   FWEveLegoView(TGFrame*, TEveElementList*);
+   FWEveLegoView(TEveWindowSlot*, TEveElementList*);
    virtual ~FWEveLegoView();
 
    // ---------- const member functions ---------------------
@@ -70,7 +71,6 @@ private:
    void setAutoRebin();
    
    // ---------- member data --------------------------------
-   TEvePad* m_pad;
    FWEvePtr<TEveViewer> m_viewer;
    TGLEmbeddedViewer* m_embeddedViewer;
    FWEvePtr<TEveScene> m_scene;

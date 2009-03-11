@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FW3DLegoView.h,v 1.5 2008/11/06 22:05:22 amraktad Exp $
+// $Id: FW3DLegoView.h,v 1.6 2009/01/23 21:35:40 amraktad Exp $
 //
 
 // system include files
@@ -36,7 +36,7 @@ class FW3DLegoView : public FWViewBase
 {
 
 public:
-   FW3DLegoView(TGFrame*);
+   FW3DLegoView(TEveWindowSlot*);
    virtual ~FW3DLegoView();
 
    // ---------- const member functions ---------------------

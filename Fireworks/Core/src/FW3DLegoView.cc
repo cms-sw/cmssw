@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DLegoView.cc,v 1.5 2008/11/06 22:05:24 amraktad Exp $
+// $Id: FW3DLegoView.cc,v 1.6 2009/01/23 21:35:42 amraktad Exp $
 //
 
 // system include files
@@ -20,6 +20,7 @@
 #include "TClass.h"
 #include "TH2F.h"
 #include "TView.h"
+#include "TEveWindow.h"
 
 // user include files
 #include "Fireworks/Core/interface/FW3DLegoView.h"
@@ -36,13 +37,17 @@
 //
 // constructors and destructor
 //
-FW3DLegoView::FW3DLegoView(TGFrame* iParent)
+FW3DLegoView::FW3DLegoView(TEveWindowSlot* iParent)
 {
-   TRootEmbeddedCanvas* eCanvas = new TRootEmbeddedCanvas("legoCanvas", iParent);
+   TRootEmbeddedCanvas* eCanvas = new TRootEmbeddedCanvas("legoCanvas", 0);
+   TEveWindowFrame *wf = iParent->MakeFrame(eCanvas);
+   wf->SetElementName("FW3DLegoView");
+
    m_frame = eCanvas;
    m_legoCanvas = eCanvas->GetCanvas();
 
    m_legoCanvas->SetFillColor(Color_t(kBlack));
+
 
    // one way of connecting event processing function to a canvas
    // m_legoCanvas->AddExec("ex", "FW3DLegoView::DynamicCoordinates()");

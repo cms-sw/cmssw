@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FW3DView.h,v 1.7 2009/01/22 16:05:12 amraktad Exp $
+// $Id: FW3DView.h,v 1.8 2009/01/23 21:35:40 amraktad Exp $
 //
 
 // system include files
@@ -39,12 +39,13 @@ class TEveGeoShape;
 class TGLMatrix;
 class FW3DViewManager;
 class DetIdToMatrix;
+class TEveWindowSlot;
 
 class FW3DView : public FWViewBase
 {
 
 public:
-   FW3DView(TGFrame*, TEveElementList*);
+   FW3DView(TEveWindowSlot*, TEveElementList*);
    virtual ~FW3DView();
 
    // ---------- const member functions ---------------------
@@ -75,7 +76,6 @@ private:
    void setTransparency( );
 
    // ---------- member data --------------------------------
-   TEvePad* m_pad;
    TEveViewer* m_viewer;
    TGLEmbeddedViewer* m_embeddedViewer;
    TEveScene* m_scene;

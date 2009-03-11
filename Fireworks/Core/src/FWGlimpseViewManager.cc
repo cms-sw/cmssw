@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWGlimpseViewManager.cc,v 1.14 2009/01/22 16:05:12 amraktad Exp $
+// $Id: FWGlimpseViewManager.cc,v 1.15 2009/01/23 21:35:43 amraktad Exp $
 //
 
 // system include files
@@ -103,7 +103,7 @@ FWGlimpseViewManager::~FWGlimpseViewManager()
 // member functions
 //
 FWViewBase*
-FWGlimpseViewManager::buildView(TGFrame* iParent)
+FWGlimpseViewManager::buildView(TEveWindowSlot* iParent)
 {
    TEveManager::TRedrawDisabler disableRedraw(gEve);
    boost::shared_ptr<FWGlimpseView> view( new FWGlimpseView(iParent, &m_elements,&m_scaler) );

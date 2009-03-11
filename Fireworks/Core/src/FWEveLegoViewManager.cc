@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWEveLegoViewManager.cc,v 1.22 2008/12/05 17:02:18 amraktad Exp $
+// $Id: FWEveLegoViewManager.cc,v 1.23 2009/01/23 21:35:43 amraktad Exp $
 //
 
 // system include files
@@ -139,7 +139,7 @@ FWEveLegoViewManager::initData()
 }
 
 FWViewBase*
-FWEveLegoViewManager::buildView(TGFrame* iParent)
+FWEveLegoViewManager::buildView(TEveWindowSlot* iParent)
 {
    initData();
    boost::shared_ptr<FWEveLegoView> view( new FWEveLegoView(iParent, m_elements.get()) );

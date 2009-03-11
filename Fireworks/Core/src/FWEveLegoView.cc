@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.33 2009/02/20 21:51:45 chrjones Exp $
+// $Id: FWEveLegoView.cc,v 1.34 2009/03/04 16:59:57 chrjones Exp $
 //
 
 // system include files
@@ -54,6 +54,7 @@
 #include "TEveTrans.h"
 #include "TEveStraightLineSet.h"
 #include "TEveCaloLegoOverlay.h"
+#include "TEveWindow.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWEveLegoView.h"
@@ -71,7 +72,7 @@
 //
 // constructors and destructor
 //
-FWEveLegoView::FWEveLegoView(TGFrame* iParent, TEveElementList* list) :
+FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
    //m_minEcalEnergy(this,"ECAL energy threshold (GeV)",1.,0.,100.),
    //m_minHcalEnergy(this,"HCAL energy threshold (GeV)",1.,0.,100.),
    //m_ecalSlice(0),
@@ -89,13 +90,13 @@ FWEveLegoView::FWEveLegoView(TGFrame* iParent, TEveElementList* list) :
    m_topView(false),
    m_cameraSet(false)
 {
-   m_autoRebin.changed_.connect(boost::bind(&FWEveLegoView::setAutoRebin,this));
-   m_pad = new TEvePad;
-   TGLEmbeddedViewer* ev = new TGLEmbeddedViewer(iParent, m_pad, 0);
-   m_embeddedViewer=ev;
    TEveViewer* nv = new TEveViewer(staticTypeName().c_str());
-   nv->SetGLViewer(ev,ev->GetFrame());
+   m_embeddedViewer =  nv->SpawnGLEmbeddedViewer();
+   iParent->ReplaceWindow(nv);
 
+   TGLEmbeddedViewer* ev = m_embeddedViewer;
+
+   m_autoRebin.changed_.connect(boost::bind(&FWEveLegoView::setAutoRebin,this));
    // take care of cameras
    //
    // ev->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
@@ -117,36 +118,36 @@ FWEveLegoView::FWEveLegoView(TGFrame* iParent, TEveElementList* list) :
    gEve->AddElement(nv, gEve->GetViewers());
 
    /*
-      TEveRGBAPalette* pal = new TEveRGBAPalette(0, 100);
-      // pal->SetLimits(0, data->GetMaxVal());
-      pal->SetLimits(0, 100);
-      pal->SetDefaultColor((Color_t)1000);
+     TEveRGBAPalette* pal = new TEveRGBAPalette(0, 100);
+     // pal->SetLimits(0, data->GetMaxVal());
+     pal->SetLimits(0, 100);
+     pal->SetDefaultColor((Color_t)1000);
 
-      m_lego = new TEveCaloLego();
-      m_lego->InitMainTrans();
-      m_lego->RefMainTrans().SetScale(2*M_PI, 2*M_PI, M_PI);
-      m_lego->SetTopViewTowerColor(kWhite);
+     m_lego = new TEveCaloLego();
+     m_lego->InitMainTrans();
+     m_lego->RefMainTrans().SetScale(2*M_PI, 2*M_PI, M_PI);
+     m_lego->SetTopViewTowerColor(kWhite);
 
-      m_lego->SetPalette(pal);
-      // m_lego->SetMainColor(Color_t(TColor::GetColor("#0A0A0A")));
-      m_lego->SetGridColor(Color_t(TColor::GetColor("#202020")));
-      m_lego->Set2DMode(TEveCaloLego::kValSize);
-      m_lego->SetBinWidth(6);
-      // add calorimeter boundaries
-      TEveStraightLineSet* boundaries = new TEveStraightLineSet("boundaries");
-      boundaries->SetPickable(kFALSE);
-      boundaries->SetLineColor(Color_t(TColor::GetColor("#404040")));
-      // boundaries->SetLineWidth(2);
-      boundaries->AddLine(-1.479,-3.1416,0.001,-1.479,3.1416,0.001);
-      boundaries->AddLine(1.479,-3.1416,0.001,1.479,3.1416,0.001);
-      boundaries->AddLine(-3.0,-3.1416,0.001,-3.0,3.1416,0.001);
-      boundaries->AddLine(3.0,-3.1416,0.001,3.0,3.1416,0.001);
-      gEve->AddElement(boundaries,m_lego);
-      // lego->SetEtaLimits(etaLimLow, etaLimHigh);
-      // lego->SetTitle("caloTower Et distribution");
-      gEve->AddElement(m_lego, ns);
-      gEve->AddToListTree(m_lego, kTRUE);
-    */
+     m_lego->SetPalette(pal);
+     // m_lego->SetMainColor(Color_t(TColor::GetColor("#0A0A0A")));
+     m_lego->SetGridColor(Color_t(TColor::GetColor("#202020")));
+     m_lego->Set2DMode(TEveCaloLego::kValSize);
+     m_lego->SetBinWidth(6);
+     // add calorimeter boundaries
+     TEveStraightLineSet* boundaries = new TEveStraightLineSet("boundaries");
+     boundaries->SetPickable(kFALSE);
+     boundaries->SetLineColor(Color_t(TColor::GetColor("#404040")));
+     // boundaries->SetLineWidth(2);
+     boundaries->AddLine(-1.479,-3.1416,0.001,-1.479,3.1416,0.001);
+     boundaries->AddLine(1.479,-3.1416,0.001,1.479,3.1416,0.001);
+     boundaries->AddLine(-3.0,-3.1416,0.001,-3.0,3.1416,0.001);
+     boundaries->AddLine(3.0,-3.1416,0.001,3.0,3.1416,0.001);
+     gEve->AddElement(boundaries,m_lego);
+     // lego->SetEtaLimits(etaLimLow, etaLimHigh);
+     // lego->SetTitle("caloTower Et distribution");
+     gEve->AddElement(m_lego, ns);
+     gEve->AddToListTree(m_lego, kTRUE);
+   */
    gEve->AddElement(list,ns);
    gEve->AddToListTree(list, kTRUE);
    //CDJ This is done too early setCameras();
@@ -166,23 +167,18 @@ FWEveLegoView::FWEveLegoView(TGFrame* iParent, TEveElementList* list) :
          gEve->AddElement(overlay, ns);
       }
    }
+   setCameras();
 }
 
 FWEveLegoView::~FWEveLegoView()
 {
-   m_scene.destroyElement();
-   //NOTE: have to do this EVIL activity to avoid double deletion. The fFrame inside glviewer
-   // was added to a CompositeFrame which will delete it.  However, TGLEmbeddedViewer will also
-   // delete fFrame in its destructor
-   TGLEmbeddedViewer* glviewer = dynamic_cast<TGLEmbeddedViewer*>(m_viewer->GetGLViewer());
-   glviewer->fFrame=0;
-   delete glviewer;
+   m_scene->Destroy();
+   m_viewer->DestroyWindowAndSlot();
 
    m_viewer.destroyElement();
    delete m_cameraMatrix;
    delete m_cameraMatrixBase;
    delete m_orthoCameraMatrix;
-   //delete m_viewer;
 }
 
 void

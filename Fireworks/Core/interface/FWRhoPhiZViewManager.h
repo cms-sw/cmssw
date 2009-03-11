@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 11:27:34 EST 2008
-// $Id: FWRhoPhiZViewManager.h,v 1.28 2008/11/18 21:56:16 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.h,v 1.29 2009/01/23 21:35:41 amraktad Exp $
 //
 
 // system include files
@@ -46,6 +46,7 @@ class FWRhoPhiZView;
 class FWViewBase;
 class TEveSelection;
 class TEveElement;
+class TEveWindowSlot;
 class FWSelectionManager;
 
 class FWRhoPhiZViewManager : public FWViewManagerBase
@@ -64,8 +65,8 @@ public:
 
    virtual void newItem(const FWEventItem*);
 
-   FWViewBase* createRhoPhiView(TGFrame* iParent);
-   FWViewBase* createRhoZView(TGFrame* iParent);
+   FWViewBase* createRhoPhiView(TEveWindowSlot* iParent);
+   FWViewBase* createRhoZView(TEveWindowSlot* iParent);
 
    //connect to ROOT signals
    void selectionAdded(TEveElement*);

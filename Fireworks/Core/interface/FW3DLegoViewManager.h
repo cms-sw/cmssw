@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:21 EST 2008
-// $Id: FW3DLegoViewManager.h,v 1.13 2008/11/06 22:05:22 amraktad Exp $
+// $Id: FW3DLegoViewManager.h,v 1.14 2009/01/23 21:35:40 amraktad Exp $
 //
 
 // system include files
@@ -42,6 +42,7 @@ class TGFrame;
 class FW3DLegoView;
 class FWViewBase;
 class TObject;
+class TEveWindowSlot;
 
 struct FW3DLegoModelProxy
 {
@@ -71,7 +72,7 @@ public:
 
    virtual void newItem(const FWEventItem*);
 
-   FWViewBase* buildView(TGFrame* iParent);
+   FWViewBase* buildView(TEveWindowSlot* iParent);
 
    void exec3event(int event, int x, int y, TObject *selected);
    void pixel2wc(const Int_t PixelX, const Int_t PixelY,

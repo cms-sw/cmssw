@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:21 EST 2008
-// $Id: FWEveLegoViewManager.h,v 1.9 2008/11/14 16:40:14 chrjones Exp $
+// $Id: FWEveLegoViewManager.h,v 1.10 2009/01/23 21:35:41 amraktad Exp $
 //
 
 // system include files
@@ -41,6 +41,7 @@ class TEveElementList;
 class TEveSelection;
 class FWSelectionManager;
 class TEveCaloLego;
+class TEveWindowSlot;
 
 /*
    struct FWEveLegoModelProxy
@@ -71,7 +72,7 @@ public:
 
    virtual void newItem(const FWEventItem*);
 
-   FWViewBase* buildView(TGFrame* iParent);
+   FWViewBase* buildView(TEveWindowSlot* iParent);
 
    //connect to ROOT signals
    void selectionAdded(TEveElement*);

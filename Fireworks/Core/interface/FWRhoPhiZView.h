@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRhoPhiZView.h,v 1.15 2008/11/14 15:35:20 chrjones Exp $
+// $Id: FWRhoPhiZView.h,v 1.16 2009/01/23 21:35:41 amraktad Exp $
 //
 
 // system include files
@@ -41,12 +41,13 @@ class TEveCalo2D;
 class FWRhoPhiZViewManager;
 class TEveScene;
 class TEveProjectionAxes;
+class TEveWindowSlot;
 
 class FWRhoPhiZView : public FWViewBase
 {
 
 public:
-   FWRhoPhiZView(TGFrame* iParent,
+   FWRhoPhiZView(TEveWindowSlot* iParent,
                  const std::string& iTypeName,
                  const TEveProjection::EPType_e& iProjType);
    virtual ~FWRhoPhiZView();
@@ -85,7 +86,6 @@ private:
    const FWRhoPhiZView& operator=(const FWRhoPhiZView&);    // stop default
 
    // ---------- member data --------------------------------
-   TEvePad* m_pad;
    FWEvePtr<TEveViewer> m_viewer;
    TGLEmbeddedViewer* m_embeddedViewer;
    FWEvePtr<TEveProjectionManager> m_projMgr;

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DView.cc,v 1.10 2009/01/23 21:35:42 amraktad Exp $
+// $Id: FW3DView.cc,v 1.11 2009/03/04 17:00:46 chrjones Exp $
 //
 
 // system include files
@@ -55,7 +55,9 @@
 #include "TEveGeoNode.h"
 #include "TEveStraightLineSet.h"
 #include "TEveText.h"
+#include "TEveWindow.h"
 #include "TGeoArb8.h"
+
 
 // user include files
 #include "Fireworks/Core/interface/FW3DView.h"
@@ -84,7 +86,7 @@
 //
 // constructors and destructor
 //
-FW3DView::FW3DView(TGFrame* iParent, TEveElementList* list) :
+FW3DView::FW3DView(TEveWindowSlot* iParent, TEveElementList* list) :
    m_cameraMatrix(0),
    m_cameraMatrixBase(0),
    m_cameraFOV(0),
@@ -103,11 +105,11 @@ FW3DView::FW3DView(TGFrame* iParent, TEveElementList* list) :
    m_showWireFrame(this, "Show Wire Frame", true),
    m_geomTransparency(this,"Detector Transparency", 95l, 0l, 100l)
 {
-   m_pad = new TEvePad;
-   TGLEmbeddedViewer* ev = new TGLEmbeddedViewer(iParent, m_pad, 0);
-   m_embeddedViewer=ev;
    TEveViewer* nv = new TEveViewer(staticTypeName().c_str());
-   nv->SetGLViewer(ev,ev->GetFrame());
+   m_embeddedViewer =  nv->SpawnGLEmbeddedViewer();
+   iParent->ReplaceWindow(nv);
+
+   TGLEmbeddedViewer* ev = m_embeddedViewer;
    ev->SetCurrentCamera(TGLViewer::kCameraPerspXOZ);
    m_cameraMatrix = const_cast<TGLMatrix*>(&(ev->CurrentCamera().GetCamTrans()));
    m_cameraMatrixBase = const_cast<TGLMatrix*>(&(ev->CurrentCamera().GetCamBase()));
@@ -142,16 +144,8 @@ FW3DView::FW3DView(TGFrame* iParent, TEveElementList* list) :
 
 FW3DView::~FW3DView()
 {
-   //NOTE: have to do this EVIL activity to avoid double deletion. The fFrame inside glviewer
-   // was added to a CompositeFrame which will delete it.  However, TGLEmbeddedViewer will also
-   // delete fFrame in its destructor
-   TGLEmbeddedViewer* glviewer = dynamic_cast<TGLEmbeddedViewer*>(m_viewer->GetGLViewer());
-   glviewer->fFrame=0;
-   delete glviewer;
-
-   m_viewer->Destroy();
    m_scene->Destroy();
-   //delete m_viewer;
+   m_viewer->DestroyWindowAndSlot();
 }
 
 void

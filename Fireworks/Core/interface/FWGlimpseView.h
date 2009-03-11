@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWGlimpseView.h,v 1.9 2009/01/22 16:05:12 amraktad Exp $
+// $Id: FWGlimpseView.h,v 1.10 2009/01/23 21:35:41 amraktad Exp $
 //
 
 // system include files
@@ -39,11 +39,13 @@ class TEveGeoShape;
 class TGLMatrix;
 class FWGlimpseViewManager;
 class FWEveValueScaler;
+class TEveWindowSlot;
+
 class FWGlimpseView : public FWViewBase
 {
 
 public:
-   FWGlimpseView(TGFrame*, TEveElementList*, FWEveValueScaler*);
+   FWGlimpseView(TEveWindowSlot*, TEveElementList*, FWEveValueScaler*);
    virtual ~FWGlimpseView();
 
    // ---------- const member functions ---------------------

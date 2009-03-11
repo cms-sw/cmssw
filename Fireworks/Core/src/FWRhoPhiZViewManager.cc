@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.47 2008/12/19 09:52:59 dmytro Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.48 2009/01/23 21:35:44 amraktad Exp $
 //
 
 // system include files
@@ -165,7 +165,7 @@ FWRhoPhiZViewManager::~FWRhoPhiZViewManager()
 // member functions
 //
 FWViewBase*
-FWRhoPhiZViewManager::createRhoPhiView(TGFrame* iParent)
+FWRhoPhiZViewManager::createRhoPhiView(TEveWindowSlot* iParent)
 {
    TEveManager::TRedrawDisabler disableRedraw(gEve);
 
@@ -194,7 +194,7 @@ FWRhoPhiZViewManager::createRhoPhiView(TGFrame* iParent)
 }
 
 FWViewBase*
-FWRhoPhiZViewManager::createRhoZView(TGFrame* iParent)
+FWRhoPhiZViewManager::createRhoZView(TEveWindowSlot* iParent)
 {
    TEveManager::TRedrawDisabler disableRedraw(gEve);
 
