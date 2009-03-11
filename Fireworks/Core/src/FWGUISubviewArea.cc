@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:33 EST 2008
-// $Id: FWGUISubviewArea.cc,v 1.14 2008/11/06 22:05:25 amraktad Exp $
+// $Id: FWGUISubviewArea.cc,v 1.15 2009/01/23 21:35:43 amraktad Exp $
 //
 
 // system include files
@@ -21,123 +21,74 @@
 #include "TGSplitFrame.h"
 #include "TGFont.h"
 #include "TGLabel.h"
+#include "TEveWindow.h"
 
-// user include files
 #include "Fireworks/Core/interface/FWGUISubviewArea.h"
-
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
 
 //
 // constructors and destructor
 //
-FWGUISubviewArea::FWGUISubviewArea(unsigned int iIndex, const TGSplitFrame *iParent, TGSplitFrame* iMainSplit)
-   : TGVerticalFrame(iParent),
-     m_mainSplit(iMainSplit),
-     m_index(iIndex),
-     m_docked(true)
+FWGUISubviewArea::FWGUISubviewArea(unsigned int idx, TEveCompositeFrame* eveFrame)
+   : TGHorizontalFrame(0),
+     m_index(idx),
+     m_frame(eveFrame)
 {
-   //This doesn't seem to do anything
-   //SetCleanup(kNoCleanup);
-
    const unsigned int kIconHeight = 20;
-   m_buttons = new TGHorizontalFrame(this);
-   this->AddFrame(m_buttons, new TGLayoutHints(kLHintsTop|kLHintsLeft|kLHintsExpandX));
-   m_label = new TGLabel(m_buttons,"");
-   m_buttons->AddFrame(m_label, new TGLayoutHints(kLHintsLeft|kLHintsTop|kLHintsExpandX|kLHintsExpandY));
-   TGPictureButton* temp;
-   m_infoButton = temp = new TGPictureButton(m_buttons,infoIcon());
-   temp->SetDisabledPicture(infoDisabledIcon());
-   m_buttons->AddFrame(m_infoButton, new TGLayoutHints(kLHintsTop|kLHintsLeft|kLHintsExpandY));
+   UInt_t lh = kLHintsNormal | kLHintsExpandX | kLHintsExpandY;
+
+   // info
+   m_infoButton = new TGPictureButton(this,infoIcon());
+   m_infoButton->ChangeOptions(kRaisedFrame);
+   m_infoButton->SetDisabledPicture(infoDisabledIcon());
+   AddFrame(m_infoButton, new TGLayoutHints(lh));
    m_infoButton->AllowStayDown(kTRUE);
    m_infoButton->Connect("Pressed()","FWGUISubviewArea",this,"selectButtonDown()");
    m_infoButton->Connect("Released()","FWGUISubviewArea",this,"selectButtonUp()");
    m_infoButton->SetToolTipText("Edit View");
 
-   //have to stop cleanup so that we don't delete the button which was clicked to tell us to delete
-   //m_buttons->SetCleanup(kNoCleanup);
-   m_swapButton= temp=new TGPictureButton(m_buttons, swapIcon());
-   temp->SetDisabledPicture(swapDisabledIcon());
-
-   m_swapButton->SetToolTipText("Swap to big view");
+   //swap
+   m_swapButton = new TGPictureButton(this, swapIcon());
+   m_swapButton->SetDisabledPicture(swapDisabledIcon());
+   m_swapButton->SetToolTipText("Swap with current. Current is selected with left mouse click on frame tollbar.");
+   m_swapButton->ChangeOptions(kRaisedFrame);
    m_swapButton->SetHeight(kIconHeight);
-   m_buttons->AddFrame(m_swapButton, new TGLayoutHints(kLHintsTop|kLHintsLeft|kLHintsExpandY));
-   m_swapButton->Connect("Clicked()","FWGUISubviewArea",this,"swapToBigView()");
+   AddFrame(m_swapButton, new TGLayoutHints(lh));
+   m_swapButton->Connect("Clicked()","FWGUISubviewArea",this,"swapWithCurrentView()");
 
-   m_undockButton = temp = new TGPictureButton(m_buttons,undockIcon());
-   temp->SetDisabledPicture(undockDisabledIcon());
+   // undock
+   m_undockButton = new TGPictureButton(this, undockIcon());
+   m_undockButton->ChangeOptions(kRaisedFrame);
+   m_undockButton->SetDisabledPicture(undockDisabledIcon());
    m_undockButton->SetToolTipText("Undock view to own window");
    m_undockButton->SetHeight(kIconHeight);
-   m_buttons->AddFrame(m_undockButton, new TGLayoutHints(kLHintsTop|kLHintsLeft|kLHintsExpandY));
+   AddFrame(m_undockButton, new TGLayoutHints(lh));
    m_undockButton->Connect("Clicked()", "FWGUISubviewArea",this,"undock()");
 
-#if defined(__APPLE__)
-   //There is a problem with undocking on OS X
-   m_undockButton->SetEnabled(kFALSE);
-#endif
-
-   m_closeButton = temp = new TGPictureButton(m_buttons,closeIcon());
-   temp->SetDisabledPicture(closeDisabledIcon());
+   // destroy
+   m_closeButton = new TGPictureButton(this,closeIcon());
+   m_closeButton->ChangeOptions(kRaisedFrame);
    m_closeButton->SetToolTipText("Close view");
    m_closeButton->SetHeight(kIconHeight);
-   m_buttons->AddFrame(m_closeButton, new TGLayoutHints(kLHintsRight|kLHintsTop|kLHintsExpandY));
+   AddFrame(m_closeButton, new TGLayoutHints(lh));
    m_closeButton->Connect("Clicked()", "FWGUISubviewArea",this,"destroy()");
 
-   //Turn off until we can get this to work consistently correct
-   m_closeButton->SetEnabled(kFALSE);
-   //behavior of buttons depends on index
-   if(0==iIndex) {
-      m_swapButton->SetEnabled(kFALSE);
-   }
-   m_buttons->SetBackgroundColor(TGFrame::GetBlackPixel());
+   SetBackgroundColor(TGFrame::GetBlackPixel());
+   SetCleanup(kDeepCleanup);
 }
-
-// FWGUISubviewArea::FWGUISubviewArea(const FWGUISubviewArea& rhs)
-// {
-//    // do actual copying here;
-// }
 
 FWGUISubviewArea::~FWGUISubviewArea()
 {
    //std::cout <<"IN dstr FWGUISubviewArea"<<std::endl;
-   m_swapButton->Disconnect("Clicked()",this,"swapToBigView()");
-   m_undockButton->Disconnect("Clicked()",this,"undock()");
    m_closeButton->Disconnect("Clicked()", this,"destroy()");
    m_infoButton->Disconnect("Pressed()",this,"selectButtonDown()");
    m_infoButton->Disconnect("Released()",this,"selectButtonUp()");
-
-
-   //delete m_swapButton;
-   //delete m_undockButton;
-   //HELP how do I get this to be deleted after we finish processing this GUI event?
-   //RemoveFrame(m_closeButton);
-   //delete m_closeButton;
-   m_closeButton->UnmapWindow();
-   m_buttons->RemoveFrame(m_closeButton);
-   //std::cout <<"OUT dstr FWGUISubviewArea"<<std::endl;
 }
 
+//______________________________________________________________________________
 //
-// assignment operators
+// actions
 //
-// const FWGUISubviewArea& FWGUISubviewArea::operator=(const FWGUISubviewArea& rhs)
-// {
-//   //An exception safe implementation is
-//   FWGUISubviewArea temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
 
-//
-// member functions
-//
 void
 FWGUISubviewArea::selectButtonDown()
 {
@@ -150,96 +101,40 @@ FWGUISubviewArea::selectButtonUp()
    unselected_(index());
 }
 
-
-void
-FWGUISubviewArea::setName(const std::string& iName)
-{
-   m_label->SetText(iName.c_str());
-}
-
 void
 FWGUISubviewArea::unselect()
 {
    m_infoButton->SetDown(kFALSE);
 }
 
-
 void
-FWGUISubviewArea::enableDestructionButton(bool iState)
+FWGUISubviewArea::swapWithCurrentView()
 {
-   m_closeButton->SetEnabled(iState);
-}
-
-void
-FWGUISubviewArea::enableSwapButton(bool iState)
-{
-   m_swapButton->SetEnabled(iState);
-}
-
-void
-FWGUISubviewArea::swapToBigView()
-{
-   //We know the parent is a TGSplitFrame because the constructor requires it to be so
-   TGSplitFrame* p = const_cast<TGSplitFrame*>(static_cast<const TGSplitFrame*>(GetParent()));
-   p->SwitchToMain();
-
-   swappedToBigView_(index());
+   swapWithCurrentView_(index());
 }
 
 void
 FWGUISubviewArea::destroy()
 {
    goingToBeDestroyed_(index());
-
-   //NOTE: FWGUIManager will actually handle the deletion of the window in order to avoid a
-   // button sending a signal which causes the button to be destroyed leading to a memory error problem
+   TTimer::SingleShot(50, m_frame->GetEveWindow()->ClassName(), m_frame->GetEveWindow(), "DestroyWindowAndSlot()");
 }
 
 void
 FWGUISubviewArea::undock()
 {
-   //We know the parent is a TGSplitFrame because the constructor requires it to be so
-   TGSplitFrame* p = const_cast<TGSplitFrame*>(static_cast<const TGSplitFrame*>(GetParent()));
-   m_undockedSwappableView = m_swapButton->IsEnabled();
-   m_undockedDestructabledView = m_closeButton->IsEnabled();
-
-   m_swapButton->SetEnabled(kFALSE);
-   m_closeButton->SetEnabled(kFALSE);
-   m_undockButton->SetEnabled(kFALSE);
-
-   m_docked = false;
-   if(index() == 0 ) {
-      bigViewUndocked_();
-   }
-   p->Connect("Docked(TGFrame*)","FWGUISubviewArea",this,"beingDocked(TGFrame*)");
-   p->ExtractFrame();
-
+   // At the moment  simple undock implemented alternative is UndockWindowDestroySlot()
+   TTimer::SingleShot(50, m_frame->GetEveWindow()->ClassName(), m_frame->GetEveWindow(), "UndockWindow()");
 }
 
 void
 FWGUISubviewArea::undockTo(Int_t x, Int_t y,
                            UInt_t width, UInt_t height)
 {
-   undock();
    //NOTE: this seems evil but I can do the exact same thing by calling 'GetId' on the MainFrame
    // and then use gVirtualX to do the work
+   undock();
    const_cast<TGWindow*>(GetMainFrame())->MoveResize(x,y,width,height);
-}
-
-
-void
-FWGUISubviewArea::beingDocked(TGFrame*)
-{
-   m_swapButton->SetEnabled(m_undockedSwappableView);
-   m_closeButton->SetEnabled(m_undockedDestructabledView);
-   m_undockButton->SetEnabled(kTRUE);
-   TGSplitFrame* p = const_cast<TGSplitFrame*>(static_cast<const TGSplitFrame*>(GetParent()));
-   p->Disconnect("Docked(TGFrame*)",this,"beingDocked()");
-
-   m_docked=true;
-   if(index() == 0 ) {
-      bigViewDocked_();
-   }
 }
 
 //
@@ -251,7 +146,7 @@ FWGUISubviewArea::isSelected() const
    return m_infoButton->IsDown();
 }
 
-//
+//______________________________________________________________________________
 // static member functions
 //
 const TGPicture *
@@ -264,7 +159,6 @@ FWGUISubviewArea::swapIcon()
          throw std::runtime_error("CMSSW_BASE environment variable not set");
       }
       TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
-      //s_icon = gClient->GetPicture(coreIcondir+"swapToMainView.gif");
       s_icon = gClient->GetPicture(coreIcondir+"moveup.png");
    }
    return s_icon;
@@ -280,7 +174,6 @@ FWGUISubviewArea::swapDisabledIcon()
          throw std::runtime_error("CMSSW_BASE environment variable not set");
       }
       TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
-      //s_icon = gClient->GetPicture(coreIcondir+"swapToMainView.gif");
       s_icon = gClient->GetPicture(coreIcondir+"moveup-disabled.png");
    }
    return s_icon;
@@ -296,11 +189,11 @@ FWGUISubviewArea::closeIcon()
          throw std::runtime_error("CMSSW_BASE environment variable not set");
       }
       TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
-      //s_icon = gClient->GetPicture(coreIcondir+"closeView.gif");
       s_icon = gClient->GetPicture(coreIcondir+"delete.png");
    }
    return s_icon;
 }
+
 const TGPicture *
 FWGUISubviewArea::closeDisabledIcon()
 {
@@ -311,7 +204,6 @@ FWGUISubviewArea::closeDisabledIcon()
          throw std::runtime_error("CMSSW_BASE environment variable not set");
       }
       TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
-      //s_icon = gClient->GetPicture(coreIcondir+"closeView.gif");
       s_icon = gClient->GetPicture(coreIcondir+"delete-disabled.png");
    }
    return s_icon;
@@ -328,7 +220,6 @@ FWGUISubviewArea::undockIcon()
          throw std::runtime_error("CMSSW_BASE environment variable not set");
       }
       TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
-      //s_icon = gClient->GetPicture(coreIcondir+"undockView.gif");
       s_icon = gClient->GetPicture(coreIcondir+"expand.png");
    }
    return s_icon;
@@ -344,7 +235,6 @@ FWGUISubviewArea::undockDisabledIcon()
          throw std::runtime_error("CMSSW_BASE environment variable not set");
       }
       TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
-      //s_icon = gClient->GetPicture(coreIcondir+"undockView.gif");
       s_icon = gClient->GetPicture(coreIcondir+"expand-disabled.png");
    }
    return s_icon;
@@ -381,13 +271,10 @@ FWGUISubviewArea::infoDisabledIcon()
 }
 
 
-void
-FWGUISubviewArea::setIndex(unsigned int iIndex) {
-   if(0==iIndex) {
-      m_swapButton->SetEnabled(kFALSE);
-   }
-   if(m_index==0) {
-      m_swapButton->SetEnabled(kTRUE);
-   }
-   m_index = iIndex;
+//______________________________________________________________________________
+
+TEveWindow*
+FWGUISubviewArea::getEveWindow()
+{
+   return m_frame->GetEveWindow();
 }

@@ -16,38 +16,30 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:29 EST 2008
-// $Id: FWGUISubviewArea.h,v 1.10 2008/11/06 22:05:23 amraktad Exp $
+// $Id: FWGUISubviewArea.h,v 1.11 2009/01/23 21:35:41 amraktad Exp $
 //
 
-// system include files
 #include "TGFrame.h"
 #include <sigc++/signal.h>
 #include <string>
-// user include files
 
 // forward declarations
-class TGSplitFrame;
 class TGButton;
 class TGLabel;
+class TEveCompositeFrame;
+class TEveWindow;
 
-class FWGUISubviewArea : public TGVerticalFrame
+class FWGUISubviewArea : public TGHorizontalFrame
 {
-
 public:
-   FWGUISubviewArea(unsigned int iIndex, const TGSplitFrame *iParent,TGSplitFrame*);
+   FWGUISubviewArea(unsigned int idx, TEveCompositeFrame* eveWindow);
    virtual ~FWGUISubviewArea();
 
    // ---------- const member functions ---------------------
    //index says which sub area this occupies [used for configuration saving]
-   unsigned int index() const {
-      return m_index;
-   }
+   unsigned int index()      const { return m_index; }
+   bool         isSelected() const;
 
-   bool isDocked() const {
-      return m_docked;
-   }
-
-   bool isSelected() const;
    // ---------- static member functions --------------------
    static const TGPicture * swapIcon();
    static const TGPicture * swapDisabledIcon();
@@ -59,49 +51,36 @@ public:
    static const TGPicture * infoDisabledIcon();
 
    // ---------- member functions ---------------------------
-   void setName(const std::string&);
+   void setIndex(unsigned int iIndex) { m_index = iIndex; }
+
    void unselect();
-   void swapToBigView();
+   void swapWithCurrentView();
    void destroy();
    void undock();
+   void undockTo(Int_t x, Int_t y, UInt_t width, UInt_t height);
 
-   void undockTo(Int_t x, Int_t y,
-                 UInt_t width, UInt_t height);
+   void selectButtonDown();
+   void selectButtonUp();
 
-   void beingDocked(TGFrame*);
-
-   void enableDestructionButton(bool);
-   void setIndex(unsigned int iIndex);
-   void enableSwapButton(bool);
-   sigc::signal<void,unsigned int> swappedToBigView_;
+   sigc::signal<void,unsigned int> swapWithCurrentView_;
    sigc::signal<void,unsigned int> goingToBeDestroyed_;
    sigc::signal<void,unsigned int> selected_;
    sigc::signal<void,unsigned int> unselected_;
 
-   sigc::signal<void> bigViewUndocked_;
-   sigc::signal<void> bigViewDocked_;
+   TEveWindow* getEveWindow();
 
-   void selectButtonDown();
-   void selectButtonUp();
 private:
    FWGUISubviewArea(const FWGUISubviewArea&);    // stop default
-
    const FWGUISubviewArea& operator=(const FWGUISubviewArea&);    // stop default
 
    // ---------- member data --------------------------------
-   TGSplitFrame* m_mainSplit;
    unsigned int m_index;
-   TGButton* m_swapButton;
-   TGButton* m_undockButton;
-   TGButton* m_closeButton;
-   TGButton* m_infoButton;
-   TGCompositeFrame* m_buttons;
-   TGLabel* m_label;
+   TEveCompositeFrame*  m_frame;
 
-   bool m_undockedSwappableView;
-   bool m_undockedDestructabledView;
-   bool m_docked;
+   TGPictureButton* m_swapButton;
+   TGPictureButton* m_undockButton;
+   TGPictureButton* m_closeButton;
+   TGPictureButton* m_infoButton;
 };
-
 
 #endif
