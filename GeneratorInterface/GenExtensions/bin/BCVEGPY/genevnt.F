@@ -275,12 +275,8 @@ c IDWTUP = 3 requires XWGTUP = 1
 
 C...Optionally write out event to disk. Minimal size for time/spin fields.
       IF(MSTP(162).GT.0) THEN
-<<<<<<< genevnt.F
-      WRITE(MSTP(162),5200) NUP,IDPRUP,XWGTUP_wlhe,SCALUP,AQEDUP,AQCDUP
-=======
         WRITE(MSTP(162),5200) NUP,IDPRUP,XWGTUP_wlhe,SCALUP,AQEDUP
      +   ,AQCDUP
->>>>>>> 1.2
         DO 190 I=1,NUP
           IF(VTIMUP(I).EQ.0D0) THEN
             WRITE(MSTP(162),5300) IDUP(I),ISTUP(I),MOTHUP(1,I),
