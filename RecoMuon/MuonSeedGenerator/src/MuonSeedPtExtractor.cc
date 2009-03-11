@@ -125,21 +125,25 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
   GlobalPoint outerPoint = secondHit->globalPosition();
   MuonTransientTrackingRecHit::ConstMuonRecHitPointer innerHit = firstHit;
   MuonTransientTrackingRecHit::ConstMuonRecHitPointer outerHit = secondHit;
-  // no - it is not so simple...
-  //if(innerPoint.perp() > outerPoint.perp()) {
-    //innerHit = secondHit;
-    //outerHit = firstHit;
-    //innerPoint = innerHit->globalPosition();
-    //outerPoint = outerHit->globalPosition();
-  //} 
+
+  // ways in which the hits could be in the wrong order
+  if( (outerHit->isDT() && innerHit->isCSC())
+   || (outerHit->isDT() && innerHit->isDT() && (innerPoint.perp() > outerPoint.perp())) 
+   || (outerHit->isCSC() && innerHit->isCSC() && (fabs(innerPoint.z()) > fabs(outerPoint.z()))) )
+  {
+    innerHit = secondHit;
+    outerHit = firstHit;
+    innerPoint = innerHit->globalPosition();
+    outerPoint = outerHit->globalPosition();
+  } 
   
   double phiInner = innerPoint.phi();
   double phiOuter = outerPoint.phi();
 
   double etaInner = innerPoint.eta();
   double etaOuter = outerPoint.eta();
-  //std::cout<<" inner pos = "<< innerPoint << std::endl;
-  //std::cout<<" outer pos = "<< outerPoint << std::endl;
+  std::cout<<" inner pos = "<< innerPoint << " phi eta " << phiInner << " " << etaInner << std::endl;
+  std::cout<<" outer pos = "<< outerPoint << " phi eta " << phiOuter << " " << etaOuter << std::endl;
   //double thetaInner = firstHit->globalPosition().theta();
   // if some of the segments is missing r-phi measurement then we should
   // use only the 4D phi estimate (also use 4D eta estimate only)
@@ -187,7 +191,7 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
   os0 << abs(stationCoded[0]);
   os1 << abs(stationCoded[1]);
 
-  //std::cout<<" st1 = "<<stationCoded[0]<<" st2 = "<<stationCoded[1]<<std::endl;
+  std::cout<<" st1 = "<<stationCoded[0]<<" st2 = "<<stationCoded[1]<<std::endl;
   //std::cout<<" detId_inner = "<<detId_inner.rawId()<<"  detId_outer = "<< detId_outer.rawId()<<std::endl;
   std::string  combination = "0";
   std::string init_combination = combination;
@@ -303,9 +307,12 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
 
     if(scaleDT_ && outerHit->isDT() )
     {
+std:: cout << combination << " " << sign << " DPHI " << dPhi;
       dPhi = scaledPhi(dPhi, combination, detId_outer);
+std::cout << " " << dPhi << std::endl;
     }
     pTestimate = getPt(parametersItr->second, eta, dPhi);
+    std::cout << "PARAPT " << combination << " " << pTestimate[0] <<std::endl;
     if(singleSegment){
       pTestimate[0] = fabs(pTestimate[0]);
       pTestimate[1] = fabs(pTestimate[1]);
@@ -313,6 +320,7 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
     pTestimate[0] *= double(sign);
   }
   else{
+    // often a MB3 - ME1/3 seed
     pTestimate[0] = pTestimate[1] = 100;
     // hmm
   }
@@ -353,7 +361,7 @@ int MuonSeedPtExtractor::stationCode(MuonTransientTrackingRecHit::ConstMuonRecHi
 
 
 std::vector<double> MuonSeedPtExtractor::getPt(const std::vector<double> & vPara, double eta, double dPhi ) const {
-  // std::cout<<" eta = "<<eta<<" dPhi = "<<dPhi<<" vPara[0] = "<<vPara[0]<<" vPara[1] = "<<vPara[1]<<" vPara[2] = "<<vPara[2]<<std::endl;
+   std::cout<<" eta = "<<eta<<" dPhi = "<<dPhi<<" vPara[0] = "<<vPara[0]<<" vPara[1] = "<<vPara[1]<<" vPara[2] = "<<vPara[2]<<std::endl;
   double h  = fabs(eta);
   double estPt  = ( vPara[0] + vPara[1]*h + vPara[2]*h*h ) / dPhi;
   double estSPt = ( vPara[3] + vPara[4]*h + vPara[5]*h*h ) * estPt;
@@ -376,7 +384,6 @@ double MuonSeedPtExtractor::scaledPhi( double dphi, const std::string & combinat
   os << combination << "_" << wheel << "_scale";
 
   ScalesMap::const_iterator scalesItr = theScalesForCombo.find(os.str());
-
   if (dphi != 0. && scalesItr != theScalesForCombo.end()) {
     double t1 = scalesItr->second[3];
     double oPhi = 1./dphi ;
