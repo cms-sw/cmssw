@@ -34,11 +34,13 @@ class dibin{
       return ((i==dbn.i)&&(j==dbn.j)&&(k==dbn.k)&& (l==dbn.l));
     }
 
-    int* print () const {
-      int ar[4] = {i,j,k,l};
-      return ar;
-      }
-
+    void print (int* ar) const {
+      ar[0] = i;
+      ar[1] = j;
+      ar[2] = k;
+      ar[3] = l;
+    }
+    
  private:
     int i;
     int j;
