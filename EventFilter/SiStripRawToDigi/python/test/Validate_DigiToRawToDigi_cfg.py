@@ -150,16 +150,16 @@ elif Mode == str("PR") :
     process.newSiStripDigis.UseFedKey = False
 
     process.DigiValidator.RawCollection1 = False
-    process.DigiValidator.TagCollection2 = "siStripDigis:ProcessRaw"
+    process.DigiValidator.TagCollection2 = "siStripDigis:ProcessedRaw"
     process.DigiValidator.RawCollection2 = True
     
     process.newDigiValidator.RawCollection1 = False
-    process.newDigiValidator.TagCollection2 = "newSiStripDigis:ProcessRaw"
+    process.newDigiValidator.TagCollection2 = "newSiStripDigis:ProcessedRaw"
     process.newDigiValidator.RawCollection2 = True
     
-    process.testDigiValidator.TagCollection1 = "siStripDigis:ProcessRaw"
+    process.testDigiValidator.TagCollection1 = "siStripDigis:ProcessedRaw"
     process.testDigiValidator.RawCollection1 = True
-    process.testDigiValidator.TagCollection2 = "newSiStripDigis:ProcessRaw"
+    process.testDigiValidator.TagCollection2 = "newSiStripDigis:ProcessedRaw"
     process.testDigiValidator.RawCollection2 = True
     
 elif Mode == str("FK") :
