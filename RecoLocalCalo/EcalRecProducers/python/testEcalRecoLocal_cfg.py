@@ -26,21 +26,28 @@ process.EcalTrivialConditionRetriever = cms.ESSource("EcalTrivialConditionRetrie
 
 # get uncalibrechits with weights method
 import RecoLocalCalo.EcalRecProducers.ecalWeightUncalibRecHit_cfi
-process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalWeightUncalibRecHit_cfi.ecalWeightUncalibRecHit.clone()
-process.ecalUncalibHit.EBdigiCollection = 'ecalEBunpacker:ebDigis'
-process.ecalUncalibHit.EEdigiCollection = 'ecalEBunpacker:eeDigis'
+process.ecalUncalibHitWeights = RecoLocalCalo.EcalRecProducers.ecalWeightUncalibRecHit_cfi.ecalWeightUncalibRecHit.clone()
+process.ecalUncalibHitWeights.EBdigiCollection = 'ecalEBunpacker:ebDigis'
+process.ecalUncalibHitWeights.EEdigiCollection = 'ecalEBunpacker:eeDigis'
 
 # get uncalibrechits with fit method
 import RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi
-process.ecalUncalibHit2 = RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi.ecalFixedAlphaBetaFitUncalibRecHit.clone()
-process.ecalUncalibHit2.EBdigiCollection = 'ecalEBunpacker:ebDigis'
-process.ecalUncalibHit2.EEdigiCollection = 'ecalEBunpacker:eeDigis'
+process.ecalUncalibHitFixedAlphaBetaFit = RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi.ecalFixedAlphaBetaFitUncalibRecHit.clone()
+process.ecalUncalibHitFixedAlphaBetaFit.EBdigiCollection = 'ecalEBunpacker:ebDigis'
+process.ecalUncalibHitFixedAlphaBetaFit.EEdigiCollection = 'ecalEBunpacker:eeDigis'
 
 # get uncalibrechits with ratio method
 import RecoLocalCalo.EcalRecProducers.ecalRatioUncalibRecHit_cfi
-process.ecalUncalibHit3 = RecoLocalCalo.EcalRecProducers.ecalRatioUncalibRecHit_cfi.ecalRatioUncalibRecHit.clone()
-process.ecalUncalibHit3.EBdigiCollection = 'ecalEBunpacker:ebDigis'
-process.ecalUncalibHit3.EEdigiCollection = 'ecalEBunpacker:eeDigis'
+process.ecalUncalibHitRatio = RecoLocalCalo.EcalRecProducers.ecalRatioUncalibRecHit_cfi.ecalRatioUncalibRecHit.clone()
+process.ecalUncalibHitRatio.EBdigiCollection = 'ecalEBunpacker:ebDigis'
+process.ecalUncalibHitRatio.EEdigiCollection = 'ecalEBunpacker:eeDigis'
+
+
+# get uncalibrechits with ratio method
+import RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi
+process.ecalUncalibHitGlobal = RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi.ecalGlobalUncalibRecHit.clone()
+process.ecalUncalibHitGlobal.EBdigiCollection = 'ecalEBunpacker:ebDigis'
+process.ecalUncalibHitGlobal.EEdigiCollection = 'ecalEBunpacker:eeDigis'
 
 
 # get rechits e.g. from the weights
@@ -70,9 +77,10 @@ process.outputmodule = cms.OutputModule("PoolOutputModule",
 process.dumpEv = cms.EDAnalyzer("EventContentAnalyzer")
 
 process.ecalTestRecoLocal = cms.Sequence(process.ecalEBunpacker
-                                         *process.ecalUncalibHit
-                                         *process.ecalUncalibHit2
-                                         *process.ecalUncalibHit3
+                                         *process.ecalUncalibHitWeights
+                                         *process.ecalUncalibHitFixedAlphaBetaFit
+                                         *process.ecalUncalibHitRatio
+                                         *process.ecalUncalibHitGlobal
                                          *process.ecalRecHit
                                          *process.outputmodule
                                          #*process.dumpEv
