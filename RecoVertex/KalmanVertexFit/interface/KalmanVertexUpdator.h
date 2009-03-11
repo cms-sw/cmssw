@@ -71,16 +71,6 @@ private:
   typedef ROOT::Math::SMatrix<double,N+1,N+1,ROOT::Math::MatRepStd<double,N+1,N+1> > AlgebraicMatrixOO;
   typedef ROOT::Math::SMatrix<double,N-2,N-2,ROOT::Math::MatRepSym<double,N-2> > AlgebraicSymMatrixMM;
 
-    /**
-     * Calculates the chi**2 increment
-     */
-
-  float vertexPositionChi2(const VertexState& oldVertex,
-                           const GlobalPoint& newVertexPosition) const;
-
-
-
-
   KVFHelper<N> helper;
 
 };

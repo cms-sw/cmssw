@@ -68,27 +68,6 @@ CachingVertex<N> KalmanVertexUpdator<N>::remove(const CachingVertex<N> & oldVert
   return update(oldVertex,track,weight,-1);
 }
 
-template <unsigned int N>
-float KalmanVertexUpdator<N>::vertexPositionChi2( const VertexState& oldVertex,
-	const GlobalPoint& newVertexPosition) const
-{
-  GlobalPoint oldVertexPosition = oldVertex.position();
-  AlgebraicVector3 oldVertexPositionV;
-  oldVertexPositionV(0) = oldVertexPosition.x();
-  oldVertexPositionV(1) = oldVertexPosition.y();
-  oldVertexPositionV(2) = oldVertexPosition.z();
-
-  AlgebraicVector3 newVertexPositionV;
-  newVertexPositionV(0) = newVertexPosition.x();
-  newVertexPositionV(1) = newVertexPosition.y();
-  newVertexPositionV(2) = newVertexPosition.z();
-
-  AlgebraicVector3 positionResidual = newVertexPositionV - oldVertexPositionV;
-  float result = ROOT::Math::Similarity(positionResidual, oldVertex.weight().matrix_new());
-
-  return result;
-}
-
 
 template <unsigned int N>
 VertexState 
