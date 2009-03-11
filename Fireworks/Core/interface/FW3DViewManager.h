@@ -1,7 +1,7 @@
 #ifndef Fireworks_Core_FW3DViewManager_h
 #define Fireworks_Core_FW3DViewManager_h
 // -*- C++ -*-
-// $Id: FW3DViewManager.h,v 1.5 2008/12/08 18:43:28 chrjones Exp $
+// $Id: FW3DViewManager.h,v 1.6 2009/01/23 21:35:40 amraktad Exp $
 
 // system include files
 #include <string>
@@ -19,13 +19,13 @@ class TList;
 class FW3DDataProxyBuilder;
 class FWEventItem;
 class FWGUIManager;
-class TGFrame;
 class FW3DView;
 class FWViewBase;
 class TEveElementList;
 class TEveSelection;
 class FWSelectionManager;
 class TEveCaloDataHist;
+class TEveWindowSlot;
 
 class FW3DViewManager : public FWViewManagerBase
 {
@@ -42,7 +42,7 @@ public:
    // ---------- member functions ---------------------------
    virtual void newItem(const FWEventItem*);
 
-   FWViewBase* buildView(TGFrame* iParent);
+   FWViewBase* buildView(TEveWindowSlot* iParent);
 
    //connect to ROOT signals
    void selectionAdded(TEveElement*);

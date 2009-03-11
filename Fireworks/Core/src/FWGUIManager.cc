@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.93 2009/01/23 21:35:43 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.94 2009/03/04 17:09:44 chrjones Exp $
 //
 
 // system include files
@@ -34,6 +34,7 @@
 #include "TGMenu.h"
 #include "TEveManager.h"
 //#include "TEveGedEditor.h"
+#include "TEveWindow.h"
 #include "TEveSelection.h"
 #include "TGFileDialog.h"
 #include "TColor.h"
@@ -223,64 +224,31 @@ FWGUIManager::~FWGUIManager()
 //
 // member functions
 //
-void
-FWGUIManager::addFrameHoldingAView(TGFrame* iChild)
-{
-   (m_viewFrames.back())->AddFrame(iChild,new TGLayoutHints(kLHintsExpandX |
-                                                            kLHintsExpandY) );
 
-   m_mainFrame->MapSubwindows();
-   m_mainFrame->Layout();
-
-}
-
-TGFrame*
+TEveWindowSlot*
 FWGUIManager::parentForNextView()
 {
-
-   TGSplitFrame* splitParent=m_splitFrame;
-   while( splitParent->GetFrame() || splitParent->GetSecond()) {
-      if(!splitParent->GetSecond()) {
-         if(splitParent == m_splitFrame) {
-            //want to split vertically
-            splitParent->SplitVertical();
-            //need to do a reasonable sizing
-            //TODO CDJ: how do I determine the true size if layout hasn't run yet?
-            int width = m_splitFrame->GetWidth();
-            int height = m_splitFrame->GetHeight();
-            //  m_splitFrame->GetFirst()->Resize(static_cast<int>(width*0.8),static_cast<int>(0*height));
-            m_splitFrame->GetFirst()->Resize(static_cast<int>(width*0.8), height);
-         } else {
-            splitParent->SplitHorizontal();
-         }
-      }
-      splitParent = splitParent->GetSecond();
+   TEveWindowSlot* slot = 0;
+   if (m_viewSecPack == 0) {
+      slot = m_viewPrimPack->NewSlot();
+      m_viewSecPack = m_viewPrimPack->NewSlot()->MakePack();
+      m_viewSecPack->SetVertical();
+      m_viewSecPack->SetShowTitleBar(kFALSE);
+   } else {
+      slot = m_viewSecPack->NewSlot();
    }
 
-   FWGUISubviewArea* hf = new FWGUISubviewArea(m_viewFrames.size(),splitParent,m_splitFrame);
-   hf->swappedToBigView_.connect(boost::bind(&FWGUIManager::subviewWasSwappedToBig,this,_1));
-   hf->goingToBeDestroyed_.connect(boost::bind(&FWGUIManager::subviewIsBeingDestroyed,this,_1));
-   hf->bigViewUndocked_.connect(boost::bind(&FWGUIManager::mainViewWasUndocked,this));
-   hf->bigViewDocked_.connect(boost::bind(&FWGUIManager::mainViewWasDocked,this));
-   hf->selected_.connect(boost::bind(&FWGUIManager::viewSelected,this,_1));
-   hf->unselected_.connect(boost::bind(&FWGUIManager::viewUnselected,this,_1));
-   if(!m_viewFrames.empty()) {
-      m_viewFrames.back()->enableDestructionButton(false);
-   }
+   FWGUISubviewArea* hf = new FWGUISubviewArea(m_viewFrames.size(), slot->GetEveFrame());
    m_viewFrames.push_back(hf);
-   //at the moment we have a problem with deleting the last view.  So do not allow it
-   if(m_viewFrames.size()>1) {
-      hf->enableDestructionButton(true);
-      //at the moment we have a problem swapping to big if the big view is undocked
-      if(!m_viewFrames.front()->isDocked()) {
-         hf->enableSwapButton(false);
-      }
-   }
-   (splitParent)->AddFrame(hf,new TGLayoutHints(kLHintsExpandX | kLHintsExpandY) );
+   hf->MapSubwindows();
+   slot->GetEveFrame()->ReplaceIconBox(hf);
+   hf->goingToBeDestroyed_.connect(boost::bind(&FWGUIManager::subviewIsBeingDestroyed,this,_1));
+   hf->selected_.connect(boost::bind(&FWGUIManager::subviewSelected,this,_1));
+   hf->unselected_.connect(boost::bind(&FWGUIManager::subviewUnselected,this,_1));
+   hf->swapWithCurrentView_.connect(boost::bind(&FWGUIManager::subviewSwapWithCurrent,this,_1));
 
-   return m_viewFrames.back();
+   return slot;
 }
-
 
 void
 FWGUIManager::registerViewBuilder(const std::string& iName,
@@ -300,14 +268,10 @@ FWGUIManager::createView(const std::string& iName)
    if(itFind == m_nameToViewBuilder.end()) {
       throw std::runtime_error(std::string("Unable to create view named ")+iName+" because it is unknown");
    }
-   FWViewBase* view(itFind->second(parentForNextView()));
-   addFrameHoldingAView(view->frame());
-   m_viewFrames.back()->setName(iName);
-   /*
-      FWListViewObject* lst = new FWListViewObject(iName.c_str(),view);
-      lst->AddIntoListTree(m_listTree,m_views);
-      //TODO: HACK should keep a hold of 'lst' and keep it so that if view is removed this goes as well
-    */
+
+   TEveWindowSlot* slot = parentForNextView();
+   slot->SetElementName(iName.c_str());
+   FWViewBase* view = itFind->second(slot);
    m_viewBases.push_back(view);
 }
 
@@ -461,71 +425,25 @@ FWGUIManager::addData()
 }
 
 
-void
-FWGUIManager::subviewWasSwappedToBig(unsigned int iIndex)
-{
-   m_viewFrames[0]->setIndex(iIndex);
-   m_viewFrames[iIndex]->setIndex(0);
-   std::swap(m_viewBases[0], m_viewBases[iIndex]);
-   std::swap(m_viewFrames[0],m_viewFrames[iIndex]);
-   //if swapped with last one then toggle destruction button
-   if(m_viewFrames.size() == iIndex+1) {
-      m_viewFrames[0]->enableDestructionButton(false);
-      m_viewFrames[iIndex]->enableDestructionButton(true);
-   }
-}
+//______________________________________________________________________________
+//  subview area
+//
 
 void
 FWGUIManager::subviewIsBeingDestroyed(unsigned int iIndex)
 {
    assert(iIndex < m_viewFrames.size());
-   //We need to delay actually removing the window until the next 'iteration' of the GUI event loop because we need the
-   // Button to return from its 'Clicked()' function before we delete the button
-   CmsShowTaskExecutor::TaskFunctor f;
-   //We know the parent is a TGSplitFrame because the constructor requires it to be so
-   TGSplitFrame* p = const_cast<TGSplitFrame*>(static_cast<const TGSplitFrame*>(m_viewFrames[iIndex]->GetParent()));
-
-   f= boost::bind(&TGSplitFrame::CloseAndCollapse,p);
-   m_tasks->addTask(f);
-   m_tasks->startDoingTasks();
 
    if(m_viewFrames[iIndex]->isSelected()) {
       if(0!= m_viewPopup) {refillViewPopup(0);}
    }
 
    m_viewFrames.erase(m_viewFrames.begin()+iIndex);
-   (*(m_viewBases.begin()+iIndex))->destroy();
    m_viewBases.erase(m_viewBases.begin()+iIndex);
-   //At the moment there is a problem with trying to get rid of the last
-   // view, so for now do not allow it
-   if(!m_viewFrames.empty() && m_viewFrames.size()>1) {
-      m_viewFrames.back()->enableDestructionButton(true);
-   }
 }
 
 void
-FWGUIManager::mainViewWasUndocked()
-{
-   if(m_viewFrames.size()>1) {
-      for_each(m_viewFrames.begin()+1,
-               m_viewFrames.end(),
-               boost::bind(&FWGUISubviewArea::enableSwapButton,_1,false));
-   }
-}
-
-void
-FWGUIManager::mainViewWasDocked()
-{
-   if(m_viewFrames.size()>1) {
-      for_each(m_viewFrames.begin()+1,
-               m_viewFrames.end(),
-               boost::bind(&FWGUISubviewArea::enableSwapButton,_1,true));
-   }
-
-}
-
-void
-FWGUIManager::viewSelected(unsigned int iSelIndex)
+FWGUIManager::subviewSelected(unsigned int iSelIndex)
 {
    unsigned int index=0;
    for(std::vector<FWGUISubviewArea*>::iterator it = m_viewFrames.begin(), itEnd=m_viewFrames.end();
@@ -539,11 +457,35 @@ FWGUIManager::viewSelected(unsigned int iSelIndex)
 }
 
 void
-FWGUIManager::viewUnselected(unsigned int iSelIndex)
+FWGUIManager::subviewUnselected(unsigned int iSelIndex)
 {
    if(m_viewPopup) {refillViewPopup(0);}
 }
 
+void
+FWGUIManager::subviewSwapWithCurrent(unsigned int index)
+{
+   TEveWindow* cv = 0;
+   int ci = 0;
+   for(std::vector<FWGUISubviewArea*>::iterator it = m_viewFrames.begin(); it !=m_viewFrames.end(); ++it) {
+      TEveWindow*  ev = (*it)->getEveWindow();
+      if (ev->IsCurrent())
+      {
+         cv = ev;
+         break;
+      }
+      ci++;
+   }
+
+   if (cv)
+   {
+      TEveWindow::SwapWindows(cv, m_viewFrames[index]->getEveWindow());
+      std::swap(m_viewBases[ci], m_viewBases[index]);
+
+   }
+}
+
+//______________________________________________________________________________
 
 TGVerticalFrame*
 FWGUIManager::createList(TGSplitFrame *p)
@@ -619,17 +561,14 @@ FWGUIManager::createList(TGSplitFrame *p)
    return listFrame;
 }
 
-TGMainFrame*
-FWGUIManager::createViews(TGCompositeFrame *p)
+void
+FWGUIManager::createViews(TGTab *tab)
 {
-   m_mainFrame = new TGMainFrame(p,600,450);
-   m_splitFrame = new TGSplitFrame(m_mainFrame, 800, 600);
-   m_mainFrame->AddFrame(m_splitFrame, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
-
-   p->Resize(m_mainFrame->GetWidth(), m_mainFrame->GetHeight());
-   p->MapSubwindows();
-   p->MapWindow();
-   return m_mainFrame;
+   m_viewPrimPack = TEveWindow::CreateWindowInTab(tab)->MakePack();
+   m_viewPrimPack->SetHorizontal();
+   m_viewPrimPack->SetElementName("Views");
+   m_viewPrimPack->SetShowTitleBar(kFALSE);
+   m_viewSecPack = 0;
 }
 
 void
@@ -669,8 +608,6 @@ FWGUIManager::createModelPopup() {
    if (m_modelPopup == 0) {
       m_modelPopup = new CmsShowModelPopup(m_detailViewManager,m_selectionManager, m_cmsShowMainFrame, 200, 200);
       m_modelPopup->Connect("CloseWindow()", "FWGUIManager", this, "resetModelPopup()");
-      //m_selectionManager->selectionChanged_.connect(boost::bind(&CmsShowModelPopup::fillModelPopup, m_modelPopup, _1));
-      //    m_modelChangeConn = m_changeManager->changeSignalsAreDone_.connect(boost::bind(&CmsShowModelPopup::updateDisplay, m_modelPopup));
       m_modelPopup->CenterOnParent(kTRUE,TGTransientFrame::kRight);
    }
 }
@@ -767,10 +704,9 @@ void FWGUIManager::resetShortcutPopup ()
    m_shortcutPopup->UnmapWindow();
 }
 
-TGMainFrame *FWGUIManager::createTextView (TGTab *p)
+void FWGUIManager::createTextView (TGTab *p)
 {
    m_textViewTab = p;
-   p->Resize(m_mainFrame->GetWidth(), m_mainFrame->GetHeight());
    m_textViewFrame[0] = p->AddTab("Physics objects");
    //printf("current tab: %d\n", p->GetCurrent());
    m_textViewFrame[1] = p->AddTab("Triggers");
@@ -791,7 +727,6 @@ TGMainFrame *FWGUIManager::createTextView (TGTab *p)
 
    p->MapSubwindows();
    p->MapWindow();
-   return m_mainFrame;
 }
 
 //
@@ -1042,33 +977,6 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
    recursivelyApplyToFrame(m_splitFrame,frameAddTo);
    oTo.addKeyValue(kViewArea,viewArea,true);
 
-   //remember if any views have been undocked and if so where they are
-   FWConfiguration undocked(1);
-   {
-      for(std::vector<FWGUISubviewArea*>::const_iterator it = m_viewFrames.begin(), itEnd=m_viewFrames.end();
-          it != itEnd; ++it) {
-         std::string name;
-         if(!(*it)->isDocked()) {
-            FWConfiguration temp(1);
-            {
-               std::stringstream s;
-               s<< (*it)->index();
-               name = s.str();
-               temp.addKeyValue("index",FWConfiguration(s.str()));
-            }
-            {
-               const TGWindow* mainWindowFrame = (*it)->GetMainFrame();
-               assert(0!=mainWindowFrame);
-               const TGFrame* mainFrame= dynamic_cast<const TGFrame*> (mainWindowFrame);
-               assert(0!=mainFrame);
-               addWindowInfoTo(mainFrame,temp);
-            }
-            undocked.addKeyValue(name,temp,true);
-         }
-      }
-   }
-   oTo.addKeyValue(kUndocked,undocked,true);
-
    //Remember where controllers were placed if they are open
    FWConfiguration controllers(1);
    {
@@ -1162,41 +1070,8 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom)
    //now configure the view area
    const FWConfiguration* viewArea = iFrom.valueForKey(kViewArea);
    assert(0!=viewArea);
+   m_viewPrimPack->GetGUIFrame()->Layout();
 
-   FrameSetFrom frameSetFrom(viewArea);
-   recursivelyApplyToFrame(m_splitFrame, frameSetFrom);
-
-   m_splitFrame->Layout();
-
-   {
-      int width = ((TGCompositeFrame *)m_splitFrame->GetParent()->GetParent())->GetWidth();
-      int height;
-      std::stringstream s(viewArea->value(viewArea->stringValues()->size()-1));
-      s >> height;
-      ((TGCompositeFrame *)m_splitFrame->GetParent()->GetParent())->Resize(width, height);
-   }
-   m_cmsShowMainFrame->Layout();
-
-   //now handle undocked case
-   const FWConfiguration* undocked = iFrom.valueForKey(kUndocked);
-   if(0!=undocked) {
-      const FWConfiguration::KeyValues* keyVals = undocked->keyValues();
-      if(0!=keyVals) {
-         //we have undocked views
-         for(FWConfiguration::KeyValues::const_iterator it = keyVals->begin(),
-                                                        itEnd = keyVals->end();
-             it!=itEnd;
-             ++it) {
-            int index = atoi(it->first.c_str());
-            int x = atoi(it->second.valueForKey("x")->value().c_str());
-            int y = atoi(it->second.valueForKey("y")->value().c_str());
-            int width = atoi(it->second.valueForKey("width")->value().c_str());
-            int height = atoi(it->second.valueForKey("height")->value().c_str());
-            assert(static_cast<unsigned int>(index) <m_viewFrames.size());
-            m_viewFrames[index]->undockTo(x,y,width,height);
-         }
-      }
-   }
 
    //handle controllers
    const FWConfiguration* controllers = iFrom.valueForKey(kControllers);
