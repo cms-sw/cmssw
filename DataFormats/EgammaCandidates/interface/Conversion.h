@@ -6,7 +6,7 @@
  *
  * \author N.Marinelli  University of Notre Dame, US
  *
- * \version $Id: Conversion.h,v 1.5 2008/10/24 12:52:04 nancy Exp $
+ * \version $Id: Conversion.h,v 1.6 2008/12/17 13:09:17 nancy Exp $
  *
  */
 
@@ -22,6 +22,13 @@ namespace reco {
     class Conversion  {
   public:
 
+     enum ConversionAlgorithm {undefined=0, 
+				ecalSeeded=1, 
+				trackerOnly=2, 
+				mixed=3, 
+				algoSize=4}; 
+      static const std::string algoNames[];      
+
       // Default constructor
       Conversion();
       
@@ -32,7 +39,8 @@ namespace reco {
 		  const std::vector<reco::CaloClusterPtr> & matchingBC,
 		  const float DCA,        
 		  const std::vector<math::XYZVector> & trackPin ,
-		  const std::vector<math::XYZVector> & trackPout);
+		  const std::vector<math::XYZVector> & trackPout,
+		  ConversionAlgorithm=undefined);
       
       
       
@@ -83,7 +91,15 @@ namespace reco {
       /// Vector of track momentum measured at the innermost hit
       const std::vector<math::XYZVector>& tracksPin() const  {return theTrackPin_;}
       
-      
+      /// Conversion Track algorithm/provenance
+      void setConversionAlgorithm(const ConversionAlgorithm a, bool set=true) { if (set) algorithm_=a; else algorithm_=undefined;}
+      ConversionAlgorithm algo() const ;
+      std::string algoName() const;
+      static std::string algoName(ConversionAlgorithm );
+      static ConversionAlgorithm  algoByName(const std::string &name);      
+
+
+
       
     private:
       
@@ -103,9 +119,37 @@ namespace reco {
       std::vector<math::XYZVector> theTrackPin_;    
       /// P_out of tracks
       std::vector<math::XYZVector> theTrackPout_;    
-      
+      /// conversion algorithm/provenance
+      uint8_t algorithm_;
+
+
 
   };
+
+    inline Conversion::ConversionAlgorithm Conversion::algo() const {
+      return (ConversionAlgorithm) algorithm_;
+    }
+    
+    
+    inline std::string Conversion::algoName() const{
+            
+      switch(algorithm_)
+	{
+	case undefined: return "undefined";
+	case ecalSeeded: return "ecalSeeded";
+	case trackerOnly: return "trackerOnly";
+	case mixed: return "mixed";
+
+	}
+      return "undefined";
+    }
+
+    inline std::string Conversion::algoName(ConversionAlgorithm a){
+      if(int(a) < int(algoSize) && int(a)>0) return algoNames[int(a)];
+      return "undefined";
+    }
+
+
   
 }
 

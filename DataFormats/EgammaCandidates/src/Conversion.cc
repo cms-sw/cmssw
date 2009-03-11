@@ -13,7 +13,8 @@ Conversion::Conversion(  const reco::CaloClusterPtrVector sc,
 			 const std::vector<reco::CaloClusterPtr> & matchingBC,
                          const float DCA,
 			 const std::vector<math::XYZVector> & trackPin,
-			 const std::vector<math::XYZVector> & trackPout):  
+			 const std::vector<math::XYZVector> & trackPout,
+			 ConversionAlgorithm algo):  
 			 
 
   caloCluster_(sc), tracks_(tr), 
@@ -43,6 +44,16 @@ Conversion::Conversion() {
 
 Conversion::~Conversion() { }
 
+
+std::string const Conversion::algoNames[] = { "undefined","ecalSeeded","trackerOnly","mixed"};  
+
+Conversion::ConversionAlgorithm Conversion::algoByName(const std::string &name){
+  ConversionAlgorithm size = algoSize;
+  int index = std::find(algoNames, algoNames+size, name)-algoNames;
+  if(index == size) return undefined;
+
+  return ConversionAlgorithm(index);
+}
 
 Conversion * Conversion::clone() const { 
   return new Conversion( * this ); 
