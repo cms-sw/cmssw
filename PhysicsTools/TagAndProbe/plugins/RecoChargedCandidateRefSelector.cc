@@ -1,8 +1,8 @@
 
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "PhysicsTools/UtilAlgos/interface/SingleObjectSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/StringCutObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/SingleObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 
