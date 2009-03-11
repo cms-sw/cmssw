@@ -18,7 +18,7 @@ using namespace reco;
 // }; 
  
  
-float 
+std::pair<bool, double> 
 GsfVertexTrackCompatibilityEstimator::estimate(const CachingVertex<5> & vertex,
 			 const RefCountedVertexTrack tr) const
 {
@@ -34,7 +34,7 @@ GsfVertexTrackCompatibilityEstimator::estimate(const CachingVertex<5> & vertex,
 } 
 
 
-float
+std::pair<bool, double>
 GsfVertexTrackCompatibilityEstimator::estimate(const CachingVertex<5> & vertex, 
 			 const RefCountedLinearizedTrackState track) const
 {
@@ -44,7 +44,7 @@ GsfVertexTrackCompatibilityEstimator::estimate(const CachingVertex<5> & vertex,
 }
 
 
-float
+std::pair<bool, double>
 GsfVertexTrackCompatibilityEstimator::estimate(const reco::Vertex & vertex, 
 			 const reco::TransientTrack & track) const
 { 	
@@ -76,16 +76,16 @@ GsfVertexTrackCompatibilityEstimator::estimate(const reco::Vertex & vertex,
 // methods to calculate track<-->vertex compatibility
 // with the track belonging to the vertex
 
-float 
+std::pair<bool, double> 
 GsfVertexTrackCompatibilityEstimator::estimateFittedTrack
 		(const CachingVertex<5> & v, const RefCountedVertexTrack track) const
 {
   //remove track from the vertex using the vertex updator
   // Using the update instead of the remove methode, we can specify a weight which
   // is different than then one which the vertex track has been defined with.
-  if (track->refittedStateAvailable()) return track->smoothedChi2();
+  if (track->refittedStateAvailable()) return BDpair(true, track->smoothedChi2());
   throw VertexException
-    ("GsfVertexTrackCompatibilityEstimator::vertex has to be smmothed.");
+    ("GsfVertexTrackCompatibilityEstimator::vertex has to be smoothed.");
 
 //   CachingVertex rVert = updator.remove(v, track);
 //   RefCountedVertexTrack newSmoothedTrack = trackUpdator.update(v, track);
@@ -94,12 +94,14 @@ GsfVertexTrackCompatibilityEstimator::estimateFittedTrack
 
 // method calculating track<-->vertex compatibility
 //with the track not belonging to vertex
-float GsfVertexTrackCompatibilityEstimator::estimateNFittedTrack
+std::pair<bool, double>
+GsfVertexTrackCompatibilityEstimator::estimateNFittedTrack
  	(const CachingVertex<5> & v, const RefCountedVertexTrack track) const
 {
   // Using the update instead of the add methode, we can specify a weight which
   // is different than then one which the vertex track has been defined with.
   CachingVertex<5> rVert = updator.add(v, track);
-  return (rVert.totalChiSquared()-v.totalChiSquared());
+  if (!rVert.isValid()) return BDpair(false,-1.);
+  return BDpair(true, rVert.totalChiSquared()-v.totalChiSquared());
 }   
 

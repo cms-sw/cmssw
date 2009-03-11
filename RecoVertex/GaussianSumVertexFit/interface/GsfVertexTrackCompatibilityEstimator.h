@@ -41,12 +41,12 @@ public:
    * \return The chi**2.
    */
 
-  virtual float estimate(const CachingVertex<5> & vrt, const RefCountedVertexTrack track) const;
+  virtual BDpair estimate(const CachingVertex<5> & vrt, const RefCountedVertexTrack track) const;
 
-  virtual float estimate(const CachingVertex<5> & v, 
+  virtual BDpair estimate(const CachingVertex<5> & v, 
 			 const RefCountedLinearizedTrackState track) const;
 
-  virtual float estimate(const reco::Vertex & vertex, 
+  virtual BDpair estimate(const reco::Vertex & vertex, 
 			 const reco::TransientTrack & track) const;
 
   virtual GsfVertexTrackCompatibilityEstimator * clone() const
@@ -57,8 +57,8 @@ public:
 
 private:
 
-  float estimateFittedTrack(const CachingVertex<5> & v, const RefCountedVertexTrack track) const;
-  float estimateNFittedTrack(const CachingVertex<5> & v, const RefCountedVertexTrack track) const;  
+  BDpair estimateFittedTrack(const CachingVertex<5> & v, const RefCountedVertexTrack track) const;
+  BDpair estimateNFittedTrack(const CachingVertex<5> & v, const RefCountedVertexTrack track) const;  
 
   GsfVertexUpdator updator;
 //   KalmanVertexTrackUpdator trackUpdator;
