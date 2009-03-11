@@ -5,7 +5,7 @@ using namespace std;
 
 BasicMultiVertexState::
 BasicMultiVertexState(const vector<VertexState>& vsComp) :
-  theComponents(vsComp), theCombinedStateUp2Date( false) {}
+  valid(true), theComponents(vsComp), theCombinedStateUp2Date( false) {}
 
 
 GlobalPoint BasicMultiVertexState::position() const
@@ -43,6 +43,7 @@ AlgebraicVector3 BasicMultiVertexState::weightTimesPosition() const
 // }
 
 double BasicMultiVertexState::weightInMixture() const {
+  if (!valid) throw VertexException("BasicSingleVertexState::invalid");
   if (theComponents.empty()) {
     cout << "Asking for weight of empty MultiVertexState, returning zero!" << endl;
     throw VertexException("Asking for weight of empty MultiVertexState, returning zero!");
@@ -59,6 +60,7 @@ double BasicMultiVertexState::weightInMixture() const {
 
 void BasicMultiVertexState::checkCombinedState() const
 {
+  if (!valid) throw VertexException("BasicSingleVertexState::invalid");
   if (theCombinedStateUp2Date) return;
 
   theCombinedState = theCombiner.combine(theComponents);

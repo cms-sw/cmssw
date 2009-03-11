@@ -15,7 +15,7 @@ public:
 
   /** Constructors
    */
-  BasicMultiVertexState() {}
+  BasicMultiVertexState() : valid(false){}
 
   BasicMultiVertexState(const std::vector<VertexState>& vsComp);
 
@@ -54,10 +54,6 @@ public:
    */
   double weightInMixture() const;
 
-//   /** conversion to VertexSeed
-//    */
-//   RefCountedVertexSeed seedWithoutTracks() const;
-
   /**
    * Vector of individual components in the mixture.
    */
@@ -65,10 +61,16 @@ public:
     return theComponents;
   }
 
+  /**
+   * The validity of the vertex
+   */
+  bool isValid() const {return valid;}
+
 private:
 
   void checkCombinedState() const;
 
+  bool valid;
   mutable std::vector<VertexState> theComponents;
   mutable VertexState theCombinedState;
   mutable bool theCombinedStateUp2Date;
