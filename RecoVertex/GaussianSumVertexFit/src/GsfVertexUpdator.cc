@@ -145,7 +145,6 @@ GsfVertexUpdator::VertexChi2Pair GsfVertexUpdator::assembleVertexComponents(
   for (vector<VertexComponent>::const_iterator iter = newVertexComponents.begin();
     iter != newVertexComponents.end(); iter ++) {
     totalWeight += iter->second.first;
-    cout << iter->first.position()<<iter->second.first<<" "<<iter->second.second<<endl;
   }
 // cout << "totalWeight "<<totalWeight<<endl;
   if (totalWeight<DBL_MIN) {
