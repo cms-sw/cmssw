@@ -13,7 +13,7 @@
 
 XMLIdealGeometryESSource::XMLIdealGeometryESSource(const edm::ParameterSet & p): rootNodeName_(p.getParameter<std::string>("rootNodeName")),
                                                                                  userNS_(p.getUntrackedParameter<bool>("userControlledNamespace", false)),
-                                                                                 geoConfig_(p),cpvavailable_(false)
+                                                                                 cpvavailable_(false),geoConfig_(p)
 {
   if ( rootNodeName_ == "" || rootNodeName_ == "\\" ) {
     throw DDException ("XMLIdealGeometryESSource must have a root node name.");
