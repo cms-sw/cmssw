@@ -60,7 +60,8 @@ SequentialVertexSmoother<N>::smooth(const CachingVertex<N> & vertex) const
 
   float smChi2 = vertex.totalChiSquared();
   if (theVertexSmoothedChiSquaredEstimator != 0) {
-    smChi2 = theVertexSmoothedChiSquaredEstimator->estimate(interVertex);
+    pair<bool, double> result = theVertexSmoothedChiSquaredEstimator->estimate(interVertex);
+    smChi2 = result.second;
   }
 
   if (theTrackToTrackCovCalculator == 0) {
