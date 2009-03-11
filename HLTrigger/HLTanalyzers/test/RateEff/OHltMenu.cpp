@@ -39,6 +39,14 @@ void OHltMenu::SetMapL1SeedsOfStandardHLTPath() {
 
   myvec vtmp;  
 
+  map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_L1Jet15", myvec(1,"L1_SingleJet6")));
+  map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_Jet30", myvec(1,"L1_SingleJet6")));
+  map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_Jet50", myvec(1,"L1_SingleJet10")));
+  map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_Jet80", myvec(1,"L1_SingleJet20")));
+  map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_Jet110", myvec(1,"L1_SingleJet40")));
+  map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_Jet180", myvec(1,"L1_SingleJet40")));
+  map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_Jet250", myvec(1,"L1_SingleJet40")));
+  map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_FwdJet20", myvec(1,"L1_IsoEG10_Jet15_ForJet10")));
   map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_L1Jet6U", myvec(1,"L1_SingleJet6"))); 
   map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_Jet15U", myvec(1,"L1_SingleJet6")));
 
@@ -51,6 +59,7 @@ void OHltMenu::SetMapL1SeedsOfStandardHLTPath() {
   map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_FwdJet20U", myvec(1,"L1_IsoEG10_Jet15_ForJet10")));
 
   vtmp.clear(); vtmp.push_back("L1_SingleJet60"); vtmp.push_back("L1_DoubleJet40");
+
   map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_DoubleJet150", vtmp));
   vtmp.clear(); vtmp.push_back("L1_SingleJet60"); vtmp.push_back("L1_DoubleJet40");
   map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_DoubleJet125_Aco", vtmp));
@@ -226,6 +235,15 @@ void OHltMenu::SetMapL1SeedsOfStandardHLTPath() {
   vtmp.push_back("L1_TripleJet30"); vtmp.push_back("L1_QuadJet20"); vtmp.push_back("L1_HTT300");
   map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_BTagIP_HT320_Relaxed", vtmp));
 
+  map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_BTagMu_DoubleJet120", myvec(1,"L1_Mu5_Jet6")));
+  map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_BTagMu_DoubleJet60_Relaxed", myvec(1,"L1_Mu5_Jet6")));
+  map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_BTagMu_TripleJet70", myvec(1,"L1_Mu5_Jet6")));
+  map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_BTagMu_TripleJet40_Relaxed", myvec(1,"L1_Mu5_Jet6")));
+  map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_BTagMu_QuadJet40", myvec(1,"L1_Mu5_Jet6")));
+  map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_BTagMu_QuadJet30_Relaxed", myvec(1,"L1_Mu5_Jet6")));
+  map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_BTagMu_HT370", myvec(1,"L1_HTT300")));
+  map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_BTagMu_HT250_Relaxed", myvec(1,"L1_HTT200")));
+
   vtmp.clear(); 
   vtmp.push_back("L1_SingleTauJet20"); vtmp.push_back("L1_SingleJet30"); 
   map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_SingleLooseIsoTau20", vtmp)); 
@@ -262,14 +280,14 @@ void OHltMenu::SetMapL1SeedsOfStandardHLTPath() {
   map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_LooseIsoTau_MET30", myvec(1,"L1_SingleTauJet50")));
   map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_LooseIsoTau_MET30_L1MET", myvec(1,"L1_TauJet10_ETM30")));
   map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_DoubleIsoTau_Trk3", myvec(1,"L1_DoubleTauJet20")));
-  //  map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_DoubleLooseIsoTau", myvec(1,"L1_DoubleTauJet8")));
-
+  map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_DoubleLooseIsoTau", myvec(1,"L1_DoubleTauJet8")));
   map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_IsoEle8_IsoMu7", myvec(1,"L1_Mu3_IsoEG5")));
   map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_IsoEle10_Mu10_L1R", myvec(1,"L1_Mu3_EG12")));
   map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_IsoEle12_IsoTau_Trk3", myvec(1,"L1_IsoEG10_TauJet8")));
   map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_IsoEle10_BTagIP_Jet35", myvec(1,"L1_IsoEG10_Jet8")));
   map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_IsoEle12_Jet40", myvec(1,"L1_IsoEG10_Jet12")));
   map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_IsoEle12_DoubleJet80", myvec(1,"L1_IsoEG10_Jet12")));
+
   map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_IsoElec5_TripleJet30", myvec(1,"L1_EG5_TripleJet15")));
   map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_IsoEle12_TripleJet60", myvec(1,"L1_IsoEG10_Jet12")));
   map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_IsoEle12_QuadJet35", myvec(1,"L1_IsoEG10_Jet12")));
@@ -289,7 +307,6 @@ void OHltMenu::SetMapL1SeedsOfStandardHLTPath() {
   vtmp.push_back("L1_SingleEG1"); vtmp.push_back("L1_DoubleEG1"); vtmp.push_back("L1_SingleEG2"); 
   map_L1SeedsOfStandardHLTPath.insert(mypair("AlCa_HcalPhiSym", vtmp)); 
  
-
   vtmp.clear();
   vtmp.push_back("L1_SingleHfBitCountsRing1_1"); vtmp.push_back("L1_DoubleHfBitCountsRing1_P1N1");
   vtmp.push_back("L1_SingleHfRingEtSumsRing1_4"); vtmp.push_back("L1_DoubleHfRingEtSumsRing1_P4N4");
@@ -555,6 +572,8 @@ void OHltMenu::SetMapL1SeedsOfStandardHLTPath() {
   vtmp.push_back("L1_SingleTauJet20"); vtmp.push_back("L1_SingleMu14"); 
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_L1Mu14", vtmp)); 
 
+  // Jets
+  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_Jet30", myvec(1,"L1_SingleJet20")));
 
   // Muons
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_IsoMu3", myvec(1,"L1_SingleMu3"))); 
@@ -563,6 +582,4 @@ void OHltMenu::SetMapL1SeedsOfStandardHLTPath() {
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_L2Mu11", myvec(1,"L1_SingleMu7")));   
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_L1Mu20", myvec(1,"L1_SingleMu20")));   
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_L2Mu9_1Jet30", myvec(1,"L1_Mu5_Jet6")));   
-
-
 }

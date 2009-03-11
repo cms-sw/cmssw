@@ -39,7 +39,7 @@ void OHltRatePrinter::printRatesASCII(OHltConfig *cfg, OHltMenu *menu) {
   for (unsigned int i=0;i<menu->GetTriggerSize();i++) {
     cumulRate += spureRate[i];
     cumulRateErr += pow(spureRateErr[i],2.);
-    cout<<setw(34)<<menu->GetTriggerName(i)<<" ("
+    cout<<setw(50)<<menu->GetTriggerName(i)<<" ("
 	<<setw(8)<<menu->GetPrescale(i)<<")  "
 	<<setw(8)<<Rate[i]<<" +- "
 	<<setw(7)<<RateErr[i]<<"  "
@@ -250,7 +250,7 @@ void OHltRatePrinter::printHltRatesTex(OHltConfig *cfg, OHltMenu *menu) {
 
   outFile << "\\begin{footnotesize}" << endl;
   outFile << "\\begin{longtable}{|l|l|c|c|c|r|c|r|}" << endl;
-  outFile << "\\caption[Cuts]{Available HLT bandwith is 150 Hz = ((1 GB/s / 3) - 100 MB/s for AlCa triggers) / 1.5 MB/event. } \\label{CUTS} \\\\ " << endl;
+  //  outFile << "\\caption[Cuts]{Available HLT bandwith is 150 Hz = ((1 GB/s / 3) - 100 MB/s for AlCa triggers) / 1.5 MB/event. } \\label{CUTS} \\\\ " << endl;
   
   outFile << "\\hline \\multicolumn{8}{|c|}{\\bf \\boldmath HLT for L = "<< sLumi  << "}\\\\  \\hline" << endl;
   outFile << "{\\bf Path Name} & " << endl;
