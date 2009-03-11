@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Fri Nov 25 17:36:41 EST 2005
-// $Id: SimTrackManager.h,v 1.8 2008/01/09 10:42:16 fambrogl Exp $
+// $Id: SimTrackManager.h,v 1.9 2008/06/17 07:00:19 fabiocos Exp $
 //
 
 // system include files
@@ -62,13 +62,10 @@ public:
   void deleteTracks();
   void cleanTkCaloStateInfoMap();
   
-  void addTrack(TrackWithHistory* iTrack, bool inHistory) {
-    if(idsave.size()<=iTrack->trackID()){
-      int newsize = iTrack->trackID()*2;
-      idsave.resize(newsize);
-    }
+  void addTrack(TrackWithHistory* iTrack, bool inHistory, bool withAncestor) {
     idsave[iTrack->trackID()] = iTrack->parentID();
     if (inHistory) m_trksForThisEvent->push_back(iTrack);
+    if (withAncestor) { std::pair<int,int> thisPair(iTrack->trackID(),0); ancestorList.push_back(thisPair); }
   }
   
   void addTkCaloStateInfo(uint32_t t,std::pair<math::XYZVectorD,math::XYZTLorentzVectorD> p){
@@ -82,7 +79,13 @@ public:
   void setCollapsePrimaryVertices(bool iSet) {
     m_collapsePrimaryVertices=iSet;
   }
-  int idSavedTrack (int) const;
+  int giveMotherNeeded(int i) const { 
+    std::map<int, int>::const_iterator itr = idsave.find(i);
+    int theResult = 0;
+    if ( itr != idsave.end() ) theResult = (*itr).second;
+    return theResult ; }
+  void cleanTracksWithHistory();
+
 private:
   SimTrackManager(const SimTrackManager&); // stop default
   
@@ -92,7 +95,9 @@ private:
   int getOrCreateVertex(TrackWithHistory *,int,G4SimEvent * simEvent);
   void cleanVertexMap();
   void reallyStoreTracks(G4SimEvent * simEvent);
-  
+  void fillMotherList();
+  int idSavedTrack (int) const;
+
   // ---------- member data --------------------------------
   TrackContainer * m_trksForThisEvent;
   bool m_SaveSimTracks;
@@ -100,17 +105,12 @@ private:
   int m_nVertices;
   bool m_collapsePrimaryVertices;
   std::map<uint32_t,std::pair<math::XYZVectorD,math::XYZTLorentzVectorD > > mapTkCaloStateInfo;
-  std::vector<int> idsave;
+  std::map<int, int> idsave;
 
-  int niteration;
-  int avgsizeidsave;
-  int sizeidsave;
-  
-  int avgcalomapsize;
-  int calomapsize;
+  std::vector<std::pair<int, int> > ancestorList; 
 
-  int avgvtxmapsize;
-  int vtxmapsize;
+  unsigned int lastTrack;
+  unsigned int lastHist;
 
 };
 

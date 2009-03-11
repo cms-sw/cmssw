@@ -24,6 +24,8 @@ public:
     SimActivityRegistry::BeginOfTrackSignal m_beginOfTrackSignal;
     SimActivityRegistry::EndOfTrackSignal m_endOfTrackSignal;
 private:
+    bool isNewPrimary(const G4Track * aTrack);
+private:
     EventAction * eventAction_;
     TrackWithHistory * currentTrack_;
     bool detailedTiming;

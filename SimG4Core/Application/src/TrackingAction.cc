@@ -11,9 +11,10 @@
 
 #include "G4UImanager.hh" 
 #include "G4TrackingManager.hh"
+#include "G4PhysicalVolumeStore.hh"
 
 TrackingAction::TrackingAction(EventAction * e, const edm::ParameterSet & p) 
-: eventAction_(e),currentTrack_(0),
+  : eventAction_(e),currentTrack_(0),
   detailedTiming(p.getUntrackedParameter<bool>("DetailedTiming",false)),
   trackMgrVerbose(p.getUntrackedParameter<int>("G4TrackManagerVerbosity",0)){}
 
@@ -21,6 +22,7 @@ TrackingAction::~TrackingAction() {}
 
 void TrackingAction::PreUserTrackingAction(const G4Track * aTrack)
 {
+
     CurrentG4Track::setTrack(aTrack);
 
     if (currentTrack_ != 0) 
@@ -41,6 +43,11 @@ void TrackingAction::PreUserTrackingAction(const G4Track * aTrack)
     */
     BeginOfTrack bt(aTrack);
     m_beginOfTrackSignal(&bt);
+
+    if (isNewPrimary(aTrack)) {
+      eventAction_->prepareForNewPrimary();
+    }
+
 }
 
 void TrackingAction::PostUserTrackingAction(const G4Track * aTrack)
@@ -65,16 +72,18 @@ void TrackingAction::PostUserTrackingAction(const G4Track * aTrack)
 	  eventAction_->addTkCaloStateInfo(id,p);
 	  
 	}
+
+      bool withAncestor = (extractor(aTrack).getIDonCaloSurface() == aTrack->GetTrackID());
       if (extractor(aTrack).isInHistory())
         {
-	  currentTrack_->checkAtEnd(aTrack);  // check with end-of-track information
-	  eventAction_->addTrack(currentTrack_, true);
+          currentTrack_->checkAtEnd(aTrack);  // check with end-of-track information
+          eventAction_->addTrack(currentTrack_, true, withAncestor);
         }
       else
         {
-	  eventAction_->addTrack(currentTrack_, false);
-	  delete currentTrack_;
-	}
+          eventAction_->addTrack(currentTrack_, false, false);
+          delete currentTrack_;
+        }
     }
     EndOfTrack et(aTrack);
     m_endOfTrackSignal(&et);
@@ -89,3 +98,9 @@ G4TrackingManager * TrackingAction::getTrackManager()
     return theTrackingManager;
 }
  
+bool TrackingAction::isNewPrimary(const G4Track * aTrack){
+
+  TrackInformation * trkInfo = (TrackInformation *)aTrack->GetUserInformation();
+  return trkInfo->isPrimary();
+
+} 

@@ -36,8 +36,9 @@ public:
     const TrackContainer * trackContainer() const { 
       return m_trackManager->trackContainer();
     }
-    void addTrack(TrackWithHistory* iTrack, bool );
+    void addTrack(TrackWithHistory* iTrack, bool inHistory, bool withAncestor);
     void addTkCaloStateInfo(uint32_t t,std::pair<math::XYZVectorD,math::XYZTLorentzVectorD> p); 
+    void prepareForNewPrimary() { m_trackManager->cleanTracksWithHistory(); }
 
     SimActivityRegistry::BeginOfEventSignal m_beginOfEventSignal;
     SimActivityRegistry::EndOfEventSignal m_endOfEventSignal;

@@ -36,6 +36,7 @@ void EventAction::BeginOfEventAction(const G4Event * anEvent)
     m_trackManager->reset();
     BeginOfEvent e(anEvent);
     m_beginOfEventSignal(&e);
+
 }
 
 void EventAction::EndOfEventAction(const G4Event * anEvent)
@@ -65,9 +66,9 @@ void EventAction::EndOfEventAction(const G4Event * anEvent)
 
 }
 
-void EventAction::addTrack(TrackWithHistory* iTrack, bool inHistory)
+void EventAction::addTrack(TrackWithHistory* iTrack, bool inHistory, bool withAncestor)
 {
-  m_trackManager->addTrack(iTrack, inHistory);
+  m_trackManager->addTrack(iTrack, inHistory, withAncestor);
 }
 
 void EventAction::addTkCaloStateInfo(uint32_t t,std::pair< math::XYZVectorD ,math::XYZTLorentzVectorD> p)
