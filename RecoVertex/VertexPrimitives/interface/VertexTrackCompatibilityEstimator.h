@@ -17,6 +17,7 @@ public:
 
   typedef typename CachingVertex<N>::RefCountedVertexTrack RefCountedVertexTrack;
   typedef typename VertexTrack<N>::RefCountedLinearizedTrackState RefCountedLinearizedTrackState;
+  typedef typename std::pair <bool, double> BDpair;
 
   VertexTrackCompatibilityEstimator(){}
   virtual ~VertexTrackCompatibilityEstimator(){}
@@ -24,14 +25,14 @@ public:
   /**
    * Methods giving back the compatibility estimation
    */
-  virtual float estimate(const CachingVertex<N> & v, 
+  virtual BDpair estimate(const CachingVertex<N> & v, 
 			 const RefCountedLinearizedTrackState track) const = 0;
 
-  virtual float estimate(const reco::Vertex & v, 
+  virtual BDpair estimate(const reco::Vertex & v, 
 			 const reco::TransientTrack & track) const = 0;
 
   // obsolete ?
-  virtual float estimate(const CachingVertex<N> & v, 
+  virtual BDpair estimate(const CachingVertex<N> & v, 
 			 const RefCountedVertexTrack track) const = 0;
   /**
    * Clone method 
