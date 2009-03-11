@@ -325,7 +325,8 @@ void  DiLepEffCalc::endJob()
   ff<<"Number of Z candidates found: "<<TotalOccup(CntMap)<<std::endl;
   for(dibinIntMap::iterator it = CntMap.begin(); it !=CntMap.end(); it++)
     {
-      int* fu = (it->first).print();
+      int fu[4];
+      (it->first).print(fu);
       float ptmid1=0.0, etamid1=-3.0, ptmid2=0.0, etamid2=-3.0;
       if(tab1_Ofline) { 
 	ptmid1  = (tab1_Ofline->GetCellCenter(fu[0])).first;
