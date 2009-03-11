@@ -25,8 +25,12 @@ class SiStripClusterizerFactory {
 
   typedef std::list<std::string> RegisteredAlgorithms; 
   
-  typedef edm::DetSetVector<SiStripRawDigi> RawDigisDSV;
   typedef SiStripClusterizerAlgo::DigisDSV DigisDSV;
+  typedef SiStripClusterizerAlgo::DigisDSVnew DigisDSVnew;
+  
+  typedef edm::DetSetVector<SiStripRawDigi> RawDigisDSV;
+  typedef edmNew::DetSetVector<SiStripRawDigi> RawDigisDSVnew;
+
   typedef SiStripClusterizerAlgo::ClustersDSV ClustersDSV;
   typedef SiStripClusterizerAlgo::ClustersDSVnew ClustersDSVnew;
   
@@ -34,22 +38,32 @@ class SiStripClusterizerFactory {
   
   ~SiStripClusterizerFactory();
 
-  /// Digis to Clusters (new DetSetVector).
+  // ----- DigisToClusters -----
+
+  /// Digis (new DSV) to Clusters (new DSV)
+  void clusterize( const DigisDSVnew&, ClustersDSVnew& );
+
+  /// Digis (old DSV) to Clusters (new DSV)
   void clusterize( const DigisDSV&, ClustersDSVnew& );
   
-  /// Digis to Clusters (old DetSetVector).
+  /// Digis (old DSV) to Clusters (old DSV)
   void clusterize( const DigisDSV&, ClustersDSV& );
+
+  // ----- RawDigisToClusters -----
   
-  /// RawDigis to Clusters (new DetSetVector).
+  /// RawDigis (new DSV) to Clusters (new DSV)
+  void clusterize( const RawDigisDSVnew&, ClustersDSVnew& );
+
+  /// RawDigis (old DSV) to Clusters (new DSV)
   void clusterize( const RawDigisDSV&, ClustersDSVnew& );
 
-  /// RawDigis to Clusters (old DetSetVector).
+  /// RawDigis (old DSV) to Clusters (old DSV)
   void clusterize( const RawDigisDSV&, ClustersDSV& );
   
-  /// Provides access to calibration constants for algorithm. 
+  /// Provides access to calibration constants for algorithm 
   void eventSetup( const edm::EventSetup& );
   
-  /// Access to the algorithm object.
+  /// Access to the algorithm object
   inline SiStripClusterizerAlgo* const algorithm() const;
   
  private:

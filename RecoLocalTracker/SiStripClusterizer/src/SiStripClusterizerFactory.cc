@@ -46,6 +46,12 @@ SiStripClusterizerFactory::~SiStripClusterizerFactory() {
 
 // -----------------------------------------------------------------------------
 //
+void SiStripClusterizerFactory::clusterize( const DigisDSVnew& digis, ClustersDSVnew& clusters ) {
+  if ( algorithm_ ) { algorithm_->clusterize( digis, clusters ); }
+}
+
+// -----------------------------------------------------------------------------
+//
 void SiStripClusterizerFactory::clusterize( const DigisDSV& digis, ClustersDSVnew& clusters ) {
   if ( algorithm_ ) { algorithm_->clusterize( digis, clusters ); }
 }
@@ -54,6 +60,13 @@ void SiStripClusterizerFactory::clusterize( const DigisDSV& digis, ClustersDSVne
 //
 void SiStripClusterizerFactory::clusterize( const DigisDSV& digis, ClustersDSV& clusters ) {
   if ( algorithm_ ) { algorithm_->clusterize( digis, clusters ); }
+}
+
+// -----------------------------------------------------------------------------
+//
+void SiStripClusterizerFactory::clusterize( const RawDigisDSVnew& digis, ClustersDSVnew& clusters ) {
+  //@@ TO BE IMPLEMENTED!!!
+  edm::LogError("SiStripClusterizerFactory") << "TO BE IMPLEMENTED!";
 }
 
 // -----------------------------------------------------------------------------
