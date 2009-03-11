@@ -7,5 +7,5 @@
       <use name=DataFormats/HepMCCandidate>
       <use name=PhysicsTools/CandUtils>
       <use name=hepmc>
-      <use name=SimDataFormats/HepMCProduct>
+      <use name=SimDataFormats/GeneratorProducts>
 </library>

@@ -20,7 +20,7 @@
 #include "PhysicsTools/CandUtils/interface/Booster.h"
 #include <Math/VectorUtil.h>
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 //
 // class declaration
