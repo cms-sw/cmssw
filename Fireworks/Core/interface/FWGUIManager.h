@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.49 2009/01/23 21:35:41 amraktad Exp $
+// $Id: FWGUIManager.h,v 1.50 2009/03/04 17:09:43 chrjones Exp $
 //
 
 // system include files
@@ -60,6 +60,8 @@ class TGListTree;
 //class TEveGedEditor;
 class TEveElementList;
 class TEveElement;
+class TEveWindowPack;
+class TEveWindowSlot;
 
 class FWSummaryManager;
 class FWDetailViewManager;
@@ -101,8 +103,8 @@ public:
    void setFrom(const FWConfiguration&);
 
    TGVerticalFrame* createList(TGSplitFrame *p);
-   TGMainFrame* createViews(TGCompositeFrame *p);
-   TGMainFrame* createTextView(TGTab *p);
+   void createViews(TGTab *p);
+   void createTextView(TGTab *p);
 
    void createEDIFrame();
    void updateEDI(FWEventItem* iItem);
@@ -135,11 +137,10 @@ public:
    static FWGUIManager* getGUIManager();
 
    // ---------- member functions ---------------------------
-   void addFrameHoldingAView(TGFrame*);
-   TGFrame* parentForNextView();
+   TEveWindowSlot* parentForNextView();
 
    //have to use the portable syntax else the reflex code will not build
-   typedef boost::function1<FWViewBase*,TGFrame*> ViewBuildFunctor;
+   typedef boost::function1<FWViewBase*,TEveWindowSlot*> ViewBuildFunctor;
    void registerViewBuilder(const std::string& iName,
                             ViewBuildFunctor& iBuilder);
 
@@ -197,13 +198,10 @@ private:
 
    void newItem(const FWEventItem*);
 
-   void subviewWasSwappedToBig(unsigned int);
    void subviewIsBeingDestroyed(unsigned int);
-
-   void mainViewWasUndocked();
-   void mainViewWasDocked();
-   void viewSelected(unsigned int);
-   void viewUnselected(unsigned int);
+   void subviewSelected(unsigned int);
+   void subviewUnselected(unsigned int);
+   void subviewSwapWithCurrent(unsigned int);
 
    void exportImageOfMainView();
    void promptForConfigurationFile();
@@ -270,7 +268,8 @@ private:
 
    TGTab             *m_textViewTab;
    TGCompositeFrame  *m_textViewFrame[3];
-
+   TEveWindowPack    *m_viewPrimPack;
+   TEveWindowPack    *m_viewSecPack;
    sigc::connection m_modelChangeConn;
 
    std::auto_ptr<CmsShowTaskExecutor> m_tasks;
