@@ -13,7 +13,7 @@
 
 XMLIdealGeometryESSource::XMLIdealGeometryESSource(const edm::ParameterSet & p): rootNodeName_(p.getParameter<std::string>("rootNodeName")),
                                                                                  userNS_(p.getUntrackedParameter<bool>("userControlledNamespace", false)),
-                                                                                 geoConfig_(p)
+                                                                                 geoConfig_(p),cpvavailable_(false)
 {
   if ( rootNodeName_ == "" || rootNodeName_ == "\\" ) {
     throw DDException ("XMLIdealGeometryESSource must have a root node name.");
@@ -30,8 +30,10 @@ XMLIdealGeometryESSource::XMLIdealGeometryESSource(const edm::ParameterSet & p):
 }
 
 XMLIdealGeometryESSource::~XMLIdealGeometryESSource() {
-  DDCompactView cpv;
-  cpv.clear();
+  if(cpvavailable_){
+    DDCompactView cpv;
+    cpv.clear();
+  }
 }
 
 std::auto_ptr<DDCompactView>
@@ -49,6 +51,8 @@ XMLIdealGeometryESSource::produceMagField(const IdealMagneticFieldRecord &)
 
 std::auto_ptr<DDCompactView>
 XMLIdealGeometryESSource::produce() {
+  
+  cpvavailable_ = true;
 
   DDLParser * parser = DDLParser::instance();
 

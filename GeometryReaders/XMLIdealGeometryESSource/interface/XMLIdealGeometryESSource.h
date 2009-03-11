@@ -29,7 +29,7 @@ private:
     XMLIdealGeometryESSource(const XMLIdealGeometryESSource &);
     const XMLIdealGeometryESSource & operator=(const XMLIdealGeometryESSource &);
     std::string rootNodeName_;
-    bool userNS_;
+    bool userNS_,cpvavailable_;
     GeometryConfiguration geoConfig_;
 };
 
