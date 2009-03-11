@@ -21,18 +21,28 @@ SiStripClusterizerAlgo::~SiStripClusterizerAlgo() {;}
 
 // -----------------------------------------------------------------------------
 //
+void SiStripClusterizerAlgo::clusterize( const DigisDSVnew& digis, 
+					 ClustersDSVnew& clusters ) {
+  DigisDSVnew::const_iterator idigis = digis.begin();
+  DigisDSVnew::const_iterator jdigis = digis.end();
+  for ( ; idigis != jdigis; ++idigis ) {
+    ClustersV out;
+    clusterize( *idigis, out );
+    if ( !out.empty() ) { clusters.insert( idigis->id(), &*out.begin(), out.size() ); }
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
 void SiStripClusterizerAlgo::clusterize( const DigisDSV& digis, 
 					 ClustersDSVnew& clusters ) {
   DigisDSV::const_iterator idigis = digis.begin();
   DigisDSV::const_iterator jdigis = digis.end();
   for ( ; idigis != jdigis; ++idigis ) {
-    edm::DetSet<SiStripCluster> temp;
-    clusterize( *idigis, temp );
-    if ( !temp.empty() ) {
-      ClustersDSVnew::FastFiller output( clusters, idigis->detId() );
-      output.resize( temp.size() );
-      std::copy( temp.begin(), temp.end(), output.begin() );
-    }
+    DigisDSnew in( idigis->id, &*idigis->data.begin(), idigis->data.size() );
+    ClustersV out;
+    clusterize( in, out );
+    if ( !out.empty() ) { clusters.insert( idigis->id, &*out.begin(), out.size() ); }
   }
 }
 
@@ -43,9 +53,10 @@ void SiStripClusterizerAlgo::clusterize( const DigisDSV& digis,
   DigisDSV::const_iterator idigis = digis.begin();
   DigisDSV::const_iterator jdigis = digis.end();
   for ( ; idigis != jdigis; ++idigis ) {
-    edm::DetSet<SiStripCluster> output( idigis->id );
-    clusterize( *idigis, output ); 
-    if ( !output.empty() ) { clusters.insert( output ); }
+    DigisDSnew in( idigis->id, &*idigis->data.begin(), idigis->data.size() );
+    ClustersDS out( idigis->id );
+    clusterize( in, out.data ); 
+    if ( !out.empty() ) { clusters.insert( out ); }
   }
 }
 

@@ -20,7 +20,7 @@ class SiStripThreeThresholdAlgo : public SiStripClusterizerAlgo {
  private:
   
   // Clusterize at detector-level
-  void clusterize( const DigisDS&, ClustersDS& );
+  void clusterize( const DigisDSnew&, ClustersV& );
   
   // Build clusters on strip-by strip basis
   void add( ClustersV& data, 

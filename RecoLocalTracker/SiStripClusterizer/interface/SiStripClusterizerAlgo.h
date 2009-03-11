@@ -28,11 +28,12 @@ class SiStripClusterizerAlgo {
   
  public:
 
-  // Typedefs for Digis
+  typedef std::vector<SiStripDigi> DigisV;
   typedef edm::DetSet<SiStripDigi> DigisDS;
+  typedef edmNew::DetSet<SiStripDigi> DigisDSnew;
   typedef edm::DetSetVector<SiStripDigi> DigisDSV;
-
-  // Typedefs for Clusters
+  typedef edmNew::DetSetVector<SiStripDigi> DigisDSVnew;
+  
   typedef std::vector<SiStripCluster> ClustersV;
   typedef edm::DetSet<SiStripCluster> ClustersDS;
   typedef edm::DetSetVector<SiStripCluster> ClustersDSV;
@@ -44,10 +45,13 @@ class SiStripClusterizerAlgo {
   /// Virtual destructor
   virtual ~SiStripClusterizerAlgo();
   
-  /// Digis to Clusters (new DetSetVector)
+  /// Digis (new DSV) to Clusters (new DSV)
+  void clusterize( const DigisDSVnew&, ClustersDSVnew& );
+  
+  /// Digis (old DSV) to Clusters (new DSV)
   void clusterize( const DigisDSV&, ClustersDSVnew& );
   
-  /// Digis to Clusters (old DetSetVector)
+  /// Digis (old DSV) to Clusters (old DSV)
   void clusterize( const DigisDSV&, ClustersDSV& );
   
   /// Provides access to calibration constants for algorithms
@@ -55,9 +59,8 @@ class SiStripClusterizerAlgo {
   
  protected:
   
-  virtual void clusterize( const DigisDS&, ClustersDS& ) = 0;
-  
-  //void eventSetup( const edm::EventSetup& );
+  /// Pure virtual method to be implemented in derived class
+  virtual void clusterize( const DigisDSnew&, ClustersV& ) = 0;
   
   /// Access to noise for algorithms
   const SiStripNoises* const noise();

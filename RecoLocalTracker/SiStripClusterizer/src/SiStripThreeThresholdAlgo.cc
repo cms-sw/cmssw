@@ -25,12 +25,13 @@ SiStripThreeThresholdAlgo::SiStripThreeThresholdAlgo( const edm::ParameterSet& p
 
 SiStripThreeThresholdAlgo::~SiStripThreeThresholdAlgo() {}
 
-void SiStripThreeThresholdAlgo::clusterize( const DigisDS& digis, 
-					    ClustersDS& clusters ) {
-  DigisDS::const_iterator idigis = digis.begin();
-  DigisDS::const_iterator jdigis = digis.end();
-  for ( ; idigis != jdigis; ++idigis ) { add( clusters.data, digis.id, idigis->strip(), idigis->adc() ); }
-  endDet( clusters.data, digis.id );
+void SiStripThreeThresholdAlgo::clusterize( const DigisDSnew& digis, 
+					    ClustersV& clusters ) {
+  if ( digis.empty() ) { return; }
+  for ( DigisDSnew::size_type ii = 0; ii < digis.size(); ++ii ) { 
+    add( clusters, digis.id(), digis[ii].strip(), digis[ii].adc() ); 
+  }
+  endDet( clusters, digis.id() );
 }
 
 void SiStripThreeThresholdAlgo::add( ClustersV& data, 

@@ -16,9 +16,9 @@ class SiStripFrontEndDriverAlgo : public SiStripClusterizerAlgo {
   
   ~SiStripFrontEndDriverAlgo();
   
-  void clusterize( const DigisDS&, ClustersDS& );
-  
  private:
+  
+  void clusterize( const DigisDSnew&, ClustersV& );
   
   // Build clusters on strip-by strip basis
   void add( ClustersV& data, 

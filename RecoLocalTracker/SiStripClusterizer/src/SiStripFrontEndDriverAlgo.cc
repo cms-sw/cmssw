@@ -17,8 +17,8 @@ SiStripFrontEndDriverAlgo::~SiStripFrontEndDriverAlgo() {
 
 // -----------------------------------------------------------------------------
 //
-void SiStripFrontEndDriverAlgo::clusterize( const DigisDS& digis, 
-					    ClustersDS& clusters ) {
+void SiStripFrontEndDriverAlgo::clusterize( const DigisDSnew& digis, 
+					    ClustersV& clusters ) {
   LogTrace("UNDEFINED_CATEGORY")
     << "[SiStripFrontEndDriverAlgo::" << __func__ << "]";
 }

@@ -18,7 +18,7 @@ class SiStripDummyAlgo : public SiStripClusterizerAlgo {
   
  private:
   
-  void clusterize( const DigisDS&, ClustersDS& );
+  void clusterize( const DigisDSnew&, ClustersV& );
   
   /// Building of clusters on strip-by-strip basis
   void add( ClustersV& data, 
