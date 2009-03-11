@@ -4,8 +4,10 @@
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 
 GsfVertexSmoother::GsfVertexSmoother(bool limit, const GsfVertexMerger * merger) :
-  limitComponents (limit), theMerger(merger->clone())
-{}
+  limitComponents (limit)
+{
+  if (limitComponents) theMerger = merger->clone();
+}
 
 CachingVertex<5>
 GsfVertexSmoother::smooth(const CachingVertex<5> & vertex) const
@@ -13,6 +15,7 @@ GsfVertexSmoother::smooth(const CachingVertex<5> & vertex) const
 
   vector<RefCountedVertexTrack> tracks = vertex.tracks();
   int numberOfTracks = tracks.size();
+  if (numberOfTracks<1) return vertex;
 
   // Initial vertex for ascending fit
   GlobalPoint priorVertexPosition = tracks[0]->linearizedTrack()->linearizationPoint();
@@ -191,10 +194,10 @@ GsfVertexSmoother::createNewComponent(const VertexState & oldVertex,
 
   //Chi**2 contribution of the track component
   double vtxChi2 = helper.vertexChi2(oldVertex, newVertex);
-  double trkCi2 = helper.trackParameterChi2(linTrack, thePair.first);
+  pair<bool, double> trkCi2 = helper.trackParameterChi2(linTrack, thePair.first);
 
   return RefittedTrackComponent(TrackWeightPair(thePair.first, weightInMixture), 
-  			VtxTrkChi2Pair(vtxChi2, trkCi2));
+  			VtxTrkChi2Pair(vtxChi2, trkCi2.second));
 }
 
 
