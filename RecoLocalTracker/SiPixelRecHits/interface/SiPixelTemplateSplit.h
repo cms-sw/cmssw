@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplateSplit.cc (Version 0.51)
+//  SiPixelTemplateSplit.cc (Version 1.00)
 //
 //  Procedure to fit two templates (same angle hypotheses) to a single cluster
 //  Return two x- and two y-coordinates for the cluster
@@ -11,10 +11,11 @@
 //  Take truncation size from new pixmax information
 //  Change to allow template sizes to be changed at compile time
 //  Move interpolation range error to LogDebug
+//  Add qbin = 5 and change 1-pixel probability to use new template info
 //
  
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
-#include "CondFormats/SiPixelObjects/interface/SiPixelTemplate.h"
+#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplate.h"
 #else
 #include "SiPixelTemplate.h"
 #endif

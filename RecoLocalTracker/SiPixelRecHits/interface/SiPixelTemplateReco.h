@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplateReco.cc (Version 5.01)
+//  SiPixelTemplateReco.cc (Version 5.20)
 //
 //  Add goodness-of-fit to algorithm, include single pixel clusters in chi2 calculation
 //  Try "decapitation" of large single pixels
@@ -22,6 +22,7 @@
 //  Take truncation size from new pixmax information
 //  Change to allow template sizes to be changed at compile time
 //  Move interpolation range error to LogDebug
+//  Add qbin = 5 and change 1-pixel probability to use new template info
 //
 //  Created by Morris Swartz on 10/27/06.
 //  Copyright 2006 __TheJohnsHopkinsUniversity__. All rights reserved.
@@ -29,7 +30,7 @@
 //
  
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
-#include "CondFormats/SiPixelObjects/interface/SiPixelTemplate.h"
+#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplate.h"
 #else
 #include "SiPixelTemplate.h"
 #endif
