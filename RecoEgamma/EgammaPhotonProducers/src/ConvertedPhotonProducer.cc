@@ -76,6 +76,7 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
   outInTrackSCAssociationCollection_ = conf_.getParameter<std::string>("outInTrackSCAssociation");
   inOutTrackSCAssociationCollection_ = conf_.getParameter<std::string>("inOutTrackSCAssociation");
   
+  algoName_ = conf_.getParameter<std::string>( "AlgorithmName" );  
    
   // use onfiguration file to setup output collection names
   ConvertedPhotonCollection_     = conf_.getParameter<std::string>("convertedPhotonCollection");
@@ -365,14 +366,15 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
 	  reco::TrackRef myTkRef= ttt->persistentTrackRef(); 
 	  
 	  LogDebug("ConvertedPhotonProducer")  << " ConvertedPhotonProducer Ref to Rec Tracks in the pair  charge " << myTkRef->charge() << " Num of RecHits " << myTkRef->recHitsSize() << " inner momentum " << myTkRef->innerMomentum() << "\n";  
-	  
-          trackPin.push_back(  myTkRef->innerMomentum());
-	  trackPout.push_back(  myTkRef->outerMomentum());
+	  if ( myTkRef->extra().isNonnull() ) {
+	    trackPin.push_back(  myTkRef->innerMomentum());
+	    trackPout.push_back(  myTkRef->outerMomentum());
+	  }
 	  trackPairRef.push_back(myTkRef);
 	  
 	}
 	
-	
+	//	std::cout << " ConvertedPhotonProducer trackPin size " << trackPin.size() << std::endl;
 	LogDebug("ConvertedPhotonProducer")  << " ConvertedPhotonProducer SC energy " <<  aClus->energy() << "\n";
 	LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer photon p4 " << p4  << "\n";
 	LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer vtx " << vtx.x() << " " << vtx.y() << " " << vtx.z() << "\n";
@@ -384,8 +386,9 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
 	LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer trackPairRef  " << trackPairRef.size() <<  "\n";
 
 
-	
-	reco::Conversion  newCandidate(scPtrVec,  trackPairRef,  trkPositionAtEcal, theConversionVertex, matchingBC,  minAppDist, trackPin, trackPout );
+	reco::Conversion::ConversionAlgorithm algo = reco::Conversion::algoByName(algoName_);
+	//	std::cout << "  ConvertedPhotonProducer  algo name " << algoName_ << std::endl;
+	reco::Conversion  newCandidate(scPtrVec,  trackPairRef,  trkPositionAtEcal, theConversionVertex, matchingBC,  minAppDist, trackPin, trackPout, algo );
 	outputConvPhotonCollection.push_back(newCandidate);
 	
 	
