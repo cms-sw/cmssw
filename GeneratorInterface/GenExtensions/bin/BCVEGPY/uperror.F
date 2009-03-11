@@ -9,12 +9,12 @@
 
 c...error message.
       if((ibcstate.gt.8).or.(ibcstate.lt.1)) then
-	 write(*,*) 'only eight s and p-wave states have been programmed!'
+      write(*,*) 'only eight s and p-wave states have been programmed!'
 	 wronginput=.true.
 	endif
 
 	if((ibcstate.gt.2).and.(iqqbar.eq.1)) then
-	 write(*,*) 'p-wave states for q-\bar{q} has not been programmed!'
+      write(*,*) 'p-wave states for q-\bar{q} has not been programmed!'
 	 wronginput=.true.
 	endif
 
@@ -22,7 +22,7 @@ c...error message.
 	 write(*,'(a)')
      &  'the color-octet contribution from quark-antiquark annihilation'
        write(*,'(a)')
-     &  'is small and has not been programmed for bc production !!!!!!!' 
+     &  'is small and has not been programmed for bc production !!!!!!!'
 	 wronginput=.true.
 	end if
 
@@ -31,7 +31,7 @@ c...error message.
 	 write(*,'(a)')
      &  'the color-octet contribution from p-wave states'
        write(*,'(a)')
-     &  'is small and has not been programmed for bc production !!!!!!!' 
+     &  'is small and has not been programmed for bc production !!!!!!!'
 	 wronginput=.true.
 	end if
 

@@ -78,11 +78,11 @@ c===============================================================
 c b))  iterating loop
 c===============================================================
       do 1000 it=1,itmx
-        if(it.eq.1) then
-	    call time(begin_time)
-	    write(*,'(a)') begin_time
-	    write(3,'(a)') begin_time
-	  end if
+c        if(it.eq.1) then
+c	    call time(begin_time)
+c	    write(*,'(a)') begin_time
+c	    write(3,'(a)') begin_time
+c	  end if
 c...............................................................
 c  initializing iteration variables
 c...............................................................
@@ -143,9 +143,9 @@ c...cross unit pb.
 	  if(nprn.ge.2) then
 	    print 201,it,avgi,sd,err
 		write(3,201) it,avgi,sd,err
-	    call time(end_time)
-		write(*,'(a)') end_time
-		write(3,'(a)') end_time
+c	    call time(end_time)
+c		write(*,'(a)') end_time
+c		write(3,'(a)') end_time
 	  end if
 
 778     format('integral value =',g10.4,'+/-',

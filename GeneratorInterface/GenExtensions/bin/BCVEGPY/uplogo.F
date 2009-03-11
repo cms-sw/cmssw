@@ -179,8 +179,8 @@ c*************************************************
       write(3,'(a)') '*************************************************'
 
       if(iqqbar.eq.0) then
-	 write(*,'(a)')'*   using subprocess: g+g->bc+b+\bar{c}         *'
-	 write(3,'(a)')'*   using subprocess: g+g->bc+b+\bar{c}         *'
+	 write(*,'(a)')'*   using subprocess: g+g->bc+b+\bar{c}       *'
+	 write(3,'(a)')'*   using subprocess: g+g->bc+b+\bar{c}       *'
 	else
 	 if(iqcode.eq.1) then
 	  if(ioutpdf.eq.1) then
@@ -226,8 +226,8 @@ c...in pythia, code for d is 1, u is 2 and s is 3.
 	else
 	 write(3,31) pmbc,pmb,pmc
 	 write(*,31) pmbc,pmb,pmc
-         write(*,'(a)') 'R(0)=1.241 and R\'(0)=0.44833'
-         write(3,'(a)') 'R(0)=1.241 and R\'(0)=0.44833'
+         write(*,'(a)') 'R(0)=1.241 and R1(0)=0.44833'
+         write(3,'(a)') 'R(0)=1.241 and R1(0)=0.44833'
 	end if
 
 	if(isubonly.eq.0) then
@@ -262,8 +262,8 @@ c...you may add some more from pythia manual book.
 	  end if
 	 end if
 	 if(ioutpdf.eq.1) then
-	 write(*,'(a)') 'the new version of outer pdfs which are from www'
-	 write(3,'(a)') 'the new version of outer pdfs which are from www'
+       write(*,'(a)') 'the new version of outer pdfs which are from www'
+       write(3,'(a)') 'the new version of outer pdfs which are from www'
 	   if(ipdfnum.eq.100) then
 	     write(*,'(a)')'pdf: grv98lo; alph in lo'
 		 write(3,'(a)')'pdf: grv98lo; alph in lo'
@@ -304,7 +304,7 @@ c...you may add some more from pythia manual book.
 32    format('m_{bc}=',g11.5,'m_{b}=',g11.5,'m_{c}=',g11.5,
      &       'R(0)=',g11.5)
 33    format('m_{bc}=',g11.5,'m_{b}=',g11.5,'m_{c}=',g11.5,
-     &       'R\'(0)=',g11.5)
+     &       'R1(0)=',g11.5)
 
 41    format(a,1x,i9,';',3x,a,g11.3,1x)
 

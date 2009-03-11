@@ -94,9 +94,9 @@ c...cross-section.
 	   else
 	    write(*,'(a)') 
      &	 'warning: here should input a maximum differential cross-sec'
-		write(*,'(a)')
+	    write(*,'(a)')
      &	 '!stop here! input a proper value in (subroutine upinit)!!!!'
-	    stop 'or running vegas to get the correct value!program stop!'
+	stop 'or running vegas to get the correct value!program stop!'
 c...      xmaxup(1)=100! the value added here! find the value in old runs.
 c...note: this value should be the one obtained under the same condition.
 	   end if
@@ -275,8 +275,12 @@ c IDWTUP = 3 requires XWGTUP = 1
 
 C...Optionally write out event to disk. Minimal size for time/spin fields.
       IF(MSTP(162).GT.0) THEN
+<<<<<<< genevnt.F
+      WRITE(MSTP(162),5200) NUP,IDPRUP,XWGTUP_wlhe,SCALUP,AQEDUP,AQCDUP
+=======
         WRITE(MSTP(162),5200) NUP,IDPRUP,XWGTUP_wlhe,SCALUP,AQEDUP
      +   ,AQCDUP
+>>>>>>> 1.2
         DO 190 I=1,NUP
           IF(VTIMUP(I).EQ.0D0) THEN
             WRITE(MSTP(162),5300) IDUP(I),ISTUP(I),MOTHUP(1,I),

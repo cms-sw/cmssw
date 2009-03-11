@@ -333,15 +333,15 @@ c********************************
 	      end if
 		end if
 	  else
-		write(*,'(a,a,1x,g12.5)')'getting subprocess info....',
+	   write(*,'(a,a,1x,g12.5)')'getting subprocess info....',
      &		 'at c.m. energy(gev)',subenergy
-		write(3,'(a,a,1x,g12.5)')'getting subprocess info....',
+	   write(3,'(a,a,1x,g12.5)')'getting subprocess info....',
      &		 'at c.m. energy(gev)',subenergy
-	   	write(*,'(a)') 'the info. of hadron collider is no use!!!'
-		write(3,'(a)') 'the info. of hadron collider is no use!!!'
+	   write(*,'(a)') 'the info. of hadron collider is no use!!!'
+	   write(3,'(a)') 'the info. of hadron collider is no use!!!'
           if(iveggrade.eq.1) then
-	       write(*,'(a)')'using existed grade to gene. precise grade.'
-		   write(3,'(a)')'using existed grade to gene. precise grade.'
+	   write(*,'(a)')'using existed grade to gene. precise grade.'
+	   write(3,'(a)')'using existed grade to gene. precise grade.'
 		   do i=1,NVEGBIN
 	          read(11,*) (xi(i,j),j=1,7)
 	       end do

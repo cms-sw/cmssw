@@ -71,7 +71,7 @@ c        mrpy(1) = 19780503		! default value
 	 mrpy(1) = ibcrandom
 	 write( 6, * ) ' '
 	 write( 6, * ) ' Change default value of random, mrpy(1), to ',
-	1 mrpy(1)	  
+     +	 mrpy(1)	  
 	 write( 6, * ) ' '
 c... end random change	 	
 
@@ -374,13 +374,13 @@ c... Get parameters from namelist
 	implicit integer(i-n)
 	
 	Namelist / bcvegpy_set_par / ENERGYOFTEVA, ENERGYOFLHC,
-	1    pmassb,  pmassc, naccel, i_shower, i_mix, 
-	1    NUMOFEVENTS, NVEGCALL, NVEGITMX, ibcrandom
+     +	 pmassb,  pmassc, naccel, i_shower, i_mix, 
+     +	 NUMOFEVENTS, NVEGCALL, NVEGITMX, ibcrandom
 #include "bcvegpy_set_par.inc"
 c
 c-------------------------------------------------------------------------------
 c
-	open( Unit=1, Name='bcvegpy_set_par.nam',Status='Old',Err=99)
+	open( unit=1, file='bcvegpy_set_par.nam',Status='Old',Err=99)
         read( 1, nml=bcvegpy_set_par, err=90)
 	write( 6, * ) ' '
 	write( 6, * ) ' Contents of namelist *bcvegpy_set_par*: '

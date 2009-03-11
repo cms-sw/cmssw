@@ -94,7 +94,7 @@ c***********************************************************************
      -    dconjg(inpup(idc2,idk1))*inpup(idq0,idk2)*yup(20) - 
      -    dconjg(yup(14))*yup(49))) + (-(dconjg(yup(24))*dconjg(yup(34))
      -    *yup(20)) +dconjg(yup(35))*dotup(idc1,idc1)*yup(35))*yup(50))
-	  bfun(3,ii,kk)=-4*(-((-(dconjg(yup(10))*yup(2))+dotup(idb1,idb1)*
+	bfun(3,ii,kk)=-4*(-((-(dconjg(yup(10))*yup(2))+dotup(idb1,idb1)*
      -    yup(8))*(dconjg(yup(9))*yup(1) +dconjg(yup(18))*yup(11))) + 
      -    dconjg(yup(34))*(dconjg(inpup(idc2,idk1))*inpup(idc1,idk2)*
      -    (-(dconjg(yup(10))*yup(16))-yup(2)*yup(25)+dotup(idb1,idb1)*
@@ -103,7 +103,7 @@ c***********************************************************************
      -    dotup(idc1,idc1)* (yup(2)*yup(8)*yup(25) + dconjg(yup(10))*
      -    (yup(8)*yup(16) - yup(2)*(yup(19) + yup(31)))
      -     + dconjg(yup(35))*yup(35)*(yup(46) + yup(50))))
-	  bfun(4,ii,kk)=4*(dotup(idb1,idb1)*(-(dotup(idc1,idc1)*
+	bfun(4,ii,kk)=4*(dotup(idb1,idb1)*(-(dotup(idc1,idc1)*
      -    (dconjg(inpup(idq0,idk1))**2*inpup(idq0,idk1)*inpup(idq0,idk2) 
      -    - dconjg(yup(13))*yup(3) -dconjg(yup(17))*yup(6))) + 
      -    dconjg(yup(34))*inpup(idc1,idk2)*(-(dconjg(inpup(idq0,idk1))*
@@ -191,14 +191,14 @@ c...helicity(3)=(+,+,+,+,-,+)
      -     + dconjg(yup(34))*(-(dconjg(yup(24))*yup(20)) + 
      -     dotup(idb1,idb1)*yup(34)) + dconjg(yup(35))*dotup(idc1,idc1)
      -     *yup(35)))/yup(8)
-	  bfun(5,ii,kk)=(2*dconjg(yup(9))*yup(16)*yup(28)*yup(29))/yup(8)
-	  bfun(8,ii,kk)=(4*dconjg(yup(9))*(dconjg(yup(24))*((yup(12)
+	bfun(5,ii,kk)=(2*dconjg(yup(9))*yup(16)*yup(28)*yup(29))/yup(8)
+	bfun(8,ii,kk)=(4*dconjg(yup(9))*(dconjg(yup(24))*((yup(12)
      -     - yup(18))*(-(dconjg(yup(34))*yup(20)) +yup(4)*yup(25)) + 
      -     2*dotup(idc1,idk1)*yup(14)*yup(29))+dotup(idb1,idb1)*(yup(12) 
      -     -yup(18))*(-(dconjg(yup(4))*yup(4))+dconjg(yup(34))*yup(34))+ 
      -     dotup(idc1,idc1)*(-(yup(16)*yup(19)*yup(29)) +dconjg(yup(35)) 
      -     *(yup(12) - yup(18))*yup(35))))/yup(8)
-	  bfun(9,ii,kk)=(4*dconjg(yup(5))*yup(11)*yup(20)*yup(30))/yup(8)
+	bfun(9,ii,kk)=(4*dconjg(yup(5))*yup(11)*yup(20)*yup(30))/yup(8)
 c...helicity(19)=(-,-,-,-,+,-)
         do mm=1,9
 	   if (mm.ne.6 .and. mm.ne.7) bfun(mm,ii,kk+16)=
@@ -234,7 +234,7 @@ c...helicity(4)=(+,+,+,+,-,-)
      -     dconjg(yup(16))*dconjg(yup(34))*yup(34)) +dconjg(yup(16))*
      -     (dconjg(yup(24))*(-(dconjg(yup(34))*yup(20))+yup(4)*yup(25))+ 
      -     dconjg(yup(35))*dotup(idc1,idc1)*yup(35))))/xup(2)
-	  bfun(5,ii,kk)=(2*dconjg(yup(9))*dconjg(yup(10))*yup(28)*yup(30))
+	bfun(5,ii,kk)=(2*dconjg(yup(9))*dconjg(yup(10))*yup(28)*yup(30))
      -	 /xup(2)
 	  bfun(8,ii,kk)=(4*dconjg(yup(9))*(dconjg(yup(12))-
      -     dconjg(yup(18)))*(dconjg(yup(24))*(dconjg(yup(10))
@@ -256,7 +256,7 @@ c**********************************************************************
         bfun(1,ii,kk)=-4*(-(dconjg(yup(24))*dconjg(yup(34))*
      -    (yup(20)*yup(53) - yup(25)*yup(54))) +dotup(idb1,idb1)*
      -    (dconjg(yup(8))*dotup(idc1,idc1)*yup(30) +dconjg(yup(34))*
-     -    (-(dconjg(inpup(idq0,idk2))*dconjg(yup(24))*inpup(idc1,idk1))+ 
+     -    (-(dconjg(inpup(idq0,idk2))*dconjg(yup(24))*inpup(idc1,idk1))+
      -    dconjg(inpup(idc2,idk2))*inpup(idb1,idk1)*yup(43) + yup(15)*
      -    (yup(55) - yup(56)))) +dconjg(yup(35))*dotup(idc1,idc1)*
      -    (yup(35)*yup(53) + dconjg(yup(3))*yup(57)))
@@ -326,7 +326,7 @@ c...helicity(5)=(+,+,+,-,+,+)
      -     yup(32))) +dconjg(yup(17))*(-(dconjg(inpup(idk2,idk1))
      -     *yup(22)*yup(31)) +dconjg(inpup(idq0,idk2))*yup(9)*
      -     (yup(22) + yup(32)))))/xup(1)
-	  bfun(5,ii,kk)=(2*dconjg(inpup(idk1,idq0))*pmomup(5,idc1)*yup(16)
+	bfun(5,ii,kk)=(2*dconjg(inpup(idk1,idq0))*pmomup(5,idc1)*yup(16)
      -    *(yup(27) + yup(28))*yup(29))/xup(1)
 	  bfun(8,ii,kk)=(4*pmomup(5,idc1)*(-(dconjg(inpup(idq0,idk2))
      -     *dconjg(yup(14))*yup(9)*(dotup(idb1,idb1)*yup(14) - yup(16)
@@ -485,7 +485,7 @@ c...helicity(23)=(-,-,-,+,+,-)
 c...helicity(8)=(+,+,+,-,-,-)
         kk=8
         if (iqqbar.eq.0) then
-	  bfun(1,ii,kk)=(-4*dconjg(yup(1))*dconjg(yup(10))*pmomup(5,idc1)*
+	bfun(1,ii,kk)=(-4*dconjg(yup(1))*dconjg(yup(10))*pmomup(5,idc1)*
      -     (dconjg(inpup(idb2,idq0))*dconjg(inpup(idq0,idk1))
      -     *inpup(idk2,idk1)*yup(13) - dconjg(inpup(idq0,idk1))*yup(25)*
      -     yup(30) + dconjg(inpup(idb2,idq0))*(-((dconjg(yup(11)) +
@@ -495,7 +495,7 @@ c...helicity(8)=(+,+,+,-,-,-)
      -     dconjg(yup(10))*pmomup(5,idc1)*((dconjg(yup(11)) -
      -     dconjg(yup(12)) +dconjg(yup(18)))*yup(13) + 
      -      dconjg(yup(35))*(yup(21) - yup(22) - yup(32))))/xup(2)
-	  bfun(3,ii,kk)=(4*dconjg(yup(1))*dconjg(yup(16))*pmomup(5,idc1)*
+	bfun(3,ii,kk)=(4*dconjg(yup(1))*dconjg(yup(16))*pmomup(5,idc1)*
      -     (-(dconjg(inpup(idq0,idk1))*yup(25)*yup(30)) + 
      -     dconjg(inpup(idb2,idq0))*dconjg(yup(35))*
      -     (yup(22) + yup(32))))/xup(2)
@@ -551,7 +551,7 @@ c*********************************************************************
      -     (-(dconjg(yup(8))*dotup(idb1,idb1)) + yup(16)*yup(25))
      -     *yup(79))
 	  bfun(4,ii,kk)=4*dconjg(inpup(idq0,idk2))*pmomup(5,idc1)*
-     -    (dotup(idb1,idb1)*(-((dconjg(yup(1))+dconjg(yup(9)))*yup(31))+ 
+     -    (dotup(idb1,idb1)*(-((dconjg(yup(1))+dconjg(yup(9)))*yup(31))+
      -    dconjg(yup(6))*(yup(22) + yup(32)) + dconjg(yup(3))*
      -    (dconjg(yup(36)) + yup(42))) + dconjg(yup(35))*
      -    ((dconjg(yup(1)) + dconjg(yup(9)))*yup(51) +inpup(idb1,idk1)*
@@ -624,7 +624,7 @@ c**************************************************************
      -     dconjg(inpup(idc1,idk1))*inpup(idq0,idk2)*(yup(21)+ yup(26))
      -     *yup(43) + (yup(27) + yup(28))*(yup(29) + yup(30))*
      -     (yup(46) + yup(50)))
-	  bfun(4,ii,kk)=4*pmomup(5,idb1)*pmomup(5,idc1)*(-((yup(1)+yup(9))
+	bfun(4,ii,kk)=4*pmomup(5,idb1)*pmomup(5,idc1)*(-((yup(1)+yup(9))
      -     *(dconjg(yup(17))*yup(21) +dconjg(yup(13))*yup(38))) - 
      -     yup(8)*(yup(69)*yup(70) + yup(37)*yup(83) + yup(43)*yup(84)
      -     + yup(71)*yup(85)))
@@ -644,19 +644,19 @@ c...helicity(10)=(+,-,-,+,+,-)
      -     yup(9)*(dconjg(yup(3))*yup(3)+dconjg(yup(6))*yup(6)+(yup(27) 
      -     + yup(28))*(yup(19) - yup(29) - yup(30)) - yup(19)*yup(31)
      -     ))/dconjg(yup(8))
-	  bfun(3,ii,kk)=(-4*dconjg(yup(16))*pmomup(5,idb1)*pmomup(5,idc1)*
+	bfun(3,ii,kk)=(-4*dconjg(yup(16))*pmomup(5,idb1)*pmomup(5,idc1)*
      -     yup(1)*(yup(19) - yup(29) - yup(30))*(yup(27) + yup(28)
      -     - yup(31)))/dconjg(yup(8))
-	  bfun(4,ii,kk)=(-4*dconjg(yup(16))*pmomup(5,idb1)*pmomup(5,idc1)*
+	bfun(4,ii,kk)=(-4*dconjg(yup(16))*pmomup(5,idb1)*pmomup(5,idc1)*
      -     yup(9)*(-(dconjg(yup(3))*yup(3)) -dconjg(yup(6))*yup(6) + 
      -     dconjg(inpup(idq0,idk2))*inpup(idq0,idk1)*yup(8) - (yup(27)
      -     + yup(28))*(yup(19) - yup(29) - yup(30))))/dconjg(yup(8))
-	  bfun(5,ii,kk)=0.0d0
-	  bfun(8,ii,kk)=(4*pmomup(5,idb1)*pmomup(5,idc1)*yup(9)*
+	bfun(5,ii,kk)=0.0d0
+	bfun(8,ii,kk)=(4*pmomup(5,idb1)*pmomup(5,idc1)*yup(9)*
      -     (dconjg(yup(14))*(dconjg(yup(10))+dconjg(yup(16)))*yup(14)- 
      -     (dconjg(yup(12)) - dconjg(yup(18)))*(yup(29) + yup(30))*
      -     (yup(27) + yup(28) - yup(31))))/dconjg(yup(8))
-	  bfun(9,ii,kk)=(-4*pmomup(5,idb1)*pmomup(5,idc1)*(dconjg(yup(15))
+	bfun(9,ii,kk)=(-4*pmomup(5,idb1)*pmomup(5,idc1)*(dconjg(yup(15))
      -     *yup(5) + yup(8)*yup(28))*(yup(29) + yup(30)))/dconjg(yup(8))
 c...helicity(26)=(-,+,+,-,-,+)
         do mm=1,9
@@ -668,7 +668,7 @@ c...helicity(26)=(-,+,+,-,-,+)
 c...helicity(11)=(+,-,-,+,-,+)
         kk=11
         if(iqqbar.eq.0) then
-	  bfun(1,ii,kk)=(4*pmomup(5,idb1)*pmomup(5,idc1)*(-(dconjg(yup(1))
+	bfun(1,ii,kk)=(4*pmomup(5,idb1)*pmomup(5,idc1)*(-(dconjg(yup(1))
      -     *dconjg(yup(13))*yup(13)*(yup(11)+yup(18)))-dconjg(yup(2))*
      -     (yup(18)*yup(19) + yup(10)*yup(27))*yup(31) + yup(10)*(
      -     -(dconjg(yup(1))*(yup(27) + yup(28))*(yup(29) + yup(30))) - 
@@ -679,7 +679,7 @@ c...helicity(11)=(+,-,-,+,-,+)
      -     + yup(25))) + dconjg(yup(9))*(dconjg(yup(13))*yup(13)
      -     *(yup(11) + yup(18)) +yup(10)*(yup(27) + yup(28))*
      -     (yup(29) + yup(30)))))/yup(8)
-	  bfun(3,ii,kk)=(4*pmomup(5,idb1)*pmomup(5,idc1)*(dconjg(yup(1))*
+	bfun(3,ii,kk)=(4*pmomup(5,idb1)*pmomup(5,idc1)*(dconjg(yup(1))*
      -     yup(11)*yup(19)*yup(29) +yup(18)*yup(19)*(dconjg(yup(1))
      -     *yup(29)+yup(25)*yup(31))+yup(16)*(dconjg(yup(1))*(yup(27) 
      -     + yup(28))*(yup(29) + yup(30)) + dconjg(yup(2))*yup(27)*
@@ -690,9 +690,9 @@ c...helicity(11)=(+,-,-,+,-,+)
      -     yup(29)+yup(16)*(-(dconjg(yup(4))*yup(4)*(dconjg(yup(2))
      -     + yup(25))) -dconjg(yup(9))*(yup(27) + yup(28))*
      -     (yup(29) + yup(30)))))/yup(8)
-	  bfun(5,ii,kk)=(-2*dconjg(yup(8))*pmomup(5,idb1)*pmomup(5,idc1)*
+	bfun(5,ii,kk)=(-2*dconjg(yup(8))*pmomup(5,idb1)*pmomup(5,idc1)*
      -     (yup(27) + yup(28))*(yup(29) + yup(30)))/yup(8)
-	  bfun(8,ii,kk)=(-4*pmomup(5,idb1)*pmomup(5,idc1)*(dconjg(yup(4))
+	bfun(8,ii,kk)=(-4*pmomup(5,idb1)*pmomup(5,idc1)*(dconjg(yup(4))
      -     *yup(4)*(yup(12) - yup(18))*(dconjg(yup(2)) + yup(25)) + 
      -     (dconjg(yup(9))*yup(18)*yup(19) + (2*dconjg(yup(8))
      -     *dotup(idc1,idk1)+dconjg(yup(9))*(yup(12) - yup(18)))*
@@ -708,28 +708,28 @@ c...helicity(27)=(-,+,+,-,+,-)
 c...helicity(12)=(+,-,-,+,-,-)
         kk=12
         if(iqqbar.eq.0) then
-	  bfun(1,ii,kk)=(-4*dconjg(yup(10))*pmomup(5,idb1)*pmomup(5,idc1)*
+	bfun(1,ii,kk)=(-4*dconjg(yup(10))*pmomup(5,idb1)*pmomup(5,idc1)*
      -     (-(dconjg(yup(1))*yup(19)*(yup(27)+yup(28))) +dconjg(yup(1)) 
      -     *yup(27)*yup(29) +dconjg(yup(1))*yup(28)*yup(29) + 
-     -     dconjg(yup(1))*yup(27)*yup(30)+dconjg(yup(1))*yup(28)*yup(30) 
+     -     dconjg(yup(1))*yup(27)*yup(30)+dconjg(yup(1))*yup(28)*yup(30)
      -     +dconjg(yup(2))*yup(27)*yup(31) - dconjg(yup(7))*yup(27)*
      -     yup(31) +yup(25)*yup(27)*yup(31)))/xup(2)
         bfun(2,ii,kk)=(4*dconjg(yup(10))*pmomup(5,idb1)*pmomup(5,idc1)*
      -     (dconjg(yup(4))*yup(4)*(dconjg(yup(2))-dconjg(yup(7))
      -     + yup(25)) -dconjg(yup(9))*(yup(27) + yup(28))*(yup(19) -
      -     yup(29) - yup(30))))/xup(2)
-	  bfun(3,ii,kk)=(4*dconjg(yup(16))*pmomup(5,idb1)*pmomup(5,idc1)*
+	bfun(3,ii,kk)=(4*dconjg(yup(16))*pmomup(5,idb1)*pmomup(5,idc1)*
      -     (-(dconjg(yup(1))*yup(19)*(yup(27)+yup(28)))+dconjg(yup(1))* 
      -     yup(27)*yup(29)+dconjg(yup(1))*yup(28)*yup(29)+dconjg(yup(1))
      -     *yup(27)*yup(30)+dconjg(yup(1))*yup(28)*yup(30)+
      -     dconjg(yup(2))*yup(27)*yup(31)-dconjg(yup(7))*yup(27)*yup(31) 
      -     +yup(25)*yup(27)*yup(31)))/xup(2)
-	  bfun(4,ii,kk)=(-4*dconjg(yup(16))*pmomup(5,idb1)*pmomup(5,idc1)*
+	bfun(4,ii,kk)=(-4*dconjg(yup(16))*pmomup(5,idb1)*pmomup(5,idc1)*
      -     (dconjg(yup(4))*yup(4)*(dconjg(yup(2)) - dconjg(yup(7))
      -     + yup(25)) - dconjg(yup(9))*(yup(27) + yup(28))*
      -     (yup(19) - yup(29) - yup(30))))/xup(2)
-	  bfun(5,ii,kk)=0.0d0
-	  bfun(8,ii,kk)=(-4*pmomup(5,idb1)*pmomup(5,idc1)*(dconjg(yup(4))
+	bfun(5,ii,kk)=0.0d0
+	bfun(8,ii,kk)=(-4*pmomup(5,idb1)*pmomup(5,idc1)*(dconjg(yup(4))
      -     *dconjg(yup(10))*dconjg(yup(12))*yup(14) - dconjg(yup(9))
      -     *dconjg(yup(10))*dconjg(yup(14))*yup(14) + (dconjg(yup(4))
      -     *dconjg(yup(12)) -dconjg(yup(9))*dconjg(yup(14)))*
@@ -741,7 +741,7 @@ c...helicity(12)=(+,-,-,+,-,-)
      -     *pmomup(5,idb1)*pmomup(5,idc1)*(dconjg(yup(4))
      -     *yup(4)*(dconjg(yup(2))+yup(25))+dconjg(yup(9))*(yup(27)
      -     + yup(28))*(yup(29) + yup(30))))/xup(2)
-	  bfun(9,ii,kk)=0.0d0
+	bfun(9,ii,kk)=0.0d0
 c...helicity(28)=(-,+,+,-,+,+)
         do mm=1,9
 	   if (mm.ne.6 .and. mm.ne.7) bfun(mm,ii,kk+16)=
@@ -824,7 +824,7 @@ c...helicity(13)=(+,-,-,-,+,+)
      -     (dconjg(inpup(idc1,idk2))*yup(19)*yup(23) + 
      -     dconjg(inpup(idc1,idq0))*yup(16)*(yup(23) + yup(24)))*
      -     yup(34)))/xup(1)
-	  bfun(5,ii,kk)=(-2*dconjg(inpup(idq0,idk2))*pmomup(5,idb1)*yup(9)
+	bfun(5,ii,kk)=(-2*dconjg(inpup(idq0,idk2))*pmomup(5,idb1)*yup(9)
      -     *yup(28)*(yup(29) + yup(30)))/xup(1)
 	  bfun(8,ii,kk)=(-4*pmomup(5,idb1)*yup(9)*(yup(12) - yup(18))*
      -     (yup(23)+yup(24))*(dconjg(inpup(idq0,idk1))*dconjg(yup(4))+ 
@@ -1028,7 +1028,7 @@ c****************************************************************
      -     yup(23)*yup(34) + dconjg(inpup(idq0,idk2))*dconjg(yup(49))
      -     *yup(23)*yup(34) - dconjg(inpup(idc1,idq0))*yup(24)*
      -     yup(34)*yup(60))
-	  bfun(3,ii,kk)=4*pmomup(5,idb1)*(dconjg(yup(8))*dotup(idc1,idc1)*
+	bfun(3,ii,kk)=4*pmomup(5,idb1)*(dconjg(yup(8))*dotup(idc1,idc1)*
      -     (dconjg(inpup(idq0,idk1))*dconjg(yup(2)) + 
      -     dconjg(inpup(idb1,idq0))*(yup(21) + yup(26)))
      -     + dconjg(inpup(idq0,idk2))*(dconjg(yup(2)) + yup(25))*
@@ -1247,7 +1247,7 @@ c...helicity(36)=(+,+,-,+,-,-)
      -     (dconjg(yup(4))*dotup(idb1,idb1) -dconjg(yup(24))*yup(25)) + 
      -     dconjg(yup(9))*dconjg(yup(35))*inpup(idq0,idb1)*
      -     (dconjg(yup(42)) + yup(36)))))/xup(2)
- 	  bfun(5,ii,kk)=(2*dconjg(yup(10))*inpup(idq0,idk1)*pmomup(5,idc1)
+ 	bfun(5,ii,kk)=(2*dconjg(yup(10))*inpup(idq0,idk1)*pmomup(5,idc1)
      -     *(yup(27) + yup(28))*yup(30))/xup(2)
 	  bfun(8,ii,kk)=(-4*pmomup(5,idc1)*(dconjg(yup(9))*
      -     (dconjg(yup(10))*dconjg(yup(24)) -dconjg(yup(14))* 
@@ -1382,7 +1382,7 @@ c****************************************************************
      -     *yup(34)*(yup(46)+yup(50))+dotup(idc1,idc1)*(-(yup(2)*yup(8)
      -     *yup(25)) - dconjg(yup(10))*(yup(8)*yup(16)- yup(2)*(yup(19)
      -     + yup(31)))- dconjg(yup(35))*yup(35)*(yup(46) + yup(50))))
-	  bfun(4,ii,kk)=4*(-(dconjg(inpup(idq0,idk1))**2*dotup(idb1,idb1)*
+	bfun(4,ii,kk)=4*(-(dconjg(inpup(idq0,idk1))**2*dotup(idb1,idb1)*
      -     dotup(idc1,idc1)*inpup(idq0,idk1)*inpup(idq0,idk2)) + 
      -     dotup(idc1,idc1)* (dotup(idb1,idb1)*(dconjg(yup(13))*yup(3)+ 
      -     dconjg(yup(17))*yup(6)) +  dconjg(yup(35))*
@@ -1533,7 +1533,7 @@ c...helicity(40)=(+,+,-,-,-,-)
      -     *inpup(idc2,idk2)*yup(19))*yup(34) - dconjg(yup(16))*
      -     dconjg(yup(35))*(dconjg(inpup(idc1,idb2))*inpup(idc2,idb1)*
      -     yup(34) - dotup(idc1,idc1)*yup(35)))))/xup(2)
- 	  bfun(5,ii,kk)=(2*dconjg(yup(1))*dconjg(yup(10))*yup(27)*yup(30))
+ 	bfun(5,ii,kk)=(2*dconjg(yup(1))*dconjg(yup(10))*yup(27)*yup(30))
      &	  /xup(2)
 	  bfun(8,ii,kk)=(-4*dotup(idc1,idc1)*yup(30)*(dconjg(yup(9))*
      -     dconjg(yup(10))*yup(19) + (dconjg(yup(7))*dconjg(yup(10)) + 
@@ -1574,7 +1574,7 @@ c**********************************************************
      -    ((dotup(idc1,idc1)*yup(17) -dconjg(inpup(idc1,idk2))* 
      -    inpup(idc2,idb1)*yup(34))*yup(59)+(-(dconjg(inpup(idc1,idb2)) 
      -    *inpup(idc2,idb1)*yup(34))+dotup(idc1,idc1)*yup(35))*yup(60))
-	  bfun(3,ii,kk)=4*(dconjg(yup(1))*dconjg(yup(8))*dotup(idb1,idb1)*
+	bfun(3,ii,kk)=4*(dconjg(yup(1))*dconjg(yup(8))*dotup(idb1,idb1)*
      -    yup(9) + dconjg(yup(8))*dconjg(yup(11))*dotup(idb1,idb1)
      -    *yup(18) -dconjg(yup(1))*yup(9)*yup(16)*yup(25) - 
      -    dconjg(yup(11))*yup(16)*yup(18)*yup(25) + 
@@ -1627,7 +1627,7 @@ c...helicity(41)=(+,-,+,+,+,+)
      -     *yup(31)))+dconjg(yup(34))*yup(9)*(dconjg(inpup(idc2,idk2))*
      -     dconjg(inpup(idq0,idk2))*dconjg(yup(13))*inpup(idc1,idb2) - 
      -     dconjg(inpup(idq0,idc2))*yup(10)*(yup(20)+yup(39)))))/xup(1)
-	  bfun(3,ii,kk)=(4*pmomup(5,idb1)*yup(1)*(dconjg(inpup(idb1,idq0))
+	bfun(3,ii,kk)=(4*pmomup(5,idb1)*yup(1)*(dconjg(inpup(idb1,idq0))
      -     *dotup(idc1,idc1)*yup(17)*yup(19) +dconjg(yup(34))*
      -     (dconjg(inpup(idc2,idk2))*yup(19)*yup(20) - 
      -     dconjg(inpup(idq0,idc2))*yup(16)*(yup(20) + yup(39))) + 
@@ -1790,7 +1790,7 @@ c...helicity(43)=(+,-,+,+,-,+)
      -     dconjg(yup(34))*(yup(20) + yup(39)))))/yup(8)
  	  bfun(5,ii,kk)=(-2*dconjg(inpup(idq0,idk2))*dconjg(yup(9))*
      -     pmomup(5,idb1)*yup(28)*(yup(29) + yup(30)))/yup(8)
-	  bfun(8,ii,kk)=(4*dconjg(yup(9))*pmomup(5,idb1)*(dotup(idc1,idc1)
+	bfun(8,ii,kk)=(4*dconjg(yup(9))*pmomup(5,idb1)*(dotup(idc1,idc1)
      -     *(-(dconjg(inpup(idb2,idq0))*yup(13))-dconjg(inpup(idb1,idq0) 
      -     )*yup(17))*yup(19) - dconjg(inpup(idq0,idc2))*
      -     (2*dotup(idc1,idk1)*yup(14)*(yup(29)+yup(30))+(yup(12)-
@@ -1818,7 +1818,7 @@ c...helicity(44)=(+,-,+,+,-,-)
      -     (-(dconjg(inpup(idq0,idk2))*dconjg(yup(18))*
      -     yup(28)) -  dconjg(inpup(idq0,idc2))*dconjg(yup(34))*
      -     (yup(20) + yup(39))))/xup(2)
-	  bfun(4,ii,kk)=(-4*dconjg(yup(9))*dconjg(yup(16))*pmomup(5,idb1)*
+	bfun(4,ii,kk)=(-4*dconjg(yup(9))*dconjg(yup(16))*pmomup(5,idb1)*
      -     (dconjg(inpup(idq0,idc2))*dconjg(inpup(idq0,idk2))
      -     *inpup(idk2,idk1)*yup(4) - dconjg(inpup(idq0,idk2))*
      -     dconjg(yup(18))*yup(28) -dconjg(inpup(idq0,idc2))*
@@ -1859,7 +1859,7 @@ c****************************************************************
      -    yup(39)*yup(60)) +yup(20)*(-(dconjg(inpup(idc2,idk2))*
      -    (dconjg(yup(2)) + dconjg(yup(7))))+ dconjg(inpup(idq0,idk2))
      -    *yup(73))))
-	  bfun(3,ii,kk)=4*pmomup(5,idb1)*(dconjg(yup(8))*dotup(idc1,idc1)*
+	bfun(3,ii,kk)=4*pmomup(5,idb1)*(dconjg(yup(8))*dotup(idc1,idc1)*
      -     (dconjg(inpup(idq0,idk1))*dconjg(yup(2)) + 
      -     dconjg(inpup(idq0,idk2))*dconjg(yup(16)) + 
      -     dconjg(inpup(idb1,idq0))*(yup(21) + yup(26)))
@@ -2264,7 +2264,7 @@ c...helicity(4,2)=(+,+,+,+,-,-)=helicity(4,1)(k_2,k_1)
      -     dconjg(yup(16))*dconjg(yup(34))*yup(34)) +dconjg(yup(16))*
      -     (dconjg(yup(24))*(-(dconjg(yup(34))*yup(20))+yup(4)*yup(25))+ 
      -     dconjg(yup(35))*dotup(idc1,idc1)*yup(35))))/xup(2)
-	  bfun(5,ii,kk)=(2*dconjg(yup(9))*dconjg(yup(10))*yup(28)*yup(30))
+	bfun(5,ii,kk)=(2*dconjg(yup(9))*dconjg(yup(10))*yup(28)*yup(30))
      -	 /xup(2)
 	  bfun(8,ii,kk)=(4*dconjg(yup(9))*(dconjg(yup(12))-
      -     dconjg(yup(18)))*(dconjg(yup(24))*(dconjg(yup(10))
@@ -2311,7 +2311,7 @@ c...helicity(5,2)=(+,+,+,-,+,+)=helicity(5,1)(k_2,k_1)
      -     yup(32))) +dconjg(yup(17))*(-(dconjg(inpup(idk2,idk1))
      -     *yup(22)*yup(31)) +dconjg(inpup(idq0,idk2))*yup(9)*
      -     (yup(22) + yup(32)))))/xup(1)
-	  bfun(5,ii,kk)=(2*dconjg(inpup(idk1,idq0))*pmomup(5,idc1)*yup(16)
+	bfun(5,ii,kk)=(2*dconjg(inpup(idk1,idq0))*pmomup(5,idc1)*yup(16)
      -    *(yup(27) + yup(28))*yup(29))/xup(1)
 	  bfun(8,ii,kk)=(4*pmomup(5,idc1)*(-(dconjg(inpup(idq0,idk2))
      -     *dconjg(yup(14))*yup(9)*(dotup(idb1,idb1)*yup(14) - yup(16)
@@ -2521,10 +2521,10 @@ c...helicity(11,2)=(+,-,-,+,-,+)=helicity(10,1)(k_2,k_1)
      -     yup(9)*(dconjg(yup(3))*yup(3)+dconjg(yup(6))*yup(6)+(yup(27) 
      -     + yup(28))*(yup(19) - yup(29) - yup(30)) - yup(19)*yup(31)
      -     ))/dconjg(yup(8))
-	  bfun(3,ii,kk)=(-4*dconjg(yup(16))*pmomup(5,idb1)*pmomup(5,idc1)*
+	bfun(3,ii,kk)=(-4*dconjg(yup(16))*pmomup(5,idb1)*pmomup(5,idc1)*
      -     yup(1)*(yup(19) - yup(29) - yup(30))*(yup(27) + yup(28)
      -     - yup(31)))/dconjg(yup(8))
-	  bfun(4,ii,kk)=(-4*dconjg(yup(16))*pmomup(5,idb1)*pmomup(5,idc1)*
+	bfun(4,ii,kk)=(-4*dconjg(yup(16))*pmomup(5,idb1)*pmomup(5,idc1)*
      -     yup(9)*(-(dconjg(yup(3))*yup(3)) -dconjg(yup(6))*yup(6) + 
      -     dconjg(inpup(idq0,idk2))*inpup(idq0,idk1)*yup(8) - (yup(27)
      -     + yup(28))*(yup(19) - yup(29) - yup(30))))/dconjg(yup(8))
@@ -2533,7 +2533,7 @@ c...helicity(11,2)=(+,-,-,+,-,+)=helicity(10,1)(k_2,k_1)
      -     (dconjg(yup(14))*(dconjg(yup(10))+dconjg(yup(16)))*yup(14)- 
      -     (dconjg(yup(12)) - dconjg(yup(18)))*(yup(29) + yup(30))*
      -     (yup(27) + yup(28) - yup(31))))/dconjg(yup(8))
-	  bfun(9,ii,kk)=(-4*pmomup(5,idb1)*pmomup(5,idc1)*(dconjg(yup(15))
+	bfun(9,ii,kk)=(-4*pmomup(5,idb1)*pmomup(5,idc1)*(dconjg(yup(15))
      -     *yup(5) + yup(8)*yup(28))*(yup(29) + yup(30)))/dconjg(yup(8))
 c...helicity(27,2)=(-,+,+,-,+,-)
         do mm=1,9
@@ -2559,7 +2559,7 @@ c...helicity(12,2)=(+,-,-,+,-,-)=helicity(12,1)(k_2,k_1)
      -     *yup(27)*yup(30)+dconjg(yup(1))*yup(28)*yup(30)+
      -     dconjg(yup(2))*yup(27)*yup(31)-dconjg(yup(7))*yup(27)*yup(31) 
      -     +yup(25)*yup(27)*yup(31)))/xup(2)
-	  bfun(4,ii,kk)=(-4*dconjg(yup(16))*pmomup(5,idb1)*pmomup(5,idc1)*
+	bfun(4,ii,kk)=(-4*dconjg(yup(16))*pmomup(5,idb1)*pmomup(5,idc1)*
      -     (dconjg(yup(4))*yup(4)*(dconjg(yup(2)) - dconjg(yup(7))
      -     + yup(25)) - dconjg(yup(9))*(yup(27) + yup(28))*
      -     (yup(19) - yup(29) - yup(30))))/xup(2)
@@ -2616,7 +2616,7 @@ c...helicity(13,2)=(+,-,-,-,+,+)=helicity(13,1)(k_2,k_1)
      -     (dconjg(inpup(idc1,idk2))*yup(19)*yup(23) + 
      -     dconjg(inpup(idc1,idq0))*yup(16)*(yup(23) + yup(24)))*
      -     yup(34)))/xup(1)
-	  bfun(5,ii,kk)=(-2*dconjg(inpup(idq0,idk2))*pmomup(5,idb1)*yup(9)
+	bfun(5,ii,kk)=(-2*dconjg(inpup(idq0,idk2))*pmomup(5,idb1)*yup(9)
      -     *yup(28)*(yup(29) + yup(30)))/xup(1)
 	  bfun(8,ii,kk)=(-4*pmomup(5,idb1)*yup(9)*(yup(12) - yup(18))*
      -     (yup(23)+yup(24))*(dconjg(inpup(idq0,idk1))*dconjg(yup(4))+ 
@@ -2663,8 +2663,8 @@ c...helicity(14,2)=(+,-,-,-,+,-)=helicity(15,1)(k_2,k_1)
      -     *yup(18) +2*dconjg(yup(4))*dotup(idc1,idk1)*yup(27)) + 
      -     dconjg(inpup(idc1,idq0))*dconjg(yup(9))*(-yup(12)+yup(18))
      -     *yup(34)))/yup(8)
-	 bfun(9,ii,kk)=(-4*dconjg(inpup(idc1,idq0))*pmomup(5,idb1)*yup(15)
-     -   *(dconjg(yup(2)) + yup(25))*yup(28))/yup(8)
+	bfun(9,ii,kk)=(-4*dconjg(inpup(idc1,idq0))*pmomup(5,idb1)
+     -   *yup(15)*(dconjg(yup(2)) + yup(25))*yup(28))/yup(8)
 c...helicity(30,2)=(-,+,+,+,-,+)
         do mm=1,9
 	   if (mm.ne.6 .and. mm.ne.7) bfun(mm,ii,kk+16)=
@@ -2874,7 +2874,7 @@ c...helicity(36,2)=(+,+,-,+,-,-)=helicity(36,1)(k2,k1)
      -     (dconjg(yup(4))*dotup(idb1,idb1) -dconjg(yup(24))*yup(25)) + 
      -     dconjg(yup(9))*dconjg(yup(35))*inpup(idq0,idb1)*
      -     (dconjg(yup(42)) + yup(36)))))/xup(2)
- 	  bfun(5,ii,kk)=(2*dconjg(yup(10))*inpup(idq0,idk1)*pmomup(5,idc1)
+ 	bfun(5,ii,kk)=(2*dconjg(yup(10))*inpup(idq0,idk1)*pmomup(5,idc1)
      -     *(yup(27) + yup(28))*yup(30))/xup(2)
 	  bfun(8,ii,kk)=(-4*pmomup(5,idc1)*(dconjg(yup(9))*
      -     (dconjg(yup(10))*dconjg(yup(24)) -dconjg(yup(14))* 
@@ -3069,7 +3069,7 @@ c...helicity(40,2)=(+,+,-,-,-,-)=helicity(40,1)(k2,k1)
      -     *inpup(idc2,idk2)*yup(19))*yup(34) - dconjg(yup(16))*
      -     dconjg(yup(35))*(dconjg(inpup(idc1,idb2))*inpup(idc2,idb1)*
      -     yup(34) - dotup(idc1,idc1)*yup(35)))))/xup(2)
- 	  bfun(5,ii,kk)=(2*dconjg(yup(1))*dconjg(yup(10))*yup(27)*yup(30))
+ 	bfun(5,ii,kk)=(2*dconjg(yup(1))*dconjg(yup(10))*yup(27)*yup(30))
      &	  /xup(2)
 	  bfun(8,ii,kk)=(-4*dotup(idc1,idc1)*yup(30)*(dconjg(yup(9))*
      -     dconjg(yup(10))*yup(19) + (dconjg(yup(7))*dconjg(yup(10)) + 
@@ -3105,7 +3105,7 @@ c...helicity(41,2)=(+,-,+,+,+,+)=helicity(41,1)(k2,k1)
      -     *yup(31)))+dconjg(yup(34))*yup(9)*(dconjg(inpup(idc2,idk2))*
      -     dconjg(inpup(idq0,idk2))*dconjg(yup(13))*inpup(idc1,idb2) - 
      -     dconjg(inpup(idq0,idc2))*yup(10)*(yup(20)+yup(39)))))/xup(1)
-	  bfun(3,ii,kk)=(4*pmomup(5,idb1)*yup(1)*(dconjg(inpup(idb1,idq0))
+	bfun(3,ii,kk)=(4*pmomup(5,idb1)*yup(1)*(dconjg(inpup(idb1,idq0))
      -     *dotup(idc1,idc1)*yup(17)*yup(19) +dconjg(yup(34))*
      -     (dconjg(inpup(idc2,idk2))*yup(19)*yup(20) - 
      -     dconjg(inpup(idq0,idc2))*yup(16)*(yup(20) + yup(39))) + 
@@ -3165,7 +3165,7 @@ c...helicity(42,2)=(+,-,+,+,+,-)=helicity(43,1)(k2,k1)
      -     dconjg(yup(34))*(yup(20) + yup(39)))))/yup(8)
  	  bfun(5,ii,kk)=(-2*dconjg(inpup(idq0,idk2))*dconjg(yup(9))*
      -     pmomup(5,idb1)*yup(28)*(yup(29) + yup(30)))/yup(8)
-	  bfun(8,ii,kk)=(4*dconjg(yup(9))*pmomup(5,idb1)*(dotup(idc1,idc1)
+	bfun(8,ii,kk)=(4*dconjg(yup(9))*pmomup(5,idb1)*(dotup(idc1,idc1)
      -     *(-(dconjg(inpup(idb2,idq0))*yup(13))-dconjg(inpup(idb1,idq0) 
      -     )*yup(17))*yup(19) - dconjg(inpup(idq0,idc2))*
      -     (2*dotup(idc1,idk1)*yup(14)*(yup(29)+yup(30))+(yup(12)-
@@ -3228,11 +3228,11 @@ c...helicity(44,2)=(+,-,+,+,-,-)=helicity(44,1)(k2,k1)
      -     dconjg(yup(10))*pmomup(5,idb1)*(yup(4)*(dconjg(yup(2))
      -     - dconjg(yup(7)) +yup(25)) - dconjg(yup(34))*(yup(20) + 
      -     yup(39) - yup(40))))/xup(2)
-	  bfun(3,ii,kk)=(4*dconjg(yup(1))*dconjg(yup(16))*pmomup(5,idb1)*
+	bfun(3,ii,kk)=(4*dconjg(yup(1))*dconjg(yup(16))*pmomup(5,idb1)*
      -     (-(dconjg(inpup(idq0,idk2))*dconjg(yup(18))*
      -     yup(28)) -  dconjg(inpup(idq0,idc2))*dconjg(yup(34))*
      -     (yup(20) + yup(39))))/xup(2)
-	  bfun(4,ii,kk)=(-4*dconjg(yup(9))*dconjg(yup(16))*pmomup(5,idb1)*
+	bfun(4,ii,kk)=(-4*dconjg(yup(9))*dconjg(yup(16))*pmomup(5,idb1)*
      -     (dconjg(inpup(idq0,idc2))*dconjg(inpup(idq0,idk2))
      -     *inpup(idk2,idk1)*yup(4) - dconjg(inpup(idq0,idk2))*
      -     dconjg(yup(18))*yup(28) -dconjg(inpup(idq0,idc2))*
@@ -3628,8 +3628,8 @@ c...helicity(22,3)=(-,-,-,+,-,+)
 
 c...helicity(7,3)=(+,+,+,-,-,+)=helicity(43,1)(q_c1,q_c2,q_b1,q_b2)
         kk=7
-	  if(iqqbar.eq.0) then
-	  bfun(8,ii,kk)=(4*dconjg(yup(9))*pmomup(5,idb1)*(dotup(idc1,idc1)
+	if(iqqbar.eq.0) then
+	bfun(8,ii,kk)=(4*dconjg(yup(9))*pmomup(5,idb1)*(dotup(idc1,idc1)
      -     *(-(dconjg(inpup(idb2,idq0))*yup(13)) - 
      -     dconjg(inpup(idb1,idq0))*yup(17))*yup(19) - 
      -     dconjg(inpup(idq0,idc2))*(2*dotup(idc1,idk1)*yup(14)*
@@ -3774,7 +3774,7 @@ c...helicity(11,3)=(+,-,-,+,-,+)=dconjg(helicity(10,1)(q_c1,q_c2,q_b1,q_b2))
      -     (dconjg(yup(14))*(dconjg(yup(10))+dconjg(yup(16)))*yup(14)- 
      -     (dconjg(yup(12)) - dconjg(yup(18)))*(yup(29) + yup(30))*
      -     (yup(27) + yup(28) - yup(31))))/dconjg(yup(8))
-	  bfun(9,ii,kk)=(-4*pmomup(5,idb1)*pmomup(5,idc1)*(dconjg(yup(15))
+	bfun(9,ii,kk)=(-4*pmomup(5,idb1)*pmomup(5,idc1)*(dconjg(yup(15))
      -     *yup(5)+yup(8)*yup(28))*(yup(29)+yup(30)))/dconjg(yup(8))
         do mm=8,9
 	   bfun(mm,ii,kk)=dconjg(bfun(mm,ii,kk))
@@ -3818,7 +3818,7 @@ c...helicity(28,3)=(-,+,+,-,+,+)
      -     inpup(idb2,idk2)*yup(35) +yup(6)*(-dconjg(yup(54)) + 
      -     yup(67))) +yup(37)*(dconjg(inpup(idc2,idk1))*
      -     inpup(idb2,idk2)*yup(35) +yup(6)*(-yup(45) + yup(68))))
-	  bfun(4,ii,kk)=4*pmomup(5,idb1)*pmomup(5,idc1)*(-((yup(1)+yup(9))
+	bfun(4,ii,kk)=4*pmomup(5,idb1)*pmomup(5,idc1)*(-((yup(1)+yup(9))
      -     *(dconjg(yup(17))*yup(21) +dconjg(yup(13))*yup(38))) - 
      -     yup(8)*(yup(69)*yup(70) + yup(37)*yup(83) + yup(43)*yup(84)
      -     + yup(71)*yup(85)))
@@ -4287,7 +4287,7 @@ c...helicity(56,3)=(-,-,+,+,+,+)
      -     (dconjg(inpup(idc1,idq0))*yup(2) +dconjg(inpup(idc1,idq0)) 
      -     *yup(7)) -dconjg(inpup(idc1,idk1))*inpup(idq0,idk2)*
      -     yup(23) + dconjg(yup(15))*yup(86))))
-	  bfun(4,ii,kk)=4*(-(dconjg(inpup(idq0,idk1))**2*dotup(idb1,idb1)*
+	bfun(4,ii,kk)=4*(-(dconjg(inpup(idq0,idk1))**2*dotup(idb1,idb1)*
      -     dotup(idc1,idc1)*inpup(idq0,idk1)*inpup(idq0,idk2)) + 
      -     dotup(idc1,idc1)* (dotup(idb1,idb1)*(dconjg(yup(13))*yup(3)+ 
      -     dconjg(yup(17))*yup(6)) +  dconjg(yup(35))*
@@ -4639,7 +4639,7 @@ c...helicity(21,4)=(-,-,-,+,-,-)
 
 c...helicity(6,4)=(+,+,+,-,+,-)=helicity(35,1)(q_c1,q_c2,q_b1,q_b2,k_2,k_1)
         kk=6
-	  bfun(8,ii,kk)=(4*dconjg(yup(9))*pmomup(5,idb1)*(dotup(idc1,idc1)
+	bfun(8,ii,kk)=(4*dconjg(yup(9))*pmomup(5,idb1)*(dotup(idc1,idc1)
      -     *(-(dconjg(inpup(idb2,idq0))*yup(13))-dconjg(inpup(idb1,idq0) 
      -     )*yup(17))*yup(19) -dconjg(inpup(idq0,idc2))*(2*
      -     dotup(idc1,idk1)*yup(14)*(yup(29)+yup(30))+(yup(12)-yup(18))*

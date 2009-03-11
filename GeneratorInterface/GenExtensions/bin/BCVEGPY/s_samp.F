@@ -110,13 +110,13 @@ c...the bound state part (\bar{c}+c->bc) together.
 	   fincol(5,jj)=colmat(5,jj)*bundamp(1)+colmat(5,jj+8)*bundamp(2)
      &	  +colmat(5,jj+32)*bundamp(3)+colmat(5,jj+40)*bundamp(4)
 	   if(ioctet.eq.1) then
-	    fincol(6,jj)=colmat(6,jj)*bundamp(1)+colmat(6,jj+8)*bundamp(2)
+	  fincol(6,jj)=colmat(6,jj)*bundamp(1)+colmat(6,jj+8)*bundamp(2)
      &	  +colmat(6,jj+32)*bundamp(3)+colmat(6,jj+40)*bundamp(4)
-	    fincol(7,jj)=colmat(7,jj)*bundamp(1)+colmat(7,jj+8)*bundamp(2)
+	  fincol(7,jj)=colmat(7,jj)*bundamp(1)+colmat(7,jj+8)*bundamp(2)
      &	  +colmat(7,jj+32)*bundamp(3)+colmat(7,jj+40)*bundamp(4)
           fincol(8,jj)=colmat(8,jj)*bundamp(1)+colmat(8,jj+8)*bundamp(2)
      &	  +colmat(8,jj+32)*bundamp(3)+colmat(8,jj+40)*bundamp(4)
-	    fincol(9,jj)=colmat(9,jj)*bundamp(1)+colmat(9,jj+8)*bundamp(2)
+	  fincol(9,jj)=colmat(9,jj)*bundamp(1)+colmat(9,jj+8)*bundamp(2)
      &	  +colmat(9,jj+32)*bundamp(3)+colmat(9,jj+40)*bundamp(4)
 	    fincol(10,jj)=colmat(10,jj)*bundamp(1)+colmat(10,jj+8)
      &	  *bundamp(2)+colmat(10,jj+32)*bundamp(3)+colmat(10,jj+40)*
@@ -126,27 +126,27 @@ c...the bound state part (\bar{c}+c->bc) together.
        end do
 
 	 do jj=17,24
-	  fincol(1,jj-8)=colmat(1,jj)*bundamp(2)+colmat(1,jj+8)*bundamp(1)
+	fincol(1,jj-8)=colmat(1,jj)*bundamp(2)+colmat(1,jj+8)*bundamp(1)
      &	  +colmat(1,jj+32)*bundamp(4)+colmat(1,jj+40)*bundamp(3)
-	  fincol(2,jj-8)=colmat(2,jj)*bundamp(2)+colmat(2,jj+8)*bundamp(1)
+	fincol(2,jj-8)=colmat(2,jj)*bundamp(2)+colmat(2,jj+8)*bundamp(1)
      &	  +colmat(2,jj+32)*bundamp(4)+colmat(2,jj+40)*bundamp(3)
-	  fincol(3,jj-8)=colmat(3,jj)*bundamp(2)+colmat(3,jj+8)*bundamp(1)
+	fincol(3,jj-8)=colmat(3,jj)*bundamp(2)+colmat(3,jj+8)*bundamp(1)
      &	  +colmat(3,jj+32)*bundamp(4)+colmat(3,jj+40)*bundamp(3)
 c2---------
 	  if(iqqbar.eq.0) then
-	  fincol(4,jj-8)=colmat(4,jj)*bundamp(2)+colmat(4,jj+8)*bundamp(1)
+	fincol(4,jj-8)=colmat(4,jj)*bundamp(2)+colmat(4,jj+8)*bundamp(1)
      &	  +colmat(4,jj+32)*bundamp(4)+colmat(4,jj+40)*bundamp(3)
-	  fincol(5,jj-8)=colmat(5,jj)*bundamp(2)+colmat(5,jj+8)*bundamp(1)
+	fincol(5,jj-8)=colmat(5,jj)*bundamp(2)+colmat(5,jj+8)*bundamp(1)
      &	  +colmat(5,jj+32)*bundamp(4)+colmat(5,jj+40)*bundamp(3)
 c---------
 	  if(ioctet.eq.1) then
-	  fincol(6,jj-8)=colmat(6,jj)*bundamp(2)+colmat(6,jj+8)*bundamp(1)
+	fincol(6,jj-8)=colmat(6,jj)*bundamp(2)+colmat(6,jj+8)*bundamp(1)
      &	  +colmat(6,jj+32)*bundamp(4)+colmat(6,jj+40)*bundamp(3)
-	  fincol(7,jj-8)=colmat(7,jj)*bundamp(2)+colmat(7,jj+8)*bundamp(1)
+	fincol(7,jj-8)=colmat(7,jj)*bundamp(2)+colmat(7,jj+8)*bundamp(1)
      &	  +colmat(7,jj+32)*bundamp(4)+colmat(7,jj+40)*bundamp(3)
-	  fincol(8,jj-8)=colmat(8,jj)*bundamp(2)+colmat(8,jj+8)*bundamp(1)
+	fincol(8,jj-8)=colmat(8,jj)*bundamp(2)+colmat(8,jj+8)*bundamp(1)
      &	  +colmat(8,jj+32)*bundamp(4)+colmat(8,jj+40)*bundamp(3)
-	  fincol(9,jj-8)=colmat(9,jj)*bundamp(2)+colmat(9,jj+8)*bundamp(1)
+	fincol(9,jj-8)=colmat(9,jj)*bundamp(2)+colmat(9,jj+8)*bundamp(1)
      &	  +colmat(9,jj+32)*bundamp(4)+colmat(9,jj+40)*bundamp(3)
 	  fincol(10,jj-8)=colmat(10,jj)*bundamp(2)+colmat(10,jj+8)*
      &	  bundamp(1)+colmat(10,jj+32)*bundamp(4)+colmat(10,jj+40)*

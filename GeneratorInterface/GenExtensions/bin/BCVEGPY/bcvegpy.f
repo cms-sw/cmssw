@@ -137,7 +137,7 @@ c...approximate total cross-section.
 c
 	blank  ='    '
 	ncount =0
-	call time(begin_time)
+c	call time(begin_time)
 
 c*******************************************************
 c...there list some typical ways for recording the data.
@@ -152,7 +152,7 @@ c....CALL PYUPEV
 c
 		if (idwtup.eq.1.and.iev.ne.1.and.generate) then
 	        call pylist(7)
-	        call time(end_time)
+c	        call time(end_time)
 	        print *, iev,blank,end_time
 	    end if
 
@@ -194,7 +194,7 @@ c...final right event number distributions. the method 1) is general
 c...one used by experimental, which will spend a long time. so for 
 c...theoretical studies we suggest using method 2) or 3).
 c**********************************************************************
-			  call uppyfill(idwtup,generate,xwgtup,pt,eta,st,y,pseta)
+	call uppyfill(idwtup,generate,xwgtup,pt,eta,st,y,pseta)
 
 			  isub=msti(1)
 	          ncount=ncount+1
@@ -228,7 +228,7 @@ c...close pybook files.
 c      call upclosepyfile
 c***************************************************************
 
-	call time(end_time)
+c	call time(end_time)
 	write(3,'(a,d19.6,a)') 'maximum diff. cross-sec=',crossmax,'pb'
 	write(3,'(i9,3x,a,3x,a)') nev,begin_time,end_time
 

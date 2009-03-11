@@ -468,7 +468,7 @@ c8---------
      -      (dotup(1,2) - dotup(7,1) - dotup(7,2)))*propup(9,1)- 
      -      bfun(8,2,kk)*(propup(7,2) + propup(9,1)))
      &      /dsqrt(dotup(8,6)*dotup(8,7)*dotup(8,4)*dotup(8,5))	 
-	  colmat(3,kk)=(bfun(7,1,kk)*propup(6,1)+bfun(7,4,kk)*propup(6,4)- 
+	colmat(3,kk)=(bfun(7,1,kk)*propup(6,1)+bfun(7,4,kk)*propup(6,4)-
      -      (bfun(1,2,kk) + 2*bfun(5,2,kk)*dotup(5,2))*propup(10,2) + 
      -      (-bfun(1,3,kk) + bfun(3,3,kk) - 2*bfun(5,3,kk)*dotup(6,1))*
      -      propup(10,3) + (bfun(2,4,kk) - bfun(4,4,kk) - 
@@ -485,7 +485,7 @@ c8---------
      -      propup(12,2)) - (bfun(5,1,kk) + bfun(5,2,kk) - 
      -      bfun(9,1,kk) - bfun(9,2,kk))*propup(14,1))
      &      /dsqrt(dotup(8,6)*dotup(8,7)*dotup(8,4)*dotup(8,5))	 
-	   colmat(4,kk)=(bfun(7,2,kk)*propup(6,2)+bfun(7,3,kk)*propup(6,3) 
+	 colmat(4,kk)=(bfun(7,2,kk)*propup(6,2)+bfun(7,3,kk)*propup(6,3) 
      -      -(bfun(1,1,kk) + 2*bfun(5,1,kk)*dotup(5,1))*propup(10,1) + 
      -      (-bfun(1,4,kk) + bfun(3,4,kk) - 2*bfun(5,4,kk)*dotup(6,2))*
      -      propup(10,4) + (bfun(2,3,kk) - bfun(4,3,kk) - 
@@ -499,9 +499,9 @@ c8---------
      -      *propup(12,2)-2*bfun(5,1,kk)*(dotup(4,4)+dotup(4,6)+
      -      dotup(5,1)+dotup(7,1))*propup(12,2)+bfun(3,1,kk)*
      -      (propup(3,1)+propup(10,1)+propup(12,2)) - (bfun(5,1,kk) +
-     -      bfun(5,2,kk) - bfun(9,1,kk) - bfun(9,2,kk))*propup(14,1))
-     &      /dsqrt(dotup(8,6)*dotup(8,7)*dotup(8,4)*dotup(8,5))	 
-		colmat(5,kk)=(-((bfun(6,4,kk) - (bfun(9,3,kk) - bfun(9,4,kk))*
+     -    bfun(5,2,kk) - bfun(9,1,kk) - bfun(9,2,kk))*propup(14,1))
+     +    /dsqrt(dotup(8,6)*dotup(8,7)*dotup(8,4)*dotup(8,5))
+     	  colmat(5,kk)=(-((bfun(6,4,kk) - (bfun(9,3,kk) - bfun(9,4,kk))*
      -      (dotup(1,2) - dotup(6,1) - dotup(6,2)))*propup(8,3)) + 
      -      bfun(6,3,kk)*(propup(5,3) + propup(8,3)) - (bfun(8,2,kk) - 
      -      (4*bfun(5,1,kk)-4*bfun(5,2,kk)+bfun(9,1,kk)-bfun(9,2,kk))*
@@ -576,13 +576,13 @@ c8---------
 
 	if(iqqbar.eq.1) then
 	 do kk=1,64
-	  colmat(1,kk)=(propup(2,1)*bfun(2,1,kk)+propup(1,3)*bfun(1,3,kk)
+	colmat(1,kk)=(propup(2,1)*bfun(2,1,kk)+propup(1,3)*bfun(1,3,kk)
      &       -propup(3,1)*bfun(3,1,kk)-propup(4,3)*bfun(4,3,kk))
      &       /dsqrt(dotup(8,6)*dotup(8,7)*dotup(8,4)*dotup(8,5))
-	  colmat(2,kk)=(propup(1,1)*bfun(1,1,kk)+propup(2,3)*bfun(2,3,kk)
+	colmat(2,kk)=(propup(1,1)*bfun(1,1,kk)+propup(2,3)*bfun(2,3,kk)
      &       +propup(3,1)*bfun(3,1,kk)+propup(4,3)*bfun(4,3,kk))
      &       /dsqrt(dotup(8,6)*dotup(8,7)*dotup(8,4)*dotup(8,5))
-	  colmat(3,kk)=(propup(4,1)*bfun(4,1,kk)+propup(4,3)*bfun(4,3,kk))
+	colmat(3,kk)=(propup(4,1)*bfun(4,1,kk)+propup(4,3)*bfun(4,3,kk))
      &	   /dsqrt(dotup(8,6)*dotup(8,7)*dotup(8,4)*dotup(8,5))
 	 end do
 	end if
