@@ -50,7 +50,8 @@ CachingVertex<5> GsfVertexUpdator::add(const CachingVertex<5> & oldVertex,
   	trackCompIter != ltComponents.end(); trackCompIter++ ) {
       newVertexComponents.push_back(
         createNewComponent(*vertexCompIter, *trackCompIter, trackWeight, +1));
-      if (!newVertexComponents.back().first.isValid()) return CachingVertex<5>(); // return invalid vertex
+	 // return invalid vertex in case one of the updated vertex-components is invalid
+      if (!newVertexComponents.back().first.isValid()) return CachingVertex<5>();
     }
   }
 //   cout << "updator components: "<<newVertexComponents.size()<<endl;
