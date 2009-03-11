@@ -11,3 +11,4 @@ cc these parameters needed not to be interfaced to other program
       common/cmass2/fmc2,fmb2,hbcvm2,hbcm2,hbcm5,hbcm4,hbcm3,fmb3,
      &	fmc3 
       common/dmass/ dhbcvm2,dhbcm2
+      
