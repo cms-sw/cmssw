@@ -629,7 +629,7 @@ bool CaloSD::saveHit(CaloG4Hit* aHit) {
   int tkID;
   bool ok   = true;
   if (m_trackManager) {
-    tkID = m_trackManager->idSavedTrack(aHit->getTrackID());
+    tkID = m_trackManager->giveMotherNeeded(aHit->getTrackID());
     if (tkID == 0) ok = false;
   } else {
     tkID = aHit->getTrackID();
