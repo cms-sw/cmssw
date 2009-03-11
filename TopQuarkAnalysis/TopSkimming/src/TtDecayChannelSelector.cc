@@ -35,17 +35,16 @@ TtDecayChannelSelector::~TtDecayChannelSelector()
 bool
 TtDecayChannelSelector::operator()(const reco::GenParticleCollection& parts, std::string inputType) const
 {
-  int iTop=0,iBeauty=0,iElec=0,iMuon=0,iTau=0;
-  reco::GenParticleCollection::const_iterator top=parts.begin();
   int iLep=0;
-  for(; top!=parts.end(); ++top){
-    if( (inputType=="genParticles" && top->status()==3) && abs((*top).pdgId())==6 ){
+  int iTop=0,iBeauty=0,iElec=0,iMuon=0,iTau=0;
+  for(reco::GenParticleCollection::const_iterator top=parts.begin(); top!=parts.end(); ++top){
+    if( isParticle(top, 6, inputType) ){
       ++iTop;
       reco::GenParticle::const_iterator td=(*top).begin();
       for(; td!=(*top).end(); ++td){
-	if( (inputType=="genParticles" && td->status()==3) && abs((*td).pdgId())==5 )
+	if( isParticle(td, 5, inputType) )
 	  {++iBeauty;}
-	if( (inputType=="genParticles" && td->status()==3) && abs((*td).pdgId())==24 ){
+	if( isParticle(td, 24, inputType) ){
 	  reco::GenParticle::const_iterator wd=(*td).begin();
 	  for(; wd!=(*td).end(); ++wd){
 	    if( abs((*wd).pdgId())==11 ){++iElec;}
@@ -98,6 +97,28 @@ TtDecayChannelSelector::operator()(const reco::GenParticleCollection& parts, std
     edm::LogWarning ( "NoVtbDecay" ) << "Decay is not via Vtb";
   }
   return accept;
+}
+
+bool
+TtDecayChannelSelector::isParticle(reco::GenParticleCollection::const_iterator& part, int pdgId, std::string& inputType) const
+{
+  if(inputType=="genParticles"){
+    return (abs(part->pdgId())==pdgId && part->status()==3) ? true : false;
+  }
+  else{
+    return (abs(part->pdgId())==pdgId) ? true : false;
+  }
+}
+
+bool
+TtDecayChannelSelector::isParticle(reco::GenParticle::const_iterator& part, int pdgId, std::string& inputType) const
+{
+  if(inputType=="genParticles"){
+    return (abs(part->pdgId())==pdgId && part->status()==3) ? true : false;
+  }
+  else{
+    return (abs(part->pdgId())==pdgId) ? true : false;
+  }
 }
 
 unsigned int 

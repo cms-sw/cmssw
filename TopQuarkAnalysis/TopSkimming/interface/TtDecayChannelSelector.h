@@ -28,6 +28,8 @@ class TtDecayChannelSelector {
 
  private:
 
+  bool isParticle(reco::GenParticleCollection::const_iterator& part, int pdgId, std::string& inputType) const;
+  bool isParticle(reco::GenParticle::const_iterator& part, int pdgId, std::string& inputType) const;
   void parseDecayInput(Decay&, Decay&) const;
   void parseTauDecayInput(Decay&) const;
   unsigned int countChargedParticles(const reco::Candidate& part) const;
