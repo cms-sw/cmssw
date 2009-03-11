@@ -10,12 +10,12 @@ process.MessageLogger.cout.threshold = cms.untracked.string('INFO')
 process.MessageLogger.debugModules = cms.untracked.vstring('*')
 
 process.source = cms.Source("DaqSource",
-  readerPluginName = cms.untracked.string("CSCFileReader"),
-  readerPset = cms.untracked.PSet(
-     tfDDUnumber = cms.uint32(0),
-     firstEvent  = cms.uint32(0),
-     RUI01  = cms.untracked.vstring('/tmp/kkotov/66637_.bin_760'),
-     FED760 = cms.untracked.vstring('RUI01')
+    readerPluginName = cms.untracked.string('CSCFileReader'),
+    readerPset = cms.untracked.PSet(
+        firstEvent  = cms.untracked.int32(0),
+        tfDDUnumber = cms.untracked.int32(0),
+        FED760 = cms.untracked.vstring('RUI00'),
+        RUI00  = cms.untracked.vstring('/tmp/kkotov/qwe.raw')
   )
 )
 
