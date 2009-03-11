@@ -17,7 +17,8 @@ conversions = cms.EDProducer("ConvertedPhotonProducer",
     scIslandEndcapProducer = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
     outInTrackSCAssociation = cms.string('outInTrackSCAssociationCollection'),
   #  scIslandEndcapCollection = cms.string(''),
-    conversionOITrackProducer = cms.string('ckfOutInTracksFromConversions')
+    conversionOITrackProducer = cms.string('ckfOutInTracksFromConversions'),
+    AlgorithmName = cms.string('ecalSeeded')                         
 )
 
 
