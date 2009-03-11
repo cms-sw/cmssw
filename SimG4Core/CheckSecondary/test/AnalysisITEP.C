@@ -175,49 +175,54 @@ void AnalyseITEP(char element[2], char list[20], char ene[6], char part[2]="p", 
 	      << " mb (" << ninter << " events)\n";
   }
 
-  if (plot != 'N' && plot != 'n') {
-    gStyle->SetCanvasBorderMode(0); gStyle->SetCanvasColor(kWhite);
-    gStyle->SetPadColor(kWhite);    gStyle->SetFrameBorderMode(0);
-    gStyle->SetFrameBorderSize(1);  gStyle->SetFrameFillColor(0);
-    gStyle->SetFrameFillStyle(0);   gStyle->SetFrameLineColor(1);
-    gStyle->SetFrameLineStyle(1);   gStyle->SetFrameLineWidth(1);
-    gStyle->SetOptLogy(1);          gStyle->SetTitleOffset(1.2,"Y");
+  gStyle->SetCanvasBorderMode(0); gStyle->SetCanvasColor(kWhite);
+  gStyle->SetPadColor(kWhite);    gStyle->SetFrameBorderMode(0);
+  gStyle->SetFrameBorderSize(1);  gStyle->SetFrameFillColor(0);
+  gStyle->SetFrameFillStyle(0);   gStyle->SetFrameLineColor(1);
+  gStyle->SetFrameLineStyle(1);   gStyle->SetFrameLineWidth(1);
+  gStyle->SetOptLogy(1);          gStyle->SetTitleOffset(1.2,"Y");
     
+  sprintf (title, "Kinetic Energy of %s (GeV)", fpart.c_str());
+  hiK0->GetXaxis()->SetTitle(title);
+  hiK1->GetXaxis()->SetTitle(title);
+  hiK2->GetXaxis()->SetTitle(title);
+  if (plot != 'N' && plot != 'n') {
     TCanvas *c1 = new TCanvas("c1","K.E.",800,600); c1->Divide(2,2);
-    sprintf (title, "Kinetic Energy of %s (GeV)", fpart.c_str());
-    hiK0->GetXaxis()->SetTitle(title);
-    hiK1->GetXaxis()->SetTitle(title);
-    hiK2->GetXaxis()->SetTitle(title);
     c1->cd(1); hiK1->Draw(); c1->cd(2); hiK2->Draw(); c1->cd(3); hiK0->Draw();
+  }
+  sprintf (title, "cos (#theta) of scattered %s", fpart.c_str());
+  hiC0->GetXaxis()->SetTitle(title);
+  hiC1->GetXaxis()->SetTitle(title);
+  hiC2->GetXaxis()->SetTitle(title);
+  if (plot != 'N' && plot != 'n') {
     TCanvas *c2 = new TCanvas("c2","cos#theta",800,600); c2->Divide(2,2);
-    sprintf (title, "cos (#theta) of scattered %s", fpart.c_str());
-    hiC0->GetXaxis()->SetTitle(title);
-    hiC1->GetXaxis()->SetTitle(title);
-    hiC2->GetXaxis()->SetTitle(title);
     c2->cd(1); hiC1->Draw(); c2->cd(2); hiC2->Draw(); c2->cd(3); hiC0->Draw();
-    TCanvas *cc[30];
-    TH1F    *hiKE0[30];
-    for (ii=0; ii<angles.size(); ii++) {
-      double xbin = hiKE1[ii]->GetBinWidth(1);
-      sprintf (title, "Kinetic Energy of %s (GeV)", fpart.c_str());
-      hiKE1[ii]->GetXaxis()->SetTitle(title);
-      sprintf (title, "Events/%6.3f GeV", xbin);
-      hiKE1[ii]->GetYaxis()->SetTitle(title);
-      double xbin  = hiKE2[ii]->GetBinWidth(1);
-      double scale = sigmaInel/(((double)(max(inelastic,1)))*xbin*2.*pi*dcth);
-      std::cout << "Bin " << ii << " Angle " << angles[ii]/deg << " Bin " << xbin << " Scale " << scale << " " << title << "\n";
-      sprintf (title, "Kinetic Energy of %s (GeV)", fpart.c_str());
-      hiKE2[ii]->GetXaxis()->SetTitle(title);
-      sprintf (title, "Events (scaled by #frac{1}{p})/%6.3f GeV", xbin);
-      hiKE2[ii]->GetYaxis()->SetTitle(title);
-      sprintf (name, "KE0%s%s%sGeV%5.1f", element, list, ene, angles[ii]/deg);
-      hiKE0[ii] = (TH1F*)hiKE2[ii]->Clone();
-      hiKE0[ii]->SetName(name); hiKE0[ii]->Scale(scale);
-      hiKE0[ii]->GetYaxis()->SetTitle("E#frac{d^{3}#sigma}{dp^{3}} (mb/GeV^{2})");
+  }
+  TCanvas *cc[30];
+  TH1F    *hiKE0[30];
+  for (ii=0; ii<angles.size(); ii++) {
+    double xbin = hiKE1[ii]->GetBinWidth(1);
+    sprintf (title, "Kinetic Energy of %s (GeV)", fpart.c_str());
+    hiKE1[ii]->GetXaxis()->SetTitle(title);
+    sprintf (title, "Events/%6.3f GeV", xbin);
+    hiKE1[ii]->GetYaxis()->SetTitle(title);
+    double xbin  = hiKE2[ii]->GetBinWidth(1);
+    double scale = sigmaInel/(((double)(max(inelastic,1)))*xbin*2.*pi*dcth);
+    std::cout << "Bin " << ii << " Angle " << angles[ii]/deg << " Bin " << xbin << " Scale " << scale << " " << title << "\n";
+    sprintf (title, "Kinetic Energy of %s (GeV)", fpart.c_str());
+    hiKE2[ii]->GetXaxis()->SetTitle(title);
+    sprintf (title, "Events (scaled by #frac{1}{p})/%6.3f GeV", xbin);
+    hiKE2[ii]->GetYaxis()->SetTitle(title);
+    sprintf (name, "KE0%s%s%sGeV%5.1f", element, list, ene, angles[ii]/deg);
+    hiKE0[ii] = (TH1F*)hiKE2[ii]->Clone();
+    hiKE0[ii]->SetName(name); hiKE0[ii]->Scale(scale);
+    hiKE0[ii]->GetYaxis()->SetTitle("E#frac{d^{3}#sigma}{dp^{3}} (mb/GeV^{2})");
       
+    if (plot != 'N' && plot != 'n') {
       sprintf(name, "Canvas%i", ii);
       sprintf (title, "p+%s at %s GeV (%s) (#theta = %8.2f)", element, ene, list, angles[ii]/deg);
       cc[ii] = new TCanvas(name,title,800,600); cc[ii]->Divide(2,2);
+    
       std::cout << "hiKE1: " << hiKE1[ii]->GetName() << " " << hiKE1[ii]->GetEntries() << " " << hiKE1[ii] << "\n";
       cc[ii]->cd(1); hiKE1[ii]->Draw();
       std::cout << "hiKE0: " << hiKE0[ii]->GetName() << " " << hiKE0[ii]->GetEntries() << " " << hiKE0[ii] << "\n";
@@ -225,25 +230,27 @@ void AnalyseITEP(char element[2], char list[20], char ene[6], char part[2]="p", 
       std::cout << "hiKE2: " << hiKE2[ii]->GetName() << " " << hiKE2[ii]->GetEntries() << " " << hiKE2[ii] << "\n";
       cc[ii]->cd(3); hiKE2[ii]->Draw(); 
     }
+  }
     
-    TCanvas *ct[30];
-    TH1F    *hiCT0[30];
-    for (ii=0; ii<energies.size(); ii++) {
-      double xbin = hiCT1[ii]->GetBinWidth(1);
-      sprintf (title, "Events/%6.3f", xbin);
-      hiCT1[ii]->GetXaxis()->SetTitle("cos (#theta)");
-      hiCT1[ii]->GetYaxis()->SetTitle(title);
-      double xbin  = hiCT2[ii]->GetBinWidth(1);
-      double scale = sigmaInel/(((double)(max(inelastic,1)))*xbin*2.*pi*de);
-      std::cout << "Bin " << ii << " KE " << energies[ii] << " GeV Bin " << xbin << " Scale " << scale << " " << title << "\n";
-      sprintf (title, "Events (scaled by #frac{1}{p})/%6.3f", xbin);
-      hiCT2[ii]->GetXaxis()->SetTitle("cos (#theta)");
-      hiCT2[ii]->GetYaxis()->SetTitle(title);
-      sprintf (name, "CT0%s%s%sGeV%4.2f", element, list, ene, energies[ii]);
-      hiCT0[ii] = (TH1F*)hiCT2[ii]->Clone();
-      hiCT0[ii]->SetName(name); hiCT0[ii]->Scale(scale);
-      hiCT0[ii]->GetYaxis()->SetTitle("E#frac{d^{3}#sigma}{dp^{3}} (mb/GeV^{2})");
+  TCanvas *ct[30];
+  TH1F    *hiCT0[30];
+  for (ii=0; ii<energies.size(); ii++) {
+    double xbin = hiCT1[ii]->GetBinWidth(1);
+    sprintf (title, "Events/%6.3f", xbin);
+    hiCT1[ii]->GetXaxis()->SetTitle("cos (#theta)");
+    hiCT1[ii]->GetYaxis()->SetTitle(title);
+    double xbin  = hiCT2[ii]->GetBinWidth(1);
+    double scale = sigmaInel/(((double)(max(inelastic,1)))*xbin*2.*pi*de);
+    std::cout << "Bin " << ii << " KE " << energies[ii] << " GeV Bin " << xbin << " Scale " << scale << " " << title << "\n";
+    sprintf (title, "Events (scaled by #frac{1}{p})/%6.3f", xbin);
+    hiCT2[ii]->GetXaxis()->SetTitle("cos (#theta)");
+    hiCT2[ii]->GetYaxis()->SetTitle(title);
+    sprintf (name, "CT0%s%s%sGeV%4.2f", element, list, ene, energies[ii]);
+    hiCT0[ii] = (TH1F*)hiCT2[ii]->Clone();
+    hiCT0[ii]->SetName(name); hiCT0[ii]->Scale(scale);
+    hiCT0[ii]->GetYaxis()->SetTitle("E#frac{d^{3}#sigma}{dp^{3}} (mb/GeV^{2})");
       
+    if (plot != 'N' && plot != 'n') {
       sprintf(name, "Canvas0%i", ii);
       sprintf (title, "p+%s at %s GeV (%s) (KE = %6.2f GeV)", element, ene, list, energies[ii]);
       ct[ii] = new TCanvas(name,title,800,600); ct[ii]->Divide(2,2);
@@ -254,21 +261,22 @@ void AnalyseITEP(char element[2], char list[20], char ene[6], char part[2]="p", 
       std::cout << "hiCT2: " << hiCT2[ii]->GetName() << " " << hiCT2[ii]->GetEntries() << " " << hiCT2[ii] << "\n";
       ct[ii]->cd(3); hiCT2[ii]->Draw(); 
     }
-
-    char ofile[40];
-    sprintf (ofile, "%s%s%sGeV_%i.root", element, list, ene, scan);
-    TFile f(ofile, "recreate");
-    hiK0->Write(); hiK1->Write(); hiK2->Write();
-    hiC0->Write(); hiC1->Write(); hiC2->Write();
-    for (ii=0; ii<angles.size(); ii++) {
-      hiKE1[ii]->Write(); hiKE0[ii]->Write(); hiKE2[ii]->Write();
-    }
-    for (ii=0; ii<energies.size(); ii++) {
-      hiCT1[ii]->Write(); hiCT0[ii]->Write(); hiCT2[ii]->Write();
-    }
-    f.Close();
-    std::cout << "o/p saved in file " << ofile << "\n";
   }
+
+  char ofile[40];
+  sprintf (ofile, "%s%s%sGeV_%i.root", element, list, ene, scan);
+  TFile f(ofile, "recreate");
+  hiK0->Write(); hiK1->Write(); hiK2->Write();
+  hiC0->Write(); hiC1->Write(); hiC2->Write();
+  for (ii=0; ii<angles.size(); ii++) {
+    hiKE1[ii]->Write(); hiKE0[ii]->Write(); hiKE2[ii]->Write();
+  }
+  for (ii=0; ii<energies.size(); ii++) {
+    hiCT1[ii]->Write(); hiCT0[ii]->Write(); hiCT2[ii]->Write();
+  }
+  f.Close();
+  std::cout << "o/p saved in file " << ofile << "\n";
+
   file->Close();
 }
 
@@ -408,49 +416,53 @@ void AnalyseBNL(char element[2], char list[10], char ene[6], char part[4]="p", c
 	      << " mb (" << ninter << " events)\n";
   }
 
-  if (plot != 'N' && plot != 'n') {
-    gStyle->SetCanvasBorderMode(0); gStyle->SetCanvasColor(kWhite);
-    gStyle->SetPadColor(kWhite);    gStyle->SetFrameBorderMode(0);
-    gStyle->SetFrameBorderSize(1);  gStyle->SetFrameFillColor(0);
-    gStyle->SetFrameFillStyle(0);   gStyle->SetFrameLineColor(1);
-    gStyle->SetFrameLineStyle(1);   gStyle->SetFrameLineWidth(1);
-    gStyle->SetOptLogy(1);          gStyle->SetTitleOffset(1.2,"Y");
+  gStyle->SetCanvasBorderMode(0); gStyle->SetCanvasColor(kWhite);
+  gStyle->SetPadColor(kWhite);    gStyle->SetFrameBorderMode(0);
+  gStyle->SetFrameBorderSize(1);  gStyle->SetFrameFillColor(0);
+  gStyle->SetFrameFillStyle(0);   gStyle->SetFrameLineColor(1);
+  gStyle->SetFrameLineStyle(1);   gStyle->SetFrameLineWidth(1);
+  gStyle->SetOptLogy(1);          gStyle->SetTitleOffset(1.2,"Y");
     
+  sprintf (title, "Reduced Transverse mass of %s (GeV)", fpart.c_str());
+  hiK0->GetXaxis()->SetTitle(title);
+  hiK1->GetXaxis()->SetTitle(title);
+  hiK2->GetXaxis()->SetTitle(title);
+  if (plot != 'N' && plot != 'n') {
     TCanvas *c1 = new TCanvas("c1","Reduced Transverse Mass",800,600); 
     c1->Divide(2,2);
-    sprintf (title, "Reduced Transverse mass of %s (GeV)", fpart.c_str());
-    hiK0->GetXaxis()->SetTitle(title);
-    hiK1->GetXaxis()->SetTitle(title);
-    hiK2->GetXaxis()->SetTitle(title);
     c1->cd(1); hiK1->Draw(); c1->cd(2); hiK2->Draw(); c1->cd(3); hiK0->Draw();
+  }
+  sprintf (title, "cos (#theta) of scattered %s", fpart.c_str());
+  hiC0->GetXaxis()->SetTitle(title);
+  hiC1->GetXaxis()->SetTitle(title);
+  hiC2->GetXaxis()->SetTitle(title);
+  if (plot != 'N' && plot != 'n') {
     TCanvas *c2 = new TCanvas("c2","cos#theta",800,600); c2->Divide(2,2);
-    sprintf (title, "cos (#theta) of scattered %s", fpart.c_str());
-    hiC0->GetXaxis()->SetTitle(title);
-    hiC1->GetXaxis()->SetTitle(title);
-    hiC2->GetXaxis()->SetTitle(title);
     c2->cd(1); hiC1->Draw(); c2->cd(2); hiC2->Draw(); c2->cd(3); hiC0->Draw();
-    TCanvas *cc[30];
-    TH1F    *hiKE0[30];
-    for (ii=0; ii<ymin.size(); ii++) {
-      double xbin = hiKE1[ii]->GetBinWidth(1);
-      sprintf (title, "Reduced Transverse Mass of %s (GeV)", fpart.c_str());
-      hiKE1[ii]->GetXaxis()->SetTitle(title);
-      sprintf (title, "Events/%6.3f GeV", xbin);
-      hiKE1[ii]->GetYaxis()->SetTitle(title);
-      double xbin  = hiKE2[ii]->GetBinWidth(1);
-      double dy    = (ymax[ii]-ymin[ii]);
-      double yv    = 0.5*(ymin[ii]+ymax[ii]);
-      double scale = sigmaInel/(((double)(max(inelastic,1)))*xbin*2.*pi*dy);
-      std::cout << "Bin " << ii << " yv " << yv << " Bin " << xbin << " Scale " << scale << " " << title << "\n";
-      sprintf (title, "Reduced Transverse mass of %s (GeV)", fpart.c_str());
-      hiKE2[ii]->GetXaxis()->SetTitle(title);
-      sprintf (title, "Events (scaled by #frac{1}{mT})/%6.3f GeV",xbin);
-      hiKE2[ii]->GetYaxis()->SetTitle(title);
-      sprintf (name, "KE0%s%s%sGeVy%4.2f", element, list, ene, yv);
-      hiKE0[ii] = (TH1F*)hiKE2[ii]->Clone();
-      hiKE0[ii]->SetName(name); hiKE0[ii]->Scale(scale);
-      hiKE0[ii]->GetYaxis()->SetTitle("E#frac{d^{3}#sigma}{dp^{3}} (mb/GeV^{2})");
+  }
+  TCanvas *cc[30];
+  TH1F    *hiKE0[30];
+  for (ii=0; ii<ymin.size(); ii++) {
+    double xbin = hiKE1[ii]->GetBinWidth(1);
+    sprintf (title, "Reduced Transverse Mass of %s (GeV)", fpart.c_str());
+    hiKE1[ii]->GetXaxis()->SetTitle(title);
+    sprintf (title, "Events/%6.3f GeV", xbin);
+    hiKE1[ii]->GetYaxis()->SetTitle(title);
+    double xbin  = hiKE2[ii]->GetBinWidth(1);
+    double dy    = (ymax[ii]-ymin[ii]);
+    double yv    = 0.5*(ymin[ii]+ymax[ii]);
+    double scale = sigmaInel/(((double)(max(inelastic,1)))*xbin*2.*pi*dy);
+    std::cout << "Bin " << ii << " yv " << yv << " Bin " << xbin << " Scale " << scale << " " << title << "\n";
+    sprintf (title, "Reduced Transverse mass of %s (GeV)", fpart.c_str());
+    hiKE2[ii]->GetXaxis()->SetTitle(title);
+    sprintf (title, "Events (scaled by #frac{1}{mT})/%6.3f GeV",xbin);
+    hiKE2[ii]->GetYaxis()->SetTitle(title);
+    sprintf (name, "KE0%s%s%sGeVy%4.2f", element, list, ene, yv);
+    hiKE0[ii] = (TH1F*)hiKE2[ii]->Clone();
+    hiKE0[ii]->SetName(name); hiKE0[ii]->Scale(scale);
+    hiKE0[ii]->GetYaxis()->SetTitle("E#frac{d^{3}#sigma}{dp^{3}} (mb/GeV^{2})");
       
+    if (plot != 'N' && plot != 'n') {
       sprintf(name, "Canvas%i", ii);
       sprintf (title, "p+%s at %s GeV (%s) (y = %5.2f)", element,ene,list,yv);
       cc[ii] = new TCanvas(name,title,800,600); cc[ii]->Divide(2,2);
@@ -461,18 +473,19 @@ void AnalyseBNL(char element[2], char list[10], char ene[6], char part[4]="p", c
       std::cout << "hiKE2: " << hiKE2[ii]->GetName() << " " << hiKE2[ii]->GetEntries() << " " << hiKE2[ii] << "\n";
       cc[ii]->cd(3); hiKE2[ii]->Draw(); 
     }
-    
-    char ofile[40];
-    sprintf (ofile, "%s%s%sGeV_1.root", element, list, ene);
-    TFile f(ofile, "recreate");
-    hiK0->Write(); hiK1->Write(); hiK2->Write();
-    hiC0->Write(); hiC1->Write(); hiC2->Write();
-    for (ii=0; ii<ymin.size(); ii++) {
-      hiKE1[ii]->Write(); hiKE0[ii]->Write(); hiKE2[ii]->Write();
-    }
-    f.Close();
-    std::cout << "o/p saved in file " << ofile << "\n";
   }
+    
+  char ofile[40];
+  sprintf (ofile, "%s%s%sGeV_1.root", element, list, ene);
+  TFile f(ofile, "recreate");
+  hiK0->Write(); hiK1->Write(); hiK2->Write();
+  hiC0->Write(); hiC1->Write(); hiC2->Write();
+  for (ii=0; ii<ymin.size(); ii++) {
+    hiKE1[ii]->Write(); hiKE0[ii]->Write(); hiKE2[ii]->Write();
+  }
+  f.Close();
+  std::cout << "o/p saved in file " << ofile << "\n";
+
   file->Close();
 }
 
