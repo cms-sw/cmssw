@@ -66,6 +66,9 @@ public:
 
   /** Set parameters
    */
+   
+  void setParameters ( const edm::ParameterSet & );   
+   
   inline void setPtCut(float cut) { theFinder->setPtCut(cut); }
   inline void setTrackCompatibilityCut(float cut) {
     theFinder->setTrackCompatibilityCut(cut);

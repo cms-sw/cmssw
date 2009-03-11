@@ -15,6 +15,15 @@ ConfigurableTrimmedVertexFinder::ConfigurableTrimmedVertexFinder(
   theFilter.setPtCut(1.5);
 }
 
+void ConfigurableTrimmedVertexFinder::setParameters ( const edm::ParameterSet & s )
+{
+  theFilter.setPtCut(s.getParameter<double>("ptCut"));
+  theTrackCompatibilityToPV = s.getParameter<double>("trackCompatibilityToPVcut");
+  theTrackCompatibilityToSV = s.getParameter<double>("trackCompatibilityToSVcut");
+  theVtxFitProbCut = s.getParameter<double>("vtxFitProbCut"); 
+  theMaxNbOfVertices =  s.getParameter<int>("maxNbOfVertices");
+}
+
 
 vector<TransientVertex> ConfigurableTrimmedVertexFinder::vertices(
   const vector<TransientTrack> & tracks) const

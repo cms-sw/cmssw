@@ -13,6 +13,15 @@ KalmanTrimmedVertexFinder::KalmanTrimmedVertexFinder()
   theFinder = new ConfigurableTrimmedVertexFinder (&vf, &vu, &ve);
 }
 
+void KalmanTrimmedVertexFinder::setParameters ( const edm::ParameterSet & s )
+{
+  setPtCut(s.getParameter<double>("ptCut"));
+  setTrackCompatibilityCut(s.getParameter<double>("trackCompatibilityToPVcut"));
+  setTrackCompatibilityToSV(s.getParameter<double>("trackCompatibilityToSVcut"));
+  setVertexFitProbabilityCut(s.getParameter<double>("vtxFitProbCut")); 
+  setMaxNbOfVertices(s.getParameter<int>("maxNbOfVertices"));
+}
+
 
 KalmanTrimmedVertexFinder::~KalmanTrimmedVertexFinder() 
 {

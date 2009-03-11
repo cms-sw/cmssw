@@ -4,6 +4,7 @@
 #include "RecoVertex/VertexPrimitives/interface/VertexReconstructor.h"
 #include "RecoVertex/TrimmedKalmanVertexFinder/interface/TrimmedVertexFinder.h"
 #include "RecoVertex/TrimmedKalmanVertexFinder/interface/TrimmedTrackFilter.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <vector>
 
 /** Algorithm to find a series of distinct vertices among the given set 
@@ -18,7 +19,7 @@
  *    4) reject vertices with a low fit probability. <BR>
  *
  *  This algorithm has 5 parameters that can be set at runtime 
- *  via the corresponding set() methods: <BR>
+ *  via the corresponding set() methods, or a ParameterSet: <BR>
  *   - "ptCut" (default: 1.5 GeV/c) 
  *  which defines the minimum pT of the tracks used to make vertices. 
  *  This value overrides the corresponding configurable parameter 
@@ -75,6 +76,8 @@ public:
 
   /** Set parameters
    */
+  void setParameters ( const edm::ParameterSet & );   
+   
   void setPtCut(float cut) { theFilter.setPtCut(cut); }
   void setTrackCompatibilityCut(float cut) {
     theTrackCompatibilityToPV = cut;
