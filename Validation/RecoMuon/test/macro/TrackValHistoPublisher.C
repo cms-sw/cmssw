@@ -610,10 +610,24 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    delete l;
 
 
- }
- }
+ }  // end of "if CTF"
+ 
+ //// Merge pdf histograms together into larger files, and name them based on the collection names
+ gSystem->Exec("gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=merged.pdf "
+	       +newDir+"/building.pdf "
+	       +newDir+"/hitsAndPt.pdf "
+	       +newDir+"/tuning.pdf "
+	       +newDir+"/pulls.pdf "
+	       +newDir+"/resolutionsEta.pdf "
+	       +newDir+"/resolutionsPt.pdf ");
+ // gSystem->Exec("cp merged.pdf "+newDir+"/../"+myName+".pdf");
+ gSystem->Exec("mv merged.pdf "+newDir+"/../"+myName+".pdf");
+ gSystem->Exec("rm -r "+newDir);
+ 
+ }  // end of "while loop"
  
 }
+
 
 void NormalizeHistograms(TH1F* h1, TH1F* h2)
 {
