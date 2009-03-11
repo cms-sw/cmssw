@@ -5,6 +5,11 @@
 <use name=FWCore/MessageLogger>
 <use name=FWCore/MessageService>
 <use name=Geometry/CaloGeometry>
+
+
+<use name=SimCalorimetry/EcalSimAlgos>
+
+
 <export>
   <lib name=RecoLocalCaloEcalRecAlgos>
   <use name=clhep>
